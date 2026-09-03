@@ -1,0 +1,163 @@
+/* 실린더 인트로 패널 — 3D 인트로 슬롯 위에 겹치는 HTML 오버레이(별·타원·타이틀). CylinderLayout.module.css 에서 분리 (#662). */
+/* ── Intro item (metaItem과 동일한 위치 시스템) ── */
+.introItem {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--spacing-md);
+  max-width: 520px;
+  padding: 0 var(--spacing-xl);
+  transition: opacity 0.3s ease;
+}
+
+/* Intro decorations — stars */
+.introStars {
+  position: absolute;
+  inset: -60px;
+  pointer-events: none;
+}
+
+.introStar {
+  position: absolute;
+  border-radius: var(--radius-circle);
+  background: var(--text-white);
+  opacity: 0;
+  animation: introStarTwinkle 3s ease-in-out infinite;
+}
+
+@keyframes introStarTwinkle {
+  0%,
+  100% {
+    opacity: 0.1;
+    transform: scale(0.8);
+  }
+
+  50% {
+    opacity: 0.6;
+    transform: scale(1.2);
+  }
+}
+
+/* Intro decorations — ovals */
+.introOvalOuter {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 420px;
+  height: 260px;
+  transform: translate(-50%, -50%) rotate(-12deg);
+  border-radius: var(--radius-circle);
+  border: var(--_border-accent-mid);
+  pointer-events: none;
+  animation: introOvalSpin 25s linear infinite;
+}
+
+@keyframes introOvalSpin {
+  to {
+    transform: translate(-50%, -50%) rotate(348deg);
+  }
+}
+
+.introOvalInner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 320px;
+  height: 180px;
+  transform: translate(-50%, -50%) rotate(8deg);
+  border-radius: var(--radius-circle);
+  border: var(--border-accent);
+  pointer-events: none;
+  animation: introOvalSpin 20s linear infinite reverse;
+}
+
+.introOvalInner::after {
+  content: "";
+  position: absolute;
+  top: -3px;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  transform: translateX(-50%);
+  border-radius: var(--radius-circle);
+  background: var(--bg-accent-solid);
+  opacity: 0.7;
+  box-shadow: 0 0 6px var(--color-accent-alpha-50);
+}
+
+.introRule {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.introRuleLine {
+  width: 32px;
+  height: 1px;
+  background: var(--bg-accent-solid);
+  opacity: 0.4;
+}
+
+.introRuleDot {
+  width: 5px;
+  height: 5px;
+  border-radius: var(--radius-circle);
+  background: var(--bg-accent-solid);
+  opacity: 0.6;
+}
+
+.introLabel {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--text-white);
+  opacity: 0.5;
+}
+
+.introTitle {
+  margin: 0;
+  font-family: var(--font-instrument), serif;
+  font-size: clamp(2.5rem, 7vw, 6rem);
+  font-weight: var(--font-weight-light);
+  line-height: var(--line-height-tight);
+  letter-spacing: -0.03em;
+  color: var(--text-white);
+}
+
+.introTagline {
+  font-size: var(--font-size-body-xl);
+  color: var(--text-white);
+  max-width: 480px;
+  line-height: var(--line-height-relaxed);
+  opacity: 0.7;
+}
+
+.introScroll {
+  margin-top: var(--spacing-xl);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
+  letter-spacing: 0.2em;
+  color: var(--text-white);
+  animation: introScrollBounce 2.5s ease-in-out infinite;
+}
+
+@keyframes introScrollBounce {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+
+  50% {
+    transform: translateY(8px);
+    opacity: 1;
+  }
+}
