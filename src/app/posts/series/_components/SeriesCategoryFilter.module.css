@@ -1,0 +1,18 @@
+/* ── 시리즈 카테고리 필터 (SeriesCategoryFilter) — 카테고리 버튼 줄 + 개수 ── */
+
+/* ── 카테고리 필터 ── */
+.categoryRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-3xs);
+  margin-bottom: var(--spacing-lg);
+}
+
+/* 색을 고정하지 않고 버튼에서 물려받는다 — 선택되면 버튼 글자색이 반전되는데,
+   여기서 색을 박아 두면 카운트만 안 따라간다. */
+.categoryCount {
+  font-size: var(--font-size-hint);
+  color: inherit;
+  opacity: 0.6;
+  font-variant-numeric: tabular-nums;
+}
