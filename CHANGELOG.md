@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.53.2](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.1...v1.53.2) (2026-09-03)
+
+
+### Bug Fixes
+
+* **series:** 방문자가 공개 시리즈를 읽도록 series_public_read 정책 복구 ([bcf6f74](https://github.com/hyeoniverse/web-portfolio-oval/commit/bcf6f74b3587b6e16d7763de423661eae51c2d33)), closes [#652](https://github.com/hyeoniverse/web-portfolio-oval/issues/652)
+
 ## [1.53.1](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.0...v1.53.1) (2026-09-02)
 
 
