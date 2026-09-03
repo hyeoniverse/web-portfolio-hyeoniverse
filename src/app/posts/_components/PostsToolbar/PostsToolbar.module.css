@@ -1,0 +1,24 @@
+/* ── 글 목록 툴바 (PostsToolbar) — perPage 그룹. 헤더 골격은 ../SectionHeader.module.css ── */
+
+/* posts sectionHeader 페이지 select 그룹(아이콘 + select) — 가장 오른쪽 (shuffle/sort 와 분리). */
+.pageSizeGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  margin-left: auto;
+}
+.pageSizeIcon {
+  flex-shrink: 0;
+  color: var(--text-tertiary);
+}
+
+.pageSizeSelect {
+  flex: 0 0 auto;
+}
+
+.pageSizeSelect button {
+  /* sortGroup / shuffleBtn 과 동일 통일 높이 */
+  min-height: var(--filter-row-h);
+  padding: 0 var(--spacing-sm);
+  font-size: var(--font-size-hint);
+}

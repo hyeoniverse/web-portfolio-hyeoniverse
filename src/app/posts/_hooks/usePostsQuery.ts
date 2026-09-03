@@ -8,6 +8,9 @@ import type { InitialPostsData } from "@/lib/posts";
 import { usePostsFilters } from "./usePostsFilters";
 import { usePostsSort } from "./usePostsSort";
 
+/** usePostsQuery 반환값 — 툴바 · 필터바 · 빈 상태가 이 하나를 받는다 */
+export type PostsQuery = ReturnType<typeof usePostsQuery>;
+
 /* 글 목록 쿼리 — 필터(usePostsFilters) + 정렬(usePostsSort) + 페이지/perPage 를 합쳐 /api/posts 를 받는다.
    SSR initialData 로 시작하고, 필터·정렬이 바뀌면 debounce 뒤 다시 받으며 page 를 1 로 되돌린다(첫 mount 는 URL ?page= 보존).
    타임라인(무한 스크롤)은 page>1 을 이어붙이고, 그 외는 교체. page 는 URL ?page= 와 동기화한다. */

@@ -64,21 +64,6 @@
   background: transparent;
 }
 
-/* 셔플(랜덤) 버튼 — Button shape="circle" size="sm" + active 회전.
-   옆 SegmentedControl 과 같은 굵기로 보이도록 border 를 light 로 낮춘다.
-
-   클래스를 두 번 적어 (0,2,0) 으로 올린다 — Button 의 `.variant-outline`(border-strong)과
-   특이도가 같으면 어느 쪽이 이길지가 두 CSS 모듈의 번들 순서에 달린다. 순서가 뒤집히면
-   이 버튼만 진한 테두리로 튄다. 같은 파일의 .seriesSegmented 가 쓰는 방법과 같다. */
-.shuffleBtn.shuffleBtn {
-  border: var(--border-light);
-}
-
-.shuffleBtn:active {
-  transform: rotate(180deg);
-  transition: transform 0.3s ease;
-}
-
 
 /* ── Content Area (2-column) ── */
 .contentArea {
@@ -94,175 +79,7 @@
   min-width: 0;
 }
 
-/* ── Posts Label ── */
-.sectionHeader {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--spacing-xs);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-label);
-  font-weight: var(--font-weight-medium);
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-bottom: var(--spacing-md);
-}
-
-/* LayoutGrid icon + 글목록 text 묶음 — 둘 사이 줄바꿈 X */
-.sectionHeaderTitle {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  white-space: nowrap;
-}
-
-/* "글목록" 텍스트만 nowrap — 좁은 모바일에서 두 글자 사이 줄바꿈 방지 */
-.sectionHeaderText {
-  white-space: nowrap;
-}
-
-/* postsLabelMain — LayoutGrid + 글목록text + shuffleBtn + Select 묶음. mobile 에서 width 100% 차지 → sortWrap 만 다음 줄로 자연 wrap */
-.sectionHeaderMain {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-}
-
-/* sortWrap — SegmentedControl (nested 포함) 단위. 슬림하게 — shuffleBtn / pageSizeSelect 와 동일 높이 */
-.sortWrap {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  flex-wrap: nowrap;
-}
-
-/* sortWrap 안 SegmentedControl 의 .group height 통일 + 내부 button 컴팩트 */
-.sortWrap > div {
-  min-height: var(--filter-row-h);
-}
-
-/* 시리즈 SegmentedControl — 기본 border-default 대신 light 로 (영역 약화).
-   SegmentedControl 의 .group 이 box-shadow inset 로 border line 처리하므로 동일 방식으로 override. */
-.seriesSegmented.seriesSegmented {
-  box-shadow: inset 0 0 0 1px var(--border-color-light);
-}
-
-/* SegmentedControl 안 button 만 컴팩트 padding — circle shuffleBtn 은 제외 (가로 padding 이 들어가면 원형 깨짐) */
-.sortWrap button:not(.shuffleBtn) {
-  padding: 0 var(--spacing-md);
-  font-size: var(--font-size-hint);
-}
-
 /* shuffle 이 sortWrap 안으로 들어가 sectionHeaderMain 과 visual 분리 — 별도 margin 불필요 */
-
-/* posts sectionHeader 페이지 select 그룹(아이콘 + select) — 가장 오른쪽 (shuffle/sort 와 분리). */
-.pageSizeGroup {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-  margin-left: auto;
-}
-.pageSizeIcon {
-  flex-shrink: 0;
-  color: var(--text-tertiary);
-}
-
-/* ── Status ── */
-.emptyState {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--spacing-md);
-  padding: var(--spacing-6xl) 0;
-  color: var(--text-tertiary);
-}
-
-.emptyTitle {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-title-sm);
-  color: var(--text-secondary);
-}
-
-/* ── Coming Soon variant — 시리즈 선택 + posts 0개 ──
-   기본 emptyState 보다 살짝 화려한 톤. Sparkles 3 개 클러스터 + 부드러운 pulse / float 애니메이션. */
-.emptyStateComingSoon {
-  gap: var(--spacing-sm);
-}
-
-.comingSoonIconWrap {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 64px;
-  height: 64px;
-  color: var(--text-accent);
-}
-
-.comingSoonIconA,
-.comingSoonIconB,
-.comingSoonIconC {
-  position: absolute;
-}
-
-.comingSoonIconA {
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  animation: comingSoonPulse 2.4s var(--ease-material) infinite;
-}
-
-.comingSoonIconB {
-  top: 4px;
-  right: 6px;
-  opacity: 0.7;
-  animation: comingSoonFloat 3.2s var(--ease-material) infinite;
-}
-
-.comingSoonIconC {
-  bottom: 8px;
-  left: 6px;
-  opacity: 0.55;
-  animation: comingSoonFloat 2.8s var(--ease-material) infinite 0.6s;
-}
-
-@keyframes comingSoonPulse {
-  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-  50% { transform: translate(-50%, -50%) scale(1.12); opacity: 0.85; }
-}
-
-@keyframes comingSoonFloat {
-  0%, 100% { transform: translateY(0) rotate(0); }
-  50% { transform: translateY(-4px) rotate(8deg); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .comingSoonIconA,
-  .comingSoonIconB,
-  .comingSoonIconC {
-    animation: none;
-  }
-}
-
-.comingSoonTitle {
-  margin: 0;
-  font-family: var(--font-instrument);
-  font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-regular);
-  color: var(--text-primary);
-  letter-spacing: 0.02em;
-}
-
-.comingSoonSub {
-  margin: 0;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-body);
-  color: var(--text-tertiary);
-  text-align: center;
-  max-width: 36ch;
-  line-height: var(--line-height-relaxed);
-}
 
 /* 상단 indeterminate progress bar — fetch 시 시각적 신호 (NProgress 패턴) */
 .topProgress {
@@ -307,71 +124,6 @@
   grid-template-columns: 1fr;
 }
 
-/* ── Pagination ── */
-.pagination {
-  position: relative;
-  z-index: 1;
-  margin-top: var(--spacing-3xl);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: var(--spacing-xs);
-}
-
-.pageBtn {
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: var(--border-default);
-  border-radius: var(--radius-circle);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-label);
-  color: var(--text-secondary);
-}
-
-.pagination .pageBtn:hover:not(:disabled):not(.pageBtnActive) {
-  border-color: var(--text-primary);
-  color: var(--text-primary);
-}
-
-.pageBtnActive {
-  background: var(--text-primary);
-  border-color: var(--text-primary);
-  color: var(--bg-primary);
-}
-
-.pagination .pageBtnActive:hover {
-  background: var(--text-primary);
-  color: var(--bg-primary);
-}
-
-.pageBtn:disabled {
-  color: var(--text-tertiary);
-  border-color: var(--border-color-light);
-  opacity: 0.65;
-}
-
-.ellipsis {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-label);
-  color: var(--text-tertiary);
-  padding: 0 var(--spacing-2xs);
-}
-
-.pageSizeSelect {
-  flex: 0 0 auto;
-}
-
-.pageSizeSelect button {
-  /* sortGroup / shuffleBtn 과 동일 통일 높이 */
-  min-height: var(--filter-row-h);
-  padding: 0 var(--spacing-sm);
-  font-size: var(--font-size-hint);
-}
-
 /* ── Responsive ── */
 @media (max-width: 1024px) {
   .contentArea {
@@ -383,14 +135,6 @@
 @media (max-width: 768px) {
   .page {
     padding-top: var(--spacing-5xl);
-  }
-
-  /* 모바일 — title 만 있는 sectionHeaderMain 이 width 100% 차지 → sortWrap / Select 다음 줄 */
-  .sectionHeaderMain {
-    width: 100%;
-  }
-  .sectionHeader .sortWrap {
-    margin-right: auto;
   }
 
 }
