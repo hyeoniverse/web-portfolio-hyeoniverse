@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback, useMemo, useRef, Fragment } from "rea
 import { type CardType, getCardType } from "@/data/postsBentoTemplates";
 import { SEARCH_DEBOUNCE_MS, QUERY_PARAM } from "@/constants";
 import { useSearchParams } from "next/navigation";
-import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLenis } from "@/providers/LenisProvider";
 import { SearchHighlightProvider } from "@/providers/SearchHighlightProvider";
@@ -14,7 +13,7 @@ import type { InitialPostsData } from "@/lib/posts";
 import PostCard from "./_components/PostCard";
 import PostsSubnav from "./_components/PostsSubnav";
 import ScrollButtons from "@/components/ui/ScrollButtons/ScrollButtons";
-import CategoryNav from "./_components/CategoryNav";
+import PostsFilterBar from "./_components/PostsFilterBar/PostsFilterBar";
 import SeriesSection from "./_components/SeriesSection/SeriesSection";
 import PostsBanner from "./_components/PostsBanner/PostsBanner";
 import TagCloud3D from "./_components/TagCloud3D";
@@ -29,8 +28,6 @@ import { useMasonryRowSpans } from "./_hooks/useMasonryRowSpans";
 import { useTimeline } from "./_hooks/useTimeline";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import {
-  ChevronDown,
-  ChevronRight,
   LayoutGrid,
   Shuffle,
   Sparkles,
@@ -46,8 +43,6 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 import T from "@/components/ui/T";
 import Tooltip from "@/components/ui/Tooltip";
 import Select from "@/components/ui/Select";
-import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
-import LetterFilter, { KOREAN_LETTERS, ENGLISH_LETTERS, LETTER_ETC, getLetterInitial } from "@/components/ui/LetterFilter";
 import styles from "./Posts.module.css";
 import Pressable from "@/components/ui/Pressable";
 
@@ -61,7 +56,6 @@ const PAGE_SIZE_OPTIONS = [
 // 그리드는 auto-fit 으로 col 수가 viewport 따라 변동 (각 col 약 220-300px 고정) → wide 도 절대 폭이 일정.
 
 /* 태그 dropdown letter filter — 공통 LetterFilter 컴포넌트 사용 (constants/util import). */
-const TAG_LETTERS = [...KOREAN_LETTERS, ...ENGLISH_LETTERS, LETTER_ETC];
 
 interface PostsClientProps {
   initialData: InitialPostsData;
@@ -208,17 +202,6 @@ export default function PostsClient({ initialData, history = false, archiveMonth
   const [imgErrors, setImgErrors] = useState<Set<string>>(new Set());
   const [popularIds] = useState<Set<string>>(new Set(initialData.popularIds));
   const [showTags, setShowTags] = useState(false);
-  /* 태그 dropdown — 검색창 대신 철자 (ㄱ~ㅎ + A~Z + #) 필터. 상단 main 검색과 중복 회피.
-     activeTagLetters 비어있으면 전체 표시. multiple selection (toggle). */
-  const [activeTagLetters, setActiveTagLetters] = useState<Set<string>>(new Set());
-  const tagRowRef = useRef<HTMLDivElement>(null);
-  // 필터바 태그 목록 — 선택과 무관하게 항상 전체(개수 고정). 무관한 태그끼리도 OR 선택 가능해야 하므로
-  // facet(관련 태그만 남김)으로 좁히지 않음. (facet 은 사이드바 등에서만 사용)
-  const filteredTags = useMemo(() => {
-    const base = allTags.map((t) => ({ tag: t.tag, count: t.count }));
-    if (activeTagLetters.size === 0) return base;
-    return base.filter(({ tag }) => activeTagLetters.has(getLetterInitial(tag)));
-  }, [allTags, activeTagLetters]);
   const [catExpanded, setCatExpanded] = useState(false);
   const [isInitial, setIsInitial] = useState(true);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -249,40 +232,6 @@ export default function PostsClient({ initialData, history = false, archiveMonth
     }
   }, [isStuck, showTags, catExpanded]);
 
-  // 태그 dropdown 닫힐 때 letter 필터 + 스크롤 mask 초기화
-  const [tagScrolled, setTagScrolled] = useState(false);
-  const [tagAtBottom, setTagAtBottom] = useState(false);
-  useEffect(() => {
-    if (!showTags) {
-      setActiveTagLetters(new Set());
-      setTagScrolled(false);
-      setTagAtBottom(false);
-    }
-  }, [showTags]);
-
-  // 태그 dropdown scroll mask + wheel fallback (Lenis 우회)
-  useEffect(() => {
-    if (!showTags) return;
-    const root = tagRowRef.current;
-    if (!root) return;
-    const updateState = () => {
-      setTagScrolled(root.scrollTop > 4);
-      setTagAtBottom(root.scrollTop + root.clientHeight >= root.scrollHeight - 4);
-    };
-    const onWheel = (e: WheelEvent) => {
-      e.stopPropagation();
-      root.scrollTop += e.deltaY;
-      updateState();
-    };
-    root.addEventListener("scroll", updateState, { passive: true });
-    root.addEventListener("wheel", onWheel, { passive: false });
-    updateState();
-    return () => {
-      root.removeEventListener("scroll", updateState);
-      root.removeEventListener("wheel", onWheel);
-    };
-  }, [showTags, filteredTags.length]);
-
   // Cooldown: skip scroll-collapse briefly after expanding tags/categories
   useEffect(() => {
     if (!showTags && !catExpanded) return;
@@ -292,29 +241,6 @@ export default function PostsClient({ initialData, history = false, archiveMonth
     }, 400);
     return () => clearTimeout(id);
   }, [showTags, catExpanded]);
-
-  // (close-on-scroll 제거) 명시적으로 펼친 태그/카테고리를 스크롤만으로 닫지 않음 —
-  // 바깥 클릭(아래) / 토글 버튼 재클릭으로만 닫힘. 펼친 상태에선 filter bar 도 스크롤에 안 숨음.
-
-  // catExpanded / showTags 일 때 filter bar 바깥 클릭 시 닫기 — non-stuck 상태에서도 동작.
-  // (sticky backdrop 은 isStuck 일 때만 렌더되므로 그 외 케이스 보완)
-  useEffect(() => {
-    if (!showTags && !catExpanded) return;
-    const handle = (e: MouseEvent) => {
-      const fb = filterBarRef.current;
-      if (!fb) return;
-      if (!fb.contains(e.target as Node)) {
-        setShowTags(false);
-        setCatExpanded(false);
-      }
-    };
-    // open 트리거 click 자체가 잡히지 않도록 다음 tick 에 등록
-    const t = setTimeout(() => document.addEventListener("mousedown", handle), 0);
-    return () => {
-      clearTimeout(t);
-      document.removeEventListener("mousedown", handle);
-    };
-  }, [showTags, catExpanded, filterBarRef]);
 
   useEffect(() => {
     stop();
@@ -533,155 +459,31 @@ export default function PostsClient({ initialData, history = false, archiveMonth
         )}
       </AnimatePresence>
 
-      {/* ── Filter Bar (Category tabs + Search + Sort) — history 모드에선 숨김 ── */}
+      {/* ── Filter Bar (검색 + 전체태그 토글 + 카테고리 + 태그 패널) — history 모드에선 렌더하지 않음.
+          sticky 판정·백드롭·본문 blur 는 여기(부모)에 남는다: barHidden 은 사이드바도 쓰고 blur 는 contentArea 에 건다. ── */}
       {!history && (
-      <div
-        ref={filterBarRef}
-        className={`${styles.filterBar} ${barHidden && !showTags && !catExpanded ? styles.filterBarHidden : ""}`}
-      >
-        {/* 검색 capsule — 별도 윗줄에 우측 정렬 (공통 SearchCapsule 사용) + 검색 문법 help 버튼 */}
-        <div className={styles.filterBarSearchRow}>
-          <SearchCapsule
-            search={search}
-            onSearchChange={setSearch}
-            placeholder={t("postsPage.searchPlaceholder")}
-            routeParam="q"
-            className={styles.postsSearchCapsule}
-            hasResults={posts.length > 0}
-            size="sm"
-            onSearchOptionsChange={(opts) => setSyntaxMode(opts.syntaxMode)}
-            typeSelector={{
-              value: searchType,
-              options: [
-                { value: "all", label: t("postsPage.searchAll") },
-                { value: "title", label: t("postsPage.searchTitle") },
-                { value: "content", label: t("postsPage.searchContent") },
-              ],
-              onChange: (v) => setSearchType(v as "all" | "title" | "content"),
-            }}
-            syntaxHelp
-          />
-        </div>
-
-        <div className={styles.filterBarTop}>
-          {/* 전체태그 버튼 — start 위치 */}
-          <AnimatePresence>
-            {!catExpanded && (
-              <motion.div
-                className={styles.filterBarLeft}
-                initial={{ opacity: 0, width: 0 }}
-                animate={{ opacity: 1, width: "auto", overflow: "visible" }}
-                exit={{ opacity: 0, width: 0, overflow: "hidden" }}
-                transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
-                style={{ overflow: "hidden" }}
-              >
-                {allTags.length > 0 && (
-                  <Pressable
-                    className={`${styles.tagToggleBtn} ${showTags ? styles.tagToggleBtnOpen : ""}`}
-                    onClick={() => setShowTags((v) => !v)}
-                    data-clickable="true"
-                  >
-                    <T
-                      k="postsPage.tags"
-                      tooltip={t("postsPage.tagsTooltip")}
-                    />
-                    <ChevronDown size={10} />
-                  </Pressable>
-                )}
-
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          <CategoryNav
-            extraCategories={extraCategories}
-            activeCategories={activeCategories}
-            onCategoriesChange={(next) => {
-              setActiveCategories(next);
-              // 카테고리 선택 시 자동으로 닫지 않음 — close 버튼 / filter bar 바깥 클릭 / 스크롤로만 닫힘
-            }}
-            expanded={catExpanded}
-            onExpandChange={(v) => {
-              setCatExpanded(v);
-              if (v) setShowTags(false);
-            }}
-          />
-        </div>
-
-        <AnimatePresence>
-          {showTags && allTags.length > 0 && (
-            <motion.div
-              className={isStuck ? styles.tagDropdown : styles.tagInline}
-              initial={
-                isStuck ? { opacity: 0, y: -8 } : { height: 0, opacity: 0 }
-              }
-              animate={
-                isStuck ? { opacity: 1, y: 0 } : { height: "auto", opacity: 1 }
-              }
-              exit={isStuck ? { opacity: 0, y: -8 } : { height: 0, opacity: 0 }}
-              transition={{
-                height: { duration: 0.35, ease: [0.16, 1, 0.3, 1] },
-                opacity: { duration: 0.25, ease: [0.4, 0, 0.2, 1] },
-                y: { duration: 0.3, ease: [0.16, 1, 0.3, 1] },
-              }}
-            >
-              {/* 상단 헤더 — 철자 필터 (공통 LetterFilter) + 전체 태그 링크.
-                  상단 main 검색과 중복 회피 + 다른 letter filter 위치 (TagsIndex / admin) 와 스타일 통일. */}
-              <div className={styles.tagSearchHeader}>
-                <LetterFilter
-                  letters={TAG_LETTERS}
-                  active={activeTagLetters}
-                  onToggle={(l) => setActiveTagLetters((prev) => {
-                    const next = new Set(prev);
-                    if (next.has(l)) next.delete(l); else next.add(l);
-                    return next;
-                  })}
-                  onClear={() => setActiveTagLetters(new Set())}
-                  hasLetter={(l) => allTags.some(({ tag }) => getLetterInitial(tag) === l)}
-                  className={styles.tagLetterRow}
-                />
-                <Link
-                  href="/posts/tags"
-                  className={styles.tagAllLink}
-                  data-clickable="true"
-                >
-                  <T k="postsPage.tagsAllLink" />
-                  <ChevronRight size={12} aria-hidden />
-                </Link>
-              </div>
-              <div
-                ref={tagRowRef}
-                className={`${styles.tagRow} ${tagScrolled ? styles.tagRowScrolled : ""} ${tagAtBottom ? styles.tagRowAtBottom : ""}`}
-                data-lenis-prevent
-              >
-                <Pressable
-                  className={`${styles.tagBtn} ${activeTags.size === 0 ? styles.tagBtnActive : ""}`}
-                  onClick={clearActiveTags}
-                  data-clickable="true"
-                >
-                  <T k="postsPage.allTags" />
-                </Pressable>
-                {filteredTags.map(({ tag, count }) => (
-                  <Pressable
-                    key={tag}
-                    className={`${styles.tagBtn} ${activeTags.has(tag) ? styles.tagBtnActive : ""}`}
-                    onClick={() => toggleActiveTag(tag)}
-                    data-clickable="true"
-                  >
-                    {tag}
-                    <span className={styles.tagCount}>{count}</span>
-                  </Pressable>
-                ))}
-                {filteredTags.length === 0 && (
-                  <p className={styles.tagAllLoaded}>
-                    — 선택한 철자에 해당하는 태그 없음 —
-                  </p>
-                )}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+        <PostsFilterBar
+          ref={filterBarRef}
+          isStuck={isStuck}
+          barHidden={barHidden}
+          showTags={showTags}
+          onShowTagsChange={setShowTags}
+          catExpanded={catExpanded}
+          onCatExpandedChange={setCatExpanded}
+          search={search}
+          onSearchChange={setSearch}
+          searchType={searchType}
+          onSearchTypeChange={setSearchType}
+          onSyntaxModeChange={setSyntaxMode}
+          hasResults={posts.length > 0}
+          extraCategories={extraCategories}
+          activeCategories={activeCategories}
+          onCategoriesChange={setActiveCategories}
+          allTags={allTags}
+          activeTags={activeTags}
+          onToggleTag={toggleActiveTag}
+          onClearTags={clearActiveTags}
+        />
       )}
 
       {/* ── Content Area (2-column) ── */}
