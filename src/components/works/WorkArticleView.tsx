@@ -25,7 +25,7 @@ import T from "@/components/ui/T";
 import { pickLocalized } from "@/types/common";
 import type { Project } from "@/data/projects";
 import { getBentoClass } from "@/app/works/_utils";
-import styles from "@/app/works/[slug]/WorkDetail.module.css";
+import styles from "./WorkArticleView.module.css";
 
 export type RelatedPostItem = {
   id: string;
