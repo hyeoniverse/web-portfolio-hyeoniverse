@@ -2,8 +2,6 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef, Fragment } from "react";
 import { type CardType, getCardType } from "@/data/postsBentoTemplates";
-import { SEARCH_DEBOUNCE_MS, QUERY_PARAM } from "@/constants";
-import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLenis } from "@/providers/LenisProvider";
 import { SearchHighlightProvider } from "@/providers/SearchHighlightProvider";
@@ -26,6 +24,7 @@ import TimelineIndex from "./_components/TimelineIndex";
 import TimelineMotionItem from "./_components/TimelineMotionItem";
 import { useMasonryRowSpans } from "./_hooks/useMasonryRowSpans";
 import { useTimeline } from "./_hooks/useTimeline";
+import { usePostsQuery } from "./_hooks/usePostsQuery";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import {
   LayoutGrid,
@@ -86,124 +85,25 @@ export default function PostsClient({ initialData, history = false, archiveMonth
             : postsLayout === "timeline" ? styles.gridTimeline
               : postsLayout === "featured" ? styles.gridFeatured
                 : ""; // magazine = base .grid
-  const [posts, setPosts] = useState<Post[]>(initialData.posts);
+  // 글 목록 쿼리 — 필터(검색·카테고리·태그·저자·시리즈) · 정렬 · 페이지 · fetch · URL 동기화
+  const {
+    posts, loading, facetTags, perPage, setPerPage, page, setPage, totalPages,
+    search, setSearch, searchType, setSearchType, syntaxMode, setSyntaxMode,
+    activeCategories, setActiveCategories, activeCategoryKey,
+    activeTags, activeTagsKey, toggleActiveTag, clearActiveTags,
+    activeAuthor, setActiveAuthor, activeSeries, setActiveSeries, toggleActiveSeries, hasActiveFilter,
+    sortBy, sortDir, popularSort, setPopularSort, handleSortChange, shuffle, resetSort,
+  } = usePostsQuery({ initialData, postsLayout, defaultPerPage: siteConf.posts.perPage ?? 10 });
   const [pinnedPosts] = useState<Post[]>(initialData.pinnedPosts);
-  const [loading, setLoading] = useState(false);
-  const [search, setSearch] = useState("");
-  const [searchType, setSearchType] = useState<"all" | "title" | "content">(
-    "all",
-  );
-  const [syntaxMode, setSyntaxMode] = useState<"prefix" | "regex">("prefix");
-  // URL query (?tag=foo,bar / ?category=a,b CSV) 도착 시 초기값 sync — 다중 선택(OR)
-  const urlSearchParams = useSearchParams();
-  const [activeCategories, setActiveCategories] = useState<string[]>(() => {
-    const raw = urlSearchParams?.get(QUERY_PARAM.category);
-    return raw ? raw.split(",").map((c) => c.trim()).filter(Boolean) : [];
-  });
-  const activeCategoryKey = useMemo(
-    () => [...activeCategories].sort().join(","),
-    [activeCategories],
-  );
-  const [activeTags, setActiveTags] = useState<Set<string>>(() => {
-    const raw = urlSearchParams?.get(QUERY_PARAM.tag);
-    return new Set(
-      raw
-        ? raw
-            .split(",")
-            .map((t) => t.trim())
-            .filter(Boolean)
-        : [],
-    );
-  });
-  const activeTagsKey = useMemo(
-    () => Array.from(activeTags).sort().join(","),
-    [activeTags],
-  );
-  const toggleActiveTag = useCallback((tag: string) => {
-    setActiveTags((prev) => {
-      const next = new Set(prev);
-      if (next.has(tag)) next.delete(tag);
-      else next.add(tag);
-      // 모든 태그가 선택되면 = 필터 없음 → 클리어(전체)
-      const all = initialData.allTags;
-      if (all.length > 0 && all.every((t) => next.has(t.tag))) return new Set();
-      return next;
-    });
-  }, [initialData.allTags]);
-  const clearActiveTags = useCallback(() => setActiveTags(new Set()), []);
   const [allTags] = useState(initialData.allTags);
-  // faceted 태그 — 현재 필터(카테고리·태그·시리즈·검색)에 매칭되는 글들의 태그+개수.
-  // /api/posts 응답의 facets 로 갱신 (무필터 초기값은 전체 allTags).
-  const [facetTags, setFacetTags] = useState<{ tag: string; count: number }[]>(
-    () => initialData.allTags.map((t) => ({ tag: t.tag, count: t.count })),
-  );
   const [extraCategories] = useState(initialData.extraCategories);
-  const [sortBy, setSortBy] = useState<"date" | "popular" | "title" | "random" | "author">(
-    "date",
-  );
-  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
   // 작성자 — 2명 이상일 때만 필터/정렬 노출(1명이면 옵션이 무의미). 카드 표시는 무조건.
   const authors = siteConf.authors ?? [];
   const multiAuthor = authors.length >= 2;
-  const [activeAuthor, setActiveAuthor] = useState<string | null>(() => urlSearchParams?.get("author") ?? null);
-  // 타임라인 레이아웃은 월 그룹 마커라 시간순만 유효 — 다른 정렬이면 date 로 강제(마커 깨짐 방지).
-  useEffect(() => {
-    if (postsLayout === "timeline" && sortBy !== "date") setSortBy("date");
-  }, [postsLayout, sortBy]);
-  // popular 그룹 안 세부 메트릭 — 종합 / 조회 / 댓글 / 좋아요
-  const [popularSort, setPopularSort] = useState<
-    "score" | "views" | "comments" | "likes"
-  >("score");
-  const [randomSeed, setRandomSeed] = useState(() =>
-    Math.floor(Math.random() * 1e9),
-  );
-  // API 호환 — sortBy=popular 면 popularSort 메트릭 매핑 (score/views/likes/comments)
-  const sort:
-    | "newest"
-    | "oldest"
-    | "popular"
-    | "title"
-    | "random"
-    | "author"
-    | "views"
-    | "likes"
-    | "comments" =
-    sortBy === "popular"
-      ? popularSort === "score"
-        ? "popular"
-        : popularSort
-      : sortBy === "title"
-        ? "title"
-        : sortBy === "author"
-          ? "author"
-          : sortBy === "random"
-            ? "random"
-            : sortDir === "desc"
-              ? "newest"
-              : "oldest";
-  const [perPage, setPerPage] = useState(siteConf.posts.perPage ?? 10);
-  // /posts?series=<id> 로 진입 시(시리즈 카드 클릭) 해당 시리즈로 초기 필터
-  const [activeSeries, setActiveSeries] = useState<string | null>(() => urlSearchParams?.get(QUERY_PARAM.series) ?? null);
-  // 초기 page 값 URL 의 ?page= 에서 읽음 — 새로고침해도 같은 페이지 유지
-  const [page, setPage] = useState(() => {
-    const p = Number(urlSearchParams?.get(QUERY_PARAM.page));
-    return Number.isFinite(p) && p >= 1 ? p : 1;
-  });
-  const [totalPages, setTotalPages] = useState(initialData.totalPages);
-
-  // page 변경 시 URL 동기화 — replace 로 history 누적 방지. page=1 일 땐 param 제거(깔끔)
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const url = new URL(window.location.href);
-    if (page > 1) url.searchParams.set(QUERY_PARAM.page, String(page));
-    else url.searchParams.delete(QUERY_PARAM.page);
-    window.history.replaceState(null, "", url.toString());
-  }, [page]);
   const [imgErrors, setImgErrors] = useState<Set<string>>(new Set());
   const [popularIds] = useState<Set<string>>(new Set(initialData.popularIds));
   const [showTags, setShowTags] = useState(false);
   const [catExpanded, setCatExpanded] = useState(false);
-  const [isInitial, setIsInitial] = useState(true);
   const contentRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const scrollCooldown = useRef(false);
@@ -257,66 +157,6 @@ export default function PostsClient({ initialData, history = false, archiveMonth
     };
   }, [setInfinite, lenis, stop, start]);
 
-  const fetchAbortRef = useRef<AbortController | null>(null);
-  const fetchPosts = useCallback(async () => {
-    setLoading(true);
-    const params = new URLSearchParams();
-    if (search) {
-      params.set("search", search);
-      params.set("searchType", searchType);
-      params.set("syntaxMode", syntaxMode);
-    }
-    if (activeCategoryKey) params.set(QUERY_PARAM.category, activeCategoryKey);
-    if (activeTagsKey) params.set("tags", activeTagsKey);
-    if (activeSeries) params.set("series_id", activeSeries);
-    if (activeAuthor) params.set("author", activeAuthor);
-    params.set(QUERY_PARAM.sort, sort);
-    params.set("sortDir", sortDir);
-    if (sort === "random") params.set("seed", String(randomSeed));
-    params.set(QUERY_PARAM.page, String(page));
-    params.set(QUERY_PARAM.limit, String(perPage));
-
-    // 이전 pending 요청 cancel — 빠른 sort/필터 변경 시 race condition + 중복 카드 방지
-    fetchAbortRef.current?.abort();
-    const ac = new AbortController();
-    fetchAbortRef.current = ac;
-
-    try {
-      const res = await fetch(`/api/posts?${params}`, { signal: ac.signal });
-      const data = await res.json();
-      // 응답 도착 시점에 이미 새 요청이 시작됐다면 무시 (stale write 방지)
-      if (fetchAbortRef.current !== ac) return;
-      const incoming = (data.posts ?? []) as Post[];
-      // 타임라인(히스토리)은 무한 스크롤 — page>1 이면 이어붙임(중복 id 제거). 그 외엔 교체(페이지네이션).
-      setPosts((prev) => {
-        if (!(postsLayout === "timeline" && page > 1)) return incoming;
-        const seen = new Set(prev.map((p) => p.id));
-        return [...prev, ...incoming.filter((p) => !seen.has(p.id))];
-      });
-      setTotalPages(data.totalPages ?? 1);
-      if (Array.isArray(data.facets)) setFacetTags(data.facets);
-      setLoading(false);
-      fetchAbortRef.current = null;
-    } catch (err) {
-      if ((err as { name?: string }).name === "AbortError") return;
-      setLoading(false);
-    }
-  }, [
-    search,
-    searchType,
-    syntaxMode,
-    activeCategoryKey,
-    activeTagsKey,
-    activeSeries,
-    activeAuthor,
-    sort,
-    sortDir,
-    randomSeed,
-    page,
-    perPage,
-    postsLayout,
-  ]);
-
   // 타임라인(history) — 월 인덱스 · 월 점프 · 무한 스크롤 sentinel · scroll-spy. monthKey/monthLabel 은 그리드 월 마커용.
   const {
     indexGroups: timelineIndexGroups,
@@ -336,37 +176,6 @@ export default function PostsClient({ initialData, history = false, archiveMonth
     setPage,
   });
 
-  // Fetch posts when filters change (skip initial if page=1 — SSR 데이터가 page 1).
-  // URL ?page=N (N>1) 으로 진입 시 SSR 데이터 없으므로 초기 mount 에도 fetch 필요.
-  useEffect(() => {
-    if (isInitial) {
-      setIsInitial(false);
-      // SSR initialData 는 필터 미적용 목록 — URL 로 필터(시리즈/태그)가 걸린 채 진입하면
-      // page 1 이어도 다시 fetch 해야 필터가 반영됨.
-      const hasUrlFilter = !!activeSeries || activeTags.size > 0 || activeCategories.length > 0;
-      if (page === 1 && !hasUrlFilter) return; // SSR 와 동일(무필터 page 1) → 재요청 불필요
-    }
-    setLoading(true);
-    const debounce = setTimeout(fetchPosts, SEARCH_DEBOUNCE_MS);
-    return () => clearTimeout(debounce);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetchPosts, isInitial]);
-
-  // 필터 변경 시 page 리셋 — 단, 첫 mount 는 skip (URL ?page= 으로 초기화된 값 보존)
-  const filterChangeRef = useRef(false);
-  useEffect(() => {
-    if (!filterChangeRef.current) { filterChangeRef.current = true; return; }
-    setPage(1);
-  }, [
-    search,
-    searchType,
-    activeCategoryKey,
-    activeTagsKey,
-    activeSeries,
-    sort,
-    sortDir,
-  ]);
-
   const handleImgError = useCallback((id: string) => {
     setImgErrors((prev) => new Set(prev).add(id));
   }, []);
@@ -374,11 +183,6 @@ export default function PostsClient({ initialData, history = false, archiveMonth
   // Bento masonry row-span — 시리즈 timeline 모드는 flex 레이아웃이라 패스
   useMasonryRowSpans(gridRef, !activeSeries && usesRowSpan, [posts, loading]);
 
-  const handleSeriesClick = useCallback((seriesId: string) => {
-    setActiveSeries((prev) => (prev === seriesId ? null : seriesId));
-  }, []);
-
-  const hasActiveFilter = !!search || activeTags.size > 0 || !!activeSeries || activeCategories.length > 0;
   // banner 는 pinned 글 있으면 항상 표시 (필터/검색/페이지네이션 무관)
   const showBanner = pinnedPosts.length >= 1;
 
@@ -499,7 +303,7 @@ export default function PostsClient({ initialData, history = false, archiveMonth
               activeCategoryKey={activeCategoryKey}
               activeTagsKey={activeTagsKey}
               activeSeries={activeSeries}
-              onSeriesClick={handleSeriesClick}
+              onSeriesClick={toggleActiveSeries}
             />
           )}
 
@@ -550,22 +354,12 @@ export default function PostsClient({ initialData, history = false, archiveMonth
                           ]
                     }
                     value={(postsLayout === "timeline" || sortBy === "random" ? "date" : sortBy) as "date" | "popular" | "title" | "author"}
-                    onChange={(v) => {
-                      if (sortBy === v) {
-                        setSortDir((prev) => (prev === "asc" ? "desc" : "asc"));
-                      } else {
-                        setSortBy(v);
-                        setSortDir(v === "title" || v === "author" ? "asc" : "desc");
-                      }
-                    }}
+                    onChange={handleSortChange}
                     sortDir={sortBy !== "popular" && sortBy !== "random" ? sortDir : undefined}
                     subValue={popularSort}
                     onSubChange={setPopularSort}
                     subVariant="nested"
-                    onBack={() => {
-                      setSortBy("date");
-                      setSortDir("desc");
-                    }}
+                    onBack={resetSort}
                   />
                   {/* 타임라인에선 랜덤 정렬도 무의미 → shuffle 숨김 */}
                   {postsLayout !== "timeline" && (
@@ -582,14 +376,7 @@ export default function PostsClient({ initialData, history = false, archiveMonth
                         shape="circle"
                         size="sm"
                         icon={<Shuffle size={12} />}
-                        onClick={() => {
-                          if (sortBy === "random") {
-                            setRandomSeed(Math.floor(Math.random() * 1e9));
-                          } else {
-                            setSortBy("random");
-                            setRandomSeed(Math.floor(Math.random() * 1e9));
-                          }
-                        }}
+                        onClick={shuffle}
                         aria-label={t("postsPage.sortRandom")}
                         className={styles.shuffleBtn}
                       />
