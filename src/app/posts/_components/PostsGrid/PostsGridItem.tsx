@@ -4,7 +4,7 @@ import { Fragment } from "react";
 import { motion } from "framer-motion";
 import type { Post } from "@/types/post";
 import type { CardType } from "@/data/postsBentoTemplates";
-import PostCard from "../PostCard";
+import PostCard from "../PostCard/PostCard";
 import TimelineMotionItem from "../TimelineMotionItem";
 import type { PostsLayout } from "./PostsGrid";
 import styles from "./PostsGrid.module.css";

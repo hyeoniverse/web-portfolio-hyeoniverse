@@ -1,0 +1,191 @@
+/* ── 컴팩트 카드 (PostCardCompact) — 이미지 없는 텍스트 행(초고밀도 목록). 데스크톱 [lead | meta] 한 줄, 560px 이하 2×2 ── */
+
+/* ══ Compact 레이아웃 카드 — 이미지 없는 텍스트 행(초고밀도 목록) ══ */
+.compactCard {
+  /* grid: [본문 lead | 메타] 별도 트랙 → lead 가 넘쳐도 meta 위로 못 흘러 겹침 구조적 불가.
+     lead 는 minmax(0,1fr) 라 제목이 truncate 되며 줄어듦. */
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-bottom: var(--border-light);
+  border-radius: 0;
+  height: auto;
+  background: transparent;
+  cursor: pointer;
+  overflow: hidden;
+}
+/* hover 배경 하이라이트 — radius 는 그대로 두고(변하지 않게) 배경 tint 만. 행(리스트)이라 플랫 유지. */
+.compactCard:hover {
+  background: var(--bg-tertiary);
+}
+.compactLead {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  min-width: 0;
+  overflow: hidden; /* grid col1 안에서 클립 — 넘쳐도 meta(col2) 침범 안 함 */
+  padding-right: var(--spacing-xs); /* 마지막 칩(lang)이 클립 경계에 딱 붙어 잘리지 않게 버퍼 */
+}
+/* pinned — 아이콘만 accent 색(채움) + 살짝 기울여 꽂힌 느낌 */
+.compactPin {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 15px; /* 핀 없어도 슬롯 공간 예약 → 카테고리 위치 일정 */
+  color: var(--text-accent);
+}
+.compactPin > svg {
+  transform: rotate(45deg); /* 회전은 아이콘만 — 슬롯 박스는 정상 정렬 */
+}
+/* 커버 썸네일 — 제목 앞 작은 정사각 */
+.compactThumb {
+  position: relative;
+  flex-shrink: 0;
+  /* fill 이미지는 컨테이너에 확정 크기가 필요 — stretch+aspect 만 두면 순환으로 0px 붕괴돼 커버가 안 보임.
+     명시적 정사각 크기로 고정 (이모지 18 + 여백). */
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.compactThumbImg {
+  object-fit: cover;
+}
+.compactTitle {
+  flex: 1; /* 남는 공간 채워 마커 우측 정렬. lang 클립은 lead 의 padding-right 버퍼로 방지. */
+  min-width: 0;
+  font-family: var(--font-instrument);
+  font-size: var(--font-size-title-sm);
+  font-weight: var(--font-weight-regular);
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* 카테고리 — 스타일 없는 순수 텍스트라 튀어서, 메타 톤에 맞춘 은은한 uppercase 라벨로 */
+.compactCat {
+  flex-shrink: 0;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-hint);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+/* hot/lang — 항상 렌더되는 고정폭 슬롯(빈 것도 공간 예약 → 행마다 위치 일정) */
+.compactHotSlot {
+  flex-shrink: 0;
+  width: 52px;
+  display: inline-flex;
+  align-items: center;
+}
+.compactLangSlot {
+  flex-shrink: 0;
+  /* lang 은 lead 의 마지막 요소 → 폭 예약 불필요. 칩(KO/EN)에 맞춰 auto.
+     고정폭이면 칩보다 좁을 때 슬롯 안에서 잘림(이전 34px 버그의 원인). */
+  display: inline-flex;
+  align-items: center;
+}
+/* 메타 — 항목별 고정폭 컬럼으로 행마다 세로 정렬(표처럼 일정하게). 우측 정렬. */
+.compactMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  flex-shrink: 0;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-label);
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.compactDate {
+  display: inline-block;
+  min-width: 88px;
+  text-align: left;
+}
+.compactRead {
+  display: inline-block;
+  min-width: 74px;
+  text-align: left;
+}
+
+/* 카드(=본문 열 폭)가 좁으면 날짜·읽기시간 숨겨 lead 넘침/겹침·칩 잘림 방지 (조회·좋아요만 남김).
+   .card 가 container-type: inline-size 라 카드 폭 기준. */
+@container (max-width: 640px) {
+  .compactDate,
+  .compactRead {
+    display: none;
+  }
+}
+/* 모바일 전용 2번째 줄 요소 — 데스크톱은 숨김(lead 안 원본을 그대로 씀). */
+.compactChipsMobile,
+.compactStatsMobile {
+  display: none;
+}
+.compactStatsMobile {
+  align-items: center;
+  gap: var(--spacing-2xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-label);
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* hot/lang 칩 크기 정확히 통일. 원인: hotBadge 는 Flame(12px>텍스트줄) 로 높이가 크고
+   좌우 패딩(sm=12px)도 lang(2xs=4px)보다 큼. → 명시적 동일 높이 + 동일 좌우 패딩 + 아이콘 축소로 맞춤.
+   원래는 `.compactCard .hotBadge` 후손 선택자였는데 칩 CSS 가 다른 모듈이라 칩에 클래스를 붙여 받는다.
+   칩 자신의 padding 과 겹치므로 클래스를 두 번 적어 (0,2,0) — 같은 (0,1,0) 이면 번들 순서가 승자를 정한다. */
+.compactChip.compactChip {
+  height: 17px;
+  box-sizing: border-box;
+  padding: 0 var(--spacing-2xs);
+}
+.compactHotBadge.compactHotBadge {
+  border: 1px solid transparent; /* lang 의 1px border 와 box 폭/높이 계산 동일하게 */
+}
+.compactHotBadge svg {
+  width: 11px;
+  height: 11px;
+}
+
+/* 모바일 — desktop grid([lead | meta]) 를 2×2 로 확장. lead 안 카테고리·hot·lang 숨기고 2줄로.
+   1줄: 핀·썸네일·제목(col1) | 날짜(col2). 2줄: 카테고리·hot·lang(col1) | 조회·좋아요(col2, 날짜와 같은 열). */
+@media (max-width: 560px) {
+  .compactLead > .compactCat,
+  .compactLead > .compactHotSlot,
+  .compactLead > .compactLangSlot {
+    display: none;
+  }
+  .compactDate {
+    display: inline-block;
+  }
+  .compactRead {
+    display: none;
+  }
+  /* meta 줄 통계는 숨기고 2번째 줄(compactStatsMobile) 로. 칩 CSS 가 다른 모듈이라 (0,2,0) 필요 */
+  .compactMetaStat.compactMetaStat {
+    display: none;
+  }
+  .compactChipsMobile {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--spacing-xs);
+    grid-column: 1;
+    min-width: 0;
+    margin-top: var(--spacing-2xs);
+    /* 1줄 제목 시작점과 정렬 — 핀(15) + gap + 썸네일(26) + gap 만큼 좌측 들여쓰기 */
+    padding-left: calc(15px + 26px + var(--spacing-xs) * 2);
+  }
+  .compactStatsMobile {
+    display: inline-flex;
+    grid-column: 2;
+    margin-top: var(--spacing-2xs);
+    white-space: nowrap;
+  }
+}

@@ -1,0 +1,44 @@
+/* ── 카드 칩 (PostCardChips) — HOT 배지 · 언어 칩 · 조회/좋아요 통계. 네 변형(standard · hero · timeline · compact)이 같이 쓴다.
+   클래스 이름의 compact* 는 처음 쓰인 곳에서 온 것 — timeline 도 같은 칩을 쓴다. PostsGrid 의 [class*=] 셀렉터가 이름을 잡고 있어 유지 ── */
+
+/* ── HOT badge ── */
+.hotBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  padding: var(--spacing-3xs) var(--spacing-sm);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-accent-solid);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-micro);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-white);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  line-height: 1.4;
+}
+/* 언어 chip — 인라인(absolute langOverlay 는 메타를 가림). 밝은 행 배경용 subtle 스타일. */
+.compactLang {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  padding: var(--spacing-3xs) var(--spacing-2xs);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-micro);
+  font-weight: var(--font-weight-medium);
+  font-style: italic;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  line-height: 1.4;
+  white-space: nowrap; /* 전체 문구("한국어만 제공")가 한 줄 유지 — auto 슬롯이 폭 맞춰줌 */
+}
+.compactStat {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--spacing-3xs);
+  min-width: 46px;
+}
