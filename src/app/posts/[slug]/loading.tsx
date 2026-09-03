@@ -1,6 +1,6 @@
 import { Skeleton, SkeletonLine } from "@/components/ui/Skeleton";
 import layoutStyles from "@/components/layout/DetailLayout/DetailLayout.module.css";
-import styles from "./PostDetail.module.css";
+import header from "@/components/posts/PostArticleHeader.module.css";
 
 /* DetailLayout (with hero + header) 구조와 1:1 매칭:
    .page > .hero + .headerSection + .contentRow > .content
@@ -13,9 +13,9 @@ export default function PostDetailLoading() {
       <div className={layoutStyles.hero} />
 
       <div className={layoutStyles.headerSection}>
-        <div className={styles.articleHeader}>
-          <div className={styles.metaRow}>
-            <div className={styles.meta}>
+        <div className={header.articleHeader}>
+          <div className={header.metaRow}>
+            <div className={header.meta}>
               <SkeletonLine width={80} height={12} />
               <SkeletonLine width={60} height={12} />
               <SkeletonLine width={50} height={12} />
@@ -32,7 +32,7 @@ export default function PostDetailLoading() {
             <Skeleton width={80} height={24} borderRadius="var(--radius-capsule)" />
             <Skeleton width={50} height={24} borderRadius="var(--radius-capsule)" />
           </div>
-          <div className={styles.headerDivider} />
+          <div className={header.headerDivider} />
         </div>
       </div>
 

@@ -24,6 +24,7 @@ import { useIsAuthenticated } from "@/hooks/useIsAuthenticated";
 import { useLikeToggle } from "@/hooks/useLikeToggle";
 import { ImageIcon, ChevronRight, ArrowLeft, ArrowRight, Languages } from "@/components/icons";
 import styles from "./PostDetail.module.css";
+import header from "@/components/posts/PostArticleHeader.module.css";
 import { resolvePostAuthors } from "@/utils/resolvePostAuthors";
 import Button from "@/components/ui/Button";
 import Pressable from "@/components/ui/Pressable";
@@ -217,7 +218,7 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
       headings={[...headings, { id: "comments", text: t("comments.heading"), level: 1 }]}
       header={
         <motion.div
-          className={styles.articleHeader}
+          className={header.articleHeader}
           /* 페이지 트랜지션으로 진입 시엔 morph 가 hero 만 덮고 fade out 되므로
              articleHeader 가 mount 직후 opacity 0 면 morph 사라진 자리에 빈 영역 노출 →
              skeleton 처럼 보임. 트랜지션 중이면 즉시 visible. 직접 진입은 기존 fade-in 유지. */

@@ -13,6 +13,7 @@ import { useModalStore } from "@/stores/modalStore";
 import { ModalPrompt } from "@/components/ui/ModalTemplates";
 import type { PostFormData } from "@/types/post";
 import styles from "@/app/posts/[slug]/PostDetail.module.css";
+import header from "@/components/posts/PostArticleHeader.module.css";
 import { resolvePostAuthors } from "@/utils/resolvePostAuthors";
 import Pressable from "@/components/ui/Pressable";
 
@@ -188,7 +189,7 @@ export default function PostPreviewPage() {
       heroZoom={form.cover_zoom}
       headings={headings}
       header={
-        <div className={styles.articleHeader}>
+        <div className={header.articleHeader}>
           <PostArticleHeader
             data={articleData}
             viewLang={viewLang}

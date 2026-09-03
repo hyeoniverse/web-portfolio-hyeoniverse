@@ -19,7 +19,9 @@ import TextLink from "@/components/ui/TextLink";
 import Tooltip from "@/components/ui/Tooltip";
 import type { Author } from "@/types/author";
 import { SOCIAL_ICONS } from "@/data/socialIcons";
-import styles from "@/app/posts/[slug]/PostDetail.module.css";
+import header from "./PostArticleHeader.module.css";
+import body from "./PostArticleBody.module.css";
+import footer from "./PostArticleAuthors.module.css";
 import AuthorAvatar from "@/components/ui/AuthorAvatar";
 
 /** URL 에서 표시용 도메인 추출 (www. 제거). 실패하면 원본 반환. */
@@ -95,16 +97,16 @@ export function PostArticleHeader({
 
   return (
     <>
-      <div className={styles.metaRow}>
-        <div className={styles.meta}>
+      <div className={header.metaRow}>
+        <div className={header.meta}>
           <span>{date}</span>
-          <span className={styles.dot}>&middot;</span>
+          <span className={header.dot}>&middot;</span>
           <span>{readTime} <T k="postDetail.minRead" /></span>
-          <span className={styles.dot}>&middot;</span>
+          <span className={header.dot}>&middot;</span>
           <span>{formatCount(data.viewCount)} <T k="postDetail.views" /></span>
           {isAdmin && data.editHref && (
             <>
-              <span className={styles.metaDivider} />
+              <span className={header.metaDivider} />
               <Tooltip content={t("postDetail.editPost")} placement="top" delay={200}>
                 <a
                   href={data.editHref}
@@ -119,7 +121,7 @@ export function PostArticleHeader({
           )}
           {data.viewHref && (
             <>
-              <span className={styles.metaDivider} />
+              <span className={header.metaDivider} />
               <Tooltip content={language === "en" ? "Open published post" : "발행된 글 열기"} placement="top" delay={200}>
                 <a
                   href={data.viewHref}
@@ -145,40 +147,40 @@ export function PostArticleHeader({
           <LanguageToggle lang={viewLang} onLangChange={handleLangChange} />
         </div>
       </div>
-      <h1 className={styles.articleTitle}>{data.displayTitle}</h1>
-      {data.displayExcerpt && <p className={styles.excerpt}>{data.displayExcerpt}</p>}
-      <div className={styles.tagsShareRow}>
+      <h1 className={header.articleTitle}>{data.displayTitle}</h1>
+      {data.displayExcerpt && <p className={header.excerpt}>{data.displayExcerpt}</p>}
+      <div className={header.tagsShareRow}>
         {data.tags.length > 0 && (
-          <div className={styles.tags}>
+          <div className={header.tags}>
             {data.tags.map((tag) => (
-              <Link key={tag} href={`/posts/tags/${encodeURIComponent(tag)}`} className={styles.tag}>
-                <span className={styles.tagHash} aria-hidden>#</span>{tag}
+              <Link key={tag} href={`/posts/tags/${encodeURIComponent(tag)}`} className={header.tag}>
+                <span className={header.tagHash} aria-hidden>#</span>{tag}
               </Link>
             ))}
           </div>
         )}
       </div>
       {data.authors && data.authors.length > 0 && (
-        <div className={styles.authorsCompact}>
+        <div className={header.authorsCompact}>
           {data.authors.map((a) => (
-            <a key={a.id} href="#post-authors" className={styles.authorChip}>
+            <a key={a.id} href="#post-authors" className={header.authorChip}>
               <AuthorAvatar
                 value={a.avatar}
                 name={a.name}
                 size={18}
-                imgClassName={styles.authorChipAvatar}
-                initialClassName={styles.authorChipAvatarFallback}
-                className={styles.authorChipAvatarFallback}
+                imgClassName={header.authorChipAvatar}
+                initialClassName={header.authorChipAvatarFallback}
+                className={header.authorChipAvatarFallback}
               />
-              <span className={styles.authorChipMeta}>
-                <span className={styles.authorChipName}>{a.name}</span>
-                {a.role && <span className={styles.authorChipRole}>{a.role}</span>}
+              <span className={header.authorChipMeta}>
+                <span className={header.authorChipName}>{a.name}</span>
+                {a.role && <span className={header.authorChipRole}>{a.role}</span>}
               </span>
             </a>
           ))}
         </div>
       )}
-      <div className={styles.headerDivider} />
+      <div className={header.headerDivider} />
     </>
   );
 }
@@ -301,11 +303,11 @@ export function PostArticleBody({
   return (
     <div ref={proseViewerRef}>
       {isMarkdown ? (
-        <MarkdownRenderer content={content} className={`${styles.prose} prose-content`} />
+        <MarkdownRenderer content={content} className={`${body.prose} prose-content`} />
       ) : (
         <div
           ref={richtextRef}
-          className={`${styles.prose} prose-content`}
+          className={`${body.prose} prose-content`}
           dangerouslySetInnerHTML={{ __html: processedRichtextHtml }}
         />
       )}
@@ -319,31 +321,31 @@ export function PostArticleAuthors({ authors }: { authors?: Author[] }) {
   const { language } = useLanguage();
   if (!authors || authors.length === 0) return null;
   return (
-    <section id="post-authors" className={styles.authorsFooter}>
-      <h2 className={styles.authorsFooterHeading}>
+    <section id="post-authors" className={footer.authorsFooter}>
+      <h2 className={footer.authorsFooterHeading}>
         {language === "en" ? (authors.length > 1 ? "Authors" : "Author") : "작성자"}
       </h2>
       {authors.map((a) => (
-        <article key={a.id} className={styles.authorFooterCard}>
+        <article key={a.id} className={footer.authorFooterCard}>
           <AuthorAvatar
             value={a.avatar}
             name={a.name}
             size={36}
-            imgClassName={styles.authorFooterAvatar}
-            initialClassName={styles.authorFooterAvatarFallback}
-            className={styles.authorFooterAvatarFallback}
+            imgClassName={footer.authorFooterAvatar}
+            initialClassName={footer.authorFooterAvatarFallback}
+            className={footer.authorFooterAvatarFallback}
           />
-          <div className={styles.authorFooterBody}>
-            <div className={styles.authorFooterNameRow}>
-              <span className={styles.authorFooterName}>{a.name}</span>
-              {a.role && <span className={styles.authorFooterRole}>{a.role}</span>}
+          <div className={footer.authorFooterBody}>
+            <div className={footer.authorFooterNameRow}>
+              <span className={footer.authorFooterName}>{a.name}</span>
+              {a.role && <span className={footer.authorFooterRole}>{a.role}</span>}
             </div>
-            {a.bio && <p className={styles.authorFooterBio}>{a.bio}</p>}
+            {a.bio && <p className={footer.authorFooterBio}>{a.bio}</p>}
             {(a.links.length > 0 || a.email) && (
-              <div className={styles.authorFooterLinks}>
+              <div className={footer.authorFooterLinks}>
                 {a.email && (
                   <TextLink external href={`mailto:${a.email}`}>
-                    <SocialBrandIcon name="email" className={styles.authorFooterLinkIcon} />
+                    <SocialBrandIcon name="email" className={footer.authorFooterLinkIcon} />
                     <span>{a.email}</span>
                   </TextLink>
                 )}
@@ -354,9 +356,9 @@ export function PostArticleAuthors({ authors }: { authors?: Author[] }) {
                     <TextLink key={`${l.url}-${i}`} external href={l.url}>
                       {l.icon ? (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={l.icon} alt="" className={styles.authorFooterLinkIcon} />
+                        <img src={l.icon} alt="" className={footer.authorFooterLinkIcon} />
                       ) : brand ? (
-                        <SocialBrandIcon name={l.platform} className={styles.authorFooterLinkIcon} />
+                        <SocialBrandIcon name={l.platform} className={footer.authorFooterLinkIcon} />
                       ) : null}
                       <span>{label}</span>
                     </TextLink>
