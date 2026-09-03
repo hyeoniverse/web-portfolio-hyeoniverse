@@ -1,0 +1,33 @@
+/* ── 카드 작성자 칩 (PostCardAuthor) — 아바타(이미지 · 이모지 · 머리글자) + 이름 ── */
+
+/* ── 카드 작성자(byline) — 아바타 + 이름. 메타 줄에 인라인. ── */
+.metaAuthor {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  min-width: 0;
+  color: var(--text-secondary);
+}
+.metaAuthorAvatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  border-radius: var(--radius-circle);
+  background-color: var(--bg-secondary);
+  background-size: cover;
+  background-position: center;
+  color: var(--text-tertiary);
+  font-size: 0.62em;
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  line-height: 1;
+}
+.metaAuthorName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 14ch;
+}

@@ -1,27 +1,23 @@
 "use client";
 
-import { useRef, useState, useLayoutEffect } from "react";
+import { useState, useRef, useLayoutEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import ProgressiveImage from "@/components/ui/ProgressiveImage";
-import { useLanguage } from "@/providers/LanguageProvider";
-import { usePageTransition } from "@/providers/PageTransitionProvider";
-import { resolvePostAuthors } from "@/utils/resolvePostAuthors";
-import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import type { Post } from "@/types/post";
-import { formatPostTitle, getPostExcerpt } from "@/utils/post";
 import { formatCount } from "@/utils/format";
 import CategoryLabel from "@/components/ui/CategoryLabel";
 import HighlightedText from "@/components/ui/HighlightedText";
 import T from "@/components/ui/T";
-import { Flame, Pin, Eye, Heart, PinIcon } from "@/components/icons";
+import { Pin, Eye, Heart } from "@/components/icons";
 import { getFallbackCoverGradient } from "@/lib/coverFallback";
+import { usePostCard } from "./usePostCard";
+import PostCardAuthor from "./PostCardAuthor";
+import { HotBadge } from "./PostCardChips";
 import styles from "./PostCard.module.css";
-import { isImageAvatar } from "@/components/ui/AuthorAvatar";
 import { EmojiIcon } from "@/components/ui/EmojiPicker/EmojiIcon";
 import Pressable from "@/components/ui/Pressable";
 
-interface PostCardProps {
+export interface PostCardVariantProps {
   post: Post;
   variant?: "featured" | "standard" | "hero";
   /** 시리즈 필터링 등 — 카드 높이를 축소 (이미지 16:9 + body 슬림) */
@@ -39,7 +35,7 @@ interface PostCardProps {
   imgError?: boolean;
 }
 
-export default function PostCard({
+export default function PostCardStandard({
   post,
   variant = "standard",
   compact,
@@ -50,20 +46,13 @@ export default function PostCard({
   isHot,
   onImgError,
   imgError,
-}: PostCardProps) {
-  const { language, t } = useLanguage();
-  const date = new Date(post.created_at).toLocaleDateString(
-    language === "ko" ? "ko-KR" : "en-US",
-    { year: "numeric", month: "short", day: "numeric" },
-  );
-
-  const readTime = Math.max(1, Math.ceil(post.content.length / 1000));
+}: PostCardVariantProps) {
+  const {
+    t, cardRef, date, readTime, showImage, category, author, langBadge,
+    displayTitle, displayExcerpt, icon, handleClick, handlePrefetch,
+  } = usePostCard({ post, imgError });
   const isFeatured = variant === "featured";
   const isHero = variant === "hero";
-  const showImage = post.cover_image && !imgError;
-  const { navigateWithTransition } = usePageTransition();
-  const router = useRouter();
-  const cardRef = useRef<HTMLDivElement>(null);
   const [tagsExpanded, setTagsExpanded] = useState(false);
   const [tagsOverflow, setTagsOverflow] = useState(false);
   const tagsRef = useRef<HTMLDivElement>(null);
@@ -102,50 +91,6 @@ export default function PostCard({
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
-  const category = post.category || null;
-  // 작성자 — author_ids 를 site.config authors 로 해석. 미할당이면 소유자로 돌아간다.
-  const siteConf = useSiteConfig();
-  const author = resolvePostAuthors(siteConf?.authors, post.author_ids)[0] ?? null;
-  const authorEl = author ? (
-    <span className={styles.metaAuthor} title={author.name}>
-      {/* 아바타는 이미지 URL 일 수도, 이모지·아이콘일 수도 있다. 배경 이미지로 그리면
-          이모지가 깨진 URL 이 되므로 판별을 AuthorAvatar 와 같은 규칙으로 맞춘다. */}
-      <span
-        className={styles.metaAuthorAvatar}
-        style={isImageAvatar(author.avatar) ? { backgroundImage: `url(${author.avatar})` } : undefined}
-        aria-hidden
-      >
-        {!isImageAvatar(author.avatar) && (
-          author.avatar
-            ? <EmojiIcon value={author.avatar} size={14} />
-            : author.name.charAt(0)
-        )}
-      </span>
-      <span className={styles.metaAuthorName}>{author.name}</span>
-    </span>
-  ) : null;
-  const prefetchedRef = useRef(false);
-  /* hover 시 다음 페이지 chunk 를 미리 로딩 — 클릭 후 navigate 가 즉시 mount 되도록.
-   * dev 모드에선 prefetch 가 compile 미완료된 route 를 건드려 "Failed to fetch RSC payload"
-   * 후 hard reload fallback 을 유발하는 케이스가 있어 production 에서만 작동. */
-  const handlePrefetch = () => {
-    if (prefetchedRef.current) return;
-    if (process.env.NODE_ENV !== "production") return;
-    prefetchedRef.current = true;
-    router.prefetch(`/posts/${post.slug}`);
-  };
-
-  // 언어 단독 여부 판단 — 없는 언어는 있는 쪽으로 강제
-  const hasKo = !!post.content;
-  const hasEn = !!post.content_en;
-  const displayLang: "ko" | "en" =
-    !hasEn ? "ko" : !hasKo ? "en" : language;
-  const langBadge: "koOnly" | "enOnly" | null =
-    !hasEn ? "koOnly" : !hasKo ? "enOnly" : null;
-
-  const displayTitle = formatPostTitle(post, displayLang);
-  const displayExcerpt = getPostExcerpt(post, displayLang);
-  const icon = post.icon;
 
   const cardClass = [
     styles.card,
@@ -157,141 +102,6 @@ export default function PostCard({
     square && styles.square,
     portrait && styles.portrait,
   ].filter(Boolean).join(" ");
-
-  const handleClick = () => {
-    const el = cardRef.current;
-    if (!el) return;
-    const img = post.cover_image || "";
-    const rect = el.getBoundingClientRect();
-    navigateWithTransition(`/posts/${post.slug}`, img, rect);
-  };
-
-  /* ── Timeline 레이아웃: 블로그식 히스토리 — 축 점 왼쪽에 날짜, 오른쪽에 제목·발췌·메타 ── */
-  if (layout === "timeline") {
-    const d = new Date(post.created_at);
-    const TL_MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
-    const eyebrowDate = `${TL_MONTHS[d.getMonth()]} ${String(d.getDate()).padStart(2, "0")}, ${d.getFullYear()}`;
-    return (
-      <div
-        ref={cardRef}
-        className={`${styles.card} ${styles.timelineCard}`}
-        onClick={handleClick}
-        onMouseEnter={handlePrefetch}
-        onFocus={handlePrefetch}
-        role="link"
-        data-more="true"
-        data-clickable="true"
-      >
-        {/* eyebrow — 날짜(accent) · 카테고리 · pinned · hot */}
-        <div className={styles.timelineEyebrow}>
-          <time className={styles.timelineDate} dateTime={post.created_at}>{eyebrowDate}</time>
-          {category && (
-            <>
-              <span className={styles.timelineEyebrowSep} aria-hidden />
-              <span className={styles.timelineCat}><CategoryLabel category={category} /></span>
-            </>
-          )}
-          {langBadge && (
-            <>
-              <span className={styles.timelineEyebrowSep} aria-hidden />
-              <span className={styles.compactLang}><T k={`postDetail.${langBadge}`} /></span>
-            </>
-          )}
-          {isHot && (
-            <span className={styles.hotBadge}><Flame size={11} fill="currentColor" stroke="none" />HOT</span>
-          )}
-        </div>
-        <h3 className={styles.timelineTitle}>
-          {post.is_pinned && (
-            <span className={styles.timelinePinInline} aria-label="Pinned">
-              {/* lucide Pin 기반 — 바늘 길게, CSS 로 기울임. 제목 텍스트에 인라인(글자처럼) */}
-              <PinIcon />
-            </span>
-          )}
-          <HighlightedText text={displayTitle} />
-        </h3>
-        {/* 반대편 빈 공간 프리뷰 — 데스크톱은 hover 시 썸네일+desc, 모바일은 인라인 상시 표시 */}
-        {(displayExcerpt || showImage || icon) && (
-          <div className={styles.timelinePreview}>
-            {(showImage || icon) && (
-              <div className={`${styles.timelinePreviewThumb} ${icon ? styles.timelinePreviewThumbEmoji : ""}`}>
-                {icon ? <EmojiIcon value={icon} size={34} /> : (
-                  <ProgressiveImage src={post.cover_image} alt="" fill sizes="140px" className={styles.timelinePreviewThumbImg} onError={() => onImgError?.(post.id)} />
-                )}
-              </div>
-            )}
-            {displayExcerpt && <p className={styles.timelinePreviewExcerpt}><HighlightedText text={displayExcerpt} /></p>}
-          </div>
-        )}
-        <div className={styles.timelineMeta}>
-          {authorEl}
-          {authorEl && <span className={styles.timelineSep} aria-hidden>·</span>}
-          <span>{readTime} {t("postDetail.minRead")}</span>
-          <span className={styles.timelineSep} aria-hidden>·</span>
-          <span className={styles.compactStat}><Eye size={11} strokeWidth={1.75} />{formatCount(post.view_count ?? 0)}</span>
-          <span className={styles.compactStat}><Heart size={11} strokeWidth={1.75} />{formatCount(post.like_count ?? 0)}</span>
-        </div>
-      </div>
-    );
-  }
-
-  /* ── Compact 레이아웃: 이미지 없이 텍스트 행 (초고밀도 목록) ── */
-  if (layout === "compact") {
-    return (
-      <div
-        ref={cardRef}
-        className={`${styles.card} ${styles.compactCard}`}
-        onClick={handleClick}
-        onMouseEnter={handlePrefetch}
-        onFocus={handlePrefetch}
-        role="link"
-        data-more="true"
-        data-clickable="true"
-      >
-        {/* 데스크톱: lead(pin·카테고리·썸네일·제목·hot·lang) 한 줄 + meta. 모바일선 media query 로
-            2줄 분해 (1줄: 썸네일·제목·meta / 2줄: 카테고리·hot·lang). DOM 은 desktop 기준 유지. */}
-        <div className={styles.compactLead}>
-          <span className={styles.compactPin} aria-label={post.is_pinned ? "Pinned" : undefined}>
-            {post.is_pinned && (
-              /* lucide Pin 기반 + 바늘(line) 더 길게 (viewBox 세로 확장으로 안 잘리게) */
-              <PinIcon height={15} />
-            )}
-          </span>
-          {category && <span className={styles.compactCat}><CategoryLabel category={category} /></span>}
-          <span className={styles.compactThumb}>
-            {icon ? <EmojiIcon value={icon} size={18} /> : showImage ? (
-              <ProgressiveImage src={post.cover_image} alt="" fill sizes="24px" className={styles.compactThumbImg} onError={() => onImgError?.(post.id)} />
-            ) : null}
-          </span>
-          <h3 className={styles.compactTitle}><HighlightedText text={displayTitle} /></h3>
-          <span className={styles.compactHotSlot}>
-            {isHot && <span className={styles.hotBadge}><Flame size={15} fill="currentColor" stroke="none" />HOT</span>}
-          </span>
-          <span className={styles.compactLangSlot}>
-            {langBadge && <span className={styles.compactLang}><T k={`postDetail.${langBadge}`} /></span>}
-          </span>
-        </div>
-        <div className={styles.compactMeta}>
-          {authorEl}
-          <span className={styles.compactDate}>{date}</span>
-          <span className={styles.compactRead}>{readTime} {t("postDetail.minRead")}</span>
-          <span className={styles.compactStat}><Eye size={11} strokeWidth={1.75} />{formatCount(post.view_count ?? 0)}</span>
-          <span className={styles.compactStat}><Heart size={11} strokeWidth={1.75} />{formatCount(post.like_count ?? 0)}</span>
-        </div>
-        {/* 모바일 전용 2번째 줄 — grid 2×2 (col1: 카테고리·hot·lang / col2: 조회·좋아요, 1줄 날짜와 같은 열).
-            데스크톱은 둘 다 display:none. */}
-        <div className={styles.compactChipsMobile}>
-          {category && <span className={styles.compactCat}><CategoryLabel category={category} /></span>}
-          {isHot && <span className={styles.hotBadge}><Flame size={15} fill="currentColor" stroke="none" />HOT</span>}
-          {langBadge && <span className={styles.compactLang}><T k={`postDetail.${langBadge}`} /></span>}
-        </div>
-        <div className={styles.compactStatsMobile}>
-          <span className={styles.compactStat}><Eye size={11} strokeWidth={1.75} />{formatCount(post.view_count ?? 0)}</span>
-          <span className={styles.compactStat}><Heart size={11} strokeWidth={1.75} />{formatCount(post.like_count ?? 0)}</span>
-        </div>
-      </div>
-    );
-  }
 
   /* ── Hero variant: 풀 블리드 이미지 + 하단 오버레이 ── */
   if (isHero) {
@@ -320,10 +130,7 @@ export default function PostCard({
 
         {/* HOT 뱃지 */}
         {isHot && (
-          <span className={styles.hotBadge}>
-            <Flame size={10} fill="currentColor" stroke="none" />
-            HOT
-          </span>
+          <HotBadge />
         )}
 
         {/* 하단 콘텐츠 */}
@@ -342,7 +149,7 @@ export default function PostCard({
           <h2 className={styles.heroTitle}><HighlightedText text={displayTitle} /></h2>
           {displayExcerpt && <p className={styles.heroExcerpt}><HighlightedText text={displayExcerpt} /></p>}
           <div className={styles.heroMeta}>
-            {authorEl && <span className={styles.metaGroup}>{authorEl}</span>}
+            {author && <span className={styles.metaGroup}><PostCardAuthor author={author} /></span>}
             <span className={styles.metaGroup}>
               <span>{date}</span>
               <span className={styles.heroDot}>&middot;</span>
@@ -404,10 +211,7 @@ export default function PostCard({
                     <span className={styles.placeholderIcon}><EmojiIcon value={icon} size={24} /></span>
                   )}
                   {isHot && (
-                    <span className={styles.hotBadge}>
-                      <Flame size={10} fill="currentColor" stroke="none" />
-                      HOT
-                    </span>
+                    <HotBadge />
                   )}
                   {post.is_pinned && (
                     <span className={styles.pinnedOverlay}>
@@ -431,10 +235,7 @@ export default function PostCard({
         {showImage && (isHot || post.is_pinned) && (
           <div className={styles.imageBadgesLeft}>
             {isHot && (
-              <span className={styles.hotBadge}>
-                <Flame size={10} fill="currentColor" stroke="none" />
-                HOT
-              </span>
+              <HotBadge />
             )}
             {post.is_pinned && (
               <span className={styles.pinnedOverlay}>
@@ -495,7 +296,7 @@ export default function PostCard({
         )}
 
         <div ref={metaRef} className={styles.meta} data-meta-wrapped={metaWrapped || undefined}>
-          {authorEl && <span className={styles.metaGroup}>{authorEl}</span>}
+          {author && <span className={styles.metaGroup}><PostCardAuthor author={author} /></span>}
           <span className={styles.metaGroup}>
             <span>{date}</span>
             <span className={styles.dot}>&middot;</span>
