@@ -9,7 +9,10 @@ import DetailLayout, { type TocHeading } from "@/components/layout/DetailLayout"
 import { extractHeadings } from "../_utils";
 import { useIsAuthenticated } from "@/hooks/useIsAuthenticated";
 import { useLikeToggle } from "@/hooks/useLikeToggle";
-import { WorkArticleHeader, WorkArticleBody, WorkArticleTeam, type RelatedPostItem, type RelatedSeriesItem } from "@/components/works/WorkArticleView";
+import { WorkArticleHeader } from "@/components/works/WorkArticleHeader";
+import { WorkArticleBody } from "@/components/works/WorkArticleBody";
+import { WorkArticleTeam } from "@/components/works/WorkArticleTeam";
+import type { RelatedPostItem, RelatedSeriesItem } from "@/components/works/workArticleTypes";
 import styles from "./WorkDetail.module.css";
 
 interface WorkDetailClientProps {

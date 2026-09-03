@@ -1,6 +1,6 @@
 import { Skeleton, SkeletonLine } from "@/components/ui/Skeleton";
 import layoutStyles from "@/components/layout/DetailLayout/DetailLayout.module.css";
-import styles from "@/components/works/WorkArticleView.module.css";
+import styles from "@/components/works/WorkArticleHeader.module.css";
 
 export default function WorkDetailLoading() {
   return (
