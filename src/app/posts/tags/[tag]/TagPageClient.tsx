@@ -9,7 +9,7 @@ import type { Post } from "@/types/post";
 import type { TagPageData, AllTagsData } from "@/lib/posts";
 import { useLenis } from "@/providers/LenisProvider";
 import { useStickyFilterBar } from "@/hooks/useStickyFilterBar";
-import PostCard from "../../_components/PostCard";
+import PostCard from "../../_components/PostCard/PostCard";
 import TagPageToolbar, { type TagSort } from "./_components/TagPageToolbar";
 import RelatedTagsPanel from "./_components/RelatedTagsPanel";
 import TagWorksSection from "./_components/TagWorksSection";
