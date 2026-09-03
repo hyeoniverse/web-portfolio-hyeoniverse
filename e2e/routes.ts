@@ -1,4 +1,14 @@
 /** 스모크 e2e 대상 라우트. 리팩토링 슬라이스를 시작할 때 해당 도메인 라우트가 여기 있는지 먼저 확인한다. */
+export type VisibleCheck = {
+  selector: string;
+  label: string;
+  /**
+   * 이 폭 이상에서만 검사한다. 반응형으로 마크업 자체가 달라지는 경우용 —
+   * about 은 모바일에서 탭 하나만 마운트해 나머지 패널이 DOM 에 아예 없다.
+   */
+  minViewportWidth?: number;
+};
+
 export type Route = {
   path: string;
   /** 테스트 이름 (슬래시 대신 사용) */
@@ -14,14 +24,28 @@ export type Route = {
   /**
    * 이 셀렉터가 보여야 통과 — "화면이 안 깨졌다" 만으론 못 잡는 회귀용.
    * 데이터가 안 와서 섹션이 조용히 빠지는 경우(방문자 세션 RLS 등)를 잡는다.
+   * 한 라우트에 여러 개를 걸어야 하면 배열로 준다 (about 처럼 패널이 여럿인 페이지).
    */
-  expectVisible?: { selector: string; label: string };
+  expectVisible?: VisibleCheck | VisibleCheck[];
 };
 
 /** 로그인 없이 접근 가능한 라우트. Phase 0 baseline 은 여기까지 커버한다. */
 export const PUBLIC_ROUTES: Route[] = [
   { path: "/", name: "home" },
-  { path: "/about", name: "about" },
+  // 데스크탑은 패널 15개가 로드 시점에 전부 DOM 에 있다(세로 스크롤이 아니라 핀 기반 레이아웃).
+  // 모바일은 탭 하나만 마운트해 나머지는 DOM 에 없다 → 공통 검사는 패널 제목뿐이고 나머지는 데스크탑 전용.
+  // 본문은 site.config 우선 · data/about 폴백 이중 출처라 한쪽이 비면 패널만 조용히 사라진다 → 개별로 본다.
+  {
+    path: "/about",
+    name: "about",
+    expectVisible: [
+      { selector: '[class*="panelTitle"]', label: "패널 제목 (데스크탑·모바일 공통)" },
+      { selector: '[class*="navItem"]', label: "섹션 네비게이션", minViewportWidth: 1024 },
+      { selector: '[class*="trouble"]', label: "트러블슈팅 패널 본문", minViewportWidth: 1024 },
+      { selector: '[class*="difficulty"]', label: "트러블슈팅 난이도 배지", minViewportWidth: 1024 },
+      { selector: ".code-block-wrap", label: "코드 하이라이트 블록", minViewportWidth: 1024 },
+    ],
+  },
   // GSAP 스크롤 시퀀스가 모바일에서 라우팅까지 트리거해 캡처 중 페이지가 바뀐다.
   // 스크롤 없이 첫 화면만 — 하단 회귀는 수동 QA 로 커버한다.
   { path: "/works", name: "works", skipScroll: true },

@@ -79,10 +79,15 @@ export async function smokeRoute(page: Page, route: Route) {
 
   // 있어야 할 섹션이 조용히 빠졌는지 — 데이터 fetch 가 실패해도 페이지는 멀쩡해 보이므로 따로 본다.
   if (route.expectVisible) {
-    await expect(
-      page.locator(route.expectVisible.selector).first(),
-      `${route.path} ${route.expectVisible.label}`,
-    ).toBeVisible({ timeout: 10_000 });
+    const checks = Array.isArray(route.expectVisible) ? route.expectVisible : [route.expectVisible];
+    const width = page.viewportSize()?.width ?? 0;
+    for (const check of checks) {
+      if (check.minViewportWidth && width < check.minViewportWidth) continue;
+      await expect(
+        page.locator(check.selector).first(),
+        `${route.path} ${check.label}`,
+      ).toBeVisible({ timeout: 10_000 });
+    }
   }
 
   // 착수 전부터 있던 결함(knownPageErrors)은 걸러내 새 회귀만 남긴다.
