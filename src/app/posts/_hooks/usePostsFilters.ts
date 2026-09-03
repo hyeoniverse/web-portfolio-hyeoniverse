@@ -3,16 +3,14 @@
 import { useState, useMemo, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { QUERY_PARAM } from "@/constants";
+import { useSearchControls } from "@/hooks/useSearchControls";
 
 /* 글 목록 필터 — 검색(어·범위·문법) · 카테고리(다중) · 태그(다중 OR) · 저자 · 시리즈.
    카테고리 · 태그 · 저자 · 시리즈는 URL 쿼리(?category=a,b · ?tag=x,y · ?author= · ?series=)로 초기화한다.
    *Key 는 정렬된 CSV — fetch 파라미터이자 effect 의존성(순서 무관 동일성). */
 export function usePostsFilters({ allTags }: { allTags: { tag: string; count: number }[] }) {
-  const [search, setSearch] = useState("");
-  const [searchType, setSearchType] = useState<"all" | "title" | "content">(
-    "all",
-  );
-  const [syntaxMode, setSyntaxMode] = useState<"prefix" | "regex">("prefix");
+  const { search, setSearch, searchType, setSearchType, syntaxMode, setSyntaxMode } =
+    useSearchControls<"all" | "title" | "content">("all");
   // URL query (?tag=foo,bar / ?category=a,b CSV) 도착 시 초기값 sync — 다중 선택(OR)
   const urlSearchParams = useSearchParams();
   const [activeCategories, setActiveCategories] = useState<string[]>(() => {

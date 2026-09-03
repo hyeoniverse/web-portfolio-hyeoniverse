@@ -1,17 +1,18 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useSortToggle } from "@/hooks/useSortToggle";
 
 export type PostsSortBy = "date" | "popular" | "title" | "random" | "author";
 export type PopularSort = "score" | "views" | "comments" | "likes";
 
+// 기준을 바꿀 때의 기본 방향 — 제목·저자는 오름차순, 날짜·인기는 내림차순
+const defaultDirFor = (by: PostsSortBy): "asc" | "desc" => (by === "title" || by === "author" ? "asc" : "desc");
+
 /* 글 목록 정렬 — 기준(sortBy) · 방향 · popular 세부 메트릭 · random seed 와 API 용 sort 값.
    툴바가 부르는 동작: handleSortChange(같은 기준이면 방향 토글, 다른 기준이면 기본 방향) · shuffle(random + 새 seed) · resetSort. */
 export function usePostsSort({ timeline }: { timeline: boolean }) {
-  const [sortBy, setSortBy] = useState<PostsSortBy>(
-    "date",
-  );
-  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+  const { sortBy, setSortBy, sortDir, setSortDir, handleSortChange } = useSortToggle<PostsSortBy>("date", "desc", defaultDirFor);
   // 타임라인 레이아웃은 월 그룹 마커라 시간순만 유효 — 다른 정렬이면 date 로 강제(마커 깨짐 방지).
   useEffect(() => {
     if (timeline && sortBy !== "date") setSortBy("date");
@@ -46,14 +47,6 @@ export function usePostsSort({ timeline }: { timeline: boolean }) {
               ? "newest"
               : "oldest";
 
-  const handleSortChange = useCallback((v: Exclude<PostsSortBy, "random">) => {
-    if (sortBy === v) {
-      setSortDir((prev) => (prev === "asc" ? "desc" : "asc"));
-    } else {
-      setSortBy(v);
-      setSortDir(v === "title" || v === "author" ? "asc" : "desc");
-    }
-  }, [sortBy]);
   const shuffle = useCallback(() => {
     if (sortBy === "random") {
       setRandomSeed(Math.floor(Math.random() * 1e9));
