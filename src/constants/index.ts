@@ -6,3 +6,4 @@ export * from "./mail";
 export * from "./breakpoints";
 export * from "./timing";
 export * from "./queryParams";
+export * from "./pagination";
