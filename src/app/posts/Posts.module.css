@@ -69,83 +69,6 @@
   background: transparent;
 }
 
-/* ── Filter Bar (sticky, below fixed Nav) ──
-   같은 행 컨트롤들의 통일 높이는 .page 의 --filter-row-h (28px) 로 cascade. */
-.filterBar {
-  max-width: var(--page-max-width);
-  margin: 0 auto var(--spacing-2xl);
-  position: sticky;
-  top: calc(var(--spacing-2xl) * 2 + var(--font-size-3xl));
-  z-index: 51;
-  /* 콘텐츠와 border-bottom (divider) 사이 breathing — 이전엔 .btn 의 border-bottom 2px 가 암묵적 여백
-     역할했는데 제거 후 콘텐츠가 divider 에 딱 붙음. */
-  padding: 0 0 var(--spacing-sm) 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-  border-bottom: var(--border-light);
-  transform: translateY(0);
-  opacity: 1;
-  pointer-events: auto;
-  /* difference blend 는 페이지 backdrop 과 blend 되는 이 박스(sticky, z-index → stacking context)
-     레벨에 둬야 작동 (Navigation 과 동일 패턴). 자식(.wrapper)에 두면 filterBar 내부와만 blend → 무효. */
-  mix-blend-mode: difference;
-  /* 내부 컨트롤(검색·정렬·태그버튼·카테고리) 색을 흰색 기반 토큰으로 오버라이드 → 자식 전부 상속돼
-     일관된 difference 바(배경 위에서 깔끔히 반전). 비활성은 반투명 흰색. */
-  color: var(--text-white);
-  --text-primary: var(--text-white);
-  --text-secondary: color-mix(in srgb, var(--text-white) 72%, transparent);
-  --text-tertiary: color-mix(in srgb, var(--text-white) 58%, transparent);
-  --text-accent: var(--text-white);
-  /* border 는 하나로 통일 — 다른 페이지 요소(light) 와 진하기 맞춰 반투명 흰색으로.
-     (color 변수만 바꾸면 nested var 해석이 안 먹는 케이스가 있어 shorthand 를 직접 덮음). */
-  --border-default: 1px solid color-mix(in srgb, var(--text-white) 28%, transparent);
-  --border-light: 1px solid color-mix(in srgb, var(--text-white) 28%, transparent);
-  --border-strong: 1px solid color-mix(in srgb, var(--text-white) 28%, transparent);
-  --border-ghost-light: 1px solid color-mix(in srgb, var(--text-white) 28%, transparent);
-  --border-color-default: color-mix(in srgb, var(--text-white) 28%, transparent);
-  --border-color-light: color-mix(in srgb, var(--text-white) 28%, transparent);
-  --border-color-strong: color-mix(in srgb, var(--text-white) 28%, transparent);
-  --border-color-ghost-light: color-mix(in srgb, var(--text-white) 28%, transparent);
-  --bg-tertiary: color-mix(in srgb, var(--text-white) 16%, transparent);
-}
-
-
-/* compound selector (0,2,0) — override global theme transition */
-.filterBar.filterBarHidden {
-  transform: translateY(-100%);
-  opacity: 0;
-  pointer-events: none;
-  transition: transform 0.3s ease, opacity 0.2s ease;
-}
-
-.filterBar:not(.filterBarHidden) {
-  transition: transform 0.3s ease, opacity 0.2s ease;
-}
-
-
-
-.filterBarTop {
-  display: flex;
-  /* CategoryNav 가 다중 row 로 wrap 되어도 filterBarRight(Tags 버튼) 가 첫 번째 row 와 같은 레벨 유지.
-     모든 항목 min-height: var(--filter-row-h) 라 single-row 일 땐 center 와 시각적 동일. */
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--spacing-md);
-}
-
-/* 검색 전용 윗줄 — 우상단 정렬. 검색창↔도움말 간격 (다른 페이지도 이 값 참고) */
-.filterBarSearchRow {
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--spacing-sm);
-}
-
-/* filter bar 의 SearchCapsule 도 다른 컨트롤과 통일 높이로 */
-.filterBarSearchRow > * {
-  min-height: var(--filter-row-h);
-}
-
 /* 셔플(랜덤) 버튼 — Button shape="circle" size="sm" + active 회전.
    옆 SegmentedControl 과 같은 굵기로 보이도록 border 를 light 로 낮춘다.
 
@@ -161,214 +84,6 @@
   transition: transform 0.3s ease;
 }
 
-/* Tag toggle button */
-.tagToggleBtn {
-  /* CategoryNav 가 multi-row 로 wrap 되어도 항상 첫 번째 row 와 정렬되도록 self start. */
-  align-self: flex-start;
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-  /* .btn / .moreBtn 과 동일 행 수직 중심 정렬 */
-  min-height: var(--filter-row-h);
-  padding: 0 var(--spacing-sm);
-  border: var(--border-default);
-  cursor: pointer;
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-hint);
-  color: var(--text-primary);
-}
-
-/* motion.div wrapper 도 명시적으로 start 정렬 — flex 부모의 align-items 만으론 framer-motion height 애니 시 휘는 케이스 방지 */
-.filterBarLeft {
-  align-self: flex-start;
-}
-
-.tagToggleBtn.tagToggleBtn {
-  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-}
-
-.filterBar .tagToggleBtn:hover {
-  background: transparent;
-  color: var(--text-primary);
-  border: var(--border-strong);
-}
-
-/* 열림(active) 상태 — difference blend: bg-primary → 검정, 텍스트 bg-inverse → 밝게 */
-.tagToggleBtnOpen {
-  background: var(--bg-primary);
-  border-color: var(--bg-primary);
-  color: var(--bg-inverse);
-}
-
-.tagToggleBtnOpen svg {
-  transform: rotate(180deg);
-}
-
-/* Tag dropdown (absolute overlay — when filter bar is stuck).
-   filterBar 자식이라 difference blend 그룹에 포함됨(어두운 배경에서도 반전으로 가독). */
-.tagDropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  padding: var(--spacing-sm) 0 var(--spacing-md);
-  border-bottom: var(--border-light);
-  z-index: 1;
-}
-
-/* Tag inline (pushes content — when filter bar is NOT stuck) */
-.tagInline {
-  overflow: hidden;
-  padding: 0;
-}
-
-.tagInline .tagRow {
-  padding: var(--spacing-sm) 0 var(--spacing-md);
-}
-
-/* Tag filter row — 70vh 까지 (하단 여유), top/bottom fade mask 로 스크롤 가능 표시 */
-.tagRow {
-  --top-fade: 0px;
-  --bot-fade: 64px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-xs);
-  max-height: 70vh;
-  overflow-y: auto;
-  mask-image: linear-gradient(
-    to bottom,
-    transparent 0,
-    oklch(0.00% 0.0000 0.00) var(--top-fade),
-    oklch(0.00% 0.0000 0.00) calc(100% - var(--bot-fade)),
-    transparent 100%
-  );
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    transparent 0,
-    oklch(0.00% 0.0000 0.00) var(--top-fade),
-    oklch(0.00% 0.0000 0.00) calc(100% - var(--bot-fade)),
-    transparent 100%
-  );
-}
-
-/* 스크롤 내려와 있음 → 상단 fade 활성 */
-.tagRowScrolled {
-  --top-fade: 64px;
-}
-
-/* 바닥 도달 → 하단 fade 비활성 */
-.tagRowAtBottom {
-  --bot-fade: 0px;
-}
-
-/* 미선택 칩 — subtle (transparent). difference blend 에서 backdrop(밝은 페이지)이 비쳐 옅게. */
-.tagBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-  padding: var(--badge-p-lg);
-  border: var(--border-default);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-label);
-  color: var(--text-primary);
-}
-
-.tagCount {
-  font-size: var(--font-size-micro);
-  color: var(--text-tertiary);
-  font-weight: var(--font-weight-medium);
-}
-
-/* 선택(active) 칩 — difference blend: bg-primary(=backdrop) 는 차이 0 → 검정으로 보임.
-   텍스트는 어두운 소스(bg-inverse)여야 반전돼 밝게 보여 검정 칩 위에서 가독. */
-.tagBtnActive .tagCount {
-  color: var(--bg-inverse);
-  opacity: 0.6;
-}
-
-/* hover — difference blend: bg-primary(=backdrop) 소스 → border·텍스트가 검정으로 보임 */
-.tagRow .tagBtn.tagBtn:hover {
-  background: transparent;
-  color: var(--bg-primary);
-  border-color: var(--bg-primary);
-}
-
-.tagBtn.tagBtnActive {
-  background: var(--bg-primary);
-  border-color: var(--bg-primary);
-  color: var(--bg-inverse);
-}
-
-.tagRow .tagBtn.tagBtnActive:hover {
-  background: var(--bg-primary);
-  border-color: var(--bg-primary);
-  color: var(--bg-inverse);
-}
-
-/* 태그 dropdown 상단 헤더 — 철자 필터 chip row + 전체 태그 링크 */
-.tagSearchHeader {
-  /* 철자 active 칩을 검정으로 만들 때 텍스트용으로 쓸 원래 잉크색(테마별) 캡처 —
-     .tagLetterRow 에서 --bg-inverse 를 덮기 전에 상위에 보관. */
-  --_ink: var(--bg-inverse);
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  padding: 0 0 var(--spacing-sm) 0;
-  border-bottom: var(--border-light);
-  margin-bottom: var(--spacing-sm);
-}
-
-/* 철자 chip row — 공통 LetterFilter 컴포넌트가 자체 스타일 보유. 여기선 layout 만 (flex grow). */
-.tagLetterRow {
-  flex: 1;
-  min-width: 0;
-  /* 기본 letter(text-tertiary 사용) 진하게 — 변수만 덮어 disabled(text-muted)는 유지. */
-  --text-tertiary: var(--text-primary);
-  /* active(.btnActive) 칩 → 검정: 배경 bg-inverse→bg-primary(차이 0=검정),
-     텍스트 text-inverse→캡처한 잉크색(어두운 소스→밝게 반전). */
-  --bg-inverse: var(--bg-primary);
-  --text-inverse: var(--_ink);
-}
-
-/* 철자 index "전체" 버튼(첫 번째, 텍스트 2자) — 단일 letter 보다 좌우 패딩 더 */
-.tagLetterRow button:first-child {
-  padding-inline: var(--spacing-sm);
-}
-
-/* "전체 태그" 페이지 이동 링크 — tagSearchHeader 안 오른쪽. border 없이 옅게, hover 시 강조 */
-.tagAllLink {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-3xs);
-  padding: var(--badge-p-lg);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-label);
-  color: var(--text-tertiary);
-  text-decoration: none;
-  transition: color 0.15s ease, transform 0.15s ease;
-}
-
-.tagAllLink:hover {
-  color: var(--text-primary);
-  transform: translateX(2px);
-}
-
-/* 모든 태그 로드 완료 메시지 — tagRow 의 마지막 줄 단독 (flex-basis 100%) */
-.tagAllLoaded {
-  flex-basis: 100%;
-  text-align: center;
-  margin: var(--spacing-sm) 0 0 0;
-  padding: 0;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-label);
-  color: var(--text-tertiary);
-  letter-spacing: 0.02em;
-}
-
 
 /* ── Content Area (2-column) ── */
 .contentArea {
@@ -382,12 +97,6 @@
 
 .mainColumn {
   min-width: 0;
-}
-
-/* 검색 capsule border 를 도움말/셔플 등 주변 컨트롤(--border-light)과 통일 (기본 --border-default 는 더 진함).
-   focus-within 시엔 강조 border 를 유지하려고 resting 상태에만 적용. (시리즈 검색은 SeriesSection.module.css 에 같은 규칙) */
-.postsSearchCapsule:not(:focus-within) {
-  border-color: var(--border-color-light) !important;
 }
 
 /* ── Posts Label ── */
@@ -1117,15 +826,6 @@
     padding-top: var(--spacing-5xl);
   }
 
-  /* mobile 에서도 row 레이아웃 유지 + 폭 부족할 때만 wrap.
-     column 으로 강제하면 CategoryNav 가 전체 너비 → Tags 버튼만 있는 row 가 또 따로 노출돼 어색. */
-  .filterBarTop {
-    flex-wrap: wrap;
-    /* multi-row 시 첫 row 기준 정렬 — 데스크탑과 동일 패턴 */
-    align-items: flex-start;
-    gap: var(--spacing-sm);
-  }
-
   /* 모바일 — title 만 있는 sectionHeaderMain 이 width 100% 차지 → sortWrap / Select 다음 줄 */
   .sectionHeaderMain {
     width: 100%;
@@ -1160,11 +860,5 @@
 
   .seriesStepBody [class*="imageWrap"] {
     width: 100px !important;
-  }
-}
-
-@media (max-width: 480px) {
-  .filterBar {
-    top: calc(var(--spacing-md) * 2 + var(--font-size-3xl));
   }
 }

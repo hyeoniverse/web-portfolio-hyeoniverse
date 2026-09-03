@@ -1,0 +1,164 @@
+/* ── 필터바 태그 패널 (TagFilterPanel) — sticky 땐 dropdown, 아니면 inline. 철자 필터 헤더 + 태그 버튼 row(스크롤 mask) ── */
+
+/* Tag dropdown (absolute overlay — when filter bar is stuck).
+   filterBar 자식이라 difference blend 그룹에 포함됨(어두운 배경에서도 반전으로 가독). */
+.tagDropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  padding: var(--spacing-sm) 0 var(--spacing-md);
+  border-bottom: var(--border-light);
+  z-index: 1;
+}
+
+/* Tag inline (pushes content — when filter bar is NOT stuck) */
+.tagInline {
+  overflow: hidden;
+  padding: 0;
+}
+
+.tagInline .tagRow {
+  padding: var(--spacing-sm) 0 var(--spacing-md);
+}
+
+/* Tag filter row — 70vh 까지 (하단 여유), top/bottom fade mask 로 스크롤 가능 표시 */
+.tagRow {
+  --top-fade: 0px;
+  --bot-fade: 64px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+  max-height: 70vh;
+  overflow-y: auto;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    oklch(0.00% 0.0000 0.00) var(--top-fade),
+    oklch(0.00% 0.0000 0.00) calc(100% - var(--bot-fade)),
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    oklch(0.00% 0.0000 0.00) var(--top-fade),
+    oklch(0.00% 0.0000 0.00) calc(100% - var(--bot-fade)),
+    transparent 100%
+  );
+}
+
+/* 스크롤 내려와 있음 → 상단 fade 활성 */
+.tagRowScrolled {
+  --top-fade: 64px;
+}
+
+/* 바닥 도달 → 하단 fade 비활성 */
+.tagRowAtBottom {
+  --bot-fade: 0px;
+}
+
+/* 미선택 칩 — subtle (transparent). difference blend 에서 backdrop(밝은 페이지)이 비쳐 옅게. */
+.tagBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  padding: var(--badge-p-lg);
+  border: var(--border-default);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-label);
+  color: var(--text-primary);
+}
+
+.tagCount {
+  font-size: var(--font-size-micro);
+  color: var(--text-tertiary);
+  font-weight: var(--font-weight-medium);
+}
+
+/* 선택(active) 칩 — difference blend: bg-primary(=backdrop) 는 차이 0 → 검정으로 보임.
+   텍스트는 어두운 소스(bg-inverse)여야 반전돼 밝게 보여 검정 칩 위에서 가독. */
+.tagBtnActive .tagCount {
+  color: var(--bg-inverse);
+  opacity: 0.6;
+}
+
+/* hover — difference blend: bg-primary(=backdrop) 소스 → border·텍스트가 검정으로 보임 */
+.tagRow .tagBtn.tagBtn:hover {
+  background: transparent;
+  color: var(--bg-primary);
+  border-color: var(--bg-primary);
+}
+
+.tagBtn.tagBtnActive {
+  background: var(--bg-primary);
+  border-color: var(--bg-primary);
+  color: var(--bg-inverse);
+}
+
+.tagRow .tagBtn.tagBtnActive:hover {
+  background: var(--bg-primary);
+  border-color: var(--bg-primary);
+  color: var(--bg-inverse);
+}
+
+/* 태그 dropdown 상단 헤더 — 철자 필터 chip row + 전체 태그 링크 */
+.tagSearchHeader {
+  /* 철자 active 칩을 검정으로 만들 때 텍스트용으로 쓸 원래 잉크색(테마별) 캡처 —
+     .tagLetterRow 에서 --bg-inverse 를 덮기 전에 상위에 보관. */
+  --_ink: var(--bg-inverse);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: 0 0 var(--spacing-sm) 0;
+  border-bottom: var(--border-light);
+  margin-bottom: var(--spacing-sm);
+}
+
+/* 철자 chip row — 공통 LetterFilter 컴포넌트가 자체 스타일 보유. 여기선 layout 만 (flex grow). */
+.tagLetterRow {
+  flex: 1;
+  min-width: 0;
+  /* 기본 letter(text-tertiary 사용) 진하게 — 변수만 덮어 disabled(text-muted)는 유지. */
+  --text-tertiary: var(--text-primary);
+  /* active(.btnActive) 칩 → 검정: 배경 bg-inverse→bg-primary(차이 0=검정),
+     텍스트 text-inverse→캡처한 잉크색(어두운 소스→밝게 반전). */
+  --bg-inverse: var(--bg-primary);
+  --text-inverse: var(--_ink);
+}
+
+/* 철자 index "전체" 버튼(첫 번째, 텍스트 2자) — 단일 letter 보다 좌우 패딩 더 */
+.tagLetterRow button:first-child {
+  padding-inline: var(--spacing-sm);
+}
+
+/* "전체 태그" 페이지 이동 링크 — tagSearchHeader 안 오른쪽. border 없이 옅게, hover 시 강조 */
+.tagAllLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  padding: var(--badge-p-lg);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-label);
+  color: var(--text-tertiary);
+  text-decoration: none;
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.tagAllLink:hover {
+  color: var(--text-primary);
+  transform: translateX(2px);
+}
+
+/* 모든 태그 로드 완료 메시지 — tagRow 의 마지막 줄 단독 (flex-basis 100%) */
+.tagAllLoaded {
+  flex-basis: 100%;
+  text-align: center;
+  margin: var(--spacing-sm) 0 0 0;
+  padding: 0;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-label);
+  color: var(--text-tertiary);
+  letter-spacing: 0.02em;
+}
