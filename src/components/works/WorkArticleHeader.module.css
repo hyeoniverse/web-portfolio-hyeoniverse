@@ -1,0 +1,129 @@
+/* 작품 상세 본문 — WorkArticleView 전용. 라우트 폴더의 WorkDetail.module.css 에서 옮겨왔다 (#662). */
+/* ── Meta header ── */
+.meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-md);
+}
+
+/* meta 다음 줄 — Visit Site / GitHub / Share 묶음, 오른쪽 정렬 */
+.headerActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-xl);
+}
+
+/* liveUrl/GitHub 버튼(size xs=24)과 ShareButton(패딩 기반 ~27)의 높이가 달라 → 모두 동일 높이로 강제 */
+.headerActions :is(a, button) {
+  height: var(--control-h-sm);
+  box-sizing: border-box;
+}
+
+.metaLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+}
+
+.metaDivider {
+  display: inline-block;
+  width: 1px;
+  height: 12px;
+  background: var(--border-color-light);
+}
+
+.projectNumber {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-label);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+}
+
+/* 통합 태그 — categories + nature 모두 같은 비주얼. nature 만 accent tint */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  height: var(--control-h-xs);
+  padding: 0 var(--spacing-md);
+  border: var(--border-default);
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-hint);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  border-radius: var(--radius-capsule);
+  color: var(--text-tertiary);
+}
+
+.tagNature {
+  border-color: var(--text-accent);
+  color: var(--text-accent);
+}
+
+/* 팀/개인 + 성격 배지 묶음 — metaLeft 의 lg gap 영향 안 받도록 sub-group */
+.tagGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+/* 팀/개인 배지 — 아이콘 + 라벨 inline. 다른 tag 보다 약간 흐린 톤 */
+.tagSolo,
+.tagTeam {
+  gap: var(--spacing-2xs);
+  color: var(--text-secondary);
+}
+
+.tagTeam {
+  border-color: var(--border-color-strong);
+}
+
+/* ── Title ── */
+.title {
+  margin-bottom: var(--spacing-xl);
+  font-family: var(--font-instrument), serif;
+  font-size: clamp(3rem, 8vw, 5.5rem);
+  font-weight: var(--font-weight-regular);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+}
+
+/* ── Description ── */
+.description {
+  margin-bottom: var(--spacing-lg);
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-body-xl);
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+/* 줄바꿈 보존 — 역할/담당 업무처럼 여러 줄 텍스트 */
+/* ── Tech Notes ── tech chip + KO/EN 설명 inline row */
+/* ── Team Members — Polaroid Flip Card ─────────────────────────────── */
+/* Prose (markdown-rendered content) */
+/* ── Tablet ── */
+@media (max-width: 1024px) {
+  .title {
+    font-size: clamp(2.4rem, 6vw, 4rem);
+  }
+}
+
+/* ── Mobile ── */
+@media (max-width: 768px) {
+  .metaLeft {
+    gap: var(--spacing-sm);
+  }
+
+  .title {
+    font-size: clamp(2rem, 8vw, 3rem);
+  }
+
+  .description {
+    font-size: var(--font-size-body-lg);
+    margin-bottom: var(--spacing-2xl);
+  }
+}
