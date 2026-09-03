@@ -1,0 +1,97 @@
+/* ── 글 0개 상태 (PostsEmptyState) — 기본 빈 상태 + 시리즈 선택 시 Coming Soon 변형 ── */
+
+/* ── Status ── */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-6xl) 0;
+  color: var(--text-tertiary);
+}
+
+.emptyTitle {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-title-sm);
+  color: var(--text-secondary);
+}
+
+/* ── Coming Soon variant — 시리즈 선택 + posts 0개 ──
+   기본 emptyState 보다 살짝 화려한 톤. Sparkles 3 개 클러스터 + 부드러운 pulse / float 애니메이션. */
+.emptyStateComingSoon {
+  gap: var(--spacing-sm);
+}
+
+.comingSoonIconWrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  color: var(--text-accent);
+}
+
+.comingSoonIconA,
+.comingSoonIconB,
+.comingSoonIconC {
+  position: absolute;
+}
+
+.comingSoonIconA {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: comingSoonPulse 2.4s var(--ease-material) infinite;
+}
+
+@keyframes comingSoonPulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  50% { transform: translate(-50%, -50%) scale(1.12); opacity: 0.85; }
+}
+
+.comingSoonIconB {
+  top: 4px;
+  right: 6px;
+  opacity: 0.7;
+  animation: comingSoonFloat 3.2s var(--ease-material) infinite;
+}
+
+@keyframes comingSoonFloat {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  50% { transform: translateY(-4px) rotate(8deg); }
+}
+
+.comingSoonIconC {
+  bottom: 8px;
+  left: 6px;
+  opacity: 0.55;
+  animation: comingSoonFloat 2.8s var(--ease-material) infinite 0.6s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .comingSoonIconA,
+  .comingSoonIconB,
+  .comingSoonIconC {
+    animation: none;
+  }
+}
+
+.comingSoonTitle {
+  margin: 0;
+  font-family: var(--font-instrument);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-regular);
+  color: var(--text-primary);
+  letter-spacing: 0.02em;
+}
+
+.comingSoonSub {
+  margin: 0;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-body);
+  color: var(--text-tertiary);
+  text-align: center;
+  max-width: 36ch;
+  line-height: var(--line-height-relaxed);
+}
