@@ -11,6 +11,11 @@ export type Route = {
    * 항목마다 이슈를 남기고, 고치면 즉시 제거한다.
    */
   knownPageErrors?: RegExp[];
+  /**
+   * 이 셀렉터가 보여야 통과 — "화면이 안 깨졌다" 만으론 못 잡는 회귀용.
+   * 데이터가 안 와서 섹션이 조용히 빠지는 경우(방문자 세션 RLS 등)를 잡는다.
+   */
+  expectVisible?: { selector: string; label: string };
 };
 
 /** 로그인 없이 접근 가능한 라우트. Phase 0 baseline 은 여기까지 커버한다. */
@@ -27,8 +32,13 @@ export const PUBLIC_ROUTES: Route[] = [
   { path: "/posts/history", name: "posts-history" },
   // 글 상세는 DB 에 있는 slug 여야 한다. 없으면 notFound 인데 loading.tsx 스트리밍 때문에 HTTP 는 200 이라
   // 스모크가 404 화면을 보고도 통과한다 (accessibility-checklist 가 그랬다 — 시드 재작성 9678cf42 때 사라진 글).
-  // nar-1 은 scripts/seed-series-posts.ts 로 다시 만들 수 있고 시리즈 패널까지 렌더된다.
-  { path: "/posts/nar-1", name: "post-detail" },
+  // nar-1 은 scripts/seed-series-posts.ts 로 다시 만들 수 있고 시리즈에 속해 시리즈 패널이 렌더된다.
+  // 패널은 방문자 세션에서 /api/series/<id> 가 성공해야 뜬다 — anon RLS 가 빠지면 조용히 사라지므로(#652) 보이는지 확인한다.
+  {
+    path: "/posts/nar-1",
+    name: "post-detail",
+    expectVisible: { selector: '[class*="seriesBox"]', label: "시리즈 패널 (방문자 세션에서 /api/series/<id> 실패 시 사라짐, #652)" },
+  },
   // 태그별 목록(TagPageClient · TagPage.module.css)은 이 라우트로만 렌더된다. Phase 4-2(posts 슬라이스) 안전망.
   // 글이 0개면 notFound 라 실제 글이 달린 태그를 고정한다.
   { path: "/posts/tags/TypeScript", name: "post-tag" },
