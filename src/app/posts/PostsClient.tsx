@@ -9,13 +9,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useLenis } from "@/providers/LenisProvider";
 import { SearchHighlightProvider } from "@/providers/SearchHighlightProvider";
 import { useStickyFilterBar } from "@/hooks/useStickyFilterBar";
-import type { Post, Series } from "@/types/post";
+import type { Post } from "@/types/post";
 import type { InitialPostsData } from "@/lib/posts";
 import PostCard from "./_components/PostCard";
 import PostsSubnav from "./_components/PostsSubnav";
 import ScrollButtons from "@/components/ui/ScrollButtons/ScrollButtons";
 import CategoryNav from "./_components/CategoryNav";
-import SeriesCard from "./_components/SeriesCard";
+import SeriesSection from "./_components/SeriesSection/SeriesSection";
 import PostsBanner from "./_components/PostsBanner/PostsBanner";
 import TagCloud3D from "./_components/TagCloud3D";
 import PopularPosts from "./_components/PopularPosts";
@@ -31,12 +31,9 @@ import SegmentedControl from "@/components/ui/SegmentedControl";
 import {
   ChevronDown,
   ChevronRight,
-  ChevronLeft,
-  BookOpen,
   LayoutGrid,
   Shuffle,
   Sparkles,
-  Settings,
   List,
   History as HistoryIcon,
   SearchEmptyIcon,
@@ -193,53 +190,6 @@ export default function PostsClient({ initialData, history = false, archiveMonth
   const [perPage, setPerPage] = useState(siteConf.posts.perPage ?? 10);
   // /posts?series=<id> 로 진입 시(시리즈 카드 클릭) 해당 시리즈로 초기 필터
   const [activeSeries, setActiveSeries] = useState<string | null>(() => urlSearchParams?.get(QUERY_PARAM.series) ?? null);
-  const [seriesList, setSeriesList] = useState<Series[]>(
-    initialData.seriesList,
-  );
-  const [seriesPage, setSeriesPage] = useState(0);
-  const [seriesTotal, setSeriesTotal] = useState(initialData.seriesTotal);
-  const [seriesLoading, setSeriesLoading] = useState(false);
-  const [seriesSearch, setSeriesSearch] = useState("");
-  const [seriesScope, setSeriesScope] = useState<"all" | "title" | "desc">("all");
-  // 로그인 사용자 = admin (단일 운영자 가정) — 시리즈 관리 바로가기 노출용
-  const [isAdmin, setIsAdmin] = useState(false);
-  useEffect(() => {
-    let cancelled = false;
-    import("@/lib/supabase/client").then((m) => {
-      m.createClient().auth.getUser().then(({ data }) => {
-        if (!cancelled) setIsAdmin(!!data.user);
-      });
-    });
-    return () => { cancelled = true; };
-  }, []);
-  // 시리즈 좌/우 화살표 long-press 스크롤 — 누르고 있을수록 가속
-  const seriesScrollRafRef = useRef<number | null>(null);
-  const seriesScrollStartRef = useRef<number>(0);
-  const startSeriesScroll = (direction: 1 | -1) => {
-    seriesScrollStartRef.current = performance.now();
-    const tick = () => {
-      const el = seriesRowRef.current;
-      if (!el) return;
-      const elapsed = performance.now() - seriesScrollStartRef.current;
-      // base 4px / frame, 누른 시간만큼 가속 (max 30px / frame, ≈1.8s 후 도달)
-      const speed = Math.min(4 + elapsed / 50, 30);
-      el.scrollLeft += speed * direction;
-      seriesScrollRafRef.current = requestAnimationFrame(tick);
-    };
-    seriesScrollRafRef.current = requestAnimationFrame(tick);
-  };
-  const stopSeriesScroll = () => {
-    if (seriesScrollRafRef.current != null) {
-      cancelAnimationFrame(seriesScrollRafRef.current);
-      seriesScrollRafRef.current = null;
-    }
-  };
-  const [seriesSortBy, setSeriesSortBy] = useState<
-    "default" | "newest" | "title" | "random"
-  >("default");
-  const [seriesSortDir, setSeriesSortDir] = useState<"asc" | "desc">("asc");
-  const [seriesRandomSeed, setSeriesRandomSeed] = useState(0);
-  const seriesPerPage = initialData.seriesPerPage;
   // 초기 page 값 URL 의 ?page= 에서 읽음 — 새로고침해도 같은 페이지 유지
   const [page, setPage] = useState(() => {
     const p = Number(urlSearchParams?.get(QUERY_PARAM.page));
@@ -272,7 +222,6 @@ export default function PostsClient({ initialData, history = false, archiveMonth
   const [catExpanded, setCatExpanded] = useState(false);
   const [isInitial, setIsInitial] = useState(true);
   const contentRef = useRef<HTMLDivElement>(null);
-  const seriesRowRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const scrollCooldown = useRef(false);
 
@@ -461,83 +410,6 @@ export default function PostsClient({ initialData, history = false, archiveMonth
     setPage,
   });
 
-  // 시리즈 fetch 공통 파라미터 빌더
-  const buildSeriesParams = useCallback(
-    (page: number) => {
-      const params = new URLSearchParams();
-      if (activeCategoryKey) params.set(QUERY_PARAM.category, activeCategoryKey);
-      if (activeTagsKey) params.set("tags", activeTagsKey);
-      params.set(QUERY_PARAM.page, String(page));
-      params.set(QUERY_PARAM.limit, String(seriesPerPage));
-      // random 은 client-side 셔플이라 API 에 안 보냄 — default 와 같이 처리
-      if (seriesSortBy !== "default" && seriesSortBy !== "random") {
-        params.set("sortBy", seriesSortBy);
-        params.set("sortDir", seriesSortDir);
-      }
-      return params;
-    },
-    [activeCategoryKey, activeTagsKey, seriesPerPage, seriesSortBy, seriesSortDir],
-  );
-
-  // Fetch series when category/sort changes — initial mount 은 skip (SSR 의 auto_cover_url 보존)
-  const isFirstSeriesFetch = useRef(true);
-  useEffect(() => {
-    if (isFirstSeriesFetch.current) {
-      isFirstSeriesFetch.current = false;
-      return;
-    }
-    fetch(`/api/series?${buildSeriesParams(0)}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setSeriesList(Array.isArray(data?.items) ? data.items : []);
-        setSeriesTotal(typeof data?.total === "number" ? data.total : 0);
-        setSeriesPage(0);
-      });
-  }, [buildSeriesParams]);
-
-  // 시리즈 추가 페이지 로드 — 가로 스크롤이 끝에 다다르면 호출
-  const loadMoreSeries = useCallback(async () => {
-    if (seriesLoading) return;
-    if (seriesList.length >= seriesTotal) return;
-    setSeriesLoading(true);
-    try {
-      const nextPage = seriesPage + 1;
-      const res = await fetch(`/api/series?${buildSeriesParams(nextPage)}`);
-      const data = await res.json();
-      const items: Series[] = Array.isArray(data?.items) ? data.items : [];
-      setSeriesList((prev) => {
-        // 중복 방지 (Strict Mode 대응)
-        const seen = new Set(prev.map((s) => s.id));
-        const merged = [...prev, ...items.filter((s) => !seen.has(s.id))];
-        return merged;
-      });
-      if (typeof data?.total === "number") setSeriesTotal(data.total);
-      setSeriesPage(nextPage);
-    } finally {
-      setSeriesLoading(false);
-    }
-  }, [
-    seriesLoading,
-    seriesList.length,
-    seriesTotal,
-    seriesPage,
-    buildSeriesParams,
-  ]);
-
-  // 정렬 버튼 클릭 — 같은 기준 누르면 방향 토글, 다른 기준이면 기본 방향으로 전환
-  const handleSeriesSortClick = useCallback(
-    (by: typeof seriesSortBy) => {
-      if (seriesSortBy === by) {
-        setSeriesSortDir((prev) => (prev === "asc" ? "desc" : "asc"));
-      } else {
-        setSeriesSortBy(by);
-        // newest 의 직관적 기본은 desc (최신이 먼저), title/default 는 asc
-        setSeriesSortDir(by === "newest" ? "desc" : "asc");
-      }
-    },
-    [seriesSortBy],
-  );
-
   // Fetch posts when filters change (skip initial if page=1 — SSR 데이터가 page 1).
   // URL ?page=N (N>1) 으로 진입 시 SSR 데이터 없으므로 초기 mount 에도 fetch 필요.
   useEffect(() => {
@@ -579,130 +451,6 @@ export default function PostsClient({ initialData, history = false, archiveMonth
   const handleSeriesClick = useCallback((seriesId: string) => {
     setActiveSeries((prev) => (prev === seriesId ? null : seriesId));
   }, []);
-
-  const activeSeriesObj = useMemo(() => {
-    if (!activeSeries) return null;
-    return seriesList.find((s) => s.id === activeSeries) ?? null;
-  }, [activeSeries, seriesList]);
-
-  /* 시리즈 row 는 모두 가로로 펼쳐서 native overflow-x 스크롤
-     + Windows 마우스 휠을 가로로 변환 + 데스크톱 드래그 swipe (모바일 터치는 native 사용)
-     + 끝 근처에 도달하면 다음 페이지 로드 (infinite horizontal scroll) */
-  useEffect(() => {
-    const el = seriesRowRef.current;
-    if (!el) return;
-
-    const NEAR_END_PX = 200; // 끝까지 200px 이내면 다음 페이지 prefetch
-    const EDGE_TOL = 2; // scroll 좌/우 끝 판정 허용 오차
-    const SCROLL_IDLE_MS = 150; // 마지막 스크롤 후 idle 판정 시간
-
-    // 스크롤/드래그 중에는 deck hover 비활성 — data-scrolling 속성으로 CSS 가 :hover 효과 차단
-    let scrollingTimer: ReturnType<typeof setTimeout> | null = null;
-    const setScrolling = (on: boolean) => {
-      if (on) el.setAttribute("data-scrolling", "true");
-      else el.removeAttribute("data-scrolling");
-    };
-    const markScrolling = () => {
-      setScrolling(true);
-      if (scrollingTimer) clearTimeout(scrollingTimer);
-      scrollingTimer = setTimeout(() => setScrolling(false), SCROLL_IDLE_MS);
-    };
-
-    // 좌/우 mask + 스크롤 화살표 표시 여부 — 스크롤 위치에 따라 클래스 토글
-    const updateEdges = () => {
-      const atStart = el.scrollLeft <= EDGE_TOL;
-      const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - EDGE_TOL;
-      const noScroll = el.scrollWidth <= el.clientWidth + EDGE_TOL; // 넘치지 않으면 화살표 둘 다 숨김
-      el.classList.toggle(styles.atStart, atStart);
-      el.classList.toggle(styles.atEnd, atEnd);
-      // 화살표 버튼은 wrap 기준으로 숨김 (왼쪽 버튼은 seriesRow 앞 형제라 CSS ~ 로 못 잡음)
-      const wrap = el.parentElement;
-      if (wrap) {
-        wrap.classList.toggle(styles.atStart, atStart);
-        wrap.classList.toggle(styles.atEnd, atEnd);
-        wrap.classList.toggle(styles.noScroll, noScroll);
-      }
-    };
-
-    const maybeLoadMore = () => {
-      if (el.scrollLeft + el.clientWidth >= el.scrollWidth - NEAR_END_PX) {
-        loadMoreSeries();
-      }
-      updateEdges();
-      markScrolling();
-    };
-
-    const handleWheel = (e: WheelEvent) => {
-      // 시리즈 영역 hover 시 vertical wheel 은 페이지로 새지 않게 항상 차단
-      e.preventDefault();
-      // 가로 overflow 있으면 vertical+horizontal delta 모두 합쳐서 가로 스크롤로 변환
-      if (el.scrollWidth > el.clientWidth) {
-        el.scrollLeft += e.deltaY + e.deltaX;
-      }
-    };
-
-    // pointer capture 를 쓰면 자식 button 의 click 이 부모로 가로채져서 시리즈 클릭이 안 먹힘.
-    // 대신 document 레벨로 move/up 을 듣고, 4px 넘게 움직였을 때만 스크롤 + click 차단.
-    const handlePointerDown = (e: PointerEvent) => {
-      if (e.pointerType === "touch") return;
-      if (e.button !== 0) return; // 좌클릭만
-      const startX = e.clientX;
-      const startScroll = el.scrollLeft;
-      let moved = false;
-
-      const onMove = (ev: PointerEvent) => {
-        const dx = ev.clientX - startX;
-        if (!moved && Math.abs(dx) > 4) moved = true;
-        if (moved) {
-          el.scrollLeft = startScroll - dx;
-          ev.preventDefault();
-          markScrolling();
-        }
-      };
-
-      const onUp = () => {
-        document.removeEventListener("pointermove", onMove);
-        document.removeEventListener("pointerup", onUp);
-        document.removeEventListener("pointercancel", onUp);
-        if (moved) {
-          // 드래그 직후 click 1회 차단 (children 의 onClick 막기)
-          const blockClick = (cev: MouseEvent) => {
-            cev.stopPropagation();
-            cev.preventDefault();
-            document.removeEventListener("click", blockClick, true);
-          };
-          document.addEventListener("click", blockClick, true);
-        }
-      };
-
-      document.addEventListener("pointermove", onMove);
-      document.addEventListener("pointerup", onUp);
-      document.addEventListener("pointercancel", onUp);
-    };
-
-    el.addEventListener("wheel", handleWheel, {
-      passive: false,
-      capture: true,
-    });
-    el.addEventListener("pointerdown", handlePointerDown);
-    el.addEventListener("scroll", maybeLoadMore, { passive: true });
-
-    // 마운트 직후 — 첫 페이지가 화면을 가득 채우지 못해 스크롤 자체가 불가능하면 즉시 다음 페이지
-    maybeLoadMore();
-    updateEdges();
-    // seriesList 가 변하면 scrollWidth 도 변하므로 ResizeObserver 로 재계산
-    const ro = new ResizeObserver(updateEdges);
-    ro.observe(el);
-
-    return () => {
-      ro.disconnect();
-      el.removeEventListener("wheel", handleWheel, {
-        capture: true,
-      } as EventListenerOptions);
-      el.removeEventListener("pointerdown", handlePointerDown);
-      el.removeEventListener("scroll", maybeLoadMore);
-    };
-  }, [seriesList.length, loadMoreSeries]);
 
   const hasActiveFilter = !!search || activeTags.size > 0 || !!activeSeries || activeCategories.length > 0;
   // banner 는 pinned 글 있으면 항상 표시 (필터/검색/페이지네이션 무관)
@@ -939,234 +687,19 @@ export default function PostsClient({ initialData, history = false, archiveMonth
       {/* ── Content Area (2-column) ── */}
       <div ref={contentRef} className={styles.contentArea}>
         <div className={styles.mainColumn}>
-          {/* Series Row — posts loading 과 무관하게 항상 표시 */}
-          <div className={styles.seriesSection}>
-            <div className={styles.sectionHeader}>
-              <div className={styles.sectionHeaderMain}>
-                <Link href="/posts/series" className={`${styles.sectionHeaderTitle} ${styles.sectionHeaderTitleLink}`}>
-                  <BookOpen size={14} />
-                  <span className={styles.sectionHeaderText}>
-                    <T
-                      k="postsPage.series"
-                      tooltip={t("postsPage.seriesTooltip")}
-                    />
-                  </span>
-                  <ChevronRight size={12} className={styles.sectionHeaderChevron} aria-hidden />
-                </Link>
-                {isAdmin && (
-                  <Button
-                    href="/admin/settings?tab=content&sub=posts"
-                    external
-                    size="sm"
-                    variant="outline"
-                    className={styles.seriesManageBtn}
-                    icon={<Settings size={12} strokeWidth={1.8} aria-hidden />}
-                    title={t("postsPage.seriesManage")}
-                  >
-                    {t("postsPage.seriesManage")}
-                  </Button>
-                )}
-              </div>
-              <div className={styles.sortWrap}>
-                <SegmentedControl
-                  size="sm"
-                  className={styles.seriesSegmented}
-                  items={[
-                    { value: "default", label: t("postsPage.seriesSortDefault") },
-                    { value: "newest", label: t("postsPage.seriesSortNewest") },
-                    { value: "title", label: t("postsPage.seriesSortTitle") },
-                  ]}
-                  value={seriesSortBy === "random" ? "default" : seriesSortBy}
-                  onChange={(v) =>
-                    handleSeriesSortClick(v as "default" | "newest" | "title")
-                  }
-                  sortDir={seriesSortDir}
-                />
-                <Tooltip
-                  content={
-                    <>
-                      <div>{t("postsPage.sortRandom")}</div>
-                      <div>{t("postsPage.sortRandomTooltip")}</div>
-                    </>
-                  }
-                >
-                  <Button
-                    variant={seriesSortBy === "random" ? "primary" : "outline"}
-                    shape="circle"
-                    size="sm"
-                    icon={<Shuffle size={12} />}
-                    onClick={() => {
-                      if (seriesSortBy === "random") {
-                        setSeriesRandomSeed(Math.floor(Math.random() * 1e9));
-                      } else {
-                        setSeriesSortBy("random");
-                        setSeriesRandomSeed(Math.floor(Math.random() * 1e9));
-                      }
-                    }}
-                    aria-label={t("postsPage.sortRandom")}
-                    className={styles.shuffleBtn}
-                  />
-                </Tooltip>
-              </div>
-              {/* 검색창 — 공통 SearchCapsule collapsible(morph) + 스코프 typeSelector */}
-              <SearchCapsule
-                search={seriesSearch}
-                onSearchChange={setSeriesSearch}
-                placeholder="시리즈 제목·설명 검색"
-                size="sm"
-                align="left"
-                collapsible
-                historyKey={null}
-                showHelp={false}
-                className={styles.seriesSearchCapsule}
-                typeSelector={{
-                  value: seriesScope,
-                  options: [
-                    { value: "all", label: t("postsPage.seriesSearchAll") },
-                    { value: "title", label: t("postsPage.seriesSearchTitle") },
-                    { value: "desc", label: t("postsPage.seriesSearchDesc") },
-                  ],
-                  onChange: (v) => setSeriesScope(v as "all" | "title" | "desc"),
-                }}
-              />
-            </div>
-            {(() => {
-              const q = seriesSearch.trim().toLowerCase();
-              const scopeFields = (s: Series) =>
-                seriesScope === "title"
-                  ? [s.title, s.title_en]
-                  : seriesScope === "desc"
-                    ? [s.description, s.description_en]
-                    : [s.title, s.title_en, s.description, s.description_en];
-              const baseFiltered = q
-                ? seriesList.filter((s) =>
-                    scopeFields(s)
-                      .filter(Boolean)
-                      .some((v) => (v as string).toLowerCase().includes(q)),
-                  )
-                : seriesList;
-              // seriesSortBy="random" 이면 seed 기반 client-side 셔플
-              const filtered =
-                seriesSortBy === "random"
-                  ? baseFiltered
-                      .map((s, i) => ({ s, k: ((seriesRandomSeed + i * 9301) * 49297) % 233280 }))
-                      .sort((a, b) => a.k - b.k)
-                      .map(({ s }) => s)
-                  : baseFiltered;
-              return (
-                <div className={styles.seriesRowWrap}>
-                  <Pressable
-                    className={`${styles.seriesScrollBtn} ${styles.seriesScrollBtnLeft}`}
-                    onMouseDown={(e) => { e.preventDefault(); startSeriesScroll(-1); }}
-                    onMouseUp={stopSeriesScroll}
-                    onMouseLeave={stopSeriesScroll}
-                    onTouchStart={(e) => { e.preventDefault(); startSeriesScroll(-1); }}
-                    onTouchEnd={stopSeriesScroll}
-                    aria-label="이전"
-                    data-clickable="true"
-                    data-cursor="prev"
-                  >
-                    <span className={styles.seriesScrollBadge}>
-                      <ChevronLeft size={16} />
-                    </span>
-                  </Pressable>
-                <div
-                  ref={seriesRowRef}
-                  className={styles.seriesRow}
-                  data-lenis-prevent
-                >
-                  <AnimatePresence mode="popLayout" initial={false}>
-                    {filtered.map((series, idx) => (
-                      <motion.div
-                        key={series.id}
-                        layout
-                        initial={{ opacity: 0, x: 40, scale: 0.92 }}
-                        animate={{ opacity: 1, x: 0, scale: 1 }}
-                        exit={{ opacity: 0, x: -80, scale: 0.9 }}
-                        transition={{
-                          layout: { duration: 0.3, ease: [0.22, 1, 0.36, 1] },
-                          opacity: { duration: 0.28 },
-                          x: { duration: 0.35, ease: [0.4, 0, 0.6, 1] },
-                          scale: { duration: 0.28 },
-                        }}
-                        style={{ display: "flex" }}
-                      >
-                        <SeriesCard
-                          series={series}
-                          onClick={handleSeriesClick}
-                          active={activeSeries === series.id}
-                          index={idx}
-                          scrollContainerRef={seriesRowRef}
-                        />
-                      </motion.div>
-                    ))}
-                  </AnimatePresence>
-                </div>
-                {/* Empty state — seriesRow 밖에 두어 mask-image / overflow 영향 없이 가운데 표시 */}
-                <AnimatePresence>
-                  {filtered.length === 0 && (
-                    <motion.p
-                      key="empty"
-                      className={styles.seriesEmpty}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ delay: 0.35, duration: 0.25 }}
-                    >
-                      {t("postsPage.noSeriesYet")}
-                    </motion.p>
-                  )}
-                </AnimatePresence>
-                  <Pressable
-                    className={`${styles.seriesScrollBtn} ${styles.seriesScrollBtnRight}`}
-                    onMouseDown={(e) => { e.preventDefault(); startSeriesScroll(1); }}
-                    onMouseUp={stopSeriesScroll}
-                    onMouseLeave={stopSeriesScroll}
-                    onTouchStart={(e) => { e.preventDefault(); startSeriesScroll(1); }}
-                    onTouchEnd={stopSeriesScroll}
-                    aria-label="다음"
-                    data-clickable="true"
-                    data-cursor="next"
-                  >
-                    <span className={styles.seriesScrollBadge}>
-                      <ChevronRight size={16} />
-                    </span>
-                  </Pressable>
-                </div>
-              );
-            })()}
-            <AnimatePresence>
-              {activeSeriesObj && (
-                <motion.div
-                  className={styles.activeSeriesMeta}
-                  initial={{ opacity: 0, y: -8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -8 }}
-                  transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-                >
-                  <div className={styles.activeSeriesMetaTop}>
-                    <h3 className={styles.activeSeriesMetaTitle}>
-                      {language === "en" ? (activeSeriesObj.title_en || activeSeriesObj.title) : activeSeriesObj.title}
-                    </h3>
-                    <div className={styles.activeSeriesMetaInfo}>
-                      {activeSeriesObj.category && (
-                        <span className={styles.activeSeriesMetaCategory}>{activeSeriesObj.category}</span>
-                      )}
-                      <span className={styles.activeSeriesMetaCount}>
-                        {activeSeriesObj.post_count ?? 0} {t("postsPage.postsCount")}
-                      </span>
-                    </div>
-                  </div>
-                  {(() => {
-                    const d = language === "en"
-                      ? (activeSeriesObj.description_en || activeSeriesObj.description)
-                      : activeSeriesObj.description;
-                    return d ? <p className={styles.activeSeriesMetaDesc}>{d}</p> : null;
-                  })()}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+          {/* Series Row — posts loading 과 무관하게 항상 표시. history 모드는 렌더하지 않음 (사이드바와 같은 방식.
+              예전엔 CSS 로 숨겨 안 보이는 row 가 마운트 직후 다음 페이지 fetch 를 했다) */}
+          {!history && (
+            <SeriesSection
+              initialList={initialData.seriesList}
+              initialTotal={initialData.seriesTotal}
+              perPage={initialData.seriesPerPage}
+              activeCategoryKey={activeCategoryKey}
+              activeTagsKey={activeTagsKey}
+              activeSeries={activeSeries}
+              onSeriesClick={handleSeriesClick}
+            />
+          )}
 
           {/* Posts — sectionHeader 는 빈 상태에서도 항상 노출 (sort / perPage 등 컨트롤 접근 유지) */}
           <>

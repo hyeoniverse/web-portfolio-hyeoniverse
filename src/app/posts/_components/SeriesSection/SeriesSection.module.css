@@ -1,0 +1,242 @@
+/* ── /posts 시리즈 섹션 (SeriesSection) — 헤더 링크·관리 버튼·검색, 책 표지 가로 row(화살표·mask·끝 감지), 선택 시리즈 메타 ── */
+
+/* ── Series Section ── */
+.seriesSection {
+  margin-bottom: var(--spacing-2xl);
+}
+
+/* sectionHeader 가 postsLabel / seriesLabel 양쪽 base. seriesLabelLink 의 hover 패턴은 별도 추가 */
+.sectionHeaderTitleLink {
+  text-decoration: none;
+  color: inherit;
+  transition: color var(--duration-base) ease;
+}
+
+.sectionHeaderTitleLink:hover {
+  color: var(--text-primary);
+}
+
+.sectionHeaderTitleLink .sectionHeaderChevron {
+  flex-shrink: 0;
+  transition: transform var(--duration-base) var(--ease-material);
+}
+
+.sectionHeaderTitleLink:hover .sectionHeaderChevron {
+  transform: translateX(3px);
+}
+
+/* 시리즈 검색 — 공통 SearchCapsule collapsible(morph). 헤더 우측 정렬만. */
+.seriesSearchCapsule {
+  margin-left: auto;
+}
+
+/* 검색 capsule border 를 도움말/셔플 등 주변 컨트롤(--border-light)과 통일 (기본 --border-default 는 더 진함).
+   focus-within 시엔 강조 border 를 유지하려고 resting 상태에만 적용. (글 목록 검색은 Posts.module.css 에 같은 규칙) */
+.seriesSearchCapsule:not(:focus-within) {
+  border-color: var(--border-color-light) !important;
+}
+/* 책 표지를 가로로 나열 — 좌우 끝에 mask gradient 로 스크롤 가능 표시.
+   --_mask-l / --_mask-r 컨텍스트 토큰으로 좌/우 fade 너비를 제어 (atStart/atEnd 시 0 으로) */
+/* 시리즈 row + 양옆 화살표 버튼 컨테이너 */
+.seriesRowWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* 좌/우 화살표 — hit-area 는 세로 전체 + 가로는 row 의 mask gradient 영역 (28px) 까지 포함.
+   .seriesRow 가 negative margin (-spacing-md) 로 부모 밖까지 확장돼 있으므로 button 도 같은 만큼
+   negative offset. padding 으로 badge 의 시각 위치는 유지. */
+.seriesScrollBtn {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  width: calc(56px + var(--spacing-md));
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: opacity var(--duration-base) ease;
+}
+/* 왼쪽 끝이면 prev, 오른쪽 끝이면 next, 스크롤 불가면 둘 다 숨김 (공통 캐러셀과 동일 동작) */
+.seriesRowWrap.atStart .seriesScrollBtnLeft,
+.seriesRowWrap.atEnd .seriesScrollBtnRight,
+.seriesRowWrap.noScroll .seriesScrollBtn {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.seriesScrollBtnLeft {
+  left: calc(var(--spacing-md) * -1);
+  justify-content: flex-start;
+  padding-left: calc(var(--spacing-md) + var(--spacing-2xs));
+}
+
+.seriesScrollBtnRight {
+  right: calc(var(--spacing-md) * -1);
+  justify-content: flex-end;
+  padding-right: calc(var(--spacing-md) + var(--spacing-2xs));
+}
+
+/* 내부 시각적 badge — 32px 원, hover 시 blur backdrop. mix-blend-mode: difference 로 배경 무관 대비 */
+.seriesScrollBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--text-white);
+  mix-blend-mode: difference;
+  transition: background-color var(--duration-base) ease, backdrop-filter var(--duration-base) ease;
+}
+
+.seriesScrollBtn:hover .seriesScrollBadge {
+  background: color-mix(in srgb, var(--bg-primary) 70%, transparent);
+  backdrop-filter: blur(8px);
+}
+
+/* ── 활성 시리즈 메타 정보 ──
+   filter bar 안의 다른 요소들 (label / category chip / search capsule) 과 톤 일치 —
+   카드 surface(bg-tertiary) 대신 transparent + 얇은 border 로 sandwich separator. */
+.activeSeriesMeta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  padding: var(--spacing-md) 0;
+  margin-top: var(--spacing-xs);
+  border-top: var(--border-light);
+  border-bottom: var(--border-light);
+}
+
+.activeSeriesMetaTop {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+.activeSeriesMetaTitle {
+  margin: 0;
+  font-family: var(--font-instrument);
+  /* 2xl → xl 로 축소 — filter bar 컨텍스트 내에서 적절한 크기 */
+  font-size: var(--font-size-title-lg);
+  font-weight: var(--font-weight-regular);
+  color: var(--text-primary);
+  line-height: var(--line-height-tight);
+}
+
+.activeSeriesMetaInfo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-label);
+  color: var(--text-tertiary);
+}
+
+.activeSeriesMetaCategory {
+  /* filter bar 의 다른 capsule (tagToggleBtn / moreBtn) 과 동일 패턴 */
+  padding: var(--spacing-3xs) var(--spacing-xs);
+  border-radius: var(--radius-capsule);
+  border: var(--border-light);
+  color: var(--text-secondary);
+}
+
+.activeSeriesMetaCount {
+  font-variant-numeric: tabular-nums;
+}
+
+.activeSeriesMetaDesc {
+  margin: 0;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-relaxed);
+  color: var(--text-secondary);
+  /* 가독성 한계 — 너무 긴 줄 방지 */
+  max-width: 70ch;
+}
+
+.seriesRow {
+  --_mask-l: 28px;
+  --_mask-r: 28px;
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  overflow-x: auto;
+  /* 카드 없을 때도 동일한 높이 유지 — exit 애니메이션 동안 row 가 무너지지 않게 */
+  min-height: 240px;
+  padding: var(--spacing-md) var(--spacing-md) var(--spacing-2xl);
+  margin: 0 calc(var(--spacing-md) * -1);
+  scrollbar-width: none;
+  /* 데스크톱 드래그 swipe — 기본 cursor + active 시 grabbing */
+  cursor: grab;
+  user-select: none;
+  -webkit-user-drag: none;
+  mask-image: linear-gradient(
+    90deg,
+    transparent 0,
+    oklch(0.00% 0.0000 0.00) var(--_mask-l),
+    oklch(0.00% 0.0000 0.00) calc(100% - var(--_mask-r)),
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent 0,
+    oklch(0.00% 0.0000 0.00) var(--_mask-l),
+    oklch(0.00% 0.0000 0.00) calc(100% - var(--_mask-r)),
+    transparent 100%
+  );
+}
+
+.seriesRow.atStart {
+  --_mask-l: 0px;
+}
+
+.seriesRow.atEnd {
+  --_mask-r: 0px;
+}
+
+.seriesRow::-webkit-scrollbar {
+  display: none;
+}
+
+.seriesRow:active {
+  cursor: grabbing;
+}
+
+/* Empty state — .seriesRow 의 sibling 으로 .seriesRowWrap 안에 absolute.
+   .seriesRow 의 mask-image / overflow-x 영향을 받지 않도록 밖으로 빼냄.
+   .seriesRow padding (md md 2xl) 을 inset 으로 그대로 적용해 카드 영역의 시각 center 와 일치. */
+.seriesEmpty {
+  position: absolute;
+  top: var(--spacing-md);
+  right: 0;
+  bottom: var(--spacing-2xl);
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-body);
+  color: var(--text-tertiary);
+  font-style: italic;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* 시리즈 관리 버튼(outline) — 기본 border-strong 대신 주변 정렬 컨트롤과 같은 light 로.
+   hover 시엔 outline 기본 채움 동작 유지 위해 :not(:hover) 로 resting 만 오버라이드. */
+.seriesManageBtn:not(:hover) {
+  border-color: var(--border-color-light) !important;
+}
+
+@media (max-width: 768px) {
+  .seriesRow {
+    gap: var(--spacing-sm);
+  }
+}
