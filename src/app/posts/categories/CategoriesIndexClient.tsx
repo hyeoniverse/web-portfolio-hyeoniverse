@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import { useSheet } from "@/hooks/useSheet";
 import Link from "next/link";
 import MediaThumb from "@/components/ui/MediaThumb";
 import { motion, AnimatePresence } from "framer-motion";
@@ -27,20 +28,9 @@ const FEATURED_COUNT = 3;
 export default function CategoriesIndexClient({ categories }: Props) {
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<SortBy>("popular");
-  const [sheetCat, setSheetCat] = useState<CategoryEntry | null>(null);
+  // 시트 — ESC 닫기 + body 스크롤 잠금
+  const [sheetCat, setSheetCat] = useSheet<CategoryEntry>();
   const { isTouch } = useIsMobile();
-
-  useEffect(() => {
-    if (!sheetCat) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setSheetCat(null); };
-    document.addEventListener("keydown", onKey);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prev;
-    };
-  }, [sheetCat]);
 
   const featuredSet = useMemo(() => {
     const sorted = categories.slice().sort((a, b) => b.count - a.count).slice(0, FEATURED_COUNT);

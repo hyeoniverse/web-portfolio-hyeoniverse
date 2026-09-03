@@ -7,6 +7,7 @@ import type { Post } from "@/types/post";
 import type { InitialPostsData } from "@/lib/posts";
 import { usePostsFilters } from "./usePostsFilters";
 import { usePostsSort } from "./usePostsSort";
+import { usePageControls } from "@/hooks/usePageControls";
 
 /** usePostsQuery 반환값 — 툴바 · 필터바 · 빈 상태가 이 하나를 받는다 */
 export type PostsQuery = ReturnType<typeof usePostsQuery>;
@@ -35,12 +36,16 @@ export function usePostsQuery({
   const [facetTags, setFacetTags] = useState<{ tag: string; count: number }[]>(
     () => initialData.allTags.map((t) => ({ tag: t.tag, count: t.count })),
   );
-  const [perPage, setPerPage] = useState(defaultPerPage);
   const urlSearchParams = useSearchParams();
-  // 초기 page 값 URL 의 ?page= 에서 읽음 — 새로고침해도 같은 페이지 유지
-  const [page, setPage] = useState(() => {
-    const p = Number(urlSearchParams?.get(QUERY_PARAM.page));
-    return Number.isFinite(p) && p >= 1 ? p : 1;
+  // 초기 page 값 URL 의 ?page= 에서 읽음 — 새로고침해도 같은 페이지 유지. 필터 변경 시 page 리셋(첫 mount 는 skip — URL 값 보존)
+  const { page, setPage, perPage, setPerPage } = usePageControls({
+    defaultPerPage,
+    initialPage: () => {
+      const p = Number(urlSearchParams?.get(QUERY_PARAM.page));
+      return Number.isFinite(p) && p >= 1 ? p : 1;
+    },
+    resetOn: [search, searchType, activeCategoryKey, activeTagsKey, activeSeries, sort, sortDir],
+    skipFirstReset: true,
   });
   const [totalPages, setTotalPages] = useState(initialData.totalPages);
 
@@ -129,21 +134,6 @@ export function usePostsQuery({
     return () => clearTimeout(debounce);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchPosts, isInitial]);
-
-  // 필터 변경 시 page 리셋 — 단, 첫 mount 는 skip (URL ?page= 으로 초기화된 값 보존)
-  const filterChangeRef = useRef(false);
-  useEffect(() => {
-    if (!filterChangeRef.current) { filterChangeRef.current = true; return; }
-    setPage(1);
-  }, [
-    search,
-    searchType,
-    activeCategoryKey,
-    activeTagsKey,
-    activeSeries,
-    sort,
-    sortDir,
-  ]);
 
   return { ...filters, ...sortState, posts, loading, facetTags, perPage, setPerPage, page, setPage, totalPages };
 }

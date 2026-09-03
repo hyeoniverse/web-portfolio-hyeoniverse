@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useMemo, useRef } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Series } from "@/types/post";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useIsAuthenticated } from "@/hooks/useIsAuthenticated";
 import T from "@/components/ui/T";
 import Button from "@/components/ui/Button";
 import Tooltip from "@/components/ui/Tooltip";
@@ -44,16 +45,7 @@ export default function SeriesSection({
   const [seriesScope, setSeriesScope] = useState<"all" | "title" | "desc">("all");
   const [seriesRandomSeed, setSeriesRandomSeed] = useState(0);
   // 로그인 사용자 = admin (단일 운영자 가정) — 시리즈 관리 바로가기 노출용
-  const [isAdmin, setIsAdmin] = useState(false);
-  useEffect(() => {
-    let cancelled = false;
-    import("@/lib/supabase/client").then((m) => {
-      m.createClient().auth.getUser().then(({ data }) => {
-        if (!cancelled) setIsAdmin(!!data.user);
-      });
-    });
-    return () => { cancelled = true; };
-  }, []);
+  const isAdmin = useIsAuthenticated();
 
   const { seriesList, seriesSortBy, setSeriesSortBy, seriesSortDir, handleSeriesSortClick, loadMoreSeries } =
     useSeriesFeed({ initialList, initialTotal, perPage, activeCategoryKey, activeTagsKey });

@@ -1,6 +1,10 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { PER_PAGE_OPTIONS } from "@/constants";
+import { useSearchControls } from "@/hooks/useSearchControls";
+import { useSortToggle } from "@/hooks/useSortToggle";
+import { usePageControls } from "@/hooks/usePageControls";
 import { QUERY_PARAM } from "@/constants";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -18,7 +22,7 @@ import Tooltip from "@/components/ui/Tooltip";
 import Pagination from "@/components/ui/Pagination";
 import Button from "@/components/ui/Button";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
-import { parseSearchQuery, matchesQuery, type SyntaxMode } from "@/lib/searchQuery";
+import { parseSearchQuery, matchesQuery } from "@/lib/searchQuery";
 import { SearchHighlightProvider } from "@/providers/SearchHighlightProvider";
 import styles from "./TagPage.module.css";
 import Pressable from "@/components/ui/Pressable";
@@ -31,26 +35,16 @@ interface Props {
   allTags: AllTagsData["tags"];
 }
 
-const PER_PAGE_OPTIONS = [
-  { value: "10", label: "10개씩" },
-  { value: "20", label: "20개씩" },
-  { value: "50", label: "50개씩" },
-];
-
 export default function TagPageClient({ tag, initialData, allTags }: Props) {
   const router = useRouter();
   const { language } = useLanguage();
   const { setInfinite } = useLenis();
   const [posts, setPosts] = useState<Post[]>(initialData.posts);
   const [totalPages, setTotalPages] = useState(initialData.totalPages);
-  const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(initialData.perPage);
-  const [sort, setSort] = useState<Sort>("newest");
-  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+  const { sortBy: sort, sortDir, handleSortChange: toggleSort } = useSortToggle<Sort>("newest", "desc");
   const [loading, setLoading] = useState(false);
-  const [search, setSearch] = useState("");
-  const [searchType, setSearchType] = useState<"all" | "title" | "content">("all");
-  const [syntaxMode, setSyntaxMode] = useState<SyntaxMode>("prefix");
+  const { search, setSearch, searchType, setSearchType, syntaxMode, setSyntaxMode } =
+    useSearchControls<"all" | "title" | "content">("all");
   // 추가 태그 필터 — selectMode 켤 때 관련 태그 클릭으로 토글. client-side 교집합 필터.
   const [extraTags, setExtraTags] = useState<Set<string>>(new Set());
   const [selectMode, setSelectMode] = useState(false);
@@ -75,6 +69,15 @@ export default function TagPageClient({ tag, initialData, allTags }: Props) {
     });
   };
 
+  // extraTags 정렬+CSV — Set 자체는 deps 비교 안 됨, key 로 변환
+  const extraTagsKey = useMemo(
+    () => Array.from(extraTags).sort().join(","),
+    [extraTags],
+  );
+
+  // page · perPage — extraTags 가 바뀌면 1페이지로(totalPages 재계산). 정렬·perPage 클릭은 같은 이벤트에서 setPage(1)
+  const { page, setPage, perPage, setPerPage } = usePageControls({ defaultPerPage: initialData.perPage, resetOn: [extraTagsKey] });
+
   // Sticky filter bar — 공통 hook
   const { sentinelRef, filterBarRef, isStuck, barHidden } = useStickyFilterBar();
 
@@ -83,22 +86,11 @@ export default function TagPageClient({ tag, initialData, allTags }: Props) {
     setInfinite(false);
   }, [setInfinite]);
 
-  // 같은 sort 다시 클릭 → dir toggle, 다른 sort → default desc
+  // 같은 sort 다시 클릭 → dir toggle, 다른 sort → default desc. page 리셋은 같은 이벤트에서(효과로 늦추면 fetch 두 번)
   const handleSortChange = (v: Sort) => {
-    if (v === sort) {
-      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
-    } else {
-      setSort(v);
-      setSortDir("desc");
-    }
+    toggleSort(v);
     setPage(1);
   };
-
-  // extraTags 정렬+CSV — Set 자체는 deps 비교 안 됨, key 로 변환
-  const extraTagsKey = useMemo(
-    () => Array.from(extraTags).sort().join(","),
-    [extraTags],
-  );
 
   // sort/page/perPage/extraTags 변경 시 fetch. 다중 태그면 tags= CSV 사용 (교집합)
   const fetchPosts = useCallback(async () => {
@@ -140,11 +132,6 @@ export default function TagPageClient({ tag, initialData, allTags }: Props) {
     }
     fetchPosts();
   }, [fetchPosts, isInitial, initialData]);
-
-  // extraTags 변경 시 page 1 로 reset (totalPages 재계산 위해)
-  useEffect(() => {
-    setPage(1);
-  }, [extraTagsKey]);
 
   // 검색 client-side filter (다중 태그 교집합은 서버가 처리)
   const filteredPosts = useMemo(() => {
