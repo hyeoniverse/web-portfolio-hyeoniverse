@@ -89,19 +89,6 @@
   display: contents;
 }
 
-.featureFolder {
-  position: relative;
-  z-index: 1;
-  transition:
-    transform 0.4s var(--_ease-bounce),
-    z-index 0s;
-}
-
-.featureFolder:hover {
-  z-index: 10;
-  transform: translateY(-8px);
-}
-
 .featureFolderTab {
   display: inline-block;
   margin-bottom: -2px;
@@ -135,10 +122,6 @@
   content: "";
 }
 
-.featureFolder:hover .featureFolderTab {
-  border-color: var(--border-accent);
-  color: var(--text-accent);
-}
 
 .featureFolderCard {
   display: flex;
@@ -157,9 +140,6 @@
   transform: translateY(1px);
 }
 
-.featureFolder:hover .featureFolderCard {
-  border-color: var(--border-accent);
-}
 
 .featureFolderDesc {
   margin: 0;

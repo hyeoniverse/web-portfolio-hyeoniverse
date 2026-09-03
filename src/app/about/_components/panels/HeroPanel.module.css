@@ -89,14 +89,6 @@ html[data-theme="dark"] .heroBgDark {
   letter-spacing: 0.2em;
 }
 
-.heroTitle {
-  margin-bottom: var(--_space-divide);
-  font-family: var(--_font-display);
-  font-size: var(--font-size-hero);
-  line-height: var(--_lh-title);
-  letter-spacing: var(--_ls-title);
-}
-
 .heroSubtitle {
   margin: 0;
   font-size: var(--_hero-subtitle-font-size, var(--font-size-subhead));

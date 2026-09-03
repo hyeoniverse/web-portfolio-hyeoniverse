@@ -136,30 +136,6 @@
 
 /* Page navigation — fixed at bottom of sidebar */
 
-.troublePageBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  border: none;
-  background: transparent;
-  font-size: inherit;
-  line-height: 1;
-  color: inherit;
-}
-
-.troublePageBtn:hover {
-  color: var(--text-accent);
-}
-
-.troublePageBtn:disabled {
-  opacity: 0.3;
-}
-
-.troublePageBtn:disabled:hover {
-  color: inherit;
-}
-
 /* File 행 — folder 아래에 들여쓰여 표시. file 아이콘 + 번호 + 제목 + 뱃지.
    min-width: 0 + overflow: hidden — sidebar 너비 안에 강제 (긴 제목은 title 의 ellipsis 가 잘라냄).
    max-width: 100% — Tooltip wrapper 가 inline 인 경우에도 item 이 부모 너비 안 초과 보장. */
@@ -376,57 +352,9 @@
 
 /* 상세 패널 헤더 옆 뱃지 묶음 */
 
-/* ── Right: detail content (세로 연속 스크롤) ── */
-.troubleDetail {
-  flex: 1;
-  position: relative;
-  min-width: 0;
-  min-height: 0;
-  overflow-y: auto;
-  scrollbar-width: none;
-}
-
-.troubleDetail::-webkit-scrollbar {
-  display: none;
-}
-
 /* detailHeader / detailNumber → shared (AboutSection.module.css) */
 
-/* Panel-specific number class — mobile size override targets this */
-.troubleDetailNumber {
-  /* base: no-op; shared .detailNumber + .watermarkNumber handle styles */
-}
-
-.troubleTitle {
-  margin: 0;
-  font-family: var(--_font-grotesk);
-  font-size: inherit;
-  font-weight: var(--font-weight-semibold);
-  line-height: var(--line-height-snug);
-}
-
-.troubleBody {
-  display: flex;
-  gap: var(--_space-block);
-  flex-direction: column;
-}
-
-.troubleEntry {
-  display: flex;
-  gap: var(--_space-line);
-  flex-direction: column;
-}
-
 /* entryLabel / entryLabelAccent / entryLabelInsight → shared (AboutSection.module.css) */
-
-.troubleEntry p {
-  margin: 0;
-  font-family: var(--_font-grotesk);
-  font-size: var(--font-size-prose);
-  line-height: var(--_lh-body);
-  color: var(--text-secondary);
-  white-space: pre-line;
-}
 
 /* ── Section label (그룹 헤더) ── */
 /* Folder 행 — 클릭 토글 (펼침/접힘). icon + 이름 + 항목 수. */
@@ -507,14 +435,6 @@
   text-transform: none;
 }
 
-/* ── 모바일 아코디언 리스트 (핀 스크롤) ──
-   모든 헤더는 항상 보이고, 활성 1개만 펼쳐짐.
-   리스트 전체는 translateY 로 활성 항목 헤더를 뷰포트 상단에 정렬.
-   wrap 은 overflow:hidden — 사용자 직접 스크롤은 막고 핀이 진행도를 제어 */
-.troubleAccordionWrap {
-  display: none; /* 데스크톱에서는 숨김, 모바일 미디어쿼리에서 활성화 */
-}
-
 /* ── Comparison tables ── */
 .troubleComparisons {
   display: flex;
@@ -589,13 +509,6 @@
   font-weight: var(--font-weight-semibold);
   color: var(--text-tertiary);
   letter-spacing: 0.05em;
-}
-
-/* ── Highlighted text (inline accent) ── */
-.highlightedText {
-  padding: var(--spacing-3xs) var(--spacing-2xs);
-  font-weight: var(--font-weight-medium);
-  color: var(--text-accent);
 }
 
 /* ==========================================================================
@@ -1188,23 +1101,6 @@
 
 /* 헤더 — 타이틀 + 뱃지 */
 
-/* 본문 — staggered reveal */
-.spotlightBody {
-  flex: 1 1 0;
-  min-height: 0;
-  overflow-y: auto;
-  scrollbar-width: none;
-  display: flex;
-  flex-direction: column;
-  gap: var(--_space-block);
-  position: relative;
-  z-index: 1;
-}
-
-.spotlightBody::-webkit-scrollbar {
-  display: none;
-}
-
 /* ===== Bento Reveal (split layout) ===== */
 /* wrap — flex column: 상단 detail 영역 + 하단 grid 영역 */
 
@@ -1212,202 +1108,21 @@
 
 /* detail 카드 — 활성 항목의 풀 컨텐츠. detailArea 전체를 채움 */
 
-.bentoDetailBody {
-  flex: 1 1 0;
-  min-height: 0;
-  overflow-y: auto;
-  scrollbar-width: none;
-  display: flex;
-  flex-direction: column;
-  gap: var(--_space-block);
-}
-
-.bentoDetailBody::-webkit-scrollbar {
-  display: none;
-}
-
 /* 하단 grid — 모든 항목 컴팩트 타일. 5 cols, 가로 넓은 비율 → grid 자체 높이 짧게 → detail 영역 충분 확보. 활성 타일은 invisible (자리만) */
 
 /* ===== Stack Cards ===== */
-/* wrap — 카드들을 absolute 로 쌓기 위한 컨테이너. perspective 로 3D 회전 깊이감.
-     상단 간격은 troublePinTitleRow 의 margin-bottom 에서 처리 (다른 패널과 통일).
-     flex: none + 명시적 높이 → 컨텐츠 가운데에 안정적으로 배치 (남는 공간 위/아래로 분배) */
-.troubleStackWrap {
-  position: relative;
-  flex: none;
-  height: min(55vh, 480px);
-  perspective: 1400px;
-}
-
-.troubleStackCard {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-2xl);
-  padding: var(--card-p-md);
-  box-shadow: 0 16px 40px oklch(0.00% 0.0000 0.00 / 0.18);
-  transform-origin: top center;
-  will-change: transform, opacity;
-  cursor: pointer;
-}
-
-/* compound (0,2,0) — 글로벌 transition shorthand 우회. body 트랜지션과 동일 곡선 */
-.troubleStackWrap .troubleStackCard {
-  transition:
-    transform 0.55s cubic-bezier(0.16, 1, 0.3, 1),
-    opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-
-.troubleStackCardBody {
-  flex: 1 1 0;
-  min-height: 0;
-  overflow-y: auto;
-  scrollbar-width: none;
-  display: flex;
-  flex-direction: column;
-  gap: var(--_space-block);
-}
-
-.troubleStackCardBody::-webkit-scrollbar {
-  display: none;
-}
 
 /* ===== 이전 accordion 스타일 (stack UI 확정 전 보존) =====
      CSS 는 모듈 안에 남겨도 사용처가 없으면 dead. 필요 시 git history 에서 복원.
      아래 .troubleAccordion* 룰은 더 이상 매칭되는 JSX 없음 — 빌드 영향 없음 */
-
-/* 아코디언 wrap — 활성 항목 앞/뒤로 ~2개만 visible.
-     높이 제한 + overflow:hidden + mask-image 로 양 끝 fade.
-     hover zone 을 위한 position: relative */
-.troubleAccordionWrap {
-  display: block;
-  position: relative;
-  flex: none;
-  height: min(60vh, 540px);
-  overflow: hidden;
-  mask-image: linear-gradient(
-    to bottom,
-    transparent 0,
-    black 12%,
-    black 88%,
-    transparent 100%
-  );
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    transparent 0,
-    black 12%,
-    black 88%,
-    transparent 100%
-  );
-}
-
-/* hover zone — 위/아래 30px. mouse enter 시 리스트 자동 스크롤 (JS) */
-.troubleAccordionHoverZoneTop,
-.troubleAccordionHoverZoneBottom {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 60px;
-  z-index: 10;
-  pointer-events: auto;
-  cursor: ns-resize;
-}
-.troubleAccordionHoverZoneTop {
-  top: 0;
-}
-.troubleAccordionHoverZoneBottom {
-  bottom: 0;
-}
 
 /* 리스트 — translateY 로 활성 헤더를 wrap 세로 중앙에 anchor.
      transform 트랜지션은 body 의 max-height 와 같은 0.55s ease-out 곡선 → 함께 움직여 sync */
 
 /* 섹션 구분 라벨 — 그룹 헤더. 호흡 있는 패딩 */
 
-/* 항목 wrapper — flex column 자식으로 자연 높이 */
-.troubleAccordionWrap .troubleAccordionItem {
-  flex: none;
-  border-bottom: var(--_line-secondary);
-}
-
 /* 헤더 — 호흡 있는 행. 위/아래 spacing-md */
 
-.troubleAccordionTitle {
-  flex: 1;
-  min-width: 0;
-  margin: 0;
-  font-family: var(--_font-grotesk);
-  font-size: var(--font-size-prose);
-  font-weight: var(--font-weight-medium);
-  line-height: var(--line-height-snug);
-  color: var(--text-secondary);
-}
-
-.troubleAccordionItemOpen .troubleAccordionTitle {
-  color: var(--text-primary);
-  font-weight: var(--font-weight-semibold);
-}
-
-.troubleAccordionItemOpen .troubleNumber {
-  color: var(--text-accent);
-}
-
-/* 헤더 우측 chevron — open 시 180도 회전으로 명확한 시각 피드백 */
-.troubleAccordionChevron {
-  flex: none;
-  color: var(--text-tertiary);
-  transition: transform 0.4s var(--ease-material) !important;
-}
-
-.troubleAccordionItemOpen .troubleAccordionChevron {
-  transform: rotate(180deg);
-  color: var(--text-accent);
-}
-
-/* bodyOuter: max-height 트랜지션 — 0.55s ease-out 으로 천천히 부드럽게 펼쳐지는 느낌.
-     !important 로 글로벌 theme transition shorthand 우회.
-     bodyInner: 자연 높이 콘텐츠 — measurement 대상. */
-.troubleAccordionBodyOuter {
-  transition: max-height 0.55s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  scrollbar-width: none;
-}
-
-.troubleAccordionBodyOuter::-webkit-scrollbar {
-  display: none;
-}
-
-/* watermarkNumber base → shared; panel-specific size override: */
-.troubleDetailNumber {
-  font-size: clamp(10rem, 40vw, 20rem);
-}
-
-.troubleTitle {
-  position: relative;
-  z-index: 1;
-  font-size: clamp(1rem, 3.5vw, 1.4rem);
-}
-
-.troubleBody {
-  gap: var(--_space-block);
-  position: relative;
-  z-index: 1;
-}
-
-.troubleEntry {
-  gap: var(--spacing-xs);
-}
-
-.troubleEntry p {
-  font-size: var(--font-size-prose);
-  line-height: var(--line-height-relaxed);
-}
-
-.highlightedText {
-  padding: var(--spacing-2xs) var(--spacing-sm);
-}
 
 /* ===== Diagram Fullscreen Viewer (interactive — zoom/pan) ===== */
 .diagramViewerOverlay {
