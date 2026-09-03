@@ -1,0 +1,235 @@
+/* works 갤러리 인트로 블록 — 각 프로젝트 세트 앞에 오는 타이틀·통계·인용. WorksSection.module.css 에서 분리 (#662). */
+/* Container: in-flow item inside gallerySlider */
+.intro {
+  --_intro-pad: 50px;
+  --_intro-text-max: 340px;
+
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: flex-end;
+  flex-direction: column;
+  justify-content: center;
+  flex-shrink: 0;
+  width: auto;
+  max-width: 480px;
+  height: 100%;
+  padding: calc(var(--header-height) + 24px) var(--_intro-pad) 40px;
+  font-family: var(--font-space-grotesk), sans-serif;
+  color: var(--text-primary);
+  text-align: right;
+  border-right: var(--border-strong);
+}
+
+/* Text elements: constrained width */
+.introLabel,
+.introTitle,
+.introTagline,
+.introDesc,
+.introDetail,
+.introQuote {
+  max-width: var(--_intro-text-max);
+}
+
+.introLabel {
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-accent-alt);
+  text-transform: uppercase;
+  letter-spacing: 0.35em;
+}
+
+.introTitle {
+  margin: 0;
+  font-family: var(--font-instrument), serif;
+  font-size: var(--fluid-font-size-6xl);
+  font-weight: var(--font-weight-light);
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+}
+
+.introTagline {
+  font-family: var(--font-instrument), serif;
+  font-size: var(--font-size-xl);
+  font-style: italic;
+  font-weight: var(--font-weight-regular);
+  letter-spacing: 0.02em;
+  opacity: 0.6;
+}
+
+/* Full-width line elements: break out of padding */
+.introDivider {
+  align-self: stretch;
+  margin-left: calc(-1 * var(--_intro-pad));
+  margin-right: calc(-1 * var(--_intro-pad));
+  height: 1px;
+  background: var(--border-color-strong);
+}
+
+.introDesc {
+  margin: 0;
+  min-height: 4.95em; /* 3 lines × 1.65 line-height — prevents layout shift on lang change */
+  font-size: var(--font-size-body-lg);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-relaxed);
+  color: var(--text-primary);
+}
+
+.introDetail {
+  margin: 0;
+  min-height: 6.6em; /* 4 lines × 1.65 line-height */
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-relaxed);
+  color: var(--text-secondary);
+}
+
+.introStats {
+  display: flex;
+  gap: var(--spacing-lg);
+  align-items: center;
+  align-self: stretch;
+  justify-content: flex-end;
+  margin-left: calc(-1 * var(--_intro-pad));
+  margin-right: calc(-1 * var(--_intro-pad));
+  padding: var(--spacing-md) var(--_intro-pad);
+  border-top: var(--border-strong);
+  border-bottom: var(--border-strong);
+}
+
+.introStat {
+  display: flex;
+  gap: var(--spacing-3xs);
+  flex-direction: column;
+  text-align: right;
+}
+
+.introStatNumber {
+  font-family: var(--font-instrument), serif;
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-light);
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.introStatLabel {
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+}
+
+.introStatDivider {
+  align-self: stretch;
+  margin-top: calc(-1 * var(--spacing-md));
+  margin-bottom: calc(-1 * var(--spacing-md));
+  width: 1px;
+  background: var(--border-color-strong);
+}
+
+.introScope {
+  align-self: stretch;
+  margin-left: calc(-1 * var(--_intro-pad));
+  margin-right: calc(-1 * var(--_intro-pad));
+  padding: 0 var(--_intro-pad) var(--spacing-sm);
+  border-bottom: var(--border-strong);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-accent-alt);
+  letter-spacing: 0.1em;
+}
+
+.introQuote {
+  margin: 0;
+  min-height: 3.3em; /* 2 lines × 1.65 line-height */
+  font-family: var(--font-instrument), serif;
+  font-size: var(--font-size-body-lg);
+  font-style: italic;
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-relaxed);
+  color: var(--text-secondary);
+  opacity: 0.6;
+}
+
+@media (max-width: 1024px), (max-height: 700px) {
+  .intro {
+    --_intro-pad: 1.5rem;
+    --_intro-text-max: none;
+
+    max-width: none;
+    width: 100%;
+    height: auto;
+    align-items: flex-start;
+    padding-top: 0;
+    /* 모바일 — intro 와 첫 프로젝트 사이 시각적 호흡 확보 */
+    padding-bottom: var(--spacing-4xl);
+    text-align: left;
+    border-right: none;
+  }
+
+  .introTitle {
+    font-size: var(--font-size-6xl);
+    line-height: 0.95;
+  }
+
+  .introTagline {
+    font-size: var(--font-size-body-xl);
+  }
+
+  .introDesc {
+    min-height: auto;
+    font-size: var(--font-size-body-xl);
+  }
+
+  .introDetail {
+    min-height: auto;
+    font-size: var(--font-size-body-lg);
+  }
+
+  .introStats {
+    justify-content: flex-start;
+  }
+
+  .introStat {
+    text-align: left;
+  }
+
+  .introStatNumber {
+    font-size: var(--font-size-5xl);
+  }
+
+  .introScope {
+    text-align: left;
+  }
+
+  .introQuote {
+    min-height: auto;
+    font-size: var(--font-size-body-xl);
+  }
+}
+
+@media (max-width: 480px) {
+  .intro {
+    --_intro-pad: var(--m-sm);
+  }
+
+  .introTitle {
+    font-size: var(--font-size-5xl);
+  }
+
+  .introDesc {
+    font-size: var(--font-size-body-lg);
+  }
+
+  .introDetail {
+    font-size: var(--font-size-body);
+  }
+
+  .introStatNumber {
+    font-size: var(--font-size-4xl);
+  }
+
+  .introQuote {
+    font-size: var(--font-size-body-lg);
+  }
+}
