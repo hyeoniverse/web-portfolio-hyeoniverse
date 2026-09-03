@@ -275,57 +275,6 @@
   color: var(--text-accent);
 }
 
-/* ── Sunburst mode ── */
-.archMap .archSunburst {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  inset: 0;
-}
-
-.archSunburst .archSbArc {
-  transition:
-    fill var(--duration-base) ease,
-    opacity var(--duration-base) ease;
-  fill: var(--bg-secondary);
-  stroke: var(--bg-primary);
-  stroke-width: 2;
-}
-
-.archSunburst .archSbArc:hover {
-  fill: var(--color-accent-alpha-10);
-}
-
-.archSunburst .archSbArcActive {
-  fill: var(--color-accent-alpha-20);
-}
-
-.archSunburst .archSbArcDimmed {
-  opacity: 0.25;
-}
-
-.archSunburst .archSbRoot {
-  transition:
-    fill var(--duration-base) ease,
-    opacity var(--duration-base) ease;
-  fill: var(--bg-secondary);
-  stroke: var(--border-default);
-  stroke-width: 1.5;
-}
-
-.archSunburst .archSbLabel {
-  font-family: var(--font-mono), monospace;
-  font-size: clamp(var(--font-size-micro), 0.65vw, 12px);
-  font-weight: var(--font-weight-medium);
-  pointer-events: none;
-  fill: var(--text-secondary);
-  text-anchor: middle;
-  dominant-baseline: central;
-}
-
-.archSunburst .archSbLabelLg {
-  font-size: clamp(var(--font-size-micro), 0.8vw, 14px);
-}
 
 /* ── Shared tooltip ── */
 .archMap .archTooltip {

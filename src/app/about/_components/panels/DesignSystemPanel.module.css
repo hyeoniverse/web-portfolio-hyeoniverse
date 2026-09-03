@@ -59,8 +59,7 @@
 }
 
 /* Full-cover background image */
-.dcCardBg,
-.dcMobileCardBg {
+.dcCardBg {
   position: absolute;
   z-index: 0;
   inset: 0;

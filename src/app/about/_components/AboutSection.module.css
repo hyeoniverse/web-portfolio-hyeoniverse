@@ -102,17 +102,6 @@
   letter-spacing: var(--_ls-title);
 }
 
-.panelNumber {
-  display: block;
-  margin-top: var(--header-height);
-  margin-bottom: var(--spacing-xs);
-  font-size: var(--font-size-prose-label);
-  font-weight: var(--font-weight-medium);
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.25em;
-}
-
 .panelTitle {
   margin: var(--header-height) 0 var(--_space-section);
   font-family: var(--font-instrument);
@@ -687,11 +676,6 @@
     min-height: auto;
   }
 
-  .panelNumber {
-    margin-bottom: var(--_space-block);
-    font-size: var(--font-size-prose);
-  }
-
   .panelTitle {
     margin-top: var(--spacing-4xl);
     margin-bottom: var(--_space-section);
@@ -743,16 +727,6 @@
 /* 타이틀 행 간격 최소화 — 공유 pinnedTitleRow(160px) 대신 사용 */
 .titleRowCompact {
   /* desktop: no-op */
-}
-
-/* 데스크톱 전용 영역 — 모바일에서 숨김 */
-.desktopOnly {
-  /* desktop: no-op (visible) */
-}
-
-/* 모바일 전용 영역 — 데스크톱에서 숨김 */
-.mobileOnly {
-  display: none;
 }
 
 /* 배경 번호 워터마크 — Backend/Troubleshooting 상세 번호 */
@@ -822,15 +796,6 @@
   .titleRowCompact h3 {
     margin-top: var(--spacing-md);
     margin-bottom: 0;
-  }
-
-  .desktopOnly {
-    display: none;
-  }
-
-  .mobileOnly {
-    display: flex;
-    flex-direction: column;
   }
 
   .watermarkNumber {

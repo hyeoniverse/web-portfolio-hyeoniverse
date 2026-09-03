@@ -305,40 +305,7 @@
   opacity: 0.7;
 }
 
-/* Generic demo button */
-.demoBtn {
-  padding: clamp(0.3rem, 0.45vh, 0.5rem) clamp(var(--font-size-micro), 0.8vw, 1.1rem);
-  border: var(--_line-primary);
-  background: transparent;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-prose-small);
-  color: var(--text-secondary);
 
-  border-radius: var(--radius-capsule);
-}
-
-.codeDemoInner .demoBtn {
-  transition:
-    border-color var(--duration-base) ease,
-    color var(--duration-base) ease;
-}
-
-.demoBtn:hover {
-  border-color: var(--border-accent);
-  color: var(--text-accent);
-}
-
-/* ── Demo 3: FontMorph ── */
-.demoFontText {
-  font-size: clamp(0.8rem, min(2.2vw, 3.9vh), 1.8rem);
-  font-weight: 500;
-  color: var(--text-primary);
-}
-
-/* Compound selector (0,2,0) to override global theme transition */
-.codeDemoInner .demoFontText {
-  transition: font-family var(--duration-base) ease;
-}
 
 /* ── Demo 4: Magnetic Hover ── */
 .demoMagneticBtn {
@@ -388,63 +355,7 @@
 
 /* ── Demo 8: Loading Progress ── */
 
-.demoLoadingBar {
-  width: 100%;
-  height: 100%;
-  background: var(--text-accent);
-  transform-origin: left;
-  transform: scaleX(0);
-}
 
-/* Compound selector (0,2,0) for transform transition */
-.codeDemoInner .demoLoadingBar {
-  transition: transform var(--duration-base) ease-out;
-}
-
-/* ── Demo 9: i18n Shift ── */
-.demoI18nRow {
-  display: flex;
-  gap: var(--spacing-sm);
-  align-items: flex-start;
-  overflow: visible;
-  width: 100%;
-  max-width: clamp(200px, 18vw, 320px);
-}
-
-@media (max-width: 1024px), (max-height: 700px) {
-  .demoI18nRow {
-    max-width: 100%;
-  }
-}
-
-/* ── Demo 11: Unit Test Runner ── */
-.demoTestRunner {
-  display: flex;
-  gap: var(--spacing-2xs);
-  flex-direction: column;
-  width: 100%;
-  max-width: clamp(200px, 18vw, 320px);
-  padding: var(--spacing-xs);
-  border: var(--_line-secondary);
-  font-family: var(--font-mono);
-  font-size: clamp(var(--font-size-micro), 0.6vw, 0.75rem);
-  border-radius: var(--radius-2xl);
-}
-
-.demoTestPass {
-  color: var(--text-success);
-}
-
-/* Compound selector (0,2,0) to override global theme transition */
-.codeDemoInner .demoTestPass {
-  transition: color var(--duration-fast) ease;
-}
-
-@media (max-width: 1024px), (max-height: 700px) {
-  .demoTestRunner {
-    max-width: 100%;
-  }
-}
 
 /* ==========================================================================
    Mobile overrides (1024px)
