@@ -1,0 +1,146 @@
+/* ── 관련 태그 줄 (RelatedTagsPanel) — 헤더 토글·다중 선택, pills, 그 외 전체 태그 펼침 패널 ── */
+
+/* ── Related tags — "관련 태그" label + pills 한 row ── */
+.relatedRow {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+}
+
+/* 첫 줄 — "관련 태그" label + 다중 선택 toggle */
+.relatedHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+/* 다중 선택 Button — outline variant 의 border-strong 을 border-light 로.
+   compound (0,2,0) 로 .variant-outline (0,1,0) 이김 */
+.selectModeBtn.selectModeBtn {
+  border: var(--border-light);
+}
+
+/* 관련 태그 헤더 트리거 — 공통 Button(ghost)로 교체. 기존 label 톤(uppercase·tertiary) 유지 + chevron 회전 */
+.relatedToggle.relatedToggle {
+  gap: var(--spacing-3xs);
+  padding-inline: var(--spacing-2xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-label);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.relatedToggleChevron {
+  transition: transform 0.25s var(--ease-material);
+}
+
+.relatedToggleChevronOpen {
+  transform: rotate(90deg);
+}
+
+/* "그 외 전체 태그" 펼침 패널 — 애니메이션(height/opacity)은 framer-motion 이 처리 */
+.allTagsPanel {
+  width: 100%;
+  overflow: hidden;
+}
+
+.allTagsInner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2xs);
+  padding-top: var(--spacing-sm);
+  border-top: var(--border-light);
+  max-height: 40vh;
+  overflow-y: auto;
+}
+
+.allTagsEmpty {
+  font-size: var(--font-size-label);
+  color: var(--text-tertiary);
+}
+
+.relatedTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2xs);
+}
+
+/* relatedPill — selectMode off: Link (페이지 이동) / on: button (필터 토글) — 같은 외형 */
+.relatedPill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  padding: var(--badge-p-lg);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-label);
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.relatedPill:hover {
+  background: var(--bg-accent-light);
+  color: var(--text-accent);
+}
+
+/* selectMode 켰을 때 — 실선 border + 배경 없이 (선택 가능 outline chip) */
+.relatedPillSelectable {
+  border: var(--border-default);
+  background: transparent;
+  padding-block: calc(var(--spacing-2xs) - 1px);
+  padding-inline: calc(var(--spacing-sm) - 1px);
+}
+
+/* selectable hover — accent 대신 border·텍스트를 검정으로 강조 (배경 없음) */
+.relatedPillSelectable:hover {
+  background: transparent;
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
+.relatedPillActive {
+  background: var(--bg-inverse);
+  color: var(--text-inverse);
+  border-color: transparent;
+}
+
+.relatedPillActive:hover {
+  background: var(--bg-inverse);
+  color: var(--text-inverse);
+}
+
+.relatedPillCount {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
+  opacity: 0.7;
+}
+
+
+/* 관련 태그 label hover tooltip — 번역 + 기준 설명 */
+.relatedLabelTooltip {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  max-width: 280px;
+}
+
+.relatedLabelTooltipMain {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.7;
+}
+
+.relatedLabelTooltipDesc {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-label);
+  line-height: var(--line-height-snug);
+}
