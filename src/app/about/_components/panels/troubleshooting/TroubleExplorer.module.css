@@ -1,0 +1,383 @@
+/* IDE 탐색기 사이드바 — 폴더/파일 목록, 필터 메뉴, 항목 툴팁. TroubleshootingPanel.module.css 에서 분리 (#668). */
+/* Sidebar = IDE Explorer 패널 — 좁고 darker surface, 우측 border 로 main pane 과 구분 */
+.troubleList {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  width: clamp(220px, 22vw, 340px);
+  height: 100%;
+  background: var(--bg-secondary);
+  border-right: 1px solid
+    color-mix(in srgb, var(--text-secondary) 12%, transparent);
+}
+
+/* Explorer 상단 라벨 — main pane 의 .ideBreadcrumb 와 동일 height (slim).
+   space-between 으로 title 좌측, filter 버튼 우측. */
+.ideExplorerHeader {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-md);
+  min-height: var(--_ide-top-row-h);
+  box-sizing: border-box;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--text-secondary) 12%, transparent);
+  white-space: nowrap;
+  --_ide-top-row-h: calc(var(--font-size-label) * 1.6 + var(--spacing-xs) * 2);
+}
+
+/* Filter 버튼 + dropdown menu */
+.ideExplorerFilterWrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.ideExplorerFilterBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  border-radius: var(--radius-capsule);
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.ideExplorerFilterBtn:hover {
+  background: color-mix(in srgb, var(--text-secondary) 12%, transparent);
+  color: var(--text-primary);
+}
+
+.ideExplorerFilterBtnActive {
+  color: var(--text-accent);
+}
+
+.ideExplorerFilterMenu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  min-width: 140px;
+  padding: var(--spacing-xs);
+  /* 투명 + backdrop blur */
+  backdrop-filter: blur(8px);
+  border: 1px solid color-mix(in srgb, var(--text-secondary) 18%, transparent);
+  border-radius: var(--radius-2xl);
+  box-shadow: 0 4px 16px oklch(0.00% 0.0000 0.00 / 0.18);
+  font-family: var(--_font-grotesk);
+  font-size: var(--font-size-label);
+  text-transform: none;
+  letter-spacing: normal;
+  color: var(--text-primary);
+}
+
+.ideExplorerFilterMenuItem {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  padding: var(--row-p-sm);
+  border: none;
+  background: transparent;
+  /* hover bg = capsule */
+  border-radius: var(--radius-capsule);
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.12s ease;
+}
+
+.ideExplorerFilterMenuItem:hover {
+  background: color-mix(in srgb, var(--text-secondary) 10%, transparent);
+}
+
+.ideExplorerFilterMenuItemActive {
+  color: var(--text-accent);
+}
+
+.ideExplorerFilterCheck {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  flex: none;
+}
+
+/* Scrollable area inside troubleList — 마지막 파일 아래 호흡 위해 padding-bottom */
+.troubleListScroll {
+  flex: 1 1 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+  padding-bottom: var(--spacing-xl);
+}
+
+.troubleListScroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* File 행 — folder 아래에 들여쓰여 표시. file 아이콘 + 번호 + 제목 + 뱃지.
+   min-width: 0 + overflow: hidden — sidebar 너비 안에 강제 (긴 제목은 title 의 ellipsis 가 잘라냄).
+   max-width: 100% — Tooltip wrapper 가 inline 인 경우에도 item 이 부모 너비 안 초과 보장. */
+.troubleListItem {
+  display: flex;
+  flex: none;
+  gap: var(--spacing-xs);
+  align-items: center;
+  padding: var(--row-p-md);
+  font-size: var(--font-size-label);
+  border: none;
+  cursor: pointer;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Hover tooltip 안 컨텐츠 — 메인 (현재 언어) + 보조 (다른 언어) */
+.ideExplorerFileTooltip {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+  max-width: 280px;
+}
+
+.ideExplorerFileTooltipMain {
+  font-family: var(--_font-grotesk);
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-semibold);
+  color: inherit;
+  line-height: var(--line-height-snug);
+}
+
+.ideExplorerFileTooltipSub {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-label);
+  color: color-mix(in srgb, currentColor 65%, transparent);
+  line-height: var(--line-height-snug);
+}
+
+/* 통합 tooltip 안 난이도 영역 — 라벨 + 짧은 설명 */
+.ideExplorerFileTooltipDifficulty {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  margin-top: var(--spacing-xs);
+  padding-top: var(--spacing-xs);
+  border-top: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+}
+
+.ideExplorerFileTooltipDifficultyDesc {
+  font-family: var(--_font-grotesk);
+  font-size: var(--font-size-label);
+  color: color-mix(in srgb, currentColor 70%, transparent);
+  line-height: var(--line-height-snug);
+}
+
+/* file 아이콘 (lucide FileText) — md 파일 모양 */
+.ideExplorerFileIcon {
+  flex: none;
+  color: var(--text-tertiary);
+  opacity: 0.7;
+}
+
+.troubleListItem:hover .ideExplorerFileIcon,
+.troubleListItemActive .ideExplorerFileIcon {
+  color: var(--text-accent);
+  opacity: 1;
+}
+
+/* Compound selector (0,2,0) to beat global html[data-theme-transitioning] * (0,1,1) */
+.troubleList .troubleListItem {
+  transition:
+    border-color var(--duration-base) ease,
+    padding-left var(--duration-base) ease;
+}
+
+.troubleListItem:hover {
+  background: color-mix(in srgb, var(--text-secondary) 8%, transparent);
+}
+
+.troubleListItem:hover .troubleNumber {
+  color: var(--text-accent);
+}
+
+.troubleListItem:hover .troubleListTitle {
+  color: var(--text-primary);
+}
+
+/* Active 파일 — VSCode 처럼 selection 배경 + accent leading bar */
+.troubleListItemActive {
+  background: color-mix(in srgb, var(--text-accent) 14%, transparent);
+  position: relative;
+}
+
+.troubleListItemActive::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--text-accent);
+}
+
+.troubleListItemActive .troubleListTitle {
+  color: var(--text-primary);
+}
+
+.troubleNumber {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-tertiary);
+}
+
+.troubleList .troubleNumber {
+  transition: color var(--duration-base) ease;
+}
+
+.troubleListItemActive .troubleNumber {
+  color: var(--text-accent);
+}
+
+.troubleListTitle {
+  overflow: hidden;
+  min-width: 0;
+  font-family: var(--_font-grotesk);
+  font-size: var(--font-size-prose-label);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-snug);
+  color: var(--text-secondary);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.troubleList .troubleListTitle {
+  transition: color var(--duration-base) ease;
+}
+
+.troubleListItemActive .troubleListTitle {
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+}
+
+/* ── 추천/난이도 뱃지 ── */
+.troubleListBadges {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.troubleRecommendedBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  color: var(--text-accent);
+}
+
+/* Folder 행 — 클릭 토글 (펼침/접힘). icon + 이름 + 항목 수. */
+.troubleSectionLabel {
+  display: flex;
+  flex: none;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-xs);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-secondary);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: var(--bg-secondary);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  cursor: pointer;
+  user-select: none;
+}
+
+.troubleSectionLabel:hover {
+  background: color-mix(in srgb, var(--text-secondary) 8%, var(--bg-secondary));
+}
+
+/* Folder 이름 — lucide ChevronDown + Folder 아이콘 + 텍스트 */
+.troubleSectionFolder {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+}
+
+.ideExplorerChevron {
+  flex: none;
+  color: var(--text-tertiary);
+  transition: transform var(--duration-base) ease;
+}
+
+/* 폴더 접힘 — chevron 90도 반시계 회전 (▾ → ▸) */
+.ideExplorerChevronCollapsed {
+  transform: rotate(-90deg);
+}
+
+.ideExplorerFolderIcon {
+  flex: none;
+  color: var(--text-accent);
+  margin-right: var(--spacing-3xs);
+}
+
+/* 첫 섹션 위 추가 padding 제거 */
+.troubleListScroll > .troubleSectionLabel:first-child {
+  padding-top: var(--spacing-sm);
+}
+
+/* 같은 섹션의 모든 item 들은 그룹 indent — 헤더 아래 묶여 있는 느낌 */
+.troubleListItemGrouped {
+  padding-left: var(--spacing-md);
+}
+
+/* 섹션 항목 개수 — 헤더 우측에 작게 */
+.troubleSectionCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 18px;
+  padding: 0 var(--spacing-xs);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-label);
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+@media (max-width: 1024px), (max-height: 700px) {
+  /* sidebar 숨김 — tab bar 가 항목 선택 책임 */
+  .troubleList {
+    display: none;
+  }
+}
