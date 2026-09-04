@@ -1,9 +1,7 @@
 "use client";
 
 import { useEffect, useRef, type RefObject } from "react";
-import shared from "../../AboutSection.module.css";
-import local from "../TroubleshootingPanel.module.css";
-const styles = { ...shared, ...local };
+import styles from "../TroubleshootingPanel.module.css";
 
 /* 모바일 항목 전환 — 세로 스크롤 하나로 본문 읽기와 항목 넘김을 같이 처리한다.
 

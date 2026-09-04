@@ -1,10 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import shared from "../../AboutSection.module.css";
-import local from "../DesignSystemPanel.module.css";
+import styles from "../DesignSystemPanel.module.css";
 import Pressable from "@/components/ui/Pressable";
-const styles = { ...shared, ...local };
 
 const fonts = [
   { label: "Inter", family: "var(--font-inter)" },

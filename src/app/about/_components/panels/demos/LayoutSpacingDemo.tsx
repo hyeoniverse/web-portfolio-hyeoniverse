@@ -1,6 +1,4 @@
-import shared from "../../AboutSection.module.css";
-import local from "../DesignSystemPanel.module.css";
-const styles = { ...shared, ...local };
+import styles from "../DesignSystemPanel.module.css";
 
 const spacingTokens = [
   { token: "2xs", px: 4 },

@@ -13,9 +13,11 @@ import CodeDemoSlot, { type CodeDemoMode } from "./CodeDemoSlot";
 import { detectCodeLanguage } from "./detectCodeLanguage";
 import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
 import PinnedTitleRow from "../PinnedTitleRow";
-import shared from "../AboutSection.module.css";
+import frame from "../AboutPanel.module.css";
+import shell from "../AboutSection.module.css";
 import local from "./CodeHighlightsPanel.module.css";
 import Pressable from "@/components/ui/Pressable";
+const shared = { ...frame, ...shell };
 const styles = { ...shared, ...local };
 
 interface CodeHighlightsPanelProps {

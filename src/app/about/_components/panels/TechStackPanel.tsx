@@ -1,8 +1,10 @@
 import type { TechStackItem } from "@/data/about";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { usePanelTitle } from "../../_hooks/usePanelTitle";
-import shared from "../AboutSection.module.css";
+import frame from "../AboutPanel.module.css";
+import shell from "../AboutSection.module.css";
 import local from "./TechStackPanel.module.css";
+const shared = { ...frame, ...shell };
 const styles = { ...shared, ...local };
 
 /* Inline brand SVGs — eliminates react-icons/si (~100kB) */

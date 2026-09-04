@@ -1,5 +1,7 @@
 import SharedCreditsPanel from "@/components/layout/CreditsFooter/CreditsPanel";
-import styles from "../AboutSection.module.css";
+import frame from "../AboutPanel.module.css";
+import shell from "../AboutSection.module.css";
+const styles = { ...frame, ...shell };
 
 export default function CreditsPanel() {
   return (

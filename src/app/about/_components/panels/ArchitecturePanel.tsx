@@ -17,9 +17,11 @@ import {
 } from "./_utils/architectureLayout";
 import { useForceGraph } from "./_utils/useForceGraph";
 import ArchDiagram from "./ArchDiagram";
-import shared from "../AboutSection.module.css";
+import frame from "../AboutPanel.module.css";
+import shell from "../AboutSection.module.css";
 import local from "./ArchitecturePanel.module.css";
 import Pressable from "@/components/ui/Pressable";
+const shared = { ...frame, ...shell };
 const styles = { ...shared, ...local };
 
 type ViewMode = "diagram" | "tree" | "treemap" | "force";

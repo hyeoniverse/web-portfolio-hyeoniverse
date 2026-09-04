@@ -11,7 +11,7 @@ import { useNearViewport } from "../../_hooks/useNearViewport";
    (노트가 여기선 하나만 떴고, 클릭 결과도 서로 달랐다). */
 import ErdExplorer from "@/components/about/ErdExplorer";
 import PinnedTitleRow from "../PinnedTitleRow";
-import shared from "../AboutSection.module.css";
+import shared from "../AboutPanel.module.css";
 import local from "./ErdPanel.module.css";
 const styles = { ...shared, ...local };
 
