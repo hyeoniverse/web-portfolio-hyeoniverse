@@ -67,7 +67,11 @@ setup("authenticate admin", async ({ page }) => {
     );
   }
 
-  expect(page.url(), "로그인 후 admin 으로 이동해야 합니다").not.toContain("/admin/login");
+  /* 성공 판정은 URL 이 아니라 "보호된 페이지에 들어가지는가" 로 한다.
+     로그인 API 가 200 을 주고 화면이 admin 으로 바뀌어도 주소는 /admin/login 그대로일 수 있어
+     (라우팅 없이 화면만 교체되는 경우), URL 단언은 멀쩡한 세션을 실패로 만든다. */
+  await page.goto("/admin/posts");
+  await expect(page, "세션이 유효하면 보호된 페이지에 머문다").not.toHaveURL(/\/admin\/login/);
 
   fs.mkdirSync(path.dirname(ADMIN_STATE), { recursive: true });
   await page.context().storageState({ path: ADMIN_STATE });
