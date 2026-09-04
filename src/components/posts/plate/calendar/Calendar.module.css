@@ -19,19 +19,6 @@
   min-width: 0;
 }
 .readerCalendar .calToolbar { margin-bottom: var(--spacing-sm); }
-/* 검색 범위 버튼 */
-.scopeBtn {
-  flex-shrink: 0;
-  padding: var(--spacing-3xs) var(--spacing-2xs);
-  border: none;
-  border-left: var(--border-light);
-  background: transparent;
-  color: var(--text-tertiary);
-  font-size: var(--font-size-hint);
-  white-space: nowrap;
-  cursor: pointer;
-}
-.scopeBtn:hover { color: var(--text-primary); }
 /* 툴바 버튼(필터/정렬) */
 .tbBtn {
   display: inline-flex;
@@ -66,23 +53,6 @@
   color: var(--text-white);
   font-size: var(--font-size-hint);
 }
-/* 드롭다운 메뉴(범위/정렬) */
-.tbMenuItem {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-sm);
-  padding: var(--row-p-sm);
-  border: none;
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  color: var(--text-primary);
-  font-size: var(--font-size-hint);
-  cursor: pointer;
-  transition: background-color 0.12s ease;
-}
-.tbMenuItem:hover { background: var(--bg-secondary); }
-.tbMenuItem svg { color: var(--color-accent); }
 /* 필터 메뉴 */
 .filterMenu {
   display: flex;
@@ -116,32 +86,6 @@
   border-color: var(--color-accent);
   background: var(--bg-accent);
 }
-.searchBox {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-  height: var(--control-h-sm);
-  padding: 0 var(--spacing-sm);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  background: var(--bg-secondary);
-}
-.searchInput {
-  border: none;
-  background: transparent;
-  color: var(--text-primary);
-  font-size: var(--font-size-hint);
-  outline: none;
-  width: 140px;
-}
-.searchClear {
-  display: inline-flex;
-  border: none;
-  background: transparent;
-  color: var(--text-tertiary);
-  cursor: pointer;
-}
-.searchClear:hover { color: var(--text-primary); }
 .filterChips {
   display: flex;
   flex-wrap: wrap;
@@ -244,18 +188,6 @@
   flex-shrink: 0;
   margin-left: auto;
 }
-.blockBarBtn {
-  height: var(--control-h-sm);
-  padding: 0 var(--spacing-md);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  background: var(--bg-primary);
-  color: var(--text-secondary);
-  font-size: var(--font-size-hint);
-  cursor: pointer;
-  transition: color 0.15s ease, border-color 0.15s ease;
-}
-.blockBarBtn:hover { color: var(--text-primary); border-color: var(--border-color-strong); }
 .blockBarIconBtn {
   display: inline-flex;
   align-items: center;
@@ -732,19 +664,6 @@
 .today .dayNum {
   background: var(--color-accent);
   color: var(--text-white);
-}
-
-.chips {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-3xs);
-  min-width: 0;
-}
-/* 레인 슬롯 — 고정 높이(빈 슬롯도 자리 차지해 셀 간 레인 정렬 → 기간 이벤트가 이어져 보임) */
-.lane {
-  display: flex;
-  height: 20px;
-  min-width: 0;
 }
 /* 기간 이벤트 바 — 셀 폭 가득 채우고, 이어지는 쪽 모서리는 flat */
 .spanL { border-top-left-radius: 0; border-bottom-left-radius: 0; }
@@ -1308,20 +1227,6 @@
 .dayRightCol .miniCal { border-bottom: var(--border-light); }
 .miniCalHead { display: flex; align-items: center; justify-content: space-between; margin: var(--spacing-sm) 0; }
 .miniCalTitleWrap { position: relative; display: inline-flex; }
-.miniCalTitle {
-  font-size: var(--font-size-body); font-weight: 700; color: var(--text-primary);
-  border: none; background: transparent; cursor: pointer;
-  padding: var(--spacing-4xs) var(--spacing-2xs); border-radius: var(--radius-capsule);
-  transition: background-color 0.12s ease;
-}
-.miniCalTitle:hover { background: var(--bg-secondary); }
-.miniCalNav {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 24px; height: 24px; border: none; border-radius: var(--radius-circle);
-  background: transparent; color: var(--text-tertiary); cursor: pointer;
-  transition: background-color 0.12s ease, color 0.12s ease;
-}
-.miniCalNav:hover { background: var(--bg-secondary); color: var(--text-primary); }
 .miniCalWeek, .miniCalGrid { display: grid; grid-template-columns: var(--grid-cols-7); gap: var(--spacing-3xs); }
 .miniCalDow { text-align: center; font-size: var(--font-size-micro); font-weight: 600; color: var(--text-tertiary); padding-bottom: var(--spacing-3xs); }
 .miniCalDow.sun { color: var(--color-accent); }
@@ -1452,8 +1357,6 @@
   overflow-y: hidden;
   overscroll-behavior-x: contain;
 }
-.agendaDay { height: 300px; display: flex; }
-.agendaDay .agendaCol { flex: 1; }
 .agendaCol {
   display: flex;
   flex-direction: column;
@@ -1505,7 +1408,6 @@
   font-variant-numeric: tabular-nums;
 }
 .agendaToday .agendaDate { background: var(--color-accent); color: var(--text-white); }
-.agendaDay .agendaDate { min-width: 0; height: auto; padding: var(--spacing-4xs) var(--spacing-2xs); border-radius: var(--radius-capsule); }
 .agendaCount {
   position: absolute;
   top: var(--spacing-2xs);
@@ -1897,17 +1799,6 @@
 @media (max-width: 560px) {
   .sectionRow { flex-direction: column; }
 }
-.periodToggle {
-  padding: var(--spacing-4xs) var(--spacing-sm);
-  border: 1px dashed var(--border-color-strong);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  color: var(--text-tertiary);
-  font-size: var(--font-size-hint);
-  cursor: pointer;
-  transition: color 0.15s ease, border-color 0.15s ease, background-color 0.12s ease;
-}
-.periodToggle:hover { color: var(--text-accent); border-color: var(--color-accent); }
 /* 기간 토글 ON — 공통 active 스타일(SegmentedControl 선택 등)과 동일한 검정 채움 */
 /* 클래스를 두 번 적어 (0,2,0) 으로 올린다 — Button 의 variant 규칙과 특이도가 같으면
    어느 쪽이 이길지가 두 CSS 모듈의 번들 순서에 달린다. */
@@ -2072,18 +1963,6 @@
   gap: var(--spacing-2xs);
 }
 .dateTilde { color: var(--text-tertiary); }
-.rangeToggle {
-  height: var(--control-h-sm);
-  padding: 0 var(--spacing-md);
-  border: 1px dashed var(--border-color-strong);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  color: var(--text-secondary);
-  font-size: var(--font-size-hint);
-  cursor: pointer;
-  transition: color 0.15s ease, border-color 0.15s ease;
-}
-.rangeToggle:hover { color: var(--text-accent); border-color: var(--color-accent); }
 .sectionLabel {
   font-size: var(--font-size-hint);
   font-weight: 600;
@@ -2182,23 +2061,6 @@
   border-radius: var(--radius-2xl);
   background: transparent;
 }
-
-/* 상태 (노션식) */
-.statusChip {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  height: var(--control-h-sm);
-  padding: 0 var(--spacing-md);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  background: var(--bg-primary);
-  color: var(--text-secondary);
-  font-size: var(--font-size-hint);
-  cursor: pointer;
-  transition: border-color 0.15s ease, background-color 0.12s ease, color 0.15s ease;
-}
-.statusChip:hover { color: var(--text-primary); border-color: var(--border-color-strong); }
 .statusDot {
   width: 8px;
   height: 8px;
@@ -2212,17 +2074,6 @@
   flex-wrap: wrap;
   gap: var(--spacing-2xs);
 }
-.tagRemove {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  border: none;
-  background: transparent;
-  color: var(--text-tertiary);
-  cursor: pointer;
-}
-.tagRemove:hover { color: var(--text-primary); }
 .tagSuggest {
   display: flex;
   flex-wrap: wrap;
@@ -2240,20 +2091,6 @@
   color: var(--text-accent) !important;
 }
 .suggestChip:hover svg { color: var(--color-accent); }
-.tagSuggestChip {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-3xs);
-  padding: var(--badge-p-lg);
-  border: 1px dashed var(--border-color-light);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  color: var(--text-tertiary);
-  font-size: var(--font-size-hint);
-  cursor: pointer;
-  transition: color 0.15s ease, border-color 0.15s ease;
-}
-.tagSuggestChip:hover { color: var(--text-accent); border-color: var(--color-accent); }
 
 /* 내용 textarea — 하단 우측 리사이즈 핸들과 겹치는 우상단 지우개 버튼 숨김 (글자수 카운터는 별도 표시) */
 
@@ -2297,27 +2134,6 @@
   color: var(--text-accent);
   border-color: var(--text-accent);
 }
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-3xs);
-  height: var(--control-h-sm);
-  padding: 0 var(--spacing-md);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  background: var(--bg-primary);
-  color: var(--text-secondary);
-  font-size: var(--font-size-hint);
-  cursor: pointer;
-  transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
-}
-.btn:hover { color: var(--text-primary); border-color: var(--border-color-strong); }
-.btnPrimary {
-  background: var(--color-accent);
-  color: var(--text-white);
-  border-color: transparent;
-}
-.btnPrimary:hover { color: var(--text-white); opacity: 0.9; }
 .timeToggle {
   display: inline-flex;
   align-items: center;
@@ -2380,20 +2196,6 @@
   transition: color 0.15s ease, border-color 0.15s ease;
 }
 .tlAdd:hover { color: var(--text-accent); border-color: var(--color-accent); }
-.tlIconBtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--control-h-sm);
-  height: var(--control-h-sm);
-  border: var(--border-light);
-  border-radius: var(--radius-circle);
-  background: var(--bg-primary);
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: color 0.15s ease, border-color 0.15s ease, background-color 0.12s ease;
-}
-.tlIconBtn:hover { color: var(--text-primary); border-color: var(--border-color-strong); }
 /* ── 간트 타임라인 (연속 날짜축 + 이벤트 바 + 오늘 세로선) ── */
 /* 가로(날짜)만 스크롤 — 세로는 내부 스크롤 없이 콘텐츠 높이대로(페이지가 스크롤) */
 .tlGantt { overflow-x: auto; overflow-y: auto; }
@@ -2868,140 +2670,8 @@
   font-size: var(--font-size-hint);
 }
 
-/* 하단 새로 만들기 */
-.tlNew {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-  align-self: flex-start;
-  margin: 0 var(--spacing-md) var(--spacing-md);
-  padding: var(--spacing-2xs) var(--spacing-md);
-  border: none;
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  color: var(--text-tertiary);
-  font-size: var(--font-size-hint);
-  cursor: pointer;
-  transition: color 0.15s ease, background-color 0.12s ease;
-}
-.tlNew:hover { color: var(--text-primary); background: var(--bg-secondary); }
-
 /* ── compact: 이벤트 있는 날만 카드 ── */
-/* compact 섹션 라벨 */
-.tlSectionLabel {
-  display: block;
-  font-size: var(--font-size-hint); font-weight: 700; letter-spacing: 0.02em;
-  color: var(--text-tertiary);
-  padding: 0 0 var(--spacing-sm) var(--spacing-2xs);
-}
-.tlSingleSection .tlSectionLabel { padding-top: var(--spacing-2xs); }
-/* 연결된 작업 체인 — 이벤트 노드 + 연결선(선행→후속) */
-.tlChain { display: flex; flex-direction: column; margin-bottom: var(--spacing-md); }
-.tlChain:last-child { margin-bottom: 0; }
-.tlChainRow { position: relative; display: flex; gap: var(--spacing-sm); align-items: stretch; padding-bottom: var(--spacing-2xs); }
-.tlChainRow > .tlCard { flex: 1; min-width: 0; }
-.tlChainRail { position: relative; width: 14px; flex-shrink: 0; }
-.tlChainRail::before {
-  content: ""; position: absolute; left: 50%; transform: translateX(-50%);
-  top: 0; bottom: calc(-1 * var(--spacing-2xs)); width: 2px; border-radius: 2px;
-  background: color-mix(in srgb, var(--_c) 45%, var(--border-color-light));
-}
-.tlChainRow:first-child .tlChainRail::before { top: 15px; }
-.tlChainRow:last-child .tlChainRail::before { bottom: auto; height: 15px; }
-.tlChainNode {
-  position: absolute; left: 50%; top: 15px; transform: translate(-50%, -50%);
-  width: 11px; height: 11px; border-radius: var(--radius-circle);
-  background: var(--bg-primary); border: 2.5px solid var(--_c);
-  box-shadow: 0 0 0 3px var(--bg-primary); z-index: 1;
-}
-.tlChainRowDone .tlChainNode { background: var(--_c); }
-/* 세로 타임라인 레일 — 날짜 노드 + 연결선 */
-.tlCardGroup {
-  position: relative;
-  padding: 0 0 var(--spacing-lg) var(--spacing-xl);
-}
-.tlCardGroup::before {
-  content: "";
-  position: absolute;
-  left: 5px;
-  top: 6px;
-  bottom: 0;
-  width: 2px;
-  background: var(--border-color-light);
-}
-.tlCardGroup:last-child::before { bottom: auto; height: 10px; }
-.tlDot {
-  position: absolute;
-  left: 0;
-  top: 1px;
-  width: 12px;
-  height: 12px;
-  border-radius: var(--radius-circle);
-  border: 2px solid var(--border-color-strong);
-  background: var(--bg-primary);
-  box-sizing: border-box;
-  z-index: 1;
-}
-.tlCardToday .tlDot { border-color: var(--color-accent); background: var(--color-accent); }
-.tlCardDate {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-  width: 100%;
-  margin-bottom: var(--spacing-xs);
-  padding: 0;
-  border: none;
-  background: transparent;
-  font-size: var(--font-size-body);
-  font-weight: 600;
-  color: var(--text-primary);
-  text-align: left;
-  cursor: pointer;
-}
-.tlDateLabel { position: relative; }
-/* hover 밑줄 — 좌→우로 그어지는 애니메이션 (compound 선택자로 전역 *::after transition override) */
-.tlDateLabel::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -2px;
-  height: 1.5px;
-  background: currentColor;
-  transform: scaleX(0);
-  transform-origin: left center;
-  transition: transform 0.28s ease;
-}
-.tlCardDate:hover .tlDateLabel::after { transform: scaleX(1); }
-.tlCardToday .tlCardDate { color: var(--text-accent); }
-.tlDateLabel { line-height: 1; }
-.tlCard {
-  display: flex;
-  align-items: stretch;
-  border: var(--border-light);
-  border-radius: var(--radius-2xl);
-  background: var(--bg-primary);
-  overflow: hidden;
-  transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
-}
-.tlCard:hover { border-color: var(--border-color-strong); box-shadow: var(--shadow-sm); }
 /* 카드 본문 — 클릭 시 간트 위치로 이동 */
-/* 세부사항 모달 열기 버튼 (카드 우측) */
-.tlCardOpen {
-  flex-shrink: 0;
-  align-self: stretch;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  border: none;
-  border-left: var(--border-light);
-  background: transparent;
-  color: var(--text-tertiary);
-  cursor: pointer;
-  transition: color 0.12s ease, background-color 0.12s ease;
-}
-.tlCardOpen:hover { color: var(--text-primary); background: var(--bg-tertiary); }
 /* 이동 대상 이벤트 강조 — 다음 인터랙션 전까지 반복 펄스 */
 .tlBarHighlight { animation: tlHl 1.5s ease-in-out infinite; z-index: 3; }
 @keyframes tlHl {
@@ -3015,19 +2685,3 @@
   50% { background: color-mix(in srgb, var(--color-accent) 22%, var(--bg-primary)); box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent) 35%, transparent); color: var(--text-primary); }
 }
 /* 제목 왼쪽 라벨색 dot */
-/* 카드 → 간트에서 해당 위치로 이동 */
-.tlCardGoto {
-  flex-shrink: 0;
-  align-self: center;
-  margin-left: auto;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 26px;
-  height: 26px;
-  border-radius: var(--radius-circle);
-  color: var(--text-tertiary);
-  cursor: pointer;
-  transition: color 0.12s ease, background-color 0.12s ease;
-}
-.tlCardGoto:hover { color: var(--text-accent); background: var(--bg-primary); }

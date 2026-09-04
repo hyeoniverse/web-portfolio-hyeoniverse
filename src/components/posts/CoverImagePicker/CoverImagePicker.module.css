@@ -582,82 +582,8 @@
 
 /* native color input — label 전체 영역에 absolute (시각적으로 사라짐, click trigger 만) */
 
-.customColorHex {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  pointer-events: none;
-}
-
-/* position slider — chip 안 우측 영역 */
-.customColorPos {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-  flex: 1;
-  min-width: 80px;
-}
-
-.customColorPos input[type="range"] {
-  flex: 1;
-  height: 4px;
-  accent-color: var(--text-primary);
-}
-
 /* 좁은 컨트롤 영역에서 hex 숨김 — color swatch 만으로도 식별 가능 */
 @media (max-width: 480px) {
-  .customColorHex {
-    display: none;
-  }
-}
-
-.customColorRemove {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 14px;
-  height: 14px;
-  padding: 0;
-  border: none;
-  border-radius: var(--radius-circle);
-  background: transparent;
-  color: var(--text-muted);
-  font-size: 12px;
-  line-height: 1;
-  cursor: pointer;
-}
-
-.customColors .customColorRemove:hover {
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
-}
-
-.customColorAdd {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--size-2xs);
-  height: var(--size-2xs);
-  border: var(--border-light);
-  border-radius: var(--radius-circle);
-  background: transparent;
-  color: var(--text-tertiary);
-  font-size: 14px;
-  line-height: 1;
-  cursor: pointer;
-  transition:
-    background 0.15s ease,
-    color 0.15s ease,
-    border-color 0.15s ease;
-}
-
-/* hover 시 배경↔텍스트 invert */
-.customColors .customColorAdd:hover {
-  background: var(--text-primary);
-  border-color: var(--text-primary);
-  color: var(--bg-primary);
 }
 
 .customRow {
@@ -694,22 +620,6 @@
 .customTypeBtnActive {
   background: var(--text-primary);
   color: var(--bg-primary);
-}
-
-.customAngle {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  width: 100%;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
-  color: var(--text-tertiary);
-}
-
-.customAngle > span {
-  flex-shrink: 0;
-  min-width: var(--control-h-xs);
-  text-align: right;
 }
 
 /* 슬라이더 그룹 — 각도/크기/속도 가로 wrap */
@@ -763,11 +673,6 @@
   min-width: 38px;
   text-align: right;
   font-variant-numeric: tabular-nums;
-}
-
-.customAngle input[type="range"] {
-  flex: 1;
-  accent-color: var(--text-primary);
 }
 
 /* random shuffle 버튼 — icon only, apply 옆에 살짝 secondary 톤 */
@@ -944,13 +849,6 @@
   gap: var(--spacing-sm);
 }
 
-/* ── Input wrapper (capsule + clear) ── */
-.inputWrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
 /* AI 탭 — input + 생성 버튼을 한 줄로 */
 .inputRow {
   display: flex;
@@ -959,72 +857,9 @@
   /* margin-bottom 제거 — 부모 .aiForm(.tabSection) 의 gap 이 처리 */
 }
 
-.inputRow .inputWrapper {
-  flex: 1;
-}
-
 .inputRow .generateBtn {
   align-self: stretch;
   flex-shrink: 0;
-}
-
-.inputWrapper input,
-.inputWrapper textarea {
-  width: 100%;
-  /* 공통 Input 의 기본 높이와 동일 (--control-h-md = 32px) */
-  min-height: var(--control-h-md);
-  padding: 0 var(--spacing-2xl) 0 var(--spacing-md);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-body);
-  color: var(--text-primary);
-  outline: none;
-  resize: none;
-  box-sizing: border-box;
-}
-
-/* textarea 는 멀티라인 — 표준 input 보다 키울 수 있도록 padding-y 복원 */
-.inputWrapper textarea {
-  padding-top: var(--spacing-xs);
-  padding-bottom: var(--spacing-xs);
-}
-
-.inputWrapper input:focus,
-.inputWrapper textarea:focus {
-  border-color: var(--text-primary);
-}
-
-.inputWrapper input::placeholder,
-.inputWrapper textarea::placeholder {
-  color: var(--text-muted);
-}
-
-.clearBtn {
-  position: absolute;
-  right: var(--spacing-xs);
-  top: 50%;
-  transform: translateY(-50%);
-  width: 20px;
-  height: 20px;
-  border: none;
-  border-radius: var(--radius-circle);
-  background: var(--bg-tertiary);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-label);
-  line-height: 1;
-  color: var(--text-muted);
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.inputWrapper .clearBtn:hover {
-  /* hover 시 배경/텍스트 둘 다 invert — bg 가 어두워지면 X 도 밝게 (가독성 확보) */
-  background: var(--text-primary);
-  color: var(--bg-primary);
 }
 
 /* Unsplash 라이선스 안내 — 결과 위 한 줄 */
@@ -1275,78 +1110,6 @@
   color: var(--text-secondary);
 }
 
-/* ── AI History (세션 동안 생성한 이미지 이력) ── */
-.aiHistory {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2xs);
-  padding: var(--spacing-sm);
-  border-top: var(--border-light);
-}
-
-.aiHistoryItem {
-  position: relative;
-  aspect-ratio: 16 / 9;
-  border: 1px solid transparent;
-  border-radius: var(--radius-capsule);
-  overflow: hidden;
-}
-
-.aiHistoryThumb {
-  display: block;
-  width: 100%;
-  height: 100%;
-  padding: 0;
-  border: none;
-  background: var(--bg-tertiary);
-  cursor: pointer;
-}
-
-.aiHistoryThumb img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.aiHistory .aiHistoryThumb:hover img {
-  opacity: 0.85;
-}
-
-/* 다운로드 버튼 — 우상단 overlay (hover 시만 표시) */
-.aiHistoryDownload,
-.aiHistoryRemove {
-  position: absolute;
-  top: 4px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--control-h-2xs);
-  height: var(--control-h-2xs);
-  padding: 0;
-  border: none;
-  border-radius: var(--radius-circle);
-  background: var(--bg-overlay);
-  color: var(--text-inverse);
-  cursor: pointer;
-  opacity: 0;
-  transition: opacity 0.15s ease;
-}
-
-.aiHistoryDownload {
-  right: 4px;
-}
-.aiHistoryRemove {
-  left: 4px;
-}
-
-.aiHistoryItem:hover .aiHistoryDownload,
-.aiHistoryItem:hover .aiHistoryRemove,
-.aiHistoryDownload:focus-visible,
-.aiHistoryRemove:focus-visible {
-  opacity: 1;
-}
-
 /* active 표시 — 우하단 작은 체크 배지 */
 
 /* source 라벨 — 좌하단 (AI / Unsplash / Preset) */
@@ -1564,33 +1327,7 @@
   text-align: center;
 }
 
-.spinnerIcon {
-  /* inline span 은 width/height/transform 무시 — inline-block 필수 */
-  display: inline-block;
-  width: 14px;
-  height: 14px;
-  /* track(전체) 은 옅게, top arc 만 accent 로 — 회전 시 marker 가 잘 보이도록 contrast 확보 */
-  border: 2px solid var(--bg-tertiary);
-  border-top-color: var(--text-accent);
-  border-radius: var(--radius-circle);
-  animation: spinnerRotate 0.7s linear infinite;
-  /* will-change 로 GPU 가속 */
-  will-change: transform;
-}
-
-@keyframes spinnerRotate {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .spinnerIcon {
-    animation: none;
-  }
 }
 
 .emptyMsg {
@@ -1651,25 +1388,6 @@
 }
 
 /* ── Local Files Tab ── */
-
-.localFileCard {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  padding: 0;
-  border: var(--border-light);
-  border-radius: var(--radius-2xl);
-  background: var(--bg-primary);
-  cursor: pointer;
-  overflow: hidden;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-}
-
-.localFileCard:hover {
-  border-color: var(--text-tertiary);
-}
 
 /* ── 프로젝트 이미지 탭 ── */
 .projectWrap {

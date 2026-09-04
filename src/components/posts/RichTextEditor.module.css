@@ -89,87 +89,8 @@
 
 /* External column resize indicator — positioned outside contenteditable */
 
-/* 컬럼 드래그 중 rowResizeHandle hover 방지 */
-.wrapper[data-col-dragging] .rowResizeHandle {
-  pointer-events: none;
-  opacity: 0;
-}
-
 /* 셀 드래그 선택 중: cursor + 리사이즈 핸들 비활성화 */
 .wrapper[data-cell-dragging] {
-}
-.wrapper[data-cell-dragging] .rowResizeHandle,
-.wrapper[data-cell-dragging] .tableResizeRight,
-.wrapper[data-cell-dragging] .tableResizeBottom {
-  pointer-events: none;
-  opacity: 0;
-}
-
-/* Row height resize handle — external div at each row's bottom edge */
-.rowResizeHandle {
-  position: absolute;
-  height: 8px;
-  z-index: 15;
-  display: flex;
-  align-items: center;
-}
-
-.rowResizeHandle::after {
-  content: "";
-  width: 100%;
-  height: 2px;
-  border-radius: var(--spacing-4xs);
-  background: transparent;
-  transition: background-color 0.15s;
-}
-
-.rowResizeHandle:hover::after {
-  background: var(--bg-accent-solid);
-}
-
-/* Table-level resize handles */
-.tableResizeRight {
-  position: absolute;
-  width: 8px;
-  z-index: 15;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.tableResizeRight::after {
-  content: "";
-  width: 4px;
-  height: 100%;
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  transition: background-color 0.15s;
-}
-
-.tableResizeRight:hover::after {
-  background: var(--bg-accent-solid);
-}
-
-.tableResizeBottom {
-  position: absolute;
-  height: 8px;
-  z-index: 15;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.tableResizeBottom::after {
-  content: "";
-  width: 100%;
-  height: 4px;
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  transition: background-color 0.15s;
-}
-
-.tableResizeBottom:hover::after {
-  background: var(--bg-accent-solid);
 }
 
 /* Toolbar */
@@ -185,21 +106,6 @@
   background: var(--bg-tertiary);
   overflow: visible;
   position: relative;
-  z-index: var(--z-dropdown);
-}
-
-/* 선택 영역 위에 뜨는 floating 포맷팅 툴바 — 위치(top/left/position)는
-   useFloatingToolbar(props.style) 가 inline 으로 지정, 여기선 시각 스타일만. */
-.floatingToolbar {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-  padding: var(--spacing-2xs) var(--spacing-xs);
-  background: var(--bg-glass-strong);
-  backdrop-filter: blur(8px);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  box-shadow: 0 8px 24px oklch(0% 0 0 / 0.18);
   z-index: var(--z-dropdown);
 }
 
@@ -251,17 +157,6 @@
   margin: 0 var(--spacing-2xs);
   background: var(--border-color-light);
   flex-shrink: 0;
-}
-
-/* floating toolbar 안의 Turn into Select trigger — border 제거, 툴바 버튼처럼.
-   compound selector 로 Select .trigger(단일 클래스)보다 우선순위 확보. */
-:is(.floatingToolbar, .floatingBar) .turnIntoTrigger {
-  border: none;
-  background: transparent;
-}
-
-:is(.floatingToolbar, .floatingBar) .turnIntoTrigger:hover {
-  background: var(--bg-tertiary-alt);
 }
 
 /* floating toolbar 오버플로(⋯) 드롭다운 내부 — Popover .dropdown 위에 레이아웃만 */
@@ -331,73 +226,11 @@
   background: var(--bg-tertiary-alt);
   color: var(--text-primary);
 }
-/* 스타일 섹션 — [헤더(라벨+액션)] + [현재색·피커·프리셋] + [최근색] 을 세로로 쌓음 */
-.tableMenu .tableStyleSection {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2xs);
-  padding: var(--spacing-xs) var(--spacing-3xs);
-  min-width: 15rem;
-}
-.tableMenu .tableStyleSection + .tableStyleSection {
-  border-top: 1px solid var(--border-color-light);
-}
-.tableMenu .tableStyleHead {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-}
-.tableMenu .tableStyleHead .tableGroupLabel {
-  flex: 1;
-}
-/* 현재색 스와치 — 색 없으면(투명/없음) checkerBg 로 표시 */
-.tableMenu .colorSwatch {
-  width: 18px;
-  height: 18px;
-  border-radius: var(--radius-capsule);
-  border: 1px solid var(--border-color-light);
-  flex-shrink: 0;
-}
-/* 최근색 행 */
-.tableMenu .tableRecentRow {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-  padding-left: var(--spacing-3xs);
-}
-.tableMenu .tableRecentLabel {
-  flex-shrink: 0;
-  font-size: var(--font-size-hint);
-  color: var(--text-muted);
-}
 /* 프리셋 dot — 자체 margin 제거하고 그룹 gap(3xs)에 위임 → 간격 일관 */
 .tableMenu .presetDotInline {
   margin: 0;
   width: 16px;
   height: 16px;
-}
-/* 투명/없음 표시용 격자무늬 — 클릭 가능한 스와치/프리셋에 재사용 (opacity·pointer-events 없음) */
-.checkerBg {
-  background-color: var(--bg-primary);
-  background-image:
-    linear-gradient(
-      45deg,
-      var(--border-color-light) 25%,
-      transparent 25%,
-      transparent 75%,
-      var(--border-color-light) 75%
-    ),
-    linear-gradient(
-      45deg,
-      var(--border-color-light) 25%,
-      transparent 25%,
-      transparent 75%,
-      var(--border-color-light) 75%
-    );
-  background-size: 6px 6px;
-  background-position:
-    0 0,
-    3px 3px;
 }
 
 .menuIcon {
@@ -434,41 +267,6 @@
   max-height: none;
   overflow: visible;
 }
-/* 컨트롤 — 정렬 + 카테고리 필터 */
-.postLinkSort {
-  align-self: flex-start;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-4xs);
-  padding: var(--spacing-2xs) var(--spacing-2xs);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  color: var(--text-secondary);
-  font-size: var(--font-size-micro);
-  cursor: pointer;
-}
-.postLinkSort:hover { color: var(--text-primary); border-color: var(--border-color-strong); }
-.postLinkCats {
-  display: flex;
-  gap: var(--spacing-4xs);
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-.postLinkCats::-webkit-scrollbar { display: none; }
-.postLinkCat {
-  flex-shrink: 0;
-  padding: var(--spacing-3xs) var(--spacing-2xs);
-  border: none;
-  border-radius: var(--radius-capsule);
-  background: var(--bg-secondary);
-  color: var(--text-tertiary);
-  font-size: var(--font-size-micro);
-  white-space: nowrap;
-  cursor: pointer;
-  transition: color 0.12s ease, background-color 0.12s ease;
-}
-.postLinkCat:hover { color: var(--text-primary); }
 .postLinkList {
   display: flex;
   flex-direction: column;
@@ -540,27 +338,6 @@
   color: var(--text-muted);
   text-align: center;
 }
-.postLinkMore {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-3xs);
-  width: 100%;
-  margin-top: var(--spacing-3xs);
-  padding: var(--spacing-2xs) var(--spacing-sm);
-  border: none;
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-size: var(--font-size-hint);
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: color 0.15s ease, background-color 0.15s ease;
-}
-.postLinkMore:hover:not(:disabled) {
-  color: var(--text-primary);
-  background: var(--bg-secondary);
-}
-.postLinkMore:disabled { cursor: default; opacity: 0.7; }
 .postLinkSpin { animation: postLinkSpin 0.8s linear infinite; }
 @keyframes postLinkSpin { to { transform: rotate(360deg); } }
 
@@ -919,12 +696,6 @@
   line-height: 1.6;
   color: var(--text-secondary);
 }
-/* 예시 2열 그리드 */
-.mermaidHelpGrid {
-  display: grid;
-  grid-template-columns: var(--grid-cols-2);
-  gap: var(--spacing-lg);
-}
 /* 간트처럼 가로가 긴 항목은 2열 다 차지 */
 .mermaidHelpExampleWide {
   grid-column: 1 / -1;
@@ -1251,9 +1022,6 @@
 }
 /* 모바일 — 1열 */
 @media (max-width: 640px) {
-  .mermaidHelpGrid {
-    grid-template-columns: 1fr;
-  }
   .mermaidHelpExampleWide {
     grid-column: auto;
   }
@@ -1350,100 +1118,9 @@
 
 /* ── Font picker dropdown ── */
 
-.fontDropItem {
-  padding: var(--row-p-sm);
-  border-radius: var(--radius-capsule);
-  margin: var(--spacing-4xs) var(--spacing-3xs);
-  font-size: var(--font-size-label);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.fontDropItem:hover {
-  background: var(--bg-accent-solid);
-  color: var(--text-white);
-}
-
-.fontDropFooterLink {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-  font-size: var(--font-size-label);
-  color: var(--text-muted);
-  text-decoration: none;
-}
-
-.fontDropFooterLink:hover {
-  color: var(--text-primary);
-}
-
-/* Width overrides for narrower selects */
-.fontSizeSelect {
-  width: 62px;
-}
-
-.lhSelect {
-  width: 56px;
-}
-
-.toolbarInlineInput.toolbarInlineInput {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-4xs);
-  cursor: text;
-  color: var(--text-primary);
-  border-color: var(--text-primary);
-  padding: 0 var(--spacing-xs);
-  background-image: none;
-  user-select: none;
-}
-
-.inlineCursor {
-  display: inline-block;
-  width: 1px;
-  height: 1em;
-  background: var(--text-primary);
-  animation: cursorBlink 1s step-end infinite;
-}
-
-@keyframes cursorBlink {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0;
-  }
-}
-
-.lsSelect {
-  width: 80px;
-}
-
 /* Input mode: hide arrow, reduce right padding */
 
 /* Embed start time */
-
-.embedTimeInput {
-  width: 24px;
-  height: 20px;
-  border: none;
-  border-radius: 0;
-  background: transparent;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
-  color: inherit;
-  text-align: center;
-  outline: none;
-  -moz-appearance: textfield;
-}
-
-.embedTimeInput::-webkit-inner-spin-button,
-.embedTimeInput::-webkit-outer-spin-button {
-  display: none;
-}
 
 /* Table controls group */
 .tableGroup {
@@ -1496,11 +1173,6 @@
 
 .tableGroup .selectWrap .fontSelect {
   border-left: none;
-}
-
-.tableGroup .linkInput {
-  border-left: var(--border-light);
-  border-radius: 0;
 }
 
 .tableDangerBtn {
@@ -1611,22 +1283,6 @@
   margin: var(--spacing-3xs);
   background: var(--border-color-light);
   flex-shrink: 0;
-}
-
-/* ── 컬럼 BG/Line popover 트리거 + 메뉴 ── */
-.colMenuTrigger {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-  padding: var(--spacing-3xs) var(--spacing-xs);
-  border: 1px solid var(--border-color-light);
-  border-radius: var(--radius-2xl);
-  background: transparent;
-  cursor: pointer;
-  transition: border-color 0.15s ease;
-}
-.colMenuTrigger:hover {
-  border-color: var(--text-primary);
 }
 
 /* ── 열블록 색상 popover (BG / Line) 개선판 ── */
@@ -1827,115 +1483,10 @@
   font-variant-numeric: tabular-nums;
   color: var(--text-muted);
 }
-/* 현재 적용 모드가 아닌 쪽(참고값) — 흐리게 */
-.widthDim {
-  opacity: 0.45;
-}
-/* 편집(포커스) 중엔 흐림 해제 — 참고값이라도 직접 수정 중이면 또렷하게. (0,2,0) 이라 전역 override 무관 */
-.widthDim:focus-within {
-  opacity: 1;
-}
-/* 균등 정렬 버튼 (열 너비 / 셀 크기 일괄 통일) */
-.equalizeBtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--control-h-xs);
-  height: var(--control-h-xs);
-  border-radius: var(--radius-circle);
-  border: var(--border-light);
-  background: var(--bg-secondary);
-  color: var(--text-secondary);
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: background var(--duration-fast) var(--ease-material), color var(--duration-fast) var(--ease-material);
-}
-.equalizeBtn:hover {
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
-}
 /* 색 견본 위에 그리는 체크 — 테마가 아니라 견본 색에 맞춰 고르므로 고정 흑백을 쓴다. */
 .swatchCheckDark { color: var(--color-gray-alpha-100); }
 .swatchCheckLight { color: var(--color-white-alpha-100); }
 /* tooltip 내용 — 이름 + HEX 두 줄 */
-
-
-/* Link / Embed input wrapper — matches .tableGroup capsule style */
-.linkInputWrap {
-  display: inline-flex;
-  max-width: 320px;
-  align-items: center;
-  height: 24px;
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  overflow: hidden;
-}
-
-.linkInput {
-  flex: 1;
-  min-width: 0;
-  height: 100%;
-  border: none;
-  background: transparent;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
-  color: var(--text-primary);
-  padding: 0 var(--spacing-xs);
-  outline: none;
-}
-
-.linkInput::placeholder {
-  color: var(--text-muted);
-}
-
-/* ── Link capsule (protocol + url) ── */
-.linkCapsule {
-  display: flex;
-  align-items: center;
-  flex: 1;
-  min-width: 140px;
-  max-width: 220px;
-  height: 24px;
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  overflow: hidden;
-}
-
-.linkCapsule:focus-within {
-  border-color: var(--text-primary);
-}
-
-.linkProtocol {
-  flex-shrink: 0;
-  height: 100%;
-  border: none;
-  border-right: var(--border-light);
-  background: transparent;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
-  color: var(--text-tertiary);
-  padding: 0 var(--spacing-2xs);
-  outline: none;
-  -webkit-appearance: none;
-  appearance: none;
-}
-
-.linkCapsuleInput {
-  flex: 1;
-  min-width: 0;
-  height: 100%;
-  border: none;
-  background: transparent;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
-  color: var(--text-primary);
-  padding: 0 var(--spacing-xs);
-  outline: none;
-}
-
-.linkCapsuleInput::placeholder {
-  color: var(--text-muted);
-}
 
 /* ── Link actions group ── */
 .linkActions {
@@ -2018,14 +1569,6 @@
 .linkUrlField {
   width: 220px;
   flex-shrink: 0;
-}
-
-.linkInputWrap .toolbarBtn {
-  flex-shrink: 0;
-  border: none;
-  border-left: var(--border-light);
-  border-radius: 0;
-  padding: var(--button-p-xs);
 }
 
 /* Color picker inline cell */
@@ -2134,14 +1677,6 @@
   font-style: italic;
 }
 
-/* Border color row — ColorPicker 와 preset 구분 */
-.borderColorRow {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  flex-wrap: wrap;
-}
-
 .borderPopSection {
   display: flex;
   flex-direction: column;
@@ -2208,20 +1743,6 @@
   pointer-events: none;
 }
 
-/* Select inside border popover */
-.borderPopSelect {
-  width: 100%;
-  height: var(--control-h-2xs);
-  padding: 0 var(--spacing-xs);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
-  color: var(--text-primary);
-  outline: none;
-}
-
 /* Border width capsule group */
 .borderWidthCapsule {
   display: inline-flex;
@@ -2260,24 +1781,6 @@
   background: var(--text-primary);
 }
 
-/* ── Border dropdown ── */
-.borderDropWrap {
-  position: relative;
-}
-
-/* (0,2,0) — 글로벌 transition (0,1,1) 보다 높아서 transform transition 유지 */
-.borderDropWrap .borderDropArrow {
-  transform-box: fill-box;
-  transform-origin: center;
-  transition: transform 0.22s var(--ease-out-expo);
-}
-
-.borderColorRow {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-}
-
 /* Color picker group */
 .colorGroup {
   position: relative;
@@ -2291,14 +1794,6 @@
 .toolbar .colorGroup:hover,
 .floatingBar .colorGroup:hover {
   background: var(--bg-tertiary-alt);
-}
-
-.colorLabel {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
-  font-weight: 600;
-  color: var(--text-tertiary);
-  line-height: 1;
 }
 
 .colorIndicator {
@@ -2384,389 +1879,6 @@
 
 .editorContainer > *:last-child {
   border-bottom: none !important;
-}
-
-/* Editor content */
-.editor {
-  height: 100%;
-  border: none;
-  border-radius: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
-  scrollbar-width: thin;
-  scrollbar-color: var(--border-color-strong) transparent;
-}
-
-.editor::-webkit-scrollbar {
-  display: block;
-  width: 6px;
-}
-
-.editor::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.editor::-webkit-scrollbar-thumb {
-  background: var(--border-color-strong);
-  border-radius: var(--radius-capsule);
-}
-
-.editor::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
-}
-
-
-.editor :global(.tiptap) {
-  padding: var(--spacing-md);
-  outline: none;
-  min-height: 400px;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-body);
-  line-height: var(--line-height-normal);
-  color: var(--text-primary);
-  font-synthesis: style; /* 글로벌 font-synthesis: none 우회 — italic 합성 허용 */
-}
-
-.editor :global(.tiptap) h1,
-.editor :global(.tiptap) h2,
-.editor :global(.tiptap) h3 {
-  font-family: var(--font-instrument);
-  font-weight: var(--font-weight-regular);
-  margin: var(--spacing-lg) 0 var(--spacing-sm);
-}
-
-.editor :global(.tiptap) h1 {
-  font-size: var(--font-size-2xl);
-}
-
-.editor :global(.tiptap) h2 {
-  font-size: var(--font-size-title-md);
-}
-
-.editor :global(.tiptap) p {
-  margin-bottom: var(--spacing-sm);
-}
-
-.editor :global(.tiptap) code {
-  font-family: var(--font-mono);
-  font-size: 0.9em;
-  padding: var(--spacing-2xs) var(--spacing-xs);
-  background: var(--bg-tertiary);
-  border-radius: var(--radius-capsule);
-}
-
-.editor :global(.tiptap) pre {
-  padding: var(--spacing-md);
-  background: var(--bg-tertiary);
-  border-radius: var(--radius-2xl);
-  overflow-x: auto;
-  margin-bottom: var(--spacing-md);
-}
-
-.editor :global(.tiptap) pre code {
-  padding: 0;
-  background: transparent;
-}
-
-.editor :global(.tiptap) img {
-  max-width: 100%;
-  border-radius: var(--radius-2xl);
-  display: block;
-}
-
-.editor :global(.tiptap) img[data-align="left"] {
-  margin-left: 0;
-  margin-right: auto;
-}
-
-.editor :global(.tiptap) img[data-align="center"] {
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.editor :global(.tiptap) img[data-align="right"] {
-  margin-left: auto;
-  margin-right: 0;
-}
-
-.editor :global(.tiptap) img.ProseMirror-selectednode {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 2px;
-}
-
-/* Figure + caption */
-.editor :global(.tiptap) figure {
-  margin: var(--spacing-md) 0;
-}
-
-.editor :global(.tiptap) figure[data-align="left"] {
-  margin-right: auto;
-}
-
-.editor :global(.tiptap) figure[data-align="center"] {
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.editor :global(.tiptap) figure[data-align="right"] {
-  margin-left: auto;
-  margin-right: 0;
-}
-
-.editor :global(.tiptap) figcaption {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-label);
-  color: var(--text-secondary);
-  text-align: center;
-  padding: var(--spacing-xs) 0;
-  outline: none;
-}
-
-.editor :global(.tiptap) figcaption:empty::before,
-.figCaption:empty::before {
-  content: "캡션을 입력하세요";
-  color: var(--text-muted);
-  pointer-events: none;
-}
-
-.figCaption {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-label);
-  color: var(--text-secondary);
-  text-align: center;
-  padding: var(--spacing-xs) 0;
-  outline: none;
-}
-
-/* Task list */
-.editor :global(.tiptap) ul[data-type="taskList"] {
-  list-style: none;
-  padding-left: 0;
-}
-
-.editor :global(.tiptap) ul[data-type="taskList"] li {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--spacing-xs);
-  margin-bottom: var(--spacing-2xs);
-}
-
-.editor :global(.tiptap) ul[data-type="taskList"] li > label {
-  flex-shrink: 0;
-  margin-top: var(--spacing-3xs);
-}
-
-.editor
-  :global(.tiptap)
-  ul[data-type="taskList"]
-  li
-  > label
-  input[type="checkbox"] {
-  width: 14px;
-  height: 14px;
-  accent-color: var(--text-accent);
-}
-
-.editor :global(.tiptap) ul[data-type="taskList"] li > div {
-  flex: 1;
-  min-width: 0;
-}
-
-.editor
-  :global(.tiptap)
-  ul[data-type="taskList"]
-  li[data-checked="true"]
-  > div {
-  text-decoration: line-through;
-  color: var(--text-tertiary);
-}
-
-/* Table */
-.editor :global(.tiptap .tableWrapper) {
-  overflow-x: auto;
-}
-
-.editor :global(.tiptap) table {
-  border-collapse: separate;
-  border-spacing: 0;
-  width: 100%;
-  margin: var(--spacing-md) 0;
-  font-size: var(--font-size-body);
-  border-right: var(--border-light);
-  border-bottom: var(--border-light);
-  table-layout: fixed;
-}
-
-.editor :global(.tiptap) table th,
-.editor :global(.tiptap) table td {
-  border-top: var(--border-light);
-  border-left: var(--border-light);
-  border-right: none;
-  border-bottom: none;
-  padding: var(--cell-p-sm);
-  vertical-align: top;
-  min-width: 60px;
-  position: relative;
-  word-break: break-word;
-  overflow-wrap: break-word;
-  transition: background-color 0.15s;
-}
-
-.editor :global(.tiptap) table th {
-  background: var(--bg-tertiary-alt);
-  font-weight: var(--font-weight-medium);
-  text-align: left;
-}
-
-/* 셀 안 마지막 p의 margin-bottom 제거 (셀 패딩과 중복 방지) */
-.editor :global(.tiptap) table td p:last-child,
-.editor :global(.tiptap) table th p:last-child {
-  margin-bottom: 0;
-}
-
-/* Built-in handle hidden — layout impact 방지. 시각적 indicator는 외부 React overlay로 렌더링 */
-.editor :global(.column-resize-handle) {
-  display: none;
-}
-
-/* Focused cell: 커서가 위치한 셀 — ::before overlay (border-collapse와 무관하게 동작) */
-.editor :global(.tiptap) table td[data-focused]::before,
-.editor :global(.tiptap) table th[data-focused]::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border: var(--border-accent-strong-2);
-  pointer-events: none;
-  z-index: 3;
-}
-
-/* 선택된 셀: pseudo-element + border 모두 제거 — 외곽선은 box-shadow inset이 담당 */
-.editor :global(.tiptap) table :global(.selectedCell)::before,
-.editor :global(.tiptap) table :global(.selectedCell)::after {
-  display: none !important;
-}
-
-.editor :global(.tiptap) table :global(.selectedCell) {
-  border-top: 1px solid transparent !important;
-  border-left: 1px solid transparent !important;
-}
-
-.editor :global(.tiptap) table td[data-cell-selected],
-.editor :global(.tiptap) table th[data-cell-selected] {
-  border-top: 1px solid transparent !important;
-  border-left: 1px solid transparent !important;
-}
-
-/* Underline */
-.editor :global(.tiptap) u {
-  text-decoration: underline;
-}
-
-/* Superscript / Subscript */
-.editor :global(.tiptap) sup {
-  font-size: 0.75em;
-  vertical-align: super;
-}
-
-.editor :global(.tiptap) sub {
-  font-size: 0.75em;
-  vertical-align: sub;
-}
-
-.editor :global(.tiptap) a {
-  color: var(--text-accent);
-}
-
-.editor :global(.tiptap) mark {
-  border-radius: var(--radius-capsule);
-  padding: 0 var(--spacing-3xs);
-}
-
-.editor :global(.tiptap) ul,
-.editor :global(.tiptap) ol {
-  padding-left: var(--spacing-xl);
-  margin-bottom: var(--spacing-sm);
-  list-style-position: outside;
-}
-
-.editor :global(.tiptap) ul {
-  list-style-type: disc;
-}
-
-.editor :global(.tiptap) ol {
-  list-style-type: decimal;
-}
-
-.editor :global(.tiptap) li {
-  margin-bottom: var(--spacing-2xs);
-}
-
-.editor :global(.tiptap) hr {
-  border: none;
-  border-top: var(--border-light);
-  margin: var(--spacing-lg) 0;
-}
-
-/* YouTube / iframe embed */
-.editor :global(.tiptap) div[data-youtube-video],
-.editor :global(.tiptap) iframe {
-  max-width: 100%;
-  border-radius: var(--radius-2xl);
-  margin: var(--spacing-md) 0;
-}
-
-.editor :global(.tiptap) div[data-youtube-video] iframe {
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  height: auto;
-  border: none;
-}
-
-.editor :global(.tiptap) p.is-editor-empty:first-child::before {
-  content: attr(data-placeholder);
-  color: var(--text-muted);
-  float: left;
-  height: 0;
-  pointer-events: none;
-}
-
-/* Image bubble menu */
-.imageBubble {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-3xs);
-  padding: var(--spacing-2xs);
-  background: var(--bg-primary);
-  border: var(--border-light);
-  border-radius: var(--radius-2xl);
-  box-shadow: var(--shadow-md);
-}
-
-.imageBubbleBtn {
-  padding: var(--button-p-xs);
-  border: none;
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
-  font-weight: 500;
-  color: var(--text-tertiary);
-  line-height: 1;
-}
-
-.imageBubble .imageBubbleBtn:hover {
-  background: var(--bg-tertiary-alt);
-  color: var(--text-primary);
-}
-
-.imageBubbleBtnActive {
-  background: var(--text-primary);
-  color: var(--bg-primary);
-}
-
-.imageBubble .imageBubbleBtnActive:hover {
-  background: var(--text-primary);
-  color: var(--bg-primary);
 }
 
 /* Status bar */
@@ -2998,40 +2110,6 @@
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
   line-height: 1.3;
-}
-
-/* ── Block DnD handle & indicator ── */
-.blockDragHandle {
-  position: absolute;
-  left: -24px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 18px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-tertiary);
-  opacity: 0;
-  border-radius: var(--radius-capsule);
-  transition:
-    opacity 0.15s,
-    color 0.15s,
-    background-color 0.15s;
-  z-index: 5;
-  user-select: none;
-}
-
-.blockDragHandle:hover {
-  color: var(--text-secondary);
-  background: var(--bg-tertiary-alt);
-}
-
-.blockDragHandle:active {
-}
-
-.blockDragWrap:hover .blockDragHandle {
-  opacity: 1;
 }
 
 /* ── 공식 @platejs/dnd 블록 드래그 (BlockDraggable aboveNodes) ── */
@@ -3450,99 +2528,6 @@
 /* ── Embed / Link modal ── */
 /* Modal content (embed / link) — 공통 Modal 컴포넌트 안에 들어가는 content */
 
-.embedModalInput {
-  width: 100%;
-  padding: var(--modal-p-sm);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-body);
-  color: var(--text-primary);
-  outline: none;
-  margin-top: var(--spacing-2xs);
-}
-
-.embedModalInput:focus {
-  border-color: var(--text-primary);
-}
-
-.embedModalInput::placeholder {
-  color: var(--text-tertiary);
-}
-
-.embedModalCancel {
-  padding: var(--modal-p-sm);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-label);
-  color: var(--text-secondary);
-}
-
-.embedModalCancel:hover {
-  border-color: var(--text-secondary);
-  color: var(--text-primary);
-}
-
-.embedModalConfirm {
-  padding: var(--modal-p-sm);
-  border: var(--border-strong);
-  border-radius: var(--radius-capsule);
-  background: var(--text-primary);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-label);
-  color: var(--bg-primary);
-}
-
-.embedModalConfirm:hover:not(:disabled) {
-  opacity: 0.85;
-}
-
-.embedModalConfirm:disabled {
-  opacity: 0.4;
-}
-
-/* ── Math nodes ── */
-.mathInline {
-  display: inline-block;
-  vertical-align: middle;
-  border-radius: var(--radius-capsule);
-  padding: 0 var(--spacing-2xs);
-  transition: background-color 0.15s;
-}
-
-.mathInline:hover {
-  background-color: var(--bg-accent-light);
-}
-
-.mathBlock {
-  display: block;
-  text-align: center;
-  padding: var(--spacing-sm) 0;
-  border-radius: var(--radius-2xl);
-  transition: background-color 0.15s;
-  overflow-x: auto;
-}
-
-.mathBlock:hover {
-  background-color: var(--bg-accent-subtle);
-}
-
-/* ── Math floating edit panel ── */
-.mathSymbolBar {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--spacing-3xs);
-  padding: var(--spacing-2xs);
-  background: var(--bg-primary);
-  border: var(--border-light);
-  border-radius: var(--radius-2xl);
-  box-shadow: var(--shadow-md);
-}
-
 .mathFloating {
   position: absolute;
   z-index: 4;
@@ -3596,24 +2581,6 @@
   color: var(--text-muted);
   font-style: italic;
   font-size: var(--font-size-body);
-}
-
-.mathFloatingToolGroup {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-3xs);
-}
-
-.mathFloatingToolGroup::after {
-  content: "";
-  width: 1px;
-  align-self: stretch;
-  background: var(--border-color-light);
-  margin: 0 var(--spacing-3xs);
-}
-
-.mathFloatingToolGroup:last-child::after {
-  display: none;
 }
 
 .mathFloatingInput {
@@ -3676,116 +2643,6 @@
 
 /* Math modal */
 /* ── Math Toolbar Panel (inline, no modal) ── */
-
-.mathPanelInput {
-  flex: 1;
-  min-width: 0;
-  padding: var(--field-p-sm);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  color: var(--text-primary);
-  font-family: var(--font-mono), monospace;
-  font-size: var(--font-size-label);
-  line-height: 1.6;
-  resize: none;
-  outline: none;
-  transition: border-color 0.15s;
-}
-
-.mathPanelInput:focus {
-  border-color: var(--text-primary);
-}
-
-.mathPanelModeBtn {
-  padding: var(--button-p-xs);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  color: var(--text-tertiary);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-hint);
-  transition:
-    background-color 0.15s,
-    border-color 0.15s,
-    color 0.15s;
-}
-
-.mathPanelModeBtn:hover {
-  color: var(--text-secondary);
-  border-color: var(--text-secondary);
-}
-
-.mathPanelModeBtnActive {
-  background: var(--text-primary);
-  border-color: var(--text-primary);
-  color: var(--bg-primary);
-}
-
-.mathPanelModeBtnActive:hover {
-  background: var(--text-primary);
-  border-color: var(--text-primary);
-  color: var(--bg-primary);
-}
-
-.mathPanelInsert {
-  padding: var(--spacing-2xs) var(--spacing-sm);
-  border: none;
-  border-radius: var(--radius-capsule);
-  background: var(--text-primary);
-  color: var(--bg-primary);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-label);
-  font-weight: 600;
-  white-space: nowrap;
-  transition: opacity 0.15s;
-}
-
-.mathPanelInsert:disabled {
-  opacity: 0.4;
-}
-
-.mathPanelInsert:not(:disabled):hover {
-  opacity: 0.85;
-}
-
-.mathToolBtn {
-  padding: var(--button-p-xs);
-  border: none;
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
-  font-weight: 500;
-  color: var(--text-tertiary);
-  line-height: 1;
-}
-
-.mathSymbolBar .mathToolBtn:hover {
-  background: var(--bg-tertiary-alt);
-  color: var(--text-primary);
-}
-
-.mathModalInput {
-  width: 100%;
-  min-height: 76px;
-  padding: var(--spacing-xs) var(--spacing-sm);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  color: var(--text-primary);
-  font-family: var(--font-mono), monospace;
-  font-size: var(--font-size-body);
-  line-height: 1.6;
-  resize: vertical;
-  box-sizing: border-box;
-  outline: none;
-  transition: border-color 0.15s;
-}
-
-.mathModalInput:focus {
-  border-color: var(--text-primary);
-}
 
 .mathPreviewError {
 }
@@ -4617,18 +3474,6 @@
   justify-content: center;
   gap: var(--spacing-2xs);
 }
-
-.imgCaptionInput {
-  height: 26px;
-  padding: 0 var(--spacing-sm);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  background: var(--bg-primary);
-  font-size: var(--font-size-label);
-  color: var(--text-primary);
-}
-
-.imgCaptionInput:focus { outline: none; border-color: var(--text-accent); }
 
 /* ── 편집뷰 코드블록 = 리더뷰와 같은 창(신호등 바 + 코드). WYSIWYG. (일반 코드블록만; 다이어그램 제외) ── */
 /* 바깥 컨테이너 — 리사이즈 오버레이(.codeResizeHandle)가 창의 형제가 되도록 codeWindow 를 감싼다.
