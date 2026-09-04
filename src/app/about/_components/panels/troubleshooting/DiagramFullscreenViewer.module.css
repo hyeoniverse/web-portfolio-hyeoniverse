@@ -1,0 +1,109 @@
+/* 다이어그램 전체화면 뷰어 — 포털로 body 에 붙는 오버레이. TroubleshootingPanel.module.css 에서 분리 (#668). */
+/* ===== Diagram Fullscreen Viewer (interactive — zoom/pan) ===== */
+.diagramViewerOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-primary);
+}
+
+.diagramViewerHeader {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--text-secondary) 12%, transparent);
+  background: var(--bg-secondary);
+}
+
+.diagramViewerTitle {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  letter-spacing: 0.04em;
+}
+
+.diagramViewerStage {
+  position: relative;
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  background: radial-gradient(
+    circle at 1px 1px,
+    color-mix(in srgb, var(--text-secondary) 12%, transparent) 1px,
+    transparent 0
+  );
+  background-size: 24px 24px;
+}
+
+.diagramViewerStage:active {
+  cursor: grabbing;
+}
+
+/* 노드 위에서는 별도 cursor — 드래그 가능 시각 힌트 */
+.diagramViewerCanvas [data-node-id] {
+  cursor: move;
+}
+
+.diagramViewerCanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  will-change: transform;
+}
+
+.diagramViewerControls {
+  position: absolute;
+  right: var(--spacing-lg);
+  bottom: var(--spacing-lg);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs);
+  background: var(--bg-secondary);
+  border: 1px solid color-mix(in srgb, var(--text-secondary) 15%, transparent);
+  border-radius: var(--radius-capsule);
+  box-shadow: 0 8px 24px oklch(0.00% 0.0000 0.00 / 0.15);
+}
+
+.diagramViewerZoomLabel {
+  min-width: 4em;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.diagramViewerIconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-h-xs);
+  height: var(--control-h-xs);
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: var(--radius-circle);
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.diagramViewerIconBtn:hover {
+  background: color-mix(in srgb, var(--text-primary) 10%, transparent);
+  color: var(--text-primary);
+}
