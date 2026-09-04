@@ -2,7 +2,7 @@
 
 import { useState, useEffect, createContext, useContext } from "react";
 import { useLanguage } from "@/providers/LanguageProvider";
-import styles from "./PostEditor.module.css";
+import styles from "./PostEditorShortcuts.module.css";
 import Pressable from "@/components/ui/Pressable";
 
 // OS 별 표시 — combo 문자열은 Mac 기호(⌘⇧⌥⌃)로 통일해두고, 렌더 시 OS 에 맞게 매핑.
