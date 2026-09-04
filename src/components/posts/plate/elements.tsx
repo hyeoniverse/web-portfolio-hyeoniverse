@@ -31,7 +31,11 @@ import EmojiPickerPopup, { EmojiIcon } from "@/components/ui/EmojiPicker";
 import { Check, FileText, File, Music, Paperclip, Eye, Download, GripVertical, Copy, WrapText, MoreHorizontal, ChevronRight, Search, Sparkles, ExternalLink, ZoomIn, ZoomOut, Maximize, Maximize2, Minimize2, CaretRightIcon } from "@/components/icons";
 import { createPortal } from "react-dom";
 import Popover from "@/components/ui/Popover";
-import styles from "../RichTextEditor.module.css";
+import base from "../RichTextEditor.module.css";
+import code from "../EditorCode.module.css";
+import diagram from "../EditorDiagram.module.css";
+import media from "../EditorMedia.module.css";
+const styles = { ...base, ...code, ...diagram, ...media };
 import Pressable from "@/components/ui/Pressable";
 
 /** 블록 void 요소 아래 클릭 가능 영역 — 클릭 시 다음 줄에 커서 배치 */

@@ -2,7 +2,7 @@
 
 // mermaid 코드 → 다이어그램 SVG 미리보기 (동적 import). 에디터·리더 공용.
 import React from "react";
-import styles from "../RichTextEditor.module.css";
+import styles from "../EditorDiagram.module.css";
 
 export default function MermaidPreview({ code, split }: { code: string; split?: boolean }) {
   const ref = React.useRef<HTMLDivElement>(null);

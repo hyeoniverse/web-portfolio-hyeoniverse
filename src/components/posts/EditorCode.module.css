@@ -1,0 +1,440 @@
+/* 에디터 코드블록 스타일. RichTextEditor.module.css 에서 분리 (#675). */
+/* 복사/더보기 버튼(.codeCtrlBtn)과 배경 통일 — 밝은 중립 캡슐 */
+.codeLangTrigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  height: var(--control-h-sm);
+  padding: 0 var(--spacing-xs) 0 var(--spacing-2xs);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-hint);
+  cursor: pointer;
+  transition: background-color 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+
+.codeLangTrigger:hover {
+  color: var(--text-primary);
+  border-color: var(--border-color-strong);
+}
+
+.codeLangCaret {
+  color: inherit;
+  opacity: 0.6;
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
+}
+
+/* 펼치면 초기 >(오른쪽)에서 시계방향 90° → 아래를 가리킴 */
+.codeLangCaretOpen {
+  transform: rotate(90deg);
+}
+
+/* ── "..." 메뉴 ── */
+.codeMenuPopover {
+  min-width: 210px;
+  background: var(--bg-primary);
+}
+
+.codeMenu {
+  display: flex;
+  flex-direction: column;
+  padding: var(--spacing-2xs);
+}
+
+.codeMenuItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  width: 100%;
+  padding: var(--row-p-sm);
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-capsule);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-label);
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.12s ease;
+}
+
+.codeMenuItem:hover,
+.codeMenuItem[data-active] {
+  background: var(--bg-secondary);
+}
+
+.codeMenuTrailing {
+  margin-left: auto;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-hint);
+}
+
+.codeMenuSearch {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  margin-bottom: var(--spacing-2xs);
+  border-bottom: var(--border-light);
+  color: var(--text-tertiary);
+}
+
+.codeMenuSearch input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-label);
+  color: var(--text-primary);
+}
+
+.codeMenuLangList {
+  display: flex;
+  flex-direction: column;
+  max-height: 240px;
+  overflow-y: auto;
+  position: relative; /* 알파벳 인덱스 점프의 offsetTop 기준 */
+  /* 항목 hover 캡슐이 좌측 철자 인덱스 구분선·우측 가장자리에 닿지 않게 여백 */
+  padding-inline: var(--spacing-2xs);
+}
+
+/* ── 브라우징 뷰 — 왼쪽 알파벳 인덱스 rail + 언어 리스트 ── */
+.codeMenuBrowse {
+  display: flex;
+  align-items: stretch;
+}
+
+.codeMenuBrowse .codeMenuLangList {
+  flex: 1;
+  min-width: 0;
+  /* 하단 여백 — 마지막 글자(Z 등) 섹션이 위로 충분히 스크롤돼 rail 이 끝까지 따라오게 */
+  /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 에디터 하단 여백 — 마지막 블록 아래에서도 스크롤 여유가 남게 하려는 값. 간격 눈금(최대 128px) 밖이다 */
+  padding-bottom: 9rem;
+}
+
+/* 알파벳 인덱스 — 룰렛(time picker) 스타일. 위아래 그라데이션 마스크 + 현재 글자 중앙, 스크롤 시 회전.
+   A–Z 영역에 들어왔을 때만 노출(data-visible). */
+.codeAzRail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  /* 접힘 기본 — 너비 0(공간 미점유). A–Z 진입 시 data-visible 로 펼침 */
+  width: 0;
+  height: 240px;
+  /* 한 글자를 세로 중앙에 놓을 수 있도록 위아래 여백 (=(240 - 22)/2) */
+  padding-block: var(--spacing-5xl-plus);
+  overflow: hidden;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  border-right: 1px solid transparent;
+  scroll-behavior: smooth;
+  /* 위아래 페이드 마스크 — 룰렛 가장자리 */
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 30%, #000 70%, transparent);
+  mask-image: linear-gradient(to bottom, transparent, #000 30%, #000 70%, transparent);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.codeAzRail[data-visible] {
+  width: 26px;
+  overflow-y: auto;
+  border-right-color: var(--border-color-light);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* 전역 theme transition 규칙(0,1,1)이 width/opacity/transform 을 덮어써 애니메이션이 안 먹으므로,
+   compound selector(0,2,0)로 우선순위를 높여 펼침 애니메이션을 지정한다. */
+.codeMenuBrowse .codeAzRail {
+  transform: translateX(-5px);
+  transition: width 0.26s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease, transform 0.26s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.codeMenuBrowse .codeAzRail[data-visible] {
+  transform: translateX(0);
+}
+
+.codeAzRail::-webkit-scrollbar {
+  display: none;
+}
+
+.codeAzLetter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  margin: var(--spacing-3xs) 0;
+  flex-shrink: 0;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-circle); /* indicator 원형 */
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
+  font-weight: 600;
+  line-height: 1;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: color 0.12s ease, background 0.12s ease, transform 0.12s ease;
+}
+
+.codeAzLetter:hover {
+  color: var(--text-primary);
+}
+
+/* 현재 위치 indicator — circle 채움 */
+.codeAzLetter[data-active] {
+  background: var(--bg-inverse);
+  color: var(--text-inverse);
+  transform: scale(1.08);
+}
+
+/* 검색 결과 정확도순 hint */
+.codeMenuHint {
+  padding: var(--spacing-3xs) var(--spacing-sm);
+  font-size: var(--font-size-hint);
+  font-style: italic;
+  color: var(--text-muted);
+}
+
+.codeMenuLangList .codeMenuItem {
+  justify-content: flex-start;
+}
+
+.codeMenuEmpty {
+  padding: var(--spacing-sm);
+  font-size: var(--font-size-label);
+  color: var(--text-tertiary);
+  text-align: center;
+}
+
+/* 언어 아이콘 배지 — 브랜드색 + 약어 */
+.codeLangIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  border-radius: var(--radius-circle);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.codeLangIconPlain {
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color-light);
+}
+
+.codeLangName {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* sticky 라 항목이 밑으로 지나간다 → 뭔가로 가려야 글자가 겹치지 않는다.
+   불투명 --bg-primary 로 막으면 popover 의 유리 표면 위에 단단한 띠가 얹혀 보인다.
+   → 프로젝트 공식(_semantic.css)인 "반투명 패널 + blur" 한 쌍으로 교체.
+   popover 패널(variant=glass)이 이미 backdrop-filter 를 가져 Backdrop Root 이므로,
+   이 라벨의 backdrop 은 **패널 안에서 먼저 그려진 항목들** = 흐려야 할 바로 그 대상이다.
+   ※ -webkit- prefix 는 붙이지 말 것 — Chrome declaration 파싱이 꼬여 blur 가 통째로 죽는다. */
+.codeMenuGroupLabel {
+  position: sticky;
+  top: 0;
+  padding: var(--spacing-2xs) var(--spacing-sm) var(--spacing-3xs);
+  font-size: var(--font-size-hint);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  background: var(--bg-glass-panel);
+  backdrop-filter: var(--blur-glass);
+  z-index: 1;
+}
+
+/* 바깥 컨테이너 — 리사이즈 오버레이(.codeResizeHandle)가 창의 형제가 되도록 codeWindow 를 감싼다.
+   오버레이가 창의 자식이면 UA resizer 가 그 위에 그려져 시스템 커서가 샌다(리더 .code-block-outer 와 동일). */
+.codeShell {
+  position: relative;
+  /* 다른 블록과 같은 블록 간격(에디터 --prose-block-gap=28px) — tint 가 아래 블록에 닿지 않게 */
+  margin: var(--prose-block-gap) 0;
+}
+
+.codeWindow {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  max-height: 20rem;
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+  /* 창 전체가 세로 리사이즈 — resize 는 창이 가진다(자기 radius 는 자기 그립을 안 자르므로 그립이 보인다).
+     오버레이(.codeResizeHandle)는 창의 **형제**(.codeShell 안)라 창의 네이티브 resizer 위에 얹혀 시스템 커서를 가린다. */
+  resize: vertical;
+  background: var(--bg-glass-panel);
+  backdrop-filter: var(--blur-glass);
+}
+
+/* 리사이즈 오버레이 — 네이티브 grip visual 위에 투명하게. cursor:none 시스템 커서 숨김 + data-cursor 커스텀 커서 + JS drag */
+.codeResizeHandle {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 18px;
+  height: 18px;
+  background: transparent;
+  cursor: none;
+  touch-action: none;
+  z-index: 4;
+}
+
+/* 창 안의 pre 는 자기 프레임 벗고 내부를 채운다(리더 .code-block-wrap pre 와 동일 규격) */
+.codeWindow :global(.slate-code_block) {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: none;
+  margin: 0;
+  padding: var(--spacing-md);
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  overflow: auto;
+  resize: none;
+}
+
+/* 상단 바 = 창 헤더 (신호등 좌 · 언어 중앙 · 컨트롤 우) */
+.codeBar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-shrink: 0;
+  min-height: 42px;
+  padding: 0 var(--spacing-md);
+  background: var(--bg-glass-panel);
+}
+
+/* 신호등 3개 — 리더 .code-block-bar::before 와 동일(빨/노/초, 동일계열 림) */
+.codeBar::before {
+  content: "";
+  flex-shrink: 0;
+  width: 52px;
+  height: 12px;
+  background:
+    radial-gradient(circle at 6px 6px, #ff5f56 0 5px, #e0443e 5px 6px, transparent 6px),
+    radial-gradient(circle at 26px 6px, #ffbd2e 0 5px, #dea123 5px 6px, transparent 6px),
+    radial-gradient(circle at 46px 6px, #27c93f 0 5px, #1aab29 5px 6px, transparent 6px);
+}
+
+/* 언어 피커 — 헤더 정중앙(리더 언어 라벨 위치). 편집뷰라 클릭하면 드롭다운(인터랙티브). */
+.codeBarLang {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: inline-flex;
+}
+
+/* 컨트롤 pill (복사 | 줄바꿈) — 우측. wrapper 가 흰 pill 배경, 버튼은 투명 → 버튼 lift 해도 아래는 같은 배경이라
+   흰 띠/경계 안 생김. wrapper box-shadow 는 안 줌(뜬 버튼 옆에서 경계처럼 보였음). 리더(_hljs.css)와 동일. */
+.codeBarControls {
+  display: inline-flex;
+  align-items: center;
+  margin-left: auto;
+  background: var(--bg-primary);
+  border-radius: var(--radius-capsule);
+}
+
+.codeBarCtrl {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  height: 26px;
+  padding: 0 var(--spacing-xs);
+  border: none;
+  background: transparent;
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-label);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+/* 각 버튼 = 볼록한 3D 버튼(위 하이라이트 + 아래 그림자). seam 은 first/last 옆면 inset 그림자.
+   --btn-lift = hover 시 버튼을 띄우는 바깥 그림자(기본 없음). 리더(_hljs.css)와 동일. */
+.codeBarCtrl {
+  --btn-raise: inset 0 1px 0.5px -0.5px oklch(100% 0 0 / 0.55), inset 0 -1.5px 2px -1.5px oklch(0% 0 0 / 0.16);
+  --btn-seam: oklch(0% 0 0 / 0.13);
+  --btn-lift: 0 0 0 0 transparent;
+  position: relative;
+  box-shadow: var(--btn-raise), var(--btn-lift);
+}
+
+.codeBarCtrl:first-child {
+  border-radius: var(--radius-capsule) 0 0 var(--radius-capsule);
+  box-shadow: var(--btn-raise), inset -2px 0 2px -2px var(--btn-seam), var(--btn-lift);
+}
+
+.codeBarCtrl:last-child {
+  border-radius: 0 var(--radius-capsule) var(--radius-capsule) 0;
+  box-shadow: var(--btn-raise), inset 2px 0 2px -2px var(--btn-seam), var(--btn-lift);
+}
+
+:global([data-theme="dark"]) .codeBarCtrl {
+  --btn-raise: inset 0 1px 0.5px -0.5px oklch(100% 0 0 / 0.16), inset 0 -1.5px 2px -1.5px oklch(0% 0 0 / 0.45);
+  --btn-seam: oklch(0% 0 0 / 0.4);
+}
+
+/* transform·box-shadow transition — 2-class 라 전역 테마 transition(0,1,1) 을 이겨 hover lift 가 양방향 부드럽게.
+   transform 은 살짝 튀어오르는(overshoot) ease 로 실제 "들어올리는" 느낌. */
+.codeBarControls .codeBarCtrl {
+  transition: background 0.15s ease, color 0.15s ease, transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+}
+
+/* hover: 바깥 아래 그림자(--btn-lift) 강하게 + 실제로 위로 들어올린다(translateY). 리더와 동일. */
+.codeBarCtrl:hover {
+  background: var(--bg-tertiary-alt);
+  color: var(--text-primary);
+  --btn-lift: 0 7px 14px -4px oklch(0% 0 0 / 0.34), 0 3px 6px -2px oklch(0% 0 0 / 0.22);
+  transform: translateY(-2px);
+  z-index: 1;
+}
+
+:global([data-theme="dark"]) .codeBarCtrl:hover {
+  --btn-lift: 0 9px 18px -4px oklch(0% 0 0 / 0.65), 0 3px 7px -2px oklch(0% 0 0 / 0.55);
+}
+
+.codeBarCtrl[data-on] {
+  color: var(--text-accent);
+}
+
+/* 언어 피커(select)도 컨트롤 pill 과 같은 결로 — 흰 배경 + 그림자 + 캡슐, 테두리 없음, 버튼과 같은 높이/폰트 */
+.codeBarLang .codeLangTrigger {
+  height: 26px;
+  /* 좌측 padding = 아이콘(18px) 세로 여백 (26-18)/2 = 4px → 아이콘이 pill 왼쪽 반원과 동심원(곡률 일치)·상하좌우 4px 균등 */
+  padding: 0 var(--spacing-sm) 0 var(--spacing-2xs);
+  border: none;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-primary);
+  box-shadow: var(--shadow-xs);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-label);
+}
+
+.codeBarLang .codeLangTrigger:hover {
+  color: var(--text-primary);
+}

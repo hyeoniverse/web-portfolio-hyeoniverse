@@ -8,7 +8,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import { useModalStore } from "@/stores/modalStore";
 import { ModalConfirm, ModalAlert } from "@/components/ui/ModalTemplates";
 import type { EditorImageInfo } from "./types";
-import styles from "../RichTextEditor.module.css";
+import styles from "../EditorMedia.module.css";
 
 function formatBytes(bytes: number): string {
   if (bytes === 0) return "0 B";

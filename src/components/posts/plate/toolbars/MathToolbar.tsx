@@ -9,7 +9,9 @@ import { ArrowLeftRight } from "@/components/icons";
 import { TblTrash } from "../icons";
 import { MATH_TOOLS } from "../constants";
 import { _mathSymbolInsert, _mathDeleteNode, _mathToggleMode } from "../utils";
-import styles from "../../RichTextEditor.module.css";
+import base from "../../RichTextEditor.module.css";
+import math from "../../EditorMath.module.css";
+const styles = { ...base, ...math };
 
 interface MathToolbarProps {
   visible: boolean;
