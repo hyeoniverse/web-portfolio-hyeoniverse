@@ -36,7 +36,10 @@ import {
   normalizeCalendar, allTagsIn, defaultLabels, currentMonth, shiftMonth, filterEvents, sortEvents, eventEndDate, wouldCycle, expandEvents, relatedEventIds, enforceDepOrder,
 } from "./calendar/model";
 import { showToast } from "@/stores/toastStore";
-import styles from "./calendar/Calendar.module.css";
+import base from "./calendar/Calendar.module.css";
+import event from "./calendar/CalendarEvent.module.css";
+import preview from "./calendar/CalendarPreview.module.css";
+const styles = { ...base, ...event, ...preview };
 import Pressable from "@/components/ui/Pressable";
 
 /** 캘린더 제목 최대 글자수 — 상단 한 줄에 들어가도록 짧게 제한 */

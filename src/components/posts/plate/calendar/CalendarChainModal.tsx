@@ -5,7 +5,9 @@ import React from "react";
 import { Check, CalendarDays, Clock } from "@/components/icons";
 import { type CalEvent, type EventLabel, type TimeFormat, eventColorVar, eventTimeLabel, findLabel, statusOf, statusName, priorityOf, priorityName } from "./model";
 import { formatDateValue } from "../dateUtils";
-import styles from "./Calendar.module.css";
+import base from "./Calendar.module.css";
+import picker from "./CalendarPicker.module.css";
+const styles = { ...base, ...picker };
 import Pressable from "@/components/ui/Pressable";
 
 export default function CalendarChainModal({

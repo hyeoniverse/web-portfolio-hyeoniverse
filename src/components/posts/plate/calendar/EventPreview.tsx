@@ -5,7 +5,7 @@ import React from "react";
 import { createPortal } from "react-dom";
 import { type CalEvent, type EventLabel, type TimeFormat, eventColorVar, eventTimeLabel, findLabel, statusOf, statusName, priorityOf, priorityName, stripHtml } from "./model";
 import { formatDateValue } from "../dateUtils";
-import styles from "./Calendar.module.css";
+import styles from "./CalendarPreview.module.css";
 
 export type HoverState = { ev: CalEvent; rect: DOMRect } | null;
 
