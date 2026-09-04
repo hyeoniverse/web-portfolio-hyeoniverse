@@ -10,7 +10,9 @@ import Chip from "@/components/ui/Chip/Chip";
 import Button from "@/components/ui/Button";
 import { type CalEvent, type EventLabel, type TimeFormat, colorVar, eventTimeLabel, findLabel, isRecurring, EVENT_STATUSES, EVENT_PRIORITIES, statusName, priorityName } from "./model";
 import { formatDateValue } from "../dateUtils";
-import styles from "./Calendar.module.css";
+import base from "./Calendar.module.css";
+import preview from "./CalendarPreview.module.css";
+const styles = { ...base, ...preview };
 import Pressable from "@/components/ui/Pressable";
 
 export default function DayDetailPanel({

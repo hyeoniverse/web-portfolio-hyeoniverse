@@ -11,7 +11,7 @@ import Popover from "@/components/ui/Popover";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import { type CalEvent, type EventLabel, type TimeFormat, eventColorVar, eventEndDate, eventTimeLabel, statusName, priorityOf, priorityName, connectedComponent } from "./model";
 import { formatDateValue, toDateStr } from "../dateUtils";
-import styles from "./Calendar.module.css";
+import styles from "./CalendarEvent.module.css";
 import Pressable from "@/components/ui/Pressable";
 
 type Filter = "all" | "past" | "current" | "upcoming";

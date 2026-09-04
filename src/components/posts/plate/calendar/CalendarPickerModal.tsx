@@ -8,7 +8,7 @@ import Button from "@/components/ui/Button";
 import { type CalendarListItem, listCalendars, deleteCalendar, restoreCalendar } from "./calendarApi";
 import { monthTitle, relTimeLabel } from "./model";
 import { getTrashDaysLeft } from "@/utils/trash";
-import styles from "./Calendar.module.css";
+import styles from "./CalendarPicker.module.css";
 import Pressable from "@/components/ui/Pressable";
 
 export default function CalendarPickerModal({

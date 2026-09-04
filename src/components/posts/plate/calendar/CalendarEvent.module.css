@@ -1,0 +1,395 @@
+/* 캘린더 이벤트 모달·반복 설정 스타일. Calendar.module.css 에서 분리 (#675). */
+/* 모션 래퍼는 메인뷰 높이에 맞춰 stretch, 사이드바는 absolute 로 빼 높이 기여 안 함 → 메인뷰 높이를 따라감 */
+.evSidebarMotion { flex-shrink: 0; overflow: hidden; align-self: stretch; position: relative; }
+
+.evSidebar {
+  position: absolute; left: 0; top: 0; bottom: 0; width: 260px;
+  display: flex;
+  flex-direction: column;
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  background: var(--bg-primary);
+  overflow: hidden;
+}
+
+.evSidebarHead {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: var(--spacing-md) var(--spacing-md) var(--spacing-sm);
+}
+
+.evSidebarTitle { font-size: var(--font-size-title-md); font-weight: 700; color: var(--text-primary); letter-spacing: -0.01em; }
+
+.evSidebarActions { display: inline-flex; align-items: center; gap: var(--spacing-3xs); }
+
+/* 필터 줄 — SegmentedControl + 오른쪽 끝 도움말 */
+.evFilters {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  padding: 0 var(--spacing-md) var(--spacing-sm);
+}
+
+/* 도움말만 오른쪽 끝으로. `> :last-child` 로 잡으면 이 줄에 뭘 더 넣는 순간
+   엉뚱한 게 밀려나므로 대상을 명시한다. (Popover 의 className 은 trigger 를 감싸는 span 으로 간다) */
+.evFiltersHelp {
+  margin-left: auto;
+}
+
+.evList { flex: 1; min-height: 0; overflow-y: auto; padding: 0 var(--spacing-sm) var(--spacing-md); overscroll-behavior: contain; }
+
+.evEmpty { padding: var(--spacing-3xl) var(--spacing-md); text-align: center; color: var(--text-tertiary); font-size: var(--font-size-body); }
+
+.evGroup { padding-top: var(--spacing-sm); }
+
+/* 날짜 헤더 — line 기반: 하단 hairline 구분선 */
+.evDate {
+  display: flex; align-items: center; gap: var(--spacing-2xs);
+  padding: var(--spacing-2xs) var(--spacing-2xs) var(--spacing-xs);
+  margin-bottom: var(--spacing-2xs);
+  font-size: var(--font-size-hint); font-weight: 700; color: var(--text-secondary); letter-spacing: 0.01em;
+  border-bottom: var(--border-light);
+  position: sticky; top: 0; background: var(--bg-primary); z-index: 1;
+}
+
+.evGroupToday .evDate { color: var(--color-accent); border-bottom-color: color-mix(in srgb, var(--color-accent) 40%, transparent); }
+
+.evTodayTag {
+  margin-left: auto;
+  padding: var(--badge-p-sm); border-radius: var(--radius-capsule);
+  background: var(--color-accent); color: var(--text-white);
+  font-size: var(--font-size-micro); font-weight: 600;
+}
+
+/* 이벤트 = 한 줄. hover 배경은 capsule (단일행 → capsule) */
+.evItem {
+  display: flex; align-items: center; gap: var(--spacing-sm);
+  width: 100%; text-align: left;
+  padding: var(--row-p-sm);
+  border: none; border-radius: var(--radius-capsule);
+  background: transparent; cursor: pointer;
+  transition: background-color 0.12s ease;
+}
+
+.evItem:hover { background: var(--bg-secondary); }
+
+.evItemDot { flex-shrink: 0; width: 10px; height: 10px; border-radius: var(--radius-circle); background: var(--_c); position: relative; }
+
+/* 상태를 채움 정도로 — 예정=빈원 / 진행=반채움 / 완료=체크 / 중단=채움 (색은 라벨색 --_c) */
+.evItemDotTodo { background: transparent; box-shadow: inset 0 0 0 1.5px var(--_c); }
+
+.evItemDotDoing { background: transparent; box-shadow: inset 0 0 0 1.5px var(--_c); overflow: hidden; }
+
+.evItemDotDoing::before { content: ""; position: absolute; inset: 0; background: var(--_c); clip-path: inset(0 50% 0 0); }
+
+/* 중단 = 채움 + 흰 대시 — plain 채움(상태없음, 라벨색만)과 구분 */
+.evItemDotHold { background: var(--_c); }
+
+.evItemDotHold::after {
+  content: ""; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  width: 5px; height: 1.5px; border-radius: 1px; background: var(--bg-primary);
+}
+
+.evItemDotDone { background: var(--_c); }
+
+.evItemDotDone::after {
+  content: ""; position: absolute; left: 50%; top: 45%;
+  width: 2.5px; height: 5px; border: solid var(--bg-primary); border-width: 0 1.5px 1.5px 0;
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.evItemTitle { flex: 1; min-width: 0; font-size: var(--font-size-body); color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.evItemDone .evItemTitle { text-decoration: line-through; color: var(--text-tertiary); }
+
+.evItemTime { flex-shrink: 0; font-size: var(--font-size-hint); color: var(--text-tertiary); font-variant-numeric: tabular-nums; }
+
+/* 중요도 = 별. 채움 정도로 단계(높음=꽉 / 보통=반 / 낮음=빈). 색은 중요도색 보조 */
+.evItemStar { flex-shrink: 0; display: inline-flex; align-items: center; color: var(--_sc); line-height: 0; }
+
+/* 반별 — 외곽선 별 위에 채운 별을 좌측 50% clip 으로 겹침 (rating 식 반쪽) */
+.evStarHalf { position: relative; display: inline-flex; width: 13px; height: 13px; }
+
+.evStarHalf svg { position: absolute; inset: 0; }
+
+.evStarHalfFill { clip-path: inset(0 50% 0 0); }
+
+/* 도움말 범례 (Popover) — 각 아이콘 의미.
+   그룹 제목은 프로젝트의 라벨 관용구(.groupLabel: uppercase + medium + 0.04em + --text-muted)에 맞춘다.
+   예전엔 여기만 raw `font-weight: 700` 에 letter-spacing 0.02em, uppercase 없음이라 다른
+   popover 의 그룹 라벨과 결이 달랐다. */
+.evHelp {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md) var(--spacing-md);
+  min-width: 180px;
+}
+
+.evHelpGroup {
+  display: flex;
+  flex-direction: column;
+  /* 행 사이 — 아이콘이 10~13px 라 2xs(4px) 는 있어야 답답하지 않다 (기존 3xs=2px 는 촘촘했다) */
+  gap: var(--spacing-2xs);
+}
+
+/* 그룹 제목 — 항목과 크기가 같으면(둘 다 10px) 위계가 안 선다.
+   3xs(8px) uppercase 라벨로 낮추되 tertiary(항목 muted 보다 진함)로 스캔 기준선을 준다. */
+.evHelpTitle {
+  margin-bottom: var(--spacing-2xs);
+  font-size: var(--font-size-hint);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+/* 항목 — 실제로 읽는 줄이라 2xs(10px)는 작다. xs(12px)로 올리고 색도 한 단계 진하게. */
+.evHelpRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-body);
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+/* 각 행 첫 아이콘을 같은 폭(16px) 슬롯에 담아 라벨 시작점을 그룹 간에 맞춘다.
+   dot(10) / star·link(13) 로 폭이 달라 어긋나 있었다.
+   슬롯은 폭만 고정하고, 안의 실제 아이콘은 제 크기를 지킨다 (dot 이 타원으로 안 눌리게). */
+.evHelpIcon {
+  flex-shrink: 0;
+  width: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.evHelpDot {
+  --_c: var(--text-secondary);
+  width: 10px;
+  height: 10px;
+}
+
+.evHelpStar { color: var(--text-secondary); line-height: 0; }
+
+.evHelpLink { color: var(--text-tertiary); flex-shrink: 0; }
+
+/* ── 사이드바 — 연결된 이벤트 인라인 펼침 ── */
+.evRow { display: flex; flex-direction: column; }
+
+.evRowMain { display: flex; align-items: center; gap: var(--spacing-3xs); }
+
+.evRowMain > .evItem { flex: 1; min-width: 0; }
+
+/* 연결 토글 — 링크 아이콘 + 개수 + chevron */
+.evLinkToggle {
+  flex-shrink: 0;
+  display: inline-flex; align-items: center; gap: var(--spacing-3xs);
+  padding: var(--spacing-3xs) var(--spacing-2xs);
+  border: none; border-radius: var(--radius-capsule);
+  background: transparent; color: var(--text-tertiary);
+  font-size: var(--font-size-micro); font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+
+.evLinkToggle:hover { background: var(--bg-secondary); color: var(--text-secondary); }
+
+.evLinkToggleOn { color: var(--text-accent); }
+
+.evLinkCount { font-variant-numeric: tabular-nums; }
+
+/* compound selector (0,2,0) — 전역 theme transition(0,1,1)이 transform 을 안 넣어 snap 되던 것 복구 */
+.evLinkToggle .evLinkChevron { transition: transform 0.15s ease; }
+
+.evLinkChevronOn { transform: rotate(180deg); }
+
+/* 펼친 체인 — 연결선 + 노드, 현재 이벤트 강조. framer height:auto 로 열고닫음 → 바깥은 clip, 안쪽이 padding 담당 */
+.evChainCollapse { overflow: hidden; }
+
+.evChainExpand {
+  display: flex; flex-direction: column;
+  margin-left: var(--spacing-sm);
+  padding: var(--spacing-3xs) 0 var(--spacing-2xs) var(--spacing-2xs);
+  border-left: var(--border-light);
+}
+
+.evChainRow { position: relative; display: flex; align-items: stretch; gap: var(--spacing-2xs); padding-left: var(--spacing-2xs); }
+
+.evChainRow > .evItem { flex: 1; min-width: 0; }
+
+.evChainRail { position: relative; width: 12px; flex-shrink: 0; }
+
+.evChainRail::before {
+  content: ""; position: absolute; left: 50%; transform: translateX(-50%);
+  top: 0; bottom: 0; width: 2px; border-radius: 2px;
+  background: color-mix(in srgb, var(--_c) 45%, var(--border-color-light));
+}
+
+.evChainRow:first-child .evChainRail::before { top: 50%; }
+
+.evChainRow:last-child .evChainRail::before { bottom: 50%; }
+
+.evChainNode {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  width: 9px; height: 9px; border-radius: var(--radius-circle);
+  background: var(--bg-primary); border: 2px solid var(--_c);
+  box-shadow: 0 0 0 2px var(--bg-primary); z-index: 1;
+}
+
+.evChainRowDone .evChainNode { background: var(--_c); }
+
+/* 현재(펼친 기준) 이벤트 강조 */
+.evChainRowCurrent > .evItem { background: color-mix(in srgb, var(--_c) 12%, var(--bg-primary)); }
+
+.evChainRowCurrent .evChainNode { box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 4px color-mix(in srgb, var(--_c) 25%, transparent); }
+
+.recurScopeBar {
+  display: flex; align-items: center; gap: var(--spacing-sm);
+  padding: 0 0 var(--spacing-2xs) 0; padding-left: var(--spacing-lg); margin-bottom: var(--spacing-sm);
+  border-bottom: var(--border-light);
+}
+
+.recurScopeLabel { font-size: var(--font-size-label); color: var(--text-tertiary); white-space: nowrap; }
+
+/* z 는 공통 Popover 기본값(--z-popover)이 모달 위로 올려줌 — 별도 override 불필요 */
+.recurPop { min-width: 252px; }
+
+.recurPopBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm);
+}
+
+/* 사용자화 + 종료 구분 hairline */
+.recurPopBody .recurEnd:not(:first-child) {
+  padding-top: var(--spacing-sm);
+  border-top: var(--border-light);
+}
+
+.recurCustom {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+}
+
+.recurCustomRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-2xs);
+}
+
+.recurText { font-size: var(--font-size-label); color: var(--text-secondary); }
+
+/* 반복 stepper(NumberInput) — 배경을 옆 Select/Segmented(투명=popover bg)와 통일 (기본 bg-tertiary 튐 방지) */
+.recurCustomRow .recurStepper,
+.recurCountWrap .recurStepper { background: transparent; }
+
+/* 종료일 버튼 — 다른 컨트롤(28px)과 높이 통일 */
+.recurDateBtn { height: var(--control-h-sm); }
+
+.recurWeekdays { display: flex; gap: var(--spacing-3xs); flex-wrap: wrap; }
+
+/* ── 고급 반복 (월: 날짜/조건, 연: 월 grid + 조건) ── */
+.recurAdv { display: flex; flex-direction: column; gap: var(--spacing-2xs); }
+
+/* 날짜/조건 SegmentedControl — flex column 에서 100% 로 늘어나지 않게 내용 폭만 */
+.recurModeSeg { align-self: flex-start; }
+
+/* 폭을 고정·가운데 정렬 → 셀(1fr)이 좁아져 원끼리 촘촘. 위아래 여백으로 주변 요소와 분리 */
+.recurDayGrid {
+  display: grid;
+  grid-template-columns: var(--grid-cols-7);
+  gap: var(--spacing-3xs);
+  width: 210px;
+  max-width: 100%;
+  margin: var(--spacing-sm) 0 var(--spacing-2xs);
+}
+
+.recurDay {
+  aspect-ratio: 1;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: var(--border-light);
+  border-radius: var(--radius-circle);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  font-size: var(--font-size-hint);
+  cursor: pointer;
+}
+
+.recurDay:hover { border-color: var(--border-color-strong); }
+
+.recurDayOn { background: var(--color-accent); border-color: var(--color-accent); color: var(--text-white); font-weight: 600; }
+
+/* 날짜 grid 와 gap·위아래 여백 동일. 4열이라 폭만 좁게(셀은 day 와 비슷한 원 크기) */
+.recurMonthGrid {
+  display: grid;
+  grid-template-columns: var(--grid-cols-4);
+  gap: var(--spacing-3xs);
+  width: 120px;
+  flex-shrink: 0;
+  max-width: 100%;
+}
+
+.recurMonth {
+  aspect-ratio: 1;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: var(--border-light);
+  border-radius: var(--radius-circle);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  font-size: var(--font-size-micro);
+  cursor: pointer;
+}
+
+.recurMonth:hover { border-color: var(--border-color-strong); }
+
+.recurMonthOn { background: var(--color-accent); border-color: var(--color-accent); color: var(--text-white); font-weight: 600; }
+
+/* 연간 — 월 그리드(좌) + 조건 지정(우) 2열 나란히 */
+.recurYearCols { display: flex; align-items: flex-start; gap: var(--spacing-md); margin-top: var(--spacing-sm); }
+
+.recurYearCond { display: flex; flex-direction: column; gap: var(--spacing-2xs); min-width: 0; }
+
+/* n번째 요일 조건 select 행 */
+.recurOrdRow { display: flex; align-items: center; gap: var(--spacing-2xs); flex-wrap: wrap; }
+
+/* 연간 "조건 지정" 체크박스 행 */
+.recurCondToggle { display: inline-flex; align-items: center; gap: var(--spacing-2xs); cursor: pointer; }
+
+.recurWd {
+  width: var(--control-h-sm);
+  height: var(--control-h-sm);
+  flex-shrink: 0;
+  border: var(--border-light);
+  border-radius: var(--radius-circle);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  font-size: var(--font-size-label);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.recurWd:hover { border-color: var(--border-color-strong); }
+
+.recurWdOn {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--text-white);
+  font-weight: 600;
+}
+
+.recurEnd {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  margin-top: 0;
+}
+
+.recurCountWrap { display: inline-flex; align-items: center; gap: var(--spacing-2xs); }
+
+/* 반복 종료(횟수/날짜/계속) — 요약 chip 밖 별도 표시 */
+.recurEndLabel { font-size: var(--font-size-label); color: var(--text-tertiary); white-space: nowrap; }

@@ -1,0 +1,334 @@
+/* 캘린더 캘린더 선택·연결 모달 스타일. Calendar.module.css 에서 분리 (#675). */
+/* ── 불러오기 picker 모달 ── */
+.pickerModal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--modal-p-lg);
+}
+
+.pickerActions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.pickerNew {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2xs);
+  height: var(--control-h-md);
+  padding: 0 var(--spacing-md);
+  border: 1px dashed var(--border-color-strong);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: var(--font-size-body);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.pickerNew:hover { color: var(--text-accent); border-color: var(--color-accent); background: var(--bg-accent); }
+
+.pickerManage {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  height: var(--control-h-md);
+  padding: 0 var(--spacing-md);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: var(--font-size-body);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.pickerManage:hover { color: var(--text-primary); background: var(--bg-secondary); }
+
+.pickerList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+  max-height: 340px;
+  overflow-y: auto;
+}
+
+.pickerEmpty {
+  padding: var(--spacing-lg);
+  text-align: center;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-body);
+}
+
+.pickerItem {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--row-p-sm);
+  border: 1px solid transparent;
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.pickerItem:hover { background: var(--bg-secondary); }
+
+.pickerItemOn { background: var(--bg-accent); border-color: var(--color-accent); }
+
+.pickerItemOn:hover { background: var(--bg-accent); }
+
+.pickerItemConfirming { background: var(--bg-secondary); cursor: default; }
+
+/* 날짜 뱃지 — 좌측 rounded square (월 / 연도) */
+.pickerItemDate {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-2xl);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  line-height: 1.05;
+}
+
+.pickerItemMon { font-size: var(--font-size-label); font-weight: 600; }
+
+.pickerItemYear { font-size: var(--font-size-micro); color: var(--text-tertiary); font-variant-numeric: tabular-nums; }
+
+/* 선택된 행 — 뱃지를 accent 로 채워 tint 위 회색 뱃지가 탁해지는 문제 해결 */
+.pickerItemOn .pickerItemDate { background: var(--color-accent); color: var(--text-white); }
+
+.pickerItemOn .pickerItemMon,
+.pickerItemOn .pickerItemYear { color: var(--text-white); }
+
+.pickerItemMain { display: flex; flex-direction: column; gap: var(--spacing-3xs); min-width: 0; flex: 1; }
+
+.pickerItemTitle { font-size: var(--font-size-body); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.pickerItemMeta { font-size: var(--font-size-hint); color: var(--text-tertiary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.pickerItemEnd { flex-shrink: 0; display: inline-flex; align-items: center; }
+
+.pickerItemCheck { color: var(--color-accent); }
+
+/* 삭제 버튼 — absolute 로 우측에 겹침(레이아웃 미점유) → 체크 아이콘 옆 유령 여백 제거. hover 시 페이드인 */
+.pickerItemDel {
+  position: absolute;
+  right: var(--spacing-2xs);
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-circle);
+  background: var(--bg-secondary);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  opacity: 0;
+}
+
+/* (0,2,0) — 전역 theme transition shorthand(opacity 미포함) override */
+.pickerItem .pickerItemDel { transition: opacity 0.15s ease, color 0.15s ease, background-color 0.15s ease; }
+
+.pickerItem:hover .pickerItemDel, .pickerItemDel:focus-visible { opacity: 1; }
+
+/* hover 시 체크는 숨겨 삭제 버튼과 겹치지 않게 */
+.pickerItem:hover .pickerItemCheck { opacity: 0; }
+
+.pickerItemDel:hover { color: var(--text-accent); background: var(--bg-accent); }
+
+/* 인라인 삭제 확인 */
+.pickerConfirm { flex-shrink: 0; display: inline-flex; align-items: center; gap: var(--spacing-2xs); }
+
+.pickerConfirmText { font-size: var(--font-size-hint); color: var(--text-secondary); }
+
+.pickerConfirmYes {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 46px;
+  height: var(--control-h-sm);
+  padding: 0 var(--spacing-sm);
+  border: none;
+  border-radius: var(--radius-capsule);
+  background: var(--color-accent);
+  color: var(--text-white);
+  font-size: var(--font-size-hint);
+  cursor: pointer;
+}
+
+.pickerConfirmYes:disabled { opacity: 0.7; cursor: default; }
+
+.pickerConfirmNo {
+  display: inline-flex;
+  align-items: center;
+  height: var(--control-h-sm);
+  padding: 0 var(--spacing-xs);
+  border: none;
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-hint);
+  cursor: pointer;
+}
+
+.pickerConfirmNo:hover { color: var(--text-primary); background: var(--bg-secondary); }
+
+.pickerSpin { animation: calspin 0.7s linear infinite; }
+/* Calendar.module.css 의 .spin 도 같은 이름을 쓴다. CSS 모듈은 애니메이션 이름도 스코프하므로
+   모듈이 갈리면 각자 정의를 가져야 한다. */
+@keyframes calspin { to { transform: rotate(360deg); } }
+
+/* ── 불러오기 모달 휴지통 섹션 (접힘) — 복구는 명시적 버튼으로만 ── */
+.pickerTrash {
+  margin-top: var(--spacing-2xs);
+  padding-top: var(--spacing-2xs);
+  border-top: var(--border-light);
+}
+
+.pickerTrashHead {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  width: 100%;
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  border: none;
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-label);
+  cursor: pointer;
+}
+
+.pickerTrashHead:hover { background: var(--bg-secondary); color: var(--text-secondary); }
+
+.pickerTrashCount {
+  min-width: 18px;
+  padding: 0 var(--spacing-2xs);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary);
+  font-size: var(--font-size-micro);
+  font-weight: 600;
+  text-align: center;
+}
+
+.pickerTrashChev { margin-left: auto; color: var(--text-tertiary); }
+
+/* compound(0,2,0) — 글로벌 theme transition 이 transform 을 안 덮게 */
+.pickerTrash .pickerTrashChev { transition: transform var(--duration-base) ease; }
+
+.pickerTrashChevOpen { transform: rotate(180deg); }
+
+.pickerTrashBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4xs);
+  margin-top: var(--spacing-3xs);
+}
+
+.pickerTrashItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--row-p-sm);
+  border-radius: var(--radius-2xl);
+}
+
+.pickerTrashItem:hover { background: var(--bg-secondary); }
+
+/* 삭제된 항목이라 날짜 뱃지 살짝 흐리게 */
+.pickerTrashItem .pickerItemDate { opacity: 0.6; }
+
+.pickerTrashSoon { color: var(--text-error); font-weight: 600; }
+
+/* ── 연결된 작업 모달 — 넘버링 스테퍼 타임라인 ── */
+.chainFlow { display: flex; flex-direction: column; padding: var(--spacing-md) var(--spacing-md) var(--spacing-lg); }
+
+.chainStep {
+  position: relative;
+  display: flex; align-items: stretch; gap: var(--spacing-md);
+  width: 100%; text-align: left;
+  padding: 0 var(--spacing-2xs) 0 0;
+  border: none; background: transparent; cursor: pointer;
+}
+
+/* 레일 — 연결선(노드 사이 gap 관통) */
+.chainStepRail { position: relative; width: 26px; flex-shrink: 0; }
+
+.chainStepRail::before {
+  content: "";
+  position: absolute;
+  left: 13px; transform: translateX(-50%);
+  top: 0; bottom: 0; width: 2px; border-radius: 2px;
+  background: var(--border-color-light);
+}
+
+.chainStep:first-child .chainStepRail::before { top: 13px; }
+
+.chainStep:last-child .chainStepRail::before { bottom: auto; height: 13px; }
+
+/* 완료 단계까지의 연결선은 라벨색으로 (진행 표시) */
+.chainStepDone .chainStepRail::before { background: color-mix(in srgb, var(--_c) 55%, var(--border-color-light)); }
+
+/* 마일스톤 노드 — 미완료: 라벨색 링, 완료: 라벨색 채움+체크 */
+.chainStepNode {
+  position: absolute;
+  left: 13px; top: 13px; transform: translate(-50%, -50%);
+  width: 15px; height: 15px; border-radius: var(--radius-circle);
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--bg-primary);
+  border: 2.5px solid var(--_c);
+  color: var(--text-white);
+  z-index: 1;
+  transition: transform 0.14s ease, box-shadow 0.14s ease;
+}
+
+.chainStepDone .chainStepNode { background: var(--_c); border-color: var(--_c); }
+
+.chainStep:hover .chainStepNode { transform: translate(-50%, -50%) scale(1.15); box-shadow: 0 0 0 4px color-mix(in srgb, var(--_c) 18%, transparent); }
+
+/* 컨텐츠 — 배경 없이. 노드 간 간격은 body padding-bottom 으로 줘서 레일이 그 구간까지 덮어 선이 연속되게 */
+.chainStepBody { display: flex; flex-direction: column; gap: var(--spacing-3xs); min-width: 0; flex: 1; padding-top: var(--spacing-2xs); padding-bottom: var(--spacing-xl); }
+
+.chainStep:last-child .chainStepBody { padding-bottom: 0; }
+
+.chainStepTitleRow { display: flex; align-items: center; gap: var(--spacing-2xs); min-width: 0; }
+
+.chainStepTitle {
+  font-size: var(--font-size-body); font-weight: 600; color: var(--text-primary);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; flex: 1;
+  transition: color 0.12s ease;
+}
+
+.chainStep:hover .chainStepTitle { color: var(--text-accent); }
+
+.chainStepDone .chainStepTitle { color: var(--text-tertiary); text-decoration: line-through; }
+
+.chainStep:hover.chainStepDone .chainStepTitle { color: var(--text-tertiary); }
+
+.chainChip {
+  flex-shrink: 0;
+  display: inline-flex; align-items: center; gap: var(--spacing-4xs);
+  font-size: var(--font-size-hint); font-weight: 500; color: var(--text-secondary); white-space: nowrap;
+}
+
+.chainStepMeta { display: flex; align-items: center; flex-wrap: wrap; gap: var(--spacing-3xs) var(--spacing-md); font-size: var(--font-size-hint); color: var(--text-tertiary); font-variant-numeric: tabular-nums; }
+
+.chainMetaItem { display: inline-flex; align-items: center; gap: var(--spacing-3xs); }
+
+.chainLabelDot { width: 6px; height: 6px; border-radius: var(--radius-circle); }
