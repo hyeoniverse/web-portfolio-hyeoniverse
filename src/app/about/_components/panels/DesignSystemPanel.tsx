@@ -1,7 +1,6 @@
 "use client";
 
-import { useRef, useCallback, useLayoutEffect, useState, useEffect, memo } from "react";
-import { createPortal } from "react-dom";
+import { useRef, useCallback, useLayoutEffect, memo } from "react";
 import gsap from "gsap";
 import Image from "next/image";
 import type { Language } from "@/providers/LanguageProvider";
@@ -9,6 +8,7 @@ import type { DesignConceptItem, DcTransitionMode } from "@/data/about";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { useMobileLayout } from "@/hooks/useMobileLayout";
 import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
+import { useTabActionsPortal } from "./designSystem/useTabActionsPortal";
 import { useMobilePinScroll } from "../../_hooks/useMobilePinScroll";
 import PinnedTitleRow from "../PinnedTitleRow";
 import Button from "@/components/ui/Button";
@@ -21,7 +21,7 @@ import IconographyDemo from "./demos/IconographyDemo";
 import frame from "../AboutPanel.module.css";
 import nav from "../AboutNav.module.css";
 import local from "./DesignSystemPanel.module.css";
-import Pressable from "@/components/ui/Pressable";
+
 const shared = { ...frame, ...nav };
 const styles = { ...shared, ...local };
 
@@ -166,48 +166,13 @@ function DesignSystemPanel({
     [scrollToItem, mobileStRef],
   );
 
-  // 모바일: 패널이 뷰포트에 보일 때만 탭바에 컨트롤 표시
-  const [tabSlot, setTabSlot] = useState<HTMLElement | null>(null);
-  const [inView, setInView] = useState(false);
-  useEffect(() => {
-    if (!isMobile) return;
-    setTabSlot(document.getElementById("about-tab-actions"));
-    const el = contentRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => setInView(entry.isIntersecting),
-      { threshold: 0.1 },
-    );
-    observer.observe(el);
-    return () => { observer.disconnect(); setTabSlot(null); setInView(false); };
-  }, [isMobile, contentRef]);
-
-  const tabActions = tabSlot && isMobile && inView
-    ? createPortal(
-        <>
-          <Pressable noTapScale
-            data-clickable="true"
-            className={styles.tabNavBtn}
-            onClick={() => handleDotClick(Math.max(0, activeIndex - 1))}
-            disabled={activeIndex === 0}
-          >
-            ‹
-          </Pressable>
-          <span className={styles.tabNavCounter}>
-            {activeIndex + 1}/{concepts.length}
-          </span>
-          <Pressable noTapScale
-            data-clickable="true"
-            className={styles.tabNavBtn}
-            onClick={() => handleDotClick(Math.min(concepts.length - 1, activeIndex + 1))}
-            disabled={activeIndex === concepts.length - 1}
-          >
-            ›
-          </Pressable>
-        </>,
-        tabSlot,
-      )
-    : null;
+  const tabActions = useTabActionsPortal({
+    isMobile,
+    contentRef,
+    activeIndex,
+    count: concepts.length,
+    onSelect: handleDotClick,
+  });
 
   /* ── Desktop: card elements (bg + overlay combined) ── */
   const cardElements = concepts.map((concept) => {
