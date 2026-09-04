@@ -1,0 +1,142 @@
+/* 에디터 수식 스타일. RichTextEditor.module.css 에서 분리 (#675). */
+/* 수식 툴바 — 카테고리 popover 안 기호 그리드 (compact) */
+.mathMenu {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  max-width: 20rem;
+  padding: var(--spacing-2xs);
+}
+
+.mathBarDiv {
+  width: 1px;
+  align-self: stretch;
+  margin: var(--spacing-3xs);
+  background: var(--border-color-light);
+  flex-shrink: 0;
+}
+
+.mathFloating {
+  position: absolute;
+  z-index: 4;
+  width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm);
+  background: var(--bg-secondary);
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-lg);
+}
+
+/* 블록 수식 split — 입력 | 미리보기 나란히 */
+.mathFloatingSplit {
+  width: min(620px, calc(100vw - 32px));
+  flex-direction: row;
+  align-items: stretch;
+}
+
+/* 블록 안 인라인 편집(팝업 대신) — 포털 스타일 제거, 블록 폭 채움 */
+.mathFloatingInline {
+  position: static;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
+
+.mathFloatingInline.mathFloatingSplit {
+  width: 100%;
+}
+
+.mathFloatingSplit .mathFloatingInput {
+  flex: 1;
+  min-width: 0;
+}
+
+.mathFloatingPreview {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: auto;
+  padding: var(--spacing-sm);
+  background: var(--bg-primary);
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  color: var(--text-primary);
+}
+
+.mathFloatingPreviewEmpty {
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: var(--font-size-body);
+}
+
+.mathFloatingInput {
+  width: 100%;
+  padding: var(--field-p-sm);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-mono), monospace;
+  font-size: var(--font-size-md);
+  line-height: 1.8;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+
+.mathFloatingInput:focus-within {
+  border-color: var(--text-primary);
+}
+
+.mathFloatingInput::placeholder {
+  color: var(--text-tertiary);
+}
+
+.mathFloatingCapsule {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  overflow: hidden;
+}
+
+.mathCapsuleCancel,
+.mathCapsuleConfirm {
+  border: none;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-label);
+  font-weight: 500;
+  padding: var(--modal-p-sm);
+  line-height: 1;
+}
+
+.mathCapsuleCancel {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.mathCapsuleConfirm {
+  background: var(--bg-inverse);
+  color: var(--text-inverse);
+}
+
+.mathCapsuleConfirm:disabled {
+  opacity: 0.4;
+}
+
+.mathPreviewError {
+}
+
+.mathPreviewError .mathFloatingInput {
+}
