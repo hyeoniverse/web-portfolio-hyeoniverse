@@ -27,7 +27,10 @@ import { showToast } from "@/stores/toastStore";
 import { type CalEvent, type EventLabel, type RecurFreq, type RecurRule, type TimeFormat, EVENT_COLORS, EVENT_STATUSES, EVENT_PRIORITIES, colorVar, statusOf, statusName, priorityOf, priorityName, findLabel, successorsOf, wouldCycle, formatClock, recurSummary, EVENT_TITLE_MAX, EVENT_LABEL_MAX, EVENT_LABEL_COUNT_MAX, EVENT_COLOR_COUNT_MAX } from "./model";
 import { parseDate, formatDateValue } from "../dateUtils";
 import { genShortId } from "../dateUtils";
-import styles from "./Calendar.module.css";
+import base from "./Calendar.module.css";
+import event from "./CalendarEvent.module.css";
+import preview from "./CalendarPreview.module.css";
+const styles = { ...base, ...event, ...preview };
 import Pressable from "@/components/ui/Pressable";
 
 const pad = (n: number) => String(n).padStart(2, "0");
