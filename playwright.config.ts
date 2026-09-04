@@ -47,7 +47,7 @@ export default defineConfig({
     { name: "setup", testMatch: /auth\.setup\.ts/, retries: 0 },
     {
       name: "admin",
-      testMatch: /admin\.spec\.ts/,
+      testMatch: /(admin|editor)\.spec\.ts/,
       dependencies: ["setup"],
       use: {
         ...devices["Desktop Chrome"],

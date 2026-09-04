@@ -1,0 +1,22 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`직렬화 — 저장 형식이 바뀌면 기존 글이 깨진다 > 구분선 이 같은 HTML 로 나온다 1`] = `"<hr />"`;
+
+exports[`직렬화 — 저장 형식이 바뀌면 기존 글이 깨진다 > 문단 이 같은 HTML 로 나온다 1`] = `"<p>본문</p>"`;
+
+exports[`직렬화 — 저장 형식이 바뀌면 기존 글이 깨진다 > 볼드·이탤릭 이 같은 HTML 로 나온다 1`] = `"<p><strong>굵게</strong> <em>기울임</em></p>"`;
+
+exports[`직렬화 — 저장 형식이 바뀌면 기존 글이 깨진다 > 열 그룹 이 같은 HTML 로 나온다 1`] = `"<div data-column-group style="display:flex;gap:var(--spacing-xs);margin:16px 0;overflow-x:auto;--_col-shrink:0;--_col-bg:oklch(97.3% 0.0082 91.48);--_col-divider:var(--border-color-light)"><div data-column data-width="50%" style="flex:50 1 0;background:var(--_col-bg,oklch(97.3% 0.0082 91.48));padding:var(--spacing-sm);border-radius:var(--radius-2xl);min-width:40px"><p>왼쪽</p></div><div data-column data-width="50%" style="flex:50 1 0;background:var(--_col-bg,oklch(97.3% 0.0082 91.48));padding:var(--spacing-sm);border-radius:var(--radius-2xl);min-width:40px"><p>오른쪽</p></div></div>"`;
+
+exports[`직렬화 — 저장 형식이 바뀌면 기존 글이 깨진다 > 인용 이 같은 HTML 로 나온다 1`] = `"<blockquote>인용문</blockquote>"`;
+
+exports[`직렬화 — 저장 형식이 바뀌면 기존 글이 깨진다 > 제목 이 같은 HTML 로 나온다 1`] = `"<h2>소제목</h2>"`;
+
+exports[`직렬화 — 저장 형식이 바뀌면 기존 글이 깨진다 > 코드블록 이 같은 HTML 로 나온다 1`] = `
+"<div class="code-block-wrap"><pre data-lenis-prevent><code class="language-ts">const a = 1;
+</code></pre></div>"
+`;
+
+exports[`직렬화 — 저장 형식이 바뀌면 기존 글이 깨진다 > 콜아웃 이 같은 HTML 로 나온다 1`] = `"<div data-callout data-callout-bg="var(--bg-tertiary)" style="display:flex;gap:0;padding:16px;border-radius:8px;background:var(--bg-tertiary);margin:16px 0"><div style="flex:1;min-width:0"><p>주의</p></div></div>"`;
+
+exports[`직렬화 — 저장 형식이 바뀌면 기존 글이 깨진다 > 토글 이 같은 HTML 로 나온다 1`] = `"<div data-toggle data-open><p>접힌 내용</p></div>"`;
