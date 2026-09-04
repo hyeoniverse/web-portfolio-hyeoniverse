@@ -18,7 +18,7 @@ import {
   SecurityPanel,
   CreditsPanel,
 } from "../_components/panels";
-import styles from "../_components/AboutSection.module.css";
+import styles from "../_components/AboutPanel.module.css";
 
 /* ── Context passed to each panel's props factory ── */
 

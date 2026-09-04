@@ -56,7 +56,8 @@ import { type ArchDiagramData } from "@/app/about/_components/panels/archDiagram
 import css from "./AboutStudio.module.css";
 import sub from "./AboutSubTab.module.css";
 /* 실제 About Hero 와 픽셀 동일하게 렌더하려고 그 CSS 모듈을 그대로 재사용 */
-import sec from "@/app/about/_components/AboutSection.module.css";
+import frame from "@/app/about/_components/AboutPanel.module.css";
+import shell from "@/app/about/_components/AboutSection.module.css";
 import hero from "@/app/about/_components/panels/HeroPanel.module.css";
 import kin from "@/components/common/KineticHeroTitle.module.css";
 import ov from "@/app/about/_components/panels/OverviewPanel.module.css";
@@ -88,6 +89,7 @@ import { securityIcons } from "@/app/about/_components/panels/SecurityPanel";
 import Pressable from "@/components/ui/Pressable";
 import StickyGlassBar from "@/components/admin/StickyGlassBar/StickyGlassBar";
 import { aboutPanelLabel, aboutPanelTitle } from "@/data/about/panels";
+const sec = { ...frame, ...shell };
 
 /* ═══════════ 타입 ═══════════ */
 type ThemeBg = { primary: string; secondary: string; accent: string };

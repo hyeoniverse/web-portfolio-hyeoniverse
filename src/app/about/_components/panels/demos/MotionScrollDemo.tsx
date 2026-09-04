@@ -1,9 +1,7 @@
 "use client";
 
 import { useRef, useEffect } from "react";
-import shared from "../../AboutSection.module.css";
-import local from "../DesignSystemPanel.module.css";
-const styles = { ...shared, ...local };
+import styles from "../DesignSystemPanel.module.css";
 
 export default function MotionScrollDemo() {
   const ballRef = useRef<HTMLDivElement>(null);

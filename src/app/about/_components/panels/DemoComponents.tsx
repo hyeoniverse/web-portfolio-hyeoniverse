@@ -4,9 +4,7 @@ import { useState, useCallback, useEffect } from "react";
 import { useMotionValue, useSpring, motion } from "framer-motion";
 import { useMobileLayout } from "@/hooks/useMobileLayout";
 import { MARQUEE_COLORS, GRID_COLORS } from "./demoColors";
-import shared from "../AboutSection.module.css";
-import local from "./CodeHighlightsPanel.module.css";
-const styles = { ...shared, ...local };
+import styles from "./CodeHighlightsPanel.module.css";
 
 /* =========================================================================
    DemoMagnetic — 자기 호버 효과 (useMagnetic 훅)

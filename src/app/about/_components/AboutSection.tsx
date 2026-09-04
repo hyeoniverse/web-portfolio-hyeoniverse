@@ -16,8 +16,11 @@ import {
   type PanelContext,
 } from "../_config/panelConfig";
 import SectionNav from "./SectionNav";
-import styles from "./AboutSection.module.css";
+import frame from "./AboutPanel.module.css";
+import nav from "./AboutNav.module.css";
+import shell from "./AboutSection.module.css";
 import Pressable from "@/components/ui/Pressable";
+const styles = { ...frame, ...nav, ...shell };
 
 const REPETITIONS = 3;
 

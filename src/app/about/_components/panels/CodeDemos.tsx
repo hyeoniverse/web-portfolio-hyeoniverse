@@ -5,9 +5,7 @@ import dynamic from "next/dynamic";
 import StaggerText from "@/components/effects/StaggerText/StaggerText";
 import { useMobileLayout } from "@/hooks/useMobileLayout";
 export { DemoMagnetic, DemoInfiniteScroll, DemoFrameGrid } from "./DemoComponents";
-import shared from "../AboutSection.module.css";
-import local from "./CodeHighlightsPanel.module.css";
-const styles = { ...shared, ...local };
+import styles from "./CodeHighlightsPanel.module.css";
 
 export const LazyDemoScrollTorus = dynamic(() => import("./DemoScrollTorus"), {
   ssr: false,

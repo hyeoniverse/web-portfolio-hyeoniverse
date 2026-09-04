@@ -1,0 +1,201 @@
+/* About 패널 프레임 — 패널 폭 변형 · 제목 줄 · 핀 콘텐츠 · 워터마크 번호. AboutSection.module.css 에서 분리 (#668). */
+/* Inheritable defaults: font-family, color, font-weight cascade to all children.
+   Override only when different. */
+.panel {
+  display: flex;
+  justify-content: flex-start;
+  flex-shrink: 0;
+  flex-direction: column;
+  padding: var(--_panel-py) var(--_panel-px);
+  padding-bottom: calc(var(--spacing-2xl) + 2.5rem);
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  font-family: var(--font-mono);
+  font-weight: var(--font-weight-light);
+  color: var(--text-primary);
+  box-sizing: border-box;
+}
+
+.panelWide {
+  width: 140vw;
+}
+
+.panelNarrow {
+  width: 60vw;
+}
+
+.panelExtraWide {
+  width: 350vw;
+}
+
+.panelCompact {
+  width: 85vw;
+}
+
+.panelTitleCompact {
+  flex-shrink: 0;
+  margin: 0 0 var(--spacing-xl) 0;
+  font-family: var(--font-instrument);
+  font-size: clamp(1.5rem, min(6vw, 9vh), 6rem);
+  font-style: italic;
+  line-height: var(--_lh-title);
+  letter-spacing: var(--_ls-title);
+}
+
+.panelTitle {
+  margin: var(--header-height) 0 var(--_space-section);
+  font-family: var(--font-instrument);
+  font-size: clamp(1.5rem, min(8vw, 12vh), 7.5rem);
+  font-style: italic;
+  line-height: var(--_lh-title);
+  color: var(--text-accent);
+  letter-spacing: var(--_ls-title);
+  text-align: left;
+  word-break: keep-all;
+}
+
+/* Shared pinned inner wrapper — counter-translated by JS on desktop,
+   flex-fills the panel vertically. Used by all "wide" panels. */
+.pinnedContent {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  position: relative;
+  max-width: calc(100vw - var(--_panel-px) * 2);
+  min-height: 0;
+  will-change: transform;
+  background: var(--bg-primary);
+}
+
+/* Shared title row: number + title (left) + dot nav (right) */
+.pinnedTitleRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-shrink: 0;
+  margin-bottom: var(--_space-section);
+  position: relative;
+  z-index: 2;
+}
+
+.titleRowLeft {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-md);
+}
+
+.tabContent {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+@media (max-width: 1024px), (max-height: 700px) {
+  .pinnedContent {
+    will-change: auto;
+  }
+
+  .panel,
+  .panelWide,
+  .panelNarrow,
+  .panelExtraWide,
+  .panelCompact {
+    padding: var(--spacing-4xl) var(--page-px);
+    width: 100%;
+    height: auto;
+    min-height: auto;
+  }
+
+  .panelTitle {
+    margin-top: var(--spacing-4xl);
+    margin-bottom: var(--_space-section);
+    font-size: clamp(2.5rem, 8vw, 4rem);
+  }
+
+  .panelTitleCompact {
+    margin-bottom: var(--_space-block);
+    font-size: clamp(2rem, 7vw, 3.5rem);
+  }
+
+  .mobilePinViewport {
+    height: 100vh;
+    min-height: 100vh;
+  }
+
+  /* nav(80) + tab(40) + 여백 = 160px — pin 콘텐츠를 헤더+탭 아래로 밀기 */
+  .pinnedContent > .pinnedTitleRow {
+    /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 패널 상단 여백 — 고정 nav 아래로 히어로가 들어오게 맞춘 값. 간격 눈금 밖이다 */
+    padding-top: 10rem;
+  }
+}
+
+/* 패널 상하 패딩 제거 — pin 패널 등에서 사용 */
+.panelFlush {
+  /* desktop: no-op */
+}
+
+/* 타이틀 행 간격 최소화 — 공유 pinnedTitleRow(160px) 대신 사용 */
+.titleRowCompact {
+  /* desktop: no-op */
+}
+
+/* 배경 번호 워터마크 — Backend/Troubleshooting 상세 번호 */
+.watermarkNumber {
+  /* desktop: normal number styling, mobile override below */
+}
+
+@media (max-width: 1024px), (max-height: 700px) {
+  .panelFlush {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  .titleRowCompact.titleRowCompact.titleRowCompact {
+    padding-top: 0;
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .titleRowCompact h3 {
+    margin-top: var(--spacing-md);
+    margin-bottom: 0;
+  }
+
+  .watermarkNumber {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 0;
+    font-size: clamp(8rem, 30vw, 16rem);
+    line-height: 1;
+    color: var(--text-accent);
+    white-space: nowrap;
+    pointer-events: none;
+    translate: -50% -50%;
+    opacity: 0.06;
+  }
+}
+
+@media (max-width: 768px) {
+  .panel,
+  .panelWide,
+  .panelNarrow,
+  .panelExtraWide,
+  .panelCompact {
+    padding: var(--spacing-3xl) var(--spacing-xl);
+  }
+
+  .panelTitleCompact {
+    font-size: clamp(1.8rem, 6vw, 2.5rem);
+  }
+}
+
+@media (max-width: 480px) {
+  .panel,
+  .panelWide,
+  .panelNarrow,
+  .panelExtraWide,
+  .panelCompact {
+    padding: var(--m-lg) var(--m-sm);
+  }
+}

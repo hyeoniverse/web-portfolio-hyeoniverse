@@ -16,8 +16,10 @@ import { useMobileLayout } from "@/hooks/useMobileLayout";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { usePanelTitle } from "../../_hooks/usePanelTitle";
 import { adaptFeatures } from "@/app/about/_config/adaptAbout";
-import shared from "../AboutSection.module.css";
+import frame from "../AboutPanel.module.css";
+import shell from "../AboutSection.module.css";
 import local from "./FeaturesPanel.module.css";
+const shared = { ...frame, ...shell };
 const styles = { ...shared, ...local };
 
 interface FeaturesPanelProps {

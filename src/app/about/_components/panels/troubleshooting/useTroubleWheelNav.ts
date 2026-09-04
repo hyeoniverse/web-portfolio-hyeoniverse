@@ -2,9 +2,7 @@
 
 import { useEffect, useRef, type RefObject } from "react";
 import type { TroubleShootingItem } from "@/data/about/types";
-import shared from "../../AboutSection.module.css";
-import local from "../TroubleshootingPanel.module.css";
-const styles = { ...shared, ...local };
+import styles from "../TroubleshootingPanel.module.css";
 
 /* 데스크탑 휠 내비게이션 — 이 패널은 가로로 핀된 화면 안에 다시 세로 스크롤 영역이 둘 있다
    (사이드바 목록, 본문 에디터). 휠 하나로 셋을 조율해야 해서 직접 라우팅한다.

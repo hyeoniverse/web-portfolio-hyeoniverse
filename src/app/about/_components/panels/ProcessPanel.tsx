@@ -10,8 +10,10 @@ import { renderHighlight } from "../renderHighlight";
 import PinnedTitleRow from "../PinnedTitleRow";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { adaptProcess } from "@/app/about/_config/adaptAbout";
-import shared from "../AboutSection.module.css";
+import entry from "../AboutEntry.module.css";
+import frame from "../AboutPanel.module.css";
 import local from "./ProcessPanel.module.css";
+const shared = { ...entry, ...frame };
 const styles = { ...shared, ...local };
 
 /** Collapsed row height for mobile accordion layout (px) */

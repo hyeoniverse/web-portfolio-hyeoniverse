@@ -3,8 +3,10 @@ import type { BackendItem } from "@/data/about";
 import { renderHighlight } from "../renderHighlight";
 import CodeHighlight from "../CodeHighlight";
 import T from "@/components/ui/T";
-import shared from "../AboutSection.module.css";
+import entry from "../AboutEntry.module.css";
+import frame from "../AboutPanel.module.css";
 import local from "./BackendPanel.module.css";
+const shared = { ...entry, ...frame };
 const styles = { ...shared, ...local };
 
 /** 공통: 항목 상세 렌더링 */

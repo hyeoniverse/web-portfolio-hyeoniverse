@@ -18,9 +18,11 @@ import MotionScrollDemo from "./demos/MotionScrollDemo";
 import LayoutSpacingDemo from "./demos/LayoutSpacingDemo";
 import GridSystemDemo from "./demos/GridSystemDemo";
 import IconographyDemo from "./demos/IconographyDemo";
-import shared from "../AboutSection.module.css";
+import frame from "../AboutPanel.module.css";
+import nav from "../AboutNav.module.css";
 import local from "./DesignSystemPanel.module.css";
 import Pressable from "@/components/ui/Pressable";
+const shared = { ...frame, ...nav };
 const styles = { ...shared, ...local };
 
 interface DesignSystemPanelProps {

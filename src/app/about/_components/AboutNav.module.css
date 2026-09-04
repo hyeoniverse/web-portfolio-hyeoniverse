@@ -1,0 +1,468 @@
+/* About 페이지 네비게이션 — 데스크탑 섹션 목록 · 도트 인디케이터 · 모바일 탭 바. AboutSection.module.css 에서 분리 (#668). */
+.dotNavWrap {
+  display: flex;
+  gap: clamp(0.15rem, 0.3vw, 0.35rem);
+  align-items: center;
+  align-self: flex-start;
+  background: transparent;
+  border-radius: var(--radius-capsule);
+  padding: var(--spacing-3xs);
+  padding-top: calc(
+    var(--header-height) + var(--spacing-2xl) - var(--_panel-py)
+  );
+  mix-blend-mode: difference;
+}
+
+.dotArrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(0.2rem, 0.3vh, 0.35rem) clamp(0.3rem, 0.4vw, 0.5rem);
+  border: 1px solid transparent;
+  background: transparent;
+  font-size: var(--font-size-prose-label);
+  color: var(--text-white);
+  border-radius: var(--radius-capsule);
+}
+
+.dotNavWrap .dotArrow {
+  transition:
+    opacity var(--duration-fast) ease,
+    border-color var(--duration-fast) ease;
+}
+
+.dotArrow:not(:disabled):hover {
+  border: var(--border-white);
+}
+
+.dotArrow:disabled {
+  opacity: 0.45;
+}
+
+.dotNav {
+  display: flex;
+  flex: 1;
+  gap: 0;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* Spring-animated capsule indicator (framer-motion) — wraps active dotItem */
+.dotIndicator {
+  border: var(--border-white);
+  position: absolute;
+  top: 50%;
+  left: 0;
+  z-index: 0;
+  background: transparent;
+  pointer-events: none;
+  border-radius: var(--radius-capsule);
+}
+
+/* Modifier: dotNav visible on mobile only, hidden on desktop (Troubleshooting) */
+.dotNavMobileOnly {
+  display: none;
+}
+
+/* Each dot-nav item: button with dot + collapsible label */
+.dotItem {
+  display: flex;
+  gap: 0;
+  align-items: center;
+  padding: clamp(0.4rem, 0.5vh, 0.6rem) clamp(0.45rem, 0.55vw, 0.7rem);
+  border: none;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+  background: transparent;
+  white-space: nowrap;
+  border-radius: var(--radius-capsule);
+}
+
+/* Compound selector (0,2,0) to beat global theme transition */
+.dotNav .dotItem {
+  transition:
+    width var(--duration-base) ease,
+    gap var(--duration-base) ease;
+}
+
+.dotItem .dotCircle {
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  background: var(--bg-white);
+  border-radius: var(--radius-capsule);
+  opacity: 0.5;
+}
+
+.dotNav .dotCircle {
+  transition: opacity var(--duration-base) ease;
+}
+
+.dotItem .dotText {
+  max-width: 0;
+  overflow: hidden;
+  font-family: var(--font-mono);
+  font-size: 0;
+  line-height: clamp(0.55rem, 0.6vw, 0.75rem);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-white);
+  text-overflow: ellipsis;
+  opacity: 0;
+}
+
+.dotNav .dotText {
+  transition:
+    font-size var(--duration-base) ease,
+    opacity var(--duration-base) ease;
+}
+
+.dotItemActive {
+  width: clamp(70px, 7vw, 100px);
+  gap: clamp(0.3rem, 0.35vw, 0.5rem);
+}
+
+.dotItemActive .dotCircle {
+  opacity: 1;
+}
+
+.dotItemActive .dotText {
+  flex: 1;
+  min-width: 0;
+  max-width: none;
+  font-size: var(--font-size-prose-caption);
+  opacity: 1;
+}
+
+/* Hover: highlight dot circle */
+.dotItem:hover .dotCircle {
+  opacity: 1;
+}
+
+/* Horizontal dot nav — 하단 중앙 fixed. transparent bg + backdrop blur + mix-blend difference.
+   color/dot 도 흰 톤 토큰 사용 — difference 가 배경 색에 맞춰 자동 반전. */
+.sectionNav {
+  display: flex;
+  flex-direction: row;
+  gap: var(--spacing-2xs);
+  align-items: center;
+  padding: var(--spacing-2xs) var(--spacing-xs);
+  position: fixed;
+  bottom: var(--spacing-2xl);
+  left: 50%;
+  z-index: var(--z-float);
+  max-width: calc(100vw - var(--spacing-2xl) * 2);
+  background: transparent;
+  backdrop-filter: blur(12px);
+  mix-blend-mode: difference;
+  transform: translateX(-50%);
+  border-radius: var(--radius-capsule);
+  border: var(--border-white-muted);
+  overflow: hidden;
+}
+
+/* horizontal indicator — text 감싸는 capsule. difference 합성용 흰 톤 outline */
+.navIndicator {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  z-index: 0;
+  height: clamp(18px, 2.4vh, 24px);
+  background: transparent;
+  border: var(--border-white);
+  pointer-events: none;
+  border-radius: var(--radius-capsule);
+  translate: 0 -50%;
+}
+
+.slideArrow {
+  position: fixed;
+  top: 50%;
+  left: var(--spacing-md);
+  z-index: var(--z-float);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: transparent;
+  backdrop-filter: blur(8px);
+  border-radius: var(--radius-circle);
+  color: var(--text-white);
+  font-size: 0;
+  line-height: 1;
+  opacity: 0.6;
+  transform: translateY(-50%);
+  transition: opacity var(--duration-base) ease;
+  mix-blend-mode: difference;
+}
+
+/* 화살표 chevron — border 2개 rotate. 회전 후 "꼭지점" 이 bbox 중앙이 아닌 한쪽으로 치우쳐서
+   margin 으로 visual 중앙 보정 (좌측 arrow 는 꼭지점이 왼쪽 → 오른쪽으로 살짝 밀어줌) */
+.slideArrow::before {
+  content: "";
+  display: block;
+  width: 12px;
+  height: 12px;
+  margin-left: var(--spacing-2xs);
+  border-left: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg);
+  opacity: 0.85;
+}
+
+.slideArrowRight::before {
+  margin-left: 0;
+  margin-right: var(--spacing-2xs);
+}
+
+.slideArrowRight {
+  left: auto;
+  right: var(--spacing-md);
+}
+
+.slideArrowRight::before {
+  transform: rotate(-135deg);
+}
+
+.slideArrow:hover {
+  opacity: 1;
+}
+
+.slideArrow:hover::before {
+  opacity: 1;
+}
+
+/* horizontal nav row — dot + label 한 줄, items 가로 stack */
+.navItem {
+  display: flex;
+  flex-direction: row;
+  gap: clamp(0.25rem, 0.3vw, 0.4rem);
+  align-items: center;
+  padding: clamp(0.25rem, 0.35vh, 0.4rem) clamp(0.45rem, 0.55vw, 0.65rem);
+  border: none;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+  background: transparent;
+  white-space: nowrap;
+  border-radius: var(--radius-capsule);
+}
+
+.sectionNav .navItem {
+  transition: gap var(--duration-base) ease;
+}
+
+.navItem .navDot {
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  background: var(--bg-white);
+  border-radius: var(--radius-circle);
+}
+
+.sectionNav .navItem .navDot {
+  transition:
+    background var(--duration-base) ease,
+    width var(--duration-base) ease,
+    height var(--duration-base) ease;
+}
+
+/* 기본 — title 항상 표시. mix-blend difference 가 배경에 따라 자동 반전. */
+.navItem .navLabel {
+  margin-left: 0;
+  max-width: clamp(60px, 6vw, 90px);
+  font-family: var(--font-mono);
+  font-size: clamp(var(--font-size-micro), 0.55vw, 0.65rem);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-white);
+  opacity: 0.6;
+}
+
+.sectionNav .navItem .navLabel {
+  transition:
+    font-size var(--duration-base) ease,
+    opacity var(--duration-base) ease,
+    max-width var(--duration-base) ease,
+    margin-left var(--duration-base) ease;
+}
+
+/* Hover: expand dot + show label */
+.navItem:hover {
+  gap: clamp(0.25rem, 0.3vw, 0.4rem);
+}
+
+.navItem:hover .navDot {
+  width: 7px;
+  height: 7px;
+}
+
+.navItem:hover .navLabel {
+  max-width: clamp(60px, 6vw, 90px);
+  font-size: clamp(var(--font-size-micro), 0.55vw, 0.65rem);
+  color: var(--text-white);
+  opacity: 0.9;
+}
+
+/* Active state */
+.navItemActive {
+  gap: clamp(0.3rem, 0.35vw, 0.5rem);
+}
+
+.navItemActive .navDot {
+  background: var(--bg-white);
+  width: 8px;
+  height: 8px;
+}
+
+/* 지나온 항목 — dim. dot/label 모두 흐리게 → 현재 위치/진행도 시각화 */
+.navItemPast .navDot {
+  opacity: 0.45;
+}
+
+.navItemPast .navLabel {
+  opacity: 0.3;
+}
+
+/* 섹션 그룹 사이 구분선 — 1px hairline (difference 합성으로 자동 반전) */
+.navGroupDivider {
+  flex: none;
+  width: 1px;
+  height: 14px;
+  margin: 0 var(--spacing-2xs);
+  background: var(--bg-white);
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.navItemActive .navLabel {
+  margin-left: 0;
+  max-width: clamp(60px, 6vw, 90px);
+  /* font-size 는 default 와 동일 유지 — active 시 폰트 커지면 indicator 위치/너비 흔들림 */
+  color: var(--text-white);
+  opacity: 1;
+}
+
+/* ── Mobile tab bar (hidden on desktop) ── */
+.mobileTabBar {
+  display: none;
+}
+
+.mobileTabBtn {
+  position: relative;
+  padding: var(--spacing-sm) 0;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-prose-small);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-white);
+  /* mix-blend-mode: difference 환경에서 색 직접 변경하면 이상해짐 →
+     .navItem 처럼 opacity 로 강조 단계 표현 */
+  opacity: 0.35;
+  white-space: nowrap;
+}
+
+/* Compound selector (0,2,0) to beat global theme transition */
+.mobileTabBar .mobileTabBtn {
+  transition: opacity var(--duration-base) ease;
+}
+
+.mobileTabBar .mobileTabBtn:hover {
+  opacity: 1;
+}
+
+.mobileTabBtnActive {
+  opacity: 1;
+}
+
+/* Spring-animated indicator (Framer Motion layoutId) */
+.mobileTabIndicator {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--bg-white);
+  border-radius: var(--spacing-4xs);
+}
+
+.mobileTabActions {
+  display: none;
+}
+
+@media (max-width: 1024px), (max-height: 700px) {
+  .mobileTabBar {
+    display: flex;
+    gap: var(--spacing-xl);
+    position: sticky;
+    top: 80px; /* section padding-top과 일치 — nav 높이(패딩 포함) */
+    z-index: var(--z-float);
+    padding: var(--spacing-2xs) var(--page-px);
+    background: transparent;
+    border-bottom: none;
+    mix-blend-mode: difference;
+    pointer-events: none;
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .mobileTabBar .mobileTabBtn {
+    pointer-events: auto;
+  }
+
+  .mobileTabActions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-left: auto;
+    pointer-events: auto;
+    font-family: var(--font-mono);
+    font-size: var(--font-size-prose-small);
+    color: var(--text-white-muted);
+  }
+
+  .mobileTabActions:empty {
+    display: none;
+  }
+
+  /* Compound selector (0,2,0) — hide on scroll down */
+  .mobileTabBar.mobileTabBarHidden {
+    transform: translateY(-100%);
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      transform 0.3s ease,
+      opacity 0.2s ease;
+  }
+
+  .mobileTabBar:not(.mobileTabBarHidden) {
+    transition:
+      transform 0.3s ease,
+      opacity 0.2s ease;
+  }
+
+  .sectionNav {
+    display: none;
+  }
+
+  .dotNav {
+    display: none;
+  }
+
+  .dotNavMobile,
+  .dotNavMobileOnly {
+    display: flex;
+  }
+
+  /* dotNavMobileOnly (Troubleshooting 전용) — 기본 dotNavWrap 의 거대한 padding-top
+     (header-height + spacing-2xl) 이 row 높이를 키워서 title 과 본문 사이 간격을 벌림.
+     mobile 에서는 padding-top 0 으로 줄여 row 를 컴팩트하게. */
+  .dotNavWrap.dotNavMobileOnly {
+    padding-top: 0;
+  }
+}
