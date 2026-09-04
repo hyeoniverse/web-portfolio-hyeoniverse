@@ -1,0 +1,136 @@
+/* IDE 상태 바 — 내보내기 버튼과 글자 크기 조절. TroubleshootingPanel.module.css 에서 분리 (#668). */
+/* Status bar (하단) */
+.ideStatusBar {
+  display: flex;
+  flex: none;
+  gap: var(--spacing-md);
+  align-items: center;
+  padding: var(--spacing-xs) var(--spacing-md);
+  background: var(--text-accent);
+  color: var(--bg-primary);
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-medium);
+  overflow-x: auto;
+  scrollbar-width: none;
+  white-space: nowrap;
+}
+
+.ideStatusBar::-webkit-scrollbar {
+  display: none;
+}
+
+.ideStatusGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+}
+
+.ideStatusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-circle);
+  background: var(--bg-primary);
+  opacity: 0.7;
+}
+
+/* 내보내기 버튼 — status bar 우측 끝, 폰트 조절 앞. margin-left:auto 를 여기가 가져가고
+   뒤따르는 폰트 조절은 바로 옆에 붙는다 (양쪽에 auto 를 주면 둘 사이가 벌어진다). */
+.ideStatusActions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  margin-left: auto;
+}
+
+.ideStatusActionBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2em;
+  height: 1.8em;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.ideStatusActionBtn:hover {
+  background: color-mix(in srgb, var(--bg-primary) 25%, transparent);
+}
+
+/* 폰트 크기 조절 — status bar 우측 끝 */
+.ideStatusFontControls {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+}
+
+.ideStatusFontBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.9em;
+  height: 1.7em;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  border-radius: var(--radius-capsule);
+  transition: background-color 0.15s ease;
+}
+
+.ideStatusFontBtn:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--bg-primary) 25%, transparent);
+}
+
+.ideStatusFontBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.ideStatusFontValue {
+  min-width: 3em;
+  text-align: center;
+  opacity: 0.85;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ===== IDE 폰트 조절 툴팁 (페이지 진입 시 자동 표시) ===== */
+.ideFontTooltip {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + var(--spacing-xs));
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--text-primary);
+  color: var(--bg-primary);
+  border-radius: var(--radius-2xl);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-label);
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.ideFontTooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  right: 14px;
+  border: 5px solid transparent;
+  border-top-color: var(--text-primary);
+}
+
+@media (max-width: 1024px), (max-height: 700px) {
+  /* 상태바가 좁은 화면에서 가로로 밀리면 우측의 내보내기·폰트 버튼이 화면 밖에 남는다.
+     breadcrumb 이 이미 보여 주는 섹션·파일 형식을 접어 버튼을 화면 안으로 들인다. */
+  .ideStatusGroupOptional {
+    display: none;
+  }
+}
