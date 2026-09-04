@@ -3,8 +3,11 @@
 import { useRef, useState, useCallback, useEffect } from "react";
 import { motion, useSpring, useMotionValue } from "framer-motion";
 import { usePanelTitle } from "../_hooks/usePanelTitle";
-import styles from "./AboutSection.module.css";
+import frame from "./AboutPanel.module.css";
+import nav from "./AboutNav.module.css";
+import shell from "./AboutSection.module.css";
 import Pressable from "@/components/ui/Pressable";
+const styles = { ...frame, ...nav, ...shell };
 
 interface DotNavConfig {
   count: number;

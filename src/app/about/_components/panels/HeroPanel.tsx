@@ -5,8 +5,10 @@ import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { useLanguage } from "@/providers/LanguageProvider";
 import KineticHeroTitle from "@/components/common/KineticHeroTitle";
 import T from "@/components/ui/T";
-import shared from "../AboutSection.module.css";
+import frame from "../AboutPanel.module.css";
+import shell from "../AboutSection.module.css";
 import local from "./HeroPanel.module.css";
+const shared = { ...frame, ...shell };
 const styles = { ...shared, ...local };
 
 export default function HeroPanel() {

@@ -1,8 +1,10 @@
 import type { Language } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { usePanelTitle } from "../../_hooks/usePanelTitle";
-import shared from "../AboutSection.module.css";
+import frame from "../AboutPanel.module.css";
+import shell from "../AboutSection.module.css";
 import local from "./OverviewPanel.module.css";
+const shared = { ...frame, ...shell };
 const styles = { ...shared, ...local };
 
 interface OverviewPanelProps {

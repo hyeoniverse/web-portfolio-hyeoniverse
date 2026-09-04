@@ -8,10 +8,9 @@ import Tooltip from "@/components/ui/Tooltip";
 import type { TroubleShootingItem } from "@/data/about/types";
 import type { Language } from "@/providers/LanguageProvider";
 import { displayTitle } from "./itemHelpers";
-import shared from "../../AboutSection.module.css";
 import local from "../TroubleshootingPanel.module.css";
 import own from "./TroubleTabBar.module.css";
-const styles = { ...shared, ...local, ...own };
+const styles = { ...local, ...own };
 
 /* IDE 탭 바 — 항목 전체를 탭으로 늘어놓고 활성 탭만 indicator 를 붙인다.
    모바일 터치는 브라우저의 overflow 스크롤을 쓰고, 데스크톱 마우스만 직접 드래그를 구현한다.

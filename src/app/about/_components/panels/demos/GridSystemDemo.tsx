@@ -1,7 +1,5 @@
-import shared from "../../AboutSection.module.css";
 import { BREAKPOINT } from "@/constants";
-import local from "../DesignSystemPanel.module.css";
-const styles = { ...shared, ...local };
+import styles from "../DesignSystemPanel.module.css";
 
 const breakpoints = [
   { name: "XS", px: 320 },

@@ -9,10 +9,9 @@ import type { TroubleShootingItem } from "@/data/about/types";
 import type { Language } from "@/providers/LanguageProvider";
 import { DIFFICULTY_META, DifficultyBadge } from "./difficulty";
 import { displayTitle } from "./itemHelpers";
-import shared from "../../AboutSection.module.css";
 import local from "../TroubleshootingPanel.module.css";
 import own from "./TroubleExplorer.module.css";
-const styles = { ...shared, ...local, ...own };
+const styles = { ...local, ...own };
 
 /** 난이도 단계(1~3) 또는 추천만 보기. 사이드바 밖에서는 쓰지 않는다. */
 export type FilterMode = "all" | "recommended" | 1 | 2 | 3;

@@ -2,9 +2,7 @@
 
 import { Highlight, themes } from "prism-react-renderer";
 import { useTheme } from "@/providers/ThemeProvider";
-import shared from "./AboutSection.module.css";
-import local from "./panels/CodeHighlightsPanel.module.css";
-const styles = { ...shared, ...local };
+import styles from "./panels/CodeHighlightsPanel.module.css";
 
 interface CodeHighlightProps {
   code: string;

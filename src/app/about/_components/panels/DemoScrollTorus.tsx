@@ -4,9 +4,7 @@ import { Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
 import dynamic from "next/dynamic";
 import { createSafeRenderer } from "@/utils/three";
-import shared from "../AboutSection.module.css";
-import local from "./CodeHighlightsPanel.module.css";
-const styles = { ...shared, ...local };
+import styles from "./CodeHighlightsPanel.module.css";
 
 const SpinningTorus = dynamic(
   () => import("@/components/effects/ScrollTorus/SpinningTorus"),

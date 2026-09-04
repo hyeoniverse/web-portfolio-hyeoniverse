@@ -9,9 +9,7 @@ import type { Language } from "@/providers/LanguageProvider";
 import { renderHighlight } from "../../renderHighlight";
 import CanonicalCodeBlock from "./CanonicalCodeBlock";
 import { displayTitle } from "./itemHelpers";
-import shared from "../../AboutSection.module.css";
-import local from "../TroubleshootingPanel.module.css";
-const styles = { ...shared, ...local };
+import styles from "../TroubleshootingPanel.module.css";
 
 export interface ImageViewerState {
   images: string[];

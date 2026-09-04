@@ -6,8 +6,10 @@ import { renderHighlight } from "../renderHighlight";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { usePanelTitle } from "../../_hooks/usePanelTitle";
 import { adaptSecurity } from "@/app/about/_config/adaptAbout";
-import shared from "../AboutSection.module.css";
+import frame from "../AboutPanel.module.css";
+import shell from "../AboutSection.module.css";
 import local from "./SecurityPanel.module.css";
+const shared = { ...frame, ...shell };
 const styles = { ...shared, ...local };
 
 

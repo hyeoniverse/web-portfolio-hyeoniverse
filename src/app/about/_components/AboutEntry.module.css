@@ -1,0 +1,78 @@
+/* About 본문 블록 — 항목 블록과 라벨, 상세 헤더. AboutSection.module.css 에서 분리 (#668). */
+/* Desktop: processBody is transparent wrapper (column: timeline above, content below) */
+.processBody {
+  display: contents;
+}
+
+/* 공통 라벨/배지 */
+.entryLabel {
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  border: var(--border-default);
+  width: fit-content;
+  font-size: var(--font-size-prose-label);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  border-radius: var(--radius-capsule);
+}
+
+.entryLabelAccent {
+  border: var(--border-accent);
+  color: var(--text-accent);
+}
+
+.entryLabelInsight {
+  color: var(--text-primary);
+}
+
+/* 공통 항목 블록 (description + label + content) */
+.entryBlock {
+  display: flex;
+  gap: var(--_space-line);
+  flex-direction: column;
+  margin-bottom: var(--_space-block);
+}
+
+/* 공통 상세 헤더 (번호 + 제목) */
+.detailHeader {
+  display: flex;
+  gap: var(--spacing-lg);
+  align-items: baseline;
+  margin-bottom: var(--spacing-xl);
+  font-size: var(--font-size-subhead);
+}
+
+.detailNumber {
+  flex-shrink: 0;
+  font-family: var(--_font-display);
+  font-size: inherit;
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-fit);
+  color: var(--text-accent);
+}
+
+@media (max-width: 1024px), (max-height: 700px) {
+  .entryBlock {
+    position: relative;
+    z-index: 1;
+    gap: var(--spacing-xs);
+    margin-bottom: var(--spacing-md);
+  }
+
+  .entryBlock:last-child {
+    margin-bottom: 0;
+  }
+
+  .entryLabel {
+    padding: var(--spacing-3xs) var(--spacing-sm);
+    font-size: clamp(var(--font-size-micro), 1.8vw, 0.7rem);
+  }
+
+  .detailHeader {
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+    flex-wrap: wrap;
+    align-items: center;
+  }
+}

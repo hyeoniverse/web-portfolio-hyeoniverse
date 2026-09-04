@@ -11,9 +11,7 @@ import FlowDiagram from "../../FlowDiagram";
 import { renderHighlight } from "../../renderHighlight";
 import { DIFFICULTY_META } from "./difficulty";
 import { displayTitle, makeVizFeeder } from "./itemHelpers";
-import shared from "../../AboutSection.module.css";
-import local from "../TroubleshootingPanel.module.css";
-const styles = { ...shared, ...local };
+import styles from "../TroubleshootingPanel.module.css";
 
 /* IDE 에디터 영역 — 항목 하나를 정의·원인·해결·결론 순으로 그린다.
    본문은 renderParagraphs 가 IDE 줄 모양으로, 위치별 이미지는 renderImagesAt 가 끼워 넣고,
@@ -135,13 +133,13 @@ export default function TroubleEditor({
                       <>
                         <div className={styles.ideDivider} aria-hidden />
                         <div className={styles.ideIndent}>
-                          <div className={local.troubleComparisons}>
+                          <div className={styles.troubleComparisons}>
                             {item.comparisons.map((table, ti) => (
-                              <div key={ti} className={local.troubleComparisonWrap}>
+                              <div key={ti} className={styles.troubleComparisonWrap}>
                                 {table.label && (
-                                  <span className={local.troubleComparisonLabel}>{table.label[language]}</span>
+                                  <span className={styles.troubleComparisonLabel}>{table.label[language]}</span>
                                 )}
-                                <table className={local.troubleTable}>
+                                <table className={styles.troubleTable}>
                                   <thead>
                                     <tr>
                                       {table.headers.map((h, hi) => (
@@ -151,7 +149,7 @@ export default function TroubleEditor({
                                   </thead>
                                   <tbody>
                                     {table.rows.map((row, ri) => (
-                                      <tr key={ri} className={row.highlight ? local.troubleTableRowHighlight : undefined}>
+                                      <tr key={ri} className={row.highlight ? styles.troubleTableRowHighlight : undefined}>
                                         {row.cells.map((cell, ci) => (
                                           <td key={ci}>{renderHighlight(cell[language], language)}</td>
                                         ))}
@@ -184,7 +182,7 @@ export default function TroubleEditor({
                               <div key={di} className={styles.troubleDiagramItem}>
                                 <div className={styles.troubleDiagramFrame}>
                                   {d.title && (
-                                    <span className={local.troubleDiagramTitle}>{d.title[language]}</span>
+                                    <span className={styles.troubleDiagramTitle}>{d.title[language]}</span>
                                   )}
                                   <FlowDiagram nodes={d.nodes} edges={d.edges} language={language} />
                                 </div>

@@ -2,7 +2,7 @@
 
 import { Fragment } from "react";
 import { motion, type MotionValue } from "framer-motion";
-import styles from "./AboutSection.module.css";
+import styles from "./AboutNav.module.css";
 import Pressable from "@/components/ui/Pressable";
 
 interface SectionNavProps {

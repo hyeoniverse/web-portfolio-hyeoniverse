@@ -1,7 +1,5 @@
 import { Code, Palette, LayoutGrid, Zap, Globe, Mail } from "@/components/icons";
-import shared from "../../AboutSection.module.css";
-import local from "../DesignSystemPanel.module.css";
-const styles = { ...shared, ...local };
+import styles from "../DesignSystemPanel.module.css";
 
 const lucideIcons = [
   { icon: Code, label: "Code" },

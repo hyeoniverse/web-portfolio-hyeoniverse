@@ -8,9 +8,12 @@ import { useMobileLayout } from "@/hooks/useMobileLayout";
 import { renderDetail } from "./BackendDetail";
 import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
 import PinnedTitleRow from "../PinnedTitleRow";
-import shared from "../AboutSection.module.css";
+import frame from "../AboutPanel.module.css";
+import nav from "../AboutNav.module.css";
+import shell from "../AboutSection.module.css";
 import local from "./BackendPanel.module.css";
 import Pressable from "@/components/ui/Pressable";
+const shared = { ...frame, ...nav, ...shell };
 const styles = { ...shared, ...local };
 
 interface BackendPanelProps {

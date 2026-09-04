@@ -3,10 +3,8 @@
 import { useState, useEffect } from "react";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
-import shared from "../../AboutSection.module.css";
-import local from "../DesignSystemPanel.module.css";
+import styles from "../DesignSystemPanel.module.css";
 import Pressable from "@/components/ui/Pressable";
-const styles = { ...shared, ...local };
 
 function hexLuminance(hex: string) {
   const r = parseInt(hex.slice(1, 3), 16) / 255;

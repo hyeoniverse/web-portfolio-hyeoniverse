@@ -25,7 +25,7 @@ import {
   edgeLabelPos,
 } from "../_utils/flowLayout";
 import { FLOW_ICONS } from "./flowIcons";
-import shared from "../AboutSection.module.css";
+import shared from "../AboutPanel.module.css";
 import local from "./UserFlowPanel.module.css";
 const styles = { ...shared, ...local };
 

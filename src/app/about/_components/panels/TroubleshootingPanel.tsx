@@ -10,7 +10,8 @@ import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
 import { useMobilePinScroll } from "../../_hooks/useMobilePinScroll";
 import PinnedTitleRow from "../PinnedTitleRow";
 import { ImageViewer } from "@/components/ui/ImageViewer";
-import shared from "../AboutSection.module.css";
+import frame from "../AboutPanel.module.css";
+import shell from "../AboutSection.module.css";
 import local from "./TroubleshootingPanel.module.css";
 import DiagramFullscreenViewer from "./troubleshooting/DiagramFullscreenViewer";
 import TroubleExplorer from "./troubleshooting/TroubleExplorer";
@@ -20,6 +21,7 @@ import { useTroubleContent } from "./troubleshooting/useTroubleContent";
 import { useTroubleWheelNav } from "./troubleshooting/useTroubleWheelNav";
 import { useTroubleMobileNav } from "./troubleshooting/useTroubleMobileNav";
 import TroubleEditor from "./troubleshooting/TroubleEditor";
+const shared = { ...frame, ...shell };
 const styles = { ...shared, ...local };
 
 
