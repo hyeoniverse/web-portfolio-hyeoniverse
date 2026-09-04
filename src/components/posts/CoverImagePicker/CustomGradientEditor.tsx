@@ -10,7 +10,9 @@ import ColorPicker from "@/components/ui/ColorPicker";
 import Tooltip from "@/components/ui/Tooltip";
 import { extractPalette } from "@/components/admin/CoverImageField/extractPalette";
 import { renderGradient, type Stop, type GradientType, type PresetConfig } from "./gradientUtils";
-import styles from "./CoverImagePicker.module.css";
+import base from "./CoverImagePicker.module.css";
+import grad from "./CustomGradientEditor.module.css";
+const styles = { ...base, ...grad };
 import Pressable from "@/components/ui/Pressable";
 
 interface CustomGradientEditorProps {
