@@ -1,0 +1,111 @@
+/* IDE 탭 바 — 항목 탭과 활성 indicator. TroubleshootingPanel.module.css 에서 분리 (#668). */
+/* Tab bar — flex 컨테이너의 cross-axis 가 width 100% → 내부 탭 overflow 시 자체 가로 스크롤.
+     cursor: grab / drag 중 grabbing + user-select: none 으로 드래그 시 텍스트 선택 방지 */
+.ideTabBar {
+  display: flex;
+  flex: none;
+  gap: 0;
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--text-secondary) 12%, transparent);
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  touch-action: pan-x;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* mouse 누르고 있는 동안 (= drag 진행 중) cursor 를 grabbing 으로 바꿈. 자식 탭에도 적용 */
+.ideTabBar:active,
+.ideTabBar:active .ideTab {
+  cursor: grabbing;
+}
+
+.ideTabBar::-webkit-scrollbar {
+  display: none;
+}
+
+.ideTab {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  gap: var(--spacing-xs);
+  align-items: center;
+  padding: var(--spacing-xs) var(--spacing-md);
+  border: none;
+  border-right: 1px solid
+    color-mix(in srgb, var(--text-secondary) 12%, transparent);
+  background: transparent;
+  font-family: inherit;
+  font-size: var(--font-size-label);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* 마지막 탭 우측 구분선 제거 — Tooltip 래퍼(span) 가 각 탭을 감싸므로 grandchild 셀렉터로
+     실제 tabbar 의 마지막 탭만 타겟 (tabbar > span:last-child > .ideTab 또는 직접 자식) */
+.ideTabBar > :last-child > .ideTab,
+.ideTabBar > .ideTab:last-child {
+  border-right: none;
+}
+
+.ideTab:hover {
+  color: var(--text-secondary);
+}
+
+.ideTabActive {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.ideTabDot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-circle);
+  background: var(--text-accent);
+  opacity: 0.5;
+}
+
+.ideTabActive .ideTabDot,
+.ideTab:hover .ideTabDot {
+  opacity: 1;
+}
+
+/* 추천 항목 — dot 대신 별표. accent 컬러 풀 */
+.ideTabStar {
+  flex: none;
+  color: var(--text-accent);
+  opacity: 0.4;
+}
+
+.ideTabActive .ideTabStar,
+.ideTab:hover .ideTabStar {
+  opacity: 1;
+}
+
+.ideTabIndicator {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--text-accent);
+}
+
+/* PC: sidebar 가 선택 책임 → tab bar 숨김 */
+.ideTabBar {
+  display: none;
+}
+
+@media (max-width: 1024px), (max-height: 700px) {
+  /* PC default 의 "tab bar 숨김" override */
+  .ideTabBar {
+    display: flex;
+  }
+}

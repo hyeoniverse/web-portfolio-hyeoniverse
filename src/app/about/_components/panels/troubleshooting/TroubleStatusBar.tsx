@@ -12,7 +12,8 @@ import type { TroubleShootingItem } from "@/data/about/types";
 import type { Language } from "@/providers/LanguageProvider";
 import shared from "../../AboutSection.module.css";
 import local from "../TroubleshootingPanel.module.css";
-const styles = { ...shared, ...local };
+import own from "./TroubleStatusBar.module.css";
+const styles = { ...shared, ...local, ...own };
 
 /* IDE 상태 바 — 현재 항목을 markdown 으로 내보내기 + 본문 글자 크기 조절.
    내보내기 형식과 복사 상태, 폰트 툴팁은 여기서만 쓰므로 함께 들고 있다.
