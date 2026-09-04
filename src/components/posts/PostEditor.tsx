@@ -5,7 +5,7 @@ import type { UploadResponse } from "@/types";
 import { PREVIEW_KEY } from "@/constants";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
-import { ChevronRight, ExternalLink, AlertTriangle } from "@/components/icons";
+import { ExternalLink, AlertTriangle } from "@/components/icons";
 import { mdToRichHtml } from "./mdToRichHtml";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
@@ -14,13 +14,13 @@ import { showToast } from "@/stores/toastStore";
 import { focusFirstMissingField } from "@/utils/focusFirstMissing";
 import { stripHtml } from "@/utils/htmlUtils";
 import type { Post, PostFormData, Series } from "@/types/post";
-import SeriesInlineEditor from "@/app/admin/(dashboard)/settings/_components/SeriesInlineEditor";
+
 import { useCategories, type BilingualCategory } from "@/hooks/useCategories";
 import { findCategoryNode, toCategoryOptions, flattenCategories } from "@/lib/categoryTree";
 import Checkbox from "@/components/ui/Checkbox";
 import Tooltip from "@/components/ui/Tooltip";
 import Select from "@/components/ui/Select";
-import Textarea from "@/components/ui/Textarea";
+
 import AdminEditorShell, {
   adminEditorStyles as es,
 } from "@/components/admin/AdminEditorShell";
@@ -29,14 +29,11 @@ import { useEditorAutoSave } from "@/hooks/useEditorAutoSave";
 import { useEditorDraft, draftKey } from "@/hooks/useEditorDraft";
 import { useServiceStatus } from "@/hooks/useServiceStatus";
 import { useEditorTranslation } from "@/hooks/useEditorTranslation";
-import CoverImagePicker from "./CoverImagePicker";
+import PostEditorOptionalFields from "./postEditor/PostEditorOptionalFields";
 import SeoChecklist from "@/components/admin/SeoChecklist";
-import RelationPicker from "@/components/admin/RelationPicker";
-import SortOrderDragList from "@/components/admin/SortOrderDragList";
-import CoverImageField from "@/components/admin/CoverImageField";
+
 import CoverBanner from "@/components/admin/CoverBanner";
-import TagNotesEditor from "@/components/admin/TagNotesEditor";
-import { motion, AnimatePresence } from "framer-motion";
+
 import { generateSlug, validateSlug } from "@/utils/postSlug";
 import { POST_TITLE_MAX } from "@/lib/postConstants";
 import { useModalStore } from "@/stores/modalStore";
@@ -358,23 +355,6 @@ export default function PostEditor({ post }: PostEditorProps) {
   }, [editorLang, form.content_type]);
   const [slugManual, setSlugManual] = useState(isEdit);
   // 커버 배너의 페이지 이모지/아이콘 — form.icon 으로 저장(DB posts.icon)
-  const [showCoverPicker, setShowCoverPicker] = useState(false);
-  // 닫는 중 — coverPickerCollapse 애니메이션 (~0.45s) 끝난 뒤 unmount.
-  // showCoverPicker 만 false 로 즉시 두면 컴포넌트가 사라져 닫는 애니메이션이 보이지 않음
-  const [closingCoverPicker, setClosingCoverPicker] = useState(false);
-  const closeCoverPickerTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const requestCloseCoverPicker = useCallback(() => {
-    if (closeCoverPickerTimer.current) clearTimeout(closeCoverPickerTimer.current);
-    setClosingCoverPicker(true);
-    closeCoverPickerTimer.current = setTimeout(() => {
-      setShowCoverPicker(false);
-      setClosingCoverPicker(false);
-      closeCoverPickerTimer.current = null;
-    }, 450);
-  }, []);
-  useEffect(() => () => {
-    if (closeCoverPickerTimer.current) clearTimeout(closeCoverPickerTimer.current);
-  }, []);
   const initialFormRef = useRef(form);
   // 최신 form 스냅샷 — 이탈(unmount/unload) 핸들러가 stale closure 없이 현재 값을 읽게.
   const formRef = useRef(form);
@@ -583,34 +563,6 @@ export default function PostEditor({ post }: PostEditorProps) {
 
   const tag = useTagInput(form.tags, (tags) => updateField("tags", tags));
   // 태그 추가 시 site.config 의 tagDescriptions 프리셋 자동 채움 (ko 만, en 은 빈값)
-  const addTagWithPreset = useCallback((value?: string) => {
-    const raw = (value ?? tag.input).trim().replace(/,/g, "");
-    if (!raw || form.tags.includes(raw)) {
-      tag.setInput("");
-      return;
-    }
-    /* tagDescriptions 의 description (bilingual) 을 tag_notes 초기값으로 채움 */
-    const stored = config.tagDescriptions?.[raw];
-    const meta = stored !== undefined
-      ? (() => {
-          if (typeof stored === "string") return { description: { ko: stored, en: "" } };
-          if ("description" in stored && stored.description) return { description: stored.description };
-          // legacy { ko, en } as description
-          return { description: { ko: stored.ko ?? "", en: stored.en ?? "" } };
-        })()
-      : null;
-    const presetNote = meta?.description.ko || meta?.description.en
-      ? { ko: meta.description.ko, en: meta.description.en }
-      : null;
-    setForm((prev) => ({
-      ...prev,
-      tags: [...prev.tags, raw],
-      tag_notes: presetNote
-        ? { ...(prev.tag_notes ?? {}), [raw]: presetNote }
-        : prev.tag_notes,
-    }));
-    tag.setInput("");
-  }, [tag, form.tags, config.tagDescriptions]);
   // 기존 태그 autocomplete suggestions — 모든 post 의 distinct tag
   const [allTagSuggestions, setAllTagSuggestions] = useState<string[]>([]);
   useEffect(() => {
@@ -637,8 +589,6 @@ export default function PostEditor({ post }: PostEditorProps) {
     }
     setSeriesSelectMode("existing");
   }, [refetchSeries, updateField]);
-
-
 
   const handleImageUpload = useCallback(async (file: File): Promise<string> => {
     // 동영상 — 서버 body 한도(배포 시 ~4.5MB)를 우회하려 Storage 직접 업로드.
@@ -685,7 +635,6 @@ export default function PostEditor({ post }: PostEditorProps) {
     };
     input.click();
   }, [handleImageUpload, updateField]);
-
 
   const handleSave = useCallback(
     async (publish?: boolean) => {
@@ -1325,269 +1274,28 @@ export default function PostEditor({ post }: PostEditorProps) {
         </div>
 
         {/* ── 선택 입력 (접기/펼치기) ── */}
-        <div className={styles.optionalSection}>
-          <Pressable
-            className={styles.optionalToggle}
-            onClick={() => setOptionalOpen((v) => !v)}
-          >
-            <span>{te("optionalFields")}</span>
-            <ChevronRight
-              size={12}
-              strokeWidth={2.5}
-              style={{ transform: optionalOpen ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 0.2s" }}
-            />
-          </Pressable>
-
-          {/* 시리즈 — 항상 표시 (optionalContent 바깥이라 직접 padding 부여) */}
-          <div style={{ padding: "0 var(--spacing-md) var(--spacing-md)" }}>
-            <div className={es.row}>
-              <div className={es.field} onFocusCapture={() => { if (!optionalOpen) setOptionalOpen(true); }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
-                  <label className={es.fieldLabel}>{te("series")}</label>
-                  <a href="/admin/settings?tab=content&sub=posts" target="_blank" rel="noopener noreferrer" className={styles.manageLink}>
-                    {te("seriesManage")}
-                    <ExternalLink size={12} />
-                  </a>
-                </div>
-                <AnimatePresence mode="wait" initial={false}>
-                  {seriesSelectMode === "custom" ? (
-                    <motion.div
-                      key="custom"
-                      initial={{ height: 0 }}
-                      animate={{ height: "auto" }}
-                      exit={{ height: 0 }}
-                      transition={{ duration: 0.32, ease: [0.4, 0, 0.2, 1] }}
-                      style={{ overflow: "hidden" }}
-                    >
-                      <SeriesInlineEditor
-                        series={null}
-                        categories={categories}
-                        onSave={handleSeriesCreated}
-                        onCancel={() => setSeriesSelectMode("existing")}
-                      />
-                    </motion.div>
-                  ) : (
-                    <motion.div
-                      key="existing"
-                      initial={{ height: 0 }}
-                      animate={{ height: "auto" }}
-                      exit={{ height: 0 }}
-                      transition={{ duration: 0.32, ease: [0.4, 0, 0.2, 1] }}
-                      style={{ overflow: "hidden" }}
-                    >
-                      <Select
-                        width="full"
-                        value={form.series_id ?? ""}
-                        options={[
-                          { value: "", label: te("seriesNone") },
-                          { value: "__custom__", label: te("customSeries") },
-                          ...seriesList.map((s) => ({ value: s.id, label: `${s.title} (${s.post_count ?? 0})` })),
-                        ]}
-                        onChange={(v) => {
-                          if (v === "__custom__") {
-                            setSeriesSelectMode("custom");
-                            updateField("series_id", null);
-                            return;
-                          }
-                          setSeriesSelectMode("existing");
-                          updateField("series_id", v || null);
-                          // 시리즈 카테고리를 글에 상속하지 않음 — 글은 각자 카테고리를 가진다(도출 모델)
-                        }}
-                      />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            </div>
-          </div>
-          <div ref={optionalContentRef} className={`${styles.optionalContent}${optionalOpen ? ` ${styles.optionalContentOpen}` : ""}`}>
-            <div ref={optionalInnerRef} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-md)" }}>
-              {/* 줄1: [시리즈 순서(1열) + 관련 프로젝트(2열)] — 시리즈 없으면 관련 프로젝트 단독 */}
-              {(() => {
-                const seriesOrderEl = form.series_id ? (
-                  seriesPostsLoading ? (
-                    <div className={es.field} style={{ opacity: 0.5 }}>
-                      <label className={es.fieldLabel}>{te("seriesOrder")}</label>
-                      <div className={styles.seriesOrderSkeleton}>
-                        {[1, 2, 3].map((i) => (
-                          <span key={i} className={styles.seriesOrderSkeletonRow} />
-                        ))}
-                      </div>
-                    </div>
-                  ) : (
-                    <SortOrderDragList
-                      label={te("seriesOrder")}
-                      currentTitle={form.title || te("currentPost")}
-                      currentOrder={form.series_order || 1}
-                      // SortOrderDragList 의 sort_order 필드명에 맞게 매핑
-                      otherItems={seriesPosts
-                        .filter((p) => p.id !== post?.id)
-                        .map((p) => ({ id: p.id, title: p.title, sort_order: p.series_order }))
-                        .sort((a, b) => a.sort_order - b.sort_order)}
-                      onChange={(newOrder, otherUpdates) => {
-                        updateField("series_order", newOrder);
-                        if (otherUpdates.length) {
-                          setSeriesPosts((prev) => prev.map((p) => {
-                            const u = otherUpdates.find((x) => x.id === p.id);
-                            return u ? { ...p, series_order: u.sort_order } : p;
-                          }));
-                          otherUpdates.forEach((u) => {
-                            fetch(`/api/posts/${u.id}`, {
-                              method: "PATCH",
-                              headers: { "Content-Type": "application/json" },
-                              body: JSON.stringify({ series_order: u.sort_order }),
-                            });
-                          });
-                        }
-                      }}
-                    />
-                  )
-                ) : null;
-
-                const relatedWorksEl = (
-                  <div className={es.field}>
-                    <div className={es.fieldLabelRow}>
-                      <label className={es.fieldLabel}>{te("relatedWorks")}</label>
-                      {(form.related_work_ids ?? []).length === 0 && (
-                        <span className={es.fieldHint}>{te("relatedWorksEmpty")}</span>
-                      )}
-                    </div>
-                    <RelationPicker
-                      items={allWorks}
-                      selectedIds={form.related_work_ids ?? []}
-                      onChange={(ids) => updateField("related_work_ids", ids)}
-                      getId={(w) => w.id}
-                      getTitle={(w) => w.title}
-                      getMeta={(w) => w.year}
-                      getThumb={(w) => w.image}
-                      getStatus={(w) => (w.published ? "published" : "draft")}
-                      searchPlaceholder={te("relatedWorksSearch")}
-                      searchInputPlaceholder={te("relatedWorksSearchInput")}
-                      noResultsText={te("relatedWorksNoResults")}
-                    />
-                  </div>
-                );
-
-                return seriesOrderEl ? (
-                  <div className={es.row}>
-                    {seriesOrderEl}
-                    {relatedWorksEl}
-                  </div>
-                ) : (
-                  relatedWorksEl
-                );
-              })()}
-              {/* 줄2: [요약 + 태그] (1열 / 2열) */}
-              <div className={es.row}>
-                <div className={es.field} data-seo="excerpt">
-                  <label className={es.fieldLabel}>{te("excerpt")}</label>
-                  <Textarea
-                    textareaClassName={styles.excerptInput}
-                    value={form[excerptKey]}
-                    onChange={(v) => updateField(excerptKey, v)}
-                    placeholder={te("excerptPlaceholder")}
-                    rows={2}
-                    maxHint="basic"
-                  />
-                </div>
-                <div className={es.field} data-seo="tags">
-                  <label className={es.fieldLabel}>{te("tags")}</label>
-                  <div>
-                    <div className={styles.tagInputRow}>
-                      <Select
-                        combobox
-                        value=""
-                        onChange={() => {}}
-                        inputValue={tag.input}
-                        onInputChange={tag.setInput}
-                        onAdd={(v) => addTagWithPreset(v)}
-                        options={allTagSuggestions
-                          .filter((t) => !form.tags.includes(t))
-                          .map((t) => ({ value: t, label: t }))}
-                        placeholder={te("tagsPlaceholder")}
-                      />
-                      <Pressable className={styles.tagAddBtn} onClick={() => addTagWithPreset()} disabled={!tag.input.trim()}>+</Pressable>
-                    </div>
-                    {/* 태그별 설명 — 공통 TagNotesEditor (drag-reorder + ko/en + add/cancel 애니메이션) */}
-                    <TagNotesEditor
-                      items={form.tags}
-                      notes={form.tag_notes ?? {}}
-                      onItemsChange={(next) => updateField("tags", next)}
-                      onNotesChange={(next) => updateField("tag_notes", next)}
-                      prefix="#"
-                      notePlaceholder={te("tagNotePlaceholder")}
-                      addLabel={te("tagNoteAddPlaceholder")}
-                      cancelLabel={te("tagNoteCancel")}
-                      editLabel="편집"
-                      removeTitle="태그 제거"
-                    />
-                  </div>
-                </div>
-              </div>
-              {/* 줄3: [커버이미지 라벨/thumb/버튼(1열)] + [GitHub URL(2열)]
-                  picker 본체는 row 밖 full-width 로 렌더 → 좁은 column 에 squeeze 되거나
-                  optional wrapper 에 닿는 문제 회피 */}
-              <div className={es.row}>
-                <CoverImageField
-                  value={form.cover_image}
-                  onChange={(url) => {
-                    updateField("cover_image", url);
-                    if (!url) setShowCoverPicker(false);
-                  }}
-                  label={te("coverImage")}
-                  removeLabel={te("remove")}
-                  uploadLabel={te("upload")}
-                  chooseLabel={te("chooseCover")}
-                  closeLabel={te("closePicker")}
-                  onUpload={handleCoverUpload}
-                  pickerOpen={showCoverPicker}
-                  pickerClosing={closingCoverPicker}
-                  onPickerToggle={() => {
-                    if (showCoverPicker && !closingCoverPicker) {
-                      requestCloseCoverPicker();
-                    } else if (!showCoverPicker) {
-                      setShowCoverPicker(true);
-                    }
-                  }}
-                  seoId="cover"
-                />
-                {/* 2열: GitHub URL */}
-                <div className={es.field}>
-                  <label className={es.fieldLabel}>GitHub URL</label>
-                  <input
-                    className={es.fieldInput}
-                    type="url"
-                    value={form.github_url}
-                    onChange={(e) => updateField("github_url", e.target.value)}
-                    placeholder="https://github.com/..."
-                  />
-                </div>
-              </div>
-              {/* picker — full-width (col 안에 두면 좁은 폭에 squeeze + wrapper 와 닿음).
-                  cover_image 세팅 후에도 유지 — AI auto-save 시 picker 가 사라지면 재생성 불가능 */}
-              {showCoverPicker && (
-                <CoverImagePicker
-                  onSelect={(url) => {
-                    updateField("cover_image", url);
-                    // 선택 직후엔 닫는 애니메이션 없이 즉시 unmount (커버 이미지 미리보기로 전환)
-                    setShowCoverPicker(false);
-                    setClosingCoverPicker(false);
-                  }}
-                  onClose={requestCloseCoverPicker}
-                  closing={closingCoverPicker}
-                  // AI 생성 즉시 form 에 반영 (picker 유지) — 사용자가 "사용" 안 눌러도 자동저장
-                  onAutoSave={(url) => updateField("cover_image", url)}
-                  currentUrl={form.cover_image}
-                  postContext={{
-                    title: form.title,
-                    tags: form.tags,
-                    excerpt: form.excerpt,
-                  }}
-                />
-              )}
-            </div>
-          </div>
-        </div>
+        <PostEditorOptionalFields
+          form={form}
+          setForm={setForm}
+          updateField={updateField}
+          te={te}
+          config={config}
+          post={post}
+          series={{ seriesList, seriesPosts, setSeriesPosts, seriesPostsLoading }}
+          allWorks={allWorks}
+          allTagSuggestions={allTagSuggestions}
+          categories={categories}
+          excerptKey={excerptKey}
+          tag={tag}
+          optionalOpen={optionalOpen}
+          setOptionalOpen={setOptionalOpen}
+          optionalInnerRef={optionalInnerRef}
+          optionalContentRef={optionalContentRef}
+          seriesSelectMode={seriesSelectMode}
+          setSeriesSelectMode={setSeriesSelectMode}
+          onSeriesCreated={handleSeriesCreated}
+          onCoverUpload={handleCoverUpload}
+        />
       </div>
 
       <div className={styles.editorSection}>
