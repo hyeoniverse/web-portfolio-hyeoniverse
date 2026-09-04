@@ -13,7 +13,9 @@ import NumberInput from "@/components/ui/NumberInput";
 import { TblTrash, LockIcon, UnlockIcon } from "../icons";
 import { IMG_ALIGNS, IMG_ALIGN_ICONS, IMG_FILTERS } from "../constants";
 import { _imageUploadFn, _uploadErrorFn } from "../utils";
-import styles from "../../RichTextEditor.module.css";
+import base from "../../RichTextEditor.module.css";
+import media from "../../EditorMedia.module.css";
+const styles = { ...base, ...media };
 
 interface ImageToolbarProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

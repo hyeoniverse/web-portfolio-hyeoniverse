@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useModalStore } from "@/stores/modalStore";
 import { compressVideo, formatBytes } from "@/lib/videoCompress";
 import { directUpload } from "@/lib/directUpload";
-import styles from "../RichTextEditor.module.css";
+import styles from "../EditorMedia.module.css";
 
 type Limits = Record<string, number> | undefined;
 

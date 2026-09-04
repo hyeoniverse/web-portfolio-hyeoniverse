@@ -6,7 +6,7 @@ import React, { useRef, useState } from "react";
 import { COPY_FEEDBACK_MS } from "@/constants";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import MermaidPreview from "./MermaidPreview";
-import styles from "../RichTextEditor.module.css";
+import styles from "../EditorDiagram.module.css";
 import Pressable from "@/components/ui/Pressable";
 
 type View = "diagram" | "code" | "split";

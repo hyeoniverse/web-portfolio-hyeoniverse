@@ -12,7 +12,9 @@ import { localizeKatexErrors } from "../renderMathNodes";
 import { _mathSymbolInsert, _mathEditingSet, _mathDeleteNode, _mathToggleMode } from "./utils";
 import { BlockDropZone, useBlockDrag } from "./BlockDragHandle";
 import { BlockTailClickZone } from "./elements";
-import styles from "../RichTextEditor.module.css";
+import base from "../RichTextEditor.module.css";
+import math from "../EditorMath.module.css";
+const styles = { ...base, ...math };
 import Pressable from "@/components/ui/Pressable";
 
 // ── 수식 편집 floating 패널 (블록/인라인 공통) ──
