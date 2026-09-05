@@ -16,12 +16,8 @@ import {
   BlockquoteRules,
   HorizontalRuleRules,
 } from "@platejs/basic-nodes";
-import {
-  ParagraphElement,
-  HeadingElement,
-  BlockquoteElement,
-  HrElement,
-} from "../elements";
+import { BlockquoteElement, HeadingElement, HrElement } from "../elements/BasicElements";
+import { ParagraphElement } from "../elements/ParagraphElement";
 
 // 노션식 마크다운 입력(autoformat)은 v53 에서 각 플러그인의 inputRules 로 등록한다.
 // 규칙은 자기가 붙은 플러그인의 pluginKey 를 읽어 동작하므로(예: heading 은 h1/h2/h3

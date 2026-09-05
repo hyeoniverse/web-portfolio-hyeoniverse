@@ -11,7 +11,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import { localizeKatexErrors } from "../renderMathNodes";
 import { _mathSymbolInsert, _mathEditingSet, _mathDeleteNode, _mathToggleMode } from "./utils";
 import { BlockDropZone, useBlockDrag } from "./BlockDragHandle";
-import { BlockTailClickZone } from "./elements";
+import { BlockTailClickZone } from "./elements/shared";
 import base from "../RichTextEditor.module.css";
 import math from "../EditorMath.module.css";
 const styles = { ...base, ...math };

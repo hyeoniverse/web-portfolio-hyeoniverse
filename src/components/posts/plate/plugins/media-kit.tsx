@@ -2,7 +2,8 @@
 
 import { ImagePlugin, MediaEmbedPlugin } from "@platejs/media/react";
 import { createPlatePlugin } from "platejs/react";
-import { ImageElement, MediaEmbedElement } from "../elements";
+import { ImageElement } from "../elements/ImageElement";
+import { MediaEmbedElement } from "../elements/MediaEmbedElement";
 
 // 마크다운 입력: `![alt](url)` 을 치고 닫는 `)` 를 누르면 이미지 노드로 변환.
 // (@platejs/media 엔 이미지용 markdown 규칙이 없어 직접 구현 — img 는 inline void 노드)

@@ -1,7 +1,7 @@
 "use client";
 
 import { ColumnPlugin, ColumnItemPlugin } from "@platejs/layout/react";
-import { ColumnGroupElement, ColumnElement } from "../elements";
+import { ColumnElement, ColumnGroupElement } from "../elements/ColumnElements";
 
 /** 다단 컬럼 레이아웃 */
 export const ColumnKit = [

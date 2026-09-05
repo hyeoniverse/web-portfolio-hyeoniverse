@@ -23,9 +23,9 @@ import {
   insertTableMergeRow,
   insertTableMergeColumn,
 } from "@platejs/table";
-import { InlineCaption } from "./elements";
+import { InlineCaption } from "./elements/shared";
 import { BlockDropZone, useBlockDrag } from "./BlockDragHandle";
-import { BlockTailClickZone } from "./elements";
+import { BlockTailClickZone } from "./elements/shared";
 import styles from "../RichTextEditor.module.css";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { GripVertical, GripHorizontal, Grid2x2, Plus } from "@/components/icons";

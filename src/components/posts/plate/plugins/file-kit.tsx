@@ -1,7 +1,8 @@
 "use client";
 
 import { createSlatePlugin } from "platejs";
-import { FileElement, AudioElement } from "../elements";
+import { AudioElement } from "../elements/BasicElements";
+import { FileElement } from "../elements/FileElement";
 
 /** 파일 임베드(PDF 등) + 오디오 플레이어 — 커스텀 void 노드 */
 export const FileKit = [
