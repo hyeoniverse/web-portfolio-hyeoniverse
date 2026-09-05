@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useMemo, useRef, useState, type CSSProperties } from "react";
 import styles from "./HeartIcon.module.css";
+import { mulberry32 } from "@/utils/seededRandom";
 
 interface HeartIconProps {
   /** 좋아요 활성화 (filled state) */
@@ -65,20 +66,26 @@ export default function HeartIcon({ liked, busy = false, size = 20 }: HeartIconP
     ? (liked ? "filling" : "draining")
     : (liked ? "filled" : "empty");
 
-  // burst 마다 새 random 파티클 — 위쪽으로 방울 떠오름. heart size 에 비례 스케일링
+  /* 파티클 난수는 시드로 뽑는다. useMemo 콜백도 렌더 중에 도는 코드라 그 안에서 Math.random 을
+     부르면 같은 burstKey 로 다시 렌더될 때마다 파티클이 통째로 바뀐다.
+     시드는 마운트 때 한 번 뽑아(세션마다 다른 모양) burstKey 와 섞는다(버스트마다 다른 모양). */
+  const [particleSeed] = useState(() => (Math.random() * 0xffffffff) | 0);
+
+  // burst 마다 새 파티클 — 위쪽으로 방울 떠오름. heart size 에 비례 스케일링
   const burstParticles = useMemo(() => {
     if (burstKey === 0) return [];
+    const rand = mulberry32(particleSeed + burstKey);
     const scale = size / 20; // 기본 size=20 기준으로 보정
     return Array.from({ length: 10 }, () => ({
-      driftX: (Math.random() - 0.5) * 90 * scale,
-      rise: (45 + Math.random() * 55) * scale,
-      particleScale: 0.7 + Math.random() * 0.6,
-      opacityPeak: 0.5 + Math.random() * 0.5,
-      delay: Math.random() * 280,
-      duration: 1100 + Math.random() * 600,
-      particleSize: (6 + Math.random() * 7) * scale,
+      driftX: (rand() - 0.5) * 90 * scale,
+      rise: (45 + rand() * 55) * scale,
+      particleScale: 0.7 + rand() * 0.6,
+      opacityPeak: 0.5 + rand() * 0.5,
+      delay: rand() * 280,
+      duration: 1100 + rand() * 600,
+      particleSize: (6 + rand() * 7) * scale,
     }));
-  }, [burstKey, size]);
+  }, [burstKey, size, particleSeed]);
 
   return (
     <span className={styles.heartHolder}>

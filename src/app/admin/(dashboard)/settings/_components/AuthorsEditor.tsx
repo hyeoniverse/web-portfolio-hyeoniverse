@@ -19,6 +19,15 @@ import local from "./AuthorsEditor.module.css";
 const styles = { ...shared, ...local };
 import mStyles from "@/components/admin/MembersList.module.css";
 import AuthorAvatar from "@/components/ui/AuthorAvatar";
+import { formatRelativeTime } from "@/utils/relativeTime";
+import { useNow } from "@/hooks/useNow";
+
+/* 새로 만드는 프로필의 임시 id. 컴포넌트 밖에 두는 이유는 두 가지다 —
+   같은 식이 세 군데에 복사돼 있었고, 렌더 본문 안의 Date.now() 는 렌더를 순수하지
+   않게 만든다(react-hooks/purity). 저장 시점에 서버가 진짜 id 를 잡는다. */
+function newAuthorId(): string {
+  return `author-${Date.now().toString(36)}`;
+}
 
 interface Props {
   authors: Author[];
@@ -39,6 +48,8 @@ interface Props {
 export default function AuthorsEditor({ authors, onChange, onPersist }: Props) {
   const { language } = useLanguage();
   const L = (ko: string, en: string) => (language === "ko" ? ko : en);
+  /* 상대시간 기준 시각. 렌더에서 Date.now() 를 부르면 매 렌더 값이 달라진다. */
+  const now = useNow();
   const { openModal } = useModalStore();
 
   interface Ctx {
@@ -145,19 +156,8 @@ export default function AuthorsEditor({ authors, onChange, onPersist }: Props) {
   // 본인은 "내 프로필" 행으로 따로 다루므로 "그 외 로그인 계정" 에서 제외
   const unlinked = members.filter((m) => !matchedIds.has(m.id) && !isMineMember(m));
 
-  const relative = (iso: string | null) => {
-    if (!iso) return L("로그인 기록 없음", "never signed in");
-    const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60_000);
-    if (mins < 1) return L("방금 전", "just now");
-    if (mins < 60) return L(`${mins}분 전`, `${mins}m ago`);
-    const h = Math.floor(mins / 60);
-    if (h < 24) return L(`${h}시간 전`, `${h}h ago`);
-    const d = Math.floor(h / 24);
-    if (d < 7) return L(`${d}일 전`, `${d}d ago`);
-    return new Date(iso).toLocaleDateString(language === "ko" ? "ko-KR" : "en-US", {
-      year: "numeric", month: "short", day: "numeric",
-    });
-  };
+  const relative = (iso: string | null) =>
+    iso ? formatRelativeTime(iso, now, language) : L("로그인 기록 없음", "never signed in");
 
   /** 프로필 draft 를 config 에 upsert (id 기준). */
   const saveAuthor = async (author: Author): Promise<SaveResult> => {
@@ -305,7 +305,7 @@ export default function AuthorsEditor({ authors, onChange, onPersist }: Props) {
   };
 
   const openAdd = () =>
-    openEditor({ id: `author-${Date.now().toString(36)}`, name: "", avatar: "", role: "", email: "", bio: "", links: [] }, { isNew: true });
+    openEditor({ id: newAuthorId(), name: "", avatar: "", role: "", email: "", bio: "", links: [] }, { isNew: true });
 
   // GitHub URL 있으면 GitHub 소셜 링크로 pre-fill (OAuth 로그인 계정 자동 추가)
   const ghLinks = (url: string | null | undefined) => (url ? [{ platform: "github", url }] : []);
@@ -313,14 +313,14 @@ export default function AuthorsEditor({ authors, onChange, onPersist }: Props) {
   /** 프로필 없는 로그인 계정을 GitHub 데이터로 pre-fill 해 멤버로 등록(프로필 생성 + 계정 연결). */
   const registerMember = (m: Member) =>
     openEditor(
-      { id: `author-${Date.now().toString(36)}`, name: m.name ?? "", avatar: m.avatar ?? "", role: "", email: m.email ?? "", bio: "", links: ghLinks(m.githubUrl) },
+      { id: newAuthorId(), name: m.name ?? "", avatar: m.avatar ?? "", role: "", email: m.email ?? "", bio: "", links: ghLinks(m.githubUrl) },
       { linkMemberId: m.id, title: L("멤버로 등록", "Register member"), githubInfo: { name: m.name, avatar: m.avatar, url: m.githubUrl } },
     );
 
   /** 프로필 없는 본인(비owner) 이 GitHub 정보로 자기 프로필을 생성. 이메일 매칭으로 연결됨(권한은 owner 가 부여). */
   const openMyProfile = () =>
     openEditor(
-      { id: `author-${Date.now().toString(36)}`, name: ctx?.myName ?? "", avatar: ctx?.myAvatar ?? "", role: "", email: ctx?.email ?? "", bio: "", links: ghLinks(ctx?.myGithubUrl) },
+      { id: newAuthorId(), name: ctx?.myName ?? "", avatar: ctx?.myAvatar ?? "", role: "", email: ctx?.email ?? "", bio: "", links: ghLinks(ctx?.myGithubUrl) },
       { isNew: true, title: L("내 프로필", "My profile"), githubInfo: { name: ctx?.myName ?? null, avatar: ctx?.myAvatar ?? null, url: ctx?.myGithubUrl ?? null } },
     );
 

@@ -93,6 +93,28 @@ function setAllExpanded(items: unknown[], open: boolean): Record<number, boolean
   return Object.fromEntries(items.map((_, i) => [i, open]));
 }
 
+/**
+ * 목록 재정렬 handler — ids 와 move 가 바뀔 때만 새로 만든다.
+ *
+ * 전에는 팩토리 호출 결과를 그대로 넘겼다: `useCallback(makeDragEndHandler(ids, move), deps)`.
+ * 그러면 팩토리가 렌더마다 실행돼 handler 를 여섯 개씩 새로 만들어 놓고 그중 하나만 쓰는 꼴이라
+ * 메모의 의미가 없었고, deps 도 린터가 검사할 수 없어 exhaustive-deps 를 꺼 둬야 했다.
+ * 훅으로 감싸면 함수가 useCallback 안에 인라인으로 들어가 둘 다 해결된다.
+ */
+function useDragEndHandler(ids: string[], move: (oldIdx: number, newIdx: number) => void) {
+  return useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+      if (!over || active.id === over.id) return;
+      const oldIdx = ids.indexOf(String(active.id));
+      const newIdx = ids.indexOf(String(over.id));
+      if (oldIdx === -1 || newIdx === -1) return;
+      move(oldIdx, newIdx);
+    },
+    [ids, move],
+  );
+}
+
 export default function ProfileSections({ data, setData, expanded, setExpanded, styles: baseStyles }: ProfileSectionsProps) {
   // skill/profile 전용 클래스는 ProfileSkill.module.css 로 분리됨 — Settings 에서 내려온
   // 공유 스타일과 병합해 기존 styles.X 참조를 그대로 유지하고 자식에게도 그대로 전달한다.
@@ -245,24 +267,12 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
   const awardIds = useMemo(() => data.awards.map((_, i) => `award-${i}`), [data.awards]);
 
   /* ── DnD handlers ── */
-  const makeDragEndHandler = (ids: string[], move: (o: number, n: number) => void) =>
-    (event: DragEndEvent) => {
-      const { active, over } = event;
-      if (!over || active.id === over.id) return;
-      const oldIdx = ids.indexOf(String(active.id));
-      const newIdx = ids.indexOf(String(over.id));
-      if (oldIdx === -1 || newIdx === -1) return;
-      move(oldIdx, newIdx);
-    };
-
-  /* eslint-disable react-hooks/exhaustive-deps -- makeDragEndHandler factory; deps 는 명시된 두 값만 */
-  const handleExpDragEnd = useCallback(makeDragEndHandler(expIds, moveExperience), [expIds, moveExperience]);
-  const handleGroupDragEnd = useCallback(makeDragEndHandler(groupIds, moveSkillGroup), [groupIds, moveSkillGroup]);
-  const handlePhilDragEnd = useCallback(makeDragEndHandler(philIds, movePhilosophy), [philIds, movePhilosophy]);
-  const handleApproachDragEnd = useCallback(makeDragEndHandler(approachIds, moveApproach), [approachIds, moveApproach]);
-  const handleCertDragEnd = useCallback(makeDragEndHandler(certIds, moveCertification), [certIds, moveCertification]);
-  const handleAwardDragEnd = useCallback(makeDragEndHandler(awardIds, moveAward), [awardIds, moveAward]);
-  /* eslint-enable react-hooks/exhaustive-deps */
+  const handleExpDragEnd = useDragEndHandler(expIds, moveExperience);
+  const handleGroupDragEnd = useDragEndHandler(groupIds, moveSkillGroup);
+  const handlePhilDragEnd = useDragEndHandler(philIds, movePhilosophy);
+  const handleApproachDragEnd = useDragEndHandler(approachIds, moveApproach);
+  const handleCertDragEnd = useDragEndHandler(certIds, moveCertification);
+  const handleAwardDragEnd = useDragEndHandler(awardIds, moveAward);
 
   /* ── Derived per-list expand setters from lifted state ──
      초기값: 첫 Experience만 펼침, 나머지는 닫힘 (page.tsx에서 초기화) */
