@@ -9,7 +9,7 @@ import { KEYS, createRuleFactory, ElementApi, TextApi } from "platejs";
 import { createPlatePlugin } from "platejs/react";
 import { CodeBlockPlugin, CodeLinePlugin, CodeSyntaxPlugin } from "@platejs/code-block/react";
 import { CodeBlockRules } from "@platejs/code-block";
-import { CodeBlockElement } from "../elements";
+import { CodeBlockElement } from "../elements/CodeBlockElement";
 import { lowlight } from "../lowlightInstance";
 
 // Plate 기본 코드블록 deserializer 는 language 를 읽지 않아 로드 시 lang 이 사라진다.

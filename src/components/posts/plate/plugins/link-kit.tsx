@@ -4,7 +4,7 @@ import { LinkPlugin } from "@platejs/link/react";
 import { upsertLink, LinkRules } from "@platejs/link";
 import { KEYS, isUrl } from "platejs";
 import { createPlatePlugin } from "platejs/react";
-import { LinkElement } from "../elements";
+import { LinkElement } from "../elements/LinkElement";
 
 // ── 텍스트 선택 후 URL 붙여넣기 → 선택 텍스트를 그대로 두고 링크로 감싼다 ──
 // Plate LinkPlugin 기본(keepSelectedTextOnPaste)이 우리 붙여넣기 파이프라인에서 안 걸려서 명시적으로 처리.

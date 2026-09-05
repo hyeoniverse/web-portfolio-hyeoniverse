@@ -1,7 +1,7 @@
 "use client";
 
 import { createSlatePlugin } from "platejs";
-import { CalloutElement } from "../elements";
+import { CalloutElement } from "../elements/ToggleCalloutElements";
 
 /** 콜아웃 — 커스텀 노드 (bg + 이모지 아이콘) */
 export const CalloutKit = [
