@@ -222,7 +222,7 @@ export default function ColorPicker({
       window.removeEventListener("resize", onMove);
       window.removeEventListener("scroll", onMove, true);
     };
-  }, [open, useSheet, measure, computePos]);
+  }, [open, useSheet, measure, computePos, inline]);
 
   // 외부 클릭 / Escape 닫기
   useEffect(() => {

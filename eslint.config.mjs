@@ -53,6 +53,11 @@ const eslintConfig = [
       "jsx-a11y/role-supports-aria-props": "error",
       // 삼항을 문장으로 쓰면 반환값이 버려진다. if/else 로 의도를 드러낸다.
       "@typescript-eslint/no-unused-expressions": "error",
+      /* effect·useCallback 이 실제로 읽는 값은 deps 에 다 들어가야 한다.
+         이 규칙을 정말 꺼야 하는 자리가 있어서 코드베이스에 disable 이 69곳 있다.
+         error 로 올리는 목적은 그 판단을 없애는 게 아니라, 경고 더미에 조용히
+         쌓이지 않고 그 자리에서 disable 을 적게 만드는 것이다. */
+      "react-hooks/exhaustive-deps": "error",
       // 렌더 중 Date.now·Math.random 은 같은 입력에 다른 화면을 만든다.
       // 현재 시각은 useNow(), 난수는 시드(mulberry32) 나 useState 지연 초기화로.
       "react-hooks/purity": "error",

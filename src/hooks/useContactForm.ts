@@ -212,6 +212,8 @@ export function useContactForm(): UseContactFormReturn {
       recaptchaVersion,
       executeRecaptcha,
       fileName,
+      // 첨부 용량 제한을 콜백 안에서 읽는다 — 설정이 바뀌면 새 제한이 적용돼야 한다.
+      cfg.media?.limits,
     ]
   );
 

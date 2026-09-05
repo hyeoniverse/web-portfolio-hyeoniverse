@@ -2,7 +2,7 @@
 
 // ── 리더뷰: 날짜 멘션([data-date-mention]) hover 시 미니 달력 peek ──
 // 요일·해당 월 맥락을 바로 볼 수 있게. 위임 hover 로 span 감지 → MiniCalendar 팝오버.
-import { useEffect, useRef, useState, type RefObject } from "react";
+import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
 import { createPortal } from "react-dom";
 import MiniCalendar from "./plate/calendar/MiniCalendar";
 import styles from "./DateMentionPeek.module.css";
@@ -16,8 +16,15 @@ export default function DateMentionPeek({ containerRef, language }: {
   const [peek, setPeek] = useState<{ date: string; top: number; left: number } | null>(null);
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const cancelHide = () => { if (hideTimer.current) { clearTimeout(hideTimer.current); hideTimer.current = null; } };
-  const scheduleHide = () => { cancelHide(); hideTimer.current = setTimeout(() => setPeek(null), 160); };
+  /* 아래 이펙트의 deps 에 들어가므로 신원을 고정한다.
+     매 렌더 새로 만들면 hover 리스너를 렌더마다 떼었다 다시 거는 꼴이 된다. */
+  const cancelHide = useCallback(() => {
+    if (hideTimer.current) { clearTimeout(hideTimer.current); hideTimer.current = null; }
+  }, []);
+  const scheduleHide = useCallback(() => {
+    cancelHide();
+    hideTimer.current = setTimeout(() => setPeek(null), 160);
+  }, [cancelHide]);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -46,7 +53,7 @@ export default function DateMentionPeek({ containerRef, language }: {
       el.removeEventListener("mouseout", onOut);
       cancelHide();
     };
-  }, [containerRef]);
+  }, [containerRef, cancelHide, scheduleHide]);
 
   if (!peek) return null;
   return createPortal(
