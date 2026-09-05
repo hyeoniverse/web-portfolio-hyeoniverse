@@ -120,7 +120,7 @@ export async function PUT(request: Request) {
     .select()
     .single();
 
-  if (error) return jsonServerError(error);
+  if (error) return jsonServerError(error, "PUT /api/admin/secrets");
 
   invalidateSecretsCache();
 
@@ -199,7 +199,7 @@ export async function DELETE(request: Request) {
     .select()
     .single();
 
-  if (error) return jsonServerError(error);
+  if (error) return jsonServerError(error, "DELETE /api/admin/secrets");
 
   invalidateSecretsCache();
 

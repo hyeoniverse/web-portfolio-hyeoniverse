@@ -75,7 +75,7 @@ export async function POST(request: Request) {
       upsert: true,
     });
 
-  if (error) return jsonServerError(error);
+  if (error) return jsonServerError(error, "POST /api/admin/upload");
 
   const {
     data: { publicUrl },

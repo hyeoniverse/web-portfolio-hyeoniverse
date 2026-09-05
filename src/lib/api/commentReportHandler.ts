@@ -71,7 +71,7 @@ export function createCommentReportHandler(opts: ReportHandlerOptions) {
     if (insertError) {
       // unique constraint 충돌 = 이미 신고함 → 성공 응답 (사용자에겐 동일하게 보임)
       if (insertError.code === "23505") return jsonOk({ success: true, duplicated: true });
-      return jsonServerError(insertError);
+      return jsonServerError(insertError, "commentReportHandler");
     }
 
     // 게시물/작품 slug 조회 → admin notification metadata url 생성

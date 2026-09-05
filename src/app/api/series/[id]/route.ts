@@ -100,7 +100,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     .select()
     .single();
 
-  if (error) return jsonServerError(error);
+  if (error) return jsonServerError(error, "PATCH /api/series/[id]");
 
   return jsonOk(data);
 }
@@ -124,7 +124,7 @@ export async function DELETE(request: Request, context: RouteContext) {
 
   const { error } = await supabase.from("series").delete().eq("id", id);
 
-  if (error) return jsonServerError(error);
+  if (error) return jsonServerError(error, "DELETE /api/series/[id]");
 
   return jsonOk({ success: true });
 }

@@ -25,7 +25,7 @@ export async function GET(_request: Request, context: RouteContext) {
     if (data.deleted_at) return NextResponse.json({ id: data.id, deleted: true });
     return NextResponse.json({ id: data.id, title: data.title ?? "", data: data.data ?? {} });
   } catch (e) {
-    return jsonServerError(e);
+    return jsonServerError(e, "GET /api/calendars/[calendarId]");
   }
 }
 
@@ -49,7 +49,7 @@ export async function PUT(request: Request, context: RouteContext) {
     if (error) throw error;
     return NextResponse.json({ ok: true });
   } catch (e) {
-    return jsonServerError(e);
+    return jsonServerError(e, "PUT /api/calendars/[calendarId]");
   }
 }
 
@@ -70,6 +70,6 @@ export async function DELETE(_request: Request, context: RouteContext) {
     if (error) throw error;
     return NextResponse.json({ ok: true });
   } catch (e) {
-    return jsonServerError(e);
+    return jsonServerError(e, "DELETE /api/calendars/[calendarId]");
   }
 }

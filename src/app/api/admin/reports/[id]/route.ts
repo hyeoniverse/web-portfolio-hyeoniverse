@@ -42,7 +42,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     .eq("comment_type", target.comment_type)
     .eq("status", "pending");
 
-  if (error) return jsonServerError(error);
+  if (error) return jsonServerError(error, "PATCH /api/admin/reports/[id]");
 
   /* 신고를 처리했으면 그 신고가 만든 알림도 읽음이다.
      예전에는 두 테이블이 따로 놀아서, 신고를 다 처리해도 알림 목록에는 안 읽음으로 남았다.
