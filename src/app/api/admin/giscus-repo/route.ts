@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonError } from "@/lib/api/response";
 import { requireOwner } from "@/lib/api/requireRole";
 import { getSecret } from "@/lib/getSecret";
 
@@ -21,7 +22,7 @@ export async function GET(request: Request) {
   const repo = (searchParams.get("repo") ?? "").trim();
   const m = repo.match(/^([^/\s]+)\/([^/\s]+)$/);
   if (!m) {
-    return NextResponse.json({ error: "repo 형식은 owner/name 이어야 합니다." }, { status: 400 });
+    return jsonError("repo 형식은 owner/name 이어야 합니다.", 400);
   }
   const [, owner, name] = m;
 
@@ -50,7 +51,7 @@ export async function GET(request: Request) {
       body: JSON.stringify({ query, variables: { owner, name } }),
     });
   } catch {
-    return NextResponse.json({ error: "GitHub 요청에 실패했습니다." }, { status: 502 });
+    return jsonError("GitHub 요청에 실패했습니다.", 502);
   }
 
   const json: {
@@ -61,10 +62,10 @@ export async function GET(request: Request) {
 
   // HTTP 레벨 인증/권한 오류 — 토큰 자체 문제
   if (res.status === 401) {
-    return NextResponse.json({ error: "GitHub 토큰이 유효하지 않습니다 (인증 실패 · Bad credentials). 토큰 값을 다시 확인해 주세요." }, { status: 401 });
+    return jsonError("GitHub 토큰이 유효하지 않습니다 (인증 실패 · Bad credentials). 토큰 값을 다시 확인해 주세요.", 401);
   }
   if (res.status === 403) {
-    return NextResponse.json({ error: "GitHub 토큰의 권한이 부족하거나 호출 한도를 초과했습니다. 토큰 권한(공개 저장소 읽기)을 확인해 주세요." }, { status: 403 });
+    return jsonError("GitHub 토큰의 권한이 부족하거나 호출 한도를 초과했습니다. 토큰 권한(공개 저장소 읽기)을 확인해 주세요.", 403);
   }
   if (!res.ok || !json) {
     return NextResponse.json({ error: json?.message || `GitHub API 오류 (${res.status})` }, { status: 502 });
@@ -75,11 +76,11 @@ export async function GET(request: Request) {
     const e = json.errors[0];
     switch (e.type) {
       case "NOT_FOUND":
-        return NextResponse.json({ error: "저장소를 찾을 수 없거나 접근 권한이 없습니다. 저장소 이름(owner/name)과 공개 여부, 토큰 권한을 확인해 주세요." }, { status: 404 });
+        return jsonError("저장소를 찾을 수 없거나 접근 권한이 없습니다. 저장소 이름(owner/name)과 공개 여부, 토큰 권한을 확인해 주세요.", 404);
       case "FORBIDDEN":
-        return NextResponse.json({ error: "이 저장소를 읽을 권한이 토큰에 없습니다." }, { status: 403 });
+        return jsonError("이 저장소를 읽을 권한이 토큰에 없습니다.", 403);
       case "RATE_LIMITED":
-        return NextResponse.json({ error: "GitHub API 호출 한도를 초과했습니다. 잠시 후 다시 시도해 주세요." }, { status: 429 });
+        return jsonError("GitHub API 호출 한도를 초과했습니다. 잠시 후 다시 시도해 주세요.", 429);
       default:
         return NextResponse.json({ error: e.message || "GitHub GraphQL 오류가 발생했습니다." }, { status: 502 });
     }
@@ -87,7 +88,7 @@ export async function GET(request: Request) {
 
   const repository = json.data?.repository;
   if (!repository) {
-    return NextResponse.json({ error: "저장소를 찾을 수 없습니다. 이름(owner/name)이 정확한지, 공개 저장소인지 확인해 주세요." }, { status: 404 });
+    return jsonError("저장소를 찾을 수 없습니다. 이름(owner/name)이 정확한지, 공개 저장소인지 확인해 주세요.", 404);
   }
 
   // emojiHTML(<g-emoji>📣</g-emoji>) 안의 실제 유니코드 추출. 커스텀 img 이모지 등 추출 불가면 빈 값(:shortcode: 노출 방지).

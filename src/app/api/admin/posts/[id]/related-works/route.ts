@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonServerError } from "@/lib/api/response";
 import { requirePostAccess } from "@/lib/api/requirePostAccess";
 
 interface RouteContext {
@@ -20,7 +21,7 @@ export async function GET(_request: Request, context: RouteContext) {
     .select("work_id")
     .eq("post_id", id);
 
-  if (relErr) return NextResponse.json({ error: relErr.message }, { status: 500 });
+  if (relErr) return jsonServerError(relErr, "GET /api/admin/posts/[id]/related-works");
 
   const workIds = (rels ?? []).map((r) => r.work_id as string);
   if (workIds.length === 0) return NextResponse.json({ items: [] });
@@ -66,7 +67,7 @@ export async function PUT(request: Request, context: RouteContext) {
   if (workIds.length > 0) {
     const rows = workIds.map((workId) => ({ post_id: id, work_id: workId }));
     const { error } = await supabase.from("post_work_relations").insert(rows);
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error) return jsonServerError(error, "PUT /api/admin/posts/[id]/related-works");
   }
 
   return NextResponse.json({ success: true, workIds });

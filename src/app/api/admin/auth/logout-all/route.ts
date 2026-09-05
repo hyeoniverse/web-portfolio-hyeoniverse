@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonError, jsonServerError } from "@/lib/api/response";
 import { createClient } from "@/lib/supabase/server";
 import { notifyAdmin } from "@/lib/adminNotify";
 
@@ -10,12 +11,12 @@ export async function POST() {
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return jsonError("Unauthorized", 401);
   }
 
   const { error } = await supabase.auth.signOut({ scope: "global" });
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return jsonServerError(error, "POST /api/admin/auth/logout-all");
   }
 
   // 보안 알림 — 모든 기기 강제 로그아웃 실행 기록

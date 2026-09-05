@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonError, jsonServerError } from "@/lib/api/response";
 import { QUERY_PARAM } from "@/constants";
 import { requireAuth } from "@/lib/api/requireAuth";
 
@@ -17,10 +18,7 @@ export async function GET(request: Request) {
   const withLatestSnapshot = searchParams.get("with_latest_snapshot") === "1";
 
   if (!entityType || !entityId) {
-    return NextResponse.json(
-      { error: "entity_type and entity_id required" },
-      { status: 400 },
-    );
+    return jsonError("entity_type and entity_id required", 400);
   }
 
   if (withLatestSnapshot) {
@@ -43,7 +41,7 @@ export async function GET(request: Request) {
         .maybeSingle(),
     ]);
     if (listResult.error) {
-      return NextResponse.json({ error: listResult.error.message }, { status: 500 });
+      return jsonServerError(listResult.error, "GET /api/revisions");
     }
     return NextResponse.json({
       revisions: listResult.data,
@@ -60,7 +58,7 @@ export async function GET(request: Request) {
     .limit(limit);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return jsonServerError(error, "GET /api/revisions");
   }
 
   return NextResponse.json(data);
@@ -75,10 +73,7 @@ export async function POST(request: Request) {
   const { entity_type, entity_id, snapshot, title } = body;
 
   if (!entity_type || !entity_id || !snapshot) {
-    return NextResponse.json(
-      { error: "entity_type, entity_id, snapshot required" },
-      { status: 400 },
-    );
+    return jsonError("entity_type, entity_id, snapshot required", 400);
   }
 
   // 직전 리비전과 snapshot이 같으면 새로 생성하지 않음 (첫 저장이면 0 rows 이므로 maybeSingle)
@@ -105,7 +100,7 @@ export async function POST(request: Request) {
     .single();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return jsonServerError(error, "POST /api/revisions");
   }
 
   // 엔티티당 MAX_REVISIONS 초과분 정리
@@ -142,10 +137,7 @@ export async function PATCH(request: Request) {
   const { entity_type, entity_id, dismissed } = body;
 
   if (!entity_type || !entity_id) {
-    return NextResponse.json(
-      { error: "entity_type and entity_id required" },
-      { status: 400 },
-    );
+    return jsonError("entity_type and entity_id required", 400);
   }
   const { error } = await supabase
     .from("revisions")
@@ -154,7 +146,7 @@ export async function PATCH(request: Request) {
     .eq("entity_id", entity_id);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return jsonServerError(error, "PATCH /api/revisions");
   }
 
   return NextResponse.json({ ok: true });
@@ -170,10 +162,7 @@ export async function DELETE(request: Request) {
   const entityId = searchParams.get("entity_id");
 
   if (!entityType || !entityId) {
-    return NextResponse.json(
-      { error: "entity_type and entity_id required" },
-      { status: 400 },
-    );
+    return jsonError("entity_type and entity_id required", 400);
   }
   const { error } = await supabase
     .from("revisions")
@@ -182,7 +171,7 @@ export async function DELETE(request: Request) {
     .eq("entity_id", entityId);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return jsonServerError(error, "DELETE /api/revisions");
   }
 
   return NextResponse.json({ ok: true });

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonServerError } from "@/lib/api/response";
 import { requireRole } from "@/lib/api/requireRole";
 import { PERM } from "@/lib/api/roles";
 
@@ -30,7 +31,7 @@ export async function GET() {
     .is("deleted_at", null)
     .limit(2000);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return jsonServerError(error, "GET /api/admin/works-categories");
 
   const works = (data ?? []) as WorkRow[];
   const counts: Record<string, number> = {};

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonError, jsonServerError } from "@/lib/api/response";
 import { requirePostAccess, policyBlocked } from "@/lib/api/requirePostAccess";
 
 type RouteContext = { params: Promise<{ id: string }> };
@@ -20,7 +21,7 @@ export async function POST(_request: Request, context: RouteContext) {
      "휴지통에 없다" 는 진짜 상태 오류라 따로 구분한다. */
   if (!row) return policyBlocked();
   if (!row.deleted_at) {
-    return NextResponse.json({ error: "Not in trash" }, { status: 400 });
+    return jsonError("Not in trash", 400);
   }
 
   const base = row.purge_after && new Date(row.purge_after) > new Date()
@@ -34,7 +35,7 @@ export async function POST(_request: Request, context: RouteContext) {
     .eq("id", id);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return jsonServerError(error, "POST /api/works/[id]/extend-retention");
   }
 
   return NextResponse.json({ success: true, purge_after: next });

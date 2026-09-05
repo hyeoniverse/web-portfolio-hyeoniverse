@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonError } from "@/lib/api/response";
 import { requireAuth } from "@/lib/api/requireAuth";
 import { buildGithubAuthorFields, githubLogin } from "@/lib/githubProfile";
 
@@ -16,10 +17,7 @@ export async function GET() {
   if (authError) return authError;
 
   if (!githubLogin(user)) {
-    return NextResponse.json(
-      { error: "GitHub 로 로그인한 계정이 아니라 가져올 정보가 없습니다." },
-      { status: 400 },
-    );
+    return jsonError("GitHub 로 로그인한 계정이 아니라 가져올 정보가 없습니다.", 400);
   }
 
   return NextResponse.json(await buildGithubAuthorFields(user));

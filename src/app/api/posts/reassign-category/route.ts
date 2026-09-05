@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonError, jsonServerError } from "@/lib/api/response";
 import { requireAuth } from "@/lib/api/requireAuth";
 
 /**
@@ -41,7 +42,7 @@ export async function POST(request: Request) {
         .update({ category })
         .in("id", ids);
       if (error) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        return jsonServerError(error, "POST /api/posts/reassign-category");
       }
       updated += ids.length;
     }
@@ -53,10 +54,7 @@ export async function POST(request: Request) {
   const { from, to } = body;
 
   if (!from || !to) {
-    return NextResponse.json(
-      { error: "from and to are required" },
-      { status: 400 },
-    );
+    return jsonError("from and to are required", 400);
   }
 
   const { count } = await supabase
@@ -74,7 +72,7 @@ export async function POST(request: Request) {
     .eq("category", from);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return jsonServerError(error, "POST /api/posts/reassign-category");
   }
 
   return NextResponse.json({ updated: count });

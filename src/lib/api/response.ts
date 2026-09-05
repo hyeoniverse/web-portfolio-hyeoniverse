@@ -14,7 +14,7 @@ export function jsonOk<T>(data: T, status = 200) {
  */
 export function jsonError(
   message: string,
-  status: 400 | 401 | 403 | 404 | 409 | 500 | 502 | 503 = 400,
+  status: 400 | 401 | 403 | 404 | 409 | 429 | 500 | 502 | 503 = 400,
 ) {
   return NextResponse.json({ error: message }, { status });
 }

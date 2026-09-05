@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonError } from "@/lib/api/response";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAuth } from "@/lib/api/requireAuth";
 import { getUserRole, canEditPost } from "@/lib/api/roles";
@@ -28,12 +29,12 @@ export async function POST(_request: Request, context: RouteContext) {
     .eq("id", id)
     .maybeSingle();
 
-  if (!post) return NextResponse.json({ error: "not found" }, { status: 404 });
+  if (!post) return jsonError("not found", 404);
 
   const role = getUserRole(auth.user);
   // 이미 다룰 수 있는 글이면 요청할 것이 없다.
   if (canEditPost(role, post.author_ids as string[] | null)) {
-    return NextResponse.json({ error: "이미 이 글을 다룰 수 있습니다." }, { status: 400 });
+    return jsonError("이미 이 글을 다룰 수 있습니다.", 400);
   }
 
   const who = auth.user.email ?? auth.user.id;

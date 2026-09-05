@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonServerError } from "@/lib/api/response";
 import { requireAuth } from "@/lib/api/requireAuth";
 
 interface RouteContext {
@@ -13,6 +14,6 @@ export async function DELETE(_request: Request, context: RouteContext) {
   const { id } = await context.params;
   const { error } = await supabase.from("custom_emojis").delete().eq("id", id);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return jsonServerError(error, "DELETE /api/custom-emojis/[id]");
   return NextResponse.json({ ok: true });
 }

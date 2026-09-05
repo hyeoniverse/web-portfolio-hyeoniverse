@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonError, jsonServerError } from "@/lib/api/response";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 /**
@@ -13,7 +14,7 @@ export async function GET(request: Request) {
 
   if (!isVercelCron) {
     if (!secret || authHeader !== `Bearer ${secret}`) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return jsonError("Unauthorized", 401);
     }
   }
 
@@ -29,7 +30,7 @@ export async function GET(request: Request) {
     .select("id");
 
   if (postsErr) {
-    return NextResponse.json({ error: postsErr.message }, { status: 500 });
+    return jsonServerError(postsErr, "GET /api/cron/purge-trash");
   }
 
   const { data: deletedWorks, error: worksErr } = await admin
@@ -40,7 +41,7 @@ export async function GET(request: Request) {
     .select("id");
 
   if (worksErr) {
-    return NextResponse.json({ error: worksErr.message }, { status: 500 });
+    return jsonServerError(worksErr, "GET /api/cron/purge-trash");
   }
 
   // calendars hard delete — deleted_at IS NOT NULL + purge_after < NOW()
@@ -52,7 +53,7 @@ export async function GET(request: Request) {
     .select("id");
 
   if (calErr) {
-    return NextResponse.json({ error: calErr.message }, { status: 500 });
+    return jsonServerError(calErr, "GET /api/cron/purge-trash");
   }
 
   return NextResponse.json({

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonError, jsonServerError } from "@/lib/api/response";
 import { requireRole } from "@/lib/api/requireRole";
 import { PERM } from "@/lib/api/roles";
 import { getSiteConfig } from "@/lib/getSiteConfig";
@@ -32,7 +33,7 @@ export async function POST(request: Request, context: RouteContext) {
   const body = (await request.json().catch(() => ({}))) as { action?: string };
   const action = body.action;
   if (action !== "grant" && action !== "reject") {
-    return NextResponse.json({ error: "action must be grant or reject" }, { status: 400 });
+    return jsonError("action must be grant or reject", 400);
   }
 
   const { data: notif, error: readErr } = await supabase
@@ -41,15 +42,15 @@ export async function POST(request: Request, context: RouteContext) {
     .eq("id", id)
     .maybeSingle();
 
-  if (readErr) return NextResponse.json({ error: readErr.message }, { status: 500 });
-  if (!notif) return NextResponse.json({ error: "not found" }, { status: 404 });
+  if (readErr) return jsonServerError(readErr, "POST /api/admin/notifications/[id]/resolve");
+  if (!notif) return jsonError("not found", 404);
   if (notif.type !== "access_request") {
-    return NextResponse.json({ error: "권한 요청 알림이 아닙니다." }, { status: 400 });
+    return jsonError("권한 요청 알림이 아닙니다.", 400);
   }
 
   const metadata = (notif.metadata ?? {}) as Record<string, string>;
   if (metadata.resolved) {
-    return NextResponse.json({ error: "이미 처리된 요청입니다." }, { status: 400 });
+    return jsonError("이미 처리된 요청입니다.", 400);
   }
 
   const authorId = metadata.authorId;
@@ -59,29 +60,26 @@ export async function POST(request: Request, context: RouteContext) {
   if (action === "grant") {
     /* 저자 프로필이 없으면 줄 대상이 없다. 권한은 계정이 아니라 저자 프로필(author_id)에 붙는다. */
     if (!authorId) {
-      return NextResponse.json(
-        { error: "요청자에게 연결된 저자 프로필이 없어 권한을 부여할 수 없습니다. 멤버 설정에서 프로필을 먼저 만들어 주세요." },
-        { status: 400 },
-      );
+      return jsonError("요청자에게 연결된 저자 프로필이 없어 권한을 부여할 수 없습니다. 멤버 설정에서 프로필을 먼저 만들어 주세요.", 400);
     }
 
     if (postId) {
       const { data: post, error } = await supabase
         .from("posts").select("author_ids").eq("id", postId).maybeSingle();
-      if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-      if (!post) return NextResponse.json({ error: "대상 글이 없습니다. 삭제된 것 같습니다." }, { status: 404 });
+      if (error) return jsonServerError(error, "POST /api/admin/notifications/[id]/resolve");
+      if (!post) return jsonError("대상 글이 없습니다. 삭제된 것 같습니다.", 404);
 
       const current = Array.isArray(post.author_ids) ? (post.author_ids as string[]) : [];
       if (!current.includes(authorId)) {
         const { error: updErr } = await supabase
           .from("posts").update({ author_ids: [...current, authorId] }).eq("id", postId);
-        if (updErr) return NextResponse.json({ error: updErr.message }, { status: 500 });
+        if (updErr) return jsonServerError(updErr, "POST /api/admin/notifications/[id]/resolve");
       }
     } else if (workId) {
       const { data: work, error } = await supabase
         .from("works").select("team_members").eq("id", workId).maybeSingle();
-      if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-      if (!work) return NextResponse.json({ error: "대상 작업물이 없습니다. 삭제된 것 같습니다." }, { status: 404 });
+      if (error) return jsonServerError(error, "POST /api/admin/notifications/[id]/resolve");
+      if (!work) return jsonError("대상 작업물이 없습니다. 삭제된 것 같습니다.", 404);
 
       const current = Array.isArray(work.team_members)
         ? (work.team_members as { author_id?: string; name?: string }[])
@@ -106,10 +104,10 @@ export async function POST(request: Request, context: RouteContext) {
             ],
           })
           .eq("id", workId);
-        if (updErr) return NextResponse.json({ error: updErr.message }, { status: 500 });
+        if (updErr) return jsonServerError(updErr, "POST /api/admin/notifications/[id]/resolve");
       }
     } else {
-      return NextResponse.json({ error: "요청 대상을 알 수 없는 알림입니다." }, { status: 400 });
+      return jsonError("요청 대상을 알 수 없는 알림입니다.", 400);
     }
   }
 
@@ -122,7 +120,7 @@ export async function POST(request: Request, context: RouteContext) {
       metadata: { ...metadata, resolved: outcome, resolvedAt: new Date().toISOString() },
     })
     .eq("id", id);
-  if (markErr) return NextResponse.json({ error: markErr.message }, { status: 500 });
+  if (markErr) return jsonServerError(markErr, "POST /api/admin/notifications/[id]/resolve");
 
   return NextResponse.json({ ok: true, resolved: outcome });
 }

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonError, jsonServerError } from "@/lib/api/response";
 import { QUERY_PARAM } from "@/constants";
 import { revalidatePath } from "next/cache";
 import { titleTooLong, POST_TITLE_MAX } from "@/lib/postConstants";
@@ -142,7 +143,7 @@ export async function GET(request: Request) {
     };
 
     if (popError) {
-      return NextResponse.json({ error: popError.message }, { status: 500 });
+      return jsonServerError(popError, "GET /api/posts");
     }
 
     const scored = (rawData ?? []).map((p) => {
@@ -170,7 +171,7 @@ export async function GET(request: Request) {
   if (sort === "random") {
     const { data: rawData, count: totalCount, error: rndError } = await query;
     if (rndError) {
-      return NextResponse.json({ error: rndError.message }, { status: 500 });
+      return jsonServerError(rndError, "GET /api/posts");
     }
     const seedStr = searchParams.get("seed") ?? "0";
     const seed = parseInt(seedStr, 10) || 1;
@@ -198,7 +199,7 @@ export async function GET(request: Request) {
   const { data, count, error } = await query;
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return jsonServerError(error, "GET /api/posts");
   }
 
   // faceted 사이드바 태그 — 공개 목록에서만, 같은 필터로 tags 만 집계(range 없이 전체 매칭셋)
@@ -253,14 +254,14 @@ export async function POST(request: Request) {
 
   // 제목 길이 제한 (UI·DB 와 동일 상한)
   if (titleTooLong(body.title) || titleTooLong(body.title_en)) {
-    return NextResponse.json({ error: `title exceeds ${POST_TITLE_MAX} characters` }, { status: 400 });
+    return jsonError(`title exceeds ${POST_TITLE_MAX} characters`, 400);
   }
 
   /* 생성도 세션 클라이언트로 — posts_admin_insert(is_member) 를 통과해야 들어간다. */
   const { data, error } = await supabase.from("posts").insert(body).select().single();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return jsonServerError(error, "POST /api/posts");
   }
 
   // 발행 상태로 생성되면 공개 목록/홈 캐시 즉시 무효화

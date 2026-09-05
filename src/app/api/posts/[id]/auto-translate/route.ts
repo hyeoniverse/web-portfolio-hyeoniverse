@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonError } from "@/lib/api/response";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requirePostAccess } from "@/lib/api/requirePostAccess";
 import { clampTitle } from "@/lib/postConstants";
@@ -40,7 +41,7 @@ export async function POST(request: Request, context: RouteContext) {
   const { data: post } = await query.single();
 
   if (!post) {
-    return NextResponse.json({ error: "Post not found" }, { status: 404 });
+    return jsonError("Post not found", 404);
   }
 
   if (direction === "en-ko") {
@@ -50,7 +51,7 @@ export async function POST(request: Request, context: RouteContext) {
     const texts = [post.title_en, post.content_en, post.excerpt_en].filter(Boolean) as string[];
     const result = await translateWithFallback(providerList, texts, "en", "ko", "[auto-translate en-ko]");
     if ("error" in result) {
-      return NextResponse.json({ error: result.error }, { status: 502 });
+      return jsonError(result.error, 502);
     }
     const [titleKoRaw, contentKo, excerptKo] = result.translations;
     const titleKo = clampTitle(titleKoRaw); // 생성 제목 상한 초과 방지 (DB CHECK 위반 방지)
@@ -65,7 +66,7 @@ export async function POST(request: Request, context: RouteContext) {
   const texts = [post.title, post.content, post.excerpt].filter(Boolean) as string[];
   const result = await translateWithFallback(providerList, texts, "ko", "en", "[auto-translate ko-en]");
   if ("error" in result) {
-    return NextResponse.json({ error: result.error }, { status: 502 });
+    return jsonError(result.error, 502);
   }
   const [titleEnRaw, contentEn, excerptEn] = result.translations;
   const titleEn = clampTitle(titleEnRaw); // 생성 제목 상한 초과 방지

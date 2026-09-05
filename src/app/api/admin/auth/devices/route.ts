@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonError, jsonServerError } from "@/lib/api/response";
 import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -10,7 +11,7 @@ import { deviceKey } from "@/lib/auth/uaParser";
 export async function GET() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!user) return jsonError("Unauthorized", 401);
 
   const h = await headers();
   const currentKey = deviceKey(h.get("user-agent") ?? "");
@@ -22,7 +23,7 @@ export async function GET() {
     .eq("user_id", user.id)
     .order("last_seen_at", { ascending: false });
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return jsonServerError(error, "GET /api/admin/auth/devices");
 
   // browser+OS+device key 로 그룹화 — 가장 최근 last_seen 의 row 를 대표로,
   // first_seen 은 그룹 내 최오래, ids 는 같이 묶인 모든 row id (DELETE 시 한 번에 제거).

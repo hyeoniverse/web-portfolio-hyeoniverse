@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonServerError } from "@/lib/api/response";
 import { requireAuth } from "@/lib/api/requireAuth";
 
 // GET /api/revisions/[id] — snapshot 포함 단건 조회
@@ -18,7 +19,7 @@ export async function GET(
     .single();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return jsonServerError(error, "GET /api/revisions/[id]");
   }
 
   return NextResponse.json(data);
@@ -42,7 +43,7 @@ export async function PATCH(
     .select()
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return jsonServerError(error, "PATCH /api/revisions/[id]");
   return NextResponse.json(data);
 }
 
@@ -59,7 +60,7 @@ export async function DELETE(
   const { error } = await supabase.from("revisions").delete().eq("id", id);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return jsonServerError(error, "DELETE /api/revisions/[id]");
   }
 
   return NextResponse.json({ success: true });

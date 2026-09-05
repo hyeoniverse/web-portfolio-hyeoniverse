@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonError, jsonServerError } from "@/lib/api/response";
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAuth } from "@/lib/api/requireAuth";
@@ -86,7 +87,7 @@ export async function GET() {
     .single();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return jsonServerError(error, "GET /api/admin/settings");
   }
 
   return NextResponse.json(data);
@@ -100,20 +101,20 @@ export async function PATCH(request: Request) {
   const body = await request.json();
 
   if (!body || typeof body !== "object" || !body.config || typeof body.config !== "object") {
-    return NextResponse.json({ error: "config 가 없습니다." }, { status: 400 });
+    return jsonError("config 가 없습니다.", 400);
   }
 
   /* 필수값 검사 — 클라이언트를 거치지 않은 요청도 같은 규칙으로 막는다.
      사유를 error 에 담아야 설정 화면 저장 실패 메시지에 그대로 노출된다. */
   const erdViolation = checkAboutErd(body.config);
-  if (erdViolation) return NextResponse.json({ error: erdViolation }, { status: 400 });
+  if (erdViolation) return jsonError(erdViolation, 400);
 
   /* About 본문 — 화면이 값을 믿고 바로 파고들어서, 빠지면 빈 칸이 아니라 페이지가 안 뜬다. */
   const aboutViolation = checkAboutContent(body.config);
-  if (aboutViolation) return NextResponse.json({ error: aboutViolation }, { status: 400 });
+  if (aboutViolation) return jsonError(aboutViolation, 400);
 
   const requiredViolation = checkRequiredSettings(body.config);
-  if (requiredViolation) return NextResponse.json({ error: requiredViolation }, { status: 400 });
+  if (requiredViolation) return jsonError(requiredViolation, 400);
 
   const admin = createAdminClient();
 
@@ -144,7 +145,7 @@ export async function PATCH(request: Request) {
 
   if (error) {
     console.error("[Settings PATCH] DB error:", error.message, error.code, error.details);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return jsonServerError(error, "PATCH /api/admin/settings");
   }
 
   revalidatePath("/", "layout");

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonError } from "@/lib/api/response";
 import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { checkLockout, recordFailure, clearFailures } from "@/lib/auth/loginLockout";
@@ -9,10 +10,7 @@ export async function POST(request: Request) {
   const { email, password } = await request.json();
 
   if (!email || !password) {
-    return NextResponse.json(
-      { error: "Email and password are required" },
-      { status: 400 }
-    );
+    return jsonError("Email and password are required", 400);
   }
 
   // 1) lockout 체크 — 잠금 중이면 즉시 거부

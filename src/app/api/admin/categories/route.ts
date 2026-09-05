@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonServerError } from "@/lib/api/response";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAuth } from "@/lib/api/requireAuth";
 
@@ -35,7 +36,7 @@ export async function GET() {
     .is("deleted_at", null)
     .limit(2000);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return jsonServerError(error, "GET /api/admin/categories");
 
   const posts = (data ?? []) as PostRow[];
   const counts: Record<string, number> = {};
