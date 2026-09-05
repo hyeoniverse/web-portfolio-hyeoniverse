@@ -45,6 +45,15 @@ export default defineConfig({
     // admin 프로젝트가 그걸 재사용한다. 최초 1회 기기 승인 절차는 e2e/auth.setup.ts 참고.
     // 재시도 안 함 — 여기서 나는 실패는 credential 누락이나 기기 승인 대기라 사람이 손봐야 한다
     { name: "setup", testMatch: /auth\.setup\.ts/, retries: 0 },
+    // API 라우트 안전망. 브라우저 없이 request 픽스처로 라우트를 직접 부른다.
+    // 비로그인(api)과 로그인(api-auth)을 나눈 이유는 apiRoutes.ts 주석 참고.
+    { name: "api", testMatch: /api\.spec\.ts/ },
+    {
+      name: "api-auth",
+      testMatch: /api-auth\.spec\.ts/,
+      dependencies: ["setup"],
+      use: { storageState: "e2e/.auth/admin.json" },
+    },
     {
       name: "admin",
       testMatch: /(admin|editor)\.spec\.ts/,
