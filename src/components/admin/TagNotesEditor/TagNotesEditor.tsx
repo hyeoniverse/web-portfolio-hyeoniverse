@@ -277,7 +277,7 @@ export default function TagNotesEditor({
     };
     document.addEventListener("pointerdown", handler);
     return () => document.removeEventListener("pointerdown", handler);
-  }, [editingItem, notes, onNotesChange]);
+  }, [editingItem, notes, onNotesChange, normalizeEntry]);
   // dropPos 변화에 따라 indicator rect (top + left + width) 계산 — 2열 grid 에서 한 column 만 차지하도록.
   const [indicatorRect, setIndicatorRect] = useState<{ top: number; left: number; width: number } | null>(null);
   useEffect(() => {

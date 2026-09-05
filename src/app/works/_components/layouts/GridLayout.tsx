@@ -167,7 +167,7 @@ export default function GridLayout({ projects, onProjectClick }: WorksLayoutProp
       // suppress unused warning
       void frame;
     },
-    [projects, onProjectClick, w.introLabel, w.introLabel_ko, w.introTitle, w.introTitle_ko, w.introTagline, w.introTagline_ko],
+    [projects, onProjectClick, introVideoSrc, w.introLabel, w.introLabel_ko, w.introTitle, w.introTitle_ko, w.introTagline, w.introTagline_ko],
   );
 
   return (
