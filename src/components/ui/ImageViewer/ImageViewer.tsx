@@ -28,6 +28,16 @@ import Pressable from "@/components/ui/Pressable";
 
 type ThumbMode = "hidden" | "strip" | "list" | "gallery";
 
+/* 툴바 버튼. 컴포넌트 밖에 둔다 — 렌더 안에서 정의하면 렌더할 때마다 다른 컴포넌트가 되어
+   React 가 버튼을 매번 새로 마운트한다(툴팁 상태도 함께 날아간다). props 와 styles 만 쓴다. */
+const ActionBtn = ({ onClick, label, children, className }: { onClick: () => void; label: string; children: React.ReactNode; className?: string }) => (
+  <Tooltip content={label} placement="bottom">
+    <Pressable noTapScale className={`${styles.actionBtn} ${className ?? ""}`} onClick={(e) => { e.stopPropagation(); onClick(); }} aria-label={label}>
+      {children}
+    </Pressable>
+  </Tooltip>
+);
+
 const THUMB_MODE_META: Record<ThumbMode, { Icon: () => React.ReactNode; label: string }> = {
   hidden: { Icon: ThumbHiddenIcon, label: "Thumbnails: Off  T" },
   strip: { Icon: ThumbStripIcon, label: "Thumbnails: Strip  T" },
@@ -468,14 +478,6 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
   const currentIsVideo = isVideoUrl(images[current] ?? "");
   const fileExt = fileName.includes(".") ? fileName.split(".").pop()!.toUpperCase() : (currentIsVideo ? "VIDEO" : "IMAGE");
 
-  /* ── Action buttons ── */
-  const ActionBtn = ({ onClick, label, children, className }: { onClick: () => void; label: string; children: React.ReactNode; className?: string }) => (
-    <Tooltip content={label} placement="bottom">
-      <Pressable noTapScale className={`${styles.actionBtn} ${className ?? ""}`} onClick={(e) => { e.stopPropagation(); onClick(); }} aria-label={label}>
-        {children}
-      </Pressable>
-    </Tooltip>
-  );
 
   return createPortal(
     <AnimatePresence>
