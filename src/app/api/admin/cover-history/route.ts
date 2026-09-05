@@ -51,7 +51,7 @@ export async function POST(request: Request) {
 
     if (error) {
       console.warn("[cover-history POST]", error.message);
-      return jsonServerError(error);
+      return jsonServerError(error, "POST /api/admin/cover-history");
     }
 
     // MAX 초과분 정리 — 오래된 것부터 삭제
@@ -67,7 +67,7 @@ export async function POST(request: Request) {
 
     return jsonOk({ ok: true });
   } catch (e) {
-    return jsonServerError(e);
+    return jsonServerError(e, "POST /api/admin/cover-history");
   }
 }
 
@@ -87,9 +87,9 @@ export async function DELETE(request: Request) {
       .eq("user_id", user.id)
       .eq("url", url);
 
-    if (error) return jsonServerError(error);
+    if (error) return jsonServerError(error, "DELETE /api/admin/cover-history");
     return jsonOk({ ok: true });
   } catch (e) {
-    return jsonServerError(e);
+    return jsonServerError(e, "DELETE /api/admin/cover-history");
   }
 }

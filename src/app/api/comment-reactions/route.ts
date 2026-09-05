@@ -98,6 +98,6 @@ export async function POST(request: Request) {
 
     return jsonOk({ counts, mine });
   } catch (e) {
-    return jsonServerError(e);
+    return jsonServerError(e, "POST /api/comment-reactions");
   }
 }

@@ -27,7 +27,7 @@ export async function GET(request: Request) {
     }));
     return NextResponse.json({ items });
   } catch (e) {
-    return jsonServerError(e);
+    return jsonServerError(e, "GET /api/calendars");
   }
 }
 
@@ -53,6 +53,6 @@ export async function POST(request: Request) {
     if (error) throw error;
     return NextResponse.json({ id: data.id });
   } catch (e) {
-    return jsonServerError(e);
+    return jsonServerError(e, "POST /api/calendars");
   }
 }

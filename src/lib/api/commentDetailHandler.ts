@@ -116,12 +116,12 @@ export function createCommentDeleteHandler(opts: CommentDetailHandlerOptions) {
 
       if (existing?.is_deleted && existing?.deleted_by === "admin") {
         const { error } = await admin.from(table).delete().eq("id", id);
-        if (error) return jsonServerError(error);
+        if (error) return jsonServerError(error, "commentDetailHandler");
         return jsonOk({ success: true, hardDeleted: true });
       }
 
       const { error } = await softOrHardDelete(admin, table, id, "admin");
-      if (error) return jsonServerError(error);
+      if (error) return jsonServerError(error, "commentDetailHandler");
       return jsonOk({ success: true });
     }
 
@@ -146,7 +146,7 @@ export function createCommentDeleteHandler(opts: CommentDetailHandlerOptions) {
     if (!authorized) return jsonError("Not authorized", 403);
 
     const { error } = await softOrHardDelete(admin, table, id, "self");
-    if (error) return jsonServerError(error);
+    if (error) return jsonServerError(error, "commentDetailHandler");
     return jsonOk({ success: true });
   }
 
@@ -177,7 +177,7 @@ export function createCommentRestoreHandler(opts: CommentDetailHandlerOptions) {
       .select("id")
       .maybeSingle();
 
-    if (error) return jsonServerError(error);
+    if (error) return jsonServerError(error, "commentDetailHandler");
     if (!data) return jsonError("Comment not found or not deleted", 404);
     return jsonOk({ success: true });
   }

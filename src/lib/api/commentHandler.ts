@@ -44,7 +44,7 @@ export function createCommentHandlers(opts: CommentHandlerOptions) {
       error = fallback.error;
     }
 
-    if (error) return jsonServerError(error);
+    if (error) return jsonServerError(error, "commentHandler");
     // 내용 보존형 삭제라 tombstone 행에도 DB엔 원문·commenter_hash 가 남아 있다.
     // 공개 응답에선 비워서 노출을 막는다 (UI 는 is_deleted 면 placeholder 를 그림).
     // 관리자 GET(/api/admin/comments)은 원문을 그대로 반환해 복구 미리보기에 쓴다.
@@ -100,7 +100,7 @@ export function createCommentHandlers(opts: CommentHandlerOptions) {
           .select(selectFieldsSafe)
           .single();
 
-        if (error) return jsonServerError(error);
+        if (error) return jsonServerError(error, "commentHandler");
         const row = data as unknown as Record<string, unknown>;
 
         // Notify parent comment author if this is a reply
@@ -157,7 +157,7 @@ export function createCommentHandlers(opts: CommentHandlerOptions) {
           .select(selectFieldsSafe)
           .single();
 
-        if (error) return jsonServerError(error);
+        if (error) return jsonServerError(error, "commentHandler");
         const row = data as unknown as Record<string, unknown>;
 
         // Notify parent comment author if this is a reply
@@ -200,7 +200,7 @@ export function createCommentHandlers(opts: CommentHandlerOptions) {
           .select(selectFieldsSafe)
           .single();
 
-        if (error) return jsonServerError(error);
+        if (error) return jsonServerError(error, "commentHandler");
         const row = data as unknown as Record<string, unknown>;
 
         if (parent_id) {
@@ -225,7 +225,7 @@ export function createCommentHandlers(opts: CommentHandlerOptions) {
 
       return jsonError("Missing required fields");
     } catch (error) {
-      return jsonServerError(error);
+      return jsonServerError(error, "commentHandler");
     }
   }
 
@@ -252,7 +252,7 @@ export function createCommentHandlers(opts: CommentHandlerOptions) {
           .eq("id", id)
           .select(selectFieldsSafe)
           .single();
-        if (error) return jsonServerError(error);
+        if (error) return jsonServerError(error, "commentHandler");
         return jsonOk(data);
       }
 
@@ -280,10 +280,10 @@ export function createCommentHandlers(opts: CommentHandlerOptions) {
         .select(selectFieldsSafe)
         .single();
 
-      if (error) return jsonServerError(error);
+      if (error) return jsonServerError(error, "commentHandler");
       return jsonOk(data);
     } catch (error) {
-      return jsonServerError(error);
+      return jsonServerError(error, "commentHandler");
     }
   }
 
