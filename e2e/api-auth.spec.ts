@@ -31,7 +31,7 @@ test.describe("로그인 — 보호된 GET", () => {
       }
       expect(status, `${path}: 로그인 상태에서는 200 이어야 한다`).toBe(200);
 
-      const body = await res.json();
+      const body: unknown = await res.json();
       expect(body, `${path}: 200 인데 { error } 를 돌려주면 안 된다`).not.toHaveProperty("error");
     });
   }
@@ -52,7 +52,7 @@ test.describe("로그인 — 파라미터를 주면 200", () => {
     test(`GET ${path}?${query} → 200`, async ({ request }) => {
       const res = await request.get(`${path}?${query}`);
       expect(res.status(), `${path}: 파라미터가 있으면 200 이어야 한다`).toBe(200);
-      const body = await res.json();
+      const body: unknown = await res.json();
       if (shape.kind === "array") {
         expect(Array.isArray(body), `${path}: 배열을 돌려줘야 한다`).toBe(true);
       } else if (shape.kind === "object") {
