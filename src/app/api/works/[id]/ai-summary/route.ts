@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonServerError } from "@/lib/api/response";
 import { requirePostAccess, policyBlocked } from "@/lib/api/requirePostAccess";
 import { generateSummary, AiSummaryError } from "@/lib/api/aiSummaryProviders";
 
@@ -62,6 +63,6 @@ ${contentEn}`;
   }
   } catch (outerError) {
     console.error("[works/ai-summary] OUTER ERROR:", outerError);
-    return NextResponse.json({ error: String(outerError) }, { status: 500 });
+    return jsonServerError(outerError, "POST /api/works/[id]/ai-summary");
   }
 }

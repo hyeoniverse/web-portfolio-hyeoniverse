@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonError, jsonServerError } from "@/lib/api/response";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 /**
@@ -17,7 +18,7 @@ export async function GET(request: Request) {
 
   if (!isVercelCron) {
     if (!secret || authHeader !== `Bearer ${secret}`) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return jsonError("Unauthorized", 401);
     }
   }
 
@@ -25,7 +26,7 @@ export async function GET(request: Request) {
   const { data, error } = await admin.rpc("publish_scheduled");
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return jsonServerError(error, "GET /api/cron/publish-scheduled");
   }
 
   return NextResponse.json({

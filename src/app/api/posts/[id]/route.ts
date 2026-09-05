@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonError, jsonServerError } from "@/lib/api/response";
 import { revalidatePath } from "next/cache";
 import { titleTooLong, POST_TITLE_MAX } from "@/lib/postConstants";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -52,7 +53,7 @@ export async function PATCH(request: Request, context: RouteContext) {
 
   // 제목 길이 제한 (UI·DB 와 동일 상한)
   if (titleTooLong(body.title) || titleTooLong(body.title_en)) {
-    return NextResponse.json({ error: `title exceeds ${POST_TITLE_MAX} characters` }, { status: 400 });
+    return jsonError(`title exceeds ${POST_TITLE_MAX} characters`, 400);
   }
 
   // 낙관적 동시성 제어 — 에디터가 로드 시점 version 을 baseVersion 으로 보냄. 컬럼이 아니므로 분리.
@@ -111,7 +112,7 @@ export async function PATCH(request: Request, context: RouteContext) {
         }
         return policyBlocked();   // 존재·권한은 requirePostAccess 가 확인했다
       }
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return jsonServerError(error, "PATCH /api/posts/[id]");
     }
     revalidatePublicPosts(data?.slug);
     return NextResponse.json(data);
@@ -127,7 +128,7 @@ export async function PATCH(request: Request, context: RouteContext) {
   if (error) {
     // 0행 갱신 = 정책이 막은 것이다. 존재와 권한은 requirePostAccess 가 이미 확인했다.
     if (error.code === "PGRST116") return policyBlocked();
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return jsonServerError(error, "PATCH /api/posts/[id]");
   }
 
   revalidatePublicPosts(data?.slug);
@@ -158,7 +159,7 @@ export async function DELETE(_request: Request, context: RouteContext) {
     .eq("id", id);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return jsonServerError(error, "DELETE /api/posts/[id]");
   }
 
   revalidatePublicPosts();

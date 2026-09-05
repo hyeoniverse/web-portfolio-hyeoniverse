@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonServerError } from "@/lib/api/response";
 import { readdir, stat } from "fs/promises";
 import { join, relative, sep } from "path";
 import { requireAuth } from "@/lib/api/requireAuth";
@@ -78,7 +79,7 @@ export async function GET() {
   try {
     for (const root of ROOTS) await walk(join(publicRoot, root), publicRoot, files);
   } catch (e) {
-    return NextResponse.json({ error: (e as Error).message }, { status: 500 });
+    return jsonServerError(e, "GET /api/admin/project-images");
   }
 
   /* 폴더로 묶는다 — 100장이 한 덩어리로 쏟아지면 고를 수가 없다. */

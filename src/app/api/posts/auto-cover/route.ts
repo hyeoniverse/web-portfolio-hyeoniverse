@@ -6,6 +6,7 @@
  */
 
 import { NextResponse } from "next/server";
+import { jsonServerError } from "@/lib/api/response";
 import { requireAuth } from "@/lib/api/requireAuth";
 import { fetchAutoCoverImage, extractKeywordsFromPost } from "@/lib/autoCoverImage";
 
@@ -21,7 +22,7 @@ export async function POST() {
     .eq("published", true)
     .is("deleted_at", null);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return jsonServerError(error, "POST /api/posts/auto-cover");
 
   /* cover-less 만 필터 */
   const targets = (posts ?? []).filter((p) => !p.cover_image);

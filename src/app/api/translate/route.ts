@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonError } from "@/lib/api/response";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 import {
@@ -31,7 +32,7 @@ export async function POST(request: Request) {
   const table = body?.source === "works" ? "work_comments" : "comments";
 
   if (!commentId || !targetLang) {
-    return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    return jsonError("Missing required fields", 400);
   }
 
   const admin = createAdminClient();
@@ -43,12 +44,12 @@ export async function POST(request: Request) {
 
   // 삭제된 댓글은 목록에서도 본문이 비워져 나간다 — 번역 경로로 되살아나면 안 된다.
   if (!row || row.is_deleted) {
-    return NextResponse.json({ error: "Comment not found" }, { status: 404 });
+    return jsonError("Comment not found", 404);
   }
 
   const text = (row.content ?? "").trim();
   if (!text) {
-    return NextResponse.json({ error: "Comment not found" }, { status: 404 });
+    return jsonError("Comment not found", 404);
   }
 
   const config = await getSiteConfig();
@@ -67,7 +68,7 @@ export async function POST(request: Request) {
 
   // 단건 번역 — 결과가 비어 있으면 (failedIndices 에 0 이 있으면) 502 로 처리
   if (result.failedIndices.includes(0)) {
-    return NextResponse.json({ error: "Translation failed" }, { status: 502 });
+    return jsonError("Translation failed", 502);
   }
 
   return NextResponse.json({ translation: result.translations[0] });

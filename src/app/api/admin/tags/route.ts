@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonServerError } from "@/lib/api/response";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAuth } from "@/lib/api/requireAuth";
 
@@ -45,7 +46,7 @@ export async function GET() {
 
   if (postsRes.error) {
     console.error("/api/admin/tags supabase error:", postsRes.error);
-    return NextResponse.json({ error: postsRes.error.message }, { status: 500 });
+    return jsonServerError(postsRes.error, "GET /api/admin/tags");
   }
 
   const posts = (postsRes.data ?? []) as PostRow[];

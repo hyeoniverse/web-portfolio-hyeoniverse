@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonError } from "@/lib/api/response";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAuth } from "@/lib/api/requireAuth";
 import { getUserRole, canEditWork } from "@/lib/api/roles";
@@ -27,11 +28,11 @@ export async function POST(_request: Request, context: RouteContext) {
     .eq("id", id)
     .maybeSingle();
 
-  if (!work) return NextResponse.json({ error: "not found" }, { status: 404 });
+  if (!work) return jsonError("not found", 404);
 
   const role = getUserRole(auth.user);
   if (canEditWork(role, work.team_members as { author_id?: string }[] | null)) {
-    return NextResponse.json({ error: "이미 이 작업물을 편집할 수 있습니다." }, { status: 400 });
+    return jsonError("이미 이 작업물을 편집할 수 있습니다.", 400);
   }
 
   const who = auth.user.email ?? auth.user.id;

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonServerError } from "@/lib/api/response";
 import { QUERY_PARAM } from "@/constants";
 import { ensureWorksCategory } from "@/lib/api/validateCategory";
 import { createClient } from "@/lib/supabase/server";
@@ -103,7 +104,7 @@ export async function GET(request: Request) {
   }
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return jsonServerError(error, "GET /api/works");
   }
 
   const total = count ?? 0;
@@ -179,7 +180,7 @@ export async function POST(request: Request) {
     .single();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return jsonServerError(error, "POST /api/works");
   }
 
   return NextResponse.json(data, { status: 201 });
