@@ -8,11 +8,14 @@
     "src/__tests__/**/*.{ts,tsx}",
     "src/**/__tests__/**/*.{ts,tsx}"
   ],
-  "project": ["src/**/*.{ts,tsx}"],
-  "ignoreDependencies": [
-    "next-themes",
-    "sanitize.css",
-    "@platejs/slash-command"
+  "project": [
+    "src/**/*.{ts,tsx}"
   ],
-  "ignore": ["src/types/**", "src/config/site.config.ts"]
+  "ignoreDependencies": [
+    "sanitize.css"
+  ],
+  "ignore": [
+    "src/types/**",
+    "src/config/site.config.ts"
+  ]
 }
