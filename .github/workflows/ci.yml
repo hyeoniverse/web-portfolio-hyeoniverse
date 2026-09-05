@@ -57,6 +57,11 @@ jobs:
       # 임계치를 현재 수준(97.93%)에 붙여 락했으므로 차단으로 승격한다.
       # 올렸다면 package.json 의 --at-least 도 함께 올려 되돌아가지 못하게 한다.
       #
+      # 여기서 실패했다면 임계치를 내리지 말고 **새로 들어온 any 를 없애는 쪽**을 먼저 본다.
+      # 락이 현재 값에 딱 붙어 있어서 any 가 서른 개만 늘어도 걸린다. 그게 이 게이트의 목적이다.
+      # 테스트에서 자주 걸리는 자리는 `await res.json()` 이다 — 반환이 any 라 `: unknown` 으로
+      # 받아 좁혀 쓴다. vi.spyOn 의 mock.calls 도 any 라, 찍힌 값을 직접 모아 보는 편이 낫다.
+      #
       # 실패했을 때 어디가 any 인지는 로컬에서 본다 — CI 에 --detail 을 켜두면
       # any 위치 수천 줄이 매번 출력돼 로그를 덮고 실행 시간도 크게 늘어난다.
       #   npx type-coverage --strict --ignore-files ".next/**" --detail

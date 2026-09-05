@@ -16,7 +16,8 @@ import {
 
 async function checkShape(res: APIResponse, shape: BodyShape, label: string) {
   if (shape.kind === "raw") return;
-  const body = await res.json();
+  // res.json() 은 any 라 그대로 두면 타입 커버리지가 떨어진다. unknown 으로 받아 좁혀 쓴다.
+  const body: unknown = await res.json();
   if (shape.kind === "array") {
     expect(Array.isArray(body), `${label}: 배열을 돌려줘야 한다`).toBe(true);
     return;
@@ -58,7 +59,8 @@ test.describe("비로그인 — 보호된 GET 은 401", () => {
     test(`GET ${path} → 401`, async ({ request }) => {
       const res = await request.get(path);
       expect(res.status(), `${path} 는 로그인 없이 401 이어야 한다`).toBe(401);
-      const body = await res.json();
+      // res.json() 은 any 라 그대로 두면 타입 커버리지가 떨어진다. unknown 으로 받아 좁혀 쓴다.
+  const body: unknown = await res.json();
       expect(body, `${path}: { error } 형태여야 한다`).toHaveProperty("error");
     });
   }
