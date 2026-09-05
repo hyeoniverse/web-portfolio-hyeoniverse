@@ -71,11 +71,27 @@ const eslintConfig = [
       "react-hooks/globals": "error",
       "react-hooks/component-hook-factories": "error",
 
-      // React Compiler 친화 규칙들 — eslint-plugin-react-hooks v7 (Next 16 와 함께) 에서 새로 추가됨.
-      // 우리는 Compiler 미사용이라 즉시 강제하지 않고 점진적으로 처리 — 일단 warn.
+      /* ── 아직 warn 인 규칙 (#687) ──
+         전부 eslint-plugin-react-hooks v7 (Next 16 와 함께) 에서 새로 들어온 것들이다.
+         위반이 많아 한 번에 0 으로 만들 수 없어 총량 락으로만 묶어 둔다.
+         아래 셋은 Compiler 를 안 써도 지금 코드에서 실제로 문제가 되는 것들이다. */
+
+      // 이펙트 안에서 setState 하면 렌더가 한 번 더 돈다. 조건이 맞으면 무한 루프가 된다.
       "react-hooks/set-state-in-effect": "warn",
+      // 렌더 중에 ref 를 읽거나 쓰면 React 가 렌더를 중단·재시도할 때 값이 어긋난다.
       "react-hooks/refs": "warn",
+      // props 나 state 를 직접 고치면 React 가 변경을 감지하지 못한다.
       "react-hooks/immutability": "warn",
+
+      /* 이건 성격이 다르다 — error 로 올리지 않기로 했다 (#687 5-5).
+         "React Compiler 가 이 컴포넌트 최적화를 건너뛴다" 는 안내이고, 이 프로젝트는
+         Compiler 를 쓰지 않는다(next.config 에 reactCompiler 없음). 35건을 다 들여다보니
+         고쳐야 할 버그가 하나도 없었다. 컴파일러가 추론한 의존이 전부 useState 세터
+         (React 가 안정성을 보장하는 값) 이거나, 우리 deps 가 컴파일러 추론보다 오히려
+         더 정확한 경우였다. 예: 콜백이 process.length 만 읽어 deps 도 [process.length] 인데
+         컴파일러는 객체 단위로만 추론해 [process] 를 기대한다.
+         맞추려면 deps 를 덜 정확하게 만들어야 하고, 그건 메모를 더 자주 무효화한다.
+         Compiler 를 도입하기로 하면 그때 이 목록이 할 일이 된다. */
       "react-hooks/preserve-manual-memoization": "warn",
     },
   },
