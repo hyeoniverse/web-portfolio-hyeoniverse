@@ -1,7 +1,7 @@
 "use client";
 
 import { createSlatePlugin } from "platejs";
-import { ToggleElement } from "../elements";
+import { ToggleElement } from "../elements/ToggleCalloutElements";
 
 /** 토글 (접기/펼치기) — 커스텀 노드 */
 export const ToggleKit = [
