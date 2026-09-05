@@ -26,6 +26,7 @@
     "prepare": "husky",
     "test:smoke": "playwright test --project=desktop --project=mobile",
     "test:smoke:admin": "playwright test --project=admin",
+    "test:api": "playwright test --project=api --project=api-auth",
     "sync-content-assets": "tsx scripts/sync-content-assets.ts",
     "sync-about": "tsx scripts/sync-about.ts",
     "sync-about:dry": "tsx scripts/sync-about.ts --dry",
