@@ -44,6 +44,10 @@ export const PUBLIC_ROUTES: Route[] = [
       { selector: '[class*="trouble"]', label: "트러블슈팅 패널 본문", minViewportWidth: 1024 },
       { selector: '[class*="difficulty"]', label: "트러블슈팅 난이도 배지", minViewportWidth: 1024 },
       { selector: ".code-block-wrap", label: "코드 하이라이트 블록", minViewportWidth: 1024 },
+      /* 두 패널은 목록을 사이트 설정에서 받고 없으면 props 기본값으로 떨어진다.
+         그 갈림길을 건드린 적이 있어(#687 5-6) 항목이 실제로 그려지는지 본다. */
+      { selector: '[class*="featureDfTitle"]', label: "기능 패널 항목 제목", minViewportWidth: 1024 },
+      { selector: '[class*="processTimelineNodes"]', label: "프로세스 패널 타임라인", minViewportWidth: 1024 },
     ],
   },
   // GSAP 스크롤 시퀀스가 모바일에서 라우팅까지 트리거해 캡처 중 페이지가 바뀐다.

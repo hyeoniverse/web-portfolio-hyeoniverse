@@ -40,14 +40,15 @@ function buildFrames(features: DesignFeature[]): Frame[] {
 
 function FeaturesPanel({
   language,
-  features,
+  features: fallbackFeatures,
 }: FeaturesPanelProps) {
   const cfg = useSiteConfig();
   const panelTitle = usePanelTitle("features");
   const cfgList = cfg.about.features;
-  const effectiveFeatures = cfgList && cfgList.length > 0 ? adaptFeatures(cfgList) : features;
-  /* effectiveFeatures 를 이후 모든 사용처에서 features 대신 사용 */
-  features = effectiveFeatures;
+  /* 사이트 설정에 목록이 있으면 그걸 쓰고, 없으면 props 로 받은 기본값을 쓴다.
+     전에는 props 를 그대로 덮어썼는데, props 는 부모가 준 값이라 고칠 것이 아니다.
+     받는 이름을 fallbackFeatures 로 바꾸고 아래에서 쓰는 features 는 지역 변수로 둔다. */
+  const features = cfgList && cfgList.length > 0 ? adaptFeatures(cfgList) : fallbackFeatures;
   const frames = buildFrames(features);
   const gridRef = useRef<HTMLDivElement>(null);
   const isMobile = useMobileLayout();

@@ -26,10 +26,12 @@ interface ProcessPanelProps {
 }
 
 
-function ProcessPanel({ language, process, scrollBy }: ProcessPanelProps) {
+function ProcessPanel({ language, process: fallbackProcess, scrollBy }: ProcessPanelProps) {
   const cfg = useSiteConfig();
   const cfgList = cfg.about.process;
-  if (cfgList && cfgList.length > 0) process = adaptProcess(cfgList);
+  /* 사이트 설정에 목록이 있으면 그걸 쓰고, 없으면 props 로 받은 기본값. props 자체를
+     덮어쓰지 않는다 — 부모가 준 값이라 이 컴포넌트가 고칠 것이 아니다. */
+  const process = cfgList && cfgList.length > 0 ? adaptProcess(cfgList) : fallbackProcess;
   const isMobile = useMobileLayout();
   const progressRef = useRef<HTMLDivElement>(null);
 
