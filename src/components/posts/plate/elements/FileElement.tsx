@@ -72,6 +72,15 @@ function FilePreviewContent({ url, fileName, isPdf, isOffice, isText }: {
   return null;
 }
 
+/** 확장자 종류별 첨부 아이콘. 판정 순서는 원래 코드 그대로다. */
+function fileIconFor(k: { isPdf: boolean; isAudio: boolean; isText: boolean; isOffice: boolean }) {
+  if (k.isPdf) return <FileText size={20} strokeWidth={1.5} />;
+  if (k.isAudio) return <Music size={20} strokeWidth={1.5} />;
+  if (k.isText) return <FileText size={20} strokeWidth={1.5} />;
+  if (k.isOffice) return <File size={20} strokeWidth={1.5} />;
+  return <Paperclip size={20} strokeWidth={1.5} />;
+}
+
 export function FileElement(props: PlateElementProps) {
   const editor = useEditorRef();
   const el = props.element as Record<string, unknown>;
@@ -89,13 +98,9 @@ export function FileElement(props: PlateElementProps) {
   const [previewOpen, setPreviewOpen] = useState(false);
   const sizeLabel = fileSize ? (fileSize < 1024 * 1024 ? `${(fileSize / 1024).toFixed(1)} KB` : `${(fileSize / (1024 * 1024)).toFixed(1)} MB`) : "";
 
-  const FileIcon = () => {
-    if (isPdf) return <FileText size={20} strokeWidth={1.5} />;
-    if (isAudio) return <Music size={20} strokeWidth={1.5} />;
-    if (isText) return <FileText size={20} strokeWidth={1.5} />;
-    if (isOffice) return <File size={20} strokeWidth={1.5} />;
-    return <Paperclip size={20} strokeWidth={1.5} />;
-  };
+  /* 아이콘은 컴포넌트가 아니라 값으로 만든다. 렌더 안에서 컴포넌트를 정의하면
+     렌더할 때마다 다른 컴포넌트가 되어 React 가 매번 새로 마운트한다. */
+  const fileIcon = fileIconFor({ isPdf, isAudio, isText, isOffice });
 
   return (
     <PlateElement {...props} style={{ margin: "var(--prose-block-gap) 0", ...props.style }}>
@@ -120,7 +125,7 @@ export function FileElement(props: PlateElementProps) {
               display: "flex", alignItems: "center", justifyContent: "center",
               flexShrink: 0, color: "var(--text-secondary)",
             }}>
-              <FileIcon />
+              {fileIcon}
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 13, fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{fileName}</div>

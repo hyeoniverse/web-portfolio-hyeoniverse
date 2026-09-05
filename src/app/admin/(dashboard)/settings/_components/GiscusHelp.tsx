@@ -7,18 +7,22 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "./GiscusHelp.module.css";
 import Pressable from "@/components/ui/Pressable";
 
+/* 안내문 본문에 쓰는 인라인 조각 셋. 컴포넌트 밖에 둔다 —
+   렌더 안에서 정의하면 렌더할 때마다 다른 컴포넌트가 되어 React 가 매번 새로 마운트한다.
+   셋 다 styles 와 props 만 쓰므로 밖에 있어도 그대로 동작한다. */
+const Kbd = ({ children }: { children: ReactNode }) => <kbd className={styles.kbd}>{children}</kbd>;
+const Hl = ({ children }: { children: ReactNode }) => <b className={styles.hl}>{children}</b>;
+const Ext = ({ href, children }: { href: string; children: ReactNode }) => (
+  <a className={styles.inlineLink} href={href} target="_blank" rel="noopener noreferrer">
+    {children}<ExternalLink size={11} />
+  </a>
+);
+
 /** giscus 설정 방법(단계) Popover — 핵심 단어 highlight + kbd 칩 + 외부 링크. 값·옵션 설명은 필드 ? 툴팁. */
 export default function GiscusHelp() {
   const { language } = useLanguage();
   const ko = language === "ko";
   const L = (k: string, e: string) => (ko ? k : e);
-  const Kbd = ({ children }: { children: ReactNode }) => <kbd className={styles.kbd}>{children}</kbd>;
-  const Hl = ({ children }: { children: ReactNode }) => <b className={styles.hl}>{children}</b>;
-  const Ext = ({ href, children }: { href: string; children: ReactNode }) => (
-    <a className={styles.inlineLink} href={href} target="_blank" rel="noopener noreferrer">
-      {children}<ExternalLink size={11} />
-    </a>
-  );
 
   return (
     <Popover

@@ -53,6 +53,10 @@ const eslintConfig = [
       "jsx-a11y/role-supports-aria-props": "error",
       // 삼항을 문장으로 쓰면 반환값이 버려진다. if/else 로 의도를 드러낸다.
       "@typescript-eslint/no-unused-expressions": "error",
+      /* 컴포넌트를 다른 컴포넌트의 렌더 안에서 정의하지 않는다.
+         렌더할 때마다 다른 컴포넌트가 되어 React 가 매번 새로 마운트하고,
+         그 안의 상태·포커스·애니메이션이 조용히 초기화된다. */
+      "react-hooks/static-components": "error",
       /* effect·useCallback 이 실제로 읽는 값은 deps 에 다 들어가야 한다.
          이 규칙을 정말 꺼야 하는 자리가 있어서 코드베이스에 disable 이 69곳 있다.
          error 로 올리는 목적은 그 판단을 없애는 게 아니라, 경고 더미에 조용히
@@ -73,7 +77,6 @@ const eslintConfig = [
       "react-hooks/refs": "warn",
       "react-hooks/immutability": "warn",
       "react-hooks/preserve-manual-memoization": "warn",
-      "react-hooks/static-components": "warn",
     },
   },
 ];
