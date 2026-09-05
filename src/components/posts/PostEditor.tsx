@@ -30,6 +30,8 @@ import { useEditorDraft, draftKey } from "@/hooks/useEditorDraft";
 import { useServiceStatus } from "@/hooks/useServiceStatus";
 import { useEditorTranslation } from "@/hooks/useEditorTranslation";
 import PostEditorOptionalFields from "./postEditor/PostEditorOptionalFields";
+import { usePostRevisions } from "./postEditor/usePostRevisions";
+import { useTemplateInsert } from "./postEditor/useTemplateInsert";
 import SeoChecklist from "@/components/admin/SeoChecklist";
 
 import CoverBanner from "@/components/admin/CoverBanner";
@@ -81,8 +83,6 @@ interface PostEditorProps {
   post?: Post;
 }
 
-import { POST_TEMPLATES } from "@/data/postTemplates";
-import type { PostTemplate } from "@/data/postTemplates";
 import Pressable from "@/components/ui/Pressable";
 
 /** Revision detail panel — lang 별 라벨/필드 로컬라이즈 + 해당 lang KO|EN 값만 노출. */
@@ -257,7 +257,7 @@ export default function PostEditor({ post }: PostEditorProps) {
     }
   }, [categories]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const { openModal, closeAll, closeModal } = useModalStore();
+  const { openModal, closeModal } = useModalStore();
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [generatingSummary, setRegeneratingSummary] = useState(false);
@@ -835,58 +835,20 @@ export default function PostEditor({ post }: PostEditorProps) {
     window.open("/admin/posts/preview", "_blank");
   }, [form]);
 
-  const handleRestoreRevision = useCallback(
-    async (index: number) => {
-      const rev = dbRevisions[index];
-      if (!rev) return;
-      const snapshot = await loadRevisionSnapshot(rev.id);
-      if (snapshot) {
-        setForm(snapshot);
-        // restore 직후 autosave 가 또 fire 해서 중복 revision 생성하는 거 방지
-        // form 이 snapshot 으로 설정되면 baseline 도 그 값으로 정합화 — 사용자가 추가 편집 시에만 autosave
-        requestAnimationFrame(() => markBaseline());
-        setStatus(te("restored"));
-        setStatusType("success");
-        setStatusTimestamp(rev.timestamp);
-      }
-    },
-    [dbRevisions, loadRevisionSnapshot, markBaseline, te], // eslint-disable-line react-hooks/exhaustive-deps
-  );
-
-  const handleLoadRevisionDetail = useCallback(
-    async (index: number, lang: "ko" | "en") => {
-      const rev = dbRevisions[index];
-      if (!rev) return null;
-      const snapshot = await loadRevisionSnapshot(rev.id);
-      if (!snapshot) return null;
-      const s = snapshot;
-      const isKo = lang === "ko";
-      return {
-        title: (isKo ? s.title : s.title_en) || s.title || s.title_en || "",
-        excerpt: (isKo ? s.excerpt : s.excerpt_en) || "",
-        content: stripHtml((isKo ? s.content : s.content_en) || ""),
-        meta: postSnapshotMeta(s, seriesList, authorNameById, lang),
-        headerLabels: { title: isKo ? "제목" : "Title", excerpt: isKo ? "요약" : "Excerpt" },
-      };
-    },
-    [dbRevisions, loadRevisionSnapshot, seriesList, authorNameById],
-  );
-
-  const handleDeleteRevision = useCallback(
-    async (index: number) => {
-      const rev = dbRevisions[index];
-      if (!rev) return false;
-      return deleteRevision(rev.id);
-    },
-    [dbRevisions, deleteRevision],
-  );
-
-  const handleRevert = useCallback(() => {
-    setForm(initialFormRef.current);
-    setStatus(te("reverted"));
-    setStatusType("info");
-    setStatusTimestamp(undefined);
-  }, [te]); // eslint-disable-line react-hooks/exhaustive-deps
+  const { handleRestoreRevision, handleLoadRevisionDetail, handleDeleteRevision, handleRevert } =
+    usePostRevisions({
+      setForm,
+      revisions: { revisions: dbRevisions, loadRevisionSnapshot, deleteRevision },
+      markBaseline,
+      seriesList,
+      snapshotMeta: postSnapshotMeta,
+      initialFormRef,
+      authorNameById,
+      te,
+      setStatus,
+      setStatusType,
+      setStatusTimestamp,
+    });
 
   const handleGenerateSummary = useCallback(async () => {
     const id = savedId.current ?? post?.id;
@@ -958,56 +920,7 @@ export default function PostEditor({ post }: PostEditorProps) {
     [te]
   );
 
-  const handleInsertTemplate = useCallback(() => {
-    const lang = editorLang;
-    const key = lang === "ko" ? "content" : "content_en";
-    const current = form[key as keyof PostFormData] as string;
-
-    const applyTemplate = (tmpl: PostTemplate) => {
-      const md = lang === "ko" ? tmpl.content.ko : tmpl.content.en;
-      // 에디터는 richtext 단일 — 템플릿 md 를 richtext 로 변환해 삽입
-      const content = mdToRichHtml(md);
-
-      if (current.trim()) {
-        updateField(key as keyof PostFormData, current + "<hr />" + content);
-      } else {
-        updateField(key as keyof PostFormData, content);
-      }
-    };
-
-    openModal(
-      <div className={styles.templateModal}>
-        <p className={styles.templateModalDesc}>{te("templateDesc")}</p>
-        <div className={styles.templateList}>
-          {POST_TEMPLATES.map((tmpl) => (
-            <Pressable
-              key={tmpl.id}
-              className={styles.templateItem}
-              onClick={() => {
-                if (current.trim()) {
-                  openModal(
-                    <ModalConfirm
-                      desc={te("templateConfirm")}
-                      confirmText={te("insertTemplate")}
-                      onConfirm={() => { applyTemplate(tmpl); closeAll(); }}
-                    />,
-                    { header: { title: te("insertTemplate") }, closeButton: true, width: "360px" },
-                  );
-                } else {
-                  applyTemplate(tmpl);
-                  closeAll();
-                }
-              }}
-            >
-              <span className={styles.templateItemLabel}>{lang === "ko" ? tmpl.label.ko : tmpl.label.en}</span>
-              <span className={styles.templateItemDesc}>{lang === "ko" ? tmpl.desc.ko : tmpl.desc.en}</span>
-            </Pressable>
-          ))}
-        </div>
-      </div>,
-      { header: { title: te("insertTemplate") }, closeButton: true, width: "420px" },
-    );
-  }, [editorLang, form, updateField, te, openModal, closeAll]);
+  const handleInsertTemplate = useTemplateInsert({ editorLang, form, updateField, te });
 
   const titleKey = editorLang === "ko" ? "title" : "title_en";
   const contentKey = editorLang === "ko" ? "content" : "content_en";
