@@ -1552,7 +1552,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         setSaving(false);
       }
     },
-    [form, router, tw, savedId, primaryLang],
+    [form, router, tw, savedId, primaryLang, clearDraft, isEdit],
   );
 
   const handleDelete = useCallback(async () => {

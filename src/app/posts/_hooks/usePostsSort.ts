@@ -16,7 +16,7 @@ export function usePostsSort({ timeline }: { timeline: boolean }) {
   // 타임라인 레이아웃은 월 그룹 마커라 시간순만 유효 — 다른 정렬이면 date 로 강제(마커 깨짐 방지).
   useEffect(() => {
     if (timeline && sortBy !== "date") setSortBy("date");
-  }, [timeline, sortBy]);
+  }, [timeline, sortBy, setSortBy]);
   // popular 그룹 안 세부 메트릭 — 종합 / 조회 / 댓글 / 좋아요
   const [popularSort, setPopularSort] = useState<PopularSort>("score");
   const [randomSeed, setRandomSeed] = useState(() =>
@@ -54,11 +54,11 @@ export function usePostsSort({ timeline }: { timeline: boolean }) {
       setSortBy("random");
       setRandomSeed(Math.floor(Math.random() * 1e9));
     }
-  }, [sortBy]);
+  }, [sortBy, setSortBy]);
   const resetSort = useCallback(() => {
     setSortBy("date");
     setSortDir("desc");
-  }, []);
+  }, [setSortBy, setSortDir]);
 
   return { sortBy, sortDir, popularSort, setPopularSort, randomSeed, sort, handleSortChange, shuffle, resetSort };
 }

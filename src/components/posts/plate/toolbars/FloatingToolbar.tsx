@@ -183,6 +183,9 @@ export default function FloatingToolbar({ hideToolbar }: { hideToolbar?: boolean
   }, [editor, selection]);
   // 텍스트를 실제로 선택(드래그)했을 때만 — collapsed 커서(클릭)엔 숨김
   const collapsed = React.useMemo(() => {
+    // selection 이 없으면 접힌 것으로 본다. 아래 open 계산에서 어차피 걸러지고,
+    // 이렇게 해야 selection 이 deps 에 있는 이유가 본문에도 드러난다.
+    if (!selection) return true;
     try { return editor.api.isCollapsed(); } catch { return true; }
   }, [editor, selection]);
   // 터치: 네이티브 선택 핸들/콜아웃과 충돌 → 플로팅 서식 툴바 숨김(메인 툴바가 서식 담당).

@@ -357,7 +357,7 @@ export default function EnvVarFields({
         }
       );
     },
-    [openModal, closeModal, t]
+    [openModal, t]
   );
 
   const handleSaveSecrets = async () => {

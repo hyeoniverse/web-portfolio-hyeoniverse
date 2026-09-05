@@ -226,7 +226,8 @@ export function DiagramElement(props: PlateElementProps) {
   const editor = useEditorRef();
   const selected = useSelected();
   const { language } = useLanguage();
-  const t = (ko: string, en: string) => (language === "ko" ? ko : en);
+  /* 아래 useCallback 세 곳의 deps 에 들어간다 — 매 렌더 새로 만들면 그 셋도 매번 새로 만들어진다. */
+  const t = useCallback((ko: string, en: string) => (language === "ko" ? ko : en), [language]);
   const el = props.element as Record<string, unknown>;
   const initial = useMemo(() => normalizeDiagram(el.data), [el.data]);
 

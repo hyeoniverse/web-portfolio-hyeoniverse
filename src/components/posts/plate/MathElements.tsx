@@ -123,7 +123,7 @@ function MathFloatingEdit({
       window.removeEventListener("scroll", update, true);
       window.removeEventListener("resize", update);
     };
-  }, [update, anchorRef]);
+  }, [update, anchorRef, inline]);
 
   // 외부 클릭 시 확정(confirm) — 툴바 심볼 버튼 클릭은 제외
   React.useEffect(() => {
