@@ -69,11 +69,15 @@ function scoreRelated(posts: any[], tags: string[], category: string, excludeId:
 }
 
 function PostThumb({ hit }: { hit: PostHit }) {
+  /* 아이콘·커버는 글쓴이가 넣은 임의 URL(외부 도메인 포함)이라 next/image 의 remotePatterns 로 못 좁힌다.
+     게다가 여기는 링크 메뉴의 16px 썸네일이라 최적화 파이프라인을 태울 이유도 없다. */
+  /* eslint-disable @next/next/no-img-element */
   const inner = hit.icon
     ? (/^(https?:|\/)/.test(hit.icon) ? <img src={hit.icon} alt="" loading="lazy" /> : <span className={styles.postLinkEmoji}>{hit.icon}</span>)
     : hit.cover
       ? (/\.(mp4|webm|mov|m4v|ogv)(\?|$)/i.test(hit.cover) ? <video src={hit.cover} autoPlay loop muted playsInline /> : <img src={hit.cover} alt="" loading="lazy" />)
       : <FileText size={15} />;
+  /* eslint-enable @next/next/no-img-element */
   return <span className={styles.postLinkThumb}>{inner}</span>;
 }
 

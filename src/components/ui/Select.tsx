@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useLayoutEffect, useRef, useCallback, useMemo, Fragment, type ReactNode, type KeyboardEvent } from "react";
+import { useState, useEffect, useLayoutEffect, useRef, useCallback, useMemo, useId, Fragment, type ReactNode, type KeyboardEvent } from "react";
 import { createPortal } from "react-dom";
 import { ChevronRight, X } from "@/components/icons";
 import { usePortalContainer } from "./portalContainer";
@@ -121,6 +121,8 @@ export default function Select({
   const [animateOpen, setAnimateOpen] = useState(false);
   const [activeIdx, setActiveIdx] = useState(-1);
   const ref = useRef<HTMLDivElement>(null);
+  /* combobox input ↔ 목록 연결용. dropdown 은 portal 이라 id 로만 이을 수 있다. */
+  const listboxId = useId();
   const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [dropPos, setDropPos] = useState<{ top: number; left: number; width: number; tailTop?: number }>({ top: 0, left: 0, width: 0 });
@@ -448,6 +450,11 @@ export default function Select({
             onKeyDown={handleComboKeyDown}
             placeholder={placeholder}
             disabled={disabled}
+            /* input 의 암묵 role 은 textbox 라 aria-expanded 를 받지 않는다.
+               열고 닫는 목록을 가진 입력이므로 role 을 combobox 로 명시하고,
+               그 목록(portal 로 빠져 DOM 상 형제가 아닌 dropdown)을 aria-controls 로 잇는다. */
+            role="combobox"
+            aria-controls={listboxId}
             aria-autocomplete="list"
             aria-expanded={open}
           />
@@ -544,6 +551,7 @@ export default function Select({
       {visible && createPortal(
         <div
           ref={dropdownRef}
+          id={listboxId}
           className={`${styles.dropdown} ${showCheck ? styles.dropdownChecked : ""} ${bubble ? `${styles.bubble} ${styles.bubbleRight}` : ""} ${animateOpen ? styles.dropdownOpen : styles.dropdownClose} ${dropdownClassName ?? ""}`}
           style={portalStyle}
           onTransitionEnd={handleTransitionEnd}

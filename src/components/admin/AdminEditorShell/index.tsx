@@ -421,6 +421,7 @@ export default function AdminEditorShell({
                   <span className={styles.revisionMetaVal}>
                     {imgSrc && (
                       <a href={imgSrc} target="_blank" rel="noopener noreferrer" className={styles.revisionMetaImgLink}>
+                        {/* eslint-disable-next-line @next/next/no-img-element -- 리비전에 기록된 과거 URL 이라 도메인이 무엇이든 그대로 띄운다 */}
                         <img src={imgSrc} alt="" className={styles.revisionMetaImg} />
                       </a>
                     )}

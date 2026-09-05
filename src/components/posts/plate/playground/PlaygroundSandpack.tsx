@@ -290,7 +290,7 @@ function Layout({ height, readOnly, explorer, ko, fs, toggleFs, resizable }: { h
   const endBlk = (e: React.PointerEvent) => { blkResize.current = null; release(e); };
 
   const openFile = (p: string) => { sandpack.openFile(p); sandpack.setActiveFile(p); if (!showEditor) setShowEditor(true); };
-  const toggleDir = (p: string) => setCollapsed((s) => { const n = new Set(s); n.has(p) ? n.delete(p) : n.add(p); return n; });
+  const toggleDir = (p: string) => setCollapsed((s) => { const n = new Set(s); if (n.has(p)) n.delete(p); else n.add(p); return n; });
 
   const startCreate = (mode: "file" | "folder") => { setCreating(mode); setNewName(""); };
   const commitCreate = () => {

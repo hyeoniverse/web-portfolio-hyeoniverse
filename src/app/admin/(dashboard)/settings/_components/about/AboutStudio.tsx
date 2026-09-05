@@ -1028,6 +1028,7 @@ function FeaturesBlock({ value, onChange, lang, t, title }: {
           {value.map((it, i) => (
             <div key={i} className={css.featCell} onMouseEnter={() => setHovered({ row: Math.floor(i / cols), col: i % cols })}>
               {it.image
+                // eslint-disable-next-line @next/next/no-img-element -- 관리자가 고른 임의 URL 이라 도메인을 미리 등록할 수 없다
                 ? <img className={css.featImg} src={it.image} alt="" />
                 : <div className={css.featNoImg} />}
               <div className={`${feat.featureDfInfo} ${css.featInfo}`}>
@@ -2509,7 +2510,10 @@ function BreakBlock({ url, onSet, t }: { url: string; onSet: (u: string) => void
   return (
     <section className={css.block}>
       <div className={css.rcardMedia} style={{ maxWidth: 480 }}>
-        {url ? <img src={url} alt="" /> : null}
+        {url ? (
+          // eslint-disable-next-line @next/next/no-img-element -- 관리자가 고른 임의 URL 이라 도메인을 미리 등록할 수 없다
+          <img src={url} alt="" />
+        ) : null}
       </div>
       <div className={css.mediaActions}>
         <Button variant="outline" size="sm" onClick={() => setPick((v) => !v)}>{pick ? t("admin.posts.seriesModal.closePicker") : t("admin.posts.seriesModal.chooseCover")}</Button>
