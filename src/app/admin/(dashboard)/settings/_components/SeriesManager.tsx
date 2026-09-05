@@ -361,7 +361,8 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
-                    expanded ? collapseId(s.id) : setExpandedId(s.id);
+                    if (expanded) collapseId(s.id);
+                    else setExpandedId(s.id);
                   }
                 }}
               >

@@ -43,6 +43,20 @@ const eslintConfig = [
         "error",
         { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
       ],
+      /* ── 승격된 게이트 (#687) ──
+         warn 은 총량(--max-warnings)만 잠근다. 한 건을 고치고 그 자리에 새 위반을 넣으면
+         총량은 그대로라 통과한다. 위반을 0 으로 만든 규칙은 error 로 올려 아예 못 들어오게 한다. */
+      // <img> 는 도메인을 미리 등록할 수 없는 임의 URL 에만 허용한다.
+      // 이유를 적은 eslint-disable 로 그때그때 뚫되, 무심코 쓰는 건 막는다.
+      "@next/next/no-img-element": "error",
+      // role 이 받지 않는 aria-* 는 스크린리더에 그냥 무시된다 — 붙였는데 안 먹는 게 제일 나쁘다.
+      "jsx-a11y/role-supports-aria-props": "error",
+      // 삼항을 문장으로 쓰면 반환값이 버려진다. if/else 로 의도를 드러낸다.
+      "@typescript-eslint/no-unused-expressions": "error",
+      // 모듈 스코프 변수를 렌더 중에 고치면 서버에서 요청 사이에 값이 샌다.
+      "react-hooks/globals": "error",
+      "react-hooks/component-hook-factories": "error",
+
       // React Compiler 친화 규칙들 — eslint-plugin-react-hooks v7 (Next 16 와 함께) 에서 새로 추가됨.
       // 우리는 Compiler 미사용이라 즉시 강제하지 않고 점진적으로 처리 — 일단 warn.
       "react-hooks/set-state-in-effect": "warn",
@@ -52,8 +66,6 @@ const eslintConfig = [
       "react-hooks/purity": "warn",
       "react-hooks/static-components": "warn",
       "react-hooks/use-memo": "warn",
-      "react-hooks/globals": "warn",
-      "react-hooks/component-hook-factories": "warn",
     },
   },
 ];
