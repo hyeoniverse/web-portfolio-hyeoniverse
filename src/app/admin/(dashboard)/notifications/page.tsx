@@ -20,6 +20,8 @@ import ReportsList from "../reports/_components/ReportsList";
 import type { StatusFilter } from "../reports/_types";
 import { isPending } from "@/lib/notificationTypes";
 import styles from "./Notifications.module.css";
+import { formatRelativeTime } from "@/utils/relativeTime";
+import { useNow } from "@/hooks/useNow";
 
 type TabKey = "all" | "comment" | "system" | "report";
 
@@ -58,6 +60,8 @@ interface NotifResponse {
 
 export default function NotificationsPage() {
   const { language, t } = useLanguage();
+  /* 상대시간 기준 시각. 렌더에서 Date.now() 를 부르면 매 렌더 값이 달라진다. */
+  const now = useNow();
   const { openModal, closeModal } = useModalStore();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -242,22 +246,7 @@ export default function NotificationsPage() {
   };
 
   // 다국어 상대시간 포맷터 — "방금 전 / N분 전 / N시간 전 / N일 전 / 절대 날짜"
-  const formatDate = (iso: string) => {
-    const d = new Date(iso);
-    const diffMs = Date.now() - d.getTime();
-    const mins = Math.floor(diffMs / 60_000);
-    if (mins < 1) return language === "ko" ? "방금 전" : "just now";
-    if (mins < 60) return language === "ko" ? `${mins}분 전` : `${mins}m ago`;
-    const hours = Math.floor(mins / 60);
-    if (hours < 24) return language === "ko" ? `${hours}시간 전` : `${hours}h ago`;
-    const days = Math.floor(hours / 24);
-    if (days < 7) return language === "ko" ? `${days}일 전` : `${days}d ago`;
-    return d.toLocaleDateString(language === "ko" ? "ko-KR" : "en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
+  const formatDate = (iso: string) => formatRelativeTime(iso, now, language);
 
   const typeIcon = (type: string) => {
     const common = { size: 18, strokeWidth: 1.6, "aria-hidden": true } as const;

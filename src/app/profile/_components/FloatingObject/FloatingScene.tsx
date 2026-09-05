@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useMemo } from "react";
+import { useRef, useMemo, useState } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
@@ -169,7 +169,11 @@ export default function FloatingScene({
   });
   /** 찌른 자국(몸 전체) — a 가 눌린 깊이, v 가 그 속도. */
   const squish = useRef({ a: 0, v: 0, x: 0, y: 0 });
-  const nextBlink = useRef(2 + Math.random() * 3);
+  /* 첫 깜빡임까지의 시간은 인스턴스마다 달라야 하지만 렌더마다 달라질 이유는 없다.
+     useRef 의 인자는 첫 값만 쓰이면서도 렌더할 때마다 평가되므로, 여기서 Math.random 을
+     부르면 리렌더마다 난수를 뽑아 버린다. useState 의 지연 초기화는 마운트 때 한 번만 돈다. */
+  const [firstBlinkAt] = useState(() => 2 + Math.random() * 3);
+  const nextBlink = useRef(firstBlinkAt);
   const blinkPhase = useRef(-1); // -1 = idle, 0~1 = blinking
   const hitTime = useRef(-1); // 충돌 시점 (초)
   const { camera, size } = useThree();

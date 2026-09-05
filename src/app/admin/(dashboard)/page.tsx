@@ -61,10 +61,14 @@ import {
 import MembersList from "@/components/admin/MembersList";
 import styles from "./Dashboard.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { formatRelativeTime } from "@/utils/relativeTime";
+import { useNow } from "@/hooks/useNow";
 
 
 export default function AdminDashboard() {
   const { t, language } = useLanguage();
+  /* 상대시간 기준 시각. 렌더에서 현재 시각을 직접 읽으면 매 렌더 값이 달라진다. */
+  const now = useNow();
   const router = useRouter();
   useStaticPageScroll();
   const [data, setData] = useState<DashboardData | null>(null);
@@ -166,28 +170,7 @@ export default function AdminDashboard() {
     );
   }
 
-  const fmtDate = (iso: string) => {
-    try {
-      const d = new Date(iso);
-      const now = new Date();
-      const diffMs = now.getTime() - d.getTime();
-      const mins = Math.floor(diffMs / 60000);
-      if (mins < 1) return language === "ko" ? "방금 전" : "just now";
-      if (mins < 60) return language === "ko" ? `${mins}분 전` : `${mins}m ago`;
-      const hours = Math.floor(mins / 60);
-      if (hours < 24)
-        return language === "ko" ? `${hours}시간 전` : `${hours}h ago`;
-      const days = Math.floor(hours / 24);
-      if (days < 7) return language === "ko" ? `${days}일 전` : `${days}d ago`;
-      return d.toLocaleDateString(language === "ko" ? "ko-KR" : "en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      });
-    } catch {
-      return iso;
-    }
-  };
+  const fmtDate = (iso: string) => formatRelativeTime(iso, now, language);
 
   return (
     <div className={styles.container}>

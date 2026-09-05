@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
@@ -34,7 +34,11 @@ export default function BunnyPreviewScene({
   const rightSquintRef = useRef<THREE.Group>(null);
   const leftSmileRef = useRef<THREE.Group>(null);
   const rightSmileRef = useRef<THREE.Group>(null);
-  const nextBlink = useRef(2 + Math.random() * 3);
+  /* 첫 깜빡임까지의 시간은 인스턴스마다 달라야 하지만 렌더마다 달라질 이유는 없다.
+     useRef 의 인자는 첫 값만 쓰이면서도 렌더할 때마다 평가되므로, 여기서 Math.random 을
+     부르면 리렌더마다 난수를 뽑아 버린다. useState 의 지연 초기화는 마운트 때 한 번만 돈다. */
+  const [firstBlinkAt] = useState(() => 2 + Math.random() * 3);
+  const nextBlink = useRef(firstBlinkAt);
   const blinkPhase = useRef(-1);
   const exprRef = useRef<Expression>(expression);
   exprRef.current = expression;

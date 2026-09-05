@@ -10,6 +10,8 @@ import type { Author } from "@/types/author";
 import { RoleBadge, ProviderChips } from "./MemberBadges";
 import MemberDetailModal from "@/app/admin/(dashboard)/settings/_components/MemberDetailModal";
 import styles from "./MembersList.module.css";
+import { formatRelativeTime } from "@/utils/relativeTime";
+import { useNow } from "@/hooks/useNow";
 
 interface Props {
   /** 표시할 최대 멤버 수 — 초과 시 "외 N명" + 설정 링크. (대시보드 compact 용) */
@@ -26,6 +28,8 @@ interface Props {
 export default function MembersList({ limit, showInvites = true, hideHeader = false, onResolved }: Props) {
   const { language } = useLanguage();
   const L = (ko: string, en: string) => (language === "ko" ? ko : en);
+  /* 상대시간 기준 시각. 렌더에서 Date.now() 를 부르면 매 렌더 값이 달라진다. */
+  const now = useNow();
   const openModal = useModalStore((s) => s.openModal);
 
   // 멤버 행 클릭 → 상세 모달 (접근 정보 위주). 프로필(bio/링크)은 대시보드엔 없어 최소 정보만.
@@ -80,19 +84,8 @@ export default function MembersList({ limit, showInvites = true, hideHeader = fa
   const shown = limit ? members.slice(0, limit) : members;
   const overflow = limit ? members.length - shown.length : 0;
 
-  const relative = (iso: string | null) => {
-    if (!iso) return L("로그인 기록 없음", "never signed in");
-    const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60_000);
-    if (mins < 1) return L("방금 전", "just now");
-    if (mins < 60) return L(`${mins}분 전`, `${mins}m ago`);
-    const h = Math.floor(mins / 60);
-    if (h < 24) return L(`${h}시간 전`, `${h}h ago`);
-    const d = Math.floor(h / 24);
-    if (d < 7) return L(`${d}일 전`, `${d}d ago`);
-    return new Date(iso).toLocaleDateString(language === "ko" ? "ko-KR" : "en-US", {
-      year: "numeric", month: "short", day: "numeric",
-    });
-  };
+  const relative = (iso: string | null) =>
+    iso ? formatRelativeTime(iso, now, language) : L("로그인 기록 없음", "never signed in");
 
   return (
     <div className={styles.wrap}>

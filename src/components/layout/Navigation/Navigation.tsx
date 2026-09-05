@@ -40,6 +40,8 @@ import {
 import { isPending } from "@/lib/notificationTypes";
 import styles from "./Navigation.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { formatRelativeTime } from "@/utils/relativeTime";
+import { useNow } from "@/hooks/useNow";
 
 // 서브메뉴 항목 링크 — active 항목의 bold/indent 를 접힘 시 순차 애니로 풀려면 motion 링크가 필요.
 const MotionLink = motion.create(Link);
@@ -48,18 +50,8 @@ const SUB_EASE = [0.22, 1, 0.36, 1] as const;
 
 /* notification dropdown 항목 — 5개 + 추가 5개에서 동일하게 사용되도록 helper 로 추출 */
 type NotifItemData = { id: string; type: string; title: string; message: string; metadata: Record<string, string>; read: boolean; created_at: string };
-function renderNotifItem(n: NotifItemData, language: "ko" | "en", onClick: () => void) {
-  const formatTime = (iso: string) => {
-    const d = new Date(iso);
-    const mins = Math.floor((Date.now() - d.getTime()) / 60_000);
-    if (mins < 1) return language === "ko" ? "방금 전" : "just now";
-    if (mins < 60) return language === "ko" ? `${mins}분 전` : `${mins}m ago`;
-    const hours = Math.floor(mins / 60);
-    if (hours < 24) return language === "ko" ? `${hours}시간 전` : `${hours}h ago`;
-    const days = Math.floor(hours / 24);
-    if (days < 7) return language === "ko" ? `${days}일 전` : `${days}d ago`;
-    return d.toLocaleDateString(language === "ko" ? "ko-KR" : "en-US", { month: "short", day: "numeric" });
-  };
+function renderNotifItem(n: NotifItemData, language: "ko" | "en", now: number, onClick: () => void) {
+  const formatTime = (iso: string) => formatRelativeTime(iso, now, language, { withYear: false });
   return (
     /* 알림 목록의 그 항목으로 보낸다 — 페이지가 ?id 로 찾아 스크롤하고 활성 표시를 건다.
        대상 글·댓글로 바로 가는 것은 거기서 열리는 상세의 "바로가기" 가 맡는다. */
@@ -97,6 +89,8 @@ export default function Navigation() {
   const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
   const { language, toggleLanguage } = useLanguage();
+  /* 알림 목록의 상대시간 기준 시각. 렌더에서 Date.now() 를 부르면 매 렌더 값이 달라진다. */
+  const now = useNow();
 
   // 이미지 로고 URL (다크모드 우선 폴백)
   const isDark = theme === "dark";
@@ -1045,7 +1039,7 @@ export default function Navigation() {
                     <ul className={styles.notifDropdownList} data-lenis-prevent>
                       {notifs.slice(0, 5).map((n) => (
                         <li key={n.id} className={`${styles.notifDropdownItem} ${!n.read ? styles.notifDropdownItemUnread : ""}`}>
-                          {renderNotifItem(n, language, () => setNotifOpen(false))}
+                          {renderNotifItem(n, language, now, () => setNotifOpen(false))}
                         </li>
                       ))}
                       {/* 펼친 추가 5개 — clip-path 위에서 아래로 reveal + height 자연 확장 */}
@@ -1064,7 +1058,7 @@ export default function Navigation() {
                             }}
                             style={{ overflow: "hidden" }}
                           >
-                            {renderNotifItem(n, language, () => setNotifOpen(false))}
+                            {renderNotifItem(n, language, now, () => setNotifOpen(false))}
                           </motion.li>
                         ))}
                       </AnimatePresence>

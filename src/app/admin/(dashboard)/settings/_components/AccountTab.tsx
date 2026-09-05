@@ -21,6 +21,8 @@ import styles from "./AccountTab.module.css";
 import EmptyState from "@/components/ui/EmptyState";
 import shared from "../Settings.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { formatRelativeTime } from "@/utils/relativeTime";
+import { useNow } from "@/hooks/useNow";
 
 interface DeviceRow {
   id: string;
@@ -57,6 +59,8 @@ export default function AccountTab({
   isOwner,
 }: AccountTabProps) {
   const { t, language } = useLanguage();
+  /* 상대시간 기준 시각. 렌더에서 Date.now() 를 부르면 매 렌더 값이 달라진다. */
+  const now = useNow();
   const router = useRouter();
   const { openModal } = useModalStore();
   const [resending, setResending] = useState(false);
@@ -104,19 +108,7 @@ export default function AccountTab({
     [t, openModal, fetchDevices],
   );
 
-  const formatRelative = (iso: string) => {
-    const diffMs = Date.now() - new Date(iso).getTime();
-    const mins = Math.floor(diffMs / 60_000);
-    if (mins < 1) return language === "ko" ? "방금 전" : "just now";
-    if (mins < 60) return language === "ko" ? `${mins}분 전` : `${mins}m ago`;
-    const hours = Math.floor(mins / 60);
-    if (hours < 24) return language === "ko" ? `${hours}시간 전` : `${hours}h ago`;
-    const days = Math.floor(hours / 24);
-    if (days < 7) return language === "ko" ? `${days}일 전` : `${days}d ago`;
-    return new Date(iso).toLocaleDateString(language === "ko" ? "ko-KR" : "en-US", {
-      year: "numeric", month: "short", day: "numeric",
-    });
-  };
+  const formatRelative = (iso: string) => formatRelativeTime(iso, now, language);
 
   const deviceIcon = (kind: "mobile" | "tablet" | "desktop") => {
     if (kind === "mobile") return <Smartphone size={16} strokeWidth={1.6} />;
@@ -209,7 +201,7 @@ export default function AccountTab({
   const getTimeRemaining = (iso: string) => {
     const sent = new Date(iso).getTime();
     const expires = sent + 3600 * 1000; // 1시간
-    const remaining = expires - Date.now();
+    const remaining = expires - now;
     if (remaining <= 0) return t("admin.settings.linkExpired");
     const mins = Math.ceil(remaining / 60000);
     return mins >= 60
