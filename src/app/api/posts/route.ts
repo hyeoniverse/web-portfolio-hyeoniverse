@@ -8,6 +8,7 @@ import { requireAuth } from "@/lib/api/requireAuth";
 import { applySearchQuery } from "@/lib/api/applySearchQuery";
 import type { SyntaxMode } from "@/lib/searchQuery";
 import type { PostFormData } from "@/types/post";
+import { mulberry32 } from "@/utils/seededRandom";
 
 // GET /api/posts — 목록 조회
 export async function GET(request: Request) {
@@ -172,16 +173,10 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: rndError.message }, { status: 500 });
     }
     const seedStr = searchParams.get("seed") ?? "0";
-    let seed = parseInt(seedStr, 10) || 1;
+    const seed = parseInt(seedStr, 10) || 1;
     const all = (rawData ?? []) as unknown[];
-    // mulberry32 seeded shuffle
-    const rand = () => {
-      seed = (seed + 0x6D2B79F5) | 0;
-      let t = seed;
-      t = Math.imul(t ^ (t >>> 15), t | 1);
-      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-    };
+    // 시드 셔플 — 같은 seed 로 다시 부르면 같은 순서가 나온다(페이지네이션 일관성).
+    const rand = mulberry32(seed);
     const shuffled = [...all];
     for (let i = shuffled.length - 1; i > 0; i--) {
       const j = Math.floor(rand() * (i + 1));

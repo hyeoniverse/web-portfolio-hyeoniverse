@@ -15,6 +15,8 @@ import EmptyState from "@/components/ui/EmptyState/EmptyState";
 import ReportDetail from "./ReportDetail";
 import styles from "../Reports.module.css";
 import type { Report, StatusFilter } from "../_types";
+import { formatRelativeTime } from "@/utils/relativeTime";
+import { useNow } from "@/hooks/useNow";
 
 function ReportsSkeleton() {
   return (
@@ -60,6 +62,8 @@ export default function ReportsList({
   onFilterChange?: (v: StatusFilter) => void;
 }) {
   const { language, t } = useLanguage();
+  /* 상대시간 기준 시각. 렌더에서 Date.now() 를 부르면 매 렌더 값이 달라진다. */
+  const now = useNow();
   const { openModal } = useModalStore();
   const [reports, setReports] = useState<Report[]>([]);
   const [pendingCount, setPendingCount] = useState(0);
@@ -126,20 +130,7 @@ export default function ReportsList({
     );
   };
 
-  const formatDate = (iso: string) => {
-    const d = new Date(iso);
-    const diffMs = Date.now() - d.getTime();
-    const mins = Math.floor(diffMs / 60_000);
-    if (mins < 1) return language === "ko" ? "방금 전" : "just now";
-    if (mins < 60) return language === "ko" ? `${mins}분 전` : `${mins}m ago`;
-    const hours = Math.floor(mins / 60);
-    if (hours < 24) return language === "ko" ? `${hours}시간 전` : `${hours}h ago`;
-    const days = Math.floor(hours / 24);
-    if (days < 7) return language === "ko" ? `${days}일 전` : `${days}d ago`;
-    return d.toLocaleDateString(language === "ko" ? "ko-KR" : "en-US", {
-      year: "numeric", month: "short", day: "numeric",
-    });
-  };
+  const formatDate = (iso: string) => formatRelativeTime(iso, now, language);
 
   const commentUrl = (r: Report) => {
     if (!r.comment?.parentSlug) return null;

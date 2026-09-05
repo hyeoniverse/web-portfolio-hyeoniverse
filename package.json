@@ -9,7 +9,7 @@
     "build": "next build",
     "analyze": "ANALYZE=true next build",
     "start": "next start",
-    "lint": "eslint --max-warnings 432",
+    "lint": "eslint --max-warnings 408",
     "lint:css": "stylelint \"src/**/*.css\"",
     "typecheck": "tsc --noEmit",
     "type-coverage": "type-coverage --strict --ignore-files \".next/**\" --at-least 97.78",

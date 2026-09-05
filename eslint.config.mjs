@@ -53,6 +53,11 @@ const eslintConfig = [
       "jsx-a11y/role-supports-aria-props": "error",
       // 삼항을 문장으로 쓰면 반환값이 버려진다. if/else 로 의도를 드러낸다.
       "@typescript-eslint/no-unused-expressions": "error",
+      // 렌더 중 Date.now·Math.random 은 같은 입력에 다른 화면을 만든다.
+      // 현재 시각은 useNow(), 난수는 시드(mulberry32) 나 useState 지연 초기화로.
+      "react-hooks/purity": "error",
+      // useCallback/useMemo 의 첫 인자는 인라인 함수여야 메모와 deps 검사가 둘 다 산다.
+      "react-hooks/use-memo": "error",
       // 모듈 스코프 변수를 렌더 중에 고치면 서버에서 요청 사이에 값이 샌다.
       "react-hooks/globals": "error",
       "react-hooks/component-hook-factories": "error",
@@ -63,9 +68,7 @@ const eslintConfig = [
       "react-hooks/refs": "warn",
       "react-hooks/immutability": "warn",
       "react-hooks/preserve-manual-memoization": "warn",
-      "react-hooks/purity": "warn",
       "react-hooks/static-components": "warn",
-      "react-hooks/use-memo": "warn",
     },
   },
 ];
