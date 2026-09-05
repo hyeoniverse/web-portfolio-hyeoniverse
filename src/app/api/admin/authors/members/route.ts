@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonError, jsonServerError } from "@/lib/api/response";
 import { requireOwner } from "@/lib/api/requireRole";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { listMembers } from "@/lib/api/members";
@@ -24,23 +25,26 @@ export async function PATCH(request: Request) {
   const level = parsePermissionLevelInput(body?.permission_level);
   const authorId = typeof body?.author_id === "string" && body.author_id ? body.author_id : undefined;
   if (!id || level == null) {
-    return NextResponse.json({ error: "id and permission_level required" }, { status: 400 });
+    return jsonError("id and permission_level required", 400);
   }
 
   const admin = createAdminClient();
   const { data: target, error: getErr } = await admin.auth.admin.getUserById(id);
   if (getErr || !target?.user) {
-    return NextResponse.json({ error: getErr?.message ?? "해당 사용자를 찾을 수 없습니다." }, { status: 404 });
+    // getErr 는 Supabase 관리자 API 가 준 내부 오류다. 호출자에게 알릴 것은 "못 찾았다" 하나뿐이라
+    // 원문은 로그로 보내고 응답에는 우리가 쓴 문장만 남긴다.
+    if (getErr) console.error(`[api] PATCH /api/admin/authors/members: ${getErr.message}`, getErr);
+    return jsonError("해당 사용자를 찾을 수 없습니다.", 404);
   }
   if (getUserRole(target.user).isOwner) {
-    return NextResponse.json({ error: "owner 의 권한은 변경할 수 없습니다." }, { status: 400 });
+    return jsonError("owner 의 권한은 변경할 수 없습니다.", 400);
   }
 
   const meta = (target.user.app_metadata ?? {}) as Record<string, unknown>;
   const { error } = await admin.auth.admin.updateUserById(id, {
     app_metadata: { ...meta, role: "author", permission_level: level, ...(authorId ? { author_id: authorId } : {}) },
   });
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return jsonServerError(error, "PATCH /api/admin/authors/members");
 
   /* 권한이 바뀐 계정에 알린다. 그 계정의 브라우저 세션에는 아직 예전 권한이 담겨 있어
      화면이 뒤처진다(서버 판정은 요청마다 getUser() 로 하므로 영향 없음).
@@ -64,19 +68,19 @@ export async function DELETE(request: Request) {
   if (auth.error) return auth.error;
 
   const id = new URL(request.url).searchParams.get("id") ?? "";
-  if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
+  if (!id) return jsonError("id required", 400);
 
   if (id === auth.user.id) {
-    return NextResponse.json({ error: "본인 계정은 삭제할 수 없습니다." }, { status: 400 });
+    return jsonError("본인 계정은 삭제할 수 없습니다.", 400);
   }
 
   const admin = createAdminClient();
   const { data: target } = await admin.auth.admin.getUserById(id);
   if (target?.user && getUserRole(target.user).isOwner) {
-    return NextResponse.json({ error: "owner 계정은 삭제할 수 없습니다." }, { status: 400 });
+    return jsonError("owner 계정은 삭제할 수 없습니다.", 400);
   }
 
   const { error } = await admin.auth.admin.deleteUser(id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return jsonServerError(error, "DELETE /api/admin/authors/members");
   return NextResponse.json({ ok: true });
 }

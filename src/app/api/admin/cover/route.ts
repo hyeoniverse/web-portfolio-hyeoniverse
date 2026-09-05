@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonServerError } from "@/lib/api/response";
 import { readdir, stat } from "fs/promises";
 import { join } from "path";
 import { requireAuth } from "@/lib/api/requireAuth";
@@ -58,6 +59,6 @@ export async function GET() {
     // 비디오 먼저 (intro 영상이 주 용도), 이미지 뒤
     return NextResponse.json({ files: [...videos, ...images] });
   } catch (e) {
-    return NextResponse.json({ error: (e as Error).message }, { status: 500 });
+    return jsonServerError(e, "GET /api/admin/cover");
   }
 }

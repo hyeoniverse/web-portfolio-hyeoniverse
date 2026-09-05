@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonServerError } from "@/lib/api/response";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireOwner } from "@/lib/api/requireRole";
 
@@ -49,7 +50,7 @@ export async function PATCH(request: Request) {
     );
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return jsonServerError(error, "PATCH /api/admin/profile");
   }
 
   return NextResponse.json({ success: true });

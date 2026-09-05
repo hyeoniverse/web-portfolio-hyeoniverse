@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonError, jsonServerError } from "@/lib/api/response";
 import { requireOwner } from "@/lib/api/requireRole";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { applyInviteToExistingUser, type AuthorInvite } from "@/lib/api/authorInvites";
@@ -46,14 +47,14 @@ export async function POST(request: Request) {
   const email = typeof body?.email === "string" ? body.email.trim().toLowerCase() : "";
   const authorId = typeof body?.author_id === "string" ? body.author_id : "";
   if (!email || !authorId) {
-    return NextResponse.json({ error: "email and author_id required" }, { status: 400 });
+    return jsonError("email and author_id required", 400);
   }
   /* 생략하면 기본 저자. 값을 보냈는데 PERM 에 없는 값이면 조용히 낮추지 않고 거절한다. */
   const level = body?.permission_level === undefined
     ? PERM.AUTHOR
     : parsePermissionLevelInput(body.permission_level);
   if (level === null) {
-    return NextResponse.json({ error: "권한 레벨이 올바르지 않습니다." }, { status: 400 });
+    return jsonError("권한 레벨이 올바르지 않습니다.", 400);
   }
 
   const admin = createAdminClient();
@@ -65,7 +66,7 @@ export async function POST(request: Request) {
     { email, author_id: authorId, permission_level: level, invited_by: invite.invited_by, consumed_at: null },
     { onConflict: "email" },
   );
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return jsonServerError(error, "POST /api/admin/authors/invite");
 
   // 이미 가입된 계정이면 즉시 권한 부여(로그인 안 기다림). 없으면 로그인 시 콜백에서 매칭.
   const appliedNow = await applyInviteToExistingUser(admin, invite);
@@ -82,7 +83,7 @@ export async function GET() {
   if (auth.error) return auth.error;
   const admin = createAdminClient();
   const { data, error } = await admin.from("author_invites").select("*").order("created_at", { ascending: false });
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return jsonServerError(error, "GET /api/admin/authors/invite");
   return NextResponse.json({ invites: data ?? [] });
 }
 
@@ -91,9 +92,9 @@ export async function DELETE(request: Request) {
   const auth = await requireOwner();
   if (auth.error) return auth.error;
   const email = (new URL(request.url).searchParams.get("email") ?? "").toLowerCase();
-  if (!email) return NextResponse.json({ error: "email required" }, { status: 400 });
+  if (!email) return jsonError("email required", 400);
   const admin = createAdminClient();
   const { error } = await admin.from("author_invites").delete().eq("email", email);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return jsonServerError(error, "DELETE /api/admin/authors/invite");
   return NextResponse.json({ ok: true });
 }

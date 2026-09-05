@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonServerError } from "@/lib/api/response";
 import { requirePostAccess } from "@/lib/api/requirePostAccess";
 
 /* 이 작업물을 편집할 수 있는 사람만 그 연결도 다룰 수 있다. requireAuth 만 걸려 있던 동안에는
@@ -22,7 +23,7 @@ export async function GET(_request: Request, context: RouteContext) {
     .select("post_id")
     .eq("work_id", id);
 
-  if (relErr) return NextResponse.json({ error: relErr.message }, { status: 500 });
+  if (relErr) return jsonServerError(relErr, "GET /api/admin/works/[id]/related-posts");
 
   const postIds = (rels ?? []).map((r) => r.post_id as string);
   if (postIds.length === 0) return NextResponse.json({ items: [] });
@@ -64,7 +65,7 @@ export async function PUT(request: Request, context: RouteContext) {
   if (postIds.length > 0) {
     const rows = postIds.map((postId) => ({ post_id: postId, work_id: id }));
     const { error } = await supabase.from("post_work_relations").insert(rows);
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error) return jsonServerError(error, "PUT /api/admin/works/[id]/related-posts");
   }
 
   return NextResponse.json({ success: true, postIds });

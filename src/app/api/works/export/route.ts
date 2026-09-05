@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonError, jsonServerError } from "@/lib/api/response";
 import { requireRole } from "@/lib/api/requireRole";
 import { policyBlocked } from "@/lib/api/requirePostAccess";
 import { PERM } from "@/lib/api/roles";
@@ -72,7 +73,7 @@ export async function GET(request: Request) {
       .order("sort_order", { ascending: true });
 
     if (error)
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return jsonServerError(error, "GET /api/works/export");
 
     const files = (works ?? []).map((work) => ({
       fileName: `${slugify(work.title)}.md`,
@@ -82,8 +83,5 @@ export async function GET(request: Request) {
     return NextResponse.json({ files, count: files.length });
   }
 
-  return NextResponse.json(
-    { error: "id 또는 all=true 파라미터 필요" },
-    { status: 400 },
-  );
+  return jsonError("id 또는 all=true 파라미터 필요", 400);
 }

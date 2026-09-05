@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonError, jsonServerError } from "@/lib/api/response";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { deviceKey } from "@/lib/auth/uaParser";
@@ -13,7 +14,7 @@ export async function DELETE(
   const { id } = await params;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!user) return jsonError("Unauthorized", 401);
 
   const admin = createAdminClient();
   // 대상 row 의 user_agent 로 deviceKey 계산 → 같은 group 의 모든 row 제거
@@ -44,6 +45,6 @@ export async function DELETE(
     .in("id", idsToDelete)
     .eq("user_id", user.id);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return jsonServerError(error, "DELETE /api/admin/auth/devices/[id]");
   return NextResponse.json({ success: true, deletedCount: idsToDelete.length });
 }

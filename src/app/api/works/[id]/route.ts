@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonServerError } from "@/lib/api/response";
 import { ensureWorksCategory } from "@/lib/api/validateCategory";
 import { requirePostAccess, policyBlocked } from "@/lib/api/requirePostAccess";
 import { PERM } from "@/lib/api/roles";
@@ -152,7 +153,7 @@ export async function PATCH(request: Request, context: RouteContext) {
       // 이미 target update 완료 → 아래 simple update 단계는 skip
       const { data, error } = await admin
         .from("works").select("*").eq("id", id).single();
-      if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+      if (error) return jsonServerError(error, "PATCH /api/works/[id]");
       return NextResponse.json(data);
     }
   }
@@ -166,7 +167,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     .single();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return jsonServerError(error, "PATCH /api/works/[id]");
   }
 
   return NextResponse.json(data);
@@ -191,7 +192,7 @@ export async function DELETE(_request: Request, context: RouteContext) {
     .eq("id", id);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return jsonServerError(error, "DELETE /api/works/[id]");
   }
 
   return NextResponse.json({ success: true });

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonError, jsonServerError } from "@/lib/api/response";
 import { requireAuth } from "@/lib/api/requireAuth";
 
 /** POST /api/admin/tags/remove — 게시물의 tags[] 에서 특정 tag 제거.
@@ -12,7 +13,7 @@ export async function POST(req: Request) {
   const body = (await req.json().catch(() => ({}))) as { tag?: string };
   const tag = body.tag?.trim();
   if (!tag) {
-    return NextResponse.json({ error: "tag required" }, { status: 400 });
+    return jsonError("tag required", 400);
   }
 
   /* 세션 클라이언트로 읽고 쓴다 — 정책이 등급별 범위를 정한다.
@@ -22,7 +23,7 @@ export async function POST(req: Request) {
     .select("id, tags")
     .contains("tags", [tag]);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return jsonServerError(error, "POST /api/admin/tags/remove");
 
   const rows = (data ?? []) as { id: string; tags: string[] | null }[];
   if (rows.length === 0) {

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonError, jsonServerError } from "@/lib/api/response";
 import { requireAuth } from "@/lib/api/requireAuth";
 import { getUserRole, PERM } from "@/lib/api/roles";
 import { requirePostAccess, policyBlocked } from "@/lib/api/requirePostAccess";
@@ -78,7 +79,7 @@ export async function GET(request: Request) {
     const { data: posts, error } = await query;
 
     if (error)
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return jsonServerError(error, "GET /api/posts/export");
 
     const files = (posts ?? []).map((post) => ({
       fileName: `${post.slug}.md`,
@@ -88,8 +89,5 @@ export async function GET(request: Request) {
     return NextResponse.json({ files, count: files.length });
   }
 
-  return NextResponse.json(
-    { error: "id, all=true, 또는 series_id 파라미터 필요" },
-    { status: 400 },
-  );
+  return jsonError("id, all=true, 또는 series_id 파라미터 필요", 400);
 }
