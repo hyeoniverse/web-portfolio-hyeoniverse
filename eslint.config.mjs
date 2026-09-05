@@ -80,7 +80,13 @@ const eslintConfig = [
       "react-hooks/set-state-in-effect": "warn",
       // 렌더 중에 ref 를 읽거나 쓰면 React 가 렌더를 중단·재시도할 때 값이 어긋난다.
       "react-hooks/refs": "warn",
-      // props 나 state 를 직접 고치면 React 가 변경을 감지하지 못한다.
+      /* props 나 state 를 직접 고치면 React 가 변경을 감지하지 못한다.
+         error 로 올리지 않는다 (#687 5-6) — 47건을 전수 확인해 보니 대부분 이 규칙이
+         잡을 수 없는 정상 코드였다. 콜백 안에서 ref.current 에 쓰기(정상), ref 콜백에서
+         노드 저장(정상), 핸들러에서 document.body.style 조작(정상), 그리고 PlateEditor 의
+         17건은 Slate editor 인스턴스를 고치는 것인데 그게 Slate API 의 동작 방식이다.
+         진짜였던 것은 props 를 그대로 덮어쓰던 두 곳뿐이고 그건 고쳤다.
+         올리려면 정상 코드에 disable 을 40개 넘게 달아야 해서 얻는 것보다 잃는 게 크다. */
       "react-hooks/immutability": "warn",
 
       /* 이건 성격이 다르다 — error 로 올리지 않기로 했다 (#687 5-5).
