@@ -32,10 +32,22 @@ import styles from "./RichTextEditor.module.css";
 
 // ── plate/ submodules ──
 import type { PlateEditorProps } from "./plate/types";
+import {
+  isolateFloatImageBlocks,
+  restoreBlockIndent,
+  serializeDetachedMedia,
+  stripDetachedMedia,
+  extractDetachedMedia,
+  equalColWidths,
+  measureColumnPxs,
+} from "./plate/editorHtmlOps";
+import { ColumnWidthControls } from "./plate/ColumnWidthControls";
+import { MultiBlockHighlight } from "./plate/MultiBlockHighlight";
+import { FloatEdgeAdjust } from "./plate/FloatEdgeAdjust";
 export type { EditorImageInfo, PlateEditorHandle } from "./plate/types";
 import { isInAncestor, getEditorText, _mathEditingSet, _imageUploadFn, _uploadErrorFn, findTextMatches } from "./plate/utils";
 import { columnHasContent, insertColumnAfter, removeColumnAt } from "./plate/columnOps";
-import { CHECKER_BG, COLUMN_DEFAULT_BG, COLUMN_DEFAULT_PX, COLUMN_MIN_PX, COLUMN_MAX_PX, COLUMN_GROUP_MAX_PX, COLUMN_BG_NAMED, COLUMN_LINE_NAMED, CALLOUT_BG_PRESETS, MIN_COLUMNS, MAX_COLUMNS, fitColumnsForInsert, distributeInts } from "./plate/presets";
+import { CHECKER_BG, COLUMN_DEFAULT_BG, COLUMN_DEFAULT_PX, COLUMN_MIN_PX, COLUMN_MAX_PX, COLUMN_BG_NAMED, COLUMN_LINE_NAMED, CALLOUT_BG_PRESETS, MIN_COLUMNS, MAX_COLUMNS, fitColumnsForInsert, distributeInts } from "./plate/presets";
 import { ColorMenu } from "./plate/ColorMenu";
 import { EditorKit } from "./plate/editor-kit";
 import { showToast } from "@/stores/toastStore";
@@ -117,406 +129,7 @@ const renderFindLeaf = (props: import("platejs").RenderLeafProps) => {
 // float/block 이미지가 텍스트와 한 문단에 섞여 있으면 [전][이미지][후] 문단으로 분리.
 // 이미지는 inline void 라 같은 문단에 섞일 수 있는데, 그러면 블록 드래그 시 통째로 이동된다.
 // 콘텐츠 로드(deserialize) 직후 1회 적용 — 노드 배열만 가공(순수 함수)해 normalize 타이밍 의존 X.
-function isolateFloatImageBlocks(nodes: Array<Record<string, unknown>>): Array<Record<string, unknown>> {
-  const isFloatImg = (c: Record<string, unknown>) =>
-    c?.type === "img" && (c.layout === "block" || (typeof c.layout === "string" && (c.layout as string).startsWith("float")));
-  const meaningful = (c: Record<string, unknown>) =>
-    typeof c.text === "string" ? (c.text as string).replace(/[​‌‍﻿\s]/g, "").length > 0 : true;
-  const pad = (a: Array<Record<string, unknown>>) => {
-    const arr = [...a];
-    if (!arr.length || typeof arr[0]?.text !== "string") arr.unshift({ text: "" });
-    if (typeof arr[arr.length - 1]?.text !== "string") arr.push({ text: "" });
-    return arr;
-  };
-  const out: Array<Record<string, unknown>> = [];
-  for (const block of nodes) {
-    const kids = block?.children as Array<Record<string, unknown>> | undefined;
-    if (!Array.isArray(kids)) { out.push(block); continue; }
-    const imgIdx = kids.findIndex(isFloatImg);
-    if (imgIdx === -1) { out.push(block); continue; }
-    const before = kids.slice(0, imgIdx);
-    const after = kids.slice(imgIdx + 1);
-    const hasBefore = before.some(meaningful);
-    const hasAfter = after.some(meaningful);
-    if (!hasBefore && !hasAfter) { out.push(block); continue; }
-    const blockType = typeof block.type === "string" ? block.type : "p";
-    if (hasBefore) out.push({ ...block, type: blockType, children: pad(before) });
-    out.push({ type: "p", children: [{ text: "" }, kids[imgIdx], { text: "" }] });
-    // 뒤쪽에 또 float 이미지가 있을 수 있으니 재귀
-    if (hasAfter) out.push(...isolateFloatImageBlocks([{ ...block, type: blockType, children: pad(after) }]));
-  }
-  return out;
-}
-
-// Plate deserialize 는 블록의 margin-left(들여쓰기)를 버린다 → 저장 HTML 의 margin-left 를 읽어 indent 복원.
-// 최상위 블록 element ↔ 노드를 순서+타입으로 대응(불일치 시 스킵해 안전). 리스트(li+data-indent)는 자체 경로라 제외.
-const INDENT_TAG_TYPE: Record<string, string> = { P: "p", H1: "h1", H2: "h2", H3: "h3", H4: "h4", H5: "h5", H6: "h6", BLOCKQUOTE: "blockquote" };
-function restoreBlockIndent(html: string, nodes: Array<Record<string, unknown>>): Array<Record<string, unknown>> {
-  if (typeof window === "undefined" || !html) return nodes;
-  try {
-    // el.children ↔ node.children 를 병렬로 재귀 순회 → 최상위뿐 아니라 열/탭 등 컨테이너 "안쪽"
-    // 블록의 indent 도 복원. (안 하면 열에 넣은 묶인 블록/들여쓴 블록이 로드 시 풀린다.)
-    const walk = (els: Element[], nodeList: Array<Record<string, unknown>>) => {
-      for (let i = 0; i < Math.min(els.length, nodeList.length); i++) {
-        const el = els[i] as HTMLElement;
-        const node = nodeList[i];
-        if (!el || !node) continue;
-        const t = INDENT_TAG_TYPE[el.tagName];
-        if (t && node.type === t && !node.listStyleType) {
-          const ml = parseInt(el.style.marginLeft || "", 10);
-          if (ml > 0) node.indent = Math.round(ml / 24);
-        }
-        // 컨테이너(열/탭/토글/콜아웃…) 내부로 재귀. 텍스트 리프는 children 이 없어 자동 종료.
-        if (Array.isArray(node.children) && el.children.length) {
-          walk(Array.from(el.children), node.children as Array<Record<string, unknown>>);
-        }
-      }
-    };
-    walk(Array.from(new DOMParser().parseFromString(html, "text/html").body.children), nodes);
-  } catch { /* noop */ }
-  return nodes;
-}
-
-// ── detached(본문에서 제거된) 미디어를 저장 HTML 에 숨김 div 로 round-trip ──
-// 본문엔 안 보이지만 저장/로드 시 패널의 "삭제됨" 목록을 유지하기 위함.
-// detached 가 없으면 빈 문자열 → 일반 글의 저장 HTML 은 그대로(영향 0).
-function serializeDetachedMedia(items: { url: string; mediaType?: string }[]): string {
-  if (!items.length) return "";
-  const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-  return `<div data-detached-media="1" style="display:none">${items
-    .map((d) => `<img src="${esc(d.url)}" data-detached-type="${esc(d.mediaType || "")}" />`)
-    .join("")}</div>`;
-}
-function stripDetachedMedia(html: string): string {
-  return html.replace(/<div data-detached-media="1"[\s\S]*?<\/div>/g, "");
-}
-function extractDetachedMedia(html: string): { url: string; mediaType?: string }[] {
-  const block = html.match(/<div data-detached-media="1"[\s\S]*?<\/div>/);
-  if (!block) return [];
-  const out: { url: string; mediaType?: string }[] = [];
-  const re = /<img\s[^>]*?src="([^"]*)"[^>]*?>/g;
-  const unesc = (s: string) => s.replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
-  let im: RegExpExecArray | null;
-  while ((im = re.exec(block[0])) !== null) {
-    const url = unesc(im[1]);
-    const tm = im[0].match(/data-detached-type="([^"]*)"/);
-    out.push({ url, mediaType: tm && tm[1] ? unesc(tm[1]) : undefined });
-  }
-  return out;
-}
-
-// 열 너비를 정수 %로 균등 분배(합=정확히 100). @platejs/layout normalizer 는 열 너비 합이
-// 100 이 아니면 소수 보정을 반복 → 부동소수점 때문에 수렴 못 하고 normalize 무한루프.
-// 항상 정수 합 100 을 보장해 normalizer 가 손대지 않게 한다.
-function equalColWidths(n: number): string[] {
-  const base = Math.floor(100 / n);
-  return Array.from({ length: n }, (_, i) => `${i < n - 1 ? base : 100 - base * (n - 1)}%`);
-}
-
-// weights → 정수 %(각 ≥1, 합 = total). @platejs/layout normalizer 는 열 width 합이 정확히 100 이 아니면
-// 매 dirty 마다 재분배해 무한 normalize 루프(Slate throw)를 유발하므로, 모든 % 지정은 반드시 이걸 통과시킨다.
-// total ≥ weights.length 필요 — 열 ≤ 12, total=100 이면 항상 성립. (largest-remainder 라운딩)
-
-// 각 열의 **실제 렌더 폭**(px) — px/%/드래그 무엇이든 현재 값을 그대로 반영한다.
-// (px 렌더는 flex: 0 0 <px> 라 measured === widthPx)
-// 모듈 레벨인 이유: 열 레이아웃 popover 의 label 라인(총 너비)과 아래 ColumnWidthControls 가
-// 반드시 같은 수를 봐야 해서 — 각자 재면 반올림이 갈려 라벨과 % 칸이 서로 안 맞는다.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function measureColumnPxs(editor: any, activePath: number[], count: number): number[] {
-  return Array.from({ length: count }, (_, i) => {
-    try {
-      const entry = editor.api.node([...activePath, i]);
-      if (!entry) return 0;
-      const dom = editor.api.toDOMNode(entry[0]) as HTMLElement | null;
-      return Math.round(dom?.getBoundingClientRect().width ?? 0);
-    } catch { return 0; }
-  }).map((w) => w || 1);
-}
-
-// ── Column width — 열마다 % 칸 + px 칸(둘 다 항상 활성, 토글 없음). ──
 // %: 페이지 폭에 맞춰(합 100) 재분배 + px 고정 해제. px: 그 열만 정확한 px(합이 넘치면 가로 스크롤 = 화면보다 넓게).
-function ColumnWidthControls({ colChildren, colCount, activePath, editor, language, tGroupMax }: {
-  colChildren: { width?: string; widthPx?: number }[];
-  colCount: number;
-  activePath: number[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  editor: any;
-  language: string;
-  /** editor.columnGroupMaxWidth 문구 — "{{max}}" 치환용 (드래그(elements.tsx)와 같은 문구를 공유) */
-  tGroupMax: string;
-}) {
-  const L = (ko: string, en: string) => (language === "ko" ? ko : en);
-  const clampPx = (w: number) => Math.min(COLUMN_MAX_PX, Math.max(COLUMN_MIN_PX, Math.round(w)));
-  const pxs = measureColumnPxs(editor, activePath, colChildren.length);
-  const totalPx = pxs.reduce((a, b) => a + b, 0) || 1;
-  const hasPx = colChildren.some((c) => typeof c.widthPx === "number" && c.widthPx > 0);
-  // % 입력 → "블록 너비 기준" 재비율(페이지에 강제로 안 맞춤). 모드 보존:
-  //  · px 블록(폭 고정/오버플로): 블록 총폭 유지한 채 그 열을 v%, 나머지는 현재 비율로 px 재분배.
-  //  · fill 블록(유동): 정수 %(합 100, 크래시 방지) 재분배 — 유동 채움 유지.
-  const applyPercent = (idx: number, v: number) => {
-    const n = colCount;
-    if (hasPx) {
-      const clampedV = Math.max(1, Math.min(99, Math.round(v)));
-      const targetPx = Math.max(COLUMN_MIN_PX, Math.round((totalPx * clampedV) / 100));
-      const otherIdxs = pxs.map((_, i) => i).filter((i) => i !== idx);
-      const otherTotal = otherIdxs.reduce((a, i) => a + pxs[i], 0) || 1;
-      const remaining = Math.max(0, totalPx - targetPx);
-      editor.tf.withoutNormalizing(() => {
-        editor.tf.setNodes({ widthPx: clampPx(targetPx) }, { at: [...activePath, idx] });
-        otherIdxs.forEach((i) => editor.tf.setNodes({ widthPx: clampPx((remaining * pxs[i]) / otherTotal) }, { at: [...activePath, i] }));
-      });
-      return;
-    }
-    const clampedV = Math.max(1, Math.min(100 - (n - 1), Math.round(v))); // 나머지 열이 각 ≥1 되도록 상한 제한
-    const otherIdxs = pxs.map((_, i) => i).filter((i) => i !== idx);
-    const others = distributeInts(100 - clampedV, otherIdxs.map((i) => pxs[i])); // n-1 개, 합 = 100-clampedV
-    const result = pxs.map(() => 0);
-    result[idx] = clampedV;
-    otherIdxs.forEach((i, k) => { result[i] = others[k]; });
-    editor.tf.withoutNormalizing(() => {
-      result.forEach((wv, j) => editor.tf.setNodes({ width: `${wv}%`, widthPx: null }, { at: [...activePath, j] }));
-    });
-  };
-  /* px 입력 → 그 열을 정확한 px 로 고정. width(%) 는 그대로 둔다(normalizer 가 합 100 유지 → 루프 방지).
-
-     한 열만 px 로 바꾸면 안 된다: 나머지 열은 유동(flex: weight 1 0)이라 남는 공간을 **흡수**해서
-     총폭이 컨테이너(=화면) 폭에 묶인다 — 열을 넓혀도 다른 열이 줄어들 뿐 블록이 안 커진다.
-     그래서 px 를 지정하는 순간, 아직 유동인 열들도 지금 렌더 폭 그대로 px 로 고정한다.
-     그러면 총폭 = px 들의 합이 되어 화면보다 넓어질 수 있고, 넘치면 그룹이 가로 스크롤한다. */
-  const setPxWidth = (idx: number, v: number) => {
-    /* 열 하나 상한(COLUMN_MAX_PX) 안내는 공통 NumberInput 이 이미 띄우고 clamp 까지 한다 — 여기서 중복 안내 안 함.
-       하지만 **블록 전체 상한**은 NumberInput 이 모른다(자기 max 는 열 하나 기준). 그래서 여기서 본다. */
-    const othersSum = pxs.reduce((sum, w, i) => (i === idx ? sum : sum + w), 0);
-    const groupRoom = COLUMN_GROUP_MAX_PX - othersSum;
-    let applied = v;
-    if (v > groupRoom) {
-      applied = Math.max(COLUMN_MIN_PX, groupRoom);
-      showToast(tGroupMax.replace("{{max}}", String(COLUMN_GROUP_MAX_PX)), "info");
-    }
-    editor.tf.withoutNormalizing(() => {
-      colChildren.forEach((c, i) => {
-        if (i === idx) return;
-        if (typeof c?.widthPx === "number" && c.widthPx > 0) return; // 이미 px 고정
-        editor.tf.setNodes({ widthPx: clampPx(pxs[i]) }, { at: [...activePath, i] });
-      });
-      editor.tf.setNodes({ widthPx: clampPx(applied) }, { at: [...activePath, idx] });
-    });
-  };
-  return (
-    <div className={styles.colWidthList}>
-      {colChildren.map((_, i) => (
-        <div key={i} className={styles.colWidthRow}>
-          <span className={styles.colWidthIdx}>{i + 1}</span>
-          <NumberInput value={Math.max(1, Math.round((pxs[i] / totalPx) * 100))} onCommit={(n) => applyPercent(i, n)} min={1} max={99} step={1} unit="%" width={26} height={24} ariaLabel={L(`열 ${i + 1} 너비 %`, `Column ${i + 1} width %`)} />
-          <NumberInput value={clampPx(pxs[i])} onCommit={(n) => setPxWidth(i, n)} min={COLUMN_MIN_PX} max={COLUMN_MAX_PX} step={10} unit="px" width={40} height={24} ariaLabel={L(`열 ${i + 1} 너비 px`, `Column ${i + 1} width px`)} />
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// 다중 블록 선택 시 — 텍스트 하이라이트 대신 블록 전체에 배경 표시.
-// selection 이 두 개 이상의 top-level 블록에 걸치면 해당 블록 DOM 에 data-block-selected 부여.
-function MultiBlockHighlight({ editor }: { editor: PlateEditor }) {
-  useEffect(() => {
-    const root = document.querySelector('[data-slate-editor="true"]') as HTMLElement | null;
-    if (!root) return;
-    const CLIP_VARS = ["--a-l", "--a-t", "--a-w", "--a-h", "--b-l", "--b-t", "--b-w", "--b-h"];
-    const clearClip = (el: HTMLElement) => { el.removeAttribute("data-float-clip"); CLIP_VARS.forEach((v) => el.style.removeProperty(v)); };
-    const TBL_VARS = ["--tbl-l", "--tbl-t", "--tbl-w", "--tbl-h"];
-    const clearTbl = (el: HTMLElement) => { el.removeAttribute("data-tbl-tint"); TBL_VARS.forEach((v) => el.style.removeProperty(v)); };
-    const clear = () => root.querySelectorAll("[data-block-selected]").forEach((el) => {
-      el.removeAttribute("data-block-selected");
-      el.removeAttribute("data-sel-merge-up");
-      el.removeAttribute("data-sel-merge-down");
-      clearClip(el as HTMLElement);
-      clearTbl(el as HTMLElement);
-    });
-    // 표 블록 tint — 래퍼(.blockDraggable)는 스크롤 패딩·행밴드·풀폭까지 포함해 표보다 크므로,
-    // 실제 <table> rect 를 재서 tint 를 표에 딱 맞춘다(사방 --tint-inset=6px). float-clip 과 동일 패턴.
-    const applyTableTint = (block: HTMLElement) => {
-      const tbl = block.querySelector("table");
-      if (!tbl) { clearTbl(block); return false; }
-      const cr = block.getBoundingClientRect();
-      const tr = tbl.getBoundingClientRect();
-      // 가로 스크롤(넓은 표)일 때 표 좌/우가 스크롤 뷰포트 밖으로 나가면 tint 가 넘치므로 뷰포트로 클램프.
-      const scroll = block.querySelector("[data-tbl-scroll]") as HTMLElement | null;
-      const sr = scroll ? scroll.getBoundingClientRect() : null;
-      const left = sr ? Math.max(tr.left, sr.left) : tr.left;
-      const right = sr ? Math.min(tr.right, sr.right) : tr.right;
-      const INSET = 6;
-      block.style.setProperty("--tbl-l", `${left - cr.left - INSET}px`);
-      block.style.setProperty("--tbl-t", `${tr.top - cr.top - INSET}px`);
-      block.style.setProperty("--tbl-w", `${Math.max(0, right - left) + 2 * INSET}px`);
-      block.style.setProperty("--tbl-h", `${tr.height + 2 * INSET}px`);
-      block.setAttribute("data-tbl-tint", "");
-      return true;
-    };
-    // 블록 래퍼의 indent(px) — 실제 여백은 안쪽 slate element 의 margin-left 에 있다(래퍼는 full-width).
-    // 양수 margin(24·48…)만 indent 로 취급. 열블록 컨테이너의 marginLeft:-40(핸들 공간용 레이아웃 hack) 같은
-    // 음수/0 은 indent 가 아니므로 0 으로 — 안 그러면 열블록 아래 블록이 "더 들여썼다"고 잘못 판정돼 merge 됨.
-    const indentPx = (el: HTMLElement) => {
-      const inner = el.querySelector('[data-slate-node="element"]') as HTMLElement | null;
-      const ml = inner ? parseFloat(inner.style.marginLeft) : 0;
-      return Number.isFinite(ml) && ml > 0 ? ml : 0;
-    };
-    // float 이미지가 겹치는 블록은 선택 배경을 2조각(이미지 옆 ::before / 아래 ::after)으로 나눠 이미지 영역을 비움
-    const applyClip = (block: HTMLElement, floats: HTMLElement[]) => {
-      const br = block.getBoundingClientRect();
-      const f = floats.find((fi) => {
-        const fr = fi.getBoundingClientRect();
-        return fr.right > br.left + 1 && fr.left < br.right - 1 && fr.bottom > br.top + 1 && fr.top < br.bottom - 1;
-      });
-      if (!f) { clearClip(block); return; }
-      const fr = f.getBoundingClientRect();
-      const bw = br.width, bh = br.height;
-      const GAP = 10; // 이미지와 배경 조각 사이 간격
-      const ih = Math.max(0, Math.min(fr.bottom - br.top, bh)); // 이미지 하단(블록 기준)
-      const side = f.getAttribute("data-float-side") || "left";
-      // ::before = 이미지 옆(전체 높이), ::after = 이미지 아래(이미지 폭까지만) — 서로 안 겹치게(반투명 중첩 방지)
-      if (side === "left") {
-        const iw = Math.max(0, Math.min(fr.right - br.left, bw)); // 이미지 우측
-        block.style.setProperty("--a-l", `${iw + GAP}px`);
-        block.style.setProperty("--a-w", `${Math.max(0, bw - iw - GAP + 8)}px`);
-        block.style.setProperty("--b-l", `-8px`);
-        block.style.setProperty("--b-w", `${iw + GAP + 8}px`);
-      } else {
-        const il = Math.max(0, Math.min(fr.left - br.left, bw)); // 이미지 좌측
-        block.style.setProperty("--a-l", `-8px`);
-        block.style.setProperty("--a-w", `${Math.max(0, il - GAP + 8)}px`);
-        block.style.setProperty("--b-l", `${il - GAP}px`);
-        block.style.setProperty("--b-w", `${Math.max(0, bw - il + GAP + 8)}px`);
-      }
-      block.style.setProperty("--a-t", `-2px`);
-      block.style.setProperty("--a-h", `${bh + 4}px`);
-      block.style.setProperty("--b-t", `${ih + GAP}px`);
-      block.style.setProperty("--b-h", `${Math.max(0, bh - ih - GAP + 2)}px`);
-      block.setAttribute("data-float-clip", side);
-    };
-    // 블록 래퍼 찾기 — 루트 또는 data-block-container(탭 패널·컬럼 등) 의 직속 자식까지 올라간다.
-    // → top-level 뿐 아니라 중첩 컨테이너 안의 멀티블록 선택도 같은 부모 형제로 잡힘.
-    const isBoundary = (p: HTMLElement | null) => !!p && (p === root || p.hasAttribute("data-block-container"));
-    const blockOf = (node: Node | null): HTMLElement | null => {
-      let el: HTMLElement | null = node ? (node.nodeType === 3 ? node.parentElement : (node as HTMLElement)) : null;
-      while (el && el.parentElement && !isBoundary(el.parentElement)) el = el.parentElement;
-      return el && isBoundary(el.parentElement) ? el : null;
-    };
-    // DOM selection 을 직접 읽어 selectionchange 에 즉시 토글 — slate 의 raf 갱신 지연/리렌더를 안 거쳐 깜빡임 없음
-    const apply = () => {
-      clear();
-      const sel = window.getSelection();
-      if (!sel || sel.rangeCount === 0 || sel.isCollapsed || !root.contains(sel.anchorNode) || !root.contains(sel.focusNode)) {
-        root.removeAttribute("data-multiblock");
-        return;
-      }
-      const aB = blockOf(sel.anchorNode);
-      const fB = blockOf(sel.focusNode);
-      if (!aB || !fB) { root.removeAttribute("data-multiblock"); return; }
-      // 단일 블록이면 "통째로"(블록 처음~끝) 선택된 경우만 블록 tint — 부분 텍스트 선택은 그대로 텍스트 하이라이트.
-      // (경계 클릭·블록 전체선택은 start~end 로 선택). slate selection 으로 판정(gutter chrome 영향 없게).
-      if (aB === fB) {
-        let coversFull = false;
-        try {
-          const s = editor.selection;
-          if (s && !editor.api.isCollapsed()) {
-            const topPath = [s.anchor.path[0]];
-            const [pStart, pEnd] = editor.api.edges(s)!;
-            coversFull = !!editor.api.isStart(pStart, topPath) && !!editor.api.isEnd(pEnd, topPath);
-          }
-        } catch { /* noop */ }
-        if (!coversFull) { root.removeAttribute("data-multiblock"); return; }
-      }
-      root.setAttribute("data-multiblock", "");
-      const floats = Array.from(root.querySelectorAll("[data-float-side]")) as HTMLElement[];
-      let start = aB, end = fB;
-      if (aB.compareDocumentPosition(fB) & Node.DOCUMENT_POSITION_PRECEDING) { start = fB; end = aB; }
-      let cur: HTMLElement | null = start;
-      const selBlocks: HTMLElement[] = [];
-      while (cur) {
-        cur.setAttribute("data-block-selected", "");
-        // 표 블록은 실제 표 rect 로 tint 맞춤(float-clip 대신). 나머지는 기존 float-clip.
-        if (applyTableTint(cur)) clearClip(cur);
-        else if (floats.length) applyClip(cur, floats);
-        else clearClip(cur);
-        selBlocks.push(cur);
-        if (cur === end) break;
-        cur = cur.nextElementSibling as HTMLElement | null;
-      }
-      // "묶인 블록"(indent 그룹 — 부모 + 더 깊게 들여쓴 자식들)끼리만 배경을 이어붙인다.
-      // merge-down: 아래 블록과 이어짐 / merge-up: 위 블록과 이어짐. 무관한 top-level 블록은 각자 박스로 남긴다.
-      let rootIndent = indentPx(selBlocks[0]);
-      for (let i = 1; i < selBlocks.length; i++) {
-        const ind = indentPx(selBlocks[i]);
-        const prevInd = indentPx(selBlocks[i - 1]);
-        if (ind > rootIndent || (ind === prevInd && ind > 0)) {
-          selBlocks[i].setAttribute("data-sel-merge-up", "");
-          selBlocks[i - 1].setAttribute("data-sel-merge-down", "");
-        } else {
-          rootIndent = ind; // 들여쓰기가 그룹 기준선 이하로 내려오면 새 그룹 시작
-        }
-      }
-    };
-    // tint 좌표(표 rect·float-clip)는 고정 px 라, 리사이즈·스크롤·레이아웃 변경 시 재측정해야 안 어긋난다.
-    // rAF 로 프레임당 1회로 throttle. selection 없으면 apply 가 즉시 early-return 이라 유휴 비용 없음.
-    let raf = 0;
-    const schedule = () => { if (raf) return; raf = requestAnimationFrame(() => { raf = 0; apply(); }); };
-    document.addEventListener("selectionchange", apply);
-    window.addEventListener("resize", schedule);
-    window.addEventListener("scroll", schedule, true); // capture — 에디터/표 등 어떤 스크롤 컨테이너든
-    const ro = new ResizeObserver(schedule);
-    ro.observe(root);
-    return () => {
-      document.removeEventListener("selectionchange", apply);
-      window.removeEventListener("resize", schedule);
-      window.removeEventListener("scroll", schedule, true);
-      ro.disconnect();
-      if (raf) cancelAnimationFrame(raf);
-      root.removeAttribute("data-multiblock");
-      clear();
-    };
-  }, [editor]);
-  return null;
-}
-
-// float-left 이미지 옆 블록에 --float-edge(이미지 우측+gap) 설정 → 핸들·placeholder 를 이미지 옆으로.
-// 실제론 float-wrap 이지만 핸들/placeholder 가 이미지 영역을 피해 flow-root 처럼 보이게.
-function FloatEdgeAdjust() {
-  useEffect(() => {
-    const root = document.querySelector('[data-slate-editor="true"]') as HTMLElement | null;
-    if (!root) return;
-    const MARGIN = 20; // float 이미지 margin-right — 텍스트 입력 시작 위치와 일치
-    const update = () => {
-      const blocks = Array.from(root.children) as HTMLElement[];
-      blocks.forEach((b) => b.style.removeProperty("--float-edge"));
-      const floats = Array.from(root.querySelectorAll('[data-float-side="left"]')) as HTMLElement[];
-      if (!floats.length) return;
-      for (const f of floats) {
-        const fr = f.getBoundingClientRect();
-        for (const b of blocks) {
-          const br = b.getBoundingClientRect();
-          if (fr.right > br.left && fr.left < br.right && fr.bottom > br.top + 2 && fr.top < br.bottom - 2) {
-            const edge = Math.max(0, fr.right - br.left) + MARGIN;
-            const prev = parseFloat(b.style.getPropertyValue("--float-edge")) || 0;
-            if (edge > prev) b.style.setProperty("--float-edge", `${edge}px`);
-          }
-        }
-      }
-    };
-    update();
-    // 레이아웃 변화(리사이즈/이미지 로드)·구조 변화(블록 추가삭제) 시 갱신.
-    // (style 변경은 attributeFilter 에서 제외 → --float-edge 설정이 무한 루프 안 일으킴)
-    const ro = new ResizeObserver(update);
-    ro.observe(root);
-    const mo = new MutationObserver(update);
-    mo.observe(root, { childList: true, subtree: true });
-    const onLoad = () => update();
-    root.querySelectorAll("img").forEach((img) => img.addEventListener("load", onLoad));
-    return () => { ro.disconnect(); mo.disconnect(); root.querySelectorAll("img").forEach((img) => img.removeEventListener("load", onLoad)); };
-  }, []);
-  return null;
-}
-
-// ── Main component ──
 export default function PlateEditor({
   value,
   onChange,
@@ -551,8 +164,6 @@ export default function PlateEditor({
   const [tick, setTick] = useState(0);
   const [isMac, setIsMac] = useState(false);
   useEffect(() => { setIsMac(/Mac|iPhone|iPad/.test(navigator.platform)); }, []);
-
-
 
   // ── Labels (language 변경 시에만 재설정) ──
   useEffect(() => {
@@ -968,7 +579,6 @@ export default function PlateEditor({
     };
   }, [editor]);
 
-
   // ── Find & Replace helpers (editor 필요) ──
   const findMatches = useCallback(() => {
     if (!findQuery || !editor) return [];
@@ -1198,7 +808,6 @@ export default function PlateEditor({
     if (!editor) return;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const ed = editor as any;
-
 
     // kbd/code 안에서 다른 mark 적용 금지
     const prevToggleMark = ed.tf.toggleMark.bind(ed.tf);
