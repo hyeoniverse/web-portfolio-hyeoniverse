@@ -35,7 +35,7 @@ export async function POST(request: Request) {
     upsert: false,
   });
 
-  if (error) return jsonServerError(error);
+  if (error) return jsonServerError(error, "POST /api/cover/unsplash/download");
 
   const {
     data: { publicUrl },

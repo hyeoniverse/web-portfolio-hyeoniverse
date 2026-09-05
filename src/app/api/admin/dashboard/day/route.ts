@@ -36,7 +36,7 @@ export async function GET(request: Request) {
     .gte("viewed_at", start)
     .lt("viewed_at", end);
 
-  if (error) return jsonServerError(error);
+  if (error) return jsonServerError(error, "GET /api/admin/dashboard/day");
 
   if (!views || views.length === 0) {
     return jsonOk({ topPosts: [], totalViews: 0 });

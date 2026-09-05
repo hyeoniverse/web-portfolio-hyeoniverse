@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonServerError } from "@/lib/api/response";
 import { QUERY_PARAM } from "@/constants";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -17,7 +18,7 @@ export async function GET(request: Request) {
     .limit(limit);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return jsonServerError(error, "GET /api/work-comments/recent");
   }
 
   if (!comments || comments.length === 0) {

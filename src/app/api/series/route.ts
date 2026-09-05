@@ -126,7 +126,7 @@ export async function GET(request: Request) {
 
   const { data: seriesList, error, count } = await query;
 
-  if (error) return jsonServerError(error);
+  if (error) return jsonServerError(error, "GET /api/series");
 
   const ids = (seriesList ?? []).map((s) => s.id);
   let postCounts: Record<string, number> = {};
@@ -223,7 +223,7 @@ export async function POST(request: Request) {
 
   const { data, error } = await supabase.from("series").insert(body).select().single();
 
-  if (error) return jsonServerError(error);
+  if (error) return jsonServerError(error, "POST /api/series");
 
   return jsonOk(data, 201);
 }

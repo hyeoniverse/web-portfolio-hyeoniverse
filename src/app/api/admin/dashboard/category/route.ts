@@ -30,7 +30,7 @@ export async function GET(request: Request) {
     .order("view_count", { ascending: false })
     .limit(5);
 
-  if (error) return jsonServerError(error);
+  if (error) return jsonServerError(error, "GET /api/admin/dashboard/category");
 
   return jsonOk({ posts: data ?? [] });
 }

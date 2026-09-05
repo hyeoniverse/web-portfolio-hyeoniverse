@@ -39,7 +39,7 @@ export function createLikeHandlers({ targetType, countSyncTable }: LikeHandlerOp
 
       return jsonOk({ count: count ?? 0, liked: !!myLike });
     } catch (error) {
-      return jsonServerError(error);
+      return jsonServerError(error, "likeHandler");
     }
   }
 
@@ -79,7 +79,7 @@ export function createLikeHandlers({ targetType, countSyncTable }: LikeHandlerOp
 
       return jsonOk({ count: newCount, liked: !existing });
     } catch (error) {
-      return jsonServerError(error);
+      return jsonServerError(error, "likeHandler");
     }
   }
 

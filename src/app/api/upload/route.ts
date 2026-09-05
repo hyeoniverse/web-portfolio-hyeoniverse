@@ -169,7 +169,7 @@ export async function POST(request: Request) {
     });
 
   if (error) {
-    return jsonServerError(error);
+    return jsonServerError(error, "POST /api/upload");
   }
 
   const {
