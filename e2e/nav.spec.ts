@@ -67,4 +67,26 @@ test.describe("전역 네비게이션", () => {
     const after = await page.evaluate(() => document.documentElement.dataset.theme);
     expect(after, "테마 값이 달라져야 한다").not.toBe(before);
   });
+
+  test("언어 단추에 마우스를 올리면 바뀔 언어를 미리 보여 준다", async ({ page }) => {
+    await page.goto("/", { waitUntil: "load" });
+    const btn = page.locator("nav").first().getByRole("button", { name: /Switch to (Korea|English)/ });
+    await expect(btn).toBeVisible({ timeout: 30_000 });
+
+    // 막대가 나타나는 연출이 끝난 뒤에 올려야 한다. 그 전에는 처리가 아직 붙지 않는다.
+    await page.waitForTimeout(2500);
+    const before = await btn.innerText();
+    const lang = await page.evaluate(() => document.documentElement.lang);
+
+    await btn.hover();
+    await page.waitForTimeout(600);
+    expect(await btn.innerText(), "올리면 바뀔 값을 미리 보여 준다").not.toBe(before);
+    expect(await page.evaluate(() => document.documentElement.lang),
+      "미리보기일 뿐이므로 실제 언어는 그대로다").toBe(lang);
+
+    // 확실히 단추 바깥으로 옮긴다. 화면 왼쪽 위는 아직 네비게이션 안이다.
+    await page.mouse.move(700, 600);
+    await page.waitForTimeout(900);
+    expect(await btn.innerText(), "떼면 원래 값으로 돌아온다").toBe(before);
+  });
 });

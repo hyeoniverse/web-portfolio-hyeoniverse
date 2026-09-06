@@ -33,7 +33,7 @@ type PressableProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
 };
 
 const Pressable = forwardRef<HTMLButtonElement, PressableProps>(
-  ({ soundDisabled, noTapScale, className, disabled, type, onClick, children,
+  ({ soundDisabled, noTapScale, className, disabled, type, onClick, onMouseEnter, children,
      /* framer-motion 의 motion.button 과 이름은 같지만 시그니처가 달라 spread 시 충돌한다 */
      onDrag: _onDrag, onDragStart: _onDragStart, onDragEnd: _onDragEnd,
      onAnimationStart: _onAnimationStart, onAnimationEnd: _onAnimationEnd,
@@ -43,8 +43,12 @@ const Pressable = forwardRef<HTMLButtonElement, PressableProps>(
     void _onDrag; void _onDragStart; void _onDragEnd;
     void _onAnimationStart; void _onAnimationEnd; void _onAnimationIteration;
 
-    const handleMouseEnter = () => {
+    /* 소리를 낸 뒤 호출부가 넘긴 처리도 이어서 부른다.
+       전에는 rest 를 먼저 펼치고 그 아래에서 onMouseEnter 를 덮어써서, 호출부가 넘긴 것이
+       조용히 사라졌다. 마우스를 올렸을 때 표시가 바뀌어야 하는 자리들이 아무 반응도 하지 않았다. */
+    const handleMouseEnter = (e: MouseEvent<HTMLButtonElement>) => {
       if (!soundDisabled && !disabled) playSound("hover");
+      onMouseEnter?.(e);
     };
     const handleClick = (e: MouseEvent<HTMLButtonElement>) => {
       if (!soundDisabled && !disabled) playSound("click");
