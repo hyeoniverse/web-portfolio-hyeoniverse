@@ -1,0 +1,98 @@
+/* CategoryDonut 전용 스타일. Dashboard.module.css 에서 옮겨 왔다. */
+
+.donutLegendItem {
+  composes: item from "../components/Panel.module.css";
+  display: flex;
+  /* parent grid 의 grid-auto-rows: 1fr 가 row 높이 균등 분할. min-height: 0 로 content overflow 차단 */
+  min-height: 0;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-sm);
+  border-bottom: var(--border-light);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-label);
+  transition: background-color 0.15s ease;
+  cursor: default;
+}
+/* composes 한 Panel .item 과 ListItem 이 붙이는 List .item 둘 다 padding-block: xs 를 같은
+   (0,1,0) 으로 정해서, 번들 순서에 따라 이 2xs 가 뒤집혔다. 클래스를 두 번 적어 (0,2,0). */
+.donutLegendItem.donutLegendItem {
+  padding: var(--spacing-2xs) 0;
+}
+
+/* 왼쪽 그룹 — 컬러 swatch + 카테고리 이름 */
+.donutLegendLeft {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  min-width: 0;
+}
+
+.donutLegendItem:last-child {
+  border-bottom: none;
+}
+
+.donutLegendSwatch {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-circle);
+}
+
+.donutLegendName {
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.donutLegendMeta {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--spacing-2xs);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
+  font-variant-numeric: tabular-nums;
+}
+
+.donutLegendPct {
+  color: var(--text-secondary);
+  font-weight: 700;
+  /* 값 길이에 상관없이 column 폭 고정 — 소수점 2자리 + % 까지 안정 우측 정렬 (100.00%) */
+  min-width: 4em;
+  text-align: right;
+}
+
+/* ── Donut interactive — wedge hover 강조 ── */
+.donutWedge {
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+  transform-origin: 70px 70px;
+  cursor: default;
+}
+
+.donutWedgeActive {
+  transform: scale(1.04);
+}
+
+.donutWedgeDim {
+  opacity: 0.32;
+}
+
+.donutLegendItemActive {
+  background: var(--bg-tertiary);
+}
+
+.donutLegendItem {
+  cursor: pointer;
+}
+
+.donutLegendItem:hover {
+  background: var(--bg-tertiary);
+}
+
+/* 선택된 (expanded) item 은 살짝 indent — 활성 상태 시각적 강조.
+   compound (0,2,0) 로 global theme transition (0,1,1) 이 padding-left transition 무력화하는 것 우회 */
+.donutLegendItemExpanded {
+  background: var(--bg-tertiary);
+}

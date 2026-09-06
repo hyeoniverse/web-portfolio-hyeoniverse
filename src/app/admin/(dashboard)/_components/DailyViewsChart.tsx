@@ -1,6 +1,11 @@
 "use client";
 
-import styles from "../Dashboard.module.css";
+import shared from "../Dashboard.module.css";
+import local from "./DailyViewsChart.module.css";
+
+/* 이 컴포넌트 전용 규칙은 DailyViewsChart.module.css 에, 대시보드 여러 곳이 함께 쓰는 규칙은
+   Dashboard.module.css 에 있다. 둘을 합쳐서 styles 하나로 쓴다. */
+const styles = { ...shared, ...local };
 import { useEffect, useMemo, useRef, useState } from "react";
 import { PanelTitle } from "../components";
 import CalendarHeatmap from "./CalendarHeatmap";

@@ -1,0 +1,340 @@
+/* DailyViewsChart 전용 스타일. Dashboard.module.css 에서 옮겨 왔다. */
+
+/* Row 2: date pickers — 자체 행. 너무 좁으면 자체적으로 wrap */
+.dailyChartHeaderSub {
+  display: flex;
+  align-items: center;
+}
+
+/* 각 stat 항목 — label 과 값을 가로로 나란히 (baseline 정렬).
+   panelHeader 안에서 sibling stat 들 사이 divider (parent 무관 selector) */
+.dailyChartStatItem {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--spacing-2xs);
+}
+
+.dailyChartStatItem + .dailyChartStatItem {
+  position: relative;
+  padding-left: var(--spacing-md);
+}
+
+.dailyChartStatItem + .dailyChartStatItem::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 1px;
+  height: 14px;
+  background: var(--border-color-light);
+  transform: translateY(-50%);
+}
+
+.dailyChartStatLabel {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-hint);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-tertiary);
+}
+
+.dailyChartTotal {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-md);
+  font-weight: 700;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+/* ── 날짜 범위 선택기 — 시작일 / 종료일 trigger + DatePickerPopover ── */
+.periodRange {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+}
+
+.periodTrigger {
+  position: relative; /* DatePickerPopover (absolute) 가 이 trigger 기준 anchor */
+}
+/* 클래스를 두 번 적어 (0,2,0) 으로 올린다 — Button 의 variant 규칙과 특이도가 같으면
+   어느 쪽이 이길지가 두 CSS 모듈의 번들 순서에 달린다. */
+.periodTriggerBtn.periodTriggerBtn {
+  background: var(--bg-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.periodTriggerLabel {
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: var(--font-size-hint);
+  font-weight: 600;
+}
+
+.periodTriggerDate {
+  font-weight: 600;
+}
+
+.periodRangeSep {
+  color: var(--text-muted);
+  font-size: var(--font-size-hint);
+}
+
+/* ── Area chart (일별 조회수) — 가로 스크롤 + column stack container.
+   areaWrap + chartScroll 통합. 좌우 잘림은 부모 .dailyChart horizontal padding 이 책임. */
+.chartScroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior: contain;
+  touch-action: pan-x;
+  -webkit-overflow-scrolling: touch;
+  cursor: grab;
+  /* scrollbar 숨김 — Firefox / WebKit / IE */
+  scrollbar-width: none;
+  /* chartArea + areaDays 를 column stack (chartInner wrapper 흡수) */
+  display: flex;
+  flex-direction: column;
+}
+
+.chartScroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* 모바일: 일당 약 24px min-width — children 에 직접 적용 (chartInner wrapper 흡수) */
+@media (max-width: 768px) {
+  .chartScroll > * {
+    min-width: calc(var(--_days, 14) * 24px);
+  }
+}
+
+/* 마우스 drag 중에만 grabbing 커서 — buttons 내부는 자체 pointer cursor 가 override */
+.chartScroll.chartScrollDragging {
+  cursor: grabbing;
+}
+
+/* Chart 영역 — SVG path + HTML dot/line 오버레이를 같은 좌표계로 정렬하기 위한 relative 컨테이너 */
+.chartArea {
+  position: relative;
+  width: 100%;
+  height: 360px;
+}
+
+@media (max-width: 768px) {
+  .chartArea {
+    height: 280px;
+  }
+}
+
+.areaSvg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+
+/* 날짜별 세로 컬럼 hit area — 점 위/아래 전 영역 클릭 가능
+   stepX 너비, 차트 전체 높이, transform translateX(-50%) 로 점 X 중심에 정렬 */
+.dotColumn {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  transform: translateX(-50%);
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+/* dot 위 숫자 label — 기본은 숨김, today/selected/hover 시에만 표시 (.dotValueEmphasized) */
+.dotValue {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, calc(-100% - 10px));
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+  pointer-events: none;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.dotValueEmphasized {
+  opacity: 1;
+}
+
+/* dot 자체 — column 안에 절대 위치, top 은 inline style 로 (값에 따라) */
+.dotCircle {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-circle);
+  background: var(--bg-accent-solid);
+  opacity: 0;
+  transition:
+    opacity 0.15s ease,
+    width 0.15s ease,
+    height 0.15s ease,
+    background-color 0.15s ease;
+  border: 2px solid var(--bg-primary);
+  box-sizing: content-box;
+  pointer-events: none;
+}
+
+.dotColumn:hover .dotCircle,
+.dotHovered {
+  opacity: 1;
+  width: 8px;
+  height: 8px;
+}
+
+.dotToday {
+  opacity: 1;
+  width: 8px;
+  height: 8px;
+}
+
+.dotSelected {
+  opacity: 1;
+  width: 10px;
+  height: 10px;
+  background: var(--bg-accent-solid);
+}
+
+/* 오늘 vertical reference — HTML 점선 (1px stroke 정확)
+   top/bottom 은 inline style 로 plot 영역 안쪽 (PAD_T~H-PAD_B) 에 inset */
+.todayLine {
+  position: absolute;
+  width: 0;
+  border-left: var(--border-accent);
+  border-left-style: dashed;
+  pointer-events: none;
+}
+
+.selectedLine {
+  position: absolute;
+  width: 0;
+  border-left: 1.5px solid var(--color-accent);
+  pointer-events: none;
+  transform-origin: bottom;
+  animation: selectedLineIn 0.2s ease;
+  /* hover 시 다른 dot 으로 부드럽게 슬라이드 — left/top transition */
+  transition:
+    left 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    top 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes selectedLineIn {
+  from {
+    opacity: 0;
+    transform: scaleY(0.6);
+    transform-origin: bottom;
+  }
+  to {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+/* 라벨 컨테이너 — relative, absolute 자식들이 left:%로 배치됨.
+   overflow: visible 로 양 끝 라벨이 살짝 컨테이너 밖으로 나가도 잘리지 않음.
+   height 는 button-h-md (38) — 날짜 숫자 + dow 라벨 둘 다 안 잘리도록 */
+.areaDays {
+  position: relative;
+  height: var(--control-h-xl);
+  margin-block: var(--spacing-sm);
+  overflow: visible;
+}
+
+.areaDay {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.areaDayDow {
+  font-size: var(--font-size-hint);
+  color: var(--text-muted);
+  margin-top: var(--spacing-3xs);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.areaDayToday {
+  color: var(--text-accent);
+  font-weight: 700;
+}
+
+.areaDayToday .areaDayDow {
+  color: var(--text-accent);
+}
+
+/* 하단 day 라벨 button reset — 배경은 별도 .dayIndicator (sliding circle) 가 담당 */
+.areaDay {
+  background: transparent;
+  border: none;
+  padding: var(--spacing-2xs) var(--spacing-3xs);
+  cursor: pointer;
+  transition: color 0.15s ease;
+  z-index: 1; /* indicator 위에 텍스트 */
+}
+
+.areaDay:hover {
+  color: var(--text-primary);
+}
+
+.areaDaySelected {
+  color: var(--text-accent);
+  font-weight: 700;
+}
+
+.areaDaySelected .areaDayDow {
+  color: var(--text-accent);
+}
+
+/* Sliding circle indicator — 라벨 위치를 따라 부드럽게 이동.
+   기본: today 위치 / selected 시: 더 진하게 / hover 시: 가장 강조 */
+.dayIndicator {
+  position: absolute;
+  top: 50%;
+  /* areaDays height (button-h-md) 에 맞춰 — 날짜 + dow 두 줄 텍스트 다 덮음 */
+  width: var(--control-h-xl);
+  height: var(--control-h-xl);
+  border-radius: var(--radius-circle);
+  background: var(--bg-tertiary);
+  transform: translate(-50%, -50%);
+  transition:
+    left 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 0.18s ease,
+    transform 0.18s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.dayIndicatorSelected {
+  background: var(--bg-accent-light);
+}
+
+.dayIndicatorHover {
+  background: var(--bg-tertiary);
+  transform: translate(-50%, -50%) scale(1.05);
+}

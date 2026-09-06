@@ -1,0 +1,11 @@
+/* DashboardSkeleton 전용 스타일. Dashboard.module.css 에서 옮겨 왔다. */
+
+/* devices breakdown skeleton — 3 charts side by side */
+.skelDevicesRow {
+  display: flex;
+  gap: var(--spacing-md);
+  padding-block: var(--spacing-md);
+}
+.skelDevicesRow > * {
+  flex: 1;
+}

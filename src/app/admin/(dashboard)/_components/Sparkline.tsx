@@ -1,6 +1,11 @@
 "use client";
 
-import styles from "../Dashboard.module.css";
+import shared from "../Dashboard.module.css";
+import local from "./Sparkline.module.css";
+
+/* 이 컴포넌트 전용 규칙은 Sparkline.module.css 에, 대시보드 여러 곳이 함께 쓰는 규칙은
+   Dashboard.module.css 에 있다. 둘을 합쳐서 styles 하나로 쓴다. */
+const styles = { ...shared, ...local };
 /** SVG sparkline — 일별 조회수 추세. 14개 값(최근 14일) 받아서 폭에 맞춰 그림. */
 export function Sparkline({ values }: { values: number[] }) {
   if (values.length === 0)
