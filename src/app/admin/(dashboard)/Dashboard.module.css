@@ -341,20 +341,6 @@ a.statCard:hover .statValue {
 
 /* ── 시각화: 인기 게시물 미니 막대 ── */
 
-.miniBar {
-  flex: 1;
-  min-width: 0;
-  background: var(--bg-accent-solid);
-  border-radius: 2px 2px 0 0;
-  min-height: 2px;
-  opacity: 0.85;
-  transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.miniBar:hover {
-  opacity: 1;
-}
-
 /* ── Two-column section — 표 행 그룹, 셀 사이 vertical divider.
    위쪽 hairline 은 .section.section > * + * (Panel.module.css) 가 자동 추가 — 여기서 중복 X.
    background-clip: padding-box — 자체 bg (alpha-30, column-gap 트릭용) 가 border 영역까지
@@ -373,13 +359,6 @@ a.statCard:hover .statValue {
   .twoCol {
     grid-template-columns: 1fr;
   }
-}
-
-/* .section 안에 nested 된 .twoCol — section 의 border-top 과 .twoCol 의 border-top 은
-   서로 다른 위치 (section box top vs sectionTitle 아래) 이므로 중복 아님 — 후자가 sectionTitle/content 분리선 역할.
-   하지만 stagger animation 은 중복 방지 (parent .section 이 이미 fade-in). */
-.section > .twoCol {
-  animation: none;
 }
 
 /* .panelCell — twoCol grid 안의 cell 컨테이너 (예전 .panel). composes panelFlex 로 unified base 상속. */
@@ -455,14 +434,6 @@ a.statCard:hover .statValue {
   }
 }
 
-.rank {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-label);
-  font-weight: 700;
-  color: var(--text-tertiary);
-  min-width: 24px;
-}
-
 /* Recent Posts/Works 의 link wrapper — status + title + date 가 한 줄로 flex 정렬 + gap 으로 적절한 spacing */
 .listItemLink {
   display: flex;
@@ -487,13 +458,6 @@ a.statCard:hover .statValue {
 
 .itemTitle:hover {
   color: var(--text-accent);
-}
-
-.itemMeta {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-hint);
-  color: var(--text-tertiary);
-  white-space: nowrap;
 }
 
 /* 날짜 — 행마다 chip 시작 위치를 정렬하기 위해 fixed min-width + 우측 정렬.
@@ -792,33 +756,6 @@ a.statCard:hover .statValue {
   }
 }
 
-/* ── 공통 icon button atom — circle, hover bg-tertiary. close 버튼 등에서 재사용 ── */
-.iconBtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--control-h-xs);
-  height: var(--control-h-xs);
-  background: transparent;
-  border: none;
-  border-radius: var(--radius-capsule);
-  color: var(--text-tertiary);
-  cursor: pointer;
-  transition:
-    color 0.15s ease,
-    background-color 0.15s ease;
-}
-
-.iconBtn:hover {
-  color: var(--text-primary);
-  background: var(--bg-tertiary);
-}
-
-.iconBtnSm {
-  width: 24px;
-  height: 24px;
-}
-
 /* tag cloud Item — pill 들의 margin-bottom 이 wrap 시 마지막 줄 아래로 튀어나오는 거 상쇄 */
 .tagsItem {
   margin-bottom: calc(-1 * var(--spacing-2xs));
@@ -946,25 +883,6 @@ a.commentSource:hover {
   font-size: var(--font-size-hint);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-}
-.reportViewAll {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-3xs);
-  margin-top: var(--spacing-sm);
-  padding: var(--spacing-xs) var(--spacing-sm);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-label);
-  color: var(--text-secondary);
-  text-decoration: none;
-  border-radius: var(--radius-capsule);
-  transition:
-    color 0.15s ease,
-    background-color 0.15s ease;
-}
-.reportViewAll:hover {
-  color: var(--text-accent);
-  background: var(--bg-secondary);
 }
 
 /* chip 대신 inline 텍스트 + accent dot 으로 시각 포인트 추가 */
