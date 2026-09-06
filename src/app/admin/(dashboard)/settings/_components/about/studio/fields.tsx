@@ -36,7 +36,7 @@ export function AboutFontPicker({ value, onChange, fallbackLabel, dropAlign }: {
 }
 
 /* ═══════════ 배경 서브 컨트롤 ═══════════ */
-export function ColorRow({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+function ColorRow({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
   return (
     <div className={css.bgSliderRow}>
       <span>{label}</span>

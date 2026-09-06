@@ -17,7 +17,7 @@ import { type Language } from "@/types";
 import { useDeferredValue } from "react";
 /* 가져오기 적용 전 경고 — 숫자만 보여주면 "무엇이 덮어써지는지" 를 알 수 없다.
    바뀌는 컬럼을 이름과 전/후로 짚어주고, 사라지는 것은 따로 모아 보여준다. */
-export function ImportWarning({ plan, lang, onConfirm }: {
+function ImportWarning({ plan, lang, onConfirm }: {
   plan: ImportPlan; lang: Language; onConfirm: () => void;
 }) {
   const ko = lang === "ko";

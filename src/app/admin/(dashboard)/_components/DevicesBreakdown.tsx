@@ -18,7 +18,7 @@ type DeviceTab = "type" | "os" | "browser";
 
 export type DeviceKind = "desktop" | "mobile" | "tablet";
 
-export function DevicesBreakdown({
+function DevicesBreakdown({
   deviceTypes,
   operatingSystems,
   browsers,

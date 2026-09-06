@@ -18,9 +18,9 @@ import { type TFunction } from "@/providers/LanguageProvider";
 import { type Language } from "@/types";
 /* 덧붙일 문구 제한 — 저작자 표시 아래 보조 문구라 길어질 이유가 없다.
    행 수를 고정해 문구 길이와 무관하게 프리뷰 높이를 일정하게 유지한다. */
-export const CREDITS_NOTE_MAX = 160;
+const CREDITS_NOTE_MAX = 160;
 
-export const CREDITS_NOTE_ROWS = 4;
+const CREDITS_NOTE_ROWS = 4;
 
 /* ═══════════ Credits ═══════════ */
 export function CreditsBlock({ about, setAny, lang, nickname, t }: {
