@@ -42,6 +42,8 @@ import styles from "./Navigation.module.css";
 import Pressable from "@/components/ui/Pressable";
 import { formatRelativeTime } from "@/utils/relativeTime";
 import { useNow } from "@/hooks/useNow";
+import { useNavNotifications } from "./useNavNotifications";
+import { useLogoMeasure } from "./useLogoMeasure";
 
 // 서브메뉴 항목 링크 — active 항목의 bold/indent 를 접힘 시 순차 애니로 풀려면 motion 링크가 필요.
 const MotionLink = motion.create(Link);
@@ -180,109 +182,11 @@ export default function Navigation() {
     if (fontName) loadGoogleFont(fontName);
   }, [siteConfig.brand.logoFont]);
 
-  const [adminEmail, setAdminEmail] = useState("");
-  useEffect(() => {
-    let cancelled = false;
-    let subscription: { unsubscribe: () => void } | undefined;
-    loadSupabaseClient().then((supabase) => {
-      supabase.auth.getUser().then(({ data }) => {
-        if (!cancelled) setAdminEmail(data.user?.email ?? "");
-      });
-      const { data: { subscription: sub } } = supabase.auth.onAuthStateChange((_event, session) => {
-        if (!cancelled) setAdminEmail(session?.user?.email ?? "");
-      });
-      // unmount 가 promise resolve 보다 먼저 일어났다면 즉시 정리
-      if (cancelled) sub.unsubscribe();
-      else subscription = sub;
-    });
-    return () => {
-      cancelled = true;
-      subscription?.unsubscribe();
-    };
-  }, []);
-
-  // Notification 상태 — admin 로그인 시 60s 폴링. 드롭다운에서 미리보기 표시.
-  type NavNotif = { id: string; type: string; title: string; message: string; metadata: Record<string, string>; read: boolean; created_at: string };
-  const [unreadCount, setUnreadCount] = useState(0);
-  const [notifs, setNotifs] = useState<NavNotif[]>([]);
-  const [notifOpen, setNotifOpen] = useState(false);
-  // 한 번 +5 펼치고 접을 수 있는 toggle (option B) — 5 ↔ 10
-  const [notifExpanded, setNotifExpanded] = useState(false);
-  const notifWrapRef = useRef<HTMLButtonElement | null>(null);
-
-  // 드롭다운 닫힐 때 expanded 리셋
-  useEffect(() => { if (!notifOpen) setNotifExpanded(false); }, [notifOpen]);
-
-  const fetchNotifs = useCallback(() => {
-    fetch("/api/admin/notifications")
-      .then(async (r) => {
-        if (!r.ok) { setNotifs([]); setUnreadCount(0); return; }
-        const d = await r.json() as { unreadCount?: number; notifications?: NavNotif[] };
-        setNotifs(d.notifications ?? []);
-        setUnreadCount(d.unreadCount ?? 0);
-      })
-      .catch(() => { setNotifs([]); setUnreadCount(0); });
-  }, []);
-
-  // 로그인 상태면 어느 페이지든 60s 간격 polling — 알림 버튼이 모든 페이지에 노출되므로 데이터 최신화 필요.
-  // pathname 을 deps 에서 뺌 → 라우트 이동마다 추가 fetch 하지 않음.
-  useEffect(() => {
-    if (!adminEmail) { setUnreadCount(0); setNotifs([]); return; }
-    fetchNotifs();
-    const id = window.setInterval(fetchNotifs, 60_000);
-    return () => { window.clearInterval(id); };
-  }, [adminEmail, fetchNotifs]);
-
-  // 포털 dropdown 위치 — trigger 의 viewport 좌표를 기준으로 계산
-  const notifDropdownRef = useRef<HTMLDivElement | null>(null);
-  const [notifPos, setNotifPos] = useState<{ top: number; right: number }>({ top: 0, right: 0 });
-
-  const updateNotifPos = useCallback(() => {
-    const el = notifWrapRef.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    // 트리거 우측 정렬 — top: trigger bottom + 8gap, right: viewport - trigger right
-    setNotifPos({ top: rect.bottom + 8, right: Math.max(8, window.innerWidth - rect.right) });
-  }, []);
-
-  useLayoutEffect(() => {
-    if (!notifOpen) return;
-    updateNotifPos();
-  }, [notifOpen, updateNotifPos]);
-
-  useEffect(() => {
-    if (!notifOpen) return;
-    const onUpdate = () => updateNotifPos();
-    window.addEventListener("scroll", onUpdate, true);
-    window.addEventListener("resize", onUpdate);
-    return () => {
-      window.removeEventListener("scroll", onUpdate, true);
-      window.removeEventListener("resize", onUpdate);
-    };
-  }, [notifOpen, updateNotifPos]);
-
-  // 드롭다운 외부 클릭 / Escape 시 닫기 — trigger + portal dropdown 둘 다 확인
-  useEffect(() => {
-    if (!notifOpen) return;
-    const onPointerDown = (e: PointerEvent) => {
-      const trigger = notifWrapRef.current;
-      const dropdown = notifDropdownRef.current;
-      const target = e.target as Node;
-      if (trigger?.contains(target)) return;
-      if (dropdown?.contains(target)) return;
-      setNotifOpen(false);
-    };
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setNotifOpen(false); };
-    document.addEventListener("pointerdown", onPointerDown);
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("pointerdown", onPointerDown);
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [notifOpen]);
-
-  // pathname 변경 시 드롭다운 닫기 + refetch (알림 페이지에서 읽음 처리됐을 수 있음)
-  useEffect(() => { setNotifOpen(false); }, [pathname]);
+  const {
+    adminEmail, unreadCount, notifs,
+    notifOpen, setNotifOpen, notifExpanded, setNotifExpanded,
+    notifWrapRef, notifDropdownRef, notifPos, fetchNotifs,
+  } = useNavNotifications(pathname);
 
   const shouldSkipLoading = SKIP_LOADING_PAGES.includes(pathname) || isAdminPage;
   const showLoadingLogo = isLoading && !shouldSkipLoading;
@@ -312,7 +216,7 @@ export default function Navigation() {
   // drawer 열릴 때 notification dropdown 도 같이 닫음 (위로 겹쳐 보이는 거 방지)
   useEffect(() => {
     if (isMenuOpen) setNotifOpen(false);
-  }, [isMenuOpen]);
+  }, [isMenuOpen, setNotifOpen]);
 
   useEffect(() => {
     let rafId: number;
@@ -525,51 +429,7 @@ export default function Navigation() {
 
   // --- 로고 중앙→nav 이동 애니메이션 ---
   const logoRef = useRef<HTMLDivElement>(null);
-  const [centerOffset, setCenterOffset] = useState({ x: 0, y: 0 });
-  const [scaleFactor, setScaleFactor] = useState(1);
-  const hasMeasured = useRef(false);
-
-  const [logoMeasured, setLogoMeasured] = useState(false);
-
-  const measureLogo = useCallback(() => {
-    const el = logoRef.current;
-    if (!el) return;
-
-    // 스케일 비율 먼저 계산 (오프셋 계산에 필요)
-    const tempEl = document.createElement("span");
-    tempEl.style.cssText =
-      "font-size:var(--fluid-font-size-6xl);position:absolute;visibility:hidden;";
-    tempEl.textContent = "H";
-    document.body.appendChild(tempEl);
-    const loadingFontSize = parseFloat(getComputedStyle(tempEl).fontSize);
-    document.body.removeChild(tempEl);
-
-    const navFontSize = parseFloat(getComputedStyle(el).fontSize);
-    const scale = navFontSize > 0 ? loadingFontSize / navFontSize : 1;
-    setScaleFactor(scale);
-
-    // transformOrigin: "left center" 기준 → 스케일된 너비를 반영한 중앙 오프셋
-    const rect = el.getBoundingClientRect();
-    setCenterOffset({
-      x: window.innerWidth / 2 - rect.left - (rect.width * scale) / 2,
-      y: window.innerHeight / 2 - (rect.top + rect.height / 2),
-    });
-    setLogoMeasured(true);
-  }, []);
-
-  useEffect(() => {
-    if (!showLoadingLogo || hasMeasured.current || !logoRef.current) return;
-    hasMeasured.current = true;
-    requestAnimationFrame(measureLogo);
-  }, [showLoadingLogo, measureLogo]);
-
-  // 로딩이 완전히 끝나면 다음 로딩을 위해 측정 플래그 리셋
-  useEffect(() => {
-    if (!isLoading) {
-      hasMeasured.current = false;
-      setLogoMeasured(false);
-    }
-  }, [isLoading]);
+  const { centerOffset, scaleFactor, logoMeasured } = useLogoMeasure(logoRef, showLoadingLogo, isLoading);
 
   // 사운드 상태
   const [isSoundClicking, setIsSoundClicking] = useState(false);
