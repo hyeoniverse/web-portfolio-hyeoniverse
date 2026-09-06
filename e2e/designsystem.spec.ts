@@ -75,4 +75,35 @@ test.describe("디자인 시스템 화면", () => {
     await input.fill("안전망");
     await expect(input, "입력한 값이 남는다").toHaveValue("안전망");
   });
+
+  test("색 고르기를 열면 값 입력칸이 나온다", async ({ page }) => {
+    await openDesignSystem(page);
+    const swatch = page.getByRole("button", { name: "Pick color" });
+    await swatch.scrollIntoViewIfNeeded();
+    await swatch.click();
+
+    // 처음 열리는 형식은 OKLCH 다. 밝기(L)·채도(C)·색상(H) 세 값을 적는 칸이 나온다.
+    for (const name of ["OKLCH L", "OKLCH C", "OKLCH H"]) {
+      await expect(page.getByRole("spinbutton", { name }), name).toBeVisible({ timeout: 10_000 });
+    }
+  });
+
+  test("색상 값을 바꾸면 시연에 보이는 색이 따라 바뀐다", async ({ page }) => {
+    await openDesignSystem(page);
+    const swatch = page.getByRole("button", { name: "Pick color" });
+    await swatch.scrollIntoViewIfNeeded();
+    // 시연은 고른 색을 단추 옆에 글자로 보여 준다.
+    const shown = page.locator("text=/^#[0-9a-f]{6}$/i").first();
+    const before = (await shown.textContent())?.toLowerCase();
+
+    await swatch.click();
+    const hue = page.getByRole("spinbutton", { name: "OKLCH H" });
+    await expect(hue).toBeVisible({ timeout: 10_000 });
+    await hue.fill("200");
+    await hue.press("Enter");
+
+    await expect
+      .poll(async () => (await shown.textContent())?.toLowerCase(), { message: "시연에 보이는 색" })
+      .not.toBe(before);
+  });
 });

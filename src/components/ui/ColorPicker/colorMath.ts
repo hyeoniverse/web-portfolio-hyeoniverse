@@ -216,3 +216,68 @@ export function formatOklch({ l, c, h }: OKLCH): string {
   return `oklch(${l.toFixed(1)}% ${c.toFixed(3)} ${h.toFixed(0)})`;
 }
 
+/* ── 문자열 → OKLCH ──────────────────────────────────────────────
+ * 사람이 적어 넣거나 붙여넣은 색 문자열을 하나의 표현(OKLCH)으로 바꾼다.
+ * 화면과 무관한 계산이라 여기 둔다. */
+
+/** 외부 value (hex 또는 oklch string) → OKLCH 객체 */
+export function parseAnyToOklch(input: string): OKLCH {
+  const trimmed = input.trim();
+  if (trimmed.startsWith("oklch")) {
+    return parseOklchString(trimmed) ?? { l: 0, c: 0, h: 0 };
+  }
+  return hexToOklch(trimmed);
+}
+
+/** 붙여넣기용 — HEX / RGB / HSL / HSV / OKLCH 어떤 형식이든 자동 감지해 OKLCH 로 변환. 실패 시 null. */
+export function parseAnyColorToOklch(input: string): OKLCH | null {
+  const s = input.trim().toLowerCase();
+  if (!s) return null;
+
+  // 1. oklch(...)
+  if (s.startsWith("oklch")) return parseOklchString(s);
+
+  // 2. hex (with or without #) — 3/4/6/8 자리 (alpha 포함). 색만 OKLCH 로, alpha 는 parseAlpha 가 별도 추출
+  if (s.startsWith("#") || /^[0-9a-f]{3,4}$|^[0-9a-f]{6}$|^[0-9a-f]{8}$/.test(s)) {
+    const parsed = normalizeHexAlpha(s.startsWith("#") ? s : `#${s}`);
+    if (parsed) return hexToOklch(parsed.hex);
+  }
+
+  // 3. rgb(r, g, b) / rgba(r, g, b, a) — 0~255, alpha 무시
+  const rgbMatch = s.match(/^rgba?\(\s*([0-9.]+)[\s,]+([0-9.]+)[\s,]+([0-9.]+)/);
+  if (rgbMatch) {
+    const r = clamp(parseFloat(rgbMatch[1]), 0, 255);
+    const g = clamp(parseFloat(rgbMatch[2]), 0, 255);
+    const b = clamp(parseFloat(rgbMatch[3]), 0, 255);
+    return hexToOklch(rgbToHex({ r, g, b }));
+  }
+
+  // 4. hsl(h, s%, l%) / hsla(...)
+  const hslMatch = s.match(/^hsla?\(\s*([0-9.]+)[\s,]+([0-9.]+)%?[\s,]+([0-9.]+)%?/);
+  if (hslMatch) {
+    const h = clamp(parseFloat(hslMatch[1]), 0, 360);
+    const sat = clamp(parseFloat(hslMatch[2]), 0, 100);
+    const l = clamp(parseFloat(hslMatch[3]), 0, 100);
+    return hexToOklch(hslToHex({ h, s: sat, l }));
+  }
+
+  // 5. hsv(h, s%, v%) / hsb(h, s%, b%)
+  const hsvMatch = s.match(/^(?:hsv|hsb)\(\s*([0-9.]+)[\s,]+([0-9.]+)%?[\s,]+([0-9.]+)%?/);
+  if (hsvMatch) {
+    const h = clamp(parseFloat(hsvMatch[1]), 0, 360);
+    const sat = clamp(parseFloat(hsvMatch[2]), 0, 100);
+    const v = clamp(parseFloat(hsvMatch[3]), 0, 100);
+    return hexToOklch(hsvToHex({ h, s: sat, v }));
+  }
+
+  // 6. bare "r, g, b" — 숫자 3개 콤마 구분 (RGB 추정)
+  const bare = s.match(/^([0-9.]+)[\s,]+([0-9.]+)[\s,]+([0-9.]+)$/);
+  if (bare) {
+    const r = clamp(parseFloat(bare[1]), 0, 255);
+    const g = clamp(parseFloat(bare[2]), 0, 255);
+    const b = clamp(parseFloat(bare[3]), 0, 255);
+    return hexToOklch(rgbToHex({ r, g, b }));
+  }
+
+  return null;
+}
