@@ -58,7 +58,7 @@
    hover 시 클릭이 막히던 것 방지 — 로고는 hover 에도 nav 위(z-nav+1) 유지.
    (모듈에서 전역 클래스는 :global 로 매칭해야 해시 안 됨) */
 .logoNavBar:global(.glith-on-hover):hover { z-index: calc(var(--z-nav) + 1); }
-.logoNavBar.glith-on-hover:hover .logo {
+.logoNavBar:global(.glith-on-hover):hover .logo {
   animation: glitch var(--duration-slower) infinite alternate;
   z-index: 30;
 }
@@ -939,88 +939,9 @@
 }
 
 /* Close button — nav 햄버거 버튼과 동일한 우상단 위치 */
-/* position/size는 MagneticWrapper에, flex 정렬은 inner button에 */
-.menuCloseBtn {
-  position: absolute;
-  top: var(--spacing-2xl);
-  right: var(--page-px);
-  width: var(--control-h-xl);
-  height: var(--control-h-xl);
-  z-index: 1;
-}
-
-.menuCloseDots {
-  display: grid;
-  grid-template-columns: repeat(3, 2px);
-  gap: var(--spacing-3xs);
-}
-
-.menuCloseDot {
-  width: 2px;
-  height: 2px;
-  border-radius: var(--radius-circle);
-  background: var(--bg-white);
-}
 
 /* 1.5s total: 0–60% collapse to center (≈0.9s, matches drawer clip-path)
                 60–100% spread into X */
-
-/* Corners: collapse → return to grid position */
-.menuCloseDot:nth-child(1) {
-  animation: dotTL var(--duration-slowest) var(--ease-material) both;
-}
-.menuCloseDot:nth-child(3) {
-  animation: dotTR var(--duration-slowest) var(--ease-material) both;
-}
-.menuCloseDot:nth-child(7) {
-  animation: dotBL var(--duration-slowest) var(--ease-material) both;
-}
-.menuCloseDot:nth-child(9) {
-  animation: dotBR var(--duration-slowest) var(--ease-material) both;
-}
-
-/* Edges: collapse → stay at center & fade out */
-.menuCloseDot:nth-child(2) {
-  animation: dotT var(--duration-slowest) var(--ease-material) both;
-}
-.menuCloseDot:nth-child(4) {
-  animation: dotL var(--duration-slowest) var(--ease-material) both;
-}
-.menuCloseDot:nth-child(6) {
-  animation: dotR var(--duration-slowest) var(--ease-material) both;
-}
-.menuCloseDot:nth-child(8) {
-  animation: dotB var(--duration-slowest) var(--ease-material) both;
-}
-
-/* Closing: 모임 → 펼침 (0.8s — clip-path 닫힘과 동기화) */
-.menuCloseDotsClosing .menuCloseDot:nth-child(1) {
-  animation: closeTL 0.8s var(--ease-material) both;
-}
-.menuCloseDotsClosing .menuCloseDot:nth-child(3) {
-  animation: closeTR 0.8s var(--ease-material) both;
-}
-.menuCloseDotsClosing .menuCloseDot:nth-child(7) {
-  animation: closeBL 0.8s var(--ease-material) both;
-}
-.menuCloseDotsClosing .menuCloseDot:nth-child(9) {
-  animation: closeBR 0.8s var(--ease-material) both;
-}
-.menuCloseDotsClosing .menuCloseDot:nth-child(2) {
-  animation: closeEdge 0.8s var(--ease-material) both;
-}
-.menuCloseDotsClosing .menuCloseDot:nth-child(4) {
-  animation: closeEdge 0.8s var(--ease-material) both;
-}
-.menuCloseDotsClosing .menuCloseDot:nth-child(5) {
-  animation: none;
-}
-.menuCloseDotsClosing .menuCloseDot:nth-child(6) {
-  animation: closeEdge 0.8s var(--ease-material) both;
-}
-.menuCloseDotsClosing .menuCloseDot:nth-child(8) {
-  animation: closeEdge 0.8s var(--ease-material) both;
-}
 
 /* Corners: 그리드 → 중앙 모임 → 그리드 복귀 */
 @keyframes closeTL {
@@ -1048,107 +969,6 @@
   0%   { opacity: 0; }
   50%  { opacity: 0; }
   100% { opacity: 1; }
-}
-
-@keyframes dotTL {
-  0% {
-    transform: translate(0, 0);
-  }
-  60% {
-    transform: translate(4px, 4px);
-  }
-  100% {
-    transform: translate(0, 0);
-  }
-}
-@keyframes dotTR {
-  0% {
-    transform: translate(0, 0);
-  }
-  60% {
-    transform: translate(-4px, 4px);
-  }
-  100% {
-    transform: translate(0, 0);
-  }
-}
-@keyframes dotBL {
-  0% {
-    transform: translate(0, 0);
-  }
-  60% {
-    transform: translate(4px, -4px);
-  }
-  100% {
-    transform: translate(0, 0);
-  }
-}
-@keyframes dotBR {
-  0% {
-    transform: translate(0, 0);
-  }
-  60% {
-    transform: translate(-4px, -4px);
-  }
-  100% {
-    transform: translate(0, 0);
-  }
-}
-@keyframes dotT {
-  0% {
-    transform: translate(0, 0);
-    opacity: 1;
-  }
-  60% {
-    transform: translate(0, 4px);
-    opacity: 1;
-  }
-  100% {
-    transform: translate(0, 4px);
-    opacity: 0;
-  }
-}
-@keyframes dotL {
-  0% {
-    transform: translate(0, 0);
-    opacity: 1;
-  }
-  60% {
-    transform: translate(4px, 0);
-    opacity: 1;
-  }
-  100% {
-    transform: translate(4px, 0);
-    opacity: 0;
-  }
-}
-@keyframes dotR {
-  0% {
-    transform: translate(0, 0);
-    opacity: 1;
-  }
-  60% {
-    transform: translate(-4px, 0);
-    opacity: 1;
-  }
-  100% {
-    transform: translate(-4px, 0);
-    opacity: 0;
-  }
-}
-@keyframes dotB {
-  0% {
-    transform: translate(0, 0);
-    opacity: 1;
-  }
-  60% {
-    transform: translate(0, -4px);
-    opacity: 1;
-  }
-  100% {
-    transform: translate(0, -4px);
-    opacity: 0;
-  }
 }
 
 /* Dot → X keyframes
@@ -1649,20 +1469,6 @@
   }
 
   .menuDot {
-    width: 1.5px;
-    height: 1.5px;
-  }
-
-  .menuCloseBtn {
-    top: var(--spacing-md);
-  }
-
-  .menuCloseDots {
-    grid-template-columns: repeat(3, 1.5px);
-    gap: var(--spacing-3xs);
-  }
-
-  .menuCloseDot {
     width: 1.5px;
     height: 1.5px;
   }
