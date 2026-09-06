@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { jsonError, jsonServerError } from "@/lib/api/response";
+import { requireAuth } from "@/lib/api/requireAuth";
+import { jsonServerError } from "@/lib/api/response";
 import { headers } from "next/headers";
-import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { deviceKey } from "@/lib/auth/uaParser";
 
@@ -9,9 +9,8 @@ import { deviceKey } from "@/lib/auth/uaParser";
  *  현재 admin user 의 등록된 기기 목록 — browser+OS+device 단위로 dedup.
  *  Legacy raw-UA hash row 가 같은 기기로 여러 개 있어도 한 entry 로 묶임. */
 export async function GET() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return jsonError("Unauthorized", 401);
+  const { error: authError, user } = await requireAuth();
+  if (authError) return authError;
 
   const h = await headers();
   const currentKey = deviceKey(h.get("user-agent") ?? "");

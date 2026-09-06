@@ -1,4 +1,3 @@
-import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireRole } from "@/lib/api/requireRole";
 import { PERM } from "@/lib/api/roles";
@@ -15,16 +14,17 @@ interface ReportRow {
 }
 
 /** GET /api/admin/reports?status=pending|resolved|dismissed|all
- *  목록 + 신고된 댓글 본문 join. 비인증 시에도 200 + 빈 리스트 (info leak 방지). */
+ *  목록 + 신고된 댓글 본문 join. admin 등급이 아니면 requireRole 이 401/403 으로 끊는다. */
 export async function GET(request: Request) {
   /* 신고 목록은 중재 데이터다(신고자 해시·신고된 본문). 가드가 아예 없어서
      /api/admin 프록시가 요구하는 "로그인" 만 통과하면 레벨 1 저자도 전부 읽을 수 있었다.
-     같은 테이블을 다루는 reports/[id] 는 이미 admin 등급이라 앞뒤도 맞지 않았다. */
+     같은 테이블을 다루는 reports/[id] 는 이미 admin 등급이라 앞뒤도 맞지 않았다.
+
+     등급 확인은 이 한 줄로 끝난다. 전에는 뒤에서 createClient + getUser 를 한 번 더 불러
+     "로그인했는지" 를 다시 확인했는데, requireRole 이 이미 인증 서버에 물어 본 것이라 같은
+     왕복을 두 번 하는 셈이었고, 거기 붙어 있던 !user 분기는 도달할 수 없는 코드였다. */
   const { error: authError } = await requireRole(PERM.ADMIN);
   if (authError) return authError;
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return jsonOk({ reports: [], pendingCount: 0 });
 
   const url = new URL(request.url);
   const status = url.searchParams.get("status") ?? "pending";

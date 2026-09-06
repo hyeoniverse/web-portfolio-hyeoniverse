@@ -1,18 +1,14 @@
 import { NextResponse } from "next/server";
-import { jsonError, jsonServerError } from "@/lib/api/response";
-import { createClient } from "@/lib/supabase/server";
+import { requireAuth } from "@/lib/api/requireAuth";
+import { jsonServerError } from "@/lib/api/response";
 import { notifyAdmin } from "@/lib/adminNotify";
 
 /** POST /api/admin/auth/logout-all
  *  현재 admin 의 모든 기기 세션 무효화 (scope: 'global').
  *  현재 세션 포함이라 호출 직후 클라이언트도 로그아웃 됨 → login 페이지로 리다이렉트 권장. */
 export async function POST() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) {
-    return jsonError("Unauthorized", 401);
-  }
+  const { error: authError, user, supabase } = await requireAuth();
+  if (authError) return authError;
 
   const { error } = await supabase.auth.signOut({ scope: "global" });
   if (error) {
