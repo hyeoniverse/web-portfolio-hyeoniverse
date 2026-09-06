@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.53.3](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.2...v1.53.3) (2026-09-06)
+
+
+### Bug Fixes
+
+* **api:** 서버 오류 응답이 DB 메시지를 그대로 흘리지 않게 한다 ([ad17c9a](https://github.com/hyeoniverse/web-portfolio-oval/commit/ad17c9ab5de1e54467b6a92f5158cc1675550a21))
+* **test:** 테스트가 들여온 any 를 없애 type-coverage 락을 통과시킨다 ([859df77](https://github.com/hyeoniverse/web-portfolio-oval/commit/859df7735b8d6ea8a166b2629c59b14a6b91297c))
+
 ## [1.53.2](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.1...v1.53.2) (2026-09-03)
 
 
