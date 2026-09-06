@@ -18,40 +18,6 @@
 }
 
 /* ─── TOC Sidebar ─── */
-.toc {
-  position: fixed;
-  top: 50%;
-  left: 2vw;
-  z-index: var(--z-float);
-  transform: translateY(-50%);
-}
-
-.tocItem {
-  display: block;
-  width: 100%;
-  padding: var(--row-p-md);
-  margin-left: -1px;
-  border: none;
-  border-left: 2px solid transparent;
-  background: transparent;
-  font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-label);
-  letter-spacing: 0.02em;
-  color: var(--text-primary);
-  opacity: 0.7;
-  text-align: left;
-
-  white-space: nowrap;
-  transition:
-    color var(--duration-fast) ease,
-    border-color var(--duration-fast) ease,
-    opacity var(--duration-fast) ease;
-}
-
-.tocItem:hover {
-  opacity: 1;
-}
-
 /* Header */
 .header {
   display: flex;
@@ -836,12 +802,6 @@
 @media (min-width: 1201px) {
   .main {
     padding-left: max(8vw, 180px);
-  }
-}
-
-@media (max-width: 1200px) {
-  .toc {
-    display: none;
   }
 }
 
