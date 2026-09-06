@@ -1,0 +1,46 @@
+/* Sparkline 전용 스타일. Dashboard.module.css 에서 옮겨 왔다. */
+
+/* ── 시각화: 일별 조회수 sparkline (SVG) ── */
+.sparkline {
+  width: 100%;
+  height: var(--control-h-xs);
+  margin-top: var(--spacing-2xs);
+  display: block;
+}
+
+/* sparkLine 라인 — stroke-dasharray 로 드로잉 애니메이션 (0 → 100% 길이) */
+.sparkLine {
+  stroke: var(--text-info);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 600;
+  stroke-dashoffset: 600;
+  animation: sparkDraw 1.4s cubic-bezier(0.65, 0, 0.35, 1) 0.2s both;
+}
+
+@keyframes sparkDraw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.sparkArea {
+  fill: var(--bg-info-soft);
+  opacity: 0;
+  animation: sparkAreaFade 0.6s ease 1s both;
+}
+
+@keyframes sparkAreaFade {
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sparkLine,
+  .sparkArea {
+    animation: none;
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}

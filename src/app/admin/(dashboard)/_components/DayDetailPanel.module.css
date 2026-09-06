@@ -1,0 +1,162 @@
+/* DayDetailPanel 전용 스타일. Dashboard.module.css 에서 옮겨 왔다. */
+
+.dayDetailHeading {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+.dayDetailDate {
+  font-family: var(--font-instrument);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-regular);
+  color: var(--text-primary);
+}
+
+.dayDetailRank {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: var(--spacing-3xs) var(--spacing-xs);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-secondary);
+}
+
+/* large emphasized number — dayDetail 의 main value */
+.dayDetailNumber {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-3xl);
+  font-weight: 700;
+  color: var(--text-accent);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.dayDetailUnit {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-label);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* DayDetail 외곽 — chart 본문과 시각적 분리 위해 위쪽 hairline */
+.dayDetailPanel {
+  border-top: var(--border-light);
+}
+
+/* 좌/우 cell 에 cascade var 로 padding propagate — 안쪽 ListItem/Item/PanelTitle 의
+   padding-inline-start/end 자동 적용. header (1st child, 풀 row span) 제외. */
+.dayDetailPanel > :nth-child(2) {
+  --_item-inline-end: var(--spacing-md);
+}
+.dayDetailPanel > :nth-child(3) {
+  --_item-inline-start: var(--spacing-md);
+}
+
+.dayDetailLabel {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-label);
+  color: var(--text-secondary);
+}
+
+.trendFlat {
+  background: var(--bg-secondary);
+  color: var(--text-tertiary);
+}
+
+/* ── Range position — min~max 안에서 선택된 값의 위치 시각화 ── */
+.rangePosLabel {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-hint);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.rangePosTrack {
+  position: relative;
+  height: 6px;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-secondary);
+  overflow: visible;
+  margin-block: var(--spacing-xs);
+}
+
+.rangePosFill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  /* fill 끝 = marker 중심 위치 (calc 식 마커와 동일) — 양 끝에서도 마커와 정합 유지 */
+  width: calc(6px + (100% - 12px) * var(--_pct, 0) / 100);
+  background: linear-gradient(
+    90deg,
+    var(--color-accent-alpha-30),
+    var(--color-accent)
+  );
+  border-radius: var(--radius-capsule);
+  animation: rangeFill 0.6s cubic-bezier(0.4, 0, 0.2, 1) 280ms both;
+}
+
+@keyframes rangeFill {
+  from {
+    width: 0;
+  }
+}
+
+.rangePosMarker {
+  position: absolute;
+  top: 50%;
+  /* marker 중심을 [6px ~ (100% - 6px)] 안으로 매핑 — 양 끝(0%/100%) 에서도 track 밖으로 안 나감.
+     --_pct (0~100) 는 inline style 로 주입. */
+  left: calc(6px + (100% - 12px) * var(--_pct, 0) / 100);
+  width: 12px;
+  height: 12px;
+  border-radius: var(--radius-circle);
+  background: var(--bg-accent-solid);
+  border: 2px solid var(--bg-primary);
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 0 1px var(--color-accent-alpha-30);
+  animation: rangeMarker 0.6s cubic-bezier(0.4, 0, 0.2, 1) 280ms both;
+}
+
+@keyframes rangeMarker {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.rangePosBounds {
+  display: flex;
+  justify-content: space-between;
+  margin-block: var(--spacing-xs);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 행: rank | title | bar track | views — 가로 막대 그래프 한 줄 */
+.dayDetailTopRank {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
+  font-weight: 700;
+  color: var(--text-muted);
+  min-width: 18px;
+}
+
+.dayDetailTopViews {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  min-width: var(--control-h-xl);
+  text-align: right;
+}

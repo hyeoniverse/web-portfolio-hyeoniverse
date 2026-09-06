@@ -1,6 +1,11 @@
 "use client";
 
-import styles from "../Dashboard.module.css";
+import shared from "../Dashboard.module.css";
+import local from "./DayDetailPanel.module.css";
+
+/* 이 컴포넌트 전용 규칙은 DayDetailPanel.module.css 에, 대시보드 여러 곳이 함께 쓰는 규칙은
+   Dashboard.module.css 에 있다. 둘을 합쳐서 styles 하나로 쓴다. */
+const styles = { ...shared, ...local };
 import { useEffect, useState, type CSSProperties } from "react";
 import { Item, List, ListItem, Panel, PanelTitle } from "../components";
 import { CountUp } from "./CountUp";

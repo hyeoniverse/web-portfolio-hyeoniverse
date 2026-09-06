@@ -1,0 +1,241 @@
+/* DevicesBreakdown 전용 스타일. Dashboard.module.css 에서 옮겨 왔다. */
+
+/* Modifier: tertiary 배경 (deviceDrill) */
+.barTertiaryBg {
+  background: var(--bg-tertiary);
+}
+
+/* ── Devices — donut + 아이콘 범례 ── */
+.devicesWrap {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+.deviceLegend {
+  composes: list from "../components/List.module.css";
+  flex: 1;
+  min-width: 140px;
+}
+/* composes 한 List .list 의 gap: 0 과 같은 (0,1,0) 이라 번들 순서에 따라 항목 사이 간격이
+   0 으로 뒤집혔다. 클래스를 두 번 적어 (0,2,0). */
+.deviceLegend.deviceLegend {
+  gap: var(--spacing-xs);
+}
+
+.deviceLegendItem {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-label);
+}
+
+.deviceLegendBtn {
+  display: grid;
+  grid-template-columns: 10px auto 1fr auto auto;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  width: 100%;
+  padding: var(--button-p-xs);
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-capsule);
+  text-align: left;
+  font: inherit;
+  color: inherit;
+}
+
+button.deviceLegendBtn {
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+button.deviceLegendBtn:hover {
+  background: var(--bg-secondary);
+}
+
+.deviceLegendBtnActive {
+  background: var(--bg-secondary);
+}
+
+.deviceLegendChevron {
+  color: var(--text-tertiary);
+  transition:
+    transform 0.2s ease,
+    color 0.15s ease;
+}
+
+button.deviceLegendBtn:hover .deviceLegendChevron {
+  color: var(--text-primary);
+}
+
+.deviceLegendChevronOpen {
+  transform: rotate(90deg);
+  color: var(--text-accent);
+}
+
+.deviceLegendSwatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.deviceLegendIcon {
+  color: var(--text-tertiary);
+}
+
+.deviceLegendName {
+  color: var(--text-primary);
+}
+
+.deviceLegendPct {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
+  color: var(--text-secondary);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Devices 탭 — Type / OS / Browser ── */
+.deviceTabs {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  padding: var(--spacing-2xs);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-secondary);
+  align-self: flex-start;
+}
+
+.deviceTab {
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-capsule);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-hint);
+  font-weight: 600;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.deviceTab:hover {
+  color: var(--text-primary);
+}
+
+.deviceTabActive {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-xs);
+}
+
+/* devicesWrap 에 탭 변경 시 fade-in (key 변경으로 remount) */
+.devicesWrap {
+  animation: deviceTabFade 0.25s ease;
+}
+
+@keyframes deviceTabFade {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Devices drill-down — 표 기반 디자인에 맞춰 카드 chrome 제거, 위쪽 hairline ── */
+.deviceDrill {
+  margin-top: var(--spacing-md);
+  padding-top: var(--spacing-md);
+  border-top: var(--border-light);
+  animation: deviceDrillIn 0.28s ease both;
+}
+
+@keyframes deviceDrillIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.deviceDrillHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-sm);
+}
+
+.deviceDrillTitle {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-hint);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.deviceDrillEmpty {
+  margin: 0;
+  font-size: var(--font-size-label);
+  color: var(--text-tertiary);
+}
+
+.deviceDrillList {
+  composes: list from "../components/List.module.css";
+  gap: var(--spacing-2xs);
+}
+
+.deviceDrillRow {
+  display: grid;
+  grid-template-columns: minmax(80px, 1.2fr) minmax(80px, 2fr) auto auto;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-label);
+  opacity: 0;
+  animation: deviceDrillRowIn 0.3s ease both;
+}
+
+@keyframes deviceDrillRowIn {
+  from {
+    opacity: 0;
+    transform: translateX(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.deviceDrillName {
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.deviceDrillCount {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.deviceDrillPct {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-accent);
+  font-weight: 700;
+  min-width: var(--control-h-xs);
+  text-align: right;
+}
