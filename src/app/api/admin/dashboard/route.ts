@@ -3,6 +3,14 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { requireRole } from "@/lib/api/requireRole";
 import { PERM } from "@/lib/api/roles";
 import type { DashboardData } from "@/types";
+import {
+  aggregateCategoriesAndTags,
+  aggregateTraffic,
+  fillDailyViews,
+  kstDateStr,
+  type PostAggRow,
+  type VisitRow,
+} from "@/lib/api/dashboardAggregates";
 
 // GET /api/admin/dashboard — 어드민 대시보드용 집계 데이터
 // posts/works/comments 카운트 + 최근 항목 + 알림 + 인기 게시물 + AI 키 상태를
@@ -117,84 +125,13 @@ export async function GET() {
     })(),
   ]);
 
-  // 카테고리/태그 집계 (클라이언트 측 reduce)
-  const allPostsRows = (allPostsAgg.data ?? []) as Array<{ category: string | null; tags: string[] | null; view_count: number | null }>;
-  const categoryMap = new Map<string, { count: number; views: number }>();
-  const tagMap = new Map<string, number>();
-  for (const p of allPostsRows) {
-    if (p.category) {
-      const cur = categoryMap.get(p.category) ?? { count: 0, views: 0 };
-      cur.count += 1;
-      cur.views += p.view_count ?? 0;
-      categoryMap.set(p.category, cur);
-    }
-    for (const t of p.tags ?? []) {
-      tagMap.set(t, (tagMap.get(t) ?? 0) + 1);
-    }
-  }
-  const categories = Array.from(categoryMap, ([name, v]) => ({ name, postCount: v.count, views: v.views }))
-    .sort((a, b) => b.views - a.views || b.postCount - a.postCount)
-    .slice(0, 6);
-  const tags = Array.from(tagMap, ([tag, count]) => ({ tag, count }))
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 12);
+  const { categories, tags } = aggregateCategoriesAndTags(
+    (allPostsAgg.data ?? []) as PostAggRow[],
+  );
 
-  // ── 트래픽 분석 — site_visits 메타 (referrer / device / os / browser / model) 집계 ──
-  type VisitRow = {
-    referrer: string | null;
-    device_kind: string | null;
-    os: string | null;
-    browser: string | null;
-    device_model: string | null;
-  };
-  const visitRows = (trafficAgg.data ?? []) as VisitRow[];
-
-  const refMap = new Map<string, number>();
-  const deviceMap = new Map<string, number>();  // desktop/mobile/tablet
-  const osMap = new Map<string, number>();
-  const browserMap = new Map<string, number>();
-  // 디바이스 종류별 모델 분포 (drill-down 용)
-  const modelByDevice: Record<string, Map<string, number>> = { desktop: new Map(), mobile: new Map(), tablet: new Map() };
-
-  for (const v of visitRows) {
-    if (v.referrer) refMap.set(v.referrer, (refMap.get(v.referrer) ?? 0) + 1);
-    if (v.device_kind) deviceMap.set(v.device_kind, (deviceMap.get(v.device_kind) ?? 0) + 1);
-    if (v.os) osMap.set(v.os, (osMap.get(v.os) ?? 0) + 1);
-    if (v.browser) browserMap.set(v.browser, (browserMap.get(v.browser) ?? 0) + 1);
-    if (v.device_kind && v.device_model && modelByDevice[v.device_kind]) {
-      const m = modelByDevice[v.device_kind];
-      m.set(v.device_model, (m.get(v.device_model) ?? 0) + 1);
-    }
-  }
-
-  const totalVisits = visitRows.length;
-  const toPctList = <T,>(map: Map<string, number>, transform: (k: string, n: number) => T, limit: number, sortBySize = true): T[] => {
-    const total = [...map.values()].reduce((s, n) => s + n, 0);
-    if (total === 0) return [];
-    const list = [...map.entries()].sort((a, b) => sortBySize ? b[1] - a[1] : 0).slice(0, limit);
-    return list.map(([k, n]) => transform(k, n));
-  };
-
-  const referrers = toPctList(refMap, (source, count) => ({ source, count, pct: Math.round((count / totalVisits) * 100) }), 6);
-  const devices = (["desktop", "mobile", "tablet"] as const)
-    .map((kind) => {
-      const count = deviceMap.get(kind) ?? 0;
-      return { kind, count, pct: totalVisits > 0 ? Math.round((count / totalVisits) * 100) : 0 };
-    })
-    .filter((d) => d.count > 0);
-  const operatingSystems = toPctList(osMap, (name, count) => ({ name, count, pct: Math.round((count / totalVisits) * 100) }), 8);
-  const browsers = toPctList(browserMap, (name, count) => ({ name, count, pct: Math.round((count / totalVisits) * 100) }), 8);
-  const deviceModels: Record<"desktop" | "mobile" | "tablet", Array<{ model: string; count: number; pct: number }>> = {
-    desktop: [], mobile: [], tablet: [],
-  };
-  for (const kind of ["desktop", "mobile", "tablet"] as const) {
-    const subtotal = [...modelByDevice[kind].values()].reduce((s, n) => s + n, 0);
-    if (subtotal === 0) continue;
-    deviceModels[kind] = [...modelByDevice[kind].entries()]
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 10)
-      .map(([model, count]) => ({ model, count, pct: Math.round((count / subtotal) * 100) }));
-  }
+  const { referrers, devices, operatingSystems, browsers, deviceModels } = aggregateTraffic(
+    (trafficAgg.data ?? []) as VisitRow[],
+  );
 
   // 인기 게시물 댓글 수도 표시하려면 별도 집계 필요. MVP는 view_count + like_count.
 
@@ -291,38 +228,4 @@ export async function GET() {
     },
     services,
   } satisfies DashboardData);
-}
-
-/** Date → KST 기준 "YYYY-MM-DD" 문자열 (Asia/Seoul timezone) */
-const KST_FMT = new Intl.DateTimeFormat("en-CA", {
-  timeZone: "Asia/Seoul",
-  year: "numeric",
-  month: "2-digit",
-  day: "2-digit",
-});
-function kstDateStr(d: Date): string {
-  return KST_FMT.format(d);
-}
-
-/** N일치 데이터를 빈 날짜 0 으로 padding. day 는 KST 기준 ISO date(YYYY-MM-DD). */
-function fillDailyViews(
-  raw: Array<{ day: string; views: number }>,
-  days: number,
-): Array<{ day: string; views: number }> {
-  const map = new Map<string, number>();
-  for (const r of raw) {
-    map.set(r.day, Number(r.views) || 0);
-  }
-  const out: Array<{ day: string; views: number }> = [];
-  /* KST 오늘부터 거꾸로 N일. KST 자정 boundary 를 정확히 매치하기 위해 string 연산 사용. */
-  const todayKst = kstDateStr(new Date());
-  const todayParts = todayKst.split("-").map(Number);
-  const todayLocal = new Date(Date.UTC(todayParts[0], todayParts[1] - 1, todayParts[2]));
-  for (let i = days - 1; i >= 0; i--) {
-    const d = new Date(todayLocal);
-    d.setUTCDate(d.getUTCDate() - i);
-    const key = d.toISOString().slice(0, 10);
-    out.push({ day: key, views: map.get(key) ?? 0 });
-  }
-  return out;
 }
