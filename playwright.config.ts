@@ -31,7 +31,7 @@ export default defineConfig({
   projects: [
     {
       name: "desktop",
-      testMatch: /(smoke|nav)\.spec\.ts/,
+      testMatch: /(smoke|nav|designsystem)\.spec\.ts/,
       use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 900 } },
     },
     {
