@@ -109,80 +109,6 @@ textarea.edit {
   border: var(--border-light);
   border-radius: var(--radius-2xl);
 }
-.chromeDots {
-  display: inline-flex;
-  gap: var(--spacing-2xs);
-}
-.chromeDots i {
-  width: 9px;
-  height: 9px;
-  border-radius: var(--radius-circle);
-  background: var(--border-color-light);
-}
-.chromeLive {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  color: var(--text-secondary);
-}
-.chromeLive i {
-  width: 6px;
-  height: 6px;
-  border-radius: var(--radius-circle);
-  background: var(--bg-success-solid);
-}
-/* ── (구) Hero 스테이지 근사 — 미사용 ── */
-.stage {
-  position: relative;
-  overflow: hidden;
-  border: var(--border-light);
-  border-radius: var(--radius-2xl);
-  aspect-ratio: 16 / 8;
-  min-height: 340px;
-}
-.stageBg {
-  position: absolute;
-  inset: 0;
-  background-size: cover;
-  background-position: center;
-}
-.stageBg video,
-.stageBg img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.heroWatermark {
-  position: absolute;
-  right: 2%;
-  bottom: -6%;
-  z-index: 1;
-  pointer-events: auto;
-  white-space: nowrap;
-}
-.heroLine {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  max-width: 100%;
-}
-/* 라인 옆 스타일 편집 트리거 (커서 hover 시) */
-.lineTools {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-  opacity: 0;
-  transition: opacity 0.15s ease;
-}
-.heroLine:hover .lineTools,
-.heroLineActive .lineTools {
-  opacity: 1;
-}
 
 /* ── 타입 툴바 — stage 밖 도킹 바 안에 렌더 (overflow 로 안 잘림) ── */
 /* 툴바 좌측 요소 라벨 (Line 1 / Watermark 등) */
@@ -213,23 +139,6 @@ textarea.edit {
   border: 0;
   background: transparent;
   cursor: pointer;
-}
-.ttBtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 26px;
-  height: 26px;
-  padding: 0;
-  border: var(--border-light);
-  border-radius: var(--radius-circle);
-  background: transparent;
-  color: var(--text-secondary);
-  cursor: pointer;
-}
-.ttBtn:hover {
-  color: var(--text-primary);
-  border-color: var(--text-primary);
 }
 
 /* ── Hero 배경 컨트롤 (스테이지 우상단 Popover) ── */
@@ -515,19 +424,6 @@ textarea.edit {
   padding-top: var(--spacing-lg);
   border-top: var(--border-light);
 }
-.blockHint {
-  margin: 0;
-  font-size: var(--font-size-label);
-  color: var(--text-tertiary);
-}
-.blockHint code {
-  padding: var(--spacing-4xs) var(--spacing-2xs);
-  border-radius: var(--radius-capsule);
-  background: var(--bg-tertiary);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
-  color: var(--text-secondary);
-}
 
 /* ── 패널 편집 스테이지 (실제 패널 CSS 그대로 + 인라인 편집) ── */
 /* 폭은 편집 열에 맞는다(PanelStage 주석). 가로 스크롤은 안쪽에 자기 폭을 고집하는
@@ -605,24 +501,6 @@ textarea.edit {
 .editSecItem:hover .editStatX,
 .procRow:hover .editStatX {
   opacity: 1;
-}
-.addStatBtn {
-  grid-column: 1 / -1;
-  justify-self: start;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-  margin-top: var(--spacing-sm);
-  padding: var(--button-p-sm);
-  border: 1px solid var(--border-color-light);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  color: var(--text-secondary);
-  font-size: var(--font-size-label);
-  cursor: pointer;
-}
-.addStatBtn:hover {
-  color: var(--text-primary);
 }
 
 /* Overview 지표 추가 — stat 셀 하나 크기의 버튼(Key Features add 셀처럼).
@@ -935,79 +813,6 @@ textarea.edit {
   color: var(--text-primary);
   background: var(--bg-secondary);
 }
-
-/* Overview */
-.statTile {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-3xs);
-  padding: var(--spacing-md);
-  padding-right: var(--spacing-2xl);
-  border: var(--border-light);
-  border-radius: var(--radius-2xl);
-}
-.statValue {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-xl);
-  font-weight: 700;
-  color: var(--text-primary);
-}
-.statLabel {
-  font-size: var(--font-size-label);
-  color: var(--text-tertiary);
-}
-.tileRemove {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  border: 0;
-  border-radius: var(--radius-circle);
-  background: transparent;
-  color: var(--text-tertiary);
-  opacity: 0;
-  cursor: pointer;
-}
-.statTile:hover .tileRemove {
-  opacity: 1;
-}
-.tileRemove:hover {
-  color: var(--text-primary);
-  background: var(--bg-secondary);
-}
-
-/* Features / Process / Security 결과형 카드 */
-.cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: var(--spacing-md);
-}
-.rcardBadge {
-  display: grid;
-  place-items: center;
-  min-width: 30px;
-  height: 30px;
-  padding: 0 var(--spacing-2xs);
-  flex-shrink: 0;
-  overflow: hidden;
-  border-radius: var(--radius-2xl);
-  background: var(--bg-accent-subtle);
-  color: var(--color-accent);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
-  font-weight: 700;
-}
-.rcardBadge img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
 .rcardMedia {
   overflow: hidden;
   border-radius: var(--radius-2xl);
@@ -1018,58 +823,6 @@ textarea.edit {
   width: 100%;
   height: 100%;
   object-fit: cover;
-}
-.rcardRemove {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 26px;
-  height: 26px;
-  padding: 0;
-  border: 0;
-  border-radius: var(--radius-circle);
-  background: transparent;
-  color: var(--text-tertiary);
-  cursor: pointer;
-}
-.rcardRemove:hover {
-  color: var(--text-primary);
-  background: var(--bg-secondary);
-}
-
-/* add 버튼 */
-.add {
-  align-self: flex-start;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-  padding: var(--spacing-xs) var(--spacing-md);
-  border: 1px solid var(--border-color-light);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  color: var(--text-secondary);
-  font-size: var(--font-size-body);
-  cursor: pointer;
-}
-.add:hover {
-  color: var(--text-primary);
-}
-
-/* Architecture 트리 재사용 톤 */
-.tree {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2xs);
-}
-
-/* 편집 힌트 뱃지 (텍스트 클릭 안내) */
-.editHint {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
-  color: var(--text-tertiary);
 }
 
 /* ═══════════ Design System — 실제 풀블리드 슬라이드 프리뷰 ═══════════ */
@@ -1155,22 +908,6 @@ textarea.edit {
 .chStage:hover .chTools,
 .chStage:focus-within .chTools {
   opacity: 1;
-}
-.addPaneBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-2xs);
-  min-height: 6rem;
-  border: var(--border-light);
-  border-radius: var(--radius-2xl);
-  background: transparent;
-  color: var(--text-secondary);
-  font-size: var(--font-size-lg);
-  cursor: pointer;
-}
-.addPaneBtn:hover {
-  color: var(--text-accent);
 }
 
 /* Design System — 컨셉 전환 탭 스트립(실제도 한 장씩 넘겨 보는 strip 이라 나열 대신 탭) */
