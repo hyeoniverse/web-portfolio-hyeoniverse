@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.53.6](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.5...v1.53.6) (2026-09-06)
+
+
+### Performance Improvements
+
+* **home:** 홈에서 내려받는 4.8 MB 를 1.0 MB 로 줄인다 ([20f8fb3](https://github.com/hyeoniverse/web-portfolio-oval/commit/20f8fb3ece958c6f4756fe37ac157a7026144073))
+
 ## [1.53.5](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.4...v1.53.5) (2026-09-06)
 
 
