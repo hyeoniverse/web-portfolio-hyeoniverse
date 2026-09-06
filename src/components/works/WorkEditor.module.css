@@ -1,13 +1,6 @@
 /* ── WorkEditor-specific styles ── */
 /* Shared shell styles (container, topBar, buttons, field, tags, etc.) are in AdminEditorShell */
 
-/* ── Inline hint (label 옆에 표시) ── */
-.slugHint {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-label);
-  color: var(--text-accent);
-}
-
 /* ── Sections ── */
 .section {
   display: flex;
@@ -19,13 +12,6 @@
 /* contribRoleGroup 들을 너비 따라 multi-col 로 분배.
    auto-fill: 빈 track 유지 → 1 개일 때도 stretch 하지 않고 일정 너비.
    280px 미만 → 1 col, 280~560 → 2 col, 560+ → 3+ col */
-
-/* title + 예약 발행 묶음 — section 의 spacing-lg gap 보다 작게 (관련 필드라 가까이) */
-.titleGroup {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-}
 
 .sectionTitle {
   font-family: var(--font-space-grotesk);
@@ -103,23 +89,6 @@
   color: var(--text-tertiary);
 }
 
-.fieldSelect {
-  min-height: var(--control-h-md);
-  padding: 0 var(--spacing-md);
-  border: var(--border-default);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-body);
-  color: var(--text-primary);
-  outline: none;
-  appearance: none;
-}
-
-.section .fieldSelect:focus {
-  border-color: var(--text-primary);
-}
-
 /* ── Tech input row — Select + + 버튼 캡슐 그룹 (contribAddRow 동일 패턴).
  * overflow: hidden 안 함 → Select dropdown (portal 이지만 positioning 영향) 정상 표시 */
 .techInputRow {
@@ -165,16 +134,6 @@
 }
 
 /* tech chip 안 brand 아이콘 — 라벨 왼쪽 inline */
-
-/* 기술별 메모 list — tech tag 아래, 각 기술마다 [라벨 + input] row */
-.techNotesList {
-  list-style: none;
-  margin: var(--spacing-md) 0 0 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
-}
 
 /* + 버튼은 공통 Button (shape="circle") 사용 — Button.module.css 가 정사각 강제 */
 
@@ -338,8 +297,7 @@
 }
 
 /* Select + 직접 입력 (custom KO/EN inputs + 추가 버튼) 한 줄 — nature 도 같은 패턴 사용 */
-.categoryAddRow,
-.customCategoryRow {
+.categoryAddRow {
   display: flex;
   flex-wrap: wrap;
   align-items: stretch;
@@ -472,16 +430,6 @@
   min-width: 0;
 }
 
-/* subtitle + role 같은 row — role 의 chip 이 늘어남에 따라 subtitle input 도 같이 stretch */
-.subtitleRoleRow {
-  align-items: stretch !important;
-}
-
-.subtitleRoleRow > * {
-  display: flex;
-  flex-direction: column;
-}
-
 .subtitleInput {
   flex: 1;
   min-height: var(--control-h-md);
@@ -493,99 +441,7 @@
   border-radius: var(--radius-2xl);
 }
 
-/* ── Role multi-select — chip row 와 input 을 별도 배치, dropdown 은 portal ── */
-.roleMS {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2xs);
-}
-
 /* 선택된 chip row — input 과 별개 row, 자유롭게 wrap */
-
-/* chip 자체가 button — 어디 눌러도 제거. hover 시 accent 톤으로 명확한 피드백 */
-.roleMSChip {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-  padding: var(--badge-p-md);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  border: var(--border-default);
-  color: var(--text-primary);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-label);
-  font-weight: 500;
-  line-height: 1.4;
-  cursor: pointer;
-  transition:
-    border-color 0.15s ease,
-    color 0.15s ease,
-    background 0.15s ease;
-}
-
-/* hover — "이 chip 을 누르면 제거됨" 을 시각적으로: accent 톤 + ×아이콘 강조 */
-.roleMS .roleMSChip:hover {
-  border-color: var(--text-accent);
-  background: var(--bg-accent-subtle);
-  color: var(--text-accent);
-}
-
-.roleMSChipLabel {
-  text-decoration: none;
-}
-
-.roleMS .roleMSChip:hover .roleMSChipLabel {
-  text-decoration: line-through;
-}
-
-.roleMSChipRemove {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  color: var(--text-tertiary);
-  font-size: 14px;
-  line-height: 1;
-}
-
-.roleMS .roleMSChip:hover .roleMSChipRemove {
-  color: var(--text-accent);
-}
-
-/* input wrap — 단순한 capsule, hover/focus 시 border 강조 */
-.roleMSInputWrap {
-  width: 100%;
-  min-height: var(--control-h-md);
-  display: flex;
-  align-items: center;
-  padding: var(--spacing-2xs) var(--spacing-md);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  cursor: text;
-  transition: border-color 0.15s ease;
-}
-
-.roleMS .roleMSInputWrap:hover {
-  border-color: var(--text-primary);
-}
-
-.roleMSInput {
-  flex: 1;
-  min-width: 0;
-  border: none;
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-body);
-  color: var(--text-primary);
-  outline: none;
-  padding: var(--spacing-3xs) 0;
-}
-
-.roleMSInput::placeholder {
-  color: var(--text-tertiary);
-}
 
 /* dropdown — capsule 아래 popover. capsule 너비 + min-width 으로 좁아도 충분히 펼쳐짐 */
 
@@ -598,52 +454,6 @@
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-.roleMSList {
-  display: flex;
-  flex-direction: column;
-  max-height: 240px;
-  overflow-y: auto;
-  padding: var(--spacing-2xs);
-}
-
-.roleMSItem {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  width: 100%;
-  padding: var(--row-p-md);
-  border: none;
-  background: transparent;
-  border-radius: var(--radius-capsule);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-body);
-  color: var(--text-primary);
-  text-align: left;
-  cursor: pointer;
-  transition: background 0.1s ease;
-}
-
-.roleMSList .roleMSItem:hover {
-  background: var(--bg-secondary);
-}
-
-.roleMSItemIcon {
-  color: var(--text-tertiary);
-  flex-shrink: 0;
-}
-
-.roleMSItemAdd {
-  border-top: var(--border-light);
-  margin-top: var(--spacing-2xs);
-  padding-top: var(--spacing-xs);
-  border-radius: 0;
-  color: var(--text-secondary);
-}
-
-.roleMSItemAdd .roleMSItemIcon {
-  color: var(--text-secondary);
 }
 
 .galleryCount {
@@ -1247,254 +1057,13 @@
   gap: var(--spacing-md);
 }
 
-/* 한 역할 그룹 — column stack. padding/border 없이 부모 gap 으로 sibling 간격 처리 */
-.contribRoleGroup {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-}
-
 /* dragging 시 opacity 낮춤 */
 
-/* drop indicator — group 위/아래에 accent 막대 */
-.contribRoleGroupDropTop::before,
-.contribRoleGroupDropBottom::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: var(--text-accent);
-  border-radius: 1px;
-}
-
-.contribRoleGroupDropTop::before {
-  top: calc(var(--spacing-sm) * -0.5);
-}
-
-.contribRoleGroupDropBottom::after {
-  bottom: calc(var(--spacing-sm) * -0.5);
-}
-
-/* role section header — tag chip 스타일 (capsule + bg-tertiary).
- * 자체 너비만 차지 (inline-flex), align-self: flex-start 로 부모의 stretch 차단 */
-.contribRoleHeader {
-  align-self: flex-start;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-  padding: var(--spacing-2xs) var(--spacing-xs);
-  background: var(--bg-tertiary);
-  border-radius: var(--radius-capsule);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-label);
-  color: var(--text-secondary);
-}
-
-/* role drag handle — chip 안 좌측, grab cursor */
-.contribRoleDragHandle {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  color: var(--text-tertiary);
-  cursor: grab;
-}
-
-.contribRoleDragHandle:hover {
-  color: var(--text-secondary);
-}
-
-.contribRoleDragHandle:active {
-  cursor: grabbing;
-}
-
-/* + 추가 버튼 — chip 안 X 옆. text-accent 톤으로 구분 (action 의미) */
-.contribRoleHeader .contribRoleAdd {
-  margin-left: var(--spacing-2xs);
-  background: transparent;
-  color: var(--text-accent);
-}
-
-.contribRoleHeader .contribRoleAdd:disabled {
-  color: var(--text-tertiary);
-  cursor: default;
-}
-
-/* X 제거 — chip 안 우측 끝. button 16px + line 8px (50% 비율, contrib item 12px/24px 와 동일) */
-.contribRoleHeader .contribRoleRemove {
-  width: 16px;
-  height: 16px;
-  background: transparent;
-  --close-size: 8px;
-}
-
-.contribRoleHeader:has(.contribRoleRemove:hover) {
-  background: var(--bg-accent-subtle);
-  text-decoration: line-through;
-  text-decoration-color: var(--text-accent);
-  text-decoration-thickness: 1px;
-}
-
-/* role 제거 X 에 hover 시 — 해당 role 의 ul 에 line-through 만 표시 (bg 변화 X) */
-.contribRoleGroup:has(.contribRoleRemove:hover) .memberContribs {
-  text-decoration: line-through;
-  text-decoration-color: var(--text-accent);
-  text-decoration-thickness: 1px;
-}
-
 /* 기여 항목 ul — form 과 card 양쪽에서 공용. 왼쪽 padding 0 (form 에는 avatar 없음). */
-/* add-card 의 작업 ul — role chip 과 시각적 grouping (좌측 hairline + 들여쓰기), 카드 없이 */
-.memberContribs {
-  list-style: none;
-  margin: 0 0 0 var(--spacing-sm);
-  padding-left: var(--spacing-md);
-  border-left: var(--border-light);
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-3xs);
-}
-
-.contribItem {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  padding: 0;
-  border-radius: var(--radius-capsule);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-label);
-  color: var(--text-primary);
-}
-
-/* bullet dot — CSS 원형 (• char 는 font baseline 때문에 시각적으로 아래로 쳐짐) */
-.contribItem::before {
-  content: "";
-  flex-shrink: 0;
-  width: 4px;
-  height: 4px;
-  border-radius: var(--radius-circle);
-  background: var(--text-tertiary);
-  order: 1;
-}
-
-/* drag handle — 좌측, bullet 보다 더 앞 */
-.contribDragHandle {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  color: var(--text-tertiary);
-  cursor: grab;
-  order: 0;
-}
-
-.contribDragHandle:hover {
-  color: var(--text-secondary);
-}
-
-.contribDragHandle:active {
-  cursor: grabbing;
-}
-
-/* text 는 bullet 다음 */
-.contribText {
-  order: 2;
-}
-
-/* X 제거 (CloseButton 공통) — 우측 끝으로 push */
-.contribItemRemove {
-  margin-left: auto;
-  order: 3;
-  flex-shrink: 0;
-}
-
-/* X hover 시 — chip 패턴과 동일 (line-through + 옅은 accent 배경) */
-.contribItem:has(.contribItemRemove:hover) {
-  background: var(--bg-accent-subtle);
-  text-decoration: line-through;
-  text-decoration-color: var(--text-accent);
-  text-decoration-thickness: 1px;
-}
 
 /* dragging 상태 — opacity 낮춰서 시각적 피드백 */
 
-/* drop indicator — 위/아래에 accent 막대 표시.
- * ::before 는 bullet (.contribItem::before, width: 4px) 과 같은 pseudo 공유 →
- * width/border-radius/flex 속성 명시적으로 override 해야 full-width 막대로 표시됨 */
-.contribItemDropTop::before,
-.contribItemDropBottom::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  width: auto;
-  height: 2px;
-  background: var(--text-accent);
-  border-radius: 1px;
-  flex-shrink: 1;
-  order: 0;
-}
-
-.contribItemDropTop::before {
-  top: -1px;
-}
-
-.contribItemDropBottom::after {
-  bottom: -1px;
-}
-
-.contribText {
-  flex: 1;
-  min-width: 0;
-  word-break: break-word;
-}
-
 /* 기여 항목 입력 row — input + 추가 버튼. bullet 없음 */
-/* input + + 버튼 묶음 — 캡슐 그룹 형태 (개별 border/radius 제거 + 외곽 한 줄) */
-.contribAddRow {
-  display: flex;
-  align-items: stretch;
-  gap: 0;
-  padding: 0;
-  height: 28px;
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  overflow: hidden;
-  transition: border-color 0.15s ease;
-}
-
-.contribAddRow:focus-within {
-  border-color: var(--text-primary);
-}
-
-.contribInput {
-  flex: 1;
-  min-width: 0;
-  box-sizing: border-box;
-  padding: 0 var(--spacing-md);
-  border: none;
-  border-radius: 0;
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-label);
-  color: var(--text-primary);
-  outline: none;
-  line-height: 1;
-}
-
-.contribInput::placeholder {
-  color: var(--text-tertiary);
-}
-
-/* + 버튼 — 그룹 내부에 합쳐짐. 좌측에 separator 라인 */
-.contribAddRow > button {
-  border: none !important;
-  border-radius: 0 !important;
-  border-left: var(--border-light) !important;
-  min-width: 28px;
-  width: 28px;
-  height: 26px;
-}
 
 @media (max-width: 768px) {
   .row3 {
