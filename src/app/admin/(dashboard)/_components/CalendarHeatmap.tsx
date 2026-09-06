@@ -13,7 +13,7 @@ import Pressable from "@/components/ui/Pressable";
 /** GitHub-style 캘린더 히트맵 — 7행(요일) × N열(주). 각 셀은 그날 조회수에 따라 4단계 accent 농도. */
 /** 월별 캘린더 뷰 — 일반적인 달력 모양 (7-col 요일 × 6-row 주). 한 달치를 한 번에 보여줌.
  *  focus month state 는 DailyViewsChart 가 소유 — stat 패널 (이 달 합계 / 직전 달 대비) 과 동기화. */
-export function CalendarHeatmap({
+function CalendarHeatmap({
   data,
   language,
   onSelectDay,

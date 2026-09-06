@@ -37,7 +37,7 @@ export function PanelGroup({ children, ...head }: PanelSaveHeaderProps & { child
 }
 
 /* ═══════════ Panel manager — 순서(DnD) + 표시 토글. hero/credits 는 순서 고정 ═══════════ */
-export const LOCKED_PANELS = new Set(["hero", "credits"]);
+const LOCKED_PANELS = new Set(["hero", "credits"]);
 
 export function PanelManager({ about, setAny, t, lang }: {
   about: SiteConfigData["about"]; setAny: (k: string, v: unknown) => void; t: TFunction; lang: Language;
@@ -120,7 +120,7 @@ export function PanelManager({ about, setAny, t, lang }: {
   );
 }
 
-export function PanelSortChip({ id, className, label, onToggle, onEdit }: { id: string; className: string; label: string; onToggle: () => void; onEdit: () => void }) {
+function PanelSortChip({ id, className, label, onToggle, onEdit }: { id: string; className: string; label: string; onToggle: () => void; onEdit: () => void }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
   const style: CSSProperties = { transform: DndCSS.Transform.toString(transform), transition, zIndex: isDragging ? 2 : undefined, position: isDragging ? "relative" : undefined };
   return (
@@ -141,7 +141,7 @@ export interface PanelSaveHeaderProps {
   setAny: (k: string, v: unknown) => void; lang: Language; t: TFunction;
 }
 
-export function PanelSaveHeader({ label, hint, paths, panelKey, config, savedConfig, saveSection, revertSection, resetSection, savingPaths, setAny, lang, t }: PanelSaveHeaderProps) {
+function PanelSaveHeader({ label, hint, paths, panelKey, config, savedConfig, saveSection, revertSection, resetSection, savingPaths, setAny, lang, t }: PanelSaveHeaderProps) {
   const dirty = paths.some((p) => !deepEqual(getByPath(config, p), getByPath(savedConfig, p)));
   /* 이미 기본값이면 "기본값" 버튼은 할 일이 없다 */
   const atDefault = paths.every((p) => deepEqual(getByPath(config, p), getByPath(siteConfig as unknown as SiteConfigData, p)));

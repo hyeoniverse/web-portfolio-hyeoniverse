@@ -11,7 +11,7 @@ import SegmentedControl from "@/components/ui/SegmentedControl";
 import { type TroubleShootingItem } from "@/data/about/types";
 import { type Language } from "@/types";
 /* ═══════════ Troubleshooting ═══════════ */
-export const TS_MAX = 16;
+const TS_MAX = 16;
 
 export const TS_FIELDS = ["problem", "definition", "cause", "solution", "keyInsight"] as const;
 

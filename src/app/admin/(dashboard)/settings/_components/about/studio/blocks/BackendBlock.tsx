@@ -11,7 +11,7 @@ import { type BackendItem } from "@/data/about/types";
 import { type TFunction } from "@/providers/LanguageProvider";
 import { type Language } from "@/types";
 /* ═══════════ Backend ═══════════ */
-export const BK_MAX = 12;
+const BK_MAX = 12;
 
 /* 실제 패널과 동일 — 좌측 목록 + 우측 상세. 실제도 한 항목씩 보므로 탭으로 전환. */
 export function BackendBlock({ value, onChange, lang, t, title }: {

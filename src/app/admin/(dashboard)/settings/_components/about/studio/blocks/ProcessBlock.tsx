@@ -19,9 +19,9 @@ export type ProcessItem = NonNullable<SiteConfigData["about"]["process"]>[number
 /* 단계 번호는 자리에서 나온다. 저장된 step 값도 자리에 맞춰 다시 매긴다 —
    공개 페이지와 마크다운 frontmatter 가 이 값을 읽으므로 화면과 어긋나면 안 된다.
    불러올 때는 손대지 않는다. 열기만 해도 "저장 안 됨" 이 켜지면 안 되니까. */
-export const stepNo = (i: number) => String(i + 1).padStart(2, "0");
+const stepNo = (i: number) => String(i + 1).padStart(2, "0");
 
-export const renumberSteps = (list: ProcessItem[]) => list.map((it, i) => ({ ...it, step: stepNo(i) }));
+const renumberSteps = (list: ProcessItem[]) => list.map((it, i) => ({ ...it, step: stepNo(i) }));
 
 export function ProcessBlock({ value, onChange, lang, t, title }: {
   value: ProcessItem[]; onChange: (v: ProcessItem[]) => void; lang: Language; t: TFunction; title: string;
@@ -82,7 +82,7 @@ export function ProcessBlock({ value, onChange, lang, t, title }: {
 
 /* 번호가 곧 손잡이다. 끌어서 자리를 옮기면 번호가 따라 바뀐다 — 번호를 고쳐 적어서
    순서를 바꾸려던 예전 방식은 실제로는 순서를 안 바꿔서 01·03·02 같은 목록이 나왔다. */
-export function ProcessRow({ id, index, item, lang, t, set, onRemove }: {
+function ProcessRow({ id, index, item, lang, t, set, onRemove }: {
   id: string; index: number; item: ProcessItem; lang: Language; t: TFunction;
   set: (i: number, p: Partial<ProcessItem>) => void; onRemove: () => void;
 }) {

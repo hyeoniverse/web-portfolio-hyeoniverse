@@ -16,7 +16,7 @@ import Link from "next/link";
 type DayTopPost = { id: string; title: string; slug: string; views: number };
 
 /** 선택된 날짜의 분석 패널 — 순위, 평균 대비, 같은 요일 대비, 전일 대비, 그날 인기 게시물 */
-export function DayDetailPanel({
+function DayDetailPanel({
   data,
   selectedIdx,
   onClose,

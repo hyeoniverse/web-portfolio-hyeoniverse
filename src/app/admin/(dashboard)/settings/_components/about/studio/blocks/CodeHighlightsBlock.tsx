@@ -20,7 +20,7 @@ export type CodeItem = { title: string; description_ko: string; description_en: 
   demoMode?: CodeDemoMode; demoMedia?: string; demoFiles?: Record<string, string>; demoTemplate?: string; demoBg?: string };
 
 /* sandbox 기본 파일 — react-ts 템플릿의 index.tsx 가 ./styles.css 를 import 하므로 그대로 스타일이 먹는다 */
-export const DEMO_FILE_SEED: Record<string, string> = {
+const DEMO_FILE_SEED: Record<string, string> = {
   "/App.tsx": `export default function App() {
   return <button className="demo">Hover Me</button>;
 }
@@ -259,7 +259,7 @@ async function uploadDemoFile(file: File): Promise<string> {
   return json.url as string;
 }
 
-export function DemoMediaUpload({ url, onChange, lang }: {
+function DemoMediaUpload({ url, onChange, lang }: {
   url?: string; onChange: (u: string) => void; lang: Language;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);

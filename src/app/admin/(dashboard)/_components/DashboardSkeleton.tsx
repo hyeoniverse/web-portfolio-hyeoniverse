@@ -9,7 +9,7 @@ const styles = { ...shared, ...local };
 import { Item, List, ListItem, Panel, PanelTitle, Section, SectionHeader } from "../components";
 import { SkeletonBlock, SkeletonCircle, SkeletonLine, SkeletonPill } from "@/components/ui/Skeleton";
 /* ── Skeleton state — 실제 dashboard 의 Section/Panel/List 추상화를 그대로 미러링 ── */
-export function DashboardSkeleton() {
+function DashboardSkeleton() {
   return (
     <div className={styles.container} aria-busy="true" aria-live="polite">
       {/* Header — title + refresh button */}
