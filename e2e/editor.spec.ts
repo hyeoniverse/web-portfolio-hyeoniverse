@@ -1,4 +1,4 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect, type Page, type Locator } from "@playwright/test";
 
 /**
  * 에디터 e2e — Phase 4-5(컴포넌트 슬라이스) 의 안전망.
@@ -68,5 +68,97 @@ test.describe("에디터 입력", () => {
     await page.waitForTimeout(300);
 
     expect((await editor.innerText()).trim()).toBe("hello");
+  });
+});
+
+/**
+ * 표 안전망.
+ *
+ * 표를 그리는 TableElements.tsx 는 1,322줄이고, 그 안에 세 가지가 함께 들어 있다.
+ * 표·행·열을 고르는 처리, 행과 열을 더하는 손잡이, 칸 하나의 테두리와 폭 조절이다.
+ * 이것을 나눌 예정인데 지금은 표를 확인하는 검사가 행 높이 저장 하나뿐이다.
+ *
+ * 저장하지 않는다. 새 글 화면에서 표를 넣고 만져 보기만 하고 그대로 떠난다.
+ */
+
+/**
+ * 칸을 누르고, 커서가 그 칸 안에 실제로 들어갈 때까지 기다린다.
+ *
+ * 누른 직후 바로 입력하면 첫 글자만 남는다. 커서가 아직 자리를 잡지 않은 상태라
+ * 뒷글자가 갈 곳을 잃기 때문이다. 기다리는 시간을 정해 두면 기계가 바쁠 때 모자라므로,
+ * 커서 위치를 직접 확인한다.
+ */
+async function focusCell(page: Page, cell: Locator) {
+  await cell.click();
+  await expect
+    .poll(async () => cell.evaluate((el) => {
+      const sel = document.getSelection();
+      return !!sel?.anchorNode && el.contains(sel.anchorNode);
+    }), { message: "커서가 그 칸 안에 있다", timeout: 10_000 })
+    .toBe(true);
+}
+
+/** 본문 도구 모음의 Table 단추로 3×3 표(머리글 포함)를 넣는다. */
+async function insertTable(page: Page) {
+  const editor = await openEditor(page);
+  await page.getByRole("button", { name: "Table", exact: true }).click();
+  const table = editor.locator("table").first();
+  await expect(table, "표가 그려져야 한다").toBeVisible({ timeout: 10_000 });
+  return { editor, table };
+}
+
+test.describe("에디터 표", () => {
+  test.setTimeout(120_000);
+
+  test("표를 넣으면 3행 3열에 머리글이 함께 그려진다", async ({ page }) => {
+    const errors: string[] = [];
+    page.on("pageerror", (e) => errors.push(e.message));
+    const { table } = await insertTable(page);
+
+    await expect(table.locator("tr"), "행").toHaveCount(3);
+    await expect(table.locator("tr").first().locator("th, td"), "첫 행의 칸").toHaveCount(3);
+    await expect(table.locator("th"), "머리글 칸").toHaveCount(3);
+    expect(errors, "표를 그리다 난 오류").toEqual([]);
+  });
+
+  test("칸에 글자를 넣으면 그 칸에 남는다", async ({ page }) => {
+    const { table } = await insertTable(page);
+    const cell = table.locator("td").first();
+    await focusCell(page, cell);
+    await page.keyboard.type("hello", { delay: 120 });
+    await expect(cell, "입력한 칸").toContainText("hello");
+  });
+
+  test("칸에 한글을 조합해 넣어도 그 칸에 남는다", async ({ page }) => {
+    const { table } = await insertTable(page);
+    const cell = table.locator("td").first();
+    await focusCell(page, cell);
+    // 조합은 커서가 놓인 곳에 들어간다. 칸 안이 비어 있으면 커서가 아직 글자 마디에
+    // 붙지 않은 상태라 조합이 갈 곳을 잃는다. 한 글자를 먼저 넣어 마디를 만든다.
+    await page.keyboard.type("x", { delay: 120 });
+    await expect(cell, "먼저 넣은 글자").toContainText("x");
+    await composeIME(page, ["ㄱ", "가"], "가");
+    await composeIME(page, ["ㄴ", "나"], "나");
+    await expect(cell, "입력한 칸").toContainText("x가나");
+  });
+
+  test("행·열을 더하는 손잡이가 표 옆에 붙는다", async ({ page }) => {
+    const { editor } = await insertTable(page);
+    // 손잡이는 표를 감싸는 상자 안에 그려진다. 표 밖으로 튀어나온 위치라 표 자체에는 없다.
+    const wrap = editor.locator("[data-table-wrap]").first();
+    await expect(wrap, "표를 감싸는 상자").toBeVisible();
+    await expect(wrap.locator("[data-table-add-btn]"), "더하기 손잡이").not.toHaveCount(0);
+  });
+
+  test("열 손잡이를 누르면 그 열이 통째로 선택된다", async ({ page }) => {
+    const { editor, table } = await insertTable(page);
+    await focusCell(page, table.locator("td").first());
+
+    const handle = editor.locator("[data-col-handle]").first();
+    await expect(handle, "열 손잡이").toBeVisible({ timeout: 10_000 });
+    await handle.click();
+
+    // 한 열은 3칸(머리글 1 + 본문 2)이다. 선택되면 그 칸들에 표시가 붙는다.
+    await expect(editor.locator("[data-cell-selected]"), "선택된 칸").toHaveCount(3);
   });
 });
