@@ -29,15 +29,17 @@ import {
   parseAlpha,
   withAlpha,
   oklchToHex,
-  oklchToRgbRaw,
   OKLCH_C_MAX,
-  parseOklchString,
+  parseAnyToOklch,
+  parseAnyColorToOklch,
   rgbToHex,
   type HSL,
   type HSV,
   type OKLCH,
   type RGB,
 } from "./colorMath";
+import { fillLcPad } from "./lcPadPixels";
+import { placePopover } from "./popoverPlacement";
 import Select from "../Select";
 import Input from "../Input";
 import Tooltip from "../Tooltip";
@@ -101,6 +103,20 @@ interface ColorPickerProps {
 }
 
 /**
+ * 왜 이 파일이 한 덩어리로 남아 있는가
+ *
+ * 화면 없이 확인할 수 있는 계산은 이미 밖으로 뺐다. 색 문자열 해석은 colorMath,
+ * 판을 놓을 자리 계산은 popoverPlacement, 밝기×채도 판의 픽셀은 lcPadPixels 가 맡는다.
+ *
+ * 남은 것은 더 나누지 않는다. 여기 있는 상태 열 개와 참조값 열두 개가 끌기 처리와
+ * 결과 내보내기를 통해 서로 엮여 있기 때문이다. 예를 들어 색을 끌어 고르는 처리는
+ * 지금 형식(padType), 낼 수 있는 최대 채도(maxC), 투명도의 즉시값(alphaRef),
+ * 결과를 내보내는 함수(update)를 한꺼번에 본다. 판·고리·밝기·채도·색상·투명도까지
+ * 여덟 개의 끌기 처리가 같은 값들을 공유한다.
+ *
+ * 이것을 파일로 나누면 그 값들을 인자로 길게 넘겨 다니게 된다. 줄 수는 흩어지지만
+ * 무엇이 무엇에 영향을 주는지는 오히려 알아보기 어려워진다.
+ *
  * 통합 color picker — OKLCH 를 source of truth 로 하고
  * HEX / RGB / HSL / HSV / OKLCH / CMYK 6가지 input format 을 UI Select 로 전환해 입력.
  *
@@ -168,30 +184,14 @@ export default function ColorPicker({
       : el.getBoundingClientRect();
   }, []);
 
-  /** trigger rect + popover size → viewport 안에 들어오는 top/left 계산.
-   *  좌/우 overflow 시 반대 가장자리 기준으로 align, 하단 overflow 시 trigger 위로 flip. */
-  const computePos = useCallback((rect: DOMRect): { top: number; left: number } => {
-    const MARGIN = 8;
-    const GAP = 6;
-    const pop = popRef.current;
-    const popW = pop?.offsetWidth ?? 260;
-    const popH = pop?.offsetHeight ?? 320;
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-
-    let left = rect.left;
-    if (left + popW > vw - MARGIN) left = vw - popW - MARGIN;
-    if (left < MARGIN) left = MARGIN;
-
-    // 기본은 trigger 아래. 아래 공간 부족하고 위 공간 충분하면 위로 flip.
-    let top = rect.bottom + GAP;
-    if (top + popH > vh - MARGIN) {
-      const above = rect.top - GAP - popH;
-      if (above >= MARGIN) top = above;
-      else top = Math.max(MARGIN, vh - popH - MARGIN);
-    }
-    return { top, left };
-  }, []);
+  /** 누른 것의 자리 → 화면 안에 들어오는 판 위치. 실제 계산은 popoverPlacement 가 한다. */
+  const computePos = useCallback((rect: DOMRect) => placePopover(
+    rect,
+    popRef.current?.offsetWidth ?? 260,
+    popRef.current?.offsetHeight ?? 320,
+    window.innerWidth,
+    window.innerHeight,
+  ), []);
 
   /* 위치 동기화 — 초기 1회만 React state 로 portal mount 트리거.
    * 이후 scroll/resize 에는 rAF + DOM 직접 mutate 로 처리해 rerender 없이 매끄럽게 따라감
@@ -317,12 +317,9 @@ export default function ColorPicker({
   const wheelHueX = 50 + WHEEL_THUMB_R * Math.cos(wheelHueRad);
   const wheelHueY = 50 + WHEEL_THUMB_R * Math.sin(wheelHueRad);
 
-  /* ── LC pad 의 canvas 픽셀 그리기 ─ oklch.com 스타일
-   *    x=Lightness 0→100, y=Chroma top=max → 0.
-   *    in-gamut (sRGB 안): 실제 OKLCH 색
-   *    out-of-gamut: 대각선 hatching (mid gray 2색)
-   *    useLayoutEffect 로 portal mount 후 paint 전 즉시 그림 (open 시 첫 빈 화면 방지).
-   *    오버샘플링 — sample 해상도가 표시 크기보다 커서 부드럽게 보임. */
+  /* 밝기×채도 판 그리기. 어떤 픽셀이 무슨 색인지는 lcPadPixels 가 계산한다.
+   * 여기서는 그릴 자리(canvas)가 준비됐는지 확인하고 한 번 칠하는 일만 한다.
+   * 판이 뜨자마자 그려야 첫 화면이 비지 않으므로 paint 직전에 실행되는 효과를 쓴다. */
   const lcCanvasRef = useRef<HTMLCanvasElement>(null);
   useLayoutEffect(() => {
     if (!open || padType !== "lc") return;
@@ -337,30 +334,8 @@ export default function ColorPicker({
       }
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
-      const W = canvas.width;
-      const H = canvas.height;
-      const img = ctx.createImageData(W, H);
-      for (let y = 0; y < H; y++) {
-        const C = (1 - y / (H - 1)) * OKLCH_C_MAX;
-        for (let x = 0; x < W; x++) {
-          const L = (x / (W - 1)) * 100;
-          const rgb = oklchToRgbRaw({ l: L, c: C, h: oklch.h });
-          const inGamut = rgb.r >= 0 && rgb.r <= 1 && rgb.g >= 0 && rgb.g <= 1 && rgb.b >= 0 && rgb.b <= 1;
-          const idx = (y * W + x) * 4;
-          if (inGamut) {
-            img.data[idx] = Math.round(rgb.r * 255);
-            img.data[idx + 1] = Math.round(rgb.g * 255);
-            img.data[idx + 2] = Math.round(rgb.b * 255);
-          } else {
-            // 대각선 4px 단위 stripe — out-of-gamut 영역 시각화
-            const stripe = (((x + y) >> 2) & 1) === 0 ? 96 : 124;
-            img.data[idx] = stripe;
-            img.data[idx + 1] = stripe;
-            img.data[idx + 2] = stripe;
-          }
-          img.data[idx + 3] = 255;
-        }
-      }
+      const img = ctx.createImageData(canvas.width, canvas.height);
+      fillLcPad(img.data, canvas.width, canvas.height, oklch.h);
       ctx.putImageData(img, 0, 0);
     };
     draw();
@@ -890,6 +865,7 @@ export default function ColorPicker({
                 onChange={setHexDraft}
                 onBlur={(e) => commitHex(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter") commitHex(e.currentTarget.value); }}
+                aria-label="HEX"
                 spellCheck={false}
                 clearable={false}
                 className={styles.pickerInput}
@@ -1025,6 +1001,7 @@ export default function ColorPicker({
                   step={0.1}
                   value={String(oklch.l)}
                   onChange={(v) => onOklchChange("l", v)}
+                  aria-label="OKLCH L"
                   clearable={false}
                   className={`${styles.pickerInput} ${styles.pickerInputCenter} ${styles.oklchChInput}`}
                 />
@@ -1054,6 +1031,7 @@ export default function ColorPicker({
                   step={0.001}
                   value={String(oklch.c)}
                   onChange={(v) => onOklchChange("c", v)}
+                  aria-label="OKLCH C"
                   clearable={false}
                   className={`${styles.pickerInput} ${styles.pickerInputCenter} ${styles.oklchChInput}`}
                 />
@@ -1083,6 +1061,7 @@ export default function ColorPicker({
                   step={1}
                   value={String(oklch.h)}
                   onChange={(v) => onOklchChange("h", v)}
+                  aria-label="OKLCH H"
                   clearable={false}
                   className={`${styles.pickerInput} ${styles.pickerInputCenter} ${styles.oklchChInput}`}
                 />
@@ -1169,66 +1148,4 @@ export default function ColorPicker({
       ))}
     </>
   );
-}
-
-/** 외부 value (hex 또는 oklch string) → OKLCH 객체 */
-function parseAnyToOklch(input: string): OKLCH {
-  const trimmed = input.trim();
-  if (trimmed.startsWith("oklch")) {
-    return parseOklchString(trimmed) ?? { l: 0, c: 0, h: 0 };
-  }
-  return hexToOklch(trimmed);
-}
-
-/** 붙여넣기용 — HEX / RGB / HSL / HSV / OKLCH 어떤 형식이든 자동 감지해 OKLCH 로 변환. 실패 시 null. */
-function parseAnyColorToOklch(input: string): OKLCH | null {
-  const s = input.trim().toLowerCase();
-  if (!s) return null;
-
-  // 1. oklch(...)
-  if (s.startsWith("oklch")) return parseOklchString(s);
-
-  // 2. hex (with or without #) — 3/4/6/8 자리 (alpha 포함). 색만 OKLCH 로, alpha 는 parseAlpha 가 별도 추출
-  if (s.startsWith("#") || /^[0-9a-f]{3,4}$|^[0-9a-f]{6}$|^[0-9a-f]{8}$/.test(s)) {
-    const parsed = normalizeHexAlpha(s.startsWith("#") ? s : `#${s}`);
-    if (parsed) return hexToOklch(parsed.hex);
-  }
-
-  // 3. rgb(r, g, b) / rgba(r, g, b, a) — 0~255, alpha 무시
-  const rgbMatch = s.match(/^rgba?\(\s*([0-9.]+)[\s,]+([0-9.]+)[\s,]+([0-9.]+)/);
-  if (rgbMatch) {
-    const r = clamp(parseFloat(rgbMatch[1]), 0, 255);
-    const g = clamp(parseFloat(rgbMatch[2]), 0, 255);
-    const b = clamp(parseFloat(rgbMatch[3]), 0, 255);
-    return hexToOklch(rgbToHex({ r, g, b }));
-  }
-
-  // 4. hsl(h, s%, l%) / hsla(...)
-  const hslMatch = s.match(/^hsla?\(\s*([0-9.]+)[\s,]+([0-9.]+)%?[\s,]+([0-9.]+)%?/);
-  if (hslMatch) {
-    const h = clamp(parseFloat(hslMatch[1]), 0, 360);
-    const sat = clamp(parseFloat(hslMatch[2]), 0, 100);
-    const l = clamp(parseFloat(hslMatch[3]), 0, 100);
-    return hexToOklch(hslToHex({ h, s: sat, l }));
-  }
-
-  // 5. hsv(h, s%, v%) / hsb(h, s%, b%)
-  const hsvMatch = s.match(/^(?:hsv|hsb)\(\s*([0-9.]+)[\s,]+([0-9.]+)%?[\s,]+([0-9.]+)%?/);
-  if (hsvMatch) {
-    const h = clamp(parseFloat(hsvMatch[1]), 0, 360);
-    const sat = clamp(parseFloat(hsvMatch[2]), 0, 100);
-    const v = clamp(parseFloat(hsvMatch[3]), 0, 100);
-    return hexToOklch(hsvToHex({ h, s: sat, v }));
-  }
-
-  // 6. bare "r, g, b" — 숫자 3개 콤마 구분 (RGB 추정)
-  const bare = s.match(/^([0-9.]+)[\s,]+([0-9.]+)[\s,]+([0-9.]+)$/);
-  if (bare) {
-    const r = clamp(parseFloat(bare[1]), 0, 255);
-    const g = clamp(parseFloat(bare[2]), 0, 255);
-    const b = clamp(parseFloat(bare[3]), 0, 255);
-    return hexToOklch(rgbToHex({ r, g, b }));
-  }
-
-  return null;
 }
