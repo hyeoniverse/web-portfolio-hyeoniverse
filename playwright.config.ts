@@ -58,7 +58,7 @@ export default defineConfig({
     },
     {
       name: "admin",
-      testMatch: /(admin|dashboard|editor|workeditor|aboutstudio)\.spec\.ts/,
+      testMatch: /(admin|dashboard|editor|workeditor|aboutstudio|settings)\.spec\.ts/,
       dependencies: ["setup"],
       use: {
         ...devices["Desktop Chrome"],
