@@ -100,8 +100,7 @@
   margin: 0;
 }
 
-.sectionTitleRow .sectionTitle,
-.sectionTitleRow .sectionSubTitle {
+.sectionTitleRow .sectionTitle {
   margin-bottom: 0;
 }
 
@@ -127,10 +126,6 @@
   /* 부모(섹션) 폭을 확정으로 채운다 — 없으면 flex-start 로 shrink 돼 자식 fieldRow 의
      width:100% 가 '좁아진 .fields 기준'이 되어 input 이 값 길이만큼 쪼그라든다. */
   width: 100%;
-}
-
-.fieldGroup > .fieldRow {
-  padding: var(--spacing-xs) 0;
 }
 
 /* ── Field Pair (EN/KO group — 2열 나란히).
@@ -426,20 +421,6 @@
   margin: 0;
 }
 
-/* ── Sub title · Field label ── */
-.sectionSubTitle {
-  display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: var(--spacing-xs);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-body);
-  font-weight: 600;
-  color: var(--text-primary);
-  letter-spacing: 0;
-  margin: 0 0 var(--spacing-sm) 0;
-}
-
 /* 라벨 텍스트와 dot 을 가로 한 줄로 묶는 컨테이너 (.fieldLabel 이 column 이라 필요) */
 .fieldLabelText {
   display: flex;
@@ -497,12 +478,6 @@
 }
 
 /* ── Profile Sections (embedded in Content tab) ── */
-
-.profileGrid {
-  display: grid;
-  gap: var(--spacing-sm);
-  grid-template-columns: var(--grid-cols-2);
-}
 
 .profileAddBtn {
   margin-top: var(--spacing-md);
@@ -735,26 +710,10 @@
   color: var(--text-primary);
 }
 
-/* ── Field group (label + inputs) ── */
-.fieldGroup {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
-}
-
-.fieldGroupLabel {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-label);
-  font-weight: 700;
-  color: var(--text-tertiary);
-  padding-bottom: var(--spacing-2xs);
-}
-
 /* tablet (769~1024px): sideNav 는 아래에서 가로 탭바로 바뀌고, panel 은 전체 폭을
    쓴다. 여기서는 2열 grid 만 1열로 정리한다(좁은 폭에서 잘림 방지). */
 @media (min-width: 769px) and (max-width: 1024px) {
-  .fieldPair,
-  .profileGrid {
+  .fieldPair {
     grid-template-columns: 1fr;
   }
 }
@@ -765,10 +724,6 @@
 @media (max-width: 1024px) {
 
   /* ── 탭바 래퍼: sticky + frost (edit 페이지 topBar 와 동일) ── */
-
-  .profileGrid {
-    grid-template-columns: 1fr;
-  }
 }
 
 /* ── Font Picker — editor 의 FontPicker 패턴 (Select + dropdown 내부 search + 필터링 목록) ── */

@@ -12,7 +12,7 @@ import { type UserFlow } from "@/data/about/types";
 import { type TFunction } from "@/providers/LanguageProvider";
 import { type Language } from "@/types";
 /* ═══════════ User Flow ═══════════ */
-export const UF_MAX = 8;
+const UF_MAX = 8;
 
 /* 실제 패널과 동일 — 좌측 페르소나 정보 + 우측 플로우 다이어그램.
    다이어그램 좌표(row/col)는 flowLayout 이 계산하므로 여기선 값만 편집한다. */

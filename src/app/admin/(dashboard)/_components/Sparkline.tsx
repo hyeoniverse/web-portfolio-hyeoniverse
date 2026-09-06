@@ -7,7 +7,7 @@ import local from "./Sparkline.module.css";
    Dashboard.module.css 에 있다. 둘을 합쳐서 styles 하나로 쓴다. */
 const styles = { ...shared, ...local };
 /** SVG sparkline — 일별 조회수 추세. 14개 값(최근 14일) 받아서 폭에 맞춰 그림. */
-export function Sparkline({ values }: { values: number[] }) {
+function Sparkline({ values }: { values: number[] }) {
   if (values.length === 0)
     return <div className={styles.sparkline} aria-hidden />;
   const max = Math.max(...values, 1);

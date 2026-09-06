@@ -114,7 +114,7 @@ export function CategoryMultiPicker({
 }
 
 /** 카테고리 직접 입력 — KO/EN 두 input + 추가 버튼. Enter 로 submit 가능 */
-export function CategoryCustomAdder({ onAdd, onCancel, koPh, enPh }: { onAdd: (ko: string, en: string) => void; onCancel: () => void; koPh: string; enPh: string }) {
+function CategoryCustomAdder({ onAdd, onCancel, koPh, enPh }: { onAdd: (ko: string, en: string) => void; onCancel: () => void; koPh: string; enPh: string }) {
   const [ko, setKo] = useState("");
   const [en, setEn] = useState("");
   const handleAdd = () => {

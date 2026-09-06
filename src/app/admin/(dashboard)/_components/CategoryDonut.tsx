@@ -24,7 +24,7 @@ export type CategoryPost = {
 
 /** 카테고리 분포 — interactive 도넛: wedge 또는 범례 항목 hover 시 중앙 라벨 + 해당 wedge 강조.
  *  범례 클릭 시 그 카테고리의 게시물 top 10 inline expand. */
-export function CategoryDonut({
+function CategoryDonut({
   data,
   language,
   t,
