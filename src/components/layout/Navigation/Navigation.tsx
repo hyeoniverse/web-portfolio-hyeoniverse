@@ -44,6 +44,7 @@ import { formatRelativeTime } from "@/utils/relativeTime";
 import { useNow } from "@/hooks/useNow";
 import { useNavNotifications } from "./useNavNotifications";
 import { useLogoMeasure } from "./useLogoMeasure";
+import { useToggleAnimation } from "./useToggleAnimation";
 
 // 서브메뉴 항목 링크 — active 항목의 bold/indent 를 접힘 시 순차 애니로 풀려면 motion 링크가 필요.
 const MotionLink = motion.create(Link);
@@ -459,59 +460,9 @@ export default function Navigation() {
     setTimeout(() => setIsSoundClicking(false), 300);
   };
 
-  // 테마 상태
-  const [isThemeAnimating, setIsThemeAnimating] = useState(false);
-  const [isThemeClicking, setIsThemeClicking] = useState(false);
-  const [displayTheme, setDisplayTheme] = useState(theme);
-  const themeDisplayTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const themeAnimTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const isThemeLocked = useRef(false);
-
-  // 언어 상태
-  const [isLangAnimating, setIsLangAnimating] = useState(false);
-  const [isLangClicking, setIsLangClicking] = useState(false);
-  const [displayLang, setDisplayLang] = useState(language);
-  const langDisplayTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const langAnimTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const isLangLocked = useRef(false);
-
-  // 실제 값이 변경되면 표시 값 동기화
-  useEffect(() => setDisplayTheme(theme), [theme]);
-  useEffect(() => setDisplayLang(language), [language]);
-
-  const handleThemeToggle = () => {
-    if (isThemeClicking) return;
-    setIsThemeClicking(true);
-    isThemeLocked.current = true;
-    toggleTheme();
-    setTimeout(() => setIsThemeClicking(false), 300);
-  };
-
-  const handleThemeMouseEnter = () => {
-    if (isThemeAnimating || isThemeClicking) return;
-    clearTimeout(themeDisplayTimer.current);
-    clearTimeout(themeAnimTimer.current);
-    setIsThemeAnimating(true);
-    themeDisplayTimer.current = setTimeout(() => {
-      setDisplayTheme(theme === "dark" ? "light" : "dark");
-    }, 150);
-    themeAnimTimer.current = setTimeout(() => setIsThemeAnimating(false), 300);
-  };
-
-  const handleThemeMouseLeave = () => {
-    if (isThemeClicking) return;
-    if (isThemeLocked.current) {
-      isThemeLocked.current = false;
-      return;
-    }
-    clearTimeout(themeDisplayTimer.current);
-    clearTimeout(themeAnimTimer.current);
-    setIsThemeAnimating(true);
-    themeDisplayTimer.current = setTimeout(() => {
-      setDisplayTheme(theme);
-    }, 150);
-    themeAnimTimer.current = setTimeout(() => setIsThemeAnimating(false), 300);
-  };
+  /* 테마·언어 단추는 연출이 같다. 마우스를 올리면 바뀔 값을 미리 보여 주고, 누르면 실제로 바꾼다. */
+  const themeToggle = useToggleAnimation(theme, theme === "dark" ? "light" : "dark", toggleTheme);
+  const langToggle = useToggleAnimation(language, language === "ko" ? "en" : "ko", toggleLanguage);
 
   const handleLogout = useCallback(async () => {
     const supabase = await loadSupabaseClient();
@@ -730,44 +681,14 @@ export default function Navigation() {
         <Tooltip content={language === "ko" ? "언어 전환" : "Switch language"} delay={600} placement="bottom">
           <Pressable noTapScale
             className={styles.actionBtn}
-            onClick={() => {
-              if (isLangClicking) return;
-              setIsLangClicking(true);
-              isLangLocked.current = true;
-              toggleLanguage();
-              setTimeout(() => {
-                setIsLangClicking(false);
-              }, 300);
-            }}
-            onMouseEnter={() => {
-              if (isLangAnimating || isLangClicking) return;
-              clearTimeout(langDisplayTimer.current);
-              clearTimeout(langAnimTimer.current);
-              setIsLangAnimating(true);
-              langDisplayTimer.current = setTimeout(() => {
-                setDisplayLang(language === "ko" ? "en" : "ko");
-              }, 150);
-              langAnimTimer.current = setTimeout(() => setIsLangAnimating(false), 300);
-            }}
-            onMouseLeave={() => {
-              if (isLangClicking) return;
-              if (isLangLocked.current) {
-                isLangLocked.current = false;
-                return;
-              }
-              clearTimeout(langDisplayTimer.current);
-              clearTimeout(langAnimTimer.current);
-              setIsLangAnimating(true);
-              langDisplayTimer.current = setTimeout(() => {
-                setDisplayLang(language);
-              }, 150);
-              langAnimTimer.current = setTimeout(() => setIsLangAnimating(false), 300);
-            }}
+            onClick={langToggle.handleToggle}
+            onMouseEnter={langToggle.handleMouseEnter}
+            onMouseLeave={langToggle.handleMouseLeave}
             aria-label={`${language === "ko" ? "KO" : "EN"} - Switch to ${language === "ko" ? "English" : "Korean"}`}
             aria-pressed={language === "ko"}
           >
-            <span className={`${styles.langText} ${isLangAnimating && !isLangClicking ? styles.animating : ""} ${isLangClicking ? styles.clicking : ""}`}>
-              {displayLang === "ko" ? "KO" : "EN"}
+            <span className={`${styles.langText} ${langToggle.isAnimating && !langToggle.isClicking ? styles.animating : ""} ${langToggle.isClicking ? styles.clicking : ""}`}>
+              {langToggle.display === "ko" ? "KO" : "EN"}
             </span>
           </Pressable>
         </Tooltip>
@@ -813,14 +734,14 @@ export default function Navigation() {
         <Tooltip content={language === "ko" ? "테마 전환" : "Toggle theme"} delay={600} placement="bottom">
           <Pressable noTapScale
             className={styles.actionBtn}
-            onClick={handleThemeToggle}
-            onMouseEnter={handleThemeMouseEnter}
-            onMouseLeave={handleThemeMouseLeave}
+            onClick={themeToggle.handleToggle}
+            onMouseEnter={themeToggle.handleMouseEnter}
+            onMouseLeave={themeToggle.handleMouseLeave}
             aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
             aria-pressed={theme === "dark"}
           >
-          <span className={`${styles.themeIconWrapper} ${isThemeAnimating && !isThemeClicking ? styles.animating : ""} ${isThemeClicking ? styles.clicking : ""}`}>
-            {displayTheme === "dark" ? (
+          <span className={`${styles.themeIconWrapper} ${themeToggle.isAnimating && !themeToggle.isClicking ? styles.animating : ""} ${themeToggle.isClicking ? styles.clicking : ""}`}>
+            {themeToggle.display === "dark" ? (
               <Moon className={styles.themeIcon} strokeWidth={1.5} />
             ) : (
               <Sun className={styles.themeIcon} strokeWidth={1.5} />

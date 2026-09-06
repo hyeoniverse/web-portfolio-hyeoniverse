@@ -89,4 +89,17 @@ test.describe("전역 네비게이션", () => {
     await page.waitForTimeout(900);
     expect(await btn.innerText(), "떼면 원래 값으로 돌아온다").toBe(before);
   });
+
+  test("언어 단추를 누르면 문서 언어가 바뀐다", async ({ page }) => {
+    await page.goto("/", { waitUntil: "load" });
+    const btn = page.locator("nav").first().getByRole("button", { name: /Switch to (Korea|English)/ });
+    await expect(btn).toBeVisible({ timeout: 30_000 });
+
+    // 단추 글자가 아니라 문서에 적힌 언어를 본다. 시작 언어가 무엇이든 판정이 성립한다.
+    const before = await page.evaluate(() => document.documentElement.lang);
+    await btn.click();
+    await page.waitForTimeout(900);
+    expect(await page.evaluate(() => document.documentElement.lang),
+      "문서 언어가 달라져야 한다").not.toBe(before);
+  });
 });
