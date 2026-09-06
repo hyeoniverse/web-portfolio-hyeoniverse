@@ -45,6 +45,7 @@ import { useNow } from "@/hooks/useNow";
 import { useNavNotifications } from "./useNavNotifications";
 import { useLogoMeasure } from "./useLogoMeasure";
 import { useToggleAnimation } from "./useToggleAnimation";
+import { useMobileMenu } from "./useMobileMenu";
 
 // 서브메뉴 항목 링크 — active 항목의 bold/indent 를 접힘 시 순차 애니로 풀려면 motion 링크가 필요.
 const MotionLink = motion.create(Link);
@@ -204,72 +205,8 @@ export default function Navigation() {
     }
   }, [showLoadingLogo, elevatedZ]);
 
-  // ── Mobile menu drawer (clip-path, ContactDrawer pattern) ──
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [showMenu, setShowMenu] = useState(false);
-  const [menuClipOpen, setMenuClipOpen] = useState(false);
-  const [menuMounted, setMenuMounted] = useState(false);
-  // 드로어 clip 래퍼 ref — 마운트 후 강제 reflow 로 "닫힘" 상태를 트랜지션 시작점으로 확정하는 데 사용
-  const clipWrapperRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => setMenuMounted(true), []);
-  useEffect(() => setIsMenuOpen(false), [pathname]);
-  // drawer 열릴 때 notification dropdown 도 같이 닫음 (위로 겹쳐 보이는 거 방지)
-  useEffect(() => {
-    if (isMenuOpen) setNotifOpen(false);
-  }, [isMenuOpen, setNotifOpen]);
-
-  useEffect(() => {
-    let rafId: number;
-    let unmountTimer: ReturnType<typeof setTimeout>;
-
-    if (isMenuOpen) {
-      setShowMenu(true);
-      // 드로어가 마운트(clip 닫힘)돼 ref 가 붙을 때까지 rAF 로 기다린 뒤, 강제 reflow 로 닫힘
-      // 상태를 트랜지션 시작점으로 확정하고 연다. 예전 더블 rAF 는 마운트 커밋 전에 open 이
-      // 세팅되면 두 렌더가 배칭돼 드로어가 처음부터 열린 채 마운트→트랜지션 스킵되는 레이스가
-      // 있었다(헤드리스에선 거의 안 걸리지만 실기기 스케줄링에선 자주 걸려 "가끔만 애니됨").
-      const openWhenReady = () => {
-        const el = clipWrapperRef.current;
-        if (!el) {
-          rafId = requestAnimationFrame(openWhenReady);
-          return;
-        }
-        void el.offsetHeight; // 강제 reflow — 닫힘 clip 을 확정
-        setMenuClipOpen(true);
-      };
-      rafId = requestAnimationFrame(openWhenReady);
-    } else {
-      setMenuClipOpen(false);
-      unmountTimer = setTimeout(() => {
-        setShowMenu(false);
-      }, 800);
-    }
-
-    return () => {
-      if (rafId) cancelAnimationFrame(rafId);
-      clearTimeout(unmountTimer);
-    };
-  }, [isMenuOpen]);
-
-  // ── Menu scroll lock ──
-  useEffect(() => {
-    if (isMenuOpen) {
-      lenisStop();
-      const scrollY = window.scrollY;
-      document.body.style.position = "fixed";
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.width = "100%";
-    } else {
-      const top = document.body.style.top;
-      document.body.style.position = "";
-      document.body.style.top = "";
-      document.body.style.width = "";
-      if (top) window.scrollTo(0, parseInt(top, 10) * -1);
-      lenisStart();
-    }
-  }, [isMenuOpen, lenisStop, lenisStart]);
-
+  const { isMenuOpen, setIsMenuOpen, showMenu, menuClipOpen, menuMounted, clipWrapperRef } =
+    useMobileMenu(pathname, setNotifOpen, lenisStop, lenisStart);
   // ── Nav sliding indicator ──
   const navLinkRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
   const navCenterRef = useRef<HTMLDivElement>(null);

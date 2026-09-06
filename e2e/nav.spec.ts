@@ -102,4 +102,21 @@ test.describe("전역 네비게이션", () => {
     expect(await page.evaluate(() => document.documentElement.lang),
       "문서 언어가 달라져야 한다").not.toBe(before);
   });
+
+  test("로고에 마우스를 올리면 글리치 연출이 걸린다", async ({ page }) => {
+    await page.goto("/", { waitUntil: "load" });
+    const logo = page.locator('[class*="logoNavBar"]').first();
+    await expect(logo).toBeVisible({ timeout: 30_000 });
+    await page.waitForTimeout(2500);
+
+    const animation = () => page.evaluate(() => {
+      const el = document.querySelector('[class*="logoNavBar"] [class*="logo"]');
+      return el ? getComputedStyle(el).animationName : "";
+    });
+    expect(await animation(), "올리기 전에는 연출이 없다").toBe("none");
+
+    await logo.hover();
+    await page.waitForTimeout(600);
+    expect(await animation(), "올리면 glitch 연출이 걸린다").toContain("glitch");
+  });
 });
