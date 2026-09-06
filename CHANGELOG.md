@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.53.5](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.4...v1.53.5) (2026-09-06)
+
+
+### Bug Fixes
+
+* **nav:** 로고 hover 글리치가 안 걸리던 것 수정 + 모바일 메뉴 훅 분리 + 죽은 스타일 194줄 삭제 ([f2c96b9](https://github.com/hyeoniverse/web-portfolio-oval/commit/f2c96b9c4d5cc65223133735caa9aa9a6e0267a8))
+
 ## [1.53.4](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.3...v1.53.4) (2026-09-06)
 
 
