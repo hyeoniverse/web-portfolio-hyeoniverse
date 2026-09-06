@@ -1,6 +1,11 @@
 "use client";
 
-import styles from "../Dashboard.module.css";
+import shared from "../Dashboard.module.css";
+import local from "./DashboardSkeleton.module.css";
+
+/* 이 컴포넌트 전용 규칙은 DashboardSkeleton.module.css 에, 대시보드 여러 곳이 함께 쓰는 규칙은
+   Dashboard.module.css 에 있다. 둘을 합쳐서 styles 하나로 쓴다. */
+const styles = { ...shared, ...local };
 import { Item, List, ListItem, Panel, PanelTitle, Section, SectionHeader } from "../components";
 import { SkeletonBlock, SkeletonCircle, SkeletonLine, SkeletonPill } from "@/components/ui/Skeleton";
 /* ── Skeleton state — 실제 dashboard 의 Section/Panel/List 추상화를 그대로 미러링 ── */
