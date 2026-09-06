@@ -4,11 +4,22 @@ import { fetchUnsplashCover } from "@/lib/unsplash";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 import { getPopularPostIds } from "@/lib/popularity";
 
-const POSTS_PER_PAGE = 12;
+/**
+ * 첫 화면에 서버가 내려보내는 글 수.
+ *
+ * 화면 쪽은 설정(`posts.perPage`)을 따르므로 여기서도 같은 값을 읽는다. 예전에는 12로
+ * 고정돼 있어서, 서버가 12개로 그린 뒤 화면이 설정값(10개)으로 다시 그렸다.
+ * 카드 두 장이 사라지며 그 아래가 통째로 위로 당겨졌다(레이아웃 밀림 0.313).
+ */
+async function getPostsPerPage() {
+  const cfg = await getSiteConfig();
+  return cfg.posts?.perPage ?? 12;
+}
 const SERIES_PER_PAGE = 12;
 
 export async function getInitialPostsData() {
   const admin = createAdminClient();
+  const perPage = await getPostsPerPage();
 
   const [postsResult, pinnedResult, seriesResult, allPostsResult] = await Promise.all([
     // 1. First page of posts (newest)
@@ -17,7 +28,7 @@ export async function getInitialPostsData() {
       .select("*, series:series_id(title, title_en)", { count: "exact" })
       .eq("published", true)
       .order("created_at", { ascending: false })
-      .range(0, POSTS_PER_PAGE - 1),
+      .range(0, perPage - 1),
 
     // 2. Pinned posts
     admin
@@ -47,7 +58,7 @@ export async function getInitialPostsData() {
   ]);
 
   const posts = (postsResult.data ?? []) as Post[];
-  const totalPages = Math.ceil((postsResult.count ?? 0) / POSTS_PER_PAGE);
+  const totalPages = Math.ceil((postsResult.count ?? 0) / perPage);
   const pinnedPosts = (pinnedResult.data ?? []) as Post[];
   const seriesListRaw = (seriesResult.data ?? []) as Series[];
   const seriesTotal = seriesResult.count ?? seriesListRaw.length;
