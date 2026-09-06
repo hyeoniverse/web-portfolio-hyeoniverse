@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.53.4](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.3...v1.53.4) (2026-09-06)
+
+
+### Bug Fixes
+
+* **ui:** Pressable 이 호출부의 onMouseEnter 를 버리지 않게 한다 ([7f8ccd8](https://github.com/hyeoniverse/web-portfolio-oval/commit/7f8ccd8d90d35dba5b58eaab83d85a37fbb53097))
+
 ## [1.53.3](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.2...v1.53.3) (2026-09-06)
 
 
