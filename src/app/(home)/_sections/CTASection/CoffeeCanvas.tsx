@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Environment } from "@react-three/drei";
+import { Environment, Lightformer } from "@react-three/drei";
 import * as THREE from "three";
 
 /* --------------------------------------------------------------------------
@@ -373,7 +373,18 @@ export default function CoffeeCanvas() {
       <directionalLight position={[-3, 2, -2]} intensity={0.8} color="#ffd9b8" />
       <pointLight position={[0, 3, 3]} intensity={1.2} color="#fff2e0" />
       <Suspense fallback={null}>
-        <Environment preset="apartment" />
+        {/*
+          잔 표면에 비치는 주변 조명. 예전에는 preset="apartment" 를 썼는데, 이 프리셋은
+          조명용 HDR 파일 1.4 MB 를 GitHub 에서 실행 중에 내려받는다. 우리 서버가 아닌
+          남의 서버에 매번 의존하는 데다 홈 화면에서 가장 큰 전송물이었다.
+          대신 밝은 판 몇 개를 브라우저에서 직접 배치해 같은 역할을 시킨다 — 내려받기가 없다.
+        */}
+        <Environment resolution={128}>
+          <Lightformer intensity={2.2} position={[0, 4, 2]} scale={[8, 4, 1]} color="#fff6ec" />
+          <Lightformer intensity={1.1} position={[-4, 1, 2]} scale={[3, 6, 1]} color="#ffe8d2" />
+          <Lightformer intensity={0.8} position={[4, 1, 1]} scale={[3, 6, 1]} color="#e8f0ff" />
+          <Lightformer intensity={0.5} position={[0, -3, 1]} scale={[8, 3, 1]} color="#ffffff" />
+        </Environment>
       </Suspense>
       <CoffeeCup />
 

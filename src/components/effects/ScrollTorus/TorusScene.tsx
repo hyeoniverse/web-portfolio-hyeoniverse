@@ -165,7 +165,9 @@ export default function TorusScene({
     if (repSettling) invalidate();
   });
 
-  const envTex = useTexture("/images/profile_pic.webp");
+  // 도넛 표면의 반사 무늬 — 뭉개져 보이는 것이라 작은 그림으로 충분하다.
+  // 원본 사진(1600px)을 쓰면 2.5 MB 를 내려받게 되므로 256px 로 줄인 것을 따로 둔다.
+  const envTex = useTexture("/images/profile_pic_env.webp");
   envTex.mapping = THREE.EquirectangularReflectionMapping;
 
   return (
