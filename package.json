@@ -1,6 +1,6 @@
 {
   "name": "web-portfolio-arc",
-  "version": "1.53.3",
+  "version": "1.53.4",
   "private": true,
   "scripts": {
     "dev": "tsx scripts/sync-content-assets.ts && tsx scripts/gen-about-fallback.ts && next dev --turbopack",
