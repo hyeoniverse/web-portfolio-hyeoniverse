@@ -31,12 +31,14 @@ export default defineConfig({
   projects: [
     {
       name: "desktop",
-      testMatch: /smoke\.spec\.ts/,
+      testMatch: /(smoke|nav)\.spec\.ts/,
       use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 900 } },
     },
     {
       // works/webflow 가 1024px 에서 가로스크롤 → 세로스택으로 분기해서 모바일도 잡는다.
       name: "mobile",
+      // nav.spec 은 넣지 않는다. 데스크톱 배치(가로 메뉴·hover 하위 메뉴)를 전제로 쓴 검사라
+      // 모바일 폭에서는 메뉴가 햄버거 안으로 들어가 세 건이 실패한다. 모바일 메뉴는 따로 볼 일이다.
       testMatch: /smoke\.spec\.ts/,
       use: { ...devices["Pixel 7"] },
     },
