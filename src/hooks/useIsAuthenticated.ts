@@ -1,7 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { hasAuthCookie } from "@/lib/supabase/hasAuthCookie";
+
+/* Supabase 브라우저 클라이언트는 313 KiB 다. 위에서 정적으로 들여오면 이 훅을 쓰는 모든
+   화면의 첫 묶음에 그만큼이 실린다. 실제로 필요할 때만 받도록 동적으로 들여온다. */
+const loadSupabaseClient = () => import("@/lib/supabase/client").then((m) => m.createClient());
 
 /**
  * Supabase 세션을 client side 에서 폴링/구독해 boolean 으로 노출.
@@ -16,20 +20,29 @@ export function useIsAuthenticated(options: { subscribe?: boolean } = {}): boole
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    const supabase = createClient();
+    /* 로그인 흔적이 없으면 클라이언트를 받지 않는다 — 답이 false 로 정해져 있다.
+       다른 탭에서 로그인하는 경우를 봐야 하는 곳(subscribe)은 그대로 받는다. */
+    if (!subscribe && !hasAuthCookie()) return;
+
     let cancelled = false;
     let subscription: { unsubscribe: () => void } | undefined;
 
-    supabase.auth.getSession().then(({ data }) => {
-      if (!cancelled) setIsAuthenticated(!!data.session?.user);
-    });
+    loadSupabaseClient().then((supabase) => {
+      if (cancelled) return;
 
-    if (subscribe) {
-      const sub = supabase.auth.onAuthStateChange((_event, session) => {
-        if (!cancelled) setIsAuthenticated(!!session?.user);
+      supabase.auth.getSession().then(({ data }) => {
+        if (!cancelled) setIsAuthenticated(!!data.session?.user);
       });
-      subscription = sub.data.subscription;
-    }
+
+      if (subscribe) {
+        const sub = supabase.auth.onAuthStateChange((_event, session) => {
+          if (!cancelled) setIsAuthenticated(!!session?.user);
+        });
+        // 받아 오는 사이에 unmount 됐다면 즉시 정리한다.
+        if (cancelled) sub.data.subscription.unsubscribe();
+        else subscription = sub.data.subscription;
+      }
+    });
 
     return () => {
       cancelled = true;

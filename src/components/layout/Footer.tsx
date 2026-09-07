@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { cn } from "@/utils/cn";
+import { hasAuthCookie } from "@/lib/supabase/hasAuthCookie";
 import ViewModeToggle from "./ViewModeToggle";
 import styles from "./Footer.module.css";
 
@@ -101,6 +102,8 @@ export default function Footer({ className, variant = "full" }: FooterProps) {
   // Admin 세션 체크 (공개 페이지에서만)
   useEffect(() => {
     if (isAdmin) return;
+    // 로그인 흔적이 없으면 Supabase 클라이언트(313 KiB)를 받지 않는다 — 답이 정해져 있다.
+    if (!hasAuthCookie()) return;
     let cancelled = false;
     let subscription: { unsubscribe: () => void } | undefined;
     loadSupabaseClient().then(async (supabase) => {
