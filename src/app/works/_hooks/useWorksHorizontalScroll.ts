@@ -12,7 +12,7 @@ import {
   IMAGE_PARALLAX_MULTIPLIER,
   META_REVEAL_THRESHOLD,
 } from "../_constants";
-import { INITIAL_MARGIN } from "@/data/projects";
+import { INFINITE_SCROLL_SETS, INITIAL_MARGIN } from "@/data/projects";
 
 /** 엔진이 DOM 을 찾을 때 쓰는 클래스 이름. 카드·인트로 CSS 모듈이 나뉘어 있어 호출부가 넘긴다. */
 export interface WorksScrollClassNames {
@@ -32,6 +32,10 @@ export interface WorksScrollClassNames {
    같은 루프가 마우스 속도 기반 카드 오프셋·3D tilt·이미지 패럴랙스·메타 reveal 까지 한 번에 계산한다.
    무한 스크롤이면 한 세트 너비로 래핑하고, 아니면 트랙 끝에서 클램프한다.
    카드 롱프레스 확대는 useWorkTransition 이 card.dataset.hoverScale 로 넘겨주고 여기서 곱한다. */
+/* 가운데에서 몇 벌만큼 벗어나면 되감을지. 그려 둔 벌 수(INFINITE_SCROLL_SETS)의 절반이어야
+   되감기는 순간에도 화면 양옆에 이어질 내용이 남아 있다. */
+const WRAP_SETS = Math.floor(INFINITE_SCROLL_SETS / 2);
+
 export function useWorksHorizontalScroll({
   galleryRef,
   sliderRef,
@@ -171,11 +175,11 @@ export function useWorksHorizontalScroll({
 
         // 무한 스크롤 래핑 또는 클램프
         if (infiniteScroll && oneSetWidth > 0) {
-          while (scrollX > oneSetWidth * 3) {
+          while (scrollX > oneSetWidth * WRAP_SETS) {
             scrollX -= oneSetWidth;
             targetScrollX -= oneSetWidth;
           }
-          while (scrollX < -oneSetWidth * 3) {
+          while (scrollX < -oneSetWidth * WRAP_SETS) {
             scrollX += oneSetWidth;
             targetScrollX += oneSetWidth;
           }
