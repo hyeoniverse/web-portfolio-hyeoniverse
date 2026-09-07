@@ -6,6 +6,7 @@ import { ImageOff } from "@/components/icons";
 import { getLqipUrl } from "@/utils/image";
 import { isVideoUrl } from "@/lib/isVideoUrl";
 import styles from "./ProgressiveImage.module.css";
+import { firstFrameSrc, hoverVideoHandlers } from "./hoverVideo";
 
 interface ProgressiveImageProps {
   src: string;
@@ -75,16 +76,17 @@ export default function ProgressiveImage({
       {/* 원본 미디어 */}
       {isVideo ? (
         <video
-          src={src}
+          src={firstFrameSrc(src)}
           className={`${className ?? ""} ${styles.full} ${loaded ? styles.fullLoaded : ""}`}
           style={fill
             ? { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", ...style }
             : { width, height, ...style }
           }
-          autoPlay
           muted
           loop
           playsInline
+          preload="metadata"
+          {...hoverVideoHandlers}
           onLoadedMetadata={() => setLoaded(true)}
           onLoadedData={() => setLoaded(true)}
           onCanPlay={() => setLoaded(true)}

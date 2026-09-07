@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { isVideoUrl } from "@/lib/isVideoUrl";
 import { getFallbackCoverGradient } from "@/lib/coverFallback";
+import { firstFrameSrc, hoverVideoHandlers } from "./hoverVideo";
 
 export interface MediaThumbProps {
   src: string;
@@ -40,7 +41,7 @@ export default function MediaThumb({
   if (isVideoUrl(src)) {
     return (
       <video
-        src={src}
+        src={firstFrameSrc(src)}
         className={className}
         style={fill
           ? { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", ...style }
@@ -49,9 +50,9 @@ export default function MediaThumb({
         muted
         playsInline
         preload="metadata"
-        autoPlay
         loop
         onError={onError}
+        {...hoverVideoHandlers}
       />
     );
   }
