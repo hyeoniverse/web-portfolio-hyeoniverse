@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.53.8](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.7...v1.53.8) (2026-09-07)
+
+
+### Performance Improvements
+
+* **ui:** 목록의 표지 동영상을 자동재생하지 않는다 ([5f555c3](https://github.com/hyeoniverse/web-portfolio-oval/commit/5f555c3dfb1fc5f5287a0e298cdd7912f645cbfe))
+
 ## [1.53.7](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.6...v1.53.7) (2026-09-07)
 
 
