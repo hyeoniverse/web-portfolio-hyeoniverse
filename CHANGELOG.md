@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.53.11](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.10...v1.53.11) (2026-09-07)
+
+
+### Performance Improvements
+
+* **home:** 홈을 서버에서도 그리게 한다 ([a13f6c3](https://github.com/hyeoniverse/web-portfolio-oval/commit/a13f6c397936aecfe7941515c42369557233bb4d))
+
 ## [1.53.10](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.9...v1.53.10) (2026-09-07)
 
 
