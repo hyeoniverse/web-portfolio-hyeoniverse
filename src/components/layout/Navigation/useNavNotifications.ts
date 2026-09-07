@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef, useLayoutEffect } from "react";
+import { hasAuthCookie } from "@/lib/supabase/hasAuthCookie";
 /* 로그인 여부를 알아야 알림을 받아 온다. Supabase 클라이언트는 첫 화면에 필요하지 않아
    실제로 쓸 때 불러온다. */
 const loadSupabaseClient = () => import("@/lib/supabase/client").then((m) => m.createClient());
@@ -23,6 +24,8 @@ export type NavNotif = {
 export function useNavNotifications(pathname: string) {
   const [adminEmail, setAdminEmail] = useState("");
   useEffect(() => {
+    // 로그인 흔적이 없으면 Supabase 클라이언트(313 KiB)를 받지 않는다 — 알림도 관리자 것이다.
+    if (!hasAuthCookie()) return;
     let cancelled = false;
     let subscription: { unsubscribe: () => void } | undefined;
     loadSupabaseClient().then((supabase) => {
