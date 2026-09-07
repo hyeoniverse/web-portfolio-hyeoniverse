@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.53.14](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.13...v1.53.14) (2026-09-07)
+
+
+### Performance Improvements
+
+* **posts:** 시리즈 표지를 원본 대신 줄인 그림으로 받는다 ([9651d4f](https://github.com/hyeoniverse/web-portfolio-oval/commit/9651d4fee05cb366899e2eac8a749a8185f75437))
+
 ## [1.53.13](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.12...v1.53.13) (2026-09-07)
 
 
