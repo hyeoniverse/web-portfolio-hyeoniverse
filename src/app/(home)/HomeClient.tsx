@@ -275,7 +275,6 @@ export default function HomeClient() {
     };
   }, [hasMounted, isLoading]);
 
-  if (!hasMounted) return null;
 
   return (
     <div className={styles.pageWrapper}>

@@ -95,12 +95,23 @@ test.describe("전역 네비게이션", () => {
     const btn = page.locator("nav").first().getByRole("button", { name: /Switch to (Korea|English)/ });
     await expect(btn).toBeVisible({ timeout: 30_000 });
 
+    /* 누르기 전에 언어가 자리를 잡을 때까지 기다린다.
+       서버는 ko 로 그리고, 화면이 붙은 뒤 브라우저 언어로 바꾼다. 그 사이에 누르면
+       단추가 아직 반응하지 않는데 문서 언어만 저절로 달라져, 무엇 때문에 바뀌었는지
+       가릴 수 없다. 단추가 가리키는 언어와 문서에 적힌 언어가 맞아떨어지면 준비된 것이다. */
+    const settled = async () => {
+      const label = await btn.getAttribute("aria-label") ?? "";
+      const lang = await page.evaluate(() => document.documentElement.lang);
+      return (label.includes("Korean") && lang === "en") || (label.includes("English") && lang === "ko");
+    };
+    await expect.poll(settled, { message: "언어가 자리를 잡는다", timeout: 20_000 }).toBe(true);
+
     // 단추 글자가 아니라 문서에 적힌 언어를 본다. 시작 언어가 무엇이든 판정이 성립한다.
     const before = await page.evaluate(() => document.documentElement.lang);
     await btn.click();
-    await page.waitForTimeout(900);
-    expect(await page.evaluate(() => document.documentElement.lang),
-      "문서 언어가 달라져야 한다").not.toBe(before);
+    await expect
+      .poll(() => page.evaluate(() => document.documentElement.lang), { message: "문서 언어" })
+      .not.toBe(before);
   });
 
   test("로고에 마우스를 올리면 글리치 연출이 걸린다", async ({ page }) => {
