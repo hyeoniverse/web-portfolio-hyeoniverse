@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.53.10](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.9...v1.53.10) (2026-09-07)
+
+
+### Performance Improvements
+
+* CSS 를 문서에 넣지 않고 파일로 내려받게 한다 ([c146273](https://github.com/hyeoniverse/web-portfolio-oval/commit/c14627391122e6abcdb277f570d276e1ebc77581))
+* **loading:** 로딩 화면이 내용을 가리는 시간을 줄인다 ([7424612](https://github.com/hyeoniverse/web-portfolio-oval/commit/7424612e4fd89d6f0356a2718a26f1554eaa4999))
+
 ## [1.53.9](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.8...v1.53.9) (2026-09-07)
 
 
