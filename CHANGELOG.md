@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.53.15](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.14...v1.53.15) (2026-09-07)
+
+
+### Performance Improvements
+
+* 로그인하지 않은 방문자에게 Supabase 클라이언트를 받지 않는다 ([feb14e2](https://github.com/hyeoniverse/web-portfolio-oval/commit/feb14e2750340836bb8ac99a4d783bed64c02009))
+
 ## [1.53.14](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.13...v1.53.14) (2026-09-07)
 
 
