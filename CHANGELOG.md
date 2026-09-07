@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.53.12](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.11...v1.53.12) (2026-09-07)
+
+
+### Performance Improvements
+
+* **works:** 무한 스크롤용 복제를 10벌에서 3벌로 줄인다 ([96b5eab](https://github.com/hyeoniverse/web-portfolio-oval/commit/96b5eab3e00e6795da83d0e9d1749cd8b9d72827))
+
 ## [1.53.11](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.10...v1.53.11) (2026-09-07)
 
 
