@@ -63,7 +63,6 @@ export default function SeriesDeckLayers({
                   fill
                   sizes="160px"
                   className={styles.deckLayerImage}
-                  unoptimized
                 />
               )}
             </span>
