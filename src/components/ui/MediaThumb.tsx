@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
 import { isVideoUrl } from "@/lib/isVideoUrl";
 import { getFallbackCoverGradient } from "@/lib/coverFallback";
@@ -14,7 +17,13 @@ export interface MediaThumbProps {
   sizes?: string;
   priority?: boolean;
   loading?: "eager" | "lazy";
-  /** next/image 의 unoptimized — admin 미리보기처럼 외부 도메인이라 optimizer 우회 필요할 때 */
+  /**
+   * next/image 의 최적화를 처음부터 건너뛴다.
+   *
+   * 평소에는 켤 필요가 없다. 허용 목록에 없는 주소라 최적화가 거부되면 알아서 원본으로
+   * 되돌아간다(아래 handleError). admin 미리보기처럼 되돌아가는 한 번의 실패조차
+   * 보이지 않게 하고 싶을 때만 쓴다.
+   */
   unoptimized?: boolean;
   style?: React.CSSProperties;
   onError?: () => void;
@@ -26,6 +35,14 @@ export interface MediaThumbProps {
 export default function MediaThumb({
   src, alt = "", className, fill, width, height, sizes, priority, loading, unoptimized, style, onError, fallbackSeed,
 }: MediaThumbProps) {
+  /* 최적화가 거부된 주소를 기억한다. 표지는 사용자가 고르는 값이라 허용 목록 밖 주소가
+     들어올 수 있는데, 그때만 원본으로 되돌린다. 주소가 바뀌면 다시 최적화부터 시도한다. */
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
+  const skipOptimize = unoptimized || failedSrc === src;
+  const handleError = () => {
+    if (!skipOptimize) { setFailedSrc(src); return; }
+    onError?.();
+  };
   // src 비어있고 fallbackSeed 있으면 gradient 배경
   if (!src && fallbackSeed) {
     return (
@@ -66,9 +83,9 @@ export default function MediaThumb({
         priority={priority}
         loading={loading}
         className={className}
-        unoptimized={unoptimized}
+        unoptimized={skipOptimize}
         style={style}
-        onError={onError}
+        onError={handleError}
       />
     );
   }
@@ -81,9 +98,9 @@ export default function MediaThumb({
       priority={priority}
       loading={loading}
       className={className}
-      unoptimized={unoptimized}
+      unoptimized={skipOptimize}
       style={style}
-      onError={onError}
+      onError={handleError}
     />
   );
 }

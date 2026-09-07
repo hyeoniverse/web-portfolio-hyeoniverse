@@ -52,7 +52,6 @@ export default function SeriesCardGrid({
                     fill
                     sizes="(max-width: 768px) 50vw, 240px"
                     className={card.coverImg}
-                    unoptimized
                   />
                 ) : (
                   <span className={card.coverPlaceholder}>{(title || "?").charAt(0).toUpperCase()}</span>
