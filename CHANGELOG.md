@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.53.13](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.12...v1.53.13) (2026-09-07)
+
+
+### Performance Improvements
+
+* **font:** 이미 갖고 있는 글꼴을 Google 에서 또 받지 않는다 ([8898c88](https://github.com/hyeoniverse/web-portfolio-oval/commit/8898c88952b8e76b24940cd3edfc9c0aae947419))
+
 ## [1.53.12](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.11...v1.53.12) (2026-09-07)
 
 
