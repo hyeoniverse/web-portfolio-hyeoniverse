@@ -142,9 +142,15 @@ export default function FloatingObject() {
   }, [activeSection, t, mobileLayout]);
 
   /* rAF loop: 몽이 화면 좌표에 말풍선을 붙인다.
-     transform 이 아니라 left/top 으로 옮긴다. transform 은 stacking context 를 만들고,
-     그러면 안쪽 글자의 반전(mix-blend-mode: difference)이 페이지가 아니라 말풍선 자신을
-     대상으로 계산돼 흰 글자가 흰 글자로 남는다. 가운데·아래 정렬은 크기를 재서 직접 뺀다.
+     transform 으로 옮긴다. left/top 으로 옮기면 움직일 때마다 레이아웃 밀림으로 잡혀서,
+     몽이를 따라다니는 동안 이 화면의 밀림 수치가 0.167 까지 올라갔다(재는 동안 82번).
+
+     예전에는 transform 이 stacking context 를 만들어 글자의 반전(mix-blend-mode: difference)이
+     깨진다고 보고 left/top 을 썼다. 다시 확인해 보니 그건 **부모**에 transform 이 걸릴 때다.
+     반전은 자기 자신의 배경과 섞는 것이라, 같은 요소에 transform 을 걸어도 대상이 바뀌지 않는다.
+     실제로 화면을 찍어 견주니 글자가 그대로 반전된다.
+
+     가운데·아래 정렬은 크기를 재서 직접 뺀다.
      크기는 글이 바뀔 때만 달라지므로 캐시한다 — 매 프레임 재면 레이아웃이 강제된다. */
   const syncBubble = useCallback(() => {
     const el = bubbleRef.current;
@@ -159,13 +165,11 @@ export default function FloatingObject() {
          1초 사이에는 그 범위 밖에 있을 수 있다. */
       const rawLeft = screenPosRef.current.x - w / 2;
       const boxLeft = Math.max(BUBBLE_EDGE_PAD, Math.min(window.innerWidth - w - BUBBLE_EDGE_PAD, rawLeft));
-      const left = `${boxLeft}px`;
-      const top = `${screenPosRef.current.y + BUBBLE_OFFSET_Y - h}px`;
-      el.style.left = left;
-      el.style.top = top;
+      const move = `translate(${Math.round(boxLeft)}px, ${Math.round(screenPosRef.current.y + BUBBLE_OFFSET_Y - h)}px)`;
+      el.style.transform = move;
       /* 흐림판·글자 층은 껍데기와 같은 자리·같은 크기다. 셋이 정확히 겹쳐야 한 덩어리로 보인다. */
       for (const layer of [bubbleFillRef.current, bubbleTextRef.current]) {
-        if (layer) { layer.style.left = left; layer.style.top = top; }
+        if (layer) layer.style.transform = move;
       }
       /* 꼬리는 몽이를 가리키되 **말풍선 아래선을 벗어나면 안 된다**.
          화면 끝에서 껍데기만 안쪽으로 밀리는데 꼬리를 몽이 자리에 그대로 두면, 패널을
@@ -176,8 +180,7 @@ export default function FloatingObject() {
       const tailX = Math.max(boxLeft + tailInset, Math.min(boxLeft + w - tailInset, screenPosRef.current.x));
       const tail = bubbleTailRef.current;
       if (tail) {
-        tail.style.left = `${tailX - TAIL_SIZE / 2}px`;
-        tail.style.top = `${screenPosRef.current.y + BUBBLE_OFFSET_Y - TAIL_SIZE / 2}px`;
+        tail.style.transform = `translate(${Math.round(tailX - TAIL_SIZE / 2)}px, ${Math.round(screenPosRef.current.y + BUBBLE_OFFSET_Y - TAIL_SIZE / 2)}px)`;
       }
       /* 흐림판의 꼬리 삼각형과 테두리의 구멍도 같은 만큼 옮긴다. 셋이 한 값을 봐야 어긋나지 않는다. */
       const dx = `${Math.round(tailX - (boxLeft + w / 2))}px`;
