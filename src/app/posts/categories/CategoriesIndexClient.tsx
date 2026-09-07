@@ -116,7 +116,6 @@ export default function CategoriesIndexClient({ categories }: Props) {
                         fill
                         sizes="(max-width: 768px) 50vw, 240px"
                         className={card.coverImg}
-                        unoptimized
                       />
                     ) : (
                       <span className={card.coverPlaceholder}>{c.name.charAt(0).toUpperCase()}</span>

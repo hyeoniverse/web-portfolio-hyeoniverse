@@ -93,7 +93,6 @@ export default function SeriesCard({ series, onClick, active, index = 0, scrollC
             fill
             sizes="160px"
             className={styles.image}
-            unoptimized
           />
         )}
         {useMosaic && thumbs.slice(0, 4).map((src, i) => (
@@ -103,7 +102,6 @@ export default function SeriesCard({ series, onClick, active, index = 0, scrollC
               fill
               sizes="80px"
               className={styles.tileImage}
-              unoptimized
             />
           </span>
         ))}
