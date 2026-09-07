@@ -575,6 +575,6 @@ Technical Architecture:
 ];
 
 // 상수
-export const INFINITE_SCROLL_SETS = 10;
+export const INFINITE_SCROLL_SETS = 3;
 export const LONG_PRESS_DURATION = 800;
 export const INITIAL_MARGIN = 50;
