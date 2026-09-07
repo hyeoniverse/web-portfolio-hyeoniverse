@@ -10,7 +10,7 @@ const nextConfig: NextConfig = {
   compress: true,
   productionBrowserSourceMaps: true,
   experimental: {
-    inlineCss: true,
+    inlineCss: false,
     optimizePackageImports: [
       "framer-motion",
       "three",
