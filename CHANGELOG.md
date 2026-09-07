@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.53.9](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.8...v1.53.9) (2026-09-07)
+
+
+### Performance Improvements
+
+* **profile:** 말풍선을 transform 으로 옮겨 레이아웃 밀림을 없앤다 ([f50148a](https://github.com/hyeoniverse/web-portfolio-oval/commit/f50148a1a7b39cc6307f1662a95684cf1ae15161))
+
 ## [1.53.8](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.7...v1.53.8) (2026-09-07)
 
 
