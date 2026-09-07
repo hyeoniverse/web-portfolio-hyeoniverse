@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.53.7](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.6...v1.53.7) (2026-09-07)
+
+
+### Performance Improvements
+
+* **posts:** 글 목록의 레이아웃 밀림 0.31 을 0.001 로 줄인다 ([ece3c93](https://github.com/hyeoniverse/web-portfolio-oval/commit/ece3c93fadbfa219b7d9ccccea1bb80ca2783c91))
+
 ## [1.53.6](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.5...v1.53.6) (2026-09-06)
 
 
