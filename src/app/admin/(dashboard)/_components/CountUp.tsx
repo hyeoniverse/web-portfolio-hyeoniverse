@@ -35,4 +35,3 @@ export function CountUp({
   return <>{display.toLocaleString()}</>;
 }
 
-export default CountUp;

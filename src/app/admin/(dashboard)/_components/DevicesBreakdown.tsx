@@ -16,7 +16,7 @@ import Tooltip from "@/components/ui/Tooltip";
 /* ── Devices Breakdown — Type / OS / Browser 탭, 각 탭마다 도넛 + 범례 ── */
 type DeviceTab = "type" | "os" | "browser";
 
-export type DeviceKind = "desktop" | "mobile" | "tablet";
+import type { DeviceKind } from "@/lib/api/dashboardAggregates";
 
 function DevicesBreakdown({
   deviceTypes,

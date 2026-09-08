@@ -13,7 +13,7 @@ import { Eye } from "@/components/icons";
 import CloseButton from "@/components/ui/CloseButton";
 import { type TFunction } from "@/providers/LanguageProvider";
 import Link from "next/link";
-export type CategoryPost = {
+type CategoryPost = {
   id: string;
   title: string;
   slug: string;

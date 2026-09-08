@@ -1,4 +1,4 @@
-export type FontEntry = { label: string; value: string; googleName?: string; /** 한글 지원 — 목록에 "가" 배지 */ korean?: boolean };
+type FontEntry = { label: string; value: string; googleName?: string; /** 한글 지원 — 목록에 "가" 배지 */ korean?: boolean };
 export type FontGroup = { group: string; fonts: FontEntry[] };
 
 // 폰트 선택 카탈로그 — 단일 소스(single source of truth).
@@ -102,7 +102,6 @@ export const TABLE_BORDER_COLORS = [
 
 export const IMG_ALIGNS = ["left", "center", "right"] as const;
 export const IMG_ALIGN_ICONS: Record<string, string> = { left: "◧", center: "◻", right: "◨" };
-export const IMG_LAYOUTS = ["inline", "block", "float-left", "float-right"] as const;
 export const IMG_FILTERS: { labelKey: string; value: string }[] = [
   { labelKey: "editor.filterOriginal", value: "" },
   { labelKey: "editor.filterGrayscale", value: "grayscale(100%)" },

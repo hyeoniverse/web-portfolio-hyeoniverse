@@ -93,18 +93,6 @@ export function hslToHex(hsl: HSL): string { return rgbToHex(hslToRgb(hsl)); }
 export function hexToHsv(hex: string): HSV { return rgbToHsv(hexToRgb(hex)); }
 export function hsvToHex(hsv: HSV): string { return rgbToHex(hsvToRgb(hsv)); }
 
-/** valid hex (#abc, #aabbcc) 인지 검증 — # 자동 보정 */
-export function normalizeHex(input: string): string | null {
-  const cleaned = input.trim().replace(/^#/, "");
-  if (/^[0-9a-f]{3}$/i.test(cleaned)) {
-    return "#" + cleaned.split("").map((c) => c + c).join("");
-  }
-  if (/^[0-9a-f]{6}$/i.test(cleaned)) {
-    return "#" + cleaned.toLowerCase();
-  }
-  return null;
-}
-
 /* ── Alpha(투명도) ── source of truth 는 색(OKLCH)과 직교하는 0~1 스칼라. 색은 그대로 두고 alpha 만 얹는다. */
 
 /** alpha(0-1) → 2자리 hex ("00"~"ff"). */
