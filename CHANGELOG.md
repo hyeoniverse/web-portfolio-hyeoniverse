@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.53.19](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.18...v1.53.19) (2026-09-08)
+
+
+### Performance Improvements
+
+* **posts:** 배너를 서버 HTML 에 남겨 이미지를 먼저 받게 한다 ([3c5ade0](https://github.com/hyeoniverse/web-portfolio-oval/commit/3c5ade0383e0f5c412b008d2b4e2b219d3075e97))
+
 ## [1.53.18](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.17...v1.53.18) (2026-09-08)
 
 
