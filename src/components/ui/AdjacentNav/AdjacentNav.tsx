@@ -35,7 +35,7 @@ export default function AdjacentNav({
   };
 
   return (
-    <nav className={`${styles.nav}${className ? ` ${className}` : ""}`}>
+    <nav aria-label="이전 · 다음 글" className={`${styles.nav}${className ? ` ${className}` : ""}`}>
       {prev ? (
         <div className={styles.card} data-clickable="true" onClick={(e) => handleClick(prev, e)} role="link" style={{ cursor: "pointer" }}>
           <div className={styles.thumb}>

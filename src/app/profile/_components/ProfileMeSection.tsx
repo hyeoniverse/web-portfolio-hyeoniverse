@@ -103,6 +103,7 @@ export default function ProfileMeSection({ profileData, showcase }: ProfileMeSec
             <T ko={p.title_ko} en={p.title} />
           </span>
           <KineticHeroTitle
+            as="h1"
             lines={[
               { text: "Crafting Digital" },
               { text: "Experiences", accent: true },

@@ -726,7 +726,9 @@ code .token.italic {
   }
 
   .code-wrap-label-hover {
-    opacity: 0.5;
+    /* 데스크톱과 달리 터치에서는 두 라벨이 나란히 보인다. 0.5 는 배경 대비가
+       다크 3.55 · 라이트 2.34 라 안 읽혔다. 0.82 면 둘 다 기준을 넘고 여전히 약하다. */
+    opacity: 0.82;
   }
 
   .code-wrap-label-default::after {
@@ -744,7 +746,7 @@ code .token.italic {
   }
 
   .code-block-wrap .code-wrap-toggle:hover .code-wrap-label-hover {
-    opacity: 0.5;
+    opacity: 0.82;
   }
 }
 

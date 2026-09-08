@@ -78,7 +78,7 @@ export default function MobileMenu({
           <Logo variant="full" as="link" className={styles.menuLogo} />
         </div>
 
-        <nav className={styles.menuNav}>
+        <nav aria-label="모바일 메뉴" className={styles.menuNav}>
           {menuItems.map((item) => {
             if (!item.href) {
               return (

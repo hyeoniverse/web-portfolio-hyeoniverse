@@ -95,9 +95,9 @@ function FeaturesPanel({
 
   return (
     <div className={`${styles.panel} ${styles.panelWide}`}>
-      <h3 className={`${styles.panelTitle} ${styles.animate}`}>
+      <h2 className={`${styles.panelTitle} ${styles.animate}`}>
         {panelTitle}
-      </h3>
+      </h2>
 
       {/* 데스크톱: DynamicFrameLayout */}
       <div className={styles.featureDynamic}>

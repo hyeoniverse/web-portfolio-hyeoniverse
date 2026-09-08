@@ -287,7 +287,7 @@ export default function BunnyShowcasePanel({ animateClass, bunny }: Props) {
       {/* Info */}
       <div className={`${styles.info} ${ac}`}>
         <span className={styles.nameLabel}>MEET</span>
-        <h3 className={styles.name}>{L(bunny.name)}</h3>
+        <h2 className={styles.name}>{L(bunny.name)}</h2>
         <span className={styles.subtitle}>{L(bunny.subtitle)}</span>
 
         <div className={styles.storyBlock}>

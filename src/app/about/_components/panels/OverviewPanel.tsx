@@ -42,7 +42,7 @@ export default function OverviewPanel({ language, overview }: OverviewPanelProps
   }
   return (
     <div className={styles.panel}>
-      <h3 className={`${styles.panelTitle} ${styles.animate}`}>{panelTitle}</h3>
+      <h2 className={`${styles.panelTitle} ${styles.animate}`}>{panelTitle}</h2>
       <div className={styles.overviewLayout}>
         <div className={styles.overviewTop}>
           <p className={`${styles.overviewDesc} ${styles.animate}`}>

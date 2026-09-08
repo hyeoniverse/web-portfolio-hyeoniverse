@@ -101,6 +101,7 @@ export default function AboutSection() {
       <section className={styles.section} ref={sectionRef} suppressHydrationWarning>
         {isMobile && (
           <nav
+            aria-label="About 섹션"
             className={`${styles.mobileTabBar} ${
               tabBarHidden ? styles.mobileTabBarHidden : ""
             }`}

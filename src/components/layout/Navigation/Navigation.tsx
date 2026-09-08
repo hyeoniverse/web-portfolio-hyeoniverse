@@ -411,7 +411,10 @@ export default function Navigation() {
   }, [router, pathname]);
 
   return (
-    <>
+    /* header 로 감싸 로고까지 랜드마크 안에 넣는다. 위치·크기는 자식이 fixed 라 영향 없고,
+       header 에 position/z-index/transform 을 주지 않으므로 stacking context 도 안 생긴다
+       (생기면 자식의 mix-blend-mode 가 그 안에 갇혀 반전이 죽는다). */
+    <header>
     {/* 로고 + admin 배지 flex 부모. .nav 와 동일 패턴 — mix-blend-mode 를 부모에 두면
         전체가 page backdrop 과 한 번에 blend (자식에 두면 부모 stacking context 안에서 갇혀 무효) */}
     <Link
@@ -544,7 +547,7 @@ export default function Navigation() {
       )}
     </Link>
 
-    <nav className={`${styles.nav} ${showLoadingLogo ? styles.navLoading : ""} ${elevatedZ ? styles.navElevated : ""} ${isAdminPage ? styles.navAdmin : ""} ${showMenu ? styles.navMenuOpen : ""}`}>
+    <nav aria-label="주요 메뉴" className={`${styles.nav} ${showLoadingLogo ? styles.navLoading : ""} ${elevatedZ ? styles.navElevated : ""} ${isAdminPage ? styles.navAdmin : ""} ${showMenu ? styles.navMenuOpen : ""}`}>
       <div
         ref={navCenterRef}
         className={styles.navCenter}
@@ -959,6 +962,6 @@ export default function Navigation() {
         )}
       </AnimatePresence>
     </nav>
-    </>
+    </header>
   );
 }

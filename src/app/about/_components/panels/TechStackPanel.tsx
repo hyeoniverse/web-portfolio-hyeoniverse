@@ -55,7 +55,7 @@ export default function TechStackPanel({ techStack }: TechStackPanelProps) {
   const list = cfgStack ?? techStack;
   return (
     <div className={`${styles.panel} ${styles.panelCompact}`}>
-      <h3 className={`${styles.panelTitle} ${styles.animate}`}>{panelTitle}</h3>
+      <h2 className={`${styles.panelTitle} ${styles.animate}`}>{panelTitle}</h2>
       <div className={styles.techGrid}>
         {list.map((tech, index) => (
           <div key={index} className={`${styles.techItem} ${styles.animate}`}>
