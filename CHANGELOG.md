@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.53.26](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.25...v1.53.26) (2026-09-08)
+
+
+### Performance Improvements
+
+* **works:** 첫 화면 카드 표지에 우선순위가 실제로 걸리게 고친다 ([fd8c55f](https://github.com/hyeoniverse/web-portfolio-oval/commit/fd8c55f5a89d01719b4e18bc88234961f82a055c))
+
 ## [1.53.25](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.24...v1.53.25) (2026-09-08)
 
 
