@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.53.23](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.22...v1.53.23) (2026-09-08)
+
+
+### Bug Fixes
+
+* **nav:** header 래퍼가 합성 비용을 올리지 않게 display:contents 로 둔다 ([f328058](https://github.com/hyeoniverse/web-portfolio-oval/commit/f32805859d68035caae3462791f37553c7249086))
+
 ## [1.53.22](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.21...v1.53.22) (2026-09-08)
 
 
