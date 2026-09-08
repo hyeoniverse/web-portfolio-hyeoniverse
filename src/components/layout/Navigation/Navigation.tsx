@@ -411,10 +411,12 @@ export default function Navigation() {
   }, [router, pathname]);
 
   return (
-    /* header 로 감싸 로고까지 랜드마크 안에 넣는다. 위치·크기는 자식이 fixed 라 영향 없고,
-       header 에 position/z-index/transform 을 주지 않으므로 stacking context 도 안 생긴다
-       (생기면 자식의 mix-blend-mode 가 그 안에 갇혀 반전이 죽는다). */
-    <header>
+    /* header 로 감싸 로고까지 랜드마크 안에 넣는다. display:contents 는 필수다 —
+       평범한 블록 박스로 두면 자식(fixed + mix-blend-mode: difference)의 합성 비용이
+       올라가 GSAP 가 계속 transform 을 돌리는 /works 의 TBT 가 650 → 858ms 로 늘었다.
+       박스를 지우면 자식은 header 가 없던 때와 같은 조건이 되고 랜드마크만 남는다.
+       (stacking context 는 어느 쪽이든 안 생긴다. 생기면 blend 반전이 갇혀 죽는다.) */
+    <header style={{ display: "contents" }}>
     {/* 로고 + admin 배지 flex 부모. .nav 와 동일 패턴 — mix-blend-mode 를 부모에 두면
         전체가 page backdrop 과 한 번에 blend (자식에 두면 부모 stacking context 안에서 갇혀 무효) */}
     <Link
