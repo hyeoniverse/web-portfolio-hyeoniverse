@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.53.18](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.17...v1.53.18) (2026-09-08)
+
+
+### Performance Improvements
+
+* **works:** 작업물 화면을 서버에서도 그리게 한다 ([0433562](https://github.com/hyeoniverse/web-portfolio-oval/commit/0433562e4edea2fa3a1bd885040ec9e9b35577b2))
+
 ## [1.53.17](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.16...v1.53.17) (2026-09-08)
 
 
