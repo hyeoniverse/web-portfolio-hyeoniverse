@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.53.24](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.23...v1.53.24) (2026-09-08)
+
+
+### Performance Improvements
+
+* **posts:** 글 상세의 진입 연출을 CSS 로 옮겨 본문을 먼저 보여준다 ([c1f4c27](https://github.com/hyeoniverse/web-portfolio-oval/commit/c1f4c27beb73bedd7eff7d4c5031c8377291062c))
+
 ## [1.53.23](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.22...v1.53.23) (2026-09-08)
 
 
