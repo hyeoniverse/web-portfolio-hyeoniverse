@@ -1,7 +1,5 @@
 import type { LocalizedText } from "@/types/common";
 
-export const SIZES = ["large", "small", "medium", "tall", "wide"] as const;
-
 export interface TechPreset {
   name: string;
   group: string;

@@ -43,7 +43,7 @@ import MembersList from "@/components/admin/MembersList";
 import styles from "./Dashboard.module.css";
 import { formatRelativeTime } from "@/utils/relativeTime";
 import { useNow } from "@/hooks/useNow";
-import CountUp from "./_components/CountUp";
+import { CountUp } from "./_components/CountUp";
 import Sparkline from "./_components/Sparkline";
 import DashboardSkeleton from "./_components/DashboardSkeleton";
 import CategoryDonut from "./_components/CategoryDonut";

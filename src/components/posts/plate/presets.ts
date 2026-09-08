@@ -46,12 +46,6 @@ export const COLUMN_LINE_NAMED: NamedColor[] = [
   { hex: "#8b5cf6", ko: "보라", en: "Purple" },
 ];
 
-/** @deprecated 이름 포함 COLUMN_BG_NAMED 사용 */
-export const COLUMN_BG_PRESETS = [
-  "transparent",
-  ...COLUMN_BG_NAMED.map((c) => c.hex),
-];
-
 /** Callout background presets (Notion-inspired palette) */
 export const CALLOUT_BG_PRESETS = [
   { color: "var(--bg-primary)" },

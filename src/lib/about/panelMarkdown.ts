@@ -163,7 +163,7 @@ export const processPanel = {
 
 // ── Overview ───────────────────────────────────────────────────
 
-export interface CfgStat { value: string; label_ko: string; label_en: string }
+interface CfgStat { value: string; label_ko: string; label_en: string }
 export interface OverviewValues {
   overview_description_ko: string;
   overview_description_en: string;

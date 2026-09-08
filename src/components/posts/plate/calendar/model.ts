@@ -297,7 +297,6 @@ export function eventDates(ev: CalEvent): string[] {
 
 /** 이벤트 제목/내용/태그 글자수·개수 제한 */
 export const EVENT_TITLE_MAX = 80;
-export const EVENT_DESC_MAX = 300;
 export const EVENT_LABEL_MAX = 24;
 
 export type CalendarData = {

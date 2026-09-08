@@ -47,7 +47,7 @@ interface ComparisonRow {
   highlight?: boolean;
 }
 
-export interface ComparisonTable {
+interface ComparisonTable {
   label?: LocalizedText;
   headers: LocalizedText[];
   rows: ComparisonRow[];

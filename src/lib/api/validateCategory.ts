@@ -16,16 +16,6 @@ async function getPostCategories(): Promise<BilingualCategory[]> {
 }
 
 /**
- * 필터 값(?category=)을 매칭 대상 문자열 목록으로 확장.
- * 대분류 → 그 대분류 + 모든 소분류 값(자식 글 포함), 소분류/leaf → 자기 자신.
- */
-export async function expandPostCategoryFilter(category: string): Promise<string[]> {
-  if (!category) return [];
-  const categories = await getPostCategories();
-  return expandCategoryValues(categories, category);
-}
-
-/**
  * 여러 카테고리(멀티선택)를 매칭 대상 문자열 집합으로 확장 (OR / 합집합).
  * config 는 한 번만 읽고 각 카테고리를 확장해 union. posts·series 필터 공용.
  */
