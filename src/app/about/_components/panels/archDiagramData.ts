@@ -107,7 +107,7 @@ export const DEFAULT_ARCH_EDGES: ArchEdge[] = [
   { from: "api", to: "giscus", dashed: true },
 ];
 
-export function archNodeCenter(n: ArchNode) {
+function archNodeCenter(n: ArchNode) {
   return { x: n.x + n.w / 2, y: n.y + n.h / 2 };
 }
 

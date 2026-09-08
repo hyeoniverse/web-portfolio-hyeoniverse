@@ -43,7 +43,7 @@ export function BlockTailClickZone({ path }: { path: number[] | null }) {
 }
 
 /** 인라인 캡션 입력 — 이미지/표 공용 */
-export const CAPTION_MAX = 200;
+const CAPTION_MAX = 200;
 
 export function InlineCaption({ caption, onCommit, onEditingChange, autoEdit, overlayMode }: { caption: string; onCommit: (v: string) => void; onEditingChange?: (editing: boolean) => void; autoEdit?: boolean; overlayMode?: boolean }) {
   const { t } = useLanguage();

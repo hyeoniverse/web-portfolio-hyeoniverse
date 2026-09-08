@@ -1,11 +1,7 @@
 import { useState, useEffect } from "react";
 import { siteConfig } from "@/config/site.config";
 import type { BilingualCategory } from "@/types/common";
-import {
-  normalizeCategories,
-  flattenCategories,
-  findCategoryNode,
-} from "@/lib/categoryTree";
+import { normalizeCategories, findCategoryNode } from "@/lib/categoryTree";
 
 export type { BilingualCategory } from "@/types/common";
 
@@ -25,8 +21,6 @@ export function translateCategory(
   const found = findCategoryNode(cats, value);
   return found ? found[lang] : value;
 }
-
-export { flattenCategories };
 
 /* 이 훅은 한 화면에 여러 번 쓰인다 — CategoryLabel 이 글 카드마다 붙어서, 글 목록에서는
    인스턴스가 십수 개가 된다. 각자 fetch 하면 같은 응답을 그 수만큼 받는다(측정: /posts 에서

@@ -10,7 +10,7 @@ import type { BilingualCategory } from "@/types/common";
  */
 
 /** string | BilingualCategory | legacy 를 BilingualCategory 로 정규화 (children 재귀 보존) */
-export function normalizeCategory(item: unknown): BilingualCategory {
+function normalizeCategory(item: unknown): BilingualCategory {
   if (typeof item === "string") return { ko: item, en: item };
   const c = (item ?? {}) as BilingualCategory;
   const normalized: BilingualCategory = { ko: c.ko, en: c.en };

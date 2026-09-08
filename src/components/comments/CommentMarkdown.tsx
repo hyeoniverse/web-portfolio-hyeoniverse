@@ -120,7 +120,7 @@ function ensureHook() {
 }
 
 /** 마크다운 → 정화된 HTML 문자열 */
-export function renderCommentMarkdown(content: string): string {
+function renderCommentMarkdown(content: string): string {
   ensureHook();
   const raw = marked.parse(content, { async: false }) as string;
   return DOMPurify.sanitize(raw, {

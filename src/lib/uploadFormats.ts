@@ -84,7 +84,7 @@ export function inferGroup(ext: string): MimeGroupKey | "other" {
 }
 
 /** 형식 켤 때 자동 배정될 추천 크기 (MB) */
-export const RECOMMENDED_SIZE: Record<string, number> = {
+const RECOMMENDED_SIZE: Record<string, number> = {
   jpg: 5, jpeg: 5, png: 5, webp: 5, svg: 2, gif: 10, avif: 5, bmp: 10, heic: 10, tiff: 10,
   mp4: 200, webm: 200, mov: 200, mkv: 200, avi: 200,
   mp3: 20, wav: 20, ogg: 20, flac: 20, m4a: 20, aac: 20,
@@ -93,7 +93,7 @@ export const RECOMMENDED_SIZE: Record<string, number> = {
   zip: 50, rar: 50, "7z": 50, gz: 50, tar: 50,
 };
 
-export const GROUP_RECOMMENDED: Record<MimeGroupKey, number> = {
+const GROUP_RECOMMENDED: Record<MimeGroupKey, number> = {
   image: 5, video: 200, audio: 20, document: 20, archive: 50,
 };
 
@@ -103,7 +103,7 @@ export function recommendedSize(ext: string, group: MimeGroupKey | "other"): num
 }
 
 /** 대표 MIME → 확장자들 (구 MIME-키 limits 마이그레이션용) */
-export const MIME_TO_EXTS: Record<string, string[]> = (() => {
+const MIME_TO_EXTS: Record<string, string[]> = (() => {
   const m: Record<string, string[]> = {};
   for (const f of [...BUILTIN_FORMATS, ...ADDABLE_FORMATS]) {
     if (!f.mime) continue;

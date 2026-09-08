@@ -65,7 +65,7 @@ function borderStr(side: CellBorderVal, fallback: string): string {
   return `${w} ${s} ${c}`;
 }
 
-export function buildCellStyle(
+function buildCellStyle(
   props: PlateElementProps,
   selected: boolean,
   minHeight: number | undefined,

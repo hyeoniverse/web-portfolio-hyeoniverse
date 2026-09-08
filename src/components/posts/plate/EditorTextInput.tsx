@@ -72,7 +72,7 @@ type EditorTextInputProps = {
   inputRef?: React.RefObject<HTMLInputElement | HTMLTextAreaElement | null>;
 };
 
-export function EditorTextInput({
+function EditorTextInput({
   value, onCommit, placeholder, className, wrapperClassName,
   variant = "bare", size = "md", label, inlineLabel, clearable = true,
   multiline, clearOnCommit, commitOnEnter = true, maxLength, onOverflow, showCount,

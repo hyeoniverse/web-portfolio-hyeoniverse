@@ -6,7 +6,7 @@ import { deviceKey } from "@/lib/auth/uaParser";
 
 /** UA 기반 device fingerprint — parsed browser+OS+device 만 해시 (버전 변동 무시).
  *  Chrome auto-update 등으로 UA minor 가 바뀌어도 같은 fingerprint 가 나와 중복 row 가 안 생김. */
-export function fingerprintFromUA(userAgent: string): string {
+function fingerprintFromUA(userAgent: string): string {
   return createHash("sha256").update(deviceKey(userAgent)).digest("hex").slice(0, 32);
 }
 

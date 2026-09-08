@@ -13,7 +13,7 @@ export interface PlaygroundData {
 
 // HTML/CSS/JS 는 외부 번들러/서버 없이 로컬 srcdoc 러너("html")로 실행 → 항상 동작.
 // React/TS 등은 Sandpack 유지(하이브리드).
-export const DEFAULT_TEMPLATE = "html";
+const DEFAULT_TEMPLATE = "html";
 /** 이 템플릿들은 자체 srcdoc 러너로 실행 (나머지는 Sandpack) */
 export const RUNNER_TEMPLATES = new Set(["html", "static"]);
 export const EMPTY_PLAYGROUND: PlaygroundData = { template: DEFAULT_TEMPLATE, files: {} };

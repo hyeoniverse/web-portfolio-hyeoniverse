@@ -23,87 +23,8 @@ interface PeriodPickerProps {
   maxDate?: Date;
   /** 이 시점 이전은 선택 불가. Date 객체 */
   minDate?: Date;
-  /** "표시 형식 + 범위" row 숨김 — 호출부에서 PeriodFormatBar 로 직접 렌더할 때 */
-  hideFormatRow?: boolean;
 }
 
-/** 외부에서 fieldLabel 등에 inline 으로 렌더하기 위한 format + range 선택 바.
- *  PeriodPicker 의 같은 props 와 짝지어 사용. */
-export function PeriodFormatBar({
-  value,
-  onChange,
-  compact = false,
-}: {
-  value: DatePeriod;
-  onChange: (value: DatePeriod) => void;
-  /** 라벨 ("표시 형식") 숨기고 segment 만 렌더 */
-  compact?: boolean;
-}) {
-  const { t, language } = useLanguage();
-  const safeValue: DatePeriod = value && typeof value === "object" && "format" in value
-    ? value
-    : { start: "", format: "year" };
-  const hasRange = safeValue.end !== undefined || !!safeValue.ongoing;
-  const setFormat = (format: Format) => onChange({ ...safeValue, format });
-  const toggleRange = (checked: boolean) => {
-    if (checked) {
-      onChange({
-        ...safeValue,
-        end: safeValue.end || buildDateStr(new Date().getFullYear().toString(), "", "", safeValue.format),
-      });
-    } else {
-      const { end: _, ongoing: __, ...rest } = safeValue;
-      onChange(rest as DatePeriod);
-    }
-  };
-  const toggleOngoing = (checked: boolean) => {
-    if (checked) {
-      const { end: _, ...rest } = safeValue;
-      onChange({ ...rest, ongoing: true });
-    } else {
-      onChange({
-        ...safeValue,
-        ongoing: undefined,
-        end: buildDateStr(new Date().getFullYear().toString(), "", "", safeValue.format),
-      });
-    }
-  };
-  return (
-    <div className={styles.formatRow}>
-      {!compact && (
-        <span className={styles.formatLabel}>{t("admin.settings.profile.displayFormat")}</span>
-      )}
-      <div className={styles.formatSegment}>
-        {FORMAT_OPTIONS.map((opt) => (
-          <Pressable
-            key={opt.value}
-            type="button"
-            className={`${styles.formatBtn} ${safeValue.format === opt.value ? styles.formatBtnActive : ""}`}
-            onClick={() => setFormat(opt.value)}
-          >
-            {opt.label[language]}
-          </Pressable>
-        ))}
-      </div>
-      <div className={styles.formatChecks}>
-        <Checkbox
-          checked={hasRange}
-          onChange={toggleRange}
-          shape="square"
-          label={t("admin.settings.profile.showAsRange")}
-        />
-        {hasRange && (
-          <Checkbox
-            checked={!!safeValue.ongoing}
-            onChange={toggleOngoing}
-            shape="square"
-            label={t("admin.settings.profile.ongoing")}
-          />
-        )}
-      </div>
-    </div>
-  );
-}
 
 type Format = DatePeriod["format"];
 
@@ -325,7 +246,6 @@ export default function PeriodPicker({
   showPreview = true,
   minDate,
   maxDate,
-  hideFormatRow = false,
 }: PeriodPickerProps) {
   const { t, language } = useLanguage();
 
@@ -377,8 +297,8 @@ export default function PeriodPicker({
 
   return (
     <div className={`${styles.wrapper} ${className ?? ""}`}>
-      {/* Format selector + range toggle — hideFormatRow=true 면 외부에서 PeriodFormatBar 로 직접 렌더 */}
-      {!hideFormatRow && (
+      {/* Format selector + range toggle */}
+      {(
         <div className={styles.formatRow}>
           <span className={styles.formatLabel}>{t("admin.settings.profile.displayFormat")}</span>
           <div className={styles.formatSegment}>

@@ -491,8 +491,3 @@ export const WORK_TEMPLATES: WorkTemplate[] = [
     content: { ko: SHOWCASE_KO, en: SHOWCASE_EN },
   },
 ];
-
-/* legacy export — TEMPLATE_KO / TEMPLATE_EN 을 표준 템플릿으로 alias.
- * 다른 곳에서 import 하던 코드 호환용. */
-export const TEMPLATE_KO = STANDARD_KO;
-export const TEMPLATE_EN = STANDARD_EN;

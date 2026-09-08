@@ -9,7 +9,7 @@ import type { LocalizedText } from "@/types/common";
  */
 
 /** 도넛 슬라이스 팔레트 */
-export const POLL_COLORS = ["#e0556a", "#5b8def", "#22c39a", "#f4a43b", "#9b6dd6", "#3bb0c3", "#e8b84b", "#7a8aa0", "#c879d6", "#8a9a3b"];
+const POLL_COLORS = ["#e0556a", "#5b8def", "#22c39a", "#f4a43b", "#9b6dd6", "#3bb0c3", "#e8b84b", "#7a8aa0", "#c879d6", "#8a9a3b"];
 /** 도넛으로 표시할 최대 슬라이스 수(초과분은 "기타"로 묶음) */
 const PIE_MAX = 8;
 
