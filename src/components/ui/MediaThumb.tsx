@@ -5,6 +5,7 @@ import Image from "next/image";
 import { isVideoUrl } from "@/lib/isVideoUrl";
 import { getFallbackCoverGradient } from "@/lib/coverFallback";
 import { firstFrameSrc, hoverVideoHandlers } from "./hoverVideo";
+import { useNearViewport } from "@/hooks/useNearViewport";
 
 export interface MediaThumbProps {
   src: string;
@@ -39,6 +40,11 @@ export default function MediaThumb({
      들어올 수 있는데, 그때만 원본으로 되돌린다. 주소가 바뀌면 다시 최적화부터 시도한다. */
   const [failedSrc, setFailedSrc] = useState<string | null>(null);
   const skipOptimize = unoptimized || failedSrc === src;
+  /* 동영상 표지는 preload="metadata" 만으로도 서버가 Range 를 안 받아주면 파일을 통째로
+     내려받는다. 화면 밖 카드까지 그러면 첫 화면에 쓸 대역폭을 빼앗긴다(측정: /posts 에서
+     화면 밖 카드 3개가 같은 1.9 MB 파일을 6번 요청). priority 가 아니면 화면 근처에
+     올 때까지 src 를 비워 둔다 — 이미지의 loading="lazy" 와 같은 취급이다. */
+  const [observeVideo, videoNear] = useNearViewport(!priority);
   const handleError = () => {
     if (!skipOptimize) { setFailedSrc(src); return; }
     onError?.();
@@ -58,7 +64,8 @@ export default function MediaThumb({
   if (isVideoUrl(src)) {
     return (
       <video
-        src={firstFrameSrc(src)}
+        ref={observeVideo}
+        src={videoNear ? firstFrameSrc(src) : undefined}
         className={className}
         style={fill
           ? { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", ...style }
