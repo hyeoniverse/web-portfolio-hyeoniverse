@@ -194,7 +194,13 @@ export default function ProfileWindows({ className, isMobile, infoBlocks }: Prop
             onClick={() => setProfileViewerOpen(true)}
             role="button"
             tabIndex={0}
-            onKeyDown={(e) => { if (e.key === "Enter") setProfileViewerOpen(true); }}
+            aria-label="프로필 사진 크게 보기"
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                setProfileViewerOpen(true);
+              }
+            }}
             style={{ cursor: "zoom-in" }}
           >
             <Image

@@ -45,10 +45,10 @@ export default function Pagination({ page, totalPages, onChange, className, show
   return (
     <div className={`${styles.paginationWrap} ${size === "sm" ? styles.paginationWrapSm : ""} ${className ?? ""}`}>
       <div className={styles.pagination}>
-        <Pressable disabled={page <= 1} onClick={() => onChange(1)} className={styles.pageBtn} title="First">
+        <Pressable disabled={page <= 1} onClick={() => onChange(1)} className={styles.pageBtn} aria-label="첫 페이지" title="First">
           <ChevronsLeft size={14} />
         </Pressable>
-        <Pressable disabled={page <= 1} onClick={() => onChange(page - 1)} className={styles.pageBtn}>
+        <Pressable disabled={page <= 1} onClick={() => onChange(page - 1)} className={styles.pageBtn} aria-label="이전 페이지">
           <ChevronLeft size={14} />
         </Pressable>
         {pageNumbers.map((p, i) =>
@@ -65,10 +65,10 @@ export default function Pagination({ page, totalPages, onChange, className, show
             </Pressable>
           ),
         )}
-        <Pressable disabled={page >= totalPages} onClick={() => onChange(page + 1)} className={styles.pageBtn}>
+        <Pressable disabled={page >= totalPages} onClick={() => onChange(page + 1)} className={styles.pageBtn} aria-label="다음 페이지">
           <ChevronRight size={14} />
         </Pressable>
-        <Pressable disabled={page >= totalPages} onClick={() => onChange(totalPages)} className={styles.pageBtn} title="Last">
+        <Pressable disabled={page >= totalPages} onClick={() => onChange(totalPages)} className={styles.pageBtn} aria-label="마지막 페이지" title="Last">
           <ChevronsRight size={14} />
         </Pressable>
       </div>

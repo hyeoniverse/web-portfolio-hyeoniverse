@@ -102,6 +102,7 @@ export default function PostsSidebar({
       )}
       <aside
         ref={ref}
+        aria-label="글 목록 사이드바"
         className={styles.sidebar}
         {...(!isCollapsed && { "data-lenis-prevent": true })}
       >

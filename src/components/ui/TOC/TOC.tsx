@@ -106,7 +106,7 @@ export default function TOC({
   if (items.length === 0) return null;
 
   return (
-    <nav className={`${styles.toc} ${styles[position]} ${className ?? ""}`}>
+    <nav aria-label="목차" className={`${styles.toc} ${styles[position]} ${className ?? ""}`}>
       {title && <p className={styles.title}>{title}</p>}
       {items.length > 1 && (
         <a

@@ -58,7 +58,7 @@ export default function PostCardCompact({
             <ProgressiveImage src={post.cover_image} alt="" fill sizes="24px" className={styles.compactThumbImg} onError={() => onImgError?.(post.id)} />
           ) : null}
         </span>
-        <h3 className={styles.compactTitle}><HighlightedText text={displayTitle} /></h3>
+        <h2 className={styles.compactTitle}><HighlightedText text={displayTitle} /></h2>
         <span className={styles.compactHotSlot}>
           {isHot && <HotBadge size={15} className={hotClass} />}
         </span>

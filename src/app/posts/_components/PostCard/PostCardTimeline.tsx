@@ -62,15 +62,15 @@ export default function PostCardTimeline({
         )}
         {isHot && <HotBadge size={11} className={styles.timelineHotBadge} />}
       </div>
-      <h3 className={styles.timelineTitle}>
+      <h2 className={styles.timelineTitle}>
         {post.is_pinned && (
-          <span className={styles.timelinePinInline} aria-label="Pinned">
+          <span className={styles.timelinePinInline} role="img" aria-label="고정된 글">
             {/* lucide Pin 기반 — 바늘 길게, CSS 로 기울임. 제목 텍스트에 인라인(글자처럼) */}
             <PinIcon />
           </span>
         )}
         <HighlightedText text={displayTitle} />
-      </h3>
+      </h2>
       {/* 반대편 빈 공간 프리뷰 — 데스크톱은 hover 시 썸네일+desc, 모바일은 인라인 상시 표시 */}
       {(displayExcerpt || showImage || icon) && (
         <div className={styles.timelinePreview}>
