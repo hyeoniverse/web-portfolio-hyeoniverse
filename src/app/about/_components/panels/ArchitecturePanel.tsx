@@ -37,7 +37,7 @@ function ArchitecturePanel({ language }: ArchitecturePanelProps) {
   return (
     <div className={`${styles.panel} ${styles.panelFlush}`}>
       <div className={styles.titleRowCompact}>
-        <h3 className={`${styles.panelTitle} ${styles.archTitle} ${styles.animate}`}>{panelTitle}</h3>
+        <h2 className={`${styles.panelTitle} ${styles.archTitle} ${styles.animate}`}>{panelTitle}</h2>
       </div>
 
       <ArchitectureMap structure={structure} language={language} />

@@ -13,12 +13,14 @@ interface Line {
 interface Props {
   lines: Line[];
   className?: string;
+  /** 화면의 최상위 제목으로 쓸 때 "h1". 기본은 h2 — 한 화면에 h1 이 둘 생기지 않게. */
+  as?: "h1" | "h2";
 }
 
 /** 로딩 화면 wipe 애니메이션 완료까지의 대기 시간 (ms) */
 const LOADING_EXIT_MS = 1200;
 
-export default function KineticHeroTitle({ lines, className }: Props) {
+export default function KineticHeroTitle({ lines, className, as: Tag = "h2" }: Props) {
   const titleRef = useRef<HTMLHeadingElement>(null);
   const [ready, setReady] = useState(false);
   const totalChars = lines.reduce((sum, l) => sum + l.text.length, 0);
@@ -179,7 +181,7 @@ export default function KineticHeroTitle({ lines, className }: Props) {
   }, [lines]);
 
   return (
-    <h2 ref={titleRef} className={`${styles.title} ${className ?? ""}`}>
+    <Tag ref={titleRef} className={`${styles.title} ${className ?? ""}`}>
       {chars.map((line, li) => (
         <span key={li} className={styles.line}>
           {line.map((c, ci) => (
@@ -195,6 +197,6 @@ export default function KineticHeroTitle({ lines, className }: Props) {
           {li < chars.length - 1 && <br />}
         </span>
       ))}
-    </h2>
+    </Tag>
   );
 }

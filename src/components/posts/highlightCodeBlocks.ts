@@ -141,6 +141,8 @@ export function attachCodeWrapToggle(
     // wheel 은 통째로 막지 않고 축(axis) 기준으로 라우팅한다(attachWheelRouting) — 세로로 굴렸는데
     // 블록이 세로로 못 움직이면 페이지가 스크롤되도록.
     pre.setAttribute("data-lenis-prevent-touch", "");
+    // 가로로 넘치는 코드는 마우스 없이도 훑을 수 있어야 한다 — 키보드 초점을 받게 한다.
+    if (!pre.hasAttribute("tabindex")) pre.setAttribute("tabindex", "0");
     attachWheelRouting(pre);
     // 중복 주입 방지는 pre 단위로 판정 — 한 wrap 에 pre 가 여러 개여도 각 pre 가 바를 받도록.
     //   (wrap.querySelector 로 판정하면 첫 pre 의 바를 보고 이후 pre 를 건너뛰는 오탐이 생김)

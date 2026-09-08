@@ -80,7 +80,7 @@ export default function WorksFlowCard({
           <div className={styles.cardBorder} />
           <span className={styles.metaNumber}>{project.number}</span>
           <div className={styles.cardOverlay}>
-            <h3 className={styles.metaTitle}><T ko={project.title.ko} en={project.title.en} /></h3>
+            <h2 className={styles.metaTitle}><T ko={project.title.ko} en={project.title.en} /></h2>
             <span className={styles.metaSubtitle}>
               <T ko={project.subtitle.ko} en={project.subtitle.en} />
             </span>

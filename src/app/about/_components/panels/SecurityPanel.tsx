@@ -38,9 +38,9 @@ function SecurityPanel({ language, items }: SecurityPanelProps) {
   if (cfgList && cfgList.length > 0) items = adaptSecurity(cfgList);
   return (
     <div className={styles.panel}>
-      <h3 className={`${styles.panelTitle} ${styles.animate}`}>
+      <h2 className={`${styles.panelTitle} ${styles.animate}`}>
         {panelTitle}
-      </h3>
+      </h2>
       <div className={styles.secGrid}>
         {items.map((item, index) => (
           <div key={index} className={`${styles.secItem} ${styles.animate}`}>

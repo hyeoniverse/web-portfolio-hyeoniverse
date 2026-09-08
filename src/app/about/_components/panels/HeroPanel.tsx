@@ -140,7 +140,7 @@ export default function HeroPanel() {
             {labelOverride || <T k="aboutPage.title" />}
           </span>
         )}
-        {titleLines.length > 0 && <KineticHeroTitle lines={titleLines} />}
+        {titleLines.length > 0 && <KineticHeroTitle as="h1" lines={titleLines} />}
         {!heroHidden.has("subtitle") && (
           <p className={`${styles.heroSubtitle} ${styles.animate} ${styles.heroFadeIn2}`}>
             {subtitleOverride || <T k="aboutPage.description" />}

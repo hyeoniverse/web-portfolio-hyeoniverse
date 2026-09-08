@@ -310,7 +310,7 @@ function serializeNode(node: SlateNode): string {
          pre.style.whiteSpace 로 초기 상태를 판정하므로 저장된 wrap 이 상세/미리보기에도 그대로 뜬다. */
       const wrapAttr = el.wrap ? ` data-wrap="true" style="white-space:pre-wrap;word-break:break-all"` : "";
       /* data-lenis-prevent — Lenis 스무스 스크롤이 wheel 을 가로채 코드블록 내부 세로 스크롤이 죽는 것 방지 */
-      return `<div class="code-block-wrap"><pre data-lenis-prevent${gv}${wrapAttr}><code${lang}>${children}</code></pre></div>`;
+      return `<div class="code-block-wrap"><pre tabindex="0" data-lenis-prevent${gv}${wrapAttr}><code${lang}>${children}</code></pre></div>`;
     }
     case "code_line":
       return `${children}\n`;
