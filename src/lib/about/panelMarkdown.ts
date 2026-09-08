@@ -49,7 +49,7 @@ export function parseSimpleMarkdown(
   return { meta, title, body: text, warnings };
 }
 
-export function writeSimpleMarkdown(
+function writeSimpleMarkdown(
   meta: Array<[string, string | string[]]>,
   title: string,
   body: string,

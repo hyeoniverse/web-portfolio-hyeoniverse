@@ -31,7 +31,7 @@ function fold(line: string): string {
 }
 
 /** CalendarData → .ics 문자열 */
-export function toIcs(cal: CalendarData, title = "Calendar", stamp = "19700101T000000Z"): string {
+function toIcs(cal: CalendarData, title = "Calendar", stamp = "19700101T000000Z"): string {
   const lines: string[] = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
@@ -71,7 +71,7 @@ function csvCell(s: string): string {
   return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 /** CalendarData → CSV (date,time,title,label,tags,description) */
-export function toCsv(cal: CalendarData): string {
+function toCsv(cal: CalendarData): string {
   const header = ["date", "time", "title", "label", "tags", "description"];
   const rows = sortedEvents(cal).map((ev) => {
     const label = findLabel(ev.labelId, cal.labels);
@@ -88,7 +88,7 @@ export function toCsv(cal: CalendarData): string {
 }
 
 // ── JSON ── 라벨명까지 resolve 한 읽기 좋은 구조
-export function toJson(cal: CalendarData): string {
+function toJson(cal: CalendarData): string {
   const events = sortedEvents(cal).map((ev) => ({
     date: ev.date,
     ...(ev.time ? { time: ev.time } : {}),
@@ -104,7 +104,7 @@ export function toJson(cal: CalendarData): string {
 function mdCell(s: string): string {
   return s.replace(/\|/g, "\\|").replace(/\r?\n/g, " ");
 }
-export function toMarkdown(cal: CalendarData, title = "Calendar"): string {
+function toMarkdown(cal: CalendarData, title = "Calendar"): string {
   const lines = [`# ${title}`, "", "| 날짜 | 시간 | 제목 | 라벨 | 태그 | 설명 |", "| --- | --- | --- | --- | --- | --- |"];
   for (const ev of sortedEvents(cal)) {
     const label = findLabel(ev.labelId, cal.labels);

@@ -305,7 +305,7 @@ export default function App() {
 `;
 
 /** 템플릿 → 시작 파일 맵. 없으면 Sandpack 기본 파일 사용. */
-export const STARTER_FILES: Record<string, Record<string, string>> = {
+const STARTER_FILES: Record<string, Record<string, string>> = {
   // 자체 srcdoc 러너 — html(본문)·css·js 분리
   html: { "/index.html": HTML_BODY, "/styles.css": CSS, "/script.js": VANILLA_JS },
   static: { "/index.html": STATIC_HTML, "/styles.css": CSS },

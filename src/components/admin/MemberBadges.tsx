@@ -8,7 +8,7 @@ import styles from "./MembersList.module.css";
 
 /** 멤버 역할/로그인수단 배지 — MembersList 와 AuthorsEditor 공용. */
 
-export const ROLE_META: Record<MemberRole, { ko: string; en: string; icon: typeof Crown; cls: string }> = {
+const ROLE_META: Record<MemberRole, { ko: string; en: string; icon: typeof Crown; cls: string }> = {
   owner: { ko: "소유자", en: "Owner", icon: Crown, cls: "roleOwner" },
   admin: { ko: "관리자", en: "Admin", icon: ShieldCheck, cls: "roleAdmin" },
   author: { ko: "작성자", en: "Author", icon: PenLine, cls: "roleAuthor" },

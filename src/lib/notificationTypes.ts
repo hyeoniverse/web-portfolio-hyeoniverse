@@ -12,11 +12,11 @@
  * login_lockout · ai_failure · email_failure 처럼 알아 두면 되는 것은 넣지 않는다.
  * 신고(report)는 이미 전용 탭(ReportsList)에 처리 화면이 있어 묻히지 않는다.
  */
-export const ACTION_TYPES = ["access_request", "device_login"] as const;
+const ACTION_TYPES = ["access_request", "device_login"] as const;
 
 const ACTION_TYPE_SET: ReadonlySet<string> = new Set(ACTION_TYPES);
 
-export function isActionType(type: string): boolean {
+function isActionType(type: string): boolean {
   return ACTION_TYPE_SET.has(type);
 }
 

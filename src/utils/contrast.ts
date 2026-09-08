@@ -17,7 +17,7 @@ function clamp255(n: number): number {
 }
 
 /** 색 문자열 파싱. alpha 는 무시(불투명 가정). 실패 시 null. */
-export function parseColor(input: string | undefined | null): RGB | null {
+function parseColor(input: string | undefined | null): RGB | null {
   if (!input) return null;
   const s = input.trim().toLowerCase();
 
@@ -58,7 +58,7 @@ function channelLuminance(c: number): number {
 }
 
 /** sRGB relative luminance (0~1) */
-export function relativeLuminance(rgb: RGB): number {
+function relativeLuminance(rgb: RGB): number {
   return (
     0.2126 * channelLuminance(rgb.r) +
     0.7152 * channelLuminance(rgb.g) +

@@ -29,10 +29,7 @@ export {
   ADDABLE_FORMATS,
   MIME_GROUP_ORDER,
   inferGroup,
-  RECOMMENDED_SIZE,
-  GROUP_RECOMMENDED,
   recommendedSize,
-  MIME_TO_EXTS,
   normalizeLimits,
   SIZE_OPTIONS,
 } from "@/lib/uploadFormats";

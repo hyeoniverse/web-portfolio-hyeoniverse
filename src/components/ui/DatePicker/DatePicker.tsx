@@ -34,8 +34,8 @@ const WEEKDAYS_KO = ["일", "월", "화", "수", "목", "금", "토"];
 const WEEKDAYS_EN = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 
 /* ── Spinner Column ── */
-export const SPINNER_ITEM_H = 28;
-export const SPINNER_VISIBLE = 5;
+const SPINNER_ITEM_H = 28;
+const SPINNER_VISIBLE = 5;
 const ITEM_H = SPINNER_ITEM_H;
 const VISIBLE = SPINNER_VISIBLE;
 

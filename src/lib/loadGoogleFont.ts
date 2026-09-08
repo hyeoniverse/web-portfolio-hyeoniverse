@@ -17,7 +17,7 @@ const SELF_HOSTED = new Set([
 ]);
 
 /** 이미 갖고 있는 글꼴인가. */
-export function isSelfHostedFont(fontName: string) {
+function isSelfHostedFont(fontName: string) {
   return SELF_HOSTED.has(fontName.trim());
 }
 
