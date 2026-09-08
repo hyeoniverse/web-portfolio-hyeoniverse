@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.53.25](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.24...v1.53.25) (2026-09-08)
+
+
+### Performance Improvements
+
+* **profile:** 히어로 글을 자바스크립트 없이 바로 보여준다 ([3e3d4d2](https://github.com/hyeoniverse/web-portfolio-oval/commit/3e3d4d2c3ef7e7a6c7df481bf7dc789c43a2cdda))
+
 ## [1.53.24](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.23...v1.53.24) (2026-09-08)
 
 
