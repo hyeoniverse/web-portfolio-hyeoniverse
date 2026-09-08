@@ -7,6 +7,7 @@ import { getLqipUrl } from "@/utils/image";
 import { isVideoUrl } from "@/lib/isVideoUrl";
 import styles from "./ProgressiveImage.module.css";
 import { firstFrameSrc, hoverVideoHandlers } from "./hoverVideo";
+import { useNearViewport } from "@/hooks/useNearViewport";
 
 interface ProgressiveImageProps {
   src: string;
@@ -45,6 +46,8 @@ export default function ProgressiveImage({
      (아래 LQIP 미리보기는 loaded 로 그대로 제어되므로 흐린 미리보기는 유지된다.) */
   const visible = loaded || !!priority;
   const lqipUrl = useMemo(() => getLqipUrl(src), [src]);
+  /* 동영상 표지는 화면 근처에 올 때까지 받지 않는다 — MediaThumb 과 같은 이유. */
+  const [observeVideo, videoNear] = useNearViewport(!priority);
 
   // src 변경 시 에러/로딩 상태 리셋
   useEffect(() => {
@@ -81,7 +84,8 @@ export default function ProgressiveImage({
       {/* 원본 미디어 */}
       {isVideo ? (
         <video
-          src={firstFrameSrc(src)}
+          ref={observeVideo}
+          src={videoNear ? firstFrameSrc(src) : undefined}
           className={`${className ?? ""} ${styles.full} ${loaded ? styles.fullLoaded : ""}`}
           style={fill
             ? { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", ...style }
