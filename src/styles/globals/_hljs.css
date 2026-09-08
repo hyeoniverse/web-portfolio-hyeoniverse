@@ -78,7 +78,7 @@
 [data-theme="dark"] code .token.cdata,
 [data-theme="dark"] pre code .hljs-quote,
 [data-theme="dark"] code .token.doctype {
-  color: oklch(55.31% 0.0236 196.49);
+  color: oklch(60.90% 0.0236 196.49);
   font-style: italic;
 }
 
@@ -163,7 +163,7 @@
 }
 
 [data-theme="light"] pre code .hljs-function {
-  color: oklch(58.19% 0.1557 263.15);
+  color: oklch(55.00% 0.1557 263.15);
 }
 
 [data-theme="light"] pre code .hljs-params {
@@ -190,7 +190,7 @@
 [data-theme="light"] code .token.attr-value,
 [data-theme="light"] pre code .hljs-link,
 [data-theme="light"] code .token.url {
-  color: oklch(62.80% 0.1251 22.49);
+  color: oklch(56.40% 0.1251 22.49);
 }
 
 [data-theme="light"] pre code .hljs-number,
@@ -207,7 +207,7 @@
 [data-theme="light"] code .token.cdata,
 [data-theme="light"] pre code .hljs-quote,
 [data-theme="light"] code .token.doctype {
-  color: oklch(69.79% 0.0159 196.79);
+  color: oklch(54.90% 0.0159 196.79);
   font-style: italic;
 }
 
@@ -217,7 +217,7 @@
 [data-theme="light"] code .token.function-variable,
 [data-theme="light"] pre code .hljs-section,
 [data-theme="light"] code .token.title {
-  color: oklch(58.19% 0.1557 263.15);
+  color: oklch(55.00% 0.1557 263.15);
 }
 
 [data-theme="light"] pre code .hljs-variable,
@@ -244,7 +244,7 @@
 }
 
 [data-theme="light"] pre code .hljs-meta {
-  color: oklch(58.19% 0.1557 263.15);
+  color: oklch(55.00% 0.1557 263.15);
 }
 
 [data-theme="light"] pre code .hljs-operator,
@@ -264,7 +264,7 @@
 
 [data-theme="light"] pre code .hljs-regexp,
 [data-theme="light"] code .token.regex {
-  color: oklch(58.19% 0.1557 263.15);
+  color: oklch(55.00% 0.1557 263.15);
 }
 
 [data-theme="light"] pre code .hljs-deletion,

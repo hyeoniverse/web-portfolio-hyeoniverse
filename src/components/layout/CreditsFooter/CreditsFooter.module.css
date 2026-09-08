@@ -25,7 +25,8 @@
   color: var(--text-tertiary);
   text-decoration: none;
   letter-spacing: 0.05em;
-  opacity: 0.6;
+  /* 0.6 은 라이트에서 배경 대비 2.88 이었다. 0.82 면 4.66 으로 기준을 넘고 여전히 약하게 보인다. */
+  opacity: 0.82;
 }
 
 .credits .designSystemLink:hover {

@@ -12,7 +12,7 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-micro);
   font-weight: var(--font-weight-bold);
-  color: var(--text-white);
+  color: var(--text-on-accent);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   line-height: 1.4;
