@@ -75,10 +75,10 @@
 .adminBadge {
   padding: var(--badge-p-sm);
   border-radius: var(--radius-capsule);
-  background: var(--bg-accent-light);
+  background: var(--bg-accent-solid);
   font-size: var(--font-size-hint);
   font-weight: 500;
-  color: var(--text-accent);
+  color: var(--text-on-accent);
 }
 
 .time {

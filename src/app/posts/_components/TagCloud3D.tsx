@@ -51,15 +51,15 @@ export default function TagCloud3D({ tags, activeTags, onTagClick, size = 90, as
     });
   }, [tags]);
 
-  // count → 폰트 크기 매핑 (10~15px)
+  // count → 폰트 크기 매핑 (12~16px). 12px 아래로는 내리지 않는다 — UI 글자 하한.
   const fontFor = useMemo(() => {
-    if (!tags.length) return () => 11;
+    if (!tags.length) return () => 13;
     const counts = tags.map((t) => t.count);
     const max = Math.max(...counts);
     const min = Math.min(...counts);
     return (c: number) => {
       const ratio = max === min ? 0.5 : (c - min) / (max - min);
-      return 10 + ratio * 5;
+      return 12 + ratio * 4;
     };
   }, [tags]);
 
@@ -91,7 +91,9 @@ export default function TagCloud3D({ tags, activeTags, onTagClick, size = 90, as
         const z2 = -p.x0 * sy + z1 * cy;
         const depth = (z2 + 1) / 2; // 0 (뒷면) ~ 1 (앞면)
         el.style.transform = `translate3d(${x2 * size}px, ${y1 * size}px, 0) translate(-50%, -50%) scale(${0.55 + depth * 0.55})`;
-        el.style.opacity = String(0.3 + depth * 0.7);
+        /* 뒷면 태그도 읽을 수 있어야 한다. 최저 0.3 은 배경 대비가 다크 2.48 · 라이트 1.86 이었다.
+           0.65 면 각각 6.8 · 4.6 으로 기준을 넘고, 깊이감은 위의 scale 이 계속 표현한다. */
+        el.style.opacity = String(0.65 + depth * 0.35);
         el.style.zIndex = String(Math.round(depth * 100));
       }
       raf = requestAnimationFrame(tick);
