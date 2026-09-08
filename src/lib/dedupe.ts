@@ -11,7 +11,7 @@
    ────────────────────────────────────────────────────────────────────────── */
 
 /** 비교용 정규화 — 대소문자 + 공백 무시 */
-export function normalizeForCompare(s: string): string {
+function normalizeForCompare(s: string): string {
   return s.toLowerCase().replace(/\s+/g, "");
 }
 

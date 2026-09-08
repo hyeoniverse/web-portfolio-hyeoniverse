@@ -19,13 +19,13 @@ function hashSeed(seed: string): number {
 }
 
 /** seed 로 preset 하나 결정적으로 선택. */
-export function pickFallbackPreset(seed: string): PresetConfig {
+function pickFallbackPreset(seed: string): PresetConfig {
   const idx = hashSeed(seed) % presets.length;
   return presets[idx].config;
 }
 
 /** PresetConfig → CSS gradient string. canvas 대신 CSS background 로 빠르게 렌더. */
-export function presetToCssGradient(config: PresetConfig): string {
+function presetToCssGradient(config: PresetConfig): string {
   const stops = config.stops
     .map((s) => `${s.color} ${(s.pos * 100).toFixed(0)}%`)
     .join(", ");

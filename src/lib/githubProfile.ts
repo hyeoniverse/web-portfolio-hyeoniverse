@@ -30,7 +30,7 @@ export interface GithubAuthorFields {
 const str = (v: unknown): string => (typeof v === "string" && v ? v : "");
 
 /** 이 계정의 GitHub identity_data. GitHub 로 가입하지 않았으면 빈 객체다. */
-export function githubIdentity(user: User): Record<string, unknown> {
+function githubIdentity(user: User): Record<string, unknown> {
   return ((user.identities ?? []).find((i) => i.provider === "github")?.identity_data ?? {}) as Record<string, unknown>;
 }
 

@@ -94,7 +94,7 @@ export interface ResolvedShadow {
   color: string;
 }
 
-export function faviconWeightToNumber(w: FaviconWeight): number {
+function faviconWeightToNumber(w: FaviconWeight): number {
   return w === "light" ? 300 : w === "regular" ? 500 : 700;
 }
 
@@ -106,13 +106,13 @@ export function resolveFaviconFontSize(raw: string | undefined): number {
 }
 
 /** 장평 — 빈/invalid 면 0.8 default */
-export function resolveFaviconStretch(raw: string | undefined): number {
+function resolveFaviconStretch(raw: string | undefined): number {
   const n = parseFloat(raw ?? "");
   return Number.isFinite(n) && n > 0 ? n : 0.8;
 }
 
 /** viewBox 중심 (16,16) 기준 scaleX transform. stretch===1 이면 undefined */
-export function faviconStretchTransform(stretch: number): string | undefined {
+function faviconStretchTransform(stretch: number): string | undefined {
   if (stretch === 1) return undefined;
   return `translate(${16 * (1 - stretch)} 0) scale(${stretch} 1)`;
 }
@@ -293,7 +293,7 @@ interface FilterPrimitive {
  * outer = feDropShadow 단일 primitive.
  * inset = 표준 inner-shadow 체인 (alpha 반전 → blur → offset → flood+composite → shape clip → merge).
  */
-export function faviconFilterPrimitives(r: ResolvedShadow): FilterPrimitive[] {
+function faviconFilterPrimitives(r: ResolvedShadow): FilterPrimitive[] {
   if (!r.inset) {
     return [
       {
@@ -337,7 +337,7 @@ function primitiveToString(p: FilterPrimitive): string {
   return `<${head}>${p.children.map(primitiveToString).join("")}</${p.tag}>`;
 }
 
-export function filterPrimitivesToString(prims: FilterPrimitive[]): string {
+function filterPrimitivesToString(prims: FilterPrimitive[]): string {
   return prims.map(primitiveToString).join("");
 }
 

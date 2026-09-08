@@ -108,7 +108,7 @@ export function normalizeHex(input: string): string | null {
 /* ── Alpha(투명도) ── source of truth 는 색(OKLCH)과 직교하는 0~1 스칼라. 색은 그대로 두고 alpha 만 얹는다. */
 
 /** alpha(0-1) → 2자리 hex ("00"~"ff"). */
-export function alphaToHex(a: number): string {
+function alphaToHex(a: number): string {
   return clamp(Math.round(a * 255), 0, 255).toString(16).padStart(2, "0");
 }
 
@@ -199,7 +199,7 @@ export function maxSafeChroma(l: number, h: number): number {
 }
 
 /** OKLCH CSS 문자열 → OKLCH 객체. format 검증 + parse 실패 시 null */
-export function parseOklchString(input: string): OKLCH | null {
+function parseOklchString(input: string): OKLCH | null {
   const parsed = parse(input.trim());
   if (!parsed) return null;
   const o = toOklch(parsed);

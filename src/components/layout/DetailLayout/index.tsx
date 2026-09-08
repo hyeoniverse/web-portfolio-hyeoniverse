@@ -39,7 +39,7 @@ interface LikeConfig {
  * Like button — heart icon + wave fill animation. config 만 props 로.
  * DetailLayout 외부에서 직접 사용 가능 — DetailLayout 에 likeConfig 안 넘기면 자동 render 안 됨.
  */
-export function LikeButton({ config }: { config: LikeConfig }) {
+function LikeButton({ config }: { config: LikeConfig }) {
   const { t } = useLanguage();
 
   return (

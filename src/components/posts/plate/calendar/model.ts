@@ -378,7 +378,7 @@ export function allTagsIn(events: CalEvent[]): string[] {
 }
 
 // ── 이벤트 관계(선행/후속) ──
-export function eventById(id: string, events: CalEvent[]): CalEvent | undefined {
+function eventById(id: string, events: CalEvent[]): CalEvent | undefined {
   return events.find((e) => e.id === id);
 }
 /** id 의 후속 작업 — id 를 선행(deps)으로 가진 이벤트들 */

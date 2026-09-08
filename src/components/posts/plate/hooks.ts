@@ -11,7 +11,7 @@ function isElement(node: Descendant): node is TElement {
 }
 
 // ── useOutsideClick ──
-export function useOutsideClick(
+function useOutsideClick(
   ref: React.RefObject<HTMLElement | null>,
   active: boolean,
   onOutside: () => void,
