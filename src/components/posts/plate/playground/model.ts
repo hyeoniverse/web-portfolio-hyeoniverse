@@ -16,7 +16,6 @@ export interface PlaygroundData {
 const DEFAULT_TEMPLATE = "html";
 /** 이 템플릿들은 자체 srcdoc 러너로 실행 (나머지는 Sandpack) */
 export const RUNNER_TEMPLATES = new Set(["html", "static"]);
-export const EMPTY_PLAYGROUND: PlaygroundData = { template: DEFAULT_TEMPLATE, files: {} };
 
 // 이미 저장된 baked HTML 이 옛 @babel/standalone 옵션(isTSX/allExtensions — 최신 버전에서 제거됨)을
 // 품고 있으면 미리보기에서 에러를 뱉는다. 로드 시점에 최신 호환 형태로 치환해 self-heal.

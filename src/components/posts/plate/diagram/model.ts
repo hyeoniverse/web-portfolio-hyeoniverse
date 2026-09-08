@@ -56,8 +56,6 @@ export interface DiagramData {
   edges: DiagramEdge[];
 }
 
-export const EMPTY_DIAGRAM: DiagramData = { nodes: [], edges: [] };
-
 /** 안전한 mermaid 노드 id — 영숫자/언더스코어만(공백·특수문자는 언더스코어). */
 function safeMermaidId(id: string): string {
   const s = id.replace(/[^A-Za-z0-9_]/g, "_");

@@ -138,7 +138,3 @@ export function matchesQuery(text: string, parsed: ParsedSearchQuery): boolean {
   if (parsed.or.length > 0) return parsed.or.some((g) => matchGroup(text, g));
   return matchGroup(text, parsed);
 }
-
-export function searchMatches(text: string, query: string, mode: SyntaxMode = "prefix"): boolean {
-  return matchesQuery(text, parseSearchQuery(query, mode));
-}

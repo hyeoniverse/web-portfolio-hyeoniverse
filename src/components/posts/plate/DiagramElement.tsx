@@ -636,4 +636,3 @@ export function DiagramElement(props: PlateElementProps) {
   );
 }
 
-export default DiagramElement;

@@ -82,10 +82,3 @@ export const CHEN_NODE_TYPES = {
   chenAttr: AttributeNode,
   chenRel: RelationshipNode,
 };
-
-/* 도형별 크기 — ChenFlow 가 중심 좌표에서 좌상단 position 을 계산할 때 쓴다 */
-export const CHEN_SIZE = {
-  entity: { w: 168, h: 52 },
-  attr: { w: 116, h: 46 },
-  rel: { w: 116, h: 74 },
-} as const;

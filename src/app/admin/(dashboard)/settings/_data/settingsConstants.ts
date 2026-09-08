@@ -13,10 +13,7 @@ export {
   filterOrphanedKeys,
   extractDefaults,
   isDeltaFormat,
-  unwrapDelta,
-  buildDeltaPayload,
 } from "@/lib/settingsDelta";
-export type { DeepPartial } from "@/lib/settingsDelta";
 
 export const TAB_IDS = ["general", "content", "appearance", "services", "account"] as const;
 

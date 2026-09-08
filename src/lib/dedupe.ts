@@ -15,11 +15,6 @@ function normalizeForCompare(s: string): string {
   return s.toLowerCase().replace(/\s+/g, "");
 }
 
-/** 두 문자열이 정규화 비교에서 같은가 */
-export function isSameKey(a: string, b: string): boolean {
-  return normalizeForCompare(a) === normalizeForCompare(b);
-}
-
 /**
  * items 안에서 candidate 비교 키 중 하나라도 매칭되는 item 찾기.
  * - candidates: 비교할 입력 값들 (예: bilingual `{ko, en}` 의 ko와 en 두 개)

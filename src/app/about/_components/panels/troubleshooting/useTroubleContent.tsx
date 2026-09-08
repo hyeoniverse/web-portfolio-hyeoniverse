@@ -11,11 +11,6 @@ import CanonicalCodeBlock from "./CanonicalCodeBlock";
 import { displayTitle } from "./itemHelpers";
 import styles from "../TroubleshootingPanel.module.css";
 
-export interface ImageViewerState {
-  images: string[];
-  index: number;
-  title?: string;
-}
 
 /* 항목 본문을 IDE 에디터 줄로 그리는 렌더러 묶음.
    문단·펜스 코드블록·인라인 서식은 renderParagraphs 가, 위치별 이미지는 renderImagesAt 가 맡는다.

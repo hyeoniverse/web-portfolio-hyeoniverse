@@ -80,9 +80,6 @@ export function getEditorText(editor: SlateEditor): string {
   return (editor.children || []).map(getText).join("");
 }
 
-// ── 블록 DnD를 위한 모듈 스코프 ref ──
-export const _blockDragPath: { current: number[] | null } = { current: null };
-
 // ── 인라인 이미지 DnD를 위한 모듈 스코프 ref ──
 export const _inlineDragPath: { current: number[] | null } = { current: null };
 

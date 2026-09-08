@@ -30,7 +30,7 @@ export interface GithubRepoCard {
 }
 
 /** 하루치 잔디 한 칸. level 은 GitHub 이 매기는 0~4 단계. */
-export interface ContributionDay {
+interface ContributionDay {
   date: string;
   count: number;
   level: 0 | 1 | 2 | 3 | 4;

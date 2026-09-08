@@ -26,7 +26,7 @@ interface Props {
  * 동영상 업로드 진행 모달 — 마운트 시 (필요하면) 압축 → Storage 직접 업로드 파이프라인 실행.
  * 압축은 진행률(%)을, 업로드는 indeterminate 바를 표시.
  */
-export default function MediaUploadModal({ file, limits, onDone, onError }: Props) {
+function MediaUploadModal({ file, limits, onDone, onError }: Props) {
   const [stage, setStage] = useState<"prep" | "compress" | "upload">("prep");
   const [progress, setProgress] = useState(0);
   const [info, setInfo] = useState(formatBytes(file.size));

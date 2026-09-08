@@ -33,7 +33,7 @@ export {
   normalizeLimits,
   SIZE_OPTIONS,
 } from "@/lib/uploadFormats";
-export type { MimeGroupKey, FormatDef } from "@/lib/uploadFormats";
+export type { MimeGroupKey } from "@/lib/uploadFormats";
 
 /** 그룹 아이콘 — lucide 컴포넌트라 UI 전용(서버가 import 하는 순수 모듈과 분리) */
 export const MIME_GROUP_ICON: Record<MimeGroupKey | "other", LucideIcon> = {

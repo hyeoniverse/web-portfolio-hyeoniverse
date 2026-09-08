@@ -51,17 +51,6 @@ export function findCategoryNode(
   return null;
 }
 
-/** 주어진 소분류 값의 부모(대분류)를 반환. 최상위이거나 못 찾으면 null */
-export function findParentCategory(
-  cats: readonly BilingualCategory[],
-  value: string,
-): BilingualCategory | null {
-  for (const c of cats) {
-    if (c.children?.some((ch) => ch.ko === value || ch.en === value)) return c;
-  }
-  return null;
-}
-
 /**
  * 필터 값을 매칭 대상 문자열 집합으로 확장.
  * - 대분류 → [대분류 + 모든 소분류]의 ko/en (자식 글 전부 포함)

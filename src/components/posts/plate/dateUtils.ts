@@ -17,10 +17,6 @@ const pad = (n: number) => String(n).padStart(2, "0");
 export function toDateStr(d: Date): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
-/** Date → "HH:mm" (로컬 기준) */
-export function toTimeStr(d: Date): string {
-  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
 
 /** "YYYY-MM-DD"(+"HH:mm") → 로컬 Date. 파싱 실패 시 null */
 export function parseDate(date?: string | null, time?: string | null): Date | null {

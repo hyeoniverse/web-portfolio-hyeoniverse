@@ -99,8 +99,3 @@ export async function clearFailures(email: string): Promise<void> {
   const supabase = createAdminClient();
   await supabase.from("admin_login_attempts").delete().eq("email", email);
 }
-
-export const LOCKOUT_CONFIG = {
-  maxAttempts: MAX_ATTEMPTS,
-  lockoutMinutes: LOCKOUT_MINUTES,
-};

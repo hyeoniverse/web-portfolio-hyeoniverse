@@ -72,18 +72,6 @@ export const DEFAULT_FAVICON_BG_SHADOW: FaviconShadow = {
   angle: "135",
 };
 
-/** 그림자 방향 8방향 옵션 — 나침반식(0=위, 시계방향). dx=sin, dy=-cos 와 일치해 화살표와 시각 일치. */
-export const FAVICON_SHADOW_DIRECTIONS: { value: string; arrow: string }[] = [
-  { value: "0", arrow: "↑" },
-  { value: "45", arrow: "↗" },
-  { value: "90", arrow: "→" },
-  { value: "135", arrow: "↘" },
-  { value: "180", arrow: "↓" },
-  { value: "225", arrow: "↙" },
-  { value: "270", arrow: "←" },
-  { value: "315", arrow: "↖" },
-];
-
 const DEFAULT_SHADOW_COLOR = "rgba(0,0,0,0.4)";
 
 export interface ResolvedShadow {

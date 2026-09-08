@@ -69,13 +69,6 @@ export const TORUS_ATTRACTION = {
   smoothing: 0.06, // lerp 보간 계수
 } as const;
 
-export const TORUS_REPULSION = {
-  radius: 5.0, // 반발 외곽 반경 — 자석 반경 밖 ~ 이 안이면 밀어냄
-  strength: 1.5, // 반발 강도
-  maxDisplacement: 0.8, // 최대 밀림 거리 제한 (world units)
-  smoothing: 0.07, // lerp 보간 계수
-} as const;
-
 // 모바일 설정
 export const TORUS_MOBILE = {
   breakpoint: BREAKPOINT.mobile,

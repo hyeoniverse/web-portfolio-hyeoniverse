@@ -150,4 +150,3 @@ export function PlaygroundElement(props: PlateElementProps) {
   );
 }
 
-export default PlaygroundElement;

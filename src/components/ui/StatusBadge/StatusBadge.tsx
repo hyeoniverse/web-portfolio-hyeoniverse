@@ -2,7 +2,7 @@ import type { ReactNode, MouseEvent } from "react";
 import styles from "./StatusBadge.module.css";
 import Pressable from "@/components/ui/Pressable";
 
-export type StatusVariant = "published" | "draft" | "scheduled";
+type StatusVariant = "published" | "draft" | "scheduled";
 
 interface StatusBadgeProps {
   variant: StatusVariant;

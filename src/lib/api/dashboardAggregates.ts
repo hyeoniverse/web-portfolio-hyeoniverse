@@ -66,7 +66,7 @@ export type VisitRow = {
   device_model: string | null;
 };
 
-export type ShareStat = { count: number; pct: number };
+type ShareStat = { count: number; pct: number };
 export type DeviceKind = "desktop" | "mobile" | "tablet";
 
 export type TrafficStats = {
