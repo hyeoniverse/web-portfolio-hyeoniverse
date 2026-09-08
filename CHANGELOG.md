@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.53.17](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.16...v1.53.17) (2026-09-08)
+
+
+### Performance Improvements
+
+* **ui:** 아이콘 목록을 아이콘을 쓸 때만 받는다 ([f1a0738](https://github.com/hyeoniverse/web-portfolio-oval/commit/f1a073806d539fd5e1115d99dad515f976c20a91))
+
 ## [1.53.16](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.15...v1.53.16) (2026-09-08)
 
 
