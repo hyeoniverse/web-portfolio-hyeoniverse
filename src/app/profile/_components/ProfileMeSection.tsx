@@ -97,9 +97,14 @@ export default function ProfileMeSection({ profileData, showcase }: ProfileMeSec
       {/* Panel 1: Hero — data-set-anchor 는 한 세트의 시작점.
           배경의 ScrollDrawScene 이 여기서부터 얼마나 왔는지로 진행도를 잰다.
           무한 스크롤이면 세트가 여러 벌이라, 기준점 사이 거리가 곧 한 바퀴 길이다. */}
+      {/* 히어로 패널의 글에는 .animate 를 붙이지 않는다. 모바일에서 .animate 는
+          opacity: 0 으로 시작해 IntersectionObserver 가 .animateVisible 을 붙여야 보이는데,
+          그 관찰은 하이드레이션 뒤에야 시작된다. 히어로는 처음부터 화면 안에 있으므로
+          감출 이유가 없고, 감추면 가장 큰 글이 7.6초까지 안 보여 LCP 가 그만큼 밀린다.
+          데스크톱 경로(useHorizontalScroll)도 히어로 패널은 건너뛴다 — 동작을 맞춘 것이다. */}
       <div className={styles.panel} data-set-anchor>
         <div className={styles.heroContent}>
-          <span className={`${styles.label} ${styles.animate}`}>
+          <span className={styles.label}>
             <T ko={p.title_ko} en={p.title} />
           </span>
           <KineticHeroTitle
@@ -109,7 +114,7 @@ export default function ProfileMeSection({ profileData, showcase }: ProfileMeSec
               { text: "Experiences", accent: true },
             ]}
           />
-          <p className={`${styles.heroSubtitle} ${styles.animate}`}>
+          <p className={styles.heroSubtitle}>
             <T ko={p.intro_ko} en={p.intro} />
           </p>
           <span className={styles.heroWatermark}>about me</span>
