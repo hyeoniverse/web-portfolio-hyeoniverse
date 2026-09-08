@@ -39,6 +39,11 @@ export default function ProgressiveImage({
   // video 는 fade-in 으로 깜빡이게 하지 않고 즉시 표시 (브라우저가 첫 프레임 디코드되는 대로 자연스럽게 보임)
   const [loaded, setLoaded] = useState(isVideo);
   const [errored, setErrored] = useState(false);
+  /* priority 이미지는 화면 최상단에 있어 LCP 후보다. 다른 이미지처럼 opacity 0 에서 시작하면
+     onLoad 핸들러가 붙는 하이드레이션 시점까지 안 보여서, 브라우저가 이미 받아 둔 이미지를
+     몇 초씩 감추게 된다. 그래서 처음부터 불투명하게 두고 브라우저가 그리는 대로 보여준다.
+     (아래 LQIP 미리보기는 loaded 로 그대로 제어되므로 흐린 미리보기는 유지된다.) */
+  const visible = loaded || !!priority;
   const lqipUrl = useMemo(() => getLqipUrl(src), [src]);
 
   // src 변경 시 에러/로딩 상태 리셋
@@ -105,7 +110,7 @@ export default function ProgressiveImage({
           height={fill ? undefined : height}
           priority={priority}
           loading={loading}
-          className={`${className ?? ""} ${styles.full} ${loaded ? styles.fullLoaded : ""}`}
+          className={`${className ?? ""} ${styles.full} ${visible ? styles.fullLoaded : ""}`}
           style={style}
           onLoad={() => setLoaded(true)}
           onError={() => {

@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { getInitialPostsData, getPostArchiveMonths } from "@/lib/posts";
 import BackLink from "@/components/ui/BackLink";
+import PostsPageChrome from "../_components/PostsPageChrome";
 import PostsClient from "../PostsClient";
 import styles from "../Posts.module.css";
 
@@ -24,9 +25,11 @@ export default async function HistoryPage() {
       <div className={styles.historyBackBar}>
         <BackLink href="/posts" label="글 목록" />
       </div>
-      <Suspense fallback={<div style={{ minHeight: "100vh" }} />}>
-        <PostsClient initialData={initialData} history archiveMonths={archiveMonths} />
-      </Suspense>
+      <PostsPageChrome history>
+        <Suspense fallback={<div style={{ minHeight: "100vh" }} />}>
+          <PostsClient initialData={initialData} history archiveMonths={archiveMonths} />
+        </Suspense>
+      </PostsPageChrome>
     </>
   );
 }
