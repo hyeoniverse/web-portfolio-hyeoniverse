@@ -5,13 +5,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useLenis } from "@/providers/LenisProvider";
 import { SearchHighlightProvider } from "@/providers/SearchHighlightProvider";
 import { useStickyFilterBar } from "@/hooks/useStickyFilterBar";
-import type { Post } from "@/types/post";
 import type { InitialPostsData } from "@/lib/posts";
-import PostsSubnav from "./_components/PostsSubnav";
 import ScrollButtons from "@/components/ui/ScrollButtons/ScrollButtons";
 import PostsFilterBar from "./_components/PostsFilterBar/PostsFilterBar";
 import SeriesSection from "./_components/SeriesSection/SeriesSection";
-import PostsBanner from "./_components/PostsBanner/PostsBanner";
 import TagCloud3D from "./_components/TagCloud3D";
 import PopularPosts from "./_components/PopularPosts";
 import RandomPosts from "./_components/RandomPosts";
@@ -24,13 +21,7 @@ import PostsPagination from "./_components/PostsPagination/PostsPagination";
 import TimelineIndex from "./_components/TimelineIndex";
 import { useTimeline } from "./_hooks/useTimeline";
 import { usePostsQuery } from "./_hooks/usePostsQuery";
-import {
-  LayoutGrid,
-  History as HistoryIcon,
-} from "@/components/icons";
-import PageTitle from "@/components/ui/PageTitle";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
-import T from "@/components/ui/T";
 import styles from "./Posts.module.css";
 
 interface PostsClientProps {
@@ -55,7 +46,6 @@ export default function PostsClient({ initialData, history = false, archiveMonth
     posts, loading, facetTags, perPage, page, setPage, totalPages, search, syntaxMode,
     activeCategoryKey, activeTagsKey, activeTags, toggleActiveTag, activeSeries, toggleActiveSeries, hasActiveFilter,
   } = query;
-  const [pinnedPosts] = useState<Post[]>(initialData.pinnedPosts);
   const [allTags] = useState(initialData.allTags);
   const [extraCategories] = useState(initialData.extraCategories);
   const [imgErrors, setImgErrors] = useState<Set<string>>(new Set());
@@ -137,48 +127,12 @@ export default function PostsClient({ initialData, history = false, archiveMonth
     setImgErrors((prev) => new Set(prev).add(id));
   }, []);
 
-  // banner 는 pinned 글 있으면 항상 표시 (필터/검색/페이지네이션 무관)
-  const showBanner = pinnedPosts.length >= 1;
-
   return (
     <SearchHighlightProvider query={search} mode={syntaxMode}>
-    <div className={`${styles.page} ${history ? styles.historyMode : ""}`}>
+    <>
       {loading && <div className={styles.topProgress} aria-hidden />}
       {/* history: 위/아래 스크롤 버튼 (긴 아카이브 이동) */}
       {history && <ScrollButtons />}
-      {/* ── Posts 계열 브라우즈 서브네비 (All/Series/Tags/History) ── */}
-      <PostsSubnav />
-      {/* ── Header ── */}
-      <div className={styles.header}>
-        {history ? (
-          <>
-            <PageTitle icon={<HistoryIcon size={40} strokeWidth={1.6} aria-hidden />}>
-              History.
-            </PageTitle>
-            <p className={styles.subtitle}>시간순으로 쌓인 모든 기록.</p>
-          </>
-        ) : (
-          <>
-            <PageTitle icon={<LayoutGrid size={40} strokeWidth={1.6} aria-hidden />}>
-              Posts.
-            </PageTitle>
-            <p className={styles.subtitle}>
-              <T k="postsPage.subtitle" />
-            </p>
-          </>
-        )}
-      </div>
-
-      {/* ── Banner Slider ── (history 모드 제외) */}
-      {!history && showBanner && (
-        <div className={styles.bannerSlider}>
-          <PostsBanner
-            posts={pinnedPosts}
-            imgErrors={imgErrors}
-            onImgError={handleImgError}
-          />
-        </div>
-      )}
 
       {/* Sentinel for sticky detection */}
       <div ref={sentinelRef} style={{ height: 0 }} />
@@ -292,7 +246,7 @@ export default function PostsClient({ initialData, history = false, archiveMonth
           </PostsSidebar>
         )}
       </div>
-    </div>
+    </>
     </SearchHighlightProvider>
   );
 }
