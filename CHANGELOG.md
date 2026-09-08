@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.53.21](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.20...v1.53.21) (2026-09-08)
+
+
+### Bug Fixes
+
+* **a11y:** 대비가 기준에 못 미치던 글자 색을 올린다 ([caa4f5c](https://github.com/hyeoniverse/web-portfolio-oval/commit/caa4f5c9f12b9027d3fad017c7a0bac48d305ea4))
+
 ## [1.53.20](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.19...v1.53.20) (2026-09-08)
 
 
