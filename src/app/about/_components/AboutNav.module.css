@@ -361,8 +361,9 @@
   font-weight: var(--font-weight-medium);
   color: var(--text-white);
   /* mix-blend-mode: difference 환경에서 색 직접 변경하면 이상해짐 →
-     .navItem 처럼 opacity 로 강조 단계 표현 */
-  opacity: 0.35;
+     .navItem 처럼 opacity 로 강조 단계 표현.
+     0.35 는 배경 대비 3.22 로 읽기 어려웠다. 0.5(5.23)로 올리고 활성 탭은 1 이라 구분은 남는다. */
+  opacity: 0.5;
   white-space: nowrap;
 }
 

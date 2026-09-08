@@ -14,7 +14,9 @@
   --text-primary: var(--color-neutral-900);
   --text-secondary: var(--color-neutral-800);
   --text-tertiary: var(--color-neutral-700);
-  --text-muted: var(--color-neutral-500);
+  /* 라이트에서 neutral-500 은 배경 대비가 2.74 라 글자로 못 쓴다. 한 단계 진한 600(4.93)으로 둔다.
+     다크는 같은 500 이 5.87 이라 아래 [data-theme="dark"] 에서 되돌린다. */
+  --text-muted: var(--color-neutral-600);
   --text-inverse: var(--color-neutral-0);
   --text-success: var(--color-success);
   --text-warning: var(--color-warning);
@@ -22,6 +24,9 @@
   --text-error: var(--color-error);
   --text-accent: var(--color-accent);
   --text-accent-alt: var(--color-accent);
+  /* accent 면 위에 얹는 글자. accent 는 테마마다 밝기가 뒤집혀서 글자색도 같이 뒤집어야 대비가 선다.
+     라이트의 #d40063 위에는 흰 글자(5.28), 다크의 #ff4da6 위에는 검은 글자(6.86). */
+  --text-on-accent: var(--text-white);
 }
 
 /* --------------------------------------------------------------------------
@@ -369,6 +374,8 @@
    Dark Theme — Semantic Overrides
    -------------------------------------------------------------------------- */
 [data-theme="dark"] {
+  --text-muted: var(--color-neutral-500);
+  --text-on-accent: var(--text-black);
   --bg-primary: var(--color-neutral-50);
   --bg-surface: var(--color-white-alpha-5);
   --bg-tertiary: var(--color-inverse-alpha-5);
