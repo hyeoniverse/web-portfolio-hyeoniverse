@@ -81,9 +81,13 @@ export default function SeriesDeckLayers({
           "--deck-i": deckI,
           ...(layerBg ? { "--_layer-bg": layerBg } : {}),
         } as CSSProperties;
-        // preview + slug 있으면 Link 로 — onClick 에서 navigateWithTransition 으로 가로채서
-        // cover 이미지(있으면) 또는 layerBg 색을 morph 시드로 전달. preventDefault 로 native nav 차단.
-        if (preview?.slug) {
+        /* preview + slug 있으면 Link 로 — onClick 에서 navigateWithTransition 으로 가로채서
+           cover 이미지(있으면) 또는 layerBg 색을 morph 시드로 전달. preventDefault 로 native nav 차단.
+
+           단 덱이 닫혀 있을 때는 링크로 만들지 않는다. 닫힌 뒷장은 화면에 3px 만 보여서
+           누를 수 없는 크기인데, 링크라서 키보드 초점은 받고 카드(role="button") 안의
+           중첩 조작 요소로도 잡혔다. 닫힌 동안은 장식이므로 span 으로 둔다. */
+        if (open && preview?.slug) {
           const slug = preview.slug;
           return (
             <Link
