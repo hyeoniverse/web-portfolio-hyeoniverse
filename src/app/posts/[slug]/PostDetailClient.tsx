@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import type { Post } from "@/types/post";
@@ -36,6 +36,10 @@ interface PostDetailClientProps {
 export default function PostDetailClient({ post: initialPost }: PostDetailClientProps) {
   const { t, language } = useLanguage();
   const { navigateWithTransition, isTransitioning } = usePageTransition();
+  /* 진입 연출을 할지는 마운트 시점에 한 번만 정한다. isTransitioning 을 그대로 쓰면
+     전환이 끝나는 순간 클래스가 바뀌면서 CSS 애니메이션이 다시 돌아 글이 한 번 흐려진다.
+     첫 로드에서는 서버와 같은 false 라 하이드레이션도 어긋나지 않는다. */
+  const [enteredByTransition] = useState(isTransitioning);
   const siteConfig = useSiteConfig();
   /* translation 활성 여부는 client context 에서 — server 의 getSecret 호출 제거됨.
    * 키 부재 시엔 client 가 호출한 API 가 error 응답 → UI 에서 "번역 실패" 표시. */
@@ -90,14 +94,11 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
       heroFallback={heroErrorFallback}
       headings={[...headings, { id: "comments", text: t("comments.heading"), level: 1 }]}
       header={
-        <motion.div
-          className={header.articleHeader}
-          /* 페이지 트랜지션으로 진입 시엔 morph 가 hero 만 덮고 fade out 되므로
-             articleHeader 가 mount 직후 opacity 0 면 morph 사라진 자리에 빈 영역 노출 →
-             skeleton 처럼 보임. 트랜지션 중이면 즉시 visible. 직접 진입은 기존 fade-in 유지. */
-          initial={isTransitioning ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.15, ease: [0.25, 0.1, 0.25, 1] }}
+        /* 페이지 트랜지션으로 진입 시엔 morph 가 hero 만 덮고 fade out 되므로
+           연출을 하면 morph 사라진 자리에 빈 영역이 노출돼 skeleton 처럼 보인다.
+           그래서 전환 중에는 연출을 끈다. 직접 진입은 CSS 로 fade-in. */
+        <div
+          className={`${header.articleHeader} ${enteredByTransition ? styles.enterInstant : styles.enterHeader}`}
         >
           <PostArticleHeader
             data={{
@@ -116,7 +117,7 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
             onLangChange={setViewLang}
             isAdmin={isAdmin}
           />
-        </motion.div>
+        </div>
       }
       likeConfig={{ count: likeCount, liked, busy: likeBusy, onToggle: handleLikeToggle }}
       afterLike={<PostArticleAuthors authors={postAuthors} />}
@@ -159,11 +160,7 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
         lang={viewLang}
       />
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
-      >
+      <div className={enteredByTransition ? styles.enterInstant : styles.enterBody}>
         <PostArticleBody
           data={{
             displayTitle,
@@ -176,7 +173,7 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
           }}
           proseViewerRef={proseViewerRef}
         />
-      </motion.div>
+      </div>
     </DetailLayout>
 
     <ImageViewer

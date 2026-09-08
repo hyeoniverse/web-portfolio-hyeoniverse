@@ -57,3 +57,37 @@
 .trashBarPurge:hover {
   background: var(--bg-accent-light);
 }
+
+
+/* ── 진입 연출 ──
+   원래 framer-motion 의 initial={{opacity:0}} 이었는데, 그러면 자바스크립트가 올라와
+   하이드레이션이 끝날 때까지 글이 안 보인다. 서버가 보낸 HTML 에 본문이 다 들어 있는데도
+   화면에는 7.4초까지 아무것도 없었다(실측). CSS 애니메이션은 첫 페인트에 바로 돌기 때문에
+   같은 연출을 유지하면서 글이 곧바로 보인다.
+
+   페이지 전환으로 들어올 때는 morph 가 자리를 덮고 사라지므로 연출을 하지 않는다
+   (enterInstant). 전환 여부는 브라우저에서만 알 수 있는데, 첫 로드에서는 항상 false 라
+   서버가 그린 것과 어긋나지 않는다. */
+@keyframes detailEnter {
+  from { opacity: 0; transform: translateY(var(--_enter-y, 20px)); }
+  to { opacity: 1; transform: none; }
+}
+
+.enterHeader,
+.enterBody {
+  animation: detailEnter 0.6s cubic-bezier(0.25, 0.1, 0.25, 1) both;
+}
+
+.enterHeader {
+  --_enter-y: 30px;
+  animation-delay: 0.15s;
+}
+
+.enterBody {
+  animation-delay: 0.3s;
+}
+
+/* 전환으로 진입 — 연출 없이 바로 보인다 */
+.enterInstant {
+  animation: none;
+}
