@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState, useCallback, Fragment } from "react";
-import { useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -50,9 +49,21 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
 
   const siteConfig = useSiteConfig();
   const infiniteScroll = siteConfig.works.infiniteScroll;
-  const searchParams = useSearchParams();
   const configLayout = (siteConfig.works as Record<string, unknown>).layout as LayoutType | undefined;
-  const layout = (searchParams.get("layout") as LayoutType) || configLayout || "flow";
+
+  /* ?layout= 은 다른 배치를 미리 볼 때만 쓰는 덮어쓰기다. 그것을 useSearchParams 로 읽으면
+     이 화면 전체가 서버에서 그려지지 않는다 — 정적 생성과 함께 쓰면 Next 가 그 아래를
+     통째로 브라우저 몫으로 미루기 때문이다(서버가 보내는 HTML 의 글자가 83자였다).
+     그래서 기본 배치로 먼저 그리고, 화면이 붙은 뒤 주소에 값이 있으면 그때 바꾼다. */
+  const [layoutOverride, setLayoutOverride] = useState<LayoutType | null>(null);
+  useEffect(() => {
+    const v = new URLSearchParams(window.location.search).get("layout") as LayoutType | null;
+    /* 초기값으로 읽으면 서버(값 없음)와 화면(값 있음)이 어긋나 React 가 트리를 다시 그린다.
+       주소를 읽는 일은 화면이 붙은 뒤에만 할 수 있으므로 여기서 상태를 바꾼다. */
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (v) setLayoutOverride(v);
+  }, []);
+  const layout = layoutOverride || configLayout || "flow";
 
   const galleryRef = useRef<HTMLDivElement>(null);
   const sliderRef = useRef<HTMLDivElement>(null);
