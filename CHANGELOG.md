@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.53.20](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.19...v1.53.20) (2026-09-08)
+
+
+### Performance Improvements
+
+* **posts:** 카테고리 목록을 화면당 한 번만 받는다 ([0763a35](https://github.com/hyeoniverse/web-portfolio-oval/commit/0763a35526c069b88dd1cec8f8cc615e7b89b9ec))
+* **ui:** 화면 밖 동영상 표지를 미리 받지 않는다 ([a58d13f](https://github.com/hyeoniverse/web-portfolio-oval/commit/a58d13fe4325e2af28a3ca1438d15056f1524f22))
+
 ## [1.53.19](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.18...v1.53.19) (2026-09-08)
 
 
