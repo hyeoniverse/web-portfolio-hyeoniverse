@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.53.16](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.15...v1.53.16) (2026-09-08)
+
+
+### Performance Improvements
+
+* 화면 위에 겹치는 것들을 첫 화면이 뜬 뒤에 올린다 ([b239826](https://github.com/hyeoniverse/web-portfolio-oval/commit/b2398260150f598a13477a4be6a64d1ecd383c6c))
+
 ## [1.53.15](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.14...v1.53.15) (2026-09-07)
 
 
