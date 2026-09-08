@@ -168,8 +168,14 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
   }
 
   const trackProjects = isVerticalLayout ? projects : infiniteScroll ? allProjects : projects;
-  // 무한 스크롤이면 가운데 세트가 첫 화면이라 그쪽 첫 카드를 우선 로드한다
-  const priorityIndex = infiniteScroll ? PROJECT_COUNT * Math.floor(INFINITE_SCROLL_SETS / 2) : 0;
+  /* 첫 화면에 보이는 카드의 표지를 우선 로드한다.
+     세로 레이아웃(모바일)은 세트를 한 벌만 그리므로 첫 카드가 곧 첫 화면이다. 가로 무한
+     스크롤일 때만 가운데 세트가 첫 화면이라 그쪽 첫 카드를 가리킨다.
+     이 구분이 없어서 모바일에서는 인덱스가 카드 수를 넘어가 아무 카드도 우선순위를
+     못 받았고, 표지가 lazy 로 남아 화면에 보이는 첫 카드가 5.3초에야 그려졌다. */
+  const priorityIndex = isVerticalLayout || !infiniteScroll
+    ? 0
+    : PROJECT_COUNT * Math.floor(INFINITE_SCROLL_SETS / 2);
 
   return (
     <section className={styles.gallery} ref={galleryRef}>
