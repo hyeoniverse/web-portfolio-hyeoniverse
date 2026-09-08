@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.53.22](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.21...v1.53.22) (2026-09-08)
+
+
+### Bug Fixes
+
+* **a11y:** 닫힌 시리즈 뒷장을 링크에서 뺀다 ([5bed81a](https://github.com/hyeoniverse/web-portfolio-oval/commit/5bed81af2904a4f6638cb8229cd5c92d429a48fb))
+* **posts:** 코드블록 tabindex 를 저장 HTML 이 아니라 화면에서만 붙인다 ([4cfda58](https://github.com/hyeoniverse/web-portfolio-oval/commit/4cfda586d3827e497cdb834240a4da52b2406f8d))
+
 ## [1.53.21](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.20...v1.53.21) (2026-09-08)
 
 
