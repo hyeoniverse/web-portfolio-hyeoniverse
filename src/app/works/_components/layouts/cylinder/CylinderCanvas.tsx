@@ -5,6 +5,20 @@ import { Canvas } from "@react-three/fiber";
 import IntroBunny from "../CylinderIntroBunny";
 import VerticalCylinder, { TransparentBg, ResponsiveCamera } from "./VerticalCylinder";
 import { createIntroDataUrl } from "./scene";
+
+/* 원통에 두르는 텍스처는 원본 주소를 그대로 받고 있었다. 작품 이미지는 1200×700 원본이라
+   5장에 660KB 였고, 첫 화면을 다 그린 뒤에도 12.8초까지 계속 내려받았다.
+   Next 의 이미지 최적화를 거치면 같은 자리에 AVIF/WebP 로 훨씬 작게 온다.
+   원통 한 칸은 화면 폭을 넘지 않으므로 640px 이면 충분하다. 인트로는 캔버스로 만든
+   data URL 이라 최적화 대상이 아니다. */
+const TEXTURE_WIDTH = 640;
+/* next.config 의 images.qualities 를 따로 두지 않아 기본값 75 만 허용된다 — 다른 값은 400 이다. */
+const TEXTURE_QUALITY = 75;
+
+function optimized(url: string): string {
+  if (!url.startsWith("http")) return url;
+  return `/_next/image?url=${encodeURIComponent(url)}&w=${TEXTURE_WIDTH}&q=${TEXTURE_QUALITY}`;
+}
 import type { useCylinderStage } from "./useCylinderStage";
 
 /* 무대 훅이 만든 ref 들을 그대로 받는다 — 타입을 따로 적으면 훅이 바뀔 때 어긋난다. */
@@ -57,7 +71,7 @@ export default function CylinderCanvas({
 }: CylinderCanvasProps) {
   /* allImages[0] = 인트로, [1..N] = 작품. 인트로는 캔버스로 만들어야 해서 여기서 계산한다. */
   const allImages = useMemo(
-    () => [createIntroDataUrl(isDark), ...projectImages],
+    () => [createIntroDataUrl(isDark), ...projectImages.map(optimized)],
     [isDark, projectImages],
   );
 
