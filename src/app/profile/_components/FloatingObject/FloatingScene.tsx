@@ -103,6 +103,8 @@ interface FloatingSceneProps {
   pointerActive: React.RefObject<boolean>;
   screenPosRef?: React.RefObject<{ x: number; y: number }>;
   smileRef?: React.RefObject<boolean>;
+  /** 지금 쓰다듬고 있는지 — 하트 연출이 읽는다. */
+  pettingRef?: React.RefObject<boolean>;
   scrollVelRef?: React.RefObject<number>;
 }
 
@@ -113,6 +115,7 @@ export default function FloatingScene({
   pointerActive,
   screenPosRef,
   smileRef,
+  pettingRef,
   scrollVelRef,
 }: FloatingSceneProps) {
   const groupRef = useRef<THREE.Group>(null);
@@ -689,6 +692,8 @@ export default function FloatingScene({
        그 앞이 화면 뒤가 되어 손이 몸 뒤로 숨는다. 만지는 자리를 화면에 투영해 그 방향으로,
        몽이 전체보다 앞선 깊이에 세우면 어느 각도에서든 커서 위에 얹힌다. */
     const anchor = handAnchorRef.current;
+    /* 쓰다듬는 동안만 참 — 하트를 띄우는 신호다. 살이 실제로 눌리고 있을 때만 켠다. */
+    if (pettingRef) pettingRef.current = touch.petting && dn.live;
     const holdingHead = (touch.cheek !== 0 && dn.holding) || touch.petting;
     let aimX = touch.ndcX;
     let aimY = touch.ndcY;
