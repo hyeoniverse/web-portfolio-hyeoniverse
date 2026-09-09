@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import {
@@ -11,7 +11,12 @@ import {
   BODY_COLOR,
   BODY_EMISSIVE,
   EYE_COLOR,
+  EYE_LOCAL,
+  BARE_RIN,
+  BARE_ROUT,
+  BARE_YW,
 } from "@/app/profile/_components/FloatingObject/bunnyGeometry";
+import BunnyFur from "@/app/profile/_components/FloatingObject/BunnyFur";
 
 const RADIUS = 35;
 const PLANE_WIDTH = 46;
@@ -28,6 +33,9 @@ const BUNNY_MAT = {
 const BUNNY_Z = 3;
 const BUNNY_SCALE = 0.55;
 const BUNNY_SPEED = 1.8;
+/* 원통 인트로의 몽이는 프로필의 것보다 작게 보이고 헬멧에 반쯤 가린다.
+   껍질 하나가 부위를 통째로 다시 그리므로 겹 수는 프로필(6)보다 적게 잡는다. */
+const FUR_SHELLS = 4;
 const BUNNY_WALL_BOUNCE = 0.9;
 const BUNNY_FRICTION = 0.998;
 const BUNNY_MARGIN = 0.8;
@@ -40,9 +48,22 @@ interface Props {
 
 export default function CylinderIntroBunny({ screenPosRef, arc, actualRotRef }: Props) {
   const groupRef = useRef<THREE.Group>(null);
-  const bodyRef = useRef<THREE.Mesh>(null);
-  const leftEarRef = useRef<THREE.Mesh>(null);
-  const rightEarRef = useRef<THREE.Mesh>(null);
+  /* 털은 살과 **같은** 도형을 써야 한다. JSX 안에 인라인으로 두면 각자 다른 객체가 된다. */
+  const bodyGeo = useMemo(() => new THREE.LatheGeometry(BODY_PROFILE, 24), []);
+  const headGeo = useMemo(() => new THREE.SphereGeometry(0.48, 24, 18), []);
+  const earGeo = useMemo(() => new THREE.LatheGeometry(EAR_PROFILE, 16), []);
+  /* 프로필 쪽은 몽이가 작아질 때 털을 더 뽑지만, 여기서는 크기가 고정이라 배수도 고정이다. */
+  const furBoost = useRef({ k: 1 });
+  /* 눈가에서는 털을 눕힌다. 안 그러면 껍질이 눈 위로 덮여 눈이 얼룩덜룩해진다.
+     이 몽이는 표정이 안 바뀌므로 값이 고정이지만, 자리는 프로필과 같은 것을 본다. */
+  const furBare = useRef({
+    x: EYE_LOCAL[0], y: EYE_LOCAL[1], z: EYE_LOCAL[2],
+    rIn: BARE_RIN, rOut: BARE_ROUT, yw: BARE_YW,
+  });
+
+  const bodyRef = useRef<THREE.Group>(null);
+  const leftEarRef = useRef<THREE.Group>(null);
+  const rightEarRef = useRef<THREE.Group>(null);
   const leftArmRef = useRef<THREE.Mesh>(null);
   const rightArmRef = useRef<THREE.Mesh>(null);
   const leftLegRef = useRef<THREE.Mesh>(null);
@@ -192,20 +213,34 @@ export default function CylinderIntroBunny({ screenPosRef, arc, actualRotRef }: 
 
   return (
     <group ref={groupRef}>
-      <ambientLight intensity={0.5} />
-      <directionalLight position={[3, 5, 4]} intensity={0.7} />
+      {/* 프로필의 몽이와 같은 조명 구성 — 한 방향에서만 비추면 털이 눌려 보인다 */}
+      <ambientLight intensity={0.6} />
+      <directionalLight position={[3, 5, 4]} intensity={0.9} />
+      <directionalLight position={[-2, -1, 3]} intensity={0.3} />
+      <hemisphereLight args={["#ffeedd", "#b0a8c0", 0.4]} />
 
       {/* Body */}
-      <mesh ref={bodyRef} position={[0, -0.15, 0]} scale={[0.75, 0.78, 0.7]}>
-        <latheGeometry args={[BODY_PROFILE, 24]} />
-        <meshStandardMaterial {...BUNNY_MAT} />
-      </mesh>
+      <group ref={bodyRef} position={[0, -0.15, 0]} scale={[0.75, 0.78, 0.7]}>
+        <mesh geometry={bodyGeo}>
+          <meshStandardMaterial {...BUNNY_MAT} />
+        </mesh>
+        <BunnyFur geometry={bodyGeo} length={0.07} repeat={2.2} shells={FUR_SHELLS} boost={furBoost} />
+      </group>
 
       {/* Head */}
-      <mesh position={[0, 0.42, 0.06]} scale={[1.15, 1, 0.95]}>
-        <sphereGeometry args={[0.48, 24, 18]} />
-        <meshStandardMaterial {...BUNNY_MAT} />
-      </mesh>
+      <group position={[0, 0.42, 0.06]} scale={[1.15, 1, 0.95]}>
+        <mesh geometry={headGeo}>
+          <meshStandardMaterial {...BUNNY_MAT} />
+        </mesh>
+        <BunnyFur
+          geometry={headGeo}
+          length={0.055}
+          repeat={1.8}
+          shells={FUR_SHELLS}
+          boost={furBoost}
+          bare={furBare}
+        />
+      </group>
 
       {/* Helmet */}
       <mesh position={[0, 0.46, 0.02]} scale={[1.5, 1.35, 1.35]} renderOrder={999}>
@@ -224,14 +259,18 @@ export default function CylinderIntroBunny({ screenPosRef, arc, actualRotRef }: 
       </mesh>
 
       {/* Ears */}
-      <mesh ref={leftEarRef} position={[-0.2, 0.82, -0.04]} rotation={[0.12, 0, 0.18]} scale={[1.3, 1.3, 1]}>
-        <latheGeometry args={[EAR_PROFILE, 16]} />
-        <meshStandardMaterial {...BUNNY_MAT} />
-      </mesh>
-      <mesh ref={rightEarRef} position={[0.2, 0.82, -0.04]} rotation={[0.12, 0, -0.18]} scale={[1.3, 1.3, 1]}>
-        <latheGeometry args={[EAR_PROFILE, 16]} />
-        <meshStandardMaterial {...BUNNY_MAT} />
-      </mesh>
+      <group ref={leftEarRef} position={[-0.2, 0.82, -0.04]} rotation={[0.12, 0, 0.18]} scale={[1.3, 1.3, 1]}>
+        <mesh geometry={earGeo}>
+          <meshStandardMaterial {...BUNNY_MAT} />
+        </mesh>
+        <BunnyFur geometry={earGeo} length={0.042} repeat={1.2} shells={FUR_SHELLS} boost={furBoost} />
+      </group>
+      <group ref={rightEarRef} position={[0.2, 0.82, -0.04]} rotation={[0.12, 0, -0.18]} scale={[1.3, 1.3, 1]}>
+        <mesh geometry={earGeo}>
+          <meshStandardMaterial {...BUNNY_MAT} />
+        </mesh>
+        <BunnyFur geometry={earGeo} length={0.042} repeat={1.2} shells={FUR_SHELLS} boost={furBoost} />
+      </group>
 
       {/* Eyes */}
       <mesh position={[-0.2, 0.46, 0.48]} rotation={[-0.08, -0.31, 0]} scale={[1, 1.3, 0.15]}>
