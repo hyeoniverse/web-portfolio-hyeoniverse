@@ -9,7 +9,7 @@ import { BODY_COLOR } from "./bunnyGeometry";
 const TEX = 512;
 /** 털 한 올의 성김. 클수록 올이 가늘고 촘촘하다.
     너무 가늘면 몽이가 떠다닐 때(작을 때) 한 올이 한 픽셀도 안 돼서 뭉개진다. */
-const STRANDS = 58;
+const STRANDS = 96;
 /**
  * 껍질을 몇 겹 쌓을지. 적으면 층이 띠로 보이고, 많으면 그만큼 더 그린다.
  *
@@ -71,7 +71,7 @@ function furAlphaMap(): THREE.Texture | null {
 }
 
 /** 안쪽 겹의 색. 털뿌리는 그늘져야 보송해 보인다 — 다 같은 밝기면 그냥 부푼 덩어리다. */
-const ROOT_COLOR = new THREE.Color(BODY_COLOR).multiplyScalar(0.72);
+const ROOT_COLOR = new THREE.Color(BODY_COLOR).multiplyScalar(0.86);
 const TIP_COLOR = new THREE.Color(BODY_COLOR);
 
 /**
@@ -140,7 +140,7 @@ export default function BunnyFur({
         metalness: 0,
         alphaMap: map,
         /* 자르는 방식이라 반투명 정렬 문제가 없다. 바깥 겹일수록 기준이 높아 털이 줄어든다. */
-        alphaTest: 0.08 + t * 0.62,
+        alphaTest: 0.05 + t * t * 0.58,
       });
       m.onBeforeCompile = (shader) => {
         shader.uniforms.uShell = { value: length * t };

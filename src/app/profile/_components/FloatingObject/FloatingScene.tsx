@@ -25,21 +25,10 @@ const POKE_DEPTH = 1.8;
 const PET_DEPTH = 0.1;
 /** 머리에 심은 털의 길이(머리 지오메트리 좌표). */
 const HEAD_FUR_LEN = 0.062;
-/**
- * 눈가에서 털을 눕히는 자리. 안쪽 반지름 · 바깥 반지름 · 세로 눌림.
- *
- * 눈은 세로로 길어서 원이 아니라 타원이어야 한다(`yw` 가 1 보다 작으면 세로로 늘어난 타원).
- * 안쪽은 눈에 가려지는 크기라, 거기서 털이 납작해도 맨살이 드러나지 않는다.
- */
-const BARE_RIN = 0.095;
-const BARE_ROUT = 0.27;
-const BARE_YW = 0.62;
 /** 몽이가 자리에 앉았을 때의 배율. 이때를 기준으로 털 길이를 잡았다. */
 const FUR_REF_SCALE = 1.89;
 /** 작아졌을 때 털을 최대 몇 배까지 길게 뽑을지. */
 const FUR_MAX_BOOST = 2.1;
-/** 눈의 자리(머리 로컬). 여기서 DENT_RADIUS 안쪽이면 살을 밀지 않는다. */
-const EYE_LOCAL = [0.174, 0.04, 0.442] as const;
 /** 얼굴을 위아래로 가르는 높이(몽이 로컬). 위는 쓰다듬는 자리, 아래는 볼과 코다. */
 const FACE_SPLIT_Y = 0.36;
 /** 이보다 가운데면 볼이 아니라 코 — 찌르는 자리다. */
@@ -91,6 +80,10 @@ function lerpAngle(from: number, to: number, k: number): number {
 import {
   BUNNY,
   EYE_COLOR,
+  EYE_LOCAL,
+  BARE_RIN,
+  BARE_ROUT,
+  BARE_YW,
   BODY_GEO,
   HEAD_GEO,
   EAR_GEO,
