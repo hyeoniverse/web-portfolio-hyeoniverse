@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState, useCallback, Fragment } from "react";
-import dynamic from "next/dynamic";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import dynamic from "next/dynamic";
 import { BREAKPOINT } from "@/constants";
 import { useLenis } from "@/providers/LenisProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
@@ -25,7 +25,10 @@ import FullscreenLayout from "./layouts/FullscreenLayout";
 import CinematicLayout from "./layouts/CinematicLayout";
 import GridLayout from "./layouts/GridLayout";
 import SplitLayout from "./layouts/SplitLayout";
-const CylinderLayout = dynamic(() => import("./layouts/CylinderLayout"), { ssr: false });
+/* 원통 배치는 코드가 크고 다른 배치에선 안 쓰이므로 따로 떼어 둔다. ssr: false 는 쓰지
+   않는다 — 그러면 이 화면 전체가 서버 HTML 에서 빠진다. 3D 부분만 CylinderLayout 안에서
+   다시 한 번 ssr: false 로 갈라 놨다. */
+const CylinderLayout = dynamic(() => import("./layouts/CylinderLayout"));
 import intro from "./WorksIntro.module.css";
 import styles from "./WorksSection.module.css";
 
