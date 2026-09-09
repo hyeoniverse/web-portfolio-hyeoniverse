@@ -1,0 +1,29 @@
+/* 쓰다듬을 때 몽이 머리 위로 떠오르는 하트. 별가루(BunnyStardust)와 같은 자리에 겹쳐
+   놓이므로 z 순서만 맞추면 되고, 위치는 화면 좌표를 직접 옮겨 잡는다. */
+.layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.heart {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--size, 14px);
+  height: var(--size, 14px);
+  margin: calc(var(--size, 14px) / -2) 0 0 calc(var(--size, 14px) / -2);
+  background-color: var(--color-accent);
+  /* 좋아요 하트와 같은 모양 — 사이트 안에서 하트가 두 가지로 보이지 않게 한다. */
+  mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/></svg>");
+  mask-repeat: no-repeat;
+  mask-size: contain;
+  opacity: 0;
+  /* will-change 는 넣지 않는다. 14개를 상시 합성 레이어로 올리면 쓰다듬지 않는
+     동안에도 profile 전체가 그 값을 낸다(측정: 점수 50 → 47). */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .layer { display: none; }
+}

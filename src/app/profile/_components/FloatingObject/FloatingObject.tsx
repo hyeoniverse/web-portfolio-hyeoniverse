@@ -12,6 +12,7 @@ import { useMobileLayout } from "@/hooks/useMobileLayout";
 import { useProfileSectionStore } from "@/stores/profileSectionStore";
 import styles from "./FloatingObject.module.css";
 import BunnyStardust from "./BunnyStardust";
+import BunnyHearts from "./BunnyHearts";
 import { useSoundManager } from "@/hooks/useSoundManager";
 
 const FloatingScene = dynamic(() => import("./FloatingScene"), { ssr: false });
@@ -38,6 +39,8 @@ export default function FloatingObject() {
   const pointerActive = useRef(false);
   const screenPosRef = useRef({ x: 0, y: 0 });
   const smileRef = useRef(false);
+  /* 쓰다듬는 동안만 참 — BunnyHearts 가 읽는다. */
+  const pettingRef = useRef(false);
   const scrollVelRef = useRef(0);
   const bubbleRef = useRef<HTMLDivElement>(null);
   /** 말풍선 크기 — 글이 바뀔 때만 다시 잰다. */
@@ -260,10 +263,14 @@ export default function FloatingObject() {
             pointerActive={pointerActive}
             screenPosRef={screenPosRef}
             smileRef={smileRef}
+            pettingRef={pettingRef}
             scrollVelRef={scrollVelRef}
           />
         </Suspense>
       </Canvas>
+      {/* 하트는 캔버스 다음에 둔다 — 별가루와 반대로 몽이 위에 떠야 한다.
+          캔버스 앞에 두면 캔버스가 그대로 덮어 하나도 안 보인다. */}
+      <BunnyHearts screenPosRef={screenPosRef} pettingRef={pettingRef} />
       </div>
 
       {/* 말풍선은 오버레이 밖에 둔다. 뒤 화면과 반전(mix-blend-mode: difference)시키려면
