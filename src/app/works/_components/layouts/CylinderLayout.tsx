@@ -1,21 +1,23 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
-import { Canvas } from "@react-three/fiber";
+import { Suspense, useCallback, useMemo } from "react";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import { pickLocalized } from "@/types/common";
 import Tooltip from "@/components/ui/Tooltip";
-import IntroBunny from "./CylinderIntroBunny";
 import type { WorksLayoutProps } from "./shared";
-import VerticalCylinder, { TransparentBg, ResponsiveCamera } from "./cylinder/VerticalCylinder";
 import { useCylinderStage } from "./cylinder/useCylinderStage";
 import CylinderIntroPanel from "./cylinder/CylinderIntroPanel";
 import CylinderCommentBubbles from "./cylinder/CylinderCommentBubbles";
 import { useFloatingComments } from "./cylinder/useFloatingComments";
-import { createIntroDataUrl, MIN_SEGMENT_ANGLE, GAP_RATIO } from "./cylinder/scene";
+import { MIN_SEGMENT_ANGLE, GAP_RATIO } from "./cylinder/scene";
+import dynamic from "next/dynamic";
 import styles from "./CylinderLayout.module.css";
+
+/* 3D 는 서버에서 그릴 수 없어 브라우저에서만 붙인다. 이 화면의 나머지(인트로 패널·제목)는
+   정적으로 남아 서버 HTML 에 들어간다. Suspense 로 감싸 bailout 이 이 자리에만 머물게 한다. */
+const CylinderCanvas = dynamic(() => import("./cylinder/CylinderCanvas"), { ssr: false });
 
 /* ── 실린더 레이아웃 ──
    작품 이미지를 곡면 패널로 만들어 세로 원통에 두르고, 휠로 굴린다.
@@ -25,14 +27,12 @@ export default function CylinderLayout({ projects, onProjectClick }: WorksLayout
   const { theme } = useTheme();
   const { language } = useLanguage();
 
-  // allImages[0] = intro, allImages[1..N] = projects
+  /* 인트로 이미지는 캔버스에 그려 만드는 값이라 브라우저에서만 계산할 수 있다.
+     여기서 만들면 서버 렌더가 document 를 찾다 깨지므로 CylinderCanvas 안으로 옮겼다. */
   const isDark = theme === "dark";
-  const introDataUrl = useMemo(() => createIntroDataUrl(isDark), [isDark]);
-  const allImages = useMemo(
-    () => [introDataUrl, ...projects.map((p) => p.image)],
-    [projects, introDataUrl],
-  );
-  const slotCount = allImages.length;
+  const projectImages = useMemo(() => projects.map((p) => p.image), [projects]);
+  // 슬롯 = 인트로 1 + 작품 N
+  const slotCount = projectImages.length + 1;
   const projectImageMap = useMemo(
     () => new Map(projects.map((p) => [p.id, p.image])),
     [projects],
@@ -73,37 +73,25 @@ export default function CylinderLayout({ projects, onProjectClick }: WorksLayout
 
   return (
     <div ref={wrapRef} className={styles.wrap}>
-      <Canvas
-        className={styles.canvas}
-        camera={{ position: [0, 0, 9], fov: 55 }}
-        gl={{ antialias: true, alpha: true }}
-      >
-        <TransparentBg />
-        <ResponsiveCamera />
-        <VerticalCylinder
-          allImages={allImages}
+      <Suspense fallback={null}>
+        <CylinderCanvas
+          canvasClassName={styles.canvas}
+          hoveredItemClassName={styles.metaItemHovered}
+          hoveredOverlayClassName={styles.metaOverlayHovered}
+          projectImages={projectImages}
+          isDark={isDark}
           segAngle={segAngle}
           arc={arc}
           scrollRef={scrollRef}
           mouseRef={mouseRef}
           actualRotRef={actualRotRef}
           screenPosRef={screenPosRef}
-          dimRef={hoverDimRef}
-          onMeshHover={(idx) => {
-            slotRefs.current.get(idx)?.classList.add(styles.metaItemHovered);
-            overlayRefs.current.get(idx)?.classList.add(styles.metaOverlayHovered);
-          }}
-          onMeshLeave={(idx) => {
-            slotRefs.current.get(idx)?.classList.remove(styles.metaItemHovered);
-            overlayRefs.current.get(idx)?.classList.remove(styles.metaOverlayHovered);
-          }}
-          onMeshClick={(idx) => {
-            // idx 0 = intro slot (no click), 1+ = projects
-            if (idx > 0) handleClick(idx - 1);
-          }}
+          hoverDimRef={hoverDimRef}
+          slotRefs={slotRefs}
+          overlayRefs={overlayRefs}
+          onSlotClick={handleClick}
         />
-        <IntroBunny screenPosRef={screenPosRef} arc={arc} actualRotRef={actualRotRef} />
-      </Canvas>
+      </Suspense>
 
       <CylinderIntroPanel slotRefs={slotRefs} />
 
