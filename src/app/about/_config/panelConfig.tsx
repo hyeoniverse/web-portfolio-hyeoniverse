@@ -1,10 +1,9 @@
 import dynamic from "next/dynamic";
 import type { Language } from "@/providers/LanguageProvider";
-import { projectOverview } from "@/data/about/architecture";
 import { designConcepts } from "@/data/about/concepts";
 /* 폴백은 content/about/ 의 md 에서 구워진다 (scripts/gen-about-fallback.ts).
    손으로 고치는 원본은 md 하나뿐이다. */
-import { aboutFeatures, aboutProcess, aboutSecurity } from "@/data/generated/aboutContent";
+import { aboutFeatures, aboutOverview, aboutProcess, aboutSecurity } from "@/data/generated/aboutContent";
 import { adaptFeatures, adaptProcess, adaptSecurity } from "@/app/about/_config/adaptAbout";
 import { techStack } from "@/data/about/stack";
 import {
@@ -83,7 +82,7 @@ export const desktopPanels: PanelConfig[] = [
   {
     key: "overview",
     Component: OverviewPanel,
-    props: (ctx) => ({ language: ctx.language, overview: projectOverview }),
+    props: (ctx) => ({ language: ctx.language, overview: aboutOverview }),
   },
   {
     key: "architecture",
@@ -173,7 +172,7 @@ export const mobileTabPanels: Record<string, PanelConfig[]> = {
     {
       key: "overview",
       Component: OverviewPanel,
-      props: (ctx) => ({ language: ctx.language, overview: projectOverview }),
+      props: (ctx) => ({ language: ctx.language, overview: aboutOverview }),
     },
     {
       key: "features",

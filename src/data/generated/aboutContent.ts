@@ -4,7 +4,7 @@
  * About 패널의 폴백. DB(동기화 결과)가 있으면 그게 이기고, 여기도 비어 있으면 화면이 빈다 —
  * 아직 아무것도 쓰지 않았다는 뜻이다. */
 import type { TroubleShootingItem } from "@/data/about/types";
-import type { CfgSecurity, CfgFeature, CfgProcess, OverviewValues, CreditsValues } from "@/lib/about/panelMarkdown";
+import type { CfgSecurity, CfgFeature, CfgProcess, OverviewValues } from "@/lib/about/panelMarkdown";
 
 export const aboutDecisions: TroubleShootingItem[] = [
   {
@@ -594,10 +594,4 @@ export const aboutOverview: OverviewValues | null = {
       "label_en": "Libraries"
     }
   ]
-};
-
-export const aboutCredits: CreditsValues | null = {
-  "creditsNames": [],
-  "creditsNote_ko": "",
-  "creditsNote": ""
 };
