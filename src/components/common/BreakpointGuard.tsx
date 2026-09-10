@@ -40,15 +40,24 @@ export default function BreakpointGuard({
 }: {
   children: React.ReactNode;
 }) {
-  const [activeBreakpoint, setActiveBreakpoint] = useState("desktop-tall");
+  /* 자식의 key. 경계를 넘을 때마다 1씩 올려 통째로 다시 만든다.
+   *
+   * 전에는 key 가 브레이크포인트 이름이었고 "desktop-tall" 로 시작했다. 첫 effect 에서 실제 값을
+   * 넣으면 모바일(과 높이 640 이하 창)에서는 그 자리에서 key 가 바뀌어, 방문하자마자 페이지 전체가
+   * 한 번 부서졌다 다시 만들어졌다. 이미 그려진 히어로 글이 새 노드로 다시 그려져 LCP 가 그 시각
+   * (모바일 조건 6~7초)으로 밀렸고, 3D 캔버스도 전부 새로 떴다.
+   *
+   * 첫 값은 맞출 필요가 없다 — 처음 마운트가 이미 그 뷰포트 안에서 일어났다. key 는 "넘었다"는
+   * 사건만 알리면 되므로 이름 대신 횟수를 쓴다. 이름을 쓰면 첫 값을 안 맞출 때 되돌아오는 전환
+   * (mobile → desktop-tall)에서 key 가 그대로라 리마운트가 빠진다. */
+  const [generation, setGeneration] = useState(0);
   const [overlayPhase, setOverlayPhase] = useState<OverlayPhase>("hidden");
-  const bpRef = useRef("desktop-tall");
+  /** 지금 기준으로 삼는 브레이크포인트. 첫 effect 에서 실제 값을 넣는다. */
+  const bpRef = useRef("");
   const busyRef = useRef(false);
 
   useEffect(() => {
-    const initial = getBreakpoint();
-    bpRef.current = initial;
-    setActiveBreakpoint(initial);
+    bpRef.current = getBreakpoint();
 
     const handleResize = () => {
       const next = getBreakpoint();
@@ -60,7 +69,7 @@ export default function BreakpointGuard({
       // React 18+ 자동 배칭: 오버레이(즉시 불투명) + key 변경이
       // 하나의 렌더 사이클에서 커밋 → 리마운트가 오버레이 뒤에서 발생
       setOverlayPhase("solid");
-      setActiveBreakpoint(next);
+      setGeneration((g) => g + 1);
     };
 
     window.addEventListener("resize", handleResize);
@@ -86,7 +95,7 @@ export default function BreakpointGuard({
           bpRef.current = current;
           busyRef.current = true;
           setOverlayPhase("solid");
-          setActiveBreakpoint(current);
+          setGeneration((g) => g + 1);
         }
       }, FADE_OUT_MS);
       return () => clearTimeout(timer);
@@ -95,7 +104,7 @@ export default function BreakpointGuard({
 
   return (
     <>
-      <div key={activeBreakpoint}>{children}</div>
+      <div key={generation}>{children}</div>
       <div
         aria-hidden
         style={{
