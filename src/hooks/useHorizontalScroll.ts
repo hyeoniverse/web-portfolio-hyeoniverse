@@ -147,7 +147,13 @@ export function useHorizontalScroll(
 
     const section = sectionRef.current;
     const track = trackRef.current;
-    if (!section || !track || mobile) {
+    /* mobile 만 보면 안 된다. 하이드레이션 첫 패스에서 useMobileLayout 은 서버 값(false)을
+       돌려주므로, 모바일에서도 여기가 한 번 데스크톱으로 돈다. 그러면 트랙에 transform 이,
+       .animate 요소에 opacity 0 이 인라인으로 박힌 채 남는다(곧 mobile 이 true 로 바뀌어도
+       정리 함수는 리스너만 뗀다). 예전에는 BreakpointGuard 가 방문 직후 페이지를 통째로 다시
+       만들어 이 흔적을 지웠는데, 그 리마운트를 없애면서 드러났다. layout effect 는 브라우저에서
+       돌므로 실제 창 너비를 직접 본다. */
+    if (!section || !track || mobile || checkMobileLayout()) {
       if (mobile) {
         lenisScrollTo(0, { immediate: true });
         window.scrollTo(0, 0);
