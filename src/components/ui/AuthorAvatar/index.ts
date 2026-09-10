@@ -1,1 +1,1 @@
-export { default, isImageAvatar } from "./AuthorAvatar";
+export { default, isImageAvatar, avatarImage } from "./AuthorAvatar";
