@@ -3,6 +3,7 @@
 // ── 코드 플레이그라운드 블록 (void) — Sandpack(CodeSandbox 식) ──
 // 무거운 Sandpack 은 lazy-load. el.data 에 { template, files, dependencies } 저장.
 import React, { useCallback, useMemo, useRef, useState } from "react";
+import { useSyncRef } from "@/hooks/useSyncRef";
 import { PLAYGROUND_STACKS } from "./playgroundStacks";
 import { createPortal } from "react-dom";
 import { useEditorRef, useSelected, PlateElement, type PlateElementProps } from "platejs/react";
@@ -34,8 +35,8 @@ export function PlaygroundElement(props: PlateElementProps) {
   const [boxH, setBoxH] = useState(460); // 사용자가 지정한 블록 높이
   const resizeRef = useRef<{ y: number; h: number } | null>(null);
 
-  const elementRef = useRef(props.element); elementRef.current = props.element;
-  const dataRef = useRef(data); dataRef.current = data;
+  const elementRef = useRef(props.element); useSyncRef(elementRef, props.element);
+  const dataRef = useRef(data); useSyncRef(dataRef, data);
 
   const elPath = (() => { try { const p = editor.api.findPath(props.element); return p ? Array.from(p) : null; } catch { return null; } })();
   const { blockDragProps } = useBlockDrag(elPath);

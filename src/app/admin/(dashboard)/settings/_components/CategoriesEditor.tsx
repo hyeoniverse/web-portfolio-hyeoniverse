@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect, useRef, useCallback } from "react";
+import { useSyncRef } from "@/hooks/useSyncRef";
 import { useDepsChanged } from "@/hooks/useDepsChanged";
 import type { SortDirection } from "@/types";
 import { Plus, Check, X, Trash2, Filter, ChevronDown } from "@/components/icons";
@@ -513,7 +514,7 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
     assignments: { id: string; category: string }[],
     newCategories: BilingualCategory[],
   ) => Promise<void>>(async () => {});
-  handleReassignConfirmRef.current = async (assignments, newCategories) => {
+  useSyncRef(handleReassignConfirmRef, async (assignments, newCategories) => {
     if (assignments.length > 0) {
       await fetch("/api/posts/reassign-category", {
         method: "POST",
@@ -533,7 +534,7 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
     onChange(merged);
     setReassignTarget(null);
     if (editingEn === reassignTarget?.en) setEditingEn(null);
-  };
+  });
 
   /* 편집 중인 카테고리의 관련 게시물 — post.category 가 EN 또는 KO 저장됐을 수 있으니 둘 다 매칭. */
   const editingPosts = useMemo<AdminPostUsageInfo[]>(() => {

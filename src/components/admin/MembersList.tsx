@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useSyncRef } from "@/hooks/useSyncRef";
 import { Clock } from "@/components/icons";
 import Link from "next/link";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -51,7 +52,7 @@ export default function MembersList({ limit, showInvites = true, hideHeader = fa
   const [data, setData] = useState<MembersResponse | null>(null);
   const [state, setState] = useState<"loading" | "ok" | "hidden">("loading");
   const onResolvedRef = useRef(onResolved);
-  onResolvedRef.current = onResolved;
+  useSyncRef(onResolvedRef, onResolved);
 
   useEffect(() => {
     let alive = true;

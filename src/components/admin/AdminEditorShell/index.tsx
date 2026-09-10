@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
+import { useSyncRef } from "@/hooks/useSyncRef";
 import { useStateFromProp } from "@/hooks/useStateFromProp";
 import { Languages, MessageSquareMore, RotateCcw, Undo2, Clock, ChevronLeft, ChevronRight, Trash2, ChevronDown, CalendarClock, CalendarX, Loader2, ExternalLink } from "@/components/icons";
 import DateTimePicker from "@/components/ui/DatePicker/DateTimePicker";
@@ -309,9 +310,9 @@ export default function AdminEditorShell({
     prevHeightRef.current = newHeight;
   }, [viewingRevision, detailLoading]);
   const revisionsRef = useRef(revisions);
-  revisionsRef.current = revisions;
+  useSyncRef(revisionsRef, revisions);
   const onLoadRevisionDetailRef = useRef(onLoadRevisionDetail);
-  onLoadRevisionDetailRef.current = onLoadRevisionDetail;
+  useSyncRef(onLoadRevisionDetailRef, onLoadRevisionDetail);
 
   useEffect(() => {
     if (status || error) {

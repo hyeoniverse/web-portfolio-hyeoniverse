@@ -3,6 +3,7 @@
 // React Flow(다이어그램 블록) core 스타일 — 에디터 루트에서 전역 로드(pane/handle/edge 동작에 필수)
 import "@xyflow/react/dist/style.css";
 import React, { useState, useCallback, useEffect, useRef, useImperativeHandle } from "react";
+import { useSyncRef } from "@/hooks/useSyncRef";
 import type { LocalizedText } from "@/types/common";
 import {
   Plate,
@@ -115,7 +116,7 @@ export default function PlateEditor({
   const isInternalUpdate = useRef(false);
   const prevValueRef = useRef(value);
   const onChangeRef = useRef(onChange);
-  onChangeRef.current = onChange;
+  useSyncRef(onChangeRef, onChange);
   _imageUploadFn.current = onImageUpload || null;
   _uploadErrorFn.current = showMediaError;
   const lastSlateValueRef = useRef<SlateNode[] | undefined>(undefined);
@@ -2108,7 +2109,7 @@ export default function PlateEditor({
     setHtmlMode(!htmlMode);
   }, [htmlMode, htmlSource, editor]);
   // 외부(제목 라인) 토글 버튼이 ref 로 호출할 수 있게 최신 함수 보관
-  toggleHtmlModeRef.current = toggleHtmlMode;
+  useSyncRef(toggleHtmlModeRef, toggleHtmlMode);
   // htmlMode 변화를 부모(PostEditor/WorkEditor)에 통지 → 외부 버튼 active 표시
   useEffect(() => { onHtmlModeChange?.(htmlMode); }, [htmlMode, onHtmlModeChange]);
 

@@ -20,6 +20,7 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useSyncRef } from "@/hooks/useSyncRef";
 
 interface UseAutosaveOptions<T> {
   entityType: "post" | "work";
@@ -78,12 +79,12 @@ export function useEditorAutoSave<T>({
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
 
   // ref sync — 매 render
-  blockRef.current = block;
-  snapshotRef.current = snapshot;
-  onSavedRef.current = onSaved;
-  getTitleRef.current = getTitle;
-  saveRevisionRef.current = saveRevision;
-  ignoredKeysRef.current = ignoredKeys;
+  useSyncRef(blockRef, block);
+  useSyncRef(snapshotRef, snapshot);
+  useSyncRef(onSavedRef, onSaved);
+  useSyncRef(getTitleRef, getTitle);
+  useSyncRef(saveRevisionRef, saveRevision);
+  useSyncRef(ignoredKeysRef, ignoredKeys);
 
   const effectiveId = entityId ?? draftEntityId;
 

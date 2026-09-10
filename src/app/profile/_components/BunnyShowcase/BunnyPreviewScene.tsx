@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useSyncRef } from "@/hooks/useSyncRef";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
@@ -41,7 +42,7 @@ export default function BunnyPreviewScene({
   const nextBlink = useRef(firstBlinkAt);
   const blinkPhase = useRef(-1);
   const exprRef = useRef<Expression>(expression);
-  exprRef.current = expression;
+  useSyncRef(exprRef, expression);
 
   // ── 클릭 시 정면 스냅 ──
   const rotationY = useRef(0);

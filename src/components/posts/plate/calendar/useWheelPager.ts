@@ -6,6 +6,7 @@
 // - onPull: 경계에서 "당김" 진행도를 (방향, 0~1)로 보고 → 뷰가 인디케이터를 그려 명시적 의도를 유도.
 //   임계를 채워야만 넘어가고, 스크롤을 멈추면(손 뗌) 진행도는 사라진다.
 import { useEffect, useRef } from "react";
+import { useSyncRef } from "@/hooks/useSyncRef";
 
 type PagerOpts = {
   scrollSelector?: string;
@@ -16,7 +17,7 @@ type PagerOpts = {
 export function useWheelPager(onPrev: () => void, onNext: () => void, enabled = true, opts: PagerOpts = {}) {
   const ref = useRef<HTMLDivElement>(null);
   const cb = useRef({ onPrev, onNext, enabled, opts });
-  cb.current = { onPrev, onNext, enabled, opts };
+  useSyncRef(cb, { onPrev, onNext, enabled, opts });
 
   useEffect(() => {
     const el = ref.current;

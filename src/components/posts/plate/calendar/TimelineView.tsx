@@ -2,6 +2,7 @@
 
 // ── 이벤트 달력 — 타임라인. 간트(무한 스크롤 날짜축 + 이벤트 바 + 오늘선). ──
 import React from "react";
+import { useSyncRef } from "@/hooks/useSyncRef";
 import { Plus, X } from "@/components/icons";
 import { type CalEvent, type EventLabel, eventColorVar, eventEndDate } from "./model";
 import { toDateStr, parseDate, formatDateValue } from "../dateUtils";
@@ -115,7 +116,7 @@ function TimelineViewInner({
   };
   const [startM, setStartM] = React.useState(() => initRange().s);
   const [endM, setEndM] = React.useState(() => initRange().e);
-  const startMRef = React.useRef(startM); startMRef.current = startM;
+  const startMRef = React.useRef(startM); useSyncRef(startMRef, startM);
   const prependPxRef = React.useRef(0);
 
   const monthLabelOf = React.useCallback((d: Date) =>

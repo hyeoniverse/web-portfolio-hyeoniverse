@@ -3,6 +3,7 @@
 // ── Sandpack 기반 코드 플레이그라운드 (CodeSandbox 식) ──
 // 무거운 의존성이라 PlaygroundElement 에서 lazy-load 로만 불러온다.
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useSyncRef } from "@/hooks/useSyncRef";
 import { useDepsChanged } from "@/hooks/useDepsChanged";
 import { createPortal } from "react-dom";
 import {
@@ -122,7 +123,7 @@ function PersistBridge({ onChange }: { onChange: (files: Record<string, string>)
   const { sandpack } = useSandpack();
   const timer = useRef(0);
   const cb = useRef(onChange);
-  cb.current = onChange;
+  useSyncRef(cb, onChange);
   useEffect(() => {
     const files: Record<string, string> = {};
     for (const [p, f] of Object.entries(sandpack.files)) {

@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment, useRef, useCallback, useState, useEffect } from "react";
+import { useSyncRef } from "@/hooks/useSyncRef";
 
 import Image from "next/image";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
@@ -97,7 +98,7 @@ export default function ProfileWindows({ className, isMobile, infoBlocks }: Prop
 
   /* ── Document-level drag: works even when pointer crosses nav ── */
   const syncPeekRef = useRef(syncPeek);
-  syncPeekRef.current = syncPeek;
+  useSyncRef(syncPeekRef, syncPeek);
 
   const onPointerDown = useCallback(
     (e: React.PointerEvent, id: string) => {

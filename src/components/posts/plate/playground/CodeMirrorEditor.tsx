@@ -2,6 +2,7 @@
 
 // ── 경량 CodeMirror 6 에디터 (srcdoc 러너용) ── html/css/js 언어 + 앱 토큰 테마.
 import { type CSSProperties, useEffect, useRef } from "react";
+import { useSyncRef } from "@/hooks/useSyncRef";
 import { EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter, drawSelection, highlightSpecialChars } from "@codemirror/view";
 import { EditorState, Compartment } from "@codemirror/state";
 import { defaultKeymap, history, historyKeymap, indentWithTab } from "@codemirror/commands";
@@ -73,7 +74,7 @@ export default function CodeMirrorEditor({ value, language, onChange, readOnly, 
   const hostRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
   const cb = useRef(onChange);
-  cb.current = onChange;
+  useSyncRef(cb, onChange);
 
   // 최초 1회 EditorView 생성
   useEffect(() => {

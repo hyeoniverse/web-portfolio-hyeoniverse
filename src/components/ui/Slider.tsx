@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
+import { useSyncRef } from "@/hooks/useSyncRef";
 import styles from "./Slider.module.css";
 import { cn } from "@/utils";
 
@@ -31,7 +32,7 @@ function Slider({
   const values = controlledValue ?? internalValue;
   const trackRef = useRef<HTMLDivElement>(null);
   const valuesRef = useRef(values);
-  valuesRef.current = values;
+  useSyncRef(valuesRef, values);
 
   const clamp = (v: number) => Math.min(max, Math.max(min, v));
   const quantize = (v: number) => Math.round((v - min) / step) * step + min;

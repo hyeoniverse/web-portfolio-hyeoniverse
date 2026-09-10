@@ -108,11 +108,8 @@ export default function FontPicker({
     ];
   }, [customFonts, groups, toGoogleValue]);
 
-  // flat list — useMemo 로 안정화 (groups 자체는 호출 측에서 재생성될 수 있어 ref 로 latest 추적).
-  // useEffect deps 에 넣지 않음 → 매 렌더 effect 재실행으로 debounce 가 cancel 되던 버그 fix.
+  // flat list — useMemo 로 안정화 (groups 자체는 호출 측에서 재생성될 수 있다).
   const flat = useMemo(() => allGroups.flatMap((g) => g.fonts), [allGroups]);
-  const flatRef = useRef(flat);
-  flatRef.current = flat;
 
   const matchedValue = resolveMatch ? resolveMatch(value, flat) : value;
   const currentEntry = flat.find((f) => f.value === matchedValue);

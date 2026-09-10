@@ -5,6 +5,7 @@
 // 저장: { type:"date_mention", date:"YYYY-MM-DD", time?:"HH:mm", id }
 
 import React, { useEffect, useRef, useState } from "react";
+import { useSyncRef } from "@/hooks/useSyncRef";
 import { useEditorRef, useSelected, PlateElement, type PlateElementProps } from "platejs/react";
 import { CalendarDays, Clock, Trash2 } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -32,7 +33,7 @@ export function DateMentionElement(props: PlateElementProps) {
 
   // stale path 방지 — 호출 시점에 path 재탐색 후 setNodes
   const elementRef = useRef(props.element);
-  elementRef.current = props.element;
+  useSyncRef(elementRef, props.element);
   const update = (patch: Record<string, unknown>) => {
     let p: number[] | null = null;
     try { const pp = editor.api.findPath(elementRef.current); p = pp ? Array.from(pp) : null; } catch { p = null; }

@@ -5,6 +5,7 @@
 // 셀 클릭 → 이벤트 추가, 칩 클릭 → 편집(모달). 편집 시 서버에 저장.
 
 import React, { useEffect, useRef, useState } from "react";
+import { useSyncRef } from "@/hooks/useSyncRef";
 import { createPortal } from "react-dom";
 import { useEditorRef, PlateElement, type PlateElementProps } from "platejs/react";
 import { CalendarClock, CalendarDays, Loader2, Maximize2, Minimize2, Upload, Download, ChevronLeft, ChevronRight, Keyboard, Check, PanelLeft, X } from "@/components/icons";
@@ -64,11 +65,11 @@ export function CalendarElement(props: PlateElementProps) {
   const [title, setTitle] = useState("");
   const [titleFocused, setTitleFocused] = useState(false);
   const titleRef = useRef("");
-  titleRef.current = title;
+  useSyncRef(titleRef, title);
   const [status, setStatus] = useState<"loading" | "ready" | "error" | "deleted">("loading");
   const [viewMonth, setViewMonth] = useState<string>(currentMonth());
   const calRef = useRef<CalendarData | null>(null);
-  calRef.current = cal;
+  useSyncRef(calRef, cal);
   const createdRef = useRef(false);
   // 이 블록이 새로 만든 달력 id (아직 이벤트 없는 임시 달력이면 전환 시 자동삭제)
   const ownCreatedIdRef = useRef<string | null>(null);
@@ -113,7 +114,7 @@ export function CalendarElement(props: PlateElementProps) {
 
   // 노드(참조/레이아웃) 갱신 — stale path 방지
   const elementRef = useRef(props.element);
-  elementRef.current = props.element;
+  useSyncRef(elementRef, props.element);
   const updateNode = (patch: Record<string, unknown>) => {
     let p: number[] | null = null;
     try { const pp = editor.api.findPath(elementRef.current); p = pp ? Array.from(pp) : null; } catch { p = null; }
@@ -723,7 +724,7 @@ export function CalendarElement(props: PlateElementProps) {
   const navPrev = () => { if (view === "month") setViewMonth(shiftMonth(viewMonth, -1)); else if (view === "week") shiftViewDate(-7); else if (view === "day") shiftViewDate(-1); };
   const navNext = () => { if (view === "month") setViewMonth(shiftMonth(viewMonth, 1)); else if (view === "week") shiftViewDate(7); else if (view === "day") shiftViewDate(1); };
   const shortcutRef = useRef<(e: KeyboardEvent) => void>(() => {});
-  shortcutRef.current = (e: KeyboardEvent) => {
+  useSyncRef(shortcutRef, (e: KeyboardEvent) => {
     // 캘린더 블록 위에 실제로 hover 중일 때만 (onMouseEnter ref 대신 브라우저 :hover 상태 — Plate void 에서도 정확)
     if (modalOpen || e.metaKey || e.ctrlKey || e.altKey || !calBodyRef.current?.matches(":hover")) return;
     const el = e.target as HTMLElement | null;
@@ -739,7 +740,7 @@ export function CalendarElement(props: PlateElementProps) {
     };
     const fn = codeMap[e.code];
     if (fn) { e.preventDefault(); e.stopPropagation(); fn(); }
-  };
+  });
   useEffect(() => {
     // capture 단계 — Plate/Slate 가 bubble 에서 keydown 을 소비해도 먼저 잡음. 매치 시 stopPropagation 으로 에디터 입력 차단.
     const h = (e: KeyboardEvent) => shortcutRef.current(e);
