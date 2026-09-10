@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useDepsChanged } from "@/hooks/useDepsChanged";
 import { useHasMounted } from "@/hooks/useHasMounted";
 
 /**
@@ -32,7 +33,8 @@ export function useMobileMenu(
   // 드로어 clip 래퍼 ref — 마운트 후 강제 reflow 로 "닫힘" 상태를 트랜지션 시작점으로 확정하는 데 사용
   const clipWrapperRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => setIsMenuOpen(false), [pathname]);
+  const pathnameChanged = useDepsChanged([pathname]);
+  if (pathnameChanged) setIsMenuOpen(false);
   // drawer 열릴 때 notification dropdown 도 같이 닫음 (위로 겹쳐 보이는 거 방지)
   useEffect(() => {
     if (isMenuOpen) closeNotif(false);

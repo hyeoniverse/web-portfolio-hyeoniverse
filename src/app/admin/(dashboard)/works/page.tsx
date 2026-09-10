@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useDepsChanged } from "@/hooks/useDepsChanged";
 import { QUERY_PARAM } from "@/constants";
 import type { GithubImportResponse } from "@/types";
 import { useRouter } from "next/navigation";
@@ -329,7 +330,8 @@ export default function AdminWorksPage() {
     return list;
   }, [trashWorks, trashSearch, trashSearchType, trashSortBy, trashSortDir]);
 
-  useEffect(() => { setTrashPage(1); }, [trashSearch, trashSearchType, trashSortBy, trashSortDir]);
+  const trashFiltersChanged = useDepsChanged([trashSearch, trashSearchType, trashSortBy, trashSortDir]);
+  if (trashFiltersChanged) setTrashPage(1);
 
   const handleDelete = async (id: string) => {
     await fetch(`/api/works/${id}`, { method: "DELETE" });

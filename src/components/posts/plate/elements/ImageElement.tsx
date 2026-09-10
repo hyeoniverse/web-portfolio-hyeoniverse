@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
+import { useDepsChanged } from "@/hooks/useDepsChanged";
 
 import type { Size } from "@/types";
 import { CAPTION_EDIT_EVENT } from "../constants";
@@ -58,7 +59,8 @@ export function ImageElement(props: PlateElementProps) {
   const [resizeSize, setResizeSize] = useState<Size | null>(null);
   // 이미지 로드 실패 시 placeholder.svg 로 swap
   const [imgErrored, setImgErrored] = useState(false);
-  useEffect(() => { setImgErrored(false); }, [url]);
+  const urlChanged = useDepsChanged([url]);
+  if (urlChanged) setImgErrored(false);
   const displayUrl = imgErrored ? "/images/placeholder.svg" : url;
   const draggingRef = useRef<{
     handle: "right" | "bottom" | "corner";

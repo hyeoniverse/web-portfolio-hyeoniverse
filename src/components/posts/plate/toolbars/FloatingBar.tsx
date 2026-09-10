@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState, useCallback, useContext, createContext } from "react";
+import { useDepsChanged } from "@/hooks/useDepsChanged";
 import { createPortal } from "react-dom";
 import { useVirtualFloating, offset, flip, shift } from "@platejs/floating";
 import { GripVertical } from "@/components/icons";
@@ -77,10 +78,11 @@ export default function FloatingBar({
   const [pinned, setPinned] = useState<{ top: number; left: number } | null>(null);
   const frameRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => { if (!open) { setDrag({ dx: 0, dy: 0 }); setPinned(null); } }, [open]);
-  // 앵커 대상 인스턴스가 바뀌면(같은 타입 다른 블록으로 이동) drag-pin/오프셋을 무효화 →
+  // 닫히거나, 앵커 대상 인스턴스가 바뀌면(같은 타입 다른 블록으로 이동) drag-pin/오프셋을 무효화 →
   // 아래 rAF 추적이 다시 활성화되어 새 대상에 재앵커된다. 같은 인스턴스면 anchorKey 가 그대로라 pin 유지.
-  useEffect(() => { setDrag({ dx: 0, dy: 0 }); setPinned(null); }, [anchorKey]);
+  const openChanged = useDepsChanged([open]);
+  const anchorChanged = useDepsChanged([anchorKey]);
+  if ((openChanged && !open) || anchorChanged) { setDrag({ dx: 0, dy: 0 }); setPinned(null); }
 
   // 앵커를 매 프레임 추적 — 앵커 rect 가 바뀔 때만 재계산(update).
   // 스크롤/리사이즈뿐 아니라 "레이아웃 변화"(예: 캡션 추가로 rect 확장, 비디오 metadata 로드로

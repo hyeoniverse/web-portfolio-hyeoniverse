@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useRef } from "react";
+import { useDepsChanged } from "@/hooks/useDepsChanged";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import T from "@/components/ui/T";
@@ -12,7 +13,7 @@ import styles from "./TagFilterPanel.module.css";
 const TAG_LETTERS = [...KOREAN_LETTERS, ...ENGLISH_LETTERS, LETTER_ETC];
 
 /* 필터바 태그 패널 — 철자 필터(LetterFilter) + 전체 태그 링크 + 태그 버튼 row.
-   open 이 false 여도 마운트는 유지한다: 닫힐 때 철자 필터·스크롤 마스크를 초기화하는 효과가 이 안에 있고,
+   open 이 false 여도 마운트는 유지한다: 닫힐 때 철자 필터·스크롤 마스크를 초기화하는 처리가 이 안에 있고,
    AnimatePresence 의 exit 애니메이션 동안 그 초기화가 그대로 보이던 원래 동작을 지키기 위해서다.
    sticky(isStuck) 면 dropdown 으로 띄우고, 아니면 inline 으로 펼친다. */
 export default function TagFilterPanel({
@@ -45,13 +46,12 @@ export default function TagFilterPanel({
   // 태그 dropdown 닫힐 때 letter 필터 + 스크롤 mask 초기화
   const [tagScrolled, setTagScrolled] = useState(false);
   const [tagAtBottom, setTagAtBottom] = useState(false);
-  useEffect(() => {
-    if (!open) {
-      setActiveTagLetters(new Set());
-      setTagScrolled(false);
-      setTagAtBottom(false);
-    }
-  }, [open]);
+  const openChanged = useDepsChanged([open]);
+  if (openChanged && !open) {
+    setActiveTagLetters(new Set());
+    setTagScrolled(false);
+    setTagAtBottom(false);
+  }
 
   // 태그 dropdown scroll mask + wheel fallback (Lenis 우회)
   useEffect(() => {

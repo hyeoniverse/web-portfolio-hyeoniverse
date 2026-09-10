@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useLayoutEffect, useRef } from "react";
+import { useDepsChanged } from "@/hooks/useDepsChanged";
 import type { LocalizedText } from "@/types/common";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, X, GripVertical, Pencil } from "@/components/icons";
@@ -215,7 +216,8 @@ export default function TagNotesEditor({
   // 체크박스 일괄 선택 — editing 중인 multiLine pair 들 중 삭제할 idx
   const [selectedIdxs, setSelectedIdxs] = useState<Set<number>>(new Set());
   // editing item 바뀌면 selection reset
-  useEffect(() => { setSelectedIdxs(new Set()); }, [editingItem]);
+  const editingItemChanged = useDepsChanged([editingItem]);
+  if (editingItemChanged) setSelectedIdxs(new Set());
   // pair-level drag — editing 중인 multiLine pair 의 순서 변경
   const [pairDragIdx, setPairDragIdx] = useState<number | null>(null);
   const [pairDropPos, setPairDropPos] = useState<{ idx: number; side: "top" | "bottom" } | null>(null);
