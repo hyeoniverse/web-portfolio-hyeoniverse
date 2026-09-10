@@ -91,27 +91,28 @@ test.describe("전역 네비게이션", () => {
   });
 
   test("언어 단추를 누르면 문서 언어가 바뀐다", async ({ page }) => {
+    /* 누르기 전에 언어가 자리를 잡을 때까지 기다린다.
+       서버는 ko 로 그리고, 화면이 붙은 뒤 저장된 언어(없으면 브라우저 언어)로 바꾼다. 그 사이에
+       누르면 사이트가 스스로 바꾼 것과 단추가 바꾼 것이 섞인다.
+       저장된 언어를 en 으로 두고 연다. en 상태는 화면이 붙고 저장된 언어를 읽은 뒤에만 나오므로,
+       en 이 된 것을 보면 준비가 끝난 것이 확실하다. 서버가 그린 ko 상태로는 알 수 없다. 예전에는
+       이것으로 준비를 판단해, 브라우저가 영어일 때 사이트가 en 으로 바꾼 직후의 클릭이 다시 ko 로
+       되돌려 "바뀌지 않았다"로 실패했다(#799). */
+    await page.addInitScript(() => localStorage.setItem("language", "en"));
     await page.goto("/", { waitUntil: "load" });
     const btn = page.locator("nav").first().getByRole("button", { name: /Switch to (Korea|English)/ });
     await expect(btn).toBeVisible({ timeout: 30_000 });
 
-    /* 누르기 전에 언어가 자리를 잡을 때까지 기다린다.
-       서버는 ko 로 그리고, 화면이 붙은 뒤 브라우저 언어로 바꾼다. 그 사이에 누르면
-       단추가 아직 반응하지 않는데 문서 언어만 저절로 달라져, 무엇 때문에 바뀌었는지
-       가릴 수 없다. 단추가 가리키는 언어와 문서에 적힌 언어가 맞아떨어지면 준비된 것이다. */
-    const settled = async () => {
-      const label = await btn.getAttribute("aria-label") ?? "";
-      const lang = await page.evaluate(() => document.documentElement.lang);
-      return (label.includes("Korean") && lang === "en") || (label.includes("English") && lang === "ko");
-    };
-    await expect.poll(settled, { message: "언어가 자리를 잡는다", timeout: 20_000 }).toBe(true);
+    await expect(btn, "저장된 언어(en)가 단추에 적용된다").toHaveAttribute("aria-label", /Korean/, { timeout: 20_000 });
+    await expect
+      .poll(() => page.evaluate(() => document.documentElement.lang), { message: "저장된 언어(en)가 문서에 적용된다" })
+      .toBe("en");
 
-    // 단추 글자가 아니라 문서에 적힌 언어를 본다. 시작 언어가 무엇이든 판정이 성립한다.
-    const before = await page.evaluate(() => document.documentElement.lang);
+    // 단추 글자가 아니라 문서에 적힌 언어를 본다.
     await btn.click();
     await expect
       .poll(() => page.evaluate(() => document.documentElement.lang), { message: "문서 언어" })
-      .not.toBe(before);
+      .toBe("ko");
   });
 
   test("로고에 마우스를 올리면 글리치 연출이 걸린다", async ({ page }) => {
