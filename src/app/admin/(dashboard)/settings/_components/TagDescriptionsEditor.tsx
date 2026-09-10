@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
+import { useDepsChanged } from "@/hooks/useDepsChanged";
 import { AnimatePresence, motion } from "framer-motion";
 import { Plus, Check, X, Trash2, Filter, ChevronDown } from "@/components/icons";
 import type { SortDirection } from "@/types";
@@ -200,9 +201,11 @@ export default function TagDescriptionsEditor({ value, onChange, pendingDeletes,
   const [letterFilters, setLetterFilters] = useState<Set<string>>(new Set());
   const [filterExpanded, setFilterExpanded] = useState(false);
   /* nameLang 바뀌면 letter 매칭 초기화 */
-  useEffect(() => { setLetterFilters(new Set()); }, [nameLang]);
+  const nameLangChanged = useDepsChanged([nameLang]);
+  if (nameLangChanged) setLetterFilters(new Set());
   /* sortBy 가 name 이 아니면 letter 자동 해제 */
-  useEffect(() => { if (sortBy !== "name") setLetterFilters(new Set()); }, [sortBy]);
+  const sortByChanged = useDepsChanged([sortBy]);
+  if (sortByChanged && sortBy !== "name") setLetterFilters(new Set());
   const toggleLetter = (l: string) => setLetterFilters((prev) => {
     const next = new Set(prev);
     if (next.has(l)) next.delete(l); else next.add(l);
@@ -219,7 +222,8 @@ export default function TagDescriptionsEditor({ value, onChange, pendingDeletes,
     return set;
   }, [allTags, value, nameLang]);
   const [page, setPage] = useState(1);
-  useEffect(() => { setPage(1); }, [search, searchType, sortBy, sortDir, nameLang, usageFilter, descFilter, letterFilters]);
+  const filtersChanged = useDepsChanged([search, searchType, sortBy, sortDir, nameLang, usageFilter, descFilter, letterFilters]);
+  if (filtersChanged) setPage(1);
 
   /* 활성 필터 개수 — 토글 버튼에 표시 */
   const activeFilterCount = (usageFilter !== "all" ? 1 : 0) + (descFilter !== "all" ? 1 : 0);
@@ -461,7 +465,9 @@ export default function TagDescriptionsEditor({ value, onChange, pendingDeletes,
 
   const isEdit = editingTag !== null;
 
-  useEffect(() => {
+  /* 편집 대상이나 값이 바뀌면 입력 칸을 그 값으로 채운다(추가면 비운다). */
+  const editTargetChanged = useDepsChanged([editingTag, value]);
+  if (editTargetChanged) {
     if (editingTag !== null) {
       const m = normalizeTagMeta(value[editingTag]);
       /* override 비어있으면 canonical 을 그대로 input 텍스트로 채움 — 언어 감지로 ko/en 슬롯 분기.
@@ -475,7 +481,7 @@ export default function TagDescriptionsEditor({ value, onChange, pendingDeletes,
       setPairNames({ ko: "", en: "" });
       setPairDesc({ ko: "", en: "" });
     }
-  }, [editingTag, value]);
+  }
 
   const cancelEdit = () => setEditingTag(null);
 

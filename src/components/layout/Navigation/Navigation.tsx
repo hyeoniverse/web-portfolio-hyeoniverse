@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback, useLayoutEffect, useMemo } from "react";
+import { useDepsChanged } from "@/hooks/useDepsChanged";
 import type { Point } from "@/types";
 import { createPortal } from "react-dom";
 import Link from "next/link";
@@ -256,7 +257,8 @@ export default function Navigation() {
   }, []);
 
   // pathname 변경(라우팅) / resize / Escape 시 닫기 — nav 가 fixed 라 scroll 은 무시
-  useEffect(() => { setSubMenuKey(null); }, [pathname]);
+  const pathnameChanged = useDepsChanged([pathname]);
+  if (pathnameChanged) setSubMenuKey(null);
   useEffect(() => {
     if (!subMenuKey) return;
     const close = () => setSubMenuKey(null);
@@ -319,9 +321,8 @@ export default function Navigation() {
   }, [subMenuKey, travelTargetKey]);
 
   // 드롭다운이 바뀌거나 닫히면 hover 서브 상태 초기화
-  useEffect(() => {
-    setHoveredSubKey(null);
-  }, [subMenuKey]);
+  const subMenuChanged = useDepsChanged([subMenuKey]);
+  if (subMenuChanged) setHoveredSubKey(null);
   // 가장 구체적인(긴 href) 항목 우선 매칭 — admin/posts 같은 하위 경로가 admin 보다 우선
   const activeNavKey =
     [...currentNavItems]

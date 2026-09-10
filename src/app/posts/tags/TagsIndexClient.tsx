@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useDepsChanged } from "@/hooks/useDepsChanged";
 import { useSearchControls } from "@/hooks/useSearchControls";
 import { useSheet } from "@/hooks/useSheet";
 import { useIsAuthenticated } from "@/hooks/useIsAuthenticated";
@@ -42,7 +43,8 @@ export default function TagsIndexClient({ tags }: Props) {
     return next;
   });
   /* nameLang 변경 시 letter 초기화 (한글/영어 letter set 다름) */
-  useEffect(() => { setActiveLetters(new Set()); }, [nameLang]);
+  const nameLangChanged = useDepsChanged([nameLang]);
+  if (nameLangChanged) setActiveLetters(new Set());
   // 로그인 사용자 = admin (단일 운영자 가정)
   const isAdmin = useIsAuthenticated();
   const [hoveredTag, setHoveredTag] = useState<string | null>(null);
@@ -115,7 +117,8 @@ export default function TagsIndexClient({ tags }: Props) {
     return list;
   }, [tags, search, searchType, syntaxMode, activeLetters, sortBy, nameLang]);
 
-  useEffect(() => { setVisible(PAGE_SIZE); }, [search, searchType, syntaxMode, activeLetters, sortBy, nameLang]);
+  const filtersChanged = useDepsChanged([search, searchType, syntaxMode, activeLetters, sortBy, nameLang]);
+  if (filtersChanged) setVisible(PAGE_SIZE);
 
   useEffect(() => {
     const el = sentinelRef.current;

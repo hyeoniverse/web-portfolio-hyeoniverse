@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef, useLayoutEffect } from "react";
+import { useDepsChanged } from "@/hooks/useDepsChanged";
 import { hasAuthCookie } from "@/lib/supabase/hasAuthCookie";
 /* 로그인 여부를 알아야 알림을 받아 온다. Supabase 클라이언트는 첫 화면에 필요하지 않아
    실제로 쓸 때 불러온다. */
@@ -54,7 +55,8 @@ export function useNavNotifications(pathname: string) {
   const notifWrapRef = useRef<HTMLButtonElement | null>(null);
 
   // 드롭다운 닫힐 때 expanded 리셋
-  useEffect(() => { if (!notifOpen) setNotifExpanded(false); }, [notifOpen]);
+  const notifOpenChanged = useDepsChanged([notifOpen]);
+  if (notifOpenChanged && !notifOpen) setNotifExpanded(false);
 
   const fetchNotifs = useCallback(() => {
     fetch("/api/admin/notifications")
@@ -125,7 +127,8 @@ export function useNavNotifications(pathname: string) {
   }, [notifOpen]);
 
   // pathname 변경 시 드롭다운 닫기 + refetch (알림 페이지에서 읽음 처리됐을 수 있음)
-  useEffect(() => { setNotifOpen(false); }, [pathname]);
+  const pathnameChanged = useDepsChanged([pathname]);
+  if (pathnameChanged) setNotifOpen(false);
 
   return {
     adminEmail,

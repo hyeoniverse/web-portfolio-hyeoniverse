@@ -3,6 +3,7 @@
 // ── Sandpack 기반 코드 플레이그라운드 (CodeSandbox 식) ──
 // 무거운 의존성이라 PlaygroundElement 에서 lazy-load 로만 불러온다.
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useDepsChanged } from "@/hooks/useDepsChanged";
 import { createPortal } from "react-dom";
 import {
   SandpackProvider,
@@ -214,7 +215,7 @@ function Layout({ height, readOnly, explorer, ko, fs, toggleFs, resizable }: { h
   const [showExplorer, setShowExplorer] = useState(!readOnly && !!explorer);
   const [showEditor, setShowEditor] = useState(!readOnly);
   const [showPreview, setShowPreview] = useState(true);
-  const [showConsole, setShowConsole] = useState(false);
+  const [showConsole, setShowConsole] = useState(() => !!sandpack.error);
   const [devtools, setDevtools] = useState(false);
   const [wrap, setWrap] = useState(false);        // 코드 줄 바꿈
   const [viewZoom, setViewZoom] = useState(1);    // 사이드바+코드+디버깅 확대/축소
@@ -243,7 +244,8 @@ function Layout({ height, readOnly, explorer, ko, fs, toggleFs, resizable }: { h
   }, [sandpack.visibleFiles]);
 
   // 에러 발생 시 하단 콘솔(디버그) 패널 자동 오픈 — 미리보기 오버레이 대신
-  useEffect(() => { if (sandpack.error) setShowConsole(true); }, [sandpack.error]);
+  const errorChanged = useDepsChanged([sandpack.error]);
+  if (errorChanged && sandpack.error) setShowConsole(true);
 
   const tree = useMemo(() => {
     const paths = Object.entries(sandpack.files)

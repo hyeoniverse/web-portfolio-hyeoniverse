@@ -451,23 +451,24 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
     return () => document.removeEventListener("mousedown", handler);
   }, [showAutoSettings]);
 
-  // Reset on close
+  // Reset on close — 상태는 렌더 중에 되돌리고, 전체 화면 해제(DOM)만 효과에 둔다.
+  const openFlagChanged = useDepsChanged([open]);
+  if (openFlagChanged && !open) {
+    setZoom(1);
+    setPanOffset({ x: 0, y: 0 });
+    setDragY(0);
+    setIsDragging(false);
+    setThumbMode(images.length > 1 ? "strip" : "hidden");
+    setShowShortcuts(false);
+    setAutoPlay(false);
+    setShowAutoSettings(false);
+    setShowMoreMenu(false);
+    setShowInfo(false);
+    setClosing(false);
+  }
   useEffect(() => {
-    if (!open) {
-      setZoom(1);
-      setPanOffset({ x: 0, y: 0 });
-      setDragY(0);
-      setIsDragging(false);
-      setThumbMode(images.length > 1 ? "strip" : "hidden");
-      setShowShortcuts(false);
-      setAutoPlay(false);
-      setShowAutoSettings(false);
-      setShowMoreMenu(false);
-      setShowInfo(false);
-      setClosing(false);
-      if (document.fullscreenElement) document.exitFullscreen?.();
-    }
-  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (!open && document.fullscreenElement) document.exitFullscreen?.();
+  }, [open]);
 
   if (!mounted) return null;
 

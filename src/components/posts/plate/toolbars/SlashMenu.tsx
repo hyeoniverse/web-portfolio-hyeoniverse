@@ -7,6 +7,7 @@
 // (useEditorSelector 로 블록 텍스트 구독 + useVirtualFloating + keydown capture)으로 자체 구현.
 
 import * as React from "react";
+import { useDepsChanged } from "@/hooks/useDepsChanged";
 import { createPortal } from "react-dom";
 import { useEditorRef, useEditorSelector, useEditorId, useEventEditorValue } from "platejs/react";
 import { useVirtualFloating, offset, flip, shift } from "@platejs/floating";
@@ -280,10 +281,12 @@ export default function SlashMenu({ onOpenChange }: { onOpenChange?: (open: bool
   }, [editor]);
 
   // 다른 블록으로 이동하거나 선택이 풀리면(blockText null) 수동 오픈 해제
-  React.useEffect(() => { if (blockText == null) setManualOpen(false); }, [blockText]);
+  const blockTextChanged = useDepsChanged([blockText]);
+  if (blockTextChanged && blockText == null) setManualOpen(false);
   // 에디터 포커스를 잃으면(blur) 수동 오픈 해제 → onCancel 로 빈 추가 블록 제거.
   // (메뉴 항목은 onMouseDown preventDefault 라 클릭해도 에디터 포커스 유지됨)
-  React.useEffect(() => { if (!focused) setManualOpen(false); }, [focused]);
+  const focusedChanged = useDepsChanged([focused]);
+  if (focusedChanged && !focused) setManualOpen(false);
 
   const query = React.useMemo(() => {
     // 조합 중이면 DOM 텍스트(composing)를 우선 사용 — 모델(blockText)은 조합 끝나야 갱신되므로.
@@ -324,7 +327,8 @@ export default function SlashMenu({ onOpenChange }: { onOpenChange?: (open: bool
   });
 
   React.useEffect(() => { if (open) update?.(); }, [open, query, update]);
-  React.useEffect(() => { setActiveIdx(0); }, [query]);
+  const queryChanged = useDepsChanged([query]);
+  if (queryChanged) setActiveIdx(0);
   // 화살표로 active 항목이 스크롤 밖으로 나가면 자동으로 보이게 스크롤
   React.useEffect(() => {
     if (!open) return;

@@ -6,6 +6,7 @@
 // 오른쪽에 서브메뉴 — 화면 밖이면 좌측 flip(뷰포트 대응). 선택 시 "[[키워드" 지우고 post_link 삽입.
 
 import * as React from "react";
+import { useDepsChanged } from "@/hooks/useDepsChanged";
 import { createPortal } from "react-dom";
 import { useEditorRef, useEditorSelector, useEditorId, useEventEditorValue } from "platejs/react";
 import { useVirtualFloating, offset, flip, shift } from "@platejs/floating";
@@ -219,7 +220,8 @@ export default function PostLinkMenu() {
   });
 
   React.useEffect(() => { if (open) update?.(); }, [open, query, items, update]);
-  React.useEffect(() => { setActiveIdx(0); }, [query]);
+  const queryChanged = useDepsChanged([query]);
+  if (queryChanged) setActiveIdx(0);
 
   const run = React.useCallback((hit: PostHit) => {
     if (query == null || !hit) return;

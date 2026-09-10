@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useDepsChanged } from "@/hooks/useDepsChanged";
 import { createPortal } from "react-dom";
 import { Search, Shuffle, ChevronLeft, ChevronRight } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -196,9 +197,8 @@ export default function EmojiPicker({ open, onClose, onSelect, currentValue, onI
   }, [open, onImageUpload]);
 
   // 열릴 때 초기화
-  useEffect(() => {
-    if (open) { setQuery(""); setUploadError(""); }
-  }, [open]);
+  const openChanged = useDepsChanged([open]);
+  if (openChanged && open) { setQuery(""); setUploadError(""); }
 
   // 탭 변경 시 indicator 위치 갱신
   useEffect(() => {

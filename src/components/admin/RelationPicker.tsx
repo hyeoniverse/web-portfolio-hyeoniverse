@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState, useEffect } from "react";
+import { useDepsChanged } from "@/hooks/useDepsChanged";
 import { ChevronRight, GripVertical, ImageIcon, Search } from "@/components/icons";
 import { motion, LayoutGroup, AnimatePresence } from "framer-motion";
 import CloseButton from "@/components/ui/CloseButton";
@@ -104,12 +105,10 @@ export default function RelationPicker<T>({
 
   // 드롭다운 열릴 때 검색창 포커스, 닫힐 때 query 초기화
   useEffect(() => {
-    if (open) {
-      setTimeout(() => searchRef.current?.focus(), 0);
-    } else {
-      setQuery("");
-    }
+    if (open) setTimeout(() => searchRef.current?.focus(), 0);
   }, [open]);
+  const openChanged = useDepsChanged([open]);
+  if (openChanged && !open) setQuery("");
 
   const add = (id: string) => {
     if (selectedIds.includes(id)) return;

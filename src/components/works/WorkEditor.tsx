@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useDepsChanged } from "@/hooks/useDepsChanged";
 import type { LocalizedText } from "@/types/common";
 import { PREVIEW_KEY } from "@/constants";
 import { useRouter } from "next/navigation";
@@ -263,7 +264,8 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   const [showErrors, setShowErrors] = useState(false);
   const [galleryImgErrors, setGalleryImgErrors] = useState<Set<string>>(new Set());
   // gallery 항목이 바뀔 때 제거된 src 의 에러 상태 정리
-  useEffect(() => {
+  const galleryChanged = useDepsChanged([form.gallery]);
+  if (galleryChanged) {
     const valid = new Set(form.gallery);
     setGalleryImgErrors((prev) => {
       let changed = false;
@@ -274,7 +276,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       }
       return changed ? next : prev;
     });
-  }, [form.gallery]);
+  }
 
   /* ── Auto-save ── */
   const savedIdRef = useRef<string | undefined>(work?.id);
