@@ -69,8 +69,11 @@
 }
 
 /* 로딩 중 (또는 elevated z) — LoadingScreen backdrop 위로 올림 */
+/* 로딩 중(과 덮개가 사라지는 동안) 로고를 로딩 덮개 위에 둔다.
+   덮개가 --z-overlay 에서 --z-loading 으로 올라간 뒤(59bfe90c, 드로어를 덮으려고) 여기는
+   --z-overlay + 1 에 남아 있어서, 인트로 로고가 덮개 밑에 그려지고 한 번도 보이지 않았다. */
 .logoNavBarElevated {
-  z-index: calc(var(--z-overlay) + 1);
+  z-index: calc(var(--z-loading) + 1);
 }
 
 
