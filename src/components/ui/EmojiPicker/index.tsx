@@ -13,6 +13,7 @@ import { UploadTab } from "./UploadTab";
 import { EmojiIcon } from "./EmojiIcon";
 import styles from "./EmojiPicker.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { usePortalContainer } from "@/components/ui/portalContainer";
 
 export { EmojiIcon } from "./EmojiIcon";
 
@@ -35,6 +36,8 @@ const MAX_RECENT = 24;
 
 export default function EmojiPicker({ open, onClose, onSelect, currentValue, onImageUpload, getAnchorRect }: EmojiPickerProps) {
   const { language } = useLanguage();
+  /* 모달 안에서 열렸으면 모달이 자기 portal layer 를 여기로 내려 준다. 밖이면 null. */
+  const portalContainer = usePortalContainer();
   const ref = useRef<HTMLDivElement>(null);
   // portal 모드 위치 (getAnchorRect 지정 시) — 열림/스크롤/리사이즈마다 갱신
   const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
@@ -586,5 +589,8 @@ export default function EmojiPicker({ open, onClose, onSelect, currentValue, onI
     </div>
   );
 
-  return getAnchorRect ? createPortal(node, document.body) : node;
+  /* 모달 안에서 열면 모달이 넘겨주는 portal layer 로, 밖이면 body 로 보낸다.
+     Popover·Select·Tooltip 이 쓰는 통로와 같다. 이렇게 해야 z 를 최상단으로 올리지 않고도
+     모달 위에 뜬다 — 최상단으로 올리면 이번엔 전역 nav 를 덮는다. */
+  return getAnchorRect ? createPortal(node, portalContainer ?? document.body) : node;
 }

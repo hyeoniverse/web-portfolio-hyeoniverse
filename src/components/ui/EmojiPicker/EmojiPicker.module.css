@@ -15,10 +15,9 @@
 }
 /* 전역 nav(로고·네비게이션) 바로 아래 — 피커는 모달이 아니라 nav 아래에 깔려야 함(에디터 topBar 와 같은 원칙).
    콘텐츠·에디터 위에는 뜨되 nav 는 덮지 않게 nav-1. */
-/* body 로 portal 되는 변형. 트리거를 품은 것보다 항상 위여야 한다 —
-   모달(#modal-root 는 --z-overlay) 안에서 열면 그 아래로 깔려 아예 안 보였다.
-   명시적으로 연 임시 레이어라 최상단이 맞다. */
-.fixed { position: fixed; z-index: var(--z-top); }
+/* portal 되는 변형. 모달 안에서 열면 모달이 주는 portal layer 로 가므로 그 안에서 위에 뜬다.
+   그래서 z 는 페이지 기준으로만 잡으면 된다 — nav 바로 아래. */
+.fixed { position: fixed; z-index: calc(var(--z-nav) - 1); }
 .absolute { position: absolute; top: -4px; left: 40px; z-index: 10; }
 
 /* ── 탭 헤더 ── */
