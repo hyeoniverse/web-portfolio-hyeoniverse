@@ -112,12 +112,6 @@ export interface TechStackItem {
   /** simple-icons slug (예 "react") 또는 업로드/링크된 이미지 URL. 없으면 name 기반 inline 아이콘 fallback. */
   icon?: string;
 }
-
-export interface OverviewStat {
-  value: string;
-  label: LocalizedText;
-}
-
 export interface StructureItem {
   path: string;
   description: LocalizedText;
