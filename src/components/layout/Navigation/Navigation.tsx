@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback, useLayoutEffect } from "react";
+import { useState, useEffect, useRef, useCallback, useLayoutEffect, useMemo } from "react";
 import type { Point } from "@/types";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useMotionValue } from "framer-motion";
 import { Moon, Sun, Bell, ArrowRight } from "@/components/icons";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -77,6 +77,22 @@ function renderNotifItem(n: NotifItemData, language: "ko" | "en", now: number, o
       <span className={styles.notifDropdownItemMessage}>{n.message}</span>
     </Link>
   );
+}
+
+/**
+ * 글꼴 목록의 첫 글꼴 바로 뒤에 next/font 가 만든 "너비를 맞춘 대체 글꼴"을 끼운다.
+ *
+ * 로고 글꼴은 설정에서 `'Instrument Serif', serif` 같은 문자열로 온다. 그대로 쓰면 웹폰트가 오기
+ * 전에는 serif(Times)로 그려지는데 글자 너비가 40% 가량 달라서, 웹폰트가 도착하는 순간 로딩
+ * 워드마크의 글자들이 밀린다(레이아웃 밀림, 원인 "Web font loaded"). next/font 는 이를 막으려고
+ * `'<이름> Fallback'` 을 너비를 맞춰 만들어 두는데, 설정 문자열에는 빠져 있었다. 그런 글꼴이 없는
+ * 경우(next/font 로 불러오지 않은 글꼴)에는 브라우저가 건너뛰므로 해가 없다.
+ */
+function withMetricFallback(stack: string): string {
+  const [first, ...rest] = stack.split(",").map((part) => part.trim());
+  const name = first.replace(/^['"]|['"]$/g, "");
+  if (!name || /\bfallback$/i.test(name)) return stack;
+  return [first, `'${name} Fallback'`, ...rest].join(", ");
 }
 
 export default function Navigation() {
@@ -367,7 +383,28 @@ export default function Navigation() {
 
   // --- 로고 중앙→nav 이동 애니메이션 ---
   const logoRef = useRef<HTMLDivElement>(null);
-  const { centerOffset, scaleFactor, logoMeasured } = useLogoMeasure(logoRef, showLoadingLogo, isLoading);
+  // 장평 — scaleX. 빈/invalid 면 0.8 default. 배지 로고(SVG)는 정사각이라 장평 미적용(1).
+  const rawStretch = parseFloat(siteConfig.brand.logoFontStretch ?? "");
+  const stretchN = useBadgeLogo ? 1 : (Number.isFinite(rawStretch) && rawStretch > 0 ? rawStretch : 0.8);
+  /* 글자 로고는 로딩 상태(화면 한가운데 · 큰 글자)를 CSS 로 그린다. 서버 HTML 부터 보여서
+     자바스크립트를 기다리지 않는다. 이미지·배지 로고는 크기 비율을 CSS 로 낼 수 없어 예전처럼
+     재고 나서 보인다. */
+  const cssLoadingLogo = showLoadingLogo && !hasImageLogo && !useBadgeLogo;
+  /* 로고 transform 을 framer 에 맡기되 값은 여기서 쥔다. 잰 순간 이 값들을 바로 맞춰 두어야,
+     그 뒤 다시 그릴 때 framer 가 옛 값(0)으로 한 프레임 네비게이션 자리를 그리지 않는다. */
+  const logoX = useMotionValue(0);
+  const logoY = useMotionValue(0);
+  const logoScaleX = useMotionValue(stretchN);
+  const logoScaleY = useMotionValue(1);
+  const logoMotion = useMemo(
+    () => ({ x: logoX, y: logoY, scaleX: logoScaleX, scaleY: logoScaleY }),
+    [logoX, logoY, logoScaleX, logoScaleY],
+  );
+  const { logoMeasured } = useLogoMeasure(
+    logoRef,
+    { showLoadingLogo, isLoading, isTransitioning },
+    { cssLoadingClass: cssLoadingLogo ? styles.logoCssLoading : undefined, stretch: stretchN, motion: logoMotion },
+  );
 
   // 사운드 상태
   const [isSoundClicking, setIsSoundClicking] = useState(false);
@@ -425,36 +462,27 @@ export default function Navigation() {
       className={`${styles.logoNavBar} ${siteConfig.brand.logoDifference === false ? styles.logoNavBarNoDifference : ""} ${showLoadingLogo || elevatedZ ? styles.logoNavBarElevated : ""} ${siteConfig.brand.logoGlitch ? "glith-on-hover" : ""}`}
     >
         {(() => {
-          // 장평 — scaleX. 빈/invalid 면 0.8 default. 배지 로고(SVG)는 정사각이라 장평 미적용(1).
-          const rawStretch = parseFloat(siteConfig.brand.logoFontStretch ?? "");
-          const stretchN = useBadgeLogo ? 1 : (Number.isFinite(rawStretch) && rawStretch > 0 ? rawStretch : 0.8);
           // 로고 색상 (테마별 override). 커스텀 미지정(기본)이고 difference 를 끈 상태면
           // 블렌드가 없어 색 기준이 사라지므로 text-primary 로 명시.
           const customColor = isDark ? siteConfig.brand.logoColorDark : siteConfig.brand.logoColor;
           const color = customColor || (siteConfig.brand.logoDifference === false ? "var(--text-primary)" : "");
           const inlineStyle: React.CSSProperties = {
             transformOrigin: "left center",
-            visibility: showLoadingLogo && !logoMeasured ? "hidden" : "visible",
+            /* 글자 로고는 재기 전에도 CSS 로딩 클래스로 제자리(한가운데)에 있으니 숨기지 않는다. */
+            visibility: showLoadingLogo && !logoMeasured && !cssLoadingLogo ? "hidden" : "visible",
+            ["--logo-stretch" as string]: stretchN,
+            ["--logo-chars" as string]: 1 + EXTRA_LETTERS.length,
           };
-          if (siteConfig.brand.logoFont) inlineStyle.fontFamily = siteConfig.brand.logoFont;
+          if (siteConfig.brand.logoFont) inlineStyle.fontFamily = withMetricFallback(siteConfig.brand.logoFont);
           if (color) inlineStyle.color = color;
           // 텍스트 글리프·배지 nav/로딩 로고 그림자 (이미지 로고는 img 자체에 logoShadowFilter 를 걸므로 제외).
           if (!hasImageLogo && navGlyphShadowFilter) inlineStyle.filter = navGlyphShadowFilter;
           return (
             <motion.span
               ref={logoRef}
-              className={styles.logo}
-              animate={
-                showLoadingLogo && !isTransitioning
-                  ? { x: centerOffset.x, y: centerOffset.y, scaleX: scaleFactor * stretchN, scaleY: scaleFactor }
-                  : { x: 0, y: 0, scaleX: stretchN, scaleY: 1 }
-              }
-              transition={{
-                duration: isTransitioning ? 0.8 : 0,
-                ease: [0.76, 0, 0.24, 1],
-                delay: isTransitioning ? 0.05 : 0,
-              }}
-              style={inlineStyle}
+              className={`${styles.logo} ${cssLoadingLogo && !logoMeasured ? styles.logoCssLoading : ""}`}
+              /* transform 은 useLogoMeasure 가 motion value 로 직접 움직인다(animate prop 을 쓰지 않는 이유는 그쪽 설명). */
+              style={{ ...inlineStyle, x: logoX, y: logoY, scaleX: logoScaleX, scaleY: logoScaleY }}
             >
           {hasImageLogo ? (
             <>
@@ -505,38 +533,15 @@ export default function Navigation() {
               {LOGO_TEXT}
               {showLoadingLogo &&
                 EXTRA_LETTERS.map((char, i) => (
-                  <motion.span
+                  /* 등장은 CSS 애니메이션이라 서버 HTML 부터 돈다. framer 의 initial 로 두면
+                     opacity 0 으로 나가 하이드레이션 전까지 안 보였다. 퇴장은 전환 때 클래스로. */
+                  <span
                     key={i}
-                    initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
-                    animate={{
-                      opacity: isTransitioning ? 0 : 1,
-                      y: 0,
-                      filter: isTransitioning ? "blur(6px)" : "blur(0px)",
-                    }}
-                    transition={{
-                      opacity: {
-                        duration: isTransitioning ? 0.2 : 0.6,
-                        delay: isTransitioning
-                          ? (EXTRA_LETTERS.length - 1 - i) * 0.04
-                          : 0.15 + i * 0.04,
-                        ease: "easeOut",
-                      },
-                      y: {
-                        duration: 0.7,
-                        delay: 0.15 + i * 0.04,
-                        ease: "easeOut",
-                      },
-                      filter: {
-                        duration: isTransitioning ? 0.3 : 1.0,
-                        delay: isTransitioning
-                          ? (EXTRA_LETTERS.length - 1 - i) * 0.04
-                          : 0.2 + i * 0.05,
-                        ease: "easeOut",
-                      },
-                    }}
+                    className={`${styles.logoLetter} ${isTransitioning ? styles.logoLetterOut : ""}`}
+                    style={{ ["--i" as string]: i, ["--j" as string]: EXTRA_LETTERS.length - 1 - i }}
                   >
                     {char}
-                  </motion.span>
+                  </span>
                 ))}
             </>
           )}
