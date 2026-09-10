@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import { useDepsChanged } from "@/hooks/useDepsChanged";
 import type { SelectOption } from "@/types";
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "@/components/icons";
 import styles from "./DatePicker.module.css";
@@ -223,13 +224,10 @@ function CalendarView({
   const [viewYear, setViewYear] = useState(Number(year) || now);
   const [viewMonth, setViewMonth] = useState(Number(month) || new Date().getMonth() + 1);
 
-  useEffect(() => {
-    if (year) setViewYear(Number(year));
-  }, [year]);
-
-  useEffect(() => {
-    if (month) setViewMonth(Number(month));
-  }, [month]);
+  const yearChanged = useDepsChanged([year]);
+  if (yearChanged && year) setViewYear(Number(year));
+  const monthChanged = useDepsChanged([month]);
+  if (monthChanged && month) setViewMonth(Number(month));
 
   if (format === "year") {
     const base = Math.floor(viewYear / 12) * 12;

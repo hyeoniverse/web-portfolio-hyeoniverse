@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
+import { useStateFromProp } from "@/hooks/useStateFromProp";
 
 /** 표시 값이 바뀌는 데 걸리는 시간. 두 단추의 연출을 같게 맞춘다. */
 const DISPLAY_DELAY_MS = 150;
@@ -23,16 +24,14 @@ const ANIM_DURATION_MS = 300;
 export function useToggleAnimation<T>(current: T, next: T, onToggle: () => void) {
   const [isAnimating, setIsAnimating] = useState(false);
   const [isClicking, setIsClicking] = useState(false);
-  const [display, setDisplay] = useState(current);
+  // 바깥에서 값이 바뀌면(다른 곳에서 테마를 바꾸는 등) 표시도 맞춘다.
+  const [display, setDisplay] = useStateFromProp(current);
 
   const displayTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const animTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   /* 눌러서 값이 바뀐 직후의 mouseleave 한 번은 무시한다.
      그러지 않으면 방금 바꾼 값을 다시 이전 값으로 되돌려 보여 준다. */
   const locked = useRef(false);
-
-  // 바깥에서 값이 바뀌면(다른 곳에서 테마를 바꾸는 등) 표시도 맞춘다.
-  useEffect(() => setDisplay(current), [current]);
 
   const startPreview = (to: T) => {
     clearTimeout(displayTimer.current);

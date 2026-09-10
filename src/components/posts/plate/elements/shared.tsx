@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from "react";
+import { useStateFromProp } from "@/hooks/useStateFromProp";
 
 import {
   useEditorRef,
@@ -49,12 +50,10 @@ export function InlineCaption({ caption, onCommit, onEditingChange, autoEdit, ov
   const { t } = useLanguage();
   const [editing, setEditing] = useState(false);
   const setEditingWrapped = useCallback((v: boolean) => { setEditing(v); onEditingChange?.(v); }, [onEditingChange]);
-  const [draft, setDraft] = useState(caption);
+  const [draft, setDraft] = useStateFromProp(caption);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const autoEditDone = useRef(false);
   const overLimitRef = useRef(false);
-
-  useEffect(() => { setDraft(caption); }, [caption]);
 
   // 높이는 CSS field-sizing:content 가 내용에 맞춰 자동 조절 (인라인 height 박으면 그게 무시되므로 설정 X).
   // field-sizing 미지원 브라우저 대비 fallback — 명시 height 대신 rows 만으로 대략.
