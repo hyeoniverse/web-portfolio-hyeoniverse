@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect, useRef, useCallback } from "react";
+import { useDepsChanged } from "@/hooks/useDepsChanged";
 import type { SortDirection } from "@/types";
 import { Plus, Check, X, Trash2, Filter, ChevronDown } from "@/components/icons";
 import { AnimatePresence, motion } from "framer-motion";
@@ -159,9 +160,13 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
   /* 추가 popover 열림 — 편집(editingEn)과 함께 add/edit 박스의 open 을 결정 */
   const [adding, setAdding] = useState(false);
   const [page, setPage] = useState(1);
-  useEffect(() => { setPage(1); }, [search, searchType, sortBy, sortDir, nameLang, usageFilter, descFilter, letterFilters]);
-  useEffect(() => { setLetterFilters(new Set()); }, [nameLang]);
-  useEffect(() => { if (sortBy !== "name") setLetterFilters(new Set()); }, [sortBy]);
+  /* nameLang 이 바뀌면 letter 매칭 초기화, sortBy 가 name 이 아니면 letter 해제, 조건이 바뀌면 1쪽으로 */
+  const nameLangChanged = useDepsChanged([nameLang]);
+  if (nameLangChanged) setLetterFilters(new Set());
+  const sortByChanged = useDepsChanged([sortBy]);
+  if (sortByChanged && sortBy !== "name") setLetterFilters(new Set());
+  const filtersChanged = useDepsChanged([search, searchType, sortBy, sortDir, nameLang, usageFilter, descFilter, letterFilters]);
+  if (filtersChanged) setPage(1);
   const toggleLetter = (l: string) => setLetterFilters((prev) => {
     const next = new Set(prev);
     if (next.has(l)) next.delete(l); else next.add(l);
@@ -374,7 +379,8 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
     [categories, editingEn, language],
   );
 
-  useEffect(() => {
+  /* 편집 대상이나 목록이 바뀌면 입력 칸을 그 값으로 채운다(추가면 비운다). */
+  const fillForm = () => {
     if (editingEn === null) {
       setPair({ ko: "", en: "" });
       setDesc({ ko: "", en: "" });
@@ -390,7 +396,9 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
     /* 편집 시 현재 array 안 idx + 1 */
     const idx = categories.findIndex((c) => c.en === editingEn);
     if (idx >= 0) setPosition(idx + 1);
-  }, [editingEn, categories]);
+  };
+  const editTargetChanged = useDepsChanged([editingEn, categories]);
+  if (editTargetChanged) fillForm();
 
   const cancelEdit = () => setEditingEn(null);
 

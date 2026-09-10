@@ -1,4 +1,5 @@
 import React from "react";
+import { useDepsChanged } from "@/hooks/useDepsChanged";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, ImageIcon } from "@/components/icons";
 import CloseButton from "@/components/ui/CloseButton";
@@ -75,9 +76,8 @@ export function ImagePanel({
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   // 이미지 변경 시 선택 상태 리셋
-  React.useEffect(() => {
-    setSelected(new Set());
-  }, [images.length]);
+  const imageCountChanged = useDepsChanged([images.length]);
+  if (imageCountChanged) setSelected(new Set());
 
   // 이미지 용량 합산 (HEAD 요청)
   React.useEffect(() => {

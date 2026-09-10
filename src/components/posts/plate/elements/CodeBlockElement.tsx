@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
+import { useDepsChanged } from "@/hooks/useDepsChanged";
 
 import type { SelectOption } from "@/types";
 
@@ -375,7 +376,8 @@ function CodeLangPickerBody({ value, onChange, language, close }: { value: strin
   // 브라우징 진입 시 1회 동기화(초기 active/visible)
   useEffect(() => { if (!searching) syncActive(); }, [searching, syncActive]);
   // 검색어/모드 바뀌면 활성 항목을 맨 위로 리셋
-  useEffect(() => { setActive(0); }, [ql]);
+  const queryChanged = useDepsChanged([ql]);
+  if (queryChanged) setActive(0);
   // 활성 항목이 바뀌면 리스트가 자동으로 스크롤돼 항상 보이게(scrollIntoView)
   useEffect(() => {
     const el = listRef.current?.querySelector<HTMLElement>(`[data-idx="${active}"]`);

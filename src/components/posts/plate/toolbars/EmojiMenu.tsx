@@ -6,6 +6,7 @@
 // (텍스트 삽입이라 markdown round-trip 도 그대로 보존)
 
 import * as React from "react";
+import { useDepsChanged } from "@/hooks/useDepsChanged";
 import { createPortal } from "react-dom";
 import { useEditorRef, useEditorSelector, useEditorId, useEventEditorValue } from "platejs/react";
 import { useVirtualFloating, offset, flip, shift } from "@platejs/floating";
@@ -100,7 +101,8 @@ export default function EmojiMenu() {
   });
 
   React.useEffect(() => { if (open) update?.(); }, [open, keyword, update]);
-  React.useEffect(() => { setActiveIdx(0); }, [keyword]);
+  const keywordChanged = useDepsChanged([keyword]);
+  if (keywordChanged) setActiveIdx(0);
   // 화살표로 active 항목이 스크롤 밖으로 나가면 자동으로 보이게 스크롤
   React.useEffect(() => {
     if (!open) return;
@@ -138,7 +140,9 @@ export default function EmojiMenu() {
     _emojiPickerTrigger.current = () => { pickerAnchor.current = caretRect(); setPickerDismissed(false); setManualPicker(true); };
     return () => { _emojiPickerTrigger.current = null; };
   }, []);
-  React.useEffect(() => { if (!colonOnly) setPickerDismissed(false); }, [colonOnly]); // 콜론 벗어나면 dismiss 리셋
+  // 콜론 벗어나면 dismiss 리셋
+  const colonOnlyChanged = useDepsChanged([colonOnly]);
+  if (colonOnlyChanged && !colonOnly) setPickerDismissed(false);
   const pickerOpen = (colonOnly && !pickerDismissed) || manualPicker;
   React.useEffect(() => {
     if (pickerOpen) { if (!pickerAnchor.current) pickerAnchor.current = caretRect(); } // 콜론만: caret(=":") 위치 캡처

@@ -114,10 +114,8 @@ export default function SettingsPage() {
       .catch(() => setIsOwnerUser(false));
   }, []);
   const allowedTabs: TabId[] = isOwnerUser === false ? ["account"] : [...TAB_IDS];
-  // 비owner 가 허용 안 된 탭에 있으면 account 로 강제
-  useEffect(() => {
-    if (isOwnerUser === false && activeTab !== "account") setActiveTab("account");
-  }, [isOwnerUser, activeTab]);
+  // 비owner 가 허용 안 된 탭에 있으면 account 로 강제. 렌더 중에 맞추고, 맞춘 뒤에는 조건이 거짓이 되어 멈춘다.
+  if (isOwnerUser === false && activeTab !== "account") setActiveTab("account");
   /* 탭/서브탭 → URL 동기화 — 새로고침/북마크/공유 가능. push 아닌 replace 라 history 안 늘어남.
      첫 mount 는 skip (초기화 그대로 두기). */
   const tabSyncedRef = useRef(false);

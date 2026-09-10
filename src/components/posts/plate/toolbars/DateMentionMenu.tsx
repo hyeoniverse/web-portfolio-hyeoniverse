@@ -5,6 +5,7 @@
 // 띄우고, 선택 시 "@키워드" 를 지운 뒤 date_mention(inline void) 노드를 삽입한다.
 
 import * as React from "react";
+import { useDepsChanged } from "@/hooks/useDepsChanged";
 import { createPortal } from "react-dom";
 import { useEditorRef, useEditorSelector, useEditorId, useEventEditorValue } from "platejs/react";
 import { useVirtualFloating, offset, flip, shift } from "@platejs/floating";
@@ -96,7 +97,8 @@ export default function DateMentionMenu() {
   });
 
   React.useEffect(() => { if (open) update?.(); }, [open, query, update]);
-  React.useEffect(() => { setActiveIdx(0); }, [query]);
+  const queryChanged = useDepsChanged([query]);
+  if (queryChanged) setActiveIdx(0);
   React.useEffect(() => {
     if (!open) return;
     document.querySelector<HTMLElement>(`[data-date-nav="${activeIdx}"]`)?.scrollIntoView({ block: "nearest" });

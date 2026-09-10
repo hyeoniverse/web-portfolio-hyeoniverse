@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useLayoutEffect, useRef, useCallback, useMemo, useId, Fragment, type ReactNode, type KeyboardEvent } from "react";
+import { useDepsChanged } from "@/hooks/useDepsChanged";
 import { useHasMounted } from "@/hooks/useHasMounted";
 import { createPortal } from "react-dom";
 import { ChevronRight, X } from "@/components/icons";
@@ -293,9 +294,8 @@ export default function Select({
     });
   }, [combobox, filterByInput, options, inputValue]);
 
-  useEffect(() => {
-    setActiveIdx(-1);
-  }, [inputValue, filteredOptions.length]);
+  const filterChanged = useDepsChanged([inputValue, filteredOptions.length]);
+  if (filterChanged) setActiveIdx(-1);
 
   const handleComboKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.nativeEvent.isComposing) return;

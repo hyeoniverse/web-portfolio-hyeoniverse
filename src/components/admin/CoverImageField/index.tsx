@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
+import { useDepsChanged } from "@/hooks/useDepsChanged";
 import { motion, AnimatePresence } from "framer-motion";
 import { Upload, ImageIcon, X, Palette, Copy } from "@/components/icons";
 import { adminEditorStyles as es } from "@/components/admin/AdminEditorShell";
@@ -74,7 +75,8 @@ export default function CoverImageField({
   const { t } = useLanguage();
   const [imgErrored, setImgErrored] = useState(false);
   // value 가 바뀌면 에러 상태 리셋 — 새 src 는 다시 시도
-  useEffect(() => { setImgErrored(false); }, [value]);
+  const valueChanged = useDepsChanged([value]);
+  if (valueChanged) setImgErrored(false);
 
   // ── 테마 색상 추출 ── value(이미지 url) 가 바뀌면 5개 팔레트 비동기 추출
   const [palette, setPalette] = useState<string[]>([]);

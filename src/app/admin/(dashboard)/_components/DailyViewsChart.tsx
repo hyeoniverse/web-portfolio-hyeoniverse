@@ -7,6 +7,7 @@ import local from "./DailyViewsChart.module.css";
    Dashboard.module.css 에 있다. 둘을 합쳐서 styles 하나로 쓴다. */
 const styles = { ...shared, ...local };
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useDepsChanged } from "@/hooks/useDepsChanged";
 import { PanelTitle } from "../components";
 import CalendarHeatmap from "./CalendarHeatmap";
 import DayDetailPanel from "./DayDetailPanel";
@@ -156,10 +157,11 @@ function DailyViewsChart({
     startDate <= endDate ? [startDate, endDate] : [endDate, startDate];
 
   // 범위 변경 시 인덱스 리셋
-  useEffect(() => {
+  const rangeChanged = useDepsChanged([normStart, normEnd]);
+  if (rangeChanged) {
     setSelectedIdx(null);
     setHoveredIdx(null);
-  }, [normStart, normEnd]);
+  }
 
   // chartScroll 위에서 wheel — vertical wheel 을 horizontal scroll 로 변환, 페이지 세로 scroll 차단.
   // React onWheel 은 passive 라 preventDefault 불가 → native addEventListener (passive: false)

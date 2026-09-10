@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useDepsChanged } from "@/hooks/useDepsChanged";
 import { SEARCH_DEBOUNCE_MS, QUERY_PARAM } from "@/constants";
 import type { SortDirection } from "@/types";
 import { useSearchParams } from "next/navigation";
@@ -131,9 +132,8 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
   }, [search]);
 
   /* search/searchType/sort/filter 변경 시 page 0 으로 리셋 */
-  useEffect(() => {
-    setPage(0);
-  }, [debouncedSearch, searchType, sortBy, sortDir, publishFilter, descFilter]);
+  const filtersChanged = useDepsChanged([debouncedSearch, searchType, sortBy, sortDir, publishFilter, descFilter]);
+  if (filtersChanged) setPage(0);
 
   const fetchSeries = useCallback(async () => {
     try {
