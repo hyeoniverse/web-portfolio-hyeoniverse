@@ -24,7 +24,7 @@ import path from "node:path";
 import { parseDecisionMarkdown, mergeDecisionPair } from "@/lib/about/decisionsMarkdown";
 import {
   parseSimpleMarkdown, securityPanel, featuresPanel, processPanel,
-  overviewPanel, creditsPanel, type SimpleDoc,
+  overviewPanel, type SimpleDoc,
 } from "@/lib/about/panelMarkdown";
 import { MARKDOWN_PANELS } from "@/lib/about/contentSources";
 
@@ -89,8 +89,6 @@ function build(): string {
 
   const ov = readSingle(MARKDOWN_PANELS.overview.dir);
   const overview = ov ? overviewPanel.read(ov.ko, ov.en) : null;
-  const cr = readSingle(MARKDOWN_PANELS.credits.dir);
-  const credits = cr ? creditsPanel.read(cr.ko, cr.en) : null;
 
   const json = (v: unknown) => JSON.stringify(v, null, 2);
 
@@ -100,7 +98,7 @@ function build(): string {
  * About 패널의 폴백. DB(동기화 결과)가 있으면 그게 이기고, 여기도 비어 있으면 화면이 빈다 —
  * 아직 아무것도 쓰지 않았다는 뜻이다. */
 import type { TroubleShootingItem } from "@/data/about/types";
-import type { CfgSecurity, CfgFeature, CfgProcess, OverviewValues, CreditsValues } from "@/lib/about/panelMarkdown";
+import type { CfgSecurity, CfgFeature, CfgProcess, OverviewValues } from "@/lib/about/panelMarkdown";
 
 export const aboutDecisions: TroubleShootingItem[] = ${json(decisions)};
 
@@ -111,8 +109,6 @@ export const aboutFeatures: CfgFeature[] = ${json(features)};
 export const aboutProcess: CfgProcess[] = ${json(process_)};
 
 export const aboutOverview: OverviewValues | null = ${json(overview)};
-
-export const aboutCredits: CreditsValues | null = ${json(credits)};
 `;
 }
 

@@ -1,40 +1,9 @@
 import type {
-  OverviewStat,
   StructureItem,
   UserFlow,
   FlowNode,
   FlowEdge,
 } from "./types";
-
-export const projectOverview = {
-  description: {
-    ko: "Claude와 함께 만든 풀스택 포트폴리오. Next.js 16 App Router를 기반으로 GSAP·Framer Motion 애니메이션, Lenis 무한 스크롤, Supabase 블로그까지 직접 설계하고 구현했습니다.",
-    en: "A full-stack portfolio built alongside Claude. Designed and implemented from scratch — Next.js 16 App Router, GSAP & Framer Motion animations, Lenis infinite scroll, and a Supabase-powered blog.",
-  },
-  highlights: [
-    "Next.js 16",
-    "GSAP ScrollTrigger",
-    "Framer Motion",
-    "Lenis Smooth Scroll",
-    "Three.js (R3F)",
-    "CSS Variables",
-    "Supabase",
-    "i18n (KO/EN)",
-    "IP-Based Likes",
-    "Dark/Light Theme",
-  ],
-  stats: [
-    {
-      value: "6 Mo+",
-      label: { ko: "개발 기간\n(2/5 – 진행 중)", en: "Dev Period\n(Feb 5 – ongoing)" },
-    },
-    { value: "250+", label: { ko: "컴포넌트", en: "Components" } },
-    { value: "50+", label: { ko: "커스텀 훅", en: "Custom Hooks" } },
-    { value: "98", label: { ko: "Lighthouse\n(모바일 Performance)", en: "Lighthouse\n(mobile performance)" } },
-    { value: "2", label: { ko: "언어 지원", en: "Languages" } },
-    { value: "70+", label: { ko: "라이브러리", en: "Libraries" } },
-  ] as OverviewStat[],
-};
 
 export const projectStructure: StructureItem[] = [
   {
