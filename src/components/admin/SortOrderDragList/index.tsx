@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useDepsChanged } from "@/hooks/useDepsChanged";
 import { GripVertical } from "@/components/icons";
 import Pagination from "@/components/ui/Pagination";
 import { adminEditorStyles as es } from "@/components/admin/AdminEditorShell";
@@ -94,7 +95,8 @@ export default function SortOrderDragList({
   const totalPages = Math.max(1, Math.ceil(merged.length / pageSize));
   const pageOfCurrent = Math.floor((cur - 1) / pageSize) + 1;
   const [page, setPage] = useState(pageOfCurrent);
-  useEffect(() => { setPage(Math.floor((cur - 1) / pageSize) + 1); }, [cur, pageSize]);
+  const curChanged = useDepsChanged([cur, pageSize]);
+  if (curChanged) setPage(Math.floor((cur - 1) / pageSize) + 1);
   const pageStart = (page - 1) * pageSize;
   const pageEnd = Math.min(pageStart + pageSize, merged.length);
   const visible = merged.slice(pageStart, pageEnd);

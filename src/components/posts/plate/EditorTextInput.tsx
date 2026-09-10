@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
+import { useDepsChanged } from "@/hooks/useDepsChanged";
 import { Eraser } from "@/components/icons";
 import styles from "@/components/ui/Input.module.css";
 // 단일 줄 input 의 "카운터/지우개를 캡슐 안 flex child 로" 레이아웃은 공통 HighlightInput 과 동일 모듈 재사용
@@ -87,7 +88,8 @@ function EditorTextInput({
   };
 
   // clearOnCommit 모드는 항상 빈 칸 — 외부 value 동기화 안 함.
-  useEffect(() => { if (!clearOnCommit) setDraft(value); }, [value, clearOnCommit]);
+  const valueChanged = useDepsChanged([value, clearOnCommit]);
+  if (valueChanged && !clearOnCommit) setDraft(value);
 
   const commit = (keepFocus = false) => {
     if (clearOnCommit) {

@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
+import { useDepsChanged } from "@/hooks/useDepsChanged";
 import {
   Image as ImageIcon,
   Smile,
@@ -68,9 +69,9 @@ export default function CoverBanner({
   const [zoom, setZoom] = useState(zoomProp); // scale 배율 (1~2.5)
   const [reposition, setReposition] = useState(false); // 위치 조정 모드 여부
   // 부모 값(prop)이 바뀌면(draft 복원 등) 로컬 상태 동기화 — 단 위치 조정 중(드래그)엔 사용자 입력 보호
-  useEffect(() => {
-    if (!reposition) { setPosition(positionProp); setZoom(zoomProp); }
-  }, [positionProp, zoomProp]); // eslint-disable-line react-hooks/exhaustive-deps
+  // reposition 은 일부러 비교에서 뺀다 — 드래그를 마쳤다고 부모 값으로 되돌리면 안 된다.
+  const coverPropsChanged = useDepsChanged([positionProp, zoomProp]);
+  if (coverPropsChanged && !reposition) { setPosition(positionProp); setZoom(zoomProp); }
 
   // 드래그 추적용 ref (position 백업 + 시작 좌표)
   const dragRef = useRef<{ startY: number; startPos: number } | null>(null);

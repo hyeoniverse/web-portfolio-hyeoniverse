@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
+import { useStateFromProp } from "@/hooks/useStateFromProp";
 import { Languages, MessageSquareMore, RotateCcw, Undo2, Clock, ChevronLeft, ChevronRight, Trash2, ChevronDown, CalendarClock, CalendarX, Loader2, ExternalLink } from "@/components/icons";
 import DateTimePicker from "@/components/ui/DatePicker/DateTimePicker";
 import { useLenis } from "@/providers/LenisProvider";
@@ -254,8 +255,7 @@ export default function AdminEditorShell({
   const [revisionDetail, setRevisionDetail] = useState<{ title?: string; subtitle?: string; excerpt?: string; content?: string; meta?: RevisionMetaGroup[]; headerLabels?: { title?: string; subtitle?: string; excerpt?: string } } | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
   /** revision panel 전용 lang — 기본 editorLang sync, header 토글로 독립 전환 가능. */
-  const [revisionLang, setRevisionLang] = useState<"ko" | "en">(editorLang);
-  useEffect(() => { setRevisionLang(editorLang); }, [editorLang]);
+  const [revisionLang, setRevisionLang] = useStateFromProp<"ko" | "en">(editorLang);
   const currentSnapshot = getCurrentSnapshot?.(revisionLang);
   const [statusTime, setStatusTime] = useState("");
   const [showRetranslate, setShowRetranslate] = useState(false);
