@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useHasMounted } from "@/hooks/useHasMounted";
 
 /**
  * 좁은 화면에서 여는 메뉴 서랍.
@@ -27,11 +28,10 @@ export function useMobileMenu(
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [menuClipOpen, setMenuClipOpen] = useState(false);
-  const [menuMounted, setMenuMounted] = useState(false);
+  const menuMounted = useHasMounted();
   // 드로어 clip 래퍼 ref — 마운트 후 강제 reflow 로 "닫힘" 상태를 트랜지션 시작점으로 확정하는 데 사용
   const clipWrapperRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => setMenuMounted(true), []);
   useEffect(() => setIsMenuOpen(false), [pathname]);
   // drawer 열릴 때 notification dropdown 도 같이 닫음 (위로 겹쳐 보이는 거 방지)
   useEffect(() => {

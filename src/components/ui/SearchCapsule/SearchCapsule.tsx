@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect, useContext } from "react";
+import { useHasMounted } from "@/hooks/useHasMounted";
 import type { SelectOption } from "@/types";
 import { createPortal } from "react-dom";
 import { usePathname, useSearchParams } from "next/navigation";
@@ -171,8 +172,7 @@ export default function SearchCapsule({
     };
   }, [focused]);
 
-  const [portalMounted, setPortalMounted] = useState(false);
-  useEffect(() => { setPortalMounted(true); }, []);
+  const portalMounted = useHasMounted();
 
   /* 바깥 클릭으로 dropdown 닫기 */
   useEffect(() => {

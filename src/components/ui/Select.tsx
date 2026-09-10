@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useLayoutEffect, useRef, useCallback, useMemo, useId, Fragment, type ReactNode, type KeyboardEvent } from "react";
+import { useHasMounted } from "@/hooks/useHasMounted";
 import { createPortal } from "react-dom";
 import { ChevronRight, X } from "@/components/icons";
 import { usePortalContainer } from "./portalContainer";
@@ -116,8 +117,7 @@ export default function Select({
   const [open, setOpen] = useState(false);
   const [visible, setVisible] = useState(false);
   // hydration mismatch 방지 — invisible probe 의 portal 은 client mount 후에만 렌더
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
+  const mounted = useHasMounted();
   const [animateOpen, setAnimateOpen] = useState(false);
   const [activeIdx, setActiveIdx] = useState(-1);
   const ref = useRef<HTMLDivElement>(null);
