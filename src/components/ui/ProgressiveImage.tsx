@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
+import { useDepsChanged } from "@/hooks/useDepsChanged";
 import { ImageOff } from "@/components/icons";
 import { getLqipUrl } from "@/utils/image";
 import { isVideoUrl } from "@/lib/isVideoUrl";
@@ -50,10 +51,11 @@ export default function ProgressiveImage({
   const [observeVideo, videoNear] = useNearViewport(!priority);
 
   // src 변경 시 에러/로딩 상태 리셋
-  useEffect(() => {
+  const srcChanged = useDepsChanged([src]);
+  if (srcChanged) {
     setLoaded(isVideoUrl(src));
     setErrored(false);
-  }, [src]);
+  }
 
   // 이미지 로드 실패 시 placeholder 렌더 (broken image icon 대신)
   if (errored) {

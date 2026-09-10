@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useMemo, useEffect, memo } from "react";
+import { useDepsChanged } from "@/hooks/useDepsChanged";
 import { motion, AnimatePresence } from "framer-motion";
 import { Globe, SmilePlus, Trash2 } from "@/components/icons";
 import Popover from "@/components/ui/Popover";
@@ -126,10 +127,11 @@ function CommentItem({
   const [mine, setMine] = useState<string[]>(myReactions?.[comment.id] ?? []);
   const [reactionBusy, setReactionBusy] = useState(false);
 
-  useEffect(() => {
+  const reactionPropsChanged = useDepsChanged([reactionCounts, myReactions, comment.id]);
+  if (reactionPropsChanged) {
     setReactions(reactionCounts?.[comment.id] ?? {});
     setMine(myReactions?.[comment.id] ?? []);
-  }, [reactionCounts, myReactions, comment.id]);
+  }
 
   const handleReact = useCallback(async (emoji: string) => {
     if (reactionBusy) return;

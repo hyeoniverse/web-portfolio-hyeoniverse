@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useStateFromProp } from "@/hooks/useStateFromProp";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import styles from "../DesignSystemPanel.module.css";
@@ -22,13 +22,9 @@ function mixHex(a: string, b: string, t: number): string {
 
 export default function ColorSystemDemo() {
   const { theme } = useTheme();
-  const [demoTheme, setDemoTheme] = useState<"dark" | "light">("dark");
+  // 사이트 테마를 따라가되, 데모 안에서 따로 바꿔 볼 수 있다.
+  const [demoTheme, setDemoTheme] = useStateFromProp<"dark" | "light">(theme);
   const config = useSiteConfig();
-
-  // 현재 테마에 맞춰 초기값 동기화
-  useEffect(() => {
-    setDemoTheme(theme);
-  }, [theme]);
 
   const accent = config.theme?.accentColor || "#d40063";
   const palettes = {

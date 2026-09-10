@@ -6,7 +6,8 @@
  * 좁은 카드 폭 안에서 이름·타입 입력이 다닥다닥 붙어 읽기 어려웠다.
  * 편집은 넓은 자리가 필요하니 모달로 분리한다. */
 
-import { Fragment, useContext, useEffect, useRef, useState } from "react";
+import { Fragment, useContext, useRef, useState } from "react";
+import { useStateFromProp } from "@/hooks/useStateFromProp";
 import type { Language } from "@/types";
 import { createPortal } from "react-dom";
 import { Plus, KeyRound, ArrowRight, GripVertical, Asterisk, Fingerprint, ChevronDown } from "@/components/icons";
@@ -43,8 +44,7 @@ const COLUMN_TYPES = [
 /* 타입 입력 — 목록에서 고르거나 직접 칠 수 있게. 치는 동안 비슷한 것만 남는다. */
 function TypeCell({ value, onChange, invalid }: { value: string; onChange: (v: string) => void; invalid?: boolean }) {
   /* combobox 는 trigger 가 input 이라 inputValue 를 비워두면 현재 타입이 안 보인다 → 값으로 채운다 */
-  const [input, setInput] = useState(value);
-  useEffect(() => { setInput(value); }, [value]);
+  const [input, setInput] = useStateFromProp(value);
 
   const commit = (v: string) => {
     const next = v.trim().toUpperCase();

@@ -10,6 +10,8 @@ import {
   type CSSProperties,
   type ReactNode,
 } from "react";
+import { useDepsChanged } from "@/hooks/useDepsChanged";
+import { useStateFromProp } from "@/hooks/useStateFromProp";
 import { createPortal } from "react-dom";
 import { COPY_FEEDBACK_MS } from "@/constants";
 import { AnimatePresence, motion } from "framer-motion";
@@ -151,7 +153,8 @@ export default function ColorPicker({
   useEffect(() => { alphaRef.current = alpha; }, [alpha]);
 
   // 외부 value sync — 동일 색이면 내부 state 유지 (c=0 이어도 hue 보존)
-  useEffect(() => {
+  const valueChanged = useDepsChanged([value]);
+  if (valueChanged) {
     setOklch((prev) => {
       const incoming = parseAnyToOklch(value);
       if (
@@ -164,7 +167,7 @@ export default function ColorPicker({
     // alpha 토큰이 명시된 value 만 반영 — 불투명(#rrggbb 등) 소비자가 alpha 를 1로 리셋하지 않도록 null 무시
     const a = parseAlpha(value);
     if (a != null) setAlpha(a);
-  }, [value]);
+  }
 
   const hex = oklchToHex(oklch);
   const hexDisplay = withAlpha(hex, alpha); // 텍스트 입력·복사용 (alpha<1 이면 8자리)
@@ -518,8 +521,7 @@ export default function ColorPicker({
 
   // ── Format 별 input handler 들 ──
   // HEX
-  const [hexDraft, setHexDraft] = useState(hexDisplay);
-  useEffect(() => { setHexDraft(hexDisplay); }, [hexDisplay]);
+  const [hexDraft, setHexDraft] = useStateFromProp(hexDisplay);
   // 잘못된 입력 시 popover 흔들기 — HEX commit 실패 / 붙여넣기 실패 공통
   const [shaking, setShaking] = useState(false);
   const triggerShake = useCallback(() => {

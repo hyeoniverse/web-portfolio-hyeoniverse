@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef, type ReactNode } from "react";
+import { useState, useMemo, useRef, type ReactNode } from "react";
+import { useStateFromProp } from "@/hooks/useStateFromProp";
 import { TECH_ICON_PRESETS, type TechIconPreset } from "@/data/techIconPresets";
 import type { SelectOption } from "@/types";
 import { Plus, Check, X } from "@/components/icons";
@@ -50,8 +51,7 @@ function CategoryInput({ value, onChange, currentCats, t }: {
   currentCats: string[];
   t: TFunction;
 }) {
-  const [draft, setDraft] = useState(value);
-  useEffect(() => { setDraft(value); }, [value]);
+  const [draft, setDraft] = useStateFromProp(value);
 
   const seen = new Set<string>();
   const options: SelectOption[] = [];

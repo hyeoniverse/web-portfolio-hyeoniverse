@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useMemo } from "react";
+import { useStateFromProp } from "@/hooks/useStateFromProp";
 import { ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight } from "@/components/icons";
 import styles from "./Pagination.module.css";
 import Pressable from "@/components/ui/Pressable";
@@ -29,8 +30,7 @@ export default function Pagination({ page, totalPages, onChange, className, show
   }, [page, totalPages]);
 
   // Jump-to input — 외부 page 변경 시 sync, 입력은 string 으로 (지우다가 빈 상태 가능)
-  const [jumpInput, setJumpInput] = useState(String(page));
-  useEffect(() => { setJumpInput(String(page)); }, [page]);
+  const [jumpInput, setJumpInput] = useStateFromProp(page, String);
 
   const submitJump = () => {
     const n = parseInt(jumpInput, 10);

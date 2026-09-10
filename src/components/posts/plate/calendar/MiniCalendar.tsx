@@ -2,6 +2,7 @@
 
 // ── 일 뷰 사이드 미니 달력 — 날짜 클릭 이동, 이벤트 개수 표시, 제목 클릭 시 연/월 spinner ──
 import React from "react";
+import { useStateFromProp } from "@/hooks/useStateFromProp";
 import { ChevronLeft, ChevronRight } from "@/components/icons";
 import Button from "@/components/ui/Button";
 import DatePickerPopover from "@/components/ui/DatePicker/DatePickerPopover";
@@ -17,9 +18,9 @@ export default function MiniCalendar({
   language: string;
   events?: CalEvent[];
 }) {
-  const [month, setMonth] = React.useState(date.slice(0, 7));
+  // 선택 날짜가 다른 달로 바뀌면 따라감
+  const [month, setMonth] = useStateFromProp(date, (d) => d.slice(0, 7));
   const [pickerOpen, setPickerOpen] = React.useState(false);
-  React.useEffect(() => { setMonth(date.slice(0, 7)); }, [date]); // 선택 날짜가 다른 달로 바뀌면 따라감
   const cells = React.useMemo(() => monthGrid(month), [month]);
   const wd = weekdayLabels(language);
   const countByDate = React.useMemo(() => {

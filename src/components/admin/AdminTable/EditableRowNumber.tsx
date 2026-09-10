@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback, type KeyboardEvent } from "react";
+import { useDepsChanged } from "@/hooks/useDepsChanged";
 import styles from "./AdminTable.module.css";
 
 interface Props {
@@ -16,7 +17,8 @@ export default function EditableRowNumber({ value, min = 1, max, onSave }: Props
   const [draft, setDraft] = useState(String(value));
   const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => { if (!editing) setDraft(String(value)); }, [value, editing]);
+  const valueChanged = useDepsChanged([value, editing]);
+  if (valueChanged && !editing) setDraft(String(value));
   useEffect(() => { if (editing) inputRef.current?.select(); }, [editing]);
 
   const commit = useCallback(async () => {

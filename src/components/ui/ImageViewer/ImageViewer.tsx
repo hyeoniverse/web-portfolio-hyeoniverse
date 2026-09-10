@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useDepsChanged } from "@/hooks/useDepsChanged";
 import { useHasMounted } from "@/hooks/useHasMounted";
 import type { Size, Point } from "@/types";
 import { createPortal } from "react-dom";
@@ -135,15 +136,14 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
 
 
   // Sync on open
-  useEffect(() => {
-    if (open) {
-      setCurrent(index);
-      setLoading(true);
-      setZoom(1);
-      setPanOffset({ x: 0, y: 0 });
-      setControlsVisible(true);
-    }
-  }, [open, index]);
+  const openChanged = useDepsChanged([open, index]);
+  if (openChanged && open) {
+    setCurrent(index);
+    setLoading(true);
+    setZoom(1);
+    setPanOffset({ x: 0, y: 0 });
+    setControlsVisible(true);
+  }
 
   // Scroll lock — body 수정 없이 wheel/touch 만 차단.
   // 이전엔 body.position = fixed 로 잠그고 닫을 때 복원했는데, GSAP ScrollTrigger pin 환경에서는
