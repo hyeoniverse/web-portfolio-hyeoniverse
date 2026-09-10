@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect, useLayoutEffect, useMemo } from "react";
+import { useSyncRef } from "@/hooks/useSyncRef";
 import { AnimatePresence, motion } from "framer-motion";
 import { useCategories, type BilingualCategory } from "@/hooks/useCategories";
 import { flattenCategories } from "@/lib/categoryTree";
@@ -30,7 +31,7 @@ export default function CategoryNav({
   const [rowHeight, setRowHeight] = useState(46);
   const [fullHeight, setFullHeight] = useState(9999);
   const expandedRef = useRef(expanded);
-  expandedRef.current = expanded;
+  useSyncRef(expandedRef, expanded);
 
   // ResizeObserver로 nav 크기 변경 시 자동 재측정
   useEffect(() => {

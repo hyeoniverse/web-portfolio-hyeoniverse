@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useSyncRef } from "@/hooks/useSyncRef";
 import { createPortal } from "react-dom";
 import { useDragLayer } from "react-dnd";
 import { useEditorRef } from "platejs/react";
@@ -27,7 +28,7 @@ export function BlockDragLayer() {
 
   // 커서 좌표를 ref 로 유지 (rAF 스크롤 루프가 최신값 참조)
   const offsetRef = React.useRef(offset);
-  offsetRef.current = offset;
+  useSyncRef(offsetRef, offset);
 
   // 자동 스크롤 — 커서가 에디터 경계 근처/바깥이면 그 방향으로 에디터 컨테이너를 연속 스크롤.
   // (빌트인 스크롤러는 edge 안쪽 좁은 밴드에서만 동작해 바깥으로 나가면 멈춤 → 직접 처리)

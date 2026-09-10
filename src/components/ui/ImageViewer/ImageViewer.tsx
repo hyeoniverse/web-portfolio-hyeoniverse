@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useSyncRef } from "@/hooks/useSyncRef";
 import { useDepsChanged } from "@/hooks/useDepsChanged";
 import { useHasMounted } from "@/hooks/useHasMounted";
 import type { Size, Point } from "@/types";
@@ -276,13 +277,13 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
     setDirection(-1);
     goTo(current > 0 ? current - 1 : images.length - 1);
   }, [current, images.length, goTo]);
-  prevRef.current = handlePrev;
+  useSyncRef(prevRef, handlePrev);
 
   const handleNext = useCallback(() => {
     setDirection(1);
     goTo(current < images.length - 1 ? current + 1 : 0);
   }, [current, images.length, goTo]);
-  nextRef.current = handleNext;
+  useSyncRef(nextRef, handleNext);
 
   /* ── Zoom ── */
   const zoomIn = useCallback(() => {

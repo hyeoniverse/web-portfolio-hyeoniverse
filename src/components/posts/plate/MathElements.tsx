@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { useSyncRef } from "@/hooks/useSyncRef";
 import ReactDOM from "react-dom";
 import {
   PlateElement,
@@ -140,7 +141,9 @@ function MathFloatingEdit({
   }, [anchorRef, onConfirm]);
 
   // 에디터에 심볼 삽입 콜백 등록
-  const insertSymbolRef = React.useRef((latex: string) => {
+  const insertSymbolRef = React.useRef<(latex: string) => void>(() => {});
+  // ref 최신 값 유지 — 최신 draft 기준으로 넣는다
+  useSyncRef(insertSymbolRef, (latex: string) => {
     const ta = inputRef.current;
     if (!ta) { onUpdate(draft + latex); return; }
     const start = ta.selectionStart;
@@ -153,20 +156,6 @@ function MathFloatingEdit({
       ta.setSelectionRange(cursor, cursor);
     });
   });
-  // ref 최신 값 유지
-  insertSymbolRef.current = (latex: string) => {
-    const ta = inputRef.current;
-    if (!ta) { onUpdate(draft + latex); return; }
-    const start = ta.selectionStart;
-    const end = ta.selectionEnd;
-    const next = draft.slice(0, start) + latex + draft.slice(end);
-    onUpdate(next);
-    requestAnimationFrame(() => {
-      ta.focus();
-      const cursor = start + latex.length;
-      ta.setSelectionRange(cursor, cursor);
-    });
-  };
 
   React.useEffect(() => {
     _mathSymbolInsert.current = (latex: string) => insertSymbolRef.current(latex);

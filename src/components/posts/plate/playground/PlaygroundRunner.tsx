@@ -4,6 +4,7 @@
 // VSCode 식 파일/폴더 트리(추가·이름변경·삭제) + 탭. 파일맵은 buildSrcdoc 가 엔트리(index.html)
 // 기준으로 조립한다(참조된 css/js 인라인, 조각이면 모든 css/js 번들).
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useSyncRef } from "@/hooks/useSyncRef";
 import { Code2, Monitor, Terminal, Maximize2, Minimize2, RotateCw, PanelLeft, PanelLeftClose, Minus, Plus, ZoomIn, ZoomOut, Columns2, Rows2, FilePlus, FolderPlus, Pencil, Trash2, ChevronRight, ChevronDown, X, Undo2, Redo2, Scaling, Ban, Download } from "@/components/icons";
 import Tooltip from "@/components/ui/Tooltip";
 import CodeMirrorEditor from "./CodeMirrorEditor";
@@ -177,7 +178,7 @@ export default function PlaygroundRunner({ data, onChange, readOnly, height = 46
   const endDrag = (e: React.PointerEvent) => { dragKind.current = null; rel(e); };
 
   // 파일 변경 → 저장(디바운스). 전체 맵을 그대로 저장(.gitkeep 빈 폴더 포함)
-  const cb = useRef(onChange); cb.current = onChange;
+  const cb = useRef(onChange); useSyncRef(cb, onChange);
   useEffect(() => {
     if (readOnly) return;
     const t = window.setTimeout(() => cb.current?.(files), 700);

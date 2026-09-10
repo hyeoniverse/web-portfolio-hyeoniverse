@@ -6,6 +6,7 @@
 import "@xyflow/react/dist/style.css";
 
 import React, { useCallback, useContext, useMemo, useRef, useState } from "react";
+import { useSyncRef } from "@/hooks/useSyncRef";
 import type { Size, Point } from "@/types";
 import { useEditorRef, useSelected, PlateElement, type PlateElementProps } from "platejs/react";
 import {
@@ -245,9 +246,9 @@ export function DiagramElement(props: PlateElementProps) {
   }, [fullscreen]);
 
   const elementRef = useRef(props.element);
-  elementRef.current = props.element;
-  const nodesRef = useRef(nodes); nodesRef.current = nodes;
-  const edgesRef = useRef(edges); edgesRef.current = edges;
+  useSyncRef(elementRef, props.element);
+  const nodesRef = useRef(nodes); useSyncRef(nodesRef, nodes);
+  const edgesRef = useRef(edges); useSyncRef(edgesRef, edges);
 
   const elPath = (() => { try { const p = editor.api.findPath(props.element); return p ? Array.from(p) : null; } catch { return null; } })();
   const { blockDragProps } = useBlockDrag(elPath);

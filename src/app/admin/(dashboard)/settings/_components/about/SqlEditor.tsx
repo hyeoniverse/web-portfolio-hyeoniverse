@@ -10,6 +10,7 @@
  * SQL 문법만 additionalLanguages 로 물려준다(→ sqlLanguage.ts). */
 
 import { useEffect, useMemo, useRef } from "react";
+import { useSyncRef } from "@/hooks/useSyncRef";
 import {
   SandpackProvider,
   SandpackCodeEditor,
@@ -71,7 +72,7 @@ export default function SqlEditor({
   /* 확장은 한 번만 만든다 — 배열이 매번 새로 생기면 CodeMirror 가 통째로 재구성돼
      커서와 되돌리기 이력이 날아간다. 최신 값은 ref 를 통해 읽는다. */
   const live = useRef({ tables, lang });
-  live.current = { tables, lang };
+  useSyncRef(live, { tables, lang });
   const extensions = useMemo(
     () => sqlEditorExtensions(() => live.current.tables, () => live.current.lang),
     [],

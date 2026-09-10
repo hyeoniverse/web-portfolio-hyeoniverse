@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import { useSyncRef } from "@/hooks/useSyncRef";
 import { useEditorRef, useSelected, PlateElement, type PlateElementProps } from "platejs/react";
 import { X, Check, CalendarClock, Eye, GripVertical, Undo2, Plus, BarChart3, ChevronDown, ChevronUp } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -134,7 +135,7 @@ export function PollElement(props: PlateElementProps) {
 
   // 최신 element 참조 — document(드래그) 핸들러처럼 stale 클로저에서 호출돼도 현재 노드/옵션을 보게.
   const elementRef = useRef(props.element);
-  elementRef.current = props.element;
+  useSyncRef(elementRef, props.element);
 
   const t = (ko: string, en: string) => (language === "ko" ? ko : en);
   // 글자수 제한 초과 시 toast 알림 (공통 컴포넌트 패턴)
