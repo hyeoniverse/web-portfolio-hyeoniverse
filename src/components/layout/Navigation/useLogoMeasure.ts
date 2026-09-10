@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef, type RefObject } from "react";
-import { animate, type AnimationPlaybackControls, type MotionValue } from "framer-motion";
+import type { MotionValue } from "framer-motion";
 
-/** 로딩이 끝나 네비게이션 자리로 줄어드는 시간·곡선. */
-const SHRINK = { duration: 0.8, ease: [0.76, 0, 0.24, 1] as const, delay: 0.05 };
+/** 로딩이 끝나 네비게이션 자리로 줄어드는 시간·곡선(ms). */
+const SHRINK = { duration: 800, delay: 50, easing: "cubic-bezier(0.76, 0, 0.24, 1)" };
 
 type LogoMotion = {
   x: MotionValue<number>;
@@ -25,7 +25,13 @@ type LogoMotion = {
  *    이미지·배지 로고는 비율을 CSS 로 낼 수 없어 재기 전까지 숨긴다(Navigation 이 처리).
  * 2. 다음 프레임에 넘겨받는다 — CSS 가 계산한 행렬을 그대로 읽어(이미지·배지는 재서) motion value 에
  *    맞춰 넣고, 클래스를 뗀다. 한 번만 한다.
- * 3. 전환이 시작되면 지금 값에서 네비게이션 값으로 애니메이션한다.
+ * 3. 전환이 시작되면 지금 모습에서 네비게이션 자리로 줄인다 — 합성기(compositor)에서.
+ *
+ * 줄이는 애니메이션을 framer 의 motion value 로 돌리면 자바스크립트가 매 프레임 transform 을 쓴다.
+ * 그러면 메인 스레드가 막히는 순간 같이 멈춘다. 로딩이 끝나는 무렵이 마침 페이지의 3D 가 첫 프레임을
+ * 그리는(셰이더 컴파일·텍스처 업로드로 GPU 를 기다리는) 때라, 줄어들다 멈췄다가 끝에 한 번에
+ * 도착했다(실제 GPU 첫 방문 약 0.3초, 모바일 조건 약 0.5초). transform 을 Web Animations 로
+ * 애니메이션하면 합성기가 보간하므로 메인 스레드가 막혀도 계속 움직인다.
  *
  * 3번을 `animate` prop 의 목표가 바뀌는 것에 맡기면 안 된다. 하이드레이션이 무거운 페이지에서는
  * 측정(rAF)보다 로딩 완료 타이머가 먼저 와서 React 가 두 변화를 한 번에 그리는데, 그러면 목표가
@@ -48,7 +54,7 @@ export function useLogoMeasure(
   const { cssLoadingClass, stretch, motion } = options;
   const [logoMeasured, setLogoMeasured] = useState(false);
   const handedOff = useRef(false);
-  const shrinking = useRef<AnimationPlaybackControls[]>([]);
+  const shrinking = useRef<Animation | null>(null);
 
   const handoff = useCallback(() => {
     const el = logoRef.current;
@@ -104,22 +110,30 @@ export function useLogoMeasure(
     return () => cancelAnimationFrame(id);
   }, [showLoadingLogo, handoff, logoRef]);
 
-  /* 전환이 시작되면 지금 자리에서 네비게이션 자리로. 아직 못 넘겨받았으면 지금 넘겨받는다.
-     isTransitioning 은 400ms 뒤 로딩 종료와 함께 꺼지지만 애니메이션(0.85초)은 끝까지 둔다 —
-     여기서 정리 함수로 멈추면 중간에 선다. */
+  /* 전환이 시작되면 지금 모습에서 네비게이션 자리로. 아직 못 넘겨받았으면 지금 넘겨받는다.
+     끝 모습(제자리)을 먼저 인라인과 motion value 에 넣어 두고, 합성기 애니메이션이 지금 모습에서
+     거기까지 보간한다. 애니메이션이 도는 동안에는 인라인보다 애니메이션이 이기고, 끝나면 인라인의
+     제자리가 남는다. isTransitioning 은 400ms 뒤 로딩 종료와 함께 꺼지지만 애니메이션(0.85초)은
+     끝까지 둔다 — 여기서 정리 함수로 멈추면 중간에 선다. */
   useEffect(() => {
     if (!isTransitioning) return;
+    const el = logoRef.current;
+    if (!el) return;
     handoff();
-    shrinking.current.forEach((c) => c.stop());
-    shrinking.current = [
-      animate(motion.x, 0, SHRINK),
-      animate(motion.y, 0, SHRINK),
-      animate(motion.scaleX, stretch, SHRINK),
-      animate(motion.scaleY, 1, SHRINK),
-    ];
-  }, [isTransitioning, handoff, motion, stretch]);
+    const from = el.style.transform || getComputedStyle(el).transform;
+    const to = `translateX(0px) translateY(0px) scaleX(${stretch}) scaleY(1)`;
+    motion.x.jump(0);
+    motion.y.jump(0);
+    motion.scaleX.jump(stretch);
+    motion.scaleY.jump(1);
+    el.style.transform = to;
+    shrinking.current?.cancel();
+    /* 움직임 줄이기를 켠 사람에게는 줄이는 과정을 건너뛰고 바로 제자리에 둔다(뒤 글자 등장과 같게). */
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+    shrinking.current = el.animate([{ transform: from }, { transform: to }], { ...SHRINK, fill: "backwards" });
+  }, [isTransitioning, handoff, logoRef, motion, stretch]);
 
-  useEffect(() => () => shrinking.current.forEach((c) => c.stop()), []);
+  useEffect(() => () => shrinking.current?.cancel(), []);
 
   // 로딩이 완전히 끝나면 다음 로딩을 위해 되돌린다.
   useEffect(() => {
