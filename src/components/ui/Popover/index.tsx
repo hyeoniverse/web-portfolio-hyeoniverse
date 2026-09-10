@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode, type RefObject } from "react";
+import { useSyncRef } from "@/hooks/useSyncRef";
 import { useHasMounted } from "@/hooks/useHasMounted";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -116,8 +117,10 @@ export default function Popover({
   useEffect(() => cancelHoverClose, []); // 언마운트 시 타이머 정리
 
   // ── 단일 오픈 조율(openOnHover) — 이 popover 가 열리면 다른 hover popover 를 닫음 ──
-  const selfRef = useRef<{ close: () => void }>({ close: () => {} });
-  selfRef.current.close = close;
+  // 조율은 객체가 같은지로 자기를 알아보므로 객체는 하나로 두고, 닫을 때는 최신 close 를 부른다.
+  const closeRef = useRef(close);
+  useSyncRef(closeRef, close);
+  const selfRef = useRef<{ close: () => void }>({ close: () => closeRef.current() });
   useEffect(() => {
     if (!openOnHover) return;
     if (open) {

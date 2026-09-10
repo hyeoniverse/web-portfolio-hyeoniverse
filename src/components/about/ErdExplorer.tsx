@@ -10,6 +10,7 @@
  * 바깥에서 다른 것: 헤더(제목/힌트), 줌 컨트롤 모양, 편집 진입 여부. */
 
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useSyncRef } from "@/hooks/useSyncRef";
 import { X, Network, Shapes } from "@/components/icons";
 import { Panel, type Viewport } from "@xyflow/react";
 import ErdFlow from "./ErdFlow";
@@ -68,7 +69,7 @@ export default function ErdExplorer({
   const clickTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   /* handleOpen 은 참조가 고정돼야 한다(위 주석) — 최신 focus 는 ref 로 읽는다 */
   const focusRef = useRef<string | null>(null);
-  focusRef.current = focus;
+  useSyncRef(focusRef, focus);
   const handleOpen = useCallback((t: ErdTable) => {
     if (clickTimer.current) clearTimeout(clickTimer.current);
     clickTimer.current = setTimeout(() => {

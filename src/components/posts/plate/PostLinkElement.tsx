@@ -5,6 +5,7 @@
 // 저장: { type:"post_link", slug, postId?, title, id }
 
 import React, { useRef, useState } from "react";
+import { useSyncRef } from "@/hooks/useSyncRef";
 import { useEditorRef, useSelected, PlateElement, type PlateElementProps } from "platejs/react";
 import { FileText, ExternalLink, Trash2, Replace } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -47,7 +48,7 @@ export function PostLinkElement(props: PlateElementProps) {
 
   // stale path 방지 — 호출 시점에 path 재탐색 후 removeNodes
   const elementRef = useRef(props.element);
-  elementRef.current = props.element;
+  useSyncRef(elementRef, props.element);
   const removeNode = () => {
     let p: number[] | null = null;
     try { const pp = editor.api.findPath(elementRef.current); p = pp ? Array.from(pp) : null; } catch { p = null; }

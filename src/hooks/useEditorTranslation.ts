@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef } from "react";
+import { useSyncRef } from "@/hooks/useSyncRef";
 import { autoTranslate } from "@/utils/autoTranslate";
 
 interface TranslatableField {
@@ -49,7 +50,7 @@ export function useEditorTranslation({
 
   // Keep a ref so callbacks don't go stale on `form`
   const formRef = useRef(form);
-  formRef.current = form;
+  useSyncRef(formRef, form);
 
   const translateFields = useCallback(
     async (fieldKeys: string[], lang: "ko" | "en") => {

@@ -20,6 +20,7 @@
  */
 
 import { useCallback, useEffect, useRef } from "react";
+import { useSyncRef } from "@/hooks/useSyncRef";
 
 interface UseEditorDraftOptions<T> {
   entityType: "post" | "work";
@@ -89,7 +90,7 @@ export function useEditorDraft<T>({
   const effectiveId = entityId ?? draftEntityId;
   const key = effectiveId ? draftKey(entityType, effectiveId) : null;
   const serverDraftRef = useRef(serverDraft);
-  serverDraftRef.current = serverDraft;
+  useSyncRef(serverDraftRef, serverDraft);
   const restoredRef = useRef(false); // localStorage 복원 결정 완료 여부(= write 활성화)
   const serverDoneRef = useRef(false); // 서버 복원 결정 완료 여부
   // 로드 직후(복원 반영 후) 내용 해시 = pristine baseline. 서버 복원 전에 이것과 달라졌으면
@@ -101,8 +102,8 @@ export function useEditorDraft<T>({
   const applyDraftRef = useRef(applyDraft);
   const ignoredKeysRef = useRef(ignoredKeys);
 
-  applyDraftRef.current = applyDraft;
-  ignoredKeysRef.current = ignoredKeys;
+  useSyncRef(applyDraftRef, applyDraft);
+  useSyncRef(ignoredKeysRef, ignoredKeys);
 
   // ── 1단계: localStorage 복원 + pristine baseline 캡처 (ready=로컬로드 완료 시 한 번) ──
   // write 보다 먼저 실행돼야 draft 안 덮어씀. 여기서 잡은 loadedHashRef 가 이후 "사용자 편집 여부" 기준.

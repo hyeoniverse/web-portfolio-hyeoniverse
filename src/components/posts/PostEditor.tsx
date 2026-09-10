@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useMemo, useRef } from "react";
+import { useSyncRef } from "@/hooks/useSyncRef";
 import type { UploadResponse } from "@/types";
 import { PREVIEW_KEY } from "@/constants";
 import { useRouter } from "next/navigation";
@@ -358,7 +359,7 @@ export default function PostEditor({ post }: PostEditorProps) {
   const initialFormRef = useRef(form);
   // 최신 form 스냅샷 — 이탈(unmount/unload) 핸들러가 stale closure 없이 현재 값을 읽게.
   const formRef = useRef(form);
-  formRef.current = form;
+  useSyncRef(formRef, form);
   // 수동 저장/발행이 끝났으면 이탈저장(draft) 을 발동하지 않음 — 발행글을 draft 로 되돌리는 사고 방지.
   const finalizedRef = useRef(false);
   const isDirty = useMemo(
