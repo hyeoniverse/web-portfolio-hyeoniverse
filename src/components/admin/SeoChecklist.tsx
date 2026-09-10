@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useHasMounted } from "@/hooks/useHasMounted";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, AlertTriangle, ChevronRight, Sparkles } from "@/components/icons";
@@ -33,8 +34,7 @@ export default function SeoChecklist({ data, onItemClick, className }: SeoCheckl
   const { t } = useLanguage();
   const [open, setOpen] = useState(false);
   // SSR + 첫 client render 모두 null 을 리턴해 hydration 일치 — mount 후 portal 트리 노출
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
+  const mounted = useHasMounted();
   const wrapRef = useRef<HTMLDivElement | null>(null);
 
   const checks: { id: SeoCheckId; label: string; ok: boolean; warn?: boolean; hint?: string }[] = [

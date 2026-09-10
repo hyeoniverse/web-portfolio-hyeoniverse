@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useHasMounted } from "@/hooks/useHasMounted";
 import type { Size, Point } from "@/types";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -57,7 +58,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
   const { stop: lenisStop, start: lenisStart } = useLenis();
 
   const [current, setCurrent] = useState(index);
-  const [mounted, setMounted] = useState(false);
+  const mounted = useHasMounted();
   const [loading, setLoading] = useState(true);
   const [zoom, setZoom] = useState(1);
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
@@ -132,7 +133,6 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
   const hasMultiple = images.length > 1;
   const isZoomed = zoom > 1;
 
-  useEffect(() => setMounted(true), []);
 
   // Sync on open
   useEffect(() => {
