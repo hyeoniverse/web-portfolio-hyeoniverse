@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useEffect, useRef, useState } from "react";
+import { useHasMounted } from "@/hooks/useHasMounted";
 import { createPortal } from "react-dom";
 import { useModalStore } from "@/stores/modalStore";
 import { useLenis } from "@/providers/LenisProvider";
@@ -23,7 +24,7 @@ export default function Modal() {
   const { playSound } = useSoundManager();
   const { modals, closeModal } = useModalStore();
   const { stop, start } = useLenis();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useHasMounted();
   const overflowRef = useRef<string>("");
   const [sheetExpanded, setSheetExpanded] = useState(false);
   /* 모달별 footer DOM el — body 가 ModalFooterContext 로 받아 portal 로 렌더. */
@@ -93,7 +94,6 @@ export default function Modal() {
     [playSound, closeModal]
   );
 
-  useEffect(() => setMounted(true), []);
 
   // body overflow 는 첫 modal 이 열릴 때만 (0→1+) capture / set.
   // 누적 모달은 이미 hidden 이므로 다시 capture 하면 "hidden" 을 baseline 으로 잘못 기억해 close 후 영구 lock 됨.

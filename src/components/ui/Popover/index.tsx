@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode, type RefObject } from "react";
+import { useHasMounted } from "@/hooks/useHasMounted";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useIsMobile } from "@/hooks/useIsMobile";
@@ -139,7 +140,7 @@ export default function Popover({
     contentRef.current = node;
     if (externalContentRef) (externalContentRef as { current: HTMLDivElement | null }).current = node;
   };
-  const [mounted, setMounted] = useState(false);
+  const mounted = useHasMounted();
   const { isTouch, isMobile } = useIsMobile();
   // responsive 시 터치 디바이스뿐 아니라 좁은 뷰포트(모바일 모드)에서도 bottom sheet 로 전환
   const useSheet = responsive && (isTouch || isMobile);
@@ -155,7 +156,6 @@ export default function Popover({
     origin: "top right",
   });
 
-  useEffect(() => { setMounted(true); }, []);
 
   const recompute = () => {
     const el = triggerRef.current;
