@@ -162,3 +162,25 @@ test.describe("에디터 표", () => {
     await expect(editor.locator("[data-cell-selected]"), "선택된 칸").toHaveCount(3);
   });
 });
+
+test.describe("코드 블록 하이라이트", () => {
+  test.setTimeout(120_000);
+
+  test("처음에 싣지 않은 언어도 고르면 문법을 받아 칠한다", async ({ page }) => {
+    // 편집기는 흔한 언어만 먼저 싣고 나머지 문법은 그 언어를 쓰는 코드 블록이 생길 때 받는다.
+    // 실제 데이터베이스라 자동저장 같은 쓰기 요청은 모두 막는다.
+    await page.route("**/*", (route) =>
+      ["GET", "HEAD", "OPTIONS"].includes(route.request().method()) ? route.continue() : route.abort());
+    const editor = await openEditor(page);
+    await page.getByRole("button", { name: "Code", exact: true }).click();
+    await page.keyboard.type("procedure Hello is begin null; end Hello;");
+    const keywords = editor.locator('[class*="hljs-keyword"]');
+    await expect(keywords, "언어를 고르기 전에는 글자만 있다").toHaveCount(0);
+
+    await page.getByRole("button", { name: /^(언어 선택|Select language)$/ }).first().click();
+    await page.getByPlaceholder(/^(언어 검색|Search) \(java/).fill("ada");
+    await page.locator('[class*="codeMenuItem"]').filter({ has: page.locator('[class*="codeLangName"]', { hasText: /^Ada$/ }) }).first().click();
+    await expect(keywords.first(), "Ada 문법을 받은 뒤 키워드가 칠해진다").toBeVisible({ timeout: 15_000 });
+    await expect(keywords.filter({ hasText: /^procedure$/ })).toHaveCount(1);
+  });
+});

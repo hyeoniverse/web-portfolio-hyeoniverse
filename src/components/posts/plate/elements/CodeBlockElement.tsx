@@ -34,6 +34,7 @@ import media from "../../EditorMedia.module.css";
 const styles = { ...base, ...code, ...diagram, ...media };
 import Pressable from "@/components/ui/Pressable";
 import { MermaidHelpModal } from "./MermaidHelp";
+import { useLazyGrammars } from "../useLazyGrammars";
 
 /* 코드블록 — 언어 선택기와 요소 — elements.tsx 에서 분리 (#680). */
 
@@ -137,7 +138,7 @@ const CODE_BLOCK_LANGS: ReadonlyArray<CodeLang> = [
   { value: "wasm", label: "WebAssembly", terms: ["wat"] },
   { value: "xml", label: "HTML / XML", terms: ["html", "xhtml", "svg"] },
   { value: "yaml", label: "YAML", terms: ["yml"] },
-  // ── 추가 언어 (lowlight `all` 지원 = 하이라이팅 됨) ──
+  // ── 추가 언어 (lowlight `all` 지원 = 하이라이팅 됨 — 처음엔 싣지 않고 쓰는 블록이 생기면 받는다) ──
   { value: "ada", label: "Ada" },
   { value: "angelscript", label: "AngelScript", terms: ["asc"] },
   { value: "arduino", label: "Arduino", terms: ["ino"] },
@@ -500,6 +501,7 @@ export function CodeBlockElement(props: PlateElementProps) {
   const el = props.element as Record<string, unknown>;
   const wrap = (el.wrap as boolean) ?? false;
   const lang = el.lang as string | undefined;
+  useLazyGrammars(editor, lang);
   const isMermaid = lang === "mermaid";
   /* 그래프 블록 뷰 — 코드만 / 다이어그램만 / 나란히(split).
      **노드에 저장한다**(로컬 state 아님). 의도가 다른 두 경우를 갈라야 하기 때문:
