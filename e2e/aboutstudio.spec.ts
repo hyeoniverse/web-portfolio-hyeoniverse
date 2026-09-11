@@ -209,6 +209,32 @@ test.describe("About 설정 화면", () => {
     await page.keyboard.press("Escape");
   });
 
+  test("About 을 열기만 해서는 저장할 것이 생기지 않는다", async ({ page }) => {
+    // 예전에는 Code Highlights 코드 편집기가 마운트되며 코드를 한 번 올려, 저장값이 비어 기본 데이터를
+    // 보여 주던 목록이 통째로 설정값에 들어갔다. 열기만 해도 저장 단추가 켜지고 떠날 때마다 확인을 물었다.
+    await openAbout(page);
+    await expect(page.locator('[data-section-label="Code Highlights"] .cm-content').first(), "코드 편집기가 떴다").toBeAttached({ timeout: 60_000 });
+    const save = page.getByRole("button", { name: /^(Save Tab|탭 저장)$/ });
+    await expect(save).toBeDisabled();
+    // 편집기가 마운트된 직후 한 박자 뒤에 켜지던 버그라, 잠시 뒤에도 꺼져 있는지 본다
+    await page.waitForTimeout(1_000);
+    await expect(save, "고친 것이 없으면 저장 단추는 꺼져 있다").toBeDisabled();
+  });
+
+  test("저장하지 않은 변경이 있으면 탭을 옮기기 전에 묻고, 취소하면 그대로 둔다", async ({ page }) => {
+    await openAbout(page);
+    const desc = page.getByRole("textbox", { name: /^(개요 설명|Overview description)$/ });
+    await desc.click();
+    await page.keyboard.press("End");
+    await page.keyboard.type(" z");
+    const typed = await desc.inputValue();
+    await page.locator('nav[class*="sideNav"]').getByText(/^General$/).click();
+    await expect(page.getByText(/^(저장하지 않은 변경이 있습니다\. 이동하면 변경이 사라집니다\.|You have unsaved changes\. They will be lost if you leave\.)$/), "옮기기 전에 묻는다").toBeVisible();
+    await page.getByRole("button", { name: /^(취소|Cancel)$/ }).last().click();
+    await expect(page, "취소하면 About 에 남는다").toHaveURL(/sub=about/);
+    await expect(desc, "고친 글도 그대로").toHaveValue(typed);
+  });
+
   test("입력칸이 실제로 그려진다", async ({ page }) => {
     await openAbout(page);
     const count = await page.locator("input, textarea").count();

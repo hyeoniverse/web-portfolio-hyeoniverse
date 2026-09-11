@@ -90,14 +90,16 @@ function Body({ onChange }: { onChange: (f: Files) => void }) {
   const [adding, setAdding] = useState(false);
   const lastSent = useRef<Files | null>(null);
 
-  /* 에디터 편집분을 config 로 올린다. visibleFiles 만 — 템플릿 기본 파일까지 저장하면 안 된다. */
+  /* 에디터 편집분을 config 로 올린다. visibleFiles 만 — 템플릿 기본 파일까지 저장하면 안 된다.
+     처음 값은 props 에서 온 것이라 올리지 않는다 — 편집기를 열기만 해도 "바뀜" 이 되지 않게(CodeBlockEditor 와 같다). */
   useEffect(() => {
     const next: Files = {};
     for (const p of sandpack.visibleFiles) {
       const f = sandpack.files[p] as { code?: string } | undefined;
       if (f) next[p] = f.code ?? "";
     }
-    if (lastSent.current && shallowEqual(lastSent.current, next)) return;
+    if (!lastSent.current) { lastSent.current = next; return; }
+    if (shallowEqual(lastSent.current, next)) return;
     lastSent.current = next;
     onChange(next);
   }, [sandpack.files, sandpack.visibleFiles, onChange]);

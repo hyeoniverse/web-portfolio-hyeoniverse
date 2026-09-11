@@ -214,6 +214,8 @@
       "resetDefaults": "Reset to Defaults",
       "resetDefaultsTooltip": "Revert form to code defaults (site.config). Overwrites DB on save",
       "resetDefaultsConfirm": "Reset all settings to code defaults? Saving will overwrite the DB with the defaults.",
+      "leaveConfirm": "You have unsaved changes. They will be lost if you leave.",
+      "leaveConfirmAction": "Discard and leave",
       "personal": "Personal",
       "brand": "Brand",
       "contact": "Contact",
