@@ -58,6 +58,14 @@
   position: sticky;
   top: calc(var(--header-height) + var(--spacing-2xl));
   align-self: flex-start;
+  /* About 에서 섹션 목록(SectionOutline)까지 펼치면 화면보다 길어진다. 붙어 있는 동안에는 화면 아래로
+     넘친 항목(Appearance·Account)이 보이지 않으므로, 화면 높이까지만 두고 안에서 스크롤한다. */
+  /* --side-nav-room — 붙는 선에서 틀(.layout) 끝까지 남은 자리. 페이지 끝에서 틀에 밀려 nav 와
+     겹치지 않게 그만큼으로 줄인다(page.tsx 효과가 스크롤마다 넣는다). */
+  max-height: min(calc(100dvh - var(--header-height) - var(--spacing-2xl) - var(--spacing-md)), var(--side-nav-room, 100dvh));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
   border-top: var(--border-light);
 }
 
@@ -125,6 +133,8 @@
     scrollbar-width: none;
     /* sticky/frost 는 래퍼(.tabBarSticky)가 맡는다 — 여기선 스크롤만 */
     position: static;
+    max-height: none;
+    overscroll-behavior: auto;
     gap: 0;
     padding: 0;
     border-top: none;

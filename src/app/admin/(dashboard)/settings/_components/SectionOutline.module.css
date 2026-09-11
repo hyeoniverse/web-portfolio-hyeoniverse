@@ -1,0 +1,51 @@
+/* 사이드바 하위 탭(ABOUT) 아래의 섹션 목록 — 하위 탭보다 한 단 들여 작게.
+   줄마다 선을 긋는 하위 탭과 달리 왼쪽 세로선 하나로 묶어, 탭이 아니라 이 화면 안의 목차로 읽히게 한다. */
+.outline {
+  display: flex;
+  flex-direction: column;
+  margin: var(--spacing-2xs) 0 var(--spacing-sm) calc(var(--spacing-md) + var(--spacing-xs));
+  padding: 0;
+  list-style: none;
+  border-left: var(--border-light);
+}
+
+.item {
+  display: block;
+  width: 100%;
+  padding: var(--spacing-3xs) var(--spacing-sm);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-label);
+  line-height: 1.5;
+  color: var(--text-tertiary);
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.item:hover {
+  color: var(--text-accent);
+}
+
+/* 지금 보고 있는 섹션 — 세로선 위에 accent 막대를 겹쳐 자리를 짚는다 */
+.itemActive {
+  position: relative;
+  color: var(--text-accent);
+  font-weight: 600;
+}
+.itemActive::before {
+  content: "";
+  position: absolute;
+  top: 20%;
+  bottom: 20%;
+  left: -1px;
+  width: 2px;
+  background: var(--text-accent);
+}
+
+/* 태블릿·모바일 — 사이드바가 가로 탭 바가 되므로 숨긴다. 오른쪽 눈금(SectionJumpNav)이 대신한다. */
+@media (max-width: 1024px) {
+  .outline {
+    display: none;
+  }
+}
