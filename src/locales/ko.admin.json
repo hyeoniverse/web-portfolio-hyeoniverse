@@ -663,6 +663,7 @@
       "aboutTechStackCategory": "카테고리 (예: Framework)",
       "aboutTechStackAdd": "추가",
       "aboutTechStackRemove": "삭제",
+      "aboutTechStackDrag": "끌어서 순서·카테고리 바꾸기",
       "aboutTechStackPresetTitle": "프리셋에서 추가",
       "aboutTechStackCustomTitle": "직접 추가",
       "aboutTechStackSearch": "검색 (예: react, figma)",
