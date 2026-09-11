@@ -101,7 +101,7 @@ export default function AboutSection() {
       <section className={styles.section} ref={sectionRef} suppressHydrationWarning>
         {isMobile && (
           <nav
-            aria-label="About 섹션"
+            aria-label={language === "ko" ? "About 섹션" : "About sections"}
             className={`${styles.mobileTabBar} ${
               tabBarHidden ? styles.mobileTabBarHidden : ""
             }`}

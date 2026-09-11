@@ -169,10 +169,10 @@ export function useTroubleContent(language: Language) {
                         e.stopPropagation();
                         openImageViewer(item, img);
                       }}
-                      aria-label="크게 보기"
+                      aria-label={language === "ko" ? "크게 보기" : "View larger"}
                     >
                       <Maximize2 strokeWidth={2} className={styles.ideDiagramHintIcon} />
-                      크게 보기
+                      {language === "ko" ? "크게 보기" : "View larger"}
                     </Pressable>
                   </div>
                   {img.caption && (

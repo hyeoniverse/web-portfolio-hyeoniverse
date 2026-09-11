@@ -11,6 +11,7 @@ import { ImageViewer } from "@/components/ui/ImageViewer";
 import { WINS, getTextPositions } from "./profileWindowConfig";
 import type { ProfileInfoBlock } from "@/types/profile";
 import styles from "./ProfileMeSection.module.css";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 
 const TITLE_BAR_HEIGHT = 34;
@@ -23,6 +24,7 @@ interface Props {
 }
 
 export default function ProfileWindows({ className, isMobile, infoBlocks }: Props) {
+  const { language } = useLanguage();
   const siteConfig = useSiteConfig();
   const TEXT_POSITIONS = getTextPositions(siteConfig, infoBlocks);
 
@@ -195,7 +197,7 @@ export default function ProfileWindows({ className, isMobile, infoBlocks }: Prop
             onClick={() => setProfileViewerOpen(true)}
             role="button"
             tabIndex={0}
-            aria-label="프로필 사진 크게 보기"
+            aria-label={language === "ko" ? "프로필 사진 크게 보기" : "View profile photo larger"}
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
