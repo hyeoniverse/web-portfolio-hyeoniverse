@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useMemo, useRef, type ReactNode } from "react";
+import { useCallback, useState, useMemo, useRef, type HTMLAttributes, type ReactNode } from "react";
 import { useStateFromProp } from "@/hooks/useStateFromProp";
+import { useSyncRef } from "@/hooks/useSyncRef";
 import { TECH_ICON_PRESETS, type TechIconPreset } from "@/data/techIconPresets";
 import type { SelectOption } from "@/types";
 import { Plus, Check, X } from "@/components/icons";
-import { DndContext, pointerWithin, KeyboardSensor, PointerSensor, useSensor, useSensors, useDraggable, useDroppable, DragOverlay, type DragEndEvent, type DragStartEvent } from "@dnd-kit/core";
+import { DndContext, closestCenter, pointerWithin, KeyboardSensor, PointerSensor, useSensor, useSensors, useDraggable, useDroppable, DragOverlay, type Active, type CollisionDetection, type DragEndEvent, type DragMoveEvent, type DragStartEvent, type KeyboardCoordinateGetter, type Over } from "@dnd-kit/core";
 import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
 import { type TFunction } from "@/providers/LanguageProvider";
 import Input from "@/components/ui/Input";
@@ -93,7 +94,7 @@ export default function AboutTechStackEditor({ items, onChange, t }: {
   // 기존 항목에서 실제 쓰이는 카테고리 — 카테고리 입력 제안에 우선 노출
   const currentCats = Array.from(new Set(items.map((i) => i.category).filter(Boolean)));
 
-  // ── 칩 drag&drop 으로 그룹(카테고리) 이동 ──
+  // ── 칩 drag&drop — 같은 카테고리 안의 순서, 다른 카테고리로 이동 ──
   // 그룹(표시) 순서는 항목 위치가 아니라 별도 상태로 관리 — 그래야 (1) 첫 항목을 옮겨도
   // 그룹 순서가 안 뒤집히고(switch 버그 방지) (2) 내용물이 비어도 그룹이 사라지지 않는다.
   const [groupOrder, setGroupOrder] = useState<string[]>(() => {
@@ -102,29 +103,88 @@ export default function AboutTechStackEditor({ items, onChange, t }: {
     return o;
   });
   const [dragIdx, setDragIdx] = useState<number | null>(null);
+  /* 놓일 자리 — 칩 위면 그 칩의 앞(left)·뒤(right)에 막대로 보인다. 카테고리의 빈 곳이면 그 카테고리 끝 */
+  const [drop, setDrop] = useState<{ id: string; side: "left" | "right" } | null>(null);
+  /* 키보드 — 방향키 한 번에 한 자리씩, 화면의 표시 순서대로(카테고리를 넘어) 옮긴다. ←·↑ 는 앞, →·↓ 는 뒤.
+     기본 좌표는 한 번에 25px 씩이라 칩 하나를 넘기려면 여러 번 눌러야 했다.
+     자리는 카테고리마다 "각 칩의 앞" 과 "끝" 이다. 카테고리 끝과 다음 카테고리 첫 칩 앞은 줄로 이으면
+     같은 자리지만 들어갈 카테고리가 다르므로 따로 센다. 끄는 칩만 있던 카테고리는 그 카테고리 한 자리다.
+     끄는 칩을 대상 칩 가운데보다 1px 앞·뒤에 두어 놓일 쪽(sideOf)이 그대로 정해지게 한다. */
+  const layoutRef = useRef<{ cat: string; ids: string[] }[]>([]);
+  const keyboardCoordinates = useCallback<KeyboardCoordinateGetter>((event, { context: { active, over, droppableRects, collisionRect } }) => {
+    const step = KEY_STEP[event.code];
+    if (!step || !active || !collisionRect) return undefined;
+    event.preventDefault();
+    const activeId = String(active.id);
+    const spots: { id: string; nudge: number }[] = [];
+    let start = -1;
+    for (const g of layoutRef.current) {
+      const ids = g.ids.filter((id) => id !== activeId);
+      const own = g.ids.indexOf(activeId);
+      if (ids.length === 0) {
+        if (own >= 0) start = spots.length;
+        spots.push({ id: `techgroup:${g.cat}`, nudge: 0 });
+        continue;
+      }
+      if (own >= 0) start = spots.length + own;
+      ids.forEach((id) => spots.push({ id, nudge: -1 }));
+      spots.push({ id: ids[ids.length - 1], nudge: 1 });
+    }
+    const overId = over ? String(over.id) : "";
+    const o = droppableRects.get(overId);
+    let cur = start;
+    if (overId.startsWith("techgroup:")) cur = spots.findIndex((p) => p.id === overId);
+    else if (overId && overId !== activeId && o) {
+      const before = spots.findIndex((p) => p.id === overId && p.nudge === -1);
+      cur = before + (collisionRect.left + collisionRect.width / 2 >= o.left + o.width / 2 ? 1 : 0);
+    }
+    const spot = spots[Math.max(0, Math.min(spots.length - 1, cur + step))];
+    const r = spot && droppableRects.get(spot.id);
+    if (!r) return undefined;
+    return { x: r.left + r.width / 2 + spot.nudge - collisionRect.width / 2, y: r.top + r.height / 2 - collisionRect.height / 2 };
+  }, []);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
-    useSensor(KeyboardSensor),
+    useSensor(KeyboardSensor, { coordinateGetter: keyboardCoordinates }),
   );
+  /* 끄는 칩이 움직일 때(onDragMove)와 놓을 대상이 바뀔 때(onDragOver) 둘 다 잰다. onDragMove 는 대상이
+     다시 계산되기 전에 와서, 키보드로 한 칸 옮기면 막대가 한 칸 전 자리를 가리켰다. */
+  const track = (e: DragMoveEvent) => {
+    const id = e.over ? String(e.over.id) : "";
+    if (!id.startsWith("techchip:") || id === String(e.active.id)) { setDrop(null); return; }
+    const side = sideOf(e.active, e.over);
+    setDrop((p) => (p?.id === id && p.side === side ? p : { id, side }));
+  };
   const handleDragEnd = (e: DragEndEvent) => {
     setDragIdx(null);
+    setDrop(null);
     const { active, over } = e;
     if (!over) return;
     const idx = Number(String(active.id).replace("techchip:", ""));
-    const targetCat = String(over.id).replace("techgroup:", "");
     if (Number.isNaN(idx) || !items[idx]) return;
     const moved = items[idx];
     const sourceCat = moved.category || "";
-    if (sourceCat === targetCat) return;
-
-    // moved 를 targetCat 그룹의 마지막 항목 뒤(=그룹 끝)에 삽입. 그룹 순서는 state 가 책임지므로
-    // 배열 순서는 그룹 내 정렬만 의미가 있다.
-    const updated = { ...moved, category: targetCat };
+    const overId = String(over.id);
     const rest = items.filter((_, i) => i !== idx);
-    let lastTarget = -1;
-    rest.forEach((it, i) => { if ((it.category || "") === targetCat) lastTarget = i; });
+    let targetCat: string;
+    let at: number;
+    if (overId.startsWith("techchip:")) {
+      // 칩 위에 놓았다 — 그 칩의 앞이나 뒤, 그 칩의 카테고리로
+      const target = items[Number(overId.replace("techchip:", ""))];
+      if (!target || target === moved) return;
+      targetCat = target.category || "";
+      at = rest.indexOf(target) + (sideOf(active, over) === "left" ? 0 : 1);
+    } else {
+      // 카테고리의 빈 곳에 놓았다 — 그 카테고리의 끝
+      targetCat = overId.replace("techgroup:", "");
+      let lastTarget = -1;
+      rest.forEach((it, i) => { if ((it.category || "") === targetCat) lastTarget = i; });
+      at = lastTarget >= 0 ? lastTarget + 1 : rest.length;
+    }
+    // 그룹 순서는 state 가 책임지므로 배열 순서는 그룹 내 정렬만 의미가 있다
     const next = [...rest];
-    next.splice(lastTarget >= 0 ? lastTarget + 1 : next.length, 0, updated);
+    next.splice(at, 0, { ...moved, category: targetCat });
+    if (next.every((it, i) => it === items[i])) return;
     onChange(next);
 
     // source 그룹은 비어도 유지 + target 이 새 그룹이면 순서에 추가
@@ -150,8 +210,12 @@ export default function AboutTechStackEditor({ items, onChange, t }: {
     const key = item.category || "";
     if (!orderSet.has(key)) { orderSet.add(key); order.push(key); }
   });
+  /* 화면에 보이는 카테고리와 칩 순서 — 키보드 이동이 이 순서로 한 자리씩 간다(그리지 않는 빈 무카테고리 제외) */
+  useSyncRef(layoutRef, order
+    .filter((cat) => cat !== "" || groups.has(cat))
+    .map((cat) => ({ cat, ids: (groups.get(cat) ?? []).map(({ idx }) => `techchip:${idx}`) })));
 
-  const renderChip = (item: TechItem, idx: number) => (
+  const renderChip = (item: TechItem, idx: number, handle: HTMLAttributes<HTMLElement>, dragging: boolean) => (
     <Popover
       key={idx}
       placement="bottom-start"
@@ -159,6 +223,9 @@ export default function AboutTechStackEditor({ items, onChange, t }: {
       trigger={
         <Chip
           showHandle
+          handleProps={{ ...handle, "aria-label": t("admin.settings.aboutTechStackDrag"), title: t("admin.settings.aboutTechStackDrag"), ...{ "data-cursor": "grab" } }}
+          dragging={dragging}
+          dropSide={drop?.id === `techchip:${idx}` ? drop.side : null}
           leftIcon={
             <span className={styles.techIconTile}>
               <TechIcon icon={item.icon} name={item.name} />
@@ -175,7 +242,7 @@ export default function AboutTechStackEditor({ items, onChange, t }: {
   );
 
   return (
-    <DndContext sensors={sensors} collisionDetection={pointerWithin} onDragStart={(e: DragStartEvent) => setDragIdx(Number(String(e.active.id).replace("techchip:", "")))} onDragEnd={handleDragEnd} onDragCancel={() => setDragIdx(null)}>
+    <DndContext sensors={sensors} collisionDetection={chipFirst} onDragStart={(e: DragStartEvent) => setDragIdx(Number(String(e.active.id).replace("techchip:", "")))} onDragMove={track} onDragOver={track} onDragEnd={handleDragEnd} onDragCancel={() => { setDragIdx(null); setDrop(null); }}>
       <LayoutGroup>
       <div className={styles.techGroups}>
         {order.map((cat) => {
@@ -192,7 +259,7 @@ export default function AboutTechStackEditor({ items, onChange, t }: {
                   const layoutId = item.name ? `tech-${item.name}` : `tech-empty-${idx}`;
                   return (
                     <DraggableTechChip key={layoutId} idx={idx} layoutId={layoutId}>
-                      {renderChip(item, idx)}
+                      {(handle, dragging) => renderChip(item, idx, handle, dragging)}
                     </DraggableTechChip>
                   );
                 })}
@@ -230,26 +297,50 @@ export default function AboutTechStackEditor({ items, onChange, t }: {
   );
 }
 
-/* drag 가능한 칩 wrapper — listeners 는 chip 전체에(activationConstraint distance 로 클릭 공존).
-   data-cursor="grab" 도 chip 전체 → 어디에 올려도 커스텀 커서가 "Drag" 로 표시.
-   layout/layoutId(framer-motion) → drop 으로 위치·그룹 바뀔 때 FLIP 애니메이션. */
-function DraggableTechChip({ idx, layoutId, children }: { idx: number; layoutId: string; children: ReactNode }) {
-  const { setNodeRef, listeners, attributes, isDragging } = useDraggable({ id: `techchip:${idx}` });
+/* 끌 수 있는 칩 — 끌기 대상이면서 놓을 자리(그 칩의 앞·뒤)다. 손잡이(Chip 의 grip)로만 끈다.
+   예전에는 칩 전체를 잡게 해서, 손잡이는 표시일 뿐이었고 칩 위에서 시작한 터치는 페이지를
+   스크롤하지 못했다(칩 전체가 touch-action: none). 칩을 누르면 편집 팝오버가 열린다.
+   끄는 칩은 DragOverlay 가 따라가고 제자리 칩은 흐려질 뿐 움직이지 않는다 — 다른 칩을 미리
+   밀어 두면 framer-motion 의 layout 애니메이션과 transform 이 부딪힌다. 놓으면 layout 이 옮긴다. */
+function DraggableTechChip({ idx, layoutId, children }: {
+  idx: number; layoutId: string; children: (handle: HTMLAttributes<HTMLElement>, dragging: boolean) => ReactNode;
+}) {
+  const id = `techchip:${idx}`;
+  const drag = useDraggable({ id });
+  const { setNodeRef: setDropRef } = useDroppable({ id });
+  const { setNodeRef: setDragRef } = drag;
+  const ref = useCallback((el: HTMLElement | null) => { setDragRef(el); setDropRef(el); }, [setDragRef, setDropRef]);
   return (
     <motion.div
-      ref={setNodeRef}
+      ref={ref}
       layout
       layoutId={layoutId}
       transition={{ type: "spring", stiffness: 550, damping: 38, mass: 0.7 }}
-      data-cursor="grab"
-      {...attributes}
-      {...listeners}
-      className={`${styles.techDragWrap} ${isDragging ? styles.techDragSource : ""}`}
+      className={styles.techDragWrap}
     >
-      {children}
+      {children({ ...drag.attributes, ...drag.listeners }, drag.isDragging)}
     </motion.div>
   );
 }
+
+const KEY_STEP: Record<string, number> = { ArrowLeft: -1, ArrowUp: -1, ArrowRight: 1, ArrowDown: 1 };
+
+/* 놓일 쪽 — 끄는 칩(DragOverlay)의 가운데가 대상 칩 가운데보다 왼쪽이면 앞, 아니면 뒤.
+   포인터가 아니라 칩 위치로 재므로 키보드로 옮길 때도 같다. */
+function sideOf(active: Active, over: Over | null): "left" | "right" {
+  const a = active.rect.current.translated;
+  const o = over?.rect;
+  if (!a || !o) return "right";
+  return a.left + a.width / 2 < o.left + o.width / 2 ? "left" : "right";
+}
+
+/* 놓을 자리는 포인터 아래의 칩이 먼저다. 칩 사이 빈 곳이면 그 카테고리, 키보드면 가장 가까운 곳 */
+const chipFirst: CollisionDetection = (args) => {
+  const hits = pointerWithin(args);
+  const chips = hits.filter((h) => String(h.id).startsWith("techchip:"));
+  if (chips.length > 0) return chips;
+  return hits.length > 0 ? hits : closestCenter(args);
+};
 
 /* drop 가능한 그룹 — 위에 드래그하면 하이라이트, drop 시 해당 카테고리로 이동 */
 function DroppableTechGroup({ cat, children }: { cat: string; children: ReactNode }) {
