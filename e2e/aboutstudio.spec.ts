@@ -257,6 +257,31 @@ test.describe("About 설정 화면", () => {
     await expect(save).toHaveAccessibleName(/(1 changed|1곳 바뀜)$/);
   });
 
+  test("열 때는 코드 데모 미리보기와 원본 스크린샷을 받지 않고, 그 블록에 가면 받는다", async ({ page }) => {
+    // Code Highlights 의 코드 데모 미리보기(Sandpack)는 CodeSandbox 에서 3 MB 가까이 받고, Key Features 의 기본
+    // 이미지는 PC 스크린샷 원본 PNG(8장에 3 MB)였다. 둘 다 한참 아래 블록인데 About 을 열기만 해도 받았다.
+    const sandbox: string[] = [];
+    const originals: string[] = [];
+    page.on("request", (r) => {
+      const u = r.url();
+      if (u.includes("codesandbox.io")) sandbox.push(u);
+      if (u.includes("/images/screenshots/") && !u.includes("/_next/image")) originals.push(u);
+    });
+    await openAbout(page);
+    await page.waitForTimeout(3_000);
+    expect(sandbox, "열 때는 CodeSandbox 로 요청하지 않는다").toEqual([]);
+
+    const features = page.locator('[data-section-label="Key Features"]');
+    await features.scrollIntoViewIfNeeded();
+    await expect(features.locator("img").first(), "Key Features 이미지가 뜬다").toBeVisible();
+    await expect(features.locator('img[src^="/images/"]'), "사이트 안 이미지는 최적화 경로로 받는다").toHaveCount(0);
+    expect(originals, "원본 스크린샷은 받지 않는다").toEqual([]);
+
+    const code = page.locator('[data-section-label="Code Highlights"]');
+    await code.scrollIntoViewIfNeeded();
+    await expect(code.locator("iframe").first(), "데모 칸에 오면 미리보기를 띄운다").toBeAttached({ timeout: 30_000 });
+  });
+
   test("입력칸이 실제로 그려진다", async ({ page }) => {
     await openAbout(page);
     const count = await page.locator("input, textarea").count();
