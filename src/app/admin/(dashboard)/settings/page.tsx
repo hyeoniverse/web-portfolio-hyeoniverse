@@ -2,6 +2,7 @@
 
 import { Fragment, useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
+import dynamic from "next/dynamic";
 import { Settings as SettingsIcon } from "@/components/icons";
 import { useStaticPageScroll } from "@/hooks/useStaticPageScroll";
 import { useLeaveGuard } from "@/hooks/useLeaveGuard";
@@ -18,15 +19,10 @@ import type { ProfileData } from "@/types/profile";
 import { TAB_IDS, TAB_CONFIG_KEYS, type TabId, CONTENT_SUBTABS, type ContentSubTab, deepMerge, deepEqual, computeDelta, extractDefaults, detectConflicts, isDeltaFormat, filterOrphanedKeys, getTabForConfigPath, getContentSubTabForKey, getByPath, setByPath, type ConfigConflict } from "./_data/settingsConstants";
 import { buildDeltaPayload as sharedBuildDeltaPayload } from "@/lib/settingsDelta";
 import GeneralTab from "./_components/GeneralTab";
-import ContentTab from "./_components/ContentTab";
-import AppearanceTab from "./_components/AppearanceTab";
-import ServicesTab from "./_components/ServicesTab";
-import AccountTab from "./_components/AccountTab";
 import SectionHeader from "./_components/SectionHeader";
 import SectionJumpNav from "./_components/SectionJumpNav";
 import SectionOutline from "./_components/SectionOutline";
 import { useSettingsSections } from "./_hooks/useSettingsSections";
-import AuthorsEditor from "./_components/AuthorsEditor";
 import T from "@/components/ui/T";
 import Button from "@/components/ui/Button";
 import Checkbox from "@/components/ui/Checkbox";
@@ -41,6 +37,16 @@ import { OWNER_AUTHOR_ID, withOwnerAuthor } from "@/utils/resolvePostAuthors";
 import { fillTemplate } from "@/utils/format";
 import type { SaveResult } from "./_types";
 import Pressable from "@/components/ui/Pressable";
+
+/* 탭은 연 것만 받는다. 다섯 탭의 편집기를 모두 정적으로 불러오던 때는 General 탭을 열어도 About 스튜디오의
+   코드 편집기(CodeMirror·Sandpack)·ERD 캔버스·에디터 코어까지 받아 자바스크립트가 1.6 MB 였다.
+   처음 여는 General 만 그대로 두고, 나머지는 그 탭을 열 때 받는다. 받는 동안은 불러오기 뼈대를 보인다. */
+const tabLoading = () => <SettingsSkeleton />;
+const ContentTab = dynamic(() => import("./_components/ContentTab"), { loading: tabLoading });
+const AppearanceTab = dynamic(() => import("./_components/AppearanceTab"), { loading: tabLoading });
+const ServicesTab = dynamic(() => import("./_components/ServicesTab"), { loading: tabLoading });
+const AccountTab = dynamic(() => import("./_components/AccountTab"));
+const AuthorsEditor = dynamic(() => import("./_components/AuthorsEditor"));
 const styles = { ...shared, ...local };
 
 const PROFILE_SECTION_LABELS: Record<string, string> = {
