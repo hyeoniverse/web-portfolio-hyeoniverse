@@ -74,4 +74,26 @@ test.describe("설정 화면", () => {
     expect(number, "번호는 번호만큼만 차지한다").toBeLessThan(line / 4);
     expect(titleStart, "제목이 줄 안에서 시작한다").toBeLessThan(line);
   });
+  test("탭을 주소로 바로 열 때 불러오는 동안 사이트 푸터가 밀리지 않는다", async ({ page }) => {
+    // 설정값과 탭 편집기를 받는 동안 보이는 뼈대가 실제 내용보다 짧아, 긴 화면에서 푸터가 화면 안에 그려졌다가
+    // 내용이 들어오며 밀려 내려갔다(1440×1400 에서 레이아웃 밀림 0.21, #838). 탭 편집기를 연 뒤에 받게 되면서
+    // 보통 높이(900)에서도 같은 일이 생길 수 있어, 뼈대가 있는 동안 푸터를 감춘다.
+    await page.setViewportSize({ width: 1440, height: 1400 });
+    await page.addInitScript(() => {
+      const w = window as unknown as { __footerShift: number };
+      w.__footerShift = 0;
+      new PerformanceObserver((list) => {
+        type Shift = { value: number; hadRecentInput: boolean; sources?: { node?: Node | null }[] };
+        for (const e of list.getEntries() as unknown as Shift[]) {
+          if (e.hadRecentInput) continue;
+          if ((e.sources ?? []).some((s) => s.node instanceof Element && s.node.tagName === "FOOTER")) w.__footerShift += e.value;
+        }
+      }).observe({ type: "layout-shift", buffered: true });
+    });
+    await openSettings(page, "tab=appearance");
+    await expect(page.locator("[data-settings-section]").first(), "Appearance 탭 내용").toBeVisible({ timeout: 30_000 });
+    await page.waitForTimeout(1_500);
+    const shift = await page.evaluate(() => (window as unknown as { __footerShift: number }).__footerShift);
+    expect(shift, "푸터가 일으킨 레이아웃 밀림").toBeLessThan(0.01);
+  });
 });
