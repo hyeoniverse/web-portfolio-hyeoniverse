@@ -373,6 +373,19 @@
   margin: 0;
 }
 
+/* 글 줄 안에 놓일 때(시리즈 제목 앞 "#1_", 새 시리즈의 순서 칸) — 칸을 채우지 않고 번호만큼 차지한다.
+   칸 채우기(width: 100%)는 표의 # 칸 전용이다. 글 줄 안에서 채우면 번호가 줄 전체 폭이 되어
+   제목이 말줄임표에 통째로 가려졌다. 최소 4ch 는 표 고정폭 이전의 크기다.
+   overflow 는 되돌린다 — hidden 이면 inline-block 의 기준선이 아래 끝으로 내려가 번호가 글줄 위로 뜬다. */
+.rowNumText.rowNumInline {
+  width: auto;
+  min-width: 4ch;
+  overflow: visible;
+}
+.rowNumInput.rowNumInline {
+  width: 4ch;
+}
+
 .rowDragging {
   opacity: 0.4;
 }
