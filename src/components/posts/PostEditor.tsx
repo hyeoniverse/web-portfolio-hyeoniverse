@@ -85,6 +85,7 @@ interface PostEditorProps {
 }
 
 import Pressable from "@/components/ui/Pressable";
+import AuthorAvatar from "@/components/ui/AuthorAvatar";
 
 /** Revision detail panel — lang 별 라벨/필드 로컬라이즈 + 해당 lang KO|EN 값만 노출. */
 function postSnapshotMeta(s: PostFormData, seriesList: { id: string; title: string }[], authorNames: Map<string, string>, lang: "ko" | "en"): import("@/components/admin/AdminEditorShell/types").RevisionMetaGroup[] {
@@ -1166,12 +1167,7 @@ export default function PostEditor({ post }: PostEditorProps) {
                           }
                         }}
                       >
-                        {a.avatar ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={a.avatar} alt="" className={styles.authorChipAvatar} />
-                        ) : (
-                          <span className={styles.authorChipAvatar} aria-hidden>{(a.name || "?").charAt(0)}</span>
-                        )}
+                        <AuthorAvatar value={a.avatar} name={a.name} size={22} className={styles.authorChipAvatar} />
                         <span>{a.name}</span>
                       </Pressable>
                     );

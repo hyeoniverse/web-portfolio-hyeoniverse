@@ -5,6 +5,7 @@ import { useDepsChanged } from "@/hooks/useDepsChanged";
 import { ChevronRight, GripVertical, ImageIcon, Search } from "@/components/icons";
 import { motion, LayoutGroup, AnimatePresence } from "framer-motion";
 import CloseButton from "@/components/ui/CloseButton";
+import MediaThumb from "@/components/ui/MediaThumb";
 import styles from "./RelationPicker.module.css";
 import Pressable from "@/components/ui/Pressable";
 
@@ -180,10 +181,11 @@ export default function RelationPicker<T>({
                   >
                     <span className={styles.optionIndex}>#{idx + 1}</span>
                     {thumb && !thumbBroken ? (
-                      /* eslint-disable-next-line @next/next/no-img-element */
-                      <img
+                      /* 24px 칸에 표지 원본(1200px, 한 장에 100~190KB)을 받고 있었다 — 칸 크기로 받는다 */
+                      <MediaThumb
                         src={thumb}
-                        alt=""
+                        width={24}
+                        height={24}
                         className={styles.optionThumb}
                         onError={() => markThumbError(`opt:${id}`)}
                       />
@@ -301,10 +303,10 @@ export default function RelationPicker<T>({
                   </span>
                   <span className={styles.chipIndex}>#{chipIndex}</span>
                   {thumb && !thumbBroken ? (
-                    /* eslint-disable-next-line @next/next/no-img-element */
-                    <img
+                    <MediaThumb
                       src={thumb}
-                      alt=""
+                      width={16}
+                      height={16}
                       className={styles.chipThumb}
                       onError={() => markThumbError(`chip:${id}`)}
                     />

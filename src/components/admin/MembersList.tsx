@@ -9,6 +9,7 @@ import { useModalStore } from "@/stores/modalStore";
 import type { Member, MembersResponse, PendingMember } from "@/types/member";
 import type { Author } from "@/types/author";
 import { RoleBadge, ProviderChips } from "./MemberBadges";
+import AuthorAvatar from "@/components/ui/AuthorAvatar";
 import MemberDetailModal from "@/app/admin/(dashboard)/settings/_components/MemberDetailModal";
 import styles from "./MembersList.module.css";
 import { formatRelativeTime } from "@/utils/relativeTime";
@@ -115,14 +116,8 @@ export default function MembersList({ limit, showInvites = true, hideHeader = fa
               }}
             >
               <span className={styles.avatar}>
-                {m.avatar ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={m.avatar} alt="" className={styles.avatarImg} />
-                ) : (
-                  <span className={styles.avatarInitial} aria-hidden>
-                    {(m.name || m.email || "?").charAt(0).toUpperCase()}
-                  </span>
-                )}
+                <AuthorAvatar value={m.avatar} name={m.name || m.email} size={34}
+                  imgClassName={styles.avatarImg} initialClassName={styles.avatarInitial} />
               </span>
               <div className={styles.info}>
                 <div className={styles.nameRow}>
