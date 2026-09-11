@@ -3,19 +3,17 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import css from "../../AboutStudio.module.css";
 import { AboutFontPicker } from "../fields";
-import { Plus, Lock } from "@/components/icons";
+import { Lock } from "@/components/icons";
 import cf from "@/components/layout/CreditsFooter/CreditsFooter.module.css";
 import { AlignIcon } from "@/components/posts/plate/icons";
 import FloatingBar from "@/components/posts/plate/toolbars/FloatingBar";
 import Button from "@/components/ui/Button";
-import Chip from "@/components/ui/Chip";
-import { useChipReorder } from "@/components/ui/Chip/useChipReorder";
 import NumberInput from "@/components/ui/NumberInput";
-import Pressable from "@/components/ui/Pressable";
 import Textarea from "@/components/ui/Textarea";
 import { type SiteConfigData } from "@/config/site.config";
 import { type TFunction } from "@/providers/LanguageProvider";
 import { type Language } from "@/types";
+import { ChipList, ListLimit } from "../listControls";
 import { useL } from "../primitives";
 /* 덧붙일 문구 제한 — 저작자 표시 아래 보조 문구라 길어질 이유가 없다.
    행 수를 고정해 문구 길이와 무관하게 프리뷰 높이를 일정하게 유지한다. */
@@ -59,15 +57,6 @@ export function CreditsBlock({ about, setAny, lang, nickname, t }: {
   const names = (about.creditsNames ?? []);
   const setNames = (v: string[]) => setAny("creditsNames", v);
   const MAX_NAMES = 8;
-  const [adding, setAdding] = useState(false);
-  const [editingName, setEditingName] = useState<number | null>(null);
-  /* 이름 순서 변경 — 공통 useChipReorder */
-  const nameDrag = useChipReorder((from, to) => {
-    const next = [...names];
-    const [moved] = next.splice(from, 1);
-    next.splice(to, 0, moved);
-    setNames(next);
-  });
   const noteRef = useRef<HTMLDivElement>(null);
   const [noteFocused, setNoteFocused] = useState(false);
   /* 바깥 클릭으로 닫는다. blur 로 판정하면 FontPicker 처럼 포커스를 안 가져가는
@@ -107,59 +96,12 @@ export function CreditsBlock({ about, setAny, lang, nickname, t }: {
               {nickname}
               <Lock size={11} />
             </span>
-            {names.map((n, i) => {
-              const { dragging, dropSide, ...dragProps } = nameDrag.itemProps(i);
-              if (editingName === i) {
-                return (
-                  <input key={i} className={css.creditsNameInput} autoFocus defaultValue={n}
-                    aria-label={L("이름 수정", "Edit name")}
-                    onBlur={(e) => {
-                      const v = e.target.value.trim();
-                      setEditingName(null);
-                      setNames(v ? names.map((x, j) => (j === i ? v : x)) : names.filter((_, j) => j !== i));
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") (e.target as HTMLInputElement).blur();
-                      if (e.key === "Escape") setEditingName(null);
-                    }} />
-                );
-              }
-              return (
-                <Chip key={i} className={css.creditsChip} showHandle
-                  dragging={dragging} dropSide={dropSide}
-                  dragHandlers={{ draggable: true, ...dragProps }}
-                  onRemove={() => setNames(names.filter((_, x) => x !== i))}
-                  onClick={(e) => { if (e.detail === 2) setEditingName(i); }}>
-                  {n}
-                </Chip>
-              );
-            })}
             {/* 이름 줄 안에서 바로 이어 붙인다 — 별도 줄로 빼면 무엇에 붙는 이름인지 흐려진다 */}
-            {names.length < MAX_NAMES && (
-              /* 버튼 ↔ 입력이 같은 캡슐 안에서 폭만 늘어나며 이어진다(morph).
-                 서로 교체하면 튀어 보여서 껍데기는 유지하고 안쪽만 바꾼다. */
-              <span className={`${css.creditsNameAdd} ${adding ? css.creditsNameAddOpen : ""}`}>
-                {adding ? (
-                  <input className={css.creditsNameInput} autoFocus
-                    aria-label={L("추가할 이름", "Name to add")}
-                    onBlur={(e) => {
-                      const v = e.target.value.trim();
-                      setAdding(false);
-                      if (v && !names.includes(v)) setNames([...names, v]);
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") (e.target as HTMLInputElement).blur();
-                      if (e.key === "Escape") setAdding(false);
-                    }} />
-                ) : (
-                  <Pressable className={css.creditsNameAddBtn} onClick={() => setAdding(true)}
-                    title={L("이름 추가", "Add name")} aria-label={L("이름 추가", "Add name")}>
-                    <Plus size={13} />
-                  </Pressable>
-                )}
-              </span>
-            )}
+            <ChipList items={names} onChange={setNames} max={MAX_NAMES}
+              chipClassName={css.creditsChip} addClassName={css.creditsAdd}
+              addLabel={L("이름 추가", "Add name")} itemLabel={L("이름", "name")} />
           </p>
+          {names.length >= MAX_NAMES && <ListLimit max={MAX_NAMES} />}
           {/* 덧붙이는 문구 — 실제 화면에서도 표시 문구 아래에 약하게 들어간다.
               길이에 따라 프리뷰 높이가 출렁이지 않도록 최대 줄 수까지 미리 자리를 잡아둔다. */}
           {/* 공통 Textarea — maxHint 를 주면 글자수 카운터와 지우개가
