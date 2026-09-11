@@ -206,9 +206,13 @@ function MathFloatingEdit({
 
   if (!inline && !pos) return null;
 
+  /* contentEditable={false} — 이 판은 수식 요소 안(편집기 DOM 안)에 그려진다. 없으면 입력 칸이 편집기의
+     contentEditable 을 물려받아(isContentEditable) slate 가 이 칸을 편집기 본문으로 보고 beforeinput 을
+     막아, LaTeX 를 쳐도 글자가 들어가지 않았다(#846). 편집기 밖에 띄우는 경우(포털)에도 해가 없다. */
   const content = (
     <div
       ref={panelRef}
+      contentEditable={false}
       data-math-panel=""
       className={`${styles.mathFloating} ${styles.mathFloatingSplit}${inline ? ` ${styles.mathFloatingInline}` : ""}${texError ? ` ${styles.mathPreviewError}` : ""}`}
       style={inline ? undefined : { top: pos!.top, left: pos!.left }}
