@@ -184,3 +184,45 @@ test.describe("코드 블록 하이라이트", () => {
     await expect(keywords.filter({ hasText: /^procedure$/ })).toHaveCount(1);
   });
 });
+
+test.describe("수식 입력", () => {
+  test.setTimeout(120_000);
+
+  // 편집 칸이 수식 요소 안에 그려지는데 contentEditable 을 물려받아, slate 가 입력을 막아 글자가 들어가지 않았다(#846).
+  // 실제 데이터베이스라 자동저장 같은 쓰기 요청은 모두 막는다.
+  test.beforeEach(async ({ page }) => {
+    await page.route("**/*", (route) =>
+      ["GET", "HEAD", "OPTIONS"].includes(route.request().method()) ? route.continue() : route.abort());
+  });
+
+  const latexInput = (page: Page) => page.getByPlaceholder(/^(Enter LaTeX equation|LaTeX 수식 입력)$/);
+  const rendered = (editor: Locator) =>
+    editor.locator(".katex annotation").evaluateAll((els) => els.map((e) => e.textContent));
+
+  test("수식 블록에 LaTeX 를 치면 들어가고, 확정하면 그 수식이 그려진다", async ({ page }) => {
+    const editor = await openEditor(page);
+    await page.keyboard.type("/equation");
+    await page.keyboard.press("Enter");
+    const input = latexInput(page);
+    await expect(input, "수식 편집 칸").toBeFocused({ timeout: 10_000 });
+    await page.keyboard.type("x^2 + y^2 = z^2");
+    await expect(input).toHaveValue("x^2 + y^2 = z^2");
+    await input.press("ControlOrMeta+Enter");
+    await expect.poll(() => rendered(editor), { message: "확정한 수식" }).toContain("x^2 + y^2 = z^2");
+  });
+
+  test("인라인 수식도 편집 칸에 친 대로 들어간다", async ({ page }) => {
+    const editor = await openEditor(page);
+    await page.keyboard.type("area");
+    await editor.getByText("area", { exact: true }).dblclick();
+    await page.locator("button, [role=button]").filter({ hasText: /^fx$/ }).first().click();
+    await editor.locator(".slate-inline_equation .math-katex-content").first().click();
+    const input = latexInput(page);
+    await input.click();
+    await page.keyboard.press("ControlOrMeta+A");
+    await page.keyboard.type("\\pi r^2");
+    await expect(input).toHaveValue("\\pi r^2");
+    await input.press("ControlOrMeta+Enter");
+    await expect.poll(() => rendered(editor), { message: "확정한 인라인 수식" }).toContain("\\pi r^2");
+  });
+});
