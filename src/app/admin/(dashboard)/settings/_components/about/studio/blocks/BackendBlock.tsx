@@ -1,6 +1,7 @@
 "use client";
 
 import css from "../../AboutStudio.module.css";
+import { DragHandle, RemoveButton, SortableItem, SortableList } from "../listControls";
 import { EditableText, PanelStage, sec, useL } from "../primitives";
 import { StageTabs, useStageList } from "../stageList";
 import bk from "@/app/about/_components/panels/BackendPanel.module.css";
@@ -10,6 +11,7 @@ import SegmentedControl from "@/components/ui/SegmentedControl";
 import { type BackendItem } from "@/data/about/types";
 import { type TFunction } from "@/providers/LanguageProvider";
 import { type Language } from "@/types";
+import { arrayMove } from "@dnd-kit/sortable";
 /* ═══════════ Backend ═══════════ */
 /* 추가 한도는 분량 조절용이다. 포트폴리오에서 항목이 너무 많으면 끝까지 읽히지 않는다.
    테이블 설계는 Database Design 패널이 맡는다(#811). */
@@ -83,23 +85,27 @@ export function BackendBlock({ value, onChange, lang, t, title }: {
                 {it.kind === "api" ? (
                   <div className={bk.entryBlock}>
                     <span className={bk.entryLabel}>ENDPOINTS</span>
-                    {endpoints.map((ep, i) => (
-                      <div key={i} className={`${bk.dbEndpoint} ${css.bkRow}`}>
-                        <EditableText className={css.bkMethod} value={ep.method}
-                          onChange={(v) => setEndpoints(endpoints.map((x, j) => (j === i ? { ...x, method: v.toUpperCase() } : x)))}
-                          placeholder="GET" ariaLabel={L("메서드", "Method")} />
-                        <EditableText wrap className={bk.dbEndpointPath} value={ep.path}
-                          onChange={(v) => setEndpoints(endpoints.map((x, j) => (j === i ? { ...x, path: v } : x)))}
-                          placeholder="/api/posts" ariaLabel={L("경로", "Path")} />
-                        <EditableText wrap className={bk.dbEndpointDesc} value={ep.description[lang] ?? ""}
-                          onChange={(v) => setEndpoints(endpoints.map((x, j) => (j === i ? { ...x, description: { ...x.description, [lang]: v } } : x)))}
-                          placeholder={t("admin.settings.aboutItemDesc")} ariaLabel={L("엔드포인트 설명", "Endpoint description")} style={{ flex: 1 }} />
-                        <Button variant="subtle" shape="circle" size="2xs" aria-label={L("엔드포인트 삭제", "Remove endpoint")}
-                          onClick={() => setEndpoints(endpoints.filter((_, j) => j !== i))}>
-                          <X size={11} />
-                        </Button>
-                      </div>
-                    ))}
+                    <SortableList layout="list" count={endpoints.length} onMove={(from, to) => setEndpoints(arrayMove(endpoints, from, to))}>
+                      {endpoints.map((ep, i) => (
+                        <SortableItem key={i} index={i}>{(row) => (
+                          <div ref={row.ref} style={row.style} className={`${bk.dbEndpoint} ${css.bkRow}`}>
+                            <EditableText className={css.bkMethod} value={ep.method}
+                              onChange={(v) => setEndpoints(endpoints.map((x, j) => (j === i ? { ...x, method: v.toUpperCase() } : x)))}
+                              placeholder="GET" ariaLabel={L("메서드", "Method")} />
+                            <EditableText wrap className={bk.dbEndpointPath} value={ep.path}
+                              onChange={(v) => setEndpoints(endpoints.map((x, j) => (j === i ? { ...x, path: v } : x)))}
+                              placeholder="/api/posts" ariaLabel={L("경로", "Path")} />
+                            <EditableText wrap className={bk.dbEndpointDesc} value={ep.description[lang] ?? ""}
+                              onChange={(v) => setEndpoints(endpoints.map((x, j) => (j === i ? { ...x, description: { ...x.description, [lang]: v } } : x)))}
+                              placeholder={t("admin.settings.aboutItemDesc")} ariaLabel={L("엔드포인트 설명", "Endpoint description")} style={{ flex: 1 }} />
+                            <span className={css.itemTools}>
+                              <DragHandle handle={row.handle} />
+                              <RemoveButton label={L("엔드포인트 삭제", "Remove endpoint")} onClick={() => setEndpoints(endpoints.filter((_, j) => j !== i))} />
+                            </span>
+                          </div>
+                        )}</SortableItem>
+                      ))}
+                    </SortableList>
                     <Button variant="subtle" size="xs" icon={<Plus size={13} />}
                       onClick={() => setEndpoints([...endpoints, { method: "GET", path: "", description: { ko: "", en: "" } }])}>
                       {L("엔드포인트 추가", "Add endpoint")}
@@ -108,26 +114,30 @@ export function BackendBlock({ value, onChange, lang, t, title }: {
                 ) : (
                   <div className={bk.entryBlock}>
                     <span className={bk.entryLabel}>SCHEMA</span>
-                    {columns.map((cl, i) => (
-                      <div key={i} className={`${bk.dbSchemaRow} ${css.bkRow}`}>
-                        <EditableText className={bk.dbColName} value={cl.name}
-                          onChange={(v) => setColumns(columns.map((x, j) => (j === i ? { ...x, name: v } : x)))}
-                          placeholder="id" ariaLabel={L("컬럼 이름", "Column name")} />
-                        <EditableText className={bk.dbColType} value={cl.type}
-                          onChange={(v) => setColumns(columns.map((x, j) => (j === i ? { ...x, type: v } : x)))}
-                          placeholder="uuid" ariaLabel={L("타입", "Type")} />
-                        <EditableText className={bk.dbColConstraint} value={cl.constraint ?? ""}
-                          onChange={(v) => setColumns(columns.map((x, j) => (j === i ? { ...x, constraint: v } : x)))}
-                          placeholder="PK" ariaLabel={L("제약", "Constraint")} />
-                        <EditableText wrap className={bk.dbColDesc} value={cl.description[lang] ?? ""}
-                          onChange={(v) => setColumns(columns.map((x, j) => (j === i ? { ...x, description: { ...x.description, [lang]: v } } : x)))}
-                          placeholder={t("admin.settings.aboutItemDesc")} ariaLabel={L("컬럼 설명", "Column description")} style={{ flex: 1 }} />
-                        <Button variant="subtle" shape="circle" size="2xs" aria-label={L("컬럼 삭제", "Remove column")}
-                          onClick={() => setColumns(columns.filter((_, j) => j !== i))}>
-                          <X size={11} />
-                        </Button>
-                      </div>
-                    ))}
+                    <SortableList layout="list" count={columns.length} onMove={(from, to) => setColumns(arrayMove(columns, from, to))}>
+                      {columns.map((cl, i) => (
+                        <SortableItem key={i} index={i}>{(row) => (
+                          <div ref={row.ref} style={row.style} className={`${bk.dbSchemaRow} ${css.bkRow}`}>
+                            <EditableText className={bk.dbColName} value={cl.name}
+                              onChange={(v) => setColumns(columns.map((x, j) => (j === i ? { ...x, name: v } : x)))}
+                              placeholder="id" ariaLabel={L("컬럼 이름", "Column name")} />
+                            <EditableText className={bk.dbColType} value={cl.type}
+                              onChange={(v) => setColumns(columns.map((x, j) => (j === i ? { ...x, type: v } : x)))}
+                              placeholder="uuid" ariaLabel={L("타입", "Type")} />
+                            <EditableText className={bk.dbColConstraint} value={cl.constraint ?? ""}
+                              onChange={(v) => setColumns(columns.map((x, j) => (j === i ? { ...x, constraint: v } : x)))}
+                              placeholder="PK" ariaLabel={L("제약", "Constraint")} />
+                            <EditableText wrap className={bk.dbColDesc} value={cl.description[lang] ?? ""}
+                              onChange={(v) => setColumns(columns.map((x, j) => (j === i ? { ...x, description: { ...x.description, [lang]: v } } : x)))}
+                              placeholder={t("admin.settings.aboutItemDesc")} ariaLabel={L("컬럼 설명", "Column description")} style={{ flex: 1 }} />
+                            <span className={css.itemTools}>
+                              <DragHandle handle={row.handle} />
+                              <RemoveButton label={L("컬럼 삭제", "Remove column")} onClick={() => setColumns(columns.filter((_, j) => j !== i))} />
+                            </span>
+                          </div>
+                        )}</SortableItem>
+                      ))}
+                    </SortableList>
                     <Button variant="subtle" size="xs" icon={<Plus size={13} />}
                       onClick={() => setColumns([...columns, { name: "", type: "", description: { ko: "", en: "" } }])}>
                       {L("컬럼 추가", "Add column")}

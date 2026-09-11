@@ -1388,7 +1388,7 @@ textarea.edit {
   color: var(--text-tertiary);
   font-size: var(--font-size-prose-small);
 }
-/* 엔드포인트/컬럼 한 줄 — 삭제 버튼은 hover 시에만.
+/* 엔드포인트/컬럼 한 줄.
    레이아웃은 같이 달리는 패널 클래스(.dbEndpoint/.dbSchemaRow 의 grid)가 정한다. 예전엔 여기서
    Settings.module.css 의 행 유틸을 composes 해서 display·gap 이 패널과 같은 (0,1,0) 으로 겨뤘고, 번들 순서가 승자를
    정했다. 패널이 안 정하는 align-items 만 :where 로 남긴다 — (0,0,0) 이라 패널이 정하면
@@ -1396,13 +1396,12 @@ textarea.edit {
 :where(.bkRow) {
   align-items: center;
 }
-.bkRow button {
-  opacity: 0;
-  flex-shrink: 0;
-}
-.bkRow:hover button,
-.bkRow:focus-within button {
-  opacity: 1;
+/* 손잡이·삭제는 오른쪽 위 도구 묶음(.itemTools)이라 격자 칸을 차지하지 않는다. 예전에는 삭제 단추가
+   3열 격자의 네 번째 칸이라, 줄마다 단추 하나만 든 줄이 아래에 한 줄 더 생겼다.
+   도구가 글을 가리지 않게 오른쪽을 비운다. 패널의 padding 단축 속성을 이겨야 해서 두 번 적는다. */
+.bkRow.bkRow {
+  position: relative;
+  padding-right: calc(2 * var(--control-h-xs) + var(--spacing-sm));
 }
 /* DELETE·OPTIONS 까지 들어가는 폭. 5ch 일 때 DELETE 가 DELE 로 잘렸다(칸 여백 포함). */
 .bkMethod {

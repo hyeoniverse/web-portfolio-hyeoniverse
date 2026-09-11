@@ -11,7 +11,7 @@
 
 import { useRef, useState } from "react";
 import type { Language } from "@/types";
-import { Plus, X, Link2 } from "@/components/icons";
+import { Plus, Trash2, Link2 } from "@/components/icons";
 import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
 import type { FlowNode, UserFlow } from "@/data/about/types";
@@ -281,9 +281,10 @@ export default function FlowDiagramEditor({ flow, onChange, lang }: {
             aria-label={L("노드 이름", "Node label")}
             placeholder={L("노드 이름", "Node label")}
             onChange={(e) => patch(selNode.id, { label: { ...selNode.label, [lang]: e.target.value } })} />
-          <Button variant="subtle" shape="circle" size="xs" aria-label={L("노드 삭제", "Remove node")}
+          {/* 떨어진 패널의 × 는 닫기로 읽힌다(Architecture 패널이 그렇다). 지우는 단추는 이름을 붙인다 */}
+          <Button variant="outline" size="sm" tone="danger" icon={<Trash2 size={13} />}
             onClick={() => removeNode(selNode.id)}>
-            <X size={13} />
+            {L("노드 삭제", "Delete node")}
           </Button>
         </div>
       )}
@@ -298,9 +299,9 @@ export default function FlowDiagramEditor({ flow, onChange, lang }: {
             aria-label={L("조건", "Label")}
             placeholder={L("조건 (Yes / No)", "Label (Yes / No)")}
             onChange={(e) => setEdges(edges.map((x, j) => (j === selEdge ? { ...x, label: e.target.value } : x)))} />
-          <Button variant="subtle" shape="circle" size="xs" aria-label={L("연결 삭제", "Remove edge")}
+          <Button variant="outline" size="sm" tone="danger" icon={<Trash2 size={13} />}
             onClick={() => { setEdges(edges.filter((_, j) => j !== selEdge)); setSelEdge(null); }}>
-            <X size={13} />
+            {L("연결 삭제", "Delete edge")}
           </Button>
         </div>
       )}

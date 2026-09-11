@@ -126,7 +126,8 @@ function Body({ onChange }: { onChange: (f: Files) => void }) {
                 {path.replace(/^\//, "")}
               </Pressable>
               {sandpack.visibleFiles.length > 1 && (
-                <Pressable className={css.tabClose} onClick={() => closeFile(path)} aria-label={`close ${path}`}>
+                <Pressable className={css.tabClose} onClick={() => closeFile(path)}
+                  aria-label={L(`${path.replace(/^\//, "")} 파일 삭제`, `Remove ${path.replace(/^\//, "")}`)}>
                   <X size={11} />
                 </Pressable>
               )}
@@ -142,7 +143,7 @@ function Body({ onChange }: { onChange: (f: Files) => void }) {
             }} />
         ) : (
           <Pressable className={css.addTab} onClick={() => setAdding(true)}>
-            <Plus size={12} /> {L("파일", "File")}
+            <Plus size={12} /> {L("파일 추가", "Add file")}
           </Pressable>
         )}
       </div>

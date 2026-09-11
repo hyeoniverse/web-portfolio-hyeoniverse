@@ -47,6 +47,13 @@
   border: var(--border-light);
   border-radius: var(--radius-capsule);
 }
+/* 좁은 폭 — 이름을 붙인 삭제 단추까지 한 줄에 들어가지 않는다. 줄을 넘기고, 캡슐은 두 줄에 어울리지 않아 둥근 판으로 */
+@media (max-width: 768px) {
+  .inspect {
+    flex-wrap: wrap;
+    border-radius: var(--radius-2xl);
+  }
+}
 .inspectTitle {
   flex-shrink: 0;
   color: var(--text-tertiary);
