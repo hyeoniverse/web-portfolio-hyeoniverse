@@ -99,7 +99,7 @@ export function DesignSystemBlock({ value, onChange, lang, t }: {
             <div className={`${dc.dcCardOverlay} ${css.dsOverlay}`}>
               <EditableText className={dc.dcCardTitle} value={it.title} autoFocus={isEmptyConcept(it)}
                 onChange={(v) => set({ title: v })} placeholder="TYPOGRAPHY" ariaLabel="title" />
-              <EditableText className={dc.dcCardSubtitle} value={lang === "ko" ? it.subtitle_ko : it.subtitle_en}
+              <EditableText wrap className={dc.dcCardSubtitle} value={lang === "ko" ? it.subtitle_ko : it.subtitle_en}
                 onChange={(v) => set(lang === "ko" ? { subtitle_ko: v } : { subtitle_en: v })}
                 placeholder={lang === "ko" ? "4가지 서체 시스템" : "4-Font Type System"} ariaLabel="subtitle" />
               <EditableText multiline className={dc.dcCardDesc} value={lang === "ko" ? it.description_ko : it.description_en}

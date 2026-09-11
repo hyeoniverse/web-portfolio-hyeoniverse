@@ -90,7 +90,7 @@ export function BackendBlock({ value, onChange, lang, t, title }: {
 
               <div className={bk.dbDetail}>
                 <div className={bk.detailHeader}>
-                  <EditableText className={bk.dbTitle} value={it.name}
+                  <EditableText wrap className={bk.dbTitle} value={it.name}
                     onChange={(v) => set({ name: v })} placeholder="posts" ariaLabel="name" autoFocus={isEmpty(it)} />
                 </div>
                 <EditableText multiline className={css.bkDesc} value={it.description[lang] ?? ""}
@@ -108,10 +108,10 @@ export function BackendBlock({ value, onChange, lang, t, title }: {
                         <EditableText className={css.bkMethod} value={ep.method}
                           onChange={(v) => setEndpoints(endpoints.map((x, j) => (j === i ? { ...x, method: v.toUpperCase() } : x)))}
                           placeholder="GET" ariaLabel="method" />
-                        <EditableText className={bk.dbEndpointPath} value={ep.path}
+                        <EditableText wrap className={bk.dbEndpointPath} value={ep.path}
                           onChange={(v) => setEndpoints(endpoints.map((x, j) => (j === i ? { ...x, path: v } : x)))}
                           placeholder="/api/posts" ariaLabel="path" />
-                        <EditableText className={bk.dbEndpointDesc} value={ep.description[lang] ?? ""}
+                        <EditableText wrap className={bk.dbEndpointDesc} value={ep.description[lang] ?? ""}
                           onChange={(v) => setEndpoints(endpoints.map((x, j) => (j === i ? { ...x, description: { ...x.description, [lang]: v } } : x)))}
                           placeholder={t("admin.settings.aboutItemDesc")} ariaLabel="endpoint description" style={{ flex: 1 }} />
                         <Button variant="subtle" shape="circle" size="2xs" aria-label="remove endpoint"
@@ -139,7 +139,7 @@ export function BackendBlock({ value, onChange, lang, t, title }: {
                         <EditableText className={bk.dbColConstraint} value={cl.constraint ?? ""}
                           onChange={(v) => setColumns(columns.map((x, j) => (j === i ? { ...x, constraint: v } : x)))}
                           placeholder="PK" ariaLabel="constraint" />
-                        <EditableText className={bk.dbColDesc} value={cl.description[lang] ?? ""}
+                        <EditableText wrap className={bk.dbColDesc} value={cl.description[lang] ?? ""}
                           onChange={(v) => setColumns(columns.map((x, j) => (j === i ? { ...x, description: { ...x.description, [lang]: v } } : x)))}
                           placeholder={t("admin.settings.aboutItemDesc")} ariaLabel="column description" style={{ flex: 1 }} />
                         <Button variant="subtle" shape="circle" size="2xs" aria-label="remove column"

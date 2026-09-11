@@ -70,7 +70,7 @@ export function UserFlowBlock({ value, onChange, lang, t, title }: {
                   ariaLabel="title" autoFocus={isEmpty(it)} />
                 <div className={uf.ufFlowProfile}>
                   <div className={uf.ufFlowProfileText}>
-                    <EditableText className={uf.ufFlowPersona} value={it.persona[lang] ?? ""}
+                    <EditableText wrap className={uf.ufFlowPersona} value={it.persona[lang] ?? ""}
                       onChange={(v) => setLocal("persona", v)}
                       placeholder={lang === "ko" ? "페르소나" : "Persona"} ariaLabel="persona" />
                     <EditableText multiline className={uf.ufFlowDesc} value={it.description[lang] ?? ""}

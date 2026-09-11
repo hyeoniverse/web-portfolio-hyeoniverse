@@ -102,7 +102,7 @@ function ProcessRow({ id, index, item, lang, t, set, onRemove }: {
         {stepNo(index)}
       </span>
       <div className={css.procBody}>
-        <EditableText className={css.procTitle} value={lang === "ko" ? item.title_ko : item.title_en}
+        <EditableText wrap className={css.procTitle} value={lang === "ko" ? item.title_ko : item.title_en}
           onChange={(v) => set(index, lang === "ko" ? { title_ko: v } : { title_en: v })} placeholder={t("admin.settings.aboutItemTitle")} ariaLabel="title" style={{ maxWidth: "100%" }} />
         <EditableText multiline className={css.procDesc} value={lang === "ko" ? item.description_ko : item.description_en}
           onChange={(v) => set(index, lang === "ko" ? { description_ko: v } : { description_en: v })} placeholder={t("admin.settings.aboutItemDesc")} ariaLabel="description" style={{ width: "100%" }} />

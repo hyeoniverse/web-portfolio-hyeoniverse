@@ -40,11 +40,11 @@ export function FeaturesBlock({ value, onChange, lang, t, title }: {
                 ? <img className={css.featImg} src={it.image} alt="" />
                 : <div className={css.featNoImg} />}
               <div className={`${feat.featureDfInfo} ${css.featInfo}`}>
-                <EditableText className={feat.featureDfTitle} value={it.title} onChange={(v) => set(i, { title: v })} placeholder={t("admin.settings.aboutItemTitle")} ariaLabel="title" style={{ maxWidth: "100%" }} />
+                <EditableText wrap className={feat.featureDfTitle} value={it.title} onChange={(v) => set(i, { title: v })} placeholder={t("admin.settings.aboutItemTitle")} ariaLabel="title" style={{ maxWidth: "100%" }} />
                 <div className={`${feat.featureDfDetails} ${css.featDetails}`}>
                   <EditableText multiline className={feat.featureDfDesc} value={lang === "ko" ? it.description_ko : it.description_en}
                     onChange={(v) => set(i, lang === "ko" ? { description_ko: v } : { description_en: v })} placeholder={t("admin.settings.aboutItemDesc")} ariaLabel="description" style={{ width: "100%" }} />
-                  <EditableText className={feat.featureDfTech} value={it.tech} onChange={(v) => set(i, { tech: v })} placeholder="GSAP · Lenis" ariaLabel="tech" style={{ maxWidth: "100%" }} />
+                  <EditableText wrap className={feat.featureDfTech} value={it.tech} onChange={(v) => set(i, { tech: v })} placeholder="GSAP · Lenis" ariaLabel="tech" style={{ maxWidth: "100%" }} />
                 </div>
               </div>
               <div className={css.featTools}>
