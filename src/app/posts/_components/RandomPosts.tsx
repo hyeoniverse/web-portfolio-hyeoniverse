@@ -9,9 +9,11 @@ import Tooltip from "@/components/ui/Tooltip";
 import { formatCount } from "@/utils/format";
 import styles from "./PopularPosts.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 /** 랜덤 게시글 — sidebar 보조. mount 시 1회 fetch + 사용자가 shuffle 버튼 누르면 새 seed 로 재요청. */
 export default function RandomPosts() {
+  const { t } = useLanguage();
   const [posts, setPosts] = useState<Post[]>([]);
   const [seed, setSeed] = useState(() => Math.floor(Math.random() * 1e9));
   const { navigateWithTransition } = usePageTransition();
@@ -32,7 +34,7 @@ export default function RandomPosts() {
       <div className={styles.label}>
         <Shuffle size={14} />
         <T k="postsPage.random" />
-        <Tooltip content="다시 섞기" placement="top" delay={300}>
+        <Tooltip content={t("postsPage.shuffleAgain")} placement="top" delay={300}>
           <Pressable
             className={styles.shuffleBtn}
             onClick={(e) => { e.stopPropagation(); setSeed(Math.floor(Math.random() * 1e9)); }}

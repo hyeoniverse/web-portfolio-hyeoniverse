@@ -1,6 +1,6 @@
 "use client";
 
-import { PER_PAGE_OPTIONS } from "@/constants";
+import { perPageOptions } from "@/constants";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import T from "@/components/ui/T";
@@ -110,7 +110,7 @@ export default function PostsToolbar({ query, timeline }: { query: PostsQuery; t
           <List size={14} strokeWidth={1.8} className={styles.pageSizeIcon} aria-hidden />
           <Select
             value={String(perPage)}
-            options={PER_PAGE_OPTIONS}
+            options={perPageOptions(t)}
             size="sm"
             onChange={(v) => {
               setPerPage(Number(v));

@@ -1,6 +1,6 @@
 "use client";
 
-import { PER_PAGE_OPTIONS } from "@/constants";
+import { perPageOptions } from "@/constants";
 import type { useSearchControls } from "@/hooks/useSearchControls";
 import { List } from "@/components/icons";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
@@ -8,6 +8,7 @@ import SegmentedControl from "@/components/ui/SegmentedControl";
 import Select from "@/components/ui/Select";
 import page from "../../_components/IndexPage.module.css";
 import styles from "./SeriesIndexControls.module.css";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 export type SeriesSortBy = "popular" | "alphabetical" | "newest";
 
@@ -27,6 +28,7 @@ export default function SeriesIndexControls({
   searchControls: ReturnType<typeof useSearchControls<"all" | "title" | "desc">>;
   hasResults: boolean;
 }) {
+  const { t } = useLanguage();
   const { search, setSearch, searchType, setSearchType, setSyntaxMode } = searchControls;
   return (
     <div className={page.searchSortRow}>
@@ -34,9 +36,9 @@ export default function SeriesIndexControls({
         className={styles.sortControl}
         size="sm"
         items={[
-          { value: "popular", label: "인기순" },
-          { value: "newest", label: "최신순" },
-          { value: "alphabetical", label: "제목순" },
+          { value: "popular", label: t("postsPage.sortPopular") },
+          { value: "newest", label: t("postsPage.sortNewest") },
+          { value: "alphabetical", label: t("postsPage.sortTitle") },
         ]}
         value={sortBy}
         onChange={(v) => onSortChange(v)}
@@ -48,14 +50,14 @@ export default function SeriesIndexControls({
             className={styles.perPageSelect}
             size="sm"
             value={String(perPage)}
-            options={PER_PAGE_OPTIONS}
+            options={perPageOptions(t)}
             onChange={(v) => onPerPageChange(Number(v))}
           />
         </div>
         <SearchCapsule
           search={search}
           onSearchChange={setSearch}
-          placeholder="시리즈 제목 또는 설명으로 검색…"
+          placeholder={t("postsPage.seriesSearchPlaceholder")}
           align="left"
           size="sm"
           className={page.searchBar}
@@ -65,9 +67,9 @@ export default function SeriesIndexControls({
           typeSelector={{
             value: searchType,
             options: [
-              { value: "all", label: "제목+설명" },
-              { value: "title", label: "제목" },
-              { value: "desc", label: "설명" },
+              { value: "all", label: t("postsPage.seriesSearchAll") },
+              { value: "title", label: t("postsPage.seriesSearchTitle") },
+              { value: "desc", label: t("postsPage.seriesSearchDesc") },
             ],
             onChange: (v) => setSearchType(v as "all" | "title" | "desc"),
           }}

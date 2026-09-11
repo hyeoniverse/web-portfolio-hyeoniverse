@@ -64,7 +64,7 @@ export default function PostCardTimeline({
       </div>
       <h2 className={styles.timelineTitle}>
         {post.is_pinned && (
-          <span className={styles.timelinePinInline} role="img" aria-label="고정된 글">
+          <span className={styles.timelinePinInline} role="img" aria-label={t("postsPage.pinnedPost")}>
             {/* lucide Pin 기반 — 바늘 길게, CSS 로 기울임. 제목 텍스트에 인라인(글자처럼) */}
             <PinIcon />
           </span>

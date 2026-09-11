@@ -375,7 +375,77 @@
     "seriesSearchAll": "제목+설명",
     "seriesSearchTitle": "제목",
     "seriesSearchDesc": "설명",
-    "seriesManage": "시리즈 관리"
+    "seriesManage": "시리즈 관리",
+    "categoriesTitle": "카테고리 모음",
+    "countCategories": {
+      "one": "<b>{{n}}</b>개의 카테고리",
+      "other": "<b>{{n}}</b>개의 카테고리"
+    },
+    "countTags": {
+      "one": "<b>{{n}}</b>개의 태그",
+      "other": "<b>{{n}}</b>개의 태그"
+    },
+    "countSeries": {
+      "one": "<b>{{n}}</b>개의 시리즈",
+      "other": "<b>{{n}}</b>개의 시리즈"
+    },
+    "countTotalPosts": {
+      "one": "총 <b>{{n}}</b>개의 글",
+      "other": "총 <b>{{n}}</b>개의 글"
+    },
+    "countTagPosts": {
+      "one": "<b>{{n}}</b>개의 게시물",
+      "other": "<b>{{n}}</b>개의 게시물"
+    },
+    "countPosts": {
+      "one": "{{n}}개의 글",
+      "other": "{{n}}개의 글"
+    },
+    "categorySearch": "카테고리 검색…",
+    "noMatchingCategories": "일치하는 카테고리가 없습니다.",
+    "noMatchingTags": "일치하는 태그가 없습니다.",
+    "noMatchingSeries": "일치하는 시리즈가 없습니다.",
+    "featuredBadge": "인기",
+    "allCategoriesShown": "— 모든 카테고리를 다 표시했습니다. ({{n}}개) —",
+    "allTagsShown": "— 모든 태그를 다 표시했습니다. ({{n}}개) —",
+    "viewCategoryPosts": "이 카테고리의 글 보기",
+    "viewTagPosts": "이 태그의 글 보기",
+    "viewSeriesPosts": "이 시리즈의 글 보기",
+    "tagsManage": "태그 관리",
+    "relatedTagsSheet": "연관 태그",
+    "tagSearchPlaceholder": "태그 이름 또는 설명으로 검색…",
+    "tagSearchAll": "이름+설명",
+    "tagSearchName": "이름",
+    "langKo": "한글",
+    "langEn": "영어",
+    "seriesSearchPlaceholder": "시리즈 제목 또는 설명으로 검색…",
+    "seriesSearchShort": "시리즈 제목·설명 검색",
+    "tagListBack": "태그 목록",
+    "tagListBackTitle": "태그 목록으로",
+    "viewAllTags": "전체 태그 보기",
+    "tagInnerSearch": "이 태그 안에서 검색…",
+    "relatedTags": "관련 태그",
+    "relatedTagsHint": "이 태그와 같은 게시물에 함께 쓰인 태그를 등장 빈도가 높은 순으로 보여줍니다. ‘관련 태그’를 클릭하면 그 외 전체 태그가 펼쳐집니다. ‘다중 선택’을 켜면 여러 태그를 클릭해 추가로 필터링할 수 있습니다.",
+    "collapseAllTags": "전체 태그 접기",
+    "expandAllTags": "그 외 전체 태그 펼치기",
+    "multiSelect": "다중 선택",
+    "multiSelectOff": "다중 선택 끄기",
+    "multiSelectOn": "다중 선택 켜기 — 여러 태그로 추가 필터",
+    "clearExtraTags": "추가 필터 해제 — 이 태그 전체 보기",
+    "noOtherTags": "그 외 태그가 없습니다.",
+    "tagProjects": "이 태그를 쓴 프로젝트",
+    "scrollUp": "위로 스크롤",
+    "scrollDown": "아래로 스크롤",
+    "sidebarLabel": "글 목록 사이드바",
+    "tagsExpand": "더보기",
+    "tagsCollapse": "접기",
+    "jumpByMonth": "월별 이동",
+    "shuffleAgain": "다시 섞기",
+    "browseNav": "Posts 브라우즈",
+    "historySubtitle": "시간순으로 쌓인 모든 기록.",
+    "noTagsForLetters": "— 선택한 철자에 해당하는 태그 없음 —",
+    "pinnedPost": "고정된 글",
+    "perPage": "{{n}}개씩"
   },
   "bunny": {
     "exprNormal": "기본",
