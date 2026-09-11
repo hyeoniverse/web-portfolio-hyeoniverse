@@ -11,6 +11,7 @@ import { renderHighlight } from "../renderHighlight";
 import CodeDemoSlot, { type CodeDemoMode } from "./CodeDemoSlot";
 import { detectCodeLanguage } from "./detectCodeLanguage";
 import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
+import { useNearViewport } from "../../_hooks/useNearViewport";
 import { useCodePaging } from "./codeHighlights/useCodePaging";
 import PinnedTitleRow from "../PinnedTitleRow";
 import frame from "../AboutPanel.module.css";
@@ -67,6 +68,11 @@ function CodeHighlightsPanel({
   const [expandedMobileCode, setExpandedMobileCode] = useState<number | null>(
     null,
   );
+  /* 코드 데모 미리보기(Sandpack)는 띄울 때마다 CodeSandbox 에서 3 MB 가까이 받는다. 데스크톱은 끝없는
+     가로 스크롤 때문에 이 패널이 세 벌이라, 세 벌이 페이지를 열자마자 화면 밖에서 각자 미리보기를 띄웠다.
+     데스크톱 보기가 화면 근처에 온 벌만 띄운다(ErdPanel 과 같은 방식). 모바일에서는 이 보기가
+     display: none 이라 켜지지 않고, 목록에서 펼친 항목만 띄운다. */
+  const { ref: singleViewRef, near } = useNearViewport<HTMLDivElement>();
   const { codeWrapRefs, codePage, scrollCodePage } = useCodePaging({
     activeIndex,
     expandedMobileCode,
@@ -92,7 +98,7 @@ function CodeHighlightsPanel({
         />
 
         {/* 데스크톱: 단일 패인 뷰 — 한 번에 하나씩 */}
-        <div className={`${styles.codeSingleView} ${styles.animate}`}>
+        <div ref={singleViewRef} className={`${styles.codeSingleView} ${styles.animate}`}>
           {examples.map((example, index) => (
             <div
               key={index}
@@ -113,7 +119,7 @@ function CodeHighlightsPanel({
               </div>
               <div className={styles.codeSingleBody}>
                 {hasDemo(example) && (
-                  <div className={styles.codeDemo} style={example.demoBg ? { background: example.demoBg } : undefined}><CodeDemoSlot mode={example.demoMode} media={example.demoMedia} files={example.demoFiles} template={example.demoTemplate} active={index === activeIndex} /></div>
+                  <div className={styles.codeDemo} style={example.demoBg ? { background: example.demoBg } : undefined}><CodeDemoSlot mode={example.demoMode} media={example.demoMedia} files={example.demoFiles} template={example.demoTemplate} active={near && index === activeIndex} /></div>
                 )}
                 <div
                   ref={(el) => {
