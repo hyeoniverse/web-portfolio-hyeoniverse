@@ -375,7 +375,77 @@
     "seriesSearchAll": "Title+Desc",
     "seriesSearchTitle": "Title",
     "seriesSearchDesc": "Desc",
-    "seriesManage": "Manage series"
+    "seriesManage": "Manage series",
+    "categoriesTitle": "Categories",
+    "countCategories": {
+      "one": "<b>{{n}}</b> category",
+      "other": "<b>{{n}}</b> categories"
+    },
+    "countTags": {
+      "one": "<b>{{n}}</b> tag",
+      "other": "<b>{{n}}</b> tags"
+    },
+    "countSeries": {
+      "one": "<b>{{n}}</b> series",
+      "other": "<b>{{n}}</b> series"
+    },
+    "countTotalPosts": {
+      "one": "<b>{{n}}</b> post in total",
+      "other": "<b>{{n}}</b> posts in total"
+    },
+    "countTagPosts": {
+      "one": "<b>{{n}}</b> post",
+      "other": "<b>{{n}}</b> posts"
+    },
+    "countPosts": {
+      "one": "{{n}} post",
+      "other": "{{n}} posts"
+    },
+    "categorySearch": "Search categories…",
+    "noMatchingCategories": "No categories match.",
+    "noMatchingTags": "No tags match.",
+    "noMatchingSeries": "No series match.",
+    "featuredBadge": "Popular",
+    "allCategoriesShown": "— That’s every category ({{n}}) —",
+    "allTagsShown": "— That’s every tag ({{n}}) —",
+    "viewCategoryPosts": "View posts in this category",
+    "viewTagPosts": "View posts with this tag",
+    "viewSeriesPosts": "View posts in this series",
+    "tagsManage": "Manage tags",
+    "relatedTagsSheet": "Related tags",
+    "tagSearchPlaceholder": "Search tag names or descriptions…",
+    "tagSearchAll": "Name+Desc",
+    "tagSearchName": "Name",
+    "langKo": "Korean",
+    "langEn": "English",
+    "seriesSearchPlaceholder": "Search series titles or descriptions…",
+    "seriesSearchShort": "Search series titles and descriptions",
+    "tagListBack": "Tags",
+    "tagListBackTitle": "Back to tags",
+    "viewAllTags": "View all tags",
+    "tagInnerSearch": "Search within this tag…",
+    "relatedTags": "Related tags",
+    "relatedTagsHint": "Shows the tags used together with this tag, most frequent first. Click ‘Related tags’ to expand every other tag. Turn on ‘Multi-select’ to click several tags and filter further.",
+    "collapseAllTags": "Collapse all tags",
+    "expandAllTags": "Expand all other tags",
+    "multiSelect": "Multi-select",
+    "multiSelectOff": "Turn off multi-select",
+    "multiSelectOn": "Turn on multi-select — filter by more tags",
+    "clearExtraTags": "Clear extra filters — show all of this tag",
+    "noOtherTags": "No other tags.",
+    "tagProjects": "Projects with this tag",
+    "scrollUp": "Scroll up",
+    "scrollDown": "Scroll down",
+    "sidebarLabel": "Posts sidebar",
+    "tagsExpand": "Show more",
+    "tagsCollapse": "Show less",
+    "jumpByMonth": "Jump by month",
+    "shuffleAgain": "Shuffle again",
+    "browseNav": "Browse posts",
+    "historySubtitle": "Every record, stacked in time order.",
+    "noTagsForLetters": "— No tags for the selected letters —",
+    "pinnedPost": "Pinned post",
+    "perPage": "{{n}} per page"
   },
   "bunny": {
     "exprNormal": "Default",

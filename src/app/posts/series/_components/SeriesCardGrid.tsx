@@ -8,6 +8,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import type { SeriesEntry } from "../types";
 import card from "../../_components/IndexCard.module.css";
 import styles from "./SeriesCardGrid.module.css";
+import { fillCount } from "@/utils/format";
 
 /* 시리즈 카드 그리드 — 공용 IndexCard 골격 위에 HOT 배지 · 카테고리 · 설명. 터치에선 링크 대신 시트(onTap). */
 export default function SeriesCardGrid({
@@ -21,7 +22,7 @@ export default function SeriesCardGrid({
   isTouch: boolean;
   onTap: (s: SeriesEntry) => void;
 }) {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   return (
     <ul className={card.grid}>
       {items.map((s) => {
@@ -60,7 +61,7 @@ export default function SeriesCardGrid({
               <div className={card.body}>
                 <span className={card.meta2}>
                   {s.category && <span className={styles.category}>{s.category}</span>}
-                  <span>{s.post_count}개의 글</span>
+                  <span>{fillCount(t, "postsPage.countPosts", s.post_count)}</span>
                 </span>
                 <span className={card.cardTitle}><HighlightedText text={title} /></span>
                 {description && <span className={styles.cardDesc}><HighlightedText text={description} /></span>}

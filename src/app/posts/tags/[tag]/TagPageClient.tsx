@@ -17,6 +17,9 @@ import Pagination from "@/components/ui/Pagination";
 import { parseSearchQuery, matchesQuery } from "@/lib/searchQuery";
 import { SearchHighlightProvider } from "@/providers/SearchHighlightProvider";
 import styles from "./TagPage.module.css";
+import { useLanguage } from "@/providers/LanguageProvider";
+import BoldMarks from "@/components/ui/BoldMarks";
+import { fillCount } from "@/utils/format";
 
 interface Props {
   tag: string;
@@ -25,6 +28,7 @@ interface Props {
 }
 
 export default function TagPageClient({ tag, initialData, allTags }: Props) {
+  const { t } = useLanguage();
   const { setInfinite } = useLenis();
   const [posts, setPosts] = useState<Post[]>(initialData.posts);
   const [totalPages, setTotalPages] = useState(initialData.totalPages);
@@ -155,7 +159,7 @@ export default function TagPageClient({ tag, initialData, allTags }: Props) {
           <p className={styles.heroDescription}>{initialData.description}</p>
         )}
         <p className={styles.heroMeta}>
-          <strong>{initialData.totalCount.toLocaleString()}</strong>개의 게시물
+          <BoldMarks text={fillCount(t, "postsPage.countTagPosts", initialData.totalCount)} />
         </p>
         <RelatedTagsPanel
           tag={tag}

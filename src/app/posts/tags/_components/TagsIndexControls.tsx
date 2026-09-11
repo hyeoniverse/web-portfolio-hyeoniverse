@@ -5,6 +5,7 @@ import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import page from "../../_components/IndexPage.module.css";
 import styles from "./TagsIndexControls.module.css";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 export type TagsSortBy = "popular" | "alphabetical";
 
@@ -24,18 +25,19 @@ export default function TagsIndexControls({
   searchControls: ReturnType<typeof useSearchControls<"all" | "title" | "desc">>;
   hasResults: boolean;
 }) {
+  const { t } = useLanguage();
   const { search, setSearch, searchType, setSearchType, setSyntaxMode } = searchControls;
   return (
     <div className={page.searchSortRow}>
       <SegmentedControl<TagsSortBy, "ko" | "en">
         items={[
-          { value: "popular", label: "인기순" },
+          { value: "popular", label: t("postsPage.sortPopular") },
           {
             value: "alphabetical",
-            label: "제목순",
+            label: t("postsPage.sortTitle"),
             subItems: [
-              { value: "ko", label: "한글" },
-              { value: "en", label: "영어" },
+              { value: "ko", label: t("postsPage.langKo") },
+              { value: "en", label: t("postsPage.langEn") },
             ] as const,
           },
         ]}
@@ -49,7 +51,7 @@ export default function TagsIndexControls({
       <SearchCapsule
         search={search}
         onSearchChange={setSearch}
-        placeholder="태그 이름 또는 설명으로 검색…"
+        placeholder={t("postsPage.tagSearchPlaceholder")}
         align="left"
         size="sm"
         className={styles.searchBar}
@@ -59,9 +61,9 @@ export default function TagsIndexControls({
         typeSelector={{
           value: searchType,
           options: [
-            { value: "all", label: "이름+설명" },
-            { value: "title", label: "이름" },
-            { value: "desc", label: "설명" },
+            { value: "all", label: t("postsPage.tagSearchAll") },
+            { value: "title", label: t("postsPage.tagSearchName") },
+            { value: "desc", label: t("postsPage.seriesSearchDesc") },
           ],
           onChange: (v) => setSearchType(v as "all" | "title" | "desc"),
         }}

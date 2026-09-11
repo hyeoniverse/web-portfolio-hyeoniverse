@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import styles from "./PostsSubnav.module.css";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 /* /posts 계열 브라우즈 축 — All(전체) / Series / Tags / History.
    개별 글(/posts/[slug]) 에선 렌더하지 않음(브라우즈 페이지에서만). */
@@ -16,6 +17,7 @@ const ITEMS = [
 const BROWSE_PREFIXES = ["/posts/series", "/posts/tags", "/posts/history", "/posts/categories"];
 
 export default function PostsSubnav() {
+  const { t } = useLanguage();
   const pathname = usePathname() ?? "";
   const show =
     pathname === "/posts" ||
@@ -23,7 +25,7 @@ export default function PostsSubnav() {
   if (!show) return null;
 
   return (
-    <nav className={styles.subnav} aria-label="Posts 브라우즈">
+    <nav className={styles.subnav} aria-label={t("postsPage.browseNav")}>
       {ITEMS.map((it) => {
         const active =
           it.href === "/posts"

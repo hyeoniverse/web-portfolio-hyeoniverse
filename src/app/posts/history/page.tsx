@@ -5,6 +5,7 @@ import BackLink from "@/components/ui/BackLink";
 import PostsPageChrome from "../_components/PostsPageChrome";
 import PostsClient from "../PostsClient";
 import styles from "../Posts.module.css";
+import T from "@/components/ui/T";
 
 export const metadata: Metadata = { title: "History" };
 
@@ -23,7 +24,7 @@ export default async function HistoryPage() {
   return (
     <>
       <div className={styles.historyBackBar}>
-        <BackLink href="/posts" label="글 목록" />
+        <BackLink href="/posts" label={<T k="postsPage.posts" noTooltip />} />
       </div>
       <PostsPageChrome history>
         <Suspense fallback={<div style={{ minHeight: "100vh" }} />}>

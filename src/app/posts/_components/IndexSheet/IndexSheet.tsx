@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Pressable from "@/components/ui/Pressable";
 import { X, ArrowRight } from "@/components/icons";
 import styles from "./IndexSheet.module.css";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 /* 터치 디바이스 바텀 시트 — 인덱스(시리즈 · 카테고리 · 태그)에서 카드를 탭했을 때 상세 + CTA.
    열림 state · ESC · body 스크롤 잠금은 부모의 useSheet 가 한다. show 가 false 로 바뀌어도 AnimatePresence 가
@@ -27,6 +28,7 @@ export default function IndexSheet({
   cta: { href: string; label: string };
   children?: ReactNode;
 }) {
+  const { t } = useLanguage();
   return (
     <AnimatePresence>
       {show && (
@@ -51,7 +53,7 @@ export default function IndexSheet({
             <Pressable
               className={styles.sheetClose}
               onClick={onClose}
-              aria-label="닫기"
+              aria-label={t("common.close")}
             >
               <X size={18} aria-hidden />
             </Pressable>

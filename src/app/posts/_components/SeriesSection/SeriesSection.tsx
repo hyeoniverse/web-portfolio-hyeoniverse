@@ -154,7 +154,7 @@ export default function SeriesSection({
         <SearchCapsule
           search={seriesSearch}
           onSearchChange={setSeriesSearch}
-          placeholder="시리즈 제목·설명 검색"
+          placeholder={t("postsPage.seriesSearchShort")}
           size="sm"
           align="left"
           collapsible
@@ -180,7 +180,7 @@ export default function SeriesSection({
           onMouseLeave={stopSeriesScroll}
           onTouchStart={(e) => { e.preventDefault(); startSeriesScroll(-1); }}
           onTouchEnd={stopSeriesScroll}
-          aria-label="이전"
+          aria-label={t("common.prev")}
           data-clickable="true"
           data-cursor="prev"
         >
@@ -242,7 +242,7 @@ export default function SeriesSection({
           onMouseLeave={stopSeriesScroll}
           onTouchStart={(e) => { e.preventDefault(); startSeriesScroll(1); }}
           onTouchEnd={stopSeriesScroll}
-          aria-label="다음"
+          aria-label={t("common.next")}
           data-clickable="true"
           data-cursor="next"
         >
