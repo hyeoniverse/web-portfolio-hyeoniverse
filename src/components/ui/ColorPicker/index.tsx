@@ -49,6 +49,8 @@ import { Info, Copy, ClipboardPaste, Check } from "@/components/icons";
 import { showToast } from "@/stores/toastStore";
 import styles from "./ColorPicker.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { useLanguage } from "@/providers/LanguageProvider";
+import { fillTemplate } from "@/utils/format";
 
 type InputFormat = "hex" | "rgb" | "hsl" | "hsv" | "oklch";
 const FORMAT_OPTIONS = [
@@ -58,15 +60,6 @@ const FORMAT_OPTIONS = [
   { value: "hsv", label: "HSV / HSB" },
   { value: "oklch", label: "OKLCH" },
 ];
-
-/** format 별 의미 설명 — i 버튼 Tooltip 에 표시. 완결된 문장 + 색공간 모르는 사용자도 이해 가능. */
-const FORMAT_INFO: Record<InputFormat, string> = {
-  hex: "HEX 는 색을 6자리 코드로 적는 방식입니다. 앞에 # 을 붙이고 0–9 와 a–f 를 조합해서 #ff0000 (빨강) 처럼 표기합니다. 웹과 디자인 툴에서 가장 흔하게 쓰이는 형식이라 색을 공유하거나 검색할 때 편합니다.",
-  rgb: "RGB 는 빛의 3원색인 빨강 · 초록 · 파랑을 각각 0 부터 255 까지의 숫자로 섞어 색을 만드는 방식입니다. 모니터 픽셀이 실제로 빛을 내는 원리와 같기 때문에 컴퓨터 그래픽의 기본이 되는 모델이지만, 숫자만 보고는 결과 색을 떠올리기 어렵습니다.",
-  hsl: "HSL 은 사람이 색을 인식하는 방식에 가깝게 색상(H), 채도(S), 밝기(L) 세 값으로 색을 표현합니다. ‘어떤 색을, 얼마나 진하게, 얼마나 밝게’ 라는 직관적인 흐름으로 조절할 수 있어서 RGB 보다 색을 다듬기 쉽습니다.",
-  hsv: "HSV (또는 HSB) 는 색상(H), 채도(S), 밝기(V/B) 로 표현한다는 점에서 HSL 과 비슷하지만, 밝기 100% 가 ‘가장 진하고 선명한 색’ 을 의미합니다. Photoshop · Figma 등 디자인 툴의 컬러 피커가 기본으로 쓰는 방식이라 친숙합니다.",
-  oklch: "OKLCH 는 최근 웹 표준에 도입된 색공간입니다. 사람의 눈이 실제로 느끼는 밝기 차이가 균일하도록 설계되어 있어서, 색상이 달라도 같은 L 값이면 비슷한 밝기로 보입니다. 그래서 같은 톤의 색들을 만들거나 다크 / 라이트 테마용 팔레트를 설계할 때 유리합니다.",
-};
 
 /** onChange 가 emit 하는 통합 결과 — consumer 가 .hex / .oklch 등 원하는 format 골라 사용 */
 export interface ColorResult {
@@ -150,6 +143,7 @@ export default function ColorPicker({
   triggerStyle,
   inline = false,
 }: ColorPickerProps) {
+  const { t } = useLanguage();
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLSpanElement>(null);
   const popRef = useRef<HTMLDivElement>(null);
@@ -795,31 +789,32 @@ export default function ColorPicker({
               className={styles.formatSelect}
             />
             <div className={styles.inputActions}>
-            <Tooltip content={FORMAT_INFO[format]} placement="top">
+            {/* 형식 설명 — 완결된 문장, 색공간을 모르는 사람도 알 수 있게(common.colorFormatInfo) */}
+            <Tooltip content={t(`common.colorFormatInfo.${format}`)} placement="top">
               <Pressable
                 className={styles.infoButton}
-                aria-label={`${format.toUpperCase()} 형식 설명`}
+                aria-label={fillTemplate(t("common.colorFormatHelp"), { format: format.toUpperCase() })}
               >
                 <Info size={14} strokeWidth={2} />
               </Pressable>
             </Tooltip>
-            <Tooltip content={copied ? "복사됨" : `현재 색을 ${format.toUpperCase()} 형식으로 클립보드에 복사`} placement="top">
+            <Tooltip content={copied ? t("common.copied") : fillTemplate(t("common.colorCopyHint"), { format: format.toUpperCase() })} placement="top">
               <Pressable
                 className={styles.infoButton}
                 onClick={handleCopy}
-                aria-label="색 복사"
+                aria-label={t("common.colorCopy")}
               >
                 {copied ? <Check size={14} strokeWidth={2} /> : <Copy size={14} strokeWidth={2} />}
               </Pressable>
             </Tooltip>
             <Tooltip
-              content={pasteFlash === "ok" ? "붙여넣기 완료" : pasteFlash === "fail" ? "인식 못함" : "클립보드 색을 자동 인식해 적용 (HEX / RGB / HSL / HSV / OKLCH)"}
+              content={pasteFlash === "ok" ? t("common.colorPasted") : pasteFlash === "fail" ? t("common.colorPasteFailed") : t("common.colorPasteHint")}
               placement="top"
             >
               <Pressable
                 className={styles.infoButton}
                 onClick={handlePaste}
-                aria-label="색 붙여넣기"
+                aria-label={t("common.colorPaste")}
                 data-flash={pasteFlash ?? undefined}
               >
                 {pasteFlash === "ok" ? <Check size={14} strokeWidth={2} /> : <ClipboardPaste size={14} strokeWidth={2} />}
@@ -837,7 +832,7 @@ export default function ColorPicker({
               data-cursor="grab"
               style={{ "--_alpha-color": hex } as CSSProperties}
               role="slider"
-              aria-label="투명도"
+              aria-label={t("common.opacity")}
               aria-valuemin={0}
               aria-valuemax={100}
               aria-valuenow={Math.round(alpha * 100)}
