@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import css from "../../AboutStudio.module.css";
-import { EditableText, PanelStage, StageTabs, sec, useL } from "../primitives";
+import { EditableText, PanelStage, sec, useL } from "../primitives";
+import { StageTabs, useStageList } from "../stageList";
 import bk from "@/app/about/_components/panels/BackendPanel.module.css";
 import { Plus, X } from "@/components/icons";
 import Button from "@/components/ui/Button";
@@ -18,29 +18,10 @@ export function BackendBlock({ value, onChange, lang, t, title }: {
   value: BackendItem[]; onChange: (v: BackendItem[]) => void; lang: Language; t: TFunction; title: string;
 }) {
   const L = useL();
-  const [tab, setTab] = useState(0);
-  const cur = Math.min(tab, Math.max(0, value.length - 1));
-  const it = value[cur];
-  const set = (p: Partial<BackendItem>) => onChange(value.map((x, i) => (i === cur ? { ...x, ...p } : x)));
+  const list = useStageList(value, onChange, (): BackendItem => ({ name: "", kind: "api", description: { ko: "", en: "" }, endpoints: [] }));
+  const { cur, it, set } = list;
   const setLocal = (k: "description" | "designNote", v: string) =>
     set({ [k]: { ...(it[k] ?? { ko: "", en: "" }), [lang]: v } } as Partial<BackendItem>);
-  const add = () => {
-    onChange([...value, { name: "", kind: "api", description: { ko: "", en: "" }, endpoints: [] }]);
-    setTab(value.length);
-  };
-  const removeAt = (i: number) => {
-    onChange(value.filter((_, x) => x !== i));
-    setTab(Math.max(0, i - 1));
-  };
-  const isEmpty = (c: BackendItem) => !c.name.trim() && !c.description.ko.trim() && !c.description.en.trim();
-  const selectTab = (next: number) => {
-    if (next !== cur && it && isEmpty(it)) {
-      onChange(value.filter((_, i) => i !== cur));
-      setTab(next > cur ? next - 1 : next);
-      return;
-    }
-    setTab(next);
-  };
 
   const endpoints = it?.endpoints ?? [];
   const setEndpoints = (v: NonNullable<BackendItem["endpoints"]>) => set({ endpoints: v });
@@ -49,12 +30,8 @@ export function BackendBlock({ value, onChange, lang, t, title }: {
 
   return (
     <section className={css.block}>
-      <div className={css.slideTabs}>
-        <StageTabs count={value.length} active={cur} onSelect={selectTab} onAdd={add}
-          canAdd={value.length < BK_MAX}
-          addLabel={L("항목 추가", "Add item")}
-          labelOf={(i) => value[i]?.name || (L("새 항목", "Untitled"))} />
-      </div>
+      <StageTabs list={list} max={BK_MAX} addLabel={L("항목 추가", "Add item")}
+        labelOf={(i) => list.items[i]?.name || L("새 항목", "Untitled")} />
       {it && (
         <PanelStage>
           <div key={cur} className={css.bkStage}>
@@ -62,7 +39,7 @@ export function BackendBlock({ value, onChange, lang, t, title }: {
               <SegmentedControl<"api" | "table"> size="sm" value={it.kind}
                 onChange={(v) => set({ kind: v })}
                 items={[{ value: "api", label: "API" }, { value: "table", label: "TABLE" }]} />
-              <Button variant="subtle" shape="circle" size="xs" onClick={() => removeAt(cur)} aria-label={L("삭제", "Remove")}>
+              <Button variant="subtle" shape="circle" size="xs" onClick={list.remove} aria-label={L("삭제", "Remove")}>
                 <X size={14} />
               </Button>
             </div>
@@ -70,11 +47,11 @@ export function BackendBlock({ value, onChange, lang, t, title }: {
 
             <div className={css.bkBody}>
               <div className={bk.dbList}>
-                {value.map((item, i) => (
+                {list.items.map((item, i) => (
                   <div key={i} className={`${bk.dbListItem} ${i === cur ? bk.dbListItemActive : ""}`}
                     role="button" tabIndex={0}
-                    onClick={() => selectTab(i)}
-                    onKeyDown={(e) => { if (e.key === "Enter") selectTab(i); }}>
+                    onClick={() => list.select(i)}
+                    onKeyDown={(e) => { if (e.key === "Enter") list.select(i); }}>
                     <span className={bk.dbNumber}>{String(i + 1).padStart(2, "0")}</span>
                     <div className={bk.dbListMeta}>
                       <span className={bk.dbListTitle}>
@@ -92,7 +69,7 @@ export function BackendBlock({ value, onChange, lang, t, title }: {
               <div className={bk.dbDetail}>
                 <div className={bk.detailHeader}>
                   <EditableText wrap className={bk.dbTitle} value={it.name}
-                    onChange={(v) => set({ name: v })} placeholder="posts" ariaLabel={L("이름", "Name")} autoFocus={isEmpty(it)} />
+                    onChange={(v) => set({ name: v })} placeholder="posts" ariaLabel={L("이름", "Name")} autoFocus={list.isDraft} />
                 </div>
                 <EditableText multiline className={css.bkDesc} value={it.description[lang] ?? ""}
                   onChange={(v) => setLocal("description", v)}

@@ -63,6 +63,29 @@ test.describe("About 설정 화면", () => {
     await expect(page.getByRole("button", { name: "Save Tab" }), "저장 단추").toBeVisible();
   });
 
+  test("번호 탭 블록: 도구가 보이고, 새 항목은 입력 전까지 저장할 것이 아니다", async ({ page }) => {
+    await openAbout(page);
+    // 스테이지의 삭제 단추는 올리지 않아도 보인다. 예전에는 Backend·User Flow·Design Decisions 에서
+    // 도구 묶음이 투명해 올려도 보이지 않았다(toBeVisible 은 투명도를 보지 않으므로 직접 잰다).
+    for (const label of ["User Flow", "Backend", "Code Highlights", "Design Decisions", "Design System"]) {
+      const remove = page.locator(`[data-section-label="${label}"]`).getByRole("button", { name: /^(삭제|Remove)$/ }).first();
+      await expect(remove, `${label} 삭제 단추`).toBeVisible();
+      const opacity = await remove.evaluate((el) => getComputedStyle(el.parentElement!).opacity);
+      expect(opacity, `${label} 도구 묶음이 투명하지 않다`).toBe("1");
+    }
+
+    // 추가는 초안만 만든다. 저장 단추는 누르지 않고 켜졌는지만 본다.
+    const ds = page.locator('[data-section-label="Design System"]');
+    const dots = ds.getByRole("button", { name: /^\d{2}$/ });
+    const save = ds.getByRole("button", { name: /^(Save Section|섹션 저장)$/ });
+    const before = await dots.count();
+    await ds.getByRole("button", { name: /^(Add concept|컨셉 추가)$/ }).click();
+    await expect(dots, "초안 번호가 하나 붙는다").toHaveCount(before + 1);
+    await expect(save, "손대지 않은 초안은 저장할 것이 아니다").toBeDisabled();
+    await dots.first().click();
+    await expect(dots, "다른 번호로 가면 초안은 사라진다").toHaveCount(before);
+  });
+
   test("입력칸이 실제로 그려진다", async ({ page }) => {
     await openAbout(page);
     const count = await page.locator("input, textarea").count();
