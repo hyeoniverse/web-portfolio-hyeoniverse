@@ -10,6 +10,14 @@
   background: transparent;
 }
 
+/* 관리자 화면의 본문이 아직 오지 않았을 때(data-admin-pending 표시가 있을 때) 푸터를 감춘다.
+   번역을 받는 동안(AdminTranslationsGate)과 목록을 받는 동안(알림 뼈대 등) 본문이 짧아, 푸터가 화면
+   아래쪽에 그려졌다가 본문이 들어오며 밀려 내려갔다. 감춘 요소가 나타나는 것은 밀림으로 세지 않고,
+   화면이 짧아도 푸터가 위로 올라오지 않는다. */
+:global(body:has([data-admin-pending])) > .footer {
+  display: none;
+}
+
 .content {
   display: flex;
   gap: var(--spacing-3xl);

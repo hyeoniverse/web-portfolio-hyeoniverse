@@ -71,4 +71,22 @@ test.describe("관리자 대시보드", () => {
     const panel = page.locator('[class*="dayDetail"], [class*="dayPanel"]').first();
     await expect(panel, "그날 상세 패널이 열려야 한다").toBeVisible({ timeout: 10_000 });
   });
+  test("불러오는 동안 사이트 푸터가 밀리지 않는다", async ({ page }) => {
+    // 번역을 받는 동안 본문이 비어 푸터가 화면 아래쪽에 그려졌다가 본문이 들어오며 밀려 내려갔다(레이아웃 밀림 0.313, #838).
+    await page.addInitScript(() => {
+      const w = window as unknown as { __footerShift: number };
+      w.__footerShift = 0;
+      new PerformanceObserver((list) => {
+        type Shift = { value: number; hadRecentInput: boolean; sources?: { node?: Node | null }[] };
+        for (const e of list.getEntries() as unknown as Shift[]) {
+          if (e.hadRecentInput) continue;
+          if ((e.sources ?? []).some((s) => s.node instanceof Element && s.node.tagName === "FOOTER")) w.__footerShift += e.value;
+        }
+      }).observe({ type: "layout-shift", buffered: true });
+    });
+    await openDashboard(page);
+    await page.waitForTimeout(1_500);
+    const shift = await page.evaluate(() => (window as unknown as { __footerShift: number }).__footerShift);
+    expect(shift, "푸터가 일으킨 레이아웃 밀림").toBeLessThan(0.01);
+  });
 });
