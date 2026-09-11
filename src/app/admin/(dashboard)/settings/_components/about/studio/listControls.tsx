@@ -39,8 +39,12 @@ export function SortableList({ count, onMove, layout = "grid", onDragStart, onDr
     onDragEnd?.();
     if (over && active.id !== over.id) onMove(Number(active.id), Number(over.id));
   };
+  /* 화면 읽기용 안내(dnd-kit 가 그리는 숨은 div 두 개)는 body 에 둔다. 제자리에 그리면 ERD 표(<table>)나
+     Credits 문장(<p>) 안에 div 가 들어가 구조가 어긋나고, 표의 tbody:last-child 규칙도 빗나갔다.
+     서버에는 document 가 없는데, dnd-kit 도 이 안내를 마운트 뒤에만 그리므로 첫 렌더는 같다. */
+  const accessibility = typeof document === "undefined" ? undefined : { container: document.body };
   return (
-    <DndContext sensors={sensors} collisionDetection={pointerFirst}
+    <DndContext sensors={sensors} collisionDetection={pointerFirst} accessibility={accessibility}
       onDragStart={onDragStart} onDragEnd={end} onDragCancel={onDragEnd}>
       <SortableContext items={ids} strategy={layout === "list" ? verticalListSortingStrategy : rectSortingStrategy}>
         {children}

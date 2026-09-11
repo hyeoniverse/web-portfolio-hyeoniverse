@@ -6,7 +6,7 @@
  * 좁은 카드 폭 안에서 이름·타입 입력이 다닥다닥 붙어 읽기 어려웠다.
  * 편집은 넓은 자리가 필요하니 모달로 분리한다. */
 
-import { Fragment, useContext, useRef, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import { useStateFromProp } from "@/hooks/useStateFromProp";
 import { createPortal } from "react-dom";
 import { Plus, KeyRound, ArrowRight, GripVertical, Asterisk, Fingerprint, ChevronDown } from "@/components/icons";
@@ -22,6 +22,7 @@ import type { ErdTable, ErdRelation } from "@/data/about/types";
 import Tooltip from "@/components/ui/Tooltip";
 import css from "./ErdTableModal.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { SortableItem, SortableList } from "./studio/listControls";
 import { useL } from "./studio/primitives";
 
 
@@ -104,20 +105,10 @@ export default function ErdTableModal({
   const incoming = relations.filter((r) => r.to === table.name);
   const setCols = (columns: ErdTable["columns"]) => setDraft({ ...draft, columns });
 
-  /* 컬럼 순서 = 공개 ERD 에 그려지는 순서. 잘못 넣었다고 지웠다 다시 만들 일은 없어야 한다.
-     입력의 텍스트 선택을 방해하지 않도록 드래그는 핸들에서만 시작하고, 행은 드롭 대상만 맡는다. */
-  const [dragIdx, setDragIdx] = useState<number | null>(null);
   /* 기본값·설명 상세 행 — 값이 있으면 접어두지 않는다(모르는 채 저장되는 걸 막는다) */
   const [openRows, setOpenRows] = useState<Set<number>>(new Set());
   const detailOpen = (c: ErdTable["columns"][number], i: number) =>
     openRows.has(i) || !!c.defaultValue || !!c.comment || !!c.indexed || !!c.enumValues?.length;
-  const moveCol = (from: number, to: number) => {
-    if (from === to) return;
-    const next = [...draft.columns];
-    const [m] = next.splice(from, 1);
-    next.splice(to, 0, m);
-    setCols(next);
-  };
 
   /* 다중 선택 — 인덱스로 들고 있다가 삭제 시 한 번에 처리 */
   const [picked, setPicked] = useState<Set<number>>(new Set());
@@ -130,6 +121,29 @@ export default function ErdTableModal({
   const removePicked = () => {
     setCols(draft.columns.filter((_, i) => !picked.has(i)));
     setPicked(new Set());
+  };
+
+  /* 선택(picked)과 상세 펼침(openRows)은 몇 번째 컬럼인지로 들고 있어서, 순서를 바꾸거나 한 행을
+     지우면 같이 옮겨야 한다. 예전에는 안 옮겨서 다른 컬럼이 선택된 채로 남았고, 그대로 "선택 삭제"를
+     누르면 엉뚱한 컬럼이 지워졌다. */
+  const remapRows = (map: (i: number) => number | null) => {
+    const apply = (prev: Set<number>) => new Set([...prev].map(map).filter((x): x is number => x !== null));
+    setPicked(apply);
+    setOpenRows(apply);
+  };
+  /* 컬럼 순서 = 공개 ERD 에 그려지는 순서. 잘못 넣었다고 지웠다 다시 만들 일은 없어야 한다.
+     입력의 텍스트 선택을 방해하지 않도록 손잡이로만 끈다(SortableList — 마우스·터치·키보드). */
+  const moveCol = (from: number, to: number) => {
+    if (from === to) return;
+    const next = [...draft.columns];
+    const [m] = next.splice(from, 1);
+    next.splice(to, 0, m);
+    setCols(next);
+    remapRows((i) => (i === from ? to : from < to ? (i > from && i <= to ? i - 1 : i) : (i >= to && i < from ? i + 1 : i)));
+  };
+  const removeCol = (k: number) => {
+    setCols(draft.columns.filter((_, j) => j !== k));
+    remapRows((i) => (i === k ? null : i > k ? i - 1 : i));
   };
 
   /* 참조 후보 — 자기 자신을 제외한 테이블의 PK(없으면 첫 컬럼) */
@@ -267,27 +281,19 @@ export default function ErdTableModal({
                 <th scope="col" className={css.thX}><span className={css.srOnly}>—</span></th>
               </tr>
             </thead>
-            <tbody>
+            {/* 컬럼 하나 = tbody 하나(본 행 + 펼친 상세 행). 한 덩어리로 끌어야 상세 행이 제자리에 남지 않는다 */}
+            <SortableList layout="list" count={draft.columns.length} onMove={moveCol}>
               {draft.columns.map((c, i) => (
-                <Fragment key={i}>
-                <tr
-                  className={`${picked.has(i) ? css.rowPicked : ""} ${dragIdx === i ? css.rowDragging : ""}`.trim()}
-                  onDragOver={(e) => { if (dragIdx != null) e.preventDefault(); }}
-                  onDrop={(e) => {
-                    if (dragIdx == null) return;
-                    e.preventDefault();
-                    moveCol(dragIdx, i);
-                    setDragIdx(null);
-                  }}
-                >
+                <SortableItem key={i} index={i}>{(row) => (
+                <tbody ref={row.ref} style={row.style} className={row.isDragging ? css.colDragging : undefined}>
+                <tr className={picked.has(i) ? css.rowPicked : undefined}>
                   <td className={css.tdGrip}>
                     <Tooltip content={L("끌어서 순서 변경", "Drag to reorder")} delay={300}>
                       <span
                         className={css.grip}
-                        draggable
                         data-cursor="grab"
-                        onDragStart={(e) => { setDragIdx(i); e.dataTransfer.effectAllowed = "move"; }}
-                        onDragEnd={() => setDragIdx(null)}
+                        aria-label={L("끌어서 순서 변경", "Drag to reorder")}
+                        {...row.handle}
                       >
                         <GripVertical size={12} />
                       </span>
@@ -335,10 +341,10 @@ export default function ErdTableModal({
                         /* 아무것도 안 넣고 벗어나면 빈 행을 남기지 않는다.
                            같은 행 안(타입/참조)으로 이동하는 중이면 유지. */
                         if (c.name.trim()) return;
-                        const row = (e.target as HTMLElement).closest("tr");
+                        const tr = (e.target as HTMLElement).closest("tr");
                         window.setTimeout(() => {
-                          if (row?.contains(document.activeElement)) return;
-                          setCols(draft.columns.filter((_, j) => j !== i));
+                          if (tr?.contains(document.activeElement)) return;
+                          removeCol(i);
                         }, 0);
                       }} />
                   </td>
@@ -372,7 +378,7 @@ export default function ErdTableModal({
                   </td>
                   <td className={css.tdX}>
                     <CloseButton size="xs" ariaLabel={L("컬럼 삭제", "Remove column")}
-                      onClick={() => setCols(draft.columns.filter((_, j) => j !== i))} />
+                      onClick={() => removeCol(i)} />
                   </td>
                 </tr>
                 {/* 기본값·설명·인덱스·ENUM — 매 행에 열로 두면 이름 칸이 잘린다.
@@ -404,9 +410,10 @@ export default function ErdTableModal({
                     </td>
                   </tr>
                 )}
-              </Fragment>
+                </tbody>
+                )}</SortableItem>
               ))}
-            </tbody>
+            </SortableList>
           </table>
         </div>
         <div className={css.colActions}>
