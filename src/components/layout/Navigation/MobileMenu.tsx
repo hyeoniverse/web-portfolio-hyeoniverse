@@ -6,6 +6,7 @@ import Link from "next/link";
 import Logo from "@/components/common/Logo";
 import styles from "./Navigation.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 interface MenuChild {
   key: string;
@@ -47,6 +48,7 @@ export default function MobileMenu({
   onContactOpen,
   onLogout,
 }: MobileMenuProps) {
+  const { language } = useLanguage();
   // 이메일 hover phase — CSS animation 제거 후 transition 으로 복귀가 브라우저별로 안 통해서
   // JS 로 phase 관리: idle → rising (hover) → sinking (hover-off) → idle (sink animation 종료)
   const [emailPhase, setEmailPhase] = useState<"idle" | "rising" | "sinking">("idle");
@@ -78,7 +80,7 @@ export default function MobileMenu({
           <Logo variant="full" as="link" className={styles.menuLogo} />
         </div>
 
-        <nav aria-label="모바일 메뉴" className={styles.menuNav}>
+        <nav aria-label={language === "ko" ? "모바일 메뉴" : "Mobile menu"} className={styles.menuNav}>
           {menuItems.map((item) => {
             if (!item.href) {
               return (

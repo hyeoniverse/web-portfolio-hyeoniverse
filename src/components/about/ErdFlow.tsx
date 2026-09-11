@@ -31,6 +31,8 @@ type TableData = {
   junction?: string;
   /** `컬럼명` → multi(배열) / derived(카운트 캐시) */
   columnKind?: Record<string, "multi" | "derived">;
+  /** 배지 문구 언어 — 다이어그램의 lang 과 같다 */
+  lang?: "ko" | "en";
 };
 
 /* hover 강조는 context 로 내린다 — 노드 data 에 넣으면 hover 마다 노드 배열이
@@ -64,7 +66,7 @@ function Hint({ text, children }: { text: string | null; children: ReactNode }) 
 
 /* 컬럼 행마다 좌우 handle — 관계선이 정확히 그 행에서 출발/도착한다 */
 function TableNode({ data }: NodeProps<Node<TableData>>) {
-  const { table, onOpen, junction, columnKind } = data;
+  const { table, onOpen, junction, columnKind, lang } = data;
   const { selected, related } = useContext(HoverCtx);
   const tone = !selected ? "none"
     : table.name === selected ? "on"
@@ -103,8 +105,8 @@ function TableNode({ data }: NodeProps<Node<TableData>>) {
           {c.unique && <span className={css.flag}>U</span>}
           {c.indexed && !c.unique && <span className={css.flagSoft}>IX</span>}
           {/* 다중값(배열) · 파생(캐시) — Chen 표기의 이중/점선 타원에 해당 */}
-          {columnKind?.[c.name] === "multi" && <span className={css.kindMulti}>다중값</span>}
-          {columnKind?.[c.name] === "derived" && <span className={css.kindDerived}>파생</span>}
+          {columnKind?.[c.name] === "multi" && <span className={css.kindMulti}>{lang === "en" ? "Multi-valued" : "다중값"}</span>}
+          {columnKind?.[c.name] === "derived" && <span className={css.kindDerived}>{lang === "en" ? "Derived" : "파생"}</span>}
           <span className={css.colType}>{c.type}</span>
           {/* 기본값은 타입 뒤에 옅게 — 있으면 스키마를 읽는 데 큰 단서다 */}
           {c.defaultValue && <span className={css.colDefault}>={c.defaultValue}</span>}
@@ -200,12 +202,13 @@ function ErdFlowInner({
                 .map((c) => [c.name, concept.columnKind[`${t.name}.${c.name}`]])
                 .filter(([, v]) => v))
             : undefined,
+          lang,
         },
         draggable: false,
         selectable: false,
       };
     }),
-    [tables, layout, onOpen, concept],
+    [tables, layout, onOpen, concept, lang],
   );
 
   const noteNode: Node[] = useMemo(() => {

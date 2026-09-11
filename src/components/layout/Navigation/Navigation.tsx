@@ -556,7 +556,7 @@ export default function Navigation() {
       )}
     </Link>
 
-    <nav aria-label="주요 메뉴" className={`${styles.nav} ${showLoadingLogo ? styles.navLoading : ""} ${elevatedZ ? styles.navElevated : ""} ${isAdminPage ? styles.navAdmin : ""} ${showMenu ? styles.navMenuOpen : ""}`}>
+    <nav aria-label={language === "ko" ? "주요 메뉴" : "Main menu"} className={`${styles.nav} ${showLoadingLogo ? styles.navLoading : ""} ${elevatedZ ? styles.navElevated : ""} ${isAdminPage ? styles.navAdmin : ""} ${showMenu ? styles.navMenuOpen : ""}`}>
       <div
         ref={navCenterRef}
         className={styles.navCenter}

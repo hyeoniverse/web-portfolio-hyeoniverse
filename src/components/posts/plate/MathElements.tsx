@@ -286,7 +286,7 @@ function MathToggleButton({ isBlock, onToggle }: { isBlock: boolean; onToggle: (
 }
 
 export function EquationElement(props: PlateElementProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const katexRef = React.useRef<HTMLDivElement>(null);
   const wrapRef = React.useRef<HTMLDivElement>(null);
   const inputRef = React.useRef<HTMLTextAreaElement>(null);
@@ -304,7 +304,7 @@ export function EquationElement(props: PlateElementProps) {
   React.useEffect(() => {
     const el = katexRef.current;
     if (!el) return;
-    requestAnimationFrame(() => localizeKatexErrors(el));
+    requestAnimationFrame(() => localizeKatexErrors(el, language));
   });
 
   // 새로 삽입된 빈 수식은 자동 포커스
@@ -396,7 +396,7 @@ export function EquationElement(props: PlateElementProps) {
 }
 
 export function InlineEquationElement(props: PlateElementProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const katexRef = React.useRef<HTMLDivElement>(null);
   const wrapRef = React.useRef<HTMLSpanElement>(null);
   const inputRef = React.useRef<HTMLTextAreaElement>(null);
@@ -412,7 +412,7 @@ export function InlineEquationElement(props: PlateElementProps) {
   React.useEffect(() => {
     const el = katexRef.current;
     if (!el) return;
-    requestAnimationFrame(() => localizeKatexErrors(el));
+    requestAnimationFrame(() => localizeKatexErrors(el, language));
   });
 
   // 마운트 시 접히는 애니메이션: 에디터 너비 → 실제 너비

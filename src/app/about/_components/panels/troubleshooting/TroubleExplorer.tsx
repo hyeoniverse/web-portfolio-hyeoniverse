@@ -193,7 +193,7 @@ export default function TroubleExplorer({
                         <span className={styles.troubleListBadges}>
                           {item.difficulty && <DifficultyBadge level={item.difficulty} language={language} />}
                           {/* 별표 영역은 항상 자리 차지 (item 마다 같은 레이아웃 유지) */}
-                          <span className={styles.troubleRecommendedBadge} title={item.recommended ? "추천" : undefined} aria-hidden={!item.recommended}>
+                          <span className={styles.troubleRecommendedBadge} title={item.recommended ? (language === "ko" ? "추천" : "Recommended") : undefined} aria-hidden={!item.recommended}>
                             {item.recommended && <Star size={13} fill="currentColor" strokeWidth={1.5} />}
                           </span>
                         </span>

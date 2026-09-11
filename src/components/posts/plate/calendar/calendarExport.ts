@@ -31,7 +31,7 @@ function fold(line: string): string {
 }
 
 /** CalendarData → .ics 문자열 */
-function toIcs(cal: CalendarData, title = "Calendar", stamp = "19700101T000000Z"): string {
+function toIcs(cal: CalendarData, title = "Calendar", stamp = "19700101T000000Z", language = "ko"): string {
   const lines: string[] = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
@@ -58,7 +58,7 @@ function toIcs(cal: CalendarData, title = "Calendar", stamp = "19700101T000000Z"
       lines.push(`DTSTART;VALUE=DATE:${ymd(ev.date)}`);
       lines.push(`DTEND;VALUE=DATE:${nextDay(eventEndDate(ev))}`);
     }
-    lines.push(fold(`SUMMARY:${esc(ev.title || "(제목 없음)")}`));
+    lines.push(fold(`SUMMARY:${esc(ev.title || (language === "ko" ? "(제목 없음)" : "(Untitled)"))}`));
     if (descParts.length) lines.push(fold(`DESCRIPTION:${esc(descParts.join("\n"))}`));
     lines.push("END:VEVENT");
   }
@@ -104,8 +104,9 @@ function toJson(cal: CalendarData): string {
 function mdCell(s: string): string {
   return s.replace(/\|/g, "\\|").replace(/\r?\n/g, " ");
 }
-function toMarkdown(cal: CalendarData, title = "Calendar"): string {
-  const lines = [`# ${title}`, "", "| 날짜 | 시간 | 제목 | 라벨 | 태그 | 설명 |", "| --- | --- | --- | --- | --- | --- |"];
+function toMarkdown(cal: CalendarData, title = "Calendar", language = "ko"): string {
+  const head = language === "ko" ? "| 날짜 | 시간 | 제목 | 라벨 | 태그 | 설명 |" : "| Date | Time | Title | Label | Tags | Description |";
+  const lines = [`# ${title}`, "", head, "| --- | --- | --- | --- | --- | --- |"];
   for (const ev of sortedEvents(cal)) {
     const label = findLabel(ev.labelId, cal.labels);
     lines.push(`| ${mdCell(ev.date)} | ${mdCell(ev.time || "-")} | ${mdCell(ev.title || "")} | ${mdCell(label?.name || "-")} | ${mdCell((ev.tags || []).map((t) => `#${t}`).join(" ") || "-")} | ${mdCell(ev.desc || "-")} |`);
@@ -133,15 +134,15 @@ const EXPORT_META: Record<ExportFormat, { ext: string; mime: string }> = {
   md: { ext: "md", mime: "text/markdown" },
 };
 
-/** 지정 형식으로 달력 다운로드 */
-export function downloadCalendar(cal: CalendarData, title = "calendar", format: ExportFormat = "ics") {
+/** 지정 형식으로 달력 다운로드. 파일 안의 머리글·빈 제목은 language 로 고른다 */
+export function downloadCalendar(cal: CalendarData, title = "calendar", format: ExportFormat = "ics", language = "ko") {
   let content: string;
   if (format === "csv") content = toCsv(cal);
   else if (format === "json") content = toJson(cal);
-  else if (format === "md") content = toMarkdown(cal, title);
+  else if (format === "md") content = toMarkdown(cal, title, language);
   else {
     const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
-    content = toIcs(cal, title, stamp);
+    content = toIcs(cal, title, stamp, language);
   }
   const { ext, mime } = EXPORT_META[format];
   const safe = (title || "calendar").replace(/[^\w가-힣-]+/g, "_");

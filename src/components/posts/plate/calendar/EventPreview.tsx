@@ -66,7 +66,7 @@ export default function EventPreview({ hover, labels, language, timeFormat = "12
       <div className={styles.preview} style={style} onMouseEnter={onMouseEnter} onMouseLeave={() => { setZoom(null); onMouseLeave?.(); }}>
         <div className={styles.previewTop} style={{ ["--_c" as string]: eventColorVar(ev, labels) }}>
           <span className={styles.previewBar} />
-          <span className={styles.previewTitle}>{ev.title || "(제목 없음)"}</span>
+          <span className={styles.previewTitle}>{ev.title || (language === "ko" ? "(제목 없음)" : "(Untitled)")}</span>
         </div>
         <div className={styles.previewDate}>{formatDateValue(ev.date, null, language)}{ev.time ? ` · ${eventTimeLabel(ev, timeFormat)}` : ""}{ev.endDate && ev.endDate > ev.date ? ` ~ ${formatDateValue(ev.endDate, null, language)}` : ""}</div>
         {(statusOf(ev.status) || priorityOf(ev.priority)) && (

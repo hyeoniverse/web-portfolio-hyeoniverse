@@ -160,7 +160,7 @@ export default function TroubleStatusBar({
                     transition={{ duration: 0.2 }}
                     className={styles.ideFontTooltip}
                   >
-                    글자 크기 조절
+                    {language === "ko" ? "글자 크기 조절" : "Adjust text size"}
                   </motion.span>
                 )}
               </AnimatePresence>
