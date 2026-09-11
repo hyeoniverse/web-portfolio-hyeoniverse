@@ -78,6 +78,19 @@ export function useEditorAutoSave<T>({
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
 
+  /* 사용자가 이 화면에서 무언가 했는가(키 입력·포인터·붙여넣기·끌어 놓기·IME 조합).
+     하기 전의 스냅샷 변경은 편집이 아니라 불러오기 끝의 자동 변경이다 — 본문 편집기가 저장된 HTML 을
+     자기 형식으로 다듬어 올리는 것(빈 문단 줄 높이, 글과 한 문단에 섞인 이미지 분리 등)이 그렇다.
+     그런 변경은 기준에 흡수해 리비전을 만들지 않는다. 예전에는 작업물 편집 화면을 열기만 해도 3초 뒤
+     리비전이 생겼고, 리비전 50개 상한에 걸린 작업물은 가장 오래된 리비전이 하나씩 밀려났다(#837). */
+  const userActedRef = useRef(false);
+  useEffect(() => {
+    const mark = () => { userActedRef.current = true; };
+    const events = ["keydown", "pointerdown", "paste", "drop", "compositionstart", "beforeinput"] as const;
+    for (const e of events) document.addEventListener(e, mark, true);
+    return () => { for (const e of events) document.removeEventListener(e, mark, true); };
+  }, []);
+
   // ref sync — 매 render
   useSyncRef(blockRef, block);
   useSyncRef(snapshotRef, snapshot);
@@ -146,6 +159,8 @@ export function useEditorAutoSave<T>({
     if (!effectiveId || baselineRef.current === null) return;
     const current = computeHash(snapshot, ignoredKeysRef.current);
     if (current === baselineRef.current) return;
+    // 사용자가 아직 아무것도 하지 않았다 — 불러오기 끝의 자동 변경이므로 기준으로 삼는다
+    if (!userActedRef.current) { baselineRef.current = current; return; }
     if (!isMeaningfulDiff(current)) return; // 변경 너무 작음
 
     if (debounceTimer.current) clearTimeout(debounceTimer.current);
@@ -165,6 +180,8 @@ export function useEditorAutoSave<T>({
      *  debounce 만 임계값 적용 (background 저장 — 너무 잦은 revision 방지). */
     const beaconSave = () => {
       if (savingRef.current) return; // mutex
+      // 아무것도 하지 않고 떠나면 저장할 편집이 없다(불러오기 끝의 자동 변경뿐)
+      if (!userActedRef.current) return;
       const current = computeHash(snapshotRef.current, ignoredKeysRef.current);
       if (baselineRef.current !== null && current === baselineRef.current) return;
       // baseline 미리 갱신 — 같은 인스턴스 내 다른 leave handler 가 또 POST 못 하게
