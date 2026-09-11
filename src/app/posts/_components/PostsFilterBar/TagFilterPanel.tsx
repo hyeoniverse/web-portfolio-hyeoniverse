@@ -9,6 +9,7 @@ import Pressable from "@/components/ui/Pressable";
 import LetterFilter, { KOREAN_LETTERS, ENGLISH_LETTERS, LETTER_ETC, getLetterInitial } from "@/components/ui/LetterFilter";
 import { ChevronRight } from "@/components/icons";
 import styles from "./TagFilterPanel.module.css";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 const TAG_LETTERS = [...KOREAN_LETTERS, ...ENGLISH_LETTERS, LETTER_ETC];
 
@@ -31,6 +32,7 @@ export default function TagFilterPanel({
   onToggleTag: (tag: string) => void;
   onClearTags: () => void;
 }) {
+  const { t } = useLanguage();
   /* 태그 dropdown — 검색창 대신 철자 (ㄱ~ㅎ + A~Z + #) 필터. 상단 main 검색과 중복 회피.
      activeTagLetters 비어있으면 전체 표시. multiple selection (toggle). */
   const [activeTagLetters, setActiveTagLetters] = useState<Set<string>>(new Set());
@@ -143,7 +145,7 @@ export default function TagFilterPanel({
             ))}
             {filteredTags.length === 0 && (
               <p className={styles.tagAllLoaded}>
-                — 선택한 철자에 해당하는 태그 없음 —
+                {t("postsPage.noTagsForLetters")}
               </p>
             )}
           </div>

@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "@/components/icons";
 import { cn } from "@/utils/cn";
@@ -7,7 +8,8 @@ import Pressable from "@/components/ui/Pressable";
 interface BackLinkProps {
   href?: string;
   onClick?: () => void;
-  label: string;
+  /** 글자 또는 번역 컴포넌트(<T k=… />) — 서버 페이지는 화면 언어를 몰라 T 로 넘긴다 */
+  label: ReactNode;
   className?: string;
   size?: number;
 }

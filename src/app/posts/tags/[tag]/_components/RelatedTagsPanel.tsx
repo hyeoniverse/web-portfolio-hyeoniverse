@@ -9,6 +9,7 @@ import Tooltip from "@/components/ui/Tooltip";
 import Button from "@/components/ui/Button";
 import Pressable from "@/components/ui/Pressable";
 import styles from "./RelatedTagsPanel.module.css";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 /* 관련 태그 줄 — 헤더(툴팁 붙은 "관련 태그" 토글 · 다중 선택) + pills + "그 외 전체 태그" 펼침 패널.
    다중 선택(selectMode)과 추가 필터(extraTags)는 fetch 에 걸리는 값이라 부모 것, 펼침(showAllTags)은 여기 로컬. 관련 태그가 없으면 렌더하지 않는다. */
@@ -31,6 +32,7 @@ export default function RelatedTagsPanel({
   onToggleExtraTag: (tag: string) => void;
   onClearExtraTags: () => void;
 }) {
+  const { t } = useLanguage();
   // 관련 태그 헤더 트리거로 펼치는 "그 외 전체 태그" 패널
   const [showAllTags, setShowAllTags] = useState(false);
   // 관련 태그 + 현재 태그를 제외한 나머지 전체 태그 (count desc — getAllTagsData 정렬 유지)
@@ -47,11 +49,9 @@ export default function RelatedTagsPanel({
           delay={200}
           content={
             <div className={styles.relatedLabelTooltip}>
-              <div className={styles.relatedLabelTooltipMain}>Related Tags</div>
+              <div className={styles.relatedLabelTooltipMain}>{t("postsPage.relatedTags")}</div>
               <div className={styles.relatedLabelTooltipDesc}>
-                이 태그와 같은 게시물에 함께 쓰인 태그를 등장 빈도가 높은 순으로 보여줍니다.
-                &lsquo;관련 태그&rsquo;를 클릭하면 그 외 전체 태그가 펼쳐집니다.
-                &lsquo;다중 선택&rsquo;을 켜면 여러 태그를 클릭해 추가로 필터링할 수 있습니다.
+                {t("postsPage.relatedTagsHint")}
               </div>
             </div>
           }
@@ -70,9 +70,9 @@ export default function RelatedTagsPanel({
                 aria-hidden
               />
             }
-            title={showAllTags ? "전체 태그 접기" : "그 외 전체 태그 펼치기"}
+            title={showAllTags ? t("postsPage.collapseAllTags") : t("postsPage.expandAllTags")}
           >
-            관련 태그
+            {t("postsPage.relatedTags")}
           </Button>
         </Tooltip>
         <Button
@@ -81,9 +81,9 @@ export default function RelatedTagsPanel({
           active={selectMode}
           className={styles.selectModeBtn}
           onClick={onToggleSelectMode}
-          title={selectMode ? "다중 선택 끄기" : "다중 선택 켜기 — 여러 태그로 추가 필터"}
+          title={selectMode ? t("postsPage.multiSelectOff") : t("postsPage.multiSelectOn")}
         >
-          다중 선택
+          {t("postsPage.multiSelect")}
         </Button>
       </div>
       <div className={styles.relatedTags}>
@@ -91,9 +91,9 @@ export default function RelatedTagsPanel({
           <Pressable
             className={`${styles.relatedPill} ${styles.relatedPillSelectable} ${extraTags.size === 0 ? styles.relatedPillActive : ""}`}
             onClick={onClearExtraTags}
-            title="추가 필터 해제 — 이 태그 전체 보기"
+            title={t("postsPage.clearExtraTags")}
           >
-            <span>전체</span>
+            <span>{t("common.all")}</span>
           </Pressable>
         )}
         {relatedTags.map(({ tag: rt, count }) => {
@@ -140,16 +140,16 @@ export default function RelatedTagsPanel({
           >
             <div className={styles.allTagsInner}>
               {otherTags.length === 0 ? (
-                <span className={styles.allTagsEmpty}>그 외 태그가 없습니다.</span>
+                <span className={styles.allTagsEmpty}>{t("postsPage.noOtherTags")}</span>
               ) : (
-                otherTags.map((t) => (
+                otherTags.map((other) => (
                   <Link
-                    key={t.tag}
-                    href={`/posts/tags/${encodeURIComponent(t.tag)}`}
+                    key={other.tag}
+                    href={`/posts/tags/${encodeURIComponent(other.tag)}`}
                     className={styles.relatedPill}
                   >
-                    <span>#{t.tag}</span>
-                    <span className={styles.relatedPillCount}>{t.count}</span>
+                    <span>#{other.tag}</span>
+                    <span className={styles.relatedPillCount}>{other.count}</span>
                   </Link>
                 ))
               )}

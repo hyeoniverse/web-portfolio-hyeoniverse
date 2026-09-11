@@ -215,7 +215,7 @@ export default function PostCardStandard({
               <Pressable
                 className={styles.tagsToggle}
                 onClick={(e) => { e.stopPropagation(); setTagsExpanded((v) => !v); }}
-                aria-label={tagsExpanded ? "접기" : "더보기"}
+                aria-label={tagsExpanded ? t("postsPage.tagsCollapse") : t("postsPage.tagsExpand")}
               >
                 {tagsExpanded ? "<" : ">"}
               </Pressable>

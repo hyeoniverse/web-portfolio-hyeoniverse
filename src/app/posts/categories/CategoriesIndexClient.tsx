@@ -11,6 +11,9 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 import page from "../_components/IndexPage.module.css";
 import card from "../_components/IndexCard.module.css";
 import IndexSheet from "../_components/IndexSheet/IndexSheet";
+import { useLanguage } from "@/providers/LanguageProvider";
+import BoldMarks from "@/components/ui/BoldMarks";
+import { fillCount, fillTemplate } from "@/utils/format";
 
 interface CategoryEntry {
   name: string;
@@ -26,6 +29,7 @@ type SortBy = "popular" | "alphabetical";
 const FEATURED_COUNT = 3;
 
 export default function CategoriesIndexClient({ categories }: Props) {
+  const { t } = useLanguage();
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<SortBy>("popular");
   // 시트 — ESC 닫기 + body 스크롤 잠금
@@ -58,19 +62,19 @@ export default function CategoriesIndexClient({ categories }: Props) {
         <div className={page.headerTitleRow}>
           <h1 className={page.title}>
             <LayoutGrid size={22} strokeWidth={1.8} aria-hidden />
-            카테고리 모음
+            {t("postsPage.categoriesTitle")}
           </h1>
         </div>
         <p className={page.meta}>
-          <strong>{filtered.length.toLocaleString()}</strong>개의 카테고리
+          <BoldMarks text={fillCount(t, "postsPage.countCategories", filtered.length)} />
           {" · "}
-          총 <strong>{totalPosts.toLocaleString()}</strong>개의 글
+          <BoldMarks text={fillCount(t, "postsPage.countTotalPosts", totalPosts)} />
         </p>
         <div className={page.searchSortRow}>
           <SegmentedControl<SortBy>
             items={[
-              { value: "popular", label: "인기순" },
-              { value: "alphabetical", label: "제목순" },
+              { value: "popular", label: t("postsPage.sortPopular") },
+              { value: "alphabetical", label: t("postsPage.sortTitle") },
             ]}
             value={sortBy}
             onChange={(v) => setSortBy(v)}
@@ -78,7 +82,7 @@ export default function CategoriesIndexClient({ categories }: Props) {
           <SearchCapsule
             search={search}
             onSearchChange={setSearch}
-            placeholder="카테고리 검색…"
+            placeholder={t("postsPage.categorySearch")}
             align="left"
             size="sm"
             className={page.searchBar}
@@ -88,7 +92,7 @@ export default function CategoriesIndexClient({ categories }: Props) {
       </header>
 
       {filtered.length === 0 ? (
-        <p className={page.empty}>일치하는 카테고리가 없습니다.</p>
+        <p className={page.empty}>{t("postsPage.noMatchingCategories")}</p>
       ) : (
         <ul className={card.grid}>
           {filtered.map((c) => {
@@ -106,7 +110,7 @@ export default function CategoriesIndexClient({ categories }: Props) {
                   {isFeatured && (
                     <span className={card.cardFeaturedBadge}>
                       <Sparkles size={10} strokeWidth={2} aria-hidden />
-                      인기
+                      {t("postsPage.featuredBadge")}
                     </span>
                   )}
                   <div className={card.cover}>
@@ -123,7 +127,7 @@ export default function CategoriesIndexClient({ categories }: Props) {
                   </div>
                   <div className={card.body}>
                     <span className={card.meta2}>
-                      <span>{c.count}개의 글</span>
+                      <span>{fillCount(t, "postsPage.countPosts", c.count)}</span>
                     </span>
                     <span className={card.cardTitle}>{c.name}</span>
                   </div>
@@ -135,15 +139,15 @@ export default function CategoriesIndexClient({ categories }: Props) {
       )}
 
       {filtered.length > 0 && (
-        <p className={page.endNote}>— 모든 카테고리를 다 표시했습니다. ({filtered.length}개) —</p>
+        <p className={page.endNote}>{fillTemplate(t("postsPage.allCategoriesShown"), { n: filtered.length })}</p>
       )}
 
       <IndexSheet
         show={!!sheetCat}
         onClose={() => setSheetCat(null)}
         title={sheetCat?.name}
-        count={sheetCat ? `${sheetCat.count}개의 글` : null}
-        cta={{ href: `/posts?category=${encodeURIComponent(sheetCat?.name ?? "")}`, label: "이 카테고리의 글 보기" }}
+        count={sheetCat ? fillCount(t, "postsPage.countPosts", sheetCat.count) : null}
+        cta={{ href: `/posts?category=${encodeURIComponent(sheetCat?.name ?? "")}`, label: t("postsPage.viewCategoryPosts") }}
       />
     </div>
   );

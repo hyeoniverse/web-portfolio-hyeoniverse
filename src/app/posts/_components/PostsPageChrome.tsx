@@ -7,6 +7,7 @@ import T from "@/components/ui/T";
 import { LayoutGrid, History as HistoryIcon } from "@/components/icons";
 import type { Post } from "@/types/post";
 import styles from "../Posts.module.css";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 interface PostsPageChromeProps {
   /** history 모드 — 제목/부제가 History 로 바뀌고 배너를 렌더하지 않는다. */
@@ -19,6 +20,7 @@ interface PostsPageChromeProps {
    필터나 URL 쿼리에 전혀 의존하지 않아 서버에서 그대로 그릴 수 있다.
    본문(PostsClient)은 children 으로 받아 Suspense 경계 안에 남긴다. */
 export default function PostsPageChrome({ history = false, pinnedPosts = [], children }: PostsPageChromeProps) {
+  const { t } = useLanguage();
   return (
     <div className={`${styles.page} ${history ? styles.historyMode : ""}`}>
       <PostsSubnav />
@@ -28,7 +30,7 @@ export default function PostsPageChrome({ history = false, pinnedPosts = [], chi
             <PageTitle icon={<HistoryIcon size={40} strokeWidth={1.6} aria-hidden />}>
               History.
             </PageTitle>
-            <p className={styles.subtitle}>시간순으로 쌓인 모든 기록.</p>
+            <p className={styles.subtitle}>{t("postsPage.historySubtitle")}</p>
           </>
         ) : (
           <>

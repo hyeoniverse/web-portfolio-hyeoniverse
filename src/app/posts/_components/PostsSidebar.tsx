@@ -6,6 +6,7 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 import { ChevronDown, ChevronUp } from "@/components/icons";
 import Pressable from "@/components/ui/Pressable";
 import styles from "./PostsSidebar.module.css";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 /* /posts 우측 사이드바 — sticky + 자체 세로 스크롤. 위젯(TagCloud3D·PopularPosts 등)은 children 으로 받는다.
    barHidden(필터바가 스크롤로 숨은 상태)이면 그만큼 위로 붙는다(sidebarUp). */
@@ -16,6 +17,7 @@ export default function PostsSidebar({
   barHidden: boolean;
   children: ReactNode;
 }) {
+  const { t } = useLanguage();
   const { isMobile: isCollapsed } = useIsMobile(BREAKPOINT.tablet);
   const ref = useRef<HTMLElement>(null);
   const [canUp, setCanUp] = useState(false);
@@ -93,7 +95,7 @@ export default function PostsSidebar({
             noTapScale
             className={styles.sidebarScrollBtn}
             {...btnHandlers(-1)}
-            aria-label="위로 스크롤"
+            aria-label={t("postsPage.scrollUp")}
             data-clickable="true"
           >
             <ChevronUp size={14} />
@@ -102,7 +104,7 @@ export default function PostsSidebar({
       )}
       <aside
         ref={ref}
-        aria-label="글 목록 사이드바"
+        aria-label={t("postsPage.sidebarLabel")}
         className={styles.sidebar}
         {...(!isCollapsed && { "data-lenis-prevent": true })}
       >
@@ -114,7 +116,7 @@ export default function PostsSidebar({
             noTapScale
             className={styles.sidebarScrollBtn}
             {...btnHandlers(1)}
-            aria-label="아래로 스크롤"
+            aria-label={t("postsPage.scrollDown")}
             data-clickable="true"
           >
             <ChevronDown size={14} />

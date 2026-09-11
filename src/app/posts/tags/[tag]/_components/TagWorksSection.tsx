@@ -8,12 +8,12 @@ import styles from "./TagWorksSection.module.css";
 
 /* 통합 태그 — 같은 기술(tech)을 쓴 작업물 목록. tags↔tech 공유 어휘. 작업물이 없으면 렌더하지 않는다. */
 export default function TagWorksSection({ works }: { works: TagPageData["works"] }) {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   if (works.length === 0) return null;
   return (
     <section className={styles.worksSection}>
       <h2 className={styles.worksHeading}>
-        이 태그를 쓴 프로젝트
+        {t("postsPage.tagProjects")}
         <span className={styles.worksCount}>{works.length}</span>
       </h2>
       <div className={styles.worksTable}>

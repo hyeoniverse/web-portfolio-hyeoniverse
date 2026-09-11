@@ -2,6 +2,7 @@
 
 import Button from "@/components/ui/Button";
 import styles from "./SeriesCategoryFilter.module.css";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 /* 시리즈 카테고리 필터 — "전체" + 카테고리별 버튼(개수), 활성 버튼 재클릭으로 해제. 카테고리가 없으면 렌더하지 않는다. */
 export default function SeriesCategoryFilter({
@@ -15,6 +16,7 @@ export default function SeriesCategoryFilter({
   active: string | null;
   onChange: (category: string | null) => void;
 }) {
+  const { t } = useLanguage();
   if (buckets.size === 0) return null;
   return (
     <div className={styles.categoryRow}>
@@ -26,7 +28,7 @@ export default function SeriesCategoryFilter({
         onClick={() => onChange(null)}
         data-clickable="true"
       >
-        전체
+        {t("common.all")}
         <span className={styles.categoryCount}>{total}</span>
       </Button>
       {Array.from(buckets.entries())

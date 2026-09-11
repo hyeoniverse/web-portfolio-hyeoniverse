@@ -3,7 +3,7 @@
 import { type RefObject } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { PER_PAGE_OPTIONS } from "@/constants";
+import { perPageOptions } from "@/constants";
 import type { useSearchControls } from "@/hooks/useSearchControls";
 import { Hash, ArrowLeft, List } from "@/components/icons";
 import SegmentedControl from "@/components/ui/SegmentedControl";
@@ -11,6 +11,7 @@ import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import styles from "./TagPageToolbar.module.css";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 export type TagSort = "newest" | "popular" | "title";
 
@@ -39,6 +40,7 @@ export default function TagPageToolbar({
   searchControls: ReturnType<typeof useSearchControls<"all" | "title" | "content">>;
   hasResults: boolean;
 }) {
+  const { t } = useLanguage();
   const router = useRouter();
   const { search, setSearch, searchType, setSearchType, setSyntaxMode } = searchControls;
   return (
@@ -52,11 +54,11 @@ export default function TagPageToolbar({
         className={styles.backBtn}
         icon={<ArrowLeft size={16} strokeWidth={1.8} />}
         onClick={() => router.push("/posts/tags")}
-        title="태그 목록으로"
+        title={t("postsPage.tagListBackTitle")}
       >
-        태그 목록
+        {t("postsPage.tagListBack")}
       </Button>
-      <Link href="/posts/tags" className={styles.heroBadge} title="전체 태그 보기">
+      <Link href="/posts/tags" className={styles.heroBadge} title={t("postsPage.viewAllTags")}>
         <Hash size={18} strokeWidth={1.8} />
         <span>TAG</span>
       </Link>
@@ -65,9 +67,9 @@ export default function TagPageToolbar({
           <SegmentedControl<TagSort>
             className={styles.sortControl}
             items={[
-              { value: "newest", label: "최신순" },
-              { value: "popular", label: "인기순" },
-              { value: "title", label: "제목순" },
+              { value: "newest", label: t("postsPage.sortNewest") },
+              { value: "popular", label: t("postsPage.sortPopular") },
+              { value: "title", label: t("postsPage.sortTitle") },
             ]}
             value={sort}
             onChange={onSortChange}
@@ -82,7 +84,7 @@ export default function TagPageToolbar({
               className={styles.perPageSelect}
               size="sm"
               value={String(perPage)}
-              options={PER_PAGE_OPTIONS}
+              options={perPageOptions(t)}
               onChange={(v) => onPerPageChange(Number(v))}
             />
           </div>
@@ -91,7 +93,7 @@ export default function TagPageToolbar({
             onSearchChange={setSearch}
             align="right"
             size="sm"
-            placeholder="이 태그 안에서 검색…"
+            placeholder={t("postsPage.tagInnerSearch")}
             className={styles.heroSearch}
             routeParam="q"
             hasResults={hasResults}
@@ -99,9 +101,9 @@ export default function TagPageToolbar({
             typeSelector={{
               value: searchType,
               options: [
-                { value: "all", label: "제목+내용" },
-                { value: "title", label: "제목" },
-                { value: "content", label: "내용" },
+                { value: "all", label: t("postsPage.searchAll") },
+                { value: "title", label: t("postsPage.searchTitle") },
+                { value: "content", label: t("postsPage.searchContent") },
               ],
               onChange: (v) => setSearchType(v as "all" | "title" | "content"),
             }}

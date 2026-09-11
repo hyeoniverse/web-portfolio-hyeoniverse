@@ -22,6 +22,8 @@ import SeriesCategoryFilter from "./_components/SeriesCategoryFilter";
 import SeriesCardGrid from "./_components/SeriesCardGrid";
 import type { SeriesEntry } from "./types";
 import styles from "./SeriesIndex.module.css";
+import BoldMarks from "@/components/ui/BoldMarks";
+import { fillCount } from "@/utils/format";
 
 
 interface Props {
@@ -30,7 +32,7 @@ interface Props {
 
 const FEATURED_COUNT = 3;
 export default function SeriesIndexClient({ series }: Props) {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const searchControls = useSearchControls<"all" | "title" | "desc">("all");
   const { search, searchType, syntaxMode } = searchControls;
   const [sortBy, setSortBy] = useState<SeriesSortBy>("popular");
@@ -117,16 +119,16 @@ export default function SeriesIndexClient({ series }: Props) {
               href="/admin/settings?tab=content&sub=posts"
               size="sm"
               icon={<Settings size={12} strokeWidth={1.8} aria-hidden />}
-              title="시리즈 관리"
+              title={t("postsPage.seriesManage")}
             >
-              시리즈 관리
+              {t("postsPage.seriesManage")}
             </Button>
           )}
         </div>
         <p className={index.meta}>
-          <strong>{filtered.length.toLocaleString()}</strong>개의 시리즈
+          <BoldMarks text={fillCount(t, "postsPage.countSeries", filtered.length)} />
           {" · "}
-          총 <strong>{totalPosts.toLocaleString()}</strong>개의 글
+          <BoldMarks text={fillCount(t, "postsPage.countTotalPosts", totalPosts)} />
         </p>
         <SeriesIndexControls
           sortBy={sortBy}
@@ -141,7 +143,7 @@ export default function SeriesIndexClient({ series }: Props) {
       <SeriesCategoryFilter buckets={categoryBuckets} total={series.length} active={activeCategory} onChange={setActiveCategory} />
 
       {filtered.length === 0 ? (
-        <p className={index.empty}>일치하는 시리즈가 없습니다.</p>
+        <p className={index.empty}>{t("postsPage.noMatchingSeries")}</p>
       ) : (
         <SeriesCardGrid items={paged} featuredSet={featuredSet} isTouch={isTouch} onTap={setSheetSeries} />
       )}
@@ -160,9 +162,9 @@ export default function SeriesIndexClient({ series }: Props) {
         show={!!sheetSeries}
         onClose={() => setSheetSeries(null)}
         title={sheetSeries ? (language === "en" ? (sheetSeries.title_en || sheetSeries.title) : sheetSeries.title) : null}
-        count={sheetSeries ? `${sheetSeries.post_count}개의 글` : null}
+        count={sheetSeries ? fillCount(t, "postsPage.countPosts", sheetSeries.post_count) : null}
         description={sheetSeries ? (language === "en" ? (sheetSeries.description_en || sheetSeries.description) : sheetSeries.description) : null}
-        cta={{ href: `/posts?series=${sheetSeries?.id}`, label: "이 시리즈의 글 보기" }}
+        cta={{ href: `/posts?series=${sheetSeries?.id}`, label: t("postsPage.viewSeriesPosts") }}
       />
     </div>
     </SearchHighlightProvider>

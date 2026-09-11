@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import type { TimelineIndexGroup } from "../_hooks/useTimeline";
 import styles from "./TimelineIndex.module.css";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 /* 타임라인 왼쪽 연·월 인덱스 — sticky, 연도별 그룹. 활성 월(scroll-spy)은 accent dot(layoutId)이 슬라이드.
    클릭하면 onJump(monthKey) — 미로드 월이면 useTimeline 이 순차 로드 뒤 스크롤한다. 640px 이하는 CSS 로 숨김. */
@@ -15,11 +16,12 @@ export default function TimelineIndex({
   activeMonthKey: string | null;
   onJump: (key: string) => void;
 }) {
+  const { t } = useLanguage();
   if (groups.length === 0) return null;
   return (
     <motion.nav
       className={styles.timelineIndex}
-      aria-label="월별 이동"
+      aria-label={t("postsPage.jumpByMonth")}
       data-lenis-prevent
       initial="hidden"
       animate="show"

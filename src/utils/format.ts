@@ -27,3 +27,11 @@ export function formatAdminShortDate(iso?: string | null): string {
 export function fillTemplate(template: string, values: Record<string, string | number>): string {
   return template.replace(/\{\{(\w+)\}\}/g, (hole, name: string) => (name in values ? String(values[name]) : hole));
 }
+
+/**
+ * 개수가 들어가는 번역 문구 — 영어의 단수·복수 때문에 `<key>.one`(1개)과 `<key>.other` 중에서 고르고,
+ * `{{n}}` 을 천 단위 구분 기호를 넣은 수로 채운다. 한국어는 두 문구를 같게 둔다.
+ */
+export function fillCount(t: (key: string) => string, key: string, n: number): string {
+  return fillTemplate(t(`${key}.${n === 1 ? "one" : "other"}`), { n: n.toLocaleString("en-US") });
+}

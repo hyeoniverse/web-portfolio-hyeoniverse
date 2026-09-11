@@ -21,6 +21,8 @@ import TagsIndexControls, { type TagsSortBy } from "./_components/TagsIndexContr
 import TagCloudList from "./_components/TagCloudList";
 import type { TagEntry } from "./types";
 import styles from "./TagsIndex.module.css";
+import BoldMarks from "@/components/ui/BoldMarks";
+import { fillCount, fillTemplate } from "@/utils/format";
 
 interface Props {
   tags: TagEntry[];
@@ -30,7 +32,7 @@ const PAGE_SIZE = 60;
 const FEATURED_COUNT = 8;
 
 export default function TagsIndexClient({ tags }: Props) {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const searchControls = useSearchControls<"all" | "title" | "desc">("all");
   const { search, searchType, syntaxMode } = searchControls;
   const [sortBy, setSortBy] = useState<TagsSortBy>("popular");
@@ -154,14 +156,14 @@ export default function TagsIndexClient({ tags }: Props) {
               href="/admin/settings?tab=content&section=tags"
               size="sm"
               icon={<Settings size={12} strokeWidth={1.8} aria-hidden />}
-              title="태그 관리"
+              title={t("postsPage.tagsManage")}
             >
-              태그 관리
+              {t("postsPage.tagsManage")}
             </Button>
           )}
         </div>
         <p className={page.meta}>
-          <strong>{filtered.length.toLocaleString()}</strong>개의 태그
+          <BoldMarks text={fillCount(t, "postsPage.countTags", filtered.length)} />
         </p>
         <TagsIndexControls
           sortBy={sortBy}
@@ -197,10 +199,10 @@ export default function TagsIndexClient({ tags }: Props) {
 
       {hasMore && <div ref={sentinelRef} className={styles.sentinel} aria-hidden />}
       {!hasMore && filtered.length > 0 && (
-        <p className={page.endNote}>— 모든 태그를 다 표시했습니다. ({filtered.length}개) —</p>
+        <p className={page.endNote}>{fillTemplate(t("postsPage.allTagsShown"), { n: filtered.length })}</p>
       )}
       {filtered.length === 0 && (
-        <p className={page.empty}>일치하는 태그가 없습니다.</p>
+        <p className={page.empty}>{t("postsPage.noMatchingTags")}</p>
       )}
 
       {/* 터치 디바이스 — 탭 시 바텀 시트로 detail. 연관 태그 pills 는 IndexSheet 의 children 슬롯 */}
@@ -208,13 +210,13 @@ export default function TagsIndexClient({ tags }: Props) {
         show={!!sheetTag}
         onClose={() => setSheetTag(null)}
         title={sheetTag ? `#${sheetTag.tag}` : null}
-        count={sheetTag ? `${sheetTag.count}개의 글` : null}
+        count={sheetTag ? fillCount(t, "postsPage.countPosts", sheetTag.count) : null}
         description={sheetTag?.description}
-        cta={{ href: `/posts/tags/${encodeURIComponent(sheetTag?.tag ?? "")}`, label: "이 태그의 글 보기" }}
+        cta={{ href: `/posts/tags/${encodeURIComponent(sheetTag?.tag ?? "")}`, label: t("postsPage.viewTagPosts") }}
       >
         {sheetTag && sheetTag.related.length > 0 && (
           <div className={styles.sheetRelated}>
-            <span className={styles.sheetSectionLabel}>연관 태그</span>
+            <span className={styles.sheetSectionLabel}>{t("postsPage.relatedTagsSheet")}</span>
             <div className={styles.sheetRelatedPills}>
               {sheetTag.related.map((r) => (
                 <Chip
