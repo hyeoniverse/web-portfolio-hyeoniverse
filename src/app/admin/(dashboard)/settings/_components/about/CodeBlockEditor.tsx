@@ -85,13 +85,16 @@ export default function CodeBlockEditor({
   );
 }
 
-/* 편집분을 config 로 올린다 */
+/* 편집분을 config 로 올린다. 처음 값은 props 에서 온 것이라 올리지 않는다 — 올리면 고치지 않았는데도
+   "바뀜" 이 된다. 저장값이 비어 있어 기본 데이터를 보여 주는 동안(Code Highlights)에는 그 순간 기본 목록
+   전체가 설정값에 들어가, About 을 열기만 해도 저장 단추가 켜지고 떠날 때마다 확인을 물었다. */
 function Sync({ onChange }: { onChange: (v: string) => void }) {
   const { sandpack } = useSandpack();
   const last = useRef<string | null>(null);
   useEffect(() => {
     const f = sandpack.files[FILE] as { code?: string } | undefined;
     const next = f?.code ?? "";
+    if (last.current === null) { last.current = next; return; }
     if (last.current === next) return;
     last.current = next;
     onChange(next);

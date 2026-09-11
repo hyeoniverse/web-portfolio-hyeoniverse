@@ -4,6 +4,7 @@ import { Fragment, useState, useEffect, useCallback, useRef, useMemo } from "rea
 import { useSearchParams } from "next/navigation";
 import { Settings as SettingsIcon } from "@/components/icons";
 import { useStaticPageScroll } from "@/hooks/useStaticPageScroll";
+import { useLeaveGuard } from "@/hooks/useLeaveGuard";
 import { siteConfig } from "@/config/site.config";
 import type { SiteConfigData } from "@/config/site.config";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -601,7 +602,11 @@ export default function SettingsPage() {
       }
       savedConfigRef.current = structuredClone(merged);
       storedDeltaRef.current = structuredClone(payload.delta);
-      setConfig(structuredClone(merged));
+      /* 화면 값은 저장한 경로만 맞춘다. 예전에는 merged(저장된 값 + 이 섹션)로 통째로 바꿔서, 한 섹션을
+         저장하면 다른 섹션에서 저장하지 않은 변경이 사라졌다. 저장하는 동안 고친 내용도 지키도록 최신 값 위에 얹는다. */
+      const applySaved = (base: SiteConfigData) => paths.reduce((acc, p) => setByPath(acc, p, structuredClone(getByPath(merged, p))), base);
+      setConfig(applySaved);
+      const othersUnsaved = !deepEqual(applySaved(source ?? config), merged);
       setMessage(t("admin.settings.saveSuccess"));
       try {
         const bc = new BroadcastChannel("settings-updated");
@@ -609,8 +614,9 @@ export default function SettingsPage() {
         bc.close();
       } catch {}
       /* 저장한 키가 전부 "이 화면에 안 보이는 것" 이면 새로고침하지 않는다.
-         화면은 위의 setConfig 로 이미 갱신됐고, 다른 탭에는 BroadcastChannel 이 알린다. */
-      const needsReload = paths.some((p) => !NO_RELOAD_KEYS.has(p.split(".")[0]));
+         화면은 위의 setConfig 로 이미 갱신됐고, 다른 탭에는 BroadcastChannel 이 알린다.
+         다른 섹션에 저장하지 않은 변경이 남아 있어도 새로고침하지 않는다 — 새로고침하면 그 변경이 사라진다. */
+      const needsReload = !othersUnsaved && paths.some((p) => !NO_RELOAD_KEYS.has(p.split(".")[0]));
       if (needsReload) setTimeout(() => window.location.reload(), 600);
       return { ok: true };
     } catch (err) {
@@ -679,6 +685,31 @@ export default function SettingsPage() {
     if (activeTab === "content" && !deepEqual(profileData, savedProfileRef.current)) return true;
     return false;
   }, [activeTab, config, profileData]);
+
+  /* 저장하지 않은 변경이 있으면 떠나기 전에 묻는다 — 탭·하위탭 옮기기, 사이트 안 링크, 새로고침·닫기.
+     예전에는 탭을 옮기면 묻지 않고 버렸다. */
+  const askLeave = (go: () => void) => openModal(
+    <ModalConfirm desc={t("admin.settings.leaveConfirm")} confirmText={t("admin.settings.leaveConfirmAction")} danger onConfirm={go} />,
+    { width: "min(90vw, 480px)" },
+  );
+  useLeaveGuard(hasChanges && !saving, askLeave);
+  /* 탭·하위탭 옮기기. 옮기면 저장하지 않은 변경은 버린다 — 탭 저장이 보이지 않는 하위탭의 변경까지
+     저장하지 않게. 사이드바 탭, 사이드바 하위탭, 모바일 하위탭 줄이 모두 이것을 쓴다. 예전에는 모바일
+     하위탭 줄만 버리지 않아 데스크톱과 결과가 달랐고, 지금 탭을 다시 눌러도 변경이 버려졌다. */
+  const switchTo = (tab: TabId, sub?: ContentSubTab) => {
+    const nextSub = tab === "content" ? (sub ?? "home") : contentSubTab;
+    if (tab === activeTab && (tab !== "content" || nextSub === contentSubTab)) return;
+    const go = () => {
+      setActiveTab(tab);
+      if (tab === "content") setContentSubTab(nextSub);
+      setConfig(structuredClone(savedConfigRef.current));
+      setProfileData(structuredClone(savedProfileRef.current));
+      setConflictExpanded(false);
+      setCheckedConflicts(new Set());
+    };
+    if (hasChanges) askLeave(go);
+    else go();
+  };
 
   const update = <S extends keyof SiteConfigData>(
     section: S,
@@ -853,14 +884,7 @@ export default function SettingsPage() {
               <div key={id}>
                 <Pressable
                   className={`${styles.navItem} ${activeTab === id ? styles.navItemActive : ""}`}
-                  onClick={() => {
-                    setActiveTab(id);
-                    if (id === "content") setContentSubTab("home");
-                    setConfig(structuredClone(savedConfigRef.current));
-                    setProfileData(structuredClone(savedProfileRef.current));
-                    setConflictExpanded(false);
-                    setCheckedConflicts(new Set());
-                  }}
+                  onClick={() => switchTo(id)}
                 >
                   {t(`admin.settings.tabs.${id}`)}
                   {tabCount > 0 && <span className={styles.navConflictBadge} />}
@@ -874,14 +898,7 @@ export default function SettingsPage() {
                         <Fragment key={sub}>
                           <Pressable
                             className={`${styles.navSubItem} ${subActive ? styles.navSubItemActive : ""}`}
-                            onClick={() => {
-                              setActiveTab("content");
-                              setContentSubTab(sub);
-                              setConfig(structuredClone(savedConfigRef.current));
-                              setProfileData(structuredClone(savedProfileRef.current));
-                              setConflictExpanded(false);
-                              setCheckedConflicts(new Set());
-                            }}
+                            onClick={() => switchTo("content", sub)}
                           >
                             {t(`admin.settings.contentSub.${sub}`)}
                             {subCount > 0 && <span className={styles.navConflictBadge} />}
@@ -913,11 +930,7 @@ export default function SettingsPage() {
                   <Pressable
                     key={sub}
                     className={`${styles.mobileSubItem} ${contentSubTab === sub ? styles.mobileSubItemActive : ""}`}
-                    onClick={() => {
-                      setContentSubTab(sub);
-                      setConflictExpanded(false);
-                      setCheckedConflicts(new Set());
-                    }}
+                    onClick={() => switchTo("content", sub)}
                   >
                     {t(`admin.settings.contentSub.${sub}`)}
                     {subCount > 0 && <span className={styles.navConflictBadge} />}

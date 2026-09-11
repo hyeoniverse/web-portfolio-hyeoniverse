@@ -216,6 +216,8 @@
       "resetDefaults": "기본값으로",
       "resetDefaultsTooltip": "코드 기본값(site.config)으로 폼을 되돌립니다. 저장 시 DB에 덮어쓰여집니다",
       "resetDefaultsConfirm": "정말 코드 기본값으로 되돌리시겠습니까? 저장 시 DB의 모든 설정이 기본값으로 덮어쓰여집니다.",
+      "leaveConfirm": "저장하지 않은 변경이 있습니다. 이동하면 변경이 사라집니다.",
+      "leaveConfirmAction": "버리고 이동",
       "personal": "개인 정보",
       "brand": "브랜드",
       "contact": "연락처",
