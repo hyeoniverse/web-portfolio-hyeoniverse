@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from "react";
  * About 페이지는 무한 가로 스크롤을 위해 패널 세트를 REPETITIONS(3) 벌 렌더한다.
  * 대부분의 패널은 그래도 싸지만 ERD 는 React Flow 인스턴스 + 노드 23개라
  * 3 벌이면 store·ResizeObserver 까지 3 배로 들고 DOM 이 3 만 개를 넘는다.
+ * Code Highlights 의 코드 데모 미리보기는 한 벌마다 CodeSandbox 에서 3 MB 가까이 받는다.
  * 실제로 볼 때만 마운트해서 그 비용을 보이는 한 벌로 줄인다.
  *
  * 한 번 true 가 되면 되돌리지 않는다 — 다시 언마운트하면 사용자가 맞춰둔
