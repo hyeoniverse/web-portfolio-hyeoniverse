@@ -6,6 +6,7 @@ import { GripVertical } from "@/components/icons";
 import CloseButton from "../CloseButton";
 import styles from "./Chip.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 type Variant = "capsule" | "bare";
 
@@ -69,6 +70,7 @@ export default function Chip({
   truncate = false,
   maxLength,
 }: ChipProps) {
+  const { t } = useLanguage();
   const rootCls = [
     styles.chip,
     variant === "bare" ? styles.bare : styles.capsule,
@@ -135,7 +137,7 @@ export default function Chip({
           size="xs"
           /* × 클릭이 부모(예: Popover trigger)로 전파돼 다른 동작을 트리거하지 않도록 차단 */
           onClick={(e) => { e.stopPropagation(); onRemove(); }}
-          ariaLabel="Remove"
+          ariaLabel={t("common.remove")}
           className={styles.remove}
         />
       )}

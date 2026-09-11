@@ -22,6 +22,7 @@ import type { ErdTable, ErdRelation } from "@/data/about/types";
 import Tooltip from "@/components/ui/Tooltip";
 import css from "./ErdCanvas.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { useL } from "./studio/primitives";
 
 
 /* 카드에 보여줄 컬럼 수 — 더 늘리면 카드가 다이어그램 노드와 다를 게 없어진다 */
@@ -33,6 +34,7 @@ export default function ErdCanvas({ tables, relations, onChange, lang }: {
   onChange: (t: ErdTable[], r: ErdRelation[]) => void;
   lang: Language;
 }) {
+  const L = useL();
   const openModal = useModalStore((st) => st.openModal);
   const [sel, setSel] = useState<string | null>(null);
   const [q, setQ] = useState("");
@@ -100,11 +102,11 @@ export default function ErdCanvas({ tables, relations, onChange, lang }: {
     tables.forEach((t) => {
       const list: string[] = [];
       const key = t.name.trim().toLowerCase();
-      if (!key) list.push(lang === "ko" ? "테이블 이름이 비어 있음" : "Table name is empty");
-      else if ((nameCount.get(key) ?? 0) > 1) list.push(lang === "ko" ? "테이블 이름 중복" : "Duplicate table name");
-      if (t.columns.length === 0) list.push(lang === "ko" ? "컬럼이 없음" : "No columns");
-      if (t.columns.some((c) => !c.name.trim())) list.push(lang === "ko" ? "이름이 빈 컬럼" : "Column with an empty name");
-      if (t.columns.some((c) => !c.type.trim())) list.push(lang === "ko" ? "타입이 빈 컬럼" : "Column with an empty type");
+      if (!key) list.push(L("테이블 이름이 비어 있음", "Table name is empty"));
+      else if ((nameCount.get(key) ?? 0) > 1) list.push(L("테이블 이름 중복", "Duplicate table name"));
+      if (t.columns.length === 0) list.push(L("컬럼이 없음", "No columns"));
+      if (t.columns.some((c) => !c.name.trim())) list.push(L("이름이 빈 컬럼", "Column with an empty name"));
+      if (t.columns.some((c) => !c.type.trim())) list.push(L("타입이 빈 컬럼", "Column with an empty type"));
       const seen = new Set<string>();
       const dupCol = t.columns.some((c) => {
         const k = c.name.trim().toLowerCase();
@@ -113,11 +115,11 @@ export default function ErdCanvas({ tables, relations, onChange, lang }: {
         seen.add(k);
         return false;
       });
-      if (dupCol) list.push(lang === "ko" ? "컬럼 이름 중복" : "Duplicate column name");
+      if (dupCol) list.push(L("컬럼 이름 중복", "Duplicate column name"));
       if (list.length > 0) m.set(t.name, list);
     });
     return m;
-  }, [tables, lang]);
+  }, [tables, L]);
 
   /* 다이어그램에서 컬럼끼리 끌어 만든 관계 — 모달을 열지 않고도 연결할 수 있어야 한다.
      같은 연결을 다시 그으면 무시한다(중복 엣지는 선만 겹쳐 보인다). */
@@ -142,10 +144,10 @@ export default function ErdCanvas({ tables, relations, onChange, lang }: {
   const openEditor = useCallback((t: ErdTable) => {
     openModal(
       <ErdTableModal table={t} tables={tables} relations={relations}
-        onChange={onChange} onDelete={removeTable} lang={lang} />,
+        onChange={onChange} onDelete={removeTable} />,
       { header: { title: t.name }, width: "auto" },
     );
-  }, [openModal, tables, relations, onChange, removeTable, lang]);
+  }, [openModal, tables, relations, onChange, removeTable]);
 
   const addTable = () => {
     let n = 1;
@@ -165,21 +167,19 @@ export default function ErdCanvas({ tables, relations, onChange, lang }: {
         <SearchCapsule size="sm" search={q} onSearchChange={setQ}
           /* 기본값 align="right" 는 margin-left:auto 를 붙인다 — 툴바 맨 앞 자리라 left */
           align="left" className={css.search}
-          placeholder={lang === "ko" ? "테이블·컬럼 검색" : "Search tables or columns"}
+          placeholder={L("테이블·컬럼 검색", "Search tables or columns")}
           historyKey={null} showHelp={false} />
         <Button variant="subtle" size="sm" icon={<Plus size={14} />} onClick={addTable}>
-          {lang === "ko" ? "테이블 추가" : "Add table"}
+          {L("테이블 추가", "Add table")}
         </Button>
         <span className={css.count}>
-          {lang === "ko"
-            ? `테이블 ${tables.length} · 관계 ${relations.length}`
-            : `${tables.length} tables · ${relations.length} relations`}
+          {L(`테이블 ${tables.length} · 관계 ${relations.length}`, `${tables.length} tables · ${relations.length} relations`)}
         </span>
         {/* 저장이 거부되기 전에 몇 개가 문제인지 먼저 알려준다 */}
         {issuesOf.size > 0 && (
           <span className={css.warnCount}>
             <AlertTriangle size={12} />
-            {lang === "ko" ? `확인 필요 ${issuesOf.size}` : `${issuesOf.size} need attention`}
+            {L(`확인 필요 ${issuesOf.size}`, `${issuesOf.size} need attention`)}
           </span>
         )}
         {/* 목록/다이어그램 전환 — 편집은 목록이 빠르고, 관계 파악은 다이어그램이 낫다 */}
@@ -187,12 +187,12 @@ export default function ErdCanvas({ tables, relations, onChange, lang }: {
           <Pressable noTapScale role="tab" aria-selected={view === "list"}
             className={`${css.viewBtn} ${view === "list" ? css.viewBtnOn : ""}`}
             onClick={() => setView("list")}>
-            <List size={13} />{lang === "ko" ? "목록" : "List"}
+            <List size={13} />{L("목록", "List")}
           </Pressable>
           <Pressable noTapScale role="tab" aria-selected={view === "diagram"}
             className={`${css.viewBtn} ${view === "diagram" ? css.viewBtnOn : ""}`}
             onClick={() => setView("diagram")}>
-            <Network size={13} />{lang === "ko" ? "다이어그램" : "Diagram"}
+            <Network size={13} />{L("다이어그램", "Diagram")}
           </Pressable>
         </div>
       </div>
@@ -203,29 +203,25 @@ export default function ErdCanvas({ tables, relations, onChange, lang }: {
           {tables.length === 0 ? (
             <>
               <p className={css.emptyTitle}>
-                {lang === "ko" ? "아직 테이블이 없습니다" : "No tables yet"}
+                {L("아직 테이블이 없습니다", "No tables yet")}
               </p>
               <p className={css.emptyHint}>
-                {lang === "ko"
-                  ? "테이블을 직접 추가하거나, 위의 SQL 가져오기에 setup.sql 을 붙여넣으면 한 번에 만들어집니다."
-                  : "Add a table, or paste your setup.sql into SQL import above to generate them all at once."}
+                {L("테이블을 직접 추가하거나, 위의 SQL 가져오기에 setup.sql 을 붙여넣으면 한 번에 만들어집니다.", "Add a table, or paste your setup.sql into SQL import above to generate them all at once.")}
               </p>
               <Button variant="subtle" size="sm" icon={<Plus size={14} />} onClick={addTable}>
-                {lang === "ko" ? "테이블 추가" : "Add table"}
+                {L("테이블 추가", "Add table")}
               </Button>
             </>
           ) : (
             <>
               <p className={css.emptyTitle}>
-                {lang === "ko" ? "일치하는 테이블이 없습니다" : "No matching tables"}
+                {L("일치하는 테이블이 없습니다", "No matching tables")}
               </p>
               <p className={css.emptyHint}>
-                {lang === "ko"
-                  ? `"${q.trim()}" 와(과) 이름·컬럼이 일치하는 테이블이 없습니다.`
-                  : `No table name or column matches "${q.trim()}".`}
+                {L(`"${q.trim()}" 와(과) 이름·컬럼이 일치하는 테이블이 없습니다.`, `No table name or column matches "${q.trim()}".`)}
               </p>
               <Button variant="outline" size="sm" onClick={() => setQ("")}>
-                {lang === "ko" ? "검색 지우기" : "Clear search"}
+                {L("검색 지우기", "Clear search")}
               </Button>
             </>
           )}
@@ -271,16 +267,16 @@ export default function ErdCanvas({ tables, relations, onChange, lang }: {
                     <Tooltip content={issuesOf.get(t.name)!.join(" · ")} delay={150}>
                       <span className={css.warnTag}>
                         <AlertTriangle size={10} />
-                        {lang === "ko" ? "확인 필요" : "Check"}
+                        {L("확인 필요", "Check")}
                       </span>
                     </Tooltip>
                   )}
                   {/* 관계가 있다는 사실뿐 아니라 어느 방향인지까지 보여준다 */}
                   {dir && (
                     <span className={css.dirTag}>
-                      {dir === "out" && <><ArrowLeft size={11} />{lang === "ko" ? "참조됨" : "referenced"}</>}
-                      {dir === "in" && <><ArrowRight size={11} />{lang === "ko" ? "참조함" : "references"}</>}
-                      {dir === "both" && <><ArrowLeftRight size={11} />{lang === "ko" ? "양방향" : "both"}</>}
+                      {dir === "out" && <><ArrowLeft size={11} />{L("참조됨", "referenced")}</>}
+                      {dir === "in" && <><ArrowRight size={11} />{L("참조함", "references")}</>}
+                      {dir === "both" && <><ArrowLeftRight size={11} />{L("양방향", "both")}</>}
                     </span>
                   )}
                 </span>
@@ -299,16 +295,16 @@ export default function ErdCanvas({ tables, relations, onChange, lang }: {
                 <span className={css.cardSub}>
                   {rest > 0 && (
                     <span className={css.stat}>
-                      {lang === "ko" ? `+${rest} 컬럼 더` : `+${rest} more`}
+                      {L(`+${rest} 컬럼 더`, `+${rest} more`)}
                     </span>
                   )}
                   <span className={css.stat}>
-                    {t.columns.length} {lang === "ko" ? "컬럼" : t.columns.length === 1 ? "column" : "columns"}
+                    {t.columns.length} {L("컬럼", t.columns.length === 1 ? "column" : "columns")}
                   </span>
                   {rels.length > 0 && (
                     <span className={css.stat}>
                       <Link2 size={11} />
-                      {rels.length} {lang === "ko" ? "관계" : rels.length === 1 ? "relation" : "relations"}
+                      {rels.length} {L("관계", rels.length === 1 ? "relation" : "relations")}
                     </span>
                   )}
                 </span>

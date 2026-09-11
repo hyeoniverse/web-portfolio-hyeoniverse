@@ -21,6 +21,7 @@ import { DndContext, KeyboardSensor, PointerSensor, closestCenter, useSensor, us
 import { SortableContext, arrayMove, rectSortingStrategy, useSortable } from "@dnd-kit/sortable";
 import { CSS as DndCSS } from "@dnd-kit/utilities";
 import { type ChangeEvent } from "react";
+import { useL } from "./primitives";
 /* 한 패널 = 헤더 + 편집 블록. 둘을 한 <section> 으로 묶는다.
    헤더가 sticky 라서 필요하다 — 형제로 늘어놓으면 지나간 헤더들이 전부 같은 자리에
    붙어 남고, glass 가 서로 겹쳐 blur 가 곱해진다. 묶으면 sticky 가 자기 구역 안에서만
@@ -42,6 +43,7 @@ const LOCKED_PANELS = new Set(["hero", "credits"]);
 export function PanelManager({ about, setAny, t, lang }: {
   about: SiteConfigData["about"]; setAny: (k: string, v: unknown) => void; t: TFunction; lang: Language;
 }) {
+  const L = useL();
   const hidden = (about.hiddenPanels ?? []) as string[];
   const titles = about.panelTitles ?? {};
   const allKeys = ABOUT_PANELS.map((p) => p.key);
@@ -84,13 +86,13 @@ export function PanelManager({ about, setAny, t, lang }: {
 
   const chipCls = (k: string) => `${css.chip} ${!hidden.includes(k) ? css.chipOn : css.chipOff}`;
   const editInput = (k: string) => (
-    <input key={k} className={`${css.chip} ${css.chipEdit}`} autoFocus defaultValue={labelOf(k)} aria-label="패널 이름"
+    <input key={k} className={`${css.chip} ${css.chipEdit}`} autoFocus defaultValue={labelOf(k)} aria-label={L("패널 이름", "Panel name")}
       onBlur={(e) => rename(k, e.target.value)}
       onKeyDown={(e) => { if (e.key === "Enter") rename(k, e.currentTarget.value); else if (e.key === "Escape") setEditKey(null); }} />
   );
   /* intro/credits — 순서·표시 모두 잠금(항상 표시). 이름만 더블클릭으로 수정 가능. */
   const lockedChip = (k: string) => (
-    <Pressable className={`${css.chip} ${css.chipOn} ${css.chipLocked}`} onDoubleClick={() => setEditKey(k)} title={lang === "ko" ? "고정됨 · 더블클릭으로 이름만 수정" : "Locked · Double-click to rename"}>
+    <Pressable className={`${css.chip} ${css.chipOn} ${css.chipLocked}`} onDoubleClick={() => setEditKey(k)} title={L("고정됨 · 더블클릭으로 이름만 수정", "Locked · Double-click to rename")}>
       <Lock className={css.chipLock} size={11} />{labelOf(k)}
     </Pressable>
   );
@@ -102,7 +104,7 @@ export function PanelManager({ about, setAny, t, lang }: {
         <Switch checked={about.infiniteScroll ?? false} onCheckedChange={(v) => setAny("infiniteScroll", v)}
           label={t("admin.settings.aboutInfiniteScrollLabel")} size="sm" showStateText stateLabels={{ on: "ON", off: "OFF" }} />
       </div>
-      <p className={css.stripHint}>{lang === "ko" ? "드래그로 순서 변경 · 더블클릭으로 이름 수정 · 클릭으로 표시 전환" : "Drag to reorder · Double-click to rename · Click to toggle"}</p>
+      <p className={css.stripHint}>{L("드래그로 순서 변경 · 더블클릭으로 이름 수정 · 클릭으로 표시 전환", "Drag to reorder · Double-click to rename · Click to toggle")}</p>
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
         <div className={css.stripChips}>
           {editKey === "hero" ? editInput("hero") : lockedChip("hero")}
@@ -138,10 +140,11 @@ export interface PanelSaveHeaderProps {
   config: SiteConfigData; savedConfig: SiteConfigData;
   saveSection: SettingsTabProps["saveSection"]; revertSection: SettingsTabProps["revertSection"];
   resetSection: SettingsTabProps["resetSection"]; savingPaths: SettingsTabProps["savingPaths"];
-  setAny: (k: string, v: unknown) => void; lang: Language; t: TFunction;
+  setAny: (k: string, v: unknown) => void; t: TFunction;
 }
 
-function PanelSaveHeader({ label, hint, paths, panelKey, config, savedConfig, saveSection, revertSection, resetSection, savingPaths, setAny, lang, t }: PanelSaveHeaderProps) {
+function PanelSaveHeader({ label, hint, paths, panelKey, config, savedConfig, saveSection, revertSection, resetSection, savingPaths, setAny, t }: PanelSaveHeaderProps) {
+  const L = useL();
   const dirty = paths.some((p) => !deepEqual(getByPath(config, p), getByPath(savedConfig, p)));
   /* 이미 기본값이면 "기본값" 버튼은 할 일이 없다 */
   const atDefault = paths.every((p) => deepEqual(getByPath(config, p), getByPath(siteConfig as unknown as SiteConfigData, p)));
@@ -171,7 +174,7 @@ function PanelSaveHeader({ label, hint, paths, panelKey, config, savedConfig, sa
     const files = await Promise.all(picked.map(async (f) => ({ name: f.name, text: await f.text() })));
     const result = loadPanelFiles(panelKey!, files);
     if (!result || result.count === 0) {
-      showToast(result?.warnings[0] ?? (lang === "ko" ? "읽지 못했습니다." : "Could not read the files."), "error");
+      showToast(result?.warnings[0] ?? (L("읽지 못했습니다.", "Could not read the files.")), "error");
       return;
     }
     for (const [path, value] of Object.entries(result.values)) {
@@ -179,12 +182,12 @@ function PanelSaveHeader({ label, hint, paths, panelKey, config, savedConfig, sa
     }
     if (result.warnings.length > 0) {
       showToast(
-        `${result.count}${lang === "ko" ? "개를 불러왔지만 경고가 있습니다 — " : " loaded with warnings — "}${result.warnings[0]}`,
+        `${result.count}${L("개를 불러왔지만 경고가 있습니다 — ", " loaded with warnings — ")}${result.warnings[0]}`,
         "error",
       );
     } else {
       showToast(
-        lang === "ko" ? `${result.count}개를 불러왔습니다. 확인 후 저장하세요.` : `Loaded ${result.count}. Review, then save.`,
+        L(`${result.count}개를 불러왔습니다. 확인 후 저장하세요.`, `Loaded ${result.count}. Review, then save.`),
         "success",
       );
     }
@@ -208,16 +211,16 @@ function PanelSaveHeader({ label, hint, paths, panelKey, config, savedConfig, sa
           <>
             <Button variant="outline" size="xs" icon={<Download size={12} strokeWidth={1.8} />}
               onClick={() => fileRef.current?.click()}
-              title={lang === "ko" ? ".md 파일을 읽어 채웁니다" : "Fill from .md files"}>
-              {lang === "ko" ? "md 불러오기" : "Load .md"}
+              title={L(".md 파일을 읽어 채웁니다", "Fill from .md files")}>
+              {L("md 불러오기", "Load .md")}
             </Button>
             <input ref={fileRef} type="file" accept=".md" multiple hidden onChange={onPickFiles} />
           </>
         )}
         {mdCapable && syncedAt && (
           <span className={css.psSyncNote} title={contentPathOf(panelKey!)}>
-            {lang === "ko" ? "파일에서 " : "from files "}
-            {new Date(syncedAt).toLocaleString(lang === "ko" ? "ko-KR" : "en-US", {
+            {L("파일에서 ", "from files ")}
+            {new Date(syncedAt).toLocaleString(L("ko-KR", "en-US"), {
               month: "short", day: "numeric", hour: "2-digit", minute: "2-digit",
             })}
           </span>
