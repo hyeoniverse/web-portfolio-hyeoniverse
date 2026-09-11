@@ -367,10 +367,10 @@ function TechPresetGrid({ query, onPick, isAdded, t }: {
   onPick: (p: { slug: string; name: string; category: string }) => void;
   /** 이미 추가된 항목 — 중복 추가 방지 (비활성 + 체크 표시) */
   isAdded?: (p: TechIconPreset) => boolean;
-  t?: (key: string) => string;
+  t: (key: string) => string;
 }) {
   const list = useMemo(() => TECH_ICON_PRESETS.filter((p) => matchTech(p, query)), [query]);
-  if (list.length === 0) return <EmptyState size="xs" pad="sm">{t ? t("editor.noResults") : "검색 결과 없음"}</EmptyState>;
+  if (list.length === 0) return <EmptyState size="xs" pad="sm">{t("editor.noResults")}</EmptyState>;
   return (
     <div className={styles.techPresetScroll}>
       <div className={styles.techPresetList}>

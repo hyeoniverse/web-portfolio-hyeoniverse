@@ -203,7 +203,9 @@
       "save": "저장",
       "dragToReorder": "드래그로 순서 변경",
       "deleteSelected": "선택 삭제",
-      "deleteCount": "삭제 ({{n}})"
+      "deleteCount": "삭제 ({{n}})",
+      "required": "필수",
+      "rowNumberHint": "클릭해서 위치 직접 입력"
     },
     "settings": {
       "title": "설정",
@@ -316,6 +318,8 @@
       "accentColor": "강조 색상",
       "saveThemePreset": "현재 색상을 프리셋으로 저장",
       "removeThemePreset": "프리셋 제거",
+      "removeNamedPreset": "{{name}} 제거",
+      "colorPickerOpen": "색 선택 popover 열기",
       "enterPresetName": "프리셋 이름을 입력하세요",
       "lightBg": "라이트 모드 배경",
       "lightText": "라이트 모드 텍스트",
@@ -421,7 +425,8 @@
         "noDesc": "설명 없음",
         "searchAll": "이름+설명",
         "noResults": "검색 결과 없음",
-        "posts": "게시물 ({{n}})"
+        "posts": "게시물 ({{n}})",
+        "views": "조회 {{n}}"
       },
       "tagEditor": {
         "title": "태그",
@@ -469,7 +474,6 @@
         "publishHint": "클릭해서 발행",
         "unpublishHint": "클릭해서 발행 해제",
         "order": "순서",
-        "required": "필수",
         "addSelected": "{{n}}개 추가",
         "orderHint": "더블클릭하여 순서 변경"
       },
@@ -492,7 +496,6 @@
         "chooseCover": "커버 선택",
         "closeCover": "커버 선택 닫기",
         "urlPlaceholder": "/cover/videos/bg-1.mp4 또는 외부 URL",
-        "localHint": "public/cover/videos/ 와 public/cover/images/ 안의 모든 미디어 파일이 표시됩니다.",
         "previewTitle": "Intro 미디어 미리보기"
       },
       "compressVideo": {
@@ -610,6 +613,8 @@
       "nameRequired": "이름을 입력해주세요",
       "siteTitleRequired": "사이트 제목을 입력해주세요",
       "emailInvalid": "올바른 이메일 형식이 아닙니다",
+      "colorRequired": "{{label}}을(를) 비워둘 수 없습니다.",
+      "giscusFieldRequired": "giscus {{field}}을(를) 입력해야 합니다. (giscus 사용 시 필수)",
       "updateSuccess": "업데이트 완료",
       "emailConfirmationSent": "현재 이메일과 새 이메일 양쪽으로 확인 메일을 발송했습니다. 두 메일 모두에서 링크를 클릭해야 변경이 완료됩니다.",
       "pendingEmailChange": "이메일 변경 대기 중",
@@ -657,6 +662,9 @@
       "conflictApply": "선택 항목 반영",
       "conflictExpand": "전체 보기",
       "conflictCollapse": "접기",
+      "conflictMore": "+ {{n}}건 더 보기",
+      "diffRevertHunk": "되돌리기: {{label}}",
+      "diffApplyCode": "Code 적용: {{label}}",
       "profileConflictTitle": "프로필 업데이트 반영 필요",
       "profileConflictDesc": "코드에서 프로필 기본값이 변경되었습니다. 섹션별로 최신 값을 반영할 수 있습니다.",
       "profileConflictApply": "적용",
@@ -893,6 +901,7 @@
       "faviconTextShadow": "텍스트 그림자",
       "faviconBgShadow": "배경 그림자",
       "faviconShadowInset": "안쪽",
+      "faviconShadowDragHint": "미리보기의 빛을 드래그해 방향·거리를 조절하세요",
       "faviconShadowSize": "크기",
       "faviconShadowSizeCustom": "직접",
       "faviconShadowCustom": "블러",
@@ -1150,6 +1159,11 @@
       },
       "coverPicker": {
         "presets": "프리셋",
+        "localMedia": "로컬 미디어",
+        "gradientPresets": "그라데이션 프리셋",
+        "localFilesHint": "public/cover/videos/ 와 public/cover/images/ 안의 모든 미디어 파일이 표시됩니다.",
+        "mediaImage": "이미지",
+        "mediaVideo": "영상",
         "projectImages": "프로젝트",
         "unsplash": "Unsplash",
         "aiGenerate": "AI 생성",

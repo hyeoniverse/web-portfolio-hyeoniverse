@@ -51,7 +51,7 @@ export default function CoverImagePicker({
   onAutoSave,
   currentUrl,
   localFilesEndpoint = "/api/admin/cover",
-  localFilesHint = "public/cover/videos/ 와 public/cover/images/ 안의 모든 미디어 파일이 표시됩니다.",
+  localFilesHint,
 }: CoverImagePickerProps) {
   const { t } = useLanguage();
   const { aiCover } = useServiceStatus();
@@ -140,7 +140,7 @@ export default function CoverImagePicker({
             onImageUploaded={(url, name) => addHistory({ url, source: "preset", meta: name })}
             currentUrl={currentUrl}
             localFilesEndpoint={localFilesEndpoint}
-            localFilesHint={localFilesHint}
+            localFilesHint={localFilesHint ?? tc("localFilesHint")}
           />
         )}
         {activeTab === "project" && (
