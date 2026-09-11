@@ -19,6 +19,7 @@ import type { ProfileData } from "@/types/profile";
 import { TAB_IDS, TAB_CONFIG_KEYS, type TabId, CONTENT_SUBTABS, type ContentSubTab, deepMerge, deepEqual, computeDelta, extractDefaults, detectConflicts, isDeltaFormat, filterOrphanedKeys, getTabForConfigPath, getContentSubTabForKey, getByPath, setByPath, type ConfigConflict } from "./_data/settingsConstants";
 import { buildDeltaPayload as sharedBuildDeltaPayload } from "@/lib/settingsDelta";
 import GeneralTab from "./_components/GeneralTab";
+import { preloadSettingsTab } from "./_components/settingsTabLoaders";
 import SectionHeader from "./_components/SectionHeader";
 import SectionJumpNav from "./_components/SectionJumpNav";
 import SectionOutline from "./_components/SectionOutline";
@@ -47,6 +48,7 @@ const AppearanceTab = dynamic(() => import("./_components/AppearanceTab"), { loa
 const ServicesTab = dynamic(() => import("./_components/ServicesTab"), { loading: tabLoading });
 const AccountTab = dynamic(() => import("./_components/AccountTab"));
 const AuthorsEditor = dynamic(() => import("./_components/AuthorsEditor"));
+/* 받는 시점을 앞당기는 것은 settingsTabLoaders — 연 탭은 설정값과 함께, 다른 탭은 단추에 올렸을 때 */
 const styles = { ...shared, ...local };
 
 const PROFILE_SECTION_LABELS: Record<string, string> = {
@@ -122,6 +124,8 @@ export default function SettingsPage() {
       ? (sub as ContentSubTab)
       : "home";
   });
+  /* 연 탭의 편집기 청크를 설정값과 함께 받기 시작한다(→ settingsTabLoaders) */
+  useEffect(() => { preloadSettingsTab(activeTab, contentSubTab); }, [activeTab, contentSubTab]);
   /* 지금 탭의 섹션 목록과 지금 보는 섹션 — 태블릿·모바일 눈금과 데스크톱 사이드바 목록이 같이 쓴다.
      불러오는 동안에는 패널이 없어 훑을 게 없으므로, 다 불러온 뒤 다시 훑도록 loading 을 키에 넣는다. */
   const sectionNav = useSettingsSections(panelRef, `${loading ? "loading" : "ready"}:${activeTab}:${contentSubTab}`);
@@ -904,6 +908,8 @@ export default function SettingsPage() {
                 <Pressable
                   className={`${styles.navItem} ${activeTab === id ? styles.navItemActive : ""}`}
                   onClick={() => switchTo(id)}
+                  onPointerEnter={() => preloadSettingsTab(id)}
+                  onFocus={() => preloadSettingsTab(id)}
                 >
                   {t(`admin.settings.tabs.${id}`)}
                   {tabCount > 0 && <span className={styles.navConflictBadge} />}
@@ -918,6 +924,8 @@ export default function SettingsPage() {
                           <Pressable
                             className={`${styles.navSubItem} ${subActive ? styles.navSubItemActive : ""}`}
                             onClick={() => switchTo("content", sub)}
+                            onPointerEnter={() => preloadSettingsTab("content", sub)}
+                            onFocus={() => preloadSettingsTab("content", sub)}
                           >
                             {t(`admin.settings.contentSub.${sub}`)}
                             {subCount > 0 && <span className={styles.navConflictBadge} />}
@@ -950,6 +958,7 @@ export default function SettingsPage() {
                     key={sub}
                     className={`${styles.mobileSubItem} ${contentSubTab === sub ? styles.mobileSubItemActive : ""}`}
                     onClick={() => switchTo("content", sub)}
+                    onFocus={() => preloadSettingsTab("content", sub)}
                   >
                     {t(`admin.settings.contentSub.${sub}`)}
                     {subCount > 0 && <span className={styles.navConflictBadge} />}
