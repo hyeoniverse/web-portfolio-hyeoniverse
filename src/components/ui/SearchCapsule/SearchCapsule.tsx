@@ -19,6 +19,7 @@ import SearchSyntaxHelpContent from "./SearchSyntaxHelpContent";
 import styles from "./SearchCapsule.module.css";
 import Pressable from "@/components/ui/Pressable";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { fillTemplate } from "@/utils/format";
 
 export interface SearchCapsuleProps {
   search: string;
@@ -78,7 +79,8 @@ export default function SearchCapsule({
   collapsible = false,
   expandedWidth = 280,
 }: SearchCapsuleProps) {
-  const clearLabel = useLanguage().t("common.clear");
+  const { t } = useLanguage();
+  const clearLabel = t("common.clear");
   const pathname = usePathname();
   // App Router 컨텍스트 직접 구독 — 리더 island(createRoot) 처럼 router provider 밖에서 마운트돼도 throw 없이 null
   const router = useContext(AppRouterContext);
@@ -277,8 +279,8 @@ export default function SearchCapsule({
             <Pressable noTapScale
               type="button"
               className={styles.helpBtn}
-              aria-label="검색 문법 도움말"
-              title="검색 문법 + 옵션"
+              aria-label={t("common.searchHelp.title")}
+              title={t("common.searchHelp.tooltip")}
             >
               <HelpCircle size={12} strokeWidth={2} />
             </Pressable>
@@ -310,7 +312,7 @@ export default function SearchCapsule({
             <div className={styles.historyHeader}>
               <span className={styles.historyHeaderLabel}>
                 <History size={11} strokeWidth={2} />
-                <span>최근 검색</span>
+                <span>{t("common.searchHelp.recent")}</span>
               </span>
               <Pressable noTapScale
                 type="button"
@@ -318,7 +320,7 @@ export default function SearchCapsule({
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={(e) => { e.stopPropagation(); clearHistory(); }}
               >
-                전체 삭제
+                {t("common.searchHelp.clearAll")}
               </Pressable>
             </div>
             <ul className={styles.historyList}>
@@ -341,8 +343,8 @@ export default function SearchCapsule({
                     <CloseButton
                       size="xs"
                       className={styles.historyRemove}
-                      ariaLabel={`이력 제거: ${q}`}
-                      title="제거"
+                      ariaLabel={fillTemplate(t("common.searchHelp.removeItem"), { query: q })}
+                      title={t("common.searchHelp.removeShort")}
                       onClick={(e) => { e.stopPropagation(); removeHistory(q); }}
                     />
                   </span>

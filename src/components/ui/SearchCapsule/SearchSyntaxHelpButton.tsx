@@ -5,6 +5,7 @@ import HelpButton from "@/components/ui/HelpButton";
 import { useSearchOptions } from "./useSearchOptions";
 import SearchSyntaxHelpContent from "./SearchSyntaxHelpContent";
 import styles from "./SearchCapsule.module.css";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 interface Props {
   /** options bucket key — 기본 "global". 페이지별로 다르게 가지려면 지정. */
@@ -19,6 +20,7 @@ interface Props {
  *  포털/위치계산/바깥클릭/애니메이션은 전부 공통 Popover 가 담당한다.
  *  말풍선 beak(arrow)로 trigger 를 가리키게 해서 어떤 버튼에서 열렸는지 분명하게. */
 export default function SearchSyntaxHelpButton({ optionsKey, className }: Props) {
+  const { t } = useLanguage();
   const { options, update } = useSearchOptions(optionsKey ?? "global");
 
   return (
@@ -27,8 +29,8 @@ export default function SearchSyntaxHelpButton({ optionsKey, className }: Props)
       contentClassName={styles.searchHelpPopover}
       trigger={
         <HelpButton
-          aria-label="검색 문법 도움말"
-          title="검색 문법 + 옵션"
+          aria-label={t("common.searchHelp.title")}
+          title={t("common.searchHelp.tooltip")}
           className={className}
         />
       }
