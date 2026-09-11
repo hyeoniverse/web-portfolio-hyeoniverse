@@ -23,22 +23,28 @@ export const DESIGN_W = 1440;
 export const DESIGN_H = 860;
 
 /* ═══════════ 인라인 편집 텍스트 ═══════════ */
-export function EditableText({ value, onChange, placeholder, multiline, className, style, ariaLabel, onFocus, autoFocus }: {
+export function EditableText({ value, onChange, placeholder, multiline, wrap, className, style, ariaLabel, onFocus, autoFocus }: {
   value: string;
   onChange: (v: string) => void;
   placeholder?: string;
   multiline?: boolean;
+  /** 값은 한 줄(줄바꿈 없음)이지만 칸 폭을 넘으면 접어서 보여 준다. input 은 접지 못해 긴 제목·경로가
+      칸 끝에서 잘렸다(Key Features 제목, Backend 경로). Enter·붙여넣기의 줄바꿈은 공백으로 바꾼다. */
+  wrap?: boolean;
   className?: string;
   style?: CSSProperties;
   ariaLabel?: string;
   onFocus?: (e: React.FocusEvent<HTMLElement>) => void;
   autoFocus?: boolean;
 }) {
-  const cls = `${css.edit} ${className ?? ""}`;
-  if (multiline) {
+  const cls = `${css.edit} ${wrap ? css.editWrap : ""} ${className ?? ""}`;
+  if (multiline || wrap) {
     return (
       <textarea className={cls} style={style} value={value} placeholder={placeholder} aria-label={ariaLabel}
-        rows={1} autoFocus={autoFocus} onChange={(e) => onChange(e.target.value)} onFocus={onFocus} />
+        rows={1} autoFocus={autoFocus} onFocus={onFocus}
+        onChange={(e) => onChange(wrap ? e.target.value.replace(/\r?\n/g, " ") : e.target.value)}
+        /* 조합 중 Enter 는 글자를 확정하는 키라 막지 않는다 */
+        onKeyDown={wrap ? (e) => { if (e.key === "Enter" && !e.nativeEvent.isComposing) e.preventDefault(); } : undefined} />
     );
   }
   return (
