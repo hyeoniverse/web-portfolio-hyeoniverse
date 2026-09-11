@@ -9,7 +9,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
 import type { BilingualCategory, LocalizedText } from "@/types/common";
 import type { AdminPostUsageInfo, PostMetaInfo } from "../_types";
-import { formatAdminShortDate } from "@/utils/format";
+import { fillTemplate, formatAdminShortDate } from "@/utils/format";
 import CategoryReassignModal from "@/components/admin/CategoryReassignModal";
 import TagNotesEditor from "@/components/admin/TagNotesEditor";
 import BilingualInputPair from "@/components/admin/BilingualInputPair";
@@ -193,14 +193,14 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
   };
 
   const sortItems = [
-    { value: "custom" as const, label: "사용자 정의순" },
-    { value: "freq" as const, label: "빈도순" },
+    { value: "custom" as const, label: t("admin.settings.taxonomy.sortCustom") },
+    { value: "freq" as const, label: t("admin.settings.taxonomy.sortFreq") },
     {
       value: "name" as const,
-      label: "이름순",
+      label: t("admin.settings.taxonomy.sortName"),
       subItems: [
-        { value: "ko" as const, label: "한글" },
-        { value: "en" as const, label: "영어" },
+        { value: "ko" as const, label: t("admin.settings.taxonomy.langKo") },
+        { value: "en" as const, label: t("admin.settings.taxonomy.langEn") },
       ] as const,
     },
   ];
@@ -372,12 +372,12 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
   /* 부모(대분류) 선택지 — 최상위 노드들. 자기 자신 제외. */
   const parentSelectOptions = useMemo(
     () => [
-      { value: "", label: "최상위 (대분류)" },
+      { value: "", label: t("admin.settings.categoryEditor.topLevel") },
       ...categories
         .filter((c) => c.parentEn === null && c.en !== editingEn)
         .map((c) => ({ value: c.en, label: language === "ko" ? c.ko : c.en })),
     ],
-    [categories, editingEn, language],
+    [categories, editingEn, language, t],
   );
 
   /* 편집 대상이나 목록이 바뀌면 입력 칸을 그 값으로 채운다(추가면 비운다). */
@@ -444,7 +444,7 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
     if (isEdit) {
       const conflict = findDuplicate(categories, [ko, en], (c) => [c.ko, c.en], (c) => c.en === editingEn);
       if (conflict) {
-        showToast(`"${conflict.ko}/${conflict.en}" 와 중복되는 카테고리가 있습니다`, "warning");
+        showToast(fillTemplate(t("admin.settings.categoryEditor.duplicate"), { ko: conflict.ko, en: conflict.en }), "warning");
         triggerShake();
         focusDuplicate(conflict.en);
         return;
@@ -460,7 +460,7 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
     } else {
       const dup = findDuplicate(categories, [ko, en], (c) => [c.ko, c.en]);
       if (dup) {
-        showToast(`"${dup.ko}/${dup.en}" 카테고리가 이미 있습니다`, "warning");
+        showToast(fillTemplate(t("admin.settings.categoryEditor.exists"), { ko: dup.ko, en: dup.en }), "warning");
         setAdding(false); // add 팝오버 닫고 중복 항목 편집 팝오버로 이동
         triggerShake();
         focusDuplicate(dup.en);
@@ -487,18 +487,21 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
         <BilingualInputPair value={pair} onChange={setPair} onEnter={submit} />
       </div>
       <div className={styles.worksCatAddRow}>
-        <span className={styles.worksCatAddRowLabel}>대분류</span>
-        <Select
-          value={parentEn ?? ""}
-          options={parentSelectOptions}
-          onChange={(v) => setParentEn(v || null)}
-          disabled={editingHasChildren}
-        />
-        {editingHasChildren && (
-          <span style={{ fontSize: "var(--font-size-hint)", color: "var(--text-tertiary)", fontFamily: "var(--font-space-grotesk)" }}>
-            소분류를 가진 대분류는 최상위 고정
-          </span>
-        )}
+        <span className={styles.worksCatAddRowLabel}>{t("admin.settings.categoryEditor.parent")}</span>
+        {/* 안내는 선택 칸 아래(입력 열)에 둔다 — 줄의 세 번째 칸이면 라벨 열로 내려가 좁게 접힌다 */}
+        <div className={styles.worksCatAddRowField}>
+          <Select
+            value={parentEn ?? ""}
+            options={parentSelectOptions}
+            onChange={(v) => setParentEn(v || null)}
+            disabled={editingHasChildren}
+          />
+          {editingHasChildren && (
+            <span style={{ fontSize: "var(--font-size-hint)", color: "var(--text-tertiary)", fontFamily: "var(--font-space-grotesk)" }}>
+              {t("admin.settings.categoryEditor.parentLocked")}
+            </span>
+          )}
+        </div>
       </div>
       <div className={styles.worksCatAddRow}>
         <span className={styles.worksCatAddRowLabel}>
@@ -555,7 +558,7 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
         <T k="admin.settings.edit" />
         <div className={styles.worksCatAddActions}>
           <Button variant="outline" size="xs" tone="danger" onClick={deleteEditingCategory} icon={<Trash2 size={12} strokeWidth={2} />}>
-            삭제
+            {t("admin.common.delete")}
           </Button>
           <Button variant="outline" size="xs" onClick={cancelEdit} icon={<X size={12} strokeWidth={2.5} />}>
             <T k="admin.settings.cancel" />
@@ -567,10 +570,10 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
       </div>
       {renderFields()}
       <div className={styles.worksCatAddRow}>
-        <span className={styles.worksCatAddRowLabel}>게시물 ({editingPosts.length})</span>
+        <span className={styles.worksCatAddRowLabel}>{fillTemplate(t("admin.settings.taxonomy.posts"), { n: editingPosts.length })}</span>
         <List className={styles.tagRelatedPosts} data-lenis-prevent>
           {editingPosts.length === 0 ? (
-            <ListItem className={styles.tagRelatedEmpty}>이 카테고리를 사용하는 게시물 없음</ListItem>
+            <ListItem className={styles.tagRelatedEmpty}>{t("admin.settings.categoryEditor.noPosts")}</ListItem>
           ) : (
             editingPosts.map((p) => (
               <ListItem key={p.id} layout="column">
@@ -605,7 +608,7 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
             icon={<Filter size={12} />}
             onClick={() => setFilterExpanded((e) => !e)}
           >
-            필터
+            {t("admin.settings.taxonomy.filter")}
             {activeFilterCount > 0 && (
               <span className={styles.filterBtnCount}>{activeFilterCount}</span>
             )}
@@ -653,15 +656,15 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
               typeSelector={{
                 value: searchType,
                 options: [
-                  { value: "all", label: "이름+설명" },
-                  { value: "name", label: "이름" },
-                  { value: "desc", label: "설명" },
+                  { value: "all", label: t("admin.settings.taxonomy.searchAll") },
+                  { value: "name", label: t("admin.settings.name") },
+                  { value: "desc", label: t("admin.settings.description") },
                 ],
                 onChange: (v) => setSearchType(v as "all" | "name" | "desc"),
               }}
               search={search}
               onSearchChange={setSearch}
-              placeholder="카테고리 이름·설명 검색"
+              placeholder={t("admin.settings.categoryEditor.searchPlaceholder")}
               align="left"
               size="sm"
             />
@@ -681,12 +684,12 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
             >
               <div className={styles.tagDescFilterDrawer}>
                 <div className={styles.tagDescFilterGroup}>
-                  <span className={styles.tagDescFilterGroupLabel}>사용</span>
+                  <span className={styles.tagDescFilterGroupLabel}>{t("admin.settings.taxonomy.usage")}</span>
                   <SegmentedControl
                     items={[
-                      { value: "all", label: "전체" },
-                      { value: "in-use", label: "사용중" },
-                      { value: "unused", label: "미사용" },
+                      { value: "all", label: t("admin.settings.taxonomy.all") },
+                      { value: "in-use", label: t("admin.settings.taxonomy.inUse") },
+                      { value: "unused", label: t("admin.settings.taxonomy.unused") },
                     ]}
                     value={usageFilter}
                     onChange={(v) => setUsageFilter(v as UsageFilter)}
@@ -694,12 +697,12 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
                   />
                 </div>
                 <div className={styles.tagDescFilterGroup}>
-                  <span className={styles.tagDescFilterGroupLabel}>설명</span>
+                  <span className={styles.tagDescFilterGroupLabel}>{t("admin.settings.description")}</span>
                   <SegmentedControl
                     items={[
-                      { value: "all", label: "전체" },
-                      { value: "with", label: "있음" },
-                      { value: "without", label: "없음" },
+                      { value: "all", label: t("admin.settings.taxonomy.all") },
+                      { value: "with", label: t("admin.settings.taxonomy.descWith") },
+                      { value: "without", label: t("admin.settings.taxonomy.descWithout") },
                     ]}
                     value={descFilter}
                     onChange={(v) => setDescFilter(v as DescFilter)}
@@ -738,7 +741,7 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
       <div className={styles.tagDescChipsBlock}>
         {pageItems.length === 0 ? (
           <div className={styles.tagDescEmpty}>
-            {search ? "검색 결과 없음" : "카테고리 없음"}
+            {search ? t("admin.settings.taxonomy.noResults") : t("admin.settings.categoryEditor.empty")}
           </div>
         ) : (
           <TagNotesEditor

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, type ReactNode } from "react";
 import { useDepsChanged } from "@/hooks/useDepsChanged";
 import { AnimatePresence, motion } from "framer-motion";
 import { Plus, Check, X, Trash2, Filter, ChevronDown } from "@/components/icons";
@@ -23,7 +23,8 @@ import BilingualInputPair from "@/components/admin/BilingualInputPair";
 import TagNotesEditor from "@/components/admin/TagNotesEditor";
 import { List, ListItem } from "@/app/admin/(dashboard)/components";
 import type { AdminPostUsageInfo, PostMetaInfo } from "../_types";
-import { formatAdminShortDate } from "@/utils/format";
+import { fillTemplate, formatAdminShortDate } from "@/utils/format";
+import { useLanguage } from "@/providers/LanguageProvider";
 import shared from "../Settings.module.css";
 import own from "./TagDescriptionsEditor.module.css";
 import Pressable from "@/components/ui/Pressable";
@@ -97,6 +98,11 @@ function RelatedPostList({ posts, emptyLabel }: { posts: AdminPostUsageInfo[]; e
   );
 }
 
+/* 번역 문구의 <b>…</b> 를 굵게 그린다 — 확인 문구에서 개수를 강조한다 */
+function withBold(text: string): ReactNode[] {
+  return text.split(/<b>(.*?)<\/b>/).map((part, i) => (i % 2 ? <strong key={i}>{part}</strong> : part));
+}
+
 /* 태그 "기본값으로 초기화" 확인 모달 본문 — chip 클릭 시 해당 태그 사용 게시물 목록 노출. */
 function TagResetConfirmBody({ inUse, tagCounts, tagPosts, affectedCount, onConfirm }: {
   inUse: string[];
@@ -105,35 +111,36 @@ function TagResetConfirmBody({ inUse, tagCounts, tagPosts, affectedCount, onConf
   affectedCount: number;
   onConfirm: () => void;
 }) {
+  const { t } = useLanguage();
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const selectedPosts = selectedTag ? tagPosts.filter((p) => p.tags.includes(selectedTag)) : [];
   return (
     <div className={styles.tagDeleteConfirmBody}>
       <p className={styles.tagDeleteConfirmDesc}>
-        기본 세트에 없는 태그 <strong>{inUse.length}개</strong>가 게시물 <strong>{affectedCount}건</strong>에서 사용 중입니다. 정말 기본값으로 초기화할까요?
+        {withBold(fillTemplate(t("admin.settings.tagEditor.resetConfirm"), { n: inUse.length, m: affectedCount }))}
         <br />
         <span style={{ fontSize: "var(--font-size-label)", color: "var(--text-tertiary)" }}>
-          이 태그들은 삭제 대기열에 추가됩니다. 섹션 저장 시 모든 게시물의 tags 에서 제거됩니다. 되돌리기로 취소할 수 있습니다.
+          {t("admin.settings.tagEditor.resetNote")}
         </span>
       </p>
       <div className={styles.tagResetChipRow}>
-        {inUse.map((t) => (
+        {inUse.map((tag) => (
           <Pressable
-            key={t}
-            className={`${styles.tagResetChip} ${selectedTag === t ? styles.tagResetChipActive : ""}`}
-            onClick={() => setSelectedTag((cur) => (cur === t ? null : t))}
+            key={tag}
+            className={`${styles.tagResetChip} ${selectedTag === tag ? styles.tagResetChipActive : ""}`}
+            onClick={() => setSelectedTag((cur) => (cur === tag ? null : tag))}
           >
-            #{t}
-            <span className={styles.tagResetChipCount}>{tagCounts[t] ?? 0}</span>
+            #{tag}
+            <span className={styles.tagResetChipCount}>{tagCounts[tag] ?? 0}</span>
           </Pressable>
         ))}
       </div>
       {selectedTag && (
-        <RelatedPostList posts={selectedPosts} emptyLabel="이 태그를 사용하는 게시물이 없습니다." />
+        <RelatedPostList posts={selectedPosts} emptyLabel={t("admin.settings.tagEditor.noPostsLong")} />
       )}
       <div className={styles.tagDeleteConfirmActions}>
         <Button variant="primary" size="md" tone="danger" onClick={onConfirm}>
-          기본값으로 초기화
+          {t("admin.settings.tagEditor.reset")}
         </Button>
       </div>
     </div>
@@ -148,6 +155,7 @@ export default function TagDescriptionsEditor({ value, onChange, pendingDeletes,
   /** 기본값(reset) 버튼용 정보 리포트 — hasNonDefault(기본 세트에 없는 태그 존재 여부) + resetToDefault 실행 함수 */
   onResetInfoChange?: (info: { hasNonDefault: boolean; resetToDefault: () => void }) => void;
 }) {
+  const { t } = useLanguage();
   const [postTags, setPostTags] = useState<string[]>([]);
   const [tagCounts, setTagCounts] = useState<Record<string, number>>({});
   const [tagPosts, setTagPosts] = useState<AdminPostUsageInfo[]>([]);
@@ -187,7 +195,7 @@ export default function TagDescriptionsEditor({ value, onChange, pendingDeletes,
   const allTags = useMemo(() => {
     const set = new Set<string>([...postTags, ...Object.keys(value)]);
     // pending 삭제 태그는 UI 에서 즉시 숨김 (실제 DB 삭제는 섹션 저장 시)
-    return Array.from(set).filter((t) => !pendingDeletes.has(t));
+    return Array.from(set).filter((tag) => !pendingDeletes.has(tag));
   }, [postTags, value, pendingDeletes]);
 
   /* 검색 / 정렬 / 필터 / 페이지네이션 */
@@ -343,7 +351,7 @@ export default function TagDescriptionsEditor({ value, onChange, pendingDeletes,
       onChange(base);
     }
     if (editingTag === tag) setEditingTag(null);
-    showToast(`태그 "${tag}" 삭제 대기 (섹션 저장 시 반영)`, "info");
+    showToast(fillTemplate(t("admin.settings.tagEditor.queuedToast"), { tag }), "info");
   };
 
   /* 삭제 confirm 모달 — 사용 중 게시물 chip 목록 + 삭제 버튼 */
@@ -357,10 +365,10 @@ export default function TagDescriptionsEditor({ value, onChange, pendingDeletes,
     openModal(
       <div className={styles.tagDeleteConfirmBody}>
         <p className={styles.tagDeleteConfirmDesc}>
-          이 태그를 사용 중인 게시물 <strong>{inUse.length}건</strong>이 있습니다. 정말 삭제할까요?
+          {withBold(fillTemplate(t("admin.settings.tagEditor.deleteConfirm"), { n: inUse.length }))}
           <br />
           <span style={{ fontSize: "var(--font-size-label)", color: "var(--text-tertiary)" }}>
-            삭제 대기열에 추가됩니다. 섹션 저장 시 모든 게시물의 tags 에서 함께 제거됩니다. 되돌리기로 취소할 수 있습니다.
+            {t("admin.settings.tagEditor.deleteNote")}
           </span>
         </p>
         <RelatedPostList posts={inUse} />
@@ -374,13 +382,13 @@ export default function TagDescriptionsEditor({ value, onChange, pendingDeletes,
               useModalStore.getState().closeModal(id);
             }}
           >
-            삭제
+            {t("admin.common.delete")}
           </Button>
         </div>
       </div>,
       {
         id,
-        header: { title: `#${tag} 삭제 확인` },
+        header: { title: fillTemplate(t("admin.settings.tagEditor.deleteTitle"), { tag }) },
         closeButton: true,
         width: "min(520px, 90vw)",
       },
@@ -389,7 +397,7 @@ export default function TagDescriptionsEditor({ value, onChange, pendingDeletes,
 
   const handleItemsChange = (next: string[]) => {
     const nextSet = new Set(next);
-    const removed = pageTags.filter((t) => !nextSet.has(t));
+    const removed = pageTags.filter((tag) => !nextSet.has(tag));
     if (removed.length === 0) return; // 순서 변경 — ignore
     /* TagNotesEditor 의 × 는 항목 단위 — 첫 번째 (보통 유일한) 제거 대상에 대해 confirm 모달 */
     confirmDeleteTag(removed[0]);
@@ -408,19 +416,19 @@ export default function TagDescriptionsEditor({ value, onChange, pendingDeletes,
     return out;
   }, []);
   const defaultKeySet = useMemo(() => new Set(Object.keys(siteConfig.tagDescriptions)), []);
-  const nonDefaultTags = useMemo(() => allTags.filter((t) => !defaultKeySet.has(t)), [allTags, defaultKeySet]);
+  const nonDefaultTags = useMemo(() => allTags.filter((tag) => !defaultKeySet.has(tag)), [allTags, defaultKeySet]);
 
   const resetToDefault = useCallback(() => {
     const defaults = buildDefaults();
     // 기본 세트에 없는 태그 중 게시물이 실제 사용하는 것 → 확인 후 삭제 대기. (커스텀 설명만 있고 미사용인 건 config 초기화로 자동 제거)
-    const inUse = nonDefaultTags.filter((t) => postTagSet.has(t));
+    const inUse = nonDefaultTags.filter((tag) => postTagSet.has(tag));
     if (inUse.length === 0) {
       onChange(defaults);
-      showToast("태그 설명을 기본값으로 초기화했습니다", "success");
+      showToast(t("admin.settings.tagEditor.resetDone"), "success");
       return;
     }
     const affected = new Set<string>();
-    for (const p of tagPosts) if (p.tags.some((t) => inUse.includes(t))) affected.add(p.id);
+    for (const p of tagPosts) if (p.tags.some((tag) => inUse.includes(tag))) affected.add(p.id);
     const id = "tag-reset-confirm";
     openModal(
       <TagResetConfirmBody
@@ -431,15 +439,15 @@ export default function TagDescriptionsEditor({ value, onChange, pendingDeletes,
         onConfirm={() => {
           onChange(defaults);
           const next = new Set(pendingDeletes);
-          for (const t of inUse) next.add(t);
+          for (const tag of inUse) next.add(tag);
           onPendingDeletesChange(next);
           useModalStore.getState().closeModal(id);
-          showToast(`기본값 초기화 — 태그 ${inUse.length}개 삭제 대기 (섹션 저장 시 반영)`, "info");
+          showToast(fillTemplate(t("admin.settings.tagEditor.resetQueuedToast"), { n: inUse.length }), "info");
         }}
       />,
-      { id, header: { title: "기본값으로 초기화" }, closeButton: true, width: "min(520px, 90vw)" },
+      { id, header: { title: t("admin.settings.tagEditor.reset") }, closeButton: true, width: "min(520px, 90vw)" },
     );
-  }, [buildDefaults, nonDefaultTags, postTagSet, onChange, pendingDeletes, onPendingDeletesChange, tagPosts, tagCounts, openModal]);
+  }, [buildDefaults, nonDefaultTags, postTagSet, onChange, pendingDeletes, onPendingDeletesChange, tagPosts, tagCounts, openModal, t]);
 
   useEffect(() => {
     onResetInfoChange?.({ hasNonDefault: nonDefaultTags.length > 0, resetToDefault });
@@ -523,9 +531,9 @@ export default function TagDescriptionsEditor({ value, onChange, pendingDeletes,
     } else {
       if (!newCanonical) return;
       /* 중복 비교 — 대소문자 + 공백 무시 (lib/dedupe) */
-      const dup = findDuplicate(allTags, [newCanonical], (t) => [t]);
+      const dup = findDuplicate(allTags, [newCanonical], (tag) => [tag]);
       if (dup) {
-        showToast(`"${dup}" 과 같은 태그입니다`, "warning");
+        showToast(fillTemplate(t("admin.settings.tagEditor.duplicate"), { name: dup }), "warning");
         setAdding(false); // add 팝오버 닫고 중복 항목 편집 팝오버로 이동
         triggerShake();
         focusDuplicate(dup);
@@ -549,29 +557,29 @@ export default function TagDescriptionsEditor({ value, onChange, pendingDeletes,
   const renderFields = () => (
     <>
       <div className={styles.worksCatAddRow}>
-        <span className={styles.worksCatAddRowLabel}>이름</span>
+        <span className={styles.worksCatAddRowLabel}>{t("admin.settings.name")}</span>
         <BilingualInputPair
           value={pairNames}
           onChange={setPairNames}
           onEnter={submit}
-          placeholder={isEdit ? "" : "태그 이름"}
+          placeholder={isEdit ? "" : t("admin.settings.tagEditor.namePlaceholder")}
         />
       </div>
       <div className={styles.worksCatAddRow}>
-        <span className={styles.worksCatAddRowLabel}>설명</span>
-        <BilingualInputPair value={pairDesc} onChange={setPairDesc} onEnter={submit} placeholder="설명" />
+        <span className={styles.worksCatAddRowLabel}>{t("admin.settings.description")}</span>
+        <BilingualInputPair value={pairDesc} onChange={setPairDesc} onEnter={submit} placeholder={t("admin.settings.description")} />
       </div>
     </>
   );
 
   const sortItems = [
-    { value: "freq" as const, label: "빈도순" },
+    { value: "freq" as const, label: t("admin.settings.taxonomy.sortFreq") },
     {
       value: "name" as const,
-      label: "이름순",
+      label: t("admin.settings.taxonomy.sortName"),
       subItems: [
-        { value: "ko" as const, label: "한글" },
-        { value: "en" as const, label: "영어" },
+        { value: "ko" as const, label: t("admin.settings.taxonomy.langKo") },
+        { value: "en" as const, label: t("admin.settings.taxonomy.langEn") },
       ] as const,
     },
   ];
@@ -603,23 +611,23 @@ export default function TagDescriptionsEditor({ value, onChange, pendingDeletes,
   const renderEditPanel = () => (
     <div className={`${styles.addPopoverForm} ${isShaking ? styles.shakeAlert : ""}`}>
       <div className={styles.worksCatAddLabel}>
-        {`편집 — #${editingTag}`}
+        {fillTemplate(t("admin.settings.tagEditor.editTitle"), { tag: editingTag ?? "" })}
         <div className={styles.worksCatAddActions}>
           <Button variant="outline" size="xs" tone="danger" onClick={deleteEditingTag} icon={<Trash2 size={12} strokeWidth={2} />}>
-            삭제
+            {t("admin.common.delete")}
           </Button>
           <Button variant="outline" size="xs" onClick={cancelEdit} icon={<X size={12} strokeWidth={2.5} />}>
-            취소
+            {t("admin.settings.cancel")}
           </Button>
           <Button variant="outline" size="xs" onClick={submit} disabled={!submitEnabled} icon={<Check size={12} strokeWidth={2.5} />}>
-            저장
+            {t("admin.common.save")}
           </Button>
         </div>
       </div>
       {renderFields()}
       <div className={styles.worksCatAddRow}>
-        <span className={styles.worksCatAddRowLabel}>게시물 ({editingPosts.length})</span>
-        <RelatedPostList posts={editingPosts} emptyLabel="이 태그를 사용하는 게시물 없음" />
+        <span className={styles.worksCatAddRowLabel}>{fillTemplate(t("admin.settings.taxonomy.posts"), { n: editingPosts.length })}</span>
+        <RelatedPostList posts={editingPosts} emptyLabel={t("admin.settings.tagEditor.noPosts")} />
       </div>
     </div>
   );
@@ -636,7 +644,7 @@ export default function TagDescriptionsEditor({ value, onChange, pendingDeletes,
           icon={<Filter size={12} />}
           onClick={() => setFilterExpanded((e) => !e)}
         >
-          필터
+          {t("admin.settings.taxonomy.filter")}
           {activeFilterCount > 0 && (
             <span className={styles.filterBtnCount}>{activeFilterCount}</span>
           )}
@@ -664,18 +672,18 @@ export default function TagDescriptionsEditor({ value, onChange, pendingDeletes,
             if (o) { setEditingTag(null); setPairNames({ ko: "", en: "" }); setPairDesc({ ko: "", en: "" }); }
           }}
           placement="bottom-end"
-          sheetTitle="새 태그 추가"
+          sheetTitle={t("admin.settings.tagEditor.addTitle")}
           className={styles.addPopoverTrigger}
           trigger={
             <Button variant="outline" size="sm" icon={<Plus size={12} strokeWidth={2} />}>
-              추가
+              {t("admin.settings.add")}
             </Button>
           }
         >
           <div className={styles.addPopoverForm}>
             {renderFields()}
             <Button variant="primary" size="sm" onClick={submit} disabled={!submitEnabled} icon={<Plus size={12} strokeWidth={2} />}>
-              추가
+              {t("admin.settings.add")}
             </Button>
           </div>
         </Popover>
@@ -684,15 +692,15 @@ export default function TagDescriptionsEditor({ value, onChange, pendingDeletes,
             typeSelector={{
               value: searchType,
               options: [
-                { value: "all", label: "이름+설명" },
-                { value: "name", label: "이름" },
-                { value: "desc", label: "설명" },
+                { value: "all", label: t("admin.settings.taxonomy.searchAll") },
+                { value: "name", label: t("admin.settings.name") },
+                { value: "desc", label: t("admin.settings.description") },
               ],
               onChange: (v) => setSearchType(v as "all" | "name" | "desc"),
             }}
             search={search}
             onSearchChange={setSearch}
-            placeholder="태그의 이름·설명 검색"
+            placeholder={t("admin.settings.tagEditor.searchPlaceholder")}
             align="left"
             size="sm"
           />
@@ -713,12 +721,12 @@ export default function TagDescriptionsEditor({ value, onChange, pendingDeletes,
           >
             <div className={styles.tagDescFilterDrawer}>
               <div className={styles.tagDescFilterGroup}>
-                <span className={styles.tagDescFilterGroupLabel}>사용</span>
+                <span className={styles.tagDescFilterGroupLabel}>{t("admin.settings.taxonomy.usage")}</span>
                 <SegmentedControl
                   items={[
-                    { value: "all", label: "전체" },
-                    { value: "in-use", label: "사용중" },
-                    { value: "unused", label: "미사용" },
+                    { value: "all", label: t("admin.settings.taxonomy.all") },
+                    { value: "in-use", label: t("admin.settings.taxonomy.inUse") },
+                    { value: "unused", label: t("admin.settings.taxonomy.unused") },
                   ]}
                   value={usageFilter}
                   onChange={(v) => setUsageFilter(v as UsageFilter)}
@@ -726,12 +734,12 @@ export default function TagDescriptionsEditor({ value, onChange, pendingDeletes,
                 />
               </div>
               <div className={styles.tagDescFilterGroup}>
-                <span className={styles.tagDescFilterGroupLabel}>설명</span>
+                <span className={styles.tagDescFilterGroupLabel}>{t("admin.settings.description")}</span>
                 <SegmentedControl
                   items={[
-                    { value: "all", label: "전체" },
-                    { value: "with", label: "있음" },
-                    { value: "without", label: "없음" },
+                    { value: "all", label: t("admin.settings.taxonomy.all") },
+                    { value: "with", label: t("admin.settings.taxonomy.descWith") },
+                    { value: "without", label: t("admin.settings.taxonomy.descWithout") },
                   ]}
                   value={descFilter}
                   onChange={(v) => setDescFilter(v as DescFilter)}
@@ -772,12 +780,12 @@ export default function TagDescriptionsEditor({ value, onChange, pendingDeletes,
         {pageTags.length === 0 ? (
           <div className={styles.tagDescEmpty}>
             {search
-              ? "검색 결과 없음"
+              ? t("admin.settings.taxonomy.noResults")
               : fetchStatus === "loading"
-              ? "불러오는 중…"
+              ? t("admin.settings.tagEditor.loading")
               : fetchStatus === "error"
-              ? `태그 로드 실패: ${fetchError}`
-              : "태그 없음"}
+              ? fillTemplate(t("admin.settings.tagEditor.loadFailed"), { error: fetchError })
+              : t("admin.settings.tagEditor.empty")}
           </div>
         ) : (
           <TagNotesEditor
@@ -786,11 +794,11 @@ export default function TagDescriptionsEditor({ value, onChange, pendingDeletes,
             onItemsChange={handleItemsChange}
             onNotesChange={handleNotesChange}
             prefix=""
-            notePlaceholder="설명"
-            addLabel="편집"
-            cancelLabel="취소"
-            editLabel="편집"
-            removeTitle="태그 삭제"
+            notePlaceholder={t("admin.settings.description")}
+            addLabel={t("admin.settings.edit")}
+            cancelLabel={t("admin.settings.cancel")}
+            editLabel={t("admin.settings.edit")}
+            removeTitle={t("admin.settings.tagEditor.remove")}
             renderItemLabel={renderItemLabel}
             onItemClick={(tag) => setEditingTag(tag === editingTag ? null : tag)}
             onEditClick={(tag) => setEditingTag(tag === editingTag ? null : tag)}

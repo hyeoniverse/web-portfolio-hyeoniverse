@@ -75,9 +75,9 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
   };
 
   const sortItems = [
-    { value: "default" as const, label: "사용자 정의순" },
-    { value: "newest" as const, label: "최신순" },
-    { value: "title" as const, label: "제목순" },
+    { value: "default" as const, label: t("admin.settings.taxonomy.sortCustom") },
+    { value: "newest" as const, label: t("admin.settings.seriesEditor.sortNewest") },
+    { value: "title" as const, label: t("admin.settings.seriesEditor.sortTitle") },
   ];
   const newFormRef = useRef<HTMLDivElement>(null);
   const seriesRefs = useRef<Map<string, HTMLDivElement>>(new Map());
@@ -207,7 +207,7 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
             icon={<Filter size={12} />}
             onClick={() => setFilterExpanded((e) => !e)}
           >
-            필터{activeFilterCount > 0 && ` (${activeFilterCount})`}
+            {t("admin.settings.taxonomy.filter")}{activeFilterCount > 0 && ` (${activeFilterCount})`}
             <ChevronDown
               size={12}
               style={{
@@ -256,30 +256,30 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
             >
               <div className={shared.tagDescFilterDrawer}>
                 <div className={shared.tagDescFilterGroup}>
-                  <span className={shared.tagDescFilterGroupLabel}>발행</span>
+                  <span className={shared.tagDescFilterGroupLabel}>{t("admin.settings.seriesEditor.status")}</span>
                   <Button
                     variant={publishFilter === "published" ? "primary" : "outline"}
                     size="md"
                     onClick={() => setPublishFilter((p) => p === "published" ? "all" : "published")}
-                  >발행</Button>
+                  >{t("admin.posts.published")}</Button>
                   <Button
                     variant={publishFilter === "draft" ? "primary" : "outline"}
                     size="md"
                     onClick={() => setPublishFilter((p) => p === "draft" ? "all" : "draft")}
-                  >미발행</Button>
+                  >{t("admin.posts.draft")}</Button>
                 </div>
                 <div className={shared.tagDescFilterGroup}>
-                  <span className={shared.tagDescFilterGroupLabel}>설명</span>
+                  <span className={shared.tagDescFilterGroupLabel}>{t("admin.settings.description")}</span>
                   <Button
                     variant={descFilter === "with" ? "primary" : "outline"}
                     size="md"
                     onClick={() => setDescFilter((d) => d === "with" ? "all" : "with")}
-                  >설명 있음</Button>
+                  >{t("admin.settings.seriesEditor.withDesc")}</Button>
                   <Button
                     variant={descFilter === "without" ? "primary" : "outline"}
                     size="md"
                     onClick={() => setDescFilter((d) => d === "without" ? "all" : "without")}
-                  >설명 없음</Button>
+                  >{t("admin.settings.seriesEditor.withoutDesc")}</Button>
                 </div>
               </div>
             </motion.div>
@@ -434,7 +434,7 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
                 {/* 발행 배지 — chevron 바로 앞. 클릭하면 발행/해제 토글. admin 목록과 같은 공통 StatusBadge 규격. */}
                 <StatusBadge
                   variant={s.published ? "published" : "draft"}
-                  title={s.published ? "클릭해서 발행 해제" : "클릭해서 발행"}
+                  title={s.published ? t("admin.settings.seriesEditor.unpublishHint") : t("admin.settings.seriesEditor.publishHint")}
                   onClick={(e) => {
                     e.stopPropagation();
                     const nextPub = !s.published;

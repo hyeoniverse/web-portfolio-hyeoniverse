@@ -1103,12 +1103,23 @@ a.tagRelatedItem:hover {
   gap: var(--spacing-2xs);
 }
 
-/* form row — 라벨 좌측 고정 너비 + 입력 우측 stretch */
+/* form row — 라벨 좌측 고정 너비 + 입력 우측 stretch.
+   라벨 칸은 가장 긴 라벨(Description, 게시물 (100))이 한 줄에 드는 폭이다. 60px 일 때는 영어 라벨이
+   단어 중간에서 끊기고, 한국어도 게시물 수가 두 자리가 되면 두 줄이 됐다 */
 .worksCatAddRow {
   display: grid;
-  grid-template-columns: 60px 1fr;
+  grid-template-columns: 80px 1fr;
   align-items: center;
   gap: var(--spacing-md);
+}
+
+/* 입력 열에 칸과 그 아래 안내를 함께 쌓을 때 */
+.worksCatAddRowField {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+  align-items: flex-start;
+  min-width: 0;
 }
 
 .worksCatAddRowLabel {

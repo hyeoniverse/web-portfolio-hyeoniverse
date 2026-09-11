@@ -4,6 +4,7 @@ import { Eraser } from "@/components/icons";
 import type { LocalizedText } from "@/types/common";
 import styles from "./BilingualInputPair.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 export interface BilingualInputPairProps {
   value: LocalizedText;
@@ -40,6 +41,7 @@ export default function BilingualInputPair({
   size = "md",
   layout = "auto",
 }: BilingualInputPairProps) {
+  const { t } = useLanguage();
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (!onEnter) return;
     if (e.nativeEvent.isComposing || e.keyCode === 229) return;
@@ -71,8 +73,8 @@ export default function BilingualInputPair({
               e.stopPropagation();
               onChange({ ...value, ko: "" });
             }}
-            aria-label="clear KO"
-            title="지우기"
+            aria-label={`${t("common.clear")} KO`}
+            title={t("common.clear")}
           >
             <Eraser size={11} strokeWidth={2} />
           </Pressable>
@@ -99,8 +101,8 @@ export default function BilingualInputPair({
               e.stopPropagation();
               onChange({ ...value, en: "" });
             }}
-            aria-label="clear EN"
-            title="지우기"
+            aria-label={`${t("common.clear")} EN`}
+            title={t("common.clear")}
           >
             <Eraser size={11} strokeWidth={2} />
           </Pressable>

@@ -9,6 +9,7 @@ import Chip from "@/components/ui/Chip";
 import Popover from "@/components/ui/Popover";
 import BilingualInputPair from "@/components/admin/BilingualInputPair";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { fillTemplate } from "@/utils/format";
 import styles from "./TagNotesEditor.module.css";
 import Pressable from "@/components/ui/Pressable";
 
@@ -201,7 +202,7 @@ export default function TagNotesEditor({
   indexMinChars = 5,
   onIndexChange: _onIndexChange,
 }: TagNotesEditorProps) {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   // 최초 마운트 이후 추가되는 설명만 펼침 애니메이션 — 로드로 이미 있던 설명은 조용히 표시(CollapsibleBody).
   const [mounted, setMounted] = useState(false);
   // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -478,7 +479,7 @@ export default function TagNotesEditor({
             <div className={styles.header}>
               <span className={styles.tagGroup}>
                 {!disableReorder && (
-                  <span className={styles.grip} aria-hidden title="드래그로 순서 변경" data-cursor="grab">
+                  <span className={styles.grip} aria-hidden title={t("admin.common.dragToReorder")} data-cursor="grab">
                     <GripVertical size={12} strokeWidth={2} />
                   </span>
                 )}
@@ -582,10 +583,10 @@ export default function TagNotesEditor({
                             }
                             setSelectedIdxs(new Set());
                           }}
-                          title="선택 삭제"
+                          title={t("admin.common.deleteSelected")}
                         >
                           <X size={10} strokeWidth={2.5} />
-                          삭제 ({selectedIdxs.size})
+                          {fillTemplate(t("admin.common.deleteCount"), { n: selectedIdxs.size })}
                         </Pressable>
                       )}
                       {entryEditToggle}
@@ -697,7 +698,7 @@ export default function TagNotesEditor({
                           <div className={styles.itemRow}>
                             {/* grip — 가장 앞 (체크박스보다 외곽) */}
                             {showGrip && (
-                              <span className={styles.pairGrip} data-cursor="grab" aria-hidden title="드래그로 순서 변경">
+                              <span className={styles.pairGrip} data-cursor="grab" aria-hidden title={t("admin.common.dragToReorder")}>
                                 <GripVertical size={12} strokeWidth={2} />
                               </span>
                             )}

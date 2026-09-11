@@ -18,6 +18,7 @@ import { SkeletonLine } from "@/components/ui/Skeleton";
 import Button from "@/components/ui/Button";
 import Checkbox from "@/components/ui/Checkbox";
 import { matchesSearch } from "@/lib/koSearch";
+import { fillTemplate } from "@/utils/format";
 import styles from "./SeriesInlineEditor.module.css";
 import EmptyState from "@/components/ui/EmptyState";
 import shared from "../Settings.module.css";
@@ -483,8 +484,8 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
           <div className={shared.fieldRow}>
             <label className={shared.fieldLabel}>
               <span className={shared.fieldLabelText}>
-                순서
-                <span className={shared.fieldRequiredDot} aria-label="필수">•</span>
+                {t("admin.settings.seriesEditor.order")}
+                <span className={shared.fieldRequiredDot} aria-label={t("admin.settings.seriesEditor.required")}>•</span>
               </span>
             </label>
             <div onClick={(e) => e.stopPropagation()}>
@@ -579,7 +580,7 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
                 />
                 {addSelected.size > 0 && (
                   <Button variant="primary" size="xs" onClick={handleAddSelected}>
-                    {addSelected.size}개 추가
+                    {fillTemplate(t("admin.settings.seriesEditor.addSelected"), { n: addSelected.size })}
                   </Button>
                 )}
                 <Pressable className={styles.addPostClose} onClick={closeAddPost}>✕</Pressable>
@@ -735,7 +736,7 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
                           setEditingOrderIdx(idx);
                           setEditingOrderValue(String(idx + 1));
                         }}
-                        title="더블클릭하여 순서 변경"
+                        title={t("admin.settings.seriesEditor.orderHint")}
                       >
                         {idx + 1}
                       </span>

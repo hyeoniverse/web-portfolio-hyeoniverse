@@ -19,3 +19,11 @@ export function formatAdminShortDate(iso?: string | null): string {
     .replace(/\.\s/g, ".")
     .replace(/\.$/, "");
 }
+
+/**
+ * 번역 문구의 `{{이름}}` 자리를 값으로 채운다. 값에 없는 이름은 그대로 둔다.
+ * 값은 글자 그대로 들어간다 — `String.replace` 에 문자열을 넘기면 태그 이름 속 `$&` 같은 표기를 특수하게 읽는다.
+ */
+export function fillTemplate(template: string, values: Record<string, string | number>): string {
+  return template.replace(/\{\{(\w+)\}\}/g, (hole, name: string) => (name in values ? String(values[name]) : hole));
+}

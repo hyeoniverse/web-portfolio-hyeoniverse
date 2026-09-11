@@ -30,6 +30,7 @@ import WorksIntroVideoPicker from "./WorksIntroVideoPicker";
 import SectionHeader from "./SectionHeader";
 import TagListField from "@/components/ui/TagListField";
 import { showToast } from "@/stores/toastStore";
+import { fillTemplate } from "@/utils/format";
 import AboutTechStackEditor, { type TechItem } from "./AboutTechStackEditor";
 import TagDescriptionsEditor from "./TagDescriptionsEditor";
 import shared from "../Settings.module.css";
@@ -131,8 +132,8 @@ export default function ContentTab({
       } catch { /* swallow */ }
     }
     setTagPendingDeletes(new Set());
-    showToast(`태그 ${okCount}개 삭제됨 (게시물 ${affected}건 업데이트)`, "success");
-  }, [tagPendingDeletes]);
+    showToast(fillTemplate(t("admin.settings.tagEditor.deletedToast"), { n: okCount, m: affected }), "success");
+  }, [tagPendingDeletes, t]);
 
   /* config.socialLinks 가 매 렌더마다 새 array 가 되면 deps 가 매번 바뀜 → useMemo 로 stable. */
   const socialLinks = useMemo(() => config.socialLinks ?? [], [config.socialLinks]);
@@ -492,7 +493,7 @@ export default function ContentTab({
           {/* 태그 — 모든 게시물의 태그 목록 + 각 설명. /posts/tags/[tag] hero 에 표시 */}
           <section className={styles.section}>
             <SectionHeader
-              title="태그"
+              title={t("admin.settings.tagEditor.title")}
               paths={["tagDescriptions"]}
               extraDirty={tagPendingDeletes.size > 0}
               resetForceEnabled={tagHasNonDefault}
@@ -507,7 +508,7 @@ export default function ContentTab({
                   onClick={() => setTagPendingExpanded((v) => !v)}
                   aria-expanded={tagPendingExpanded}
                 >
-                  삭제 대기 {tagPendingDeletes.size}개
+                  {fillTemplate(t("admin.settings.tagEditor.pendingCount"), { n: tagPendingDeletes.size })}
                   <ChevronDown
                     size={11}
                     style={{ marginLeft: 4, transform: tagPendingExpanded ? "rotate(180deg)" : undefined, transition: "transform 0.18s" }}
@@ -532,8 +533,8 @@ export default function ContentTab({
                             <Pressable
                               className={styles.tagPendingDeleteUndo}
                               onClick={() => undoTagPendingDelete(tag)}
-                              title="삭제 취소 (다시 표시)"
-                              aria-label={`${tag} 삭제 취소`}
+                              title={t("admin.settings.tagEditor.undo")}
+                              aria-label={fillTemplate(t("admin.settings.tagEditor.undoLabel"), { tag })}
                             >
                               <X size={10} strokeWidth={2.2} />
                             </Pressable>
@@ -547,7 +548,7 @@ export default function ContentTab({
               {...sh}
             />
             <p className={styles.taxonomyHint}>
-              모든 게시물에 사용된 태그 목록과 각 태그별 설명입니다. 설명은 /posts/tags/[tag] 페이지의 hero 영역에 표시됩니다.
+              {t("admin.settings.tagEditor.hint")}
             </p>
             <TagDescriptionsEditor
               value={config.tagDescriptions ?? {}}
@@ -562,7 +563,7 @@ export default function ContentTab({
           <section className={styles.section}>
             <SectionHeader title={t("admin.settings.postCategories")} paths={["posts.categories"]} {...sh} />
             <p className={styles.taxonomyHint}>
-              게시물을 분류하는 카테고리 목록입니다. 대분류 아래 소분류까지 2단계로 구성되며, 게시물에는 최하위 카테고리가 저장됩니다.
+              {t("admin.settings.categoryEditor.hint")}
             </p>
             <div className={styles.fields}>
               <CategoriesEditor
