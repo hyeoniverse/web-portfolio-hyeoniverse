@@ -82,9 +82,17 @@
   opacity: 0;
   cursor: pointer;
 }
+/* 삭제(파일을 지운다) — 올린 탭과 지금 탭에서 보이고, 키보드로 탭 안에 들어가도 보인다.
+   올리는 동작이 없는 터치 기기에서는 모든 탭에 늘 보인다. */
 .tab:hover .tabClose,
+.tab:focus-within .tabClose,
 .tabActive .tabClose {
   opacity: 1;
+}
+@media (hover: none) {
+  .tabClose {
+    opacity: 1;
+  }
 }
 .tabClose:hover {
   background: var(--bg-tertiary);
