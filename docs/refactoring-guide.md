@@ -217,6 +217,15 @@ Phase 4 가 실제 도메인 코드 분해(전체의 약 70%)다.**
 같은 조사를 반복하거나, 규칙을 맞추려다 코드를 나쁘게 만드는 걸 막기 위해서다.
 `eslint.config.mjs` 의 warn 목록에 각 규칙이 왜 아직 warn 인지가 적혀 있다.
 
+`set-state-in-effect`·`refs` 는 위반이 많아 부류별로 나눠 고칠 부류만 고쳤다([#695](https://github.com/hyeoniverse/web-portfolio-oval/issues/695)).
+같은 부류를 새로 쓰지 않도록 `src/hooks` 에 공용 훅을 둔다.
+
+- 클라이언트에서 그리는 중인지 → `useHasMounted`
+- props 를 따라가되 사용자가 잠깐 바꿀 수 있는 상태 → `useStateFromProp`
+- 어떤 값이 바뀌면 상태를 맞추거나 되돌리기 → `useDepsChanged` 로 렌더 중에 맞춘다
+- 효과·이벤트 처리·타이머에서 읽을 최신 값 → `useSyncRef` (ref 는 부르는 쪽에서 `useRef` 로 만든다)
+- 화면에 쓰는 값 → ref 가 아니라 상태
+
 승격했으면 **일부러 위반을 넣어 CI 가 실제로 서는지 확인한다.** 설정만 바꾸고 넘어가면
 규칙 이름 오타나 다른 설정에 덮여 안 걸리는 걸 모른다.
 
