@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import css from "../../AboutStudio.module.css";
-import { EditableText, PanelStage, sec } from "../primitives";
+import { EditableText, PanelStage, sec, useL } from "../primitives";
 import feat from "@/app/about/_components/panels/FeaturesPanel.module.css";
 import { ImageIcon, Plus, X } from "@/components/icons";
 import CoverImagePicker from "@/components/posts/CoverImagePicker";
@@ -18,6 +18,7 @@ export type FeatureItem = NonNullable<SiteConfigData["about"]["features"]>[numbe
 export function FeaturesBlock({ value, onChange, lang, t, title }: {
   value: FeatureItem[]; onChange: (v: FeatureItem[]) => void; lang: Language; t: TFunction; title: string;
 }) {
+  const L = useL();
   const set = (i: number, p: Partial<FeatureItem>) => onChange(value.map((it, x) => (x === i ? { ...it, ...p } : it)));
   const [hovered, setHovered] = useState<{ row: number; col: number } | null>(null);
   const cols = 3;
@@ -40,21 +41,21 @@ export function FeaturesBlock({ value, onChange, lang, t, title }: {
                 ? <img className={css.featImg} src={it.image} alt="" />
                 : <div className={css.featNoImg} />}
               <div className={`${feat.featureDfInfo} ${css.featInfo}`}>
-                <EditableText wrap className={feat.featureDfTitle} value={it.title} onChange={(v) => set(i, { title: v })} placeholder={t("admin.settings.aboutItemTitle")} ariaLabel="title" style={{ maxWidth: "100%" }} />
+                <EditableText wrap className={feat.featureDfTitle} value={it.title} onChange={(v) => set(i, { title: v })} placeholder={t("admin.settings.aboutItemTitle")} ariaLabel={L("제목", "Title")} style={{ maxWidth: "100%" }} />
                 <div className={`${feat.featureDfDetails} ${css.featDetails}`}>
                   <EditableText multiline className={feat.featureDfDesc} value={lang === "ko" ? it.description_ko : it.description_en}
-                    onChange={(v) => set(i, lang === "ko" ? { description_ko: v } : { description_en: v })} placeholder={t("admin.settings.aboutItemDesc")} ariaLabel="description" style={{ width: "100%" }} />
-                  <EditableText wrap className={feat.featureDfTech} value={it.tech} onChange={(v) => set(i, { tech: v })} placeholder="GSAP · Lenis" ariaLabel="tech" style={{ maxWidth: "100%" }} />
+                    onChange={(v) => set(i, lang === "ko" ? { description_ko: v } : { description_en: v })} placeholder={t("admin.settings.aboutItemDesc")} ariaLabel={L("설명", "Description")} style={{ width: "100%" }} />
+                  <EditableText wrap className={feat.featureDfTech} value={it.tech} onChange={(v) => set(i, { tech: v })} placeholder="GSAP · Lenis" ariaLabel={L("기술", "Tech")} style={{ maxWidth: "100%" }} />
                 </div>
               </div>
               <div className={css.featTools}>
-                <Popover placement="bottom-end" trigger={<Button variant="difference" shape="circle" size="xs" className={css.featToolBtn} aria-label="이미지 변경"><ImageIcon size={16} /></Button>}>
+                <Popover placement="bottom-end" trigger={<Button variant="difference" shape="circle" size="xs" className={css.featToolBtn} aria-label={L("이미지 변경", "Change image")}><ImageIcon size={16} /></Button>}>
                   <div className={css.bgPanel}>
                     <CoverImagePicker onSelect={(u) => set(i, { image: u })} onClose={() => { }} currentUrl={it.image}
                       postContext={{ title: it.title, tags: it.tech.split(",").map((s) => s.trim()).filter(Boolean), excerpt: it.description_en }} />
                   </div>
                 </Popover>
-                <Button variant="difference" shape="circle" size="xs" className={css.featToolBtn} onClick={() => onChange(value.filter((_, x) => x !== i))} aria-label="삭제"><X size={16} /></Button>
+                <Button variant="difference" shape="circle" size="xs" className={css.featToolBtn} onClick={() => onChange(value.filter((_, x) => x !== i))} aria-label={L("삭제", "Delete")}><X size={16} /></Button>
               </div>
             </div>
           ))}

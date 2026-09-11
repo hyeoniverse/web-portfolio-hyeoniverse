@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import css from "../../AboutStudio.module.css";
-import { EditableText, PanelStage, StageTabs, sec } from "../primitives";
+import { EditableText, PanelStage, StageTabs, sec, useL } from "../primitives";
 import bk from "@/app/about/_components/panels/BackendPanel.module.css";
 import { Plus, X } from "@/components/icons";
 import Button from "@/components/ui/Button";
@@ -17,6 +17,7 @@ const BK_MAX = 12;
 export function BackendBlock({ value, onChange, lang, t, title }: {
   value: BackendItem[]; onChange: (v: BackendItem[]) => void; lang: Language; t: TFunction; title: string;
 }) {
+  const L = useL();
   const [tab, setTab] = useState(0);
   const cur = Math.min(tab, Math.max(0, value.length - 1));
   const it = value[cur];
@@ -51,8 +52,8 @@ export function BackendBlock({ value, onChange, lang, t, title }: {
       <div className={css.slideTabs}>
         <StageTabs count={value.length} active={cur} onSelect={selectTab} onAdd={add}
           canAdd={value.length < BK_MAX}
-          addLabel={lang === "ko" ? "항목 추가" : "Add item"}
-          labelOf={(i) => value[i]?.name || (lang === "ko" ? "새 항목" : "Untitled")} />
+          addLabel={L("항목 추가", "Add item")}
+          labelOf={(i) => value[i]?.name || (L("새 항목", "Untitled"))} />
       </div>
       {it && (
         <PanelStage>
@@ -61,7 +62,7 @@ export function BackendBlock({ value, onChange, lang, t, title }: {
               <SegmentedControl<"api" | "table"> size="sm" value={it.kind}
                 onChange={(v) => set({ kind: v })}
                 items={[{ value: "api", label: "API" }, { value: "table", label: "TABLE" }]} />
-              <Button variant="subtle" shape="circle" size="xs" onClick={() => removeAt(cur)} aria-label="remove">
+              <Button variant="subtle" shape="circle" size="xs" onClick={() => removeAt(cur)} aria-label={L("삭제", "Remove")}>
                 <X size={14} />
               </Button>
             </div>
@@ -77,7 +78,7 @@ export function BackendBlock({ value, onChange, lang, t, title }: {
                     <span className={bk.dbNumber}>{String(i + 1).padStart(2, "0")}</span>
                     <div className={bk.dbListMeta}>
                       <span className={bk.dbListTitle}>
-                        {item.name || (lang === "ko" ? "새 항목" : "Untitled")}
+                        {item.name || (L("새 항목", "Untitled"))}
                         <span className={`${bk.dbKindBadge} ${bk.dbKindBadgeSm} ${item.kind === "api" ? bk.dbKindApi : bk.dbKindTable}`}>
                           {item.kind === "api" ? "API" : "TABLE"}
                         </span>
@@ -91,14 +92,14 @@ export function BackendBlock({ value, onChange, lang, t, title }: {
               <div className={bk.dbDetail}>
                 <div className={bk.detailHeader}>
                   <EditableText wrap className={bk.dbTitle} value={it.name}
-                    onChange={(v) => set({ name: v })} placeholder="posts" ariaLabel="name" autoFocus={isEmpty(it)} />
+                    onChange={(v) => set({ name: v })} placeholder="posts" ariaLabel={L("이름", "Name")} autoFocus={isEmpty(it)} />
                 </div>
                 <EditableText multiline className={css.bkDesc} value={it.description[lang] ?? ""}
                   onChange={(v) => setLocal("description", v)}
-                  placeholder={t("admin.settings.aboutItemDesc")} ariaLabel="description" style={{ width: "100%" }} />
+                  placeholder={t("admin.settings.aboutItemDesc")} ariaLabel={L("설명", "Description")} style={{ width: "100%" }} />
                 <EditableText multiline className={css.bkNote} value={it.designNote?.[lang] ?? ""}
                   onChange={(v) => setLocal("designNote", v)}
-                  placeholder={lang === "ko" ? "설계 노트 (선택)" : "Design note (optional)"} ariaLabel="design note" style={{ width: "100%" }} />
+                  placeholder={L("설계 노트 (선택)", "Design note (optional)")} ariaLabel={L("설계 노트", "Design note")} style={{ width: "100%" }} />
 
                 {it.kind === "api" ? (
                   <div className={bk.entryBlock}>
@@ -107,14 +108,14 @@ export function BackendBlock({ value, onChange, lang, t, title }: {
                       <div key={i} className={`${bk.dbEndpoint} ${css.bkRow}`}>
                         <EditableText className={css.bkMethod} value={ep.method}
                           onChange={(v) => setEndpoints(endpoints.map((x, j) => (j === i ? { ...x, method: v.toUpperCase() } : x)))}
-                          placeholder="GET" ariaLabel="method" />
+                          placeholder="GET" ariaLabel={L("메서드", "Method")} />
                         <EditableText wrap className={bk.dbEndpointPath} value={ep.path}
                           onChange={(v) => setEndpoints(endpoints.map((x, j) => (j === i ? { ...x, path: v } : x)))}
-                          placeholder="/api/posts" ariaLabel="path" />
+                          placeholder="/api/posts" ariaLabel={L("경로", "Path")} />
                         <EditableText wrap className={bk.dbEndpointDesc} value={ep.description[lang] ?? ""}
                           onChange={(v) => setEndpoints(endpoints.map((x, j) => (j === i ? { ...x, description: { ...x.description, [lang]: v } } : x)))}
-                          placeholder={t("admin.settings.aboutItemDesc")} ariaLabel="endpoint description" style={{ flex: 1 }} />
-                        <Button variant="subtle" shape="circle" size="2xs" aria-label="remove endpoint"
+                          placeholder={t("admin.settings.aboutItemDesc")} ariaLabel={L("엔드포인트 설명", "Endpoint description")} style={{ flex: 1 }} />
+                        <Button variant="subtle" shape="circle" size="2xs" aria-label={L("엔드포인트 삭제", "Remove endpoint")}
                           onClick={() => setEndpoints(endpoints.filter((_, j) => j !== i))}>
                           <X size={11} />
                         </Button>
@@ -122,7 +123,7 @@ export function BackendBlock({ value, onChange, lang, t, title }: {
                     ))}
                     <Button variant="subtle" size="xs" icon={<Plus size={13} />}
                       onClick={() => setEndpoints([...endpoints, { method: "GET", path: "", description: { ko: "", en: "" } }])}>
-                      {lang === "ko" ? "엔드포인트 추가" : "Add endpoint"}
+                      {L("엔드포인트 추가", "Add endpoint")}
                     </Button>
                   </div>
                 ) : (
@@ -132,17 +133,17 @@ export function BackendBlock({ value, onChange, lang, t, title }: {
                       <div key={i} className={`${bk.dbSchemaRow} ${css.bkRow}`}>
                         <EditableText className={bk.dbColName} value={cl.name}
                           onChange={(v) => setColumns(columns.map((x, j) => (j === i ? { ...x, name: v } : x)))}
-                          placeholder="id" ariaLabel="column name" />
+                          placeholder="id" ariaLabel={L("컬럼 이름", "Column name")} />
                         <EditableText className={bk.dbColType} value={cl.type}
                           onChange={(v) => setColumns(columns.map((x, j) => (j === i ? { ...x, type: v } : x)))}
-                          placeholder="uuid" ariaLabel="type" />
+                          placeholder="uuid" ariaLabel={L("타입", "Type")} />
                         <EditableText className={bk.dbColConstraint} value={cl.constraint ?? ""}
                           onChange={(v) => setColumns(columns.map((x, j) => (j === i ? { ...x, constraint: v } : x)))}
-                          placeholder="PK" ariaLabel="constraint" />
+                          placeholder="PK" ariaLabel={L("제약", "Constraint")} />
                         <EditableText wrap className={bk.dbColDesc} value={cl.description[lang] ?? ""}
                           onChange={(v) => setColumns(columns.map((x, j) => (j === i ? { ...x, description: { ...x.description, [lang]: v } } : x)))}
-                          placeholder={t("admin.settings.aboutItemDesc")} ariaLabel="column description" style={{ flex: 1 }} />
-                        <Button variant="subtle" shape="circle" size="2xs" aria-label="remove column"
+                          placeholder={t("admin.settings.aboutItemDesc")} ariaLabel={L("컬럼 설명", "Column description")} style={{ flex: 1 }} />
+                        <Button variant="subtle" shape="circle" size="2xs" aria-label={L("컬럼 삭제", "Remove column")}
                           onClick={() => setColumns(columns.filter((_, j) => j !== i))}>
                           <X size={11} />
                         </Button>
@@ -150,7 +151,7 @@ export function BackendBlock({ value, onChange, lang, t, title }: {
                     ))}
                     <Button variant="subtle" size="xs" icon={<Plus size={13} />}
                       onClick={() => setColumns([...columns, { name: "", type: "", description: { ko: "", en: "" } }])}>
-                      {lang === "ko" ? "컬럼 추가" : "Add column"}
+                      {L("컬럼 추가", "Add column")}
                     </Button>
                   </div>
                 )}

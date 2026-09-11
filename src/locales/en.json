@@ -106,6 +106,8 @@
     "error": "An error occurred",
     "retry": "Retry",
     "close": "Close",
+    "clear": "Clear",
+    "remove": "Remove",
     "back": "Back",
     "next": "Next",
     "prev": "Previous",

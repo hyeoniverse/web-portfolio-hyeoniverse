@@ -8,7 +8,6 @@
 
 import { Fragment, useContext, useRef, useState } from "react";
 import { useStateFromProp } from "@/hooks/useStateFromProp";
-import type { Language } from "@/types";
 import { createPortal } from "react-dom";
 import { Plus, KeyRound, ArrowRight, GripVertical, Asterisk, Fingerprint, ChevronDown } from "@/components/icons";
 import Button from "@/components/ui/Button";
@@ -23,6 +22,7 @@ import type { ErdTable, ErdRelation } from "@/data/about/types";
 import Tooltip from "@/components/ui/Tooltip";
 import css from "./ErdTableModal.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { useL } from "./studio/primitives";
 
 
 /* Postgres 에서 흔히 쓰는 타입들. 목록에 없는 값도 직접 입력할 수 있으므로
@@ -83,15 +83,15 @@ function TypeCell({ value, onChange, invalid }: { value: string; onChange: (v: s
 }
 
 export default function ErdTableModal({
-  table, tables, relations, onChange, onDelete, lang,
+  table, tables, relations, onChange, onDelete,
 }: {
   table: ErdTable;
   tables: ErdTable[];
   relations: ErdRelation[];
   onChange: (t: ErdTable[], r: ErdRelation[]) => void;
   onDelete: (name: string) => void;
-  lang: Language;
 }) {
+  const L = useL();
   const closeModal = useModalStore((s) => s.closeModal);
   const openModal = useModalStore((s) => s.openModal);
   /* 액션 버튼은 모달 템플릿의 footer 슬롯으로 — 본문 안에 두면 내용이 길 때 같이 스크롤된다 */
@@ -134,7 +134,7 @@ export default function ErdTableModal({
 
   /* 참조 후보 — 자기 자신을 제외한 테이블의 PK(없으면 첫 컬럼) */
   const fkOptions = [
-    { value: "", label: lang === "ko" ? "없음" : "None" },
+    { value: "", label: L("없음", "None") },
     ...tables
       .filter((t) => t.name !== table.name)
       .map((t) => {
@@ -170,12 +170,12 @@ export default function ErdTableModal({
   })();
 
   const issues: string[] = [];
-  if (nameMissing) issues.push(lang === "ko" ? "테이블 이름을 입력합니다." : "Enter a table name.");
-  if (nameTaken) issues.push(lang === "ko" ? "이미 사용 중인 테이블 이름입니다." : "That table name is already in use.");
-  if (draft.columns.length === 0) issues.push(lang === "ko" ? "컬럼을 하나 이상 추가합니다." : "Add at least one column.");
-  if (colMissing.some((m) => m.name)) issues.push(lang === "ko" ? "이름이 비어 있는 컬럼이 있습니다." : "Some columns have no name.");
-  if (colMissing.some((m) => m.type)) issues.push(lang === "ko" ? "타입이 비어 있는 컬럼이 있습니다." : "Some columns have no type.");
-  if (dupCols.size > 0) issues.push(lang === "ko" ? "컬럼 이름이 중복되었습니다." : "Column names must be unique.");
+  if (nameMissing) issues.push(L("테이블 이름을 입력합니다.", "Enter a table name."));
+  if (nameTaken) issues.push(L("이미 사용 중인 테이블 이름입니다.", "That table name is already in use."));
+  if (draft.columns.length === 0) issues.push(L("컬럼을 하나 이상 추가합니다.", "Add at least one column."));
+  if (colMissing.some((m) => m.name)) issues.push(L("이름이 비어 있는 컬럼이 있습니다.", "Some columns have no name."));
+  if (colMissing.some((m) => m.type)) issues.push(L("타입이 비어 있는 컬럼이 있습니다.", "Some columns have no type."));
+  if (dupCols.size > 0) issues.push(L("컬럼 이름이 중복되었습니다.", "Column names must be unique."));
 
   const addColumn = () => {
     setCols([...draft.columns, { name: "", type: "text" }]);
@@ -188,7 +188,7 @@ export default function ErdTableModal({
       /* 마지막 행을 직접 집는다 — 인덱스 계산은 열이 늘면(체크박스 등) 바로 어긋난다 */
       const rows = wrap.querySelectorAll("tbody tr");
       const last = rows[rows.length - 1];
-      last?.querySelector<HTMLInputElement>('input[aria-label="column name"]')?.focus();
+      last?.querySelector<HTMLInputElement>('input[aria-label={L("컬럼 이름", "Column name")}]')?.focus();
     });
   };
 
@@ -200,7 +200,7 @@ export default function ErdTableModal({
       const bad = colMissing.findIndex((m) => m.name || m.type);
       const row = scrollRef.current?.querySelectorAll("tbody tr")[bad === -1 ? 0 : bad];
       row?.scrollIntoView({ block: "nearest" });
-      row?.querySelector<HTMLInputElement>('input[aria-label="column name"]')?.focus();
+      row?.querySelector<HTMLInputElement>('input[aria-label={L("컬럼 이름", "Column name")}]')?.focus();
       return;
     }
     /* 이름이 바뀌면 관계도 같이 따라가야 연결이 끊기지 않는다 */
@@ -226,7 +226,7 @@ export default function ErdTableModal({
     <div className={css.body}>
       <label className={css.field}>
         <span className={css.label}>
-          {lang === "ko" ? "테이블 이름" : "Table name"}
+          {L("테이블 이름", "Table name")}
           <span className={css.req} aria-hidden>*</span>
         </span>
         <input ref={tableNameRef}
@@ -237,7 +237,7 @@ export default function ErdTableModal({
 
       <div className={css.field}>
         <span className={css.label}>
-          {lang === "ko" ? `컬럼 ${draft.columns.length}` : `${draft.columns.length} columns`}
+          {L(`컬럼 ${draft.columns.length}`, `${draft.columns.length} columns`)}
         </span>
         {/* 셀 경계가 보이는 표 — 입력마다 캡슐을 두면 목록이 아니라 폼처럼 읽힌다 */}
         <div ref={scrollRef} className={css.tableWrap}>
@@ -245,7 +245,7 @@ export default function ErdTableModal({
             <thead>
               <tr>
                 <th scope="col" className={css.thGrip}>
-                  <span className={css.srOnly}>{lang === "ko" ? "순서" : "Order"}</span>
+                  <span className={css.srOnly}>{L("순서", "Order")}</span>
                 </th>
                 <th scope="col" className={css.thPick}>
                   <Checkbox shape="square" checked={allPicked}
@@ -253,15 +253,15 @@ export default function ErdTableModal({
                     onChange={(v) => setPicked(v ? new Set(draft.columns.map((_, i) => i)) : new Set())} />
                 </th>
                 <th scope="col" className={css.thPk}>
-                  <span className={css.srOnly}>{lang === "ko" ? "제약" : "Constraints"}</span>
+                  <span className={css.srOnly}>{L("제약", "Constraints")}</span>
                 </th>
                 <th scope="col">
-                  {lang === "ko" ? "이름" : "Name"}<span className={css.req} aria-hidden>*</span>
+                  {L("이름", "Name")}<span className={css.req} aria-hidden>*</span>
                 </th>
                 <th scope="col" className={css.thType}>
-                  {lang === "ko" ? "타입" : "Type"}<span className={css.req} aria-hidden>*</span>
+                  {L("타입", "Type")}<span className={css.req} aria-hidden>*</span>
                 </th>
-                <th scope="col" className={css.thTail}>{lang === "ko" ? "참조" : "Ref"}</th>
+                <th scope="col" className={css.thTail}>{L("참조", "Ref")}</th>
                 <th scope="col" className={css.thMore}><span className={css.srOnly}>—</span></th>
                 <th scope="col" className={css.thX}><span className={css.srOnly}>—</span></th>
               </tr>
@@ -280,7 +280,7 @@ export default function ErdTableModal({
                   }}
                 >
                   <td className={css.tdGrip}>
-                    <Tooltip content={lang === "ko" ? "끌어서 순서 변경" : "Drag to reorder"} delay={300}>
+                    <Tooltip content={L("끌어서 순서 변경", "Drag to reorder")} delay={300}>
                       <span
                         className={css.grip}
                         draggable
@@ -296,9 +296,9 @@ export default function ErdTableModal({
                     <Checkbox shape="square" checked={picked.has(i)} onChange={() => togglePick(i)} />
                   </td>
                   <td className={css.tdPk}>
-                    <Tooltip content={lang === "ko" ? "기본키" : "Primary key"} delay={200}>
+                    <Tooltip content={L("기본키", "Primary key")} delay={200}>
                       <Pressable className={`${css.pk} ${c.pk ? css.pkOn : ""}`}
-                        aria-label={lang === "ko" ? "기본키" : "Primary key"} aria-pressed={!!c.pk}
+                        aria-label={L("기본키", "Primary key")} aria-pressed={!!c.pk}
                         onClick={() => setCols(draft.columns.map((x, j) => (j === i ? { ...x, pk: !x.pk } : x)))}>
                         <KeyRound size={13} />
                       </Pressable>
@@ -306,18 +306,18 @@ export default function ErdTableModal({
                     {/* PK 는 정의상 NOT NULL 이라 따로 끌 수 없다 — 왜 잠겼는지 툴팁으로 말한다 */}
                     <Tooltip delay={200}
                       content={c.pk
-                        ? (lang === "ko" ? "기본키라 항상 필수입니다" : "Always required — it's the primary key")
-                        : (lang === "ko" ? "필수 (NOT NULL)" : "Required (NOT NULL)")}>
+                        ? (L("기본키라 항상 필수입니다", "Always required — it's the primary key"))
+                        : (L("필수 (NOT NULL)", "Required (NOT NULL)"))}>
                       <Pressable className={`${css.pk} ${c.required || c.pk ? css.pkOn : ""}`}
-                        aria-label={lang === "ko" ? "필수" : "Required"} aria-pressed={!!(c.required || c.pk)}
+                        aria-label={L("필수", "Required")} aria-pressed={!!(c.required || c.pk)}
                         disabled={!!c.pk}
                         onClick={() => setCols(draft.columns.map((x, j) => (j === i ? { ...x, required: !x.required || undefined } : x)))}>
                         <Asterisk size={13} />
                       </Pressable>
                     </Tooltip>
-                    <Tooltip content={lang === "ko" ? "고유 (UNIQUE)" : "Unique"} delay={200}>
+                    <Tooltip content={L("고유 (UNIQUE)", "Unique")} delay={200}>
                       <Pressable className={`${css.pk} ${c.unique ? css.pkOn : ""}`}
-                        aria-label={lang === "ko" ? "고유" : "Unique"} aria-pressed={!!c.unique}
+                        aria-label={L("고유", "Unique")} aria-pressed={!!c.unique}
                         onClick={() => setCols(draft.columns.map((x, j) => (j === i ? { ...x, unique: !x.unique || undefined } : x)))}>
                         <Fingerprint size={13} />
                       </Pressable>
@@ -326,9 +326,9 @@ export default function ErdTableModal({
                   <td>
                     <input
                       className={`${css.cell} ${tried && (colMissing[i].name || dupCols.has(i)) ? css.invalid : ""}`}
-                      value={c.name} aria-label="column name"
+                      value={c.name} aria-label={L("컬럼 이름", "Column name")}
                       aria-required aria-invalid={tried && (colMissing[i].name || dupCols.has(i))}
-                      placeholder={lang === "ko" ? "이름" : "name"}
+                      placeholder={L("이름", "name")}
                       onChange={(e) => setCols(draft.columns.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))}
                       onBlur={(e) => {
                         /* 아무것도 안 넣고 벗어나면 빈 행을 남기지 않는다.
@@ -355,10 +355,10 @@ export default function ErdTableModal({
                       }} />
                   </td>
                   <td className={css.tdMore}>
-                    <Tooltip content={lang === "ko" ? "기본값·설명" : "Default & description"} delay={200}>
+                    <Tooltip content={L("기본값·설명", "Default & description")} delay={200}>
                     <Pressable
                       className={`${css.more} ${detailOpen(c, i) ? css.moreOn : ""}`}
-                      aria-label={lang === "ko" ? "기본값·설명" : "Default & description"}
+                      aria-label={L("기본값·설명", "Default & description")}
                       aria-expanded={detailOpen(c, i)}
                       onClick={() => setOpenRows((prev) => {
                         const next = new Set(prev);
@@ -370,7 +370,7 @@ export default function ErdTableModal({
                     </Tooltip>
                   </td>
                   <td className={css.tdX}>
-                    <CloseButton size="xs" ariaLabel={lang === "ko" ? "컬럼 삭제" : "Remove column"}
+                    <CloseButton size="xs" ariaLabel={L("컬럼 삭제", "Remove column")}
                       onClick={() => setCols(draft.columns.filter((_, j) => j !== i))} />
                   </td>
                 </tr>
@@ -381,16 +381,16 @@ export default function ErdTableModal({
                     <td colSpan={9}>
                       <div className={css.detail}>
                         <label className={css.detailField}>
-                          <span>{lang === "ko" ? "기본값" : "Default"}</span>
+                          <span>{L("기본값", "Default")}</span>
                           <input className={css.cell} value={c.defaultValue ?? ""}
-                            placeholder={lang === "ko" ? "now(), 'draft' …" : "now(), 'draft' …"}
+                            placeholder={L("now(), 'draft' …", "now(), 'draft' …")}
                             onChange={(e) => setCols(draft.columns.map((x, j) =>
                               (j === i ? { ...x, defaultValue: e.target.value || undefined } : x)))} />
                         </label>
                         <label className={css.detailField}>
-                          <span>{lang === "ko" ? "설명" : "Description"}</span>
+                          <span>{L("설명", "Description")}</span>
                           <input className={css.cell} value={c.comment ?? ""}
-                            placeholder={lang === "ko" ? "이 컬럼이 무엇인지" : "what this column is"}
+                            placeholder={L("이 컬럼이 무엇인지", "what this column is")}
                             onChange={(e) => setCols(draft.columns.map((x, j) =>
                               (j === i ? { ...x, comment: e.target.value || undefined } : x)))} />
                         </label>
@@ -410,11 +410,11 @@ export default function ErdTableModal({
         </div>
         <div className={css.colActions}>
           <Button variant="subtle" size="sm" icon={<Plus size={14} />} onClick={addColumn}>
-            {lang === "ko" ? "컬럼 추가" : "Add column"}
+            {L("컬럼 추가", "Add column")}
           </Button>
           {picked.size > 0 && (
             <Button variant="subtle" size="sm" tone="danger" onClick={removePicked}>
-              {lang === "ko" ? `선택 ${picked.size}개 삭제` : `Delete ${picked.size} selected`}
+              {L(`선택 ${picked.size}개 삭제`, `Delete ${picked.size} selected`)}
             </Button>
           )}
         </div>
@@ -425,12 +425,12 @@ export default function ErdTableModal({
             chip 안 화살표는 늘 "참조하는 컬럼 → 참조되는 컬럼" 방향으로 고정한다. */}
       {(outgoing.length > 0 || incoming.length > 0) && (
         <div className={css.field}>
-          <span className={css.label}>{lang === "ko" ? "관계" : "Relations"}</span>
+          <span className={css.label}>{L("관계", "Relations")}</span>
 
           {outgoing.length > 0 && (
             <div className={css.relGroup}>
               <span className={css.relLabel}>
-                {lang === "ko" ? "이 테이블이 참조하는 곳" : "References"}
+                {L("이 테이블이 참조하는 곳", "References")}
               </span>
               <div className={css.rels}>
                 {outgoing.map((r, i) => (
@@ -448,7 +448,7 @@ export default function ErdTableModal({
           {incoming.length > 0 && (
             <div className={css.relGroup}>
               <span className={css.relLabel}>
-                {lang === "ko" ? "이 테이블을 참조하는 곳" : "Referenced by"}
+                {L("이 테이블을 참조하는 곳", "Referenced by")}
               </span>
               <div className={css.rels}>
                 {incoming.map((r, i) => (
@@ -480,24 +480,25 @@ export default function ErdTableModal({
                 const relCount = relations.filter((r) => r.from === table.name || r.to === table.name).length;
                 openModal(
                   <ModalConfirm
-                    desc={lang === "ko"
-                      ? `"${table.name}" 테이블을 삭제합니다.${relCount > 0 ? ` 연결된 관계 ${relCount}개도 함께 사라집니다.` : ""} 되돌릴 수 없습니다.`
-                      : `Delete table "${table.name}".${relCount > 0 ? ` ${relCount} linked relation(s) will be removed as well.` : ""} This cannot be undone.`}
-                    confirmText={lang === "ko" ? "삭제" : "Delete"}
+                    desc={L(
+                      `"${table.name}" 테이블을 삭제합니다.${relCount > 0 ? ` 연결된 관계 ${relCount}개도 함께 사라집니다.` : ""} 되돌릴 수 없습니다.`,
+                      `Delete table "${table.name}".${relCount > 0 ? ` ${relCount} linked relation(s) will be removed as well.` : ""} This cannot be undone.`,
+                    )}
+                    confirmText={L("삭제", "Delete")}
                     danger
                     onConfirm={() => { onDelete(table.name); closeModal(); }}
                   />,
                   { width: "min(90vw, 460px)" },
                 );
               }}>
-              {lang === "ko" ? "테이블 삭제" : "Delete table"}
+              {L("테이블 삭제", "Delete table")}
             </Button>
             <span className={css.footerRight}>
               <Button variant="subtle" size="sm" onClick={() => closeModal()}>
-                {lang === "ko" ? "취소" : "Cancel"}
+                {L("취소", "Cancel")}
               </Button>
               <Button variant="primary" size="sm" onClick={commit}>
-                {lang === "ko" ? "저장" : "Save"}
+                {L("저장", "Save")}
               </Button>
             </span>
           </div>

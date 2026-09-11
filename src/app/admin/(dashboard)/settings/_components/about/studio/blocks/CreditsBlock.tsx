@@ -16,6 +16,7 @@ import Textarea from "@/components/ui/Textarea";
 import { type SiteConfigData } from "@/config/site.config";
 import { type TFunction } from "@/providers/LanguageProvider";
 import { type Language } from "@/types";
+import { useL } from "../primitives";
 /* 덧붙일 문구 제한 — 저작자 표시 아래 보조 문구라 길어질 이유가 없다.
    행 수를 고정해 문구 길이와 무관하게 프리뷰 높이를 일정하게 유지한다. */
 const CREDITS_NOTE_MAX = 160;
@@ -27,6 +28,7 @@ export function CreditsBlock({ about, setAny, lang, nickname, t }: {
   about: SiteConfigData["about"]; setAny: (k: string, v: unknown) => void; lang: Language;
   nickname: string; t: TFunction;
 }) {
+  const L = useL();
   /* 저작자 표시 문구(로케일)와 소유자 이름은 고정 — 편집 대상이 아니다.
      문구를 자유롭게 바꿀 수 있으면 이름만 잠가봐야 표시 자체가 무력화된다. */
   const [before = "", after = ""] = t("aboutPage.credits").split("❤");
@@ -91,9 +93,7 @@ export function CreditsBlock({ about, setAny, lang, nickname, t }: {
       {/* 긴 문장이라 헤더 옆 inline 대신 헤더 아래 block hint 로 (AccountTab·AppearanceTab 과 동일 패턴) */}
       <p className={css.creditsNotice}>
         <Lock size={12} />
-        {lang === "ko"
-          ? "저작자 표시 문구와 원작자 이름은 고정입니다. 포크·재배포 시에도 유지해 주세요. 함께 만든 분의 이름과 덧붙일 문구는 추가할 수 있습니다."
-          : "The attribution phrase and original author name are fixed. Please keep them when forking or redistributing — you may add contributor names and a note."}
+        {L("저작자 표시 문구와 원작자 이름은 고정입니다. 포크·재배포 시에도 유지해 주세요. 함께 만든 분의 이름과 덧붙일 문구는 추가할 수 있습니다.", "The attribution phrase and original author name are fixed. Please keep them when forking or redistributing — you may add contributor names and a note.")}
       </p>
       <div className={css.creditsPreview}>
         {/* 폭 고정 — 이름을 추가하면 줄이 길어져 래퍼가 늘어나고 아래 textarea 까지 같이 넓어진다 */}
@@ -103,9 +103,7 @@ export function CreditsBlock({ about, setAny, lang, nickname, t }: {
             <span className={cf.heart}>❤</span>
             <span className={css.creditsLocked}>{after} </span>
             <span className={css.creditsFixed}
-              title={lang === "ko"
-                ? "원작자 표기 — 포크·재배포 시에도 유지해 주세요"
-                : "Original author attribution — please keep it when forking or redistributing"}>
+              title={L("원작자 표기 — 포크·재배포 시에도 유지해 주세요", "Original author attribution — please keep it when forking or redistributing")}>
               {nickname}
               <Lock size={11} />
             </span>
@@ -114,7 +112,7 @@ export function CreditsBlock({ about, setAny, lang, nickname, t }: {
               if (editingName === i) {
                 return (
                   <input key={i} className={css.creditsNameInput} autoFocus defaultValue={n}
-                    aria-label={lang === "ko" ? "이름 수정" : "Edit name"}
+                    aria-label={L("이름 수정", "Edit name")}
                     onBlur={(e) => {
                       const v = e.target.value.trim();
                       setEditingName(null);
@@ -143,7 +141,7 @@ export function CreditsBlock({ about, setAny, lang, nickname, t }: {
               <span className={`${css.creditsNameAdd} ${adding ? css.creditsNameAddOpen : ""}`}>
                 {adding ? (
                   <input className={css.creditsNameInput} autoFocus
-                    aria-label={lang === "ko" ? "추가할 이름" : "Name to add"}
+                    aria-label={L("추가할 이름", "Name to add")}
                     onBlur={(e) => {
                       const v = e.target.value.trim();
                       setAdding(false);
@@ -155,7 +153,7 @@ export function CreditsBlock({ about, setAny, lang, nickname, t }: {
                     }} />
                 ) : (
                   <Pressable className={css.creditsNameAddBtn} onClick={() => setAdding(true)}
-                    title={lang === "ko" ? "이름 추가" : "Add name"} aria-label={lang === "ko" ? "이름 추가" : "Add name"}>
+                    title={L("이름 추가", "Add name")} aria-label={L("이름 추가", "Add name")}>
                     <Plus size={13} />
                   </Pressable>
                 )}
@@ -176,31 +174,31 @@ export function CreditsBlock({ about, setAny, lang, nickname, t }: {
             textareaClassName={css.creditsNoteInput}
             value={note} maxHint={CREDITS_NOTE_MAX} maxLength={CREDITS_NOTE_MAX} rows={CREDITS_NOTE_ROWS}
             onChange={(v) => setAny(noteKey, v.slice(0, CREDITS_NOTE_MAX))}
-            placeholder={lang === "ko" ? "문구 추가" : "Add note"}
-            aria-label={lang === "ko" ? "덧붙일 문구" : "Additional note"} />
+            placeholder={L("문구 추가", "Add note")}
+            aria-label={L("덧붙일 문구", "Additional note")} />
           </div>
           {/* 타이포 컨트롤은 입력 중에만 뜨는 floating bar — 상시 노출하면 프리뷰가 어수선해진다 */}
           <FloatingBar inline open={noteFocused} getAnchorRect={() => noteRef.current?.getBoundingClientRect() ?? new DOMRect()}
             onFocusCapture={() => setNoteFocused(true)} onBlurCapture={() => setNoteFocused(false)}>
             <NumberInput className={css.barStepper} value={notePx} unit="px" width={52}
-              ariaLabel={lang === "ko" ? "글자 크기" : "Font size"} min={10} max={28} step={1}
+              ariaLabel={L("글자 크기", "Font size")} min={10} max={28} step={1}
               onCommit={(n) => setAny("creditsNoteFontSize", `${n}px`)} />
             {/* floating bar 위를 덮지 않게 아래로 연다 */}
             <AboutFontPicker value={rec.creditsNoteFontFamily || ""}
               onChange={(v) => setAny("creditsNoteFontFamily", v)}
               fallbackLabel={t("admin.settings.aboutHeroDefault")} dropAlign="below" />
             <NumberInput className={css.barStepper} value={noteLh} width={56} step={0.1}
-              min={1} max={2.4} label={lang === "ko" ? "줄" : "LH"}
-              ariaLabel={lang === "ko" ? "줄 간격" : "Line height"}
+              min={1} max={2.4} label={L("줄", "LH")}
+              ariaLabel={L("줄 간격", "Line height")}
               onCommit={(n) => setAny("creditsNoteLineHeight", String(Math.round(n * 10) / 10))} />
             {/* 타이포 컨트롤과 정렬은 성격이 달라 구분선으로 끊는다 */}
             <span className={css.barDivider} aria-hidden />
             {(["left", "center", "right"] as const).map((a) => (
               <Button key={a} variant={noteAlign === a ? "primary" : "subtle"} shape="circle" size="sm"
                 onClick={() => setAny("creditsNoteAlign", a)}
-                aria-label={a === "left" ? (lang === "ko" ? "왼쪽 정렬" : "Align left")
-                  : a === "center" ? (lang === "ko" ? "가운데 정렬" : "Align center")
-                    : (lang === "ko" ? "오른쪽 정렬" : "Align right")}
+                aria-label={a === "left" ? (L("왼쪽 정렬", "Align left"))
+                  : a === "center" ? (L("가운데 정렬", "Align center"))
+                    : (L("오른쪽 정렬", "Align right"))}
                 aria-pressed={noteAlign === a}>
                 <AlignIcon align={a} />
               </Button>

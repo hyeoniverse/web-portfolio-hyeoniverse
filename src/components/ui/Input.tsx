@@ -4,6 +4,7 @@ import { useState, type InputHTMLAttributes, type KeyboardEvent, type ReactNode,
 import { Eraser, Eye, EyeOff, Plus } from "@/components/icons";
 import styles from "./Input.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 type Variant = "capsule" | "underline";
 type Size = "xs" | "sm" | "md";
@@ -62,6 +63,7 @@ export default function Input({
   type,
   ...rest
 }: InputProps) {
+  const clearLabel = useLanguage().t("common.clear");
   const hasAdd = !!onAdd;
   const hasTrailing = !!trailingAction;
   const isGrouped = hasAdd || hasTrailing;
@@ -124,8 +126,8 @@ export default function Input({
               e.stopPropagation();
               onChange("");
             }}
-            aria-label="clear"
-            title="지우기"
+            aria-label={clearLabel}
+            title={clearLabel}
           >
             <Eraser size={11} strokeWidth={2} />
           </Pressable>

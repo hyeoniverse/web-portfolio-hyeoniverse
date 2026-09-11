@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import css from "../../AboutStudio.module.css";
-import { EditableText, PanelStage, StageTabs } from "../primitives";
+import { EditableText, PanelStage, StageTabs, useL } from "../primitives";
 import dc from "@/app/about/_components/panels/DesignSystemPanel.module.css";
 import { ImageIcon, X } from "@/components/icons";
 import CoverImagePicker from "@/components/posts/CoverImagePicker";
@@ -47,6 +47,7 @@ export const seedConcepts = (): ConceptItem[] => designConcepts.map((c) => ({
 export function DesignSystemBlock({ value, onChange, lang, t }: {
   value: ConceptItem[]; onChange: (v: ConceptItem[]) => void; lang: Language; t: TFunction;
 }) {
+  const L = useL();
   const [tab, setTab] = useState(0);
   const tabsRef = useRef<HTMLDivElement>(null);
   const MAX = 8;
@@ -79,8 +80,8 @@ export function DesignSystemBlock({ value, onChange, lang, t }: {
       <div className={css.slideTabs} ref={tabsRef}>
         <StageTabs count={value.length} active={cur} onSelect={selectTab} onAdd={add}
           canAdd={value.length < MAX}
-          addLabel={lang === "ko" ? "컨셉 추가" : "Add concept"}
-          labelOf={(i) => value[i]?.title || (lang === "ko" ? "새 컨셉" : "Untitled")} />
+          addLabel={L("컨셉 추가", "Add concept")}
+          labelOf={(i) => value[i]?.title || (L("새 컨셉", "Untitled"))} />
       </div>
       {it && (
         <PanelStage>
@@ -98,17 +99,17 @@ export function DesignSystemBlock({ value, onChange, lang, t }: {
             </div>
             <div className={`${dc.dcCardOverlay} ${css.dsOverlay}`}>
               <EditableText className={dc.dcCardTitle} value={it.title} autoFocus={isEmptyConcept(it)}
-                onChange={(v) => set({ title: v })} placeholder="TYPOGRAPHY" ariaLabel="title" />
+                onChange={(v) => set({ title: v })} placeholder="TYPOGRAPHY" ariaLabel={L("제목", "Title")} />
               <EditableText wrap className={dc.dcCardSubtitle} value={lang === "ko" ? it.subtitle_ko : it.subtitle_en}
                 onChange={(v) => set(lang === "ko" ? { subtitle_ko: v } : { subtitle_en: v })}
-                placeholder={lang === "ko" ? "4가지 서체 시스템" : "4-Font Type System"} ariaLabel="subtitle" />
+                placeholder={lang === "ko" ? "4가지 서체 시스템" : "4-Font Type System"} ariaLabel={L("부제", "Subtitle")} />
               <EditableText multiline className={dc.dcCardDesc} value={lang === "ko" ? it.description_ko : it.description_en}
                 onChange={(v) => set(lang === "ko" ? { description_ko: v } : { description_en: v })}
-                placeholder={t("admin.settings.aboutItemDesc")} ariaLabel="description" style={{ width: "100%" }} />
+                placeholder={t("admin.settings.aboutItemDesc")} ariaLabel={L("설명", "Description")} style={{ width: "100%" }} />
             </div>
             <div className={css.slideTools}>
               <Popover placement="bottom-end" trigger={
-                <Button variant="difference" shape="circle" size="xs" aria-label={lang === "ko" ? "배경 이미지" : "Background image"}>
+                <Button variant="difference" shape="circle" size="xs" aria-label={L("배경 이미지", "Background image")}>
                   <ImageIcon size={14} />
                 </Button>
               }>
@@ -117,7 +118,7 @@ export function DesignSystemBlock({ value, onChange, lang, t }: {
                     postContext={{ title: it.title, tags: [], excerpt: it.description_en }} />
                 </div>
               </Popover>
-              <Button variant="difference" shape="circle" size="xs" onClick={() => removeAt(cur)} aria-label="remove">
+              <Button variant="difference" shape="circle" size="xs" onClick={() => removeAt(cur)} aria-label={L("삭제", "Remove")}>
                 <X size={14} />
               </Button>
             </div>

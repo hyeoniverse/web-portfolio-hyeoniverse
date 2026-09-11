@@ -42,12 +42,13 @@ test.describe("About 설정 화면", () => {
     await expect(en, "EN 탭").toBeVisible();
   });
 
-  test("Backend 블록의 보기 전환 탭이 동작한다", async ({ page }) => {
+  test("Architecture 블록의 보기 전환 탭이 동작한다", async ({ page }) => {
     await openAbout(page);
 
     // 디렉토리 트리 / 다이어그램 두 가지 보기가 있다.
-    const tree = page.getByRole("tab", { name: "디렉토리 트리" }).first();
-    const diagram = page.getByRole("tab", { name: "다이어그램" }).first();
+    // 편집 화면의 버튼·탭 이름은 관리자 화면 언어를 따르므로 두 언어 모두 받는다.
+    const tree = page.getByRole("tab", { name: /디렉토리 트리|Directory tree/ }).first();
+    const diagram = page.getByRole("tab", { name: /다이어그램|Diagram/ }).first();
     await expect(tree).toBeVisible();
     await expect(diagram).toBeVisible();
 

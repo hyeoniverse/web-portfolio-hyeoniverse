@@ -91,6 +91,7 @@ function PlainTextarea({
   tabIndent: _tabIndent,
   ...rest
 }: TextareaProps) {
+  const clearLabel = useLanguage().t("common.clear");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const inputCls = [
     styles.textarea,
@@ -161,9 +162,9 @@ function PlainTextarea({
               className={styles.clearBtn}
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => onChange("")}
-              aria-label="clear"
+              aria-label={clearLabel}
               tabIndex={-1}
-              title="지우기"
+              title={clearLabel}
             >
               <Eraser size={11} strokeWidth={2} />
             </Pressable>
@@ -268,6 +269,7 @@ function EditableTextarea({
   onOverflow,
   tabIndent,
 }: EditableProps) {
+  const clearLabel = useLanguage().t("common.clear");
   const generatedId = useId();
   const id = idProp ?? generatedId;
   const ref = useRef<HTMLDivElement>(null);
@@ -443,10 +445,10 @@ function EditableTextarea({
               data-hidden={isEmpty || undefined}
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => onChange("")}
-              aria-label="clear"
+              aria-label={clearLabel}
               aria-hidden={isEmpty || undefined}
               tabIndex={-1}
-              title="지우기"
+              title={clearLabel}
             >
               <Eraser size={11} strokeWidth={2} />
             </Pressable>

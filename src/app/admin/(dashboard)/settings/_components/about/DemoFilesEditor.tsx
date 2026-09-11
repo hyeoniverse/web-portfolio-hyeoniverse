@@ -17,6 +17,7 @@ import {
 import { Plus, X } from "@/components/icons";
 import css from "./DemoFilesEditor.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { useL } from "./studio/primitives";
 
 const SP_EDITOR_THEME: SandpackTheme = {
   colors: {
@@ -60,19 +61,16 @@ const shallowEqual = (a: Files, b: Files) => {
 export default function DemoFilesEditor({
   files,
   onChange,
-  lang,
 }: {
   files: Files;
   onChange: (f: Files) => void;
-  lang: "ko" | "en";
 }) {
+  const L = useL();
   const paths = Object.keys(files);
   return (
     <div className={css.panel}>
       <p className={css.hint}>
-        {lang === "ko"
-          ? "App.tsx 가 진입점입니다. styles.css 는 자동으로 적용되고, 파일을 더 만들어 import 할 수 있습니다."
-          : "App.tsx is the entry point. styles.css is applied automatically; add more files and import them."}
+        {L("App.tsx 가 진입점입니다. styles.css 는 자동으로 적용되고, 파일을 더 만들어 import 할 수 있습니다.", "App.tsx is the entry point. styles.css is applied automatically; add more files and import them.")}
       </p>
       <SandpackProvider
         template="react-ts"
@@ -80,13 +78,14 @@ export default function DemoFilesEditor({
         files={Object.fromEntries(paths.map((p) => [p, { code: files[p] }]))}
         options={{ visibleFiles: paths, activeFile: paths[0] }}
       >
-        <Body onChange={onChange} lang={lang} />
+        <Body onChange={onChange} />
       </SandpackProvider>
     </div>
   );
 }
 
-function Body({ onChange, lang }: { onChange: (f: Files) => void; lang: "ko" | "en" }) {
+function Body({ onChange }: { onChange: (f: Files) => void }) {
+  const L = useL();
   const { sandpack } = useSandpack();
   const [adding, setAdding] = useState(false);
   const lastSent = useRef<Files | null>(null);
@@ -135,7 +134,7 @@ function Body({ onChange, lang }: { onChange: (f: Files) => void; lang: "ko" | "
           );
         })}
         {adding ? (
-          <input className={css.tabInput} autoFocus defaultValue="/" aria-label={lang === "ko" ? "새 파일 경로" : "New file path"}
+          <input className={css.tabInput} autoFocus defaultValue="/" aria-label={L("새 파일 경로", "New file path")}
             onBlur={(e) => addFile(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter") (e.target as HTMLInputElement).blur();
@@ -143,7 +142,7 @@ function Body({ onChange, lang }: { onChange: (f: Files) => void; lang: "ko" | "
             }} />
         ) : (
           <Pressable className={css.addTab} onClick={() => setAdding(true)}>
-            <Plus size={12} /> {lang === "ko" ? "파일" : "File"}
+            <Plus size={12} /> {L("파일", "File")}
           </Pressable>
         )}
       </div>

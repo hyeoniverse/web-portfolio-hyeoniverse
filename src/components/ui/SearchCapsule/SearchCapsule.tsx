@@ -18,6 +18,7 @@ import SearchSyntaxHelpButton from "./SearchSyntaxHelpButton";
 import SearchSyntaxHelpContent from "./SearchSyntaxHelpContent";
 import styles from "./SearchCapsule.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 export interface SearchCapsuleProps {
   search: string;
@@ -77,6 +78,7 @@ export default function SearchCapsule({
   collapsible = false,
   expandedWidth = 280,
 }: SearchCapsuleProps) {
+  const clearLabel = useLanguage().t("common.clear");
   const pathname = usePathname();
   // App Router 컨텍스트 직접 구독 — 리더 island(createRoot) 처럼 router provider 밖에서 마운트돼도 throw 없이 null
   const router = useContext(AppRouterContext);
@@ -255,8 +257,8 @@ export default function SearchCapsule({
           e.stopPropagation();
           onSearchChange("");
         }}
-        aria-label="clear"
-        title="지우기"
+        aria-label={clearLabel}
+        title={clearLabel}
         tabIndex={search ? 0 : -1}
         aria-hidden={!search}
       >
