@@ -377,6 +377,7 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
                       >
                         #
                         <EditableRowNumber
+                          inline
                           value={s.sort_order}
                           min={1}
                           max={total}

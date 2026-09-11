@@ -440,6 +440,7 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
             <span className={shared.seriesCardOrderPrefix}>
               #
               <EditableRowNumber
+                inline
                 value={form.desiredPosition}
                 min={1}
                 max={totalCount + 1}
@@ -490,6 +491,7 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
             </label>
             <div onClick={(e) => e.stopPropagation()}>
               <EditableRowNumber
+                inline
                 value={form.desiredPosition}
                 min={1}
                 max={totalCount + 1}

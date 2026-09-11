@@ -58,4 +58,20 @@ test.describe("설정 화면", () => {
     const sectionSaves = page.getByRole("button", { name: "Save Section" });
     expect(await sectionSaves.count(), "섹션별 저장 단추").toBeGreaterThan(1);
   });
+
+  test("Posts 하위탭의 시리즈 카드는 순서 번호 뒤에 제목이 보인다", async ({ page }) => {
+    // 순서 번호가 표의 # 칸처럼 줄을 채우면 번호가 제목 줄 전체 폭이 되고, 넘친 제목 줄의 말줄임표가
+    // 제목을 통째로 가려 "#…"만 남는다
+    await openSettings(page, "tab=content&sub=posts");
+    const name = page.locator('p[class*="seriesCardName"]').first();
+    await expect(name, "시리즈 카드").toBeVisible({ timeout: 60_000 });
+    const { line, number, titleStart } = await name.evaluate((p) => {
+      const box = p.getBoundingClientRect();
+      const range = document.createRange();
+      range.selectNode(p.lastChild!);
+      return { line: box.width, number: p.firstElementChild!.getBoundingClientRect().width, titleStart: range.getBoundingClientRect().left - box.left };
+    });
+    expect(number, "번호는 번호만큼만 차지한다").toBeLessThan(line / 4);
+    expect(titleStart, "제목이 줄 안에서 시작한다").toBeLessThan(line);
+  });
 });

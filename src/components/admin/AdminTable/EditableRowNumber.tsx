@@ -9,10 +9,12 @@ interface Props {
   min?: number;
   max?: number;
   onSave: (newValue: number) => void | Promise<void>;
+  /** 표의 # 칸이 아니라 글 줄 안에 둘 때 — 칸을 채우지 않고 번호만큼 차지한다 */
+  inline?: boolean;
 }
 
-/** 행 번호 셀 인라인 편집 — 클릭 시 input, Enter/blur 저장, Esc 취소. */
-export default function EditableRowNumber({ value, min = 1, max, onSave }: Props) {
+/** 행 번호 셀 인라인 편집 — 클릭 시 input, Enter/blur 저장, Esc 취소. 기본은 표의 # 칸을 채운다. */
+export default function EditableRowNumber({ value, min = 1, max, onSave, inline = false }: Props) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(String(value));
   const inputRef = useRef<HTMLInputElement>(null);
@@ -47,7 +49,7 @@ export default function EditableRowNumber({ value, min = 1, max, onSave }: Props
       <input
         ref={inputRef}
         type="number"
-        className={styles.rowNumInput}
+        className={`${styles.rowNumInput} ${inline ? styles.rowNumInline : ""}`}
         value={draft}
         min={min}
         max={max}
@@ -62,7 +64,7 @@ export default function EditableRowNumber({ value, min = 1, max, onSave }: Props
 
   return (
     <span
-      className={styles.rowNumText}
+      className={`${styles.rowNumText} ${inline ? styles.rowNumInline : ""}`}
       role="button"
       tabIndex={0}
       onClick={(e) => { e.stopPropagation(); setEditing(true); }}
