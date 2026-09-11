@@ -172,6 +172,9 @@ export default function Footer({ className, variant = "full" }: FooterProps) {
     );
   })() : null;
 
+  /* 새 탭으로 여는 링크(Design System·Admin·Login)는 prefetch={false}. Link 는 화면에 들어오면 대상 페이지를
+     미리 받는데, 새 탭은 이 탭이 받아 둔 것을 쓰지 못한다. 그런데도 미리 받은 페이지의 스크립트까지 내려받아,
+     푸터가 보이는 화면마다 Design System 의 청크 12개(three.js 포함)를 쓰지도 않고 받았다. */
   return (
     <footer className={cn(styles.footer, isMinimal && styles.footerMinimal, className)}>
       <div className={styles.content}>
@@ -185,13 +188,13 @@ export default function Footer({ className, variant = "full" }: FooterProps) {
               <div className={styles.visits}>
                 <Link href="/privacy" className={styles.adminLink}>Privacy</Link>
                 <span className={styles.divider}>✧</span>
-                <Link href="/design-system" target="_blank" className={styles.adminLink}>Design System</Link>
+                <Link href="/design-system" target="_blank" prefetch={false} className={styles.adminLink}>Design System</Link>
                 <span className={styles.divider}>✧</span>
                 {/* full variant 와 같게 — 로그아웃 상태에서도 들어갈 자리는 남겨 둔다 */}
                 {isAuthenticated ? (
-                  <Link href="/admin" target="_blank" className={styles.adminLink}>Admin</Link>
+                  <Link href="/admin" target="_blank" prefetch={false} className={styles.adminLink}>Admin</Link>
                 ) : (
-                  <Link href="/admin/login" target="_blank" className={styles.adminLink}>Login</Link>
+                  <Link href="/admin/login" target="_blank" prefetch={false} className={styles.adminLink}>Login</Link>
                 )}
                 {visits && (
                   <>
@@ -220,7 +223,7 @@ export default function Footer({ className, variant = "full" }: FooterProps) {
                   <Link href="/admin/works" ref={setLinkRef("/admin/works")} onMouseEnter={() => setHoveredLink("/admin/works")} className={pathname.startsWith("/admin/works") ? styles.activeLink : ""}>Works</Link>
                   <Link href="/admin/posts" ref={setLinkRef("/admin/posts")} onMouseEnter={() => setHoveredLink("/admin/posts")} className={pathname.startsWith("/admin/posts") ? styles.activeLink : ""}>Posts</Link>
                   <span className={styles.divider}>✧</span>
-                  <Link href="/design-system" target="_blank" ref={setLinkRef("/design-system")} onMouseEnter={() => setHoveredLink("/design-system")} className={pathname === "/design-system" ? styles.activeLink : ""}>Design System</Link>
+                  <Link href="/design-system" target="_blank" prefetch={false} ref={setLinkRef("/design-system")} onMouseEnter={() => setHoveredLink("/design-system")} className={pathname === "/design-system" ? styles.activeLink : ""}>Design System</Link>
                   <Link href="/" ref={setLinkRef("/")} onMouseEnter={() => setHoveredLink("/")}>Home</Link>
                 </>
               ) : (
@@ -232,12 +235,12 @@ export default function Footer({ className, variant = "full" }: FooterProps) {
                   <Link href="/about" ref={setLinkRef("/about")} onMouseEnter={() => setHoveredLink("/about")} className={pathname.startsWith("/about") ? styles.activeLink : ""}>About</Link>
                   <span className={styles.divider}>✧</span>
                   <Link href="/privacy" ref={setLinkRef("/privacy")} onMouseEnter={() => setHoveredLink("/privacy")} className={pathname === "/privacy" ? styles.activeLink : ""}>Privacy Policy</Link>
-                  <Link href="/design-system" target="_blank" ref={setLinkRef("/design-system")} onMouseEnter={() => setHoveredLink("/design-system")} className={pathname === "/design-system" ? styles.activeLink : ""}>Design System</Link>
+                  <Link href="/design-system" target="_blank" prefetch={false} ref={setLinkRef("/design-system")} onMouseEnter={() => setHoveredLink("/design-system")} className={pathname === "/design-system" ? styles.activeLink : ""}>Design System</Link>
                   <span className={styles.divider}>✧</span>
                   {isAuthenticated ? (
-                    <Link href="/admin" target="_blank" ref={setLinkRef("/admin")} onMouseEnter={() => setHoveredLink("/admin")}>Admin</Link>
+                    <Link href="/admin" target="_blank" prefetch={false} ref={setLinkRef("/admin")} onMouseEnter={() => setHoveredLink("/admin")}>Admin</Link>
                   ) : (
-                    <Link href="/admin/login" target="_blank" ref={setLinkRef("/admin/login")} onMouseEnter={() => setHoveredLink("/admin/login")}>Login</Link>
+                    <Link href="/admin/login" target="_blank" prefetch={false} ref={setLinkRef("/admin/login")} onMouseEnter={() => setHoveredLink("/admin/login")}>Login</Link>
                   )}
                 </>
               )}
