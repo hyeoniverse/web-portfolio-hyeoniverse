@@ -102,10 +102,14 @@ export function DragHandle({ handle, variant = "subtle" }: { handle: SortHandle;
   );
 }
 
-export function RemoveButton({ onClick, variant = "subtle" }: { onClick: () => void; variant?: "subtle" | "difference" }) {
+export function RemoveButton({ onClick, variant = "subtle", label }: {
+  onClick: () => void; variant?: "subtle" | "difference";
+  /** 무엇을 지우는지까지 말할 때 — "엔드포인트 삭제". 없으면 "삭제" */
+  label?: string;
+}) {
   const L = useL();
   return (
-    <Button variant={variant} shape="circle" size="xs" onClick={onClick} aria-label={L("삭제", "Remove")}>
+    <Button variant={variant} shape="circle" size="xs" onClick={onClick} aria-label={label ?? L("삭제", "Remove")}>
       <X size={13} />
     </Button>
   );
