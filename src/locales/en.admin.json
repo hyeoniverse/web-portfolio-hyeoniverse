@@ -202,7 +202,12 @@
     "settings": {
       "title": "Settings",
       "save": "Save Tab",
+      "saveTooltip": "Saves every change in this tab at once.",
+      "saveTooltipOne": "Saves the 1 changed section.",
+      "saveTooltipMany": "Saves all {{n}} changed sections at once.",
+      "saveChangedLabel": "{{n}} changed",
       "saveSection": "Save Section",
+      "saveSectionTooltip": "Saves only this section. Changes in other sections stay as they are.",
       "revertSection": "Revert",
       "resetSection": "Defaults",
       "saving": "Saving...",

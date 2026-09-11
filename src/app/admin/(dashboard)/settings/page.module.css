@@ -183,6 +183,20 @@
   flex-wrap: wrap;
   gap: var(--spacing-sm) var(--spacing-md);
 }
+/* 탭 저장 단추 안의 "바뀐 곳" 수 — 단추 글자색을 옅게 깐 캡슐. 섹션 머리·사이드바 목록의 점 개수와 같다 */
+.saveCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5em;
+  height: 1.5em;
+  margin-left: var(--spacing-2xs);
+  padding: 0 var(--spacing-3xs);
+  border-radius: var(--radius-capsule);
+  background: color-mix(in srgb, currentColor 22%, transparent);
+  font-size: var(--font-size-hint);
+  font-variant-numeric: tabular-nums;
+}
 .conflictDesc {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
