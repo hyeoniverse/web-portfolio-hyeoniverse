@@ -28,6 +28,7 @@ export default function StickyGlassBar({
   className?: string;
 }) {
   const [pinned, setPinned] = useState(false);
+  const [pushed, setPushed] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
 
@@ -55,11 +56,16 @@ export default function StickyGlassBar({
   useEffect(() => {
     const update = () => {
       const s = sentinelRef.current;
-      if (!s) return;
-      const header =
-        parseInt(getComputedStyle(document.documentElement).getPropertyValue("--header-height")) || 64;
-      // sentinel(바 자연 위치)이 nav 아래 라인에 닿으면 pin
-      setPinned(s.getBoundingClientRect().top <= header + 0.5);
+      const bar = barRef.current;
+      if (!s || !bar) return;
+      /* 붙는 선은 바 자신의 sticky top 을 읽는다. 쓰는 곳에서 top 을 내려도(설정 화면에서
+         탭 바 아래에 붙이는 등) 그 선에 맞춰 frost 가 켜진다. */
+      const stickTop = parseFloat(getComputedStyle(bar).top) || 0;
+      // sentinel(바 자연 위치)이 붙는 선에 닿으면 pin
+      setPinned(s.getBoundingClientRect().top <= stickTop + 0.5);
+      /* 자기 구역이 끝나 위로 밀려나는 중. 구역마다 바를 두는 화면(About 설정)에서 생긴다.
+         사이트 nav 에는 배경이 없어 밀려난 글자·버튼이 nav 글자와 겹치므로 내용을 감춘다. */
+      setPushed(bar.getBoundingClientRect().top < stickTop - 0.5);
     };
     update();
     // scroll 은 버블 안 하므로 capture=true — 중첩 스크롤 컨테이너까지 잡음
@@ -74,7 +80,7 @@ export default function StickyGlassBar({
   return (
     <>
       <div ref={sentinelRef} className={styles.sentinel} aria-hidden />
-      <div ref={barRef} className={`${styles.bar}${pinned ? ` ${styles.pinned}` : ""}${className ? ` ${className}` : ""}`}>
+      <div ref={barRef} className={`${styles.bar}${pinned ? ` ${styles.pinned}` : ""}${pushed ? ` ${styles.pushed}` : ""}${className ? ` ${className}` : ""}`}>
         {children}
       </div>
     </>
