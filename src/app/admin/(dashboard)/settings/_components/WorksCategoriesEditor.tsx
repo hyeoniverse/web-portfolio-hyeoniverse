@@ -5,7 +5,7 @@ import { useDepsChanged } from "@/hooks/useDepsChanged";
 import type { SortDirection } from "@/types";
 import type { LocalizedText } from "@/types/common";
 import type { PostMetaInfo } from "../_types";
-import { formatAdminShortDate } from "@/utils/format";
+import { fillTemplate, formatAdminShortDate } from "@/utils/format";
 import { Plus, Check, X, Trash2, Filter, ChevronDown } from "@/components/icons";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -138,14 +138,14 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
   };
 
   const sortItems = [
-    { value: "custom" as const, label: "사용자 정의순" },
-    { value: "freq" as const, label: "빈도순" },
+    { value: "custom" as const, label: t("admin.settings.taxonomy.sortCustom") },
+    { value: "freq" as const, label: t("admin.settings.taxonomy.sortFreq") },
     {
       value: "name" as const,
-      label: "이름순",
+      label: t("admin.settings.taxonomy.sortName"),
       subItems: [
-        { value: "ko" as const, label: "한글" },
-        { value: "en" as const, label: "영어" },
+        { value: "ko" as const, label: t("admin.settings.taxonomy.langKo") },
+        { value: "en" as const, label: t("admin.settings.taxonomy.langEn") },
       ] as const,
     },
   ];
@@ -329,7 +329,7 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
     if (isEdit) {
       const conflict = findDuplicate(categories, [ko, en], (c) => [c.ko, c.en], (c) => c.en === editingEn);
       if (conflict) {
-        showToast(`"${conflict.ko}/${conflict.en}" 와 중복되는 카테고리가 있습니다`, "warning");
+        showToast(fillTemplate(t("admin.settings.categoryEditor.duplicate"), { ko: conflict.ko, en: conflict.en }), "warning");
         triggerShake();
         focusDuplicate(conflict.en);
         return;
@@ -339,7 +339,7 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
     } else {
       const dup = findDuplicate(categories, [ko, en], (c) => [c.ko, c.en]);
       if (dup) {
-        showToast(`"${dup.ko}/${dup.en}" 카테고리가 이미 있습니다`, "warning");
+        showToast(fillTemplate(t("admin.settings.categoryEditor.exists"), { ko: dup.ko, en: dup.en }), "warning");
         setAdding(false); // add 팝오버 닫고 중복 항목 편집 팝오버로 이동
         triggerShake();
         focusDuplicate(dup.en);
@@ -386,7 +386,7 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
         <T k="admin.settings.edit" />
         <div className={styles.worksCatAddActions}>
           <Button variant="outline" size="xs" tone="danger" onClick={deleteEditingCategory} icon={<Trash2 size={12} strokeWidth={2} />}>
-            삭제
+            {t("admin.common.delete")}
           </Button>
           <Button variant="outline" size="xs" onClick={cancelEdit} icon={<X size={12} strokeWidth={2.5} />}>
             <T k="admin.settings.cancel" />
@@ -398,10 +398,10 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
       </div>
       {renderFields()}
       <div className={styles.worksCatAddRow}>
-        <span className={styles.worksCatAddRowLabel}>프로젝트 ({editingWorks.length})</span>
+        <span className={styles.worksCatAddRowLabel}>{fillTemplate(t("admin.settings.worksCategoryEditor.projects"), { n: editingWorks.length })}</span>
         <List className={styles.tagRelatedPosts} data-lenis-prevent>
           {editingWorks.length === 0 ? (
-            <ListItem className={styles.tagRelatedEmpty}>이 카테고리를 사용하는 프로젝트 없음</ListItem>
+            <ListItem className={styles.tagRelatedEmpty}>{t("admin.settings.worksCategoryEditor.noProjects")}</ListItem>
           ) : (
             editingWorks.map((w) => (
               <ListItem key={w.id} layout="column">
@@ -436,7 +436,7 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
             icon={<Filter size={12} />}
             onClick={() => setFilterExpanded((e) => !e)}
           >
-            필터{activeFilterCount > 0 && ` (${activeFilterCount})`}
+            {t("admin.settings.taxonomy.filter")}{activeFilterCount > 0 && ` (${activeFilterCount})`}
             <ChevronDown
               size={12}
               style={{
@@ -485,15 +485,15 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
               typeSelector={{
                 value: searchType,
                 options: [
-                  { value: "all", label: "이름+설명" },
-                  { value: "name", label: "이름" },
-                  { value: "desc", label: "설명" },
+                  { value: "all", label: t("admin.settings.taxonomy.searchAll") },
+                  { value: "name", label: t("admin.settings.name") },
+                  { value: "desc", label: t("admin.settings.description") },
                 ],
                 onChange: (v) => setSearchType(v as "all" | "name" | "desc"),
               }}
               search={search}
               onSearchChange={setSearch}
-              placeholder="카테고리 이름·설명 검색"
+              placeholder={t("admin.settings.categoryEditor.searchPlaceholder")}
               align="left"
               size="sm"
             />
@@ -513,30 +513,30 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
             >
               <div className={styles.tagDescFilterDrawer}>
                 <div className={styles.tagDescFilterGroup}>
-                  <span className={styles.tagDescFilterGroupLabel}>사용</span>
+                  <span className={styles.tagDescFilterGroupLabel}>{t("admin.settings.taxonomy.usage")}</span>
                   <Button
                     variant={usageFilter === "in-use" ? "primary" : "outline"}
                     size="md"
                     onClick={() => setUsageFilter((u) => u === "in-use" ? "all" : "in-use")}
-                  >사용중</Button>
+                  >{t("admin.settings.taxonomy.inUse")}</Button>
                   <Button
                     variant={usageFilter === "unused" ? "primary" : "outline"}
                     size="md"
                     onClick={() => setUsageFilter((u) => u === "unused" ? "all" : "unused")}
-                  >미사용</Button>
+                  >{t("admin.settings.taxonomy.unused")}</Button>
                 </div>
                 <div className={styles.tagDescFilterGroup}>
-                  <span className={styles.tagDescFilterGroupLabel}>설명</span>
+                  <span className={styles.tagDescFilterGroupLabel}>{t("admin.settings.description")}</span>
                   <Button
                     variant={descFilter === "with" ? "primary" : "outline"}
                     size="md"
                     onClick={() => setDescFilter((d) => d === "with" ? "all" : "with")}
-                  >설명 있음</Button>
+                  >{t("admin.settings.taxonomy.hasDesc")}</Button>
                   <Button
                     variant={descFilter === "without" ? "primary" : "outline"}
                     size="md"
                     onClick={() => setDescFilter((d) => d === "without" ? "all" : "without")}
-                  >설명 없음</Button>
+                  >{t("admin.settings.taxonomy.noDesc")}</Button>
                 </div>
               </div>
             </motion.div>
@@ -568,7 +568,7 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
 
       {pageItems.length === 0 ? (
         <div className={styles.tagDescEmpty}>
-          {search ? "검색 결과 없음" : "카테고리 없음"}
+          {search ? t("admin.settings.taxonomy.noResults") : t("admin.settings.categoryEditor.empty")}
         </div>
       ) : (
         <TagNotesEditor
