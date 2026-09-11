@@ -75,4 +75,31 @@ test.describe("작업물 편집 화면", () => {
     await expect(page.getByPlaceholder("또는 이미지 URL 붙여넣기"), "이미지 URL 입력칸").toBeVisible();
     expect(await page.locator('input[type="file"]').count(), "파일 선택 입력칸").toBeGreaterThan(0);
   });
+  test("기존 작업물 편집 화면을 열기만 해서는 자동저장 리비전을 보내지 않는다", async ({ page }) => {
+    // 본문 편집기가 불러온 HTML 을 다듬어 올리는 변경을 편집으로 여겨, 열기만 해도 3초 뒤 리비전을 보냈다(#837).
+    // 실제 데이터베이스라 저장 요청은 여기서 막고, 보내려 했는지만 센다.
+    const attempts: string[] = [];
+    await page.route("**/api/revisions**", (route) => {
+      if (route.request().method() === "GET") return route.continue();
+      attempts.push(route.request().method());
+      return route.abort();
+    });
+    const res = await page.request.get("/api/works?limit=1");
+    const body = await res.json();
+    const id = (body.works ?? body.data ?? body)[0]?.id as string;
+    expect(id, "작업물 하나").toBeTruthy();
+    await page.goto(`/admin/works/${id}/edit`, { waitUntil: "load" });
+    await expect(page.getByRole("heading", { name: "기본 정보" }), "편집 화면").toBeVisible({ timeout: 30_000 });
+    // 자동저장은 변경 뒤 3초에 보낸다 — 편집기가 뜨고 다듬는 시간까지 넉넉히 기다린다
+    await page.waitForTimeout(7_000);
+    expect(attempts, "열기만 했을 때 리비전 저장 요청").toEqual([]);
+
+    // 실제로 고치면 예전처럼 자동저장한다(요청은 막혀서 저장되지는 않는다)
+    const title = page.getByPlaceholder("작업 제목");
+    await title.click();
+    await page.keyboard.press("End");
+    // 자동저장은 10자 이상 바뀌어야 보낸다
+    await page.keyboard.type(" autosave check text");
+    await expect.poll(() => attempts.length, { message: "고친 뒤 리비전 저장 요청", timeout: 10_000 }).toBeGreaterThan(0);
+  });
 });
