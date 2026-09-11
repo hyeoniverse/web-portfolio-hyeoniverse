@@ -86,6 +86,33 @@ test.describe("About 설정 화면", () => {
     await expect(dots, "다른 번호로 가면 초안은 사라진다").toHaveCount(before);
   });
 
+  test("카드 목록: 손잡이를 키보드로 옮기면 순서가 바뀌고, 들어가면 도구가 보인다", async ({ page }) => {
+    await openAbout(page);
+    const security = page.locator('[data-section-label="Security"]');
+    const titles = () => security.getByRole("textbox", { name: /^(제목|Title)$/ }).evaluateAll((els) => els.map((e) => (e as HTMLInputElement).value));
+    const before = await titles();
+    const handle = security.getByRole("button", { name: /^(끌어서 순서 변경|Drag to reorder)$/ }).first();
+    await handle.focus();
+    // 키보드로 들어가면 도구 묶음이 보인다(마우스를 올리지 않아도)
+    const opacity = await handle.evaluate((el) => getComputedStyle(el.parentElement!).opacity);
+    expect(opacity, "키보드 포커스로 도구가 보인다").toBe("1");
+    // 스페이스로 집고 오른쪽 칸으로 옮겨 놓는다. 저장 단추는 누르지 않는다.
+    // dnd-kit 키보드 센서는 집은 직후 잠깐 방향키를 받지 않는다(칸 위치를 재는 중). 잡은 칸이 실제로
+    // 오른쪽으로 옮겨졌는지 보고, 아직이면 방향키를 다시 누른다. 놓을 자리는 그다음 렌더에서 정해지므로
+    // 옆 칸이 왼쪽으로 비켜서는 것까지 본 뒤에 놓는다 — 먼저 놓으면 제자리에 놓인다.
+    await page.keyboard.press("Space");
+    await expect(handle, "스페이스로 집는다").toHaveAttribute("aria-pressed", "true");
+    const items = security.locator('[class*="editSecItem"]');
+    const shiftX = (i: number) => items.nth(i).evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).m41);
+    await expect(async () => {
+      if ((await shiftX(0)) === 0) await page.keyboard.press("ArrowRight");
+      expect(await shiftX(0), "잡은 칸이 오른쪽으로 옮겨진다").toBeGreaterThan(0);
+    }).toPass({ timeout: 5_000 });
+    await expect.poll(() => shiftX(1), { message: "옆 칸이 비켜선다" }).toBeLessThan(0);
+    await page.keyboard.press("Space");
+    await expect.poll(titles, { message: "1번과 2번이 자리를 바꾼다" }).toEqual([before[1], before[0], ...before.slice(2)]);
+  });
+
   test("입력칸이 실제로 그려진다", async ({ page }) => {
     await openAbout(page);
     const count = await page.locator("input, textarea").count();
