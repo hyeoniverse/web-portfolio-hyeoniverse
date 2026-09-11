@@ -8,6 +8,7 @@ import { ChevronRight, X } from "@/components/icons";
 import { usePortalContainer } from "./portalContainer";
 import styles from "./Select.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 interface SelectOption {
   value: string;
@@ -110,6 +111,7 @@ export default function Select({
   width,
   preserveFocus = false,
 }: SelectProps) {
+  const clearLabel = useLanguage().t("common.clear");
   const bubble = variant === "bubble";
   // 오버레이(모달) 안이면 그 stacking context 로 portal → 전역 z override 없이 모달 위에 뜬다.
   const portalContainer = usePortalContainer();
@@ -464,7 +466,7 @@ export default function Select({
               type="button"
               className={styles.comboClear}
               tabIndex={-1}
-              aria-label="지우기"
+              aria-label={clearLabel}
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => { onInputChange?.(""); inputRef.current?.focus(); setOpen(true); }}
             >

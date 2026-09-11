@@ -279,7 +279,7 @@ function TechPresetGrid({ query, onPick, isAdded, t }: {
   t?: (key: string) => string;
 }) {
   const list = useMemo(() => TECH_ICON_PRESETS.filter((p) => matchTech(p, query)), [query]);
-  if (list.length === 0) return <EmptyState size="xs" pad="sm">검색 결과 없음</EmptyState>;
+  if (list.length === 0) return <EmptyState size="xs" pad="sm">{t ? t("editor.noResults") : "검색 결과 없음"}</EmptyState>;
   return (
     <div className={styles.techPresetScroll}>
       <div className={styles.techPresetList}>
@@ -369,7 +369,7 @@ function TechIconEditor({ icon, onIconChange, t, showSearch = true }: {
       {showSearch && (
         <>
           <Input value={q} onChange={setQ} placeholder={t("admin.settings.aboutTechStackSearch")} size="sm" clearable />
-          {q.trim() && <TechPresetGrid query={q} onPick={(p) => { onIconChange(p.slug); setQ(""); }} />}
+          {q.trim() && <TechPresetGrid query={q} onPick={(p) => { onIconChange(p.slug); setQ(""); }} t={t} />}
         </>
       )}
     </>

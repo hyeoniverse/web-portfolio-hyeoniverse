@@ -12,6 +12,7 @@ import Pressable from "@/components/ui/Pressable";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import { type TFunction } from "@/providers/LanguageProvider";
 import { type Language } from "@/types";
+import { useL } from "../primitives";
 export type ArchitectureItem = { path: string; description_ko: string; description_en: string; indent: number };
 
 /* ═══════════ Architecture (비주얼 트리) ═══════════ */
@@ -19,6 +20,7 @@ export function ArchitectureBlock({ value, onChange, diagram, onDiagramChange, t
   value: ArchitectureItem[]; onChange: (v: ArchitectureItem[]) => void;
   diagram: ArchDiagramData; onDiagramChange: (v: ArchDiagramData) => void; t: TFunction; lang: Language;
 }) {
+  const L = useL();
   const [sel, setSel] = useState<number | null>(null);
   const treeRef = useRef<HTMLDivElement>(null);
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
@@ -81,15 +83,15 @@ export function ArchitectureBlock({ value, onChange, diagram, onDiagramChange, t
       <div key={index} className={sub.nodeWrap}>
         <div className={`${sub.node} ${isSel ? sub.nodeSel : ""}`}>
           {hasChildren
-            ? <Pressable className={sub.nodeToggle} onClick={() => toggleCollapse(fullPath)} aria-label={isCollapsed ? "펼치기" : "접기"} aria-expanded={!isCollapsed}><ChevronRight size={13} className={isCollapsed ? undefined : sub.nodeToggleOpen} /></Pressable>
+            ? <Pressable className={sub.nodeToggle} onClick={() => toggleCollapse(fullPath)} aria-label={isCollapsed ? L("펼치기", "Expand") : L("접기", "Collapse")} aria-expanded={!isCollapsed}><ChevronRight size={13} className={isCollapsed ? undefined : sub.nodeToggleOpen} /></Pressable>
             : <span className={sub.nodeToggleSpacer} aria-hidden />}
           <Pressable className={sub.nodeLabel} onClick={() => selectNode(isSel ? null : index)}>
             <span className={sub.nodeIcon} data-folder={isFolder} data-empty={!item.path}><Icon size={15} /></span>
-            {item.path ? <span className={sub.nodePath}>{item.path}</span> : <span className={sub.nodeEmpty}>이름 없음</span>}
+            {item.path ? <span className={sub.nodePath}>{item.path}</span> : <span className={sub.nodeEmpty}>{L("이름 없음", "Untitled")}</span>}
             {(lang === "ko" ? item.description_ko : item.description_en) && <span className={sub.nodeDesc}>{lang === "ko" ? item.description_ko : item.description_en}</span>}
             {hasChildren && isCollapsed && <span className={sub.nodeCount}>{children.length}</span>}
           </Pressable>
-          {item.indent < 2 && <Button className={sub.nodeAdd} shape="circle" size="xs" variant="ghost" icon={<Plus size={13} />} onClick={() => addChild(index)} aria-label="하위 추가" />}
+          {item.indent < 2 && <Button className={sub.nodeAdd} shape="circle" size="xs" variant="ghost" icon={<Plus size={13} />} onClick={() => addChild(index)} aria-label={L("하위 추가", "Add child")} />}
         </div>
         {hasChildren && !isCollapsed && <div className={sub.children}>{children.map(render)}</div>}
       </div>
@@ -106,33 +108,33 @@ export function ArchitectureBlock({ value, onChange, diagram, onDiagramChange, t
       }}>
       <div className={sub.editPaneHead}>
         <FolderOpen size={14} className={sub.editPaneIcon} />
-        <span className={sub.editPaneTitle}>{item.path || "이름 없음"}</span>
+        <span className={sub.editPaneTitle}>{item.path || L("이름 없음", "Untitled")}</span>
       </div>
-      <Input size="sm" label="경로" required clearable={false} className={sub.pathInput} autoFocus={isEmptyItem(item)}
+      <Input size="sm" label={L("경로", "Path")} required clearable={false} className={sub.pathInput} autoFocus={isEmptyItem(item)}
         value={item.path} onChange={(v) => setItem(index, { path: v })} placeholder="src/app/" />
-      <Input size="sm" label={lang === "ko" ? "설명" : "Description"} clearable={false}
+      <Input size="sm" label={L("설명", "Description")} clearable={false}
         value={lang === "ko" ? item.description_ko : item.description_en}
         onChange={(v) => setItem(index, lang === "ko" ? { description_ko: v } : { description_en: v })}
         placeholder={lang === "ko" ? "소스 코드 루트" : "Source code root"} />
       <div className={sub.nodeEditBar}>
         <div className={sub.nodeMoveGroup}>
-          <Button variant="subtle" size="xs" shape="circle" icon={<ChevronUp size={14} />} onClick={() => move(index, -1)} aria-label="위로" />
-          <Button variant="subtle" size="xs" shape="circle" icon={<ChevronDown size={14} />} onClick={() => move(index, 1)} aria-label="아래로" />
-          <Button variant="subtle" size="xs" shape="circle" icon={<ChevronLeft size={14} />} onClick={() => shift(index, -1)} disabled={item.indent === 0} aria-label="상위 레벨로" />
-          <Button variant="subtle" size="xs" shape="circle" icon={<ChevronRight size={14} />} onClick={() => shift(index, 1)} disabled={item.indent >= 2} aria-label="하위 레벨로" />
+          <Button variant="subtle" size="xs" shape="circle" icon={<ChevronUp size={14} />} onClick={() => move(index, -1)} aria-label={L("위로", "Move up")} />
+          <Button variant="subtle" size="xs" shape="circle" icon={<ChevronDown size={14} />} onClick={() => move(index, 1)} aria-label={L("아래로", "Move down")} />
+          <Button variant="subtle" size="xs" shape="circle" icon={<ChevronLeft size={14} />} onClick={() => shift(index, -1)} disabled={item.indent === 0} aria-label={L("상위 레벨로", "Outdent")} />
+          <Button variant="subtle" size="xs" shape="circle" icon={<ChevronRight size={14} />} onClick={() => shift(index, 1)} disabled={item.indent >= 2} aria-label={L("하위 레벨로", "Indent")} />
         </div>
         <div className={sub.nodeAddGroup}>
-          <Button variant="subtle" size="xs" icon={<Plus size={12} />} onClick={() => addChild(index)} disabled={item.indent >= 2}>하위</Button>
-          <Button variant="subtle" size="xs" icon={<Plus size={12} />} onClick={() => addSibling(index)}>형제</Button>
+          <Button variant="subtle" size="xs" icon={<Plus size={12} />} onClick={() => addChild(index)} disabled={item.indent >= 2}>{L("하위", "Child")}</Button>
+          <Button variant="subtle" size="xs" icon={<Plus size={12} />} onClick={() => addSibling(index)}>{L("형제", "Sibling")}</Button>
         </div>
-        <Button className={sub.nodeDeleteBtn} variant="outline" size="xs" tone="danger" icon={<Trash2 size={12} />} onClick={() => remove(index)}>삭제</Button>
+        <Button className={sub.nodeDeleteBtn} variant="outline" size="xs" tone="danger" icon={<Trash2 size={12} />} onClick={() => remove(index)}>{L("삭제", "Delete")}</Button>
       </div>
     </div>
   );
   return (
     <section className={css.block}>
       <SegmentedControl<"tree" | "diagram"> size="sm" value={archTab} onChange={setArchTab} className={css.segFit}
-        items={[{ value: "tree", label: "디렉토리 트리" }, { value: "diagram", label: "다이어그램" }]} />
+        items={[{ value: "tree", label: L("디렉토리 트리", "Directory tree") }, { value: "diagram", label: L("다이어그램", "Diagram") }]} />
       {archTab === "tree" ? (
         <div className={`${sub.treeLayout} ${sel != null && value[sel] ? sub.treeLayoutOpen : ""}`}>
           <div className={sub.tree} ref={treeRef}>

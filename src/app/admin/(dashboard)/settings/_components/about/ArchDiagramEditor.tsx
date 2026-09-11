@@ -12,6 +12,7 @@ import {
 } from "@/app/about/_components/panels/archDiagramData";
 import css from "./ArchDiagramEditor.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { useL } from "./studio/primitives";
 
 const ICON_OPTIONS = Object.keys(ARCH_ICONS).map((k) => ({ value: k, label: k }));
 
@@ -20,6 +21,7 @@ export default function ArchDiagramEditor({ value, onChange }: {
   value: ArchDiagramData;
   onChange: (v: ArchDiagramData) => void;
 }) {
+  const L = useL();
   const baseNodes = value.nodes.length ? value.nodes : DEFAULT_ARCH_NODES;
   const edges = value.edges.length ? value.edges : DEFAULT_ARCH_EDGES;
   const [local, setLocal] = useState<ArchNode[] | null>(null);
@@ -31,7 +33,7 @@ export default function ArchDiagramEditor({ value, onChange }: {
   const svgRef = useRef<SVGSVGElement>(null);
   const drag = useRef<{ id: string; offX: number; offY: number; moved: boolean } | null>(null);
 
-  const groupOptions = [{ value: "", label: "그룹 없음" }, ...Object.keys(ARCH_GROUP_COLORS).map((k) => ({ value: k, label: ARCH_GROUP_LABELS[k] ?? k }))];
+  const groupOptions = [{ value: "", label: L("그룹 없음", "No group") }, ...Object.keys(ARCH_GROUP_COLORS).map((k) => ({ value: k, label: ARCH_GROUP_LABELS[k] ?? k }))];
 
   const commit = (n: ArchNode[], e: ArchEdge[]) => onChange({ nodes: n, edges: e });
   const setNodeField = (id: string, patch: Partial<ArchNode>) => commit(nodes.map((n) => (n.id === id ? { ...n, ...patch } : n)), edges);
@@ -99,8 +101,8 @@ export default function ArchDiagramEditor({ value, onChange }: {
   return (
     <div className={css.editor}>
       <div className={css.toolbar}>
-        <Pressable noTapScale className={css.add} onClick={addNode}><Plus size={14} /> 노드 추가</Pressable>
-        <p className={css.hint}>노드를 드래그해 배치, 클릭해 편집. 엣지는 선을 클릭해 선택.</p>
+        <Pressable noTapScale className={css.add} onClick={addNode}><Plus size={14} /> {L("노드 추가", "Add node")}</Pressable>
+        <p className={css.hint}>{L("노드를 드래그해 배치, 클릭해 편집. 엣지는 선을 클릭해 선택.", "Drag nodes to place them and click one to edit. Click a line to select an edge.")}</p>
       </div>
 
       <div className={css.canvasWrap}>
@@ -152,23 +154,23 @@ export default function ArchDiagramEditor({ value, onChange }: {
       {sel && (
         <div className={css.panel}>
           <div className={css.panelHead}>
-            <span className={css.panelTitle}>노드 · {sel.id}</span>
-            <Button variant="outline" size="2xs" onClick={() => setSelNode(null)} aria-label="close"><X size={13} /></Button>
+            <span className={css.panelTitle}>{L("노드", "Node")} · {sel.id}</span>
+            <Button variant="outline" size="2xs" onClick={() => setSelNode(null)} aria-label={L("닫기", "Close")}><X size={13} /></Button>
           </div>
           <div className={css.row}>
-            <div className={css.field}><span className={css.fieldLabel}>라벨</span>
+            <div className={css.field}><span className={css.fieldLabel}>{L("라벨", "Label")}</span>
               <Input value={sel.label} onChange={(v) => setNodeField(sel.id, { label: v })} /></div>
-            <div className={css.field}><span className={css.fieldLabel}>아이콘</span>
+            <div className={css.field}><span className={css.fieldLabel}>{L("아이콘", "Icon")}</span>
               <Select value={sel.icon} onChange={(v) => setNodeField(sel.id, { icon: v })} options={ICON_OPTIONS} /></div>
           </div>
-          <div className={css.field}><span className={css.fieldLabel}>그룹</span>
+          <div className={css.field}><span className={css.fieldLabel}>{L("그룹", "Group")}</span>
             <Select value={sel.group ?? ""} onChange={(v) => setNodeField(sel.id, { group: v || undefined })} options={groupOptions} /></div>
           <div className={css.panelActions}>
             <Pressable noTapScale className={`${css.add} ${connectFrom === sel.id ? css.connectOn : ""}`}
               onClick={() => setConnectFrom(connectFrom === sel.id ? null : sel.id)}>
-              <Link2 size={13} /> {connectFrom === sel.id ? "연결할 노드 클릭…" : "엣지 연결"}
+              <Link2 size={13} /> {connectFrom === sel.id ? L("연결할 노드 클릭…", "Click a node to connect…") : L("엣지 연결", "Connect edge")}
             </Pressable>
-            <Button variant="outline" size="sm" tone="danger" onClick={() => deleteNode(sel.id)} icon={<Trash2 size={13} />}>노드 삭제</Button>
+            <Button variant="outline" size="sm" tone="danger" onClick={() => deleteNode(sel.id)} icon={<Trash2 size={13} />}>{L("노드 삭제", "Delete node")}</Button>
           </div>
         </div>
       )}
@@ -176,14 +178,14 @@ export default function ArchDiagramEditor({ value, onChange }: {
       {selEdge != null && edges[selEdge] && (
         <div className={css.panel}>
           <div className={css.panelHead}>
-            <span className={css.panelTitle}>엣지 · {edges[selEdge].from} → {edges[selEdge].to}</span>
-            <Button variant="outline" size="2xs" onClick={() => setSelEdge(null)} aria-label="close"><X size={13} /></Button>
+            <span className={css.panelTitle}>{L("엣지", "Edge")} · {edges[selEdge].from} → {edges[selEdge].to}</span>
+            <Button variant="outline" size="2xs" onClick={() => setSelEdge(null)} aria-label={L("닫기", "Close")}><X size={13} /></Button>
           </div>
           <div className={css.panelActions}>
             <Button variant="outline" size="sm" active={!!edges[selEdge].dashed}
-              onClick={() => commit(nodes, edges.map((e, x) => (x === selEdge ? { ...e, dashed: !e.dashed } : e)))}>점선</Button>
+              onClick={() => commit(nodes, edges.map((e, x) => (x === selEdge ? { ...e, dashed: !e.dashed } : e)))}>{L("점선", "Dashed")}</Button>
             <Button variant="outline" size="sm" tone="danger" icon={<Trash2 size={13} />}
-              onClick={() => { commit(nodes, edges.filter((_, x) => x !== selEdge)); setSelEdge(null); }}>엣지 삭제</Button>
+              onClick={() => { commit(nodes, edges.filter((_, x) => x !== selEdge)); setSelEdge(null); }}>{L("엣지 삭제", "Delete edge")}</Button>
           </div>
         </div>
       )}

@@ -122,6 +122,7 @@ export default function HighlightInput({
   const ref = useRef<HTMLDivElement>(null);
   const isComposingRef = useRef(false);
   const { language } = useLanguage();
+  const clearLabel = useLanguage().t("common.clear");
   /* built-in toast throttle — 연속 입력/paste 도배 방지 (ref 타임스탬프) */
   const lastToastRef = useRef(0);
 
@@ -259,8 +260,8 @@ export default function HighlightInput({
             data-cursor="big"
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => onChange("")}
-            aria-label="clear"
-            title="지우기"
+            aria-label={clearLabel}
+            title={clearLabel}
           >
             <Eraser size={11} strokeWidth={2} />
           </Pressable>

@@ -2,7 +2,7 @@
 
 import { type CSSProperties } from "react";
 import css from "../../AboutStudio.module.css";
-import { EditableText, PanelStage, sec } from "../primitives";
+import { EditableText, PanelStage, sec, useL } from "../primitives";
 import proc from "@/app/about/_components/panels/ProcessPanel.module.css";
 import { GripVertical, Plus, X } from "@/components/icons";
 import Button from "@/components/ui/Button";
@@ -26,6 +26,7 @@ const renumberSteps = (list: ProcessItem[]) => list.map((it, i) => ({ ...it, ste
 export function ProcessBlock({ value, onChange, lang, t, title }: {
   value: ProcessItem[]; onChange: (v: ProcessItem[]) => void; lang: Language; t: TFunction; title: string;
 }) {
+  const L = useL();
   const set = (i: number, p: Partial<ProcessItem>) => onChange(value.map((it, x) => (x === i ? { ...it, ...p } : it)));
   const MAX = 8;
   const atMax = value.length >= MAX;
@@ -47,7 +48,7 @@ export function ProcessBlock({ value, onChange, lang, t, title }: {
   return (
     <PanelStage>
       <h3 className={sec.panelTitle}>{title}</h3>
-      <p className={css.procHint}>{lang === "ko" ? "** 로 감싼 텍스트는 강조 색으로 표시됩니다." : "Text wrapped in ** appears as an accent highlight."}</p>
+      <p className={css.procHint}>{L("** 로 감싼 텍스트는 강조 색으로 표시됩니다.", "Text wrapped in ** appears as an accent highlight.")}</p>
       {/* 타임라인 (실제 렌더 그대로) */}
       <div className={proc.processTimeline}>
         <div className={`${proc.processTimelineTrack} ${css.procTrack}`}><div className={proc.processTimelineProgress} style={{ width: "100%" }} /></div>
@@ -72,7 +73,7 @@ export function ProcessBlock({ value, onChange, lang, t, title }: {
         </DndContext>
         {!atMax && (
           <Pressable className={css.addStepBtn} onClick={() => onChange(renumberSteps([...value, { step: "", title_ko: "새 단계", title_en: "New", description_ko: "", description_en: "" }]))}>
-            <Plus size={18} /> {lang === "ko" ? "단계 추가" : "Add step"}
+            <Plus size={18} /> {L("단계 추가", "Add step")}
           </Pressable>
         )}
       </div>
@@ -86,6 +87,7 @@ function ProcessRow({ id, index, item, lang, t, set, onRemove }: {
   id: string; index: number; item: ProcessItem; lang: Language; t: TFunction;
   set: (i: number, p: Partial<ProcessItem>) => void; onRemove: () => void;
 }) {
+  const L = useL();
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
   const style: CSSProperties = {
     transform: DndCSS.Transform.toString(transform),
@@ -95,19 +97,19 @@ function ProcessRow({ id, index, item, lang, t, set, onRemove }: {
   return (
     <div ref={setNodeRef} style={style} className={`${css.procRow} ${isDragging ? css.procRowDragging : ""}`}>
       <span className={css.procNum} data-cursor="grab"
-        title={lang === "ko" ? "끌어서 순서 변경" : "Drag to reorder"}
-        aria-label={lang === "ko" ? "끌어서 순서 변경" : "Drag to reorder"}
+        title={L("끌어서 순서 변경", "Drag to reorder")}
+        aria-label={L("끌어서 순서 변경", "Drag to reorder")}
         {...attributes} {...listeners}>
         <GripVertical className={css.procGrip} size={16} strokeWidth={1.8} aria-hidden />
         {stepNo(index)}
       </span>
       <div className={css.procBody}>
         <EditableText wrap className={css.procTitle} value={lang === "ko" ? item.title_ko : item.title_en}
-          onChange={(v) => set(index, lang === "ko" ? { title_ko: v } : { title_en: v })} placeholder={t("admin.settings.aboutItemTitle")} ariaLabel="title" style={{ maxWidth: "100%" }} />
+          onChange={(v) => set(index, lang === "ko" ? { title_ko: v } : { title_en: v })} placeholder={t("admin.settings.aboutItemTitle")} ariaLabel={L("제목", "Title")} style={{ maxWidth: "100%" }} />
         <EditableText multiline className={css.procDesc} value={lang === "ko" ? item.description_ko : item.description_en}
-          onChange={(v) => set(index, lang === "ko" ? { description_ko: v } : { description_en: v })} placeholder={t("admin.settings.aboutItemDesc")} ariaLabel="description" style={{ width: "100%" }} />
+          onChange={(v) => set(index, lang === "ko" ? { description_ko: v } : { description_en: v })} placeholder={t("admin.settings.aboutItemDesc")} ariaLabel={L("설명", "Description")} style={{ width: "100%" }} />
       </div>
-      <span className={css.editStatX}><Button variant="subtle" shape="circle" size="xs" onClick={onRemove} aria-label="remove"><X size={13} /></Button></span>
+      <span className={css.editStatX}><Button variant="subtle" shape="circle" size="xs" onClick={onRemove} aria-label={L("삭제", "Remove")}><X size={13} /></Button></span>
     </div>
   );
 }

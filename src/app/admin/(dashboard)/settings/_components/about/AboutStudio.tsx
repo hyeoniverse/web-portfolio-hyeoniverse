@@ -36,7 +36,7 @@ import NumberInput from "@/components/ui/NumberInput";
 import { Slider } from "@/components/ui/Slider";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import FloatingBar from "@/components/posts/plate/toolbars/FloatingBar";
-import { sec, mediaUrlOf, isVideoUrl, DESIGN_W, DESIGN_H, EditableText, type ThemeBg } from "./studio/primitives";
+import { sec, mediaUrlOf, isVideoUrl, DESIGN_W, DESIGN_H, EditableText, type ThemeBg, useL } from "./studio/primitives";
 import { PanelGroup, PanelManager } from "./studio/panels";
 import { AboutFontPicker, SwatchField, BgMedia } from "./studio/fields";
 import { OverviewBlock } from "./studio/blocks/OverviewBlock";
@@ -67,6 +67,7 @@ type AboutStudioProps = {
 };
 /* ═══════════ 메인 ═══════════ */
 export default function AboutStudio({ config, setConfig, update, savedConfig, saveSection, revertSection, resetSection, savingPaths, t, themeBg, techStackSlot }: AboutStudioProps) {
+  const L = useL();
   const about = config.about;
   const rec = about as unknown as Record<string, string | undefined>;
   const [lang, setLang] = useState<Language>("ko");
@@ -148,7 +149,7 @@ export default function AboutStudio({ config, setConfig, update, savedConfig, sa
       default: return [];
     }
   };
-  const saveHdr = { config, savedConfig, saveSection, revertSection, resetSection, savingPaths, setAny, lang, t };
+  const saveHdr = { config, savedConfig, saveSection, revertSection, resetSection, savingPaths, setAny, t };
 
   /* Hero 텍스트 (언어별) */
   type HeroBase = "heroLine1" | "heroLine2" | "heroWatermark" | "heroLabel" | "heroSubtitle";
@@ -179,11 +180,11 @@ export default function AboutStudio({ config, setConfig, update, savedConfig, sa
     textAlign: alignH,
   };
   const HERO_ELEMENTS: { key: string; label: string }[] = [
-    { key: "label", label: lang === "ko" ? "라벨" : "Label" },
-    { key: "line1", label: lang === "ko" ? "제목 1행" : "Title line 1" },
-    { key: "line2", label: lang === "ko" ? "제목 2행" : "Title line 2" },
-    { key: "subtitle", label: lang === "ko" ? "서브타이틀" : "Subtitle" },
-    { key: "watermark", label: lang === "ko" ? "워터마크" : "Watermark" },
+    { key: "label", label: L("라벨", "Label") },
+    { key: "line1", label: L("제목 1행", "Title line 1") },
+    { key: "line2", label: L("제목 2행", "Title line 2") },
+    { key: "subtitle", label: L("서브타이틀", "Subtitle") },
+    { key: "watermark", label: L("워터마크", "Watermark") },
   ];
   const toggleHeroHidden = (k: string) => {
     const s = new Set(heroHidden);
@@ -224,9 +225,9 @@ export default function AboutStudio({ config, setConfig, update, savedConfig, sa
       const av = rec.heroAccentColor || "";
       return (
         <>
-          <span className={css.ttLabel}>밑줄</span>
+          <span className={css.ttLabel}>{L("밑줄", "Underline")}</span>
           <ColorPicker value={av || themeBg.accent} onChange={(c) => setAny("heroAccentColor", c.hex)}>
-            {({ toggle }) => <Pressable className={css.ttSwatch} style={{ background: av || themeBg.accent }} onClick={toggle} aria-label="색상" />}
+            {({ toggle }) => <Pressable className={css.ttSwatch} style={{ background: av || themeBg.accent }} onClick={toggle} aria-label={L("색상", "Color")} />}
           </ColorPicker>
         </>
       );
@@ -241,9 +242,9 @@ export default function AboutStudio({ config, setConfig, update, savedConfig, sa
       <>
         <span className={css.ttLabel}>{label}</span>
         <ColorPicker value={colorVal || fb} onChange={(c) => setAny(`${k}Color`, c.hex)}>
-          {({ toggle }) => <Pressable className={css.ttSwatch} style={{ background: colorVal || fb }} onClick={toggle} aria-label="색상" />}
+          {({ toggle }) => <Pressable className={css.ttSwatch} style={{ background: colorVal || fb }} onClick={toggle} aria-label={L("색상", "Color")} />}
         </ColorPicker>
-        <NumberInput value={px} unit="px" width={46} ariaLabel="글자 크기"
+        <NumberInput value={px} unit="px" width={46} ariaLabel={L("글자 크기", "Font size")}
           min={Math.round(cfg.min * 16)} max={Math.round(cfg.max * 16)} step={Math.max(1, Math.round(cfg.step * 16))}
           onCommit={(n) => setAny(`${k}FontSize`, `${Math.round((n / 16) * 1000) / 1000}rem`)} />
         <Select value={rec[`${k}FontWeight`] || "400"} onChange={(v) => setAny(`${k}FontWeight`, v)} options={WEIGHTS} />
@@ -275,7 +276,7 @@ export default function AboutStudio({ config, setConfig, update, savedConfig, sa
 
       {/* ── 패널 관리 (순서 DnD + 표시) ── 어느 패널을 어떤 순서로 낼지 먼저 정하고
            개별 내용으로 들어가는 흐름이라 맨 위에 둔다. ── */}
-      <PanelGroup label={lang === "ko" ? "패널 순서·표시" : "Panel order & visibility"} paths={savePathsFor("panels")} panelKey="panels" {...saveHdr}>
+      <PanelGroup label={L("패널 순서·표시", "Panel order & visibility")} paths={savePathsFor("panels")} panelKey="panels" {...saveHdr}>
         <PanelManager about={about} setAny={setAny} t={t} lang={lang} />
       </PanelGroup>
 
@@ -296,28 +297,28 @@ export default function AboutStudio({ config, setConfig, update, savedConfig, sa
             <div className={hero.heroContent} style={heroContentStyle}>
               {/* 워터마크 — 콘텐츠보다 먼저 그려 겹침 영역은 텍스트가 클릭 우선, 빈 영역에선 편집 가능 */}
               {!heroHidden.has("watermark") && (
-                <span className={hero.heroWatermark} style={{ pointerEvents: "auto", opacity: 0.09, userSelect: "auto" }} title="워터마크">
+                <span className={hero.heroWatermark} style={{ pointerEvents: "auto", opacity: 0.09, userSelect: "auto" }} title={L("워터마크", "Watermark")}>
                   <EditableText value={heroText("heroWatermark")} onChange={(v) => setHeroText("heroWatermark", v)}
-                    placeholder="watermark" ariaLabel="watermark" onFocus={(e) => openBar("heroWatermark", e)} />
+                    placeholder="watermark" ariaLabel={L("워터마크", "Watermark")} onFocus={(e) => openBar("heroWatermark", e)} />
                 </span>
               )}
               {!heroHidden.has("label") && (
                 <span className={hero.label} style={{ pointerEvents: "auto" }}>
                   <EditableText value={heroText("heroLabel") || t("aboutPage.title")} onChange={(v) => setHeroText("heroLabel", v)}
-                    placeholder={t("aboutPage.title")} ariaLabel="label" />
+                    placeholder={t("aboutPage.title")} ariaLabel={L("라벨", "Label")} />
                 </span>
               )}
               <h2 className={kin.title}>
                 {!heroHidden.has("line1") && (
                   <span className={kin.line}>
                     <EditableText value={heroText("heroLine1")} onChange={(v) => setHeroText("heroLine1", v)}
-                      placeholder={lang === "ko" ? "1번째 줄" : "Line 1"} ariaLabel="line1" onFocus={(e) => openBar("heroLine1", e)} />
+                      placeholder={L("1번째 줄", "Line 1")} ariaLabel={L("1번째 줄", "Line 1")} onFocus={(e) => openBar("heroLine1", e)} />
                   </span>
                 )}
                 {!heroHidden.has("line2") && (
                   <span className={kin.line}>
                     <EditableText value={heroText("heroLine2")} onChange={(v) => setHeroText("heroLine2", v)}
-                      placeholder={lang === "ko" ? "2번째 줄" : "Line 2"} ariaLabel="line2" onFocus={(e) => openBar("heroLine2", e)} />
+                      placeholder={L("2번째 줄", "Line 2")} ariaLabel={L("2번째 줄", "Line 2")} onFocus={(e) => openBar("heroLine2", e)} />
                   </span>
                 )}
               </h2>
@@ -325,10 +326,10 @@ export default function AboutStudio({ config, setConfig, update, savedConfig, sa
                 <p className={hero.heroSubtitle}>
                   <EditableText multiline value={heroText("heroSubtitle") || t("aboutPage.description")}
                     onChange={(v) => setHeroText("heroSubtitle", v)} placeholder={t("aboutPage.description")}
-                    ariaLabel="subtitle" onFocus={(e) => openBar("heroSubtitle", e)} style={{ minWidth: "22ch", width: "100%" }} />
+                    ariaLabel={L("부제", "Subtitle")} onFocus={(e) => openBar("heroSubtitle", e)} style={{ minWidth: "22ch", width: "100%" }} />
                 </p>
               )}
-              <Pressable className={css.accentHit} title="밑줄 색" aria-label="밑줄 색"
+              <Pressable className={css.accentHit} title={L("밑줄 색", "Underline color")} aria-label={L("밑줄 색", "Underline color")}
                 onClick={(e) => { setActive("heroAccent"); activeElRef.current = e.currentTarget; }}>
                 <span className={hero.heroAccentLine} />
               </Pressable>
@@ -340,17 +341,17 @@ export default function AboutStudio({ config, setConfig, update, savedConfig, sa
             <Popover placement="bottom-end" trigger={<Button variant="difference" size="md" icon={<LayoutTemplate size={16} />}>{t("admin.settings.aboutHeroLayout")}</Button>}>
               <div className={css.layoutPanel}>
                 <div className={css.field}>
-                  <span className={css.fieldLabel}>{lang === "ko" ? "가로 정렬" : "Horizontal"}</span>
+                  <span className={css.fieldLabel}>{L("가로 정렬", "Horizontal")}</span>
                   <SegmentedControl<"left" | "center" | "right"> size="sm" value={alignH} onChange={(v) => setAny("heroAlignH", v)} className={css.segFit}
-                    items={[{ value: "left", label: lang === "ko" ? "좌" : "L" }, { value: "center", label: lang === "ko" ? "중" : "C" }, { value: "right", label: lang === "ko" ? "우" : "R" }]} />
+                    items={[{ value: "left", label: L("좌", "L") }, { value: "center", label: L("중", "C") }, { value: "right", label: L("우", "R") }]} />
                 </div>
                 <div className={css.field}>
-                  <span className={css.fieldLabel}>{lang === "ko" ? "세로 정렬" : "Vertical"}</span>
+                  <span className={css.fieldLabel}>{L("세로 정렬", "Vertical")}</span>
                   <SegmentedControl<"top" | "center" | "bottom"> size="sm" value={alignV} onChange={(v) => setAny("heroAlignV", v)} className={css.segFit}
-                    items={[{ value: "top", label: lang === "ko" ? "상" : "T" }, { value: "center", label: lang === "ko" ? "중" : "M" }, { value: "bottom", label: lang === "ko" ? "하" : "B" }]} />
+                    items={[{ value: "top", label: L("상", "T") }, { value: "center", label: L("중", "M") }, { value: "bottom", label: L("하", "B") }]} />
                 </div>
                 <div className={css.field}>
-                  <span className={css.fieldLabel}>{lang === "ko" ? "표시 요소" : "Elements"}</span>
+                  <span className={css.fieldLabel}>{L("표시 요소", "Elements")}</span>
                   <div className={css.stripChips}>
                     {HERO_ELEMENTS.map((el) => {
                       const on = !heroHidden.has(el.key);
@@ -462,7 +463,7 @@ export default function AboutStudio({ config, setConfig, update, savedConfig, sa
       </PanelGroup>
 
       {/* ── Break image ── */}
-      <PanelGroup label={lang === "ko" ? "브레이크 이미지" : "Break image"} paths={savePathsFor("visualBreak")} panelKey="visualBreak" {...saveHdr}>
+      <PanelGroup label={panelLabelOf("visualBreak")} paths={savePathsFor("visualBreak")} panelKey="visualBreak" {...saveHdr}>
         <BreakBlock url={about.visualBreakImage ?? ""} t={t}
           onSet={(u) => setConfig((prev) => ({ ...prev, about: { ...prev.about, visualBreakImage: u } }))} />
       </PanelGroup>

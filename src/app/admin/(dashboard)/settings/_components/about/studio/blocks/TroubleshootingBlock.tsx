@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import css from "../../AboutStudio.module.css";
-import { EditableText, PanelStage, StageTabs, sec } from "../primitives";
+import { EditableText, PanelStage, StageTabs, sec, useL } from "../primitives";
 import bk from "@/app/about/_components/panels/BackendPanel.module.css";
 import { Plus, X } from "@/components/icons";
 import Button from "@/components/ui/Button";
@@ -21,6 +21,7 @@ export function TroubleshootingBlock({ value, onChange, lang, title }: {
   value: TroubleShootingItem[]; onChange: (v: TroubleShootingItem[]) => void;
   lang: Language; title: string;
 }) {
+  const L = useL();
   const [tab, setTab] = useState(0);
   const cur = Math.min(tab, Math.max(0, value.length - 1));
   const it = value[cur];
@@ -53,11 +54,11 @@ export function TroubleshootingBlock({ value, onChange, lang, title }: {
 
   const tags = it?.tags ?? [];
   const label = (k: (typeof TS_FIELDS)[number]) => ({
-    problem: lang === "ko" ? "문제" : "Problem",
-    definition: lang === "ko" ? "정의" : "Definition",
-    cause: lang === "ko" ? "원인" : "Cause",
-    solution: lang === "ko" ? "해결" : "Solution",
-    keyInsight: lang === "ko" ? "핵심" : "Key insight",
+    problem: L("문제", "Problem"),
+    definition: L("정의", "Definition"),
+    cause: L("원인", "Cause"),
+    solution: L("해결", "Solution"),
+    keyInsight: L("핵심", "Key insight"),
   }[k]);
 
   return (
@@ -65,8 +66,8 @@ export function TroubleshootingBlock({ value, onChange, lang, title }: {
       <div className={css.slideTabs}>
         <StageTabs count={value.length} active={cur} onSelect={selectTab} onAdd={add}
           canAdd={value.length < TS_MAX}
-          addLabel={lang === "ko" ? "항목 추가" : "Add item"}
-          labelOf={(i) => value[i]?.problem[lang] || value[i]?.problem.ko || (lang === "ko" ? "새 항목" : "Untitled")} />
+          addLabel={L("항목 추가", "Add item")}
+          labelOf={(i) => value[i]?.problem[lang] || value[i]?.problem.ko || (L("새 항목", "Untitled"))} />
       </div>
       {it && (
         <PanelStage>
@@ -78,9 +79,9 @@ export function TroubleshootingBlock({ value, onChange, lang, title }: {
               <Button variant={it.recommended ? "primary" : "subtle"} size="sm"
                 onClick={() => set({ recommended: !it.recommended })}
                 aria-pressed={!!it.recommended}>
-                {lang === "ko" ? "추천" : "Featured"}
+                {L("추천", "Featured")}
               </Button>
-              <Button variant="subtle" shape="circle" size="xs" onClick={() => removeAt(cur)} aria-label="remove">
+              <Button variant="subtle" shape="circle" size="xs" onClick={() => removeAt(cur)} aria-label={L("삭제", "Remove")}>
                 <X size={14} />
               </Button>
             </div>
@@ -107,16 +108,14 @@ export function TroubleshootingBlock({ value, onChange, lang, title }: {
                   ))}
                   <Button variant="subtle" size="2xs" icon={<Plus size={12} />}
                     onClick={() => set({ tags: [...tags, `tag-${tags.length + 1}`] })}>
-                    {lang === "ko" ? "태그" : "Tag"}
+                    {L("태그", "Tag")}
                   </Button>
                 </div>
               </div>
 
               {/* 구조가 깊은 부가 콘텐츠는 개수만 — 본문 편집을 가리지 않게 */}
               <p className={css.tsMeta}>
-                {lang === "ko"
-                  ? `비교표 ${it.comparisons?.length ?? 0} · 다이어그램 ${it.diagrams?.length ?? 0} · 이미지 ${it.images?.length ?? 0}`
-                  : `${it.comparisons?.length ?? 0} tables · ${it.diagrams?.length ?? 0} diagrams · ${it.images?.length ?? 0} images`}
+                {L(`비교표 ${it.comparisons?.length ?? 0} · 다이어그램 ${it.diagrams?.length ?? 0} · 이미지 ${it.images?.length ?? 0}`, `${it.comparisons?.length ?? 0} tables · ${it.diagrams?.length ?? 0} diagrams · ${it.images?.length ?? 0} images`)}
               </p>
             </div>
           </div>
