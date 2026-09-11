@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import css from "../../AboutStudio.module.css";
-import { EditableText, PanelStage, StageTabs, sec, useL } from "../primitives";
+import { EditableText, PanelStage, sec, useL } from "../primitives";
+import { StageTabs, useStageList } from "../stageList";
 import bk from "@/app/about/_components/panels/BackendPanel.module.css";
 import { Plus, X } from "@/components/icons";
 import Button from "@/components/ui/Button";
@@ -22,35 +22,15 @@ export function TroubleshootingBlock({ value, onChange, lang, title }: {
   lang: Language; title: string;
 }) {
   const L = useL();
-  const [tab, setTab] = useState(0);
-  const cur = Math.min(tab, Math.max(0, value.length - 1));
-  const it = value[cur];
-  const set = (p: Partial<TroubleShootingItem>) => onChange(value.map((x, i) => (i === cur ? { ...x, ...p } : x)));
+  const list = useStageList(value, onChange, (): TroubleShootingItem => ({
+    id: `custom-${Date.now().toString(36)}`,
+    problem: { ko: "", en: "" }, definition: { ko: "", en: "" },
+    cause: { ko: "", en: "" }, solution: { ko: "", en: "" }, keyInsight: { ko: "", en: "" },
+    difficulty: 2,
+  }));
+  const { cur, it, set } = list;
   const setLocal = (k: (typeof TS_FIELDS)[number], v: string) =>
     set({ [k]: { ...(it[k] ?? { ko: "", en: "" }), [lang]: v } } as Partial<TroubleShootingItem>);
-
-  const add = () => {
-    onChange([...value, {
-      id: `custom-${Date.now().toString(36)}`,
-      problem: { ko: "", en: "" }, definition: { ko: "", en: "" },
-      cause: { ko: "", en: "" }, solution: { ko: "", en: "" }, keyInsight: { ko: "", en: "" },
-      difficulty: 2,
-    }]);
-    setTab(value.length);
-  };
-  const removeAt = (i: number) => {
-    onChange(value.filter((_, x) => x !== i));
-    setTab(Math.max(0, i - 1));
-  };
-  const isEmpty = (c: TroubleShootingItem) => !c.problem.ko.trim() && !c.problem.en.trim();
-  const selectTab = (next: number) => {
-    if (next !== cur && it && isEmpty(it)) {
-      onChange(value.filter((_, i) => i !== cur));
-      setTab(next > cur ? next - 1 : next);
-      return;
-    }
-    setTab(next);
-  };
 
   const tags = it?.tags ?? [];
   const label = (k: (typeof TS_FIELDS)[number]) => ({
@@ -63,12 +43,8 @@ export function TroubleshootingBlock({ value, onChange, lang, title }: {
 
   return (
     <section className={css.block}>
-      <div className={css.slideTabs}>
-        <StageTabs count={value.length} active={cur} onSelect={selectTab} onAdd={add}
-          canAdd={value.length < TS_MAX}
-          addLabel={L("항목 추가", "Add item")}
-          labelOf={(i) => value[i]?.problem[lang] || value[i]?.problem.ko || (L("새 항목", "Untitled"))} />
-      </div>
+      <StageTabs list={list} max={TS_MAX} addLabel={L("항목 추가", "Add item")}
+        labelOf={(i) => list.items[i]?.problem[lang] || list.items[i]?.problem.ko || L("새 항목", "Untitled")} />
       {it && (
         <PanelStage>
           <div key={cur} className={css.tsStage}>
@@ -81,7 +57,7 @@ export function TroubleshootingBlock({ value, onChange, lang, title }: {
                 aria-pressed={!!it.recommended}>
                 {L("추천", "Featured")}
               </Button>
-              <Button variant="subtle" shape="circle" size="xs" onClick={() => removeAt(cur)} aria-label={L("삭제", "Remove")}>
+              <Button variant="subtle" shape="circle" size="xs" onClick={list.remove} aria-label={L("삭제", "Remove")}>
                 <X size={14} />
               </Button>
             </div>

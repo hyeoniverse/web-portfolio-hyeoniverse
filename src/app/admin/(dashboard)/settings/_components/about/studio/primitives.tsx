@@ -5,9 +5,6 @@ import { type CSSProperties, type ReactNode } from "react";
 import css from "../AboutStudio.module.css";
 import frame from "@/app/about/_components/AboutPanel.module.css";
 import shell from "@/app/about/_components/AboutSection.module.css";
-import { ChevronLeft, ChevronRight, Plus } from "@/components/icons";
-import Button from "@/components/ui/Button";
-import Pressable from "@/components/ui/Pressable";
 import { useLanguage } from "@/providers/LanguageProvider";
 export const sec = { ...frame, ...shell };
 
@@ -92,36 +89,3 @@ export function PanelStage({ children }: { children: ReactNode }) {
   );
 }
 
-/* 스테이지 전환 스트립 — 항목 제목을 탭으로 나열하면 길어져서 화면 밖으로 넘친다.
-   실제 패널의 dotNav 처럼 번호 dot + 좌우 이동으로 고정 폭을 유지하고, 제목은 한 칸에서 줄임표 처리. */
-export function StageTabs({ count, active, onSelect, labelOf, addLabel, onAdd, canAdd }: {
-  count: number; active: number; onSelect: (i: number) => void; labelOf: (i: number) => string;
-  addLabel: string; onAdd: () => void; canAdd: boolean;
-}) {
-  const L = useL();
-  return (
-    <div className={css.stageTabs}>
-      <Button variant="subtle" shape="circle" size="xs" aria-label={L("이전", "Previous")}
-        disabled={active <= 0} onClick={() => onSelect(active - 1)}>
-        <ChevronLeft size={14} />
-      </Button>
-      <div className={css.stageDots}>
-        {Array.from({ length: count }, (_, i) => (
-          <Pressable key={i} title={labelOf(i)}
-            className={`${css.stageDot} ${i === active ? css.stageDotOn : ""}`}
-            onClick={() => onSelect(i)}>
-            {String(i + 1).padStart(2, "0")}
-          </Pressable>
-        ))}
-      </div>
-      <Button variant="subtle" shape="circle" size="xs" aria-label={L("다음", "Next")}
-        disabled={active >= count - 1} onClick={() => onSelect(active + 1)}>
-        <ChevronRight size={14} />
-      </Button>
-      <span className={css.stageTabLabel} title={labelOf(active)}>{labelOf(active)}</span>
-      {canAdd && (
-        <Button variant="subtle" size="xs" icon={<Plus size={14} />} onClick={onAdd}>{addLabel}</Button>
-      )}
-    </div>
-  );
-}

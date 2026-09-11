@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import css from "../../AboutStudio.module.css";
 import FlowDiagramEditor from "../../FlowDiagramEditor";
 import { type ParsedErd } from "../../parseSqlErd";
-import { EditableText, PanelStage, StageTabs, sec, useL } from "../primitives";
+import { EditableText, PanelStage, sec, useL } from "../primitives";
+import { StageTabs, useStageList } from "../stageList";
 import uf from "@/app/about/_components/panels/UserFlowPanel.module.css";
 import { X } from "@/components/icons";
 import Button from "@/components/ui/Button";
@@ -20,44 +20,20 @@ export function UserFlowBlock({ value, onChange, lang, t, title }: {
   value: UserFlow[]; onChange: (v: UserFlow[]) => void; lang: Language; t: TFunction; title: string;
 }) {
   const L = useL();
-  const [tab, setTab] = useState(0);
-  const cur = Math.min(tab, Math.max(0, value.length - 1));
-  const it = value[cur];
-  const set = (p: Partial<UserFlow>) => onChange(value.map((x, i) => (i === cur ? { ...x, ...p } : x)));
+  const list = useStageList(value, onChange, (): UserFlow => ({ title: "", persona: { ko: "", en: "" }, description: { ko: "", en: "" }, nodes: [], edges: [] }));
+  const { cur, it, set } = list;
   const setLocal = (k: "persona" | "description", v: string) =>
     set({ [k]: { ...it[k], [lang]: v } } as Partial<UserFlow>);
-  const add = () => {
-    onChange([...value, { title: "", persona: { ko: "", en: "" }, description: { ko: "", en: "" }, nodes: [], edges: [] }]);
-    setTab(value.length);
-  };
-  const removeAt = (i: number) => {
-    onChange(value.filter((_, x) => x !== i));
-    setTab(Math.max(0, i - 1));
-  };
-  const isEmpty = (f: UserFlow) => !f.title.trim() && f.nodes.length === 0;
-  const selectTab = (next: number) => {
-    if (next !== cur && it && isEmpty(it)) {
-      onChange(value.filter((_, i) => i !== cur));
-      setTab(next > cur ? next - 1 : next);
-      return;
-    }
-    setTab(next);
-  };
-
 
   return (
     <section className={css.block}>
-      <div className={css.slideTabs}>
-        <StageTabs count={value.length} active={cur} onSelect={selectTab} onAdd={add}
-          canAdd={value.length < UF_MAX}
-          addLabel={L("플로우 추가", "Add flow")}
-          labelOf={(i) => value[i]?.title || (L("새 플로우", "Untitled"))} />
-      </div>
+      <StageTabs list={list} max={UF_MAX} addLabel={L("플로우 추가", "Add flow")}
+        labelOf={(i) => list.items[i]?.title || L("새 플로우", "Untitled")} />
       {it && (
         <PanelStage>
           <div key={cur} className={css.ufStage}>
             <div className={css.chTools}>
-              <Button variant="subtle" shape="circle" size="xs" onClick={() => removeAt(cur)} aria-label={L("삭제", "Remove")}>
+              <Button variant="subtle" shape="circle" size="xs" onClick={list.remove} aria-label={L("삭제", "Remove")}>
                 <X size={14} />
               </Button>
             </div>
@@ -68,7 +44,7 @@ export function UserFlowBlock({ value, onChange, lang, t, title }: {
               <div className={uf.ufFlowInfo}>
                 <EditableText className={uf.ufFlowTitle} value={it.title}
                   onChange={(v) => set({ title: v })} placeholder={L("플로우 이름", "Flow title")}
-                  ariaLabel={L("제목", "Title")} autoFocus={isEmpty(it)} />
+                  ariaLabel={L("제목", "Title")} autoFocus={list.isDraft} />
                 <div className={uf.ufFlowProfile}>
                   <div className={uf.ufFlowProfileText}>
                     <EditableText wrap className={uf.ufFlowPersona} value={it.persona[lang] ?? ""}
