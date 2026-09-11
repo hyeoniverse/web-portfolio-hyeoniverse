@@ -11,6 +11,8 @@ import { type BackendItem } from "@/data/about/types";
 import { type TFunction } from "@/providers/LanguageProvider";
 import { type Language } from "@/types";
 /* ═══════════ Backend ═══════════ */
+/* 추가 한도는 분량 조절용이다. 포트폴리오에서 항목이 너무 많으면 끝까지 읽히지 않는다.
+   테이블 설계는 Database Design 패널이 맡는다(#811). */
 const BK_MAX = 12;
 
 /* 실제 패널과 동일 — 좌측 목록 + 우측 상세. 실제도 한 항목씩 보므로 탭으로 전환. */
