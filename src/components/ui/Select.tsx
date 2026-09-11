@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useLayoutEffect, useRef, useCallback, useMemo, useId, Fragment, type ReactNode, type KeyboardEvent } from "react";
 import { useDepsChanged } from "@/hooks/useDepsChanged";
-import { useHasMounted } from "@/hooks/useHasMounted";
 import { createPortal } from "react-dom";
 import { ChevronRight, X } from "@/components/icons";
 import { usePortalContainer } from "./portalContainer";
@@ -121,8 +120,6 @@ export default function Select({
   const [editing, setEditing] = useState(() => !!editable && !value);
   const [open, setOpen] = useState(false);
   const [visible, setVisible] = useState(false);
-  // hydration mismatch 방지 — invisible probe 의 portal 은 client mount 후에만 렌더
-  const mounted = useHasMounted();
   const [animateOpen, setAnimateOpen] = useState(false);
   const [activeIdx, setActiveIdx] = useState(-1);
   const ref = useRef<HTMLDivElement>(null);
@@ -134,9 +131,6 @@ export default function Select({
   // 선택 항목을 trigger 에 정렬(native select 처럼) + 뷰포트 밖으로 안 나가게 clamp 한 최종 top / maxHeight
   const [dropTop, setDropTop] = useState<number | null>(null);
   const [dropMaxH, setDropMaxH] = useState<number | undefined>(undefined);
-  /** mount 시 invisible probe 로 측정한 dropdown content width — trigger 가 첫 paint 부터 이 width 가짐 */
-  const [_triggerWidth, setTriggerWidth] = useState<number | null>(null);
-  const probeRef = useRef<HTMLDivElement>(null);
   /** editable 더블클릭 감지용 — 첫 click 을 setTimeout 으로 지연, 두번째 click 오면 cancel + editing */
   const clickTimerRef = useRef<number | null>(null);
 
@@ -181,12 +175,6 @@ export default function Select({
     if (!visible) return;
     updatePosition();
   }, [visible, updatePosition]);
-
-  // mount 시 invisible probe 로 dropdown content width 측정 → trigger 가 첫 paint 부터 같은 width
-  useLayoutEffect(() => {
-    if (!probeRef.current) return;
-    setTriggerWidth(probeRef.current.offsetWidth);
-  }, [options, variant]);
 
 
   // resize 시에만 위치 재계산. scroll 시에는 dropdown 을 닫음 (안 닫으면 trigger 따라 이동해 산만함)
@@ -484,8 +472,7 @@ export default function Select({
           autoFocus
           defaultValue={value}
           className={`${styles.trigger} ${size === "sm" ? styles.triggerSm : ""}`}
-          /* triggerWidth (probe-measured) 제거 — trigger 가 자기 자연 너비 (.root width: max-content) 유지.
-             probe 가 dropdown 폰트(xs)로 측정해서 trigger 폰트(sm) 보다 짧아지는 문제 방지. */
+          /* trigger 는 고정 너비를 받지 않고 자기 자연 너비(.root width: max-content)를 쓴다 */
           maxLength={editableInputProps?.maxLength}
           placeholder={editableInputProps?.placeholder ?? placeholder}
           disabled={disabled}
@@ -510,8 +497,7 @@ export default function Select({
         <Pressable
           type="button"
           className={`${styles.trigger} ${size === "sm" ? styles.triggerSm : ""} ${triggerClassName ?? ""}`}
-          /* triggerWidth (probe-measured) 제거 — trigger 가 자기 자연 너비 (.root width: max-content) 유지.
-             probe 가 dropdown 폰트(xs)로 측정해서 trigger 폰트(sm) 보다 짧아지는 문제 방지. */
+          /* trigger 는 고정 너비를 받지 않고 자기 자연 너비(.root width: max-content)를 쓴다 */
           onMouseDown={preserveFocus ? (e) => e.preventDefault() : undefined}
           onClick={() => {
             if (disabled) return;
@@ -567,20 +553,6 @@ export default function Select({
           {bubble ? <div className={styles.bubbleScroll}>{dropdownContent}</div> : dropdownContent}
         </div>,
         portalContainer ?? document.body,
-      )}
-      {/* invisible probe — dropdown content 와 동일 mount 해서 width 측정.
-       * visibility:hidden + position:absolute + off-screen → 사용자에겐 안 보이고 paint 영향 없음.
-       * trigger 가 첫 paint 부터 이 width 적용. SSR 시 document 없으니 가드. */}
-      {mounted && createPortal(
-        <div
-          ref={probeRef}
-          className={`${styles.dropdown} ${showCheck ? styles.dropdownChecked : ""} ${dropdownClassName ?? ""}`}
-          style={{ position: "absolute", top: -9999, left: -9999, visibility: "hidden", pointerEvents: "none", opacity: 0 }}
-          aria-hidden
-        >
-          {dropdownContent}
-        </div>,
-        document.body,
       )}
     </div>
   );
