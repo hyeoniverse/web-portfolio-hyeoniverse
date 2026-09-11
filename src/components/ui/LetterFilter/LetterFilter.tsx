@@ -2,6 +2,7 @@
 
 import styles from "./LetterFilter.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 /* 쌍자음 → 기본형 묶음 (예: ㄲ → ㄱ). 한글 syllable code → CHOSUNG index → 기본 letter. */
 const CHOSUNG_GROUPED = [
@@ -50,6 +51,7 @@ export default function LetterFilter({
   hasLetter,
   className,
 }: LetterFilterProps) {
+  const { t } = useLanguage();
   return (
     <div className={`${styles.row} ${className ?? ""}`.trim()}>
       {onClear && (
@@ -59,7 +61,7 @@ export default function LetterFilter({
           onClick={onClear}
           data-clickable="true"
         >
-          전체
+          {t("common.all")}
         </Pressable>
       )}
       {letters.map((l) => {
