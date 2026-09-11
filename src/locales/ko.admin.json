@@ -204,7 +204,12 @@
     "settings": {
       "title": "설정",
       "save": "탭 저장",
+      "saveTooltip": "이 탭에서 바뀐 내용을 한 번에 저장합니다.",
+      "saveTooltipOne": "바뀐 1곳을 저장합니다.",
+      "saveTooltipMany": "바뀐 {{n}}곳을 한 번에 저장합니다.",
+      "saveChangedLabel": "{{n}}곳 바뀜",
       "saveSection": "섹션 저장",
+      "saveSectionTooltip": "이 섹션만 저장합니다. 다른 섹션의 변경은 그대로 남습니다.",
       "revertSection": "되돌리기",
       "resetSection": "기본값",
       "saving": "저장 중...",

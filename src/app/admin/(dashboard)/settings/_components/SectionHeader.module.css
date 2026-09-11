@@ -38,6 +38,18 @@
   gap: var(--spacing-2xs);
   flex-shrink: 0;
 }
+/* 바뀐 섹션 점 — About 패널 머리(.psDot)와 같은 모양. 안 바뀌면 자리만 차지해 버튼이 흔들리지 않는다 */
+.dot {
+  width: 6px;
+  height: 6px;
+  flex-shrink: 0;
+  margin-right: var(--spacing-3xs);
+  border-radius: var(--radius-circle);
+  background: transparent;
+}
+.dotOn {
+  background: var(--color-accent);
+}
 
 /* 태블릿·모바일 — 위에 가로 탭바(≈45px)까지 있으니 그 아래로 더 내린다 */
 @media (max-width: 1024px) {

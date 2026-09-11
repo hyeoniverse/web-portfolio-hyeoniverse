@@ -235,6 +235,28 @@ test.describe("About 설정 화면", () => {
     await expect(desc, "고친 글도 그대로").toHaveValue(typed);
   });
 
+  test("고친 패널은 사이드바 목록에 표시되고, 탭 저장 단추에 바뀐 곳의 수가 붙는다", async ({ page }) => {
+    await openAbout(page);
+    const outline = page.getByRole("list", { name: /^(이 화면의 섹션|Sections on this page)$/ });
+    const marked = outline.getByRole("button", { name: /, (저장 안 됨|unsaved)$/ });
+    const save = page.getByRole("button", { name: /^(Save Tab|탭 저장)/ });
+    await expect(marked, "처음에는 표시가 없다").toHaveCount(0);
+    const desc = page.getByRole("textbox", { name: /^(개요 설명|Overview description)$/ });
+    await desc.click();
+    await page.keyboard.press("End");
+    await page.keyboard.type(" z");
+    await page.locator('[data-section-label="Security"]').getByRole("textbox", { name: /^(Title|제목)$/ }).first().click();
+    await page.keyboard.press("End");
+    await page.keyboard.type("!");
+    await expect(marked, "고친 두 패널에 표시").toHaveText(["Overview", "Security"]);
+    await expect(save, "탭 저장에 바뀐 곳의 수").toHaveAccessibleName(/(2 changed|2곳 바뀜)$/);
+    // 지나간 패널의 머리는 위로 밀려나며 내용이 숨는다. 그 패널을 다시 화면에 가져온 뒤 되돌린다(화면 안에서만 바뀐다)
+    await desc.scrollIntoViewIfNeeded();
+    await page.locator('[data-section-label="Overview"]').getByRole("button", { name: /^(Revert|되돌리기)$/ }).first().click();
+    await expect(marked, "되돌린 패널은 표시가 빠진다").toHaveText(["Security"]);
+    await expect(save).toHaveAccessibleName(/(1 changed|1곳 바뀜)$/);
+  });
+
   test("입력칸이 실제로 그려진다", async ({ page }) => {
     await openAbout(page);
     const count = await page.locator("input, textarea").count();

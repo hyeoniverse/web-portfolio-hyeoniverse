@@ -57,6 +57,22 @@ export function useSettingsSections(panelRef: RefObject<HTMLElement | null>, sca
     return () => cancelAnimationFrame(raf);
   }, [panelRef, scanKey]);
 
+  /* 바뀐 섹션 — 섹션 머리가 data-dirty 로 알린다(About 은 PanelGroup, 다른 탭은 SectionHeader).
+     사이드바 목록·눈금·탭 저장 단추의 개수가 이것을 쓴다. 값이 바뀔 때마다 속성만 바뀌므로 지켜본다. */
+  const [dirty, setDirty] = useState<boolean[]>([]);
+  useEffect(() => {
+    const panel = panelRef.current;
+    if (!panel) return;
+    const read = () => {
+      const next = sections.map((s) => s.el.hasAttribute("data-dirty"));
+      setDirty((prev) => (prev.length === next.length && prev.every((v, i) => v === next[i]) ? prev : next));
+    };
+    const raf = requestAnimationFrame(read);
+    const mo = new MutationObserver(read);
+    mo.observe(panel, { subtree: true, attributes: true, attributeFilter: ["data-dirty"] });
+    return () => { cancelAnimationFrame(raf); mo.disconnect(); };
+  }, [panelRef, sections]);
+
   /* 지금 보는 섹션 — 상단 sticky 바 아래 처음 걸리는 섹션을 활성으로. */
   useEffect(() => {
     if (sections.length < 2) return;
@@ -85,5 +101,5 @@ export function useSettingsSections(panelRef: RefObject<HTMLElement | null>, sca
     scrollTo(s.el, { offset: landingOffsetOf(s.el) });
   }, [sections, scrollTo]);
 
-  return { sections, activeIdx, jumpTo };
+  return { sections, activeIdx, jumpTo, dirty };
 }

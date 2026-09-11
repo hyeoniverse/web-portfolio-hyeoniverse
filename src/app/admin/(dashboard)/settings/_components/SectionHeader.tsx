@@ -88,16 +88,19 @@ export default function SectionHeader({
        액션(버튼/링크)·hint 는 blend 밖 형제라 정상 색으로 렌더된다.
        data-settings-section — SectionJumpNav 스캔·점프 앵커(+scroll-margin-top). */
     <>
-      <h2 className={`${localStyles.title} ${titleClassName ?? ""}`.trim()} data-settings-section>
+      <h2 className={`${localStyles.title} ${titleClassName ?? ""}`.trim()} data-settings-section data-dirty={dirty || undefined}>
         {title}
       </h2>
       {customActions ? (
         <div className={localStyles.spacer}>
+          <span className={`${localStyles.dot} ${dirty ? localStyles.dotOn : ""}`} aria-hidden />
           {spacerExtra}
           {customActions}
         </div>
       ) : paths.length > 0 && (
         <div className={localStyles.spacer}>
+          {/* 바뀐 섹션 표시 — About 패널 머리의 점과 같다. 제목은 difference 로 반전되므로 제목 옆이 아니라 여기 */}
+          <span className={`${localStyles.dot} ${dirty ? localStyles.dotOn : ""}`} aria-hidden />
           {spacerExtra}
           <SectionActions
             dirty={dirty}

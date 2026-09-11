@@ -91,6 +91,22 @@
   width: 18px;
   background: var(--text-accent);
 }
+/* 저장하지 않은 변경이 있는 섹션 — 눈금 앞에 작은 accent 점. 지금 섹션(긴 accent 눈금)과 겹쳐도 구분된다.
+   눈금 칸(18px) 밖 왼쪽에 띄워 두어 긴 눈금이 줄어들지 않는다 */
+.itemDirty .dot {
+  position: relative;
+}
+.itemDirty .dot::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: calc(-1 * var(--spacing-2xs));
+  width: 4px;
+  height: 4px;
+  border-radius: var(--radius-circle);
+  background: var(--color-accent);
+  transform: translateY(-50%);
+}
 .itemActive .label {
   color: var(--text-accent);
 }

@@ -29,8 +29,10 @@ import { useL } from "./primitives";
    data-settings-section 도 여기로 온다 — 점프바가 붙어 있는 헤더가 아니라 구역의
    시작으로 스크롤해야 한다. */
 export function PanelGroup({ children, ...head }: PanelSaveHeaderProps & { children: ReactNode }) {
+  /* 바뀐 패널 — 머리의 점과 같은 판정. 사이드바 목록·탭 저장 단추의 개수가 data-dirty 로 읽는다 */
+  const dirty = head.paths.some((p) => !deepEqual(getByPath(head.config, p), getByPath(head.savedConfig, p)));
   return (
-    <section className={css.panelGroup} data-settings-section data-section-label={head.label}>
+    <section className={css.panelGroup} data-settings-section data-section-label={head.label} data-dirty={dirty || undefined}>
       <PanelSaveHeader {...head} />
       {children}
     </section>
@@ -233,7 +235,8 @@ function PanelSaveHeader({ label, hint, paths, panelKey, config, savedConfig, sa
           title={t("admin.settings.revertSection")}>
           {t("admin.settings.revertSection")}
         </Button>
-        <Button variant="subtle" size="xs" disabled={!dirty || saving} onClick={saveWithStamp}>
+        <Button variant="subtle" size="xs" disabled={!dirty || saving} onClick={saveWithStamp}
+          title={t("admin.settings.saveSectionTooltip")}>
           {t("admin.settings.saveSection")}
         </Button>
       </span>

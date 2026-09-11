@@ -10,7 +10,9 @@
 }
 
 .item {
-  display: block;
+  display: flex;
+  gap: var(--spacing-2xs);
+  align-items: center;
   width: 100%;
   padding: var(--spacing-3xs) var(--spacing-sm);
   font-family: var(--font-space-grotesk);
@@ -18,9 +20,21 @@
   line-height: 1.5;
   color: var(--text-tertiary);
   text-align: left;
-  white-space: nowrap;
+}
+/* 이름은 남는 폭만 쓰고 넘치면 줄임표 — 뒤의 점이 밀려나지 않게 */
+.itemLabel {
+  min-width: 0;
   overflow: hidden;
+  white-space: nowrap;
   text-overflow: ellipsis;
+}
+/* 저장하지 않은 변경이 있는 섹션 — 패널 머리의 점과 같다 */
+.itemDot {
+  width: 6px;
+  height: 6px;
+  flex-shrink: 0;
+  border-radius: var(--radius-circle);
+  background: var(--color-accent);
 }
 
 .item:hover {
