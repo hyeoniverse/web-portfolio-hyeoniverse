@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef, type Dispatch, type SetStateAction } from "react";
+import dynamic from "next/dynamic";
 import type { LocalizedText } from "@/types/common";
 import { X, Trash2, ChevronDown } from "@/components/icons";
 import { AnimatePresence, motion } from "framer-motion";
@@ -17,7 +18,6 @@ import ProfileSections, { type ProfileExpandState } from "@/components/admin/Pro
 import type { SettingsTabProps } from "../_types";
 import Select from "@/components/ui/Select";
 import FieldRow from "@/components/ui/FieldRow";
-import AboutStudio from "./about/AboutStudio";
 import Button from "@/components/ui/Button";
 import { Switch } from "@/components/ui/Switch";
 import Field, { UploadField, ServiceItemsEditor } from "./SettingsFormFields";
@@ -25,17 +25,23 @@ import CategoriesEditor from "./CategoriesEditor";
 import WorksCategoriesEditor from "./WorksCategoriesEditor";
 import SeriesManager from "./SeriesManager";
 import SocialLinksEditor from "./SocialLinksEditor";
-import CalendarManager from "./CalendarManager";
 import WorksIntroVideoPicker from "./WorksIntroVideoPicker";
 import SectionHeader from "./SectionHeader";
 import TagListField from "@/components/ui/TagListField";
 import { showToast } from "@/stores/toastStore";
 import { fillTemplate } from "@/utils/format";
-import AboutTechStackEditor, { type TechItem } from "./AboutTechStackEditor";
+import type { TechItem } from "./AboutTechStackEditor";
 import TagDescriptionsEditor from "./TagDescriptionsEditor";
 import shared from "../Settings.module.css";
 import local from "./ContentTab.module.css";
 import Pressable from "@/components/ui/Pressable";
+import SettingsSkeleton from "./SettingsSkeleton";
+
+/* 하위 탭의 무거운 편집기는 그 하위 탭을 열 때 받는다. About 스튜디오는 코드 편집기(CodeMirror·Sandpack)·
+   ERD 캔버스(xyflow)·About 원본 데이터를, 달력 관리는 에디터의 달력 모델을 싣는다. */
+const AboutStudio = dynamic(() => import("./about/AboutStudio"), { loading: () => <SettingsSkeleton /> });
+const AboutTechStackEditor = dynamic(() => import("./AboutTechStackEditor"));
+const CalendarManager = dynamic(() => import("./CalendarManager"), { loading: () => <SettingsSkeleton /> });
 const styles = { ...shared, ...local };
 
 interface ContentTabProps extends SettingsTabProps {
