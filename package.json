@@ -141,5 +141,10 @@
     "type-coverage": "^2.30.1",
     "typescript": "^6.0.3",
     "vitest": "^4.1.11"
+  },
+  "overrides": {
+    "@platejs/math": {
+      "katex": "$katex"
+    }
   }
 }

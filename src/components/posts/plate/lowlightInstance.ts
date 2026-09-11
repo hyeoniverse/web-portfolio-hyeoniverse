@@ -1,10 +1,45 @@
-import { createLowlight, all } from "lowlight";
+import { createLowlight, common } from "lowlight";
 import hljsXml from "highlight.js/lib/languages/xml";
 import hljsHaskell from "highlight.js/lib/languages/haskell";
+import hljsScala from "highlight.js/lib/languages/scala";
+import hljsDart from "highlight.js/lib/languages/dart";
+import hljsPowershell from "highlight.js/lib/languages/powershell";
+import hljsDockerfile from "highlight.js/lib/languages/dockerfile";
+import hljsElixir from "highlight.js/lib/languages/elixir";
 
 // 에디터 코드블록 syntax highlighting + 붙여넣기 언어 자동감지에 공용으로 쓰는 lowlight 인스턴스.
 // (code-block-kit 과 elements 가 둘 다 import → 순환 의존 방지 위해 별도 모듈)
-export const lowlight = createLowlight(all);
+/* 처음에는 흔한 언어(common, 37개)와 아래 자동감지 후보만 싣는다. highlight.js 전체(all, 190개)를
+   처음부터 실으면 글 편집기의 가장 큰 청크에서 972 KB(원본)를 차지했다. 나머지 문법은 그 언어를 쓰는
+   코드 블록이 생기면 loadAllGrammars 로 한 번에 받는다(→ useLazyGrammars). */
+export const lowlight = createLowlight(common);
+/* 자동감지 후보(DETECT_SUBSET) 중 common 에 없는 것 — 붙여넣기 감지는 동기라 기다릴 수 없다 */
+lowlight.register({ scala: hljsScala, dart: hljsDart, powershell: hljsPowershell, dockerfile: hljsDockerfile, elixir: hljsElixir });
+
+let loadedAll = false;
+let loadingAll: Promise<void> | null = null;
+
+/** 이 언어를 하이라이트하려면 나머지 문법을 받아야 하는지. 별칭(py·sh 등)도 등록된 것으로 본다.
+ *  auto 는 전체 문법 중에서 맞혀야 한다. 다 받은 뒤에는 hljs 에 없는 언어라도 더 받을 것이 없다. */
+export function needsMoreGrammars(lang: string | null | undefined): boolean {
+  if (loadedAll || !lang || lang === "plaintext") return false;
+  return lang === "auto" || !lowlight.registered(lang);
+}
+
+/** highlight.js 전체 문법을 받아 아직 없는 것만 등록한다. 한 번만 받고, 실패하면 다음에 다시 받는다.
+ *  이미 등록한 xml·haskell(브라우저용으로 고친 것)·mermaid·자동감지 후보는 덮어쓰지 않는다. */
+export function loadAllGrammars(): Promise<void> {
+  loadingAll ??= import("lowlight")
+    .then(({ all }) => {
+      lowlight.register(Object.fromEntries(Object.entries(all).filter(([name]) => !lowlight.registered(name))));
+      loadedAll = true;
+    })
+    .catch((e) => {
+      loadingAll = null;
+      throw e;
+    });
+  return loadingAll;
+}
 
 /* ── #312: 브라우저에서 xml/haskell 문법이 통째로 죽는 문제 우회 ──
    hljs 의 xml.js·haskell.js 는 `/[\p{L}_]/u` 같은 유니코드 속성 이스케이프를 쓴다.
