@@ -1,11 +1,10 @@
 "use client";
 
 import css from "../../AboutStudio.module.css";
-import { DragHandle, ListLimit, RemoveButton, SortableItem, SortableList } from "../listControls";
+import { ChipList, DragHandle, ListLimit, RemoveButton, SortableItem, SortableList } from "../listControls";
 import { EditableText, PanelStage, sec, useL } from "../primitives";
 import ov from "@/app/about/_components/panels/OverviewPanel.module.css";
-import { Plus, X } from "@/components/icons";
-import Button from "@/components/ui/Button";
+import { Plus } from "@/components/icons";
 import Pressable from "@/components/ui/Pressable";
 import { type SiteConfigData } from "@/config/site.config";
 import { type TFunction } from "@/providers/LanguageProvider";
@@ -33,13 +32,8 @@ export function OverviewBlock({ about, lang, setAny, t, title }: {
             <EditableText multiline className={ov.overviewDesc} value={rec[descKey] ?? ""} onChange={(v) => setAny(descKey, v)}
               placeholder={t("admin.settings.aboutOverviewDesc")} ariaLabel={L("개요 설명", "Overview description")} style={{ width: "100%" }} />
             <div className={ov.overviewHighlights}>
-              {highlights.map((tag, i) => (
-                <span key={i} className={`${ov.overviewTag} ${css.editTag}`}>
-                  <EditableText value={tag} onChange={(v) => { const n = [...highlights]; n[i] = v; setHighlights(n); }} ariaLabel={L("하이라이트", "Highlight")} />
-                  <span className={css.editTagX}><Button variant="subtle" shape="circle" size="2xs" onClick={() => setHighlights(highlights.filter((_, x) => x !== i))} aria-label={L("삭제", "Remove")}><X size={11} /></Button></span>
-                </span>
-              ))}
-              <Pressable className={css.addTagBtn} onClick={() => setHighlights([...highlights, lang === "ko" ? "새 항목" : "New"])} aria-label={L("추가", "Add")}><Plus size={13} /></Pressable>
+              <ChipList items={highlights} onChange={setHighlights} chipClassName={css.highlightChip}
+                addLabel={L("하이라이트 추가", "Add highlight")} itemLabel={L("하이라이트", "highlight")} />
             </div>
           </div>
           <div className={ov.overviewStats}>

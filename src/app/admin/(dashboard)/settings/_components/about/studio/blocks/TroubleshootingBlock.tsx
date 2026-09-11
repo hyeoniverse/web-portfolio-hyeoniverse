@@ -1,12 +1,12 @@
 "use client";
 
 import css from "../../AboutStudio.module.css";
+import { ChipList } from "../listControls";
 import { EditableText, PanelStage, sec, useL } from "../primitives";
 import { StageTabs, useStageList } from "../stageList";
 import bk from "@/app/about/_components/panels/BackendPanel.module.css";
-import { Plus, X } from "@/components/icons";
+import { X } from "@/components/icons";
 import Button from "@/components/ui/Button";
-import Chip from "@/components/ui/Chip";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import { type TroubleShootingItem } from "@/data/about/types";
 import { type Language } from "@/types";
@@ -76,16 +76,8 @@ export function TroubleshootingBlock({ value, onChange, lang, title }: {
               <div className={css.tsField}>
                 <span className={bk.entryLabel}>TAGS</span>
                 <div className={css.tsTags}>
-                  {tags.map((tg, i) => (
-                    <Chip key={i} className={css.tsTag}
-                      onRemove={() => set({ tags: tags.filter((_, j) => j !== i) })}>
-                      {tg}
-                    </Chip>
-                  ))}
-                  <Button variant="subtle" size="2xs" icon={<Plus size={12} />}
-                    onClick={() => set({ tags: [...tags, `tag-${tags.length + 1}`] })}>
-                    {L("태그", "Tag")}
-                  </Button>
+                  <ChipList items={tags} onChange={(v) => set({ tags: v })} chipClassName={css.tsTag}
+                    addLabel={L("태그 추가", "Add tag")} itemLabel={L("태그", "tag")} />
                 </div>
               </div>
 

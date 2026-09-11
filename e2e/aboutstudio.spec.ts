@@ -113,6 +113,25 @@ test.describe("About 설정 화면", () => {
     await expect.poll(titles, { message: "1번과 2번이 자리를 바꾼다" }).toEqual([before[1], before[0], ...before.slice(2)]);
   });
 
+  test("칩 목록: 추가하면 입력 칸이 열려 적은 글자로 칩이 생기고, 칩을 누르면 고친다", async ({ page }) => {
+    await openAbout(page);
+    // 예전에는 Design Decisions 태그 추가가 "tag-3" 같은 칩을 만들고 글자를 고칠 방법이 없었다.
+    // 저장 단추는 누르지 않는다.
+    const dd = page.locator('[data-section-label="Design Decisions"]');
+    const chips = dd.locator('[class*="chipSlot"]');
+    const before = await chips.count();
+    await dd.getByRole("button", { name: /^(태그 추가|Add tag)$/ }).click();
+    await page.keyboard.type("rls");
+    await page.keyboard.press("Enter");
+    await expect(chips, "적은 글자로 칩이 하나 생긴다").toHaveCount(before + 1);
+    await expect(chips.last()).toContainText("rls");
+    await chips.last().getByRole("button", { name: "rls" }).click();
+    await page.keyboard.press("ControlOrMeta+a");
+    await page.keyboard.type("row-level");
+    await page.keyboard.press("Enter");
+    await expect(chips.last(), "누르면 그 자리에서 고친다").toContainText("row-level");
+  });
+
   test("입력칸이 실제로 그려진다", async ({ page }) => {
     await openAbout(page);
     const count = await page.locator("input, textarea").count();
