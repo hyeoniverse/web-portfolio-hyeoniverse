@@ -912,6 +912,7 @@ textarea.edit {
   background: var(--bg-secondary);
 }
 .rcardMedia {
+  position: relative;
   overflow: hidden;
   border-radius: var(--radius-2xl);
   aspect-ratio: 16 / 9;

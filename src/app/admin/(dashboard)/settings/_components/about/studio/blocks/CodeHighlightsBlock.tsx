@@ -14,6 +14,7 @@ import Popover from "@/components/ui/Popover";
 import Pressable from "@/components/ui/Pressable";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import { codeExamples } from "@/data/about/codeExamples";
+import { useNearViewport } from "@/hooks/useNearViewport";
 import { type TFunction } from "@/providers/LanguageProvider";
 import { type Language } from "@/types";
 /* ═══════════ Code Highlights ═══════════ */
@@ -81,6 +82,10 @@ export function CodeHighlightsBlock({ value, onChange, lang, t, title }: {
   /* sandbox 로 바꾸는 순간 기본 파일을 실제로 저장해야 슬롯이 안 빈다 */
   const setDemoMode = (m: CodeDemoMode) =>
     set(m === "sandbox" && !it?.demoFiles ? { demoMode: m, demoFiles: DEMO_FILE_SEED } : { demoMode: m });
+  /* 코드 데모 미리보기(Sandpack)는 CodeSandbox 에서 번들러와 패키지를 3 MB 가까이 받는다. 이 블록은
+     About 설정의 한참 아래에 있는데, 미리보기를 바로 띄우면 About 을 열기만 해도 그만큼을 받았다.
+     데모 칸이 화면 근처에 올 때 띄운다. */
+  const [observeDemo, demoNear] = useNearViewport(true);
 
   return (
     <section className={css.block}>
@@ -108,7 +113,7 @@ export function CodeHighlightsBlock({ value, onChange, lang, t, title }: {
                 </div>
               </div>
               <div className={`${ch.codeSingleBody} ${css.chBody}`}>
-                <div className={`${ch.codeDemo} ${dropOver ? css.demoDropOver : ""}`}
+                <div ref={observeDemo} className={`${ch.codeDemo} ${dropOver ? css.demoDropOver : ""}`}
                   style={it.demoBg ? { background: it.demoBg } : undefined}
                   onDragOver={(e) => {
                     if (!e.dataTransfer.types.includes("Files")) return;
@@ -129,7 +134,7 @@ export function CodeHighlightsBlock({ value, onChange, lang, t, title }: {
                       .then((u) => set({ demoMode: "media", demoMedia: u }))
                       .catch(() => setDropErr(true));
                   }}>
-                  <CodeDemoSlot mode={it.demoMode} media={it.demoMedia} files={it.demoFiles} template={it.demoTemplate} />
+                  <CodeDemoSlot mode={it.demoMode} media={it.demoMedia} files={it.demoFiles} template={it.demoTemplate} active={demoNear} />
                   {hasDemo ? (
                     /* 채워진 뒤엔 데모를 가리지 않게 좌상단에서 hover 로만 */
                     <div className={css.demoEdit}>

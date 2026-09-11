@@ -7,6 +7,7 @@ import dc from "@/app/about/_components/panels/DesignSystemPanel.module.css";
 import { ImageIcon, X } from "@/components/icons";
 import CoverImagePicker from "@/components/posts/CoverImagePicker";
 import Button from "@/components/ui/Button";
+import MediaThumb from "@/components/ui/MediaThumb";
 import Popover from "@/components/ui/Popover";
 import { designConcepts } from "@/data/about/concepts";
 import { type TFunction } from "@/providers/LanguageProvider";
@@ -60,8 +61,8 @@ export function DesignSystemBlock({ value, onChange, lang, t }: {
           {/* key = 컨셉별 remount — 탭을 바꿔도 같은 input 을 재사용하면 autoFocus 가 안 걸린다 */}
           <div key={it.id} className={css.dsSlide}>
             <div className={`${dc.dcCardBg} ${css.dsBg}`}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              {it.image && <img src={it.image} alt="" />}
+              {/* 스테이지 폭(데스크톱에서 화면의 70% 남짓)만큼 최적화해 받는다 — FeaturesBlock 과 같다 */}
+              {it.image && <MediaThumb src={it.image} fill sizes="(max-width: 1024px) 100vw, 70vw" />}
             </div>
             <div className={`${dc.dcCardOverlay} ${css.dsOverlay}`}>
               <EditableText className={dc.dcCardTitle} value={it.title} autoFocus={list.isDraft}

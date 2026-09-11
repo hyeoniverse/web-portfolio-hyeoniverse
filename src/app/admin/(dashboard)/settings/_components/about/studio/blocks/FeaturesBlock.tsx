@@ -8,6 +8,7 @@ import feat from "@/app/about/_components/panels/FeaturesPanel.module.css";
 import { ImageIcon, Plus } from "@/components/icons";
 import CoverImagePicker from "@/components/posts/CoverImagePicker";
 import Button from "@/components/ui/Button";
+import MediaThumb from "@/components/ui/MediaThumb";
 import Popover from "@/components/ui/Popover";
 import Pressable from "@/components/ui/Pressable";
 import { type SiteConfigData } from "@/config/site.config";
@@ -47,9 +48,11 @@ export function FeaturesBlock({ value, onChange, lang, t, title }: {
               <SortableItem key={i} index={i}>{(row) => (
                 <div ref={row.ref} style={row.style} className={css.featCell}
                   onMouseEnter={() => { if (!dragging) setHovered({ row: Math.floor(i / cols), col: i % cols }); }}>
+                  {/* 기본 이미지는 2,880px 까지 되는 PC 스크린샷 원본 PNG 라 8장에 3 MB 였다. 이미지 최적화를 거쳐
+                      칸 크기(펼쳤을 때 화면의 1/3 남짓)만큼 받고, 화면 근처에 올 때 받는다. 허용 목록 밖 주소는
+                      MediaThumb 가 원본으로 되돌린다. */}
                   {it.image
-                    // eslint-disable-next-line @next/next/no-img-element -- 관리자가 고른 임의 URL 이라 도메인을 미리 등록할 수 없다
-                    ? <img className={css.featImg} src={it.image} alt="" />
+                    ? <MediaThumb className={css.featImg} src={it.image} fill sizes="(max-width: 768px) 100vw, 35vw" />
                     : <div className={css.featNoImg} />}
                   <div className={`${feat.featureDfInfo} ${css.featInfo}`}>
                     <EditableText wrap className={feat.featureDfTitle} value={it.title} onChange={(v) => set(i, { title: v })} placeholder={t("admin.settings.aboutItemTitle")} ariaLabel={L("제목", "Title")} style={{ maxWidth: "100%" }} />
