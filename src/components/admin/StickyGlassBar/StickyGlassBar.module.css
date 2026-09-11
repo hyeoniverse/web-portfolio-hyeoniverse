@@ -35,3 +35,9 @@
 .pinned::before {
   opacity: 1;
 }
+
+/* 자기 구역이 끝나 위로 밀려나는 중 — 내용만 감추고 frost 는 둔다.
+   nav 에 배경이 없어서 그대로 두면 밀려난 글자·버튼이 nav 글자 위에 겹쳐 보인다. */
+.pushed > * {
+  visibility: hidden;
+}
