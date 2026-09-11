@@ -1,6 +1,7 @@
 "use client";
 
 import css from "../../AboutStudio.module.css";
+import { DragHandle, ListLimit, RemoveButton, SortableItem, SortableList } from "../listControls";
 import { EditableText, PanelStage, sec, useL } from "../primitives";
 import ov from "@/app/about/_components/panels/OverviewPanel.module.css";
 import { Plus, X } from "@/components/icons";
@@ -9,9 +10,11 @@ import Pressable from "@/components/ui/Pressable";
 import { type SiteConfigData } from "@/config/site.config";
 import { type TFunction } from "@/providers/LanguageProvider";
 import { type Language } from "@/types";
+import { arrayMove } from "@dnd-kit/sortable";
 export type OverviewStat = NonNullable<SiteConfigData["about"]["overview_stats"]>[number];
 
 /* ═══════════ Overview ═══════════ */
+const STATS_MAX = 8;
 export function OverviewBlock({ about, lang, setAny, t, title }: {
   about: SiteConfigData["about"]; lang: Language; setAny: (k: string, v: unknown) => void; t: TFunction; title: string;
 }) {
@@ -40,21 +43,29 @@ export function OverviewBlock({ about, lang, setAny, t, title }: {
             </div>
           </div>
           <div className={ov.overviewStats}>
-            {stats.map((s, i) => (
-              <div key={i} className={`${ov.overviewStat} ${css.editStat}`}>
-                <EditableText className={ov.statValue} value={s.value} onChange={(v) => { const n = [...stats]; n[i] = { ...n[i], value: v }; setStats(n); }} placeholder="50+" ariaLabel={L("지표 값", "Metric value")} />
-                <EditableText className={ov.statLabel} value={lang === "ko" ? s.label_ko : s.label_en}
-                  onChange={(v) => { const n = [...stats]; n[i] = { ...n[i], [lang === "ko" ? "label_ko" : "label_en"]: v }; setStats(n); }}
-                  placeholder={L("라벨", "label")} ariaLabel={L("지표 이름", "Metric label")} />
-                <span className={css.editStatX}><Button variant="subtle" shape="circle" size="xs" onClick={() => setStats(stats.filter((_, x) => x !== i))} aria-label={L("삭제", "Remove")}><X size={13} /></Button></span>
-              </div>
-            ))}
-            {stats.length < 8 && (
+            <SortableList count={stats.length} onMove={(from, to) => setStats(arrayMove(stats, from, to))}>
+              {stats.map((s, i) => (
+                <SortableItem key={i} index={i}>{(row) => (
+                  <div ref={row.ref} style={row.style} className={`${ov.overviewStat} ${css.editStat}`}>
+                    <EditableText className={ov.statValue} value={s.value} onChange={(v) => { const n = [...stats]; n[i] = { ...n[i], value: v }; setStats(n); }} placeholder="50+" ariaLabel={L("지표 값", "Metric value")} />
+                    <EditableText className={ov.statLabel} value={lang === "ko" ? s.label_ko : s.label_en}
+                      onChange={(v) => { const n = [...stats]; n[i] = { ...n[i], [lang === "ko" ? "label_ko" : "label_en"]: v }; setStats(n); }}
+                      placeholder={L("라벨", "label")} ariaLabel={L("지표 이름", "Metric label")} />
+                    <span className={css.itemTools}>
+                      <DragHandle handle={row.handle} />
+                      <RemoveButton onClick={() => setStats(stats.filter((_, x) => x !== i))} />
+                    </span>
+                  </div>
+                )}</SortableItem>
+              ))}
+            </SortableList>
+            {stats.length < STATS_MAX && (
               <Pressable className={css.addStatCell} onClick={() => setStats([...stats, { value: "0", label_ko: "라벨", label_en: "Label" }])}>
                 <Plus size={18} /> {L("지표 추가", "Add metric")}
               </Pressable>
             )}
           </div>
+          {stats.length >= STATS_MAX && <ListLimit max={STATS_MAX} />}
         </div>
     </PanelStage>
   );

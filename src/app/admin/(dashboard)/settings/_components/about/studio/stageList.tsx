@@ -5,6 +5,7 @@ import { DndContext, KeyboardCode, KeyboardSensor, MouseSensor, TouchSensor, clo
 import { SortableContext, arrayMove, rectSortingStrategy, sortableKeyboardCoordinates, useSortable } from "@dnd-kit/sortable";
 import { CSS as DndCSS } from "@dnd-kit/utilities";
 import css from "../AboutStudio.module.css";
+import { ListLimit } from "./listControls";
 import { useL } from "./primitives";
 import { ChevronLeft, ChevronRight, Plus } from "@/components/icons";
 import Button from "@/components/ui/Button";
@@ -127,10 +128,11 @@ export function StageTabs({ list, labelOf, addLabel, max }: {
         </Button>
       </div>
       <span className={css.stageTabLabel} title={labelOf(cur)}>{labelOf(cur)}</span>
-      <span className={css.stageAdd}>
-        {atMax && <span className={css.stageMax}>{L(`최대 ${max}개`, `Up to ${max}`)}</span>}
-        <Button variant="subtle" size="xs" icon={<Plus size={14} />} disabled={atMax} onClick={list.add}>{addLabel}</Button>
-      </span>
+      <div className={css.stageAdd}>
+        {atMax ? <ListLimit max={max} /> : (
+          <Button variant="subtle" size="xs" icon={<Plus size={14} />} onClick={list.add}>{addLabel}</Button>
+        )}
+      </div>
     </div>
   );
 }
