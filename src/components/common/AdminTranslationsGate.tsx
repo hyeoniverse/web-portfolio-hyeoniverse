@@ -16,6 +16,10 @@ import { useLanguage } from "@/providers/LanguageProvider";
  * 로드 전에 렌더하면 `getNestedValue` 가 키를 그대로 반환해 화면에 `admin.posts.title`
  * 같은 문자열이 잠깐 노출된다. 그래서 준비될 때까지 막는다 — admin 은 이미 인증 확인으로
  * 한 박자 늦게 뜨는 영역이라 체감 차이가 없다.
+ *
+ * 막는 동안에는 `data-admin-pending` 표시만 그린다. 본문이 비어 있으면 사이트 푸터가 화면 아래쪽에
+ * 그려졌다가 본문이 들어오며 밀려 내려가(레이아웃 밀림 — 대시보드 0.313), 이 표시가 있는 동안은
+ * 푸터를 감춘다(Footer.module.css). 서버 HTML 에도 들어가므로 첫 페인트부터 적용된다.
  */
 export default function AdminTranslationsGate({ children }: { children: React.ReactNode }) {
   const { addTranslations } = useLanguage();
@@ -43,6 +47,6 @@ export default function AdminTranslationsGate({ children }: { children: React.Re
     };
   }, [addTranslations]);
 
-  if (!ready) return null;
+  if (!ready) return <span data-admin-pending hidden />;
   return <>{children}</>;
 }

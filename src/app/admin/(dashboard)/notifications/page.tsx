@@ -441,6 +441,8 @@ export default function NotificationsPage() {
         <ReportsList filter={reportFilter} onFilterChange={setReportFilter} />
       ) : loading ? (
         <div className={styles.list} aria-busy="true">
+          {/* 목록이 오기 전에는 뼈대가 짧아 푸터가 화면 안에 그려졌다가 밀려난다(레이아웃 밀림 0.284) — 오는 동안 푸터를 감춘다 */}
+          <span data-admin-pending hidden />
           {Array.from({ length: 5 }).map((_, i) => (
             <div key={i} className={styles.item}>
               <SkeletonCircle className={styles.icon} size={36} />
