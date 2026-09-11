@@ -11,7 +11,8 @@ import { type BackendItem } from "@/data/about/types";
 import { type TFunction } from "@/providers/LanguageProvider";
 import { type Language } from "@/types";
 /* ═══════════ Backend ═══════════ */
-const BK_MAX = 12;
+/* 추가 한도는 두지 않는다. 공개 패널은 개수를 자르지 않고 모두 보여 준다.
+   예전 한도 12 는 기본 데이터(19개)보다 작아 항목을 더 넣을 수 없었다. */
 
 /* 실제 패널과 동일 — 좌측 목록 + 우측 상세. 실제도 한 항목씩 보므로 탭으로 전환. */
 export function BackendBlock({ value, onChange, lang, t, title }: {
@@ -30,7 +31,7 @@ export function BackendBlock({ value, onChange, lang, t, title }: {
 
   return (
     <section className={css.block}>
-      <StageTabs list={list} max={BK_MAX} addLabel={L("항목 추가", "Add item")}
+      <StageTabs list={list} addLabel={L("항목 추가", "Add item")}
         labelOf={(i) => list.items[i]?.name || L("새 항목", "Untitled")} />
       {it && (
         <PanelStage>

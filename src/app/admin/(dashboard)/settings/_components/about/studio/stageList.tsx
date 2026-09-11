@@ -78,14 +78,15 @@ export function StageTabs({ list, labelOf, addLabel, max }: {
   list: Pick<StageList<object>, "items" | "cur" | "hasDraft" | "select" | "move" | "add">;
   labelOf: (i: number) => string;
   addLabel: string;
-  max: number;
+  /** 추가 한도. 없으면 한도가 없다 */
+  max?: number;
 }) {
   const L = useL();
   const { cur, select } = list;
   const count = list.items.length;
   /* 자리가 곧 id — 끌어 놓는 순간에만 쓰이므로 인덱스로 충분하다. 초안은 목록 밖이라 끌 수 없다. */
   const ids = Array.from({ length: count - (list.hasDraft ? 1 : 0) }, (_, i) => String(i));
-  const atMax = ids.length >= max;
+  const atMax = max !== undefined && ids.length >= max;
   const sensors = useSensors(
     useSensor(MouseSensor, { activationConstraint: { distance: 5 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 5 } }),
