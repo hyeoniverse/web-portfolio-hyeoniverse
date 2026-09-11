@@ -274,12 +274,12 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
                     variant={descFilter === "with" ? "primary" : "outline"}
                     size="md"
                     onClick={() => setDescFilter((d) => d === "with" ? "all" : "with")}
-                  >{t("admin.settings.seriesEditor.withDesc")}</Button>
+                  >{t("admin.settings.taxonomy.hasDesc")}</Button>
                   <Button
                     variant={descFilter === "without" ? "primary" : "outline"}
                     size="md"
                     onClick={() => setDescFilter((d) => d === "without" ? "all" : "without")}
-                  >{t("admin.settings.seriesEditor.withoutDesc")}</Button>
+                  >{t("admin.settings.taxonomy.noDesc")}</Button>
                 </div>
               </div>
             </motion.div>

@@ -707,7 +707,7 @@ export default function ContentTab({
                 />
               </div>
               {/* Intro 미디어 picker — public/cover/{videos,images} 공용 풀 + 업로드 + cover picker (이미지/영상 모두) */}
-              <FieldRow label="Intro 미디어">
+              <FieldRow label={t("admin.settings.worksIntroMedia.label")}>
                 <WorksIntroVideoPicker
                   value={config.works.introVideoUrl ?? ""}
                   onChange={(v) => update("works", "introVideoUrl", v)}

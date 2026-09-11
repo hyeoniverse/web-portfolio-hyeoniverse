@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback, type ReactNode } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useDepsChanged } from "@/hooks/useDepsChanged";
 import { AnimatePresence, motion } from "framer-motion";
 import { Plus, Check, X, Trash2, Filter, ChevronDown } from "@/components/icons";
@@ -25,6 +25,7 @@ import { List, ListItem } from "@/app/admin/(dashboard)/components";
 import type { AdminPostUsageInfo, PostMetaInfo } from "../_types";
 import { fillTemplate, formatAdminShortDate } from "@/utils/format";
 import { useLanguage } from "@/providers/LanguageProvider";
+import BoldMarks from "@/components/ui/BoldMarks";
 import shared from "../Settings.module.css";
 import own from "./TagDescriptionsEditor.module.css";
 import Pressable from "@/components/ui/Pressable";
@@ -98,11 +99,6 @@ function RelatedPostList({ posts, emptyLabel }: { posts: AdminPostUsageInfo[]; e
   );
 }
 
-/* 번역 문구의 <b>…</b> 를 굵게 그린다 — 확인 문구에서 개수를 강조한다 */
-function withBold(text: string): ReactNode[] {
-  return text.split(/<b>(.*?)<\/b>/).map((part, i) => (i % 2 ? <strong key={i}>{part}</strong> : part));
-}
-
 /* 태그 "기본값으로 초기화" 확인 모달 본문 — chip 클릭 시 해당 태그 사용 게시물 목록 노출. */
 function TagResetConfirmBody({ inUse, tagCounts, tagPosts, affectedCount, onConfirm }: {
   inUse: string[];
@@ -117,7 +113,7 @@ function TagResetConfirmBody({ inUse, tagCounts, tagPosts, affectedCount, onConf
   return (
     <div className={styles.tagDeleteConfirmBody}>
       <p className={styles.tagDeleteConfirmDesc}>
-        {withBold(fillTemplate(t("admin.settings.tagEditor.resetConfirm"), { n: inUse.length, m: affectedCount }))}
+        <BoldMarks text={fillTemplate(t("admin.settings.tagEditor.resetConfirm"), { n: inUse.length, m: affectedCount })} />
         <br />
         <span style={{ fontSize: "var(--font-size-label)", color: "var(--text-tertiary)" }}>
           {t("admin.settings.tagEditor.resetNote")}
@@ -365,7 +361,7 @@ export default function TagDescriptionsEditor({ value, onChange, pendingDeletes,
     openModal(
       <div className={styles.tagDeleteConfirmBody}>
         <p className={styles.tagDeleteConfirmDesc}>
-          {withBold(fillTemplate(t("admin.settings.tagEditor.deleteConfirm"), { n: inUse.length }))}
+          <BoldMarks text={fillTemplate(t("admin.settings.tagEditor.deleteConfirm"), { n: inUse.length })} />
           <br />
           <span style={{ fontSize: "var(--font-size-label)", color: "var(--text-tertiary)" }}>
             {t("admin.settings.tagEditor.deleteNote")}
