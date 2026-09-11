@@ -97,6 +97,22 @@
 
 /* ruler 는 tick 으로 활성 표시 — ink(밑줄) 미사용 */
 
+/* 터치 화면(hover 없음) — 라벨은 hover 로만 나타나므로 여기서는 나타날 일이 없다.
+   그런데도 숨은 라벨과 둘레 여백(hover 영역)이 자리를 차지해, 모바일에서 화면 오른쪽
+   150px × 440px 가량을 덮고 그 아래 버튼·입력 칸을 누르지 못하게 했다.
+   라벨을 빼고 눈금만 누를 수 있게 한다. */
+@media (hover: none) {
+  .jumpWrap {
+    pointer-events: none;
+  }
+  .item {
+    pointer-events: auto;
+  }
+  .label {
+    display: none;
+  }
+}
+
 /* 데스크탑(>1024): 좌측 설정 사이드바가 네비 — 숨김 */
 @media (min-width: 1025px) {
   .jumpWrap {

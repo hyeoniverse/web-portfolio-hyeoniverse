@@ -199,38 +199,41 @@ function PanelSaveHeader({ label, hint, paths, panelKey, config, savedConfig, sa
       <span className={css.psLabel}>{label}</span>
       <span className={`${css.psDot} ${dirty ? css.psDotOn : ""}`} aria-hidden />
       {hint && <span className={css.psHint}>{hint}</span>}
-      {/* 옆 세 버튼과 같은 공통 Button 을 쓴다. 예전엔 <label> 에 직접 스타일을 붙여
-          파일 입력을 감쌌는데, 높이(30.8 vs 24)도 글꼴(Inter vs Space Grotesk)도 달라
-          한 줄에서 이것만 커 보였다. 파일 선택창은 숨긴 input 을 눌러서 연다. */}
-      {mdCapable && (
-        <>
-          <Button variant="outline" size="xs" icon={<Download size={12} strokeWidth={1.8} />}
-            onClick={() => fileRef.current?.click()}
-            title={lang === "ko" ? ".md 파일을 읽어 채웁니다" : "Fill from .md files"}>
-            {lang === "ko" ? "md 불러오기" : "Load .md"}
-          </Button>
-          <input ref={fileRef} type="file" accept=".md" multiple hidden onChange={onPickFiles} />
-        </>
-      )}
-      {mdCapable && syncedAt && (
-        <span className={css.psSyncNote} title={contentPathOf(panelKey!)}>
-          {lang === "ko" ? "파일에서 " : "from files "}
-          {new Date(syncedAt).toLocaleString(lang === "ko" ? "ko-KR" : "en-US", {
-            month: "short", day: "numeric", hour: "2-digit", minute: "2-digit",
-          })}
-        </span>
-      )}
-      <Button variant="outline" size="xs" disabled={atDefault || saving} onClick={() => resetSection(paths)}
-        title={t("admin.settings.resetSection")}>
-        {t("admin.settings.resetSection")}
-      </Button>
-      <Button variant="outline" size="xs" disabled={!dirty || saving} onClick={() => revertSection(paths)}
-        title={t("admin.settings.revertSection")}>
-        {t("admin.settings.revertSection")}
-      </Button>
-      <Button variant="subtle" size="xs" disabled={!dirty || saving} onClick={saveWithStamp}>
-        {t("admin.settings.saveSection")}
-      </Button>
+      {/* 버튼 묶음 — 좁은 폭에서는 이름 아래 줄로 통째로 내려간다 */}
+      <span className={css.psActions}>
+        {/* 옆 세 버튼과 같은 공통 Button 을 쓴다. 예전엔 <label> 에 직접 스타일을 붙여
+            파일 입력을 감쌌는데, 높이(30.8 vs 24)도 글꼴(Inter vs Space Grotesk)도 달라
+            한 줄에서 이것만 커 보였다. 파일 선택창은 숨긴 input 을 눌러서 연다. */}
+        {mdCapable && (
+          <>
+            <Button variant="outline" size="xs" icon={<Download size={12} strokeWidth={1.8} />}
+              onClick={() => fileRef.current?.click()}
+              title={lang === "ko" ? ".md 파일을 읽어 채웁니다" : "Fill from .md files"}>
+              {lang === "ko" ? "md 불러오기" : "Load .md"}
+            </Button>
+            <input ref={fileRef} type="file" accept=".md" multiple hidden onChange={onPickFiles} />
+          </>
+        )}
+        {mdCapable && syncedAt && (
+          <span className={css.psSyncNote} title={contentPathOf(panelKey!)}>
+            {lang === "ko" ? "파일에서 " : "from files "}
+            {new Date(syncedAt).toLocaleString(lang === "ko" ? "ko-KR" : "en-US", {
+              month: "short", day: "numeric", hour: "2-digit", minute: "2-digit",
+            })}
+          </span>
+        )}
+        <Button variant="outline" size="xs" disabled={atDefault || saving} onClick={() => resetSection(paths)}
+          title={t("admin.settings.resetSection")}>
+          {t("admin.settings.resetSection")}
+        </Button>
+        <Button variant="outline" size="xs" disabled={!dirty || saving} onClick={() => revertSection(paths)}
+          title={t("admin.settings.revertSection")}>
+          {t("admin.settings.revertSection")}
+        </Button>
+        <Button variant="subtle" size="xs" disabled={!dirty || saving} onClick={saveWithStamp}>
+          {t("admin.settings.saveSection")}
+        </Button>
+      </span>
     </StickyGlassBar>
   );
 }

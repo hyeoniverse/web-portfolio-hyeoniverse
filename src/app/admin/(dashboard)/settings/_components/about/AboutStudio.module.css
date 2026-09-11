@@ -344,6 +344,9 @@ textarea.edit {
 
   display: flex;
   align-items: center;
+  /* 좁은 폭에서는 버튼 묶음(.psActions)이 이름 아래 줄로 내려간다. 예전엔 줄바꿈이 없어
+     모바일에서 버튼이 화면 밖으로 나가고, 이름은 "패널 순 / 서·표시"처럼 쪼개졌다. */
+  flex-wrap: wrap;
   gap: var(--spacing-xs);
   /* 붙었을 때 nav 글자와 붙지 않게 위아래로 띄운다. frost 도 이 만큼 넓어진다. */
   padding: var(--spacing-sm) 0;
@@ -357,6 +360,26 @@ textarea.edit {
   bottom: calc(-1 * var(--spacing-md));
   mask-image: linear-gradient(to bottom, #000 calc(100% - var(--spacing-md)), transparent);
 }
+/* 태블릿·모바일에서는 설정 탭 바(약 48px)도 nav 바로 밑에 붙는다. 같은 자리에 붙으면 탭 바를
+   덮으므로 그 아래에 붙인다. frost 는 탭 바 자리까지 올리지 않는다 — 탭 바가 제 frost 를 가진다.
+   다른 탭의 섹션 헤더(SectionHeader)도 이 폭에서 탭 바 아래로 내려 붙는다. */
+@media (max-width: 1024px) {
+  .psHeader.psHeader {
+    top: calc(var(--header-height) + 3rem);
+  }
+  .psHeader.psHeader::before {
+    top: 0;
+  }
+}
+
+.psActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--spacing-xs);
+  margin-left: auto;
+}
 /* 패널 섹션 타이틀 — 다른 탭 SectionHeader(.sectionTitle) 와 동일 크기 */
 
 /* 마지막으로 파일에서 가져온 시각. 저장 버튼 왼쪽에 조용히 붙는다. */
@@ -368,6 +391,7 @@ textarea.edit {
 }
 
 .psLabel {
+  white-space: nowrap;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-title-sm);
   font-weight: 700;
