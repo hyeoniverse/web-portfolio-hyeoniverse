@@ -4,6 +4,7 @@ import { Fragment } from "react";
 import { motion, type MotionValue } from "framer-motion";
 import styles from "./AboutNav.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 interface SectionNavProps {
   navRef: React.RefObject<HTMLElement | null>;
@@ -30,12 +31,13 @@ export default function SectionNav({
   onHover,
   onNavigate,
 }: SectionNavProps) {
+  const { language } = useLanguage();
   return (
     <nav
       className={styles.sectionNav}
       ref={navRef}
       onMouseLeave={() => onHover(null)}
-      aria-label="Section navigation"
+      aria-label={language === "ko" ? "섹션 이동" : "Section navigation"}
     >
       <motion.span
         className={styles.navIndicator}

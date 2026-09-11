@@ -883,7 +883,7 @@ export function CalendarElement(props: PlateElementProps) {
                   <Pressable noTapScale
                     key={fmt}
                     className={styles.exportItem}
-                    onClick={() => { if (cal) downloadCalendar(cal, title.trim() || t("달력", "calendar"), fmt); close(); }}
+                    onClick={() => { if (cal) downloadCalendar(cal, title.trim() || t("달력", "calendar"), fmt, language); close(); }}
                   >
                     {label}
                   </Pressable>

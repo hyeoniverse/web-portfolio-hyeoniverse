@@ -249,7 +249,8 @@ export function PostArticleBody({
       if (cancelled || !el.isConnected) return;
 
       // 수식 노드([data-math-block]/[data-math-inline])를 KaTeX 로 — 없으면 raw LaTeX 로 깨져 보인다
-      renderMathNodes(el);
+      /* 수식 오류 문구의 언어 — 이 효과는 언어가 바뀌어도 다시 돌지 않게 되어 있어(위 tRef 와 같은 이유) html lang 을 읽는다 */
+      renderMathNodes(el, document.documentElement.lang === "en" ? "en" : "ko");
       attachCodeWrapToggle(el, {
         wrap: tRef.current("common.codeWrap"),
         scroll: tRef.current("common.codeScroll"),
