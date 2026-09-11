@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { Fragment, useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { Settings as SettingsIcon } from "@/components/icons";
 import { useStaticPageScroll } from "@/hooks/useStaticPageScroll";
@@ -23,6 +23,8 @@ import ServicesTab from "./_components/ServicesTab";
 import AccountTab from "./_components/AccountTab";
 import SectionHeader from "./_components/SectionHeader";
 import SectionJumpNav from "./_components/SectionJumpNav";
+import SectionOutline from "./_components/SectionOutline";
+import { useSettingsSections } from "./_hooks/useSettingsSections";
 import AuthorsEditor from "./_components/AuthorsEditor";
 import T from "@/components/ui/T";
 import Button from "@/components/ui/Button";
@@ -77,8 +79,11 @@ export default function SettingsPage() {
   const [message, setMessage] = useState("");
   const savedConfigRef = useRef<SiteConfigData>(structuredClone(siteConfig) as unknown as SiteConfigData);
   const savedProfileRef = useRef<ProfileData>(structuredClone(profileDefaults));
-  // 섹션 바로가기(SectionJumpNav) 가 스캔할 패널 컨테이너 ref.
+  // 섹션 목록(useSettingsSections) 이 훑을 패널 컨테이너 ref.
   const panelRef = useRef<HTMLDivElement>(null);
+  // 붙어 있는 사이드바와 그 틀 — 페이지 끝에서 사이드바 높이를 남은 자리에 맞춘다(아래 효과).
+  const layoutRef = useRef<HTMLDivElement>(null);
+  const sideNavRef = useRef<HTMLElement>(null);
   // 탭바가 고정(pin)됐는지 — sentinel 이 사이트 nav 밑으로 사라지면 스크롤한 것.
   // 고정되면 상단(nav 영역 포함)에 frost blur 를 깐다 (edit 페이지와 같은 방식).
   const navSentinelRef = useRef<HTMLDivElement>(null);
@@ -105,6 +110,34 @@ export default function SettingsPage() {
       ? (sub as ContentSubTab)
       : "home";
   });
+  /* 지금 탭의 섹션 목록과 지금 보는 섹션 — 태블릿·모바일 눈금과 데스크톱 사이드바 목록이 같이 쓴다.
+     불러오는 동안에는 패널이 없어 훑을 게 없으므로, 다 불러온 뒤 다시 훑도록 loading 을 키에 넣는다. */
+  const sectionNav = useSettingsSections(panelRef, `${loading ? "loading" : "ready"}:${activeTab}:${contentSubTab}`);
+  /* 붙어 있는 사이드바는 틀(.layout)이 끝나면 위로 밀려 올라간다. About 에서 섹션 목록까지 펼치면
+     사이드바가 화면 높이에 가까워, 푸터가 보이기 시작하는 페이지 끝에서 밀려 올라가 사이트 nav 의
+     로고와 겹쳤다(nav 는 배경이 없다). 붙는 선에서 틀 끝까지 남은 자리만큼만 높이를 주면 밀리지 않고,
+     사이드바가 짧아져 안에서 스크롤된다. 태블릿·모바일은 사이드바가 가로 탭 바라 CSS 가 무시한다. */
+  useEffect(() => {
+    const nav = sideNavRef.current;
+    const layout = layoutRef.current;
+    if (!nav || !layout) return;
+    let raf = 0;
+    const fit = () => {
+      raf = 0;
+      const top = parseFloat(getComputedStyle(nav).top) || 0;
+      const room = Math.floor(layout.getBoundingClientRect().bottom - top);
+      nav.style.setProperty("--side-nav-room", `${Math.max(160, room)}px`);
+    };
+    const schedule = () => { if (!raf) raf = requestAnimationFrame(fit); };
+    fit();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+    };
+  }, [loading]);
   // 권한 게이팅 — 사이트 설정 탭은 소유자 전용, 비owner 는 account(본인 계정/프로필)만
   const [isOwnerUser, setIsOwnerUser] = useState<boolean | null>(null); // null=확인 전
   useEffect(() => {
@@ -807,11 +840,13 @@ export default function SettingsPage() {
 
       {/* 탭바 고정 감지용 sentinel — 탭바 자연 위치에 두는 0 높이 마커 */}
       <div ref={navSentinelRef} aria-hidden />
-      <div className={styles.layout}>
+      <div className={styles.layout} ref={layoutRef}>
         {/* ── Side Nav ── edit 페이지 topBar 처럼, sticky+frost 는 이 래퍼가 맡고
             가로 스크롤(overflow)은 안쪽 nav 가 맡는다 (overflow 가 ::before frost 를 안 자르게). */}
         <div className={`${styles.tabBarSticky} ${navPinned ? styles.tabBarPinned : ""}`}>
-        <nav className={styles.sideNav}>
+        {/* data-lenis-prevent-wheel — 사이드바가 안에서 스크롤될 때 전역 Lenis 가 휠을 가로채지 않게.
+            data-lenis-prevent 는 쓰지 않는다. AboutStudio 가 그 안의 클릭을 팝오버 안으로 보고 Hero 편집 바를 닫지 않는다. */}
+        <nav className={styles.sideNav} ref={sideNavRef} data-lenis-prevent-wheel>
           {TAB_IDS.filter((id) => allowedTabs.includes(id)).map((id) => {
             const tabCount = allConflicts.filter((c) => c.tab === id).length;
             return (
@@ -834,22 +869,28 @@ export default function SettingsPage() {
                   <div className={styles.navSub}>
                     {CONTENT_SUBTABS.map((sub) => {
                       const subCount = allConflicts.filter((c) => c.tab === "content" && c.subTab === sub).length;
+                      const subActive = activeTab === "content" && contentSubTab === sub;
                       return (
-                        <Pressable
-                          key={sub}
-                          className={`${styles.navSubItem} ${activeTab === "content" && contentSubTab === sub ? styles.navSubItemActive : ""}`}
-                          onClick={() => {
-                            setActiveTab("content");
-                            setContentSubTab(sub);
-                            setConfig(structuredClone(savedConfigRef.current));
-                            setProfileData(structuredClone(savedProfileRef.current));
-                            setConflictExpanded(false);
-                            setCheckedConflicts(new Set());
-                          }}
-                        >
-                          {t(`admin.settings.contentSub.${sub}`)}
-                          {subCount > 0 && <span className={styles.navConflictBadge} />}
-                        </Pressable>
+                        <Fragment key={sub}>
+                          <Pressable
+                            className={`${styles.navSubItem} ${subActive ? styles.navSubItemActive : ""}`}
+                            onClick={() => {
+                              setActiveTab("content");
+                              setContentSubTab(sub);
+                              setConfig(structuredClone(savedConfigRef.current));
+                              setProfileData(structuredClone(savedProfileRef.current));
+                              setConflictExpanded(false);
+                              setCheckedConflicts(new Set());
+                            }}
+                          >
+                            {t(`admin.settings.contentSub.${sub}`)}
+                            {subCount > 0 && <span className={styles.navConflictBadge} />}
+                          </Pressable>
+                          {/* 패널이 많고 긴 About 에는 이 화면의 섹션 목록을 둔다(데스크톱만) */}
+                          {subActive && sub === "about" && (
+                            <SectionOutline sections={sectionNav.sections} activeIdx={sectionNav.activeIdx} onJump={sectionNav.jumpTo} />
+                          )}
+                        </Fragment>
                       );
                     })}
                   </div>
@@ -886,7 +927,7 @@ export default function SettingsPage() {
             </div>
           )}
           {/* 섹션 바로가기 — 섹션이 여럿이면 하위탭 아래 가로 점프 링크. 탭으로 감추지 않고 이동만. */}
-          <SectionJumpNav panelRef={panelRef} scanKey={`${activeTab}:${contentSubTab}`} pinned={navPinned} />
+          <SectionJumpNav sections={sectionNav.sections} activeIdx={sectionNav.activeIdx} onJump={sectionNav.jumpTo} pinned={navPinned} />
           {/* ── 통합 충돌 배너 (탭별 필터) ── */}
           {tabConflicts.length > 0 && (() => {
             const PREVIEW_COUNT = 3;
