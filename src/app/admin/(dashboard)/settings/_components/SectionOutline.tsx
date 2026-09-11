@@ -18,10 +18,13 @@ export default function SectionOutline({
   sections,
   activeIdx,
   onJump,
+  dirty = [],
 }: {
   sections: SettingsSection[];
   activeIdx: number;
   onJump: (idx: number) => void;
+  /** 저장하지 않은 변경이 있는 섹션 — 이름 뒤에 점을 찍는다 */
+  dirty?: boolean[];
 }) {
   const { language } = useLanguage();
   const listRef = useRef<HTMLUListElement>(null);
@@ -48,9 +51,11 @@ export default function SectionOutline({
             className={`${css.item} ${i === activeIdx ? css.itemActive : ""}`}
             onClick={() => onJump(i)}
             aria-current={i === activeIdx ? "location" : undefined}
+            aria-label={dirty[i] ? `${s.label}, ${language === "ko" ? "저장 안 됨" : "unsaved"}` : undefined}
             title={s.label}
           >
-            {s.label}
+            <span className={css.itemLabel}>{s.label}</span>
+            {dirty[i] && <span className={css.itemDot} aria-hidden />}
           </Pressable>
         </li>
       ))}

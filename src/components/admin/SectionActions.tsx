@@ -70,6 +70,7 @@ export default function SectionActions({
         loading={saving}
         loadingVariant="wave"
         onClick={onSave}
+        title={t("admin.settings.saveSectionTooltip")}
       >
         {t("admin.settings.saveSection")}
       </Button>

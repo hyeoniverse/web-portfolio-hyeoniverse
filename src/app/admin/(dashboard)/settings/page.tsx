@@ -693,6 +693,8 @@ export default function SettingsPage() {
     { width: "min(90vw, 480px)" },
   );
   useLeaveGuard(hasChanges && !saving, askLeave);
+  /* 이 탭에서 바뀐 섹션 수 — 탭 저장 단추에 붙는다(섹션 머리·사이드바 목록의 점과 같은 판정) */
+  const changedCount = hasChanges ? sectionNav.dirty.filter(Boolean).length : 0;
   /* 탭·하위탭 옮기기. 옮기면 저장하지 않은 변경은 버린다 — 탭 저장이 보이지 않는 하위탭의 변경까지
      저장하지 않게. 사이드바 탭, 사이드바 하위탭, 모바일 하위탭 줄이 모두 이것을 쓴다. 예전에는 모바일
      하위탭 줄만 버리지 않아 데스크톱과 결과가 달랐고, 지금 탭을 다시 눌러도 변경이 버려졌다. */
@@ -856,14 +858,26 @@ export default function SettingsPage() {
                   <T k="admin.settings.revert" />
                 </Button>
               </Tooltip>
-              <Button
-                variant="primary"
-                size="md"
-                onClick={handleSave}
-                disabled={saving || !hasChanges || !!validationError}
-              >
-                {saving ? <T k="admin.settings.saving" /> : <T k="admin.settings.save" />}
-              </Button>
+              {/* 탭 저장 = 이 탭에서 바뀐 곳 전부. 몇 곳인지 붙여, 섹션 저장(그 섹션만)과의 관계가 보이게 한다 */}
+              <Tooltip content={changedCount === 0 ? t("admin.settings.saveTooltip")
+                : changedCount === 1 ? t("admin.settings.saveTooltipOne")
+                : t("admin.settings.saveTooltipMany").replace("{{n}}", String(changedCount))}
+                placement="bottom" delay={250}>
+                <Button
+                  variant="primary"
+                  size="md"
+                  onClick={handleSave}
+                  disabled={saving || !hasChanges || !!validationError}
+                  aria-label={changedCount > 0 && !saving ? `${t("admin.settings.save")}, ${t("admin.settings.saveChangedLabel").replace("{{n}}", String(changedCount))}` : undefined}
+                >
+                  {saving ? <T k="admin.settings.saving" /> : (
+                    <>
+                      <T k="admin.settings.save" />
+                      {changedCount > 0 && <span className={styles.saveCount} aria-hidden>{changedCount}</span>}
+                    </>
+                  )}
+                </Button>
+              </Tooltip>
             </>
           )}
         </div>
@@ -905,7 +919,7 @@ export default function SettingsPage() {
                           </Pressable>
                           {/* 패널이 많고 긴 About 에는 이 화면의 섹션 목록을 둔다(데스크톱만) */}
                           {subActive && sub === "about" && (
-                            <SectionOutline sections={sectionNav.sections} activeIdx={sectionNav.activeIdx} onJump={sectionNav.jumpTo} />
+                            <SectionOutline sections={sectionNav.sections} activeIdx={sectionNav.activeIdx} onJump={sectionNav.jumpTo} dirty={sectionNav.dirty} />
                           )}
                         </Fragment>
                       );
@@ -940,7 +954,7 @@ export default function SettingsPage() {
             </div>
           )}
           {/* 섹션 바로가기 — 섹션이 여럿이면 하위탭 아래 가로 점프 링크. 탭으로 감추지 않고 이동만. */}
-          <SectionJumpNav sections={sectionNav.sections} activeIdx={sectionNav.activeIdx} onJump={sectionNav.jumpTo} pinned={navPinned} />
+          <SectionJumpNav sections={sectionNav.sections} activeIdx={sectionNav.activeIdx} onJump={sectionNav.jumpTo} pinned={navPinned} dirty={sectionNav.dirty} />
           {/* ── 통합 충돌 배너 (탭별 필터) ── */}
           {tabConflicts.length > 0 && (() => {
             const PREVIEW_COUNT = 3;

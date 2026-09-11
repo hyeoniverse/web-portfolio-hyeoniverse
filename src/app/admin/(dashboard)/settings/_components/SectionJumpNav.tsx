@@ -16,10 +16,13 @@ export default function SectionJumpNav({
   activeIdx,
   onJump,
   pinned = false,
+  dirty = [],
 }: {
   sections: SettingsSection[];
   activeIdx: number;
   onJump: (idx: number) => void;
+  /** 저장하지 않은 변경이 있는 섹션 — 눈금 앞에 점을 찍는다 */
+  dirty?: boolean[];
   /** 상단 탭바가 고정됐는지 — 고정 시 frost 배경을 켠다 (탭바 frost 와 이어짐). */
   pinned?: boolean;
 }) {
@@ -34,9 +37,10 @@ export default function SectionJumpNav({
         {sections.map((s, i) => (
           <Pressable
             key={`${s.label}-${i}`}
-            className={`${css.item} ${i === activeIdx ? css.itemActive : ""}`}
+            className={`${css.item} ${i === activeIdx ? css.itemActive : ""} ${dirty[i] ? css.itemDirty : ""}`}
             onClick={() => onJump(i)}
             title={s.label}
+            aria-label={dirty[i] ? `${s.label}, ${language === "ko" ? "저장 안 됨" : "unsaved"}` : undefined}
           >
             <span className={css.label}>{s.label}</span>
             <span className={css.dot} aria-hidden />
