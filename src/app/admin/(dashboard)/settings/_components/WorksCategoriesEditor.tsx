@@ -55,10 +55,11 @@ interface WorksInfo {
 
 /** Work row 의 메타 (발행상태 + 날짜) */
 function WorkMeta({ w }: { w: PostMetaInfo }) {
+  const { t } = useLanguage();
   const dateStr = formatAdminShortDate(w.published_at || w.created_at);
   return (
     <span className={styles.tagRelatedMeta}>
-      {!w.published && <span className={styles.tagRelatedMetaDraft}>draft</span>}
+      {!w.published && <span className={styles.tagRelatedMetaDraft}>{t("admin.posts.draft")}</span>}
       {dateStr && <span>{dateStr}</span>}
     </span>
   );
@@ -412,7 +413,7 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
                   className={styles.tagRelatedItem}
                 >
                   <span className={styles.tagRelatedTitle}>
-                    {w.title || "(no title)"}
+                    {w.title || `(${t("admin.posts.untitled")})`}
                   </span>
                   <WorkMeta w={w} />
                 </a>

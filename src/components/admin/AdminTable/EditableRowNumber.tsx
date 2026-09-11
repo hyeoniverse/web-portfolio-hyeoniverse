@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback, type KeyboardEvent } from "react";
 import { useDepsChanged } from "@/hooks/useDepsChanged";
+import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "./AdminTable.module.css";
 
 interface Props {
@@ -15,6 +16,7 @@ interface Props {
 
 /** 행 번호 셀 인라인 편집 — 클릭 시 input, Enter/blur 저장, Esc 취소. 기본은 표의 # 칸을 채운다. */
 export default function EditableRowNumber({ value, min = 1, max, onSave, inline = false }: Props) {
+  const { t } = useLanguage();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(String(value));
   const inputRef = useRef<HTMLInputElement>(null);
@@ -69,7 +71,7 @@ export default function EditableRowNumber({ value, min = 1, max, onSave, inline 
       tabIndex={0}
       onClick={(e) => { e.stopPropagation(); setEditing(true); }}
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setEditing(true); } }}
-      title="클릭해서 위치 직접 입력"
+      title={t("admin.common.rowNumberHint")}
     >
       {value}
     </span>

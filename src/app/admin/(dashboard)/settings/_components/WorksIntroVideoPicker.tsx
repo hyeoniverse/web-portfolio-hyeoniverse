@@ -183,7 +183,6 @@ export default function WorksIntroVideoPicker({ value, onChange }: Props) {
             closing={pickerClosing}
             currentUrl={value}
             localFilesEndpoint="/api/admin/cover"
-            localFilesHint={t("admin.settings.worksIntroMedia.localHint")}
           />
         </div>
       )}

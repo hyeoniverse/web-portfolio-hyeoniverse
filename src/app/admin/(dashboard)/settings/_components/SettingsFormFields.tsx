@@ -22,9 +22,10 @@ const styles = { ...shared, ...local };
 
 /* ── FieldHelp — 라벨 옆 ? 아이콘 + Tooltip. 필드 값·옵션 설명용 (raw label/Switch 케이스도 재사용). ── */
 export function FieldHelp({ content }: { content: React.ReactNode }) {
+  const { t } = useLanguage();
   return (
     <Tooltip content={content} placement="top">
-      <span className={styles.fieldHelp} role="button" tabIndex={0} aria-label="설명">
+      <span className={styles.fieldHelp} role="button" tabIndex={0} aria-label={t("admin.settings.description")}>
         <HelpCircle size={13} />
       </span>
     </Tooltip>
@@ -87,6 +88,7 @@ function resolveMaxHint(v: number | MaxHintPreset | undefined | null, multiline:
 }
 
 export default function Field({ label, value, onChange, multiline, placeholder, hint, labelInline, required, langBadge, maxHint, maxLength, help, suggestions }: FieldProps) {
+  const { t } = useLanguage();
   const listId = useId();
   const options = suggestions?.filter(Boolean) ?? [];
   const badgeStr = langBadge ? langBadge.toUpperCase() : undefined;
@@ -100,7 +102,7 @@ export default function Field({ label, value, onChange, multiline, placeholder, 
         <span className={styles.fieldLabelText}>
           {label}
           {multiline && badgeStr && <span className={styles.fieldLangBadge}>{badgeStr}</span>}
-          {required && <span className={styles.fieldRequiredDot} role="img" aria-label="필수" />}
+          {required && <span className={styles.fieldRequiredDot} role="img" aria-label={t("admin.common.required")} />}
           {help && <FieldHelp content={help} />}
         </span>
         {hint && <span className={styles.fieldLabelHint}>{hint}</span>}
@@ -146,6 +148,7 @@ interface ColorFieldProps {
 }
 
 export function ColorField({ label, value, onChange }: ColorFieldProps) {
+  const { t } = useLanguage();
   return (
     <div className={styles.fieldRow}>
       <label className={styles.fieldLabel}>{label}</label>
@@ -156,7 +159,7 @@ export function ColorField({ label, value, onChange }: ColorFieldProps) {
               className={styles.colorPicker}
               style={{ background: value }}
               onClick={toggle}
-              aria-label="색 선택 popover 열기"
+              aria-label={t("admin.settings.colorPickerOpen")}
             />
             <Input
               className={styles.colorInput}

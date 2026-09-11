@@ -629,7 +629,7 @@ export default function CustomGradientEditor({ config, onConfigChange, onSelect,
         {/* 줄2: 각도(radial 일 때 비활성화) / 크기 / 속도 slider — 항상 동일 row 수 유지해 높이 변하지 않게 */}
         <div className={styles.customSliders}>
           <label className={`${styles.customSlider} ${type !== "linear" ? styles.customSliderDisabled : ""}`}>
-            <span className={styles.customSliderLabel}>{tc("angle") || "각도"}</span>
+            <span className={styles.customSliderLabel}>{tc("angle")}</span>
             <input
               type="range"
               min={0}
@@ -642,7 +642,7 @@ export default function CustomGradientEditor({ config, onConfigChange, onSelect,
             <span className={styles.customSliderValue}>{angle}°</span>
           </label>
           <label className={styles.customSlider}>
-            <span className={styles.customSliderLabel}>{tc("size") || "크기"}</span>
+            <span className={styles.customSliderLabel}>{tc("size")}</span>
             <input
               type="range"
               min={30}
@@ -654,7 +654,7 @@ export default function CustomGradientEditor({ config, onConfigChange, onSelect,
             <span className={styles.customSliderValue}>{size.toFixed(2)}</span>
           </label>
           <label className={styles.customSlider}>
-            <span className={styles.customSliderLabel}>{tc("speed") || "속도"}</span>
+            <span className={styles.customSliderLabel}>{tc("speed")}</span>
             <input
               type="range"
               min={30}

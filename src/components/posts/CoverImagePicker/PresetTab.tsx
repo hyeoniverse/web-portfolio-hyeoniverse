@@ -9,6 +9,7 @@ import { extractPalette } from "@/components/admin/CoverImageField/extractPalett
 import { isVideoUrl } from "@/lib/isVideoUrl";
 import styles from "./CoverImagePicker.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 interface LocalFile {
   url: string;
@@ -108,6 +109,7 @@ function PresetCard({
 }
 
 export default function PresetTab({ onSelect, onImageUploaded, currentUrl, localFilesEndpoint, localFilesHint }: PresetTabProps) {
+  const { t } = useLanguage();
   // editor state — preset 클릭 시 여기를 update → CustomGradientEditor 가 controlled props 로 받음
   const [config, setConfig] = useState<PresetConfig>(presets[0].config);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -178,7 +180,7 @@ export default function PresetTab({ onSelect, onImageUploaded, currentUrl, local
           <div className={styles.presetSectionHeader}>
             <span className={styles.presetSectionLabel}>
               <FolderOpen size={11} strokeWidth={2} />
-              로컬 미디어 <span className={styles.presetSectionCount}>{localFiles.length}</span>
+              {t("admin.posts.coverPicker.localMedia")} <span className={styles.presetSectionCount}>{localFiles.length}</span>
             </span>
           </div>
           {localFilesHint && <p className={styles.presetSectionHint}>{localFilesHint}</p>}
@@ -197,7 +199,7 @@ export default function PresetTab({ onSelect, onImageUploaded, currentUrl, local
       <div className={styles.presetSectionHeader}>
         <span className={styles.presetSectionLabel}>
           <Palette size={11} strokeWidth={2} />
-          그라데이션 프리셋 <span className={styles.presetSectionCount}>{presets.length}</span>
+          {t("admin.posts.coverPicker.gradientPresets")} <span className={styles.presetSectionCount}>{presets.length}</span>
         </span>
       </div>
       <div className={styles.presetGrid}>

@@ -201,7 +201,9 @@
       "save": "Save",
       "dragToReorder": "Drag to reorder",
       "deleteSelected": "Delete selected",
-      "deleteCount": "Delete ({{n}})"
+      "deleteCount": "Delete ({{n}})",
+      "required": "Required",
+      "rowNumberHint": "Click to type a position"
     },
     "settings": {
       "title": "Settings",
@@ -314,6 +316,8 @@
       "accentColor": "Accent Color",
       "saveThemePreset": "Save current as preset",
       "removeThemePreset": "Remove preset",
+      "removeNamedPreset": "Remove {{name}}",
+      "colorPickerOpen": "Open color picker",
       "enterPresetName": "Enter a preset name",
       "lightBg": "Light Mode Background",
       "lightText": "Light Mode Text",
@@ -419,7 +423,8 @@
         "noDesc": "No description",
         "searchAll": "Name+Description",
         "noResults": "No results",
-        "posts": "Posts ({{n}})"
+        "posts": "Posts ({{n}})",
+        "views": "{{n}} views"
       },
       "tagEditor": {
         "title": "Tags",
@@ -467,7 +472,6 @@
         "publishHint": "Click to publish",
         "unpublishHint": "Click to unpublish",
         "order": "Order",
-        "required": "Required",
         "addSelected": "Add {{n}}",
         "orderHint": "Double-click to change order"
       },
@@ -490,7 +494,6 @@
         "chooseCover": "Choose cover",
         "closeCover": "Close cover picker",
         "urlPlaceholder": "/cover/videos/bg-1.mp4 or an external URL",
-        "localHint": "Shows every media file in public/cover/videos/ and public/cover/images/.",
         "previewTitle": "Intro media preview"
       },
       "compressVideo": {
@@ -608,6 +611,8 @@
       "nameRequired": "Name is required",
       "siteTitleRequired": "Site title is required",
       "emailInvalid": "Invalid email format",
+      "colorRequired": "{{label}} cannot be empty.",
+      "giscusFieldRequired": "Enter the giscus {{field}}. (Required when using giscus.)",
       "updateSuccess": "Updated successfully",
       "emailConfirmationSent": "Confirmation emails have been sent to both your current and new email addresses. You must confirm from both to complete the change.",
       "pendingEmailChange": "Email change pending",
@@ -655,6 +660,9 @@
       "conflictApply": "Apply selected",
       "conflictExpand": "Show all",
       "conflictCollapse": "Collapse",
+      "conflictMore": "+ {{n}} more",
+      "diffRevertHunk": "Revert: {{label}}",
+      "diffApplyCode": "Use code: {{label}}",
       "profileConflictTitle": "Profile updates available",
       "profileConflictDesc": "Profile defaults have changed in code. You can apply the latest values per section.",
       "profileConflictApply": "Apply",
@@ -891,6 +899,7 @@
       "faviconTextShadow": "Text shadow",
       "faviconBgShadow": "Background shadow",
       "faviconShadowInset": "Inset",
+      "faviconShadowDragHint": "Drag the light in the preview to set the direction and distance",
       "faviconShadowSize": "Size",
       "faviconShadowSizeCustom": "Custom",
       "faviconShadowCustom": "Blur",
@@ -1148,6 +1157,11 @@
       },
       "coverPicker": {
         "presets": "Presets",
+        "localMedia": "Local media",
+        "gradientPresets": "Gradient presets",
+        "localFilesHint": "Shows every media file in public/cover/videos/ and public/cover/images/.",
+        "mediaImage": "Images",
+        "mediaVideo": "Videos",
         "projectImages": "Project",
         "unsplash": "Unsplash",
         "aiGenerate": "AI Generate",

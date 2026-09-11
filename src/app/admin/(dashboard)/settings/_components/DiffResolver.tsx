@@ -8,6 +8,8 @@ import Button from "@/components/ui/Button";
 import Tooltip from "@/components/ui/Tooltip";
 import styles from "./DiffResolver.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { useLanguage } from "@/providers/LanguageProvider";
+import { fillTemplate } from "@/utils/format";
 
 export default function DiffResolver({
   conflict,
@@ -20,6 +22,7 @@ export default function DiffResolver({
   onResolve: (mergedValue: unknown) => void;
   onDismiss: () => void;
 }) {
+  const { t } = useLanguage();
   const dbStr = typeof conflict.dbValue === "object" ? JSON.stringify(conflict.dbValue, null, 2) : String(conflict.dbValue);
   const codeStr = typeof conflict.codeDefault === "object" ? JSON.stringify(conflict.codeDefault, null, 2) : String(conflict.codeDefault);
   const ops = useMemo(() => buildDiffOps(dbStr, codeStr), [dbStr, codeStr]);
@@ -71,10 +74,10 @@ export default function DiffResolver({
             shape="circle"
             size="md"
             onClick={handleApply}
-            title="적용"
+            title={t("admin.common.apply")}
             icon={<Check size={14} strokeWidth={1.8} />}
           />
-          <Pressable className={styles.conflictCloseBtn} onClick={onDismiss} title="닫기">
+          <Pressable className={styles.conflictCloseBtn} onClick={onDismiss} title={t("common.close")}>
             <span className={styles.conflictCloseIcon}>
               <span className={styles.conflictCloseLine} />
               <span className={styles.conflictCloseLine} />
@@ -105,7 +108,7 @@ export default function DiffResolver({
             return (
               <div key={`hunk-${hunk.id}`} className={styles.diffHunk}>
                 <div className={styles.diffHunkOverlay}>
-                  <Tooltip content={`되돌리기: ${tooltipLabel}`} placement="right">
+                  <Tooltip content={fillTemplate(t("admin.settings.diffRevertHunk"), { label: tooltipLabel })} placement="right">
                     <Pressable
                       className={`${styles.diffHunkFloatBtn} ${styles.diffHunkFloatRevert}`}
                       onClick={() => toggle(hunk.id)}
@@ -129,7 +132,7 @@ export default function DiffResolver({
           return (
             <div key={`hunk-${hunk.id}`} className={styles.diffHunk}>
               <div className={styles.diffHunkOverlay}>
-                <Tooltip content={`Code 적용: ${tooltipLabel}`} placement="right">
+                <Tooltip content={fillTemplate(t("admin.settings.diffApplyCode"), { label: tooltipLabel })} placement="right">
                   <Pressable
                     className={`${styles.diffHunkFloatBtn} ${styles.diffHunkFloatAccept}`}
                     onClick={() => toggle(hunk.id)}

@@ -69,18 +69,20 @@ type SavedTagValue = Record<string, SavedTagMeta>;
    tag canonical key 는 post.tags 와 매칭되는 string. 편집은 표시이름(ko/en) + 설명(ko/en) 만. */
 /** 게시물 리스트 row 의 메타 데이터 (발행상태 / 날짜 / 조회수) */
 function PostMeta({ p }: { p: PostMetaInfo }) {
+  const { t } = useLanguage();
   const dateStr = formatAdminShortDate(p.published_at || p.created_at);
   return (
     <span className={styles.tagRelatedMeta}>
-      {!p.published && <span className={styles.tagRelatedMetaDraft}>draft</span>}
+      {!p.published && <span className={styles.tagRelatedMetaDraft}>{t("admin.posts.draft")}</span>}
       {dateStr && <span>{dateStr}</span>}
-      {typeof p.view_count === "number" && p.view_count > 0 && <span>{p.view_count} views</span>}
+      {typeof p.view_count === "number" && p.view_count > 0 && <span>{fillTemplate(t("admin.settings.taxonomy.views"), { n: p.view_count })}</span>}
     </span>
   );
 }
 
 /** 태그가 쓰인 게시물 목록 — 편집 링크 + 메타. emptyLabel 없으면 빈 목록은 비워둔다. */
 function RelatedPostList({ posts, emptyLabel }: { posts: AdminPostUsageInfo[]; emptyLabel?: string }) {
+  const { t } = useLanguage();
   return (
     <List className={styles.tagRelatedPosts} data-lenis-prevent>
       {posts.length === 0 && emptyLabel ? (
@@ -89,7 +91,7 @@ function RelatedPostList({ posts, emptyLabel }: { posts: AdminPostUsageInfo[]; e
         posts.map((p) => (
           <ListItem key={p.id} layout="column">
             <a href={`/admin/posts/${p.id}/edit`} target="_blank" rel="noopener noreferrer" className={styles.tagRelatedItem}>
-              <span className={styles.tagRelatedTitle}>{p.title || p.title_en || "(no title)"}</span>
+              <span className={styles.tagRelatedTitle}>{p.title || p.title_en || `(${t("admin.posts.untitled")})`}</span>
               <PostMeta p={p} />
             </a>
           </ListItem>

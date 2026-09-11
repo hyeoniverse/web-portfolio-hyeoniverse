@@ -199,13 +199,13 @@ export default function PexelsTab({
             className={`${styles.pexelsTypeBtn} ${mediaType === "image" ? styles.pexelsTypeBtnActive : ""}`}
             onClick={() => handleTypeChange("image")}
           >
-            <ImageIcon size={12} strokeWidth={2} /> 이미지
+            <ImageIcon size={12} strokeWidth={2} /> {tc("mediaImage")}
           </Pressable>
           <Pressable noTapScale
             className={`${styles.pexelsTypeBtn} ${mediaType === "video" ? styles.pexelsTypeBtnActive : ""}`}
             onClick={() => handleTypeChange("video")}
           >
-            <Film size={12} strokeWidth={2} /> 영상
+            <Film size={12} strokeWidth={2} /> {tc("mediaVideo")}
           </Pressable>
         </div>
       )}
@@ -241,7 +241,7 @@ export default function PexelsTab({
         <>
           <div className={styles.unsplashLicenseNote}>
             <BadgeCheck size={12} strokeWidth={2} />
-            <span>모든 결과는 개인·상업 이용 모두 무료입니다.</span>
+            <span>{tc("unsplashLicenseNote")}</span>
             <a href="https://www.pexels.com/license/" target="_blank" rel="noopener noreferrer">
               Pexels License
             </a>

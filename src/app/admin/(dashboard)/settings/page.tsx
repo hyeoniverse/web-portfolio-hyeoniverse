@@ -38,6 +38,7 @@ import { useAccountSettings } from "./_hooks/useAccountSettings";
 import shared from "./Settings.module.css";
 import local from "./page.module.css";
 import { OWNER_AUTHOR_ID, withOwnerAuthor } from "@/utils/resolvePostAuthors";
+import { fillTemplate } from "@/utils/format";
 import type { SaveResult } from "./_types";
 import Pressable from "@/components/ui/Pressable";
 const styles = { ...shared, ...local };
@@ -50,6 +51,10 @@ const PROFILE_SECTION_LABELS: Record<string, string> = {
   certifications: "Certifications",
   awards: "Awards",
 };
+
+/* 저장 전 검사가 비었는지 보는 값 — Appearance 의 색 칸, giscus 를 쓸 때 필요한 칸 */
+const THEME_COLOR_KEYS = ["accentColor", "lightBg", "lightText", "darkBg", "darkText"] as const;
+const GISCUS_REQUIRED_KEYS = ["repo", "repoId", "category", "categoryId"] as const;
 
 
 export default function SettingsPage() {
@@ -535,21 +540,15 @@ export default function SettingsPage() {
     }
     if (activeTab === "appearance") {
       const th = (config.theme ?? {}) as Record<string, unknown>;
-      const colors: Array<[string, string]> = [
-        ["accentColor", "액센트 색상"], ["lightBg", "라이트 배경색"], ["lightText", "라이트 텍스트색"],
-        ["darkBg", "다크 배경색"], ["darkText", "다크 텍스트색"],
-      ];
-      for (const [k, label] of colors) {
-        if (!String(th[k] ?? "").trim()) return `${label}을(를) 비워둘 수 없습니다.`;
-      }
+      /* 메시지의 색 이름은 화면의 칸 이름(Appearance 탭 ColorField 라벨)과 같은 키를 쓴다 */
+      const empty = THEME_COLOR_KEYS.find((k) => !String(th[k] ?? "").trim());
+      if (empty) return fillTemplate(t("admin.settings.colorRequired"), { label: t(`admin.settings.${empty}`) });
     }
     if (activeTab === "services") {
       if (config.comments?.provider === "giscus") {
         const g = (config.comments?.giscus ?? {}) as Record<string, unknown>;
-        const req: Array<[string, string]> = [["repo", "repo"], ["repoId", "repoId"], ["category", "category"], ["categoryId", "categoryId"]];
-        for (const [k, label] of req) {
-          if (!String(g[k] ?? "").trim()) return `giscus ${label}을(를) 입력해야 합니다. (giscus 사용 시 필수)`;
-        }
+        const missing = GISCUS_REQUIRED_KEYS.find((k) => !String(g[k] ?? "").trim());
+        if (missing) return fillTemplate(t("admin.settings.giscusFieldRequired"), { field: missing });
       }
     }
     return null;
@@ -1036,7 +1035,7 @@ export default function SettingsPage() {
                       className={styles.conflictToggle}
                       onClick={() => setConflictExpanded(true)}
                     >
-                      + {tabConflicts.length - PREVIEW_COUNT}건 더 보기
+                      {fillTemplate(t("admin.settings.conflictMore"), { n: tabConflicts.length - PREVIEW_COUNT })}
                     </Pressable>
                   ) : conflictExpanded ? (
                     <Pressable
