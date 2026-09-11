@@ -131,7 +131,7 @@ export function CodeHighlightsBlock({ value, onChange, lang, t, title }: {
               <div className={ch.codeSingleHeader}>
                 <span className={ch.codeSingleNumber}>{String(cur + 1).padStart(2, "0")}</span>
                 <div className={ch.codeSingleMeta}>
-                  <EditableText className={css.chTitle} value={it.title} autoFocus={isEmptySnippet(it)}
+                  <EditableText wrap className={css.chTitle} value={it.title} autoFocus={isEmptySnippet(it)}
                     onChange={(v) => set({ title: v })} placeholder="StaggerText Component" ariaLabel="title" />
                   <EditableText multiline className={ch.codeSingleDesc} value={lang === "ko" ? it.description_ko : it.description_en}
                     onChange={(v) => set(lang === "ko" ? { description_ko: v } : { description_en: v })}

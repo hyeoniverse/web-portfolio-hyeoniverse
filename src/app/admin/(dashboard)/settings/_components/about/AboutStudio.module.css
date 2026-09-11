@@ -86,6 +86,14 @@
   background: var(--color-accent-alpha-10);
   box-shadow: inset 0 0 0 1px var(--color-accent);
 }
+/* 한 줄 값이지만 접어서 보여 주는 칸(EditableText wrap). 패널 클래스가 제목을 한 줄로 두고
+   말줄임표로 자르는 경우(Key Features 카드 제목)가 있어 그보다 높게 (0,2,0) 로 푼다.
+   편집기에서 보는 줄바꿈이 실제 페이지와 달라도, 고치는 동안 글이 다 보이는 쪽을 택한다(PanelStage 와 같은 판단). */
+.editWrap.editWrap {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  text-overflow: clip;
+}
 /* 한 줄 입력은 flex 줄에서 자기 내용 아래로 눌리지 않게. input 은 줄바꿈을 못 해서
    눌리는 만큼 글자가 잘린다 — User Flow 의 VISITOR 가 VISITO 로 나왔다.
    textarea 는 눌려도 줄바꿈으로 흡수하므로 그대로 둔다. */
@@ -730,6 +738,37 @@ textarea.edit {
   color: var(--text-tertiary);
   cursor: pointer;
 }
+/* 모바일 — 데스크톱 3×3 틀을 흉내 내면 칸 폭이 80px 남짓이라 제목이 글자 단위로 쪼개졌다.
+   한 줄에 한 카드씩 쌓는다. hover 로만 펼치던 설명·기술 칸과 도구(이미지 변경·삭제)는 늘 보이게
+   한다 — 터치에는 hover 가 없다. 틀 흉내용 grid 크기는 인라인 style 이라 flex 로 바꾸면 무시된다. */
+@media (max-width: 768px) {
+  .featGrid.featGrid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    min-height: 0;
+  }
+  .featCell.featCell {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    min-height: 200px;
+  }
+  .featInfo.featInfo {
+    position: relative;
+  }
+  .featDetails.featDetails {
+    max-height: none;
+    opacity: 1;
+  }
+  .featTools.featTools {
+    opacity: 1;
+  }
+  .featAdd.featAdd {
+    justify-content: center;
+    min-height: 64px;
+  }
+}
 
 /* Process 정적 프리뷰 — 타임라인 + 편집용 스텝 리스트 */
 .procList {
@@ -1317,6 +1356,13 @@ textarea.edit {
   flex: 1;
   min-width: 0;
 }
+/* 좁은 폭에서는 왼쪽 목록을 뺀다. 목록이 34% 를 잡아 모바일에서 상세 칸이 한 줄에 몇 자씩만 남았다.
+   항목 선택은 위의 번호 탭(01·02…)이 같은 일을 한다. */
+@media (max-width: 768px) {
+  .bkBody > :first-child {
+    display: none;
+  }
+}
 .bkDesc,
 .bkNote {
   color: var(--text-secondary);
@@ -1341,8 +1387,9 @@ textarea.edit {
 .bkRow:focus-within button {
   opacity: 1;
 }
+/* DELETE·OPTIONS 까지 들어가는 폭. 5ch 일 때 DELETE 가 DELE 로 잘렸다(칸 여백 포함). */
 .bkMethod {
-  width: 5ch;
+  width: calc(7ch + 2 * var(--spacing-2xs));
   color: var(--text-accent);
   font-family: var(--font-mono);
   text-transform: uppercase;
