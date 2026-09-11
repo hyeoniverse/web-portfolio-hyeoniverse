@@ -9,6 +9,7 @@ import { usePortalContainer } from "./portalContainer";
 import styles from "./Select.module.css";
 import Pressable from "@/components/ui/Pressable";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { fillTemplate } from "@/utils/format";
 
 interface SelectOption {
   value: string;
@@ -111,7 +112,8 @@ export default function Select({
   width,
   preserveFocus = false,
 }: SelectProps) {
-  const clearLabel = useLanguage().t("common.clear");
+  const { t } = useLanguage();
+  const clearLabel = t("common.clear");
   const bubble = variant === "bubble";
   // 오버레이(모달) 안이면 그 stacking context 로 portal → 전역 z override 없이 모달 위에 뜬다.
   const portalContainer = usePortalContainer();
@@ -357,7 +359,7 @@ export default function Select({
   const optionsContent = hasChildren
     ? (typeof children === "function" ? children({ close }) : children)
     : isEmpty
-      ? <div className={styles.optionEmpty}>{inputValue.trim() ? `“${inputValue.trim()}” — 프리셋에 없음` : "옵션 없음"}</div>
+      ? <div className={styles.optionEmpty}>{inputValue.trim() ? fillTemplate(t("common.selectNotInPresets"), { value: inputValue.trim() }) : t("common.selectNoOptions")}</div>
       : hasGroups
         ? (() => {
             // 입력 순서 유지하며 group 별 packing (Map insertion order)
@@ -394,7 +396,7 @@ export default function Select({
       >
         {showCheck && (<span className={styles.check} style={{ visibility: "hidden" }}>{"✓"}</span>)}
         <span className={styles.optionContent}>
-          <span className={styles.optionLabel}>직접 입력</span>
+          <span className={styles.optionLabel}>{t("common.selectCustom")}</span>
         </span>
       </Pressable>
       {optionsContent}
@@ -528,7 +530,7 @@ export default function Select({
             }, 250);
           }}
           disabled={disabled}
-          title={editable ? "더블클릭으로 직접 입력" : undefined}
+          title={editable ? t("common.selectCustomHint") : undefined}
         >
           <span className={styles.valueStack}>
             <span className={styles.value}>

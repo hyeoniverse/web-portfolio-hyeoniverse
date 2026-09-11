@@ -43,7 +43,7 @@ export default function NumberInput({
   const [draft, setDraft] = useState("");
   const [focused, setFocused] = useState(false);
   const focusedRef = useRef(false);
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const ko = language === "ko";
   // 경계 toast 스로틀 — hold-repeat(SpinButton) 로 도배되지 않게 1.2초당 1회만
   const boundaryLockRef = useRef(false);
@@ -108,7 +108,7 @@ export default function NumberInput({
 
   return (
     <span className={`${styles.root}${focused ? ` ${styles.focused}` : ""}${className ? ` ${className}` : ""}`} style={rootStyle}>
-      <SpinButton className={styles.stepBtn} ariaLabel="감소" onStep={() => spin(-1)}><Minus size={12} strokeWidth={2.5} /></SpinButton>
+      <SpinButton className={styles.stepBtn} ariaLabel={t("common.decrease")} onStep={() => spin(-1)}><Minus size={12} strokeWidth={2.5} /></SpinButton>
       {label != null && <span className={styles.label}>{label}</span>}
       <input
         type="number"
@@ -138,7 +138,7 @@ export default function NumberInput({
           </span>
         </Tooltip>
       )}
-      <SpinButton className={styles.stepBtn} ariaLabel="증가" onStep={() => spin(1)}><Plus size={12} strokeWidth={2.5} /></SpinButton>
+      <SpinButton className={styles.stepBtn} ariaLabel={t("common.increase")} onStep={() => spin(1)}><Plus size={12} strokeWidth={2.5} /></SpinButton>
     </span>
   );
 }

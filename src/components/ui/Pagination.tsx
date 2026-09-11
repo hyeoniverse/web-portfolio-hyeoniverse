@@ -5,6 +5,7 @@ import { useStateFromProp } from "@/hooks/useStateFromProp";
 import { ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight } from "@/components/icons";
 import styles from "./Pagination.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 interface PaginationProps {
   page: number;
@@ -18,6 +19,7 @@ interface PaginationProps {
 }
 
 export default function Pagination({ page, totalPages, onChange, className, showJump = true, size = "md" }: PaginationProps) {
+  const { t } = useLanguage();
   const pageNumbers = useMemo(() => {
     // single page 도 명시적 active "1" 버튼이 보이도록 [1] 반환
     if (totalPages <= 1) return [1];
@@ -45,10 +47,10 @@ export default function Pagination({ page, totalPages, onChange, className, show
   return (
     <div className={`${styles.paginationWrap} ${size === "sm" ? styles.paginationWrapSm : ""} ${className ?? ""}`}>
       <div className={styles.pagination}>
-        <Pressable disabled={page <= 1} onClick={() => onChange(1)} className={styles.pageBtn} aria-label="첫 페이지" title="First">
+        <Pressable disabled={page <= 1} onClick={() => onChange(1)} className={styles.pageBtn} aria-label={t("common.pageFirst")} title={t("common.pageFirst")}>
           <ChevronsLeft size={14} />
         </Pressable>
-        <Pressable disabled={page <= 1} onClick={() => onChange(page - 1)} className={styles.pageBtn} aria-label="이전 페이지">
+        <Pressable disabled={page <= 1} onClick={() => onChange(page - 1)} className={styles.pageBtn} aria-label={t("common.pagePrev")}>
           <ChevronLeft size={14} />
         </Pressable>
         {pageNumbers.map((p, i) =>
@@ -65,10 +67,10 @@ export default function Pagination({ page, totalPages, onChange, className, show
             </Pressable>
           ),
         )}
-        <Pressable disabled={page >= totalPages} onClick={() => onChange(page + 1)} className={styles.pageBtn} aria-label="다음 페이지">
+        <Pressable disabled={page >= totalPages} onClick={() => onChange(page + 1)} className={styles.pageBtn} aria-label={t("common.pageNext")}>
           <ChevronRight size={14} />
         </Pressable>
-        <Pressable disabled={page >= totalPages} onClick={() => onChange(totalPages)} className={styles.pageBtn} aria-label="마지막 페이지" title="Last">
+        <Pressable disabled={page >= totalPages} onClick={() => onChange(totalPages)} className={styles.pageBtn} aria-label={t("common.pageLast")} title={t("common.pageLast")}>
           <ChevronsRight size={14} />
         </Pressable>
       </div>
@@ -88,7 +90,7 @@ export default function Pagination({ page, totalPages, onChange, className, show
             onChange={(e) => setJumpInput(e.target.value)}
             onBlur={submitJump}
             className={styles.jumpInput}
-            aria-label="페이지로 이동"
+            aria-label={t("common.pageJump")}
           />
           <span className={styles.jumpTotal}>/ {totalPages}</span>
         </form>
