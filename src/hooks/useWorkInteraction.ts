@@ -24,7 +24,6 @@ interface UseWorkInteractionReturn {
   handleHoverStart: (e: React.MouseEvent<HTMLDivElement>, work: WorkItem) => void;
   handleHoverEnd: () => void;
   getCurrentScale: (workId: string) => number;
-  isNavigating: boolean;
 }
 
 export function useWorkInteraction(): UseWorkInteractionReturn {
@@ -170,6 +169,5 @@ export function useWorkInteraction(): UseWorkInteractionReturn {
     handleHoverStart,
     handleHoverEnd,
     getCurrentScale,
-    isNavigating: hasNavigatedRef.current || hasHoverNavigatedRef.current,
   };
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useMemo, useRef, useEffect } from "react";
+import { useSyncRef } from "@/hooks/useSyncRef";
 import { useRouter } from "next/navigation";
 
 interface HasId { id: string }
@@ -18,10 +19,19 @@ interface UsePreviewTooltipOptions {
 export function usePreviewTooltip<T extends HasId>(editBasePath: string, options?: UsePreviewTooltipOptions) {
   const checkImage = useMemo(() => options?.hasImage ?? ((item: unknown) => !!(item as { cover_image?: string }).cover_image), [options?.hasImage]);
   const router = useRouter();
-  const hoveredRef = useRef<T | null>(null);
-  const [tooltipKey, setTooltipKey] = useState(0);
-  const tooltipPosRef = useRef({ top: 0, left: 0 });
-  const imgErrorRef = useRef(false);
+  /* 떠 있는 미리보기. key 는 보일 때·숨길 때·이미지 오류 때마다 올려 툴팁을 새로 그린다.
+     예전에는 항목·위치·이미지 오류를 ref 에 두고 key 상태만 올려 다시 그리게 했는데, 렌더가 ref 를
+     읽으면 ref 만 바뀐 렌더를 놓칠 수 있다. 다시 그리는 횟수는 같다(보일 때·숨길 때 한 번씩). */
+  const [tooltip, setTooltip] = useState<{
+    key: number;
+    item: T | null;
+    pos: { top: number; left: number };
+    imgError: boolean;
+  }>({ key: 0, item: null, pos: { top: 0, left: 0 }, imgError: false });
+  /* 모바일 두 번째 탭 판정은 이벤트 처리에서 지금 떠 있는 항목을 본다. 핸들러를 매번 새로 만들지
+     않도록 ref 로 읽는다. */
+  const shownRef = useRef<T | null>(null);
+  useSyncRef(shownRef, tooltip.item);
 
   const canHover = useRef(false);
   useEffect(() => {
@@ -44,16 +54,12 @@ export function usePreviewTooltip<T extends HasId>(editBasePath: string, options
   }, [checkImage]);
 
   const show = useCallback((item: T, el: HTMLElement) => {
-    hoveredRef.current = item;
-    tooltipPosRef.current = calcPos(el, item);
-    imgErrorRef.current = false;
-    setTooltipKey((k) => k + 1);
+    const pos = calcPos(el, item);
+    setTooltip((t) => ({ key: t.key + 1, item, pos, imgError: false }));
   }, [calcPos]);
 
   const hide = useCallback(() => {
-    if (!hoveredRef.current) return;
-    hoveredRef.current = null;
-    setTooltipKey((k) => k + 1);
+    setTooltip((t) => (t.item ? { ...t, key: t.key + 1, item: null } : t));
   }, []);
 
   /**
@@ -83,7 +89,7 @@ export function usePreviewTooltip<T extends HasId>(editBasePath: string, options
       router.push(`${editBasePath}/${item.id}/edit`);
       return;
     }
-    if (hoveredRef.current?.id === item.id) {
+    if (shownRef.current?.id === item.id) {
       hide();
       router.push(`${editBasePath}/${item.id}/edit`);
       return;
@@ -92,15 +98,11 @@ export function usePreviewTooltip<T extends HasId>(editBasePath: string, options
   }, [router, editBasePath, show, hide]);
 
   const handleImgError = useCallback(() => {
-    imgErrorRef.current = true;
-    setTooltipKey((k) => k + 1);
+    setTooltip((t) => ({ ...t, key: t.key + 1, imgError: true }));
   }, []);
 
   return {
-    hoveredRef,
-    tooltipKey,
-    tooltipPosRef,
-    imgErrorRef,
+    tooltip,
     handleRowHover,
     handleRowLeave,
     handleRowClick,
