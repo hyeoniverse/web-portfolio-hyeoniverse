@@ -267,14 +267,14 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
       if (!res.ok) {
         setGiscusCats([]);
         if (data.needsToken) { setNeedsToken(true); setGiscusErr(""); }
-        else setGiscusErr(data.error || "불러오기 실패");
+        else setGiscusErr(data.error || t("admin.settings.giscusLoadFailed"));
         return;
       }
       setGiscusCats(data.categories ?? []);
       update("comments", "giscus", { ...giscus, repoId: data.repoId } as SiteConfigData["comments"]["giscus"]);
       if (!data.discussionsEnabled) setGiscusErr(t("admin.settings.giscusNoDiscussions"));
     } catch {
-      setGiscusErr("불러오기 실패");
+      setGiscusErr(t("admin.settings.giscusLoadFailed"));
     } finally {
       setGiscusLoading(false);
     }

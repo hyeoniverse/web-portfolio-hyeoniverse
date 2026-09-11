@@ -17,37 +17,37 @@ import styles from "./EnvVarFields.module.css";
 import shared from "../Settings.module.css";
 import Pressable from "@/components/ui/Pressable";
 
-/* env var 메타 — description / 발급 docs URL / value prefix (typo 감지용).
+/* env var 메타 — 발급 docs URL / value prefix (typo 감지용). 설명은 번역 키 admin.settings.envVarDesc.<키 이름>.
    prefix 가 정의된 키만 prefix mismatch 경고. 없는 키는 검증 skip. */
-const ENV_VAR_META: Record<string, { description: string; docsUrl?: string; prefix?: string }> = {
+const ENV_VAR_META: Record<string, { docsUrl?: string; prefix?: string }> = {
   // 인프라
-  NEXT_PUBLIC_SUPABASE_URL: { description: "Supabase 프로젝트의 API 주소입니다. 데이터베이스와 인증 등 모든 요청의 기준 주소로 사용됩니다.", docsUrl: "https://supabase.com/dashboard/project/_/settings/api", prefix: "https://" },
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: { description: "Supabase 익명(public) 키입니다. 브라우저에 노출되어도 안전하며, 공개 데이터 접근에 사용됩니다.", docsUrl: "https://supabase.com/dashboard/project/_/settings/api", prefix: "eyJ" },
-  SUPABASE_SERVICE_ROLE_KEY: { description: "Supabase 서비스 롤 키입니다. 서버 전용이며 접근 제한을 우회하므로 절대 외부에 노출하면 안 됩니다.", docsUrl: "https://supabase.com/dashboard/project/_/settings/api", prefix: "eyJ" },
+  NEXT_PUBLIC_SUPABASE_URL: { docsUrl: "https://supabase.com/dashboard/project/_/settings/api", prefix: "https://" },
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: { docsUrl: "https://supabase.com/dashboard/project/_/settings/api", prefix: "eyJ" },
+  SUPABASE_SERVICE_ROLE_KEY: { docsUrl: "https://supabase.com/dashboard/project/_/settings/api", prefix: "eyJ" },
   // 이메일
-  NEXT_PUBLIC_WEB3FORMS_KEY: { description: "Web3Forms 액세스 키입니다. 컨택트 폼 전송에 사용됩니다.", docsUrl: "https://web3forms.com/" },
-  NEXT_PUBLIC_FORMSPREE_ID: { description: "Formspree 폼 ID입니다. 컨택트 폼 전송에 사용됩니다.", docsUrl: "https://formspree.io/forms" },
-  NEXT_PUBLIC_EMAILJS_SERVICE_ID: { description: "EmailJS 서비스 ID입니다. 컨택트 폼을 EmailJS로 보낼 때 사용됩니다.", docsUrl: "https://dashboard.emailjs.com/admin", prefix: "service_" },
-  NEXT_PUBLIC_EMAILJS_TEMPLATE_ID: { description: "EmailJS 템플릿 ID입니다. 전송되는 메일의 형식을 정합니다.", docsUrl: "https://dashboard.emailjs.com/admin/templates", prefix: "template_" },
-  NEXT_PUBLIC_EMAILJS_PUBLIC_KEY: { description: "EmailJS 퍼블릭 키입니다. 브라우저에서 EmailJS를 호출할 때 사용됩니다.", docsUrl: "https://dashboard.emailjs.com/admin/account" },
+  NEXT_PUBLIC_WEB3FORMS_KEY: { docsUrl: "https://web3forms.com/" },
+  NEXT_PUBLIC_FORMSPREE_ID: { docsUrl: "https://formspree.io/forms" },
+  NEXT_PUBLIC_EMAILJS_SERVICE_ID: { docsUrl: "https://dashboard.emailjs.com/admin", prefix: "service_" },
+  NEXT_PUBLIC_EMAILJS_TEMPLATE_ID: { docsUrl: "https://dashboard.emailjs.com/admin/templates", prefix: "template_" },
+  NEXT_PUBLIC_EMAILJS_PUBLIC_KEY: { docsUrl: "https://dashboard.emailjs.com/admin/account" },
   // 보안
-  NEXT_PUBLIC_RECAPTCHA_SITE_KEY: { description: "Google reCAPTCHA 사이트 키입니다. 브라우저에 노출되어도 안전하며, 스팸 방지에 사용됩니다.", docsUrl: "https://www.google.com/recaptcha/admin" },
+  NEXT_PUBLIC_RECAPTCHA_SITE_KEY: { docsUrl: "https://www.google.com/recaptcha/admin" },
   // AI / 번역
-  NANOBANANA_API_KEY: { description: "NanoBanana(Gemini 이미지 생성) API 키입니다. AI 커버 이미지 생성에 사용됩니다.", docsUrl: "https://aistudio.google.com/apikey", prefix: "AIza" },
-  HUGGINGFACE_API_KEY: { description: "Hugging Face 인퍼런스 토큰입니다. FLUX 등 이미지 생성 모델을 호출할 때 사용됩니다.", docsUrl: "https://huggingface.co/settings/tokens", prefix: "hf_" },
-  GEMINI_API_KEY: { description: "Google Gemini API 키입니다. 요약·번역·이미지 생성 등에 사용됩니다.", docsUrl: "https://aistudio.google.com/apikey", prefix: "AIza" },
-  OPENAI_API_KEY: { description: "OpenAI API 키입니다. 요약·번역 등 OpenAI 모델을 호출할 때 사용됩니다.", docsUrl: "https://platform.openai.com/api-keys", prefix: "sk-" },
-  ANTHROPIC_API_KEY: { description: "Anthropic Claude API 키입니다. 요약·번역 등 Claude 모델을 호출할 때 사용됩니다.", docsUrl: "https://console.anthropic.com/settings/keys", prefix: "sk-ant-" },
-  GOOGLE_TRANSLATE_API_KEY: { description: "Google Cloud Translation API 키입니다. 본문 번역에 사용됩니다.", docsUrl: "https://console.cloud.google.com/apis/credentials", prefix: "AIza" },
-  DEEPL_API_KEY: { description: "DeepL API 키입니다(Free/Pro). 본문 번역에 사용됩니다.", docsUrl: "https://www.deepl.com/account/summary" },
-  UNSPLASH_ACCESS_KEY: { description: "Unsplash 액세스 키입니다. 이미지 검색과 삽입에 사용됩니다.", docsUrl: "https://unsplash.com/oauth/applications" },
-  PEXELS_API_KEY: { description: "Pexels API 키입니다. 이미지·비디오 검색에 사용됩니다.", docsUrl: "https://www.pexels.com/api/new/" },
+  NANOBANANA_API_KEY: { docsUrl: "https://aistudio.google.com/apikey", prefix: "AIza" },
+  HUGGINGFACE_API_KEY: { docsUrl: "https://huggingface.co/settings/tokens", prefix: "hf_" },
+  GEMINI_API_KEY: { docsUrl: "https://aistudio.google.com/apikey", prefix: "AIza" },
+  OPENAI_API_KEY: { docsUrl: "https://platform.openai.com/api-keys", prefix: "sk-" },
+  ANTHROPIC_API_KEY: { docsUrl: "https://console.anthropic.com/settings/keys", prefix: "sk-ant-" },
+  GOOGLE_TRANSLATE_API_KEY: { docsUrl: "https://console.cloud.google.com/apis/credentials", prefix: "AIza" },
+  DEEPL_API_KEY: { docsUrl: "https://www.deepl.com/account/summary" },
+  UNSPLASH_ACCESS_KEY: { docsUrl: "https://unsplash.com/oauth/applications" },
+  PEXELS_API_KEY: { docsUrl: "https://www.pexels.com/api/new/" },
   // 알림
-  RESEND_API_KEY: { description: "Resend API 키입니다. 새 댓글 알림 등 트랜잭션 메일 발송에 사용됩니다.", docsUrl: "https://resend.com/api-keys", prefix: "re_" },
+  RESEND_API_KEY: { docsUrl: "https://resend.com/api-keys", prefix: "re_" },
   // 댓글 (giscus)
-  GITHUB_TOKEN: { description: "giscus 저장소 정보를 불러올 때 사용하는 GitHub Personal Access Token 입니다. 공개 저장소 읽기 권한이면 충분하며, classic(ghp_)과 fine-grained(github_pat_) 모두 사용할 수 있습니다.", docsUrl: "https://github.com/settings/tokens" },
+  GITHUB_TOKEN: { docsUrl: "https://github.com/settings/tokens" },
   // cron 시스템
-  CRON_SECRET: { description: "예약 발행이나 휴지통 정리 같은 주기 작업을 외부에서 트리거할 때 쓰는 비밀번호입니다. 이 사이트는 평소엔 Supabase 안에서 자동으로 작업이 돌아가기 때문에 이 값이 비어 있어도 정상 동작합니다. cron-job.org 같은 외부 서비스를 통해 따로 호출할 일이 생길 때만 .env 파일이나 Vercel 환경변수에 임의의 긴 문자열을 넣어 두세요. 어드민 화면에서는 편집할 수 없고, 현재 서버에 값이 설정돼 있는지만 확인할 수 있습니다." },
+  CRON_SECRET: {},
 };
 
 interface EnvVarFieldsProps {
@@ -146,20 +146,20 @@ export default function EnvVarFields({
     { key: "SUPABASE_SERVICE_ROLE_KEY", label: "Supabase Service Role Key" },
   ];
 
-  const groups: { label: string; rows: FieldRow[]; icon: LucideIcon }[] = [
-    { label: "인프라", rows: infraRows, icon: Database },
-    { label: "이메일 서비스", rows: emailRows, icon: Mail },
-    { label: "보안", rows: recaptchaEnabled ? [{ key: "NEXT_PUBLIC_RECAPTCHA_SITE_KEY", label: "reCAPTCHA Site Key" }] : [], icon: Shield },
-    { label: "커버 이미지", rows: [
+  const groups: { id: string; rows: FieldRow[]; icon: LucideIcon }[] = [
+    { id: "infra", rows: infraRows, icon: Database },
+    { id: "email", rows: emailRows, icon: Mail },
+    { id: "security", rows: recaptchaEnabled ? [{ key: "NEXT_PUBLIC_RECAPTCHA_SITE_KEY", label: "reCAPTCHA Site Key" }] : [], icon: Shield },
+    { id: "cover", rows: [
       ...toRows(coverProviders),
       { key: "UNSPLASH_ACCESS_KEY", label: "Unsplash Access Key" },
       { key: "PEXELS_API_KEY", label: "Pexels API Key" },
     ], icon: ImageIcon },
-    { label: "AI 요약", rows: toRows(sumProviders), icon: Sparkles },
-    { label: "번역", rows: toRows(transProviders), icon: Languages },
-    { label: "알림", rows: [{ key: "RESEND_API_KEY", label: "Resend API Key" }], icon: Bell },
-    { label: "댓글", rows: giscusEnabled ? [{ key: "GITHUB_TOKEN", label: "GitHub Token (giscus)" }] : [], icon: MessageSquare },
-    { label: "시스템", rows: [{ key: "CRON_SECRET", label: "Cron Secret" }], icon: Shield },
+    { id: "summary", rows: toRows(sumProviders), icon: Sparkles },
+    { id: "translate", rows: toRows(transProviders), icon: Languages },
+    { id: "notify", rows: [{ key: "RESEND_API_KEY", label: "Resend API Key" }], icon: Bell },
+    { id: "comments", rows: giscusEnabled ? [{ key: "GITHUB_TOKEN", label: "GitHub Token (giscus)" }] : [], icon: MessageSquare },
+    { id: "system", rows: [{ key: "CRON_SECRET", label: "Cron Secret" }], icon: Shield },
   ];
 
   const visibleGroups = groups.filter((g) => g.rows.length > 0);
@@ -509,7 +509,7 @@ export default function EnvVarFields({
               <Tooltip
                 content={
                   <span>
-                    {meta.description}
+                    {t(`admin.settings.envVarDesc.${key}`)}
                     {meta.docsUrl && (
                       <>
                         {" · "}
@@ -657,7 +657,7 @@ export default function EnvVarFields({
             <span className={styles.envStatusChip}><span className={styles.envSourceDot} data-source="db" />{stats.db} DB</span>
           )}
           {stats.edit > 0 && (
-            <span className={styles.envStatusChip}><span className={styles.envSourceDot} data-source="edit" />{stats.edit} 편집중</span>
+            <span className={styles.envStatusChip}><span className={styles.envSourceDot} data-source="edit" />{stats.edit} <T k="admin.settings.envSourceEdit" /></span>
           )}
           {stats.missing > 0 && (
             <span className={styles.envStatusChip} data-warn>
@@ -695,10 +695,10 @@ export default function EnvVarFields({
                   const grpTotal = group.rows.length;
                   const GroupIcon = group.icon;
                   return (
-                    <div className={styles.envGroup} key={group.label}>
+                    <div className={styles.envGroup} key={group.id}>
                       <h3 className={styles.envGroupLabel}>
                         <GroupIcon size={14} strokeWidth={2} />
-                        <span>{group.label}</span>
+                        <span>{t(`admin.settings.envGroups.${group.id}`)}</span>
                         <span className={styles.envGroupCount} data-ok={grpSet === grpTotal || undefined}>
                           {grpSet}/{grpTotal}
                         </span>
