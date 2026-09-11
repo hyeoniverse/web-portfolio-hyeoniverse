@@ -9,7 +9,7 @@ import Tooltip from "@/components/ui/Tooltip";
 import { EMOJI_CATEGORIES, ICON_CATEGORIES, EMOJI_KEYWORDS, iconSvgInner } from "../emojiData";
 import { EMOJI_KO } from "../emojiKo";
 import { emojiMeta } from "./emojiMeta";
-import { resizeEmojiImage } from "./resizeEmojiImage";
+import { resizeEmojiImage, EmojiImageError, EMOJI_MIN } from "./resizeEmojiImage";
 import { UploadTab } from "./UploadTab";
 import { EmojiIcon } from "./EmojiIcon";
 import styles from "./EmojiPicker.module.css";
@@ -302,11 +302,18 @@ export default function EmojiPicker({ open, onClose, onSelect, currentValue, onI
       });
       handleSelect(`img:${url}`);
     } catch (err) {
-      setUploadError(err instanceof Error ? err.message : "업로드 실패");
+      /* 이 파일의 다른 문구처럼 화면 언어로 고른다(아래 t 는 조기 반환 뒤라 여기서 못 쓴다) */
+      const ko = language === "ko";
+      setUploadError(
+        err instanceof EmojiImageError
+          ? err.code === "tooSmall" ? (ko ? `최소 ${EMOJI_MIN}×${EMOJI_MIN}px` : `At least ${EMOJI_MIN}×${EMOJI_MIN}px`)
+            : err.code === "resizeFailed" ? (ko ? "리사이즈 실패" : "Resize failed") : (ko ? "잘못된 이미지" : "Invalid image")
+          : err instanceof Error && err.message ? err.message : (ko ? "업로드 실패" : "Upload failed"),
+      );
     } finally {
       setUploading(false);
     }
-  }, [onImageUpload, handleSelect, cacheCustoms]);
+  }, [onImageUpload, handleSelect, cacheCustoms, language]);
 
   if (!open) return null;
 

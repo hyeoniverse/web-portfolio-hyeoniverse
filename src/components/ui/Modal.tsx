@@ -11,6 +11,7 @@ import { PortalContainerContext } from "./portalContainer";
 import { AnimatePresence, motion } from "framer-motion";
 import { useSoundManager } from "@/hooks/useSoundManager";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 /** Modal footer slot — modal body 가 createPortal 로 footer 영역에 렌더하기 위한 ref.
  *  body 와 footer 가 같은 React tree 안에 있어 state 공유 가능. */
@@ -20,6 +21,7 @@ const SWIPE_THRESHOLD = 30;
 const DISMISS_THRESHOLD = 100;
 
 export default function Modal() {
+  const { t } = useLanguage();
   const { isMobile } = useIsMobile();
   const { playSound } = useSoundManager();
   const { modals, closeModal } = useModalStore();
@@ -331,7 +333,7 @@ export default function Modal() {
                             className={styles.closeButton}
                             size="md"
                             onClick={() => handleClose(id)}
-                            ariaLabel="닫기"
+                            ariaLabel={t("common.close")}
                           />
                         )}
                       </div>
@@ -350,7 +352,7 @@ export default function Modal() {
                     className={styles.closeButton}
                     size="md"
                     onClick={() => handleClose(id)}
-                    ariaLabel="닫기"
+                    ariaLabel={t("common.close")}
                   />
                 )}
               </div>

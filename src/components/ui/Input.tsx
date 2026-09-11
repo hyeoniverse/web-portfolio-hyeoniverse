@@ -63,7 +63,8 @@ export default function Input({
   type,
   ...rest
 }: InputProps) {
-  const clearLabel = useLanguage().t("common.clear");
+  const { t } = useLanguage();
+  const clearLabel = t("common.clear");
   const hasAdd = !!onAdd;
   const hasTrailing = !!trailingAction;
   const isGrouped = hasAdd || hasTrailing;
@@ -140,7 +141,7 @@ export default function Input({
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => setShowPassword((s) => !s)}
             aria-label={showPassword ? "Hide password" : "Show password"}
-            title={showPassword ? "숨기기" : "표시"}
+            title={showPassword ? t("common.hide") : t("common.show")}
           >
             {showPassword ? <EyeOff size={13} strokeWidth={2} /> : <Eye size={13} strokeWidth={2} />}
           </Pressable>
