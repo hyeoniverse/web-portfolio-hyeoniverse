@@ -75,7 +75,8 @@
   padding: 0 var(--spacing-2xs);
   border-bottom: var(--border-light);
 }
-.table tbody tr:last-child td {
+/* 컬럼마다 tbody 가 하나라(끌기 단위) 표 전체의 마지막 행만 선을 뗀다 */
+.table tbody:last-child tr:last-child td {
   border-bottom: 0;
 }
 .table tbody tr:hover {
@@ -323,8 +324,12 @@ html[data-theme="dark"] .relGroup .rel {
   cursor: grabbing;
 }
 
-.rowDragging {
-  opacity: 0.45;
+/* 끄는 컬럼(tbody) — 다른 행 위로 지나가도 글이 겹쳐 보이지 않게 판을 깔고 위로 올린다.
+   z-index 는 useSortableItem 이 준다(position 이 있어야 먹는다) */
+.colDragging {
+  position: relative;
+  background: var(--bg-primary);
+  box-shadow: var(--shadow-md);
 }
 
 /* 제약 칸 — PK·필수·고유 토글 세 개가 들어간다 (폭은 위 열 정의에서 함께 잡는다).

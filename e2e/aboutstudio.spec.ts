@@ -179,6 +179,36 @@ test.describe("About 설정 화면", () => {
     await page.keyboard.press("Escape");
   });
 
+  test("ERD 표 모달: 손잡이를 키보드로 옮기면 컬럼 순서가 바뀌고 선택 표시가 그 컬럼을 따라간다", async ({ page }) => {
+    // 예전에는 HTML5 끌기라 키보드·터치로 옮길 수 없었고, 선택 표시는 몇 번째인지로만 들고 있어
+    // 순서를 바꾸면 다른 컬럼이 선택된 채로 남았다. 모달의 "저장"은 누르지 않고 Esc 로 닫는다.
+    await openAbout(page);
+    const erd = page.locator('[data-section-label="Database Design"]');
+    await erd.getByRole("tab", { name: /^(목록|List)$/ }).click();
+    await erd.locator('[class*="cardMain"]').first().click();
+    const groups = page.locator("table tbody");
+    await expect(groups.first(), "모달이 열린다").toBeVisible();
+    const names = () => page.locator("input[data-col-name]").evaluateAll((els) => els.map((e) => (e as HTMLInputElement).value));
+    const before = await names();
+    // 1번 컬럼을 고른다(체크 상자는 모양 요소가 입력을 덮고 있어 그것을 누른다)
+    await groups.nth(0).locator('[class*="Checkbox-module"][class*="box"]').first().click();
+    const handle = groups.nth(0).getByRole("button", { name: /^(끌어서 순서 변경|Drag to reorder)$/ });
+    await handle.focus();
+    await page.keyboard.press("Space");
+    await expect(handle, "스페이스로 집는다").toHaveAttribute("aria-pressed", "true");
+    // 행은 transition 으로 서서히 옮겨지고 표 영역이 따라 스크롤되기도 해서, 위치로 "옮겨졌나"를 보면
+    // 방향키를 한 번 더 눌러 두 칸을 옮기기도 한다. 방향키는 한 번만 누르고, 놓을 대상이 다음 컬럼으로
+    // 바뀌었다는 dnd-kit 의 화면 읽기 안내를 기다린 뒤 놓는다.
+    await page.keyboard.press("ArrowDown");
+    await expect(page.locator('[id^="DndLiveRegion"]').filter({ hasText: "was moved over droppable area 1." }),
+      "놓을 대상이 2번 컬럼으로 바뀐다").toHaveCount(1);
+    await page.keyboard.press("Space");
+    await expect.poll(names, { message: "1번과 2번이 자리를 바꾼다" }).toEqual([before[1], before[0], ...before.slice(2)]);
+    const checked = await groups.evaluateAll((bs) => bs.map((b, i) => (b.querySelector('input[type="checkbox"]:checked') ? i : -1)).filter((i) => i >= 0));
+    expect(checked, "선택 표시가 옮긴 컬럼(이제 2번)을 따라간다").toEqual([1]);
+    await page.keyboard.press("Escape");
+  });
+
   test("입력칸이 실제로 그려진다", async ({ page }) => {
     await openAbout(page);
     const count = await page.locator("input, textarea").count();
