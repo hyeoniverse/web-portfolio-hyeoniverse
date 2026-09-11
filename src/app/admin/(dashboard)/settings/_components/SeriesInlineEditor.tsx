@@ -486,7 +486,7 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
             <label className={shared.fieldLabel}>
               <span className={shared.fieldLabelText}>
                 {t("admin.settings.seriesEditor.order")}
-                <span className={shared.fieldRequiredDot} aria-label={t("admin.settings.seriesEditor.required")}>•</span>
+                <span className={shared.fieldRequiredDot} aria-label={t("admin.common.required")}>•</span>
               </span>
             </label>
             <div onClick={(e) => e.stopPropagation()}>

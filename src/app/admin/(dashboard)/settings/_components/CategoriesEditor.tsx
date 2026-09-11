@@ -90,12 +90,13 @@ function rebuildTree(flat: FlatNode[]): PostCategoryExt[] {
 
 /** 게시물 row 의 메타 (발행상태 + 날짜 + 조회수) */
 function PostMeta({ p }: { p: PostMetaInfo }) {
+  const { t } = useLanguage();
   const dateStr = formatAdminShortDate(p.published_at || p.created_at);
   return (
     <span className={styles.tagRelatedMeta}>
-      {!p.published && <span className={styles.tagRelatedMetaDraft}>draft</span>}
+      {!p.published && <span className={styles.tagRelatedMetaDraft}>{t("admin.posts.draft")}</span>}
       {dateStr && <span>{dateStr}</span>}
-      {typeof p.view_count === "number" && p.view_count > 0 && <span>· {p.view_count} views</span>}
+      {typeof p.view_count === "number" && p.view_count > 0 && <span>· {fillTemplate(t("admin.settings.taxonomy.views"), { n: p.view_count })}</span>}
     </span>
   );
 }
@@ -584,7 +585,7 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
                   className={styles.tagRelatedItem}
                 >
                   <span className={styles.tagRelatedTitle}>
-                    {p.title || p.title_en || "(no title)"}
+                    {p.title || p.title_en || `(${t("admin.posts.untitled")})`}
                   </span>
                   <PostMeta p={p} />
                 </a>

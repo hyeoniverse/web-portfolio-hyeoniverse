@@ -234,7 +234,7 @@ export function FaviconShadowControls({
             <FieldRow label={t("admin.settings.faviconShadowInset")} className={styles.faviconShadowRow}>
               <Checkbox checked={value.inset} onChange={(v) => onChange({ ...value, inset: v })} shape="square" />
             </FieldRow>
-            <p className={styles.shadowDragHint}>미리보기의 빛을 드래그해 방향·거리를 조절하세요</p>
+            <p className={styles.shadowDragHint}>{t("admin.settings.faviconShadowDragHint")}</p>
           </div>
         </div>
           </motion.div>

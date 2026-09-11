@@ -29,6 +29,7 @@ import {
   type FaviconWeight,
 } from "@/lib/favicon";
 import { contrastRatio, contrastLevel } from "@/utils/contrast";
+import { fillTemplate } from "@/utils/format";
 import { FONT_GROUPS, FONT_FAMILIES_FLAT } from "@/components/posts/plate/constants";
 import { showToast } from "@/stores/toastStore";
 import { FAVICON_FONT_SIZE_PRESETS } from "../_data/faviconPresets";
@@ -727,8 +728,8 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
                     <Pressable
                       className={styles.logoColorPresetRemove}
                       onClick={() => removePreset(i)}
-                      aria-label={`Remove ${p.name}`}
-                      title="프리셋 제거"
+                      aria-label={fillTemplate(t("admin.settings.removeNamedPreset"), { name: p.name })}
+                      title={t("admin.settings.removeThemePreset")}
                     >
                       <X size={10} strokeWidth={2.5} />
                     </Pressable>
