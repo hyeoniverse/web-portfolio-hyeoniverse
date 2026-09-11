@@ -159,6 +159,26 @@ test.describe("About 설정 화면", () => {
       .toEqual([...before.slice(0, -2), before[before.length - 1], before[before.length - 2]]);
   });
 
+  test("ERD 표 모달: 컬럼을 추가하면 새 이름 칸에 포커스가 가고 오류가 나지 않는다", async ({ page }) => {
+    // 칸 이름을 화면 언어로 바꾸면서 이 칸을 찾던 선택자가 깨져 추가할 때마다 페이지 오류가 났다(#818).
+    // 모달의 "저장"은 누르지 않고 Esc 로 닫는다.
+    const errors: string[] = [];
+    page.on("pageerror", (e) => errors.push(e.message));
+    await openAbout(page);
+    const erd = page.locator('[data-section-label="Database Design"]');
+    await erd.getByRole("tab", { name: /^(목록|List)$/ }).click();
+    await erd.locator('[class*="cardMain"]').first().click();
+    const add = page.getByRole("button", { name: /^(컬럼 추가|Add column)$/ });
+    await expect(add, "모달이 열린다").toBeVisible();
+    const names = page.locator("input[data-col-name]");
+    const before = await names.count();
+    await add.click();
+    await expect(names, "행이 하나 는다").toHaveCount(before + 1);
+    await expect(names.last(), "새 행의 이름 칸에 포커스").toBeFocused();
+    expect(errors, "페이지 오류가 없다").toEqual([]);
+    await page.keyboard.press("Escape");
+  });
+
   test("입력칸이 실제로 그려진다", async ({ page }) => {
     await openAbout(page);
     const count = await page.locator("input, textarea").count();

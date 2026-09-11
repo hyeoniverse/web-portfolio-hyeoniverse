@@ -185,10 +185,10 @@ export default function ErdTableModal({
       const wrap = scrollRef.current;
       if (!wrap) return;
       wrap.scrollTop = wrap.scrollHeight;
-      /* 마지막 행을 직접 집는다 — 인덱스 계산은 열이 늘면(체크박스 등) 바로 어긋난다 */
-      const rows = wrap.querySelectorAll("tbody tr");
-      const last = rows[rows.length - 1];
-      last?.querySelector<HTMLInputElement>('input[aria-label={L("컬럼 이름", "Column name")}]')?.focus();
+      /* 마지막 컬럼의 이름 칸을 직접 집는다. 행(tr)으로 세면 펼친 상세 행까지 섞여 어긋나고,
+         aria-label 은 화면 언어에 따라 바뀐다 — 이름 칸에만 붙인 data-col-name 으로 찾는다 */
+      const names = wrap.querySelectorAll<HTMLInputElement>("input[data-col-name]");
+      names[names.length - 1]?.focus();
     });
   };
 
@@ -198,9 +198,10 @@ export default function ErdTableModal({
       /* 어디를 고쳐야 하는지 바로 보이게 첫 문제 지점으로 이동 */
       if (nameMissing || nameTaken) { tableNameRef.current?.focus(); return; }
       const bad = colMissing.findIndex((m) => m.name || m.type);
-      const row = scrollRef.current?.querySelectorAll("tbody tr")[bad === -1 ? 0 : bad];
-      row?.scrollIntoView({ block: "nearest" });
-      row?.querySelector<HTMLInputElement>('input[aria-label={L("컬럼 이름", "Column name")}]')?.focus();
+      /* 컬럼마다 이름 칸이 하나라 bad 번째 이름 칸이 곧 그 컬럼이다(상세 행이 섞인 tr 로 세면 어긋난다) */
+      const input = scrollRef.current?.querySelectorAll<HTMLInputElement>("input[data-col-name]")[bad === -1 ? 0 : bad];
+      input?.closest("tr")?.scrollIntoView({ block: "nearest" });
+      input?.focus();
       return;
     }
     /* 이름이 바뀌면 관계도 같이 따라가야 연결이 끊기지 않는다 */
@@ -326,7 +327,7 @@ export default function ErdTableModal({
                   <td>
                     <input
                       className={`${css.cell} ${tried && (colMissing[i].name || dupCols.has(i)) ? css.invalid : ""}`}
-                      value={c.name} aria-label={L("컬럼 이름", "Column name")}
+                      value={c.name} aria-label={L("컬럼 이름", "Column name")} data-col-name
                       aria-required aria-invalid={tried && (colMissing[i].name || dupCols.has(i))}
                       placeholder={L("이름", "name")}
                       onChange={(e) => setCols(draft.columns.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))}
