@@ -3,7 +3,8 @@
 import { useRef, useState } from "react";
 import css from "../../AboutStudio.module.css";
 import { CodeBlockEditor, DemoFilesEditor } from "../lazyEditors";
-import { EditableText, PanelStage, StageTabs, sec, useL } from "../primitives";
+import { EditableText, PanelStage, sec, useL } from "../primitives";
+import { StageTabs, useStageList } from "../stageList";
 import CodeDemoSlot, { type CodeDemoMode } from "@/app/about/_components/panels/CodeDemoSlot";
 import ch from "@/app/about/_components/panels/CodeHighlightsPanel.module.css";
 import { Code2, ImageIcon, X } from "@/components/icons";
@@ -66,13 +67,9 @@ export function CodeHighlightsBlock({ value, onChange, lang, t, title }: {
   const [dropOver, setDropOver] = useState(false);
 
   const [dropErr, setDropErr] = useState(false);
-  const [tab, setTab] = useState(0);
-  const tabsRef = useRef<HTMLDivElement>(null);
   const MAX = 8;
-  const cur = Math.min(tab, Math.max(0, value.length - 1));
-  const it = value[cur];
-  const set = (p: Partial<CodeItem>) => onChange(value.map((x, i) => (i === cur ? { ...x, ...p } : x)));
-  /* 아무 입력 없는 스니펫 — 추가만 하고 이탈하면 자동 삭제 */
+  const list = useStageList(value, onChange, (): CodeItem => ({ title: "", description_ko: "", description_en: "", language: "tsx", code: "" }));
+  const { cur, it, set } = list;
   /* 데모가 실제로 채워졌는지 — 모드만 골라둔 상태는 아직 빈 것으로 본다 */
   const hasDemo = it
     ? it.demoMode === "media"
@@ -85,45 +82,16 @@ export function CodeHighlightsBlock({ value, onChange, lang, t, title }: {
   const setDemoMode = (m: CodeDemoMode) =>
     set(m === "sandbox" && !it?.demoFiles ? { demoMode: m, demoFiles: DEMO_FILE_SEED } : { demoMode: m });
 
-  const isEmptySnippet = (c: CodeItem) =>
-    !c.title.trim() && !c.description_ko.trim() && !c.description_en.trim() && !c.code.trim();
-  const add = () => {
-    onChange([...value, { title: "", description_ko: "", description_en: "", language: "tsx", code: "" }]);
-    setTab(value.length);
-  };
-  const removeAt = (i: number) => {
-    onChange(value.filter((_, x) => x !== i));
-    setTab(Math.max(0, i - 1));
-  };
-  /* 탭 전환 — 떠나는 스니펫이 비어있으면 버리고 대상 인덱스 보정 */
-  const selectTab = (next: number) => {
-    if (next !== cur && it && isEmptySnippet(it)) {
-      onChange(value.filter((_, i) => i !== cur));
-      setTab(next > cur ? next - 1 : next);
-      return;
-    }
-    setTab(next);
-  };
   return (
     <section className={css.block}>
-      <div className={css.slideTabs} ref={tabsRef}>
-        <StageTabs count={value.length} active={cur} onSelect={selectTab} onAdd={add}
-          canAdd={value.length < MAX}
-          addLabel={L("코드 추가", "Add snippet")}
-          labelOf={(i) => value[i]?.title || (L("새 스니펫", "Untitled"))} />
-      </div>
+      <StageTabs list={list} max={MAX} addLabel={L("코드 추가", "Add snippet")}
+        labelOf={(i) => list.items[i]?.title || L("새 스니펫", "Untitled")} />
       {it && (
         <PanelStage>
           {/* key = 스니펫별 remount — 같은 input 을 재사용하면 autoFocus 가 안 걸린다 */}
-          <div key={cur} className={css.chStage}
-            onBlur={(e) => {
-              const rt = e.relatedTarget as Node | null;
-              if (rt && e.currentTarget.contains(rt)) return;   // 패인 내부 이동
-              if (rt && tabsRef.current?.contains(rt)) return;  // 탭 클릭 → selectTab 이 처리
-              if (isEmptySnippet(it)) removeAt(cur);            // 입력 없이 이탈 → 빈 스니펫 삭제
-            }}>
+          <div key={cur} className={css.chStage}>
             <div className={css.chTools}>
-              <Button variant="subtle" shape="circle" size="xs" onClick={() => removeAt(cur)} aria-label={L("삭제", "Remove")}>
+              <Button variant="subtle" shape="circle" size="xs" onClick={list.remove} aria-label={L("삭제", "Remove")}>
                 <X size={14} />
               </Button>
             </div>
@@ -132,7 +100,7 @@ export function CodeHighlightsBlock({ value, onChange, lang, t, title }: {
               <div className={ch.codeSingleHeader}>
                 <span className={ch.codeSingleNumber}>{String(cur + 1).padStart(2, "0")}</span>
                 <div className={ch.codeSingleMeta}>
-                  <EditableText wrap className={css.chTitle} value={it.title} autoFocus={isEmptySnippet(it)}
+                  <EditableText wrap className={css.chTitle} value={it.title} autoFocus={list.isDraft}
                     onChange={(v) => set({ title: v })} placeholder="StaggerText Component" ariaLabel={L("제목", "Title")} />
                   <EditableText multiline className={ch.codeSingleDesc} value={lang === "ko" ? it.description_ko : it.description_en}
                     onChange={(v) => set(lang === "ko" ? { description_ko: v } : { description_en: v })}
