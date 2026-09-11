@@ -79,10 +79,7 @@ export default function AdminPostsPage() {
 
   /* Preview tooltip */
   const {
-    hoveredRef: hoveredPostRef,
-    tooltipKey,
-    tooltipPosRef,
-    imgErrorRef,
+    tooltip,
     handleRowHover,
     handleRowLeave,
     handleRowClick,
@@ -610,16 +607,16 @@ export default function AdminPostsPage() {
         }
       />
 
-      {/* Hover / Tap preview tooltip — reads from refs, keyed by tooltipKey */}
+      {/* Hover / Tap preview tooltip — key 가 바뀔 때마다 새로 그린다 */}
       <PreviewTooltip
-        key={tooltipKey}
-        post={hoveredPostRef.current}
-        pos={tooltipPosRef.current}
-        imgError={imgErrorRef.current}
+        key={tooltip.key}
+        post={tooltip.item}
+        pos={tooltip.pos}
+        imgError={tooltip.imgError}
         onImgError={handleImgError}
         onDismiss={hideTooltip}
         onNavigate={() => {
-          const post = hoveredPostRef.current;
+          const post = tooltip.item;
           if (post) {
             hideTooltip();
             router.push(`/admin/posts/${post.id}/edit`);

@@ -104,6 +104,20 @@ interface ColorPickerProps {
   inline?: boolean;
 }
 
+/** OKLCH 색과 투명도로 내보낼 결과(모든 형식)를 만든다. */
+function colorResult(next: OKLCH, a: number): ColorResult {
+  const h = oklchToHex(next);
+  return {
+    hex: h,
+    hexa: withAlpha(h, a),
+    alpha: a,
+    oklch: formatOklch(next),
+    rgb: hexToRgb(h),
+    hsl: hexToHsl(h),
+    hsv: hexToHsv(h),
+  };
+}
+
 /**
  * 왜 이 파일이 한 덩어리로 남아 있는가
  *
@@ -259,18 +273,7 @@ export default function ColorPicker({
     };
   }, [open, useSheet, lenisStop, lenisStart]);
 
-  const toResult = useCallback((next: OKLCH, a: number = alphaRef.current): ColorResult => {
-    const h = oklchToHex(next);
-    return {
-      hex: h,
-      hexa: withAlpha(h, a),
-      alpha: a,
-      oklch: formatOklch(next),
-      rgb: hexToRgb(h),
-      hsl: hexToHsl(h),
-      hsv: hexToHsv(h),
-    };
-  }, []);
+  const toResult = useCallback((next: OKLCH, a: number = alphaRef.current): ColorResult => colorResult(next, a), []);
 
   /** 모든 update 에서 oklch.c 를 current L/H 의 sRGB-safe max 까지 자동 clamp.
    *  LC pad/slider thumb 가 dome 밖 (out-of-gamut) 으로 나가지 못하게 함. */
@@ -285,7 +288,7 @@ export default function ColorPicker({
   const maxC = useMemo(() => maxSafeChroma(oklch.l, oklch.h), [oklch.l, oklch.h]);
 
   // 가장 최근 emit 된 result — pointerup 시 onChangeComplete 인자
-  const latestRef = useRef<ColorResult>(toResult(oklch));
+  const latestRef = useRef<ColorResult>(colorResult(oklch, alpha));
   useEffect(() => { latestRef.current = toResult(oklch); }, [oklch, toResult]);
 
   /* ── format 별 pad 종류 매핑 ──

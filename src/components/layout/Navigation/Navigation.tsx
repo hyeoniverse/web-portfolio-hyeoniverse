@@ -410,8 +410,9 @@ export default function Navigation() {
   // 사운드 상태
   const [isSoundClicking, setIsSoundClicking] = useState(false);
   const [isSoundHovered, setIsSoundHovered] = useState(false);
-  const isSoundLocked = useRef(false);
-  const showMutedIcon = isSoundLocked.current ? isMuted : isMuted !== isSoundHovered;
+  // 누른 직후에는 hover 미리보기 대신 실제 상태를 보여 준다. 표시를 바꾸는 값이라 상태로 둔다.
+  const [isSoundLocked, setIsSoundLocked] = useState(false);
+  const showMutedIcon = isSoundLocked ? isMuted : isMuted !== isSoundHovered;
 
   // 사운드 툴팁 (로딩 완료 후 매번 표시)
   const [showSoundTip, setShowSoundTip] = useState(false);
@@ -429,7 +430,7 @@ export default function Navigation() {
   const handleSoundToggle = () => {
     if (isSoundClicking) return;
     setIsSoundClicking(true);
-    isSoundLocked.current = true;
+    setIsSoundLocked(true);
     setShowSoundTip(false);
     toggleMute();
     setTimeout(() => setIsSoundClicking(false), 300);
@@ -649,7 +650,7 @@ export default function Navigation() {
                 className={styles.actionBtn}
                 onClick={handleSoundToggle}
                 onMouseEnter={() => { setIsSoundHovered(true); setShowSoundTip(false); }}
-                onMouseLeave={() => { isSoundLocked.current = false; setIsSoundHovered(false); }}
+                onMouseLeave={() => { setIsSoundLocked(false); setIsSoundHovered(false); }}
                 aria-label={isMuted ? "Unmute sounds" : "Mute sounds"}
                 aria-pressed={!isMuted}
               >

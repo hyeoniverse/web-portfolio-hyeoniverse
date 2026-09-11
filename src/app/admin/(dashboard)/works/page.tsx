@@ -168,12 +168,9 @@ export default function AdminWorksPage() {
   const [trashPage, setTrashPage] = useState(1);
   const [trashPerPage, setTrashPerPage] = useState(10);
 
-  /* Preview tooltip — use refs + minimal state to avoid re-rendering AdminTable */
+  /* Preview tooltip */
   const {
-    hoveredRef: hoveredWorkRef,
-    tooltipKey,
-    tooltipPosRef,
-    imgErrorRef,
+    tooltip,
     handleRowHover,
     handleRowLeave,
     handleRowClick,
@@ -916,16 +913,16 @@ icon: 🎨
         }
       />
 
-      {/* Hover / Tap preview tooltip — reads from refs, keyed by tooltipKey */}
+      {/* Hover / Tap preview tooltip — key 가 바뀔 때마다 새로 그린다 */}
       <PreviewTooltip
-        key={tooltipKey}
-        work={hoveredWorkRef.current}
-        pos={tooltipPosRef.current}
-        imgError={imgErrorRef.current}
+        key={tooltip.key}
+        work={tooltip.item}
+        pos={tooltip.pos}
+        imgError={tooltip.imgError}
         onImgError={handleImgError}
         onDismiss={hideTooltip}
         onNavigate={() => {
-          const work = hoveredWorkRef.current;
+          const work = tooltip.item;
           if (work) {
             hideTooltip();
             router.push(`/admin/works/${work.id}/edit`);

@@ -122,12 +122,12 @@ export default function PlaygroundRunner({ data, onChange, readOnly, height = 46
   const dragStart = useRef({ y: 0, h: 0 });
 
   // 되돌리기/다시하기 — files 맵 스냅샷 스택. 텍스트 편집은 디바운스로 합치고, 구조 변경도 포함.
-  const history = useRef<Record<string, string>[]>([]);
+  // 첫 항목은 처음 files(같은 객체라 mount 때 아래 기록 효과가 중복으로 넣지 않는다)
+  const history = useRef<Record<string, string>[]>([files]);
   const hIndex = useRef(0);
   const applyingHistory = useRef(false);
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
-  if (history.current.length === 0) history.current.push(files); // 최초 렌더 1회(같은 객체라 mount 시 중복 push 안 됨)
   const syncHist = () => { setCanUndo(hIndex.current > 0); setCanRedo(hIndex.current < history.current.length - 1); };
   const pushHist = () => {
     if (history.current[hIndex.current] === files) return;

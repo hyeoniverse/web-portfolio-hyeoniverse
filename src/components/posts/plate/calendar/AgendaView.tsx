@@ -2,6 +2,7 @@
 
 // ── 주/일 뷰 — 주: 날짜별 심플 리스트(박스 없음) / 일: 시간축 그리드. ──
 import React from "react";
+import { useDepsChanged } from "@/hooks/useDepsChanged";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Plus, Link2, Repeat } from "@/components/icons";
 import Tooltip from "@/components/ui/Tooltip";
@@ -96,8 +97,9 @@ export default function AgendaView({
   const { hover, show: showHover, hideSoon, hideNow, keepOpen } = useHoverPreview();
   // 일 뷰 인라인 패널에서 선택된 이벤트
   const [selectedId, setSelectedId] = React.useState<string | null>(null);
-  const prevDayRef = React.useRef(date);
-  if (prevDayRef.current !== date) { prevDayRef.current = date; if (selectedId) setSelectedId(null); }
+  // 다른 날로 넘기면 선택을 푼다
+  const dayChanged = useDepsChanged([date]);
+  if (dayChanged && selectedId) setSelectedId(null);
   const selectDay = (ev: CalEvent) => { hideNow(); setSelectedId(ev.id); };
   const selectedEvent = selectedId ? events.find((e) => e.id === selectedId) ?? null : null;
   const [chainHi, setChainHi] = React.useState<Set<string> | null>(null); // hover 한 이벤트의 연결 체인 강조
