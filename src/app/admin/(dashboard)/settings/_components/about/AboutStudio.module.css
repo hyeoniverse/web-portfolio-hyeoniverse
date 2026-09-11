@@ -477,43 +477,78 @@ textarea.edit {
   border-radius: var(--radius-capsule);
   background: var(--border-color-default);
 }
-.editTag {
+/* ── 글자 칩 목록(ChipList) — Credits 이름·Design Decisions 태그·Overview 하이라이트 ── */
+/* 끌어 옮기는 칩의 자리. 칩(공통 Chip)은 ref 를 받지 않아 한 겹 감싼다. z-index 가 먹게 relative */
+.chipSlot {
+  position: relative;
+  display: inline-flex;
+  vertical-align: middle;
+}
+/* 칩을 누르면 그 자리에서 바뀌는 입력 칸 — 칩 모양 클래스를 같이 받아 크기가 튀지 않는다 */
+.chipInput {
+  box-sizing: border-box;
+  width: 8em;
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font: inherit;
+  vertical-align: middle;
+  outline: none;
+}
+/* "+ 무엇 추가" — 누르면 같은 캡슐 안이 입력 칸으로 바뀐다. 캡슐을 갈아끼우면 튀어 보인다 */
+.chipAdd {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
-}
-.editTagX {
-  display: inline-flex;
-  opacity: 0;
-}
-.editTag:hover .editTagX {
-  opacity: 1;
-}
-/* 태그 옆 + — 주변 highlight 태그(.overviewTag)와 같은 box(padding/font/line-height)로 높이 일치.
-   inline-block + 상속 line-height 로 태그와 동일한 라인박스 높이 확보(아이콘만으론 라인박스가 안 생겨 낮아짐). */
-.addTagBtn {
-  display: inline-block;
-  padding: var(--button-p-md);
+  box-sizing: border-box;
   border: 1px solid var(--border-color-light);
   border-radius: var(--radius-capsule);
-  background: transparent;
   color: var(--text-tertiary);
-  font-size: var(--font-size-prose-label);
-  line-height: inherit;
+  vertical-align: middle;
+}
+.chipAdd:hover {
+  border-color: var(--color-accent);
+  color: var(--text-accent);
+}
+.chipAddOpen,
+.chipAddOpen:hover {
+  border-color: var(--color-accent);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+.chipAddBtn {
+  display: inline-flex;
+  gap: var(--spacing-3xs);
+  align-items: center;
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
   white-space: nowrap;
   cursor: pointer;
 }
-.addTagBtn svg {
-  display: inline-block;
-  width: 1em;
-  height: 1em;
-  vertical-align: -0.15em;
+.chipAddInput {
+  width: 8em;
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  outline: none;
 }
-.addTagBtn:hover {
-  color: var(--text-primary);
-}
-.addTagBtn:hover {
-  color: var(--text-primary);
+/* Overview 하이라이트 — 공개 패널의 .overviewTag 와 같은 값. 공통 Chip 의 배경 캡슐·글꼴을 이겨야 해서
+   두 번 적는다(한 번이면 CSS 청크 순서에 따라 배포에서 뒤집힐 수 있다). */
+.highlightChip.highlightChip {
+  padding: var(--spacing-xs) var(--spacing-md);
+  border: var(--border-default);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: var(--font-size-prose-label);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.05em;
 }
 .editStat {
   position: relative;
@@ -1261,61 +1296,15 @@ textarea.edit {
   font-size: inherit;
 }
 
-/* 이름 추가 — 껍데기(캡슐)는 유지하고 폭만 늘어나며 버튼→입력으로 morph.
-   width 는 전역 theme transition 목록에 없어서 단일 클래스로는 덮인다 → 복합 선택자(0,2,0)로 건다. */
-.creditsNameAdd {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  box-sizing: border-box;
-  margin-left: 0.5em;
-  width: 2.4em;
+/* 이름 추가 캡슐 — 이름 칩과 같은 높이로 문장 줄에 이어 붙는다. 글자는 편집 도구라 작게 */
+.creditsAdd.creditsAdd {
   height: 1.7em;
-  border: 1px solid var(--border-color-light);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  color: var(--text-tertiary);
-  vertical-align: middle;
+  margin-left: 0.5em;
 }
-.creditsBody .creditsNameAdd {
-  transition: width var(--duration-base) var(--ease-material),
-    border-color var(--duration-base) ease;
+.creditsAdd .chipAddBtn,
+.creditsAdd .chipAddInput {
+  font-size: var(--font-size-label);
 }
-.creditsNameAdd:hover {
-  border-color: var(--color-accent);
-  color: var(--text-accent);
-}
-/* 입력 상태 — 실선 + accent 로 바뀌며 폭이 늘어난다 */
-.creditsNameAddOpen {
-  width: 8em;
-  border-style: solid;
-  border-color: var(--color-accent);
-  background: var(--bg-primary);
-}
-.creditsNameAddBtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: inherit;
-  cursor: pointer;
-}
-.creditsNameInput {
-  width: 100%;
-  padding: 0 0.6em;
-  border: 0;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  text-align: inherit;
-  outline: none;
-}
-
 
 /* floating bar 안 컨트롤 — 배경/높이를 서로 맞춘다.
    NumberInput 은 기본이 bg-tertiary 라 혼자 옅은 판이 깔려 튄다. */
