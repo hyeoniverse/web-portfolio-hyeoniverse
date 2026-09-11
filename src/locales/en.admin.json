@@ -661,6 +661,7 @@
       "aboutTechStackCategory": "Category (e.g., Framework)",
       "aboutTechStackAdd": "Add",
       "aboutTechStackRemove": "Remove",
+      "aboutTechStackDrag": "Drag to reorder or change category",
       "aboutTechStackPresetTitle": "Add from presets",
       "aboutTechStackCustomTitle": "Add custom",
       "aboutTechStackSearch": "Search (e.g. react, figma)",

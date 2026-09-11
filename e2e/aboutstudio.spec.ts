@@ -132,6 +132,33 @@ test.describe("About 설정 화면", () => {
     await expect(chips.last(), "누르면 그 자리에서 고친다").toContainText("row-level");
   });
 
+  test("Tech Stack: 손잡이를 키보드로 옮기면 같은 카테고리 안에서 순서가 바뀐다", async ({ page }) => {
+    await openAbout(page);
+    // 예전에는 카테고리 사이 이동만 되고 같은 카테고리 안의 순서는 바꿀 수 없었다. 저장 단추는 누르지 않는다.
+    const groups = page.locator('[data-section-label="Tech Stack"] [class*="techChips"]');
+    const names = (g: typeof groups) => g.locator('[class*="techDragWrap"]').evaluateAll((els) => els.map((e) => e.textContent?.trim() ?? ""));
+    const count = await groups.count();
+    let group = groups.first();
+    for (let i = 0; i < count; i++) {
+      if ((await groups.nth(i).locator('[class*="techDragWrap"]').count()) >= 2) { group = groups.nth(i); break; }
+    }
+    const before = await names(group);
+    test.skip(before.length < 2, "칩이 2개 이상인 카테고리가 없다");
+    const handle = group.locator('[class*="techDragWrap"]').last().getByRole("button", { name: /^(끌어서 순서·카테고리 바꾸기|Drag to reorder or change category)$/ });
+    await handle.focus();
+    await page.keyboard.press("Space");
+    await expect(handle, "스페이스로 집는다").toHaveAttribute("aria-pressed", "true");
+    // 집은 직후에는 방향키를 받지 않을 수 있다 — 놓일 자리 막대가 보일 때까지 누른다
+    const bar = group.locator('[class*="dropBefore"]');
+    await expect(async () => {
+      if ((await bar.count()) === 0) await page.keyboard.press("ArrowLeft");
+      await expect(bar).toHaveCount(1, { timeout: 500 });
+    }).toPass({ timeout: 5_000 });
+    await page.keyboard.press("Space");
+    await expect.poll(() => names(group), { message: "마지막 칩이 한 칸 앞으로" })
+      .toEqual([...before.slice(0, -2), before[before.length - 1], before[before.length - 2]]);
+  });
+
   test("입력칸이 실제로 그려진다", async ({ page }) => {
     await openAbout(page);
     const count = await page.locator("input, textarea").count();

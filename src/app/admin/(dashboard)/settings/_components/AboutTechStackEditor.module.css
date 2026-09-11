@@ -41,13 +41,10 @@
   color: var(--text-muted);
   font-style: italic;
 }
-/* ── 칩 drag&drop (그룹 이동) ── */
+/* ── 칩 drag&drop (순서·카테고리 이동) ── */
+/* 손잡이(Chip 의 grip)로만 끈다. touch-action 은 손잡이에만 있어 칩 위에서도 페이지를 스크롤할 수 있다 */
 .techDragWrap {
   display: inline-flex;
-  touch-action: none; /* dnd-kit pointer drag — 스크롤 간섭 방지(칩 전체 draggable) */
-}
-.techDragSource {
-  opacity: 0.4;
 }
 /* 드래그가 위에 올라온 그룹 — 하이라이트 */
 .techGroupOver {
