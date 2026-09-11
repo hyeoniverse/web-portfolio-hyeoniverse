@@ -34,6 +34,8 @@ import { FontKit } from "./plugins/font-kit";
 import { DndKit } from "./plugins/dnd-kit";
 import { MarkdownKit } from "./plugins/markdown-kit";
 import { AutoformatUndoKit } from "./plugins/autoformat-undo-kit";
+// Slate 오류 메시지에 문서 전체를 넣지 않게 한다(편집기 여는 비용) — slateScrubber 참고
+import "./slateScrubber";
 
 export const EditorKit = [
   ...DndKit,          // NodeId + block drag&drop (공식 @platejs/dnd) — id 먼저 부여
