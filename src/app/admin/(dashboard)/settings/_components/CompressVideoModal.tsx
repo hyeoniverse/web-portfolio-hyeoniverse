@@ -6,6 +6,9 @@ import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
 import { ModalFooterContext } from "@/components/ui/Modal";
 import { compressVideo, formatBytes, type TargetFormat } from "@/lib/videoCompress";
+import { useLanguage } from "@/providers/LanguageProvider";
+import { fillTemplate } from "@/utils/format";
+import BoldMarks from "@/components/ui/BoldMarks";
 import shared from "../Settings.module.css";
 import local from "./CompressVideoModal.module.css";
 const styles = { ...shared, ...local };
@@ -20,6 +23,7 @@ interface Props {
 }
 
 export default function CompressVideoModal({ file, limitMB, onCompressed, onCancel }: Props) {
+  const { t } = useLanguage();
   const footerEl = useContext(ModalFooterContext);
   const [format, setFormat] = useState<TargetFormat>("webm-vp9");
   const [maxWidth, setMaxWidth] = useState<number>(1920);
@@ -41,7 +45,7 @@ export default function CompressVideoModal({ file, limitMB, onCompressed, onCanc
       onCompressed(newFile);
     } catch (e) {
       console.error(e);
-      alert("압축 실패: " + (e as Error).message);
+      alert(fillTemplate(t("admin.settings.compressVideo.failed"), { error: (e as Error).message }));
       setRunning(false);
     }
   };
@@ -49,19 +53,18 @@ export default function CompressVideoModal({ file, limitMB, onCompressed, onCanc
   return (
     <div className={styles.compressModalBody}>
       <p className={styles.sectionHint}>
-        원본 <strong>{file.name}</strong> ({formatBytes(file.size)}) 가 업로드 제한({limitMB}MB) 을 초과합니다.
-        브라우저에서 압축 후 업로드합니다. (수 분 소요 가능 — 페이지 닫지 마세요)
+        <BoldMarks text={fillTemplate(t("admin.settings.compressVideo.intro"), { name: file.name, size: formatBytes(file.size), limit: limitMB })} />
       </p>
 
       <div className={styles.fieldRow}>
         <label className={styles.fieldLabel}>
-          <span className={styles.fieldLabelText}>포맷</span>
+          <span className={styles.fieldLabelText}>{t("admin.settings.compressVideo.format")}</span>
         </label>
         <Select
           value={format}
           options={[
-            { value: "webm-vp9", label: "WebM (VP9) — 화질 대비 용량 최적 ⭐ 추천" },
-            { value: "mp4-h264", label: "MP4 (H.264) — 호환성 위주" },
+            { value: "webm-vp9", label: t("admin.settings.compressVideo.formatWebm") },
+            { value: "mp4-h264", label: t("admin.settings.compressVideo.formatMp4") },
           ]}
           onChange={(v) => setFormat(v as TargetFormat)}
         />
@@ -69,12 +72,12 @@ export default function CompressVideoModal({ file, limitMB, onCompressed, onCanc
 
       <div className={styles.fieldRow}>
         <label className={styles.fieldLabel}>
-          <span className={styles.fieldLabelText}>최대 가로 (px)</span>
+          <span className={styles.fieldLabelText}>{t("admin.settings.compressVideo.maxWidth")}</span>
         </label>
         <Select
           value={String(maxWidth)}
           options={[
-            { value: "1920", label: "1920 (FHD, 원본 유지)" },
+            { value: "1920", label: t("admin.settings.compressVideo.width1920") },
             { value: "1280", label: "1280 (HD)" },
             { value: "960", label: "960 (SD+)" },
             { value: "720", label: "720" },
@@ -85,15 +88,15 @@ export default function CompressVideoModal({ file, limitMB, onCompressed, onCanc
 
       <div className={styles.fieldRow}>
         <label className={styles.fieldLabel}>
-          <span className={styles.fieldLabelText}>화질 (CRF)</span>
+          <span className={styles.fieldLabelText}>{t("admin.settings.compressVideo.quality")}</span>
         </label>
         <Select
           value={String(crf)}
           options={[
-            { value: "23", label: "23 — 고화질 (용량 큼)" },
-            { value: "28", label: "28 — 균형" },
-            { value: "30", label: "30 — 권장 (intro 영상)" },
-            { value: "35", label: "35 — 저용량 (화질 손실 보임)" },
+            { value: "23", label: t("admin.settings.compressVideo.crf23") },
+            { value: "28", label: t("admin.settings.compressVideo.crf28") },
+            { value: "30", label: t("admin.settings.compressVideo.crf30") },
+            { value: "35", label: t("admin.settings.compressVideo.crf35") },
           ]}
           onChange={(v) => setCrf(Number(v))}
         />
@@ -108,7 +111,7 @@ export default function CompressVideoModal({ file, limitMB, onCompressed, onCanc
             />
           </div>
           <span className={styles.compressProgressText}>
-            {Math.round(progress * 100)}% — wasm 모듈 첫 로드 후 인코딩
+            {fillTemplate(t("admin.settings.compressVideo.progress"), { n: Math.round(progress * 100) })}
           </span>
         </div>
       )}
@@ -116,10 +119,10 @@ export default function CompressVideoModal({ file, limitMB, onCompressed, onCanc
       {footerEl && createPortal(
         <>
           <Button variant="outline" size="md" onClick={onCancel} disabled={running}>
-            취소
+            {t("admin.settings.cancel")}
           </Button>
           <Button variant="primary" size="md" onClick={handleStart} disabled={running} loading={running}>
-            {running ? "압축 중…" : "압축 시작"}
+            {running ? t("admin.settings.compressVideo.running") : t("admin.settings.compressVideo.start")}
           </Button>
         </>,
         footerEl,

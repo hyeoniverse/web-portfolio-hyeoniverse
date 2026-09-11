@@ -14,6 +14,8 @@ import CoverImagePicker from "@/components/posts/CoverImagePicker";
 import shared from "../Settings.module.css";
 import local from "./WorksIntroVideoPicker.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { useLanguage } from "@/providers/LanguageProvider";
+import { fillTemplate } from "@/utils/format";
 const styles = { ...shared, ...local };
 
 /* 기본 업로드 제한 (api/upload 의 DEFAULT_LIMIT_MB 와 맞춤). */
@@ -26,6 +28,7 @@ interface Props {
 
 /** Works intro 미디어 picker — 업로드 + cover picker (Local/Preset/Unsplash/Pexels/AI/History) + URL 직접 입력. */
 export default function WorksIntroVideoPicker({ value, onChange }: Props) {
+  const { t } = useLanguage();
   const [uploading, setUploading] = useState(false);
   const [viewerOpen, setViewerOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -52,13 +55,13 @@ export default function WorksIntroVideoPicker({ value, onChange }: Props) {
       const res = await fetch("/api/upload", { method: "POST", body: fd });
       if (!res.ok) {
         const txt = await res.text().catch(() => "");
-        showToast(`업로드 실패: ${txt || res.status}`, "error");
+        showToast(fillTemplate(t("admin.settings.worksIntroMedia.uploadFailed"), { error: txt || res.status }), "error");
         return;
       }
       const data = await res.json();
       if (data?.url) {
         onChange(data.url);
-        showToast("업로드 완료", "success");
+        showToast(t("admin.settings.worksIntroMedia.uploaded"), "success");
       }
     } finally {
       setUploading(false);
@@ -73,12 +76,12 @@ export default function WorksIntroVideoPicker({ value, onChange }: Props) {
         limitMB={UPLOAD_LIMIT_MB}
         onCompressed={(compressed) => {
           closeModal(id);
-          showToast(`압축 완료 (${(file.size / 1024 / 1024).toFixed(1)}MB → ${(compressed.size / 1024 / 1024).toFixed(1)}MB)`, "success");
+          showToast(fillTemplate(t("admin.settings.worksIntroMedia.compressed"), { from: (file.size / 1024 / 1024).toFixed(1), to: (compressed.size / 1024 / 1024).toFixed(1) }), "success");
           void doUpload(compressed);
         }}
         onCancel={() => closeModal(id)}
       />,
-      { id, header: { title: "영상 압축" }, closeButton: true, width: "560px" },
+      { id, header: { title: t("admin.settings.worksIntroMedia.compressTitle") }, closeButton: true, width: "560px" },
     );
   };
 
@@ -89,11 +92,11 @@ export default function WorksIntroVideoPicker({ value, onChange }: Props) {
       const confirmId = "compress-confirm";
       openModal(
         <ModalConfirm
-          desc={`파일 크기 ${sizeMB.toFixed(1)}MB 가 업로드 제한(${UPLOAD_LIMIT_MB}MB) 을 초과합니다. 브라우저에서 압축 후 업로드할까요?\n\n(취소 시 업로드 안 됨)`}
-          confirmText="압축하기"
+          desc={fillTemplate(t("admin.settings.worksIntroMedia.tooLarge"), { size: sizeMB.toFixed(1), limit: UPLOAD_LIMIT_MB })}
+          confirmText={t("admin.settings.worksIntroMedia.compress")}
           onConfirm={() => openCompressModal(file)}
         />,
-        { id: confirmId, header: { title: "용량 초과" }, closeButton: true, width: "440px" },
+        { id: confirmId, header: { title: t("admin.settings.worksIntroMedia.tooLargeTitle") }, closeButton: true, width: "440px" },
       );
       return;
     }
@@ -109,7 +112,7 @@ export default function WorksIntroVideoPicker({ value, onChange }: Props) {
         <Pressable
           className={styles.worksIntroPreview}
           onClick={() => setViewerOpen(true)}
-          title="크게 보기"
+          title={t("admin.settings.worksIntroMedia.enlarge")}
         >
           {isVideo ? (
             <video
@@ -123,7 +126,7 @@ export default function WorksIntroVideoPicker({ value, onChange }: Props) {
             />
           ) : (
             /* eslint-disable-next-line @next/next/no-img-element */
-            <img src={value} alt="선택된 커버" className={styles.worksIntroPreviewThumb} />
+            <img src={value} alt={t("admin.settings.worksIntroMedia.selectedAlt")} className={styles.worksIntroPreviewThumb} />
           )}
           <span className={styles.worksIntroPreviewExpand}>
             <Expand size={14} strokeWidth={2} />
@@ -150,7 +153,7 @@ export default function WorksIntroVideoPicker({ value, onChange }: Props) {
           onClick={() => fileInputRef.current?.click()}
           loading={uploading}
         >
-          업로드
+          {t("admin.settings.worksIntroMedia.upload")}
         </Button>
         <Button
           variant="outline"
@@ -161,13 +164,13 @@ export default function WorksIntroVideoPicker({ value, onChange }: Props) {
             else if (!showPicker) setShowPicker(true);
           }}
         >
-          {showPicker && !pickerClosing ? "커버 선택 닫기" : "커버 선택"}
+          {showPicker && !pickerClosing ? t("admin.settings.worksIntroMedia.closeCover") : t("admin.settings.worksIntroMedia.chooseCover")}
         </Button>
         <div style={{ flex: "1 1 100%", minWidth: 0 }}>
           <Input
             value={value}
             onChange={onChange}
-            placeholder="/cover/videos/bg-1.mp4 또는 외부 URL"
+            placeholder={t("admin.settings.worksIntroMedia.urlPlaceholder")}
           />
         </div>
       </div>
@@ -180,7 +183,7 @@ export default function WorksIntroVideoPicker({ value, onChange }: Props) {
             closing={pickerClosing}
             currentUrl={value}
             localFilesEndpoint="/api/admin/cover"
-            localFilesHint="public/cover/videos/ 와 public/cover/images/ 안의 모든 미디어 파일이 표시됩니다."
+            localFilesHint={t("admin.settings.worksIntroMedia.localHint")}
           />
         </div>
       )}
@@ -191,7 +194,7 @@ export default function WorksIntroVideoPicker({ value, onChange }: Props) {
           index={0}
           open={viewerOpen}
           onClose={() => setViewerOpen(false)}
-          title="Intro 미디어 미리보기"
+          title={t("admin.settings.worksIntroMedia.previewTitle")}
         />
       )}
     </div>
