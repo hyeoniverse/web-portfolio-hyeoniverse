@@ -235,7 +235,7 @@ export default function FontPicker({
                       style={{ fontFamily: f.value || undefined }}
                       onMouseEnter={() => { if (f.googleName) loadGoogleFont(f.googleName); }}
                     >
-                      {f.korean && <span className={styles.itemKr} aria-label="한글 지원">가</span>}
+                      {f.korean && <span className={styles.itemKr} aria-label={t("common.koreanSupported")}>가</span>}
                       <span className={styles.itemLabel}>{f.label}</span>
                       {active && <Check className={styles.itemCheck} size={14} strokeWidth={2.5} />}
                     </div>

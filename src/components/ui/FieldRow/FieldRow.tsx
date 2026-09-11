@@ -1,8 +1,11 @@
+"use client";
+
 import type { ReactNode } from "react";
 import { HelpCircle } from "@/components/icons";
 import Tooltip from "@/components/ui/Tooltip";
 import { cn } from "@/utils/cn";
 import styles from "./FieldRow.module.css";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 interface FieldRowProps {
   /** 라벨 (텍스트 또는 <T> 등) */
@@ -27,6 +30,7 @@ interface FieldRowProps {
  * 손으로 짰다. 그 raw 패턴을 공통화한다.
  */
 export default function FieldRow({ label, hint, help, inline, className, children }: FieldRowProps) {
+  const { t } = useLanguage();
   return (
     <div className={cn(styles.fieldRow, inline && styles.fieldRowInline, className)}>
       <label className={styles.fieldLabel}>
@@ -34,7 +38,7 @@ export default function FieldRow({ label, hint, help, inline, className, childre
           {label}
           {help != null && (
             <Tooltip content={help} placement="top">
-              <span className={styles.fieldHelp} role="button" tabIndex={0} aria-label="설명">
+              <span className={styles.fieldHelp} role="button" tabIndex={0} aria-label={t("common.fieldHelp")}>
                 <HelpCircle size={13} />
               </span>
             </Tooltip>

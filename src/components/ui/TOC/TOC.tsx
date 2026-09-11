@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useLenis } from "@/providers/LenisProvider";
 import styles from "./TOC.module.css";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 interface TocItem {
   id: string;
@@ -25,6 +26,7 @@ export default function TOC({
   scrollOffset = -100,
   className,
 }: TOCProps) {
+  const { t } = useLanguage();
   const { lenis } = useLenis();
   const [activeId, setActiveId] = useState("");
   const lockRef = useRef(false);
@@ -106,7 +108,7 @@ export default function TOC({
   if (items.length === 0) return null;
 
   return (
-    <nav aria-label="목차" className={`${styles.toc} ${styles[position]} ${className ?? ""}`}>
+    <nav aria-label={t("common.toc")} className={`${styles.toc} ${styles[position]} ${className ?? ""}`}>
       {title && <p className={styles.title}>{title}</p>}
       {items.length > 1 && (
         <a

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion, type Variants } from "framer-motion";
 import styles from "./OptimizedImage.module.css";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 const imageFade: Variants = {
   hidden: { opacity: 0 },
@@ -32,6 +33,7 @@ export default function OptimizedImage({
   onLoad,
   onError,
 }: OptimizedImageProps) {
+  const { t } = useLanguage();
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
 
@@ -73,7 +75,7 @@ export default function OptimizedImage({
       {hasError && (
         <div className={styles.errorState}>
           <div className={styles.errorIcon}>📷</div>
-          <span className={styles.errorText}>이미지를 불러올 수 없습니다</span>
+          <span className={styles.errorText}>{t("common.imageLoadFailed")}</span>
         </div>
       )}
     </div>

@@ -5,6 +5,7 @@ import { ImageIcon, ArrowLeft, ArrowRight } from "@/components/icons";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
 import T from "@/components/ui/T";
 import styles from "./AdjacentNav.module.css";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 export interface AdjacentItem {
   href: string;
@@ -27,6 +28,7 @@ export default function AdjacentNav({
   nextLabelKey = "common.next",
   className,
 }: AdjacentNavProps) {
+  const { t } = useLanguage();
   const { navigateWithTransition } = usePageTransition();
 
   const handleClick = (item: AdjacentItem, e: React.MouseEvent) => {
@@ -35,7 +37,7 @@ export default function AdjacentNav({
   };
 
   return (
-    <nav aria-label="이전 · 다음 글" className={`${styles.nav}${className ? ` ${className}` : ""}`}>
+    <nav aria-label={t("common.adjacentPosts")} className={`${styles.nav}${className ? ` ${className}` : ""}`}>
       {prev ? (
         <div className={styles.card} data-clickable="true" onClick={(e) => handleClick(prev, e)} role="link" style={{ cursor: "pointer" }}>
           <div className={styles.thumb}>
