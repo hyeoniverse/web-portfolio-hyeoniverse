@@ -37,12 +37,19 @@ export function useSettingsSections(panelRef: RefObject<HTMLElement | null>, sca
   const [sections, setSections] = useState<SettingsSection[]>([]);
   const [activeIdx, setActiveIdx] = useState(0);
 
-  /* 콘텐츠가 그려진 뒤 훑는다 — rAF 로 한 프레임 미룬다. */
+  /* 콘텐츠가 그려진 뒤 훑는다 — rAF 로 한 프레임 미룬다.
+     탭·하위 탭의 편집기는 연 뒤에 받아 그린다(next/dynamic). 그래서 탭이 바뀐 직후에는 불러오기 뼈대만 있고
+     섹션은 나중에 붙는다. 섹션이 붙거나 빠지면 다시 훑는다 — 한 프레임에 한 번, 목록이 그대로면 넘긴다. */
   useEffect(() => {
     const panel = panelRef.current;
     if (!panel) return;
-    const raf = requestAnimationFrame(() => {
+    let raf = 0;
+    let last: HTMLElement[] | null = null;
+    const scan = () => {
+      raf = 0;
       const els = [...panel.querySelectorAll<HTMLElement>("[data-settings-section]")];
+      if (last && els.length === last.length && els.every((el, i) => el === last![i])) return;
+      last = els;
       setSections(
         els
           .map((el) => ({
@@ -53,8 +60,12 @@ export function useSettingsSections(panelRef: RefObject<HTMLElement | null>, sca
           .filter((s) => s.label),
       );
       setActiveIdx(0);
-    });
-    return () => cancelAnimationFrame(raf);
+    };
+    const schedule = () => { if (!raf) raf = requestAnimationFrame(scan); };
+    schedule();
+    const mo = new MutationObserver(schedule);
+    mo.observe(panel, { childList: true, subtree: true });
+    return () => { cancelAnimationFrame(raf); mo.disconnect(); };
   }, [panelRef, scanKey]);
 
   /* 바뀐 섹션 — 섹션 머리가 data-dirty 로 알린다(About 은 PanelGroup, 다른 탭은 SectionHeader).
