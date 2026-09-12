@@ -197,11 +197,9 @@ Supabase Dashboard → **Authentication** → **Users** → **Add user**:
 
 **로그인 후 사용 가능한 기능:**
 
-- `/admin/posts` — 포스트 목록 (발행/비공개 상태 확인, 호버 미리보기, 행 번호, 썸네일)
+- `/admin/posts` — 포스트 목록 (발행/비공개 상태 확인, 호버 미리보기, 행 번호, 썸네일). 위쪽 시리즈 패널에서 시리즈 순서 바꾸기·삭제·내보내기, 시리즈 만들기·편집은 Settings → Content → Posts
 - `/admin/posts/new` — 새 포스트 작성 (Markdown ↔ Rich Text 전환, 자동 번역, 재번역, 자동 저장 + DB 리비전 히스토리 + diff 비교 + Revert)
 - `/admin/posts/[id]/edit` — 기존 포스트 수정 (PlateEditor 로딩 스켈레톤)
-- `/admin/posts/series/new` — 새 시리즈 생성
-- `/admin/posts/series/[id]/edit` — 시리즈 편집
 - `/admin/works` — 작업물 목록 (테이블 뷰, 발행/비공개 토글, 정렬 순서, 썸네일, .md 업로드)
 - `/admin/works/new` — 새 작업물 생성 (단일 콘텐츠 에디터 + 템플릿, 한/영 이중 언어, 기술 스택, 갤러리)
 - `/admin/works/[id]/edit` — 기존 작업물 수정
