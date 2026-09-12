@@ -40,12 +40,12 @@ export default function SeoChecklist({ data, onItemClick, className }: SeoCheckl
   const checks: { id: SeoCheckId; label: string; ok: boolean; warn?: boolean; hint?: string }[] = [
     {
       id: "title",
-      label: t("admin.seoChecklist.title") || "Title",
+      label: t("admin.seoChecklist.title"),
       ok: !!(data.title && data.title.trim().length > 0),
     },
     {
       id: "slug",
-      label: t("admin.seoChecklist.slug") || "Slug",
+      label: t("admin.seoChecklist.slug"),
       ok: !!(data.slug && /^[a-z0-9-]+$/i.test(data.slug)),
       warn: !!(data.slug && !/^[a-z0-9-]+$/i.test(data.slug)),
       hint: data.slug && !/^[a-z0-9-]+$/i.test(data.slug)
@@ -54,7 +54,7 @@ export default function SeoChecklist({ data, onItemClick, className }: SeoCheckl
     },
     {
       id: "excerpt",
-      label: t("admin.seoChecklist.excerpt") || "Description",
+      label: t("admin.seoChecklist.excerpt"),
       ok: !!(data.excerpt && data.excerpt.trim().length >= 30),
       warn: !!(data.excerpt && data.excerpt.trim().length > 0 && data.excerpt.trim().length < 30),
       hint: data.excerpt && data.excerpt.trim().length < 30 && data.excerpt.trim().length > 0
@@ -63,17 +63,17 @@ export default function SeoChecklist({ data, onItemClick, className }: SeoCheckl
     },
     {
       id: "cover",
-      label: t("admin.seoChecklist.cover") || "Cover image",
+      label: t("admin.seoChecklist.cover"),
       ok: !!data.cover,
     },
     {
       id: "category",
-      label: t("admin.seoChecklist.category") || "Category",
+      label: t("admin.seoChecklist.category"),
       ok: !!data.category,
     },
     {
       id: "tags",
-      label: t("admin.seoChecklist.tags") || "Tags",
+      label: t("admin.seoChecklist.tags"),
       ok: (data.tagsCount ?? 0) > 0,
     },
   ];
@@ -125,7 +125,7 @@ export default function SeoChecklist({ data, onItemClick, className }: SeoCheckl
             : { duration: 0.22, delay: 0.5, ease: [0.4, 0, 0.2, 1] },
         }}
         role={open ? "dialog" : undefined}
-        aria-label={open ? "SEO 상세 점검" : undefined}
+        aria-label={open ? t("admin.seoChecklist.dialogLabel") : undefined}
       >
         <AnimatePresence mode="popLayout" initial={false}>
           {open ? (
@@ -146,14 +146,14 @@ export default function SeoChecklist({ data, onItemClick, className }: SeoCheckl
                 </div>
                 <div className={styles.panelHeaderRight}>
                   <span className={styles.panelHeaderLabel}>
-                    {t("admin.seoChecklist.heading") || "SEO check"}
+                    {t("admin.seoChecklist.heading")}
                   </span>
                   <span className={styles.panelHeaderStatus}>
                     {tone === "full"
-                      ? (t("admin.seoChecklist.statusFull") || "All set")
+                      ? (t("admin.seoChecklist.statusFull"))
                       : issues.length === 1
-                        ? (t("admin.seoChecklist.statusOne") || "1 item to fix")
-                        : `${issues.length} ${t("admin.seoChecklist.statusMany") || "items to fix"}`}
+                        ? (t("admin.seoChecklist.statusOne"))
+                        : `${issues.length} ${t("admin.seoChecklist.statusMany")}`}
                   </span>
                 </div>
               </div>
@@ -195,7 +195,7 @@ export default function SeoChecklist({ data, onItemClick, className }: SeoCheckl
               {passedItems.length > 0 && (
                 <div className={styles.panelPassed}>
                   <span className={styles.panelPassedLabel}>
-                    {t("admin.seoChecklist.completed") || "Completed"}
+                    {t("admin.seoChecklist.completed")}
                   </span>
                   <ul className={styles.panelPassedList}>
                     {passedItems.map((c) => {

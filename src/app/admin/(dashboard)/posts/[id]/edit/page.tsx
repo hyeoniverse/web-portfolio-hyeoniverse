@@ -8,11 +8,13 @@ import { Skeleton, SkeletonLine } from "@/components/ui/Skeleton";
 import { adminEditorStyles as es } from "@/components/admin/AdminEditorShell";
 import { useLenis } from "@/providers/LenisProvider";
 import type { Post } from "@/types/post";
+import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "@/components/posts/PostEditor.module.css";
 
 type LoadFailure = { status: number; reason: string };
 
 export default function EditPostPage() {
+  const { t } = useLanguage();
   const params = useParams();
   const id = params.id as string;
   const [post, setPost] = useState<Post | null>(null);
@@ -51,10 +53,10 @@ export default function EditPostPage() {
     return (
       <AdminNotFound
         variant={denied ? "denied" : "notFound"}
-        title={denied ? "이 글에 접근할 권한이 없습니다" : "글을 찾을 수 없습니다"}
+        title={denied ? t("admin.posts.editor.deniedTitle") : t("admin.posts.editor.notFoundTitle")}
         description={failure?.reason || undefined}
         backHref="/admin/posts"
-        backLabel="글 목록으로"
+        backLabel={t("admin.posts.editor.backToList")}
       />
     );
   }
