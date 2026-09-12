@@ -215,6 +215,8 @@
     "role": "역할",
     "tech": "기술 스택",
     "team": "팀원",
+    "memberLink": "{{name}}의 링크 열기 (새 탭)",
+    "memberEmail": "{{name}}에게 이메일 보내기",
     "category": "카테고리",
     "overview": "개요",
     "challenge": "과제",

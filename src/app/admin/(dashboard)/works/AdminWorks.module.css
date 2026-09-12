@@ -26,3 +26,4 @@
 .uploadGuide th { color: var(--text-primary); font-weight: 600; }
 .uploadGuide pre { background: var(--bg-tertiary); border-radius: var(--radius-2xl); padding: var(--spacing-sm); overflow-x: auto; margin: var(--spacing-xs) 0; }
 .uploadGuide code { font-family: var(--font-mono); font-size: var(--font-size-label); color: var(--text-primary); }
+.uploadGuideNote { font-size: var(--font-size-label); color: var(--text-muted); font-style: italic; }

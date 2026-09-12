@@ -32,7 +32,7 @@ export function CategoryMultiPicker({
   editorLang: "ko" | "en";
   customMode: boolean;
   setCustomMode: (v: boolean) => void;
-  labels: { placeholder: string; custom: string };
+  labels: { placeholder: string; custom: string; add: string };
   onChange: (ko: string[], en: string[]) => void;
 }) {
   const remaining = presets.filter((c) => !selectedKos.includes(c.ko));
@@ -85,7 +85,7 @@ export function CategoryMultiPicker({
           }}
         />
         {customMode && (
-          <CategoryCustomAdder onAdd={add} onCancel={() => setCustomMode(false)} koPh={labels.placeholder} enPh={labels.placeholder} />
+          <CategoryCustomAdder onAdd={add} onCancel={() => setCustomMode(false)} koPh={labels.placeholder} enPh={labels.placeholder} addLabel={labels.add} />
         )}
       </div>
       {/* 아래쪽 — 선택된 chip 들 (공통 Chip + drag reorder) */}
@@ -114,7 +114,7 @@ export function CategoryMultiPicker({
 }
 
 /** 카테고리 직접 입력 — KO/EN 두 input + 추가 버튼. Enter 로 submit 가능 */
-function CategoryCustomAdder({ onAdd, onCancel, koPh, enPh }: { onAdd: (ko: string, en: string) => void; onCancel: () => void; koPh: string; enPh: string }) {
+function CategoryCustomAdder({ onAdd, onCancel, koPh, enPh, addLabel }: { onAdd: (ko: string, en: string) => void; onCancel: () => void; koPh: string; enPh: string; addLabel: string }) {
   const [ko, setKo] = useState("");
   const [en, setEn] = useState("");
   const handleAdd = () => {
@@ -155,7 +155,7 @@ function CategoryCustomAdder({ onAdd, onCancel, koPh, enPh }: { onAdd: (ko: stri
         className={styles.categoryAddBtnSized}
         onClick={handleAdd}
         disabled={!ko.trim() && !en.trim()}
-        aria-label="Add"
+        aria-label={addLabel}
         icon={<Plus size={12} strokeWidth={2} />}
       />
     </>

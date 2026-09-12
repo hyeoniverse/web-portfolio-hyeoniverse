@@ -220,6 +220,8 @@
     "solution": "Solution",
     "visitSite": "Visit Site",
     "team": "Team",
+    "memberLink": "Open {{name}}'s link (new tab)",
+    "memberEmail": "Email {{name}}",
     "previous": "Previous",
     "next": "Next",
     "noTranslationEn": "This work is not yet available in English."
