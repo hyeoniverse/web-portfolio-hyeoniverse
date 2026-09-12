@@ -1020,6 +1020,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
             labels={{
               placeholder: tw("categoryPlaceholder"),
               custom: tw("customCategory"),
+              add: tw("categoryAdd"),
             }}
             onChange={(ko, en) => {
               setForm((prev) => ({ ...prev, categories_ko: ko, categories_en: en }));
