@@ -11,6 +11,7 @@ import { downloadFile } from "./downloadFile";
 import type { PostContext } from "./index";
 import styles from "./CoverImagePicker.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { errorFromBody, errorText } from "@/lib/apiError";
 
 type MediaType = "image" | "video";
 
@@ -109,7 +110,7 @@ export default function PexelsTab({
         const endpoint = type === "video" ? "/api/cover/pexels/videos" : "/api/cover/pexels";
         const res = await fetch(`${endpoint}?q=${encodeURIComponent(q)}&page=${p}`);
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error);
+        if (!res.ok) throw errorFromBody(data, res.status);
 
         if (type === "video") {
           setVideos((prev) => {
@@ -135,12 +136,12 @@ export default function PexelsTab({
         setTotalPages(data.total_pages);
         setPage(p);
       } catch (err) {
-        setError(err instanceof Error ? err.message : tc("searchFailed"));
+        setError(errorText(err, t, tc("searchFailed")));
       } finally {
         setLoading(false);
       }
     },
-    [tc, mediaType],
+    [t, tc, mediaType],
   );
 
   const handleInputChange = useCallback(

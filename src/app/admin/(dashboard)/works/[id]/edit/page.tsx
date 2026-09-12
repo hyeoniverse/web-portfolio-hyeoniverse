@@ -10,6 +10,7 @@ import { useLenis } from "@/providers/LenisProvider";
 import type { Work } from "@/types/work";
 import wStyles from "@/components/works/WorkEditor.module.css";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { errorText } from "@/lib/apiError";
 
 function WorkEditorSkeleton() {
   return (
@@ -78,7 +79,8 @@ function WorkEditorSkeleton() {
   );
 }
 
-type LoadFailure = { status: number; reason: string };
+/* 실패 응답 본문은 그대로 두고 그릴 때 화면 언어 문구로 바꾼다 — 효과 안에서 번역하면 번역 함수가 바뀔 때마다 다시 불러와야 한다 */
+type LoadFailure = { status: number; body: unknown };
 
 export default function EditWorkPage() {
   const { t } = useLanguage();
@@ -98,7 +100,7 @@ export default function EditWorkPage() {
       const res = await fetch(`/api/works/${params.id}`);
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        setFailure({ status: res.status, reason: body?.reason || body?.error || "" });
+        setFailure({ status: res.status, body });
         setLoading(false);
         return;
       }
@@ -119,7 +121,7 @@ export default function EditWorkPage() {
       <AdminNotFound
         variant={denied ? "denied" : "notFound"}
         title={denied ? t("admin.works.editor.deniedTitle") : t("admin.works.editor.notFoundTitle")}
-        description={failure?.reason || undefined}
+        description={errorText(failure?.body, t, "") || undefined}
         backHref="/admin/works"
         backLabel={t("admin.works.editor.backToList")}
       />

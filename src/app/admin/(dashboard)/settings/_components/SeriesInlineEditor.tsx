@@ -351,7 +351,7 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formBody),
       });
-      if (!res.ok) throw new Error(ts("saveFailed"));
+      if (!res.ok) throw errorFromBody(await res.json().catch(() => null), res.status);
       const savedSeries = (await res.json()) as Series;
       /* 새 시리즈 + 사용자가 원한 position 이 기본 (맨 뒤) 와 다르면 PATCH 로 위치 변경 (backend auto-shift) */
       if (!isEdit && form.desiredPosition !== totalCount + 1) {
@@ -402,7 +402,7 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
 
       onSave(savedSeries);
     } catch (err) {
-      setError(err instanceof Error ? err.message : ts("saveFailed"));
+      setError(errorText(err, t, ts("saveFailed")));
     } finally {
       setSaving(false);
     }

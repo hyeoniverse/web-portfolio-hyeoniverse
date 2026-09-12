@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef } from "react";
 import { useSyncRef } from "@/hooks/useSyncRef";
 import { autoTranslate } from "@/utils/autoTranslate";
+import { errorText } from "@/lib/apiError";
 
 interface TranslatableField {
   /** Logical name used for selective translation (e.g. "title", "content") */
@@ -81,7 +82,7 @@ export function useEditorTranslation({
         onUpdate(patch);
         onStatus?.(t(`${i18nPrefix}.autoTranslated`), "success");
       } else {
-        onError?.(result.error);
+        onError?.(errorText(result.error, t, t(`${i18nPrefix}.translateFailed`)));
       }
     },
     [fieldMapper, t, i18nPrefix, onUpdate, onStatus, onError],

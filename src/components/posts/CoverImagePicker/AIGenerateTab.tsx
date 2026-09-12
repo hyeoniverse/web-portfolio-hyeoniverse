@@ -9,6 +9,7 @@ import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import type { PostContext } from "./index";
 import styles from "./CoverImagePicker.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { errorFromBody, errorText } from "@/lib/apiError";
 
 interface AIGenerateTabProps {
   onSelect: (url: string) => void;
@@ -84,17 +85,17 @@ export default function AIGenerateTab({ onSelect, onGenerated, postContext }: AI
         body: JSON.stringify({ prompt: prompt.trim(), style }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      if (!res.ok) throw errorFromBody(data, res.status);
       setPreviewUrl(data.url);
       setPermanentUrl(data.url);
       // 부모가 history 추가 + cover 자동저장 처리
       onGenerated(data.url, prompt.trim());
     } catch (err) {
-      setError(err instanceof Error ? err.message : tc("generationFailed"));
+      setError(errorText(err, t, tc("generationFailed")));
     } finally {
       setGenerating(false);
     }
-  }, [prompt, style, tc, onGenerated]);
+  }, [prompt, style, t, tc, onGenerated]);
 
   const _handleClear = useCallback(() => {
     setPrompt("");
@@ -118,8 +119,9 @@ export default function AIGenerateTab({ onSelect, onGenerated, postContext }: AI
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(blobUrl);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : tc("generationFailed"));
+    } catch {
+      /* 브라우저 문장("Failed to fetch")은 한 언어라, 받기 실패 문구로 */
+      setError(tc("downloadFailed"));
     }
   }, [tc]);
 

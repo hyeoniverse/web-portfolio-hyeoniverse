@@ -767,8 +767,8 @@ export default function PostEditor({ post }: PostEditorProps) {
         }
 
         if (!res.ok) {
-          /* 서버는 "왜" 를 reason 에 담는다 — error 만 쓰면 "Forbidden" 밖에 안 남아 원인을 알 수 없다. */
-          setError(data.reason ?? data.error ?? "Failed to save");
+          /* "왜" 는 코드로 온다(본인 글만·세션 갱신 필요·제목 길이 등) — 화면 언어 문구로(#862) */
+          setError(errorText(data, t, te("saveFailed")));
           return;
         }
 
