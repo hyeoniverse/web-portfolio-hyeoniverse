@@ -197,7 +197,7 @@ export default function SortOrderDragList({
                 if (!isNaN(n)) moveTo(n);
               }}
               className={styles.posInput}
-              aria-label="Position"
+              aria-label={t("admin.common.position")}
             />
             <span className={styles.posSep}>/</span>
             <span className={styles.posTotal}>{total}</span>

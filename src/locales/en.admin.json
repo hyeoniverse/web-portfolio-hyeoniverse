@@ -231,7 +231,8 @@
       "importFailed": "Couldn’t create items from the Markdown files.",
       "exportFailed": "Couldn’t export.",
       "categoryAddFailed": "Couldn’t add the new categories to settings.",
-      "seriesPostsFailed": "Couldn’t add or remove posts in the series."
+      "seriesPostsFailed": "Couldn’t add or remove posts in the series.",
+      "position": "Position"
     },
     "settings": {
       "title": "Settings",

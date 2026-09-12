@@ -68,7 +68,7 @@ import { SubtitleInput } from "./workEditor/SubtitleInput";
 import { workSnapshotMeta } from "./workEditor/workSnapshotMeta";
 import { parseYearAsPeriod, serializePeriodAsYear } from "./workEditor/periodFormat";
 import { CodedError, errorFromBody, errorFromResponse, errorText } from "@/lib/apiError";
-import { sendActions, tryRequest } from "@/lib/sendAction";
+import { tryRequest } from "@/lib/sendAction";
 
 const Editor = dynamic(() => import("@/components/posts/PlateEditor"), {
   ssr: false,
@@ -171,8 +171,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   // 정렬 list — 다른 작품들 (현재 편집중인 작품 제외)
   const [otherWorks, setOtherWorks] = useState<Array<{ id: string; title: string; sort_order: number }>>([]);
 
-  /* 순서 바꾸기가 실패했을 때도 다시 불러 서버 순서로 되돌린다(#868) */
-  const loadOtherWorks = useCallback(() => {
+  useEffect(() => {
     fetch("/api/works?all=true")
       .then((r) => r.json())
       .then((d) => {
@@ -182,8 +181,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       })
       .catch(() => {});
   }, [work?.id]);
-
-  useEffect(() => { loadOtherWorks(); }, [loadOtherWorks]);
 
   const [worksCategories, setWorksCategories] = useState<WorksCategory[]>([]);
   // 직접 입력 모드 — 사용자가 "직접 입력" 선택 시 활성화. categories_ko/en 비어도 input 유지
@@ -731,9 +728,10 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   }, [work, router, tw]);
 
   const handlePreview = useCallback(() => {
-    sessionStorage.setItem(PREVIEW_KEY.work, JSON.stringify(form));
+    /* 새 작업물(자리 0)은 저장하면 맨 뒤에 서므로 미리보기 번호도 그 자리로 */
+    sessionStorage.setItem(PREVIEW_KEY.work, JSON.stringify({ ...form, sort_order: form.sort_order || otherWorks.length + 1 }));
     window.open("/admin/works/preview", "_blank");
-  }, [form]);
+  }, [form, otherWorks.length]);
 
   const handleRestoreRevision = useCallback(
     async (index: number) => {
@@ -1050,18 +1048,14 @@ export default function WorkEditor({ work }: WorkEditorProps) {
               <SortOrderDragList
                 label={tw("sortOrder")}
                 currentTitle={form.title || tw("subtitle")}
-                currentOrder={form.sort_order || 1}
+                /* 새 작업물(0)은 맨 뒤 — 저장하면 서버도 맨 뒤에 넣는다 */
+                currentOrder={form.sort_order || otherWorks.length + 1}
                 otherItems={otherWorks}
                 onChange={(newOrder, otherUpdates) => {
+                  /* 이 작업물의 자리만 바꿔 두고 저장할 때 보낸다. 서버가 그 자리에 끼우고 나머지를 다시 매긴다.
+                     예전에는 밀리는 작업물마다 PATCH 를 바로 보내 저장 전에 순서가 바뀌고, 동시에 오가며 뒤섞였다(#873).
+                     아래는 목록 미리보기만 바꾼다 */
                   updateField("sort_order", newOrder);
-                  /* 다른 작업물의 순서는 바로 저장한다. 하나라도 실패하면 알리고 서버 순서로 다시 받는다 */
-                  void sendActions(
-                    otherUpdates.map((u) => ({
-                      input: `/api/works/${u.id}`,
-                      init: { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sort_order: u.sort_order }) },
-                    })),
-                    t, t("admin.common.reorderFailed"),
-                  ).then((saved) => { if (saved < otherUpdates.length) loadOtherWorks(); });
                   setOtherWorks((prev) => prev.map((w) => {
                     const u = otherUpdates.find((x) => x.id === w.id);
                     return u ? { ...w, sort_order: u.sort_order } : w;
@@ -1128,7 +1122,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       </div>
     </div>
   ), [
-    categoryCustomMode, descriptionValue, editorLang, form.categories_en, form.categories_ko, form.contributions_en, loadOtherWorks, t,
+    categoryCustomMode, descriptionValue, editorLang, form.categories_en, form.categories_ko, form.contributions_en,
     form.contributions_ko, form.nature_en, form.nature_ko, form.slug, form.sort_order, form.title, form.year,
     natureCustomMode, naturePresets, optionalOpen, otherWorks, ownRole.selectNode, primaryLang, reqTitle, roleValue,
     showErrors, subtitleValue, suf, titleKey, titleValue, tw, updateField, worksCategories,

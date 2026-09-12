@@ -233,7 +233,8 @@
       "importFailed": "Markdown 파일로 항목을 만들지 못했습니다.",
       "exportFailed": "내보내지 못했습니다.",
       "categoryAddFailed": "새 카테고리를 설정에 더하지 못했습니다.",
-      "seriesPostsFailed": "시리즈에 글을 넣거나 빼지 못했습니다."
+      "seriesPostsFailed": "시리즈에 글을 넣거나 빼지 못했습니다.",
+      "position": "위치"
     },
     "settings": {
       "title": "설정",

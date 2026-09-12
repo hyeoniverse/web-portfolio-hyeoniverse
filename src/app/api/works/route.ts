@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { requireAuth } from "@/lib/api/requireAuth";
 import { requireRole } from "@/lib/api/requireRole";
 import { PERM } from "@/lib/api/roles";
+import { placeWork } from "@/lib/api/placeWork";
 import { applySearchQuery } from "@/lib/api/applySearchQuery";
 import type { SyntaxMode } from "@/lib/searchQuery";
 // GET /api/works — 목록 조회
@@ -162,16 +163,17 @@ export async function POST(request: Request) {
   }
 
 
-  // 새 work 의 sort_order 가 명시되지 않았거나 기본값(1) 이면, 현재 max + 1 로 자동 설정 (맨 뒤)
-  if (filtered.sort_order === undefined || filtered.sort_order === 1) {
-    const { data: maxRow } = await supabase
-      .from("works")
-      .select("sort_order")
-      .order("sort_order", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    filtered.sort_order = (maxRow?.sort_order ?? 0) + 1;
-  }
+  /* 새 작업물은 일단 맨 뒤(max + 1)에 넣고, 자리를 받았으면 그 자리로 옮기며 나머지를 다시 매긴다 — PATCH 와 같은
+     placeWork(#873). 자리가 없거나 0 이면 맨 뒤. 예전에는 1 을 "정하지 않음"으로 봐 맨 앞에 두려던 새 작업물이
+     맨 뒤로 갔고, 그 밖의 자리는 다시 매기지 않아 번호가 겹쳤다 */
+  const position = typeof filtered.sort_order === "number" && filtered.sort_order >= 1 ? filtered.sort_order : null;
+  const { data: maxRow } = await supabase
+    .from("works")
+    .select("sort_order")
+    .order("sort_order", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  filtered.sort_order = (maxRow?.sort_order ?? 0) + 1;
 
   const { data, error } = await supabase
     .from("works")
@@ -181,6 +183,12 @@ export async function POST(request: Request) {
 
   if (error) {
     return jsonServerError(error, "POST /api/works");
+  }
+
+  if (position !== null && position < (filtered.sort_order as number)) {
+    await placeWork(supabase, data.id, position);
+    const { data: placed } = await supabase.from("works").select("*").eq("id", data.id).single();
+    return NextResponse.json(placed ?? data, { status: 201 });
   }
 
   return NextResponse.json(data, { status: 201 });
