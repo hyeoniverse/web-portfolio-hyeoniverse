@@ -78,7 +78,8 @@ const ImagePanel = dynamic(
   { ssr: false },
 );
 
-import type { PlateEditorHandle, EditorImageInfo } from "./PlateEditor";
+import type { PlateEditorHandle } from "./PlateEditor";
+import { useEditorImages } from "./plate/useEditorImages";
 import { isVideoMedia, _postLinkCategory, _postLinkTags, _postLinkExcludeId } from "./plate/utils";
 
 interface PostEditorProps {
@@ -338,7 +339,7 @@ export default function PostEditor({ post }: PostEditorProps) {
 
   // 에디터 ref + 첨부 이미지
   const plateRef = useRef<PlateEditorHandle>(null);
-  const [editorImages, setEditorImages] = useState<EditorImageInfo[]>([]);
+  const [editorImages, setEditorImages] = useEditorImages();
   const [editorHtmlMode, setEditorHtmlMode] = useState(false);
   // 초기 로드 후 이미지 목록 동기화 (에디터 준비될 때까지 polling)
   useEffect(() => {
@@ -354,7 +355,7 @@ export default function PostEditor({ post }: PostEditorProps) {
       }
     }, 300);
     return () => { cancelled = true; clearInterval(poll); };
-  }, [editorLang, form.content_type]);
+  }, [editorLang, form.content_type, setEditorImages]);
   const [slugManual, setSlugManual] = useState(isEdit);
   // 커버 배너의 페이지 이모지/아이콘 — form.icon 으로 저장(DB posts.icon)
   const initialFormRef = useRef(form);

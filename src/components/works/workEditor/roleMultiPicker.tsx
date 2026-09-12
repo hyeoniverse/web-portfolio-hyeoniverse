@@ -1,7 +1,7 @@
 "use client";
 
 import styles from "../WorkEditor.module.css";
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Check } from "@/components/icons";
 import Chip, { useChipReorder } from "@/components/ui/Chip";
 import Select from "@/components/ui/Select";
@@ -28,11 +28,12 @@ export function useRoleMultiPicker({
   lang: "ko" | "en";
 }) {
   const [input, setInput] = useState("");
-  const tokens = value
-    ? value.split(",").map((s) => s.trim()).filter(Boolean)
-    : [];
-  const setTokens = (next: string[]) => onChange(next.join(", "));
-  const add = (v: string) => {
+  const tokens = useMemo(
+    () => (value ? value.split(",").map((s) => s.trim()).filter(Boolean) : []),
+    [value],
+  );
+  const setTokens = useCallback((next: string[]) => onChange(next.join(", ")), [onChange]);
+  const add = useCallback((v: string) => {
     const t = v.trim().replace(/,/g, "");
     if (!t) return;
     if (tokens.includes(t)) {
@@ -42,7 +43,7 @@ export function useRoleMultiPicker({
     }
     setTokens([...tokens, t]);
     setInput("");
-  };
+  }, [tokens, setTokens, lang]);
   const remove = (idx: number) => setTokens(tokens.filter((_, i) => i !== idx));
   const { itemProps } = useChipReorder((from, to) => {
     const next = [...tokens];
@@ -50,7 +51,9 @@ export function useRoleMultiPicker({
     next.splice(to, 0, moved);
     setTokens(next);
   });
-  const selectNode = (
+  /* 편집 화면이 글자마다 다시 그려져도 값이 그대로면 같은 선택 칸을 돌려준다 — 이 칸을 품은 섹션이 메모로
+     다시 그리기를 건너뛸 수 있게(#850) */
+  const selectNode = useMemo(() => (
     <Select
       combobox
       className={styles.roleSelect}
@@ -58,7 +61,7 @@ export function useRoleMultiPicker({
       onChange={() => {}}
       inputValue={input}
       onInputChange={setInput}
-      onAdd={(v) => add(v)}
+      onAdd={add}
       options={presets.map((p) => {
         const added = tokens.includes(p);
         return {
@@ -70,7 +73,7 @@ export function useRoleMultiPicker({
       })}
       placeholder={placeholder}
     />
-  );
+  ), [input, add, presets, tokens, placeholder]);
   const chipsNode = tokens.length > 0 ? (
     <div className={styles.categoryChipList}>
       {tokens.map((t, i) => {
