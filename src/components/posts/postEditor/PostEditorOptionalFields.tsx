@@ -12,7 +12,7 @@ import CoverImagePicker from "../CoverImagePicker";
 import RelationPicker from "@/components/admin/RelationPicker";
 import SortOrderDragList from "@/components/admin/SortOrderDragList";
 import TagNotesEditor from "@/components/admin/TagNotesEditor";
-import type { Post, PostFormData, Series } from "@/types/post";
+import type { Post, PostFormData, PostMetaForm, Series } from "@/types/post";
 import type { BilingualCategory } from "@/hooks/useCategories";
 import { adminEditorStyles as es } from "@/components/admin/AdminEditorShell";
 import type { usePostSeries } from "@/hooks/usePostSeries";
@@ -45,7 +45,8 @@ export default function PostEditorOptionalFields({
   onCoverUpload,
   onReorderSeriesPosts,
 }: {
-  form: PostFormData;
+  /** 본문을 뺀 폼 — 이 섹션은 본문을 쓰지 않는다. 본문을 칠 때는 같은 객체라 다시 그리지 않는다 */
+  form: PostMetaForm;
   updateField: <K extends keyof PostFormData>(key: K, value: PostFormData[K]) => void;
   te: (key: string) => string;
   config: ReturnType<typeof import("@/providers/SiteConfigProvider").useSiteConfig>;

@@ -83,6 +83,9 @@ export interface PostFormData {
   author_ids?: string[];
 }
 
+/** 본문 두 필드를 뺀 글 폼 — 본문을 쓰지 않는 편집 화면 섹션이 받는다(본문을 칠 때 다시 그리지 않게) */
+export type PostMetaForm = Omit<PostFormData, "content" | "content_en">;
+
 export interface Series {
   id: string;
   title: string;

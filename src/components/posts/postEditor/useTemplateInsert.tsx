@@ -14,12 +14,13 @@ import styles from "../PostEditor.module.css";
    본문이 이미 있으면 <hr /> 로 구분해 뒤에 붙인다. 에디터는 richtext 단일이라 변환이 필요하다. */
 export function useTemplateInsert({
   editorLang,
-  form,
+  formRef,
   updateField,
   te,
 }: {
   editorLang: "ko" | "en";
-  form: PostFormData;
+  /** 누른 때의 본문을 읽는다 — 폼을 의존성으로 두면 본문을 칠 때마다 함수가 바뀌어 편집 화면 섹션의 메모가 풀린다 */
+  formRef: React.RefObject<PostFormData>;
   updateField: <K extends keyof PostFormData>(key: K, value: PostFormData[K]) => void;
   te: (key: string) => string;
 }) {
@@ -29,7 +30,7 @@ export function useTemplateInsert({
   const handleInsertTemplate = useCallback(() => {
     const lang = editorLang;
     const key = lang === "ko" ? "content" : "content_en";
-    const current = form[key as keyof PostFormData] as string;
+    const current = formRef.current[key as keyof PostFormData] as string;
 
     const applyTemplate = (tmpl: PostTemplate) => {
       const md = lang === "ko" ? tmpl.content.ko : tmpl.content.en;
@@ -76,7 +77,7 @@ export function useTemplateInsert({
       </div>,
       { header: { title: te("insertTemplate") }, closeButton: true, width: "420px" },
     );
-  }, [editorLang, language, form, updateField, te, openModal, closeAll]);
+  }, [editorLang, language, formRef, updateField, te, openModal, closeAll]);
 
   return handleInsertTemplate;
 }
