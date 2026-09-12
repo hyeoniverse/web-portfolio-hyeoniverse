@@ -17,7 +17,7 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 import Popover, { MenuItem } from "@/components/ui/Popover";
 import Select from "@/components/ui/Select";
 import ColorPicker from "@/components/ui/ColorPicker";
-import { useBlockInfo } from "../hooks";
+import { readBlockInfo } from "../hooks";
 import TBtn from "../TBtn";
 import FloatingBar from "./FloatingBar";
 import styles from "../../RichTextEditor.module.css";
@@ -54,7 +54,7 @@ const TURN_INTO = [
 function TurnIntoMenu() {
   const { t } = useLanguage();
   const editor = useEditorRef();
-  const { block, blockType } = useBlockInfo(editor);
+  const { block, blockType } = readBlockInfo(editor);
   const listStyle = (block?.[0] as { listStyleType?: string } | undefined)?.listStyleType;
   const current = listStyle === "disc" ? "bulleted" : listStyle === "decimal" ? "numbered" : blockType;
 

@@ -2,6 +2,8 @@
 
 import { useState, useCallback, useEffect, useRef } from "react";
 import { getTableGridAbove } from "@platejs/table";
+import { someList, someTodoList } from "@platejs/list";
+import type { PlateEditor } from "platejs/react";
 import type { Descendant, SlateEditor, TElement } from "platejs";
 import { findAncestorOfType, findCurrentCell, nodeAtPath } from "./utils";
 import { LINE_HEIGHT_PRESETS, ZEBRA_COLOR_DEFAULT } from "./constants";
@@ -26,8 +28,8 @@ function useOutsideClick(
   }, [ref, active, onOutside]);
 }
 
-// ── useEditorMarks: 현재 커서/선택 위치의 마크 정보 ──
-export function useEditorMarks(editor: SlateEditor) {
+// ── readEditorMarks: 현재 커서/선택 위치의 마크 정보 ──
+function readEditorMarks(editor: SlateEditor) {
   let marks: Record<string, unknown> = {};
   try {
     if (editor.selection) {
@@ -55,8 +57,8 @@ export function useEditorMarks(editor: SlateEditor) {
   return { marks, hasMark, color, bgColor, fontFamily, fontSize, letterSpacing };
 }
 
-// ── useBlockInfo: 현재 블록 타입, align, lineHeight 등 ──
-export function useBlockInfo(editor: SlateEditor) {
+// ── readBlockInfo: 현재 블록 타입, align, lineHeight 등 ──
+export function readBlockInfo(editor: SlateEditor) {
   type BlockNode = { type?: string; align?: string; lineHeight?: string; listStyleType?: string };
   type EditorBlockApi = {
     block?: () => [BlockNode, unknown] | undefined;
@@ -85,8 +87,8 @@ export function useBlockInfo(editor: SlateEditor) {
   return { block, blockType, align, lineHeight };
 }
 
-// ── useComputedStyle: DOM computed style에서 현재값 읽기 ──
-export function useComputedStyle() {
+// ── readComputedStyle: DOM computed style에서 현재값 읽기 ──
+function readComputedStyle() {
   try {
     const sel = window.getSelection();
     if (!sel || !sel.focusNode) return null;
@@ -97,11 +99,11 @@ export function useComputedStyle() {
 }
 
 // ── useResolvedFontSize: mark + computed에서 fontSize 결정 ──
-export function resolvedFontSize(markFontSize: string, computed: CSSStyleDeclaration | null): string {
+function resolvedFontSize(markFontSize: string, computed: CSSStyleDeclaration | null): string {
   return markFontSize || (computed ? `${Math.round(parseFloat(computed.fontSize))}px` : "");
 }
 
-export function resolvedLineHeight(blockLineHeight: string | undefined, computed: CSSStyleDeclaration | null): string {
+function resolvedLineHeight(blockLineHeight: string | undefined, computed: CSSStyleDeclaration | null): string {
   if (blockLineHeight) return blockLineHeight;
   if (!computed) return "";
   const ratio = parseFloat(computed.lineHeight) / parseFloat(computed.fontSize);
@@ -115,6 +117,46 @@ export function resolvedLineHeight(blockLineHeight: string | undefined, computed
   // 프리셋에 근접하면 프리셋으로 스냅, 아니면(제목 1.25 등 프리셋에 없는 값) 실제 비율을
   // 소수 둘째자리로 반올림해 그대로 표시 — 이전엔 "" 를 반환해 제목(1.25 등) 줄간격이 감지 안 되던 문제.
   return minDiff < 0.05 ? closest : String(Math.round(ratio * 100) / 100);
+}
+
+// ── readToolbarState: 본문 도구 막대가 보여 주는 상태 ──
+const TOOLBAR_MARKS = ["bold", "italic", "underline", "strikethrough", "code", "kbd", "superscript", "subscript", "highlight"] as const;
+export type ToolbarMark = (typeof TOOLBAR_MARKS)[number];
+
+/**
+ * 도구 막대가 보여 주는 편집기 상태(#877). 편집기가 바뀔 때마다 읽되 원시값만 담아, 얕은 비교로 같으면
+ * 도구 막대를 다시 그리지 않는다. 예전에는 편집기 변경마다 올라가는 tick 을 받아 한 글자에 막대 전체를 다시 그렸다.
+ */
+export function readToolbarState(editor: PlateEditor) {
+  const { hasMark, color, bgColor, fontFamily, fontSize, letterSpacing } = readEditorMarks(editor);
+  const { blockType, align, lineHeight } = readBlockInfo(editor);
+  const computed = readComputedStyle();
+  const marks = Object.fromEntries(TOOLBAR_MARKS.map((m) => [m, hasMark(m)])) as Record<ToolbarMark, boolean>;
+
+  let isUL = false, isOL = false, isTodo = false;
+  try { isUL = someList(editor, "disc"); } catch { /* ignore */ }
+  try { isOL = someList(editor, "decimal"); } catch { /* ignore */ }
+  try { isTodo = someTodoList(editor); } catch { /* ignore */ }
+
+  return {
+    ...marks,
+    color,
+    bgColor,
+    letterSpacing,
+    // mark가 없으면 computed에서 실제 렌더링 폰트 읽기
+    fontFamily: fontFamily || (computed?.fontFamily ?? ""),
+    fontSize: resolvedFontSize(fontSize, computed),
+    // resolvedLineHeight 반환타입은 string 이지만, setLineHeight 가 숫자를 저장해 노드 lineHeight 가
+    // 런타임엔 number(예: 1.6). 문자열 프리셋과 비교/렌더가 어긋나 중복 key 가 나므로 String 으로 정규화.
+    lineHeight: String(resolvedLineHeight(lineHeight, computed)),
+    blockType,
+    align,
+    isUL,
+    isOL,
+    isTodo,
+    canUndo: (editor.history?.undos?.length ?? 0) > 0,
+    canRedo: (editor.history?.redos?.length ?? 0) > 0,
+  };
 }
 
 // ── useTableInfo: 현재 커서의 테이블/셀 정보 ──

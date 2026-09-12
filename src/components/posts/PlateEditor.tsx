@@ -2172,7 +2172,6 @@ function PlateEditorBody({
         <MainToolbar
           editor={editor}
           isMac={isMac}
-          tick={tick}
           postLang={postLang}
           showLinkInput={showLinkInput}
           onToggleLinkInput={toggleLinkInput}
