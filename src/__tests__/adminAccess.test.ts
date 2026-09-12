@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { canOpenAdminPage, visibleAdminItems, type AdminAccess } from "@/lib/adminAccess";
+import { canOpenAdminPage, canOpenSettingsTab, visibleAdminItems, type AdminAccess } from "@/lib/adminAccess";
+import { TAB_IDS } from "@/app/admin/(dashboard)/settings/_data/settingsConstants";
 import { adminNavItems, adminMenuItems } from "@/components/layout/Navigation/navigationData";
 
 /* 관리자 화면을 누가 여는가(#883). 대시보드·알림·신고·댓글 관리는 API 가 관리자 이상만 허용하고,
@@ -57,3 +58,24 @@ describe("visibleAdminItems", () => {
     expect(keys(visibleAdminItems(adminMenuItems, AUTHOR))).toEqual(["admin-settings", "admin-works", "admin-posts", "logout"]);
   });
 });
+
+/* 설정 화면의 탭 목록과 네비게이션의 설정 하위 메뉴가 같은 규칙을 쓰는지(#899). 한쪽만 바뀌면 메뉴에 보이는 탭과
+   화면에서 열리는 탭이 어긋난다. */
+describe("설정 탭 — 화면과 메뉴가 같은 규칙", () => {
+  const menuTabs = (access: AdminAccess) =>
+    (visibleAdminItems(adminNavItems, access).find((i) => i.key === "admin-settings")?.children ?? [])
+      .map((c) => new URL(c.href, "http://local").searchParams.get("tab"));
+
+  it("소유자는 모든 탭, 그 밖에는 계정 탭만 연다", () => {
+    expect(TAB_IDS.filter((tab) => canOpenSettingsTab(tab, OWNER))).toEqual([...TAB_IDS]);
+    expect(TAB_IDS.filter((tab) => canOpenSettingsTab(tab, ADMIN))).toEqual(["account"]);
+    expect(TAB_IDS.filter((tab) => canOpenSettingsTab(tab, AUTHOR))).toEqual(["account"]);
+  });
+
+  it("역할마다 설정 하위 메뉴의 탭이 설정 화면이 여는 탭과 같다", () => {
+    for (const access of [OWNER, ADMIN, AUTHOR]) {
+      expect(menuTabs(access)).toEqual(TAB_IDS.filter((tab) => canOpenSettingsTab(tab, access)));
+    }
+  });
+});
+

@@ -6,6 +6,8 @@ import dynamic from "next/dynamic";
 import { Settings as SettingsIcon } from "@/components/icons";
 import { useStaticPageScroll } from "@/hooks/useStaticPageScroll";
 import { useLeaveGuard } from "@/hooks/useLeaveGuard";
+import { useMyRole } from "@/hooks/useMyRole";
+import { canOpenSettingsTab } from "@/lib/adminAccess";
 import { siteConfig } from "@/config/site.config";
 import type { SiteConfigData } from "@/config/site.config";
 import { useLanguage, type TFunction } from "@/providers/LanguageProvider";
@@ -167,17 +169,16 @@ export default function SettingsPage() {
       window.removeEventListener("resize", schedule);
     };
   }, [loading]);
-  // 권한 게이팅 — 사이트 설정 탭은 소유자 전용, 비owner 는 account(본인 계정/프로필)만
-  const [isOwnerUser, setIsOwnerUser] = useState<boolean | null>(null); // null=확인 전
-  useEffect(() => {
-    fetch("/api/admin/me")
-      .then((r) => (r.ok ? r.json() : null))
-      .then((d) => setIsOwnerUser(!!d?.isOwner))
-      .catch(() => setIsOwnerUser(false));
-  }, []);
-  const allowedTabs: TabId[] = isOwnerUser === false ? ["account"] : [...TAB_IDS];
-  // 비owner 가 허용 안 된 탭에 있으면 account 로 강제. 렌더 중에 맞추고, 맞춘 뒤에는 조건이 거짓이 되어 멈춘다.
-  if (isOwnerUser === false && activeTab !== "account") setActiveTab("account");
+  // 권한 게이팅 — 어느 탭을 여는지는 네비게이션의 설정 하위 메뉴와 같은 규칙(lib/adminAccess)을 쓴다(#899).
+  // 사이트 설정 탭은 소유자 전용, 그 밖에는 계정(본인 계정/프로필) 탭만. 확인 전에는 모두 보인다
+  const { loading: roleLoading, isOwner, level } = useMyRole();
+  // 메모해 둔다 — 렌더 중에 바로 부르면 React 컴파일러가 handleSave 의 메모를 지키지 못한다(preserve-manual-memoization)
+  const allowedTabs: TabId[] = useMemo(
+    () => (roleLoading ? [...TAB_IDS] : TAB_IDS.filter((tab) => canOpenSettingsTab(tab, { isOwner, level }))),
+    [roleLoading, isOwner, level],
+  );
+  // 허용 안 된 탭에 있으면 처음 허용된 탭(계정)으로. 렌더 중에 맞추고, 맞춘 뒤에는 조건이 거짓이 되어 멈춘다.
+  if (!allowedTabs.includes(activeTab)) setActiveTab(allowedTabs[0]);
   /* 탭/서브탭 → URL 동기화 — 새로고침/북마크/공유 가능. push 아닌 replace 라 history 안 늘어남.
      첫 mount 는 skip (초기화 그대로 두기). */
   const tabSyncedRef = useRef(false);
@@ -1181,7 +1182,7 @@ export default function SettingsPage() {
                   emailChangeSentAt={account.emailChangeSentAt}
                   onCancelPendingEmail={() => { account.setPendingEmail(null); account.setEmailChangeSentAt(null); }}
                   hasPassword={account.hasPassword}
-                  isOwner={isOwnerUser === true}
+                  isOwner={!roleLoading && isOwner}
                   passwordPolicy={config.passwordPolicy ?? "secure"}
                   onPasswordPolicyChange={async (v: string) => {
                     const next = { ...config, passwordPolicy: v as "secure" | "default" };
