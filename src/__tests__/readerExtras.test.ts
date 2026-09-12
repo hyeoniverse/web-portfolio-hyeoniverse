@@ -1,4 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+
+const toasts: string[] = [];
+vi.mock("@/stores/toastStore", () => ({ showToast: (m: string) => { toasts.push(m); return "id"; } }));
+
 import { enhanceReaderExtras } from "@/components/posts/enhanceReaderExtras";
 
 /* enhanceReaderExtras 는 에디터가 남긴 마커를 리더에서 실제 렌더로 바꾼다.
@@ -110,6 +114,30 @@ describe("enhanceReaderExtras", () => {
     expect(poll.textContent).toContain("바나나");
     // 집계는 서버에서 가져온다
     expect(fetch).toHaveBeenCalled();
+    cleanup();
+  });
+
+  it("투표: 보내지 못하면 선택을 그대로 두고 알린다(#868)", async () => {
+    toasts.length = 0;
+    vi.stubGlobal("fetch", vi.fn((_url: string, init?: RequestInit) =>
+      Promise.resolve(init?.method === "POST"
+        ? { ok: false, status: 500, json: () => Promise.resolve({ error: "Failed to vote" }) }
+        : { ok: true, json: () => Promise.resolve({ counts: {}, total: 0, mine: [] }) })));
+    const el = mount(`
+      <div data-poll data-poll-id="poll-3">
+        <div data-poll-option data-option-id="a">사과</div>
+        <div data-poll-option data-option-id="b">바나나</div>
+      </div>
+    `);
+    const cleanup = enhanceReaderExtras(el);
+    const poll = el.querySelector<HTMLElement>("[data-poll]")!;
+    await vi.waitFor(() => expect(poll.querySelector<HTMLButtonElement>(".poll-option-btn")!.disabled).toBe(false));
+    poll.querySelector<HTMLButtonElement>(".poll-option-btn")!.click();
+    poll.querySelector<HTMLButtonElement>(".poll-submit")!.click();
+    await vi.waitFor(() => expect(toasts).toEqual(["투표를 보내지 못했습니다. 잠시 뒤 다시 시도해 주세요."]));
+    // 결과 화면으로 넘어가지 않고 고른 항목과 완료 단추가 남는다
+    await vi.waitFor(() => expect(poll.querySelector<HTMLButtonElement>(".poll-submit")!.disabled).toBe(false));
+    expect(poll.querySelector(".poll-option-btn.poll-voted")?.textContent).toBe("사과");
     cleanup();
   });
 

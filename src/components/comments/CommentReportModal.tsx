@@ -8,6 +8,9 @@ import T from "@/components/ui/T";
 import Textarea from "@/components/ui/Textarea";
 import Button from "@/components/ui/Button";
 import RadioGroup from "@/components/ui/RadioGroup";
+import { tryRequest } from "@/lib/sendAction";
+import { CodedError, errorText } from "@/lib/apiError";
+import { showToast } from "@/stores/toastStore";
 import styles from "./CommentReportModal.module.css";
 
 /** 신고 사유 프리셋 — 선택 후 상세 입력 가능. "other" 는 직접 입력. */
@@ -36,21 +39,20 @@ export default function CommentReportModal({ apiBase, commentId }: { apiBase: st
     const reason = preset === "other" ? d : d ? `${label} · ${d}` : label;
     if (!reason) return;
     setReporting(true);
-    try {
-      const res = await fetch(`${apiBase}/${commentId}/report`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reason }),
-      });
-      if (res.ok) {
-        setSubmitted(true);
-        setTimeout(() => closeModal(), 1500);
-      }
-    } catch {
-      // silent fail — 신고 실패해도 사용자에겐 굳이 알리지 않음
-    } finally {
-      setReporting(false);
+    /* 실패하면 창을 그대로 두고 알린다 — 예전에는 조용히 끝나 신고가 들어갔는지 알 수 없었다(#868).
+       이미 지워진 댓글처럼 사유가 코드로 오면 그 문구를 쓴다 */
+    const res = await tryRequest(`${apiBase}/${commentId}/report`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reason }),
+    });
+    setReporting(false);
+    if (res instanceof CodedError) {
+      showToast(errorText(res, t, t("comments.reportFailed")), "error");
+      return;
     }
+    setSubmitted(true);
+    setTimeout(() => closeModal(), 1500);
   }, [apiBase, commentId, preset, detail, reporting, t, closeModal]);
 
   if (submitted) {

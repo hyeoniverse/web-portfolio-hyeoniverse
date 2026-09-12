@@ -1,6 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useLanguage } from "@/providers/LanguageProvider";
+import { showToast } from "@/stores/toastStore";
+import { CodedError, errorText } from "@/lib/apiError";
+import { tryRequest } from "@/lib/sendAction";
 
 interface UseLikeToggleOptions {
   /** like 카운트·상태 조회 + 토글에 사용할 베이스 URL. 예: `/api/posts/${id}/like` */
@@ -22,12 +26,17 @@ interface UseLikeToggleResult {
  * - 진행 중인 request 가 있으면 AbortController 로 cancel 후 새 request — last-write-wins.
  * - busy state 는 wave animation 시각화용. UI 차단 X.
  * - endpoint 가 null 이면 fetch 없이 idle 상태 유지
+ * - 마지막 요청이 실패하면 마지막으로 확인한 서버 값으로 되돌리고 알린다(#868). 예전에는 실패 응답의
+ *   본문(`{ error }`)을 그대로 반영해 숫자 자리에 "undefined" 가 보였다
  */
 export function useLikeToggle({ endpoint }: UseLikeToggleOptions): UseLikeToggleResult {
   const [count, setCount] = useState(0);
   const [liked, setLiked] = useState(false);
   const [busy, setBusy] = useState(false);
   const pendingRef = useRef<AbortController | null>(null);
+  /** 서버가 마지막으로 알려 준 값 — 실패하면 여기로 되돌린다 */
+  const confirmedRef = useRef({ count: 0, liked: false });
+  const { t } = useLanguage();
 
   useEffect(() => {
     if (!endpoint) return;
@@ -35,8 +44,9 @@ export function useLikeToggle({ endpoint }: UseLikeToggleOptions): UseLikeToggle
     fetch(endpoint, { signal: ac.signal })
       .then((r) => r.json())
       .then((d) => {
-        setCount(d.count ?? 0);
-        setLiked(d.liked ?? false);
+        confirmedRef.current = { count: d.count ?? 0, liked: d.liked ?? false };
+        setCount(confirmedRef.current.count);
+        setLiked(confirmedRef.current.liked);
       })
       .catch(() => {});
     return () => ac.abort();
@@ -55,25 +65,25 @@ export function useLikeToggle({ endpoint }: UseLikeToggleOptions): UseLikeToggle
     const ac = new AbortController();
     pendingRef.current = ac;
 
-    fetch(endpoint, { method: "POST", signal: ac.signal })
-      .then((r) => r.json())
-      .then((data) => {
-        // 이 응답이 가장 최신 request 인 경우만 적용 (cancel 안 된 경우)
-        if (pendingRef.current === ac) {
-          setCount(data.count);
-          setLiked(data.liked);
-          setBusy(false);
-          pendingRef.current = null;
-        }
-      })
-      .catch(() => {
-        // abort 된 경우 — 새 toggle 이 이미 진행 중이라 busy 유지. network error 면 busy 종료
-        if (pendingRef.current === ac) {
-          setBusy(false);
-          pendingRef.current = null;
-        }
-      });
-  }, [endpoint, liked]);
+    void tryRequest(endpoint, { method: "POST", signal: ac.signal }).then(async (res) => {
+      // 새 toggle 이 이 요청을 취소하고 이어받았으면 아무것도 하지 않는다 — busy 도 새 요청이 끝낸다
+      if (pendingRef.current !== ac) return;
+      pendingRef.current = null;
+      setBusy(false);
+      if (res instanceof CodedError) {
+        setCount(confirmedRef.current.count);
+        setLiked(confirmedRef.current.liked);
+        showToast(errorText(res, t, t("common.likeFailed")), "error");
+        return;
+      }
+      const data = await res.json().catch(() => null);
+      if (typeof data?.count === "number" && typeof data?.liked === "boolean") {
+        confirmedRef.current = { count: data.count, liked: data.liked };
+        setCount(data.count);
+        setLiked(data.liked);
+      }
+    });
+  }, [endpoint, liked, t]);
 
   return { count, liked, busy, toggle };
 }

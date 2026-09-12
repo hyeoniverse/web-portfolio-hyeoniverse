@@ -14,6 +14,7 @@ import SortControl from "@/components/ui/SortControl";
 import Checkbox from "@/components/ui/Checkbox";
 import CommentForm from "./CommentForm";
 import CommentItem from "./CommentItem";
+import { sendActions } from "@/lib/sendAction";
 import styles from "./CommentSection.module.css";
 
 // 등록순 = created_at 오름차순(등록된 순서), 반응순 = 이모지 합계 desc. reverse 버튼으로 결과 뒤집음.
@@ -91,7 +92,7 @@ function collectIds(nodes: Comment[]): string[] {
 }
 
 export default function CommentSection({ commentType, targetId, translationEnabled = true }: CommentSectionProps) {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const inputTop = useSiteConfig().comments?.systemInputPosition === "top";
   const [comments, setComments] = useState<Comment[]>([]);
   const isAdmin = useIsAuthenticated({ subscribe: true });
@@ -186,16 +187,16 @@ export default function CommentSection({ commentType, targetId, translationEnabl
   const handleBulkDelete = useCallback(async () => {
     if (selected.size === 0) return;
     setBulkDeleting(true);
-    await Promise.all(
-      Array.from(selected).map((id) =>
-        fetch(`${apiBase}/${id}`, { method: "DELETE" })
-      )
+    /* 지우지 못한 댓글은 알림 하나로 알린다 — 예전에는 응답을 보지 않아 남아 있어도 이유를 알 수 없었다(#868) */
+    await sendActions(
+      Array.from(selected).map((id) => ({ input: `${apiBase}/${id}`, init: { method: "DELETE" } })),
+      t, t("comments.deleteFailed"),
     );
     setSelected(new Set());
     setSelectMode(false);
     setBulkDeleting(false);
     fetchComments();
-  }, [selected, apiBase, fetchComments]);
+  }, [selected, apiBase, fetchComments, t]);
 
   /* 아바타 배정 — 한 글 전체를 한 번에 보고 중복 없이 나눈다.
      작성 시각 오름차순으로 넘겨야 먼저 온 사람이 슬롯을 먼저 잡아, 새 댓글이 달려도
