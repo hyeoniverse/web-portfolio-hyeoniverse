@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { insertTableMergeRow } from "@platejs/table";
 import styles from "../../RichTextEditor.module.css";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { useLanguage } from "@/providers/LanguageProvider";
 import { GripVertical, GripHorizontal, Grid2x2, Plus } from "@/components/icons";
 import { findScrollParent } from "./tableFreeze";
 import { addColumnAtEnd, applyHeaderToNewLine, recomputeTableIndices, selectLastRowCell, selectTableAll, selectTableColumn, selectTableRow } from "./tableSelection";
@@ -18,13 +19,14 @@ import { addColumnAtEnd, applyHeaderToNewLine, recomputeTableIndices, selectLast
 // 열 선택 핸들 — 셀 안(첫 행). 행/전체 핸들은 스크롤 밖 rail(아래 SelectRail)에서 렌더.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function CellSelectHandles({ editor, element, rowIndex }: { editor: any; element: any; rowIndex: number }) {
+  const { t } = useLanguage();
   if (rowIndex !== 0) return null;
   const onCol = (e: React.MouseEvent) => {
     e.preventDefault(); e.stopPropagation();
     try { const p = editor.api.findPath(element); if (p) selectTableColumn(editor, Array.from(p) as number[]); } catch { /* noop */ }
   };
   return (
-    <div className={styles.tblColSelect} data-col-handle contentEditable={false} data-cursor="pointer" title="열 전체 선택" onMouseDown={onCol}>
+    <div className={styles.tblColSelect} data-col-handle contentEditable={false} data-cursor="pointer" title={t("editor.selectColumn")} onMouseDown={onCol}>
       <GripHorizontal size={11} strokeWidth={2} />
     </div>
   );
@@ -34,6 +36,7 @@ export function CellSelectHandles({ editor, element, rowIndex }: { editor: any; 
 // 세로 스크롤이 없어 행 y는 정적 — 리사이즈/내용 변경 시 재측정.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function TableSelectRail({ editor, tablePath, wrapRef, freezeRows = 0 }: { editor: any; tablePath: number[] | null; wrapRef: React.RefObject<HTMLDivElement | null>; freezeRows?: number }) {
+  const { t } = useLanguage();
   const [rows, setRows] = useState<{ y: number; hidden: boolean }[]>([]);
   // hover 중이거나 셀이 선택된 행 인덱스 — 그 행 핸들만 노출(모든 핸들 동시 노출 방지)
   const [active, setActive] = useState<number[]>([]);
@@ -137,11 +140,11 @@ export function TableSelectRail({ editor, tablePath, wrapRef, freezeRows = 0 }: 
   };
   return (
     <div className={styles.tblSelectRail} contentEditable={false}>
-      <div className={styles.tblAllSelect} data-cursor="pointer" title="표 전체 선택" onMouseDown={selAll}>
+      <div className={styles.tblAllSelect} data-cursor="pointer" title={t("editor.selectTable")} onMouseDown={selAll}>
         <Grid2x2 size={11} strokeWidth={2} />
       </div>
       {rows.map((row, i) => row.hidden ? null : (
-        <div key={i} className={styles.tblRowSelect} style={{ position: "absolute", top: row.y }} data-row-active={active.includes(i) ? "" : undefined} data-cursor="pointer" title="행 전체 선택" onMouseDown={(e) => selRow(e, i)}>
+        <div key={i} className={styles.tblRowSelect} style={{ position: "absolute", top: row.y }} data-row-active={active.includes(i) ? "" : undefined} data-cursor="pointer" title={t("editor.selectRow")} onMouseDown={(e) => selRow(e, i)}>
           <GripVertical size={11} strokeWidth={2} />
         </div>
       ))}

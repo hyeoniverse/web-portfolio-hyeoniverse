@@ -7,6 +7,7 @@ import { Pipette, Dices, Check } from "@/components/icons";
 import { CHECKER_BG } from "./presets";
 import styles from "../RichTextEditor.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 export interface ColorSwatchDef { hex: string; label?: string; }
 
@@ -19,8 +20,8 @@ export interface ColorSwatchDef { hex: string; label?: string; }
  */
 export function ColorMenu({
   label, hideLabel, hideDefault, value, onPick, onCommit, presets, defaultColor,
-  defaultLabel = "기본", removeValue, removeLabel = "제거", onRandom, recent,
-  checkLight, recentSlots, recentLabel = "최근", pickerFallback = "#ffffff",
+  defaultLabel, removeValue, removeLabel, onRandom, recent,
+  checkLight, recentSlots, recentLabel, pickerFallback = "#ffffff",
 }: {
   label: string;
   hideLabel?: boolean;
@@ -44,6 +45,11 @@ export function ColorMenu({
   /** 피커 초깃값 (현재색이 없을 때) */
   pickerFallback?: string;
 }) {
+  const { t } = useLanguage();
+  /* 부르는 쪽이 이름을 주지 않으면 화면 언어의 기본 이름 */
+  const defaultName = defaultLabel ?? t("editor.color_default");
+  const removeName = removeLabel ?? t("editor.colorRemove");
+  const recentName = recentLabel ?? t("editor.colorRecent");
   const isDefault = value === undefined || value === null;
   const isRemove = removeValue !== undefined && value === removeValue;
   const pickerVal = typeof value === "string" && !value.startsWith("var(") && value !== removeValue ? value : pickerFallback;
@@ -57,15 +63,15 @@ export function ColorMenu({
         {/* 현재색 = 스포이드 캡슐 (클릭 시 피커 펼침) */}
         <ColorPicker inline value={pickerVal} onChange={(c) => onPick(c.alpha < 1 ? c.hexa : c.oklch)} onChangeComplete={(c) => onCommit?.(c.alpha < 1 ? c.hexa : c.oklch)}>
           {({ open, toggle }: { open: boolean; toggle: () => void }) => (
-            <Pressable noTapScale aria-label="pick" className={`${styles.pickerCapsule} ${open ? styles.pickerCapsuleOpen : ""}`} onClick={toggle}>
+            <Pressable noTapScale aria-label={t("editor.colorPick")} className={`${styles.pickerCapsule} ${open ? styles.pickerCapsuleOpen : ""}`} onClick={toggle}>
               <span className={styles.pickerCapsuleIcon}><Pipette size={11} strokeWidth={2} /></span>
               <span className={styles.pickerCapsuleColor} style={{ background: preview }} />
             </Pressable>
           )}
         </ColorPicker>
         {onRandom && (
-          <Tooltip content="랜덤" placement="top" delay={150}>
-            <Pressable noTapScale aria-label="random" className={`${styles.swatch} ${styles.swatchRandom}`} onClick={() => { const v = onRandom(); onPick(v); onCommit?.(v); }}><Dices size={12} strokeWidth={2} /></Pressable>
+          <Tooltip content={t("editor.colorRandom")} placement="top" delay={150}>
+            <Pressable noTapScale aria-label={t("editor.colorRandom")} className={`${styles.swatch} ${styles.swatchRandom}`} onClick={() => { const v = onRandom(); onPick(v); onCommit?.(v); }}><Dices size={12} strokeWidth={2} /></Pressable>
           </Tooltip>
         )}
         <span className={styles.swatchSep} />
@@ -76,13 +82,13 @@ export function ColorMenu({
         ))}
         <span className={styles.swatchSep} />
         {!hideDefault && (
-          <Tooltip content={defaultLabel} placement="top" delay={150}>
-            <Pressable noTapScale aria-label="default" className={`${styles.swatch} ${isDefault ? styles.swatchActive : ""}`} style={{ background: defaultColor }} onClick={() => onPick(undefined)}>{isDefault && swatchCheck}</Pressable>
+          <Tooltip content={defaultName} placement="top" delay={150}>
+            <Pressable noTapScale aria-label={defaultName} className={`${styles.swatch} ${isDefault ? styles.swatchActive : ""}`} style={{ background: defaultColor }} onClick={() => onPick(undefined)}>{isDefault && swatchCheck}</Pressable>
           </Tooltip>
         )}
         {removeValue !== undefined && (
-          <Tooltip content={removeLabel} placement="top" delay={150}>
-            <Pressable noTapScale aria-label="remove" className={`${styles.swatch} ${isRemove ? styles.swatchActive : ""}`} style={{ background: CHECKER_BG }} onClick={() => onPick(removeValue)}>{isRemove && swatchCheck}</Pressable>
+          <Tooltip content={removeName} placement="top" delay={150}>
+            <Pressable noTapScale aria-label={removeName} className={`${styles.swatch} ${isRemove ? styles.swatchActive : ""}`} style={{ background: CHECKER_BG }} onClick={() => onPick(removeValue)}>{isRemove && swatchCheck}</Pressable>
           </Tooltip>
         )}
       </div>
@@ -90,7 +96,7 @@ export function ColorMenu({
         <>
           <span className={styles.colorMenuDivider} />
           <div className={styles.colorMenuFooter}>
-            <span className={styles.colorMenuMiniLabel}>{recentLabel}</span>
+            <span className={styles.colorMenuMiniLabel}>{recentName}</span>
             {(recentSlots
               ? Array.from({ length: recentSlots }, (_, i) => recent[i])
               : recent.slice(0, 8)
