@@ -34,6 +34,19 @@
       "emailTitleMobile": "Send me an email",
       "formTitleMobile": "Or fill out the form",
       "copied": "Copied!"
+    },
+    "validation": {
+      "nameRequired": "Please enter your name.",
+      "emailRequired": "Please enter your email.",
+      "emailInvalid": "Please enter a valid email address.",
+      "titleLength": "The title must be 2–50 characters.",
+      "messageRequired": "Please enter your message.",
+      "privacyRequired": "Please accept the Privacy Policy.",
+      "recaptchaRequired": "Please complete the reCAPTCHA check.",
+      "recaptchaNotLoaded": "reCAPTCHA didn’t load. Please refresh the page.",
+      "networkError": "Network error. Please check your connection.",
+      "sent": "Message sent.",
+      "sendFailed": "Couldn’t send the message. Please try again in a moment."
     }
   },
   "aboutPage": {
@@ -276,7 +289,9 @@
     "preview": "Preview",
     "markdownHint": "Markdown supported",
     "previewEmpty": "Nothing to preview",
-    "giscusNotConfigured": "giscus is not configured yet. Ask the admin to enter the repository and category in Settings › Services › Comment System."
+    "giscusNotConfigured": "giscus is not configured yet. Ask the admin to enter the repository and category in Settings › Services › Comment System.",
+    "deleteFailed": "Couldn’t delete the comment.",
+    "editFailed": "Couldn’t edit the comment."
   },
   "postDetail": {
     "recommended": "Recommended for You",
@@ -896,6 +911,11 @@
     "UPLOAD_ONLY_PDF": "Only PDF files can be uploaded.",
     "UPLOAD_ONLY_FONT": "Only font files (woff2, woff, ttf, otf) can be uploaded.",
     "UPLOAD_STILL_TOO_LARGE": "The video is still over the limit after compression ({{size}} / max {{max}}MB). Use a shorter or lower-quality video.",
-    "UNAUTHORIZED": "You need to sign in. Please sign in again."
+    "UNAUTHORIZED": "You need to sign in. Please sign in again.",
+    "COMMENT_NOT_FOUND": "The comment can’t be found. It may have been deleted.",
+    "COMMENT_NO_PASSWORD": "This comment was posted without a password, so it can’t be edited or deleted here. Please contact the admin.",
+    "COMMENT_PASSWORD_REQUIRED": "Please enter the password.",
+    "COMMENT_PASSWORD_WRONG": "The password is incorrect.",
+    "COMMENT_ALREADY_REMOVED": "This comment has already been removed."
   }
 }

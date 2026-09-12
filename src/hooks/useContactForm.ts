@@ -137,27 +137,27 @@ export function useContactForm(): UseContactFormReturn {
 
       // 유효성 검사
       if (!name?.trim()) {
-        showFormToastRef.current("Please enter your name");
+        showFormToastRef.current(t("contact.validation.nameRequired"));
         return;
       }
       if (!email?.trim()) {
-        showFormToastRef.current("Please enter your email");
+        showFormToastRef.current(t("contact.validation.emailRequired"));
         return;
       }
       if (!EMAIL_RE.test(email)) {
-        showFormToastRef.current("Please enter a valid email address");
+        showFormToastRef.current(t("contact.validation.emailInvalid"));
         return;
       }
       if (title?.trim() && (title.trim().length < 2 || title.trim().length > 50)) {
-        showFormToastRef.current("Title must be 2-50 characters");
+        showFormToastRef.current(t("contact.validation.titleLength"));
         return;
       }
       if (!message?.trim()) {
-        showFormToastRef.current("Please enter your message");
+        showFormToastRef.current(t("contact.validation.messageRequired"));
         return;
       }
       if (!privacyAccepted) {
-        showFormToastRef.current("Please accept the Privacy Policy");
+        showFormToastRef.current(t("contact.validation.privacyRequired"));
         return;
       }
 
@@ -175,11 +175,11 @@ export function useContactForm(): UseContactFormReturn {
       // reCAPTCHA 유효성 검사
       if (recaptchaEnabled) {
         if (recaptchaVersion === "v2" && !recaptchaToken) {
-          showFormToastRef.current("Please complete the reCAPTCHA verification");
+          showFormToastRef.current(t("contact.validation.recaptchaRequired"));
           return;
         }
         if (recaptchaVersion === "v3" && !executeRecaptcha) {
-          showFormToastRef.current("reCAPTCHA not loaded. Please refresh the page.");
+          showFormToastRef.current(t("contact.validation.recaptchaNotLoaded"));
           return;
         }
       }
@@ -205,7 +205,7 @@ export function useContactForm(): UseContactFormReturn {
         await handleFormspreeSubmit(formData);
       } catch (error) {
         console.error("Form submission error:", error);
-        showToastRef.current("Network error. Please check your connection.", "error");
+        showToastRef.current(t("contact.validation.networkError"), "error");
       }
     },
     [
@@ -232,29 +232,26 @@ export function useContactForm(): UseContactFormReturn {
 
     if (justFinishedSubmitting) {
       if (justSucceeded) {
-        showFormToastRef.current("Message sent successfully!", "success");
+        showFormToastRef.current(t("contact.validation.sent"), "success");
         setRecaptchaToken(null);
         recaptchaRef.current?.reset();
       } else if (!formState.succeeded) {
-        let errorMsg = "Failed to send message. Please try again.";
-
+        /* Formspree 가 돌려준 사유는 영어 한 언어고(폼 없음·비활성 등) 방문자가 고칠 수 있는 것도 아니라,
+           화면에는 화면 언어의 실패 문구만 보이고 사유는 콘솔에 남긴다(#862). 입력 형식은 위에서 먼저 검사한다. */
         if (formState.errors) {
           const formErrors = formState.errors.getFormErrors?.() || [];
           const fieldErrors = formState.errors.getAllFieldErrors?.() || [];
-
-          if (formErrors.length > 0) {
-            errorMsg = formErrors.map((err) => err.message).join(", ");
-          } else if (fieldErrors.length > 0) {
-            errorMsg = fieldErrors
-              .map(([, errors]) => errors.map((err) => err.message).join(", "))
-              .join(", ");
-          }
+          const reasons = [
+            ...formErrors.map((err) => err.message),
+            ...fieldErrors.flatMap(([, errors]) => errors.map((err) => err.message)),
+          ];
+          if (reasons.length > 0) console.error("Formspree rejected the message:", reasons.join(", "));
         }
 
-        showFormToastRef.current(errorMsg);
+        showFormToastRef.current(t("contact.validation.sendFailed"));
       }
     }
-  }, [formState.submitting, formState.succeeded, formState.errors]);
+  }, [formState.submitting, formState.succeeded, formState.errors, t]);
 
   return {
     formState,

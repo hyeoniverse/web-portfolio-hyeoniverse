@@ -82,7 +82,7 @@ export function createCommentHandlers(opts: CommentHandlerOptions) {
       if (clientIsAdmin) {
         const supabase = await createClient();
         const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return jsonError("Not authorized", 403);
+        if (!user) return jsonError("Not authorized", 403, { code: "UNAUTHORIZED" });
 
         const { data, error } = await adminDb
           .from(table)
@@ -262,16 +262,16 @@ export function createCommentHandlers(opts: CommentHandlerOptions) {
         .eq("id", id)
         .single();
 
-      if (!comment) return jsonError("Comment not found", 404);
+      if (!comment) return jsonError("Comment not found", 404, { code: "COMMENT_NOT_FOUND" });
 
       // commenter_hash 기반 인증 경로는 제거됨 — simpleHash 가 31-bit 비암호 해시라
       // commenter_id 를 brute force 로 위변조 가능했음. 익명 사용자는 비번이 유일한 인증.
       if (!comment.password_hash) {
-        return jsonError("Password required — contact admin to edit this comment", 403);
+        return jsonError("Password required — contact admin to edit this comment", 403, { code: "COMMENT_NO_PASSWORD" });
       }
-      if (!password) return jsonError("Password required", 401);
+      if (!password) return jsonError("Password required", 401, { code: "COMMENT_PASSWORD_REQUIRED" });
       const authorized = await bcrypt.compare(password, comment.password_hash);
-      if (!authorized) return jsonError("Not authorized", 403);
+      if (!authorized) return jsonError("Not authorized", 403, { code: "COMMENT_PASSWORD_WRONG" });
 
       const { data, error } = await adminDb
         .from(table)

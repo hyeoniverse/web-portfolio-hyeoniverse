@@ -34,6 +34,19 @@
       "emailTitleMobile": "Send me an email",
       "formTitleMobile": "Or fill out the form",
       "copied": "복사됨!"
+    },
+    "validation": {
+      "nameRequired": "이름을 입력해 주세요.",
+      "emailRequired": "이메일을 입력해 주세요.",
+      "emailInvalid": "올바른 이메일 주소를 입력해 주세요.",
+      "titleLength": "제목은 2~50자로 적어 주세요.",
+      "messageRequired": "메시지를 입력해 주세요.",
+      "privacyRequired": "개인정보 처리방침에 동의해 주세요.",
+      "recaptchaRequired": "reCAPTCHA 확인을 마쳐 주세요.",
+      "recaptchaNotLoaded": "reCAPTCHA 를 불러오지 못했습니다. 페이지를 새로고침해 주세요.",
+      "networkError": "네트워크 오류가 났습니다. 연결을 확인해 주세요.",
+      "sent": "메시지를 보냈습니다.",
+      "sendFailed": "메시지를 보내지 못했습니다. 잠시 뒤 다시 시도해 주세요."
     }
   },
   "aboutPage": {
@@ -276,7 +289,9 @@
     "preview": "미리보기",
     "markdownHint": "마크다운 지원",
     "previewEmpty": "미리 볼 내용이 없습니다",
-    "giscusNotConfigured": "giscus 설정이 필요합니다. 관리자에게 설정 › 서비스 › 댓글 시스템 에서 저장소와 카테고리 입력을 요청하세요."
+    "giscusNotConfigured": "giscus 설정이 필요합니다. 관리자에게 설정 › 서비스 › 댓글 시스템 에서 저장소와 카테고리 입력을 요청하세요.",
+    "deleteFailed": "댓글을 삭제하지 못했습니다.",
+    "editFailed": "댓글을 수정하지 못했습니다."
   },
   "postDetail": {
     "recommended": "함께 읽어보면 좋은 게시물",
@@ -896,6 +911,11 @@
     "UPLOAD_ONLY_PDF": "PDF 파일만 올릴 수 있습니다.",
     "UPLOAD_ONLY_FONT": "글꼴 파일(woff2, woff, ttf, otf)만 올릴 수 있습니다.",
     "UPLOAD_STILL_TOO_LARGE": "압축했지만 여전히 제한을 넘습니다({{size}} / 최대 {{max}}MB). 더 짧거나 화질이 낮은 영상을 써 주세요.",
-    "UNAUTHORIZED": "로그인이 필요합니다. 다시 로그인해 주세요."
+    "UNAUTHORIZED": "로그인이 필요합니다. 다시 로그인해 주세요.",
+    "COMMENT_NOT_FOUND": "댓글을 찾을 수 없습니다. 이미 지워졌을 수 있습니다.",
+    "COMMENT_NO_PASSWORD": "비밀번호 없이 쓴 댓글이라 여기서 고치거나 지울 수 없습니다. 관리자에게 문의해 주세요.",
+    "COMMENT_PASSWORD_REQUIRED": "비밀번호를 입력해 주세요.",
+    "COMMENT_PASSWORD_WRONG": "비밀번호가 맞지 않습니다.",
+    "COMMENT_ALREADY_REMOVED": "이미 지워진 댓글입니다."
   }
 }

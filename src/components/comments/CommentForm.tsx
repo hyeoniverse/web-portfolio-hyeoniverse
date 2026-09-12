@@ -14,6 +14,7 @@ import Tooltip from "@/components/ui/Tooltip";
 import CommentEditor from "./CommentEditor";
 import styles from "./CommentForm.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { commentErrorText } from "./commentErrorText";
 
 const Fireworks = dynamic(() => import("@/components/effects/Fireworks"), {
   ssr: false,
@@ -33,16 +34,6 @@ interface CommentFormProps {
 }
 
 /** API 에러코드 → i18n 힌트 키 */
-const COMMENT_ERROR_HINTS: Record<string, string> = {
-  CONTENT_INVALID: "comments.hintContent",
-  CONTENT_EMPTY: "comments.hintContent",
-  CONTENT_TOO_LONG: "comments.hintContentTooLong",
-  PASSWORD_TOO_SHORT: "comments.hintPasswordTooShort",
-  PASSWORD_TOO_LONG: "comments.hintPasswordTooLong",
-  EMAIL_INVALID: "comments.invalidEmail",
-  EMAIL_TOO_LONG: "comments.invalidEmail",
-  NICKNAME_TOO_LONG: "comments.hintNicknameTooLong",
-};
 
 export default function CommentForm({
   commentType,
@@ -137,9 +128,8 @@ export default function CommentForm({
         });
 
         if (!res.ok) {
-          const data = await res.json();
-          const code = data.error as string | undefined;
-          setFormHint(t(code && COMMENT_ERROR_HINTS[code] ? COMMENT_ERROR_HINTS[code] : "comments.hintSubmitFailed"));
+          const data = await res.json().catch(() => null);
+          setFormHint(commentErrorText(data, t, t("comments.hintSubmitFailed")));
           return;
         }
 
