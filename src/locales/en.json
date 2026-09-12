@@ -874,7 +874,6 @@
     "videoCompressing": "Compressing in the browser… {{pct}}%",
     "videoUploading": "Uploading to storage…",
     "videoOverLimit": "{{size}} · over the {{limit}}MB limit → compressing",
-    "videoStillOverLimit": "The video is still over the limit after compression ({{size}} / max {{limit}}MB). Use a shorter or lower-quality video.",
     "videoKeepOpen": "Keep this page open. Compression can take a few minutes depending on the video length.",
     "colorPick": "Pick a color",
     "colorRandom": "Random",
@@ -883,5 +882,19 @@
     "selectColumn": "Select column",
     "selectRow": "Select row",
     "selectTable": "Select table"
+  },
+  "apiErrors": {
+    "UPLOAD_TOO_LARGE": "The file is too large ({{size}}MB). The limit is {{max}}MB.",
+    "UPLOAD_BODY_TOO_LARGE": "The file is too large for the server to accept (about {{size}}MB). Split it or compress it.",
+    "UPLOAD_UNREADABLE": "Couldn’t read the file. It may be damaged or in the wrong format.",
+    "UPLOAD_NO_EXTENSION": "The file name needs an extension.",
+    "UPLOAD_TYPE_NOT_ALLOWED": "This file type can’t be uploaded (.{{ext}}).",
+    "UPLOAD_TYPE_MISMATCH": "The file’s contents don’t match its extension (.{{ext}}).",
+    "UPLOAD_CONVERT_FAILED": "Couldn’t convert the image. Save it in another format and try again.",
+    "UPLOAD_ONLY_IMAGE": "Only image files can be uploaded.",
+    "UPLOAD_ONLY_AUDIO": "Only audio files can be uploaded.",
+    "UPLOAD_ONLY_PDF": "Only PDF files can be uploaded.",
+    "UPLOAD_ONLY_FONT": "Only font files (woff2, woff, ttf, otf) can be uploaded.",
+    "UPLOAD_STILL_TOO_LARGE": "The video is still over the limit after compression ({{size}} / max {{max}}MB). Use a shorter or lower-quality video."
   }
 }

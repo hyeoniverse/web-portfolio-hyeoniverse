@@ -67,6 +67,7 @@ import { CategoryMultiPicker, type WorksCategory } from "./workEditor/CategoryPi
 import { SubtitleInput } from "./workEditor/SubtitleInput";
 import { workSnapshotMeta } from "./workEditor/workSnapshotMeta";
 import { parseYearAsPeriod, serializePeriodAsYear } from "./workEditor/periodFormat";
+import { CodedError, errorFromBody, errorFromResponse, errorText } from "@/lib/apiError";
 
 const Editor = dynamic(() => import("@/components/posts/PlateEditor"), {
   ssr: false,
@@ -473,16 +474,16 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       fd.append("file", file);
       fd.append("folder", "avatars");
       const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
-      if (!res.ok) throw new Error("Upload failed");
+      if (!res.ok) throw await errorFromResponse(res);
       const data = await res.json();
       if (data.url) team.setMemberAvatarUrl(data.url);
-    } catch {
-      showToast(tw("avatarUploadFailed"), "error");
+    } catch (err) {
+      showToast(errorText(err, t, tw("avatarUploadFailed")), "error");
     } finally {
       setTeamAvatarUploading(false);
       if (teamAvatarFileRef.current) teamAvatarFileRef.current.value = "";
     }
-  }, [team, tw]);
+  }, [team, t, tw]);
 
 
   const handleInsertTemplate = useCallback(() => {
@@ -545,19 +546,21 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     const { compressImage, validateFileSize } = await import("@/lib/compressImage");
 
     const sizeError = validateFileSize(file);
-    if (sizeError) throw new Error(sizeError);
+    if (sizeError) throw sizeError;
 
     const compressed = await compressImage(file);
 
     // 압축 후에도 한도 초과면 reject
     const postError = validateFileSize(compressed, undefined, { skipCompressibleBypass: true });
-    if (postError) throw new Error(postError);
+    if (postError) throw postError;
 
     const fd = new FormData();
     fd.append("file", compressed);
     const res = await fetch("/api/upload", { method: "POST", body: fd });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error);
+    const data = await res.json().catch(() => ({}));
+    // 거절 사유는 코드로 싣는다 — 본문 편집기의 오류 창이 화면 언어 문구로 바꾼다
+    if (!res.ok) throw errorFromBody(data, res.status);
+    if (!data.url) throw new CodedError("Upload response has no URL");
     return data.url;
   }, [t]);
 
@@ -571,20 +574,23 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       if (!files) return;
 
       const { compressImage, validateFileSize } = await import("@/lib/compressImage");
+      /* 막히거나 거절되면 사유를 화면 언어로 알린다. 예전에는 브라우저 alert 에 한국어 문장이 떴고,
+         서버가 거절하면 아무 표시 없이 넘어갔다 */
+      const fail = (err: unknown) => showToast(errorText(err, t, t("admin.common.uploadFailed")), "error");
       for (const file of Array.from(files)) {
         const sizeError = validateFileSize(file);
-        if (sizeError) { alert(sizeError); continue; }
+        if (sizeError) { fail(sizeError); continue; }
         // 비디오는 압축 X — 그대로 업로드. 이미지만 압축 파이프라인.
         const isVideo = file.type.startsWith("video/");
         const payload = isVideo ? file : await compressImage(file);
         // 압축 후에도 한도 초과면 reject
         const postError = validateFileSize(payload, undefined, { skipCompressibleBypass: true });
-        if (postError) { alert(postError); continue; }
+        if (postError) { fail(postError); continue; }
         const formData = new FormData();
         formData.append("file", payload);
         const res = await fetch("/api/upload", { method: "POST", body: formData });
-        const data = await res.json();
-        if (!res.ok) continue;
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.url) { fail(data); continue; }
 
         if (field === "image") {
           updateField("image", data.url);
@@ -594,7 +600,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       }
     };
     input.click();
-  }, [updateField]);
+  }, [t, updateField]);
 
   const removeGalleryItem = useCallback(
     (index: number) => {

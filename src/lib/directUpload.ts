@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/client";
+import { CodedError, errorFromBody } from "@/lib/apiError";
 
 /**
  * Storage 직접 업로드 — 서버 /api/upload 를 거치지 않고 Supabase Storage 로 바로 올린다.
@@ -10,6 +11,8 @@ import { createClient } from "@/lib/supabase/client";
  *
  * 주의: supabase-js v2 의 uploadToSignedUrl 은 업로드 진행률 콜백을 제공하지 않는다
  * (진행률이 필요한 압축 단계만 별도 콜백 사용).
+ *
+ * @throws CodedError — 서버가 거절한 사유는 코드로 싣는다. 화면은 errorText 로 화면 언어 문구를 얻는다.
  */
 export async function directUpload(file: File | Blob, fileName: string, contentType: string): Promise<string> {
   // 1. 서명 URL 발급
@@ -20,15 +23,15 @@ export async function directUpload(file: File | Blob, fileName: string, contentT
   });
   const data: { path?: string; token?: string; publicUrl?: string; error?: string } =
     await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || `업로드 준비 실패 (${res.status})`);
-  if (!data.path || !data.token || !data.publicUrl) throw new Error("업로드 URL 응답이 올바르지 않습니다.");
+  if (!res.ok) throw errorFromBody(data, res.status);
+  if (!data.path || !data.token || !data.publicUrl) throw new CodedError("Signed upload URL response is incomplete");
 
   // 2. Storage 직접 업로드
   const supabase = createClient();
   const { error } = await supabase.storage
     .from("posts")
     .uploadToSignedUrl(data.path, data.token, file, { contentType });
-  if (error) throw new Error(error.message || "업로드에 실패했습니다.");
+  if (error) throw new CodedError(error.message || "Storage upload failed");
 
   // 3. public URL
   return data.publicUrl;

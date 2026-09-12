@@ -217,7 +217,8 @@
       "sameAsCurrent": "현재 편집 내용과 동일",
       "statusPublished": "발행됨",
       "statusScheduled": "예약 발행",
-      "statusDraft": "미발행"
+      "statusDraft": "미발행",
+      "uploadFailed": "파일을 올리지 못했습니다."
     },
     "settings": {
       "title": "설정",
@@ -1170,8 +1171,6 @@
         "cancel": "취소",
         "scheduledPastConfirm": "예약 시점이 이미 지났습니다. 지금 바로 발행할까요?",
         "publishNow": "지금 발행",
-        "uploadFailedStatus": "업로드에 실패했습니다 ({{status}}).",
-        "uploadNoResponse": "업로드 응답을 받지 못했습니다.",
         "shortcutsGuide": "단축키 및 기능 안내",
         "tagNoteEdit": "편집",
         "tagRemove": "태그 제거",

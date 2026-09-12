@@ -16,6 +16,7 @@ import local from "./WorksIntroVideoPicker.module.css";
 import Pressable from "@/components/ui/Pressable";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { fillTemplate } from "@/utils/format";
+import { errorFromResponse, errorText } from "@/lib/apiError";
 const styles = { ...shared, ...local };
 
 /* 기본 업로드 제한 (api/upload 의 DEFAULT_LIMIT_MB 와 맞춤). */
@@ -54,8 +55,9 @@ export default function WorksIntroVideoPicker({ value, onChange }: Props) {
       fd.append("file", file);
       const res = await fetch("/api/upload", { method: "POST", body: fd });
       if (!res.ok) {
-        const txt = await res.text().catch(() => "");
-        showToast(fillTemplate(t("admin.settings.worksIntroMedia.uploadFailed"), { error: txt || res.status }), "error");
+        /* 예전에는 응답 본문을 글자 그대로 붙여 JSON 이 보였다. 사유는 코드로 받아 화면 언어로 */
+        const err = await errorFromResponse(res);
+        showToast(fillTemplate(t("admin.settings.worksIntroMedia.uploadFailed"), { error: errorText(err, t, String(res.status)) }), "error");
         return;
       }
       const data = await res.json();

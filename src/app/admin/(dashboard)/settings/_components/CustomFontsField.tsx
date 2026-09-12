@@ -10,6 +10,7 @@ import { fontFormatFromExt, injectFontFace, type CustomFont } from "@/lib/custom
 import { LOCAL_FONTS } from "@/config/localFonts.generated";
 import styles from "./AppearanceTab.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { errorText } from "@/lib/apiError";
 
 /** 파일명 → 표시/패밀리 이름 (scan-fonts.mjs 와 동일 규칙) */
 function prettyName(file: string): string {
@@ -46,7 +47,7 @@ export default function CustomFontsField({ fonts, onChange }: Props) {
       }
       onChange(Array.from(map.values()));
     } catch (e) {
-      showToast(e instanceof Error ? e.message : t("admin.settings.fontUploadError"), "error");
+      showToast(errorText(e, t, t("admin.settings.fontUploadError")), "error");
     } finally {
       setUploading(false);
       if (fileRef.current) fileRef.current.value = "";

@@ -10,6 +10,7 @@ import { showToast } from "@/stores/toastStore";
 import { type TeamMember } from "@/types/work";
 import { deriveTeamMemberAvatar, getMemberInitial } from "@/utils/teamMemberAvatar";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { errorFromResponse, errorText } from "@/lib/apiError";
 /* ──────────────────────────────────────────────────────────────────────────
  * TeamMemberCard — 팀원 1명. 상단 chip-row (avatar + 이름/역할 + remove) + 하단 contributions ul.
  * contributions 는 editorLang 기준 단일 배열만 보여줌 — 다른 lang 은 그대로 유지. */
@@ -56,11 +57,11 @@ export function TeamMemberCard({
       fd.append("file", file);
       fd.append("folder", "avatars");
       const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
-      if (!res.ok) throw new Error("Upload failed");
+      if (!res.ok) throw await errorFromResponse(res);
       const data = await res.json();
       if (data.url) onChange({ ...member, avatar_url: data.url });
-    } catch {
-      showToast(tw("avatarUploadFailed"), "error");
+    } catch (err) {
+      showToast(errorText(err, t, tw("avatarUploadFailed")), "error");
     } finally {
       setAvatarUploading(false);
       if (avatarFileRef.current) avatarFileRef.current.value = "";

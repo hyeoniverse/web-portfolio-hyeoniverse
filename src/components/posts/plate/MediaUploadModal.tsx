@@ -6,6 +6,7 @@ import { compressVideo, formatBytes } from "@/lib/videoCompress";
 import { directUpload } from "@/lib/directUpload";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { fillTemplate } from "@/utils/format";
+import { CodedError } from "@/lib/apiError";
 import styles from "../EditorMedia.module.css";
 
 type Limits = Record<string, number> | undefined;
@@ -56,7 +57,10 @@ function MediaUploadModal({ file, limits, onDone, onError }: Props) {
           });
           payload = new File([blob], name, { type: blob.type });
           if (payload.size > limitBytes) {
-            throw new Error(fillTemplate(t("editor.videoStillOverLimit"), { size: formatBytes(payload.size), limit: limitMB }));
+            throw new CodedError("Video is still over the limit after compression", {
+              code: "UPLOAD_STILL_TOO_LARGE",
+              params: { size: formatBytes(payload.size), max: limitMB },
+            });
           }
           setInfo(`${formatBytes(file.size)} → ${formatBytes(payload.size)}`);
         }

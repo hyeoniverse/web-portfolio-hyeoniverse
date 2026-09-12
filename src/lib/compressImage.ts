@@ -8,6 +8,8 @@
  * 5. 그래도 크면 → 그냥 반환
  */
 
+import { CodedError } from "@/lib/apiError";
+
 const SKIP_TYPES = new Set(["image/svg+xml", "image/gif"]);
 
 /** 압축 대상이 아닌 파일 (동영상 등) */
@@ -72,7 +74,7 @@ function isBlockedExtension(file: File): boolean {
   return BLOCKED_EXTENSIONS.has(ext);
 }
 
-/** 파일 보안 + 크기 검증. 에러 시 메시지 반환, 통과 시 null.
+/** 파일 보안 + 크기 검증. 막히면 코드를 실은 오류(화면은 errorText 로 문구를 얻는다), 통과 시 null.
  *
  * opts.skipCompressibleBypass=true 이면 jpg/png/webp 도 compress 파이프라인 후 재검증 목적으로
  * 검사 통과시키지 않고 limit 초과 시 에러 반환. 압축 후 호출 또는 압축 안 하는 경로 (contact form) 에서 사용. */
@@ -80,11 +82,11 @@ export function validateFileSize(
   file: File,
   limits?: Record<string, number>,
   opts?: { skipCompressibleBypass?: boolean },
-): string | null {
+): CodedError | null {
   // 차단 확장자 검사
   if (isBlockedExtension(file)) {
-    const ext = file.name.split(".").pop()?.toLowerCase();
-    return `차단된 파일 형식: .${ext}`;
+    const ext = file.name.split(".").pop()?.toLowerCase() ?? "";
+    return new CodedError(`Blocked file type: .${ext}`, { code: "UPLOAD_TYPE_NOT_ALLOWED", params: { ext } });
   }
   const limit = getFileSizeLimit(file, limits);
   if (file.size <= limit) return null;
@@ -93,7 +95,7 @@ export function validateFileSize(
   // 압축 가능한 이미지는 compressImage 가 처리하니 pre-validation 단계에선 통과시킴.
   // 단 opts.skipCompressibleBypass 가 true 면 (post-compress 또는 압축 안 하는 경로) bypass 비활성.
   if (!opts?.skipCompressibleBypass && file.type.startsWith("image/") && !SKIP_TYPES.has(file.type)) return null;
-  return `파일 크기 제한 초과: ${sizeMB}MB / 최대 ${limitMB}MB`;
+  return new CodedError(`File too large: ${sizeMB}MB (max ${limitMB}MB)`, { code: "UPLOAD_TOO_LARGE", params: { size: sizeMB, max: limitMB } });
 }
 
 function loadImage(src: string): Promise<HTMLImageElement> {

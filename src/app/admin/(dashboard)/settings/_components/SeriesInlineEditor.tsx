@@ -6,6 +6,7 @@ import { ChevronUp, ChevronDown, ExternalLink, GripVertical, Plus, Unlink, Trash
 import EditableRowNumber from "@/components/admin/AdminTable/EditableRowNumber";
 import { motion, LayoutGroup } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { errorFromBody, errorText } from "@/lib/apiError";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import type { BilingualCategory } from "@/types/common";
 import { Switch } from "@/components/ui/Switch";
@@ -252,10 +253,10 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
         fd.append("file", file);
         const res = await fetch("/api/upload", { method: "POST", body: fd });
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error);
+        if (!res.ok) throw errorFromBody(data, res.status);
         updateField("cover_image", data.url);
-      } catch {
-        setError(ts("uploadFailed"));
+      } catch (err) {
+        setError(errorText(err, t, ts("uploadFailed")));
       } finally {
         setUploading(false);
       }

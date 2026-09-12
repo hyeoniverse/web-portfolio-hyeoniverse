@@ -48,6 +48,7 @@ import { MultiBlockHighlight } from "./plate/MultiBlockHighlight";
 import { FloatEdgeAdjust } from "./plate/FloatEdgeAdjust";
 export type { EditorImageInfo, PlateEditorHandle } from "./plate/types";
 import { isInAncestor, getEditorText, _mathEditingSet, _imageUploadFn, _uploadErrorFn } from "./plate/utils";
+import { uploadErrorText } from "./plate/uploadErrorText";
 import { columnHasContent, insertColumnAfter, removeColumnAt } from "./plate/columnOps";
 import { CHECKER_BG, COLUMN_DEFAULT_BG, COLUMN_DEFAULT_PX, COLUMN_MIN_PX, COLUMN_MAX_PX, COLUMN_BG_NAMED, COLUMN_LINE_NAMED, CALLOUT_BG_PRESETS, MIN_COLUMNS, MAX_COLUMNS, fitColumnsForInsert, distributeInts } from "./plate/presets";
 import { ColorMenu } from "./plate/ColorMenu";
@@ -101,14 +102,10 @@ export default function PlateEditor({
   const { t, language } = useLanguage();
   const { openModal } = useModalStore();
 
-  // 업로드 실패 — 상세 사유 모달. 서버가 사유를 주면 그대로, 상태코드만/빈 사유면 힌트 추가.
-  // (ImagePanel.showUploadError 와 동일 규칙 — 모든 삽입 진입점이 공유)
+  // 업로드 실패 — 상세 사유 모달(ImagePanel.showUploadError 와 같은 문구 — 모든 삽입 진입점이 공유)
   const showMediaError = useCallback((err: unknown) => {
-    const raw = err instanceof Error ? err.message : "";
-    const generic = !raw || /\(\d{3}\)/.test(raw);
-    const desc = generic ? `${raw || t("editor.uploadFail")}\n\n${t("editor.uploadFailHint")}` : raw;
     openModal(
-      <ModalAlert desc={desc} />,
+      <ModalAlert desc={uploadErrorText(err, t)} />,
       { id: "media-upload-error", header: { title: t("editor.uploadFail") }, closeButton: true, width: "400px" },
     );
   }, [openModal, t]);

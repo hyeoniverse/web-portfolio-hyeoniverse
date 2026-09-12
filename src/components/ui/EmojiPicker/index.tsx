@@ -5,6 +5,7 @@ import { useDepsChanged } from "@/hooks/useDepsChanged";
 import { createPortal } from "react-dom";
 import { Search, Shuffle, ChevronLeft, ChevronRight } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { errorText } from "@/lib/apiError";
 import Tooltip from "@/components/ui/Tooltip";
 import { EMOJI_CATEGORIES, ICON_CATEGORIES, EMOJI_KEYWORDS, iconSvgInner } from "../emojiData";
 import { EMOJI_KO } from "../emojiKo";
@@ -36,7 +37,8 @@ const RECENT_KEY = "recent-emojis";
 const MAX_RECENT = 24;
 
 export default function EmojiPicker({ open, onClose, onSelect, currentValue, onImageUpload, getAnchorRect }: EmojiPickerProps) {
-  const { language } = useLanguage();
+  /* tr 은 사전 번역(업로드 거절 사유 코드용). 아래 t 는 두 언어를 나란히 적는 짧은 함수다 */
+  const { language, t: tr } = useLanguage();
   /* 모달 안에서 열렸으면 모달이 자기 portal layer 를 여기로 내려 준다. 밖이면 null. */
   const portalContainer = usePortalContainer();
   const ref = useRef<HTMLDivElement>(null);
@@ -308,12 +310,13 @@ export default function EmojiPicker({ open, onClose, onSelect, currentValue, onI
         err instanceof EmojiImageError
           ? err.code === "tooSmall" ? (ko ? `최소 ${EMOJI_MIN}×${EMOJI_MIN}px` : `At least ${EMOJI_MIN}×${EMOJI_MIN}px`)
             : err.code === "resizeFailed" ? (ko ? "리사이즈 실패" : "Resize failed") : (ko ? "잘못된 이미지" : "Invalid image")
-          : err instanceof Error && err.message ? err.message : (ko ? "업로드 실패" : "Upload failed"),
+          /* 업로드 거절 사유는 코드로 온다(#862) — 오류 문장은 한 언어라 보이지 않는다 */
+          : errorText(err, tr, ko ? "업로드 실패" : "Upload failed"),
       );
     } finally {
       setUploading(false);
     }
-  }, [onImageUpload, handleSelect, cacheCustoms, language]);
+  }, [onImageUpload, handleSelect, cacheCustoms, language, tr]);
 
   if (!open) return null;
 
