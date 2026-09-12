@@ -868,6 +868,20 @@
     "tableStructure": "구조",
     "tableStyle": "스타일",
     "uploadFail": "업로드 실패",
-    "uploadFailHint": "파일 용량이 너무 크거나 지원하지 않는 형식일 수 있어요. 형식·용량을 확인한 뒤 다시 시도해주세요."
+    "uploadFailHint": "파일 용량이 너무 크거나 지원하지 않는 형식일 수 있어요. 형식·용량을 확인한 뒤 다시 시도해주세요.",
+    "videoUploadTitle": "동영상 업로드",
+    "videoPreparing": "준비 중…",
+    "videoCompressing": "브라우저에서 압축 중… {{pct}}%",
+    "videoUploading": "스토리지에 업로드 중…",
+    "videoOverLimit": "{{size}} · 제한 {{limit}}MB 초과 → 압축",
+    "videoStillOverLimit": "압축했지만 여전히 제한을 초과합니다 ({{size}} / 최대 {{limit}}MB). 더 짧거나 저화질 영상을 사용해주세요.",
+    "videoKeepOpen": "페이지를 닫지 마세요. 압축은 영상 길이에 따라 몇 분 걸릴 수 있습니다.",
+    "colorPick": "색 고르기",
+    "colorRandom": "랜덤",
+    "colorRemove": "제거",
+    "colorRecent": "최근",
+    "selectColumn": "열 전체 선택",
+    "selectRow": "행 전체 선택",
+    "selectTable": "표 전체 선택"
   }
 }

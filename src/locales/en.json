@@ -868,6 +868,20 @@
     "tableStructure": "Structure",
     "tableStyle": "Style",
     "uploadFail": "Upload failed",
-    "uploadFailHint": "The file may be too large or an unsupported format. Check the format and size, then try again."
+    "uploadFailHint": "The file may be too large or an unsupported format. Check the format and size, then try again.",
+    "videoUploadTitle": "Video upload",
+    "videoPreparing": "Preparing…",
+    "videoCompressing": "Compressing in the browser… {{pct}}%",
+    "videoUploading": "Uploading to storage…",
+    "videoOverLimit": "{{size}} · over the {{limit}}MB limit → compressing",
+    "videoStillOverLimit": "The video is still over the limit after compression ({{size}} / max {{limit}}MB). Use a shorter or lower-quality video.",
+    "videoKeepOpen": "Keep this page open. Compression can take a few minutes depending on the video length.",
+    "colorPick": "Pick a color",
+    "colorRandom": "Random",
+    "colorRemove": "Remove",
+    "colorRecent": "Recent",
+    "selectColumn": "Select column",
+    "selectRow": "Select row",
+    "selectTable": "Select table"
   }
 }
