@@ -197,11 +197,9 @@ There is no login button on the site. Only the admin accesses it by entering the
 
 **Features available after login:**
 
-- `/admin/posts` — Post list (publish/private status, hover preview, row numbers, thumbnails)
+- `/admin/posts` — Post list (publish/private status, hover preview, row numbers, thumbnails). The series panel above it reorders, deletes, and exports series; creating and editing series happens in Settings → Content → Posts
 - `/admin/posts/new` — New post creation (Markdown <-> Rich Text toggle, auto translation, re-translate, auto save + DB revision history + diff comparison + Revert)
 - `/admin/posts/[id]/edit` — Edit existing post (PlateEditor loading skeleton)
-- `/admin/posts/series/new` — Create new series
-- `/admin/posts/series/[id]/edit` — Edit series
 - `/admin/works` — Works list (table view, publish/private toggle, sort order, thumbnails, .md upload)
 - `/admin/works/new` — Create new work (single content editor + template, Korean/English bilingual, tech stack, gallery)
 - `/admin/works/[id]/edit` — Edit existing work

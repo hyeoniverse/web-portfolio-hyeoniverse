@@ -292,7 +292,7 @@
 - **이메일 템플릿 헬퍼**: `src/lib/mail/template.ts` — 새 기기 알림 + 보안 알림 메일이 공유하는 레이아웃(Space Grotesk + Instrument Serif Google Fonts, 캡슐 CTA, prefers-color-scheme dark/light)
 - **Settings 5탭**: General/Content/Appearance/Services/Account — 브랜드, SEO(기본 콘텐츠 언어 ko/en 설정 포함), 이중언어 편집
 - **Cover Image Picker 고도화**: 5탭 구조(프리셋 / Unsplash / Pexels / AI 생성 / 이력) + 클라이언트 이미지 WebP 압축. **프리셋 = Adobe Color 스타일 그라데이션 에디터** — base color + 8 scheme(유사 / 단색 / 삼각형 / 보색 / 분할 보색 / 정사각형 / 혼합 / 음영) + linear/radial 토글 + 각도/크기/속도 슬라이더 + drag-to-reposition stop bar(2~4 stop, capsule bar + 핸들 아래 아이콘), **이미지 업로드 → 색 추출** 또는 **클립보드 색상표 붙여넣기**(`#rrggbb` / `#rgb` 둘 다 인식, 모달 prompt fallback)로 stop seed, **완전 랜덤 버튼**(pattern/크기/속도/색/개수/위치 모두 random) + presets[0] 자동 시드 — picker 첫 진입 시 현재 cover 이미지에서 palette 추출해 stops seed (사용자가 preset 클릭/수동 편집하면 seed 비활성). **이력 탭** 은 ai/unsplash/preset 통합, Supabase 영구 저장(cover_image_history 테이블, RLS) — 선택/삭제/키워드 복사/색상표 복사/다운로드 버튼이 좌상단에 cluster, active 체크는 우상단
-- **CoverImageField 공용 컴포넌트**: `src/components/admin/CoverImageField` — 라벨 + inline 액션(Upload / Choose / Remove) + 썸네일 + 추출 팔레트 swatch row. 깨진 이미지 placeholder fallback, 클릭으로 picker open. PostEditor / WorkEditor / SeriesEditor 가 동일 UI 공유
+- **CoverImageField 공용 컴포넌트**: `src/components/admin/CoverImageField` — 라벨 + inline 액션(Upload / Choose / Remove) + 썸네일 + 추출 팔레트 swatch row. 깨진 이미지 placeholder fallback, 클릭으로 picker open. PostEditor / WorkEditor 가 동일 UI 공유
 - **ColorPicker 커스텀 구현**: `src/components/ui/ColorPicker` — native `<input type="color">` 의 OS 별 일관성 부재 해결. SV pad + hue slider + Hex/RGB 입력, render-prop trigger(부모가 swatch 모양 자유), createPortal popover(`overflow:hidden` 부모 escape). **wrapper span 이 0×0 으로 collapse 되는 케이스**(자식이 `position: absolute` 인 stop handle 등) 는 `firstElementChild.getBoundingClientRect()` fallback 으로 popover 위치 정확. PlateEditor / Settings / RichTextEditor / MainToolbar / TableToolbar 등 13곳 native input 일괄 교체
 - **SortOrderDragList 공용 컴포넌트**: `src/components/admin/SortOrderDragList` — 페이지네이션(5/페이지) + grip handle pointer 드래그 + 페이지 edge hover 시 즉시 reorder + 위치 input + 맨앞/맨뒤 jump. WorkEditor 정렬 + PostEditor 시리즈 순서 동일 UI 공유
 - **글로벌 Toast**: `src/stores/toastStore.ts` + `src/components/ui/Toast` — zustand 기반 싱글톤, success/error/info variant, 자동 dismiss(기본 2.4s), 하단 중앙 stack. 팔레트 swatch / 팔레트 row 복사 등 non-blocking 피드백 ("Copied!") 에 사용
@@ -557,11 +557,9 @@ Supabase Dashboard → **Authentication** → **Users** → **Add user**:
 
 **로그인 후 사용 가능한 기능:**
 
-- `/admin/posts` — 포스트 목록 (발행/비공개 상태 확인, 호버 미리보기, 행 번호, 썸네일)
+- `/admin/posts` — 포스트 목록 (발행/비공개 상태 확인, 호버 미리보기, 행 번호, 썸네일). 위쪽 시리즈 패널에서 시리즈 순서 바꾸기·삭제·내보내기, 시리즈 만들기·편집은 Settings → Content → Posts
 - `/admin/posts/new` — 새 포스트 작성 (Markdown ↔ Rich Text 전환, 자동 번역, 재번역, 자동 저장 + DB 리비전 히스토리 + diff 비교 + Revert)
 - `/admin/posts/[id]/edit` — 기존 포스트 수정 (PlateEditor 로딩 스켈레톤)
-- `/admin/posts/series/new` — 새 시리즈 생성
-- `/admin/posts/series/[id]/edit` — 시리즈 편집
 - `/admin/works` — 작업물 목록 (테이블 뷰, 발행/비공개 토글, 정렬 순서, 썸네일, .md 업로드)
 - `/admin/works/new` — 새 작업물 생성 (단일 콘텐츠 에디터 + 템플릿, 한/영 이중 언어, 기술 스택, 갤러리)
 - `/admin/works/[id]/edit` — 기존 작업물 수정
