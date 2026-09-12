@@ -14,6 +14,7 @@ function Links({ active, ask }: { active: boolean; ask: (go: () => void) => void
   useLeaveGuard(active, ask);
   return (
     <div>
+      {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- 가드가 평범한 <a> 클릭을 가로채는지 보는 검사라 일부러 쓴다(/admin 아래 catch-all 이 생긴 뒤 규칙이 페이지로 본다, #889) */}
       <a href="/admin/works">internal</a>
       <a href="/admin/works" target="_blank" rel="noreferrer">blank</a>
       <a href="/admin/works" download>download</a>
