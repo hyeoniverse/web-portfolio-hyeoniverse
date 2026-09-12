@@ -170,6 +170,15 @@ export default function WorkEditor({ work }: WorkEditorProps) {
 
   // 정렬 list — 다른 작품들 (현재 편집중인 작품 제외)
   const [otherWorks, setOtherWorks] = useState<Array<{ id: string; title: string; sort_order: number }>>([]);
+  /* 순서 목록의 이 작업물 자리 — 값이 아니라 앞선 작업물 수로 정한다. 휴지통으로 간 작업물이 빈 번호를 남기면
+     값(4)과 자리(3번째)가 어긋나기 때문이다(#873). 새 작업물(0)은 맨 뒤 */
+  const sortPosition = form.sort_order > 0
+    ? otherWorks.filter((w) => w.sort_order < form.sort_order).length + 1
+    : otherWorks.length + 1;
+  /* 저장할 때 sort_order 는 자리를 옮겼을 때만 보낸다. 서버는 받은 값을 자리로 보고 다시 매기므로, 빈 번호 뒤
+     작업물은 그대로 저장해도 한 칸 밀렸다. 목록에서 옮겼거나 값이 마지막으로 저장한 값과 다르면 보낸다 */
+  const sortMovedRef = useRef(false);
+  const sortBaselineRef = useRef(form.sort_order);
 
   useEffect(() => {
     fetch("/api/works?all=true")
@@ -311,6 +320,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     ready: initialLoadsReady,
     serverReady: revisionsLoaded,
     applyDraft: (draft) => {
+      sortMovedRef.current = false;
       setForm(draft);
       requestAnimationFrame(markBaseline);
     },
@@ -646,9 +656,11 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       setStatus("");
 
       // works 테이블에는 관계 컬럼이 없음 — 분리해서 별도 endpoint로 sync.
-      const { related_post_ids, related_series_ids, ...workBody } = form;
+      const { related_post_ids, related_series_ids, sort_order, ...workBody } = form;
+      const sendSortOrder = sortMovedRef.current || sort_order !== sortBaselineRef.current;
       const body = {
         ...workBody,
+        ...(sendSortOrder ? { sort_order } : {}),
         published: willPublish,
       };
 
@@ -673,6 +685,8 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         }
 
         if (!savedId.current) savedId.current = data.id;
+        sortMovedRef.current = false;
+        sortBaselineRef.current = sort_order;
 
         // 관계 동기화 — 별도 endpoint. 작업물은 이미 저장됐으므로 실패해도 저장은 끝내고 알림 하나로 알린다(#868)
         const relationFailures: CodedError[] = [];
@@ -729,9 +743,9 @@ export default function WorkEditor({ work }: WorkEditorProps) {
 
   const handlePreview = useCallback(() => {
     /* 새 작업물(자리 0)은 저장하면 맨 뒤에 서므로 미리보기 번호도 그 자리로 */
-    sessionStorage.setItem(PREVIEW_KEY.work, JSON.stringify({ ...form, sort_order: form.sort_order || otherWorks.length + 1 }));
+    sessionStorage.setItem(PREVIEW_KEY.work, JSON.stringify({ ...form, sort_order: sortPosition }));
     window.open("/admin/works/preview", "_blank");
-  }, [form, otherWorks.length]);
+  }, [form, sortPosition]);
 
   const handleRestoreRevision = useCallback(
     async (index: number) => {
@@ -739,6 +753,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       if (!rev) return;
       const snapshot = await loadRevisionSnapshot(rev.id);
       if (snapshot) {
+        sortMovedRef.current = false;
         setForm(snapshot);
         requestAnimationFrame(() => markBaseline());
         setStatus(tw("restored"));
@@ -777,6 +792,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   );
 
   const handleRevert = useCallback(() => {
+    sortMovedRef.current = false;
     setForm(initialFormRef.current);
     setStatus(tw("reverted"));
     setStatusType("info");
@@ -1048,13 +1064,13 @@ export default function WorkEditor({ work }: WorkEditorProps) {
               <SortOrderDragList
                 label={tw("sortOrder")}
                 currentTitle={form.title || tw("subtitle")}
-                /* 새 작업물(0)은 맨 뒤 — 저장하면 서버도 맨 뒤에 넣는다 */
-                currentOrder={form.sort_order || otherWorks.length + 1}
+                currentOrder={sortPosition}
                 otherItems={otherWorks}
                 onChange={(newOrder, otherUpdates) => {
                   /* 이 작업물의 자리만 바꿔 두고 저장할 때 보낸다. 서버가 그 자리에 끼우고 나머지를 다시 매긴다.
                      예전에는 밀리는 작업물마다 PATCH 를 바로 보내 저장 전에 순서가 바뀌고, 동시에 오가며 뒤섞였다(#873).
                      아래는 목록 미리보기만 바꾼다 */
+                  sortMovedRef.current = true;
                   updateField("sort_order", newOrder);
                   setOtherWorks((prev) => prev.map((w) => {
                     const u = otherUpdates.find((x) => x.id === w.id);
@@ -1123,8 +1139,8 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     </div>
   ), [
     categoryCustomMode, descriptionValue, editorLang, form.categories_en, form.categories_ko, form.contributions_en,
-    form.contributions_ko, form.nature_en, form.nature_ko, form.slug, form.sort_order, form.title, form.year,
-    natureCustomMode, naturePresets, optionalOpen, otherWorks, ownRole.selectNode, primaryLang, reqTitle, roleValue,
+    form.contributions_ko, form.nature_en, form.nature_ko, form.slug, form.title, form.year,
+    natureCustomMode, naturePresets, optionalOpen, otherWorks, ownRole.selectNode, primaryLang, reqTitle, roleValue, sortPosition,
     showErrors, subtitleValue, suf, titleKey, titleValue, tw, updateField, worksCategories,
   ]);
 
