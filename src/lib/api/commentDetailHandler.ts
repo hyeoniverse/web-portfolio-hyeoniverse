@@ -134,16 +134,16 @@ export function createCommentDeleteHandler(opts: CommentDetailHandlerOptions) {
       .eq("id", id)
       .single();
 
-    if (!comment) return jsonError("Comment not found", 404);
+    if (!comment) return jsonError("Comment not found", 404, { code: "COMMENT_NOT_FOUND" });
 
     // commenter_hash 기반 인증 경로는 제거됨 — simpleHash brute-force 로 위변조 가능했음.
     // 익명 사용자는 비번이 유일한 인증.
     if (!comment.password_hash) {
-      return jsonError("Password required — contact admin to delete this comment", 403);
+      return jsonError("Password required — contact admin to delete this comment", 403, { code: "COMMENT_NO_PASSWORD" });
     }
-    if (!password) return jsonError("Password required", 401);
+    if (!password) return jsonError("Password required", 401, { code: "COMMENT_PASSWORD_REQUIRED" });
     const authorized = await bcrypt.compare(password, comment.password_hash);
-    if (!authorized) return jsonError("Not authorized", 403);
+    if (!authorized) return jsonError("Not authorized", 403, { code: "COMMENT_PASSWORD_WRONG" });
 
     const { error } = await softOrHardDelete(admin, table, id, "self");
     if (error) return jsonServerError(error, "commentDetailHandler");
@@ -178,7 +178,7 @@ export function createCommentRestoreHandler(opts: CommentDetailHandlerOptions) {
       .maybeSingle();
 
     if (error) return jsonServerError(error, "commentDetailHandler");
-    if (!data) return jsonError("Comment not found or not deleted", 404);
+    if (!data) return jsonError("Comment not found or not deleted", 404, { code: "COMMENT_NOT_FOUND" });
     return jsonOk({ success: true });
   }
 
