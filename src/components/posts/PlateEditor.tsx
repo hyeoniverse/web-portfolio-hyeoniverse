@@ -2,8 +2,9 @@
 
 // React Flow(다이어그램 블록) core 스타일 — 에디터 루트에서 전역 로드(pane/handle/edge 동작에 필수)
 import "@xyflow/react/dist/style.css";
-import React, { useState, useCallback, useEffect, useRef, useImperativeHandle } from "react";
+import React, { useState, useCallback, useEffect, useMemo, useRef, useImperativeHandle } from "react";
 import { useSyncRef } from "@/hooks/useSyncRef";
+import { useEchoFreeValue } from "./plate/useEchoFreeValue";
 import type { LocalizedText } from "@/types/common";
 import {
   Plate,
@@ -90,14 +91,15 @@ export { ImagePanel } from "./plate/ImagePanel";
 // 이미지는 inline void 라 같은 문단에 섞일 수 있는데, 그러면 블록 드래그 시 통째로 이동된다.
 // 콘텐츠 로드(deserialize) 직후 1회 적용 — 노드 배열만 가공(순수 함수)해 normalize 타이밍 의존 X.
 // %: 페이지 폭에 맞춰(합 100) 재분배 + px 고정 해제. px: 그 열만 정확한 px(합이 넘치면 가로 스크롤 = 화면보다 넓게).
-export default function PlateEditor({
+function PlateEditorBody({
   value,
+  valueVersion,
   onChange,
   onImageUpload,
   editorRef,
   postLang,
   onHtmlModeChange,
-}: PlateEditorProps) {
+}: PlateEditorProps & { valueVersion: number }) {
   const { theme } = useTheme();
   const { t, language } = useLanguage();
   const { openModal } = useModalStore();
@@ -110,7 +112,6 @@ export default function PlateEditor({
     );
   }, [openModal, t]);
 
-  const isInternalUpdate = useRef(false);
   const prevValueRef = useRef(value);
   const onChangeRef = useRef(onChange);
   useSyncRef(onChangeRef, onChange);
@@ -976,13 +977,11 @@ export default function PlateEditor({
   }, [editor, tick]);
 
   // ── 외부 value 동기화 ──
+  // 편집기가 올린 값을 부모가 돌려주는 경우는 바깥 PlateEditor(useEchoFreeValue)가 걸러 여기까지 오지 않는다.
+  // 여기 오는 값은 밖에서 바꾼 것뿐이고, 편집기가 마지막으로 가진 값(prevValueRef)과 같으면 할 일이 없다.
+  // valueVersion 은 전에 받은 것과 같은 문자열로 되돌릴 때도 이 효과가 다시 돌게 한다(#877).
   useEffect(() => {
     if (!editor) return;
-    if (isInternalUpdate.current) {
-      isInternalUpdate.current = false;
-      prevValueRef.current = value;
-      return;
-    }
     if (value === prevValueRef.current) return;
     prevValueRef.current = value;
     try {
@@ -1017,7 +1016,7 @@ export default function PlateEditor({
     } catch {
       editor.tf.setValue(value || "<p></p>");
     }
-  }, [value, editor]);
+  }, [value, valueVersion, editor]);
 
   // ── 인라인 이미지 선택 건너뛰기 ──
   const skipImgRef = useRef(false);
@@ -1151,7 +1150,6 @@ export default function PlateEditor({
           return;
         }
         lastSlateValueRef.current = slateValue;
-        isInternalUpdate.current = true;
         prevValueRef.current = html;
         onChangeRef.current(html);
       }
@@ -2098,7 +2096,6 @@ export default function PlateEditor({
         const nodes = restoreBlockIndent(htmlSource || "<p></p>", editor.api.html.deserialize({ element: htmlSource || "<p></p>" }) as Array<Record<string, unknown>>);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         editor.tf.setValue(nodes as any);
-        isInternalUpdate.current = true;
         prevValueRef.current = htmlSource;
         onChangeRef.current(htmlSource);
       } catch { /* ignore */ }
@@ -3113,7 +3110,6 @@ export default function PlateEditor({
               value={htmlSource}
               onChange={(e) => {
                 setHtmlSource(e.target.value);
-                isInternalUpdate.current = true;
                 prevValueRef.current = e.target.value;
                 onChangeRef.current(e.target.value);
               }}
@@ -3247,5 +3243,58 @@ export default function PlateEditor({
 
       </Plate>
     </div>
+  );
+}
+
+const PlateEditorMemo = React.memo(PlateEditorBody);
+
+/**
+ * 본문 편집기. 안쪽(PlateEditorBody)은 memo 로 감싸, 부모가 방금 올린 값을 돌려받을 때 다시 그리지 않는다(#877).
+ * 부모의 value 는 useEchoFreeValue 가 밖에서 바뀐 것만 넘기고, 콜백은 최신 것을 ref 로 들고 안정된 함수로 넘긴다
+ * (부모는 그릴 때마다 onChange 를 새로 만든다).
+ */
+export default function PlateEditor({
+  value,
+  onChange,
+  onImageUpload,
+  editorRef,
+  postLang,
+  onHtmlModeChange,
+}: PlateEditorProps) {
+  const { external, markEmitted } = useEchoFreeValue(value);
+  const onChangeRef = useRef(onChange);
+  useSyncRef(onChangeRef, onChange);
+  const uploadRef = useRef(onImageUpload);
+  useSyncRef(uploadRef, onImageUpload);
+  const htmlModeRef = useRef(onHtmlModeChange);
+  useSyncRef(htmlModeRef, onHtmlModeChange);
+
+  const handleChange = useCallback((html: string) => {
+    markEmitted(html);
+    onChangeRef.current(html);
+  }, [markEmitted]);
+  // 올리기 함수가 있는지는 안쪽이 보는 신호라(없으면 올리지 않음) 있을 때만 안정된 함수로 넘긴다
+  const hasUpload = !!onImageUpload;
+  const handleImageUpload = useMemo(
+    () => (hasUpload
+      ? (file: File) => {
+          const upload = uploadRef.current;
+          return upload ? upload(file) : Promise.reject(new Error("Image upload is not available"));
+        }
+      : undefined),
+    [hasUpload],
+  );
+  const handleHtmlModeChange = useCallback((htmlMode: boolean) => htmlModeRef.current?.(htmlMode), []);
+
+  return (
+    <PlateEditorMemo
+      value={external.html}
+      valueVersion={external.version}
+      onChange={handleChange}
+      onImageUpload={handleImageUpload}
+      editorRef={editorRef}
+      postLang={postLang}
+      onHtmlModeChange={handleHtmlModeChange}
+    />
   );
 }
