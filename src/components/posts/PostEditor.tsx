@@ -9,6 +9,7 @@ import dynamic from "next/dynamic";
 import { ExternalLink, AlertTriangle } from "@/components/icons";
 import { mdToRichHtml } from "./mdToRichHtml";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { fillTemplate } from "@/utils/format";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { validateContentSecurity } from "@/utils/contentSecurity";
 import { showToast } from "@/stores/toastStore";
@@ -151,7 +152,7 @@ const NEW_DRAFT_SESSION_KEY = "new-post-draft-id";
 
 export default function PostEditor({ post }: PostEditorProps) {
   const router = useRouter();
-  const { tLang, language } = useLanguage();
+  const { t, language } = useLanguage();
   const config = useSiteConfig();
   const mediaLimits = (config.media as Record<string, unknown>)?.limits as Record<string, number> | undefined;
   const isEdit = !!post;
@@ -277,7 +278,7 @@ export default function PostEditor({ post }: PostEditorProps) {
     handleRetranslate,
   } = useEditorTranslation({
     form: form as unknown as Record<string, unknown>,
-    tLang,
+    t,
     i18nPrefix: "admin.posts.editor",
     fieldMapper: postFieldMapper,
     allFieldKeys: POST_FIELD_KEYS,
@@ -288,10 +289,9 @@ export default function PostEditor({ post }: PostEditorProps) {
     initialLang: config.metadata.defaultLanguage as "ko" | "en",
   });
 
-  const te = useCallback(
-    (key: string) => tLang(`admin.posts.editor.${key}`, editorLang),
-    [tLang, editorLang],
-  );
+  /* 편집 화면 문구는 관리자 화면 언어를 따른다. 예전에는 편집 중인 글의 언어 탭(KO/EN)을 따라, 영어 화면에서
+     한국어 글을 고치면 라벨·단추가 한국어로 나왔다. 글의 언어는 KO/EN 탭이 보여 준다. */
+  const te = useCallback((key: string) => t(`admin.posts.editor.${key}`), [t]);
   const [optionalOpen, setOptionalOpen] = useState(false);
   const optionalInnerRef = useRef<HTMLDivElement>(null);
   const optionalContentRef = useRef<HTMLDivElement>(null);
@@ -620,10 +620,10 @@ export default function PostEditor({ post }: PostEditorProps) {
     // 빈/비JSON 응답(413·게이트웨이 오류 등)에서도 의미 있는 에러를 던지도록 방어적 파싱
     const data: UploadResponse = await res.json().catch(() => ({}));
 
-    if (!res.ok) throw new Error(data.error || `업로드 실패 (${res.status})`);
-    if (!data.url) throw new Error(data.error || "업로드 응답을 받지 못했습니다");
+    if (!res.ok) throw new Error(data.error || fillTemplate(te("uploadFailedStatus"), { status: res.status }));
+    if (!data.url) throw new Error(data.error || te("uploadNoResponse"));
     return data.url;
-  }, [mediaLimits]);
+  }, [mediaLimits, te]);
 
   const handleCoverUpload = useCallback(async () => {
     const input = document.createElement("input");
@@ -699,8 +699,8 @@ export default function PostEditor({ post }: PostEditorProps) {
         if (form.scheduled_at && new Date(form.scheduled_at).getTime() <= Date.now()) {
           openModal(
             <ModalConfirm
-              desc={te("scheduledPastConfirm") || "예약 시점이 이미 지났습니다. 지금 바로 발행할까요?"}
-              confirmText={te("publishNow") || "지금 발행"}
+              desc={te("scheduledPastConfirm")}
+              confirmText={te("publishNow")}
               onConfirm={async () => {
                 updateField("scheduled_at", null);
                 // 새 form 값으로 retry — state 업데이트 후 다음 tick
@@ -1218,10 +1218,10 @@ export default function PostEditor({ post }: PostEditorProps) {
             >
               {te("insertTemplate")}
             </Pressable>
-            <Tooltip content="단축키 및 기능 안내" placement="top">
+            <Tooltip content={te("shortcutsGuide")} placement="top">
               <Pressable
                 className={styles.editorHelpBtn}
-                onClick={() => openModal(<ShortcutsModalContent />, { id: "shortcuts-help", header: { title: "단축키 및 기능 안내" }, closeButton: true })}
+                onClick={() => openModal(<ShortcutsModalContent />, { id: "shortcuts-help", header: { title: te("shortcutsGuide") }, closeButton: true })}
               >
                 ?
               </Pressable>

@@ -13,7 +13,8 @@
       "completed": "Completed",
       "statusFull": "All set",
       "statusOne": "1 item to fix",
-      "statusMany": "items to fix"
+      "statusMany": "items to fix",
+      "dialogLabel": "SEO details"
     },
     "comments": {
       "title": "Comment Moderation",
@@ -210,7 +211,11 @@
       "actions": "Actions",
       "currentTag": "Current",
       "jumpFirst": "First",
-      "jumpLast": "Last"
+      "jumpLast": "Last",
+      "sameAsCurrent": "Same as current edit",
+      "statusPublished": "Published",
+      "statusScheduled": "Scheduled",
+      "statusDraft": "Draft"
     },
     "settings": {
       "title": "Settings",
@@ -1160,7 +1165,17 @@
         "insertTemplate": "Insert Template",
         "templateDesc": "Choose a template to insert.",
         "templateConfirm": "Template will be appended after existing content. Continue?",
-        "cancel": "Cancel"
+        "cancel": "Cancel",
+        "scheduledPastConfirm": "The scheduled time has already passed. Publish now?",
+        "publishNow": "Publish now",
+        "uploadFailedStatus": "Upload failed ({{status}}).",
+        "uploadNoResponse": "No response from the upload.",
+        "shortcutsGuide": "Shortcuts and features",
+        "tagNoteEdit": "Edit",
+        "tagRemove": "Remove tag",
+        "deniedTitle": "You don’t have access to this post",
+        "notFoundTitle": "Post not found",
+        "backToList": "Back to posts"
       },
       "coverPicker": {
         "presets": "Presets",

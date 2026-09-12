@@ -7,6 +7,7 @@ import styles from "@/components/ui/Input.module.css";
 // 단일 줄 input 의 "카운터/지우개를 캡슐 안 flex child 로" 레이아웃은 공통 HighlightInput 과 동일 모듈 재사용
 import ei from "@/components/ui/HighlightInput/HighlightInput.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 /**
  * EditorTextInput — Slate 에디터 *안*에 두는 격리된 텍스트 입력 프리미티브(에디터 전용 공통 컴포넌트).
@@ -79,6 +80,7 @@ function EditorTextInput({
   multiline, clearOnCommit, commitOnEnter = true, maxLength, onOverflow, showCount,
   spellCheck = false, autoFocus, inputRef,
 }: EditorTextInputProps) {
+  const { t } = useLanguage();
   const [draft, setDraft] = useState(value);
   const lastOverflowRef = useRef(0); // onOverflow(toast) 스로틀 — 한도에서 연타해도 도배 안 되게
   const localRef = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);
@@ -215,7 +217,7 @@ function EditorTextInput({
         {inlineLabel && <span className={ei.inlineLabel}>{inlineLabel}</span>}
         <input ref={setRef as React.Ref<HTMLInputElement>} className={`${ei.input} ${className ?? ""}`.trim()} {...common} />
         {showClear && (
-          <Pressable className={ei.clearBtn} aria-label="clear" title="지우기"
+          <Pressable className={ei.clearBtn} aria-label={t("common.clear")} title={t("common.clear")}
             onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); clear(); }}>
             <Eraser size={11} strokeWidth={2} />

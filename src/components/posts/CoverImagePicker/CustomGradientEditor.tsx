@@ -191,8 +191,8 @@ export default function CustomGradientEditor({ config, onConfigChange, onSelect,
   /** invalid 입력 안내 — ModalAlert 로 표시 */
   const showPasteEmptyAlert = useCallback(() => {
     openModal(
-      <ModalAlert desc={tc("pasteEmpty") || "No valid hex colors"} />,
-      { header: { title: tc("pastePalette") || "Paste palette" } },
+      <ModalAlert desc={tc("pasteEmpty")} />,
+      { header: { title: tc("pastePalette") } },
     );
   }, [openModal, tc]);
 
@@ -212,7 +212,7 @@ export default function CustomGradientEditor({ config, onConfigChange, onSelect,
     // 2. 클립보드가 비어있거나 유효 hex 없음 — ModalPrompt 로 직접 입력 받기
     openModal(
       <ModalPrompt
-        desc={tc("pastePrompt") || "Paste palette"}
+        desc={tc("pastePrompt")}
         placeholder="#ff0000, #00ff00, #0000ff"
         validate={(v) => parsePaletteText(v).length >= 2}
         onConfirm={(value) => {
@@ -220,7 +220,7 @@ export default function CustomGradientEditor({ config, onConfigChange, onSelect,
           if (!applyPaletteAsStops(colors)) showPasteEmptyAlert();
         }}
       />,
-      { header: { title: tc("pastePalette") || "Paste palette" } },
+      { header: { title: tc("pastePalette") } },
     );
   }, [parsePaletteText, applyPaletteAsStops, openModal, showPasteEmptyAlert, tc]);
 
@@ -615,7 +615,7 @@ export default function CustomGradientEditor({ config, onConfigChange, onSelect,
           >
             {uploading ? (
               <span className={styles.generateBtnLoading}>
-                <span>{tc("uploading") || "Uploading"}</span>
+                <span>{tc("uploading")}</span>
                 <LoadingDots />
               </span>
             ) : (

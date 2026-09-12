@@ -16,8 +16,8 @@ type FieldMapperFn = (lang: "ko" | "en") => TranslatableField[];
 interface UseEditorTranslationOptions {
   /** Current form state (read-only reference) */
   form: Record<string, unknown>;
-  /** i18n function scoped to the editor */
-  tLang: (key: string, lang: "ko" | "en") => string;
+  /** 상태 문구 번역 — 관리자 화면 언어(번역 대상 언어가 아니다) */
+  t: (key: string) => string;
   /** i18n key prefix for status messages (e.g. "admin.posts.editor") */
   i18nPrefix: string;
   /** Returns field mappings for a given target language */
@@ -36,7 +36,7 @@ interface UseEditorTranslationOptions {
 
 export function useEditorTranslation({
   form,
-  tLang,
+  t,
   i18nPrefix,
   fieldMapper,
   allFieldKeys,
@@ -68,7 +68,7 @@ export function useEditorTranslation({
       if (texts.length === 0) return;
 
       setTranslating(true);
-      onStatus?.(tLang(`${i18nPrefix}.translating`, lang), "info");
+      onStatus?.(t(`${i18nPrefix}.translating`), "info");
 
       const result = await autoTranslate(texts, sourceLang, targetLang);
       setTranslating(false);
@@ -79,12 +79,12 @@ export function useEditorTranslation({
           patch[m.targetKey] = result.translations[i];
         });
         onUpdate(patch);
-        onStatus?.(tLang(`${i18nPrefix}.autoTranslated`, lang), "success");
+        onStatus?.(t(`${i18nPrefix}.autoTranslated`), "success");
       } else {
         onError?.(result.error);
       }
     },
-    [fieldMapper, tLang, i18nPrefix, onUpdate, onStatus, onError],
+    [fieldMapper, t, i18nPrefix, onUpdate, onStatus, onError],
   );
 
   const handleEditorLangChange = useCallback(
