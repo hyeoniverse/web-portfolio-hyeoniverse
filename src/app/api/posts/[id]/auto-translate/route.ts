@@ -51,7 +51,7 @@ export async function POST(request: Request, context: RouteContext) {
     const texts = [post.title_en, post.content_en, post.excerpt_en].filter(Boolean) as string[];
     const result = await translateWithFallback(providerList, texts, "en", "ko", "[auto-translate en-ko]");
     if ("error" in result) {
-      return jsonError(result.error, 502);
+      return jsonError(result.error, 502, { code: result.error.includes("not configured") ? "TRANSLATION_NOT_CONFIGURED" : "TRANSLATION_FAILED" });
     }
     const [titleKoRaw, contentKo, excerptKo] = result.translations;
     const titleKo = clampTitle(titleKoRaw); // 생성 제목 상한 초과 방지 (DB CHECK 위반 방지)
@@ -66,7 +66,7 @@ export async function POST(request: Request, context: RouteContext) {
   const texts = [post.title, post.content, post.excerpt].filter(Boolean) as string[];
   const result = await translateWithFallback(providerList, texts, "ko", "en", "[auto-translate ko-en]");
   if ("error" in result) {
-    return jsonError(result.error, 502);
+    return jsonError(result.error, 502, { code: result.error.includes("not configured") ? "TRANSLATION_NOT_CONFIGURED" : "TRANSLATION_FAILED" });
   }
   const [titleEnRaw, contentEn, excerptEn] = result.translations;
   const titleEn = clampTitle(titleEnRaw); // 생성 제목 상한 초과 방지

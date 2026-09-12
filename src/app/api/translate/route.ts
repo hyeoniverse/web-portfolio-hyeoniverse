@@ -44,12 +44,12 @@ export async function POST(request: Request) {
 
   // 삭제된 댓글은 목록에서도 본문이 비워져 나간다 — 번역 경로로 되살아나면 안 된다.
   if (!row || row.is_deleted) {
-    return jsonError("Comment not found", 404);
+    return jsonError("Comment not found", 404, { code: "COMMENT_NOT_FOUND" });
   }
 
   const text = (row.content ?? "").trim();
   if (!text) {
-    return jsonError("Comment not found", 404);
+    return jsonError("Comment not found", 404, { code: "COMMENT_NOT_FOUND" });
   }
 
   const config = await getSiteConfig();
@@ -63,12 +63,12 @@ export async function POST(request: Request) {
 
   if ("error" in result) {
     const status = result.error.includes("not configured") ? 503 : 502;
-    return NextResponse.json({ error: result.error }, { status });
+    return NextResponse.json({ error: result.error, code: status === 503 ? "TRANSLATION_NOT_CONFIGURED" : "TRANSLATION_FAILED" }, { status });
   }
 
   // 단건 번역 — 결과가 비어 있으면 (failedIndices 에 0 이 있으면) 502 로 처리
   if (result.failedIndices.includes(0)) {
-    return jsonError("Translation failed", 502);
+    return jsonError("Translation failed", 502, { code: "TRANSLATION_FAILED" });
   }
 
   return NextResponse.json({ translation: result.translations[0] });

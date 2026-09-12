@@ -6,6 +6,8 @@ import { Check } from "@/components/icons";
 import Chip, { useChipReorder } from "@/components/ui/Chip";
 import Select from "@/components/ui/Select";
 import { showToast } from "@/stores/toastStore";
+import { useLanguage } from "@/providers/LanguageProvider";
+import { fillTemplate } from "@/utils/format";
 // 역할 프리셋 — Select combobox 의 옵션. 직접 입력으로 자유로운 텍스트도 가능
 export const ROLE_PRESETS_KO = ["기획", "디자인", "프론트엔드", "백엔드", "풀스택", "데이터", "PM", "QA", "DevOps", "모바일"];
 
@@ -19,14 +21,14 @@ export function useRoleMultiPicker({
   onChange,
   presets,
   placeholder,
-  lang,
 }: {
   value: string;
   onChange: (v: string) => void;
   presets: string[];
   placeholder: string;
-  lang: "ko" | "en";
 }) {
+  /* 알림은 관리자 화면 언어로 — 예전에는 편집 중인 언어 탭을 따랐다(#861 에서 본 누락) */
+  const { t } = useLanguage();
   const [input, setInput] = useState("");
   const tokens = useMemo(
     () => (value ? value.split(",").map((s) => s.trim()).filter(Boolean) : []),
@@ -34,16 +36,16 @@ export function useRoleMultiPicker({
   );
   const setTokens = useCallback((next: string[]) => onChange(next.join(", ")), [onChange]);
   const add = useCallback((v: string) => {
-    const t = v.trim().replace(/,/g, "");
-    if (!t) return;
-    if (tokens.includes(t)) {
-      showToast(lang === "ko" ? `이미 추가됨: ${t}` : `Already added: ${t}`, "info");
+    const token = v.trim().replace(/,/g, "");
+    if (!token) return;
+    if (tokens.includes(token)) {
+      showToast(fillTemplate(t("admin.works.editor.alreadyAdded"), { name: token }), "info");
       setInput("");
       return;
     }
-    setTokens([...tokens, t]);
+    setTokens([...tokens, token]);
     setInput("");
-  }, [tokens, setTokens, lang]);
+  }, [tokens, setTokens, t]);
   const remove = (idx: number) => setTokens(tokens.filter((_, i) => i !== idx));
   const { itemProps } = useChipReorder((from, to) => {
     const next = [...tokens];

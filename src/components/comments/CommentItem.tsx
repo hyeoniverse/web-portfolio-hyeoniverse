@@ -276,14 +276,14 @@ function CommentItem({
       } else if (res.status === 503) {
         setTranslateServiceUnavailable(true);
       } else {
-        setTranslatedText("⚠ Translation failed. Please try again.");
+        setTranslatedText(t("comments.translateFailed"));
       }
     } catch {
-      setTranslatedText("⚠ Translation failed. Please try again.");
+      setTranslatedText(t("comments.translateFailed"));
     } finally {
       setTranslating(false);
     }
-  }, [comment.id, commentType, targetLang, translatedText]);
+  }, [comment.id, commentType, targetLang, translatedText, t]);
 
   const handleDelete = useCallback(async () => {
     if (!isAdmin && !deletePassword.trim()) {

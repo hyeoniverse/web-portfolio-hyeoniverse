@@ -174,7 +174,7 @@ export default function SeriesEditor({ series }: SeriesEditorProps) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
           });
-          if (!res.ok) throw new Error(ts("saveFailed"));
+          if (!res.ok) throw errorFromBody(await res.json().catch(() => null), res.status);
           setStatus(t("admin.posts.seriesModal.save"));
         } else {
           const res = await fetch("/api/series", {
@@ -182,12 +182,12 @@ export default function SeriesEditor({ series }: SeriesEditorProps) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
           });
-          if (!res.ok) throw new Error(ts("saveFailed"));
+          if (!res.ok) throw errorFromBody(await res.json().catch(() => null), res.status);
           router.push("/admin/posts");
           return;
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : ts("saveFailed"));
+        setError(errorText(err, t, ts("saveFailed")));
       } finally {
         setSaving(false);
       }

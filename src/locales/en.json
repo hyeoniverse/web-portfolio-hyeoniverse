@@ -33,7 +33,9 @@
       "emailTitle": "Or email me",
       "emailTitleMobile": "Send me an email",
       "formTitleMobile": "Or fill out the form",
-      "copied": "Copied!"
+      "copied": "Copied!",
+      "formLabel": "Contact form",
+      "removeFile": "Remove the attachment"
     },
     "validation": {
       "nameRequired": "Please enter your name.",
@@ -291,7 +293,8 @@
     "previewEmpty": "Nothing to preview",
     "giscusNotConfigured": "giscus is not configured yet. Ask the admin to enter the repository and category in Settings › Services › Comment System.",
     "deleteFailed": "Couldn’t delete the comment.",
-    "editFailed": "Couldn’t edit the comment."
+    "editFailed": "Couldn’t edit the comment.",
+    "translateFailed": "⚠ Translation failed. Please try again."
   },
   "postDetail": {
     "recommended": "Recommended for You",

@@ -96,6 +96,7 @@ export async function PATCH(request: Request, context: RouteContext) {
         {
           error: "Forbidden",
           reason: "팀원에 연결된 계정을 바꾸려면 관리자 등급이 필요합니다. 소유자에게 요청해 주세요.",
+          code: "WORK_TEAM_LINK_ADMIN_ONLY",
         },
         { status: 403 },
       );
