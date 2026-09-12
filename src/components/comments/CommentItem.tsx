@@ -23,6 +23,7 @@ import CommentMarkdown from "./CommentMarkdown";
 import Collapsible from "@/components/ui/Collapsible";
 import styles from "./CommentItem.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { commentErrorText } from "./commentErrorText";
 
 function hasKorean(text: string): boolean {
   return /[\uac00-\ud7af]/.test(text);
@@ -304,15 +305,16 @@ function CommentItem({
       });
 
       if (!res.ok) {
-        const data = await res.json();
-        setDeleteError(data.error ?? "Failed to delete");
+        /* 예전에는 서버 문장("Not authorized" 등)을 그대로 띄웠다. 사유는 코드로 받아 화면 언어로(#862) */
+        const data = await res.json().catch(() => null);
+        setDeleteError(commentErrorText(data, t, t("comments.deleteFailed")));
         return;
       }
 
       setShowDelete(false);
       onRefresh();
     } catch {
-      setDeleteError("Network error");
+      setDeleteError(t("comments.hintNetwork"));
     } finally {
       setDeleting(false);
     }
@@ -348,8 +350,9 @@ function CommentItem({
       });
 
       if (!res.ok) {
-        const data = await res.json();
-        setEditError(data.error ?? "Failed to edit");
+        /* 입력 검사 코드("CONTENT_TOO_LONG")나 서버 문장이 그대로 보이던 자리 */
+        const data = await res.json().catch(() => null);
+        setEditError(commentErrorText(data, t, t("comments.editFailed")));
         return;
       }
 
@@ -357,7 +360,7 @@ function CommentItem({
       setEditPassword("");
       onRefresh();
     } catch {
-      setEditError("Network error");
+      setEditError(t("comments.hintNetwork"));
     } finally {
       setEditSubmitting(false);
     }

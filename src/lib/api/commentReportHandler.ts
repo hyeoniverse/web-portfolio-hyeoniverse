@@ -50,8 +50,8 @@ export function createCommentReportHandler(opts: ReportHandlerOptions) {
       .eq("id", id)
       .maybeSingle();
 
-    if (!comment) return jsonError("Comment not found", 404);
-    if (comment.is_deleted) return jsonError("Already removed", 409);
+    if (!comment) return jsonError("Comment not found", 404, { code: "COMMENT_NOT_FOUND" });
+    if (comment.is_deleted) return jsonError("Already removed", 409, { code: "COMMENT_ALREADY_REMOVED" });
 
     const reporterHash = getReporterHash(request, id);
 
