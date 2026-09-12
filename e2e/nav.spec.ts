@@ -69,25 +69,25 @@ test.describe("전역 네비게이션", () => {
   });
 
   test("언어 단추에 마우스를 올리면 바뀔 언어를 미리 보여 준다", async ({ page }) => {
+    /* 정해 둔 시간을 기다리지 않고 조건을 기다린다. 미리보기는 150ms 타이머 뒤에 그려지는데, 여러 검사가 함께 홈을
+       열면 홈의 메인 스레드가 긴 작업으로 차서 표시가 바뀌기까지 길게는 0.6초 넘게 걸린다. 예전에는 올린 뒤 0.6초·
+       뗀 뒤 0.9초만 기다리고 봐서 가끔 실패했다(#901).
+       준비는 아래 검사처럼 저장된 언어(en)가 단추에 적용된 것으로 본다. 서버는 ko 로 그리므로, en 이 보이면 화면이
+       붙어 처리가 걸린 것이다. */
+    await page.addInitScript(() => localStorage.setItem("language", "en"));
     await page.goto("/", { waitUntil: "load" });
     const btn = page.locator("nav").first().getByRole("button", { name: /Switch to (Korea|English)/ });
-    await expect(btn).toBeVisible({ timeout: 30_000 });
-
-    // 막대가 나타나는 연출이 끝난 뒤에 올려야 한다. 그 전에는 처리가 아직 붙지 않는다.
-    await page.waitForTimeout(2500);
-    const before = await btn.innerText();
-    const lang = await page.evaluate(() => document.documentElement.lang);
+    await expect(btn, "저장된 언어(en)가 단추에 적용된다").toHaveAttribute("aria-label", /Korean/, { timeout: 30_000 });
+    await expect(btn).toHaveText("EN");
 
     await btn.hover();
-    await page.waitForTimeout(600);
-    expect(await btn.innerText(), "올리면 바뀔 값을 미리 보여 준다").not.toBe(before);
+    await expect(btn, "올리면 바뀔 값을 미리 보여 준다").toHaveText("KO");
     expect(await page.evaluate(() => document.documentElement.lang),
-      "미리보기일 뿐이므로 실제 언어는 그대로다").toBe(lang);
+      "미리보기일 뿐이므로 실제 언어는 그대로다").toBe("en");
 
     // 확실히 단추 바깥으로 옮긴다. 화면 왼쪽 위는 아직 네비게이션 안이다.
     await page.mouse.move(700, 600);
-    await page.waitForTimeout(900);
-    expect(await btn.innerText(), "떼면 원래 값으로 돌아온다").toBe(before);
+    await expect(btn, "떼면 원래 값으로 돌아온다").toHaveText("EN");
   });
 
   test("언어 단추를 누르면 문서 언어가 바뀐다", async ({ page }) => {
