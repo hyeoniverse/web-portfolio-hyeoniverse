@@ -131,7 +131,9 @@
       "typeAccessRequest": "권한 요청",
       "typeDeviceLogin": "새 기기 로그인",
       "groupPending": "처리 필요",
-      "groupRest": "그 외"
+      "groupRest": "그 외",
+      "markReadFailed": "알림을 읽음으로 표시하지 못했습니다.",
+      "deleteFailed": "알림을 지우지 못했습니다."
     },
     "reports": {
       "title": "댓글 신고",
@@ -162,7 +164,9 @@
       "emptyHint": "댓글이 신고되면 여기에 표시됩니다",
       "refresh": "새로고침",
       "tipRefresh": "신고 목록 다시 불러오기",
-      "tipItemDetail": "클릭하면 자세히 볼 수 있습니다"
+      "tipItemDetail": "클릭하면 자세히 볼 수 있습니다",
+      "updateFailed": "신고를 처리하지 못했습니다.",
+      "deleteCommentFailed": "신고된 댓글을 지우지 못했습니다."
     },
     "login": {
       "title": "Admin",
@@ -228,7 +232,8 @@
       "categoryFailed": "카테고리를 바꾸지 못했습니다.",
       "importFailed": "Markdown 파일로 항목을 만들지 못했습니다.",
       "exportFailed": "내보내지 못했습니다.",
-      "categoryAddFailed": "새 카테고리를 설정에 더하지 못했습니다."
+      "categoryAddFailed": "새 카테고리를 설정에 더하지 못했습니다.",
+      "seriesPostsFailed": "시리즈에 글을 넣거나 빼지 못했습니다."
     },
     "settings": {
       "title": "설정",
@@ -477,7 +482,8 @@
         "loading": "불러오는 중…",
         "loadFailed": "태그 로드 실패: {{error}}",
         "empty": "태그 없음",
-        "remove": "태그 삭제"
+        "remove": "태그 삭제",
+        "deleteFailed": "태그를 지우지 못했습니다."
       },
       "categoryEditor": {
         "hint": "게시물을 분류하는 카테고리 목록입니다. 대분류 아래 소분류까지 2단계로 구성되며, 게시물에는 최하위 카테고리가 저장됩니다.",
@@ -991,7 +997,8 @@
       "emailCancelFailed": "이메일 변경을 취소하지 못했습니다.",
       "signOutAllFailed": "모든 기기에서 로그아웃하지 못했습니다.",
       "envReveal": "값 보기",
-      "envHide": "값 숨기기"
+      "envHide": "값 숨기기",
+      "categoryReassignFailed": "글을 다른 카테고리로 옮기지 못해 카테고리를 지우지 않았습니다."
     },
     "posts": {
       "title": "POSTS",

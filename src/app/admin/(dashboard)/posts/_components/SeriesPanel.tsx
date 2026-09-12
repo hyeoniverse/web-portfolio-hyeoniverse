@@ -15,6 +15,8 @@ import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import SubTable from "@/components/admin/SubTable/SubTable";
 import { adminShellStyles as shell } from "@/components/admin/AdminListShell";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
+import { sendAction, sendActions, notifyFailures, tryRequest } from "@/lib/sendAction";
+import { CodedError } from "@/lib/apiError";
 import { SeriesDeleteModal } from "./PostModals";
 import { createSeriesColumns } from "../_columns";
 import { searchTypeOptions, pageSizeOptions, matchesSearch, useSubTableControls, type SearchType } from "./subTableControls";
@@ -65,12 +67,19 @@ export default function SeriesPanel({ seriesList, loading, busy, setBusy, onRefr
     return list;
   }, [seriesList, search, searchType, sort, filter]);
 
-  const handleExport = useCallback(async (seriesId: string) => {
-    const res = await fetch(`/api/posts/export?series_id=${seriesId}`);
-    if (!res.ok) return;
+  /* 시리즈 하나를 내보낸다. 실패는 돌려주기만 하고 알림은 부르는 쪽이 띄운다 — 여러 개를 내보낼 때 알림을 하나로 모은다(#868) */
+  const exportSeries = useCallback(async (seriesId: string): Promise<CodedError | null> => {
+    const res = await tryRequest(`/api/posts/export?series_id=${seriesId}`);
+    if (res instanceof CodedError) return res;
     const { files } = await res.json() as GithubImportResponse;
     await downloadFiles(files);
+    return null;
   }, []);
+
+  const handleExport = useCallback(async (seriesId: string) => {
+    const err = await exportSeries(seriesId);
+    if (err) notifyFailures([err], 1, t, t("admin.common.exportFailed"));
+  }, [exportSeries, t]);
 
   const handleDelete = (s: Series) => {
     const deletePostsRef = { current: false };
@@ -79,8 +88,8 @@ export default function SeriesPanel({ seriesList, loading, busy, setBusy, onRefr
         series={s}
         deletePostsRef={deletePostsRef}
         onConfirm={async () => {
-          await fetch(`/api/series/${s.id}${deletePostsRef.current ? "?deletePosts=true" : ""}`, { method: "DELETE" });
-          onDeleted();
+          const res = await sendAction(`/api/series/${s.id}${deletePostsRef.current ? "?deletePosts=true" : ""}`, { method: "DELETE" }, t, t("admin.common.deleteFailed"));
+          if (res) onDeleted();
         }}
       />,
       { id: "series-delete", header: { title: `"${s.title}"` }, closeButton: true, width: "400px" },
@@ -93,15 +102,15 @@ export default function SeriesPanel({ seriesList, loading, busy, setBusy, onRefr
       sort === "order" && !search && filter === ""
         ? async (s: Series, newOrder: number) => {
             if (newOrder === s.sort_order) return;
-            await fetch(`/api/series/${s.id}`, {
+            const res = await sendAction(`/api/series/${s.id}`, {
               method: "PATCH",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ sort_order: newOrder }),
-            });
-            onRefresh();
+            }, t, t("admin.common.reorderFailed"));
+            if (res) onRefresh();
           }
         : undefined,
-    [sort, search, filter, onRefresh],
+    [sort, search, filter, onRefresh, t],
   );
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -129,7 +138,13 @@ export default function SeriesPanel({ seriesList, loading, busy, setBusy, onRefr
             label: t("admin.posts.exportMd"),
             disabled: busy,
             onClick: async () => {
-              for (const sid of [...selected]) await handleExport(sid);
+              const ids = [...selected];
+              const failures: CodedError[] = [];
+              for (const sid of ids) {
+                const err = await exportSeries(sid);
+                if (err) failures.push(err);
+              }
+              notifyFailures(failures, ids.length, t, t("admin.common.exportFailed"));
             },
           },
           {
@@ -143,8 +158,8 @@ export default function SeriesPanel({ seriesList, loading, busy, setBusy, onRefr
                   confirmText={t("admin.posts.delete")}
                   onConfirm={async () => {
                     setBusy(true);
-                    await Promise.all(ids.map((id) => fetch(`/api/series/${id}`, { method: "DELETE" })));
-                    onRefresh();
+                    const deleted = await sendActions(ids.map((id) => ({ input: `/api/series/${id}`, init: { method: "DELETE" } })), t, t("admin.common.deleteFailed"));
+                    if (deleted > 0) onRefresh();
                     setSelected(new Set());
                     setBusy(false);
                   }}

@@ -23,6 +23,7 @@ import styles from "./Notifications.module.css";
 import { formatRelativeTime } from "@/utils/relativeTime";
 import { useNow } from "@/hooks/useNow";
 import { errorText } from "@/lib/apiError";
+import { sendAction } from "@/lib/sendAction";
 
 type TabKey = "all" | "comment" | "system" | "report";
 
@@ -208,13 +209,14 @@ export default function NotificationsPage() {
     el.scrollIntoView({ behavior: "smooth", block: "center" });
   }, [targetId, filteredNotifs]);
 
+  /* 실패하면 알리고 목록은 그대로 둔다 — 예전에는 응답을 보지 않아 실패해도 아무 표시가 없었다(#868) */
   const handleMarkAllRead = async () => {
-    await fetch("/api/admin/notifications", {
+    const res = await sendAction("/api/admin/notifications", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ markAllRead: true }),
-    });
-    fetchNotifications();
+    }, t, t("admin.notifications.markReadFailed"));
+    if (res) fetchNotifications();
   };
 
   // alert/confirm 대신 공통 ModalConfirm
@@ -225,12 +227,12 @@ export default function NotificationsPage() {
         confirmText={t("admin.notifications.deleteConfirm")}
         danger
         onConfirm={async () => {
-          await fetch("/api/admin/notifications", {
+          const res = await sendAction("/api/admin/notifications", {
             method: "DELETE",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ deleteAll: true }),
-          });
-          fetchNotifications();
+          }, t, t("admin.notifications.deleteFailed"));
+          if (res) fetchNotifications();
         }}
       />,
       { id: "notif-delete-all", header: { title: t("admin.notifications.deleteConfirmTitle") }, closeButton: true, width: "400px" },
@@ -238,12 +240,12 @@ export default function NotificationsPage() {
   };
 
   const handleMarkRead = async (id: string) => {
-    await fetch("/api/admin/notifications", {
+    const res = await sendAction("/api/admin/notifications", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ids: [id] }),
-    });
-    fetchNotifications();
+    }, t, t("admin.notifications.markReadFailed"));
+    if (res) fetchNotifications();
   };
 
   // 다국어 상대시간 포맷터 — "방금 전 / N분 전 / N시간 전 / N일 전 / 절대 날짜"
