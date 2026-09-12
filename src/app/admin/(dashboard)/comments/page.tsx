@@ -6,6 +6,7 @@ import { Trash2, RotateCcw } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useStaticPageScroll } from "@/hooks/useStaticPageScroll";
 import { useModalStore } from "@/stores/modalStore";
+import { sendAction, sendActions } from "@/lib/sendAction";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import T from "@/components/ui/T";
 import EmptyState from "@/components/ui/EmptyState/EmptyState";
@@ -98,7 +99,7 @@ export default function CommentsModerationPage() {
         confirmText={t("admin.posts.delete")}
         onConfirm={async () => {
           const path = source === "posts" ? `/api/comments/${id}` : `/api/work-comments/${id}`;
-          await fetch(path, { method: "DELETE" });
+          if (!(await sendAction(path, { method: "DELETE" }, t, t("admin.common.deleteFailed")))) return;
           fetchComments();
           setSelected((prev) => {
             const next = new Set(prev);
@@ -119,12 +120,12 @@ export default function CommentsModerationPage() {
         desc={t("admin.comments.bulkDeleteDesc").replace("{{count}}", String(ids.length))}
         confirmText={t("admin.posts.delete")}
         onConfirm={async () => {
-          await Promise.all(
+          await sendActions(
             ids.map((id) => {
               const item = items.find((i) => i.id === id);
-              const path = item?.source === "works" ? `/api/work-comments/${id}` : `/api/comments/${id}`;
-              return fetch(path, { method: "DELETE" });
+              return { input: item?.source === "works" ? `/api/work-comments/${id}` : `/api/comments/${id}`, init: { method: "DELETE" } };
             }),
+            t, t("admin.common.deleteFailed"),
           );
           setSelected(new Set());
           fetchComments();
@@ -137,8 +138,7 @@ export default function CommentsModerationPage() {
   // 삭제(tombstone) 댓글 복구 — 관리자 전용. 하드 삭제로 사라진 "완전 삭제" 댓글은 대상이 아니다.
   const handleRestore = async (id: string, src: "posts" | "works") => {
     const path = src === "posts" ? `/api/comments/${id}/restore` : `/api/work-comments/${id}/restore`;
-    await fetch(path, { method: "POST" });
-    fetchComments();
+    if (await sendAction(path, { method: "POST" }, t, t("admin.common.restoreFailed"))) fetchComments();
   };
 
   const toggleSelect = (id: string) => {
@@ -217,7 +217,7 @@ export default function CommentsModerationPage() {
           <Button variant="outline" size="xs" tone="danger" onClick={handleBulkDelete}>
             <T k="admin.posts.delete" />
           </Button>
-          <Pressable className={styles.bulkCancelBtn} onClick={() => setSelected(new Set())} aria-label="Clear">✕</Pressable>
+          <Pressable className={styles.bulkCancelBtn} onClick={() => setSelected(new Set())} aria-label={t("admin.common.clearSelection")}>✕</Pressable>
         </div>
       )}
 
@@ -294,7 +294,7 @@ export default function CommentsModerationPage() {
                     <RotateCcw size={14} strokeWidth={1.6} />
                   </Pressable>
                 ) : (
-                  <Pressable className={styles.deleteBtn} onClick={() => handleDelete(c.id, c.source)} aria-label="Delete">
+                  <Pressable className={styles.deleteBtn} onClick={() => handleDelete(c.id, c.source)} aria-label={t("admin.posts.delete")} title={t("admin.posts.delete")}>
                     <Trash2 size={14} strokeWidth={1.6} />
                   </Pressable>
                 )}

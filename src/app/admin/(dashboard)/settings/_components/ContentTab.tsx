@@ -30,6 +30,8 @@ import SectionHeader from "./SectionHeader";
 import TagListField from "@/components/ui/TagListField";
 import { showToast } from "@/stores/toastStore";
 import { fillTemplate } from "@/utils/format";
+import { tryRequest, notifyFailures } from "@/lib/sendAction";
+import { CodedError } from "@/lib/apiError";
 import type { TechItem } from "./AboutTechStackEditor";
 import TagDescriptionsEditor from "./TagDescriptionsEditor";
 import shared from "../Settings.module.css";
@@ -123,22 +125,22 @@ export default function ContentTab({
     const tags = Array.from(tagPendingDeletes);
     let okCount = 0;
     let affected = 0;
+    /* 지우지 못한 태그는 오류 알림으로 따로 알린다 — 예전에는 지운 수만 보여 실패가 드러나지 않았다(#868) */
+    const failures: CodedError[] = [];
     for (const tag of tags) {
-      try {
-        const res = await fetch("/api/admin/tags/remove", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ tag }),
-        });
-        if (res.ok) {
-          okCount++;
-          const data = await res.json().catch(() => ({}));
-          affected += data.affected ?? 0;
-        }
-      } catch { /* swallow */ }
+      const res = await tryRequest("/api/admin/tags/remove", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tag }),
+      });
+      if (res instanceof CodedError) { failures.push(res); continue; }
+      okCount++;
+      const data = await res.json().catch(() => ({}));
+      affected += data.affected ?? 0;
     }
     setTagPendingDeletes(new Set());
-    showToast(fillTemplate(t("admin.settings.tagEditor.deletedToast"), { n: okCount, m: affected }), "success");
+    if (okCount > 0) showToast(fillTemplate(t("admin.settings.tagEditor.deletedToast"), { n: okCount, m: affected }), "success");
+    notifyFailures(failures, tags.length, t, t("admin.settings.tagEditor.deleteFailed"));
   }, [tagPendingDeletes, t]);
 
   /* config.socialLinks 가 매 렌더마다 새 array 가 되면 deps 가 매번 바뀜 → useMemo 로 stable. */

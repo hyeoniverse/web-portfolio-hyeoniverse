@@ -4,6 +4,7 @@
 import React, { useEffect, useState } from "react";
 import { CalendarPlus, CalendarDays, Settings, Check, Trash2, Loader2, RotateCcw, ChevronDown } from "@/components/icons";
 import { useModalStore } from "@/stores/modalStore";
+import { showToast } from "@/stores/toastStore";
 import Button from "@/components/ui/Button";
 import { type CalendarListItem, listCalendars, deleteCalendar, restoreCalendar } from "./calendarApi";
 import { monthTitle, relTimeLabel } from "./model";
@@ -47,7 +48,9 @@ export default function CalendarPickerModal({
     setRestoringId(id);
     const ok = await restoreCalendar(id);
     setRestoringId(null);
-    if (ok) { onRestore(id); close(); } // 복구 후 이 블록에 자동 연결
+    // 달력 API 는 성공 여부만 돌려준다 — 실패는 동작별 문구로 알린다(#868)
+    if (!ok) { showToast(t("달력을 복구하지 못했습니다.", "Couldn’t restore the calendar."), "error"); return; }
+    onRestore(id); close(); // 복구 후 이 블록에 자동 연결
   };
 
   const doDelete = async (id: string) => {
@@ -56,7 +59,8 @@ export default function CalendarPickerModal({
     const ok = await deleteCalendar(id);
     setDeletingId(null);
     setConfirmId(null);
-    if (ok) setItems((prev) => (prev ? prev.filter((x) => x.id !== id) : prev));
+    if (!ok) { showToast(t("달력을 휴지통으로 옮기지 못했습니다.", "Couldn’t move the calendar to trash."), "error"); return; }
+    setItems((prev) => (prev ? prev.filter((x) => x.id !== id) : prev));
   };
 
   // "YYYY-MM" → 날짜 뱃지 (월 / 연도). 없으면 null.

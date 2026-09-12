@@ -40,8 +40,8 @@ import BulkCategoryModal from "@/components/admin/BulkCategoryModal";
 import type { BilingualCategory } from "@/types/common";
 import { parseMdWork } from "@/utils/mdParser";
 import { uploadRandomCover } from "@/utils/uploadRandomCover";
-import { sendAction, sendActions, notifyFailures } from "@/lib/sendAction";
-import { CodedError, errorFromResponse } from "@/lib/apiError";
+import { sendAction, sendActions, notifyFailures, tryRequest } from "@/lib/sendAction";
+import { CodedError } from "@/lib/apiError";
 import styles from "./AdminWorks.module.css";
 import MarkdownUploadGuide from "./_components/MarkdownUploadGuide";
 import Pressable from "@/components/ui/Pressable";
@@ -773,9 +773,9 @@ export default function AdminWorksPage() {
           if (!guardWritable(worksByIds(ids))) return;
           const failures: CodedError[] = [];
           for (const id of ids) {
-            const res = await fetch(`/api/works/export?id=${id}`).catch(() => null);
-            if (!res?.ok) {
-              failures.push(res ? await errorFromResponse(res) : new CodedError("Network error"));
+            const res = await tryRequest(`/api/works/export?id=${id}`);
+            if (res instanceof CodedError) {
+              failures.push(res);
               continue;
             }
             const text = await res.text();

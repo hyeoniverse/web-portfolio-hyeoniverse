@@ -5,6 +5,7 @@ import { Flag, ExternalLink, Check, X, Trash2 } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useModalStore } from "@/stores/modalStore";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
+import { sendAction } from "@/lib/sendAction";
 import T from "@/components/ui/T";
 import Tooltip from "@/components/ui/Tooltip";
 import Button from "@/components/ui/Button";
@@ -96,26 +97,27 @@ export default function ReportsList({
     fetchReports();
   }, [fetchReports]);
 
+  /* 실패하면 알리고 목록은 그대로 둔다 — 예전에는 응답을 보지 않아 처리되지 않아도 아무 표시가 없었다(#868) */
   const updateStatus = useCallback(
     async (id: string, status: "resolved" | "dismissed") => {
-      await fetch(`/api/admin/reports/${id}`, {
+      const res = await sendAction(`/api/admin/reports/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),
-      });
-      fetchReports();
+      }, t, t("admin.reports.updateFailed"));
+      if (res) fetchReports();
     },
-    [fetchReports],
+    [fetchReports, t],
   );
 
   const deleteComment = useCallback(
     async (report: Report) => {
       const apiBase = report.comment_type === "work" ? "/api/work-comments" : "/api/comments";
-      await fetch(`${apiBase}/${report.comment_id}`, { method: "DELETE", headers: { "Content-Type": "application/json" } });
-      // 댓글 삭제 후 신고 처리 완료로
-      await updateStatus(report.id, "resolved");
+      const res = await sendAction(`${apiBase}/${report.comment_id}`, { method: "DELETE", headers: { "Content-Type": "application/json" } }, t, t("admin.reports.deleteCommentFailed"));
+      // 댓글을 지웠을 때만 신고 처리 완료로 — 지우지 못했는데 완료로 바꾸면 신고가 목록에서 사라진다
+      if (res) await updateStatus(report.id, "resolved");
     },
-    [updateStatus],
+    [updateStatus, t],
   );
 
   const confirmDeleteComment = (report: Report) => {
