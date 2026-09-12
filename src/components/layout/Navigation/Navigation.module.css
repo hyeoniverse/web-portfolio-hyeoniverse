@@ -733,8 +733,8 @@
    Notifications·Logout 등) 넘친다. 예전엔 justify-content:center + absolute
    헤더/푸터라, 넘칠 때 위쪽 항목이 헤더 뒤로 잘려 닿지 않고(스크롤도 안 됨)
    아래는 푸터를 덮었다. 이제 드로어가 스크롤 컨테이너고, 헤더/푸터는 sticky 로
-   위·아래에 고정되며, menuNav 는 margin-block:auto 로 맞으면 가운데·넘치면
-   위에서부터 스크롤된다. */
+   위·아래에 고정되며, menuNav 는 헤더 바로 아래부터 쌓이고 남는 여백은 아래로
+   가서(margin-block-end:auto) 푸터를 바닥에 둔다. 넘치면 위에서부터 스크롤된다. */
 .menuDrawer {
   position: relative;
   z-index: 2;
@@ -946,8 +946,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
-  /* 맞으면 가운데 정렬, 넘치면 여백이 접혀 위부터 스크롤 (menuDrawer 주석 참고) */
-  margin-block: auto;
+  /* 위쪽부터 쌓고 남는 여백은 아래로 — 푸터를 바닥에 둔다 (menuDrawer 주석 참고) */
+  margin-block-end: auto;
   /* 드로어에서 좌우 padding 을 뺐으므로(헤더/푸터가 각자 관리) 링크 들여쓰기는 여기서 */
   padding-inline: var(--page-px);
 }
