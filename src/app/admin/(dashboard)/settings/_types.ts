@@ -72,7 +72,9 @@ export interface AccountTabProps {
   accountCurrentPassword: string;
   setAccountCurrentPassword: (v: string) => void;
   accountMessage: string;
-  setAccountMessage: (v: string) => void;
+  /** 실패 문구인지 — 문구 앞머리("Error")로 가르면 번역한 실패 문구에서 틀린다(#862) */
+  accountMessageError: boolean;
+  setAccountMessage: (text: string, isError?: boolean) => void;
   accountSaving: boolean;
   showPasswordConfirm: boolean;
   setShowPasswordConfirm: (v: boolean) => void;

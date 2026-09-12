@@ -16,6 +16,7 @@ import type { SiteConfigData } from "@/config/site.config";
 import styles from "./EnvVarFields.module.css";
 import shared from "../Settings.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { errorText } from "@/lib/apiError";
 
 /* env var 메타 — 발급 docs URL / value prefix (typo 감지용). 설명은 번역 키 admin.settings.envVarDesc.<키 이름>.
    prefix 가 정의된 키만 prefix mismatch 경고. 없는 키는 검증 skip. */
@@ -279,7 +280,7 @@ export default function EnvVarFields({
                 placeholder={t("admin.settings.enterPassword")}
                 inputType="password"
                 confirmText={t("admin.settings.confirm")}
-                error={data?.error || t("admin.settings.wrongPassword")}
+                error={errorText(data, t, t("admin.settings.wrongPassword"))}
                 closeOnConfirm={false}
                 onConfirm={doReveal}
               />,

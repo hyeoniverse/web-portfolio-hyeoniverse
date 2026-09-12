@@ -34,10 +34,10 @@ export async function PATCH(request: Request) {
     // getErr 는 Supabase 관리자 API 가 준 내부 오류다. 호출자에게 알릴 것은 "못 찾았다" 하나뿐이라
     // 원문은 로그로 보내고 응답에는 우리가 쓴 문장만 남긴다.
     if (getErr) console.error(`[api] PATCH /api/admin/authors/members: ${getErr.message}`, getErr);
-    return jsonError("해당 사용자를 찾을 수 없습니다.", 404);
+    return jsonError("해당 사용자를 찾을 수 없습니다.", 404, { code: "MEMBER_NOT_FOUND" });
   }
   if (getUserRole(target.user).isOwner) {
-    return jsonError("owner 의 권한은 변경할 수 없습니다.", 400);
+    return jsonError("owner 의 권한은 변경할 수 없습니다.", 400, { code: "MEMBER_OWNER_LOCKED" });
   }
 
   const meta = (target.user.app_metadata ?? {}) as Record<string, unknown>;
@@ -71,13 +71,13 @@ export async function DELETE(request: Request) {
   if (!id) return jsonError("id required", 400);
 
   if (id === auth.user.id) {
-    return jsonError("본인 계정은 삭제할 수 없습니다.", 400);
+    return jsonError("본인 계정은 삭제할 수 없습니다.", 400, { code: "MEMBER_CANNOT_DELETE_SELF" });
   }
 
   const admin = createAdminClient();
   const { data: target } = await admin.auth.admin.getUserById(id);
   if (target?.user && getUserRole(target.user).isOwner) {
-    return jsonError("owner 계정은 삭제할 수 없습니다.", 400);
+    return jsonError("owner 계정은 삭제할 수 없습니다.", 400, { code: "MEMBER_CANNOT_DELETE_OWNER" });
   }
 
   const { error } = await admin.auth.admin.deleteUser(id);

@@ -20,7 +20,7 @@ export async function requireAuth(): Promise<
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return { error: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) };
+    return { error: NextResponse.json({ error: "Unauthorized", code: "UNAUTHORIZED" }, { status: 401 }) };
   }
 
   await syncStaleClaims(supabase, user);

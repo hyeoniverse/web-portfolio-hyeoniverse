@@ -3,6 +3,7 @@ import type { User } from "@supabase/supabase-js";
 import { MAIL_FROM } from "@/constants";
 import { requireAuth } from "@/lib/api/requireAuth";
 import { jsonError, jsonOk } from "@/lib/api/response";
+import { authErrorCode } from "@/lib/api/authErrorCode";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 import { emailLayout, escapeHtml } from "@/lib/mail/template";
 
@@ -78,7 +79,7 @@ export async function POST() {
 
   const { error } = await supabase.auth.updateUser({ email: pendingEmail });
 
-  if (error) return jsonError(error.message, 400);
+  if (error) return authFailure(error);
 
   return jsonOk({ message: "Confirmation email resent" });
 }
@@ -91,7 +92,7 @@ export async function DELETE() {
   // 현재 이메일로 다시 설정하면 pending이 취소됨
   const { error } = await supabase.auth.updateUser({ email: user.email! });
 
-  if (error) return jsonError(error.message, 400);
+  if (error) return authFailure(error);
 
   return jsonOk({ message: "Email change cancelled" });
 }
@@ -109,12 +110,13 @@ export async function PATCH(request: Request) {
     return jsonError(
       "GitHub 로그인 전용 계정이라 이메일과 비밀번호를 여기서 변경할 수 없습니다. GitHub 계정에서 변경해 주세요.",
       400,
+      { code: "ACCOUNT_OAUTH_ONLY" },
     );
   }
 
   // 현재 비밀번호 확인 필수
   if (!body.currentPassword) {
-    return jsonError("Current password is required", 400);
+    return jsonError("Current password is required", 400, { code: "ACCOUNT_CURRENT_PASSWORD_REQUIRED" });
   }
 
   // 현재 비밀번호로 재인증 — 세션 미-persist 전용 클라이언트로 검증한다.
@@ -130,7 +132,7 @@ export async function PATCH(request: Request) {
     password: body.currentPassword,
   });
 
-  if (signInError) return jsonError("Current password is incorrect", 400);
+  if (signInError) return jsonError("Current password is incorrect", 400, { code: "ACCOUNT_CURRENT_PASSWORD_WRONG" });
 
   const updates: { email?: string; password?: string } = {};
 
@@ -145,17 +147,18 @@ export async function PATCH(request: Request) {
     if (policy === "secure") {
       const pw = body.password;
       if (pw.length < 8) {
-        return jsonError("Password must be at least 8 characters", 400);
+        return jsonError("Password must be at least 8 characters", 400, { code: "ACCOUNT_PASSWORD_TOO_SHORT", params: { min: 8 } });
       }
       if (!/[A-Z]/.test(pw) || !/[a-z]/.test(pw) || !/[0-9]/.test(pw) || !/[^A-Za-z0-9]/.test(pw)) {
         return jsonError(
           "Password must include uppercase, lowercase, number, and special character",
           400,
+          { code: "ACCOUNT_PASSWORD_WEAK" },
         );
       }
     } else {
       if (body.password.length < 6) {
-        return jsonError("Password must be at least 6 characters", 400);
+        return jsonError("Password must be at least 6 characters", 400, { code: "ACCOUNT_PASSWORD_TOO_SHORT", params: { min: 6 } });
       }
     }
     updates.password = body.password;
@@ -167,7 +170,7 @@ export async function PATCH(request: Request) {
 
   const { error } = await supabase.auth.updateUser(updates);
 
-  if (error) return jsonError(error.message, 400);
+  if (error) return authFailure(error);
 
   // 보안 알림 이메일을 원래 이메일로 발송 — serverless 환경에서 함수 종료 후 죽지 않도록 await
   const alerts: Promise<void>[] = [];
@@ -191,4 +194,10 @@ export async function PATCH(request: Request) {
     message: "Updated successfully",
     emailConfirmationSent: !!updates.email,
   });
+}
+
+/* Supabase 가 거절한 사유 — 알아볼 수 있는 것은 코드로 싣는다. 문장(영어)은 로그·개발용 */
+function authFailure(error: { message: string; code?: string }) {
+  const code = authErrorCode(error);
+  return jsonError(error.message, 400, code ? { code } : undefined);
 }

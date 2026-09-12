@@ -973,7 +973,11 @@
         "author": "Can edit and delete only their own posts.",
         "member": "No role has been granted yet. Ask the owner for access."
       },
-      "applyEdit": "Apply"
+      "applyEdit": "Apply",
+      "accountUpdateFailed": "Couldn’t update the account.",
+      "emailResendFailed": "Couldn’t resend the confirmation email.",
+      "emailCancelFailed": "Couldn’t cancel the email change.",
+      "signOutAllFailed": "Couldn’t sign out of all devices."
     },
     "posts": {
       "title": "Posts",
@@ -1510,6 +1514,35 @@
       "noPermissionTitle": "No permission",
       "noPermissionDesc": "You don't have access to this work. Ask the owner to add you to the team.",
       "noPermissionRow": "Not a team member of this work — cannot be selected"
+    },
+    "apiErrors": {
+      "FORBIDDEN_LEVEL": "This action needs permission level {{required}} or higher. Your role is \"{{role}}\" with level {{level}}.",
+      "FORBIDDEN_OWNER": "Only the owner can do this. The current account \"{{email}}\" isn’t recognized as the owner. Check the server’s OWNER_EMAIL variable or this account’s app_metadata.role.",
+      "AUTH_PASSWORD_WRONG": "The password is incorrect.",
+      "AUTH_EMAIL_NOT_CONFIRMED": "This account’s email isn’t confirmed yet. Open the confirmation email first.",
+      "AUTH_RATE_LIMITED": "Too many requests. Try again in a moment.",
+      "ACCOUNT_OAUTH_ONLY": "This account signs in with GitHub only, so its email and password can’t be changed here. Change them in your GitHub account.",
+      "ACCOUNT_CURRENT_PASSWORD_REQUIRED": "Enter your current password.",
+      "ACCOUNT_CURRENT_PASSWORD_WRONG": "The current password is incorrect.",
+      "ACCOUNT_PASSWORD_TOO_SHORT": "The password must be at least {{min}} characters.",
+      "ACCOUNT_PASSWORD_WEAK": "The password is too weak. Mix uppercase and lowercase letters, numbers and special characters.",
+      "ACCOUNT_SAME_PASSWORD": "The new password is the same as the current one.",
+      "ACCOUNT_EMAIL_TAKEN": "That email is already used by another account.",
+      "ACCOUNT_EMAIL_INVALID": "The email address isn’t valid.",
+      "MEMBER_NOT_FOUND": "That user can’t be found. It may have been deleted.",
+      "MEMBER_OWNER_LOCKED": "The owner’s access can’t be changed.",
+      "MEMBER_CANNOT_DELETE_SELF": "You can’t delete your own account.",
+      "MEMBER_CANNOT_DELETE_OWNER": "The owner account can’t be deleted.",
+      "GITHUB_NOT_LINKED": "This account didn’t sign in with GitHub, so there’s nothing to load.",
+      "NOTIFICATION_NOT_FOUND": "The notification can’t be found. It may have been deleted.",
+      "ACCESS_REQUEST_ALREADY_RESOLVED": "This request has already been handled.",
+      "ACCESS_REQUEST_NO_AUTHOR_PROFILE": "The requester has no linked author profile, so access can’t be granted. Create a profile in member settings first.",
+      "ACCESS_REQUEST_POST_GONE": "The post no longer exists. It seems to have been deleted.",
+      "ACCESS_REQUEST_WORK_GONE": "The work no longer exists. It seems to have been deleted.",
+      "SETTINGS_OWNER_ONLY": "Only the owner can change site settings.",
+      "PROFILE_DELETE_OTHERS": "You can’t delete someone else’s profile.",
+      "PROFILE_EDIT_OTHERS": "You can’t edit someone else’s profile.",
+      "PROFILE_ADD_OTHERS": "You can only add your own profile."
     }
   }
 }

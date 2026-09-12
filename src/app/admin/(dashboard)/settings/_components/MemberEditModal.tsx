@@ -23,6 +23,7 @@ import styles from "./MemberEditModal.module.css";
 import shared from "../Settings.module.css";
 import mStyles from "@/components/admin/MembersList.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { errorText } from "@/lib/apiError";
 
 interface Props {
   initial: Author;
@@ -55,7 +56,7 @@ interface Props {
 export default function MemberEditModal({
   initial, member, invited, linkMemberId, levels, onSaveProfile, onInvite, onChangeLevel, onLink, uploadAvatarFile, suggestions, canManageAccess = true, githubInfo,
 }: Props) {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const L = (ko: string, en: string) => (language === "ko" ? ko : en);
   const { closeModal } = useModalStore();
   const footerEl = useContext(ModalFooterContext);
@@ -90,16 +91,19 @@ export default function MemberEditModal({
     setGhLoading(true);
     setStatus(null);
     let fetched: Partial<Author> & { enriched?: boolean } | null = null;
+    /* 서버가 거절한 사유(예: GitHub 로 로그인한 계정이 아님) — 화면 언어로 보인다(#862) */
+    let failure: unknown = null;
     try {
       const res = await fetch("/api/admin/authors/github-profile");
       if (res.ok) fetched = await res.json();
+      else failure = await res.json().catch(() => null);
     } catch {
       /* 네트워크 실패 — 아래에서 githubInfo 로 대체한다 */
     }
     setGhLoading(false);
 
     if (!fetched && !githubInfo) {
-      setStatus({ ok: false, msg: L("GitHub 정보를 불러오지 못했습니다.", "Could not load from GitHub.") });
+      setStatus({ ok: false, msg: errorText(failure, t, L("GitHub 정보를 불러오지 못했습니다.", "Could not load from GitHub.")) });
       return;
     }
 
