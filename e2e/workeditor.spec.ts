@@ -40,6 +40,23 @@ test.describe("작업물 편집 화면", () => {
     }
   });
 
+  /* 새로 만들 때는 초안 확인이 끝나면 제목 칸에 포커스를 준다(#897). 기존 작업물 편집은 주지 않는다 */
+  test("새 작업물을 열면 제목 칸에 포커스가 있다", async ({ page }) => {
+    await openEditor(page);
+    await expect(page.getByPlaceholder("작업 제목")).toBeFocused({ timeout: 15_000 });
+  });
+
+  test("기존 작업물 편집 화면은 제목 칸에 포커스를 주지 않는다", async ({ page }) => {
+    const body = await (await page.request.get("/api/works?limit=1")).json();
+    const id = (body.works ?? body.data ?? body)[0]?.id as string;
+    expect(id, "작업물 하나").toBeTruthy();
+    await pinLanguage(page, "ko");
+    await page.goto(`/admin/works/${id}/edit`, { waitUntil: "load" });
+    await expect(page.getByRole("heading", { name: "기본 정보" }), "편집 화면").toBeVisible({ timeout: 30_000 });
+    await page.waitForTimeout(3_000);
+    await expect(page.getByPlaceholder("작업 제목")).not.toBeFocused();
+  });
+
   test("기본 정보 입력칸에 값이 들어간다", async ({ page }) => {
     await openEditor(page);
 
