@@ -20,6 +20,8 @@ import styles from "./AdminEditorShell.module.css";
 import type { AdminEditorShellProps, RevisionMetaGroup } from "./types";
 import { formatTime, formatStatusTime, lineDiff, wordDiff, isImageUrl, isUrl } from "./utils";
 import Pressable from "@/components/ui/Pressable";
+import { useLanguage } from "@/providers/LanguageProvider";
+import { fillTemplate } from "@/utils/format";
 
 export { default as adminEditorStyles } from "./AdminEditorShell.module.css";
 
@@ -66,6 +68,7 @@ export default function AdminEditorShell({
   minScheduledDate,
   children,
 }: AdminEditorShellProps) {
+  const { t } = useLanguage();
   const [showScheduleTop, setShowScheduleTop] = useState(false);
   const [showScheduleBottom, setShowScheduleBottom] = useState(false);
   const hasSchedule = !!scheduledAt;
@@ -656,7 +659,7 @@ export default function AdminEditorShell({
               >
                 <div data-lenis-prevent>
                     {revisions.length === 0 ? (
-                      <div className={styles.revisionEmpty}>저장된 기록이 없습니다.</div>
+                      <div className={styles.revisionEmpty}>{t("admin.common.noRevisions")}</div>
                     ) : viewingRevision !== null && revisions[viewingRevision] ? (
                       /* ── Detail view (clip-path reveal) ── */
                       <div className={styles.revisionDetail}>
@@ -697,10 +700,10 @@ export default function AdminEditorShell({
                                     onClick={async () => {
                                       openModal(
                                         <ModalPrompt
-                                          hint="이 로그를 삭제하려면 &quot;삭제&quot;를 입력하세요."
-                                          placeholder="삭제"
-                                          validate={(v) => v === "삭제"}
-                                          confirmText="삭제"
+                                          hint={t("admin.common.deleteLogPrompt")}
+                                          placeholder={t("admin.common.deleteLogConfirm")}
+                                          validate={(v) => v === t("admin.common.deleteLogConfirm")}
+                                          confirmText={t("admin.common.delete")}
                                           danger
                                           onConfirm={async () => {
                                             const ok = await onDeleteRevision(viewingRevision);
@@ -710,7 +713,7 @@ export default function AdminEditorShell({
                                             }
                                           }}
                                         />,
-                                        { id: "rev-delete", header: { title: "로그 삭제" }, closeButton: true, width: "400px" },
+                                        { id: "rev-delete", header: { title: t("admin.common.deleteLog") }, closeButton: true, width: "400px" },
                                       );
                                     }}
                                   >
@@ -734,7 +737,7 @@ export default function AdminEditorShell({
                               return (
                                 <div className={styles.revisionCurrentBadge}>
                                   <span className={styles.revisionCurrentDot} />
-                                  현재 편집 내용과 동일
+                                  {t("admin.common.sameAsCurrent")}
                                 </div>
                               );
                             })()}
@@ -864,7 +867,7 @@ export default function AdminEditorShell({
                                     setSelectedRevisions(new Set());
                                   }
                                 }}
-                                label={selectedRevisions.size > 0 ? `${selectedRevisions.size}개 선택됨` : "전체 선택"}
+                                label={selectedRevisions.size > 0 ? fillTemplate(t("admin.common.selectedItems"), { count: selectedRevisions.size }) : t("admin.common.selectAll")}
                                 className={styles.revisionSelectAll}
                               />
                               <div className={styles.revisionSelectActions}>
@@ -876,10 +879,10 @@ export default function AdminEditorShell({
                                       const count = String(selectedRevisions.size);
                                       openModal(
                                         <ModalPrompt
-                                          hint={`${selectedRevisions.size}개 로그를 삭제하려면 "${count}"을(를) 입력하세요.`}
+                                          hint={fillTemplate(t("admin.common.bulkDeletePrompt"), { count })}
                                           placeholder={count}
                                           validate={(v) => v === count}
-                                          confirmText="삭제"
+                                          confirmText={t("admin.common.delete")}
                                           danger
                                           onConfirm={async () => {
                                             const indices = Array.from(selectedRevisions);
@@ -889,11 +892,11 @@ export default function AdminEditorShell({
                                             if (revisions.length <= indices.length) setShowRevisions(false);
                                           }}
                                         />,
-                                        { id: "bulk-rev-delete", header: { title: `삭제 (${count})` }, closeButton: true, width: "400px" },
+                                        { id: "bulk-rev-delete", header: { title: fillTemplate(t("admin.common.deleteCount"), { n: count }) }, closeButton: true, width: "400px" },
                                       );
                                     }}
                                   >
-                                    삭제
+                                    {t("admin.common.delete")}
                                   </Pressable>
                                 )}
                                 <Pressable noTapScale
@@ -903,7 +906,7 @@ export default function AdminEditorShell({
                                     setSelectedRevisions(new Set());
                                   }}
                                 >
-                                  취소
+                                  {t("admin.common.cancel")}
                                 </Pressable>
                               </div>
                             </>
@@ -915,7 +918,7 @@ export default function AdminEditorShell({
                                   className={styles.revisionSelectToggle}
                                   onClick={() => setIsSelectMode(true)}
                                 >
-                                  선택
+                                  {t("admin.common.select")}
                                 </Pressable>
                               )}
                             </>
@@ -1037,11 +1040,8 @@ export default function AdminEditorShell({
           {/* 발행 상태 chip — 둘째 줄 왼쪽 끝 (저장 그룹은 오른쪽) */}
           <div style={{ marginRight: "auto", display: "flex", alignItems: "center", gap: "var(--spacing-sm)" }}>
             <StatusBadge variant={published ? "published" : hasSchedule ? "scheduled" : "draft"}>
-              {published
-                ? editorLang === "ko" ? "발행됨" : "Published"
-                : hasSchedule
-                  ? editorLang === "ko" ? "예약 발행" : "Scheduled"
-                  : editorLang === "ko" ? "미발행" : "Draft"}
+              {/* 편집 화면 문구라 관리자 화면 언어를 따른다(편집 중인 글의 언어 탭이 아니라) */}
+              {t(published ? "admin.common.statusPublished" : hasSchedule ? "admin.common.statusScheduled" : "admin.common.statusDraft")}
             </StatusBadge>
             {topBarSecondRowLeft}
           </div>

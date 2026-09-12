@@ -310,8 +310,8 @@ export default function PostEditorOptionalFields({
                       notePlaceholder={te("tagNotePlaceholder")}
                       addLabel={te("tagNoteAddPlaceholder")}
                       cancelLabel={te("tagNoteCancel")}
-                      editLabel="편집"
-                      removeTitle="태그 제거"
+                      editLabel={te("tagNoteEdit")}
+                      removeTitle={te("tagRemove")}
                     />
                   </div>
                 </div>

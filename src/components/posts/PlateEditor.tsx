@@ -2747,7 +2747,7 @@ export default function PlateEditor({
                 <>
                   {/* 제목 스타일 */}
                   <div className={styles.tableGroup}>
-                    <span className={styles.tableGroupLabel}>{t("editor.toggleTitle") || "제목"}</span>
+                    <span className={styles.tableGroupLabel}>{t("editor.toggleTitle")}</span>
                     {(["p", "h1", "h2", "h3"] as const).map((type) => {
                       const label = type === "p" ? "P" : type.toUpperCase();
                       return (
@@ -2759,7 +2759,7 @@ export default function PlateEditor({
                             const firstPath = [...toggleNode.path, 0];
                             editor.tf.setNodes({ type, listStyleType: undefined }, { at: firstPath });
                           }}
-                          tooltip={type === "p" ? t("editor.paragraph") || "Paragraph" : t(`editor.heading${type.charAt(1)}`)}
+                          tooltip={type === "p" ? t("editor.paragraph") : t(`editor.heading${type.charAt(1)}`)}
                         >
                           {label}
                         </TBtn>
@@ -2864,12 +2864,12 @@ export default function PlateEditor({
                   })()}
                   {/* 기본 펼침/접힘 설정 */}
                   <div className={styles.tableGroup}>
-                    <span className={styles.tableGroupLabel}>{t("editor.defaultState") || "State"}</span>
+                    <span className={styles.tableGroupLabel}>{t("editor.defaultState")}</span>
                     <TBtn
                       square
                       active={(toggleNode.node.open as boolean) !== false}
                       onClick={() => editor.tf.setNodes({ open: true }, { at: toggleNode.path })}
-                      tooltip={t("editor.expanded") || "Expanded"}
+                      tooltip={t("editor.expanded")}
                     >
                       <ChevronDown size={15} strokeWidth={1.75} />
                     </TBtn>
@@ -2877,7 +2877,7 @@ export default function PlateEditor({
                       square
                       active={(toggleNode.node.open as boolean) === false}
                       onClick={() => editor.tf.setNodes({ open: false }, { at: toggleNode.path })}
-                      tooltip={t("editor.collapsed") || "Collapsed"}
+                      tooltip={t("editor.collapsed")}
                     >
                       <ChevronRight size={15} strokeWidth={1.75} />
                     </TBtn>
@@ -2894,7 +2894,7 @@ export default function PlateEditor({
                     square
                     className={styles.tableDangerBtn}
                     onClick={() => { if (toggleNode.path) editor.tf.removeNodes({ at: toggleNode.path }); }}
-                    tooltip={t("editor.deleteToggle") || "Delete toggle"}
+                    tooltip={t("editor.deleteToggle")}
                   >
                     <TblTrash />
                   </TBtn>
