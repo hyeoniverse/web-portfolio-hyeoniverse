@@ -24,7 +24,7 @@ export async function GET() {
 
   if (!login) {
     return NextResponse.json(
-      { error: "소유자 프로필에 GitHub 링크가 없습니다. 멤버 설정에서 링크를 추가해 주세요.", repos: [] },
+      { error: "소유자 프로필에 GitHub 링크가 없습니다. 멤버 설정에서 링크를 추가해 주세요.", code: "GITHUB_OWNER_LINK_MISSING", repos: [] },
       { status: 400 },
     );
   }

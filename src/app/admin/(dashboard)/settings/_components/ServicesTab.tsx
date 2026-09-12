@@ -25,6 +25,7 @@ import { showToast } from "@/stores/toastStore";
 import styles from "./ServicesTab.module.css";
 import shared from "../Settings.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { errorText } from "@/lib/apiError";
 
 
 /* 발행 글 자동 cover 일괄 배정 — 기존 published + cover-less 글에 키워드 기반 Unsplash/Pexels 이미지 자동 배정.
@@ -267,7 +268,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
       if (!res.ok) {
         setGiscusCats([]);
         if (data.needsToken) { setNeedsToken(true); setGiscusErr(""); }
-        else setGiscusErr(data.error || t("admin.settings.giscusLoadFailed"));
+        else setGiscusErr(errorText(data, t, t("admin.settings.giscusLoadFailed")));
         return;
       }
       setGiscusCats(data.categories ?? []);
