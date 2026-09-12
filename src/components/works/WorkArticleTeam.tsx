@@ -4,6 +4,8 @@ import { useState } from "react";
 import { Users, Link2, Mail } from "@/components/icons";
 import "katex/dist/katex.min.css";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
+import { useLanguage } from "@/providers/LanguageProvider";
+import { fillTemplate } from "@/utils/format";
 import { deriveTeamMemberAvatar, getMemberInitial } from "@/utils/teamMemberAvatar";
 import HorizontalCarousel from "@/components/ui/HorizontalCarousel";
 import T from "@/components/ui/T";
@@ -17,6 +19,7 @@ import type { WorkArticleViewProps } from "./workArticleTypes";
  * 좁은 본문 컬럼이 아닌 전체 페이지 폭에서 렌더되도록 children 에서 분리됨.
  * ──────────────────────────────────────────────────────────── */
 export function WorkArticleTeam({ project, viewLang }: WorkArticleViewProps) {
+  const { t } = useLanguage();
   const siteConfig = useSiteConfig();
 
   const [flippedMembers, setFlippedMembers] = useState<Set<number>>(new Set());
@@ -150,7 +153,7 @@ export function WorkArticleTeam({ project, viewLang }: WorkArticleViewProps) {
                               rel="noopener noreferrer"
                               className={styles.teamLinkIcon}
                               title={m.url}
-                              aria-label="link"
+                              aria-label={fillTemplate(t("workDetail.memberLink"), { name: getDisplayName(m) })}
                             >
                               <Link2 size={13} />
                             </a>
@@ -160,7 +163,7 @@ export function WorkArticleTeam({ project, viewLang }: WorkArticleViewProps) {
                               href={`mailto:${m.email}`}
                               className={styles.teamLinkIcon}
                               title={m.email}
-                              aria-label="email"
+                              aria-label={fillTemplate(t("workDetail.memberEmail"), { name: getDisplayName(m) })}
                             >
                               <Mail size={13} />
                             </a>
