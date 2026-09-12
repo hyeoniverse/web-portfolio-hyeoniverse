@@ -8,6 +8,7 @@ import { PostArticleHeader, PostArticleBody, PostArticleAuthors } from "@/compon
 import RelatedWorksCarousel, { type RelatedWork } from "@/app/posts/[slug]/_components/RelatedWorksCarousel";
 import { extractHeadings } from "@/utils/headingUtils";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { sendAction } from "@/lib/sendAction";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { useModalStore } from "@/stores/modalStore";
 import { ModalPrompt } from "@/components/ui/ModalTemplates";
@@ -86,10 +87,11 @@ export default function PostPreviewPage() {
   const handleRestore = useCallback(async () => {
     if (!trashId) return;
     setBusy(true);
-    await fetch(`/api/posts/${trashId}/restore`, { method: "POST" });
+    /* 실패하면 알림을 띄우고 이 화면에 머문다 — 예전에는 실패해도 목록으로 넘어갔다(#868) */
+    const res = await sendAction(`/api/posts/${trashId}/restore`, { method: "POST" }, t, t("admin.common.restoreFailed"));
     setBusy(false);
-    router.push(`/admin/posts?restored=${trashId}`);
-  }, [trashId, router]);
+    if (res) router.push(`/admin/posts?restored=${trashId}`);
+  }, [trashId, router, t]);
 
   const handlePurge = useCallback(() => {
     if (!trashId) return;
@@ -103,9 +105,9 @@ export default function PostPreviewPage() {
         danger
         onConfirm={async () => {
           setBusy(true);
-          await fetch(`/api/posts/${trashId}/purge`, { method: "DELETE" });
+          const res = await sendAction(`/api/posts/${trashId}/purge`, { method: "DELETE" }, t, t("admin.common.purgeFailed"));
           setBusy(false);
-          window.close();
+          if (res) window.close();
         }}
       />,
       { id: "trash-purge", header: { title: `"${title}"` }, closeButton: true, width: "400px" },
