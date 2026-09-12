@@ -9,6 +9,7 @@ import { adminEditorStyles as es } from "@/components/admin/AdminEditorShell";
 import { useLenis } from "@/providers/LenisProvider";
 import type { Work } from "@/types/work";
 import wStyles from "@/components/works/WorkEditor.module.css";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 function WorkEditorSkeleton() {
   return (
@@ -80,6 +81,7 @@ function WorkEditorSkeleton() {
 type LoadFailure = { status: number; reason: string };
 
 export default function EditWorkPage() {
+  const { t } = useLanguage();
   const params = useParams();
   const [work, setWork] = useState<Work | null>(null);
   const [loading, setLoading] = useState(true);
@@ -116,10 +118,10 @@ export default function EditWorkPage() {
     return (
       <AdminNotFound
         variant={denied ? "denied" : "notFound"}
-        title={denied ? "이 작품에 접근할 권한이 없습니다" : "작품을 찾을 수 없습니다"}
+        title={denied ? t("admin.works.editor.deniedTitle") : t("admin.works.editor.notFoundTitle")}
         description={failure?.reason || undefined}
         backHref="/admin/works"
-        backLabel="작품 목록으로"
+        backLabel={t("admin.works.editor.backToList")}
       />
     );
   }

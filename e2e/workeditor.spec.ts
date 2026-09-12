@@ -14,10 +14,18 @@ import { test, expect, type Page } from "@playwright/test";
  * (for 속성도 없고 input 을 감싸지도 않는다) 이름으로는 찾을 수 없다.
  */
 
-async function openEditor(page: Page) {
+/* 화면 언어를 정해 둔다. e2e 저장 상태에는 헤드리스 브라우저 언어(en-US)로 고른 "en" 이 들어 있다.
+   서버는 한국어로 그리고 마운트 뒤에 저장된 언어로 바꾸므로, 정해 두지 않으면 한국어 제목을 찾은 직후 영어로 바뀐다.
+   편집 문구가 화면 언어를 따르기 전에는(#855) 새 작업물의 한국어 탭을 따라서 이 차이가 드러나지 않았다. */
+function pinLanguage(page: Page, lang: "ko" | "en") {
+  return page.addInitScript((l) => { try { localStorage.setItem("language", l); } catch { /* 저장소를 못 쓰면 기본 언어 */ } }, lang);
+}
+
+async function openEditor(page: Page, lang: "ko" | "en" = "ko") {
+  await pinLanguage(page, lang);
   await page.goto("/admin/works/new", { waitUntil: "load" });
   await expect(
-    page.getByRole("heading", { name: "기본 정보" }),
+    page.getByRole("heading", { name: lang === "ko" ? "기본 정보" : "Basic Info" }),
     "편집 화면의 첫 섹션이 떠야 한다",
   ).toBeVisible({ timeout: 30_000 });
 }
@@ -44,9 +52,9 @@ test.describe("작업물 편집 화면", () => {
     await expect(subtitle).toHaveValue("부제목 확인");
 
     await expect(page.getByPlaceholder("work-url-slug"), "Slug 입력칸").toBeVisible();
-    // 연도는 표기 방식(Year / Y.M / Y.M.D)을 고르는 단추로 확인한다.
+    // 연도는 표기 방식(연도 / 연.월 / 연.월.일)을 고르는 단추로 확인한다.
     // 입력칸 자체는 그 선택에 따라 나타나고 사라진다.
-    await expect(page.getByRole("button", { name: "Year", exact: true }), "연도 표기 선택").toBeVisible();
+    await expect(page.getByRole("button", { name: "연도", exact: true }), "연도 표기 선택").toBeVisible();
   });
 
   test("본문 편집기가 뜨고 글자가 들어간다", async ({ page }) => {
@@ -62,12 +70,23 @@ test.describe("작업물 편집 화면", () => {
   test("팀원 추가 단추는 이름을 넣어야 눌린다", async ({ page }) => {
     await openEditor(page);
 
-    const addBtn = page.getByRole("button", { name: "Add member" });
+    const addBtn = page.getByRole("button", { name: "팀원 추가", exact: true });
     await expect(addBtn, "팀원 추가 단추").toBeVisible();
     await expect(addBtn, "이름이 비어 있으면 눌리지 않는다").toBeDisabled();
 
     await page.getByPlaceholder("이름").first().fill("확인용 이름");
     await expect(addBtn, "이름을 넣으면 눌린다").toBeEnabled();
+  });
+
+  test("영어 화면이면 새 작업물(한국어 탭)이어도 편집 문구가 영어로 나온다", async ({ page }) => {
+    // 예전에는 문구가 편집 중인 언어 탭을 따라, 영어 화면에서 한국어 작업물을 열면 한국어로 나왔다(#855)
+    await openEditor(page, "en");
+    await expect(page.getByRole("switch").filter({ hasText: "KO" }), "편집 중인 언어 탭은 한국어").toHaveAttribute("aria-checked", "false");
+    for (const name of ["Basic Info", "Content", "Images", "Tech Stack", "Team Members", "Links", "Related Posts", "Related Series"]) {
+      await expect(page.getByRole("heading", { name, exact: true }), `${name} 섹션`).toBeVisible();
+    }
+    await expect(page.getByPlaceholder("Work Title"), "제목 칸").toBeVisible();
+    await expect(page.getByRole("button", { name: "Add member", exact: true }), "팀원 추가 단추").toBeVisible();
   });
 
   test("이미지 섹션에 URL 입력칸과 파일 선택이 있다", async ({ page }) => {
@@ -88,6 +107,7 @@ test.describe("작업물 편집 화면", () => {
     const body = await res.json();
     const id = (body.works ?? body.data ?? body)[0]?.id as string;
     expect(id, "작업물 하나").toBeTruthy();
+    await pinLanguage(page, "ko");
     await page.goto(`/admin/works/${id}/edit`, { waitUntil: "load" });
     await expect(page.getByRole("heading", { name: "기본 정보" }), "편집 화면").toBeVisible({ timeout: 30_000 });
     // 자동저장은 변경 뒤 3초에 보낸다 — 편집기가 뜨고 다듬는 시간까지 넉넉히 기다린다

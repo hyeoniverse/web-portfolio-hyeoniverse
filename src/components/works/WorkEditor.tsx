@@ -13,6 +13,7 @@ import Checkbox from "@/components/ui/Checkbox";
 import HorizontalCarousel from "@/components/ui/HorizontalCarousel";
 import { ImageViewer } from "@/components/ui/ImageViewer";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { fillTemplate } from "@/utils/format";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { validateContentSecurity } from "@/utils/contentSecurity";
 import { focusFirstMissingField } from "@/utils/focusFirstMissing";
@@ -80,7 +81,7 @@ interface WorkEditorProps {
 
 export default function WorkEditor({ work }: WorkEditorProps) {
   const router = useRouter();
-  const { tLang, language } = useLanguage();
+  const { t, tLang, language } = useLanguage();
   const { openModal, closeAll } = useModalStore();
   const isEdit = !!work;
   const serviceStatus = useServiceStatus();
@@ -113,10 +114,8 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   // slug — 사용자가 직접 수정한 적 있으면 manual 모드로 (제목 변경 시 auto-regenerate 안 함)
   const [slugManual, setSlugManual] = useState(!!work?.slug);
 
-  const tw = useCallback(
-    (key: string) => tLang(`admin.works.editor.${key}`, editorLang),
-    [tLang, editorLang],
-  );
+  /* 편집 화면 문구는 관리자 화면 언어를 따른다(편집 중인 작업물의 언어 탭이 아니라). 글 편집기와 같다. */
+  const tw = useCallback((key: string) => t(`admin.works.editor.${key}`), [t]);
   const [translating, setTranslating] = useState(false);
 
   const [form, setForm] = useState<WorkFormData>(() => {
@@ -359,7 +358,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       if (texts.length === 0) return;
 
       setTranslating(true);
-      setStatus(tLang("admin.works.editor.translating", lang));
+      setStatus(tw("translating"));
       setStatusType("info");
 
       const result = await autoTranslate(texts, sourceLang, targetLang);
@@ -371,13 +370,13 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           patch[fieldKeyFor(f, targetLang)] = result.translations[i] as never;
         });
         setForm((prev) => ({ ...prev, ...patch }));
-        setStatus(tLang("admin.works.editor.autoTranslated", lang));
+        setStatus(tw("autoTranslated"));
         setStatusType("success");
       } else {
         setError(result.error);
       }
     },
-    [form, tLang, TRANSLATABLE_FIELDS, fieldKeyFor],
+    [form, tw, TRANSLATABLE_FIELDS, fieldKeyFor],
   );
 
   const handleEditorLangChange = useCallback(
@@ -470,7 +469,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       const data = await res.json();
       if (data.url) team.setMemberAvatarUrl(data.url);
     } catch {
-      showToast("Avatar upload failed", "error");
+      showToast(tw("avatarUploadFailed"), "error");
     } finally {
       setTeamAvatarUploading(false);
       if (teamAvatarFileRef.current) teamAvatarFileRef.current.value = "";
@@ -495,7 +494,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
 
     openModal(
       <div className={styles.templateModal}>
-        <p className={styles.templateModalDesc}>{tw("templateDesc") || (lang === "ko" ? "삽입할 템플릿을 선택하세요. 기존 내용이 있으면 아래에 추가됩니다." : "Choose a template. If content exists, it will be appended below.")}</p>
+        <p className={styles.templateModalDesc}>{tw("templateDesc")}</p>
         <div className={styles.templateList}>
           {WORK_TEMPLATES.map((tmpl) => (
             <Pressable
@@ -517,15 +516,16 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                 }
               }}
             >
-              <span className={styles.templateItemLabel}>{lang === "ko" ? tmpl.label.ko : tmpl.label.en}</span>
-              <span className={styles.templateItemDesc}>{lang === "ko" ? tmpl.desc.ko : tmpl.desc.en}</span>
+              {/* 템플릿 이름·설명은 고르는 단추라 화면 언어로, 넣는 본문만 편집 중인 언어로 */}
+              <span className={styles.templateItemLabel}>{language === "ko" ? tmpl.label.ko : tmpl.label.en}</span>
+              <span className={styles.templateItemDesc}>{language === "ko" ? tmpl.desc.ko : tmpl.desc.en}</span>
             </Pressable>
           ))}
         </div>
       </div>,
       { header: { title: tw("insertTemplate") }, closeButton: true, width: "420px" },
     );
-  }, [editorLang, form, updateField, tw, openModal, closeAll]);
+  }, [editorLang, language, form, updateField, tw, openModal, closeAll]);
 
   const handleContentImageUpload = useCallback(async (file: File): Promise<string> => {
     // 동영상 — 서버 body 한도 우회 위해 Storage 직접 업로드 (제한 초과 시 브라우저 압축).
@@ -608,7 +608,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         // 카테고리·성격의 필수 기준은 기본 언어 (en 기본이면 영문 쪽이 필수)
         const reqCategories = (primaryLang === "en" ? form.categories_en : form.categories_ko) ?? [];
         if (reqCategories.length === 0) missing.push({ label: tw("category"), field: "category" });
-        if (!(primaryLang === "en" ? form.nature_en : form.nature_ko).trim()) missing.push({ label: tw("nature") || "성격", field: "nature" });
+        if (!(primaryLang === "en" ? form.nature_en : form.nature_ko).trim()) missing.push({ label: tw("nature"), field: "nature" });
         if (!form.year.trim()) missing.push({ label: tw("year"), field: "year" });
         if (!form.image.trim()) missing.push({ label: tw("mainImage"), field: "image" });
         if (!form.content_ko.trim() && !form.content_en.trim()) missing.push({ label: tw("content"), field: "content" });
@@ -785,13 +785,13 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         /* 서버는 "왜" 를 reason 에 담는다 — error 만 쓰면 "Forbidden" 밖에 안 남아 원인을 알 수 없다. */
-        setError(data.reason ?? data.error ?? tw("saveError"));
+        setError(data.reason ?? data.error ?? tw("saveFailed"));
         return;
       }
       setStatus(tw("generateSummaryDone"));
       setStatusType("success");
     } catch {
-      setError(tw("saveError"));
+      setError(tw("saveFailed"));
     } finally {
       setRegeneratingSummary(false);
     }
@@ -933,7 +933,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         {/* slug — title 자동 생성. 사용자 수정 시 manual 모드 */}
         <div className={es.field}>
           <div style={{ display: "flex", alignItems: "baseline", gap: "var(--spacing-xs)" }}>
-            <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${showErrors && (!form.slug.trim() || validateSlug(form.slug)) ? ` ${es.fieldLabelError}` : ""}`}>{tw("slug") || "Slug"}</label>
+            <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${showErrors && (!form.slug.trim() || validateSlug(form.slug)) ? ` ${es.fieldLabelError}` : ""}`}>{tw("slug")}</label>
             {form.slug.trim() && validateSlug(form.slug) && (
               <span style={{ fontSize: "var(--font-size-label)", color: "var(--text-accent)" }}>{tw(`slugError.${validateSlug(form.slug)}`) || validateSlug(form.slug)}</span>
             )}
@@ -965,7 +965,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         {/* nature (성격) — 제작 동기 축. category 와 별도. 필수 입력 */}
         <div className={es.row}>
           <div className={es.field} style={{ gridColumn: "1 / -1" }} data-required="nature">
-            <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${showErrors && !(primaryLang === "en" ? form.nature_en : form.nature_ko).trim() ? ` ${es.fieldLabelError}` : ""}`}>{tw("nature") || "성격"}</label>
+            <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${showErrors && !(primaryLang === "en" ? form.nature_en : form.nature_ko).trim() ? ` ${es.fieldLabelError}` : ""}`}>{tw("nature")}</label>
             {(() => {
               const matchedIdx = naturePresets.findIndex(
                 (n) => n.ko === form.nature_ko && n.en === form.nature_en,
@@ -976,9 +976,9 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                 <div className={styles.categoryAddRow}>
                   <Select
                     value={selectValue}
-                    placeholder={tw("naturePlaceholder") || "성격"}
+                    placeholder={tw("naturePlaceholder")}
                     options={[
-                      { value: "__custom__", label: tw("customNature") || "직접 입력" },
+                      { value: "__custom__", label: tw("customNature") },
                       ...naturePresets.map((n, i) => ({
                         value: String(i),
                         label: editorLang === "ko" ? n.ko : n.en,
@@ -1007,7 +1007,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                           type="text"
                           value={form.nature_ko}
                           onChange={(e) => updateField("nature_ko", e.target.value)}
-                          placeholder={tw("naturePlaceholder") || "성격"}
+                          placeholder={tw("naturePlaceholder")}
                           autoFocus
                         />
                       </div>
@@ -1018,7 +1018,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                           type="text"
                           value={form.nature_en}
                           onChange={(e) => updateField("nature_en", e.target.value)}
-                          placeholder={tw("naturePlaceholder") || "성격"}
+                          placeholder={tw("naturePlaceholder")}
                         />
                       </div>
                     </>
@@ -1072,7 +1072,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
             className={styles.optionalToggle}
             onClick={() => setOptionalOpen((v) => !v)}
           >
-            <span>{tw("optionalFields") || "선택 입력"}</span>
+            <span>{tw("optionalFields")}</span>
             <ChevronRight
               size={12}
               strokeWidth={2.5}
@@ -1086,7 +1086,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
               <div className={`${es.field} ${styles.optionalSplitLeft}`}>
                 <SortOrderDragList
                   label={tw("sortOrder")}
-                  currentTitle={form.title || tw("subtitle") || "—"}
+                  currentTitle={form.title || tw("subtitle")}
                   currentOrder={form.sort_order || 1}
                   otherItems={otherWorks}
                   onChange={(newOrder, otherUpdates) => {
@@ -1148,11 +1148,11 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                           updateField("contributions_en", nextEn);
                         }}
                         prefix=""
-                        notePlaceholder={tw("memberContributionPlaceholder") || "이 역할로 무엇을 했는지 적어주세요."}
-                        addLabel="설명 추가"
-                        cancelLabel="취소"
-                        editLabel="편집"
-                        removeTitle="역할 제거"
+                        notePlaceholder={tw("memberContributionPlaceholder")}
+                        addLabel={tw("noteAdd")}
+                        cancelLabel={tw("cancel")}
+                        editLabel={tw("noteEdit")}
+                        removeTitle={tw("roleRemove")}
                         multiLine
                       />
                     );
@@ -1411,7 +1411,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           className={styles.optionalToggle}
           onClick={() => setExtraOpen((v) => !v)}
         >
-          <span>{tw("additionalInfo") || "추가 정보 (선택)"}</span>
+          <span>{tw("additionalInfo")}</span>
           <ChevronRight
             size={12}
             strokeWidth={2.5}
@@ -1439,7 +1439,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                 if (!raw) return;
                 const canonical = normalizeTechName(raw);
                 if (form.tech.some((tg) => normalizeTechName(tg).toLowerCase() === canonical.toLowerCase())) {
-                  showToast(editorLang === "ko" ? `이미 추가됨: ${canonical}` : `Already added: ${canonical}`, "info");
+                  showToast(fillTemplate(tw("alreadyAdded"), { name: canonical }), "info");
                   tech.setInput("");
                   return;
                 }
@@ -1471,7 +1471,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                 if (!raw) return;
                 const canonical = normalizeTechName(raw);
                 if (form.tech.some((tg) => normalizeTechName(tg).toLowerCase() === canonical.toLowerCase())) {
-                  showToast(editorLang === "ko" ? `이미 추가됨: ${canonical}` : `Already added: ${canonical}`, "info");
+                  showToast(fillTemplate(tw("alreadyAdded"), { name: canonical }), "info");
                   tech.setInput("");
                   return;
                 }
@@ -1490,11 +1490,11 @@ export default function WorkEditor({ work }: WorkEditorProps) {
             onItemsChange={(next) => updateField("tech", next)}
             onNotesChange={(next) => updateField("tech_notes", next)}
             prefix=""
-            notePlaceholder="이 기술을 왜 선택했고, 무엇을 어떻게 구현했는지 적어주세요."
-            addLabel="설명 추가"
-            cancelLabel="취소"
-            editLabel="편집"
-            removeTitle="기술 제거"
+            notePlaceholder={tw("techNotePlaceholder")}
+            addLabel={tw("noteAdd")}
+            cancelLabel={tw("cancel")}
+            editLabel={tw("noteEdit")}
+            removeTitle={tw("techRemove")}
             multiLine
           />
         </div>
@@ -1531,7 +1531,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           <div className={styles.memberSubLabelRow}>
             <span className={styles.memberSubLabel}>
               {team.editingIdx !== null
-                ? (editorLang === "ko" ? "팀원 편집" : "Edit member")
+                ? tw("memberEdit")
                 : tw("memberFormLabel")}
             </span>
             {team.editingIdx !== null ? (
@@ -1541,10 +1541,10 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                   size="xs"
                   className={styles.avatarUploadBtn}
                   onClick={team.cancelEdit}
-                  aria-label="Cancel edit"
+                  aria-label={tw("cancel")}
                   icon={<X size={12} strokeWidth={2} />}
                 >
-                  {editorLang === "ko" ? "취소" : "Cancel"}
+                  {tw("cancel")}
                 </Button>
                 <Button
                   variant="outline"
@@ -1552,10 +1552,10 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                   className={styles.avatarUploadBtn}
                   onClick={team.saveEdit}
                   disabled={!team.memberName.trim()}
-                  aria-label="Save edit"
+                  aria-label={tw("memberSave")}
                   icon={<Check size={12} strokeWidth={2} />}
                 >
-                  {editorLang === "ko" ? "저장" : "Save"}
+                  {tw("memberSave")}
                 </Button>
               </div>
             ) : (
@@ -1565,7 +1565,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                 className={styles.avatarUploadBtn}
                 onClick={team.addMember}
                 disabled={!team.memberName.trim()}
-                aria-label="Add member"
+                aria-label={tw("memberAddAria")}
                 icon={<Plus size={12} strokeWidth={2} />}
               >
                 {tw("memberAddButton")}
@@ -1639,7 +1639,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
             {myRole.canManageWorks && siteAuthors.length > 0 && (
               <div className={styles.memberLinkRow}>
                 <span className={styles.memberLinkLabel}>
-                  {editorLang === "ko" ? "사이트 멤버 연결" : "Link site member"}
+                  {tw("linkSiteMember")}
                 </span>
                 <div className={styles.memberLinkChips}>
                   {siteAuthors.map((a) => {
@@ -1678,11 +1678,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                     );
                   })}
                 </div>
-                <p className={styles.memberLinkHint}>
-                  {editorLang === "ko"
-                    ? "연결한 계정은 이 작업물을 편집할 수 있습니다. 사이트 계정이 없는 외부 협업자는 연결하지 않습니다."
-                    : "A linked account can edit this project. Leave it unlinked for outside collaborators without a site account."}
-                </p>
+                <p className={styles.memberLinkHint}>{tw("memberLinkHint")}</p>
               </div>
             )}
             {/* role select — 별도 row (full width) */}
@@ -1725,11 +1721,11 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                     team.setMemberContribsEn(nextEn);
                   }}
                   prefix=""
-                  notePlaceholder={tw("memberContributionPlaceholder") || "이 역할로 무엇을 했는지 적어주세요."}
-                  addLabel="설명 추가"
-                  cancelLabel="취소"
-                        editLabel="편집"
-                  removeTitle="역할 제거"
+                  notePlaceholder={tw("memberContributionPlaceholder")}
+                  addLabel={tw("noteAdd")}
+                  cancelLabel={tw("cancel")}
+                        editLabel={tw("noteEdit")}
+                  removeTitle={tw("roleRemove")}
                         multiLine
                 />
               );
