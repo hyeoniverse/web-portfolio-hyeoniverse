@@ -4,6 +4,7 @@ import { ensureWorksCategory } from "@/lib/api/validateCategory";
 import { requirePostAccess, policyBlocked } from "@/lib/api/requirePostAccess";
 import { PERM } from "@/lib/api/roles";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { placeWork } from "@/lib/api/placeWork";
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -106,51 +107,13 @@ export async function PATCH(request: Request, context: RouteContext) {
   filtered.updated_at = new Date().toISOString();
 
 
-  // sort_order 변경 시 — 전체 dense 1..N normalize (skipShift=true 인 batch 모드 제외)
-  // 기존 0/duplicate 도 자동 정리. 단일 PATCH 마다 호출돼도 OK (N=수십개 수준).
+  // sort_order 변경 시 — 그 자리에 끼우고 전체를 1..N 으로 다시 매긴다(skipShift=true 인 목록 끌어 놓기 묶음 제외).
+  // 기존 0/duplicate 도 자동 정리. 한 요청 안에서 끝내야 한다 — placeWork 주석(#873)
   if (!skipShift && filtered.sort_order !== undefined) {
-    const newOrder = filtered.sort_order as number;
-    // sort_order 만 빼고 나머지 필드는 그대로 (normalize 단계에서 target 만 추가 필드 포함)
+    // sort_order 만 빼고 나머지 필드는 대상 작업물에 함께 쓴다
     const targetOtherFields = { ...filtered };
     delete targetOtherFields.sort_order;
-
-    const { data: all } = await admin
-      .from("works")
-      .select("id, sort_order, created_at")
-      .is("deleted_at", null)
-      .order("sort_order", { ascending: true })
-      .order("created_at", { ascending: true });
-
-    if (all && all.length > 0) {
-      // target 을 desired position 에 삽입한 새 ordering
-      const without = all.filter((w) => w.id !== id);
-      const desiredIdx = Math.max(0, Math.min(newOrder - 1, without.length));
-      const reordered = [
-        ...without.slice(0, desiredIdx),
-        { id, sort_order: 0, created_at: "" },
-        ...without.slice(desiredIdx),
-      ];
-
-      // 변경 필요한 항목만 update — sort_order 가 expected (idx+1) 와 다른 row + target
-      const updates: Array<{ id: string; payload: Record<string, unknown> }> = [];
-      reordered.forEach((w, idx) => {
-        const expected = idx + 1;
-        if (w.id === id) {
-          updates.push({ id: w.id, payload: { ...targetOtherFields, sort_order: expected } });
-        } else {
-          const orig = all.find((x) => x.id === w.id);
-          if (orig?.sort_order !== expected) {
-            updates.push({ id: w.id, payload: { sort_order: expected } });
-          }
-        }
-      });
-
-      await Promise.all(
-        updates.map((u) =>
-          admin.from("works").update(u.payload).eq("id", u.id),
-        ),
-      );
-
+    if (await placeWork(admin, id, filtered.sort_order as number, targetOtherFields)) {
       // 이미 target update 완료 → 아래 simple update 단계는 skip
       const { data, error } = await admin
         .from("works").select("*").eq("id", id).single();

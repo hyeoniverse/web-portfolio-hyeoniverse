@@ -93,7 +93,7 @@ export const defaultForm: WorkFormData = {
   live_url: "",
   github_url: "",
   published: false,
-  sort_order: 1,
+  sort_order: 0, // 새 작업물 — 0 이면 맨 뒤(정렬 목록 표시·저장 모두, #873)
   scheduled_at: null,
   related_post_ids: [],
 };
