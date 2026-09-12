@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { setAlign, setLineHeight } from "@platejs/basic-styles";
 import { insertTable } from "@platejs/table";
 import { toggleCodeBlock } from "@platejs/code-block";
@@ -31,7 +31,7 @@ import {
   VIVID_COLORS,
   PASTEL_COLORS,
 } from "../constants";
-import { readToolbarState, type ToolbarMark } from "../hooks";
+import { readToolbarState, type TextStyleStore, type ToolbarMark } from "../hooks";
 import { _imageUploadFn, _uploadErrorFn, _postLinkTrigger, _emojiPickerTrigger } from "../utils";
 import styles from "../../RichTextEditor.module.css";
 import Pressable from "@/components/ui/Pressable";
@@ -40,6 +40,8 @@ interface MainToolbarProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   editor: any;
   isMac: boolean;
+  /** 커서 자리의 계산된 글자 스타일 — 본문 편집기가 커밋 뒤에 다시 읽는다(#895) */
+  textStyle: TextStyleStore;
   /** 게시물 작성 언어 (폰트 그룹 정렬) */
   postLang?: "ko" | "en";
   // link / embed input toggle
@@ -103,7 +105,7 @@ function EditorFontPicker({ value, onChange, preferEn }: { value: string; onChan
 const ALL_PRESETS = new Set([...BASE_COLORS, ...VIVID_COLORS, ...PASTEL_COLORS]);
 
 export default React.memo(function MainToolbar({
-  editor, isMac, postLang,
+  editor, isMac, textStyle, postLang,
   showLinkInput, onToggleLinkInput,
   showEmbedInput, onToggleEmbedInput,
   onAddImage, onAddFile, onAddAudio, onInsertMath, mathEditing,
@@ -139,13 +141,16 @@ export default React.memo(function MainToolbar({
 
   // ── Derived editor state ── 값이 바뀔 때만 다시 그린다(readToolbarState)
   const state = useEditorSelector(readToolbarState, [], { equalityFn: shallow });
+  // 마크·블록에 값이 없으면 커서 자리의 실제 스타일 — 편집기 변경이 DOM 에 반영된 뒤 읽은 값이다(#895)
+  const domText = useSyncExternalStore(textStyle.subscribe, textStyle.getSnapshot, textStyle.getSnapshot);
   const hasMark = (mark: ToolbarMark) => state[mark];
   const {
-    color: currentColor, bgColor: currentBgColor, letterSpacing: currentLetterSpacing,
-    fontFamily: currentFontFamily, lineHeight: currentLineHeight, align: currentAlign,
+    color: currentColor, bgColor: currentBgColor, letterSpacing: currentLetterSpacing, align: currentAlign,
     blockType, isUL, isOL, isTodo, canUndo, canRedo,
   } = state;
-  const currentFontSizeNum = state.fontSize.replace("px", "");
+  const currentFontFamily = state.markFontFamily || domText.fontFamily;
+  const currentLineHeight = state.blockLineHeight || domText.lineHeight;
+  const currentFontSizeNum = (state.markFontSize || domText.fontSize).replace("px", "");
 
   return (
     <div className={styles.toolbar} data-editor-toolbar>
