@@ -5,8 +5,10 @@ import { setAlign, setLineHeight } from "@platejs/basic-styles";
 import { insertTable } from "@platejs/table";
 import { toggleCodeBlock } from "@platejs/code-block";
 import { insertToc } from "@platejs/toc";
-import { toggleList, someList, someTodoList } from "@platejs/list";
+import { toggleList } from "@platejs/list";
 import { indent, outdent } from "@platejs/indent";
+import { useEditorSelector } from "platejs/react";
+import { shallow } from "zustand/shallow";
 import { useLanguage } from "@/providers/LanguageProvider";
 import Tooltip from "@/components/ui/Tooltip";
 import Select from "@/components/ui/Select";
@@ -29,13 +31,7 @@ import {
   VIVID_COLORS,
   PASTEL_COLORS,
 } from "../constants";
-import {
-  useEditorMarks,
-  useBlockInfo,
-  useComputedStyle,
-  resolvedFontSize,
-  resolvedLineHeight,
-} from "../hooks";
+import { readToolbarState, type ToolbarMark } from "../hooks";
 import { _imageUploadFn, _uploadErrorFn, _postLinkTrigger, _emojiPickerTrigger } from "../utils";
 import styles from "../../RichTextEditor.module.css";
 import Pressable from "@/components/ui/Pressable";
@@ -44,8 +40,6 @@ interface MainToolbarProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   editor: any;
   isMac: boolean;
-  /** 에디터 변경마다 증가 — React.memo 리렌더 트리거 */
-  tick?: number;
   /** 게시물 작성 언어 (폰트 그룹 정렬) */
   postLang?: "ko" | "en";
   // link / embed input toggle
@@ -143,27 +137,15 @@ export default React.memo(function MainToolbar({
     return mac.replace(/⌘/g, "Ctrl+").replace(/⌥/g, "Alt+").replace(/⇧/g, "Shift+");
   }, [isMac]);
 
-  // ── Derived editor state ──
-  const { hasMark, color: currentColor, bgColor: currentBgColor, fontFamily: markFontFamily, fontSize: markFontSize, letterSpacing: currentLetterSpacing } = useEditorMarks(editor);
-  const { blockType, align: currentAlign, lineHeight: blockLineHeight } = useBlockInfo(editor);
-  const computed = useComputedStyle();
-  // mark가 없으면 computed에서 실제 렌더링 폰트 읽기
-  const currentFontFamily = markFontFamily || (computed?.fontFamily ?? "");
-  const currentFontSize = resolvedFontSize(markFontSize, computed);
-  const currentFontSizeNum = currentFontSize.replace("px", "");
-  // resolvedLineHeight 반환타입은 string 이지만, setLineHeight 가 숫자를 저장해 노드 lineHeight 가
-  // 런타임엔 number(예: 1.6). 문자열 프리셋과 비교/렌더가 어긋나 중복 key 가 나므로 String 으로 정규화.
-  const currentLineHeight = String(resolvedLineHeight(blockLineHeight, computed));
-
-  // ── List active state ──
-  let isUL = false, isOL = false, isTodo = false;
-  try { isUL = someList(editor, "disc"); } catch { /* ignore */ }
-  try { isOL = someList(editor, "decimal"); } catch { /* ignore */ }
-  try { isTodo = someTodoList(editor); } catch { /* ignore */ }
-
-  // ── Undo/Redo ──
-  const canUndo = (editor.history?.undos?.length ?? 0) > 0;
-  const canRedo = (editor.history?.redos?.length ?? 0) > 0;
+  // ── Derived editor state ── 값이 바뀔 때만 다시 그린다(readToolbarState)
+  const state = useEditorSelector(readToolbarState, [], { equalityFn: shallow });
+  const hasMark = (mark: ToolbarMark) => state[mark];
+  const {
+    color: currentColor, bgColor: currentBgColor, letterSpacing: currentLetterSpacing,
+    fontFamily: currentFontFamily, lineHeight: currentLineHeight, align: currentAlign,
+    blockType, isUL, isOL, isTodo, canUndo, canRedo,
+  } = state;
+  const currentFontSizeNum = state.fontSize.replace("px", "");
 
   return (
     <div className={styles.toolbar} data-editor-toolbar>
