@@ -43,14 +43,14 @@ export async function POST(request: Request, context: RouteContext) {
     .maybeSingle();
 
   if (readErr) return jsonServerError(readErr, "POST /api/admin/notifications/[id]/resolve");
-  if (!notif) return jsonError("not found", 404);
+  if (!notif) return jsonError("not found", 404, { code: "NOTIFICATION_NOT_FOUND" });
   if (notif.type !== "access_request") {
     return jsonError("권한 요청 알림이 아닙니다.", 400);
   }
 
   const metadata = (notif.metadata ?? {}) as Record<string, string>;
   if (metadata.resolved) {
-    return jsonError("이미 처리된 요청입니다.", 400);
+    return jsonError("이미 처리된 요청입니다.", 400, { code: "ACCESS_REQUEST_ALREADY_RESOLVED" });
   }
 
   const authorId = metadata.authorId;
@@ -60,14 +60,14 @@ export async function POST(request: Request, context: RouteContext) {
   if (action === "grant") {
     /* 저자 프로필이 없으면 줄 대상이 없다. 권한은 계정이 아니라 저자 프로필(author_id)에 붙는다. */
     if (!authorId) {
-      return jsonError("요청자에게 연결된 저자 프로필이 없어 권한을 부여할 수 없습니다. 멤버 설정에서 프로필을 먼저 만들어 주세요.", 400);
+      return jsonError("요청자에게 연결된 저자 프로필이 없어 권한을 부여할 수 없습니다. 멤버 설정에서 프로필을 먼저 만들어 주세요.", 400, { code: "ACCESS_REQUEST_NO_AUTHOR_PROFILE" });
     }
 
     if (postId) {
       const { data: post, error } = await supabase
         .from("posts").select("author_ids").eq("id", postId).maybeSingle();
       if (error) return jsonServerError(error, "POST /api/admin/notifications/[id]/resolve");
-      if (!post) return jsonError("대상 글이 없습니다. 삭제된 것 같습니다.", 404);
+      if (!post) return jsonError("대상 글이 없습니다. 삭제된 것 같습니다.", 404, { code: "ACCESS_REQUEST_POST_GONE" });
 
       const current = Array.isArray(post.author_ids) ? (post.author_ids as string[]) : [];
       if (!current.includes(authorId)) {
@@ -79,7 +79,7 @@ export async function POST(request: Request, context: RouteContext) {
       const { data: work, error } = await supabase
         .from("works").select("team_members").eq("id", workId).maybeSingle();
       if (error) return jsonServerError(error, "POST /api/admin/notifications/[id]/resolve");
-      if (!work) return jsonError("대상 작업물이 없습니다. 삭제된 것 같습니다.", 404);
+      if (!work) return jsonError("대상 작업물이 없습니다. 삭제된 것 같습니다.", 404, { code: "ACCESS_REQUEST_WORK_GONE" });
 
       const current = Array.isArray(work.team_members)
         ? (work.team_members as { author_id?: string; name?: string }[])

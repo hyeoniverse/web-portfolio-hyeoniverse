@@ -8,7 +8,8 @@ import { useStaticPageScroll } from "@/hooks/useStaticPageScroll";
 import { useLeaveGuard } from "@/hooks/useLeaveGuard";
 import { siteConfig } from "@/config/site.config";
 import type { SiteConfigData } from "@/config/site.config";
-import { useLanguage } from "@/providers/LanguageProvider";
+import { useLanguage, type TFunction } from "@/providers/LanguageProvider";
+import { CodedError, errorFromBody, errorText } from "@/lib/apiError";
 import { SkeletonLine } from "@/components/ui/Skeleton";
 import { FAVICON_REFRESH_EVENT } from "@/components/layout/FaviconSync";
 import DiffResolver from "./_components/DiffResolver";
@@ -63,6 +64,18 @@ const PROFILE_SECTION_LABELS: Record<string, string> = {
 /* 저장 전 검사가 비었는지 보는 값 — Appearance 의 색 칸, giscus 를 쓸 때 필요한 칸 */
 const THEME_COLOR_KEYS = ["accentColor", "lightBg", "lightText", "darkBg", "darkText"] as const;
 const GISCUS_REQUIRED_KEYS = ["repo", "repoId", "category", "categoryId"] as const;
+
+/**
+ * 저장 실패 문구. 사유 코드가 있으면 그 문구를, 없으면 상태 코드를 괄호에 붙인다. 서버 문장은 한 언어라
+ * 쓰지 않는다(#862). reason 은 모달 안에서 저장한 경우(섹션·프로필) 그 자리에 보이는 문구다.
+ */
+function saveFailure(err: unknown, t: TFunction): { message: string; reason: string } {
+  const base = t("admin.settings.saveError");
+  const reason = errorText(err, t, "");
+  const status = err instanceof CodedError && err.status ? String(err.status) : "";
+  const detail = reason || status;
+  return { message: `${base}${detail ? ` (${detail})` : ""}`, reason: reason || base };
+}
 
 
 export default function SettingsPage() {
@@ -423,7 +436,7 @@ export default function SettingsPage() {
       for (const res of results) {
         if (!res.ok) {
           const body = await res.json().catch(() => null);
-          throw new Error(body?.reason ?? body?.error ?? `HTTP ${res.status}`);
+          throw errorFromBody(body, res.status);
         }
       }
 
@@ -450,8 +463,7 @@ export default function SettingsPage() {
       // full reload로 서버 config 반영 (router.refresh()는 hydration mismatch 유발)
       setTimeout(() => window.location.reload(), 600);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "";
-      setMessage(`${t("admin.settings.saveError")}${msg ? ` (${msg})` : ""}`);
+      setMessage(saveFailure(err, t).message);
     } finally {
       setSaving(false);
     }
@@ -476,7 +488,7 @@ export default function SettingsPage() {
       });
       if (!res.ok) {
         const body = await res.json().catch(() => null);
-        throw new Error(body?.reason ?? body?.error ?? `HTTP ${res.status}`);
+        throw errorFromBody(body, res.status);
       }
       savedProfileRef.current = structuredClone(merged);
       setProfileData((prev) => {
@@ -487,9 +499,9 @@ export default function SettingsPage() {
       setMessage(t("admin.settings.saveSuccess"));
       return { ok: true };
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "";
-      setMessage(`${t("admin.settings.saveError")}${msg ? ` (${msg})` : ""}`);
-      return { ok: false, reason: msg };
+      const failure = saveFailure(err, t);
+      setMessage(failure.message);
+      return { ok: false, reason: failure.reason };
     } finally {
       setSavingProfileKeys(null);
     }
@@ -605,9 +617,9 @@ export default function SettingsPage() {
       });
       if (!res.ok) {
         const body = await res.json().catch(() => null);
-        /* 서버는 "왜" 를 reason 에 담는다(예: 본인 프로필만 수정할 수 있습니다).
-           error 만 쓰면 "Forbidden" 밖에 안 남아 원인을 알 수 없다. */
-        throw new Error(body?.reason ?? body?.error ?? `HTTP ${res.status}`);
+        /* "왜" 는 코드로 온다(예: 본인 프로필만 추가할 수 있습니다). error 는 "Forbidden" 뿐이라,
+           saveFailure 가 코드를 화면 언어 문구로 바꿔 보인다(#862) */
+        throw errorFromBody(body, res.status);
       }
       savedConfigRef.current = structuredClone(merged);
       storedDeltaRef.current = structuredClone(payload.delta);
@@ -629,9 +641,9 @@ export default function SettingsPage() {
       if (needsReload) setTimeout(() => window.location.reload(), 600);
       return { ok: true };
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "";
-      setMessage(`${t("admin.settings.saveError")}${msg ? ` (${msg})` : ""}`);
-      return { ok: false, reason: msg || t("admin.settings.saveError") };
+      const failure = saveFailure(err, t);
+      setMessage(failure.message);
+      return { ok: false, reason: failure.reason };
     } finally {
       setSavingPaths(null);
     }
@@ -787,7 +799,7 @@ export default function SettingsPage() {
                 </span>
               )}
               {account.accountMessage && (
-                <span className={`${styles.message} ${account.accountMessage.startsWith("Error") ? styles.messageError : styles.messageSuccess}`}>
+                <span className={`${styles.message} ${account.accountMessageError ? styles.messageError : styles.messageSuccess}`}>
                   {account.accountMessage}
                 </span>
               )}
@@ -803,7 +815,7 @@ export default function SettingsPage() {
                 }
                 onClick={() => {
                   if (account.accountPassword && account.accountPassword !== account.accountConfirm) {
-                    account.setAccountMessage(t("admin.settings.passwordMismatch"));
+                    account.setAccountMessage(t("admin.settings.passwordMismatch"), true);
                     return;
                   }
                   const hasEmailChange = account.accountNewEmail !== account.accountEmail && account.accountNewEmail.trim() !== "";
@@ -1159,6 +1171,7 @@ export default function SettingsPage() {
                   accountCurrentPassword={account.accountCurrentPassword}
                   setAccountCurrentPassword={account.setAccountCurrentPassword}
                   accountMessage={account.accountMessage}
+                  accountMessageError={account.accountMessageError}
                   setAccountMessage={account.setAccountMessage}
                   accountSaving={account.accountSaving}
                   showPasswordConfirm={account.showPasswordConfirm}

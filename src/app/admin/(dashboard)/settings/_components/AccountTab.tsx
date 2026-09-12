@@ -23,6 +23,7 @@ import shared from "../Settings.module.css";
 import Pressable from "@/components/ui/Pressable";
 import { formatRelativeTime } from "@/utils/relativeTime";
 import { useNow } from "@/hooks/useNow";
+import { errorFromResponse, errorText } from "@/lib/apiError";
 
 interface DeviceRow {
   id: string;
@@ -45,6 +46,7 @@ export default function AccountTab({
   accountCurrentPassword,
   setAccountCurrentPassword,
   accountMessage,
+  accountMessageError,
   setAccountMessage,
   accountSaving,
   showPasswordConfirm,
@@ -126,15 +128,12 @@ export default function AccountTab({
           setSigningOutAll(true);
           try {
             const res = await fetch("/api/admin/auth/logout-all", { method: "POST" });
-            if (!res.ok) {
-              const data = await res.json().catch(() => ({}));
-              throw new Error(data.error || "Failed");
-            }
+            if (!res.ok) throw await errorFromResponse(res);
             // 현재 세션도 무효화됨 → login 페이지로
             router.push("/admin/login");
             router.refresh();
           } catch (err) {
-            setAccountMessage(`Error: ${err instanceof Error ? err.message : "Failed"}`);
+            setAccountMessage(errorText(err, t, t("admin.settings.signOutAllFailed")), true);
             setSigningOutAll(false);
           }
         }}
@@ -152,12 +151,11 @@ export default function AccountTab({
     setResending(true);
     try {
       const res = await fetch("/api/admin/account", { method: "POST" });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      if (!res.ok) throw await errorFromResponse(res);
       setAccountMessage(t("admin.settings.emailResent"));
       setTimeout(() => setAccountMessage(""), STATUS_MESSAGE_DISMISS_MS);
     } catch (err) {
-      setAccountMessage(`Error: ${err instanceof Error ? err.message : "Failed"}`);
+      setAccountMessage(errorText(err, t, t("admin.settings.emailResendFailed")), true);
     } finally {
       setResending(false);
     }
@@ -167,13 +165,12 @@ export default function AccountTab({
     setCancelling(true);
     try {
       const res = await fetch("/api/admin/account", { method: "DELETE" });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      if (!res.ok) throw await errorFromResponse(res);
       onCancelPendingEmail();
       setAccountMessage(t("admin.settings.emailChangeCancelled"));
       setTimeout(() => setAccountMessage(""), STATUS_MESSAGE_DISMISS_MS);
     } catch (err) {
-      setAccountMessage(`Error: ${err instanceof Error ? err.message : "Failed"}`);
+      setAccountMessage(errorText(err, t, t("admin.settings.emailCancelFailed")), true);
     } finally {
       setCancelling(false);
     }
@@ -455,7 +452,7 @@ export default function AccountTab({
                 }}
               />
               {accountMessage && (
-                <span className={`${shared.message} ${accountMessage.startsWith("Error") ? shared.messageError : shared.messageSuccess}`}>
+                <span className={`${shared.message} ${accountMessageError ? shared.messageError : shared.messageSuccess}`}>
                   {accountMessage}
                 </span>
               )}

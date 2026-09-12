@@ -895,6 +895,7 @@
     "UPLOAD_ONLY_AUDIO": "오디오 파일만 올릴 수 있습니다.",
     "UPLOAD_ONLY_PDF": "PDF 파일만 올릴 수 있습니다.",
     "UPLOAD_ONLY_FONT": "글꼴 파일(woff2, woff, ttf, otf)만 올릴 수 있습니다.",
-    "UPLOAD_STILL_TOO_LARGE": "압축했지만 여전히 제한을 넘습니다({{size}} / 최대 {{max}}MB). 더 짧거나 화질이 낮은 영상을 써 주세요."
+    "UPLOAD_STILL_TOO_LARGE": "압축했지만 여전히 제한을 넘습니다({{size}} / 최대 {{max}}MB). 더 짧거나 화질이 낮은 영상을 써 주세요.",
+    "UNAUTHORIZED": "로그인이 필요합니다. 다시 로그인해 주세요."
   }
 }

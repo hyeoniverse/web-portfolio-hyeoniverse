@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { STATUS_MESSAGE_DISMISS_MS } from "@/constants";
 import type { TFunction } from "@/providers/LanguageProvider";
+import { errorFromBody, errorText } from "@/lib/apiError";
 
 export function useAccountSettings(t: TFunction) {
   const [accountEmail, setAccountEmail] = useState("");
@@ -8,7 +9,10 @@ export function useAccountSettings(t: TFunction) {
   const [accountPassword, setAccountPassword] = useState("");
   const [accountConfirm, setAccountConfirm] = useState("");
   const [accountCurrentPassword, setAccountCurrentPassword] = useState("");
-  const [accountMessage, setAccountMessage] = useState("");
+  /* 실패인지를 함께 둔다 — 예전에는 문구가 "Error" 로 시작하는지로 갈라, 번역한 실패 문구와
+     "비밀번호가 일치하지 않습니다" 가 성공 모양으로 보였다(#862) */
+  const [accountStatus, setAccountStatus] = useState({ text: "", error: false });
+  const setAccountMessage = useCallback((text: string, isError = false) => setAccountStatus({ text, error: isError }), []);
   const [accountSaving, setAccountSaving] = useState(false);
   const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
   const [pendingEmail, setPendingEmail] = useState<string | null>(null);
@@ -45,8 +49,8 @@ export function useAccountSettings(t: TFunction) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw errorFromBody(data, res.status);
       if (data.emailConfirmationSent) {
         setAccountMessage(t("admin.settings.emailConfirmationSent"));
         setPendingEmail(accountNewEmail);
@@ -63,11 +67,11 @@ export function useAccountSettings(t: TFunction) {
         setTimeout(() => setAccountMessage(""), STATUS_MESSAGE_DISMISS_MS);
       }
     } catch (err) {
-      setAccountMessage(`Error: ${err instanceof Error ? err.message : "Failed"}`);
+      setAccountMessage(errorText(err, t, t("admin.settings.accountUpdateFailed")), true);
     } finally {
       setAccountSaving(false);
     }
-  }, [accountCurrentPassword, accountNewEmail, accountEmail, accountPassword, t]);
+  }, [accountCurrentPassword, accountNewEmail, accountEmail, accountPassword, t, setAccountMessage]);
 
   return {
     accountEmail,
@@ -79,7 +83,8 @@ export function useAccountSettings(t: TFunction) {
     setAccountConfirm,
     accountCurrentPassword,
     setAccountCurrentPassword,
-    accountMessage,
+    accountMessage: accountStatus.text,
+    accountMessageError: accountStatus.error,
     setAccountMessage,
     accountSaving,
     showPasswordConfirm,
