@@ -874,7 +874,6 @@
     "videoCompressing": "브라우저에서 압축 중… {{pct}}%",
     "videoUploading": "스토리지에 업로드 중…",
     "videoOverLimit": "{{size}} · 제한 {{limit}}MB 초과 → 압축",
-    "videoStillOverLimit": "압축했지만 여전히 제한을 초과합니다 ({{size}} / 최대 {{limit}}MB). 더 짧거나 저화질 영상을 사용해주세요.",
     "videoKeepOpen": "페이지를 닫지 마세요. 압축은 영상 길이에 따라 몇 분 걸릴 수 있습니다.",
     "colorPick": "색 고르기",
     "colorRandom": "랜덤",
@@ -883,5 +882,19 @@
     "selectColumn": "열 전체 선택",
     "selectRow": "행 전체 선택",
     "selectTable": "표 전체 선택"
+  },
+  "apiErrors": {
+    "UPLOAD_TOO_LARGE": "파일이 너무 큽니다({{size}}MB). {{max}}MB까지 올릴 수 있습니다.",
+    "UPLOAD_BODY_TOO_LARGE": "파일이 너무 커서 서버가 받지 못했습니다(약 {{size}}MB). 더 작게 나누거나 압축해 주세요.",
+    "UPLOAD_UNREADABLE": "파일을 읽지 못했습니다. 손상되었거나 형식이 올바르지 않을 수 있습니다.",
+    "UPLOAD_NO_EXTENSION": "파일 이름에 확장자가 있어야 합니다.",
+    "UPLOAD_TYPE_NOT_ALLOWED": "올릴 수 없는 파일 형식입니다(.{{ext}}).",
+    "UPLOAD_TYPE_MISMATCH": "파일 내용이 확장자(.{{ext}})와 맞지 않습니다.",
+    "UPLOAD_CONVERT_FAILED": "이미지를 변환하지 못했습니다. 다른 형식으로 저장해 다시 올려 주세요.",
+    "UPLOAD_ONLY_IMAGE": "이미지 파일만 올릴 수 있습니다.",
+    "UPLOAD_ONLY_AUDIO": "오디오 파일만 올릴 수 있습니다.",
+    "UPLOAD_ONLY_PDF": "PDF 파일만 올릴 수 있습니다.",
+    "UPLOAD_ONLY_FONT": "글꼴 파일(woff2, woff, ttf, otf)만 올릴 수 있습니다.",
+    "UPLOAD_STILL_TOO_LARGE": "압축했지만 여전히 제한을 넘습니다({{size}} / 최대 {{max}}MB). 더 짧거나 화질이 낮은 영상을 써 주세요."
   }
 }

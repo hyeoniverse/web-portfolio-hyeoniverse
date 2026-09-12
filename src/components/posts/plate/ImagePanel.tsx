@@ -9,6 +9,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import { useModalStore } from "@/stores/modalStore";
 import { ModalConfirm, ModalAlert } from "@/components/ui/ModalTemplates";
 import type { EditorImageInfo } from "./types";
+import { uploadErrorText } from "./uploadErrorText";
 import styles from "../EditorMedia.module.css";
 
 function formatBytes(bytes: number): string {
@@ -45,13 +46,10 @@ export function ImagePanel({
   const { t } = useLanguage();
   const { openModal } = useModalStore();
 
-  // 업로드 실패 — alert 대신 상세 사유 모달. 서버가 사유를 주면 그대로, 상태코드만/빈 사유면 힌트 추가.
+  // 업로드 실패 — alert 대신 상세 사유 모달(편집기의 showMediaError 와 같은 문구)
   const showUploadError = (err: unknown) => {
-    const raw = err instanceof Error ? err.message : "";
-    const generic = !raw || /\(\d{3}\)/.test(raw);
-    const desc = generic ? `${raw || t("editor.uploadFail")}\n\n${t("editor.uploadFailHint")}` : raw;
     openModal(
-      <ModalAlert desc={desc} />,
+      <ModalAlert desc={uploadErrorText(err, t)} />,
       { id: "media-upload-error", header: { title: t("editor.uploadFail") }, closeButton: true, width: "400px" },
     );
   };
