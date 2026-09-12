@@ -7,6 +7,7 @@ import Popover, { MenuItem, MenuItemTrailing, MenuDivider } from "@/components/u
 import styles from "./RowActionsMenu.module.css";
 import Button from "@/components/ui/Button";
 import Pressable from "@/components/ui/Pressable";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 interface RowActionsMenuLabels {
   menuTitle?: string;
@@ -39,7 +40,7 @@ function MovePanelBody({
 }: {
   currentOrder: number;
   totalCount: number;
-  labels: RowActionsMenuLabels;
+  labels: Required<RowActionsMenuLabels>;
   pos: string;
   setPos: (s: string) => void;
   apply: (n: number) => void;
@@ -47,16 +48,16 @@ function MovePanelBody({
   return (
     <div className={styles.moveBody}>
       <div className={styles.meta}>
-        {labels.moveCurrent ?? "현재 위치"}: <strong>{currentOrder}</strong>{" / "}{totalCount}
+        {labels.moveCurrent}: <strong>{currentOrder}</strong>{" / "}{totalCount}
       </div>
       <div className={styles.quickRow}>
         <Pressable className={styles.quickBtn} onClick={() => apply(1)}>
           <ArrowUpToLine size={12} />
-          {labels.moveToTop ?? "맨 앞"}
+          {labels.moveToTop}
         </Pressable>
         <Pressable className={styles.quickBtn} onClick={() => apply(totalCount || 1)}>
           <ArrowDownToLine size={12} />
-          {labels.moveToBottom ?? "맨 뒤"}
+          {labels.moveToBottom}
         </Pressable>
       </div>
       <div className={styles.posRow}>
@@ -84,7 +85,7 @@ function MovePanelBody({
             if (!Number.isNaN(n)) apply(n);
           }}
         >
-          {labels.apply ?? "적용"}
+          {labels.apply}
         </Button>
       </div>
     </div>
@@ -120,8 +121,20 @@ export default function RowActionsMenu({
   currentOrder = 0,
   totalCount = 0,
   onExport,
-  labels = {},
+  labels: given = {},
 }: RowActionsMenuProps) {
+  const { t } = useLanguage();
+  /* 부르는 쪽이 넘기지 않은 라벨은 관리자 공통 문구로 채운다. 예전에는 한국어 기본값이라, 라벨을 덜 넘긴 목록에서는
+     영어 화면에도 "이동"·"맨 앞" 같은 한국어가 나왔다. */
+  const labels: Required<RowActionsMenuLabels> = {
+    menuTitle: given.menuTitle ?? t("admin.common.actions"),
+    move: given.move ?? t("admin.common.moveToPosition"),
+    moveCurrent: given.moveCurrent ?? t("admin.common.moveCurrent"),
+    moveToTop: given.moveToTop ?? t("admin.common.moveToTop"),
+    moveToBottom: given.moveToBottom ?? t("admin.common.moveToBottom"),
+    apply: given.apply ?? t("admin.common.apply"),
+    export: given.export ?? t("admin.common.exportMd"),
+  };
   const [open, setOpen] = useState(false);
   const [moveOpen, setMoveOpen] = useState(false);
   const [pos, setPos] = useState(String(currentOrder));
@@ -144,7 +157,7 @@ export default function RowActionsMenu({
     return (
       <IconTriggerButton
         icon={<Download size={14} />}
-        title={labels.export ?? ".md 내보내기"}
+        title={labels.export}
         onClick={() => onExport?.()}
       />
     );
@@ -161,11 +174,11 @@ export default function RowActionsMenu({
         }}
         placement="bottom-end"
         contentClassName={styles.body}
-        sheetTitle={labels.move ?? "이동"}
+        sheetTitle={labels.move}
         trigger={
           <IconTriggerButton
             icon={<ArrowUpDown size={14} />}
-            title={labels.move ?? "이동"}
+            title={labels.move}
             active={open}
           />
         }
@@ -197,11 +210,11 @@ export default function RowActionsMenu({
       }}
       placement="bottom-end"
       contentClassName={styles.body}
-      sheetTitle={labels.menuTitle ?? "동작"}
+      sheetTitle={labels.menuTitle}
       trigger={
         <IconTriggerButton
           icon={<MoreHorizontal size={16} />}
-          title={labels.menuTitle ?? "동작"}
+          title={labels.menuTitle}
           active={open}
         />
       }
@@ -211,7 +224,7 @@ export default function RowActionsMenu({
           {hasMove && (
             <MenuItem
               icon={<ArrowUpDown size={14} />}
-              label={labels.move ?? "이동"}
+              label={labels.move}
               active={moveOpen}
               ariaExpanded={moveOpen}
               onClick={() => setMoveOpen((v) => !v)}
@@ -253,7 +266,7 @@ export default function RowActionsMenu({
           {hasExport && (
             <MenuItem
               icon={<Download size={14} />}
-              label={labels.export ?? ".md 내보내기"}
+              label={labels.export}
               onClick={() => { onExport?.(); close(); }}
             />
           )}

@@ -205,7 +205,14 @@
       "deleteSelected": "선택 삭제",
       "deleteCount": "삭제 ({{n}})",
       "required": "필수",
-      "rowNumberHint": "클릭해서 위치 직접 입력"
+      "rowNumberHint": "클릭해서 위치 직접 입력",
+      "bulkDeleteItemsPrompt": "{{count}}개 항목을 삭제하려면 \"{{count}}\"을(를) 입력하세요.",
+      "exportMd": ".md 내보내기",
+      "clearSelection": "선택 해제",
+      "actions": "관리",
+      "currentTag": "현재",
+      "jumpFirst": "맨 앞",
+      "jumpLast": "맨 뒤"
     },
     "settings": {
       "title": "설정",

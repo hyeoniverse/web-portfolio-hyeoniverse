@@ -19,6 +19,8 @@ import Pagination from "@/components/ui/Pagination";
 import EditableRowNumber from "./EditableRowNumber";
 import RowActionsMenu from "./RowActionsMenu";
 import styles from "./AdminTable.module.css";
+import { useLanguage } from "@/providers/LanguageProvider";
+import { fillTemplate } from "@/utils/format";
 
 /* ── Types ── */
 export interface AdminTableColumn<T> {
@@ -138,6 +140,7 @@ export default function AdminTable<T extends { id: string; published: boolean }>
 }: AdminTableProps<T>) {
   const router = useRouter();
   const { openModal } = useModalStore();
+  const { t } = useLanguage();
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
   /* ── Drag & drop state ── */
@@ -227,7 +230,7 @@ export default function AdminTable<T extends { id: string; published: boolean }>
     const count = String(selected.size);
     openModal(
       <ModalPrompt
-        hint={`${selected.size}개 항목을 삭제하려면 "${count}"을(를) 입력하세요.`}
+        hint={fillTemplate(t("admin.common.bulkDeleteItemsPrompt"), { count })}
         placeholder={count}
         validate={(v) => v === count}
         confirmText={labels.delete}
@@ -236,7 +239,7 @@ export default function AdminTable<T extends { id: string; published: boolean }>
       />,
       { id: "bulk-delete-confirm", header: { title: `${labels.delete} (${count})` }, closeButton: true, width: "400px" },
     );
-  }, [onBulkDelete, selected, openModal, labels]);
+  }, [onBulkDelete, selected, openModal, labels, t]);
 
   const handleBulkPublish = useCallback((published: boolean) => {
     if (!onBulkPublish || selected.size === 0) return;
@@ -331,7 +334,7 @@ export default function AdminTable<T extends { id: string; published: boolean }>
           안에 두면 화면 상단에 고정되지 않고 테이블과 같이 움직인다. */}
       {selected.size > 0 && (
         <div className={styles.bulkBar}>
-        <span>{selected.size}개 선택</span>
+        <span>{fillTemplate(t("admin.common.selectedCount"), { count: selected.size })}</span>
         {onBulkPublish && (
           <>
             <Button variant="outline" size="xs" onClick={() => handleBulkPublish(true)}>{labels.publishedTooltip}</Button>
@@ -339,7 +342,7 @@ export default function AdminTable<T extends { id: string; published: boolean }>
           </>
         )}
         {onBulkExport && (
-          <Button variant="outline" size="xs" onClick={() => onBulkExport([...selected])}>.md 내보내기</Button>
+          <Button variant="outline" size="xs" onClick={() => onBulkExport([...selected])}>{labels.exportItem ?? t("admin.common.exportMd")}</Button>
         )}
         {extraBulkActions?.map((a, i) => (
           <Button
@@ -359,7 +362,7 @@ export default function AdminTable<T extends { id: string; published: boolean }>
         {onBulkDelete && (
           <Button variant="outline" size="xs" tone="danger" onClick={handleBulkDelete}>{labels.delete}</Button>
         )}
-        <CloseButton onClick={() => setSelected(new Set())} ariaLabel="선택 해제" size="sm" className={styles.bulkCancelBtn} />
+        <CloseButton onClick={() => setSelected(new Set())} ariaLabel={t("admin.common.clearSelection")} size="sm" className={styles.bulkCancelBtn} />
         </div>
       )}
       <div className={styles.table} style={gridStyle}>
