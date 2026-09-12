@@ -40,6 +40,8 @@ import BulkCategoryModal from "@/components/admin/BulkCategoryModal";
 import type { BilingualCategory } from "@/types/common";
 import { parseMdWork } from "@/utils/mdParser";
 import { uploadRandomCover } from "@/utils/uploadRandomCover";
+import { sendAction, sendActions, notifyFailures } from "@/lib/sendAction";
+import { CodedError, errorFromResponse } from "@/lib/apiError";
 import styles from "./AdminWorks.module.css";
 import MarkdownUploadGuide from "./_components/MarkdownUploadGuide";
 import Pressable from "@/components/ui/Pressable";
@@ -259,22 +261,20 @@ export default function AdminWorksPage() {
 
   const createWorks = useCallback(async (items: Record<string, unknown>[]) => {
     setUploading(true);
-    let created = 0;
     for (const body of items) {
       if (!body.image) {
         const url = await uploadRandomCover();
         if (url) body.image = url;
       }
-      const res = await fetch("/api/works", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      if (res.ok) created++;
     }
+    /* 하나씩 차례로 — 서버가 지금 최댓값 + 1 로 순서를 매긴다. 만들지 못한 파일은 알림으로 알린다(#868) */
+    const created = await sendActions(
+      items.map((body) => ({ input: "/api/works", init: { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } })),
+      t, t("admin.common.importFailed"), { sequential: true },
+    );
     setUploading(false);
     if (created > 0) fetchWorks();
-  }, [fetchWorks]);
+  }, [fetchWorks, t]);
 
   const handleMdUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -293,14 +293,14 @@ export default function AdminWorksPage() {
   const handleExportAll = useCallback(async () => {
     setExporting(true);
     try {
-      const res = await fetch("/api/works/export?all=true");
-      if (!res.ok) return;
+      const res = await sendAction("/api/works/export?all=true", undefined, t, t("admin.common.exportFailed"));
+      if (!res) return;
       const { files } = await res.json() as GithubImportResponse;
       await downloadFiles(files);
     } finally {
       setExporting(false);
     }
-  }, []);
+  }, [t]);
 
   /* ── Filtered trash ── */
   const filteredTrash = useMemo(() => {
@@ -332,27 +332,26 @@ export default function AdminWorksPage() {
   const trashFiltersChanged = useDepsChanged([trashSearch, trashSearchType, trashSortBy, trashSortDir]);
   if (trashFiltersChanged) setTrashPage(1);
 
+  /* 실패하면 알림을 띄우고 목록은 그대로 둔다 — 예전에는 응답을 보지 않아 거절돼도 아무 표시가 없었다(#868) */
   const handleDelete = async (id: string) => {
-    await fetch(`/api/works/${id}`, { method: "DELETE" });
+    if (!(await sendAction(`/api/works/${id}`, { method: "DELETE" }, t, t("admin.common.deleteFailed")))) return;
     fetchWorks();
     if (trashOpen) fetchTrash();
   };
 
   const handleRestore = async (id: string) => {
-    await fetch(`/api/works/${id}/restore`, { method: "POST" });
+    if (!(await sendAction(`/api/works/${id}/restore`, { method: "POST" }, t, t("admin.common.restoreFailed")))) return;
     fetchTrash();
     fetchWorks();
   };
 
   const handleExtend = async (id: string) => {
-    await fetch(`/api/works/${id}/extend-retention`, { method: "POST" });
-    fetchTrash();
+    if (await sendAction(`/api/works/${id}/extend-retention`, { method: "POST" }, t, t("admin.common.extendFailed"))) fetchTrash();
   };
 
   const handlePurge = async (id: string, title: string) => {
     if (!confirm(`"${title}" — ${t("admin.works.trashPurgeConfirm")}`)) return;
-    await fetch(`/api/works/${id}/purge`, { method: "DELETE" });
-    fetchTrash();
+    if (await sendAction(`/api/works/${id}/purge`, { method: "DELETE" }, t, t("admin.common.purgeFailed"))) fetchTrash();
   };
 
   /* handleMove 는 useCallback 이라 guardWritable 을 의존성에 넣으면 매 렌더 재생성된다.
@@ -390,20 +389,14 @@ export default function AdminWorksPage() {
     setWorks(next);
 
     // 서버 동기화 — skipShift=true 로 batch (각 PATCH 가 normalize 안 함). 마지막에 fetchWorks 로 refresh.
-    try {
-      await Promise.all(
-        next.slice(lo, hi + 1).map((w) =>
-          fetch(`/api/works/${w.id}?skipShift=true`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ sort_order: w.sort_order }),
-          }),
-        ),
-      );
-      fetchWorks();
-    } catch {
-      fetchWorks();
-    }
+    await sendActions(
+      next.slice(lo, hi + 1).map((w) => ({
+        input: `/api/works/${w.id}?skipShift=true`,
+        init: { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sort_order: w.sort_order }) },
+      })),
+      t, t("admin.common.reorderFailed"),
+    );
+    fetchWorks();
   };
 
   /** 위치 이동 — popover 에서 선택한 newOrder 로 PATCH.
@@ -411,29 +404,25 @@ export default function AdminWorksPage() {
   const handleMove = useCallback(async (target: Work, newOrder: number) => {
     if (newOrder === target.sort_order) return;
     if (!guardMoveRef.current(target)) return;
-    await fetch(`/api/works/${target.id}`, {
+    const res = await sendAction(`/api/works/${target.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ sort_order: newOrder }),
-    });
-    fetchWorks();
-  }, [fetchWorks]);
+    }, t, t("admin.common.reorderFailed"));
+    if (res) fetchWorks();
+  }, [fetchWorks, t]);
 
   // 상태 배지 클릭 → 발행/미발행 토글 (낙관적 업데이트, 실패 시 롤백)
   const handleToggleWorkPublished = useCallback(async (work: Work) => {
     const next = !work.published;
     setWorks((prev) => prev.map((w) => (w.id === work.id ? { ...w, published: next } : w)));
-    try {
-      const res = await fetch(`/api/works/${work.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ published: next }),
-      });
-      if (!res.ok) throw new Error("toggle failed");
-    } catch {
-      setWorks((prev) => prev.map((w) => (w.id === work.id ? { ...w, published: work.published } : w)));
-    }
-  }, []);
+    const res = await sendAction(`/api/works/${work.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ published: next }),
+    }, t, t("admin.common.publishFailed"));
+    if (!res) setWorks((prev) => prev.map((w) => (w.id === work.id ? { ...w, published: work.published } : w)));
+  }, [t]);
 
   const columns: AdminTableColumn<Work>[] = useMemo(
     () => [
@@ -782,9 +771,13 @@ export default function AdminWorksPage() {
         }}
         onBulkExport={async (ids) => {
           if (!guardWritable(worksByIds(ids))) return;
+          const failures: CodedError[] = [];
           for (const id of ids) {
-            const res = await fetch(`/api/works/export?id=${id}`);
-            if (!res.ok) continue;
+            const res = await fetch(`/api/works/export?id=${id}`).catch(() => null);
+            if (!res?.ok) {
+              failures.push(res ? await errorFromResponse(res) : new CodedError("Network error"));
+              continue;
+            }
             const text = await res.text();
             const disposition = res.headers.get("Content-Disposition") ?? "";
             const match = disposition.match(/filename="(.+)"/);
@@ -792,16 +785,14 @@ export default function AdminWorksPage() {
             downloadBlob(text, fileName);
             await new Promise((r) => setTimeout(r, 100));
           }
+          notifyFailures(failures, ids.length, t, t("admin.common.exportFailed"));
         }}
         onBulkPublish={async (ids, published) => {
           if (!guardWritable(worksByIds(ids))) return;
-          await Promise.all(ids.map((id) =>
-            fetch(`/api/works/${id}`, {
-              method: "PATCH",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ published }),
-            })
-          ));
+          await sendActions(
+            ids.map((id) => ({ input: `/api/works/${id}`, init: { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ published }) } })),
+            t, t("admin.common.publishFailed"),
+          );
           fetchWorks();
         }}
         extraBulkActions={[
@@ -814,17 +805,21 @@ export default function AdminWorksPage() {
                   count={ids.length}
                   categories={worksCategories}
                   onConfirm={async (cat) => {
-                    await Promise.all(ids.map((id) =>
-                      fetch(`/api/works/${id}`, {
-                        method: "PATCH",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                          // bulk 변경은 단일 카테고리로 통째로 교체 (덮어쓰기)
-                          categories_ko: cat?.ko ? [cat.ko] : [],
-                          categories_en: cat?.en ? [cat.en] : [],
-                        }),
-                      })
-                    ));
+                    await sendActions(
+                      ids.map((id) => ({
+                        input: `/api/works/${id}`,
+                        init: {
+                          method: "PATCH",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({
+                            // bulk 변경은 단일 카테고리로 통째로 교체 (덮어쓰기)
+                            categories_ko: cat?.ko ? [cat.ko] : [],
+                            categories_en: cat?.en ? [cat.en] : [],
+                          }),
+                        },
+                      })),
+                      t, t("admin.common.categoryFailed"),
+                    );
                     fetchWorks();
                   }}
                 />,
@@ -837,12 +832,12 @@ export default function AdminWorksPage() {
         onMove={sort === "order" && !filterYear && !filterCategory ? handleMove : undefined}
         onRowLabelEdit={sort === "order" && !filterYear && !filterCategory ? async (target, newOrder) => {
           if (newOrder === target.sort_order) return;
-          await fetch(`/api/works/${target.id}`, {
+          const res = await sendAction(`/api/works/${target.id}`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ sort_order: newOrder }),
-          });
-          fetchWorks();
+          }, t, t("admin.common.reorderFailed"));
+          if (res) fetchWorks();
         } : undefined}
         rowLabelMax={totalCount || works.length}
         gridTemplate="64px 1fr 40px 100px 100px 180px"

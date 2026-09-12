@@ -117,6 +117,7 @@
     }
   },
   "common": {
+    "partialFailed": "Couldn’t process {{failed}} of {{total}}.",
     "loading": "Loading...",
     "error": "An error occurred",
     "retry": "Retry",
