@@ -597,7 +597,7 @@ export default function PostEditor({ post }: PostEditorProps) {
     // 제한 초과 시 브라우저에서 압축 후 업로드 (진행 모달 포함).
     if (file.type.startsWith("video/")) {
       const { runVideoUpload } = await import("@/components/posts/plate/MediaUploadModal");
-      return runVideoUpload(file, mediaLimits);
+      return runVideoUpload(file, mediaLimits, t("editor.videoUploadTitle"));
     }
 
     const { compressImage, validateFileSize } = await import("@/lib/compressImage");
@@ -623,7 +623,7 @@ export default function PostEditor({ post }: PostEditorProps) {
     if (!res.ok) throw new Error(data.error || fillTemplate(te("uploadFailedStatus"), { status: res.status }));
     if (!data.url) throw new Error(data.error || te("uploadNoResponse"));
     return data.url;
-  }, [mediaLimits, te]);
+  }, [mediaLimits, t, te]);
 
   const handleCoverUpload = useCallback(async () => {
     const input = document.createElement("input");

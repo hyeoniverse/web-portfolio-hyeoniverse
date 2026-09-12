@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { useModalStore } from "@/stores/modalStore";
 import { compressVideo, formatBytes } from "@/lib/videoCompress";
 import { directUpload } from "@/lib/directUpload";
+import { useLanguage } from "@/providers/LanguageProvider";
+import { fillTemplate } from "@/utils/format";
 import styles from "../EditorMedia.module.css";
 
 type Limits = Record<string, number> | undefined;
@@ -27,6 +29,7 @@ interface Props {
  * 압축은 진행률(%)을, 업로드는 indeterminate 바를 표시.
  */
 function MediaUploadModal({ file, limits, onDone, onError }: Props) {
+  const { t } = useLanguage();
   const [stage, setStage] = useState<"prep" | "compress" | "upload">("prep");
   const [progress, setProgress] = useState(0);
   const [info, setInfo] = useState(formatBytes(file.size));
@@ -44,7 +47,7 @@ function MediaUploadModal({ file, limits, onDone, onError }: Props) {
         // 제한 초과 → 브라우저에서 압축 (mp4 h264, 최대 폭 1280, CRF 28)
         if (file.size > limitBytes) {
           setStage("compress");
-          setInfo(`${formatBytes(file.size)} · 제한 ${limitMB}MB 초과 → 압축`);
+          setInfo(fillTemplate(t("editor.videoOverLimit"), { size: formatBytes(file.size), limit: limitMB }));
           const { blob, name } = await compressVideo(file, {
             format: "mp4-h264",
             crf: 28,
@@ -53,9 +56,7 @@ function MediaUploadModal({ file, limits, onDone, onError }: Props) {
           });
           payload = new File([blob], name, { type: blob.type });
           if (payload.size > limitBytes) {
-            throw new Error(
-              `압축했지만 여전히 제한을 초과합니다 (${formatBytes(payload.size)} / 최대 ${limitMB}MB). 더 짧거나 저화질 영상을 사용해주세요.`,
-            );
+            throw new Error(fillTemplate(t("editor.videoStillOverLimit"), { size: formatBytes(payload.size), limit: limitMB }));
           }
           setInfo(`${formatBytes(file.size)} → ${formatBytes(payload.size)}`);
         }
@@ -67,13 +68,13 @@ function MediaUploadModal({ file, limits, onDone, onError }: Props) {
         onError(e);
       }
     })();
-  }, [file, limits, onDone, onError]);
+  }, [file, limits, onDone, onError, t]);
 
   const pct = Math.round(progress * 100);
   const stageLabel =
-    stage === "compress" ? `브라우저에서 압축 중… ${pct}%`
-    : stage === "upload" ? "스토리지에 업로드 중…"
-    : "준비 중…";
+    stage === "compress" ? fillTemplate(t("editor.videoCompressing"), { pct })
+    : stage === "upload" ? t("editor.videoUploading")
+    : t("editor.videoPreparing");
 
   return (
     <div className={styles.mediaUploadBody}>
@@ -85,9 +86,7 @@ function MediaUploadModal({ file, limits, onDone, onError }: Props) {
       </div>
       <p className={styles.mediaUploadStage}>{stageLabel}</p>
       {info && <p className={styles.mediaUploadHint}>{info}</p>}
-      <p className={styles.mediaUploadHint}>
-        페이지를 닫지 마세요. 압축은 영상 길이에 따라 수 분 걸릴 수 있어요.
-      </p>
+      <p className={styles.mediaUploadHint}>{t("editor.videoKeepOpen")}</p>
     </div>
   );
 }
@@ -95,8 +94,9 @@ function MediaUploadModal({ file, limits, onDone, onError }: Props) {
 /**
  * 동영상을 진행 모달과 함께 업로드하고 최종 URL 을 반환하는 헬퍼.
  * 에디터의 업로드 콜백(handleImageUpload)에서 동영상 분기 시 호출.
+ * 모달 제목은 문자열이라 훅을 쓸 수 없어, 부르는 쪽이 화면 언어로 넘긴다.
  */
-export function runVideoUpload(file: File, limits: Limits): Promise<string> {
+export function runVideoUpload(file: File, limits: Limits, title: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const id = "media-upload-progress";
     const { openModal, closeModal } = useModalStore.getState();
@@ -107,7 +107,7 @@ export function runVideoUpload(file: File, limits: Limits): Promise<string> {
         onDone={(url) => { closeModal(id); resolve(url); }}
         onError={(e) => { closeModal(id); reject(e); }}
       />,
-      { id, header: { title: "동영상 업로드" }, closeButton: false, width: "440px" },
+      { id, header: { title }, closeButton: false, width: "440px" },
     );
   });
 }

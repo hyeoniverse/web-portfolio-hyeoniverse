@@ -531,7 +531,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     // 동영상 — 서버 body 한도 우회 위해 Storage 직접 업로드 (제한 초과 시 브라우저 압축).
     if (file.type.startsWith("video/")) {
       const { runVideoUpload } = await import("@/components/posts/plate/MediaUploadModal");
-      return runVideoUpload(file, undefined);
+      return runVideoUpload(file, undefined, t("editor.videoUploadTitle"));
     }
 
     const { compressImage, validateFileSize } = await import("@/lib/compressImage");
@@ -551,7 +551,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error);
     return data.url;
-  }, []);
+  }, [t]);
 
   const handleImageUpload = useCallback(async (field: "image" | "gallery") => {
     const input = document.createElement("input");
