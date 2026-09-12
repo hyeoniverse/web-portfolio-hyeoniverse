@@ -10,6 +10,7 @@ import Checkbox from "@/components/ui/Checkbox";
 import FieldRow from "@/components/ui/FieldRow";
 import EmptyState from "@/components/ui/EmptyState";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { errorText } from "@/lib/apiError";
 import type { ProfileData } from "@/types/profile";
 import { PINNED_REPO_LIMIT, type GithubRepoCard } from "@/lib/githubShowcase";
 import styles from "./ProfileGithubEditor.module.css";
@@ -32,7 +33,7 @@ export default function ProfileGithubEditor({
      같은 위계의 글자가 화면마다 달라진다. */
   styles: Record<string, string>;
 }) {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const L = (ko: string, en: string) => (language === "ko" ? ko : en);
 
   const gh = data.github ?? {};
@@ -54,7 +55,7 @@ export default function ProfileGithubEditor({
       const res = await fetch("/api/admin/profile/github-repos");
       const body = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setError(body?.error || L("저장소를 불러오지 못했습니다.", "Could not load repositories."));
+        setError(errorText(body, t, L("저장소를 불러오지 못했습니다.", "Could not load repositories.")));
         setRepos([]);
       } else {
         setRepos(body.repos ?? []);
