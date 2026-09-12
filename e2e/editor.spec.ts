@@ -41,6 +41,12 @@ async function composeIME(page: Page, steps: string[], commit: string) {
 test.describe("에디터 입력", () => {
   test.setTimeout(120_000);
 
+  /* 새 글은 초안 확인이 끝나면 제목 칸에 포커스를 준다(#897). 화면 언어는 저장 상태에 따라 영어일 수 있다 */
+  test("새 글을 열면 제목 칸에 포커스가 있다", async ({ page }) => {
+    await page.goto(NEW_POST, { waitUntil: "load" });
+    await expect(page.getByPlaceholder(/^(포스트 제목|Post title)$/)).toBeFocused({ timeout: 30_000 });
+  });
+
   test("한글 IME 조합 — 첫 글자가 중복되지 않는다", async ({ page }) => {
     const editor = await openEditor(page);
     const errors: string[] = [];

@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { useSyncRef } from "@/hooks/useSyncRef";
 import { useShallowStable } from "@/hooks/useShallowStable";
+import { useFocusOnceWhenReady } from "@/hooks/useFocusOnceWhenReady";
 import type { UploadResponse } from "@/types";
 import { PREVIEW_KEY } from "@/constants";
 import { useRouter } from "next/navigation";
@@ -349,6 +350,7 @@ export default function PostEditor({ post }: PostEditorProps) {
 
   // 에디터 ref + 첨부 이미지
   const plateRef = useRef<PlateEditorHandle>(null);
+  const titleInputRef = useRef<HTMLInputElement>(null);
   const [editorImages, setEditorImages] = useEditorImages();
   const [editorHtmlMode, setEditorHtmlMode] = useState(false);
   // 초기 로드 후 이미지 목록 동기화 (에디터 준비될 때까지 polling)
@@ -385,6 +387,8 @@ export default function PostEditor({ post }: PostEditorProps) {
     entityType: "post",
     entityId: draftEntityId,
   });
+  // 새 글이면 초안 확인이 끝난 뒤 제목 칸에 한 번 포커스를 준다(#897)
+  useFocusOnceWhenReady(titleInputRef, !isEdit && revisionsLoaded);
 
   // 교차 기기 최신 로딩 — 서버 최신 리비전이 마지막 저장본(updated_at)보다 실제로 더 나중일 때만 복원.
   // updated_at 은 저장 시 명시 갱신되고 저장 시 옛 revision 은 dismiss 되므로, 저장본보다 오래된
@@ -1002,6 +1006,7 @@ export default function PostEditor({ post }: PostEditorProps) {
             </span>
           </div>
           <input
+            ref={titleInputRef}
             className={`${es.titleInput}${titleFieldError ? ` ${es.titleInputError}` : ""}`}
             type="text"
             value={metaForm[titleKey]}

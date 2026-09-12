@@ -56,6 +56,7 @@ import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import { List } from "@/app/admin/(dashboard)/components";
 import { deriveTeamMemberAvatar, getMemberInitial } from "@/utils/teamMemberAvatar";
 import { useMyRole } from "@/hooks/useMyRole";
+import { useFocusOnceWhenReady } from "@/hooks/useFocusOnceWhenReady";
 import AuthorAvatar from "@/components/ui/AuthorAvatar";
 import styles from "./WorkEditor.module.css";
 import type { PlateEditorHandle } from "@/components/posts/PlateEditor";
@@ -94,6 +95,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   const [editorLang, setEditorLang] = useState<"ko" | "en">(primaryLang);
   // 본문 에디터 ref + 첨부 이미지 패널 (Posts editor 와 동일 패턴)
   const plateRef = useRef<PlateEditorHandle>(null);
+  const titleInputRef = useRef<HTMLInputElement>(null);
   const [editorImages, setEditorImages] = useEditorImages();
   const [editorHtmlMode, setEditorHtmlMode] = useState(false);
   // 에디터 준비될 때까지 polling 으로 이미지 목록 동기화. 언어 전환 시 에디터가 remount(key=editorLang) 되므로 재동기화.
@@ -152,6 +154,8 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     entityType: "work",
     entityId: work?.id,
   });
+  // 새 작업물이면 초안 확인이 끝난 뒤 제목 칸에 한 번 포커스를 준다(#897)
+  useFocusOnceWhenReady(titleInputRef, !isEdit && revisionsLoaded);
 
   // 교차 기기 최신 로딩 — 서버 최신 리비전이 마지막 저장본(updated_at)보다 실제로 더 나중일 때만 복원.
   // updated_at 은 저장 시 명시 갱신되고 저장 시 옛 revision 은 dismiss 되므로, 저장본보다 오래된
@@ -889,6 +893,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       <div className={es.field} data-required="title">
         <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${showErrors && !reqTitle.trim() ? ` ${es.fieldLabelError}` : ""}`}>{tw("title")}</label>
         <input
+          ref={titleInputRef}
           className={`${es.titleInput}${showErrors && !reqTitle.trim() ? ` ${es.titleInputError}` : ""}`}
           type="text"
           value={titleValue}
