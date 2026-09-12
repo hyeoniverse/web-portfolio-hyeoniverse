@@ -103,3 +103,26 @@ test.describe("비로그인 — CSRF 를 통과해도 인증에서 끊긴다", (
     });
   }
 });
+
+/* 상세 페이지의 없는 주소·옛 주소(#891). 글·작업물 상세에는 loading.tsx 가 있어 응답이 로딩 화면부터 스트리밍됐고,
+   그 뒤 페이지에서 부르는 notFound()·redirect() 는 200 응답 안의 내용으로만 전해졌다. 이제 [slug] 레이아웃이 먼저 확인한다 */
+test.describe("비로그인 — 상세 페이지의 없는 주소·옛 주소", () => {
+  test("없는 글 주소는 404", async ({ request }) => {
+    const res = await request.get("/posts/e2e-no-such-post-xyz", { maxRedirects: 0 });
+    expect(res.status()).toBe(404);
+  });
+
+  test("없는 작업물 주소는 404", async ({ request }) => {
+    const res = await request.get("/works/e2e-no-such-work-xyz", { maxRedirects: 0 });
+    expect(res.status()).toBe(404);
+  });
+
+  test("작업물의 옛 id 주소는 slug 주소로 307", async ({ request }) => {
+    const body = (await (await request.get("/api/works")).json()) as { works?: { id: string; slug?: string | null }[] };
+    const work = body.works?.find((w) => w.slug && w.slug !== w.id);
+    test.skip(!work, "slug 가 있는 작업물이 없다");
+    const res = await request.get(`/works/${work!.id}`, { maxRedirects: 0 });
+    expect(res.status(), "옛 주소는 HTTP 이동이어야 한다").toBe(307);
+    expect(new URL(res.headers().location ?? "", "http://local").pathname).toBe(`/works/${work!.slug}`);
+  });
+});
