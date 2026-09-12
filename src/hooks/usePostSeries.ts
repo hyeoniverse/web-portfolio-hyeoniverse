@@ -51,5 +51,14 @@ export function usePostSeries(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [seriesId]);
 
-  return { seriesList, seriesPosts, setSeriesPosts, seriesPostsLoading, refetchSeries };
+  /* 고른 시리즈의 글 순서를 서버에서 다시 받는다 — 순서 바꾸기가 실패했을 때 화면을 서버 값으로 되돌린다(#868).
+     새 글 자동 순서(onAutoOrder)는 건드리지 않는다 */
+  const reloadSeriesPosts = useCallback(async () => {
+    if (!seriesId) return;
+    const res = await fetch(`/api/series/${seriesId}`).catch(() => null);
+    const data = res?.ok ? await res.json().catch(() => null) : null;
+    if (data) setSeriesPosts((data.posts ?? []) as SeriesPost[]);
+  }, [seriesId]);
+
+  return { seriesList, seriesPosts, setSeriesPosts, seriesPostsLoading, refetchSeries, reloadSeriesPosts };
 }

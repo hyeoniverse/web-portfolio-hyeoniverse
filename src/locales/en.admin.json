@@ -1198,7 +1198,8 @@
         "deniedTitle": "You don’t have access to this post",
         "notFoundTitle": "Post not found",
         "backToList": "Back to posts",
-        "saveFailed": "Couldn’t save."
+        "saveFailed": "Couldn’t save.",
+        "relatedWorksFailed": "The post was saved, but its related works couldn’t be saved."
       },
       "coverPicker": {
         "presets": "Presets",
@@ -1253,7 +1254,9 @@
         "copyPalette": "Copy palette",
         "addStop": "Add stop",
         "randomGradient": "Random gradient",
-        "baseColor": "Base color"
+        "baseColor": "Base color",
+        "gradientExtractFailed": "Couldn’t get colors from the image.",
+        "gradientSaveFailed": "Couldn’t save the gradient."
       },
       "seriesModal": {
         "editTitle": "Edit Series",
@@ -1530,7 +1533,8 @@
         "avatarUploadFailed": "Couldn’t upload the photo.",
         "memberAddAria": "Add member",
         "memberLinkHint": "A linked account can edit this project. Leave it unlinked for outside collaborators without a site account.",
-        "techAdd": "Add tech"
+        "techAdd": "Add tech",
+        "relatedFailed": "The work was saved, but its related posts and series couldn’t be saved."
       },
       "noPermissionTitle": "No permission",
       "noPermissionDesc": "You don't have access to this work. Ask the owner to add you to the team.",

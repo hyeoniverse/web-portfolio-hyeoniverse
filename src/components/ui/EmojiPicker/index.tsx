@@ -5,7 +5,9 @@ import { useDepsChanged } from "@/hooks/useDepsChanged";
 import { createPortal } from "react-dom";
 import { Search, Shuffle, ChevronLeft, ChevronRight } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
-import { errorText } from "@/lib/apiError";
+import { CodedError, errorText } from "@/lib/apiError";
+import { tryRequest } from "@/lib/sendAction";
+import { showToast } from "@/stores/toastStore";
 import Tooltip from "@/components/ui/Tooltip";
 import { EMOJI_CATEGORIES, ICON_CATEGORIES, EMOJI_KEYWORDS, iconSvgInner } from "../emojiData";
 import { EMOJI_KO } from "../emojiKo";
@@ -339,7 +341,20 @@ export default function EmojiPicker({ open, onClose, onSelect, currentValue, onI
         return next;
       });
     }
-    if (target?.id) fetch(`/api/custom-emojis/${target.id}`, { method: "DELETE" }).catch(() => { /* noop */ });
+    if (!target?.id) return;
+    /* 서버에서 지우지 못하면 목록에 되돌리고 알린다 — 예전에는 조용히 실패해 다음 동기화 때 되살아났다(#868).
+       최근사용에서 뺀 것은 그대로 둔다(다시 쓰면 다시 쌓인다) */
+    void tryRequest(`/api/custom-emojis/${target.id}`, { method: "DELETE" }).then((res) => {
+      if (!(res instanceof CodedError)) return;
+      setCustoms((prev) => {
+        if (prev.some((c) => c.id === target.id)) return prev;
+        const next = [...prev];
+        next.splice(Math.min(idx, next.length), 0, target);
+        cacheCustoms(next);
+        return next;
+      });
+      showToast(errorText(res, tr, language === "ko" ? "아이콘을 지우지 못했습니다." : "Couldn’t delete the icon."), "error");
+    });
   };
 
   const EmojiBtn = ({ val, onDelete }: { val: string; onDelete?: () => void }) => {

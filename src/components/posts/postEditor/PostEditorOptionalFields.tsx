@@ -43,6 +43,7 @@ export default function PostEditorOptionalFields({
   setSeriesSelectMode,
   onSeriesCreated,
   onCoverUpload,
+  onReorderSeriesPosts,
 }: {
   form: PostFormData;
   updateField: <K extends keyof PostFormData>(key: K, value: PostFormData[K]) => void;
@@ -58,6 +59,8 @@ export default function PostEditorOptionalFields({
   post?: Post | null;
   /** 시리즈 목록과 선택한 시리즈의 글 — 부모가 usePostSeries 로 들고 있다 */
   series: Pick<ReturnType<typeof usePostSeries>, "seriesList" | "seriesPosts" | "setSeriesPosts" | "seriesPostsLoading">;
+  /** 시리즈 안 다른 글의 바뀐 순서를 저장한다 — 부모가 요청을 보내고 실패하면 알린다 */
+  onReorderSeriesPosts: (updates: { id: string; sort_order: number }[]) => void;
   /** 펼침 상태는 부모가 소유한다 — SEO 체크리스트 클릭으로도 열리기 때문 */
   optionalOpen: boolean;
   setOptionalOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -223,13 +226,7 @@ export default function PostEditorOptionalFields({
                             const u = otherUpdates.find((x) => x.id === p.id);
                             return u ? { ...p, series_order: u.sort_order } : p;
                           }));
-                          otherUpdates.forEach((u) => {
-                            fetch(`/api/posts/${u.id}`, {
-                              method: "PATCH",
-                              headers: { "Content-Type": "application/json" },
-                              body: JSON.stringify({ series_order: u.sort_order }),
-                            });
-                          });
+                          onReorderSeriesPosts(otherUpdates);
                         }
                       }}
                     />
