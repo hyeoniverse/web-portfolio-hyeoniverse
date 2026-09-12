@@ -15,6 +15,7 @@ import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import SubTable from "@/components/admin/SubTable/SubTable";
 import { adminShellStyles as shell } from "@/components/admin/AdminListShell";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
+import { sendAction, sendActions } from "@/lib/sendAction";
 import { PurgeModal } from "./PostModals";
 import { createTrashColumns } from "../_columns";
 import { searchTypeOptions, pageSizeOptions, matchesSearch, useSubTableControls, type SearchType } from "./subTableControls";
@@ -69,22 +70,21 @@ export default function TrashPanel({
     return list;
   }, [posts, search, searchType, sort]);
 
+  /* 실패하면 알림을 띄우고 목록은 그대로 둔다 — 예전에는 응답을 보지 않아 거절돼도 아무 표시가 없었다(#868) */
   const handleRestore = async (id: string) => {
-    await fetch(`/api/posts/${id}/restore`, { method: "POST" });
-    onRestored();
+    if (await sendAction(`/api/posts/${id}/restore`, { method: "POST" }, t, t("admin.common.restoreFailed"))) onRestored();
   };
 
   const handlePurge = (id: string, title: string) => {
     openModal(
-      <PurgeModal title={title} onConfirm={async () => { await fetch(`/api/posts/${id}/purge`, { method: "DELETE" }); onRefresh(); }} />,
+      <PurgeModal title={title} onConfirm={async () => { if (await sendAction(`/api/posts/${id}/purge`, { method: "DELETE" }, t, t("admin.common.purgeFailed"))) onRefresh(); }} />,
       { id: "purge-confirm", header: { title: `"${title}"` }, closeButton: true, width: "400px" },
     );
   };
 
   // 휴지통 보관 +30일 연장
   const handleExtend = async (id: string) => {
-    await fetch(`/api/posts/${id}/extend-retention`, { method: "POST" });
-    onRefresh();
+    if (await sendAction(`/api/posts/${id}/extend-retention`, { method: "POST" }, t, t("admin.common.extendFailed"))) onRefresh();
   };
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -110,7 +110,11 @@ export default function TrashPanel({
             disabled: busy,
             onClick: async () => {
               setBusy(true);
-              await Promise.all([...selected].map((id) => handleRestore(id)));
+              const restored = await sendActions(
+                [...selected].map((id) => ({ input: `/api/posts/${id}/restore`, init: { method: "POST" } })),
+                t, t("admin.common.restoreFailed"),
+              );
+              if (restored > 0) onRestored();
               setSelected(new Set());
               setBusy(false);
             },
@@ -125,8 +129,11 @@ export default function TrashPanel({
                   confirmText={t("admin.posts.trashPurge")}
                   onConfirm={async () => {
                     setBusy(true);
-                    await Promise.all([...selected].map((id) => fetch(`/api/posts/${id}/purge`, { method: "DELETE" })));
-                    onRefresh();
+                    const purged = await sendActions(
+                      [...selected].map((id) => ({ input: `/api/posts/${id}/purge`, init: { method: "DELETE" } })),
+                      t, t("admin.common.purgeFailed"),
+                    );
+                    if (purged > 0) onRefresh();
                     setSelected(new Set());
                     setBusy(false);
                   }}

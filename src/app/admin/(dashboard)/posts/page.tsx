@@ -33,6 +33,8 @@ import BulkCategoryModal from "@/components/admin/BulkCategoryModal";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import { parseMdPost } from "@/utils/mdParser";
 import { uploadRandomCover } from "@/utils/uploadRandomCover";
+import { sendAction, sendActions, notifyFailures } from "@/lib/sendAction";
+import { CodedError, errorFromResponse } from "@/lib/apiError";
 import MarkdownUploadGuide from "./_components/MarkdownUploadGuide";
 import SeriesPanel from "./_components/SeriesPanel";
 import TrashPanel from "./_components/TrashPanel";
@@ -188,36 +190,34 @@ export default function AdminPostsPage() {
   // 포스트 일괄 생성
   const createPosts = useCallback(async (posts: Record<string, unknown>[]) => {
     setUploading(true);
-    let created = 0;
     for (const body of posts) {
       if (!body.cover_image) {
         const url = await uploadRandomCover();
         if (url) body.cover_image = url;
       }
-      const res = await fetch("/api/posts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      if (res.ok) created++;
     }
+    /* 예전처럼 하나씩 차례로 만든다. 만들지 못한 파일은 알림으로 알린다(#868) */
+    const created = await sendActions(
+      posts.map((body) => ({ input: "/api/posts", init: { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } })),
+      t, t("admin.common.importFailed"), { sequential: true },
+    );
     setUploading(false);
     if (created > 0) fetchPosts();
-  }, [fetchPosts]);
+  }, [fetchPosts, t]);
 
   // 새 카테고리를 site_config에 추가
   const addNewCategories = useCallback(async (newCats: string[]) => {
-    const res = await fetch("/api/admin/settings");
-    if (!res.ok) return;
+    const res = await sendAction("/api/admin/settings", undefined, t, t("admin.common.categoryAddFailed"));
+    if (!res) return;
     const { config } = await res.json();
     const existing = (config.posts?.categories ?? []) as LocalizedText[];
     const updated = [...existing, ...newCats.map((c) => ({ ko: c, en: c }))];
-    await fetch("/api/admin/settings", {
+    await sendAction("/api/admin/settings", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ config: { ...config, posts: { ...config.posts, categories: updated } } }),
-    });
-  }, []);
+    }, t, t("admin.common.categoryAddFailed"));
+  }, [t]);
 
   const handleMdUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -263,14 +263,14 @@ export default function AdminPostsPage() {
   const handleExportAll = useCallback(async () => {
     setExporting(true);
     try {
-      const res = await fetch("/api/posts/export?all=true");
-      if (!res.ok) return;
+      const res = await sendAction("/api/posts/export?all=true", undefined, t, t("admin.common.exportFailed"));
+      if (!res) return;
       const { files } = await res.json() as GithubImportResponse;
       await downloadFiles(files);
     } finally {
       setExporting(false);
     }
-  }, []);
+  }, [t]);
 
   const fetchTrash = useCallback(async () => {
     setTrashLoading(true);
@@ -302,7 +302,7 @@ export default function AdminPostsPage() {
   const handleDelete = async (id: string) => {
     const post = posts.find((p) => p.id === id);
     const doDelete = async () => {
-      await fetch(`/api/posts/${id}`, { method: "DELETE" });
+      if (!(await sendAction(`/api/posts/${id}`, { method: "DELETE" }, t, t("admin.common.deleteFailed")))) return;
       fetchPosts();
       if (trashOpen) fetchTrash();
       fetchPopularIds();
@@ -334,17 +334,13 @@ export default function AdminPostsPage() {
     const next = !post.published;
     if (!guardWritableRef.current(post)) return;
     setPosts((prev) => prev.map((p) => (p.id === post.id ? { ...p, published: next } : p)));
-    try {
-      const res = await fetch(`/api/posts/${post.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ published: next }),
-      });
-      if (!res.ok) throw new Error("toggle failed");
-    } catch {
-      setPosts((prev) => prev.map((p) => (p.id === post.id ? { ...p, published: post.published } : p)));
-    }
-  }, []);
+    const res = await sendAction(`/api/posts/${post.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ published: next }),
+    }, t, t("admin.common.publishFailed"));
+    if (!res) setPosts((prev) => prev.map((p) => (p.id === post.id ? { ...p, published: post.published } : p)));
+  }, [t]);
 
   const columns = useMemo(() => createPostColumns(t, handleTogglePublished), [t, handleTogglePublished]);
 
@@ -524,9 +520,13 @@ export default function AdminPostsPage() {
         }}
         onBulkExport={async (ids) => {
           if (!guardWritable(postsByIds(ids))) return;
+          const failures: CodedError[] = [];
           for (const id of ids) {
-            const res = await fetch(`/api/posts/export?id=${id}`);
-            if (!res.ok) continue;
+            const res = await fetch(`/api/posts/export?id=${id}`).catch(() => null);
+            if (!res?.ok) {
+              failures.push(res ? await errorFromResponse(res) : new CodedError("Network error"));
+              continue;
+            }
             const text = await res.text();
             const disposition = res.headers.get("Content-Disposition") ?? "";
             const match = disposition.match(/filename="(.+)"/);
@@ -534,11 +534,12 @@ export default function AdminPostsPage() {
             downloadBlob(text, fileName);
             await new Promise((r) => setTimeout(r, 100));
           }
+          notifyFailures(failures, ids.length, t, t("admin.common.exportFailed"));
         }}
         onBulkDelete={async (ids) => {
           if (!guardWritable(postsByIds(ids))) return;
           setBusy(true);
-          await Promise.all(ids.map((id) => fetch(`/api/posts/${id}`, { method: "DELETE" })));
+          await sendActions(ids.map((id) => ({ input: `/api/posts/${id}`, init: { method: "DELETE" } })), t, t("admin.common.deleteFailed"));
           await fetchPosts();
           if (trashOpen) await fetchTrash();
           setBusy(false);
@@ -546,13 +547,10 @@ export default function AdminPostsPage() {
         onBulkPublish={async (ids, published) => {
           if (!guardWritable(postsByIds(ids))) return;
           setBusy(true);
-          await Promise.all(ids.map((id) =>
-            fetch(`/api/posts/${id}`, {
-              method: "PATCH",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ published }),
-            })
-          ));
+          await sendActions(
+            ids.map((id) => ({ input: `/api/posts/${id}`, init: { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ published }) } })),
+            t, t("admin.common.publishFailed"),
+          );
           await fetchPosts();
           setBusy(false);
         }}
@@ -568,13 +566,10 @@ export default function AdminPostsPage() {
                   categories={categories}
                   onConfirm={async (cat) => {
                     setBusy(true);
-                    await Promise.all(ids.map((id) =>
-                      fetch(`/api/posts/${id}`, {
-                        method: "PATCH",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ category: cat?.ko ?? null }),
-                      })
-                    ));
+                    await sendActions(
+                      ids.map((id) => ({ input: `/api/posts/${id}`, init: { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ category: cat?.ko ?? null }) } })),
+                      t, t("admin.common.categoryFailed"),
+                    );
                     await fetchPosts();
                     setBusy(false);
                   }}

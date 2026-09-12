@@ -216,7 +216,17 @@
       "statusPublished": "Published",
       "statusScheduled": "Scheduled",
       "statusDraft": "Draft",
-      "uploadFailed": "Couldn’t upload the file."
+      "uploadFailed": "Couldn’t upload the file.",
+      "deleteFailed": "Couldn’t delete.",
+      "restoreFailed": "Couldn’t restore.",
+      "purgeFailed": "Couldn’t delete permanently.",
+      "extendFailed": "Couldn’t extend the retention period.",
+      "reorderFailed": "Couldn’t change the order.",
+      "publishFailed": "Couldn’t change the publish status.",
+      "categoryFailed": "Couldn’t change the category.",
+      "importFailed": "Couldn’t create items from the Markdown files.",
+      "exportFailed": "Couldn’t export.",
+      "categoryAddFailed": "Couldn’t add the new categories to settings."
     },
     "settings": {
       "title": "Settings",

@@ -218,7 +218,17 @@
       "statusPublished": "발행됨",
       "statusScheduled": "예약 발행",
       "statusDraft": "미발행",
-      "uploadFailed": "파일을 올리지 못했습니다."
+      "uploadFailed": "파일을 올리지 못했습니다.",
+      "deleteFailed": "삭제하지 못했습니다.",
+      "restoreFailed": "복구하지 못했습니다.",
+      "purgeFailed": "영구 삭제하지 못했습니다.",
+      "extendFailed": "보관 기간을 늘리지 못했습니다.",
+      "reorderFailed": "순서를 바꾸지 못했습니다.",
+      "publishFailed": "발행 상태를 바꾸지 못했습니다.",
+      "categoryFailed": "카테고리를 바꾸지 못했습니다.",
+      "importFailed": "Markdown 파일로 항목을 만들지 못했습니다.",
+      "exportFailed": "내보내지 못했습니다.",
+      "categoryAddFailed": "새 카테고리를 설정에 더하지 못했습니다."
     },
     "settings": {
       "title": "설정",
