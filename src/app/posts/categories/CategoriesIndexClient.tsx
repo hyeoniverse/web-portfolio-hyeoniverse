@@ -14,6 +14,8 @@ import IndexSheet from "../_components/IndexSheet/IndexSheet";
 import { useLanguage } from "@/providers/LanguageProvider";
 import BoldMarks from "@/components/ui/BoldMarks";
 import { fillCount, fillTemplate } from "@/utils/format";
+import { translateCategory, useCategories } from "@/hooks/useCategories";
+import { findCategoryNode } from "@/lib/categoryTree";
 
 interface CategoryEntry {
   name: string;
@@ -29,7 +31,11 @@ type SortBy = "popular" | "alphabetical";
 const FEATURED_COUNT = 3;
 
 export default function CategoriesIndexClient({ categories }: Props) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  /* 글에는 카테고리를 저장값(한국어 leaf 이름)으로 둔다. 보이는 이름은 화면 언어로 바꾸고(글 카드의 CategoryLabel 과
+     같다), 검색은 두 언어 이름 모두에 맞게, 이름순은 보이는 이름 기준으로 한다. 글 목록 링크에는 저장값을 그대로 쓴다. */
+  const cats = useCategories();
+  const labelOf = (name: string) => translateCategory(name, language, cats);
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<SortBy>("popular");
   // 시트 — ESC 닫기 + body 스크롤 잠금
@@ -42,14 +48,20 @@ export default function CategoriesIndexClient({ categories }: Props) {
   }, [categories]);
 
   const filtered = useMemo(() => {
+    const label = (name: string) => translateCategory(name, language, cats);
     let list = categories;
     const q = search.trim().toLowerCase();
-    if (q) list = list.filter((c) => c.name.toLowerCase().includes(q));
+    if (q) {
+      list = list.filter((c) => {
+        const node = findCategoryNode(cats, c.name);
+        return [c.name, node?.ko, node?.en].some((n) => n?.toLowerCase().includes(q));
+      });
+    }
     list = list.slice();
-    if (sortBy === "alphabetical") list.sort((a, b) => a.name.localeCompare(b.name));
+    if (sortBy === "alphabetical") list.sort((a, b) => label(a.name).localeCompare(label(b.name), language));
     else list.sort((a, b) => b.count - a.count);
     return list;
-  }, [categories, search, sortBy]);
+  }, [categories, search, sortBy, cats, language]);
 
   const totalPosts = useMemo(
     () => categories.reduce((sum, c) => sum + c.count, 0),
@@ -122,14 +134,14 @@ export default function CategoriesIndexClient({ categories }: Props) {
                         className={card.coverImg}
                       />
                     ) : (
-                      <span className={card.coverPlaceholder}>{c.name.charAt(0).toUpperCase()}</span>
+                      <span className={card.coverPlaceholder}>{labelOf(c.name).charAt(0).toUpperCase()}</span>
                     )}
                   </div>
                   <div className={card.body}>
                     <span className={card.meta2}>
                       <span>{fillCount(t, "postsPage.countPosts", c.count)}</span>
                     </span>
-                    <span className={card.cardTitle}>{c.name}</span>
+                    <span className={card.cardTitle}>{labelOf(c.name)}</span>
                   </div>
                 </Link>
               </li>
@@ -145,7 +157,7 @@ export default function CategoriesIndexClient({ categories }: Props) {
       <IndexSheet
         show={!!sheetCat}
         onClose={() => setSheetCat(null)}
-        title={sheetCat?.name}
+        title={sheetCat ? labelOf(sheetCat.name) : undefined}
         count={sheetCat ? fillCount(t, "postsPage.countPosts", sheetCat.count) : null}
         cta={{ href: `/posts?category=${encodeURIComponent(sheetCat?.name ?? "")}`, label: t("postsPage.viewCategoryPosts") }}
       />
