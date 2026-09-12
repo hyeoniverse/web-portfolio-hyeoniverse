@@ -82,19 +82,30 @@ test.describe("에디터 입력", () => {
  */
 
 /**
- * 칸을 누르고, 커서가 그 칸 안에 실제로 들어갈 때까지 기다린다.
+ * 칸을 누르고, 편집기가 그 칸의 커서를 받아들일 때까지 기다린다(#881).
  *
- * 누른 직후 바로 입력하면 첫 글자만 남는다. 커서가 아직 자리를 잡지 않은 상태라
- * 뒷글자가 갈 곳을 잃기 때문이다. 기다리는 시간을 정해 두면 기계가 바쁠 때 모자라므로,
- * 커서 위치를 직접 확인한다.
+ * slate 는 브라우저가 보내는 `selectionchange` 로 자기 선택을 맞춘다. 누른 직후에는 DOM 커서가
+ * 이미 칸 안에 있어도 이 이벤트가 아직 오지 않아, slate 의 선택은 표 밖 이전 자리에 있다. 이때
+ * 치면 slate-react 가 첫 글자를 칸에 넣은 뒤 선택을 이전 자리로 되돌려(확장 프로그램 호환),
+ * 첫 글자만 칸에 남고 나머지는 그 자리로 간다. 그래서 DOM 커서가 아니라, 칸 안을 가리키는
+ * `selectionchange` 가 한 번 온 것을 확인한다. 기다리는 시간을 정해 두면 기계가 바쁠 때 모자란다.
  */
 async function focusCell(page: Page, cell: Locator) {
+  await cell.evaluate((el) => {
+    const w = window as Window & { __cellSelected?: boolean };
+    w.__cellSelected = false;
+    const onChange = () => {
+      const sel = document.getSelection();
+      if (!sel?.anchorNode || !el.contains(sel.anchorNode)) return;
+      w.__cellSelected = true;
+      document.removeEventListener("selectionchange", onChange);
+    };
+    document.addEventListener("selectionchange", onChange);
+  });
   await cell.click();
   await expect
-    .poll(async () => cell.evaluate((el) => {
-      const sel = document.getSelection();
-      return !!sel?.anchorNode && el.contains(sel.anchorNode);
-    }), { message: "커서가 그 칸 안에 있다", timeout: 10_000 })
+    .poll(() => page.evaluate(() => (window as Window & { __cellSelected?: boolean }).__cellSelected === true),
+      { message: "편집기가 그 칸의 커서를 받았다", timeout: 10_000 })
     .toBe(true);
 }
 
@@ -133,13 +144,9 @@ test.describe("에디터 표", () => {
     const { table } = await insertTable(page);
     const cell = table.locator("td").first();
     await focusCell(page, cell);
-    // 조합은 커서가 놓인 곳에 들어간다. 칸 안이 비어 있으면 커서가 아직 글자 마디에
-    // 붙지 않은 상태라 조합이 갈 곳을 잃는다. 한 글자를 먼저 넣어 마디를 만든다.
-    await page.keyboard.type("x", { delay: 120 });
-    await expect(cell, "먼저 넣은 글자").toContainText("x");
     await composeIME(page, ["ㄱ", "가"], "가");
     await composeIME(page, ["ㄴ", "나"], "나");
-    await expect(cell, "입력한 칸").toContainText("x가나");
+    await expect(cell, "입력한 칸").toContainText("가나");
   });
 
   test("행·열을 더하는 손잡이가 표 옆에 붙는다", async ({ page }) => {
