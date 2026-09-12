@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { projects } from "@/data/projects";
 import type { Project } from "@/data/projects";
 import type { Work } from "@/types/work";
@@ -43,7 +44,7 @@ async function seedWorksFromStatic(supabase: ReturnType<typeof import("@/lib/sup
  * Fetch works — DB에서 조회. DB가 비어있으면 정적 데이터를 주입 후 재조회.
  * 정적 데이터도 없으면 빈 배열 반환.
  */
-export async function getWorks(): Promise<Project[]> {
+async function fetchWorks(): Promise<Project[]> {
   if (
     !process.env.NEXT_PUBLIC_SUPABASE_URL ||
     !process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -87,3 +88,6 @@ export async function getWorks(): Promise<Project[]> {
     return projects;
   }
 }
+
+/** 요청 안에서는 한 번만 조회한다 — 작업물 상세의 레이아웃·메타데이터·페이지가 함께 부른다(#891) */
+export const getWorks = cache(fetchWorks);
