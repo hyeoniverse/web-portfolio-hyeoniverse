@@ -3,6 +3,7 @@ import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAuth } from "./requireAuth";
 import { getUserRole, canEditPost, canEditWork, type UserRole } from "./roles";
+import type { ApiErrorCode, ErrorParams } from "@/lib/apiError";
 
 type Granted = { supabase: SupabaseClient; user: User; role: UserRole; error?: never };
 type Denied = { supabase?: never; user?: never; role?: never; error: NextResponse };
@@ -36,6 +37,8 @@ export function policyBlocked(): NextResponse {
     {
       error: "Forbidden",
       reason: "세션에 담긴 권한 정보가 최신이 아니라 접근이 거부되었습니다. 다시 로그인해 주세요.",
+      /* 화면은 코드를 화면 언어 문구로 바꾼다(#862). reason 은 로그·개발용으로 남긴다 */
+      code: "SESSION_STALE",
     },
     { status: 403 },
   );
@@ -53,8 +56,8 @@ export async function requirePostAccess(
   const notFound = (): Denied => ({
     error: NextResponse.json({ error: "not found" }, { status: 404 }),
   });
-  const forbidden = (reason: string): Denied => ({
-    error: NextResponse.json({ error: "Forbidden", reason }, { status: 403 }),
+  const forbidden = (reason: string, code: ApiErrorCode, params?: ErrorParams): Denied => ({
+    error: NextResponse.json({ error: "Forbidden", reason, code, ...(params ? { params } : {}) }, { status: 403 }),
   });
 
   const admin = createAdminClient();
@@ -64,7 +67,7 @@ export async function requirePostAccess(
     if (error) return { error: NextResponse.json({ error: error.message }, { status: 500 }) };
     if (!data) return notFound();
     if (!canEditWork(role, data.team_members as { author_id?: string }[] | null)) {
-      return forbidden("이 작업물의 팀원으로 등록된 계정만 편집할 수 있습니다. 소유자에게 팀원 등록을 요청해 주세요.");
+      return forbidden("이 작업물의 팀원으로 등록된 계정만 편집할 수 있습니다. 소유자에게 팀원 등록을 요청해 주세요.", "WORK_TEAM_ONLY");
     }
     return { supabase, user, role };
   }
@@ -79,7 +82,7 @@ export async function requirePostAccess(
   if (!target) return notFound();
 
   if (!canEditPost(role, target.author_ids as string[] | null)) {
-    return forbidden(`본인이 작성한 글만 수정할 수 있습니다. 현재 권한 레벨은 ${role.level}입니다.`);
+    return forbidden(`본인이 작성한 글만 수정할 수 있습니다. 현재 권한 레벨은 ${role.level}입니다.`, "POST_OWN_ONLY", { level: role.level });
   }
 
   return { supabase, user, role };

@@ -8,7 +8,7 @@ export async function POST(request: Request) {
   if (authError) return authError;
 
   const accessKey = await getSecret("UNSPLASH_ACCESS_KEY");
-  if (!accessKey) return jsonError("Unsplash API key not configured", 503);
+  if (!accessKey) return jsonError("Unsplash API key not configured", 503, { code: "UNSPLASH_KEY_MISSING" });
 
   const { downloadUrl, regularUrl } = await request.json();
 
@@ -23,7 +23,7 @@ export async function POST(request: Request) {
 
   // Download the image
   const imgRes = await fetch(regularUrl);
-  if (!imgRes.ok) return jsonError("Failed to download image", 502);
+  if (!imgRes.ok) return jsonError("Failed to download image", 502, { code: "COVER_DOWNLOAD_FAILED" });
 
   const imgBuffer = await imgRes.arrayBuffer();
   const fileName = `${crypto.randomUUID()}.jpg`;

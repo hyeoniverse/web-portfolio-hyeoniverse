@@ -277,7 +277,7 @@ export default function ContactDrawer({
             className={styles.drawer}
             role="dialog"
             aria-modal="true"
-            aria-label="Contact form"
+            aria-label={t("contact.drawer.formLabel")}
           >
             {/* 닫기 버튼 */}
             <CloseButton
@@ -377,7 +377,7 @@ export default function ContactDrawer({
                                   fileInputRef.current.value = "";
                                 }
                               }}
-                              aria-label="Remove file"
+                              aria-label={t("contact.drawer.removeFile")}
                             >
                               <X />
                             </Pressable>

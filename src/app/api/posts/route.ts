@@ -254,7 +254,7 @@ export async function POST(request: Request) {
 
   // 제목 길이 제한 (UI·DB 와 동일 상한)
   if (titleTooLong(body.title) || titleTooLong(body.title_en)) {
-    return jsonError(`title exceeds ${POST_TITLE_MAX} characters`, 400);
+    return jsonError(`title exceeds ${POST_TITLE_MAX} characters`, 400, { code: "POST_TITLE_TOO_LONG", params: { max: POST_TITLE_MAX } });
   }
 
   /* 생성도 세션 클라이언트로 — posts_admin_insert(is_member) 를 통과해야 들어간다. */

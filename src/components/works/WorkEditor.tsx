@@ -375,10 +375,10 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         setStatus(tw("autoTranslated"));
         setStatusType("success");
       } else {
-        setError(result.error);
+        setError(errorText(result.error, t, tw("translateFailed")));
       }
     },
-    [form, tw, TRANSLATABLE_FIELDS, fieldKeyFor],
+    [form, t, tw, TRANSLATABLE_FIELDS, fieldKeyFor],
   );
 
   const handleEditorLangChange = useCallback(
@@ -446,7 +446,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     onChange: editorLang === "ko" ? team.setMemberRoleKo : team.setMemberRoleEn,
     presets: editorLang === "ko" ? ROLE_PRESETS_KO : ROLE_PRESETS_EN,
     placeholder: tw("memberRole"),
-    lang: editorLang,
   });
 
   const onOwnRoleChange = useCallback((v: string) => updateField(editorLang === "ko" ? "role_ko" : "role_en", v), [editorLang, updateField]);
@@ -456,7 +455,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     onChange: onOwnRoleChange,
     presets: editorLang === "ko" ? ROLE_PRESETS_KO : ROLE_PRESETS_EN,
     placeholder: tw("rolePlaceholder"),
-    lang: editorLang,
   });
 
   // form 의 avatar preview — 사용자 입력 기준 derive (avatar_url 우선, 없으면 url 에서)
@@ -669,7 +667,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
 
         if (!res.ok) {
           /* 서버는 "왜" 를 reason 에 담는다 — error 만 쓰면 "Forbidden" 밖에 안 남아 원인을 알 수 없다. */
-          setError(data.reason ?? data.error ?? tw("saveFailed"));
+          setError(errorText(data, t, tw("saveFailed")));
           return;
         }
 
@@ -713,7 +711,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         setSaving(false);
       }
     },
-    [form, router, tw, savedId, primaryLang, clearDraft, isEdit],
+    [form, router, t, tw, savedId, primaryLang, clearDraft, isEdit],
   );
 
   const handleDelete = useCallback(async () => {
@@ -799,7 +797,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         /* 서버는 "왜" 를 reason 에 담는다 — error 만 쓰면 "Forbidden" 밖에 안 남아 원인을 알 수 없다. */
-        setError(data.reason ?? data.error ?? tw("saveFailed"));
+        setError(errorText(data, t, tw("saveFailed")));
         return;
       }
       setStatus(tw("generateSummaryDone"));
@@ -809,7 +807,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     } finally {
       setRegeneratingSummary(false);
     }
-  }, [work?.id, tw, savedId]);
+  }, [work?.id, tw, savedId, t]);
 
   const shellLabels = useMemo(
     () => ({
@@ -1349,7 +1347,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
               tech.setInput("");
             }}
             disabled={!tech.input.trim()}
-            aria-label="Add"
+            aria-label={tw("techAdd")}
             icon={<Plus size={12} strokeWidth={2} />}
           />
         </div>

@@ -12,7 +12,7 @@ export async function GET(request: Request) {
 
   const accessKey = await getSecret("UNSPLASH_ACCESS_KEY");
   if (!accessKey) {
-    return jsonError("Unsplash API key not configured", 503);
+    return jsonError("Unsplash API key not configured", 503, { code: "UNSPLASH_KEY_MISSING" });
   }
 
   const { searchParams } = new URL(request.url);
@@ -30,7 +30,7 @@ export async function GET(request: Request) {
 
   if (!res.ok) {
     // upstream status passthrough — jsonError 의 typed 범위를 넘어갈 수 있으니 NextResponse 사용
-    return NextResponse.json({ error: "Unsplash API error" }, { status: res.status });
+    return NextResponse.json({ error: "Unsplash API error", code: "COVER_SEARCH_FAILED" }, { status: res.status });
   }
 
   const data = await res.json();

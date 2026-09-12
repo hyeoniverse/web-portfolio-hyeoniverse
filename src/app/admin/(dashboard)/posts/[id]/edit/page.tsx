@@ -10,8 +10,10 @@ import { useLenis } from "@/providers/LenisProvider";
 import type { Post } from "@/types/post";
 import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "@/components/posts/PostEditor.module.css";
+import { errorText } from "@/lib/apiError";
 
-type LoadFailure = { status: number; reason: string };
+/* 실패 응답 본문은 그대로 두고 그릴 때 화면 언어 문구로 바꾼다 — 효과 안에서 번역하면 번역 함수가 바뀔 때마다 다시 불러와야 한다 */
+type LoadFailure = { status: number; body: unknown };
 
 export default function EditPostPage() {
   const { t } = useLanguage();
@@ -34,12 +36,12 @@ export default function EditPostPage() {
         const res = await fetch(`/api/posts/${id}`);
         const body = await res.json().catch(() => ({}));
         if (!res.ok || !body?.id) {
-          setFailure({ status: res.status, reason: body?.reason || body?.error || "" });
+          setFailure({ status: res.status, body });
         } else {
           setPost(body as Post);
         }
       } catch {
-        setFailure({ status: 0, reason: "" });
+        setFailure({ status: 0, body: null });
       } finally {
         setLoading(false);
       }
@@ -54,7 +56,7 @@ export default function EditPostPage() {
       <AdminNotFound
         variant={denied ? "denied" : "notFound"}
         title={denied ? t("admin.posts.editor.deniedTitle") : t("admin.posts.editor.notFoundTitle")}
-        description={failure?.reason || undefined}
+        description={errorText(failure?.body, t, "") || undefined}
         backHref="/admin/posts"
         backLabel={t("admin.posts.editor.backToList")}
       />

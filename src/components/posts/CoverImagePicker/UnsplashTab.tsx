@@ -11,6 +11,7 @@ import { downloadFile } from "./downloadFile";
 import type { PostContext } from "./index";
 import styles from "./CoverImagePicker.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { errorFromBody, errorText } from "@/lib/apiError";
 
 interface UnsplashPhoto {
   id: string;
@@ -99,7 +100,7 @@ export default function UnsplashTab({ onSelect, postContext }: UnsplashTabProps)
           `/api/cover/unsplash?q=${encodeURIComponent(q)}&page=${p}`
         );
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error);
+        if (!res.ok) throw errorFromBody(data, res.status);
         // Unsplash 가 페이지 경계에서 같은 사진 중복 반환할 수 있어 ID 기준 dedup
         setPhotos((prev) => {
           const next = append ? [...prev, ...data.results] : data.results;
@@ -113,12 +114,12 @@ export default function UnsplashTab({ onSelect, postContext }: UnsplashTabProps)
         setTotalPages(data.total_pages);
         setPage(p);
       } catch (err) {
-        setError(err instanceof Error ? err.message : tc("searchFailed"));
+        setError(errorText(err, t, tc("searchFailed")));
       } finally {
         setLoading(false);
       }
     },
-    [tc]
+    [t, tc]
   );
 
   const handleInputChange = useCallback(
@@ -168,15 +169,15 @@ export default function UnsplashTab({ onSelect, postContext }: UnsplashTabProps)
           }),
         });
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error);
+        if (!res.ok) throw errorFromBody(data, res.status);
         onSelect(data.url, photo.user.name);
       } catch (err) {
-        setError(err instanceof Error ? err.message : tc("downloadFailed"));
+        setError(errorText(err, t, tc("downloadFailed")));
       } finally {
         setDownloading(null);
       }
     },
-    [onSelect, tc]
+    [onSelect, t, tc]
   );
 
   return (

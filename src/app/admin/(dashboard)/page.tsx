@@ -49,6 +49,7 @@ import DashboardSkeleton from "./_components/DashboardSkeleton";
 import CategoryDonut from "./_components/CategoryDonut";
 import DailyViewsChart from "./_components/DailyViewsChart";
 import DevicesBreakdown from "./_components/DevicesBreakdown";
+import { errorFromResponse, errorText } from "@/lib/apiError";
 
 
 export default function AdminDashboard() {
@@ -89,19 +90,16 @@ export default function AdminDashboard() {
         router.replace("/admin/posts");
         return;
       }
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || `HTTP ${res.status}`);
-      }
+      if (!res.ok) throw await errorFromResponse(res);
       const json = (await res.json()) as DashboardData;
       setData(json);
       setError(null);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load");
+      setError(errorText(e, t, t("admin.dashboard.loadError")));
     } finally {
       setLoading(false);
     }
-  }, [router]);
+  }, [router, t]);
 
   useEffect(() => {
     fetchData();

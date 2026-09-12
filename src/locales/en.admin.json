@@ -977,7 +977,9 @@
       "accountUpdateFailed": "Couldn’t update the account.",
       "emailResendFailed": "Couldn’t resend the confirmation email.",
       "emailCancelFailed": "Couldn’t cancel the email change.",
-      "signOutAllFailed": "Couldn’t sign out of all devices."
+      "signOutAllFailed": "Couldn’t sign out of all devices.",
+      "envReveal": "Show value",
+      "envHide": "Hide value"
     },
     "posts": {
       "title": "Posts",
@@ -1178,7 +1180,8 @@
         "tagRemove": "Remove tag",
         "deniedTitle": "You don’t have access to this post",
         "notFoundTitle": "Post not found",
-        "backToList": "Back to posts"
+        "backToList": "Back to posts",
+        "saveFailed": "Couldn’t save."
       },
       "coverPicker": {
         "presets": "Presets",
@@ -1509,7 +1512,8 @@
         "backToList": "Back to works",
         "avatarUploadFailed": "Couldn’t upload the photo.",
         "memberAddAria": "Add member",
-        "memberLinkHint": "A linked account can edit this project. Leave it unlinked for outside collaborators without a site account."
+        "memberLinkHint": "A linked account can edit this project. Leave it unlinked for outside collaborators without a site account.",
+        "techAdd": "Add tech"
       },
       "noPermissionTitle": "No permission",
       "noPermissionDesc": "You don't have access to this work. Ask the owner to add you to the team.",
@@ -1551,7 +1555,23 @@
       "GITHUB_REPO_FORBIDDEN": "The token doesn’t have permission to read this repository.",
       "GITHUB_RATE_LIMITED": "The GitHub API rate limit was reached. Try again in a moment.",
       "GITHUB_REQUEST_FAILED": "The GitHub request failed. Try again in a moment.",
-      "GITHUB_OWNER_LINK_MISSING": "The owner’s profile has no GitHub link. Add one in member settings."
+      "GITHUB_OWNER_LINK_MISSING": "The owner’s profile has no GitHub link. Add one in member settings.",
+      "SESSION_STALE": "Your session’s permissions are out of date. Please sign in again.",
+      "POST_OWN_ONLY": "You can only edit your own posts. Your permission level is {{level}}.",
+      "WORK_TEAM_ONLY": "Only accounts listed as team members of this work can edit it. Ask the owner to add you.",
+      "WORK_TEAM_LINK_ADMIN_ONLY": "Changing the accounts linked to team members needs admin access. Ask the owner.",
+      "POST_TITLE_TOO_LONG": "The title can be up to {{max}} characters.",
+      "SERIES_TITLE_TOO_LONG": "The series title can be up to {{max}} characters.",
+      "SERIES_NOT_FOUND": "The series can’t be found. It may have been deleted.",
+      "UNSPLASH_KEY_MISSING": "The Unsplash API key isn’t set.",
+      "PEXELS_KEY_MISSING": "The Pexels API key isn’t set.",
+      "COVER_SEARCH_FAILED": "The image search failed. Try again in a moment.",
+      "COVER_DOWNLOAD_FAILED": "Couldn’t download the image. Try again in a moment.",
+      "AI_PROMPT_TOO_LONG": "The prompt can be up to {{max}} characters.",
+      "AI_NOT_CONFIGURED": "The image generation service isn’t set up.",
+      "AI_GENERATE_FAILED": "Couldn’t generate the image. Try again in a moment.",
+      "TRANSLATION_NOT_CONFIGURED": "The translation service isn’t set up.",
+      "TRANSLATION_FAILED": "Translation failed. Try again in a moment."
     }
   }
 }

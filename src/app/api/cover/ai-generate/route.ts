@@ -130,7 +130,7 @@ export async function POST(request: Request) {
   if (!prompt) return jsonError("Prompt required", 400);
   // prompt 길이 가드 — provider 측 token-bomb 방지
   if (typeof prompt !== "string" || prompt.length > 500) {
-    return jsonError("Prompt too long (max 500 chars)", 400);
+    return jsonError("Prompt too long (max 500 chars)", 400, { code: "AI_PROMPT_TOO_LONG", params: { max: 500 } });
   }
 
   const styleHint = stylePrompts[style] || stylePrompts.abstract;
@@ -187,7 +187,8 @@ export async function POST(request: Request) {
   }
 
   const status = lastError.includes("not configured") ? 503 : 502;
-  return jsonError(sanitizeError(lastError), status);
+  /* 제공자가 쓴 영어 문장은 로그·개발용 — 화면은 코드로 문구를 고른다(#862) */
+  return jsonError(sanitizeError(lastError), status, { code: status === 503 ? "AI_NOT_CONFIGURED" : "AI_GENERATE_FAILED" });
 }
 
 /** 에러 메시지에 섞여 있을 수 있는 API 토큰/key 패턴 마스킹 */

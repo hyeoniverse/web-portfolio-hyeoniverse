@@ -51,7 +51,7 @@ export async function GET(request: Request) {
 
   const apiKey = await getSecret("PEXELS_API_KEY");
   if (!apiKey) {
-    return jsonError("Pexels API key not configured", 503);
+    return jsonError("Pexels API key not configured", 503, { code: "PEXELS_KEY_MISSING" });
   }
 
   const { searchParams } = new URL(request.url);
@@ -68,7 +68,7 @@ export async function GET(request: Request) {
   );
 
   if (!res.ok) {
-    return NextResponse.json({ error: "Pexels videos API error" }, { status: res.status });
+    return NextResponse.json({ error: "Pexels videos API error", code: "COVER_SEARCH_FAILED" }, { status: res.status });
   }
 
   const data = (await res.json()) as PexelsVideosResponse;

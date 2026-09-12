@@ -30,7 +30,7 @@ export async function POST(request: Request) {
   );
 
   if ("error" in result) {
-    return jsonError(result.error, 502);
+    return jsonError(result.error, 502, { code: result.error.includes("not configured") ? "TRANSLATION_NOT_CONFIGURED" : "TRANSLATION_FAILED" });
   }
 
   // failedIndices: 모든 provider 시도 후에도 번역 못 받은 인덱스 (성공분은 그대로 유지)

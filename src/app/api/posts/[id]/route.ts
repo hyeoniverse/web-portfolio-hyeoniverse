@@ -53,7 +53,7 @@ export async function PATCH(request: Request, context: RouteContext) {
 
   // 제목 길이 제한 (UI·DB 와 동일 상한)
   if (titleTooLong(body.title) || titleTooLong(body.title_en)) {
-    return jsonError(`title exceeds ${POST_TITLE_MAX} characters`, 400);
+    return jsonError(`title exceeds ${POST_TITLE_MAX} characters`, 400, { code: "POST_TITLE_TOO_LONG", params: { max: POST_TITLE_MAX } });
   }
 
   // 낙관적 동시성 제어 — 에디터가 로드 시점 version 을 baseVersion 으로 보냄. 컬럼이 아니므로 분리.

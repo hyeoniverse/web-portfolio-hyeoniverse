@@ -21,12 +21,12 @@ export async function GET(_request: Request, context: RouteContext) {
     .eq("id", id)
     .single();
 
-  if (error || !series) return jsonError("Series not found", 404);
+  if (error || !series) return jsonError("Series not found", 404, { code: "SERIES_NOT_FOUND" });
 
   // 비공개면 auth 필요
   if (!series.published) {
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return jsonError("Series not found", 404);
+    if (!user) return jsonError("Series not found", 404, { code: "SERIES_NOT_FOUND" });
   }
 
   const { data: posts } = await supabase
@@ -49,9 +49,9 @@ export async function PATCH(request: Request, context: RouteContext) {
 
   // 제목(ko/en) 길이 검증 — partial update 라 존재할 때만. UI/폼 우회 방어.
   if (typeof body.title === "string" && body.title.length > SERIES_TITLE_MAX)
-    return jsonError(`title must be ${SERIES_TITLE_MAX} characters or fewer`, 400);
+    return jsonError(`title must be ${SERIES_TITLE_MAX} characters or fewer`, 400, { code: "SERIES_TITLE_TOO_LONG", params: { max: SERIES_TITLE_MAX } });
   if (typeof body.title_en === "string" && body.title_en.length > SERIES_TITLE_MAX)
-    return jsonError(`title_en must be ${SERIES_TITLE_MAX} characters or fewer`, 400);
+    return jsonError(`title_en must be ${SERIES_TITLE_MAX} characters or fewer`, 400, { code: "SERIES_TITLE_TOO_LONG", params: { max: SERIES_TITLE_MAX } });
 
   const url = new URL(request.url);
   const skipShift = url.searchParams.get("skipShift") === "true";

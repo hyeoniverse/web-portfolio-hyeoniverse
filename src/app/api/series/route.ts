@@ -10,9 +10,9 @@ import { SERIES_TITLE_MAX } from "@/types/post";
 /** 제목(ko/en) 길이 검증 — 초과 시 400, 통과 시 null. UI/폼 우회(직접 API 호출) 방어. */
 function validateSeriesTitle(body: { title?: unknown; title_en?: unknown }) {
   if (typeof body.title === "string" && body.title.length > SERIES_TITLE_MAX)
-    return jsonError(`title must be ${SERIES_TITLE_MAX} characters or fewer`, 400);
+    return jsonError(`title must be ${SERIES_TITLE_MAX} characters or fewer`, 400, { code: "SERIES_TITLE_TOO_LONG", params: { max: SERIES_TITLE_MAX } });
   if (typeof body.title_en === "string" && body.title_en.length > SERIES_TITLE_MAX)
-    return jsonError(`title_en must be ${SERIES_TITLE_MAX} characters or fewer`, 400);
+    return jsonError(`title_en must be ${SERIES_TITLE_MAX} characters or fewer`, 400, { code: "SERIES_TITLE_TOO_LONG", params: { max: SERIES_TITLE_MAX } });
   return null;
 }
 

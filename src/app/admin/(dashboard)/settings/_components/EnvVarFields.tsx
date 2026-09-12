@@ -595,7 +595,8 @@ export default function EnvVarFields({
               className={styles.envRevealBtn}
               onClick={() => handleReveal(key)}
               disabled={source === "none"}
-              title={isRevealed ? "Hide" : "Reveal"}
+              title={isRevealed ? t("admin.settings.envHide") : t("admin.settings.envReveal")}
+              aria-label={isRevealed ? t("admin.settings.envHide") : t("admin.settings.envReveal")}
             >
               {isRevealed ? <EyeOff size={16} /> : <Eye size={16} />}
             </Pressable>
