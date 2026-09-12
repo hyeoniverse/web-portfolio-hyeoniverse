@@ -166,15 +166,18 @@
 /* × hover 시 라벨에 line-through (accent 색).
    text-decoration-thickness 명시 — 기본값 (auto = 보통 1px subpixel) 으로 가시성 낮음.
    inline-flex 컨테이너 (.label/.labelBtn 등) 는 text-decoration 이 자손 inline element 로 propagation 안 됨 →
-   descendant `*` 로 자손까지 강제 적용 (renderItemLabel 의 중첩 span 들 포함). */
-.chip:has([data-close-trigger]:hover) .label,
-.chip:has([data-close-trigger]:hover) .label *,
-.chip:has([data-close-trigger]:hover) .labelBtn,
-.chip:has([data-close-trigger]:hover) .labelBtn *,
-.chip:has([data-close-trigger]:hover) .labelLink,
-.chip:has([data-close-trigger]:hover) .labelLink *,
-.chip:has([data-close-trigger]:hover) .labelStatic,
-.chip:has([data-close-trigger]:hover) .labelStatic * {
+   descendant `*` 로 자손까지 강제 적용 (renderItemLabel 의 중첩 span 들 포함).
+   조건은 × 의 포인터 진입·이탈로 칩에 붙는 data-remove-hover 로 건다. :has([data-close-trigger]:hover) 뒤에
+   `*` 가 오면 크롬이 포인터 아래 요소가 바뀔 때마다(편집기에서 글자를 칠 때도) 페이지 전체의 스타일을
+   다시 계산했다(#850). */
+.chip[data-remove-hover] .label,
+.chip[data-remove-hover] .label *,
+.chip[data-remove-hover] .labelBtn,
+.chip[data-remove-hover] .labelBtn *,
+.chip[data-remove-hover] .labelLink,
+.chip[data-remove-hover] .labelLink *,
+.chip[data-remove-hover] .labelStatic,
+.chip[data-remove-hover] .labelStatic * {
   text-decoration: line-through;
   text-decoration-color: var(--text-accent);
   text-decoration-thickness: 1.5px;

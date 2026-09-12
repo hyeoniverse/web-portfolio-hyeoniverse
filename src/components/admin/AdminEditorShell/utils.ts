@@ -1,9 +1,11 @@
+/* 시각 형식은 한 번 만들어 두고 쓴다. toLocaleTimeString(옵션) 은 부를 때마다 형식기를 새로 만드는데,
+   저장 기록 목록(최대 50개)이 편집 화면을 그릴 때마다 이 함수를 불러 본문 입력이 늦었다(#850).
+   처음 부를 때 만들므로 브라우저의 언어 설정을 따르는 것은 전과 같다. */
+let timeFormat: Intl.DateTimeFormat | null = null;
+
 export function formatTime(ts: number): string {
-  return new Date(ts).toLocaleTimeString([], {
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  });
+  timeFormat ??= new Intl.DateTimeFormat([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  return timeFormat.format(ts);
 }
 
 export function formatStatusTime(ts: number): string {

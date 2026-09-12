@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode, type HTMLAttributes } from "react";
+import { useState, type ReactNode, type HTMLAttributes } from "react";
 import Link from "next/link";
 import { GripVertical } from "@/components/icons";
 import CloseButton from "../CloseButton";
@@ -71,6 +71,8 @@ export default function Chip({
   maxLength,
 }: ChipProps) {
   const { t } = useLanguage();
+  /* × 에 포인터가 올라가 있는 동안 — 라벨에 취소선을 긋는다(Chip.module.css 의 data-remove-hover) */
+  const [removeHover, setRemoveHover] = useState(false);
   const rootCls = [
     styles.chip,
     variant === "bare" ? styles.bare : styles.capsule,
@@ -125,7 +127,7 @@ export default function Chip({
   };
 
   return (
-    <span className={rootCls} title={(truncate || maxLength) ? fullText : undefined} {...dragHandlers}>
+    <span className={rootCls} title={(truncate || maxLength) ? fullText : undefined} data-remove-hover={removeHover || undefined} {...dragHandlers}>
       {showHandle && (
         <span className={styles.gripHandle} {...handleProps}>
           <GripVertical className={styles.grip} size={10} strokeWidth={2.5} aria-hidden />
@@ -139,6 +141,8 @@ export default function Chip({
           onClick={(e) => { e.stopPropagation(); onRemove(); }}
           ariaLabel={t("common.remove")}
           className={styles.remove}
+          onPointerEnter={() => setRemoveHover(true)}
+          onPointerLeave={() => setRemoveHover(false)}
         />
       )}
     </span>

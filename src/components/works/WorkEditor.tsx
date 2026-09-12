@@ -58,7 +58,8 @@ import { deriveTeamMemberAvatar, getMemberInitial } from "@/utils/teamMemberAvat
 import { useMyRole } from "@/hooks/useMyRole";
 import AuthorAvatar from "@/components/ui/AuthorAvatar";
 import styles from "./WorkEditor.module.css";
-import type { PlateEditorHandle, EditorImageInfo } from "@/components/posts/PlateEditor";
+import type { PlateEditorHandle } from "@/components/posts/PlateEditor";
+import { useEditorImages } from "@/components/posts/plate/useEditorImages";
 import Pressable from "@/components/ui/Pressable";
 import { ROLE_PRESETS_KO, ROLE_PRESETS_EN, useRoleMultiPicker } from "./workEditor/roleMultiPicker";
 import { TeamMemberCard } from "./workEditor/TeamMemberCard";
@@ -91,7 +92,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   const [editorLang, setEditorLang] = useState<"ko" | "en">(primaryLang);
   // 본문 에디터 ref + 첨부 이미지 패널 (Posts editor 와 동일 패턴)
   const plateRef = useRef<PlateEditorHandle>(null);
-  const [editorImages, setEditorImages] = useState<EditorImageInfo[]>([]);
+  const [editorImages, setEditorImages] = useEditorImages();
   const [editorHtmlMode, setEditorHtmlMode] = useState(false);
   // 에디터 준비될 때까지 polling 으로 이미지 목록 동기화. 언어 전환 시 에디터가 remount(key=editorLang) 되므로 재동기화.
   useEffect(() => {
@@ -107,7 +108,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       }
     }, 300);
     return () => { cancelled = true; clearInterval(poll); };
-  }, [editorLang]);
+  }, [editorLang, setEditorImages]);
   // 필수/선택 그룹 토글 — Posts editor 와 동일 패턴
   const [optionalOpen, setOptionalOpen] = useState(false);
   const [extraOpen, setExtraOpen] = useState(false);
@@ -141,10 +142,9 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   }, [form.title, slugManual]);
 
   const initialFormRef = useRef(form);
-  const isDirty = useMemo(
-    () => JSON.stringify(form) !== JSON.stringify(initialFormRef.current),
-    [form],
-  );
+  /* 처음 값은 한 번만 문자열로 바꿔 둔다. 본문까지 든 폼이라 글자마다 두 번 바꾸면 그만큼 입력이 늦다(#850) */
+  const [initialJson] = useState(() => JSON.stringify(form));
+  const isDirty = useMemo(() => JSON.stringify(form) !== initialJson, [form, initialJson]);
 
   const { revisions: dbRevisions, loaded: revisionsLoaded, latestSnapshot, saveRevision, loadRevisionSnapshot, deleteRevision } = useRevisions<WorkFormData>({
     entityType: "work",
@@ -329,7 +329,8 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     [],
   );
 
-  const tech = useTagInput(form.tech, (tags) => updateField("tech", tags));
+  const onTechChange = useCallback((tags: string[]) => updateField("tech", tags), [updateField]);
+  const tech = useTagInput(form.tech, onTechChange);
 
   const TRANSLATABLE_FIELDS = useMemo(
     () => ["title", "subtitle", "description", "role", "content"] as const,
@@ -409,18 +410,24 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     [translating, editorLang, translateFields, TRANSLATABLE_FIELDS],
   );
 
-  const team = useTeamMembers(form.team_members, (members) => updateField("team_members", members));
+  const onTeamMembersChange = useCallback((members: WorkFormData["team_members"]) => updateField("team_members", members), [updateField]);
+  const team = useTeamMembers(form.team_members, onTeamMembersChange);
 
   /* 팀원에 사이트 저자 프로필을 연결하면 그 계정이 이 작업물의 편집자가 된다
      (canEditWork · RLS 의 can_edit_work). 연결을 바꾸는 것은 권한을 주고 뺏는 일이라
      관리자만 할 수 있다 — 서버도 같은 규칙으로 막는다. */
   const myRole = useMyRole();
-  const siteAuthors = (useSiteConfig().authors ?? []) as Array<{ id: string; name: string; avatar?: string; email?: string; role?: string }>;
-  const linkedAuthorIds = new Set(
-    form.team_members.map((m) => m.author_id).filter((v): v is string => !!v),
+  const siteAuthorsConfig = useSiteConfig().authors;
+  const siteAuthors = useMemo(
+    () => (siteAuthorsConfig ?? []) as Array<{ id: string; name: string; avatar?: string; email?: string; role?: string }>,
+    [siteAuthorsConfig],
+  );
+  const linkedAuthorIds = useMemo(
+    () => new Set(form.team_members.map((m) => m.author_id).filter((v): v is string => !!v)),
+    [form.team_members],
   );
   /** 연결 토글 — 이미 다른 팀원이 쓰고 있는 계정은 고를 수 없다(한 사람이 두 줄이 되면 안 된다). */
-  const toggleLinkedAuthor = (a: { id: string; name: string; avatar?: string; email?: string }) => {
+  const toggleLinkedAuthor = useCallback((a: { id: string; name: string; avatar?: string; email?: string }) => {
     if (team.memberAuthorId === a.id) {
       team.setMemberAuthorId(undefined);
       return;
@@ -430,7 +437,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     if (!team.memberName.trim()) team.setMemberName(a.name);
     if (!team.memberAvatarUrl.trim() && a.avatar) team.setMemberAvatarUrl(a.avatar);
     if (!team.memberEmail.trim() && a.email) team.setMemberEmail(a.email);
-  };
+  }, [team]);
 
   // 팀원 역할 multi-picker — select 와 chip 을 분리 배치 (chip 은 URL row 아래) */
   const teamRole = useRoleMultiPicker({
@@ -441,10 +448,11 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     lang: editorLang,
   });
 
+  const onOwnRoleChange = useCallback((v: string) => updateField(editorLang === "ko" ? "role_ko" : "role_en", v), [editorLang, updateField]);
   // 본인 역할 multi-picker — chip 은 TeamContribsByRole 의 group header 가 담당 → selectNode 만 사용 */
   const ownRole = useRoleMultiPicker({
     value: editorLang === "ko" ? form.role_ko : form.role_en,
-    onChange: (v) => updateField(editorLang === "ko" ? "role_ko" : "role_en", v),
+    onChange: onOwnRoleChange,
     presets: editorLang === "ko" ? ROLE_PRESETS_KO : ROLE_PRESETS_EN,
     placeholder: tw("rolePlaceholder"),
     lang: editorLang,
@@ -458,7 +466,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   // avatar 더블클릭 → 파일 picker
   const teamAvatarFileRef = useRef<HTMLInputElement>(null);
   const [teamAvatarUploading, setTeamAvatarUploading] = useState(false);
-  const handleTeamAvatarFile = async (file: File) => {
+  const handleTeamAvatarFile = useCallback(async (file: File) => {
     setTeamAvatarUploading(true);
     try {
       const fd = new FormData();
@@ -474,7 +482,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       setTeamAvatarUploading(false);
       if (teamAvatarFileRef.current) teamAvatarFileRef.current.value = "";
     }
-  };
+  }, [team, tw]);
 
 
   const handleInsertTemplate = useCallback(() => {
@@ -844,6 +852,837 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   const reqTitle = primaryLang === "en" ? form.title_en : form.title;
   const contentKey = editorLang === "ko" ? "content_ko" : "content_en";
 
+  /* 본문과 상관없는 섹션은 쓰는 값이 바뀔 때만 다시 그린다. 본문 한 글자마다 편집 화면 전체를 다시 그려
+     입력이 늦었다(#850). 섹션 JSX 를 메모해 두면 React 는 같은 요소를 받아 그 아래를 건너뛴다.
+     의존성은 exhaustive-deps 가 확인한다 — 빠뜨리면 경고로 잡힌다. */
+  const titleValue = form[titleKey];
+  const subtitleValue = form[`subtitle${suf}`];
+  const descriptionValue = form[`description${suf}`];
+  const roleValue = form[`role${suf}`];
+
+  /* Basic Info — 필수 (title, year, category) + 선택 (collapsible) */
+  const basicInfoSection = useMemo(() => (
+    <div className={styles.section}>
+      <h2 className={styles.sectionTitle}>{tw("basicInfo")}</h2>
+
+      {/* ── 필수 ── 제목 + 부제목 + slug 묶음 */}
+      <div className={es.field} data-required="title">
+        <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${showErrors && !reqTitle.trim() ? ` ${es.fieldLabelError}` : ""}`}>{tw("title")}</label>
+        <input
+          className={`${es.titleInput}${showErrors && !reqTitle.trim() ? ` ${es.titleInputError}` : ""}`}
+          type="text"
+          value={titleValue}
+          onChange={(e) => updateField(titleKey, e.target.value)}
+          placeholder={tw("titlePlaceholder")}
+        />
+      </div>
+
+      {/* 부제목 — 제목 바로 아래 */}
+      <div className={es.field}>
+        <label className={es.fieldLabel}>{tw("subtitle")}</label>
+        <SubtitleInput
+          value={subtitleValue}
+          onChange={(v) => updateField(`subtitle${suf}`, v)}
+          placeholder={tw("subtitlePlaceholder")}
+        />
+      </div>
+
+      {/* slug — title 자동 생성. 사용자 수정 시 manual 모드 */}
+      <div className={es.field}>
+        <div style={{ display: "flex", alignItems: "baseline", gap: "var(--spacing-xs)" }}>
+          <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${showErrors && (!form.slug.trim() || validateSlug(form.slug)) ? ` ${es.fieldLabelError}` : ""}`}>{tw("slug")}</label>
+          {form.slug.trim() && validateSlug(form.slug) && (
+            <span style={{ fontSize: "var(--font-size-label)", color: "var(--text-accent)" }}>{tw(`slugError.${validateSlug(form.slug)}`) || validateSlug(form.slug)}</span>
+          )}
+        </div>
+        <input
+          className={`${es.fieldInput}${showErrors && (!form.slug.trim() || validateSlug(form.slug)) ? ` ${es.fieldInputError}` : ""}`}
+          type="text"
+          value={form.slug}
+          onChange={(e) => {
+            setSlugManual(true);
+            updateField("slug", e.target.value);
+          }}
+          placeholder="work-url-slug"
+        />
+      </div>
+
+      {/* year — 단독 row */}
+      <div className={es.row}>
+        <div className={es.field} style={{ gridColumn: "1 / -1" }} data-required="year">
+          <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${showErrors && !form.year.trim() ? ` ${es.fieldLabelError}` : ""}`}>{tw("year")}</label>
+          <PeriodPicker
+            value={parseYearAsPeriod(form.year)}
+            onChange={(p) => updateField("year", serializePeriodAsYear(p))}
+            maxDate={new Date()}
+          />
+        </div>
+      </div>
+
+      {/* nature (성격) — 제작 동기 축. category 와 별도. 필수 입력 */}
+      <div className={es.row}>
+        <div className={es.field} style={{ gridColumn: "1 / -1" }} data-required="nature">
+          <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${showErrors && !(primaryLang === "en" ? form.nature_en : form.nature_ko).trim() ? ` ${es.fieldLabelError}` : ""}`}>{tw("nature")}</label>
+          {(() => {
+            const matchedIdx = naturePresets.findIndex(
+              (n) => n.ko === form.nature_ko && n.en === form.nature_en,
+            );
+            const isCustom = natureCustomMode || (form.nature_ko.trim() !== "" && matchedIdx === -1);
+            const selectValue = isCustom ? "__custom__" : (matchedIdx >= 0 ? String(matchedIdx) : "");
+            return (
+              <div className={styles.categoryAddRow}>
+                <Select
+                  value={selectValue}
+                  placeholder={tw("naturePlaceholder")}
+                  options={[
+                    { value: "__custom__", label: tw("customNature") },
+                    ...naturePresets.map((n, i) => ({
+                      value: String(i),
+                      label: editorLang === "ko" ? n.ko : n.en,
+                    })),
+                  ]}
+                  onChange={(v) => {
+                    if (v === "__custom__") {
+                      setNatureCustomMode(true);
+                      setForm((prev) => ({ ...prev, nature_ko: "", nature_en: "" }));
+                    } else {
+                      setNatureCustomMode(false);
+                      const idx = parseInt(v);
+                      const n = naturePresets[idx];
+                      if (n) setForm((prev) => ({ ...prev, nature_ko: n.ko, nature_en: n.en }));
+                    }
+                    setStatus("");
+                    setError("");
+                  }}
+                />
+                {isCustom && (
+                  <>
+                    <div className={styles.customCategoryInputWrap}>
+                      <span className={styles.customCategoryBadge}>KO</span>
+                      <input
+                        className={`${es.fieldInput} ${styles.customCategoryInput}`}
+                        type="text"
+                        value={form.nature_ko}
+                        onChange={(e) => updateField("nature_ko", e.target.value)}
+                        placeholder={tw("naturePlaceholder")}
+                        autoFocus
+                      />
+                    </div>
+                    <div className={styles.customCategoryInputWrap}>
+                      <span className={styles.customCategoryBadge}>EN</span>
+                      <input
+                        className={`${es.fieldInput} ${styles.customCategoryInput}`}
+                        type="text"
+                        value={form.nature_en}
+                        onChange={(e) => updateField("nature_en", e.target.value)}
+                        placeholder={tw("naturePlaceholder")}
+                      />
+                    </div>
+                  </>
+                )}
+              </div>
+            );
+          })()}
+        </div>
+      </div>
+
+      {/* category — multi-select. 선택된 chip 위에, 추가 Select 아래에. 직접 입력 가능 */}
+      <div className={es.row}>
+        <div className={es.field} style={{ gridColumn: "1 / -1" }} data-required="category">
+          <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${showErrors && ((primaryLang === "en" ? form.categories_en : form.categories_ko) ?? []).length === 0 ? ` ${es.fieldLabelError}` : ""}`}>{tw("category")}</label>
+          <CategoryMultiPicker
+            selectedKos={form.categories_ko ?? []}
+            selectedEns={form.categories_en ?? []}
+            presets={worksCategories}
+            editorLang={editorLang}
+            customMode={categoryCustomMode}
+            setCustomMode={setCategoryCustomMode}
+            labels={{
+              placeholder: tw("categoryPlaceholder"),
+              custom: tw("customCategory"),
+            }}
+            onChange={(ko, en) => {
+              setForm((prev) => ({ ...prev, categories_ko: ko, categories_en: en }));
+              setStatus("");
+              setError("");
+            }}
+          />
+        </div>
+      </div>
+
+      {/* 설명 — 기본 정보의 하위 항목, 선택 입력보다 위 */}
+      <div className={es.field}>
+        <label className={es.fieldLabel}>{tw("description")}</label>
+        <Textarea
+          textareaClassName={styles.fieldTextarea}
+          value={descriptionValue}
+          onChange={(v) => updateField(`description${suf}`, v)}
+          placeholder={tw("descPlaceholder")}
+          rows={3}
+          maxHint="basic"
+        />
+      </div>
+
+      {/* ── 선택 (collapsible) ── */}
+      <div className={styles.optionalSection}>
+        <Pressable
+          className={styles.optionalToggle}
+          onClick={() => setOptionalOpen((v) => !v)}
+        >
+          <span>{tw("optionalFields")}</span>
+          <ChevronRight
+            size={12}
+            strokeWidth={2.5}
+            style={{ transform: optionalOpen ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 0.2s" }}
+          />
+        </Pressable>
+
+        <div className={`${styles.optionalContent}${optionalOpen ? ` ${styles.optionalContentOpen}` : ""}`}>
+          {/* 좌: 정렬순서 (세로 1열 전체)  |  우: subtitle / role (세로 stack) */}
+          <div className={styles.optionalSplit}>
+            <div className={`${es.field} ${styles.optionalSplitLeft}`}>
+              <SortOrderDragList
+                label={tw("sortOrder")}
+                currentTitle={form.title || tw("subtitle")}
+                currentOrder={form.sort_order || 1}
+                otherItems={otherWorks}
+                onChange={(newOrder, otherUpdates) => {
+                  updateField("sort_order", newOrder);
+                  otherUpdates.forEach((u) => {
+                    fetch(`/api/works/${u.id}`, {
+                      method: "PATCH",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ sort_order: u.sort_order }),
+                    });
+                  });
+                  setOtherWorks((prev) => prev.map((w) => {
+                    const u = otherUpdates.find((x) => x.id === w.id);
+                    return u ? { ...w, sort_order: u.sort_order } : w;
+                  }).sort((a, b) => a.sort_order - b.sort_order));
+                }}
+              />
+            </div>
+            <div className={styles.optionalSplitRight}>
+              <div className={styles.memberFormBlock}>
+                <div className={styles.memberSubLabelRow}>
+                  <span className={styles.memberSubLabel}>{tw("role")}</span>
+                </div>
+                {/* multi-select — chip 은 아래 TeamContribsByRole 가 담당 (selectNode 만 사용) */}
+                {ownRole.selectNode}
+                {/* 역할별 작업 내용 — 공통 TagNotesEditor (ko/en 동시) */}
+                {(() => {
+                  const rolesArr = (roleValue || "")
+                    .split(",")
+                    .map((r) => r.trim())
+                    .filter(Boolean);
+                  const koMap = (form.contributions_ko ?? {}) as Record<string, string[]>;
+                  const enMap = (form.contributions_en ?? {}) as Record<string, string[]>;
+                  const notesMap: Record<string, LocalizedText> = {};
+                  // entry 존재 여부 보존 — 둘 중 한 쪽에라도 key 가 있으면 (빈 문자열이라도) entry 유지
+                  for (const r of rolesArr) {
+                    if (r in koMap || r in enMap) {
+                      notesMap[r] = {
+                        ko: (koMap[r] ?? []).join("\n"),
+                        en: (enMap[r] ?? []).join("\n"),
+                      };
+                    }
+                  }
+                  return (
+                    <TagNotesEditor
+                      items={rolesArr}
+                      notes={notesMap}
+                      onItemsChange={(next) => updateField(`role${suf}`, next.join(", "))}
+                      onNotesChange={(next) => {
+                        // 빈 문자열도 split 후 [] 로 저장 — entry 존재 여부 (= key in map) 유지
+                        const nextKo: Record<string, string[]> = {};
+                        const nextEn: Record<string, string[]> = {};
+                        for (const [r, v] of Object.entries(next)) {
+                          // filter 안 함 — 빈 pair 도 유지해야 + Add 가 작동
+                          nextKo[r] = v.ko !== undefined ? v.ko.split("\n") : [];
+                          nextEn[r] = v.en !== undefined ? v.en.split("\n") : [];
+                        }
+                        updateField("contributions_ko", nextKo);
+                        updateField("contributions_en", nextEn);
+                      }}
+                      prefix=""
+                      notePlaceholder={tw("memberContributionPlaceholder")}
+                      addLabel={tw("noteAdd")}
+                      cancelLabel={tw("cancel")}
+                      editLabel={tw("noteEdit")}
+                      removeTitle={tw("roleRemove")}
+                      multiLine
+                    />
+                  );
+                })()}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  ), [
+    categoryCustomMode, descriptionValue, editorLang, form.categories_en, form.categories_ko, form.contributions_en,
+    form.contributions_ko, form.nature_en, form.nature_ko, form.slug, form.sort_order, form.title, form.year,
+    natureCustomMode, naturePresets, optionalOpen, otherWorks, ownRole.selectNode, primaryLang, reqTitle, roleValue,
+    showErrors, subtitleValue, suf, titleKey, titleValue, tw, updateField, worksCategories,
+  ]);
+
+  /* Images */
+  const imagesSection = useMemo(() => (
+    <div className={styles.section}>
+      <h2 className={styles.sectionTitle}>{tw("images")}</h2>
+
+      <div style={{ marginBottom: "var(--spacing-lg)" }} data-required="image">
+        <CoverImageField
+          value={form.image}
+          onChange={(url) => updateField("image", url)}
+          label={tw("mainImage")}
+          removeLabel={tw("remove")}
+          uploadLabel={tw("uploadImage")}
+          chooseLabel={tw("chooseCover")}
+          closeLabel={tw("closePicker")}
+          onUpload={() => handleImageUpload("image")}
+          pickerOpen={showCoverPicker}
+          onPickerToggle={() => setShowCoverPicker((v) => !v)}
+          urlInputPlaceholder={tw("pasteUrl")}
+          hint={form.gallery.length > 0 ? tw("galleryPickHint") : undefined}
+          hasError={showErrors && !form.image.trim()}
+        />
+        {/* cover_image 세팅 후에도 picker 유지 — AI auto-save 시 재생성 가능 */}
+        {showCoverPicker && (
+          <CoverImagePicker
+            onSelect={(url) => { updateField("image", url); setShowCoverPicker(false); }}
+            onClose={() => setShowCoverPicker(false)}
+            onAutoSave={(url) => updateField("image", url)}
+            currentUrl={form.image}
+            postContext={{ title: form.title, tags: form.tech, excerpt: form.description_ko || form.description_en }}
+          />
+        )}
+      </div>
+
+      <div className={es.field}>
+        <div className={styles.galleryLabelRow}>
+          <label className={es.fieldLabel} style={{ marginBottom: 0 }}>
+            {tw("gallery")}
+            {form.gallery.length > 0 && (
+              <span className={styles.galleryCount}>{form.gallery.length}</span>
+            )}
+          </label>
+          <Button
+            variant="outline"
+            size="xs"
+            shape="capsule"
+            onClick={() => handleImageUpload("gallery")}
+            soundDisabled
+          >
+            <Plus size={12} strokeWidth={2} />
+            {tw("addMore")}
+          </Button>
+        </div>
+        {form.gallery.length === 0 ? (
+          <Pressable
+            className={styles.galleryAddTile}
+            onClick={() => handleImageUpload("gallery")}
+          >
+            <Plus size={20} strokeWidth={1.5} />
+            <span>{tw("addGallery")}</span>
+          </Pressable>
+        ) : (
+          <HorizontalCarousel className={styles.galleryCarousel}>
+            {form.gallery.map((src, i) => {
+              const isMain = src === form.image && !!src;
+              const filename = src.split("/").pop() ?? src;
+              return (
+                <div
+                  key={i}
+                  className={`${styles.galleryItem} ${isMain ? styles.galleryItemMain : ""}`}
+                  onClick={() => setGalleryViewerIdx(i)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setGalleryViewerIdx(i); } }}
+                  aria-label={tw("viewImage")}
+                >
+                  {isVideoUrl(src) && !galleryImgErrors.has(src) ? (
+                    <video
+                      src={src}
+                      className={styles.galleryImg}
+                      muted
+                      playsInline
+                      preload="metadata"
+                      onMouseEnter={(e) => { void e.currentTarget.play().catch(() => {}); }}
+                      onMouseLeave={(e) => { e.currentTarget.pause(); e.currentTarget.currentTime = 0; }}
+                      onError={() => setGalleryImgErrors((prev) => {
+                        if (prev.has(src)) return prev;
+                        const next = new Set(prev);
+                        next.add(src);
+                        return next;
+                      })}
+                    />
+                  ) : (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                      src={galleryImgErrors.has(src) ? "/images/placeholder.svg" : src}
+                      alt={`Gallery ${i + 1}`}
+                      className={styles.galleryImg}
+                      onError={() => setGalleryImgErrors((prev) => {
+                        if (prev.has(src)) return prev;
+                        const next = new Set(prev);
+                        next.add(src);
+                        return next;
+                      })}
+                    />
+                  )}
+                  {isMain && (
+                    <span className={styles.galleryMainBadge}>
+                      <Star size={10} strokeWidth={2.5} fill="currentColor" />
+                      {tw("currentMain")}
+                    </span>
+                  )}
+                  <div
+                    className={styles.galleryOverlay}
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <div className={styles.galleryActions}>
+                      <Button
+                        variant="difference"
+                        size="xs"
+                        shape="circle"
+                        active={isMain}
+                        onClick={() => { if (!isMain) updateField("image", src); }}
+                        aria-label={tw("setAsMain")}
+                        title={tw("setAsMain")}
+                        soundDisabled
+                        icon={<Star size={12} strokeWidth={2} fill={isMain ? "currentColor" : "none"} />}
+                      />
+                      <Button
+                        variant="difference"
+                        size="xs"
+                        shape="circle"
+                        onClick={() => removeGalleryItem(i)}
+                        aria-label={tw("remove")}
+                        title={tw("remove")}
+                        soundDisabled
+                        icon={<X size={12} strokeWidth={2} />}
+                      />
+                    </div>
+                    <div className={styles.galleryMeta}>
+                      <span className={styles.galleryMetaIndex}>{i + 1} / {form.gallery.length}</span>
+                      <span className={styles.galleryMetaName}>{filename}</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </HorizontalCarousel>
+        )}
+      </div>
+    </div>
+  ), [
+    form.description_en, form.description_ko, form.gallery, form.image, form.tech, form.title, galleryImgErrors,
+    handleImageUpload, removeGalleryItem, showCoverPicker, showErrors, tw, updateField,
+  ]);
+
+  /* Tech Stack */
+  const techSection = useMemo(() => (
+    <div className={styles.section}>
+      <h2 className={styles.sectionTitle}>{tw("techStack")}</h2>
+      <div className={es.field}>
+        <div className={styles.techInputRow}>
+          {/* combobox 형태 — input 에 타이핑 시 프리셋 추천 dropdown.
+           *  - 그룹 + 아이콘 표시, 이미 추가된 항목은 옅은 accent 배경 + ✓
+           *  - Enter 또는 dropdown 클릭 시 추가 (alias 정규화 + 중복 toast) */}
+          <Select
+            combobox
+            value=""
+            onChange={() => {}}
+            inputValue={tech.input}
+            onInputChange={tech.setInput}
+            onAdd={(v) => {
+              const raw = v.trim();
+              if (!raw) return;
+              const canonical = normalizeTechName(raw);
+              if (form.tech.some((tg) => normalizeTechName(tg).toLowerCase() === canonical.toLowerCase())) {
+                showToast(fillTemplate(tw("alreadyAdded"), { name: canonical }), "info");
+                tech.setInput("");
+                return;
+              }
+              tech.add(canonical);
+              tech.setInput("");
+            }}
+            options={TECH_PRESETS.map((p) => {
+              const added = form.tech.some((tg) => normalizeTechName(tg).toLowerCase() === p.name.toLowerCase());
+              return {
+                value: p.name,
+                label: p.name,
+                group: p.group,
+                icon: getTechIcon(p.name),
+                selected: added,
+                trailing: added ? <Check size={12} strokeWidth={2.5} /> : undefined,
+                // 한국어 alias 도 매칭 (예: "리액트" 입력 시 React 추천)
+                searchTerms: getTechAliases(p.name),
+              };
+            })}
+            placeholder={tw("techPlaceholder")}
+          />
+          <Button
+            variant="outline"
+            shape="circle"
+            size="sm"
+            className={styles.categoryAddBtnSized}
+            onClick={() => {
+              const raw = tech.input.trim();
+              if (!raw) return;
+              const canonical = normalizeTechName(raw);
+              if (form.tech.some((tg) => normalizeTechName(tg).toLowerCase() === canonical.toLowerCase())) {
+                showToast(fillTemplate(tw("alreadyAdded"), { name: canonical }), "info");
+                tech.setInput("");
+                return;
+              }
+              tech.add(canonical);
+              tech.setInput("");
+            }}
+            disabled={!tech.input.trim()}
+            aria-label="Add"
+            icon={<Plus size={12} strokeWidth={2} />}
+          />
+        </div>
+        {/* 기술별 — 공통 TagNotesEditor (drag-reorder + ko/en + multiLine add/cancel) */}
+        <TagNotesEditor
+          items={form.tech}
+          notes={form.tech_notes ?? {}}
+          onItemsChange={(next) => updateField("tech", next)}
+          onNotesChange={(next) => updateField("tech_notes", next)}
+          prefix=""
+          notePlaceholder={tw("techNotePlaceholder")}
+          addLabel={tw("noteAdd")}
+          cancelLabel={tw("cancel")}
+          editLabel={tw("noteEdit")}
+          removeTitle={tw("techRemove")}
+          multiLine
+        />
+      </div>
+    </div>
+  ), [form.tech, form.tech_notes, tech, tw, updateField]);
+
+  /* Team Members */
+  const teamSection = useMemo(() => (
+    <div className={styles.section}>
+      <h2 className={styles.sectionTitle}>{tw("teamMembers")}</h2>
+      {/* 추가된 팀원 — 저장된 멤버가 있을 때만 */}
+      {form.team_members.length > 0 && (
+        <div className={styles.memberListBlock}>
+          <div className={styles.memberSubLabel}>{tw("memberListLabel")}</div>
+          <List className={styles.memberList}>
+            {form.team_members.map((m, i) => (
+              <TeamMemberCard
+                key={i}
+                member={m}
+                editorLang={editorLang}
+                linkedAuthorName={m.author_id ? siteAuthors.find((a) => a.id === m.author_id)?.name ?? m.author_id : undefined}
+                onChange={(next) => {
+                  const newMembers = form.team_members.map((mm, idx) => (idx === i ? next : mm));
+                  updateField("team_members", newMembers);
+                }}
+                onRemove={() => team.removeMember(i)}
+                onEdit={() => team.editingIdx === i ? team.cancelEdit() : team.startEdit(i)}
+                isEditingFull={team.editingIdx === i}
+              />
+            ))}
+          </List>
+        </div>
+      )}
+      {/* 새 팀원 추가 — add-mode 카드 */}
+      <div className={styles.memberFormBlock}>
+        <div className={styles.memberSubLabelRow}>
+          <span className={styles.memberSubLabel}>
+            {team.editingIdx !== null
+              ? tw("memberEdit")
+              : tw("memberFormLabel")}
+          </span>
+          {team.editingIdx !== null ? (
+            <div className={styles.memberFormActions}>
+              <Button
+                variant="outline"
+                size="xs"
+                className={styles.avatarUploadBtn}
+                onClick={team.cancelEdit}
+                aria-label={tw("cancel")}
+                icon={<X size={12} strokeWidth={2} />}
+              >
+                {tw("cancel")}
+              </Button>
+              <Button
+                variant="outline"
+                size="xs"
+                className={styles.avatarUploadBtn}
+                onClick={team.saveEdit}
+                disabled={!team.memberName.trim()}
+                aria-label={tw("memberSave")}
+                icon={<Check size={12} strokeWidth={2} />}
+              >
+                {tw("memberSave")}
+              </Button>
+            </div>
+          ) : (
+            <Button
+              variant="outline"
+              size="xs"
+              className={styles.avatarUploadBtn}
+              onClick={team.addMember}
+              disabled={!team.memberName.trim()}
+              aria-label={tw("memberAddAria")}
+              icon={<Plus size={12} strokeWidth={2} />}
+            >
+              {tw("memberAddButton")}
+            </Button>
+          )}
+        </div>
+        <div className={`${styles.memberCard} ${styles.memberCardAdd}`}>
+          <input
+            ref={teamAvatarFileRef}
+            type="file"
+            accept="image/*"
+            style={{ display: "none" }}
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) handleTeamAvatarFile(file);
+            }}
+          />
+          <div className={styles.memberHeaderRow}>
+            <span
+              className={`${styles.memberAvatar} ${styles.memberAvatarUploadable}`}
+              onDoubleClick={() => !teamAvatarUploading && teamAvatarFileRef.current?.click()}
+              role="button"
+              tabIndex={0}
+              aria-label={tw("memberAvatarUpload")}
+              title={tw("memberAvatarUpload")}
+            >
+              {teamAvatarPreview ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={teamAvatarPreview} alt="" className={styles.memberAvatarImg} loading="lazy" />
+              ) : team.memberName.trim() ? (
+                <span className={styles.memberAvatarInitial}>{getMemberInitial(team.memberName)}</span>
+              ) : (
+                <User size={20} strokeWidth={1.5} className={styles.memberAvatarPlaceholder} />
+              )}
+              <Pressable
+                className={styles.memberAvatarAddBadge}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (!teamAvatarUploading) teamAvatarFileRef.current?.click();
+                }}
+                aria-label={tw("memberAvatarUpload")}
+                tabIndex={-1}
+              >
+                <Plus size={10} strokeWidth={2.5} />
+              </Pressable>
+            </span>
+            <BilingualInputPair
+              value={{ ko: team.memberName, en: team.memberNameEn }}
+              onChange={(next) => { team.setMemberName(next.ko); team.setMemberNameEn(next.en); }}
+              placeholder={tw("memberName")}
+            />
+          </div>
+          {/* email + url — name 아래 row */}
+          <div className={styles.memberFormRow}>
+            <input
+              className={es.fieldInput}
+              type="email"
+              value={team.memberEmail}
+              onChange={(e) => team.setMemberEmail(e.target.value)}
+              placeholder={tw("memberEmail")}
+            />
+            <input
+              className={es.fieldInput}
+              type="url"
+              value={team.memberUrl}
+              onChange={(e) => team.setMemberUrl(e.target.value)}
+              placeholder={tw("memberUrl")}
+            />
+          </div>
+          {/* 사이트 멤버 연결 — 이 작업물의 편집 권한을 주는 것이라 관리자에게만 보인다 */}
+          {myRole.canManageWorks && siteAuthors.length > 0 && (
+            <div className={styles.memberLinkRow}>
+              <span className={styles.memberLinkLabel}>
+                {tw("linkSiteMember")}
+              </span>
+              <div className={styles.memberLinkChips}>
+                {siteAuthors.map((a) => {
+                  const selected = team.memberAuthorId === a.id;
+                  // 다른 팀원이 이미 쓰고 있는 계정 — 편집 중인 본인 것은 제외
+                  const takenByOther = !selected && linkedAuthorIds.has(a.id);
+                  return (
+                    <Chip
+                      key={a.id}
+                      active={selected}
+                      className={takenByOther ? styles.memberLinkChipTaken : undefined}
+                      leftIcon={
+                        <AuthorAvatar
+                          value={a.avatar}
+                          name={a.name}
+                          size={16}
+                          imgClassName={styles.memberLinkChipAvatar}
+                          initialClassName={styles.memberLinkChipAvatar}
+                        />
+                      }
+                      onClick={() => {
+                        if (takenByOther) {
+                          showToast(
+                            editorLang === "ko"
+                              ? `${a.name} 은(는) 이미 다른 팀원에 연결돼 있습니다.`
+                              : `${a.name} is already linked to another member.`,
+                            "info",
+                          );
+                          return;
+                        }
+                        toggleLinkedAuthor(a);
+                      }}
+                    >
+                      {a.name}
+                    </Chip>
+                  );
+                })}
+              </div>
+              <p className={styles.memberLinkHint}>{tw("memberLinkHint")}</p>
+            </div>
+          )}
+          {/* role select — 별도 row (full width) */}
+          <div className={styles.memberRoleRow}>
+            {teamRole.selectNode}
+          </div>
+          {/* 신규 멤버 add-card 역할별 작업 내용 — 공통 TagNotesEditor (ko/en 동시) */}
+          {(() => {
+            const rolesArr = (editorLang === "ko" ? team.memberRoleKo : team.memberRoleEn)
+              .split(",")
+              .map((r) => r.trim())
+              .filter(Boolean);
+            const koMap = team.memberContribsKo as Record<string, string[]>;
+            const enMap = team.memberContribsEn as Record<string, string[]>;
+            const notesMap: Record<string, LocalizedText> = {};
+            for (const r of rolesArr) {
+              if (r in koMap || r in enMap) {
+                notesMap[r] = {
+                  ko: (koMap[r] ?? []).join("\n"),
+                  en: (enMap[r] ?? []).join("\n"),
+                };
+              }
+            }
+            return (
+              <TagNotesEditor
+                items={rolesArr}
+                notes={notesMap}
+                onItemsChange={(next) => {
+                  const setRole = editorLang === "ko" ? team.setMemberRoleKo : team.setMemberRoleEn;
+                  setRole(next.join(", "));
+                }}
+                onNotesChange={(next) => {
+                  const nextKo: Record<string, string[]> = {};
+                  const nextEn: Record<string, string[]> = {};
+                  for (const [r, v] of Object.entries(next)) {
+                    nextKo[r] = v.ko !== undefined ? v.ko.split("\n") : [];
+                    nextEn[r] = v.en !== undefined ? v.en.split("\n") : [];
+                  }
+                  team.setMemberContribsKo(nextKo);
+                  team.setMemberContribsEn(nextEn);
+                }}
+                prefix=""
+                notePlaceholder={tw("memberContributionPlaceholder")}
+                addLabel={tw("noteAdd")}
+                cancelLabel={tw("cancel")}
+                      editLabel={tw("noteEdit")}
+                removeTitle={tw("roleRemove")}
+                      multiLine
+              />
+            );
+          })()}
+        </div>
+      </div>
+    </div>
+  ), [
+    editorLang, form.team_members, handleTeamAvatarFile, linkedAuthorIds, myRole.canManageWorks, siteAuthors, team,
+    teamAvatarPreview, teamAvatarUploading, teamRole.selectNode, toggleLinkedAuthor, tw, updateField,
+  ]);
+
+  /* Links */
+  const linksSection = useMemo(() => (
+    <div className={styles.section}>
+      <h2 className={styles.sectionTitle}>{tw("links")}</h2>
+      <div className={es.row}>
+        <div className={es.field}>
+          <label className={es.fieldLabel}>{tw("liveUrl")}</label>
+          <input
+            className={es.fieldInput}
+            type="url"
+            value={form.live_url}
+            onChange={(e) => updateField("live_url", e.target.value)}
+            placeholder="https://..."
+          />
+        </div>
+        <div className={es.field}>
+          <label className={es.fieldLabel}>{tw("githubUrl")}</label>
+          <input
+            className={es.fieldInput}
+            type="url"
+            value={form.github_url}
+            onChange={(e) => updateField("github_url", e.target.value)}
+            placeholder="https://github.com/..."
+          />
+        </div>
+      </div>
+    </div>
+  ), [form.github_url, form.live_url, tw, updateField]);
+
+  /* 관련 글 */
+  const relatedPostsSection = useMemo(() => (
+    <div className={styles.section}>
+      <div className={styles.sectionTitleRow}>
+        <h2 className={styles.sectionTitle}>{tw("relatedPosts")}</h2>
+        {(form.related_post_ids ?? []).length === 0 && (
+          <span className={styles.sectionTitleHint}>{tw("relatedPostsEmpty")}</span>
+        )}
+      </div>
+      <RelationPicker
+        items={allPosts}
+        selectedIds={form.related_post_ids ?? []}
+        onChange={(ids) => updateField("related_post_ids", ids)}
+        getId={(p) => p.id}
+        getTitle={(p) => (language === "en" && p.title_en ? p.title_en : p.title)}
+        getMeta={(p) => p.category}
+        getThumb={(p) => p.cover_image}
+        getStatus={(p) => (p.published ? "published" : "draft")}
+        searchPlaceholder={tw("relatedPostsSearch")}
+        searchInputPlaceholder={tw("relatedPostsSearchInput")}
+        noResultsText={tw("relatedPostsNoResults")}
+      />
+    </div>
+  ), [allPosts, form.related_post_ids, language, tw, updateField]);
+
+  /* 관련 시리즈 */
+  const relatedSeriesSection = useMemo(() => (
+    <div className={styles.section}>
+      <div className={styles.sectionTitleRow}>
+        <h2 className={styles.sectionTitle}>{tw("relatedSeries")}</h2>
+        {(form.related_series_ids ?? []).length === 0 && (
+          <span className={styles.sectionTitleHint}>{tw("relatedSeriesEmpty")}</span>
+        )}
+      </div>
+      <RelationPicker
+        items={allSeries}
+        selectedIds={form.related_series_ids ?? []}
+        onChange={(ids) => updateField("related_series_ids", ids)}
+        getId={(s) => s.id}
+        getTitle={(s) => (language === "en" && s.title_en ? s.title_en : s.title)}
+        getMeta={(s) => s.category}
+        getThumb={(s) => s.cover_image}
+        getStatus={(s) => (s.published ? "published" : "draft")}
+        searchPlaceholder={tw("relatedSeriesSearch")}
+        searchInputPlaceholder={tw("relatedSeriesSearchInput")}
+        noResultsText={tw("relatedSeriesNoResults")}
+      />
+    </div>
+  ), [allSeries, form.related_series_ids, language, tw, updateField]);
+
   return (
     <>
     <AdminEditorShell
@@ -904,265 +1743,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         />
       }
     >
-      {/* Basic Info — 필수 (title, year, category) + 선택 (collapsible) */}
-      <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>{tw("basicInfo")}</h2>
-
-        {/* ── 필수 ── 제목 + 부제목 + slug 묶음 */}
-        <div className={es.field} data-required="title">
-          <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${showErrors && !reqTitle.trim() ? ` ${es.fieldLabelError}` : ""}`}>{tw("title")}</label>
-          <input
-            className={`${es.titleInput}${showErrors && !reqTitle.trim() ? ` ${es.titleInputError}` : ""}`}
-            type="text"
-            value={form[titleKey]}
-            onChange={(e) => updateField(titleKey, e.target.value)}
-            placeholder={tw("titlePlaceholder")}
-          />
-        </div>
-
-        {/* 부제목 — 제목 바로 아래 */}
-        <div className={es.field}>
-          <label className={es.fieldLabel}>{tw("subtitle")}</label>
-          <SubtitleInput
-            value={form[`subtitle${suf}`]}
-            onChange={(v) => updateField(`subtitle${suf}`, v)}
-            placeholder={tw("subtitlePlaceholder")}
-          />
-        </div>
-
-        {/* slug — title 자동 생성. 사용자 수정 시 manual 모드 */}
-        <div className={es.field}>
-          <div style={{ display: "flex", alignItems: "baseline", gap: "var(--spacing-xs)" }}>
-            <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${showErrors && (!form.slug.trim() || validateSlug(form.slug)) ? ` ${es.fieldLabelError}` : ""}`}>{tw("slug")}</label>
-            {form.slug.trim() && validateSlug(form.slug) && (
-              <span style={{ fontSize: "var(--font-size-label)", color: "var(--text-accent)" }}>{tw(`slugError.${validateSlug(form.slug)}`) || validateSlug(form.slug)}</span>
-            )}
-          </div>
-          <input
-            className={`${es.fieldInput}${showErrors && (!form.slug.trim() || validateSlug(form.slug)) ? ` ${es.fieldInputError}` : ""}`}
-            type="text"
-            value={form.slug}
-            onChange={(e) => {
-              setSlugManual(true);
-              updateField("slug", e.target.value);
-            }}
-            placeholder="work-url-slug"
-          />
-        </div>
-
-        {/* year — 단독 row */}
-        <div className={es.row}>
-          <div className={es.field} style={{ gridColumn: "1 / -1" }} data-required="year">
-            <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${showErrors && !form.year.trim() ? ` ${es.fieldLabelError}` : ""}`}>{tw("year")}</label>
-            <PeriodPicker
-              value={parseYearAsPeriod(form.year)}
-              onChange={(p) => updateField("year", serializePeriodAsYear(p))}
-              maxDate={new Date()}
-            />
-          </div>
-        </div>
-
-        {/* nature (성격) — 제작 동기 축. category 와 별도. 필수 입력 */}
-        <div className={es.row}>
-          <div className={es.field} style={{ gridColumn: "1 / -1" }} data-required="nature">
-            <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${showErrors && !(primaryLang === "en" ? form.nature_en : form.nature_ko).trim() ? ` ${es.fieldLabelError}` : ""}`}>{tw("nature")}</label>
-            {(() => {
-              const matchedIdx = naturePresets.findIndex(
-                (n) => n.ko === form.nature_ko && n.en === form.nature_en,
-              );
-              const isCustom = natureCustomMode || (form.nature_ko.trim() !== "" && matchedIdx === -1);
-              const selectValue = isCustom ? "__custom__" : (matchedIdx >= 0 ? String(matchedIdx) : "");
-              return (
-                <div className={styles.categoryAddRow}>
-                  <Select
-                    value={selectValue}
-                    placeholder={tw("naturePlaceholder")}
-                    options={[
-                      { value: "__custom__", label: tw("customNature") },
-                      ...naturePresets.map((n, i) => ({
-                        value: String(i),
-                        label: editorLang === "ko" ? n.ko : n.en,
-                      })),
-                    ]}
-                    onChange={(v) => {
-                      if (v === "__custom__") {
-                        setNatureCustomMode(true);
-                        setForm((prev) => ({ ...prev, nature_ko: "", nature_en: "" }));
-                      } else {
-                        setNatureCustomMode(false);
-                        const idx = parseInt(v);
-                        const n = naturePresets[idx];
-                        if (n) setForm((prev) => ({ ...prev, nature_ko: n.ko, nature_en: n.en }));
-                      }
-                      setStatus("");
-                      setError("");
-                    }}
-                  />
-                  {isCustom && (
-                    <>
-                      <div className={styles.customCategoryInputWrap}>
-                        <span className={styles.customCategoryBadge}>KO</span>
-                        <input
-                          className={`${es.fieldInput} ${styles.customCategoryInput}`}
-                          type="text"
-                          value={form.nature_ko}
-                          onChange={(e) => updateField("nature_ko", e.target.value)}
-                          placeholder={tw("naturePlaceholder")}
-                          autoFocus
-                        />
-                      </div>
-                      <div className={styles.customCategoryInputWrap}>
-                        <span className={styles.customCategoryBadge}>EN</span>
-                        <input
-                          className={`${es.fieldInput} ${styles.customCategoryInput}`}
-                          type="text"
-                          value={form.nature_en}
-                          onChange={(e) => updateField("nature_en", e.target.value)}
-                          placeholder={tw("naturePlaceholder")}
-                        />
-                      </div>
-                    </>
-                  )}
-                </div>
-              );
-            })()}
-          </div>
-        </div>
-
-        {/* category — multi-select. 선택된 chip 위에, 추가 Select 아래에. 직접 입력 가능 */}
-        <div className={es.row}>
-          <div className={es.field} style={{ gridColumn: "1 / -1" }} data-required="category">
-            <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${showErrors && ((primaryLang === "en" ? form.categories_en : form.categories_ko) ?? []).length === 0 ? ` ${es.fieldLabelError}` : ""}`}>{tw("category")}</label>
-            <CategoryMultiPicker
-              selectedKos={form.categories_ko ?? []}
-              selectedEns={form.categories_en ?? []}
-              presets={worksCategories}
-              editorLang={editorLang}
-              customMode={categoryCustomMode}
-              setCustomMode={setCategoryCustomMode}
-              labels={{
-                placeholder: tw("categoryPlaceholder"),
-                custom: tw("customCategory"),
-              }}
-              onChange={(ko, en) => {
-                setForm((prev) => ({ ...prev, categories_ko: ko, categories_en: en }));
-                setStatus("");
-                setError("");
-              }}
-            />
-          </div>
-        </div>
-
-        {/* 설명 — 기본 정보의 하위 항목, 선택 입력보다 위 */}
-        <div className={es.field}>
-          <label className={es.fieldLabel}>{tw("description")}</label>
-          <Textarea
-            textareaClassName={styles.fieldTextarea}
-            value={form[`description${suf}`]}
-            onChange={(v) => updateField(`description${suf}`, v)}
-            placeholder={tw("descPlaceholder")}
-            rows={3}
-            maxHint="basic"
-          />
-        </div>
-
-        {/* ── 선택 (collapsible) ── */}
-        <div className={styles.optionalSection}>
-          <Pressable
-            className={styles.optionalToggle}
-            onClick={() => setOptionalOpen((v) => !v)}
-          >
-            <span>{tw("optionalFields")}</span>
-            <ChevronRight
-              size={12}
-              strokeWidth={2.5}
-              style={{ transform: optionalOpen ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 0.2s" }}
-            />
-          </Pressable>
-
-          <div className={`${styles.optionalContent}${optionalOpen ? ` ${styles.optionalContentOpen}` : ""}`}>
-            {/* 좌: 정렬순서 (세로 1열 전체)  |  우: subtitle / role (세로 stack) */}
-            <div className={styles.optionalSplit}>
-              <div className={`${es.field} ${styles.optionalSplitLeft}`}>
-                <SortOrderDragList
-                  label={tw("sortOrder")}
-                  currentTitle={form.title || tw("subtitle")}
-                  currentOrder={form.sort_order || 1}
-                  otherItems={otherWorks}
-                  onChange={(newOrder, otherUpdates) => {
-                    updateField("sort_order", newOrder);
-                    otherUpdates.forEach((u) => {
-                      fetch(`/api/works/${u.id}`, {
-                        method: "PATCH",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ sort_order: u.sort_order }),
-                      });
-                    });
-                    setOtherWorks((prev) => prev.map((w) => {
-                      const u = otherUpdates.find((x) => x.id === w.id);
-                      return u ? { ...w, sort_order: u.sort_order } : w;
-                    }).sort((a, b) => a.sort_order - b.sort_order));
-                  }}
-                />
-              </div>
-              <div className={styles.optionalSplitRight}>
-                <div className={styles.memberFormBlock}>
-                  <div className={styles.memberSubLabelRow}>
-                    <span className={styles.memberSubLabel}>{tw("role")}</span>
-                  </div>
-                  {/* multi-select — chip 은 아래 TeamContribsByRole 가 담당 (selectNode 만 사용) */}
-                  {ownRole.selectNode}
-                  {/* 역할별 작업 내용 — 공통 TagNotesEditor (ko/en 동시) */}
-                  {(() => {
-                    const rolesArr = (form[`role${suf}`] || "")
-                      .split(",")
-                      .map((r) => r.trim())
-                      .filter(Boolean);
-                    const koMap = (form.contributions_ko ?? {}) as Record<string, string[]>;
-                    const enMap = (form.contributions_en ?? {}) as Record<string, string[]>;
-                    const notesMap: Record<string, LocalizedText> = {};
-                    // entry 존재 여부 보존 — 둘 중 한 쪽에라도 key 가 있으면 (빈 문자열이라도) entry 유지
-                    for (const r of rolesArr) {
-                      if (r in koMap || r in enMap) {
-                        notesMap[r] = {
-                          ko: (koMap[r] ?? []).join("\n"),
-                          en: (enMap[r] ?? []).join("\n"),
-                        };
-                      }
-                    }
-                    return (
-                      <TagNotesEditor
-                        items={rolesArr}
-                        notes={notesMap}
-                        onItemsChange={(next) => updateField(`role${suf}`, next.join(", "))}
-                        onNotesChange={(next) => {
-                          // 빈 문자열도 split 후 [] 로 저장 — entry 존재 여부 (= key in map) 유지
-                          const nextKo: Record<string, string[]> = {};
-                          const nextEn: Record<string, string[]> = {};
-                          for (const [r, v] of Object.entries(next)) {
-                            // filter 안 함 — 빈 pair 도 유지해야 + Add 가 작동
-                            nextKo[r] = v.ko !== undefined ? v.ko.split("\n") : [];
-                            nextEn[r] = v.en !== undefined ? v.en.split("\n") : [];
-                          }
-                          updateField("contributions_ko", nextKo);
-                          updateField("contributions_en", nextEn);
-                        }}
-                        prefix=""
-                        notePlaceholder={tw("memberContributionPlaceholder")}
-                        addLabel={tw("noteAdd")}
-                        cancelLabel={tw("cancel")}
-                        editLabel={tw("noteEdit")}
-                        removeTitle={tw("roleRemove")}
-                        multiLine
-                      />
-                    );
-                  })()}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      {basicInfoSection}
 
       {/* Detail Content */}
       <div className={styles.section} data-required="content">
@@ -1254,156 +1835,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         </div>
       </div>
 
-      {/* Images */}
-      <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>{tw("images")}</h2>
-
-        <div style={{ marginBottom: "var(--spacing-lg)" }} data-required="image">
-          <CoverImageField
-            value={form.image}
-            onChange={(url) => updateField("image", url)}
-            label={tw("mainImage")}
-            removeLabel={tw("remove")}
-            uploadLabel={tw("uploadImage")}
-            chooseLabel={tw("chooseCover")}
-            closeLabel={tw("closePicker")}
-            onUpload={() => handleImageUpload("image")}
-            pickerOpen={showCoverPicker}
-            onPickerToggle={() => setShowCoverPicker((v) => !v)}
-            urlInputPlaceholder={tw("pasteUrl")}
-            hint={form.gallery.length > 0 ? tw("galleryPickHint") : undefined}
-            hasError={showErrors && !form.image.trim()}
-          />
-          {/* cover_image 세팅 후에도 picker 유지 — AI auto-save 시 재생성 가능 */}
-          {showCoverPicker && (
-            <CoverImagePicker
-              onSelect={(url) => { updateField("image", url); setShowCoverPicker(false); }}
-              onClose={() => setShowCoverPicker(false)}
-              onAutoSave={(url) => updateField("image", url)}
-              currentUrl={form.image}
-              postContext={{ title: form.title, tags: form.tech, excerpt: form.description_ko || form.description_en }}
-            />
-          )}
-        </div>
-
-        <div className={es.field}>
-          <div className={styles.galleryLabelRow}>
-            <label className={es.fieldLabel} style={{ marginBottom: 0 }}>
-              {tw("gallery")}
-              {form.gallery.length > 0 && (
-                <span className={styles.galleryCount}>{form.gallery.length}</span>
-              )}
-            </label>
-            <Button
-              variant="outline"
-              size="xs"
-              shape="capsule"
-              onClick={() => handleImageUpload("gallery")}
-              soundDisabled
-            >
-              <Plus size={12} strokeWidth={2} />
-              {tw("addMore")}
-            </Button>
-          </div>
-          {form.gallery.length === 0 ? (
-            <Pressable
-              className={styles.galleryAddTile}
-              onClick={() => handleImageUpload("gallery")}
-            >
-              <Plus size={20} strokeWidth={1.5} />
-              <span>{tw("addGallery")}</span>
-            </Pressable>
-          ) : (
-            <HorizontalCarousel className={styles.galleryCarousel}>
-              {form.gallery.map((src, i) => {
-                const isMain = src === form.image && !!src;
-                const filename = src.split("/").pop() ?? src;
-                return (
-                  <div
-                    key={i}
-                    className={`${styles.galleryItem} ${isMain ? styles.galleryItemMain : ""}`}
-                    onClick={() => setGalleryViewerIdx(i)}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setGalleryViewerIdx(i); } }}
-                    aria-label={tw("viewImage")}
-                  >
-                    {isVideoUrl(src) && !galleryImgErrors.has(src) ? (
-                      <video
-                        src={src}
-                        className={styles.galleryImg}
-                        muted
-                        playsInline
-                        preload="metadata"
-                        onMouseEnter={(e) => { void e.currentTarget.play().catch(() => {}); }}
-                        onMouseLeave={(e) => { e.currentTarget.pause(); e.currentTarget.currentTime = 0; }}
-                        onError={() => setGalleryImgErrors((prev) => {
-                          if (prev.has(src)) return prev;
-                          const next = new Set(prev);
-                          next.add(src);
-                          return next;
-                        })}
-                      />
-                    ) : (
-                      /* eslint-disable-next-line @next/next/no-img-element */
-                      <img
-                        src={galleryImgErrors.has(src) ? "/images/placeholder.svg" : src}
-                        alt={`Gallery ${i + 1}`}
-                        className={styles.galleryImg}
-                        onError={() => setGalleryImgErrors((prev) => {
-                          if (prev.has(src)) return prev;
-                          const next = new Set(prev);
-                          next.add(src);
-                          return next;
-                        })}
-                      />
-                    )}
-                    {isMain && (
-                      <span className={styles.galleryMainBadge}>
-                        <Star size={10} strokeWidth={2.5} fill="currentColor" />
-                        {tw("currentMain")}
-                      </span>
-                    )}
-                    <div
-                      className={styles.galleryOverlay}
-                      onPointerDown={(e) => e.stopPropagation()}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <div className={styles.galleryActions}>
-                        <Button
-                          variant="difference"
-                          size="xs"
-                          shape="circle"
-                          active={isMain}
-                          onClick={() => { if (!isMain) updateField("image", src); }}
-                          aria-label={tw("setAsMain")}
-                          title={tw("setAsMain")}
-                          soundDisabled
-                          icon={<Star size={12} strokeWidth={2} fill={isMain ? "currentColor" : "none"} />}
-                        />
-                        <Button
-                          variant="difference"
-                          size="xs"
-                          shape="circle"
-                          onClick={() => removeGalleryItem(i)}
-                          aria-label={tw("remove")}
-                          title={tw("remove")}
-                          soundDisabled
-                          icon={<X size={12} strokeWidth={2} />}
-                        />
-                      </div>
-                      <div className={styles.galleryMeta}>
-                        <span className={styles.galleryMetaIndex}>{i + 1} / {form.gallery.length}</span>
-                        <span className={styles.galleryMetaName}>{filename}</span>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </HorizontalCarousel>
-          )}
-        </div>
-      </div>
+      {imagesSection}
 
       {/* ── 추가 정보 (Tech + Team + Links + RelatedPosts) — 선택 입력 통합 collapsible ── */}
       <div className={styles.extraSections}>
@@ -1420,392 +1852,15 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         </Pressable>
         <div className={`${styles.extraSectionsContent}${extraOpen ? ` ${styles.extraSectionsContentOpen}` : ""}`}>
 
-      {/* Tech Stack */}
-      <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>{tw("techStack")}</h2>
-        <div className={es.field}>
-          <div className={styles.techInputRow}>
-            {/* combobox 형태 — input 에 타이핑 시 프리셋 추천 dropdown.
-             *  - 그룹 + 아이콘 표시, 이미 추가된 항목은 옅은 accent 배경 + ✓
-             *  - Enter 또는 dropdown 클릭 시 추가 (alias 정규화 + 중복 toast) */}
-            <Select
-              combobox
-              value=""
-              onChange={() => {}}
-              inputValue={tech.input}
-              onInputChange={tech.setInput}
-              onAdd={(v) => {
-                const raw = v.trim();
-                if (!raw) return;
-                const canonical = normalizeTechName(raw);
-                if (form.tech.some((tg) => normalizeTechName(tg).toLowerCase() === canonical.toLowerCase())) {
-                  showToast(fillTemplate(tw("alreadyAdded"), { name: canonical }), "info");
-                  tech.setInput("");
-                  return;
-                }
-                tech.add(canonical);
-                tech.setInput("");
-              }}
-              options={TECH_PRESETS.map((p) => {
-                const added = form.tech.some((tg) => normalizeTechName(tg).toLowerCase() === p.name.toLowerCase());
-                return {
-                  value: p.name,
-                  label: p.name,
-                  group: p.group,
-                  icon: getTechIcon(p.name),
-                  selected: added,
-                  trailing: added ? <Check size={12} strokeWidth={2.5} /> : undefined,
-                  // 한국어 alias 도 매칭 (예: "리액트" 입력 시 React 추천)
-                  searchTerms: getTechAliases(p.name),
-                };
-              })}
-              placeholder={tw("techPlaceholder")}
-            />
-            <Button
-              variant="outline"
-              shape="circle"
-              size="sm"
-              className={styles.categoryAddBtnSized}
-              onClick={() => {
-                const raw = tech.input.trim();
-                if (!raw) return;
-                const canonical = normalizeTechName(raw);
-                if (form.tech.some((tg) => normalizeTechName(tg).toLowerCase() === canonical.toLowerCase())) {
-                  showToast(fillTemplate(tw("alreadyAdded"), { name: canonical }), "info");
-                  tech.setInput("");
-                  return;
-                }
-                tech.add(canonical);
-                tech.setInput("");
-              }}
-              disabled={!tech.input.trim()}
-              aria-label="Add"
-              icon={<Plus size={12} strokeWidth={2} />}
-            />
-          </div>
-          {/* 기술별 — 공통 TagNotesEditor (drag-reorder + ko/en + multiLine add/cancel) */}
-          <TagNotesEditor
-            items={form.tech}
-            notes={form.tech_notes ?? {}}
-            onItemsChange={(next) => updateField("tech", next)}
-            onNotesChange={(next) => updateField("tech_notes", next)}
-            prefix=""
-            notePlaceholder={tw("techNotePlaceholder")}
-            addLabel={tw("noteAdd")}
-            cancelLabel={tw("cancel")}
-            editLabel={tw("noteEdit")}
-            removeTitle={tw("techRemove")}
-            multiLine
-          />
-        </div>
-      </div>
+      {techSection}
 
-      {/* Team Members */}
-      <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>{tw("teamMembers")}</h2>
-        {/* 추가된 팀원 — 저장된 멤버가 있을 때만 */}
-        {form.team_members.length > 0 && (
-          <div className={styles.memberListBlock}>
-            <div className={styles.memberSubLabel}>{tw("memberListLabel")}</div>
-            <List className={styles.memberList}>
-              {form.team_members.map((m, i) => (
-                <TeamMemberCard
-                  key={i}
-                  member={m}
-                  editorLang={editorLang}
-                  linkedAuthorName={m.author_id ? siteAuthors.find((a) => a.id === m.author_id)?.name ?? m.author_id : undefined}
-                  onChange={(next) => {
-                    const newMembers = form.team_members.map((mm, idx) => (idx === i ? next : mm));
-                    updateField("team_members", newMembers);
-                  }}
-                  onRemove={() => team.removeMember(i)}
-                  onEdit={() => team.editingIdx === i ? team.cancelEdit() : team.startEdit(i)}
-                  isEditingFull={team.editingIdx === i}
-                />
-              ))}
-            </List>
-          </div>
-        )}
-        {/* 새 팀원 추가 — add-mode 카드 */}
-        <div className={styles.memberFormBlock}>
-          <div className={styles.memberSubLabelRow}>
-            <span className={styles.memberSubLabel}>
-              {team.editingIdx !== null
-                ? tw("memberEdit")
-                : tw("memberFormLabel")}
-            </span>
-            {team.editingIdx !== null ? (
-              <div className={styles.memberFormActions}>
-                <Button
-                  variant="outline"
-                  size="xs"
-                  className={styles.avatarUploadBtn}
-                  onClick={team.cancelEdit}
-                  aria-label={tw("cancel")}
-                  icon={<X size={12} strokeWidth={2} />}
-                >
-                  {tw("cancel")}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="xs"
-                  className={styles.avatarUploadBtn}
-                  onClick={team.saveEdit}
-                  disabled={!team.memberName.trim()}
-                  aria-label={tw("memberSave")}
-                  icon={<Check size={12} strokeWidth={2} />}
-                >
-                  {tw("memberSave")}
-                </Button>
-              </div>
-            ) : (
-              <Button
-                variant="outline"
-                size="xs"
-                className={styles.avatarUploadBtn}
-                onClick={team.addMember}
-                disabled={!team.memberName.trim()}
-                aria-label={tw("memberAddAria")}
-                icon={<Plus size={12} strokeWidth={2} />}
-              >
-                {tw("memberAddButton")}
-              </Button>
-            )}
-          </div>
-          <div className={`${styles.memberCard} ${styles.memberCardAdd}`}>
-            <input
-              ref={teamAvatarFileRef}
-              type="file"
-              accept="image/*"
-              style={{ display: "none" }}
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) handleTeamAvatarFile(file);
-              }}
-            />
-            <div className={styles.memberHeaderRow}>
-              <span
-                className={`${styles.memberAvatar} ${styles.memberAvatarUploadable}`}
-                onDoubleClick={() => !teamAvatarUploading && teamAvatarFileRef.current?.click()}
-                role="button"
-                tabIndex={0}
-                aria-label={tw("memberAvatarUpload")}
-                title={tw("memberAvatarUpload")}
-              >
-                {teamAvatarPreview ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={teamAvatarPreview} alt="" className={styles.memberAvatarImg} loading="lazy" />
-                ) : team.memberName.trim() ? (
-                  <span className={styles.memberAvatarInitial}>{getMemberInitial(team.memberName)}</span>
-                ) : (
-                  <User size={20} strokeWidth={1.5} className={styles.memberAvatarPlaceholder} />
-                )}
-                <Pressable
-                  className={styles.memberAvatarAddBadge}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (!teamAvatarUploading) teamAvatarFileRef.current?.click();
-                  }}
-                  aria-label={tw("memberAvatarUpload")}
-                  tabIndex={-1}
-                >
-                  <Plus size={10} strokeWidth={2.5} />
-                </Pressable>
-              </span>
-              <BilingualInputPair
-                value={{ ko: team.memberName, en: team.memberNameEn }}
-                onChange={(next) => { team.setMemberName(next.ko); team.setMemberNameEn(next.en); }}
-                placeholder={tw("memberName")}
-              />
-            </div>
-            {/* email + url — name 아래 row */}
-            <div className={styles.memberFormRow}>
-              <input
-                className={es.fieldInput}
-                type="email"
-                value={team.memberEmail}
-                onChange={(e) => team.setMemberEmail(e.target.value)}
-                placeholder={tw("memberEmail")}
-              />
-              <input
-                className={es.fieldInput}
-                type="url"
-                value={team.memberUrl}
-                onChange={(e) => team.setMemberUrl(e.target.value)}
-                placeholder={tw("memberUrl")}
-              />
-            </div>
-            {/* 사이트 멤버 연결 — 이 작업물의 편집 권한을 주는 것이라 관리자에게만 보인다 */}
-            {myRole.canManageWorks && siteAuthors.length > 0 && (
-              <div className={styles.memberLinkRow}>
-                <span className={styles.memberLinkLabel}>
-                  {tw("linkSiteMember")}
-                </span>
-                <div className={styles.memberLinkChips}>
-                  {siteAuthors.map((a) => {
-                    const selected = team.memberAuthorId === a.id;
-                    // 다른 팀원이 이미 쓰고 있는 계정 — 편집 중인 본인 것은 제외
-                    const takenByOther = !selected && linkedAuthorIds.has(a.id);
-                    return (
-                      <Chip
-                        key={a.id}
-                        active={selected}
-                        className={takenByOther ? styles.memberLinkChipTaken : undefined}
-                        leftIcon={
-                          <AuthorAvatar
-                            value={a.avatar}
-                            name={a.name}
-                            size={16}
-                            imgClassName={styles.memberLinkChipAvatar}
-                            initialClassName={styles.memberLinkChipAvatar}
-                          />
-                        }
-                        onClick={() => {
-                          if (takenByOther) {
-                            showToast(
-                              editorLang === "ko"
-                                ? `${a.name} 은(는) 이미 다른 팀원에 연결돼 있습니다.`
-                                : `${a.name} is already linked to another member.`,
-                              "info",
-                            );
-                            return;
-                          }
-                          toggleLinkedAuthor(a);
-                        }}
-                      >
-                        {a.name}
-                      </Chip>
-                    );
-                  })}
-                </div>
-                <p className={styles.memberLinkHint}>{tw("memberLinkHint")}</p>
-              </div>
-            )}
-            {/* role select — 별도 row (full width) */}
-            <div className={styles.memberRoleRow}>
-              {teamRole.selectNode}
-            </div>
-            {/* 신규 멤버 add-card 역할별 작업 내용 — 공통 TagNotesEditor (ko/en 동시) */}
-            {(() => {
-              const rolesArr = (editorLang === "ko" ? team.memberRoleKo : team.memberRoleEn)
-                .split(",")
-                .map((r) => r.trim())
-                .filter(Boolean);
-              const koMap = team.memberContribsKo as Record<string, string[]>;
-              const enMap = team.memberContribsEn as Record<string, string[]>;
-              const notesMap: Record<string, LocalizedText> = {};
-              for (const r of rolesArr) {
-                if (r in koMap || r in enMap) {
-                  notesMap[r] = {
-                    ko: (koMap[r] ?? []).join("\n"),
-                    en: (enMap[r] ?? []).join("\n"),
-                  };
-                }
-              }
-              return (
-                <TagNotesEditor
-                  items={rolesArr}
-                  notes={notesMap}
-                  onItemsChange={(next) => {
-                    const setRole = editorLang === "ko" ? team.setMemberRoleKo : team.setMemberRoleEn;
-                    setRole(next.join(", "));
-                  }}
-                  onNotesChange={(next) => {
-                    const nextKo: Record<string, string[]> = {};
-                    const nextEn: Record<string, string[]> = {};
-                    for (const [r, v] of Object.entries(next)) {
-                      nextKo[r] = v.ko !== undefined ? v.ko.split("\n") : [];
-                      nextEn[r] = v.en !== undefined ? v.en.split("\n") : [];
-                    }
-                    team.setMemberContribsKo(nextKo);
-                    team.setMemberContribsEn(nextEn);
-                  }}
-                  prefix=""
-                  notePlaceholder={tw("memberContributionPlaceholder")}
-                  addLabel={tw("noteAdd")}
-                  cancelLabel={tw("cancel")}
-                        editLabel={tw("noteEdit")}
-                  removeTitle={tw("roleRemove")}
-                        multiLine
-                />
-              );
-            })()}
-          </div>
-        </div>
-      </div>
+      {teamSection}
 
-      {/* Links */}
-      <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>{tw("links")}</h2>
-        <div className={es.row}>
-          <div className={es.field}>
-            <label className={es.fieldLabel}>{tw("liveUrl")}</label>
-            <input
-              className={es.fieldInput}
-              type="url"
-              value={form.live_url}
-              onChange={(e) => updateField("live_url", e.target.value)}
-              placeholder="https://..."
-            />
-          </div>
-          <div className={es.field}>
-            <label className={es.fieldLabel}>{tw("githubUrl")}</label>
-            <input
-              className={es.fieldInput}
-              type="url"
-              value={form.github_url}
-              onChange={(e) => updateField("github_url", e.target.value)}
-              placeholder="https://github.com/..."
-            />
-          </div>
-        </div>
-      </div>
+      {linksSection}
 
-      {/* 관련 글 */}
-      <div className={styles.section}>
-        <div className={styles.sectionTitleRow}>
-          <h2 className={styles.sectionTitle}>{tw("relatedPosts")}</h2>
-          {(form.related_post_ids ?? []).length === 0 && (
-            <span className={styles.sectionTitleHint}>{tw("relatedPostsEmpty")}</span>
-          )}
-        </div>
-        <RelationPicker
-          items={allPosts}
-          selectedIds={form.related_post_ids ?? []}
-          onChange={(ids) => updateField("related_post_ids", ids)}
-          getId={(p) => p.id}
-          getTitle={(p) => (language === "en" && p.title_en ? p.title_en : p.title)}
-          getMeta={(p) => p.category}
-          getThumb={(p) => p.cover_image}
-          getStatus={(p) => (p.published ? "published" : "draft")}
-          searchPlaceholder={tw("relatedPostsSearch")}
-          searchInputPlaceholder={tw("relatedPostsSearchInput")}
-          noResultsText={tw("relatedPostsNoResults")}
-        />
-      </div>
+      {relatedPostsSection}
 
-      {/* 관련 시리즈 */}
-      <div className={styles.section}>
-        <div className={styles.sectionTitleRow}>
-          <h2 className={styles.sectionTitle}>{tw("relatedSeries")}</h2>
-          {(form.related_series_ids ?? []).length === 0 && (
-            <span className={styles.sectionTitleHint}>{tw("relatedSeriesEmpty")}</span>
-          )}
-        </div>
-        <RelationPicker
-          items={allSeries}
-          selectedIds={form.related_series_ids ?? []}
-          onChange={(ids) => updateField("related_series_ids", ids)}
-          getId={(s) => s.id}
-          getTitle={(s) => (language === "en" && s.title_en ? s.title_en : s.title)}
-          getMeta={(s) => s.category}
-          getThumb={(s) => s.cover_image}
-          getStatus={(s) => (s.published ? "published" : "draft")}
-          searchPlaceholder={tw("relatedSeriesSearch")}
-          searchInputPlaceholder={tw("relatedSeriesSearchInput")}
-          noResultsText={tw("relatedSeriesNoResults")}
-        />
-      </div>
+      {relatedSeriesSection}
 
         </div>{/* /extraSectionsContent */}
       </div>{/* /extraSections (Tech+Team+Links+Related) */}
