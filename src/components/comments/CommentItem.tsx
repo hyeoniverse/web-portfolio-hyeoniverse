@@ -24,6 +24,9 @@ import Collapsible from "@/components/ui/Collapsible";
 import styles from "./CommentItem.module.css";
 import Pressable from "@/components/ui/Pressable";
 import { commentErrorText } from "./commentErrorText";
+import { tryRequest } from "@/lib/sendAction";
+import { CodedError, errorText } from "@/lib/apiError";
+import { showToast } from "@/stores/toastStore";
 
 function hasKorean(text: string): boolean {
   return /[\uac00-\ud7af]/.test(text);
@@ -147,27 +150,13 @@ function CommentItem({
       if (n <= 0) delete next[emoji]; else next[emoji] = n;
       return next;
     });
-    try {
-      const res = await fetch("/api/comment-reactions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ comment_type: commentType, comment_id: comment.id, emoji }),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setReactions(data.counts ?? {});
-        setMine(data.mine ?? []);
-      } else {
-        // 실패 시 원상복구
-        setMine((prev) => (had ? [...prev, emoji] : prev.filter((e) => e !== emoji)));
-        setReactions((prev) => {
-          const next = { ...prev };
-          const n = (next[emoji] ?? 0) - delta;
-          if (n <= 0) delete next[emoji]; else next[emoji] = n;
-          return next;
-        });
-      }
-    } catch {
+    const res = await tryRequest("/api/comment-reactions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ comment_type: commentType, comment_id: comment.id, emoji }),
+    });
+    if (res instanceof CodedError) {
+      /* 원상복구하고 알린다 — 예전에는 말없이 되돌아가 누른 것이 사라진 이유를 알 수 없었다(#868) */
       setMine((prev) => (had ? [...prev, emoji] : prev.filter((e) => e !== emoji)));
       setReactions((prev) => {
         const next = { ...prev };
@@ -175,10 +164,14 @@ function CommentItem({
         if (n <= 0) delete next[emoji]; else next[emoji] = n;
         return next;
       });
-    } finally {
-      setReactionBusy(false);
+      showToast(errorText(res, t, t("comments.reactionFailed")), "error");
+    } else {
+      const data = await res.json().catch(() => null);
+      setReactions(data?.counts ?? {});
+      setMine(data?.mine ?? []);
     }
-  }, [reactionBusy, mine, commentType, comment.id]);
+    setReactionBusy(false);
+  }, [reactionBusy, mine, commentType, comment.id, t]);
 
   // Edit state
   const [editing, setEditing] = useState(false);
