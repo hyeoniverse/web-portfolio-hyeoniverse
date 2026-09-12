@@ -9,6 +9,7 @@ import Pressable from "@/components/ui/Pressable";
 import { showToast } from "@/stores/toastStore";
 import { type TeamMember } from "@/types/work";
 import { deriveTeamMemberAvatar, getMemberInitial } from "@/utils/teamMemberAvatar";
+import { useLanguage } from "@/providers/LanguageProvider";
 /* ──────────────────────────────────────────────────────────────────────────
  * TeamMemberCard — 팀원 1명. 상단 chip-row (avatar + 이름/역할 + remove) + 하단 contributions ul.
  * contributions 는 editorLang 기준 단일 배열만 보여줌 — 다른 lang 은 그대로 유지. */
@@ -32,6 +33,9 @@ export function TeamMemberCard({
   /** 현재 이 카드가 전체 편집 중인지 — 시각 강조 */
   isEditingFull?: boolean;
 }) {
+  /* 카드의 도움말·자리표시는 관리자 화면 언어. editorLang 은 역할·기여 항목 같은 콘텐츠 칸을 고를 때만 쓴다 */
+  const { t } = useLanguage();
+  const tw = (key: string) => t(`admin.works.editor.${key}`);
   type EditField = "name" | "role" | "email" | "url";
   const [expandedRoles, setExpandedRoles] = useState<Set<string>>(new Set());
   const [editingFields, setEditingFields] = useState<Set<EditField>>(new Set());
@@ -56,7 +60,7 @@ export function TeamMemberCard({
       const data = await res.json();
       if (data.url) onChange({ ...member, avatar_url: data.url });
     } catch {
-      showToast("Avatar upload failed", "error");
+      showToast(tw("avatarUploadFailed"), "error");
     } finally {
       setAvatarUploading(false);
       if (avatarFileRef.current) avatarFileRef.current.value = "";
@@ -203,8 +207,8 @@ export function TeamMemberCard({
             onDoubleClick={() => !avatarUploading && avatarFileRef.current?.click()}
             role="button"
             tabIndex={0}
-            aria-label="사진 변경"
-            title="더블클릭으로 사진 변경"
+            aria-label={tw("changePhoto")}
+            title={tw("doubleClickPhoto")}
           >
             {avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -220,7 +224,7 @@ export function TeamMemberCard({
                 e.stopPropagation();
                 if (!avatarUploading) avatarFileRef.current?.click();
               }}
-              aria-label="사진 변경"
+              aria-label={tw("changePhoto")}
               tabIndex={-1}
             >
               <Plus size={10} strokeWidth={2.5} />
@@ -236,7 +240,7 @@ export function TeamMemberCard({
                   className={styles.memberItemName}
                   onMouseDown={dblClickGuard}
                   onDoubleClick={() => startEdit("name")}
-                  title="더블클릭으로 편집"
+                  title={tw("doubleClickEdit")}
                 >
                   {member.name}
                 </span>
@@ -261,7 +265,7 @@ export function TeamMemberCard({
               <input
                 type="text"
                 defaultValue={roleField}
-                placeholder="역할 (쉼표로 구분)"
+                placeholder={tw("rolesPlaceholder")}
                 {...inlineEditProps("role", styles.memberItemRole)}
               />
             ) : contribsToShow.length === 0 && (member.role_ko || member.role_en) ? (
@@ -269,7 +273,7 @@ export function TeamMemberCard({
                 className={styles.memberItemRole}
                 onMouseDown={dblClickGuard}
                 onDoubleClick={() => startEdit("role")}
-                title="더블클릭으로 편집"
+                title={tw("doubleClickEdit")}
               >
                 {[member.role_ko, member.role_en].filter(Boolean).join(" / ")}
               </span>
@@ -282,7 +286,7 @@ export function TeamMemberCard({
                 className={styles.memberItemUrl}
                 onMouseDown={dblClickGuard}
                 onDoubleClick={() => startEdit("email")}
-                title="더블클릭으로 편집"
+                title={tw("doubleClickEdit")}
                 data-cursor="text"
               >
                 {member.email}
@@ -296,7 +300,7 @@ export function TeamMemberCard({
                 className={styles.memberItemUrl}
                 onMouseDown={dblClickGuard}
                 onDoubleClick={() => startEdit("url")}
-                title="더블클릭으로 편집"
+                title={tw("doubleClickEdit")}
                 data-cursor="text"
               >
                 {member.url}
@@ -309,7 +313,7 @@ export function TeamMemberCard({
                 className={styles.memberHeaderEditBtn}
                 onClick={onEdit}
                 aria-label={isEditingFull ? "Cancel edit" : "Edit member"}
-                title={isEditingFull ? "편집 취소" : "전체 편집"}
+                title={isEditingFull ? tw("cancelEditAll") : tw("editAll")}
                 data-cursor="big"
               >
                 {isEditingFull ? <X size={14} strokeWidth={2.4} /> : <Pencil size={14} strokeWidth={2.2} />}
@@ -365,7 +369,7 @@ export function TeamMemberCard({
                           cancelDelayed();
                           setEditingContribRole(role);
                         }}
-                        title="더블클릭으로 편집"
+                        title={tw("doubleClickEdit")}
                         data-cursor="text"
                       >
                         {role}
@@ -400,7 +404,7 @@ export function TeamMemberCard({
                               <span
                                 onMouseDown={dblClickGuard}
                                 onDoubleClick={() => setEditingContrib({ role, idx: ci })}
-                                title="더블클릭으로 편집"
+                                title={tw("doubleClickEdit")}
                               >
                                 {c}
                               </span>
@@ -412,7 +416,7 @@ export function TeamMemberCard({
                       <li className={styles.memberContribsAddItem}>
                         <input
                           type="text"
-                          placeholder="새 작업 추가..."
+                          placeholder={tw("newTaskPlaceholder")}
                           className={styles.memberInlineEdit}
                           data-cursor="text"
                           onBlur={(e) => {

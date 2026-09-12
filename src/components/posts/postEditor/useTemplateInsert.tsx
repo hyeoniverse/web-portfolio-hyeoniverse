@@ -2,6 +2,7 @@
 
 import { useCallback } from "react";
 import { useModalStore } from "@/stores/modalStore";
+import { useLanguage } from "@/providers/LanguageProvider";
 import { POST_TEMPLATES, type PostTemplate } from "@/data/postTemplates";
 import { mdToRichHtml } from "../mdToRichHtml";
 import Pressable from "@/components/ui/Pressable";
@@ -23,6 +24,7 @@ export function useTemplateInsert({
   te: (key: string) => string;
 }) {
   const { openModal, closeAll } = useModalStore();
+  const { language } = useLanguage();
 
   const handleInsertTemplate = useCallback(() => {
     const lang = editorLang;
@@ -65,15 +67,16 @@ export function useTemplateInsert({
                 }
               }}
             >
-              <span className={styles.templateItemLabel}>{lang === "ko" ? tmpl.label.ko : tmpl.label.en}</span>
-              <span className={styles.templateItemDesc}>{lang === "ko" ? tmpl.desc.ko : tmpl.desc.en}</span>
+              {/* 템플릿 이름·설명은 고르는 단추라 화면 언어로, 넣는 본문만 편집 중인 언어로 */}
+              <span className={styles.templateItemLabel}>{language === "ko" ? tmpl.label.ko : tmpl.label.en}</span>
+              <span className={styles.templateItemDesc}>{language === "ko" ? tmpl.desc.ko : tmpl.desc.en}</span>
             </Pressable>
           ))}
         </div>
       </div>,
       { header: { title: te("insertTemplate") }, closeButton: true, width: "420px" },
     );
-  }, [editorLang, form, updateField, te, openModal, closeAll]);
+  }, [editorLang, language, form, updateField, te, openModal, closeAll]);
 
   return handleInsertTemplate;
 }
