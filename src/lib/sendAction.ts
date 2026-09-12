@@ -13,7 +13,11 @@ import { CodedError, errorFromResponse, errorText } from "@/lib/apiError";
 
 export type ActionRequest = { input: string; init?: RequestInit };
 
-async function attempt({ input, init }: ActionRequest): Promise<Response | CodedError> {
+/**
+ * 요청을 보내고 실패(거절·네트워크)를 `CodedError` 로 돌려준다. 알림은 띄우지 않는다.
+ * 내보내기처럼 여러 번 보낸 뒤 `notifyFailures` 로 한꺼번에 알릴 때 쓴다.
+ */
+export async function tryRequest(input: string, init?: RequestInit): Promise<Response | CodedError> {
   try {
     const res = await fetch(input, init);
     return res.ok ? res : await errorFromResponse(res);
@@ -24,7 +28,7 @@ async function attempt({ input, init }: ActionRequest): Promise<Response | Coded
 
 /** 요청 하나. 성공하면 응답을, 실패하면 알림을 띄우고 null 을 돌려준다 */
 export async function sendAction(input: string, init: RequestInit | undefined, t: TFunction, fallback: string): Promise<Response | null> {
-  const result = await attempt({ input, init });
+  const result = await tryRequest(input, init);
   if (result instanceof Response) return result;
   showToast(errorText(result, t, fallback), "error");
   return null;
@@ -58,9 +62,9 @@ export async function sendActions(
 ): Promise<number> {
   const results: (Response | CodedError)[] = [];
   if (sequential) {
-    for (const r of requests) results.push(await attempt(r));
+    for (const r of requests) results.push(await tryRequest(r.input, r.init));
   } else {
-    results.push(...(await Promise.all(requests.map(attempt))));
+    results.push(...(await Promise.all(requests.map((r) => tryRequest(r.input, r.init)))));
   }
   const failures = results.filter((r): r is CodedError => r instanceof CodedError);
   notifyFailures(failures, results.length, t, fallback);

@@ -129,7 +129,9 @@
       "typeAccessRequest": "Access request",
       "typeDeviceLogin": "New device sign-in",
       "groupPending": "Needs action",
-      "groupRest": "Everything else"
+      "groupRest": "Everything else",
+      "markReadFailed": "Couldn’t mark notifications as read.",
+      "deleteFailed": "Couldn’t delete the notifications."
     },
     "reports": {
       "title": "Comment Reports",
@@ -160,7 +162,9 @@
       "emptyHint": "Reported comments will appear here",
       "refresh": "Refresh",
       "tipRefresh": "Reload reports",
-      "tipItemDetail": "Click to see the details"
+      "tipItemDetail": "Click to see the details",
+      "updateFailed": "Couldn’t update the report.",
+      "deleteCommentFailed": "Couldn’t delete the reported comment."
     },
     "login": {
       "title": "Admin",
@@ -226,7 +230,8 @@
       "categoryFailed": "Couldn’t change the category.",
       "importFailed": "Couldn’t create items from the Markdown files.",
       "exportFailed": "Couldn’t export.",
-      "categoryAddFailed": "Couldn’t add the new categories to settings."
+      "categoryAddFailed": "Couldn’t add the new categories to settings.",
+      "seriesPostsFailed": "Couldn’t add or remove posts in the series."
     },
     "settings": {
       "title": "Settings",
@@ -475,7 +480,8 @@
         "loading": "Loading…",
         "loadFailed": "Failed to load tags: {{error}}",
         "empty": "No tags",
-        "remove": "Delete tag"
+        "remove": "Delete tag",
+        "deleteFailed": "Couldn’t delete the tag."
       },
       "categoryEditor": {
         "hint": "Categories that group posts. They go two levels deep, parent and subcategory, and each post stores its lowest-level category.",
@@ -989,7 +995,8 @@
       "emailCancelFailed": "Couldn’t cancel the email change.",
       "signOutAllFailed": "Couldn’t sign out of all devices.",
       "envReveal": "Show value",
-      "envHide": "Hide value"
+      "envHide": "Hide value",
+      "categoryReassignFailed": "Couldn’t move the posts to another category, so the category wasn’t deleted."
     },
     "posts": {
       "title": "Posts",

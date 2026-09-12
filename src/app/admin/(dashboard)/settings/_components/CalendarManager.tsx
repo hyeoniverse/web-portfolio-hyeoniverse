@@ -14,6 +14,7 @@ import Button from "@/components/ui/Button";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import { SkeletonLine } from "@/components/ui/Skeleton";
 import { type CalendarListItem, listCalendars, renameCalendar, deleteCalendar, restoreCalendar, purgeCalendar } from "@/components/posts/plate/calendar/calendarApi";
+import { showToast } from "@/stores/toastStore";
 import { monthTitle, relTimeLabel } from "@/components/posts/plate/calendar/model";
 import { getTrashDaysLeft } from "@/utils/trash";
 import settings from "../Settings.module.css";
@@ -91,10 +92,10 @@ export default function CalendarManager() {
     setSavingId(id);
     const ok = await renameCalendar(id, title);
     setSavingId(null);
-    if (ok) {
-      setItems((prev) => (prev ? prev.map((x) => (x.id === id ? { ...x, title } : x)) : prev));
-      cancelEdit();
-    }
+    /* 달력 API 는 성공 여부만 돌려주고 라우트도 사유 코드를 싣지 않아 동작별 문구로 알린다(#868) */
+    if (!ok) { showToast(t("달력 이름을 바꾸지 못했습니다.", "Couldn’t rename the calendar."), "error"); return; }
+    setItems((prev) => (prev ? prev.map((x) => (x.id === id ? { ...x, title } : x)) : prev));
+    cancelEdit();
   };
 
   const calLabel = (it: CalendarListItem) => it.title || (it.month ? monthTitle(it.month, language) : t("제목 없음", "Untitled"));
@@ -111,7 +112,9 @@ export default function CalendarManager() {
         danger
         onConfirm={async () => {
           const ok = await deleteCalendar(it.id);
-          if (ok) { setItems((prev) => (prev ? prev.filter((x) => x.id !== it.id) : prev)); if (trashOpen) reloadTrash(); }
+          if (!ok) { showToast(t("달력을 휴지통으로 옮기지 못했습니다.", "Couldn’t move the calendar to trash."), "error"); return; }
+          setItems((prev) => (prev ? prev.filter((x) => x.id !== it.id) : prev));
+          if (trashOpen) reloadTrash();
         }}
       />,
       { id: "cal-mgr-delete", header: { title: t("달력 삭제", "Delete calendar") }, closeButton: true, width: "min(460px, 92vw)" },
@@ -125,7 +128,9 @@ export default function CalendarManager() {
     setBusyId(id);
     const ok = await restoreCalendar(id);
     setBusyId(null);
-    if (ok) { setTrash((prev) => (prev ? prev.filter((x) => x.id !== id) : prev)); reloadActive(); }
+    if (!ok) { showToast(t("달력을 복구하지 못했습니다.", "Couldn’t restore the calendar."), "error"); return; }
+    setTrash((prev) => (prev ? prev.filter((x) => x.id !== id) : prev));
+    reloadActive();
   };
 
   const confirmPurge = (it: CalendarListItem) => {
@@ -139,7 +144,8 @@ export default function CalendarManager() {
         danger
         onConfirm={async () => {
           const ok = await purgeCalendar(it.id);
-          if (ok) setTrash((prev) => (prev ? prev.filter((x) => x.id !== it.id) : prev));
+          if (!ok) { showToast(t("달력을 영구 삭제하지 못했습니다.", "Couldn’t delete the calendar permanently."), "error"); return; }
+          setTrash((prev) => (prev ? prev.filter((x) => x.id !== it.id) : prev));
         }}
       />,
       { id: "cal-mgr-purge", header: { title: t("영구 삭제", "Delete forever") }, closeButton: true, width: "min(460px, 92vw)" },

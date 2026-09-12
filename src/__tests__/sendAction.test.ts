@@ -12,7 +12,8 @@ vi.mock("@/stores/toastStore", () => ({
   showToast: (message: string, variant?: string) => { toasts.push({ message, variant }); return "id"; },
 }));
 
-import { sendAction, sendActions } from "@/lib/sendAction";
+import { sendAction, sendActions, tryRequest } from "@/lib/sendAction";
+import { CodedError } from "@/lib/apiError";
 
 type Dict = Record<string, unknown>;
 const tOf = (d: Dict) => (key: string) => {
@@ -83,5 +84,17 @@ describe("sendActions", () => {
     }));
     await sendActions(reqs(2), tKo, "대체", { sequential: true });
     expect(order).toEqual(["start /api/posts/p0", "end /api/posts/p0", "start /api/posts/p1", "end /api/posts/p1"]);
+  });
+});
+
+describe("tryRequest", () => {
+  it("실패를 코드가 실린 CodedError 로 돌려주고 알림은 띄우지 않는다", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => forbidden()));
+    const r = await tryRequest("/api/posts/export?id=p1");
+    expect(r).toBeInstanceOf(CodedError);
+    expect((r as CodedError).code).toBe("POST_OWN_ONLY");
+    vi.stubGlobal("fetch", vi.fn(async () => json(200, { files: [] })));
+    expect(await tryRequest("/api/posts/export?id=p1")).toBeInstanceOf(Response);
+    expect(toasts).toEqual([]);
   });
 });

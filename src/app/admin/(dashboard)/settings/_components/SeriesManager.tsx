@@ -24,6 +24,7 @@ import { AnimatePresence } from "framer-motion";
 import SeriesInlineEditor, { type SeriesInlineEditorHandle } from "./SeriesInlineEditor";
 import { Switch } from "@/components/ui/Switch";
 import SeriesDeleteModal from "./SeriesDeleteModal";
+import { sendAction, sendActions } from "@/lib/sendAction";
 import styles from "./SeriesManager.module.css";
 import shared from "../Settings.module.css";
 import Pressable from "@/components/ui/Pressable";
@@ -92,31 +93,6 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
   // grip handle 을 mousedown 했을 때만 카드의 draggable 이 켜짐 — 다른 영역 클릭으로는 드래그 시작 X
   const [armedId, setArmedId] = useState<string | null>(null);
 
-  const handleReorder = async (fromIdx: number, toIdx: number) => {
-    if (fromIdx === toIdx) return;
-    const reordered = [...seriesList];
-    const [moved] = reordered.splice(fromIdx, 1);
-    reordered.splice(toIdx, 0, moved);
-    const lo = Math.min(fromIdx, toIdx);
-    const hi = Math.max(fromIdx, toIdx);
-    const sortOrders = seriesList.slice(lo, hi + 1).map((s) => s.sort_order);
-    const next = reordered.map((s, idx) => {
-      if (idx >= lo && idx <= hi) {
-        return { ...s, sort_order: sortOrders[idx - lo] };
-      }
-      return s;
-    });
-    setSeriesList(next);
-    // skipShift=true — 클라이언트가 직접 정렬 관리
-    for (let i = lo; i <= hi; i++) {
-      await fetch(`/api/series/${next[i].id}?skipShift=true`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sort_order: next[i].sort_order }),
-      });
-    }
-  };
-
   const collapseId = useCallback((id: string | null) => {
     if (!id) { setExpandedId(null); return; }
     setClosingId(id);
@@ -168,6 +144,34 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
   }, [page, debouncedSearch, searchType, sortBy, sortDir, publishFilter, descFilter]);
 
   useEffect(() => { fetchSeries(); }, [fetchSeries]);
+
+  const handleReorder = async (fromIdx: number, toIdx: number) => {
+    if (fromIdx === toIdx) return;
+    const reordered = [...seriesList];
+    const [moved] = reordered.splice(fromIdx, 1);
+    reordered.splice(toIdx, 0, moved);
+    const lo = Math.min(fromIdx, toIdx);
+    const hi = Math.max(fromIdx, toIdx);
+    const sortOrders = seriesList.slice(lo, hi + 1).map((s) => s.sort_order);
+    const next = reordered.map((s, idx) => {
+      if (idx >= lo && idx <= hi) {
+        return { ...s, sort_order: sortOrders[idx - lo] };
+      }
+      return s;
+    });
+    setSeriesList(next);
+    // skipShift=true — 클라이언트가 직접 정렬 관리
+    const changed = next.slice(lo, hi + 1);
+    const saved = await sendActions(
+      changed.map((s) => ({
+        input: `/api/series/${s.id}?skipShift=true`,
+        init: { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sort_order: s.sort_order }) },
+      })),
+      t, t("admin.common.reorderFailed"), { sequential: true },
+    );
+    /* 하나라도 실패하면 먼저 바꿔 둔 화면 순서가 서버와 어긋나므로 다시 불러온다(#868) */
+    if (saved < changed.length) fetchSeries();
+  };
 
   /* URL ?series=ID — findPage 로 해당 페이지를 알아낸 뒤 이동 */
   useEffect(() => {
@@ -383,14 +387,12 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
                           max={total}
                           onSave={async (n) => {
                             if (n === s.sort_order) return;
-                            try {
-                              await fetch(`/api/series/${s.id}`, {
-                                method: "PATCH",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({ sort_order: n }),
-                              });
-                              fetchSeries();
-                            } catch { /* ignore */ }
+                            const res = await sendAction(`/api/series/${s.id}`, {
+                              method: "PATCH",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({ sort_order: n }),
+                            }, t, t("admin.common.reorderFailed"));
+                            if (res) fetchSeries();
                           }}
                         />
                         _
@@ -419,7 +421,8 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
                           series={s}
                           onConfirm={async (deletePosts) => {
                             closeAll();
-                            await fetch(`/api/series/${s.id}${deletePosts ? "?deletePosts=true" : ""}`, { method: "DELETE" });
+                            const res = await sendAction(`/api/series/${s.id}${deletePosts ? "?deletePosts=true" : ""}`, { method: "DELETE" }, t, t("admin.common.deleteFailed"));
+                            if (!res) return;
                             collapseId(s.id);
                             fetchSeries();
                           }}
@@ -444,12 +447,18 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
                       expandedEditorRef.current?.setPublished(nextPub);
                     }
                     setSeriesList((prev) => prev.map((item) => item.id === s.id ? { ...item, published: nextPub } : item));
-                    fetch(`/api/series/${s.id}`, {
+                    /* 거절돼도 되돌린다 — 예전에는 요청이 끊길 때만 되돌리고 알리지 않았다(#868) */
+                    void sendAction(`/api/series/${s.id}`, {
                       method: "PATCH",
                       headers: { "Content-Type": "application/json" },
                       body: JSON.stringify({ published: nextPub }),
-                    }).catch(() => {
+                    }, t, t("admin.common.publishFailed")).then((res) => {
+                      if (res) return;
                       setSeriesList((prev) => prev.map((item) => item.id === s.id ? { ...item, published: s.published } : item));
+                      if (expanded) {
+                        setExpandedPublished(s.published);
+                        expandedEditorRef.current?.setPublished(s.published);
+                      }
                     });
                   }}
                 >

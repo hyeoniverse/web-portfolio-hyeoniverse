@@ -27,6 +27,7 @@ import { findDuplicate } from "@/lib/dedupe";
 import { getInitial, KO_INITIALS, EN_INITIALS } from "@/lib/initial";
 import { matchesSearch } from "@/lib/koSearch";
 import LetterFilter from "@/components/ui/LetterFilter";
+import { sendAction } from "@/lib/sendAction";
 import styles from "../Settings.module.css";
 
 /** legacy `description: string` → bilingual `{ko, en}` 자동 정규화. */
@@ -319,8 +320,8 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
             description: typeof c.description === "string" ? c.description : c.description?.ko,
           }))}
         onConfirm={async (assignments, newCategories) => {
-          await handleReassignConfirmRef.current(assignments, newCategories);
-          closeModal(id);
+          /* 글을 옮기지 못하면 창을 닫지 않는다 — 다시 시도할 수 있게(#868) */
+          if (await handleReassignConfirmRef.current(assignments, newCategories)) closeModal(id);
         }}
         onCancel={() => { closeModal(id); setReassignTarget(null); }}
       />,
@@ -517,14 +518,16 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
   const handleReassignConfirmRef = useRef<(
     assignments: { id: string; category: string }[],
     newCategories: BilingualCategory[],
-  ) => Promise<void>>(async () => {});
+  ) => Promise<boolean>>(async () => false);
   useSyncRef(handleReassignConfirmRef, async (assignments, newCategories) => {
+    /* 글을 옮기지 못했으면 카테고리를 지우지 않는다 — 예전에는 실패해도 지워 글이 없는 카테고리를 가리키게 됐다 */
     if (assignments.length > 0) {
-      await fetch("/api/posts/reassign-category", {
+      const res = await sendAction("/api/posts/reassign-category", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ assignments }),
-      });
+      }, t, t("admin.settings.categoryReassignFailed"));
+      if (!res) return false;
     }
     const remaining = categories.filter(
       (c) => c.ko !== reassignTarget?.ko || c.en !== reassignTarget?.en,
@@ -538,6 +541,7 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
     onChange(merged);
     setReassignTarget(null);
     if (editingEn === reassignTarget?.en) setEditingEn(null);
+    return true;
   });
 
   /* 편집 중인 카테고리의 관련 게시물 — post.category 가 EN 또는 KO 저장됐을 수 있으니 둘 다 매칭. */

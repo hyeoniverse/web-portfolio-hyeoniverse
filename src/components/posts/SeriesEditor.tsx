@@ -6,6 +6,7 @@ import { ChevronUp, ChevronDown } from "@/components/icons";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { errorFromBody, errorText } from "@/lib/apiError";
+import { sendAction, sendActions } from "@/lib/sendAction";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import type { Series } from "@/types/post";
 import Checkbox from "@/components/ui/Checkbox";
@@ -89,14 +90,15 @@ export default function SeriesEditor({ series }: SeriesEditorProps) {
     if (isEdit) fetchSeriesPosts();
   }, [isEdit, fetchSeriesPosts]);
 
+  /* 실패하면 알리고 목록은 그대로 둔다 — 예전에는 거절돼도 목록에서 빠져 빠진 것처럼 보였다(#868) */
   const handleRemovePost = useCallback(async (postId: string) => {
-    await fetch(`/api/posts/${postId}`, {
+    const res = await sendAction(`/api/posts/${postId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ series_id: null, series_order: 0 }),
-    });
-    setPosts((prev) => prev.filter((p) => p.id !== postId));
-  }, []);
+    }, t, t("admin.common.seriesPostsFailed"));
+    if (res) setPosts((prev) => prev.filter((p) => p.id !== postId));
+  }, [t]);
 
   const handleReorder = useCallback(
     async (index: number, direction: -1 | 1) => {
@@ -108,20 +110,18 @@ export default function SeriesEditor({ series }: SeriesEditorProps) {
       updated.forEach((p, i) => (p.series_order = i));
       setPosts(updated);
 
-      await Promise.all([
-        fetch(`/api/posts/${updated[index].id}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ series_order: updated[index].series_order }),
-        }),
-        fetch(`/api/posts/${updated[swapIndex].id}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ series_order: updated[swapIndex].series_order }),
-        }),
-      ]);
+      const swapped = [updated[index], updated[swapIndex]];
+      const saved = await sendActions(
+        swapped.map((p) => ({
+          input: `/api/posts/${p.id}`,
+          init: { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ series_order: p.series_order }) },
+        })),
+        t, t("admin.common.reorderFailed"),
+      );
+      /* 먼저 바꿔 둔 화면 순서가 서버와 어긋나면 다시 불러온다 */
+      if (saved < swapped.length) fetchSeriesPosts();
     },
-    [posts],
+    [posts, t, fetchSeriesPosts],
   );
 
   const updateField = <K extends keyof SeriesForm>(key: K, value: SeriesForm[K]) => {
@@ -199,7 +199,8 @@ export default function SeriesEditor({ series }: SeriesEditorProps) {
   const handleDelete = useCallback(async () => {
     if (!series || !confirm(t("admin.posts.seriesDeleteConfirm"))) return;
     setDeleting(true);
-    await fetch(`/api/series/${series.id}`, { method: "DELETE" });
+    const res = await sendAction(`/api/series/${series.id}`, { method: "DELETE" }, t, t("admin.common.deleteFailed"));
+    if (!res) { setDeleting(false); return; }
     router.push("/admin/posts");
   }, [series, router, t]);
 

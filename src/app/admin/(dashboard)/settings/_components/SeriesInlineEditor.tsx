@@ -7,6 +7,7 @@ import EditableRowNumber from "@/components/admin/AdminTable/EditableRowNumber";
 import { motion, LayoutGroup } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { errorFromBody, errorText } from "@/lib/apiError";
+import { sendAction, sendActions, type ActionRequest } from "@/lib/sendAction";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import type { BilingualCategory } from "@/types/common";
 import { Switch } from "@/components/ui/Switch";
@@ -354,51 +355,39 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
       if (!res.ok) throw errorFromBody(await res.json().catch(() => null), res.status);
       const savedSeries = (await res.json()) as Series;
       /* 새 시리즈 + 사용자가 원한 position 이 기본 (맨 뒤) 와 다르면 PATCH 로 위치 변경 (backend auto-shift) */
+      /* 시리즈는 이미 저장됐다. 뒤따르는 위치·글 반영이 실패해도 저장은 끝내고, 반영하지 못한 것은 알림으로 알린다.
+         예전에는 응답을 보지 않아 실패해도 저장된 것처럼 보였다(#868) */
       if (!isEdit && form.desiredPosition !== totalCount + 1) {
         // 현재 list 의 (position-1) 번째 시리즈의 sort_order 자리로 이동
-        try {
-          const listRes = await fetch(`/api/series?all=true&sortBy=default&sortDir=asc&page=0&limit=200`);
-          const listData = await listRes.json();
-          const items = (Array.isArray(listData?.items) ? listData.items : []) as Series[];
-          const target = items[form.desiredPosition - 1];
-          if (target && target.id !== savedSeries.id) {
-            await fetch(`/api/series/${savedSeries.id}`, {
-              method: "PATCH",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ sort_order: target.sort_order }),
-            });
-          }
-        } catch { /* ignore — 위치 변경 실패 시 default 위치 유지 */ }
+        const listRes = await sendAction(`/api/series?all=true&sortBy=default&sortDir=asc&page=0&limit=200`, undefined, t, t("admin.common.reorderFailed"));
+        const listData = listRes ? await listRes.json().catch(() => null) : null;
+        const items = (Array.isArray(listData?.items) ? listData.items : []) as Series[];
+        const target = items[form.desiredPosition - 1];
+        if (target && target.id !== savedSeries.id) {
+          await sendAction(`/api/series/${savedSeries.id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ sort_order: target.sort_order }),
+          }, t, t("admin.common.reorderFailed"));
+        }
       }
 
       /* 포스트 변경사항 일괄 반영 — 새 시리즈 / edit 둘 다. savedSeries.id 로 연결. */
+      const patchPost = (id: string, body: Record<string, unknown>): ActionRequest => ({
+        input: `/api/posts/${id}`,
+        init: { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) },
+      });
       // 제거된 포스트 (edit 만 의미 — 새 시리즈는 removedPostIds 항상 빈 Set)
-      for (const id of removedPostIds) {
-        await fetch(`/api/posts/${id}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ series_id: null, series_order: 0 }),
-        });
-      }
+      const postUpdates = [...removedPostIds].map((id) => patchPost(id, { series_id: null, series_order: 0 }));
       // 추가/순서 변경된 포스트 — 새 시리즈는 모든 posts 가 신규 연결
       const originalIds = new Set(originalPosts.map((o) => o.id));
       for (const p of posts) {
         const orig = originalPosts.find((o) => o.id === p.id);
         const isNew = !originalIds.has(p.id);
-        if (isNew) {
-          await fetch(`/api/posts/${p.id}`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ series_id: savedSeries.id, series_order: p.series_order }),
-          });
-        } else if (!orig || orig.series_order !== p.series_order) {
-          await fetch(`/api/posts/${p.id}`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ series_order: p.series_order }),
-          });
-        }
+        if (isNew) postUpdates.push(patchPost(p.id, { series_id: savedSeries.id, series_order: p.series_order }));
+        else if (!orig || orig.series_order !== p.series_order) postUpdates.push(patchPost(p.id, { series_order: p.series_order }));
       }
+      await sendActions(postUpdates, t, t("admin.common.seriesPostsFailed"), { sequential: true });
 
       onSave(savedSeries);
     } catch (err) {
@@ -795,8 +784,9 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
                       onClick={(e) => {
                         e.stopPropagation();
                         if (!confirm(`"${post.title}" — ${t("admin.posts.deleteConfirm")}`)) return;
-                        handleRemovePost(post.id);
-                        fetch(`/api/posts/${post.id}`, { method: "DELETE" });
+                        /* 지운 뒤에만 목록에서 뺀다 — 예전에는 거절돼도 빠져 지워진 것처럼 보였다 */
+                        void sendAction(`/api/posts/${post.id}`, { method: "DELETE" }, t, t("admin.common.deleteFailed"))
+                          .then((res) => { if (res) handleRemovePost(post.id); });
                       }}
                       onMouseDown={(e) => e.stopPropagation()}
                       title={t("admin.posts.delete")}

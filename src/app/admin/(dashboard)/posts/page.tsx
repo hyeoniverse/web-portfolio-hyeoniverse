@@ -33,8 +33,8 @@ import BulkCategoryModal from "@/components/admin/BulkCategoryModal";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import { parseMdPost } from "@/utils/mdParser";
 import { uploadRandomCover } from "@/utils/uploadRandomCover";
-import { sendAction, sendActions, notifyFailures } from "@/lib/sendAction";
-import { CodedError, errorFromResponse } from "@/lib/apiError";
+import { sendAction, sendActions, notifyFailures, tryRequest } from "@/lib/sendAction";
+import { CodedError } from "@/lib/apiError";
 import MarkdownUploadGuide from "./_components/MarkdownUploadGuide";
 import SeriesPanel from "./_components/SeriesPanel";
 import TrashPanel from "./_components/TrashPanel";
@@ -522,9 +522,9 @@ export default function AdminPostsPage() {
           if (!guardWritable(postsByIds(ids))) return;
           const failures: CodedError[] = [];
           for (const id of ids) {
-            const res = await fetch(`/api/posts/export?id=${id}`).catch(() => null);
-            if (!res?.ok) {
-              failures.push(res ? await errorFromResponse(res) : new CodedError("Network error"));
+            const res = await tryRequest(`/api/posts/export?id=${id}`);
+            if (res instanceof CodedError) {
+              failures.push(res);
               continue;
             }
             const text = await res.text();
