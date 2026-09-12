@@ -1,5 +1,8 @@
 import { createServerClient } from "@supabase/ssr";
+import type { User } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
+import { getUserRole } from "@/lib/api/roles";
+import { AUTHOR_HOME, canOpenAdminPage } from "@/lib/adminAccess";
 
 /**
  * 보안 layer 2개:
@@ -14,6 +17,7 @@ import { NextResponse, type NextRequest } from "next/server";
  * 2. Admin 가드 (`/admin/*`, `/api/admin/*`)
  *    비인증 시 page redirect / API 401. Supabase unreachable 시에도 fail-closed.
  *    layout / route 의 requireAuth() 와 다층 방어.
+ *    권한이 모자란 화면(작성자의 대시보드·알림·신고 등, lib/adminAccess)은 글 목록으로 보낸다. API 는 route 가 판정한다.
  *
  * 비-admin 경로에서도 admin 이 로그인 중이면 Supabase 토큰 refresh 가 필요해 supabase 클라이언트는
  * 만들지만, 토큰 쿠키가 없을 땐 getUser() 호출도 skip — 익명 트래픽 hot path 의 불필요한
@@ -51,6 +55,13 @@ function isApi(pathname: string): boolean {
 
 function rejectPage(request: NextRequest): NextResponse {
   return NextResponse.redirect(new URL("/admin/login", request.url));
+}
+
+/** 다른 화면으로 보내되, getUser() 가 토큰을 새로 받았으면 그 쿠키를 옮겨 싣는다 — 빠뜨리면 브라우저에 옛 토큰이 남는다 */
+function redirectKeepingSession(request: NextRequest, to: string, sessionResponse: NextResponse): NextResponse {
+  const response = NextResponse.redirect(new URL(to, request.url));
+  for (const cookie of sessionResponse.cookies.getAll()) response.cookies.set(cookie);
+  return response;
 }
 
 function rejectApi(status: number, message: string): NextResponse {
@@ -137,7 +148,7 @@ export async function proxy(request: NextRequest) {
     }
   );
 
-  let user: { id: string } | null = null;
+  let user: User | null = null;
   let authReachable = true;
   try {
     const { data } = await supabase.auth.getUser();
@@ -154,6 +165,11 @@ export async function proxy(request: NextRequest) {
     if (!user) {
       if (isAdminApi(pathname)) return rejectApi(401, "Unauthorized");
       return rejectPage(request);
+    }
+    // 권한이 모자란 화면은 그리기 전에 보낸다(#883). 메일 링크 로그인은 /admin(대시보드)으로 들어오는데, 작성자는 그동안
+    // 대시보드를 불러와 403 을 받은 뒤에야 글 목록으로 넘어갔고, 알림·신고는 빈 목록으로 보였다
+    if (!isAdminApi(pathname) && !canOpenAdminPage(pathname, getUserRole(user))) {
+      return redirectKeepingSession(request, AUTHOR_HOME, supabaseResponse);
     }
   }
 

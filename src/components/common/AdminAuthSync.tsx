@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { ADMIN_ACCESS_CHANGED } from "@/lib/adminAccess";
 
 /**
  * admin 화면의 세션 동기화.
@@ -50,6 +51,8 @@ export default function AdminAuthSync() {
           // 새 권한이 담긴 토큰을 다시 받아 화면을 그 값에 맞춘다.
           await supabase.auth.refreshSession();
           router.refresh();
+          // 네비게이션의 관리자 메뉴·알림 종도 새 권한으로 다시 거른다(#883)
+          window.dispatchEvent(new Event(ADMIN_ACCESS_CHANGED));
         })
         .subscribe();
     })();
