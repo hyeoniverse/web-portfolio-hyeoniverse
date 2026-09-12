@@ -7,6 +7,8 @@ import { useRecaptcha } from "@/providers/RecaptchaProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { EMAIL_RE } from "@/utils/commentValidation";
 import { validateFileSize } from "@/lib/compressImage";
+import { errorText } from "@/lib/apiError";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 interface SubmittedData {
   name: string;
@@ -76,6 +78,8 @@ export function useContactForm(): UseContactFormReturn {
   // Toast 콜백 ref
   const showFormToastRef = useRef<(message: string, type?: "error" | "success") => void>(() => {});
   const showToastRef = useRef<(message: string, type: "error" | "success") => void>(() => {});
+
+  const { t } = useLanguage();
 
   // reCAPTCHA 설정 — admin 토글 반영을 위해 useSiteConfig 사용
   const cfg = useSiteConfig();
@@ -163,7 +167,7 @@ export function useContactForm(): UseContactFormReturn {
         const mediaLimits = cfg.media?.limits as Record<string, number> | undefined;
         const sizeError = validateFileSize(attachedFile, mediaLimits, { skipCompressibleBypass: true });
         if (sizeError) {
-          showFormToastRef.current(sizeError);
+          showFormToastRef.current(errorText(sizeError, t, sizeError.message));
           return;
         }
       }
@@ -214,6 +218,7 @@ export function useContactForm(): UseContactFormReturn {
       fileName,
       // 첨부 용량 제한을 콜백 안에서 읽는다 — 설정이 바뀌면 새 제한이 적용돼야 한다.
       cfg.media?.limits,
+      t,
     ]
   );
 

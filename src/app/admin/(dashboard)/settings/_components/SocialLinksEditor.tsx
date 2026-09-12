@@ -16,6 +16,7 @@ import { uploadFile } from "@/lib/adminUpload";
 import styles from "./SocialLinksEditor.module.css";
 import shared from "../Settings.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { errorText } from "@/lib/apiError";
 
 const DEFAULT_MAX = 6;
 
@@ -214,6 +215,7 @@ function SocialIconUploadRow({ icon, onIconChange, onUploaded, placeholder }: {
   onUploaded: (url: string) => void;
   placeholder: string;
 }) {
+  const { t } = useLanguage();
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
@@ -224,7 +226,7 @@ function SocialIconUploadRow({ icon, onIconChange, onUploaded, placeholder }: {
     try {
       onUploaded(await uploadFile(file, "icons"));
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Upload failed");
+      setError(errorText(e, t, t("admin.common.uploadFailed")));
     } finally {
       setUploading(false);
     }

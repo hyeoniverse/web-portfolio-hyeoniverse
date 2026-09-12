@@ -25,7 +25,10 @@ export async function POST(request: Request) {
       : 2 * 1024 * 1024;
   const maxLabel = isBgm ? "10MB" : isFont || isResume ? "5MB" : "2MB";
   if (file.size > maxSize) {
-    return jsonError(`File too large (max ${maxLabel})`, 400);
+    return jsonError(`File too large (max ${maxLabel})`, 400, {
+      code: "UPLOAD_TOO_LARGE",
+      params: { size: (file.size / (1024 * 1024)).toFixed(1), max: maxSize / (1024 * 1024) },
+    });
   }
 
   // 타입 검증 — 폰트는 MIME 이 브라우저마다 제각각(빈 값 포함)이라 확장자로 검사
@@ -36,14 +39,14 @@ export async function POST(request: Request) {
       : isFont
         ? /\.(woff2?|ttf|otf)$/i.test(file.name)
         : file.type.startsWith("image/");
-  const mimeError = isBgm
-    ? "Only audio files allowed"
+  const [mimeError, mimeCode] = isBgm
+    ? ["Only audio files allowed", "UPLOAD_ONLY_AUDIO"] as const
     : isResume
-      ? "Only PDF files allowed"
+      ? ["Only PDF files allowed", "UPLOAD_ONLY_PDF"] as const
       : isFont
-        ? "Only font files (woff2, woff, ttf, otf) allowed"
-        : "Only image files allowed";
-  if (!mimeOk) return jsonError(mimeError, 400);
+        ? ["Only font files (woff2, woff, ttf, otf) allowed", "UPLOAD_ONLY_FONT"] as const
+        : ["Only image files allowed", "UPLOAD_ONLY_IMAGE"] as const;
+  if (!mimeOk) return jsonError(mimeError, 400, { code: mimeCode });
 
   // HEIC/HEIF/TIFF → WebP 변환 (브라우저 호환성)
   let uploadBody: Blob | Buffer = file;
@@ -61,6 +64,7 @@ export async function POST(request: Request) {
       return jsonError(
         `Image conversion failed: ${err instanceof Error ? err.message : "unknown"}`,
         500,
+        { code: "UPLOAD_CONVERT_FAILED" },
       );
     }
   }

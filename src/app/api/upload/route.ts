@@ -66,7 +66,8 @@ export async function POST(request: Request) {
   const absoluteBytes = MAX_ABSOLUTE_MB * 1024 * 1024;
   if (declaredBytes > absoluteBytes) {
     const mb = (declaredBytes / (1024 * 1024)).toFixed(1);
-    return jsonError(`동영상·파일 용량이 너무 큽니다 (약 ${mb}MB). 최대 ${MAX_ABSOLUTE_MB}MB까지 업로드할 수 있어요.`, 400);
+    return jsonError(`동영상·파일 용량이 너무 큽니다 (약 ${mb}MB). 최대 ${MAX_ABSOLUTE_MB}MB까지 업로드할 수 있어요.`, 400,
+      { code: "UPLOAD_TOO_LARGE", params: { size: mb, max: MAX_ABSOLUTE_MB } });
   }
 
   // formData 파싱은 try 밖에서 던지면 빈 500(HTML)이 되어 클라가 사유를 못 받음 → 감싸서 JSON 으로.
@@ -77,9 +78,10 @@ export async function POST(request: Request) {
     // 여기까지 와서 파싱 실패 = 대개 서버/플랫폼 본문 한도 초과 (선언 크기가 절대한도보다 작아도 발생).
     if (declaredBytes > 0) {
       const mb = (declaredBytes / (1024 * 1024)).toFixed(1);
-      return jsonError(`파일이 너무 커서 서버가 받지 못했습니다 (약 ${mb}MB). 더 작은 파일로 나눠 올리거나 압축해 주세요.`, 400);
+      return jsonError(`파일이 너무 커서 서버가 받지 못했습니다 (약 ${mb}MB). 더 작은 파일로 나눠 올리거나 압축해 주세요.`, 400,
+        { code: "UPLOAD_BODY_TOO_LARGE", params: { size: mb } });
     }
-    return jsonError("파일이 손상되었거나 형식이 올바르지 않아 읽지 못했습니다.", 400);
+    return jsonError("파일이 손상되었거나 형식이 올바르지 않아 읽지 못했습니다.", 400, { code: "UPLOAD_UNREADABLE" });
   }
   const file = formData.get("file") as File | null;
 
@@ -106,24 +108,24 @@ export async function POST(request: Request) {
   // ── 1. 확장자 검증 (블랙리스트) ──
   const ext = (file.name.split(".").pop() || "").toLowerCase();
   if (!ext) {
-    return jsonError("File must have an extension", 400);
+    return jsonError("File must have an extension", 400, { code: "UPLOAD_NO_EXTENSION" });
   }
   if (blockedExt.has(ext)) {
-    return jsonError(`Blocked file type: .${ext}`, 400);
+    return jsonError(`Blocked file type: .${ext}`, 400, { code: "UPLOAD_TYPE_NOT_ALLOWED", params: { ext } });
   }
 
   // ── 2. 확장자 화이트리스트 (limits 에 있는 확장자만 허용) ──
   //  브라우저 MIME(file.type)은 드문 형식에서 빈 값이라 확장자를 기준으로 한다.
   const hasLimits = Object.keys(limits).length > 0;
   if (hasLimits && !(ext in limits) && !("_default" in limits)) {
-    return jsonError(`File type not allowed: .${ext}`, 400);
+    return jsonError(`File type not allowed: .${ext}`, 400, { code: "UPLOAD_TYPE_NOT_ALLOWED", params: { ext } });
   }
 
   // ── 3. MIME 타입 ↔ 확장자 일치 검증 (스푸핑 방지, best-effort) ──
   //  브라우저가 알려진 MIME 을 준 경우에만 검사 — file.type 이 빈 값이면 건너뛴다.
   const allowedExts = MIME_EXT_MAP[file.type];
   if (allowedExts && !allowedExts.includes(ext)) {
-    return jsonError(`MIME type (${file.type}) does not match extension (.${ext})`, 400);
+    return jsonError(`MIME type (${file.type}) does not match extension (.${ext})`, 400, { code: "UPLOAD_TYPE_MISMATCH", params: { ext } });
   }
 
   // ── 4. 파일 크기 검증 ──
@@ -135,7 +137,8 @@ export async function POST(request: Request) {
 
   if (file.size > limitBytes) {
     const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
-    return jsonError(`File too large: ${sizeMB}MB (max ${limitMB}MB for ${file.type || ext})`, 400);
+    return jsonError(`File too large: ${sizeMB}MB (max ${limitMB}MB for ${file.type || ext})`, 400,
+      { code: "UPLOAD_TOO_LARGE", params: { size: sizeMB, max: limitMB } });
   }
 
   // ── 5. HEIC/HEIF/TIFF 변환 → WebP (브라우저 호환성 확보) ──
@@ -151,7 +154,7 @@ export async function POST(request: Request) {
       uploadContentType = converted.contentType;
       uploadExt = converted.extension;
     } catch (err) {
-      return jsonError(`Image conversion failed: ${err instanceof Error ? err.message : "unknown"}`, 500);
+      return jsonError(`Image conversion failed: ${err instanceof Error ? err.message : "unknown"}`, 500, { code: "UPLOAD_CONVERT_FAILED" });
     }
   }
 

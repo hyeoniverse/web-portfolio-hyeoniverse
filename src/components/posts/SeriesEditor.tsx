@@ -5,6 +5,7 @@ import Image from "next/image";
 import { ChevronUp, ChevronDown } from "@/components/icons";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { errorFromBody, errorText } from "@/lib/apiError";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import type { Series } from "@/types/post";
 import Checkbox from "@/components/ui/Checkbox";
@@ -141,10 +142,10 @@ export default function SeriesEditor({ series }: SeriesEditorProps) {
         formData.append("file", file);
         const res = await fetch("/api/upload", { method: "POST", body: formData });
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error);
+        if (!res.ok) throw errorFromBody(data, res.status);
         updateField("cover_image", data.url);
-      } catch {
-        setError(ts("uploadFailed"));
+      } catch (err) {
+        setError(errorText(err, t, ts("uploadFailed")));
       } finally {
         setUploading(false);
       }

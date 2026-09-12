@@ -215,7 +215,8 @@
       "sameAsCurrent": "Same as current edit",
       "statusPublished": "Published",
       "statusScheduled": "Scheduled",
-      "statusDraft": "Draft"
+      "statusDraft": "Draft",
+      "uploadFailed": "Couldn’t upload the file."
     },
     "settings": {
       "title": "Settings",
@@ -1168,8 +1169,6 @@
         "cancel": "Cancel",
         "scheduledPastConfirm": "The scheduled time has already passed. Publish now?",
         "publishNow": "Publish now",
-        "uploadFailedStatus": "Upload failed ({{status}}).",
-        "uploadNoResponse": "No response from the upload.",
         "shortcutsGuide": "Shortcuts and features",
         "tagNoteEdit": "Edit",
         "tagRemove": "Remove tag",

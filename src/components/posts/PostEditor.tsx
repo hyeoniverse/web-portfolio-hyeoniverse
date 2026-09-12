@@ -9,7 +9,6 @@ import dynamic from "next/dynamic";
 import { ExternalLink, AlertTriangle } from "@/components/icons";
 import { mdToRichHtml } from "./mdToRichHtml";
 import { useLanguage } from "@/providers/LanguageProvider";
-import { fillTemplate } from "@/utils/format";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { validateContentSecurity } from "@/utils/contentSecurity";
 import { showToast } from "@/stores/toastStore";
@@ -88,6 +87,7 @@ interface PostEditorProps {
 
 import Pressable from "@/components/ui/Pressable";
 import AuthorAvatar from "@/components/ui/AuthorAvatar";
+import { CodedError, errorFromBody, errorText } from "@/lib/apiError";
 
 /** Revision detail panel — lang 별 라벨/필드 로컬라이즈 + 해당 lang KO|EN 값만 노출. */
 function postSnapshotMeta(s: PostFormData, seriesList: { id: string; title: string }[], authorNames: Map<string, string>, lang: "ko" | "en"): import("@/components/admin/AdminEditorShell/types").RevisionMetaGroup[] {
@@ -605,14 +605,14 @@ export default function PostEditor({ post }: PostEditorProps) {
 
     // 보안 + 형식별 크기 제한 검증 (설정 값 사용). 압축 가능 이미지는 일단 통과.
     const sizeError = validateFileSize(file, mediaLimits);
-    if (sizeError) throw new Error(sizeError);
+    if (sizeError) throw sizeError;
 
     // 이미지는 압축 파이프라인 적용.
     const payload = await compressImage(file);
 
     // 압축 후에도 한도 초과면 reject (예: 최저 품질로도 limit 못 맞춤)
     const postError = validateFileSize(payload, mediaLimits, { skipCompressibleBypass: true });
-    if (postError) throw new Error(postError);
+    if (postError) throw postError;
 
     const formData = new FormData();
     formData.append("file", payload);
@@ -621,10 +621,11 @@ export default function PostEditor({ post }: PostEditorProps) {
     // 빈/비JSON 응답(413·게이트웨이 오류 등)에서도 의미 있는 에러를 던지도록 방어적 파싱
     const data: UploadResponse = await res.json().catch(() => ({}));
 
-    if (!res.ok) throw new Error(data.error || fillTemplate(te("uploadFailedStatus"), { status: res.status }));
-    if (!data.url) throw new Error(data.error || te("uploadNoResponse"));
+    // 거절 사유는 코드로 싣는다 — 오류 창(uploadErrorText)이 화면 언어 문구로 바꾼다
+    if (!res.ok) throw errorFromBody(data, res.status);
+    if (!data.url) throw new CodedError("Upload response has no URL");
     return data.url;
-  }, [mediaLimits, t, te]);
+  }, [mediaLimits, t]);
 
   const handleCoverUpload = useCallback(async () => {
     const input = document.createElement("input");
@@ -633,11 +634,15 @@ export default function PostEditor({ post }: PostEditorProps) {
     input.onchange = async () => {
       const file = input.files?.[0];
       if (!file) return;
-      const url = await handleImageUpload(file);
-      updateField("cover_image", url);
+      try {
+        updateField("cover_image", await handleImageUpload(file));
+      } catch (err) {
+        /* 예전에는 잡지 않아 실패해도 아무 표시가 없었다. 사유는 화면 언어로(#862) */
+        showToast(errorText(err, t, t("admin.common.uploadFailed")), "error");
+      }
     };
     input.click();
-  }, [handleImageUpload, updateField]);
+  }, [handleImageUpload, updateField, t]);
 
   const handleSave = useCallback(
     async (publish?: boolean) => {

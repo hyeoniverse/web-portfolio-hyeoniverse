@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import type { ApiErrorCode, ErrorParams } from "@/lib/apiError";
 
 export function jsonOk<T>(data: T, status = 200) {
   return NextResponse.json(data, { status });
@@ -11,12 +12,16 @@ export function jsonOk<T>(data: T, status = 200) {
  * 클라이언트가 이 값을 그대로 화면에 띄우거나(`data.error ?? "Failed to delete"`),
  * 코드처럼 비교하기도 한다(`data.error === "version_conflict"`). 그러니 문구를 바꿀 때는
  * 쓰는 쪽을 함께 확인해야 한다.
+ *
+ * 사용자가 평소 쓰다 만날 수 있는 실패는 `detail` 에 코드와 값을 함께 싣는다. 문장은 한 언어라,
+ * 화면은 코드를 화면 언어 문구로 바꿔 보인다(`errorText`, #862). 이때 문장은 로그·개발용으로 남는다.
  */
 export function jsonError(
   message: string,
   status: 400 | 401 | 403 | 404 | 409 | 429 | 500 | 502 | 503 = 400,
+  detail?: { code: ApiErrorCode; params?: ErrorParams },
 ) {
-  return NextResponse.json({ error: message }, { status });
+  return NextResponse.json(detail ? { error: message, ...detail } : { error: message }, { status });
 }
 
 function describe(error: unknown): string {
