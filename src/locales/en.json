@@ -203,7 +203,8 @@
       "clearAll": "Clear all",
       "removeItem": "Remove from history: {{query}}",
       "removeShort": "Remove"
-    }
+    },
+    "likeFailed": "Couldn’t update your like. Please try again."
   },
   "workDetail": {
     "back": "Works",
@@ -295,7 +296,9 @@
     "giscusNotConfigured": "giscus is not configured yet. Ask the admin to enter the repository and category in Settings › Services › Comment System.",
     "deleteFailed": "Couldn’t delete the comment.",
     "editFailed": "Couldn’t edit the comment.",
-    "translateFailed": "⚠ Translation failed. Please try again."
+    "translateFailed": "⚠ Translation failed. Please try again.",
+    "reactionFailed": "Couldn’t update the reaction. Please try again.",
+    "reportFailed": "Couldn’t send the report. Please try again."
   },
   "postDetail": {
     "recommended": "Recommended for You",

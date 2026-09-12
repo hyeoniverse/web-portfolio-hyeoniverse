@@ -1,6 +1,7 @@
 import { buildPollResult, buildPollSortControl, compactNum, type PollSortKey } from "../pollResultView";
 
 import type { ReaderExtrasContext } from "./context";
+import { showToast } from "@/stores/toastStore";
 
 /* 투표 — 옵션 클릭을 /api/polls 로 보내 집계한다. 중복 투표는 서버가 IP 로 거른다. */
 export function renderPoll({ el, isCancelled }: ReaderExtrasContext) {
@@ -157,6 +158,10 @@ export function renderPoll({ el, isCancelled }: ReaderExtrasContext) {
     };
 
     // 완료 — 선택 세트를 서버에 제출(교체)
+    /* 투표가 들어가지 않으면 선택을 그대로 두고 알린다 — 예전에는 조용히 끝나 투표가 된 줄 알 수 있었다(#868).
+       투표 라우트는 사유 코드를 싣지 않아 이 파일의 두 언어 문구로 알린다 */
+    const voteFailed = () => showToast(ko ? "투표를 보내지 못했습니다. 잠시 뒤 다시 시도해 주세요." : "Couldn’t send your vote. Please try again.", "error");
+
     const submitVote = async () => {
       if (state.busy || !isOpen() || pending.size === 0) return;
       state.busy = true; render();
@@ -170,8 +175,10 @@ export function renderPoll({ el, isCancelled }: ReaderExtrasContext) {
           const d = await res.json();
           state.counts = d.counts || {}; state.total = d.total || 0; state.mine = d.mine || [];
           editing = false;
+        } else {
+          voteFailed();
         }
-      } catch { /* noop */ }
+      } catch { voteFailed(); }
       state.busy = false; render();
     };
 

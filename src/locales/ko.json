@@ -203,7 +203,8 @@
       "clearAll": "전체 삭제",
       "removeItem": "이력 제거: {{query}}",
       "removeShort": "제거"
-    }
+    },
+    "likeFailed": "좋아요를 반영하지 못했습니다. 잠시 뒤 다시 시도해 주세요."
   },
   "workDetail": {
     "back": "Works",
@@ -295,7 +296,9 @@
     "giscusNotConfigured": "giscus 설정이 필요합니다. 관리자에게 설정 › 서비스 › 댓글 시스템 에서 저장소와 카테고리 입력을 요청하세요.",
     "deleteFailed": "댓글을 삭제하지 못했습니다.",
     "editFailed": "댓글을 수정하지 못했습니다.",
-    "translateFailed": "⚠ 번역하지 못했습니다. 다시 시도해 주세요."
+    "translateFailed": "⚠ 번역하지 못했습니다. 다시 시도해 주세요.",
+    "reactionFailed": "반응을 반영하지 못했습니다. 잠시 뒤 다시 시도해 주세요.",
+    "reportFailed": "신고를 보내지 못했습니다. 잠시 뒤 다시 시도해 주세요."
   },
   "postDetail": {
     "recommended": "함께 읽어보면 좋은 게시물",
