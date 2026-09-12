@@ -68,6 +68,7 @@ import { SubtitleInput } from "./workEditor/SubtitleInput";
 import { workSnapshotMeta } from "./workEditor/workSnapshotMeta";
 import { parseYearAsPeriod, serializePeriodAsYear } from "./workEditor/periodFormat";
 import { CodedError, errorFromBody, errorFromResponse, errorText } from "@/lib/apiError";
+import { sendActions, tryRequest } from "@/lib/sendAction";
 
 const Editor = dynamic(() => import("@/components/posts/PlateEditor"), {
   ssr: false,
@@ -170,7 +171,8 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   // 정렬 list — 다른 작품들 (현재 편집중인 작품 제외)
   const [otherWorks, setOtherWorks] = useState<Array<{ id: string; title: string; sort_order: number }>>([]);
 
-  useEffect(() => {
+  /* 순서 바꾸기가 실패했을 때도 다시 불러 서버 순서로 되돌린다(#868) */
+  const loadOtherWorks = useCallback(() => {
     fetch("/api/works?all=true")
       .then((r) => r.json())
       .then((d) => {
@@ -180,6 +182,8 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       })
       .catch(() => {});
   }, [work?.id]);
+
+  useEffect(() => { loadOtherWorks(); }, [loadOtherWorks]);
 
   const [worksCategories, setWorksCategories] = useState<WorksCategory[]>([]);
   // 직접 입력 모드 — 사용자가 "직접 입력" 선택 시 활성화. categories_ko/en 비어도 input 유지
@@ -673,21 +677,19 @@ export default function WorkEditor({ work }: WorkEditorProps) {
 
         if (!savedId.current) savedId.current = data.id;
 
-        // 관계 동기화 — 별도 endpoint
-        if (savedId.current && related_post_ids) {
-          await fetch(`/api/admin/works/${savedId.current}/related-posts`, {
+        // 관계 동기화 — 별도 endpoint. 작업물은 이미 저장됐으므로 실패해도 저장은 끝내고 알림 하나로 알린다(#868)
+        const relationFailures: CodedError[] = [];
+        const syncRelation = async (path: string, body: object) => {
+          const res = await tryRequest(`/api/admin/works/${savedId.current}/${path}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ postIds: related_post_ids }),
-          }).catch(() => {});
-        }
-        if (savedId.current && related_series_ids) {
-          await fetch(`/api/admin/works/${savedId.current}/related-series`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ seriesIds: related_series_ids }),
-          }).catch(() => {});
-        }
+            body: JSON.stringify(body),
+          });
+          if (res instanceof CodedError) relationFailures.push(res);
+        };
+        if (savedId.current && related_post_ids) await syncRelation("related-posts", { postIds: related_post_ids });
+        if (savedId.current && related_series_ids) await syncRelation("related-series", { seriesIds: related_series_ids });
+        if (relationFailures.length) showToast(errorText(relationFailures[0], t, tw("relatedFailed")), "error");
 
         // 발행 시 AI 요약 자동 생성 (fire-and-forget)
         if (willPublish && savedId.current) {
@@ -1052,13 +1054,14 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                 otherItems={otherWorks}
                 onChange={(newOrder, otherUpdates) => {
                   updateField("sort_order", newOrder);
-                  otherUpdates.forEach((u) => {
-                    fetch(`/api/works/${u.id}`, {
-                      method: "PATCH",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ sort_order: u.sort_order }),
-                    });
-                  });
+                  /* 다른 작업물의 순서는 바로 저장한다. 하나라도 실패하면 알리고 서버 순서로 다시 받는다 */
+                  void sendActions(
+                    otherUpdates.map((u) => ({
+                      input: `/api/works/${u.id}`,
+                      init: { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sort_order: u.sort_order }) },
+                    })),
+                    t, t("admin.common.reorderFailed"),
+                  ).then((saved) => { if (saved < otherUpdates.length) loadOtherWorks(); });
                   setOtherWorks((prev) => prev.map((w) => {
                     const u = otherUpdates.find((x) => x.id === w.id);
                     return u ? { ...w, sort_order: u.sort_order } : w;
@@ -1125,7 +1128,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       </div>
     </div>
   ), [
-    categoryCustomMode, descriptionValue, editorLang, form.categories_en, form.categories_ko, form.contributions_en,
+    categoryCustomMode, descriptionValue, editorLang, form.categories_en, form.categories_ko, form.contributions_en, loadOtherWorks, t,
     form.contributions_ko, form.nature_en, form.nature_ko, form.slug, form.sort_order, form.title, form.year,
     natureCustomMode, naturePresets, optionalOpen, otherWorks, ownRole.selectNode, primaryLang, reqTitle, roleValue,
     showErrors, subtitleValue, suf, titleKey, titleValue, tw, updateField, worksCategories,
