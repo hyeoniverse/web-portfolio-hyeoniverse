@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { jsonError, jsonServerError } from "@/lib/api/response";
+import type { ApiErrorCode } from "@/lib/apiError";
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAuth } from "@/lib/api/requireAuth";
@@ -23,17 +24,20 @@ function unwrapDelta(cfg: unknown): Record<string, unknown> {
   return {};
 }
 
+/** 비owner 저장을 막은 사유 — 문장은 로그·개발용, 화면은 코드를 화면 언어로(#862) */
+type NonOwnerViolation = { message: string; code: ApiErrorCode };
+
 /**
  * 비owner 저장 권한 검사 — 사이트 설정은 소유자 전용.
  * 비owner 는 `authors` 중 "본인 항목"만 추가/수정/삭제 가능. 그 외 변경은 차단.
- * 통과면 null, 위반이면 사유 문자열 반환.
+ * 통과면 null, 위반이면 사유를 반환.
  */
 function checkNonOwnerConfig(
   oldCfg: unknown,
   newCfg: unknown,
   myAuthorId: string | null,
   myEmail: string | null | undefined,
-): string | null {
+): NonOwnerViolation | null {
   const oldDelta = unwrapDelta(oldCfg);
   const newDelta = unwrapDelta(newCfg);
   const email = myEmail?.toLowerCase() ?? null;
@@ -44,7 +48,7 @@ function checkNonOwnerConfig(
   for (const k of new Set([...Object.keys(oldDelta), ...Object.keys(newDelta)])) {
     if (k === "authors") continue;
     if (JSON.stringify(oldDelta[k]) !== JSON.stringify(newDelta[k])) {
-      return "사이트 설정은 소유자만 변경할 수 있습니다.";
+      return { message: "사이트 설정은 소유자만 변경할 수 있습니다.", code: "SETTINGS_OWNER_ONLY" };
     }
   }
 
@@ -66,13 +70,13 @@ function checkNonOwnerConfig(
   for (const [id, oldA] of oldById) {
     const newA = newById.get(id);
     if (!newA) {
-      if (!isMine(oldA)) return "다른 사람의 프로필은 삭제할 수 없습니다.";
+      if (!isMine(oldA)) return { message: "다른 사람의 프로필은 삭제할 수 없습니다.", code: "PROFILE_DELETE_OTHERS" };
     } else if (JSON.stringify(oldA) !== JSON.stringify(newA)) {
-      if (!isMine(oldA) && !isMine(newA)) return "다른 사람의 프로필은 수정할 수 없습니다.";
+      if (!isMine(oldA) && !isMine(newA)) return { message: "다른 사람의 프로필은 수정할 수 없습니다.", code: "PROFILE_EDIT_OTHERS" };
     }
   }
   for (const [id, newA] of newById) {
-    if (!oldById.has(id) && !isMine(newA)) return "본인 프로필만 추가할 수 있습니다.";
+    if (!oldById.has(id) && !isMine(newA)) return { message: "본인 프로필만 추가할 수 있습니다.", code: "PROFILE_ADD_OTHERS" };
   }
   return null;
 }
@@ -134,7 +138,9 @@ export async function PATCH(request: Request) {
   const role = getUserRole(auth.user);
   if (!role.isOwner) {
     const violation = checkNonOwnerConfig(prev?.config, body.config, role.authorId, auth.user.email);
-    if (violation) return NextResponse.json({ error: "Forbidden", reason: violation }, { status: 403 });
+    if (violation) {
+      return NextResponse.json({ error: "Forbidden", reason: violation.message, code: violation.code }, { status: 403 });
+    }
   }
 
   const { data, error } = await admin

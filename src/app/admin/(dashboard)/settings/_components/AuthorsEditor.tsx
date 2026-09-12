@@ -21,6 +21,7 @@ import mStyles from "@/components/admin/MembersList.module.css";
 import AuthorAvatar from "@/components/ui/AuthorAvatar";
 import { formatRelativeTime } from "@/utils/relativeTime";
 import { useNow } from "@/hooks/useNow";
+import { errorFromResponse, errorText } from "@/lib/apiError";
 
 /* 새로 만드는 프로필의 임시 id. 컴포넌트 밖에 두는 이유는 두 가지다 —
    같은 식이 세 군데에 복사돼 있었고, 렌더 본문 안의 Date.now() 는 렌더를 순수하지
@@ -46,7 +47,7 @@ interface Props {
  *  owner = 전체 관리(추가/초대/권한/삭제). 비owner = 목록 열람 + 본인 프로필만 수정.
  *  작성자 프로필과 연결 안 된 로그인 계정도 별도 그룹 없이 같은 멤버 리스트에 통합 표시(등록/삭제 인라인). */
 export default function AuthorsEditor({ authors, onChange, onPersist }: Props) {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const L = (ko: string, en: string) => (language === "ko" ? ko : en);
   /* 상대시간 기준 시각. 렌더에서 Date.now() 를 부르면 매 렌더 값이 달라진다. */
   const now = useNow();
@@ -198,7 +199,7 @@ export default function AuthorsEditor({ authors, onChange, onPersist }: Props) {
         body: JSON.stringify({ email: a.email, author_id: a.id, permission_level: level }),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) return { ok: false, msg: data.reason || data.error || L("초대에 실패했습니다.", "The invite failed.") };
+      if (!res.ok) return { ok: false, msg: errorText(data, t, L("초대에 실패했습니다.", "The invite failed.")) };
       const parts = [
         data.appliedNow ? L("기존 계정에 권한을 부여했습니다.", "Granted access to the existing account.") : L("초대를 등록했습니다.", "The invite has been created."),
         data.emailed
@@ -223,7 +224,7 @@ export default function AuthorsEditor({ authors, onChange, onPersist }: Props) {
         body: JSON.stringify({ id: memberId, author_id: authorId, permission_level: level }),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) return { ok: false, msg: data.reason || data.error || L("권한을 변경하지 못했습니다.", "Failed to change access.") };
+      if (!res.ok) return { ok: false, msg: errorText(data, t, L("권한을 변경하지 못했습니다.", "Failed to change access.")) };
       await refetchMembers();
       return { ok: true, msg: L("권한을 변경했습니다.", "Access level updated.") };
     } catch {
@@ -240,7 +241,7 @@ export default function AuthorsEditor({ authors, onChange, onPersist }: Props) {
         body: JSON.stringify({ id: memberId, author_id: authorId, permission_level: level }),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) return { ok: false, msg: data.reason || data.error || L("연결하지 못했습니다.", "Failed to link.") };
+      if (!res.ok) return { ok: false, msg: errorText(data, t, L("연결하지 못했습니다.", "Failed to link.")) };
       await refetchMembers();
       return { ok: true, msg: L("프로필과 연결하고 권한을 부여했습니다.", "Linked to the profile and granted access.") };
     } catch {
@@ -250,7 +251,7 @@ export default function AuthorsEditor({ authors, onChange, onPersist }: Props) {
 
   const deleteAccount = async (memberId: string) => {
     const res = await fetch(`/api/admin/authors/members?id=${encodeURIComponent(memberId)}`, { method: "DELETE" });
-    if (!res.ok) { const d = await res.json().catch(() => ({})); throw new Error(d.error || L("삭제하지 못했습니다.", "Delete failed.")); }
+    if (!res.ok) throw await errorFromResponse(res);
   };
 
   /* EmojiPicker 의 커스텀 이미지 탭이 쓰는 규약 — File 을 받아 URL 을 돌려준다.
@@ -402,7 +403,7 @@ export default function AuthorsEditor({ authors, onChange, onPersist }: Props) {
             onChange(authors.filter((x) => x.id !== a.id));
             await refetchMembers();
           } catch (e) {
-            setNotice(e instanceof Error ? e.message : L("삭제하지 못했습니다.", "Delete failed."));
+            setNotice(errorText(e, t, L("삭제하지 못했습니다.", "Delete failed.")));
           }
         }}
       />,
@@ -422,7 +423,7 @@ export default function AuthorsEditor({ authors, onChange, onPersist }: Props) {
             await deleteAccount(m.id);
             await refetchMembers();
           } catch (e) {
-            setNotice(e instanceof Error ? e.message : L("삭제하지 못했습니다.", "Delete failed."));
+            setNotice(errorText(e, t, L("삭제하지 못했습니다.", "Delete failed.")));
           }
         }}
       />,

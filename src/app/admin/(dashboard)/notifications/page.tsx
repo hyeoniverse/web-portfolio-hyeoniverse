@@ -22,6 +22,7 @@ import { isPending } from "@/lib/notificationTypes";
 import styles from "./Notifications.module.css";
 import { formatRelativeTime } from "@/utils/relativeTime";
 import { useNow } from "@/hooks/useNow";
+import { errorText } from "@/lib/apiError";
 
 type TabKey = "all" | "comment" | "system" | "report";
 
@@ -297,14 +298,15 @@ export default function NotificationsPage() {
                     body: JSON.stringify({ action }),
                   });
                   if (!res.ok) {
+                    /* 사유는 코드로 받아 화면 언어로. 코드가 없으면 상세 창이 자기 문구("처리하지 못했습니다")를 쓴다 */
                     const body = await res.json().catch(() => null);
-                    return { ok: false, reason: body?.error ?? `HTTP ${res.status}` };
+                    return { ok: false, reason: errorText(body, t, "") || undefined };
                   }
                   closeModal();
                   await fetchNotifications();
                   return { ok: true };
-                } catch (e) {
-                  return { ok: false, reason: e instanceof Error ? e.message : undefined };
+                } catch {
+                  return { ok: false };
                 }
               }
             : undefined

@@ -2,6 +2,7 @@ import { createClient as createStatelessClient } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireOwner } from "@/lib/api/requireRole";
 import { jsonError, jsonOk, jsonServerError } from "@/lib/api/response";
+import { authErrorCode } from "@/lib/api/authErrorCode";
 import { invalidateSecretsCache } from "@/lib/getSecret";
 
 /** 편집 가능한 키 목록 */
@@ -152,7 +153,11 @@ export async function POST(request: Request) {
   });
 
   // 실제 원인을 그대로 노출 — "Invalid password" 로 뭉개면 이메일 미확인·rate limit 등을 구분 못 함
-  if (signInError) return jsonError(signInError.message || "Invalid password", 403);
+  if (signInError) {
+    /* 자격증명 오류·이메일 미확인·요청 과다를 화면이 구분해 보이도록 코드로 싣는다(#862) */
+    const code = authErrorCode(signInError);
+    return jsonError(signInError.message || "Invalid password", 403, code ? { code } : undefined);
+  }
 
   if (!ALLOWED_KEYS.includes(key as (typeof ALLOWED_KEYS)[number])) {
     return jsonError("Invalid key", 400);

@@ -895,6 +895,7 @@
     "UPLOAD_ONLY_AUDIO": "Only audio files can be uploaded.",
     "UPLOAD_ONLY_PDF": "Only PDF files can be uploaded.",
     "UPLOAD_ONLY_FONT": "Only font files (woff2, woff, ttf, otf) can be uploaded.",
-    "UPLOAD_STILL_TOO_LARGE": "The video is still over the limit after compression ({{size}} / max {{max}}MB). Use a shorter or lower-quality video."
+    "UPLOAD_STILL_TOO_LARGE": "The video is still over the limit after compression ({{size}} / max {{max}}MB). Use a shorter or lower-quality video.",
+    "UNAUTHORIZED": "You need to sign in. Please sign in again."
   }
 }
