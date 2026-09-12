@@ -27,8 +27,8 @@ export function canOpenAdminPage(pathname: string, access: AdminAccess): boolean
   return !ADMIN_ONLY_PAGES.some((page) => pathname === page || (page !== "/admin" && pathname.startsWith(`${page}/`)));
 }
 
-/** 설정 탭 — 사이트 설정은 소유자만, 그 밖에는 계정 탭만 연다(settings/page.tsx 의 allowedTabs 와 같은 규칙) */
-function canOpenSettingsTab(tab: string, access: AdminAccess): boolean {
+/** 설정 탭 — 사이트 설정은 소유자만, 그 밖에는 계정 탭만 연다. 네비게이션의 설정 하위 메뉴와 설정 화면의 탭 목록이 함께 쓴다 */
+export function canOpenSettingsTab(tab: string, access: AdminAccess): boolean {
   return access.isOwner || tab === "account";
 }
 
