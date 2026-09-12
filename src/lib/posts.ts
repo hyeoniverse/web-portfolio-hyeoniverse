@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Post, Series } from "@/types/post";
 import { fetchUnsplashCover } from "@/lib/unsplash";
@@ -359,7 +360,8 @@ export async function getAllTagsData() {
 
 export type AllTagsData = Awaited<ReturnType<typeof getAllTagsData>>;
 
-export async function getPostBySlug(slug: string): Promise<Post | null> {
+/** 요청 안에서는 slug 마다 한 번만 조회한다 — 글 상세의 레이아웃·메타데이터·페이지가 함께 부른다(#891) */
+export const getPostBySlug = cache(async (slug: string): Promise<Post | null> => {
   const admin = createAdminClient();
   const { data } = await admin
     .from("posts")
@@ -368,7 +370,7 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
     .eq("published", true)
     .single();
   return (data as Post) ?? null;
-}
+});
 
 export async function getAllPostSlugs(): Promise<string[]> {
   const admin = createAdminClient();
