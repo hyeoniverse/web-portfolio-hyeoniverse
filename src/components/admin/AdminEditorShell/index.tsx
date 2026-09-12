@@ -260,7 +260,9 @@ export default function AdminEditorShell({
   const [detailLoading, setDetailLoading] = useState(false);
   /** revision panel 전용 lang — 기본 editorLang sync, header 토글로 독립 전환 가능. */
   const [revisionLang, setRevisionLang] = useStateFromProp<"ko" | "en">(editorLang);
-  const currentSnapshot = getCurrentSnapshot?.(revisionLang);
+  /* 지금 편집 내용 — 저장 기록 하나를 펼쳐 볼 때만 쓴다. 본문 HTML 을 글자로 바꾸는 일이라, 렌더마다 하면
+     본문을 칠 때마다 그만큼 늦어진다(#850) */
+  const currentSnapshot = viewingRevision !== null ? getCurrentSnapshot?.(revisionLang) : undefined;
   const [statusTime, setStatusTime] = useState("");
   const [showRetranslate, setShowRetranslate] = useState(false);
   const [isSelectMode, setIsSelectMode] = useState(false);

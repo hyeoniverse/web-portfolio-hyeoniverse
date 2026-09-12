@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 
 export function useTagInput(
   currentTags: string[],
@@ -32,5 +32,6 @@ export function useTagInput(
     [currentTags, onUpdate],
   );
 
-  return { input, setInput, add, handleKeyDown, remove };
+  /* 값이 그대로면 같은 객체를 돌려준다 — 이 객체를 쓰는 편집 화면 섹션이 메모로 다시 그리기를 건너뛸 수 있게(#850) */
+  return useMemo(() => ({ input, setInput, add, handleKeyDown, remove }), [input, add, handleKeyDown, remove]);
 }

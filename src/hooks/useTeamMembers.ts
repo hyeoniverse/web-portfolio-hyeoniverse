@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import type { TeamMember } from "@/types/work";
 
 export function useTeamMembers(
@@ -109,7 +109,8 @@ export function useTeamMembers(
     clearForm();
   }, [editingIdx, buildMember, currentMembers, onUpdate, clearForm]);
 
-  return {
+  /* 값이 그대로면 같은 객체를 돌려준다 — 팀원 섹션이 메모로 다시 그리기를 건너뛸 수 있게(#850) */
+  return useMemo(() => ({
     memberName,
     setMemberName,
     memberNameEn,
@@ -136,5 +137,8 @@ export function useTeamMembers(
     startEdit,
     cancelEdit,
     saveEdit,
-  };
+  }), [
+    memberName, memberNameEn, memberRoleKo, memberRoleEn, memberUrl, memberEmail, memberAvatarUrl,
+    memberAuthorId, memberContribsKo, memberContribsEn, addMember, removeMember, editingIdx, startEdit, cancelEdit, saveEdit,
+  ]);
 }
