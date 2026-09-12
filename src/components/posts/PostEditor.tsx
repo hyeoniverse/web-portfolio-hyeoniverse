@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { useSyncRef } from "@/hooks/useSyncRef";
+import { useShallowStable } from "@/hooks/useShallowStable";
 import type { UploadResponse } from "@/types";
 import { PREVIEW_KEY } from "@/constants";
 import { useRouter } from "next/navigation";
@@ -14,7 +15,7 @@ import { validateContentSecurity } from "@/utils/contentSecurity";
 import { showToast } from "@/stores/toastStore";
 import { focusFirstMissingField } from "@/utils/focusFirstMissing";
 import { stripHtml } from "@/utils/htmlUtils";
-import type { Post, PostFormData, Series } from "@/types/post";
+import type { Post, PostFormData, PostMetaForm, Series } from "@/types/post";
 
 import { useCategories, type BilingualCategory } from "@/hooks/useCategories";
 import { findCategoryNode, toCategoryOptions, flattenCategories } from "@/lib/categoryTree";
@@ -50,6 +51,11 @@ import styles from "./PostEditor.module.css";
 import "./PostEditor.global.css";
 import "@/components/admin/seoFlash.css";
 import { flashSeoField, clearSeoFlash } from "@/components/admin/seoFlash";
+
+/** 폼에서 본문 두 필드를 뺀다 */
+function omitContent({ content: _content, content_en: _contentEn, ...meta }: PostFormData): PostMetaForm {
+  return meta;
+}
 
 const Editor = dynamic(() => import("./PlateEditor"), {
   ssr: false,
@@ -161,15 +167,15 @@ export default function PostEditor({ post }: PostEditorProps) {
   const categories = useCategories();
   const serviceStatus = useServiceStatus();
   // 카테고리 ko 또는 en 값으로 매칭 — 2단계 트리 전체(대분류/소분류)에서 탐색
-  const findCat = (val: string): BilingualCategory | undefined =>
-    findCategoryNode(categories, val) ?? undefined;
+  const findCat = useCallback((val: string): BilingualCategory | undefined =>
+    findCategoryNode(categories, val) ?? undefined, [categories]);
   // 선택 가능한(= Select 옵션에 뜨는) 카테고리는 leaf 뿐. 대분류(children 보유)는 배정 대상 아님.
-  const isManagedCat = (val: string) => {
+  const isManagedCat = useCallback((val: string) => {
     const c = findCat(val);
     return !!c && !(c.children?.length);
-  };
+  }, [findCat]);
   // posts.category 기본값·fallback 은 항상 leaf 여야 함 (대분류 값 저장 방지)
-  const firstLeafKo = flattenCategories(categories).find((c) => !c.children?.length)?.ko ?? "";
+  const firstLeafKo = useMemo(() => flattenCategories(categories).find((c) => !c.children?.length)?.ko ?? "", [categories]);
 
   const POST_FIELD_KEYS = ["title", "content", "excerpt"];
 
@@ -224,6 +230,9 @@ export default function PostEditor({ post }: PostEditorProps) {
     related_work_ids: [],
     author_ids: post?.author_ids ?? [],
   });
+
+  /* 본문만 바뀐 렌더에서는 같은 객체를 돌려준다 — 본문과 상관없는 섹션의 의존성으로 쓴다(#877) */
+  const metaForm = useShallowStable(omitContent(form));
 
   // 직접 입력 모드 — 사용자가 "직접 입력" 선택 시 활성화. form.category 가 비어도 input 유지
   const [categoryCustomMode, setCategoryCustomMode] = useState(false);
@@ -565,7 +574,8 @@ export default function PostEditor({ post }: PostEditorProps) {
   useEffect(() => { _postLinkTags.current = form.tags || []; }, [form.tags]);
   useEffect(() => { _postLinkExcludeId.current = post?.id || ""; }, [post?.id]);
 
-  const tag = useTagInput(form.tags, (tags) => updateField("tags", tags));
+  const updateTags = useCallback((tags: string[]) => updateField("tags", tags), [updateField]);
+  const tag = useTagInput(form.tags, updateTags);
   // 태그 추가 시 site.config 의 tagDescriptions 프리셋 자동 채움 (ko 만, en 은 빈값)
   // 기존 태그 autocomplete suggestions — 모든 post 의 distinct tag
   const [allTagSuggestions, setAllTagSuggestions] = useState<string[]>([]);
@@ -953,17 +963,19 @@ export default function PostEditor({ post }: PostEditorProps) {
     [te]
   );
 
-  const handleInsertTemplate = useTemplateInsert({ editorLang, form, updateField, te });
+  const handleInsertTemplate = useTemplateInsert({ editorLang, formRef, updateField, te });
 
   const titleKey = editorLang === "ko" ? "title" : "title_en";
   const contentKey = editorLang === "ko" ? "content" : "content_en";
   const excerptKey = editorLang === "ko" ? "excerpt" : "excerpt_en";
 
   // 작성자 칩 = 현재 로그인 사용자(항상 표시, 설정 authors 비어도) + 설정 authors(중복 제거).
-  const configAuthors = (config.authors ?? []) as Array<{ id: string; name: string; avatar?: string }>;
-  const authorChips: Array<{ id: string; name: string; avatar?: string }> = currentUserAuthor
-    ? [currentUserAuthor, ...configAuthors.filter((a) => a.id !== currentUserAuthor.id)]
-    : configAuthors;
+  const authorChips = useMemo(() => {
+    const configAuthors = (config.authors ?? []) as Array<{ id: string; name: string; avatar?: string }>;
+    return currentUserAuthor
+      ? [currentUserAuthor, ...configAuthors.filter((a) => a.id !== currentUserAuthor.id)]
+      : configAuthors;
+  }, [config.authors, currentUserAuthor]);
 
   const koStarted = !!(form.title.trim() || form.content.trim());
   const enStarted = !!(form.title_en.trim() || form.content_en.trim());
@@ -975,6 +987,299 @@ export default function PostEditor({ post }: PostEditorProps) {
     (editorLang === "ko" && koStarted && !form.content.trim()) ||
     (editorLang === "en" && enStarted && !form.content_en.trim())
   );
+
+  /* 본문과 상관없는 섹션은 JSX 를 메모해 두고, 쓰는 값이 바뀔 때만 다시 만든다(#877). 본문을 칠 때마다 폼이 바뀌어
+     편집 화면 전체를 다시 그렸다. 폼 값은 본문을 뺀 metaForm 으로 읽어, 본문만 바뀐 렌더에서는 의존성이 그대로다 */
+  const metaSection = useMemo(() => (
+    <div className={styles.meta}>
+      {/* title + slug + 예약 발행 — 컴팩트 그룹 (gap 작게) */}
+      <div className={styles.titleGroup}>
+        <div className={es.field} data-seo="title" data-required="title">
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: "var(--spacing-xs)" }}>
+            <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${titleFieldError ? ` ${es.fieldLabelError}` : ""}`}>{te("title")}</label>
+            <span style={{ fontSize: "var(--font-size-hint)", fontVariantNumeric: "tabular-nums", color: metaForm[titleKey].length >= POST_TITLE_MAX ? "var(--text-accent)" : "var(--text-muted)" }}>
+              {metaForm[titleKey].length}/{POST_TITLE_MAX}
+            </span>
+          </div>
+          <input
+            className={`${es.titleInput}${titleFieldError ? ` ${es.titleInputError}` : ""}`}
+            type="text"
+            value={metaForm[titleKey]}
+            onChange={(e) => updateField(titleKey, e.target.value)}
+            placeholder={te("titlePlaceholder")}
+            maxLength={POST_TITLE_MAX}
+          />
+        </div>
+
+        <div className={es.row}>
+          <div className={es.field} style={{ gridColumn: "1 / -1" }} data-seo="slug" data-required="slug">
+            <div style={{ display: "flex", alignItems: "baseline", gap: "var(--spacing-xs)" }}>
+              <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${showErrors && (!metaForm.slug.trim() || validateSlug(metaForm.slug)) ? ` ${es.fieldLabelError}` : ""}`}>{te("slug")}</label>
+              {metaForm.slug.trim() && validateSlug(metaForm.slug) && (
+                <span className={styles.slugHint}>{te(`slugError.${validateSlug(metaForm.slug)}`)}</span>
+              )}
+            </div>
+            <input
+              className={`${es.fieldInput}${showErrors && (!metaForm.slug.trim() || validateSlug(metaForm.slug)) ? ` ${es.fieldInputError}` : ""}`}
+              type="text"
+              value={metaForm.slug}
+              onChange={(e) => {
+                setSlugManual(true);
+                updateField("slug", e.target.value);
+              }}
+              placeholder="post-url-slug"
+            />
+          </div>
+        </div>
+
+        {/* slug 아래 — 카테고리 (필수 입력) */}
+        <div className={es.row}>
+          <div className={es.field} style={{ gridColumn: "1 / -1" }} data-seo="category" data-required="category">
+            <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${showErrors && !metaForm.category.trim() ? ` ${es.fieldLabelError}` : ""}`}>{te("category")}</label>
+            {(() => {
+              const matched = isManagedCat(metaForm.category);
+              const isCustom = categoryCustomMode || (!!metaForm.category && !matched);
+              const selectValue = isCustom ? "__custom__" : (matched ? (findCat(metaForm.category)?.ko ?? metaForm.category) : firstLeafKo);
+              return (
+                <>
+                  <Select
+                    value={selectValue}
+                    options={[
+                      { value: "__custom__", label: te("customCategory") },
+                      ...toCategoryOptions(categories, language === "ko" ? "ko" : "en"),
+                    ]}
+                    onChange={(v) => {
+                      if (v === "__custom__") {
+                        setCategoryCustomMode(true);
+                        updateField("category", "");
+                      } else {
+                        setCategoryCustomMode(false);
+                        updateField("category", v);
+                      }
+                    }}
+                  />
+                  {isCustom && (
+                    <input
+                      className={es.fieldInput}
+                      type="text"
+                      value={metaForm.category}
+                      onChange={(e) => updateField("category", e.target.value)}
+                      placeholder={te("category")}
+                      style={{ marginTop: "var(--spacing-xs)" }}
+                      autoFocus
+                    />
+                  )}
+                </>
+              );
+            })()}
+          </div>
+        </div>
+
+        {/* 작성자 (복수 선택) — site.config authors 에서 선택. 비면 리더뷰에서 기본 작성자 표시 */}
+        <div className={es.row}>
+          <div className={es.field} style={{ gridColumn: "1 / -1" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
+              <label className={es.fieldLabel}>{language === "en" ? "Authors" : "작성자"}</label>
+              <a href="/admin/settings?tab=account" target="_blank" rel="noopener noreferrer" className={styles.manageLink}>
+                {language === "en" ? "Manage authors" : "작성자 관리"}
+                <ExternalLink size={12} />
+              </a>
+            </div>
+            <div className={styles.authorSelect}>
+              {authorChips.length > 0 ? (
+                authorChips.map((a, i) => {
+                  const ids = metaForm.author_ids ?? [];
+                  const actualSelected = ids.includes(a.id);
+                  // 미할당(빈 배열)이면 기본 작성자(첫 항목)를 선택된 것처럼 표시 — 리더뷰 fallback 과 일치
+                  const showSelected = actualSelected || (ids.length === 0 && i === 0);
+                  return (
+                    <Pressable
+                      key={a.id}
+                      className={`${styles.authorChip}${showSelected ? ` ${styles.authorChipSelected}` : ""}`}
+                      onClick={() => {
+                        const atLeastOne = language === "en"
+                          ? "At least one author is required."
+                          : "작성자는 최소 한 명이 필요합니다.";
+                        if (actualSelected) {
+                          const next = ids.filter((x) => x !== a.id);
+                          if (next.length === 0) {
+                            // 마지막 작성자 해제 → 유효 작성자 0 방지 (리더뷰는 기본 작성자로 fallback)
+                            showToast(atLeastOne, "info");
+                            return;
+                          }
+                          updateField("author_ids", next);
+                        } else if (showSelected) {
+                          // ids 빈 상태에서 fallback 표시된 기본 작성자 해제 시도 — 유효 작성자 0 이 되므로 차단
+                          showToast(atLeastOne, "info");
+                        } else {
+                          updateField("author_ids", [...ids, a.id]);
+                        }
+                      }}
+                    >
+                      <AuthorAvatar value={a.avatar} name={a.name} size={22} className={styles.authorChipAvatar} />
+                      <span>{a.name}</span>
+                    </Pressable>
+                  );
+                })
+              ) : (
+                <span className={styles.authorEmpty}>
+                  {language === "en" ? "Add authors in settings." : "설정에서 작성자를 추가하세요."}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      {/* ── 선택 입력 (접기/펼치기) ── */}
+      <PostEditorOptionalFields
+        form={metaForm}
+        setForm={setForm}
+        updateField={updateField}
+        te={te}
+        config={config}
+        post={post}
+        series={{ seriesList, seriesPosts, setSeriesPosts, seriesPostsLoading }}
+        onReorderSeriesPosts={queueSeriesOrder}
+        allWorks={allWorks}
+        allTagSuggestions={allTagSuggestions}
+        categories={categories}
+        excerptKey={excerptKey}
+        tag={tag}
+        optionalOpen={optionalOpen}
+        setOptionalOpen={setOptionalOpen}
+        optionalInnerRef={optionalInnerRef}
+        optionalContentRef={optionalContentRef}
+        seriesSelectMode={seriesSelectMode}
+        setSeriesSelectMode={setSeriesSelectMode}
+        onSeriesCreated={handleSeriesCreated}
+        onCoverUpload={handleCoverUpload}
+      />
+    </div>
+  ), [
+    allTagSuggestions, allWorks, authorChips, categories, categoryCustomMode, config, excerptKey, findCat, firstLeafKo,
+    handleCoverUpload, handleSeriesCreated, isManagedCat, language, metaForm, optionalOpen, post, queueSeriesOrder,
+    seriesList, seriesPosts, seriesPostsLoading, seriesSelectMode, setSeriesPosts, showErrors, tag, te, titleFieldError,
+    titleKey, updateField,
+  ]);
+
+  const editorHeader = useMemo(() => (
+    <div className={es.editorHeader}>
+      <div className={styles.editorHeaderLeft}>
+        <span className={`${styles.editorLabel}${contentFieldError ? ` ${styles.editorLabelError}` : ""}`}>{te("content")}</span>
+        <Pressable
+          className={styles.templateBtn}
+          onClick={handleInsertTemplate}
+        >
+          {te("insertTemplate")}
+        </Pressable>
+        <Tooltip content={te("shortcutsGuide")} placement="top">
+          <Pressable
+            className={styles.editorHelpBtn}
+            onClick={() => openModal(<ShortcutsModalContent />, { id: "shortcuts-help", header: { title: te("shortcutsGuide") }, closeButton: true })}
+          >
+            ?
+          </Pressable>
+        </Tooltip>
+      </div>
+      <Checkbox
+        checked={editorHtmlMode}
+        onChange={() => plateRef.current?.toggleHtmlMode()}
+        shape="square"
+        label="HTML"
+      />
+    </div>
+  ), [contentFieldError, editorHtmlMode, handleInsertTemplate, openModal, te]);
+
+  const imagesSection = useMemo(() => (
+    <div className={styles.attachedImagesSection}>
+      <ImagePanel
+        images={editorImages}
+        onSelect={(path) => plateRef.current?.selectImageAt(path)}
+        onReorder={(from, to) => plateRef.current?.reorderImage(from, to)}
+        onRemove={(path) => plateRef.current?.removeImage(path)}
+        onImageUpload={async (file) => {
+          const url = await handleImageUpload(file);
+          plateRef.current?.insertImageByUrl(url);
+          requestAnimationFrame(() => {
+            const imgs = plateRef.current?.getImages();
+            if (imgs) setEditorImages(imgs);
+          });
+          return url;
+        }}
+        onVideoUpload={async (file) => {
+          const url = await handleImageUpload(file);
+          plateRef.current?.insertMediaByUrl(url);
+          requestAnimationFrame(() => {
+            const imgs = plateRef.current?.getImages();
+            if (imgs) setEditorImages(imgs);
+          });
+          return url;
+        }}
+        onBulkInsert={(items) => {
+          // 선택 항목을 본문에 복제 삽입 (이미 첨부된 이미지여도 같은 걸 또 추가)
+          for (const it of items) {
+            if (isVideoMedia(it.mediaType, it.url)) plateRef.current?.insertMediaByUrl(it.url);
+            else plateRef.current?.insertImageByUrl(it.url);
+          }
+          requestAnimationFrame(() => {
+            const imgs = plateRef.current?.getImages();
+            if (imgs) setEditorImages(imgs);
+          });
+        }}
+        onReinsert={(url, mediaType) => {
+          if (isVideoMedia(mediaType, url)) plateRef.current?.insertMediaByUrl(url);
+          else plateRef.current?.insertImageByUrl(url);
+        }}
+        onRemoveDetached={(url) => {
+          plateRef.current?.removeDetached(url);
+          requestAnimationFrame(() => {
+            const imgs = plateRef.current?.getImages();
+            if (imgs) setEditorImages(imgs);
+          });
+        }}
+      />
+    </div>
+  ), [editorImages, handleImageUpload, setEditorImages]);
+
+  const seoChecklist = useMemo(() => (
+    <SeoChecklist
+      data={{
+        title: metaForm[titleKey] || metaForm.title,
+        slug: metaForm.slug,
+        excerpt: metaForm[excerptKey] || metaForm.excerpt,
+        cover: metaForm.cover_image,
+        category: metaForm.category,
+        tagsCount: metaForm.tags?.length ?? 0,
+      }}
+      onItemClick={handleSeoItemClick}
+    />
+  ), [excerptKey, handleSeoItemClick, metaForm, titleKey]);
+
+  /* 커버 배너 + 페이지 이모지 — topBar 위 최상단(전역 nav 바로 아래) */
+  const coverBanner = useMemo(() => (
+    <CoverBanner
+      cover={metaForm.cover_image}
+      onCoverChange={(url) => updateField("cover_image", url)}
+      onUpload={handleCoverUpload}
+      emoji={metaForm.icon || null}
+      onEmojiChange={(e) => updateField("icon", e ?? "")}
+      position={metaForm.cover_position}
+      zoom={metaForm.cover_zoom}
+      onPositionChange={(n) => updateField("cover_position", n)}
+      onZoomChange={(n) => updateField("cover_zoom", n)}
+    />
+  ), [handleCoverUpload, metaForm.cover_image, metaForm.cover_position, metaForm.cover_zoom, metaForm.icon, updateField]);
+
+  const pinToggle = useMemo(() => (
+    <Checkbox
+      checked={metaForm.is_pinned}
+      onChange={(v) => updateField("is_pinned", v)}
+      shape="square"
+      label={te("pinLabel")}
+    />
+  ), [metaForm.is_pinned, te, updateField]);
 
   return (
     <>
@@ -1042,28 +1347,8 @@ export default function PostEditor({ post }: PostEditorProps) {
           headerLabels: { title: isKo ? "제목" : "Title", excerpt: isKo ? "요약" : "Excerpt" },
         };
       }}
-      topBarFirstRowExtra={
-        <Checkbox
-          checked={form.is_pinned}
-          onChange={(v) => updateField("is_pinned", v)}
-          shape="square"
-          label={te("pinLabel")}
-        />
-      }
-      coverSlot={
-        /* 커버 배너 + 페이지 이모지 — topBar 위 최상단(전역 nav 바로 아래) */
-        <CoverBanner
-          cover={form.cover_image}
-          onCoverChange={(url) => updateField("cover_image", url)}
-          onUpload={handleCoverUpload}
-          emoji={form.icon || null}
-          onEmojiChange={(e) => updateField("icon", e ?? "")}
-          position={form.cover_position}
-          zoom={form.cover_zoom}
-          onPositionChange={(n) => updateField("cover_position", n)}
-          onZoomChange={(n) => updateField("cover_zoom", n)}
-        />
-      }
+      topBarFirstRowExtra={pinToggle}
+      coverSlot={coverBanner}
     >
       {presenceOthers > 0 && (
         <div className={styles.presenceBanner} role="status">
@@ -1073,199 +1358,10 @@ export default function PostEditor({ post }: PostEditorProps) {
             : "This post is being edited on another device or tab — saving at the same time may conflict."}</span>
         </div>
       )}
-      <div className={styles.meta}>
-        {/* title + slug + 예약 발행 — 컴팩트 그룹 (gap 작게) */}
-        <div className={styles.titleGroup}>
-          <div className={es.field} data-seo="title" data-required="title">
-            <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: "var(--spacing-xs)" }}>
-              <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${titleFieldError ? ` ${es.fieldLabelError}` : ""}`}>{te("title")}</label>
-              <span style={{ fontSize: "var(--font-size-hint)", fontVariantNumeric: "tabular-nums", color: form[titleKey].length >= POST_TITLE_MAX ? "var(--text-accent)" : "var(--text-muted)" }}>
-                {form[titleKey].length}/{POST_TITLE_MAX}
-              </span>
-            </div>
-            <input
-              className={`${es.titleInput}${titleFieldError ? ` ${es.titleInputError}` : ""}`}
-              type="text"
-              value={form[titleKey]}
-              onChange={(e) => updateField(titleKey, e.target.value)}
-              placeholder={te("titlePlaceholder")}
-              maxLength={POST_TITLE_MAX}
-            />
-          </div>
-
-          <div className={es.row}>
-            <div className={es.field} style={{ gridColumn: "1 / -1" }} data-seo="slug" data-required="slug">
-              <div style={{ display: "flex", alignItems: "baseline", gap: "var(--spacing-xs)" }}>
-                <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${showErrors && (!form.slug.trim() || validateSlug(form.slug)) ? ` ${es.fieldLabelError}` : ""}`}>{te("slug")}</label>
-                {form.slug.trim() && validateSlug(form.slug) && (
-                  <span className={styles.slugHint}>{te(`slugError.${validateSlug(form.slug)}`)}</span>
-                )}
-              </div>
-              <input
-                className={`${es.fieldInput}${showErrors && (!form.slug.trim() || validateSlug(form.slug)) ? ` ${es.fieldInputError}` : ""}`}
-                type="text"
-                value={form.slug}
-                onChange={(e) => {
-                  setSlugManual(true);
-                  updateField("slug", e.target.value);
-                }}
-                placeholder="post-url-slug"
-              />
-            </div>
-          </div>
-
-          {/* slug 아래 — 카테고리 (필수 입력) */}
-          <div className={es.row}>
-            <div className={es.field} style={{ gridColumn: "1 / -1" }} data-seo="category" data-required="category">
-              <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${showErrors && !form.category.trim() ? ` ${es.fieldLabelError}` : ""}`}>{te("category")}</label>
-              {(() => {
-                const matched = isManagedCat(form.category);
-                const isCustom = categoryCustomMode || (!!form.category && !matched);
-                const selectValue = isCustom ? "__custom__" : (matched ? (findCat(form.category)?.ko ?? form.category) : firstLeafKo);
-                return (
-                  <>
-                    <Select
-                      value={selectValue}
-                      options={[
-                        { value: "__custom__", label: te("customCategory") },
-                        ...toCategoryOptions(categories, language === "ko" ? "ko" : "en"),
-                      ]}
-                      onChange={(v) => {
-                        if (v === "__custom__") {
-                          setCategoryCustomMode(true);
-                          updateField("category", "");
-                        } else {
-                          setCategoryCustomMode(false);
-                          updateField("category", v);
-                        }
-                      }}
-                    />
-                    {isCustom && (
-                      <input
-                        className={es.fieldInput}
-                        type="text"
-                        value={form.category}
-                        onChange={(e) => updateField("category", e.target.value)}
-                        placeholder={te("category")}
-                        style={{ marginTop: "var(--spacing-xs)" }}
-                        autoFocus
-                      />
-                    )}
-                  </>
-                );
-              })()}
-            </div>
-          </div>
-
-          {/* 작성자 (복수 선택) — site.config authors 에서 선택. 비면 리더뷰에서 기본 작성자 표시 */}
-          <div className={es.row}>
-            <div className={es.field} style={{ gridColumn: "1 / -1" }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
-                <label className={es.fieldLabel}>{language === "en" ? "Authors" : "작성자"}</label>
-                <a href="/admin/settings?tab=account" target="_blank" rel="noopener noreferrer" className={styles.manageLink}>
-                  {language === "en" ? "Manage authors" : "작성자 관리"}
-                  <ExternalLink size={12} />
-                </a>
-              </div>
-              <div className={styles.authorSelect}>
-                {authorChips.length > 0 ? (
-                  authorChips.map((a, i) => {
-                    const ids = form.author_ids ?? [];
-                    const actualSelected = ids.includes(a.id);
-                    // 미할당(빈 배열)이면 기본 작성자(첫 항목)를 선택된 것처럼 표시 — 리더뷰 fallback 과 일치
-                    const showSelected = actualSelected || (ids.length === 0 && i === 0);
-                    return (
-                      <Pressable
-                        key={a.id}
-                        className={`${styles.authorChip}${showSelected ? ` ${styles.authorChipSelected}` : ""}`}
-                        onClick={() => {
-                          const atLeastOne = language === "en"
-                            ? "At least one author is required."
-                            : "작성자는 최소 한 명이 필요합니다.";
-                          if (actualSelected) {
-                            const next = ids.filter((x) => x !== a.id);
-                            if (next.length === 0) {
-                              // 마지막 작성자 해제 → 유효 작성자 0 방지 (리더뷰는 기본 작성자로 fallback)
-                              showToast(atLeastOne, "info");
-                              return;
-                            }
-                            updateField("author_ids", next);
-                          } else if (showSelected) {
-                            // ids 빈 상태에서 fallback 표시된 기본 작성자 해제 시도 — 유효 작성자 0 이 되므로 차단
-                            showToast(atLeastOne, "info");
-                          } else {
-                            updateField("author_ids", [...ids, a.id]);
-                          }
-                        }}
-                      >
-                        <AuthorAvatar value={a.avatar} name={a.name} size={22} className={styles.authorChipAvatar} />
-                        <span>{a.name}</span>
-                      </Pressable>
-                    );
-                  })
-                ) : (
-                  <span className={styles.authorEmpty}>
-                    {language === "en" ? "Add authors in settings." : "설정에서 작성자를 추가하세요."}
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-        {/* ── 선택 입력 (접기/펼치기) ── */}
-        <PostEditorOptionalFields
-          form={form}
-          setForm={setForm}
-          updateField={updateField}
-          te={te}
-          config={config}
-          post={post}
-          series={{ seriesList, seriesPosts, setSeriesPosts, seriesPostsLoading }}
-          onReorderSeriesPosts={queueSeriesOrder}
-          allWorks={allWorks}
-          allTagSuggestions={allTagSuggestions}
-          categories={categories}
-          excerptKey={excerptKey}
-          tag={tag}
-          optionalOpen={optionalOpen}
-          setOptionalOpen={setOptionalOpen}
-          optionalInnerRef={optionalInnerRef}
-          optionalContentRef={optionalContentRef}
-          seriesSelectMode={seriesSelectMode}
-          setSeriesSelectMode={setSeriesSelectMode}
-          onSeriesCreated={handleSeriesCreated}
-          onCoverUpload={handleCoverUpload}
-        />
-      </div>
+      {metaSection}
 
       <div className={styles.editorSection}>
-        <div className={es.editorHeader}>
-          <div className={styles.editorHeaderLeft}>
-            <span className={`${styles.editorLabel}${contentFieldError ? ` ${styles.editorLabelError}` : ""}`}>{te("content")}</span>
-            <Pressable
-              className={styles.templateBtn}
-              onClick={handleInsertTemplate}
-            >
-              {te("insertTemplate")}
-            </Pressable>
-            <Tooltip content={te("shortcutsGuide")} placement="top">
-              <Pressable
-                className={styles.editorHelpBtn}
-                onClick={() => openModal(<ShortcutsModalContent />, { id: "shortcuts-help", header: { title: te("shortcutsGuide") }, closeButton: true })}
-              >
-                ?
-              </Pressable>
-            </Tooltip>
-          </div>
-          <Checkbox
-            checked={editorHtmlMode}
-            onChange={() => plateRef.current?.toggleHtmlMode()}
-            shape="square"
-            label="HTML"
-          />
-        </div>
+        {editorHeader}
 
         <div className={styles.editorWrap} data-required="content">
           <Editor
@@ -1288,67 +1384,10 @@ export default function PostEditor({ post }: PostEditorProps) {
       </div>
 
       {/* ── 첨부 이미지 패널 (richtext 단일) ── */}
-        <div className={styles.attachedImagesSection}>
-          <ImagePanel
-            images={editorImages}
-            onSelect={(path) => plateRef.current?.selectImageAt(path)}
-            onReorder={(from, to) => plateRef.current?.reorderImage(from, to)}
-            onRemove={(path) => plateRef.current?.removeImage(path)}
-            onImageUpload={async (file) => {
-              const url = await handleImageUpload(file);
-              plateRef.current?.insertImageByUrl(url);
-              requestAnimationFrame(() => {
-                const imgs = plateRef.current?.getImages();
-                if (imgs) setEditorImages(imgs);
-              });
-              return url;
-            }}
-            onVideoUpload={async (file) => {
-              const url = await handleImageUpload(file);
-              plateRef.current?.insertMediaByUrl(url);
-              requestAnimationFrame(() => {
-                const imgs = plateRef.current?.getImages();
-                if (imgs) setEditorImages(imgs);
-              });
-              return url;
-            }}
-            onBulkInsert={(items) => {
-              // 선택 항목을 본문에 복제 삽입 (이미 첨부된 이미지여도 같은 걸 또 추가)
-              for (const it of items) {
-                if (isVideoMedia(it.mediaType, it.url)) plateRef.current?.insertMediaByUrl(it.url);
-                else plateRef.current?.insertImageByUrl(it.url);
-              }
-              requestAnimationFrame(() => {
-                const imgs = plateRef.current?.getImages();
-                if (imgs) setEditorImages(imgs);
-              });
-            }}
-            onReinsert={(url, mediaType) => {
-              if (isVideoMedia(mediaType, url)) plateRef.current?.insertMediaByUrl(url);
-              else plateRef.current?.insertImageByUrl(url);
-            }}
-            onRemoveDetached={(url) => {
-              plateRef.current?.removeDetached(url);
-              requestAnimationFrame(() => {
-                const imgs = plateRef.current?.getImages();
-                if (imgs) setEditorImages(imgs);
-              });
-            }}
-          />
-        </div>
+      {imagesSection}
 
       {/* SEO 체크리스트 — portal 로 floating pill 렌더 (wrapper 불필요) */}
-      <SeoChecklist
-        data={{
-          title: form[titleKey] || form.title,
-          slug: form.slug,
-          excerpt: form[excerptKey] || form.excerpt,
-          cover: form.cover_image,
-          category: form.category,
-          tagsCount: form.tags?.length ?? 0,
-        }}
-        onItemClick={handleSeoItemClick}
-      />
+      {seoChecklist}
 
     </AdminEditorShell>
     {/* 초안 복원 모달 확인 동안 사용자 인터랙션 차단 — 모달이 늦게 떠도 그 사이 편집/이동 못하게 */}
