@@ -5,7 +5,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
    편집기는 이 작업물의 자리만 보내고, 서버가 요청 하나 안에서 그 자리에 끼우고 나머지를 1..N 으로 다시 매긴다.
    예전처럼 밀리는 작업물마다 따로 보내면 저장 전에 순서가 바뀌고 요청끼리 덮어써 뒤섞였다(이슈에 재현 결과). */
 
-type Row = { id: string; title: string; sort_order: number; created_at: string; deleted_at: null };
+type Row = { id: string; title: string; sort_order: number; created_at: string; deleted_at: string | null };
 const db: { rows: Row[] } = { rows: [] };
 
 function fakeClient() {
@@ -18,7 +18,7 @@ function fakeClient() {
       return q.limitN ? r.slice(0, q.limitN) : r;
     };
     const selectBuilder = {
-      is: () => selectBuilder,
+      is: (k: string, v: unknown) => { q.filters.push([k, v]); return selectBuilder; },
       eq: (k: string, v: unknown) => { q.filters.push([k, v]); return selectBuilder; },
       order: (col: string, o?: { ascending?: boolean }) => { q.orders.push(`${col}${o?.ascending === false ? " desc" : ""}`); return selectBuilder; },
       limit: (n: number) => { q.limitN = n; return selectBuilder; },
@@ -62,7 +62,7 @@ import { POST } from "@/app/api/works/route";
 const seed = (titles: string[]) => {
   db.rows = titles.map((t, i) => ({ id: t, title: t, sort_order: i + 1, created_at: `2026-01-01T00:00:0${i}Z`, deleted_at: null }));
 };
-const order = () => [...db.rows].sort((a, b) => a.sort_order - b.sort_order || a.created_at.localeCompare(b.created_at)).map((r) => `${r.title}${r.sort_order}`).join(" ");
+const order = () => [...db.rows].filter((r) => !r.deleted_at).sort((a, b) => a.sort_order - b.sort_order || a.created_at.localeCompare(b.created_at)).map((r) => `${r.title}${r.sort_order}`).join(" ");
 const patch = (id: string, body: object) => PATCH(new Request(`http://local/api/works/${id}`, { method: "PATCH", body: JSON.stringify(body) }), { params: Promise.resolve({ id }) });
 const post = (body: object) => POST(new Request("http://local/api/works", { method: "POST", body: JSON.stringify(body) }));
 
@@ -78,6 +78,20 @@ describe("작업물 정렬 순서", () => {
     db.rows[1].sort_order = 5; db.rows[3].sort_order = 1; // A1 B5 C3 D1 E5 → 보이는 순서 A D C B E
     await patch("E", { sort_order: 2 });
     expect(order()).toBe("A1 E2 D3 C4 B5");
+  });
+
+  /* 휴지통으로 보내기는 남은 작업물을 다시 매기지 않아 빈 번호가 남는다. 편집기는 자리를 옮겼을 때만 sort_order 를
+     목록의 자리로 보낸다 — 예전처럼 원래 값(4)을 늘 보내면 빈 번호 뒤 D 가 한 칸 밀렸다(A1 B2 E3 D4) */
+  it("빈 번호가 있어도 sort_order 없이 저장하면 순서를 건드리지 않는다", async () => {
+    db.rows[2].deleted_at = "2026-09-13T00:00:00Z"; // C 를 휴지통으로 — A1 B2 (C3) D4 E5
+    await patch("D", { title: "D (고침)" });
+    expect(order()).toBe("A1 B2 D (고침)4 E5");
+  });
+
+  it("빈 번호 뒤 작업물을 목록의 자리(3번째)로 보내면 제자리를 지키며 다시 매겨진다", async () => {
+    db.rows[2].deleted_at = "2026-09-13T00:00:00Z";
+    await patch("D", { sort_order: 3 });
+    expect(order()).toBe("A1 B2 D3 E4");
   });
 
   it("새 작업물에 자리를 주면 그 자리에 끼우고 다시 매긴다 — 1번째도 맨 앞", async () => {
