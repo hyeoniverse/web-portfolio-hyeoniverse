@@ -67,6 +67,7 @@ function PreviewTooltip({
   onDismiss: () => void;
   onNavigate: () => void;
 }) {
+  const { t } = useLanguage();
   if (!work) return null;
   return (
     <>
@@ -93,7 +94,7 @@ function PreviewTooltip({
         </div>
         <div className={shell.previewBody}>
           <p className={shell.previewTitle}>{work.title}</p>
-          <p className={shell.previewExcerpt} style={!work.subtitle_ko ? { color: "var(--text-muted)", fontStyle: "italic" } : undefined}>{work.subtitle_ko || "내용 없음"}</p>
+          <p className={shell.previewExcerpt} style={!work.subtitle_ko ? { color: "var(--text-muted)", fontStyle: "italic" } : undefined}>{work.subtitle_ko || t("admin.common.noContent")}</p>
           {work.tech.length > 0 && (
             <div className={shell.previewTags}>
               {work.tech.map((tag) => (

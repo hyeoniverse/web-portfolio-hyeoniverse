@@ -203,7 +203,14 @@
       "deleteSelected": "Delete selected",
       "deleteCount": "Delete ({{n}})",
       "required": "Required",
-      "rowNumberHint": "Click to type a position"
+      "rowNumberHint": "Click to type a position",
+      "bulkDeleteItemsPrompt": "Type \"{{count}}\" to delete {{count}} items.",
+      "exportMd": "Export .md",
+      "clearSelection": "Clear selection",
+      "actions": "Actions",
+      "currentTag": "Current",
+      "jumpFirst": "First",
+      "jumpLast": "Last"
     },
     "settings": {
       "title": "Settings",

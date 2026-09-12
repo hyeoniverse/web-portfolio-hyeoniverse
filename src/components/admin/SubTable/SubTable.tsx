@@ -8,6 +8,8 @@ import Pagination from "@/components/ui/Pagination";
 import styles from "./SubTable.module.css";
 import Button from "@/components/ui/Button";
 import Pressable from "@/components/ui/Pressable";
+import { useLanguage } from "@/providers/LanguageProvider";
+import { fillTemplate } from "@/utils/format";
 
 /* ── Types ── */
 export interface SubTableColumn<T> {
@@ -96,6 +98,7 @@ export default function SubTable<T extends { id: string }>({
   onRowClick,
   filterBar,
 }: SubTableProps<T>) {
+  const { t } = useLanguage();
   /* Grid: checkbox col + user columns */
   // 체크박스 열은 내용에 맞춰 — 고정 28px 대신 max-content
   const fullGrid = `max-content ${gridTemplate}`;
@@ -199,7 +202,7 @@ export default function SubTable<T extends { id: string }>({
               <div className={styles.tableInner}>
               {/* Bulk bar */}
               <div className={`${styles.bulkBar} ${selected.size > 0 ? styles.bulkBarOpen : ""}`}>
-                <span>{selected.size}개 선택</span>
+                <span>{fillTemplate(t("admin.common.selectedCount"), { count: selected.size })}</span>
                 {bulkActions?.map((action, i) => (
                   <Button
                     key={i}

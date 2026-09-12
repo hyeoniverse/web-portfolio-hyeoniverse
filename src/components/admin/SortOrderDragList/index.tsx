@@ -7,6 +7,7 @@ import Pagination from "@/components/ui/Pagination";
 import { adminEditorStyles as es } from "@/components/admin/AdminEditorShell";
 import styles from "./SortOrderDragList.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 interface SortOrderItem {
   id: string;
@@ -30,11 +31,11 @@ interface SortOrderDragListProps {
     newOrder: number,
     otherUpdates: Array<{ id: string; sort_order: number }>,
   ) => void;
-  /** "현재" 같은 강조 태그 라벨 (default: "현재") */
+  /** 지금 편집하는 항목에 붙는 태그 (기본: 관리자 공통 "현재") */
   currentTag?: string;
   /** 페이지당 항목 수 (default: 5) */
   pageSize?: number;
-  /** 드래그 핸들 title (default: "드래그하여 순서 변경") */
+  /** 드래그 핸들 title (기본: 관리자 공통 "드래그로 순서 변경") */
   handleTitle?: string;
   className?: string;
 }
@@ -56,11 +57,14 @@ export default function SortOrderDragList({
   currentOrder,
   otherItems,
   onChange,
-  currentTag = "현재",
+  currentTag: currentTagProp,
   pageSize = 5,
-  handleTitle = "드래그하여 순서 변경",
+  handleTitle: handleTitleProp,
   className,
 }: SortOrderDragListProps) {
+  const { t } = useLanguage();
+  const currentTag = currentTagProp ?? t("admin.common.currentTag");
+  const handleTitle = handleTitleProp ?? t("admin.common.dragToReorder");
   const merged: Array<{ id: string; title: string; isCurrent: boolean }> = [];
   const targetIdx = Math.max(1, Math.min(currentOrder, otherItems.length + 1)) - 1;
   otherItems.forEach((w, i) => {
@@ -204,14 +208,14 @@ export default function SortOrderDragList({
               onClick={() => moveTo(1)}
               disabled={cur <= 1}
             >
-              ↑ 맨 앞
+              ↑ {t("admin.common.jumpFirst")}
             </Pressable>
             <Pressable noTapScale
               className={styles.jumpBtn}
               onClick={() => moveTo(total)}
               disabled={cur >= total}
             >
-              ↓ 맨 뒤
+              ↓ {t("admin.common.jumpLast")}
             </Pressable>
           </div>
         </div>

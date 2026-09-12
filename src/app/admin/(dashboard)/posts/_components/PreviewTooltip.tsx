@@ -5,6 +5,7 @@ import MediaThumb from "@/components/admin/MediaThumb";
 import { adminShellStyles as shell } from "@/components/admin/AdminListShell";
 import { formatPostTitle } from "@/utils/post";
 import type { Post } from "@/types/post";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 /* ── Isolated tooltip to prevent parent re-renders from reaching AdminTable ── */
 export default function PreviewTooltip({
@@ -22,6 +23,7 @@ export default function PreviewTooltip({
   onDismiss: () => void;
   onNavigate: () => void;
 }) {
+  const { t } = useLanguage();
   if (!post) return null;
   return (
     <>
@@ -48,7 +50,7 @@ export default function PreviewTooltip({
         </div>
         <div className={shell.previewBody}>
           <p className={shell.previewTitle}>{formatPostTitle(post)}</p>
-          <p className={shell.previewExcerpt} style={!post.excerpt ? { color: "var(--text-muted)", fontStyle: "italic" } : undefined}>{post.excerpt || "내용 없음"}</p>
+          <p className={shell.previewExcerpt} style={!post.excerpt ? { color: "var(--text-muted)", fontStyle: "italic" } : undefined}>{post.excerpt || t("admin.common.noContent")}</p>
           {post.tags.length > 0 && (
             <div className={shell.previewTags}>
               {post.tags.map((tag) => (
