@@ -88,7 +88,7 @@ export function readBlockInfo(editor: SlateEditor) {
 }
 
 // ── readComputedStyle: DOM computed style에서 현재값 읽기 ──
-function readComputedStyle() {
+function readComputedStyle(): CSSStyleDeclaration | null {
   try {
     const sel = window.getSelection();
     if (!sel || !sel.focusNode) return null;
@@ -98,13 +98,12 @@ function readComputedStyle() {
   } catch { return null; }
 }
 
-// ── useResolvedFontSize: mark + computed에서 fontSize 결정 ──
-function resolvedFontSize(markFontSize: string, computed: CSSStyleDeclaration | null): string {
-  return markFontSize || (computed ? `${Math.round(parseFloat(computed.fontSize))}px` : "");
+// ── 계산된 스타일에서 글자 크기(px)·줄 간격(프리셋에 맞춘 비율) 읽기 ──
+function computedFontSize(computed: CSSStyleDeclaration | null): string {
+  return computed ? `${Math.round(parseFloat(computed.fontSize))}px` : "";
 }
 
-function resolvedLineHeight(blockLineHeight: string | undefined, computed: CSSStyleDeclaration | null): string {
-  if (blockLineHeight) return blockLineHeight;
+function computedLineHeight(computed: CSSStyleDeclaration | null): string {
   if (!computed) return "";
   const ratio = parseFloat(computed.lineHeight) / parseFloat(computed.fontSize);
   if (isNaN(ratio)) return "";
@@ -130,7 +129,6 @@ export type ToolbarMark = (typeof TOOLBAR_MARKS)[number];
 export function readToolbarState(editor: PlateEditor) {
   const { hasMark, color, bgColor, fontFamily, fontSize, letterSpacing } = readEditorMarks(editor);
   const { blockType, align, lineHeight } = readBlockInfo(editor);
-  const computed = readComputedStyle();
   const marks = Object.fromEntries(TOOLBAR_MARKS.map((m) => [m, hasMark(m)])) as Record<ToolbarMark, boolean>;
 
   let isUL = false, isOL = false, isTodo = false;
@@ -143,12 +141,11 @@ export function readToolbarState(editor: PlateEditor) {
     color,
     bgColor,
     letterSpacing,
-    // mark가 없으면 computed에서 실제 렌더링 폰트 읽기
-    fontFamily: fontFamily || (computed?.fontFamily ?? ""),
-    fontSize: resolvedFontSize(fontSize, computed),
-    // resolvedLineHeight 반환타입은 string 이지만, setLineHeight 가 숫자를 저장해 노드 lineHeight 가
-    // 런타임엔 number(예: 1.6). 문자열 프리셋과 비교/렌더가 어긋나 중복 key 가 나므로 String 으로 정규화.
-    lineHeight: String(resolvedLineHeight(lineHeight, computed)),
+    // 마크·블록에 적힌 값만 둔다. 비어 있으면 도구 막대가 커밋 뒤 DOM 에서 읽은 값(TextStyleStore)으로 채운다
+    markFontFamily: fontFamily,
+    markFontSize: fontSize,
+    // setLineHeight 가 숫자를 저장해 노드 lineHeight 가 런타임엔 number(예: 1.6)일 수 있어 문자열로 맞춘다
+    blockLineHeight: lineHeight ? String(lineHeight) : "",
     blockType,
     align,
     isUL,
@@ -158,6 +155,46 @@ export function readToolbarState(editor: PlateEditor) {
     canRedo: (editor.history?.redos?.length ?? 0) > 0,
   };
 }
+
+// ── 커서 자리의 계산된 글자 스타일 — 편집기 변경이 DOM 에 반영된 뒤 읽는다 ──
+/** 마크·블록에 값이 없을 때 도구 막대가 보여 줄 실제 글꼴·크기·줄 간격(DOM 의 계산된 스타일) */
+export interface TextStyleFromDom {
+  fontFamily: string;
+  fontSize: string;
+  lineHeight: string;
+}
+
+function readTextStyleFromDom(): TextStyleFromDom {
+  const computed = readComputedStyle();
+  return { fontFamily: computed?.fontFamily ?? "", fontSize: computedFontSize(computed), lineHeight: computedLineHeight(computed) };
+}
+
+/**
+ * 커서 자리의 계산된 글자 스타일을 들고, 값이 바뀔 때만 알리는 저장소(#895).
+ *
+ * readToolbarState 는 편집기가 바뀐 순간(Slate onChange)에 불려, 그때 DOM 을 읽으면 React 가 바뀐 블록을 다시 그리기 전이라
+ * 이전 블록의 스타일이 나왔다(막대로 H1 을 눌러도 글자 크기 칸이 문단 값). 본문 편집기가 커밋 뒤 layout effect 에서
+ * refresh() 를 부르고, 도구 막대는 useSyncExternalStore 로 받는다.
+ */
+export function createTextStyleStore(read: () => TextStyleFromDom = readTextStyleFromDom) {
+  let snapshot: TextStyleFromDom = { fontFamily: "", fontSize: "", lineHeight: "" };
+  const listeners = new Set<() => void>();
+  return {
+    subscribe(listener: () => void) {
+      listeners.add(listener);
+      return () => { listeners.delete(listener); };
+    },
+    getSnapshot: () => snapshot,
+    /** DOM 을 다시 읽어, 달라졌으면 새 객체로 바꾸고 알린다. 같으면 객체를 그대로 둬 다시 그리지 않게 한다 */
+    refresh() {
+      const next = read();
+      if (next.fontFamily === snapshot.fontFamily && next.fontSize === snapshot.fontSize && next.lineHeight === snapshot.lineHeight) return;
+      snapshot = next;
+      listeners.forEach((listener) => listener());
+    },
+  };
+}
+export type TextStyleStore = ReturnType<typeof createTextStyleStore>;
 
 // ── useTableInfo: 현재 커서의 테이블/셀 정보 ──
 export function useTableInfo(editor: SlateEditor, isInTable: boolean) {

@@ -118,6 +118,13 @@ export default function Select({
   const portalContainer = usePortalContainer();
   // editable + value 비어있으면 mount 시 default editing (= 직접 입력 mode 부터 시작).
   const [editing, setEditing] = useState(() => !!editable && !value);
+  /* 사용자가 직접 편집에 들어갔는가(더블클릭·"직접 입력"). 입력칸 포커스는 이때만 준다(#895). 값이 비어 입력칸 모드로 시작한
+     것만으로 포커스를 가져가면, 화면을 열자마자 다른 칸에 치던 글자가 이리로 새고, blur 에서 onChange("") 가 불렸다.
+     사용자가 건드리기 전에 값이 들어오면 단추 모드로 돌아간다 */
+  const [userEditing, setUserEditing] = useState(false);
+  if (editing && !userEditing && value) setEditing(false);
+  const startEditing = () => { setEditing(true); setUserEditing(true); };
+  const stopEditing = () => { setEditing(false); setUserEditing(false); };
   const [open, setOpen] = useState(false);
   const [visible, setVisible] = useState(false);
   const [animateOpen, setAnimateOpen] = useState(false);
@@ -380,7 +387,7 @@ export default function Select({
         type="button"
         className={styles.option}
         onMouseDown={preserveFocus ? (e) => e.preventDefault() : undefined}
-        onClick={() => { setOpen(false); setEditing(true); }}
+        onClick={() => { setOpen(false); startEditing(); }}
       >
         {showCheck && (<span className={styles.check} style={{ visibility: "hidden" }}>{"✓"}</span>)}
         <span className={styles.optionContent}>
@@ -419,7 +426,7 @@ export default function Select({
         e.stopPropagation();
         e.preventDefault();
         setOpen(false);
-        setEditing(false);
+        stopEditing();
       }}
     >
       {combobox ? (
@@ -469,7 +476,7 @@ export default function Select({
       ) : editable && editing ? (
         <input
           type="text"
-          autoFocus
+          autoFocus={userEditing}
           defaultValue={value}
           className={`${styles.trigger} ${size === "sm" ? styles.triggerSm : ""}`}
           /* trigger 는 고정 너비를 받지 않고 자기 자연 너비(.root width: max-content)를 쓴다 */
@@ -480,16 +487,16 @@ export default function Select({
             const raw = e.target.value;
             const v = editableInputProps?.sanitize ? editableInputProps.sanitize(raw) : raw;
             onChange(v);
-            setEditing(false);
+            stopEditing();
           }}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               const raw = e.currentTarget.value;
               const v = editableInputProps?.sanitize ? editableInputProps.sanitize(raw) : raw;
               onChange(v);
-              setEditing(false);
+              stopEditing();
             } else if (e.key === "Escape") {
-              setEditing(false);
+              stopEditing();
             }
           }}
         />
@@ -507,7 +514,7 @@ export default function Select({
               window.clearTimeout(clickTimerRef.current);
               clickTimerRef.current = null;
               setOpen(false);
-              setEditing(true);
+              startEditing();
               return;
             }
             clickTimerRef.current = window.setTimeout(() => {

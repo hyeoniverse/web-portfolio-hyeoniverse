@@ -2,7 +2,7 @@
 
 // React Flow(다이어그램 블록) core 스타일 — 에디터 루트에서 전역 로드(pane/handle/edge 동작에 필수)
 import "@xyflow/react/dist/style.css";
-import React, { useState, useCallback, useEffect, useMemo, useRef, useImperativeHandle } from "react";
+import React, { useState, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useImperativeHandle } from "react";
 import { useSyncRef } from "@/hooks/useSyncRef";
 import { useEchoFreeValue } from "./plate/useEchoFreeValue";
 import type { LocalizedText } from "@/types/common";
@@ -61,6 +61,7 @@ import {
   useTableInfo,
   useBorderPopover,
   useTableActions,
+  createTextStyleStore,
 } from "./plate/hooks";
 
 // ── toolbar components ──
@@ -119,6 +120,11 @@ function PlateEditorBody({
   _uploadErrorFn.current = showMediaError;
   const lastSlateValueRef = useRef<SlateNode[] | undefined>(undefined);
   const [tick, setTick] = useState(0);
+  /* 도구 막대의 글꼴·크기·줄 간격 칸이 마크·블록 값이 없을 때 보여 줄 커서 자리의 실제 스타일. 편집기 변경이 DOM 에
+     반영되고 slate 가 DOM 커서를 맞춘 뒤(자식 layout effect 가 먼저 돈다) 다시 읽는다 — 변경 순간에 읽으면 막대로 바꾼
+     블록이 아직 DOM 에 없어 이전 블록 값이 나왔다(#895) */
+  const [textStyle] = useState(createTextStyleStore);
+  useLayoutEffect(() => { textStyle.refresh(); }, [tick, textStyle]);
   const [isMac, setIsMac] = useState(false);
   useEffect(() => { setIsMac(/Mac|iPhone|iPad/.test(navigator.platform)); }, []);
 
@@ -2172,6 +2178,7 @@ function PlateEditorBody({
         <MainToolbar
           editor={editor}
           isMac={isMac}
+          textStyle={textStyle}
           postLang={postLang}
           showLinkInput={showLinkInput}
           onToggleLinkInput={toggleLinkInput}
