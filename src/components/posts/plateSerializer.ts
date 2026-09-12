@@ -94,6 +94,30 @@ function serializeLeaf(node: SlateText): string {
   return text;
 }
 
+// ── 그림이 든 문단 ──
+// 이미지는 <figure> 로 직렬화하는데, <figure> 는 <p> 안에 둘 수 없다. HTML 파서는 <p> 를 <figure> 앞에서
+// 닫고 남은 </p> 로 빈 문단을 하나 더 만든다. 그래서 그림 문단(<p><figure/></p>)을 불러와 다시 저장할 때마다
+// 그림 앞뒤로 빈 문단이 하나씩 늘었고, 공개 글에도 그만큼 빈 줄이 생겼다(#839).
+// 그림은 문단 밖으로 꺼내고, 그림 앞뒤의 글자는 각자 문단으로 둔다. 빈 글자·폭 없는 공백뿐인 쪽은 버린다.
+// <figure> 를 불러오면 그림 하나를 담은 문단이 되므로, 다시 불러와 저장해도 같은 HTML 이 나온다.
+const isImageNode = (c: SlateNode) => !isText(c) && (c as SlateElement).type === "img";
+const hasContent = (nodes: SlateNode[]) =>
+  nodes.some((c) => !isText(c) || c.text.replace(/[\u200b\u200c\u200d\ufeff\s]/g, "").length > 0);
+
+function serializeParagraphWithImages(el: SlateElement, styleAttr: string): string {
+  const out: string[] = [];
+  let run: SlateNode[] = [];
+  const flush = () => {
+    if (hasContent(run)) out.push(`<p${styleAttr}>${run.map(serializeNode).join("")}</p>`);
+    run = [];
+  };
+  for (const c of el.children ?? []) {
+    if (isImageNode(c)) { flush(); out.push(serializeNode(c)); } else run.push(c);
+  }
+  flush();
+  return out.join("");
+}
+
 // ── Element serializer ──
 function serializeNode(node: SlateNode): string {
   if (isText(node)) return serializeLeaf(node);
@@ -134,6 +158,7 @@ function serializeNode(node: SlateNode): string {
         }
         return `<ul><li style="list-style-type: ${esc(lst)}${indentMargin}" data-list-style-type="${esc(lst)}"${indentAttr}>${children}</li></ul>`;
       }
+      if (el.children?.some(isImageNode)) return serializeParagraphWithImages(el, styleAttr);
       return `<p${styleAttr}>${children}</p>`;
     }
     case "h1": return `<h1${styleAttr}>${children}</h1>`;
