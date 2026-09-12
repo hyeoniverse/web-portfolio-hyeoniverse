@@ -583,18 +583,14 @@ export default function PostEditor({ post }: PostEditorProps) {
     (order) => updateField("series_order", order),
   );
 
-  /* 시리즈 안 다른 글의 순서는 바로 저장한다. 하나라도 실패하면 알리고 서버 순서로 다시 받는다 —
-     예전에는 응답을 보지 않아 화면 순서만 바뀐 채 남았다(#868) */
-  const saveOtherSeriesOrder = useCallback(async (updates: { id: string; sort_order: number }[]) => {
-    const saved = await sendActions(
-      updates.map((u) => ({
-        input: `/api/posts/${u.id}`,
-        init: { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ series_order: u.sort_order }) },
-      })),
-      t, t("admin.common.reorderFailed"),
-    );
-    if (saved < updates.length) reloadSeriesPosts();
-  }, [t, reloadSeriesPosts]);
+  /* 시리즈 안 다른 글의 바뀐 순서는 들고 있다가 이 글을 저장할 때 보낸다. 예전에는 바로 보내서, 저장하지 않고
+     나가면 이 글과 다른 글의 번호가 겹쳤다(#873). 다른 시리즈로 바꾸면 이전 시리즈의 것은 버린다 */
+  const pendingSeriesOrderRef = useRef<{ seriesId: string | null; orders: Map<string, number> }>({ seriesId: null, orders: new Map() });
+  const queueSeriesOrder = useCallback((updates: { id: string; sort_order: number }[]) => {
+    const seriesId = form.series_id ?? null;
+    if (pendingSeriesOrderRef.current.seriesId !== seriesId) pendingSeriesOrderRef.current = { seriesId, orders: new Map() };
+    for (const u of updates) pendingSeriesOrderRef.current.orders.set(u.id, u.sort_order);
+  }, [form.series_id]);
 
   const [seriesSelectMode, setSeriesSelectMode] = useState<"existing" | "custom">("existing");
 
@@ -800,6 +796,21 @@ export default function PostEditor({ post }: PostEditorProps) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ workIds: related_work_ids }),
           }, t, te("relatedWorksFailed"));
+        }
+
+        // 시리즈 안 다른 글의 순서 — 이 글을 저장한 뒤에 보낸다(#873). 실패하면 알리고 서버 순서로 다시 받는다
+        const pendingOrder = pendingSeriesOrderRef.current;
+        if (pendingOrder.orders.size > 0 && pendingOrder.seriesId === (form.series_id ?? null)) {
+          const updates = [...pendingOrder.orders];
+          pendingSeriesOrderRef.current = { seriesId: pendingOrder.seriesId, orders: new Map() };
+          const saved = await sendActions(
+            updates.map(([id, order]) => ({
+              input: `/api/posts/${id}`,
+              init: { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ series_order: order }) },
+            })),
+            t, t("admin.common.reorderFailed"),
+          );
+          if (saved < updates.length) reloadSeriesPosts();
         }
 
         // 발행 시 AI 요약 자동 생성 (fire-and-forget)
@@ -1212,7 +1223,7 @@ export default function PostEditor({ post }: PostEditorProps) {
           config={config}
           post={post}
           series={{ seriesList, seriesPosts, setSeriesPosts, seriesPostsLoading }}
-          onReorderSeriesPosts={saveOtherSeriesOrder}
+          onReorderSeriesPosts={queueSeriesOrder}
           allWorks={allWorks}
           allTagSuggestions={allTagSuggestions}
           categories={categories}

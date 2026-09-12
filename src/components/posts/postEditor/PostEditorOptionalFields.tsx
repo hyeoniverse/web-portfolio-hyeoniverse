@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronRight, ExternalLink } from "@/components/icons";
 import Pressable from "@/components/ui/Pressable";
@@ -59,7 +59,7 @@ export default function PostEditorOptionalFields({
   post?: Post | null;
   /** 시리즈 목록과 선택한 시리즈의 글 — 부모가 usePostSeries 로 들고 있다 */
   series: Pick<ReturnType<typeof usePostSeries>, "seriesList" | "seriesPosts" | "setSeriesPosts" | "seriesPostsLoading">;
-  /** 시리즈 안 다른 글의 바뀐 순서를 저장한다 — 부모가 요청을 보내고 실패하면 알린다 */
+  /** 시리즈 안 다른 글의 바뀐 순서를 넘긴다 — 부모가 들고 있다가 이 글을 저장할 때 보낸다(#873) */
   onReorderSeriesPosts: (updates: { id: string; sort_order: number }[]) => void;
   /** 펼침 상태는 부모가 소유한다 — SEO 체크리스트 클릭으로도 열리기 때문 */
   optionalOpen: boolean;
@@ -118,6 +118,17 @@ export default function PostEditorOptionalFields({
     }));
     tag.setInput("");
   }, [tag, form.tags, config.tagDescriptions, setForm]);
+
+  /* 시리즈 순서 목록 — 저장값은 0 부터(설정의 시리즈 편집) 또는 1 부터(이 편집기)일 수 있어, 이 글의 자리는 값이 아니라
+     앞선 글의 수로 정한다. 다른 글은 원래 값을 그대로 넘겨, 옮기면 자리와 값이 다른 글을 모두 다시 매긴다(#873) */
+  const seriesOthers = useMemo(
+    () => series.seriesPosts
+      .filter((p) => p.id !== post?.id)
+      .map((p) => ({ id: p.id, title: p.title, sort_order: p.series_order }))
+      .sort((a, b) => a.sort_order - b.sort_order),
+    [series.seriesPosts, post?.id],
+  );
+  const seriesPosition = seriesOthers.filter((o) => o.sort_order < (form.series_order ?? 0)).length + 1;
 
   return (
         <div className={styles.optionalSection}>
@@ -213,12 +224,8 @@ export default function PostEditorOptionalFields({
                     <SortOrderDragList
                       label={te("seriesOrder")}
                       currentTitle={form.title || te("currentPost")}
-                      currentOrder={form.series_order || 1}
-                      // SortOrderDragList 의 sort_order 필드명에 맞게 매핑
-                      otherItems={series.seriesPosts
-                        .filter((p) => p.id !== post?.id)
-                        .map((p) => ({ id: p.id, title: p.title, sort_order: p.series_order }))
-                        .sort((a, b) => a.sort_order - b.sort_order)}
+                      currentOrder={seriesPosition}
+                      otherItems={seriesOthers}
                       onChange={(newOrder, otherUpdates) => {
                         updateField("series_order", newOrder);
                         if (otherUpdates.length) {
