@@ -88,6 +88,7 @@ interface PostEditorProps {
 import Pressable from "@/components/ui/Pressable";
 import AuthorAvatar from "@/components/ui/AuthorAvatar";
 import { CodedError, errorFromBody, errorText } from "@/lib/apiError";
+import { sendAction, sendActions } from "@/lib/sendAction";
 
 /** Revision detail panel — lang 별 라벨/필드 로컬라이즈 + 해당 lang KO|EN 값만 노출. */
 function postSnapshotMeta(s: PostFormData, seriesList: { id: string; title: string }[], authorNames: Map<string, string>, lang: "ko" | "en"): import("@/components/admin/AdminEditorShell/types").RevisionMetaGroup[] {
@@ -575,12 +576,25 @@ export default function PostEditor({ post }: PostEditorProps) {
       .catch(() => setAllTagSuggestions([]));
   }, []);
 
-  const { seriesList, seriesPosts, setSeriesPosts, seriesPostsLoading, refetchSeries } = usePostSeries(
+  const { seriesList, seriesPosts, setSeriesPosts, seriesPostsLoading, refetchSeries, reloadSeriesPosts } = usePostSeries(
     form.series_id,
     isEdit,
     post?.id,
     (order) => updateField("series_order", order),
   );
+
+  /* 시리즈 안 다른 글의 순서는 바로 저장한다. 하나라도 실패하면 알리고 서버 순서로 다시 받는다 —
+     예전에는 응답을 보지 않아 화면 순서만 바뀐 채 남았다(#868) */
+  const saveOtherSeriesOrder = useCallback(async (updates: { id: string; sort_order: number }[]) => {
+    const saved = await sendActions(
+      updates.map((u) => ({
+        input: `/api/posts/${u.id}`,
+        init: { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ series_order: u.sort_order }) },
+      })),
+      t, t("admin.common.reorderFailed"),
+    );
+    if (saved < updates.length) reloadSeriesPosts();
+  }, [t, reloadSeriesPosts]);
 
   const [seriesSelectMode, setSeriesSelectMode] = useState<"existing" | "custom">("existing");
 
@@ -779,13 +793,13 @@ export default function PostEditor({ post }: PostEditorProps) {
         // 수동 저장 성공 → 이탈저장(draft) 발동 차단 (발행글이 draft 로 되돌아가는 것 방지).
         finalizedRef.current = true;
 
-        // 관계 동기화 — 별도 endpoint
+        // 관계 동기화 — 별도 endpoint. 글은 이미 저장됐으므로 실패해도 저장은 끝내고 알린다(#868)
         if (savedId.current && related_work_ids) {
-          await fetch(`/api/admin/posts/${savedId.current}/related-works`, {
+          await sendAction(`/api/admin/posts/${savedId.current}/related-works`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ workIds: related_work_ids }),
-          }).catch(() => {});
+          }, t, te("relatedWorksFailed"));
         }
 
         // 발행 시 AI 요약 자동 생성 (fire-and-forget)
@@ -1198,6 +1212,7 @@ export default function PostEditor({ post }: PostEditorProps) {
           config={config}
           post={post}
           series={{ seriesList, seriesPosts, setSeriesPosts, seriesPostsLoading }}
+          onReorderSeriesPosts={saveOtherSeriesOrder}
           allWorks={allWorks}
           allTagSuggestions={allTagSuggestions}
           categories={categories}

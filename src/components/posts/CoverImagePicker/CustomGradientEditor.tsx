@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Check, Shuffle, ImagePlus, ClipboardPaste } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { CodedError, errorFromResponse, errorText } from "@/lib/apiError";
+import { showToast } from "@/stores/toastStore";
 import { useModalStore } from "@/stores/modalStore";
 import { ModalAlert, ModalPrompt } from "@/components/ui/ModalTemplates";
 import LoadingDots from "@/components/ui/LoadingDots";
@@ -144,19 +146,22 @@ export default function CustomGradientEditor({ config, onConfigChange, onSelect,
       const formData = new FormData();
       formData.append("file", file);
       const res = await fetch("/api/upload", { method: "POST", body: formData });
+      if (!res.ok) throw await errorFromResponse(res);
       const data = await res.json();
-      if (!res.ok || !data.url) throw new Error(data.error || "Upload failed");
+      if (!data.url) throw new CodedError("Upload returned no url");
       // 2. 부모 콜백 (history 추가) — 적용 안 해도 이력에서 다시 사용 가능
       onImageUploaded?.(data.url, file.name);
       // 3. palette 추출 (server URL — CORS OK)
       const colors = await extractPalette(data.url, 5);
       setExtractedPalette(colors);
     } catch (e) {
+      /* 예전에는 콘솔에만 남겨 아무 일도 없던 것처럼 보였다(#868). 용량·형식 거절은 #863 의 코드 문구로 */
       console.error("[CustomGradientEditor] image extract failed:", e);
+      showToast(errorText(e, t, tc("gradientExtractFailed")), "error");
     } finally {
       setExtracting(false);
     }
-  }, [onImageUploaded]);
+  }, [onImageUploaded, t, tc]);
 
   /** 입력 문자열에서 hex 색상 추출 (#rrggbb 또는 #rgb 둘 다 허용) → 정규화된 #rrggbb 배열 */
   const parsePaletteText = useCallback((text: string): string[] => {
@@ -432,17 +437,18 @@ export default function CustomGradientEditor({ config, onConfigChange, onSelect,
       formData.append("file", new File([blob], `cover-custom-${Date.now()}.png`, { type: "image/png" }));
 
       const res = await fetch("/api/upload", { method: "POST", body: formData });
+      if (!res.ok) throw await errorFromResponse(res);
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
       // 이름은 색 + angle 요약
       const name = `Custom ${type === "radial" ? "radial" : `${angle}°`} ${stops.map((s) => s.color).join(" ")}`.slice(0, 40);
       onSelect(data.url, name);
     } catch (err) {
       console.error("Custom gradient upload failed:", err);
+      showToast(errorText(err, t, tc("gradientSaveFailed")), "error");
     } finally {
       setUploading(false);
     }
-  }, [config, stops, angle, type, onSelect]);
+  }, [config, stops, angle, type, onSelect, t, tc]);
 
   return (
     <div className={styles.customGradientWrap}>
