@@ -21,8 +21,9 @@ export type NavNotif = {
  * 들어 있었다.
  *
  * @param pathname 페이지가 바뀌면 드롭다운을 닫는다.
+ * @param enabled 알림을 볼 수 있는 권한인가(관리자 이상, #883). 아니면 받아 오지 않는다.
  */
-export function useNavNotifications(pathname: string) {
+export function useNavNotifications(pathname: string, enabled: boolean) {
   const [adminEmail, setAdminEmail] = useState("");
   useEffect(() => {
     // 로그인 흔적이 없으면 Supabase 클라이언트(313 KiB)를 받지 않는다 — 알림도 관리자 것이다.
@@ -72,11 +73,11 @@ export function useNavNotifications(pathname: string) {
   // 로그인 상태면 어느 페이지든 60s 간격 polling — 알림 버튼이 모든 페이지에 노출되므로 데이터 최신화 필요.
   // pathname 을 deps 에서 뺌 → 라우트 이동마다 추가 fetch 하지 않음.
   useEffect(() => {
-    if (!adminEmail) { setUnreadCount(0); setNotifs([]); return; }
+    if (!adminEmail || !enabled) { setUnreadCount(0); setNotifs([]); return; }
     fetchNotifs();
     const id = window.setInterval(fetchNotifs, 60_000);
     return () => { window.clearInterval(id); };
-  }, [adminEmail, fetchNotifs]);
+  }, [adminEmail, enabled, fetchNotifs]);
 
   // 포털 dropdown 위치 — trigger 의 viewport 좌표를 기준으로 계산
   const notifDropdownRef = useRef<HTMLDivElement | null>(null);

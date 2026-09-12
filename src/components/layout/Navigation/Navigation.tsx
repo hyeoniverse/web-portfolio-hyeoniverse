@@ -44,6 +44,8 @@ import Pressable from "@/components/ui/Pressable";
 import { formatRelativeTime } from "@/utils/relativeTime";
 import { useNow } from "@/hooks/useNow";
 import { useNavNotifications } from "./useNavNotifications";
+import { useAdminAccess } from "./useAdminAccess";
+import { canOpenAdminPage, visibleAdminItems } from "@/lib/adminAccess";
 import { useLogoMeasure } from "./useLogoMeasure";
 import { useToggleAnimation } from "./useToggleAnimation";
 import { useMobileMenu } from "./useMobileMenu";
@@ -192,6 +194,14 @@ export default function Navigation() {
 
   const isAdminPage = pathname.startsWith("/admin");
 
+  /* 권한으로 열 수 없는 관리자 메뉴 항목과 알림 종은 뺀다(#883). 메뉴는 권한을 확인하기 전에는 지금처럼 모두 보여 준다 —
+     대부분인 소유자의 메뉴가 늦게 나타나 흔들리지 않게. 주소로 들어온 작성자는 proxy 가 돌려보낸다.
+     알림 종과 알림 받아 오기는 확인한 뒤에만 한다. 오른쪽 끝이라 늦게 나타나도 흔들리지 않고, 작성자에게 403 이 날 요청을 보내지 않는다 */
+  const adminAccess = useAdminAccess(pathname);
+  const adminNav = useMemo(() => visibleAdminItems(adminNavItems, adminAccess), [adminAccess]);
+  const adminMenu = useMemo(() => visibleAdminItems(adminMenuItems, adminAccess), [adminAccess]);
+  const canSeeNotifications = !!adminAccess && canOpenAdminPage("/admin/notifications", adminAccess);
+
   // 로고 폰트가 Google Fonts 면 동적 로드 — CSS font-family string 에서 첫 family 이름 추출.
   // "'Roboto', sans-serif" / "Roboto, sans-serif" / "Roboto" 모두 처리.
   useEffect(() => {
@@ -205,7 +215,7 @@ export default function Navigation() {
     adminEmail, unreadCount, notifs,
     notifOpen, setNotifOpen, notifExpanded, setNotifExpanded,
     notifWrapRef, notifDropdownRef, notifPos, fetchNotifs,
-  } = useNavNotifications(pathname);
+  } = useNavNotifications(pathname, canSeeNotifications);
 
   const shouldSkipLoading = SKIP_LOADING_PAGES.includes(pathname) || isAdminPage;
   const showLoadingLogo = isLoading && !shouldSkipLoading;
@@ -289,7 +299,7 @@ export default function Navigation() {
   const [indicatorInstant, setIndicatorInstant] = useState(false);
 
   // active key from pathname (detail 페이지도 부모 경로로 매칭)
-  const currentNavItems = isAdminPage ? adminNavItems : navItems;
+  const currentNavItems = isAdminPage ? adminNav : navItems;
   // 현재 열린 하위 메뉴의 children (없으면 빈 배열 → 드롭다운 미표시)
   const subMenuChildren = (subMenuKey ? currentNavItems.find((i) => i.key === subMenuKey)?.children : undefined) ?? [];
   // 서브메뉴가 열려 선택된 자식이 있으면 메인 인디케이터를 감추고, ▶ 가 부모 항목에서 그 자식으로 타고 내려온다.
@@ -563,7 +573,7 @@ export default function Navigation() {
         onMouseLeave={() => setHoveredNav(null)}
       >
         {isAdminPage
-          ? adminNavItems.map((item) => {
+          ? adminNav.map((item) => {
               const hasChildren = !!item.children?.length;
               return (
                 <Link
@@ -703,7 +713,7 @@ export default function Navigation() {
         {isAdminPage && adminEmail && (
           <span className={styles.adminEmail}>{adminEmail}</span>
         )}
-        {adminEmail && (
+        {adminEmail && canSeeNotifications && (
           <Tooltip
             content={unreadCount > 0
               ? (language === "ko" ? `읽지 않은 알림 ${unreadCount}개` : `${unreadCount} unread`)
@@ -727,7 +737,7 @@ export default function Navigation() {
         )}
 
         {/* Notification dropdown — createPortal 로 body 에 렌더 (nav 의 mix-blend-mode + z-index 격리) */}
-        {adminEmail && typeof window !== "undefined" && createPortal(
+        {adminEmail && canSeeNotifications && typeof window !== "undefined" && createPortal(
           <AnimatePresence>
             {notifOpen && (
               <motion.div
@@ -876,7 +886,7 @@ export default function Navigation() {
         menuMounted={menuMounted}
         pathname={pathname}
         isAdminPage={isAdminPage}
-        menuItems={isAdminPage ? adminMenuItems : menuItems}
+        menuItems={isAdminPage ? adminMenu : menuItems}
         contactEmail={siteConfig.contact.email}
         onClose={() => setIsMenuOpen(false)}
         onContactOpen={openForm}
