@@ -44,7 +44,7 @@ export async function settle(page: Page, skipScroll = false) {
  * app/not-found.tsx 제목(locales `errorPage.notFoundTitle`). 동적 라우트는 loading.tsx 가 먼저
  * 스트리밍돼 notFound() 여도 HTTP 200 이라, 상태 코드만으로는 404 화면을 못 거른다.
  */
-const NOT_FOUND_TITLE = /Page Not Found|페이지를 찾을 수 없습니다/;
+export const NOT_FOUND_TITLE = /Page Not Found|페이지를 찾을 수 없습니다/;
 
 /**
  * 한 라우트를 열고 안정화한 뒤 "깨지지 않았는지"만 스모크 검증한다.

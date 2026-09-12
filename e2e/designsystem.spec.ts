@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { NOT_FOUND_TITLE } from "./capture";
 
 /**
  * 디자인 시스템 화면 안전망.
@@ -32,6 +33,18 @@ async function openDesignSystem(page: Page) {
 
 test.describe("디자인 시스템 화면", () => {
   test.setTimeout(180_000);
+
+  /* 없는 하위 주소(#889). 푸터가 /design-system 아래에서 모양을 바꿔, 미리 그린 404 HTML 과 어긋나 하이드레이션 오류가 났다 */
+  test("없는 하위 주소는 오류 없이 404 화면을 보인다", async ({ page }) => {
+    const errors: string[] = [];
+    page.on("pageerror", (e) => errors.push(e.message));
+    await page.goto("/design-system/does-not-exist", { waitUntil: "load" });
+    const heading = page.getByRole("heading", { name: NOT_FOUND_TITLE });
+    await expect(heading, "404 제목").toBeVisible({ timeout: 30_000 });
+    // 서버 HTML 의 제목은 opacity 0 으로 시작해 하이드레이션 뒤 등장 애니메이션으로 1 이 된다. 그 뒤에 오류를 본다
+    await expect(heading, "하이드레이션 뒤 등장").toHaveCSS("opacity", "1", { timeout: 15_000 });
+    expect(errors, "화면을 그리다 난 오류").toEqual([]);
+  });
 
   test("여덟 범주가 모두 그려진다", async ({ page }) => {
     const errors = await openDesignSystem(page);
