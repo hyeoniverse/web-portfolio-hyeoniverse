@@ -1542,7 +1542,16 @@
       "SETTINGS_OWNER_ONLY": "Only the owner can change site settings.",
       "PROFILE_DELETE_OTHERS": "You can’t delete someone else’s profile.",
       "PROFILE_EDIT_OTHERS": "You can’t edit someone else’s profile.",
-      "PROFILE_ADD_OTHERS": "You can only add your own profile."
+      "PROFILE_ADD_OTHERS": "You can only add your own profile.",
+      "GITHUB_REPO_FORMAT": "Enter the repository as owner/name.",
+      "GITHUB_TOKEN_MISSING": "GITHUB_TOKEN is required (a PAT that can read public repositories).",
+      "GITHUB_TOKEN_INVALID": "The GitHub token isn’t valid (Bad credentials). Check the token value.",
+      "GITHUB_TOKEN_FORBIDDEN": "The GitHub token lacks permission or has hit its rate limit. Check that it can read public repositories.",
+      "GITHUB_REPO_NOT_FOUND": "The repository can’t be found or accessed. Check its name (owner/name), whether it’s public, and the token’s permissions.",
+      "GITHUB_REPO_FORBIDDEN": "The token doesn’t have permission to read this repository.",
+      "GITHUB_RATE_LIMITED": "The GitHub API rate limit was reached. Try again in a moment.",
+      "GITHUB_REQUEST_FAILED": "The GitHub request failed. Try again in a moment.",
+      "GITHUB_OWNER_LINK_MISSING": "The owner’s profile has no GitHub link. Add one in member settings."
     }
   }
 }
