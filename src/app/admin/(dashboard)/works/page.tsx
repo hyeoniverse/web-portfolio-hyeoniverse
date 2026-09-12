@@ -41,6 +41,7 @@ import type { BilingualCategory } from "@/types/common";
 import { parseMdWork } from "@/utils/mdParser";
 import { uploadRandomCover } from "@/utils/uploadRandomCover";
 import styles from "./AdminWorks.module.css";
+import MarkdownUploadGuide from "./_components/MarkdownUploadGuide";
 import Pressable from "@/components/ui/Pressable";
 
 const PAGE_SIZE_OPTIONS = [
@@ -675,55 +676,7 @@ export default function AdminWorksPage() {
             aria-label={t("admin.works.uploadGuide")}
             onClick={() => {
               openModal(
-                <div className={styles.uploadGuide}>
-                  <h4>기본 사용법</h4>
-                  <p><code>.md</code> 파일을 선택하면 각 파일이 <strong>비공개 초안</strong>으로 생성됩니다.</p>
-                  <ul>
-                    <li>파일명이 작업물 제목으로 사용됩니다 (확장자 제외)</li>
-                    <li>파일 내용이 <code>content_ko</code>로 들어갑니다</li>
-                    <li>대표 이미지가 없으면 랜덤 프리셋이 생성됩니다</li>
-                  </ul>
-
-                  <h4>Frontmatter</h4>
-                  <p>파일 상단에 YAML frontmatter를 작성하면 메타데이터가 자동 반영됩니다.</p>
-                  <p className={styles.uploadGuideNote}><code>_en</code> 접미사 필드로 영문도 함께 넣을 수 있습니다 (예: <code>title_en</code>, <code>category_en</code>).</p>
-                  <table>
-                    <thead><tr><th>필드</th><th>타입</th><th>설명</th></tr></thead>
-                    <tbody>
-                      <tr><td><code>title</code> / <code>title_en</code></td><td>string</td><td>프로젝트명 (한/영)</td></tr>
-                      <tr><td><code>subtitle</code> / <code>subtitle_en</code></td><td>string</td><td>부제목 (한/영)</td></tr>
-                      <tr><td><code>slug</code></td><td>string</td><td>URL 슬러그</td></tr>
-                      <tr><td><code>category</code> / <code>category_en</code></td><td>string</td><td>카테고리 (쉼표로 여러 개)</td></tr>
-                      <tr><td><code>nature</code> / <code>nature_en</code></td><td>string</td><td>프로젝트 성격</td></tr>
-                      <tr><td><code>year</code></td><td>string</td><td>연도</td></tr>
-                      <tr><td><code>tech</code></td><td>string[]</td><td>기술 스택 (예: [React, TS])</td></tr>
-                      <tr><td><code>description</code> / <code>description_en</code></td><td>string</td><td>프로젝트 설명 (한/영)</td></tr>
-                      <tr><td><code>role</code> / <code>role_en</code></td><td>string</td><td>역할 (한/영)</td></tr>
-                      <tr><td><code>icon</code></td><td>string</td><td>페이지 아이콘 (이모지 또는 이미지 URL)</td></tr>
-                      <tr><td><code>image</code></td><td>string</td><td>대표 이미지 URL</td></tr>
-                      <tr><td><code>live_url</code></td><td>string</td><td>라이브 URL</td></tr>
-                      <tr><td><code>github_url</code></td><td>string</td><td>GitHub URL</td></tr>
-                    </tbody>
-                  </table>
-
-                  <h4>예시</h4>
-                  <pre><code>{`---
-title: 포트폴리오 웹사이트
-title_en: Portfolio Website
-subtitle: 인터랙티브 웹 포트폴리오
-category: 웹, 프론트엔드
-nature: 개인 프로젝트
-year: 2024
-tech: [Next.js, TypeScript, GSAP]
-description: GSAP 가로 스크롤 + Three.js 3D
-role: 풀스택 개발
-icon: 🎨
----
-
-## 프로젝트 개요
-
-본문 내용...`}</code></pre>
-                </div>,
+                <MarkdownUploadGuide />,
                 { header: { title: t("admin.works.uploadGuide") }, closeButton: true, width: "560px" },
               );
             }}
