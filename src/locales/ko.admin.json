@@ -916,13 +916,7 @@
         "number": "번호",
         "issuer": "발급처",
         "year": "년도",
-        "organization": "기관",
-        "displayFormat": "표시 형식",
-        "startDate": "시작",
-        "endDate": "종료",
-        "showAsRange": "기간으로 표시",
-        "ongoing": "진행 중",
-        "preview": "미리보기"
+        "organization": "기관"
       },
       "faviconFontSize": "폰트 크기",
       "faviconFontSizePlaceholder": "예: 20",

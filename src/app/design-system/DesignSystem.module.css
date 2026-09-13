@@ -703,15 +703,29 @@
 
 /* Popover demo — variant 별 대비를 보려면 뒤에 뭔가 깔려 있어야 한다 */
 .popoverBackdrop {
+  position: relative;
+  isolation: isolate;
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-md);
   align-items: flex-start;
   padding: var(--spacing-sm) var(--spacing-lg);
-  /* 팝오버가 아래로 열려 배경 위에 겹쳐 보이도록 높이 확보 (배경 이미지는 JSX inline) */
+  /* 팝오버가 아래로 열려 배경 위에 겹쳐 보이도록 높이 확보 */
   min-height: 200px;
   border-radius: var(--radius-2xl);
   background: var(--bg-secondary);
+}
+
+/* 배경 사진은 CSS 배경 대신 늦게 받는 img 로 깐다. CSS 배경은 화면 밖이어도 첫 로드에 받아, 서버 HTML 에 본문이 들어간
+   뒤로 하이드레이션에 필요한 JS 와 대역을 나눠 썼다(#905). isolation 덕분에 z-index -1 이 상자 배경 위, 단추 아래에 온다 */
+.popoverBackdropImg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
 }
 
 .popoverNote {
