@@ -16,19 +16,26 @@ import styles from "../../DesignSystem.module.css";
 import Pressable from "@/components/ui/Pressable";
 import { md, DemoGroup, useDemo } from "./demoShared";
 
+/* 이미지 뷰어 시연 사진. 뷰어는 원본(1200×800)을 쓰고, 썸네일 칸은 칸 크기로 받는다. 예전에는 120×68 칸에도 원본을 받아
+   다섯 장에 1MB 가 넘었다(#907). Unsplash 주소는 w·h·dpr 로 크기를 정하고, 고밀도 화면은 srcSet 의 2x·3x 를 고른다 */
+const IV_PHOTOS = [
+  "photo-1506744038136-46273834b3fb",
+  "photo-1469474968028-56623f02e42e",
+  "photo-1501785888041-af3ef285b470",
+  "photo-1470071459604-3b5ec3a7fe05",
+  "photo-1447752875215-b2761acb3c5d",
+];
+const IV_THUMB = { w: 120, h: 68 };
+const unsplash = (id: string, w: number, h: number, dpr = 1) =>
+  `https://images.unsplash.com/${id}?w=${w}&h=${h}&fit=crop${dpr > 1 ? `&dpr=${dpr}` : ""}`;
+const IV_IMAGES = IV_PHOTOS.map((id) => unsplash(id, 1200, 800));
+
 /** Overlays & Popovers — 공용 컴포넌트 시연. 이 묶음에서만 쓰는 시연용 상태를 스스로 들고 있다. */
 export default function OverlaysPopoversDemos() {
   const { language, scrollChildX } = useDemo();
   const { openModal } = useModalStore();
   const [ivOpen, setIvOpen] = useState(false);
   const [ivIndex, setIvIndex] = useState(0);
-  const ivImages = [
-    "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1200&h=800&fit=crop",
-    "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1200&h=800&fit=crop",
-    "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1200&h=800&fit=crop",
-    "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1200&h=800&fit=crop",
-    "https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?w=1200&h=800&fit=crop",
-  ];
   const handleOpenModal = useCallback((title: string, content: React.ReactNode) => {
     openModal(content, { header: { title }, closeButton: true, width: "420px" });
   }, [openModal]);
@@ -156,13 +163,13 @@ export default function OverlaysPopoversDemos() {
               lineHeight: 0,
             }}
           >
-            {ivImages.map((src, i) => (
-              <motion.div key={i} variants={staggerItemX} {...scrollChildX(i, ivImages.length)}>
+            {IV_PHOTOS.map((id, i) => (
+              <motion.div key={id} variants={staggerItemX} {...scrollChildX(i, IV_PHOTOS.length)}>
                 <Tooltip content={`Sample image ${i + 1} — Click to open ImageViewer`}>
                   <Pressable
                     style={{
-                      width: 120,
-                      height: 68,
+                      width: IV_THUMB.w,
+                      height: IV_THUMB.h,
                       borderRadius: 0,
                       overflow: "hidden",
                       border: "none",
@@ -175,14 +182,21 @@ export default function OverlaysPopoversDemos() {
                     {/* 페이지 아래쪽이라 늦게 받는다. loading 이 없으면 React 가 서버 HTML 의 head 에 미리 받기로 올려,
                         첫 페인트를 막는 CSS 와 대역을 나눠 쓴다(#905) */}
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={src} alt="" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                    <img
+                      src={unsplash(id, IV_THUMB.w, IV_THUMB.h)}
+                      srcSet={`${unsplash(id, IV_THUMB.w, IV_THUMB.h, 2)} 2x, ${unsplash(id, IV_THUMB.w, IV_THUMB.h, 3)} 3x`}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                    />
                   </Pressable>
                 </Tooltip>
               </motion.div>
             ))}
           </div>
           <ImageViewer
-            images={ivImages}
+            images={IV_IMAGES}
             index={ivIndex}
             open={ivOpen}
             onClose={() => setIvOpen(false)}
