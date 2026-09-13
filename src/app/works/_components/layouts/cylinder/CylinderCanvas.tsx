@@ -49,7 +49,7 @@ interface CylinderCanvasProps {
   hoverDimRef: Stage["hoverDimRef"];
   slotRefs: Stage["slotRefs"];
   overlayRefs: Stage["overlayRefs"];
-  onSlotClick: (projectIdx: number) => void;
+  onSlotClick: (projectIdx: number, e: MouseEvent) => void;
 }
 
 export default function CylinderCanvas({
@@ -100,9 +100,9 @@ export default function CylinderCanvas({
           slotRefs.current.get(idx)?.classList.remove(hoveredItemClassName);
           overlayRefs.current.get(idx)?.classList.remove(hoveredOverlayClassName);
         }}
-        onMeshClick={(idx) => {
+        onMeshClick={(idx, e) => {
           // idx 0 = intro slot (no click), 1+ = projects
-          if (idx > 0) onSlotClick(idx - 1);
+          if (idx > 0) onSlotClick(idx - 1, e);
         }}
       />
       <IntroBunny screenPosRef={screenPosRef} arc={arc} actualRotRef={actualRotRef} />
