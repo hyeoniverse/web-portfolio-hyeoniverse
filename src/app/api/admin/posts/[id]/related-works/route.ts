@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { jsonServerError } from "@/lib/api/response";
 import { requirePostAccess } from "@/lib/api/requirePostAccess";
 
@@ -70,5 +71,7 @@ export async function PUT(request: Request, context: RouteContext) {
     if (error) return jsonServerError(error, "PUT /api/admin/posts/[id]/related-works");
   }
 
+  // 글 상세는 관련 작업물을 서버에서 그린다(#917) — 관계가 바뀌면 다시 그리게 한다
+  revalidatePath("/posts/[slug]", "page");
   return NextResponse.json({ success: true, workIds });
 }

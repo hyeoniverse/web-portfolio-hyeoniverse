@@ -183,3 +183,18 @@ test.describe("비로그인 — 태그 페이지", () => {
     expect(res.headers()["cache-control"] ?? "", "미리 그려 캐시한다").toMatch(/s-maxage=\d+/);
   });
 });
+
+/* 글 상세의 관련 작업물은 서버 HTML 에 담는다(#917). 마운트 뒤에 받으면 본문 위 칸이 늦게 차며 본문을 175px 밀어냈다 */
+test.describe("비로그인 — 글 상세의 관련 작업물", () => {
+  test("관련 작업물이 있는 글은 서버 HTML 에 캐러셀 카드가 들어 있다", async ({ request }) => {
+    const body = (await (await request.get("/api/posts?limit=20")).json()) as { posts?: { id: string; slug: string }[] };
+    let slug: string | null = null;
+    for (const p of body.posts ?? []) {
+      const rel = (await (await request.get(`/api/posts/${p.id}/related-works`)).json()) as { items?: unknown[] };
+      if (rel.items?.length) { slug = p.slug; break; }
+    }
+    test.skip(!slug, "관련 작업물이 있는 글이 없다");
+    const html = await (await request.get(`/posts/${slug}`)).text();
+    expect((html.match(/RelatedWorksCarousel-module__[\w-]+__relatedCard[" ]/g) ?? []).length, "캐러셀 카드").toBeGreaterThan(0);
+  });
+});
