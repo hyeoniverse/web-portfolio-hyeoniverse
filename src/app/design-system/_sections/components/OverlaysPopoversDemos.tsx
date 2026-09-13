@@ -172,8 +172,10 @@ export default function OverlaysPopoversDemos() {
                     }}
                     onClick={() => { setIvIndex(i); setIvOpen(true); }}
                   >
+                    {/* 페이지 아래쪽이라 늦게 받는다. loading 이 없으면 React 가 서버 HTML 의 head 에 미리 받기로 올려,
+                        첫 페인트를 막는 CSS 와 대역을 나눠 쓴다(#905) */}
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={src} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                    <img src={src} alt="" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                   </Pressable>
                 </Tooltip>
               </motion.div>
@@ -220,8 +222,15 @@ export default function OverlaysPopoversDemos() {
             className={styles.popoverBackdrop}
             variants={staggerItemX}
             {...scrollChildX(0, 1)}
-            style={{ backgroundImage: "url(https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1200&h=400&fit=crop)", backgroundSize: "cover", backgroundPosition: "center" }}
           >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              className={styles.popoverBackdropImg}
+              src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1200&h=400&fit=crop"
+              alt=""
+              loading="lazy"
+              decoding="async"
+            />
             {([
               { v: "glass", label: language === "ko" ? "Glass (기본)" : "Glass (default)" },
               { v: "solid", label: "Solid" },

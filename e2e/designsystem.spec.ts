@@ -46,6 +46,30 @@ test.describe("디자인 시스템 화면", () => {
     expect(errors, "화면을 그리다 난 오류").toEqual([]);
   });
 
+  /* 공개 페이지라 관리자 사전 없이 그린다(#905). 예전에는 전시하는 PeriodPicker 가 라벨을 admin.* 키로 읽어 페이지 전체가
+     관리자 사전 게이트에 감싸였고, 미리 그린 HTML 에 본문이 없었다 */
+  test("미리 그린 HTML 에 본문이 들어 있다", async ({ request }) => {
+    const html = await (await request.get("/design-system")).text();
+    expect(html, "컴포넌트 구역").toContain('id="components"');
+    expect(html, "관리자 사전 게이트 표시").not.toContain("data-admin-pending");
+  });
+
+  test("화면 글자에 관리자 사전 키가 그대로 남지 않는다", async ({ page }) => {
+    await openDesignSystem(page);
+    // 사전에 없는 키는 키 이름이 그대로 보인다. 감춰진 글자까지 보려고 innerText 대신 글자 노드를 훑는다
+    const leaked = await page.evaluate(() => {
+      const found: string[] = [];
+      const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+        acceptNode: (n) => (n.parentElement?.closest("script, style, noscript") ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT),
+      });
+      for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+        found.push(...(n.textContent?.match(/\badmin\.[a-z][a-zA-Z]*\.[a-zA-Z.]+/g) ?? []));
+      }
+      return found;
+    });
+    expect(leaked).toEqual([]);
+  });
+
   test("여덟 범주가 모두 그려진다", async ({ page }) => {
     const errors = await openDesignSystem(page);
     for (const name of CATEGORIES) {

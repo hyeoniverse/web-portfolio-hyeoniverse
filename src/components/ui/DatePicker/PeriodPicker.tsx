@@ -300,7 +300,7 @@ export default function PeriodPicker({
       {/* Format selector + range toggle */}
       {(
         <div className={styles.formatRow}>
-          <span className={styles.formatLabel}>{t("admin.settings.profile.displayFormat")}</span>
+          <span className={styles.formatLabel}>{t("common.periodFormat")}</span>
           <div className={styles.formatSegment}>
             {FORMAT_OPTIONS.map((opt) => (
               <Pressable
@@ -318,14 +318,14 @@ export default function PeriodPicker({
               checked={hasRange}
               onChange={toggleRange}
               shape="square"
-              label={t("admin.settings.profile.showAsRange")}
+              label={t("common.periodShowAsRange")}
             />
             {hasRange && (
               <Checkbox
                 checked={!!safeValue.ongoing}
                 onChange={toggleOngoing}
                 shape="square"
-                label={t("admin.settings.profile.ongoing")}
+                label={t("common.periodOngoing")}
               />
             )}
           </div>
@@ -335,7 +335,7 @@ export default function PeriodPicker({
       {/* Preview — showPreview=false 면 외부에서 별도 위치에 렌더 (예: fieldLabel 옆) */}
       {showPreview && safeValue.start && (
         <div className={styles.preview}>
-          <span className={styles.previewLabel}>{t("admin.settings.profile.preview")}</span>
+          <span className={styles.previewLabel}>{t("common.periodPreview")}</span>
           <span className={styles.previewText}>{preview}</span>
         </div>
       )}
@@ -343,7 +343,7 @@ export default function PeriodPicker({
       {/* Start + End date — 기본 2열, 공간 부족 시 wrap */}
       <div className={styles.dateRows}>
         <DateInputRow
-          label={t("admin.settings.profile.startDate")}
+          label={t("common.periodStart")}
           dateStr={safeValue.start}
           format={safeValue.format}
           onChange={(v) => onChange({ ...safeValue, start: v })}
@@ -352,7 +352,7 @@ export default function PeriodPicker({
         />
         {hasRange && (
           <DateInputRow
-            label={t("admin.settings.profile.endDate")}
+            label={t("common.periodEnd")}
             dateStr={safeValue.end || ""}
             format={safeValue.format}
             onChange={(v) => onChange({ ...safeValue, end: v })}

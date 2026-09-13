@@ -204,7 +204,13 @@
       "removeItem": "Remove from history: {{query}}",
       "removeShort": "Remove"
     },
-    "likeFailed": "Couldn’t update your like. Please try again."
+    "likeFailed": "Couldn’t update your like. Please try again.",
+    "periodStart": "Start",
+    "periodEnd": "End",
+    "periodOngoing": "Ongoing",
+    "periodFormat": "Format",
+    "periodShowAsRange": "Show as range",
+    "periodPreview": "Preview"
   },
   "workDetail": {
     "back": "Works",

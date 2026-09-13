@@ -204,7 +204,13 @@
       "removeItem": "이력 제거: {{query}}",
       "removeShort": "제거"
     },
-    "likeFailed": "좋아요를 반영하지 못했습니다. 잠시 뒤 다시 시도해 주세요."
+    "likeFailed": "좋아요를 반영하지 못했습니다. 잠시 뒤 다시 시도해 주세요.",
+    "periodStart": "시작",
+    "periodEnd": "종료",
+    "periodOngoing": "진행 중",
+    "periodFormat": "표시 형식",
+    "periodShowAsRange": "기간으로 표시",
+    "periodPreview": "미리보기"
   },
   "workDetail": {
     "back": "Works",

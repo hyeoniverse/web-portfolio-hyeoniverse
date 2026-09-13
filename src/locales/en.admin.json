@@ -914,13 +914,7 @@
         "number": "Number",
         "issuer": "Issuer",
         "year": "Year",
-        "organization": "Organization",
-        "displayFormat": "Format",
-        "startDate": "Start",
-        "endDate": "End",
-        "showAsRange": "Show as range",
-        "ongoing": "Ongoing",
-        "preview": "Preview"
+        "organization": "Organization"
       },
       "faviconFontSize": "Font size",
       "faviconFontSizePlaceholder": "e.g. 20",
