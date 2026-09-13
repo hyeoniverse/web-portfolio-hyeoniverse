@@ -13,8 +13,13 @@ import { useEffect, useRef, useState } from "react";
  *
  * 한 번 true 가 되면 되돌리지 않는다 — 다시 언마운트하면 사용자가 맞춰둔
  * 줌·팬·선택 상태가 스크롤할 때마다 날아간다.
+ *
+ * 관찰의 기준(root)은 가장 가까운 `[data-near-root]` 조상이다(#921). 가로 트랙의 섹션이 화면 폭으로 넘치는 부분을
+ * 잘라서, 화면을 기준으로 보면 rootMargin 과 상관없이 패널이 화면에 들어올 때에야 알렸다(ERD 가 보이는 순간
+ * 마운트됐다). 그 섹션을 기준으로 삼으면 rootMargin 이 섹션 밖까지 넓어진다. 여유는 한 화면이다 — 무거운 패널을
+ * 보이기 전에 준비한다. 표시가 없으면(모바일) 화면을 기준으로 본다.
  */
-export function useNearViewport<T extends HTMLElement>(rootMargin = "300px") {
+export function useNearViewport<T extends HTMLElement>(rootMargin = "100%") {
   const ref = useRef<T | null>(null);
   const [near, setNear] = useState(false);
 
@@ -36,7 +41,7 @@ export function useNearViewport<T extends HTMLElement>(rootMargin = "300px") {
           io.disconnect();
         }
       },
-      { rootMargin },
+      { root: el.closest("[data-near-root]"), rootMargin },
     );
     io.observe(el);
     return () => io.disconnect();
