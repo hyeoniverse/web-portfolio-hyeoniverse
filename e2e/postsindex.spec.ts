@@ -50,3 +50,28 @@ test.describe("태그 페이지 검색칸", () => {
     await expect.poll(() => new URL(page.url()).searchParams.has("q"), { message: "비우면 쿼리가 빠진다" }).toBe(false);
   });
 });
+
+/* 글 목록 배너의 첫 이미지는 이 화면의 LCP 다. 감싼 상자가 opacity 0 에서 페이드하면 브라우저가 첫 칠을 LCP 로 세지 않아,
+   절반 넘게 5초 뒤에야 잡혔다(#919). 처음 칠할 때부터 가려져 있지 않은지 본다. 동작 줄이기가 애니메이션을 꺼 버리면 이 검사가
+   헛돌므로 끄지 않은 환경으로 연다 */
+test.describe("글 목록 배너", () => {
+  test.setTimeout(90_000);
+
+  test("첫 이미지는 처음 칠할 때부터 가려져 있지 않다", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "no-preference" });
+    await page.addInitScript(() => {
+      document.addEventListener("DOMContentLoaded", () => {
+        requestAnimationFrame(() => {
+          const img = document.querySelector('img[class*="slideImg"]');
+          let opacity = 1;
+          for (let el: Element | null = img; el && el !== document.documentElement; el = el.parentElement) opacity *= Number(getComputedStyle(el).opacity);
+          (window as unknown as { __bannerOpacity?: number | null }).__bannerOpacity = img ? opacity : null;
+        });
+      });
+    });
+    await page.goto("/posts", { waitUntil: "load" });
+    const opacity = await page.evaluate(() => (window as unknown as { __bannerOpacity?: number | null }).__bannerOpacity);
+    test.skip(opacity == null, "배너가 없다");
+    expect(opacity, "첫 칠의 배너 이미지 opacity(조상 포함)").toBeGreaterThan(0.5);
+  });
+});
