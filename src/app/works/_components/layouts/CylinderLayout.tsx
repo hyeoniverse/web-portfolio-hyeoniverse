@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useCallback, useMemo } from "react";
+import { Suspense, useCallback, useMemo, useSyncExternalStore } from "react";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
@@ -22,6 +22,15 @@ import styles from "./CylinderLayout.module.css";
    정적으로 남아 서버 HTML 에 들어간다. Suspense 로 감싸 bailout 이 이 자리에만 머물게 한다. */
 const CylinderCanvas = dynamic(() => import("./cylinder/CylinderCanvas"), { ssr: false });
 
+/* 손가락으로 쓰는 화면인가 — 창 크기가 아니라 포인터 종류가 바뀔 때만 다시 그린다 */
+const COARSE_POINTER = "(pointer: coarse)";
+const subscribeCoarsePointer = (onChange: () => void) => {
+  const mq = window.matchMedia(COARSE_POINTER);
+  mq.addEventListener("change", onChange);
+  return () => mq.removeEventListener("change", onChange);
+};
+const isCoarsePointer = () => window.matchMedia(COARSE_POINTER).matches;
+
 /* ── 실린더 레이아웃 ──
    작품 이미지를 곡면 패널로 만들어 세로 원통에 두르고, 휠로 굴린다.
    3D 는 VerticalCylinder 가 그리고, 제목·메타 같은 텍스트는 DOM 오버레이로 띄운 뒤
@@ -29,6 +38,8 @@ const CylinderCanvas = dynamic(() => import("./cylinder/CylinderCanvas"), { ssr:
 export default function CylinderLayout({ projects, onProjectClick }: WorksLayoutProps) {
   const { theme } = useTheme();
   const { t, language } = useLanguage();
+  // 터치 화면에서는 설명 툴팁을 띄우지 않는다 — 알약에 손가락이 닿기만 해도(끌어 돌릴 때도) 뜬다
+  const isTouch = useSyncExternalStore(subscribeCoarsePointer, isCoarsePointer, () => false);
 
   /* 인트로 이미지는 캔버스에 그려 만드는 값이라 브라우저에서만 계산할 수 있다.
      여기서 만들면 서버 렌더가 document 를 찾다 깨지므로 CylinderCanvas 안으로 옮겼다. */
@@ -76,6 +87,15 @@ export default function CylinderLayout({ projects, onProjectClick }: WorksLayout
     // slotRefs 는 훅이 돌려준 ref 객체라 참조가 고정 — deps 에 넣으면 컴파일러가 메모를 버린다
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projects, onProjectClick]);
+
+  /* 판 위의 링크(설명 알약·→ 단추)에 올리면 광선 판정은 판에서 떠난 것으로 쳐서 판이 다시 밝아지고, 흰 글자가
+     밝은 사진 위에 놓인다. 링크에 올려 둔 동안은 판에 올린 것처럼 그 판을 어둡게 둔다(값은 VerticalCylinder 의 메시 번호 + 1).
+     React 의 onPointerEnter 는 pointerout 때 흉내 내어 보내져, 판에서 떠났다며 값을 지우는 r3f 의 pointerleave 보다 먼저 온다.
+     pointerover 는 그 뒤에 온다 */
+  const holdDim = (slotIndex: number) => ({
+    onPointerOver: () => { hoverDimRef.current = slotIndex + 1; },
+    onPointerLeave: () => { if (hoverDimRef.current === slotIndex + 1) hoverDimRef.current = 0; },
+  });
 
   return (
     <div ref={wrapRef} className={styles.wrap}>
@@ -171,19 +191,29 @@ export default function CylinderLayout({ projects, onProjectClick }: WorksLayout
             className={styles.metaOverlay}
             style={{ visibility: "hidden", opacity: 0, pointerEvents: "none" }}
           >
-            <Tooltip content={descAlt} delay={600} placement="bottom">
-              <p className={styles.metaDesc}>
-                {words.map((word, wi) => (
-                  <span
-                    key={wi}
-                    className={styles.metaDescWord}
-                    style={{ transitionDelay: `${wi * 0.04}s` }}
-                  >
-                    {word}&nbsp;
-                  </span>
-                ))}
-              </p>
-            </Tooltip>
+            {/* 설명 알약은 툴팁(다른 언어 설명)을 띄우려고 포인터를 받는다. 판 위에 있으니 누르면 판처럼 작업물로 간다(#940) */}
+            <TransitionLink
+              href={workHref(proj)}
+              className={styles.metaDescLink}
+              tabIndex={-1}
+              draggable={false}
+              navigate={() => handleClick(i)}
+              {...holdDim(slotIndex)}
+            >
+              <Tooltip content={descAlt} delay={600} placement="bottom" disabled={isTouch}>
+                <p className={styles.metaDesc}>
+                  {words.map((word, wi) => (
+                    <span
+                      key={wi}
+                      className={styles.metaDescWord}
+                      style={{ transitionDelay: `${wi * 0.04}s` }}
+                    >
+                      {word}&nbsp;
+                    </span>
+                  ))}
+                </p>
+              </Tooltip>
+            </TransitionLink>
             <div
               className={styles.metaDetails}
               style={{ transitionDelay: detailsDelay }}
@@ -207,6 +237,7 @@ export default function CylinderLayout({ projects, onProjectClick }: WorksLayout
               aria-hidden="true"
               draggable={false}
               navigate={() => handleClick(i)}
+              {...holdDim(slotIndex)}
             >
               <span className={styles.ctaBg} />
               <span className={styles.ctaArrow}>→</span>

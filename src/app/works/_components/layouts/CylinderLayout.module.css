@@ -10,6 +10,8 @@
   height: 100vh;
   overflow: hidden;
   background-color: oklch(97.34% 0.0169 76.11);
+  /* 한 손가락 끌기는 원통 돌리기가 받는다(useCylinderStage). 두 손가락 확대는 브라우저에 남긴다(#940) */
+  touch-action: pinch-zoom;
 }
 
 [data-theme="dark"] .wrap {
@@ -237,6 +239,11 @@
 
 .ctaInline:hover .ctaArrow {
   color: var(--text-black);
+}
+
+/* 설명 알약을 감싼 작업물 링크 — 오버레이 묶음의 pointer-events: none 을 되살린다(#940) */
+.metaDescLink {
+  pointer-events: auto;
 }
 
 /* ── Meta details (year · role · tech) ── */
