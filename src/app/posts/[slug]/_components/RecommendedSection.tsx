@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import MediaThumb from "@/components/ui/MediaThumb";
-import { usePageTransition } from "@/providers/PageTransitionProvider";
+import TransitionLink from "@/components/ui/TransitionLink";
 import { motion, AnimatePresence } from "framer-motion";
 import T from "@/components/ui/T";
 import CategoryLabel from "@/components/ui/CategoryLabel";
@@ -18,7 +18,6 @@ interface RecommendedSectionProps {
 
 export default function RecommendedSection({ posts, viewLang }: RecommendedSectionProps) {
   const [expanded, setExpanded] = useState(false);
-  const { navigateWithTransition } = usePageTransition();
   const first = posts[0];
   const rest = posts.slice(1);
 
@@ -29,7 +28,7 @@ export default function RecommendedSection({ posts, viewLang }: RecommendedSecti
   };
 
   const renderItem = (rp: RecommendedPost) => (
-    <div key={rp.id} onClick={(e) => { const rect = e.currentTarget.getBoundingClientRect(); navigateWithTransition(`/posts/${rp.slug}`, rp.cover_image || "", rect); }} style={{ cursor: "pointer" }} className={styles.recommendedItem}>
+    <TransitionLink key={rp.id} href={`/posts/${rp.slug}`} image={rp.cover_image || ""} className={styles.recommendedItem}>
       <div className={styles.recommendedItemThumb}>
         {rp.cover_image ? (
           <MediaThumb src={rp.cover_image} fill sizes="64px" className={styles.recommendedItemImg} />
@@ -48,7 +47,7 @@ export default function RecommendedSection({ posts, viewLang }: RecommendedSecti
           </span>
         )}
       </div>
-    </div>
+    </TransitionLink>
   );
 
   return (
