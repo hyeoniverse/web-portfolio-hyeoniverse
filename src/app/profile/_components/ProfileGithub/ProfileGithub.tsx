@@ -3,6 +3,7 @@
 import { useState, type CSSProperties } from "react";
 import { SiGithub } from "react-icons/si";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { SITE_TIME_ZONE } from "@/constants";
 import { Star, GitFork, ExternalLink, ArrowUpRight } from "@/components/icons";
 import { PINNED_REPO_LIMIT, type GithubShowcase } from "@/lib/githubShowcase";
 import GrassLens from "../GrassLens/GrassLens";
@@ -24,7 +25,8 @@ function formatMonth(iso: string, locale: string): string {
   if (!iso) return "";
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "";
-  return d.toLocaleDateString(locale, { year: "numeric", month: "short" });
+  // 한국 시간 기준 — 서버가 미리 그린 달과 브라우저의 달이 같아야 한다(#927)
+  return d.toLocaleDateString(locale, { year: "numeric", month: "short", timeZone: SITE_TIME_ZONE });
 }
 
 /** 계정 생성일로부터 몇 해째인지 — 소수점 없이 올림 없이 센다. */
