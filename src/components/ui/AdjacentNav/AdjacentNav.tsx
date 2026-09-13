@@ -2,12 +2,12 @@
 
 import MediaThumb from "@/components/ui/MediaThumb";
 import { ImageIcon, ArrowLeft, ArrowRight } from "@/components/icons";
-import { usePageTransition } from "@/providers/PageTransitionProvider";
+import TransitionLink from "@/components/ui/TransitionLink";
 import T from "@/components/ui/T";
 import styles from "./AdjacentNav.module.css";
 import { useLanguage } from "@/providers/LanguageProvider";
 
-export interface AdjacentItem {
+interface AdjacentItem {
   href: string;
   title: string;
   image?: string;
@@ -29,17 +29,11 @@ export default function AdjacentNav({
   className,
 }: AdjacentNavProps) {
   const { t } = useLanguage();
-  const { navigateWithTransition } = usePageTransition();
-
-  const handleClick = (item: AdjacentItem, e: React.MouseEvent) => {
-    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-    navigateWithTransition(item.href, item.image || "", rect);
-  };
 
   return (
     <nav aria-label={t("common.adjacentPosts")} className={`${styles.nav}${className ? ` ${className}` : ""}`}>
       {prev ? (
-        <div className={styles.card} data-clickable="true" onClick={(e) => handleClick(prev, e)} role="link" style={{ cursor: "pointer" }}>
+        <TransitionLink href={prev.href} image={prev.image || ""} className={styles.card} data-clickable="true">
           <div className={styles.thumb}>
             {prev.image ? (
               <MediaThumb src={prev.image} alt={prev.title} fill sizes="64px" className={styles.thumbImg} />
@@ -54,12 +48,12 @@ export default function AdjacentNav({
             </span>
             <span className={styles.title}>{prev.title}</span>
           </div>
-        </div>
+        </TransitionLink>
       ) : (
         <span className={styles.card} />
       )}
       {next ? (
-        <div className={`${styles.card} ${styles.cardNext}`} data-clickable="true" onClick={(e) => handleClick(next, e)} role="link" style={{ cursor: "pointer" }}>
+        <TransitionLink href={next.href} image={next.image || ""} className={`${styles.card} ${styles.cardNext}`} data-clickable="true">
           <div className={styles.thumb}>
             {next.image ? (
               <MediaThumb src={next.image} alt={next.title} fill sizes="64px" className={styles.thumbImg} />
@@ -74,7 +68,7 @@ export default function AdjacentNav({
             </span>
             <span className={styles.title}>{next.title}</span>
           </div>
-        </div>
+        </TransitionLink>
       ) : (
         <span className={styles.cardNext} />
       )}
