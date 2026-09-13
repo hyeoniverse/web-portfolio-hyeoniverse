@@ -5,6 +5,7 @@ import { useTheme } from "@/providers/ThemeProvider";
 import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import { pickLocalized } from "@/types/common";
+import { SITE_TIME_ZONE } from "@/constants";
 import Tooltip from "@/components/ui/Tooltip";
 import type { WorksLayoutProps } from "./shared";
 import { useCylinderStage } from "./cylinder/useCylinderStage";
@@ -195,8 +196,9 @@ export default function CylinderLayout({ projects, onProjectClick }: WorksLayout
       {/* 좌하단 */}
       <div className={styles.fixedInfo}>
         <span className={styles.fixedAvailable}>Available for work</span>
-        <span className={styles.fixedDate}>
-          {new Date().toLocaleDateString("en-US", { month: "short", year: "numeric" })} ↗
+        {/* 지금 달(한국 시간). 캐시된 HTML 이 달을 넘기면 서버가 그린 달과 브라우저의 달이 다를 수 있어 비교를 끈다(#927) */}
+        <span className={styles.fixedDate} suppressHydrationWarning>
+          {new Date().toLocaleDateString("en-US", { month: "short", year: "numeric", timeZone: SITE_TIME_ZONE })} ↗
         </span>
       </div>
     </div>

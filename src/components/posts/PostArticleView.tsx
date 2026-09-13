@@ -9,6 +9,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import { useIsAuthenticated } from "@/hooks/useIsAuthenticated";
 import { processRichtextHtml } from "@/utils/processRichtextHtml";
 import { formatCount } from "@/utils/format";
+import { SITE_TIME_ZONE } from "@/constants";
 import MarkdownRenderer from "@/components/posts/MarkdownRenderer";
 import DateMentionPeek from "@/components/posts/DateMentionPeek";
 import LanguageToggle from "@/components/ui/LanguageToggle";
@@ -88,10 +89,12 @@ export function PostArticleHeader({
   const isAdmin = isAdminProp ?? authed;
   const handleLangChange = onLangChange ?? (() => {});
 
+  // 한국 시간 기준 — 실행 환경의 시간대를 따르면 서버(UTC)가 미리 그린 날짜와 브라우저의 날짜가 갈려 하이드레이션이 깨진다(#927)
   const date = new Date(data.createdAt).toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
     day: "numeric",
+    timeZone: SITE_TIME_ZONE,
   });
   const readTime = Math.max(1, Math.ceil(data.displayContent.length / 1000));
 
