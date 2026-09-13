@@ -126,3 +126,19 @@ test.describe("비로그인 — 상세 페이지의 없는 주소·옛 주소", 
     expect(new URL(res.headers().location ?? "", "http://local").pathname).toBe(`/works/${work!.slug}`);
   });
 });
+
+/* 디자인 시스템·관리자 영역의 없는 주소(#903). 두 영역의 레이아웃이 페이지를 관리자 사전 게이트(AdminTranslationsGate)로
+   감쌌고, 게이트는 서버에서 자식을 그리지 않아 [...missing] 의 notFound() 가 HTML 에 반영되지 않은 채 200 으로 나갔다.
+   관리자 쪽 [...missing] 은 (dashboard) 밖으로 옮겼으므로, 로그인 확인이 그대로인지도 본다 */
+test.describe("비로그인 — 디자인 시스템·관리자 영역의 없는 주소", () => {
+  test("디자인 시스템의 없는 하위 주소는 404", async ({ request }) => {
+    const res = await request.get("/design-system/e2e-no-such-page", { maxRedirects: 0 });
+    expect(res.status()).toBe(404);
+  });
+
+  test("관리자 영역의 없는 주소는 로그인 화면으로 307", async ({ request }) => {
+    const res = await request.get("/admin/e2e-no-such-page", { maxRedirects: 0 });
+    expect(res.status()).toBe(307);
+    expect(new URL(res.headers().location ?? "", "http://local").pathname).toBe("/admin/login");
+  });
+});
