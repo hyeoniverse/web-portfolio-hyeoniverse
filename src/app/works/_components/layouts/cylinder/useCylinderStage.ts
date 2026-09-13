@@ -7,6 +7,9 @@ import {
   SCROLL_SENSITIVITY,
   SCROLL_CLAMP,
   BACK_THRESHOLD,
+  FLING_MS,
+  cylinderCamera,
+  wrapAngle,
 } from "./scene";
 import type { SlotBounds } from "./useFloatingComments";
 
@@ -63,6 +66,74 @@ export function useCylinderStage({
     scrollRef.current += (delta - Math.PI * 2 * Math.round(delta / (Math.PI * 2))) / turn;
   }, [segAngle, slotCount]);
 
+  /* Touch — 휠이 없는 터치 화면에서도 돌린다(#940). 한 손가락으로 위아래로 끌면 먼 쪽 판이 손가락을 따라 돌고,
+     놓으면 떼기 직전 속도로 조금 더 간 자리에서 가까운 판에 멈춘다. 두 손가락(확대)이 되면 돌리기를 멈춘다.
+     브라우저가 끌기를 스크롤로 가져가지 않도록 .wrap 에 touch-action: pinch-zoom 을 둔다. */
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const turn = segAngle * slotCount;
+    // 손가락이 1px 움직일 때 scrollRef 변화 — 먼 쪽 판의 한 점이 손가락과 같이 움직이게
+    const perPixel = () => {
+      const { z, fov } = cylinderCamera(window.innerWidth, window.innerHeight);
+      const pxPerUnit = window.innerHeight / 2 / (Math.tan((fov * Math.PI) / 360) * (z + RADIUS));
+      return 1 / (RADIUS * pxPerUnit * turn);
+    };
+    const snap = () => {
+      let best = 0;
+      let bestDist = Infinity;
+      for (let i = 0; i < slotCount; i++) {
+        const d = Math.abs(wrapAngle(scrollRef.current * turn - i * segAngle));
+        if (d < bestDist) { bestDist = d; best = i; }
+      }
+      rotateTo(best);
+    };
+    const pointers = new Set<number>();
+    let dragging: number | null = null;
+    let lastY = 0;
+    let lastT = 0;
+    let velocity = 0; // px/ms, 위로 끌면 +
+    const onDown = (e: PointerEvent) => {
+      if (e.pointerType === "mouse") return;
+      pointers.add(e.pointerId);
+      if (pointers.size > 1) {
+        if (dragging !== null) snap();
+        dragging = null;
+        return;
+      }
+      dragging = e.pointerId;
+      lastY = e.clientY;
+      lastT = e.timeStamp;
+      velocity = 0;
+    };
+    const onMove = (e: PointerEvent) => {
+      if (e.pointerId !== dragging) return;
+      const dy = lastY - e.clientY;
+      scrollRef.current += dy * perPixel();
+      velocity = dy / Math.max(1, e.timeStamp - lastT);
+      lastY = e.clientY;
+      lastT = e.timeStamp;
+    };
+    const onUp = (e: PointerEvent) => {
+      pointers.delete(e.pointerId);
+      if (e.pointerId !== dragging) return;
+      dragging = null;
+      // 멈췄다가 떼면 던지지 않는다
+      if (e.type === "pointerup" && e.timeStamp - lastT < 100) scrollRef.current += velocity * FLING_MS * perPixel();
+      snap();
+    };
+    el.addEventListener("pointerdown", onDown);
+    el.addEventListener("pointermove", onMove);
+    el.addEventListener("pointerup", onUp);
+    el.addEventListener("pointercancel", onUp);
+    return () => {
+      el.removeEventListener("pointerdown", onDown);
+      el.removeEventListener("pointermove", onMove);
+      el.removeEventListener("pointerup", onUp);
+      el.removeEventListener("pointercancel", onUp);
+    };
+  }, [segAngle, slotCount, rotateTo]);
+
   // Mouse
   useEffect(() => {
     const onMove = (e: MouseEvent) => {
@@ -88,8 +159,7 @@ export function useCylinderStage({
       let bestDist = Infinity;
       for (let i = 0; i < slotCount; i++) {
         const slotAngle = i * segAngle;
-        let relAngle = -slotAngle + cylinderRotX - Math.PI;
-        relAngle = ((relAngle % (Math.PI * 2)) + Math.PI * 3) % (Math.PI * 2) - Math.PI;
+        const relAngle = wrapAngle(-slotAngle + cylinderRotX - Math.PI);
 
         const absAngle = Math.abs(relAngle);
         const visible = absAngle < BACK_THRESHOLD;
@@ -141,7 +211,8 @@ export function useCylinderStage({
 
       // intro slot 패널의 뷰포트 경계 계산 (bunny와 동일한 3D 프로젝션 기반)
       const slot0 = screenPosRef.current[0] || { x: 0, y: 0 };
-      const camZ = 9, fov = 55;
+      // 씬과 같은 카메라 — 좁은 화면에서는 카메라가 물러나고 시야각이 넓어진다(#940)
+      const { z: camZ, fov } = cylinderCamera(window.innerWidth, window.innerHeight);
       const panelDist = camZ + RADIUS;
       const halfH = Math.tan((fov * Math.PI) / 360) * panelDist;
       const aspect = window.innerWidth / window.innerHeight;

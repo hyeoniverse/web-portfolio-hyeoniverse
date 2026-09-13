@@ -1,4 +1,4 @@
-import { test, expect, type Locator, type Page, type Route } from "@playwright/test";
+import { test, expect, devices, type Locator, type Page, type Route } from "@playwright/test";
 
 /**
  * 글·작업물 상세에서 다른 글로 가는 링크(#933 ②). 이전·다음 글, 추천 글 목록, 추천 알림은 예전에 div 에 클릭 처리만 있어
@@ -110,6 +110,8 @@ const CYLINDER = '[class*="CylinderLayout-module__"]';
 const WORK_LIST = 'nav[class*="CylinderLayout-module__"][class*="__workList"]';
 const META_TITLE = '[class*="CylinderLayout-module__"][class*="__metaTitle"]';
 const FRONT_DOT = '[class*="CylinderLayout-module__"][class*="__indicatorDotActive"]';
+const DESC_LINK = 'a[class*="CylinderLayout-module__"][class*="__metaDescLink"]';
+const TOOLTIP = '[class*="Tooltip-module__"][class*="__bubble"]';
 
 const readOnly = (route: Route) => (["GET", "HEAD", "OPTIONS"].includes(route.request().method()) ? route.continue() : route.abort());
 
@@ -118,10 +120,34 @@ async function openCylinder(page: Page, url = "/works") {
   test.skip((await page.locator(CYLINDER).count()) === 0, "원통 배치가 아니다");
   // 캔버스는 브라우저에서만 붙는다
   await page.locator(`${CYLINDER} canvas`).first().waitFor({ state: "attached", timeout: 30_000 });
+  // 로딩 화면이 걷히기 전에는 누름·끌기가 로딩 화면에 닿는다
+  await page.locator('[class*="loadingScreen"]').first().waitFor({ state: "detached", timeout: 30_000 }).catch(() => {});
 }
 
 /** 앞면 슬롯 번호(0 = 인트로) — 오른쪽 인디케이터의 켜진 점 */
 const frontSlot = (page: Page) => page.locator(FRONT_DOT).evaluate((dot) => [...(dot.parentElement?.children ?? [])].indexOf(dot));
+
+/** 화면 가운데 왼쪽(인트로 판 제목을 비껴간 자리)의 평균 밝기. 캔버스는 스크린샷으로만 읽을 수 있어 페이지 안에서 풀어 잰다 */
+async function introBrightness(page: Page) {
+  const { width, height } = page.viewportSize() ?? { width: 0, height: 0 };
+  const clip = { x: Math.round(width * 0.15), y: Math.round(height * 0.4), width: Math.round(width * 0.2), height: Math.round(height * 0.1) };
+  const png = (await page.screenshot({ clip })).toString("base64");
+  return page.evaluate(async (b64) => {
+    const img = new Image();
+    img.src = `data:image/png;base64,${b64}`;
+    await img.decode();
+    const canvas = document.createElement("canvas");
+    canvas.width = img.width;
+    canvas.height = img.height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return 255;
+    ctx.drawImage(img, 0, 0);
+    const data = ctx.getImageData(0, 0, img.width, img.height).data;
+    let sum = 0;
+    for (let i = 0; i < data.length; i += 4) sum += (data[i] + data[i + 1] + data[i + 2]) / 3;
+    return sum / (data.length / 4);
+  }, png);
+}
 
 test.describe("작업물 원통 배치", () => {
   test.setTimeout(90_000);
@@ -201,5 +227,60 @@ test.describe("작업물 원통 배치", () => {
     } finally {
       await browser.close();
     }
+  });
+
+  /* #940 — 폭 358px 이하에서는 카메라가 원통 벽 밖으로 물러나, 카메라 바로 앞의 판이 화면을 통째로 덮었다.
+     처음 앞면은 검은 인트로 판이므로, 밝은 테마(바탕 크림색)에서 가운데가 어두워지면 판이 제대로 보이는 것이다 */
+  test("좁은 화면(358px)에서도 인트로 판이 보인다", async ({ page }) => {
+    await page.addInitScript(() => { try { localStorage.setItem("theme", "light"); } catch { /* 저장소를 못 쓰면 기본 테마 */ } });
+    await page.setViewportSize({ width: 358, height: 740 });
+    await openCylinder(page);
+    await expect.poll(() => introBrightness(page), { message: "인트로 판 자리의 밝기", timeout: 30_000 }).toBeLessThan(100);
+  });
+
+  test("터치 화면에서 위로 끌면 다음 작업물로 돌고, 누르면 그 작업물로 간다", async ({ browser, baseURL }) => {
+    const context = await browser.newContext({ ...devices["iPhone 13"], baseURL });
+    try {
+      await context.route("**/*", readOnly);
+      const page = await context.newPage();
+      await openCylinder(page);
+      const href = await page.locator(`${WORK_LIST} a`).first().getAttribute("href");
+      const { width, height } = page.viewportSize() ?? { width: 390, height: 664 };
+      const x = width / 2;
+      // 한 손가락으로 판 한 칸 조금 못 되게 위로 끌고, 멈췄다가 뗀다 — 놓으면 가까운 다음 판에 멈춰야 한다
+      const cdp = await context.newCDPSession(page);
+      await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x, y: height * 0.75 }] });
+      for (let i = 1; i <= 12; i++) {
+        await cdp.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [{ x, y: height * 0.75 - (height * 0.45 * i) / 12 }] });
+      }
+      await page.waitForTimeout(200);
+      await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+      await expect.poll(() => frontSlot(page), { message: "첫 작업물이 앞면으로", timeout: 10_000 }).toBe(1);
+      expect(await page.evaluate(() => window.scrollY), "페이지는 스크롤되지 않는다").toBe(0);
+      await page.waitForTimeout(1_500);
+      await page.touchscreen.tap(x, height * 0.4);
+      await page.waitForURL((url) => url.pathname === href, { timeout: 15_000 });
+    } finally {
+      await context.close();
+    }
+  });
+
+  test("설명 알약에 올리면 다른 언어 설명이 뜨고, 누르면 작업물로 간다", async ({ page }) => {
+    await openCylinder(page);
+    const link = page.locator(`${WORK_LIST} a`).first();
+    const href = await link.getAttribute("href");
+    await link.focus();
+    await expect.poll(() => frontSlot(page), { timeout: 10_000 }).toBe(1);
+    await link.blur();
+    await page.waitForTimeout(2_000);
+    // 판에 올려 설명을 드러낸 뒤 알약으로 옮긴다
+    const title = await page.locator(META_TITLE).first().boundingBox();
+    if (!title) throw new Error("앞면 작업물 제목이 없다");
+    await page.mouse.move(title.x + title.width / 2, title.y + title.height / 2);
+    const pill = page.locator(DESC_LINK).first();
+    await pill.hover();
+    await expect(page.locator(TOOLTIP), "툴팁").toBeVisible({ timeout: 5_000 });
+    await pill.click();
+    await page.waitForURL((url) => url.pathname === href, { timeout: 15_000 });
   });
 });

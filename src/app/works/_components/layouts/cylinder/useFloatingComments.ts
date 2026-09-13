@@ -77,10 +77,15 @@ export function useFloatingComments(slotBoundsRef: RefObject<SlotBounds>) {
       const pw = wallR - wallL, ph = wallB - wallT;
       const tL = wallL + pw * 0.3, tR = wallL + pw * 0.7;
       const tT = wallT + ph * 0.25, tB = wallT + ph * 0.75;
+      /* 좁은 화면에서는 판이 화면보다 넓어 좌우 벽이 화면 밖에 선다. 말풍선이 화면 밖으로 나가지 않게 좌우는 화면 안
+         (오른쪽은 말풍선 폭만큼 안쪽)으로 줄인다(#940). 폭은 쓰기 전에 한꺼번에 읽는다 */
+      const left = Math.max(wallL, 10);
+      const widths = bubbleRefs.current.map((el) => el?.offsetWidth ?? 0);
 
       const bp = bubblePhysics.current;
       for (let i = 0; i < bp.length; i++) {
         const b = bp[i];
+        const right = Math.min(wallR, w - (widths[i] ?? 0) - 10);
         // 속도 크기 일정하게 유지
         const spd = Math.hypot(b.vx, b.vy) || 1;
         b.vx = (b.vx / spd) * SPEED;
@@ -88,8 +93,8 @@ export function useFloatingComments(slotBoundsRef: RefObject<SlotBounds>) {
         b.x += b.vx;
         b.y += b.vy;
         // 벽 바운스 — 방향만 반전
-        if (b.x < wallL) { b.x = wallL; b.vx = Math.abs(b.vx); }
-        if (b.x > wallR) { b.x = wallR; b.vx = -Math.abs(b.vx); }
+        if (b.x < left) { b.x = left; b.vx = Math.abs(b.vx); }
+        if (b.x > right) { b.x = right; b.vx = -Math.abs(b.vx); }
         if (b.y < wallT) { b.y = wallT; b.vy = Math.abs(b.vy); }
         if (b.y > wallB) { b.y = wallB; b.vy = -Math.abs(b.vy); }
         // 제목 영역 회피
