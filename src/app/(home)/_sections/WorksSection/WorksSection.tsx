@@ -12,6 +12,7 @@ import {
   HoveringWork,
 } from "@/types";
 import Tooltip from "@/components/ui/Tooltip";
+import TransitionLink from "@/components/ui/TransitionLink";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { getHoverDirection } from "@/utils/gestureUtils";
 import styles from "./WorksSection.module.css";
@@ -40,7 +41,8 @@ interface WorkCircleProps {
   onCircleRef: (el: HTMLDivElement | null) => void;
   onPressStart: (e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => void;
   onPressEnd: () => void;
-  onClick: (e: React.MouseEvent) => void;
+  /** 그냥 누른 클릭 — rect 는 원의 영역 */
+  onNavigate: (rect: DOMRect) => void;
   onHoverStart: (e: React.MouseEvent<HTMLDivElement>) => void;
   onHoverEnd: () => void;
 }
@@ -60,7 +62,7 @@ const WorkCircle = memo(function WorkCircle({
   onCircleRef,
   onPressStart,
   onPressEnd,
-  onClick,
+  onNavigate,
   onHoverStart,
   onHoverEnd,
 }: WorkCircleProps) {
@@ -68,8 +70,7 @@ const WorkCircle = memo(function WorkCircle({
     <Tooltip content={tooltipContent} placement="top" wrapperStyle={TOOLTIP_WRAPPER_STYLE}>
     <motion.div
       className={`${styles.circle} work-circle`}
-      onClick={onClick}
-      onMouseDown={onPressStart}
+      onMouseDown={(e) => { if (e.button === 0) onPressStart(e); }}
       onMouseUp={onPressEnd}
       onMouseEnter={onHoverStart}
       onMouseLeave={onHoverEnd}
@@ -155,6 +156,18 @@ const WorkCircle = memo(function WorkCircle({
         </motion.div>
       </div>
 
+      {/* 원을 덮는 작업물 링크(#933) — 그냥 누르면 원이 커지는 전환으로, 새 탭 클릭은 브라우저가 연다. 누르기·길게 누르기·
+          오래 올려 두기는 바깥(motion.div)이 그대로 받는다. 길게 누르기와 겹치지 않게 링크 끌기·터치 길게 누르기 메뉴는 끈다 */}
+      <TransitionLink
+        href={`/works/${work.projectSlug || work.projectId}`}
+        className={styles.circleLink}
+        aria-label={pickLocalized(work.title, language)}
+        draggable={false}
+        getRect={(link) => (link.parentElement ?? link).getBoundingClientRect()}
+        navigate={onNavigate}
+        onContextMenu={(e) => { if ((e.nativeEvent as PointerEvent).pointerType === "touch") e.preventDefault(); }}
+      />
+
       {/* Text overlay */}
       <motion.div
         className={styles.textOverlay}
@@ -182,7 +195,7 @@ interface WorksSectionProps {
     work: WorkItem
   ) => void;
   handlePressEnd: () => void;
-  handleWorkClick: (work: WorkItem, e: React.MouseEvent) => void;
+  handleWorkClick: (work: WorkItem, rect: DOMRect) => void;
   handleHoverStart: (e: React.MouseEvent<HTMLDivElement>, work: WorkItem) => void;
   handleHoverEnd: () => void;
 }
@@ -263,7 +276,7 @@ const WorksSection = forwardRef<HTMLElement, WorksSectionProps>(
               onCircleRef={() => {}} // ref는 부모 div에서 처리
               onPressStart={(e) => handlePressStart(e, work)}
               onPressEnd={handlePressEnd}
-              onClick={(e) => handleWorkClick(work, e)}
+              onNavigate={(rect) => handleWorkClick(work, rect)}
               onHoverStart={(e) => {
                 updateHoverDirection(e, work.id);
                 handleHoverStart(e, work);

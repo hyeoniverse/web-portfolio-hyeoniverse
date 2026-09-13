@@ -20,7 +20,8 @@ interface UseWorkInteractionReturn {
     work: WorkItem
   ) => void;
   handlePressEnd: () => void;
-  handleWorkClick: (work: WorkItem, e: React.MouseEvent) => void;
+  /** 그냥 누른 작업물 — rect 는 전환이 커지기 시작할 원의 영역 */
+  handleWorkClick: (work: WorkItem, rect: DOMRect) => void;
   handleHoverStart: (e: React.MouseEvent<HTMLDivElement>, work: WorkItem) => void;
   handleHoverEnd: () => void;
   getCurrentScale: (workId: string) => number;
@@ -84,11 +85,8 @@ export function useWorkInteraction(): UseWorkInteractionReturn {
   }, []);
 
   const handleWorkClick = useCallback(
-    (work: WorkItem, e: React.MouseEvent) => {
+    (work: WorkItem, rect: DOMRect) => {
       if (hasNavigatedRef.current || hasHoverNavigatedRef.current) return;
-
-      const target = e.currentTarget as HTMLElement;
-      const rect = target.getBoundingClientRect();
 
       hasNavigatedRef.current = true;
       setExpandingWork({ id: work.id, rect, image: work.main });
