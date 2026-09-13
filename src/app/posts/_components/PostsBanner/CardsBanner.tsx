@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import ProgressiveImage from "@/components/ui/ProgressiveImage";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
-import { usePageTransition } from "@/providers/PageTransitionProvider";
+import TransitionLink from "@/components/ui/TransitionLink";
 import { formatPostTitle, getPostExcerpt } from "@/utils/post";
 import CategoryLabel from "@/components/ui/CategoryLabel";
 import { seededGradient } from "@/components/posts/CoverImagePicker/seededGradient";
@@ -23,7 +23,6 @@ interface CardsBannerProps {
 
 export default function CardsBanner({ posts, imgErrors, onImgError }: CardsBannerProps) {
   const { language } = useLanguage();
-  const { navigateWithTransition } = usePageTransition();
   const router = useRouter();
   const prefetchedRef = useRef<Set<string>>(new Set());
   const { index, go, prev, next, pause, resume, isPaused, togglePause } = useAutoSlide(posts.length, 4000);
@@ -68,17 +67,17 @@ export default function CardsBanner({ posts, imgErrors, onImgError }: CardsBanne
               transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
               onClick={() => !isCenter && go(i)}
               style={{ cursor: isCenter ? "default" : "pointer" }}
+              inert={!isVisible}
             >
-              <div
+              {/* 가운데 카드만 글로 넘어간다. 옆 카드는 누르면 가운데로 오도록 이동을 막고 바깥(motion.div)이 받는다 */}
+              <TransitionLink
+                href={`/posts/${post.slug}`}
+                image={post.cover_image || ""}
                 className={styles.cardLink}
                 style={{ cursor: isCenter ? "pointer" : "default" }}
                 onMouseEnter={() => isCenter && handlePrefetch(post.slug)}
                 onFocus={() => isCenter && handlePrefetch(post.slug)}
-                onClick={(e) => {
-                  if (!isCenter) return;
-                  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-                  navigateWithTransition(`/posts/${post.slug}`, post.cover_image || "", rect);
-                }}
+                onClick={(e) => { if (!isCenter) e.preventDefault(); }}
               >
                 {post.cover_image && !imgErrors.has(post.id) ? (
                   <ProgressiveImage
@@ -103,7 +102,7 @@ export default function CardsBanner({ posts, imgErrors, onImgError }: CardsBanne
                   <h2 className={styles.cardTitle}>{title}</h2>
                   {isCenter && excerpt && <p className={styles.cardExcerpt}>{excerpt}</p>}
                 </div>
-              </div>
+              </TransitionLink>
             </motion.div>
           );
         })}

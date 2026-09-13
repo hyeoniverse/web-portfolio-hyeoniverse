@@ -28,7 +28,7 @@ export default function PostCardCompact({
 }) {
   const {
     t, cardRef, date, readTime, showImage, category, author, langBadge,
-    displayTitle, icon, href, handleClick, handleLinkClick, handlePrefetch,
+    displayTitle, icon, cardLink, handleClick, handlePrefetch,
   } = usePostCard({ post, imgError });
   const chipClass = styles.compactChip;
   const hotClass = `${styles.compactChip} ${styles.compactHotBadge}`;
@@ -43,7 +43,7 @@ export default function PostCardCompact({
       data-more="true"
       data-clickable="true"
     >
-      <PostCardLink href={href} title={displayTitle} onClick={handleLinkClick} />
+      <PostCardLink {...cardLink} />
       {/* 데스크톱: lead(pin·카테고리·썸네일·제목·hot·lang) 한 줄 + meta. 모바일선 media query 로
           2줄 분해 (1줄: 썸네일·제목·meta / 2줄: 카테고리·hot·lang). DOM 은 desktop 기준 유지. */}
       <div className={styles.compactLead}>
