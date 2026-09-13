@@ -100,34 +100,35 @@ export default function AboutSection() {
     <>
       {/* data-near-root — 가로 트랙을 잘라내는 상자라 패널 지연 마운트의 관찰 기준으로 쓴다(_hooks/useNearViewport, #921) */}
       <section className={styles.section} ref={sectionRef} suppressHydrationWarning data-near-root>
-        {isMobile && (
-          <nav
-            aria-label={language === "ko" ? "About 섹션" : "About sections"}
-            className={`${styles.mobileTabBar} ${
-              tabBarHidden ? styles.mobileTabBarHidden : ""
-            }`}
-          >
-            {MOBILE_TABS.map((tab) => (
-              <Pressable noTapScale
-                key={tab.key}
-                className={`${styles.mobileTabBtn} ${
-                  mobileTab === tab.key ? styles.mobileTabBtnActive : ""
-                }`}
-                onClick={() => handleTabChange(tab.key)}
-              >
-                {tab.label}
-                {mobileTab === tab.key && (
-                  <motion.span
-                    className={styles.mobileTabIndicator}
-                    layoutId="aboutTabIndicator"
-                    transition={{ type: "spring", stiffness: 500, damping: 32 }}
-                  />
-                )}
-              </Pressable>
-            ))}
-            <div id="about-tab-actions" className={styles.mobileTabActions} />
-          </nav>
-        )}
+        {/* 탭 막대는 늘 그리고, 보일지는 CSS 가 정한다(모바일 미디어 쿼리에서만 display: flex). 예전에는 isMobile 일 때만
+            그렸는데 그 값이 서버·하이드레이션에서는 false 라, 모바일에서 하이드레이션 직후 53px 막대가 본문 위에 끼어들어
+            본문을 밀었다(CLS 0.056, #923) */}
+        <nav
+          aria-label={language === "ko" ? "About 섹션" : "About sections"}
+          className={`${styles.mobileTabBar} ${
+            tabBarHidden ? styles.mobileTabBarHidden : ""
+          }`}
+        >
+          {MOBILE_TABS.map((tab) => (
+            <Pressable noTapScale
+              key={tab.key}
+              className={`${styles.mobileTabBtn} ${
+                mobileTab === tab.key ? styles.mobileTabBtnActive : ""
+              }`}
+              onClick={() => handleTabChange(tab.key)}
+            >
+              {tab.label}
+              {mobileTab === tab.key && (
+                <motion.span
+                  className={styles.mobileTabIndicator}
+                  layoutId="aboutTabIndicator"
+                  transition={{ type: "spring", stiffness: 500, damping: 32 }}
+                />
+              )}
+            </Pressable>
+          ))}
+          <div id="about-tab-actions" className={styles.mobileTabActions} />
+        </nav>
         <div className={styles.track} ref={trackRef}>
           {isMobile ? (
             <AnimatePresence mode="wait" initial={false}>

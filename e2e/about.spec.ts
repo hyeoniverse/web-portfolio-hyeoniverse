@@ -54,3 +54,21 @@ test.describe("모바일 /about 코드 데모", () => {
     await expect(page.locator(SANDPACK), "펼친 항목의 미리보기를 띄운다").toHaveCount(1, { timeout: 30_000 });
   });
 });
+
+/* 탭 막대는 처음 칠할 때부터 자리를 잡는다(#923). isMobile 일 때만 그리면 그 값이 서버·하이드레이션에서는 false 라,
+   모바일에서 하이드레이션 직후 53px 막대가 본문 위에 끼어들어 본문을 밀었다(CLS 0.056). 데스크톱에서는 CSS 가 숨긴다 */
+test.describe("/about 탭 막대", () => {
+  test.setTimeout(90_000);
+
+  test("모바일은 처음 칠할 때부터 보이고, 데스크톱은 숨는다", async ({ page, isMobile }) => {
+    await page.addInitScript(() => {
+      document.addEventListener("DOMContentLoaded", () => {
+        const bar = document.querySelector('nav[class*="mobileTabBar"]');
+        (window as unknown as { __tabBar?: string }).__tabBar = bar ? getComputedStyle(bar).display : "absent";
+      });
+    });
+    await page.goto("/about", { waitUntil: "load" });
+    const display = await page.evaluate(() => (window as unknown as { __tabBar?: string }).__tabBar);
+    expect(display, "첫 칠의 탭 막대").toBe(isMobile ? "flex" : "none");
+  });
+});
