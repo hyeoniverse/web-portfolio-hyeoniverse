@@ -49,7 +49,7 @@ export default function PostCardStandard({
 }: PostCardVariantProps) {
   const {
     t, cardRef, date, readTime, showImage, category, author, langBadge,
-    displayTitle, displayExcerpt, icon, href, handleClick, handleLinkClick, handlePrefetch,
+    displayTitle, displayExcerpt, icon, cardLink, handleClick, handlePrefetch,
   } = usePostCard({ post, imgError });
   const isFeatured = variant === "featured";
   const [tagsExpanded, setTagsExpanded] = useState(false);
@@ -112,7 +112,7 @@ export default function PostCardStandard({
       data-more="true"
       data-clickable="true"
     >
-      <PostCardLink href={href} title={displayTitle} onClick={handleLinkClick} />
+      <PostCardLink {...cardLink} />
       <div className={styles.imageWrap}>
         {showImage ? (
           <ProgressiveImage

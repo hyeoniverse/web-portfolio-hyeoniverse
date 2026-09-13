@@ -31,7 +31,7 @@ export default function PostCardTimeline({
 }) {
   const {
     t, cardRef, readTime, showImage, category, author, langBadge,
-    displayTitle, displayExcerpt, icon, href, handleClick, handleLinkClick, handlePrefetch,
+    displayTitle, displayExcerpt, icon, cardLink, handleClick, handlePrefetch,
   } = usePostCard({ post, imgError });
   // 한국 시간 기준 — 서버가 미리 그린 날짜와 같아야 한다(siteDate)
   const d = siteDateParts(post.created_at);
@@ -47,7 +47,7 @@ export default function PostCardTimeline({
       data-more="true"
       data-clickable="true"
     >
-      <PostCardLink href={href} title={displayTitle} onClick={handleLinkClick} />
+      <PostCardLink {...cardLink} />
       {/* eyebrow — 날짜(accent) · 카테고리 · pinned · hot */}
       <div className={styles.timelineEyebrow}>
         <time className={styles.timelineDate} dateTime={post.created_at}>{eyebrowDate}</time>

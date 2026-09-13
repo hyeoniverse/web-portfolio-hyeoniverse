@@ -1,10 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import MediaThumb from "@/components/ui/MediaThumb";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useTheme } from "@/providers/ThemeProvider";
-import { usePageTransition } from "@/providers/PageTransitionProvider";
+import TransitionLink from "@/components/ui/TransitionLink";
 import { generateSeededColor } from "@/utils/seededColor";
 import type { Series } from "@/types/post";
 import type { CSSProperties } from "react";
@@ -28,7 +27,6 @@ export default function SeriesDeckLayers({
 }) {
   const { language } = useLanguage();
   const { theme } = useTheme();
-  const { navigateWithTransition } = usePageTransition();
   const previews = series.previews ?? [];
 
   return (
@@ -81,8 +79,8 @@ export default function SeriesDeckLayers({
           "--deck-i": deckI,
           ...(layerBg ? { "--_layer-bg": layerBg } : {}),
         } as CSSProperties;
-        /* preview + slug 있으면 Link 로 — onClick 에서 navigateWithTransition 으로 가로채서
-           cover 이미지(있으면) 또는 layerBg 색을 morph 시드로 전달. preventDefault 로 native nav 차단.
+        /* preview + slug 있으면 링크로 — 그냥 누르면 cover 이미지(있으면) 또는 layerBg 색을 morph 시드로 넘기는 연출로 가고,
+           ⌘·가운데 클릭은 브라우저가 새 탭으로 연다(TransitionLink, #933). 카드(role="button")가 한 번 더 받지 않게 멈춘다.
 
            단 덱이 닫혀 있을 때는 링크로 만들지 않는다. 닫힌 뒷장은 화면에 3px 만 보여서
            누를 수 없는 크기인데, 링크라서 키보드 초점은 받고 카드(role="button") 안의
@@ -90,23 +88,21 @@ export default function SeriesDeckLayers({
         if (open && preview?.slug) {
           const slug = preview.slug;
           return (
-            <Link
+            <TransitionLink
               key={postIndex}
               href={`/posts/${slug}`}
+              prefetch="auto"
+              image={previewCover || ""}
+              color={layerBg || ""}
               className={className}
               style={layerStyle}
               data-deck-layer="true"
               data-deck-slug={slug}
               data-clickable="true"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                const rect = e.currentTarget.getBoundingClientRect();
-                navigateWithTransition(`/posts/${slug}`, previewCover || "", rect, layerBg || "");
-              }}
+              onClick={(e) => e.stopPropagation()}
             >
               {layerContent}
-            </Link>
+            </TransitionLink>
           );
         }
         return (

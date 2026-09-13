@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import type { Post } from "@/types/post";
-import { usePageTransition } from "@/providers/PageTransitionProvider";
+import TransitionLink from "@/components/ui/TransitionLink";
 import { Flame } from "@/components/icons";
 import T from "@/components/ui/T";
 import SegmentedControl from "@/components/ui/SegmentedControl";
@@ -21,7 +21,6 @@ const METRICS = [
 export default function PopularPosts() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [metric, setMetric] = useState<Metric>("score");
-  const { navigateWithTransition } = usePageTransition();
 
   useEffect(() => {
     // score 는 API 의 "popular" 와 매핑, 나머지 metric 은 그대로 sort 파라미터
@@ -51,7 +50,7 @@ export default function PopularPosts() {
       </div>
       <div className={styles.list} data-more="true" data-clickable="true">
         {posts.map((post, idx) => (
-          <div key={post.id} onClick={(e) => { const rect = e.currentTarget.getBoundingClientRect(); navigateWithTransition(`/posts/${post.slug}`, "", rect); }} className={styles.item}>
+          <TransitionLink key={post.id} href={`/posts/${post.slug}`} className={styles.item}>
             <span className={`${styles.rank} ${idx === 0 ? styles.rankTop : idx <= 2 ? styles.rankHigh : ""}`}>
               {String(idx + 1).padStart(2, "0")}
             </span>
@@ -64,7 +63,7 @@ export default function PopularPosts() {
                 {post.like_count > 0 && <> &middot; {post.like_count} <T k="postsPage.likes" /></>}
               </span>
             </div>
-          </div>
+          </TransitionLink>
         ))}
       </div>
     </section>

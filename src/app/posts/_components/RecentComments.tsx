@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useLanguage, type TFunction } from "@/providers/LanguageProvider";
-import { usePageTransition } from "@/providers/PageTransitionProvider";
+import TransitionLink from "@/components/ui/TransitionLink";
 import { MessageSquare } from "@/components/icons";
 import T from "@/components/ui/T";
 import styles from "./RecentComments.module.css";
@@ -32,7 +32,6 @@ function timeAgo(dateStr: string, t: TFunction) {
 
 export default function RecentComments() {
   const { t } = useLanguage();
-  const { navigateWithTransition } = usePageTransition();
   const [comments, setComments] = useState<RecentComment[]>([]);
 
   useEffect(() => {
@@ -55,7 +54,7 @@ export default function RecentComments() {
       ) : (
         <div className={styles.list}>
           {comments.map((c) => (
-            <div key={c.id} onClick={(e) => { const rect = e.currentTarget.getBoundingClientRect(); navigateWithTransition(`/posts/${c.post_slug}`, "", rect); }} style={{ cursor: "pointer" }} className={styles.item}>
+            <TransitionLink key={c.id} href={`/posts/${c.post_slug}`} className={styles.item}>
               <div className={styles.itemTop}>
                 <span className={styles.nickname}>
                   {c.nickname}
@@ -67,7 +66,7 @@ export default function RecentComments() {
                   기호만 벗겨 평문으로 표시. */}
               <p className={styles.content}>{stripMarkdown(c.content)}</p>
               <span className={styles.postTitle}>{c.post_title}</span>
-            </div>
+            </TransitionLink>
           ))}
         </div>
       )}
