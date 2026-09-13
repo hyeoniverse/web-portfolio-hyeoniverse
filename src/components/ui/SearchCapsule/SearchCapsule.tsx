@@ -4,7 +4,7 @@ import { useRef, useState, useEffect, useContext } from "react";
 import { useHasMounted } from "@/hooks/useHasMounted";
 import type { SelectOption } from "@/types";
 import { createPortal } from "react-dom";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { AppRouterContext } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Eraser, History, HelpCircle } from "@/components/icons";
@@ -84,7 +84,10 @@ export default function SearchCapsule({
   const pathname = usePathname();
   // App Router 컨텍스트 직접 구독 — 리더 island(createRoot) 처럼 router provider 밖에서 마운트돼도 throw 없이 null
   const router = useContext(AppRouterContext);
-  const searchParams = useSearchParams();
+  /* URL 쿼리는 effect 안에서 window.location.search 로 읽는다(#913). useSearchParams() 를 부르면 정적 렌더에서 가장 가까운
+     Suspense 경계까지 브라우저 렌더로 빠져, 이 캡슐을 쓰는 페이지의 본문이 미리 그린 HTML 에서 통째로 빠졌다. 값은 effect 에서만
+     쓰므로 렌더 중에 구독할 필요가 없다. 네비게이션도 같은 이유로 이렇게 읽는다 */
+  const readUrlParams = () => new URLSearchParams(window.location.search);
   const enabled = historyKey !== null;
   const key = historyKey ?? pathname ?? "default";
   const { items: history, add: addHistory, remove: removeHistory, clear: clearHistory } = useSearchHistory(key, historyLimit);
@@ -101,7 +104,7 @@ export default function SearchCapsule({
   useEffect(() => {
     if (!routeParam || hydratedRef.current) return;
     hydratedRef.current = true;
-    const fromUrl = searchParams?.get(routeParam) ?? "";
+    const fromUrl = readUrlParams().get(routeParam) ?? "";
     if (fromUrl && !search) onSearchChange(fromUrl);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [routeParam]);
@@ -109,8 +112,7 @@ export default function SearchCapsule({
   /* search 값 → URL sync (replaceState 로 history entry 누적 방지) */
   useEffect(() => {
     if (!routeParam) return;
-    if (typeof window === "undefined") return;
-    const params = new URLSearchParams(searchParams?.toString() ?? "");
+    const params = readUrlParams();
     const current = params.get(routeParam) ?? "";
     const trimmed = search.trim();
     if (trimmed === current) return;

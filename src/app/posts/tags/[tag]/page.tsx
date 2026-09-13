@@ -1,10 +1,16 @@
-import { Suspense } from "react";
 import { getTagPageData, getAllTagsData } from "@/lib/posts";
 import TagPageClient from "./TagPageClient";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
+/* 미리 그려 캐시한다(#913). 예전에는 generateStaticParams 가 없어 revalidate 가 있어도 요청마다 서버에서 그렸다.
+   글·작업물을 저장하면 각 API 가 태그 페이지도 새로 그리게 하고, 시간 기준 갱신은 안전망이다 */
 export const revalidate = 60;
+
+export async function generateStaticParams() {
+  const { tags } = await getAllTagsData();
+  return tags.map(({ tag }) => ({ tag }));
+}
 
 interface Props {
   params: Promise<{ tag: string }>;
@@ -29,10 +35,5 @@ export default async function TagPage({ params }: Props) {
 
   if (data.totalCount === 0) notFound();
 
-  // TagPageClient 가 SearchCapsule(useSearchParams) 를 쓰므로 prerender 시 Suspense 필요
-  return (
-    <Suspense fallback={null}>
-      <TagPageClient tag={decoded} initialData={data} allTags={allTagsData.tags} />
-    </Suspense>
-  );
+  return <TagPageClient tag={decoded} initialData={data} allTags={allTagsData.tags} />;
 }
