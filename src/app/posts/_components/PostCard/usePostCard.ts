@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, type MouseEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
@@ -8,6 +8,7 @@ import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { resolvePostAuthors } from "@/utils/resolvePostAuthors";
 import { formatPostTitle, getPostExcerpt } from "@/utils/post";
 import { SITE_TIME_ZONE } from "@/constants";
+import { isPlainClick } from "@/utils/gestureUtils";
 import type { Post } from "@/types/post";
 
 /* 카드 변형 넷이 공통으로 쓰는 값과 동작 — 표시 언어 판정 · 제목/발췌 · 날짜 · 읽기 시간 · 카테고리 · 작성자,
@@ -49,12 +50,21 @@ export function usePostCard({ post, imgError }: { post: Post; imgError?: boolean
     router.prefetch(`/posts/${post.slug}`);
   };
 
+  const href = `/posts/${post.slug}`;
   const handleClick = () => {
     const el = cardRef.current;
     if (!el) return;
     const img = post.cover_image || "";
     const rect = el.getBoundingClientRect();
-    navigateWithTransition(`/posts/${post.slug}`, img, rect);
+    navigateWithTransition(href, img, rect);
+  };
+  /* 카드를 덮는 글 링크(PostCardLink). 그냥 누르면 커버가 커지는 연출로 넘어가고, 새 탭·새 창으로 여는 클릭은 브라우저에
+     맡긴다. 카드의 클릭 처리(링크 밖으로 나온 부분용)가 한 번 더 받지 않게 여기서 멈춘다 */
+  const handleLinkClick = (e: MouseEvent<HTMLAnchorElement>) => {
+    e.stopPropagation();
+    if (!isPlainClick(e)) return;
+    e.preventDefault();
+    handleClick();
   };
 
   return {
@@ -69,7 +79,9 @@ export function usePostCard({ post, imgError }: { post: Post; imgError?: boolean
     displayTitle: formatPostTitle(post, displayLang),
     displayExcerpt: getPostExcerpt(post, displayLang),
     icon: post.icon,
+    href,
     handleClick,
+    handleLinkClick,
     handlePrefetch,
   };
 }

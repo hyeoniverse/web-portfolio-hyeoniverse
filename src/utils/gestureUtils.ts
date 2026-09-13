@@ -24,3 +24,8 @@ export function getHoverDirection(
 
   return { x, y };
 }
+
+/** 링크를 그냥 누른 클릭인가. 가운데 버튼이나 ⌘·Ctrl·Shift·Alt 를 누른 클릭은 새 탭·새 창·다운로드라 브라우저에 맡긴다 */
+export function isPlainClick(e: { button: number; metaKey: boolean; ctrlKey: boolean; shiftKey: boolean; altKey: boolean }): boolean {
+  return e.button === 0 && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey;
+}

@@ -1,5 +1,8 @@
 import { test, expect } from "@playwright/test";
 
+/** 글 카드의 루트(카드 전체를 덮는 글 링크를 품는다, #931) */
+const POST_CARD = '[class*="PostCard-module__"][class*="__card"][data-clickable]';
+
 /**
  * 글 모음 화면(카테고리·시리즈 등)의 언어.
  *
@@ -132,7 +135,7 @@ test.describe("글 목록 미리 그리기", () => {
     await page.goto(`/posts?tag=${encodeURIComponent(tag)}`, { waitUntil: "load" });
     expect((await page.evaluate(() => (window as unknown as Probe).__list))?.visibility, "첫 칠의 기본 목록").toBe("hidden");
 
-    const cards = page.locator('[class*="PostCard-module__"][class*="__card"][role="link"]');
+    const cards = page.locator(POST_CARD);
     await expect(cards.first()).toBeVisible({ timeout: 30_000 });
     for (const card of await cards.all()) {
       expect(await card.locator('[class*="tagPill"]').allTextContents(), "거른 목록의 카드에는 그 태그가 있다").toContain(`#${tag}`);
@@ -144,11 +147,95 @@ test.describe("글 목록 미리 그리기", () => {
     await page.goto("/posts", { waitUntil: "load" });
     const pageButtons = page.locator('[class*="PostsPagination-module__"][class*="__pageBtn"]');
     test.skip((await pageButtons.count()) < 2, "목록이 한 쪽뿐이다");
-    const firstOfPage1 = await page.locator('[class*="PostCard-module__"][class*="__card"][role="link"] h2').first().textContent();
+    const firstOfPage1 = await page.locator(`${POST_CARD} h2`).first().textContent();
 
     await page.goto("/posts?page=2", { waitUntil: "load" });
     await expect(page.locator('[class*="__pageBtnActive"]')).toHaveText("2", { timeout: 30_000 });
-    await expect(page.locator('[class*="PostCard-module__"][class*="__card"][role="link"] h2').first()).not.toHaveText(firstOfPage1 ?? "");
+    await expect(page.locator(`${POST_CARD} h2`).first()).not.toHaveText(firstOfPage1 ?? "");
     expect(new URL(page.url()).searchParams.get("page")).toBe("2");
+  });
+});
+
+/* 글 카드는 카드 전체를 덮는 글 링크를 가진다(#931). 예전에는 div role="link" 에 클릭 처리만 있어 새 탭으로 열 수 없고
+   키보드로 닿지 않았으며, 목록 HTML 에 글 주소 링크가 없었다. 그냥 누르면 커버가 커지는 연출로 넘어가고, ⌘·가운데 클릭은
+   브라우저가 새 탭으로 연다. 글 상세의 조회수 요청은 막는다 */
+test.describe("글 카드 링크", () => {
+  test.setTimeout(90_000);
+  const LINK = 'a[class*="__cardLink"]';
+
+  test.beforeEach(async ({ page }) => {
+    await page.route(/\/view$/, (route) => route.abort());
+  });
+
+  /** 첫 카드의 글 링크를 누른다. 링크가 카드를 덮으므로 카드 왼쪽 위(커버) 지점을 누르면 사용자가 카드를 누른 것과 같다 */
+  async function clickCard(page: import("@playwright/test").Page, options: { modifiers?: ("Meta" | "Control")[]; button?: "left" | "middle" } = {}) {
+    await page.locator(POST_CARD).first().locator(LINK).click({ position: { x: 24, y: 24 }, ...options });
+  }
+
+  test("미리 그린 목록의 카드마다 글 주소 링크가 있다", async ({ request }) => {
+    for (const path of ["/posts", "/posts/history"]) {
+      const html = await (await request.get(path)).text();
+      const cards = (html.match(/PostCard-module__\w+__card\b/g) ?? []).length;
+      const links = (html.match(/__cardLink"[^>]*href="\/posts\/[^"]+"/g) ?? []).length;
+      expect(cards, `${path} 의 카드`).toBeGreaterThan(0);
+      expect(links, `${path} 의 글 링크`).toBe(cards);
+    }
+  });
+
+  test("그냥 누르면 지금 탭에서 글로 넘어간다", async ({ page }) => {
+    await page.goto("/posts", { waitUntil: "load" });
+    const href = await page.locator(POST_CARD).first().locator(LINK).getAttribute("href");
+    expect(href).toMatch(/^\/posts\/.+/);
+    await clickCard(page);
+    await page.waitForURL((url) => url.pathname === href);
+  });
+
+  test("키보드로 카드 링크에 닿고 Enter 로 넘어간다", async ({ page }) => {
+    await page.goto("/posts", { waitUntil: "load" });
+    const link = page.locator(POST_CARD).first().locator(LINK);
+    const href = await link.getAttribute("href");
+    await link.focus();
+    await expect(link, "초점 링").toHaveCSS("outline-style", "solid");
+    await page.keyboard.press("Enter");
+    await page.waitForURL((url) => url.pathname === href);
+  });
+
+  test("카드 안의 태그 칩은 글 대신 태그 페이지로 간다", async ({ page }) => {
+    await page.goto("/posts", { waitUntil: "load" });
+    const pill = page.locator(POST_CARD).locator('[class*="tagPill"]').first();
+    test.skip((await pill.count()) === 0, "태그가 달린 글이 없다");
+    const href = (await pill.getAttribute("href")) ?? "";
+    await pill.click();
+    await page.waitForURL((url) => url.pathname === new URL(href, "http://local").pathname);
+  });
+});
+
+/* 새 탭 열기는 브라우저 몫이다. 기본 headless shell 은 ⌘·가운데 클릭으로 탭을 만들지 않고 지금 탭에서 넘어가서, 이 검사만
+   전체 Chromium(channel "chromium")을 직접 띄워 본다 */
+test.describe("글 카드 링크 — 새 탭", () => {
+  test.setTimeout(90_000);
+
+  test("⌘·Ctrl·가운데 클릭은 새 탭에서 글을 열고 지금 탭은 그대로다", async ({ playwright, baseURL }) => {
+    const browser = await playwright.chromium.launch({ channel: "chromium" });
+    try {
+      const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+      await context.route(/\/view$/, (route) => route.abort());
+      const page = await context.newPage();
+      await page.goto(`${baseURL}/posts`, { waitUntil: "load" });
+      const link = page.locator(POST_CARD).first().locator('a[class*="__cardLink"]');
+      const href = await link.getAttribute("href");
+
+      for (const how of [{ modifiers: [process.platform === "darwin" ? "Meta" : "Control"] as ("Meta" | "Control")[] }, { button: "middle" as const }]) {
+        const opened = context.waitForEvent("page");
+        await link.click({ position: { x: 24, y: 24 }, ...how });
+        const tab = await opened;
+        await tab.waitForLoadState("domcontentloaded");
+        expect(new URL(tab.url()).pathname, "새 탭의 주소").toBe(href);
+        expect(new URL(page.url()).pathname, "지금 탭은 그대로").toBe("/posts");
+        await tab.close();
+      }
+    } finally {
+      await browser.close();
+    }
   });
 });
