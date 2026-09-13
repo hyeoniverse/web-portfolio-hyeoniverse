@@ -13,6 +13,22 @@
   /* container query — 자식의 body excerpt 가 card 폭에 따라 swap.
    * (imageWrap 폭은 비례하므로 card 폭으로 충분 — series 모드 제외) */
   container-type: inline-size;
+  /* 글 링크(.cardLink)가 카드를 덮는 기준. container-type 도 기준이 되지만 드러내 둔다.
+     isolation 으로 카드 안 z-index(배지 2 · 링크 3 · 태그 줄 4)가 카드 밖 요소와 겨루지 않게 가둔다 */
+  position: relative;
+  isolation: isolate;
+}
+
+/* 카드 전체를 덮는 글 링크(PostCardLink, #931) — 가운데 클릭·⌘ 클릭으로 새 탭에 열리고 키보드로도 닿는다.
+   배지(z-index 2)보다 위, 태그 줄(.tagsRow)보다 아래 */
+.cardLink {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+}
+.cardLink:focus-visible {
+  outline: 2px solid var(--text-accent);
+  outline-offset: -2px;
 }
 
 /* placeholder 카드 (compact 아닌 경우) — placeholder 안에 excerpt 보여서 body 의 excerpt 숨김. */
@@ -528,6 +544,9 @@
 
 /* ── Tags row — 1줄 default (max-height 으로 clip), expand 시 wrap ── */
 .tagsRow {
+  /* 태그 링크·펼침 단추는 글 링크(.cardLink) 위에서 따로 눌린다 */
+  position: relative;
+  z-index: 4;
   display: flex;
   flex-wrap: wrap;
   align-items: center;

@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useSyncRef } from "./useSyncRef";
+import { isPlainClick } from "@/utils/gestureUtils";
 
 /**
  * 저장하지 않은 변경이 있는 동안, 페이지를 떠나기 전에 묻는다.
@@ -29,7 +30,7 @@ export function useLeaveGuard(active: boolean, ask: (go: () => void) => void): v
       e.returnValue = "";
     };
     const onClick = (e: MouseEvent) => {
-      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      if (e.defaultPrevented || !isPlainClick(e)) return;
       const a = (e.target as Element | null)?.closest?.("a[href]");
       if (!(a instanceof HTMLAnchorElement)) return;
       if ((a.target && a.target !== "_self") || a.hasAttribute("download")) return;
