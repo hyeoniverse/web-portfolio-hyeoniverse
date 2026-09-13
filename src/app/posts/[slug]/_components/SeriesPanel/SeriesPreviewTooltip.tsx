@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { isVideoUrl } from "@/lib/isVideoUrl";
+import { SITE_TIME_ZONE } from "@/constants";
 import { ImageIcon } from "@/components/icons";
 import type { SeriesPreview } from "./useSeriesPanel";
 import styles from "./SeriesPreviewTooltip.module.css";
@@ -56,7 +57,8 @@ export default function SeriesPreviewTooltip({ preview, viewLang }: { preview: S
           </div>
         )}
         <span className={styles.seriesPreviewDate}>
-          {new Date(preview.post.created_at).toLocaleDateString(viewLang === "en" ? "en-US" : "ko-KR", { year: "numeric", month: "short", day: "numeric" })}
+          {/* 글 상세·목록과 같은 한국 시간 날짜 */}
+          {new Date(preview.post.created_at).toLocaleDateString(viewLang === "en" ? "en-US" : "ko-KR", { year: "numeric", month: "short", day: "numeric", timeZone: SITE_TIME_ZONE })}
         </span>
       </div>
     </div>
