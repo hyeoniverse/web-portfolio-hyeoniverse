@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import HighlightInput from "@/components/ui/HighlightInput";
@@ -165,8 +165,6 @@ export default function InputsFieldsDemos() {
           en={"A search capsule — an input that expands from a collapsed icon. It bundles its own clear button, search history, and syntax help, so list/filter bars never re-implement a raw input."}
         >
 
-          {/* SearchCapsule 은 내부에서 useSearchParams() 를 쓴다 — 이 페이지는 정적 프리렌더
-              대상이라 Suspense 로 감싸지 않으면 빌드가 CSR bailout 으로 실패한다. */}
           <div className={styles.componentSubLabel}>typeSelector · historyKey · showHelp</div>
           <p className={styles.componentDesc}>
             {md(language === "ko"
@@ -175,25 +173,23 @@ export default function InputsFieldsDemos() {
           </p>
           <div className={styles.componentRow}>
             <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ minWidth: 360 }}>
-              <Suspense fallback={null}>
-                <SearchCapsule
-                  search={searchScoped}
-                  onSearchChange={setSearchScoped}
-                  placeholder={language === "ko" ? "검색 (Enter 로 이력 저장)" : "Search (Enter saves history)"}
-                  align="left"
-                  historyKey="design-system-search"
-                  showHelp
-                  typeSelector={{
-                    value: searchScope,
-                    onChange: setSearchScope,
-                    options: [
-                      { value: "all", label: language === "ko" ? "전체" : "All" },
-                      { value: "title", label: language === "ko" ? "제목" : "Title" },
-                      { value: "body", label: language === "ko" ? "본문" : "Body" },
-                    ],
-                  }}
-                />
-              </Suspense>
+              <SearchCapsule
+                search={searchScoped}
+                onSearchChange={setSearchScoped}
+                placeholder={language === "ko" ? "검색 (Enter 로 이력 저장)" : "Search (Enter saves history)"}
+                align="left"
+                historyKey="design-system-search"
+                showHelp
+                typeSelector={{
+                  value: searchScope,
+                  onChange: setSearchScope,
+                  options: [
+                    { value: "all", label: language === "ko" ? "전체" : "All" },
+                    { value: "title", label: language === "ko" ? "제목" : "Title" },
+                    { value: "body", label: language === "ko" ? "본문" : "Body" },
+                  ],
+                }}
+              />
             </motion.div>
           </div>
 
@@ -205,16 +201,14 @@ export default function InputsFieldsDemos() {
           </p>
           <div className={styles.componentRow}>
             <motion.div variants={staggerItemX} {...scrollChildX(0, 1)}>
-              <Suspense fallback={null}>
-                <SearchCapsule
-                  search={searchMorph}
-                  onSearchChange={setSearchMorph}
-                  placeholder={language === "ko" ? "클릭해서 펼치기" : "Click to expand"}
-                  align="left"
-                  historyKey={null}
-                  collapsible
-                />
-              </Suspense>
+              <SearchCapsule
+                search={searchMorph}
+                onSearchChange={setSearchMorph}
+                placeholder={language === "ko" ? "클릭해서 펼치기" : "Click to expand"}
+                align="left"
+                historyKey={null}
+                collapsible
+              />
             </motion.div>
           </div>
 
@@ -226,28 +220,24 @@ export default function InputsFieldsDemos() {
           </p>
           <div className={styles.componentRow} style={{ gap: "var(--spacing-lg)" }}>
             <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ minWidth: 200 }}>
-              <Suspense fallback={null}>
-                <SearchCapsule
-                  search={searchDemo}
-                  onSearchChange={setSearchDemo}
-                  placeholder="size sm"
-                  size="sm"
-                  align="left"
-                  historyKey={null}
-                />
-              </Suspense>
+              <SearchCapsule
+                search={searchDemo}
+                onSearchChange={setSearchDemo}
+                placeholder="size sm"
+                size="sm"
+                align="left"
+                historyKey={null}
+              />
             </motion.div>
             <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ minWidth: 200 }}>
-              <Suspense fallback={null}>
-                <SearchCapsule
-                  search={searchDemo}
-                  onSearchChange={setSearchDemo}
-                  placeholder={language === "ko" ? "size md (기본)" : "size md (default)"}
-                  size="md"
-                  align="left"
-                  historyKey={null}
-                />
-              </Suspense>
+              <SearchCapsule
+                search={searchDemo}
+                onSearchChange={setSearchDemo}
+                placeholder={language === "ko" ? "size md (기본)" : "size md (default)"}
+                size="md"
+                align="left"
+                historyKey={null}
+              />
             </motion.div>
           </div>
         </DemoGroup>

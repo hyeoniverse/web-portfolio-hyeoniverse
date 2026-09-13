@@ -13,11 +13,13 @@ interface RouteContext {
 }
 
 /* 발행/수정/삭제 후 공개 페이지 캐시를 즉시 무효화 — page 의 revalidate=60(ISR) 을 기다리지 않고 바로 반영.
-   목록(/posts)·홈(/)·해당 상세(/posts/[slug]) 를 revalidate. */
+   목록(/posts)·홈(/)·해당 상세(/posts/[slug])·태그 페이지 전체를 revalidate. 태그 페이지는 미리 그려 캐시한다(#913) —
+   어느 태그가 바뀌었는지(이전 태그 포함) 따지지 않고 태그 경로 전체를 다시 그리게 한다. */
 function revalidatePublicPosts(slug?: string | null) {
   revalidatePath("/posts");
   revalidatePath("/");
   if (slug) revalidatePath(`/posts/${slug}`);
+  revalidatePath("/posts/tags/[tag]", "page");
 }
 
 // GET /api/posts/[id] — 단일 포스트 (admin 전용 — 비공개/휴지통 포함 raw 조회).

@@ -269,6 +269,7 @@ export async function POST(request: Request) {
     revalidatePath("/posts");
     revalidatePath("/");
     if (data.slug) revalidatePath(`/posts/${data.slug}`);
+    revalidatePath("/posts/tags/[tag]", "page");
   }
 
   return NextResponse.json(data, { status: 201 });

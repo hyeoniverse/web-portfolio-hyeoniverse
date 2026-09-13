@@ -170,3 +170,16 @@ test.describe("비로그인 — 상세 커버", () => {
     expect(heroes.filter((h) => /opacity:\s*0[;"]/.test(h)), "opacity 0 으로 나간 커버").toEqual([]);
   });
 });
+
+/* 태그 페이지는 미리 그려 캐시하고, 태그 목록은 본문을 미리 그린 HTML 에 담는다(#913). 예전에는 태그 페이지가 요청마다
+   그려졌고(no-store), 목록은 검색 캡슐의 useSearchParams 때문에 본문이 HTML 에서 빠졌다 */
+test.describe("비로그인 — 태그 페이지", () => {
+  test("태그 목록의 미리 그린 HTML 에 태그 링크가 있고, 태그 페이지는 캐시되는 응답이다", async ({ request }) => {
+    const html = await (await request.get("/posts/tags")).text();
+    const href = /href="(\/posts\/tags\/[^"]+)"/.exec(html)?.[1];
+    expect(href, "태그 링크").toBeTruthy();
+    const res = await request.get(href!);
+    expect(res.status()).toBe(200);
+    expect(res.headers()["cache-control"] ?? "", "미리 그려 캐시한다").toMatch(/s-maxage=\d+/);
+  });
+});
