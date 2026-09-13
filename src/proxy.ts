@@ -3,6 +3,7 @@ import type { User } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
 import { getUserRole } from "@/lib/api/roles";
 import { AUTHOR_HOME, canOpenAdminPage } from "@/lib/adminAccess";
+import { legacyWorkTarget, type WorkRef } from "@/lib/legacyWorkPath";
 
 /**
  * 보안 layer 2개:
@@ -18,6 +19,11 @@ import { AUTHOR_HOME, canOpenAdminPage } from "@/lib/adminAccess";
  *    비인증 시 page redirect / API 401. Supabase unreachable 시에도 fail-closed.
  *    layout / route 의 requireAuth() 와 다층 방어.
  *    권한이 모자란 화면(작성자의 대시보드·알림·신고 등, lib/adminAccess)은 글 목록으로 보낸다. API 는 route 가 판정한다.
+ *
+ * 3. 작업물 옛 주소(`/works/<id>`, `/works/01`) → slug 주소
+ *    상세는 미리 그려 캐시한다(ISR, #909). 그 안에서 redirect() 를 부르면 캐시가 없는 첫 요청에 Location 이 두 번 실려
+ *    (vercel/next.js#82117) 헤더를 합치는 곳을 거치면 "/works/a, /works/a" 로 이동한다. 그래서 그리기 전에 여기서 보낸다.
+ *    matcher 가 id(UUID)·번호 모양의 주소만 보내므로 slug 주소에는 끼지 않는다.
  *
  * 비-admin 경로에서도 admin 이 로그인 중이면 Supabase 토큰 refresh 가 필요해 supabase 클라이언트는
  * 만들지만, 토큰 쿠키가 없을 땐 getUser() 호출도 skip — 익명 트래픽 hot path 의 불필요한
@@ -102,6 +108,29 @@ function isSameOrigin(request: NextRequest): boolean {
   }
 }
 
+/** matcher 가 보낸 작업물 옛 주소. 공개 작업물만 읽는다(anon — RLS works_public_read). 조회에 실패하면 그대로 넘기고,
+    상세 레이아웃이 같은 판단을 한 번 더 한다 */
+async function redirectLegacyWork(request: NextRequest, param: string): Promise<NextResponse> {
+  try {
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/works?select=id,slug,sort_order&published=is.true&deleted_at=is.null`,
+      { headers: { apikey: key, Authorization: `Bearer ${key}` }, cache: "no-store" },
+    );
+    if (res.ok) {
+      const target = legacyWorkTarget((await res.json()) as WorkRef[], decodeURIComponent(param));
+      if (target) {
+        const to = request.nextUrl.clone();
+        to.pathname = `/works/${target}`;
+        return NextResponse.redirect(to, 307);
+      }
+    }
+  } catch {
+    /* 그대로 넘긴다 */
+  }
+  return NextResponse.next({ request });
+}
+
 function hasSupabaseCookie(request: NextRequest): boolean {
   return request.cookies.getAll().some((c) => c.name.startsWith("sb-"));
 }
@@ -112,6 +141,10 @@ export async function proxy(request: NextRequest) {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
     return NextResponse.next({ request });
   }
+
+  // ── 0. 작업물 옛 주소 ──
+  const legacyWork = /^\/works\/([^/]+)$/.exec(pathname);
+  if (legacyWork) return redirectLegacyWork(request, legacyWork[1]);
 
   // ── 1. CSRF: /api/* mutation 은 same-origin 만 ──
   if (isApi(pathname) && MUTATION_METHODS.has(request.method)) {
@@ -177,5 +210,11 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/api/:path*"],
+  matcher: [
+    "/admin/:path*",
+    "/api/:path*",
+    // 작업물 옛 주소 — id(UUID)·표시 번호 모양만. slug 주소는 proxy 를 거치지 않는다
+    "/works/:id([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})",
+    "/works/:num(\\d{1,3})",
+  ],
 };

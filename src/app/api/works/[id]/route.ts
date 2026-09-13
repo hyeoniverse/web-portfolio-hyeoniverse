@@ -5,6 +5,7 @@ import { requirePostAccess, policyBlocked } from "@/lib/api/requirePostAccess";
 import { PERM } from "@/lib/api/roles";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { placeWork } from "@/lib/api/placeWork";
+import { revalidatePublicWorks } from "@/lib/api/revalidateWorks";
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -118,6 +119,7 @@ export async function PATCH(request: Request, context: RouteContext) {
       const { data, error } = await admin
         .from("works").select("*").eq("id", id).single();
       if (error) return jsonServerError(error, "PATCH /api/works/[id]");
+      revalidatePublicWorks();
       return NextResponse.json(data);
     }
   }
@@ -134,6 +136,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     return jsonServerError(error, "PATCH /api/works/[id]");
   }
 
+  revalidatePublicWorks();
   return NextResponse.json(data);
 }
 
@@ -159,5 +162,6 @@ export async function DELETE(_request: Request, context: RouteContext) {
     return jsonServerError(error, "DELETE /api/works/[id]");
   }
 
+  revalidatePublicWorks();
   return NextResponse.json({ success: true });
 }
