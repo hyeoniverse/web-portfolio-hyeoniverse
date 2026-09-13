@@ -180,8 +180,12 @@
 .windowPeek {
   position: absolute;
   inset: 0;
-  background: url("/images/profile_pic.webp") no-repeat center / cover;
   pointer-events: none;
+}
+
+/* 사진은 구역이 화면 가까이 왔을 때만 건다(ProfileWindows 의 peekReady, #915) */
+.peekReady .windowPeek {
+  background: url("/images/profile_pic.webp") no-repeat center / cover;
 }
 
 .osWindow {
