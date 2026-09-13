@@ -4,7 +4,7 @@ import { useRef } from "react";
 import { useRouter } from "next/navigation";
 import ProgressiveImage from "@/components/ui/ProgressiveImage";
 import { useLanguage } from "@/providers/LanguageProvider";
-import { usePageTransition } from "@/providers/PageTransitionProvider";
+import TransitionLink from "@/components/ui/TransitionLink";
 import { formatPostTitle, getPostExcerpt } from "@/utils/post";
 import type { Post } from "@/types/post";
 import CategoryLabel from "@/components/ui/CategoryLabel";
@@ -30,29 +30,25 @@ export default function BannerSlide({
   onImgError,
 }: BannerSlideProps) {
   const { language } = useLanguage();
-  const { navigateWithTransition } = usePageTransition();
   const router = useRouter();
   const prefetchedRef = useRef(false);
   const title = formatPostTitle(post, language);
   const excerpt = getPostExcerpt(post, language);
   const showLangHint = language === "en" && !post.content_en;
 
-  /* hover/focus 시 destination prefetch — div onClick 라 Link 자동 prefetch 가 없으므로 수동 (dev 모드는 RSC compile 미완 route 건드리면 에러나서 skip) */
+  /* hover/focus 시 destination prefetch — 링크의 자동 prefetch 는 끄고(TransitionLink) 수동으로 (dev 모드는 RSC compile 미완 route 건드리면 에러나서 skip) */
   const handlePrefetch = () => {
     if (prefetchedRef.current) return;
     if (process.env.NODE_ENV !== "production") return;
     prefetchedRef.current = true;
     router.prefetch(`/posts/${post.slug}`);
   };
-  const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    navigateWithTransition(`/posts/${post.slug}`, post.cover_image || "", rect);
-  };
-  const clickProps = {
-    onClick: handleClick,
+  // 슬라이드 전체가 글 링크다 — 그냥 누르면 커버가 커지는 연출로, 새 탭 클릭은 브라우저가 연다(#933)
+  const linkProps = {
+    href: `/posts/${post.slug}`,
+    image: post.cover_image || "",
     onMouseEnter: handlePrefetch,
     onFocus: handlePrefetch,
-    style: { cursor: "pointer" as const },
     className: styles.slideLink,
   };
 
@@ -77,7 +73,7 @@ export default function BannerSlide({
   /* ── Editorial ── */
   if (style === "editorial") {
     return (
-      <div {...clickProps}>
+      <TransitionLink {...linkProps}>
         {image}
         <div className={styles.overlayEditorial} />
         <div className={styles.contentEditorial}>
@@ -102,14 +98,14 @@ export default function BannerSlide({
             )}
           </div>
         </div>
-      </div>
+      </TransitionLink>
     );
   }
 
   /* ── Minimal ── */
   if (style === "minimal") {
     return (
-      <div {...clickProps}>
+      <TransitionLink {...linkProps}>
         {image}
         <div className={styles.overlayMinimal} />
         <div className={styles.contentMinimal}>
@@ -127,14 +123,14 @@ export default function BannerSlide({
           <h2 className={styles.titleMinimal}>{title}</h2>
           <div className={styles.divider} />
         </div>
-      </div>
+      </TransitionLink>
     );
   }
 
   /* ── Cinematic ── */
   if (style === "cinematic") {
     return (
-      <div {...clickProps}>
+      <TransitionLink {...linkProps}>
         {image}
         <div className={styles.overlayCinematic} />
         <div className={styles.contentCinematic}>
@@ -154,13 +150,13 @@ export default function BannerSlide({
             <p className={styles.excerptCinematic}>{post.excerpt}</p>
           )}
         </div>
-      </div>
+      </TransitionLink>
     );
   }
 
   /* ── Magazine ── */
   return (
-    <div {...clickProps}>
+    <TransitionLink {...linkProps}>
       {image}
       <div className={styles.overlayMagazine} />
       <div className={styles.contentMagazine}>
@@ -183,6 +179,6 @@ export default function BannerSlide({
           <span className={styles.readMore}>Read →</span>
         </div>
       </div>
-    </div>
+    </TransitionLink>
   );
 }

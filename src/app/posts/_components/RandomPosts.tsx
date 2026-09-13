@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import type { Post } from "@/types/post";
-import { usePageTransition } from "@/providers/PageTransitionProvider";
+import TransitionLink from "@/components/ui/TransitionLink";
 import { Shuffle, RefreshCw } from "@/components/icons";
 import T from "@/components/ui/T";
 import Tooltip from "@/components/ui/Tooltip";
@@ -16,7 +16,6 @@ export default function RandomPosts() {
   const { t } = useLanguage();
   const [posts, setPosts] = useState<Post[]>([]);
   const [seed, setSeed] = useState(() => Math.floor(Math.random() * 1e9));
-  const { navigateWithTransition } = usePageTransition();
 
   const fetchRandom = useCallback((s: number) => {
     fetch(`/api/posts?sort=random&limit=5&pinned=false&seed=${s}`)
@@ -46,14 +45,7 @@ export default function RandomPosts() {
       </div>
       <div className={styles.list} data-more="true" data-clickable="true">
         {posts.map((post, idx) => (
-          <div
-            key={post.id}
-            onClick={(e) => {
-              const rect = e.currentTarget.getBoundingClientRect();
-              navigateWithTransition(`/posts/${post.slug}`, "", rect);
-            }}
-            className={styles.item}
-          >
+          <TransitionLink key={post.id} href={`/posts/${post.slug}`} className={styles.item}>
             <span className={styles.rank}>{String(idx + 1).padStart(2, "0")}</span>
             <div className={styles.info}>
               <div className={styles.titleRow}>
@@ -64,7 +56,7 @@ export default function RandomPosts() {
                 {post.like_count > 0 && <> &middot; {post.like_count} <T k="postsPage.likes" /></>}
               </span>
             </div>
-          </div>
+          </TransitionLink>
         ))}
       </div>
     </section>

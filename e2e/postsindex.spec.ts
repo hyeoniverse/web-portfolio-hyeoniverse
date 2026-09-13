@@ -211,9 +211,9 @@ test.describe("글 카드 링크", () => {
 });
 
 /* 새 탭 열기는 브라우저 몫이다. 기본 headless shell 은 ⌘·가운데 클릭으로 탭을 만들지 않고 지금 탭에서 넘어가서, 이 검사만
-   전체 Chromium(channel "chromium")을 직접 띄워 본다 */
-test.describe("글 카드 링크 — 새 탭", () => {
-  test.setTimeout(90_000);
+   전체 Chromium(channel "chromium")을 직접 띄워 본다. 글 카드(#931)와 배너·사이드바 인기 글(#933)을 함께 본다 */
+test.describe("글 링크 — 새 탭", () => {
+  test.setTimeout(120_000);
 
   test("⌘·Ctrl·가운데 클릭은 새 탭에서 글을 열고 지금 탭은 그대로다", async ({ playwright, baseURL }) => {
     const browser = await playwright.chromium.launch({ channel: "chromium" });
@@ -222,20 +222,74 @@ test.describe("글 카드 링크 — 새 탭", () => {
       await context.route(/\/view$/, (route) => route.abort());
       const page = await context.newPage();
       await page.goto(`${baseURL}/posts`, { waitUntil: "load" });
-      const link = page.locator(POST_CARD).first().locator('a[class*="__cardLink"]');
-      const href = await link.getAttribute("href");
-
-      for (const how of [{ modifiers: [process.platform === "darwin" ? "Meta" : "Control"] as ("Meta" | "Control")[] }, { button: "middle" as const }]) {
-        const opened = context.waitForEvent("page");
-        await link.click({ position: { x: 24, y: 24 }, ...how });
-        const tab = await opened;
-        await tab.waitForLoadState("domcontentloaded");
-        expect(new URL(tab.url()).pathname, "새 탭의 주소").toBe(href);
-        expect(new URL(page.url()).pathname, "지금 탭은 그대로").toBe("/posts");
-        await tab.close();
+      const surfaces = {
+        "글 카드": page.locator(POST_CARD).first().locator('a[class*="__cardLink"]'),
+        "배너 가운데 슬라이드": page.locator('[class*="Banner-module__"] :not([inert]) > a[href^="/posts/"]').first(),
+        "사이드바 인기 글": page.locator('[class*="PopularPosts-module__"] a[href^="/posts/"]').first(),
+      };
+      for (const [name, link] of Object.entries(surfaces)) {
+        await expect(link, name).toBeVisible({ timeout: 30_000 });
+        const href = await link.getAttribute("href");
+        for (const how of [{ modifiers: [process.platform === "darwin" ? "Meta" : "Control"] as ("Meta" | "Control")[] }, { button: "middle" as const }]) {
+          const opened = context.waitForEvent("page");
+          await link.click({ position: { x: 12, y: 12 }, ...how });
+          const tab = await opened;
+          await tab.waitForLoadState("domcontentloaded");
+          expect(new URL(tab.url()).pathname, `${name} — 새 탭의 주소`).toBe(href);
+          expect(new URL(page.url()).pathname, `${name} — 지금 탭은 그대로`).toBe("/posts");
+          await tab.close();
+        }
       }
     } finally {
       await browser.close();
     }
+  });
+});
+
+/* 글 목록 주변의 글 링크(#933) — 배너 슬라이드·사이드바 인기 글·시리즈 덱은 주소를 가진 링크이고, 그냥 누르면 지금처럼
+   연출로 넘어간다. 보이지 않는 배너 슬라이드는 inert 라 안의 링크가 초점을 받지 않는다 */
+test.describe("글 목록 주변 링크", () => {
+  test.setTimeout(90_000);
+  test.beforeEach(async ({ page }) => {
+    await page.route(/\/view$/, (route) => route.abort());
+  });
+
+  test("배너 슬라이드는 글 링크이고, 보이지 않는 슬라이드의 링크는 초점을 받지 않는다", async ({ page, request }) => {
+    const html = await (await request.get("/posts")).text();
+    const slides = html.match(/BannerSlide-module__\w+__slideLink" href="\/posts\/[^"]+"/g) ?? [];
+    test.skip(slides.length === 0, "배너가 없다");
+
+    await page.goto("/posts", { waitUntil: "load" });
+    const hidden = page.locator('[class*="Banner-module__"] [inert] a[href^="/posts/"]');
+    for (const link of await hidden.all()) {
+      await link.evaluate((el) => (el as HTMLElement).focus());
+      expect(await link.evaluate((el) => document.activeElement === el), "보이지 않는 슬라이드의 링크").toBe(false);
+    }
+    const center = page.locator('[class*="Banner-module__"] :not([inert]) > a[href^="/posts/"]').first();
+    const href = await center.getAttribute("href");
+    await center.click({ position: { x: 12, y: 12 } });
+    await page.waitForURL((url) => url.pathname === href);
+  });
+
+  test("사이드바 인기 글은 글 링크이고 그냥 누르면 넘어간다", async ({ page }) => {
+    await page.goto("/posts", { waitUntil: "load" });
+    const link = page.locator('[class*="PopularPosts-module__"] a[href^="/posts/"]').first();
+    await expect(link).toBeVisible({ timeout: 30_000 });
+    const href = await link.getAttribute("href");
+    await link.click();
+    await page.waitForURL((url) => url.pathname === href);
+  });
+
+  test("시리즈 덱의 글은 펼쳤을 때 글 링크이고 그냥 누르면 넘어간다", async ({ page }) => {
+    await page.goto("/posts", { waitUntil: "load" });
+    const card = page.locator('[class*="SeriesCard-module__"][class*="__card"]').first();
+    test.skip((await card.count()) === 0, "시리즈가 없다");
+    await card.hover();
+    const layer = page.locator("a[data-deck-layer]").first();
+    const opened = await layer.waitFor({ state: "visible", timeout: 5_000 }).then(() => true, () => false);
+    test.skip(!opened, "펼칠 글이 없다");
+    const href = await layer.getAttribute("href");
+    await layer.click({ position: { x: 8, y: 8 } });
+    await page.waitForURL((url) => url.pathname === href);
   });
 });

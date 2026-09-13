@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import MediaThumb from "@/components/ui/MediaThumb";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/providers/LanguageProvider";
-import { usePageTransition } from "@/providers/PageTransitionProvider";
+import TransitionLink from "@/components/ui/TransitionLink";
 import { formatPostTitle } from "@/utils/post";
 import CategoryLabel from "@/components/ui/CategoryLabel";
 import { seededGradient } from "@/components/posts/CoverImagePicker/seededGradient";
@@ -22,7 +22,6 @@ interface TickerBannerProps {
 
 export default function TickerBanner({ posts, imgErrors, onImgError }: TickerBannerProps) {
   const { language } = useLanguage();
-  const { navigateWithTransition } = usePageTransition();
   const router = useRouter();
   const prefetchedRef = useRef<Set<string>>(new Set());
   const { index, go, prev, next, pause, resume, isPaused, togglePause } = useAutoSlide(posts.length, 3000);
@@ -57,19 +56,17 @@ export default function TickerBanner({ posts, imgErrors, onImgError }: TickerBan
     setPos(index);
   }, [index, len]);
 
-  const renderItem = (post: Post, key: string) => {
+  /* 한 번에 한 줄만 보이므로, 보이지 않는 줄(과 이어 붙인 첫 줄 복제)은 inert 로 초점·보조기기에서 뺀다 */
+  const renderItem = (post: Post, key: string, shown: boolean) => {
     const title = formatPostTitle(post, language);
     return (
-      <div key={key} className={styles.tickerInner}>
-        <div
+      <div key={key} className={styles.tickerInner} inert={!shown}>
+        <TransitionLink
+          href={`/posts/${post.slug}`}
+          image={post.cover_image || ""}
           className={styles.tickerLink}
-          style={{ cursor: "pointer" }}
           onMouseEnter={() => handlePrefetch(post.slug)}
           onFocus={() => handlePrefetch(post.slug)}
-          onClick={(e) => {
-            const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-            navigateWithTransition(`/posts/${post.slug}`, post.cover_image || "", rect);
-          }}
         >
           <div className={styles.tickerThumb}>
             {post.cover_image && !imgErrors.has(post.id) ? (
@@ -91,7 +88,7 @@ export default function TickerBanner({ posts, imgErrors, onImgError }: TickerBan
           </div>
           {post.category && <span className={styles.tickerCategory}><CategoryLabel category={post.category} /></span>}
           <span className={styles.tickerTitle}>{title}</span>
-        </div>
+        </TransitionLink>
       </div>
     );
   };
@@ -103,8 +100,8 @@ export default function TickerBanner({ posts, imgErrors, onImgError }: TickerBan
           className={`${styles.tickerReel} ${animate ? styles.tickerReelAnimated : ""}`}
           style={{ transform: `translateY(-${pos * 72}px)` }}
         >
-          {posts.map((post) => renderItem(post, post.id))}
-          {renderItem(posts[0], "clone-first")}
+          {posts.map((post, i) => renderItem(post, post.id, i === index))}
+          {renderItem(posts[0], "clone-first", false)}
         </div>
       </div>
 

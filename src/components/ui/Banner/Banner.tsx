@@ -126,7 +126,8 @@ export default function Banner({
                 className={`${styles.slide} ${i === current ? styles.slideActive : ""}`}
                 aria-hidden={i !== current}
               >
-                <div className={styles.slideInner}>{slide}</div>
+                {/* 보이지 않는 슬라이드 안의 링크·단추에 초점이 가지 않게 */}
+                <div className={styles.slideInner} inert={i !== current}>{slide}</div>
               </div>
             ))}
           </div>
@@ -162,7 +163,8 @@ export default function Banner({
                   data-clickable={offset !== 0 ? "true" : undefined}
                   style={{ pointerEvents: isVisible ? "auto" : "none" }}
                 >
-                  <div className={styles.slideInner}>{slide}</div>
+                  {/* 가운데가 아닌 슬라이드는 내용 대신 바깥이 눌림(앞뒤로 돌리기)을 받고, 안의 링크는 초점에서 뺀다 */}
+                  <div className={styles.slideInner} inert={offset !== 0}>{slide}</div>
                   {offset !== 0 && isVisible && (
                     <div className={styles.cylinderOverlay} />
                   )}

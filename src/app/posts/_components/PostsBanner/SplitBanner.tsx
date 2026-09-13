@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import ProgressiveImage from "@/components/ui/ProgressiveImage";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
-import { usePageTransition } from "@/providers/PageTransitionProvider";
+import TransitionLink from "@/components/ui/TransitionLink";
 import { formatPostTitle, getPostExcerpt } from "@/utils/post";
 import CategoryLabel from "@/components/ui/CategoryLabel";
 import { seededGradient } from "@/components/posts/CoverImagePicker/seededGradient";
@@ -29,7 +29,6 @@ const imgVariants = {
 
 export default function SplitBanner({ posts, imgErrors, onImgError }: SplitBannerProps) {
   const { language } = useLanguage();
-  const { navigateWithTransition } = usePageTransition();
   const router = useRouter();
   const prefetchedRef = useRef<Set<string>>(new Set());
   const { index, go, prev, next, pause, resume, isPaused, togglePause } = useAutoSlide(posts.length, 5000);
@@ -46,10 +45,8 @@ export default function SplitBanner({ posts, imgErrors, onImgError }: SplitBanne
     router.prefetch(`/posts/${post.slug}`);
   }, [post.slug, router]);
 
-  const handleNav = (e: React.MouseEvent) => {
-    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-    navigateWithTransition(`/posts/${post.slug}`, post.cover_image || "", rect);
-  };
+  const href = `/posts/${post.slug}`;
+  const image = post.cover_image || "";
 
   return (
     <div className={styles.splitWrap} onMouseEnter={pause} onMouseLeave={resume} data-cursor="stop">
@@ -66,7 +63,8 @@ export default function SplitBanner({ posts, imgErrors, onImgError }: SplitBanne
               exit="exit"
               transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
             >
-              <div className={styles.splitImageLink} style={{ cursor: "pointer" }} onClick={handleNav}>
+              {/* 제목 링크와 같은 곳이라 초점·보조기기에서는 뺀다 */}
+              <TransitionLink href={href} image={image} className={styles.splitImageLink} tabIndex={-1} aria-hidden="true">
                 {post.cover_image && !imgErrors.has(post.id) ? (
                   <ProgressiveImage
                     src={post.cover_image}
@@ -84,7 +82,7 @@ export default function SplitBanner({ posts, imgErrors, onImgError }: SplitBanne
                     aria-hidden="true"
                   />
                 )}
-              </div>
+              </TransitionLink>
             </motion.div>
           </AnimatePresence>
         </div>
@@ -101,9 +99,9 @@ export default function SplitBanner({ posts, imgErrors, onImgError }: SplitBanne
               transition={{ duration: 0.3 }}
             >
               {post.category && <span className={styles.splitCategory}><CategoryLabel category={post.category} /></span>}
-              <div className={styles.splitTitleLink} style={{ cursor: "pointer" }} onClick={handleNav}>
+              <TransitionLink href={href} image={image} className={styles.splitTitleLink}>
                 <h2 className={styles.splitTitle}>{title}</h2>
-              </div>
+              </TransitionLink>
               {excerpt && <p className={styles.splitExcerpt}>{excerpt}</p>}
             </motion.div>
           </AnimatePresence>
