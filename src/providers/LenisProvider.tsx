@@ -7,6 +7,7 @@ import {
   useRef,
   useState,
   useCallback,
+  useMemo,
   startTransition,
   type ReactNode,
 } from "react";
@@ -14,12 +15,18 @@ import Lenis from "@studio-freight/lenis";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-interface LenisContextType {
-  lenis: Lenis | null;
+interface LenisControls {
   scrollTo: (target: string | number | HTMLElement, options?: ScrollToOptions) => void;
   stop: () => void;
   start: () => void;
   setInfinite: (value: boolean) => void;
+}
+
+/* context 값에는 인스턴스를 넣지 않는다(#929). 인스턴스는 마운트 뒤에 생기는데, 그때 context 값이 바뀌면 아직 하이드레이션
+   전인 페이지 경계(상세의 loading.tsx)를 React 가 서버 HTML 과 맞춰 볼 수 없어 새로 그린다. 인스턴스는 구독으로 받는다 */
+interface LenisContextType extends LenisControls {
+  subscribe: (onChange: () => void) => () => void;
+  getLenis: () => Lenis | null;
 }
 
 interface ScrollToOptions {
@@ -32,11 +39,12 @@ interface ScrollToOptions {
 }
 
 const LenisContext = createContext<LenisContextType>({
-  lenis: null,
   scrollTo: () => {},
   stop: () => {},
   start: () => {},
   setInfinite: () => {},
+  subscribe: () => () => {},
+  getLenis: () => null,
 });
 
 // Expo ease out 함수
@@ -58,8 +66,9 @@ interface LenisProviderProps {
 export function LenisProvider({ children, options = {} }: LenisProviderProps) {
   const lenisRef = useRef<Lenis | null>(null);
   const infiniteOverrideRef = useRef<boolean | null>(null);
-  const [lenis, setLenis] = useState<Lenis | null>(null);
   const rafRef = useRef<number | null>(null);
+  // 인스턴스가 생기거나 바뀌면 알릴 곳 — useLenis 가 구독한다
+  const listenersRef = useRef(new Set<() => void>());
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
@@ -82,10 +91,8 @@ export function LenisProvider({ children, options = {} }: LenisProviderProps) {
     });
 
     lenisRef.current = lenisInstance;
-    /* startTransition — 페이지 본문은 loading.tsx 의 Suspense 경계 안에 있다. 그 코드가 아직 오는 중일 때 이 갱신이 급한
-       갱신으로 경계에 닿으면 React 가 서버 HTML 을 버리고 로딩 화면부터 다시 그린다(느린 회선의 상세 페이지, #911).
-       전환으로 두면 경계가 하이드레이션을 마칠 때까지 기다린다. LanguageProvider 와 같은 이유다 */
-    startTransition(() => setLenis(lenisInstance));
+    // 구독한 소비자만 다시 그린다. context 값은 그대로라 하이드레이션 전 경계에 닿지 않는다(#911·#929)
+    listenersRef.current.forEach((notify) => notify());
 
     // Lenis 스크롤과 GSAP ScrollTrigger 동기화
     lenisInstance.on("scroll", ScrollTrigger.update);
@@ -189,17 +196,37 @@ export function LenisProvider({ children, options = {} }: LenisProviderProps) {
     }
   }, []);
 
+  const subscribe = useCallback((onChange: () => void) => {
+    const listeners = listenersRef.current;
+    listeners.add(onChange);
+    return () => { listeners.delete(onChange); };
+  }, []);
+  const getLenis = useCallback(() => lenisRef.current, []);
+
+  // 한 번 만든 값을 끝까지 쓴다 — 모두 ref 를 읽는 안정된 함수다
+  const value = useMemo(
+    () => ({ scrollTo, stop, start, setInfinite, subscribe, getLenis }),
+    [scrollTo, stop, start, setInfinite, subscribe, getLenis],
+  );
+
   return (
-    <LenisContext.Provider value={{ lenis, scrollTo, stop, start, setInfinite }}>
+    <LenisContext.Provider value={value}>
       {children}
     </LenisContext.Provider>
   );
 }
 
-export function useLenis() {
-  const context = useContext(LenisContext);
-  if (!context) {
-    throw new Error("useLenis must be used within a LenisProvider");
-  }
-  return context;
+/** Lenis 인스턴스(마운트 뒤에 생김)와 스크롤 제어 함수.
+    인스턴스는 서버와 같은 null 로 시작해 마운트 뒤 전환으로 받는다. useSyncExternalStore 로 받으면 인스턴스가 생길 때 소비자
+    전체(홈이면 페이지 통째)를 한 번에 동기로 다시 그려 긴 작업이 길어졌다. 늦게 하이드레이션되는 경계 안의 소비자도 null 로
+    하이드레이션한 뒤 받는다 */
+export function useLenis(): LenisControls & { lenis: Lenis | null } {
+  const { subscribe, getLenis, ...controls } = useContext(LenisContext);
+  const [lenis, setLenis] = useState<Lenis | null>(null);
+  useEffect(() => {
+    const sync = () => startTransition(() => setLenis(getLenis()));
+    sync(); // 이미 생겼으면 바로 받는다
+    return subscribe(sync);
+  }, [subscribe, getLenis]);
+  return { lenis, ...controls };
 }

@@ -5,9 +5,10 @@ import { SiteConfigProvider } from "@/providers/SiteConfigProvider";
 import { ThemeProvider, useTheme } from "@/providers/ThemeProvider";
 import { siteConfig, type SiteConfigData } from "@/config/site.config";
 
-/* 테마 provider 는 마운트 때 급한 갱신을 내지 않아야 한다(#911). 페이지 본문은 loading.tsx 의 Suspense 경계 안에서 루트보다
-   늦게 하이드레이션되는데, 그 사이 급한 갱신이 경계에 닿으면 React 가 서버 HTML 을 버리고 다시 그렸다(느린 회선의 상세 페이지).
-   그래서 상태는 전환으로 넣고, 값이 그대로면 소비자에게 새 값을 보내지 않으며, 문서의 테마는 바로 칠한다. */
+/* 테마 provider 는 마운트 때 context 값을 바꾸지 않는다(#911·#929). 페이지 본문은 loading.tsx 의 Suspense 경계 안에서 루트보다
+   늦게 하이드레이션되는데, 그 사이 context 가 바뀌면 React 가 서버 HTML 을 버리고 다시 그렸다. 그래서 테마는 저장소에 두고
+   소비자가 구독하며, 값이 그대로면 소비자에게 새 값을 보내지 않고, 문서의 테마는 바로 칠한다.
+   늦은 경계를 실제로 하이드레이션해 보는 검사는 providerLateHydration.test.tsx 에 있다. */
 
 afterEach(() => {
   cleanup();
@@ -46,9 +47,9 @@ describe("ThemeProvider 마운트", () => {
     expect(seen).toEqual(["dark", "light"]);
   });
 
-  it("테마 상태가 늦게 들어가도 문서 테마는 바로 칠한다", async () => {
+  it("새 테마로 그리는 소비자가 멈춰도 문서 테마는 바로 칠한다", async () => {
     localStorage.setItem("theme", "light");
-    // 아직 하이드레이션되지 않은 경계를 흉내 낸다 — 새 테마로 그리려 하면 멈춰, 전환이 끝나지 않는다
+    // 새 테마로 그리려 하면 멈추는 소비자 — 그래도 data-theme 은 마운트 효과가 먼저 칠한다
     const never = new Promise(() => {});
     function Waits() {
       if (useTheme().theme === "light") throw never;
