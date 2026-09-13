@@ -1,5 +1,5 @@
 // @vitest-environment node
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { NextRequest } from "next/server";
 
 /* proxy 가 권한이 모자란 관리자 화면을 글 목록으로 보내는지(#883). Supabase 는 흉내로 대신한다 — 인증 서버에 닿지 않는다.
@@ -68,5 +68,41 @@ describe("proxy — 관리자 화면 권한", () => {
     const res = await open("/admin");
     expect(res.status).toBe(307);
     expect(res.headers.get("set-cookie") ?? "").toContain("sb-test-auth-token=fresh");
+  });
+});
+
+/* 작업물 옛 주소(#909). 상세는 미리 그려 캐시해서, 그 안의 redirect() 는 첫 요청에 Location 을 두 번 싣는다(vercel/next.js#82117).
+   proxy 가 그리기 전에 보낸다. 공개 작업물 조회는 fetch 흉내로 대신한다. */
+describe("proxy — 작업물 옛 주소", () => {
+  const works = [
+    { id: "e0d04dce-eec7-499c-aa0e-0d012c475a98", slug: "prism-ui", sort_order: 1 },
+    { id: "468899cb-4686-404a-92ca-998d6e43dfcd", slug: "syncboard", sort_order: 2 },
+  ];
+  const serve = (body: unknown, ok = true) =>
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify(body), { status: ok ? 200 : 500 })));
+  afterEach(() => vi.unstubAllGlobals());
+
+  it("id 주소는 slug 주소로 307 — Location 은 한 번", async () => {
+    serve(works);
+    const res = await proxy(new NextRequest("http://localhost/works/468899cb-4686-404a-92ca-998d6e43dfcd?from=x"));
+    expect(res.status).toBe(307);
+    const url = new URL(res.headers.get("location") ?? "");
+    expect(url.pathname).toBe("/works/syncboard");
+    expect(url.search, "쿼리는 그대로").toBe("?from=x");
+    expect([...res.headers].filter(([k]) => k === "location")).toHaveLength(1);
+  });
+
+  it("표시 번호 주소도 slug 주소로 307", async () => {
+    serve(works);
+    const res = await proxy(new NextRequest("http://localhost/works/01"));
+    expect(res.status).toBe(307);
+    expect(new URL(res.headers.get("location") ?? "").pathname).toBe("/works/prism-ui");
+  });
+
+  it("없는 작업물이거나 조회에 실패하면 그대로 넘긴다 — 레이아웃이 판단한다", async () => {
+    serve(works);
+    expect(passedThrough(await proxy(new NextRequest("http://localhost/works/99")))).toBe(true);
+    serve({ message: "down" }, false);
+    expect(passedThrough(await proxy(new NextRequest("http://localhost/works/01")))).toBe(true);
   });
 });

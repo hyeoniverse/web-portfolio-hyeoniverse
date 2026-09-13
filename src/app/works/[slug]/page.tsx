@@ -5,6 +5,15 @@ import { highlightRichtextCode } from "@/utils/highlightRichtext";
 import WorkDetailClient from "./WorkDetailClient";
 import { findProjectIndex } from "./findProjectIndex";
 
+/* 미리 그려 캐시한다(#909). 예전에는 generateStaticParams 가 없어 요청마다 서버에서 그렸다(작업물 조회와 Shiki 코드 칠하기가
+   매번 돌았다). 저장하면 작업물 API 가 revalidatePublicWorks 로 바로 새로 그리게 하고, 시간 기준 갱신은 안전망이다 */
+export const revalidate = 300;
+
+export async function generateStaticParams() {
+  const projects = await getWorks();
+  return projects.map((p) => ({ slug: p.slug || p.id }));
+}
+
 interface PageProps {
   params: Promise<{ slug: string }>;
 }

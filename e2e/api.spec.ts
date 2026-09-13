@@ -117,13 +117,27 @@ test.describe("비로그인 — 상세 페이지의 없는 주소·옛 주소", 
     expect(res.status()).toBe(404);
   });
 
+  /* 상세는 미리 그려 캐시한다(#909). 그 안의 redirect() 는 캐시가 없는 첫 요청에 Location 을 두 번 실어(vercel/next.js#82117)
+     옛 주소는 proxy 가 그리기 전에 보낸다. Location 이 한 번인지까지 본다 */
+  const locations = async (res: APIResponse) =>
+    (await res.headersArray()).filter((h) => h.name.toLowerCase() === "location").map((h) => new URL(h.value, "http://local").pathname);
+
   test("작업물의 옛 id 주소는 slug 주소로 307", async ({ request }) => {
     const body = (await (await request.get("/api/works")).json()) as { works?: { id: string; slug?: string | null }[] };
     const work = body.works?.find((w) => w.slug && w.slug !== w.id);
     test.skip(!work, "slug 가 있는 작업물이 없다");
     const res = await request.get(`/works/${work!.id}`, { maxRedirects: 0 });
     expect(res.status(), "옛 주소는 HTTP 이동이어야 한다").toBe(307);
-    expect(new URL(res.headers().location ?? "", "http://local").pathname).toBe(`/works/${work!.slug}`);
+    expect(await locations(res)).toEqual([`/works/${work!.slug}`]);
+  });
+
+  test("작업물의 옛 번호 주소도 slug 주소로 307", async ({ request }) => {
+    const body = (await (await request.get("/api/works")).json()) as { works?: { id: string; slug?: string | null; sort_order?: number }[] };
+    const work = body.works?.find((w) => w.slug && w.sort_order === 1);
+    test.skip(!work, "첫 자리 작업물에 slug 가 없다");
+    const res = await request.get("/works/1", { maxRedirects: 0 });
+    expect(res.status(), "옛 주소는 HTTP 이동이어야 한다").toBe(307);
+    expect(await locations(res)).toEqual([`/works/${work!.slug}`]);
   });
 });
 

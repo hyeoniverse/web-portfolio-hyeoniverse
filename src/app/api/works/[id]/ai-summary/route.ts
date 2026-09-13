@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { jsonServerError } from "@/lib/api/response";
 import { requirePostAccess, policyBlocked } from "@/lib/api/requirePostAccess";
 import { generateSummary, AiSummaryError } from "@/lib/api/aiSummaryProviders";
+import { revalidatePublicWorks } from "@/lib/api/revalidateWorks";
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -54,6 +55,7 @@ ${contentEn}`;
   try {
     const { ko, en } = await generateSummary(promptText, "works/ai-summary");
     await admin.from("works").update({ summary_ko: ko, summary_en: en }).eq("id", id);
+    revalidatePublicWorks();
     return NextResponse.json({ summary_ko: ko, summary_en: en });
   } catch (e) {
     if (e instanceof AiSummaryError) {

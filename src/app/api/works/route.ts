@@ -7,6 +7,7 @@ import { requireAuth } from "@/lib/api/requireAuth";
 import { requireRole } from "@/lib/api/requireRole";
 import { PERM } from "@/lib/api/roles";
 import { placeWork } from "@/lib/api/placeWork";
+import { revalidatePublicWorks } from "@/lib/api/revalidateWorks";
 import { applySearchQuery } from "@/lib/api/applySearchQuery";
 import type { SyntaxMode } from "@/lib/searchQuery";
 // GET /api/works — 목록 조회
@@ -188,8 +189,10 @@ export async function POST(request: Request) {
   if (position !== null && position < (filtered.sort_order as number)) {
     await placeWork(supabase, data.id, position);
     const { data: placed } = await supabase.from("works").select("*").eq("id", data.id).single();
+    revalidatePublicWorks();
     return NextResponse.json(placed ?? data, { status: 201 });
   }
 
+  revalidatePublicWorks();
   return NextResponse.json(data, { status: 201 });
 }
