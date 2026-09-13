@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { Canvas } from "@react-three/fiber";
 import IntroBunny from "../CylinderIntroBunny";
 import VerticalCylinder, { TransparentBg, ResponsiveCamera } from "./VerticalCylinder";
-import { createIntroDataUrl } from "./scene";
+import { createIntroDataUrl, CAMERA_Z, CAMERA_FOV } from "./scene";
 
 /* 원통에 두르는 텍스처는 원본 주소를 그대로 받고 있었다. 작품 이미지는 1200×700 원본이라
    5장에 660KB 였고, 첫 화면을 다 그린 뒤에도 12.8초까지 계속 내려받았다.
@@ -78,7 +78,7 @@ export default function CylinderCanvas({
   return (
     <Canvas
       className={canvasClassName}
-      camera={{ position: [0, 0, 9], fov: 55 }}
+      camera={{ position: [0, 0, CAMERA_Z], fov: CAMERA_FOV }}
       gl={{ antialias: true, alpha: true }}
     >
       <TransparentBg />

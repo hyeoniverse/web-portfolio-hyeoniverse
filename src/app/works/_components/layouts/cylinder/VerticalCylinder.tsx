@@ -16,6 +16,7 @@ import {
   MOUSE_X,
   MOUSE_Y,
   makeCurvedPlane,
+  cylinderCamera,
 } from "./scene";
 
 /* ── Texture loader ── */
@@ -175,17 +176,20 @@ export function TransparentBg() {
   return null;
 }
 
-const BASE_CAM_Z = 9;
-const REF_W = 1400;
-const REF_H = 800;
-
+/* 화면 크기에 맞춰 카메라 거리·시야각을 잡는다(scene.ts 의 cylinderCamera). three 객체는 매 프레임 콜백에서
+   다루고, 크기가 바뀐 프레임에만 고친다 */
 export function ResponsiveCamera() {
-  const { camera, size } = useThree();
-  useEffect(() => {
-    const scale = Math.min(1, size.width / REF_W, size.height / REF_H);
-    camera.position.z = BASE_CAM_Z / scale;
-    camera.updateProjectionMatrix();
-  }, [camera, size.width, size.height]);
+  const appliedRef = useRef({ width: 0, height: 0 });
+  useFrame(({ camera, size }) => {
+    const applied = appliedRef.current;
+    if (applied.width === size.width && applied.height === size.height) return;
+    appliedRef.current = { width: size.width, height: size.height };
+    const cam = camera as THREE.PerspectiveCamera;
+    const { z, fov } = cylinderCamera(size.width, size.height);
+    cam.position.z = z;
+    cam.fov = fov;
+    cam.updateProjectionMatrix();
+  });
   return null;
 }
 

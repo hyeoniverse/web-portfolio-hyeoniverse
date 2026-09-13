@@ -15,6 +15,34 @@ export const MOUSE_Y = 0.04;
 export const SCROLL_SENSITIVITY = 0.0008;
 export const SCROLL_CLAMP = 80;
 export const BACK_THRESHOLD = Math.PI * 0.55;
+/* 손가락을 떼기 직전 속도로 이만큼(ms) 더 간 자리에서 가까운 판에 멈춘다 */
+export const FLING_MS = 200;
+
+/** 각을 [-π, π) 로 접는다 — 슬롯이 앞면에서 얼마나 돌아가 있는지 셀 때 */
+export function wrapAngle(a: number): number {
+  return ((a % (Math.PI * 2)) + Math.PI * 3) % (Math.PI * 2) - Math.PI;
+}
+
+/* ── Camera ──
+   카메라는 원통 안에서 축 너머 먼 쪽 판을 본다. 기준 화면(1400×800)보다 작으면 뒤로 물러나 판이 다 들어오게
+   하는데, 원통 벽(RADIUS)을 넘으면 카메라 바로 앞의 판이 near 평면 안으로 들어와 화면을 통째로 덮는다
+   (폭 358px 이하, #940). 벽 앞에서 멈추고, 모자란 거리만큼 시야각을 넓혀 먼 쪽 판이 같은 크기로 보이게 한다.
+   씬(ResponsiveCamera)과 화면 좌표 계산(useCylinderStage)이 이 식을 같이 쓴다. */
+export const CAMERA_Z = 9;
+export const CAMERA_FOV = 55;
+const CAMERA_REF_W = 1400;
+const CAMERA_REF_H = 800;
+const CAMERA_MAX_Z = RADIUS - 1;
+
+export function cylinderCamera(width: number, height: number): { z: number; fov: number } {
+  if (!(width > 0 && height > 0)) return { z: CAMERA_Z, fov: CAMERA_FOV };
+  const scale = Math.min(1, width / CAMERA_REF_W, height / CAMERA_REF_H);
+  const wanted = CAMERA_Z / scale;
+  if (wanted <= CAMERA_MAX_Z) return { z: wanted, fov: CAMERA_FOV };
+  // 먼 쪽 판까지의 거리가 (wanted + R) 에서 (벽 앞 + R) 로 줄어든 비율만큼 시야각의 tan 을 키운다
+  const halfTan = Math.tan((CAMERA_FOV * Math.PI) / 360) * ((wanted + RADIUS) / (CAMERA_MAX_Z + RADIUS));
+  return { z: CAMERA_MAX_Z, fov: (Math.atan(halfTan) * 360) / Math.PI };
+}
 
 /* ── Intro texture — cosmic: nebula wash + stars ── */
 export function createIntroDataUrl(isDark: boolean): string {
