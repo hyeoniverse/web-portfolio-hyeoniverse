@@ -13,11 +13,6 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
 .header {
   max-width: var(--page-max-width);
   margin: 0 auto var(--spacing-2xl);
@@ -50,10 +45,12 @@
 }
 
 /* ── Banner Slider ── */
+/* 페이드로 등장시키지 않는다(#919). 배너 첫 이미지가 이 화면의 LCP 인데, opacity 0 에서 시작하면 브라우저가 첫 칠을
+   LCP 로 세지 않아 절반 넘게 5초 뒤(배너가 커지는 연출 때)에야 잡혔다. 첫 로드에서는 로딩 화면 밑에서 끝나던 페이드라
+   보이는 차이는 다른 화면에서 넘어올 때뿐이다. 상세 커버(#911)·ProgressiveImage 의 priority 처리와 같은 이유 */
 .bannerSlider {
   margin-bottom: var(--spacing-3xl);
   min-height: clamp(280px, 44vh, 480px);
-  animation: fadeIn 0.8s cubic-bezier(0.25, 0.1, 0.25, 1) both;
 }
 
 /* ── Filter backdrop (blur overlay when stuck + expanded) ── */
