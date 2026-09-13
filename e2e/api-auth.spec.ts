@@ -63,3 +63,13 @@ test.describe("로그인 — 파라미터를 주면 200", () => {
     });
   }
 });
+
+/* 관리자 영역의 없는 주소(#903). (dashboard) 레이아웃의 관리자 사전 게이트 안에서 그려져 404 화면이 200 으로 나갔다 */
+test.describe("로그인 — 관리자 영역의 없는 주소", () => {
+  for (const path of ["/admin/e2e-no-such-page", "/admin/posts/e2e-no-such/x"]) {
+    test(`GET ${path} 는 404`, async ({ request }) => {
+      const res = await request.get(path, { maxRedirects: 0 });
+      expect(res.status()).toBe(404);
+    });
+  }
+});
