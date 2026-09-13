@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import {
   RADIUS,
   PLANE_WIDTH,
@@ -53,6 +53,15 @@ export function useCylinderStage({
     window.addEventListener("wheel", onWheel, { passive: false });
     return () => window.removeEventListener("wheel", onWheel);
   }, []);
+
+  /* 슬롯을 앞면으로 돌린다 — 키보드 목록에서 초점이 옮겨 갈 때 쓴다. 휠과 같은 scrollRef 를 옮기므로
+     회전은 휠처럼 따라온다. 씬의 목표 회전각이 scrollRef × segAngle × slotCount 라, 슬롯 i 가 앞면이 되는
+     각은 i × segAngle 이다. 한 바퀴 안에서 가까운 쪽으로 돈다. */
+  const rotateTo = useCallback((slot: number) => {
+    const turn = segAngle * slotCount;
+    const delta = slot * segAngle - scrollRef.current * turn;
+    scrollRef.current += (delta - Math.PI * 2 * Math.round(delta / (Math.PI * 2))) / turn;
+  }, [segAngle, slotCount]);
 
   // Mouse
   useEffect(() => {
@@ -193,5 +202,6 @@ export function useCylinderStage({
     floatingCommentsRef,
     slotBoundsRef,
     hoverDimRef,
+    rotateTo,
   };
 }

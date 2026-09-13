@@ -17,6 +17,62 @@
   background-color: var(--color-gray-alpha-100);
 }
 
+/* ── 키보드용 작업물 목록 (#938) ──
+   판은 캔버스라 초점을 받지 못해 따로 둔 링크 목록. 초점이 오기 전에는 화면에서 감추고(스크린리더에는 읽힌다),
+   목록 안에 초점이 있는 동안 왼쪽 가운데에 띄운다. */
+.workList {
+  position: fixed;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.workList:focus-within {
+  top: 50%;
+  left: var(--spacing-2xl);
+  z-index: 7;
+  width: auto;
+  height: auto;
+  max-width: calc(100vw - var(--spacing-2xl) * 2);
+  padding: var(--spacing-xs);
+  overflow: visible;
+  clip-path: none;
+  white-space: normal;
+  border-radius: var(--radius-2xl);
+  background: var(--bg-glass-panel);
+  backdrop-filter: var(--blur-glass);
+  transform: translateY(-50%);
+}
+
+.workListItems {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.workListLink {
+  display: block;
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  border-radius: var(--radius-capsule);
+  font-size: var(--font-size-body);
+  color: var(--text-secondary);
+}
+
+.workListLink:hover {
+  background: var(--bg-tertiary);
+}
+
+.workListLink:focus-visible {
+  outline: 2px solid var(--text-accent);
+  outline-offset: -2px;
+  color: var(--text-primary);
+}
+
 /* ── Canvas (fixed, full-screen) ── */
 .canvas {
   position: fixed !important;
@@ -53,12 +109,6 @@
   gap: var(--spacing-sm);
   pointer-events: none;
   will-change: transform, opacity;
-}
-
-/* 클릭 가능한 요소만 pointer-events 활성 */
-.metaTitle,
-.ctaInline {
-  pointer-events: auto;
 }
 
 .metaWord {
@@ -100,8 +150,7 @@
   letter-spacing: -0.04em;
   color: var(--text-white);
   margin: 0;
-  cursor: pointer;
-  pointer-events: auto;
+  /* 누름은 뒤의 판이 받는다 — 제목이 받으면 판 가운데를 눌러도 넘어가지 않는다(#938) */
   overflow: hidden;
   clip-path: inset(-10% -10% 0 -10%);
 }

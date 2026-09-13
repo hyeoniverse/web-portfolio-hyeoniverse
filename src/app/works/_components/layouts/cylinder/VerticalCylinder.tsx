@@ -36,7 +36,7 @@ export default function VerticalCylinder({ allImages, segAngle, arc, scrollRef, 
   dimRef: React.RefObject<number>;
   onMeshHover: (slotIdx: number) => void;
   onMeshLeave: (slotIdx: number) => void;
-  onMeshClick: (slotIdx: number) => void;
+  onMeshClick: (slotIdx: number, e: MouseEvent) => void;
 }) {
   const tiltGroupRef = useRef<THREE.Group>(null);
   const scrollGroupRef = useRef<THREE.Group>(null);
@@ -51,6 +51,8 @@ export default function VerticalCylinder({ allImages, segAngle, arc, scrollRef, 
   const count = allImages.length;
   const tiltRef = useRef({ x: 0, y: 0 });
   const initializedRef = useRef(false);
+  // 가운데 버튼을 누른 판 — 그 판에서 떼야 누름으로 친다. 누른 채 판을 벗어나면 지운다
+  const auxPressRef = useRef(-1);
 
   useFrame(() => {
     if (!tiltGroupRef.current || !scrollGroupRef.current) return;
@@ -136,12 +138,26 @@ export default function VerticalCylinder({ allImages, segAngle, arc, scrollRef, 
             }}
             onPointerLeave={() => {
               if (dimRef.current === i + 1) dimRef.current = 0;
+              if (auxPressRef.current === i) auxPressRef.current = -1;
               onMeshLeave(i);
               document.body.style.cursor = "";
             }}
             onClick={(e) => {
               e.stopPropagation();
-              onMeshClick(i);
+              onMeshClick(i, e.nativeEvent);
+            }}
+            /* 가운데 클릭은 click 이 아니라 auxclick 이라 광선 판정의 onClick 으로 오지 않는다.
+               누름과 뗌을 직접 짝지어 넘긴다 — 새 탭으로 열지는 받는 쪽이 버튼을 보고 정한다 */
+            onPointerDown={(e) => {
+              if (e.button !== 1) return;
+              e.stopPropagation();
+              auxPressRef.current = i;
+            }}
+            onPointerUp={(e) => {
+              if (e.button !== 1) return;
+              e.stopPropagation();
+              if (auxPressRef.current === i) onMeshClick(i, e.nativeEvent);
+              auxPressRef.current = -1;
             }}
           >
             <meshBasicMaterial map={tex} side={THREE.DoubleSide} />

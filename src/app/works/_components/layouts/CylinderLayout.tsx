@@ -7,7 +7,9 @@ import T from "@/components/ui/T";
 import { pickLocalized } from "@/types/common";
 import { SITE_TIME_ZONE } from "@/constants";
 import Tooltip from "@/components/ui/Tooltip";
-import type { WorksLayoutProps } from "./shared";
+import TransitionLink from "@/components/ui/TransitionLink";
+import { isPlainClick } from "@/utils/gestureUtils";
+import { workHref, type WorksLayoutProps } from "./shared";
 import { useCylinderStage } from "./cylinder/useCylinderStage";
 import CylinderIntroPanel from "./cylinder/CylinderIntroPanel";
 import CylinderCommentBubbles from "./cylinder/CylinderCommentBubbles";
@@ -26,7 +28,7 @@ const CylinderCanvas = dynamic(() => import("./cylinder/CylinderCanvas"), { ssr:
    useCylinderStage 가 3D 투영 좌표를 받아 매 프레임 위치를 맞춘다. */
 export default function CylinderLayout({ projects, onProjectClick }: WorksLayoutProps) {
   const { theme } = useTheme();
-  const { language } = useLanguage();
+  const { t, language } = useLanguage();
 
   /* 인트로 이미지는 캔버스에 그려 만드는 값이라 브라우저에서만 계산할 수 있다.
      여기서 만들면 서버 렌더가 document 를 찾다 깨지므로 CylinderCanvas 안으로 옮겼다. */
@@ -51,6 +53,7 @@ export default function CylinderLayout({ projects, onProjectClick }: WorksLayout
     floatingCommentsRef,
     slotBoundsRef,
     hoverDimRef,
+    rotateTo,
   } = useCylinderStage({
     slotCount,
     segAngle,
@@ -60,8 +63,13 @@ export default function CylinderLayout({ projects, onProjectClick }: WorksLayout
 
   const { recentComments, bubbleRefs } = useFloatingComments(slotBoundsRef);
 
-  const handleClick = useCallback((projectIdx: number) => {
+  const handleClick = useCallback((projectIdx: number, e?: MouseEvent) => {
     const p = projects[projectIdx];
+    // 판은 캔버스라 링크가 아니다. 보조 키·가운데 클릭은 링크처럼 새 탭으로 연다(#938)
+    if (e && !isPlainClick(e)) {
+      window.open(workHref(p), "_blank", "noopener");
+      return;
+    }
     const slotIdx = projectIdx + 1;
     const el = slotRefs.current.get(slotIdx);
     if (el) onProjectClick(p, el.getBoundingClientRect());
@@ -71,6 +79,25 @@ export default function CylinderLayout({ projects, onProjectClick }: WorksLayout
 
   return (
     <div ref={wrapRef} className={styles.wrap}>
+      {/* 판은 캔버스라 초점을 받지 못한다. 키보드로 작업물에 닿도록 초점이 오면 보이는 목록을 두고,
+          초점이 옮겨 가면 원통을 그 작업물로 돌린다. 서버 HTML 에도 작업물 주소가 들어간다(#938) */}
+      <nav className={styles.workList} aria-label={t("nav.works")}>
+        <ul className={styles.workListItems}>
+          {projects.map((proj, i) => (
+            <li key={proj.id}>
+              <TransitionLink
+                href={workHref(proj)}
+                className={styles.workListLink}
+                onFocus={() => rotateTo(i + 1)}
+                navigate={() => handleClick(i)}
+              >
+                {pickLocalized(proj.title, language)}
+              </TransitionLink>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
       <Suspense fallback={null}>
         <CylinderCanvas
           canvasClassName={styles.canvas}
@@ -171,14 +198,19 @@ export default function CylinderLayout({ projects, onProjectClick }: WorksLayout
                 </span>
               </span>
             </div>
-            <div
+            {/* 키보드는 위 목록으로 닿으므로 Tab 순서에서 뺀다 */}
+            <TransitionLink
+              href={workHref(proj)}
               className={styles.ctaInline}
               style={{ transitionDelay: ctaDelay }}
+              tabIndex={-1}
               aria-hidden="true"
+              draggable={false}
+              navigate={() => handleClick(i)}
             >
               <span className={styles.ctaBg} />
               <span className={styles.ctaArrow}>→</span>
-            </div>
+            </TransitionLink>
           </div>
         );
       })}

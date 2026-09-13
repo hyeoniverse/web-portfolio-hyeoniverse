@@ -1,4 +1,4 @@
-import { test, expect, type Locator, type Page } from "@playwright/test";
+import { test, expect, type Locator, type Page, type Route } from "@playwright/test";
 
 /**
  * 글·작업물 상세에서 다른 글로 가는 링크(#933 ②). 이전·다음 글, 추천 글 목록, 추천 알림은 예전에 div 에 클릭 처리만 있어
@@ -103,15 +103,34 @@ test.describe("상세의 글 링크 — 새 탭", () => {
 });
 
 /* 작업물 배치(#933 ③) — 지금 사이트 설정의 배치가 원통이면, 판을 누르면 옛 id 주소를 거치지 않고 slug 주소로 바로 간다.
-   예전에는 /works/<id> 로 넘어간 뒤 proxy 가 slug 로 돌려보냈다. 원통은 3D 캔버스라 판 자체는 링크가 아니다 */
+   예전에는 /works/<id> 로 넘어간 뒤 proxy 가 slug 로 돌려보냈다. 원통은 3D 캔버스라 판 자체는 링크가 아니다.
+   그래서 판의 보조 키·가운데 클릭은 캔버스가 새 탭으로 열고, 키보드는 초점이 오면 보이는 작업물 목록으로 닿는다(#938).
+   /works 는 방문 기록을 POST 하므로 읽기가 아닌 요청은 막는다. */
+const CYLINDER = '[class*="CylinderLayout-module__"]';
+const WORK_LIST = 'nav[class*="CylinderLayout-module__"][class*="__workList"]';
+const META_TITLE = '[class*="CylinderLayout-module__"][class*="__metaTitle"]';
+const FRONT_DOT = '[class*="CylinderLayout-module__"][class*="__indicatorDotActive"]';
+
+const readOnly = (route: Route) => (["GET", "HEAD", "OPTIONS"].includes(route.request().method()) ? route.continue() : route.abort());
+
+async function openCylinder(page: Page, url = "/works") {
+  await page.goto(url, { waitUntil: "load" });
+  test.skip((await page.locator(CYLINDER).count()) === 0, "원통 배치가 아니다");
+  // 캔버스는 브라우저에서만 붙는다
+  await page.locator(`${CYLINDER} canvas`).first().waitFor({ state: "attached", timeout: 30_000 });
+}
+
+/** 앞면 슬롯 번호(0 = 인트로) — 오른쪽 인디케이터의 켜진 점 */
+const frontSlot = (page: Page) => page.locator(FRONT_DOT).evaluate((dot) => [...(dot.parentElement?.children ?? [])].indexOf(dot));
+
 test.describe("작업물 원통 배치", () => {
   test.setTimeout(90_000);
+  test.beforeEach(async ({ page }) => {
+    await page.route("**/*", readOnly);
+  });
 
   test("판을 누르면 slug 주소로 바로 넘어간다", async ({ page }) => {
-    await page.goto("/works", { waitUntil: "load" });
-    test.skip((await page.locator('[class*="CylinderLayout-module__"]').count()) === 0, "원통 배치가 아니다");
-    // 캔버스는 브라우저에서만 붙는다
-    await page.locator('[class*="CylinderLayout-module__"] canvas').first().waitFor({ state: "attached", timeout: 30_000 });
+    await openCylinder(page);
     const requested: string[] = [];
     page.on("request", (req) => { const path = new URL(req.url()).pathname; if (path.startsWith("/works/")) requested.push(path); });
     // 처음 앞면은 인트로 판이라, 휠로 돌려 작업물 판을 가운데로 가져온다
@@ -127,5 +146,60 @@ test.describe("작업물 원통 배치", () => {
     const uuid = /^\/works\/[0-9a-f]{8}-[0-9a-f]{4}-/;
     expect(uuid.test(new URL(page.url()).pathname), "slug 주소").toBe(false);
     expect(requested.filter((path) => uuid.test(path)), "id 주소 요청").toEqual([]);
+  });
+
+  test("키보드로 작업물 목록에 닿고, 초점이 간 작업물로 원통이 돌며, Enter 로 넘어간다", async ({ page }) => {
+    await openCylinder(page);
+    const list = page.locator(WORK_LIST);
+    const second = list.locator("a").nth(1);
+    const href = await second.getAttribute("href");
+    expect(href).toMatch(/^\/works\/[^/]+$/);
+    expect(await (await page.request.get("/works")).text(), "서버 HTML 의 작업물 주소").toContain(`href="${href}"`);
+    expect((await list.boundingBox())?.width, "초점 전에는 감춘다").toBeLessThanOrEqual(1);
+    await second.focus();
+    expect((await list.boundingBox())?.width ?? 0, "초점이 오면 보인다").toBeGreaterThan(50);
+    await expect.poll(() => frontSlot(page), { message: "두 번째 작업물이 앞면으로", timeout: 10_000 }).toBe(2);
+    await page.keyboard.press("Enter");
+    await page.waitForURL((url) => url.pathname === href, { timeout: 15_000 });
+  });
+
+  /* 새 탭은 전체 Chromium 으로 본다 — 기본 headless shell 은 새 탭을 만들지 않는다 */
+  test("판을 ⌘·Ctrl·가운데 클릭하면 새 탭으로 열고, 제목을 눌러도 넘어간다", async ({ playwright, baseURL }) => {
+    test.setTimeout(120_000);
+    const browser = await playwright.chromium.launch({ channel: "chromium" });
+    try {
+      const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+      await context.route("**/*", readOnly);
+      const page = await context.newPage();
+      await openCylinder(page, `${baseURL}/works`);
+      // 목록 링크에 초점을 주면 원통이 그 작업물로 돈다. 초점을 거두면 목록은 다시 감춘다
+      const link = page.locator(`${WORK_LIST} a`).first();
+      const href = await link.getAttribute("href");
+      await link.focus();
+      await expect.poll(() => frontSlot(page), { timeout: 10_000 }).toBe(1);
+      await link.blur();
+      await page.waitForTimeout(2_000);
+      // 앞면 작업물 제목의 한가운데 — 제목은 누름을 뒤의 판으로 넘긴다
+      const box = await page.locator(META_TITLE).first().boundingBox();
+      if (!box) throw new Error("앞면 작업물 제목이 없다");
+      const x = box.x + box.width / 2;
+      const y = box.y + box.height / 2;
+      const modifier = process.platform === "darwin" ? "Meta" : "Control";
+      for (const how of ["modifier", "middle"] as const) {
+        const opened = context.waitForEvent("page");
+        if (how === "modifier") await page.keyboard.down(modifier);
+        await page.mouse.click(x, y, { button: how === "middle" ? "middle" : "left" });
+        if (how === "modifier") await page.keyboard.up(modifier);
+        const tab = await opened;
+        await tab.waitForLoadState("domcontentloaded");
+        expect(new URL(tab.url()).pathname, `${how} — 새 탭의 주소`).toBe(href);
+        expect(new URL(page.url()).pathname, `${how} — 지금 탭은 그대로`).toBe("/works");
+        await tab.close();
+      }
+      await page.mouse.click(x, y);
+      await page.waitForURL((url) => url.pathname === href, { timeout: 15_000 });
+    } finally {
+      await browser.close();
+    }
   });
 });
