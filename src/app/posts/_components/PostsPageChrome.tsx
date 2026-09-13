@@ -16,9 +16,8 @@ interface PostsPageChromeProps {
   children: React.ReactNode;
 }
 
-/* 글 목록 페이지의 고정 골격 — 페이지 래퍼 · 서브네비 · 제목 · 배너.
-   필터나 URL 쿼리에 전혀 의존하지 않아 서버에서 그대로 그릴 수 있다.
-   본문(PostsClient)은 children 으로 받아 Suspense 경계 안에 남긴다. */
+/* 글 목록 페이지의 고정 골격 — 페이지 래퍼 · 서브네비 · 제목 · 배너. 필터나 URL 쿼리에 의존하지 않는다.
+   본문(PostsClient)은 children 으로 받는다. */
 export default function PostsPageChrome({ history = false, pinnedPosts = [], children }: PostsPageChromeProps) {
   const { t } = useLanguage();
   return (

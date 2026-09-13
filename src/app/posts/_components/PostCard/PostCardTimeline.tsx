@@ -6,6 +6,7 @@ import HighlightedText from "@/components/ui/HighlightedText";
 import { PinIcon } from "@/components/icons";
 import { EmojiIcon } from "@/components/ui/EmojiPicker/EmojiIcon";
 import type { Post } from "@/types/post";
+import { siteDateParts } from "@/utils/siteDate";
 import { usePostCard } from "./usePostCard";
 import PostCardAuthor from "./PostCardAuthor";
 import { HotBadge, LangChip, StatItem } from "./PostCardChips";
@@ -31,8 +32,9 @@ export default function PostCardTimeline({
     t, cardRef, readTime, showImage, category, author, langBadge,
     displayTitle, displayExcerpt, icon, handleClick, handlePrefetch,
   } = usePostCard({ post, imgError });
-  const d = new Date(post.created_at);
-  const eyebrowDate = `${TL_MONTHS[d.getMonth()]} ${String(d.getDate()).padStart(2, "0")}, ${d.getFullYear()}`;
+  // 한국 시간 기준 — 서버가 미리 그린 날짜와 같아야 한다(siteDate)
+  const d = siteDateParts(post.created_at);
+  const eyebrowDate = d ? `${TL_MONTHS[d.month]} ${String(d.day).padStart(2, "0")}, ${d.year}` : "";
 
   return (
     <div

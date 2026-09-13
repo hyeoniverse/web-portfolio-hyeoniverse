@@ -4,7 +4,8 @@ import { useRef, type ReactNode } from "react";
 import { type CardType, getCardType } from "@/data/postsBentoTemplates";
 import type { Post } from "@/types/post";
 import { useIsMobile } from "@/hooks/useIsMobile";
-import { useMasonryRowSpans } from "../../_hooks/useMasonryRowSpans";
+import BeforeHydrationScript from "@/components/common/BeforeHydrationScript";
+import { useMasonryRowSpans, ROW_SPANS_SCRIPT } from "../../_hooks/useMasonryRowSpans";
 import PostsSkeletonCards from "./PostsSkeletonCards";
 import PostsGridItem from "./PostsGridItem";
 import styles from "./PostsGrid.module.css";
@@ -53,7 +54,8 @@ export default function PostsGrid({
               : postsLayout === "featured" ? styles.gridFeatured
                 : ""; // magazine = base .grid
   // Bento masonry row-span — 시리즈 timeline 모드는 flex 레이아웃이라 패스
-  useMasonryRowSpans(gridRef, !activeSeries && usesRowSpan, [posts, loading]);
+  const rowSpans = !activeSeries && usesRowSpan;
+  useMasonryRowSpans(gridRef, rowSpans, [posts, loading]);
   // magazine 만 사이즈 변주(wide/banner/square/portrait). grid·list·compact 는 균일 카드.
   const variants: CardType[] = posts.map((_, i) =>
     activeSeries || postsLayout !== "magazine" ? "standard" : getCardType(i),
@@ -65,6 +67,7 @@ export default function PostsGrid({
       <div
         ref={gridRef}
         className={`${styles.grid} ${activeSeries ? styles.gridSeries : layoutClass} ${loading ? styles.gridLoading : ""}`}
+        data-row-spans={rowSpans || undefined}
       >
         {posts.length === 0 ? (
           <PostsSkeletonCards
@@ -113,6 +116,8 @@ export default function PostsGrid({
           })
         )}
       </div>
+      {/* 미리 그린 HTML 에서 하이드레이션 전까지 줄 수를 넣는다 — 그리드 바로 뒤에 있어야 한다 */}
+      {rowSpans && <BeforeHydrationScript code={ROW_SPANS_SCRIPT} />}
     </div>
   );
 }

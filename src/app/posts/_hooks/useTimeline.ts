@@ -10,20 +10,20 @@ import {
   type SetStateAction,
 } from "react";
 import { useLenis } from "@/providers/LenisProvider";
+import { siteDateParts } from "@/utils/siteDate";
 import type { Post } from "@/types/post";
 
 // timeline 레이아웃 — 발행(예약)/생성 월 기준으로 그룹 마커 삽입.
-// 월 key/label 은 브라우저 로컬 타임존 기준 (marker id 와 index 가 반드시 일치해야 하므로 서버 버킷팅 금지)
+// 월 key/label 은 한국 시간 기준이다(siteDate). 서버가 미리 그린 마커와 브라우저가 같은 월을 그려야 하이드레이션이 어긋나지 않고,
+// marker id 와 index 가 같은 함수를 써야 점프가 맞는다
 const dateOf = (p: Post) => p.scheduled_at ?? p.created_at ?? null;
 const monthKeyFromDate = (d: string | null) => {
-  if (!d) return "";
-  const t = new Date(d);
-  return `${t.getFullYear()}-${t.getMonth()}`;
+  const t = d ? siteDateParts(d) : null;
+  return t ? `${t.year}-${t.month}` : "";
 };
 const monthLabelFromDate = (d: string | null) => {
-  if (!d) return "";
-  const t = new Date(d);
-  return `${t.getFullYear()}. ${String(t.getMonth() + 1).padStart(2, "0")}`;
+  const t = d ? siteDateParts(d) : null;
+  return t ? `${t.year}. ${String(t.month + 1).padStart(2, "0")}` : "";
 };
 const monthKey = (p: Post) => monthKeyFromDate(dateOf(p));
 const monthLabel = (p: Post) => monthLabelFromDate(dateOf(p));
@@ -65,10 +65,10 @@ export function useTimeline({
         : posts.map((p) => dateOf(p)).filter((d): d is string => !!d);
     const seen = new Map<string, { key: string; label: string; ord: number }>();
     for (const d of source) {
+      const t = siteDateParts(d);
       const k = monthKeyFromDate(d);
-      if (!k || seen.has(k)) continue;
-      const t = new Date(d);
-      seen.set(k, { key: k, label: monthLabelFromDate(d), ord: t.getFullYear() * 12 + t.getMonth() });
+      if (!t || seen.has(k)) continue;
+      seen.set(k, { key: k, label: monthLabelFromDate(d), ord: t.year * 12 + t.month });
     }
     return Array.from(seen.values())
       .sort((a, b) => b.ord - a.ord)
