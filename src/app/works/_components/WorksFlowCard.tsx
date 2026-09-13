@@ -6,6 +6,8 @@ import T from "@/components/ui/T";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { pickLocalized } from "@/types/common";
 import type { Project } from "@/data/projects";
+import TransitionLink from "@/components/ui/TransitionLink";
+import { workHref } from "./layouts/shared";
 import styles from "./WorksFlowCard.module.css";
 
 export const flowCardClassNames = {
@@ -55,17 +57,22 @@ export default function WorksFlowCard({
       data-layout={layoutVariant}
     >
       <Tooltip content={`${pickLocalized(project.title, language)} · ${t("tooltip.viewProject")}`}>
-        <article
-          ref={(el) => registerCard(index, el)}
+        {/* 카드 자체가 작업물 링크다(#933). 그냥 누르면 카드 전환으로, 새 탭 클릭은 브라우저가 연다. 길게 누르면 커지다
+            넘어가는 동작은 그대로라, 링크 끌기와 터치 길게 누르기 메뉴는 끈다(연출과 겹친다) */}
+        <TransitionLink
+          href={workHref(project)}
+          ref={(el: HTMLAnchorElement | null) => registerCard(index, el)}
           className={styles.card}
           data-more="true"
           data-clickable="true"
-          onClick={() => onClick(index, project)}
-          onMouseDown={() => onPressStart(index, project)}
+          draggable={false}
+          navigate={() => onClick(index, project)}
+          onMouseDown={(e) => { if (e.button === 0) onPressStart(index, project); }}
           onMouseUp={onPressEnd}
           onMouseLeave={onPressEnd}
           onTouchStart={() => onPressStart(index, project)}
           onTouchEnd={onPressEnd}
+          onContextMenu={(e) => { if ((e.nativeEvent as PointerEvent).pointerType === "touch") e.preventDefault(); }}
         >
           <div className={styles.cardImageWrap}>
             <ProgressiveImage
@@ -86,7 +93,7 @@ export default function WorksFlowCard({
             </span>
             <span className={styles.metaYear}>{project.year}</span>
           </div>
-        </article>
+        </TransitionLink>
       </Tooltip>
 
       {/* 메타 그룹 — 카드 옆 세로 배치. 위치는 data-layout 변주가 잡는다 */}
