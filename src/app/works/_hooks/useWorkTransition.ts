@@ -3,6 +3,7 @@
 import { useCallback, useRef, useState } from "react";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
 import { LONG_PRESS_DURATION, type Project } from "@/data/projects";
+import { workHref } from "../_components/layouts/shared";
 
 export interface TransitionData {
   id: string;
@@ -49,7 +50,7 @@ export function useWorkTransition(cardActiveClassName: string) {
 
       const rect = card.getBoundingClientRect();
       setTransitionData({ id: project.id, image: project.image, rect });
-      navigateWithTransition(`/works/${project.id}`, project.image, rect);
+      navigateWithTransition(workHref(project), project.image, rect);
     },
     [navigateWithTransition],
   );
@@ -102,9 +103,9 @@ export function useWorkTransition(cardActiveClassName: string) {
 
   /** 대체 레이아웃 공통 — 레이아웃이 계산한 rect 로 바로 전환한다 */
   const handleLayoutProjectClick = useCallback(
-    (id: string, rect: DOMRect, image: string) => {
-      setTransitionData({ id, image, rect });
-      navigateWithTransition(`/works/${id}`, image, rect);
+    (project: Project, rect: DOMRect) => {
+      setTransitionData({ id: project.id, image: project.image, rect });
+      navigateWithTransition(workHref(project), project.image, rect);
     },
     [navigateWithTransition],
   );

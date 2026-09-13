@@ -5,6 +5,8 @@ import TransitionLink from "@/components/ui/TransitionLink";
 import CardsBanner from "@/app/posts/_components/PostsBanner/CardsBanner";
 import TickerBanner from "@/app/posts/_components/PostsBanner/TickerBanner";
 import SplitBanner from "@/app/posts/_components/PostsBanner/SplitBanner";
+import CylinderCommentBubbles from "@/app/works/_components/layouts/cylinder/CylinderCommentBubbles";
+import type { Project } from "@/data/projects";
 import type { Post } from "@/types/post";
 
 /* 연출로 넘어가는 링크(#933). 그냥 누르면 기본 동작을 막고 연출로 넘어가며, 가운데 버튼·보조 키 클릭은 브라우저에 맡긴다.
@@ -36,6 +38,14 @@ describe("TransitionLink", () => {
     for (const init of [{ metaKey: true }, { ctrlKey: true }, { shiftKey: true }, { altKey: true }, { button: 1 }]) {
       expect(click(getByRole("link"), init), JSON.stringify(init)).toBe(false);
     }
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
+  it("넘어가는 방식을 넘겨받으면 전환 대신 그것을 부른다(작업물 배치의 전환 덮개 등)", () => {
+    const navigateOwn = vi.fn();
+    const { getByRole } = render(<TransitionLink href="/works/a" navigate={navigateOwn}>작업물</TransitionLink>);
+    expect(click(getByRole("link"))).toBe(true);
+    expect(navigateOwn).toHaveBeenCalledWith(expect.anything());
     expect(navigate).not.toHaveBeenCalled();
   });
 
@@ -79,5 +89,22 @@ describe("배너의 글 링크", () => {
     expect(title.textContent).toContain("제목 a");
     click(title);
     expect(navigate).toHaveBeenCalledWith("/posts/a", "/a.jpg", expect.anything(), undefined);
+  });
+});
+
+describe("원통 배치의 댓글 말풍선", () => {
+  it("작업물 slug 주소 링크이고, 목록에 없는 작업물은 id 주소로 간다", () => {
+    const projectsById = new Map([["w1", { id: "w1", slug: "prism-ui", image: "/prism.jpg" } as unknown as Project]]);
+    const comments = [
+      { id: "c1", work_id: "w1", work_title: "Prism", content: "좋아요" },
+      { id: "c2", work_id: "w9", work_title: "Old", content: "옛 작업물" },
+    ];
+    const { container } = render(
+      <CylinderCommentBubbles comments={comments as never} bubbleRefs={{ current: [] }} containerRef={{ current: null }} projectsById={projectsById} />,
+    );
+    const links = Array.from(container.querySelectorAll("a"));
+    expect(links.map((a) => a.getAttribute("href"))).toEqual(["/works/prism-ui", "/works/w9"]);
+    click(links[0]);
+    expect(navigate).toHaveBeenCalledWith("/works/prism-ui", "/prism.jpg", expect.anything(), undefined);
   });
 });

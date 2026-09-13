@@ -5,7 +5,8 @@ import MediaThumb from "@/components/ui/MediaThumb";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { useLenis } from "@/providers/LenisProvider";
 import T from "@/components/ui/T";
-import type { WorksLayoutProps } from "./shared";
+import TransitionLink from "@/components/ui/TransitionLink";
+import { workHref, type WorksLayoutProps } from "./shared";
 import styles from "./FullscreenLayout.module.css";
 
 /** intro HUD — 매 초 갱신되는 KST 시계 */
@@ -42,7 +43,7 @@ function useFps() {
 }
 
 export default function FullscreenLayout({ projects, onProjectClick }: WorksLayoutProps) {
-  const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const sectionRefs = useRef<(HTMLElement | null)[]>([]);
   // -1 = intro, 0..N-1 = projects. 시작 시 intro 활성.
   const [activeIdx, setActiveIdx] = useState(-1);
   const siteConfig = useSiteConfig();
@@ -180,15 +181,13 @@ export default function FullscreenLayout({ projects, onProjectClick }: WorksLayo
         projects.map((p, i) => {
           const refIdx = 1 + setIdx * projects.length + i;
           return (
-            <div
+            <TransitionLink
               key={`${p.id}-${setIdx}`}
-              ref={(el) => { sectionRefs.current[refIdx] = el; }}
+              href={workHref(p)}
+              ref={(el: HTMLAnchorElement | null) => { sectionRefs.current[refIdx] = el; }}
               data-idx={i}
               className={styles.section}
-              onClick={() => {
-                const el = sectionRefs.current[refIdx];
-                if (el) onProjectClick(p.id, el.getBoundingClientRect(), p.image);
-              }}
+              navigate={(rect) => onProjectClick(p, rect)}
             >
               <span className={styles.number}>{p.number}</span>
 
@@ -212,7 +211,7 @@ export default function FullscreenLayout({ projects, onProjectClick }: WorksLayo
                   <span key={j}>{tech}</span>
                 ))}
               </div>
-            </div>
+            </TransitionLink>
           );
         }),
       )}

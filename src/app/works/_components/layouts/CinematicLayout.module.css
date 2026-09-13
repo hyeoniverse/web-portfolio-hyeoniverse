@@ -18,6 +18,8 @@
 
 /* ── Panel (each project) ── */
 .panel {
+  /* 작업물 링크(a) — 폭·높이가 먹도록 블록으로(#933) */
+  display: block;
   position: relative;
   flex-shrink: 0;
   width: 100vw;

@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { Monitor, Image as ImageIcon } from "@/components/icons";
 import HorizontalCarousel from "@/components/ui/HorizontalCarousel";
+import TransitionLink from "@/components/ui/TransitionLink";
 import { useHoverPreview } from "@/components/ui/RelatedChips/useHoverPreview";
 import { isVideoUrl } from "@/lib/isVideoUrl";
 import styles from "./RelatedWorksCarousel.module.css";
@@ -46,13 +47,16 @@ export default function RelatedWorksCarousel({
             ? (w.categories_en?.length ? w.categories_en : w.categories_ko ?? [])
             : (w.categories_ko?.length ? w.categories_ko : w.categories_en ?? []);
           const category = cats[0] || "";
+          const href = `/works/${w.slug || w.id}`;
+          /* 작업물 링크 — 넘어가는 방식은 쓰는 쪽(onNavigate)이 정한다. 캐러셀이 마우스 끌기로 넘기므로 링크 끌기는 끈다 */
           return (
-            <div
+            <TransitionLink
               key={w.id}
-              onClick={(e) => onNavigate(`/works/${w.slug || w.id}`, w.image || "", e.currentTarget.getBoundingClientRect())}
+              href={href}
+              draggable={false}
+              navigate={(rect) => onNavigate(href, w.image || "", rect)}
               onMouseEnter={(e) => show({ title, image: w.image || undefined, category: category || undefined, desc: subtitle || undefined }, e.currentTarget)}
               onMouseLeave={hide}
-              style={{ cursor: "pointer" }}
               className={styles.relatedCard}
             >
               <div className={styles.relatedCardImage}>
@@ -81,7 +85,7 @@ export default function RelatedWorksCarousel({
                 <span className={styles.relatedCardTitle}>{title}</span>
                 {subtitle && <span className={styles.relatedCardExcerpt}>{subtitle}</span>}
               </div>
-            </div>
+            </TransitionLink>
           );
         })}
       </HorizontalCarousel>

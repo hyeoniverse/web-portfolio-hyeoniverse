@@ -6,7 +6,8 @@ import DynamicFrameLayout, {
 } from "@/components/common/DynamicFrame/DynamicFrameLayout";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import T from "@/components/ui/T";
-import type { WorksLayoutProps } from "./shared";
+import TransitionLink from "@/components/ui/TransitionLink";
+import { workHref, type WorksLayoutProps } from "./shared";
 import styles from "./GridLayout.module.css";
 
 /** Bento layout — intro + projects 가 항상 12×12 (3×3) 그리드를 빈 공간 없이 채움.
@@ -76,7 +77,7 @@ function buildFrames(projectCount: number): Frame[] {
 }
 
 export default function GridLayout({ projects, onProjectClick }: WorksLayoutProps) {
-  const cellRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const cellRefs = useRef<(HTMLElement | null)[]>([]);
   const frames = useMemo(() => buildFrames(projects.length), [projects.length]);
   const siteConfig = useSiteConfig();
   const w = siteConfig.works;
@@ -126,14 +127,12 @@ export default function GridLayout({ projects, onProjectClick }: WorksLayoutProp
       const p = projects[index - 1];
       if (!p) return null;
       return (
-        <div
-          ref={(el) => { cellRefs.current[index] = el; }}
+        <TransitionLink
+          href={workHref(p)}
+          ref={(el: HTMLAnchorElement | null) => { cellRefs.current[index] = el; }}
           className={styles.projectCell}
           data-clickable="true"
-          onClick={() => {
-            const el = cellRefs.current[index];
-            if (el) onProjectClick(p.id, el.getBoundingClientRect(), p.image);
-          }}
+          navigate={(rect) => onProjectClick(p, rect)}
         >
           <div
             className={styles.projectImage}
@@ -162,7 +161,7 @@ export default function GridLayout({ projects, onProjectClick }: WorksLayoutProp
               ))}
             </div>
           </div>
-        </div>
+        </TransitionLink>
       );
       // suppress unused warning
       void frame;

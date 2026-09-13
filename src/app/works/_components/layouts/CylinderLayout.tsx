@@ -34,10 +34,7 @@ export default function CylinderLayout({ projects, onProjectClick }: WorksLayout
   const projectImages = useMemo(() => projects.map((p) => p.image), [projects]);
   // 슬롯 = 인트로 1 + 작품 N
   const slotCount = projectImages.length + 1;
-  const projectImageMap = useMemo(
-    () => new Map(projects.map((p) => [p.id, p.image])),
-    [projects],
-  );
+  const projectsById = useMemo(() => new Map(projects.map((p) => [p.id, p])), [projects]);
   // 겹치지 않도록: max(고정 각도, 360°/슬롯수)
   const segAngle = Math.min(MIN_SEGMENT_ANGLE, (Math.PI * 2) / slotCount);
   const arc = segAngle * (1 - GAP_RATIO);
@@ -67,7 +64,7 @@ export default function CylinderLayout({ projects, onProjectClick }: WorksLayout
     const p = projects[projectIdx];
     const slotIdx = projectIdx + 1;
     const el = slotRefs.current.get(slotIdx);
-    if (el) onProjectClick(p.id, el.getBoundingClientRect(), p.image);
+    if (el) onProjectClick(p, el.getBoundingClientRect());
     // slotRefs 는 훅이 돌려준 ref 객체라 참조가 고정 — deps 에 넣으면 컴파일러가 메모를 버린다
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projects, onProjectClick]);
@@ -100,7 +97,7 @@ export default function CylinderLayout({ projects, onProjectClick }: WorksLayout
         comments={recentComments}
         bubbleRefs={bubbleRefs}
         containerRef={floatingCommentsRef}
-        projectImageMap={projectImageMap}
+        projectsById={projectsById}
       />
 
       {/* Slot 1~N — 제목·카테고리만 difference. 클릭은 3D 이미지 panel 자체가 받음 (pointer-events: none) */}

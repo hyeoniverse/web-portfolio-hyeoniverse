@@ -1,13 +1,14 @@
 "use client";
 
-import { useRef, useLayoutEffect, useState, useEffect, useCallback } from "react";
+import { useRef, useLayoutEffect, useState, useEffect } from "react";
 import MediaThumb from "@/components/ui/MediaThumb";
 import gsap from "gsap";
 import T from "@/components/ui/T";
 import { pickLocalized } from "@/types/common";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useLenis } from "@/providers/LenisProvider";
-import type { WorksLayoutProps } from "./shared";
+import TransitionLink from "@/components/ui/TransitionLink";
+import { workHref, type WorksLayoutProps } from "./shared";
 import styles from "./CinematicLayout.module.css";
 
 const SETS = 5;
@@ -17,7 +18,7 @@ const META_PARALLAX = -80;
 const YEAR_PARALLAX = 200;
 
 interface PanelRefs {
-  root: HTMLDivElement;
+  root: HTMLElement;
   image: HTMLDivElement | null;
   meta: HTMLDivElement | null;
   year: HTMLDivElement | null;
@@ -110,22 +111,14 @@ export default function CinematicLayout({ projects, onProjectClick }: WorksLayou
     };
   }, [projects.length]);
 
-  const handleClick = useCallback(
-    (i: number) => {
-      const project = allProjects[i];
-      const el = panelsRef.current[i]?.root;
-      if (el) onProjectClick(project.id, el.getBoundingClientRect(), project.image);
-    },
-    [allProjects, onProjectClick],
-  );
-
   return (
     <div ref={wrapRef} className={styles.wrap}>
       <div ref={trackRef} className={styles.track}>
         {allProjects.map((p, i) => (
-          <div
+          <TransitionLink
             key={`${p.id}-${i}`}
-            ref={(el) => {
+            href={workHref(p)}
+            ref={(el: HTMLAnchorElement | null) => {
               if (el) {
                 panelsRef.current[i] = {
                   root: el,
@@ -136,7 +129,7 @@ export default function CinematicLayout({ projects, onProjectClick }: WorksLayou
               }
             }}
             className={styles.panel}
-            onClick={() => handleClick(i)}
+            navigate={(rect) => onProjectClick(p, rect)}
           >
             <div className={styles.image}>
               <MediaThumb src={p.image} alt={pickLocalized(p.title, language)} fill sizes="100vw" priority={i === 0} fallbackSeed={p.id} />
@@ -161,7 +154,7 @@ export default function CinematicLayout({ projects, onProjectClick }: WorksLayou
               </div>
             </div>
             <div className={styles.yearBig}>{p.year}</div>
-          </div>
+          </TransitionLink>
         ))}
       </div>
 

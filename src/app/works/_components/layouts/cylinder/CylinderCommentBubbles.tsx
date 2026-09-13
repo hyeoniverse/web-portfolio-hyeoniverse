@@ -1,7 +1,9 @@
 "use client";
 
 import type { RefObject } from "react";
-import { usePageTransition } from "@/providers/PageTransitionProvider";
+import TransitionLink from "@/components/ui/TransitionLink";
+import type { Project } from "@/data/projects";
+import { workHref } from "../shared";
 import type { WorkComment } from "./useFloatingComments";
 import styles from "./CylinderCommentBubbles.module.css";
 
@@ -12,35 +14,34 @@ export default function CylinderCommentBubbles({
   comments,
   bubbleRefs,
   containerRef,
-  projectImageMap,
+  projectsById,
 }: {
   comments: WorkComment[];
   bubbleRefs: RefObject<(HTMLAnchorElement | null)[]>;
   containerRef: RefObject<HTMLDivElement | null>;
-  projectImageMap: Map<string, string>;
+  projectsById: Map<string, Project>;
 }) {
-  const { navigateWithTransition } = usePageTransition();
   if (comments.length === 0) return null;
 
   return (
     <div ref={containerRef} className={styles.floatingComments} style={{ visibility: "hidden" }} tabIndex={-1}>
-      {comments.map((c, i) => (
-        <div
-          key={c.id}
-          ref={(el) => { bubbleRefs.current[i] = el as HTMLAnchorElement | null; }}
-          className={styles.floatingBubble}
-          role="button"
-          tabIndex={0}
-          onClick={(e) => {
-            const img = projectImageMap.get(c.work_id) || "";
-            const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-            navigateWithTransition(`/works/${c.work_id}`, img, rect);
-          }}
-        >
-          <span className={styles.bubbleNick}>{c.work_title || "Work"}</span>
-          <span className={styles.bubbleText}>{c.content}</span>
-        </div>
-      ))}
+      {comments.map((c, i) => {
+        const project = projectsById.get(c.work_id);
+        // 목록에 없는 작업물이면 id 주소로 — proxy 가 slug 주소로 돌려보낸다
+        const href = project ? workHref(project) : `/works/${c.work_id}`;
+        return (
+          <TransitionLink
+            key={c.id}
+            href={href}
+            image={project?.image || ""}
+            ref={(el: HTMLAnchorElement | null) => { bubbleRefs.current[i] = el; }}
+            className={styles.floatingBubble}
+          >
+            <span className={styles.bubbleNick}>{c.work_title || "Work"}</span>
+            <span className={styles.bubbleText}>{c.content}</span>
+          </TransitionLink>
+        );
+      })}
     </div>
   );
 }

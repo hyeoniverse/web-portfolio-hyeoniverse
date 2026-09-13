@@ -8,7 +8,8 @@ import { useLenis } from "@/providers/LenisProvider";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { pickLocalized } from "@/types/common";
 import T from "@/components/ui/T";
-import type { WorksLayoutProps } from "./shared";
+import TransitionLink from "@/components/ui/TransitionLink";
+import { workHref, type WorksLayoutProps } from "./shared";
 import styles from "./SplitLayout.module.css";
 import Pressable from "@/components/ui/Pressable";
 
@@ -20,7 +21,7 @@ export default function SplitLayout({ projects, onProjectClick }: WorksLayoutPro
   const introVideoSrc = w.introVideoUrl || "/cover/videos/bg-1.mp4";
   const { lenis, scrollTo: lenisScrollTo } = useLenis();
   const rightRef = useRef<HTMLDivElement>(null);
-  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const cardRefs = useRef<(HTMLElement | null)[]>([]);
   const introRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   // teleport 기반 seamless infinite scroll —
@@ -100,14 +101,6 @@ export default function SplitLayout({ projects, onProjectClick }: WorksLayoutPro
     const card = cardRefs.current[idx];
     if (card) card.scrollIntoView({ behavior: "smooth", block: "start" });
   }, []);
-
-  const handleCardClick = useCallback(
-    (i: number, id: string, image: string) => {
-      const el = cardRefs.current[i];
-      if (el) onProjectClick(id, el.getBoundingClientRect(), image);
-    },
-    [onProjectClick],
-  );
 
   const p = active >= 0 ? projects[active] : projects[0];
 
@@ -217,13 +210,14 @@ export default function SplitLayout({ projects, onProjectClick }: WorksLayoutPro
           }
           const { project: proj, idx } = item;
           return (
-            <div
+            <TransitionLink
               key={item.key}
-              ref={(el) => { cardRefs.current[idx] = el; }}
+              href={workHref(proj)}
+              ref={(el: HTMLAnchorElement | null) => { cardRefs.current[idx] = el; }}
               data-idx={idx}
               data-clickable="true"
               className={styles.imageCard}
-              onClick={() => handleCardClick(idx, proj.id, proj.image)}
+              navigate={(rect) => onProjectClick(proj, rect)}
             >
               <MediaThumb
                 src={proj.image}
@@ -251,7 +245,7 @@ export default function SplitLayout({ projects, onProjectClick }: WorksLayoutPro
                   ))}
                 </div>
               </div>
-            </div>
+            </TransitionLink>
           );
         })}
       </div>
