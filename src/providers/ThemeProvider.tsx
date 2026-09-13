@@ -8,6 +8,8 @@ import {
   useRef,
   useState,
   useCallback,
+  useMemo,
+  startTransition,
 } from "react";
 import { useSiteConfig } from "./SiteConfigProvider";
 import { loadGoogleFont } from "@/lib/loadGoogleFont";
@@ -87,18 +89,19 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const isFirstThemeRef = useRef(true);
 
   // localStorage 또는 시스템 설정에서 테마 초기화
+  // 상태는 startTransition 으로 넣는다 — LenisProvider·LanguageProvider 와 같은 이유(#911). 급한 갱신으로 두면 아직
+  // 하이드레이션 중인 페이지 본문 경계(loading.tsx)가 서버 HTML 을 버리고 다시 그려진다. 전환은 그 경계가 준비될 때까지
+  // 기다릴 수 있으니, 화면 테마(data-theme)는 여기서 바로 칠해 늦지 않게 한다. 색·글꼴 덮어쓰기는 아래 효과가 이어서 한다
   useEffect(() => {
-    setMounted(true);
     const stored = localStorage.getItem("theme") as ResolvedTheme | null;
-    if (stored) {
-      setThemeState(stored);
-    } else {
-      // 시스템 설정 확인
-      const prefersDark = window.matchMedia(
-        "(prefers-color-scheme: dark)"
-      ).matches;
-      setThemeState(prefersDark ? "dark" : "light");
-    }
+    const initial: ResolvedTheme = stored
+      ? stored
+      : window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    document.documentElement.setAttribute("data-theme", initial);
+    startTransition(() => {
+      setMounted(true);
+      setThemeState(initial);
+    });
   }, []);
 
   // 문서에 테마 적용
@@ -140,8 +143,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     setThemeState(newTheme);
   }, []);
 
+  // 값을 메모한다 — mounted 처럼 값에 없는 상태가 바뀌어도 소비자가 다시 그려지지 않게
+  const value = useMemo(() => ({ theme, toggleTheme, setTheme }), [theme, toggleTheme, setTheme]);
+
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
+    <ThemeContext.Provider value={value}>
       {children}
     </ThemeContext.Provider>
   );

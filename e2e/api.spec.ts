@@ -156,3 +156,17 @@ test.describe("비로그인 — 디자인 시스템·관리자 영역의 없는 
     expect(new URL(res.headers().location ?? "", "http://local").pathname).toBe("/admin/login");
   });
 });
+
+/* 상세 커버는 서버 HTML 부터 보여야 한다(#911). opacity 0 에서 시작하면 하이드레이션 뒤 페이드가 끝나야 보여, 느린 회선에서
+   이미 받아 둔 이미지를 몇 초씩 감추고 LCP 도 그만큼 늦었다 */
+test.describe("비로그인 — 상세 커버", () => {
+  test("글 상세의 커버는 서버 HTML 에서 가려져 있지 않다", async ({ request }) => {
+    const body = (await (await request.get("/api/posts?limit=20")).json()) as { posts?: { slug: string; cover_image?: string | null }[] };
+    const post = body.posts?.find((p) => p.cover_image);
+    test.skip(!post, "커버가 있는 글이 없다");
+    const html = await (await request.get(`/posts/${post!.slug}`)).text();
+    const heroes = html.match(/<div class="[^"]*DetailLayout-module__[\w-]+__hero"[^>]*>/g) ?? [];
+    expect(heroes.length, "커버 감싸개").toBeGreaterThan(0);
+    expect(heroes.filter((h) => /opacity:\s*0[;"]/.test(h)), "opacity 0 으로 나간 커버").toEqual([]);
+  });
+});

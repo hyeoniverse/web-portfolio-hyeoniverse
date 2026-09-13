@@ -7,6 +7,7 @@ import {
   useRef,
   useState,
   useCallback,
+  startTransition,
   type ReactNode,
 } from "react";
 import Lenis from "@studio-freight/lenis";
@@ -81,7 +82,10 @@ export function LenisProvider({ children, options = {} }: LenisProviderProps) {
     });
 
     lenisRef.current = lenisInstance;
-    setLenis(lenisInstance);
+    /* startTransition — 페이지 본문은 loading.tsx 의 Suspense 경계 안에 있다. 그 코드가 아직 오는 중일 때 이 갱신이 급한
+       갱신으로 경계에 닿으면 React 가 서버 HTML 을 버리고 로딩 화면부터 다시 그린다(느린 회선의 상세 페이지, #911).
+       전환으로 두면 경계가 하이드레이션을 마칠 때까지 기다린다. LanguageProvider 와 같은 이유다 */
+    startTransition(() => setLenis(lenisInstance));
 
     // Lenis 스크롤과 GSAP ScrollTrigger 동기화
     lenisInstance.on("scroll", ScrollTrigger.update);
