@@ -12,6 +12,7 @@ import { HotBadge, LangChip, StatItem } from "./PostCardChips";
 // .card 는 네 변형이 공유하는 카드 base — PostCard.module.css 에 있다.
 import base from "./PostCard.module.css";
 import styles from "./PostCardCompact.module.css";
+import PostCardLink from "./PostCardLink";
 
 /* Compact 레이아웃: 이미지 없이 텍스트 행 (초고밀도 목록) */
 export default function PostCardCompact({
@@ -27,7 +28,7 @@ export default function PostCardCompact({
 }) {
   const {
     t, cardRef, date, readTime, showImage, category, author, langBadge,
-    displayTitle, icon, handleClick, handlePrefetch,
+    displayTitle, icon, href, handleClick, handleLinkClick, handlePrefetch,
   } = usePostCard({ post, imgError });
   const chipClass = styles.compactChip;
   const hotClass = `${styles.compactChip} ${styles.compactHotBadge}`;
@@ -39,10 +40,10 @@ export default function PostCardCompact({
       onClick={handleClick}
       onMouseEnter={handlePrefetch}
       onFocus={handlePrefetch}
-      role="link"
       data-more="true"
       data-clickable="true"
     >
+      <PostCardLink href={href} title={displayTitle} onClick={handleLinkClick} />
       {/* 데스크톱: lead(pin·카테고리·썸네일·제목·hot·lang) 한 줄 + meta. 모바일선 media query 로
           2줄 분해 (1줄: 썸네일·제목·meta / 2줄: 카테고리·hot·lang). DOM 은 desktop 기준 유지. */}
       <div className={styles.compactLead}>

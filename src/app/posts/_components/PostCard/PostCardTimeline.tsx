@@ -9,6 +9,7 @@ import type { Post } from "@/types/post";
 import { siteDateParts } from "@/utils/siteDate";
 import { usePostCard } from "./usePostCard";
 import PostCardAuthor from "./PostCardAuthor";
+import PostCardLink from "./PostCardLink";
 import { HotBadge, LangChip, StatItem } from "./PostCardChips";
 // .card 는 네 변형이 공유하는 카드 base — PostCard.module.css 에 있다(hero·standard 가 분리되면 그 파일이 base 만 남는다).
 import base from "./PostCard.module.css";
@@ -30,7 +31,7 @@ export default function PostCardTimeline({
 }) {
   const {
     t, cardRef, readTime, showImage, category, author, langBadge,
-    displayTitle, displayExcerpt, icon, handleClick, handlePrefetch,
+    displayTitle, displayExcerpt, icon, href, handleClick, handleLinkClick, handlePrefetch,
   } = usePostCard({ post, imgError });
   // 한국 시간 기준 — 서버가 미리 그린 날짜와 같아야 한다(siteDate)
   const d = siteDateParts(post.created_at);
@@ -43,10 +44,10 @@ export default function PostCardTimeline({
       onClick={handleClick}
       onMouseEnter={handlePrefetch}
       onFocus={handlePrefetch}
-      role="link"
       data-more="true"
       data-clickable="true"
     >
+      <PostCardLink href={href} title={displayTitle} onClick={handleLinkClick} />
       {/* eyebrow — 날짜(accent) · 카테고리 · pinned · hot */}
       <div className={styles.timelineEyebrow}>
         <time className={styles.timelineDate} dateTime={post.created_at}>{eyebrowDate}</time>

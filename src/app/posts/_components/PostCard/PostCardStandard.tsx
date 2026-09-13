@@ -11,6 +11,7 @@ import { Pin, Eye, Heart } from "@/components/icons";
 import { getFallbackCoverGradient } from "@/lib/coverFallback";
 import { usePostCard } from "./usePostCard";
 import PostCardAuthor from "./PostCardAuthor";
+import PostCardLink from "./PostCardLink";
 import { HotBadge } from "./PostCardChips";
 import styles from "./PostCard.module.css";
 import { EmojiIcon } from "@/components/ui/EmojiPicker/EmojiIcon";
@@ -48,7 +49,7 @@ export default function PostCardStandard({
 }: PostCardVariantProps) {
   const {
     t, cardRef, date, readTime, showImage, category, author, langBadge,
-    displayTitle, displayExcerpt, icon, handleClick, handlePrefetch,
+    displayTitle, displayExcerpt, icon, href, handleClick, handleLinkClick, handlePrefetch,
   } = usePostCard({ post, imgError });
   const isFeatured = variant === "featured";
   const [tagsExpanded, setTagsExpanded] = useState(false);
@@ -108,10 +109,10 @@ export default function PostCardStandard({
       onClick={handleClick}
       onMouseEnter={handlePrefetch}
       onFocus={handlePrefetch}
-      role="link"
       data-more="true"
       data-clickable="true"
     >
+      <PostCardLink href={href} title={displayTitle} onClick={handleLinkClick} />
       <div className={styles.imageWrap}>
         {showImage ? (
           <ProgressiveImage
