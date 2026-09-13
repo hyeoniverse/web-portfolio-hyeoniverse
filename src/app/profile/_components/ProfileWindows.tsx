@@ -2,6 +2,7 @@
 
 import { Fragment, useRef, useCallback, useState, useEffect } from "react";
 import { useSyncRef } from "@/hooks/useSyncRef";
+import { useNearViewport } from "@/hooks/useNearViewport";
 
 import Image from "next/image";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
@@ -29,6 +30,28 @@ export default function ProfileWindows({ className, isMobile, infoBlocks }: Prop
   const TEXT_POSITIONS = getTextPositions(siteConfig, infoBlocks);
 
   const containerRef = useRef<HTMLDivElement | null>(null);
+  /* 창 속으로 보이는 사진(엿보기 층)은 필요할 때 붙인다(#915). CSS 배경은 화면 밖이어도 첫 로드에 받아서, 가로 스크롤
+     몇 화면 뒤에 있는 사진 원본(252KB)이 하이드레이션에 필요한 JS 와 대역을 나눠 썼다.
+     - 사용자가 스크롤을 시작하면 받는다. 이 구역은 두 화면 넘게 뒤라 닿기 전에 받아 둘 수 있다
+     - 입력 없이 구역이 보이는 경우(스크롤 위치 복원 등)는 화면 관찰로 받친다. 가로 트랙의 섹션이 overflow 로 잘라,
+       관찰은 구역이 화면에 들어올 때에야 알린다(rootMargin 이 먹지 않는다) */
+  const [observePeek, peekNear] = useNearViewport(!isMobile);
+  const setContainer = useCallback(
+    (el: HTMLDivElement | null) => {
+      containerRef.current = el;
+      return observePeek(el);
+    },
+    [observePeek],
+  );
+  const [userMoved, setUserMoved] = useState(false);
+  useEffect(() => {
+    if (isMobile || userMoved) return;
+    const events = ["wheel", "touchstart", "keydown", "pointerdown"] as const;
+    const onMove = () => setUserMoved(true);
+    events.forEach((e) => window.addEventListener(e, onMove, { once: true, passive: true }));
+    return () => events.forEach((e) => window.removeEventListener(e, onMove));
+  }, [isMobile, userMoved]);
+  const peekReady = peekNear || userMoved;
   const winRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const peekRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const textPeekRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -266,8 +289,8 @@ export default function ProfileWindows({ className, isMobile, infoBlocks }: Prop
   /* ── Desktop: OS windows + peek layers ── */
   return (
     <div
-      ref={containerRef}
-      className={`${styles.windowsContainer} ${className ?? ""}`}
+      ref={setContainer}
+      className={`${styles.windowsContainer} ${peekReady ? styles.peekReady : ""} ${className ?? ""}`}
     >
       {/* Afterimage — grayscale, offset behind */}
       <div className={`${styles.baseImageWrap} ${styles.baseImageGhost}`}>
