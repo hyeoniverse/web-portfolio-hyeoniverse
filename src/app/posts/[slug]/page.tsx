@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getPostBySlug, getAllPostSlugs } from "@/lib/posts";
 import { highlightRichtextCode } from "@/utils/highlightRichtext";
+import { getPostRelatedWorks } from "@/lib/postRelatedWorks";
 import PostDetailClient from "./PostDetailClient";
 
 export const revalidate = 300;
@@ -44,10 +45,11 @@ export default async function PostDetailPage({
 
   // 코드블록 신택스 하이라이팅 — richtext 는 서버에서 Shiki 로 미리 칠해 내려보냄
   // (markdown 은 MarkdownRenderer 가 클라에서 hljs 처리). 클라 번들엔 하이라이터 미포함.
-  const rendered =
-    post.content_type !== "markdown" && post.content
-      ? { ...post, content: await highlightRichtextCode(post.content) }
-      : post;
+  const [content, relatedWorks] = await Promise.all([
+    post.content_type !== "markdown" && post.content ? highlightRichtextCode(post.content) : post.content,
+    // 관련 작업물은 본문 위에 그려져, 브라우저에서 늦게 받으면 본문을 밀어낸다(#917)
+    getPostRelatedWorks(post.id),
+  ]);
 
-  return <PostDetailClient post={rendered} />;
+  return <PostDetailClient post={{ ...post, content }} relatedWorks={relatedWorks} />;
 }

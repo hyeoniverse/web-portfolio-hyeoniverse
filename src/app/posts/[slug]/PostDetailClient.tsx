@@ -13,7 +13,7 @@ import "katex/dist/katex.min.css";
 import AISummary from "@/components/ui/AISummary";
 import RecommendedToast from "./_components/RecommendedToast";
 import RecommendedSection from "./_components/RecommendedSection";
-import RelatedWorksCarousel from "./_components/RelatedWorksCarousel";
+import RelatedWorksCarousel, { type RelatedWork } from "./_components/RelatedWorksCarousel";
 import SeriesPanel from "./_components/SeriesPanel/SeriesPanel";
 import SeriesPreviewTooltip from "./_components/SeriesPanel/SeriesPreviewTooltip";
 import { useSeriesPanel } from "./_components/SeriesPanel/useSeriesPanel";
@@ -31,9 +31,11 @@ import { resolvePostAuthors } from "@/utils/resolvePostAuthors";
 
 interface PostDetailClientProps {
   post: Post;
+  /** 관련 작업물 — 서버에서 받아 HTML 에 담는다. 마운트 뒤에 받으면 본문 위 칸이 늦게 차며 본문을 밀어냈다(#917) */
+  relatedWorks: RelatedWork[];
 }
 
-export default function PostDetailClient({ post: initialPost }: PostDetailClientProps) {
+export default function PostDetailClient({ post: initialPost, relatedWorks }: PostDetailClientProps) {
   const { t, language } = useLanguage();
   const { navigateWithTransition, isTransitioning } = usePageTransition();
   /* 진입 연출을 할지는 마운트 시점에 한 번만 정한다. isTransitioning 을 그대로 쓰면
@@ -65,8 +67,8 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
   const series = useSeriesPanel({ postId: post.id, seriesId: post.series_id });
   const { containerRef: proseViewerRef, viewerState: proseViewer, closeViewer: closeProseViewer } = useProseImageViewer();
   const isAdmin = useIsAuthenticated();
-  // 부가 데이터 — 조회수 기록 · 이전/다음 · 추천 · 관련 작업. 추천 토스트는 40% 스크롤에 한 번
-  const { adjacentPosts, recommendedPosts, relatedWorks } = usePostDetailFetches({ postId: post.id, isAdmin });
+  // 부가 데이터 — 조회수 기록 · 이전/다음 · 추천. 관련 작업은 서버가 넘긴다. 추천 토스트는 40% 스크롤에 한 번
+  const { adjacentPosts, recommendedPosts } = usePostDetailFetches({ postId: post.id, isAdmin });
   const toast = useRecommendedToast(post.id);
   const headings = useMemo(() => {
     if (!displayContent) return [];
