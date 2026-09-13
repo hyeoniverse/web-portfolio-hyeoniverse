@@ -4,10 +4,11 @@ import {
   createContext,
   useContext,
   useEffect,
+  useRef,
   useState,
   useCallback,
   useMemo,
-  startTransition,
+  useSyncExternalStore,
 } from "react";
 import ko from "@/locales/ko.json";
 import en from "@/locales/en.json";
@@ -32,15 +33,21 @@ export type Translations = { [key: string]: TranslationValue };
  */
 const translations: Record<Language, Translations> = { ko, en };
 
-interface LanguageContextType {
-  language: Language;
+interface LanguageControls {
   toggleLanguage: () => void;
   setLanguage: (language: Language) => void;
-  t: TFunction;
-  tAlt: TFunction;
-  tLang: (key: string, lang: Language) => string;
   /** 지연 로드한 사전을 병합한다 (admin 번역 등). 같은 키는 나중 것이 이긴다. */
   addTranslations: (extra: Record<Language, Translations>) => void;
+}
+
+/* context 값에는 현재 언어를 넣지 않는다(#929). 저장값·브라우저 언어는 마운트 뒤에야 알 수 있는데, 그때 context 값이 바뀌면
+   아직 하이드레이션 전인 페이지 경계(상세의 loading.tsx)를 React 가 서버 HTML 과 맞춰 볼 수 없어 새로 그린다. 언어는 구독으로
+   받는다 — useSyncExternalStore 는 늦게 하이드레이션되는 경계에서도 서버 값(ko)으로 맞춘 뒤 바꾼다 */
+interface LanguageContextType extends LanguageControls {
+  subscribe: (onChange: () => void) => () => void;
+  getLanguage: () => Language;
+  /** 정적 사전 + 지연 로드분 */
+  dict: Record<Language, Translations>;
 }
 
 function getNestedValue(obj: Translations, path: string): string {
@@ -66,13 +73,12 @@ function applyLangToDom(lang: Language) {
 /* SSR / 프로바이더 누락(레이아웃 revalidate 도중 등) 상황에서도 안전하게 동작하도록
    ko 기준 기본값 제공 — SiteConfigProvider 와 동일한 방어적 패턴 */
 const defaultContextValue: LanguageContextType = {
-  language: "ko",
   toggleLanguage: () => {},
   setLanguage: () => {},
-  t: (key) => getNestedValue(translations.ko, key),
-  tAlt: (key) => getNestedValue(translations.en, key),
-  tLang: (key, lang) => getNestedValue(translations[lang], key),
   addTranslations: () => {},
+  subscribe: () => () => {},
+  getLanguage: () => "ko",
+  dict: translations,
 };
 
 const LanguageContext = createContext<LanguageContextType>(defaultContextValue);
@@ -80,9 +86,24 @@ const LanguageContext = createContext<LanguageContextType>(defaultContextValue);
 /* ── Provider ── */
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  // useState("ko"): 첫 렌더(hydration)에서 항상 "ko" → 서버 HTML과 일치 보장
-  // HMR 시에는 state가 보존되지만, HMR은 hydration이 아니므로 문제없음
-  const [language, setLanguageState] = useState<Language>("ko");
+  // 언어 저장소 — 서버와 첫 렌더(hydration)는 늘 "ko" 로 그려 서버 HTML 과 맞춘다
+  const languageRef = useRef<Language>("ko");
+  const listenersRef = useRef(new Set<() => void>());
+  const subscribe = useCallback((onChange: () => void) => {
+    const listeners = listenersRef.current;
+    listeners.add(onChange);
+    return () => { listeners.delete(onChange); };
+  }, []);
+  const getLanguage = useCallback(() => languageRef.current, []);
+  const setLanguage = useCallback((next: Language) => {
+    applyLangToDom(next);
+    if (languageRef.current === next) return;
+    languageRef.current = next;
+    listenersRef.current.forEach((notify) => notify());
+  }, []);
+  const toggleLanguage = useCallback(() => {
+    setLanguage(languageRef.current === "ko" ? "en" : "ko");
+  }, [setLanguage]);
 
   /* 지연 로드된 사전(admin 등). 정적 사전 위에 얹는다. */
   const [extra, setExtra] = useState<Record<Language, Translations> | null>(null);
@@ -104,10 +125,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     [extra],
   );
 
-  // 마운트 시 localStorage/브라우저 언어 감지
-  // startTransition: Next.js App Router가 페이지 컨텐츠를 내부 Suspense로 감싸므로,
-  // layout effect가 페이지 hydration보다 먼저 실행될 수 있음.
-  // startTransition으로 감싸면 React가 hydration 완료 후에 언어 전환을 적용.
+  // 마운트 시 localStorage/브라우저 언어 감지. 구독한 소비자만 다시 그리고 context 값은 그대로다
   useEffect(() => {
     const stored = localStorage.getItem("language") as Language | null;
     const target: Language =
@@ -116,53 +134,13 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
         : navigator.language?.startsWith("en")
           ? "en"
           : "ko";
+    setLanguage(target);
+  }, [setLanguage]);
 
-    if (target !== "ko") {
-      startTransition(() => {
-        setLanguageState(target);
-      });
-    }
-    applyLangToDom(target);
-  }, []);
-
-  const toggleLanguage = useCallback(() => {
-    setLanguageState((prev) => {
-      const next = prev === "ko" ? "en" : "ko";
-      applyLangToDom(next);
-      return next;
-    });
-  }, []);
-
-  const setLanguage = useCallback((newLanguage: Language) => {
-    setLanguageState(newLanguage);
-    applyLangToDom(newLanguage);
-  }, []);
-
-  const t = useCallback(
-    (key: string): string => {
-      return getNestedValue(dict[language], key);
-    },
-    [language, dict]
-  );
-
-  const tAlt = useCallback(
-    (key: string): string => {
-      const altLanguage = language === "ko" ? "en" : "ko";
-      return getNestedValue(dict[altLanguage], key);
-    },
-    [language, dict]
-  );
-
-  const tLang = useCallback(
-    (key: string, lang: Language): string => {
-      return getNestedValue(dict[lang], key);
-    },
-    [dict]
-  );
-
+  // 사전이 늘 때(admin 번역 지연 로드)만 바뀐다
   const value = useMemo(
-    () => ({ language, toggleLanguage, setLanguage, t, tAlt, tLang, addTranslations }),
-    [language, toggleLanguage, setLanguage, t, tAlt, tLang, addTranslations]
+    () => ({ toggleLanguage, setLanguage, addTranslations, subscribe, getLanguage, dict }),
+    [toggleLanguage, setLanguage, addTranslations, subscribe, getLanguage, dict]
   );
 
   return (
@@ -172,6 +150,18 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function useLanguage() {
-  return useContext(LanguageContext);
+const getServerLanguage = (): Language => "ko";
+
+export function useLanguage(): LanguageControls & {
+  language: Language;
+  t: TFunction;
+  tAlt: TFunction;
+  tLang: (key: string, lang: Language) => string;
+} {
+  const { subscribe, getLanguage, dict, ...controls } = useContext(LanguageContext);
+  const language = useSyncExternalStore(subscribe, getLanguage, getServerLanguage);
+  const t = useCallback((key: string) => getNestedValue(dict[language], key), [dict, language]);
+  const tAlt = useCallback((key: string) => getNestedValue(dict[language === "ko" ? "en" : "ko"], key), [dict, language]);
+  const tLang = useCallback((key: string, lang: Language) => getNestedValue(dict[lang], key), [dict]);
+  return { language, t, tAlt, tLang, ...controls };
 }

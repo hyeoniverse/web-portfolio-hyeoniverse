@@ -6,10 +6,9 @@ import {
   useContext,
   useEffect,
   useRef,
-  useState,
   useCallback,
   useMemo,
-  startTransition,
+  useSyncExternalStore,
 } from "react";
 import { useSiteConfig } from "./SiteConfigProvider";
 import { loadGoogleFont } from "@/lib/loadGoogleFont";
@@ -18,10 +17,17 @@ import type { CustomFont } from "@/lib/customFonts";
 
 type ResolvedTheme = "light" | "dark";
 
-interface ThemeContextType {
-  theme: ResolvedTheme;
+interface ThemeControls {
   toggleTheme: () => void;
   setTheme: (theme: ResolvedTheme) => void;
+}
+
+/* context 값에는 테마를 넣지 않는다(#929). 저장값·시스템 설정은 마운트 뒤에야 알 수 있는데, 그때 context 값이 바뀌면 아직
+   하이드레이션 전인 페이지 경계(상세의 loading.tsx)를 React 가 서버 HTML 과 맞춰 볼 수 없어 새로 그린다. 테마는 구독으로
+   받는다 — useSyncExternalStore 는 늦게 하이드레이션되는 경계에서도 서버 값(dark)으로 맞춘 뒤 바꾼다 */
+interface ThemeContextType extends ThemeControls {
+  subscribe: (onChange: () => void) => () => void;
+  getTheme: () => ResolvedTheme;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -84,29 +90,41 @@ const MONO_FONTS: Record<string, string> = {
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const siteConfig = useSiteConfig();
-  const [theme, setThemeState] = useState<ResolvedTheme>("dark");
-  const [mounted, setMounted] = useState(false);
+  // 테마 저장소 — 서버와 첫 렌더는 dark 로 그린다
+  const themeRef = useRef<ResolvedTheme>("dark");
+  const listenersRef = useRef(new Set<() => void>());
+  const subscribe = useCallback((onChange: () => void) => {
+    const listeners = listenersRef.current;
+    listeners.add(onChange);
+    return () => { listeners.delete(onChange); };
+  }, []);
+  const getTheme = useCallback(() => themeRef.current, []);
+  const setTheme = useCallback((next: ResolvedTheme) => {
+    if (themeRef.current === next) return;
+    themeRef.current = next;
+    listenersRef.current.forEach((notify) => notify());
+  }, []);
+  const toggleTheme = useCallback(() => {
+    setTheme(themeRef.current === "dark" ? "light" : "dark");
+  }, [setTheme]);
+  const theme = useSyncExternalStore(subscribe, getTheme, getServerTheme);
   const isFirstThemeRef = useRef(true);
 
-  // localStorage 또는 시스템 설정에서 테마 초기화
-  // 상태는 startTransition 으로 넣는다 — LenisProvider·LanguageProvider 와 같은 이유(#911). 급한 갱신으로 두면 아직
-  // 하이드레이션 중인 페이지 본문 경계(loading.tsx)가 서버 HTML 을 버리고 다시 그려진다. 전환은 그 경계가 준비될 때까지
-  // 기다릴 수 있으니, 화면 테마(data-theme)는 여기서 바로 칠해 늦지 않게 한다. 색·글꼴 덮어쓰기는 아래 효과가 이어서 한다
+  // localStorage 또는 시스템 설정에서 테마 초기화. 화면 테마(data-theme)는 여기서 바로 칠하고, 색·글꼴 덮어쓰기는 아래 효과가
+  // 이어서 한다. 아래 효과보다 먼저 선언해 같은 커밋에서 먼저 돈다
   useEffect(() => {
     const stored = localStorage.getItem("theme") as ResolvedTheme | null;
     const initial: ResolvedTheme = stored
       ? stored
       : window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
     document.documentElement.setAttribute("data-theme", initial);
-    startTransition(() => {
-      setMounted(true);
-      setThemeState(initial);
-    });
-  }, []);
+    setTheme(initial);
+  }, [setTheme]);
 
   // 문서에 테마 적용
   useEffect(() => {
-    if (!mounted) return;
+    // 렌더된 테마가 저장소와 다르면 곧 다시 그려진다. 첫 커밋에서 기본값(dark)으로 저장값을 덮지 않게 그때 쓴다
+    if (theme !== themeRef.current) return;
 
     const root = document.documentElement;
 
@@ -133,18 +151,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }, 350);
 
     return () => clearTimeout(timer);
-  }, [theme, mounted, siteConfig.theme, siteConfig.typography]);
+  }, [theme, siteConfig.theme, siteConfig.typography]);
 
-  const toggleTheme = useCallback(() => {
-    setThemeState((prev) => (prev === "dark" ? "light" : "dark"));
-  }, []);
-
-  const setTheme = useCallback((newTheme: ResolvedTheme) => {
-    setThemeState(newTheme);
-  }, []);
-
-  // 값을 메모한다 — mounted 처럼 값에 없는 상태가 바뀌어도 소비자가 다시 그려지지 않게
-  const value = useMemo(() => ({ theme, toggleTheme, setTheme }), [theme, toggleTheme, setTheme]);
+  // 한 번 만든 값을 끝까지 쓴다 — 테마가 바뀌어도 context 값은 그대로다
+  const value = useMemo(() => ({ toggleTheme, setTheme, subscribe, getTheme }), [toggleTheme, setTheme, subscribe, getTheme]);
 
   return (
     <ThemeContext.Provider value={value}>
@@ -348,10 +358,14 @@ function setOrRemove(
   }
 }
 
-export function useTheme() {
+const getServerTheme = (): ResolvedTheme => "dark";
+
+export function useTheme(): ThemeControls & { theme: ResolvedTheme } {
   const context = useContext(ThemeContext);
   if (context === undefined) {
     throw new Error("useTheme must be used within a ThemeProvider");
   }
-  return context;
+  const { subscribe, getTheme, ...controls } = context;
+  const theme = useSyncExternalStore(subscribe, getTheme, getServerTheme);
+  return { theme, ...controls };
 }
