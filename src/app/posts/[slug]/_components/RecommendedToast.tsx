@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import MediaThumb from "@/components/ui/MediaThumb";
-import { usePageTransition } from "@/providers/PageTransitionProvider";
+import TransitionLink from "@/components/ui/TransitionLink";
 import { motion } from "framer-motion";
 import { BookOpen, ImageIcon } from "@/components/icons";
 import T from "@/components/ui/T";
@@ -18,7 +18,6 @@ interface RecommendedToastProps {
 
 export default function RecommendedToast({ post, viewLang, onDismiss }: RecommendedToastProps) {
   const title = viewLang === "en" && post.title_en ? post.title_en : post.title;
-  const { navigateWithTransition } = usePageTransition();
   const [footerVisible, setFooterVisible] = useState(false);
 
   useEffect(() => {
@@ -50,7 +49,7 @@ export default function RecommendedToast({ post, viewLang, onDismiss }: Recommen
           </span>
         </Pressable>
       </div>
-      <div onClick={(e) => { const rect = e.currentTarget.getBoundingClientRect(); navigateWithTransition(`/posts/${post.slug}`, post.cover_image || "", rect); }} style={{ cursor: "pointer" }} className={styles.toastItem} data-clickable="true">
+      <TransitionLink href={`/posts/${post.slug}`} image={post.cover_image || ""} className={styles.toastItem} data-clickable="true">
         <div className={styles.toastThumb}>
           {post.cover_image ? (
             <MediaThumb src={post.cover_image} fill sizes="48px" className={styles.toastThumbImg} />
@@ -59,7 +58,7 @@ export default function RecommendedToast({ post, viewLang, onDismiss }: Recommen
           )}
         </div>
         <span className={styles.toastTitle}>{title}</span>
-      </div>
+      </TransitionLink>
     </motion.div>
   );
 }
