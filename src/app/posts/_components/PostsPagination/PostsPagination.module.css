@@ -10,6 +10,10 @@
   align-items: center;
   gap: var(--spacing-xs);
 }
+/* 거른 목록을 기다리는 동안 기본 목록의 쪽 번호도 가린다 — PostsGrid 의 .gridWrap 과 같은 표시 */
+:global(html[data-posts-list-pending]) .pagination {
+  visibility: hidden;
+}
 
 .pageBtn {
   width: 40px;

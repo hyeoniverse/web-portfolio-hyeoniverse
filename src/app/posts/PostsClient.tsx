@@ -7,6 +7,7 @@ import { SearchHighlightProvider } from "@/providers/SearchHighlightProvider";
 import { useStickyFilterBar } from "@/hooks/useStickyFilterBar";
 import type { InitialPostsData } from "@/lib/posts";
 import ScrollButtons from "@/components/ui/ScrollButtons/ScrollButtons";
+import BeforeHydrationScript from "@/components/common/BeforeHydrationScript";
 import PostsFilterBar from "./_components/PostsFilterBar/PostsFilterBar";
 import SeriesSection from "./_components/SeriesSection/SeriesSection";
 import TagCloud3D from "./_components/TagCloud3D";
@@ -21,6 +22,7 @@ import PostsPagination from "./_components/PostsPagination/PostsPagination";
 import TimelineIndex from "./_components/TimelineIndex";
 import { useTimeline } from "./_hooks/useTimeline";
 import { usePostsQuery } from "./_hooks/usePostsQuery";
+import { LIST_PENDING_SCRIPT } from "./_hooks/postsListUrl";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import styles from "./Posts.module.css";
 
@@ -130,6 +132,8 @@ export default function PostsClient({ initialData, history = false, archiveMonth
   return (
     <SearchHighlightProvider query={search} mode={syntaxMode}>
     <>
+      {/* 주소가 필터·쪽 번호를 가리키면 목록이 파싱되기 전에 가린다 — 목록보다 앞에 있어야 한다 */}
+      <BeforeHydrationScript code={LIST_PENDING_SCRIPT} />
       {loading && <div className={styles.topProgress} aria-hidden />}
       {/* history: 위/아래 스크롤 버튼 (긴 아카이브 이동) */}
       {history && <ScrollButtons />}

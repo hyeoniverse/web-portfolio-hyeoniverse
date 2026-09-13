@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import type { Metadata } from "next";
 import { getInitialPostsData } from "@/lib/posts";
 import PostsPageChrome from "./_components/PostsPageChrome";
@@ -10,23 +9,12 @@ export const revalidate = 60;
 
 export default async function PostsPage() {
   const initialData = await getInitialPostsData();
-  /* PostsClient 가 useSearchParams() 를 쓰므로 prerender 시 Suspense 가 필요.
-     loading.tsx 를 두면 /posts → /posts/[slug] 네비게이션 시 PostsLoading 이 잠시 노출되는 문제가
-     있어 인라인 Suspense 로 처리한다.
-
-     Suspense 경계 안은 프리렌더에서 통째로 빠진다. 제목과 배너는 필터·URL 쿼리와 무관하므로
-     PostsPageChrome 으로 경계 밖에 두어 서버 HTML 에 남긴다. 그래야 배너 이미지가
-     하이드레이션을 기다리지 않고 문서 파싱 시점에 바로 요청된다.
-
-     fallback 은 화면 한 개 높이만큼 자리를 잡아 둔다. 예전에는 null 이었는데, 그러면 내용이
-     오기 전 한 프레임 동안 본문이 비어서 푸터가 화면 안에 그려졌다가 내용이 오면
-     3,000px 아래로 밀려났다. 눈에는 거의 안 보이지만 레이아웃 밀림으로는 0.31 로 잡힌다.
-     빈 자리만 잡아 두면 푸터가 처음부터 화면 밖에 있어 밀릴 일이 없다. */
+  /* 제목·배너(PostsPageChrome)와 글 목록을 모두 미리 그린다. 목록은 필터 없는 1쪽이고, 주소의 필터·쪽 번호는
+     PostsClient 가 마운트 직후 옮겨 다시 받는다(usePostsQuery). 예전에는 PostsClient 가 useSearchParams() 로 주소를 읽어
+     Suspense 경계 안이 통째로 브라우저 렌더로 빠졌고, 미리 그린 HTML 에는 빈 자리만 있었다(#925). */
   return (
     <PostsPageChrome pinnedPosts={initialData.pinnedPosts}>
-      <Suspense fallback={<div style={{ minHeight: "100vh" }} />}>
-        <PostsClient initialData={initialData} />
-      </Suspense>
+      <PostsClient initialData={initialData} />
     </PostsPageChrome>
   );
 }

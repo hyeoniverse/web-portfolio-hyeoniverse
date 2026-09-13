@@ -75,3 +75,80 @@ test.describe("글 목록 배너", () => {
     expect(opacity, "첫 칠의 배너 이미지 opacity(조상 포함)").toBeGreaterThan(0.5);
   });
 });
+
+/* 글 목록은 필터 없는 1쪽을 미리 그린다(#925). 예전에는 주소를 useSearchParams() 로 읽어 목록 전체가 브라우저 렌더로 빠졌고,
+   열 때마다 서버가 넘긴 첫 쪽을 한 번 더 받았다. 주소가 필터·쪽 번호를 가리키면 거른 목록이 올 때까지 미리 그린 기본 목록을
+   가린다. magazine 배치는 하이드레이션 전에도 스크립트가 줄 수를 넣어 카드가 겹치지 않아야 한다 */
+test.describe("글 목록 미리 그리기", () => {
+  test.setTimeout(90_000);
+  type Probe = { __list?: { visibility: string; overlaps: number; cards: number } | null };
+  const LIST_REQUEST = /\/api\/posts\?(?!.*limit=5&)/; // 사이드바의 인기·무작위 글(limit=5)은 뺀다
+
+  /** DOMContentLoaded 직후 첫 칠에서 목록 그리드의 보임 여부와 카드끼리 겹친 쌍 수를 적어 둔다 */
+  async function probeFirstPaint(page: import("@playwright/test").Page) {
+    await page.addInitScript(() => {
+      document.addEventListener("DOMContentLoaded", () => {
+        requestAnimationFrame(() => {
+          const grid = Array.from(document.querySelectorAll('[class*="PostsGrid-module__"]'))
+            .find((el) => el.className.split(" ").some((c) => c.endsWith("__grid")));
+          const rects = grid ? Array.from(grid.children, (el) => el.getBoundingClientRect()) : [];
+          let overlaps = 0;
+          rects.forEach((a, i) => rects.slice(i + 1).forEach((b) => {
+            if (a.left < b.right - 1 && b.left < a.right - 1 && a.top < b.bottom - 1 && b.top < a.bottom - 1) overlaps++;
+          }));
+          (window as unknown as Probe).__list = grid ? { visibility: getComputedStyle(grid).visibility, overlaps, cards: rects.length } : null;
+        });
+      });
+    });
+  }
+
+  test("미리 그린 HTML 에 글 카드가 있다", async ({ request }) => {
+    for (const path of ["/posts", "/posts/history"]) {
+      const html = await (await request.get(path)).text();
+      expect((html.match(/PostCard-module__\w+__card\b/g) ?? []).length, `${path} 의 글 카드`).toBeGreaterThan(0);
+    }
+  });
+
+  test("기본 주소는 첫 쪽을 다시 받지 않고, 하이드레이션 전에도 카드가 겹치지 않는다", async ({ page }) => {
+    const listRequests: string[] = [];
+    page.on("request", (req) => { if (LIST_REQUEST.test(req.url())) listRequests.push(req.url()); });
+    await probeFirstPaint(page);
+    await page.goto("/posts", { waitUntil: "load" });
+    const first = await page.evaluate(() => (window as unknown as Probe).__list);
+    expect(first?.cards, "첫 칠의 카드").toBeGreaterThan(0);
+    expect(first?.visibility).toBe("visible");
+    expect(first?.overlaps, "첫 칠에서 겹친 카드 쌍").toBe(0);
+    await page.waitForTimeout(1500);
+    expect(listRequests, "목록 요청").toEqual([]);
+  });
+
+  test("필터 주소는 기본 목록을 가렸다가 거른 목록을 보여 준다", async ({ page }) => {
+    await page.goto("/posts", { waitUntil: "load" });
+    const pill = page.locator('[class*="tagPill"]').first();
+    const tag = decodeURIComponent(((await pill.getAttribute("href")) ?? "").split("/posts/tags/")[1] ?? "");
+    test.skip(!tag, "태그가 달린 글이 없다");
+
+    await probeFirstPaint(page);
+    await page.goto(`/posts?tag=${encodeURIComponent(tag)}`, { waitUntil: "load" });
+    expect((await page.evaluate(() => (window as unknown as Probe).__list))?.visibility, "첫 칠의 기본 목록").toBe("hidden");
+
+    const cards = page.locator('[class*="PostCard-module__"][class*="__card"][role="link"]');
+    await expect(cards.first()).toBeVisible({ timeout: 30_000 });
+    for (const card of await cards.all()) {
+      expect(await card.locator('[class*="tagPill"]').allTextContents(), "거른 목록의 카드에는 그 태그가 있다").toContain(`#${tag}`);
+    }
+    expect(new URL(page.url()).searchParams.get("tag")).toBe(tag);
+  });
+
+  test("?page=2 는 두 번째 쪽을 받고 주소의 쪽 번호를 지킨다", async ({ page }) => {
+    await page.goto("/posts", { waitUntil: "load" });
+    const pageButtons = page.locator('[class*="PostsPagination-module__"][class*="__pageBtn"]');
+    test.skip((await pageButtons.count()) < 2, "목록이 한 쪽뿐이다");
+    const firstOfPage1 = await page.locator('[class*="PostCard-module__"][class*="__card"][role="link"] h2').first().textContent();
+
+    await page.goto("/posts?page=2", { waitUntil: "load" });
+    await expect(page.locator('[class*="__pageBtnActive"]')).toHaveText("2", { timeout: 30_000 });
+    await expect(page.locator('[class*="PostCard-module__"][class*="__card"][role="link"] h2').first()).not.toHaveText(firstOfPage1 ?? "");
+    expect(new URL(page.url()).searchParams.get("page")).toBe("2");
+  });
+});

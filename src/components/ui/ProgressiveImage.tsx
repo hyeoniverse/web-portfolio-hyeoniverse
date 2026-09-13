@@ -46,6 +46,8 @@ export default function ProgressiveImage({
      몇 초씩 감추게 된다. 그래서 처음부터 불투명하게 두고 브라우저가 그리는 대로 보여준다.
      (아래 LQIP 미리보기는 loaded 로 그대로 제어되므로 흐린 미리보기는 유지된다.) */
   const visible = loaded || !!priority;
+  // 원본을 곧바로 받는가 — next/image 는 priority 나 loading="eager" 가 아니면 lazy 로 받는다
+  const eager = !!priority || loading === "eager";
   const lqipUrl = useMemo(() => getLqipUrl(src), [src]);
   /* 동영상 표지는 화면 근처에 올 때까지 받지 않는다 — MediaThumb 과 같은 이유. */
   const [observeVideo, videoNear] = useNearViewport(!priority);
@@ -68,13 +70,16 @@ export default function ProgressiveImage({
 
   return (
     <div className={styles.wrapper}>
-      {/* 플레이스홀더: LQIP 또는 shimmer — video 모드에서는 skip (placeholder 가 video 가림) */}
+      {/* 플레이스홀더: LQIP 또는 shimmer — video 모드에서는 skip (placeholder 가 video 가림).
+          LQIP 도 원본과 같은 때 받는다. loading 이 없으면 서버가 그린 HTML 에서 React 가 이 img 를 <head> 의 preload 로 올려,
+          화면 밖 카드의 미리보기가 첫 화면 이미지와 함께 받힌다(#925) */}
       {!isVideo && (lqipUrl ? (
         /* eslint-disable-next-line @next/next/no-img-element */
         <img
           src={lqipUrl}
           alt=""
           aria-hidden
+          loading={eager ? undefined : "lazy"}
           className={`${styles.lqip} ${loaded ? styles.lqipHidden : ""}`}
         />
       ) : (

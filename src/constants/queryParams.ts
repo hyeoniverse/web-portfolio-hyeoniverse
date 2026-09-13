@@ -8,4 +8,5 @@ export const QUERY_PARAM = {
   sort: "sort",
   tag: "tag",
   series: "series",
+  author: "author",
 } as const;

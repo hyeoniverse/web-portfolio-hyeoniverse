@@ -385,6 +385,11 @@
 .gridWrap {
   display: contents;
 }
+/* 주소가 필터·쪽 번호를 가리키면 거른 목록이 올 때까지 미리 그린 기본 목록을 가린다(자리는 남긴다).
+   표시는 목록보다 앞의 스크립트와 usePostsQuery 가 <html> 에 붙이고 뗀다(postsListUrl) */
+:global(html[data-posts-list-pending]) .gridWrap {
+  visibility: hidden;
+}
 .gridWrapTimeline {
   display: flex;
   align-items: flex-start;
