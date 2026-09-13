@@ -66,6 +66,20 @@
   contain: layout style paint;
 }
 
+/* 원을 덮는 작업물 링크(#933). 원이 overflow 로 잘라 바깥 테두리는 가려지므로 초점 링은 안쪽에 그린다.
+   iOS 링크 미리보기는 길게 누르는 전환과 겹쳐 끈다 */
+.circleLink {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: inherit;
+  -webkit-touch-callout: none;
+}
+.circleLink:focus-visible {
+  outline: 2px solid var(--text-accent);
+  outline-offset: -3px;
+}
+
 /* ---------------------------------------------------------------------------
    Image Wrapper & Layers
    --------------------------------------------------------------------------- */
