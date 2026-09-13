@@ -98,7 +98,8 @@ export default function AboutSection() {
 
   return (
     <>
-      <section className={styles.section} ref={sectionRef} suppressHydrationWarning>
+      {/* data-near-root — 가로 트랙을 잘라내는 상자라 패널 지연 마운트의 관찰 기준으로 쓴다(_hooks/useNearViewport, #921) */}
+      <section className={styles.section} ref={sectionRef} suppressHydrationWarning data-near-root>
         {isMobile && (
           <nav
             aria-label={language === "ko" ? "About 섹션" : "About sections"}
