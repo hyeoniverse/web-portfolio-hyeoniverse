@@ -55,8 +55,11 @@ vi.mock("@/lib/api/requirePostAccess", () => ({
 vi.mock("@/lib/api/requireRole", () => ({ requireRole: async () => ({ supabase: fakeClient(), user: {} }) }));
 vi.mock("@/lib/supabase/admin", () => ({ createAdminClient: () => fakeClient() }));
 vi.mock("@/lib/api/validateCategory", () => ({ ensureWorksCategory: async () => {} }));
+// 저장 뒤 공개 화면 갱신(#909) — Next 요청 밖이라 실제 revalidatePath 는 부를 수 없어, 불렸는지만 센다
+const { revalidated } = vi.hoisted(() => ({ revalidated: vi.fn() }));
+vi.mock("@/lib/api/revalidateWorks", () => ({ revalidatePublicWorks: revalidated }));
 
-import { PATCH } from "@/app/api/works/[id]/route";
+import { PATCH, DELETE } from "@/app/api/works/[id]/route";
 import { POST } from "@/app/api/works/route";
 
 const seed = (titles: string[]) => {
@@ -110,5 +113,30 @@ describe("작업물 정렬 순서", () => {
     seed(["A", "B", "C", "D"]);
     await post({ title: "N", sort_order: 0 });
     expect(order()).toBe("A1 B2 C3 D4 N5");
+  });
+});
+
+/* 작업물 상세는 미리 그려 캐시한다(#909). 쓰기가 끝나면 공개 목록·상세를 다시 그리게 해야 바뀐 내용이 바로 보인다.
+   자리를 옮기는 경로는 placeWork 로 먼저 돌아가므로 따로 본다. */
+describe("저장 뒤 공개 화면 갱신", () => {
+  beforeEach(() => { seed(["A", "B", "C"]); revalidated.mockClear(); });
+  const del = (id: string) => DELETE(new Request(`http://local/api/works/${id}`, { method: "DELETE" }), { params: Promise.resolve({ id }) });
+
+  it("수정하면 다시 그리게 한다 — 자리를 옮기는 경로도", async () => {
+    await patch("B", { title: "B2" });
+    expect(revalidated).toHaveBeenCalledTimes(1);
+    await patch("C", { sort_order: 1 });
+    expect(revalidated).toHaveBeenCalledTimes(2);
+  });
+
+  it("새로 만들면 다시 그리게 한다 — 자리를 주는 경로도", async () => {
+    await post({ title: "N" });
+    await post({ title: "M", sort_order: 1 });
+    expect(revalidated).toHaveBeenCalledTimes(2);
+  });
+
+  it("휴지통으로 보내면 다시 그리게 한다", async () => {
+    await del("A");
+    expect(revalidated).toHaveBeenCalledTimes(1);
   });
 });

@@ -5,6 +5,7 @@ import { PERM } from "@/lib/api/roles";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 import type { Author } from "@/types/author";
 import type { AccessRequestOutcome } from "@/lib/notificationTypes";
+import { revalidatePublicWorks } from "@/lib/api/revalidateWorks";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -105,6 +106,8 @@ export async function POST(request: Request, context: RouteContext) {
           })
           .eq("id", workId);
         if (updErr) return jsonServerError(updErr, "POST /api/admin/notifications/[id]/resolve");
+        // 상세의 팀 목록이 바뀐다
+        revalidatePublicWorks();
       }
     } else {
       return jsonError("요청 대상을 알 수 없는 알림입니다.", 400);

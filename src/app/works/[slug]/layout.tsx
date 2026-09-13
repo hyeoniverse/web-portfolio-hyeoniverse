@@ -15,7 +15,8 @@ export default async function WorkSlugLayout({ children, params }: { children: R
   const index = findProjectIndex(projects, slug);
   if (index < 0) notFound();
 
-  // 옛 id·번호 주소로 들어왔는데 작업물에 slug 가 있으면 slug 주소로 보낸다
+  // 옛 id·번호 주소로 들어왔는데 작업물에 slug 가 있으면 slug 주소로 보낸다. 보통은 proxy 가 그리기 전에 보낸다(#909).
+  // 상세는 미리 그리는 경로라 여기서 보내면 첫 요청에 Location 이 두 번 실린다. proxy 의 조회가 실패했을 때를 위해 남긴다
   const projectSlug = projects[index].slug;
   if (projectSlug && projectSlug !== slug) redirect(`/works/${projectSlug}`);
 
