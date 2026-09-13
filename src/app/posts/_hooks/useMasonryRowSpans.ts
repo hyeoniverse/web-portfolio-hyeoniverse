@@ -11,7 +11,7 @@ import { useEffect, useCallback, type DependencyList, type RefObject } from "rea
 
 /** 카드마다 차지할 줄 수(grid-auto-rows: 1px 위의 span). 0 은 높이를 못 잰 칸.
     인라인 스크립트로도 문자열화해 쓰므로 인자 밖의 값을 참조하지 않는다 */
-export function measureRowSpans(grid: HTMLElement): number[] {
+function measureRowSpans(grid: HTMLElement): number[] {
   const rowGap = parseFloat(getComputedStyle(grid).rowGap) || 0;
   // 그리드의 모든 자식 (real post + skeleton) — 로딩 중에도 height 매칭
   return Array.from(grid.children, (node) => {
