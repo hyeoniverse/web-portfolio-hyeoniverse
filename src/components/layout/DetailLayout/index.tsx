@@ -222,9 +222,11 @@ export default function DetailLayout({
       {heroImage ? (
         <motion.div
           className={styles.hero}
-          initial={{ opacity: isTransitioning ? 1 : 0 }}
+          /* 서버 HTML 부터 보이게 둔다(#911). opacity 0 에서 시작하면 커버가 하이드레이션 뒤 페이드가 끝날 때까지 안 보여,
+             이미 받아 둔 이미지를 느린 회선에서 몇 초씩 감추고 LCP 도 그만큼 늦었다. 카드에서 넘어오는 전환은 원래 1 에서
+             시작했다. ProgressiveImage 의 priority 처리와 같은 이유다 */
+          initial={false}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.8 }}
         >
           <ProgressiveImage
             src={heroImage}
