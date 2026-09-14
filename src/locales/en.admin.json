@@ -994,7 +994,8 @@
       "signOutAllFailed": "Couldn’t sign out of all devices.",
       "envReveal": "Show value",
       "envHide": "Hide value",
-      "categoryReassignFailed": "Couldn’t move the posts to another category, so the category wasn’t deleted."
+      "categoryReassignFailed": "Couldn’t move the posts to another category, so the category wasn’t deleted.",
+      "socialUploadIcon": "Upload icon"
     },
     "posts": {
       "title": "Posts",
@@ -1287,7 +1288,8 @@
         "addPost": "Add post",
         "addPostHint": "Already loaded. Select below ↓",
         "noAvailablePosts": "No available posts to add",
-        "titleTooLong": "Title must be {{max}} characters or fewer"
+        "titleTooLong": "Title must be {{max}} characters or fewer",
+        "orderLabel": "Order"
       },
       "publish": "Publish",
       "unpublish": "Unpublish",
