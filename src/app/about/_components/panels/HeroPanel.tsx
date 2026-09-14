@@ -1,7 +1,7 @@
 "use client";
 
 import { useLoadingScreen } from "@/hooks/useLoadingProgress";
-import { useSiteConfig } from "@/providers/SiteConfigProvider";
+import { useAboutConfig } from "../AboutConfig";
 import { useLanguage } from "@/providers/LanguageProvider";
 import KineticHeroTitle from "@/components/common/KineticHeroTitle";
 import T from "@/components/ui/T";
@@ -13,9 +13,9 @@ const styles = { ...shared, ...local };
 
 export default function HeroPanel() {
   const { isLoading } = useLoadingScreen();
-  const cfg = useSiteConfig();
+  const about = useAboutConfig();
   const { language } = useLanguage();
-  const a = (cfg.about ?? {}) as {
+  const a = (about ?? {}) as {
     heroLabel?: string; heroLabel_ko?: string;
     heroSubtitle?: string; heroSubtitle_ko?: string;
     heroLine1?: string; heroLine1_ko?: string;

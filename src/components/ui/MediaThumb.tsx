@@ -88,6 +88,8 @@ export default function MediaThumb({
         fill
         sizes={sizes}
         priority={priority}
+        /* Next 16 의 priority 는 preload 만 넣고 fetchpriority 는 붙이지 않는다 — 첫 화면 이미지라 높게 받는다(#944) */
+        fetchPriority={priority ? "high" : undefined}
         loading={loading}
         className={className}
         unoptimized={skipOptimize}
@@ -103,6 +105,7 @@ export default function MediaThumb({
       width={width ?? 280}
       height={height ?? 140}
       priority={priority}
+      fetchPriority={priority ? "high" : undefined}
       loading={loading}
       className={className}
       unoptimized={skipOptimize}

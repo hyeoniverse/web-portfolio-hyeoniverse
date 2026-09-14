@@ -3,7 +3,7 @@
 import { memo } from "react";
 import type { Language } from "@/providers/LanguageProvider";
 import { erdTables as staticErdTables, erdRelations as staticErdRelations, erdDesignNotes } from "@/data/about/erd";
-import { useSiteConfig } from "@/providers/SiteConfigProvider";
+import { useAboutConfig } from "../AboutConfig";
 import { useMobileLayout } from "@/hooks/useMobileLayout";
 import { useNearViewport } from "../../_hooks/useNearViewport";
 /* 다이어그램·선택 상태·연관 계산·설계 노트는 전부 공유 컴포넌트가 맡는다.
@@ -33,9 +33,9 @@ const ERD_HINT = {
 
 function ErdPanel({ language }: ErdPanelProps) {
   /* admin(about.erdTables/erdRelations) override — 비어있으면 정적 데이터 */
-  const cfg = useSiteConfig();
-  const cfgTables = cfg.about.erdTables;
-  const cfgRelations = cfg.about.erdRelations;
+  const about = useAboutConfig();
+  const cfgTables = about.erdTables;
+  const cfgRelations = about.erdRelations;
   const erdTables = cfgTables && cfgTables.length > 0 ? cfgTables : staticErdTables;
   const erdRelations = cfgRelations && cfgRelations.length > 0 ? cfgRelations : staticErdRelations;
 

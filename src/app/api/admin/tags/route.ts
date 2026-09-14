@@ -2,12 +2,15 @@ import { NextResponse } from "next/server";
 import { jsonServerError } from "@/lib/api/response";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAuth } from "@/lib/api/requireAuth";
+import { getSiteConfig } from "@/lib/getSiteConfig";
 
 /** GET /api/admin/tags — 모든 게시물에서 distinct tag + 사용 횟수 + 태그별 post 목록 (admin 전용)
  *  response: {
  *    tags: string[],
  *    counts: Record<string, number>,
- *    posts: Array<{ id, title, title_en, tags, slug }>
+ *    posts: Array<{ id, title, title_en, tags, slug }>,
+ *    descriptions: 설정의 태그 설명(tagDescriptions) — 글 편집기가 태그를 더할 때 태그 메모 초기값으로 쓴다.
+ *      모든 페이지에 싣는 사이트 설정에서는 빠져 있어 여기서 준다(#944)
  *  } */
 type PostRow = {
   id: string;
@@ -31,7 +34,7 @@ export async function GET() {
 
   const admin = createAdminClient();
   // 태그(posts)와 tech(works)를 공유 사전으로 통합 — 두 어휘를 union 해서 집계.
-  const [postsRes, worksRes] = await Promise.all([
+  const [postsRes, worksRes, config] = await Promise.all([
     admin
       .from("posts")
       .select("id, title, title_en, tags, slug, category, published, created_at, updated_at, view_count")
@@ -42,6 +45,7 @@ export async function GET() {
       .select("tech")
       .is("deleted_at", null)
       .limit(1000),
+    getSiteConfig(),
   ]);
 
   if (postsRes.error) {
@@ -74,6 +78,7 @@ export async function GET() {
     tags,
     counts,
     worksCounts,
+    descriptions: config.tagDescriptions ?? {},
     posts: posts.map((p) => ({
       id: p.id,
       title: p.title ?? "",

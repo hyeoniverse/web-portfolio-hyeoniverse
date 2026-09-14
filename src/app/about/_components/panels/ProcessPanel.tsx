@@ -8,7 +8,7 @@ import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
 import { useMobilePinScroll } from "../../_hooks/useMobilePinScroll";
 import { renderHighlight } from "../renderHighlight";
 import PinnedTitleRow from "../PinnedTitleRow";
-import { useSiteConfig } from "@/providers/SiteConfigProvider";
+import { useAboutConfig } from "../AboutConfig";
 import { adaptProcess } from "@/app/about/_config/adaptAbout";
 import entry from "../AboutEntry.module.css";
 import frame from "../AboutPanel.module.css";
@@ -27,8 +27,8 @@ interface ProcessPanelProps {
 
 
 function ProcessPanel({ language, process: fallbackProcess, scrollBy }: ProcessPanelProps) {
-  const cfg = useSiteConfig();
-  const cfgList = cfg.about.process;
+  const about = useAboutConfig();
+  const cfgList = about.process;
   /* 사이트 설정에 목록이 있으면 그걸 쓰고, 없으면 props 로 받은 기본값. props 자체를
      덮어쓰지 않는다 — 부모가 준 값이라 이 컴포넌트가 고칠 것이 아니다. */
   const process = cfgList && cfgList.length > 0 ? adaptProcess(cfgList) : fallbackProcess;

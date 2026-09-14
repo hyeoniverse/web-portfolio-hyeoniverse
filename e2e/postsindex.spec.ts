@@ -293,3 +293,24 @@ test.describe("글 목록 주변 링크", () => {
     await page.waitForURL((url) => url.pathname === href);
   });
 });
+
+/* 모바일 /posts LCP(#944). 배너 첫 이미지가 LCP 요소인데, Next 16 의 priority 는 preload 만 넣고 fetchpriority 는 붙이지 않아
+   Low 로 받혔다. 또 루트 레이아웃이 사이트 설정 전체를 모든 페이지의 RSC 페이로드에 실었는데, 그 가운데 /about 패널 내용과
+   태그 설명이 3분의 2 남짓이었다. 이제 모든 페이지에는 필요한 설정만 싣고, /about 은 패널 내용을 따로 받는다 */
+test.describe("글 목록 첫 화면의 무게", () => {
+  test("배너 첫 이미지는 높은 우선순위로 받는다", async ({ request }) => {
+    const html = await (await request.get("/posts")).text();
+    const img = html.match(/<img[^>]*slideImg[^>]*>/)?.[0] ?? "";
+    expect(img, "배너 첫 이미지").toContain('fetchPriority="high"');
+  });
+
+  test("모든 페이지에 싣는 설정에서 /about 패널 내용과 태그 설명이 빠지고, /about 에는 온다", async ({ request }) => {
+    // RSC 페이로드 안의 키 — 실패해도 HTML 전체를 찍지 않게 있는지만 본다
+    const has = (html: string, key: string) => html.includes(`\\"${key}\\"`);
+    const posts = await (await request.get("/posts")).text();
+    expect(has(posts, "tagDescriptions"), "태그 설명").toBe(false);
+    expect(has(posts, "architectureItems"), "/about 패널 내용").toBe(false);
+    const about = await (await request.get("/about")).text();
+    expect(has(about, "architectureItems"), "/about 은 패널 내용을 받는다").toBe(true);
+  });
+});

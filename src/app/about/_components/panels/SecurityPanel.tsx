@@ -3,7 +3,7 @@ import { Database, Shield, SquareCheck, Lock, Rows2, Route, Fingerprint, Key, Cr
 import type { Language } from "@/providers/LanguageProvider";
 import type { SecurityItem } from "@/data/about";
 import { renderHighlight } from "../renderHighlight";
-import { useSiteConfig } from "@/providers/SiteConfigProvider";
+import { useAboutConfig } from "../AboutConfig";
 import { usePanelTitle } from "../../_hooks/usePanelTitle";
 import { adaptSecurity } from "@/app/about/_config/adaptAbout";
 import frame from "../AboutPanel.module.css";
@@ -32,9 +32,9 @@ interface SecurityPanelProps {
 }
 
 function SecurityPanel({ language, items }: SecurityPanelProps) {
-  const cfg = useSiteConfig();
+  const about = useAboutConfig();
   const panelTitle = usePanelTitle("security");
-  const cfgList = cfg.about.security;
+  const cfgList = about.security;
   if (cfgList && cfgList.length > 0) items = adaptSecurity(cfgList);
   return (
     <div className={styles.panel}>
