@@ -5,7 +5,6 @@ import Image from "next/image";
 import { isVideoUrl } from "@/lib/isVideoUrl";
 import { getFallbackCoverGradient } from "@/lib/coverFallback";
 import { firstFrameSrc, hoverVideoHandlers } from "./hoverVideo";
-import { useNearViewport } from "@/hooks/useNearViewport";
 
 export interface MediaThumbProps {
   src: string;
@@ -40,11 +39,6 @@ export default function MediaThumb({
      들어올 수 있는데, 그때만 원본으로 되돌린다. 주소가 바뀌면 다시 최적화부터 시도한다. */
   const [failedSrc, setFailedSrc] = useState<string | null>(null);
   const skipOptimize = unoptimized || failedSrc === src;
-  /* 동영상 표지는 preload="metadata" 만으로도 서버가 Range 를 안 받아주면 파일을 통째로
-     내려받는다. 화면 밖 카드까지 그러면 첫 화면에 쓸 대역폭을 빼앗긴다(측정: /posts 에서
-     화면 밖 카드 3개가 같은 1.9 MB 파일을 6번 요청). priority 가 아니면 화면 근처에
-     올 때까지 src 를 비워 둔다 — 이미지의 loading="lazy" 와 같은 취급이다. */
-  const [observeVideo, videoNear] = useNearViewport(!priority);
   const handleError = () => {
     if (!skipOptimize) { setFailedSrc(src); return; }
     onError?.();
@@ -62,18 +56,23 @@ export default function MediaThumb({
     );
   }
   if (isVideoUrl(src)) {
+    /* 표지 동영상은 목록·미리보기용 썸네일이다. preload="none" 으로 놀고 있을 땐 한 바이트도
+       받지 않는다 — Pexels 처럼 faststart 가 아닌 mp4 는 preload="metadata" + #t=0.1 로도
+       첫 프레임 하나 그리려고 파일을 통째로 받아서(측정: 표지 하나 15 MB 를 목록 한 번에 세 번,
+       43 MB) 목록 대역폭을 삼킨다. 정지 프레임 대신 결정적 gradient 를 깔고, 마우스를 올렸을
+       때(hoverVideoHandlers 의 play)에만 실제로 받아 재생한다. */
+    const posterBg = getFallbackCoverGradient(fallbackSeed || src);
     return (
       <video
-        ref={observeVideo}
-        src={videoNear ? firstFrameSrc(src) : undefined}
+        src={firstFrameSrc(src)}
         className={className}
         style={fill
-          ? { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", ...style }
-          : { width, height, ...style }
+          ? { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", background: posterBg, ...style }
+          : { width, height, background: posterBg, ...style }
         }
         muted
         playsInline
-        preload="metadata"
+        preload="none"
         loop
         onError={onError}
         {...hoverVideoHandlers}
