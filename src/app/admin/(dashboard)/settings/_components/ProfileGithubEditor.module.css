@@ -263,7 +263,7 @@
 .error {
   margin: 0;
   font-size: var(--font-size-label);
-  color: var(--text-error);
+  color: var(--text-error-strong);
 }
 
 /* 빼기 — 목록에서 빨간 아이콘이 줄줄이 서면 그것만 보인다. 올렸을 때만 경고색. */
@@ -272,5 +272,5 @@
 }
 
 .pickedActions .removeBtn:hover {
-  color: var(--text-error);
+  color: var(--text-error-strong);
 }

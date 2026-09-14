@@ -440,9 +440,9 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
                         {t("admin.settings.giscusNeedsToken")}
                       </Button>
                     : giscusErr
-                      ? <span style={{ fontSize: "var(--font-size-label)", color: "var(--text-error)" }}>{giscusErr}</span>
+                      ? <span style={{ fontSize: "var(--font-size-label)", color: "var(--text-error-strong)" }}>{giscusErr}</span>
                       : giscusCats.length > 0
-                        ? <span style={{ fontSize: "var(--font-size-label)", color: "var(--text-success)" }}>{t("admin.settings.giscusLoaded")}</span>
+                        ? <span style={{ fontSize: "var(--font-size-label)", color: "var(--text-success-strong)" }}>{t("admin.settings.giscusLoaded")}</span>
                         : null}
                 </div>
               </div>

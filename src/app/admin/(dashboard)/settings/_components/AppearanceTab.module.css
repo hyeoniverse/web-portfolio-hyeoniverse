@@ -721,12 +721,12 @@
 }
 
 .faviconContrastPass {
-  color: var(--text-success);
+  color: var(--text-success-strong);
   background: var(--bg-success-soft);
 }
 
 .faviconContrastFail {
-  color: var(--text-error);
+  color: var(--text-error-strong);
   background: var(--bg-error-soft);
 }
 
@@ -819,6 +819,6 @@
     background-color var(--duration-base) ease;
 }
 .customFontRemove:hover {
-  color: var(--text-error);
+  color: var(--text-error-strong);
   background: var(--bg-error-soft);
 }

@@ -21,7 +21,7 @@
   height: var(--size-md);
   border-radius: var(--radius-circle);
   background: var(--bg-warning-soft);
-  color: var(--text-warning);
+  color: var(--text-warning-strong);
 }
 
 .headText {
@@ -122,12 +122,12 @@
 /* 처리 대기는 결정이 필요하다는 뜻이라 알림의 "처리 필요" 와 같은 warning 을 쓴다. */
 .status_pending {
   background: var(--bg-warning-soft);
-  color: var(--text-warning);
+  color: var(--text-warning-strong);
 }
 
 .status_resolved {
   background: var(--bg-success-soft);
-  color: var(--text-success);
+  color: var(--text-success-strong);
 }
 
 .status_dismissed {

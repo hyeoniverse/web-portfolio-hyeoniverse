@@ -7,7 +7,7 @@
 
 .messageSuccess {
   background: var(--bg-success);
-  color: var(--text-success);
+  color: var(--text-success-strong);
 }
 
 .messageError {

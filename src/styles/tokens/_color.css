@@ -52,6 +52,14 @@
   --color-error-alpha: oklch(57.71% 0.2152 27.33 / 0.15);
   --color-error-soft: oklch(57.71% 0.2152 27.33 / 0.12);
 
+  /* 상태색을 라이트 배경 위 텍스트로 쓸 때 AA(4.5:1)를 넘기는 진한 값.
+     기본값은 dot/bar 배경용이라 밝아서 글자로는 대비가 모자란다(warning 2.35·success 3.05).
+     hue·chroma 는 그대로 두고 L 만 낮춰 색은 유지한다. 다크는 기본값이 이미 통과라 아래에서 되돌린다. */
+  --color-success-strong: oklch(50.07% 0.1699 149.21);
+  --color-warning-strong: oklch(52.95% 0.15 75);
+  --color-info-strong: oklch(53.63% 0.2152 262.88);
+  --color-error-strong: oklch(55.10% 0.2152 27.33);
+
   /* Label Palette (rainbow) — 캘린더 라벨/이벤트 색 */
   --color-label-red: oklch(57.71% 0.2152 27.33);
   --color-label-orange: oklch(66% 0.18 55);
@@ -198,6 +206,13 @@
   --color-error: oklch(71.06% 0.1661 22.22);
   --color-error-alpha: oklch(71.06% 0.1661 22.22 / 0.2);
   --color-error-soft: oklch(71.06% 0.1661 22.22 / 0.18);
+
+  /* 다크 상태색은 어두운 배경 위에서 이미 AA 통과(5.7~9.0)라, 텍스트용 strong 은 기본값 그대로 둔다.
+     라이트에서만 진해지고 다크는 변화가 없다. */
+  --color-success-strong: var(--color-success);
+  --color-warning-strong: var(--color-warning);
+  --color-info-strong: var(--color-info);
+  --color-error-strong: var(--color-error);
 
   /* Accent Alpha */
   --color-accent-alpha-1: oklch(69.42% 0.2264 354.05 / 0.015);

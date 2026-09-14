@@ -130,7 +130,7 @@
   letter-spacing: 0.02em;
 }
 .colKeyPk { color: var(--text-accent); }
-.colKeyFk { color: var(--text-info); }
+.colKeyFk { color: var(--text-info-strong); }
 .colName {
   overflow: hidden;
   color: var(--text-secondary);
@@ -347,7 +347,7 @@
   padding: var(--badge-p-sm);
   border-radius: 0;
   background: var(--bg-warning-soft);
-  color: var(--text-warning);
+  color: var(--text-warning-strong);
   font-size: var(--font-size-hint);
   white-space: nowrap;
 }
@@ -357,6 +357,6 @@
   display: inline-flex;
   gap: var(--spacing-2xs);
   align-items: center;
-  color: var(--text-warning);
+  color: var(--text-warning-strong);
   font-size: var(--font-size-label);
 }

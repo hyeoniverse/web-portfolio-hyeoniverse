@@ -1504,7 +1504,7 @@ textarea.edit {
 }
 .erdResult {
   margin-left: auto;
-  color: var(--text-success);
+  color: var(--text-success-strong);
   font-size: var(--font-size-body);
 }
 .erdErr {
@@ -1589,7 +1589,7 @@ textarea.edit {
   text-overflow: ellipsis;
 }
 .erdPreviewOk {
-  color: var(--text-success);
+  color: var(--text-success-strong);
 }
 .erdPreviewMuted {
   color: var(--text-tertiary);
@@ -1604,7 +1604,7 @@ textarea.edit {
   padding: var(--spacing-4xs) var(--spacing-2xs);
   border-radius: var(--radius-capsule);
   background: var(--bg-warning-soft);
-  color: var(--text-warning);
+  color: var(--text-warning-strong);
   font-size: var(--font-size-hint);
 }
 
@@ -1631,7 +1631,7 @@ textarea.edit {
   color: var(--text-secondary);
 }
 .planDanger strong {
-  color: var(--text-warning);
+  color: var(--text-warning-strong);
 }
 .planNames {
   color: var(--text-tertiary);
@@ -1664,5 +1664,5 @@ textarea.edit {
   text-decoration: line-through;
 }
 .planAfter {
-  color: var(--text-warning);
+  color: var(--text-warning-strong);
 }

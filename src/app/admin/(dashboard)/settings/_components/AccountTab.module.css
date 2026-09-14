@@ -134,7 +134,7 @@
 }
 
 .deviceRevokeBtn:hover {
-  color: var(--text-error);
+  color: var(--text-error-strong);
   background: var(--bg-secondary);
 }
 

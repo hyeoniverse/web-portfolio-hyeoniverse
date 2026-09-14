@@ -22,6 +22,12 @@
   --text-warning: var(--color-warning);
   --text-info: var(--color-info);
   --text-error: var(--color-error);
+  /* 상태색을 배경 위 텍스트로 쓸 때 — 기본값은 라이트에서 AA 미달(warning 2.35·success 3.05)이라
+     한 단계 진한 -strong 을 쓴다. dot/bar 배경 용도는 기본값(--text-success 등)을 그대로 둔다. */
+  --text-success-strong: var(--color-success-strong);
+  --text-warning-strong: var(--color-warning-strong);
+  --text-info-strong: var(--color-info-strong);
+  --text-error-strong: var(--color-error-strong);
   --text-accent: var(--color-accent);
   --text-accent-alt: var(--color-accent);
   /* accent 면 위에 얹는 글자. accent 는 테마마다 밝기가 뒤집혀서 글자색도 같이 뒤집어야 대비가 선다.
