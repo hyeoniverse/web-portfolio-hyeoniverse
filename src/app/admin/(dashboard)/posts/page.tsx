@@ -61,6 +61,12 @@ export default function AdminPostsPage() {
 
   /* Filters & sort */
   const [search, setSearch] = useState("");
+  /* 입력은 즉시 반영하되 조회는 디바운스한다 — 안 그러면 키 한 번마다 /api/posts 가 나간다 */
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  useEffect(() => {
+    const id = setTimeout(() => setDebouncedSearch(search), 300);
+    return () => clearTimeout(id);
+  }, [search]);
   const [searchType, setSearchType] = useState("all");
   const [syntaxMode, setSyntaxMode] = useState<"prefix" | "regex">("prefix");
   const [sort, setSort] = useState("newest");
@@ -160,8 +166,8 @@ export default function AdminPostsPage() {
     if (filterSeries) params.set("series_id", filterSeries);
     const authorId = filterAuthor === "__mine" ? myRole.authorId : filterAuthor;
     if (authorId) params.set("author", authorId);
-    if (search) {
-      params.set("search", search);
+    if (debouncedSearch) {
+      params.set("search", debouncedSearch);
       params.set("searchType", searchType);
       params.set("syntaxMode", syntaxMode);
     }
@@ -170,7 +176,7 @@ export default function AdminPostsPage() {
     setPosts(data.posts ?? []);
     setTotalPages(data.totalPages ?? 1);
     setLoading(false);
-  }, [page, perPage, sort, filterCategory, filterSeries, filterAuthor, myRole.authorId, search, searchType, syntaxMode]);
+  }, [page, perPage, sort, filterCategory, filterSeries, filterAuthor, myRole.authorId, debouncedSearch, searchType, syntaxMode]);
 
   const fetchSeries = useCallback(async () => {
     setSeriesLoading(true);
@@ -280,9 +286,12 @@ export default function AdminPostsPage() {
     setTrashLoading(false);
   }, []);
 
+  /* 시리즈는 검색·필터와 무관하다 — 목록 조회에 묶으면 키 입력마다 함께 다시 불린다.
+     같은 effect 안에서 ref 로 한 번만 부른다(effect 를 쪼개지 않아 불필요한 리렌더도 없다). */
+  const seriesLoadedRef = useRef(false);
   useEffect(() => {
     fetchPosts();
-    fetchSeries();
+    if (!seriesLoadedRef.current) { seriesLoadedRef.current = true; fetchSeries(); }
   }, [fetchPosts, fetchSeries]);
 
 
