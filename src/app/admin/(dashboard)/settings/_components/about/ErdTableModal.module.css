@@ -126,11 +126,11 @@
 }
 .pkOn,
 .table tbody tr:hover .pkOn {
-  color: var(--text-warning);
+  color: var(--text-warning-strong);
   opacity: 1;
 }
 .fk {
-  color: var(--text-info);
+  color: var(--text-info-strong);
   font-family: var(--font-mono);
   font-size: var(--font-size-body);
   white-space: nowrap;

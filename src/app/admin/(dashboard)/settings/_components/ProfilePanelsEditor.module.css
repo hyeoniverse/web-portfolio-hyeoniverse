@@ -167,5 +167,5 @@
 
 .line .removeBtn:hover,
 .storyRow .removeBtn:hover {
-  color: var(--text-error);
+  color: var(--text-error-strong);
 }

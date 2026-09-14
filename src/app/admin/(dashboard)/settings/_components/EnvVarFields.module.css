@@ -193,7 +193,7 @@
 }
 
 .envMetaWarn {
-  color: var(--text-warning);
+  color: var(--text-warning-strong);
   cursor: help;
 }
 
@@ -358,5 +358,5 @@
 .envMsg {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
-  color: var(--text-success);
+  color: var(--text-success-strong);
 }
