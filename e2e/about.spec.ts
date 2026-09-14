@@ -72,3 +72,42 @@ test.describe("/about 탭 막대", () => {
     expect(display, "첫 칠의 탭 막대").toBe(isMobile ? "flex" : "none");
   });
 });
+
+/* 첫 배치(#942). 예전에는 서버·하이드레이션이 데스크톱 트리를 그렸다 — 무한 스크롤이면 패널 한 세트를 세 벌.
+   모바일도 그것을 받아 하이드레이션한 뒤, 붙은 직후 모바일 탭 트리로 통째로 바꿨다(첫 탭 패널도 새로 마운트).
+   지금은 서버가 한 세트를 모바일 탭 묶음 안에 그리고, 모바일이면 CSS 가 첫 탭 패널만 보인다. 앞뒤 세트는 데스크톱에서만 붙인다 */
+const PANEL = '[class*="AboutPanel-module__"][class*="__panel"]:not([class*="__panelSlot"])';
+
+test.describe("/about 첫 배치", () => {
+  test.setTimeout(90_000);
+
+  test("서버 HTML 에는 패널이 한 세트만 들어가고, 앞뒤 세트는 데스크톱에서만 붙는다", async ({ page, isMobile }) => {
+    const html = await (await page.request.get("/about")).text();
+    expect(html.match(/__heroPanelBg/g)?.length, "서버 HTML 의 히어로 패널").toBe(1);
+    const infinite = /\\"infiniteScroll\\":true/.test(html);
+    await page.goto("/about", { waitUntil: "load" });
+    await page.locator('[class*="loadingScreen"]').first().waitFor({ state: "detached", timeout: 30_000 }).catch(() => {});
+    await expect(page.locator('[class*="__heroPanelBg"]'), "붙은 뒤 히어로 패널").toHaveCount(!isMobile && infinite ? 3 : 1);
+  });
+
+  test("모바일은 하이드레이션 전부터 첫 탭 패널만 보이고, 붙은 뒤에도 서버 HTML 의 노드를 그대로 쓴다", async ({ page, isMobile }) => {
+    test.skip(!isMobile, "모바일 배치");
+    await page.addInitScript((selector) => {
+      document.addEventListener("DOMContentLoaded", () => {
+        const panels = [...document.querySelectorAll(selector)];
+        const w = window as unknown as { __visible?: number; __first?: Element | null };
+        w.__visible = panels.filter((el) => el.getClientRects().length > 0).length;
+        w.__first = panels[0] ?? null;
+      });
+    }, PANEL);
+    await page.goto("/about", { waitUntil: "load" });
+    await page.locator('[class*="loadingScreen"]').first().waitFor({ state: "detached", timeout: 30_000 }).catch(() => {});
+    const result = await page.evaluate((selector) => {
+      const w = window as unknown as { __visible?: number; __first?: Element | null };
+      const visible = [...document.querySelectorAll(selector)].filter((el) => el.getClientRects().length > 0).length;
+      return { before: w.__visible, after: visible, kept: !!w.__first && document.contains(w.__first) };
+    }, PANEL);
+    expect(result.before, "하이드레이션 전에 보이는 패널 수").toBe(result.after);
+    expect(result.kept, "첫 패널을 다시 마운트하지 않는다").toBe(true);
+  });
+});

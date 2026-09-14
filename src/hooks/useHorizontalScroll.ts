@@ -23,6 +23,9 @@ export interface HorizontalScrollOptions {
   navSectionCount?: number;
   /** 모바일에서 .animateVisible 클래스 토글 (default: false) */
   mobileAnimateVisible?: boolean;
+  /** 트랙의 패널이 다 그려졌는지 (default: true). 무한 모드에서 앞뒤 세트를 브라우저에서 늦게 붙이면
+      그때까지 false 로 두어, 한 세트만 있을 때 초기 위치를 잡지 않게 한다 */
+  ready?: boolean;
 }
 
 /**
@@ -47,6 +50,7 @@ export function useHorizontalScroll(
     panelSetSize = 11,
     navSectionCount = infinite ? panelSetSize - 1 : 0,
     mobileAnimateVisible = false,
+    ready = true,
   } = options ?? {};
 
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -160,6 +164,7 @@ export function useHorizontalScroll(
       }
       return;
     }
+    if (!ready) return;
 
     const state = scrollStateRef.current;
 
@@ -436,6 +441,7 @@ export function useHorizontalScroll(
     panelSetSize,
     navSectionCount,
     lenisScrollTo,
+    ready,
   ]);
 
   // ── 모바일: IntersectionObserver로 활성 섹션 추적 ──

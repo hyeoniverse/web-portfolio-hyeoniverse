@@ -85,13 +85,25 @@
   gap: var(--spacing-md);
 }
 
-.tabContent {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+/* 모바일 탭 묶음과 패널 칸(AboutSection). 데스크톱에서는 둘 다 상자를 만들지 않아 패널이 트랙에 그대로 늘어선다 */
+.tabContent,
+.panelSlot {
+  display: contents;
 }
 
 @media (max-width: 1024px), (max-height: 700px) {
+  .tabContent {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* 서버 HTML 과 하이드레이션 때는 모바일인지 몰라 한 세트가 다 들어간다. 첫 탭(overview)이 아닌 패널은 감춘다 —
+     붙은 뒤에는 React 가 지금 탭 패널만 남긴다(#942) */
+  .tabContent[data-tab="overview"] > .panelSlot:not([data-tab="overview"]) {
+    display: none;
+  }
+
   .pinnedContent {
     will-change: auto;
   }
