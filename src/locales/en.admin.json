@@ -694,6 +694,7 @@
       "conflictExpand": "Show all",
       "conflictCollapse": "Collapse",
       "conflictMore": "+ {{n}} more",
+      "conflictBadge": "{{n}} to review",
       "diffRevertHunk": "Revert: {{label}}",
       "diffApplyCode": "Use code: {{label}}",
       "profileConflictTitle": "Profile updates available",

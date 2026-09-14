@@ -90,6 +90,8 @@ function resolveMaxHint(v: number | MaxHintPreset | undefined | null, multiline:
 export default function Field({ label, value, onChange, multiline, placeholder, hint, labelInline, required, langBadge, maxHint, maxLength, help, suggestions }: FieldProps) {
   const { t } = useLanguage();
   const listId = useId();
+  /* 라벨은 텍스트만 담고 입력칸은 형제라 htmlFor 로 연결한다 — 안 하면 스크린리더가 필드 이름을 못 읽는다 */
+  const fieldId = useId();
   const options = suggestions?.filter(Boolean) ?? [];
   const badgeStr = langBadge ? langBadge.toUpperCase() : undefined;
   const hintNum = resolveMaxHint(maxHint, !!multiline);
@@ -98,8 +100,8 @@ export default function Field({ label, value, onChange, multiline, placeholder, 
      - multiline (Textarea) → label 옆 capsule (textarea 안 inlineLabel 은 큰 영역에 시각적 어색) */
   return (
     <div className={`${styles.fieldRow} ${labelInline ? styles.fieldRowInline : ""}`}>
-      <label className={styles.fieldLabel}>
-        <span className={styles.fieldLabelText}>
+      <label className={styles.fieldLabel} htmlFor={fieldId}>
+        <span className={styles.fieldLabelText} id={`${fieldId}-label`}>
           {label}
           {multiline && badgeStr && <span className={styles.fieldLangBadge}>{badgeStr}</span>}
           {required && <span className={styles.fieldRequiredDot} role="img" aria-label={t("admin.common.required")} />}
@@ -108,10 +110,12 @@ export default function Field({ label, value, onChange, multiline, placeholder, 
         {hint && <span className={styles.fieldLabelHint}>{hint}</span>}
       </label>
       {multiline ? (
-        <Textarea size="md" value={value} onChange={onChange} placeholder={placeholder} maxHint={hintNum} />
+        <Textarea id={fieldId} size="md" value={value} onChange={onChange} placeholder={placeholder} maxHint={hintNum} />
       ) : hintNum != null ? (
-        /* HighlightInput — counter / clear / inline mark 모두 내부 처리 (외부 wrap 불필요) */
+        /* HighlightInput 은 role="textbox" div 라 htmlFor 로 안 묶인다 — aria-labelledby 로 라벨을 가리킨다 */
         <HighlightInput
+          id={fieldId}
+          ariaLabelledby={`${fieldId}-label`}
           value={value}
           onChange={onChange}
           placeholder={placeholder}
@@ -122,6 +126,7 @@ export default function Field({ label, value, onChange, multiline, placeholder, 
       ) : (
         <>
           <Input
+            id={fieldId}
             value={value}
             onChange={onChange}
             placeholder={placeholder}

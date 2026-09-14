@@ -694,6 +694,7 @@
       "conflictExpand": "전체 보기",
       "conflictCollapse": "접기",
       "conflictMore": "+ {{n}}건 더 보기",
+      "conflictBadge": "확인 필요 {{n}}건",
       "diffRevertHunk": "되돌리기: {{label}}",
       "diffApplyCode": "Code 적용: {{label}}",
       "profileConflictTitle": "프로필 업데이트 반영 필요",

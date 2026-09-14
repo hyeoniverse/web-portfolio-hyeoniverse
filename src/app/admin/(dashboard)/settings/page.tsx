@@ -913,19 +913,22 @@ export default function SettingsPage() {
         <div className={`${styles.tabBarSticky} ${navPinned ? styles.tabBarPinned : ""}`}>
         {/* data-lenis-prevent-wheel — 사이드바가 안에서 스크롤될 때 전역 Lenis 가 휠을 가로채지 않게.
             data-lenis-prevent 는 쓰지 않는다. AboutStudio 가 그 안의 클릭을 팝오버 안으로 보고 Hero 편집 바를 닫지 않는다. */}
-        <nav className={styles.sideNav} ref={sideNavRef} data-lenis-prevent-wheel>
+        <nav className={styles.sideNav} ref={sideNavRef} data-lenis-prevent-wheel
+          aria-label={t("admin.settings.title")}>
           {TAB_IDS.filter((id) => allowedTabs.includes(id)).map((id) => {
             const tabCount = allConflicts.filter((c) => c.tab === id).length;
             return (
               <div key={id}>
                 <Pressable
                   className={`${styles.navItem} ${activeTab === id ? styles.navItemActive : ""}`}
+                  aria-current={activeTab === id ? "page" : undefined}
                   onClick={() => switchTo(id)}
                   onPointerEnter={() => preloadSettingsTab(id)}
                   onFocus={() => preloadSettingsTab(id)}
                 >
                   {t(`admin.settings.tabs.${id}`)}
-                  {tabCount > 0 && <span className={styles.navConflictBadge} />}
+                  {tabCount > 0 && <span className={styles.navConflictBadge}
+                    role="img" aria-label={fillTemplate(t("admin.settings.conflictBadge"), { n: tabCount })} />}
                 </Pressable>
                 {id === "content" && (
                   <div className={styles.navSub}>
@@ -936,12 +939,14 @@ export default function SettingsPage() {
                         <Fragment key={sub}>
                           <Pressable
                             className={`${styles.navSubItem} ${subActive ? styles.navSubItemActive : ""}`}
+                            aria-current={subActive ? "page" : undefined}
                             onClick={() => switchTo("content", sub)}
                             onPointerEnter={() => preloadSettingsTab("content", sub)}
                             onFocus={() => preloadSettingsTab("content", sub)}
                           >
                             {t(`admin.settings.contentSub.${sub}`)}
-                            {subCount > 0 && <span className={styles.navConflictBadge} />}
+                            {subCount > 0 && <span className={styles.navConflictBadge}
+                              role="img" aria-label={fillTemplate(t("admin.settings.conflictBadge"), { n: subCount })} />}
                           </Pressable>
                           {/* 패널이 많고 긴 About 에는 이 화면의 섹션 목록을 둔다(데스크톱만) */}
                           {subActive && sub === "about" && (
@@ -970,11 +975,13 @@ export default function SettingsPage() {
                   <Pressable
                     key={sub}
                     className={`${styles.mobileSubItem} ${contentSubTab === sub ? styles.mobileSubItemActive : ""}`}
+                    aria-current={contentSubTab === sub ? "page" : undefined}
                     onClick={() => switchTo("content", sub)}
                     onFocus={() => preloadSettingsTab("content", sub)}
                   >
                     {t(`admin.settings.contentSub.${sub}`)}
-                    {subCount > 0 && <span className={styles.navConflictBadge} />}
+                    {subCount > 0 && <span className={styles.navConflictBadge}
+                      role="img" aria-label={fillTemplate(t("admin.settings.conflictBadge"), { n: subCount })} />}
                   </Pressable>
                 );
               })}
