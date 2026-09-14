@@ -96,8 +96,16 @@ export async function GET(request: Request) {
       .map(([tag, count]) => ({ tag, count }));
   };
 
+  /* admin 메인 목록은 제목·메타만 쓰고 본문을 렌더하지 않는다 — content/content_en(글당 수십 KB)을 뺀다.
+     공개는 읽기 시간 계산에 content 가 필요하고(usePostCard), 휴지통은 검색·내보내기에 쓰므로 그 경로는 * 유지.
+     content 둘만 빼고 나머지 컬럼은 전부 명시해 admin 이 필드를 잃지 않게 한다. */
+  const listCols = (showAll && !showTrash)
+    ? "id,title,title_en,slug,content_type,excerpt,excerpt_en,cover_image,cover_position,cover_zoom,icon,tags,tag_notes,category,is_pinned,published,language,view_count,like_count,github_url,deleted_at,purge_after,summary_ko,summary_en,created_at,updated_at,version,post_number,series_id,series_order,scheduled_at,author_ids"
+    : "*";
+  const listSelect = `${listCols}, series:series_id(title, title_en)`;
+
   let query = applyFilters(
-    supabase.from("posts").select("*, series:series_id(title, title_en)", { count: "exact" }),
+    supabase.from("posts").select(listSelect, { count: "exact" }),
   );
 
   // 시리즈 필터링 시에는 series_order ASC 우선 (시리즈 안의 순서대로 보이도록)
@@ -135,7 +143,7 @@ export async function GET(request: Request) {
   // — 시리즈 필터링 중엔 series_order 가 이미 우선 적용 (위에서 처리)
   if ((sort === "popular" || sort === "comments") && !seriesId) {
     const selectWithComments = (query as unknown as { select: (cols: string, opts: { count: "exact" }) => unknown })
-      .select("*, series:series_id(title, title_en), comments(count)", { count: "exact" });
+      .select(`${listCols}, series:series_id(title, title_en), comments(count)`, { count: "exact" });
     const { data: rawData, count: totalCount, error: popError } = (await selectWithComments) as {
       data: Array<Record<string, unknown> & { view_count: number; like_count: number; comments?: Array<{ count: number }> }> | null;
       count: number | null;
