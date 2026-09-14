@@ -254,9 +254,9 @@ export default function SortOrderDragList({
                 {item.isCurrent ? (
                   <span
                     className={styles.handle}
-                    aria-label="Drag to reorder"
                     title={handleTitle}
                     data-cursor="grab"
+                    aria-hidden
                   >
                     <GripVertical size={14} strokeWidth={1.8} />
                   </span>
