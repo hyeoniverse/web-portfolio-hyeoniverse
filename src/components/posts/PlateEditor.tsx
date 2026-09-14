@@ -3148,6 +3148,7 @@ function PlateEditorBody({
             <PlateContent
               className={`${styles.editorContent} prose-content`}
               style={{ minHeight: 300, paddingBottom: 40 }}
+              aria-label={t("editor.contentAriaLabel")}
               data-lenis-prevent
               onKeyDown={handleContentKeyDown}
               decorate={findOpen ? decorate : undefined}

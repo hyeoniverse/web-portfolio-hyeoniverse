@@ -178,6 +178,7 @@ const addBtnBase: React.CSSProperties = {
  *  표가 넓어 가로 스크롤 중이면 우측 끝이 화면 밖 → 스크롤로 우측 끝을 보이게 하면 그때 hover 로 접근. */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function AddColumnRail({ editor, tableElement, wrapRef }: { editor: any; tableElement: any; wrapRef: React.RefObject<HTMLDivElement | null> }) {
+  const { t } = useLanguage();
   const { isTouch } = useIsMobile();
   const [box, setBox] = useState<{ left: number; top: number; height: number } | null>(null);
   const [show, setShow] = useState(false);
@@ -220,6 +221,7 @@ export function AddColumnRail({ editor, tableElement, wrapRef }: { editor: any; 
       data-table-add-btn
       data-clickable
       role="button"
+      aria-label={t("editor.addColRight")}
       onMouseEnter={() => setShow(true)}
       onMouseLeave={() => setShow(false)}
       onClick={(e) => { e.preventDefault(); e.stopPropagation(); addColumnAtEnd(editor, tableElement); }}
@@ -244,12 +246,14 @@ export function AddColumnRail({ editor, tableElement, wrapRef }: { editor: any; 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function AddRowBtn({ editor, tableElement, hovered }: { editor: any; tableElement: any; hovered: boolean }) {
   // hover 존(부모 wrapper)이 높이/hover 상태를 제어 → 버튼은 그 영역을 절대배치로 채우기만.
+  const { t } = useLanguage();
   return (
     <div
       contentEditable={false}
       data-table-add-btn
       data-clickable
       role="button"
+      aria-label={t("editor.addRowBelow")}
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
