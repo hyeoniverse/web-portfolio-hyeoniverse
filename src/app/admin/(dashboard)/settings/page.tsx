@@ -1032,8 +1032,15 @@ export default function SettingsPage() {
                       const label = getConflictLabel(c);
                       const dbStr = typeof c.dbValue === "object" ? JSON.stringify(c.dbValue, null, 2) : String(c.dbValue);
                       const codeStr = typeof c.codeDefault === "object" ? JSON.stringify(c.codeDefault, null, 2) : String(c.codeDefault);
+                      // 행 안에 체크박스가 있어 button 으로 감쌀 수 없다 — role+키보드로 조작 가능하게 한다
                       return (
-                        <div key={key} className={styles.conflictPreviewItem} onClick={() => openDiffModal(c)}>
+                        <div key={key} className={styles.conflictPreviewItem}
+                          role="button" tabIndex={0}
+                          aria-label={language === "ko" ? `${label} 차이 보기` : `View diff for ${label}`}
+                          onClick={() => openDiffModal(c)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openDiffModal(c); }
+                          }}>
                           <span style={{ display: "flex" }} onClick={(e) => e.stopPropagation()}>
                             <Checkbox
                               shape="square"

@@ -159,6 +159,7 @@ function SocialIconArea({ link, isCustom, onUploaded }: {
   isCustom: boolean;
   onUploaded: (url: string) => void;
 }) {
+  const { t } = useLanguage();
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
 
@@ -176,10 +177,17 @@ function SocialIconArea({ link, isCustom, onUploaded }: {
 
   return (
     <>
+      {/* 커스텀일 때만 조작 가능 — 그때는 키보드로도 눌러야 하므로 role/tabIndex/Enter·Space 를 준다 */}
       <span
         className={`${styles.socialIcon} ${isCustom ? styles.socialIconClickable : ""}`}
         onClick={isCustom ? () => fileRef.current?.click() : undefined}
-        title={isCustom ? "Click to upload icon" : undefined}
+        role={isCustom ? "button" : undefined}
+        tabIndex={isCustom ? 0 : undefined}
+        aria-label={isCustom ? t("admin.settings.socialUploadIcon") : undefined}
+        title={isCustom ? t("admin.settings.socialUploadIcon") : undefined}
+        onKeyDown={isCustom ? (e) => {
+          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fileRef.current?.click(); }
+        } : undefined}
       >
         {uploading ? (
           <span className={styles.socialIconSpinner}>…</span>
