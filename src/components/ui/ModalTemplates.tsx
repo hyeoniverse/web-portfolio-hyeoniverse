@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, useState, type ReactNode } from "react";
+import { useContext, useId, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { useModalStore } from "@/stores/modalStore";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -143,6 +143,7 @@ export function ModalPrompt({
 }: ModalPromptProps) {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const errorId = useId();
   const { closeModal } = useModalStore();
   const { language } = useLanguage();
   const footerEl = useContext(ModalFooterContext);
@@ -177,11 +178,14 @@ export function ModalPrompt({
         placeholder={placeholder}
         type={inputType}
         autoFocus
+        error={!!error}
+        aria-describedby={error ? errorId : undefined}
         onKeyDown={(e) => {
           if (e.key === "Enter") handleConfirm();
         }}
       />
-      {error && <p className={styles.error}>{error}</p>}
+      {/* role="alert" 로 즉시 읽히고, describedby 로 입력칸의 사유로 묶인다 */}
+      {error && <p className={styles.error} id={errorId} role="alert">{error}</p>}
       {footerEl && createPortal(
         <>
           <Button variant="outline" size="sm" soundDisabled disabled={loading} onClick={() => closeModal()}>
