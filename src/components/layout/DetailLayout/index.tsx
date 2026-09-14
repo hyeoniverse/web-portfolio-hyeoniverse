@@ -4,7 +4,8 @@ import { useState, useEffect, useRef, type ReactNode } from "react";
 import type { TocHeading } from "@/types";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import ProgressiveImage from "@/components/ui/ProgressiveImage";
+import DetailHero from "./DetailHero";
+import { useShellHeroAlt } from "./DetailShell";
 import { EmojiIcon } from "@/components/ui/EmojiPicker";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "@/components/icons";
@@ -75,6 +76,8 @@ interface DetailLayoutProps {
   heroFallback?: ReactNode;
   /** 페이지 이모지(아이콘) — 커버에 겹쳐 표시 (native / img:url / icon:id). 편집기 CoverBanner 와 동일 포맷 */
   heroIcon?: string | null;
+  /** 커버를 상세 경로의 레이아웃이 셸에서 그린다(DetailShell) — 여기서는 그리지 않고 heroAlt 만 넘기며, 아이콘·헤더 자리는 heroImage 로 맞춘다 */
+  heroInShell?: boolean;
   headings?: TocHeading[];
   contentClassName?: string;
   /** Full-width header slot (title, meta) rendered above content+TOC row */
@@ -121,6 +124,7 @@ export default function DetailLayout({
   onHeroError,
   heroFallback,
   heroIcon,
+  heroInShell = false,
   headings = [],
   contentClassName,
   header,
@@ -138,6 +142,8 @@ export default function DetailLayout({
   const { endTransition, isTransitioning } = usePageTransition();
   const { comments } = useSiteConfig();
   const pageRef = useRef<HTMLDivElement>(null);
+  // 커버를 셸이 그리면 alt 만 넘긴다 — 글 보기 언어·화면 언어에 따라 바뀐다
+  useShellHeroAlt(heroInShell ? heroAlt : undefined);
 
   // 댓글 시스템 provider — giscus 선택 + repo 설정 시 giscus 위젯, 아니면 내장 커스텀 댓글
   const useGiscus = comments?.provider === "giscus" && !!comments?.giscus?.repo?.trim();
@@ -218,31 +224,9 @@ export default function DetailLayout({
         )}
       </motion.div>
 
-      {/* Hero */}
-      {heroImage ? (
-        <motion.div
-          className={styles.hero}
-          /* 서버 HTML 부터 보이게 둔다(#911). opacity 0 에서 시작하면 커버가 하이드레이션 뒤 페이드가 끝날 때까지 안 보여,
-             이미 받아 둔 이미지를 느린 회선에서 몇 초씩 감추고 LCP 도 그만큼 늦었다. 카드에서 넘어오는 전환은 원래 1 에서
-             시작했다. ProgressiveImage 의 priority 처리와 같은 이유다 */
-          initial={false}
-          animate={{ opacity: 1 }}
-        >
-          <ProgressiveImage
-            src={heroImage}
-            alt={heroAlt}
-            fill
-            sizes="100vw"
-            priority
-            className={styles.heroCover}
-            style={{
-              objectPosition: `50% ${heroPosition}%`,
-              ...(heroZoom !== 1 ? { transform: `scale(${heroZoom})`, transformOrigin: "center" } : {}),
-            }}
-            onError={onHeroError}
-          />
-          <div className={styles.heroOverlay} />
-        </motion.div>
+      {/* Hero — 커버가 있으면 상세 경로에서는 레이아웃이 셸에서 그린다(heroInShell). 커버가 없으면 여기서 여백을 둔다 */}
+      {heroImage && heroInShell ? null : heroImage ? (
+        <DetailHero image={heroImage} alt={heroAlt} position={heroPosition} zoom={heroZoom} onError={onHeroError} />
       ) : heroFallback ? (
         heroFallback
       ) : (
