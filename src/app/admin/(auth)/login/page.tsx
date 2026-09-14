@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { SiGithub } from "react-icons/si";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useLenis } from "@/providers/LenisProvider";
@@ -13,7 +12,6 @@ import T from "@/components/ui/T";
 import styles from "./Login.module.css";
 
 export default function AdminLoginPage() {
-  const router = useRouter();
   const { t, language } = useLanguage();
   const { setInfinite } = useLenis();
 
@@ -104,8 +102,11 @@ export default function AdminLoginPage() {
         return;
       }
 
-      router.push("/admin/settings");
-      router.refresh();
+      /* 클라 네비(router.push)로는 방금 설정된 세션 쿠키가 (dashboard)/layout 의 getUser()
+         에 즉시 안 잡혀 새로고침이 필요했다. 풀 네비게이션으로 새 쿠키가 실린 서버 렌더에
+         진입한다 — GitHub OAuth 의 /auth/callback 리다이렉트와 같은 방식. */
+      window.location.assign("/admin/settings");
+      return;
     } catch {
       setError(t("admin.login.errorOccurred"));
     } finally {
