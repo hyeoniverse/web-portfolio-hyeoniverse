@@ -21,7 +21,7 @@
 
 .published {
   background: var(--bg-success-soft);
-  color: var(--text-success);
+  color: var(--text-success-strong);
 }
 .published::before {
   background: var(--text-success);
@@ -29,7 +29,7 @@
 
 .draft {
   background: var(--bg-warning-soft);
-  color: var(--text-warning);
+  color: var(--text-warning-strong);
 }
 .draft::before {
   background: var(--text-warning);
@@ -37,7 +37,7 @@
 
 .scheduled {
   background: var(--bg-info-soft);
-  color: var(--text-info);
+  color: var(--text-info-strong);
 }
 .scheduled::before {
   background: var(--text-info);

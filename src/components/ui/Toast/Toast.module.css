@@ -54,7 +54,7 @@
 }
 
 .success {
-  color: var(--text-success);
+  color: var(--text-success-strong);
 }
 
 .error {
@@ -63,10 +63,10 @@
 }
 
 .info {
-  color: var(--text-info);
+  color: var(--text-info-strong);
 }
 
 .warning {
   /* warning = amber. 검증·중복 등 주의 알림 */
-  color: var(--text-warning);
+  color: var(--text-warning-strong);
 }

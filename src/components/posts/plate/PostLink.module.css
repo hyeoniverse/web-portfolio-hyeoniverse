@@ -100,5 +100,5 @@
   background: var(--bg-secondary);
 }
 .menuItemDanger:hover {
-  color: var(--text-error);
+  color: var(--text-error-strong);
 }

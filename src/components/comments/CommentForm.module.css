@@ -364,7 +364,7 @@
   border: none;
   border-radius: 0;
   background: transparent;
-  color: var(--text-success);
+  color: var(--text-success-strong);
   padding: 0;
 }
 
