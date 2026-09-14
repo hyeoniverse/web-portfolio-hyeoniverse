@@ -611,6 +611,7 @@
     "expanded": "Expanded",
     "collapsed": "Collapsed",
     "paragraph": "Paragraph",
+    "contentAriaLabel": "Post content editor",
     "insertCallout": "Insert Callout",
     "calloutNote": "Note",
     "calloutTip": "Tip",

@@ -1313,7 +1313,8 @@
   background: var(--bg-tertiary);
   font-family: var(--font-mono);
   font-size: var(--font-size-hint);
-  color: var(--text-muted);
+  /* 글자·단어 수 — bg-tertiary 위에서 muted(neutral-600)는 WCAG AA(4.5:1) 미달이라 secondary 로 */
+  color: var(--text-secondary);
 }
 
 /* ── 공식 @platejs/dnd 블록 드래그 (BlockDraggable aboveNodes) ── */

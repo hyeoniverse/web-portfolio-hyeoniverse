@@ -611,6 +611,7 @@
     "expanded": "펼침",
     "collapsed": "접힘",
     "paragraph": "본문",
+    "contentAriaLabel": "글 본문 편집기",
     "insertCallout": "콜아웃 삽입",
     "calloutNote": "노트",
     "calloutTip": "팁",

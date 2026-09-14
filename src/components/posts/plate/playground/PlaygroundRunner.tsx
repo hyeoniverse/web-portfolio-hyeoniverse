@@ -44,14 +44,15 @@ function removeInMap(files: Record<string, string>, path: string, isDir: boolean
 function TB({ on, tip, onClick, disabled, children }: { on?: boolean; tip: React.ReactNode; onClick: () => void; disabled?: boolean; children: React.ReactNode }) {
   return (
     <Tooltip content={tip} placement="top" delay={400}>
-      <Pressable noTapScale className={styles.spIconBtn} data-on={on ? "" : undefined} disabled={disabled} onClick={onClick}>{children}</Pressable>
+      {/* 아이콘 버튼 — 시각 툴팁만으로는 스크린리더에 이름이 없으니 tip 을 aria-label 로도 붙인다 */}
+      <Pressable noTapScale className={styles.spIconBtn} aria-label={typeof tip === "string" ? tip : undefined} aria-pressed={on ? true : undefined} data-on={on ? "" : undefined} disabled={disabled} onClick={onClick}>{children}</Pressable>
     </Tooltip>
   );
 }
 function RowAction({ tip, onClick, children }: { tip: React.ReactNode; onClick: (e: React.MouseEvent) => void; children: React.ReactNode }) {
   return (
     <Tooltip content={tip} placement="top" delay={400}>
-      <Pressable noTapScale className={styles.spTreeAction} onClick={onClick}>{children}</Pressable>
+      <Pressable noTapScale className={styles.spTreeAction} aria-label={typeof tip === "string" ? tip : undefined} onClick={onClick}>{children}</Pressable>
     </Tooltip>
   );
 }
@@ -331,7 +332,7 @@ export default function PlaygroundRunner({ data, onChange, readOnly, height = 46
         const meta = n.dir ? null : fileIcon(n.path);
         return (
           <div key={n.path} className={styles.spTreeRow} style={{ paddingLeft: pad }}>
-            {meta ? <meta.Icon size={14} color={meta.color} /> : <ChevronRight size={14} className={styles.spTreeChevron} />}
+            {meta ? <meta.Icon size={14} color={meta.color} aria-hidden /> : <ChevronRight size={14} className={styles.spTreeChevron} />}
             <input
               className={styles.spTreeInput}
               autoFocus
@@ -395,7 +396,7 @@ export default function PlaygroundRunner({ data, onChange, readOnly, height = 46
           onDragOver={readOnly ? undefined : (e) => { if (!dragPath || dragPath === n.path) return; e.preventDefault(); e.stopPropagation(); }}
           onDrop={readOnly ? undefined : (e) => { e.preventDefault(); e.stopPropagation(); dropInto(dirOf(n.path)); }}
         >
-          <Icon size={14} color={color} />
+          <Icon size={14} color={color} aria-hidden />
           <span className={styles.spTreeName}>{n.name}</span>
           {actions}
         </div>
@@ -490,7 +491,7 @@ export default function PlaygroundRunner({ data, onChange, readOnly, height = 46
                   const { Icon, color } = fileIcon(p);
                   return (
                     <div key={p} className={styles.spTab} data-active={p === active ? "" : undefined} onClick={() => setActive(p)}>
-                      <Icon size={15} color={color} />
+                      <Icon size={15} color={color} aria-hidden />
                       <span className={styles.spTabName}>{base(p)}</span>
                       {!readOnly && tabs.length > 1 && (
                         <Pressable noTapScale className={styles.spTabClose} aria-label={ko ? "탭 닫기" : "Close tab"} onClick={(e) => { e.stopPropagation(); closeTab(p); }}><X size={13} /></Pressable>

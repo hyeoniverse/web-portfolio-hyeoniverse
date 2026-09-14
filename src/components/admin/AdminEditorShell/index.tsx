@@ -551,6 +551,7 @@ export default function AdminEditorShell({
                       shape="circle"
                       size="xs"
                       className={styles.retranslateBtn}
+                      aria-label={retranslateDisabled ? (labels.retranslateDisabled ?? "API key not configured") : (labels.retranslate ?? "Retranslate")}
                       onClick={retranslateDisabled ? undefined : () => { /* Popover toggle */ }}
                       disabled={saving || retranslateDisabled}
                       soundDisabled
@@ -592,6 +593,7 @@ export default function AdminEditorShell({
                   variant="outline"
                   shape="circle"
                   size="xs"
+                  aria-label={aiSummaryDisabled ? (labels.generateSummaryDisabled ?? "API key not configured") : (labels.generateSummary ?? "Generate AI Summary")}
                   onClick={aiSummaryDisabled ? undefined : onGenerateSummary}
                   disabled={saving || generatingSummary || aiSummaryDisabled}
                   soundDisabled
@@ -623,6 +625,7 @@ export default function AdminEditorShell({
                   shape="circle"
                   size="xs"
                   className={styles.revertBtn}
+                  aria-label={labels.revert ?? "Revert"}
                   onClick={onRevert}
                   disabled={saving || !isDirty}
                   soundDisabled

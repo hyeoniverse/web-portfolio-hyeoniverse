@@ -295,9 +295,9 @@ export default function RelationPicker<T>({
                       document.addEventListener("pointerup", onUp);
                       document.addEventListener("pointercancel", onUp);
                     }}
-                    aria-label="Drag to reorder"
                     title="Drag to reorder"
                     data-cursor="grab"
+                    aria-hidden
                   >
                     <GripVertical size={12} strokeWidth={1.8} />
                   </span>
