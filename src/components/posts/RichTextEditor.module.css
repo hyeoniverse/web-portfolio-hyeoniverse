@@ -1339,11 +1339,13 @@
   width: 34px;
   height: 100%;
   display: flex;
-  /* 첫 줄에 핸들 정렬 (멀티라인 블록에서 중앙으로 내려가지 않게) — 첫 줄 중앙 보정 */
-  align-items: flex-start;
-  justify-content: flex-end;
+  /* [+][이동핸들] 을 세로로 쌓는다 — 접근성 24×24 터치 타깃(WCAG 2.5.8)을 좁은 좌측 패딩(40px)
+     안에 넣으려면 가로로는 안 들어가서 세로 스택으로. 오른쪽(콘텐츠 쪽) 정렬, 첫 줄부터. */
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-start;
   gap: var(--spacing-4xs);
-  padding-top: calc((var(--font-size-md) * var(--line-height-relaxed) - 22px) / 2);
+  padding-top: calc((var(--font-size-md) * var(--line-height-relaxed) - 24px) / 2);
   opacity: 0;
   user-select: none;
   /* float 이미지 옆 블록은 거터가 이미지 위에 겹친다 — 이미지 오버레이(z 6) 위로 올려야
@@ -1454,8 +1456,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 16px;
-  height: 22px;
+  /* 접근성 최소 터치 타깃 24×24 (WCAG 2.5.8) — 아이콘은 14px 로 유지, 여백으로 타깃만 키운다 */
+  width: 24px;
+  height: 24px;
   padding: 0;
   border: none;
   border-radius: var(--radius-capsule);
@@ -1640,8 +1643,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 16px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   padding: 0;
   border: none;
   border-radius: var(--radius-capsule);

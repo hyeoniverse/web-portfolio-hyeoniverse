@@ -64,8 +64,8 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-2xs);
-  /* 컴팩트 높이 — 라벨 라인 안에 깔끔히 들어가게 */
-  height: var(--size-2xs);
+  /* 접근성 최소 터치 타깃 24px(WCAG 2.5.8) — 라벨 라인보다 살짝 크지만 클릭 영역 확보 */
+  height: var(--size-xs);
   padding: 0 var(--spacing-sm);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
