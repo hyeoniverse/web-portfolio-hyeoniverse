@@ -133,7 +133,7 @@
 }
 
 .imagePanelActionDanger {
-  color: var(--text-error);
+  color: var(--text-error-strong);
   border-color: var(--text-error);
 }
 

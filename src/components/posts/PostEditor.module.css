@@ -10,7 +10,7 @@
   padding: var(--spacing-xs) var(--spacing-md);
   border-radius: var(--radius-2xl);
   background: color-mix(in srgb, var(--text-warning) 12%, var(--bg-primary));
-  color: var(--text-warning);
+  color: var(--text-warning-strong);
   font-size: var(--font-size-body);
   font-weight: 500;
   line-height: 1.4;

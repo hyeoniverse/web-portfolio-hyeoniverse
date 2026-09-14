@@ -612,13 +612,13 @@
 }
 
 .tableDangerBtn {
-  color: var(--text-error);
+  color: var(--text-error-strong);
 }
 
 .toolbar .tableDangerBtn:hover,
 .floatingBar .tableDangerBtn:hover {
   background: var(--bg-error);
-  color: var(--text-error);
+  color: var(--text-error-strong);
 }
 
 
@@ -930,7 +930,7 @@
 }
 /* 링크 제거(휴지통) — 위험 색, 다른 삭제 버튼과 톤 통일 */
 .linkActions .linkRemoveBtn {
-  color: var(--text-error);
+  color: var(--text-error-strong);
 }
 
 /* ── 링크 툴바 pill ── 프로토콜 Select + URL input 을 한 pill 로, 텍스트도 pill.
