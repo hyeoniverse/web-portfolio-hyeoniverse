@@ -100,6 +100,8 @@ export default function CodeMirrorEditor({ value, language, onChange, readOnly, 
           keymap.of([...closeBracketsKeymap, ...defaultKeymap, ...historyKeymap, ...completionKeymap, indentWithTab]),
           theme,
           EditorView.editable.of(!readOnly),
+          // role="textbox" 인 편집 영역에 접근 가능한 이름을 준다 (스크린리더)
+          EditorView.contentAttributes.of({ "aria-label": "Code editor" }),
           EditorState.readOnly.of(!!readOnly),
           EditorView.updateListener.of((u) => {
             if (u.docChanged) cb.current?.(u.state.doc.toString());

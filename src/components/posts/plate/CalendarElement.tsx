@@ -866,7 +866,7 @@ export function CalendarElement(props: PlateElementProps) {
             contentClassName={styles.exportMenu}
             trigger={
               <Tooltip content={t("내보내기 (.ics/CSV/JSON/MD)", "Export (.ics/CSV/JSON/MD)")} placement="top">
-                <Pressable noTapScale className={styles.blockBarIconBtn}>
+                <Pressable noTapScale className={styles.blockBarIconBtn} aria-label={t("내보내기", "Export")}>
                   <Upload size={13} />
                 </Pressable>
               </Tooltip>
@@ -894,6 +894,7 @@ export function CalendarElement(props: PlateElementProps) {
           <Tooltip content={fullscreen ? t("전체화면 종료", "Exit fullscreen") : t("전체화면", "Fullscreen")} placement="top">
             <Pressable noTapScale
               className={styles.blockBarIconBtn}
+              aria-label={fullscreen ? t("전체화면 종료", "Exit fullscreen") : t("전체화면", "Fullscreen")}
               onClick={() => { setFullscreen((v) => !v); setPeek(null); }}
             >
               {fullscreen ? <Minimize2 size={13} /> : <Maximize2 size={13} />}
