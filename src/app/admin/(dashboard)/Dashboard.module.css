@@ -505,7 +505,7 @@ a.statCard:hover .statValue {
 
 .statusPub {
   background: var(--bg-success-soft);
-  color: var(--text-success);
+  color: var(--text-success-strong);
 }
 
 .statusPub::before {
@@ -514,7 +514,7 @@ a.statCard:hover .statValue {
 
 .statusDraft {
   background: var(--bg-warning-soft);
-  color: var(--text-warning);
+  color: var(--text-warning-strong);
 }
 
 .statusDraft::before {
@@ -620,7 +620,7 @@ a.statCard:hover .statValue {
 
 .trendUp {
   background: var(--bg-success-soft);
-  color: var(--text-success);
+  color: var(--text-success-strong);
 }
 
 .trendDown {

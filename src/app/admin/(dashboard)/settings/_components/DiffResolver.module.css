@@ -107,14 +107,14 @@
 
 .diffLineRemoved {
   background: var(--bg-error);
-  color: var(--text-error);
+  color: var(--text-error-strong);
   margin: 0 calc(-1 * var(--spacing-md));
   padding: 0 var(--spacing-md);
 }
 
 .diffLineAdded {
   background: var(--bg-success);
-  color: var(--text-success);
+  color: var(--text-success-strong);
   margin: 0 calc(-1 * var(--spacing-md));
   padding: 0 var(--spacing-md);
 }

@@ -105,6 +105,6 @@
   margin: var(--spacing-sm) 0 0 0;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
-  color: var(--text-error);
+  color: var(--text-error-strong);
   line-height: var(--line-height-snug);
 }
