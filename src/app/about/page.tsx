@@ -1,10 +1,15 @@
 import type { Metadata } from "next";
 import BreakpointGuard from "@/components/common/BreakpointGuard";
+import { getSiteConfig } from "@/lib/getSiteConfig";
 import AboutSection from "./_components/AboutSection";
+import { AboutConfigProvider } from "./_components/AboutConfig";
 
 export const metadata: Metadata = { title: "About" };
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  // 패널 내용은 모든 페이지에 싣는 사이트 설정에서 빠져 있어 여기서 받는다(#944)
+  const { about } = await getSiteConfig();
+
   /* AboutSection 을 <Suspense> 로 감싸지 않는다.
    *
    * 안에서 suspend 하는 게 없다(useSearchParams 도 lazy 도 없다. 패널의 dynamic(ssr: false)은
@@ -20,7 +25,9 @@ export default function AboutPage() {
   return (
     <BreakpointGuard>
       <div className="content">
-        <AboutSection />
+        <AboutConfigProvider about={about}>
+          <AboutSection />
+        </AboutConfigProvider>
       </div>
     </BreakpointGuard>
   );

@@ -5,7 +5,7 @@ import gsap from "gsap";
 import Image from "next/image";
 import type { Language } from "@/providers/LanguageProvider";
 import type { DesignConceptItem, DcTransitionMode } from "@/data/about";
-import { useSiteConfig } from "@/providers/SiteConfigProvider";
+import { useAboutConfig } from "../AboutConfig";
 import { useMobileLayout } from "@/hooks/useMobileLayout";
 import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
 import { useTabActionsPortal } from "./designSystem/useTabActionsPortal";
@@ -59,8 +59,8 @@ function DesignSystemPanel({
   mode = "strip",
   scrollBy,
 }: DesignSystemPanelProps) {
-  const cfg = useSiteConfig();
-  const cfgConcepts = cfg.about.designSystem;
+  const about = useAboutConfig();
+  const cfgConcepts = about.designSystem;
   if (cfgConcepts && cfgConcepts.length > 0) concepts = adaptConcepts(cfgConcepts);
   const stripRef = useRef<HTMLDivElement>(null);
   const stackRef = useRef<HTMLDivElement>(null);

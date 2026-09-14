@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { LanguageProvider } from "@/providers/LanguageProvider";
-import { SiteConfigProvider } from "@/providers/SiteConfigProvider";
+import { AboutConfigProvider } from "@/app/about/_components/AboutConfig";
 import OverviewPanel from "@/app/about/_components/panels/OverviewPanel";
 import type { SiteConfigData } from "@/config/site.config";
 
@@ -19,11 +19,11 @@ const FALLBACK = {
 
 function draw(about: Record<string, unknown>) {
   return renderToStaticMarkup(
-    <SiteConfigProvider initialConfig={{ about } as unknown as SiteConfigData}>
+    <AboutConfigProvider about={about as unknown as SiteConfigData["about"]}>
       <LanguageProvider>
         <OverviewPanel language="ko" overview={FALLBACK} />
       </LanguageProvider>
-    </SiteConfigProvider>,
+    </AboutConfigProvider>,
   );
 }
 
@@ -61,11 +61,11 @@ describe("OverviewPanel", () => {
 
   it("폴백이 없어도(md 가 비었을 때) 터지지 않는다", () => {
     const html = renderToStaticMarkup(
-      <SiteConfigProvider initialConfig={{ about: {} } as unknown as SiteConfigData}>
+      <AboutConfigProvider about={{} as SiteConfigData["about"]}>
         <LanguageProvider>
           <OverviewPanel language="ko" overview={null} />
         </LanguageProvider>
-      </SiteConfigProvider>,
+      </AboutConfigProvider>,
     );
     expect(html).toContain("<div");
   });

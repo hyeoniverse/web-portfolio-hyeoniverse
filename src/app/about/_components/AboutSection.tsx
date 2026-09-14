@@ -4,7 +4,7 @@ import { Fragment, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useLoadingScreen } from "@/hooks/useLoadingProgress";
-import { useSiteConfig } from "@/providers/SiteConfigProvider";
+import { useAboutConfig } from "./AboutConfig";
 import { useHorizontalScroll } from "@/hooks/useHorizontalScroll";
 import { useInViewMobile } from "../_hooks/useInViewMobile";
 import { useNavIndicator } from "../_hooks/useNavIndicator";
@@ -43,15 +43,15 @@ function orderPanels<T extends { key: string }>(panels: T[], order: string[]): T
 }
 
 export default function AboutSection() {
-  const siteConfig = useSiteConfig();
-  const infiniteScroll = siteConfig.about.infiniteScroll;
+  const about = useAboutConfig();
+  const infiniteScroll = about.infiniteScroll;
   const hiddenPanels = useMemo(
-    () => new Set(siteConfig.about.hiddenPanels ?? []),
-    [siteConfig.about],
+    () => new Set(about.hiddenPanels ?? []),
+    [about],
   );
   const panelOrder = useMemo(
-    () => siteConfig.about.panelOrder ?? [],
-    [siteConfig.about],
+    () => about.panelOrder ?? [],
+    [about],
   );
 
   const { language } = useLanguage();
@@ -94,7 +94,7 @@ export default function AboutSection() {
     scrollBy,
   };
 
-  /* ── Render panels from config — siteConfig.about.hiddenPanels 에 등록된 key 는 skip.
+  /* ── Render panels from config — about.hiddenPanels 에 등록된 key 는 skip.
      칸(.panelSlot)은 상자를 만들지 않고 모바일 탭만 표시한다 ── */
   const renderPanels = (panels: typeof desktopPanels) =>
     panels

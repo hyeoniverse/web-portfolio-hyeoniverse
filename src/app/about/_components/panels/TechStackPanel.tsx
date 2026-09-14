@@ -1,5 +1,5 @@
 import type { TechStackItem } from "@/data/about";
-import { useSiteConfig } from "@/providers/SiteConfigProvider";
+import { useAboutConfig } from "../AboutConfig";
 import { usePanelTitle } from "../../_hooks/usePanelTitle";
 import frame from "../AboutPanel.module.css";
 import shell from "../AboutSection.module.css";
@@ -48,10 +48,10 @@ interface TechStackPanelProps {
 }
 
 export default function TechStackPanel({ techStack }: TechStackPanelProps) {
-  const cfg = useSiteConfig();
+  const about = useAboutConfig();
   const panelTitle = usePanelTitle("techStack");
   /* admin 편집 가능한 siteConfig.about.techStack 우선. 없으면(legacy) prop 으로 fallback. */
-  const cfgStack = cfg.about.techStack;
+  const cfgStack = about.techStack;
   const list = cfgStack ?? techStack;
   return (
     <div className={`${styles.panel} ${styles.panelCompact}`}>

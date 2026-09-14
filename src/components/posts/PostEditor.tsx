@@ -12,6 +12,7 @@ import { ExternalLink, AlertTriangle } from "@/components/icons";
 import { mdToRichHtml } from "./mdToRichHtml";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
+import type { SiteConfigData } from "@/config/site.config";
 import { validateContentSecurity } from "@/utils/contentSecurity";
 import { showToast } from "@/stores/toastStore";
 import { focusFirstMissingField } from "@/utils/focusFirstMissing";
@@ -583,10 +584,15 @@ export default function PostEditor({ post }: PostEditorProps) {
   // 태그 추가 시 site.config 의 tagDescriptions 프리셋 자동 채움 (ko 만, en 은 빈값)
   // 기존 태그 autocomplete suggestions — 모든 post 의 distinct tag
   const [allTagSuggestions, setAllTagSuggestions] = useState<string[]>([]);
+  /* 태그 설명 프리셋 — 모든 페이지에 싣는 사이트 설정에서는 빠져 있어 태그 목록과 함께 받는다(#944) */
+  const [tagDescriptions, setTagDescriptions] = useState<SiteConfigData["tagDescriptions"]>({});
   useEffect(() => {
     fetch("/api/admin/tags")
       .then((r) => (r.ok ? r.json() : { tags: [] }))
-      .then((d) => setAllTagSuggestions(d.tags ?? []))
+      .then((d) => {
+        setAllTagSuggestions(d.tags ?? []);
+        setTagDescriptions(d.descriptions ?? {});
+      })
       .catch(() => setAllTagSuggestions([]));
   }, []);
 
@@ -1143,7 +1149,7 @@ export default function PostEditor({ post }: PostEditorProps) {
         setForm={setForm}
         updateField={updateField}
         te={te}
-        config={config}
+        tagDescriptions={tagDescriptions}
         post={post}
         series={{ seriesList, seriesPosts, setSeriesPosts, seriesPostsLoading }}
         onReorderSeriesPosts={queueSeriesOrder}
@@ -1163,9 +1169,9 @@ export default function PostEditor({ post }: PostEditorProps) {
       />
     </div>
   ), [
-    allTagSuggestions, allWorks, authorChips, categories, categoryCustomMode, config, excerptKey, findCat, firstLeafKo,
+    allTagSuggestions, allWorks, authorChips, categories, categoryCustomMode, excerptKey, findCat, firstLeafKo,
     handleCoverUpload, handleSeriesCreated, isManagedCat, language, metaForm, optionalOpen, post, queueSeriesOrder,
-    seriesList, seriesPosts, seriesPostsLoading, seriesSelectMode, setSeriesPosts, showErrors, tag, te, titleFieldError,
+    seriesList, seriesPosts, seriesPostsLoading, seriesSelectMode, setSeriesPosts, showErrors, tag, tagDescriptions, te, titleFieldError,
     titleKey, updateField,
   ]);
 

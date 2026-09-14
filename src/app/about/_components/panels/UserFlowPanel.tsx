@@ -3,7 +3,7 @@
 import { useState, useCallback, memo } from "react";
 import type { Language } from "@/providers/LanguageProvider";
 import { userFlows } from "@/data/about/architecture";
-import { useSiteConfig } from "@/providers/SiteConfigProvider";
+import { useAboutConfig } from "../AboutConfig";
 import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
 import { useMobilePinScroll } from "../../_hooks/useMobilePinScroll";
 import { useMobileLayout } from "@/hooks/useMobileLayout";
@@ -26,8 +26,8 @@ function UserFlowPanel({
   scrollBy,
 }: UserFlowPanelProps) {
   /* admin(about.userFlows) override — 비어있으면 정적 데이터 */
-  const cfg = useSiteConfig();
-  const cfgFlows = cfg.about.userFlows;
+  const about = useAboutConfig();
+  const cfgFlows = about.userFlows;
   const flows = cfgFlows && cfgFlows.length > 0 ? cfgFlows : userFlows;
   const flowCount = flows.length;
   const isMobile = useMobileLayout();

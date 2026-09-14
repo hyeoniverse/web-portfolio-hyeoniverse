@@ -26,7 +26,7 @@ export default function PostEditorOptionalFields({
   form,
   updateField,
   te,
-  config,
+  tagDescriptions,
   setForm,
   allWorks,
   allTagSuggestions,
@@ -49,7 +49,8 @@ export default function PostEditorOptionalFields({
   form: PostMetaForm;
   updateField: <K extends keyof PostFormData>(key: K, value: PostFormData[K]) => void;
   te: (key: string) => string;
-  config: ReturnType<typeof import("@/providers/SiteConfigProvider").useSiteConfig>;
+  /** 설정의 태그 설명 — 태그를 더할 때 태그 메모 초기값. PostEditor 가 /api/admin/tags 에서 받는다 */
+  tagDescriptions: import("@/config/site.config").SiteConfigData["tagDescriptions"];
   setForm: React.Dispatch<React.SetStateAction<PostFormData>>;
   allWorks: Array<{ id: string; title: string; year: string; image: string; published: boolean; categories_ko?: string[] }>;
   allTagSuggestions: string[];
@@ -98,7 +99,7 @@ export default function PostEditorOptionalFields({
       return;
     }
     /* tagDescriptions 의 description (bilingual) 을 tag_notes 초기값으로 채움 */
-    const stored = config.tagDescriptions?.[raw];
+    const stored = tagDescriptions?.[raw];
     const meta = stored !== undefined
       ? (() => {
           if (typeof stored === "string") return { description: { ko: stored, en: "" } };
@@ -118,7 +119,7 @@ export default function PostEditorOptionalFields({
         : prev.tag_notes,
     }));
     tag.setInput("");
-  }, [tag, form.tags, config.tagDescriptions, setForm]);
+  }, [tag, form.tags, tagDescriptions, setForm]);
 
   /* 시리즈 순서 목록 — 저장값은 0 부터(설정의 시리즈 편집) 또는 1 부터(이 편집기)일 수 있어, 이 글의 자리는 값이 아니라
      앞선 글의 수로 정한다. 다른 글은 원래 값을 그대로 넘겨, 옮기면 자리와 값이 다른 글을 모두 다시 매긴다(#873) */

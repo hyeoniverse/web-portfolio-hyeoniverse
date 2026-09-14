@@ -12,7 +12,7 @@ import DynamicFrameLayout, {
   defaultFrames,
 } from "@/components/common/DynamicFrame/DynamicFrameLayout";
 import { useMobileLayout } from "@/hooks/useMobileLayout";
-import { useSiteConfig } from "@/providers/SiteConfigProvider";
+import { useAboutConfig } from "../AboutConfig";
 import { useFeatureFolderScroll } from "./features/useFeatureFolderScroll";
 import { usePanelTitle } from "../../_hooks/usePanelTitle";
 import { adaptFeatures } from "@/app/about/_config/adaptAbout";
@@ -42,9 +42,9 @@ function FeaturesPanel({
   language,
   features: fallbackFeatures,
 }: FeaturesPanelProps) {
-  const cfg = useSiteConfig();
+  const about = useAboutConfig();
   const panelTitle = usePanelTitle("features");
-  const cfgList = cfg.about.features;
+  const cfgList = about.features;
   /* 사이트 설정에 목록이 있으면 그걸 쓰고, 없으면 props 로 받은 기본값을 쓴다.
      전에는 props 를 그대로 덮어썼는데, props 는 부모가 준 값이라 고칠 것이 아니다.
      받는 이름을 fallbackFeatures 로 바꾸고 아래에서 쓰는 features 는 지역 변수로 둔다. */

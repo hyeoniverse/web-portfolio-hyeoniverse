@@ -20,6 +20,7 @@ import { ThemeProvider } from "@/providers/ThemeProvider";
 import FaviconSync from "@/components/layout/FaviconSync";
 import { LanguageProvider } from "@/providers/LanguageProvider";
 import { SiteConfigProvider } from "@/providers/SiteConfigProvider";
+import { toSiteWideConfig } from "@/config/siteWideConfig";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 import { getPublicKeys } from "@/lib/getSecret";
 
@@ -124,7 +125,7 @@ export default async function RootLayout({
       {/* favicon — src/app/icon.tsx 가 siteConfig 기반 다이내믹 생성 (Next 자동 주입) */}
 
       <body>
-        <SiteConfigProvider initialConfig={config} publicKeys={publicKeys}>
+        <SiteConfigProvider initialConfig={toSiteWideConfig(config)} publicKeys={publicKeys}>
           <ThemeProvider>
             <FaviconSync />
             <LanguageProvider>

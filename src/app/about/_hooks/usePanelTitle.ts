@@ -1,6 +1,6 @@
 "use client";
 
-import { useSiteConfig } from "@/providers/SiteConfigProvider";
+import { useAboutConfig } from "../_components/AboutConfig";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { aboutPanelTitle } from "@/data/about/panels";
 
@@ -13,7 +13,7 @@ import { aboutPanelTitle } from "@/data/about/panels";
  * 놓치면 화면마다 다른 이름이 나왔다.
  */
 export function usePanelTitle(key: string): string {
-  const cfg = useSiteConfig();
+  const about = useAboutConfig();
   const { language } = useLanguage();
-  return aboutPanelTitle(key, cfg.about.panelTitles?.[key]?.[language]);
+  return aboutPanelTitle(key, about.panelTitles?.[key]?.[language]);
 }

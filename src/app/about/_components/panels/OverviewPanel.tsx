@@ -1,5 +1,5 @@
 import type { Language } from "@/providers/LanguageProvider";
-import { useSiteConfig } from "@/providers/SiteConfigProvider";
+import { useAboutConfig } from "../AboutConfig";
 import { usePanelTitle } from "../../_hooks/usePanelTitle";
 import frame from "../AboutPanel.module.css";
 import shell from "../AboutSection.module.css";
@@ -22,9 +22,9 @@ type CfgOverview = {
 };
 
 export default function OverviewPanel({ language, overview }: OverviewPanelProps) {
-  const cfg = useSiteConfig();
+  const about = useAboutConfig();
   const panelTitle = usePanelTitle("overview");
-  const a = (cfg.about as CfgOverview);
+  const a = (about as CfgOverview);
   /* admin 이 설명을 한 줄이라도 적었으면 admin 편집본이 이긴다. 나머지 항목은 비어 있으면
      폴백으로 되돌아간다 — 설명만 고치고 칩·수치는 그대로 두는 경우가 있다. */
   const edited = !!(a.overview_description_ko || a.overview_description_en);
