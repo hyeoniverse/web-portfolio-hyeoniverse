@@ -120,6 +120,9 @@ export default function ProgressiveImage({
           width={fill ? undefined : width}
           height={fill ? undefined : height}
           priority={priority}
+          /* Next 16 의 priority 는 <head> 에 preload 만 넣고 fetchpriority 는 붙이지 않는다(15 까지는 high 였다).
+             그러면 LCP 이미지가 Low 로 받혀 스타일시트·스크립트와 대역폭을 나눈다(#944) */
+          fetchPriority={priority ? "high" : undefined}
           loading={loading}
           className={`${className ?? ""} ${styles.full} ${visible ? styles.fullLoaded : ""}`}
           style={style}

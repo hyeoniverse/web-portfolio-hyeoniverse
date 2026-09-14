@@ -4,7 +4,7 @@ import { useMemo, memo } from "react";
 
 import type { Language } from "@/providers/LanguageProvider";
 import { projectStructure } from "@/data/about/architecture";
-import { useSiteConfig } from "@/providers/SiteConfigProvider";
+import { useAboutConfig } from "../AboutConfig";
 import { usePanelTitle } from "../../_hooks/usePanelTitle";
 import type { StructureItem } from "@/data/about/types";
 
@@ -23,9 +23,9 @@ interface ArchitecturePanelProps {
 
 function ArchitecturePanel({ language }: ArchitecturePanelProps) {
   /* admin 에서 architectureItems 수정 가능 — 비어있으면 정적 fallback 사용 */
-  const cfg = useSiteConfig();
+  const about = useAboutConfig();
   const panelTitle = usePanelTitle("architecture");
-  const cfgItems = cfg.about.architectureItems;
+  const cfgItems = about.architectureItems;
   const structure: StructureItem[] = useMemo(() => {
     if (!cfgItems || cfgItems.length === 0) return projectStructure;
     return cfgItems.map((it) => ({

@@ -5,7 +5,7 @@ import { useState, memo } from "react";
 import type { Language } from "@/providers/LanguageProvider";
 import { codeExamples } from "@/data/about/codeExamples";
 import type { CodeExample } from "@/data/about/types";
-import { useSiteConfig } from "@/providers/SiteConfigProvider";
+import { useAboutConfig } from "../AboutConfig";
 import CodeHighlight from "../CodeHighlight";
 import { renderHighlight } from "../renderHighlight";
 import CodeDemoSlot, { type CodeDemoMode } from "./CodeDemoSlot";
@@ -57,8 +57,8 @@ function CodeHighlightsPanel({
   language,
   scrollBy,
 }: CodeHighlightsPanelProps) {
-  const cfg = useSiteConfig();
-  const cfgCode = cfg.about.codeHighlights;
+  const about = useAboutConfig();
+  const cfgCode = about.codeHighlights;
   const examples = cfgCode && cfgCode.length > 0 ? adaptCode(cfgCode) : codeExamples;
   const { panelRef, contentRef, activeIndex, scrollToItem } = usePinnedScroll(
     examples.length,

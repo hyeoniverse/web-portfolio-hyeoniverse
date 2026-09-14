@@ -3,7 +3,7 @@
 import { useCallback, useRef, useState, useEffect, memo } from "react";
 import type { Language } from "@/providers/LanguageProvider";
 import { aboutDecisions } from "@/data/generated/aboutContent";
-import { useSiteConfig } from "@/providers/SiteConfigProvider";
+import { useAboutConfig } from "../AboutConfig";
 import type { TroubleshootingDiagram, TroubleShootingItem } from "@/data/about/types";
 import { useMobileLayout } from "@/hooks/useMobileLayout";
 import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
@@ -36,8 +36,8 @@ function TroubleshootingPanel({
   scrollBy,
 }: TroubleshootingPanelProps) {
   /* admin(about.troubleshooting) override — 비어있으면 정적 데이터 */
-  const cfg = useSiteConfig();
-  const cfgItems = cfg.about.troubleshooting;
+  const about = useAboutConfig();
+  const cfgItems = about.troubleshooting;
   const items = cfgItems && cfgItems.length > 0 ? cfgItems : aboutDecisions;
   const isMobile = useMobileLayout();
   const listRef = useRef<HTMLDivElement>(null);

@@ -1,9 +1,10 @@
 "use client";
 
 import { createContext, useContext, type ReactNode } from "react";
-import type { SiteConfigData } from "@/config/site.config";
+import type { SiteWideConfig } from "@/config/siteWideConfig";
 
-interface SiteConfigContextValue extends SiteConfigData {
+/* 모든 페이지에 싣는 설정만 담는다 — /about 패널 내용과 태그 설명은 빠져 있다(config/siteWideConfig.ts) */
+interface SiteConfigContextValue extends SiteWideConfig {
   publicKeys: Record<string, string>;
 }
 
@@ -25,7 +26,7 @@ export function SiteConfigProvider({
   publicKeys,
   children,
 }: {
-  initialConfig: SiteConfigData;
+  initialConfig: SiteWideConfig;
   publicKeys?: Record<string, string>;
   children: ReactNode;
 }) {
