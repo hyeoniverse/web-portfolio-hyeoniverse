@@ -254,7 +254,7 @@
 /* 삭제된 항목이라 날짜 뱃지 살짝 흐리게 */
 .pickerTrashItem .pickerItemDate { opacity: 0.6; }
 
-.pickerTrashSoon { color: var(--text-error); font-weight: 600; }
+.pickerTrashSoon { color: var(--text-error-strong); font-weight: 600; }
 
 /* ── 연결된 작업 모달 — 넘버링 스테퍼 타임라인 ── */
 .chainFlow { display: flex; flex-direction: column; padding: var(--spacing-md) var(--spacing-md) var(--spacing-lg); }

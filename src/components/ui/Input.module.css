@@ -87,7 +87,7 @@
 }
 /* count 숫자만 상태별 색 — "/ max" 는 항상 tertiary */
 .counterWarn > span {
-  color: var(--text-warning);
+  color: var(--text-warning-strong);
 }
 .counterOver > span {
   color: var(--text-accent);

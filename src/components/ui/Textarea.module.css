@@ -251,7 +251,7 @@
 
 /* count 숫자만 상태별 색상 — "/ max" 는 항상 tertiary (EditableInput 과 동일 패턴). */
 .counterWarn > span {
-  color: var(--text-warning);
+  color: var(--text-warning-strong);
 }
 
 .counterOver > span {

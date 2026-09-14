@@ -1547,7 +1547,7 @@
   border-radius: var(--radius-capsule);
   /* accent 는 읽지 않음 dot 이 이미 쓴다 — 결정이 필요한 항목은 다른 색이라야 구분된다 */
   background: var(--bg-warning-soft);
-  color: var(--text-warning);
+  color: var(--text-warning-strong);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-hint);
   font-weight: var(--font-weight-semibold);

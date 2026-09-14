@@ -172,7 +172,7 @@
 }
 
 .counterWarn > span {
-  color: var(--text-warning);
+  color: var(--text-warning-strong);
 }
 
 .counterOver > span {

@@ -407,7 +407,7 @@
 }
 
 .variant-ghost.tone-danger.btn:hover:not(:disabled) {
-  color: var(--text-error);
+  color: var(--text-error-strong);
 }
 
 /* ghost + accent — 위험하지 않은데 기본 상태에서 시선은 끌어야 하는 인라인 액션.

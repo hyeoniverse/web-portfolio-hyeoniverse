@@ -107,7 +107,7 @@
 }
 .kindMulti {
   border: 1px double var(--text-info);
-  color: var(--text-info);
+  color: var(--text-info-strong);
 }
 .kindDerived {
   border: 1px dashed var(--text-accent);
@@ -143,7 +143,7 @@
   letter-spacing: 0.02em;
 }
 .keyPk { color: var(--text-accent); }
-.keyFk { color: var(--text-info); }
+.keyFk { color: var(--text-info-strong); }
 
 .colName {
   color: var(--text-secondary);
@@ -197,7 +197,7 @@
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   padding: var(--spacing-4xs) var(--spacing-xs);
-  color: var(--text-info);
+  color: var(--text-info-strong);
   font-size: var(--font-size-micro);
   font-weight: var(--font-weight-bold);
   letter-spacing: 0.04em;
