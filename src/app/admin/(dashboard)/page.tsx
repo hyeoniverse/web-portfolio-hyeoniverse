@@ -384,11 +384,7 @@ export default function AdminDashboard() {
                 </span>
                 {wow && (
                   <Tooltip
-                    content={
-                      language === "ko"
-                        ? "최근 7일 vs 직전 7일 변화율"
-                        : "Last 7 days vs previous 7 days"
-                    }
+                    content={t("admin.dashboard.wowTooltip")}
                     placement="top"
                     delay={200}
                   >

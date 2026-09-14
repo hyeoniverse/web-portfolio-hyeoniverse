@@ -360,13 +360,9 @@ function DailyViewsChart({
           return (
             <div className={styles.dailyChartStatItem}>
               <span className={styles.dailyChartStatLabel}>
-                {viewMode === "calendar"
-                  ? language === "ko"
-                    ? "직전 달 대비"
-                    : "vs prev month"
-                  : language === "ko"
-                    ? "직전 기간 대비"
-                    : "vs prev"}
+                {t(viewMode === "calendar"
+                  ? "admin.dashboard.trendVsPrevMonth"
+                  : "admin.dashboard.trendVsPrev")}
               </span>
               <span
                 className={`${styles.trendBadge} ${trend.direction === "up" ? styles.trendUp : styles.trendDown}`}
