@@ -565,6 +565,7 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
                 <input
                   className={styles.addPostSearch}
                   type="text"
+                  aria-label={t("admin.posts.search")}
                   placeholder={t("admin.posts.search")}
                   value={addSearch}
                   onChange={(e) => setAddSearch(e.target.value)}
@@ -703,6 +704,7 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
                       <input
                         className={styles.seriesPostOrderInput}
                         type="number"
+                        aria-label={ts("orderLabel")}
                         min={1}
                         max={posts.length}
                         value={editingOrderValue}

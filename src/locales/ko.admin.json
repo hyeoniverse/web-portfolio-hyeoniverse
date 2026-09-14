@@ -994,7 +994,8 @@
       "signOutAllFailed": "모든 기기에서 로그아웃하지 못했습니다.",
       "envReveal": "값 보기",
       "envHide": "값 숨기기",
-      "categoryReassignFailed": "글을 다른 카테고리로 옮기지 못해 카테고리를 지우지 않았습니다."
+      "categoryReassignFailed": "글을 다른 카테고리로 옮기지 못해 카테고리를 지우지 않았습니다.",
+      "socialUploadIcon": "아이콘 업로드"
     },
     "posts": {
       "title": "POSTS",
@@ -1287,7 +1288,8 @@
         "addPost": "게시물 추가",
         "addPostHint": "이미 불러왔습니다. 아래에서 선택하세요 ↓",
         "noAvailablePosts": "추가할 수 있는 게시물이 없습니다",
-        "titleTooLong": "제목은 {{max}}자 이내로 입력해주세요"
+        "titleTooLong": "제목은 {{max}}자 이내로 입력해주세요",
+        "orderLabel": "순서"
       },
       "publish": "발행",
       "unpublish": "발행 취소",
