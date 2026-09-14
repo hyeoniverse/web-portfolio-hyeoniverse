@@ -452,7 +452,10 @@ export default function AccountTab({
                 }}
               />
               {accountMessage && (
-                <span className={`${shared.message} ${accountMessageError ? shared.messageError : shared.messageSuccess}`}>
+                /* 작업 결과를 스크린리더에도 알린다 — 오류는 즉시(alert), 성공은 정중히(status) */
+                <span className={`${shared.message} ${accountMessageError ? shared.messageError : shared.messageSuccess}`}
+                  role={accountMessageError ? "alert" : "status"}
+                  aria-live={accountMessageError ? "assertive" : "polite"}>
                   {accountMessage}
                 </span>
               )}

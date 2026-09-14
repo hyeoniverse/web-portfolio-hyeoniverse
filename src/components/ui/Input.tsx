@@ -114,6 +114,9 @@ export default function Input({
           onChange={(e) => onChange(e.target.value)}
           onKeyDown={handleKeyDown}
           required={required}
+          /* error 는 스타일만이 아니라 프로그램적 무효 상태도 알린다 (aria-describedby 로 사유 연결은 호출부 몫).
+             rest 로 aria-invalid 를 직접 준 경우엔 그걸 존중한다. */
+          aria-invalid={error || undefined}
           {...rest}
         />
         {showClear && (
