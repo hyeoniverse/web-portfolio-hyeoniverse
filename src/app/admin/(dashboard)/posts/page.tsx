@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import dynamic from "next/dynamic";
 import type { LocalizedText } from "@/types/common";
 import type { GithubImportResponse } from "@/types";
 import { QUERY_PARAM } from "@/constants";
@@ -21,7 +22,6 @@ import { usePreviewTooltip } from "@/hooks/usePreviewTooltip";
 import Select from "@/components/ui/Select";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import { useMyRole } from "@/hooks/useMyRole";
-import AccessRequestModal from "@/components/admin/AccessRequestModal";
 import AdminListShell, {
   adminShellStyles as shell,
 } from "@/components/admin/AdminListShell";
@@ -29,19 +29,22 @@ import AdminTable from "@/components/admin/AdminTable/AdminTable";
 import StickyGlassBar from "@/components/admin/StickyGlassBar/StickyGlassBar";
 import { useModalStore } from "@/stores/modalStore";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
-import BulkCategoryModal from "@/components/admin/BulkCategoryModal";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import { parseMdPost } from "@/utils/mdParser";
 import { uploadRandomCover } from "@/utils/uploadRandomCover";
 import { sendAction, sendActions, notifyFailures, tryRequest } from "@/lib/sendAction";
 import { CodedError } from "@/lib/apiError";
-import MarkdownUploadGuide from "./_components/MarkdownUploadGuide";
 import SeriesPanel from "./_components/SeriesPanel";
 import TrashPanel from "./_components/TrashPanel";
 import { searchTypeOptions, pageSizeOptions } from "./_components/subTableControls";
 import PreviewTooltip from "./_components/PreviewTooltip";
 import { createPostColumns } from "./_columns";
 import styles from "./AdminPosts.module.css";
+
+/* 클릭 시에만 뜨는 모달들 — 초기 번들에서 빼고 열릴 때 받는다 */
+const AccessRequestModal = dynamic(() => import("@/components/admin/AccessRequestModal"));
+const BulkCategoryModal = dynamic(() => import("@/components/admin/BulkCategoryModal"));
+const MarkdownUploadGuide = dynamic(() => import("./_components/MarkdownUploadGuide"));
 import Pressable from "@/components/ui/Pressable";
 
 const PAGE_SIZE_OPTIONS = pageSizeOptions(10, 20, 50, 100);
