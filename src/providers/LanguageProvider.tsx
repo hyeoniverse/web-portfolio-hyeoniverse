@@ -81,7 +81,10 @@ const defaultContextValue: LanguageContextType = {
   dict: translations,
 };
 
-const LanguageContext = createContext<LanguageContextType>(defaultContextValue);
+/* export: AdminDictProvider 가 이 context 를 읽어 dict 만 admin 사전으로 덮어 다시 provide 한다.
+   (언어 스토어·컨트롤은 그대로 재사용 — 언어 토글이 어긋나지 않게) */
+export const LanguageContext = createContext<LanguageContextType>(defaultContextValue);
+export type { LanguageContextType };
 
 /* ── Provider ── */
 
