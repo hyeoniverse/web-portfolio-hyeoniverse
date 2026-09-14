@@ -70,6 +70,69 @@ test.describe("상세의 글 링크", () => {
   });
 });
 
+/* 상세 커버는 로딩 경계 바깥, 레이아웃에서 그린다(#946). 페이지는 loading.tsx 의 Suspense 경계 안이라, 미리 그린 HTML 에서
+   셸 뒤에 감춘 채(<div hidden id="S:…">) 실리고 React 19.2 가 첫 칠부터 300ms 뒤에 공개한다. 그 안에 있던 커버(LCP)가 그만큼
+   늦게 나왔다. HTML 에서 커버가 셸 끝 표시($RT)와 감춘 경계보다 앞에 있어야 첫 칠에 함께 나온다. */
+const HERO_COVER = 'img[class*="heroCover"]';
+
+test.describe("상세 커버", () => {
+  test.setTimeout(90_000);
+
+  test("미리 그린 HTML 에서 커버가 로딩 경계 바깥, 셸 안에 있다", async ({ request }) => {
+    const { works } = (await (await request.get("/api/works")).json()) as { works: { slug?: string; id: string; image?: string }[] };
+    const work = works.find((w) => w.image);
+    const paths = ["/posts/bdm-2", ...(work ? [`/works/${work.slug || work.id}`] : [])];
+    for (const path of paths) {
+      const html = await (await request.get(path)).text();
+      const covers = [...html.matchAll(/<img[^>]*class="[^"]*heroCover/g)].map((m) => m.index ?? -1);
+      expect(covers, `${path} 커버 수`).toHaveLength(1);
+      for (const marker of ["$RT=", '<div hidden id="S:']) {
+        const at = html.indexOf(marker);
+        if (at >= 0) expect(covers[0], `${path} 커버가 ${marker} 앞`).toBeLessThan(at);
+      }
+    }
+  });
+
+  test("다 그린 뒤에도 커버는 하나이고 제목 바로 위에 있으며, 받지 못하면 빈 커버로 바뀐다", async ({ page }) => {
+    await page.route(/\/view$/, (route) => route.abort());
+    await page.goto("/posts/bdm-2", { waitUntil: "load" });
+    const cover = page.locator(HERO_COVER);
+    await expect(cover).toHaveCount(1);
+    const header = page.locator('[class*="DetailLayout-module__"][class*="__header"]').first();
+    await expect(header).toBeVisible({ timeout: 30_000 });
+    const place = () => page.evaluate(() => {
+      const hero = document.querySelector('img[class*="heroCover"]')?.parentElement?.closest('[class*="DetailLayout-module__"][class*="__hero"]');
+      const head = document.querySelector('[class*="DetailLayout-module__"][class*="__header"]');
+      return hero && head ? Math.abs(head.getBoundingClientRect().top - hero.getBoundingClientRect().bottom) : Infinity;
+    });
+    expect(await place(), "커버 아래 끝과 제목 머리 사이").toBeLessThanOrEqual(2);
+    await page.waitForTimeout(1_500);
+    await expect(cover, "하이드레이션 뒤").toHaveCount(1);
+
+    // 커버 이미지를 받지 못하면 같은 자리에 아이콘만 있는 빈 커버를 둔다
+    await page.route(/\/_next\/image/, (route) => route.abort());
+    await page.reload({ waitUntil: "load" });
+    await expect(page.locator('[class*="__heroPlaceholder"] svg')).toBeVisible({ timeout: 30_000 });
+    await expect(cover).toHaveCount(0);
+  });
+
+  /* 커버는 레이아웃이 그리지만 alt 는 페이지가 정한다 — 글 보기 언어(KO/EN)는 페이지만 안다. 번역이 없으면 자동 번역 POST 가 나가므로 막는다 */
+  test("커버 alt 는 제목과 같고, 글의 보기 언어를 바꾸면 함께 바뀐다", async ({ page }) => {
+    await page.route("**/*", readOnly);
+    await page.goto("/posts/bdm-2", { waitUntil: "load" });
+    const cover = page.locator(HERO_COVER);
+    const title = page.locator("main h1").first();
+    await expect(title).toBeVisible({ timeout: 30_000 });
+    const first = (await title.textContent())?.trim() ?? "";
+    await expect(cover).toHaveAttribute("alt", first);
+    const toggle = page.locator('main [role="switch"]').first();
+    test.skip((await toggle.count()) === 0, "보기 언어 단추가 없다");
+    await toggle.click();
+    await expect(title).not.toHaveText(first);
+    await expect(cover).toHaveAttribute("alt", (await title.textContent())?.trim() ?? "");
+  });
+});
+
 /* 새 탭은 전체 Chromium 으로 본다 — 기본 headless shell 은 ⌘·가운데 클릭으로 탭을 만들지 않는다(postsindex 의 새 탭 검사 참고) */
 test.describe("상세의 글 링크 — 새 탭", () => {
   test.setTimeout(120_000);

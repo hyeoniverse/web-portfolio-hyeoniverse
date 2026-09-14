@@ -69,9 +69,11 @@ export default function WorkDetailClient({
     <DetailLayout
       backHref="/works"
       backLabel={t("workDetail.back")}
+      /* 커버는 레이아웃이 셸에서 그린다(#946) — 여기서는 alt 를 넘기고 아이콘·헤더 자리만 맞춘다 */
       heroImage={project.image}
-      heroIcon={project.icon}
+      heroInShell
       heroAlt={pickLocalized(project.title, language)}
+      heroIcon={project.icon}
       headings={headings}
       header={
         <WorkArticleHeader

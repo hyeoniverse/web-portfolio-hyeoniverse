@@ -24,7 +24,6 @@ import { useRecommendedToast } from "./_hooks/useRecommendedToast";
 import { ImageViewer, useProseImageViewer } from "@/components/ui/ImageViewer";
 import { useIsAuthenticated } from "@/hooks/useIsAuthenticated";
 import { useLikeToggle } from "@/hooks/useLikeToggle";
-import { ImageIcon } from "@/components/icons";
 import styles from "./PostDetail.module.css";
 import header from "@/components/posts/PostArticleHeader.module.css";
 import { resolvePostAuthors } from "@/utils/resolvePostAuthors";
@@ -59,7 +58,6 @@ export default function PostDetailClient({ post: initialPost, relatedWorks }: Po
     [siteConfig, post.author_ids],
   );
 
-  const [heroImgError, setHeroImgError] = useState(false);
   const { count: likeCount, liked, busy: likeBusy, toggle: handleLikeToggle } = useLikeToggle({
     endpoint: `/api/posts/${post.id}/like`,
   });
@@ -75,25 +73,16 @@ export default function PostDetailClient({ post: initialPost, relatedWorks }: Po
     return extractHeadings(displayContent, post.content_type === "markdown");
   }, [displayContent, post.content_type]);
 
-  const showHero = post.cover_image && !heroImgError;
-  const heroErrorFallback = post.cover_image && heroImgError ? (
-    <div className={styles.heroPlaceholder}>
-      <ImageIcon size={48} strokeWidth={1} />
-    </div>
-  ) : undefined;
-
   return (
     <>
     <DetailLayout
       backHref="/posts"
       backLabel={t("nav.posts")}
-      heroImage={showHero ? post.cover_image : undefined}
+      /* 커버는 레이아웃이 셸에서 그린다(#946) — 여기서는 alt 를 넘기고 아이콘·헤더 자리만 맞춘다 */
+      heroImage={post.cover_image || undefined}
+      heroInShell
       heroAlt={displayTitle}
       heroIcon={post.icon}
-      heroPosition={post.cover_position}
-      heroZoom={post.cover_zoom}
-      onHeroError={() => setHeroImgError(true)}
-      heroFallback={heroErrorFallback}
       headings={[...headings, { id: "comments", text: t("comments.heading"), level: 1 }]}
       header={
         /* 페이지 트랜지션으로 진입 시엔 morph 가 hero 만 덮고 fade out 되므로

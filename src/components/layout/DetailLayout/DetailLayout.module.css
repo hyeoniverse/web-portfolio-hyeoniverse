@@ -31,6 +31,16 @@
   height: var(--spacing-3xl);
 }
 
+/* 로딩 뼈대(loading.tsx) 머리의 커버 없는 글 여백 — heroSpacer 에 contentNoHero 가 더하는 만큼.
+   커버가 있으면 상세 경로의 레이아웃이 뼈대 바로 앞에 커버를 그리므로(#946) 접는다 */
+.skeletonNoHeroGap {
+  height: calc(var(--spacing-3xl) * 2 + 40px);
+}
+.hero ~ .page .skeletonNoHeroGap,
+.heroPlaceholder ~ .page .skeletonNoHeroGap {
+  display: none;
+}
+
 /* 페이지 이모지 — 커버에 겹쳐 표시 (본문과 같은 폭·좌측 정렬) */
 .heroIconRow {
   position: relative;
