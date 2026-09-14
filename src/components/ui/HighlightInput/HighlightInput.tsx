@@ -46,6 +46,11 @@ interface HighlightInputProps {
   onEnter?: () => void;
   /** maxLength 로 초과분이 처음 잘릴 때 1회 호출 — 소비자 override. 미제공 + maxLength 있으면 built-in toast. */
   onOverflow?: () => void;
+  /** 요소 id — 지정하면 자체 useId 대신 쓴다 (외부 라벨 연결용) */
+  id?: string;
+  /** role="textbox" 라 htmlFor 로 안 묶인다 — 바깥 라벨을 aria-labelledby 로 가리킬 때 쓴다.
+   *  주면 placeholder 기반 aria-label 대신 이걸 이름으로 삼는다. */
+  ariaLabelledby?: string;
 }
 
 function escapeHtml(s: string): string {
@@ -117,8 +122,11 @@ export default function HighlightInput({
   autoFocus,
   onEnter,
   onOverflow,
+  id: externalId,
+  ariaLabelledby,
 }: HighlightInputProps) {
-  const id = useId();
+  const generatedId = useId();
+  const id = externalId ?? generatedId;
   const ref = useRef<HTMLDivElement>(null);
   const isComposingRef = useRef(false);
   const { language } = useLanguage();
@@ -238,7 +246,8 @@ export default function HighlightInput({
           ref={ref}
           id={id}
           role="textbox"
-          aria-label={placeholder ?? undefined}
+          aria-labelledby={ariaLabelledby}
+          aria-label={ariaLabelledby ? undefined : (placeholder ?? undefined)}
           aria-disabled={disabled || undefined}
           contentEditable={disabled ? false : "plaintext-only"}
           suppressContentEditableWarning
