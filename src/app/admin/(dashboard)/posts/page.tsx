@@ -157,6 +157,11 @@ export default function AdminPostsPage() {
   const [trashLoading, setTrashLoading] = useState(false);
   const [trashOpen, setTrashOpen] = useState(false);
 
+  /* 실제 쿼리에 쓰는 author 값. myRole.authorId 는 "__mine" 필터일 때만 쓰이므로,
+     기본(filterAuthor="") 로드에서 role 이 늦게 와도 fetchPosts 가 재실행되지 않게 이 값만 의존한다.
+     (전엔 myRole.authorId 를 직접 의존해, 안 쓰이는데도 role 로드 시 목록이 한 번 더 fetch 됐다) */
+  const effectiveAuthor = filterAuthor === "__mine" ? (myRole.authorId ?? "") : filterAuthor;
+
   const fetchPosts = useCallback(async () => {
     setLoading(true);
     const params = new URLSearchParams({
@@ -167,8 +172,7 @@ export default function AdminPostsPage() {
     });
     if (filterCategory) params.set(QUERY_PARAM.category, filterCategory);
     if (filterSeries) params.set("series_id", filterSeries);
-    const authorId = filterAuthor === "__mine" ? myRole.authorId : filterAuthor;
-    if (authorId) params.set("author", authorId);
+    if (effectiveAuthor) params.set("author", effectiveAuthor);
     if (debouncedSearch) {
       params.set("search", debouncedSearch);
       params.set("searchType", searchType);
@@ -179,7 +183,7 @@ export default function AdminPostsPage() {
     setPosts(data.posts ?? []);
     setTotalPages(data.totalPages ?? 1);
     setLoading(false);
-  }, [page, perPage, sort, filterCategory, filterSeries, filterAuthor, myRole.authorId, debouncedSearch, searchType, syntaxMode]);
+  }, [page, perPage, sort, filterCategory, filterSeries, effectiveAuthor, debouncedSearch, searchType, syntaxMode]);
 
   const fetchSeries = useCallback(async () => {
     setSeriesLoading(true);
