@@ -5,9 +5,8 @@ import styles from "@/components/works/WorkArticleHeader.module.css";
 export default function WorkDetailLoading() {
   return (
     <div className={layoutStyles.page}>
-      {/* Hero placeholder */}
-      <Skeleton height="50vh" borderRadius="0" />
-
+      {/* 커버는 레이아웃이 셸에서 그려 이 뼈대 위에 이미 있다(#946). 커버가 없으면 이 여백이 머리 자리를 둔다 */}
+      <div className={layoutStyles.skeletonNoHeroGap} />
       <div className={layoutStyles.content}>
         {/* Meta: category + year */}
         <div className={styles.meta}>

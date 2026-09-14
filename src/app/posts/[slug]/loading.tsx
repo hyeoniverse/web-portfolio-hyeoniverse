@@ -2,16 +2,16 @@ import { Skeleton, SkeletonLine } from "@/components/ui/Skeleton";
 import layoutStyles from "@/components/layout/DetailLayout/DetailLayout.module.css";
 import header from "@/components/posts/PostArticleHeader.module.css";
 
-/* DetailLayout (with hero + header) 구조와 1:1 매칭:
-   .page > .hero + .headerSection + .contentRow > .content
-   image-ful 전환은 image overlay 가 hero 크기로 morph 후 fade out — 그 fade 중에
-   loading.tsx 가 잠깐 비치므로 hero 블록까지 맞춰야 위치 점프 0.
-   image-less 전환은 backdrop 이 끝까지 덮어 loading.tsx 자체가 안 보여 mismatch 무관. */
+/* DetailLayout 의 커버 아래 구조와 1:1 매칭:
+   .page > .headerSection + .contentRow > .content
+   커버(hero)는 레이아웃이 셸에서 그려 이 뼈대 위에 이미 있다(#946). image-ful 전환은 image overlay 가 hero 크기로
+   morph 후 fade out — 그 fade 중에 이 뼈대가 잠깐 비치는데, 커버가 같은 자리에 있어 위치 점프가 없다.
+   image-less 전환은 backdrop 이 끝까지 덮어 뼈대가 안 보인다. 전환 연출 없이 들어올 때를 위해, 커버가 없는 글은
+   skeletonNoHeroGap 이 커버 없는 머리 여백을 둔다(커버가 앞에 있으면 CSS 가 접는다). */
 export default function PostDetailLoading() {
   return (
     <div className={layoutStyles.page}>
-      <div className={layoutStyles.hero} />
-
+      <div className={layoutStyles.skeletonNoHeroGap} />
       <div className={layoutStyles.headerSection}>
         <div className={header.articleHeader}>
           <div className={header.metaRow}>
