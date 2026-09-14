@@ -27,7 +27,7 @@ export function createPostColumns(t: TFunction, onTogglePublished?: (post: Post)
       render: (post) => (
         <div className={ts.colThumb}>
           {post.cover_image ? (
-            <MediaThumb src={post.cover_image} fill sizes="48px" className={ts.thumbImg} />
+            <MediaThumb src={post.cover_image} fill sizes="48px" unoptimized={false} className={ts.thumbImg} />
           ) : (
             <div className={ts.thumbPlaceholder}>
               <ImageIcon size={16} strokeWidth={1.5} />
@@ -137,7 +137,7 @@ export function createTrashColumns(
       render: (post) => (
         <div className={st.colThumb}>
           {post.cover_image ? (
-            <MediaThumb src={post.cover_image} fill sizes="48px" className={st.thumbImg} />
+            <MediaThumb src={post.cover_image} fill sizes="48px" unoptimized={false} className={st.thumbImg} />
           ) : (
             <div className={st.thumbPlaceholder}>
               <ImageIcon size={16} strokeWidth={1.5} />
