@@ -20,6 +20,13 @@ export const ModalFooterContext = createContext<HTMLDivElement | null>(null);
 const SWIPE_THRESHOLD = 30;
 const DISMISS_THRESHOLD = 100;
 
+/* 포커스 트랩·초기 포커스가 대상으로 삼는 요소들 */
+const FOCUSABLE = [
+  "a[href]", "button:not([disabled])", "input:not([disabled])",
+  "select:not([disabled])", "textarea:not([disabled])",
+  "[tabindex]:not([tabindex=\"-1\"])",
+].join(",");
+
 export default function Modal() {
   const { t } = useLanguage();
   const { isMobile } = useIsMobile();
@@ -118,12 +125,58 @@ export default function Modal() {
     setSheetExpanded(false);
   }, [modals, start]);
 
+  // ── 포커스 관리 ──
+  // 열기 직전 포커스를 기억했다가 모두 닫히면 그리로 되돌린다. 스택 중간(2→1)은
+  // 아래 초기-포커스 effect 가 새 top 으로 옮기므로 여기선 완전히 닫힐 때만 복원한다.
+  const restoreFocusRef = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    if (modals.length > 0) {
+      if (!restoreFocusRef.current) {
+        restoreFocusRef.current = document.activeElement as HTMLElement | null;
+      }
+    } else if (restoreFocusRef.current) {
+      restoreFocusRef.current.focus?.();
+      restoreFocusRef.current = null;
+    }
+  }, [modals.length]);
+
+  // top 모달이 바뀌면(열림·스택 변화) 그 안으로 포커스를 넣는다. 이미 안에 있으면 두고,
+  // 애니메이션으로 갓 마운트된 뒤라야 잡히므로 rAF 로 한 박자 미룬다.
+  const topId = modals.length > 0 ? modals[modals.length - 1].id : null;
+  useEffect(() => {
+    if (!topId) return;
+    const raf = requestAnimationFrame(() => {
+      const el = modalElRef.current;
+      if (!el || el.contains(document.activeElement)) return;
+      const first = el.querySelector<HTMLElement>(FOCUSABLE);
+      (first ?? el).focus();
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [topId]);
+
   useEffect(() => {
     if (modals.length === 0) return;
     const onKey = (e: KeyboardEvent) => {
+      // 안쪽 컨트롤(CodeMirror·완성 목록 등)이 이미 처리한 키는 건드리지 않는다
+      if (e.defaultPrevented) return;
       if (e.key === "Escape") {
         const top = modals[modals.length - 1];
         if (top) handleClose(top.id);
+        return;
+      }
+      // Tab 을 top 모달 안에 가둔다 — 경계에서 순환, 밖에 있으면 안으로 끌어온다
+      if (e.key === "Tab") {
+        const el = modalElRef.current;
+        if (!el) return;
+        const nodes = Array.from(el.querySelectorAll<HTMLElement>(FOCUSABLE))
+          .filter((n) => n.offsetParent !== null || n === document.activeElement);
+        if (nodes.length === 0) { e.preventDefault(); el.focus(); return; }
+        const first = nodes[0];
+        const last = nodes[nodes.length - 1];
+        const active = document.activeElement;
+        if (!el.contains(active)) { e.preventDefault(); first.focus(); }
+        else if (e.shiftKey && active === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && active === last) { e.preventDefault(); first.focus(); }
       }
     };
     document.addEventListener("keydown", onKey);
@@ -289,6 +342,8 @@ export default function Modal() {
             role="dialog"
             aria-modal="true"
             aria-labelledby={header?.title ? `modal-title-${id}` : undefined}
+            /* 안에 초점 대상이 없을 때 포커스를 받는 폴백 */
+            tabIndex={-1}
             data-rounded={id === "project-detail" ? "true" : undefined}
             data-sheet-expanded={sheetExpanded ? "true" : undefined}
             initial={{ opacity: 0, y: isMobile ? "100%" : "40px" }}
