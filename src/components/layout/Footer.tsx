@@ -172,9 +172,10 @@ export default function Footer({ className, variant = "full" }: FooterProps) {
     );
   })() : null;
 
-  /* 새 탭으로 여는 링크(Design System·Admin·Login)는 prefetch={false}. Link 는 화면에 들어오면 대상 페이지를
+  /* 새 탭으로 여는 링크(Design System·Admin)는 prefetch={false}. Link 는 화면에 들어오면 대상 페이지를
      미리 받는데, 새 탭은 이 탭이 받아 둔 것을 쓰지 못한다. 그런데도 미리 받은 페이지의 스크립트까지 내려받아,
-     푸터가 보이는 화면마다 Design System 의 청크 12개(three.js 포함)를 쓰지도 않고 받았다. */
+     푸터가 보이는 화면마다 Design System 의 청크 12개(three.js 포함)를 쓰지도 않고 받았다.
+     Login 은 같은 탭으로 열지만(로그인=관리 진입), 방문자 대부분이 누르지 않으므로 마찬가지로 prefetch 하지 않는다. */
   return (
     <footer className={cn(styles.footer, isMinimal && styles.footerMinimal, className)}>
       <div className={styles.content}>
@@ -194,7 +195,7 @@ export default function Footer({ className, variant = "full" }: FooterProps) {
                 {isAuthenticated ? (
                   <Link href="/admin" target="_blank" prefetch={false} className={styles.adminLink}>Admin</Link>
                 ) : (
-                  <Link href="/admin/login" target="_blank" prefetch={false} className={styles.adminLink}>Login</Link>
+                  <Link href="/admin/login?next=/admin" prefetch={false} className={styles.adminLink}>Login</Link>
                 )}
                 {visits && (
                   <>
@@ -240,7 +241,7 @@ export default function Footer({ className, variant = "full" }: FooterProps) {
                   {isAuthenticated ? (
                     <Link href="/admin" target="_blank" prefetch={false} ref={setLinkRef("/admin")} onMouseEnter={() => setHoveredLink("/admin")}>Admin</Link>
                   ) : (
-                    <Link href="/admin/login" target="_blank" prefetch={false} ref={setLinkRef("/admin/login")} onMouseEnter={() => setHoveredLink("/admin/login")}>Login</Link>
+                    <Link href="/admin/login?next=/admin" prefetch={false} ref={setLinkRef("/admin/login")} onMouseEnter={() => setHoveredLink("/admin/login")}>Login</Link>
                   )}
                 </>
               )}
