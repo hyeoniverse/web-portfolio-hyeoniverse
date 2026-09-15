@@ -82,12 +82,23 @@ export function useSeriesRowScroll(
     };
 
     const handleWheel = (e: WheelEvent) => {
-      // 시리즈 영역 hover 시 vertical wheel 은 페이지로 새지 않게 항상 차단
-      e.preventDefault();
-      // 가로 overflow 있으면 vertical+horizontal delta 모두 합쳐서 가로 스크롤로 변환
-      if (el.scrollWidth > el.clientWidth) {
-        el.scrollLeft += e.deltaY + e.deltaX;
+      // vertical(+horizontal) 휠을 가로 스크롤로 변환. 단, 내용의 양 끝에서 그 방향으로 더 굴리면
+      // 가로에 가두지 않고 세로 페이지 스크롤에 양보한다.
+      const delta = e.deltaY + e.deltaX;
+      const hasOverflow = el.scrollWidth > el.clientWidth + EDGE_TOL;
+      const atStart = el.scrollLeft <= EDGE_TOL;
+      const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - EDGE_TOL;
+      // 놓아줄 조건: 가로로 넘칠 게 없거나 / 왼쪽 끝에서 위로 / 오른쪽 끝에서 아래로
+      const release = !hasOverflow || (delta < 0 && atStart) || (delta > 0 && atEnd);
+      if (release) {
+        // preventDefault·stopPropagation 하지 않고 흘려보낸다 → window 의 Lenis 휠 리스너(버블)가
+        // 받아 세로 페이지 스크롤을 부드럽게 처리한다. (row 의 data-lenis-prevent 는 제거되어 있어야 함)
+        return;
       }
+      // 가로로 가둔다 — capture 단계에서 stopPropagation 하면 Lenis 가 이 휠을 못 봐 페이지가 안 밀린다.
+      e.preventDefault();
+      e.stopPropagation();
+      el.scrollLeft += delta;
     };
 
     // pointer capture 를 쓰면 자식 button 의 click 이 부모로 가로채져서 시리즈 클릭이 안 먹힘.
