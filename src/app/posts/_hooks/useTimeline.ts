@@ -150,20 +150,21 @@ export function useTimeline({
   // 커서 밑으로 카드가 지나가며 프리뷰가 깜빡이는 것 방지. html 에 data-tl-scrolling 을 걸면
   // CSS 가 프리뷰를 숨긴다. 멈추면 곧바로 해제 → 커서가 머문 카드의 프리뷰는 정상 표시된다.
   //
-  // '스크롤 중' = 방금 휠/터치 입력이 있었거나(직접 조작) Lenis 가 아직 속도를 갖고 미끄러지는 중
-  // (관성). 매 프레임(rAF) 다시 판단한다 — scroll 이벤트에만 기대면, 마지막 이벤트의 속도가
-  // 임계값 위였다가 이벤트가 끊길 때 억제가 갇혀 멈춰도 프리뷰가 안 뜬다. 프레임마다 다시 보면
-  // 움직임이 멎는 즉시 풀려 절대 갇히지 않는다. Lenis 부드러운 스크롤은 한 번 굴려도 관성으로
-  // 1초 넘게 미끄러지므로, 속도가 낮아져 시각적으로 멈추면 그때 되살린다.
+  // 판단은 '화면이 실제로 움직였는가'(window.scrollY 프레임 간 변화)로만 한다. Lenis 속도나
+  // scroll 이벤트에 기대면 관성 꼬리에서 억제가 갇혀(멈춰도 프리뷰가 안 뜸) 버릴 수 있었다.
+  // 매 프레임(rAF) 위치를 재서, 지난 프레임과 0.5px 넘게 움직였거나 방금 휠/터치 입력이
+  // 있었으면 '스크롤 중'. 위치가 그대로면 프레임마다 즉시 해제 → 물리적으로 갇힐 수 없다.
   useEffect(() => {
     if (!enabled) return;
     const root = document.documentElement;
+    let lastY = window.scrollY;
     let lastInput = -Infinity;
     let raf = 0;
-    const velocityOf = () => (lenis ? Math.abs((lenis as unknown as { velocity?: number }).velocity ?? 0) : 0);
     const onInput = () => { lastInput = performance.now(); };
     const tick = () => {
-      const moving = performance.now() - lastInput < 100 || velocityOf() > 0.5;
+      const y = window.scrollY;
+      const moving = Math.abs(y - lastY) > 0.5 || performance.now() - lastInput < 90;
+      lastY = y;
       if (moving) {
         if (!root.hasAttribute("data-tl-scrolling")) root.setAttribute("data-tl-scrolling", "");
       } else if (root.hasAttribute("data-tl-scrolling")) {
@@ -180,7 +181,7 @@ export function useTimeline({
       cancelAnimationFrame(raf);
       root.removeAttribute("data-tl-scrolling");
     };
-  }, [enabled, lenis]);
+  }, [enabled]);
 
   // 월 인덱스 점프 — 대상 월이 아직 로드 안 됐으면 마커가 나타날 때까지 다음 page 순차 로드 후 스크롤.
   // posts.length 로 게이팅(로드 완료 = posts 증가). loading 플래그만 쓰면 effect 실행 순서상 lag 때문에
