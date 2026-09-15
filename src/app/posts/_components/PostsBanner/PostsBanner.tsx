@@ -49,7 +49,9 @@ function FullwidthBanner({ posts, imgErrors, onImgError }: PostsBannerProps) {
     <div className={styles.fullwidth} data-cursor="stop">
       <Banner
         mode={siteConfig.posts.bannerTransition as "default" | "cylinder"}
-        height="clamp(320px, 56vh, 640px)"
+        aspectRatio="var(--posts-banner-aspect)"
+        minHeight="var(--posts-banner-min-h)"
+        maxHeight="var(--posts-banner-max-h)"
         showDots
         showArrows
       >
