@@ -222,6 +222,14 @@
   .footer {
     bottom: var(--spacing-2xl);
   }
+
+  /* 모바일: 큰 CTA 버튼(데스크톱 height 80px·font lg)을 화면에 맞게 줄인다 */
+  .ctaBtn.ctaBtn,
+  .resumeBtn.resumeBtn {
+    height: 52px;
+    padding: 0 var(--spacing-2xl);
+    font-size: var(--font-size-body);
+  }
 }
 
 @media (max-width: 480px) {
@@ -232,10 +240,5 @@
   .buttonGroup {
     flex-direction: column;
     gap: var(--spacing-lg);
-  }
-
-  .ctaBtn.ctaBtn,
-  .resumeBtn.resumeBtn {
-    padding: var(--spacing-lg) var(--spacing-2xl-plus);
   }
 }
