@@ -37,6 +37,13 @@
   font-weight: var(--font-weight-semibold);
   white-space: nowrap;
 }
+/* KO 날짜의 한자 단위(年·月·日) — 사이드바(TimelineIndex)의 한자와 같은 결로 작게·연하게 */
+.timelineDateUnit {
+  margin-left: var(--spacing-4xs);
+  font-size: 0.82em;
+  font-weight: var(--font-weight-regular);
+  opacity: 0.55;
+}
 .timelineEyebrowSep {
   flex-shrink: 0;
   width: 3px;
@@ -107,6 +114,13 @@
 .timelineCard:hover .timelinePreview {
   opacity: 1;
   transform: translateX(0);
+}
+/* 스크롤 중에는 hover 프리뷰를 띄우지 않는다 (커서 밑으로 카드가 지나가며 깜빡임 방지).
+   (0,4,1) 로 위 hover 규칙(0,3,0)을 이긴다. transition 없이 즉시 감춘다. */
+:global(html[data-tl-scrolling]) .timelineCard:hover .timelinePreview {
+  opacity: 0;
+  transform: translateX(var(--tl-preview-x, 0));
+  transition: none;
 }
 .timelinePreviewThumb {
   position: relative;

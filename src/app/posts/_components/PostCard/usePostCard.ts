@@ -68,6 +68,7 @@ export function usePostCard({ post, imgError }: { post: Post; imgError?: boolean
 
   return {
     t,
+    language,
     cardRef,
     date,
     readTime,
