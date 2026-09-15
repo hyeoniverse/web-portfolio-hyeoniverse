@@ -57,6 +57,7 @@ export function workToFormData(work: Work): WorkFormData {
     github_url: work.github_url,
     published: work.published,
     sort_order: work.sort_order || 1,
+    is_pinned: work.is_pinned ?? false,
     scheduled_at: work.scheduled_at ?? null,
     related_post_ids: [],
   };
@@ -94,6 +95,7 @@ export const defaultForm: WorkFormData = {
   github_url: "",
   published: false,
   sort_order: 0, // 새 작업물 — 0 이면 맨 뒤(정렬 목록 표시·저장 모두, #873)
+  is_pinned: false,
   scheduled_at: null,
   related_post_ids: [],
 };
