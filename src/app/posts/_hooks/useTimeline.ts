@@ -146,6 +146,26 @@ export function useTimeline({
     };
   }, [enabled, posts]);
 
+  // 스크롤 중에는 타임라인 카드 hover 프리뷰(썸네일·발췌)를 억제한다 — 커서 밑으로 카드가 지나가며
+  // 프리뷰가 깜빡이는 것 방지. html 에 data-tl-scrolling 을 걸면 CSS 가 프리뷰를 숨긴다. 스크롤이
+  // 멎으면 짧은 debounce 뒤 해제 → 커서가 멈춘 카드의 프리뷰가 다시 뜬다.
+  useEffect(() => {
+    if (!enabled) return;
+    const root = document.documentElement;
+    let tid: ReturnType<typeof setTimeout> | undefined;
+    const onScroll = () => {
+      root.setAttribute("data-tl-scrolling", "");
+      if (tid) clearTimeout(tid);
+      tid = setTimeout(() => root.removeAttribute("data-tl-scrolling"), 140);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (tid) clearTimeout(tid);
+      root.removeAttribute("data-tl-scrolling");
+    };
+  }, [enabled]);
+
   // 월 인덱스 점프 — 대상 월이 아직 로드 안 됐으면 마커가 나타날 때까지 다음 page 순차 로드 후 스크롤.
   // posts.length 로 게이팅(로드 완료 = posts 증가). loading 플래그만 쓰면 effect 실행 순서상 lag 때문에
   // page 를 2씩 건너뛰어(짝수 page 미로드) 영구 gap 이 생기던 버그 방지.

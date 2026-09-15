@@ -6,7 +6,7 @@ import HighlightedText from "@/components/ui/HighlightedText";
 import { PinIcon } from "@/components/icons";
 import { EmojiIcon } from "@/components/ui/EmojiPicker/EmojiIcon";
 import type { Post } from "@/types/post";
-import { siteDateParts } from "@/utils/siteDate";
+import { siteDateParts, MONTHS_SHORT_EN } from "@/utils/siteDate";
 import { usePostCard } from "./usePostCard";
 import PostCardAuthor from "./PostCardAuthor";
 import PostCardLink from "./PostCardLink";
@@ -14,8 +14,6 @@ import { HotBadge, LangChip, StatItem } from "./PostCardChips";
 // .card 는 네 변형이 공유하는 카드 base — PostCard.module.css 에 있다(hero·standard 가 분리되면 그 파일이 base 만 남는다).
 import base from "./PostCard.module.css";
 import styles from "./PostCardTimeline.module.css";
-
-const TL_MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
 
 /* Timeline 레이아웃: 블로그식 히스토리 — 축 점 왼쪽에 날짜, 오른쪽에 제목·발췌·메타 */
 export default function PostCardTimeline({
@@ -30,12 +28,14 @@ export default function PostCardTimeline({
   imgError?: boolean;
 }) {
   const {
-    t, cardRef, readTime, showImage, category, author, langBadge,
+    t, language, cardRef, readTime, showImage, category, author, langBadge,
     displayTitle, displayExcerpt, icon, cardLink, handleClick, handlePrefetch,
   } = usePostCard({ post, imgError });
-  // 한국 시간 기준 — 서버가 미리 그린 날짜와 같아야 한다(siteDate)
+  // 한국 시간 기준 — 서버가 미리 그린 날짜와 같아야 한다(siteDate).
+  // KO 는 한자(2026年 09月 09日), EN 은 영어(SEP 09, 2026) — 사이드바(TimelineIndex)와 언어별로 통일.
   const d = siteDateParts(post.created_at);
-  const eyebrowDate = d ? `${TL_MONTHS[d.month]} ${String(d.day).padStart(2, "0")}, ${d.year}` : "";
+  const dd = d ? String(d.day).padStart(2, "0") : "";
+  const mm = d ? String(d.month + 1).padStart(2, "0") : "";
 
   return (
     <div
@@ -50,7 +50,17 @@ export default function PostCardTimeline({
       <PostCardLink {...cardLink} />
       {/* eyebrow — 날짜(accent) · 카테고리 · pinned · hot */}
       <div className={styles.timelineEyebrow}>
-        <time className={styles.timelineDate} dateTime={post.created_at}>{eyebrowDate}</time>
+        <time className={styles.timelineDate} dateTime={post.created_at}>
+          {d && (language === "ko" ? (
+            <>
+              {d.year}<span className={styles.timelineDateUnit}>年</span>{" "}
+              {mm}<span className={styles.timelineDateUnit}>月</span>{" "}
+              {dd}<span className={styles.timelineDateUnit}>日</span>
+            </>
+          ) : (
+            `${MONTHS_SHORT_EN[d.month]} ${dd}, ${d.year}`
+          ))}
+        </time>
         {category && (
           <>
             <span className={styles.timelineEyebrowSep} aria-hidden />
