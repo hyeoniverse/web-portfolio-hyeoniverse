@@ -24,3 +24,13 @@
 .sortControl.sortControl {
   box-shadow: inset 0 0 0 1px var(--border-color-light);
 }
+
+/* 좁은 화면: perPage+검색 묶음(searchTools)을 한 줄 전체로 내리고 안에서 wrap →
+   검색창(page.searchBar, 모바일 width:100%)이 제 줄을 차지해 화면 밖으로 안 삐져나간다. */
+@media (max-width: 768px) {
+  .searchTools {
+    width: 100%;
+    margin-left: 0;
+    flex-wrap: wrap;
+  }
+}
