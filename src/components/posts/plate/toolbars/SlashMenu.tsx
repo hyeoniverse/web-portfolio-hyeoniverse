@@ -25,6 +25,7 @@ import {
 } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { genPollId } from "../PollElements";
+import { insertBlockHere, insertLibBlockHere } from "../insertBlock";
 import { CALLOUT_TYPES, type CalloutType } from "../calloutTypes";
 import { _imageUploadFn, _uploadErrorFn, _slashOpenTrigger, _emojiPickerTrigger, _postLinkTrigger } from "../utils";
 import styles from "../../RichTextEditor.module.css";
@@ -65,26 +66,15 @@ const calloutItem = (c: (typeof CALLOUT_TYPES)[number]): Cmd => ({
   labelKey: CALLOUT_LABEL_KEY[c.type],
   icon: CALLOUT_ICON[c.type],
   keywords: CALLOUT_KEYWORDS[c.type],
-  run: (e) => {
-    const sel = e.selection;
-    const at = sel ? [sel.anchor.path[0] + 1] : [e.children.length];
-    e.tf.insertNodes({ type: "callout", bg: c.bg, icon: c.icon, children: [{ type: "p", children: [{ text: "" }] }] }, { at });
-  },
+  run: (e) => insertBlockHere(e, { type: "callout", bg: c.bg, icon: c.icon, children: [{ type: "p", children: [{ text: "" }] }] }),
 });
-
-// 다음 블록 위치에 노드 삽입 (현재 블록 다음)
-const insertAfter = (e: any, node: any) => {
-  const sel = e.selection;
-  const at = sel ? [sel.anchor.path[0] + 1] : [e.children.length];
-  e.tf.insertNodes(node, { at });
-};
 const insertColumns = (e: any, cols: number) => {
   const colChildren = Array.from({ length: cols }, (_, i) => ({
     type: "column",
     width: `${i < cols - 1 ? Math.floor(100 / cols) : 100 - Math.floor(100 / cols) * (cols - 1)}%`,
     children: [{ type: "p", children: [{ text: "" }] }],
   }));
-  insertAfter(e, { type: "column_group", children: colChildren });
+  insertBlockHere(e, { type: "column_group", children: colChildren });
 };
 const triggerImageUpload = (e: any) => {
   const fn = _imageUploadFn.current;
@@ -95,7 +85,7 @@ const triggerImageUpload = (e: any) => {
   input.onchange = async () => {
     const f = input.files?.[0];
     if (!f) return;
-    try { const url = await fn(f); if (url) e.tf.insertNodes({ type: "img", url, children: [{ text: "" }] }); } catch (err) { _uploadErrorFn.current?.(err); }
+    try { const url = await fn(f); if (url) insertBlockHere(e, { type: "img", url, children: [{ text: "" }] }); } catch (err) { _uploadErrorFn.current?.(err); }
   };
   input.click();
 };
@@ -109,7 +99,7 @@ const triggerVideoUpload = (e: any) => {
   input.onchange = async () => {
     const f = input.files?.[0];
     if (!f) return;
-    try { const url = await fn(f); if (url) e.tf.insertNodes({ type: "media_embed", url, children: [{ text: "" }] }); } catch (err) { _uploadErrorFn.current?.(err); }
+    try { const url = await fn(f); if (url) insertBlockHere(e, { type: "media_embed", url, children: [{ text: "" }] }); } catch (err) { _uploadErrorFn.current?.(err); }
   };
   input.click();
 };
@@ -122,7 +112,7 @@ const triggerFileUpload = (e: any) => {
   input.onchange = async () => {
     const f = input.files?.[0];
     if (!f) return;
-    try { const url = await fn(f); if (url) e.tf.insertNodes({ type: "file_embed", url, fileName: f.name, fileSize: f.size, children: [{ text: "" }] }); } catch (err) { _uploadErrorFn.current?.(err); }
+    try { const url = await fn(f); if (url) insertBlockHere(e, { type: "file_embed", url, fileName: f.name, fileSize: f.size, children: [{ text: "" }] }); } catch (err) { _uploadErrorFn.current?.(err); }
   };
   input.click();
 };
@@ -136,7 +126,7 @@ const triggerAudioUpload = (e: any) => {
   input.onchange = async () => {
     const f = input.files?.[0];
     if (!f) return;
-    try { const url = await fn(f); if (url) e.tf.insertNodes({ type: "audio_embed", url, title: f.name, children: [{ text: "" }] }); } catch (err) { _uploadErrorFn.current?.(err); }
+    try { const url = await fn(f); if (url) insertBlockHere(e, { type: "audio_embed", url, title: f.name, children: [{ text: "" }] }); } catch (err) { _uploadErrorFn.current?.(err); }
   };
   input.click();
 };
@@ -166,32 +156,32 @@ const GROUPS: { labelKey: string; items: Cmd[] }[] = [
   { labelKey: "groupMedia", items: [
     { key: "image", labelKey: "insertImage", icon: <ImageIcon size={ICON} />, keywords: ["image", "이미지", "사진", "그림", "photo", "picture"], run: (e) => triggerImageUpload(e) },
     { key: "video", labelKey: "insertVideo", icon: <Film size={ICON} />, keywords: ["video", "동영상", "비디오", "movie", "mp4", "업로드", "upload"], run: (e) => triggerVideoUpload(e) },
-    { key: "embed", labelKey: "insertEmbed", icon: <Video size={ICON} />, keywords: ["embed", "youtube", "임베드", "미디어", "url", "링크"], run: (e) => insertAfter(e, { type: "media_embed", url: "", children: [{ text: "" }] }) },
+    { key: "embed", labelKey: "insertEmbed", icon: <Video size={ICON} />, keywords: ["embed", "youtube", "임베드", "미디어", "url", "링크"], run: (e) => insertBlockHere(e, { type: "media_embed", url: "", children: [{ text: "" }] }) },
     { key: "file", labelKey: "insertFile", icon: <Paperclip size={ICON} />, keywords: ["file", "파일", "attachment", "첨부", "다운로드", "download", "업로드", "upload"], run: (e) => triggerFileUpload(e) },
     { key: "audio", labelKey: "insertAudio", icon: <AudioLines size={ICON} />, keywords: ["audio", "오디오", "음악", "music", "sound", "소리", "mp3"], run: (e) => triggerAudioUpload(e) },
   ] },
   { labelKey: "groupCallout", items: CALLOUT_TYPES.map(calloutItem) },
   { labelKey: "groupContainer", items: [
-    { key: "toggle", labelKey: "insertToggle", icon: <ChevronRight size={ICON} />, keywords: ["toggle", "토글", "접기", "fold", "accordion"], run: (e) => insertAfter(e, { type: "toggle", open: true, children: [{ type: "p", children: [{ text: "" }] }, { type: "p", children: [{ text: "" }] }] }) },
-    { key: "tabs", labelKey: "insertTabs", icon: <LayoutPanelTop size={ICON} />, keywords: ["tabs", "탭", "tab"], run: (e) => insertAfter(e, { type: "tabs", activeTab: 0, children: [{ type: "tab_panel", label: "Tab 1", children: [{ type: "p", children: [{ text: "" }] }] }, { type: "tab_panel", label: "Tab 2", children: [{ type: "p", children: [{ text: "" }] }] }] }) },
+    { key: "toggle", labelKey: "insertToggle", icon: <ChevronRight size={ICON} />, keywords: ["toggle", "토글", "접기", "fold", "accordion"], run: (e) => insertBlockHere(e, { type: "toggle", open: true, children: [{ type: "p", children: [{ text: "" }] }, { type: "p", children: [{ text: "" }] }] }) },
+    { key: "tabs", labelKey: "insertTabs", icon: <LayoutPanelTop size={ICON} />, keywords: ["tabs", "탭", "tab"], run: (e) => insertBlockHere(e, { type: "tabs", activeTab: 0, children: [{ type: "tab_panel", label: "Tab 1", children: [{ type: "p", children: [{ text: "" }] }] }, { type: "tab_panel", label: "Tab 2", children: [{ type: "p", children: [{ text: "" }] }] }] }) },
   ] },
   { labelKey: "groupData", items: [
     { key: "code", labelKey: "codeBlock", icon: <Code size={ICON} />, keywords: ["code", "코드"], run: (e) => toggleCodeBlock(e) },
-    { key: "table", labelKey: "insertTable", icon: <TableIcon size={ICON} />, keywords: ["table", "표"], run: (e) => e.tf.withMerging(() => insertTable(e, { colCount: 3, rowCount: 3, header: true })) },
-    { key: "equation", labelKey: "equation", icon: <Sigma size={ICON} />, keywords: ["equation", "math", "수식", "latex"], run: (e) => insertEquation(e) },
-    { key: "mermaid", labelKey: "mermaid", icon: <Workflow size={ICON} />, keywords: ["mermaid", "diagram", "다이어그램", "chart", "flow"], run: (e) => e.tf.insertNodes({ type: "code_block", lang: "mermaid", graphView: "split", children: [{ type: "code_line", children: [{ text: "graph TD" }] }, { type: "code_line", children: [{ text: "  A[Start] --> B[End]" }] }] }) },
-    { key: "poll", labelKey: "insertPoll", icon: <Vote size={ICON} />, keywords: ["poll", "vote", "투표", "설문"], run: (e) => insertAfter(e, { type: "poll", pollId: genPollId(), multiple: false, options: [{ optionId: genPollId(), label: "항목 1" }, { optionId: genPollId(), label: "항목 2" }], children: [{ text: "" }] }) },
-    { key: "calendar", labelKey: "insertCalendar", icon: <CalendarDays size={ICON} />, keywords: ["calendar", "달력", "캘린더", "일정", "event", "이벤트", "schedule"], run: (e) => insertAfter(e, { type: "calendar", children: [{ text: "" }] }) },
-    { key: "diagram", labelKey: "insertDiagram", icon: <Shapes size={ICON} />, keywords: ["diagram", "graph", "flow", "shape", "다이어그램", "도형", "그리기", "비주얼", "visual"], run: (e) => insertAfter(e, { type: "diagram", data: { nodes: [], edges: [] }, children: [{ text: "" }] }) },
-    { key: "playground", labelKey: "insertPlayground", icon: <SquareCode size={ICON} />, keywords: ["playground", "codepen", "html", "css", "js", "javascript", "실행", "미리보기", "preview", "샌드박스", "sandbox", "코드펜", "플레이그라운드"], run: (e) => insertAfter(e, { type: "playground", data: { template: "", files: {} }, children: [{ text: "" }] }) },
+    { key: "table", labelKey: "insertTable", icon: <TableIcon size={ICON} />, keywords: ["table", "표"], run: (e) => insertLibBlockHere(e, (ed) => ed.tf.withMerging(() => insertTable(ed, { colCount: 3, rowCount: 3, header: true }))) },
+    { key: "equation", labelKey: "equation", icon: <Sigma size={ICON} />, keywords: ["equation", "math", "수식", "latex"], run: (e) => insertLibBlockHere(e, (ed) => insertEquation(ed)) },
+    { key: "mermaid", labelKey: "mermaid", icon: <Workflow size={ICON} />, keywords: ["mermaid", "diagram", "다이어그램", "chart", "flow"], run: (e) => insertBlockHere(e, { type: "code_block", lang: "mermaid", graphView: "split", children: [{ type: "code_line", children: [{ text: "graph TD" }] }, { type: "code_line", children: [{ text: "  A[Start] --> B[End]" }] }] }) },
+    { key: "poll", labelKey: "insertPoll", icon: <Vote size={ICON} />, keywords: ["poll", "vote", "투표", "설문"], run: (e) => insertBlockHere(e, { type: "poll", pollId: genPollId(), multiple: false, options: [{ optionId: genPollId(), label: "항목 1" }, { optionId: genPollId(), label: "항목 2" }], children: [{ text: "" }] }) },
+    { key: "calendar", labelKey: "insertCalendar", icon: <CalendarDays size={ICON} />, keywords: ["calendar", "달력", "캘린더", "일정", "event", "이벤트", "schedule"], run: (e) => insertBlockHere(e, { type: "calendar", children: [{ text: "" }] }) },
+    { key: "diagram", labelKey: "insertDiagram", icon: <Shapes size={ICON} />, keywords: ["diagram", "graph", "flow", "shape", "다이어그램", "도형", "그리기", "비주얼", "visual"], run: (e) => insertBlockHere(e, { type: "diagram", data: { nodes: [], edges: [] }, children: [{ text: "" }] }) },
+    { key: "playground", labelKey: "insertPlayground", icon: <SquareCode size={ICON} />, keywords: ["playground", "codepen", "html", "css", "js", "javascript", "실행", "미리보기", "preview", "샌드박스", "sandbox", "코드펜", "플레이그라운드"], run: (e) => insertBlockHere(e, { type: "playground", data: { template: "", files: {} }, children: [{ text: "" }] }) },
     { key: "footnote", labelKey: "insertFootnote", icon: <Superscript size={ICON} />, keywords: ["footnote", "각주", "주석", "reference", "note"], run: (e) => insertFootnote(e) },
     { key: "postlink", labelKey: "insertPostLink", icon: <FileText size={ICON} />, keywords: ["post", "link", "게시물", "링크", "글", "참조", "reference", "mention", "멘션"], run: () => _postLinkTrigger.current?.() },
   ] },
   { labelKey: "groupLayout", items: [
     { key: "col2", labelKey: "columns2", icon: <Columns2 size={ICON} />, keywords: ["column", "columns", "열", "단", "2", "분할"], run: (e) => insertColumns(e, 2) },
     { key: "col3", labelKey: "columns3", icon: <Columns3 size={ICON} />, keywords: ["column", "columns", "열", "단", "3", "분할"], run: (e) => insertColumns(e, 3) },
-    { key: "hr", labelKey: "insertHr", icon: <Minus size={ICON} />, keywords: ["divider", "hr", "구분", "선"], run: (e) => e.tf.insertNodes({ type: "hr", children: [{ text: "" }] }) },
-    { key: "toc", labelKey: "toc", icon: <ListTree size={ICON} />, keywords: ["toc", "목차", "contents", "outline"], run: (e) => insertToc(e) },
+    { key: "hr", labelKey: "insertHr", icon: <Minus size={ICON} />, keywords: ["divider", "hr", "구분", "선"], run: (e) => insertBlockHere(e, { type: "hr", children: [{ text: "" }] }) },
+    { key: "toc", labelKey: "toc", icon: <ListTree size={ICON} />, keywords: ["toc", "목차", "contents", "outline"], run: (e) => insertLibBlockHere(e, (ed) => insertToc(ed)) },
   ] },
 ];
 
