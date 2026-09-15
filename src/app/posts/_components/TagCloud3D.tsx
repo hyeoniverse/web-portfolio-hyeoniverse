@@ -90,9 +90,14 @@ export default function TagCloud3D({ tags, activeTags, onTagClick, size = 90, as
         const x2 = p.x0 * cy + z1 * sy;
         const z2 = -p.x0 * sy + z1 * cy;
         const depth = (z2 + 1) / 2; // 0 (뒷면) ~ 1 (앞면)
-        el.style.transform = `translate3d(${x2 * size}px, ${y1 * size}px, 0) translate(-50%, -50%) scale(${0.55 + depth * 0.55})`;
+        // 원근 투영 — 위치와 크기를 같은 perspective 배율(sc)로 스케일한다. 앞쪽 태그는 중심에서
+        // 바깥으로 퍼지며 커지고 뒤쪽은 안으로 모이며 작아진다. 위치까지 원근을 먹여야 평평한
+        // 원판이 아니라 실제 구 표면처럼 보인다(기존엔 위치가 정사영이라 구감이 약했다).
+        const persp = size * 2.6; // 카메라 거리 ≈ 2.6R — 값이 클수록 원근 효과가 약해진다
+        const sc = persp / (persp - z2 * size);
+        el.style.transform = `translate3d(${x2 * size * sc}px, ${y1 * size * sc}px, 0) translate(-50%, -50%) scale(${sc})`;
         /* 뒷면 태그도 읽을 수 있어야 한다. 최저 0.3 은 배경 대비가 다크 2.48 · 라이트 1.86 이었다.
-           0.65 면 각각 6.8 · 4.6 으로 기준을 넘고, 깊이감은 위의 scale 이 계속 표현한다. */
+           0.65 면 각각 6.8 · 4.6 으로 기준을 넘고, 깊이감은 위의 원근 scale 이 계속 표현한다. */
         el.style.opacity = String(0.65 + depth * 0.35);
         el.style.zIndex = String(Math.round(depth * 100));
       }
