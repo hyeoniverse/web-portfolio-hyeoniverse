@@ -11,10 +11,14 @@
   text-align: var(--tl-align, left);
   /* 구분선은 gridItem(Posts 모듈)에서 :last-child 제어 위해 관리 → base .card 의 border 해제 */
   border-bottom: none;
-  /* base .card 의 container-type:inline-size 해제 — 안 그러면 .timelinePreview(absolute) 가
-     카드를 containing block 으로 잡고 overflow:hidden 에 클리핑돼 hover 프리뷰가 안 보임.
-     타임라인 카드 내부엔 @container 쿼리 대상이 없어 안전. 프리뷰는 .gridItem 기준으로 배치됨. */
+  /* base .card 의 container-type:inline-size 해제 — @container 쿼리 대상이 없어 안전. */
   container-type: normal;
+  /* base .card 의 overflow:hidden 해제 — hover 프리뷰(썸네일·발췌)는 카드 밖 반대편 칸에
+     absolute 로 그려지므로, 카드가 잘라내면(overflow:hidden) 화면에 안 보인다. 카드는
+     position:relative 라 프리뷰의 containing block 이기도 해서 container-type 만 풀어선 부족하고,
+     overflow 를 열어야 반대편 칸에 삐져나온 프리뷰가 보인다. 타임라인 카드엔 잘라낼 콘텐츠(이미지
+     라운딩 등)가 없어 안전. */
+  overflow: visible;
 }
 
 /* eyebrow — 날짜(accent) · 카테고리 · pinned · hot */
