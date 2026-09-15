@@ -132,7 +132,6 @@
   width: 96px;
   aspect-ratio: 4 / 3;
   overflow: hidden;
-  border-radius: var(--radius-2xl);
   background: var(--bg-secondary);
 }
 .timelinePreviewThumbImg {
