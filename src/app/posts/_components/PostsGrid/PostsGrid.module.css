@@ -295,8 +295,10 @@
 .gridItemTlLeft {
   --tl-align: right;
   --tl-justify: flex-end;
-  /* 프리뷰는 오른쪽(빈) 반쪽에 */
-  --tl-preview-left: 100%;
+  /* 프리뷰는 오른쪽(빈) 반쪽에. 100% 는 프리뷰의 containing block(카드) 기준인데, 카드는
+     gridItem 안에서 padding(--tl-gap)만큼 축(중앙선)에서 물러나 있다. 그 gap 을 더해야
+     프리뷰가 카드 끝이 아니라 축에서 시작해 반대편 칸에 깔끔히 놓인다. */
+  --tl-preview-left: calc(100% + var(--tl-gap));
   --tl-preview-right: auto;
   --tl-preview-align: left;
   --tl-preview-dir: row;
@@ -309,9 +311,9 @@
 .gridItemTlRight {
   --tl-align: left;
   --tl-justify: flex-start;
-  /* 프리뷰는 왼쪽(빈) 반쪽에 */
+  /* 프리뷰는 왼쪽(빈) 반쪽에. 카드가 축에서 --tl-gap 물러나 있어 그만큼 더해 축에서 시작하게 한다. */
   --tl-preview-left: auto;
-  --tl-preview-right: 100%;
+  --tl-preview-right: calc(100% + var(--tl-gap));
   --tl-preview-align: right;
   --tl-preview-dir: row-reverse;
   --tl-preview-x: 14px;
