@@ -355,6 +355,61 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
           transition={{ duration: 0.18, ease: [0.4, 0, 0.2, 1] }}
         >
 
+          {/* 공통 — 숏(favicon)·풀 로고가 함께 쓰는 타이포그래피. 폰트·장평은 둘 다에 적용되므로
+              어느 한쪽 파트에 두면 반대쪽에도 영향을 주는 게 가려진다. 그래서 맨 위 공통 블록으로 뺀다. */}
+          <div className={styles.brandPart}>
+            <div className={styles.brandPartHead}>
+              <h4 className={styles.brandPartTitle}>
+                {t("admin.settings.logoSharedPart")}
+                <span className={styles.brandPartTitleHint}>{t("admin.settings.logoSharedPartHint")}</span>
+              </h4>
+            </div>
+            <div className={styles.faviconForm}>
+              {/* 로고 폰트 — 로고와 favicon 둘 다 결정. FontPicker (Google Fonts 검색 + 부분매칭). */}
+              <FieldRow label={t("admin.settings.logoFont")}>
+                <FontPicker
+                  value={config.brand.logoFont ?? ""}
+                  onChange={(v) => update("brand", "logoFont", v)}
+                  groups={FONT_GROUPS}
+                  triggerClassName={shared.fontPickerSelect}
+                  dropdownClassName={shared.fontPickerDropdown}
+                  renderValue={() => {
+                    const v = config.brand.logoFont ?? "";
+                    const matched = FONT_FAMILIES_FLAT.find((f) => f.value === v);
+                    const label = matched
+                      ? matched.label
+                      : v.replace(/["']/g, "").split(",")[0].trim();
+                    return <span style={{ fontFamily: v }}>{label}</span>;
+                  }}
+                  resolveMatch={(v, entries) => {
+                    if (!v) return "";
+                    if (entries.some((e) => e.value === v)) return v;
+                    const normalized = v.replace(/["']/g, "").split(",")[0].trim();
+                    const byName = entries.find((e) => e.label.toLowerCase() === normalized.toLowerCase());
+                    return byName ? byName.value : "";
+                  }}
+                  toGoogleValue={(name) => `'${name}', sans-serif`}
+                />
+              </FieldRow>
+              {/* 장평 — 폰트 가로 너비 (scaleX 배수). 로고/favicon 모두 적용. 더블클릭 시 자유 입력 */}
+              <FieldRow label={t("admin.settings.logoFontStretch")}>
+                <Select
+                  value={config.brand.logoFontStretch ?? "0.8"}
+                  onChange={(v) => update("brand", "logoFontStretch", v)}
+                  editable
+                  editableInputProps={{ placeholder: t("admin.settings.logoFontStretchPlaceholder"), maxLength: 8 }}
+                  options={[
+                    { value: "0.8", label: "0.8 (-20%)" },
+                    { value: "0.9", label: "0.9 (-10%)" },
+                    { value: "1", label: "1.0" },
+                    { value: "1.1", label: "1.1 (+10%)" },
+                    { value: "1.2", label: "1.2 (+20%)" },
+                  ]}
+                />
+              </FieldRow>
+            </div>
+          </div>
+
           {/* Favicon(숏) — 짧은 텍스트 → 브라우저 탭 아이콘 렌더 */}
           <div className={styles.brandPart}>
             <div className={styles.brandPartHead}>
@@ -519,32 +574,6 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
                     </div>
                   </FieldRow>
                 )}
-                {/* 로고 폰트 — 로고와 favicon 둘 다 결정. FontPicker (Google Fonts 검색 + 부분매칭). */}
-                <FieldRow label={t("admin.settings.logoFont")}>
-                  <FontPicker
-                    value={config.brand.logoFont ?? ""}
-                    onChange={(v) => update("brand", "logoFont", v)}
-                    groups={FONT_GROUPS}
-                    triggerClassName={shared.fontPickerSelect}
-                    dropdownClassName={shared.fontPickerDropdown}
-                    renderValue={() => {
-                      const v = config.brand.logoFont ?? "";
-                      const matched = FONT_FAMILIES_FLAT.find((f) => f.value === v);
-                      const label = matched
-                        ? matched.label
-                        : v.replace(/["']/g, "").split(",")[0].trim();
-                      return <span style={{ fontFamily: v }}>{label}</span>;
-                    }}
-                    resolveMatch={(v, entries) => {
-                      if (!v) return "";
-                      if (entries.some((e) => e.value === v)) return v;
-                      const normalized = v.replace(/["']/g, "").split(",")[0].trim();
-                      const byName = entries.find((e) => e.label.toLowerCase() === normalized.toLowerCase());
-                      return byName ? byName.value : "";
-                    }}
-                    toGoogleValue={(name) => `'${name}', sans-serif`}
-                  />
-                </FieldRow>
                 <FieldRow label={t("admin.settings.faviconWeight")}>
                   <RadioGroup<"light" | "regular" | "bold">
                     value={(config.brand.faviconWeight ?? "light") as "light" | "regular" | "bold"}
@@ -553,22 +582,6 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
                       { value: "light", label: "Light" },
                       { value: "regular", label: "Regular" },
                       { value: "bold", label: "Bold" },
-                    ]}
-                  />
-                </FieldRow>
-                {/* 장평 — 폰트 가로 너비 (scaleX 배수). 로고/favicon 모두 적용. 더블클릭 시 자유 입력 */}
-                <FieldRow label={t("admin.settings.logoFontStretch")}>
-                  <Select
-                    value={config.brand.logoFontStretch ?? "0.8"}
-                    onChange={(v) => update("brand", "logoFontStretch", v)}
-                    editable
-                    editableInputProps={{ placeholder: t("admin.settings.logoFontStretchPlaceholder"), maxLength: 8 }}
-                    options={[
-                      { value: "0.8", label: "0.8 (-20%)" },
-                      { value: "0.9", label: "0.9 (-10%)" },
-                      { value: "1", label: "1.0" },
-                      { value: "1.1", label: "1.1 (+10%)" },
-                      { value: "1.2", label: "1.2 (+20%)" },
                     ]}
                   />
                 </FieldRow>
