@@ -188,10 +188,11 @@ export default function SeriesSection({
             <ChevronLeft size={16} />
           </span>
         </Pressable>
+        {/* data-lenis-prevent 를 두지 않는다 — 휠 가둠/놓아줌은 useSeriesRowScroll 이 stopPropagation 으로
+           직접 제어한다. 그래야 양 끝에서 놓아준 휠이 Lenis 로 흘러가 세로 페이지 스크롤이 된다. */}
         <div
           ref={seriesRowRef}
           className={styles.seriesRow}
-          data-lenis-prevent
         >
           <AnimatePresence mode="popLayout" initial={false}>
             {filtered.map((series, idx) => (
