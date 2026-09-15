@@ -172,6 +172,41 @@
   .logoLetter { animation: none; }
 }
 
+/* 숏 글리프 ≠ 풀 텍스트 첫 글자일 때의 crossfade(풀 워드마크 ↔ 숏 글리프).
+   숏 글리프(.logoCrossShort)는 nav 최종 상태 = inline. 로딩 동안에는 폭을 워드마크에 넘기려
+   absolute 로 띄우고(.logoCrossShortFloat) 숨겨(.logoCrossHidden) 두었다가, 전환 때 나타난다.
+   전환 페이드는 transition 을 쓰므로 (0,2,0) 으로 전역 테마 transition(0,1,1)을 이긴다. */
+.logoCrossShort {
+  display: inline-flex;
+  align-items: center;
+}
+.logo .logoCrossShort {
+  transition: opacity 0.4s ease-out, filter 0.4s ease-out;
+}
+.logoCrossShortFloat {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+}
+.logoCrossHidden {
+  opacity: 0;
+  filter: blur(12px);
+}
+
+/* 풀 워드마크 — 로딩 중 실제 이름. 전환 때 통째로 흐려지며 사라진다(숏 글리프가 대신 나타남). */
+.logoCrossFull {
+  display: inline-flex;
+  align-items: center;
+}
+.logo .logoCrossFullOut {
+  transition: opacity 0.3s ease-out, filter 0.3s ease-out;
+}
+.logoCrossFullOut {
+  opacity: 0;
+  filter: blur(6px);
+}
+
 /* favicon 배지 로고 (nav === 브라우저 탭 아이콘) — SVG 자체 width/height 로 크기 결정 */
 .logoBadge {
   display: block;
