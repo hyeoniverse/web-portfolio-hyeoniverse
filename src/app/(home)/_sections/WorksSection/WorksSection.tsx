@@ -3,7 +3,7 @@
 import { forwardRef, memo, useCallback, useState } from "react";
 import MediaThumb from "@/components/ui/MediaThumb";
 import { motion, MotionValue } from "framer-motion";
-import { worksData, WorkItem } from "@/data/works";
+import { WorkItem } from "@/data/works";
 import { pickLocalized } from "@/types/common";
 import T from "@/components/ui/T";
 import type { Language } from "@/providers/LanguageProvider";
@@ -186,6 +186,8 @@ const WorkCircle = memo(function WorkCircle({
 // ─── WorksSection ──────────────────────────────────────────────────────
 
 interface WorksSectionProps {
+  /** 홈 Selected Works 항목 — 핀 → 인기순 → 최신순으로 랭킹된 11개 슬롯 (server: getHomeWorks) */
+  works: WorkItem[];
   smoothWorkImageY: MotionValue<number>;
   setWorkCircleRef: (id: string, el: HTMLDivElement | null) => void;
   pressingWork: PressingWork | null;
@@ -203,6 +205,7 @@ interface WorksSectionProps {
 const WorksSection = forwardRef<HTMLElement, WorksSectionProps>(
   (
     {
+      works,
       smoothWorkImageY,
       setWorkCircleRef,
       pressingWork,
@@ -241,8 +244,8 @@ const WorksSection = forwardRef<HTMLElement, WorksSectionProps>(
 
         const hasImage = IMAGE_POSITIONS[row].includes(col);
         const work =
-          hasImage && workIndex < worksData.length
-            ? worksData[workIndex++]
+          hasImage && workIndex < works.length
+            ? works[workIndex++]
             : null;
 
         if (!work) {

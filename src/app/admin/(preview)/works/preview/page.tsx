@@ -120,6 +120,7 @@ export default function WorkPreviewPage() {
               github_url: w.github_url || "",
               published: !!w.published,
               sort_order: w.sort_order ?? 0,
+              is_pinned: !!w.is_pinned,
               scheduled_at: w.scheduled_at ?? null,
               related_post_ids: w.related_post_ids || [],
               _trashId: w.deleted_at ? w.id : undefined,

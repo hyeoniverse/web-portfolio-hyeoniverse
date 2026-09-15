@@ -1365,6 +1365,7 @@
       "sortCreatedAt": "Created",
       "editor": {
         "backToWorks": "Back to Works",
+        "pinLabel": "Pin to home top",
         "delete": "Delete",
         "deleting": "Deleting...",
         "deleteConfirm": "Are you sure you want to delete?",

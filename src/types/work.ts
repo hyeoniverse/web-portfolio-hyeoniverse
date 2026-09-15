@@ -75,6 +75,10 @@ export interface Work {
   github_url: string;
   published: boolean;
   sort_order: number;
+  /** 홈 Selected Works 랭킹 신호 (posts 미러) — 핀 · 조회수 · 좋아요 */
+  is_pinned: boolean;
+  view_count: number;
+  like_count: number;
   created_at: string;
   updated_at: string;
   deleted_at?: string | null;
@@ -121,6 +125,8 @@ export interface WorkFormData {
   github_url: string;
   published: boolean;
   sort_order: number;
+  /** 홈 Selected Works 핀 — 켜면 랭킹 최상단 (조회수·좋아요는 읽기전용이라 폼에 없음) */
+  is_pinned: boolean;
   scheduled_at?: string | null;
   /** 양방향 연결: 이 작품이 참조하는 글 ID 목록 */
   related_post_ids?: string[];
@@ -205,6 +211,9 @@ export function workFormToProject(form: WorkFormData): Project {
     github_url: form.github_url,
     published: form.published,
     sort_order: form.sort_order,
+    is_pinned: form.is_pinned,
+    view_count: 0,
+    like_count: 0,
     created_at: "",
     updated_at: "",
     summary_ko: "",

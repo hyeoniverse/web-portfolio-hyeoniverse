@@ -41,6 +41,11 @@ export default function WorkDetailClient({
   const [relatedPosts, setRelatedPosts] = useState<RelatedPostItem[]>([]);
   const [relatedSeries, setRelatedSeries] = useState<RelatedSeriesItem[]>([]);
 
+  // 조회수 기록 (posts 미러) — admin/bot 은 서버에서 skip, IP+KST 하루 1회 dedup. fire-and-forget.
+  useEffect(() => {
+    fetch(`/api/works/${project.id}/view`, { method: "POST" }).catch(() => {});
+  }, [project.id]);
+
   useEffect(() => {
     const ac = new AbortController();
     fetch(`/api/works/${project.id}/related-posts`, { signal: ac.signal })

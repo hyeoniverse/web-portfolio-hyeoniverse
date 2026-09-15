@@ -1706,10 +1706,21 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     </div>
   ), [allSeries, form.related_series_ids, language, tw, updateField]);
 
+  // 홈 Selected Works 핀 — 켜면 홈 랭킹 최상단 (posts 편집기 pinToggle 미러)
+  const pinToggle = (
+    <Checkbox
+      checked={form.is_pinned}
+      onChange={(v) => updateField("is_pinned", v)}
+      shape="square"
+      label={tw("pinLabel")}
+    />
+  );
+
   return (
     <>
     <AdminEditorShell
       backHref="/admin/works"
+      topBarFirstRowExtra={pinToggle}
       backLabel={tw("backToWorks")}
       editorLang={editorLang}
       onEditorLangChange={handleEditorLangChange}
