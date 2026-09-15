@@ -11,6 +11,13 @@ import Checkbox from "@/components/ui/Checkbox";
 import T from "@/components/ui/T";
 import styles from "./Login.module.css";
 
+/* ?next= — 로그인 후 이동할 곳을 호출한 쪽(Footer 등)이 지정한다. 오픈 리다이렉트 방지로
+   같은 출처의 절대 경로만 허용한다("/…", 단 "//evil.com" 같은 프로토콜 상대 URL 은 제외). */
+function safeNextPath(raw: string | null): string | null {
+  if (!raw || !raw.startsWith("/") || raw.startsWith("//")) return null;
+  return raw;
+}
+
 export default function AdminLoginPage() {
   const { t, language } = useLanguage();
   const { setInfinite } = useLenis();
@@ -47,9 +54,10 @@ export default function AdminLoginPage() {
   const handleGithub = async () => {
     setError("");
     const supabase = createClient();
+    const next = safeNextPath(new URLSearchParams(window.location.search).get("next")) ?? "/admin";
     const { error: oauthErr } = await supabase.auth.signInWithOAuth({
       provider: "github",
-      options: { redirectTo: `${window.location.origin}/auth/callback?next=/admin` },
+      options: { redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}` },
     });
     if (oauthErr) setError(t("admin.login.loginFailed"));
   };
@@ -104,8 +112,10 @@ export default function AdminLoginPage() {
 
       /* 클라 네비(router.push)로는 방금 설정된 세션 쿠키가 (dashboard)/layout 의 getUser()
          에 즉시 안 잡혀 새로고침이 필요했다. 풀 네비게이션으로 새 쿠키가 실린 서버 렌더에
-         진입한다 — GitHub OAuth 의 /auth/callback 리다이렉트와 같은 방식. */
-      window.location.assign("/admin/settings");
+         진입한다 — GitHub OAuth 의 /auth/callback 리다이렉트와 같은 방식.
+         ?next= 가 있으면 그리로(Footer 로그인은 /admin), 없으면 기존대로 설정 화면. */
+      const next = safeNextPath(new URLSearchParams(window.location.search).get("next"));
+      window.location.assign(next ?? "/admin/settings");
       return;
     } catch {
       setError(t("admin.login.errorOccurred"));
