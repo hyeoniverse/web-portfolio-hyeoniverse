@@ -569,6 +569,8 @@
       "uploadedLogoHint": "이미지를 올리면 텍스트 로고 대신 사용됩니다.",
       "systemLogoSection": "시스템 로고 (텍스트)",
       "systemLogoHint": "이미지가 없을 때 이 텍스트로 로고를 만듭니다.",
+      "logoSharedPart": "공통",
+      "logoSharedPartHint": "숏 · 풀 로고 공용",
       "logoFaviconPart": "Favicon",
       "logoFaviconPartHint": "숏로고 · 브라우저 탭",
       "faviconThemeHint": "브라우저 다크/라이트 모드를 따라 자동 전환됩니다. Favicon 은 사이트 테마와 별개로 동작합니다.",
