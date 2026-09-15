@@ -448,11 +448,14 @@
   z-index: var(--z-tooltip);
 }
 
+/* 꼬다리(회전 사각형) — 캡슐 몸통의 둥근 오른쪽 끝(반경 ≈ 높이/2)을 벗어난 평평한 윗면에 얹어야
+   몸통에 붙어 보인다. right 를 곡면 밖으로 옮기고(사운드 버튼 폭 안이라 여전히 버튼을 가리킴)
+   top 을 살짝 낮춰 밑변을 몸통 안에 묻는다. */
 .soundTip::before {
   content: "";
   position: absolute;
-  top: -4px;
-  right: 12px;
+  top: -3px;
+  right: 16px;
   width: 8px;
   height: 8px;
   background: var(--text-primary);
