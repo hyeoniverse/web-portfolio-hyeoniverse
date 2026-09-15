@@ -30,6 +30,8 @@ export default function TagsIndexControls({
   return (
     <div className={page.searchSortRow}>
       <SegmentedControl<TagsSortBy, "ko" | "en">
+        size="sm"
+        variant="subtle"
         items={[
           { value: "popular", label: t("postsPage.sortPopular") },
           {
