@@ -1,8 +1,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-/** posts 인기 점수 — 모든 인기 관련 로직의 단일 소스.
- *  PostsClient HOT 배지, /api/posts sort=popular 정렬, admin 삭제 보호 모두 이 함수 사용. */
-function scoreOf(args: { view: number; like: number; comments: number }): number {
+/** 인기 점수 — 모든 인기 관련 로직의 단일 소스.
+ *  PostsClient HOT 배지, /api/posts sort=popular 정렬, admin 삭제 보호, 홈 Selected Works 랭킹 모두 이 함수 사용. */
+export function scoreOf(args: { view: number; like: number; comments: number }): number {
   return (args.view ?? 0) + (args.like ?? 0) * 3 + (args.comments ?? 0) * 5;
 }
 

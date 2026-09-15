@@ -649,6 +649,10 @@ CREATE TABLE IF NOT EXISTS works (
   github_url       text DEFAULT '',
   published        boolean NOT NULL DEFAULT false,
   sort_order       int NOT NULL DEFAULT 0,
+  -- 홈 Selected Works 랭킹 신호 (posts 와 동형) — 핀 · 조회수 · 좋아요
+  is_pinned        boolean NOT NULL DEFAULT false,
+  view_count       int NOT NULL DEFAULT 0,
+  like_count       int NOT NULL DEFAULT 0,
   -- AI 요약
   summary_ko       text NOT NULL DEFAULT '',
   summary_en       text NOT NULL DEFAULT '',
@@ -764,6 +768,26 @@ CREATE UNIQUE INDEX IF NOT EXISTS uniq_post_views_post_ip_date
   ON post_views (post_id, ip, viewed_date);
 
 ALTER TABLE post_views ENABLE ROW LEVEL SECURITY;
+
+
+-- ────────────────────────────────────────────────────────────
+-- 7-2. work_views — work 별 일별 조회수 (시계열). post_views 미러.
+--      works.view_count 는 누적 카운터, 시계열은 이 테이블에서.
+-- ────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS work_views (
+  id          uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  work_id     uuid NOT NULL REFERENCES works(id) ON DELETE CASCADE,
+  ip          text,
+  viewed_at   timestamptz NOT NULL DEFAULT now(),
+  viewed_date date GENERATED ALWAYS AS ((viewed_at AT TIME ZONE 'Asia/Seoul')::date) STORED
+);
+CREATE INDEX IF NOT EXISTS idx_work_views_viewed_date
+  ON work_views (viewed_date DESC);
+-- IP+date dedup unique constraint — 동시 race condition 방지
+CREATE UNIQUE INDEX IF NOT EXISTS uniq_work_views_work_ip_date
+  ON work_views (work_id, ip, viewed_date);
+
+ALTER TABLE work_views ENABLE ROW LEVEL SECURITY;
 
 
 -- ────────────────────────────────────────────────────────────
@@ -1047,6 +1071,34 @@ BEGIN
 
   IF v_inserted THEN
     UPDATE posts SET view_count = COALESCE(view_count, 0) + 1 WHERE id = p_post_id;
+    RETURN true;
+  END IF;
+
+  RETURN false;
+END;
+$$;
+
+-- work 조회수 기록 — record_post_view 미러 (dedup + work_views insert + works.view_count +1)
+CREATE OR REPLACE FUNCTION record_work_view(p_work_id uuid, p_ip text)
+RETURNS boolean
+LANGUAGE plpgsql
+VOLATILE
+AS $$
+DECLARE
+  v_inserted boolean := false;
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM works WHERE id = p_work_id AND deleted_at IS NULL) THEN
+    RETURN false;
+  END IF;
+
+  INSERT INTO work_views (work_id, ip)
+  VALUES (p_work_id, p_ip)
+  ON CONFLICT (work_id, ip, viewed_date) DO NOTHING;
+
+  GET DIAGNOSTICS v_inserted = ROW_COUNT;
+
+  IF v_inserted THEN
+    UPDATE works SET view_count = COALESCE(view_count, 0) + 1 WHERE id = p_work_id;
     RETURN true;
   END IF;
 

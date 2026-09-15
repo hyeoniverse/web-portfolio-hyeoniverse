@@ -10,6 +10,7 @@ import { useHasMounted } from "@/hooks/useHasMounted";
 import { useLenis } from "@/providers/LenisProvider";
 import { useMagnetic } from "@/hooks/useMagnetic";
 import { useWorkInteraction } from "@/hooks/useWorkInteraction";
+import type { WorkItem } from "@/data/works";
 import { useMagneticRepel } from "@/hooks/useMagneticRepel";
 import { useScrollVelocity } from "@/hooks/useScrollVelocity";
 import { useLoadingScreen } from "@/hooks/useLoadingProgress";
@@ -41,7 +42,7 @@ import styles from "./Home.module.css";
 // GSAP 플러그인 등록 ("use client" 컴포넌트 — 항상 브라우저)
 gsap.registerPlugin(ScrollTrigger);
 
-export default function HomeClient() {
+export default function HomeClient({ homeWorks }: { homeWorks: WorkItem[] }) {
   const hasMounted = useHasMounted();
   const { isLoading } = useLoadingScreen();
   const cfg = useSiteConfig();
@@ -304,6 +305,7 @@ export default function HomeClient() {
 
         <WorksSection
           ref={worksRef}
+          works={homeWorks}
           smoothWorkImageY={scrollVelocity.smoothWorkImageY}
           setWorkCircleRef={magneticRepel.setWorkCircleRef}
           pressingWork={workInteraction.pressingWork}

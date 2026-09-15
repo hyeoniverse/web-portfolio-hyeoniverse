@@ -49,7 +49,7 @@ const ALLOWED_FIELDS = new Set([
   "solution_ko", "solution_en", "solution_image",
   "team_members", "gallery",
   "live_url", "github_url",
-  "published", "sort_order",
+  "published", "sort_order", "is_pinned",
   "scheduled_at",
 ]);
 
