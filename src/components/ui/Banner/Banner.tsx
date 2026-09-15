@@ -7,6 +7,7 @@ import {
   useRef,
   Children,
   type ReactNode,
+  type CSSProperties,
 } from "react";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "@/components/icons";
@@ -23,6 +24,11 @@ export interface BannerProps {
   showDots?: boolean;
   loop?: boolean;
   height?: number | string;
+  /** 뷰포트 높이를 폭에서 뽑아(aspect-ratio) 화면 크기와 무관하게 비율을 고정할 때 사용.
+   *  주어지면 height 대신 이 값을 쓴다(높이는 auto). min/maxHeight 로 상·하한만 둔다. */
+  aspectRatio?: string;
+  minHeight?: string;
+  maxHeight?: string;
   className?: string;
 }
 
@@ -40,6 +46,9 @@ export default function Banner({
   showDots = true,
   loop = true,
   height,
+  aspectRatio,
+  minHeight,
+  maxHeight,
   className,
 }: BannerProps) {
   const slides = Children.toArray(children);
@@ -78,9 +87,13 @@ export default function Banner({
     };
   }, [isSingle, autoPlay, paused, interval, goNext]);
 
-  const viewportStyle = height
-    ? { height: typeof height === "number" ? `${height}px` : height }
-    : undefined;
+  const viewportStyle: CSSProperties | undefined = aspectRatio
+    ? // width 를 명시(definite)해야 aspect-ratio 가 폭→높이로 계산한다. 폭이 auto 면
+      // min-height 로 높이가 확정될 때 aspect-ratio 가 거꾸로 높이→폭을 계산해 폭이 화면을 넘친다.
+      { width: "100%", aspectRatio, minHeight, maxHeight, height: "auto" }
+    : height
+      ? { height: typeof height === "number" ? `${height}px` : height }
+      : undefined;
 
   const handleMouseEnter = pauseOnHover ? () => setPaused(true) : undefined;
   const handleMouseLeave = pauseOnHover ? () => setPaused(false) : undefined;
