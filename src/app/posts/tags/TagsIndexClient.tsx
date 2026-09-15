@@ -8,7 +8,6 @@ import { useIsAuthenticated } from "@/hooks/useIsAuthenticated";
 import { Settings, Tags } from "@/components/icons";
 import { parseSearchQuery, matchesQuery } from "@/lib/searchQuery";
 import Button from "@/components/ui/Button";
-import BackLink from "@/components/ui/BackLink";
 import PageTitle from "@/components/ui/PageTitle";
 import Chip from "@/components/ui/Chip";
 import PostsSubnav from "../_components/PostsSubnav";
@@ -32,7 +31,7 @@ const PAGE_SIZE = 60;
 const FEATURED_COUNT = 8;
 
 export default function TagsIndexClient({ tags }: Props) {
-  const { language, t } = useLanguage();
+  const { t } = useLanguage();
   const searchControls = useSearchControls<"all" | "title" | "desc">("all");
   const { search, searchType, syntaxMode } = searchControls;
   const [sortBy, setSortBy] = useState<TagsSortBy>("popular");
@@ -143,9 +142,6 @@ export default function TagsIndexClient({ tags }: Props) {
   return (
     <div className={page.container}>
       <PostsSubnav />
-      <div className={page.backRow}>
-        <BackLink href="/posts" label={language === "en" ? "Posts" : "글 목록"} />
-      </div>
       <header className={page.header}>
         <div className={page.headerTitleRow}>
           <PageTitle icon={<Tags size={40} strokeWidth={1.6} aria-hidden />}>

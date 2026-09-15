@@ -11,7 +11,6 @@ import { parseSearchQuery, matchesQuery } from "@/lib/searchQuery";
 import { BookOpen, Settings } from "@/components/icons";
 import Pagination from "@/components/ui/Pagination";
 import Button from "@/components/ui/Button";
-import BackLink from "@/components/ui/BackLink";
 import PageTitle from "@/components/ui/PageTitle";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -106,9 +105,6 @@ export default function SeriesIndexClient({ series }: Props) {
     <SearchHighlightProvider query={search} mode={syntaxMode}>
     <div className={index.container}>
       <PostsSubnav />
-      <div className={index.backRow}>
-        <BackLink href="/posts" label={language === "en" ? "Posts" : "글 목록"} />
-      </div>
       <header className={index.header}>
         <div className={index.headerTitleRow}>
           <PageTitle icon={<BookOpen size={40} strokeWidth={1.6} aria-hidden />}>
