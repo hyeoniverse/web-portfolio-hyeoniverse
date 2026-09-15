@@ -42,14 +42,19 @@
 
 .searchBar {
   flex: 0 0 auto;
-  /* 검색 안내문(placeholder)이 잘리지 않게 — 타입 셀렉터가 폭을 먹어 입력칸이 좁았다.
-     가장 긴 EN placeholder(≈230px)가 들어갈 만큼 확보. tags 도 같은 폭(TagsIndexControls). */
-  width: 420px;
+  width: 320px;
   max-width: 100%;
 }
 
 .searchBar:not(:focus-within) {
   border-color: var(--border-color-light) !important;
+}
+
+/* 좁은 화면: 검색창을 한 줄 전체로 내려 화면 밖으로 삐져나가지 않게 */
+@media (max-width: 768px) {
+  .searchBar {
+    width: 100%;
+  }
 }
 
 .empty,
