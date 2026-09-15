@@ -72,6 +72,16 @@ export function useSeriesDeck({
     scrollRafRef.current = requestAnimationFrame(tick);
   };
 
+  // 선택(active)된 시리즈는 deck 을 펼친 상태로 유지한다. 해제되면(다른 시리즈 선택·필터 변경) 커서가
+  // 카드 위에 없을 때만 접는다 — hover 중이면 hover 로직이 관리하게 둔다.
+  useEffect(() => {
+    if (active) {
+      setOpen(true);
+    } else if (!cardRef.current?.matches(":hover")) {
+      setOpen(false);
+    }
+  }, [active]);
+
   // 활성(선택된) 시리즈가 부분적으로라도 가려져 있으면 부드럽게 scroll into view
   // mask gradient 영역 (28px) 도 고려해서 visible 판정
   useEffect(() => {
@@ -112,6 +122,8 @@ export function useSeriesDeck({
       cancelAnimationFrame(scrollRafRef.current);
       scrollRafRef.current = null;
     }
+    // 선택된 시리즈는 커서가 떠나도 펼친 상태를 유지
+    if (active) return;
     setOpen(false);
   };
 
