@@ -9,9 +9,31 @@ interface LoadingScreenResult {
 
 /* 로딩 화면을 최소한 이만큼은 보여 준다.
    예전에는 1,200ms 였다. 자원이 빨리 준비돼도 그만큼 내용을 가리고 있었고,
-   화면이 눈에 차오르는 속도(Speed Index)가 1.2초 늦어졌다. 연출은 남기되 대기만 줄인다. */
+   화면이 눈에 차오르는 속도(Speed Index)가 1.2초 늦어졌다. 연출은 남기되 대기만 줄인다.
+   글자 로고(워드마크)는 아래 등장 대기가 별도로 더 붙는다. */
 const MIN_DISPLAY_MS = 300;
 const TRANSITION_MS = 400;
+/* 워드마크 등장이 끝난 뒤 완성된 상태로 잠깐 머무는 시간(전환 시작 전 한 박자). */
+const LOGO_HOLD_MS = 250;
+
+/* 로딩 로고(텍스트 워드마크) 등장 애니메이션이 끝날 때까지 기다린다 — 빠른 로드에서 글자가
+   반쯤 그려진 채 shrink+crossfade 로 넘어가 버리지 않게. 마지막 글자의 rise/sharpen 이 끝난 뒤
+   LOGO_HOLD_MS 만큼 더 머문 뒤 resolve. 이미지·배지 로고엔 [data-loading-letter] 가 없어 즉시
+   resolve → 예전 속도 유지. 애니메이션이 등록되기 전에 재지 않도록 두 프레임 뒤 수집한다. */
+function waitForLogoIntro(): Promise<void> {
+  return new Promise((resolve) => {
+    if (typeof document === "undefined") return resolve();
+    const hold = () => setTimeout(resolve, LOGO_HOLD_MS);
+    const collect = () => {
+      const letters = document.querySelectorAll("[data-loading-letter]");
+      if (!letters.length) return resolve();
+      const anims = Array.from(letters).flatMap((el) => el.getAnimations());
+      if (!anims.length) return hold();
+      Promise.all(anims.map((a) => a.finished.catch(() => {}))).then(hold);
+    };
+    requestAnimationFrame(() => requestAnimationFrame(collect));
+  });
+}
 
 let hasCompletedInitialLoad = false;
 
@@ -64,6 +86,8 @@ export function useLoadingScreen(): LoadingScreenResult {
         .filter((img) => !img.complete)
         .slice(0, 3)
         .map((img) => preloadImage(img.src)),
+      // 로고 워드마크 등장이 끝날 때까지 (글자 로고에서만 대기, 그 외엔 즉시)
+      waitForLogoIntro(),
     ]);
 
     checks.then(() => {

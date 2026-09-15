@@ -108,6 +108,10 @@ export default function Navigation() {
   const NAME_GRAPHEMES = graphemes(DISPLAY_NAME);
   const LOGO_TEXT = firstGrapheme(siteConfig.brand.logoText) || NAME_GRAPHEMES[0] || "";
   const EXTRA_LETTERS = NAME_GRAPHEMES.slice(1);
+  // 풀→숏 char-cut morph(로딩에 풀 텍스트, 전환 때 뒤 글자 퇴장→첫 글자만)는 숏 글리프가 풀 텍스트의
+  // 첫 글자와 같을 때만 성립한다. 다르면(예: 숏="✦", 풀="HYEONIVERSE") 로딩엔 실제 풀 워드마크를 보이고
+  // 전환 때 숏 글리프로 crossfade 한다(이미지 로고의 풀↔숏 교체와 같은 패턴).
+  const morphIsCharCut = LOGO_TEXT === NAME_GRAPHEMES[0];
 
   const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
@@ -470,7 +474,7 @@ export default function Navigation() {
         전체가 page backdrop 과 한 번에 blend (자식에 두면 부모 stacking context 안에서 갇혀 무효) */}
     <Link
       href={isAdminPage ? "/admin" : "/"}
-      aria-label={useBadgeLogo ? DISPLAY_NAME : undefined}
+      aria-label={useBadgeLogo || !morphIsCharCut ? DISPLAY_NAME : undefined}
       className={`${styles.logoNavBar} ${siteConfig.brand.logoDifference === false ? styles.logoNavBarNoDifference : ""} ${showLoadingLogo || elevatedZ ? styles.logoNavBarElevated : ""} ${siteConfig.brand.logoGlitch ? "glith-on-hover" : ""}`}
     >
         {(() => {
@@ -540,7 +544,9 @@ export default function Navigation() {
               idPrefix="navfav"
               className={styles.logoBadge}
             />
-          ) : (
+          ) : morphIsCharCut ? (
+            /* 숏 글리프 = 풀 텍스트 첫 글자 → char-cut morph. 첫 글자는 로딩·nav 에 그대로 있고
+               뒤 글자만 로딩 때 등장·전환 때 퇴장해 첫 글자만 남는다. */
             <>
               {LOGO_TEXT}
               {showLoadingLogo &&
@@ -549,12 +555,44 @@ export default function Navigation() {
                      opacity 0 으로 나가 하이드레이션 전까지 안 보였다. 퇴장은 전환 때 클래스로. */
                   <span
                     key={i}
+                    data-loading-letter
                     className={`${styles.logoLetter} ${isTransitioning ? styles.logoLetterOut : ""}`}
                     style={{ ["--i" as string]: i, ["--j" as string]: EXTRA_LETTERS.length - 1 - i }}
                   >
                     {char}
                   </span>
                 ))}
+            </>
+          ) : (
+            /* 숏 글리프 ≠ 풀 텍스트 첫 글자(커스텀 숏 로고) → crossfade. 로딩엔 실제 풀 워드마크를
+               보이고 전환 때 숏 글리프로 교체한다(이미지 로고의 풀↔숏 crossfade 와 같은 연출).
+               숏 글리프는 로딩 동안 absolute 로 겹쳐 폭을 워드마크에 맡겨(중앙 정렬이 맞는다) 숨겼다가,
+               전환 때 나타나고 로딩이 끝나면 inline 으로 돌아와 nav 폭을 잡는다. */
+            <>
+              <span
+                className={`${styles.logoCrossShort} ${showLoadingLogo ? styles.logoCrossShortFloat : ""} ${showLoadingLogo && !isTransitioning ? styles.logoCrossHidden : ""}`}
+              >
+                {LOGO_TEXT}
+              </span>
+              {showLoadingLogo && (
+                /* 풀 워드마크 — inline 이라 자연 폭을 잡아 로딩 중앙 정렬 계산이 맞는다. 글자는
+                   char-cut 과 같은 CSS 등장(떠오름+선명해짐), 전환 땐 통째로 흐려지며 사라진다. */
+                <span
+                  className={`${styles.logoCrossFull} ${isTransitioning ? styles.logoCrossFullOut : ""}`}
+                  aria-hidden="true"
+                >
+                  {NAME_GRAPHEMES.map((char, i) => (
+                    <span
+                      key={i}
+                      data-loading-letter
+                      className={styles.logoLetter}
+                      style={{ ["--i" as string]: i, ["--j" as string]: NAME_GRAPHEMES.length - 1 - i }}
+                    >
+                      {char}
+                    </span>
+                  ))}
+                </span>
+              )}
             </>
           )}
             </motion.span>
