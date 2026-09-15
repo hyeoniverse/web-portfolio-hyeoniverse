@@ -100,7 +100,12 @@
   backdrop-filter: var(--blur-sm) saturate(120%);
 }
 
+/* CTA 버튼 — 거대한 타이틀에 맞춰 size xl(40px)보다 크게. 폰트는 역할 토큰 상한(body)이라
+   높이·가로 패딩으로 키운다. */
 .ctaBtn.ctaBtn {
+  height: 80px;
+  padding: 0 var(--spacing-4xl);
+  font-size: var(--font-size-lg);
   gap: var(--spacing-md);
   overflow: hidden;
 }
@@ -112,6 +117,9 @@
 }
 
 .resumeBtn.resumeBtn {
+  height: 80px;
+  padding: 0 var(--spacing-4xl);
+  font-size: var(--font-size-lg);
   gap: var(--spacing-md);
   overflow: hidden;
   border-color: var(--border-color-strong);

@@ -109,7 +109,7 @@ const CTASection = forwardRef<HTMLElement, CTASectionProps>(
                     external
                     download
                     soundDisabled
-                    icon={<Download size={16} />}
+                    icon={<Download size={20} />}
                     iconPosition="right"
                   >
                     <T ko={cfg.cta.resumeButtonText_ko} en={cfg.cta.resumeButtonText} noTooltip />
