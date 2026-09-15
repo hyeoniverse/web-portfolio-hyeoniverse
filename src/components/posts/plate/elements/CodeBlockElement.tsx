@@ -698,10 +698,13 @@ export function CodeBlockElement(props: PlateElementProps) {
           <span className={styles.tblBarLabel}><Sparkles size={15} strokeWidth={1.75} />{language === "ko" ? "포맷" : "Format"}</span>
         </TBtn>
       )}
-      {/* 줄바꿈 · 복사 — 모든 코드블록에서 항상(창 헤더와 별개로 floating 바에도) */}
-      <TBtn active={wrap} onClick={toggleWrap} tooltip={language === "ko" ? "줄바꿈" : "Wrap"}>
-        <span className={styles.tblBarLabel}><WrapText size={15} strokeWidth={1.75} />{language === "ko" ? "줄바꿈" : "Wrap"}</span>
-      </TBtn>
+      {/* 줄바꿈 — 일반 코드블록은 창 헤더(codeBar)에 줄바꿈 토글이 있어 중복이므로 여기선 빼고,
+          헤더가 없는 다이어그램에서만 floating 바에 둔다. */}
+      {isDiagram && (
+        <TBtn active={wrap} onClick={toggleWrap} tooltip={language === "ko" ? "줄바꿈" : "Wrap"}>
+          <span className={styles.tblBarLabel}><WrapText size={15} strokeWidth={1.75} />{language === "ko" ? "줄바꿈" : "Wrap"}</span>
+        </TBtn>
+      )}
       <TBtn square onClick={handleCopy} tooltip={language === "ko" ? "코드 복사" : "Copy code"}>
         <Copy size={15} strokeWidth={1.75} />
       </TBtn>
