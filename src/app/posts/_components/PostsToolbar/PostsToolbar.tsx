@@ -30,14 +30,17 @@ export default function PostsToolbar({ query, timeline }: { query: PostsQuery; t
 
   return (
     <div className={header.sectionHeader}>
-      <div className={header.sectionHeaderMain}>
-        <span className={header.sectionHeaderTitle}>
-          <LayoutGrid size={14} />
-          <span className={header.sectionHeaderText}>
-            <T k="postsPage.posts" tooltip={t("postsPage.postsTooltip")} />
+      {/* history(timeline)는 페이지 제목이 이미 "History." 라 "글 목록" 라벨이 중복 → 숨김 */}
+      {!timeline && (
+        <div className={header.sectionHeaderMain}>
+          <span className={header.sectionHeaderTitle}>
+            <LayoutGrid size={14} />
+            <span className={header.sectionHeaderText}>
+              <T k="postsPage.posts" tooltip={t("postsPage.postsTooltip")} />
+            </span>
           </span>
-        </span>
-      </div>
+        </div>
+      )}
       <div className={header.sortWrap}>
         {/* 작성자 필터 — 저자 2명 이상일 때만. 레이아웃 무관하게 필터로 동작. */}
         {multiAuthor && (
@@ -51,6 +54,7 @@ export default function PostsToolbar({ query, timeline }: { query: PostsQuery; t
         {/* sort + shuffle 한 묶음 — shuffle 은 sort 의 random 변형 (오른쪽 인접). */}
         <SegmentedControl<"date" | "popular" | "title" | "author", "score" | "views" | "comments" | "likes">
           size="sm"
+          variant="subtle"
           className={header.seriesSegmented}
           items={
             /* 타임라인은 월 그룹이라 날짜순만 유효 → date(newest/oldest 토글)만 노출 */

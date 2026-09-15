@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
 import { getInitialPostsData, getPostArchiveMonths } from "@/lib/posts";
-import BackLink from "@/components/ui/BackLink";
 import PostsPageChrome from "../_components/PostsPageChrome";
 import PostsClient from "../PostsClient";
-import styles from "../Posts.module.css";
-import T from "@/components/ui/T";
 
 export const metadata: Metadata = { title: "History" };
 
@@ -19,13 +16,8 @@ export default async function HistoryPage() {
     getPostArchiveMonths(),
   ]);
   return (
-    <>
-      <div className={styles.historyBackBar}>
-        <BackLink href="/posts" label={<T k="postsPage.posts" noTooltip />} />
-      </div>
-      <PostsPageChrome history>
-        <PostsClient initialData={initialData} history archiveMonths={archiveMonths} />
-      </PostsPageChrome>
-    </>
+    <PostsPageChrome history>
+      <PostsClient initialData={initialData} history archiveMonths={archiveMonths} />
+    </PostsPageChrome>
   );
 }

@@ -35,6 +35,7 @@ export default function SeriesIndexControls({
       <SegmentedControl<SeriesSortBy>
         className={styles.sortControl}
         size="sm"
+        variant="subtle"
         items={[
           { value: "popular", label: t("postsPage.sortPopular") },
           { value: "newest", label: t("postsPage.sortNewest") },

@@ -4,8 +4,6 @@
   max-width: var(--page-max-width);
   margin: 0 auto;
   padding: var(--spacing-5xl) var(--page-px) var(--spacing-3xl);
-}/* 뒤로가기(글 목록) — 서브네비와 제목 헤더 사이 */.backRow {
-  margin-bottom: var(--spacing-md);
 }.header {
   display: flex;
   flex-direction: column;
@@ -44,7 +42,9 @@
 
 .searchBar {
   flex: 0 0 auto;
-  width: 320px;
+  /* 검색 안내문(placeholder)이 잘리지 않게 — 타입 셀렉터가 폭을 먹어 입력칸이 좁았다.
+     가장 긴 EN placeholder(≈230px)가 들어갈 만큼 확보. tags 도 같은 폭(TagsIndexControls). */
+  width: 420px;
   max-width: 100%;
 }
 
