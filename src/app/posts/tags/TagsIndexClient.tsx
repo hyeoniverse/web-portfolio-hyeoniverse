@@ -35,7 +35,19 @@ export default function TagsIndexClient({ tags }: Props) {
   const searchControls = useSearchControls<"all" | "title" | "desc">("all");
   const { search, searchType, syntaxMode } = searchControls;
   const [sortBy, setSortBy] = useState<TagsSortBy>("popular");
-  const [nameLang, setNameLang] = useState<"ko" | "en">("ko");
+  // 알파벳 인덱스 letter set 은 태그 첫 글자가 영어 위주면 영어(A–Z), 한글 위주면 한글 초성으로
+  // 시작한다. 기본을 "ko" 로 고정하면 태그가 영어일 때 한글 초성만 떠 전부 비활성(회색)이라
+  // 인덱스가 사라진 것처럼 보였다. 실제 태그 분포로 정한다(이후 사용자가 정렬에서 토글 가능).
+  const [nameLang, setNameLang] = useState<"ko" | "en">(() => {
+    let ko = 0;
+    let en = 0;
+    for (const { tag } of tags) {
+      const init = getLetterInitial(tag);
+      if (KOREAN_LETTERS.includes(init)) ko++;
+      else if (ENGLISH_LETTERS.includes(init)) en++;
+    }
+    return en > ko ? "en" : "ko";
+  });
   const [activeLetters, setActiveLetters] = useState<Set<string>>(new Set());
   const [visible, setVisible] = useState(PAGE_SIZE);
   const toggleLetter = (l: string) => setActiveLetters((prev) => {
