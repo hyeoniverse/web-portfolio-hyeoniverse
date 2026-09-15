@@ -4,7 +4,9 @@
      자식 어디서나 var(--filter-row-h) 로 참조. */
   --filter-row-h: 28px;
   min-height: 100vh;
-  padding: var(--spacing-6xl) var(--page-px) var(--spacing-3xl);
+  /* 상단 padding 은 series/tags 인덱스(.container 의 5xl)와 맞춘다 — 서브네비·타이틀이 페이지
+     전환 시 세로로 튀지 않게 (posts·history 는 .page, series·tags 는 IndexPage .container 를 쓴다). */
+  padding: var(--spacing-5xl) var(--page-px) var(--spacing-3xl);
 }
 
 /* ── Header ── */
@@ -116,9 +118,3 @@
   }
 }
 
-@media (max-width: 768px) {
-  .page {
-    padding-top: var(--spacing-5xl);
-  }
-
-}
