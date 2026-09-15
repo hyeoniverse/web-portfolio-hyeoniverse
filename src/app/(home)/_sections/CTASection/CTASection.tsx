@@ -9,6 +9,7 @@ import { Download, SocialBrandIcon } from "@/components/icons";
 const CoffeeCanvas = dynamic(() => import("./CoffeeCanvas"), { ssr: false });
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
+import { useNearViewport } from "@/hooks/useNearViewport";
 import Button from "@/components/ui/Button";
 import Section from "@/components/ui/Section";
 import T from "@/components/ui/T";
@@ -28,6 +29,10 @@ const CTASection = forwardRef<HTMLElement, CTASectionProps>(
     const cfg = useSiteConfig();
     const resumeUrl = cfg.cta.resumeUrl;
 
+    // 커피 3D(three.js ~300KB)는 CTA(화면 밖 하단)에 있다 — 스크롤로 근처에 왔을 때만 마운트해
+    // 초기 로드에서 three.js 를 뺀다(모바일 JS 병목 완화). 근처면 미리 받아 부드럽게(600px).
+    const [observeCoffee, coffeeNear] = useNearViewport(!!cfg.home3d.coffeeCup, "600px");
+
     /** 번역 + 설명을 한 말풍선에 통합 */
     const combinedTooltip = (label: string, ko: string, en: string) => {
       const text = language === "ko" ? ko : en;
@@ -42,9 +47,9 @@ const CTASection = forwardRef<HTMLElement, CTASectionProps>(
     return (
       <Section fullHeight center className={styles.cta} ref={ref}>
         {cfg.home3d.coffeeCup && (
-          <div className={styles.decor} aria-hidden="true">
+          <div className={styles.decor} aria-hidden="true" ref={observeCoffee}>
             <div className={styles.decorStage}>
-              <CoffeeCanvas />
+              {coffeeNear && <CoffeeCanvas />}
             </div>
           </div>
         )}
