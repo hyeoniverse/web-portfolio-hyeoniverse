@@ -146,25 +146,46 @@ export function useTimeline({
     };
   }, [enabled, posts]);
 
-  // 스크롤 중에는 타임라인 카드 hover 프리뷰(썸네일·발췌)를 억제한다 — 커서 밑으로 카드가 지나가며
-  // 프리뷰가 깜빡이는 것 방지. html 에 data-tl-scrolling 을 걸면 CSS 가 프리뷰를 숨긴다. 스크롤이
-  // 멎으면 짧은 debounce 뒤 해제 → 커서가 멈춘 카드의 프리뷰가 다시 뜬다.
+  // 스크롤로 화면이 움직이는 동안에만 타임라인 카드 hover 프리뷰(썸네일·발췌)를 억제한다 —
+  // 커서 밑으로 카드가 지나가며 프리뷰가 깜빡이는 것 방지. html 에 data-tl-scrolling 을 걸면
+  // CSS 가 프리뷰를 숨긴다. 멈추면 곧바로 해제 → 커서가 머문 카드의 프리뷰는 정상 표시된다.
+  //
+  // 판단은 scroll 이벤트 유무가 아니라 Lenis 속도(velocity)로 한다. Lenis 부드러운 스크롤은
+  // 한 번 굴려도 관성으로 약 1.2초를 미끄러지며 그동안 scroll 이벤트가 계속 나온다. 이벤트로
+  // 판단하면 화면이 사실상 멈춘 뒤에도 1초 넘게 프리뷰가 안 떠 hover 가 죽은 것처럼 느껴졌다.
+  // 속도가 낮아져 시각적으로 멈추면 바로 되살린다.
   useEffect(() => {
     if (!enabled) return;
     const root = document.documentElement;
     let tid: ReturnType<typeof setTimeout> | undefined;
+    const stop = () => { if (tid) { clearTimeout(tid); tid = undefined; } };
+    const clear = () => { root.removeAttribute("data-tl-scrolling"); tid = undefined; };
+
+    if (lenis) {
+      const MOVING = 0.5; // 이 속도 이상이면 '움직이는 중'(그 아래는 관성 정착 꼬리 — 사실상 멈춤)
+      // velocity 는 런타임엔 있으나 설치된 Lenis 타입엔 노출 안 됨 → 좁혀서 읽는다.
+      const velocityOf = () => (lenis as unknown as { velocity: number }).velocity;
+      const onScroll = () => {
+        if (Math.abs(velocityOf()) > MOVING) {
+          root.setAttribute("data-tl-scrolling", "");
+          stop();
+        } else if (root.hasAttribute("data-tl-scrolling") && !tid) {
+          tid = setTimeout(clear, 80);
+        }
+      };
+      lenis.on("scroll", onScroll);
+      return () => { lenis.off("scroll", onScroll); stop(); root.removeAttribute("data-tl-scrolling"); };
+    }
+
+    // Lenis 없을 때(폴백) — 네이티브 스크롤은 관성이 없어 이벤트 debounce 로 충분
     const onScroll = () => {
       root.setAttribute("data-tl-scrolling", "");
-      if (tid) clearTimeout(tid);
-      tid = setTimeout(() => root.removeAttribute("data-tl-scrolling"), 140);
+      stop();
+      tid = setTimeout(clear, 120);
     };
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      if (tid) clearTimeout(tid);
-      root.removeAttribute("data-tl-scrolling");
-    };
-  }, [enabled]);
+    return () => { window.removeEventListener("scroll", onScroll); stop(); root.removeAttribute("data-tl-scrolling"); };
+  }, [enabled, lenis]);
 
   // 월 인덱스 점프 — 대상 월이 아직 로드 안 됐으면 마커가 나타날 때까지 다음 page 순차 로드 후 스크롤.
   // posts.length 로 게이팅(로드 완료 = posts 증가). loading 플래그만 쓰면 effect 실행 순서상 lag 때문에
