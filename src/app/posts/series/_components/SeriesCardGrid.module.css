@@ -21,17 +21,82 @@
   line-height: 1.4;
 }
 
-.category {
-  color: var(--text-secondary);
+/* ── 풀 오버레이 — 제목·카테고리·글 개수를 커버 위에 얹는다. 커버가 사진·밝은 그라디언트로
+   제각각이라 항상 읽히도록 아래쪽 스크림을 깐다(BannerSlide·PostsBanner 와 동일한 oklch 검정 알파). ── */
+.coverOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: var(--spacing-3xs);
+  padding: var(--spacing-lg) var(--spacing-md) var(--spacing-md);
+  background: linear-gradient(
+    to top,
+    oklch(0.00% 0.0000 0.00 / 0.78) 0%,
+    oklch(0.00% 0.0000 0.00 / 0.32) 38%,
+    transparent 68%
+  );
+  color: var(--text-white);
+  pointer-events: none;
 }
 
+.overlayTitle {
+  font-family: var(--font-instrument);
+  font-size: var(--font-size-title-md);
+  font-weight: var(--font-weight-regular);
+  letter-spacing: -0.01em;
+  line-height: var(--line-height-tight);
+  color: var(--text-white);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.overlayMeta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-hint);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.overlayCategory {
+  color: var(--text-white-muted);
+}
+
+.overlayCount {
+  color: var(--text-white);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* 설명 — '조용한 캡션'. 톤은 tertiary 로 낮추고, 항상 2줄 높이(2lh)를 확보해
+   설명 길이가 달라도 카드 정렬이 흐트러지지 않게 한다. */
 .cardDesc {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
-  color: var(--text-secondary);
+  color: var(--text-tertiary);
   line-height: var(--line-height-relaxed);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  min-height: 2lh;
+}
+
+/* 설명 리드인 — 큰 따옴표(instrument serif, accent)를 본문 첫머리에 인라인으로 붙여
+   아래가 '설명(블러브)'임을 나타낸다. 별도 줄을 쓰지 않는다. */
+.cardDesc::before {
+  content: "\201C";
+  margin-right: 0.04em;
+  font-family: var(--font-instrument);
+  font-weight: var(--font-weight-medium);
+  font-size: 4.2em;
+  line-height: 0;
+  vertical-align: -0.55em;
+  color: var(--text-accent);
 }
