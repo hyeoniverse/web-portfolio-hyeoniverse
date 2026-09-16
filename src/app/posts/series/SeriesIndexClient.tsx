@@ -168,7 +168,7 @@ export default function SeriesIndexClient({ series }: Props) {
         title={sheetSeries ? (language === "en" ? (sheetSeries.title_en || sheetSeries.title) : sheetSeries.title) : null}
         count={sheetSeries ? fillCount(t, "postsPage.countPosts", sheetSeries.post_count) : null}
         description={sheetSeries ? (language === "en" ? (sheetSeries.description_en || sheetSeries.description) : sheetSeries.description) : null}
-        cta={{ href: `/posts?series=${sheetSeries?.id}`, label: t("postsPage.viewSeriesPosts") }}
+        cta={{ href: `/posts/series/${sheetSeries?.slug}`, label: t("postsPage.viewSeriesPosts") }}
       />
     </div>
     </SearchHighlightProvider>
