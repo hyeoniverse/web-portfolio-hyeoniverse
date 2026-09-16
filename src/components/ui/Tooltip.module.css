@@ -20,6 +20,13 @@
   white-space: pre-line;
 }
 
+/* 다중 줄(2줄 이상) — pill(capsule) 을 유지하면 좌우 끝이 반원이라, 컴팩트한 가로 padding 으로는
+   위/아래 줄 글자가 그 곡선 안으로 들어가 좌우 여백이 어긋나 보인다. 가로 padding 을 키워 글자를
+   곡선 밖으로 밀어 정렬을 맞춘다. 1줄은 위의 컴팩트 padding 을 그대로 쓴다. (multiline 판정은 JS) */
+.bubble[data-multiline="true"] {
+  padding: var(--spacing-xs) var(--spacing-md);
+}
+
 .arrow {
   position: absolute;
   width: 6px;

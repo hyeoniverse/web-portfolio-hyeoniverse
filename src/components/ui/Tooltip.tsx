@@ -183,6 +183,15 @@ export default function Tooltip({
     const idealMax = Math.min(naturalWidth, window.innerWidth - 16, 720);
     bubble.style.setProperty("--_max-w", `${Math.ceil(idealMax)}px`);
 
+    // 다중 줄이면 pill 반원 끝 곡선을 피하도록 가로 padding 을 키운다(아래 CSS). max-width 반영 후
+    // 실제 높이로 판정(1줄 ~25px, 2줄 ~40px → 34 로 가름).
+    const isMultiline = bubble.getBoundingClientRect().height > 34;
+    bubble.dataset.multiline = isMultiline ? "true" : "false";
+    if (isMultiline) {
+      // 늘어난 가로 padding((md-xs)*2 = 16px) 만큼 max-width 도 키워, padding 때문에 줄이 더 늘지 않게 한다.
+      bubble.style.setProperty("--_max-w", `${Math.ceil(idealMax + 16)}px`);
+    }
+
     // transform 을 잠깐 비워 natural 위치를 측정 → 즉시 복원
     const prev = bubble.style.transform;
     bubble.style.transform = "none";
