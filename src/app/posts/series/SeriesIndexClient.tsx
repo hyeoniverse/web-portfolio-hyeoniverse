@@ -35,9 +35,16 @@ export default function SeriesIndexClient({ series }: Props) {
   const searchControls = useSearchControls<"all" | "title" | "desc">("all");
   const { search, searchType, syntaxMode } = searchControls;
   const [sortBy, setSortBy] = useState<SeriesSortBy>("popular");
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  // 카테고리 다중 선택 — 빈 Set = 전체. 선택된 카테고리 중 하나라도 맞으면 표시(합집합).
+  const [activeCategories, setActiveCategories] = useState<Set<string>>(new Set());
+  const toggleCategory = (cat: string) => setActiveCategories((prev) => {
+    const next = new Set(prev);
+    if (next.has(cat)) next.delete(cat); else next.add(cat);
+    return next;
+  });
+  const clearCategories = () => setActiveCategories(new Set());
   // 필터/정렬/perPage 변경 시 1페이지로
-  const { page, setPage, perPage, setPerPage } = usePageControls({ defaultPerPage: 20, resetOn: [search, searchType, syntaxMode, activeCategory, sortBy] });
+  const { page, setPage, perPage, setPerPage } = usePageControls({ defaultPerPage: 20, resetOn: [search, searchType, syntaxMode, activeCategories, sortBy] });
   // 시트 — ESC 닫기 + body 스크롤 잠금
   const [sheetSeries, setSheetSeries] = useSheet<SeriesEntry>();
   // 로그인 사용자 = admin (단일 운영자 가정)
@@ -76,8 +83,8 @@ export default function SeriesIndexClient({ series }: Props) {
         return matchesQuery(fields.filter(Boolean).join("\n"), parsed);
       });
     }
-    if (activeCategory) {
-      list = list.filter((s) => s.category === activeCategory);
+    if (activeCategories.size > 0) {
+      list = list.filter((s) => s.category != null && activeCategories.has(s.category));
     }
     list = list.slice();
     if (sortBy === "alphabetical") {
@@ -89,7 +96,7 @@ export default function SeriesIndexClient({ series }: Props) {
       list.sort((a, b) => b.post_count - a.post_count);
     }
     return list;
-  }, [series, search, searchType, syntaxMode, activeCategory, sortBy]);
+  }, [series, search, searchType, syntaxMode, activeCategories, sortBy]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
   // page 가 범위를 벗어난 프레임(perPage 증가·검색 축소 등, reset effect 반영 전)에 빈 그리드 방지
@@ -136,7 +143,7 @@ export default function SeriesIndexClient({ series }: Props) {
         />
       </header>
 
-      <SeriesCategoryFilter buckets={categoryBuckets} total={series.length} active={activeCategory} onChange={setActiveCategory} />
+      <SeriesCategoryFilter buckets={categoryBuckets} total={series.length} active={activeCategories} onToggle={toggleCategory} onClear={clearCategories} />
 
       {filtered.length === 0 ? (
         <p className={index.empty}>{t("postsPage.noMatchingSeries")}</p>

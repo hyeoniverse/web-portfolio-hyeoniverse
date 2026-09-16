@@ -4,17 +4,20 @@ import Button from "@/components/ui/Button";
 import styles from "./SeriesCategoryFilter.module.css";
 import { useLanguage } from "@/providers/LanguageProvider";
 
-/* 시리즈 카테고리 필터 — "전체" + 카테고리별 버튼(개수), 활성 버튼 재클릭으로 해제. 카테고리가 없으면 렌더하지 않는다. */
+/* 시리즈 카테고리 필터 — "전체" + 카테고리별 버튼(개수). 여러 개 동시 선택 가능(합집합),
+   활성 버튼 재클릭으로 개별 해제, "전체"로 모두 해제. 카테고리가 없으면 렌더하지 않는다. */
 export default function SeriesCategoryFilter({
   buckets,
   total,
   active,
-  onChange,
+  onToggle,
+  onClear,
 }: {
   buckets: Map<string, number>;
   total: number;
-  active: string | null;
-  onChange: (category: string | null) => void;
+  active: ReadonlySet<string>;
+  onToggle: (category: string) => void;
+  onClear: () => void;
 }) {
   const { t } = useLanguage();
   if (buckets.size === 0) return null;
@@ -24,8 +27,8 @@ export default function SeriesCategoryFilter({
         type="button"
         variant="outline"
         size="xs"
-        active={active === null}
-        onClick={() => onChange(null)}
+        active={active.size === 0}
+        onClick={onClear}
         data-clickable="true"
       >
         {t("common.all")}
@@ -34,7 +37,7 @@ export default function SeriesCategoryFilter({
       {Array.from(buckets.entries())
         .sort((a, b) => b[1] - a[1])
         .map(([cat, count]) => {
-          const isActive = active === cat;
+          const isActive = active.has(cat);
           return (
             <Button
               key={cat}
@@ -42,7 +45,7 @@ export default function SeriesCategoryFilter({
               variant="outline"
               size="xs"
               active={isActive}
-              onClick={() => onChange(isActive ? null : cat)}
+              onClick={() => onToggle(cat)}
               data-clickable="true"
             >
               {cat}
