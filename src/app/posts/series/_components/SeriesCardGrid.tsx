@@ -33,7 +33,7 @@ export default function SeriesCardGrid({
         return (
           <li key={s.id}>
             <Link
-              href={`/posts?series=${s.id}`}
+              href={`/posts/series/${s.slug}`}
               className={`${card.card} ${isFeatured ? card.cardFeatured : ""}`}
               onClick={isTouch ? (e) => {
                 e.preventDefault();

@@ -422,6 +422,43 @@ export async function getAllSeriesData() {
 }
 
 
+/** /posts/series/[slug] 상세 페이지용 — 시리즈 하나 + 소속 글(series_order 순).
+   목록 필터(/posts?series=)와 달리 연재 순서(series_order)대로 돌려준다. */
+export async function getSeriesPageData(slug: string) {
+  const admin = createAdminClient();
+  const { data: seriesRaw } = await admin
+    .from("series")
+    .select("*")
+    .eq("slug", slug)
+    .eq("published", true)
+    .single();
+  const series = (seriesRaw as Series) ?? null;
+  if (!series) return { series: null as Series | null, posts: [] as Post[], totalCount: 0 };
+
+  const { data: postsRaw } = await admin
+    .from("posts")
+    .select("*, series:series_id(title, title_en)")
+    .eq("published", true)
+    .eq("series_id", series.id)
+    .order("series_order", { ascending: true })
+    .order("created_at", { ascending: true });
+  const posts = (postsRaw ?? []) as Post[];
+
+  return { series: { ...series, post_count: posts.length }, posts, totalCount: posts.length };
+}
+
+export type SeriesPageData = Awaited<ReturnType<typeof getSeriesPageData>>;
+
+/** 시리즈 상세 정적 파라미터용 — published 시리즈의 slug 목록 */
+export async function getAllSeriesSlugs(): Promise<string[]> {
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from("series")
+    .select("slug")
+    .eq("published", true);
+  return (data ?? []).map((s: { slug: string }) => s.slug).filter(Boolean);
+}
+
 /** /posts/categories 인덱스 페이지용 — published posts 의 모든 distinct 카테고리 + 글 수 + 첫 글 cover */
 export async function getAllCategoriesData() {
   const admin = createAdminClient();
