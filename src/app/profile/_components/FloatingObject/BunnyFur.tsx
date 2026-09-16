@@ -9,7 +9,7 @@ import { BODY_COLOR } from "./bunnyGeometry";
 const TEX = 512;
 /** 털 한 올의 성김. 클수록 올이 가늘고 촘촘하다.
     너무 가늘면 몽이가 떠다닐 때(작을 때) 한 올이 한 픽셀도 안 돼서 뭉개진다. */
-const STRANDS = 96;
+const STRANDS = 120;
 /**
  * 껍질을 몇 겹 쌓을지. 적으면 층이 띠로 보이고, 많으면 그만큼 더 그린다.
  *
@@ -21,9 +21,12 @@ const SHELLS = 6;
 /**
  * 털 한 올의 단면을 찍어 둔 알파맵.
  *
- * 흰 점 하나가 털 한 올이다. 가운데가 진하고 가장자리로 갈수록 옅어지게 그려서,
+ * 점 하나가 털 한 올이다. 가운데가 진하고 가장자리로 갈수록 옅어지게 그려서,
  * 껍질마다 잘라내는 기준(alphaTest)을 올리면 점이 안쪽부터 좁아진다 — 그게 곧
  * 위로 갈수록 가늘어지는 털끝이 된다. 겹마다 다른 그림을 쓸 필요가 없다.
+ *
+ * 올마다 가운데 밝기를 조금씩 다르게 찍어 **털끝 굵기**에 잔결을 준다 — 다만 전부 맨 바깥 겹까지는
+ * 닿게 해서(밝기 하한을 바깥 겹 기준보다 높게) 밀도는 안 줄고 실루엣만 자연스러워진다.
  */
 let cached: THREE.Texture | null = null;
 
@@ -47,19 +50,41 @@ function furAlphaMap(): THREE.Texture | null {
   ctx.fillRect(0, 0, TEX, TEX);
 
   const cell = TEX / STRANDS;
+
+  /* 올 하나를 찍는다. 텍스처가 이어붙어 반복되므로(RepeatWrapping), 칸 밖으로 삐져나온 올은
+     반대편에도 찍어 이음매가 튀지 않게 한다 — 올이 작아 대개 한 번, 가장자리 올만 두어 번 더. */
+  const stamp = (cx: number, cy: number, r: number, peak: number) => {
+    for (let ox = -1; ox <= 1; ox++) {
+      for (let oy = -1; oy <= 1; oy++) {
+        const x = cx + ox * TEX;
+        const y = cy + oy * TEX;
+        if (x + r < 0 || x - r > TEX || y + r < 0 || y - r > TEX) continue;
+        const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+        g.addColorStop(0, `rgb(${peak}, ${peak}, ${peak})`);
+        g.addColorStop(1, "#000");
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+  };
+
   for (let gy = 0; gy < STRANDS; gy++) {
     for (let gx = 0; gx < STRANDS; gx++) {
-      /* 격자마다 한 올. 자리를 흔들어 두지 않으면 털이 바둑판으로 줄을 선다. */
-      const cx = (gx + 0.15 + rand() * 0.7) * cell;
-      const cy = (gy + 0.15 + rand() * 0.7) * cell;
+      /* 칸마다 한 올(=몰리거나 비지 않음)이되, 자리는 칸 밖으로도 조금(±0.55칸) 흔들어 이웃 칸에
+         살짝 걸치게 한다. 칸 안(중앙 70%)에만 가두면 바둑판 격자감이 남고, 너무 넓게(±0.85칸+)
+         흔들면 올끼리 겹쳐 커버리지가 새고 군데군데 비어 듬성듬성해진다 — 그 사이가 이 값이다. */
+      const cx = (gx + 0.5 + (rand() - 0.5) * 1.1) * cell;
+      const cy = (gy + 0.5 + (rand() - 0.5) * 1.1) * cell;
       const r = cell * (0.34 + rand() * 0.28);
-      const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
-      g.addColorStop(0, "#fff");
-      g.addColorStop(1, "#000");
-      ctx.fillStyle = g;
-      ctx.beginPath();
-      ctx.arc(cx, cy, r, 0, Math.PI * 2);
-      ctx.fill();
+      /* 올마다 최고 밝기를 흩뜨려 **털끝 굵기**만 다르게 한다. alphaTest 로 자르는 구조라 밝은 올은
+         바깥 겹에서 굵게, 살짝 어두운 올은 가늘게 끝나 실루엣에 잔결이 생긴다.
+         범위 하한(0.78)을 맨 바깥 겹 기준(≈0.45)보다 높게 잡는 게 핵심이다 — 그래야 **모든 올이
+         맨 바깥 겹까지 살아남아** 밀도가 안 준다. 예전엔 하한을 0.25 로 낮춰 밝기로 '길이'를 흩뜨렸는데,
+         절반 넘는 올이 바깥 겹에서 통째로 잘려 나가 눈에 띄게 듬성듬성해졌다(바깥 커버리지 13%→3%). */
+      const peak = Math.round((0.78 + rand() * 0.22) * 255);
+      stamp(cx, cy, r, peak);
     }
   }
 
@@ -139,8 +164,10 @@ export default function BunnyFur({
         roughness: 1,
         metalness: 0,
         alphaMap: map,
-        /* 자르는 방식이라 반투명 정렬 문제가 없다. 바깥 겹일수록 기준이 높아 털이 줄어든다. */
-        alphaTest: 0.05 + t * t * 0.58,
+        /* 자르는 방식이라 반투명 정렬 문제가 없다. 바깥 겹일수록 기준이 높아 털이 줄어든다.
+           기준을 더 낮춰(0.03 + t²·0.42) 각 겹이 털을 더 남기게 하면, 겹 수(=그리는 양)는 그대로
+           둔 채 털끝이 굵고 빼곡해져 더 복실·볼륨감이 든다(바깥 겹 커버리지 13%→14%+). */
+        alphaTest: 0.03 + t * t * 0.42,
       });
       m.onBeforeCompile = (shader) => {
         shader.uniforms.uShell = { value: length * t };
