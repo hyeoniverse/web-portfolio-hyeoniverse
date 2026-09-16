@@ -35,11 +35,21 @@ export default function SeriesIndexClient({ series }: Props) {
   const searchControls = useSearchControls<"all" | "title" | "desc">("all");
   const { search, searchType, syntaxMode } = searchControls;
   const [sortBy, setSortBy] = useState<SeriesSortBy>("popular");
+  // 카테고리 bucket — 카운트 표시 + 비활성 처리 (다중 선택 로직에서 전체 개수 참조하므로 먼저 정의)
+  const categoryBuckets = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const s of series) {
+      if (s.category) map.set(s.category, (map.get(s.category) ?? 0) + 1);
+    }
+    return map;
+  }, [series]);
   // 카테고리 다중 선택 — 빈 Set = 전체. 선택된 카테고리 중 하나라도 맞으면 표시(합집합).
   const [activeCategories, setActiveCategories] = useState<Set<string>>(new Set());
   const toggleCategory = (cat: string) => setActiveCategories((prev) => {
     const next = new Set(prev);
     if (next.has(cat)) next.delete(cat); else next.add(cat);
+    // 모든 카테고리가 선택되면 '전체'(빈 Set)로 되돌린다 — 전체 선택 == 전체 표시라 개별 활성으로 두지 않는다.
+    if (next.size >= categoryBuckets.size) return new Set();
     return next;
   });
   const clearCategories = () => setActiveCategories(new Set());
@@ -51,15 +61,6 @@ export default function SeriesIndexClient({ series }: Props) {
   const isAdmin = useIsAuthenticated();
   const { isTouch } = useIsMobile();
 
-
-  // 카테고리 bucket — 카운트 표시 + 비활성 처리
-  const categoryBuckets = useMemo(() => {
-    const map = new Map<string, number>();
-    for (const s of series) {
-      if (s.category) map.set(s.category, (map.get(s.category) ?? 0) + 1);
-    }
-    return map;
-  }, [series]);
 
   // featured (인기 top N — post_count desc)
   const featuredSet = useMemo(() => {
