@@ -17,7 +17,7 @@ jobs:
         with:
           # Conventional Commits 기반으로 자동 version bump + CHANGELOG.md + release PR 생성
           release-type: node
-          package-name: web-portfolio-arc
+          package-name: web-portfolio-arcus
           # PR 작성자를 본인 명의로 — WORKFLOW_PAT secret 에 PAT 등록 (claude.yml 과 공용)
           # 미설정 시 GITHUB_TOKEN (github-actions bot) 사용
           token: ${{ secrets.WORKFLOW_PAT || secrets.GITHUB_TOKEN }}
