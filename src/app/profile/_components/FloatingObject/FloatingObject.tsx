@@ -24,6 +24,9 @@ const TYPE_INTERVAL_MS = 55;
 /** 말풍선이 화면 끝에서 남겨 두는 여백(px). */
 const BUBBLE_EDGE_PAD = 12;
 const TAIL_SIZE = 10;
+/* 꼬리 밑변 폭·내민 높이 — 45° 네모를 펼친 값(√2, √2/2). 외곽선 path 가 쓴다(흐림판의 --tail-w/-h 와 같은 결). */
+const TAIL_W = TAIL_SIZE * 1.414;
+const TAIL_H = TAIL_SIZE * 0.707;
 const BUBBLE_OFFSET_Y = -110;
 
 export default function FloatingObject() {
@@ -46,7 +49,9 @@ export default function FloatingObject() {
   /** 말풍선 크기 — 글이 바뀔 때만 다시 잰다. */
   const bubbleSizeRef = useRef({ w: 0, h: 0 });
   const bubbleTextRef = useRef<HTMLDivElement>(null);
-  const bubbleTailRef = useRef<HTMLDivElement>(null);
+  /** 외곽선 SVG 와 그 path — 캡슐+꼬리를 한 획으로 그린다(이음매 없음). */
+  const bubbleBorderRef = useRef<SVGSVGElement>(null);
+  const bubblePathRef = useRef<SVGPathElement>(null);
   const bubbleFillRef = useRef<HTMLDivElement>(null);
   /** 마지막으로 넘긴 꼬리 어긋남. 매 프레임 같은 값을 다시 쓰면 스타일 재계산만 늘어난다. */
   const tailDxRef = useRef("");
@@ -170,8 +175,8 @@ export default function FloatingObject() {
       const boxLeft = Math.max(BUBBLE_EDGE_PAD, Math.min(window.innerWidth - w - BUBBLE_EDGE_PAD, rawLeft));
       const move = `translate(${Math.round(boxLeft)}px, ${Math.round(screenPosRef.current.y + BUBBLE_OFFSET_Y - h)}px)`;
       el.style.transform = move;
-      /* 흐림판·글자 층은 껍데기와 같은 자리·같은 크기다. 셋이 정확히 겹쳐야 한 덩어리로 보인다. */
-      for (const layer of [bubbleFillRef.current, bubbleTextRef.current]) {
+      /* 흐림판·글자·외곽선 층은 껍데기와 같은 자리다. 정확히 겹쳐야 한 덩어리로 보인다. */
+      for (const layer of [bubbleFillRef.current, bubbleTextRef.current, bubbleBorderRef.current]) {
         if (layer) layer.style.transform = move;
       }
       /* 꼬리는 몽이를 가리키되 **말풍선 아래선을 벗어나면 안 된다**.
@@ -181,15 +186,33 @@ export default function FloatingObject() {
          밑변이 평평한 구간이라, 꼬리가 늘 몸통에 붙어 있는다. */
       const tailInset = Math.min(h / 2 + TAIL_SIZE, w / 2);
       const tailX = Math.max(boxLeft + tailInset, Math.min(boxLeft + w - tailInset, screenPosRef.current.x));
-      const tail = bubbleTailRef.current;
-      if (tail) {
-        tail.style.transform = `translate(${Math.round(tailX - TAIL_SIZE / 2)}px, ${Math.round(screenPosRef.current.y + BUBBLE_OFFSET_Y - TAIL_SIZE / 2)}px)`;
+
+      /* 외곽선 — 캡슐(반지름 h/2) + 아래 가운데 꼬리 V 를 하나의 연속 path 로 그린다.
+         몸통 테두리와 꼬리 테두리를 따로 두고 이음매를 마스크로 도려내던 방식은 각진 모서리
+         안티에일리어싱 잔선을 남겼다. 한 획이면 이음매 자체가 없어 잔선이 안 생긴다. */
+      const svg = bubbleBorderRef.current;
+      const path = bubblePathRef.current;
+      if (svg && path) {
+        const r = h / 2;
+        const svgH = h + TAIL_H;
+        if (svg.getAttribute("width") !== String(Math.round(w))) {
+          svg.setAttribute("width", String(Math.round(w)));
+          svg.setAttribute("height", String(Math.ceil(svgH)));
+          svg.setAttribute("viewBox", `0 0 ${w} ${svgH}`);
+        }
+        const mouthC = tailX - boxLeft;
+        const mL = mouthC - TAIL_W / 2;
+        const mR = mouthC + TAIL_W / 2;
+        path.setAttribute(
+          "d",
+          `M${r} 0 L${w - r} 0 A${r} ${r} 0 0 1 ${w - r} ${h} L${mR} ${h} L${mouthC} ${svgH} L${mL} ${h} L${r} ${h} A${r} ${r} 0 0 1 ${r} 0 Z`,
+        );
       }
-      /* 흐림판의 꼬리 삼각형과 테두리의 구멍도 같은 만큼 옮긴다. 셋이 한 값을 봐야 어긋나지 않는다. */
+
+      /* 흐림판의 꼬리 삼각형 위치(--tail-dx) — 흐림판 마스크가 쓴다. */
       const dx = `${Math.round(tailX - (boxLeft + w / 2))}px`;
       if (dx !== tailDxRef.current) {
         tailDxRef.current = dx;
-        el.style.setProperty("--tail-dx", dx);
         bubbleFillRef.current?.style.setProperty("--tail-dx", dx);
       }
     }
@@ -293,13 +316,15 @@ export default function FloatingObject() {
       >
         {bubbleText}
       </div>
-      {/* 꼬리도 따로 띄운다. 껍데기 안에 두면 껍데기에 건 mask(꼬리 자리의 테두리를 도려내는)에
-          같이 잘려 사라진다 — mask 는 가상요소·자식까지 함께 자른다. */}
-      <div
-        ref={bubbleTailRef}
-        className={`${styles.speechBubbleTail} ${showBubble ? styles.speechBubbleVisible : ""}`}
+      {/* 외곽선 — 캡슐 + 꼬리 V 를 한 획으로 그리는 SVG. 흐림판 위, 글자 아래.
+          path 좌표·크기는 rAF 가 매 프레임 갱신한다. */}
+      <svg
+        ref={bubbleBorderRef}
+        className={`${styles.speechBubbleBorder} ${showBubble ? styles.speechBubbleVisible : ""}`}
         aria-hidden
-      />
+      >
+        <path ref={bubblePathRef} />
+      </svg>
       <div
         ref={bubbleRef}
         className={`${styles.speechBubble} ${showBubble ? styles.speechBubbleVisible : ""}`}

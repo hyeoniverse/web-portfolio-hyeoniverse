@@ -90,27 +90,27 @@
   mask-composite: add;
 }
 
-/* 테두리 — 글자는 자리만 잡고 안 보인다(위 층이 그린다). */
+/* 껍데기 — 이제 외곽선을 그리지 않는다. 글+여백으로 크기(offsetWidth/Height)만 재는 보이지 않는 상자.
+   외곽선(캡슐+꼬리)은 아래 .speechBubbleBorder(SVG)가 한 획으로 그린다. */
 .speechBubble {
-  z-index: calc(var(--z-nav) + 3);
-  border-radius: var(--radius-capsule);
-  border-color: var(--border-color-strong);
   color: transparent;
+}
 
-  /* 꼬리 입구를 가로지르는 테두리 선을 도려낸다. 안 도려내면 몸통과 꼬리 사이에 없는 경계가
-     하나 생긴다. 도려내는 모양은 꼬리의 윗절반과 같은 삼각형 — 밑변이 아래선에 붙고 꼭짓점이
-     위를 본다. 그러니 부채꼴 꼭짓점을 칸의 **위 가운데**에 두고 아래로 벌려야 한다.
-     반대로 두면(아래 가운데에서 위로) 아래선에서 폭이 0 이라 테두리가 그대로 남는다 —
-     구멍이 3px 짜리 뾰족한 자국으로만 뚫려서, 꼬리 입구를 가로지르는 선이 계속 보였다.
-     반지름 7px 짜리 동그라미로 파던 때는 위로 갈수록 구멍이 꼬리보다 훨씬 넓어서(3px 높이에서
-     12.7px 대 7.7px) 꼬리 양옆에 아무것도 없는 초승달이 남았다. */
-  mask-image:
-    conic-gradient(from 135deg at 50% 0%, #000 0 90deg, transparent 0),
-    linear-gradient(#000, #000);
-  mask-size: calc(var(--tail-w) - 0.2px) calc(var(--tail-h) - 0.1px), auto;
-  mask-position: calc(50% + var(--tail-dx)) 100%, 0 0;
-  mask-repeat: no-repeat, repeat;
-  mask-composite: exclude;
+/* 외곽선 — 캡슐 몸통 + 아래 꼬리 V 를 하나의 연속 stroke path 로. 한 획이라 이음매(잔선)가 없다.
+   path 의 d·크기는 rAF 가 매 프레임 채운다. 흐림판 위·글자 아래 층. */
+.speechBubbleBorder {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: calc(var(--z-nav) + 3);
+  overflow: visible;
+  pointer-events: none;
+  visibility: hidden;
+}
+.speechBubbleBorder path {
+  fill: none;
+  stroke: var(--border-color-strong);
+  stroke-width: 1;
 }
 
 /* 글자 — 흰색으로 두고 뒤와 반전시킨다. 밝은 지면에서는 검게, 어두운 데서는 희게 읽힌다.
@@ -121,8 +121,8 @@
   mix-blend-mode: difference;
 }
 
-/* 클래스를 두 번 적어 (0,2,0) — 아래 .speechBubbleTail 의 visibility: hidden 과 같은 층이면
-   어느 쪽이 이길지 파일 순서가 정한다. 실제로 꼬리가 계속 숨어 있었다. */
+/* 클래스를 두 번 적어 (0,2,0) — 각 층의 base visibility: hidden(.speechBubbleBorder 등)과 특이도가
+   같으면 파일 순서가 승자를 정해 계속 숨은 채였다. 두 번 적어 확실히 이기게 한다. */
 .speechBubbleVisible.speechBubbleVisible {
   visibility: visible;
 }
@@ -150,23 +150,6 @@
   }
 }
 
-/* 꼬리의 두 변 — 45° 돌린 네모의 오른쪽·아래 테두리. 흐림은 흐림판이 이미 그려 놨다.
-   삼각형 두 장(테두리색 + 배경색)을 겹쳐 만들던 때는 안쪽을 --bg-primary 로 덮어야 해서,
-   몸통은 투명한데 꼬리만 불투명한 조각으로 남아 몽이 위를 지날 때 그게 그대로 보였다. */
-.speechBubbleTail {
-  --tail-side: 10px;
-
-  position: fixed;
-  z-index: calc(var(--z-nav) + 3);
-  width: var(--tail-side);
-  height: var(--tail-side);
-  transform: rotate(45deg);
-  border-right: var(--border-strong);
-  border-bottom: var(--border-strong);
-  pointer-events: none;
-  visibility: hidden;
-}
-
 /* ── Mobile vw ── */
 @media (max-width: 480px) {
   .speechBubble,
@@ -176,10 +159,6 @@
     --bubble-fs: 2.6vw;
     --bubble-py: 1.7vw;
     --bubble-px: 4.2vw;
-    --tail-side: 2.2vw;
-  }
-
-  .speechBubbleTail {
     --tail-side: 2.2vw;
   }
 }
