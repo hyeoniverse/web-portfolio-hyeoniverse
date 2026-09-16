@@ -140,25 +140,31 @@
  * 아니라 얼룩 세 개로 보인다. 그리고 셋 다 가장자리로 곧장 옅어지는 그라데이션이라
  * 덩어리감이 없었다.
  *
- * 지금은 **몸통과 모양을 나눈다** — 몸통은 위아래 한 장의 그라데이션(위가 달빛을 받아 밝고
- * 아래로 갈수록 옅어진다), 모양은 마스크가 낸다. 마스크는 겹쳐도 한 덩어리라 얼룩이 안 생긴다.
+ * 몸통은 **가장자리에서 옅어지는 방사형 덩어리 셋**이고, 모양은 마스크가 낸다(겹쳐도 한 덩어리라
+ * 얼룩이 안 생긴다). 예전엔 몸통을 위아래 단색 그라데이션(달빛)으로 꽉 채웠는데, 그러면 마스크 옆
+ * 봉우리가 solid 원으로 차서 — 특히 밝은 흰 구름이 어두운 밤하늘에 얹히면 — 양옆이 동떨어진
+ * 동그라미로 도드라졌다. 몸통을 가장자리에서 옅어지게 두면 동떨어진 봉우리는 옅게 빠져 사라진다.
+ * 라이트 테마도 같은 구조를 색(--_cloud-blob)만 바꿔 쓴다(아래 override).
  *
- * 봉우리는 **거의 단단한 원**이다(0~86% 까지 불투명). 가장자리를 살살 흐리면 겹친 자리마다
- * 알파가 더해져 테두리가 능선처럼 도드라진다 — 공 네 개를 늘어놓은 것으로 보이던 이유다.
- * 실루엣은 단단하게 오리고, 부드러움은 바깥에서 filter: blur 한 번으로 준다.
+ * 봉우리 마스크는 **거의 단단한 원**이다(0~86% 까지 불투명). 마스크 가장자리를 살살 흐리면
+ * 겹친 자리마다 알파가 더해져 테두리가 능선처럼 도드라진다 — 그래서 실루엣은 단단히 오리고,
+ * 부드러움은 몸통의 페이드 + 바깥 filter: blur 로 준다.
  *
  * 크기를 다르게 넷 얹고 서로 깊게 물리게 둔다(폭 합이 150% 넘는다). 밑동은 납작한 타원이다 —
  * 아래가 평평해야 떠 있는 구름이지, 사방이 둥글면 솜사탕이 된다. 다만 밑동을 봉우리보다
  * 넓게 깔면 안 된다. 타원 끝이 얇게 빠져나와 구름 옆구리에 선반이 하나 붙는다.
  */
 .cloud {
+  /* 몸통 덩어리 색 — 다크(기본)는 밝은 흰빛, 라이트는 아래 override 에서 중간 회색으로 바꾼다. */
+  --_cloud-blob: var(--color-white-alpha-90);
+
   position: absolute;
-  background: linear-gradient(
-    to bottom,
-    var(--color-white-alpha-90) 0%,
-    var(--color-white-alpha-70) 46%,
-    var(--color-white-alpha-40) 100%
-  );
+  /* 세 덩어리가 가장자리에서 투명으로 옅어진다 — 마스크 옆 봉우리가 solid 로 안 차서
+     밤하늘 위에서도 양옆이 동떨어진 동그라미로 튀지 않는다. */
+  background:
+    radial-gradient(closest-side, var(--_cloud-blob) 0%, transparent 100%) 0 40% / 55% 70% no-repeat,
+    radial-gradient(closest-side, var(--_cloud-blob) 0%, transparent 100%) 35% 0 / 50% 100% no-repeat,
+    radial-gradient(closest-side, var(--_cloud-blob) 0%, transparent 100%) 70% 35% / 45% 65% no-repeat;
   mask-image:
     radial-gradient(circle closest-side, #000 0 86%, transparent 100%),
     radial-gradient(circle closest-side, #000 0 86%, transparent 100%),
@@ -286,10 +292,8 @@
 }
 
 :global(html[data-theme="light"]) .cloud {
-  background:
-    radial-gradient(closest-side, var(--color-neutral-400) 0%, transparent 100%) 0 40% / 55% 70% no-repeat,
-    radial-gradient(closest-side, var(--color-neutral-400) 0%, transparent 100%) 35% 0 / 50% 100% no-repeat,
-    radial-gradient(closest-side, var(--color-neutral-400) 0%, transparent 100%) 70% 35% / 45% 65% no-repeat;
+  /* 구조는 기본과 같고 덩어리 색만 중간 회색으로 — 밝은 배경에 흰 구름이 묻히지 않게. */
+  --_cloud-blob: var(--color-neutral-400);
 }
 
 /* 좁은 화면에서는 장식이 본문을 덮는다 — 수를 줄이고 달도 작게. */

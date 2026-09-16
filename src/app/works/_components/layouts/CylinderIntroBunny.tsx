@@ -273,12 +273,14 @@ export default function CylinderIntroBunny({ screenPosRef, arc, actualRotRef }: 
       </group>
 
       {/* Eyes */}
-      <mesh position={[-0.2, 0.46, 0.48]} rotation={[-0.08, -0.31, 0]} scale={[1, 1.3, 0.15]}>
-        <sphereGeometry args={[0.12, 16, 12]} />
+      {/* 눈 크기·깊이는 profile 몽이와 같은 값을 쓴다(0.13, z 0.49) — bare 구역을 공유하므로
+          한쪽만 바꾸면 눈가 털이 어긋난다. */}
+      <mesh position={[-0.2, 0.46, 0.49]} rotation={[-0.08, -0.31, 0]} scale={[1, 1.3, 0.15]}>
+        <sphereGeometry args={[0.13, 16, 12]} />
         <meshBasicMaterial color={EYE_COLOR} />
       </mesh>
-      <mesh position={[0.2, 0.46, 0.48]} rotation={[-0.08, 0.31, 0]} scale={[1, 1.3, 0.15]}>
-        <sphereGeometry args={[0.12, 16, 12]} />
+      <mesh position={[0.2, 0.46, 0.49]} rotation={[-0.08, 0.31, 0]} scale={[1, 1.3, 0.15]}>
+        <sphereGeometry args={[0.13, 16, 12]} />
         <meshBasicMaterial color={EYE_COLOR} />
       </mesh>
 
