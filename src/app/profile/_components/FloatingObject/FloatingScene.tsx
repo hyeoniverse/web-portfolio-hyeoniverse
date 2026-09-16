@@ -24,7 +24,7 @@ const POKE_DEPTH = 1.8;
 /** 쓰다듬을 때 눌리는 깊이. 손이 지나가는 자리라 얕지만, 아주 얕으면 만지는 티가 안 난다. */
 const PET_DEPTH = 0.1;
 /** 머리에 심은 털의 길이(머리 지오메트리 좌표). */
-const HEAD_FUR_LEN = 0.062;
+const HEAD_FUR_LEN = 0.068;
 /** 몽이가 자리에 앉았을 때의 배율. 이때를 기준으로 털 길이를 잡았다. */
 const FUR_REF_SCALE = 1.89;
 /** 작아졌을 때 털을 최대 몇 배까지 길게 뽑을지. */
@@ -891,7 +891,7 @@ export default function FloatingScene({
         <mesh ref={bodyRef} position={[0, -0.15, 0]} geometry={BODY_GEO} scale={[0.75, 0.78, 0.7]}>
           <BunnySkin />
           {/* 털은 밑살의 자식이라 같은 자리·같은 배율을 그대로 물려받는다. */}
-          <BunnyFur geometry={BODY_GEO} length={0.07} repeat={2.2} shells={furShells} boost={furBoostRef} />
+          <BunnyFur geometry={BODY_GEO} length={0.076} repeat={2.2} shells={furShells} boost={furBoostRef} />
         </mesh>
 
         {/* ── Head ── */}
@@ -918,7 +918,7 @@ export default function FloatingScene({
           scale={[1.3, 1.3, 1]}
         >
           <BunnySkin />
-          <BunnyFur geometry={EAR_GEO} length={0.042} repeat={1.2} shells={furShells} boost={furBoostRef} />
+          <BunnyFur geometry={EAR_GEO} length={0.046} repeat={1.2} shells={furShells} boost={furBoostRef} />
         </mesh>
 
         {/* ── Right Ear ── */}
@@ -930,28 +930,30 @@ export default function FloatingScene({
           scale={[1.3, 1.3, 1]}
         >
           <BunnySkin />
-          <BunnyFur geometry={EAR_GEO} length={0.042} repeat={1.2} shells={furShells} boost={furBoostRef} />
+          <BunnyFur geometry={EAR_GEO} length={0.046} repeat={1.2} shells={furShells} boost={furBoostRef} />
         </mesh>
 
         {/* ── Left Eye (normal) ── */}
+        {/* 눈을 조금 키우고(0.12→0.13) 바깥으로 살짝 띄워(z 0.48→0.49, 실눈·웃는눈과 같은 깊이)
+            눈가 털 램프 고리를 검은 눈 원반이 덮게 한다 — '눈가가 비어 보이는' 잔여분 제거. */}
         <mesh
           ref={leftEyeRef}
-          position={[-0.2, 0.46, 0.48]}
+          position={[-0.2, 0.46, 0.49]}
           rotation={[-0.08, -0.31, 0]}
           scale={[1, 1.3, 0.15]}
         >
-          <sphereGeometry args={[0.12, 16, 12]} />
+          <sphereGeometry args={[0.13, 16, 12]} />
           <meshBasicMaterial color={EYE_COLOR} />
         </mesh>
 
         {/* ── Right Eye (normal) ── */}
         <mesh
           ref={rightEyeRef}
-          position={[0.2, 0.46, 0.48]}
+          position={[0.2, 0.46, 0.49]}
           rotation={[-0.08, 0.31, 0]}
           scale={[1, 1.3, 0.15]}
         >
-          <sphereGeometry args={[0.12, 16, 12]} />
+          <sphereGeometry args={[0.13, 16, 12]} />
           <meshBasicMaterial color={EYE_COLOR} />
         </mesh>
 
@@ -1034,7 +1036,7 @@ export default function FloatingScene({
         {/* ── Tail ── */}
         <mesh ref={tailRef} position={[0, -0.25, -0.38]} geometry={TAIL_GEO}>
           <BunnySkin />
-          <BunnyFur geometry={TAIL_GEO} length={0.04} repeat={0.8} shells={furShells} boost={furBoostRef} />
+          <BunnyFur geometry={TAIL_GEO} length={0.044} repeat={0.8} shells={furShells} boost={furBoostRef} />
         </mesh>
 
         {/* ── Left Arm+Hand ── */}
@@ -1046,7 +1048,7 @@ export default function FloatingScene({
           scale={[1, 1.6, 1]}
         >
           <BunnySkin />
-          <BunnyFur geometry={ARM_GEO} length={0.034} repeat={0.9} shells={furShells} boost={furBoostRef} />
+          <BunnyFur geometry={ARM_GEO} length={0.038} repeat={0.9} shells={furShells} boost={furBoostRef} />
         </mesh>
 
         {/* ── Right Arm+Hand ── */}
@@ -1058,7 +1060,7 @@ export default function FloatingScene({
           scale={[1, 1.6, 1]}
         >
           <BunnySkin />
-          <BunnyFur geometry={ARM_GEO} length={0.034} repeat={0.9} shells={furShells} boost={furBoostRef} />
+          <BunnyFur geometry={ARM_GEO} length={0.038} repeat={0.9} shells={furShells} boost={furBoostRef} />
         </mesh>
 
         {/* ── Left Leg ── */}
@@ -1070,7 +1072,7 @@ export default function FloatingScene({
           scale={[0.7, 1.8, 0.7]}
         >
           <BunnySkin />
-          <BunnyFur geometry={FOOT_GEO} length={0.036} repeat={0.9} shells={furShells} boost={furBoostRef} />
+          <BunnyFur geometry={FOOT_GEO} length={0.04} repeat={0.9} shells={furShells} boost={furBoostRef} />
         </mesh>
 
         {/* ── Right Leg ── */}
@@ -1082,7 +1084,7 @@ export default function FloatingScene({
           scale={[0.7, 1.8, 0.7]}
         >
           <BunnySkin />
-          <BunnyFur geometry={FOOT_GEO} length={0.036} repeat={0.9} shells={furShells} boost={furBoostRef} />
+          <BunnyFur geometry={FOOT_GEO} length={0.04} repeat={0.9} shells={furShells} boost={furBoostRef} />
         </mesh>
       </group>
     </>
