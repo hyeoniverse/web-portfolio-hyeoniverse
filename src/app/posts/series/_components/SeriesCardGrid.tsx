@@ -57,15 +57,20 @@ export default function SeriesCardGrid({
                 ) : (
                   <span className={card.coverPlaceholder}>{(title || "?").charAt(0).toUpperCase()}</span>
                 )}
+                {/* 풀 오버레이 — 제목·카테고리·글 개수를 커버 위에 얹는다(설명만 아래). */}
+                <div className={styles.coverOverlay}>
+                  <span className={styles.overlayTitle}><HighlightedText text={title} /></span>
+                  <span className={styles.overlayMeta}>
+                    {s.category && <span className={styles.overlayCategory}>{s.category}</span>}
+                    <span className={styles.overlayCount}>{fillCount(t, "postsPage.countPosts", s.post_count)}</span>
+                  </span>
+                </div>
               </div>
-              <div className={card.body}>
-                <span className={card.meta2}>
-                  {s.category && <span className={styles.category}>{s.category}</span>}
-                  <span>{fillCount(t, "postsPage.countPosts", s.post_count)}</span>
-                </span>
-                <span className={card.cardTitle}><HighlightedText text={title} /></span>
-                {description && <span className={styles.cardDesc}><HighlightedText text={description} /></span>}
-              </div>
+              {description && (
+                <div className={card.body}>
+                  <span className={styles.cardDesc}><HighlightedText text={description} /></span>
+                </div>
+              )}
             </Link>
           </li>
         );
