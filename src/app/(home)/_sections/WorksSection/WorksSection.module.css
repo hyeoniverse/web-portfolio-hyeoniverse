@@ -121,6 +121,14 @@
 }
 
 .accentLabel {
+  /* 이 글자는 원이 아니라 그보다 큰 이미지 상자(imageInner, 160%) 안에서 줄바꿈된다.
+     그대로 두면 README 에서 끌어온 긴 제목이 원 밖으로 삐져나간다 — 폭을 원 안쪽으로
+     묶고 세 줄에서 자른다(#1053). 저장소 이름만 쓰던 때는 짧아서 드러나지 않았다. */
+  display: -webkit-box;
+  max-width: 52%;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: clamp(var(--font-size-hint), 1.1vw, var(--font-size-body));
   font-weight: var(--font-weight-medium);
