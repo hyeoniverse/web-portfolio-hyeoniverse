@@ -55,6 +55,8 @@ export default function HomeWorksEditor({
   const L = (ko: string, en: string) => (language === "ko" ? ko : en);
 
   const [list, setList] = useState<GithubRepoCard[]>([]);
+  /** 아무것도 고르지 않았을 때 홈에 나갈 저장소 키 — 서버가 홈과 같은 규칙으로 계산해 준다 */
+  const [due, setDue] = useState<string[]>([]);
   const [login, setLogin] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -74,6 +76,7 @@ export default function HomeWorksEditor({
         setList([]);
       } else {
         setList(body.repos ?? []);
+        setDue(body.due ?? []);
         setLogin(body.login ?? "");
       }
     } catch {
@@ -97,21 +100,70 @@ export default function HomeWorksEditor({
   const keyOf = (r: GithubRepoCard) =>
     r.owner && login && r.owner.toLowerCase() !== login.toLowerCase() ? r.fullName : r.name;
 
+  /* 소유 계정별 묶음 — 내 저장소가 먼저, 그다음 조직들을 이름순으로.
+     목록이 온 순서(최근 수정 순)는 묶음 안에서 그대로 지킨다. */
+  const groupedRepos = (() => {
+    const groups = new Map<string, GithubRepoCard[]>();
+    for (const r of list) {
+      const owner = r.owner || login;
+      const bucket = groups.get(owner);
+      if (bucket) bucket.push(r);
+      else groups.set(owner, [r]);
+    }
+    return [...groups.entries()]
+      .map(([owner, items]) => ({ owner, repos: items, isOwner: !!login && owner.toLowerCase() === login.toLowerCase() }))
+      .sort((a, b) => (a.isOwner === b.isOwner ? a.owner.localeCompare(b.owner) : a.isOwner ? -1 : 1));
+  })();
+
+  /* 고른 것과 내용만 덮어쓴 것을 가른다(#1057). picked 가 false 인 항목은 자동으로 나가는
+     저장소의 표지·제목을 미리 손봐 둔 것이라, 선택으로 세면 자동 채움이 그 하나로 좁아진다. */
+  const chosen = repos.filter((r) => r.picked !== false);
+  const hasOverride = (r: RepoOverride) =>
+    !!(r.cover || r.title || r.title_ko || r.description || r.description_ko);
+
+  /* 카드로 그릴 목록 — 고른 것이 있으면 그것들, 없으면 자동으로 나갈 저장소들.
+     자동 쪽도 카드를 내줘야 표지·제목을 미리 손볼 수 있다. */
+  const cards: { key: string; auto: boolean; value: RepoOverride }[] =
+    chosen.length > 0
+      ? chosen.map((r) => ({ key: r.name, auto: false, value: r }))
+      : due.map((key) => ({
+          key,
+          auto: true,
+          value: repos.find((r) => r.name === key) ?? { name: key, picked: false },
+        }));
+
   /** 고른 순서가 곧 화면 순서다 */
   const toggle = (key: string) => {
-    if (repos.some((r) => r.name === key)) {
-      onReposChange(repos.filter((r) => r.name !== key));
+    const existing = repos.find((r) => r.name === key);
+    if (existing && existing.picked !== false) {
+      /* 손봐 둔 내용이 있으면 지우지 않고 선택만 푼다 — 체크를 껐다고 적어 둔 글이 날아가면 곤란하다 */
+      onReposChange(
+        hasOverride(existing)
+          ? repos.map((r) => (r.name === key ? { ...r, picked: false } : r))
+          : repos.filter((r) => r.name !== key),
+      );
       return;
     }
-    onReposChange([...repos, { name: key }]);
+    onReposChange(
+      existing
+        ? repos.map((r) => (r.name === key ? { ...r, picked: true } : r))
+        : [...repos, { name: key }],
+    );
   };
 
+  /** 카드에서 값을 고치면 덮어쓰기로 남긴다. 자동으로 나가던 것은 자동인 채로 둔다 */
   const patchRepo = (name: string, next: Partial<RepoOverride>) =>
-    onReposChange(repos.map((r) => (r.name === name ? { ...r, ...next } : r)));
+    onReposChange(
+      repos.some((r) => r.name === name)
+        ? repos.map((r) => (r.name === name ? { ...r, ...next } : r))
+        : [...repos, { name, picked: false, ...next }],
+    );
 
+  /** 순서 바꾸기는 고른 것에만 — 자동 목록의 순서는 규칙이 정한다 */
   const move = (from: number, to: number) => {
-    if (to < 0 || to >= repos.length) return;
-    onReposChange(arrayMove([...repos], from, to));
+    if (to < 0 || to >= chosen.length) return;
+    const next = arrayMove([...chosen], from, to);
+    onReposChange([...next, ...repos.filter((r) => r.picked === false)]);
   };
 
   /* 끌기는 5px 움직인 뒤에 시작한다 — 카드 안에 입력칸과 단추가 많아, 바로 잡으면 누르기가 끌기로 샌다 */
@@ -123,10 +175,10 @@ export default function HomeWorksEditor({
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
-    const from = repos.findIndex((r) => r.name === active.id);
-    const to = repos.findIndex((r) => r.name === over.id);
+    const from = chosen.findIndex((r) => r.name === active.id);
+    const to = chosen.findIndex((r) => r.name === over.id);
     if (from === -1 || to === -1) return;
-    onReposChange(arrayMove([...repos], from, to));
+    onReposChange([...arrayMove([...chosen], from, to), ...repos.filter((r) => r.picked === false)]);
   };
 
   return (
@@ -191,47 +243,60 @@ export default function HomeWorksEditor({
 
       {usesRepos && (
         <>
-          {repos.length > 0 && (
+          {cards.length > 0 && (
             <div className={gh.group}>
               <div className={gh.groupHead}>
                 <span className={`${outer.sectionSubTitle} ${gh.groupLabel}`}>
-                  {L("연결한 저장소", "Connected repositories")}
+                  {chosen.length > 0
+                    ? L("연결한 저장소", "Connected repositories")
+                    : L("노출 예정 저장소", "Repositories due to appear")}
                 </span>
-                <span className={gh.groupCount}>{repos.length}</span>
+                <span className={gh.groupCount}>{cards.length}</span>
                 <span className={`${outer.fieldHint} ${gh.groupHint}`}>
-                  {L("비워 둔 항목은 GitHub 의 값이 그대로 적용됩니다.", "Fields left blank fall back to the GitHub values.")}
+                  {chosen.length > 0
+                    ? L("비워 둔 항목은 GitHub 의 값이 그대로 적용됩니다.", "Fields left blank fall back to the GitHub values.")
+                    : L(
+                        "직접 고르지 않아 자동으로 뽑힌 목록입니다. 여기서 고친 표지·제목·설명은 그대로 쓰이고, 자동 채움은 계속 동작합니다.",
+                        "Picked automatically because nothing is selected. Covers, titles and descriptions edited here are used as is, and the automatic fill keeps working.",
+                      )}
                 </span>
               </div>
               {/* 순서가 곧 화면 순서라 손잡이로 끌어 바꾼다. 화살표 단추도 남겨 둔다 —
                   끌기는 키보드만 쓰는 경우와 좁은 화면에서 다루기 어렵다. */}
               <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-              <SortableContext items={repos.map((r) => r.name)} strategy={verticalListSortingStrategy}>
+              <SortableContext items={cards.map((c) => c.key)} strategy={verticalListSortingStrategy}>
               <ol className={styles.picked}>
-                {repos.map((repo, i) => (
-                  <SortableCard key={repo.name} id={repo.name}>
+                {cards.map(({ key, auto, value: repo }, i) => (
+                  <SortableCard key={key} id={key} sortable={!auto}>
                     <div className={styles.cardHead}>
-                      <DragHandle />
+                      {/* 자동 목록은 순서가 규칙으로 정해져 손으로 못 바꾼다 — 손잡이·화살표를 두지 않는다 */}
+                      {!auto && <DragHandle />}
                       <span className={gh.pickedOrder}>{i + 1}</span>
                       <span className={styles.cardName}>{repo.name}</span>
+                      {auto && <span className={styles.autoTag}>{L("자동", "Auto")}</span>}
                       <span className={gh.pickedActions}>
-                        <Button
-                          variant="ghost" shape="circle" size="xs"
-                          icon={<ChevronUp size={13} strokeWidth={1.8} />}
-                          aria-label={L("위로", "Move up")}
-                          onClick={() => move(i, i - 1)} disabled={i === 0}
-                        />
-                        <Button
-                          variant="ghost" shape="circle" size="xs"
-                          icon={<ChevronDown size={13} strokeWidth={1.8} />}
-                          aria-label={L("아래로", "Move down")}
-                          onClick={() => move(i, i + 1)} disabled={i === repos.length - 1}
-                        />
-                        <Button
-                          variant="ghost" shape="circle" size="xs" className={gh.removeBtn}
-                          icon={<X size={13} strokeWidth={1.8} />}
-                          aria-label={L("빼기", "Remove")}
-                          onClick={() => toggle(repo.name)}
-                        />
+                        {!auto && (
+                          <>
+                            <Button
+                              variant="ghost" shape="circle" size="xs"
+                              icon={<ChevronUp size={13} strokeWidth={1.8} />}
+                              aria-label={L("위로", "Move up")}
+                              onClick={() => move(i, i - 1)} disabled={i === 0}
+                            />
+                            <Button
+                              variant="ghost" shape="circle" size="xs"
+                              icon={<ChevronDown size={13} strokeWidth={1.8} />}
+                              aria-label={L("아래로", "Move down")}
+                              onClick={() => move(i, i + 1)} disabled={i === cards.length - 1}
+                            />
+                            <Button
+                              variant="ghost" shape="circle" size="xs" className={gh.removeBtn}
+                              icon={<X size={13} strokeWidth={1.8} />}
+                              aria-label={L("빼기", "Remove")}
+                              onClick={() => toggle(repo.name)}
+                            />
+                          </>
+                        )}
                       </span>
                     </div>
 
@@ -285,42 +350,51 @@ export default function HomeWorksEditor({
           ) : list.length === 0 && !error ? (
             <EmptyState size="xs" pad="sm">{L("저장소가 없습니다.", "No repositories.")}</EmptyState>
           ) : (
-            <div className={gh.group}>
-              <div className={gh.groupHead}>
-                <span className={`${outer.sectionSubTitle} ${gh.groupLabel}`}>{L("저장소", "Repositories")}</span>
-                <span className={gh.groupCount}>{list.length}</span>
-                <span className={`${outer.fieldHint} ${gh.groupHint}`}>
-                  {repos.length === 0
-                    ? L(
-                        `지정하지 않으면 프로필에서 선택한 저장소가 사용되며, 그것도 없으면 스타가 많은 순(동률이면 최근에 수정한 순)으로 최대 ${PINNED_REPO_LIMIT}개가 표시됩니다. 포크와 보관된 저장소는 제외됩니다.`,
-                        `If none are selected, the repositories chosen on the profile are used. If those are empty as well, up to ${PINNED_REPO_LIMIT} of your own repositories are shown, ordered by stars and then by most recent push. Forks and archived repositories are excluded.`,
-                      )
-                    : L("선택한 순서대로 표시됩니다.", "They appear in the order selected.")}
-                </span>
-              </div>
-              {/* data-lenis-prevent — 사이트 전역 Lenis 가 휠을 가로채서, 없으면 이 안이 스크롤되지 않고 페이지만 움직인다 */}
-              <ul className={gh.list} data-lenis-prevent>
-                {list.map((r) => (
-                  <li key={r.fullName} className={gh.item}>
-                    <Checkbox
-                      checked={repos.some((s) => s.name === keyOf(r))}
-                      onChange={() => toggle(keyOf(r))}
-                      shape="square"
-                    />
-                    <Pressable className={gh.itemBody} onClick={() => toggle(keyOf(r))}>
-                      <span className={gh.itemName}>{r.name}</span>
-                      {r.description && <span className={gh.itemDesc}>{r.description}</span>}
-                      <span className={gh.itemMeta}>
-                        {/* 조직 저장소는 어디 것인지 보여야 한다 — 개인 계정에 같은 이름이 또 있을 수 있다 */}
-                        {keyOf(r) !== r.name && <span className={styles.ownerTag}>{r.owner}</span>}
-                        {r.language && <span>{r.language}</span>}
-                        {r.stars > 0 && <span className={gh.itemStars}><Star size={11} strokeWidth={1.8} aria-hidden />{r.stars}</span>}
+            /* 소유 계정별로 나눠 보여준다 — 한 목록에 섞으면 조직 저장소 한둘이 최근 수정 순
+               사이에 파묻혀 있는 줄도 모른다. 내 저장소가 먼저, 그다음 조직들. */
+            <>
+              {groupedRepos.map((group, groupIndex) => (
+                <div className={gh.group} key={group.owner}>
+                  <div className={gh.groupHead}>
+                    <span className={`${outer.sectionSubTitle} ${gh.groupLabel}`}>
+                      {group.isOwner ? L("내 저장소", "My repositories") : group.owner}
+                    </span>
+                    <span className={gh.groupCount}>{group.repos.length}</span>
+                    {/* 안내는 첫 묶음에만 — 묶음마다 되풀이하면 목록보다 설명이 길어진다 */}
+                    {groupIndex === 0 && (
+                      <span className={`${outer.fieldHint} ${gh.groupHint}`}>
+                        {repos.length === 0
+                          ? L(
+                              `지정하지 않으면 프로필에서 선택한 저장소가 사용되며, 그것도 없으면 스타가 많은 순(동률이면 최근에 수정한 순)으로 최대 ${PINNED_REPO_LIMIT}개가 표시됩니다. 포크와 보관된 저장소는 제외됩니다.`,
+                              `If none are selected, the repositories chosen on the profile are used. If those are empty as well, up to ${PINNED_REPO_LIMIT} of your own repositories are shown, ordered by stars and then by most recent push. Forks and archived repositories are excluded.`,
+                            )
+                          : L("선택한 순서대로 표시됩니다.", "They appear in the order selected.")}
                       </span>
-                    </Pressable>
-                  </li>
-                ))}
-              </ul>
-            </div>
+                    )}
+                  </div>
+                  {/* data-lenis-prevent — 사이트 전역 Lenis 가 휠을 가로채서, 없으면 이 안이 스크롤되지 않고 페이지만 움직인다 */}
+                  <ul className={gh.list} data-lenis-prevent>
+                    {group.repos.map((r) => (
+                      <li key={r.fullName} className={gh.item}>
+                        <Checkbox
+                          checked={chosen.some((s) => s.name === keyOf(r))}
+                          onChange={() => toggle(keyOf(r))}
+                          shape="square"
+                        />
+                        <Pressable className={gh.itemBody} onClick={() => toggle(keyOf(r))}>
+                          <span className={gh.itemName}>{r.name}</span>
+                          {r.description && <span className={gh.itemDesc}>{r.description}</span>}
+                          <span className={gh.itemMeta}>
+                            {r.language && <span>{r.language}</span>}
+                            {r.stars > 0 && <span className={gh.itemStars}><Star size={11} strokeWidth={1.8} aria-hidden />{r.stars}</span>}
+                          </span>
+                        </Pressable>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </>
           )}
         </>
       )}
@@ -332,8 +406,8 @@ export default function HomeWorksEditor({
    attributes 까지 손잡이에 얹는 건 키보드로도 순서를 바꾸기 위해서다(초점이 가는 곳이 손잡이다). */
 const DragCtx = createContext<{ attributes: Record<string, unknown>; listeners: Record<string, unknown> } | null>(null);
 
-function SortableCard({ id, children }: { id: string; children: React.ReactNode }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+function SortableCard({ id, children, sortable = true }: { id: string; children: React.ReactNode; sortable?: boolean }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id, disabled: !sortable });
   return (
     <DragCtx.Provider value={{ attributes: attributes as unknown as Record<string, unknown>, listeners: (listeners ?? {}) as Record<string, unknown> }}>
       <li

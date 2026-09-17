@@ -154,3 +154,13 @@
   border: var(--border-light);
   background: var(--bg-primary);
 }
+
+/* 자동으로 뽑힌 칸이라는 표식 — 직접 고른 칸과 섞여 있지 않지만, 순서를 못 바꾸는 이유를 말해 준다 */
+.autoTag {
+  flex-shrink: 0;
+  padding: 0 var(--spacing-2xs);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary);
+  font-size: var(--font-size-micro);
+  color: var(--text-secondary);
+}
