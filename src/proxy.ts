@@ -30,7 +30,20 @@ import { legacyWorkTarget, type WorkRef } from "@/lib/legacyWorkPath";
  * Supabase 왕복 제거.
  */
 
-const SITE_ORIGIN = process.env.NEXT_PUBLIC_SITE_URL ?? "";
+/** 설정값을 origin 으로 정규화 — 요청의 Origin 헤더엔 끝 `/` 가 없어서 `https://x.com/` 을 그대로 비교하면 전부 403.
+ *  해석 불가(스킴 누락 등)면 "" 로 두어 아래 fail-closed 로 떨어진다. */
+function toOrigin(url: string | undefined): string {
+  if (!url) return "";
+  try {
+    return new URL(url).origin;
+  } catch {
+    return "";
+  }
+}
+
+/* 서버(proxy)에서만 읽는 값이라 NEXT_PUBLIC_ 을 붙이지 않는다 — 붙이면 브라우저 번들에 인라인되고,
+   Vercel 은 그런 변수를 Sensitive 로 저장하지 못하게 막는다. */
+const SITE_ORIGIN = toOrigin(process.env.SITE_URL);
 const MUTATION_METHODS = new Set(["POST", "PATCH", "PUT", "DELETE"]);
 
 function isAdminPath(pathname: string): boolean {

@@ -16,7 +16,7 @@ OWNER_EMAIL=you@example.com
 
 # Production domain — the baseline for the middleware's CSRF Origin check
 # If unset in production, every admin mutation is 403 (fail-closed). Dev passes even when empty
-NEXT_PUBLIC_SITE_URL=https://your-domain.com
+SITE_URL=https://your-domain.com
 
 # Cover Image Picker — Unsplash (optional)
 UNSPLASH_ACCESS_KEY=your_unsplash_access_key
