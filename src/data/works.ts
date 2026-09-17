@@ -23,12 +23,13 @@ export interface WorkItem {
   accentInk?: string;
 }
 
-/** 홈 그리드가 채우는 칸 수 — 소스가 모자라면 순환해서 항상 다 채운다 */
-const SLOT_COUNT = 11;
+/** 홈 그리드가 채우는 칸 수 — 소스가 모자라면 순환해서 항상 다 채운다.
+    소스가 이보다 많으면 앞에서부터 이 수만큼만 쓰인다 */
+export const HOME_SLOT_COUNT = 11;
 
 function fillSlots<T>(source: readonly T[], make: (item: T) => Omit<WorkItem, "id">): WorkItem[] {
   if (source.length === 0) return [];
-  return Array.from({ length: SLOT_COUNT }, (_, i) => ({
+  return Array.from({ length: HOME_SLOT_COUNT }, (_, i) => ({
     id: `work-${i}`,
     ...make(source[i % source.length]),
   }));

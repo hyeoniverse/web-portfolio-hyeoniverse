@@ -330,11 +330,13 @@ export { githubLoginFromLinks as loginFromLinks } from "@/utils/githubLogin";
  * 공개 화면과 설정 화면이 같이 부른다. 각자 계산하면 설정에 보이는 것과 실제로 나가는 것이 갈린다.
  * 키 표기는 저장소를 고를 때와 같다 — 개인 저장소는 이름만, 조직 저장소는 `owner/name`.
  */
-export async function dueRepoKeys(login: string, profilePicks: readonly string[]): Promise<string[]> {
+export async function dueRepoKeys(login: string, profilePicks: readonly string[], limit: number): Promise<string[]> {
   const showcase = await getGithubShowcase(login, profilePicks);
   if (!showcase) return [];
   const cards = showcase.repos.length > 0 ? showcase.repos : showcase.topRepos;
-  return cards.map((r) =>
+  /* 칸 수보다 많이 골라 둘 수 있다 — 프로필에 열네 곳이 적혀 있어도 홈은 앞에서부터 열한 칸만 쓴다.
+     설정 화면이 "노출 예정" 이라며 안 나갈 것까지 늘어놓으면 안 된다 */
+  return cards.slice(0, limit).map((r) =>
     r.owner && login && r.owner.toLowerCase() !== login.toLowerCase() ? r.fullName : r.name,
   );
 }

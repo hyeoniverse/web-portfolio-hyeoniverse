@@ -130,3 +130,22 @@ describe("자동으로 나가는 저장소 (#1057)", () => {
     expect(next).toEqual([{ name: "alpha", picked: false, title: "새 제목" }]);
   });
 });
+
+describe("조직 묶음", () => {
+  it("조직 저장소는 내 저장소와 따로, 조직 이름 아래 묶인다", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => ({
+      ok: true,
+      json: async () => ({
+        login: "me",
+        repos: [repo("alpha"), repo("beta"), repo("shared", "TypeScript", "acme")],
+        due: [],
+      }),
+    })));
+    const { findByText, getByText } = render(
+      <HomeWorksEditor source="github" repos={[]} orgs={[]} onOrgsChange={() => {}} onSourceChange={() => {}} onReposChange={() => {}} styles={styles} />,
+    );
+    await findByText("내 저장소");
+    // 조직은 제 이름으로 된 묶음을 따로 갖는다 — 한 목록에 섞이면 파묻혀 안 보인다
+    expect(getByText("acme")).toBeTruthy();
+  });
+});
