@@ -160,14 +160,13 @@ export default function HomeWorksEditor({
         <TagListField
           label={L("조직", "Organizations")}
           hint={L(
-            "공개로 소속된 조직의 저장소는 적지 않아도 목록에 함께 나옵니다. 소속을 비공개로 둔 조직만 이름을 적어 주세요.",
-            "Repositories from organizations you are a public member of are listed automatically. Add a name here only for organizations where your membership is private.",
+            "공개로 소속된 조직의 저장소는 적지 않아도 목록에 함께 나타납니다. 소속을 비공개로 둔 조직만 입력해주세요.",
+            "Repositories from organizations you are a public member of appear automatically. Enter a name only for organizations where your membership is private.",
           )}
           placeholder={L("조직 이름", "Organization name")}
           value={orgs.join(", ")}
           onChange={(v) => onOrgsChange(v.split(",").map((s) => s.trim()).filter(Boolean))}
           commaAsAdd
-          size="sm"
         />
       )}
 
