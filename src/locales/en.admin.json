@@ -182,7 +182,7 @@
       "attemptsLeft": "({{n}} attempts left)",
       "lockedMinutes": "Too many login attempts. Try again in about {{n}} min.",
       "lockedSeconds": "Too many login attempts. Try again in {{n}}s.",
-      "devicePending": "New device — check your email for the approval link, then sign in again."
+      "devicePending": "New device — check your email for the approval link, then sign in again. If it isn't there, check your spam folder."
     },
     "common": {
       "noContent": "No content",
