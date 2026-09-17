@@ -1,4 +1,5 @@
 import { createElement, type ReactNode, type SVGProps } from "react";
+import { SYMBOL_FONT_FAMILY } from "@/config/symbolFont.generated";
 
 /* =============================================================================
  * Favicon SVG — 공유 렌더 로직
@@ -233,7 +234,9 @@ export function resolveFavicon(input: FaviconRenderInput, variant: "light" | "da
   // 테두리색 — 미지정이면 글자색으로 폴백(두께만 정해도 보이게). 두께 0 이면 빈 값.
   const borderColorSet = ((variant === "light" ? input.faviconBorderColorLight : input.faviconBorderColorDark) || "").trim();
   const borderColor = borderWidth > 0 ? (borderColorSet || fgColor) : "";
-  const fontFamily = input.logoFont || "'Instrument Serif', Georgia, serif";
+  /* 기호 글꼴을 뒤에 붙인다 — 브랜드 글꼴에 ✦ 같은 기호가 없어서, 없으면 설정 화면의 미리보기만
+     기기에 깔린 글꼴로 그려져 탭 아이콘과 달라진다(#1048). 탭 쪽은 아예 외곽선으로 굳혀 나간다 */
+  const fontFamily = `${input.logoFont || "'Instrument Serif', Georgia"}, '${SYMBOL_FONT_FAMILY}', serif`;
   const fontWeight = faviconWeightToNumber(input.weight ?? "light");
   const fontSize = resolveFaviconFontSize(input.faviconFontSize);
   const transform = faviconStretchTransform(resolveFaviconStretch(input.logoFontStretch));
