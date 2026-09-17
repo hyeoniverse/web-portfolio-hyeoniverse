@@ -106,3 +106,32 @@ describe("proxy — 작업물 옛 주소", () => {
     expect(passedThrough(await proxy(new NextRequest("http://localhost/works/01")))).toBe(true);
   });
 });
+
+/* CSRF — /api/* 변경 요청은 SITE_URL 과 같은 origin 에서 온 것만 통과한다. SITE_URL 은 모듈을 불러올 때 읽으므로
+   값마다 모듈을 다시 불러온다. localhost 출처는 무조건 통과라 실제 배포 주소로 흉내 낸다. */
+describe("proxy — CSRF origin 검사", () => {
+  const post = async (siteUrl: string, origin: string) => {
+    vi.resetModules();
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("SITE_URL", siteUrl);
+    const { proxy: fresh } = await import("@/proxy");
+    return fresh(new NextRequest("https://www.hyeoniverse.com/api/posts/p1/like", { method: "POST", headers: { origin } }));
+  };
+  afterEach(() => vi.unstubAllEnvs());
+
+  it("SITE_URL 끝에 / 가 붙어 있어도 같은 사이트 요청은 통과한다", async () => {
+    expect(passedThrough(await post("https://www.hyeoniverse.com/", "https://www.hyeoniverse.com"))).toBe(true);
+    expect(passedThrough(await post("https://www.hyeoniverse.com", "https://www.hyeoniverse.com"))).toBe(true);
+  });
+
+  it("다른 사이트에서 온 요청은 403", async () => {
+    expect((await post("https://www.hyeoniverse.com", "https://evil.example")).status).toBe(403);
+    expect((await post("https://www.hyeoniverse.com", "https://hyeoniverse.com")).status, "www 유무가 다르면 다른 origin").toBe(403);
+  });
+
+  it("production 에서 SITE_URL 이 비었거나 해석되지 않으면 모두 403 — 잘못된 배포가 바로 드러난다", async () => {
+    for (const siteUrl of ["", "www.hyeoniverse.com"]) {
+      expect((await post(siteUrl, "https://www.hyeoniverse.com")).status, siteUrl || "(빈 값)").toBe(403);
+    }
+  });
+});

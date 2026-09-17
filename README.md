@@ -372,7 +372,7 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbGci...
 
 # production 도메인 — middleware 의 CSRF Origin 체크 기준
 # production 에 미설정 시 admin mutation 이 모두 403 (fail-closed). dev 는 비워둬도 통과
-NEXT_PUBLIC_SITE_URL=https://your-domain.com
+SITE_URL=https://your-domain.com
 
 # Cover Image Picker — Unsplash (선택사항)
 UNSPLASH_ACCESS_KEY=your_unsplash_access_key
@@ -838,7 +838,7 @@ npm run test:smoke:admin   # admin 라우트 (로그인 세션 필요 — 아래
   NEXT_PUBLIC_SUPABASE_URL
   NEXT_PUBLIC_SUPABASE_ANON_KEY
   SUPABASE_SERVICE_ROLE_KEY
-  NEXT_PUBLIC_SITE_URL         # production 도메인 (예: https://your-domain.com)
+  SITE_URL                     # production 도메인 (예: https://your-domain.com)
                                # middleware 의 CSRF Origin 체크 기준. production 에 미설정 시
                                # admin mutation 이 모두 403 으로 차단됨 (fail-closed). dev 는 skip
 

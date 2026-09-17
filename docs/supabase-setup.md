@@ -16,7 +16,7 @@ OWNER_EMAIL=you@example.com
 
 # production 도메인 — middleware 의 CSRF Origin 체크 기준
 # production 에 미설정 시 admin mutation 이 모두 403 (fail-closed). dev 는 비워둬도 통과
-NEXT_PUBLIC_SITE_URL=https://your-domain.com
+SITE_URL=https://your-domain.com
 
 # Cover Image Picker — Unsplash (선택사항)
 UNSPLASH_ACCESS_KEY=your_unsplash_access_key

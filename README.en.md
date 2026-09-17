@@ -371,7 +371,7 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbGci...
 # Production origin — middleware uses this for CSRF Origin verification.
 # Missing in production → admin mutations are all rejected with 403 (fail-closed).
 # Dev can leave it unset.
-NEXT_PUBLIC_SITE_URL=https://your-domain.com
+SITE_URL=https://your-domain.com
 
 # Cover Image Picker — Unsplash (optional)
 UNSPLASH_ACCESS_KEY=your_unsplash_access_key
@@ -838,7 +838,7 @@ Required:
   NEXT_PUBLIC_SUPABASE_URL
   NEXT_PUBLIC_SUPABASE_ANON_KEY
   SUPABASE_SERVICE_ROLE_KEY
-  NEXT_PUBLIC_SITE_URL         # Production domain (e.g. https://your-domain.com)
+  SITE_URL                     # Production domain (e.g. https://your-domain.com)
                                # Middleware uses this for CSRF Origin verification.
                                # Missing in production → admin mutations are all 403 (fail-closed).
                                # Dev can leave it unset.
