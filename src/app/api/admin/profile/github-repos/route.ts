@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireOwner } from "@/lib/api/requireRole";
 import { getSiteConfig } from "@/lib/getSiteConfig";
+import { getProfileData } from "@/lib/getProfileData";
 import { listOwnedRepos, loginFromLinks } from "@/lib/githubShowcase";
 import { findOwnerAuthor } from "@/utils/resolvePostAuthors";
 import type { Author } from "@/types/author";
@@ -29,5 +30,7 @@ export async function GET() {
     );
   }
 
-  return NextResponse.json({ login, repos: await listOwnedRepos(login) });
+  /* 조직 저장소도 같이 준다. 공개 소속 조직은 자동으로 잡히고, 여기 적힌 조직은 거기에 더해진다 */
+  const orgs = (await getProfileData()).github?.orgs ?? [];
+  return NextResponse.json({ login, repos: await listOwnedRepos(login, orgs) });
 }
