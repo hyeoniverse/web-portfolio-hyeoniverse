@@ -235,19 +235,21 @@ export default function HomeClient({ homeWorks }: { homeWorks: WorkItem[] }) {
           },
         });
 
-        // Works 섹션 원형 요소 등장
-        gsap.from(".work-circle", {
-          scale: 0,
-          opacity: 0,
-          duration: 0.8,
-          stagger: 0.1,
-          ease: "back.out(1.7)",
-          scrollTrigger: {
-            trigger: worksRef.current,
-            start: "top 70%",
-            once: true,
-          },
-        });
+        // Works 섹션 원형 요소 등장 — 섹션을 안 그린 경우가 있어 트리거가 있을 때만 건다
+        if (worksRef.current) {
+          gsap.from(".work-circle", {
+            scale: 0,
+            opacity: 0,
+            duration: 0.8,
+            stagger: 0.1,
+            ease: "back.out(1.7)",
+            scrollTrigger: {
+              trigger: worksRef.current,
+              start: "top 70%",
+              once: true,
+            },
+          });
+        }
 
         // 텍스트 등장 애니메이션
         gsap.from(".reveal-text", {
@@ -303,6 +305,9 @@ export default function HomeClient({ homeWorks }: { homeWorks: WorkItem[] }) {
 
         <MarqueeSection ref={marqueeRef} />
 
+        {/* 보여줄 게 아무것도 없으면(작업물·글·저장소 모두 없음) 이 칸은 아예 그리지 않는다.
+            빈 원 그리드나 "없습니다" 문구를 첫 화면에 두지 않으려는 것이다(#1046) */}
+        {homeWorks.length > 0 && (
         <WorksSection
           ref={worksRef}
           works={homeWorks}
@@ -316,6 +321,7 @@ export default function HomeClient({ homeWorks }: { homeWorks: WorkItem[] }) {
           handleHoverStart={workInteraction.handleHoverStart}
           handleHoverEnd={workInteraction.handleHoverEnd}
         />
+        )}
 
         <CTASection
           ref={ctaRef}

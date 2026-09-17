@@ -30,6 +30,17 @@ interface UseWorkInteractionReturn {
 export function useWorkInteraction(): UseWorkInteractionReturn {
   const { navigateWithTransition } = usePageTransition();
 
+  /* 그리드 한 칸으로 넘어가는 유일한 길. 작업물·글은 커버가 커지는 전환으로 가고,
+     저장소는 사이트 밖이라 새 탭으로 연다 — 전환 연출을 붙이면 커버가 다 커진 뒤
+     돌아올 화면이 없어 덮개가 그대로 남는다. */
+  const goToWork = useCallback((work: WorkItem, rect: DOMRect) => {
+    if (work.kind === "repo") {
+      window.open(work.href, "_blank", "noopener,noreferrer");
+      return;
+    }
+    navigateWithTransition(work.href, work.main, rect);
+  }, [navigateWithTransition]);
+
   const [expandingWork, setExpandingWork] = useState<ExpandingWork | null>(null);
   const [pressingWork, setPressingWork] = useState<PressingWork | null>(null);
   const [hoveringWork, setHoveringWork] = useState<HoveringWork | null>(null);
@@ -67,7 +78,7 @@ export function useWorkInteraction(): UseWorkInteractionReturn {
           const rect = target.getBoundingClientRect();
           setExpandingWork({ id: work.id, rect, image: work.main });
 
-          navigateWithTransition(`/works/${work.projectSlug || work.projectId}`, work.main, rect);
+          goToWork(work, rect);
           return;
         }
 
@@ -76,7 +87,7 @@ export function useWorkInteraction(): UseWorkInteractionReturn {
 
       pressAnimationRef.current = requestAnimationFrame(animate);
     },
-    [navigateWithTransition]
+    [goToWork]
   );
 
   const handlePressEnd = useCallback(() => {
@@ -91,9 +102,9 @@ export function useWorkInteraction(): UseWorkInteractionReturn {
       hasNavigatedRef.current = true;
       setExpandingWork({ id: work.id, rect, image: work.main });
 
-      navigateWithTransition(`/works/${work.projectSlug || work.projectId}`, work.main, rect);
+      goToWork(work, rect);
     },
-    [navigateWithTransition]
+    [goToWork]
   );
 
   const handleHoverStart = useCallback(
@@ -128,7 +139,7 @@ export function useWorkInteraction(): UseWorkInteractionReturn {
           setExpandingWork({ id: work.id, rect, image: work.main });
 
           // 전역 페이지 전환 시작
-          navigateWithTransition(`/works/${work.projectSlug || work.projectId}`, work.main, rect);
+          goToWork(work, rect);
           return;
         }
 
@@ -137,7 +148,7 @@ export function useWorkInteraction(): UseWorkInteractionReturn {
 
       hoverAnimationRef.current = requestAnimationFrame(animate);
     },
-    [pressingWork, navigateWithTransition]
+    [pressingWork, goToWork]
   );
 
   const handleHoverEnd = useCallback(() => {

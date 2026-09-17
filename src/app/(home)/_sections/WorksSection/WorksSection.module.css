@@ -108,6 +108,30 @@
   object-fit: cover;
 }
 
+/* 표지가 없는 칸(GitHub 저장소) — 이미지 자리를 주 언어 색이 대신 채운다.
+   배경색은 저장소마다 달라 인라인으로 들어온다 */
+.accentFill {
+  display: flex;
+  position: absolute;
+  inset: 0;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-md);
+  background: var(--repo-fill, var(--bg-tertiary));
+}
+
+.accentLabel {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: clamp(var(--font-size-hint), 1.1vw, var(--font-size-body));
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-tight);
+  /* 배경이 테마가 아니라 언어 색을 따르므로 테마에 맞춰 뒤집히는 색을 쓰면 안 된다 —
+     밝기를 보고 고른 값이 --repo-ink 로 들어온다 */
+  color: var(--repo-ink, var(--color-white-alpha-95));
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
 /* Main Image Container */
 .mainImageContainer {
   position: absolute;
