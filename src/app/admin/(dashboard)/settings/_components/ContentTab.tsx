@@ -12,6 +12,7 @@ import T from "@/components/ui/T";
 import { type SiteConfigData } from "@/config/site.config";
 import type { ProfileData } from "@/types/profile";
 import ProfileGithubEditor from "./ProfileGithubEditor";
+import HomeWorksEditor, { type HomeWorksSource } from "./HomeWorksEditor";
 import ProfilePanelsEditor from "./ProfilePanelsEditor";
 import ProfileSectionActions from "@/components/admin/ProfileSectionActions";
 import ProfileSections, { type ProfileExpandState } from "@/components/admin/ProfileSections";
@@ -249,6 +250,26 @@ export default function ContentTab({
                 multiline
               />
             </div>
+          </section>
+
+          {/* Selected Works — 원 그리드를 무엇으로 채울지 + GitHub 저장소 연결(#1047) */}
+          <section className={styles.section} style={{ gridRow: "span 2" }}>
+            <SectionHeader
+              title={t("admin.settings.homeWorksLabel")}
+              paths={["homeWorks.source", "homeWorks.repos"]}
+              extra={<span className={`${styles.sectionHint} ${styles.sectionHintInline}`}><T k="admin.settings.homeWorksHint" /></span>}
+              {...sh}
+            />
+            <HomeWorksEditor
+              source={(config.homeWorks?.source ?? "auto") as HomeWorksSource}
+              repos={config.homeWorks?.repos ?? []}
+              /* 조직은 프로필의 GitHub 설정과 같은 값을 쓴다 — 저장소를 어디서 끌어올지는 화면마다 다를 이유가 없다 */
+              orgs={profileData.github?.orgs ?? []}
+              onSourceChange={(v) => update("homeWorks", "source", v)}
+              onReposChange={(v) => update("homeWorks", "repos", v as SiteConfigData["homeWorks"]["repos"])}
+              onOrgsChange={(v) => setProfileData((d) => ({ ...d, github: { ...(d.github ?? {}), orgs: v } }))}
+              styles={styles}
+            />
           </section>
 
           {/* Services */}

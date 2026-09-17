@@ -1,0 +1,156 @@
+/* 홈 Selected Works — 연결한 저장소 카드(#1047).
+   고른 목록·체크 목록의 모양은 ProfileGithubEditor 의 것을 그대로 쓰고,
+   여기에는 표지와 제목·설명이 붙는 카드 부분만 둔다. */
+
+/* 계정 줄 — 아이콘과 이름 사이 간격. 물려 쓰는 .login 은 inline-flex 인데 gap 이 없어
+   둘 사이의 공백 글자가 접힌다(프로필 쪽에는 아이콘이 없어 드러나지 않던 자리다). */
+.loginName {
+  gap: var(--spacing-2xs);
+}
+
+.picked {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--card-p-md);
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  background: var(--bg-secondary);
+}
+
+/* 끌고 있는 카드는 들린 것처럼 — 어느 것을 쥐고 있는지 보이게 */
+.cardDragging {
+  z-index: 1;
+  position: relative;
+  box-shadow: var(--shadow-md);
+  opacity: 0.9;
+}
+
+.cardHead {
+  display: flex;
+  gap: var(--spacing-xs);
+  align-items: center;
+}
+
+/* touch-action: none — 모바일에서 손잡이를 끌 때 페이지가 같이 스크롤되지 않게 */
+.dragHandle {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 24px;
+  color: var(--text-muted);
+  cursor: grab;
+  touch-action: none;
+}
+
+.dragHandle:active {
+  cursor: grabbing;
+}
+
+.dragHandle svg {
+  width: 14px;
+  height: 14px;
+}
+
+.cardName {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cardBody {
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: flex-start;
+}
+
+.cardFields {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  min-width: 0;
+}
+
+/* 제목·설명은 EN/KO 한 쌍 — 설정 화면의 다른 쌍과 같은 두 칸 배치 */
+.pair {
+  display: grid;
+  gap: var(--spacing-sm);
+  grid-template-columns: 1fr 1fr;
+}
+
+@media (max-width: 768px) {
+  .cardBody {
+    flex-direction: column;
+  }
+
+  .pair {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 조직 저장소 표식 — 개인 계정에 같은 이름이 또 있을 수 있어 어디 것인지 붙여 준다 */
+.ownerTag {
+  padding: 0 var(--spacing-2xs);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+}
+
+/* ── 표지 ── */
+.cover {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.coverBox {
+  display: flex;
+  position: relative;
+  align-items: center;
+  justify-content: center;
+  width: 96px;
+  height: 96px;
+  overflow: hidden;
+  border: 1px dashed var(--border-color-default);
+  border-radius: var(--radius-2xl);
+  background: var(--bg-tertiary);
+}
+
+.coverBox:hover {
+  border-color: var(--color-accent);
+}
+
+.coverImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.coverHint {
+  font-size: var(--font-size-micro);
+  color: var(--text-tertiary);
+}
+
+.coverClear {
+  position: absolute;
+  top: calc(var(--spacing-3xs) * -1);
+  right: calc(var(--spacing-3xs) * -1);
+  border: var(--border-light);
+  background: var(--bg-primary);
+}

@@ -407,6 +407,8 @@
       "wrongPassword": "Incorrect password",
       "homeIntroLabel": "Intro",
       "homeIntroDescription": "Home Intro — Description",
+      "homeWorksLabel": "Selected Works",
+      "homeWorksHint": "Choose what fills the circle grid on the home page. If there is nothing to display, this section is hidden",
       "home3dLabel": "3D Objects",
       "home3dHint": "Toggle 3D objects on the home page (Three.js bundle ~300KB)",
       "home3dScrollTorus": "Scroll Torus (metallic ring following the scroll)",
