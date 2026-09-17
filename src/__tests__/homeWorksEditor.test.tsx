@@ -96,3 +96,37 @@ describe("toRepoItems", () => {
     expect(first.accentInk).toBe("#161b22");
   });
 });
+
+describe("자동으로 나가는 저장소 (#1057)", () => {
+  beforeEach(() => {
+    vi.stubGlobal("fetch", vi.fn(async () => ({
+      ok: true,
+      json: async () => ({ login: "me", repos: [repo("alpha"), repo("beta")], due: ["alpha", "beta"] }),
+    })));
+  });
+
+  it("고른 것이 없으면 노출 예정 저장소를 카드로 보여준다", async () => {
+    const { findByText, getAllByLabelText, queryAllByLabelText } = render(
+      <HomeWorksEditor source="github" repos={[]} orgs={[]} onOrgsChange={() => {}} onSourceChange={() => {}} onReposChange={() => {}} styles={styles} />,
+    );
+    await findByText("노출 예정 저장소");
+    // 자동 칸에도 표지 자리가 있어야 미리 손볼 수 있다
+    expect(getAllByLabelText("표지 올리기")).toHaveLength(2);
+    // 순서는 규칙이 정하므로 손잡이·화살표는 없다
+    expect(queryAllByLabelText("끌어서 순서 바꾸기")).toHaveLength(0);
+    expect(queryAllByLabelText("위로")).toHaveLength(0);
+  });
+
+  it("자동 칸을 고쳐도 선택이 되지는 않는다", async () => {
+    const onReposChange = vi.fn();
+    const { findAllByPlaceholderText } = render(
+      <HomeWorksEditor source="github" repos={[]} orgs={[]} onOrgsChange={() => {}} onSourceChange={() => {}} onReposChange={onReposChange} styles={styles} />,
+    );
+    // 제목 칸의 placeholder 는 저장소 이름이다 (EN/KO 두 칸)
+    const titleInputs = await findAllByPlaceholderText("alpha");
+    fireEvent.change(titleInputs[0], { target: { value: "새 제목" } });
+
+    const next = onReposChange.mock.calls.at(-1)![0] as { name: string; picked?: boolean; title?: string }[];
+    expect(next).toEqual([{ name: "alpha", picked: false, title: "새 제목" }]);
+  });
+});

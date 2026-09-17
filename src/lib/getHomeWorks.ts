@@ -87,7 +87,9 @@ async function fetchRepoCards(picked: readonly RepoOverride[], auto: boolean) {
     const login = loginFromLinks(owner?.links);
     if (!login) return [];
 
-    const names = picked.map((r) => r.name).filter(Boolean);
+    /* 덮어쓰기만 해 둔 항목(picked: false)은 고른 것이 아니다 — 자동 채움을 그대로 두고
+       내용만 바꾼 것이라, 이게 선택으로 세어지면 자동 목록이 통째로 좁아진다(#1057) */
+    const names = picked.filter((r) => r.picked !== false).map((r) => r.name).filter(Boolean);
     const showcase = await getGithubShowcase(login, names.length > 0 ? names : (gh?.repos ?? []));
     if (!showcase) return [];
     // 고른 것이 있으면 그것만 — 이름이 안 맞아 하나도 못 찾으면 비어 있는 게 맞는 답이다

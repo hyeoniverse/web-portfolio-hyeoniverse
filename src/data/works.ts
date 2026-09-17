@@ -112,6 +112,9 @@ function inkFor(hex: string): string {
 export interface RepoOverride {
   /** 개인 저장소는 이름만, 조직 저장소는 `owner/name` — 조직에는 같은 이름이 또 있을 수 있다 */
   name: string;
+  /** 직접 고른 것인가. false 면 자동으로 나가는 저장소의 내용만 덮어쓴 것이라 선택에는 안 넣는다.
+      없으면 고른 것으로 본다 — 이 값이 생기기 전의 설정이 그런 모양이다 */
+  picked?: boolean;
   cover?: string;
   title?: string;
   title_ko?: string;
