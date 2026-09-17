@@ -11,6 +11,7 @@ import {
   type FaviconShape,
   type FaviconWeight,
 } from "@/lib/favicon";
+import { symbolGlyphPath } from "@/lib/symbolGlyph";
 
 /** 다이내믹 SVG favicon — query ?variant=light|dark 로 단일 테마 SVG 반환.
  *  layout metadata 에서 prefers-color-scheme media 와 함께 두 URL 등록:
@@ -112,8 +113,17 @@ export async function GET(request: Request) {
   if (render.textShadow) defsParts.push(faviconFilterString(render.textShadow, textShadowId));
   if (render.bgShadow) defsParts.push(faviconFilterString(render.bgShadow, bgShadowId));
 
-  // 텍스트 글리프 (이미지 없거나 이미지 로드 실패 시 폴백)
-  const textInner = `<text x="50%" y="50%" text-anchor="middle" dominant-baseline="central" font-family="${esc(render.fontFamily)}" font-size="${render.fontSize}" font-weight="${render.fontWeight}" fill="${esc(render.fgColor)}"${textTransform}${render.textShadow ? ` filter="url(#${textShadowId})"` : ""}>${esc(logoText)}</text>`;
+  /* 텍스트 글리프 (이미지 없거나 이미지 로드 실패 시 폴백).
+   *
+   * 기호(✦ 등)는 글자가 아니라 외곽선으로 넣는다(#1048). 브라우저는 탭 아이콘을 그릴 때
+   * 웹폰트를 받아오지 않아, `font-family` 만 적어 두면 기기에 깔린 글꼴로 대체돼 페이지와
+   * 다른 모양이 된다. 게다가 브랜드 글꼴에는 그 기호가 아예 없어서 페이지 쪽도 대체 글꼴이
+   * 그리고 있었다. 기호 글꼴을 갖춰 여기서 path 로 굳히면 어디서 그리든 같아진다.
+   * 영문 워드마크처럼 기호 글꼴에 없는 글자는 예전 그대로 <text> 로 둔다 — 그건 브랜드 글꼴의 몫이다. */
+  const glyphPath = symbolGlyphPath(logoText, render.fontSize, 16, 16);
+  const textInner = glyphPath
+    ? `<path d="${glyphPath}" fill="${esc(render.fgColor)}"${textTransform}${render.textShadow ? ` filter="url(#${textShadowId})"` : ""} />`
+    : `<text x="50%" y="50%" text-anchor="middle" dominant-baseline="central" font-family="${esc(render.fontFamily)}" font-size="${render.fontSize}" font-weight="${render.fontWeight}" fill="${esc(render.fgColor)}"${textTransform}${render.textShadow ? ` filter="url(#${textShadowId})"` : ""}>${esc(logoText)}</text>`;
 
   // 이미지 업로드된 경우 — data URI 인라인. logoTint 있으면 알파 유지한 채 그 색으로 채움(feFlood + SourceAlpha).
   // 로고 그림자(imgShadow)는 <g> 로 감싸 적용(SVG element 는 filter 하나뿐이라 tint 는 image, shadow 는 group).
@@ -160,10 +170,15 @@ export async function GET(request: Request) {
 
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">${defs}${wrapped}</svg>`;
 
+  /* 브라우저가 들고 있게 둔다(#1048). 예전에는 캐시를 완전히 끄고 화면 쪽에서 매번 `t=Date.now()`
+     를 붙여, 페이지를 열 때마다 이 라우트가 돌고 그때마다 설정을 조회했다. 탭 아이콘이 그렇게
+     자주 바뀔 일이 아니다.
+     설정을 저장하면 FaviconSync 가 새 `v` 를 붙여 주소 자체를 바꾸므로, 캐시를 오래 잡아도
+     바뀐 것이 바로 반영된다 — 캐시를 비우는 대신 다른 주소를 부르는 방식이다. */
   return new Response(svg, {
     headers: {
       "Content-Type": "image/svg+xml",
-      "Cache-Control": "no-cache, no-store, must-revalidate",
+      "Cache-Control": "public, max-age=3600, stale-while-revalidate=86400",
     },
   });
 }
