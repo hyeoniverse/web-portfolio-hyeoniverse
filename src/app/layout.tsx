@@ -130,7 +130,9 @@ export default async function RootLayout({
 
       {/* 로고 기호 글꼴 — 브랜드 글꼴에 ✦ 같은 기호가 없어 탭 아이콘과 로고가 서로 다른 모양이던 것을
           같은 글꼴로 맞춘다(#1048). unicode-range 에 걸리는 기호를 실제로 쓸 때만 내려받는다 */}
-      <style>{`@font-face{font-family:'${SYMBOL_FONT_FAMILY}';src:url(/api/brand-symbol-font) format('opentype');font-display:swap;unicode-range:${SYMBOL_FONT_UNICODE_RANGE};}`}</style>
+      {/* href·precedence 를 줘야 React 가 이 style 을 문서 head 로 올린다. 없으면 "Cannot render a
+          <style> outside the main document…" 로 콘솔에 에러가 난다(React 19 의 style 호이스팅 규칙) */}
+      <style href="brand-symbol-font" precedence="default">{`@font-face{font-family:'${SYMBOL_FONT_FAMILY}';src:url(/api/brand-symbol-font) format('opentype');font-display:swap;unicode-range:${SYMBOL_FONT_UNICODE_RANGE};}`}</style>
 
       <body>
         <SiteConfigProvider initialConfig={toSiteWideConfig(config)} publicKeys={publicKeys}>
