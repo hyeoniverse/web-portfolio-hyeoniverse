@@ -13,6 +13,8 @@ import { checkMobileLayout, useMobileLayout } from "@/hooks/useMobileLayout";
 
 const SCROLL_LERP = 0.08;
 const MAX_WHEEL_DELTA = 150;
+/** 전역 Lenis 가 이 요소 위의 휠을 건드리지 않게 하는 표시 — Lenis 가 읽는 이름 그대로여야 한다 */
+const LENIS_PREVENT_WHEEL = "data-lenis-prevent-wheel";
 
 export interface HorizontalScrollOptions {
   /** Infinite wrapping (default: false) */
@@ -148,6 +150,8 @@ export function useHorizontalScroll(
     cancelAnimationFrame(rafIdRef.current);
     if (wheelHandlerRef.current) sectionRef.current?.removeEventListener("wheel", wheelHandlerRef.current);
     if (resizeHandlerRef.current) window.removeEventListener("resize", resizeHandlerRef.current);
+    /* 가로가 손을 떼면 Lenis 를 막아 둔 표시도 같이 걷는다 — 모바일로 내려갈 때 남으면 세로 스크롤이 죽는다 */
+    sectionRef.current?.removeAttribute(LENIS_PREVENT_WHEEL);
 
     const section = sectionRef.current;
     const track = trackRef.current;
@@ -251,9 +255,20 @@ export function useHorizontalScroll(
 
     // wheel 이벤트 핸들러
     const handleWheel = (e: WheelEvent) => {
-      if (Math.abs(section.getBoundingClientRect().top) > ALIGN_TOLERANCE_PX) return;
+      const aligned = Math.abs(section.getBoundingClientRect().top) <= ALIGN_TOLERANCE_PX;
       /* 끝에 닿았고 그 방향으로 더 굴리면 막지 않는다 — 브라우저(=Lenis)가 세로로 이어받는다. */
-      if (atHorizontalEdge(e.deltaY)) return;
+      const take = aligned && !atHorizontalEdge(e.deltaY);
+
+      /* 이 휠을 가로가 가져갈 때는 전역 Lenis 도 같이 물러나게 한다(#1045).
+         Lenis 는 defaultPrevented 를 보지 않는다. window 에 붙인 자기 휠 리스너에서 델타를 받아
+         scrollTo 로 페이지를 직접 굴리므로, 아래 preventDefault 는 브라우저의 기본 스크롤만 막고
+         Lenis 는 그대로 세로로 밀어버린다. 재 보니 휠 한 번에 트랙이 가로로 51px 가는 동안
+         페이지도 98px 세로로 밀렸다. 물러나게 하는 수단은 이 표시뿐이다 — Lenis 가 이벤트의
+         composedPath 를 훑어 확인하고, 우리 리스너가 window 보다 먼저 돌므로 같은 이벤트에 먹는다.
+         넘기기로 한 휠에는 표시를 떼서, 끝에서의 세로 이어받기와 어긋난 상태에서 제자리로
+         돌아오는 길을 그대로 남긴다. */
+      section.toggleAttribute(LENIS_PREVENT_WHEEL, take);
+      if (!take) return;
       e.preventDefault();
       const clamped = Math.max(-MAX_WHEEL_DELTA, Math.min(MAX_WHEEL_DELTA, e.deltaY));
       state.targetScrollX += clamped;
@@ -430,6 +445,7 @@ export function useHorizontalScroll(
     return () => {
       cancelAnimationFrame(rafIdRef.current);
       section.removeEventListener("wheel", handleWheel);
+      section.removeAttribute(LENIS_PREVENT_WHEEL);
       window.removeEventListener("resize", handleResize);
     };
   }, [
