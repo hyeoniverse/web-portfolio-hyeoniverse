@@ -322,3 +322,19 @@ async function resolveOrgs(login: string, extraOrgs: readonly string[], token: s
 }
 
 export { githubLoginFromLinks as loginFromLinks } from "@/utils/githubLogin";
+
+/**
+ * 홈 설정에서 아무것도 고르지 않았을 때 실제로 나갈 저장소 키(#1057).
+ *
+ * 홈이 쓰는 규칙(프로필에서 고른 것 → 없으면 스타 많은 순 소유 저장소)을 여기 한 번만 적어 두고,
+ * 공개 화면과 설정 화면이 같이 부른다. 각자 계산하면 설정에 보이는 것과 실제로 나가는 것이 갈린다.
+ * 키 표기는 저장소를 고를 때와 같다 — 개인 저장소는 이름만, 조직 저장소는 `owner/name`.
+ */
+export async function dueRepoKeys(login: string, profilePicks: readonly string[]): Promise<string[]> {
+  const showcase = await getGithubShowcase(login, profilePicks);
+  if (!showcase) return [];
+  const cards = showcase.repos.length > 0 ? showcase.repos : showcase.topRepos;
+  return cards.map((r) =>
+    r.owner && login && r.owner.toLowerCase() !== login.toLowerCase() ? r.fullName : r.name,
+  );
+}
