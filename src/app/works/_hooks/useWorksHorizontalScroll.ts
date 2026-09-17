@@ -158,6 +158,10 @@ export function useWorksHorizontalScroll({
 
       gallery.addEventListener("mousemove", handleMouseMove);
       gallery.addEventListener("wheel", handleWheel, { passive: false });
+      /* 전역 Lenis 는 defaultPrevented 를 보지 않아, 위 preventDefault 만으로는 세로 스크롤을 못 막는다.
+         페이지에 세로 여지가 생기는 순간 가로와 세로가 같이 움직인다 — 프로필에서 난 문제와 같은 자리다(#1045).
+         여기는 끝에서 세로로 넘기는 처리가 없어 늘 가로가 가져가므로 표시를 계속 켜 둔다. */
+      gallery.setAttribute("data-lenis-prevent-wheel", "");
 
       // 초기 위치 설정
       gsap.set(slider, { x: initialX });
@@ -312,6 +316,7 @@ export function useWorksHorizontalScroll({
         cancelAnimationFrame(rafId);
         gallery.removeEventListener("mousemove", handleMouseMove);
         gallery.removeEventListener("wheel", handleWheel);
+        gallery.removeAttribute("data-lenis-prevent-wheel");
       };
     }, gallery);
 
