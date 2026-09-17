@@ -135,12 +135,17 @@ export function toRepoItems(
     const set = byName.get(repo.fullName) ?? byName.get(repo.name);
     const language = repo.language || "GitHub";
     const accent = LANGUAGE_COLORS[repo.language] ?? DEFAULT_REPO_COLOR;
-    const cover = set?.cover ?? "";
-    /* 설명을 안 적었으면 두 번째 줄은 GitHub 의 저장소 소개로, 그것도 없으면 주 언어로 간다 */
-    const subtitle = { ko: set?.description_ko || repo.description || language, en: set?.description || repo.description || language };
+
+    /* 값을 고르는 순서는 언제나 같다 — 설정에 적은 것 → README 에서 뽑은 것 → GitHub 기본값(#1053).
+       설정에서 지우면 한 단계씩 뒤로 돌아간다. README 는 안 읽었거나 못 찾았으면 비어 있다. */
+    const readme = repo.readme;
+    const cover = set?.cover || readme?.image || "";
+    const name = readme?.title || repo.name;
+    const about = readme?.summary || repo.description || language;
+    const subtitle = { ko: set?.description_ko || about, en: set?.description || about };
     return {
       projectId: repo.name,
-      title: { ko: set?.title_ko || repo.name, en: set?.title || repo.name },
+      title: { ko: set?.title_ko || name, en: set?.title || name },
       category: subtitle,
       main: cover,
       hover: cover,

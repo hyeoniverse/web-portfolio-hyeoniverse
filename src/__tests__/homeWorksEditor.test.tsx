@@ -10,7 +10,7 @@ import type { GithubRepoCard } from "@/lib/githubShowcase";
 const repo = (name: string, language = "TypeScript", owner = "me"): GithubRepoCard => ({
   name, owner, fullName: `${owner}/${name}`,
   url: `https://github.com/${owner}/${name}`, description: `${name} 소개`,
-  language, stars: 0, forks: 0, topics: [], pushedAt: "2026-01-01T00:00:00Z",
+  language, stars: 0, forks: 0, topics: [], pushedAt: "2026-01-01T00:00:00Z", defaultBranch: "main",
 });
 
 beforeEach(() => {

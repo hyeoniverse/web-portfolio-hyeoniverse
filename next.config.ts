@@ -85,6 +85,14 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "**.supabase.co",
       },
+      /* 저장소 README 에서 끌어온 표지(#1053). GitHub 이 이미지를 내주는 호스트들이다 —
+         raw 파일, 첨부 이미지(user-images·user-attachments), 프록시(camo).
+         여기 없는 호스트의 이미지는 lib/githubReadme 가 애초에 쓰지 않는다. 안 그러면
+         낯선 주소 하나가 next/image 에서 걸려 홈 전체가 500 이 된다. */
+      { protocol: "https", hostname: "raw.githubusercontent.com" },
+      { protocol: "https", hostname: "user-images.githubusercontent.com" },
+      { protocol: "https", hostname: "camo.githubusercontent.com" },
+      { protocol: "https", hostname: "github.com" },
     ],
   },
 };
