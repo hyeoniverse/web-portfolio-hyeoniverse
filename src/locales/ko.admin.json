@@ -407,6 +407,8 @@
       "wrongPassword": "비밀번호가 올바르지 않습니다",
       "homeIntroLabel": "소개",
       "homeIntroDescription": "홈 인트로 — 상세 설명",
+      "homeWorksLabel": "Selected Works",
+      "homeWorksHint": "홈의 원형 그리드를 무엇으로 채울지 지정합니다. 표시할 내용이 없으면 이 섹션은 노출되지 않습니다",
       "home3dLabel": "3D 오브젝트",
       "home3dHint": "홈 페이지의 3D 오브젝트를 켜거나 끕니다 (Three.js 번들 약 300KB)",
       "home3dScrollTorus": "스크롤 토러스 (스크롤을 따라다니는 메탈릭 링)",

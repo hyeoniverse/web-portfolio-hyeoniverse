@@ -17,6 +17,9 @@ export interface ProfileGithubConfig {
   login?: string;
   /** 보여줄 저장소 이름 — 적은 순서대로 나온다. 비면 지표만 표시한다. */
   repos?: string[];
+  /** 저장소를 더 끌어올 조직 이름. 공개 소속 조직은 적지 않아도 자동으로 잡히고,
+      소속을 비공개로 둔 조직만 여기에 적으면 된다. */
+  orgs?: string[];
   /** 이 영역 자체를 끄는 스위치. */
   enabled?: boolean;
 }
