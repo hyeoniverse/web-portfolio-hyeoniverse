@@ -26,6 +26,7 @@ import { getPublicKeys } from "@/lib/getSecret";
 
 import ScrollRestoration from "@/components/common/ScrollRestoration";
 import { PageTransitionProvider } from "@/providers/PageTransitionProvider";
+import { SYMBOL_FONT_FAMILY, SYMBOL_FONT_UNICODE_RANGE } from "@/config/symbolFont.generated";
 // Vercel Web Analytics(방문 수) · Speed Insights(체감 성능) — 배포 환경에서만 스크립트를 싣는다(로컬은 콘솔 로그만)
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -125,7 +126,11 @@ export default async function RootLayout({
       suppressHydrationWarning
       className={`${inter.variable} ${playfair.variable} ${jetbrains.variable} ${spaceGrotesk.variable} ${instrumentSerif.variable}`}
     >
-      {/* favicon — src/app/icon.tsx 가 siteConfig 기반 다이내믹 생성 (Next 자동 주입) */}
+      {/* favicon — FaviconSync(client) 가 브라우저 prefers-color-scheme 에 맞춰 /api/favicon 을 건다 */}
+
+      {/* 로고 기호 글꼴 — 브랜드 글꼴에 ✦ 같은 기호가 없어 탭 아이콘과 로고가 서로 다른 모양이던 것을
+          같은 글꼴로 맞춘다(#1048). unicode-range 에 걸리는 기호를 실제로 쓸 때만 내려받는다 */}
+      <style>{`@font-face{font-family:'${SYMBOL_FONT_FAMILY}';src:url(/api/brand-symbol-font) format('opentype');font-display:swap;unicode-range:${SYMBOL_FONT_UNICODE_RANGE};}`}</style>
 
       <body>
         <SiteConfigProvider initialConfig={toSiteWideConfig(config)} publicKeys={publicKeys}>

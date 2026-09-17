@@ -14,6 +14,7 @@ import { useLoadingScreen } from "@/hooks/useLoadingProgress";
 import { useSoundStore } from "@/stores/soundStore";
 import { useContactStore } from "@/stores/contactStore";
 import { useLenis } from "@/providers/LenisProvider";
+import { SYMBOL_FONT_FAMILY } from "@/config/symbolFont.generated";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { loadGoogleFont } from "@/lib/loadGoogleFont";
 import {
@@ -95,7 +96,10 @@ function withMetricFallback(stack: string): string {
   const [first, ...rest] = stack.split(",").map((part) => part.trim());
   const name = first.replace(/^['"]|['"]$/g, "");
   if (!name || /\bfallback$/i.test(name)) return stack;
-  return [first, `'${name} Fallback'`, ...rest].join(", ");
+  /* 기호 글꼴은 브랜드 글꼴 바로 뒤, 나머지(serif 같은 총칭 이름)보다 **앞에** 둔다 — 브랜드 글꼴에
+     ✦ 같은 기호가 없어서, 뒤에 두면 총칭 이름이 먼저 걸려 기기에 깔린 글꼴이 그리고 탭 아이콘
+     (외곽선으로 굳힌 것)과 모양이 갈린다(#1048). 영문은 맨 앞의 브랜드 글꼴이 그대로 맡는다 */
+  return [first, `'${name} Fallback'`, `'${SYMBOL_FONT_FAMILY}'`, ...rest].join(", ");
 }
 
 export default function Navigation() {
