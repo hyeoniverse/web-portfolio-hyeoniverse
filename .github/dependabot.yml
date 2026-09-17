@@ -31,10 +31,15 @@ updates:
     ignore:
       - dependency-name: "next"
         update-types: ["version-update:semver-major"]
+      # react 19.3+ — @react-three/fiber(최신 9.7.0)의 peer 가 react ">=19 <19.3" 이라
+      # 19.3 으로 올리면 npm install 이 ERESOLVE 로 실패한다 (Vercel 배포 실패로 발견).
+      # fiber 는 reconciler 를 내장해 React 버전에 실제로 묶여 있다 — 19.3 에서 useTransition 이
+      # R3F 트리 안에서 throw 하는 이슈 (pmndrs/react-three-fiber#3915). 19.2.x 패치는 계속 받도록
+      # minor+major 만 무시. fiber 가 19.3 을 지원하면 해제하고 package.json 의 ~19.2.8 도 ^ 로 되돌린다.
       - dependency-name: "react"
-        update-types: ["version-update:semver-major"]
+        update-types: ["version-update:semver-minor", "version-update:semver-major"]
       - dependency-name: "react-dom"
-        update-types: ["version-update:semver-major"]
+        update-types: ["version-update:semver-minor", "version-update:semver-major"]
       # eslint 10 — eslint-config-next + typescript-eslint peer dep 미지원.
       # 향후 `next lint` 제거하고 eslint CLI 직접 사용으로 migration 후 해제.
       - dependency-name: "eslint"
