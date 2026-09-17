@@ -1,4 +1,5 @@
 import { getSecret } from "@/lib/getSecret";
+import { parseReadme, absolutizeReadmeImage, type ReadmeMeta } from "@/lib/githubReadme";
 
 /**
  * 프로필 페이지의 GitHub 활동 영역 — 지표 + 고른 저장소.
@@ -31,6 +32,10 @@ export interface GithubRepoCard {
   forks: number;
   topics: string[];
   pushedAt: string;
+  /** 기본 브랜치 — README 안의 상대경로 이미지를 raw 주소로 펼 때 쓴다 */
+  defaultBranch: string;
+  /** README 에서 뽑은 기본값(#1053). 설정에 적은 값이 없을 때 이걸 쓴다. 안 읽었으면 없음 */
+  readme?: ReadmeMeta;
 }
 
 /** 하루치 잔디 한 칸. level 은 GitHub 이 매기는 0~4 단계. */
@@ -74,7 +79,7 @@ const str = (v: unknown): string => (typeof v === "string" && v ? v : "");
 const num = (v: unknown): number => (typeof v === "number" ? v : 0);
 
 interface RawRepo {
-  name?: unknown; full_name?: unknown; owner?: unknown; html_url?: unknown;
+  name?: unknown; full_name?: unknown; owner?: unknown; html_url?: unknown; default_branch?: unknown;
   description?: unknown; language?: unknown;
   stargazers_count?: unknown; forks_count?: unknown; topics?: unknown;
   pushed_at?: unknown; fork?: unknown; archived?: unknown;
@@ -121,6 +126,7 @@ function toCard(r: RawRepo): GithubRepoCard {
     forks: num(r.forks_count),
     topics: Array.isArray(r.topics) ? (r.topics as unknown[]).map(str).filter(Boolean) : [],
     pushedAt: str(r.pushed_at),
+    defaultBranch: str(r.default_branch) || "main",
   };
 }
 
@@ -273,6 +279,55 @@ export async function getGithubShowcase(
     topRepos,
     contributions,
   };
+}
+
+/**
+ * 저장소 카드에 README 에서 뽑은 표지·제목·설명을 붙인다(#1053).
+ *
+ * **실제로 보여줄 저장소에만** 부른다. 저장소 하나에 요청이 하나씩 더 나가므로, 고르는 화면의
+ * 전체 목록(100곳까지)에 걸면 시간당 요청 수 제한을 그대로 써 버린다. 화면에 나가는 건 11칸이다.
+ *
+ * README 가 없거나(404) 읽는 데 실패한 저장소는 그냥 붙이지 않는다 — 부르는 쪽이 GitHub 기본값
+ * (이름·저장소 소개·언어 색)으로 돌아가면 되고, 한 곳이 실패했다고 나머지까지 막을 이유가 없다.
+ */
+export async function withReadmeMeta(cards: readonly GithubRepoCard[]): Promise<GithubRepoCard[]> {
+  if (cards.length === 0) return [];
+  const token = await getSecret("GITHUB_TOKEN").catch(() => null);
+
+  return Promise.all(
+    cards.map(async (card) => {
+      const markdown = await ghText(
+        `/repos/${encodeURIComponent(card.owner)}/${encodeURIComponent(card.name)}/readme`,
+        token,
+      );
+      if (!markdown) return card;
+      const meta = parseReadme(markdown);
+      return {
+        ...card,
+        readme: {
+          ...meta,
+          image: absolutizeReadmeImage(meta.image, card.owner, card.name, card.defaultBranch),
+        },
+      };
+    }),
+  );
+}
+
+/** README 는 JSON 이 아니라 원문으로 받는다 — Accept 헤더로 고른다 */
+async function ghText(path: string, token: string | null): Promise<string | null> {
+  try {
+    const res = await fetch(`https://api.github.com${path}`, {
+      headers: {
+        Accept: "application/vnd.github.raw",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      next: { revalidate: REVALIDATE_SECONDS },
+    });
+    if (!res.ok) return null;
+    return await res.text();
+  } catch {
+    return null;
+  }
 }
 
 /**

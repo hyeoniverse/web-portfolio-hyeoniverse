@@ -8,7 +8,7 @@ import { workToProject } from "@/types/work";
 import { scoreOf } from "@/lib/popularity";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 import { getProfileData } from "@/lib/getProfileData";
-import { getGithubShowcase, loginFromLinks } from "@/lib/githubShowcase";
+import { getGithubShowcase, loginFromLinks, withReadmeMeta } from "@/lib/githubShowcase";
 import { findOwnerAuthor } from "@/utils/resolvePostAuthors";
 import type { Author } from "@/types/author";
 
@@ -93,8 +93,11 @@ async function fetchRepoCards(picked: readonly RepoOverride[], auto: boolean) {
     const showcase = await getGithubShowcase(login, names.length > 0 ? names : (gh?.repos ?? []));
     if (!showcase) return [];
     // 고른 것이 있으면 그것만 — 이름이 안 맞아 하나도 못 찾으면 비어 있는 게 맞는 답이다
-    if (names.length > 0) return showcase.repos;
-    return showcase.repos.length > 0 ? showcase.repos : showcase.topRepos;
+    const picks = names.length > 0
+      ? showcase.repos
+      : (showcase.repos.length > 0 ? showcase.repos : showcase.topRepos);
+    /* 보여줄 것이 정해진 뒤에 README 를 읽는다 — 저장소마다 요청이 하나씩 더 나가므로(#1053) */
+    return withReadmeMeta(picks);
   } catch {
     return [];
   }
