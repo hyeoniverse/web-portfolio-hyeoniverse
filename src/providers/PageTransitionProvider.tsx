@@ -8,7 +8,7 @@ import {
   useRef,
   useEffect,
 } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import MediaThumb from "@/components/ui/MediaThumb";
 
 /* ── Types ── */
@@ -19,7 +19,12 @@ interface MorphTransitionState {
   color: string;
   rect: DOMRect;
   targetId: string;
-  phase: "init" | "expand" | "morph" | "hold" | "done";
+  /** 넘어갈 주소. 덮개를 언제 걷을지 이 경로가 실제로 커밋됐는지로 정한다.
+      제자리 전환(startTransition)이면 null — 기다릴 경로가 없다 */
+  href: string | null;
+  /** 전환을 시작한 시점의 경로. 리다이렉트로 href 아닌 곳에 닿아도 "넘어갔다"고 보기 위한 기준 */
+  fromPath: string;
+  phase: "init" | "expand" | "cover" | "morph" | "hold" | "done";
 }
 
 interface PageTransitionContextValue {
@@ -41,18 +46,38 @@ export function usePageTransition() {
 }
 
 /* ── Timing ──
- * 흐름: init → expand → morph → hold → done (image/color/placeholder 모두 동일)
+ * 흐름: init → expand → (cover) → morph → hold → done (image/color/placeholder 모두 동일)
  *  - expand (auto): rect → fullscreen, backdrop opacity 1
+ *  - cover  (가변): 화면을 덮은 채로 새 경로가 커밋되기를 기다린다 — 아래 설명 참고
  *  - morph  (auto): fullscreen → hero 크기 (35vh). backdrop 동시에 opacity 1 → 0
  *                  → loading.tsx 의 header/content skeleton 이 morph 아래로 노출됨
  *  - hold   (가변): morph 블록만 hero 위치에 떠있고, 그 아래로 loading.tsx/real page 보임
  *  - done   (fade): morph 블록만 opacity 0 — backdrop 은 morph 끝에서 이미 사라짐
- *  - SAFETY_MS: DetailLayout mount 안 되어 endTransition 호출 안 될 때의 backstop */
+ *  - SAFETY_MS: DetailLayout mount 안 되어 endTransition 호출 안 될 때의 backstop
+ *
+ * cover 단계를 둔 이유(#1044). 덮개가 걷히는 시점이 morph 가 끝나는 640ms 로 고정돼 있었는데,
+ * 새 경로가 커밋되는 시점은 그 시간표와 아무 관계가 없다. 목록 카드의 링크는 선불러오기를 하지
+ * 않으므로 누른 다음에야 RSC 페이로드를 받아오고, 배포본에서 재보니 커밋은 1161ms 였다. 덮개가
+ * 걷힌 640ms 부터 그때까지, 히어로 블록 아래로 떠나온 목록 페이지가 그대로 보였다. 그래서 확대가
+ * 끝났는데 아직 안 넘어갔으면 화면을 덮은 채로 기다리고, 커밋을 확인한 뒤에 morph 를 시작한다.
+ *  - COVER_MAX_MS: 커밋이 끝내 오지 않을 때(라우팅 실패 등) 덮개에 갇히지 않게 하는 상한 */
 const EXPAND_MS = 380;
 const MORPH_MS = 260;
 const FADE_MS = 170;
 const SAFETY_MS = 5000;
-const NAV_DELAY = EXPAND_MS;
+const COVER_MAX_MS = 4000;
+
+/** 주소에서 경로만 — 쿼리·해시를 떼고 퍼센트 인코딩을 푼다.
+    usePathname 과 window.location.pathname 은 한글 슬러그에서 인코딩이 갈리므로 맞춰 놓고 비교한다 */
+function pathOf(href: string): string {
+  const cut = href.search(/[?#]/);
+  const path = cut === -1 ? href : href.slice(0, cut);
+  try {
+    return decodeURI(path);
+  } catch {
+    return path;
+  }
+}
 
 export function PageTransitionProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<MorphTransitionState | null>(null);
@@ -83,7 +108,7 @@ export function PageTransitionProvider({ children }: { children: React.ReactNode
   const startTransition = useCallback((image: string, rect: DOMRect, targetId: string, color: string = "") => {
     clearTimers();
     endRequestedRef.current = false;
-    setState({ image, color, rect, targetId, phase: "init" });
+    setState({ image, color, rect, targetId, href: null, fromPath: pathOf(window.location.pathname), phase: "init" });
     const safety = setTimeout(() => endTransition(), SAFETY_MS);
     timerRef.current.push(safety);
   }, [endTransition]);
@@ -91,11 +116,12 @@ export function PageTransitionProvider({ children }: { children: React.ReactNode
   const navigateWithTransition = useCallback((href: string, image: string, rect: DOMRect, color: string = "") => {
     clearTimers();
     endRequestedRef.current = false;
-    setState({ image, color, rect, targetId: href, phase: "init" });
-    /* expand 끝난 후 navigate — image/color/placeholder 모두 동일하게 morph 통과 */
-    const t = setTimeout(() => router.push(href), NAV_DELAY);
-    timerRef.current.push(t);
-    const safety = setTimeout(() => endTransition(), NAV_DELAY + SAFETY_MS);
+    setState({ image, color, rect, targetId: href, href, fromPath: pathOf(window.location.pathname), phase: "init" });
+    /* 누르는 즉시 넘어간다. 예전에는 확대가 끝나는 380ms 까지 미뤘는데, 페이로드를 받아오는 건
+       그때부터라 대기가 고스란히 뒤에 붙었다. 연출은 화면에 고정된 덮개가 하는 것이라 새 페이지가
+       언제 들어오든 흔들리지 않으므로, 받아오는 시간을 확대 연출과 겹치게 한다 */
+    router.push(href);
+    const safety = setTimeout(() => endTransition(), SAFETY_MS);
     timerRef.current.push(safety);
   }, [router, endTransition]);
 
@@ -142,7 +168,18 @@ function TransitionOverlay({
   const elRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const backdropRef = useRef<HTMLDivElement>(null);
-  const { phase, rect, image, color } = state;
+  const { phase, rect, image, color, href, fromPath } = state;
+  /* 이 컴포넌트는 전환하는 동안만 떠 있다 — 경로 구독도 여기서만 한다.
+     라우터가 새 트리를 커밋할 때 이 값이 바뀌고, 그게 곧 "넘어갔다"는 신호다. */
+  const pathname = usePathname();
+  /* 아직 출발 경로 그대로면 안 넘어간 것. 리다이렉트로 href 아닌 데 닿았어도 경로가 달라졌으면 넘어간 것으로 본다 */
+  const here = pathOf(pathname);
+  const navPending = href !== null && here === fromPath && here !== pathOf(href);
+  /* 확대가 끝나는 시점에 읽을 최신값 — 타이머 안에서 보려면 렌더에 묶이지 않은 자리가 필요하다 */
+  const navPendingRef = useRef(navPending);
+  useEffect(() => {
+    navPendingRef.current = navPending;
+  }, [navPending]);
 
   useEffect(() => {
     if (phase !== "init") return;
@@ -187,7 +224,30 @@ function TransitionOverlay({
       overlayRef.current.style.opacity = "1";
     }
 
-    const t = setTimeout(() => onPhase("morph"), EXPAND_MS);
+    /* 확대가 끝나도 아직 안 넘어갔으면 덮은 채로 기다린다(cover). navPending 을 여기서 읽지 않는
+       이유는, 확대가 도는 380ms 사이에 커밋이 올 수 있어서다 — 타이머가 도는 시점의 값을 봐야 한다 */
+    const t = setTimeout(() => onPhase(navPendingRef.current ? "cover" : "morph"), EXPAND_MS);
+    return () => clearTimeout(t);
+  }, [phase, onPhase]);
+
+  /* cover: 새 경로가 커밋되면 morph 로. 두 프레임 미루는 건 새 트리가 덮개 아래에서 먼저
+     그려지게 하려는 것이다 — 커밋 직후에 덮개를 걷기 시작하면 아직 빈 화면이 비친다 */
+  useEffect(() => {
+    if (phase !== "cover" || navPending) return;
+    let raf2 = 0;
+    const raf1 = requestAnimationFrame(() => {
+      raf2 = requestAnimationFrame(() => onPhase("morph"));
+    });
+    return () => {
+      cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
+    };
+  }, [phase, navPending, onPhase]);
+
+  /* 커밋이 끝내 오지 않아도 덮개에 갇히지는 않게 */
+  useEffect(() => {
+    if (phase !== "cover") return;
+    const t = setTimeout(() => onPhase("morph"), COVER_MAX_MS);
     return () => clearTimeout(t);
   }, [phase, onPhase]);
 
