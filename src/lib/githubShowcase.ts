@@ -20,6 +20,10 @@ export const PINNED_REPO_LIMIT = 6;
 
 export interface GithubRepoCard {
   name: string;
+  /** 소유 계정 — 개인 계정이거나 조직 이름 */
+  owner: string;
+  /** `owner/name`. 조직 저장소는 이름이 겹칠 수 있어 고를 때는 이 값으로 가리킨다 */
+  fullName: string;
   url: string;
   description: string;
   language: string;
@@ -56,6 +60,9 @@ export interface GithubShowcase {
   lastPushedAt: string;
   /** 설정에서 고른 저장소. 고르지 않았으면 빈 배열. */
   repos: GithubRepoCard[];
+  /** 고른 게 없을 때 대신 쓸 목록 — 소유 저장소를 스타 많은 순, 같으면 최근에 손댄 순으로.
+      홈이 보여줄 게 하나도 없을 때 여기를 쓴다. 고르는 화면(프로필)은 위 repos 만 본다. */
+  topRepos: GithubRepoCard[];
   /** 최근 1년 잔디 — GraphQL 전용이라 GITHUB_TOKEN 이 있을 때만 채워진다. 없으면 null. */
   contributions: { total: number; weeks: ContributionDay[][] } | null;
 }
@@ -67,7 +74,8 @@ const str = (v: unknown): string => (typeof v === "string" && v ? v : "");
 const num = (v: unknown): number => (typeof v === "number" ? v : 0);
 
 interface RawRepo {
-  name?: unknown; html_url?: unknown; description?: unknown; language?: unknown;
+  name?: unknown; full_name?: unknown; owner?: unknown; html_url?: unknown;
+  description?: unknown; language?: unknown;
   stargazers_count?: unknown; forks_count?: unknown; topics?: unknown;
   pushed_at?: unknown; fork?: unknown; archived?: unknown;
 }
@@ -91,9 +99,21 @@ async function gh(path: string, token: string | null): Promise<unknown | null> {
   }
 }
 
+/** `owner/name` — full_name 이 없으면(응답 모양이 달라지면) owner 객체와 이름으로 짓는다 */
+function ownerOf(r: RawRepo): string {
+  const login = str((r.owner as Record<string, unknown> | undefined)?.login);
+  if (login) return login;
+  const full = str(r.full_name);
+  return full.includes("/") ? full.split("/")[0] : "";
+}
+
 function toCard(r: RawRepo): GithubRepoCard {
+  const owner = ownerOf(r);
+  const name = str(r.name);
   return {
-    name: str(r.name),
+    name,
+    owner,
+    fullName: str(r.full_name) || (owner ? `${owner}/${name}` : name),
     url: str(r.html_url),
     description: str(r.description),
     language: str(r.language),
@@ -190,10 +210,34 @@ export async function getGithubShowcase(
     if (lang) langCount.set(lang, (langCount.get(lang) ?? 0) + 1);
   }
 
-  const byName = new Map(list.map((r) => [str(r.name), r]));
+  /* 고른 것에 조직 저장소(`owner/name`)가 섞여 있으면 그 조직 목록도 받아 온다.
+     지표(own)는 개인 저장소만 센다 — 조직 저장소는 내가 쓴 코드인지 여기서 알 수 없다. */
+  const wantedOrgs = [...new Set(
+    selected
+      .filter((s) => s.includes("/"))
+      .map((s) => s.split("/")[0])
+      .filter((o) => o && o.toLowerCase() !== login.toLowerCase()),
+  )];
+  const orgLists = await Promise.all(
+    wantedOrgs.map((org) => gh(`/orgs/${encodeURIComponent(org)}/repos?per_page=100&sort=pushed`, token)),
+  );
+
+  /* 예전 설정은 개인 저장소를 이름만으로 적어 뒀다 — 그 표기도 계속 찾아지게 둘 다 넣는다 */
+  const byKey = new Map<string, RawRepo>();
+  for (const r of list) byKey.set(str(r.name), r);
+  for (const raw of [list, ...orgLists]) {
+    if (!Array.isArray(raw)) continue;
+    for (const r of raw as RawRepo[]) byKey.set(toCard(r).fullName, r);
+  }
+
   const repos = selected
-    .map((name) => byName.get(name))
+    .map((name) => byKey.get(name))
     .filter((r): r is RawRepo => Boolean(r))
+    .map(toCard);
+
+  const topRepos = [...own]
+    .sort((a, b) => num(b.stargazers_count) - num(a.stargazers_count) || str(b.pushed_at).localeCompare(str(a.pushed_at)))
+    .slice(0, PINNED_REPO_LIMIT)
     .map(toCard);
 
   const langTotal = [...langCount.values()].reduce((a, b) => a + b, 0);
@@ -226,17 +270,55 @@ export async function getGithubShowcase(
     activity,
     lastPushedAt: own.map((r) => str(r.pushed_at)).sort().reverse()[0] ?? "",
     repos,
+    topRepos,
     contributions,
   };
 }
 
-/** 설정에서 고를 수 있도록 소유한 저장소 이름을 최근 push 순으로 돌려준다. */
-export async function listOwnedRepos(login: string): Promise<GithubRepoCard[]> {
+/**
+ * 고를 수 있는 저장소 — 개인 계정의 것과 조직의 것을 합쳐 최근 push 순으로 돌려준다.
+ *
+ * 조직은 두 갈래로 모은다. 기본은 그 계정이 공개적으로 속한 조직이고(`/users/{login}/orgs`),
+ * 설정에 조직 이름을 적어 두면 거기에 더한다 — 소속을 비공개로 둔 조직은 목록에 안 잡히기 때문이다.
+ * 이름이 겹칠 수 있으므로(`content` 가 개인에도 조직에도 있을 수 있다) `owner/name` 으로 구분한다.
+ */
+export async function listOwnedRepos(login: string, extraOrgs: readonly string[] = []): Promise<GithubRepoCard[]> {
   if (!login) return [];
   const token = await getSecret("GITHUB_TOKEN").catch(() => null);
-  const raw = await gh(`/users/${encodeURIComponent(login)}/repos?per_page=100&sort=pushed&type=owner`, token);
-  if (!Array.isArray(raw)) return [];
-  return (raw as RawRepo[]).filter((r) => r.archived !== true).map(toCard);
+  const orgs = await resolveOrgs(login, extraOrgs, token);
+
+  const lists = await Promise.all([
+    gh(`/users/${encodeURIComponent(login)}/repos?per_page=100&sort=pushed&type=owner`, token),
+    ...orgs.map((org) => gh(`/orgs/${encodeURIComponent(org)}/repos?per_page=100&sort=pushed`, token)),
+  ]);
+
+  const byFullName = new Map<string, GithubRepoCard>();
+  for (const raw of lists) {
+    if (!Array.isArray(raw)) continue;
+    for (const r of raw as RawRepo[]) {
+      if (r.archived === true) continue;
+      const card = toCard(r);
+      if (card.name) byFullName.set(card.fullName, card);
+    }
+  }
+  return [...byFullName.values()].sort((a, b) => b.pushedAt.localeCompare(a.pushedAt));
+}
+
+/** 소속 조직(공개) + 설정에 적어 둔 조직. 대소문자만 다른 중복은 하나로 본다 */
+async function resolveOrgs(login: string, extraOrgs: readonly string[], token: string | null): Promise<string[]> {
+  const raw = await gh(`/users/${encodeURIComponent(login)}/orgs?per_page=100`, token);
+  const memberOf = Array.isArray(raw)
+    ? (raw as Array<Record<string, unknown>>).map((o) => str(o.login)).filter(Boolean)
+    : [];
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const name of [...memberOf, ...extraOrgs.map((o) => o.trim()).filter(Boolean)]) {
+    const key = name.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(name);
+  }
+  return out;
 }
 
 export { githubLoginFromLinks as loginFromLinks } from "@/utils/githubLogin";

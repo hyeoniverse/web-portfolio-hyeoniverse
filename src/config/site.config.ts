@@ -201,6 +201,32 @@ export const siteConfig = {
       "세심한 {디자인}과 깔끔한 {코드}로 기억에 남는 인터랙션을 만드는 데 집중합니다.",
   },
 
+  // ---------------------------------------------------------------------------
+  // 홈 Selected Works 섹션 — 원(버블) 그리드를 무엇으로 채울지
+  // ---------------------------------------------------------------------------
+  // source:
+  //   auto   — 작업물 → 표지 있는 발행 글 → GitHub 저장소 순으로 있는 것을 쓴다(기본)
+  //   works  — 작업물만. 발행된 작업물이 없으면 섹션을 그리지 않는다
+  //   posts  — 표지 있는 발행 글만
+  //   github — 아래 repos 에 고른 저장소만
+  //
+  // repos: github 소스가 쓸 저장소. 고른 순서가 화면 순서다.
+  //   표지·제목·설명을 비우면 GitHub 이 주는 값(이름·주 언어)과 언어 색 버블로 돌아간다.
+  // ---------------------------------------------------------------------------
+  homeWorks: {
+    source: "auto" as "auto" | "works" | "posts" | "github",
+    repos: [] as {
+      /** GitHub 저장소 이름 */
+      name: string;
+      /** 원을 채울 표지 이미지. 비우면 주 언어 색 버블 */
+      cover?: string;
+      title?: string;
+      title_ko?: string;
+      description?: string;
+      description_ko?: string;
+    }[],
+  },
+
   // 홈 Services 섹션
   services: {
     label: "What I Do",
