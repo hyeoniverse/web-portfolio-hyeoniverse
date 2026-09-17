@@ -5,6 +5,7 @@ import { getProfileData } from "@/lib/getProfileData";
 import { listOwnedRepos, loginFromLinks, dueRepoKeys } from "@/lib/githubShowcase";
 import { findOwnerAuthor } from "@/utils/resolvePostAuthors";
 import type { Author } from "@/types/author";
+import { HOME_SLOT_COUNT } from "@/data/works";
 
 /**
  * GET /api/admin/profile/github-repos — 고를 수 있는 저장소 목록
@@ -37,7 +38,7 @@ export async function GET() {
     /* 아무것도 고르지 않았을 때 홈에 나갈 저장소. 설정 화면이 그걸 보여줘야 표지·제목을
        미리 손볼 수 있다 — 안 그러면 자동으로 나가는 것들은 건드릴 방법이 없다(#1057).
        규칙은 홈이 쓰는 것과 같은 함수를 부른다. 여기서 따로 계산하면 둘이 어긋난다. */
-    dueRepoKeys(login, gh?.repos ?? []),
+    dueRepoKeys(login, gh?.repos ?? [], HOME_SLOT_COUNT),
   ]);
   return NextResponse.json({ login, repos, due });
 }
