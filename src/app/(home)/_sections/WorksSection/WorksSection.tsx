@@ -47,6 +47,10 @@ interface WorkCircleProps {
   onHoverEnd: () => void;
 }
 
+/** 저장소 칸의 색 — 채움과 글자색을 CSS 변수로 넘긴다. 언어 색은 디자인 토큰이 아니라 값이 여기로 들어온다 */
+const accentVars = (work: WorkItem): React.CSSProperties =>
+  ({ "--repo-fill": work.accent, "--repo-ink": work.accentInk }) as React.CSSProperties;
+
 const TOOLTIP_WRAPPER_STYLE: React.CSSProperties = { width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" };
 
 const WorkCircle = memo(function WorkCircle({
@@ -103,13 +107,28 @@ const WorkCircle = memo(function WorkCircle({
               ease: [0.25, 0.1, 0.25, 1],
             }}
           >
-            <MediaThumb
-              src={work.main}
-              alt={`Work ${work.id}`}
-              fill
-              sizes="(max-width: 768px) 40vw, (max-width: 1024px) 30vw, 25vw"
-              className={styles.image}
-            />
+            {/* 저장소 칸은 표지가 없다 — 주 언어 색으로 원을 채우고 이름을 얹는다.
+                올려 두면 이름이 비키고, 아래의 글자층이 이름과 언어를 같이 보여준다 */}
+            {work.main ? (
+              <MediaThumb
+                src={work.main}
+                alt={`Work ${work.id}`}
+                fill
+                sizes="(max-width: 768px) 40vw, (max-width: 1024px) 30vw, 25vw"
+                className={styles.image}
+              />
+            ) : (
+              <div className={styles.accentFill} style={accentVars(work)}>
+                <motion.span
+                  className={styles.accentLabel}
+                  initial={false}
+                  animate={{ opacity: isHovering ? 0 : 1 }}
+                  transition={{ duration: 0.3, ease: "easeOut" }}
+                >
+                  {work.title.en}
+                </motion.span>
+              </div>
+            )}
           </motion.div>
 
           <motion.div
@@ -144,29 +163,45 @@ const WorkCircle = memo(function WorkCircle({
               }}
               style={{ width: "100%", height: "100%", position: "relative" }}
             >
-              <MediaThumb
-                src={work.hover}
-                alt={`Work ${work.id}`}
-                fill
-                sizes="(max-width: 768px) 40vw, (max-width: 1024px) 30vw, 25vw"
-                className={styles.image}
-              />
+              {work.hover ? (
+                <MediaThumb
+                  src={work.hover}
+                  alt={`Work ${work.id}`}
+                  fill
+                  sizes="(max-width: 768px) 40vw, (max-width: 1024px) 30vw, 25vw"
+                  className={styles.image}
+                />
+              ) : (
+                <div className={styles.accentFill} style={accentVars(work)} />
+              )}
             </motion.div>
           </motion.div>
         </motion.div>
       </div>
 
-      {/* 원을 덮는 작업물 링크(#933) — 그냥 누르면 원이 커지는 전환으로, 새 탭 클릭은 브라우저가 연다. 누르기·길게 누르기·
-          오래 올려 두기는 바깥(motion.div)이 그대로 받는다. 길게 누르기와 겹치지 않게 링크 끌기·터치 길게 누르기 메뉴는 끈다 */}
-      <TransitionLink
-        href={`/works/${work.projectSlug || work.projectId}`}
-        className={styles.circleLink}
-        aria-label={pickLocalized(work.title, language)}
-        draggable={false}
-        getRect={(link) => (link.parentElement ?? link).getBoundingClientRect()}
-        navigate={onNavigate}
-        onContextMenu={(e) => { if ((e.nativeEvent as PointerEvent).pointerType === "touch") e.preventDefault(); }}
-      />
+      {/* 원을 덮는 링크(#933) — 그냥 누르면 원이 커지는 전환으로, 새 탭 클릭은 브라우저가 연다. 누르기·길게 누르기·
+          오래 올려 두기는 바깥(motion.div)이 그대로 받는다. 길게 누르기와 겹치지 않게 링크 끌기·터치 길게 누르기 메뉴는 끈다.
+          저장소 칸은 사이트 밖이라 전환 연출을 붙이지 않는다 — 커버가 커지고 나면 돌아올 화면이 없다 */}
+      {work.kind === "repo" ? (
+        <a
+          href={work.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={styles.circleLink}
+          aria-label={pickLocalized(work.title, language)}
+          draggable={false}
+        />
+      ) : (
+        <TransitionLink
+          href={work.href}
+          className={styles.circleLink}
+          aria-label={pickLocalized(work.title, language)}
+          draggable={false}
+          getRect={(link) => (link.parentElement ?? link).getBoundingClientRect()}
+          navigate={onNavigate}
+          onContextMenu={(e) => { if ((e.nativeEvent as PointerEvent).pointerType === "touch") e.preventDefault(); }}
+        />
+      )}
 
       {/* Text overlay */}
       <motion.div
@@ -294,12 +329,19 @@ const WorksSection = forwardRef<HTMLElement, WorksSectionProps>(
       }
     }
 
+    /* 머리글은 실제로 그려진 것을 따른다 — 글이나 저장소가 들어찬 자리에 "Selected Works" 를
+       얹으면 글자와 내용이 어긋난다. 두 줄인 것은 그대로 둔다(칸 크기가 두 줄에 맞춰져 있다) */
+    const [titleTop, titleBottom] =
+      works[0]?.kind === "post" ? ["Selected", "Writing"]
+      : works[0]?.kind === "repo" ? ["Selected", "Repos"]
+      : ["Selected", "Works"];
+
     items.push(
       <div key="title" className={styles.titleCell}>
         <h2 className={styles.titleText} aria-hidden="true">
-          Selected
+          {titleTop}
           <br />
-          Works
+          {titleBottom}
         </h2>
       </div>
     );

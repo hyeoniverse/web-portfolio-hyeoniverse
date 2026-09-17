@@ -63,27 +63,33 @@ async function fetchWorks(): Promise<Project[]> {
       .order("sort_order", { ascending: true });
 
     if (error) return projects;
+    if (data && data.length > 0) return (data as Work[]).map(workToProject);
 
-    // DB 비어있음 → 정적 데이터가 있으면 주입
-    if (!data || data.length === 0) {
-      if (projects.length === 0) return [];
+    /* 여기는 "발행된 게 하나도 없다" 는 뜻인데, 그게 두 가지다 — 표에 행이 아예 없는 것과,
+       행은 있는데 전부 미발행인 것. 둘이 똑같은 빈 배열로 오는 걸 앞에서는 전자로만 보고
+       정적 데이터로 돌아갔다. 그래서 관리자에서 작업물을 전부 내리면 숨겨지기는커녕
+       그 자리에 정적 목록이 대신 들어왔다(#1046). 행 수를 세어 두 경우를 가른다. */
+    const { count: total } = await supabase
+      .from("works")
+      .select("*", { count: "exact", head: true });
+    if (total && total > 0) return [];
 
-      await seedWorksFromStatic(supabase);
+    // 표가 정말 비어 있다 → 정적 데이터가 있으면 주입
+    if (projects.length === 0) return [];
 
-      // 주입 후 재조회
-      const { data: seeded } = await supabase
-        .from("works")
-        .select("*")
-        .eq("published", true)
-        .order("sort_order", { ascending: true });
+    await seedWorksFromStatic(supabase);
 
-      if (seeded && seeded.length > 0) {
-        return (seeded as Work[]).map(workToProject);
-      }
-      return projects; // seed 실패 시 정적 fallback
+    // 주입 후 재조회
+    const { data: seeded } = await supabase
+      .from("works")
+      .select("*")
+      .eq("published", true)
+      .order("sort_order", { ascending: true });
+
+    if (seeded && seeded.length > 0) {
+      return (seeded as Work[]).map(workToProject);
     }
-
-    return (data as Work[]).map(workToProject);
+    return projects; // seed 실패 시 정적 fallback
   } catch {
     return projects;
   }
