@@ -4,6 +4,7 @@ import { requireOwner } from "@/lib/api/requireRole";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { applyInviteToExistingUser, type AuthorInvite } from "@/lib/api/authorInvites";
 import { PERM, parsePermissionLevelInput } from "@/lib/api/roles";
+import { MAIL_FROM } from "@/constants";
 
 /** 초대 메일 발송 (Resend). API key 없으면 skip(초대 기록은 남으므로 링크 수동 전달 가능). */
 async function sendInviteEmail(email: string, loginUrl: string): Promise<{ sent: boolean; reason?: string }> {
@@ -14,7 +15,7 @@ async function sendInviteEmail(email: string, loginUrl: string): Promise<{ sent:
       method: "POST",
       headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        from: "Hyeoniverse <noreply@hyeoniverse.com>",
+        from: MAIL_FROM,
         to: email,
         subject: "작성자로 초대되었습니다 · You've been invited as an author",
         html: `
