@@ -26,6 +26,8 @@ import { getPublicKeys } from "@/lib/getSecret";
 
 import ScrollRestoration from "@/components/common/ScrollRestoration";
 import { PageTransitionProvider } from "@/providers/PageTransitionProvider";
+// Vercel Web Analytics — 배포 환경에서만 스크립트를 싣는다(로컬은 콘솔 로그만)
+import { Analytics } from "@vercel/analytics/next";
 
 export async function generateMetadata(): Promise<Metadata> {
   const cfg = await getSiteConfig();
@@ -144,6 +146,7 @@ export default async function RootLayout({
             </LanguageProvider>
           </ThemeProvider>
         </SiteConfigProvider>
+        <Analytics />
       </body>
     </html>
   );
