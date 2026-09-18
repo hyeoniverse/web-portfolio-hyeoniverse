@@ -7,30 +7,31 @@
   pointer-events: none;
 
   /* 밝은 테마에서는 하늘이 아니라 종이에 그린 성도처럼 — 검은 바탕을 깔 수 없으니
-     별과 띠를 어두운 잉크로 뒤집는다. 색은 여기서만 정한다(테마 토큰에 하늘색은 없다). */
-  --sky-band-core: rgb(120 140 210 / 22%);
-  --sky-band-mid: rgb(120 140 210 / 9%);
-  --sky-band-edge: rgb(120 140 210 / 0%);
-  --sky-core: rgb(150 165 225 / 26%);
+     별과 띠를 어두운 잉크로 뒤집는다. 색은 여기서만 정한다(테마 토큰에 하늘색은 없다).
+     흰 바탕에서는 옅은 값이 거의 보이지 않아, 어두운 테마보다 진하게 잡는다. */
+  --sky-band-core: rgb(72 92 170 / 34%);
+  --sky-band-mid: rgb(72 92 170 / 15%);
+  --sky-band-edge: rgb(72 92 170 / 0%);
+  --sky-core: rgb(58 78 160 / 38%);
   --sky-star: var(--text-primary);
-  --sky-line: rgb(120 140 210 / 45%);
+  --sky-line: rgb(60 80 160 / 60%);
 
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .sky {
-    --sky-band-core: rgb(150 170 255 / 16%);
-    --sky-band-mid: rgb(120 140 230 / 7%);
-    --sky-core: rgb(200 215 255 / 20%);
-    --sky-line: rgb(170 190 255 / 40%);
+    --sky-band-core: rgb(150 170 255 / 20%);
+    --sky-band-mid: rgb(120 140 230 / 9%);
+    --sky-core: rgb(200 215 255 / 24%);
+    --sky-line: rgb(170 190 255 / 45%);
   }
 }
 
 :root[data-theme="dark"] .sky {
-  --sky-band-core: rgb(150 170 255 / 16%);
-  --sky-band-mid: rgb(120 140 230 / 7%);
-  --sky-core: rgb(200 215 255 / 20%);
-  --sky-line: rgb(170 190 255 / 40%);
+  --sky-band-core: rgb(150 170 255 / 20%);
+  --sky-band-mid: rgb(120 140 230 / 9%);
+  --sky-core: rgb(200 215 255 / 24%);
+  --sky-line: rgb(170 190 255 / 45%);
 }
 
 /* ── 움직임 ──
@@ -89,24 +90,49 @@
   transform-origin: center;
 }
 
+/* 밑값이 0.45 다 — 반짝이는 동안에도 별이 사라지지는 않는다. 밝은 바탕에서 0.2 대는 없는 것과 같다 */
 @keyframes twinkle {
   0%,
   100% {
-    opacity: 0.2;
-    transform: scale(0.6);
+    opacity: 0.45;
+    transform: scale(0.75);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.55);
+  }
+}
+
+/* 빛무리는 어두운 테마에서만 — 흰 바탕에서는 번진 얼룩처럼 보인다 */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .twinkle {
+    animation-name: twinkleGlow;
+  }
+}
+
+:root[data-theme="dark"] .twinkle {
+  animation-name: twinkleGlow;
+}
+
+@keyframes twinkleGlow {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(0.75);
     filter: none;
   }
 
   50% {
     opacity: 1;
-    transform: scale(1.6);
+    transform: scale(1.55);
     filter: drop-shadow(0 0 3px var(--sky-star));
   }
 }
 
 .line {
   stroke: var(--sky-line);
-  stroke-width: 1;
+  stroke-width: 1.4;
 }
 
 .node {
@@ -121,7 +147,7 @@
   font-family: var(--font-space-grotesk);
   font-size: 13px;
   letter-spacing: 0.18em;
-  opacity: 0.35;
+  opacity: 0.5;
 }
 
 /* 별자리 — 제 별만 담은 그림이 화면에 백분율로 앉는다. 자리·크기는 인라인으로 온다.
@@ -135,7 +161,7 @@
   pointer-events: none;
 
   --sky-star: var(--text-primary);
-  --sky-line: rgb(120 140 210 / 45%);
+  --sky-line: rgb(60 80 160 / 60%);
 
   transform: translate(calc(var(--pointer-x, 0) * 26px), calc(var(--pointer-y, 0) * 26px));
   transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
@@ -143,12 +169,12 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .constellation {
-    --sky-line: rgb(170 190 255 / 40%);
+    --sky-line: rgb(170 190 255 / 45%);
   }
 }
 
 :root[data-theme="dark"] .constellation {
-  --sky-line: rgb(170 190 255 / 40%);
+  --sky-line: rgb(170 190 255 / 45%);
 }
 
 .constellation .line {
@@ -270,7 +296,7 @@
 @keyframes twinkleSoft {
   0%,
   100% {
-    opacity: 0.4;
+    opacity: 0.55;
   }
 
   50% {

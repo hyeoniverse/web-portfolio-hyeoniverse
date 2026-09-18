@@ -4,7 +4,8 @@
  * 그릴 때마다 난수로 뽑으면 서버가 보낸 HTML 과 화면이 그린 것이 어긋나 React 가 트리를 다시
  * 그린다. 그래서 씨앗이 정해진 생성기로 모듈이 불릴 때 한 번만 만들고, 그 뒤로는 같은 값을 쓴다.
  *
- * 좌표는 0~1000 의 정사각 기준이다. 화면 비율이 어떻든 SVG 가 잘라 맞춘다(preserveAspectRatio slice).
+ * 좌표는 0~1000 의 정사각 기준인데, 별은 그보다 넓은 자리(-250~1250)에 뿌린다. 하늘이 아주 느리게
+ * 돌기 때문에 딱 맞게 뿌리면 돌아가는 동안 모서리가 비어 별이 사라진 것처럼 보인다.
  */
 
 /** 씨앗 하나로 같은 수열을 내는 생성기(mulberry32) — 짧고 분포가 고르다 */
@@ -39,21 +40,28 @@ function bandDistance(x: number, y: number): number {
   return Math.abs(cy - Math.tan(BAND_ANGLE) * cx) / Math.sqrt(1 + Math.tan(BAND_ANGLE) ** 2);
 }
 
+/** 별을 뿌리는 자리 — 화면(0~1000)보다 넓게. 하늘이 도는 동안 모서리가 비지 않게 한다 */
+const FIELD_MIN = -250;
+const FIELD_MAX = 1250;
+
 function makeStars(count: number, seed: number): Star[] {
   const rnd = seeded(seed);
   const stars: Star[] = [];
-  /* 후보를 뽑고 띠에서 먼 것은 확률로 떨어뜨린다 — 띠 쪽이 촘촘하고 바깥이 성기게 된다 */
+  const span = FIELD_MAX - FIELD_MIN;
+  /* 후보를 뽑고 띠에서 먼 것은 확률로 떨어뜨린다 — 띠 쪽이 촘촘하고 바깥이 성기게 된다.
+     떨어뜨리는 비율을 낮춰(0.15 → 0.4) 띠 밖에도 별이 넉넉히 남는다 */
   while (stars.length < count) {
-    const x = rnd() * 1000;
-    const y = rnd() * 1000;
+    const x = FIELD_MIN + rnd() * span;
+    const y = FIELD_MIN + rnd() * span;
     const near = Math.exp(-((bandDistance(x, y) / BAND_SPREAD) ** 2));
-    if (rnd() > 0.15 + near * 0.85) continue;
+    if (rnd() > 0.4 + near * 0.6) continue;
     const bright = rnd();
     stars.push({
       x: Math.round(x * 10) / 10,
       y: Math.round(y * 10) / 10,
-      r: Math.round((0.6 + bright ** 3 * 1.7) * 100) / 100,
-      o: Math.round((0.25 + bright * 0.6) * 100) / 100,
+      r: Math.round((0.7 + bright ** 3 * 1.8) * 100) / 100,
+      /* 가장 흐린 별도 0.4 는 넘는다 — 밝은 바탕에서 0.2 대는 없는 것과 같다 */
+      o: Math.round((0.4 + bright * 0.55) * 100) / 100,
       /* 셋에 하나쯤 반짝인다 — 전부 깜박이면 소란스럽고, 몇 개만 하면 멈춰 보인다 */
       twinkle: bright > 0.62,
     });
@@ -61,7 +69,8 @@ function makeStars(count: number, seed: number): Star[] {
   return stars;
 }
 
-export const STARS: Star[] = makeStars(220, 20260918);
+/* 넓은 자리에 뿌리는 만큼 수도 늘린다 — 화면에 실제로 드는 것은 그중 절반쯤이다 */
+export const STARS: Star[] = makeStars(520, 20260918);
 
 export interface Constellation {
   /** 라틴 이름 — 별자리 이름은 고유명사라 화면 언어와 무관하게 둔다 */
