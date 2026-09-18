@@ -35,7 +35,10 @@ const isCoarsePointer = () => window.matchMedia(COARSE_POINTER).matches;
    작품 이미지를 곡면 패널로 만들어 세로 원통에 두르고, 휠로 굴린다.
    3D 는 VerticalCylinder 가 그리고, 제목·메타 같은 텍스트는 DOM 오버레이로 띄운 뒤
    useCylinderStage 가 3D 투영 좌표를 받아 매 프레임 위치를 맞춘다. */
-export default function CylinderLayout({ projects, onProjectClick }: WorksLayoutProps) {
+export default function CylinderLayout({ projects, onProjectClick, bare = false }: WorksLayoutProps & {
+  /** 제 배경을 깔지 않는다 — 뒤에 깔린 것(작업물 없을 때의 은하수)을 가리지 않으려면 비워야 한다(#1062) */
+  bare?: boolean;
+}) {
   const { theme } = useTheme();
   const { t, language } = useLanguage();
   // 터치 화면에서는 설명 툴팁을 띄우지 않는다 — 알약에 손가락이 닿기만 해도(끌어 돌릴 때도) 뜬다
@@ -100,7 +103,7 @@ export default function CylinderLayout({ projects, onProjectClick }: WorksLayout
   });
 
   return (
-    <div ref={wrapRef} className={styles.wrap}>
+    <div ref={wrapRef} className={`${styles.wrap} ${bare ? styles.wrapBare : ""}`}>
       {/* 판은 캔버스라 초점을 받지 못한다. 키보드로 작업물에 닿도록 초점이 오면 보이는 목록을 두고,
           초점이 옮겨 가면 원통을 그 작업물로 돌린다. 서버 HTML 에도 작업물 주소가 들어간다(#938) */}
       <nav className={styles.workList} aria-label={t("nav.works")}>

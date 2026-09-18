@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { CONSTELLATIONS, STARS } from "./starMap";
+import { CONSTELLATIONS, STARS, constellationBox } from "./starMap";
 import styles from "./StarrySky.module.css";
 
 /**
@@ -18,7 +18,8 @@ export default function StarrySky() {
   const ref = useRef<SVGSVGElement>(null);
 
   useEffect(() => {
-    const el = ref.current;
+    /* 값은 하늘 그림이 아니라 그 부모에 쓴다 — 별자리는 형제라 부모가 갖고 있어야 둘이 같이 본다 */
+    const el = ref.current?.parentElement;
     if (!el) return;
     if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
 
@@ -99,22 +100,56 @@ export default function StarrySky() {
         <line x1="0" y1="0" x2="64" y2="-26" />
       </g>
 
-      {CONSTELLATIONS.map((c) => (
-        <g key={c.name} className={styles.constellation}>
-          {c.lines.map(([a, b]) => (
-            <line
-              key={`${a}-${b}`}
-              x1={c.stars[a].x} y1={c.stars[a].y}
-              x2={c.stars[b].x} y2={c.stars[b].y}
-              className={styles.line}
-            />
-          ))}
-          {c.stars.map((s, i) => (
-            <circle key={i} cx={s.x} cy={s.y} r={2.4} className={styles.node} />
-          ))}
-          <text x={c.label.x} y={c.label.y} className={styles.name}>{c.name}</text>
-        </g>
-      ))}
     </svg>
+  );
+}
+
+/**
+ * 별자리 한 자리 — 제 별만 담은 작은 그림으로, 화면에 백분율로 앉는다.
+ *
+ * 별 배경과 한 그림에 두면 정사각 viewBox 를 잘라 채우는 과정에서(slice) 위아래나 좌우가 잘려
+ * 나가 통째로 사라진다. 흩어진 별은 잘려도 모르지만 별자리는 모양이 전부다.
+ */
+function ConstellationMark({ mark }: { mark: (typeof CONSTELLATIONS)[number] }) {
+  const box = constellationBox(mark);
+  return (
+    <svg
+      className={styles.constellation}
+      viewBox={`${box.x} ${box.y} ${box.w} ${box.h}`}
+      style={{
+        left: mark.place.left === "auto" ? undefined : mark.place.left,
+        right: mark.place.left === "auto" ? "6%" : undefined,
+        top: mark.place.top === "auto" ? undefined : mark.place.top,
+        bottom: mark.place.top === "auto" ? "16%" : undefined,
+        width: mark.place.width,
+      }}
+      aria-hidden
+      focusable="false"
+    >
+      {mark.lines.map(([a, b]) => (
+        <line
+          key={`${a}-${b}`}
+          x1={mark.stars[a].x} y1={mark.stars[a].y}
+          x2={mark.stars[b].x} y2={mark.stars[b].y}
+          className={styles.line}
+        />
+      ))}
+      {mark.stars.map((star, i) => (
+        <circle key={i} cx={star.x} cy={star.y} r={3} className={styles.node} />
+      ))}
+      {/* 이름은 가장 높은 별 위에 — 성도처럼 보이려고 두는 것이라 아주 옅다 */}
+      <text x={box.x + 4} y={box.y + 16} className={styles.name}>{mark.name}</text>
+    </svg>
+  );
+}
+
+/** 별자리 층 — 하늘 그림과 따로 앉는다 */
+export function Constellations() {
+  return (
+    <>
+      {CONSTELLATIONS.map((mark) => (
+        <ConstellationMark key={mark.name} mark={mark} />
+      ))}
+    </>
   );
 }
