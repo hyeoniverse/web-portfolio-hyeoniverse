@@ -91,9 +91,12 @@ export default function StarrySky() {
         ))}
       </g>
 
-      {/* 이따금 지나가는 별똥별 — 화면이 살아 있다는 신호 하나면 충분해서 한 줄만 둔다 */}
-      <g className={styles.meteor} aria-hidden>
+      {/* 이따금 지나가는 별똥별 — 둘이면 화면 어딘가에서 계속 무언가 지나간다. 서로 다른 길·시각 */}
+      <g className={styles.meteorA} aria-hidden>
         <line x1="0" y1="0" x2="86" y2="34" />
+      </g>
+      <g className={styles.meteorB} aria-hidden>
+        <line x1="0" y1="0" x2="64" y2="-26" />
       </g>
 
       {CONSTELLATIONS.map((c) => (
