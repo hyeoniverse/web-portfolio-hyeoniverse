@@ -1,0 +1,27 @@
+/* 잡을 곳은 아이콘보다 넓어야 한다 — 점 세 개의 실제 크기로만 두면 조준이 어렵다.
+   touch-action: none — 모바일에서 손잡이를 끌 때 페이지가 같이 스크롤되지 않게 */
+.handle {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 24px;
+  color: var(--text-muted);
+  cursor: grab;
+  touch-action: none;
+}
+
+.handle:hover {
+  color: var(--text-secondary);
+}
+
+.handle:active {
+  cursor: grabbing;
+}
+
+/* 아이콘 자체 크기는 손잡이가 정한다 — 부르는 쪽마다 size 를 넘기면 화면마다 달라진다 */
+.handle svg {
+  width: 14px;
+  height: 14px;
+}
