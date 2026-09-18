@@ -1,5 +1,5 @@
 import { notFound, redirect } from "next/navigation";
-import { getWorks } from "@/lib/getWorks";
+import { getWorksProjects } from "@/lib/getWorksProjects";
 import { findProjectIndex } from "./findProjectIndex";
 import DetailShell from "@/components/layout/DetailLayout/DetailShell";
 import { pickLocalized } from "@/types/common";
@@ -15,7 +15,7 @@ import { pickLocalized } from "@/types/common";
  */
 export default async function WorkSlugLayout({ children, params }: { children: React.ReactNode; params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const projects = await getWorks();
+  const projects = await getWorksProjects();
   const index = findProjectIndex(projects, slug);
   if (index < 0) notFound();
 

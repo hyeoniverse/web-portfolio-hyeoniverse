@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getWorks } from "@/lib/getWorks";
+import { getWorksProjects } from "@/lib/getWorksProjects";
 import { highlightRichtextCode } from "@/utils/highlightRichtext";
 import WorkDetailClient from "./WorkDetailClient";
 import { findProjectIndex } from "./findProjectIndex";
@@ -10,7 +10,7 @@ import { findProjectIndex } from "./findProjectIndex";
 export const revalidate = 300;
 
 export async function generateStaticParams() {
-  const projects = await getWorks();
+  const projects = await getWorksProjects();
   return projects.map((p) => ({ slug: p.slug || p.id }));
 }
 
@@ -20,7 +20,7 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const projects = await getWorks();
+  const projects = await getWorksProjects();
   const idx = findProjectIndex(projects, slug);
   const project = idx >= 0 ? projects[idx] : undefined;
   return { title: project?.title.ko || project?.title.en || "Work" };
@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function WorkDetailPage({ params }: PageProps) {
   const { slug } = await params;
   /* getSiteConfig + getSecret 제거 — root layout 의 SiteConfigProvider 에 이미 있음. */
-  const projects = await getWorks();
+  const projects = await getWorksProjects();
 
   const projectIndex = findProjectIndex(projects, slug);
   // 없는 주소와 옛 id·번호 주소는 레이아웃이 먼저 걸러(404·307) 여기에 오지 않는다. 타입을 좁히려고 둔다

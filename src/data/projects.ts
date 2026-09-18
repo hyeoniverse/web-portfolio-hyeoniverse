@@ -51,6 +51,9 @@ export interface Project {
   liveUrl?: string;
   githubUrl?: string;
   summary?: LocalizedText;
+  /** 사이트 밖에서 끌어온 자료(GitHub 저장소 README) — 좋아요·댓글을 받을 자리가 없고
+      관리자 편집 화면도 없다. 상세 화면이 그 단추들을 감춘다(#1062) */
+  external?: boolean;
 }
 
 export const projects: Project[] = [
