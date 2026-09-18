@@ -4,6 +4,9 @@
  * - 같은 seed (slug/id) → 항상 같은 preset → 시각적 일관성
  * - 외부 API 0, 즉시 (런타임 CSS string)
  * - presets 풀에서 seed hash mod N 으로 하나 pick
+ *
+ * CSS 문자열이 아니라 preset 자체가 필요한 곳도 있다(three.js 텍스처는 캔버스로 그려야 한다) —
+ * 그때는 pickFallbackPreset 을 직접 쓴다. 같은 seed 면 DOM 과 3D 가 같은 그림을 보여준다.
  */
 
 import { presets } from "@/components/posts/CoverImagePicker/presets";
@@ -19,7 +22,7 @@ function hashSeed(seed: string): number {
 }
 
 /** seed 로 preset 하나 결정적으로 선택. */
-function pickFallbackPreset(seed: string): PresetConfig {
+export function pickFallbackPreset(seed: string): PresetConfig {
   const idx = hashSeed(seed) % presets.length;
   return presets[idx].config;
 }

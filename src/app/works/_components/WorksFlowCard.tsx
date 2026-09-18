@@ -1,6 +1,7 @@
 "use client";
 
 import ProgressiveImage from "@/components/ui/ProgressiveImage";
+import { getFallbackCoverGradient } from "@/lib/coverFallback";
 import Tooltip from "@/components/ui/Tooltip";
 import T from "@/components/ui/T";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -74,15 +75,22 @@ export default function WorksFlowCard({
           onTouchEnd={onPressEnd}
           onContextMenu={(e) => { if ((e.nativeEvent as PointerEvent).pointerType === "touch") e.preventDefault(); }}
         >
-          <div className={styles.cardImageWrap}>
-            <ProgressiveImage
-              src={project.image}
-              alt={pickLocalized(project.title, language)}
-              fill
-              sizes="(max-width: 768px) 100vw, 500px"
-              className={styles.cardImage}
-              priority={priority}
-            />
+          <div
+            className={styles.cardImageWrap}
+            /* 표지가 없으면 사이트가 쓰는 대체 표지를 깐다 — 빈 자리보다 낫고, 같은 seed 라
+               다른 배치·원통에서도 같은 그림이 나온다(#1062) */
+            style={project.image ? undefined : { background: getFallbackCoverGradient(project.slug || project.id) }}
+          >
+            {project.image && (
+              <ProgressiveImage
+                src={project.image}
+                alt={pickLocalized(project.title, language)}
+                fill
+                sizes="(max-width: 768px) 100vw, 500px"
+                className={styles.cardImage}
+                priority={priority}
+              />
+            )}
           </div>
           <div className={styles.cardBorder} />
           <span className={styles.metaNumber}>{project.number}</span>

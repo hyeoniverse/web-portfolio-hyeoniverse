@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useCallback, useMemo } from "react";
+import { getFallbackCoverGradient } from "@/lib/coverFallback";
 import DynamicFrameLayout, {
   type Frame,
 } from "@/components/common/DynamicFrame/DynamicFrameLayout";
@@ -136,7 +137,10 @@ export default function GridLayout({ projects, onProjectClick }: WorksLayoutProp
         >
           <div
             className={styles.projectImage}
-            style={{ backgroundImage: `url(${p.image})` }}
+            /* 표지가 없으면 대체 표지 그라데이션 — url() 에 빈 값을 넣으면 아무것도 그려지지 않는다 */
+            style={p.image
+              ? { backgroundImage: `url(${p.image})` }
+              : { background: getFallbackCoverGradient(p.slug || p.id) }}
           />
           <div className={styles.projectGradient} />
           <span className={styles.projectYear}>{p.year}</span>

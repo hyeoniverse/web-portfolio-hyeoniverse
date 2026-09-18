@@ -45,6 +45,8 @@ export default function CylinderLayout({ projects, onProjectClick }: WorksLayout
      여기서 만들면 서버 렌더가 document 를 찾다 깨지므로 CylinderCanvas 안으로 옮겼다. */
   const isDark = theme === "dark";
   const projectImages = useMemo(() => projects.map((p) => p.image), [projects]);
+  /* 표지가 없는 칸에 그릴 판의 씨앗 — 카드의 대체 표지와 같은 값을 써서 같은 그림이 나온다 */
+  const projectSeeds = useMemo(() => projects.map((p) => p.slug || p.id), [projects]);
   // 슬롯 = 인트로 1 + 작품 N
   const slotCount = projectImages.length + 1;
   const projectsById = useMemo(() => new Map(projects.map((p) => [p.id, p])), [projects]);
@@ -124,6 +126,7 @@ export default function CylinderLayout({ projects, onProjectClick }: WorksLayout
           hoveredItemClassName={styles.metaItemHovered}
           hoveredOverlayClassName={styles.metaOverlayHovered}
           projectImages={projectImages}
+          projectSeeds={projectSeeds}
           isDark={isDark}
           segAngle={segAngle}
           arc={arc}

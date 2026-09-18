@@ -2,6 +2,8 @@
    렌더링에 쓰이는 상수도 여기 모은다. CylinderLayout.tsx 에서 분리 (#662). */
 
 import * as THREE from "three";
+import { renderGradient } from "@/components/posts/CoverImagePicker/gradientUtils";
+import { pickFallbackPreset } from "@/lib/coverFallback";
 
 /* ── Constants ── */
 export const RADIUS = 35;
@@ -45,6 +47,25 @@ export function cylinderCamera(width: number, height: number): { z: number; fov:
 }
 
 /* ── Intro texture — cosmic: nebula wash + stars ── */
+/**
+ * 표지가 없는 칸에 두를 판(#1062).
+ *
+ * 빈 주소를 그대로 넘기면 three 의 TextureLoader 가 "Could not load : undefined" 로 죽는다.
+ * GitHub 저장소로 목록을 채우면 README 에 그림이 없는 저장소가 섞이므로 실제로 생기는 일이다.
+ *
+ * 그림은 사이트가 표지 없는 카드에 쓰는 것과 같은 것으로 그린다 — 같은 seed 면 DOM 배치와
+ * 원통이 같은 그라데이션을 보여준다.
+ */
+export function createFallbackPanelDataUrl(seed: string): string {
+  const s = 512;
+  const c = document.createElement("canvas");
+  c.width = s;
+  c.height = s;
+  const ctx = c.getContext("2d")!;
+  renderGradient(ctx, s, s, pickFallbackPreset(seed));
+  return c.toDataURL("image/png");
+}
+
 export function createIntroDataUrl(isDark: boolean): string {
   const s = 512;
   const c = document.createElement("canvas");
