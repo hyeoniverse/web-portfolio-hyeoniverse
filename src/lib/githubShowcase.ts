@@ -104,6 +104,20 @@ async function gh(path: string, token: string | null): Promise<unknown | null> {
   }
 }
 
+/**
+ * 조직 저장소 조회 — 토큰으로 막히면 익명으로 한 번 더 부른다.
+ *
+ * 조직은 "수명이 긴 세분화 토큰의 접근을 막는" 정책을 켜 둘 수 있다. 그러면 **공개** 저장소인데도
+ * 토큰을 붙인 요청만 403 으로 돌아온다(실제로 그랬다 — 익명 200, 토큰 403). 우리가 여기서 읽는 건
+ * 공개 목록이라 토큰이 꼭 필요하지도 않으므로, 막히면 토큰을 빼고 다시 묻는다.
+ * 비공개 저장소까지 보려면 토큰이 필요하지만, 그건 애초에 조직이 허용해야 하는 이야기다.
+ */
+async function ghOrg(path: string, token: string | null): Promise<unknown | null> {
+  const withToken = await gh(path, token);
+  if (withToken !== null || !token) return withToken;
+  return gh(path, null);
+}
+
 /** `owner/name` — full_name 이 없으면(응답 모양이 달라지면) owner 객체와 이름으로 짓는다 */
 function ownerOf(r: RawRepo): string {
   const login = str((r.owner as Record<string, unknown> | undefined)?.login);
@@ -225,7 +239,7 @@ export async function getGithubShowcase(
       .filter((o) => o && o.toLowerCase() !== login.toLowerCase()),
   )];
   const orgLists = await Promise.all(
-    wantedOrgs.map((org) => gh(`/orgs/${encodeURIComponent(org)}/repos?per_page=100&sort=pushed`, token)),
+    wantedOrgs.map((org) => ghOrg(`/orgs/${encodeURIComponent(org)}/repos?per_page=100&sort=pushed`, token)),
   );
 
   /* 예전 설정은 개인 저장소를 이름만으로 적어 뒀다 — 그 표기도 계속 찾아지게 둘 다 넣는다 */
@@ -352,7 +366,7 @@ export async function listOwnedRepos(login: string, extraOrgs: readonly string[]
 
   const [mine, ...orgLists] = await Promise.all([
     gh(`/users/${encodeURIComponent(login)}/repos?per_page=100&sort=pushed&type=owner`, token),
-    ...orgs.map((org) => gh(`/orgs/${encodeURIComponent(org)}/repos?per_page=100&sort=pushed`, token)),
+    ...orgs.map((org) => ghOrg(`/orgs/${encodeURIComponent(org)}/repos?per_page=100&sort=pushed`, token)),
   ]);
 
   const failedOrgs = orgs.filter((_, i) => !Array.isArray(orgLists[i]));

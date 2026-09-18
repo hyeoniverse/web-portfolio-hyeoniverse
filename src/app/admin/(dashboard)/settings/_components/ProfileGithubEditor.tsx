@@ -258,7 +258,9 @@ export default function ProfileGithubEditor({
               {/* 내 저장소는 위 머리글이 이미 말하고 있으므로, 조직만 이름을 따로 달아 준다 */}
               {!group.isOwner && (
                 <div className={styles.ownerHead}>
-                  <span className={styles.ownerName}>{group.owner}</span>
+                  {/* 조직이라는 것을 먼저 말하고 이름을 뱃지로 — "저장소 15" 와 같은 모양이면 무엇의 묶음인지 안 보인다 */}
+                  <span className={styles.ownerName}>{L("조직", "Organization")}</span>
+                  <span className={styles.ownerTag}>{group.owner}</span>
                   <span className={styles.groupCount}>{group.items.length}</span>
                 </div>
               )}
