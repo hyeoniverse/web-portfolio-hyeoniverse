@@ -2,11 +2,14 @@
 
 import { useCallback, useEffect, useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
+import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { SiGithub } from "react-icons/si";
-import { Star, RefreshCw, GripVertical, ChevronUp, ChevronDown, X } from "@/components/icons";
+import { RefreshCw, ChevronUp, ChevronDown, X } from "@/components/icons";
 import Button from "@/components/ui/Button";
+import DragHandle from "@/components/ui/DragHandle";
 import { Switch } from "@/components/ui/Switch";
-import Checkbox from "@/components/ui/Checkbox";
 import FieldRow from "@/components/ui/FieldRow";
 import EmptyState from "@/components/ui/EmptyState";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -14,8 +17,7 @@ import { errorText } from "@/lib/apiError";
 import type { ProfileData } from "@/types/profile";
 import { PINNED_REPO_LIMIT, type GithubRepoCard } from "@/lib/githubShowcase";
 import styles from "./ProfileGithubEditor.module.css";
-import Pressable from "@/components/ui/Pressable";
-import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
+import RepoPickerList from "./RepoPickerList";
 
 /**
  * 프로필 페이지의 GitHub 영역 설정.
@@ -83,35 +85,7 @@ export default function ProfileGithubEditor({
      상한에 닿으면 더 못 고르게 막는다 — 빼는 건 언제나 된다. */
   const atLimit = selected.length >= PINNED_REPO_LIMIT;
 
-  /* 설정에 적히는 키 — 개인 저장소는 이름만(예전 설정과 같은 표기), 조직 저장소는 `owner/name`.
-     조직에는 개인 계정과 같은 이름의 저장소가 있을 수 있어 이름만으로는 가리키지 못한다. */
-  const keyOf = (r: GithubRepoCard) =>
-    r.owner && login && r.owner.toLowerCase() !== login.toLowerCase() ? r.fullName : r.name;
-
-  /* 소유 계정별로 나눠 보여준다(#1057) — 한 목록에 섞으면 조직 저장소 한둘이 개인 저장소
-     사이에 파묻혀 있는 줄도 모른다. 내 저장소가 먼저, 그다음 조직들을 이름순으로. */
-  /* 이름·소개·언어·소유 계정 중 아무 데나 걸리면 남긴다 — 열여섯 곳쯤 되면 눈으로 훑기 어렵다 */
-  const query = search.trim().toLowerCase();
-  const matched = query
-    ? repos.filter((r) =>
-        [r.name, r.description, r.language, r.owner].some((v) => v?.toLowerCase().includes(query)),
-      )
-    : repos;
-
-  const groups = (() => {
-    const byOwner = new Map<string, GithubRepoCard[]>();
-    for (const r of matched) {
-      const owner = r.owner || login;
-      const bucket = byOwner.get(owner);
-      if (bucket) bucket.push(r);
-      else byOwner.set(owner, [r]);
-    }
-    return [...byOwner.entries()]
-      .map(([owner, items]) => ({ owner, items, isOwner: !!login && owner.toLowerCase() === login.toLowerCase() }))
-      .sort((a, b) => (a.isOwner === b.isOwner ? a.owner.localeCompare(b.owner) : a.isOwner ? -1 : 1));
-  })();
-
-  /** 고른 순서를 유지한다 — 체크 순서가 곧 화면 순서다. */
+  /** 고르면 뒤에 붙고, 다시 누르면 빠진다. 상한에 닿았으면 새로 고르는 것만 막는다 */
   const toggle = (name: string) => {
     if (selected.includes(name)) {
       patch({ repos: selected.filter((r) => r !== name) });
@@ -123,10 +97,21 @@ export default function ProfileGithubEditor({
 
   const move = (from: number, to: number) => {
     if (to < 0 || to >= selected.length) return;
-    const next = [...selected];
-    const [item] = next.splice(from, 1);
-    next.splice(to, 0, item);
-    patch({ repos: next });
+    patch({ repos: arrayMove([...selected], from, to) });
+  };
+
+  /* 끌기는 5px 움직인 뒤에 시작한다 — 줄 안에 단추가 셋이라, 바로 잡으면 누르기가 끌기로 샌다 */
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor),
+  );
+
+  const handleDragEnd = ({ active, over }: DragEndEvent) => {
+    if (!over || active.id === over.id) return;
+    const from = selected.indexOf(String(active.id));
+    const to = selected.indexOf(String(over.id));
+    if (from === -1 || to === -1) return;
+    patch({ repos: arrayMove([...selected], from, to) });
   };
 
   return (
@@ -178,12 +163,15 @@ export default function ProfileGithubEditor({
               {selected.length} / {PINNED_REPO_LIMIT}
             </span>
           </div>
+          {/* 순서가 곧 화면 순서라 손잡이로 끌어 바꾼다. 화살표도 남겨 둔다 —
+              끌기는 키보드만 쓰는 경우와 좁은 화면에서 다루기 어렵다 */}
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={selected} strategy={verticalListSortingStrategy}>
           <ol className={styles.picked}>
             {selected.map((name, i) => (
               /* 이미 상한을 넘겨 저장돼 있는 경우(예전 설정)엔 조용히 버리지 않는다 —
                  화면에 안 나온다는 걸 여기서 말하고, 빼거나 위로 올릴 수 있게 남겨 둔다. */
-              <li key={name} className={`${styles.pickedItem} ${i >= PINNED_REPO_LIMIT ? styles.pickedOver : ""}`}>
-                <GripVertical size={13} aria-hidden className={styles.pickedGrip} />
+              <SortableRow key={name} id={name} className={i >= PINNED_REPO_LIMIT ? styles.pickedOver : ""}>
                 <span className={styles.pickedOrder}>{i + 1}</span>
                 <span className={styles.pickedName}>{name}</span>
                 {i >= PINNED_REPO_LIMIT && (
@@ -210,9 +198,11 @@ export default function ProfileGithubEditor({
                     onClick={() => toggle(name)}
                   />
                 </span>
-              </li>
+              </SortableRow>
             ))}
           </ol>
+          </SortableContext>
+          </DndContext>
         </div>
       )}
 
@@ -223,77 +213,42 @@ export default function ProfileGithubEditor({
       ) : repos.length === 0 && !error ? (
         <EmptyState size="xs" pad="sm">{L("저장소가 없습니다.", "No repositories.")}</EmptyState>
       ) : (
-        <div className={styles.group}>
-          <div className={styles.groupHead}>
-            <span className={`${outer.sectionSubTitle} ${styles.groupLabel}`}>{L("저장소", "Repositories")}</span>
-            <span className={styles.groupCount}>{repos.length}</span>
-            <span className={`${outer.fieldHint} ${styles.groupHint}`}>
-              {selected.length > PINNED_REPO_LIMIT
-                ? L(`${PINNED_REPO_LIMIT}개까지만 표시됩니다. 위에서 "표시 안 됨" 인 것을 빼 주세요.`,
-                    `Only ${PINNED_REPO_LIMIT} are shown — remove the ones marked "Not shown" above.`)
-                : atLimit
-                  ? L(`${PINNED_REPO_LIMIT}개까지 표시할 수 있습니다.`,
-                      `You can show up to ${PINNED_REPO_LIMIT}.`)
-                  : L(`프로필에는 ${PINNED_REPO_LIMIT}개까지 표시됩니다.`,
-                      `Up to ${PINNED_REPO_LIMIT} appear on the profile.`)}
-            </span>
-          </div>
-          {orgInfo.failed.length > 0 && (
-            <span className={`${outer.fieldHint} ${styles.groupHint} ${styles.orgWarn}`}>
-              {L(`조직 ${orgInfo.failed.join(", ")} 의 저장소를 불러오지 못했습니다.`,
-                 `Could not load repositories from ${orgInfo.failed.join(", ")}.`)}
-            </span>
-          )}
-          <SearchCapsule
-            search={search}
-            onSearchChange={setSearch}
-            placeholder={L("저장소 검색", "Search repositories")}
-            size="sm"
-            historyKey={null}
-          />
-          {matched.length === 0 ? (
-            <EmptyState size="xs" pad="sm">{L("찾는 저장소가 없습니다.", "No matching repositories.")}</EmptyState>
-          ) : groups.map((group) => (
-            <div key={group.owner} className={styles.ownerGroup}>
-              {/* 내 저장소는 위 머리글이 이미 말하고 있으므로, 조직만 이름을 따로 달아 준다 */}
-              {!group.isOwner && (
-                <div className={styles.ownerHead}>
-                  {/* 조직이라는 것을 먼저 말하고 이름을 뱃지로 — "저장소 15" 와 같은 모양이면 무엇의 묶음인지 안 보인다 */}
-                  <span className={styles.ownerName}>{L("조직", "Organization")}</span>
-                  <span className={styles.ownerTag}>{group.owner}</span>
-                  <span className={styles.groupCount}>{group.items.length}</span>
-                </div>
-              )}
-              {/* data-lenis-prevent — 사이트 전역 Lenis 가 휠을 가로채서, 없으면 이 안이 스크롤되지
-                  않고 페이지만 움직인다(목록 뒷부분에 닿을 방법이 없어진다). */}
-              <ul className={styles.list} data-lenis-prevent>
-              {group.items.map((r) => (
-                <li key={r.fullName} className={`${styles.item} ${atLimit && !selected.includes(keyOf(r)) ? styles.itemBlocked : ""}`}>
-                  <Checkbox
-                    checked={selected.includes(keyOf(r))}
-                    onChange={() => toggle(keyOf(r))}
-                    disabled={atLimit && !selected.includes(keyOf(r))}
-                    shape="square"
-                  />
-                  <Pressable
-                    className={styles.itemBody}
-                    onClick={() => toggle(keyOf(r))}
-                    disabled={atLimit && !selected.includes(keyOf(r))}
-                  >
-                    <span className={styles.itemName}>{r.name}</span>
-                    {r.description && <span className={styles.itemDesc}>{r.description}</span>}
-                    <span className={styles.itemMeta}>
-                      {r.language && <span>{r.language}</span>}
-                      {r.stars > 0 && <span className={styles.itemStars}><Star size={11} strokeWidth={1.8} aria-hidden />{r.stars}</span>}
-                    </span>
-                  </Pressable>
-                </li>
-              ))}
-              </ul>
-            </div>
-          ))}
-        </div>
+        /* 홈 설정과 같은 목록을 쓴다 — 머리글·검색창·소유 계정별 묶음의 배치가 두 화면에서 같아야 한다 */
+        <RepoPickerList
+          repos={repos}
+          login={login}
+          search={search}
+          onSearchChange={setSearch}
+          isPicked={(key) => selected.includes(key)}
+          onToggle={toggle}
+          isBlocked={(key) => atLimit && !selected.includes(key)}
+          failedOrgs={orgInfo.failed}
+          styles={outer}
+          hint={
+            selected.length > PINNED_REPO_LIMIT
+              ? L(`${PINNED_REPO_LIMIT}개까지만 표시됩니다. 위에서 "표시 안 됨" 인 것을 빼 주세요.`,
+                  `Only ${PINNED_REPO_LIMIT} are shown — remove the ones marked "Not shown" above.`)
+              : atLimit
+                ? L(`${PINNED_REPO_LIMIT}개까지 표시할 수 있습니다.`, `You can show up to ${PINNED_REPO_LIMIT}.`)
+                : L(`프로필에는 ${PINNED_REPO_LIMIT}개까지 표시됩니다.`, `Up to ${PINNED_REPO_LIMIT} appear on the profile.`)
+          }
+        />
       )}
     </div>
+  );
+}
+
+/** 끌어서 옮기는 한 줄. 손잡이만 쥐게 한다 — 줄 전체를 잡게 하면 이름을 고르려다 끌린다 */
+function SortableRow({ id, className = "", children }: { id: string; className?: string; children: React.ReactNode }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  return (
+    <li
+      ref={setNodeRef}
+      style={{ transform: CSS.Transform.toString(transform), transition }}
+      className={`${styles.pickedItem} ${className} ${isDragging ? styles.pickedDragging : ""}`}
+    >
+      <DragHandle {...attributes} {...listeners} />
+      {children}
+    </li>
   );
 }
