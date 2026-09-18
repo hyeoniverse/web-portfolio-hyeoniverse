@@ -325,6 +325,7 @@ export async function withReadmeMeta(cards: readonly GithubRepoCard[]): Promise<
         readme: {
           ...meta,
           image: absolutizeReadmeImage(meta.image, card.owner, card.name, card.defaultBranch),
+          markdown,
         },
       };
     }),

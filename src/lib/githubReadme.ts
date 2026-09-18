@@ -38,6 +38,9 @@ export interface ReadmeMeta {
   summary: string;
   /** 첫 이미지 — 배지·장식 배너는 뺀다. 상대경로일 수 있어 absolutizeReadmeImage 로 펴야 한다 */
   image: string;
+  /** README 원문. 상세 화면이 본문으로 그린다 — 목록을 위해 이미 받아 온 것이라 요청이 늘지 않는다.
+      그릴 때는 readmeToMarkdown 으로 걸러야 한다(남이 쓴 HTML 이 섞여 있다) */
+  markdown?: string;
 }
 
 const SUMMARY_MAX = 160;
