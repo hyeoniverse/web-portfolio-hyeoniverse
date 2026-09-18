@@ -165,3 +165,25 @@ describe("저장소 검색", () => {
     expect(queryByText("beta")).toBeTruthy();
   });
 });
+
+describe("README 기본값 보여주기 (#1060)", () => {
+  it("비워 둔 칸에는 README 에서 뽑은 값이 자리글로 보인다", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => ({
+      ok: true,
+      json: async () => ({
+        login: "me",
+        repos: [repo("alpha")],
+        due: ["alpha"],
+        readme: { alpha: { title: "README 제목", summary: "README 소개 문단", image: "https://raw.githubusercontent.com/me/alpha/main/a.png" } },
+      }),
+    })));
+    const { findAllByPlaceholderText, getAllByPlaceholderText, getByAltText } = render(
+      <HomeWorksEditor source="github" repos={[]} orgs={[]} onOrgsChange={() => {}} onSourceChange={() => {}} onReposChange={() => {}} styles={styles} />,
+    );
+    // 제목 자리글이 저장소 이름이 아니라 README 제목이어야 한다
+    expect(await findAllByPlaceholderText("README 제목")).toHaveLength(2);
+    expect(getAllByPlaceholderText("README 소개 문단")).toHaveLength(2);
+    // 표지도 README 것을 미리 보여준다
+    expect(getByAltText("").getAttribute("src")).toContain("/a.png");
+  });
+});

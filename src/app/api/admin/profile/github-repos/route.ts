@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { requireOwner } from "@/lib/api/requireRole";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 import { getProfileData } from "@/lib/getProfileData";
-import { listOwnedRepos, loginFromLinks, dueRepoKeys } from "@/lib/githubShowcase";
+import { listOwnedRepos, loginFromLinks, dueRepoKeys, withReadmeMeta } from "@/lib/githubShowcase";
 import { findOwnerAuthor } from "@/utils/resolvePostAuthors";
 import type { Author } from "@/types/author";
 import { HOME_SLOT_COUNT } from "@/data/works";
@@ -40,7 +40,22 @@ export async function GET() {
        규칙은 홈이 쓰는 것과 같은 함수를 부른다. 여기서 따로 계산하면 둘이 어긋난다. */
     dueRepoKeys(login, gh?.repos ?? [], HOME_SLOT_COUNT),
   ]);
+  /* 카드로 그려질 저장소만 README 를 읽는다(#1060). 설정 화면이 "비워 두면 무엇이 쓰이는지" 를
+     보여줘야 하는데, 지금은 공개 화면에서만 README 를 읽어 설정에서는 저장소 이름만 보였다.
+     고를 수 있는 전체 목록에 걸면 저장소마다 요청이 하나씩 더 나가 요청 수 제한을 그대로 쓴다. */
+  const keyOf = (r: { owner: string; name: string; fullName: string }) =>
+    r.owner && r.owner.toLowerCase() !== login.toLowerCase() ? r.fullName : r.name;
+  const cardKeys = new Set([
+    ...((config.homeWorks?.repos ?? []) as { name: string }[]).map((r) => r.name),
+    ...due,
+  ]);
+  const cards = owned.repos.filter((r) => cardKeys.has(keyOf(r)));
+  const readme: Record<string, unknown> = {};
+  for (const card of await withReadmeMeta(cards)) {
+    if (card.readme) readme[keyOf(card)] = card.readme;
+  }
+
   /* orgs·failedOrgs 도 같이 내려 화면이 "조직을 찾긴 했는지", "받다가 실패했는지" 를 말할 수 있게 한다.
      조용히 빼 버리면 조직이 왜 안 보이는지 알 방법이 없다(#1059) */
-  return NextResponse.json({ login, repos: owned.repos, orgs: owned.orgs, failedOrgs: owned.failedOrgs, due });
+  return NextResponse.json({ login, repos: owned.repos, orgs: owned.orgs, failedOrgs: owned.failedOrgs, due, readme });
 }
