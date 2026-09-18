@@ -1,5 +1,8 @@
 /* 작업물 0개 — 배경(은하수)이 뒤에 깔리고 글과 저장소 카드가 그 위에 온다 */
 .empty {
+  /* 스크롤(휠·끌기)이 얼마나 진행됐는지 0~1 — 자바스크립트가 이 값만 고쳐 쓴다 */
+  --dissolve: 0;
+
   display: flex;
   position: relative;
   flex-direction: column;
@@ -71,10 +74,34 @@
   color: var(--text-tertiary);
 }
 
-/* 원통 배치가 들어앉는 자리 — 그 배치는 화면 전체를 쓰도록 만들어져 있다 */
+/* 원통 배치가 들어앉는 자리 — 그 배치는 화면 전체를 쓰도록 만들어져 있다.
+   스크롤하면 옅어지고 흐려지며 뒤로 물러 하늘의 일부가 된다. 아예 지우지 않는 건 "배경으로
+   전환" 이지 사라지는 것이 아니기 때문이다 — 0.12 쯤 남으면 먼 성운처럼 읽힌다. */
 .stage {
   position: absolute;
   inset: 0;
+  opacity: calc(1 - var(--dissolve) * 0.88);
+  transform: scale(calc(1 - var(--dissolve) * 0.07));
+  filter: blur(calc(var(--dissolve) * 6px));
+  transform-origin: center;
+  will-change: opacity, transform, filter;
+}
+
+/* 패널이 물러난 만큼 하늘이 또렷해진다 — 두 층이 같은 값을 반대로 쓴다 */
+.skyWrap.skyWrap {
+  opacity: calc(0.82 + var(--dissolve) * 0.18);
+  transform: scale(calc(1 + var(--dissolve) * 0.05));
+  transform-origin: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stage {
+    transform: none;
+  }
+
+  .skyWrap.skyWrap {
+    transform: none;
+  }
 }
 
 /* 홈으로 — 빈 화면에서 나갈 길을 하나 둔다 */
