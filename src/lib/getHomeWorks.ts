@@ -1,16 +1,13 @@
 import { cache } from "react";
 import { projects } from "@/data/projects";
 import type { Project } from "@/data/projects";
-import { toWorkItems, toPostItems, toRepoItems, HOME_SLOT_COUNT, HOME_POOL_SPARE, type WorkItem, type RepoOverride } from "@/data/works";
+import { toWorkItems, toPostItems, toRepoItems, HOME_SLOT_COUNT, HOME_POOL_SPARE, type WorkItem } from "@/data/works";
 import type { Work } from "@/types/work";
 import type { Post } from "@/types/post";
 import { workToProject } from "@/types/work";
 import { scoreOf } from "@/lib/popularity";
 import { getSiteConfig } from "@/lib/getSiteConfig";
-import { getProfileData } from "@/lib/getProfileData";
-import { getGithubShowcase, loginFromLinks, withReadmeMeta, repoKey, homeRepoPool } from "@/lib/githubShowcase";
-import { findOwnerAuthor } from "@/utils/resolvePostAuthors";
-import type { Author } from "@/types/author";
+import { getShowcaseRepos } from "@/lib/getShowcaseRepos";
 
 /** work row + 댓글 수 (관계 count) — 인기 점수 계산용 */
 type RankedRow = Work & { work_comments?: Array<{ count: number }> };
@@ -49,7 +46,9 @@ async function fetchHomeWorks(): Promise<WorkItem[]> {
   /* 남은 건 GitHub. 아무것도 못 채우면 빈 배열이고, 홈은 이 칸을 아예 그리지 않는다 —
      첫 화면이 "볼 게 없다"고 말하게 두지 않으려는 것이다. */
   const picked = siteConfig.homeWorks?.repos ?? [];
-  return toRepoItems(await fetchRepoCards(picked, auto), picked);
+  /* 무엇을 보여줄지는 작업물 목록과 같은 함수가 정한다 — 두 군데로 갈리면 화면마다 다른 것이 나간다 */
+  const repos = await getShowcaseRepos(HOME_SLOT_COUNT + HOME_POOL_SPARE, auto);
+  return toRepoItems(repos, picked);
 }
 
 /** 표지가 있는 발행된 글 — 원을 채워야 하므로 표지 없는 글은 뺀다.
@@ -68,46 +67,6 @@ async function fetchCoveredPosts(): Promise<Post[]> {
       .order("created_at", { ascending: false })
       .limit(11);
     return (data ?? []) as Post[];
-  } catch {
-    return [];
-  }
-}
-
-/** 홈이 보여줄 저장소. 홈 설정에서 고른 것이 있으면 그 순서 그대로,
-    없으면 프로필이 고른 것, 그것도 없으면 스타 많은 순 소유 저장소.
-    사용자명은 프로필 화면이 쓰는 설정을 그대로 본다 — 두 군데로 갈리지 않게 */
-async function fetchRepoCards(picked: readonly RepoOverride[], auto: boolean) {
-  try {
-    const [profileData, siteConfig] = await Promise.all([getProfileData(), getSiteConfig()]);
-    const gh = profileData.github;
-    /* 프로필의 GitHub 영역을 꺼 뒀으면 자동으로 여기까지 내려오지는 않는다.
-       홈에서 GitHub 을 콕 집어 고른 경우는 그 뜻을 따른다 — 프로필을 껐다고 홈까지 막을 이유는 없다 */
-    if (auto && gh?.enabled === false) return [];
-    const owner = findOwnerAuthor((siteConfig.authors as Author[] | undefined) ?? []);
-    const login = loginFromLinks(owner?.links);
-    if (!login) return [];
-
-    /* 덮어쓰기만 해 둔 항목(picked: false)은 고른 것이 아니다 — 자동 채움을 그대로 두고
-       내용만 바꾼 것이라, 이게 선택으로 세어지면 자동 목록이 통째로 좁아진다(#1057) */
-    const names = picked.filter((r) => r.picked !== false).map((r) => r.name).filter(Boolean);
-    const showcase = await getGithubShowcase(login, names.length > 0 ? names : (gh?.repos ?? []));
-    if (!showcase) return [];
-    /* 홈에서 고른 것이 있으면 그것만 — 이름이 안 맞아 하나도 못 찾으면 비어 있는 게 맞는 답이다.
-       자동일 때는 프로필에서 고른 것 뒤를 스타 많은 순으로 메운다. 고른 것에서 끊으면
-       네댓 곳이 열한 칸을 돌려 쓰며 같은 원이 되풀이된다(#1062) */
-    const picks = names.length > 0
-      ? showcase.repos
-      : homeRepoPool(showcase, HOME_SLOT_COUNT + HOME_POOL_SPARE);
-    /* 자동으로 뽑힌 것 중 설정에서 빼 둔 저장소는 내보내지 않는다. 뺀 자리는 다음 후보가 채운다 —
-       고른 것이 있을 때는 보지 않는다. 고르는 행위 자체가 표시 여부를 말하므로, 자동이던 때 빼 둔
-       표시가 설정에 남아 있어도 나중에 고른 쪽이 이긴다. */
-    const hidden = new Set(picked.filter((r) => r.hidden).map((r) => r.name));
-    const shown = names.length > 0 || hidden.size === 0
-      ? picks
-      : picks.filter((repo) => !hidden.has(repoKey(repo, login)));
-
-    /* 보여줄 것이 정해진 뒤에 README 를 읽는다 — 저장소마다 요청이 하나씩 더 나가므로(#1053) */
-    return withReadmeMeta(shown);
   } catch {
     return [];
   }

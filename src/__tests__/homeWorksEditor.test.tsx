@@ -86,7 +86,8 @@ describe("toRepoItems", () => {
     expect(first.main).toBe("/c.jpg");
     // 대표 기술은 낱말이라 번역하지 않고 두 언어에 같은 값이 간다
     expect(first.category).toEqual({ ko: "Next.js", en: "Next.js" });
-    expect(first.href).toBe("https://github.com/me/alpha");
+    /* 원을 누르면 GitHub 이 아니라 사이트 안에서 README 를 읽는다(#1062) */
+    expect(first.href).toBe("/works/repos/me/alpha");
     expect(first.kind).toBe("repo");
   });
 
