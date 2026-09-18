@@ -8,24 +8,18 @@ import styles from "./CylinderIntroPanel.module.css";
 /* 슬롯 0 — 3D 인트로 패널 위에 겹쳐 놓는 HTML 오버레이.
    위치와 표시 여부는 useCylinderStage 의 rAF 가 slotRefs 로 직접 잡으므로
    여기서는 처음에 숨겨둔 채 ref 만 등록한다. 별 12개의 좌표는 고정 배열이라
-   슬롯이 다시 그려져도 배치가 흔들리지 않는다.
-
-   standalone 은 무대 없이 쓰는 모드다(#1062). 보여줄 작업물도 저장소도 없을 때 작업물 목록이
-   이 패널을 쓴다 — 빈 화면에도 사이트의 첫 얼굴은 남아 있어야 한다. 그때는 rAF 가 없으므로
-   숨겨 두지 않고 바로 보여주는 것만 다르다. 생김새·문구·자리는 원통에서와 같다. */
+   슬롯이 다시 그려져도 배치가 흔들리지 않는다. */
 export default function CylinderIntroPanel({
   slotRefs,
-  standalone = false,
 }: {
-  slotRefs?: RefObject<Map<number, HTMLDivElement>>;
-  standalone?: boolean;
+  slotRefs: RefObject<Map<number, HTMLDivElement>>;
 }) {
   const w = useSiteConfig().works;
   return (
     <div
-      ref={(el) => { if (el && slotRefs) slotRefs.current.set(0, el); }}
-      className={`${styles.introItem} ${standalone ? styles.introItemStandalone : ""}`}
-      style={standalone ? undefined : { visibility: "hidden", opacity: 0 }}
+      ref={(el) => { if (el) slotRefs.current.set(0, el); }}
+      className={styles.introItem}
+      style={{ visibility: "hidden", opacity: 0 }}
     >
       <span className={styles.introStars} aria-hidden="true">
         {Array.from({ length: 12 }, (_, i) => (

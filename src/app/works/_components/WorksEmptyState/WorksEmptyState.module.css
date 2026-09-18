@@ -66,6 +66,12 @@
   color: var(--text-tertiary);
 }
 
+/* 원통 배치가 들어앉는 자리 — 그 배치는 화면 전체를 쓰도록 만들어져 있다 */
+.stage {
+  position: absolute;
+  inset: 0;
+}
+
 /* 홈으로 — 빈 화면에서 나갈 길을 하나 둔다 */
 .home {
   display: inline-flex;

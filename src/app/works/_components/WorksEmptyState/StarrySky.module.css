@@ -85,9 +85,10 @@
   fill: var(--sky-star);
 }
 
-/* 밝은 별은 숨을 쉰다 — 밝기와 크기를 같이 바꿔야 멀리서도 반짝이는 것으로 읽힌다 */
+/* 밝은 별은 숨을 쉰다 — 밝기·크기와 함께 빛무리(drop-shadow)까지 바꿔야 반짝이는 것으로 읽힌다.
+   주기를 2.4초로 줄여 가만히 보고 있어도 움직임이 눈에 든다 */
 .twinkle {
-  animation: twinkle 3.6s ease-in-out infinite;
+  animation: twinkle 2.4s ease-in-out infinite;
   transform-box: fill-box;
   transform-origin: center;
 }
@@ -95,13 +96,15 @@
 @keyframes twinkle {
   0%,
   100% {
-    opacity: 0.25;
-    transform: scale(0.75);
+    opacity: 0.2;
+    transform: scale(0.6);
+    filter: none;
   }
 
   50% {
     opacity: 1;
-    transform: scale(1.35);
+    transform: scale(1.6);
+    filter: drop-shadow(0 0 3px var(--sky-star));
   }
 }
 
@@ -220,22 +223,41 @@
   }
 }
 
+/* 움직임을 줄여 달라는 설정 — 자리를 옮기는 것(흐름·시차·별똥별)은 모두 멈춘다.
+   다만 밝기만 오가는 반짝임은 남긴다. 어지러움을 부르는 건 움직임이고, 별이 아예 멈춘 하늘은
+   그림 한 장이라 이 화면이 있을 이유가 없어진다. 대신 느리고 얕게 바꾼다 */
 @media (prefers-reduced-motion: reduce) {
-  .twinkle,
   .band,
   .stars,
-  .constellation .line,
-  .constellation .node,
   .meteorA line,
   .meteorB line {
     animation: none;
   }
 
-  /* 포인터를 따라 밀리는 것도 멈춘다 — 자바스크립트도 값을 쓰지 않지만 규칙으로도 못 박아 둔다 */
   .band,
   .stars,
   .constellation {
     transform: none;
     transition: none;
+  }
+
+  .twinkle,
+  .constellation .node {
+    animation: twinkleSoft 5s ease-in-out infinite;
+  }
+
+  .constellation .line {
+    animation: traceLine 12s ease-in-out infinite;
+  }
+}
+
+@keyframes twinkleSoft {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+
+  50% {
+    opacity: 1;
   }
 }

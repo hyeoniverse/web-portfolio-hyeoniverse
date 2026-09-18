@@ -4,6 +4,7 @@ import { repoToProject } from "@/lib/getWorksProjects";
 import { STARS, CONSTELLATIONS } from "@/app/works/_components/WorksEmptyState/starMap";
 import WorksEmptyState from "@/app/works/_components/WorksEmptyState/WorksEmptyState";
 import { SiteConfigProvider } from "@/providers/SiteConfigProvider";
+import { ThemeProvider } from "@/providers/ThemeProvider";
 import { siteConfig } from "@/config/site.config";
 import type { SiteConfigData } from "@/config/site.config";
 import type { GithubRepoCard } from "@/lib/githubShowcase";
@@ -20,6 +21,26 @@ const repo = (over: Partial<GithubRepoCard> = {}): GithubRepoCard => ({
 });
 
 afterEach(cleanup);
+
+/* 빈 화면은 원통 배치(작업물 0개)를 품는다 — 그 배치가 테마와 설정을 읽는다.
+   3D 캔버스는 dynamic(ssr:false) 이라 jsdom 에서는 붙지 않고, DOM 부분만 그려진다.
+   jsdom 에는 matchMedia 가 없어 배치의 포인터 판별이 쓴다 — 자리만 채운다 */
+if (!window.matchMedia) {
+  Object.defineProperty(window, "matchMedia", {
+    writable: true,
+    value: (query: string) => ({
+      matches: false, media: query, onchange: null,
+      addEventListener: () => {}, removeEventListener: () => {},
+      addListener: () => {}, removeListener: () => {}, dispatchEvent: () => false,
+    }),
+  });
+}
+
+const withProviders = (children: React.ReactNode, config: unknown = siteConfig) => (
+  <SiteConfigProvider initialConfig={config as SiteConfigData}>
+    <ThemeProvider>{children}</ThemeProvider>
+  </SiteConfigProvider>
+);
 
 describe("repoToProject", () => {
   it("목록·상세가 받는 Project 모양으로 바꾼다", () => {
@@ -91,11 +112,7 @@ describe("은하수 배경", () => {
 
   it("보여줄 것이 없으면 비어 있다고 말하고 하늘을 깐다", () => {
     /* 빈 화면은 설정에서 문구를 읽고(비었으면 번역 파일), 원통의 인트로 패널을 그대로 쓴다 */
-    const { getByText, container } = render(
-      <SiteConfigProvider initialConfig={siteConfig as unknown as SiteConfigData}>
-        <WorksEmptyState />
-      </SiteConfigProvider>,
-    );
+    const { getByText, container } = render(withProviders(<WorksEmptyState />));
     expect(getByText("아직 발행한 작업물이 없습니다.")).toBeTruthy();
     expect(container.querySelector("svg")).toBeTruthy();
     // 별자리 이름이 성도처럼 얹힌다
@@ -109,11 +126,7 @@ describe("은하수 배경", () => {
       ...siteConfig,
       works: { ...siteConfig.works, emptyTitle_ko: "아직 아무것도 없습니다", emptySub_ko: "곧 채웁니다" },
     };
-    const { getByText } = render(
-      <SiteConfigProvider initialConfig={config as unknown as SiteConfigData}>
-        <WorksEmptyState />
-      </SiteConfigProvider>,
-    );
+    const { getByText } = render(withProviders(<WorksEmptyState />, config));
     expect(getByText("아직 아무것도 없습니다")).toBeTruthy();
     expect(getByText("곧 채웁니다")).toBeTruthy();
   });
