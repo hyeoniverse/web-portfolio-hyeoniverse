@@ -31,9 +31,11 @@
   text-align: center;
 }
 
+/* 인트로 패널이 이미 제목을 크게 말하고 있어서, 비어 있다는 말은 그 아래에서 한 단계 작게 */
 .title {
+  margin-top: var(--spacing-xl);
   font-family: var(--font-instrument), serif;
-  font-size: clamp(var(--font-size-title-sm), 4vw, var(--font-size-title-lg));
+  font-size: clamp(var(--font-size-title-xs), 2.4vw, var(--font-size-title-sm));
   color: var(--text-primary);
 }
 

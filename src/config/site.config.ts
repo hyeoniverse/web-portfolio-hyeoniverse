@@ -646,6 +646,11 @@ export const siteConfig = {
     statsProjects_ko: "프로젝트",
     statsClients: "Tech Stack",
     statsClients_ko: "기술 스택",
+    /* 보여줄 작업물도 저장소도 없을 때의 문구. 비우면 번역 파일의 기본 문장을 쓴다(#1062) */
+    emptyTitle: "",
+    emptyTitle_ko: "",
+    emptySub: "",
+    emptySub_ko: "",
   },
 
   // ---------------------------------------------------------------------------
