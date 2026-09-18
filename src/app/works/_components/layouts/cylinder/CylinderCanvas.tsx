@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { Canvas } from "@react-three/fiber";
 import IntroBunny from "../CylinderIntroBunny";
 import VerticalCylinder, { TransparentBg, ResponsiveCamera } from "./VerticalCylinder";
-import { createIntroDataUrl, CAMERA_Z, CAMERA_FOV } from "./scene";
+import { createIntroDataUrl, createFallbackPanelDataUrl, CAMERA_Z, CAMERA_FOV } from "./scene";
 
 /* 원통에 두르는 텍스처는 원본 주소를 그대로 받고 있었다. 작품 이미지는 1200×700 원본이라
    5장에 660KB 였고, 첫 화면을 다 그린 뒤에도 12.8초까지 계속 내려받았다.
@@ -39,6 +39,8 @@ interface CylinderCanvasProps {
   hoveredItemClassName: string;
   hoveredOverlayClassName: string;
   projectImages: string[];
+  /** 표지가 없는 칸에 그릴 판의 씨앗 — projectImages 와 같은 순서다 */
+  projectSeeds: string[];
   isDark: boolean;
   segAngle: number;
   arc: number;
@@ -57,6 +59,7 @@ export default function CylinderCanvas({
   hoveredItemClassName,
   hoveredOverlayClassName,
   projectImages,
+  projectSeeds,
   isDark,
   segAngle,
   arc,
@@ -69,10 +72,14 @@ export default function CylinderCanvas({
   overlayRefs,
   onSlotClick,
 }: CylinderCanvasProps) {
-  /* allImages[0] = 인트로, [1..N] = 작품. 인트로는 캔버스로 만들어야 해서 여기서 계산한다. */
+  /* allImages[0] = 인트로, [1..N] = 작품. 인트로와 빈 칸의 판은 캔버스로 만들어야 해서 여기서 계산한다.
+     표지가 없는 칸에 빈 주소를 넘기면 TextureLoader 가 죽으므로 반드시 대신 그릴 것을 준다(#1062) */
   const allImages = useMemo(
-    () => [createIntroDataUrl(isDark), ...projectImages.map(optimized)],
-    [isDark, projectImages],
+    () => [
+      createIntroDataUrl(isDark),
+      ...projectImages.map((url, i) => (url ? optimized(url) : createFallbackPanelDataUrl(projectSeeds[i] ?? String(i)))),
+    ],
+    [isDark, projectImages, projectSeeds],
   );
 
   return (
