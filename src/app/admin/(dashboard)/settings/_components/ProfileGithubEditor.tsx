@@ -79,6 +79,26 @@ export default function ProfileGithubEditor({
      상한에 닿으면 더 못 고르게 막는다 — 빼는 건 언제나 된다. */
   const atLimit = selected.length >= PINNED_REPO_LIMIT;
 
+  /* 설정에 적히는 키 — 개인 저장소는 이름만(예전 설정과 같은 표기), 조직 저장소는 `owner/name`.
+     조직에는 개인 계정과 같은 이름의 저장소가 있을 수 있어 이름만으로는 가리키지 못한다. */
+  const keyOf = (r: GithubRepoCard) =>
+    r.owner && login && r.owner.toLowerCase() !== login.toLowerCase() ? r.fullName : r.name;
+
+  /* 소유 계정별로 나눠 보여준다(#1057) — 한 목록에 섞으면 조직 저장소 한둘이 개인 저장소
+     사이에 파묻혀 있는 줄도 모른다. 내 저장소가 먼저, 그다음 조직들을 이름순으로. */
+  const groups = (() => {
+    const byOwner = new Map<string, GithubRepoCard[]>();
+    for (const r of repos) {
+      const owner = r.owner || login;
+      const bucket = byOwner.get(owner);
+      if (bucket) bucket.push(r);
+      else byOwner.set(owner, [r]);
+    }
+    return [...byOwner.entries()]
+      .map(([owner, items]) => ({ owner, items, isOwner: !!login && owner.toLowerCase() === login.toLowerCase() }))
+      .sort((a, b) => (a.isOwner === b.isOwner ? a.owner.localeCompare(b.owner) : a.isOwner ? -1 : 1));
+  })();
+
   /** 고른 순서를 유지한다 — 체크 순서가 곧 화면 순서다. */
   const toggle = (name: string) => {
     if (selected.includes(name)) {
@@ -206,32 +226,43 @@ export default function ProfileGithubEditor({
                       `Up to ${PINNED_REPO_LIMIT} appear on the profile.`)}
             </span>
           </div>
-          {/* data-lenis-prevent — 사이트 전역 Lenis 가 휠을 가로채서, 없으면 이 안이 스크롤되지
-              않고 페이지만 움직인다(목록 뒷부분에 닿을 방법이 없어진다). */}
-          <ul className={styles.list} data-lenis-prevent>
-          {repos.map((r) => (
-            <li key={r.name} className={`${styles.item} ${atLimit && !selected.includes(r.name) ? styles.itemBlocked : ""}`}>
-              <Checkbox
-                checked={selected.includes(r.name)}
-                onChange={() => toggle(r.name)}
-                disabled={atLimit && !selected.includes(r.name)}
-                shape="square"
-              />
-              <Pressable
-                className={styles.itemBody}
-                onClick={() => toggle(r.name)}
-                disabled={atLimit && !selected.includes(r.name)}
-              >
-                <span className={styles.itemName}>{r.name}</span>
-                {r.description && <span className={styles.itemDesc}>{r.description}</span>}
-                <span className={styles.itemMeta}>
-                  {r.language && <span>{r.language}</span>}
-                  {r.stars > 0 && <span className={styles.itemStars}><Star size={11} strokeWidth={1.8} aria-hidden />{r.stars}</span>}
-                </span>
-              </Pressable>
-            </li>
+          {groups.map((group) => (
+            <div key={group.owner} className={styles.ownerGroup}>
+              {/* 내 저장소는 위 머리글이 이미 말하고 있으므로, 조직만 이름을 따로 달아 준다 */}
+              {!group.isOwner && (
+                <div className={styles.ownerHead}>
+                  <span className={styles.ownerName}>{group.owner}</span>
+                  <span className={styles.groupCount}>{group.items.length}</span>
+                </div>
+              )}
+              {/* data-lenis-prevent — 사이트 전역 Lenis 가 휠을 가로채서, 없으면 이 안이 스크롤되지
+                  않고 페이지만 움직인다(목록 뒷부분에 닿을 방법이 없어진다). */}
+              <ul className={styles.list} data-lenis-prevent>
+              {group.items.map((r) => (
+                <li key={r.fullName} className={`${styles.item} ${atLimit && !selected.includes(keyOf(r)) ? styles.itemBlocked : ""}`}>
+                  <Checkbox
+                    checked={selected.includes(keyOf(r))}
+                    onChange={() => toggle(keyOf(r))}
+                    disabled={atLimit && !selected.includes(keyOf(r))}
+                    shape="square"
+                  />
+                  <Pressable
+                    className={styles.itemBody}
+                    onClick={() => toggle(keyOf(r))}
+                    disabled={atLimit && !selected.includes(keyOf(r))}
+                  >
+                    <span className={styles.itemName}>{r.name}</span>
+                    {r.description && <span className={styles.itemDesc}>{r.description}</span>}
+                    <span className={styles.itemMeta}>
+                      {r.language && <span>{r.language}</span>}
+                      {r.stars > 0 && <span className={styles.itemStars}><Star size={11} strokeWidth={1.8} aria-hidden />{r.stars}</span>}
+                    </span>
+                  </Pressable>
+                </li>
+              ))}
+              </ul>
+            </div>
           ))}
-          </ul>
         </div>
       )}
     </div>
