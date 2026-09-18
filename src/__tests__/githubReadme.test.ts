@@ -106,6 +106,11 @@ describe("toRepoItems 의 값 고르는 순서", () => {
     pushedAt: "2026-01-01T00:00:00Z", defaultBranch: "main", readme,
   });
 
+  it("대표 기술을 적으면 그것이 주 언어를 대신한다", () => {
+    const [item] = toRepoItems([card()], [{ name: "alpha", tech: "Next.js" }]);
+    expect(item.category.en).toBe("Next.js");
+  });
+
   it("설정에 적은 값이 README 보다 앞선다", () => {
     const [item] = toRepoItems(
       [card({ title: "README 제목", summary: "README 설명", image: "/readme.png" })],
@@ -113,8 +118,8 @@ describe("toRepoItems 의 값 고르는 순서", () => {
     );
     expect(item.title.en).toBe("직접 적은 제목");
     expect(item.main).toBe("/직접.png");
-    // 설명은 안 적었으므로 README 것으로 내려간다
-    expect(item.category.en).toBe("README 설명");
+    /* 아래 줄은 낱말 자리라 README 소개 문단을 쓰지 않는다 — 적어 둔 대표 기술이 없으면 주 언어 */
+    expect(item.category.en).toBe("TypeScript");
   });
 
   it("설정이 비면 README, README 도 없으면 GitHub 값으로 내려간다", () => {
@@ -124,7 +129,7 @@ describe("toRepoItems 의 값 고르는 순서", () => {
 
     const [bare] = toRepoItems([card()]);
     expect(bare.title.en).toBe("alpha");
-    expect(bare.category.en).toBe("깃허브 저장소 소개");
+    expect(bare.category.en).toBe("TypeScript");
     expect(bare.main).toBe("");
   });
 });
