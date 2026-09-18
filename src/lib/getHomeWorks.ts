@@ -1,14 +1,14 @@
 import { cache } from "react";
 import { projects } from "@/data/projects";
 import type { Project } from "@/data/projects";
-import { toWorkItems, toPostItems, toRepoItems, type WorkItem, type RepoOverride } from "@/data/works";
+import { toWorkItems, toPostItems, toRepoItems, HOME_SLOT_COUNT, HOME_POOL_SPARE, type WorkItem, type RepoOverride } from "@/data/works";
 import type { Work } from "@/types/work";
 import type { Post } from "@/types/post";
 import { workToProject } from "@/types/work";
 import { scoreOf } from "@/lib/popularity";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 import { getProfileData } from "@/lib/getProfileData";
-import { getGithubShowcase, loginFromLinks, withReadmeMeta } from "@/lib/githubShowcase";
+import { getGithubShowcase, loginFromLinks, withReadmeMeta, repoKey, homeRepoPool } from "@/lib/githubShowcase";
 import { findOwnerAuthor } from "@/utils/resolvePostAuthors";
 import type { Author } from "@/types/author";
 
@@ -92,12 +92,22 @@ async function fetchRepoCards(picked: readonly RepoOverride[], auto: boolean) {
     const names = picked.filter((r) => r.picked !== false).map((r) => r.name).filter(Boolean);
     const showcase = await getGithubShowcase(login, names.length > 0 ? names : (gh?.repos ?? []));
     if (!showcase) return [];
-    // 고른 것이 있으면 그것만 — 이름이 안 맞아 하나도 못 찾으면 비어 있는 게 맞는 답이다
+    /* 홈에서 고른 것이 있으면 그것만 — 이름이 안 맞아 하나도 못 찾으면 비어 있는 게 맞는 답이다.
+       자동일 때는 프로필에서 고른 것 뒤를 스타 많은 순으로 메운다. 고른 것에서 끊으면
+       네댓 곳이 열한 칸을 돌려 쓰며 같은 원이 되풀이된다(#1062) */
     const picks = names.length > 0
       ? showcase.repos
-      : (showcase.repos.length > 0 ? showcase.repos : showcase.topRepos);
+      : homeRepoPool(showcase, HOME_SLOT_COUNT + HOME_POOL_SPARE);
+    /* 자동으로 뽑힌 것 중 설정에서 빼 둔 저장소는 내보내지 않는다. 뺀 자리는 다음 후보가 채운다 —
+       고른 것이 있을 때는 보지 않는다. 고르는 행위 자체가 표시 여부를 말하므로, 자동이던 때 빼 둔
+       표시가 설정에 남아 있어도 나중에 고른 쪽이 이긴다. */
+    const hidden = new Set(picked.filter((r) => r.hidden).map((r) => r.name));
+    const shown = names.length > 0 || hidden.size === 0
+      ? picks
+      : picks.filter((repo) => !hidden.has(repoKey(repo, login)));
+
     /* 보여줄 것이 정해진 뒤에 README 를 읽는다 — 저장소마다 요청이 하나씩 더 나가므로(#1053) */
-    return withReadmeMeta(picks);
+    return withReadmeMeta(shown);
   } catch {
     return [];
   }

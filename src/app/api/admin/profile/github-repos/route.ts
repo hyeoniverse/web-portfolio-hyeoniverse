@@ -2,10 +2,10 @@ import { NextResponse } from "next/server";
 import { requireOwner } from "@/lib/api/requireRole";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 import { getProfileData } from "@/lib/getProfileData";
-import { listOwnedRepos, loginFromLinks, dueRepoKeys, withReadmeMeta } from "@/lib/githubShowcase";
+import { listOwnedRepos, loginFromLinks, dueRepoKeys, withReadmeMeta, repoKey } from "@/lib/githubShowcase";
 import { findOwnerAuthor } from "@/utils/resolvePostAuthors";
 import type { Author } from "@/types/author";
-import { HOME_SLOT_COUNT } from "@/data/works";
+import { HOME_SLOT_COUNT, HOME_POOL_SPARE } from "@/data/works";
 
 /**
  * GET /api/admin/profile/github-repos — 고를 수 있는 저장소 목록
@@ -35,24 +35,23 @@ export async function GET() {
   const gh = (await getProfileData()).github;
   const [owned, due] = await Promise.all([
     listOwnedRepos(login, gh?.orgs ?? []),
-    /* 아무것도 고르지 않았을 때 홈에 나갈 저장소. 설정 화면이 그걸 보여줘야 표지·제목을
+    /* 아무것도 고르지 않았을 때 홈에 나갈 저장소 후보. 설정 화면이 그걸 보여줘야 표지·제목을
        미리 손볼 수 있다 — 안 그러면 자동으로 나가는 것들은 건드릴 방법이 없다(#1057).
-       규칙은 홈이 쓰는 것과 같은 함수를 부른다. 여기서 따로 계산하면 둘이 어긋난다. */
-    dueRepoKeys(login, gh?.repos ?? [], HOME_SLOT_COUNT),
+       규칙은 홈이 쓰는 것과 같은 함수를 부른다. 여기서 따로 계산하면 둘이 어긋난다.
+       칸 수보다 넉넉히 받는다. 화면이 빼 둔 것을 걸러낸 뒤에 칸 수만큼 줄인다. */
+    dueRepoKeys(login, gh?.repos ?? [], HOME_SLOT_COUNT + HOME_POOL_SPARE),
   ]);
   /* 카드로 그려질 저장소만 README 를 읽는다(#1060). 설정 화면이 "비워 두면 무엇이 쓰이는지" 를
      보여줘야 하는데, 지금은 공개 화면에서만 README 를 읽어 설정에서는 저장소 이름만 보였다.
      고를 수 있는 전체 목록에 걸면 저장소마다 요청이 하나씩 더 나가 요청 수 제한을 그대로 쓴다. */
-  const keyOf = (r: { owner: string; name: string; fullName: string }) =>
-    r.owner && r.owner.toLowerCase() !== login.toLowerCase() ? r.fullName : r.name;
   const cardKeys = new Set([
     ...((config.homeWorks?.repos ?? []) as { name: string }[]).map((r) => r.name),
     ...due,
   ]);
-  const cards = owned.repos.filter((r) => cardKeys.has(keyOf(r)));
+  const cards = owned.repos.filter((r) => cardKeys.has(repoKey(r, login)));
   const readme: Record<string, unknown> = {};
   for (const card of await withReadmeMeta(cards)) {
-    if (card.readme) readme[keyOf(card)] = card.readme;
+    if (card.readme) readme[repoKey(card, login)] = card.readme;
   }
 
   /* orgs·failedOrgs 도 같이 내려 화면이 "조직을 찾긴 했는지", "받다가 실패했는지" 를 말할 수 있게 한다.
