@@ -90,11 +90,16 @@ describe("repoToProject", () => {
 
 describe("은하수 배경", () => {
   it("별 좌표는 고정이다 — 그릴 때마다 뽑으면 서버와 화면이 어긋난다", () => {
-    expect(STARS).toHaveLength(220);
-    expect(STARS[0]).toEqual(STARS[0]);
+    expect(STARS).toHaveLength(520);
     // 값이 정해져 있다는 뜻 — 숫자가 바뀌면 배경이 바뀐 것이다
     expect(Number.isFinite(STARS[0].x)).toBe(true);
-    expect(STARS.every((s) => s.x >= 0 && s.x <= 1000 && s.y >= 0 && s.y <= 1000)).toBe(true);
+    /* 화면(0~1000)보다 넓은 자리에 뿌린다 — 하늘이 도는 동안 모서리가 비지 않게 */
+    expect(STARS.every((s) => s.x >= -250 && s.x <= 1250 && s.y >= -250 && s.y <= 1250)).toBe(true);
+    // 그래도 화면 안이 성기면 안 된다 — 절반 이상은 보이는 자리에 있어야 한다
+    const onScreen = STARS.filter((s) => s.x >= 0 && s.x <= 1000 && s.y >= 0 && s.y <= 1000);
+    expect(onScreen.length).toBeGreaterThan(200);
+    // 가장 흐린 별도 밝은 바탕에서 보일 만큼은 된다
+    expect(Math.min(...STARS.map((s) => s.o))).toBeGreaterThan(0.35);
     /* 반짝이는 별은 일부만 — 전부면 소란스럽고, 몇 개만이면 멈춰 보인다 */
     const twinkling = STARS.filter((s) => s.twinkle).length;
     expect(twinkling).toBeGreaterThan(STARS.length * 0.2);
