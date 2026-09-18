@@ -10,9 +10,9 @@ import styles from "./CylinderIntroPanel.module.css";
    여기서는 처음에 숨겨둔 채 ref 만 등록한다. 별 12개의 좌표는 고정 배열이라
    슬롯이 다시 그려져도 배치가 흔들리지 않는다.
 
-   standalone 은 무대 없이 그 자리에 그대로 두는 모드다(#1062). 보여줄 작업물도 저장소도 없을 때
-   작업물 목록이 이 패널을 그대로 쓴다 — 빈 화면에도 사이트의 첫 얼굴은 남아 있어야 한다.
-   그때는 원통이 없으므로 rAF 가 자리를 잡아 주지 않고, 스크롤로 넘길 것도 없다. */
+   standalone 은 무대 없이 쓰는 모드다(#1062). 보여줄 작업물도 저장소도 없을 때 작업물 목록이
+   이 패널을 쓴다 — 빈 화면에도 사이트의 첫 얼굴은 남아 있어야 한다. 그때는 rAF 가 없으므로
+   숨겨 두지 않고 바로 보여주는 것만 다르다. 생김새·문구·자리는 원통에서와 같다. */
 export default function CylinderIntroPanel({
   slotRefs,
   standalone = false,
@@ -48,8 +48,7 @@ export default function CylinderIntroPanel({
         <span className={styles.introRuleLine} />
       </span>
       <p className={styles.introTagline}><T ko={w.introTagline_ko} en={w.introTagline} /></p>
-      {/* 넘길 것이 없는 화면에서는 스크롤을 권하지 않는다 */}
-      {!standalone && <span className={styles.introScroll}>scroll to explore ↓</span>}
+      <span className={styles.introScroll}>scroll to explore ↓</span>
     </div>
   );
 }

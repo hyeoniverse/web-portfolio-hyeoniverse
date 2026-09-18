@@ -54,7 +54,8 @@ function makeStars(count: number, seed: number): Star[] {
       y: Math.round(y * 10) / 10,
       r: Math.round((0.6 + bright ** 3 * 1.7) * 100) / 100,
       o: Math.round((0.25 + bright * 0.6) * 100) / 100,
-      twinkle: bright > 0.82,
+      /* 셋에 하나쯤 반짝인다 — 전부 깜박이면 소란스럽고, 몇 개만 하면 멈춰 보인다 */
+      twinkle: bright > 0.62,
     });
   }
   return stars;
