@@ -31,10 +31,9 @@ export default function WorksEmptyState() {
   const panelFadeRef = useRef(0);
 
   /* 스크롤하면 패널이 배경으로 녹아든다(#1062).
-     원통 배치는 휠을 제가 받아 원통을 돌리므로(useCylinderStage 가 preventDefault) 페이지는 스크롤되지
-     않는다. 그래서 휠·끌기의 양을 따로 세어 0~1 로 환산하고, 그 값으로 패널을 흐리고 뒤로 물린다.
-     패널은 앞에 떠 있는 판이 아니라 하늘의 일부가 되어야 한다 — 사라지지 않고 옅어진다.
-     상태가 아니라 CSS 변수만 고쳐 쓴다. 휠은 초당 수십 번 오므로 다시 그리면 3D 가 같이 버벅인다. */
+     인트로 칸만 있는 화면에서는 원통을 굴리지 않는다(frozen). 그러면 글자와 몽이가 제자리에 남고,
+     휠·끌기의 양은 이 화면이 받아 0~1 로 환산해 판이 펴지는 정도로 쓴다.
+     상태가 아니라 CSS 변수와 ref 로 쓴다 — 휠은 초당 수십 번 오므로 다시 그리면 3D 가 같이 버벅인다. */
   useEffect(() => {
     const el = rootRef.current;
     if (!el) return;
@@ -46,14 +45,15 @@ export default function WorksEmptyState() {
       el.style.setProperty("--dissolve", progress.toFixed(3));
       panelFadeRef.current = progress;
     };
+    /* 어느 쪽으로 굴려도 앞으로 간다 — 이 화면에는 내려갈 곳이 없어서 "아래로 굴리면 진행,
+       위로 굴리면 되감기" 는 어느 쪽이 맞는지 알 수 없다. 움직인 양만 센다.
+       한 화면 높이쯤 굴리면 판이 다 펴진다 */
     const advance = (delta: number) => {
-      /* 한 화면 높이쯤 굴리면 다 녹는다. 되감으면 돌아온다 */
-      progress = Math.min(1, Math.max(0, progress + delta / (window.innerHeight * 0.9)));
+      progress = Math.min(1, progress + Math.abs(delta) / (window.innerHeight * 0.9));
       if (!frame) frame = requestAnimationFrame(write);
     };
 
     const onWheel = (event: WheelEvent) => advance(event.deltaY);
-    /* 손가락은 끄는 방향이 반대다 — 위로 밀면 내려가는 것이라 부호를 뒤집는다 */
     let lastTouchY: number | null = null;
     const onTouchStart = (event: TouchEvent) => { lastTouchY = event.touches[0]?.clientY ?? null; };
     const onTouchMove = (event: TouchEvent) => {
