@@ -171,3 +171,8 @@
   margin-bottom: var(--spacing-xs);
   line-height: var(--line-height-snug);
 }
+
+/* 조직 조회 실패 안내 — 조용히 비어 있으면 원인을 알 수 없다 */
+.orgWarn {
+  color: var(--text-error-strong);
+}
