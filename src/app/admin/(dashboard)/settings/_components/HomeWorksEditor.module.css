@@ -176,3 +176,19 @@
 .orgWarn {
   color: var(--text-error-strong);
 }
+
+/* README 에서 뽑은 표지 미리보기 — 올린 것과 구분되게 살짝 죽이고 "자동" 표식을 얹는다 */
+.coverAuto {
+  opacity: 0.65;
+}
+
+.coverAutoTag {
+  position: absolute;
+  bottom: var(--spacing-3xs);
+  left: var(--spacing-3xs);
+  padding: 0 var(--spacing-2xs);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-primary);
+  font-size: var(--font-size-micro);
+  color: var(--text-secondary);
+}
