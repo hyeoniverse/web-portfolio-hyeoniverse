@@ -15,6 +15,7 @@ import type { ProfileData } from "@/types/profile";
 import { PINNED_REPO_LIMIT, type GithubRepoCard } from "@/lib/githubShowcase";
 import styles from "./ProfileGithubEditor.module.css";
 import Pressable from "@/components/ui/Pressable";
+import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 
 /**
  * 프로필 페이지의 GitHub 영역 설정.
@@ -44,6 +45,7 @@ export default function ProfileGithubEditor({
   const [login, setLogin] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
 
   const patch = (next: Partial<NonNullable<ProfileData["github"]>>) =>
     setData((d) => ({ ...d, github: { ...(d.github ?? {}), ...next } }));
@@ -86,9 +88,17 @@ export default function ProfileGithubEditor({
 
   /* 소유 계정별로 나눠 보여준다(#1057) — 한 목록에 섞으면 조직 저장소 한둘이 개인 저장소
      사이에 파묻혀 있는 줄도 모른다. 내 저장소가 먼저, 그다음 조직들을 이름순으로. */
+  /* 이름·소개·언어·소유 계정 중 아무 데나 걸리면 남긴다 — 열여섯 곳쯤 되면 눈으로 훑기 어렵다 */
+  const query = search.trim().toLowerCase();
+  const matched = query
+    ? repos.filter((r) =>
+        [r.name, r.description, r.language, r.owner].some((v) => v?.toLowerCase().includes(query)),
+      )
+    : repos;
+
   const groups = (() => {
     const byOwner = new Map<string, GithubRepoCard[]>();
-    for (const r of repos) {
+    for (const r of matched) {
       const owner = r.owner || login;
       const bucket = byOwner.get(owner);
       if (bucket) bucket.push(r);
@@ -226,7 +236,16 @@ export default function ProfileGithubEditor({
                       `Up to ${PINNED_REPO_LIMIT} appear on the profile.`)}
             </span>
           </div>
-          {groups.map((group) => (
+          <SearchCapsule
+            search={search}
+            onSearchChange={setSearch}
+            placeholder={L("저장소 검색", "Search repositories")}
+            size="sm"
+            historyKey={null}
+          />
+          {matched.length === 0 ? (
+            <EmptyState size="xs" pad="sm">{L("찾는 저장소가 없습니다.", "No matching repositories.")}</EmptyState>
+          ) : groups.map((group) => (
             <div key={group.owner} className={styles.ownerGroup}>
               {/* 내 저장소는 위 머리글이 이미 말하고 있으므로, 조직만 이름을 따로 달아 준다 */}
               {!group.isOwner && (
