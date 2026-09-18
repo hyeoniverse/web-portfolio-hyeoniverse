@@ -35,8 +35,11 @@ export default function WorkDetailClient({
     !project.content.en ? "ko" : !project.content.ko ? "en" : language === "en" ? "en" : "ko"
   );
   const isAdmin = useIsAuthenticated();
+  /* GitHub 저장소 README 로 만든 항목 — 좋아요·댓글을 받을 행이 없고 편집 화면도 없다(#1062).
+     endpoint 를 null 로 두면 마운트 때 아무것도 묻지 않는다 */
+  const external = project.external === true;
   const { count: likeCount, liked, busy: likeBusy, toggle: handleLikeToggle } = useLikeToggle({
-    endpoint: `/api/works/${project.id}/like`,
+    endpoint: external ? null : `/api/works/${project.id}/like`,
   });
   const [relatedPosts, setRelatedPosts] = useState<RelatedPostItem[]>([]);
   const [relatedSeries, setRelatedSeries] = useState<RelatedSeriesItem[]>([]);
@@ -85,13 +88,13 @@ export default function WorkDetailClient({
           project={project}
           viewLang={viewLang}
           onLangChange={setViewLang}
-          isAdmin={isAdmin}
+          isAdmin={isAdmin && !external}
           relatedPosts={relatedPosts}
           relatedSeries={relatedSeries}
         />
       }
       afterContent={<WorkArticleTeam project={project} viewLang={viewLang} />}
-      likeConfig={{ count: likeCount, liked, busy: likeBusy, onToggle: handleLikeToggle }}
+      likeConfig={external ? undefined : { count: likeCount, liked, busy: likeBusy, onToggle: handleLikeToggle }}
       adjacentConfig={{
         prev: prevProject ? {
           href: `/works/${prevProject.slug || prevProject.id}`,
@@ -107,7 +110,7 @@ export default function WorkDetailClient({
         nextLabelKey: "workDetail.next",
         className: styles.adjacentNavTopBorder,
       }}
-      commentsConfig={{ commentType: "work", targetId: project.id, translationEnabled }}
+      commentsConfig={external ? undefined : { commentType: "work", targetId: project.id, translationEnabled }}
       backLink={{ href: "/works", labelKey: "workDetail.viewAll" }}
     >
       <WorkArticleBody project={project} viewLang={viewLang} />

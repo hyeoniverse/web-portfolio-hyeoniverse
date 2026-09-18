@@ -51,7 +51,11 @@ export async function GET() {
   const cards = owned.repos.filter((r) => cardKeys.has(repoKey(r, login)));
   const readme: Record<string, unknown> = {};
   for (const card of await withReadmeMeta(cards)) {
-    if (card.readme) readme[repoKey(card, login)] = card.readme;
+    /* 화면이 쓰는 건 표지·제목·소개뿐이다 — README 원문까지 실으면 응답이 저장소마다 수십 KB 늘어난다 */
+    if (card.readme) {
+      const { title, summary, image } = card.readme;
+      readme[repoKey(card, login)] = { title, summary, image };
+    }
   }
 
   /* orgs·failedOrgs 도 같이 내려 화면이 "조직을 찾긴 했는지", "받다가 실패했는지" 를 말할 수 있게 한다.
