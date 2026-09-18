@@ -26,6 +26,9 @@ import styles from "./WorksEmptyState.module.css";
 export default function WorksEmptyState() {
   const { t, language } = useLanguage();
   const rootRef = useRef<HTMLElement>(null);
+  /* 3D 판이 펴지며 옅어지는 정도 — 씬은 매 프레임 이 값을 읽는다. 글자는 CSS 변수로 같이 사라지고,
+     몽이는 어느 쪽도 건드리지 않아 그대로 남는다(#1062) */
+  const panelFadeRef = useRef(0);
 
   /* 스크롤하면 패널이 배경으로 녹아든다(#1062).
      원통 배치는 휠을 제가 받아 원통을 돌리므로(useCylinderStage 가 preventDefault) 페이지는 스크롤되지
@@ -41,6 +44,7 @@ export default function WorksEmptyState() {
     const write = () => {
       frame = 0;
       el.style.setProperty("--dissolve", progress.toFixed(3));
+      panelFadeRef.current = progress;
     };
     const advance = (delta: number) => {
       /* 한 화면 높이쯤 굴리면 다 녹는다. 되감으면 돌아온다 */
@@ -85,7 +89,7 @@ export default function WorksEmptyState() {
 
       {/* 작업물 0개 — 원통에는 인트로 칸만 남는다. 누를 작업물이 없으니 전환도 없다 */}
       <div className={styles.stage}>
-        <CylinderLayout projects={[]} onProjectClick={() => {}} bare />
+        <CylinderLayout projects={[]} onProjectClick={() => {}} bare panelFadeRef={panelFadeRef} />
       </div>
 
       <div className={styles.message}>

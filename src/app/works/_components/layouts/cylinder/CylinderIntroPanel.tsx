@@ -34,15 +34,20 @@ export default function CylinderIntroPanel({
       </span>
       <span className={styles.introOvalOuter} aria-hidden="true" />
       <span className={styles.introOvalInner} aria-hidden="true" />
-      <span className={styles.introLabel}><T ko={w.introLabel_ko} en={w.introLabel} /></span>
-      <h1 className={styles.introTitle}><T ko={w.introTitle_ko} en={w.introTitle} /></h1>
-      <span className={styles.introRule} aria-hidden="true">
-        <span className={styles.introRuleLine} />
-        <span className={styles.introRuleDot} />
-        <span className={styles.introRuleLine} />
+      {/* 글자 묶음 — 작업물이 없는 화면에서는 스크롤에 따라 이 묶음만 사라진다(#1062).
+          --dissolve 는 그 화면이 쓰는 값이고, 원통에서는 정의되지 않아 1 로 남는다.
+          패널의 opacity 는 무대(rAF)가 매 프레임 쥐고 있어서 거기에 얹을 수 없다 */}
+      <span className={styles.introText}>
+        <span className={styles.introLabel}><T ko={w.introLabel_ko} en={w.introLabel} /></span>
+        <h1 className={styles.introTitle}><T ko={w.introTitle_ko} en={w.introTitle} /></h1>
+        <span className={styles.introRule} aria-hidden="true">
+          <span className={styles.introRuleLine} />
+          <span className={styles.introRuleDot} />
+          <span className={styles.introRuleLine} />
+        </span>
+        <p className={styles.introTagline}><T ko={w.introTagline_ko} en={w.introTagline} /></p>
+        <span className={styles.introScroll}>scroll to explore ↓</span>
       </span>
-      <p className={styles.introTagline}><T ko={w.introTagline_ko} en={w.introTagline} /></p>
-      <span className={styles.introScroll}>scroll to explore ↓</span>
     </div>
   );
 }

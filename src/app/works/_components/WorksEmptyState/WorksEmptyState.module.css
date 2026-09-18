@@ -1,7 +1,15 @@
 /* 작업물 0개 — 배경(은하수)이 뒤에 깔리고 글과 저장소 카드가 그 위에 온다 */
+/* 플라네타리움 돔 — 테마와 무관하게 어둡다. 밝은 테마에서 흰 바탕에 별을 뿌리면 아무리 진하게
+   해도 종이에 그린 성도가 되어 하늘로 보이지 않았다. 인트로 패널의 글자는 두 테마 모두 흰색이라
+   어두운 돔 위에서 그대로 읽힌다.
+   가운데가 밝고 가장자리로 가며 어두워지는 겹을 둘 얹어 천장이 둥글게 덮인 느낌을 만든다. */
 .empty {
   /* 스크롤(휠·끌기)이 얼마나 진행됐는지 0~1 — 자바스크립트가 이 값만 고쳐 쓴다 */
   --dissolve: 0;
+
+  background:
+    radial-gradient(120% 90% at 50% 8%, rgb(28 34 68 / 85%) 0%, rgb(8 10 24 / 95%) 55%, rgb(3 4 12) 100%),
+    rgb(3 4 12);
 
   display: flex;
   position: relative;
@@ -64,31 +72,29 @@
 
 /* 인트로 패널이 이미 제목을 크게 말하고 있어서, 비어 있다는 말은 그 아래에서 한 단계 작게 */
 .title {
+  /* 돔은 테마와 무관하게 어둡다 — 글자도 테마를 따르지 않는다 */
+  color: var(--text-white);
   font-family: var(--font-instrument), serif;
   font-size: clamp(var(--font-size-title-xs), 2.4vw, var(--font-size-title-sm));
-  color: var(--text-primary);
 }
 
 .sub {
   font-size: var(--font-size-body);
-  color: var(--text-tertiary);
+  color: var(--color-white-alpha-70);
 }
 
 /* 원통 배치가 들어앉는 자리 — 그 배치는 화면 전체를 쓰도록 만들어져 있다.
    스크롤하면 패널이 뒤로 물러나는 게 아니라 **커지면서** 넘어간다. 화면보다 크게 부풀며 옅어지므로
    보는 쪽은 패널 안으로 들어가고, 그 자리를 하늘이 받는다. 뒤로 물리면(축소) 멀어지는 것이라
    두 층이 그냥 교차될 뿐이고, 커지며 넘어가면 하나가 다른 하나로 바뀌는 것으로 읽힌다. */
+/* 판이 펴지는 일은 3D 쪽(VerticalCylinder)이 맡는다 — 판만 넓히고 옅게 하려면 그 판의 재질을
+   건드려야 하고, 여기서 감싸개를 통째로 키우면 같은 씬의 몽이까지 따라 커진다 */
 .stage {
   position: absolute;
   inset: 0;
-  opacity: calc(1 - var(--dissolve));
-  transform: scale(calc(1 + var(--dissolve) * 1.8));
-  filter: blur(calc(var(--dissolve) * 10px));
-  transform-origin: center;
-  will-change: opacity, transform, filter;
 }
 
-/* 하늘은 살짝 당겨진 채로 시작해 제자리로 내려앉는다 — 패널이 부풀어 넘겨준 자리를 받는 움직임이다 */
+/* 하늘은 살짝 당겨진 채로 시작해 제자리로 내려앉는다 — 판이 펴져 넘겨준 자리를 받는 움직임이다 */
 .skyWrap.skyWrap {
   opacity: calc(0.78 + var(--dissolve) * 0.22);
   transform: scale(calc(1.07 - var(--dissolve) * 0.07));
@@ -97,11 +103,6 @@
 
 /* 움직임을 줄여 달라는 설정 — 크기는 그대로 두고 밝기만 넘겨받는다 */
 @media (prefers-reduced-motion: reduce) {
-  .stage {
-    transform: none;
-    filter: none;
-  }
-
   .skyWrap.skyWrap {
     transform: none;
   }
@@ -115,8 +116,12 @@
   margin-top: var(--spacing-sm);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
-  color: var(--text-accent);
+  color: var(--color-white-alpha-70);
   text-decoration: none;
+}
+
+.home:hover {
+  color: var(--text-white);
 }
 
 .home:hover {
