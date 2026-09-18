@@ -71,6 +71,11 @@ interface FieldProps {
   maxLength?: number;
   /** 라벨 옆 ? 툴팁 내용 — 있으면 FieldHelp 렌더 (additive, 없으면 기존과 동일). */
   help?: React.ReactNode;
+  /** 단일행 입력칸(counter 없는 Input)에 얹는 클래스. 자동으로 채운 값을 옅게 보이게 하는 데 쓴다 */
+  inputClassName?: string;
+  /** 같은 입력칸의 포커스 들고 나감 — 편집 중에는 자동값 대신 적은 값을 보여주는 칸에서 쓴다 */
+  onFocus?: () => void;
+  onBlur?: () => void;
 }
 
 const MAX_HINT_PRESETS: Record<MaxHintPreset, number> = {
@@ -87,7 +92,7 @@ function resolveMaxHint(v: number | MaxHintPreset | undefined | null, multiline:
   return typeof v === "string" ? MAX_HINT_PRESETS[v] : v;
 }
 
-export default function Field({ label, value, onChange, multiline, placeholder, hint, labelInline, required, langBadge, maxHint, maxLength, help, suggestions }: FieldProps) {
+export default function Field({ label, value, onChange, multiline, placeholder, hint, labelInline, required, langBadge, maxHint, maxLength, help, suggestions, inputClassName, onFocus, onBlur }: FieldProps) {
   const { t } = useLanguage();
   const listId = useId();
   /* 라벨은 텍스트만 담고 입력칸은 형제라 htmlFor 로 연결한다 — 안 하면 스크린리더가 필드 이름을 못 읽는다 */
@@ -131,6 +136,9 @@ export default function Field({ label, value, onChange, multiline, placeholder, 
             onChange={onChange}
             placeholder={placeholder}
             inlineLabel={badgeStr}
+            className={inputClassName}
+            onFocus={onFocus}
+            onBlur={onBlur}
             list={options.length > 0 ? listId : undefined}
           />
           {options.length > 0 && (
