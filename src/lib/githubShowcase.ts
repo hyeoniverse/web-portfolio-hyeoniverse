@@ -387,12 +387,22 @@ export async function listOwnedRepos(login: string, extraOrgs: readonly string[]
   };
 }
 
-/** 소속 조직(공개) + 설정에 적어 둔 조직. 대소문자만 다른 중복은 하나로 본다 */
+/**
+ * 소속 조직 + 설정에 적어 둔 조직. 대소문자만 다른 중복은 하나로 본다.
+ *
+ * 자동으로 찾는 길이 둘이다. `/users/{login}/orgs` 는 **공개로 표시한 소속만** 준다. 소속을
+ * 비공개로 둔 조직은 여기 안 잡히므로 토큰으로 `/user/orgs` 도 물어본다 — 다만 이건 토큰에
+ * 조직 읽기 권한이 있어야 하고, 세분화 토큰에 그 권한이 없으면 빈 배열이 온다.
+ * 둘 다 못 찾는 조직은 설정에 이름을 적는 수밖에 없다.
+ */
 async function resolveOrgs(login: string, extraOrgs: readonly string[], token: string | null): Promise<string[]> {
-  const raw = await gh(`/users/${encodeURIComponent(login)}/orgs?per_page=100`, token);
-  const memberOf = Array.isArray(raw)
-    ? (raw as Array<Record<string, unknown>>).map((o) => str(o.login)).filter(Boolean)
-    : [];
+  const [publicRaw, tokenRaw] = await Promise.all([
+    gh(`/users/${encodeURIComponent(login)}/orgs?per_page=100`, token),
+    token ? gh("/user/orgs?per_page=100", token) : Promise.resolve(null),
+  ]);
+  const logins = (raw: unknown) =>
+    Array.isArray(raw) ? (raw as Array<Record<string, unknown>>).map((o) => str(o.login)).filter(Boolean) : [];
+  const memberOf = [...logins(publicRaw), ...logins(tokenRaw)];
   const seen = new Set<string>();
   const out: string[] = [];
   for (const name of [...memberOf, ...extraOrgs.map((o) => o.trim()).filter(Boolean)]) {
