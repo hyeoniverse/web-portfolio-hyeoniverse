@@ -45,10 +45,14 @@
 }
 
 /* 별 층은 포인터를 따라 밀리면서, 아주 느리게 한 바퀴 흐른다 — 90초는 보고 있어도 움직임을
-   알아채기 어렵지만 잠깐 눈을 뗀 뒤에는 달라져 있다 */
+   알아채기 어렵지만 잠깐 눈을 뗀 뒤에는 달라져 있다.
+   기준점을 못 박아 두는 것이 중요하다 — SVG 그룹의 기본 기준점은 viewBox 의 원점(0,0), 즉 왼쪽
+   위 모서리다. 그대로 돌리면 별밭이 화면 밖으로 쓸려 나가 별이 사라지는 시점이 생긴다. */
 .stars {
   transform: translate(calc(var(--pointer-x) * 14px), calc(var(--pointer-y) * 14px));
   animation: drift 90s linear infinite;
+  transform-box: view-box;
+  transform-origin: 50% 50%;
 }
 
 @keyframes drift {
