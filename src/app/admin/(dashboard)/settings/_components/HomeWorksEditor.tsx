@@ -391,9 +391,11 @@ export default function HomeWorksEditor({
               {groupedRepos.map((group, groupIndex) => (
                 <div className={gh.group} key={group.owner}>
                   <div className={gh.groupHead}>
+                    {/* 조직이라는 것을 먼저 말하고 이름을 뱃지로 — "저장소 15" 와 같은 모양이면 무엇의 묶음인지 안 보인다 */}
                     <span className={`${outer.sectionSubTitle} ${gh.groupLabel}`}>
-                      {group.isOwner ? L("내 저장소", "My repositories") : group.owner}
+                      {group.isOwner ? L("내 저장소", "My repositories") : L("조직", "Organization")}
                     </span>
+                    {!group.isOwner && <span className={styles.ownerTag}>{group.owner}</span>}
                     <span className={gh.groupCount}>{group.repos.length}</span>
                     {/* 안내는 첫 묶음에만 — 묶음마다 되풀이하면 목록보다 설명이 길어진다 */}
                     {groupIndex === 0 && (
