@@ -149,3 +149,19 @@ describe("조직 묶음", () => {
     expect(getByText("acme")).toBeTruthy();
   });
 });
+
+describe("저장소 검색", () => {
+  it("이름으로 걸러낸다", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => ({
+      ok: true,
+      json: async () => ({ login: "me", repos: [repo("alpha"), repo("beta")], due: [] }),
+    })));
+    const { findByText, queryByText, getByPlaceholderText } = render(
+      <HomeWorksEditor source="github" repos={[]} orgs={[]} onOrgsChange={() => {}} onSourceChange={() => {}} onReposChange={() => {}} styles={styles} />,
+    );
+    await findByText("alpha");
+    fireEvent.change(getByPlaceholderText("저장소 검색"), { target: { value: "bet" } });
+    expect(queryByText("alpha")).toBeNull();
+    expect(queryByText("beta")).toBeTruthy();
+  });
+});

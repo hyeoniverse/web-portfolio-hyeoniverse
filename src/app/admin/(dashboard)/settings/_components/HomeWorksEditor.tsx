@@ -13,6 +13,7 @@ import Select from "@/components/ui/Select";
 import EmptyState from "@/components/ui/EmptyState";
 import Pressable from "@/components/ui/Pressable";
 import TagListField from "@/components/ui/TagListField";
+import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { errorText } from "@/lib/apiError";
 import { uploadFile } from "@/lib/adminUpload";
@@ -58,6 +59,7 @@ export default function HomeWorksEditor({
   /** 아무것도 고르지 않았을 때 홈에 나갈 저장소 키 — 서버가 홈과 같은 규칙으로 계산해 준다 */
   const [due, setDue] = useState<string[]>([]);
   const [login, setLogin] = useState("");
+  const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -100,11 +102,19 @@ export default function HomeWorksEditor({
   const keyOf = (r: GithubRepoCard) =>
     r.owner && login && r.owner.toLowerCase() !== login.toLowerCase() ? r.fullName : r.name;
 
+  /* 이름·소개·언어·소유 계정 중 아무 데나 걸리면 남긴다. 열여섯 곳쯤 되면 눈으로 훑기 어렵다 */
+  const query = search.trim().toLowerCase();
+  const matched = query
+    ? list.filter((r) =>
+        [r.name, r.description, r.language, r.owner].some((v) => v?.toLowerCase().includes(query)),
+      )
+    : list;
+
   /* 소유 계정별 묶음 — 내 저장소가 먼저, 그다음 조직들을 이름순으로.
      목록이 온 순서(최근 수정 순)는 묶음 안에서 그대로 지킨다. */
   const groupedRepos = (() => {
     const groups = new Map<string, GithubRepoCard[]>();
-    for (const r of list) {
+    for (const r of matched) {
       const owner = r.owner || login;
       const bucket = groups.get(owner);
       if (bucket) bucket.push(r);
@@ -252,7 +262,7 @@ export default function HomeWorksEditor({
                     : L("노출 예정 저장소", "Repositories due to appear")}
                 </span>
                 <span className={gh.groupCount}>{cards.length}</span>
-                <span className={`${outer.fieldHint} ${gh.groupHint}`}>
+                <span className={`${outer.fieldHint} ${gh.groupHint} ${styles.cardsHint}`}>
                   {chosen.length > 0
                     ? L("비워 둔 항목은 GitHub 의 값이 그대로 적용됩니다.", "Fields left blank fall back to the GitHub values.")
                     : L(
@@ -345,10 +355,23 @@ export default function HomeWorksEditor({
 
           {error && <p className={gh.error}>{error}</p>}
 
+          {list.length > 0 && (
+            <SearchCapsule
+              search={search}
+              onSearchChange={setSearch}
+              placeholder={L("저장소 검색", "Search repositories")}
+              size="sm"
+              historyKey={null}
+              showHelp={false}
+            />
+          )}
+
           {loading ? (
             <EmptyState size="xs" pad="sm">{L("저장소를 불러오는 중…", "Loading repositories…")}</EmptyState>
           ) : list.length === 0 && !error ? (
             <EmptyState size="xs" pad="sm">{L("저장소가 없습니다.", "No repositories.")}</EmptyState>
+          ) : matched.length === 0 ? (
+            <EmptyState size="xs" pad="sm">{L("찾는 저장소가 없습니다.", "No matching repositories.")}</EmptyState>
           ) : (
             /* 소유 계정별로 나눠 보여준다 — 한 목록에 섞으면 조직 저장소 한둘이 최근 수정 순
                사이에 파묻혀 있는 줄도 모른다. 내 저장소가 먼저, 그다음 조직들. */
