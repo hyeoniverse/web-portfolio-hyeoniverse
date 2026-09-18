@@ -74,8 +74,10 @@ describe("은하수 배경", () => {
     // 값이 정해져 있다는 뜻 — 숫자가 바뀌면 배경이 바뀐 것이다
     expect(Number.isFinite(STARS[0].x)).toBe(true);
     expect(STARS.every((s) => s.x >= 0 && s.x <= 1000 && s.y >= 0 && s.y <= 1000)).toBe(true);
-    // 반짝이는 별은 일부만
-    expect(STARS.filter((s) => s.twinkle).length).toBeLessThan(STARS.length / 3);
+    /* 반짝이는 별은 일부만 — 전부면 소란스럽고, 몇 개만이면 멈춰 보인다 */
+    const twinkling = STARS.filter((s) => s.twinkle).length;
+    expect(twinkling).toBeGreaterThan(STARS.length * 0.2);
+    expect(twinkling).toBeLessThan(STARS.length * 0.6);
   });
 
   it("별자리는 이어 그릴 별을 가리킨다", () => {

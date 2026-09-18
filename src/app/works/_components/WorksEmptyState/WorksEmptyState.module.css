@@ -21,19 +21,41 @@
   mask-image: linear-gradient(to bottom, rgb(0 0 0) 55%, rgb(0 0 0 / 0%) 100%);
 }
 
+/* 패널이 화면 가운데에 고정돼 있어서 문구는 아래쪽에 앉힌다 — 가운데에 겹쳐 놓으면 서로 읽히지 않는다 */
 .message {
   display: flex;
-  position: relative;
+  position: absolute;
+  right: 0;
+  bottom: var(--spacing-4xl);
+  left: 0;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-sm);
-  padding-top: var(--spacing-6xl);
+  gap: var(--spacing-2xs);
+  padding: 0 var(--spacing-xl);
   text-align: center;
+  animation: messageIn 0.8s 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes messageIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .message {
+    animation: none;
+  }
 }
 
 /* 인트로 패널이 이미 제목을 크게 말하고 있어서, 비어 있다는 말은 그 아래에서 한 단계 작게 */
 .title {
-  margin-top: var(--spacing-xl);
   font-family: var(--font-instrument), serif;
   font-size: clamp(var(--font-size-title-xs), 2.4vw, var(--font-size-title-sm));
   color: var(--text-primary);
@@ -49,7 +71,7 @@
   display: inline-flex;
   gap: var(--spacing-2xs);
   align-items: center;
-  margin-top: var(--spacing-lg);
+  margin-top: var(--spacing-sm);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   color: var(--text-accent);

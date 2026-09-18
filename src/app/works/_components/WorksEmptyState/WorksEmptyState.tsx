@@ -35,9 +35,10 @@ export default function WorksEmptyState() {
         <StarrySky />
       </div>
 
+      {/* 원통 배치의 첫 패널 — 생김새·자리 그대로. 화면 가운데에 고정된다 */}
+      <CylinderIntroPanel standalone />
+
       <div className={styles.message}>
-        {/* 원통 배치의 첫 패널 — 무대 없이 그 자리에 둔다 */}
-        <CylinderIntroPanel standalone />
         <p className={styles.title}>{pick("emptyTitle", t("worksPage.emptyTitle"))}</p>
         <p className={styles.sub}>{pick("emptySub", t("worksPage.emptySub"))}</p>
         <Link href="/" className={styles.home}>
