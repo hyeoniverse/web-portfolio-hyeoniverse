@@ -3,10 +3,12 @@
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useTheme } from "@/providers/ThemeProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { ArrowRight } from "@/components/icons";
 import CylinderLayout from "../layouts/CylinderLayout";
 import StarrySky, { Constellations } from "./StarrySky";
+import PetalDrift from "./PetalDrift";
 import styles from "./WorksEmptyState.module.css";
 
 /**
@@ -16,8 +18,9 @@ import styles from "./WorksEmptyState.module.css";
  * 목록을 채우므로(getWorksProjects) 이 화면은 정말 비어 있을 때의 모습이다.
  *
  * 빈 가로 스크롤만 남겨 두면 고장인지 비어 있는 것인지 알 수 없다. 비어 있다고 말하고,
- * 그 말만 덩그러니 놓이지 않게 배경을 은하수와 별자리로 채운다. 하늘은 천천히 흐르고 포인터를
- * 따라 층마다 다르게 밀린다(StarrySky).
+ * 그 말만 덩그러니 놓이지 않게 배경을 채운다. 배경은 테마에 따라 둘이다 — 어두운 쪽은 은하수와
+ * 별자리가 있는 플라네타리움 돔, 밝은 쪽은 꽃잎이 내려오는 봄날이다. 밝은 바탕에 별을 뿌리면
+ * 종이에 찍은 점으로 보여 하늘이 되지 않는다.
  *
  * 가운데에는 원통 배치를 작업물 0개로 그린다 — 그러면 그 배치의 첫 칸(몽이가 있는 검붉은 인트로
  * 패널)만 남는다. 패널을 따로 만들지 않는 건 그것이 3D 판·몽이·DOM 오버레이가 맞물린 것이라,
@@ -25,6 +28,7 @@ import styles from "./WorksEmptyState.module.css";
  */
 export default function WorksEmptyState() {
   const { t, language } = useLanguage();
+  const { theme } = useTheme();
   const rootRef = useRef<HTMLElement>(null);
   /* 3D 판이 펴지며 옅어지는 정도 — 씬은 매 프레임 이 값을 읽는다. 글자는 CSS 변수로 같이 사라지고,
      몽이는 어느 쪽도 건드리지 않아 그대로 남는다(#1062) */
@@ -82,9 +86,15 @@ export default function WorksEmptyState() {
   return (
     <section ref={rootRef} className={styles.empty}>
       <div className={styles.skyWrap} aria-hidden>
-        <StarrySky />
-        {/* 별자리는 하늘 그림과 따로 앉는다 — 한 그림에 두면 잘려 나간다 */}
-        <Constellations />
+        {theme === "dark" ? (
+          <>
+            <StarrySky />
+            {/* 별자리는 하늘 그림과 따로 앉는다 — 한 그림에 두면 잘려 나간다 */}
+            <Constellations />
+          </>
+        ) : (
+          <PetalDrift />
+        )}
       </div>
 
       {/* 작업물 0개 — 원통에는 인트로 칸만 남는다. 누를 작업물이 없으니 전환도 없다 */}
