@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { ArrowRight } from "@/components/icons";
-import CylinderIntroPanel from "../layouts/cylinder/CylinderIntroPanel";
+import CylinderLayout from "../layouts/CylinderLayout";
 import StarrySky from "./StarrySky";
 import styles from "./WorksEmptyState.module.css";
 
@@ -18,8 +18,9 @@ import styles from "./WorksEmptyState.module.css";
  * 그 말만 덩그러니 놓이지 않게 배경을 은하수와 별자리로 채운다. 하늘은 천천히 흐르고 포인터를
  * 따라 층마다 다르게 밀린다(StarrySky).
  *
- * 가운데에는 원통 배치의 첫 인트로 패널을 그대로 쓴다 — 작업물이 없다고 사이트의 첫 얼굴까지
- * 사라질 이유가 없고, 그 패널의 문구(라벨·제목·한 줄)는 이미 설정에서 고칠 수 있다.
+ * 가운데에는 원통 배치를 작업물 0개로 그린다 — 그러면 그 배치의 첫 칸(몽이가 있는 검붉은 인트로
+ * 패널)만 남는다. 패널을 따로 만들지 않는 건 그것이 3D 판·몽이·DOM 오버레이가 맞물린 것이라,
+ * 흉내 내면 곧 원본과 달라지기 때문이다. 작업물이 없다고 사이트의 첫 얼굴까지 사라질 이유는 없다.
  */
 export default function WorksEmptyState() {
   const { t, language } = useLanguage();
@@ -35,8 +36,10 @@ export default function WorksEmptyState() {
         <StarrySky />
       </div>
 
-      {/* 원통 배치의 첫 패널 — 생김새·자리 그대로. 화면 가운데에 고정된다 */}
-      <CylinderIntroPanel standalone />
+      {/* 작업물 0개 — 원통에는 인트로 칸만 남는다. 누를 작업물이 없으니 전환도 없다 */}
+      <div className={styles.stage}>
+        <CylinderLayout projects={[]} onProjectClick={() => {}} />
+      </div>
 
       <div className={styles.message}>
         <p className={styles.title}>{pick("emptyTitle", t("worksPage.emptyTitle"))}</p>

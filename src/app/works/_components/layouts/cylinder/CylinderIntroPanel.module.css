@@ -162,31 +162,3 @@
   }
 }
 
-/* 무대 없이 쓰는 모드(#1062) — 생김새는 원통에서와 같고, rAF 가 매 프레임 덮어쓰던
-   visibility·opacity 만 여기서 켠다. 자리·크기(.introItem 의 fixed 중앙·520px)는 그대로 둔다.
-   같은 클래스 두 번으로 (0,2,0) — 전역 transition 과 번들 순서에 맡기지 않는다 */
-.introItemStandalone.introItemStandalone {
-  visibility: visible;
-  opacity: 1;
-  /* 가만히 있으면 그림 한 장처럼 보인다 — 아주 느리게 떠오르고 가라앉는다.
-     translate 는 가운데 맞추는 값(-50%)을 지켜야 하므로 애니메이션 안에서 같이 적는다 */
-  animation: introFloat 7s ease-in-out infinite;
-}
-
-@keyframes introFloat {
-  0%,
-  100% {
-    transform: translate(-50%, calc(-50% - 5px));
-  }
-
-  50% {
-    transform: translate(-50%, calc(-50% + 5px));
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .introItemStandalone.introItemStandalone {
-    animation: none;
-    transform: translate(-50%, -50%);
-  }
-}
