@@ -20,8 +20,44 @@ import {
 } from "./scene";
 
 /* ── Texture loader ── */
+/* 표지를 한 장 못 받았다고 원통 전체가 사라지면 안 된다.
+   useLoader 는 실패를 그대로 던지고, 그러면 Canvas 아래가 통째로 날아간다(표지가 SVG 라서 이미지
+   최적화가 거부하거나, 주소가 옮겨졌거나, 바깥 저장소가 막았을 때 실제로 그렇게 됐다).
+   실패한 자리만 무채색 판으로 채우고 나머지는 그대로 그린다(#1062). */
+let fallbackTexture: THREE.Texture | null = null;
+function blankTexture(): THREE.Texture {
+  if (fallbackTexture) return fallbackTexture;
+  const canvas = document.createElement("canvas");
+  canvas.width = 2;
+  canvas.height = 2;
+  const ctx = canvas.getContext("2d");
+  if (ctx) {
+    ctx.fillStyle = "#6e7681";
+    ctx.fillRect(0, 0, 2, 2);
+  }
+  fallbackTexture = new THREE.CanvasTexture(canvas);
+  return fallbackTexture;
+}
+
+class ForgivingTextureLoader extends THREE.TextureLoader {
+  load(
+    url: string,
+    onLoad?: (data: THREE.Texture<HTMLImageElement>) => void,
+    onProgress?: (event: ProgressEvent) => void,
+    onError?: (err: unknown) => void,
+  ): THREE.Texture<HTMLImageElement> {
+    void onError;
+    return super.load(url, onLoad, onProgress, (err) => {
+      /* onError 를 부르지 않는다 — 부르면 useLoader 가 던지고 Canvas 아래가 날아간다.
+         대신 성공한 것처럼 판을 넘긴다. 판은 캔버스로 만든 텍스처라 타입만 맞춰 준다 */
+      console.warn("[cylinder] 표지를 받지 못해 빈 판으로 대신합니다:", url, err);
+      onLoad?.(blankTexture() as unknown as THREE.Texture<HTMLImageElement>);
+    });
+  }
+}
+
 function useImageTextures(urls: string[]) {
-  const textures = useLoader(THREE.TextureLoader, urls);
+  const textures = useLoader(ForgivingTextureLoader, urls);
   return Array.isArray(textures) ? textures : [textures];
 }
 

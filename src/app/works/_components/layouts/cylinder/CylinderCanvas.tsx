@@ -17,6 +17,10 @@ const TEXTURE_QUALITY = 75;
 
 function optimized(url: string): string {
   if (!url.startsWith("http")) return url;
+  /* SVG 는 최적화를 거치지 않는다 — next/image 는 dangerouslyAllowSVG 를 켜지 않으면 SVG 요청을
+     400 으로 거부하고, 그 주소를 텍스처로 받으면 원통이 통째로 죽는다. 그림 파일 자체는 그대로
+     받아 쓸 수 있다(브라우저는 <img> 로 SVG 를 그릴 수 있다). 벡터라 용량도 문제되지 않는다 */
+  if (/\.svg(\?|#|$)/i.test(url)) return url;
   return `/_next/image?url=${encodeURIComponent(url)}&w=${TEXTURE_WIDTH}&q=${TEXTURE_QUALITY}`;
 }
 import type { useCylinderStage } from "./useCylinderStage";
