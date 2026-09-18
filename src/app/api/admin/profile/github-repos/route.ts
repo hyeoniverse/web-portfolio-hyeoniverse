@@ -33,12 +33,14 @@ export async function GET() {
 
   /* 조직 저장소도 같이 준다. 공개 소속 조직은 자동으로 잡히고, 여기 적힌 조직은 거기에 더해진다 */
   const gh = (await getProfileData()).github;
-  const [repos, due] = await Promise.all([
+  const [owned, due] = await Promise.all([
     listOwnedRepos(login, gh?.orgs ?? []),
     /* 아무것도 고르지 않았을 때 홈에 나갈 저장소. 설정 화면이 그걸 보여줘야 표지·제목을
        미리 손볼 수 있다 — 안 그러면 자동으로 나가는 것들은 건드릴 방법이 없다(#1057).
        규칙은 홈이 쓰는 것과 같은 함수를 부른다. 여기서 따로 계산하면 둘이 어긋난다. */
     dueRepoKeys(login, gh?.repos ?? [], HOME_SLOT_COUNT),
   ]);
-  return NextResponse.json({ login, repos, due });
+  /* orgs·failedOrgs 도 같이 내려 화면이 "조직을 찾긴 했는지", "받다가 실패했는지" 를 말할 수 있게 한다.
+     조용히 빼 버리면 조직이 왜 안 보이는지 알 방법이 없다(#1059) */
+  return NextResponse.json({ login, repos: owned.repos, orgs: owned.orgs, failedOrgs: owned.failedOrgs, due });
 }
