@@ -3,7 +3,7 @@
 import { forwardRef, memo, useCallback, useState } from "react";
 import MediaThumb from "@/components/ui/MediaThumb";
 import { motion, MotionValue } from "framer-motion";
-import { WorkItem } from "@/data/works";
+import { WorkItem, coverFitStyle, type CoverFit } from "@/data/works";
 import { pickLocalized } from "@/types/common";
 import T from "@/components/ui/T";
 import type { Language } from "@/providers/LanguageProvider";
@@ -50,6 +50,18 @@ interface WorkCircleProps {
 /** 저장소 칸의 색 — 채움과 글자색을 CSS 변수로 넘긴다. 언어 색은 디자인 토큰이 아니라 값이 여기로 들어온다 */
 const accentVars = (work: WorkItem): React.CSSProperties =>
   ({ "--repo-fill": work.accent, "--repo-ink": work.accentInk }) as React.CSSProperties;
+
+/* 표지를 원 안에서 어디에 맞출지 — 설정에서 옮겨 둔 값이 없으면 가운데다.
+   object-fit: cover 는 넘치는 쪽을 양끝에서 같이 깎으므로, 이 값이 무엇을 남길지 정한다 */
+/* 설정에서 맞춰 둔 자리·배율을 그대로 적용한다 — 계산은 설정 화면의 미리보기와 같은 함수(coverFitStyle)가
+   한다. 배율은 그림에만 걸리므로 올렸을 때의 확대 애니메이션(바깥 층)과는 곱해진다 */
+const fitStyle = (fit?: CoverFit): React.CSSProperties | undefined =>
+  fit ? { ...coverFitStyle(fit), transformOrigin: "center" } : undefined;
+
+const coverStyle = (work: WorkItem) => fitStyle(work.mainFit);
+
+/** 올렸을 때 드러나는 표지 — 다른 그림이면 맞출 자리도 배율도 다르다 */
+const hoverCoverStyle = (work: WorkItem) => fitStyle(work.hoverFit);
 
 const TOOLTIP_WRAPPER_STYLE: React.CSSProperties = { width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" };
 
@@ -116,6 +128,7 @@ const WorkCircle = memo(function WorkCircle({
                 fill
                 sizes="(max-width: 768px) 40vw, (max-width: 1024px) 30vw, 25vw"
                 className={styles.image}
+                style={coverStyle(work)}
               />
             ) : (
               <div className={styles.accentFill} style={accentVars(work)}>
@@ -170,6 +183,7 @@ const WorkCircle = memo(function WorkCircle({
                   fill
                   sizes="(max-width: 768px) 40vw, (max-width: 1024px) 30vw, 25vw"
                   className={styles.image}
+                  style={hoverCoverStyle(work)}
                 />
               ) : (
                 <div className={styles.accentFill} style={accentVars(work)} />
@@ -329,12 +343,11 @@ const WorksSection = forwardRef<HTMLElement, WorksSectionProps>(
       }
     }
 
-    /* 머리글은 실제로 그려진 것을 따른다 — 글이나 저장소가 들어찬 자리에 "Selected Works" 를
-       얹으면 글자와 내용이 어긋난다. 두 줄인 것은 그대로 둔다(칸 크기가 두 줄에 맞춰져 있다) */
+    /* 글이 들어찬 자리에는 머리글도 글이라고 말한다 — 거기에 "Selected Works" 를 얹으면
+       글자와 내용이 어긋난다. 저장소는 작업물이므로 Works 를 그대로 쓴다.
+       두 줄인 것은 그대로 둔다(칸 크기가 두 줄에 맞춰져 있다) */
     const [titleTop, titleBottom] =
-      works[0]?.kind === "post" ? ["Selected", "Writing"]
-      : works[0]?.kind === "repo" ? ["Selected", "Repos"]
-      : ["Selected", "Works"];
+      works[0]?.kind === "post" ? ["Selected", "Writing"] : ["Selected", "Works"];
 
     items.push(
       <div key="title" className={styles.titleCell}>

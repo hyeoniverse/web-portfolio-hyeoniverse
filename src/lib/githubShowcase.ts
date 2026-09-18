@@ -68,6 +68,9 @@ export interface GithubShowcase {
   /** 고른 게 없을 때 대신 쓸 목록 — 소유 저장소를 스타 많은 순, 같으면 최근에 손댄 순으로.
       홈이 보여줄 게 하나도 없을 때 여기를 쓴다. 고르는 화면(프로필)은 위 repos 만 본다. */
   topRepos: GithubRepoCard[];
+  /** 같은 순서의 소유 저장소 전부. topRepos 는 이것의 앞부분이다.
+      홈은 고른 것 뒤를 이걸로 메워야 하므로 자른 목록만으로는 모자란다 */
+  rankedRepos: GithubRepoCard[];
   /** 최근 1년 잔디 — GraphQL 전용이라 GITHUB_TOKEN 이 있을 때만 채워진다. 없으면 null. */
   contributions: { total: number; weeks: ContributionDay[][] } | null;
 }
@@ -255,10 +258,10 @@ export async function getGithubShowcase(
     .filter((r): r is RawRepo => Boolean(r))
     .map(toCard);
 
-  const topRepos = [...own]
+  const rankedRepos = [...own]
     .sort((a, b) => num(b.stargazers_count) - num(a.stargazers_count) || str(b.pushed_at).localeCompare(str(a.pushed_at)))
-    .slice(0, PINNED_REPO_LIMIT)
     .map(toCard);
+  const topRepos = rankedRepos.slice(0, PINNED_REPO_LIMIT);
 
   const langTotal = [...langCount.values()].reduce((a, b) => a + b, 0);
 
@@ -291,6 +294,7 @@ export async function getGithubShowcase(
     lastPushedAt: own.map((r) => str(r.pushed_at)).sort().reverse()[0] ?? "",
     repos,
     topRepos,
+    rankedRepos,
     contributions,
   };
 }
@@ -417,19 +421,46 @@ async function resolveOrgs(login: string, extraOrgs: readonly string[], token: s
 export { githubLoginFromLinks as loginFromLinks } from "@/utils/githubLogin";
 
 /**
- * 홈 설정에서 아무것도 고르지 않았을 때 실제로 나갈 저장소 키(#1057).
+ * 설정에 적히는 저장소 키 — 개인 저장소는 이름만, 조직 저장소는 `owner/name`.
+ *
+ * 조직에는 개인 계정과 같은 이름의 저장소가 있을 수 있어 이름만으로는 가리키지 못한다.
+ * 공개 화면·설정 화면·API 가 모두 이 함수를 부른다. 각자 적으면 한 곳만 고쳐도 키가 갈린다.
+ */
+export function repoKey(repo: { owner: string; name: string; fullName: string }, login: string): string {
+  return repo.owner && login && repo.owner.toLowerCase() !== login.toLowerCase() ? repo.fullName : repo.name;
+}
+
+/**
+ * 홈 그리드를 채울 저장소 후보 — 프로필에서 고른 것이 앞, 남은 자리는 스타 많은 순으로 잇는다.
+ *
+ * 고른 것에서 끊으면 네댓 곳이 열한 칸을 돌려 쓰며 같은 원이 되풀이된다(#1062). 고른 순서는
+ * 그대로 지키고, 뒤에 붙는 것만 순위로 정한다. 조직 저장소는 고른 것에만 들어 있다 —
+ * 메우는 쪽은 소유 계정의 저장소다.
+ */
+export function homeRepoPool(showcase: GithubShowcase, limit: number): GithubRepoCard[] {
+  const seen = new Set<string>();
+  const pool: GithubRepoCard[] = [];
+  for (const repo of [...showcase.repos, ...showcase.rankedRepos]) {
+    if (seen.has(repo.fullName)) continue;
+    seen.add(repo.fullName);
+    pool.push(repo);
+    if (pool.length >= limit) break;
+  }
+  return pool;
+}
+
+/**
+ * 홈 설정에서 아무것도 고르지 않았을 때 나갈 저장소 후보(#1057).
  *
  * 홈이 쓰는 규칙(프로필에서 고른 것 → 없으면 스타 많은 순 소유 저장소)을 여기 한 번만 적어 두고,
  * 공개 화면과 설정 화면이 같이 부른다. 각자 계산하면 설정에 보이는 것과 실제로 나가는 것이 갈린다.
- * 키 표기는 저장소를 고를 때와 같다 — 개인 저장소는 이름만, 조직 저장소는 `owner/name`.
+ *
+ * limit 은 칸 수보다 넉넉해야 한다 — 설정 화면에서 자동 칸을 하나 빼면 그다음 후보가 그 자리에
+ * 들어오는데(홈도 그렇게 그린다), 칸 수에 딱 맞춰 두면 화면이 그 자리를 채울 수 없다.
+ * 칸 수만큼 줄이는 것은 빼 둔 것을 걸러낸 뒤에 부르는 쪽에서 한다.
  */
 export async function dueRepoKeys(login: string, profilePicks: readonly string[], limit: number): Promise<string[]> {
   const showcase = await getGithubShowcase(login, profilePicks);
   if (!showcase) return [];
-  const cards = showcase.repos.length > 0 ? showcase.repos : showcase.topRepos;
-  /* 칸 수보다 많이 골라 둘 수 있다 — 프로필에 열네 곳이 적혀 있어도 홈은 앞에서부터 열한 칸만 쓴다.
-     설정 화면이 "노출 예정" 이라며 안 나갈 것까지 늘어놓으면 안 된다 */
-  return cards.slice(0, limit).map((r) =>
-    r.owner && login && r.owner.toLowerCase() !== login.toLowerCase() ? r.fullName : r.name,
-  );
+  return homeRepoPool(showcase, limit).map((repo) => repoKey(repo, login));
 }
