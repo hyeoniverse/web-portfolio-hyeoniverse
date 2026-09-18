@@ -23,11 +23,15 @@ export function useCylinderStage({
   segAngle,
   arc,
   indicatorDotActiveClassName,
+  frozen = false,
 }: {
   slotCount: number;
   segAngle: number;
   arc: number;
   indicatorDotActiveClassName: string;
+  /** 굴리지 않는다 — 작업물이 없어 인트로 칸만 있을 때는 돌릴 것이 없고, 돌리면 그 칸에 붙어
+      있는 글자와 몽이가 화면 밖으로 따라 나간다(#1062). 휠은 부르는 쪽이 따로 쓴다 */
+  frozen?: boolean;
 }) {
   const scrollRef = useRef(0);
   const mouseRef = useRef({ x: 0, y: 0 });
@@ -48,6 +52,7 @@ export function useCylinderStage({
 
   // Wheel
   useEffect(() => {
+    if (frozen) return;
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
       const clamped = Math.max(-SCROLL_CLAMP, Math.min(SCROLL_CLAMP, e.deltaY));
@@ -55,7 +60,7 @@ export function useCylinderStage({
     };
     window.addEventListener("wheel", onWheel, { passive: false });
     return () => window.removeEventListener("wheel", onWheel);
-  }, []);
+  }, [frozen]);
 
   /* 슬롯을 앞면으로 돌린다 — 키보드 목록에서 초점이 옮겨 갈 때 쓴다. 휠과 같은 scrollRef 를 옮기므로
      회전은 휠처럼 따라온다. 씬의 목표 회전각이 scrollRef × segAngle × slotCount 라, 슬롯 i 가 앞면이 되는

@@ -77,6 +77,8 @@ export default function CylinderLayout({ projects, onProjectClick, bare = false,
     segAngle,
     arc,
     indicatorDotActiveClassName: styles.indicatorDotActive,
+    /* 인트로 칸만 있는 화면은 굴리지 않는다 — 돌리면 그 칸에 붙은 글자와 몽이가 따라 나간다 */
+    frozen: bare,
   });
 
   const { recentComments, bubbleRefs } = useFloatingComments(slotBoundsRef);
