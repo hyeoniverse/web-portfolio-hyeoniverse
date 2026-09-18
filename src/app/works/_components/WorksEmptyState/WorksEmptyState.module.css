@@ -75,28 +75,31 @@
 }
 
 /* 원통 배치가 들어앉는 자리 — 그 배치는 화면 전체를 쓰도록 만들어져 있다.
-   스크롤하면 옅어지고 흐려지며 뒤로 물러 하늘의 일부가 된다. 아예 지우지 않는 건 "배경으로
-   전환" 이지 사라지는 것이 아니기 때문이다 — 0.12 쯤 남으면 먼 성운처럼 읽힌다. */
+   스크롤하면 패널이 뒤로 물러나는 게 아니라 **커지면서** 넘어간다. 화면보다 크게 부풀며 옅어지므로
+   보는 쪽은 패널 안으로 들어가고, 그 자리를 하늘이 받는다. 뒤로 물리면(축소) 멀어지는 것이라
+   두 층이 그냥 교차될 뿐이고, 커지며 넘어가면 하나가 다른 하나로 바뀌는 것으로 읽힌다. */
 .stage {
   position: absolute;
   inset: 0;
-  opacity: calc(1 - var(--dissolve) * 0.88);
-  transform: scale(calc(1 - var(--dissolve) * 0.07));
-  filter: blur(calc(var(--dissolve) * 6px));
+  opacity: calc(1 - var(--dissolve));
+  transform: scale(calc(1 + var(--dissolve) * 1.8));
+  filter: blur(calc(var(--dissolve) * 10px));
   transform-origin: center;
   will-change: opacity, transform, filter;
 }
 
-/* 패널이 물러난 만큼 하늘이 또렷해진다 — 두 층이 같은 값을 반대로 쓴다 */
+/* 하늘은 살짝 당겨진 채로 시작해 제자리로 내려앉는다 — 패널이 부풀어 넘겨준 자리를 받는 움직임이다 */
 .skyWrap.skyWrap {
-  opacity: calc(0.82 + var(--dissolve) * 0.18);
-  transform: scale(calc(1 + var(--dissolve) * 0.05));
+  opacity: calc(0.78 + var(--dissolve) * 0.22);
+  transform: scale(calc(1.07 - var(--dissolve) * 0.07));
   transform-origin: center;
 }
 
+/* 움직임을 줄여 달라는 설정 — 크기는 그대로 두고 밝기만 넘겨받는다 */
 @media (prefers-reduced-motion: reduce) {
   .stage {
     transform: none;
+    filter: none;
   }
 
   .skyWrap.skyWrap {
