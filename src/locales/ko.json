@@ -517,6 +517,11 @@
     "pinnedPost": "고정된 글",
     "perPage": "{{n}}개씩"
   },
+  "worksPage": {
+    "emptyTitle": "아직 발행한 작업물이 없습니다.",
+    "emptySub": "준비가 되면 이 자리에 작업물이 놓입니다.",
+    "backHome": "홈으로 돌아가기"
+  },
   "bunny": {
     "exprNormal": "기본",
     "exprNormalDesc": "평소 모습이에요.",
