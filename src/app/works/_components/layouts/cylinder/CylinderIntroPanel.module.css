@@ -163,12 +163,3 @@
 }
 
 
-/* 글자 묶음 — 패널 안에서 원래대로 세로로 쌓인다. 작업물이 없는 화면에서는 스크롤(--dissolve)에
-   따라 이 묶음만 사라지고 3D 판과 몽이는 남는다. 원통에서는 --dissolve 가 없어 1 이다 */
-.introText {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--spacing-md);
-  opacity: calc(1 - var(--dissolve, 0));
-}
