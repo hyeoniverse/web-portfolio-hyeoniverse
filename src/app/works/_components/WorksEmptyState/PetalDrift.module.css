@@ -1,0 +1,73 @@
+/* 꽃잎이 내려오는 자리 — 글자 아래에 깔리고 어떤 입력도 받지 않는다 */
+.field {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* 꽃잎 한 장 — 한쪽이 뾰족한 타원. 색은 분홍과 살구 사이를 --tone 으로 섞는다.
+   떨어짐·흔들림·회전을 한 요소에 겹치면 서로를 덮으므로, 떨어짐은 여기서 맡고
+   흔들림·회전은 가상 요소가 맡는다 */
+.petal {
+  position: absolute;
+  top: -8%;
+  animation: fall var(--fall-duration, 20s) linear var(--fall-delay, 0s) infinite;
+  will-change: transform;
+}
+
+.petal::before {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 62% 38% 58% 42% / 58% 52% 48% 42%;
+  background: color-mix(in oklab, var(--petal-warm) calc(var(--tone, 0.5) * 100%), var(--petal-cool));
+  animation:
+    sway calc(var(--fall-duration, 20s) / 3) ease-in-out var(--fall-delay, 0s) infinite alternate,
+    spin var(--fall-duration, 20s) linear var(--fall-delay, 0s) infinite;
+}
+
+@keyframes fall {
+  from {
+    transform: translateY(0);
+  }
+
+  to {
+    /* 화면 아래로 완전히 빠져나간다 — 8% 위에서 시작하므로 116% 면 끝까지 지나간다 */
+    transform: translateY(116vh);
+  }
+}
+
+@keyframes sway {
+  from {
+    margin-left: calc(var(--sway, 6vw) * -0.5);
+  }
+
+  to {
+    margin-left: calc(var(--sway, 6vw) * 0.5);
+  }
+}
+
+@keyframes spin {
+  from {
+    rotate: 0deg;
+  }
+
+  to {
+    rotate: var(--spin, 360deg);
+  }
+}
+
+/* 움직임을 줄여 달라는 설정 — 떨어지지도 흔들리지도 않고, 화면에 흩어진 채로 멈춘다.
+   빈 화면이 아주 비어 보이지는 않아야 해서 지우지는 않는다 */
+@media (prefers-reduced-motion: reduce) {
+  .petal {
+    top: var(--rest-top, 50%);
+    animation: none;
+  }
+
+  .petal::before {
+    animation: none;
+  }
+}

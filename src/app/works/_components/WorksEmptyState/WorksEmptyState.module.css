@@ -1,15 +1,19 @@
 /* 작업물 0개 — 배경(은하수)이 뒤에 깔리고 글과 저장소 카드가 그 위에 온다 */
-/* 플라네타리움 돔 — 테마와 무관하게 어둡다. 밝은 테마에서 흰 바탕에 별을 뿌리면 아무리 진하게
-   해도 종이에 그린 성도가 되어 하늘로 보이지 않았다. 인트로 패널의 글자는 두 테마 모두 흰색이라
-   어두운 돔 위에서 그대로 읽힌다.
-   가운데가 밝고 가장자리로 가며 어두워지는 겹을 둘 얹어 천장이 둥글게 덮인 느낌을 만든다. */
+/* 빈 화면 — 배경은 테마에 따라 둘이다.
+   밝은 쪽은 이른 봄 한낮처럼 따뜻한 종이색, 어두운 쪽은 플라네타리움 돔이다. 돔은 파랗기보다
+   검다 — 밤하늘의 파란색은 도시의 빛이고, 천장 아래에서 보는 하늘은 자줏빛이 도는 검정이다.
+   가운데가 조금 밝고 가장자리로 가며 어두워지는 겹을 얹어 둥근 천장을 만든다. */
 .empty {
   /* 스크롤(휠·끌기)이 얼마나 진행됐는지 0~1 — 자바스크립트가 이 값만 고쳐 쓴다 */
   --dissolve: 0;
 
+  /* 꽃잎 색 — 분홍과 살구 사이를 꽃잎마다 --tone 으로 섞는다 */
+  --petal-cool: rgb(247 200 214);
+  --petal-warm: rgb(250 216 188);
+
   background:
-    radial-gradient(120% 90% at 50% 8%, rgb(28 34 68 / 85%) 0%, rgb(8 10 24 / 95%) 55%, rgb(3 4 12) 100%),
-    rgb(3 4 12);
+    radial-gradient(130% 100% at 50% 0%, rgb(255 251 246) 0%, rgb(250 240 234) 52%, rgb(240 231 228) 100%),
+    var(--bg-primary);
 
   display: flex;
   position: relative;
@@ -72,15 +76,14 @@
 
 /* 인트로 패널이 이미 제목을 크게 말하고 있어서, 비어 있다는 말은 그 아래에서 한 단계 작게 */
 .title {
-  /* 돔은 테마와 무관하게 어둡다 — 글자도 테마를 따르지 않는다 */
-  color: var(--text-white);
+  color: var(--text-primary);
   font-family: var(--font-instrument), serif;
   font-size: clamp(var(--font-size-title-xs), 2.4vw, var(--font-size-title-sm));
 }
 
 .sub {
   font-size: var(--font-size-body);
-  color: var(--color-white-alpha-70);
+  color: var(--text-tertiary);
 }
 
 /* 원통 배치가 들어앉는 자리 — 그 배치는 화면 전체를 쓰도록 만들어져 있다.
@@ -92,6 +95,27 @@
 .stage {
   position: absolute;
   inset: 0;
+}
+
+
+/* 어두운 테마 — 플라네타리움 돔. 자줏빛이 도는 검정에 성운 기운을 두 군데 얹는다.
+   푸른색 하나로 채우면 밤하늘이 아니라 수영장처럼 보인다 */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .empty {
+    background:
+      radial-gradient(100% 70% at 22% 12%, rgb(52 30 62 / 55%) 0%, rgb(52 30 62 / 0%) 60%),
+      radial-gradient(90% 70% at 78% 78%, rgb(24 40 62 / 50%) 0%, rgb(24 40 62 / 0%) 62%),
+      radial-gradient(130% 100% at 50% 4%, rgb(20 18 32) 0%, rgb(10 9 18) 58%, rgb(5 4 9) 100%),
+      rgb(5 4 9);
+  }
+}
+
+:root[data-theme="dark"] .empty {
+  background:
+    radial-gradient(100% 70% at 22% 12%, rgb(52 30 62 / 55%) 0%, rgb(52 30 62 / 0%) 60%),
+    radial-gradient(90% 70% at 78% 78%, rgb(24 40 62 / 50%) 0%, rgb(24 40 62 / 0%) 62%),
+    radial-gradient(130% 100% at 50% 4%, rgb(20 18 32) 0%, rgb(10 9 18) 58%, rgb(5 4 9) 100%),
+    rgb(5 4 9);
 }
 
 /* 하늘은 살짝 당겨진 채로 시작해 제자리로 내려앉는다 — 판이 펴져 넘겨준 자리를 받는 움직임이다 */
@@ -116,12 +140,12 @@
   margin-top: var(--spacing-sm);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
-  color: var(--color-white-alpha-70);
+  color: var(--text-accent);
   text-decoration: none;
 }
 
 .home:hover {
-  color: var(--text-white);
+  color: var(--text-primary);
 }
 
 .home:hover {
