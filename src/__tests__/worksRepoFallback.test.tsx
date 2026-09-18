@@ -2,6 +2,7 @@ import { describe, it, expect, afterEach } from "vitest";
 import { render, cleanup } from "@testing-library/react";
 import { repoToProject } from "@/lib/getWorksProjects";
 import { STARS, CONSTELLATIONS } from "@/app/works/_components/WorksEmptyState/starMap";
+import { PETALS } from "@/app/works/_components/WorksEmptyState/petalMap";
 import WorksEmptyState from "@/app/works/_components/WorksEmptyState/WorksEmptyState";
 import { SiteConfigProvider } from "@/providers/SiteConfigProvider";
 import { ThemeProvider } from "@/providers/ThemeProvider";
@@ -20,7 +21,11 @@ const repo = (over: Partial<GithubRepoCard> = {}): GithubRepoCard => ({
   ...over,
 });
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  localStorage.clear();
+  document.documentElement.removeAttribute("data-theme");
+});
 
 /* 빈 화면은 원통 배치(작업물 0개)를 품는다 — 그 배치가 테마와 설정을 읽는다.
    3D 캔버스는 dynamic(ssr:false) 이라 jsdom 에서는 붙지 않고, DOM 부분만 그려진다.
@@ -115,15 +120,27 @@ describe("은하수 배경", () => {
     }
   });
 
-  it("보여줄 것이 없으면 비어 있다고 말하고 하늘을 깐다", () => {
-    /* 빈 화면은 설정에서 문구를 읽고(비었으면 번역 파일), 원통의 인트로 패널을 그대로 쓴다 */
-    const { getByText, container } = render(withProviders(<WorksEmptyState />));
+  it("어두운 테마에서는 비어 있다고 말하고 하늘을 깐다", () => {
+    /* 빈 화면은 설정에서 문구를 읽고(비었으면 번역 파일), 원통의 인트로 패널을 그대로 쓴다.
+       하늘은 어두운 테마에서만 — 밝은 쪽은 꽃잎이 내려온다 */
+    localStorage.setItem("theme", "dark");
+    const { getByText } = render(withProviders(<WorksEmptyState />));
     expect(getByText("아직 발행한 작업물이 없습니다.")).toBeTruthy();
-    expect(container.querySelector("svg")).toBeTruthy();
     // 별자리 이름이 성도처럼 얹힌다
     expect(getByText("ORION")).toBeTruthy();
     // 원통 배치의 첫 패널이 그대로 온다 — 설정의 인트로 제목이 보인다
     expect(getByText(siteConfig.works.introTitle_ko)).toBeTruthy();
+  });
+
+  it("밝은 테마에서는 별 대신 꽃잎이 내려온다", () => {
+    /* 밝은 바탕에 별을 뿌리면 종이에 찍은 점으로 보인다 — 밝은 쪽은 봄날로 둔다 */
+    localStorage.setItem("theme", "light");
+    const { container, queryByText } = render(withProviders(<WorksEmptyState />));
+    // 별자리는 없고 꽃잎이 깔린다
+    expect(queryByText("ORION")).toBeNull();
+    expect(container.querySelectorAll('[class*="petal"]').length).toBeGreaterThan(30);
+    expect(PETALS).toHaveLength(36);
+    expect(PETALS.every((p) => p.x >= 0 && p.x <= 100 && p.duration > 0)).toBe(true);
   });
 
   it("설정에 적은 문구가 번역 파일의 기본 문장을 대신한다", () => {

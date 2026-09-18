@@ -6,16 +6,16 @@
   height: 100%;
   pointer-events: none;
 
-  /* 이 화면은 테마와 무관하게 어두운 돔이다(플라네타리움). 밝은 테마에서 흰 바탕에 별을 뿌리면
-     잉크로 그린 성도가 되어 아무리 진하게 해도 하늘로 보이지 않았다. 돔 안에서는 별이 흰색이고,
-     인트로 패널의 글자도 두 테마 모두 흰색이라 그 위에서 그대로 읽힌다.
-     색은 여기서만 정한다 — 테마 토큰에는 하늘색이 없다. */
-  --sky-band-core: rgb(150 170 255 / 24%);
-  --sky-band-mid: rgb(120 140 230 / 11%);
-  --sky-band-edge: rgb(120 140 230 / 0%);
-  --sky-core: rgb(205 220 255 / 30%);
-  --sky-star: rgb(255 255 255);
-  --sky-line: rgb(170 190 255 / 48%);
+  /* 이 하늘은 어두운 테마에서만 쓰인다 — 밝은 테마의 빈 화면은 꽃잎이 내려온다(PetalDrift).
+     색은 여기서만 정한다(테마 토큰에는 하늘색이 없다).
+     푸른색으로 채우지 않는다 — 밤하늘의 파랑은 도시의 빛이고, 천장 아래에서 보는 하늘은
+     자줏빛이 도는 회백색이다. 은하수도 파란 띠가 아니라 먼지처럼 옅은 상아색에 가깝다. */
+  --sky-band-core: rgb(226 214 226 / 20%);
+  --sky-band-mid: rgb(186 172 198 / 9%);
+  --sky-band-edge: rgb(186 172 198 / 0%);
+  --sky-core: rgb(246 238 232 / 26%);
+  --sky-star: rgb(255 252 247);
+  --sky-line: rgb(214 202 226 / 45%);
 
 }
 
@@ -127,8 +127,8 @@
   opacity: 0.85;
   pointer-events: none;
 
-  --sky-star: rgb(255 255 255);
-  --sky-line: rgb(170 190 255 / 48%);
+  --sky-star: rgb(255 252 247);
+  --sky-line: rgb(214 202 226 / 45%);
 
   transform: translate(calc(var(--pointer-x, 0) * 26px), calc(var(--pointer-y, 0) * 26px));
   transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
