@@ -66,40 +66,59 @@ export const STARS: Star[] = makeStars(220, 20260918);
 export interface Constellation {
   /** 라틴 이름 — 별자리 이름은 고유명사라 화면 언어와 무관하게 둔다 */
   name: string;
-  /** 이름을 붙일 자리 */
-  label: { x: number; y: number };
-  /** 이어 그릴 별들. 좌표는 0~1000 기준 */
+  /** 이어 그릴 별들. 좌표는 제 그림 안에서만 뜻이 있다 */
   stars: { x: number; y: number }[];
   /** stars 의 번호를 짝지어 선을 잇는다 */
   lines: [number, number][];
+  /**
+   * 화면에서 앉을 자리·크기 — 백분율이라 창이 커지든 작아지든 그 자리에 남는다.
+   *
+   * 별 배경처럼 정사각 그림 하나를 잘라 채우면(preserveAspectRatio slice) 넓은 화면에서는 위아래가,
+   * 좁은 화면에서는 좌우가 잘려 나간다. 흩어진 별은 잘려도 모르지만 별자리는 통째로 사라진다.
+   * left·top 이 "auto" 면 반대쪽(right·bottom)에 붙인다.
+   */
+  place: { left: string; top: string; width: string };
 }
 
-/* 세 자리만 둔다 — 더 넣으면 선이 서로 엉켜 별자리로 읽히지 않는다 */
+/* 세 자리만 둔다 — 더 넣으면 선이 서로 엉켜 별자리로 읽히지 않는다.
+   자리는 가운데(인트로 패널)를 비켜 모서리 쪽으로 보낸다 */
 export const CONSTELLATIONS: Constellation[] = [
   {
     name: "URSA MAJOR",
-    label: { x: 148, y: 236 },
     stars: [
-      { x: 120, y: 300 }, { x: 178, y: 268 }, { x: 236, y: 286 }, { x: 288, y: 254 },
-      { x: 338, y: 276 }, { x: 386, y: 240 }, { x: 430, y: 268 },
+      { x: 0, y: 60 }, { x: 58, y: 28 }, { x: 116, y: 46 }, { x: 168, y: 14 },
+      { x: 218, y: 36 }, { x: 266, y: 0 }, { x: 310, y: 28 },
     ],
     lines: [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [2, 4]],
+    place: { left: "5%", top: "13%", width: "min(21rem, 32vw)" },
   },
   {
     name: "CASSIOPEIA",
-    label: { x: 648, y: 130 },
     stars: [
-      { x: 620, y: 196 }, { x: 686, y: 150 }, { x: 742, y: 200 }, { x: 806, y: 152 }, { x: 864, y: 206 },
+      { x: 0, y: 46 }, { x: 66, y: 0 }, { x: 122, y: 50 }, { x: 186, y: 2 }, { x: 244, y: 56 },
     ],
     lines: [[0, 1], [1, 2], [2, 3], [3, 4]],
+    place: { left: "auto", top: "9%", width: "min(16rem, 26vw)" },
   },
   {
     name: "ORION",
-    label: { x: 412, y: 612 },
     stars: [
-      { x: 386, y: 664 }, { x: 476, y: 652 }, { x: 404, y: 742 }, { x: 440, y: 752 },
-      { x: 476, y: 762 }, { x: 372, y: 846 }, { x: 494, y: 854 },
+      { x: 14, y: 12 }, { x: 104, y: 0 }, { x: 32, y: 90 }, { x: 68, y: 100 },
+      { x: 104, y: 110 }, { x: 0, y: 194 }, { x: 122, y: 202 },
     ],
     lines: [[0, 1], [0, 2], [1, 4], [2, 3], [3, 4], [2, 5], [4, 6]],
+    place: { left: "8%", top: "auto", width: "min(10rem, 18vw)" },
   },
 ];
+
+/** 별자리 그림의 테두리 — 제 별들을 다 담되 이름과 별 크기만큼 여유를 둔다 */
+export function constellationBox(c: Constellation): { x: number; y: number; w: number; h: number } {
+  const pad = 14;
+  /* 위쪽은 이름이 앉을 자리까지 더 비운다 — 이름은 가장 높은 별 위에 놓인다 */
+  const top = 22;
+  const xs = c.stars.map((s) => s.x);
+  const ys = c.stars.map((s) => s.y);
+  const x = Math.min(...xs) - pad;
+  const y = Math.min(...ys) - pad - top;
+  return { x, y, w: Math.max(...xs) + pad - x, h: Math.max(...ys) + pad - y };
+}

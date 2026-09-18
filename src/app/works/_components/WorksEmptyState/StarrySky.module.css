@@ -15,10 +15,6 @@
   --sky-star: var(--text-primary);
   --sky-line: rgb(120 140 210 / 45%);
 
-  /* 포인터가 화면 가운데에서 얼마나 벗어났는지(-1~1). 자바스크립트가 이 두 값만 고쳐 쓰고,
-     층마다 다른 배수를 곱해 시차를 만든다 */
-  --pointer-x: 0;
-  --pointer-y: 0;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -128,11 +124,31 @@
   opacity: 0.35;
 }
 
-/* 별자리는 배경보다 한 겹 앞이지만 여전히 배경이다. 가장 가까운 층이라 포인터를 가장 많이 따라간다.
-   선이 옅게 드러났다 사라지기를 되풀이한다 — 성도를 비추는 빛이 지나가는 느낌 */
+/* 별자리 — 제 별만 담은 그림이 화면에 백분율로 앉는다. 자리·크기는 인라인으로 온다.
+   색은 하늘과 같은 값을 쓰되 이 요소는 .sky 밖이라 여기서 다시 정한다.
+   포인터를 가장 많이 따라가는 층이라 시차가 가장 크다 */
 .constellation {
+  position: absolute;
+  z-index: 1;
+  overflow: visible;
   opacity: 0.85;
-  transform: translate(calc(var(--pointer-x) * 26px), calc(var(--pointer-y) * 26px));
+  pointer-events: none;
+
+  --sky-star: var(--text-primary);
+  --sky-line: rgb(120 140 210 / 45%);
+
+  transform: translate(calc(var(--pointer-x, 0) * 26px), calc(var(--pointer-y, 0) * 26px));
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .constellation {
+    --sky-line: rgb(170 190 255 / 40%);
+  }
+}
+
+:root[data-theme="dark"] .constellation {
+  --sky-line: rgb(170 190 255 / 40%);
 }
 
 .constellation .line {
