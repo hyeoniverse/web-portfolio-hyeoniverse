@@ -1,0 +1,69 @@
+/* 작업물 0개 — 배경(은하수)이 뒤에 깔리고 글과 저장소 카드가 그 위에 온다 */
+.empty {
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: var(--spacing-6xl) var(--spacing-xl);
+  overflow: hidden;
+}
+
+/* 하늘은 첫 화면 높이만큼만 — 카드까지 따라 내려오면 목록 뒤에서 글자를 흐린다 */
+.skyWrap {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: min(100vh, 900px);
+  pointer-events: none;
+  mask-image: linear-gradient(to bottom, rgb(0 0 0) 55%, rgb(0 0 0 / 0%) 100%);
+}
+
+.message {
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding-top: var(--spacing-6xl);
+  text-align: center;
+}
+
+.title {
+  font-family: var(--font-instrument), serif;
+  font-size: clamp(var(--font-size-title-sm), 4vw, var(--font-size-title-lg));
+  color: var(--text-primary);
+}
+
+.sub {
+  font-size: var(--font-size-body);
+  color: var(--text-tertiary);
+}
+
+/* 홈으로 — 빈 화면에서 나갈 길을 하나 둔다 */
+.home {
+  display: inline-flex;
+  gap: var(--spacing-2xs);
+  align-items: center;
+  margin-top: var(--spacing-lg);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-label);
+  color: var(--text-accent);
+  text-decoration: none;
+}
+
+.home:hover {
+  gap: var(--spacing-xs);
+}
+
+@media (max-width: 768px) {
+  .empty {
+    padding: var(--spacing-4xl) var(--spacing-md);
+  }
+
+  .message {
+    padding-top: var(--spacing-4xl);
+  }
+}

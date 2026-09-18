@@ -517,6 +517,11 @@
     "pinnedPost": "Pinned post",
     "perPage": "{{n}} per page"
   },
+  "worksPage": {
+    "emptyTitle": "No works have been published yet.",
+    "emptySub": "Once they are ready, they will appear here.",
+    "backHome": "Back to home"
+  },
   "bunny": {
     "exprNormal": "Default",
     "exprNormalDesc": "Just vibing.",
