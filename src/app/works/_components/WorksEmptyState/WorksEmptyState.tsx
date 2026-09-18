@@ -5,7 +5,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { ArrowRight } from "@/components/icons";
 import CylinderLayout from "../layouts/CylinderLayout";
-import StarrySky from "./StarrySky";
+import StarrySky, { Constellations } from "./StarrySky";
 import styles from "./WorksEmptyState.module.css";
 
 /**
@@ -34,11 +34,13 @@ export default function WorksEmptyState() {
     <section className={styles.empty}>
       <div className={styles.skyWrap} aria-hidden>
         <StarrySky />
+        {/* 별자리는 하늘 그림과 따로 앉는다 — 한 그림에 두면 잘려 나간다 */}
+        <Constellations />
       </div>
 
       {/* 작업물 0개 — 원통에는 인트로 칸만 남는다. 누를 작업물이 없으니 전환도 없다 */}
       <div className={styles.stage}>
-        <CylinderLayout projects={[]} onProjectClick={() => {}} />
+        <CylinderLayout projects={[]} onProjectClick={() => {}} bare />
       </div>
 
       <div className={styles.message}>
