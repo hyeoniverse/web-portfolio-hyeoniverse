@@ -216,12 +216,29 @@ export const siteConfig = {
   homeWorks: {
     source: "auto" as "auto" | "works" | "posts" | "github",
     repos: [] as {
-      /** GitHub 저장소 이름 */
+      /** GitHub 저장소 이름. 조직 저장소는 `owner/name` */
       name: string;
+      /** 직접 고른 것인가. false 면 자동으로 나가는 저장소의 내용만 손봐 둔 것이다 */
+      picked?: boolean;
+      /** 자동 목록에서 빼 둔 것 — 자동으로 뽑혔지만 내보내지 않는다 */
+      hidden?: boolean;
       /** 원을 채울 표지 이미지. 비우면 주 언어 색 버블 */
       cover?: string;
+      /** 표지를 원 안에서 어디에 맞출지 — 가로·세로 퍼센트. 비우면 가운데 */
+      coverX?: number;
+      coverY?: number;
+      /** 표지 배율 — 1 이 원을 꽉 채우는 크기. 1 아래로 줄이면 그만큼 빈자리가 남는다 */
+      coverZoom?: number;
+      /** 포인터를 올렸을 때 드러나는 표지. 비우면 기본 표지를 그대로 쓴다 */
+      coverHover?: string;
+      hoverX?: number;
+      hoverY?: number;
+      hoverZoom?: number;
       title?: string;
       title_ko?: string;
+      /** 대표 기술 한 마디 — 원 아래 줄에 들어간다. 비우면 저장소의 주 언어 */
+      tech?: string;
+      /** 예전 설정 호환 — 지금 화면은 tech 만 쓴다 */
       description?: string;
       description_ko?: string;
     }[],

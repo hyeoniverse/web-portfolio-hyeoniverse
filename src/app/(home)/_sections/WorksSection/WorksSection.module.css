@@ -174,13 +174,19 @@
   padding: var(--spacing-md);
   pointer-events: none;
   text-align: center;
+  /* blend 는 이 요소에 건다 — 안쪽 글자에 걸면 표지에 닿지 않는다.
+     z-index 와 opacity 애니메이션 때문에 이 층 자체가 blend 그룹이 되고, 그 안에서 섞는 글자는
+     그룹 안(아무것도 없는 투명)만 배경으로 보기 때문이다. 층째로 섞으면 배경이 .circle 안의 표지다. */
+  mix-blend-mode: difference;
 }
 
+/* 글자는 흰색 — 섞는 일은 위의 .textOverlay 가 맡는다. 표지 그림이 어떤 색이든 뒤집힌 색으로
+   나와 늘 읽힌다. 테마를 따라 뒤집히는 색(--text-inverse)을 쓰면 밝은 표지 위에서 글자가 사라졌다. */
 .overlayTitle {
   font-family: var(--font-instrument), serif;
   font-size: clamp(15px, 1.6vw, var(--font-size-xl));
   font-weight: var(--font-weight-regular);
-  color: var(--text-inverse);
+  color: var(--color-white-alpha-100);
   line-height: var(--line-height-tight);
   letter-spacing: -0.01em;
 }
@@ -189,8 +195,7 @@
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: clamp(var(--font-size-micro), 1vw, var(--font-size-body));
   font-weight: var(--font-weight-medium);
-  color: var(--text-inverse);
-  opacity: 0.75;
+  color: var(--color-white-alpha-100);
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }

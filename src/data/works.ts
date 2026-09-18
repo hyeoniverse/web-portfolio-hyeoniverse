@@ -21,15 +21,64 @@ export interface WorkItem {
   accent?: string;
   /** 그 색 위에서 읽히는 글자색 — 밝은 언어색(JavaScript 노랑) 위의 흰 글자는 안 읽힌다 */
   accentInk?: string;
+  /** 표지를 원 안에 어떻게 앉힐지 — 설정에서 맞춰 둔 자리와 배율. 없으면 가운데·꽉 채움 */
+  mainFit?: CoverFit;
+  /** 포인터를 올렸을 때 드러나는 표지의 앉히기. 다른 그림이면 맞출 자리도 다르다 */
+  hoverFit?: CoverFit;
 }
 
-/** 홈 그리드가 채우는 칸 수 — 소스가 모자라면 순환해서 항상 다 채운다.
-    소스가 이보다 많으면 앞에서부터 이 수만큼만 쓰인다 */
+/** 표지를 원 안에 앉히는 값 — 가로·세로 자리(퍼센트)와 배율(1 = 원을 꽉 채움) */
+export interface CoverFit {
+  x: number;
+  y: number;
+  zoom: number;
+}
+
+/**
+ * 표지를 원 안에 앉히는 CSS — 설정 화면의 미리보기와 홈이 이 함수를 같이 쓴다.
+ * 각자 계산하면 맞춰 둔 자리가 홈에서 다른 곳으로 간다.
+ *
+ * 꽉 채우거나 키운 상태(zoom ≥ 1)에서는 잘려 나가는 쪽이 있으므로 그 안에서 보일 자리를 고른다.
+ * 1 아래로 줄이면 잘릴 것이 없고 원이 비므로, 대신 그림 자체를 그 빈자리 안에서 움직인다 —
+ * 그래야 줄인 상태에서도 위아래·좌우로 밀어 붙일 수 있다.
+ */
+export function coverFitStyle(fit: CoverFit): { objectPosition: string; transform?: string } {
+  const { x, y, zoom } = fit;
+  const free = Math.max(0, 1 - zoom);
+  if (free === 0) {
+    return {
+      objectPosition: `${x}% ${y}%`,
+      transform: zoom === 1 ? undefined : `scale(${zoom})`,
+    };
+  }
+  /* translate 의 퍼센트는 요소 자기 크기 기준이고 요소는 원과 같은 크기다 —
+     x 가 0 이면 왼쪽 끝, 100 이면 오른쪽 끝에 붙는다 */
+  const shift = (v: number) => ((v - 50) / 100) * free * 100;
+  return {
+    objectPosition: "50% 50%",
+    transform: `translate(${shift(x)}%, ${shift(y)}%) scale(${zoom})`,
+  };
+}
+
+/** 홈 그리드가 쓸 수 있는 칸 수 — 소스가 이보다 많으면 앞에서부터 이 수만큼만 쓰인다 */
 export const HOME_SLOT_COUNT = 11;
+
+/** 그래도 이만큼은 채운다. 원 두세 개만 뜨면 다섯 줄 그리드가 뚫린 것처럼 보이므로,
+    여기 못 미치는 만큼은 앞에서부터 다시 쓴다. 이 수를 넘기면 있는 것만 한 번씩 보여준다 */
+const HOME_MIN_SLOT_COUNT = 6;
+
+/** 자동 후보를 칸 수보다 몇 곳 더 모아 둘지. 설정에서 몇 곳을 빼도 그다음 후보가 자리를 채운다.
+    모인 수만큼 README 요청이 나가므로 넉넉하되 무한정은 아니다 */
+export const HOME_POOL_SPARE = 4;
 
 function fillSlots<T>(source: readonly T[], make: (item: T) => Omit<WorkItem, "id">): WorkItem[] {
   if (source.length === 0) return [];
-  return Array.from({ length: HOME_SLOT_COUNT }, (_, i) => ({
+  /* 있는 만큼만 보여준다 — 여섯 곳을 열한 칸에 돌려 쓰면 같은 원이 두 번씩 나와,
+     보는 사람은 작업물이 몇 개인지 알 수 없다. 최소 칸 수까지만 순환해서 메운다. */
+  const count = source.length >= HOME_MIN_SLOT_COUNT
+    ? Math.min(source.length, HOME_SLOT_COUNT)
+    : HOME_MIN_SLOT_COUNT;
+  return Array.from({ length: count }, (_, i) => ({
     id: `work-${i}`,
     ...make(source[i % source.length]),
   }));
@@ -93,13 +142,18 @@ const LANGUAGE_COLORS: Record<string, string> = {
 };
 const DEFAULT_REPO_COLOR = "#6e7681";
 
+/** 저장소 원을 채울 언어 색 — 설정 화면도 같은 색을 보여줘야 미리보기가 맞는다 */
+export function repoAccent(language: string | null | undefined): string {
+  return (language && LANGUAGE_COLORS[language]) || DEFAULT_REPO_COLOR;
+}
+
 /* 위 색들은 GitHub 이 언어마다 쓰는 색이라 디자인 토큰이 아니다. 그 위에 얹을 글자색도 마찬가지로
    여기서 정한다 — 테마를 따라 뒤집히는 토큰을 쓰면 배경(언어 색)은 그대로인데 글자만 뒤집힌다. */
 const INK_ON_DARK = "#ffffff";
 const INK_ON_LIGHT = "#161b22";
 
 /** 배경 밝기(WCAG 상대 휘도)로 고른 글자색. 노랑 계열 위에서는 어두운 글자로 간다 */
-function inkFor(hex: string): string {
+export function inkFor(hex: string): string {
   const n = Number.parseInt(hex.slice(1), 16);
   const channels = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((c) => {
     const s = c / 255;
@@ -116,9 +170,25 @@ export interface RepoOverride {
   /** 직접 고른 것인가. false 면 자동으로 나가는 저장소의 내용만 덮어쓴 것이라 선택에는 안 넣는다.
       없으면 고른 것으로 본다 — 이 값이 생기기 전의 설정이 그런 모양이다 */
   picked?: boolean;
+  /** 자동 목록에서 빼 둔 것. 자동으로 뽑혔지만 홈에 내보내고 싶지 않은 저장소를 표시한다.
+      직접 고를 때는 해제된다 — 골라 놓고 빼 둔 상태는 서로 어긋난다 */
+  hidden?: boolean;
   cover?: string;
+  /** 표지를 원 안에서 어디에 맞출지 — 가로·세로 퍼센트. 비우면 둘 다 50(가운데) */
+  coverX?: number;
+  coverY?: number;
+  /** 표지 배율 — 1 이 원을 꽉 채우는 크기. 1 아래는 그림이 작게 앉고 그만큼 빈자리가 남는다 */
+  coverZoom?: number;
+  /** 포인터를 올렸을 때 드러나는 표지. 비우면 기본 표지를 그대로 쓴다 */
+  coverHover?: string;
+  hoverX?: number;
+  hoverY?: number;
+  hoverZoom?: number;
   title?: string;
   title_ko?: string;
+  /** 대표 기술 한 마디. 원 아래 줄은 작업물·글의 분류가 들어가는 자리라 문장이 아니라 낱말이어야 한다.
+      비우면 저장소의 주 언어로 간다. 예전 설정의 description 도 계속 읽는다 */
+  tech?: string;
   description?: string;
   description_ko?: string;
 }
@@ -140,15 +210,29 @@ export function toRepoItems(
        설정에서 지우면 한 단계씩 뒤로 돌아간다. README 는 안 읽었거나 못 찾았으면 비어 있다. */
     const readme = repo.readme;
     const cover = set?.cover || readme?.image || "";
+    /* 위치는 올린 표지에만 매기는 값이 아니다 — README 에서 끌어온 그림도 원 안에서 밀려난다 */
+    const x = set?.coverX ?? 50;
+    const y = set?.coverY ?? 50;
+    /* 올렸을 때 바뀔 표지. 따로 두지 않으면 기본 표지가 그대로 드러난다(전과 같은 모습) */
+    const zoom = set?.coverZoom ?? 1;
+    const hover = set?.coverHover || cover;
+    const hx = set?.coverHover ? set?.hoverX ?? 50 : x;
+    const hy = set?.coverHover ? set?.hoverY ?? 50 : y;
+    const hz = set?.coverHover ? set?.hoverZoom ?? 1 : zoom;
     const name = readme?.title || repo.name;
-    const about = readme?.summary || repo.description || language;
-    const subtitle = { ko: set?.description_ko || about, en: set?.description || about };
+    /* 아래 줄은 낱말 자리다(작업물은 분류, 글은 카테고리가 들어간다). 그래서 README 소개 문단은
+       여기 쓰지 않는다 — 한 줄에 안 들어가고 대문자·자간 스타일과도 안 맞는다.
+       적어 둔 대표 기술 → 주 언어 순. description 은 예전 설정 호환으로만 본다. */
+    const about = set?.tech || set?.description || set?.description_ko || language;
+    const subtitle = { ko: about, en: about };
     return {
       projectId: repo.name,
       title: { ko: set?.title_ko || name, en: set?.title || name },
       category: subtitle,
       main: cover,
-      hover: cover,
+      hover,
+      mainFit: { x, y, zoom },
+      hoverFit: { x: hx, y: hy, zoom: hz },
       href: repo.url,
       kind: "repo",
       accent,
