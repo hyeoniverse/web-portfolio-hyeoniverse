@@ -61,6 +61,8 @@ export default function HomeWorksEditor({
   const [login, setLogin] = useState("");
   const [search, setSearch] = useState("");
   const [orgInfo, setOrgInfo] = useState<{ found: string[]; failed: string[] }>({ found: [], failed: [] });
+  /** 저장소별 README 기본값 — 비워 두면 무엇이 쓰이는지 자리글·표지 미리보기로 보여준다(#1060) */
+  const [readme, setReadme] = useState<Record<string, { title?: string; summary?: string; image?: string }>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -81,6 +83,7 @@ export default function HomeWorksEditor({
         setList(body.repos ?? []);
         setDue(body.due ?? []);
         setOrgInfo({ found: body.orgs ?? [], failed: body.failedOrgs ?? [] });
+        setReadme(body.readme ?? {});
         setLogin(body.login ?? "");
       }
     } catch {
@@ -278,7 +281,12 @@ export default function HomeWorksEditor({
               <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
               <SortableContext items={cards.map((c) => c.key)} strategy={verticalListSortingStrategy}>
               <ol className={styles.picked}>
-                {cards.map(({ key, auto, value: repo }, i) => (
+                {cards.map(({ key, auto, value: repo }, i) => {
+                  /* 비워 둔 칸에 실제로 쓰일 값 — README 에서 뽑은 것, 없으면 GitHub 기본값 */
+                  const from = readme[key] ?? {};
+                  const titleHint = from.title || repo.name;
+                  const descHint = from.summary || "";
+                  return (
                   <SortableCard key={key} id={key} sortable={!auto}>
                     <div className={styles.cardHead}>
                       {/* 자동 목록은 순서가 규칙으로 정해져 손으로 못 바꾼다 — 손잡이·화살표를 두지 않는다 */}
@@ -315,6 +323,7 @@ export default function HomeWorksEditor({
                     <div className={styles.cardBody}>
                       <CoverPicker
                         url={repo.cover ?? ""}
+                        autoUrl={from.image ?? ""}
                         onUploaded={(url) => patchRepo(repo.name, { cover: url })}
                         onClear={() => patchRepo(repo.name, { cover: "" })}
                       />
@@ -322,13 +331,13 @@ export default function HomeWorksEditor({
                         <div className={styles.pair}>
                           <Field
                             label={L("제목", "Title")} langBadge="en" maxHint={null}
-                            placeholder={repo.name}
+                            placeholder={titleHint}
                             value={repo.title ?? ""}
                             onChange={(v) => patchRepo(repo.name, { title: v })}
                           />
                           <Field
                             label={L("제목", "Title")} langBadge="ko" maxHint={null}
-                            placeholder={repo.name}
+                            placeholder={titleHint}
                             value={repo.title_ko ?? ""}
                             onChange={(v) => patchRepo(repo.name, { title_ko: v })}
                           />
@@ -336,11 +345,13 @@ export default function HomeWorksEditor({
                         <div className={styles.pair}>
                           <Field
                             label={L("설명", "Description")} langBadge="en" maxHint={null}
+                            placeholder={descHint}
                             value={repo.description ?? ""}
                             onChange={(v) => patchRepo(repo.name, { description: v })}
                           />
                           <Field
                             label={L("설명", "Description")} langBadge="ko" maxHint={null}
+                            placeholder={descHint}
                             value={repo.description_ko ?? ""}
                             onChange={(v) => patchRepo(repo.name, { description_ko: v })}
                           />
@@ -348,7 +359,8 @@ export default function HomeWorksEditor({
                       </div>
                     </div>
                   </SortableCard>
-                ))}
+                  );
+                })}
               </ol>
               </SortableContext>
               </DndContext>
@@ -476,8 +488,10 @@ function DragHandle() {
 }
 
 /** 저장소 칸의 표지 — 눌러서 올리고, 올린 뒤에는 미리보기 위에서 지운다 */
-function CoverPicker({ url, onUploaded, onClear }: {
+function CoverPicker({ url, autoUrl = "", onUploaded, onClear }: {
   url: string;
+  /** 올린 표지가 없을 때 실제로 쓰일 그림(README 에서 뽑은 것). 미리보기로만 보여준다 */
+  autoUrl?: string;
   onUploaded: (url: string) => void;
   onClear: () => void;
 }) {
@@ -522,6 +536,13 @@ function CoverPicker({ url, onUploaded, onClear }: {
         ) : url ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={url} alt="" className={styles.coverImg} />
+        ) : autoUrl ? (
+          /* 올린 것이 없으면 README 에서 뽑은 그림이 쓰인다 — 그게 무엇인지 보여 준다 */
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={autoUrl} alt="" className={`${styles.coverImg} ${styles.coverAuto}`} />
+            <span className={styles.coverAutoTag}>{L("자동", "Auto")}</span>
+          </>
         ) : (
           <span className={styles.coverHint}>{label}</span>
         )}
