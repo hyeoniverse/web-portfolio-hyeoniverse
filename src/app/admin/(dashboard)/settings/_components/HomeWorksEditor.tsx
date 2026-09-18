@@ -52,6 +52,7 @@ export default function HomeWorksEditor({
   onSourceChange,
   onReposChange,
   onOrgsChange,
+  showSource = true,
   styles: outer,
 }: {
   source: HomeWorksSource;
@@ -62,6 +63,9 @@ export default function HomeWorksEditor({
   onSourceChange: (v: HomeWorksSource) => void;
   onReposChange: (v: RepoOverride[]) => void;
   onOrgsChange: (v: string[]) => void;
+  /** 채울 내용(작업물·글·저장소) 고르는 칸을 둘지. 작업물 설정에서는 감춘다 —
+      그 화면이 다루는 건 "작업물이 없을 때 목록을 채울 저장소" 이고, 홈 섹션의 소스가 아니다 */
+  showSource?: boolean;
   /* 제목·라벨의 크기·색은 설정 화면의 역할 클래스가 정한다 — 여기서 또 고르면
      같은 위계의 글자가 화면마다 달라진다. */
   styles: Record<string, string>;
@@ -84,8 +88,10 @@ export default function HomeWorksEditor({
   const [openKey, setOpenKey] = useState<string | null>(null);
 
   /* 자동일 때도 마지막 단계가 GitHub 이라 저장소를 미리 골라 둘 수 있어야 한다.
-     작업물·글로 고정해 둔 동안에는 이 영역이 할 말이 없으므로 접는다. */
-  const usesRepos = source === "auto" || source === "github";
+     작업물·글로 고정해 둔 동안에는 이 영역이 할 말이 없으므로 접는다.
+     소스 칸을 감춘 화면(작업물 설정)에서는 홈의 소스와 무관하게 늘 보여준다 — 작업물 목록은
+     발행한 작업물이 없으면 언제나 저장소로 내려간다 */
+  const usesRepos = !showSource || source === "auto" || source === "github";
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -244,6 +250,7 @@ export default function HomeWorksEditor({
         </FieldRow>
       )}
 
+      {showSource && (
       <FieldRow
         label={L("채울 내용", "What to show")}
         hint={L(
@@ -262,6 +269,7 @@ export default function HomeWorksEditor({
           onChange={(v) => onSourceChange(v as HomeWorksSource)}
         />
       </FieldRow>
+      )}
 
       {usesRepos && (
         <>

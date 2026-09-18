@@ -14,6 +14,11 @@
   --sky-core: rgb(150 165 225 / 26%);
   --sky-star: var(--text-primary);
   --sky-line: rgb(120 140 210 / 45%);
+
+  /* 포인터가 화면 가운데에서 얼마나 벗어났는지(-1~1). 자바스크립트가 이 두 값만 고쳐 쓰고,
+     층마다 다른 배수를 곱해 시차를 만든다 */
+  --pointer-x: 0;
+  --pointer-y: 0;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -30,6 +35,37 @@
   --sky-band-mid: rgb(120 140 230 / 7%);
   --sky-core: rgb(200 215 255 / 20%);
   --sky-line: rgb(170 190 255 / 40%);
+}
+
+/* ── 움직임 ──
+   층마다 포인터를 다르게 따라간다. 먼 것(띠)은 조금, 가까운 것(별자리)은 많이 밀려야 깊이가 생긴다.
+   흐름(drift)은 아주 느리게 — 눈에 띄면 배경이 아니라 화면의 주인공이 된다. */
+.band {
+  transform: translate(calc(var(--pointer-x) * 6px), calc(var(--pointer-y) * 6px));
+  animation: breathe 24s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.stars {
+  transform: translate(calc(var(--pointer-x) * 14px), calc(var(--pointer-y) * 14px));
+}
+
+.band,
+.stars,
+.constellation {
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.85;
+  }
+
+  50% {
+    opacity: 1;
+  }
 }
 
 .stars circle {
@@ -72,13 +108,54 @@
   opacity: 0.35;
 }
 
-/* 별자리는 배경보다 한 겹 앞이지만 여전히 배경이다 */
+/* 별자리는 배경보다 한 겹 앞이지만 여전히 배경이다. 가장 가까운 층이라 포인터를 가장 많이 따라간다 */
 .constellation {
   opacity: 0.85;
+  transform: translate(calc(var(--pointer-x) * 26px), calc(var(--pointer-y) * 26px));
+}
+
+/* 이따금 지나가는 별똥별 — 12초에 한 번, 왼쪽 위에서 비스듬히 그어진다 */
+.meteor line {
+  stroke: var(--sky-star);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  opacity: 0;
+  animation: meteor 12s linear infinite;
+}
+
+@keyframes meteor {
+  0% {
+    opacity: 0;
+    transform: translate(120px, 40px) scale(0.6);
+  }
+
+  2% {
+    opacity: 0.9;
+  }
+
+  9% {
+    opacity: 0;
+    transform: translate(660px, 300px) scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(660px, 300px) scale(1);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .twinkle {
+  .twinkle,
+  .band,
+  .meteor line {
     animation: none;
+  }
+
+  /* 포인터를 따라 밀리는 것도 멈춘다 — 자바스크립트도 값을 쓰지 않지만 규칙으로도 못 박아 둔다 */
+  .band,
+  .stars,
+  .constellation {
+    transform: none;
+    transition: none;
   }
 }

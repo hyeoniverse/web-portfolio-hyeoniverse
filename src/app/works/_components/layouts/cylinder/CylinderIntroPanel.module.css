@@ -161,3 +161,17 @@
     opacity: 1;
   }
 }
+
+/* 무대 없이 그 자리에 두는 모드(#1062) — 원통이 잡아 주던 자리·크기를 스스로 갖는다.
+   .introItem 의 값(absolute·transform·visibility)은 rAF 가 매 프레임 덮어쓰던 것이라
+   여기서는 다시 정해야 한다. 같은 클래스 두 번으로 (0,2,0) — 번들 순서에 맡기지 않는다 */
+.introItemStandalone.introItemStandalone {
+  position: relative;
+  visibility: visible;
+  opacity: 1;
+  transform: none;
+  width: min(30rem, 100%);
+  max-width: 100%;
+  margin: 0 auto;
+  pointer-events: none;
+}

@@ -55,6 +55,18 @@ describe("HomeWorksEditor", () => {
     await waitFor(() => expect(fetch).not.toHaveBeenCalled());
   });
 
+  /* 작업물 설정 탭(#1062) — 같은 편집기를 쓰지만 홈 섹션의 소스는 다루지 않는다 */
+  it("소스 칸을 감추면 홈 소스와 무관하게 저장소를 다룬다", async () => {
+    const { findByText, queryByText } = render(
+      <HomeWorksEditor
+        source="works" showSource={false} repos={[]}
+        orgs={[]} onOrgsChange={() => {}} onSourceChange={() => {}} onReposChange={() => {}} styles={styles} />,
+    );
+    // 홈이 작업물로 고정돼 있어도 작업물 목록은 저장소로 내려가므로 이 영역이 보여야 한다
+    await findByText("alpha");
+    expect(queryByText("채울 내용")).toBeNull();
+  });
+
   it("고른 저장소는 순서를 바꾸고 뺄 수 있다", async () => {
     const onReposChange = vi.fn();
     const picked = [{ name: "alpha" }, { name: "beta" }];

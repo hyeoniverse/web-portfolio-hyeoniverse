@@ -745,6 +745,61 @@ export default function ContentTab({
             </div>
           </section>
 
+          {/* 빈 화면 — 발행한 작업물도 연결된 저장소도 없을 때 나오는 문구(#1062) */}
+          <section className={styles.section}>
+            <SectionHeader
+              title={language === "ko" ? "빈 화면" : "Empty state"}
+              paths={["works.emptyTitle", "works.emptyTitle_ko", "works.emptySub", "works.emptySub_ko"]}
+              extra={
+                <span className={`${styles.sectionHint} ${styles.sectionHintInline}`}>
+                  {language === "ko"
+                    ? "발행한 작업물도 연결된 저장소도 없을 때 은하수 배경과 함께 나옵니다. 비우면 기본 문장이 쓰입니다."
+                    : "Shown with the starry background when there are no published works and no repositories. Left blank, the default sentence is used."}
+                </span>
+              }
+              {...sh}
+            />
+            <div className={styles.fields}>
+              <BilingualFieldPair
+                label={language === "ko" ? "제목" : "Title"}
+                en={{ value: config.works.emptyTitle ?? "", onChange: (v) => update("works", "emptyTitle", v) }}
+                ko={{ value: config.works.emptyTitle_ko ?? "", onChange: (v) => update("works", "emptyTitle_ko", v) }}
+              />
+              <BilingualFieldPair
+                label={language === "ko" ? "아래 줄" : "Subtitle"}
+                en={{ value: config.works.emptySub ?? "", onChange: (v) => update("works", "emptySub", v) }}
+                ko={{ value: config.works.emptySub_ko ?? "", onChange: (v) => update("works", "emptySub_ko", v) }}
+              />
+            </div>
+          </section>
+
+          {/* 작업물이 없을 때 목록을 채울 저장소 — 홈 설정과 같은 값을 다룬다(#1062).
+              한쪽에서 고치면 다른 쪽에도 그대로 반영된다 */}
+          <section className={styles.section}>
+            <SectionHeader
+              title={language === "ko" ? "작업물이 없을 때" : "When there are no works"}
+              paths={["homeWorks.repos"]}
+              extra={
+                <span className={`${styles.sectionHint} ${styles.sectionHintInline}`}>
+                  {language === "ko"
+                    ? "발행한 작업물이 없으면 이 저장소들이 목록과 상세를 채웁니다. 홈 설정과 같은 값입니다."
+                    : "With no published works, these repositories fill the list and detail pages. Same values as the home settings."}
+                </span>
+              }
+              {...sh}
+            />
+            <HomeWorksEditor
+              source={(config.homeWorks?.source ?? "auto") as HomeWorksSource}
+              repos={config.homeWorks?.repos ?? []}
+              orgs={profileData.github?.orgs ?? []}
+              showSource={false}
+              onSourceChange={(v) => update("homeWorks", "source", v)}
+              onReposChange={(v) => update("homeWorks", "repos", v as SiteConfigData["homeWorks"]["repos"])}
+              onOrgsChange={(v) => setProfileData((d) => ({ ...d, github: { ...(d.github ?? {}), orgs: v } }))}
+              styles={styles}
+            />
+          </section>
+
           {/* Works Categories — Intro 아래로 위치 변경 */}
           <section className={styles.section}>
             <SectionHeader title={t("admin.settings.worksCategories")} paths={["works.categories"]} {...sh} />

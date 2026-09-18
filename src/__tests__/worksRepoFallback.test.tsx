@@ -3,6 +3,9 @@ import { render, cleanup } from "@testing-library/react";
 import { repoToProject } from "@/lib/getWorksProjects";
 import { STARS, CONSTELLATIONS } from "@/app/works/_components/WorksEmptyState/starMap";
 import WorksEmptyState from "@/app/works/_components/WorksEmptyState/WorksEmptyState";
+import { SiteConfigProvider } from "@/providers/SiteConfigProvider";
+import { siteConfig } from "@/config/site.config";
+import type { SiteConfigData } from "@/config/site.config";
 import type { GithubRepoCard } from "@/lib/githubShowcase";
 
 /* 발행한 작업물이 없을 때의 작업물 목록(#1062).
@@ -85,10 +88,31 @@ describe("은하수 배경", () => {
   });
 
   it("보여줄 것이 없으면 비어 있다고 말하고 하늘을 깐다", () => {
-    const { getByText, container } = render(<WorksEmptyState />);
+    /* 빈 화면은 설정에서 문구를 읽고(비었으면 번역 파일), 원통의 인트로 패널을 그대로 쓴다 */
+    const { getByText, container } = render(
+      <SiteConfigProvider initialConfig={siteConfig as unknown as SiteConfigData}>
+        <WorksEmptyState />
+      </SiteConfigProvider>,
+    );
     expect(getByText("아직 발행한 작업물이 없습니다.")).toBeTruthy();
     expect(container.querySelector("svg")).toBeTruthy();
     // 별자리 이름이 성도처럼 얹힌다
     expect(getByText("ORION")).toBeTruthy();
+    // 원통 배치의 첫 패널이 그대로 온다 — 설정의 인트로 제목이 보인다
+    expect(getByText(siteConfig.works.introTitle_ko)).toBeTruthy();
+  });
+
+  it("설정에 적은 문구가 번역 파일의 기본 문장을 대신한다", () => {
+    const config = {
+      ...siteConfig,
+      works: { ...siteConfig.works, emptyTitle_ko: "아직 아무것도 없습니다", emptySub_ko: "곧 채웁니다" },
+    };
+    const { getByText } = render(
+      <SiteConfigProvider initialConfig={config as unknown as SiteConfigData}>
+        <WorksEmptyState />
+      </SiteConfigProvider>,
+    );
+    expect(getByText("아직 아무것도 없습니다")).toBeTruthy();
+    expect(getByText("곧 채웁니다")).toBeTruthy();
   });
 });
