@@ -59,8 +59,9 @@ export default function ProgressiveImage({
     setErrored(false);
   }
 
-  // 이미지 로드 실패 시 placeholder 렌더 (broken image icon 대신)
-  if (errored) {
+  /* 빈 주소는 실패와 같이 본다 — next/image 는 빈 src 를 받으면 그 자리에서 던진다.
+     표지가 없는 항목(GitHub 저장소로 채운 작업물 목록 등)이 화면 전체를 죽이지 않게 한다(#1062) */
+  if (errored || !src) {
     return (
       <div className={`${styles.wrapper} ${styles.fallback}`} aria-label={alt} role="img">
         <ImageOff className={styles.fallbackIcon} size={28} strokeWidth={1.5} aria-hidden />
