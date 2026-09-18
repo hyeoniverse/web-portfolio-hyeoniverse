@@ -337,18 +337,28 @@ async function ghText(path: string, token: string | null): Promise<string | null
  * 설정에 조직 이름을 적어 두면 거기에 더한다 — 소속을 비공개로 둔 조직은 목록에 안 잡히기 때문이다.
  * 이름이 겹칠 수 있으므로(`content` 가 개인에도 조직에도 있을 수 있다) `owner/name` 으로 구분한다.
  */
-export async function listOwnedRepos(login: string, extraOrgs: readonly string[] = []): Promise<GithubRepoCard[]> {
-  if (!login) return [];
+export interface OwnedRepoList {
+  repos: GithubRepoCard[];
+  /** 저장소를 끌어온 조직 이름 — 화면이 "조직을 찾긴 했는지" 를 말해 줄 수 있어야 한다 */
+  orgs: string[];
+  /** 목록을 못 받은 조직. 조용히 빼 버리면 왜 안 보이는지 알 길이 없다(#1059) */
+  failedOrgs: string[];
+}
+
+export async function listOwnedRepos(login: string, extraOrgs: readonly string[] = []): Promise<OwnedRepoList> {
+  if (!login) return { repos: [], orgs: [], failedOrgs: [] };
   const token = await getSecret("GITHUB_TOKEN").catch(() => null);
   const orgs = await resolveOrgs(login, extraOrgs, token);
 
-  const lists = await Promise.all([
+  const [mine, ...orgLists] = await Promise.all([
     gh(`/users/${encodeURIComponent(login)}/repos?per_page=100&sort=pushed&type=owner`, token),
     ...orgs.map((org) => gh(`/orgs/${encodeURIComponent(org)}/repos?per_page=100&sort=pushed`, token)),
   ]);
 
+  const failedOrgs = orgs.filter((_, i) => !Array.isArray(orgLists[i]));
+
   const byFullName = new Map<string, GithubRepoCard>();
-  for (const raw of lists) {
+  for (const raw of [mine, ...orgLists]) {
     if (!Array.isArray(raw)) continue;
     for (const r of raw as RawRepo[]) {
       if (r.archived === true) continue;
@@ -356,7 +366,11 @@ export async function listOwnedRepos(login: string, extraOrgs: readonly string[]
       if (card.name) byFullName.set(card.fullName, card);
     }
   }
-  return [...byFullName.values()].sort((a, b) => b.pushedAt.localeCompare(a.pushedAt));
+  return {
+    repos: [...byFullName.values()].sort((a, b) => b.pushedAt.localeCompare(a.pushedAt)),
+    orgs,
+    failedOrgs,
+  };
 }
 
 /** 소속 조직(공개) + 설정에 적어 둔 조직. 대소문자만 다른 중복은 하나로 본다 */

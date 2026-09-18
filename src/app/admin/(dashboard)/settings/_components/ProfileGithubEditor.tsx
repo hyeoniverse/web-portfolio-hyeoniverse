@@ -46,6 +46,7 @@ export default function ProfileGithubEditor({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
+  const [orgInfo, setOrgInfo] = useState<{ found: string[]; failed: string[] }>({ found: [], failed: [] });
 
   const patch = (next: Partial<NonNullable<ProfileData["github"]>>) =>
     setData((d) => ({ ...d, github: { ...(d.github ?? {}), ...next } }));
@@ -61,6 +62,7 @@ export default function ProfileGithubEditor({
         setRepos([]);
       } else {
         setRepos(body.repos ?? []);
+        setOrgInfo({ found: body.orgs ?? [], failed: body.failedOrgs ?? [] });
         setLogin(body.login ?? "");
       }
     } catch {
@@ -236,6 +238,12 @@ export default function ProfileGithubEditor({
                       `Up to ${PINNED_REPO_LIMIT} appear on the profile.`)}
             </span>
           </div>
+          {orgInfo.failed.length > 0 && (
+            <span className={`${outer.fieldHint} ${styles.groupHint} ${styles.orgWarn}`}>
+              {L(`조직 ${orgInfo.failed.join(", ")} 의 저장소를 불러오지 못했습니다.`,
+                 `Could not load repositories from ${orgInfo.failed.join(", ")}.`)}
+            </span>
+          )}
           <SearchCapsule
             search={search}
             onSearchChange={setSearch}

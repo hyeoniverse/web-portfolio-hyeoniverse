@@ -60,6 +60,7 @@ export default function HomeWorksEditor({
   const [due, setDue] = useState<string[]>([]);
   const [login, setLogin] = useState("");
   const [search, setSearch] = useState("");
+  const [orgInfo, setOrgInfo] = useState<{ found: string[]; failed: string[] }>({ found: [], failed: [] });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -79,6 +80,7 @@ export default function HomeWorksEditor({
       } else {
         setList(body.repos ?? []);
         setDue(body.due ?? []);
+        setOrgInfo({ found: body.orgs ?? [], failed: body.failedOrgs ?? [] });
         setLogin(body.login ?? "");
       }
     } catch {
@@ -355,17 +357,6 @@ export default function HomeWorksEditor({
 
           {error && <p className={gh.error}>{error}</p>}
 
-          {list.length > 0 && (
-            <SearchCapsule
-              search={search}
-              onSearchChange={setSearch}
-              placeholder={L("저장소 검색", "Search repositories")}
-              size="sm"
-              historyKey={null}
-              showHelp={false}
-            />
-          )}
-
           {loading ? (
             <EmptyState size="xs" pad="sm">{L("저장소를 불러오는 중…", "Loading repositories…")}</EmptyState>
           ) : list.length === 0 && !error ? (
@@ -376,6 +367,27 @@ export default function HomeWorksEditor({
             /* 소유 계정별로 나눠 보여준다 — 한 목록에 섞으면 조직 저장소 한둘이 최근 수정 순
                사이에 파묻혀 있는 줄도 모른다. 내 저장소가 먼저, 그다음 조직들. */
             <>
+              <div className={gh.group}>
+                <div className={gh.groupHead}>
+                  <span className={`${outer.sectionSubTitle} ${gh.groupLabel}`}>{L("저장소", "Repositories")}</span>
+                  <span className={gh.groupCount}>{matched.length}</span>
+                  {/* 조직을 찾았는지·받다가 실패했는지 말해 준다 — 조용히 비어 있으면 원인을 알 수 없다 */}
+                  {orgInfo.failed.length > 0 && (
+                    <span className={`${outer.fieldHint} ${gh.groupHint} ${styles.orgWarn}`}>
+                      {L(`조직 ${orgInfo.failed.join(", ")} 의 저장소를 불러오지 못했습니다.`,
+                         `Could not load repositories from ${orgInfo.failed.join(", ")}.`)}
+                    </span>
+                  )}
+                </div>
+                <SearchCapsule
+                  search={search}
+                  onSearchChange={setSearch}
+                  placeholder={L("저장소 검색", "Search repositories")}
+                  size="sm"
+                  historyKey={null}
+                  showHelp={false}
+                />
+              </div>
               {groupedRepos.map((group, groupIndex) => (
                 <div className={gh.group} key={group.owner}>
                   <div className={gh.groupHead}>
