@@ -164,3 +164,10 @@
   font-size: var(--font-size-micro);
   color: var(--text-secondary);
 }
+
+/* 카드 묶음의 안내는 두 줄까지 가고 바로 아래 카드가 붙어 답답했다 — 이 자리에만 여백을 준다.
+   공용 .groupHint 를 건드리면 같은 클래스를 쓰는 다른 묶음까지 벌어진다 */
+.cardsHint {
+  margin-bottom: var(--spacing-xs);
+  line-height: var(--line-height-snug);
+}
