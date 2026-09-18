@@ -193,6 +193,66 @@ export interface RepoOverride {
   description_ko?: string;
 }
 
+/** 저장소 하나를 화면에 올릴 때 쓰는 값 — 홈의 원과 작업물 목록의 카드가 같은 값을 본다 */
+export interface RepoView {
+  /** 사이트 안에서 README 를 읽는 주소 */
+  href: string;
+  /** GitHub 주소 */
+  repoUrl: string;
+  title: LocalizedText;
+  /** 원 아래 줄·카드 한 줄에 들어가는 낱말 — 적어 둔 대표 기술, 없으면 주 언어 */
+  tech: string;
+  cover: string;
+  coverFit: CoverFit;
+  hoverCover: string;
+  hoverFit: CoverFit;
+  /** 표지가 없을 때 채울 언어 색과 그 위에서 읽히는 글자색 */
+  accent: string;
+  accentInk: string;
+}
+
+/**
+ * 저장소 + 설정에 적어 둔 것 → 화면에 올릴 값.
+ *
+ * 값을 고르는 순서는 언제나 같다 — 설정에 적은 것 → README 에서 뽑은 것 → GitHub 기본값(#1053).
+ * 설정에서 지우면 한 단계씩 뒤로 돌아간다. README 는 안 읽었거나 못 찾았으면 비어 있다.
+ *
+ * 홈(원)과 작업물 목록(카드)이 같이 부른다 — 각자 고르면 같은 저장소가 화면마다 다르게 보인다.
+ */
+export function repoView(repo: GithubRepoCard, set?: RepoOverride): RepoView {
+  const language = repo.language || "GitHub";
+  const accent = repoAccent(repo.language);
+  const cover = set?.cover || repo.readme?.image || "";
+  /* 자리는 올린 표지에만 매기는 값이 아니다 — README 에서 끌어온 그림도 원 안에서 밀려난다 */
+  const x = set?.coverX ?? 50;
+  const y = set?.coverY ?? 50;
+  const zoom = set?.coverZoom ?? 1;
+  /* 올렸을 때 바뀔 표지. 따로 두지 않으면 기본 표지가 그대로 드러난다(전과 같은 모습) */
+  const hoverCover = set?.coverHover || cover;
+  const own = !!set?.coverHover;
+  /* 아래 줄은 낱말 자리다(작업물은 분류, 글은 카테고리가 들어간다). 그래서 README 소개 문단은
+     여기 쓰지 않는다 — 한 줄에 안 들어가고 대문자·자간 스타일과도 안 맞는다.
+     적어 둔 대표 기술 → 주 언어 순. description 은 예전 설정 호환으로만 본다. */
+  const tech = set?.tech || set?.description || set?.description_ko || language;
+  const name = repo.readme?.title || repo.name;
+  return {
+    href: `/works/repos/${repo.owner}/${repo.name}`,
+    repoUrl: repo.url,
+    title: { ko: set?.title_ko || name, en: set?.title || name },
+    tech,
+    cover,
+    coverFit: { x, y, zoom },
+    hoverCover,
+    hoverFit: {
+      x: own ? set?.hoverX ?? 50 : x,
+      y: own ? set?.hoverY ?? 50 : y,
+      zoom: own ? set?.hoverZoom ?? 1 : zoom,
+    },
+    accent,
+    accentInk: inkFor(accent),
+  };
+}
+
 /** GitHub 저장소 → 홈 그리드용 슬롯.
  *  표지를 올려 두면 다른 소스와 똑같이 그 그림이 원을 채우고, 없으면 주 언어 색과 이름으로 채운다. */
 export function toRepoItems(
@@ -202,41 +262,20 @@ export function toRepoItems(
   const byName = new Map(overrides.map((o) => [o.name, o]));
   return fillSlots(source, (repo) => {
     // 조직 저장소는 `owner/name` 으로, 개인 저장소는 이름만으로 적혀 있다
-    const set = byName.get(repo.fullName) ?? byName.get(repo.name);
-    const language = repo.language || "GitHub";
-    const accent = LANGUAGE_COLORS[repo.language] ?? DEFAULT_REPO_COLOR;
-
-    /* 값을 고르는 순서는 언제나 같다 — 설정에 적은 것 → README 에서 뽑은 것 → GitHub 기본값(#1053).
-       설정에서 지우면 한 단계씩 뒤로 돌아간다. README 는 안 읽었거나 못 찾았으면 비어 있다. */
-    const readme = repo.readme;
-    const cover = set?.cover || readme?.image || "";
-    /* 위치는 올린 표지에만 매기는 값이 아니다 — README 에서 끌어온 그림도 원 안에서 밀려난다 */
-    const x = set?.coverX ?? 50;
-    const y = set?.coverY ?? 50;
-    /* 올렸을 때 바뀔 표지. 따로 두지 않으면 기본 표지가 그대로 드러난다(전과 같은 모습) */
-    const zoom = set?.coverZoom ?? 1;
-    const hover = set?.coverHover || cover;
-    const hx = set?.coverHover ? set?.hoverX ?? 50 : x;
-    const hy = set?.coverHover ? set?.hoverY ?? 50 : y;
-    const hz = set?.coverHover ? set?.hoverZoom ?? 1 : zoom;
-    const name = readme?.title || repo.name;
-    /* 아래 줄은 낱말 자리다(작업물은 분류, 글은 카테고리가 들어간다). 그래서 README 소개 문단은
-       여기 쓰지 않는다 — 한 줄에 안 들어가고 대문자·자간 스타일과도 안 맞는다.
-       적어 둔 대표 기술 → 주 언어 순. description 은 예전 설정 호환으로만 본다. */
-    const about = set?.tech || set?.description || set?.description_ko || language;
-    const subtitle = { ko: about, en: about };
+    const view = repoView(repo, byName.get(repo.fullName) ?? byName.get(repo.name));
     return {
       projectId: repo.name,
-      title: { ko: set?.title_ko || name, en: set?.title || name },
-      category: subtitle,
-      main: cover,
-      hover,
-      mainFit: { x, y, zoom },
-      hoverFit: { x: hx, y: hy, zoom: hz },
-      href: repo.url,
+      title: view.title,
+      category: { ko: view.tech, en: view.tech },
+      main: view.cover,
+      hover: view.hoverCover,
+      mainFit: view.coverFit,
+      hoverFit: view.hoverFit,
+      /* 원을 누르면 GitHub 이 아니라 사이트 안에서 README 를 읽는다(#1062) */
+      href: view.href,
       kind: "repo",
-      accent,
-      accentInk: inkFor(accent),
+      accent: view.accent,
+      accentInk: view.accentInk,
     };
   });
 }
