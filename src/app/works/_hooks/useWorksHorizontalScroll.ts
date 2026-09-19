@@ -196,15 +196,21 @@ export function useWorksHorizontalScroll({
         // 슬라이더 위치 업데이트
         gsap.set(slider, { x: initialX - scrollX });
 
-        // 활성 인덱스 업데이트 (카드 왼쪽이 뷰포트에 진입하면 전환)
-        let latestIndex = 0;
+        /* 활성 인덱스 업데이트 — 화면 가운데에 가장 가까운 카드가 지금 보고 있는 작품이다.
+           전에는 "왼쪽 변이 화면에 들어온 마지막 카드" 로 잡아, 다음 카드가 오른쪽 끝에 겨우
+           걸치기만 해도 아래 제목이 먼저 바뀌었다(#1062) */
+        const viewCenter = window.innerWidth / 2;
+        let activeIdx = 0;
+        let bestDist = Infinity;
         for (let i = 0; i < cards.length; i++) {
           const rect = cards[i].getBoundingClientRect();
-          if (rect.left < window.innerWidth) {
-            latestIndex = i;
+          const dist = Math.abs((rect.left + rect.right) / 2 - viewCenter);
+          if (dist < bestDist) {
+            bestDist = dist;
+            activeIdx = i;
           }
         }
-        onActiveIndex(latestIndex % projectCount);
+        onActiveIndex(activeIdx % projectCount);
 
         // intro가 화면에 보이면 고정 타이틀 숨김
         let introOnScreen = false;
