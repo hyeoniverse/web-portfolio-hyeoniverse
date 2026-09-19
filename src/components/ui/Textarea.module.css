@@ -22,7 +22,10 @@
   line-height: 1.5;
   color: var(--text-primary);
   outline: none;
-  resize: vertical;
+  /* native resize 는 끈다 — 브라우저가 그리는 손잡이는 스크롤이 생기면 스크롤바 층에 가려
+     보였다 안 보였다 한다. 끄는 일은 어차피 아래 .resizeOverlay 의 JS 가 하고 있었으므로,
+     손잡이 그림도 그쪽에서 직접 그려 늘 같은 자리에 보이게 한다. */
+  resize: none;
   min-height: 84px;
   max-height: 240px;
   overflow-y: auto;
@@ -110,6 +113,17 @@
   backdrop-filter: var(--blur-glass);
   /* 텍스트 선택·리사이즈는 통과시키고 버튼만 클릭 */
   pointer-events: none;
+  transition: opacity var(--duration-base) ease;
+}
+
+/* 타이핑하는 동안에는 물러난다 — 우하단에 떠 있는 이 chip 이 방금 친 글자를 가린다.
+   손을 멈추면 돌아온다. 사라져 있는 동안에는 지우개도 눌리지 않아야 한다. */
+.bottomRow[data-typing] {
+  opacity: 0;
+}
+
+.bottomRow[data-typing] .clearBtn {
+  pointer-events: none;
 }
 
 /* clear (Eraser) — 두 모드 모두 bottomRow 안의 flex child.
@@ -189,6 +203,11 @@
 /* .textarea base 위에 div 전용 보정. native resize/grip 사용 안 함 — JS overlay 가 담당.
    word-break + overflow-wrap + line-break 조합으로 영어 단어도 글자 단위 wrap. */
 .editable {
+  /* 내용이 길어져도 칸은 커지지 않는다 — 처음 키는 고정이고, 오른쪽 아래 손잡이로 끌 때만 바뀐다
+     (끄는 쪽은 inline height 라 이 값을 이긴다). 넘치는 글은 칸 안에서 스크롤한다.
+     min-height 와 같은 값이라, 화면별로 min-height 를 키워 둔 자리는 그대로 그 키를 지킨다
+     — min-height 가 height 를 이긴다. */
+  height: 84px;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   word-break: break-all;
@@ -205,14 +224,43 @@
    (2) 우리 JS 가 drag 처리해서 native cursor 가 발화될 일 없음 */
 .resizeOverlay {
   position: absolute;
-  right: 0;
-  bottom: 0;
-  width: 18px;
-  height: 18px;
-  z-index: 2;
+  /* 누르는 자리는 테두리 안팎에 걸쳐 둔다 — 손잡이 그림이 상자 밖에 있어도 모서리 안쪽에서
+     끌기 시작할 수 있어야 한다 */
+  right: -12px;
+  bottom: -12px;
+  width: 26px;
+  height: 26px;
+  /* chip(지우개·카운터)보다 위 — 모서리에서 겹치는 자리에서도 손잡이가 보여야 한다 */
+  z-index: 4;
   background: transparent;
   touch-action: none;
   cursor: none;
+}
+
+/* 손잡이 그림 — 모서리를 따라 나란한 빗금 두 줄. 크기는 브라우저가 그리던 것과 같고(10px),
+   자리는 둥근 모서리 바로 바깥이다. 테두리에 붙이면 선과 겹쳐 보이고, 더 빼면 상자에서 떨어진
+   딴 물건처럼 보인다. */
+.resizeOverlay::after {
+  content: "";
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  width: 10px;
+  height: 10px;
+  background: linear-gradient(
+    -45deg,
+    transparent 0 20%,
+    var(--text-tertiary) 20% 27%,
+    transparent 27% 45%,
+    var(--text-tertiary) 45% 52%,
+    transparent 52%
+  );
+  opacity: 0.55;
+  transition: opacity var(--duration-base) ease;
+}
+
+.resizeOverlay:hover::after {
+  opacity: 1;
 }
 
 /* placeholder — contenteditable 은 native placeholder 없음 → empty 일 때 ::before 로 표시 */
