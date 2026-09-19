@@ -1,10 +1,12 @@
 "use client";
 
-import { Fragment, useEffect } from "react";
+import { Fragment, useEffect, useMemo } from "react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import {
   experiences as staticExperiences,
+  education as staticEducation,
+  activities as staticActivities,
   skillGroups as staticSkillGroups,
   approachSteps as staticApproachSteps,
   philosophy as staticPhilosophy,
@@ -32,16 +34,21 @@ import type { GithubShowcase } from "@/lib/githubShowcase";
 import KineticHeroTitle from "@/components/common/KineticHeroTitle";
 import styles from "./ProfileMeSection.module.css";
 
-// 12 panels + 3 break dividers = 15 elements per set
-// GitHub showcase 가 있으면 패널이 하나 늘어난다 — 무한 스크롤의 한 세트 크기와
-// 네비게이션 dot 개수가 실제 개수와 어긋나면 되감기 지점이 틀어진다.
-const PANEL_COUNT = 15;
-const NAV_SECTION_COUNT = 12;
-/** GitHub 패널이 들어가는 자리(구분선 제외 인덱스: Hero 0 · Bunny 1 · Profile 2 · GitHub 3)
- *  — 말풍선 키가 이 번호에 묶여 있다. */
-const GITHUB_PANEL_INDEX = 3;
-/** 몽이 패널 자리(구분선 제외 인덱스). 여기에 머무는 동안만 표정을 조종한다. */
-const BUNNY_PANEL_INDEX = 1;
+/* 한 세트에 늘 들어가는 구분선 수 — 패널 사이에 세 번 들어간다.
+   패널 수는 고정할 수 없다. 스킬 묶음 수가 사람마다 다르고, 비워 둔 묶음은 그리지 않기 때문이다.
+   무한 스크롤의 한 세트 크기와 네비게이션 dot 개수가 실제 개수와 어긋나면 되감기 지점이 틀어지므로
+   둘 다 아래에서 실제로 그리는 목록으로 센다. */
+const BREAK_COUNT = 3;
+/** 말풍선(profilePage.bubble.N)이 묶여 있는 본래 번호. 빈 묶음을 건너뛰어 차례가 당겨져도
+ *  말풍선은 이 번호로 찾는다 — 안 그러면 엉뚱한 패널에서 엉뚱한 말이 나온다. */
+const BUBBLE_INDEX: Record<string, number> = {
+  hero: 0, bunny: 1, profile: 2, github: 3, pinned: 4, experience: 5,
+  philosophy: 10, process: 11, credentials: 12, credits: 13,
+  education: 14, activities: 15,
+};
+/** 스킬은 묶음마다 패널 하나 — 본래 번호는 6부터 네 자리다. 그보다 많으면 마지막 것을 같이 쓴다 */
+const SKILL_BUBBLE_START = 6;
+const SKILL_BUBBLE_LAST = 9;
 /** GitHub 이 차지할 수 있는 최대 패널 수 — 개요 + Pinned. 말풍선 키는 이 배치를 기준으로 쓰였다. */
 const GITHUB_PANEL_SPAN = 2;
 const REPETITIONS = 3;
@@ -54,6 +61,8 @@ interface ProfileMeSectionProps {
 
 export default function ProfileMeSection({ profileData, showcase }: ProfileMeSectionProps) {
   const experiences = profileData?.experiences ?? staticExperiences;
+  const education = profileData?.education ?? staticEducation;
+  const activities = profileData?.activities ?? staticActivities;
   const skillGroups = profileData?.skillGroups ?? staticSkillGroups;
   const approachSteps = profileData?.approachSteps ?? staticApproachSteps;
   const philosophy = profileData?.philosophy ?? staticPhilosophy;
@@ -71,26 +80,57 @@ export default function ProfileMeSection({ profileData, showcase }: ProfileMeSec
   /* 실제로 그리는 GitHub 패널 수 — 개요만(1) / 개요+Pinned(2) / 아예 없음(0).
      무한 스크롤의 한 세트 크기와 네비게이션 dot 개수가 실제 개수와 어긋나면 되감기가 틀어진다. */
   const githubPanels = showcase ? (showcase.repos.length > 0 ? GITHUB_PANEL_SPAN : 1) : 0;
+
+  /* 실제로 그리는 패널의 차례 — 적지 않은 묶음은 그리지 않으므로 사람마다 다르다.
+     세는 일(무한 스크롤 한 세트·dot 개수)과 말풍선 번호를 모두 이 목록에서 뽑는다 */
+  const panelIds = useMemo(() => {
+    const ids = ["hero", "bunny", "profile"];
+    if (githubPanels >= 1) ids.push("github");
+    if (githubPanels >= 2) ids.push("pinned");
+    if (experiences.length > 0) ids.push("experience");
+    if (education.length > 0) ids.push("education");
+    if (activities.length > 0) ids.push("activities");
+    skillGroups.forEach((_, i) => ids.push(`skill-${i}`));
+    if (philosophy.length > 0) ids.push("philosophy");
+    if (approachSteps.length > 0) ids.push("process");
+    if (certifications.length > 0 || awards.length > 0) ids.push("credentials");
+    ids.push("credits");
+    return ids;
+  }, [githubPanels, experiences.length, education.length, activities.length, skillGroups, philosophy.length, approachSteps.length, certifications.length, awards.length]);
+
   const { sectionRef, trackRef, activeSection } = useHorizontalScroll(styles, {
     infinite: infiniteScroll,
-    panelSetSize: PANEL_COUNT + githubPanels,
-    navSectionCount: NAV_SECTION_COUNT + githubPanels,
+    panelSetSize: panelIds.length + BREAK_COUNT,
+    navSectionCount: panelIds.length,
     mobileAnimateVisible: true,
   });
 
   /* 이 패널에 머무는 동안만 표정을 돌린다 — 사본이 여러 벌이라 여기서 한 번만 부른다. */
-  useBunnyExpressionCycle(activeSection === BUNNY_PANEL_INDEX);
+  useBunnyExpressionCycle(panelIds[activeSection] === "bunny");
 
   useEffect(() => {
-    /* 말풍선(profilePage.bubble.N)은 패널 번호에 묶여 있고, 키는 GitHub 이 두 패널을 다
-       차지하는 배치를 기준으로 쓰였다. 실제로 덜 그려지면 그 뒤가 당겨져 엉뚱한 패널에
-       뜨므로, 빠진 만큼 되돌려서 넘긴다. */
-    const bubbleIndex =
-      activeSection < GITHUB_PANEL_INDEX + githubPanels
-        ? activeSection
-        : activeSection + (GITHUB_PANEL_SPAN - githubPanels);
+    /* 말풍선은 패널의 본래 번호에 묶여 있다. 빈 묶음을 건너뛰어 차례가 당겨져도 본래 번호로 넘긴다 */
+    const id = panelIds[activeSection];
+    if (!id) return;
+    const skill = id.startsWith("skill-") ? Number(id.slice(6)) : -1;
+    const bubbleIndex = skill >= 0
+      ? Math.min(SKILL_BUBBLE_START + skill, SKILL_BUBBLE_LAST)
+      : BUBBLE_INDEX[id] ?? 0;
     useProfileSectionStore.getState().setActiveSection(bubbleIndex);
-  }, [activeSection, githubPanels]);
+  }, [activeSection, panelIds]);
+
+  /* 시간순 판 셋 — 적은 것만 그린다. 차례와 무늬는 panelIds 와 같은 순서다 */
+  const timelinePanels = useMemo(
+    () => [
+      { id: "experience", watermark: "experience", titleKey: "profilePage.experience", items: experiences, indent: true },
+      { id: "education", watermark: "education", titleKey: "profilePage.education", items: education, indent: false },
+      { id: "activities", watermark: "activities", titleKey: "profilePage.activities", items: activities, indent: true },
+    ].filter((panel) => panel.items.length > 0),
+    [experiences, education, activities],
+  );
+
+  /** GitHub 패널이 지금 몇 번째인지 — 그 패널 안의 연출이 활성 여부를 본다 */
+  const githubIndex = panelIds.indexOf("github");
 
   const panelSet = (key: number) => (
     <Fragment key={key}>
@@ -183,7 +223,7 @@ export default function ProfileMeSection({ profileData, showcase }: ProfileMeSec
             <ProfileGithub
               showcase={showcase}
               animateClass={styles.animate}
-              active={activeSection === GITHUB_PANEL_INDEX}
+              active={activeSection === githubIndex}
             />
           </div>
         </div>
@@ -198,52 +238,45 @@ export default function ProfileMeSection({ profileData, showcase }: ProfileMeSec
             <ProfileGithub
               showcase={showcase}
               animateClass={styles.animate}
-              active={activeSection === GITHUB_PANEL_INDEX + 1}
+              active={activeSection === githubIndex + 1}
               part="pinned"
             />
           </div>
         </div>
       )}
 
-      {/* Panel 6: Experience */}
-      <div className={`${styles.panel} ${styles.panelIndent}`} data-emph-panel>
-        <span className={styles.panelWatermark}>experience</span>
-        <div className={styles.panelInner}>
+      {/* Panel 6~8: 경력·교육·활동 — 같은 모양이라 한 틀로 그린다.
+          적지 않은 묶음은 아예 그리지 않는다(빈 판이 서 있으면 고장 난 것처럼 보인다) */}
+      {timelinePanels.map(({ id, watermark, titleKey, items, indent }) => (
+        <div key={id} className={`${styles.panel} ${indent ? styles.panelIndent : ""}`} data-emph-panel>
+          <span className={styles.panelWatermark}>{watermark}</span>
+          <div className={styles.panelInner}>
             <HoverEmphasis>
-            <h3 className={`${styles.sectionSubtitle} ${styles.animate}`}>
-              <T k="profilePage.experience" />
-            </h3>
-            <div className={styles.expTimeline}>
-              {experiences.map((exp, index) => (
-                <div
-                  key={index}
-                  className={`${styles.expRow} ${styles.animate}`}
-                  data-emph-row
-                >
-                  <span className={styles.expPeriod}>
-                    {formatPeriod(exp.period, language)}
-                  </span>
-  
-                  <div className={styles.expMarker}>
-                    <span className={styles.expDot} />
-                    {index < experiences.length - 1 && (
-                      <span className={styles.expLine} />
-                    )}
+              <h3 className={`${styles.sectionSubtitle} ${styles.animate}`}>
+                <T k={titleKey} />
+              </h3>
+              <div className={styles.expTimeline}>
+                {items.map((item, index) => (
+                  <div key={index} className={`${styles.expRow} ${styles.animate}`} data-emph-row>
+                    <span className={styles.expPeriod}>{formatPeriod(item.period, language)}</span>
+
+                    <div className={styles.expMarker}>
+                      <span className={styles.expDot} />
+                      {index < items.length - 1 && <span className={styles.expLine} />}
+                    </div>
+
+                    <div className={styles.expContent}>
+                      <h4 className={styles.expRole} data-emph>{item.role[language]}</h4>
+                      <span className={styles.expCompany} data-emph>{item.company}</span>
+                      <p className={styles.expDesc}>{item.description[language]}</p>
+                    </div>
                   </div>
-  
-                  <div className={styles.expContent}>
-                    <h4 className={styles.expRole} data-emph>{exp.role[language]}</h4>
-                    <span className={styles.expCompany} data-emph>{exp.company}</span>
-                    <p className={styles.expDesc}>
-                      {exp.description[language]}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
             </HoverEmphasis>
           </div>
-      </div>
+        </div>
+      ))}
 
       {/* Break: Marquee 2 */}
       <MarqueeDivider className={styles.breakPanel} />
@@ -299,6 +332,7 @@ export default function ProfileMeSection({ profileData, showcase }: ProfileMeSec
       <MarqueeDivider className={styles.breakPanel} />
 
       {/* Panel 11: Philosophy */}
+      {(philosophy.length > 0) && (
       <div className={styles.panel} data-emph-panel>
         <span className={styles.panelWatermark}>mindset</span>
         <div className={styles.panelInner}>
@@ -330,8 +364,10 @@ export default function ProfileMeSection({ profileData, showcase }: ProfileMeSec
             </HoverEmphasis>
           </div>
       </div>
+      )}
 
       {/* Panel 12: My Approach */}
+      {(approachSteps.length > 0) && (
       <div className={styles.panel} data-emph-panel>
         <span className={styles.panelWatermark}>process</span>
         <div className={styles.panelInner}>
@@ -359,8 +395,10 @@ export default function ProfileMeSection({ profileData, showcase }: ProfileMeSec
             </HoverEmphasis>
           </div>
       </div>
+      )}
 
       {/* Panel 13: Certifications & Awards */}
+      {(certifications.length > 0 || awards.length > 0) && (
       <div className={`${styles.panel} ${styles.panelIndent}`} data-emph-panel>
         <span className={styles.panelWatermark}>credentials</span>
         <div className={styles.panelInner}>
@@ -421,6 +459,7 @@ export default function ProfileMeSection({ profileData, showcase }: ProfileMeSec
             </HoverEmphasis>
           </div>
       </div>
+      )}
 
       {/* Panel 14: Credits */}
       <CreditsPanel className={`${styles.panel} ${styles.animate}`} />

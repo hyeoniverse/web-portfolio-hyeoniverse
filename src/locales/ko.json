@@ -359,6 +359,8 @@
   "profilePage": {
     "profile": "Profile",
     "experience": "Experience",
+    "education": "Education",
+    "activities": "Activities",
     "skills": "Skills",
     "principles": "Principles",
     "workflow": "Workflow",
@@ -381,6 +383,8 @@
       "11": "이런 생각을 갖고 작업하고 있어",
       "12": "나는 이런 자격증과 수상 이력을 갖고 있어 (✌ -͈᷅‎ ⌄ -͈᷄)",
       "13": "끝까지 봐줘서 고마워 💕",
+      "14": "이렇게 배워 왔어 (๑˃ᴗ˂)ﻭ",
+      "15": "이런 활동도 해봤어! ٩(ˊᗜˋ*)و",
       "2_desktop": "나는 이런 사람이야 ( ⸝⸝⸝˃֊˂) 창을 드래그 해봐! 숨겨진 메시지가 나올지도!?!?"
     }
   },

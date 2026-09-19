@@ -61,6 +61,12 @@ export const experiences: Experience[] = [
   },
 ];
 
+/* 교육·활동 — 경력과 같은 모양(기간·이름·소속·설명)을 쓴다. 갓 시작한 사람은 경력이 비어 있어도
+   이 둘로 채울 수 있다. 기본값은 비워 둔다 — 적지 않으면 프로필에 그 판이 아예 안 나온다 */
+export const education: Experience[] = [];
+
+export const activities: Experience[] = [];
+
 export const skillGroups: SkillGroup[] = [
   {
     category: "Frontend",
