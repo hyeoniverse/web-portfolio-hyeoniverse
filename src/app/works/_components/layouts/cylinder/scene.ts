@@ -66,14 +66,92 @@ export function createFallbackPanelDataUrl(seed: string): string {
   return c.toDataURL("image/png");
 }
 
+/** 같은 씨앗이면 같은 수열 — 판의 무늬가 그릴 때마다 달라지지 않게 */
+function introRandom(seed: number): number {
+  const x = Math.sin(seed) * 10000;
+  return x - Math.floor(x);
+}
+
+/**
+ * 밝은 테마의 인트로 판 — 봄날의 꽃잎(#1062).
+ *
+ * 어두운 쪽은 깊은 우주를 그린다. 그 그림을 밝은 테마에도 쓰면 밝은 화면에서 이 판만 캄캄해서,
+ * 밝은 쪽 빈 화면이 꽃잎을 날리는 것과도 어긋났다. 여기서는 따뜻한 종이색 위에 꽃잎을 흩는다.
+ * 글자는 이 판 위에 얹히므로 밝은 판에서는 짙은 먹색으로 바뀐다(CylinderIntroPanel.module.css).
+ */
+function paintBlossomPanel(ctx: CanvasRenderingContext2D, s: number): void {
+  const base = ctx.createRadialGradient(s * 0.5, s * 0.35, 0, s * 0.5, s * 0.5, s * 0.75);
+  base.addColorStop(0, "#fffaf4");
+  base.addColorStop(0.55, "#fdf1e8");
+  base.addColorStop(1, "#f6e6de");
+  ctx.fillStyle = base;
+  ctx.fillRect(0, 0, s, s);
+
+  /* 옅은 살구빛 기운 두 군데 — 판이 종이 한 장처럼 납작해지지 않게 */
+  for (const [cx, cy, r, color] of [
+    [0.3, 0.32, 0.42, "rgba(247,196,205,0.55)"],
+    [0.72, 0.68, 0.38, "rgba(250,214,176,0.5)"],
+  ] as const) {
+    const wash = ctx.createRadialGradient(s * cx, s * cy, 0, s * cx, s * cy, s * r);
+    wash.addColorStop(0, color);
+    wash.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.fillStyle = wash;
+    ctx.fillRect(0, 0, s, s);
+  }
+
+  /* 꽃잎 — 한쪽이 뾰족한 타원을 눕혀 흩는다. 작은 것이 많고 큰 것이 적어야 깊이가 생긴다 */
+  for (let i = 0; i < 46; i++) {
+    const x = introRandom(i * 7 + 1) * s;
+    const y = introRandom(i * 13 + 3) * s;
+    const near = introRandom(i * 5 + 11) ** 2;
+    const w = 5 + near * 16;
+    const tone = introRandom(i * 3 + 17);
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(introRandom(i * 19 + 5) * Math.PI * 2);
+    ctx.beginPath();
+    ctx.ellipse(0, 0, w, w * 0.62, 0, 0, Math.PI * 2);
+    ctx.fillStyle = tone > 0.5
+      ? `rgba(244,168,190,${0.25 + near * 0.45})`
+      : `rgba(248,196,158,${0.22 + near * 0.4})`;
+    ctx.fill();
+    ctx.restore();
+  }
+
+  /* 꽃 두 송이 — 다섯 장을 둘러 붙인다. 흩어진 꽃잎만으로는 무엇이 날리는지 읽히지 않는다 */
+  for (const [cx, cy, petal] of [[0.24, 0.72, 26], [0.78, 0.26, 20]] as const) {
+    for (let p = 0; p < 5; p++) {
+      const angle = (p / 5) * Math.PI * 2;
+      ctx.save();
+      ctx.translate(s * cx + Math.cos(angle) * petal * 0.8, s * cy + Math.sin(angle) * petal * 0.8);
+      ctx.rotate(angle);
+      ctx.beginPath();
+      ctx.ellipse(0, 0, petal, petal * 0.58, 0, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(246,178,196,0.6)";
+      ctx.fill();
+      ctx.restore();
+    }
+    ctx.beginPath();
+    ctx.arc(s * cx, s * cy, petal * 0.32, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(250,214,150,0.85)";
+    ctx.fill();
+  }
+}
+
 export function createIntroDataUrl(isDark: boolean): string {
   const s = 512;
   const c = document.createElement("canvas");
   c.width = s; c.height = s;
   const ctx = c.getContext("2d")!;
 
+  /* 밝은 테마는 우주가 아니라 봄날이다 — 판도 화면 배경(꽃잎)과 같은 결로 둔다 */
+  if (!isDark) {
+    paintBlossomPanel(ctx, s);
+    return c.toDataURL("image/png");
+  }
+
   // Deep space base
-  ctx.fillStyle = isDark ? "#000000" : "#000000";
+  ctx.fillStyle = "#000000";
   ctx.fillRect(0, 0, s, s);
 
   // Nebula wash — accent pink (always on dark base)
@@ -94,10 +172,7 @@ export function createIntroDataUrl(isDark: boolean): string {
 
   // Stars (intro is always dark)
   {
-    const rng = (seed: number) => {
-      const x = Math.sin(seed) * 10000;
-      return x - Math.floor(x);
-    };
+    const rng = introRandom;
     for (let i = 0; i < 80; i++) {
       const x = rng(i * 7 + 1) * s;
       const y = rng(i * 13 + 3) * s;
