@@ -40,13 +40,19 @@ const BUNNY_WALL_BOUNCE = 0.9;
 const BUNNY_FRICTION = 0.998;
 const BUNNY_MARGIN = 0.8;
 
+/* 꽃잎 다섯 장이 앉는 각도 — 위에서 시작해 한 바퀴 */
+const PETAL_ANGLES = Array.from({ length: 5 }, (_, i) => (i / 5) * Math.PI * 2 + Math.PI / 2);
+
 interface Props {
   screenPosRef: React.MutableRefObject<{ x: number; y: number }[]>;
   arc: number;
   actualRotRef: React.MutableRefObject<number>;
+  /** 어두운 테마인가 — 밝은 쪽에서는 어항(헬멧) 대신 머리에 꽃을 얹는다(#1062).
+      판도 화면도 봄날인데 우주복만 남으면 혼자 다른 이야기를 한다 */
+  isDark?: boolean;
 }
 
-export default function CylinderIntroBunny({ screenPosRef, arc, actualRotRef }: Props) {
+export default function CylinderIntroBunny({ screenPosRef, arc, actualRotRef, isDark = true }: Props) {
   const groupRef = useRef<THREE.Group>(null);
   /* 털은 살과 **같은** 도형을 써야 한다. JSX 안에 인라인으로 두면 각자 다른 객체가 된다. */
   const bodyGeo = useMemo(() => new THREE.LatheGeometry(BODY_PROFILE, 24), []);
@@ -242,21 +248,40 @@ export default function CylinderIntroBunny({ screenPosRef, arc, actualRotRef }: 
         />
       </group>
 
-      {/* Helmet */}
-      <mesh position={[0, 0.46, 0.02]} scale={[1.5, 1.35, 1.35]} renderOrder={999}>
-        <sphereGeometry args={[0.48, 24, 18]} />
-        <meshStandardMaterial
-          color="#ddeeff"
-          emissive="#aaccff"
-          emissiveIntensity={0.08}
-          metalness={0.0}
-          roughness={0.02}
-          transparent
-          opacity={0.3}
-          depthWrite={false}
-          side={THREE.DoubleSide}
-        />
-      </mesh>
+      {/* 어두운 테마 — 우주로 나가는 어항(헬멧). 밝은 테마에서는 씌우지 않는다 */}
+      {isDark && (
+        <mesh position={[0, 0.46, 0.02]} scale={[1.5, 1.35, 1.35]} renderOrder={999}>
+          <sphereGeometry args={[0.48, 24, 18]} />
+          <meshStandardMaterial
+            color="#ddeeff"
+            emissive="#aaccff"
+            emissiveIntensity={0.08}
+            metalness={0.0}
+            roughness={0.02}
+            transparent
+            opacity={0.3}
+            depthWrite={false}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+      )}
+
+      {/* 밝은 테마 — 귀 옆에 꽃 한 송이. 꽃잎 다섯 장을 둘러 눕히고 가운데에 수술을 둔다.
+          판·배경과 같은 분홍·살구색이라 셋이 한 이야기로 읽힌다 */}
+      {!isDark && (
+        <group position={[0.26, 0.74, 0.16]} rotation={[0.35, -0.2, -0.35]} scale={0.42}>
+          {PETAL_ANGLES.map((angle, i) => (
+            <mesh key={i} position={[Math.cos(angle) * 0.3, Math.sin(angle) * 0.3, 0]} rotation={[0, 0, angle]}>
+              <sphereGeometry args={[0.26, 16, 12]} />
+              <meshStandardMaterial color={i % 2 === 0 ? "#f7b3c6" : "#f9c7a6"} roughness={0.75} metalness={0} />
+            </mesh>
+          ))}
+          <mesh>
+            <sphereGeometry args={[0.16, 16, 12]} />
+            <meshStandardMaterial color="#fadf96" emissive="#f6c95e" emissiveIntensity={0.25} roughness={0.6} />
+          </mesh>
+        </group>
+      )}
 
       {/* Ears */}
       <group ref={leftEarRef} position={[-0.2, 0.82, -0.04]} rotation={[0.12, 0, 0.18]} scale={[1.3, 1.3, 1]}>
