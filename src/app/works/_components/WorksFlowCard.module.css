@@ -9,6 +9,9 @@
   --_desc-max-width: 500px;
   --_safe-top: calc(var(--header-height) + var(--spacing-xl));
   --_safe-bottom: 200px;
+  /* 카드를 내려 앉힐 때 아래에 남겨 두는 자리 — 변주에 따라 설명 글이 카드 밑으로 흐르므로,
+     카드만 안전선 안에 두면 그 글이 화면 밖으로 밀린다 */
+  --_shift-reserve: 80px;
 
   display: flex;
   gap: var(--spacing-xl);
@@ -20,6 +23,11 @@
   margin-bottom: var(--_safe-bottom);
   padding: 0 var(--spacing-5xl);
   position: relative;
+  /* 섹션과 같은 바탕을 칸에도 깐다 — 연도가 밑에 깔린 것과 반전해 섞이는데(metaYear), 섞이는
+     범위는 GSAP 가 transform 을 거는 트랙까지다. 그 안에 깔린 것이 카드뿐이면 카드 밖에서는
+     섞일 상대가 없어 흰 획이 밝은 바탕에 그대로 얹혀 보이지 않는다. 트랙 쪽에 깔아 봐도
+     상대가 되지 않아(Chrome 은 층의 바탕을 범위 밖으로 친다) 칸에 깐다 */
+  background: var(--bg-primary);
   font-family: var(--font-space-grotesk), sans-serif;
   pointer-events: none;
 }
@@ -35,10 +43,44 @@
   transform: translateY(-50%);
 }
 
+/* 카드가 내려앉는 깊이 — 칸의 빈 자리(슬롯 높이 - 카드 높이)에 대한 비율로 둔다.
+   창 높이가 낮아도 카드가 아래 안전선을 넘지 않는다. 크기와 메타 변주 두 축을 더해 정하는데,
+   한 축만 쓰면 같은 크기의 카드가 늘 같은 높이에 서서 표지가 한 줄로 늘어선 띠처럼 보인다(#1062) */
+.project[data-layout="1"] {
+  --_card-h-scale: 1;
+  --_shift-layout: 0;
+}
+
+.project[data-layout="2"] {
+  --_card-h-scale: 0.92;
+  --_shift-layout: 0.12;
+}
+
+.project[data-layout="3"] {
+  --_card-h-scale: 1.06;
+  --_shift-layout: -0.08;
+}
+
+.project[data-layout="4"] {
+  --_card-h-scale: 0.9;
+  --_shift-layout: 0.2;
+}
+
+.project[data-layout="5"] {
+  --_card-h-scale: 1.04;
+  --_shift-layout: -0.05;
+}
+
+.project[data-layout="6"] {
+  --_card-h-scale: 0.96;
+  --_shift-layout: 0.08;
+}
+
 /* Project Size Variants */
 .sizeLarge {
   --_card-w: 850px;
   --_card-h: 480px;
+  --_shift-size: 0.5;
 
   align-self: flex-start;
   gap: var(--spacing-xl);
@@ -47,6 +89,7 @@
 .sizeSmall {
   --_card-w: 600px;
   --_card-h: 380px;
+  --_shift-size: 0.7;
 
   align-self: flex-end;
 }
@@ -54,6 +97,7 @@
 .sizeMedium {
   --_card-w: 720px;
   --_card-h: 460px;
+  --_shift-size: 0.25;
 
   align-self: center;
 }
@@ -61,6 +105,7 @@
 .sizeTall {
   --_card-w: 650px;
   --_card-h: 500px;
+  --_shift-size: 0.8;
 
   align-self: flex-start;
 }
@@ -68,6 +113,7 @@
 .sizeWide {
   --_card-w: 900px;
   --_card-h: 500px;
+  --_shift-size: 0.85;
 
   align-self: flex-end;
 }
@@ -81,7 +127,16 @@
   position: relative;
   z-index: 1;
   width: var(--_card-w);
-  height: var(--_card-h);
+  height: calc(var(--_card-h) * var(--_card-h-scale, 1));
+  /* 위아래 자리 — 두 축이 정한 깊이만큼 칸 안에서 내려앉는다. 카드 높이를 뺀 나머지 안에서만
+     움직이므로 아래 안전선(메타·고정 제목 자리)을 침범하지 않는다 */
+  margin-top: max(
+    0px,
+    calc(
+      (100vh - var(--_safe-top) - var(--_safe-bottom) - var(--_shift-reserve) - var(--_card-h) * var(--_card-h-scale, 1)) *
+        clamp(0, calc(var(--_shift-size, 0) + var(--_shift-layout, 0)), 0.9)
+    )
+  );
   pointer-events: auto;
   border-radius: var(--_card-radius);
   transform-style: preserve-3d;
@@ -185,8 +240,10 @@
   font-weight: 200;
   color: transparent;
   letter-spacing: -0.02em;
-  -webkit-text-stroke: 1px var(--text-primary);
-  filter: drop-shadow(0 2px 8px oklch(0.00% 0.0000 0.00 / 0.5));
+  /* 흰 획을 깔고 밑에 깔린 것과 반전해 섞는다 — 밝은 바탕에서는 어둡게, 표지 위에서는 밝게
+     뒤집혀, 표지 색을 가리지 않으면서 어디서나 읽힌다 */
+  -webkit-text-stroke: 1px var(--text-white);
+  mix-blend-mode: difference;
 }
 
 .metaTech {
@@ -682,8 +739,10 @@
     margin-top: var(--spacing-2xs);
   }
 
-  /* cardOverlay 내부 metaYear — 작은 액센트 라벨, 타이틀 위 */
+  /* cardOverlay 내부 metaYear — 작은 액센트 라벨, 타이틀 위.
+     여기서는 반전해 섞지 않는다 — 표지 위에 얹힌 작은 라벨이라 반전하면 표지 색을 따라 색이 튄다 */
   .project[data-layout] .cardOverlay .metaYear {
+    mix-blend-mode: normal;
     position: relative;
     order: 0;
     top: auto;
