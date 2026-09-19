@@ -9,12 +9,25 @@ import styles from "./CylinderIntroPanel.module.css";
    위치와 표시 여부는 useCylinderStage 의 rAF 가 slotRefs 로 직접 잡으므로
    여기서는 처음에 숨겨둔 채 ref 만 등록한다. 별 12개의 좌표는 고정 배열이라
    슬롯이 다시 그려져도 배치가 흔들리지 않는다. */
+/* 글자 폭 어림 — 한글·한자·일본어 글자는 로마자의 두 배쯤 차지한다.
+   판 너비에 몇 글자가 들어가는지 재려면 글자 수가 아니라 이 폭을 세야 한다 */
+const WIDE_CHAR = /[\u1100-\u11FF\u2E80-\uA4CF\uAC00-\uD7FF\uF900-\uFAFF\uFE30-\uFE4F\uFF00-\uFF60]/;
+
+function textUnits(text: string): number {
+  let units = 0;
+  for (const ch of text) units += WIDE_CHAR.test(ch) ? 2 : 1;
+  return units;
+}
+
 export default function CylinderIntroPanel({
   slotRefs,
 }: {
   slotRefs: RefObject<Map<number, HTMLDivElement>>;
 }) {
   const w = useSiteConfig().works;
+  /* 두 언어 중 긴 쪽을 기준으로 잡는다 — 언어를 바꿀 때마다 글자 크기가 뛰지 않게.
+     여덟은 하한이다. 제목이 아주 짧아도 판을 가득 채울 만큼 커지지는 않게 한다 */
+  const titleUnits = Math.max(8, textUnits(w.introTitle ?? ""), textUnits(w.introTitle_ko ?? ""));
   return (
     <div
       ref={(el) => { if (el) slotRefs.current.set(0, el); }}
@@ -35,7 +48,9 @@ export default function CylinderIntroPanel({
       <span className={styles.introOvalOuter} aria-hidden="true" />
       <span className={styles.introOvalInner} aria-hidden="true" />
       <span className={styles.introLabel}><T ko={w.introLabel_ko} en={w.introLabel} /></span>
-      <h1 className={styles.introTitle}><T ko={w.introTitle_ko} en={w.introTitle} /></h1>
+      <h1 className={styles.introTitle} style={{ ["--title-units" as string]: String(titleUnits) }}>
+        <T ko={w.introTitle_ko} en={w.introTitle} />
+      </h1>
       <span className={styles.introRule} aria-hidden="true">
         <span className={styles.introRuleLine} />
         <span className={styles.introRuleDot} />

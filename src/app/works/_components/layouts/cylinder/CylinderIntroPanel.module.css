@@ -129,9 +129,17 @@
 .introTitle {
   margin: 0;
   font-family: var(--font-instrument), serif;
-  /* 창 너비가 아니라 판 너비를 따른다 — 판은 창이 넓어도 멀어지면 작아진다.
-     0.15 은 판 안에 열 글자 남짓이 들어가는 비율이다 */
-  font-size: clamp(1.75rem, calc(var(--panel-w, 520px) * 0.15), 6rem);
+  /* 두 가지를 같이 본다.
+     하나는 판 너비(--panel-w) — 판은 창이 넓어도 멀어지면 작아지는데 창 너비(vw)로 잡으면 그때
+     글자가 판 밖으로 나간다.
+     다른 하나는 제목 길이(--title-units) — 판이 넉넉해도 제목이 길면 넘친다. 판 너비를 글자 폭으로
+     나눠 한 줄에 들어갈 크기를 구한다(로마자 한 글자를 0.5em 로 보아 2배). 둘 중 작은 쪽을 쓴다 */
+  font-size: clamp(
+    1.5rem,
+    min(calc(var(--panel-w, 520px) * 0.15), calc(var(--panel-w, 520px) * 2 / var(--title-units, 14))),
+    6rem
+  );
+  overflow-wrap: anywhere;
   font-weight: var(--font-weight-light);
   line-height: var(--line-height-tight);
   letter-spacing: -0.03em;
