@@ -5,6 +5,8 @@ import {
   approachSteps,
   certifications,
   awards,
+  education,
+  activities,
   bunnyProfile,
   profileInfoBlocks,
 } from "@/data/profile";
@@ -13,6 +15,8 @@ import type { ProfileData } from "@/types/profile";
 
 const staticProfileData: ProfileData = {
   experiences,
+  education,
+  activities,
   skillGroups,
   philosophy,
   approachSteps,
@@ -133,6 +137,13 @@ export async function getProfileData(): Promise<ProfileData> {
       experiences: config.experiences
         ? migrateExperiences(config.experiences)
         : staticProfileData.experiences,
+      /* 교육·활동도 경력과 같은 모양이라 같은 마이그레이션을 탄다 */
+      education: config.education
+        ? migrateExperiences(config.education)
+        : staticProfileData.education,
+      activities: config.activities
+        ? migrateExperiences(config.activities)
+        : staticProfileData.activities,
       skillGroups: (config.skillGroups as ProfileData["skillGroups"]) ?? staticProfileData.skillGroups,
       github: (config.github as unknown as ProfileData["github"]) ?? staticProfileData.github,
       philosophy: (config.philosophy as ProfileData["philosophy"]) ?? staticProfileData.philosophy,

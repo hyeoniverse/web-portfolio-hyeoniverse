@@ -56,6 +56,8 @@ const styles = { ...shared, ...local };
 
 const PROFILE_SECTION_LABELS: Record<string, string> = {
   experiences: "Experience",
+  education: "Education",
+  activities: "Activities",
   skillGroups: "Skills",
   philosophy: "Philosophy",
   approachSteps: "Approach",
@@ -94,6 +96,8 @@ export default function SettingsPage() {
   // the global "전체 펼치기/접기" button.
   const [profileExpanded, setProfileExpanded] = useState<ProfileExpandState>({
     experiences: { 0: true },
+    education: {},
+    activities: {},
     skillGroups: {},
     philosophy: {},
     approach: {},
@@ -282,6 +286,8 @@ export default function SettingsPage() {
         const c = (isNewFormat ? raw.data : raw) as Partial<ProfileData>;
         const loaded: ProfileData = {
           experiences: c.experiences ?? profileDefaults.experiences,
+          education: c.education ?? profileDefaults.education,
+          activities: c.activities ?? profileDefaults.activities,
           skillGroups: c.skillGroups ?? profileDefaults.skillGroups,
           philosophy: c.philosophy ?? profileDefaults.philosophy,
           approachSteps: c.approachSteps ?? profileDefaults.approachSteps,

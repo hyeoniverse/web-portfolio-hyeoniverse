@@ -1,5 +1,7 @@
 import {
   experiences as staticExp,
+  education as staticEducation,
+  activities as staticActivities,
   skillGroups as staticSkills,
   philosophy as staticPhilo,
   approachSteps as staticApproach,
@@ -12,6 +14,8 @@ import type { ProfileData } from "@/types/profile";
 
 export const profileDefaults: ProfileData = {
   experiences: staticExp,
+  education: staticEducation,
+  activities: staticActivities,
   skillGroups: staticSkills,
   philosophy: staticPhilo,
   approachSteps: staticApproach,

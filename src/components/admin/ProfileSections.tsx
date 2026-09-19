@@ -23,6 +23,8 @@ export { profileDefaults };
 
 export type ProfileExpandState = {
   experiences: Record<number, boolean>;
+  education: Record<number, boolean>;
+  activities: Record<number, boolean>;
   skillGroups: Record<number, boolean>;
   philosophy: Record<number, boolean>;
   approach: Record<number, boolean>;
@@ -34,6 +36,8 @@ export type ProfileExpandState = {
 export function isProfileAllOpen(data: ProfileData, expanded: ProfileExpandState): boolean {
   const lists: [unknown[], Record<number, boolean>][] = [
     [data.experiences, expanded.experiences],
+    [data.education, expanded.education],
+    [data.activities, expanded.activities],
     [data.skillGroups, expanded.skillGroups],
     [data.philosophy, expanded.philosophy],
     [data.approachSteps, expanded.approach],
@@ -49,6 +53,8 @@ export function isProfileAllOpen(data: ProfileData, expanded: ProfileExpandState
 export function toggleProfileAll(data: ProfileData, open: boolean): ProfileExpandState {
   return {
     experiences: setAllExpanded(data.experiences, open),
+    education: setAllExpanded(data.education, open),
+    activities: setAllExpanded(data.activities, open),
     skillGroups: setAllExpanded(data.skillGroups, open),
     philosophy: setAllExpanded(data.philosophy, open),
     approach: setAllExpanded(data.approachSteps, open),
@@ -120,22 +126,27 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
   // 공유 스타일과 병합해 기존 styles.X 참조를 그대로 유지하고 자식에게도 그대로 전달한다.
   const styles = useMemo(() => ({ ...baseStyles, ...skillStyles }), [baseStyles]);
 
-  /* ── Experiences ── */
-  const updateExperience = (idx: number, field: string, value: unknown) =>
-    setData((prev) => ({ ...prev, experiences: updateArrayItem(prev.experiences, idx, field, value) }));
+  /* ── 경력·교육·활동 ──
+     셋은 같은 모양(기간·이름·소속·설명)이라 조작도 같다. 키만 바꿔 쓴다 */
+  type TimelineKey = "experiences" | "education" | "activities";
+  const emptyTimelineItem = () => ({ period: { start: "", format: "year" as const }, role: { ko: "", en: "" }, company: "", description: { ko: "", en: "" } });
 
-  const addExperience = () =>
-    setData((prev) => ({
-      ...prev,
-      experiences: [...prev.experiences, { period: { start: "", format: "year" as const }, role: { ko: "", en: "" }, company: "", description: { ko: "", en: "" } }],
-    }));
+  const updateTimeline = (key: TimelineKey, idx: number, field: string, value: unknown) =>
+    setData((prev) => ({ ...prev, [key]: updateArrayItem(prev[key], idx, field, value) }));
 
-  const removeExperience = (idx: number) =>
-    setData((prev) => ({ ...prev, experiences: prev.experiences.filter((_, i) => i !== idx) }));
+  const addTimeline = (key: TimelineKey) =>
+    setData((prev) => ({ ...prev, [key]: [...prev[key], emptyTimelineItem()] }));
 
-  const moveExperience = useCallback((oldIdx: number, newIdx: number) =>
-    setData((prev) => ({ ...prev, experiences: arrayMove([...prev.experiences], oldIdx, newIdx) })),
+  const removeTimeline = (key: TimelineKey, idx: number) =>
+    setData((prev) => ({ ...prev, [key]: prev[key].filter((_, i) => i !== idx) }));
+
+  const moveTimeline = useCallback((key: TimelineKey, oldIdx: number, newIdx: number) =>
+    setData((prev) => ({ ...prev, [key]: arrayMove([...prev[key]], oldIdx, newIdx) })),
   [setData]);
+
+  const moveExperience = useCallback((o: number, n: number) => moveTimeline("experiences", o, n), [moveTimeline]);
+  const moveEducation = useCallback((o: number, n: number) => moveTimeline("education", o, n), [moveTimeline]);
+  const moveActivity = useCallback((o: number, n: number) => moveTimeline("activities", o, n), [moveTimeline]);
 
   /* ── Skills ── */
   const updateSkillGroup = (gi: number, field: string, value: string) =>
@@ -261,6 +272,8 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
   /* ── DnD IDs ── */
   const groupIds = useMemo(() => data.skillGroups.map((_, i) => `skill-group-${i}`), [data.skillGroups]);
   const expIds = useMemo(() => data.experiences.map((_, i) => `exp-${i}`), [data.experiences]);
+  const eduIds = useMemo(() => data.education.map((_, i) => `edu-${i}`), [data.education]);
+  const actIds = useMemo(() => data.activities.map((_, i) => `act-${i}`), [data.activities]);
   const philIds = useMemo(() => data.philosophy.map((_, i) => `phil-${i}`), [data.philosophy]);
   const approachIds = useMemo(() => data.approachSteps.map((_, i) => `approach-${i}`), [data.approachSteps]);
   const certIds = useMemo(() => data.certifications.map((_, i) => `cert-${i}`), [data.certifications]);
@@ -268,6 +281,8 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
 
   /* ── DnD handlers ── */
   const handleExpDragEnd = useDragEndHandler(expIds, moveExperience);
+  const handleEduDragEnd = useDragEndHandler(eduIds, moveEducation);
+  const handleActDragEnd = useDragEndHandler(actIds, moveActivity);
   const handleGroupDragEnd = useDragEndHandler(groupIds, moveSkillGroup);
   const handlePhilDragEnd = useDragEndHandler(philIds, movePhilosophy);
   const handleApproachDragEnd = useDragEndHandler(approachIds, moveApproach);
@@ -286,6 +301,8 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
       }));
 
   const setExpandedExp = makeSetter("experiences");
+  const setExpandedEdu = makeSetter("education");
+  const setExpandedAct = makeSetter("activities");
   const setExpandedGroups = makeSetter("skillGroups");
   const setExpandedPhil = makeSetter("philosophy");
   const setExpandedApproach = makeSetter("approach");
@@ -299,58 +316,72 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
   const expandedCert = expanded.certifications;
   const expandedAward = expanded.awards;
 
+  /* 세 묶음의 차이는 제목·추가 문구·이름 칸 안내뿐이다 */
+  const timelineSections = [
+    { key: "experiences" as const, ids: expIds, onDragEnd: handleExpDragEnd, expandedMap: expandedExp, setExpandedMap: setExpandedExp,
+      titleKey: "admin.settings.profile.experience", addKey: "admin.settings.profile.addExperience", namePlaceholder: "Company" },
+    { key: "education" as const, ids: eduIds, onDragEnd: handleEduDragEnd, expandedMap: expanded.education, setExpandedMap: setExpandedEdu,
+      titleKey: "admin.settings.profile.education", addKey: "admin.settings.profile.addEducation", namePlaceholder: "School" },
+    { key: "activities" as const, ids: actIds, onDragEnd: handleActDragEnd, expandedMap: expanded.activities, setExpandedMap: setExpandedAct,
+      titleKey: "admin.settings.profile.activities", addKey: "admin.settings.profile.addActivity", namePlaceholder: "Organization" },
+  ];
+
   return (
     <>
-      {/* ── Experiences ── */}
-      <section className={styles.section}>
-        <SortableList
-          title={<T k="admin.settings.profile.experience" />}
-          titleClassName={styles.sectionTitle}
-          actions={<ProfileSectionActions keys={["experiences"]} />}
-          items={data.experiences}
-          ids={expIds}
-          sensors={sensors}
-          onDragEnd={handleExpDragEnd}
-          onAdd={addExperience}
-          addLabel={<T k="admin.settings.profile.addExperience" />}
-          onRemove={removeExperience}
-          expanded={expandedExp}
-          setExpanded={setExpandedExp}
-          styles={styles}
-          renderHeader={(exp, i) => (<>
-            <Input
-              variant="underline"
-              size="md"
-              className={styles.skillFieldInline}
-              value={exp.company}
-              onChange={(v) => updateExperience(i, "company", v)}
-              placeholder="Company"
-              clearable={false}
-            />
-            <span className={styles.periodBadge}>{briefPeriod(exp.period)}</span>
-          </>)}
-          renderDetails={(exp, i) => (<>
-            <div className={styles.fieldGroup}>
-              <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.role" /></label>
-              <div className={styles.profileGrid}>
-                <Input size="md" inlineLabel="KO" value={exp.role.ko} onChange={(v) => updateExperience(i, "role.ko", v)} />
-                <Input size="md" inlineLabel="EN" value={exp.role.en} onChange={(v) => updateExperience(i, "role.en", v)} />
+      {/* ── 경력·교육·활동 ──
+          셋은 같은 모양(기간·이름·소속·설명)이라 한 틀로 그린다. 경력이 없는 사람도
+          교육과 활동으로 채울 수 있고, 비워 둔 묶음은 프로필에 나오지 않는다 */}
+      {timelineSections.map(({ key, ids, onDragEnd, expandedMap, setExpandedMap, titleKey, addKey, namePlaceholder }) => (
+        <section className={styles.section} key={key}>
+          <SortableList
+            title={<T k={titleKey} />}
+            titleClassName={styles.sectionTitle}
+            actions={<ProfileSectionActions keys={[key]} />}
+            items={data[key]}
+            ids={ids}
+            sensors={sensors}
+            onDragEnd={onDragEnd}
+            onAdd={() => addTimeline(key)}
+            addLabel={<T k={addKey} />}
+            onRemove={(idx: number) => removeTimeline(key, idx)}
+            expanded={expandedMap}
+            setExpanded={setExpandedMap}
+            styles={styles}
+            renderHeader={(item, i) => (<>
+              <Input
+                variant="underline"
+                size="md"
+                className={styles.skillFieldInline}
+                value={item.company}
+                onChange={(v) => updateTimeline(key, i, "company", v)}
+                placeholder={namePlaceholder}
+                clearable={false}
+              />
+              <span className={styles.periodBadge}>{briefPeriod(item.period)}</span>
+            </>)}
+            renderDetails={(item, i) => (<>
+              <div className={styles.fieldGroup}>
+                <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.role" /></label>
+                <div className={styles.profileGrid}>
+                  <Input size="md" inlineLabel="KO" value={item.role.ko} onChange={(v) => updateTimeline(key, i, "role.ko", v)} />
+                  <Input size="md" inlineLabel="EN" value={item.role.en} onChange={(v) => updateTimeline(key, i, "role.en", v)} />
+                </div>
               </div>
-            </div>
-            <div className={styles.fieldGroup}>
-              <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.period" /></label>
-              <PeriodPicker value={exp.period} onChange={(v: DatePeriod) => updateExperience(i, "period", v)} />
-            </div>
-            <div className={styles.fieldGroup}>
-              <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.description" /></label>
-              <div className={styles.profileGrid}>
-                <Textarea size="md" inlineLabel="KO" value={exp.description.ko} onChange={(v) => updateExperience(i, "description.ko", v)} rows={2} />
-                <Textarea size="md" inlineLabel="EN" value={exp.description.en} onChange={(v) => updateExperience(i, "description.en", v)} rows={2} />
+              <div className={styles.fieldGroup}>
+                <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.period" /></label>
+                <PeriodPicker value={item.period} onChange={(v: DatePeriod) => updateTimeline(key, i, "period", v)} />
               </div>
-            </div>
-          </>)}
-        />
-      </section>
+              <div className={styles.fieldGroup}>
+                <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.description" /></label>
+                <div className={styles.profileGrid}>
+                  <Textarea size="md" inlineLabel="KO" value={item.description.ko} onChange={(v) => updateTimeline(key, i, "description.ko", v)} rows={2} />
+                  <Textarea size="md" inlineLabel="EN" value={item.description.en} onChange={(v) => updateTimeline(key, i, "description.en", v)} rows={2} />
+                </div>
+              </div>
+            </>)}
+          />
+        </section>
+      ))}
 
       {/* ── Skills ── */}
       <section className={styles.section}>
