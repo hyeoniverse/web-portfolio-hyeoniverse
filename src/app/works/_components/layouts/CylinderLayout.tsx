@@ -15,7 +15,7 @@ import CylinderIntroPanel from "./cylinder/CylinderIntroPanel";
 import CylinderCommentBubbles from "./cylinder/CylinderCommentBubbles";
 import { useFloatingComments } from "./cylinder/useFloatingComments";
 import { MIN_SEGMENT_ANGLE, GAP_RATIO } from "./cylinder/scene";
-import { textUnits } from "./cylinder/textUnits";
+import { textUnits } from "../../_utils";
 import dynamic from "next/dynamic";
 import styles from "./CylinderLayout.module.css";
 
