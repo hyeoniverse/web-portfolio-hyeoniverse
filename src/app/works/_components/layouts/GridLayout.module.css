@@ -13,12 +13,16 @@
 
 /* ── Intro cell (top wide) — video bg + overlay tint ── */
 .introCell {
+  /* 판은 화면 위까지 꽉 차지만(영상 배경) 글은 네비게이션 아래에서 시작한다 — 판 위쪽에
+     네비 높이만큼 자리를 비운다. 칸 높이를 물어보려고 컨테이너로 삼는다(아래 제목·한 줄) */
+  container-type: size;
+
   position: absolute;
   inset: 0;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: var(--spacing-2xl);
+  padding: calc(var(--header-height) + var(--spacing-xl)) var(--spacing-2xl) var(--spacing-2xl);
   background: var(--bg-primary);
   color: var(--text-primary);
   overflow: hidden;
@@ -67,11 +71,20 @@
 
 .introTitle {
   font-family: var(--font-instrument), serif;
-  font-size: clamp(2.5rem, 6vw, 5rem);
+  /* 다른 줄에 마우스를 올리면 이 줄이 3/4로 줄어든다(300px → 225px). 위쪽 네비 자리는 그대로
+     비워야 하므로, 남는 높이(칸 높이 - 위아래 여백)에 맞춰 글자를 줄인다 */
+  font-size: clamp(1.75rem, min(6vw, calc(100cqh * 0.5)), 5rem);
   font-weight: var(--font-weight-light);
   line-height: 0.95;
   letter-spacing: -0.03em;
   margin: 0;
+}
+
+/* 칸이 줄었을 때는 한 줄 소개부터 접는다 — 제목까지 더 줄이면 표지 구실을 못 한다 */
+@container (max-height: 120px) {
+  .introTagline {
+    display: none;
+  }
 }
 
 .introTagline {
