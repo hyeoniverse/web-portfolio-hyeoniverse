@@ -1030,6 +1030,7 @@
       "selectAll": "전체 선택",
       "newSeries": "+ 새 시리즈",
       "noPostsYet": "아직 작성한 글이 없습니다",
+      "noSeriesYet": "아직 만든 시리즈가 없습니다",
       "seriesEmpty": "시리즈가 없습니다",
       "searchNoResult": "검색 결과가 없습니다",
       "noExcerpt": "내용 없음",
