@@ -266,10 +266,12 @@ export default function CylinderIntroBunny({ screenPosRef, arc, actualRotRef, is
         </mesh>
       )}
 
-      {/* 밝은 테마 — 귀 옆에 꽃 한 송이. 꽃잎 다섯 장을 둘러 눕히고 가운데에 수술을 둔다.
-          판·배경과 같은 분홍·살구색이라 셋이 한 이야기로 읽힌다 */}
+      {/* 밝은 테마 — 오른쪽 귀 옆에 꽃 한 송이. 꽃잎 다섯 장을 둘러 눕히고 가운데에 수술을 둔다.
+          판·배경과 같은 분홍·살구색이라 셋이 한 이야기로 읽힌다.
+          자리는 머리 구(중심 y 0.46, 반지름 0.48) 바깥이어야 한다 — 안쪽에 두면 머리에 파묻힌다.
+          중심에서 0.68 만큼 비스듬히 밀어 꽃 아래쪽이 머리에 닿게만 둔다 */}
       {!isDark && (
-        <group position={[0.26, 0.74, 0.16]} rotation={[0.35, -0.2, -0.35]} scale={0.42}>
+        <group position={[0.41, 0.93, 0.27]} rotation={[0.24, 0.18, -0.34]} scale={0.34}>
           {PETAL_ANGLES.map((angle, i) => (
             <mesh key={i} position={[Math.cos(angle) * 0.3, Math.sin(angle) * 0.3, 0]} rotation={[0, 0, angle]}>
               <sphereGeometry args={[0.26, 16, 12]} />
