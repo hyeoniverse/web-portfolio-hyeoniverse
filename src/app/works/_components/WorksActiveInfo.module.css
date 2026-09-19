@@ -31,15 +31,24 @@
 .activeTitle {
   margin: 0;
   font-family: var(--font-instrument), serif;
-  /* 제목이 길 때만 작아진다 — 자리 너비를 글자 폭으로 나눠 한 줄에 들어갈 크기를 구하고(로마자 한
-     글자를 0.5em 로 보아 2배), 원래 크기를 넘지 않게 한다. 짧은 제목은 이 값이 원래 크기보다 커서
-     아무것도 달라지지 않는다. 아래로는 읽을 수 있는 선에서 멈춘다 */
+  /* 제목이 길 때만 작아진다 — 두 줄까지 쓸 수 있으므로 자리 너비의 두 줄분(×4, 로마자 한 글자를
+     0.5em 로 본다)을 글자 수로 나눠 한 줄에 들어갈 크기를 구하고, 원래 크기를 넘지 않게 한다.
+     짧은 제목은 이 값이 원래 크기보다 커서 아무것도 달라지지 않는다.
+     아래로는 2.5rem 에서 멈춘다 — 더 줄이면 제목이 부제만큼 작아져 제목으로 보이지 않는다.
+     그 크기로도 두 줄에 안 들어가는 제목은 둘째 줄에서 자르고 말줄임표를 붙인다 */
   font-size: max(
-    1.5rem,
-    min(var(--fluid-font-size-5xl), calc(var(--title-box, 60vw) * 2 / var(--title-units, 14)))
+    2.5rem,
+    min(var(--fluid-font-size-5xl), calc(var(--title-box, 60vw) * 4 / var(--title-units, 14)))
   );
+  display: -webkit-box;
+  max-width: var(--title-box);
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
   font-weight: var(--font-weight-light);
-  line-height: var(--line-height-dense);
+  /* 줄 높이를 글자 높이만큼 준다 — 더 좁으면(dense) 두 줄에서 자를 때 overflow 가 y·g 의 꼬리를
+     함께 잘라낸다. 여백으로 메우면 잘린 셋째 줄 머리가 그 여백에 비친다 */
+  line-height: var(--line-height-fit);
   color: inherit;
   letter-spacing: -0.03em;
   pointer-events: auto;
