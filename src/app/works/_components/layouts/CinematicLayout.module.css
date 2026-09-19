@@ -18,6 +18,11 @@
 
 /* ── Panel (each project) ── */
 .panel {
+  /* 표지가 시차로 움직이는 폭 — CinematicLayout 의 IMG_PARALLAX 와 같은 값이어야 한다.
+     표지를 이만큼 양옆으로 키워 두지 않으면, 움직인 만큼 판의 빈 바닥이 드러나 판과 판 사이가
+     벌어진 것처럼 보인다(측정: 두 판 경계에 100px 띠) */
+  --_img-shift: 100px;
+
   /* 작업물 링크(a) — 폭·높이가 먹도록 블록으로(#933) */
   display: block;
   position: relative;
@@ -30,7 +35,7 @@
 /* ── Image (full bleed) ── */
 .image {
   position: absolute;
-  inset: 0;
+  inset: 0 calc(-1 * var(--_img-shift));
   z-index: 0;
 }
 
@@ -56,12 +61,15 @@
 
 /* ── Meta (left side, parallax) ── */
 .meta {
+  /* 제목이 놓일 자리 너비 — 글자 크기를 이 폭에 맞춰 줄인다(.metaTitle) */
+  --title-box: 500px;
+
   position: absolute;
   left: 8vw;
   top: 50%;
   transform: translateY(-50%);
   z-index: 2;
-  max-width: 500px;
+  max-width: var(--title-box);
   color: var(--text-white);
   will-change: transform;
 }
@@ -88,7 +96,18 @@
 
 .metaTitle {
   font-family: var(--font-instrument), serif;
-  font-size: var(--fluid-font-size-5xl);
+  /* 제목이 길 때만 작아진다 — 두 줄까지 쓸 수 있으므로 자리 너비의 두 줄분(×4, 로마자 한 글자를
+     0.5em 로 본다)을 글자 수로 나눠 한 줄에 들어갈 크기를 구하고, 원래 크기를 넘지 않게 한다.
+     아래로는 2.5rem 에서 멈추고, 그 크기로도 두 줄에 안 들어가면 둘째 줄에서 자른다.
+     전에는 줄 수 제한이 없어 긴 제목이 여섯 줄까지 늘어나 판 밖으로 흘렀다 */
+  font-size: max(
+    2.5rem,
+    min(var(--fluid-font-size-5xl), calc(var(--title-box, 500px) * 4 / var(--title-units, 14)))
+  );
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
   font-weight: var(--font-weight-light);
   line-height: var(--line-height-tight);
   letter-spacing: -0.03em;
