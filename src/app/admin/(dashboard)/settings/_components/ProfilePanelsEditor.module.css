@@ -180,3 +180,24 @@
 .langPair textarea {
   height: 100%;
 }
+
+/* 여러 줄 칸(소개 문단)은 처음 키를 하나로 둔다 — 글 길이를 따라 칸이 저마다 커지면
+   줄이 층져 보인다. 84px 은 다른 탭의 글상자와 같은 키고, 넘치는 글은 칸 안에서 스크롤한다.
+   키가 고정이라 끌어 늘리는 손잡이는 이 자리에서 거둔다(한쪽만 늘어나 짝이 다시 어긋난다) */
+.langPairMultiline > *,
+.langPairMultiline > * > div,
+.langPairMultiline [contenteditable],
+.langPairMultiline textarea {
+  height: 84px;
+}
+
+.langPairMultiline [contenteditable],
+.langPairMultiline textarea {
+  max-height: 84px;
+  overflow-y: auto;
+  resize: none;
+}
+
+.langPairMultiline [data-cursor="resizeV"] {
+  display: none;
+}

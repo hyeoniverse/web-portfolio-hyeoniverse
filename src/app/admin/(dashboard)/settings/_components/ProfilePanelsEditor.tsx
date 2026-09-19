@@ -80,7 +80,9 @@ export default function ProfilePanelsEditor({
     onChange: (next: LocalizedText) => void,
     multiline = false,
   ) => (
-    <div className={`${outer.fieldPair} ${styles.langPair}`}>
+    <div
+      className={`${outer.fieldPair} ${styles.langPair} ${multiline ? styles.langPairMultiline : ""}`}
+    >
       {multiline ? (
         <>
           {/* maxHint — 카운터가 뜨고 한도를 넘긴 글자에 표시가 붙는다. 잘라내지는 않아서
