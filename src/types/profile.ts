@@ -51,6 +51,9 @@ export interface ProfileInfoBlock {
 /** Profile data blob stored in site_settings.config JSONB */
 export interface ProfileData {
   experiences: Experience[];
+  /** 교육·활동 — 경력과 같은 모양. 셋 중 적은 것만 프로필에 나온다 */
+  education: Experience[];
+  activities: Experience[];
   skillGroups: SkillGroup[];
   philosophy: Philosophy[];
   approachSteps: ApproachStep[];
