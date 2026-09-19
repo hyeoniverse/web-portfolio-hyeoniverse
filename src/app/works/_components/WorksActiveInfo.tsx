@@ -18,18 +18,15 @@ export default function WorksActiveInfo({
   hidden: boolean;
 }) {
   const active = projects[activeIndex];
+  /* 제목이 길수록 글자를 줄인다 — 두 언어 중 긴 쪽을 기준으로 잡아 언어를 바꿀 때 크기가
+     뛰지 않게 한다(#1062) */
+  const titleUnits = String(
+    Math.max(8, textUnits(active?.title.ko ?? ""), textUnits(active?.title.en ?? "")),
+  );
   return (
     <div
       className={styles.activeInfo}
-      /* 제목이 길수록 글자를 줄인다 — 두 언어 중 긴 쪽을 기준으로 잡아 언어를 바꿀 때 크기가
-         뛰지 않게 한다(#1062) */
-      style={{
-        opacity: hidden ? 0 : 1,
-        transition: "opacity 0.4s ease",
-        ["--title-units" as string]: String(
-          Math.max(8, textUnits(active?.title.ko ?? ""), textUnits(active?.title.en ?? "")),
-        ),
-      }}
+      style={{ opacity: hidden ? 0 : 1, transition: "opacity 0.4s ease" }}
     >
       <AnimatePresence mode="wait">
         <motion.div
@@ -39,6 +36,10 @@ export default function WorksActiveInfo({
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.3, ease: "easeOut" }}
           className={styles.activeInfoInner}
+          /* 글자 크기는 떠나는 제목이 아니라 제목 자신에게 매인다. 바깥 상자에 두면 다음 작품으로
+             넘어가는 순간 아직 화면에 남은 제목까지 새 크기로 바뀌어, 한 제목이 큰 채로 떴다가
+             작아지는 것처럼 보인다 */
+          style={{ ["--title-units" as string]: titleUnits }}
         >
           <span className={styles.activeNumber}>{active?.number}</span>
           <h2 className={styles.activeTitle}>
