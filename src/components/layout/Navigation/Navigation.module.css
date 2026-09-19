@@ -984,6 +984,9 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
+  /* 푸터는 바닥에 붙어(sticky) 스크롤할 때 목록 위를 지난다 — 마지막 항목이 그 뒤에 깔리지
+     않도록 푸터 높이만큼 아래를 비워 둔다 */
+  padding-bottom: var(--spacing-3xl);
   /* 위쪽부터 쌓고 남는 여백은 아래로 — 푸터를 바닥에 둔다 (menuDrawer 주석 참고) */
   margin-block-end: auto;
   /* 드로어에서 좌우 padding 을 뺐으므로(헤더/푸터가 각자 관리) 링크 들여쓰기는 여기서 */
@@ -992,7 +995,10 @@
 
 .menuLink {
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: clamp(36px, 8vw, 72px);
+  /* 폭만 보면 창이 넓어질 때 글자가 두 배로 커져(8vw) 목록이 창보다 길어지고, 아래쪽 항목이
+     바닥에 붙은 푸터 뒤로 숨는다. 모바일 폭에서 열어 둔 채 창을 넓히면 실제로 그렇게 됐다.
+     높이도 같이 보게 해서 창이 넓어도 목록이 창 안에 남는다 */
+  font-size: clamp(36px, min(8vw, 5vh), 72px);
   font-weight: var(--font-weight-bold);
   color: var(--text-white);
   letter-spacing: -0.02em;
@@ -1039,6 +1045,29 @@
   opacity: 1;
   font-style: italic;
   font-family: var(--font-instrument), serif;
+}
+
+/* 페이지가 아닌 자리 — 문의(관리 화면에서는 로그아웃)와 관리 화면이 한 층이다.
+   위 목록과는 줄 하나로 끊고, 둘끼리는 크기·정렬을 같게 둔다 */
+.menuAside {
+  display: flex;
+  flex-direction: column;
+  /* 두 항목이 각자 자리를 잡도록 폭을 줄 전체로 늘린다 */
+  align-items: stretch;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-md);
+  border-top: var(--border-ghost);
+}
+
+/* 문의는 가운데, 관리 화면은 오른쪽 — 같은 층이되 자리로 갈린다 */
+.menuAsideAction {
+  justify-content: center;
+  text-align: center;
+}
+
+.menuAsideAdmin {
+  text-align: right;
 }
 
 /* Close button — nav 햄버거 버튼과 동일한 우상단 위치 */
@@ -1465,6 +1494,15 @@
 
 .navMenuOpen .actionBtn:not(.menuBtn) {
   visibility: hidden;
+}
+
+/* 서랍이 열려 있으면 닫기(X)는 화면 크기와 무관하게 늘 보인다. 이 단추는 평소 768px 아래에서만
+   나타나는데, 넓은 화면에서 열린 채로 두면(모바일 폭에서 열고 창을 넓히면) 닫을 곳이 없어진다 */
+.navMenuOpen .menuBtnWrapper {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  position: static;
 }
 
 

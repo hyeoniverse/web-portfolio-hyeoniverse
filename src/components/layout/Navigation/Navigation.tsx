@@ -7,7 +7,7 @@ import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence, useMotionValue } from "framer-motion";
-import { Moon, Sun, Bell, ArrowRight } from "@/components/icons";
+import { Moon, Sun, Bell, ArrowRight, Settings } from "@/components/icons";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useLoadingScreen } from "@/hooks/useLoadingProgress";
@@ -46,7 +46,7 @@ import { formatRelativeTime } from "@/utils/relativeTime";
 import { useNow } from "@/hooks/useNow";
 import { useNavNotifications } from "./useNavNotifications";
 import { useAdminAccess } from "./useAdminAccess";
-import { canOpenAdminPage, visibleAdminItems } from "@/lib/adminAccess";
+import { adminEntryHref, canOpenAdminPage, visibleAdminItems } from "@/lib/adminAccess";
 import { useLogoMeasure } from "./useLogoMeasure";
 import { useToggleAnimation } from "./useToggleAnimation";
 import { useMobileMenu } from "./useMobileMenu";
@@ -224,6 +224,14 @@ export default function Navigation() {
     notifOpen, setNotifOpen, notifExpanded, setNotifExpanded,
     notifWrapRef, notifDropdownRef, notifPos, fetchNotifs,
   } = useNavNotifications(pathname, canSeeNotifications);
+
+  /* 관리 화면으로 들어가는 자리 — 로그인해 두고도 주소를 직접 쳐야 들어갈 수 있었다.
+     보일지는 로그인 여부만 본다(화면 크기와 무관). 갈 곳은 권한이 정한다.
+     상단바(로그아웃 왼쪽 톱니바퀴)와 모바일 메뉴가 같은 값을 쓴다 */
+  const adminHref = useMemo(
+    () => (adminEmail ? adminEntryHref(adminAccess) : null),
+    [adminEmail, adminAccess],
+  );
 
   const shouldSkipLoading = SKIP_LOADING_PAGES.includes(pathname) || isAdminPage;
   const showLoadingLogo = isLoading && !shouldSkipLoading;
@@ -862,6 +870,16 @@ export default function Navigation() {
           </AnimatePresence>,
           document.body,
         )}
+        {/* 관리 화면으로 — 로그아웃 왼쪽. 로그인해 두고도 주소를 직접 쳐야 들어갈 수 있었다.
+            이미 관리 화면이면 그릴 이유가 없다(상단바가 관리 메뉴로 바뀌어 있다) */}
+        {!isAdminPage && adminHref && (
+          <Tooltip content={language === "ko" ? "관리 화면" : "Admin"} delay={200} placement="bottom">
+            <Link href={adminHref} className={styles.actionBtn} aria-label={language === "ko" ? "관리 화면" : "Admin"}>
+              <Settings size={18} strokeWidth={1.5} />
+            </Link>
+          </Tooltip>
+        )}
+
         {adminEmail ? (
           <Tooltip
             content={adminEmail}
@@ -929,6 +947,7 @@ export default function Navigation() {
         pathname={pathname}
         isAdminPage={isAdminPage}
         menuItems={isAdminPage ? adminMenu : menuItems}
+        adminHref={isAdminPage ? null : adminHref}
         contactEmail={siteConfig.contact.email}
         onClose={() => setIsMenuOpen(false)}
         onContactOpen={openForm}
