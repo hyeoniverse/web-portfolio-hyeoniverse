@@ -44,7 +44,6 @@ const BREAK_COUNT = 3;
 const BUBBLE_INDEX: Record<string, number> = {
   hero: 0, bunny: 1, profile: 2, github: 3, pinned: 4, experience: 5,
   philosophy: 10, process: 11, credentials: 12, credits: 13,
-  education: 14, activities: 15,
 };
 /** 스킬은 묶음마다 패널 하나 — 본래 번호는 6부터 네 자리다. 그보다 많으면 마지막 것을 같이 쓴다 */
 const SKILL_BUBBLE_START = 6;
@@ -87,9 +86,7 @@ export default function ProfileMeSection({ profileData, showcase }: ProfileMeSec
     const ids = ["hero", "bunny", "profile"];
     if (githubPanels >= 1) ids.push("github");
     if (githubPanels >= 2) ids.push("pinned");
-    if (experiences.length > 0) ids.push("experience");
-    if (education.length > 0) ids.push("education");
-    if (activities.length > 0) ids.push("activities");
+    if (experiences.length + education.length + activities.length > 0) ids.push("experience");
     skillGroups.forEach((_, i) => ids.push(`skill-${i}`));
     if (philosophy.length > 0) ids.push("philosophy");
     if (approachSteps.length > 0) ids.push("process");
@@ -119,13 +116,14 @@ export default function ProfileMeSection({ profileData, showcase }: ProfileMeSec
     useProfileSectionStore.getState().setActiveSection(bubbleIndex);
   }, [activeSection, panelIds]);
 
-  /* 시간순 판 셋 — 적은 것만 그린다. 차례와 무늬는 panelIds 와 같은 순서다 */
-  const timelinePanels = useMemo(
+  /* 경력·교육·활동 — 한 판 안에서 라벨로 가른다. 판을 셋으로 쪼개면 트랙이 길어지고,
+     각자 한두 줄뿐일 때 판이 텅 비어 보인다. 적은 묶음만 나온다 */
+  const timelineGroups = useMemo(
     () => [
-      { id: "experience", watermark: "experience", titleKey: "profilePage.experience", items: experiences, indent: true },
-      { id: "education", watermark: "education", titleKey: "profilePage.education", items: education, indent: false },
-      { id: "activities", watermark: "activities", titleKey: "profilePage.activities", items: activities, indent: true },
-    ].filter((panel) => panel.items.length > 0),
+      { id: "experience", labelKey: "profilePage.experience", items: experiences },
+      { id: "education", labelKey: "profilePage.education", items: education },
+      { id: "activities", labelKey: "profilePage.activities", items: activities },
+    ].filter((group) => group.items.length > 0),
     [experiences, education, activities],
   );
 
@@ -245,38 +243,47 @@ export default function ProfileMeSection({ profileData, showcase }: ProfileMeSec
         </div>
       )}
 
-      {/* Panel 6~8: 경력·교육·활동 — 같은 모양이라 한 틀로 그린다.
-          적지 않은 묶음은 아예 그리지 않는다(빈 판이 서 있으면 고장 난 것처럼 보인다) */}
-      {timelinePanels.map(({ id, watermark, titleKey, items, indent }) => (
-        <div key={id} className={`${styles.panel} ${indent ? styles.panelIndent : ""}`} data-emph-panel>
-          <span className={styles.panelWatermark}>{watermark}</span>
+      {/* Panel 6: 경력·교육·활동 — 한 판 안에서 라벨로 가른다 */}
+      {timelineGroups.length > 0 && (
+        <div className={`${styles.panel} ${styles.panelIndent}`} data-emph-panel>
+          <span className={styles.panelWatermark}>experience</span>
           <div className={styles.panelInner}>
             <HoverEmphasis>
               <h3 className={`${styles.sectionSubtitle} ${styles.animate}`}>
-                <T k={titleKey} />
+                <T k="profilePage.experience" />
               </h3>
-              <div className={styles.expTimeline}>
-                {items.map((item, index) => (
-                  <div key={index} className={`${styles.expRow} ${styles.animate}`} data-emph-row>
-                    <span className={styles.expPeriod}>{formatPeriod(item.period, language)}</span>
+              {timelineGroups.map((group) => (
+                <div key={group.id} className={styles.expGroup}>
+                  {/* 묶음이 하나뿐이면 라벨을 달지 않는다 — 가를 것이 없는데 이름표만 남는다 */}
+                  {timelineGroups.length > 1 && (
+                    <h4 className={`${styles.expGroupLabel} ${styles.animate}`}>
+                      <T k={group.labelKey} />
+                    </h4>
+                  )}
+                  <div className={styles.expTimeline}>
+                    {group.items.map((item, index) => (
+                      <div key={index} className={`${styles.expRow} ${styles.animate}`} data-emph-row>
+                        <span className={styles.expPeriod}>{formatPeriod(item.period, language)}</span>
 
-                    <div className={styles.expMarker}>
-                      <span className={styles.expDot} />
-                      {index < items.length - 1 && <span className={styles.expLine} />}
-                    </div>
+                        <div className={styles.expMarker}>
+                          <span className={styles.expDot} />
+                          {index < group.items.length - 1 && <span className={styles.expLine} />}
+                        </div>
 
-                    <div className={styles.expContent}>
-                      <h4 className={styles.expRole} data-emph>{item.role[language]}</h4>
-                      <span className={styles.expCompany} data-emph>{item.company}</span>
-                      <p className={styles.expDesc}>{item.description[language]}</p>
-                    </div>
+                        <div className={styles.expContent}>
+                          <h5 className={styles.expRole} data-emph>{item.role[language]}</h5>
+                          <span className={styles.expCompany} data-emph>{item.company}</span>
+                          <p className={styles.expDesc}>{item.description[language]}</p>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </HoverEmphasis>
           </div>
         </div>
-      ))}
+      )}
 
       {/* Break: Marquee 2 */}
       <MarqueeDivider className={styles.breakPanel} />
