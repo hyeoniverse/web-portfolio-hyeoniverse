@@ -536,6 +536,21 @@
   overflow: hidden;
 }
 
+/* 경력·교육·활동 묶음 — 한 판 안에서 이름표로 가른다. 묶음이 하나뿐이면 이름표는 안 붙는다 */
+.expGroup + .expGroup {
+  margin-top: clamp(1.5rem, 4vh, 3rem);
+}
+
+.expGroupLabel {
+  margin: 0 0 var(--spacing-md);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+}
+
 .expTimeline {
   display: flex;
   gap: 0;
