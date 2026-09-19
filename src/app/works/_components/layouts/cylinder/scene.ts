@@ -92,133 +92,79 @@ function petalPath(ctx: CanvasRenderingContext2D, len: number, wid: number): voi
   ctx.closePath();
 }
 
-/** 꽃 한 송이 — 꽃잎 다섯 장을 돌려 붙이고 가운데에 수술을 찍는다 */
-function drawBlossom(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, turn: number, alpha: number, warm: boolean): void {
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.rotate(turn);
-  for (let i = 0; i < 5; i++) {
-    ctx.save();
-    /* 다섯 장을 정확히 72도씩 두면 톱니바퀴처럼 보인다 — 조금씩 어긋나게 한다 */
-    ctx.rotate((i / 5) * Math.PI * 2 + (i % 2 ? 0.08 : -0.06));
-    ctx.translate(0, -r * 0.62);
-    const fill = ctx.createLinearGradient(0, -r * 0.6, 0, r * 0.6);
-    fill.addColorStop(0, warm ? `rgba(255,238,224,${alpha})` : `rgba(255,232,240,${alpha})`);
-    fill.addColorStop(1, warm ? `rgba(244,186,164,${alpha})` : `rgba(240,170,196,${alpha})`);
-    ctx.fillStyle = fill;
-    petalPath(ctx, r * 1.25, r * 0.5);
-    ctx.fill();
-    ctx.restore();
-  }
-  ctx.beginPath();
-  ctx.arc(0, 0, r * 0.2, 0, Math.PI * 2);
-  ctx.fillStyle = `rgba(250,214,140,${alpha})`;
-  ctx.fill();
-  ctx.restore();
-}
-
-/** 가지 한 줄 — 끝으로 갈수록 가늘어지고, 그 위에 꽃이 붙는다 */
-function drawBranch(
-  ctx: CanvasRenderingContext2D,
-  from: [number, number],
-  ctrl: [number, number],
-  to: [number, number],
-  width: number,
-  alpha: number,
-  blossoms: number,
-  seed: number,
-): void {
-  /* 굵기를 줄여 가며 여러 번 그으면 끝이 가늘어진다 — 캔버스에는 굵기가 변하는 선이 없다 */
-  const steps = 7;
-  for (let i = 0; i < steps; i++) {
-    const t0 = i / steps;
-    const t1 = (i + 1) / steps;
-    const at = (t: number): [number, number] => [
-      (1 - t) ** 2 * from[0] + 2 * (1 - t) * t * ctrl[0] + t ** 2 * to[0],
-      (1 - t) ** 2 * from[1] + 2 * (1 - t) * t * ctrl[1] + t ** 2 * to[1],
-    ];
-    const [x0, y0] = at(t0);
-    const [x1, y1] = at(t1);
-    ctx.beginPath();
-    ctx.moveTo(x0, y0);
-    ctx.lineTo(x1, y1);
-    ctx.strokeStyle = `rgba(150,116,104,${alpha})`;
-    ctx.lineWidth = width * (1 - t0 * 0.85);
-    ctx.lineCap = "round";
-    ctx.stroke();
-  }
-
-  for (let i = 0; i < blossoms; i++) {
-    /* 자리를 고르게 나누되 조금씩 흔든다 — 딱 맞춰 두면 구슬을 꿴 것처럼 보인다 */
-    const t = Math.min(0.98, 0.16 + (i / Math.max(1, blossoms - 1)) * 0.8 + (introRandom(seed + i * 29) - 0.5) * 0.12);
-    const x = (1 - t) ** 2 * from[0] + 2 * (1 - t) * t * ctrl[0] + t ** 2 * to[0];
-    const y = (1 - t) ** 2 * from[1] + 2 * (1 - t) * t * ctrl[1] + t ** 2 * to[1];
-    const k = seed + i * 13;
-    /* 가지에 딱 붙이지 않고 조금씩 띄운다 — 줄 세운 것처럼 보이지 않게 */
-    const off = (introRandom(k) - 0.5) * width * 2.2;
-    const r = width * (1.1 + introRandom(k * 3 + 1) * 2.1);
-    drawBlossom(ctx, x + off, y + off * 0.6, r, introRandom(k * 5 + 2) * Math.PI, alpha, introRandom(k * 7 + 3) > 0.5);
-  }
-}
-
 /**
- * 밝은 테마의 인트로 판 — 벚꽃 가지(#1062).
+ * 밝은 테마의 인트로 판 — 봄빛(#1062).
  *
- * 어두운 쪽은 깊은 우주를 그린다. 그 그림을 밝은 테마에도 쓰면 밝은 화면에서 이 판만 캄캄해서,
- * 밝은 쪽 빈 화면이 꽃잎을 날리는 것과도 어긋났다.
- *
- * 꽃잎만 흩뿌리면 아무리 색과 흐림을 손봐도 스티커를 붙인 것처럼 보인다. 꽃은 어딘가에 달려
- * 있어야 꽃으로 읽힌다. 그래서 모서리에서 가지를 뻗고 그 위에 꽃을 앉힌 뒤, 떨어지는 꽃잎
- * 몇 장을 더한다. 가운데는 비워 둔다 — 그 자리에 제목과 한 줄이 얹힌다.
+ * 어두운 판은 성운 두 겹과 작은 별로 만든 "분위기" 다. 그림을 그리지 않아서 좋아 보인다.
+ * 밝은 쪽에 꽃가지나 큼직한 꽃잎을 그려 넣었더니 그림이 되어 판에서 겉돌았다(스티커처럼 보였다).
+ * 그래서 어두운 판과 같은 짜임으로 간다 — 바탕, 빛 두 겹, 그리고 아주 작은 것들.
+ * 별 자리에는 꽃잎을 둔다. 크기가 대여섯 픽셀이라 모양보다 빛가루처럼 읽히고, 가운데 얹히는
+ * 제목과도 다투지 않는다.
  */
 function paintBlossomPanel(ctx: CanvasRenderingContext2D, s: number): void {
-  const base = ctx.createLinearGradient(0, 0, s * 0.35, s);
-  base.addColorStop(0, "#fffdfa");
-  base.addColorStop(0.5, "#fdf4ee");
-  base.addColorStop(1, "#f8ebe4");
+  const base = ctx.createLinearGradient(0, 0, s * 0.3, s);
+  base.addColorStop(0, "#fffdfb");
+  base.addColorStop(0.45, "#fdf3ed");
+  base.addColorStop(1, "#f6e6e2");
   ctx.fillStyle = base;
   ctx.fillRect(0, 0, s, s);
 
-  /* 빛이 도는 자리 — 판이 종이 한 장처럼 납작해지지 않게 아주 옅게 */
-  for (const [cx, cy, r, color] of [
-    [0.28, 0.2, 0.55, "rgba(250,214,220,0.34)"],
-    [0.78, 0.76, 0.5, "rgba(250,224,196,0.3)"],
-  ] as const) {
-    const wash = ctx.createRadialGradient(s * cx, s * cy, 0, s * cx, s * cy, s * r);
-    wash.addColorStop(0, color);
-    wash.addColorStop(1, "rgba(255,255,255,0)");
-    ctx.fillStyle = wash;
-    ctx.fillRect(0, 0, s, s);
-  }
+  /* 빛 두 겹 — 어두운 판의 성운과 같은 자리, 같은 크기. 색만 봄빛으로 바꾼다 */
+  const w1 = ctx.createRadialGradient(s * 0.3, s * 0.35, 0, s * 0.35, s * 0.4, s * 0.5);
+  w1.addColorStop(0, "rgba(247,178,196,0.5)");
+  w1.addColorStop(0.5, "rgba(247,178,196,0.16)");
+  w1.addColorStop(1, "rgba(247,178,196,0)");
+  ctx.fillStyle = w1;
+  ctx.fillRect(0, 0, s, s);
 
-  /* 뒤쪽 가지 둘 — 흐리게. 앞뒤가 없으면 그림이 납작하다 */
-  ctx.filter = "blur(5px)";
-  drawBranch(ctx, [-0.06 * s, 0.1 * s], [0.3 * s, 0.02 * s], [0.62 * s, 0.2 * s], 5, 0.4, 5, 11);
-  drawBranch(ctx, [1.05 * s, 0.7 * s], [0.72 * s, 0.9 * s], [0.4 * s, 0.98 * s], 5, 0.36, 4, 29);
+  const w2 = ctx.createRadialGradient(s * 0.7, s * 0.65, 0, s * 0.65, s * 0.6, s * 0.45);
+  w2.addColorStop(0, "rgba(250,206,158,0.42)");
+  w2.addColorStop(0.5, "rgba(250,206,158,0.12)");
+  w2.addColorStop(1, "rgba(250,206,158,0)");
+  ctx.fillStyle = w2;
+  ctx.fillRect(0, 0, s, s);
 
-  /* 앞쪽 가지 둘 — 또렷하게. 왼쪽 위와 오른쪽 아래 모서리에서 들어와 가운데를 비껴간다 */
-  ctx.filter = "none";
-  drawBranch(ctx, [-0.05 * s, -0.02 * s], [0.26 * s, 0.16 * s], [0.52 * s, 0.08 * s], 8, 0.85, 6, 3);
-  drawBranch(ctx, [1.04 * s, 0.95 * s], [0.74 * s, 0.82 * s], [0.46 * s, 0.92 * s], 7, 0.8, 5, 47);
+  /* 위에서 드는 빛 — 판 위쪽이 살짝 트여 보인다 */
+  const sun = ctx.createRadialGradient(s * 0.5, s * 0.08, 0, s * 0.5, s * 0.2, s * 0.6);
+  sun.addColorStop(0, "rgba(255,255,255,0.55)");
+  sun.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.fillStyle = sun;
+  ctx.fillRect(0, 0, s, s);
 
-  /* 떨어지는 꽃잎 몇 장 — 가지에서 막 떨어진 것처럼 가운데 위쪽에 흩는다 */
-  for (let i = 0; i < 9; i++) {
-    const k = 91 + i * 7;
-    const x = (0.12 + introRandom(k) * 0.76) * s;
-    const y = (0.2 + introRandom(k * 3 + 1) * 0.62) * s;
-    const len = 14 + introRandom(k * 5 + 2) * 16;
-    const warm = introRandom(k * 11 + 4) > 0.5;
+  /* 작은 꽃잎 — 어두운 판의 별 80개 자리에 같은 수만큼. 크기가 대여섯 픽셀이라 그림이 되지 않고
+     빛가루처럼 흩어져 보인다. 기울기는 한쪽으로 몰아 바람의 결을 남긴다 */
+  for (let i = 0; i < 80; i++) {
+    const x = introRandom(i * 7 + 1) * s;
+    const y = introRandom(i * 13 + 3) * s;
+    const len = 3 + introRandom(i * 3 + 5) * 9;
+    const a = 0.25 + introRandom(i * 11 + 7) * 0.45;
+    const warm = introRandom(i * 17 + 2) > 0.5;
     ctx.save();
     ctx.translate(x, y);
-    ctx.rotate(-0.9 + introRandom(k * 13 + 5) * 1.4);
-    const fill = ctx.createLinearGradient(0, -len * 0.5, 0, len * 0.5);
-    fill.addColorStop(0, warm ? "rgba(255,238,224,0.75)" : "rgba(255,232,240,0.75)");
-    fill.addColorStop(1, warm ? "rgba(244,186,164,0.75)" : "rgba(240,170,196,0.75)");
-    ctx.fillStyle = fill;
-    petalPath(ctx, len, len * 0.42);
+    ctx.rotate(-0.7 + introRandom(i * 19 + 4) * 0.9);
+    ctx.fillStyle = warm ? `rgba(244,176,150,${a})` : `rgba(238,158,186,${a})`;
+    petalPath(ctx, len, len * 0.44);
     ctx.fill();
     ctx.restore();
   }
+
+  /* 가까이 있는 몇 장만 조금 크게 — 전부 같은 크기면 무늬가 된다. 흐리게 두어 앞뒤를 만든다 */
+  ctx.filter = "blur(2.5px)";
+  for (let i = 0; i < 10; i++) {
+    const k = 200 + i * 9;
+    const x = introRandom(k) * s;
+    const y = introRandom(k * 3 + 1) * s;
+    const len = 18 + introRandom(k * 5 + 2) * 20;
+    const warm = introRandom(k * 7 + 3) > 0.5;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(-0.7 + introRandom(k * 11 + 4) * 0.9);
+    ctx.fillStyle = warm ? "rgba(246,190,164,0.33)" : "rgba(240,172,196,0.33)";
+    petalPath(ctx, len, len * 0.44);
+    ctx.fill();
+    ctx.restore();
+  }
+  ctx.filter = "none";
 }
 
 export function createIntroDataUrl(isDark: boolean): string {
