@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { ExternalLink, AlertTriangle } from "@/components/icons";
 import { mdToRichHtml } from "./mdToRichHtml";
+import { restoreSavedForm } from "@/utils/restoreSavedForm";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import type { SiteConfigData } from "@/config/site.config";
@@ -453,7 +454,7 @@ export default function PostEditor({ post }: PostEditorProps) {
     ready: initialLoadsReady,
     serverReady: revisionsLoaded,
     applyDraft: (draft) => {
-      setForm(draft);
+      setForm((prev) => restoreSavedForm(prev, draft));
       // restored 가 baseline 이 되도록 — 즉시 autosave 가 또 fire 하는 거 방지
       requestAnimationFrame(markBaseline);
     },
