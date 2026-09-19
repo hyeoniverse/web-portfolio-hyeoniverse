@@ -5,8 +5,6 @@
    가운데가 조금 밝고 가장자리로 가며 어두워지는 겹을 얹어 둥근 천장을 만든다. */
 .empty {
   /* 스크롤(휠·끌기)이 얼마나 진행됐는지 0~1 — 자바스크립트가 이 값만 고쳐 쓴다 */
-  --dissolve: 0;
-
   /* 꽃잎 색 — 분홍과 살구 사이를 꽃잎마다 --tone 으로 섞는다 */
   --petal-cool: rgb(247 200 214);
   --petal-warm: rgb(250 216 188);
@@ -42,12 +40,11 @@
 }
 
 /* 패널이 화면 가운데에 고정돼 있어서 문구는 아래쪽에 앉힌다 — 가운데에 겹쳐 놓으면 서로 읽히지 않는다 */
+/* 판을 그리지 않으므로 가운데가 비었다 — 문구가 그 자리를 쓴다. 몽이는 그 위를 떠다닌다 */
 .message {
   display: flex;
-  position: absolute;
-  right: 0;
-  bottom: var(--spacing-4xl);
-  left: 0;
+  position: relative;
+  z-index: 1;
   flex-direction: column;
   align-items: center;
   gap: var(--spacing-2xs);
@@ -92,11 +89,11 @@
    두 층이 그냥 교차될 뿐이고, 커지며 넘어가면 하나가 다른 하나로 바뀌는 것으로 읽힌다. */
 /* 판이 펴지는 일은 3D 쪽(VerticalCylinder)이 맡는다 — 판만 넓히고 옅게 하려면 그 판의 재질을
    건드려야 하고, 여기서 감싸개를 통째로 키우면 같은 씬의 몽이까지 따라 커진다 */
+/* 몽이가 떠다니는 자리 — 원통 배치는 화면 전체를 쓰도록 만들어져 있다 */
 .stage {
   position: absolute;
   inset: 0;
 }
-
 
 /* 어두운 테마 — 플라네타리움 돔. 자줏빛이 도는 검정에 성운 기운을 두 군데 얹는다.
    푸른색 하나로 채우면 밤하늘이 아니라 수영장처럼 보인다 */
@@ -116,20 +113,6 @@
     radial-gradient(90% 70% at 78% 78%, rgb(24 40 62 / 50%) 0%, rgb(24 40 62 / 0%) 62%),
     radial-gradient(130% 100% at 50% 4%, rgb(20 18 32) 0%, rgb(10 9 18) 58%, rgb(5 4 9) 100%),
     rgb(5 4 9);
-}
-
-/* 하늘은 살짝 당겨진 채로 시작해 제자리로 내려앉는다 — 판이 펴져 넘겨준 자리를 받는 움직임이다 */
-.skyWrap.skyWrap {
-  opacity: calc(0.78 + var(--dissolve) * 0.22);
-  transform: scale(calc(1.07 - var(--dissolve) * 0.07));
-  transform-origin: center;
-}
-
-/* 움직임을 줄여 달라는 설정 — 크기는 그대로 두고 밝기만 넘겨받는다 */
-@media (prefers-reduced-motion: reduce) {
-  .skyWrap.skyWrap {
-    transform: none;
-  }
 }
 
 /* 홈으로 — 빈 화면에서 나갈 길을 하나 둔다 */

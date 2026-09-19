@@ -55,8 +55,8 @@ interface CylinderCanvasProps {
   hoverDimRef: Stage["hoverDimRef"];
   slotRefs: Stage["slotRefs"];
   overlayRefs: Stage["overlayRefs"];
-  /** 판이 펴지며 옅어지는 정도(0~1) — 작업물이 없는 화면에서만 넘어온다 */
-  panelFadeRef?: React.RefObject<number>;
+  /** 판을 그리지 않는다 — 보여줄 것이 없을 때. 몽이만 남는다 */
+  hidePanels?: boolean;
   onSlotClick: (projectIdx: number, e: MouseEvent) => void;
 }
 
@@ -76,7 +76,7 @@ export default function CylinderCanvas({
   hoverDimRef,
   slotRefs,
   overlayRefs,
-  panelFadeRef,
+  hidePanels,
   onSlotClick,
 }: CylinderCanvasProps) {
   /* allImages[0] = 인트로, [1..N] = 작품. 인트로와 빈 칸의 판은 캔버스로 만들어야 해서 여기서 계산한다.
@@ -106,7 +106,7 @@ export default function CylinderCanvas({
         actualRotRef={actualRotRef}
         screenPosRef={screenPosRef}
         dimRef={hoverDimRef}
-        panelFadeRef={panelFadeRef}
+        hidePanels={hidePanels}
         onMeshHover={(idx) => {
           slotRefs.current.get(idx)?.classList.add(hoveredItemClassName);
           overlayRefs.current.get(idx)?.classList.add(hoveredOverlayClassName);

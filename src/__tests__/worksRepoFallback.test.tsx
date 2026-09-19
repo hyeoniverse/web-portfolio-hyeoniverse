@@ -124,12 +124,12 @@ describe("은하수 배경", () => {
     /* 빈 화면은 설정에서 문구를 읽고(비었으면 번역 파일), 원통의 인트로 패널을 그대로 쓴다.
        하늘은 어두운 테마에서만 — 밝은 쪽은 꽃잎이 내려온다 */
     localStorage.setItem("theme", "dark");
-    const { getByText } = render(withProviders(<WorksEmptyState />));
+    const { getByText, queryByText } = render(withProviders(<WorksEmptyState />));
     expect(getByText("아직 발행한 작업물이 없습니다.")).toBeTruthy();
     // 별자리 이름이 성도처럼 얹힌다
     expect(getByText("ORION")).toBeTruthy();
-    // 원통 배치의 첫 패널이 그대로 온다 — 설정의 인트로 제목이 보인다
-    expect(getByText(siteConfig.works.introTitle_ko)).toBeTruthy();
+    /* 보여줄 것이 없으면 인트로 패널은 그리지 않는다 — 몽이만 남긴다(#1062) */
+    expect(queryByText(siteConfig.works.introTitle_ko)).toBeNull();
   });
 
   it("밝은 테마에서는 별 대신 꽃잎이 내려온다", () => {

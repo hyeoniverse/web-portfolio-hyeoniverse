@@ -36,11 +36,15 @@ const isCoarsePointer = () => window.matchMedia(COARSE_POINTER).matches;
    작품 이미지를 곡면 패널로 만들어 세로 원통에 두르고, 휠로 굴린다.
    3D 는 VerticalCylinder 가 그리고, 제목·메타 같은 텍스트는 DOM 오버레이로 띄운 뒤
    useCylinderStage 가 3D 투영 좌표를 받아 매 프레임 위치를 맞춘다. */
-export default function CylinderLayout({ projects, onProjectClick, bare = false, panelFadeRef }: WorksLayoutProps & {
-  /** 제 배경을 깔지 않는다 — 뒤에 깔린 것(작업물 없을 때의 은하수)을 가리지 않으려면 비워야 한다(#1062) */
+export default function CylinderLayout({ projects, onProjectClick, bare = false }: WorksLayoutProps & {
+  /**
+   * 보여줄 작업물이 없을 때의 모드(#1062).
+   *
+   * 배경을 깔지 않고(뒤의 은하수·꽃잎이 보여야 한다), 굴리지 않고(돌릴 칸이 없다), 판과 그 위의
+   * 인트로 글자도 그리지 않는다 — 보여줄 것이 없는데 첫 칸만 덩그러니 띄울 이유가 없다.
+   * 몽이는 남는다. 빈 화면에 아무도 없으면 고장 난 화면처럼 보인다.
+   */
   bare?: boolean;
-  /** 판이 펴지며 옅어지는 정도(0~1). 작업물이 없는 화면이 스크롤에 맞춰 고쳐 쓴다 */
-  panelFadeRef?: React.RefObject<number>;
 }) {
   const { theme } = useTheme();
   const { t, language } = useLanguage();
@@ -145,12 +149,13 @@ export default function CylinderLayout({ projects, onProjectClick, bare = false,
           hoverDimRef={hoverDimRef}
           slotRefs={slotRefs}
           overlayRefs={overlayRefs}
-          panelFadeRef={panelFadeRef}
+          hidePanels={bare}
           onSlotClick={handleClick}
         />
       </Suspense>
 
-      <CylinderIntroPanel slotRefs={slotRefs} />
+      {/* 보여줄 것이 없으면 인트로 글자도 두지 않는다 — 판이 없으니 얹힐 자리도 없다 */}
+      {!bare && <CylinderIntroPanel slotRefs={slotRefs} />}
 
       <CylinderCommentBubbles
         comments={recentComments}

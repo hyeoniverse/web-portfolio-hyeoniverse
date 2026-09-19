@@ -62,7 +62,7 @@ function useImageTextures(urls: string[]) {
 }
 
 /* ── 3D Vertical Cylinder ── */
-export default function VerticalCylinder({ allImages, segAngle, arc, scrollRef, mouseRef, actualRotRef, screenPosRef, dimRef, panelFadeRef, onMeshHover, onMeshLeave, onMeshClick }: {
+export default function VerticalCylinder({ allImages, segAngle, arc, scrollRef, mouseRef, actualRotRef, screenPosRef, dimRef, hidePanels = false, onMeshHover, onMeshLeave, onMeshClick }: {
   allImages: string[];
   segAngle: number;
   arc: number;
@@ -71,9 +71,8 @@ export default function VerticalCylinder({ allImages, segAngle, arc, scrollRef, 
   actualRotRef: React.MutableRefObject<number>;
   screenPosRef: React.MutableRefObject<{ x: number; y: number }[]>;
   dimRef: React.RefObject<number>;
-  /** 0~1 — 판이 펴지며 옅어지는 정도(#1062). 작업물이 없는 화면에서만 넘어온다.
-      판만 건드리므로 같은 씬의 몽이는 그대로 남는다 */
-  panelFadeRef?: React.RefObject<number>;
+  /** 판을 그리지 않는다 — 보여줄 것이 없을 때(#1062). 같은 씬의 몽이는 그대로 남는다 */
+  hidePanels?: boolean;
   onMeshHover: (slotIdx: number) => void;
   onMeshLeave: (slotIdx: number) => void;
   onMeshClick: (slotIdx: number, e: MouseEvent) => void;
@@ -142,8 +141,6 @@ export default function VerticalCylinder({ allImages, segAngle, arc, scrollRef, 
     // dimRef = meshIdx+1 (mesh hover) 또는 meshIdx+2 (metaItem interactive hover)
     const dimVal = dimRef.current ?? 0;
     const hoveredMeshIdx = dimVal > 0 ? (dimVal <= count ? dimVal - 1 : dimVal - 2) : -1;
-    /* 판이 펴지는 정도 — 0 이면 평소와 똑같다. 평소에는 transparent 도 켜지 않는다 */
-    const fade = panelFadeRef?.current ?? 0;
     for (let mi = 0; mi < meshRefs.current.length; mi++) {
       const mesh = meshRefs.current[mi];
       if (!mesh?.material) continue;
@@ -154,14 +151,6 @@ export default function VerticalCylinder({ allImages, segAngle, arc, scrollRef, 
       const cur = mat.color.r;
       const next = cur + (targetBright - cur) * 0.12;
       mat.color.setScalar(next);
-
-      if (fade > 0 || mat.transparent) {
-        /* 가로로 더 많이 펼친다 — 판은 원통 축을 감고 있어서 넓히면 시야를 감싸듯 펴진다.
-           그러면서 옅어지므로 판이 하늘로 바뀌는 것처럼 보인다 */
-        mat.transparent = fade > 0;
-        mat.opacity = 1 - fade;
-        mesh.scale.set(1 + fade * 2.2, 1 + fade * 1.5, 1);
-      }
     }
   });
 
@@ -182,6 +171,7 @@ export default function VerticalCylinder({ allImages, segAngle, arc, scrollRef, 
           <mesh
             key={i}
             geometry={geo}
+            visible={!hidePanels}
             ref={(el) => { if (el) meshRefs.current[i] = el; }}
             onPointerEnter={() => {
               dimRef.current = i + 1;
