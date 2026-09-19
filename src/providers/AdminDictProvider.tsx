@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, useMemo, type ReactNode } from "react";
+import { useContext, useEffect, useMemo, type ReactNode } from "react";
 import { LanguageContext, type Language, type Translations } from "@/providers/LanguageProvider";
 
 /**
@@ -22,6 +22,15 @@ export default function AdminDictProvider({
   children: ReactNode;
 }) {
   const parent = useContext(LanguageContext);
+
+  /* 루트 사전에도 얹는다 — 전역 모달(<Modal/>)은 루트 오버레이에서 그려져 이 provider 바깥이다.
+     그 안에서 t("admin.*") 를 부르면 사전이 없어 키가 그대로 나왔다(일괄 카테고리 변경 모달).
+     사전은 이미 메모리에 있으므로 내려받는 양은 늘지 않고, 공개 화면은 이 provider 를 타지 않는다. */
+  const { addTranslations } = parent;
+  useEffect(() => {
+    addTranslations(dict);
+  }, [addTranslations, dict]);
+
   const value = useMemo(
     () => ({
       ...parent,

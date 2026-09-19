@@ -769,6 +769,15 @@ export default function AdminWorksPage() {
           if (!guardWritable(worksByIds([id]))) return;
           await handleDelete(id);
         }}
+        onBulkDelete={async (ids) => {
+          if (!guardWritable(worksByIds(ids))) return;
+          await sendActions(
+            ids.map((id) => ({ input: `/api/works/${id}`, init: { method: "DELETE" } })),
+            t, t("admin.common.deleteFailed"),
+          );
+          fetchWorks();
+          if (trashOpen) fetchTrash();
+        }}
         onBulkExport={async (ids) => {
           if (!guardWritable(worksByIds(ids))) return;
           const failures: CodedError[] = [];
