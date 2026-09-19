@@ -120,7 +120,7 @@ export default function CylinderCanvas({
           if (idx > 0) onSlotClick(idx - 1, e);
         }}
       />
-      <IntroBunny screenPosRef={screenPosRef} arc={arc} actualRotRef={actualRotRef} />
+      <IntroBunny screenPosRef={screenPosRef} arc={arc} actualRotRef={actualRotRef} isDark={isDark} />
     </Canvas>
   );
 }
