@@ -90,13 +90,23 @@
   display: inline-block;
   position: relative;
   border-radius: var(--radius-capsule);
-  transition:
-    backdrop-filter var(--duration-base) ease,
-    background-color var(--duration-base) ease;
 }
 
-/* 버튼 hover 시 유리창 효과: 뒷 커피 canvas가 blur로 보임 */
-.cta .magneticInner:hover {
+/* 버튼 hover 시 유리창 효과: 뒷 커피 canvas가 blur로 보인다.
+   이 효과를 감싸는 층에 직접 걸면 그 층이 섞이는 범위를 가둬, 안의 글자가 반전되지 않고 흰색
+   그대로 남는다. 게다가 마우스를 떼도 흐림이 사라지는 동안에는 갇힌 상태가 이어져 글자가
+   순간적으로 하얗게 번쩍인다. 그래서 유리창은 단추 뒤에 따로 깔린 판이 맡는다 —
+   단추는 이 판의 자식이 아니므로 글자는 계속 페이지 바탕과 섞인다. */
+.cta .magneticInner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  transition: backdrop-filter var(--duration-base) ease;
+}
+
+.cta .magneticInner:hover::before {
   backdrop-filter: var(--blur-sm) saturate(120%);
 }
 
@@ -112,7 +122,6 @@
 
 .cta .ctaBtn.ctaBtn:hover {
   color: var(--text-primary);
-  border-color: var(--border-color-strong);
   background: transparent;
 }
 
@@ -122,13 +131,44 @@
   font-size: var(--font-size-lg);
   gap: var(--spacing-md);
   overflow: hidden;
-  border-color: var(--border-color-strong);
 }
 
 .cta .resumeBtn.resumeBtn:hover {
   color: var(--text-primary);
-  border-color: var(--border-color-strong);
   background: transparent;
+}
+
+/* ── 단추는 커피잔 위를 지난다 ──
+   잔이 단추 위를 덮는 자리에서는 글자와 테두리가 잔 색에 묻힌다. 흰 획을 깔고 밑에 깔린 것과
+   반전해 섞으면 잔 위에서도 바탕 위에서도, 어두운 테마에서도 읽힌다.
+   단추 자체에 걸지 않는다 — 부모가 섞으면 자식도 그 그룹으로 함께 뒤집혀 분홍 점(강조색)까지
+   색이 튄다. 그래서 테두리는 덧판으로, 글자는 글자대로 따로 건다. */
+/* 테두리는 덧판이 혼자 그린다 — 단추 자신의 테두리까지 보이면 1px 선 두 줄이 나란히 붙어
+   마우스를 올렸을 때 선이 굵어진 것처럼 보인다(공통 단추의 hover 규칙이 색을 넣는다) */
+.cta .ctaBtn.ctaBtn,
+.cta .resumeBtn.resumeBtn,
+.cta .ctaBtn.ctaBtn:hover,
+.cta .resumeBtn.resumeBtn:hover {
+  border-color: transparent;
+}
+
+.cta .ctaBtn.ctaBtn::before,
+.cta .resumeBtn.resumeBtn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--text-white);
+  border-radius: inherit;
+  mix-blend-mode: difference;
+  pointer-events: none;
+}
+
+/* 첫 span 이 글자, 그 뒤가 아이콘이다. Get in touch 의 아이콘은 분홍 점이라 빼고,
+   이력서 단추의 내려받기 아이콘은 글자와 같이 뒤집는다 */
+.cta .ctaBtn.ctaBtn > span:first-of-type,
+.cta .resumeBtn.resumeBtn > span {
+  color: var(--text-white);
+  mix-blend-mode: difference;
 }
 
 /* Button Indicator Dot */
