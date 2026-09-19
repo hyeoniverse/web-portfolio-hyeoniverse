@@ -10,8 +10,18 @@ import { pickLocalized } from "@/types/common";
 import T from "@/components/ui/T";
 import TransitionLink from "@/components/ui/TransitionLink";
 import { workHref, type WorksLayoutProps } from "./shared";
+import { textUnits } from "../../_utils";
 import styles from "./SplitLayout.module.css";
 import Pressable from "@/components/ui/Pressable";
+
+/* 한 번 굴리면 한 판 — 판이 화면 높이(100vh)라 중간에 멈추면 두 판이 반씩 걸쳐 보인다.
+   굴린 양이 이만큼 쌓이면 옆 판으로 옮기고, 한 번 옮긴 뒤에는 그 굴림이 끝날 때까지(손을 떼도
+   관성으로 한참 더 들어온다) 흘린다. 손을 떼지 않고 계속 굴리면 HOLD_STEP_MS 마다 한 판씩 간다.
+   cinematic 배치와 같은 규칙이다 */
+const WHEEL_STEP = 24;
+const WHEEL_REST_MS = 140;
+const HOLD_STEP_MS = 700;
+const PANEL_SCROLL_SEC = 0.8;
 
 export default function SplitLayout({ projects, onProjectClick }: WorksLayoutProps) {
   const [active, setActive] = useState(-1);
@@ -20,6 +30,7 @@ export default function SplitLayout({ projects, onProjectClick }: WorksLayoutPro
   const w = siteConfig.works;
   const introVideoSrc = w.introVideoUrl || "/cover/videos/bg-1.mp4";
   const { lenis, scrollTo: lenisScrollTo } = useLenis();
+  const wrapRef = useRef<HTMLDivElement>(null);
   const rightRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLElement | null)[]>([]);
   const introRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -70,6 +81,57 @@ export default function SplitLayout({ projects, onProjectClick }: WorksLayoutPro
     return () => { lenis.off("scroll", handleScroll); };
   }, [lenis, lenisScrollTo]);
 
+  // 휠 — 판 하나 단위로 넘어간다
+  useEffect(() => {
+    const wrap = wrapRef.current;
+    if (!wrap || !lenis) return;
+    let accum = 0;
+    let lastEventAt = 0;
+    let lastStepAt = 0;
+    let steppedThisGesture = false;
+
+    /* 판의 시작 위치들 — 인트로와 작업물 판이 번갈아 놓이고, 무한 스크롤 때 순간이동으로
+       위치가 바뀌므로 굴릴 때마다 다시 읽는다 */
+    const panelTops = () => {
+      const tops = [...introRefs.current, ...cardRefs.current]
+        .filter((el): el is HTMLElement => el !== null)
+        .map((el) => el.offsetTop);
+      return [...new Set(tops)].sort((a, b) => a - b);
+    };
+
+    const onWheel = (e: WheelEvent) => {
+      const tops = panelTops();
+      if (tops.length === 0) return;
+      /* 세로 스크롤은 우리가 판 단위로 옮긴다 — Lenis 는 window 에서 듣기 때문에
+         preventDefault 만으로는 안 막히고 전파를 끊어야 한다 */
+      e.preventDefault();
+      e.stopPropagation();
+      const now = performance.now();
+      if (now - lastEventAt > WHEEL_REST_MS) {
+        steppedThisGesture = false;
+        accum = 0;
+      }
+      lastEventAt = now;
+      if (steppedThisGesture && now - lastStepAt < HOLD_STEP_MS) return;
+      accum += e.deltaY;
+      if (Math.abs(accum) < WHEEL_STEP) return;
+      const dir = accum > 0 ? 1 : -1;
+      accum = 0;
+      steppedThisGesture = true;
+      lastStepAt = now;
+      const y = window.scrollY;
+      let nearest = 0;
+      for (let i = 1; i < tops.length; i++) {
+        if (Math.abs(tops[i] - y) < Math.abs(tops[nearest] - y)) nearest = i;
+      }
+      const next = Math.min(tops.length - 1, Math.max(0, nearest + dir));
+      lenisScrollTo(tops[next], { duration: PANEL_SCROLL_SEC });
+    };
+
+    wrap.addEventListener("wheel", onWheel, { passive: false });
+    return () => wrap.removeEventListener("wheel", onWheel);
+  }, [lenis, lenisScrollTo]);
+
   // IntersectionObserver로 active 감지 (intro / 카드)
   useEffect(() => {
     const cards = cardRefs.current.filter((el): el is HTMLDivElement => el !== null);
@@ -105,7 +167,7 @@ export default function SplitLayout({ projects, onProjectClick }: WorksLayoutPro
   const p = active >= 0 ? projects[active] : projects[0];
 
   return (
-    <div className={styles.wrap}>
+    <div ref={wrapRef} className={styles.wrap}>
       {/* 전체 배경 — fixed video. 오른쪽 panel 에서만 backdrop blur 로 흐림 */}
       <video
         className={styles.bgVideo}
@@ -228,7 +290,18 @@ export default function SplitLayout({ projects, onProjectClick }: WorksLayoutPro
                 loading={i === 0 ? "eager" : "lazy"}
                 fallbackSeed={proj.id}
               />
-              <h2 className={styles.imageCardTitle}><T ko={proj.title.ko} en={proj.title.en} /></h2>
+              {/* 제목 길이를 글자 크기 계산에 넘긴다 — 두 언어 중 긴 쪽을 기준으로 잡아 언어를
+                  바꿀 때 크기가 뛰지 않게 한다 */}
+              <h2
+                className={styles.imageCardTitle}
+                style={{
+                  ["--title-units" as string]: String(
+                    Math.max(8, textUnits(proj.title.ko), textUnits(proj.title.en)),
+                  ),
+                }}
+              >
+                <span className={styles.imageCardTitleText}><T ko={proj.title.ko} en={proj.title.en} /></span>
+              </h2>
               <div className={styles.imageOverlay}>
                 <div className={styles.imageYear}>{proj.year}</div>
               </div>
