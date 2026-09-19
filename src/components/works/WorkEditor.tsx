@@ -37,6 +37,7 @@ import { WORK_TEMPLATES, TECH_PRESETS, type WorkTemplate } from "@/data/workTemp
 import { getTechIcon, normalizeTechName, getTechAliases } from "@/data/techIcons";
 import { showToast } from "@/stores/toastStore";
 import { workToFormData, defaultForm } from "@/utils/workFormUtils";
+import { restoreSavedForm } from "@/utils/restoreSavedForm";
 import { stripHtml } from "@/utils/htmlUtils";
 import { isVideoMedia } from "@/components/posts/plate/utils";
 import Select from "@/components/ui/Select";
@@ -325,7 +326,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     serverReady: revisionsLoaded,
     applyDraft: (draft) => {
       sortMovedRef.current = false;
-      setForm(draft);
+      setForm((prev) => restoreSavedForm(prev, draft));
       requestAnimationFrame(markBaseline);
     },
     ignoredKeys: ["scheduled_at"],
@@ -758,7 +759,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       const snapshot = await loadRevisionSnapshot(rev.id);
       if (snapshot) {
         sortMovedRef.current = false;
-        setForm(snapshot);
+        setForm((prev) => restoreSavedForm(prev, snapshot));
         requestAnimationFrame(() => markBaseline());
         setStatus(tw("restored"));
         setStatusType("success");
