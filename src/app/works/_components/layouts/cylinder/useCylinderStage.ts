@@ -237,6 +237,13 @@ export function useCylinderStage({
         bottom: ((cy + panelHalfHpx * shrink) / window.innerHeight) * 100,
       };
 
+      /* 인트로 글자는 판 안에 들어가야 한다 — 판의 실제 너비를 넘겨 제목 크기와 줄바꿈이 그것을
+         따르게 한다. 글자는 CSS 크기(vw)로만 잡혀 있어서 창이 좁거나 판이 멀면 판 밖으로 넘쳤다 */
+      const introEl = slotRefs.current.get(0);
+      if (introEl) {
+        introEl.style.setProperty("--panel-w", `${Math.round(panelHalfWpx * shrink * 2)}px`);
+      }
+
       // intro 일 때만 댓글 버블 보이기
       const fc = floatingCommentsRef.current;
       if (fc) {

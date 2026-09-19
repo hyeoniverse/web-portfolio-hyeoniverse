@@ -11,7 +11,9 @@
   align-items: center;
   text-align: center;
   gap: var(--spacing-md);
-  max-width: 520px;
+  /* 판이 화면에 실제로 차지하는 너비(--panel-w)를 무대가 매 프레임 넣어 준다.
+     그 값을 넘지 않아야 글자가 판 밖으로 나가지 않는다 */
+  max-width: min(520px, var(--panel-w, 520px));
   padding: 0 var(--spacing-xl);
   transition: opacity 0.3s ease;
 }
@@ -127,7 +129,9 @@
 .introTitle {
   margin: 0;
   font-family: var(--font-instrument), serif;
-  font-size: clamp(2.5rem, 7vw, 6rem);
+  /* 창 너비가 아니라 판 너비를 따른다 — 판은 창이 넓어도 멀어지면 작아진다.
+     0.15 은 판 안에 열 글자 남짓이 들어가는 비율이다 */
+  font-size: clamp(1.75rem, calc(var(--panel-w, 520px) * 0.15), 6rem);
   font-weight: var(--font-weight-light);
   line-height: var(--line-height-tight);
   letter-spacing: -0.03em;
