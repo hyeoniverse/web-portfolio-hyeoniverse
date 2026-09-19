@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
+import { restoreSavedForm } from "@/utils/restoreSavedForm";
 import { stripHtml } from "@/utils/htmlUtils";
 import type { PostFormData } from "@/types/post";
 import type { useRevisions } from "@/hooks/useRevisions";
@@ -41,7 +42,7 @@ export function usePostRevisions({
       if (!rev) return;
       const snapshot = await revisions.loadRevisionSnapshot(rev.id);
       if (snapshot) {
-        setForm(snapshot);
+        setForm((prev) => restoreSavedForm(prev, snapshot));
         // restore 직후 autosave 가 또 fire 해서 중복 revision 생성하는 거 방지
         // form 이 snapshot 으로 설정되면 baseline 도 그 값으로 정합화 — 사용자가 추가 편집 시에만 autosave
         requestAnimationFrame(() => markBaseline());
