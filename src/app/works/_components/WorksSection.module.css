@@ -21,17 +21,24 @@
 /* ==========================================================================
    Alt Layout Intro (full-screen wrapper)
    ========================================================================== */
+/* 표지 한 판 — 화면 한 장에 딱 맞춘다. min-height 로 두면 글이 길어진 만큼 판이 화면보다
+   커져(측정 904px) 표지와 다음 판 사이에 어정쩡한 스크롤이 생긴다 */
 .altIntro {
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
   width: 100%;
-  min-height: 100vh;
+  height: 100vh;
   background: var(--bg-primary);
 }
 
 .altIntro .introSlot {
+  /* 판 높이가 고정이므로 위아래 여백은 판이 감당할 만큼만 — 머리띠(헤더)에 가리지 않을 정도로
+     띄우고 나머지는 글에 준다 */
+  padding-block: calc(var(--header-height) + var(--spacing-sm)) var(--spacing-lg);
   height: auto;
+  max-height: 100%;
   max-width: 520px;
   border-right: none;
   text-align: center;
