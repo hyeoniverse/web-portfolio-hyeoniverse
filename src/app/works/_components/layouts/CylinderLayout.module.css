@@ -100,6 +100,8 @@
   align-items: center;
   text-align: center;
   gap: var(--spacing-sm);
+  /* 글자 뭉치는 판을 넘지 않는다 — 판보다 넓으면 원통 밖 허공에 글자가 뜬다 */
+  max-width: var(--panel-w, 90vw);
   pointer-events: none;
   mix-blend-mode: difference;
   will-change: transform, opacity;
@@ -153,7 +155,21 @@
 
 .metaTitle {
   font-family: var(--font-instrument), serif;
-  font-size: clamp(3.5rem, 10vw, 10rem);
+  /* 세 가지를 같이 보고 가장 작은 값을 쓴다(#1062).
+     ① 판 너비(--panel-w) — 판은 창이 넓어도 멀어지면 작아진다. 창 너비(vw)로 잡으면 그때 넘친다.
+     ② 제목 길이(--title-units) — 판이 넉넉해도 제목이 길면 넘친다. 판 너비를 글자 폭으로 나눠
+        한 줄에 들어갈 크기를 구한다(로마자 한 글자를 0.5em 로 보아 2배).
+     ③ 판 높이(--panel-h) — 위에 분류, 아래에 설명·단추가 더 있어 세로도 넉넉하지 않다.
+     두 값은 무대가 매 프레임 넣어 준다 */
+  font-size: clamp(
+    2rem,
+    min(
+      calc(var(--panel-w, 520px) * 0.2),
+      calc(var(--panel-w, 520px) * 2 / var(--title-units, 14)),
+      calc(var(--panel-h, 320px) * 0.34)
+    ),
+    10rem
+  );
   font-weight: var(--font-weight-light);
   line-height: 0.95;
   letter-spacing: -0.04em;
@@ -380,9 +396,6 @@
 
 /* ── Responsive ── */
 @media (max-width: 1024px) {
-  .metaTitle {
-    font-size: clamp(2.5rem, 6vw, 6rem);
-  }
 }
 
 @media (max-width: 480px) {
