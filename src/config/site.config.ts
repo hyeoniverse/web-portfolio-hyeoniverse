@@ -293,7 +293,9 @@ export const siteConfig = {
     title_ko: ["Up for a", "coffee chat?"],
     buttonText: "Get in touch",
     buttonText_ko: "Get in touch",
-    resumeUrl: "/docs/resume.pdf",
+    /* 올린 파일이 없으면 비운다 — 여기에 예시 파일을 적어 두면 설정에서 이력서를 지워도
+       이 값이 되살아나 내려받기 단추가 계속 보인다(빈 문자열은 기본값을 덮지 못한다) */
+    resumeUrl: "",
     resumeButtonText: "Download Resume",
     resumeButtonText_ko: "이력서 다운로드",
   },
