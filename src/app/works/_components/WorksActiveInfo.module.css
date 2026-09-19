@@ -1,13 +1,12 @@
 /* 현재 보고 있는 작품 정보 — 갤러리 하단 고정 표시. WorksSection.module.css 에서 분리 (#662). */
 .activeInfo {
-  /* 제목이 놓일 자리의 너비 — 오른쪽은 판이 지나가는 길이라 화면의 절반 남짓만 쓴다.
-     글자 크기는 이 폭을 기준으로 정한다 */
-  --title-box: min(42vw, 640px);
+  /* 제목이 이 폭을 넘을 만큼 길 때만 글자를 줄인다. 폭을 좁게 잡으면 평소 길이의 제목까지
+     작아져 예전 모습이 바뀐다 — 넉넉히 잡아 긴 제목만 걸리게 한다 */
+  --title-box: min(60vw, 900px);
 
   position: fixed;
   bottom: 80px;
   left: 60px;
-  max-width: var(--title-box);
   z-index: var(--z-float);
   font-family: var(--font-space-grotesk), sans-serif;
   color: var(--text-primary);
@@ -32,13 +31,13 @@
 .activeTitle {
   margin: 0;
   font-family: var(--font-instrument), serif;
-  /* 제목이 길수록 작아진다 — 자리 너비를 글자 폭으로 나눠 한 줄에 들어갈 크기를 구하고(로마자 한
-     글자를 0.5em 로 보아 2배), 원래 크기를 넘지 않게 한다. 아래는 읽을 수 있는 선에서 멈춘다 */
+  /* 제목이 길 때만 작아진다 — 자리 너비를 글자 폭으로 나눠 한 줄에 들어갈 크기를 구하고(로마자 한
+     글자를 0.5em 로 보아 2배), 원래 크기를 넘지 않게 한다. 짧은 제목은 이 값이 원래 크기보다 커서
+     아무것도 달라지지 않는다. 아래로는 읽을 수 있는 선에서 멈춘다 */
   font-size: max(
     1.5rem,
-    min(var(--fluid-font-size-5xl), calc(var(--title-box, 42vw) * 2 / var(--title-units, 14)))
+    min(var(--fluid-font-size-5xl), calc(var(--title-box, 60vw) * 2 / var(--title-units, 14)))
   );
-  overflow-wrap: anywhere;
   font-weight: var(--font-weight-light);
   line-height: var(--line-height-dense);
   color: inherit;
