@@ -3,22 +3,13 @@
 import type { RefObject } from "react";
 import T from "@/components/ui/T";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
+import { textUnits } from "./textUnits";
 import styles from "./CylinderIntroPanel.module.css";
 
 /* 슬롯 0 — 3D 인트로 패널 위에 겹쳐 놓는 HTML 오버레이.
    위치와 표시 여부는 useCylinderStage 의 rAF 가 slotRefs 로 직접 잡으므로
    여기서는 처음에 숨겨둔 채 ref 만 등록한다. 별 12개의 좌표는 고정 배열이라
    슬롯이 다시 그려져도 배치가 흔들리지 않는다. */
-/* 글자 폭 어림 — 한글·한자·일본어 글자는 로마자의 두 배쯤 차지한다.
-   판 너비에 몇 글자가 들어가는지 재려면 글자 수가 아니라 이 폭을 세야 한다 */
-const WIDE_CHAR = /[\u1100-\u11FF\u2E80-\uA4CF\uAC00-\uD7FF\uF900-\uFAFF\uFE30-\uFE4F\uFF00-\uFF60]/;
-
-function textUnits(text: string): number {
-  let units = 0;
-  for (const ch of text) units += WIDE_CHAR.test(ch) ? 2 : 1;
-  return units;
-}
-
 export default function CylinderIntroPanel({
   slotRefs,
 }: {
