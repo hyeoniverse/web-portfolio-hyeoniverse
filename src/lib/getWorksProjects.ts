@@ -35,8 +35,15 @@ async function fetchWorksProjects(): Promise<Project[]> {
   return repos.map((repo, i) => repoToProject(repo, byName.get(repo.fullName) ?? byName.get(repo.name), i));
 }
 
-/** 카드 크기는 돌려 쓴다 — 배치(flow·grid)가 크기를 섞어 리듬을 만든다 */
-const SIZES = ["large", "small", "medium", "tall", "wide"] as const;
+/* 카드 크기는 돌려 쓴다 — flow 는 크기로 카드의 폭과 위아래 자리(align-self)를 정해 리듬을 만든다.
+   앞 여섯 칸은 손으로 적은 작업물 목록(data/projects.ts)과 같은 순서다 — flow 의 메타 위치 변주도
+   여섯 칸 주기라, 그 목록에서 보던 짝이 그대로 나온다. 뒤 여섯 칸은 같은 크기를 다른 순서로 두어
+   일곱 번째 카드부터 앞 마디가 그대로 되풀이되지 않게 한다(다섯 칸 주기였을 때는 크기와 변주의
+   짝이 마디마다 어긋나 자리가 비슷해 보였다). */
+const SIZES = [
+  "large", "small", "medium", "tall", "wide", "small",
+  "medium", "wide", "large", "small", "tall", "medium",
+] as const;
 
 /**
  * 저장소 하나 → 목록·상세가 받는 Project.
