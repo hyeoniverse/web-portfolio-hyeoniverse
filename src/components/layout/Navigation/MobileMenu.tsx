@@ -29,6 +29,8 @@ interface MobileMenuProps {
   pathname: string;
   isAdminPage: boolean;
   menuItems: MenuItem[];
+  /** 관리 화면으로 들어가는 자리 — 권한이 없거나 이미 관리 화면이면 null */
+  adminHref?: string | null;
   contactEmail: string;
   onClose: () => void;
   onContactOpen: () => void;
@@ -43,6 +45,7 @@ export default function MobileMenu({
   pathname,
   isAdminPage,
   menuItems,
+  adminHref,
   contactEmail,
   onClose,
   onContactOpen,
@@ -64,6 +67,11 @@ export default function MobileMenu({
     return matches.reduce((best, h) => (h.length > best.length ? h : best));
   })();
 
+  /* 페이지 링크와 행동을 가른다 — 목록에는 페이지만 남기고, href 가 없는 항목(문의·로그아웃)은
+     아래 묶음이 맡는다 */
+  const linkItems = menuItems.filter((item): item is MenuItem & { href: string } => !!item.href);
+  const actionItem = menuItems.find((item) => !item.href);
+
   return createPortal(
     <div
       ref={clipWrapperRef}
@@ -81,25 +89,7 @@ export default function MobileMenu({
         </div>
 
         <nav aria-label={language === "ko" ? "모바일 메뉴" : "Mobile menu"} className={styles.menuNav}>
-          {menuItems.map((item) => {
-            if (!item.href) {
-              return (
-                <Pressable noTapScale
-                  key={item.key}
-                  className={`${styles.menuLink} glith-on-hover`}
-                  onClick={() => {
-                    onClose();
-                    if (isAdminPage) {
-                      onLogout();
-                    } else {
-                      onContactOpen();
-                    }
-                  }}
-                >
-                  {item.label ?? item.key}
-                </Pressable>
-              );
-            }
+          {linkItems.map((item) => {
             if (item.children?.length) {
               return (
                 <Fragment key={item.key}>
@@ -140,6 +130,33 @@ export default function MobileMenu({
               </Link>
             );
           })}
+
+          {/* 페이지가 아닌 자리 — 문의(관리 화면에서는 로그아웃)와 관리 화면. 위 목록은 사이트의
+              페이지고 이 둘은 행동이라, 줄 하나로 끊어 같은 층에 나란히 둔다 */}
+          {(actionItem || adminHref) && (
+            <div className={styles.menuAside}>
+              {actionItem && (
+                <Pressable noTapScale
+                  className={`${styles.menuLink} ${styles.menuAsideAction} glith-on-hover`}
+                  onClick={() => {
+                    onClose();
+                    if (isAdminPage) {
+                      onLogout();
+                    } else {
+                      onContactOpen();
+                    }
+                  }}
+                >
+                  {actionItem.label ?? actionItem.key}
+                </Pressable>
+              )}
+              {adminHref && (
+                <Link href={adminHref} className={`${styles.menuLink} ${styles.menuAsideAdmin} glith-on-hover`} onClick={onClose}>
+                  Admin
+                </Link>
+              )}
+            </div>
+          )}
         </nav>
 
         {/* Footer: email */}

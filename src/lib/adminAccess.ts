@@ -27,6 +27,19 @@ export function canOpenAdminPage(pathname: string, access: AdminAccess): boolean
   return !ADMIN_ONLY_PAGES.some((page) => pathname === page || (page !== "/admin" && pathname.startsWith(`${page}/`)));
 }
 
+/**
+ * 관리 화면으로 들어갈 때 갈 곳.
+ *
+ * 자리를 보일지는 로그인 여부가 정하고(상단바 톱니바퀴·모바일 메뉴), 이 함수는 갈 곳만 고른다.
+ * 대시보드는 관리자 이상만 열 수 있으므로, 못 여는 계정은 글 목록에서 시작한다 — 주소로 들어온
+ * 사람을 proxy 가 보내는 곳과 같다. 권한을 아직 모르면(null) 대시보드로 두고, 못 열면 proxy 가
+ * 옮겨 준다.
+ */
+export function adminEntryHref(access: AdminAccess | null): string {
+  if (access && !canOpenAdminPage("/admin", access)) return AUTHOR_HOME;
+  return "/admin";
+}
+
 /** 설정 탭 — 사이트 설정은 소유자만, 그 밖에는 계정 탭만 연다. 네비게이션의 설정 하위 메뉴와 설정 화면의 탭 목록이 함께 쓴다 */
 export function canOpenSettingsTab(tab: string, access: AdminAccess): boolean {
   return access.isOwner || tab === "account";
