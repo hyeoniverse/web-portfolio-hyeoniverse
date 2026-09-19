@@ -15,6 +15,7 @@ import CylinderIntroPanel from "./cylinder/CylinderIntroPanel";
 import CylinderCommentBubbles from "./cylinder/CylinderCommentBubbles";
 import { useFloatingComments } from "./cylinder/useFloatingComments";
 import { MIN_SEGMENT_ANGLE, GAP_RATIO } from "./cylinder/scene";
+import { textUnits } from "./cylinder/textUnits";
 import dynamic from "next/dynamic";
 import styles from "./CylinderLayout.module.css";
 
@@ -166,7 +167,16 @@ export default function CylinderLayout({ projects, onProjectClick, bare = false,
             key={proj.id}
             ref={(el) => { if (el) slotRefs.current.set(slotIndex, el); }}
             className={styles.metaItem}
-            style={{ visibility: "hidden", opacity: 0, pointerEvents: "none" }}
+            /* 제목이 길수록 글자를 줄인다 — 두 언어 중 긴 쪽을 기준으로 잡아 언어를 바꿀 때
+               크기가 뛰지 않게 한다(#1062) */
+            style={{
+              visibility: "hidden",
+              opacity: 0,
+              pointerEvents: "none",
+              ["--title-units" as string]: String(
+                Math.max(8, textUnits(proj.title.ko), textUnits(proj.title.en)),
+              ),
+            }}
           >
             <span className={styles.metaCategory}>
               <T ko={proj.category.ko} en={proj.category.en} />

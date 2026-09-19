@@ -10,7 +10,8 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: var(--spacing-md);
+  /* 줄 사이도 판 높이를 따른다 — 판이 얕으면 여백부터 줄여야 글자가 들어간다 */
+  gap: clamp(var(--spacing-2xs), calc(var(--panel-h, 320px) * 0.05), var(--spacing-md));
   /* 판이 화면에 실제로 차지하는 너비(--panel-w)를 무대가 매 프레임 넣어 준다.
      그 값을 넘지 않아야 글자가 판 밖으로 나가지 않는다 */
   max-width: min(520px, var(--panel-w, 520px));
@@ -116,9 +117,11 @@
   opacity: 0.6;
 }
 
+/* 라벨·한 줄·안내도 판 높이를 따른다. 제목만 줄이면 나머지가 그대로라 얕은 판에서는 여전히 넘친다.
+   글자 크기의 하한은 읽을 수 있는 선(11~12px)이다 */
 .introLabel {
   font-family: var(--font-mono);
-  font-size: var(--font-size-label);
+  font-size: clamp(var(--font-size-micro), calc(var(--panel-h, 320px) * 0.055), var(--font-size-label));
   font-weight: var(--font-weight-semibold);
   letter-spacing: 0.35em;
   text-transform: uppercase;
@@ -129,14 +132,19 @@
 .introTitle {
   margin: 0;
   font-family: var(--font-instrument), serif;
-  /* 두 가지를 같이 본다.
-     하나는 판 너비(--panel-w) — 판은 창이 넓어도 멀어지면 작아지는데 창 너비(vw)로 잡으면 그때
-     글자가 판 밖으로 나간다.
-     다른 하나는 제목 길이(--title-units) — 판이 넉넉해도 제목이 길면 넘친다. 판 너비를 글자 폭으로
-     나눠 한 줄에 들어갈 크기를 구한다(로마자 한 글자를 0.5em 로 보아 2배). 둘 중 작은 쪽을 쓴다 */
+  /* 세 가지를 같이 보고 가장 작은 값을 쓴다.
+     ① 판 너비(--panel-w) — 판은 창이 넓어도 멀어지면 작아진다. 창 너비(vw)로 잡으면 그때 넘친다.
+     ② 제목 길이(--title-units) — 판이 넉넉해도 제목이 길면 넘친다. 판 너비를 글자 폭으로 나눠
+        한 줄에 들어갈 크기를 구한다(로마자 한 글자를 0.5em 로 보아 1.8배).
+     ③ 판 높이(--panel-h) — 칸 하나는 가로 46, 세로 15 남짓인 띠라 세로가 먼저 찬다. 제목은 두 줄까지
+        가고 위아래로 라벨·구분선·한 줄·안내가 더 있으므로 높이의 1/5 안쪽에 둔다 */
   font-size: clamp(
-    1.5rem,
-    min(calc(var(--panel-w, 520px) * 0.15), calc(var(--panel-w, 520px) * 2 / var(--title-units, 14))),
+    1.25rem,
+    min(
+      calc(var(--panel-w, 520px) * 0.15),
+      calc(var(--panel-w, 520px) * 1.8 / var(--title-units, 14)),
+      calc(var(--panel-h, 320px) * 0.2)
+    ),
     6rem
   );
   overflow-wrap: anywhere;
@@ -147,17 +155,18 @@
 }
 
 .introTagline {
-  font-size: var(--font-size-body-xl);
+  font-size: clamp(var(--font-size-hint), calc(var(--panel-h, 320px) * 0.08), var(--font-size-body-xl));
   color: var(--text-white);
-  max-width: 480px;
+  max-width: min(480px, var(--panel-w, 480px));
   line-height: var(--line-height-relaxed);
   opacity: 0.7;
 }
 
 .introScroll {
-  margin-top: var(--spacing-xl);
+  /* 얕은 판에서는 이 여백부터 줄인다 — 안내 한 줄을 위해 제목을 더 줄일 수는 없다 */
+  margin-top: clamp(var(--spacing-2xs), calc(var(--panel-h, 320px) * 0.06), var(--spacing-xl));
   font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-size: clamp(var(--font-size-micro), calc(var(--panel-h, 320px) * 0.05), var(--font-size-hint));
   letter-spacing: 0.2em;
   color: var(--text-white);
   animation: introScrollBounce 2.5s ease-in-out infinite;

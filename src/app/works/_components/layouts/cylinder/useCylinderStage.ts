@@ -237,11 +237,14 @@ export function useCylinderStage({
         bottom: ((cy + panelHalfHpx * shrink) / window.innerHeight) * 100,
       };
 
-      /* 인트로 글자는 판 안에 들어가야 한다 — 판의 실제 너비를 넘겨 제목 크기와 줄바꿈이 그것을
-         따르게 한다. 글자는 CSS 크기(vw)로만 잡혀 있어서 창이 좁거나 판이 멀면 판 밖으로 넘쳤다 */
-      const introEl = slotRefs.current.get(0);
-      if (introEl) {
-        introEl.style.setProperty("--panel-w", `${Math.round(panelHalfWpx * shrink * 2)}px`);
+      /* 글자는 판 안에 들어가야 한다 — 판이 화면에서 차지하는 너비와 높이를 모든 칸에 넘겨 글자
+         크기가 그것을 따르게 한다. 글자 크기가 창 너비(vw)로만 잡혀 있어서, 창이 좁거나 판이
+         멀어져 판이 작아지면 제목이 판 밖으로 나갔다. 칸은 모두 같은 크기라 값도 하나다 */
+      const panelWpx = Math.round(panelHalfWpx * shrink * 2);
+      const panelHpx = Math.round(panelHalfHpx * shrink * 2);
+      for (const el of slotRefs.current.values()) {
+        el.style.setProperty("--panel-w", `${panelWpx}px`);
+        el.style.setProperty("--panel-h", `${panelHpx}px`);
       }
 
       // intro 일 때만 댓글 버블 보이기
