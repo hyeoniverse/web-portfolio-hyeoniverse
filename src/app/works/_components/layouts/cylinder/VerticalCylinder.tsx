@@ -148,7 +148,9 @@ export default function VerticalCylinder({ allImages, segAngle, arc, scrollRef, 
       const mesh = meshRefs.current[mi];
       if (!mesh?.material) continue;
       const mat = mesh.material as THREE.MeshBasicMaterial;
-      const targetBright = mi === hoveredMeshIdx ? 0.3 : 1;
+      /* 인트로 칸(0번)은 눌러서 갈 곳이 없다 — 올렸다고 어두워지면 눌러도 되는 것처럼 보이고,
+         밝은 테마의 꽃 판에서는 그냥 때가 탄 것처럼 보인다(#1062). 작업물 칸만 어두워진다 */
+      const targetBright = mi > 0 && mi === hoveredMeshIdx ? 0.3 : 1;
       const cur = mat.color.r;
       const next = cur + (targetBright - cur) * 0.12;
       mat.color.setScalar(next);
