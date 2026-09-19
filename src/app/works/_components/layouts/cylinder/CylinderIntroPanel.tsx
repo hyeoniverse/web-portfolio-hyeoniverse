@@ -3,7 +3,7 @@
 import type { RefObject } from "react";
 import T from "@/components/ui/T";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
-import { textUnits } from "./textUnits";
+import { textUnits } from "../../../_utils";
 import styles from "./CylinderIntroPanel.module.css";
 
 /* 슬롯 0 — 3D 인트로 패널 위에 겹쳐 놓는 HTML 오버레이.

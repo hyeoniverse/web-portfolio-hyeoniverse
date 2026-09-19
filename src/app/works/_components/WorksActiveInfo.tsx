@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
+import { textUnits } from "../_utils";
 import T from "@/components/ui/T";
 import type { Project } from "@/data/projects";
 import styles from "./WorksActiveInfo.module.css";
@@ -20,7 +21,15 @@ export default function WorksActiveInfo({
   return (
     <div
       className={styles.activeInfo}
-      style={{ opacity: hidden ? 0 : 1, transition: "opacity 0.4s ease" }}
+      /* 제목이 길수록 글자를 줄인다 — 두 언어 중 긴 쪽을 기준으로 잡아 언어를 바꿀 때 크기가
+         뛰지 않게 한다(#1062) */
+      style={{
+        opacity: hidden ? 0 : 1,
+        transition: "opacity 0.4s ease",
+        ["--title-units" as string]: String(
+          Math.max(8, textUnits(active?.title.ko ?? ""), textUnits(active?.title.en ?? "")),
+        ),
+      }}
     >
       <AnimatePresence mode="wait">
         <motion.div
