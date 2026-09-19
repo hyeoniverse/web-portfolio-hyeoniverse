@@ -210,3 +210,18 @@
 .skillRemoveBtn:hover .skillRemoveLine:last-child {
   transform: rotate(-45deg);
 }
+
+/* ko·en 을 나란히 두는 격자 — 규칙이 없어 두 칸이 사이 없이 붙어 있었다.
+   설정 화면의 다른 이중언어 칸(.fieldPair)과 같은 간격·같은 접힘 폭을 쓴다 */
+.profileGrid {
+  display: grid;
+  grid-template-columns: var(--grid-cols-2);
+  gap: var(--spacing-xs) var(--spacing-md);
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .profileGrid {
+    grid-template-columns: 1fr;
+  }
+}

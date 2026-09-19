@@ -89,9 +89,17 @@
   display: flex;
   align-items: center;
   align-self: flex-start;
+  /* 자리가 모자라면 다음 줄로 내린다 — 좁은 칸(프로필 편집기의 두 열)에서 연·월·일이 서로
+     밀려 겹쳐 보였다. 줄바꿈이 없으면 각 칸이 제 너비 아래로 눌린다 */
+  flex-wrap: wrap;
   gap: var(--spacing-2xs);
   flex: 1;
   min-width: 0;
+}
+
+/* 연·월·일 칸은 줄지 않는다 — 줄이 모자라면 줄을 바꾼다 */
+.dateInputs > * {
+  flex: 0 0 auto;
 }
 
 .yearInput {

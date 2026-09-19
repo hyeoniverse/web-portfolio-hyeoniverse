@@ -270,12 +270,16 @@ export interface Certification {
   period: DatePeriod;
   name: LocalizedText;
   issuer: LocalizedText;
+  /** 등급·점수 — 자격증은 급수(1급)로, 어학은 점수(775점)로 적는다. 없으면 안 나온다 */
+  grade?: LocalizedText;
 }
 
 export interface Award {
   period: DatePeriod;
   name: LocalizedText;
   organization: LocalizedText;
+  /** 수상 내용 — 무엇으로 받았는지 한 줄. 없으면 안 나온다 */
+  description?: LocalizedText;
 }
 
 export const certifications: Certification[] = [

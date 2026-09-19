@@ -169,3 +169,14 @@
 .storyRow .removeBtn:hover {
   color: var(--text-error-strong);
 }
+
+/* ko·en 을 좌우로 나란히 둔 칸 — 글 길이가 달라 키가 어긋나면 줄이 층져 보인다.
+   줄 안에서 큰 쪽에 맞춘다(격자가 늘려 주는 것은 바깥 껍데기뿐이라 안쪽 상자까지 내려 준다) */
+.langPair > * {
+  height: 100%;
+}
+
+.langPair [contenteditable],
+.langPair textarea {
+  height: 100%;
+}

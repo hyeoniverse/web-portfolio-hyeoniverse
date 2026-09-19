@@ -925,6 +925,8 @@
         "title": "제목",
         "number": "번호",
         "issuer": "발급처",
+        "grade": "등급 · 점수",
+        "awardDescription": "수상 내용",
         "year": "년도",
         "organization": "기관"
       },

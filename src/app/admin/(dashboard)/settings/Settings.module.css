@@ -92,6 +92,28 @@
   letter-spacing: 0.06em;
 }
 
+/* L2 · L3 — 이름만 여러 화면에서 불리고 규칙이 어디에도 없었다(설정 CSS 를 컴포넌트별로
+   나눌 때 빠진 것으로 보인다). 규칙이 없으면 클래스가 아예 안 붙어 브라우저 기본값이 나온다 —
+   h3 기본 크기(1.17em 굵게)라 위의 섹션 제목(16px)보다 커 보였다. */
+.sectionSubTitle {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin: 0;
+  letter-spacing: 0.02em;
+}
+
+.fieldGroupLabel {
+  display: block;
+  margin-bottom: var(--spacing-3xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-hint);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-tertiary);
+  letter-spacing: 0.02em;
+}
+
 .sectionTitleRow {
   display: flex;
   align-items: center;

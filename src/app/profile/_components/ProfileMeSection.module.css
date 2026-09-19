@@ -885,6 +885,15 @@
   color: var(--text-primary);
 }
 
+/* 수상 내용 — 기관 이름 아래 한 줄. 이름·기관보다 약하게 둔다 */
+.credentialNote {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: 0.8rem;
+  font-weight: 300;
+  line-height: var(--line-height-relaxed);
+  color: var(--text-muted);
+}
+
 .credentialOrg {
   font-family: var(--font-mono);
   font-size: 0.8rem;

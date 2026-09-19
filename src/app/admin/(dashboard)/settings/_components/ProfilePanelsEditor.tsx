@@ -73,24 +73,25 @@ export default function ProfilePanelsEditor({
       ),
     );
 
-  /** ko / en 한 쌍 — 다른 설정 섹션의 이중언어 입력과 같은 격자를 쓴다. */
+  /** ko / en 한 쌍 — 다른 설정 섹션의 이중언어 입력과 같은 격자·같은 크기(md)를 쓴다.
+   *  어느 쪽 언어인지는 칸 안의 KO·EN 배지가 말한다(다른 섹션과 같은 방식). */
   const pair = (
     value: LocalizedText,
     onChange: (next: LocalizedText) => void,
     multiline = false,
   ) => (
-    <div className={outer.fieldPair}>
+    <div className={`${outer.fieldPair} ${styles.langPair}`}>
       {multiline ? (
         <>
           {/* maxHint — 카운터가 뜨고 한도를 넘긴 글자에 표시가 붙는다. 잘라내지는 않아서
               쓰는 도중에 문장이 끊기지 않고, 넘겼다는 건 바로 보인다. */}
-          <Textarea size="sm" maxHint={MAX_STORY_CHARS} value={value.ko} onChange={(v) => onChange({ ...value, ko: v })} placeholder="한국어" rows={2} />
-          <Textarea size="sm" maxHint={MAX_STORY_CHARS} value={value.en} onChange={(v) => onChange({ ...value, en: v })} placeholder="English" rows={2} />
+          <Textarea size="md" inlineLabel="KO" maxHint={MAX_STORY_CHARS} value={value.ko} onChange={(v) => onChange({ ...value, ko: v })} rows={2} />
+          <Textarea size="md" inlineLabel="EN" maxHint={MAX_STORY_CHARS} value={value.en} onChange={(v) => onChange({ ...value, en: v })} rows={2} />
         </>
       ) : (
         <>
-          <Input size="sm" value={value.ko} onChange={(v) => onChange({ ...value, ko: v })} placeholder="한국어" />
-          <Input size="sm" value={value.en} onChange={(v) => onChange({ ...value, en: v })} placeholder="English" />
+          <Input size="md" inlineLabel="KO" value={value.ko} onChange={(v) => onChange({ ...value, ko: v })} />
+          <Input size="md" inlineLabel="EN" value={value.en} onChange={(v) => onChange({ ...value, en: v })} />
         </>
       )}
     </div>

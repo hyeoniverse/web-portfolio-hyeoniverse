@@ -432,6 +432,7 @@ export default function ProfileMeSection({ profileData, showcase }: ProfileMeSec
                         </h5>
                         <span className={styles.credentialOrg}>
                           {cert.issuer[language]}
+                          {cert.grade?.[language] ? ` · ${cert.grade[language]}` : ""}
                         </span>
                       </div>
                     </div>
@@ -457,6 +458,9 @@ export default function ProfileMeSection({ profileData, showcase }: ProfileMeSec
                         <span className={styles.credentialOrg}>
                           {award.organization[language]}
                         </span>
+                        {award.description?.[language] && (
+                          <span className={styles.credentialNote}>{award.description[language]}</span>
+                        )}
                       </div>
                     </div>
                   ))}
