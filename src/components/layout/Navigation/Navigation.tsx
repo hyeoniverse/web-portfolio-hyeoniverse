@@ -694,42 +694,42 @@ export default function Navigation() {
           </Pressable>
         </Tooltip>
 
-        {/* 사운드 토글 — admin에서 숨김 */}
-        {!isAdminPage && (
-          <div className={styles.soundBtnWrap}>
-            <Tooltip content={language === "ko" ? "배경 음악" : "Background music"} delay={600} placement="bottom">
-              <Pressable noTapScale
-                className={styles.actionBtn}
-                onClick={handleSoundToggle}
-                onMouseEnter={() => { setIsSoundHovered(true); setShowSoundTip(false); }}
-                onMouseLeave={() => { setIsSoundLocked(false); setIsSoundHovered(false); }}
-                aria-label={isMuted ? "Unmute sounds" : "Mute sounds"}
-                aria-pressed={!isMuted}
+        {/* 사운드 토글 — admin 에서도 보인다. 배경음은 루트 레이아웃이 재생하므로 admin 에서도
+            계속 나는데, 버튼을 숨겨 두면 끌 방법이 없었다. 처음 오는 사람에게 띄우는 안내
+            말풍선만 공개 화면 몫이다(위 showSoundTip 효과가 admin 을 건너뛴다) */}
+        <div className={styles.soundBtnWrap}>
+          <Tooltip content={language === "ko" ? "배경 음악" : "Background music"} delay={600} placement="bottom">
+            <Pressable noTapScale
+              className={styles.actionBtn}
+              onClick={handleSoundToggle}
+              onMouseEnter={() => { setIsSoundHovered(true); setShowSoundTip(false); }}
+              onMouseLeave={() => { setIsSoundLocked(false); setIsSoundHovered(false); }}
+              aria-label={isMuted ? "Unmute sounds" : "Mute sounds"}
+              aria-pressed={!isMuted}
+            >
+            <span className={`${styles.soundIconWrapper} ${isSoundClicking ? styles.clicking : ""}`}>
+              <svg
+                className={`${styles.soundIcon} ${showMutedIcon ? styles.soundIconMuted : ""}`}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
               >
-              <span className={`${styles.soundIconWrapper} ${isSoundClicking ? styles.clicking : ""}`}>
-                <svg
-                  className={`${styles.soundIcon} ${showMutedIcon ? styles.soundIconMuted : ""}`}
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                >
-                  <path d="M11 5L6 9H2v6h4l5 4V5z" />
-                  <path className={styles.waveOuter} d="M19.07 4.93a10 10 0 0 1 0 14.14" />
-                  <path className={styles.waveInner} d="M15.54 8.46a5 5 0 0 1 0 7.07" />
-                  <line className={styles.xLine} x1="23" y1="9" x2="17" y2="15" />
-                  <line className={styles.xLine} x1="17" y1="9" x2="23" y2="15" />
-                </svg>
-              </span>
-              </Pressable>
-            </Tooltip>
-            {showSoundTip && (
-              <span className={styles.soundTip} onClick={() => setShowSoundTip(false)}>
-                {language === "ko" ? "BGM을 켤 수 있어요" : "Enable BGM"}
-              </span>
-            )}
-          </div>
-        )}
+                <path d="M11 5L6 9H2v6h4l5 4V5z" />
+                <path className={styles.waveOuter} d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+                <path className={styles.waveInner} d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                <line className={styles.xLine} x1="23" y1="9" x2="17" y2="15" />
+                <line className={styles.xLine} x1="17" y1="9" x2="23" y2="15" />
+              </svg>
+            </span>
+            </Pressable>
+          </Tooltip>
+          {showSoundTip && (
+            <span className={styles.soundTip} onClick={() => setShowSoundTip(false)}>
+              {language === "ko" ? "BGM을 켤 수 있어요" : "Enable BGM"}
+            </span>
+          )}
+        </div>
 
         {/* 테마 토글 */}
         <Tooltip content={language === "ko" ? "테마 전환" : "Toggle theme"} delay={600} placement="bottom">
