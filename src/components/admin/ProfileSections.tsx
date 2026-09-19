@@ -566,6 +566,14 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
                 <Input size="md" inlineLabel="EN" value={cert.issuer.en} onChange={(v) => updateCertification(i, "issuer.en", v)} />
               </div>
             </div>
+            {/* 등급·점수 — 급수(1급)나 점수(775점). 비우면 화면에 안 나온다 */}
+            <div className={styles.fieldGroup}>
+              <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.grade" /></label>
+              <div className={styles.profileGrid}>
+                <Input size="md" inlineLabel="KO" value={cert.grade?.ko ?? ""} onChange={(v) => updateCertification(i, "grade.ko", v)} />
+                <Input size="md" inlineLabel="EN" value={cert.grade?.en ?? ""} onChange={(v) => updateCertification(i, "grade.en", v)} />
+              </div>
+            </div>
           </>)}
         />
         </div>
@@ -611,6 +619,14 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
               <div className={styles.profileGrid}>
                 <Input size="md" inlineLabel="KO" value={award.organization.ko} onChange={(v) => updateAward(i, "organization.ko", v)} />
                 <Input size="md" inlineLabel="EN" value={award.organization.en} onChange={(v) => updateAward(i, "organization.en", v)} />
+              </div>
+            </div>
+            {/* 수상 내용 — 무엇으로 받았는지 한 줄. 비우면 화면에 안 나온다 */}
+            <div className={styles.fieldGroup}>
+              <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.awardDescription" /></label>
+              <div className={styles.profileGrid}>
+                <Textarea size="md" inlineLabel="KO" rows={2} value={award.description?.ko ?? ""} onChange={(v) => updateAward(i, "description.ko", v)} />
+                <Textarea size="md" inlineLabel="EN" rows={2} value={award.description?.en ?? ""} onChange={(v) => updateAward(i, "description.en", v)} />
               </div>
             </div>
           </>)}

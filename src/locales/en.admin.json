@@ -925,6 +925,8 @@
         "title": "Title",
         "number": "Number",
         "issuer": "Issuer",
+        "grade": "Grade · Score",
+        "awardDescription": "What it was for",
         "year": "Year",
         "organization": "Organization"
       },
