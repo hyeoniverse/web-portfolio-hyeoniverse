@@ -3,9 +3,11 @@
 import {
   useRef,
   useState,
+  useEffect,
   useLayoutEffect,
   useCallback,
   useId,
+  type RefObject,
   type TextareaHTMLAttributes,
   type FormEvent,
   type CompositionEvent,
@@ -34,6 +36,48 @@ const MAX_HINT_PRESETS: Record<MaxHintPreset, number> = {
 function resolveMaxHint(v: number | MaxHintPreset | undefined): number | undefined {
   if (v == null) return undefined;
   return typeof v === "string" ? MAX_HINT_PRESETS[v] : v;
+}
+
+/** 휠 가둠·놓아줌 판정에 쓰는 여유(px) — 소수점 스크롤 위치에서 끝을 못 알아보는 것 방지 */
+const EDGE_TOL = 1;
+
+/** 안에서 더 굴릴 수 있을 때만 휠을 글상자 안에 가둔다.
+ *  data-lenis-prevent 를 붙여 두면 전역 Lenis 가 이 위의 휠을 아예 보지 않아, 안에서 더 굴릴
+ *  데가 없어도 페이지가 멈춘다. Lenis 는 휠마다 composedPath 를 훑어 이 표시를 확인하고, 우리
+ *  리스너가 window 보다 먼저 도므로 같은 이벤트에서 붙였다 떼는 것으로 가둠과 놓아줌이 갈린다
+ *  (가로 섹션이 쓰는 방법과 같다). 터치는 브라우저가 안쪽부터 굴리고 끝에서 페이지로 넘기므로
+ *  표시를 그대로 둔다. */
+function useWheelHandoff(ref: RefObject<HTMLElement | null>) {
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const onWheel = (e: WheelEvent) => {
+      const max = el.scrollHeight - el.clientHeight;
+      const hold =
+        max > EDGE_TOL &&
+        ((e.deltaY > 0 && el.scrollTop < max - EDGE_TOL) ||
+          (e.deltaY < 0 && el.scrollTop > EDGE_TOL));
+      el.toggleAttribute("data-lenis-prevent-wheel", hold);
+    };
+    el.addEventListener("wheel", onWheel, { passive: true });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, [ref]);
+}
+
+/** 손을 멈추고 이만큼 지나면 지우개·글자수가 돌아온다(ms) */
+const TYPING_QUIET_MS = 900;
+
+/** 타이핑하는 동안에는 우하단 지우개·글자수를 물린다 — 방금 친 글자를 가리기 때문이다. */
+function useTypingQuiet() {
+  const [typing, setTyping] = useState(false);
+  const timer = useRef<number | undefined>(undefined);
+  const markTyping = useCallback(() => {
+    setTyping(true);
+    window.clearTimeout(timer.current);
+    timer.current = window.setTimeout(() => setTyping(false), TYPING_QUIET_MS);
+  }, []);
+  useEffect(() => () => window.clearTimeout(timer.current), []);
+  return [typing, markTyping] as const;
 }
 
 interface TextareaProps
@@ -93,6 +137,8 @@ function PlainTextarea({
 }: TextareaProps) {
   const clearLabel = useLanguage().t("common.clear");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [typing, markTyping] = useTypingQuiet();
+  useWheelHandoff(textareaRef);
   const inputCls = [
     styles.textarea,
     variant === "underline" ? styles.underline : "",
@@ -139,9 +185,9 @@ function PlainTextarea({
           id={id}
           className={inputCls}
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e) => { markTyping(); onChange(e.target.value); }}
           rows={rows}
-          data-lenis-prevent
+          data-lenis-prevent-touch
           {...rest}
         />
         {!rest.disabled && !rest.readOnly && (
@@ -156,7 +202,7 @@ function PlainTextarea({
             예전에는 이쪽만 우상단에 맨몸으로 떠 있어서, 같은 컴포넌트인데 maxLength 유무로
             버튼 위치와 크기가 달라 보였다. 카운터가 없으니 chip 은 값이 있을 때만 그린다. */}
         {!!value && !rest.disabled && !rest.readOnly && (
-          <div className={styles.bottomRow}>
+          <div className={styles.bottomRow} data-typing={typing || undefined}>
             <Pressable noTapScale
               type="button"
               className={styles.clearBtn}
@@ -273,6 +319,8 @@ function EditableTextarea({
   const generatedId = useId();
   const id = idProp ?? generatedId;
   const ref = useRef<HTMLDivElement>(null);
+  const [typing, markTyping] = useTypingQuiet();
+  useWheelHandoff(ref);
   const isComposingRef = useRef(false);
   /* placeholder 표시용 — ref 는 리렌더를 안 일으켜 렌더에 못 쓴다.
      조합 중엔 handleInput 이 early return 해서 value 가 "" 로 남는데, 조합 중인 글자는
@@ -335,25 +383,27 @@ function EditableTextarea({
   // (textContent 는 block 경계 줄바꿈을 잃어 저장값에 \n 이 안 남았음). caret offset 도 innerText 기준.
   const handleInput = useCallback(
     (e: FormEvent<HTMLDivElement>) => {
+      markTyping(); // 조합 중(한글)에도 글자는 들어오므로 early return 앞에서 부른다
       if (isComposingRef.current) return; // composition 끝나면 onCompositionEnd 에서 처리
       const raw = e.currentTarget.innerText ?? "";
       const text = capAndSync(e.currentTarget, raw);
       notifyOverflow(raw);
       onChange(text);
     },
-    [onChange, capAndSync, notifyOverflow],
+    [onChange, capAndSync, notifyOverflow, markTyping],
   );
 
   const handleCompositionEnd = useCallback(
     (e: CompositionEvent<HTMLDivElement>) => {
       isComposingRef.current = false;
       setComposing(false);
+      markTyping();
       const raw = e.currentTarget.innerText ?? "";
       const text = capAndSync(e.currentTarget, raw);
       notifyOverflow(raw);
       onChange(text);
     },
-    [onChange, capAndSync, notifyOverflow],
+    [onChange, capAndSync, notifyOverflow, markTyping],
   );
 
   // Tab 들여쓰기 (opt-in) — 2칸 공백 삽입. Shift+Tab 은 기본(포커스 뒤로) 유지.
@@ -419,7 +469,7 @@ function EditableTextarea({
           className={inputCls}
           data-placeholder={placeholder}
           data-empty={isEmpty || undefined}
-          data-lenis-prevent
+          data-lenis-prevent-touch
           onInput={handleInput}
           onKeyDown={handleKeyDown}
           onCompositionStart={() => { isComposingRef.current = true; setComposing(true); }}
@@ -436,7 +486,7 @@ function EditableTextarea({
           />
         )}
         {/* 지우개 + 카운터 — textarea 안쪽 우하단 오버레이 */}
-        <div className={styles.bottomRow}>
+        <div className={styles.bottomRow} data-typing={typing || undefined}>
           {/* 지우개 — 빈 값이면 visibility 로만 숨겨 공간을 유지(카운터 위치 고정, 움찔 방지) */}
           {!disabled && (
             <Pressable noTapScale
