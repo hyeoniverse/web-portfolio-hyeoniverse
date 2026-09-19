@@ -123,12 +123,13 @@ function paintBlossomPanel(ctx: CanvasRenderingContext2D, s: number): void {
     ctx.fillRect(0, 0, s, s);
   }
 
-  /* 세 겹 — 뒤는 크고 흐리게, 앞은 또렷하게. 앞 겹이 흐리면 전체가 분홍 얼룩으로만 보인다.
+  /* 세 겹 — 뒤는 크고 흐리게, 앞은 작고 살짝만 흐리게. 앞 겹을 크고 진하게 두면 종이 꽃을 붙인 것
+     처럼 보이고, 셋 다 흐리면 분홍 얼룩만 남는다. 그 사이를 잡는다.
      기울기는 한 방향으로 몰아 흩날리는 결을 만든다(완전히 무작위면 어느 방향으로 날리는지 읽히지 않는다) */
   const layers = [
-    { count: 8, blur: 10, len: 120, alpha: 0.26, vein: false, seed: 3 },
-    { count: 16, blur: 4, len: 70, alpha: 0.4, vein: false, seed: 31 },
-    { count: 9, blur: 0, len: 84, alpha: 0.72, vein: true, seed: 67 },
+    { count: 10, blur: 12, len: 104, alpha: 0.2, vein: false, seed: 3 },
+    { count: 18, blur: 5, len: 58, alpha: 0.3, vein: false, seed: 31 },
+    { count: 12, blur: 1.4, len: 40, alpha: 0.5, vein: false, seed: 67 },
   ];
   for (const layer of layers) {
     ctx.filter = layer.blur > 0 ? `blur(${layer.blur}px)` : "none";
@@ -150,8 +151,8 @@ function paintBlossomPanel(ctx: CanvasRenderingContext2D, s: number): void {
       /* 꽃잎 안에서 밝기가 흐른다 — 한 색으로 채우면 종이 조각처럼 보인다.
          뾰족한 끝이 밝고 밑동이 짙다 */
       const fill = ctx.createLinearGradient(0, -len * 0.5, 0, len * 0.5);
-      fill.addColorStop(0, warm ? `rgba(255,235,214,${layer.alpha})` : `rgba(255,226,235,${layer.alpha})`);
-      fill.addColorStop(1, warm ? `rgba(238,160,136,${layer.alpha})` : `rgba(232,142,174,${layer.alpha})`);
+      fill.addColorStop(0, warm ? `rgba(255,240,226,${layer.alpha})` : `rgba(255,234,240,${layer.alpha})`);
+      fill.addColorStop(1, warm ? `rgba(246,196,176,${layer.alpha})` : `rgba(242,180,202,${layer.alpha})`);
       ctx.fillStyle = fill;
       petalPath(ctx, len, wid);
       ctx.fill();
