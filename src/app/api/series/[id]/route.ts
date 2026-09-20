@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { requireAuth } from "@/lib/api/requireAuth";
 import { jsonError, jsonOk, jsonServerError } from "@/lib/api/response";
 import { SERIES_TITLE_MAX } from "@/types/post";
+import { topPostCategory } from "@/lib/seriesCategory";
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -35,7 +36,12 @@ export async function GET(_request: Request, context: RouteContext) {
     .eq("series_id", id)
     .order("series_order", { ascending: true });
 
-  return jsonOk({ ...series, posts: posts ?? [] });
+  /* 카테고리는 소속 글에서 도출한다 — DB 컬럼은 #326 이전 값이 남은 legacy */
+  return jsonOk({
+    ...series,
+    category: topPostCategory((posts ?? []).map((p) => p.category)),
+    posts: posts ?? [],
+  });
 }
 
 // PATCH /api/series/[id] — 시리즈 수정 (admin only)

@@ -4,6 +4,7 @@ import type { Post, Series } from "@/types/post";
 import { fetchUnsplashCover } from "@/lib/unsplash";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 import { getPopularPostIds } from "@/lib/popularity";
+import { topPostCategory } from "@/lib/seriesCategory";
 
 /**
  * 첫 화면에 서버가 내려보내는 글 수.
@@ -396,16 +397,19 @@ export async function getAllSeriesData() {
 
   const postCounts: Record<string, number> = {};
   const firstCoverBySeriesId: Record<string, string | null> = {};
+  /* 시리즈 카테고리는 소속 글에서 도출한다 — series.category 컬럼은 legacy(#326) */
+  const categoriesBySeriesId: Record<string, string[]> = {};
 
   if (ids.length > 0) {
     const { data: postsRaw } = await admin
       .from("posts")
-      .select("series_id, cover_image, series_order")
+      .select("series_id, cover_image, series_order, category")
       .eq("published", true)
       .in("series_id", ids)
       .order("series_order", { ascending: true });
-    for (const row of (postsRaw ?? []) as { series_id: string; cover_image: string | null; series_order: number }[]) {
+    for (const row of (postsRaw ?? []) as { series_id: string; cover_image: string | null; series_order: number; category: string | null }[]) {
       postCounts[row.series_id] = (postCounts[row.series_id] ?? 0) + 1;
+      (categoriesBySeriesId[row.series_id] ??= []).push(row.category ?? "");
       if (!(row.series_id in firstCoverBySeriesId)) {
         firstCoverBySeriesId[row.series_id] = row.cover_image;
       }
@@ -415,6 +419,7 @@ export async function getAllSeriesData() {
   return {
     series: seriesList.map((s) => ({
       ...s,
+      category: topPostCategory(categoriesBySeriesId[s.id] ?? []),
       post_count: postCounts[s.id] ?? 0,
       first_cover: firstCoverBySeriesId[s.id] ?? null,
     })),
@@ -443,6 +448,8 @@ export async function getSeriesPageData(slug: string) {
     .order("series_order", { ascending: true })
     .order("created_at", { ascending: true });
   const posts = (postsRaw ?? []) as Post[];
+  /* 상세 머리의 카테고리도 같은 기준 — 소속 글 중 가장 많은 것 */
+  series.category = topPostCategory(posts.map((p) => p.category));
 
   return { series: { ...series, post_count: posts.length }, posts, totalCount: posts.length };
 }
