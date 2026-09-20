@@ -339,7 +339,7 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
           )}
           <Button
             variant={filterExpanded || activeFilterCount > 0 ? "primary" : "outline"}
-            size="sm"
+            size="md"
             icon={<Filter size={12} />}
             onClick={() => setFilterExpanded((e) => !e)}
           >
@@ -358,7 +358,6 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
             value={sortBy}
             onChange={handleSortByChange}
             sortDir={sortDir}
-            size="sm"
           />
           <div className={shared.tagDescSearchEnd}>
             <SearchCapsule
@@ -375,7 +374,6 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
               onSearchChange={setSearch}
               placeholder={t("admin.posts.seriesSearch")}
               align="left"
-              size="sm"
             />
           </div>
         </div>

@@ -214,7 +214,7 @@
 .seriesSelectAll {
   display: flex;
   align-items: center;
-  height: var(--control-h-sm);
+  height: var(--control-h-md);
   padding-left: var(--spacing-3xs);
 }
 

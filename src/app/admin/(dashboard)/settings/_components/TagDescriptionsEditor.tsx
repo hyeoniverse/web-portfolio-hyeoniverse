@@ -638,7 +638,7 @@ export default function TagDescriptionsEditor({ value, onChange, pendingDeletes,
       <div className={styles.tagDescFilterRow}>
         <Button
           variant={filterExpanded || activeFilterCount > 0 ? "primary" : "outline"}
-          size="sm"
+          size="md"
           icon={<Filter size={12} />}
           onClick={() => setFilterExpanded((e) => !e)}
         >
@@ -660,7 +660,6 @@ export default function TagDescriptionsEditor({ value, onChange, pendingDeletes,
           onSubChange={(v) => setNameLang(v as NameLang)}
           subVariant="nested"
           onBack={() => setSortBy("freq")}
-          size="sm"
         />
         <span className={styles.tagDescCount}>{filtered.length} / {allTags.length}</span>
         <Popover
@@ -673,7 +672,7 @@ export default function TagDescriptionsEditor({ value, onChange, pendingDeletes,
           sheetTitle={t("admin.settings.tagEditor.addTitle")}
           className={styles.addPopoverTrigger}
           trigger={
-            <Button variant="outline" size="sm" icon={<Plus size={12} strokeWidth={2} />}>
+            <Button variant="outline" size="md" icon={<Plus size={12} strokeWidth={2} />}>
               {t("admin.settings.add")}
             </Button>
           }
@@ -700,7 +699,6 @@ export default function TagDescriptionsEditor({ value, onChange, pendingDeletes,
             onSearchChange={setSearch}
             placeholder={t("admin.settings.tagEditor.searchPlaceholder")}
             align="left"
-            size="sm"
           />
         </div>
       </div>
