@@ -24,6 +24,10 @@ import { AnimatePresence } from "framer-motion";
 import SeriesInlineEditor, { type SeriesInlineEditorHandle } from "./SeriesInlineEditor";
 import { Switch } from "@/components/ui/Switch";
 import SeriesDeleteModal from "./SeriesDeleteModal";
+import Checkbox from "@/components/ui/Checkbox";
+import { ModalConfirm } from "@/components/ui/ModalTemplates";
+import { subTableStyles as subTable } from "@/components/admin/SubTable/SubTable";
+import { fillTemplate } from "@/utils/format";
 import { sendAction, sendActions } from "@/lib/sendAction";
 import styles from "./SeriesManager.module.css";
 import shared from "../Settings.module.css";
@@ -52,6 +56,12 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
   const closingTimer = useRef<ReturnType<typeof setTimeout>>(null);
   const [creatingNew, setCreatingNew] = useState(false);
   const [page, setPage] = useState(0);
+  /* 일괄 처리용 선택 — 카드마다 체크박스, 쪽/조건이 바뀌면 비운다 */
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkBusy, setBulkBusy] = useState(false);
+  /* 끄는 동안 일괄 바의 열림을 붙잡아 둔 값(끌지 않을 때는 null).
+     끄는 도중에 바가 열리거나 닫히면 그만큼 목록이 오르내려 커서 밑의 카드가 바뀐다. */
+  const [frozenBulkBarOpen, setFrozenBulkBarOpen] = useState<boolean | null>(null);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [searchType, setSearchType] = useState<"all" | "title" | "desc">("all");
@@ -93,8 +103,34 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
   // grip handle 을 mousedown 했을 때만 카드의 draggable 이 켜짐 — 다른 영역 클릭으로는 드래그 시작 X
   const [armedId, setArmedId] = useState<string | null>(null);
 
+  /* 카드를 펼칠 때의 글 수를 적어 둔다 — 저장하지 않고 접으면 이 값으로 되돌린다 */
+  const countSnapshot = useRef<Map<string, number>>(new Map());
+
+  const applyPostCount = useCallback((id: string, count: number) => {
+    setSeriesList((prev) => {
+      const idx = prev.findIndex((item) => item.id === id);
+      if (idx === -1 || prev[idx].post_count === count) return prev;
+      const next = [...prev];
+      next[idx] = { ...next[idx], post_count: count };
+      return next;
+    });
+  }, []);
+
+  const expandCard = useCallback((item: Series) => {
+    countSnapshot.current.set(item.id, item.post_count ?? 0);
+    setExpandedId(item.id);
+  }, []);
+
   const collapseId = useCallback((id: string | null) => {
     if (!id) { setExpandedId(null); return; }
+    /* 편집 중에 앞당겨 바꿔 둔 글 수를 원래대로 — 저장했다면 뒤이은 fetchSeries 가 다시 덮는다 */
+    const snapshot = countSnapshot.current.get(id);
+    countSnapshot.current.delete(id);
+    if (snapshot !== undefined) {
+      setSeriesList((prev) => prev.map((item) => (
+        item.id === id && item.post_count !== snapshot ? { ...item, post_count: snapshot } : item
+      )));
+    }
     setClosingId(id);
     setExpandedId(null);
     if (closingTimer.current) clearTimeout(closingTimer.current);
@@ -109,7 +145,7 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
 
   /* search/searchType/sort/filter 변경 시 page 0 으로 리셋 */
   const filtersChanged = useDepsChanged([debouncedSearch, searchType, sortBy, sortDir, publishFilter, descFilter]);
-  if (filtersChanged) setPage(0);
+  if (filtersChanged) { setPage(0); setSelected(new Set()); }
 
   const fetchSeries = useCallback(async () => {
     try {
@@ -144,6 +180,90 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
   }, [page, debouncedSearch, searchType, sortBy, sortDir, publishFilter, descFilter]);
 
   useEffect(() => { fetchSeries(); }, [fetchSeries]);
+
+  useEffect(() => {
+    const onMouseUp = () => { selectDragStart.current = null; setFrozenBulkBarOpen(null); };
+    /* 끄는 동안 카드 글자가 잡히지 않게 — mousedown 을 막으면 체크박스 클릭까지 죽는다 */
+    const onSelectStart = (e: Event) => { if (selectDragStart.current !== null) e.preventDefault(); };
+    window.addEventListener("mouseup", onMouseUp);
+    document.addEventListener("selectstart", onSelectStart);
+    return () => {
+      window.removeEventListener("mouseup", onMouseUp);
+      document.removeEventListener("selectstart", onSelectStart);
+    };
+  }, []);
+
+  /* ── 일괄 처리 ── */
+  const toggleSelect = (id: string) => setSelected((prev) => {
+    const next = new Set(prev);
+    if (next.has(id)) next.delete(id); else next.add(id);
+    return next;
+  });
+  /* 드래그로 여러 개 — 누른 카드에서 시작해 지나는 카드까지 한 번에 켜거나 끈다(글 추가 목록과 같은 방식) */
+  const selectDragStart = useRef<number | null>(null);
+  const selectDragAdding = useRef(true);
+  /* 누른 뒤 실제로 끌어서 범위를 칠했는지 — 칠했다면 이어 오는 click 의 토글은 흘려보낸다 */
+  const selectDragMoved = useRef(false);
+
+  const extendSelectDrag = (idx: number) => {
+    const start = selectDragStart.current;
+    if (start === null || start === idx) return;
+    const lo = Math.min(start, idx);
+    const hi = Math.max(start, idx);
+    selectDragMoved.current = true;
+    setSelected((prev) => {
+      const next = new Set(prev);
+      for (let i = lo; i <= hi; i++) {
+        const id = seriesList[i]?.id;
+        if (!id) continue;
+        if (selectDragAdding.current) next.add(id); else next.delete(id);
+      }
+      return next;
+    });
+  };
+
+  const allSelected = seriesList.length > 0 && seriesList.every((item) => selected.has(item.id));
+  const someSelected = seriesList.some((item) => selected.has(item.id)) && !allSelected;
+  const toggleSelectAll = () => setSelected(allSelected ? new Set() : new Set(seriesList.map((item) => item.id)));
+
+  const bulkPublish = async (published: boolean) => {
+    const ids = [...selected];
+    if (ids.length === 0) return;
+    setBulkBusy(true);
+    const done = await sendActions(
+      ids.map((id) => ({
+        input: `/api/series/${id}`,
+        init: { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ published }) },
+      })),
+      t, t("admin.common.publishFailed"),
+    );
+    setBulkBusy(false);
+    setSelected(new Set());
+    if (done > 0) fetchSeries();
+  };
+
+  const bulkDelete = () => {
+    const ids = [...selected];
+    if (ids.length === 0) return;
+    openModal(
+      <ModalConfirm
+        desc={fillTemplate(t("admin.posts.seriesBulkDeleteConfirm"), { count: ids.length })}
+        confirmText={t("admin.posts.delete")}
+        danger
+        onConfirm={async () => {
+          setBulkBusy(true);
+          const done = await sendActions(
+            ids.map((id) => ({ input: `/api/series/${id}`, init: { method: "DELETE" } })),
+            t, t("admin.common.deleteFailed"),
+          );
+          setBulkBusy(false);
+          setSelected(new Set());
+          if (done > 0) { collapseId(expandedId); fetchSeries(); }
+        }}
+      />,
+      { id: "series-bulk-delete", header: { title: t("admin.posts.delete") }, closeButton: true, width: "400px" },
+    );
+  };
 
   const handleReorder = async (fromIdx: number, toIdx: number) => {
     if (fromIdx === toIdx) return;
@@ -194,6 +314,8 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
   }, [targetSeriesId]);
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  /* 끄는 동안에는 시작할 때의 상태를 유지 — 끝나면 선택 개수를 따른다 */
+  const bulkBarOpen = frozenBulkBarOpen ?? selected.size > 0;
 
   return (
     <div className={styles.seriesList}>
@@ -205,6 +327,16 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
       {/* Toolbar 묶음 — filterRow + drawer (태그/카테고리와 동일 패턴) */}
       <div className={shared.tagDescToolbarWrap}>
         <div className={shared.tagDescFilterRow}>
+          {seriesList.length > 0 && (
+            <span className={styles.seriesSelectAll} title={t("admin.common.selectAll")}>
+              <Checkbox
+                checked={allSelected}
+                indeterminate={someSelected}
+                onChange={toggleSelectAll}
+                shape="square"
+              />
+            </span>
+          )}
           <Button
             variant={filterExpanded || activeFilterCount > 0 ? "primary" : "outline"}
             size="sm"
@@ -291,6 +423,28 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
         </AnimatePresence>
       </div>
 
+      {/* 고른 카드에 한 번에 — 글 목록 화면의 표와 같은 일괄 바.
+          끌어서 고르는 동안에는 열지 않는다(열리면 목록이 내려가 커서 밑 카드가 바뀐다). */}
+      <div className={`${subTable.bulkBar} ${bulkBarOpen ? subTable.bulkBarOpen : ""}`}>
+        <span>{fillTemplate(t("admin.common.selectedCount"), { count: selected.size })}</span>
+        <Button variant="outline" size="xs" disabled={bulkBusy} onClick={() => bulkPublish(true)}>
+          {t("admin.posts.publish")}
+        </Button>
+        <Button variant="outline" size="xs" disabled={bulkBusy} onClick={() => bulkPublish(false)}>
+          {t("admin.posts.unpublish")}
+        </Button>
+        <Button variant="outline" size="xs" disabled={bulkBusy} onClick={bulkDelete}>
+          {t("admin.posts.delete")}
+        </Button>
+        <Pressable
+          className={subTable.bulkCancel}
+          onClick={() => setSelected(new Set())}
+          aria-label={t("admin.posts.seriesModal.cancel")}
+        >
+          ✕
+        </Pressable>
+      </div>
+
       {loading ? (
         <>
           {[0, 1, 2].map((i) => (
@@ -335,6 +489,7 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
                 setOverIdx(idx);
               }}
               onDragLeave={() => { /* handled by next over */ }}
+              onMouseEnter={() => extendSelectDrag(idx)}
               onDragEnd={() => { setDragIdx(null); setOverIdx(null); setArmedId(null); }}
               onDrop={(e) => {
                 e.preventDefault();
@@ -344,6 +499,30 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
                 setArmedId(null);
               }}
             >
+              {/* 일괄 처리용 선택 — 핸들 앞. 누른 채로 위아래로 끌면 지나는 카드까지 함께 켜진다 */}
+              <span
+                className={styles.seriesCardCheck}
+                onMouseDown={(e) => {
+                  /* 여기서는 범위의 시작만 잡는다 — 켜고 끄는 건 이어 오는 click(onChange)이 한 번만 한다 */
+                  if (e.button !== 0) return;
+                  selectDragStart.current = idx;
+                  selectDragAdding.current = !selected.has(s.id);
+                  selectDragMoved.current = false;
+                  setFrozenBulkBarOpen(selected.size > 0);
+                }}
+                onMouseEnter={() => extendSelectDrag(idx)}
+              >
+                <Checkbox
+                  className={styles.seriesCheckAlign}
+                  checked={selected.has(s.id)}
+                  onChange={() => {
+                    /* 끌어서 이미 칠했으면 그 끝에 오는 click 은 무시한다 — 안 그러면 되돌아간다 */
+                    if (selectDragMoved.current) { selectDragMoved.current = false; return; }
+                    toggleSelect(s.id);
+                  }}
+                  shape="square"
+                />
+              </span>
               <span
                 className={styles.seriesCardHandle}
                 onMouseDown={(e) => { e.stopPropagation(); if (!expanded) setArmedId(s.id); }}
@@ -361,12 +540,12 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
                 aria-expanded={expanded}
                 className={`${styles.seriesCardHead} ${expanded ? styles.seriesCardHeadExpanded : ""} ${s.cover_image ? styles.seriesCardHeadCover : ""}`}
                 style={s.cover_image ? { backgroundImage: `url(${s.cover_image})` } : undefined}
-                onClick={() => expanded ? collapseId(s.id) : setExpandedId(s.id)}
+                onClick={() => expanded ? collapseId(s.id) : expandCard(s)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
                     if (expanded) collapseId(s.id);
-                    else setExpandedId(s.id);
+                    else expandCard(s);
                   }
                 }}
               >
@@ -438,6 +617,7 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
                 {/* 발행 배지 — chevron 바로 앞. 클릭하면 발행/해제 토글. admin 목록과 같은 공통 StatusBadge 규격. */}
                 <StatusBadge
                   variant={s.published ? "published" : "draft"}
+                  className={s.published ? styles.seriesCardBadgeOn : styles.seriesCardBadgeOff}
                   title={s.published ? t("admin.settings.seriesEditor.unpublishHint") : t("admin.settings.seriesEditor.publishHint")}
                   onClick={(e) => {
                     e.stopPropagation();
@@ -478,6 +658,8 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
                       onCoverChange={(url) => {
                         setSeriesList((prev) => prev.map((item) => item.id === s.id ? { ...item, cover_image: url } : item));
                       }}
+                      /* 접히는 중인 카드는 빼 둔다 — 되돌린 글 수를 다시 덮어쓴다 */
+                      onPostCountChange={expanded ? (n) => applyPostCount(s.id, n) : undefined}
                       hideInlinePublishToggle
                       onFormStateChange={(state) => {
                         if (expanded) setExpandedPublished(state.published);
@@ -495,7 +677,7 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
       <Pagination
         page={page + 1}
         totalPages={totalPages}
-        onChange={(p) => { setPage(p - 1); setExpandedId(null); }}
+        onChange={(p) => { setPage(p - 1); setExpandedId(null); setSelected(new Set()); }}
         size="sm"
       />
 
