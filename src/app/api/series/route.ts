@@ -6,6 +6,7 @@ import { expandPostCategoryFilters } from "@/lib/api/validateCategory";
 import { applySearchQuery } from "@/lib/api/applySearchQuery";
 import type { SyntaxMode } from "@/lib/searchQuery";
 import { SERIES_TITLE_MAX } from "@/types/post";
+import { topPostCategory } from "@/lib/seriesCategory";
 
 /** 제목(ko/en) 길이 검증 — 초과 시 400, 통과 시 null. UI/폼 우회(직접 API 호출) 방어. */
 function validateSeriesTitle(body: { title?: unknown; title_en?: unknown }) {
@@ -130,6 +131,7 @@ export async function GET(request: Request) {
 
   const ids = (seriesList ?? []).map((s) => s.id);
   let postCounts: Record<string, number> = {};
+  let topCategories: Record<string, string> = {};
   type PreviewRow = {
     id: string;
     slug: string;
@@ -143,8 +145,13 @@ export async function GET(request: Request) {
   const previewsBySeriesId = new Map<string, PreviewRow[]>();
 
   if (ids.length > 0) {
+    /* 글 수 — 공개 쪽은 발행된 글만, 관리 화면(all=true)은 미발행까지. 관리 화면의 카드는
+       미발행 글도 목록에 보여 주므로 숫자도 같은 기준이어야 넣고 뺄 때 함께 움직인다. */
+    let countQuery = supabase.from("posts").select("series_id, category").in("series_id", ids);
+    if (!showAll) countQuery = countQuery.eq("published", true);
+
     const [{ data: counts }, { data: previewPosts }] = await Promise.all([
-      supabase.from("posts").select("series_id").in("series_id", ids).eq("published", true),
+      countQuery,
       supabase
         .from("posts")
         .select("id, slug, series_id, title, title_en, cover_image, series_order, created_at, excerpt, excerpt_en")
@@ -158,6 +165,16 @@ export async function GET(request: Request) {
         acc[row.series_id] = (acc[row.series_id] || 0) + 1;
         return acc;
       }, {});
+      /* 카테고리는 시리즈가 아니라 소속 글이 갖는다 — 가장 많은 것을 그 시리즈의 카테고리로 돌려준다 */
+      const categoriesBySeriesId = new Map<string, string[]>();
+      for (const row of counts as { series_id: string; category: string | null }[]) {
+        const arr = categoriesBySeriesId.get(row.series_id) ?? [];
+        arr.push(row.category ?? "");
+        categoriesBySeriesId.set(row.series_id, arr);
+      }
+      topCategories = Object.fromEntries(
+        [...categoriesBySeriesId].map(([sid, list]) => [sid, topPostCategory(list)]),
+      );
     }
 
     for (const row of (previewPosts ?? []) as (PreviewRow & { series_id: string })[]) {
@@ -178,6 +195,8 @@ export async function GET(request: Request) {
 
   const items = (seriesList ?? []).map((s) => ({
     ...s,
+    /* DB 의 category 컬럼은 #326 이전 값이 남은 legacy — 글에서 도출한 값으로 덮어 돌려준다 */
+    category: topCategories[s.id] ?? "",
     post_count: postCounts[s.id] || 0,
     previews: previewsBySeriesId.get(s.id) ?? [],
   }));

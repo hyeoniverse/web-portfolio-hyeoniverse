@@ -9,6 +9,8 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import { errorFromBody, errorText } from "@/lib/apiError";
 import { sendAction, sendActions, type ActionRequest } from "@/lib/sendAction";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
+import { useModalStore } from "@/stores/modalStore";
+import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import type { BilingualCategory } from "@/types/common";
 import { Switch } from "@/components/ui/Switch";
 import { SERIES_TITLE_MAX, type Series, type SeriesPostItem } from "@/types/post";
@@ -46,6 +48,9 @@ interface SeriesInlineEditorProps {
   hideInlinePublishToggle?: boolean;
   /** form 상태 변경 알림 (외부 헤더의 토글/저장 버튼 동기화 용) */
   onFormStateChange?: (state: { published: boolean; saving: boolean }) => void;
+  /** 글 목록이 바뀔 때마다 글 수 알림 — 바깥 카드의 글 수를 그 자리에서 맞추는 용도.
+      목록 API 가 관리 화면(all=true)에 주는 post_count 와 같은 기준(미발행 포함)으로 센다. */
+  onPostCountChange?: (count: number) => void;
   /** 새 시리즈 default sort_order 계산용 — 현재 시리즈 총 개수 (default = totalCount + 1, 맨 뒤) */
   totalCount?: number;
 }
@@ -66,9 +71,11 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
   hideBottomActions = false,
   hideInlinePublishToggle = false,
   onFormStateChange,
+  onPostCountChange,
   totalCount = 0,
 }, ref) {
   const { t } = useLanguage();
+  const openModal = useModalStore((s) => s.openModal);
   const ts = (key: string) => t(`admin.posts.seriesModal.${key}`);
   // 콘텐츠 작성 기본 언어 — 필수 제목의 기준 (en 기본이면 영문 제목이 필수)
   const primaryLang = useSiteConfig().metadata.defaultLanguage as "ko" | "en";
@@ -417,6 +424,12 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
   useEffect(() => {
     onFormStateChange?.({ published: form.published, saving });
   }, [form.published, saving, onFormStateChange]);
+
+  /* 글이 빠지거나 더해지면 바깥 카드의 글 수도 함께 움직인다 — 저장을 기다리지 않는다 */
+  useEffect(() => {
+    if (postsLoading) return;
+    onPostCountChange?.(posts.length);
+  }, [posts.length, postsLoading, onPostCountChange]);
 
   return (
     <div className={
@@ -785,10 +798,24 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
                       className={`${styles.seriesPostOrderBtn} ${styles.seriesPostDeleteBtn}`}
                       onClick={(e) => {
                         e.stopPropagation();
-                        if (!confirm(`"${post.title}" — ${t("admin.posts.deleteConfirm")}`)) return;
-                        /* 지운 뒤에만 목록에서 뺀다 — 예전에는 거절돼도 빠져 지워진 것처럼 보였다 */
-                        void sendAction(`/api/posts/${post.id}`, { method: "DELETE" }, t, t("admin.common.deleteFailed"))
-                          .then((res) => { if (res) handleRemovePost(post.id); });
+                        openModal(
+                          <ModalConfirm
+                            desc={t("admin.posts.deleteConfirm")}
+                            confirmText={t("admin.posts.delete")}
+                            danger
+                            onConfirm={() => {
+                              /* 지운 뒤에만 목록에서 뺀다 — 예전에는 거절돼도 빠져 지워진 것처럼 보였다 */
+                              void sendAction(`/api/posts/${post.id}`, { method: "DELETE" }, t, t("admin.common.deleteFailed"))
+                                .then((res) => { if (res) handleRemovePost(post.id); });
+                            }}
+                          />,
+                          {
+                            id: "series-post-delete",
+                            header: { title: `"${post.title || t("admin.posts.seriesModal.untitled")}"` },
+                            closeButton: true,
+                            width: "400px",
+                          },
+                        );
                       }}
                       onMouseDown={(e) => e.stopPropagation()}
                       title={t("admin.posts.delete")}
