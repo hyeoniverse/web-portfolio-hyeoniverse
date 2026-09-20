@@ -20,6 +20,8 @@ interface TooltipProps {
   wrapperStyle?: React.CSSProperties;
   /** bubble 자체에 추가할 className — max-width / padding 등 부분 오버라이드용 */
   bubbleClassName?: string;
+  /** 생김새. default = 화면과 반대색 캡슐, glass = 반투명 유리판(본문 위에 오래 떠 있는 표시용) */
+  variant?: "default" | "glass";
   /** hover 영역(래퍼)은 그대로 두되, 위치 앵커는 래퍼 안의 이 selector 요소 기준.
    *  예: 전체폭 버튼은 hover, 툴팁은 그 안 텍스트 중앙에 표시 */
   anchorSelector?: string;
@@ -37,6 +39,7 @@ export default function Tooltip({
   disabled,
   wrapperStyle,
   bubbleClassName,
+  variant = "default",
   anchorSelector,
   interactive,
   children,
@@ -278,14 +281,14 @@ export default function Tooltip({
         >
           <div
             ref={bubbleRef}
-            className={`${styles.bubble}${bubbleClassName ? ` ${bubbleClassName}` : ""}`}
+            className={`${styles.bubble}${variant === "glass" ? ` ${styles.bubbleGlass}` : ""}${bubbleClassName ? ` ${bubbleClassName}` : ""}`}
             // bubbleShiftX/Y 만 bubble 에 적용 — arrow 는 그대로 두어 trigger 중앙을 가리킴
             style={(bubbleShiftX !== 0 || bubbleShiftY !== 0) ? { transform: `translate(${bubbleShiftX}px, ${bubbleShiftY}px)` } : undefined}
           >
             {content}
           </div>
           <div
-            className={`${styles.arrow} ${
+            className={`${styles.arrow}${variant === "glass" ? ` ${styles.arrowGlass}` : ""} ${
               pos.side === "top" ? styles.arrowBottom :
               pos.side === "bottom" ? styles.arrowTop :
               pos.side === "left" ? styles.arrowRight :
