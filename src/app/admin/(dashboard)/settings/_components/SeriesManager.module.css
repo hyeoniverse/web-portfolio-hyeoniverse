@@ -30,21 +30,21 @@
 .seriesCard {
   border-radius: var(--radius-2xl);
   position: relative;
-  /* grip 핸들 + 카드 본체(head + collapse) 가로 배치.
-     2열은 minmax(0, 1fr) — 1fr 의 기본 min-width:auto 는 content 따라 grow → 긴 타이틀이 truncate 안됨. */
+  /* 선택 체크박스 + grip 핸들 + 카드 본체(head + collapse) 가로 배치.
+     마지막 열은 minmax(0, 1fr) — 1fr 의 기본 min-width:auto 는 content 따라 grow → 긴 타이틀이 truncate 안됨. */
   display: grid;
-  grid-template-columns: var(--spacing-xl) minmax(0, 1fr);
+  grid-template-columns: max-content var(--spacing-xl) minmax(0, 1fr);
   align-items: stretch;
 }
-/* head 와 collapse 는 grid 의 우측 컬럼(2)에 위치 — 둘 다 같은 컬럼이라 자연스럽게 세로 stack */
+/* head 와 collapse 는 grid 의 우측 컬럼(3)에 위치 — 둘 다 같은 컬럼이라 자연스럽게 세로 stack */
 .seriesCard > .seriesCardHead,
 .seriesCard > .seriesCardCollapse {
-  grid-column: 2;
+  grid-column: 3;
 }
 /* 액션 버튼은 head 위에 absolute — head 의 우측 영역에 자리 (right offset 은 기존 그대로) */
-/* grip 핸들 — grid 의 좌측 컬럼(1) 첫 row 에만 위치 (head 영역 높이만 잡음) */
+/* grip 핸들 — 체크박스 다음 컬럼(2) 첫 row 에만 위치 (head 영역 높이만 잡음) */
 .seriesCardHandle {
-  grid-column: 1;
+  grid-column: 2;
   grid-row: 1;
   display: flex;
   align-items: flex-start;
@@ -133,8 +133,36 @@
   z-index: 1;
 }
 
+/* 상태 배지 — 크기는 펼쳤을 때 나오는 삭제 단추(Button size="xs")와 같은 값으로 맞춘다.
+   테두리는 그 1px 을 채우기만 하고 선으로는 보이지 않게, 자기 바탕과 같은 색을 쓴다.
+   바탕을 테두리 밑까지 깔면 그 1px 만 두 번 겹쳐 진해지므로 padding-box 로 잘라 낸다.
+   글자·점 색은 공통 규격 그대로 상태색을 쓴다.
+   공통 컴포넌트의 .badge.published(클래스 둘)를 이겨야 해서 클래스를 셋 겹친다. */
+.seriesCardBadgeOn.seriesCardBadgeOn.seriesCardBadgeOn,
+.seriesCardBadgeOff.seriesCardBadgeOff.seriesCardBadgeOff {
+  border: 1px solid;
+  background-clip: padding-box;
+  height: var(--control-h-xs);
+  box-sizing: border-box;
+  padding: 0 var(--spacing-md);
+}
+
+.seriesCardBadgeOn.seriesCardBadgeOn.seriesCardBadgeOn {
+  border-color: var(--bg-success-soft);
+}
+
+.seriesCardBadgeOff.seriesCardBadgeOff.seriesCardBadgeOff {
+  border-color: var(--bg-warning-soft);
+}
+/* 커버 사진 위에서만 바탕을 막는다 — 공통 배지의 옅은 바탕은 반투명이라 사진이 그대로 비친다.
+   커버가 없는 카드는 공통 규격의 바탕색을 그대로 쓴다. */
+.seriesCardHeadCover .seriesCardBadgeOn.seriesCardBadgeOn.seriesCardBadgeOn,
+.seriesCardHeadCover .seriesCardBadgeOff.seriesCardBadgeOff.seriesCardBadgeOff {
+  background: var(--bg-primary);
+  border-color: var(--bg-primary);
+}
+
 .seriesCardHeadCover .seriesCardName {
-  color: var(--text-inverse);
   text-shadow: var(--shadow-text-strong);
 }
 
@@ -167,6 +195,29 @@
     background-size 0.3s ease;
 }
 
+/* 일괄 처리 선택 — 맨 왼쪽 컬럼(1), 핸들 앞. 핸들과 같은 padding-top 으로 눈높이를 맞춘다.
+   끌어서 여러 개를 고르는 동안 글자가 잡히지 않게 user-select 를 끈다. */
+.seriesCardCheck {
+  grid-column: 1;
+  grid-row: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-right: var(--spacing-2xs);
+  user-select: none;
+}
+/* 눈높이를 맞추는 윗여백은 체크박스(label) 자신이 갖는다 — 바깥 span 이 가지면 그 띠가 죽은 영역이 된다 */
+.seriesCheckAlign {
+  padding-top: var(--spacing-sm);
+}
+/* 목록 전체 선택 — 필터 줄 맨 앞, 버튼들과 같은 높이 */
+.seriesSelectAll {
+  display: flex;
+  align-items: center;
+  height: var(--control-h-sm);
+  padding-left: var(--spacing-3xs);
+}
+
 .seriesCardInfo {
   flex: 1;
   min-width: 0;
@@ -185,7 +236,10 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-body);
   font-weight: 600;
-  color: var(--text-primary);
+  /* 배경을 뒤집어 읽는다 — 밝은 배경에선 검게, 어두운 배경·커버 위에선 희게.
+     순번(#N_)이 쓰는 방식과 같다. 커버 카드는 .seriesCardInfo 가 쌓임 맥락이라 흰색 그대로. */
+  color: var(--text-white);
+  mix-blend-mode: difference;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
