@@ -57,7 +57,9 @@ export default function DayEventsPopover({
   return createPortal(
     <div ref={ref} className={styles.dayPop} style={style}>
       <div className={styles.dayPopHead}>{formatDateValue(state.date, null, language)}</div>
-      <div className={styles.dayPopList}>
+      {/* data-lenis-prevent — 이 목록은 max-height 안에서 스스로 스크롤한다.
+          없으면 전역 Lenis 가 휠을 가로채 목록 대신 페이지가 움직인다. */}
+      <div className={styles.dayPopList} data-lenis-prevent>
         {events.map((ev) => (
           <Pressable
             key={ev.id}

@@ -138,7 +138,9 @@ export default function MonthCalendar({
           <span key={w} className={`${styles.weekday}${i === 0 ? ` ${styles.sun}` : ""}${i === 6 ? ` ${styles.sat}` : ""}`}>{w}</span>
         ))}
       </div>
-      <div className={styles.gridViewport} data-lenis-prevent>
+      {/* data-lenis-prevent 를 두지 않는다 — 이 칸은 overflow:hidden 이라 스스로 스크롤하지 않고
+          월뷰는 휠을 쓰지도 않는다. 붙여 두면 커서가 달력 위에 있는 동안 페이지가 멈춘다. */}
+      <div className={styles.gridViewport}>
       <motion.div
         key={month}
         className={styles.grid}
