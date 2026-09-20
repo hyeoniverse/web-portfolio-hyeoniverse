@@ -1316,6 +1316,20 @@
   /* 글자·단어 수 — bg-tertiary 위에서 muted(neutral-600)는 WCAG AA(4.5:1) 미달이라 secondary 로 */
   color: var(--text-secondary);
 }
+/* 상태 줄의 공백 포함 체크박스 — 줄 왼쪽 끝(수치는 오른쪽 그대로), 수치와 같은 크기로 */
+.statusBarCheck {
+  margin-right: auto;
+  gap: var(--spacing-2xs);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
+  color: var(--text-secondary);
+}
+/* 고른 글자 수 — 선택 바로 아래에 뜨는 표시. 말풍선 생김새는 공통 Tooltip 의 .bubble 이 맡고,
+   여기서는 자리와 마우스 통과만 정한다(읽기만 하는 표시라 글자 선택을 가로채지 않는다). */
+.selectionCountTip {
+  white-space: nowrap;
+  pointer-events: none;
+}
 
 /* ── 공식 @platejs/dnd 블록 드래그 (BlockDraggable aboveNodes) ── */
 .blockDraggable {
