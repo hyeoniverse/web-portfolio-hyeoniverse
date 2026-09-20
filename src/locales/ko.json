@@ -857,6 +857,8 @@
     "helpMdInlineFormat": "인라인 서식",
     "charUnit": "자",
     "wordUnit": "단어",
+    "selectedChars": "선택 {{n}}자",
+    "includeSpaces": "공백 포함",
     "findPlaceholder": "찾기 (⇅ 기록용)",
     "replacePlaceholder": "바꾸기",
     "findNext": "다음",

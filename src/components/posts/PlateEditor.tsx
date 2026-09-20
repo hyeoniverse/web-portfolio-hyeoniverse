@@ -49,6 +49,8 @@ import { MultiBlockHighlight } from "./plate/MultiBlockHighlight";
 import { FloatEdgeAdjust } from "./plate/FloatEdgeAdjust";
 export type { EditorImageInfo, PlateEditorHandle } from "./plate/types";
 import { isInAncestor, getEditorText, _mathEditingSet, _imageUploadFn, _uploadErrorFn } from "./plate/utils";
+import Checkbox from "@/components/ui/Checkbox";
+import SelectionCountTip from "./plate/toolbars/SelectionCountTip";
 import { uploadErrorText } from "./plate/uploadErrorText";
 import { columnHasContent, insertColumnAfter, removeColumnAt } from "./plate/columnOps";
 import { CHECKER_BG, COLUMN_DEFAULT_BG, COLUMN_DEFAULT_PX, COLUMN_MIN_PX, COLUMN_MAX_PX, COLUMN_BG_NAMED, COLUMN_LINE_NAMED, CALLOUT_BG_PRESETS, MIN_COLUMNS, MAX_COLUMNS, fitColumnsForInsert, distributeInts } from "./plate/presets";
@@ -120,6 +122,15 @@ function PlateEditorBody({
   _uploadErrorFn.current = showMediaError;
   const lastSlateValueRef = useRef<SlateNode[] | undefined>(undefined);
   const [tick, setTick] = useState(0);
+  /* 글자 수에 공백을 넣을지 — 상태 줄 체크박스로 고르고 다음에 열 때도 그대로 쓴다.
+     이 편집기는 ssr:false 로만 불러오므로 첫 렌더에서 localStorage 를 읽어도 서버와 어긋날 일이 없다. */
+  const [countSpaces, setCountSpaces] = useState(() => {
+    try { return localStorage.getItem("editor.countSpaces") !== "0"; } catch { return true; }
+  });
+  const changeCountSpaces = useCallback((v: boolean) => {
+    setCountSpaces(v);
+    try { localStorage.setItem("editor.countSpaces", v ? "1" : "0"); } catch { /* 저장 못 해도 이번 세션은 쓴다 */ }
+  }, []);
   /* 도구 막대의 글꼴·크기·줄 간격 칸이 마크·블록 값이 없을 때 보여 줄 커서 자리의 실제 스타일. 편집기 변경이 DOM 에
      반영되고 slate 가 DOM 커서를 맞춘 뒤(자식 layout effect 가 먼저 돈다) 다시 읽는다 — 변경 순간에 읽으면 막대로 바꾼
      블록이 아직 DOM 에 없어 이전 블록 값이 나왔다(#895) */
@@ -2133,8 +2144,9 @@ function PlateEditorBody({
   if (!editor) return null;
 
   // ── Character count ──
+  /* 공백을 셀지는 상태 줄 체크박스가 정한다. 단어 수는 공백으로 끊어 세는 값이라 그대로 둔다. */
   const text = getEditorText(editor);
-  const charCount = text.length;
+  const charCount = countSpaces ? text.length : text.replace(/\s/g, "").length;
   const wordCount = text.split(/\s+/).filter(Boolean).length;
 
   // ── Toolbar visibility ──
@@ -3222,6 +3234,9 @@ function PlateEditorBody({
         {/* 선택 영역 floating 포맷팅 툴바 (링크/임베드 입력 중엔 숨김) */}
         <FloatingToolbar hideToolbar={activeBar !== "format" || slashOpen} />
 
+        {/* 고른 글자 수 — 서식 툴바가 선택 위에 뜨므로 이쪽은 아래에 붙는다 */}
+        <SelectionCountTip countSpaces={countSpaces} hidden={slashOpen} />
+
         {/* 슬래시 명령 메뉴 (/) */}
         <SlashMenu onOpenChange={setSlashOpen} />
 
@@ -3242,6 +3257,14 @@ function PlateEditorBody({
 
         {/* ── Status bar ── */}
         <div className={styles.statusBar}>
+          {/* 공백 포함 여부는 줄 왼쪽 끝에 — 오른쪽의 수치는 읽는 값, 이건 고르는 값이라 갈라 둔다 */}
+          <Checkbox
+            className={styles.statusBarCheck}
+            checked={countSpaces}
+            onChange={changeCountSpaces}
+            shape="square"
+            label={t("editor.includeSpaces")}
+          />
           <span>{charCount.toLocaleString()} {t("editor.charUnit")}</span>
           <span>·</span>
           <span>{wordCount.toLocaleString()} {t("editor.wordUnit")}</span>

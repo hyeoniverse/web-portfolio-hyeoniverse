@@ -857,6 +857,8 @@
     "helpMdInlineFormat": "Inline format",
     "charUnit": "chars",
     "wordUnit": "words",
+    "selectedChars": "{{n}} selected",
+    "includeSpaces": "Include spaces",
     "findPlaceholder": "Find (⇅ history)",
     "replacePlaceholder": "Replace",
     "findNext": "Next",

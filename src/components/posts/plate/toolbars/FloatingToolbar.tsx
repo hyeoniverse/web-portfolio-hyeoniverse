@@ -141,7 +141,7 @@ function OverflowMenu() {
 }
 
 /** 현재 DOM 선택(또는 collapsed 커서)의 화면 사각형 — caret 위치 추적용 */
-function getSelectionRect(): DOMRect {
+export function getSelectionRect(): DOMRect {
   if (typeof window === "undefined") return new DOMRect();
   const sel = window.getSelection();
   if (sel && sel.rangeCount > 0) {
