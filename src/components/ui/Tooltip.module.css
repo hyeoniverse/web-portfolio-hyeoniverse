@@ -35,6 +35,44 @@
   transform: rotate(45deg);
 }
 
+/* ── 유리판 변형 ──
+   기본 말풍선은 화면과 반대색이라 존재감이 크다. 화면 위에 얹혀 오래 떠 있는 표시(고른 글자 수 등)는
+   이쪽을 쓴다 — 바탕에 얹힌 판 + 옅은 테두리에 본문과 같은 글자색.
+   바탕은 불투명이어야 한다. 반투명이면 꼬리가 말풍선에 겹치는 절반만 두 겹이 돼 더 밝아지고,
+   말풍선 테두리도 꼬리를 가로질러 비쳐 색이 어긋나 보인다. */
+.bubbleGlass {
+  border: var(--border-light);
+  background: var(--bg-primary);
+  box-shadow: var(--shadow-md);
+  color: var(--text-primary);
+}
+/* 꼬리는 말풍선과 같은 바탕색. 45° 돌아간 사각형이라 바깥으로 드러나는 두 변에만 테두리를 둬
+   말풍선 테두리와 이어지고, 나머지 절반이 말풍선 테두리를 덮는다 */
+.arrowGlass {
+  box-sizing: border-box;
+  background: var(--bg-primary);
+}
+
+.arrowGlass.arrowTop {
+  border-top: var(--border-light);
+  border-left: var(--border-light);
+}
+
+.arrowGlass.arrowBottom {
+  border-right: var(--border-light);
+  border-bottom: var(--border-light);
+}
+
+.arrowGlass.arrowLeft {
+  border-bottom: var(--border-light);
+  border-left: var(--border-light);
+}
+
+.arrowGlass.arrowRight {
+  border-top: var(--border-light);
+  border-right: var(--border-light);
+}
+
 .arrowBottom {
   bottom: -3px;
   left: 50%;
