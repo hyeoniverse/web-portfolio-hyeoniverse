@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useRoutePathname } from "@/hooks/useRoutePathname";
 import styles from "./PostsSubnav.module.css";
 import { useLanguage } from "@/providers/LanguageProvider";
 
@@ -18,7 +18,7 @@ const BROWSE_PREFIXES = ["/posts/series", "/posts/tags", "/posts/history", "/pos
 
 export default function PostsSubnav() {
   const { t } = useLanguage();
-  const pathname = usePathname() ?? "";
+  const pathname = useRoutePathname();
   const show =
     pathname === "/posts" ||
     BROWSE_PREFIXES.some((b) => pathname === b || pathname.startsWith(b + "/"));

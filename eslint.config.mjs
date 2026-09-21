@@ -16,6 +16,21 @@ const eslintConfig = [
       /* <button> 은 type 을 반드시 적는다. HTML 기본값이 submit 이라, 폼 안에서
          type 을 빠뜨린 버튼은 클릭 시 폼을 제출한다. */
       "react/button-has-type": "error",
+      /* 지금 주소는 usePathname 대신 @/hooks/useRoutePathname 으로 읽는다. Vercel 이 다시 그린(ISR) 홈은
+         주소가 "/" 가 아니라 "/index" 로 읽혀, 주소로 홈을 가르는 곳이 홈을 못 알아봤다(홈에 푸터가 두 개, #1100).
+         배포에서만 드러나 로컬에서는 알아챌 수 없으므로 아예 막는다. 훅 파일만 직접 쓴다(아래 files 예외) */
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            {
+              name: "next/navigation",
+              importNames: ["usePathname"],
+              message: "usePathname 대신 @/hooks/useRoutePathname 을 씁니다 — 배포가 다시 그린 홈은 주소가 \"/index\" 로 읽힙니다(#1100).",
+            },
+          ],
+        },
+      ],
       "no-restricted-syntax": [
         "error",
         {
@@ -130,6 +145,11 @@ const eslintConfig = [
          Compiler 를 도입하기로 하면 그때 이 목록이 할 일이 된다. */
       "react-hooks/preserve-manual-memoization": "warn",
     },
+  },
+  {
+    /* 주소 정리 훅 자신과, next/navigation 을 흉내 내는 테스트만 usePathname 을 직접 쓴다 */
+    files: ["src/hooks/useRoutePathname.ts", "src/__tests__/**"],
+    rules: { "no-restricted-imports": "off" },
   },
 ];
 

@@ -4,7 +4,7 @@ import { useRef, useState, useEffect, useContext } from "react";
 import { useHasMounted } from "@/hooks/useHasMounted";
 import type { SelectOption } from "@/types";
 import { createPortal } from "react-dom";
-import { usePathname } from "next/navigation";
+import { useRoutePathname } from "@/hooks/useRoutePathname";
 import { AppRouterContext } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Eraser, History, HelpCircle } from "@/components/icons";
@@ -81,7 +81,7 @@ export default function SearchCapsule({
 }: SearchCapsuleProps) {
   const { t } = useLanguage();
   const clearLabel = t("common.clear");
-  const pathname = usePathname();
+  const pathname = useRoutePathname();
   // App Router 컨텍스트 직접 구독 — 리더 island(createRoot) 처럼 router provider 밖에서 마운트돼도 throw 없이 null
   const router = useContext(AppRouterContext);
   /* URL 쿼리는 effect 안에서 window.location.search 로 읽는다(#913). useSearchParams() 를 부르면 정적 렌더에서 가장 가까운
