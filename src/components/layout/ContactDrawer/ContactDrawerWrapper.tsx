@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { useRoutePathname } from "@/hooks/useRoutePathname";
 import { useContactStore } from "@/stores/contactStore";
 import { useContactForm } from "@/hooks/useContactForm";
 import { useToast } from "@/hooks/useToast";
@@ -9,7 +9,7 @@ import { useRecaptcha } from "@/providers/RecaptchaProvider";
 import ContactDrawer from "./ContactDrawer";
 
 export default function ContactDrawerWrapper() {
-  const pathname = usePathname();
+  const pathname = useRoutePathname();
   const { isFormVisible, closeForm } = useContactStore();
   const contactForm = useContactForm();
   const { formToast, showFormToast } = useToast();

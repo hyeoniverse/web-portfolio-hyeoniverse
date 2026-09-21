@@ -1,14 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { useRoutePathname } from "@/hooks/useRoutePathname";
 import styles from "./LoadingScreen.module.css";
 import { useLoadingScreen } from "@/hooks/useLoadingProgress";
 
 const SKIP_LOADING_PAGES = ["/privacy"];
 
 export default function LoadingScreen() {
-  const pathname = usePathname();
+  const pathname = useRoutePathname();
   const { isLoading } = useLoadingScreen();
   const shouldSkipLoading = SKIP_LOADING_PAGES.includes(pathname);
 
