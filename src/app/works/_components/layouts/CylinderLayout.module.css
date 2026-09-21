@@ -288,27 +288,91 @@
   color: var(--text-black);
 }
 
-/* ── 떠다니는 최신 댓글 버블 ── */
-/* ── 좌하단 고정 정보 ── */
+/* ── 좌하단 "Available for work" — 이메일 복사 단추(참고: andreasantonsson.dev) ──
+   틀은 원통을 가리지 않게 포인터를 흘리고, 단추만 받는다 */
 .fixedInfo {
   position: fixed;
   left: var(--spacing-2xl);
   bottom: var(--spacing-2xl);
   z-index: 5;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-3xs);
   pointer-events: none;
 }
 
-.fixedAvailable {
+.availableCta {
+  /* 한 줄 높이 — 창(ctaMask)과 그 안의 줄이 모두 이 높이라, 한 줄만큼 밀면 정확히 다음 줄이 선다 */
+  --cta-line: calc(var(--font-size-label) * 1.5);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
   font-size: var(--font-size-label);
-  color: var(--text-muted);
+  line-height: var(--cta-line);
+  color: var(--text-primary);
+  text-align: left;
+  pointer-events: auto;
 }
 
-.fixedDate {
-  font-size: var(--font-size-label);
-  color: var(--text-muted);
+/* 한 줄 창 — 넘치는 아래 줄을 가린다 */
+.ctaMask {
+  display: flex;
+  flex-direction: column;
+  height: var(--cta-line);
+  overflow: hidden;
+}
+
+.ctaMask > span {
+  flex: none;
+  height: var(--cta-line);
+  white-space: nowrap;
+  /* rotate 0.01deg — 옮기는 동안 글자가 픽셀에 걸려 떨리지 않게 한 겹으로 올린다(참고 사이트와 같다) */
+  transform: translateY(0) rotate(0.01deg);
+  transition: transform 350ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 올리면(키보드 초점도) 두 줄이 한 줄씩 밀린다. 아래 줄일수록 조금 늦게 따라와 물결처럼 넘어간다 */
+.availableCta:hover .ctaMask > span,
+.availableCta:focus-visible .ctaMask > span {
+  transform: translateY(-100%) rotate(0.01deg);
+}
+
+.ctaMask > span:last-child,
+.ctaMask:last-child > span {
+  transition-delay: 100ms;
+}
+
+.ctaMask:last-child > span:last-child {
+  transition-delay: 150ms;
+}
+
+/* "Copy to clipboard" / "Copied" — 작고 흐리게. 누르면 한 줄 더 밀려 "Copied" 가 선다 */
+.ctaCopyLabel {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-size: var(--font-size-hint);
+  opacity: 0.5;
+}
+
+.ctaCopyLabel > span {
+  flex: none;
+  height: var(--cta-line);
+  transform: translateY(0) rotate(0.01deg);
+  transition: transform 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ctaCopied > span {
+  transform: translateY(-100%) rotate(0.01deg);
+}
+
+.ctaCopied > span:last-child {
+  transition-delay: 100ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ctaMask > span,
+  .ctaCopyLabel > span {
+    transition: none;
+  }
 }
 
 /* ── 인디케이터 (우하단 세로) ──

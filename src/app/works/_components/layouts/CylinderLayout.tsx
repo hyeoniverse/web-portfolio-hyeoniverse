@@ -1,11 +1,13 @@
 "use client";
 
-import { Suspense, useCallback, useMemo } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import { pickLocalized } from "@/types/common";
 import { SITE_TIME_ZONE } from "@/constants";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
+import { showToast } from "@/stores/toastStore";
 import TransitionLink from "@/components/ui/TransitionLink";
 import Pressable from "@/components/ui/Pressable";
 import { isPlainClick } from "@/utils/gestureUtils";
@@ -247,13 +249,75 @@ export default function CylinderLayout({ projects, onProjectClick, bare = false 
       )}
 
       {/* 좌하단 */}
+      <AvailableCta />
+    </div>
+  );
+}
+
+/**
+ * 좌하단 "Available for work" — 참고 사이트(andreasantonsson.dev)처럼 이메일 복사 단추다.
+ *
+ * 두 줄이 저마다 한 줄 높이의 창(mask)에 담겨 있고, 창 안에는 줄이 하나씩 더 숨어 있다. 올리면 두 줄이
+ * 조금씩 어긋나며(0.1초) 위로 밀려 "Copy to clipboard"와 이메일 주소가 드러나고, 누르면 이메일을 복사하고
+ * 윗줄이 "Copied"로 한 번 더 밀린다. 복사 표시는 손을 떼거나 조금 지나면 돌아온다.
+ * 윗줄은 마우스를 올려야 보이는 자리라(터치 화면에서는 누르는 순간 손가락에 가린다) 알림(토스트)으로도 알린다.
+ * 이메일은 사이트 설정의 연락처(푸터·개인정보 화면과 같은 값)다. 비어 있으면 누를 것이 없어 글자만 둔다.
+ */
+function AvailableCta() {
+  const { t } = useLanguage();
+  const email = useSiteConfig().contact.email.trim();
+  const [copied, setCopied] = useState(false);
+  const resetTimer = useRef<number | undefined>(undefined);
+  useEffect(() => () => window.clearTimeout(resetTimer.current), []);
+  /* 지금 달(한국 시간). 캐시된 HTML 이 달을 넘기면 서버가 그린 달과 브라우저의 달이 다를 수 있어 비교를 끈다(#927) */
+  const month = new Date().toLocaleDateString("en-US", { month: "short", year: "numeric", timeZone: SITE_TIME_ZONE });
+
+  if (!email) {
+    return (
       <div className={styles.fixedInfo}>
-        <span className={styles.fixedAvailable}>Available for work</span>
-        {/* 지금 달(한국 시간). 캐시된 HTML 이 달을 넘기면 서버가 그린 달과 브라우저의 달이 다를 수 있어 비교를 끈다(#927) */}
-        <span className={styles.fixedDate} suppressHydrationWarning>
-          {new Date().toLocaleDateString("en-US", { month: "short", year: "numeric", timeZone: SITE_TIME_ZONE })} ↗
+        <span className={styles.availableCta}>
+          <span>Available for work</span>
+          <span suppressHydrationWarning>{month} ↗</span>
         </span>
       </div>
+    );
+  }
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(email);
+    } catch {
+      /* 복사를 막는 창(권한·오래된 브라우저)에서는 메일 앱으로 넘긴다 */
+      window.location.href = `mailto:${email}`;
+      return;
+    }
+    setCopied(true);
+    showToast(t("worksPage.emailCopied"), "success");
+    window.clearTimeout(resetTimer.current);
+    resetTimer.current = window.setTimeout(() => setCopied(false), 2500);
+  };
+
+  return (
+    <div className={styles.fixedInfo}>
+      <Pressable
+        className={styles.availableCta}
+        onClick={copy}
+        onPointerLeave={() => setCopied(false)}
+        aria-label={`Available for work: ${month}. Click to copy email to clipboard: ${email}`}
+        noTapScale
+      >
+        <span className={styles.ctaMask} aria-hidden>
+          <span>Available for work</span>
+          <span className={`${styles.ctaCopyLabel} ${copied ? styles.ctaCopied : ""}`}>
+            <span>Copy to clipboard</span>
+            <span>Copied</span>
+          </span>
+        </span>
+        <span className={styles.ctaMask} aria-hidden>
+          <span suppressHydrationWarning>{month} ↗</span>
+          <span>{email}</span>
+        </span>
+      </Pressable>
     </div>
   );
 }
