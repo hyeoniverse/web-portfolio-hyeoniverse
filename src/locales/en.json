@@ -523,6 +523,7 @@
     "perPage": "{{n}} per page"
   },
   "worksPage": {
+    "emailCopied": "Email address copied.",
     "emptyTitle": "No works have been published yet.",
     "emptySub": "New work is on the way.",
     "backHome": "Back to home"
