@@ -17,7 +17,8 @@ interface HorizontalCarouselProps {
  * - `data-scrollable` attribute 노출 → 사용처 CSS 분기 가능
  * - scroll 가능 + 끝까지 안 갔을 때만 좌우 arrow / mask 표시
  * - 데스크탑 마우스 drag scroll (touch 는 native overflow scroll)
- * - wheel 수직 → 가로 redirect (양 끝 도달 시 페이지 native scroll 패스스루)
+ * - wheel 수직 → 가로 redirect (양 끝 도달 시 페이지 scroll 패스스루). 가두는 동안에는 캡처 단계에서
+ *   stopPropagation — 전역 Lenis 가 휠을 가로채 페이지까지 같이 미는 것을 막는다
  * - arrow 꾹 누르면 long press scroll (시간 지날수록 빨라짐)
  */
 export default function HorizontalCarousel({
@@ -57,14 +58,17 @@ export default function HorizontalCarousel({
       const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 1 && delta > 0;
       if (atStart || atEnd) return;
       e.preventDefault();
+      /* preventDefault 만으로는 페이지가 같이 밀린다 — 전역 Lenis 는 window 에서 휠을 듣고 그 표시를
+         보지 않는다. 캡처 단계에서 붙잡아 여기서 끊어야 가로만 움직인다 */
+      e.stopPropagation();
       el.scrollLeft += delta;
     };
-    el.addEventListener("wheel", onWheel, { passive: false });
+    el.addEventListener("wheel", onWheel, { passive: false, capture: true });
 
     return () => {
       ro.disconnect();
       el.removeEventListener("scroll", updateState);
-      el.removeEventListener("wheel", onWheel);
+      el.removeEventListener("wheel", onWheel, { capture: true } as EventListenerOptions);
     };
   }, [updateState]);
 

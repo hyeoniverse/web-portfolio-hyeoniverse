@@ -11,6 +11,28 @@ export function renderTables({ el, cleanups }: ReaderExtrasContext) {
     th.style.backgroundImage = `linear-gradient(${tint}, ${tint})`;
   });
 
+  // ── 넘치는 표는 스크롤 상자에 담는다 ──
+  //   직렬화가 .tbl-freeze 로 감싸 주는 건 "고정 표" 와 "자연 너비가 넓은 표" 뿐이다. 그 밖에도
+  //   칸 안의 그림처럼 내용이 칸보다 넓으면 표가 글 영역을 넘어간다 — 그때 감쌀 것이 없으면
+  //   넘친 채로 삐져나오기만 하고 스크롤이 안 된다. 여기서 넘치는 표만 골라 감싼다.
+  el.querySelectorAll<HTMLTableElement>("table").forEach((table) => {
+    if (table.closest(".tbl-freeze, .tbl-scroll")) return;
+    const parent = table.parentElement;
+    if (!parent) return;
+    /* 표 자신이 넘치거나(칸 폭 합) 칸 안의 내용이 넘치거나 */
+    const room = parent.clientWidth;
+    const overflows = table.scrollWidth > room + 1
+      || Array.from(table.querySelectorAll<HTMLElement>("td, th")).some((c) => c.scrollWidth > c.clientWidth + 1);
+    if (!overflows) return;
+    const box = document.createElement("div");
+    box.className = "tbl-scroll";
+    table.replaceWith(box);
+    box.appendChild(table);
+    cleanups.push(() => {
+      if (box.parentElement) box.replaceWith(table);
+    });
+  });
+
   // ── 표 행/열 고정 — 리더 (에디터와 동일 모델, 세로 스크롤바 없음) ──
   //   열 고정: .tbl-freeze 가로 스크롤 기준 CSS sticky-left. 행 고정: 페이지 스크롤에 맞춰 첫 N행을
   //   transform:translateY 로 네비 아래에 pin. 불투명 배경·구분선(stuck 시 바깥 모서리 box-shadow).

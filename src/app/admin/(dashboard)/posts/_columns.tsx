@@ -35,7 +35,7 @@ export function createPostColumns(t: TFunction, onTogglePublished?: (post: Post)
           )}
         </div>
       ),
-      skeletonWidth: "48px",
+      skeletonWidth: "64px",
       skeletonShape: "box",
     },
     {
@@ -145,7 +145,7 @@ export function createTrashColumns(
           )}
         </div>
       ),
-      skeletonWidth: "48px",
+      skeletonWidth: "64px",
     },
     {
       key: "title",
@@ -228,7 +228,7 @@ export function createSeriesColumns(
           )}
         </div>
       ),
-      skeletonWidth: "48px",
+      skeletonWidth: "64px",
     },
     {
       key: "title",

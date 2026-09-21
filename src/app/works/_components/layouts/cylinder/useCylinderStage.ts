@@ -4,12 +4,11 @@ import { useCallback, useEffect, useRef } from "react";
 import {
   RADIUS,
   PLANE_WIDTH,
-  SCROLL_SENSITIVITY,
-  SCROLL_CLAMP,
   BACK_THRESHOLD,
   FLING_MS,
   cylinderCamera,
-  wrapAngle,
+  slotOffset,
+  wheelSlots,
 } from "./scene";
 import type { SlotBounds } from "./useFloatingComments";
 
@@ -28,6 +27,7 @@ export function useCylinderStage({
   slotCount: number;
   segAngle: number;
   arc: number;
+  /** 인디케이터에서 화면에 보이는 판의 칸에 붙일 클래스 */
   indicatorDotActiveClassName: string;
   /** 굴리지 않는다 — 작업물이 없어 인트로 칸만 있을 때는 돌릴 것이 없고, 돌리면 그 칸에 붙어
       있는 글자와 몽이가 화면 밖으로 따라 나간다(#1062). 휠은 부르는 쪽이 따로 쓴다 */
@@ -42,7 +42,11 @@ export function useCylinderStage({
   const slotRefs = useRef<Map<number, HTMLDivElement>>(new Map());
   const overlayRefs = useRef<Map<number, HTMLDivElement>>(new Map());
   const activeIdxRef = useRef(0);
-  const indicatorRef = useRef<HTMLDivElement>(null);
+  const indicatorRef = useRef<HTMLElement>(null);
+  /* 인디케이터의 틀 — 원통이 도는 만큼 칸 사이를 미끄러진다 */
+  const indicatorFrameRef = useRef<HTMLSpanElement>(null);
+  // 인디케이터 칸마다 "화면에 보임" 상태 — 바뀐 칸만 클래스를 고친다
+  const inViewRef = useRef<boolean[]>([]);
   const wrapRef = useRef<HTMLDivElement>(null);
   const floatingCommentsRef = useRef<HTMLDivElement>(null);
   // slot 0 패널의 뷰포트 % 경계 (3D 프로젝션에서 계산)
@@ -50,26 +54,25 @@ export function useCylinderStage({
   // metaItem hover 시 실린더 이미지 dimmed (Three.js 내부에서 lerp)
   const hoverDimRef = useRef(0);
 
-  // Wheel
+  /* Wheel — scrollRef 는 칸 단위다. 화면 높이만큼 굴리면 한 칸(레퍼런스는 작업물마다 100vh 섹션을 두고
+     페이지 스크롤로 원통을 돌린다. 여기서는 판이 끝없이 돌아야 해서 페이지 대신 이 값을 굴린다) */
   useEffect(() => {
     if (frozen) return;
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
-      const clamped = Math.max(-SCROLL_CLAMP, Math.min(SCROLL_CLAMP, e.deltaY));
-      scrollRef.current += clamped * SCROLL_SENSITIVITY;
+      scrollRef.current += wheelSlots(e, window.innerHeight);
     };
     window.addEventListener("wheel", onWheel, { passive: false });
     return () => window.removeEventListener("wheel", onWheel);
   }, [frozen]);
 
   /* 슬롯을 앞면으로 돌린다 — 키보드 목록에서 초점이 옮겨 갈 때 쓴다. 휠과 같은 scrollRef 를 옮기므로
-     회전은 휠처럼 따라온다. 씬의 목표 회전각이 scrollRef × segAngle × slotCount 라, 슬롯 i 가 앞면이 되는
-     각은 i × segAngle 이다. 한 바퀴 안에서 가까운 쪽으로 돈다. */
+     회전은 휠처럼 따라온다. scrollRef 는 칸 단위라 슬롯 i 가 앞면이 되는 값은 i(와 칸 수만큼 떨어진 값들)다.
+     띠(slotOffset) 한 바퀴 안에서 가까운 쪽으로 돈다. */
   const rotateTo = useCallback((slot: number) => {
-    const turn = segAngle * slotCount;
-    const delta = slot * segAngle - scrollRef.current * turn;
-    scrollRef.current += (delta - Math.PI * 2 * Math.round(delta / (Math.PI * 2))) / turn;
-  }, [segAngle, slotCount]);
+    // 더하지 않고 그 값에 딱 놓는다 — 더하면 소수 찌꺼기가 남아 판이 미세하게 어긋난 채 멈춘다
+    scrollRef.current = slot + slotCount * Math.round((scrollRef.current - slot) / slotCount);
+  }, [slotCount]);
 
   /* Touch — 휠이 없는 터치 화면에서도 돌린다(#940). 한 손가락으로 위아래로 끌면 먼 쪽 판이 손가락을 따라 돌고,
      놓으면 떼기 직전 속도로 조금 더 간 자리에서 가까운 판에 멈춘다. 두 손가락(확대)이 되면 돌리기를 멈춘다.
@@ -77,22 +80,15 @@ export function useCylinderStage({
   useEffect(() => {
     const el = wrapRef.current;
     if (!el) return;
-    const turn = segAngle * slotCount;
-    // 손가락이 1px 움직일 때 scrollRef 변화 — 먼 쪽 판의 한 점이 손가락과 같이 움직이게
+    const loop = segAngle * slotCount;
+    // 손가락이 1px 움직일 때 scrollRef(칸) 변화 — 먼 쪽 판의 한 점이 손가락과 같이 움직이게
     const perPixel = () => {
-      const { z, fov } = cylinderCamera(window.innerWidth, window.innerHeight);
+      const { z, fov } = cylinderCamera(window.innerWidth, window.innerHeight, loop);
       const pxPerUnit = window.innerHeight / 2 / (Math.tan((fov * Math.PI) / 360) * (z + RADIUS));
-      return 1 / (RADIUS * pxPerUnit * turn);
+      return 1 / (RADIUS * pxPerUnit * segAngle);
     };
-    const snap = () => {
-      let best = 0;
-      let bestDist = Infinity;
-      for (let i = 0; i < slotCount; i++) {
-        const d = Math.abs(wrapAngle(scrollRef.current * turn - i * segAngle));
-        if (d < bestDist) { bestDist = d; best = i; }
-      }
-      rotateTo(best);
-    };
+    // 가까운 판에 멈춘다 — 칸 단위라 가장 가까운 정수가 그 판이다
+    const snap = () => rotateTo(((Math.round(scrollRef.current) % slotCount) + slotCount) % slotCount);
     const pointers = new Set<number>();
     let dragging: number | null = null;
     let lastY = 0;
@@ -160,11 +156,11 @@ export function useCylinderStage({
     let rafId: number;
     const tick = () => {
       const cylinderRotX = actualRotRef.current;
+      const loop = segAngle * slotCount;
       let bestIdx = 0;
       let bestDist = Infinity;
       for (let i = 0; i < slotCount; i++) {
-        const slotAngle = i * segAngle;
-        const relAngle = wrapAngle(-slotAngle + cylinderRotX - Math.PI);
+        const relAngle = slotOffset(i, segAngle, loop, cylinderRotX);
 
         const absAngle = Math.abs(relAngle);
         const visible = absAngle < BACK_THRESHOLD;
@@ -217,7 +213,7 @@ export function useCylinderStage({
       // intro slot 패널의 뷰포트 경계 계산 (bunny와 동일한 3D 프로젝션 기반)
       const slot0 = screenPosRef.current[0] || { x: 0, y: 0 };
       // 씬과 같은 카메라 — 좁은 화면에서는 카메라가 물러나고 시야각이 넓어진다(#940)
-      const { z: camZ, fov } = cylinderCamera(window.innerWidth, window.innerHeight);
+      const { z: camZ, fov } = cylinderCamera(window.innerWidth, window.innerHeight, loop);
       const panelDist = camZ + RADIUS;
       const halfH = Math.tan((fov * Math.PI) / 360) * panelDist;
       const aspect = window.innerWidth / window.innerHeight;
@@ -240,8 +236,9 @@ export function useCylinderStage({
       /* 글자는 판 안에 들어가야 한다 — 판이 화면에서 차지하는 너비와 높이를 모든 칸에 넘겨 글자
          크기가 그것을 따르게 한다. 글자 크기가 창 너비(vw)로만 잡혀 있어서, 창이 좁거나 판이
          멀어져 판이 작아지면 제목이 판 밖으로 나갔다. 칸은 모두 같은 크기라 값도 하나다 */
-      const panelWpx = Math.round(panelHalfWpx * shrink * 2);
-      const panelHpx = Math.round(panelHalfHpx * shrink * 2);
+      /* 세로 화면에서 칸이 적으면 카메라를 당겨 판이 화면보다 넓어진다 — 글자는 화면 안에 둔다 */
+      const panelWpx = Math.round(Math.min(panelHalfWpx * shrink * 2, window.innerWidth * 0.9));
+      const panelHpx = Math.round(Math.min(panelHalfHpx * shrink * 2, window.innerHeight * 0.8));
       for (const el of slotRefs.current.values()) {
         el.style.setProperty("--panel-w", `${panelWpx}px`);
         el.style.setProperty("--panel-h", `${panelHpx}px`);
@@ -254,14 +251,28 @@ export function useCylinderStage({
       }
 
 
-      if (activeIdxRef.current !== bestIdx) {
-        activeIdxRef.current = bestIdx;
-        if (indicatorRef.current) {
-          const dots = indicatorRef.current.children;
-          for (let j = 0; j < dots.length; j++) {
-            dots[j].classList.toggle(indicatorDotActiveClassName, j === bestIdx);
-          }
+      activeIdxRef.current = bestIdx;
+
+      /* 인디케이터 — 레퍼런스처럼 화면에 걸친 판의 칸은 진하게, 틀은 원통 위치를 따라 칸 사이를 미끄러진다 */
+      const items = indicatorRef.current?.querySelectorAll<HTMLElement>("[data-indicator-item]");
+      if (items) {
+        for (let i = 0; i < items.length; i++) {
+          const inView = Math.abs(slotOffset(i, segAngle, loop, cylinderRotX)) < segAngle * 0.9;
+          if (inViewRef.current[i] === inView) continue;
+          inViewRef.current[i] = inView;
+          items[i].classList.toggle(indicatorDotActiveClassName, inView);
         }
+      }
+      const frame = indicatorFrameRef.current;
+      if (frame) {
+        // 지금 앞면의 칸 위치(소수) — [-0.5, 칸 수 - 0.5) 로 접는다
+        const f = ((((cylinderRotX - Math.PI) / segAngle) % slotCount) + slotCount) % slotCount;
+        const pos = f >= slotCount - 0.5 ? f - slotCount : f;
+        /* 띠는 끝없이 돌지만 칸 줄은 끝이 있다. 마지막 칸에서 첫 칸으로 넘어갈 때 틀이 줄 전체를 거슬러
+           올라가면 어지럽다 — 줄 끝에 다가가면 흐려졌다가 반대쪽 끝에서 다시 나타난다 */
+        const edge = Math.min(pos + 0.5, slotCount - 0.5 - pos);
+        frame.style.setProperty("--pos", pos.toFixed(4));
+        frame.style.setProperty("--fade", slotCount > 1 ? Math.min(1, edge * 4).toFixed(3) : "1");
       }
 
 
@@ -284,6 +295,7 @@ export function useCylinderStage({
     slotRefs,
     overlayRefs,
     indicatorRef,
+    indicatorFrameRef,
     wrapRef,
     floatingCommentsRef,
     slotBoundsRef,

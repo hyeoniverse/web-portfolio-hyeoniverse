@@ -94,44 +94,6 @@
   color: var(--text-primary);
 }
 
-/* Gallery — Bento grid (3-col) */
-.gallery {
-  display: grid;
-  grid-template-columns: var(--grid-cols-3);
-  grid-auto-rows: 160px;
-  grid-auto-flow: dense;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-2xl) 0;
-}
-
-/* item 정확히 2개 — 2-col grid 으로 (각 item full width 의 1/2) */
-.gallery:has(> .galleryItem:nth-child(2):last-child) {
-  grid-template-columns: var(--grid-cols-2);
-}
-
-.gallery:has(> .galleryItem:nth-child(2):last-child) > .galleryItem {
-  grid-column: auto !important;
-  grid-row: span 2;
-}
-
-.galleryItem {
-  position: relative;
-  width: 100%;
-  overflow: hidden;
-  border-radius: 0;
-}
-
-.galleryImage {
-  object-fit: cover;
-}
-
-@media (max-width: 768px) {
-  .gallery {
-    grid-template-columns: var(--grid-cols-2);
-    grid-auto-rows: 120px;
-  }
-}
-
 /* 본문 내 mermaid 다이어그램 */
 .sectionProse :global(.reader-mermaid) {
   display: flex;
@@ -174,3 +136,39 @@
 .sectionProse :global(.reader-toc) a[data-depth="3"] { padding-left: var(--spacing-xl); }
 
 .sectionProse :global(.reader-toc) a[data-depth="4"] { padding-left: var(--spacing-2xl); }
+
+/* 표 스크롤 상자 — 두 가지가 있다.
+   .tbl-freeze 는 직렬화가 감싼 것(고정 표·자연 너비가 넓은 표), .tbl-scroll 은 리더가 그릴 때
+   넘치는 표를 감싼 것. 글(.prose) 쪽에만 이 규칙이 있어서 작업물 표는 감싸 놓고도 스크롤이 안 됐다 */
+.sectionProse :global(.tbl-freeze),
+.sectionProse :global(.tbl-scroll) {
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
+  margin: var(--spacing-xl) 0;
+  padding-bottom: var(--spacing-md);
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color-strong) transparent;
+}
+
+.sectionProse :global(.tbl-freeze)::-webkit-scrollbar,
+.sectionProse :global(.tbl-scroll)::-webkit-scrollbar {
+  display: block;
+  height: 8px;
+}
+
+.sectionProse :global(.tbl-freeze)::-webkit-scrollbar-thumb,
+.sectionProse :global(.tbl-scroll)::-webkit-scrollbar-thumb {
+  background: var(--border-color-strong);
+  border-radius: var(--radius-capsule);
+}
+
+.sectionProse :global(.tbl-freeze)::-webkit-scrollbar-track,
+.sectionProse :global(.tbl-scroll)::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sectionProse :global(.tbl-freeze) > table,
+.sectionProse :global(.tbl-scroll) > table {
+  margin: 0;
+}

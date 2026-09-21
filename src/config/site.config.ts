@@ -324,12 +324,15 @@ export const siteConfig = {
     limits: {
       // image
       jpg: 5, jpeg: 5, png: 5, webp: 5, svg: 2, gif: 10,
-      // video
-      mp4: 200, webm: 200, mov: 200, // MOV (iOS 흔함)
+      /* video — 저장소(Supabase)가 한 파일에 허용하는 50MB 가 천장이다. 더 큰 값을 적어 두면
+         고르는 데까지는 되고 올릴 때 저장소가 413 으로 돌려보낸다 */
+      mp4: 50, webm: 50, mov: 50, // MOV (iOS 흔함)
       // audio
-      mp3: 20, wav: 20, ogg: 20,
+      mp3: 20, wav: 20, ogg: 20, m4a: 20,
       // document
       md: 1, txt: 1, csv: 5, pdf: 20, docx: 20, xlsx: 20, pptx: 50,
+      /* 옛 파워포인트 — 작업물 갤러리가 문서 뷰어로 보여 준다(PPTX 처럼 슬라이드 그림으로 바꿀 방법이 없다) */
+      ppt: 50,
       // archive
       zip: 50,
     } as Record<string, number>,

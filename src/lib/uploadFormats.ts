@@ -28,10 +28,14 @@ export const BUILTIN_FORMATS: FormatDef[] = [
   { ext: "mp3", label: "MP3", group: "audio", mime: "audio/mpeg" },
   { ext: "wav", label: "WAV", group: "audio", mime: "audio/wav" },
   { ext: "ogg", label: "OGG", group: "audio", mime: "audio/ogg" },
+  /* 휴대폰 음성 메모 — 갤러리 슬라이드 음성으로 녹음을 올릴 때 가장 흔한 형식 */
+  { ext: "m4a", label: "M4A", group: "audio", mime: "audio/x-m4a" },
   { ext: "pdf", label: "PDF", group: "document", mime: "application/pdf" },
   { ext: "docx", label: "DOCX", group: "document", mime: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" },
   { ext: "xlsx", label: "XLSX", group: "document", mime: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" },
   { ext: "pptx", label: "PPTX", group: "document", mime: "application/vnd.openxmlformats-officedocument.presentationml.presentation" },
+  /* 옛 파워포인트 — 작업물 갤러리가 문서 뷰어로 보여 주므로 기본으로 받는다. 짝인 PPTX 바로 옆에 둔다 */
+  { ext: "ppt", label: "PPT", group: "document", mime: "application/vnd.ms-powerpoint" },
   { ext: "txt", label: "TXT", group: "document", mime: "text/plain" },
   { ext: "md", label: "MD", group: "document", mime: "text/markdown" },
   { ext: "csv", label: "CSV", group: "document", mime: "text/csv" },
@@ -47,11 +51,9 @@ export const ADDABLE_FORMATS: FormatDef[] = [
   { ext: "mkv", label: "MKV", group: "video", mime: "video/x-matroska" },
   { ext: "avi", label: "AVI", group: "video", mime: "video/x-msvideo" },
   { ext: "flac", label: "FLAC", group: "audio", mime: "audio/flac" },
-  { ext: "m4a", label: "M4A", group: "audio", mime: "audio/x-m4a" },
   { ext: "aac", label: "AAC", group: "audio", mime: "audio/aac" },
   { ext: "doc", label: "DOC", group: "document", mime: "application/msword" },
   { ext: "xls", label: "XLS", group: "document", mime: "application/vnd.ms-excel" },
-  { ext: "ppt", label: "PPT", group: "document", mime: "application/vnd.ms-powerpoint" },
   { ext: "hwp", label: "HWP", group: "document", mime: "application/x-hwp" },
   { ext: "epub", label: "EPUB", group: "document", mime: "application/epub+zip" },
   { ext: "json", label: "JSON", group: "document", mime: "application/json" },
@@ -86,7 +88,8 @@ export function inferGroup(ext: string): MimeGroupKey | "other" {
 /** 형식 켤 때 자동 배정될 추천 크기 (MB) */
 const RECOMMENDED_SIZE: Record<string, number> = {
   jpg: 5, jpeg: 5, png: 5, webp: 5, svg: 2, gif: 10, avif: 5, bmp: 10, heic: 10, tiff: 10,
-  mp4: 200, webm: 200, mov: 200, mkv: 200, avi: 200,
+  /* 저장소가 한 파일에 50MB 까지만 받는다 — 추천값도 그 위로는 올리지 않는다 */
+  mp4: 50, webm: 50, mov: 50, mkv: 50, avi: 50,
   mp3: 20, wav: 20, ogg: 20, flac: 20, m4a: 20, aac: 20,
   pdf: 20, docx: 20, xlsx: 20, pptx: 50, txt: 1, md: 1, csv: 5,
   doc: 20, xls: 20, ppt: 50, hwp: 20, epub: 10, json: 2, rtf: 10,
@@ -94,7 +97,7 @@ const RECOMMENDED_SIZE: Record<string, number> = {
 };
 
 const GROUP_RECOMMENDED: Record<MimeGroupKey, number> = {
-  image: 5, video: 200, audio: 20, document: 20, archive: 50,
+  image: 5, video: 50, audio: 20, document: 20, archive: 50,
 };
 
 /** 확장자(+그룹) → 추천 크기 */
@@ -127,13 +130,12 @@ export function normalizeLimits(limits: Record<string, number> | undefined): Rec
   return out;
 }
 
-export const SIZE_OPTIONS: SelectOption[] = [
-  { value: "1", label: "1 MB" },
-  { value: "2", label: "2 MB" },
-  { value: "5", label: "5 MB" },
-  { value: "10", label: "10 MB" },
-  { value: "20", label: "20 MB" },
-  { value: "50", label: "50 MB" },
-  { value: "100", label: "100 MB" },
-  { value: "200", label: "200 MB" },
-];
+/**
+ * 저장소(Supabase 무료 플랜)가 파일 하나에 받는 최대 크기(MB).
+ * 이보다 큰 한도는 골라도 쓸 수 없다 — 저장소가 413 으로 돌려보내고, 업로드 라우트도 이 값에서 자른다.
+ */
+export const STORAGE_MAX_MB = 50;
+
+export const SIZE_OPTIONS: SelectOption[] = [1, 2, 5, 10, 20, 50]
+  .filter((mb) => mb <= STORAGE_MAX_MB)
+  .map((mb) => ({ value: String(mb), label: `${mb} MB` }));

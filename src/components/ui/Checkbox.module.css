@@ -1,5 +1,9 @@
 /* ── Shared Checkbox ── */
 .wrapper {
+  /* 숨긴 input 이 이 안에 머물도록 기준을 잡는다 — 기준이 없으면 그 절대 위치가 바깥의 어떤
+     조상(모달 패널 등)으로 올라가, 눌러서 포커스가 갈 때 브라우저가 그 조상을 맨 위로 스크롤한다
+     (스크롤한 목록에서 아래쪽 칸을 고르면 내용이 위로 튀어 올랐다) */
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-xs);

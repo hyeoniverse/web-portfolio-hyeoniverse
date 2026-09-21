@@ -15,6 +15,8 @@
   /* 판이 화면에 실제로 차지하는 너비(--panel-w)를 무대가 매 프레임 넣어 준다.
      그 값을 넘지 않아야 글자가 판 밖으로 나가지 않는다 */
   max-width: min(520px, var(--panel-w, 520px));
+  /* 내용 기준 폭 — left: 50% 요소는 그냥 두면 화면 절반 폭 안에서 줄을 바꾼다 */
+  width: max-content;
   padding: 0 var(--spacing-xl);
   transition: opacity 0.3s ease;
 }

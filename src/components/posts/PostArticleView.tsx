@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useRef, type ReactNode } from "react";
+import { useMemo, useRef, type ReactNode } from "react";
 import Link from "next/link";
 import "katex/dist/katex.min.css";
 import { Pencil, ExternalLink, SocialBrandIcon } from "@/components/icons";
 import { GithubIcon } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useIsAuthenticated } from "@/hooks/useIsAuthenticated";
+import { useRichtextEnhance } from "@/hooks/useRichtextEnhance";
 import { processRichtextHtml } from "@/utils/processRichtextHtml";
 import { formatCount } from "@/utils/format";
 import { SITE_TIME_ZONE } from "@/constants";
@@ -190,12 +191,10 @@ export function PostArticleHeader({
 
 /* ────────────────────────────────────────────────────────────
  * PostArticleBody — DetailLayout 의 children slot 본문.
- * richtext(processRichtextHtml + attachCodeWrapToggle/enhanceReaderExtras) / markdown(MarkdownRenderer).
+ * richtext(processRichtextHtml + useRichtextEnhance) / markdown(MarkdownRenderer).
  * detail 의 prose 영역과 동일한 마크업·이벤트 위임을 그대로 보유.
  * proseViewerRef 는 호출부(ImageViewer 연결)에서 관리하므로 ref 로 받는다.
  * ──────────────────────────────────────────────────────────── */
-/** 후처리 적용 표식 — React 가 innerHTML 을 다시 세팅하면 사라져서 재적용 신호가 된다 */
-const ENHANCED_FLAG = "data-reader-enhanced";
 
 export function PostArticleBody({
   data,
@@ -213,7 +212,7 @@ export function PostArticleBody({
   const richtextRef = useRef<HTMLDivElement>(null);
 
   // markdown 코드블록 컨트롤은 MarkdownRenderer 가 자체 ref 로 주입한다(부모 ref 전달 여부와 무관).
-  // richtext 는 아래 useEffect 에서 richtextRef 로 처리.
+  // richtext 는 아래 useRichtextEnhance 가 richtextRef 로 처리.
 
   /* t 는 language 가 확정되면 identity 가 바뀐다(LanguageProvider 의 useCallback([language])).
      그걸 deps 에 두면 **내용이 완전히 같은데도** 새 문자열이 나오고, React 가 그걸 다른 값으로 보고
@@ -231,78 +230,8 @@ export function PostArticleBody({
     });
   }, [isMarkdown, content]);
 
-  /* richtext 후처리 — 수식(KaTeX) / 코드블록 상단 바 / 특수 블록 island(mermaid·다이어그램·달력·플레이그라운드).
-     전부 dangerouslySetInnerHTML 로 만든 DOM 위에 얹는 작업이라, React 가 그 DOM 을 다시 세팅하면
-     통째로 날아간다. 그래서 "한 번 적용"이 아니라 **컨테이너를 계속 소유**하는 구조로 둔다. */
-  useEffect(() => {
-    if (isMarkdown) return;
-    const el = richtextRef.current;
-    if (!el) return;
-
-    let cancelled = false;
-    let extrasCleanup: (() => void) | undefined;
-
-    const apply = async () => {
-      if (cancelled || !el.isConnected) return;
-      const [{ renderMathNodes }, { attachCodeWrapToggle, applyColorSwatches, highlightInlineCode }, { enhanceReaderExtras }] = await Promise.all([
-        import("@/components/posts/renderMathNodes"),
-        import("@/components/posts/highlightCodeBlocks"),
-        import("@/components/posts/enhanceReaderExtras"),
-      ]);
-      if (cancelled || !el.isConnected) return;
-
-      // 수식 노드([data-math-block]/[data-math-inline])를 KaTeX 로 — 없으면 raw LaTeX 로 깨져 보인다
-      /* 수식 오류 문구의 언어 — 이 효과는 언어가 바뀌어도 다시 돌지 않게 되어 있어(위 tRef 와 같은 이유) html lang 을 읽는다 */
-      renderMathNodes(el, document.documentElement.lang === "en" ? "en" : "ko");
-      attachCodeWrapToggle(el, {
-        wrap: tRef.current("common.codeWrap"),
-        scroll: tRef.current("common.codeScroll"),
-        wrapTitle: tRef.current("common.codeWrapTitle"),
-        scrollTitle: tRef.current("common.codeScrollTitle"),
-        copy: tRef.current("common.codeCopy"),
-        copied: tRef.current("common.codeCopied"),
-      });
-      // 인라인 코드 색상값(`#hex`·`rgb()`·`hsl()`) 앞에 색 스와치
-      applyColorSwatches(el);
-      // 인라인 코드도 syntax highlight (명확히 코드로 추론될 때만)
-      highlightInlineCode(el);
-      extrasCleanup?.();
-      extrasCleanup = enhanceReaderExtras(el, {
-        viewCode: tRef.current("common.mermaidViewCode"),
-        hideCode: tRef.current("common.mermaidHideCode"),
-        copyCode: tRef.current("common.codeCopy"),
-        copied: tRef.current("common.codeCopied"),
-        diagram: tRef.current("common.mermaidDiagram"),
-        code: tRef.current("common.mermaidCode"),
-        split: tRef.current("common.mermaidSplit"),
-      });
-
-      // 재적용 판정용 sentinel — React 가 innerHTML 을 다시 세팅하면 이것도 같이 지워진다.
-      if (!el.querySelector(`:scope > [${ENHANCED_FLAG}]`)) {
-        const mark = document.createElement("span");
-        mark.setAttribute(ENHANCED_FLAG, "");
-        mark.hidden = true;
-        el.appendChild(mark);
-      }
-    };
-
-    void apply();
-
-    /* 방어 — React 가 이 컨테이너의 innerHTML 을 다시 세팅하면 위 후처리가 전부 사라진다.
-       sentinel 이 없어진 걸 신호로 재적용한다.
-       island 의 host.replaceWith 는 sentinel 을 안 건드리므로 우리 변경엔 반응하지 않는다(루프 없음). */
-    const mo = new MutationObserver(() => {
-      if (cancelled) return;
-      if (!el.querySelector(`:scope > [${ENHANCED_FLAG}]`)) void apply();
-    });
-    mo.observe(el, { childList: true });
-
-    return () => {
-      cancelled = true;
-      mo.disconnect();
-      extrasCleanup?.();
-    };
-  }, [isMarkdown, processedRichtextHtml]);
+  /* richtext 후처리(수식·코드블록 바·island …) — 작업물 상세와 같은 훅을 쓴다 */
+  useRichtextEnhance(richtextRef, processedRichtextHtml, !isMarkdown);
 
   return (
     <div ref={proseViewerRef}>

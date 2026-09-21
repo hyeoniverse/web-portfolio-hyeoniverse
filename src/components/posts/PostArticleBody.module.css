@@ -409,3 +409,32 @@
 .prose :global(.reader-toc) a[data-depth="2"] { padding-left: var(--spacing-md); }
 .prose :global(.reader-toc) a[data-depth="3"] { padding-left: var(--spacing-xl); }
 .prose :global(.reader-toc) a[data-depth="4"] { padding-left: var(--spacing-2xl); }
+
+/* 넘치는 표를 담는 스크롤 상자 — readerExtras 가 감싼다(.tbl-freeze 와 같은 스크롤바 모양) */
+.prose :global(.tbl-scroll) {
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
+  margin: var(--spacing-xl) 0;
+  padding-bottom: var(--spacing-md);
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color-strong) transparent;
+}
+
+.prose :global(.tbl-scroll)::-webkit-scrollbar {
+  display: block;
+  height: 8px;
+}
+
+.prose :global(.tbl-scroll)::-webkit-scrollbar-thumb {
+  background: var(--border-color-strong);
+  border-radius: var(--radius-capsule);
+}
+
+.prose :global(.tbl-scroll)::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.prose :global(.tbl-scroll) > table {
+  margin: 0;
+}

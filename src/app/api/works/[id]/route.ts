@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { jsonServerError } from "@/lib/api/response";
+import { dropGalleryNotesIfMissing, GALLERY_NOTES_DROPPED_HEADER } from "@/lib/api/galleryNotesColumn";
 import { ensureWorksCategory } from "@/lib/api/validateCategory";
 import { requirePostAccess, policyBlocked } from "@/lib/api/requirePostAccess";
 import { PERM } from "@/lib/api/roles";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { placeWork } from "@/lib/api/placeWork";
+import { placeWork, renumberWorks } from "@/lib/api/placeWork";
 import { revalidatePublicWorks } from "@/lib/api/revalidateWorks";
 
 interface RouteContext {
@@ -47,7 +48,7 @@ const ALLOWED_FIELDS = new Set([
   "overview_ko", "overview_en", "overview_image",
   "challenge_ko", "challenge_en", "challenge_image",
   "solution_ko", "solution_en", "solution_image",
-  "team_members", "gallery",
+  "team_members", "gallery", "gallery_notes",
   "live_url", "github_url",
   "published", "sort_order", "is_pinned",
   "scheduled_at",
@@ -108,6 +109,10 @@ export async function PATCH(request: Request, context: RouteContext) {
   filtered.updated_at = new Date().toISOString();
 
 
+  /* 슬라이드 음성 칸이 아직 없는 DB 면 그 칸만 빼고 저장한다(galleryNotesColumn 참고) */
+  const notesDropped = await dropGalleryNotesIfMissing(admin, filtered);
+  const notesHeader = notesDropped ? { headers: { [GALLERY_NOTES_DROPPED_HEADER]: "1" } } : undefined;
+
   // sort_order 변경 시 — 그 자리에 끼우고 전체를 1..N 으로 다시 매긴다(skipShift=true 인 목록 끌어 놓기 묶음 제외).
   // 기존 0/duplicate 도 자동 정리. 한 요청 안에서 끝내야 한다 — placeWork 주석(#873)
   if (!skipShift && filtered.sort_order !== undefined) {
@@ -120,7 +125,7 @@ export async function PATCH(request: Request, context: RouteContext) {
         .from("works").select("*").eq("id", id).single();
       if (error) return jsonServerError(error, "PATCH /api/works/[id]");
       revalidatePublicWorks();
-      return NextResponse.json(data);
+      return NextResponse.json(data, notesHeader);
     }
   }
 
@@ -137,7 +142,7 @@ export async function PATCH(request: Request, context: RouteContext) {
   }
 
   revalidatePublicWorks();
-  return NextResponse.json(data);
+  return NextResponse.json(data, notesHeader);
 }
 
 // DELETE /api/works/[id] — 휴지통으로 이동 (소프트 삭제, admin only)
@@ -162,6 +167,8 @@ export async function DELETE(_request: Request, context: RouteContext) {
     return jsonServerError(error, "DELETE /api/works/[id]");
   }
 
+  /* 빠진 자리를 메워 목록 번호가 1..N 으로 이어지게 한다 */
+  await renumberWorks(admin);
   revalidatePublicWorks();
   return NextResponse.json({ success: true });
 }

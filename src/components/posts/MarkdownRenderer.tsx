@@ -60,7 +60,7 @@ marked.use(
       // 자세한 건 utils/prismHighlight 주석.
       const { html: highlighted, lang: resolved } = highlightCode(text, lang ?? undefined);
       const language = resolved || null;
-      return `<div class="code-block-wrap"><pre data-lenis-prevent><code${language ? ` class="language-${language}"` : ""}>${highlighted}</code></pre><button class="code-wrap-toggle" data-wrap-btn><span class="code-wrap-label-default">${SCROLL_SLOT}</span><span class="code-wrap-label-hover">${WRAP_SLOT}</span></button></div>\n`;
+      return `<div class="code-block-wrap"><pre><code${language ? ` class="language-${language}"` : ""}>${highlighted}</code></pre><button class="code-wrap-toggle" data-wrap-btn><span class="code-wrap-label-default">${SCROLL_SLOT}</span><span class="code-wrap-label-hover">${WRAP_SLOT}</span></button></div>\n`;
     },
   },
 });

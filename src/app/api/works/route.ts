@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 import { jsonServerError } from "@/lib/api/response";
+import { dropGalleryNotesIfMissing, GALLERY_NOTES_DROPPED_HEADER } from "@/lib/api/galleryNotesColumn";
 import { QUERY_PARAM } from "@/constants";
 import { ensureWorksCategory } from "@/lib/api/validateCategory";
 import { createClient } from "@/lib/supabase/server";
 import { requireAuth } from "@/lib/api/requireAuth";
 import { requireRole } from "@/lib/api/requireRole";
 import { PERM } from "@/lib/api/roles";
-import { placeWork } from "@/lib/api/placeWork";
+import { placeWork, renumberWorks } from "@/lib/api/placeWork";
 import { revalidatePublicWorks } from "@/lib/api/revalidateWorks";
 import { applySearchQuery } from "@/lib/api/applySearchQuery";
 import type { SyntaxMode } from "@/lib/searchQuery";
@@ -137,7 +138,7 @@ const ALLOWED_FIELDS = new Set([
   "overview_ko", "overview_en", "overview_image",
   "challenge_ko", "challenge_en", "challenge_image",
   "solution_ko", "solution_en", "solution_image",
-  "team_members", "gallery",
+  "team_members", "gallery", "gallery_notes",
   "live_url", "github_url",
   "published", "sort_order", "is_pinned",
 ]);
@@ -171,10 +172,15 @@ export async function POST(request: Request) {
   const { data: maxRow } = await supabase
     .from("works")
     .select("sort_order")
+    .is("deleted_at", null)
     .order("sort_order", { ascending: false })
     .limit(1)
     .maybeSingle();
   filtered.sort_order = (maxRow?.sort_order ?? 0) + 1;
+
+  /* 슬라이드 음성 칸이 아직 없는 DB 면 그 칸만 빼고 만든다(galleryNotesColumn 참고) */
+  const notesDropped = await dropGalleryNotesIfMissing(supabase, filtered);
+  const notesHeaders = notesDropped ? { [GALLERY_NOTES_DROPPED_HEADER]: "1" } : undefined;
 
   const { data, error } = await supabase
     .from("works")
@@ -190,9 +196,11 @@ export async function POST(request: Request) {
     await placeWork(supabase, data.id, position);
     const { data: placed } = await supabase.from("works").select("*").eq("id", data.id).single();
     revalidatePublicWorks();
-    return NextResponse.json(placed ?? data, { status: 201 });
+    return NextResponse.json(placed ?? data, { status: 201, headers: notesHeaders });
   }
 
+  /* 자리를 따로 받지 않았어도 번호는 촘촘해야 한다(목록이 이 값을 그대로 찍는다) */
+  await renumberWorks(supabase);
   revalidatePublicWorks();
-  return NextResponse.json(data, { status: 201 });
+  return NextResponse.json(data, { status: 201, headers: notesHeaders });
 }
