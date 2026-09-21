@@ -523,6 +523,7 @@
     "perPage": "{{n}}개씩"
   },
   "worksPage": {
+    "emailCopied": "이메일 주소를 복사했습니다.",
     "emptyTitle": "아직 발행한 작업물이 없습니다.",
     "emptySub": "새로운 작업물을 준비하고 있습니다.",
     "backHome": "홈으로 돌아가기"
