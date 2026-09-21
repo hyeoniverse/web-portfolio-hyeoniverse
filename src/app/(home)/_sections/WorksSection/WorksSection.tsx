@@ -26,6 +26,22 @@ const IMAGE_POSITIONS = [
   [0, 4],       // row 4
 ];
 
+/**
+ * 원을 그릴 자리(5×5 격자의 칸 번호) — 작업물이 자리(11개)보다 적으면 아래 줄부터 채운다.
+ *
+ * 머리글("Selected Works")이 맨 아래 줄 가운데에 있다. 위부터 채우면 원이 위쪽에만 몰리고 머리글 둘레가
+ * 비어, 머리글이 원들과 떨어진 채 혼자 남는다. 그래서 자리는 아래 줄부터(같은 줄에서는 왼쪽부터) 고른다.
+ * 한가운데 칸(가운데 줄의 가운데)은 맨 나중이다 — 양옆이 먼저 차야 격자가 좌우로 고르게 보이고,
+ * 가운데 하나만 먼저 서면 원들이 한가운데로 몰려 보인다.
+ * 고른 자리에 작업물을 넣는 차례는 그대로 위에서 아래로다 — 자리가 다 차면 예전과 같은 배치가 된다.
+ */
+export function homeWorkSlots(count: number): Set<number> {
+  const isCenter = (slot: number) => slot % 5 === 2;
+  const order = IMAGE_POSITIONS.flatMap((cols, row) => cols.map((col) => row * 5 + col))
+    .sort((a, b) => Number(isCenter(a)) - Number(isCenter(b)) || Math.floor(b / 5) - Math.floor(a / 5) || a - b);
+  return new Set(order.slice(0, Math.max(0, count)));
+}
+
 // ─── 개별 워크 아이템 (memo) ───────────────────────────────────────────
 
 interface WorkCircleProps {
@@ -282,16 +298,17 @@ const WorksSection = forwardRef<HTMLElement, WorksSectionProps>(
       []
     );
 
-    // 그리드 아이템 생성
+    // 그리드 아이템 생성 — 작업물이 적으면 아래 줄 자리부터 쓴다(homeWorkSlots)
     const items = [];
     let workIndex = 0;
+    const slots = homeWorkSlots(works.length);
 
     for (let row = 0; row < 5; row++) {
       for (let col = 0; col < 5; col++) {
         const index = row * 5 + col;
         if (row === 4 && col >= 1 && col <= 3) continue;
 
-        const hasImage = IMAGE_POSITIONS[row].includes(col);
+        const hasImage = slots.has(index);
         const work =
           hasImage && workIndex < works.length
             ? works[workIndex++]
