@@ -5,7 +5,8 @@ import { useDepsChanged } from "@/hooks/useDepsChanged";
 import type { Point } from "@/types";
 import { createPortal } from "react-dom";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useRoutePathname } from "@/hooks/useRoutePathname";
 import { motion, AnimatePresence, useMotionValue } from "framer-motion";
 import { Moon, Sun, Bell, ArrowRight, Settings } from "@/components/icons";
 import { useTheme } from "@/providers/ThemeProvider";
@@ -117,7 +118,7 @@ export default function Navigation() {
   // 전환 때 숏 글리프로 crossfade 한다(이미지 로고의 풀↔숏 교체와 같은 패턴).
   const morphIsCharCut = LOGO_TEXT === NAME_GRAPHEMES[0];
 
-  const pathname = usePathname();
+  const pathname = useRoutePathname();
   const { theme, toggleTheme } = useTheme();
   const { language, toggleLanguage } = useLanguage();
   /* 알림 목록의 상대시간 기준 시각. 렌더에서 Date.now() 를 부르면 매 렌더 값이 달라진다. */

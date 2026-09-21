@@ -8,7 +8,8 @@ import {
   useRef,
   useEffect,
 } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useRoutePathname } from "@/hooks/useRoutePathname";
 import MediaThumb from "@/components/ui/MediaThumb";
 
 /* ── Types ── */
@@ -171,7 +172,7 @@ function TransitionOverlay({
   const { phase, rect, image, color, href, fromPath } = state;
   /* 이 컴포넌트는 전환하는 동안만 떠 있다 — 경로 구독도 여기서만 한다.
      라우터가 새 트리를 커밋할 때 이 값이 바뀌고, 그게 곧 "넘어갔다"는 신호다. */
-  const pathname = usePathname();
+  const pathname = useRoutePathname();
   /* 아직 출발 경로 그대로면 안 넘어간 것. 리다이렉트로 href 아닌 데 닿았어도 경로가 달라졌으면 넘어간 것으로 본다 */
   const here = pathOf(pathname);
   const navPending = href !== null && here === fromPath && here !== pathOf(href);

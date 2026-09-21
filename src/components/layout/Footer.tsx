@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useLayoutEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useRoutePathname } from "@/hooks/useRoutePathname";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { cn } from "@/utils/cn";
@@ -23,7 +23,8 @@ interface FooterProps {
 }
 
 export default function Footer({ className, variant = "full" }: FooterProps) {
-  const pathname = usePathname();
+  /* 배포가 다시 그린 홈은 주소가 "/index" 로 읽힌다 — 그대로 비교하면 홈에서 숨지 않아 푸터가 두 개가 됐다(#1100) */
+  const pathname = useRoutePathname();
   // design-system(쇼케이스)에선 데스크톱에서도 footer 의 ViewModeToggle 을 보이게 강제.
   const isDesignSystem = !!pathname?.startsWith("/design-system");
   const { language } = useLanguage();

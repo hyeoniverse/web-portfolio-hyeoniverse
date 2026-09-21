@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { useRoutePathname } from "@/hooks/useRoutePathname";
 import { useLenis } from "@/providers/LenisProvider";
 
 export default function ScrollRestoration() {
-  const pathname = usePathname();
+  const pathname = useRoutePathname();
   const { lenis } = useLenis();
 
   useEffect(() => {
