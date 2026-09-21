@@ -1,0 +1,133 @@
+.body {
+  /* 모달 머리줄·발치와 같은 좌우 여백 */
+  padding: 0 var(--spacing-lg) var(--spacing-lg);
+}
+
+/* 창을 여는 사람이 먼저 읽는 문장이라 본문 크기로 — 보조 설명 크기(12px)로 두면 눈에 안 들어온다 */
+.hint {
+  margin: 0 0 var(--spacing-md);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-body);
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.empty {
+  margin: var(--spacing-lg) 0;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-label);
+  color: var(--text-tertiary);
+  text-align: center;
+}
+
+.selectAll {
+  display: inline-flex;
+  align-items: center;
+  /* 아래 줄들과 같은 자리에서 시작하도록 — 줄에 좌우 여백이 있어 체크박스가 들여쓰기 돼 있다 */
+  padding: 0 var(--spacing-sm);
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-label);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+/* 저장소가 많으면 목록만 스크롤된다 */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  max-height: 340px;
+  overflow-y: auto;
+}
+
+/* 계정 묶음 — 내 저장소와 조직 저장소를 갈라 놓는다 */
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+}
+
+.groupHead {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin: 0;
+  padding: 0 var(--spacing-sm);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-hint);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.groupName {
+  font-family: var(--font-mono);
+}
+
+/* 조직 표시 — 이름만으로는 내 계정과 구별되지 않는다 */
+.groupKind {
+  padding: 0 var(--spacing-xs);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary);
+  font-size: var(--font-size-micro);
+  font-weight: 500;
+  color: var(--text-tertiary);
+}
+
+.groupCount {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-weight: 400;
+  color: var(--text-tertiary);
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-capsule);
+  cursor: pointer;
+}
+
+.row:hover {
+  background: var(--bg-tertiary);
+}
+
+.name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-body);
+  color: var(--text-primary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.slug {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-label);
+  color: var(--text-tertiary);
+}
+
+/* 이미 들여 둔 저장소 — 고르면 내용을 덮어쓴다는 뜻이라 눈에 띄게 */
+.badge {
+  flex-shrink: 0;
+  padding: 0 var(--spacing-xs);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-hint);
+  color: var(--text-secondary);
+}

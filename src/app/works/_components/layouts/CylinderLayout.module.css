@@ -1,22 +1,25 @@
 /* ==========================================================================
    E. Cylinder — Three.js 세로 원통 회전 + HTML 메타 오버레이
+   생김새는 andreasantonsson.dev 를 따른다 — 분류·큰 세리프 제목·둥근 화살표, 위아래 그라데이션
    ========================================================================== */
 .wrap {
   --_border-accent-mid: 1px solid var(--color-accent-alpha-50);
+  /* 무대 바탕 — 위아래 그라데이션도 이 색으로 흐린다 */
+  --_bg: oklch(97.34% 0.0169 76.11);
 
   position: fixed;
   inset: 0;
   width: 100%;
   height: 100vh;
   overflow: hidden;
-  background-color: oklch(97.34% 0.0169 76.11);
+  background-color: var(--_bg);
   /* 한 손가락 끌기는 원통 돌리기가 받는다(useCylinderStage). 두 손가락 확대는 브라우저에 남긴다(#940) */
   touch-action: pinch-zoom;
 }
 
 [data-theme="dark"] .wrap {
   /* 3D 실린더 뒤 배경 — 다크에서 순수 검정이어야 오브젝트가 떠 보인다. */
-  background-color: var(--color-gray-alpha-100);
+  --_bg: var(--color-gray-alpha-100);
 }
 
 /* 배경을 비우는 변형 — 작업물이 하나도 없을 때 이 배치는 인트로 칸만 그리고, 뒤에 깔린 은하수가
@@ -82,11 +85,64 @@
   color: var(--text-primary);
 }
 
-/* ── Canvas (fixed, full-screen) ── */
+/* ── Canvas (fixed, full-screen) ──
+   판이 처음 그려지는 프레임에 <canvas> 에 data-ready 가 붙는다(VerticalCylinder). 그때 원통이 돌아 들어오며
+   드러난다. 이 클래스는 r3f 가 canvas 를 감싼 div 에 달리므로 안쪽 canvas 를 보고 가린다 */
 .canvas {
   position: fixed !important;
   inset: 0;
   z-index: 1;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+.canvas:has(canvas[data-ready]) {
+  opacity: 1;
+}
+
+/* ── 위아래 그라데이션 ──
+   판은 위아래로 갈수록 휘며 멀어진다. 그 끝을 바탕색으로 흐려 원통이 화면 밖으로 이어지는 것처럼 보이게 한다.
+   가로 화면은 반쯤만(25vh), 세로 화면은 판이 서너 장 보이므로 끝을 다 덮는다(33vh) — 레퍼런스와 같은 값.
+   글자(5)보다 아래, 캔버스(1)보다 위 */
+.fade {
+  position: fixed;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  height: 25vh;
+  pointer-events: none;
+  --_edge: 50%;
+}
+
+.fadeTop {
+  top: 0;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in oklab, var(--_bg) var(--_edge), transparent) 0%,
+    color-mix(in oklab, var(--_bg) calc(var(--_edge) * 0.62), transparent) 20%,
+    color-mix(in oklab, var(--_bg) calc(var(--_edge) * 0.3), transparent) 45%,
+    color-mix(in oklab, var(--_bg) calc(var(--_edge) * 0.1), transparent) 72%,
+    transparent 100%
+  );
+}
+
+.fadeBottom {
+  bottom: 0;
+  background: linear-gradient(
+    to top,
+    color-mix(in oklab, var(--_bg) var(--_edge), transparent) 0%,
+    color-mix(in oklab, var(--_bg) calc(var(--_edge) * 0.62), transparent) 20%,
+    color-mix(in oklab, var(--_bg) calc(var(--_edge) * 0.3), transparent) 45%,
+    color-mix(in oklab, var(--_bg) calc(var(--_edge) * 0.1), transparent) 72%,
+    transparent 100%
+  );
+}
+
+@media (max-aspect-ratio: 1 / 1) {
+  .fade {
+    height: 33vh;
+    --_edge: 100%;
+  }
 }
 
 /* ── Meta items ── */
@@ -100,14 +156,19 @@
   align-items: center;
   text-align: center;
   gap: var(--spacing-sm);
-  /* 글자 뭉치는 판을 넘지 않는다 — 판보다 넓으면 원통 밖 허공에 글자가 뜬다 */
+  /* 글자 뭉치는 판을 넘지 않는다 — 판보다 넓으면 원통 밖 허공에 글자가 뜬다.
+     폭은 내용 기준으로 잡는다. left: 50% 로 띄운 요소는 그냥 두면 화면 절반 폭 안에서 줄을 바꿔,
+     좁은 화면에서 제목이 판 폭을 두고도 네 줄로 꺾였다 */
+  width: max-content;
   max-width: var(--panel-w, 90vw);
   pointer-events: none;
-  mix-blend-mode: difference;
   will-change: transform, opacity;
+  /* 밝은 표지 위에서도 흰 글자가 뜨게 옅은 그림자. 제목은 단어가 아래에서 떠오르도록 제 상자 밖을 잘라서
+     (overflow: hidden) 글자에 그림자를 달면 위아래가 잘렸다 — 잘리지 않는 이 묶음에 단다 */
+  filter: drop-shadow(0 2px 14px oklch(0% 0 0 / 0.35));
 }
 
-/* metaDetails + cta — difference 밖, metaItem과 동일 위치 동기화 */
+/* 화살표 단추 — 제목 묶음 바로 아래(무대 훅이 위치를 맞춘다) */
 .metaOverlay {
   position: fixed;
   top: 50%;
@@ -137,14 +198,13 @@
   margin-left: 0.25em;
 }
 
+/* 분류 — 제목 위 작은 글자. 판을 낮춰 두었으니 흰색 그대로 읽힌다 */
 .metaCategory {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-body);
-  font-weight: var(--font-weight-bold);
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-semibold);
   color: var(--text-white);
-  opacity: calc(var(--reveal, 0) * 0.5);
+  opacity: var(--reveal, 0);
   transform: translateY(calc((1 - var(--reveal, 0)) * 20px));
   filter: blur(calc((1 - var(--reveal, 0)) * 4px));
   transition:
@@ -158,21 +218,24 @@
   /* 세 가지를 같이 보고 가장 작은 값을 쓴다(#1062).
      ① 판 너비(--panel-w) — 판은 창이 넓어도 멀어지면 작아진다. 창 너비(vw)로 잡으면 그때 넘친다.
      ② 제목 길이(--title-units) — 판이 넉넉해도 제목이 길면 넘친다. 판 너비를 글자 폭으로 나눠
-        한 줄에 들어갈 크기를 구한다(로마자 한 글자를 0.5em 로 보아 2배).
-     ③ 판 높이(--panel-h) — 위에 분류, 아래에 설명·단추가 더 있어 세로도 넉넉하지 않다.
+        들어갈 크기를 구한다(로마자 한 글자를 0.5em 로 보아 2배). 레퍼런스처럼 두 줄까지 쓴다 —
+        한 줄에 우겨 넣으면 긴 제목이 판에 비해 너무 작아진다(두 줄이라 1.8배, 줄 끝 여유로 2 가 아니다).
+     ③ 판 높이(--panel-h) — 위에 분류, 아래에 단추가 있고 제목이 두 줄일 수 있다.
      두 값은 무대가 매 프레임 넣어 준다 */
   font-size: clamp(
     2rem,
     min(
       calc(var(--panel-w, 520px) * 0.2),
-      calc(var(--panel-w, 520px) * 2 / var(--title-units, 14)),
-      calc(var(--panel-h, 320px) * 0.34)
+      calc(var(--panel-w, 520px) * 3.6 / var(--title-units, 14)),
+      calc(var(--panel-h, 320px) * 0.3)
     ),
     10rem
   );
-  font-weight: var(--font-weight-light);
+  /* 두 줄이 되면 위아래 줄 길이를 맞춘다 */
+  text-wrap: balance;
+  font-weight: var(--font-weight-regular);
   line-height: 0.95;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.02em;
   color: var(--text-white);
   margin: 0;
   /* 누름은 뒤의 판이 받는다 — 제목이 받으면 판 가운데를 눌러도 넘어가지 않는다(#938) */
@@ -180,63 +243,24 @@
   clip-path: inset(-10% -10% 0 -10%);
 }
 
-.metaDesc {
-  max-width: 480px;
-  font-size: var(--font-size-body-lg);
-  line-height: var(--line-height-relaxed);
-  color: var(--text-white);
-  margin: 0;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.metaDescWord {
-  display: inline-block;
-  opacity: 0;
-  transform: translateY(12px);
-  transition:
-    opacity 0.35s ease,
-    transform 0.35s ease;
-}
-
-.metaItem:hover .metaDescWord,
-.metaItemHovered .metaDescWord,
-.metaOverlay:hover .metaDescWord,
-.metaOverlayHovered .metaDescWord {
-  opacity: 1;
-  transform: translateY(0);
-}
-
+/* 둥근 화살표 — 판이 앞면에 오면 늘 보인다. 짙은 원 위의 흰 화살표, 올리면 흰 원이 차오른다 */
 .ctaInline {
   position: relative;
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   border-radius: var(--radius-circle);
-  border: var(--border-white);
+  background: color-mix(in oklab, var(--bg-black) 82%, transparent);
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
   cursor: pointer;
   pointer-events: auto;
-  margin-top: var(--spacing-xs);
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(8px);
+  opacity: var(--reveal, 0);
+  transform: translateY(calc((1 - var(--reveal, 0)) * 12px));
   transition:
     opacity 0.35s ease,
-    visibility 0.35s ease,
     transform 0.35s ease;
-}
-
-.metaItem:hover .ctaInline,
-.metaItemHovered .ctaInline,
-.metaOverlay:hover .ctaInline,
-.metaOverlayHovered .ctaInline {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
 }
 
 .ctaInline .ctaBg {
@@ -264,86 +288,6 @@
   color: var(--text-black);
 }
 
-/* 설명 알약을 감싼 작업물 링크 — 오버레이 묶음의 pointer-events: none 을 되살린다(#940) */
-.metaDescLink {
-  pointer-events: auto;
-}
-
-/* ── Meta details (year · role · tech) ── */
-/* difference 블렌딩 결과가 #fff이 되도록 배경의 보색 사용 */
-.metaDetails {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--spacing-2xs);
-  max-width: 420px;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-body);
-  letter-spacing: 0.08em;
-  color: var(--text-white);
-  margin-top: var(--spacing-xs);
-  opacity: 0;
-  transform: translateY(12px);
-  transition:
-    opacity 0.35s ease,
-    transform 0.35s ease;
-}
-
-/* 윗줄 — 연도 · 카테고리 · 역할 (고정) */
-.metaDetailsRow {
-  white-space: nowrap;
-  text-align: center;
-}
-
-/* 아랫줄 wrapper — overflow clip + 좌우 페이드 */
-.metaDetailsMarquee {
-  display: block;
-  width: 100%;
-  max-width: 360px;
-  overflow: hidden;
-  mask-image: linear-gradient(
-    to right,
-    transparent,
-    black 10%,
-    black 90%,
-    transparent
-  );
-  -webkit-mask-image: linear-gradient(
-    to right,
-    transparent,
-    black 10%,
-    black 90%,
-    transparent
-  );
-}
-
-/* 아랫줄 — 기술 marquee track */
-.metaDetailsTrack {
-  display: flex;
-  width: max-content;
-  white-space: nowrap;
-  animation: metaMarquee 14s linear infinite;
-}
-
-.metaDetailsContent {
-  flex-shrink: 0;
-  padding-right: var(--spacing-3xl);
-}
-
-@keyframes metaMarquee {
-  to {
-    transform: translateX(-50%);
-  }
-}
-
-.metaItem:hover .metaDetails,
-.metaItemHovered .metaDetails,
-.metaOverlay:hover .metaDetails,
-.metaOverlayHovered .metaDetails {
-  opacity: 1;
-  transform: translateY(0);
-}
-
 /* ── 떠다니는 최신 댓글 버블 ── */
 /* ── 좌하단 고정 정보 ── */
 .fixedInfo {
@@ -367,39 +311,84 @@
   color: var(--text-muted);
 }
 
-/* ── 인디케이터 (우측 세로) ── */
+/* ── 인디케이터 (우하단 세로) ──
+   레퍼런스와 같은 생김새 — 테두리만 있는 작은 둥근 네모(13×10)를 쌓고, 화면에 걸친 판의 칸만 진하게 둔다.
+   그 위로 조금 큰 틀이 원통 위치를 따라 칸 사이를 미끄러진다(--pos 는 무대 훅이 매 프레임 넣는다).
+   좌하단 정보(fixedInfo)와 같은 높이에 앉힌다 */
 .indicator {
+  --_item-w: 13px;
+  --_pitch: 13px;
+  --_frame-w: 25px;
+  --_frame-h: 23px;
+
   position: fixed;
   right: var(--spacing-2xl);
-  top: 50%;
-  transform: translateY(-50%);
+  bottom: var(--spacing-2xl);
   z-index: 5;
+  color: var(--text-primary);
+}
+
+.indicatorList {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
-  pointer-events: none;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
+/* 칸 하나 = 칸 간격 — list-item 으로 두면 글줄 높이(25.6px)를 먹어 틀이 움직이는 간격과 어긋난다 */
+.indicatorList > li {
+  display: block;
+  height: var(--_pitch);
+}
+
+/* 누르는 자리는 칸 간격 전체(13×13), 보이는 네모는 그 안의 13×10 */
 .indicatorDot {
-  width: 6px;
-  height: 6px;
-  border-radius: var(--radius-circle);
-  background: var(--bg-tertiary-alt);
-  transition: all 0.4s ease;
+  position: relative;
+  display: block;
+  width: var(--_item-w);
+  height: var(--_pitch);
 }
 
-.indicatorDotActive {
-  background: var(--bg-inverse);
-  height: 24px;
-  border-radius: 3px;
+.indicatorDot::before {
+  content: "";
+  position: absolute;
+  inset: 1.5px 0;
+  border: 1px solid currentColor;
+  /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 13×10 짜리 네모라 2xl 이면 알약이 된다. 레퍼런스의 2px 모서리 */
+  border-radius: var(--radius-2xs);
+  opacity: 0.2;
+  transition: opacity 0.25s linear;
+}
+
+.indicatorDot:hover::before,
+.indicatorDotActive::before {
+  opacity: 0.75;
+}
+
+/* 지금 위치를 감싸는 틀 — 칸 가운데에 맞춘다. 줄 끝을 넘어갈 때는 흐려진다(--fade) */
+.indicatorFrame {
+  position: absolute;
+  top: 0;
+  left: calc((var(--_item-w) - var(--_frame-w)) / 2);
+  width: var(--_frame-w);
+  height: var(--_frame-h);
+  border: 1px solid currentColor;
+  /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 25×23 짜리 틀이라 2xl 이면 동그라미가 된다 */
+  border-radius: var(--radius-xs);
+  opacity: calc(0.75 * var(--fade, 1));
+  transform: translateY(calc(var(--pos, 0) * var(--_pitch) + (var(--_pitch) - var(--_frame-h)) / 2));
+  pointer-events: none;
 }
 
 /* ── Responsive ── */
 @media (max-width: 1024px) {
 }
 
+/* 좁은 화면 — 레퍼런스처럼 가장자리 여백만 줄인다 */
 @media (max-width: 480px) {
   .indicator {
-    display: none;
+    right: var(--spacing-lg);
+    bottom: var(--spacing-lg);
   }
 }

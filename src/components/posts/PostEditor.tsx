@@ -31,6 +31,7 @@ import AdminEditorShell, {
 } from "@/components/admin/AdminEditorShell";
 import { useRevisions } from "@/hooks/useRevisions";
 import { useEditorAutoSave } from "@/hooks/useEditorAutoSave";
+import { useEditorLeaveGuard } from "@/hooks/useEditorLeaveGuard";
 import { useEditorDraft, draftKey } from "@/hooks/useEditorDraft";
 import { useServiceStatus } from "@/hooks/useServiceStatus";
 import { useEditorTranslation } from "@/hooks/useEditorTranslation";
@@ -422,6 +423,13 @@ export default function PostEditor({ post }: PostEditorProps) {
   const baseVersionRef = useRef<number | undefined>(post?.version);
   // presence — 같은 글을 다른 기기/탭에서 편집 중이면 소프트 경고
   const presenceOthers = usePostPresence(post?.id, isEdit);
+
+  /* 저장하지 않고 떠나려 하면 묻는다 — 뒤로 가기·사이트 안 링크·새로고침·탭 닫기 */
+  const askLeave = (go: () => void) => openModal(
+    <ModalConfirm desc={t("admin.common.leaveConfirm")} confirmText={t("admin.common.leaveConfirmAction")} danger onConfirm={go} />,
+    { width: "min(90vw, 480px)" },
+  );
+  useEditorLeaveGuard({ form, dirty: isDirty, busy: saving, ask: askLeave, fallback: "/admin/posts" });
 
   const onAutoSaved = useCallback(() => {
     setStatus(te("autoSaved"));

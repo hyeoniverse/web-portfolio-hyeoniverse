@@ -17,7 +17,7 @@ import RelatedWorksCarousel, { type RelatedWork } from "./_components/RelatedWor
 import SeriesPanel from "./_components/SeriesPanel/SeriesPanel";
 import SeriesPreviewTooltip from "./_components/SeriesPanel/SeriesPreviewTooltip";
 import { useSeriesPanel } from "./_components/SeriesPanel/useSeriesPanel";
-import TranslateBanner from "./_components/TranslateBanner";
+import TranslateBanner from "@/components/ui/TranslateBanner";
 import { usePostTranslation } from "./_hooks/usePostTranslation";
 import { usePostDetailFetches } from "./_hooks/usePostDetailFetches";
 import { useRecommendedToast } from "./_hooks/useRecommendedToast";

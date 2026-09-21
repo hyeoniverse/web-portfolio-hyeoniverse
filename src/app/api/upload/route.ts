@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { STORAGE_MAX_MB } from "@/lib/uploadFormats";
 import { requireAuth } from "@/lib/api/requireAuth";
 import { jsonError, jsonOk, jsonServerError } from "@/lib/api/response";
 import { needsConversion, convertToWebp } from "@/lib/convertImage";
@@ -52,7 +53,10 @@ const MIME_EXT_MAP: Record<string, string[]> = {
 
 // 기본 크기 제한 (MB) — 설정이 없을 때 사용
 const DEFAULT_LIMIT_MB = 20;
-const MAX_ABSOLUTE_MB = 200; // 어떤 경우에도 200MB 초과 금지
+/* 어떤 경우에도 넘을 수 없는 값 — 저장소(Supabase)의 한 파일 상한과 같게 둔다.
+   이 프로젝트에서 재 보면 50MB 는 통과하고 51MB 는 413(EntityTooLarge)으로 막힌다.
+   설정 화면의 크기 선택지도 같은 값(STORAGE_MAX_MB)에서 끊는다 */
+const MAX_ABSOLUTE_MB = STORAGE_MAX_MB;
 
 // POST /api/upload — 파일 업로드 (admin only)
 export async function POST(request: Request) {

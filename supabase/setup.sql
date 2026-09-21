@@ -645,6 +645,7 @@ CREATE TABLE IF NOT EXISTS works (
   -- 기술별 메모 (예: { "React": "컴포넌트 기반 UI", "TypeScript": "타입 안전성" })
   tech_notes       jsonb NOT NULL DEFAULT '{}'::jsonb,
   gallery          text[] NOT NULL DEFAULT '{}',
+  gallery_notes    jsonb NOT NULL DEFAULT '{}'::jsonb, -- 갤러리 장마다의 음성(그림 주소 → 대본·음성 파일)
   live_url         text DEFAULT '',
   github_url       text DEFAULT '',
   published        boolean NOT NULL DEFAULT false,

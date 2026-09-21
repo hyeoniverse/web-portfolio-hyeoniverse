@@ -161,7 +161,8 @@ export default function SubTable<T extends { id: string }>({
           {icon}
           <span>
             {title}
-            {count != null && count > 0 && ` (${count})`}
+            {/* 0 개도 숫자를 보여 준다 — 숫자가 없으면 "아직 안 세어 본 것" 처럼 읽힌다 */}
+            {count != null && ` (${count})`}
           </span>
           <span className={`${styles.chevron} ${open ? styles.chevronOpen : ""}`}>
             <ChevronIcon />
@@ -267,7 +268,12 @@ export default function SubTable<T extends { id: string }>({
                       onRowHover?.(item, e);
                     }}
                     onMouseLeave={() => onRowLeave?.()}
-                    onClick={(e) => onRowClick?.(item, e)}
+                    onClick={(e) => {
+                      /* 행 안의 단추·링크를 누른 건 행을 누른 게 아니다 — 휴지통의 복구·연장·삭제를
+                         누르면 미리보기까지 같이 열렸다 */
+                      if ((e.target as Element | null)?.closest?.("button, a, input, label, [role=\"button\"]")) return;
+                      onRowClick?.(item, e);
+                    }}
                   >
                     <span className={styles.colCheck} onClick={(e) => e.stopPropagation()}>
                       <Checkbox

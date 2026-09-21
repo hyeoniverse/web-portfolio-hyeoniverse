@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { useRouter } from "next/navigation";
+import { sendAction } from "@/lib/sendAction";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import type { Project } from "@/data/projects";
@@ -11,8 +13,12 @@ import { useIsAuthenticated } from "@/hooks/useIsAuthenticated";
 import { useLikeToggle } from "@/hooks/useLikeToggle";
 import { WorkArticleHeader } from "@/components/works/WorkArticleHeader";
 import { WorkArticleBody } from "@/components/works/WorkArticleBody";
+import { WorkArticleGallery } from "@/components/works/WorkArticleGallery";
 import { WorkArticleTeam } from "@/components/works/WorkArticleTeam";
 import type { RelatedPostItem, RelatedSeriesItem } from "@/components/works/workArticleTypes";
+import TranslateBanner from "@/components/ui/TranslateBanner";
+import { useWorkTranslation } from "./_hooks/useWorkTranslation";
+import { initialContentLang, pickContent } from "@/lib/contentLang";
 import styles from "./WorkDetail.module.css";
 
 interface WorkDetailClientProps {
@@ -22,22 +28,36 @@ interface WorkDetailClientProps {
 }
 
 export default function WorkDetailClient({
-  project,
+  project: savedProject,
   prevProject,
   nextProject,
 }: WorkDetailClientProps) {
   const { t, language } = useLanguage();
+  const router = useRouter();
   const siteConfig = useSiteConfig();
   /* translation 활성 여부는 client context 에서 — server 의 getSecret 제거됨. */
   const translationEnabled = siteConfig?.translation?.enabled !== false;
-  const isRichtext = project.contentType === "richtext";
-  const [viewLang, setViewLang] = useState<"ko" | "en">(
-    !project.content.en ? "ko" : !project.content.ko ? "en" : language === "en" ? "en" : "ko"
-  );
+  const isRichtext = savedProject.contentType === "richtext";
+  /* 처음 언어 — 한쪽에만 글이 있으면 그쪽(README 를 두 칸에 똑같이 복사한 것도 한쪽으로 친다) */
+  const [viewLang, setViewLang] = useState<"ko" | "en">(() => initialContentLang(savedProject.content, language));
+  /* 보는 언어의 본문이 없으면 있는 언어 쪽을 보여 주고 번역 단추를 낸다. 번역하면 그 결과를 덧씌운 작업물이 project 다 */
+  const { shown: project, needsTranslation, translating, error: translateError, translate } = useWorkTranslation(savedProject, viewLang);
   const isAdmin = useIsAuthenticated();
   /* GitHub 저장소 README 로 만든 항목 — 좋아요·댓글을 받을 행이 없고 편집 화면도 없다(#1062).
      endpoint 를 null 로 두면 마운트 때 아무것도 묻지 않는다 */
   const external = project.external === true;
+  /* 저장소로 만들어진 화면 — 편집할 행이 없으니 눌렀을 때 작업물로 들이고 편집 화면으로 보낸다.
+     새 탭으로 열면 기다린 뒤라 브라우저가 막는 경우가 있어 같은 탭에서 옮긴다. */
+  const handleImportEdit = async () => {
+    const res = await sendAction("/api/works/showcase/import", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ slug: project.slug }),
+    }, t, t("workDetail.editRepoFailed"));
+    if (!res) return;
+    const data = await res.json();
+    if (data?.id) router.push(`/admin/works/${data.id}/edit`);
+  };
   const { count: likeCount, liked, busy: likeBusy, toggle: handleLikeToggle } = useLikeToggle({
     endpoint: external ? null : `/api/works/${project.id}/like`,
   });
@@ -62,8 +82,8 @@ export default function WorkDetailClient({
     return () => ac.abort();
   }, [project.id]);
 
-  // TOC headings — 표시 중인 언어의 content 기준 (body 와 동일한 fallback)
-  const content = project.content[viewLang] || project.content.ko;
+  // TOC headings — 표시 중인 언어의 content 기준 (body 와 동일한 fallback — 비어 있으면 반대 언어)
+  const content = pickContent(project.content, viewLang);
   const headings: TocHeading[] = useMemo(() => {
     const contentHeadings = extractHeadings(content, isRichtext);
     if (project.gallery.length > 0) {
@@ -88,12 +108,19 @@ export default function WorkDetailClient({
           project={project}
           viewLang={viewLang}
           onLangChange={setViewLang}
-          isAdmin={isAdmin && !external}
+          isAdmin={isAdmin}
+          onImportEdit={external ? handleImportEdit : undefined}
           relatedPosts={relatedPosts}
           relatedSeries={relatedSeries}
         />
       }
-      afterContent={<WorkArticleTeam project={project} viewLang={viewLang} />}
+      afterContent={
+        <>
+          {/* 갤러리는 글 칼럼보다 넓은 이 자리에 — 슬라이드가 작게 보이면 읽을 수가 없다 */}
+          <WorkArticleGallery project={project} viewLang={viewLang} />
+          <WorkArticleTeam project={project} viewLang={viewLang} />
+        </>
+      }
       likeConfig={external ? undefined : { count: likeCount, liked, busy: likeBusy, onToggle: handleLikeToggle }}
       adjacentConfig={{
         prev: prevProject ? {
@@ -113,6 +140,9 @@ export default function WorkDetailClient({
       commentsConfig={external ? undefined : { commentType: "work", targetId: project.id, translationEnabled }}
       backLink={{ href: "/works", labelKey: "workDetail.viewAll" }}
     >
+      {needsTranslation && translationEnabled && (
+        <TranslateBanner subject="work" viewLang={viewLang} translating={translating} error={translateError} onTranslate={translate} />
+      )}
       <WorkArticleBody project={project} viewLang={viewLang} />
     </DetailLayout>
     </>

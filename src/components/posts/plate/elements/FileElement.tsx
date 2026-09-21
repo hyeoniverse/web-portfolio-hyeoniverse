@@ -13,6 +13,7 @@ import { BlockDropZone, useBlockDrag } from "../BlockDragHandle";
 import { FileText, File, Music, Paperclip, Eye, Download } from "@/components/icons";
 
 import Pressable from "@/components/ui/Pressable";
+import { officeViewerUrl } from "@/lib/officeViewer";
 
 /* 파일 요소 — 미리보기와 내려받기 — elements.tsx 에서 분리 (#680). */
 
@@ -47,7 +48,7 @@ function FilePreviewContent({ url, fileName, isPdf, isOffice, isText }: {
     );
   }
   if (isOffice) {
-    const viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}`;
+    const viewerUrl = officeViewerUrl(url);
     return (
       <iframe
         src={viewerUrl}

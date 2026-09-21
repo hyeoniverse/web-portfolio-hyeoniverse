@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { parseReadme, absolutizeReadmeImage } from "@/lib/githubReadme";
-import { toRepoItems } from "@/data/works";
+import { repoView } from "@/data/works";
 import type { GithubRepoCard } from "@/lib/githubShowcase";
 
 /* README 에서 표지·제목·설명을 뽑아 저장소 칸의 기본값으로 쓴다(#1053).
@@ -98,7 +98,7 @@ describe("absolutizeReadmeImage", () => {
   });
 });
 
-describe("toRepoItems 의 값 고르는 순서", () => {
+describe("repoView 의 값 고르는 순서", () => {
   const card = (readme?: GithubRepoCard["readme"]): GithubRepoCard => ({
     name: "alpha", owner: "me", fullName: "me/alpha",
     url: "https://github.com/me/alpha", description: "깃허브 저장소 소개",
@@ -106,30 +106,16 @@ describe("toRepoItems 의 값 고르는 순서", () => {
     pushedAt: "2026-01-01T00:00:00Z", defaultBranch: "main", readme,
   });
 
-  it("대표 기술을 적으면 그것이 주 언어를 대신한다", () => {
-    const [item] = toRepoItems([card()], [{ name: "alpha", tech: "Next.js" }]);
-    expect(item.category.en).toBe("Next.js");
+  it("README 가 있으면 그 제목·표지를 쓴다", () => {
+    const view = repoView(card({ title: "README 제목", summary: "README 설명", image: "/readme.png" }));
+    expect(view.title.en).toBe("README 제목");
+    expect(view.cover).toBe("/readme.png");
   });
 
-  it("설정에 적은 값이 README 보다 앞선다", () => {
-    const [item] = toRepoItems(
-      [card({ title: "README 제목", summary: "README 설명", image: "/readme.png" })],
-      [{ name: "alpha", title: "직접 적은 제목", cover: "/직접.png" }],
-    );
-    expect(item.title.en).toBe("직접 적은 제목");
-    expect(item.main).toBe("/직접.png");
-    /* 아래 줄은 낱말 자리라 README 소개 문단을 쓰지 않는다 — 적어 둔 대표 기술이 없으면 주 언어 */
-    expect(item.category.en).toBe("TypeScript");
-  });
-
-  it("설정이 비면 README, README 도 없으면 GitHub 값으로 내려간다", () => {
-    const [withReadme] = toRepoItems([card({ title: "README 제목", summary: "README 설명", image: "/readme.png" })]);
-    expect(withReadme.title.en).toBe("README 제목");
-    expect(withReadme.main).toBe("/readme.png");
-
-    const [bare] = toRepoItems([card()]);
-    expect(bare.title.en).toBe("alpha");
-    expect(bare.category.en).toBe("TypeScript");
-    expect(bare.main).toBe("");
+  it("README 가 없으면 저장소 이름과 주 언어로 내려간다", () => {
+    const view = repoView(card());
+    expect(view.title.en).toBe("alpha");
+    expect(view.tech).toBe("TypeScript");
+    expect(view.cover).toBe("");
   });
 });

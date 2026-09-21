@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import { Canvas } from "@react-three/fiber";
 import IntroBunny from "../CylinderIntroBunny";
 import VerticalCylinder, { TransparentBg, ResponsiveCamera } from "./VerticalCylinder";
@@ -81,6 +81,8 @@ export default function CylinderCanvas({
 }: CylinderCanvasProps) {
   /* allImages[0] = 인트로, [1..N] = 작품. 인트로와 빈 칸의 판은 캔버스로 만들어야 해서 여기서 계산한다.
      표지가 없는 칸에 빈 주소를 넘기면 TextureLoader 가 죽으므로 반드시 대신 그릴 것을 준다(#1062) */
+  /* 판 위에 있을 때 커서 표시를 달아 둘 캔버스 */
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const allImages = useMemo(
     () => [
       createIntroDataUrl(isDark),
@@ -92,11 +94,12 @@ export default function CylinderCanvas({
   return (
     <Canvas
       className={canvasClassName}
+      ref={canvasRef}
       camera={{ position: [0, 0, CAMERA_Z], fov: CAMERA_FOV }}
       gl={{ antialias: true, alpha: true }}
     >
       <TransparentBg />
-      <ResponsiveCamera />
+      <ResponsiveCamera loop={segAngle * allImages.length} />
       <VerticalCylinder
         allImages={allImages}
         segAngle={segAngle}
@@ -110,17 +113,25 @@ export default function CylinderCanvas({
         onMeshHover={(idx) => {
           slotRefs.current.get(idx)?.classList.add(hoveredItemClassName);
           overlayRefs.current.get(idx)?.classList.add(hoveredOverlayClassName);
+          /* 판은 캔버스에 그려진 그림이라 커서가 스스로 알아보지 못한다 — 판 위에 있는 동안만
+             캔버스에 표시를 달아 "눌러서 더 보기" 커서가 되게 한다(인트로 칸은 뺀다) */
+          if (idx > 0) {
+            canvasRef.current?.setAttribute("data-clickable", "true");
+            canvasRef.current?.setAttribute("data-more", "true");
+          }
         }}
         onMeshLeave={(idx) => {
           slotRefs.current.get(idx)?.classList.remove(hoveredItemClassName);
           overlayRefs.current.get(idx)?.classList.remove(hoveredOverlayClassName);
+          canvasRef.current?.removeAttribute("data-clickable");
+          canvasRef.current?.removeAttribute("data-more");
         }}
         onMeshClick={(idx, e) => {
           // idx 0 = intro slot (no click), 1+ = projects
           if (idx > 0) onSlotClick(idx - 1, e);
         }}
       />
-      <IntroBunny screenPosRef={screenPosRef} arc={arc} actualRotRef={actualRotRef} isDark={isDark} />
+      <IntroBunny screenPosRef={screenPosRef} arc={arc} loop={segAngle * allImages.length} actualRotRef={actualRotRef} isDark={isDark} />
     </Canvas>
   );
 }

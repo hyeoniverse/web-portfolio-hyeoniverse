@@ -212,6 +212,7 @@ export {
   Users,
   Video,
   Volume2,
+  VolumeX,
   Vote,
   Waypoints,
   WholeWord,

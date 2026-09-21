@@ -54,10 +54,15 @@ interface ImageViewerProps {
   open: boolean;
   onClose: () => void;
   title?: string;
+  /** 열자마자 전체화면으로 — 발표 자료처럼 글씨를 읽어야 하는 묶음에 쓴다 */
+  startFullscreen?: boolean;
 }
 
-export default function ImageViewer({ images, index, open, onClose, title }: ImageViewerProps) {
+export default function ImageViewer({ images, index, open, onClose, title, startFullscreen }: ImageViewerProps) {
   const { stop: lenisStop, start: lenisStart } = useLenis();
+
+  const onCloseRef = useRef(onClose);
+  useSyncRef(onCloseRef, onClose);
 
   const [current, setCurrent] = useState(index);
   const mounted = useHasMounted();
@@ -65,6 +70,10 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
   const [zoom, setZoom] = useState(1);
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
   const [isFullscreen, setIsFullscreen] = useState(false);
+  /* 열자마자 전체화면으로 들어갔는가 — 그 경우 전체화면이 풀리면 뷰어도 같이 닫는다 */
+  const autoFullscreen = useRef(false);
+  /* 전체화면 단추(또는 F)로 일부러 껐는가 — 그때는 뷰어를 남긴다 */
+  const manualExit = useRef(false);
   const [thumbMode, setThumbMode] = useState<ThumbMode>(images.length > 1 ? "strip" : "hidden");
   const [controlsVisible, setControlsVisible] = useState(true);
   const [dragY, setDragY] = useState(0);
@@ -168,7 +177,19 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
 
   // Fullscreen change listener
   useEffect(() => {
-    const handler = () => setIsFullscreen(!!document.fullscreenElement);
+    const handler = () => {
+      const on = !!document.fullscreenElement;
+      setIsFullscreen(on);
+      if (on) return;
+      /* 전체화면으로 열린 뷰어에서 Esc 를 누르면 브라우저가 전체화면만 풀고 끝난다 —
+         그러면 쓰던 사람은 "나왔다" 고 생각하는데 창 모드 뷰어가 남아 한 번 더 눌러야 한다.
+         그래서 여기서 뷰어까지 닫는다. 단추나 F 로 일부러 줄인 것은 그대로 둔다 */
+      if (manualExit.current) { manualExit.current = false; return; }
+      if (autoFullscreen.current) {
+        autoFullscreen.current = false;
+        onCloseRef.current();
+      }
+    };
     document.addEventListener("fullscreenchange", handler);
     return () => document.removeEventListener("fullscreenchange", handler);
   }, []);
@@ -388,6 +409,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
     const el = viewerRef.current;
     if (!el) return;
     if (document.fullscreenElement) {
+      manualExit.current = true;
       document.exitFullscreen?.();
     } else {
       el.requestFullscreen?.();
@@ -470,6 +492,16 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
   useEffect(() => {
     if (!open && document.fullscreenElement) document.exitFullscreen?.();
   }, [open]);
+
+  /* 열자마자 전체화면 — 누른 동작의 권한이 살아 있는 동안 요청해야 먹는다.
+     막는 브라우저(iOS 사파리는 영상에만 허용)에서는 조용히 보통 화면으로 연다 */
+  useEffect(() => {
+    if (!open) { autoFullscreen.current = false; return; }
+    if (!startFullscreen || document.fullscreenElement) return;
+    viewerRef.current?.requestFullscreen?.()
+      ?.then(() => { autoFullscreen.current = true; })
+      .catch(() => {});
+  }, [open, startFullscreen]);
 
   if (!mounted) return null;
 

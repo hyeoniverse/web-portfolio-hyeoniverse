@@ -171,26 +171,6 @@
   border-radius: var(--radius-circle);
 }
 
-/* ── Translation banner ── */
-.translateBanner {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
-  padding: var(--spacing-md) var(--spacing-lg);
-  border: var(--border-light);
-  border-radius: var(--radius-2xl);
-  background: var(--bg-secondary);
-  margin-bottom: var(--spacing-xl);
-}
-
-.translateMessage {
-  flex: 1;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-body);
-  color: var(--text-secondary);
-  margin: 0;
-}
-
 @media (max-width: 1024px) {
   .infoGrid {
     grid-template-columns: var(--grid-cols-2);

@@ -4,6 +4,7 @@
  */
 
 import { formatDateValue } from "./plate/dateUtils";
+import { officeViewerUrl } from "@/lib/officeViewer";
 import { ALIGN_TO_JUSTIFY } from "./plate/constants";
 
 let _wrapLabel = "↩ Wrap";
@@ -334,8 +335,10 @@ function serializeNode(node: SlateNode): string {
          data-wrap: deserializer 가 노드 attr 복원. inline style: reader(attachCodeWrapToggle)가
          pre.style.whiteSpace 로 초기 상태를 판정하므로 저장된 wrap 이 상세/미리보기에도 그대로 뜬다. */
       const wrapAttr = el.wrap ? ` data-wrap="true" style="white-space:pre-wrap;word-break:break-all"` : "";
-      /* data-lenis-prevent — Lenis 스무스 스크롤이 wheel 을 가로채 코드블록 내부 세로 스크롤이 죽는 것 방지 */
-      return `<div class="code-block-wrap"><pre data-lenis-prevent${gv}${wrapAttr}><code${lang}>${children}</code></pre></div>`;
+      /* data-lenis-prevent 는 싣지 않는다. 그걸 달면 Lenis 가 코드블록 위의 휠을 통째로 무시해서, 블록 끝에 닿아도
+         페이지가 이어서 내려가지 않았다. 휠은 리더가 블록마다 축을 보고 나눠 준다(attachCodeWrapToggle 의
+         attachWheelRouting). 편집기의 코드블록은 제 요소에 따로 달고 있다 */
+      return `<div class="code-block-wrap"><pre${gv}${wrapAttr}><code${lang}>${children}</code></pre></div>`;
     }
     case "code_line":
       return `${children}\n`;
@@ -600,7 +603,7 @@ function serializeNode(node: SlateNode): string {
         previewHtml = `<details style="margin-top:6px"><summary style="cursor:pointer;font-size:12px;color:var(--text-secondary);font-family:var(--font-space-grotesk);margin-bottom:6px">Preview</summary>`
           + `<iframe src="${fileUrl}" title="${fName}" style="width:100%;height:500px;border:1px solid var(--border-color-light);border-radius:var(--radius-2xl)"></iframe></details>`;
       } else if (isOffice) {
-        const viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fileUrl)}`;
+        const viewerUrl = officeViewerUrl(fileUrl);
         previewHtml = `<details style="margin-top:6px"><summary style="cursor:pointer;font-size:12px;color:var(--text-secondary);font-family:var(--font-space-grotesk);margin-bottom:6px">Preview</summary>`
           + `<iframe src="${viewerUrl}" title="${fName}" style="width:100%;height:500px;border:1px solid var(--border-color-light);border-radius:var(--radius-2xl)"></iframe></details>`;
       } else if (isText) {

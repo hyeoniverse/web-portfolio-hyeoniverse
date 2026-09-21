@@ -1,0 +1,365 @@
+/* 작업물 상세 갤러리 — 가운데 한 장이 크고 양옆이 원근으로 기울어 이어지는 코버플로우 */
+.gallery {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-2xl) 0;
+}
+
+.stage {
+  position: relative;
+  /* 무대 높이는 폭에서 나온다 — px·vw 로 따로 정하면 화면이 좁아질 때 판 비율이 어긋난다
+     (좁은 화면에서 장이 홀쭉해지고 위아래 레터박스만 두꺼워졌다).
+     가로로 긴 판이라야 가운데 장 양옆으로 이웃이 보인다 */
+  aspect-ratio: 21 / 9;
+  max-height: min(72vh, 760px);
+  /* 원근 — 값이 작을수록 옆 장이 더 눕는다 */
+  perspective: 1400px;
+  perspective-origin: 50% 50%;
+  /* 세로는 페이지가 가져가고 가로 끌기만 여기서 받는다 */
+  touch-action: pan-y;
+  cursor: grab;
+  user-select: none;
+}
+
+.stage[data-dragging] {
+  cursor: grabbing;
+}
+
+.stage:focus-visible {
+  outline: var(--border-accent);
+  outline-offset: var(--spacing-xs);
+}
+
+.slide {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  /* 장 하나는 무대 높이에 맞추고 폭은 판형(16:9)에서 나온다 — 어느 화면에서나 같은 모양 */
+  height: 100%;
+  aspect-ratio: 16 / 9;
+  max-width: 82%;
+  transform:
+    translate(-50%, -50%)
+    translateX(var(--_x))
+    rotateY(var(--_rot))
+    scale(var(--_scale));
+  transform-style: preserve-3d;
+  transition:
+    transform 0.55s var(--ease-material),
+    opacity 0.55s var(--ease-material);
+  will-change: transform;
+}
+/* 끄는 동안에는 손을 따라와야 하므로 전환을 끈다 */
+.stage[data-dragging] .slide {
+  transition: none;
+}
+
+.slideButton {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: var(--radius-2xl);
+  /* 레터박스 바탕 — 그림이 판을 다 못 채울 때 드러난다. 밝은 화면에서도 검정으로 둔다
+     (바탕이 테마 따라 바뀌면 같은 그림이 화면마다 다른 테두리를 쓴 것처럼 보인다) */
+  background: var(--bg-black);
+  box-shadow: var(--shadow-lg);
+}
+/* 가운데에서 멀수록 어둡게 — 앞뒤 관계를 색으로도 알린다 */
+.slideButton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: oklch(0% 0 0 / var(--_dim, 0));
+  transition: background 0.55s var(--ease-material);
+  pointer-events: none;
+}
+
+/* 자르지 않는다 — 비율이 다른 그림은 남는 자리를 레터박스로 둔다(작업물 그림은 잘리면 뜻이 달라진다) */
+.image {
+  object-fit: contain;
+}
+
+/* 한 줄짜리 띠 — 폭을 장 수로 나눠 가지므로 몇 장이든 줄바꿈이 없다.
+   잡고 좌우로 끌면 장이 따라온다(손가락으로도 — touch-action 으로 페이지 스크롤을 막는다) */
+.controls {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  width: min(100%, 520px);
+  height: var(--spacing-lg);
+  margin: 0 auto;
+  cursor: grab;
+  touch-action: none;
+}
+
+.controls[data-scrub] {
+  cursor: grabbing;
+}
+
+/* 끄는 동안에는 지금 장도 넓히지 않는다 — 손 밑에서 칸 경계가 움직이면 엉뚱한 장으로 튄다 */
+.controls[data-scrub] .seg {
+  transition: none;
+}
+
+/* 미리보기 툴팁 — 그림만 담는다. 말풍선 기본값은 알약(capsule) 이라 그림 좌우에 둥근 귀가
+   남는다. 여백을 없애고 그림 모서리와 같은 곡률로 맞춰, 말풍선이 그림에 딱 붙게 한다
+   (.segTip 두 번 = 기본값보다 셈) */
+.segTip.segTip {
+  padding: 0;
+  max-width: none;
+  /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 24px(2xl)은 160x90 썸네일에
+     비해 모서리가 너무 깎여 그림이 잘려 보인다. 작은 미리보기 판이라 md 로 줄인다 */
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.segPreview {
+  position: relative;
+  display: block;
+  width: 160px;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 감싼 말풍선과 같은 곡률 */
+  border-radius: var(--radius-md);
+  background: var(--bg-black);
+}
+
+.segPreviewImg {
+  object-fit: contain;
+}
+
+/* 칸 하나 — 평소엔 얇은 선, 누르면 그 장으로. 폭은 감싼 툴팁 래퍼가 나눠 갖는다 */
+.seg {
+  width: 100%;
+  height: 2px;
+  border-radius: var(--radius-capsule);
+  background: var(--text-tertiary);
+  opacity: 0.28;
+  transition:
+    flex-grow 0.35s var(--ease-material),
+    height 0.25s var(--ease-material),
+    opacity 0.25s ease,
+    background 0.25s ease;
+}
+
+/* 지나온 칸 — 얼마나 왔는지 띠 자체로 읽힌다 */
+.segPassed {
+  opacity: 0.55;
+}
+
+.seg:hover {
+  height: 6px;
+  opacity: 0.8;
+}
+
+/* 지금 장 — 칸이 부풀어 오르고 강조색이 찬다 */
+.segActive,
+.segActive:hover {
+  height: 8px;
+  background: var(--text-accent);
+  opacity: 1;
+}
+
+@media (max-width: 768px) {
+  .stage {
+    /* 좁은 화면에서는 한 장이 폭을 거의 채운다 — 그 폭(88%)에 16:9 를 맞추면 무대는 2:1 이 된다.
+       무대를 더 높이면 장이 max-width 에 걸려 16:9 를 못 지킨다 */
+    aspect-ratio: 2 / 1;
+    perspective: 900px;
+  }
+
+  .slide {
+    max-width: 88%;
+  }
+}
+/* 움직임을 줄여 달라고 한 화면에서는 기울이지 않고 자리만 바꾼다 */
+@media (prefers-reduced-motion: reduce) {
+  .slide {
+    transform: translate(-50%, -50%) translateX(var(--_x)) scale(var(--_scale));
+    transition: none;
+  }
+}
+
+/* 문서 칸(옛 .ppt 등) — 가운데 온 장은 문서 뷰어(iframe), 옆 장·미리보기는 형식 이름만 담은 카드 */
+.slideDoc {
+  background: var(--bg-white);
+}
+
+.docFrame {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.docCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  width: 100%;
+  height: 100%;
+  color: var(--text-white);
+  opacity: 0.8;
+}
+
+.docKind {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.08em;
+}
+
+/* 조작 막대 — 음성이 없으면 띠만 가운데에 둔다(위 .controls 그대로).
+   음성이 있으면 영상 플레이어처럼 [음성 단추 · 띠 · 장 번호] 한 줄. 양옆 칸을 같은 비율(1fr)로 두어
+   단추와 번호의 폭이 달라도 띠는 한가운데에 남는다 */
+.controlBar {
+  display: grid;
+  grid-template-columns: 1fr minmax(0, 520px) 1fr;
+  align-items: center;
+  column-gap: var(--spacing-sm);
+}
+
+.controlBar .controls {
+  width: 100%;
+}
+
+.narrationSlot {
+  display: inline-flex;
+  justify-self: end;
+}
+
+.counter {
+  justify-self: start;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-label);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+/* 음성 단추 — 꺼져 있으면 흐리게, 읽는 중이면 강조색에 소리 물결이 번갈아 깜박인다
+   (.narrationToggle 두 번 = 버튼 variant 색보다 셈) */
+.narrationToggle.narrationToggle[data-state="off"] {
+  color: var(--text-tertiary);
+}
+
+.narrationToggle.narrationToggle[data-state="playing"] {
+  color: var(--text-accent);
+}
+
+.narrationToggle[data-state="playing"] svg path:nth-child(2) {
+  animation: narration-wave 1.1s ease-in-out infinite;
+}
+
+.narrationToggle[data-state="playing"] svg path:nth-child(3) {
+  animation: narration-wave 1.1s ease-in-out 0.25s infinite;
+}
+
+@keyframes narration-wave {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.15;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .narrationToggle[data-state="playing"] svg path {
+    animation: none;
+  }
+}
+
+/* 음성과 함께 볼지 묻는 덮개 — 가운데 장과 같은 자리·크기(.slide 와 같은 상자)에 어둡게 깐다.
+   바탕이 늘 어두워서 안의 단추는 테마와 상관없이 흰색이다. 외곽선 단추(Button outline)가 쓰는 색 토큰을
+   이 안에서만 흰색 쪽으로 바꿔 끼운다 */
+.cover {
+  --text-primary: var(--text-white);
+  --border-strong: var(--border-white);
+  --bg-inverse: var(--bg-white);
+  --text-inverse: var(--text-black);
+
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  height: 100%;
+  aspect-ratio: 16 / 9;
+  max-width: 82%;
+  border-radius: var(--radius-2xl);
+  background: oklch(0% 0 0 / 0.5);
+  cursor: default;
+  transform: translate(-50%, -50%);
+  animation: cover-in 0.4s var(--ease-material);
+}
+
+@keyframes cover-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.coverPlay {
+  display: grid;
+  place-items: center;
+  width: 80px;
+  aspect-ratio: 1;
+  border-radius: var(--radius-circle);
+  background: var(--bg-white);
+  color: var(--text-black);
+  box-shadow: var(--shadow-lg);
+  transition: transform var(--duration-base) var(--ease-material);
+}
+
+.coverPlay:hover {
+  transform: scale(1.06);
+}
+
+.coverPlay:focus-visible {
+  outline: var(--border-white);
+  outline-offset: var(--spacing-2xs);
+}
+
+/* 삼각형은 무게중심이 왼쪽에 쏠려 보여 조금 오른쪽으로 민다 */
+.coverPlayIcon {
+  translate: 3px 0;
+}
+
+.coverLabel {
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-white);
+}
+
+.coverSkip {
+  margin-top: var(--spacing-xs);
+}
+
+@media (max-width: 768px) {
+  .cover {
+    max-width: 88%;
+    gap: var(--spacing-xs);
+  }
+
+  .coverPlay {
+    width: 60px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cover {
+    animation: none;
+  }
+}

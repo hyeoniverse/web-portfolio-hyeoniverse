@@ -13,7 +13,7 @@ exports[`직렬화 — 저장 형식이 바뀌면 기존 글이 깨진다 > 인�
 exports[`직렬화 — 저장 형식이 바뀌면 기존 글이 깨진다 > 제목 이 같은 HTML 로 나온다 1`] = `"<h2>소제목</h2>"`;
 
 exports[`직렬화 — 저장 형식이 바뀌면 기존 글이 깨진다 > 코드블록 이 같은 HTML 로 나온다 1`] = `
-"<div class="code-block-wrap"><pre data-lenis-prevent><code class="language-ts">const a = 1;
+"<div class="code-block-wrap"><pre><code class="language-ts">const a = 1;
 </code></pre></div>"
 `;
 

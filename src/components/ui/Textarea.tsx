@@ -7,7 +7,6 @@ import {
   useLayoutEffect,
   useCallback,
   useId,
-  type RefObject,
   type TextareaHTMLAttributes,
   type FormEvent,
   type CompositionEvent,
@@ -18,6 +17,7 @@ import { showToast } from "@/stores/toastStore";
 import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "./Textarea.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { useWheelHandoff } from "@/hooks/useWheelHandoff";
 
 type Variant = "capsule" | "underline";
 type Size = "sm" | "md";
@@ -36,32 +36,6 @@ const MAX_HINT_PRESETS: Record<MaxHintPreset, number> = {
 function resolveMaxHint(v: number | MaxHintPreset | undefined): number | undefined {
   if (v == null) return undefined;
   return typeof v === "string" ? MAX_HINT_PRESETS[v] : v;
-}
-
-/** 휠 가둠·놓아줌 판정에 쓰는 여유(px) — 소수점 스크롤 위치에서 끝을 못 알아보는 것 방지 */
-const EDGE_TOL = 1;
-
-/** 안에서 더 굴릴 수 있을 때만 휠을 글상자 안에 가둔다.
- *  data-lenis-prevent 를 붙여 두면 전역 Lenis 가 이 위의 휠을 아예 보지 않아, 안에서 더 굴릴
- *  데가 없어도 페이지가 멈춘다. Lenis 는 휠마다 composedPath 를 훑어 이 표시를 확인하고, 우리
- *  리스너가 window 보다 먼저 도므로 같은 이벤트에서 붙였다 떼는 것으로 가둠과 놓아줌이 갈린다
- *  (가로 섹션이 쓰는 방법과 같다). 터치는 브라우저가 안쪽부터 굴리고 끝에서 페이지로 넘기므로
- *  표시를 그대로 둔다. */
-function useWheelHandoff(ref: RefObject<HTMLElement | null>) {
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const onWheel = (e: WheelEvent) => {
-      const max = el.scrollHeight - el.clientHeight;
-      const hold =
-        max > EDGE_TOL &&
-        ((e.deltaY > 0 && el.scrollTop < max - EDGE_TOL) ||
-          (e.deltaY < 0 && el.scrollTop > EDGE_TOL));
-      el.toggleAttribute("data-lenis-prevent-wheel", hold);
-    };
-    el.addEventListener("wheel", onWheel, { passive: true });
-    return () => el.removeEventListener("wheel", onWheel);
-  }, [ref]);
 }
 
 /** 손을 멈추고 이만큼 지나면 지우개·글자수가 돌아온다(ms) */

@@ -30,10 +30,13 @@ export default function AdjacentNav({
 }: AdjacentNavProps) {
   const { t } = useLanguage();
 
+  /* 앞뒤가 다 없으면(글·작업물이 하나뿐) 아무것도 그리지 않는다 — 예전에는 빈 카드 틀과 위아래 줄만 남았다 */
+  if (!prev && !next) return null;
+
   return (
     <nav aria-label={t("common.adjacentPosts")} className={`${styles.nav}${className ? ` ${className}` : ""}`}>
       {prev ? (
-        <TransitionLink href={prev.href} image={prev.image || ""} className={styles.card} data-clickable="true">
+        <TransitionLink href={prev.href} image={prev.image || ""} className={`${styles.card}${next ? "" : ` ${styles.cardSolo}`}`} data-clickable="true">
           <div className={styles.thumb}>
             {prev.image ? (
               <MediaThumb src={prev.image} alt={prev.title} fill sizes="64px" className={styles.thumbImg} />
@@ -50,7 +53,8 @@ export default function AdjacentNav({
           </div>
         </TransitionLink>
       ) : (
-        <span className={styles.card} />
+        /* 빈 자리 — 다음 카드를 오른쪽에 두려고 칸만 차지한다. 카드 틀(높이·구분선)은 주지 않는다 */
+        <span className={styles.emptySlot} aria-hidden="true" />
       )}
       {next ? (
         <TransitionLink href={next.href} image={next.image || ""} className={`${styles.card} ${styles.cardNext}`} data-clickable="true">
@@ -70,7 +74,7 @@ export default function AdjacentNav({
           </div>
         </TransitionLink>
       ) : (
-        <span className={styles.cardNext} />
+        <span className={styles.emptySlot} aria-hidden="true" />
       )}
     </nav>
   );

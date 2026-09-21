@@ -215,6 +215,8 @@
   "workDetail": {
     "back": "Works",
     "editWork": "Edit this work (new tab)",
+    "editRepoWork": "Bring the repository in and edit",
+    "editRepoFailed": "Couldn’t bring the repository in as a work.",
     "viewAll": "View All Works",
     "notFound": "Work not found",
     "notFoundLink": "Go back home",
@@ -230,7 +232,8 @@
     "memberEmail": "Email {{name}}",
     "previous": "Previous",
     "next": "Next",
-    "noTranslationEn": "This work is not yet available in English."
+    "noTranslationEn": "This work is not yet available in English.",
+    "noTranslationKo": "This work is not yet available in Korean."
   },
   "comments": {
     "heading": "Comments",
@@ -925,6 +928,11 @@
   },
   "apiErrors": {
     "UPLOAD_TOO_LARGE": "The file is too large ({{size}}MB). The limit is {{max}}MB.",
+    "TTS_EMPTY": "The script is empty. Write what should be read first.",
+    "TTS_TOO_LONG": "The script is too long. Up to {{max}} characters per slide can be voiced.",
+    "TTS_NO_KEY": "No Gemini API key is set, so audio can’t be generated. Add GEMINI_API_KEY under API keys in Settings.",
+    "TTS_RATE_LIMITED": "Today’s audio generation limit has been reached. The browser will read this slide’s script, and you can generate it again tomorrow.",
+    "TTS_FAILED": "Couldn’t generate the audio. Please try again in a moment.",
     "UPLOAD_BODY_TOO_LARGE": "The file is too large for the server to accept (about {{size}}MB). Split it or compress it.",
     "UPLOAD_UNREADABLE": "Couldn’t read the file. It may be damaged or in the wrong format.",
     "UPLOAD_NO_EXTENSION": "The file name needs an extension.",

@@ -17,9 +17,8 @@ import {
   BARE_YW,
 } from "@/app/profile/_components/FloatingObject/bunnyGeometry";
 import BunnyFur from "@/app/profile/_components/FloatingObject/BunnyFur";
+import { slotOffset, RADIUS, PLANE_WIDTH } from "./cylinder/scene";
 
-const RADIUS = 35;
-const PLANE_WIDTH = 46;
 const BACK_THRESHOLD = Math.PI * 0.55;
 
 const BUNNY_MAT = {
@@ -30,15 +29,19 @@ const BUNNY_MAT = {
   roughness: 0.92,
 };
 
-const BUNNY_Z = 3;
-const BUNNY_SCALE = 0.55;
-const BUNNY_SPEED = 1.8;
+/* 몽이가 서는 깊이 — 카메라에서 먼 쪽 판까지 거리의 이 비율만큼 앞. 카메라 거리가 화면 비율 따라 바뀌어도
+   판에 비해 같은 크기로 보인다(처음 맞춘 값: 카메라 9, 몽이 3, 판 44 → 6/44) */
+const BUNNY_DEPTH = 6 / 44;
+/* 판 폭을 46 에 맞춰 잡은 크기라, 판이 좁아진 만큼 몽이와 그 움직임도 줄인다 */
+const BUNNY_FIT = PLANE_WIDTH / 46;
+const BUNNY_SCALE = 0.55 * BUNNY_FIT;
+const BUNNY_SPEED = 1.8 * BUNNY_FIT;
 /* 원통 인트로의 몽이는 프로필의 것보다 작게 보이고 헬멧에 반쯤 가린다.
    껍질 하나가 부위를 통째로 다시 그리므로 겹 수는 프로필(6)보다 적게 잡는다. */
 const FUR_SHELLS = 4;
 const BUNNY_WALL_BOUNCE = 0.9;
 const BUNNY_FRICTION = 0.998;
-const BUNNY_MARGIN = 0.8;
+const BUNNY_MARGIN = 0.8 * BUNNY_FIT;
 
 /* 꽃잎 다섯 장이 앉는 각도 — 위에서 시작해 한 바퀴 */
 const PETAL_ANGLES = Array.from({ length: 5 }, (_, i) => (i / 5) * Math.PI * 2 + Math.PI / 2);
@@ -46,13 +49,15 @@ const PETAL_ANGLES = Array.from({ length: 5 }, (_, i) => (i / 5) * Math.PI * 2 +
 interface Props {
   screenPosRef: React.MutableRefObject<{ x: number; y: number }[]>;
   arc: number;
+  /** 판 띠의 길이(칸 수 × 한 칸 각) — 인트로 칸이 앞면에서 얼마나 떨어졌는지 셀 때 쓴다 */
+  loop: number;
   actualRotRef: React.MutableRefObject<number>;
   /** 어두운 테마인가 — 밝은 쪽에서는 어항(헬멧) 대신 머리에 꽃을 얹는다(#1062).
       판도 화면도 봄날인데 우주복만 남으면 혼자 다른 이야기를 한다 */
   isDark?: boolean;
 }
 
-export default function CylinderIntroBunny({ screenPosRef, arc, actualRotRef, isDark = true }: Props) {
+export default function CylinderIntroBunny({ screenPosRef, arc, loop, actualRotRef, isDark = true }: Props) {
   const groupRef = useRef<THREE.Group>(null);
   /* 털은 살과 **같은** 도형을 써야 한다. JSX 안에 인라인으로 두면 각자 다른 객체가 된다. */
   const bodyGeo = useMemo(() => new THREE.LatheGeometry(BODY_PROFILE, 24), []);
@@ -84,9 +89,7 @@ export default function CylinderIntroBunny({ screenPosRef, arc, actualRotRef, is
     if (!groupRef.current) return;
 
     // Visibility: hide when slot 0 rotates behind
-    const cylinderRotX = actualRotRef.current;
-    let relAngle = cylinderRotX - Math.PI;
-    relAngle = ((relAngle % (Math.PI * 2)) + Math.PI * 3) % (Math.PI * 2) - Math.PI;
+    const relAngle = slotOffset(0, 0, loop, actualRotRef.current);
     const isVisible = Math.abs(relAngle) < BACK_THRESHOLD;
     groupRef.current.visible = isVisible;
     if (!isVisible) return;
@@ -94,18 +97,19 @@ export default function CylinderIntroBunny({ screenPosRef, arc, actualRotRef, is
     const dt = Math.min(delta, 0.05);
     const t = clock.getElapsedTime();
 
-    // Slot 0 screen position → world offset at BUNNY_Z
+    // Slot 0 screen position → world offset at the bunny depth
     const slot0 = screenPosRef.current[0] || { x: 0, y: 0 };
     const cam = camera as THREE.PerspectiveCamera;
-    const bunnyDist = Math.abs(BUNNY_Z - cam.position.z);
+    const panelDist = cam.position.z + RADIUS;
+    const bunnyDist = panelDist * BUNNY_DEPTH;
+    const bunnyZ = cam.position.z - bunnyDist;
     const bHalfH = Math.tan((cam.fov * Math.PI) / 360) * bunnyDist;
     const bHalfW = bHalfH * cam.aspect;
     const centerX = (slot0.x / (size.width * 0.5)) * bHalfW;
     const centerY = -(slot0.y / (size.height * 0.5)) * bHalfH;
 
-    // Slot projected bounds at BUNNY_Z depth
-    const panelDist = cam.position.z + RADIUS;
-    const ratio = bunnyDist / panelDist;
+    // Slot projected bounds at the bunny depth
+    const ratio = BUNNY_DEPTH;
     const slotHalfW = (PLANE_WIDTH / 2) * ratio - BUNNY_MARGIN;
     const slotHalfH = ((arc * RADIUS) / 2) * ratio - BUNNY_MARGIN;
 
@@ -164,7 +168,7 @@ export default function CylinderIntroBunny({ screenPosRef, arc, actualRotRef, is
     groupRef.current.position.set(
       centerX + p.x + bobX,
       centerY + p.y + bobY,
-      BUNNY_Z,
+      bunnyZ,
     );
 
     groupRef.current.rotation.set(

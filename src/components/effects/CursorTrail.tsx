@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { createPortal } from "react-dom";
 import { ZoomInIcon } from "@/components/icons";
 import clsx from "clsx";
 import { useIsMobile } from "@/hooks/useIsMobile";
@@ -8,6 +9,15 @@ import styles from "./CursorTrail.module.css";
 
 type CursorType = "big" | "text" | "grab" | "resize" | "resizeH" | "resizeV" | "resizeDiag" | "disabled" | "stop" | "zoom" | "next" | "prev" | "blank" | "";
 
+
+/* 전체화면 — 그 안에서는 그 요소의 자손만 그려진다. 커서는 화면 어디에도 속하지 않는 겹이라
+   전체화면에 들어가는 순간 통째로 사라진다. 그래서 전체화면인 동안에는 그 요소 안으로 옮겨 그린다 */
+const subscribeFullscreen = (onChange: () => void) => {
+  document.addEventListener("fullscreenchange", onChange);
+  return () => document.removeEventListener("fullscreenchange", onChange);
+};
+const fullscreenHost = () => document.fullscreenElement;
+const noHost = () => null;
 
 /* ---------------- 헬퍼 함수 ---------------- */
 
@@ -61,6 +71,8 @@ export default function CursorTrail() {
   const rafRef = useRef<number>(0);
   /** cursorInner 실제 렌더 크기 — animate 에서 매 프레임 offsetWidth 읽으면 layout thrash 발생 */
   const innerSizeRef = useRef({ w: 20, h: 20 });
+  /* 전체화면 요소가 바뀌면 다시 그린다(그 안으로 옮겨 그리려고) */
+  const fsHost = useSyncExternalStore(subscribeFullscreen, fullscreenHost, noHost);
 
   useEffect(() => {
     if (isTouch) return;
@@ -341,7 +353,9 @@ export default function CursorTrail() {
       document.removeEventListener("drop", onDragEnd, true);
       ro?.disconnect();
     };
-  }, [isTouch]);
+    /* fsHost — 전체화면에 들어가고 나올 때 커서 노드가 새로 그려진다(포털이 옮겨 붙는다).
+       그때 다시 걸지 않으면 이 효과가 붙잡고 있던 옛 노드에만 좌표를 써서 커서가 0,0 에 멈춘다 */
+  }, [isTouch, fsHost]);
 
   /* 현재 cursor 상태에 맞는 라벨. 상태가 없으면 빈 문자열. */
   /* 손 모양 커서는 글자를 안 붙인다 — 손 그림 자체가 무엇을 할 수 있는지 말한다. */
@@ -377,7 +391,7 @@ export default function CursorTrail() {
 
   if (isTouch) return null;
 
-  return (
+  const cursor = (
     <div
       ref={cursorRef}
       className={clsx(
@@ -397,4 +411,7 @@ export default function CursorTrail() {
       </div>
     </div>
   );
+
+  /* 전체화면일 때만 그 안으로 — 평소에는 있던 자리에 그대로 그린다 */
+  return fsHost ? createPortal(cursor, fsHost) : cursor;
 }

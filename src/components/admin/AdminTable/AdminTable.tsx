@@ -301,10 +301,12 @@ export default function AdminTable<T extends { id: string; published: boolean }>
               {columns.map((col) => (
                 <span key={col.key} className={col.className}>
                   {col.skeletonShape === "box" ? (
+                    /* 실제 썸네일은 64px 각진 네모다 — 48px 짜리에 24px(2xl) 곡률을 주면 정원이 되어
+                       불러오는 동안 동그란 자리가 보였다가 네모가 들어선다 */
                     <Skeleton
-                      width={col.skeletonWidth ?? "48px"}
-                      height="48px"
-                      borderRadius="var(--radius-2xl)"
+                      width={col.skeletonWidth ?? "64px"}
+                      height="64px"
+                      borderRadius="0"
                     />
                   ) : (
                     <SkeletonLine width={col.skeletonWidth ?? "60%"} />

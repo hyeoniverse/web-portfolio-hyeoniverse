@@ -2,7 +2,6 @@
 
 import { motion } from "framer-motion";
 import "katex/dist/katex.min.css";
-import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import RelatedChips from "@/components/ui/RelatedChips/RelatedChips";
 import AISummary from "@/components/ui/AISummary";
 import T from "@/components/ui/T";
@@ -21,9 +20,6 @@ export default function WorkArticleInfoGrid({
   relatedPosts,
   relatedSeries,
 }: WorkArticleViewProps) {
-  const siteConfig = useSiteConfig();
-  const translationEnabled = siteConfig?.translation?.enabled !== false;
-  const needsTranslation = viewLang === "en" && !project.content[viewLang];
 
   return (
     <>
@@ -186,14 +182,7 @@ export default function WorkArticleInfoGrid({
         )}
       </motion.div>
 
-      {needsTranslation && translationEnabled && (
-        <div className={styles.translateBanner}>
-          <p className={styles.translateMessage}>
-            <T k="workDetail.noTranslationEn" />
-          </p>
-        </div>
-      )}
-
+      {/* 번역 안내는 상세 화면이 본문 위에 낸다(TranslateBanner — 자동 번역 단추 포함) */}
       <AISummary
         summaryKo={project.summary?.ko ?? ""}
         summaryEn={project.summary?.en ?? ""}

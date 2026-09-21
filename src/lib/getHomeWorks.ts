@@ -1,13 +1,12 @@
 import { cache } from "react";
 import { projects } from "@/data/projects";
 import type { Project } from "@/data/projects";
-import { toWorkItems, toPostItems, toRepoItems, HOME_SLOT_COUNT, HOME_POOL_SPARE, type WorkItem } from "@/data/works";
+import { toWorkItems, toPostItems, type WorkItem } from "@/data/works";
 import type { Work } from "@/types/work";
 import type { Post } from "@/types/post";
 import { workToProject } from "@/types/work";
 import { scoreOf } from "@/lib/popularity";
 import { getSiteConfig } from "@/lib/getSiteConfig";
-import { getShowcaseRepos } from "@/lib/getShowcaseRepos";
 
 /** work row + 댓글 수 (관계 count) — 인기 점수 계산용 */
 type RankedRow = Work & { work_comments?: Array<{ count: number }> };
@@ -20,7 +19,9 @@ type RankedRow = Work & { work_comments?: Array<{ count: number }> };
  * 자동으로 된다. 가중 점수라 SQL ORDER BY 대신 JS 에서 계산·정렬한다(getPopularPostIds 와 동일 방식).
  *
  * DB 를 못 쓰면(환경변수 없음·조회 실패) 정적 projects.ts 순서로 fallback. /works 페이지의 sort_order 정렬과는 별개.
- * 발행된 작업물이 없는 것은 실패가 아니라 답이므로, 자동일 때는 글 → GitHub 저장소 순으로 내려간다(#1046).
+ * 발행된 작업물이 없는 것은 실패가 아니라 답이므로, 자동일 때는 표지 있는 글로 내려간다(#1046).
+ * 예전에는 그다음으로 GitHub 저장소가 왔지만, 저장소는 이제 관리 화면에서 작업물로 들여온다 —
+ * 들여온 뒤에는 보통 작업물이라 이 함수가 따로 알 필요가 없다.
  * 설정(homeWorks.source)에서 하나로 고정하면 그것만 본다 — 고정한 것이 비면 홈은 이 칸을 안 그린다(#1047).
  */
 async function fetchHomeWorks(): Promise<WorkItem[]> {
@@ -40,15 +41,11 @@ async function fetchHomeWorks(): Promise<WorkItem[]> {
   if (auto || source === "posts") {
     const posts = await fetchCoveredPosts();
     if (posts.length > 0) return toPostItems(posts);
-    if (!auto) return [];
   }
 
-  /* 남은 건 GitHub. 아무것도 못 채우면 빈 배열이고, 홈은 이 칸을 아예 그리지 않는다 —
-     첫 화면이 "볼 게 없다"고 말하게 두지 않으려는 것이다. */
-  const picked = siteConfig.homeWorks?.repos ?? [];
-  /* 무엇을 보여줄지는 작업물 목록과 같은 함수가 정한다 — 두 군데로 갈리면 화면마다 다른 것이 나간다 */
-  const repos = await getShowcaseRepos(HOME_SLOT_COUNT + HOME_POOL_SPARE, auto);
-  return toRepoItems(repos, picked);
+  /* 채울 게 없으면 빈 배열 — 홈은 이 칸을 아예 그리지 않는다.
+     첫 화면이 "볼 게 없다"고 말하게 두지 않으려는 것이다 */
+  return [];
 }
 
 /** 표지가 있는 발행된 글 — 원을 채워야 하므로 표지 없는 글은 뺀다.

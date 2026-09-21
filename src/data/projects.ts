@@ -18,6 +18,24 @@ interface ProjectTeamMember {
   contributions?: { ko: Record<string, string[]>; en: Record<string, string[]> };
 }
 
+/**
+ * 갤러리 한 장의 음성(#슬라이드 음성).
+ *
+ * 그림 주소를 열쇠로 둔다 — 차례를 바꾸거나 한 장을 지워도 음성이 다른 장으로 밀리지 않는다.
+ * 대본만 있고 음성 파일이 없으면 읽는 사람의 브라우저가 대본을 읽는다(무료 대체).
+ */
+export interface GalleryNote {
+  /** 읽을 대본 — PPTX 를 올리면 발표자 노트로 채워지고, 편집 화면에서 고칠 수 있다 */
+  script?: string;
+  /** 음성 파일 — TTS 로 만든 것이나 직접 올린 녹음 */
+  audio?: string;
+  /** audio 가 어디서 왔는지 — 녹음이면 대본을 고쳐도 "다시 만들기" 를 권하지 않는다 */
+  audioSource?: "tts" | "recorded";
+  /** TTS 로 만들 때 쓴 대본 — 지금 대본과 다르면 음성이 낡았다고 알린다 */
+  audioScript?: string;
+}
+export type GalleryNotes = Record<string, GalleryNote>;
+
 export interface Project {
   id: string;
   /** URL slug — DB 의 works.slug 와 동일. 정적 fallback 에선 optional (없으면 id fallback) */
@@ -48,6 +66,8 @@ export interface Project {
   contentType?: "markdown" | "richtext";
   teamMembers?: ProjectTeamMember[];
   gallery: string[];
+  /** 갤러리 장마다의 음성(대본·음성 파일) — 그림 주소가 열쇠. 없으면 음성 없이 넘겨 본다 */
+  galleryNotes?: GalleryNotes;
   liveUrl?: string;
   githubUrl?: string;
   summary?: LocalizedText;

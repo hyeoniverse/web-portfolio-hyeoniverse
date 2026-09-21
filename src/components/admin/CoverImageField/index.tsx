@@ -2,8 +2,7 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import { useDepsChanged } from "@/hooks/useDepsChanged";
-import { motion, AnimatePresence } from "framer-motion";
-import { Upload, ImageIcon, X, Palette, Copy } from "@/components/icons";
+import { Upload, ImageIcon, Trash2, Palette, Copy } from "@/components/icons";
 import { adminEditorStyles as es } from "@/components/admin/AdminEditorShell";
 import { showToast } from "@/stores/toastStore";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -123,33 +122,21 @@ export default function CoverImageField({
       >
         {uploadLabel}
       </Button>
-      <motion.div
-        layout
-        transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-        style={{ display: "inline-flex" }}
+      <Button
+        variant="ghost"
+        size="xs"
+        className={styles.inlineBtn}
+        onClick={onPickerToggle}
+        title={buttonText}
+        icon={<ImageIcon size={12} strokeWidth={2} />}
       >
-        <Button
-          variant="ghost"
-          size="xs"
-          className={styles.inlineBtn}
-          onClick={onPickerToggle}
-          title={buttonText}
-          icon={<ImageIcon size={12} strokeWidth={2} />}
-        >
-          <AnimatePresence mode="popLayout" initial={false}>
-            <motion.span
-              key={isInteractive ? "close" : "open"}
-              initial={{ opacity: 0, y: 4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -4 }}
-              transition={{ duration: 0.18, ease: [0.4, 0, 0.2, 1] }}
-              className={styles.toggleBtnText}
-            >
-              {buttonText}
-            </motion.span>
-          </AnimatePresence>
-        </Button>
-      </motion.div>
+        {/* 두 라벨을 한 칸에 겹쳐 두고 보이는 쪽만 바꾼다 — 긴 쪽이 폭을 잡아서, 열고 닫을 때 단추 폭이
+            바뀌며 옆 단추가 밀리지 않는다. 예전에는 글자를 갈아 끼워 폭이 커졌다 줄었다 했다 */}
+        <span className={styles.toggleLabels}>
+          <span className={styles.toggleLabel} data-shown={!isInteractive} aria-hidden={isInteractive}>{chooseLabel}</span>
+          <span className={styles.toggleLabel} data-shown={isInteractive} aria-hidden={!isInteractive}>{closeLabel}</span>
+        </span>
+      </Button>
       {value && (
         <Button
           variant="ghost"
@@ -157,7 +144,7 @@ export default function CoverImageField({
           className={`${styles.inlineBtn} ${styles.inlineBtnRemove}`}
           onClick={() => { onChange(""); setImgErrored(false); }}
           title={removeLabel}
-          icon={<X size={12} strokeWidth={2.2} />}
+          icon={<Trash2 size={12} strokeWidth={2} />}
         >
           {removeLabel}
         </Button>

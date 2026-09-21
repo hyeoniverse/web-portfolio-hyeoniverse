@@ -5,45 +5,108 @@ import * as THREE from "three";
 import { renderGradient } from "@/components/posts/CoverImagePicker/gradientUtils";
 import { pickFallbackPreset } from "@/lib/coverFallback";
 
-/* ── Constants ── */
+/* ── Constants ──
+   수치는 andreasantonsson.dev 의 원통을 옮겨 왔다. 그 원통은 높이 = 반지름인 원통을 눕혀 안쪽 벽을 보고,
+   작업물 7개 + 빈 칸 1개로 한 바퀴를 나눈다(한 칸 45°, 틈 0.12rad). 여기서는 칸 수와 상관없이 그 한 칸을
+   그대로 쓰고, 칸이 적어도 비지 않게 판들을 띠처럼 돌린다(slotOffset). */
 export const RADIUS = 35;
-export const PLANE_WIDTH = 46;
-export const MIN_SEGMENT_ANGLE = Math.PI / 3; // 패널이 적어도 이만큼은 간격
-export const GAP_RATIO = 0.08;
+/* 판 폭 = 원통 반지름 — 판은 폭 35 : 원호 35 × (π/4 − 0.12) ≈ 3:2 */
+export const PLANE_WIDTH = RADIUS;
+/* 판 한 칸이 차지하는 각 — 칸 수와 상관없이 고정이라 판 비율도 늘 같다 */
+export const SLOT_ANGLE = Math.PI / 4;
+/* 판 사이 틈(라디안) */
+const PANEL_GAP = 0.12;
+/* 판 하나의 원호 각 */
+export const PANEL_ARC = SLOT_ANGLE - PANEL_GAP;
+
 export const LERP_SPEED = 0.06;
-export const TILT_Z = 0.14;
-export const MOUSE_X = 0.06;
-export const MOUSE_Y = 0.04;
-export const SCROLL_SENSITIVITY = 0.0008;
-export const SCROLL_CLAMP = 80;
+/* 가로 화면에서 원통을 더 돌려 두는 각(0.04π ≈ 7°) — 세로 화면에서는 기울이지 않는다 */
+export const TILT_Z = Math.PI * 0.04;
+/* 마우스 — 좌우로 움직이면 원통이 살짝 비틀리고, 위아래로 움직이면 조금 더 돈다 */
+export const MOUSE_X = 0.02;
+export const MOUSE_SPIN = 0.004 * Math.PI * 1.5;
+/* 판 밝기 — 흰 제목이 밝은 사진 위에서도 읽히게 판을 조금 낮춘다(레퍼런스는 캔버스 불투명도 0.75 인데,
+   그쪽 사진은 대개 어둡다. 밝은 표지가 많아 조금 더 낮춘다).
+   올리면 조금 더 낮춰 누를 수 있는 판임을 알린다 */
+export const PANEL_BRIGHTNESS = 0.7;
+export const PANEL_HOVER_BRIGHTNESS = 0.5;
+/* 처음 들어올 때 이만큼(칸) 뒤에서 돌아 들어온다 — 레퍼런스의 진입 회전(진행률 -0.2 → 0) */
+export const ENTRY_SPIN_SLOTS = 1.2;
 export const BACK_THRESHOLD = Math.PI * 0.55;
 /* 손가락을 떼기 직전 속도로 이만큼(ms) 더 간 자리에서 가까운 판에 멈춘다 */
 export const FLING_MS = 200;
 
-/** 각을 [-π, π) 로 접는다 — 슬롯이 앞면에서 얼마나 돌아가 있는지 셀 때 */
-export function wrapAngle(a: number): number {
-  return ((a % (Math.PI * 2)) + Math.PI * 3) % (Math.PI * 2) - Math.PI;
+/**
+ * 휠 한 번이 몇 칸인지 — 화면 높이만큼 굴리면 한 칸이다(레퍼런스는 작업물마다 100vh 섹션을 둔다).
+ * 줄·쪽 단위로 오는 휠(deltaMode 1·2)은 픽셀로 바꾸고, 한 번에 반 칸을 넘지 않게 자른다.
+ */
+export function wheelSlots(e: { deltaY: number; deltaMode: number }, viewportHeight: number): number {
+  const px = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaMode === 2 ? e.deltaY * viewportHeight : e.deltaY;
+  const slots = px / Math.max(1, viewportHeight);
+  return Math.max(-0.5, Math.min(0.5, slots));
+}
+
+/** 각을 띠 길이 안으로 접는다 — [-loop/2, loop/2) */
+export function wrapLoop(a: number, loop: number): number {
+  return ((a % loop) + loop * 1.5) % loop - loop / 2;
+}
+
+/**
+ * 칸 i 가 앞면에서 얼마나 떨어져 있는지(라디안, 앞면이 0).
+ *
+ * 판들은 원통에 박혀 있지 않고 띠처럼 돈다. 띠 길이(loop)는 칸 수 × 한 칸 각이라 칸이 적으면
+ * 한 바퀴보다 짧다. 그 띠의 이음매(±loop/2)는 원통 뒤쪽, 화면 밖에 온다. 이음매를 넘은 판은
+ * 반대쪽 끝에서 다시 나오므로 몇 칸이든 앞쪽은 빈틈없이 이어지고, 같은 판을 두 번 붙이지 않는다.
+ * 칸이 여덟이면(한 칸 45°) 띠가 딱 한 바퀴라 판이 원통에 박힌 것과 같다.
+ *
+ * rot 은 씬의 회전값이다(처음 π). 칸 i 가 앞면에 오는 회전은 π + i × segAngle 이다.
+ */
+export function slotOffset(i: number, segAngle: number, loop: number, rot: number): number {
+  return wrapLoop(i * segAngle - rot + Math.PI, loop);
 }
 
 /* ── Camera ──
-   카메라는 원통 안에서 축 너머 먼 쪽 판을 본다. 기준 화면(1400×800)보다 작으면 뒤로 물러나 판이 다 들어오게
-   하는데, 원통 벽(RADIUS)을 넘으면 카메라 바로 앞의 판이 near 평면 안으로 들어와 화면을 통째로 덮는다
-   (폭 358px 이하, #940). 벽 앞에서 멈추고, 모자란 거리만큼 시야각을 넓혀 먼 쪽 판이 같은 크기로 보이게 한다.
-   씬(ResponsiveCamera)과 화면 좌표 계산(useCylinderStage)이 이 식을 같이 쓴다. */
-export const CAMERA_Z = 9;
-export const CAMERA_FOV = 55;
-const CAMERA_REF_W = 1400;
-const CAMERA_REF_H = 800;
-const CAMERA_MAX_Z = RADIUS - 1;
+   카메라는 원통 안(세로 화면에서는 뒤쪽 벽 너머)에서 축 너머 먼 쪽 벽을 본다. 레퍼런스는 반지름을
+   4 × 화면비로 두고 카메라를 가로 화면 z=3, 세로 화면 z=5 에 둔다(시야각 35°). 반지름을 고정한 이 씬으로
+   옮기면 카메라 거리는 반지름 × 0.75/화면비(가로), 1.25/화면비(세로)다. 세로 화면에서는 카메라가 원통 밖으로
+   나가 먼 쪽 벽이 위아래로 서너 칸 보인다(가까운 쪽 판은 그리지 않는다 — VerticalCylinder 의 HIDDEN_BEYOND).
 
-export function cylinderCamera(width: number, height: number): { z: number; fov: number } {
-  if (!(width > 0 && height > 0)) return { z: CAMERA_Z, fov: CAMERA_FOV };
-  const scale = Math.min(1, width / CAMERA_REF_W, height / CAMERA_REF_H);
-  const wanted = CAMERA_Z / scale;
-  if (wanted <= CAMERA_MAX_Z) return { z: wanted, fov: CAMERA_FOV };
-  // 먼 쪽 판까지의 거리가 (wanted + R) 에서 (벽 앞 + R) 로 줄어든 비율만큼 시야각의 tan 을 키운다
-  const halfTan = Math.tan((CAMERA_FOV * Math.PI) / 360) * ((wanted + RADIUS) / (CAMERA_MAX_Z + RADIUS));
-  return { z: CAMERA_MAX_Z, fov: (Math.atan(halfTan) * 360) / Math.PI };
+   칸이 적으면 띠의 이음매(±띠 길이/2)가 보이는 범위 안으로 들어올 수 있다. 그때는 이음매가 화면 끝 바깥에
+   머물도록 카메라를 당긴다. 씬(ResponsiveCamera)과 화면 좌표 계산(useCylinderStage)이 이 식을 같이 쓴다. */
+export const CAMERA_FOV = 35;
+const CAMERA_LANDSCAPE = 0.75;
+const CAMERA_PORTRAIT = 1.25;
+/* 크기를 아직 모를 때 — 1.6:1 가로 화면 기준 */
+export const CAMERA_Z = (RADIUS * CAMERA_LANDSCAPE) / 1.6;
+/* 이음매를 화면 끝에서 이만큼(라디안) 더 바깥에 둔다 — 기울기(7°)로 판 모서리가 조금 더 보이는 몫 */
+const SEAM_GUARD = 0.15;
+
+/**
+ * 먼 쪽 벽에서 화면 위아래 끝이 닿는 각(앞면 기준, 라디안) — 카메라가 축에서 z 만큼 떨어져 있을 때.
+ * 벽의 한 점(각 θ)은 카메라에서 atan(R sinθ / (z + R cosθ)) 만큼 위아래로 보인다. 그 값이 시야각의 절반이
+ * 되는 θ 를 푼다.
+ */
+export function visibleWallAngle(z: number, fov = CAMERA_FOV): number {
+  const t = Math.tan((fov * Math.PI) / 360);
+  const k = z / RADIUS;
+  // sinθ − t·cosθ = t·k  →  √(1+t²)·sin(θ − φ) = t·k,  φ = atan(t)
+  const phi = Math.atan(t);
+  const v = Math.min(1, (t * k) / Math.sqrt(1 + t * t));
+  return phi + Math.asin(v);
+}
+
+export function cylinderCamera(width: number, height: number, loop = Math.PI * 2): { z: number; fov: number } {
+  const fov = CAMERA_FOV;
+  if (!(width > 0 && height > 0)) return { z: CAMERA_Z, fov };
+  const aspect = width / height;
+  let z = (RADIUS * (aspect > 1 ? CAMERA_LANDSCAPE : CAMERA_PORTRAIT)) / aspect;
+  // 이음매가 화면 끝보다 안쪽에 오면 그만큼 당긴다 — visibleWallAngle 을 거꾸로 풀었다
+  const edge = loop / 2 - SEAM_GUARD;
+  if (edge < Math.PI / 2 && visibleWallAngle(z, fov) > edge) {
+    const t = Math.tan((fov * Math.PI) / 360);
+    z = RADIUS * (Math.sin(edge) / t - Math.cos(edge));
+  }
+  return { z: Math.max(0, z), fov };
 }
 
 /* ── Intro texture — cosmic: nebula wash + stars ── */

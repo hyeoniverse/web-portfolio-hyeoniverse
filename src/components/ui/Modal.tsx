@@ -364,22 +364,24 @@ export default function Modal() {
               <span className={styles.sheetHandleBar} />
             </div>
 
-            {/* 우측 컨트롤(subButtons + X)은 헤더가 있으면 헤더 우측 flow(액션 옆)에 합류시키고,
-                없을 때만 절대배치 topRight 로. 예전엔 header.actions(flow)와 topRight(absolute)가
-                따로라, subButtons 가 있으면 topRight 가 예약폭(56px)보다 넓어져 액션과 겹쳤음(근본 수정). */}
-            {header && (
-              <div className={styles.modalHeader}>
+            {/* 머리줄 — 제목이 없어도 X·서브 버튼이 있으면 빈 줄로 둔다. 예전에는 제목이 없을 때
+                X 를 본문 위에 얹어서(절대배치) 본문 첫 줄과 같은 선에 겹쳐 보였다.
+                우측 컨트롤(subButtons + X)은 언제나 이 줄의 오른쪽 flow 에 있다 — 따로 두었을 때는
+                subButtons 가 있으면 예약폭(56px)을 넘겨 액션과 겹쳤다. (모바일은 X 를 숨긴다 —
+                아래로 드래그 + grabber 로 닫는다) */}
+            {(header || subButtons || (closeButton && !isMobile)) && (
+              <div className={`${styles.modalHeader}${header?.title || header?.icon || header?.actions ? "" : ` ${styles.modalHeaderBare}`}`}>
                 <div className={styles.headerContent}>
-                  {header.icon && (
+                  {header?.icon && (
                     <div className={styles.headerIcon}>{header.icon}</div>
                   )}
-                  {header.title && (
+                  {header?.title && (
                     <h2 id={`modal-title-${id}`} className={styles.modalTitle}>{header.title}</h2>
                   )}
                 </div>
-                {(header.actions || subButtons || (closeButton && !isMobile)) && (
+                {(header?.actions || subButtons || (closeButton && !isMobile)) && (
                   <div className={styles.headerActions}>
-                    {header.actions}
+                    {header?.actions}
                     {(subButtons || (closeButton && !isMobile)) && (
                       <div className={styles.rightCluster}>
                         {subButtons && <div className={styles.subButtons}>{subButtons}</div>}
@@ -394,21 +396,6 @@ export default function Modal() {
                       </div>
                     )}
                   </div>
-                )}
-              </div>
-            )}
-
-            {/* 헤더 없을 때만 절대배치 (모바일은 X 숨김 — 아래로 드래그 + grabber 로 닫음) */}
-            {!header && ((closeButton && !isMobile) || subButtons) && (
-              <div className={styles.topRight}>
-                {subButtons && <div className={styles.subButtons}>{subButtons}</div>}
-                {closeButton && !isMobile && (
-                  <CloseButton
-                    className={styles.closeButton}
-                    size="md"
-                    onClick={() => handleClose(id)}
-                    ariaLabel={t("common.close")}
-                  />
                 )}
               </div>
             )}

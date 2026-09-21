@@ -372,8 +372,9 @@
   z-index: 0;
   display: flex;
   flex-direction: column;
-  height: 60vh;
-  min-height: 200px;
+  /* 기본 높이 — 한 화면에서 본문이 충분히 보이게. 아래 모서리로 끌어 바꿀 수 있다 */
+  height: 78vh;
+  min-height: 320px;
   resize: vertical;
   overflow: hidden;
   opacity: 1;

@@ -102,7 +102,8 @@ export default function MarkdownHelp() {
             {rows.map((r) => (
               <tr key={r.label}>
                 <td>
-                  <code className={styles.helpCode}>{r.syntax}</code>
+                  {/* 여러 줄 문법(코드 블록·표)은 캡슐로 두면 위아래가 크게 말려 어색하다 — 모서리를 줄인다 */}
+                  <code className={`${styles.helpCode}${r.syntax.includes("\n") ? ` ${styles.helpCodeMulti}` : ""}`}>{r.syntax}</code>
                 </td>
                 <td className={styles.helpDesc}>{r.label}</td>
               </tr>

@@ -10,6 +10,7 @@ import Button from "@/components/ui/Button";
 import ShareButton from "@/components/ui/ShareButton";
 import LanguageToggle from "@/components/ui/LanguageToggle";
 import Tooltip from "@/components/ui/Tooltip";
+import Pressable from "@/components/ui/Pressable";
 import T from "@/components/ui/T";
 import styles from "./WorkArticleHeader.module.css";
 import type { WorkArticleViewProps } from "./workArticleTypes";
@@ -27,6 +28,7 @@ export function WorkArticleHeader({
   viewLang,
   isAdmin: isAdminProp,
   isPreview,
+  onImportEdit,
   viewHref,
   onLangChange,
   relatedPosts,
@@ -70,7 +72,22 @@ export function WorkArticleHeader({
               <span className={`${styles.tag} ${styles.tagNature}`}><T ko={project.nature.ko} en={project.nature.en} /></span>
             )}
           </div>
-          {isAdmin && !isPreview && (
+          {/* 저장소로 만들어진 화면에는 편집할 행이 없다 — 눌러서 작업물로 들인 뒤 편집 화면으로 간다 */}
+          {isAdmin && !isPreview && project.external && onImportEdit && (
+            <>
+              <span className={styles.metaDivider} />
+              <Tooltip content={t("workDetail.editRepoWork")} placement="top" delay={200}>
+                <Pressable
+                  onClick={onImportEdit}
+                  aria-label={t("workDetail.editRepoWork")}
+                  style={{ display: "inline-flex", alignItems: "center", color: "var(--text-tertiary)" }}
+                >
+                  <Pencil size={13} />
+                </Pressable>
+              </Tooltip>
+            </>
+          )}
+          {isAdmin && !isPreview && !project.external && (
             <>
               <span className={styles.metaDivider} />
               <Tooltip content={t("workDetail.editWork")} placement="top" delay={200}>

@@ -27,6 +27,16 @@
   border-right: none;
 }
 
+/* 다음 카드가 없으면 가운데 구분선도 필요 없다 */
+.cardSolo {
+  border-right: none;
+}
+
+/* 한쪽이 없을 때의 빈 칸 — 자리만 차지한다 */
+.emptySlot {
+  display: block;
+}
+
 .cardNext .label {
   justify-content: flex-end;
 }

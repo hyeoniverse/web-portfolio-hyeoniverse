@@ -1,37 +1,64 @@
 import { describe, it, expect } from "vitest";
-import { cylinderCamera, CAMERA_Z, CAMERA_FOV, RADIUS } from "@/app/works/_components/layouts/cylinder/scene";
+import {
+  cylinderCamera,
+  visibleWallAngle,
+  CAMERA_Z,
+  CAMERA_FOV,
+  RADIUS,
+  SLOT_ANGLE,
+} from "@/app/works/_components/layouts/cylinder/scene";
 
-/* 원통 카메라(#940). 좁은 화면에서 카메라가 뒤로 물러나다 원통 벽(RADIUS)을 넘으면, 카메라 바로 앞의 판이 near 평면
-   (0.1) 안으로 들어와 화면을 덮었다(폭 358px 이하). 이제 벽 앞에서 멈추고 시야각을 넓혀 먼 쪽 판을 같은 크기로 본다. */
+/* 원통 카메라 — andreasantonsson.dev 의 카메라를 옮겼다. 그 원통은 반지름을 4 × 화면비로 두고 카메라를
+   가로 화면 z=3, 세로 화면 z=5 에 둔다(시야각 35°). 반지름을 고정한 이 씬에서는 반지름 × 0.75/화면비(가로),
+   1.25/화면비(세로)다. 판들은 띠처럼 돌아서 칸이 적으면 이음매(±띠 길이/2)가 생기는데, 그게 화면에 들면
+   빈 곳이 보인다 — 그때는 카메라를 당긴다. */
 
-const halfTan = (fov: number) => Math.tan((fov * Math.PI) / 360);
-/** 옛 식 — 기준 1400×800 보다 작으면 9 ÷ 배율 만큼 물러난다 */
-const oldZ = (w: number, h: number) => CAMERA_Z / Math.min(1, w / 1400, h / 800);
+const loopOf = (slots: number) => SLOT_ANGLE * slots;
+const SIZES: [number, number][] = [[1440, 900], [1280, 800], [1920, 1080], [2560, 1080], [1024, 768], [768, 1024], [390, 844], [320, 568]];
 
 describe("cylinderCamera", () => {
-  it("카메라는 어느 폭에서도 원통 안에 있다 — 가까운 쪽 판은 카메라 뒤", () => {
-    for (let w = 200; w <= 1600; w += 1) {
-      expect(cylinderCamera(w, 740).z, `폭 ${w}`).toBeLessThan(RADIUS);
-    }
-    expect(cylinderCamera(358, 740).z).toBeLessThan(RADIUS);
-    expect(oldZ(358, 740) - RADIUS, "옛 식은 358 에서 벽 밖 0.1 을 넘었다").toBeGreaterThan(0.1);
+  it("칸이 넉넉하면 레퍼런스의 거리 그대로다", () => {
+    expect(cylinderCamera(1280, 800, loopOf(8))).toEqual({ z: (RADIUS * 0.75) / 1.6, fov: CAMERA_FOV });
+    expect(cylinderCamera(390, 844, loopOf(8)).z).toBeCloseTo((RADIUS * 1.25) / (390 / 844), 9);
   });
 
-  it("먼 쪽 판은 옛 식과 같은 크기로 보인다", () => {
-    for (const [w, h] of [[320, 740], [358, 740], [390, 844], [768, 1024], [1440, 900]]) {
-      const { z, fov } = cylinderCamera(w, h);
-      // 먼 쪽 판(축 너머 RADIUS)에서 화면 절반 높이가 덮는 길이
-      expect(halfTan(fov) * (z + RADIUS), `${w}×${h}`).toBeCloseTo(halfTan(CAMERA_FOV) * (oldZ(w, h) + RADIUS), 6);
+  it("세로 화면에서는 카메라가 원통 밖으로 나가 먼 쪽 벽을 넓게 본다", () => {
+    expect(cylinderCamera(390, 844, loopOf(8)).z).toBeGreaterThan(RADIUS);
+    expect(cylinderCamera(1280, 800, loopOf(8)).z).toBeLessThan(RADIUS);
+  });
+
+  it.each([2, 3, 4, 5, 8, 12])("칸 %i 개: 어느 화면에서도 이음매가 화면 끝보다 바깥에 있다", (slots) => {
+    const seam = loopOf(slots) / 2;
+    for (const [w, h] of SIZES) {
+      const { z, fov } = cylinderCamera(w, h, loopOf(slots));
+      expect(visibleWallAngle(z, fov), `${w}×${h}`).toBeLessThan(seam);
     }
   });
 
-  it("벽에 닿지 않는 폭은 옛 식 그대로다", () => {
-    for (const [w, h] of [[1440, 900], [1024, 768], [390, 844]]) {
-      expect(cylinderCamera(w, h)).toEqual({ z: oldZ(w, h), fov: CAMERA_FOV });
-    }
+  it("이음매 때문에 당길 때만 레퍼런스보다 가깝다", () => {
+    // 두 칸(90°)이면 세로 화면은 이음매가 보여 당기고, 가로 화면은 그대로 둔다
+    expect(cylinderCamera(390, 844, loopOf(2)).z).toBeLessThan(cylinderCamera(390, 844, loopOf(8)).z);
+    expect(cylinderCamera(1280, 800, loopOf(2)).z).toBe(cylinderCamera(1280, 800, loopOf(8)).z);
   });
 
   it("크기를 아직 모르면(0) 기본값", () => {
     expect(cylinderCamera(0, 0)).toEqual({ z: CAMERA_Z, fov: CAMERA_FOV });
+  });
+});
+
+describe("visibleWallAngle", () => {
+  it("카메라가 축에 있으면 시야각의 절반만큼 보인다", () => {
+    expect(visibleWallAngle(0, 35)).toBeCloseTo((35 / 2) * (Math.PI / 180), 9);
+  });
+
+  it("멀어질수록 먼 쪽 벽이 더 넓게 보인다", () => {
+    expect(visibleWallAngle(RADIUS, 35)).toBeGreaterThan(visibleWallAngle(RADIUS / 2, 35));
+  });
+
+  it("구한 각의 벽 점이 정확히 화면 위끝에 걸린다", () => {
+    const z = RADIUS * 0.6;
+    const th = visibleWallAngle(z, 35);
+    const seen = Math.atan((RADIUS * Math.sin(th)) / (z + RADIUS * Math.cos(th)));
+    expect(seen).toBeCloseTo((35 / 2) * (Math.PI / 180), 9);
   });
 });

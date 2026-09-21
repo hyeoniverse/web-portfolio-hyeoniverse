@@ -32,6 +32,7 @@ export {
   recommendedSize,
   normalizeLimits,
   SIZE_OPTIONS,
+  STORAGE_MAX_MB,
 } from "@/lib/uploadFormats";
 export type { MimeGroupKey } from "@/lib/uploadFormats";
 

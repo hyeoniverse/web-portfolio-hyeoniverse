@@ -8,6 +8,7 @@ import {
   MIME_GROUP_ORDER,
   type MimeGroupKey,
   SIZE_OPTIONS,
+  STORAGE_MAX_MB,
   inferGroup,
   normalizeLimits,
   recommendedSize,
@@ -68,7 +69,8 @@ export function MediaLimitsEditor({ config, setConfig, t }: {
       <Select
         size="sm"
         width="s"
-        value={String(limits[ext] ?? 20)}
+        /* 예전에 저장한 100·200MB 는 저장소 한도(50MB)를 넘어 선택지에 없다 — 실제로 적용되는 값으로 보인다 */
+        value={String(Math.min(limits[ext] ?? 20, STORAGE_MAX_MB))}
         options={SIZE_OPTIONS}
         onChange={(v) => updateLimits({ [ext]: Number(v) })}
       />
