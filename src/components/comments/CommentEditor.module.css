@@ -165,6 +165,12 @@
   background: var(--bg-tertiary);
 }
 
+/* 두 줄 이상인 문법 — 캡슐이면 줄 수만큼 반원이 커져 상자가 알약처럼 부푼다 */
+.helpCodeMulti {
+  /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 여러 줄 코드 예시 상자. 2xl(24px)도 두세 줄 높이에서는 반원에 가까워 작은 모서리로 둔다 */
+  border-radius: var(--radius-md);
+}
+
 .helpDesc {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-body);

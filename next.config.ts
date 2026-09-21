@@ -93,6 +93,9 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "user-images.githubusercontent.com" },
       { protocol: "https", hostname: "camo.githubusercontent.com" },
       { protocol: "https", hostname: "github.com" },
+      /* README 에 그림이 없는 저장소를 작업물로 들일 때 대표 이미지로 쓰는 GitHub 저장소 소개 카드
+         (lib/repoWorkDefaults 의 repoCoverFallback) */
+      { protocol: "https", hostname: "opengraph.githubassets.com" },
     ],
   },
 };

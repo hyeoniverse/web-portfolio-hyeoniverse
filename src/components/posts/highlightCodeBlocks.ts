@@ -141,6 +141,9 @@ export function attachCodeWrapToggle(
     // wheel 은 통째로 막지 않고 축(axis) 기준으로 라우팅한다(attachWheelRouting) — 세로로 굴렸는데
     // 블록이 세로로 못 움직이면 페이지가 스크롤되도록.
     pre.setAttribute("data-lenis-prevent-touch", "");
+    /* 예전에 저장한 HTML 은 pre 에 data-lenis-prevent 를 달고 있다 — 그러면 Lenis 가 이 위의 휠을 통째로
+       무시해 아래 라우팅이 끝에서 넘겨줘도 페이지가 움직이지 않는다. 화면에서 떼어 낸다 */
+    pre.removeAttribute("data-lenis-prevent");
     // 가로로 넘치는 코드는 마우스 없이도 훑을 수 있어야 한다 — 키보드 초점을 받게 한다.
     if (!pre.hasAttribute("tabindex")) pre.setAttribute("tabindex", "0");
     attachWheelRouting(pre);

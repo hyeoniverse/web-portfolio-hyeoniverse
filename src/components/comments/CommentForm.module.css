@@ -111,8 +111,8 @@
   40%, 80% { transform: translateX(5px); }
 }
 
-/* footer (등록 버튼 줄) — giscus `.gsc-comment-box-bottom` 미러:
-   위 border 구분선 + radius 0 + margin 0(구분선이 박스 폭 전체).
+/* footer (등록 버튼 줄) — giscus `.gsc-comment-box-bottom` 를 따르되 위 구분선은 두지 않는다
+   (입력 칸과 등록 버튼이 한 상자로 이어져 보이게). radius 0 + margin 0.
    좌우 패딩의 X 축(= --spacing-md) 이 textarea 좌우 패딩(--textarea-p)과 같아
    등록 버튼이 본문 글 시작선과 세로 정렬됨 (giscus 의 "좌우 14 = textarea/preview 와 동일 정렬"). */
 .actions {
@@ -122,7 +122,6 @@
   gap: var(--spacing-sm);
   margin: 0;
   padding: var(--spacing-sm) var(--spacing-md);
-  border-top: var(--border-light);
   border-radius: 0;
 }
 

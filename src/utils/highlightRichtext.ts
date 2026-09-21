@@ -39,26 +39,50 @@ async function highlightOne(h: Highlighter, code: string, lang: string): Promise
   return h.codeToHtml(code, { lang: useLang, themes: { light: LIGHT, dark: DARK }, defaultColor: false });
 }
 
+/** 저장 HTML 의 pre 속성 중 리더에서 쓰지 않을 것 — data-lenis-prevent 는 휠을 통째로 막아 블록 끝에서
+ *  페이지가 이어서 내려가지 않게 만든다(리더는 블록마다 휠을 나눠 준다). tabindex 는 화면에서 붙인다 */
+function readerPreAttrs(attrs: string): { style: string; rest: string } {
+  let rest = attrs
+    .replace(/\s+data-lenis-prevent(?:="[^"]*")?(?=\s|$)/g, "")
+    .replace(/\s+tabindex="[^"]*"/g, "");
+  let style = "";
+  rest = rest.replace(/\s+style="([^"]*)"/, (_, v: string) => { style = v; return ""; });
+  return { style, rest };
+}
+
 /**
  * richtext HTML 안의 `<pre><code class="language-x">…</code></pre>` 코드블록을 Shiki 결과로 치환.
  * mermaid 는 클라이언트에서 SVG 렌더하므로 원본 유지.
+ *
+ * pre 에 속성이 붙어 있어도 잡는다 — 줄바꿈 상태(data-wrap + white-space 인라인 style)나 mermaid 보기 모드가
+ * 붙은 블록, 예전 저장 HTML 의 data-lenis-prevent 가 붙은 블록이 있다. 예전 식은 속성 없는 <pre> 만 잡아서
+ * 이런 블록은 색이 안 칠해진 채 나갔다. 줄바꿈 상태는 Shiki 의 pre 로 옮긴다.
  */
 export async function highlightRichtextCode(html: string): Promise<string> {
-  const re = /<pre><code(?:\s+class="language-([^"]*)")?>([\s\S]*?)<\/code><\/pre>/g;
+  const re = /<pre((?:\s[^>]*)?)><code(?:\s+class="language-([^"]*)")?>([\s\S]*?)<\/code><\/pre>/g;
   const matches = [...html.matchAll(re)];
   if (matches.length === 0) return html;
 
   const h = await getHighlighter();
   const parts = await Promise.all(
     matches.map(async (m) => {
-      const lang = (m[1] || "text").toLowerCase();
-      if (lang.includes("mermaid")) return m[0];
+      const lang = (m[2] || "text").toLowerCase();
+      const { style, rest } = readerPreAttrs(m[1] ?? "");
+      const original = () => m[0].replace(/^<pre[^>]*>/, `<pre${rest}${style ? ` style="${style}"` : ""}>`);
+      if (lang.includes("mermaid")) return original();
       try {
-        const out = await highlightOne(h, unescape(m[2]), lang || "text");
+        let out = await highlightOne(h, unescape(m[3]), lang || "text");
         // 원본 언어를 data-lang 으로 보존 — Shiki 출력엔 language 클래스가 없어 상세/미리보기에서 라벨 표시용
-        return out.replace(/^<pre/, `<pre data-lang="${lang}"`);
+        out = out.replace(/^<pre/, `<pre data-lang="${lang}"${rest}`);
+        if (style) {
+          // 줄바꿈 상태는 Shiki 가 넣은 색 변수 style 뒤에 잇는다 — 리더는 pre.style.whiteSpace 로 상태를 읽는다
+          out = /^<pre[^>]*\sstyle="/.test(out)
+            ? out.replace(/^(<pre[^>]*\sstyle="[^"]*)"/, (_, head: string) => `${head.replace(/;?$/, ";")}${style}"`)
+            : out.replace(/^<pre/, `<pre style="${style}"`);
+        }
+        return out;
       } catch {
-        return m[0];
+        return original();
       }
     }),
   );

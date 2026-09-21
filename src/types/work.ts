@@ -1,4 +1,4 @@
-import type { Project, LocalizedText } from "@/data/projects";
+import type { Project, LocalizedText, GalleryNotes } from "@/data/projects";
 import { formatProjectNumber } from "@/utils/formatProjectNumber";
 import { getCardSize } from "@/utils/getCardSize";
 
@@ -71,6 +71,8 @@ export interface Work {
   solution_image: string;
   team_members: TeamMember[];
   gallery: string[];
+  /** 갤러리 장마다의 음성 — 그림 주소가 열쇠. 마이그레이션 전 DB 에는 칸이 없다 */
+  gallery_notes?: GalleryNotes | null;
   live_url: string;
   github_url: string;
   published: boolean;
@@ -121,6 +123,8 @@ export interface WorkFormData {
   content_type: "markdown" | "richtext";
   team_members: TeamMember[];
   gallery: string[];
+  /** 갤러리 장마다의 음성 — 그림 주소가 열쇠 */
+  gallery_notes: GalleryNotes;
   live_url: string;
   github_url: string;
   published: boolean;
@@ -207,6 +211,7 @@ export function workFormToProject(form: WorkFormData): Project {
     solution_image: "",
     team_members: form.team_members,
     gallery: form.gallery,
+    gallery_notes: form.gallery_notes,
     live_url: form.live_url,
     github_url: form.github_url,
     published: form.published,
@@ -286,6 +291,7 @@ export function workToProject(w: Work): Project {
     contentType: w.content_type || "markdown",
     teamMembers: teamMembers.length > 0 ? teamMembers : undefined,
     gallery: w.gallery,
+    galleryNotes: w.gallery_notes ?? undefined,
     liveUrl: w.live_url || undefined,
     githubUrl: w.github_url || undefined,
     summary: (w.summary_ko || w.summary_en) ? loc(w.summary_ko, w.summary_en) : undefined,

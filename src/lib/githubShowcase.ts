@@ -36,6 +36,9 @@ export interface GithubRepoCard {
   defaultBranch: string;
   /** README 에서 뽑은 기본값(#1053). 설정에 적은 값이 없을 때 이걸 쓴다. 안 읽었으면 없음 */
   readme?: ReadmeMeta;
+  /** 저장소에 쓰인 언어 — 줄 수(바이트) 많은 순. 보여줄 저장소에만 채운다(요청이 하나 더 나간다).
+      language 는 그중 첫 번째와 같지만, 여기에는 나머지 언어까지 들어 있다 */
+  languages?: string[];
 }
 
 /** 하루치 잔디 한 칸. level 은 GitHub 이 매기는 0~4 단계. */
@@ -300,7 +303,7 @@ export async function getGithubShowcase(
 }
 
 /**
- * 저장소 카드에 README 에서 뽑은 표지·제목·설명을 붙인다(#1053).
+ * 저장소 카드에 README 에서 뽑은 표지·제목·설명과, 그 저장소에 쓰인 언어 목록을 붙인다(#1053).
  *
  * **실제로 보여줄 저장소에만** 부른다. 저장소 하나에 요청이 하나씩 더 나가므로, 고르는 화면의
  * 전체 목록(100곳까지)에 걸면 시간당 요청 수 제한을 그대로 써 버린다. 화면에 나가는 건 11칸이다.
@@ -314,14 +317,19 @@ export async function withReadmeMeta(cards: readonly GithubRepoCard[]): Promise<
 
   return Promise.all(
     cards.map(async (card) => {
-      const markdown = await ghText(
-        `/repos/${encodeURIComponent(card.owner)}/${encodeURIComponent(card.name)}/readme`,
-        token,
-      );
-      if (!markdown) return card;
+      const path = `/repos/${encodeURIComponent(card.owner)}/${encodeURIComponent(card.name)}`;
+      /* 둘은 서로를 기다릴 이유가 없다 — 저장소 하나에 두 요청이 같이 나간다 */
+      /* 조직 저장소는 토큰을 붙이면 막힐 수 있다(ghOrg 참고) — README·언어도 막히면 익명으로 다시 묻는다.
+         전에는 목록만 그렇게 해서, 조직 저장소는 README 가 있어도 늘 못 받아 본문이 비었다 */
+      const [markdown, languages] = await Promise.all([
+        ghTextOrAnonymous(`${path}/readme`, token),
+        fetchLanguages(path, token),
+      ]);
+      const withLangs = languages.length > 0 ? { ...card, languages } : card;
+      if (!markdown) return withLangs;
       const meta = parseReadme(markdown);
       return {
-        ...card,
+        ...withLangs,
         readme: {
           ...meta,
           image: absolutizeReadmeImage(meta.image, card.owner, card.name, card.defaultBranch),
@@ -330,6 +338,22 @@ export async function withReadmeMeta(cards: readonly GithubRepoCard[]): Promise<
       };
     }),
   );
+}
+
+/**
+ * 저장소에 쓰인 언어 — 많이 쓴 순.
+ *
+ * 저장소 목록(list)에는 주 언어 하나만 들어 있다. 나머지 언어는 저장소마다 이 끝점을 따로 물어야
+ * 알 수 있어서, 실제로 보여줄 저장소에만 붙인다. GitHub 은 언어별 바이트 수를 주는데 차례는
+ * 보장하지 않으므로 여기서 정렬한다. 실패하면 빈 배열 — 부르는 쪽이 주 언어로 돌아간다.
+ */
+async function fetchLanguages(repoPath: string, token: string | null): Promise<string[]> {
+  const json = await ghOrg(`${repoPath}/languages`, token);
+  if (!json || typeof json !== "object") return [];
+  return Object.entries(json as Record<string, unknown>)
+    .filter(([, bytes]) => typeof bytes === "number" && bytes > 0)
+    .sort((a, b) => (b[1] as number) - (a[1] as number))
+    .map(([name]) => name);
 }
 
 /** README 는 JSON 이 아니라 원문으로 받는다 — Accept 헤더로 고른다 */
@@ -347,6 +371,13 @@ async function ghText(path: string, token: string | null): Promise<string | null
   } catch {
     return null;
   }
+}
+
+/** ghText 의 ghOrg — 토큰으로 막히면(조직 정책) 토큰을 빼고 한 번 더. README 가 없는 저장소는 두 번 다 404 다 */
+async function ghTextOrAnonymous(path: string, token: string | null): Promise<string | null> {
+  const withToken = await ghText(path, token);
+  if (withToken !== null || !token) return withToken;
+  return ghText(path, null);
 }
 
 /**
@@ -438,7 +469,7 @@ export function repoKey(repo: { owner: string; name: string; fullName: string },
  * 그대로 지키고, 뒤에 붙는 것만 순위로 정한다. 조직 저장소는 고른 것에만 들어 있다 —
  * 메우는 쪽은 소유 계정의 저장소다.
  */
-export function homeRepoPool(showcase: GithubShowcase, limit: number): GithubRepoCard[] {
+function homeRepoPool(showcase: GithubShowcase, limit: number): GithubRepoCard[] {
   const seen = new Set<string>();
   const pool: GithubRepoCard[] = [];
   for (const repo of [...showcase.repos, ...showcase.rankedRepos]) {

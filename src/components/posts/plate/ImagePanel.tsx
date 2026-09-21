@@ -280,26 +280,26 @@ export function ImagePanel({
         {images.length > 0 && (
           <div className={styles.imagePanelActions}>
             {!hasSelection && (
-              <Button variant="outline" size="2xs" onClick={selectAll} soundDisabled>
+              <Button variant="outline" size="xs" onClick={selectAll} soundDisabled>
                 {t("editor.imageSelectAll")}
               </Button>
             )}
             {hasSelection && (
               <>
                 {selectedDetachedCount > 0 && (
-                  <Button variant="outline" size="2xs" onClick={handleBulkReinsert} soundDisabled>
+                  <Button variant="outline" size="xs" onClick={handleBulkReinsert} soundDisabled>
                     {t("editor.mediaReinsert")} ({selectedDetachedCount})
                   </Button>
                 )}
                 {selectedContentCount > 0 && onBulkInsert && (
-                  <Button variant="outline" size="2xs" onClick={handleBulkInsert} soundDisabled>
+                  <Button variant="outline" size="xs" onClick={handleBulkInsert} soundDisabled>
                     {t("editor.imageInsertSelected")} ({selectedContentCount})
                   </Button>
                 )}
-                <Button variant="outline" size="2xs" onClick={deselectAll} soundDisabled>
+                <Button variant="outline" size="xs" onClick={deselectAll} soundDisabled>
                   {t("editor.imageDeselectAll")}
                 </Button>
-                <Button variant="outline" size="2xs" className={styles.imagePanelActionDanger} onClick={handleBulkDelete} soundDisabled>
+                <Button variant="outline" size="xs" className={styles.imagePanelActionDanger} onClick={handleBulkDelete} soundDisabled>
                   {t("editor.imageDeleteSelected")} ({selected.size})
                 </Button>
               </>

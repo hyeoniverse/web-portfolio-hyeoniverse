@@ -1,60 +1,48 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useMemo, useRef } from "react";
 import { motion } from "framer-motion";
 import "katex/dist/katex.min.css";
 import { useRichtextEnhance } from "@/hooks/useRichtextEnhance";
+import { processRichtextHtml } from "@/utils/processRichtextHtml";
 import { useLanguage } from "@/providers/LanguageProvider";
-import ProgressiveImage from "@/components/ui/ProgressiveImage";
 import MarkdownRenderer from "@/components/posts/MarkdownRenderer";
 import DateMentionPeek from "@/components/posts/DateMentionPeek";
 import { ImageViewer, useProseImageViewer } from "@/components/ui/ImageViewer";
 import { pickLocalized } from "@/types/common";
-import { getBentoClass } from "@/app/works/_utils";
 import styles from "./WorkArticleBody.module.css";
 import type { WorkArticleViewProps } from "./workArticleTypes";
+import { pickContent } from "@/lib/contentLang";
 
 /* ────────────────────────────────────────────────────────────
  * WorkArticleBody — DetailLayout 의 children slot.
- * 본문(richtext/markdown) · 갤러리 + ImageViewer.
- * richtext enhance / gallery viewer 등 인터랙션은 모두 내부 보유.
+ * 본문(richtext/markdown) + ImageViewer.
+ * richtext 후처리는 글(posts) 상세와 같은 길을 탄다 — processRichtextHtml 로 HTML 을 다듬고
+ * useRichtextEnhance 가 코드블록 바·수식·island 를 얹는다. 예전에는 작업물만 따로 후처리를 걸어서,
+ * 코드블록의 휠·줄바꿈 단추가 글 상세와 다르게 굴었다.
  * 팀 멤버 carousel 은 full-width afterContent slot 으로 분리됨 → WorkArticleTeam.
  * ──────────────────────────────────────────────────────────── */
 export function WorkArticleBody({ project, viewLang }: WorkArticleViewProps) {
   const { t, language } = useLanguage();
   const isRichtext = project.contentType === "richtext";
 
-  const [galleryViewer, setGalleryViewer] = useState({ open: false, index: 0 });
   const { containerRef: proseRef, viewerState: proseViewer, closeViewer: closeProseViewer } = useProseImageViewer();
   const richtextRef = useRef<HTMLDivElement>(null);
 
-  const contentRaw = project.content[viewLang] || project.content.ko;
-  // richtext img에 data-cursor="zoom" 주입 (CursorTrail 이미지 뷰어 힌트)
-  const content = isRichtext
-    ? contentRaw.replace(/<img\s/g, '<img data-cursor="zoom" ')
-    : contentRaw;
+  /* 보는 언어의 본문이 없으면 반대 언어 쪽을 보여 준다 — 번역 단추는 상세 화면이 본문 위에 낸다 */
+  /* 보는 언어 칸에 글이 없으면 다른 언어 본문 — 빈 문단·복사된 README 도 없는 것으로 친다(contentLang) */
+  const content = pickContent(project.content, viewLang);
 
-  useRichtextEnhance(richtextRef, content);
+  /* heading id(목차 앵커) · embed 주소 · 줄바꿈 단추 라벨 · 그림 확대 커서 — 글 상세와 같은 다듬기.
+     언어가 확정되며 라벨이 바뀌어 본문이 다시 세팅돼도 괜찮다 — useRichtextEnhance 가 알아채고 다시 건다 */
+  const html = useMemo(
+    () => (isRichtext
+      ? processRichtextHtml(content, { codeScroll: t("common.codeScroll"), codeWrap: t("common.codeWrap") })
+      : ""),
+    [isRichtext, content, t],
+  );
 
-  // mermaid 다이어그램 + in-content TOC 렌더 (richtext 만)
-  useEffect(() => {
-    if (!isRichtext) return;
-    const el = richtextRef.current;
-    if (!el) return;
-    let cleanup: (() => void) | undefined;
-    import("@/components/posts/enhanceReaderExtras").then(({ enhanceReaderExtras }) => {
-      cleanup = enhanceReaderExtras(el, {
-        viewCode: t("common.mermaidViewCode"),
-        hideCode: t("common.mermaidHideCode"),
-        copyCode: t("common.codeCopy"),
-        copied: t("common.codeCopied"),
-        diagram: t("common.mermaidDiagram"),
-        code: t("common.mermaidCode"),
-        split: t("common.mermaidSplit"),
-      });
-    });
-    return () => cleanup?.();
-  }, [isRichtext, content, t]);
+  useRichtextEnhance(richtextRef, html, isRichtext);
 
   return (
     <>
@@ -68,7 +56,7 @@ export function WorkArticleBody({ project, viewLang }: WorkArticleViewProps) {
         >
           <div ref={proseRef}>
             {isRichtext ? (
-              <div ref={richtextRef} className={`${styles.sectionProse} prose-content`} dangerouslySetInnerHTML={{ __html: content }} />
+              <div ref={richtextRef} className={`${styles.sectionProse} prose-content`} dangerouslySetInnerHTML={{ __html: html }} />
             ) : (
               <MarkdownRenderer content={content} className={`${styles.sectionProse} prose-content`} />
             )}
@@ -76,50 +64,6 @@ export function WorkArticleBody({ project, viewLang }: WorkArticleViewProps) {
           {isRichtext && <DateMentionPeek containerRef={richtextRef} language={language} />}
         </motion.div>
       )}
-
-      {/* Gallery — TOC anchor 와 동일한 본문 영역 안 */}
-      {project.gallery.length > 0 && (
-        <motion.div
-          id="gallery"
-          className={styles.gallery}
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.65, duration: 0.6 }}
-        >
-          {project.gallery.map((src, i) => {
-            const count = project.gallery.length;
-            const bentoClass = getBentoClass(i, count, styles);
-            return (
-              <div
-                key={i}
-                className={`${styles.galleryItem} ${bentoClass ?? ""}`}
-                onClick={() => setGalleryViewer({ open: true, index: i })}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => { if (e.key === "Enter") setGalleryViewer({ open: true, index: i }); }}
-                data-cursor="zoom"
-              >
-                <ProgressiveImage
-                  src={src}
-                  alt={`${pickLocalized(project.title, viewLang)} ${i + 1}`}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 800px"
-                  className={styles.galleryImage}
-                />
-              </div>
-            );
-          })}
-        </motion.div>
-      )}
-
-      {/* Gallery ImageViewer */}
-      <ImageViewer
-        images={project.gallery}
-        index={galleryViewer.index}
-        open={galleryViewer.open}
-        onClose={() => setGalleryViewer({ open: false, index: 0 })}
-        title={pickLocalized(project.title, viewLang)}
-      />
 
       {/* Prose ImageViewer */}
       <ImageViewer

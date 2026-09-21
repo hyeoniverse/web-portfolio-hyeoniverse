@@ -143,7 +143,7 @@ const LANGUAGE_COLORS: Record<string, string> = {
 const DEFAULT_REPO_COLOR = "#6e7681";
 
 /** 저장소 원을 채울 언어 색 — 설정 화면도 같은 색을 보여줘야 미리보기가 맞는다 */
-export function repoAccent(language: string | null | undefined): string {
+function repoAccent(language: string | null | undefined): string {
   return (language && LANGUAGE_COLORS[language]) || DEFAULT_REPO_COLOR;
 }
 
@@ -153,7 +153,7 @@ const INK_ON_DARK = "#ffffff";
 const INK_ON_LIGHT = "#161b22";
 
 /** 배경 밝기(WCAG 상대 휘도)로 고른 글자색. 노랑 계열 위에서는 어두운 글자로 간다 */
-export function inkFor(hex: string): string {
+function inkFor(hex: string): string {
   const n = Number.parseInt(hex.slice(1), 16);
   const channels = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((c) => {
     const s = c / 255;
@@ -251,33 +251,6 @@ export function repoView(repo: GithubRepoCard, set?: RepoOverride): RepoView {
     accent,
     accentInk: inkFor(accent),
   };
-}
-
-/** GitHub 저장소 → 홈 그리드용 슬롯.
- *  표지를 올려 두면 다른 소스와 똑같이 그 그림이 원을 채우고, 없으면 주 언어 색과 이름으로 채운다. */
-export function toRepoItems(
-  source: readonly GithubRepoCard[],
-  overrides: readonly RepoOverride[] = [],
-): WorkItem[] {
-  const byName = new Map(overrides.map((o) => [o.name, o]));
-  return fillSlots(source, (repo) => {
-    // 조직 저장소는 `owner/name` 으로, 개인 저장소는 이름만으로 적혀 있다
-    const view = repoView(repo, byName.get(repo.fullName) ?? byName.get(repo.name));
-    return {
-      projectId: repo.name,
-      title: view.title,
-      category: { ko: view.tech, en: view.tech },
-      main: view.cover,
-      hover: view.hoverCover,
-      mainFit: view.coverFit,
-      hoverFit: view.hoverFit,
-      /* 원을 누르면 GitHub 이 아니라 사이트 안에서 README 를 읽는다(#1062) */
-      href: view.href,
-      kind: "repo",
-      accent: view.accent,
-      accentInk: view.accentInk,
-    };
-  });
 }
 
 // 정적 fallback — projects.ts 순서 (DB 미접근 시)

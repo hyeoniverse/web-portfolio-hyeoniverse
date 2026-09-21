@@ -68,6 +68,8 @@ export default function PostsClient({ initialPosts, initialTotalPages, initialPe
   const [busy, setBusy] = useState(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(initialTotalPages);
+  /* 제목 옆에 붙는 전체 개수 — 목록 응답이 세어 준다 */
+  const [totalCount, setTotalCount] = useState(0);
 
   /* Filters & sort */
   const [search, setSearch] = useState("");
@@ -190,6 +192,7 @@ export default function PostsClient({ initialPosts, initialTotalPages, initialPe
     const data = await res.json();
     setPosts(data.posts ?? []);
     setTotalPages(data.totalPages ?? 1);
+    setTotalCount(data.total ?? data.posts?.length ?? 0);
     setLoading(false);
   }, [page, perPage, sort, filterCategory, filterSeries, effectiveAuthor, debouncedSearch, searchType, syntaxMode]);
 
@@ -301,6 +304,18 @@ export default function PostsClient({ initialPosts, initialTotalPages, initialPe
     setTrashLoading(false);
   }, []);
 
+  /* 개수는 펼치기 전에도 보여야 한다 — 접힌 머리줄에 "휴지통 N" 으로 찍힌다. 예전에는 펼칠 때만
+     불러서 열기 전에는 늘 비어 보였다(작업물 목록은 처음부터 부른다).
+     여기서는 목록만 채운다 — 불러오는 표시는 펼칠 때만 쓰므로 건드리지 않는다 */
+  useEffect(() => {
+    let alive = true;
+    fetch("/api/posts?trash=true&limit=100")
+      .then((r) => r.json())
+      .then((d) => { if (alive) setTrashPosts(d.posts ?? []); })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, []);
+
   /* 시리즈는 검색·필터와 무관하다 — 목록 조회에 묶으면 키 입력마다 함께 다시 불린다.
      같은 effect 안에서 ref 로 한 번만 부른다(effect 를 쪼개지 않아 불필요한 리렌더도 없다). */
   const seriesLoadedRef = useRef(false);
@@ -402,7 +417,7 @@ export default function PostsClient({ initialPosts, initialTotalPages, initialPe
     <div style={{ position: "relative" }}>
     {busy && <div className={styles.busyOverlay}><span className={styles.busySpinner} /></div>}
     <AdminListShell
-      title={t("admin.posts.title")}
+      title={`${t("admin.posts.title")} (${totalCount})`}
       newHref="/admin/posts/new"
       newLabel={t("admin.posts.newPost")}
       headerExtra={

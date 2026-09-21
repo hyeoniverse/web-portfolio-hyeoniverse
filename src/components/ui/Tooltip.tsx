@@ -27,6 +27,8 @@ interface TooltipProps {
   anchorSelector?: string;
   /** 툴팁 콘텐츠를 hover/클릭 가능하게 (링크 등). 트리거→툴팁 이동 시 gap 을 건너도 유지되도록 지연 hide. */
   interactive?: boolean;
+  /** 꼬리를 빼고 말풍선만. 여백 없이 그림만 담는 말풍선은 꼬리가 그림 위로 올라와 가린다 */
+  hideArrow?: boolean;
   children: ReactNode;
 }
 
@@ -42,6 +44,7 @@ export default function Tooltip({
   variant = "default",
   anchorSelector,
   interactive,
+  hideArrow,
   children,
 }: TooltipProps) {
   // 오버레이(모달) 안이면 그 stacking context 로 portal → 모달 위에 tooltip 표시.
@@ -287,14 +290,16 @@ export default function Tooltip({
           >
             {content}
           </div>
-          <div
-            className={`${styles.arrow}${variant === "glass" ? ` ${styles.arrowGlass}` : ""} ${
-              pos.side === "top" ? styles.arrowBottom :
-              pos.side === "bottom" ? styles.arrowTop :
-              pos.side === "left" ? styles.arrowRight :
-              styles.arrowLeft
-            }`}
-          />
+          {!hideArrow && (
+            <div
+              className={`${styles.arrow}${variant === "glass" ? ` ${styles.arrowGlass}` : ""} ${
+                pos.side === "top" ? styles.arrowBottom :
+                pos.side === "bottom" ? styles.arrowTop :
+                pos.side === "left" ? styles.arrowRight :
+                styles.arrowLeft
+              }`}
+            />
+          )}
         </div>,
         portalContainer ?? document.body,
       )}

@@ -161,7 +161,7 @@
   flex-direction: column;
   align-items: center;
   gap: var(--spacing-3xs);
-  border-radius: var(--radius-2xl);
+  /* hover 배경도 각지게 — 안에 든 그림이 각져서 둥근 바탕만 남으면 겉돈다 */
   padding: var(--spacing-3xs);
   transition: background-color 0.15s;
 }
@@ -229,12 +229,12 @@
   background: var(--bg-overlay);
 }
 
+/* 그림 자체는 모서리를 깎지 않는다 — 원본 비율과 가장자리를 그대로 보여 주는 자리다 */
 .imagePanelItem img,
 .imagePanelItem video {
   width: 66px;
   height: 50px;
   object-fit: cover;
-  border-radius: var(--radius-2xl);
   border: var(--border-light);
 }
 

@@ -8,11 +8,12 @@ import { useRouter } from "next/navigation";
 import MediaThumb from "@/components/admin/MediaThumb";
 import HighlightedText from "@/components/ui/HighlightedText";
 import { SearchHighlightProvider } from "@/providers/SearchHighlightProvider";
-import { ImageIcon, Trash2, Upload, Plus, Download, ExternalLink } from "@/components/icons";
+import { ImageIcon, Trash2, Upload, Plus, Download, ExternalLink, GithubIcon } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { getTrashDaysLeft } from "@/utils/trash";
 import { downloadBlob, downloadFiles } from "@/utils/download";
 import { formatProjectNumber } from "@/utils/formatProjectNumber";
+import { fillTemplate } from "@/utils/format";
 import { usePreviewTooltip } from "@/hooks/usePreviewTooltip";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import type { Work } from "@/types/work";
@@ -36,6 +37,9 @@ import AdminTable, {
 import SubTable, { subTableStyles as st, type SubTableColumn } from "@/components/admin/SubTable/SubTable";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import { useModalStore } from "@/stores/modalStore";
+import { showToast } from "@/stores/toastStore";
+import { ModalConfirm } from "@/components/ui/ModalTemplates";
+import GithubImportModal from "./_components/GithubImportModal";
 import BulkCategoryModal from "@/components/admin/BulkCategoryModal";
 import type { BilingualCategory } from "@/types/common";
 import { parseMdWork } from "@/utils/mdParser";
@@ -111,6 +115,21 @@ function PreviewTooltip({
   );
 }
 
+/** 공개 목록을 채우고 있는 GitHub 저장소 한 줄 — /api/works/showcase 가 주는 모양 */
+type ShowcaseRepo = {
+  id: string;
+  slug: string;
+  title: { ko: string; en: string };
+  image: string;
+  year: string;
+  githubUrl?: string;
+  /** 저장소를 가진 계정(내 계정 또는 조직) */
+  owner?: string;
+  isOrg?: boolean;
+  /** 이미 작업물로 들여 둔 저장소 */
+  imported?: boolean;
+};
+
 export default function AdminWorksPage() {
   /* 목록은 로그인한 멤버 누구나 본다. 편집만 막는다 — 관리자이거나 그 작업물의 팀원이어야 한다.
      서버의 requirePostAccess 와 works_admin_update 정책이 같은 규칙(can_edit_work)을 쓴다.
@@ -165,10 +184,14 @@ export default function AdminWorksPage() {
   /* Trash */
   const [trashWorks, setTrashWorks] = useState<Work[]>([]);
   const [trashOpen, setTrashOpen] = useState(false);
+  /* 발행한 작업물이 없을 때 목록·상세를 채우는 GitHub 저장소들 — DB 에 행이 없어 표에는 안 잡힌다 */
+  const [repoWorks, setRepoWorks] = useState<ShowcaseRepo[]>([]);
   const [trashSearch, setTrashSearch] = useState("");
   const [trashSearchType, setTrashSearchType] = useState<"all" | "title" | "content">("all");
   const [trashSortBy, setTrashSortBy] = useState<"deleted" | "created" | "name">("deleted");
   const [trashSortDir, setTrashSortDir] = useState<"asc" | "desc">("desc");
+  const [trashSelected, setTrashSelected] = useState<Set<string>>(new Set());
+  const [trashBusy, setTrashBusy] = useState(false);
   const [trashPage, setTrashPage] = useState(1);
   const [trashPerPage, setTrashPerPage] = useState(10);
 
@@ -242,6 +265,69 @@ export default function AdminWorksPage() {
     setLoading(false);
   }, [page, perPage, sort, filterCategory, filterNature, filterYear, search, searchType, syntaxMode]);
 
+  /* GitHub 저장소의 README 를 작업물로 들인다 — 들인 뒤에는 보통 작업물과 똑같이 다룬다.
+     발행 상태로 들어온다(공개 화면에 이미 나가 있던 것을 옮겨 오는 것이므로).
+     이미 들인 저장소는 서버가 걸러 내므로 여러 번 눌러도 사본이 생기지 않는다 */
+  const [ghImporting, setGhImporting] = useState(false);
+  const pendingRepos = repoWorks.filter((r) => !r.imported).length;
+
+  const runRepoImport = async (slugs: string[], overwrite: boolean) => {
+    const res = await sendAction("/api/works/showcase/import", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ slugs, overwrite }),
+    }, t, t("admin.works.githubImportFailed"));
+    if (!res) return;
+    showToast(fillTemplate(t("admin.works.githubImported"), { n: slugs.length }), "success");
+    fetchWorks();
+    fetchRepoWorks();
+  };
+
+  /* 저장소 고르기 창을 연다 — 무엇을 들일지는 거기서 고른다.
+     이미 들인 것을 다시 고르면 내용을 덮어쓰므로 한 번 더 묻는다 */
+  const handleRepoImportAll = async () => {
+    if (ghImporting) return;
+    setGhImporting(true);
+    try {
+      /* 목록은 열 때마다 새로 묻는다 — 그 사이 저장소가 생겼을 수 있다 */
+      const fresh = await fetch("/api/works/showcase").then((r) => r.json()).catch(() => null);
+      const repos: ShowcaseRepo[] = Array.isArray(fresh?.works) ? fresh.works : [];
+      setRepoWorks(repos);
+      openModal(
+        <GithubImportModal
+          repos={repos}
+          login={typeof fresh?.login === "string" ? fresh.login : undefined}
+          onImport={(slugs, again) => {
+            if (again === 0) { void runRepoImport(slugs, false); return; }
+            openModal(
+              <ModalConfirm
+                desc={fillTemplate(t("admin.works.githubOverwriteConfirm"), { n: again })}
+                confirmText={t("admin.works.githubOverwrite")}
+                danger
+                onConfirm={() => { void runRepoImport(slugs, true); }}
+              />,
+              { id: "github-overwrite", header: { title: t("admin.works.githubOverwrite") }, closeButton: true, width: "420px" },
+            );
+          }}
+        />,
+        { id: "github-import", header: { title: t("admin.works.githubImportButton") }, closeButton: true, width: "min(92vw, 520px)" },
+      );
+    } finally {
+      setGhImporting(false);
+    }
+  };
+
+  /* 저장소는 작업물이 하나도 없을 때만 내려온다 — 목록이 바뀌면 같이 다시 묻는다 */
+  const fetchRepoWorks = useCallback(async () => {
+    try {
+      const res = await fetch("/api/works/showcase");
+      const data = await res.json();
+      setRepoWorks(Array.isArray(data?.works) ? data.works : []);
+    } catch {
+      setRepoWorks([]);
+    }
+  }, []);
+
   const fetchTrash = useCallback(async () => {
     const res = await fetch("/api/works?trash=true&limit=100");
     const data = await res.json();
@@ -251,7 +337,8 @@ export default function AdminWorksPage() {
   useEffect(() => {
     fetchWorks();
     fetchTrash();
-  }, [fetchWorks, fetchTrash]);
+    fetchRepoWorks();
+  }, [fetchWorks, fetchTrash, fetchRepoWorks]);
 
   /* ── MD Upload ── */
   const { openModal } = useModalStore();
@@ -349,9 +436,20 @@ export default function AdminWorksPage() {
     if (await sendAction(`/api/works/${id}/extend-retention`, { method: "POST" }, t, t("admin.common.extendFailed"))) fetchTrash();
   };
 
-  const handlePurge = async (id: string, title: string) => {
-    if (!confirm(`"${title}" — ${t("admin.works.trashPurgeConfirm")}`)) return;
-    if (await sendAction(`/api/works/${id}/purge`, { method: "DELETE" }, t, t("admin.common.purgeFailed"))) fetchTrash();
+  /* 영구 삭제는 되돌릴 수 없다 — 브라우저 기본 팝업 대신 사이트의 확인 창으로 묻는다
+     (글 휴지통과 같은 방식) */
+  const handlePurge = (id: string, title: string) => {
+    openModal(
+      <ModalConfirm
+        desc={t("admin.works.trashPurgeConfirm")}
+        confirmText={t("admin.works.trashPurge")}
+        danger
+        onConfirm={async () => {
+          if (await sendAction(`/api/works/${id}/purge`, { method: "DELETE" }, t, t("admin.common.purgeFailed"))) fetchTrash();
+        }}
+      />,
+      { id: "work-purge", header: { title: `"${title}"` }, closeButton: true, width: "400px" },
+    );
   };
 
   /* handleMove 는 useCallback 이라 guardWritable 을 의존성에 넣으면 매 렌더 재생성된다.
@@ -439,7 +537,7 @@ export default function AdminWorksPage() {
             )}
           </div>
         ),
-        skeletonWidth: "48px",
+        skeletonWidth: "64px",
         skeletonShape: "box",
       },
       {
@@ -542,7 +640,7 @@ export default function AdminWorksPage() {
           )}
         </div>
       ),
-      skeletonWidth: "48px",
+      skeletonWidth: "64px",
     },
     {
       key: "title",
@@ -598,8 +696,48 @@ export default function AdminWorksPage() {
         allItems={filteredTrash}
         columns={trashColumns}
         gridTemplate="28px 64px 1fr 100px 180px"
-        selected={new Set<string>()}
-        onSelectChange={() => {}}
+        selected={trashSelected}
+        onSelectChange={setTrashSelected}
+        bulkActions={[
+          {
+            label: <T k="admin.works.trashRestore" />,
+            disabled: trashBusy,
+            onClick: async () => {
+              setTrashBusy(true);
+              const restored = await sendActions(
+                [...trashSelected].map((id) => ({ input: `/api/works/${id}/restore`, init: { method: "POST" } })),
+                t, t("admin.common.restoreFailed"),
+              );
+              if (restored > 0) { fetchTrash(); fetchWorks(); }
+              setTrashSelected(new Set());
+              setTrashBusy(false);
+            },
+          },
+          {
+            label: <T k="admin.works.trashPurge" />,
+            disabled: trashBusy,
+            onClick: () => {
+              openModal(
+                <ModalConfirm
+                  desc={fillTemplate(t("admin.works.trashPurgeConfirmBulk"), { count: trashSelected.size })}
+                  confirmText={t("admin.works.trashPurge")}
+                  danger
+                  onConfirm={async () => {
+                    setTrashBusy(true);
+                    const purged = await sendActions(
+                      [...trashSelected].map((id) => ({ input: `/api/works/${id}/purge`, init: { method: "DELETE" } })),
+                      t, t("admin.common.purgeFailed"),
+                    );
+                    if (purged > 0) fetchTrash();
+                    setTrashSelected(new Set());
+                    setTrashBusy(false);
+                  }}
+                />,
+                { id: "work-purge-bulk", header: { title: t("admin.works.trashPurge") }, closeButton: true, width: "400px" },
+              );
+            },
+          },
+        ]}
         page={trashPage}
         perPage={trashPerPage}
         onPageChange={setTrashPage}
@@ -653,7 +791,8 @@ export default function AdminWorksPage() {
   return (
     <SearchHighlightProvider query={search} mode={syntaxMode}>
     <AdminListShell
-      title={t("admin.works.title")}
+      /* 제목 옆 숫자는 거른 결과가 아니라 전체 개수다 — 목록이 몇 쪽이든 같은 값이다 */
+      title={`${t("admin.works.title")} (${totalCount})`}
       newHref="/admin/works/new"
       newLabel={t("admin.works.newWork")}
       afterTable={trashSection}
@@ -671,6 +810,20 @@ export default function AdminWorksPage() {
             }}
           />
           <ButtonGroup>
+            {/* 저장소 불러오기 — 들일 게 없을 때도 눌러 볼 수 있어야 한다(새 저장소가 생겼는지 여기서 본다) */}
+            <Button
+              variant="outline"
+              size="xs"
+              title={t("admin.works.githubHint")}
+              onClick={handleRepoImportAll}
+              disabled={ghImporting}
+              soundDisabled
+              icon={<GithubIcon size={14} />}
+            >
+              {t("admin.works.githubImportButton")}
+              {/* 아직 안 들인 저장소가 있으면 개수를 붙인다 — 열어 보기 전에 새 게 있는지 알 수 있게 */}
+              {pendingRepos > 0 ? ` (${pendingRepos})` : ""}
+            </Button>
             <Button variant="outline" size="xs" title={t("admin.works.uploadMd")} onClick={() => mdInputRef.current?.click()} disabled={uploading} soundDisabled icon={<Upload size={14} />}>
               {uploading ? "..." : t("admin.works.uploadMd")}
             </Button>

@@ -1306,7 +1306,8 @@
   align-items: center;
   justify-content: flex-end;
   gap: var(--spacing-xs);
-  padding: var(--spacing-2xs) var(--spacing-sm);
+  /* 좌우 여백 — 본문(2xl-plus)만큼 들이면 줄 양끝이 너무 비어 보여, 그보다 좁게 둔다 */
+  padding: var(--spacing-2xs) var(--spacing-md);
   border: none;
   border-top: var(--border-light);
   border-radius: 0;

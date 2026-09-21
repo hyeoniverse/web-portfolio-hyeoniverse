@@ -43,6 +43,9 @@ export function ImageElement(props: PlateElementProps) {
   // 선택(이미지 void 가 selection 에 포함) + 포커스면 활성 — 핸들/툴바 표시.
   // 선택은 PlateEditor capture 핸들러가 처리하므로 별도 clicked 플래그 불필요.
   const isActive = selected && focused;
+  /* 고른 이미지 위에는 편집 막대가 뜬다 — 크기·파일 이름 툴팁까지 위로 나오면 그 막대를 덮는다.
+     그때만 아래로 내린다(고르지 않았으면 자리가 넉넉한 쪽을 알아서 고른다) */
+  const tipPlacement = isActive ? "bottom" : "auto";
 
   const el = props.element as Record<string, unknown>;
   const url = (el.url as string) || "";
@@ -344,7 +347,7 @@ export function ImageElement(props: PlateElementProps) {
           onClick={selectImage}
           onPointerDown={startInlineDrag}
         >
-          <Tooltip content={displaySize ? `${fileName ? `${fileName} · ` : ""}${displaySize.w}×${displaySize.h}px${isSmall && caption ? `\n${caption}` : ""}` : undefined} delay={300} placement="auto" wrapperStyle={{ display: "block", lineHeight: 0 }}>
+          <Tooltip content={displaySize ? `${fileName ? `${fileName} · ` : ""}${displaySize.w}×${displaySize.h}px${isSmall && caption ? `\n${caption}` : ""}` : undefined} delay={300} placement={tipPlacement} wrapperStyle={{ display: "block", lineHeight: 0 }}>
               {/* 이미지 박스 — 리사이즈 핸들 기준. 캡션은 이 박스 밖이라 핸들이 캡션에 안 밀림 */}
               <span style={{ position: "relative", display: "block", lineHeight: 0 }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -415,7 +418,7 @@ export function ImageElement(props: PlateElementProps) {
             {/* 이미지 박스 — 리사이즈 핸들의 기준(position:relative). 캡션은 이 박스 밖이라 핸들이 캡션 높이에 안 밀림 */}
             <div style={{ position: "relative", display: "inline-block", maxWidth: "100%", lineHeight: 0 }}>
               {/* Tooltip wrapper 기본이 inline-flex → 이미지 박스에 baseline 여백이 생겨 핸들이 어긋남. block+lineHeight 0 으로 이미지에 딱 맞춤 */}
-              <Tooltip content={displaySize ? `${fileName ? `${fileName} · ` : ""}${displaySize.w}×${displaySize.h}px${isSmall && caption ? `\n${caption}` : ""}` : undefined} delay={300} placement="auto" wrapperStyle={{ display: "block", lineHeight: 0 }}>
+              <Tooltip content={displaySize ? `${fileName ? `${fileName} · ` : ""}${displaySize.w}×${displaySize.h}px${isSmall && caption ? `\n${caption}` : ""}` : undefined} delay={300} placement={tipPlacement} wrapperStyle={{ display: "block", lineHeight: 0 }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   ref={imgRef}

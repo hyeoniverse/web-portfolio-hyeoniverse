@@ -58,8 +58,24 @@ describe("repoToProject", () => {
     // 좋아요·댓글을 받을 자리가 없다는 표시
     expect(project.external).toBe(true);
     expect(project.contentType).toBe("markdown");
-    // 아래 줄은 낱말 자리라 주 언어가 온다
-    expect(project.category.ko).toBe("TypeScript");
+    // 언어는 분류가 아니라 기술이다 — 손으로 적어 둔 말이 없으면 분류는 비운다
+    expect(project.category.ko).toBe("");
+    expect(project.tech).toEqual(["TypeScript"]);
+  });
+
+  it("기술에는 저장소에 쓰인 언어가 많은 순으로 다 들어가고, 겹치지 않는 주제가 뒤를 잇는다", () => {
+    const project = repoToProject(
+      repo({ languages: ["TypeScript", "CSS", "Python"], topics: ["python", "nextjs"] }),
+      undefined,
+      0,
+    );
+    // 대표(맨 앞)는 가장 많이 쓴 언어. "python" 주제는 언어와 겹쳐 빠진다
+    expect(project.tech).toEqual(["TypeScript", "CSS", "Python", "nextjs"]);
+  });
+
+  it("설정에 적어 둔 말은 분류로 쓴다 — 사람이 고른 낱말이다", () => {
+    const project = repoToProject(repo(), { name: "me/alpha", tech: "웹" }, 0);
+    expect(project.category.ko).toBe("웹");
   });
 
   it("본문은 걸러낸 README 다 — 남이 쓴 HTML 이 그대로 그려지면 안 된다", () => {
@@ -88,8 +104,10 @@ describe("repoToProject", () => {
     expect(project.category.en).toBe("Next.js");
   });
 
-  it("README 가 없으면 본문이 비어 있다 — 상세는 그래도 열린다", () => {
-    expect(repoToProject(repo(), undefined, 0).content.ko).toBe("");
+  it("README 가 없으면 저장소 정보로 본문을 채운다 — 비어 있으면 발행할 때 필수 칸에 막힌다", () => {
+    const p = repoToProject(repo(), undefined, 0);
+    expect(p.content.ko.trim()).not.toBe("");
+    expect(p.content.en.trim()).not.toBe("");
   });
 });
 
@@ -153,3 +171,4 @@ describe("은하수 배경", () => {
     expect(getByText("곧 채웁니다")).toBeTruthy();
   });
 });
+

@@ -717,10 +717,10 @@ export default function SettingsPage() {
   /* 저장하지 않은 변경이 있으면 떠나기 전에 묻는다 — 탭·하위탭 옮기기, 사이트 안 링크, 새로고침·닫기.
      예전에는 탭을 옮기면 묻지 않고 버렸다. */
   const askLeave = (go: () => void) => openModal(
-    <ModalConfirm desc={t("admin.settings.leaveConfirm")} confirmText={t("admin.settings.leaveConfirmAction")} danger onConfirm={go} />,
+    <ModalConfirm desc={t("admin.common.leaveConfirm")} confirmText={t("admin.common.leaveConfirmAction")} danger onConfirm={go} />,
     { width: "min(90vw, 480px)" },
   );
-  useLeaveGuard(hasChanges && !saving, askLeave);
+  useLeaveGuard(hasChanges && !saving, askLeave, { fallback: "/admin" });
   /* 이 탭에서 바뀐 섹션 수 — 탭 저장 단추에 붙는다(섹션 머리·사이드바 목록의 점과 같은 판정) */
   const changedCount = hasChanges ? sectionNav.dirty.filter(Boolean).length : 0;
   /* 탭·하위탭 옮기기. 옮기면 저장하지 않은 변경은 버린다 — 탭 저장이 보이지 않는 하위탭의 변경까지
