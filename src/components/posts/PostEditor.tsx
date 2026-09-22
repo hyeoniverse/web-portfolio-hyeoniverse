@@ -684,7 +684,8 @@ export default function PostEditor({ post }: PostEditorProps) {
   }, [handleImageUpload, updateField, t]);
 
   const handleSave = useCallback(
-    async (publish?: boolean) => {
+    /* stay: 저장한 뒤 목록으로 나가지 않고 편집을 이어 간다 — 상단 상태 칩의 발행 전환(#1116) */
+    async (publish?: boolean, { stay = false }: { stay?: boolean } = {}) => {
       const willPublish = publish !== undefined ? publish : form.published;
 
       if (willPublish) {
@@ -749,7 +750,7 @@ export default function PostEditor({ post }: PostEditorProps) {
               onConfirm={async () => {
                 updateField("scheduled_at", null);
                 // 새 form 값으로 retry — state 업데이트 후 다음 tick
-                setTimeout(() => handleSave(publish), 0);
+                setTimeout(() => handleSave(publish, { stay }), 0);
               }}
             />,
             { id: "scheduled-past-confirm", header: { title: te("scheduledAt") } },
@@ -797,7 +798,7 @@ export default function PostEditor({ post }: PostEditorProps) {
               onOverwrite={() => {
                 closeModal("post-save-conflict");
                 if (typeof data.currentVersion === "number") baseVersionRef.current = data.currentVersion;
-                handleSave(publish); // 최신 version 으로 재시도 → 덮어쓰기
+                handleSave(publish, { stay }); // 최신 version 으로 재시도 → 덮어쓰기
               }}
             />,
             { id: "post-save-conflict", header: { title: language === "ko" ? "저장 충돌" : "Save conflict" }, width: "400px" },
@@ -868,6 +869,15 @@ export default function PostEditor({ post }: PostEditorProps) {
         }
         // 실제 save 성공 — localStorage draft 정리 (DB 가 진실의 원천)
         clearDraft();
+        if (stay) {
+          /* 저장한 값이 새 기준이다 — 그대로 두면 저장했는데도 "고친 내용이 있다" 로 남아 나갈 때 다시 묻는다 */
+          initialFormRef.current = { ...form, published: willPublish };
+          setForm((prev) => ({ ...prev, published: willPublish }));
+          requestAnimationFrame(() => markBaseline());
+          setStatus(t(willPublish ? "admin.common.nowPublished" : "admin.common.nowUnpublished"));
+          setStatusType("success");
+          return;
+        }
         router.push("/admin/posts");
       } catch {
         setError(te("networkError"));
@@ -875,7 +885,7 @@ export default function PostEditor({ post }: PostEditorProps) {
         setSaving(false);
       }
     },
-    [form, router, te, isEdit] // eslint-disable-line react-hooks/exhaustive-deps
+    [form, router, te, isEdit, markBaseline] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   const handleDelete = useCallback(async () => {
@@ -1332,6 +1342,7 @@ export default function PostEditor({ post }: PostEditorProps) {
         );
       }}
       onPublish={() => handleSave(true)}
+      onTogglePublished={isEdit ? () => handleSave(!form.published, { stay: true }) : undefined}
       hidePublish={!form.published}
       onPreview={handlePreview}
       viewHref={form.published && form.slug ? `/posts/${form.slug}` : undefined}

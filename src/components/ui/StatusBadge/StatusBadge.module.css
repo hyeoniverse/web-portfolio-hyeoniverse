@@ -57,6 +57,12 @@
 .btn:active {
   transform: scale(0.94);
 }
+.btn:disabled {
+  cursor: progress;
+  opacity: 0.6;
+  filter: none;
+  transform: none;
+}
 
 @keyframes pulse {
   0%,

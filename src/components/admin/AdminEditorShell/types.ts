@@ -77,6 +77,9 @@ export interface AdminEditorShellProps {
   deleteTargetName?: string;
   onSaveDraft: () => void;
   onPublish: () => void;
+  /** 상단 상태 칩을 눌러 발행/미발행을 바꾼다 — 목록의 칩과 같은 동작. 없으면 칩은 누를 수 없다.
+   *  예약 발행 대기(미발행 + 예약 시각) 칩은 이 값이 있어도 누를 수 없다. */
+  onTogglePublished?: () => void;
   /** 별도 '발행' 버튼 숨김 — 미발행 글에서 저장 버튼(+발행 여부 모달)으로 발행을 일원화할 때 true */
   hidePublish?: boolean;
   onPreview?: () => void;

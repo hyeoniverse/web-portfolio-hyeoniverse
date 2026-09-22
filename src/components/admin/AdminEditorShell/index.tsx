@@ -39,6 +39,7 @@ export default function AdminEditorShell({
   deleteTargetName,
   onSaveDraft,
   onPublish,
+  onTogglePublished,
   hidePublish = false,
   onPreview,
   viewHref,
@@ -1044,7 +1045,13 @@ export default function AdminEditorShell({
         <div className={styles.topBarRow}>
           {/* 발행 상태 chip — 둘째 줄 왼쪽 끝 (저장 그룹은 오른쪽) */}
           <div style={{ marginRight: "auto", display: "flex", alignItems: "center", gap: "var(--spacing-sm)" }}>
-            <StatusBadge variant={published ? "published" : hasSchedule ? "scheduled" : "draft"}>
+            <StatusBadge
+              variant={published ? "published" : hasSchedule ? "scheduled" : "draft"}
+              /* 목록의 칩처럼 눌러서 발행/미발행을 바꾼다(#1116). 예약 대기 칩은 누르지 않는다 — 누르면 예약을 건너뛰고 바로 발행된다 */
+              onClick={onTogglePublished && (published || !hasSchedule) ? onTogglePublished : undefined}
+              title={onTogglePublished && (published || !hasSchedule) ? t(published ? "admin.posts.clickToUnpublish" : "admin.posts.clickToPublish") : undefined}
+              disabled={saving}
+            >
               {/* 편집 화면 문구라 관리자 화면 언어를 따른다(편집 중인 글의 언어 탭이 아니라) */}
               {t(published ? "admin.common.statusPublished" : hasSchedule ? "admin.common.statusScheduled" : "admin.common.statusDraft")}
             </StatusBadge>
