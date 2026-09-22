@@ -27,11 +27,14 @@ const RISE_PX = 84;
 export default function BunnyHearts({
   screenPosRef,
   pettingRef,
+  className,
 }: {
   /** 몽이의 화면 좌표 — FloatingScene 이 매 프레임 갱신한다. */
   screenPosRef: React.RefObject<{ x: number; y: number }>;
   /** 지금 쓰다듬고 있는지 — FloatingScene 이 매 프레임 갱신한다. */
   pettingRef: React.RefObject<boolean>;
+  /** 층을 놓는 쪽이 쌓임 순서를 덧붙일 때 — works 원통은 캔버스(z 1) 위에 와야 한다. */
+  className?: string;
 }) {
   const nodes = useRef<(HTMLSpanElement | null)[]>([]);
 
@@ -94,7 +97,7 @@ export default function BunnyHearts({
   }, [screenPosRef, pettingRef]);
 
   return (
-    <div className={styles.layer} aria-hidden>
+    <div className={className ? `${styles.layer} ${className}` : styles.layer} aria-hidden>
       {Array.from({ length: POOL }, (_, i) => (
         <span
           key={i}

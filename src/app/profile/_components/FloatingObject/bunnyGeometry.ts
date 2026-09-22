@@ -13,7 +13,7 @@ export const BUNNY = {
 } as const;
 
 /* Egg-shaped body profile (wider at bottom, rounded poles) */
-export const BODY_PROFILE = (() => {
+const BODY_PROFILE = (() => {
   const pts: THREE.Vector2[] = [];
   const N = 32;
   for (let i = 0; i <= N; i++) {
@@ -29,7 +29,7 @@ export const BODY_PROFILE = (() => {
 })();
 
 /* Ear profile — thin base, thick rounded tip */
-export const EAR_PROFILE = (() => {
+const EAR_PROFILE = (() => {
   const pts: THREE.Vector2[] = [];
   const N = 20;
   for (let i = 0; i <= N; i++) {
@@ -53,7 +53,7 @@ export const EAR_PROFILE = (() => {
 })();
 
 /* Arm profile — hand end has smooth dome (봉긋) */
-export const ARM_PROFILE = (() => {
+const ARM_PROFILE = (() => {
   const pts: THREE.Vector2[] = [];
   const N = 20;
   const flatT = 0.6;
@@ -78,7 +78,7 @@ export const ARM_PROFILE = (() => {
 })();
 
 /* Teardrop foot profile — toe end has smooth dome (봉긋) */
-export const FOOT_PROFILE = (() => {
+const FOOT_PROFILE = (() => {
   const pts: THREE.Vector2[] = [];
   const N = 20;
   const flatT = 0.6;

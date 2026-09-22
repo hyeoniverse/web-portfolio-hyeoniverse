@@ -130,6 +130,7 @@ export default function CylinderLayout({ projects, onProjectClick, bare = false 
       <Suspense fallback={null}>
         <CylinderCanvas
           canvasClassName={styles.canvas}
+          heartsClassName={styles.hearts}
           hoveredItemClassName={styles.metaItemHovered}
           hoveredOverlayClassName={styles.metaOverlayHovered}
           projectImages={projectImages}
