@@ -4,10 +4,10 @@ import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { RoundedBox } from "@react-three/drei";
 import * as THREE from "three";
-import { useProfileSectionStore } from "@/stores/profileSectionStore";
+import type { BunnyTouch } from "@/stores/profileSectionStore";
 import { BODY_COLOR, BODY_EMISSIVE } from "./bunnyGeometry";
 
-/** 손이 설 자리 — FloatingScene 이 몽이의 만지는 지점을 매 프레임 적어 준다. */
+/** 손이 설 자리 — 장면(BunnyTouchRig)이 몽이의 만지는 지점을 매 프레임 적어 준다. */
 export interface HandAnchor {
   pos: THREE.Vector3;
   /** 만지는 자리의 바깥 방향(월드). 눕는 손은 이 반대로 손바닥을 돌린다. */
@@ -15,6 +15,8 @@ export interface HandAnchor {
   scale: number;
   /** 만지는 자리가 몽이의 어느 쪽인지(-1 왼쪽 / 1 오른쪽). 손이 물러날 방향을 여기서 정한다. */
   side: number;
+  /** 손 모양. 입력 쪽이 고른 것(BunnyTouch.hand)을 장면이 옮겨 적는다. */
+  shape: BunnyTouch["hand"];
   active: boolean;
 }
 
@@ -133,7 +135,8 @@ const POSES: Record<string, Pose> = {
 export default function TouchHand({
   anchor,
 }: {
-  anchor: React.RefObject<HandAnchor>;
+  /** 장면이 매 프레임 제자리에서 고치는 객체라 ref 로 감싸지 않는다. */
+  anchor: HandAnchor;
 }) {
   const rootRef = useRef<THREE.Group>(null);
   const fingerRefs = useRef<(THREE.Group | null)[]>([]);
@@ -148,8 +151,8 @@ export default function TouchHand({
     const root = rootRef.current;
     if (!root) return;
     const dt = Math.min(delta, 0.05);
-    const at = anchor.current;
-    const hand = at.active ? useProfileSectionStore.getState().bunnyTouch.hand : "";
+    const at = anchor;
+    const hand = at.active ? at.shape : "";
     const pose = POSES[hand];
 
     /* 없으면 오므리며 사라진다. 그냥 끄면 화면에서 툭 사라져 눈에 걸린다.

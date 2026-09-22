@@ -2,6 +2,40 @@ import { create } from "zustand";
 
 type BunnyExpression = "normal" | "surprised" | "happy" | null;
 
+/**
+ * 몽이를 만지는 입력 — 입력 쪽이 적고 장면이 읽는다. works 원통의 몽이도 같은 모양의 객체를 따로 든다.
+ */
+export interface BunnyTouch {
+  /** 커서(-1~1). 화면 왼쪽·아래가 -1. */
+  ndcX: number;
+  ndcY: number;
+  /** 커서가 몽이를 가리키는 자리(profile 은 MEET 패널의 자리 상자, works 는 몽이 둘레) 안에 있는지. */
+  over: boolean;
+  /** 누른 순간의 NDC 와 그 뒤로 끌린 양. */
+  grabX: number;
+  grabY: number;
+  pullX: number;
+  pullY: number;
+  /** 잡고 있는 볼(-1 왼쪽 / 0 안 잡음 / 1 오른쪽) · 쓰다듬는 중인지. */
+  cheek: number;
+  petting: boolean;
+  /** 한 번 찌른 세기. 장면이 읽고 0 으로 되돌린다. */
+  poke: number;
+  /** 장면이 풀어 적는 값 — 지금 커서가 몽이의 어디에 있는가. */
+  spot: "" | "pinch" | "pet" | "poke" | "grab";
+  /** 커서 자리에 세울 손 모양. 빈 문자열이면 손을 안 그린다. */
+  hand: "" | "pet" | "pinch" | "pinching" | "poke" | "grab";
+}
+
+/** 아무것도 만지지 않은 상태. */
+export function createBunnyTouch(): BunnyTouch {
+  return {
+    ndcX: 0, ndcY: 0, over: false,
+    grabX: 0, grabY: 0, pullX: 0, pullY: 0,
+    cheek: 0, petting: false, poke: 0, spot: "", hand: "",
+  };
+}
+
 interface ProfileSectionStore {
   activeSection: number;
   setActiveSection: (s: number) => void;
@@ -37,27 +71,7 @@ interface ProfileSectionStore {
    * `spot` 은 그 반대 방향으로 흐르는 값이다. FloatingScene 이 광선을 쏴서 몽이의 어디를
    * 가리키는지 풀어 적어 두면, 입력 쪽이 그걸 읽어 커서와 동작을 정한다.
    */
-  bunnyTouch: {
-    /** 커서(-1~1). 화면 왼쪽·아래가 -1. */
-    ndcX: number;
-    ndcY: number;
-    /** 커서가 자리 상자 안에 있는지. 밖이면 몽이를 가리키는 게 아니다. */
-    over: boolean;
-    /** 누른 순간의 NDC 와 그 뒤로 끌린 양. */
-    grabX: number;
-    grabY: number;
-    pullX: number;
-    pullY: number;
-    /** 잡고 있는 볼(-1 왼쪽 / 0 안 잡음 / 1 오른쪽) · 쓰다듬는 중인지. */
-    cheek: number;
-    petting: boolean;
-    /** 한 번 찌른 세기. FloatingScene 이 읽고 0 으로 되돌린다. */
-    poke: number;
-    /** FloatingScene 이 풀어 적는 값 — 지금 커서가 몽이의 어디에 있는가. */
-    spot: "" | "pinch" | "pet" | "poke" | "grab";
-    /** 커서 자리에 세울 손 모양. 빈 문자열이면 손을 안 그린다. */
-    hand: "" | "pet" | "pinch" | "pinching" | "poke" | "grab";
-  };
+  bunnyTouch: BunnyTouch;
   addBunnyDockSlot: (el: HTMLElement) => void;
   removeBunnyDockSlot: (el: HTMLElement) => void;
 }
@@ -68,11 +82,7 @@ export const useProfileSectionStore = create<ProfileSectionStore>((set) => ({
   bunnyExpression: null,
   setBunnyExpression: (e) => set({ bunnyExpression: e }),
   bunnyDrag: { x: 0, y: 0, vx: 0, vy: 0, dragging: false },
-  bunnyTouch: {
-    ndcX: 0, ndcY: 0, over: false,
-    grabX: 0, grabY: 0, pullX: 0, pullY: 0,
-    cheek: 0, petting: false, poke: 0, spot: "", hand: "",
-  },
+  bunnyTouch: createBunnyTouch(),
   bunnyDockSlots: new Set(),
   addBunnyDockSlot: (el) =>
     set((st) => {
