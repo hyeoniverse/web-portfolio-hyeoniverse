@@ -1371,15 +1371,15 @@
   top: 0;
   /* 요소 왼쪽 — [+][이동핸들] 두 버튼, 좌측 패딩 안. 오른쪽 끝을 콘텐츠에서 살짝 띄움.
      float 이미지 옆 블록은 --float-edge 만큼 오른쪽으로(이미지 옆 텍스트 시작에 맞춤) */
-  left: calc(-40px + var(--float-edge, 0px) + var(--block-indent, 0px));
-  width: 34px;
+  left: calc(-1 * var(--spacing-4xl) + var(--float-edge, 0px) + var(--block-indent, 0px));
+  width: calc(var(--spacing-4xl) - var(--spacing-xs));
   height: 100%;
   display: flex;
-  /* [+][이동핸들] 을 세로로 쌓는다 — 접근성 24×24 터치 타깃(WCAG 2.5.8)을 좁은 좌측 패딩(40px)
-     안에 넣으려면 가로로는 안 들어가서 세로 스택으로. 오른쪽(콘텐츠 쪽) 정렬, 첫 줄부터. */
-  flex-direction: column;
-  align-items: flex-end;
-  justify-content: flex-start;
+  /* [+][이동핸들] 을 가로로 나란히. 접근성 24×24 터치 타깃(WCAG 2.5.8) 두 개가 들어가도록 좌측 패딩을
+     64px 로 잡았다(아래 .editorContent). 오른쪽(콘텐츠 쪽) 정렬, 첫 줄에 맞춤. */
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-end;
   gap: var(--spacing-4xs);
   padding-top: calc((var(--font-size-md) * var(--line-height-relaxed) - 24px) / 2);
   opacity: 0;
@@ -1789,6 +1789,19 @@
     min-height: 400px;
   }
 
+  /* 좁은 화면에서는 64px 여백이 본문을 너무 좁힌다 — 예전 폭으로 되돌리고 [+][핸들]도 세로로 쌓는다.
+     .editorContent 본 규칙이 이 미디어쿼리보다 파일 뒤에 있어 같은 특이도로는 진다 → 클래스를 두 번 적어 이긴다 */
+  .editorContent.editorContent {
+    padding: var(--spacing-md) var(--spacing-2xl-plus);
+  }
+
+  .blockDragGutter {
+    left: calc(-1 * var(--spacing-2xl-plus) + var(--float-edge, 0px) + var(--block-indent, 0px));
+    width: var(--spacing-2xl);
+    flex-direction: column;
+    align-items: flex-end;
+  }
+
   .toolbar {
     gap: var(--spacing-4xs);
     padding: var(--spacing-2xs);
@@ -1807,8 +1820,9 @@
      블록이 촘촘하게(gap 20) — tint 는 6px 씩 감싸고 tint 간격 8px. */
   --tint-inset: 6px;
   --prose-block-gap: 20px;
-  /* 좌우 동일 패딩 — 좌측 [+][드래그] gutter 가 패딩 영역 안에 들어가므로 텍스트 여백이 좌우 대칭 */
-  padding: var(--spacing-md) var(--spacing-2xl-plus);
+  /* 좌우 동일 패딩 — 좌측 [+][드래그] gutter 가 패딩 영역 안에 들어가므로 텍스트 여백이 좌우 대칭.
+     가로로 나란한 두 버튼(24+24)이 들어가야 해서 64px. 좁은 화면은 아래 미디어쿼리에서 되돌린다 */
+  padding: var(--spacing-md) var(--spacing-4xl);
   outline: none;
   min-height: 400px;
   font-family: var(--font-space-grotesk);
