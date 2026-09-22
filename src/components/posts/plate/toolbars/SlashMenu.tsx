@@ -17,7 +17,7 @@ import { insertTable } from "@platejs/table";
 import { insertEquation } from "@platejs/math";
 import { insertToc } from "@platejs/toc";
 import {
-  Pilcrow, Heading1, Heading2, Heading3, Quote,
+  Pilcrow, Heading1, Heading2, Heading3, Heading4, Quote,
   List, ListOrdered, ListChecks,
   Image as ImageIcon, Video, Film,
   Code, Minus, Table as TableIcon, Lightbulb, Columns2, Columns3, ChevronRight, Sigma, ListTree, Workflow, LayoutPanelTop, Vote, Shapes, Smile, SquareCode, CalendarDays, Paperclip, AudioLines, Superscript, FileText,
@@ -145,6 +145,7 @@ const GROUPS: { labelKey: string; items: Cmd[] }[] = [
     { key: "h1", labelKey: "heading1", icon: <Heading1 size={ICON} />, keywords: ["heading", "제목", "title", "h1"], run: (e) => e.tf.toggleBlock("h1") },
     { key: "h2", labelKey: "heading2", icon: <Heading2 size={ICON} />, keywords: ["heading", "제목", "h2"], run: (e) => e.tf.toggleBlock("h2") },
     { key: "h3", labelKey: "heading3", icon: <Heading3 size={ICON} />, keywords: ["heading", "제목", "h3"], run: (e) => e.tf.toggleBlock("h3") },
+    { key: "h4", labelKey: "heading4", icon: <Heading4 size={ICON} />, keywords: ["heading", "제목", "h4"], run: (e) => e.tf.toggleBlock("h4") },
     { key: "quote", labelKey: "blockquote", icon: <Quote size={ICON} />, keywords: ["quote", "인용"], run: (e) => e.tf.toggleBlock("blockquote") },
     { key: "emoji", labelKey: "insertEmoji", icon: <Smile size={ICON} />, keywords: ["emoji", "이모지", "이모티콘", "emoticon", "smiley", "표정"], run: () => _emojiPickerTrigger.current?.() },
   ] },

@@ -33,8 +33,10 @@ export const BasicBlocksKit = [
   H2Plugin.configure({ render: { node: HeadingElement }, inputRules: [HeadingRules.markdown()] }),
   H3Plugin.configure({ render: { node: HeadingElement }, inputRules: [HeadingRules.markdown()] }),
   H4Plugin.configure({ render: { node: HeadingElement }, inputRules: [HeadingRules.markdown()] }),
-  H5Plugin.configure({ render: { node: HeadingElement }, inputRules: [HeadingRules.markdown()] }),
-  H6Plugin.configure({ render: { node: HeadingElement }, inputRules: [HeadingRules.markdown()] }),
+  /* h5·h6 는 만들지 않는다 — 편집기에서 고를 수 있는 단계는 h1~h4 다. 예전 글/붙여넣은 HTML 의 h5·h6 는 그대로 그리도록
+     플러그인은 남기고 마크다운 변환("##### ")만 뺀다 */
+  H5Plugin.configure({ render: { node: HeadingElement } }),
+  H6Plugin.configure({ render: { node: HeadingElement } }),
   BlockquotePlugin.configure({ render: { node: BlockquoteElement }, inputRules: [BlockquoteRules.markdown()] }),
   HorizontalRulePlugin.configure({ render: { node: HrElement }, inputRules: [HorizontalRuleRules.markdown()] }),
 ];

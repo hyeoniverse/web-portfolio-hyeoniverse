@@ -121,6 +121,16 @@ h6 { font-size: var(--font-size-label); }
 }
 .prose-content > :last-child { margin-bottom: 0; }
 
+/* 본문 제목 크기 — 편집기·글·작업물 본문에서만. 전역 h1~h6(위)는 화면 UI 제목이 함께 쓰므로 건드리지 않는다.
+   본문이 16px 이라 예전 값(h1 24 · h2 20 · h3 18 · h4 16)은 본문과 거의 같아 단계가 보이지 않았다.
+   h5·h6 는 편집기에서 만들 수 없고(마크다운 변환도 뺐다) 예전 글·붙여넣은 HTML 에만 남아 있어 본문 크기 언저리로 둔다. */
+.prose-content h1 { font-size: var(--font-size-3xl); }
+.prose-content h2 { font-size: var(--font-size-2xl); }
+.prose-content h3 { font-size: var(--font-size-xl); }
+.prose-content h4 { font-size: var(--font-size-lg); }
+.prose-content h5 { font-size: var(--font-size-md); }
+.prose-content h6 { font-size: var(--font-size-body); }
+
 /* 편집기·글·작업물 본문(미리보기·상세)의 굵은 글씨는 강조색(전역 strong)이 아니라 편집기의 글자색을 따른다(#1118).
    글자색을 지정하지 않았으면 둘레 글자색이다. 본문 글자색이 편집기와 다른 곳(작업물 본문은 secondary)은
    --_strong-color 로 편집기 기본색을 넘긴다. */

@@ -402,6 +402,7 @@ export default React.memo(function MainToolbar({
       <TBtn active={blockType === "h1"} onClick={() => editor.tf.toggleBlock("h1")} tooltip={`${t("editor.heading1")}\n${kb("⌘⌥1")}`}>H1</TBtn>
       <TBtn active={blockType === "h2"} onClick={() => editor.tf.toggleBlock("h2")} tooltip={`${t("editor.heading2")}\n${kb("⌘⌥2")}`}>H2</TBtn>
       <TBtn active={blockType === "h3"} onClick={() => editor.tf.toggleBlock("h3")} tooltip={`${t("editor.heading3")}\n${kb("⌘⌥3")}`}>H3</TBtn>
+      <TBtn active={blockType === "h4"} onClick={() => editor.tf.toggleBlock("h4")} tooltip={t("editor.heading4")}>H4</TBtn>
       <div className={styles.divider} />
 
       {/* Lists & blocks */}

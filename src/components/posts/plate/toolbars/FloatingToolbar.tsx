@@ -49,6 +49,7 @@ const TURN_INTO = [
   { value: "h1", key: "heading1", icon: "H1" },
   { value: "h2", key: "heading2", icon: "H2" },
   { value: "h3", key: "heading3", icon: "H3" },
+  { value: "h4", key: "heading4", icon: "H4" },
   { value: "bulleted", key: "bulletList", icon: "•" },
   { value: "numbered", key: "numberedList", icon: "1." },
   { value: "blockquote", key: "blockquote", icon: "❝" },
