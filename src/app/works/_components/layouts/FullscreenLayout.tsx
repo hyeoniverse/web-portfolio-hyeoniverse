@@ -5,6 +5,7 @@ import MediaThumb from "@/components/ui/MediaThumb";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { useLenis } from "@/providers/LenisProvider";
 import T from "@/components/ui/T";
+import WorkYear from "@/components/works/WorkYear";
 import TransitionLink from "@/components/ui/TransitionLink";
 import { workHref, type WorksLayoutProps } from "./shared";
 import styles from "./FullscreenLayout.module.css";
@@ -205,7 +206,7 @@ export default function FullscreenLayout({ projects, onProjectClick }: WorksLayo
                 </div>
               </div>
 
-              <span className={styles.year}>{p.year}</span>
+              <span className={styles.year}><WorkYear value={p.year} /></span>
               <div className={styles.tech}>
                 {p.tech.slice(0, 4).map((tech: string, j: number) => (
                   <span key={j}>{tech}</span>
