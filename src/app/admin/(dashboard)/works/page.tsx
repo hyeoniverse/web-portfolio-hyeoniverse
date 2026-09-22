@@ -742,6 +742,15 @@ export default function AdminWorksPage() {
         perPage={trashPerPage}
         onPageChange={setTrashPage}
         emptyMessage={t("admin.works.trashEmpty")}
+        /* 글 휴지통과 같게 — 올리면 미리보기 툴팁, 누르면 미리보기를 새 탭으로 연다.
+           휴지통 항목은 편집 화면이 아니라 미리보기로 연다. 미리보기가 id 로 불러온 작업물이 지워진 것이면
+           위에 복구·영구 삭제 막대를 띄운다(admin/(preview)/works/preview). */
+        onRowHover={handleRowHover}
+        onRowLeave={handleRowLeave}
+        onRowClick={(w: Work) => {
+          hideTooltip();
+          window.open(`/admin/works/preview?fetch=${encodeURIComponent(w.id)}`, "_blank");
+        }}
         filterBar={
           <div className={shell.filterBar}>
             <SegmentedControl<"deleted" | "created" | "name">
