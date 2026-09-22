@@ -8,6 +8,7 @@ import { pickLocalized } from "@/types/common";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useLenis } from "@/providers/LenisProvider";
 import TransitionLink from "@/components/ui/TransitionLink";
+import WorkYear from "@/components/works/WorkYear";
 import { workHref, type WorksLayoutProps } from "./shared";
 import { textUnits } from "../../_utils";
 import styles from "./CinematicLayout.module.css";
@@ -217,7 +218,7 @@ export default function CinematicLayout({ projects, onProjectClick }: WorksLayou
                 ))}
               </div>
             </div>
-            <div className={styles.yearBig}>{p.year}</div>
+            <div className={styles.yearBig}><WorkYear value={p.year} /></div>
           </TransitionLink>
         ))}
       </div>

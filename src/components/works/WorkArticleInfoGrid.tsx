@@ -5,6 +5,7 @@ import "katex/dist/katex.min.css";
 import RelatedChips from "@/components/ui/RelatedChips/RelatedChips";
 import AISummary from "@/components/ui/AISummary";
 import T from "@/components/ui/T";
+import WorkYear from "@/components/works/WorkYear";
 import styles from "./WorkArticleInfoGrid.module.css";
 import type { WorkArticleViewProps } from "./workArticleTypes";
 
@@ -32,7 +33,7 @@ export default function WorkArticleInfoGrid({
       >
         <div className={styles.infoBlock}>
           <span className={styles.infoLabel}>Year</span>
-          <span className={styles.infoValue}>{project.year}</span>
+          <span className={styles.infoValue}><WorkYear value={project.year} lang={viewLang} /></span>
         </div>
         {(() => {
           const catsKo = project.categories?.ko ?? (project.category.ko ? [project.category.ko] : []);

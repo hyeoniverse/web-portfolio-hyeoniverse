@@ -9,6 +9,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import { pickLocalized } from "@/types/common";
 import T from "@/components/ui/T";
 import TransitionLink from "@/components/ui/TransitionLink";
+import WorkYear from "@/components/works/WorkYear";
 import { workHref, type WorksLayoutProps } from "./shared";
 import { textUnits } from "../../_utils";
 import styles from "./SplitLayout.module.css";
@@ -303,7 +304,7 @@ export default function SplitLayout({ projects, onProjectClick }: WorksLayoutPro
                 <span className={styles.imageCardTitleText}><T ko={proj.title.ko} en={proj.title.en} /></span>
               </h2>
               <div className={styles.imageOverlay}>
-                <div className={styles.imageYear}>{proj.year}</div>
+                <div className={styles.imageYear}><WorkYear value={proj.year} /></div>
               </div>
               {/* 모바일용 메타 오버레이 */}
               <div className={styles.imageMeta}>
