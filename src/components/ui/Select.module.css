@@ -48,6 +48,19 @@
   text-align: left;
 }
 
+/* 버튼 트리거는 자기 자연 너비(가장 긴 label + 화살표)를 명시한다. 바깥(.root·부모)이 좁아도
+   버튼은 줄지 않는다 — 아래 valueStack 트랙이 0 까지 줄 수 있게 되어, 이 값이 없으면 부모가 좁힌
+   만큼 글자가 잘린다. 쓰는 쪽이 버튼 자체에 폭을 주면(.x button { width: 120px }) 그 값이 이기고
+   글자가 말줄임된다 — :where 로 특이도를 (0,1,0) 에 묶어 둔 이유다 */
+.trigger:where(button) {
+  width: max-content;
+}
+
+/* width="full" 은 부모 폭에 맞춰 줄어야 하므로 자연 너비 고정을 푼다 */
+.rootFull .trigger:where(button) {
+  width: auto;
+}
+
 .root .trigger:hover {
   border-color: var(--text-tertiary);
 }
@@ -68,12 +81,15 @@
 
 /* valueStack — value 와 sizer 를 같은 grid cell 에 stack.
    sizer 가 모든 option label 을 stack 으로 렌더 (Select.tsx) → grid track 이 가장 넓은 자연 너비 차지.
-   grid-template-columns: max-content — track 이 항상 sizer max-content. 잘림 X. */
+
+   트랙은 minmax(0, max-content) 다. 자연 너비는 그대로 가장 긴 label 이고, 쓰는 쪽이 버튼 폭을
+   그보다 좁게 고정하면(편집기 툴바 글꼴 선택의 width: 120px 등) 트랙이 남은 폭까지 줄어 .value 가
+   말줄임(…)된다. 예전의 max-content 트랙은 줄지 못해, 글자가 화살표 밑을 지나 버튼 밖까지 넘쳤다. */
 .valueStack {
   flex: 1;
   min-width: 0;
   display: grid;
-  grid-template-columns: max-content;
+  grid-template-columns: minmax(0, max-content);
 }
 
 .value {
@@ -88,6 +104,9 @@
 .sizer {
   grid-area: 1 / 1;
   min-width: 0;
+  /* 트랙이 줄었을 때 보이지 않는 글자가 칸 밖으로 넘쳐 둘레 스크롤 영역을 늘리지 않게 한다.
+     자연 너비 계산(max-content)에는 영향이 없다 */
+  overflow: hidden;
   visibility: hidden;
   white-space: nowrap;
   pointer-events: none;
