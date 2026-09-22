@@ -15,6 +15,7 @@ import { downloadBlob, downloadFiles } from "@/utils/download";
 import { formatProjectNumber } from "@/utils/formatProjectNumber";
 import { fillTemplate } from "@/utils/format";
 import { usePreviewTooltip } from "@/hooks/usePreviewTooltip";
+import { useTrashSearchIds } from "@/hooks/useTrashSearchIds";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import type { Work } from "@/types/work";
 import Select from "@/components/ui/Select";
@@ -328,11 +329,13 @@ export default function AdminWorksPage() {
     }
   }, []);
 
+  /* setTrashWorks 는 바뀌지 않는 값이지만 React Compiler 가 의존성으로 추론한다. 적지 않으면 추론과 달라
+     이 화면의 최적화를 건너뛴다(preserve-manual-memoization) */
   const fetchTrash = useCallback(async () => {
     const res = await fetch("/api/works?trash=true&limit=100");
     const data = await res.json();
     setTrashWorks(data.works ?? []);
-  }, []);
+  }, [setTrashWorks]);
 
   useEffect(() => {
     fetchWorks();
@@ -389,19 +392,11 @@ export default function AdminWorksPage() {
     }
   }, [t]);
 
-  /* ── Filtered trash ── */
+  /* ── Filtered trash ──
+     휴지통 목록은 본문 없이 받으므로 검색은 서버가 본문까지 거른 id 로 한다(useTrashSearchIds) */
+  const trashSearchIds = useTrashSearchIds("/api/works", trashSearch, trashSearchType, trashWorks.length);
   const filteredTrash = useMemo(() => {
-    let list = [...trashWorks];
-    if (trashSearch) {
-      const q = trashSearch.toLowerCase();
-      list = list.filter((w) => {
-        const title = (w.title || "").toLowerCase();
-        const content = ((w.content_ko || "") + " " + (w.content_en || "")).toLowerCase();
-        if (trashSearchType === "title") return title.includes(q);
-        if (trashSearchType === "content") return content.includes(q);
-        return title.includes(q) || content.includes(q);
-      });
-    }
+    const list = trashSearchIds ? trashWorks.filter((w) => trashSearchIds.has(w.id)) : [...trashWorks];
     list.sort((a, b) => {
       if (trashSortBy === "name") {
         const r = (a.title || "").localeCompare(b.title || "");
@@ -414,7 +409,7 @@ export default function AdminWorksPage() {
       return trashSortDir === "asc" ? da - db : db - da;
     });
     return list;
-  }, [trashWorks, trashSearch, trashSearchType, trashSortBy, trashSortDir]);
+  }, [trashWorks, trashSearchIds, trashSortBy, trashSortDir]);
 
   const trashFiltersChanged = useDepsChanged([trashSearch, trashSearchType, trashSortBy, trashSortDir]);
   if (trashFiltersChanged) setTrashPage(1);
@@ -436,6 +431,14 @@ export default function AdminWorksPage() {
     if (await sendAction(`/api/works/${id}/extend-retention`, { method: "POST" }, t, t("admin.common.extendFailed"))) fetchTrash();
   };
 
+  /** 영구 삭제한 항목을 응답을 기다리지 않고 바로 휴지통에서 뺀다. 예전에는 삭제 응답과 휴지통 전체 재조회가
+      끝날 때까지(1~2초) 그대로 남아 있어 눌렀는데 아무 일도 없는 것처럼 보였다. 실패하면 호출부가 다시 불러와 되살린다 */
+  const dropFromTrash = (ids: string[]) => {
+    const gone = new Set(ids);
+    setTrashWorks((prev) => prev.filter((w) => !gone.has(w.id)));
+    setTrashSelected((prev) => new Set([...prev].filter((id) => !gone.has(id))));
+  };
+
   /* 영구 삭제는 되돌릴 수 없다 — 브라우저 기본 팝업 대신 사이트의 확인 창으로 묻는다
      (글 휴지통과 같은 방식) */
   const handlePurge = (id: string, title: string) => {
@@ -445,7 +448,8 @@ export default function AdminWorksPage() {
         confirmText={t("admin.works.trashPurge")}
         danger
         onConfirm={async () => {
-          if (await sendAction(`/api/works/${id}/purge`, { method: "DELETE" }, t, t("admin.common.purgeFailed"))) fetchTrash();
+          dropFromTrash([id]);
+          if (!(await sendAction(`/api/works/${id}/purge`, { method: "DELETE" }, t, t("admin.common.purgeFailed")))) fetchTrash();
         }}
       />,
       { id: "work-purge", header: { title: `"${title}"` }, closeButton: true, width: "400px" },
@@ -724,12 +728,14 @@ export default function AdminWorksPage() {
                   danger
                   onConfirm={async () => {
                     setTrashBusy(true);
+                    const ids = [...trashSelected];
+                    dropFromTrash(ids);
                     const purged = await sendActions(
-                      [...trashSelected].map((id) => ({ input: `/api/works/${id}/purge`, init: { method: "DELETE" } })),
+                      ids.map((id) => ({ input: `/api/works/${id}/purge`, init: { method: "DELETE" } })),
                       t, t("admin.common.purgeFailed"),
                     );
-                    if (purged > 0) fetchTrash();
-                    setTrashSelected(new Set());
+                    /* 하나라도 실패했으면 휴지통을 다시 불러와 남은 것을 되살린다 */
+                    if (purged < ids.length) fetchTrash();
                     setTrashBusy(false);
                   }}
                 />,

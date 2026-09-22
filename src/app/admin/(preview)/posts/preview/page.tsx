@@ -62,7 +62,9 @@ export default function PostPreviewPage() {
               excerpt: post.excerpt || post.excerpt_en || "",
               tags: post.tags || [],
               author_ids: post.author_ids || [],
-            } as PostFormData);
+              /* 휴지통에 있는 글이면 위에 복구·영구 삭제 막대를 띄운다(작업물 미리보기와 같다) */
+              _trashId: post.deleted_at ? post.id : undefined,
+            } as PostFormData & { _trashId?: string });
             if (post.published && post.slug) setPublishedHref(`/posts/${post.slug}`);
           }
         })
