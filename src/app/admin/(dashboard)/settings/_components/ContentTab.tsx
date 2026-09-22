@@ -30,6 +30,7 @@ import WorksIntroVideoPicker from "./WorksIntroVideoPicker";
 import SectionHeader from "./SectionHeader";
 import TagListField from "@/components/ui/TagListField";
 import { showToast } from "@/stores/toastStore";
+import { RESUME_MAX_MB } from "@/lib/adminUpload";
 import { fillTemplate } from "@/utils/format";
 import { tryRequest, notifyFailures } from "@/lib/sendAction";
 import { CodedError } from "@/lib/apiError";
@@ -328,7 +329,7 @@ export default function ContentTab({
               <UploadField
                 kind="resume"
                 label={t("admin.settings.resumeFile")}
-                hint={t("admin.settings.resumeUploadHint")}
+                hint={fillTemplate(t("admin.settings.resumeUploadHint"), { max: RESUME_MAX_MB })}
                 url={config.cta.resumeUrl}
                 uploadLabel={t("admin.settings.uploadResume")}
                 removeLabel={t("admin.settings.removeLogo")}

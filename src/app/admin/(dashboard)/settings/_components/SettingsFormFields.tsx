@@ -13,7 +13,9 @@ import Input from "@/components/ui/Input";
 import HighlightInput from "@/components/ui/HighlightInput";
 import Textarea, { type MaxHintPreset } from "@/components/ui/Textarea";
 import Tooltip from "@/components/ui/Tooltip";
-import { uploadFile } from "@/lib/adminUpload";
+import { uploadFile, uploadResume } from "@/lib/adminUpload";
+import { errorText } from "@/lib/apiError";
+import { showToast } from "@/stores/toastStore";
 import { useLanguage } from "@/providers/LanguageProvider";
 import shared from "../Settings.module.css";
 import local from "./SettingsFormFields.module.css";
@@ -234,6 +236,7 @@ interface UploadFieldProps {
 
 export function UploadField({ kind, label, url, uploadLabel, removeLabel, onUploaded, onRemove, hint, tint, onTintChange, defaultTint, recolorLabel, originalLabel }: UploadFieldProps) {
   const { folder, accept, preview, icon, fallbackName } = UPLOAD_PRESETS[kind];
+  const { t } = useLanguage();
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
@@ -241,9 +244,11 @@ export function UploadField({ kind, label, url, uploadLabel, removeLabel, onUplo
   const handleUpload = async (file: File) => {
     setUploading(true);
     try {
-      onUploaded(await uploadFile(file, folder));
-    } catch {
-      // silent fail
+      /* 이력서는 서버 본문 한도(4.5MB)를 넘는 크기까지 받아야 해서 Storage 에 직접 올린다 */
+      onUploaded(kind === "resume" ? await uploadResume(file) : await uploadFile(file, folder));
+    } catch (err) {
+      /* 너무 크거나 형식이 다르면 이유를 알린다 — 예전에는 조용히 삼켜, 골라도 아무 일이 없었다 */
+      showToast(errorText(err, t, t("admin.common.uploadFailed")), "error");
     } finally {
       setUploading(false);
     }

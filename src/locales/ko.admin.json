@@ -336,7 +336,7 @@
       "bgmUploadHint": "MP3, WAV, OGG 등 · 최대 10MB",
       "uploadBgm": "오디오 업로드",
       "resumeFile": "이력서 파일",
-      "resumeUploadHint": "PDF · 최대 5MB",
+      "resumeUploadHint": "PDF · 최대 {{max}}MB",
       "uploadResume": "PDF 업로드",
       "resumeButtonText": "이력서 버튼 텍스트",
       "loadingDisplayNameHint": "로딩 화면에 표시",

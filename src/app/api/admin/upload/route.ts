@@ -14,16 +14,16 @@ export async function POST(request: Request) {
 
   if (!file) return jsonError("No file provided", 400);
 
-  // 파일 크기 제한
-  const isResume = folder === "resume";
+  // 파일 크기 제한. 이력서(PDF)는 여기로 오지 않는다 — 50MB 까지 받아야 해서 배포 환경의 요청 본문
+  // 한도(4.5MB)를 피해 Storage 에 직접 올린다(/api/upload/signed-url 의 purpose: "resume").
   const isBgm = folder === "bgm";
   const isFont = folder === "fonts";
   const maxSize = isBgm
     ? 10 * 1024 * 1024
-    : isFont || isResume
+    : isFont
       ? 5 * 1024 * 1024
       : 2 * 1024 * 1024;
-  const maxLabel = isBgm ? "10MB" : isFont || isResume ? "5MB" : "2MB";
+  const maxLabel = isBgm ? "10MB" : isFont ? "5MB" : "2MB";
   if (file.size > maxSize) {
     return jsonError(`File too large (max ${maxLabel})`, 400, {
       code: "UPLOAD_TOO_LARGE",
@@ -34,18 +34,14 @@ export async function POST(request: Request) {
   // 타입 검증 — 폰트는 MIME 이 브라우저마다 제각각(빈 값 포함)이라 확장자로 검사
   const mimeOk = isBgm
     ? file.type.startsWith("audio/")
-    : isResume
-      ? file.type === "application/pdf"
-      : isFont
-        ? /\.(woff2?|ttf|otf)$/i.test(file.name)
-        : file.type.startsWith("image/");
+    : isFont
+      ? /\.(woff2?|ttf|otf)$/i.test(file.name)
+      : file.type.startsWith("image/");
   const [mimeError, mimeCode] = isBgm
     ? ["Only audio files allowed", "UPLOAD_ONLY_AUDIO"] as const
-    : isResume
-      ? ["Only PDF files allowed", "UPLOAD_ONLY_PDF"] as const
-      : isFont
-        ? ["Only font files (woff2, woff, ttf, otf) allowed", "UPLOAD_ONLY_FONT"] as const
-        : ["Only image files allowed", "UPLOAD_ONLY_IMAGE"] as const;
+    : isFont
+      ? ["Only font files (woff2, woff, ttf, otf) allowed", "UPLOAD_ONLY_FONT"] as const
+      : ["Only image files allowed", "UPLOAD_ONLY_IMAGE"] as const;
   if (!mimeOk) return jsonError(mimeError, 400, { code: mimeCode });
 
   // HEIC/HEIF/TIFF → WebP 변환 (브라우저 호환성)

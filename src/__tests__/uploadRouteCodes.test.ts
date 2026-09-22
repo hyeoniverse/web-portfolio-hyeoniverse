@@ -58,7 +58,6 @@ describe("/api/admin/upload", () => {
     await expectCode(await adminUpload(form("a.txt", "text/plain")), "UPLOAD_ONLY_IMAGE");
     await expectCode(await adminUpload(form("a.txt", "text/plain", 16, "fonts")), "UPLOAD_ONLY_FONT");
     await expectCode(await adminUpload(form("a.txt", "text/plain", 16, "bgm")), "UPLOAD_ONLY_AUDIO");
-    await expectCode(await adminUpload(form("a.txt", "text/plain", 16, "resume")), "UPLOAD_ONLY_PDF");
   });
   it("한도를 넘으면 UPLOAD_TOO_LARGE", async () => {
     await expectCode(await adminUpload(form("a.png", "image/png", 3 * MB)), "UPLOAD_TOO_LARGE", { size: "3.0", max: 2 });
@@ -70,5 +69,16 @@ describe("/api/upload/signed-url", () => {
     await expectCode(await signedUrl(json({ fileName: "clip." })), "UPLOAD_NO_EXTENSION");
     await expectCode(await signedUrl(json({ fileName: "clip.exe" })), "UPLOAD_TYPE_NOT_ALLOWED", { ext: "exe" });
     await expectCode(await signedUrl(json({ fileName: "clip.avi" })), "UPLOAD_TYPE_NOT_ALLOWED", { ext: "avi" });
+  });
+
+  /* 이력서는 50MB 까지 받아야 해서 서버 본문 한도를 피해 이 경로로 Storage 에 직접 올린다 */
+  it("이력서(purpose: resume)는 PDF 만 받는다", async () => {
+    await expectCode(await signedUrl(json({ fileName: "cv.docx", purpose: "resume" })), "UPLOAD_ONLY_PDF");
+    await expectCode(await signedUrl(json({ fileName: "cv.pdf", contentType: "image/png", purpose: "resume" })), "UPLOAD_ONLY_PDF");
+  });
+  it("이력서는 글 첨부 허용 목록과 상관없이 PDF 면 서명 URL 발급까지 간다", async () => {
+    limits.current = { png: 1 };
+    await expect(signedUrl(json({ fileName: "cv.pdf", contentType: "application/pdf", purpose: "resume" })))
+      .rejects.toThrow("storage must not be touched");
   });
 });

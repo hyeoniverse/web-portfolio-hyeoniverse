@@ -18,12 +18,16 @@ const DEFAULT_BLOCKED_EXT = new Set([
  * 걸리지 않는다. 실제 바이트는 클라이언트가 반환된 서명 URL 로 Supabase Storage 에 직접 올린다
  * (대용량 동영상 대응). 검증(차단 확장자·허용 MIME)은 여기서 수행하되, 크기는 버킷 설정 +
  * 클라이언트 검증에 위임한다.
+ *
+ * `purpose: "resume"` 은 사이트 설정의 이력서(PDF)다. 글 첨부가 아니므로 글 첨부 허용 목록(media.limits)을
+ * 보지 않고 PDF 만 받으며, 예전 서버 업로드(/api/admin/upload)와 같은 자리(uploads 버킷 resume/)에 둔다.
+ * 응답의 `bucket` 이 업로드할 버킷이다.
  */
 export async function POST(request: Request) {
   const { error: authError } = await requireAuth();
   if (authError) return authError;
 
-  let body: { fileName?: string; contentType?: string };
+  let body: { fileName?: string; contentType?: string; purpose?: string };
   try {
     body = await request.json();
   } catch {
@@ -33,6 +37,19 @@ export async function POST(request: Request) {
   const fileName = String(body?.fileName || "");
   const ext = (fileName.split(".").pop() || "").toLowerCase();
   if (!ext) return jsonError("파일 확장자가 필요합니다.", 400, { code: "UPLOAD_NO_EXTENSION" });
+
+  if (body?.purpose === "resume") {
+    const contentType = String(body?.contentType || "");
+    if (ext !== "pdf" || (contentType && contentType !== "application/pdf")) {
+      return jsonError("Only PDF files allowed", 400, { code: "UPLOAD_ONLY_PDF" });
+    }
+    const resumePath = `resume/${Date.now()}.pdf`;
+    const admin = createAdminClient();
+    const { data, error } = await admin.storage.from("uploads").createSignedUploadUrl(resumePath);
+    if (error || !data) return jsonError(error?.message || "업로드 URL 생성에 실패했습니다.", 500);
+    const { data: pub } = admin.storage.from("uploads").getPublicUrl(resumePath);
+    return jsonOk({ bucket: "uploads", path: data.path, token: data.token, publicUrl: pub.publicUrl });
+  }
 
   // ── 설정 로드 (차단 확장자 + 허용 MIME) ──
   let blockedExt = DEFAULT_BLOCKED_EXT;
@@ -66,5 +83,5 @@ export async function POST(request: Request) {
 
   const { data: pub } = admin.storage.from("posts").getPublicUrl(filePath);
 
-  return jsonOk({ path: data.path, token: data.token, publicUrl: pub.publicUrl });
+  return jsonOk({ bucket: "posts", path: data.path, token: data.token, publicUrl: pub.publicUrl });
 }
