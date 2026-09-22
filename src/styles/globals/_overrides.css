@@ -30,16 +30,18 @@ textarea::selection {
   color: var(--text-primary) !important;
 }
 
+/* 굵은 글씨 기본색은 테마 강조색이다(#1118). 설정에서 테마색을 바꾸면 --text-accent 가 따라 바뀐다.
+   예전에는 회색 그라데이션을 글자에 입히고 글자 채움을 투명으로 둬서, 굵은 글씨에 지정한 글자색이 보이지 않았다. */
 strong {
-  background: linear-gradient(
-    145deg,
-    var(--color-neutral-500) 0%,
-    var(--color-neutral-800) 100%
-  );
-  -webkit-background-clip: text;
-  background-clip: text;
+  color: var(--text-accent);
   font-weight: var(--font-weight-bold);
-  -webkit-text-fill-color: transparent;
+}
+
+/* 형광펜 — 브라우저 기본 노랑 대신 테마 강조색의 반투명 배경(#1118). 글자색은 주변을 따른다.
+   브라우저 기본 글자색은 검정이라 다크 테마에서 형광 친 글자가 보이지 않았다. */
+mark {
+  background-color: var(--bg-accent-strong);
+  color: inherit;
 }
 
 /* Hide reCAPTCHA badge by default - shown only when contact form is open */

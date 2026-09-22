@@ -12,6 +12,9 @@
   font-size: var(--font-size-body-lg);
   line-height: var(--line-height-normal);
   color: var(--text-secondary);
+  /* 굵은 글씨는 편집기 기본색(primary) — 본문이 secondary 라 물려받으면 흐려진다. 글자색을 지정한 굵은 글씨는
+     본문 규칙(globals/_base.css .prose-content strong)이 그 색으로 바꾼다(#1118) */
+  --_strong-color: var(--text-primary);
 }
 
 .sectionProse p {
@@ -20,7 +23,6 @@
 
 .sectionProse strong {
   font-weight: var(--font-weight-semibold);
-  color: var(--text-primary);
 }
 
 .sectionProse a {
