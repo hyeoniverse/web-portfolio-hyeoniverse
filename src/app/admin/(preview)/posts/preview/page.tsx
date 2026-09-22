@@ -16,7 +16,7 @@ import type { PostFormData } from "@/types/post";
 import styles from "@/app/posts/[slug]/PostDetail.module.css";
 import header from "@/components/posts/PostArticleHeader.module.css";
 import { resolvePostAuthors } from "@/utils/resolvePostAuthors";
-import Pressable from "@/components/ui/Pressable";
+import TrashPreviewBar from "@/components/admin/TrashPreviewBar/TrashPreviewBar";
 
 export default function PostPreviewPage() {
   const { t } = useLanguage();
@@ -199,23 +199,14 @@ export default function PostPreviewPage() {
             isPreview
             headerActionsLeft={
               trashId ? (
-                <>
-                  <span className={styles.trashBarLabel}>{t("admin.posts.trashPreviewNotice")}</span>
-                  <Pressable
-                    className={styles.trashBarRestore}
-                    disabled={busy}
-                    onClick={handleRestore}
-                  >
-                    {t("admin.posts.trashRestore")}
-                  </Pressable>
-                  <Pressable
-                    className={styles.trashBarPurge}
-                    disabled={busy}
-                    onClick={handlePurge}
-                  >
-                    {t("admin.posts.trashPurge")}
-                  </Pressable>
-                </>
+                <TrashPreviewBar
+                  notice={t("admin.posts.trashPreviewNotice")}
+                  restoreLabel={t("admin.posts.trashRestore")}
+                  purgeLabel={t("admin.posts.trashPurge")}
+                  onRestore={handleRestore}
+                  onPurge={handlePurge}
+                  busy={busy}
+                />
               ) : null
             }
           />

@@ -16,7 +16,7 @@ import { ModalPrompt } from "@/components/ui/ModalTemplates";
 import { workFormToProject } from "@/types/work";
 import type { WorkFormData } from "@/types/work";
 import type { Project } from "@/data/projects";
-import Pressable from "@/components/ui/Pressable";
+import TrashPreviewBar from "@/components/admin/TrashPreviewBar/TrashPreviewBar";
 import TranslateBanner from "@/components/ui/TranslateBanner";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { useWorkTranslation, type WorkTranslator, type WorkTranslated } from "@/app/works/[slug]/_hooks/useWorkTranslation";
@@ -212,17 +212,15 @@ export default function WorkPreviewPage() {
       renderHeader={(shown) => (
         <>
           {trashId && (
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 8, marginBottom: 12 }}>
-              <span style={{ color: "var(--text-tertiary)", fontSize: "var(--font-size-label)" }}>
-                {t("admin.works.trashPreviewNotice")}
-              </span>
-              <Pressable disabled={busy} onClick={handleRestore} style={{ cursor: "pointer" }}>
-                {t("admin.works.trashRestore")}
-              </Pressable>
-              <Pressable disabled={busy} onClick={handlePurge} style={{ cursor: "pointer", color: "var(--text-accent)" }}>
-                {t("admin.works.trashPurge")}
-              </Pressable>
-            </div>
+            <TrashPreviewBar
+              placement="block"
+              notice={t("admin.works.trashPreviewNotice")}
+              restoreLabel={t("admin.works.trashRestore")}
+              purgeLabel={t("admin.works.trashPurge")}
+              onRestore={handleRestore}
+              onPurge={handlePurge}
+              busy={busy}
+            />
           )}
           <WorkArticleHeader
             project={shown}
