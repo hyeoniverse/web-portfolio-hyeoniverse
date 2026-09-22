@@ -3,6 +3,7 @@
 import { useMemo, useRef } from "react";
 import { Canvas } from "@react-three/fiber";
 import IntroBunny from "../CylinderIntroBunny";
+import BunnyHearts from "@/app/profile/_components/FloatingObject/BunnyHearts";
 import VerticalCylinder, { TransparentBg, ResponsiveCamera } from "./VerticalCylinder";
 import { createIntroDataUrl, createFallbackPanelDataUrl, CAMERA_Z, CAMERA_FOV } from "./scene";
 
@@ -40,6 +41,8 @@ type Stage = ReturnType<typeof useCylinderStage>;
 
 interface CylinderCanvasProps {
   canvasClassName: string;
+  /** 몽이를 쓰다듬을 때 뜨는 하트 층 — 캔버스 위에 오게 쌓임 순서를 준다 */
+  heartsClassName: string;
   hoveredItemClassName: string;
   hoveredOverlayClassName: string;
   projectImages: string[];
@@ -62,6 +65,7 @@ interface CylinderCanvasProps {
 
 export default function CylinderCanvas({
   canvasClassName,
+  heartsClassName,
   hoveredItemClassName,
   hoveredOverlayClassName,
   projectImages,
@@ -83,6 +87,9 @@ export default function CylinderCanvas({
      표지가 없는 칸에 빈 주소를 넘기면 TextureLoader 가 죽으므로 반드시 대신 그릴 것을 준다(#1062) */
   /* 판 위에 있을 때 커서 표시를 달아 둘 캔버스 */
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  /* 몽이의 화면 좌표와 쓰다듬는 중인지 — 몽이가 매 프레임 적고 하트가 읽는다 */
+  const bunnyScreenRef = useRef({ x: 0, y: 0 });
+  const pettingRef = useRef(false);
   const allImages = useMemo(
     () => [
       createIntroDataUrl(isDark),
@@ -92,6 +99,7 @@ export default function CylinderCanvas({
   );
 
   return (
+    <>
     <Canvas
       className={canvasClassName}
       ref={canvasRef}
@@ -131,7 +139,17 @@ export default function CylinderCanvas({
           if (idx > 0) onSlotClick(idx - 1, e);
         }}
       />
-      <IntroBunny screenPosRef={screenPosRef} arc={arc} loop={segAngle * allImages.length} actualRotRef={actualRotRef} isDark={isDark} />
+      <IntroBunny
+        screenPosRef={screenPosRef}
+        arc={arc}
+        loop={segAngle * allImages.length}
+        actualRotRef={actualRotRef}
+        isDark={isDark}
+        bunnyScreenRef={bunnyScreenRef}
+        pettingRef={pettingRef}
+      />
     </Canvas>
+    <BunnyHearts className={heartsClassName} screenPosRef={bunnyScreenRef} pettingRef={pettingRef} />
+    </>
   );
 }
