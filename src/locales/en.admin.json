@@ -230,6 +230,8 @@
       "extendFailed": "Couldn’t extend the retention period.",
       "reorderFailed": "Couldn’t change the order.",
       "publishFailed": "Couldn’t change the publish status.",
+      "nowPublished": "Published.",
+      "nowUnpublished": "Unpublished.",
       "categoryFailed": "Couldn’t change the category.",
       "importFailed": "Couldn’t create items from the Markdown files.",
       "exportFailed": "Couldn’t export.",

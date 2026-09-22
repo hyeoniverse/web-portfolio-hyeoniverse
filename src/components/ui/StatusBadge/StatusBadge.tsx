@@ -12,17 +12,19 @@ interface StatusBadgeProps {
   onClick?: (e: MouseEvent) => void;
   title?: string;
   className?: string;
+  /** 클릭 배지를 잠깐 막는다(저장 중 등). onClick 이 있을 때만 의미가 있다 */
+  disabled?: boolean;
 }
 
 /**
  * 발행/미발행/예약 상태 배지 — admin 목록·에디터·시리즈 어디서든 같은 규격으로 쓰는 공통 컴포넌트.
  * onClick 을 주면 클릭 토글용 button, 없으면 정적 span 으로 렌더된다.
  */
-export default function StatusBadge({ variant, children, onClick, title, className }: StatusBadgeProps) {
+export default function StatusBadge({ variant, children, onClick, title, className, disabled }: StatusBadgeProps) {
   const cls = `${styles.badge} ${styles[variant]}${onClick ? ` ${styles.btn}` : ""}${className ? ` ${className}` : ""}`;
   if (onClick) {
     return (
-      <Pressable className={cls} onClick={onClick} title={title}>
+      <Pressable className={cls} onClick={onClick} title={title} disabled={disabled}>
         {children}
       </Pressable>
     );
