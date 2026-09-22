@@ -11,6 +11,12 @@ import { placeWork, renumberWorks } from "@/lib/api/placeWork";
 import { revalidatePublicWorks } from "@/lib/api/revalidateWorks";
 import { applySearchQuery } from "@/lib/api/applySearchQuery";
 import type { SyntaxMode } from "@/lib/searchQuery";
+/* 휴지통 목록이 쓰는 칸 — 표·미리보기 툴팁·편집 권한 판정(team_members)에 쓰는 것만 읽는다.
+   본문(content_ko·en)과 긴 글(개요·도전·해결·설명·기여), 갤러리·대본은 뺀다. 휴지통 56개에서 216KB → 17KB.
+   본문 검색은 search·searchType 을 붙여 서버가 거르고(select 와 상관없이 거른다), 미리보기는 id 로 따로 불러온다. */
+const WORKS_TRASH_COLS =
+  "id,slug,title,title_en,subtitle_ko,subtitle_en,categories_ko,categories_en,year,image,icon,tech,team_members,published,sort_order,is_pinned,created_at,updated_at,deleted_at,purge_after";
+
 // GET /api/works — 목록 조회
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -35,7 +41,7 @@ export async function GET(request: Request) {
     supabase = auth.supabase;
   }
 
-  let query = supabase.from("works").select("*", { count: "exact" });
+  let query = supabase.from("works").select(showTrash ? WORKS_TRASH_COLS : "*", { count: "exact" });
 
   if (showTrash) {
     query = query.not("deleted_at", "is", null);

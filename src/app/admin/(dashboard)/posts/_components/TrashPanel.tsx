@@ -2,10 +2,8 @@
 
 import { useState, useMemo } from "react";
 import type { Post } from "@/types/post";
-import { PREVIEW_KEY } from "@/constants";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useModalStore } from "@/stores/modalStore";
-import { formatPostTitle } from "@/utils/post";
 import { getTrashDaysLeft } from "@/utils/trash";
 import { Trash2 } from "@/components/icons";
 import T from "@/components/ui/T";
@@ -18,7 +16,8 @@ import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import { sendAction, sendActions } from "@/lib/sendAction";
 import { PurgeModal } from "./PostModals";
 import { createTrashColumns } from "../_columns";
-import { searchTypeOptions, pageSizeOptions, matchesSearch, useSubTableControls, type SearchType } from "./subTableControls";
+import { searchTypeOptions, pageSizeOptions, useSubTableControls, type SearchType } from "./subTableControls";
+import { useTrashSearchIds } from "@/hooks/useTrashSearchIds";
 import styles from "../AdminPosts.module.css";
 
 type Props = {
@@ -31,6 +30,8 @@ type Props = {
   setBusy: (v: boolean) => void;
   /** 휴지통만 다시 불러온다. */
   onRefresh: () => void;
+  /** 영구 삭제한 글을 응답을 기다리지 않고 바로 휴지통에서 뺀다. 실패하면 onRefresh 로 되살린다. */
+  onRemove: (ids: string[]) => void;
   /** 글이 되살아났을 때 — 글 목록도 함께 바뀐다. */
   onRestored: () => void;
   /** 줄에 마우스를 올렸을 때 미리보기 — 글 목록과 같은 것을 쓴다. */
@@ -47,7 +48,7 @@ type Props = {
  */
 export default function TrashPanel({
   posts, loading, open, onToggle, busy, setBusy,
-  onRefresh, onRestored, onRowHover, onRowLeave, hideTooltip,
+  onRefresh, onRemove, onRestored, onRowHover, onRowLeave, hideTooltip,
 }: Props) {
   const { t } = useLanguage();
   const { openModal } = useModalStore();
@@ -55,20 +56,17 @@ export default function TrashPanel({
   const { page, setPage, perPage, changePerPage, search, setSearch, searchType, setSearchType, selected, setSelected, andResetPage } = useSubTableControls(10);
   const [sort, setSort] = useState<"newest" | "oldest">("newest");
 
+  /* 휴지통 목록은 본문 없이 받으므로 검색은 서버가 본문까지 거른 id 로 한다(useTrashSearchIds) */
+  const searchIds = useTrashSearchIds("/api/posts", search, searchType, posts.length);
   const filtered = useMemo(() => {
-    let list = [...posts];
-    if (search) {
-      list = list.filter((p) =>
-        matchesSearch(searchType, search, formatPostTitle(p) || "", (p.content || "") + " " + (p.content_en || "")),
-      );
-    }
+    const list = searchIds ? posts.filter((p) => searchIds.has(p.id)) : [...posts];
     list.sort((a, b) => {
       const da = new Date(a.deleted_at!).getTime();
       const db = new Date(b.deleted_at!).getTime();
       return sort === "newest" ? db - da : da - db;
     });
     return list;
-  }, [posts, search, searchType, sort]);
+  }, [posts, searchIds, sort]);
 
   /* 실패하면 알림을 띄우고 목록은 그대로 둔다 — 예전에는 응답을 보지 않아 거절돼도 아무 표시가 없었다(#868) */
   const handleRestore = async (id: string) => {
@@ -77,7 +75,14 @@ export default function TrashPanel({
 
   const handlePurge = (id: string, title: string) => {
     openModal(
-      <PurgeModal title={title} onConfirm={async () => { if (await sendAction(`/api/posts/${id}/purge`, { method: "DELETE" }, t, t("admin.common.purgeFailed"))) onRefresh(); }} />,
+      <PurgeModal
+        title={title}
+        onConfirm={async () => {
+          /* 응답과 휴지통 재조회를 기다리지 않고 바로 뺀다(예전에는 1~2초 그대로 남았다). 실패하면 되살린다 */
+          onRemove([id]);
+          if (!(await sendAction(`/api/posts/${id}/purge`, { method: "DELETE" }, t, t("admin.common.purgeFailed")))) onRefresh();
+        }}
+      />,
       { id: "purge-confirm", header: { title: `"${title}"` }, closeButton: true, width: "400px" },
     );
   };
@@ -129,12 +134,15 @@ export default function TrashPanel({
                   confirmText={t("admin.posts.trashPurge")}
                   onConfirm={async () => {
                     setBusy(true);
+                    const ids = [...selected];
+                    onRemove(ids);
+                    setSelected(new Set());
                     const purged = await sendActions(
-                      [...selected].map((id) => ({ input: `/api/posts/${id}/purge`, init: { method: "DELETE" } })),
+                      ids.map((id) => ({ input: `/api/posts/${id}/purge`, init: { method: "DELETE" } })),
                       t, t("admin.common.purgeFailed"),
                     );
-                    if (purged > 0) onRefresh();
-                    setSelected(new Set());
+                    /* 하나라도 실패했으면 휴지통을 다시 불러와 남은 것을 되살린다 */
+                    if (purged < ids.length) onRefresh();
                     setBusy(false);
                   }}
                 />,
@@ -152,16 +160,9 @@ export default function TrashPanel({
         onRowLeave={onRowLeave}
         onRowClick={(post) => {
           hideTooltip();
-          sessionStorage.setItem(PREVIEW_KEY.post, JSON.stringify({
-            title: formatPostTitle(post) || t("admin.posts.untitled"),
-            content: post.content || "",
-            content_type: post.content_type || "markdown",
-            cover_image: post.cover_image || "",
-            excerpt: post.excerpt || "",
-            tags: post.tags || [],
-            _trashId: post.id,
-          }));
-          window.open("/admin/posts/preview", "_blank");
+          /* 미리보기가 id 로 글을 불러온다 — 휴지통 목록에는 본문이 없다. 작업물 휴지통과 같은 방식이다.
+             예전에는 본문을 브라우저 저장소(sessionStorage)에 담아 넘겨, 긴 글은 저장소 한도를 넘길 수 있었다 */
+          window.open(`/admin/posts/preview?fetch=${encodeURIComponent(post.id)}`, "_blank");
         }}
         filterBar={
           <div className={shell.filterBar}>

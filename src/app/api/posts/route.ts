@@ -97,10 +97,12 @@ export async function GET(request: Request) {
       .map(([tag, count]) => ({ tag, count }));
   };
 
-  /* admin 메인 목록은 제목·메타만 쓰고 본문을 렌더하지 않는다 — content/content_en(글당 수십 KB)을 뺀다.
-     공개는 읽기 시간 계산에 content 가 필요하고(usePostCard), 휴지통은 검색·내보내기에 쓰므로 그 경로는 * 유지.
+  /* admin 목록(메인·휴지통)은 제목·메타만 쓰고 본문을 렌더하지 않는다 — content/content_en(글당 수십 KB)을 뺀다.
+     공개는 읽기 시간 계산에 content 가 필요하므로(usePostCard) * 를 유지한다.
+     휴지통의 본문 검색은 이 경로에 search·searchType 을 붙여 서버가 거른다(아래 applyFilters 는 select 와
+     상관없이 content 로 거른다). 미리보기는 id 로 한 편을 따로 불러온다.
      content 둘만 빼고 나머지 컬럼은 전부 명시해 admin 이 필드를 잃지 않게 한다. */
-  const listCols = (showAll && !showTrash) ? ADMIN_LIST_COLS : "*";
+  const listCols = (showAll || showTrash) ? ADMIN_LIST_COLS : "*";
   const listSelect = `${listCols}, series:series_id(title, title_en)`;
 
   let query = applyFilters(

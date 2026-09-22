@@ -466,6 +466,7 @@ export default function PostsClient({ initialPosts, initialTotalPages, initialPe
           busy={busy}
           setBusy={setBusy}
           onRefresh={fetchTrash}
+          onRemove={(ids) => setTrashPosts((prev) => prev.filter((p) => !ids.includes(p.id)))}
           onRestored={() => { fetchTrash(); fetchPosts(); }}
           onRowHover={handleRowHover}
           onRowLeave={handleRowLeave}
