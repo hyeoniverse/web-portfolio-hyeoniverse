@@ -108,14 +108,21 @@ export default function SubTable<T extends { id: string }>({
   const pageItems = allItems.slice((page - 1) * perPage, page * perPage);
   const totalPages = Math.max(1, Math.ceil(allItems.length / perPage));
 
-  /* Selection helpers */
-  const allSelected = allItems.length > 0 && allItems.every((item) => selected.has(item.id));
-  const someSelected = allItems.some((item) => selected.has(item.id)) && !allSelected;
+  /* Selection helpers
+     머리줄의 전체 선택은 지금 보이는 쪽의 항목만 고르고 푼다. 예전에는 모든 쪽의 항목을 골라서, 휴지통 첫 쪽
+     10개를 고른다고 누른 뒤 영구 삭제하면 보이지 않는 쪽까지 휴지통이 통째로 비었다. 다른 쪽에서 직접 고른
+     항목은 그대로 둔다(일괄 막대의 개수가 전체 선택 수를 보인다). */
+  const allSelected = pageItems.length > 0 && pageItems.every((item) => selected.has(item.id));
+  const someSelected = pageItems.some((item) => selected.has(item.id)) && !allSelected;
 
   const toggleSelectAll = useCallback(() => {
-    if (allSelected) onSelectChange(new Set());
-    else onSelectChange(new Set(allItems.map((item) => item.id)));
-  }, [allItems, allSelected, onSelectChange]);
+    const next = new Set(selected);
+    for (const item of pageItems) {
+      if (allSelected) next.delete(item.id);
+      else next.add(item.id);
+    }
+    onSelectChange(next);
+  }, [pageItems, allSelected, selected, onSelectChange]);
 
   const toggleSelect = useCallback((id: string) => {
     const next = new Set(selected);
