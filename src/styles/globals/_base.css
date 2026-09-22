@@ -121,6 +121,18 @@ h6 { font-size: var(--font-size-label); }
 }
 .prose-content > :last-child { margin-bottom: 0; }
 
+/* 편집기·글·작업물 본문(미리보기·상세)의 굵은 글씨는 강조색(전역 strong)이 아니라 편집기의 글자색을 따른다(#1118).
+   글자색을 지정하지 않았으면 둘레 글자색이다. 본문 글자색이 편집기와 다른 곳(작업물 본문은 secondary)은
+   --_strong-color 로 편집기 기본색을 넘긴다. */
+.prose-content strong {
+  color: var(--_strong-color, inherit);
+}
+/* 글자색을 지정한 굵은 글씨는 그 색이다. 저장한 HTML 은 색을 바깥 span 에 적는다(<span style="color: X"><strong>…</strong></span>).
+   background-color 만 적힌 span 은 고르지 않는다(color 선언으로 시작하거나 ; 뒤에 올 때만). 편집기는 색을 strong 에 직접(인라인) 적는다. */
+.prose-content :is([style^="color"], [style*="; color"], [style*=";color"]) strong {
+  color: inherit;
+}
+
 /* 인라인 코드 — 사이트 공통 칩 룩 (포스트 본문 기준으로 통일). 문맥별로 흩어져 있던 스타일의 단일 소스.
    코드 블록(pre code)은 바로 아래에서 리셋 + _hljs.css 의 .code-block-wrap/.slate-code_block 규칙으로 제외. */
 code {

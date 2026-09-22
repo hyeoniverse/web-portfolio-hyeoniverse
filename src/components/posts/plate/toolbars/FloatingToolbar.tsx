@@ -130,7 +130,7 @@ function OverflowMenu() {
     >
       {({ close }) => (
         <div onMouseDown={(e) => e.preventDefault()}>
-          <MenuItem icon={<span className={styles.menuIcon} style={{ background: "var(--color-warning-soft)", borderRadius: 3 }}>H</span>} label={t("editor.highlight")} onClick={() => toggle("highlight", close)} />
+          <MenuItem icon={<span className={styles.menuIcon} style={{ background: "var(--bg-accent-strong)", borderRadius: 3 }}>H</span>} label={t("editor.highlight")} onClick={() => toggle("highlight", close)} />
           <MenuItem icon={<span className={styles.menuIcon}>x²</span>} label={t("editor.superscript")} onClick={() => toggle("superscript", close)} />
           <MenuItem icon={<span className={styles.menuIcon}>x₂</span>} label={t("editor.subscript")} onClick={() => toggle("subscript", close)} />
           <MenuItem icon={<span className={styles.menuIcon}>⌘</span>} label="Kbd" onClick={() => toggle("kbd", close)} />

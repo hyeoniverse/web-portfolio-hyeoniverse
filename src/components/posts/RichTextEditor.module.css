@@ -1936,8 +1936,8 @@
 .editorContent a {
   color: var(--text-accent);
 }
+/* 형광펜은 모서리를 둥글리지 않는다 — 상세·미리보기(.prose-content)와 같은 모양(#1118) */
 .editorContent mark {
-  border-radius: var(--radius-capsule);
   padding: 0 var(--spacing-3xs);
 }
 .editorContent u {
