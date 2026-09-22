@@ -11,42 +11,6 @@
   color: var(--text-tertiary);
 }
 
-/* ── Trash preview (inline in meta row) ── */
-.trashBarLabel {
-  margin-left: auto;
-  color: var(--text-tertiary);
-}
-
-.trashBarRestore {
-  padding: var(--spacing-3xs) var(--spacing-sm);
-  border: var(--border-strong);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-label);
-  color: var(--text-primary);
-}
-
-.trashBarRestore:hover {
-  background: var(--text-primary);
-  color: var(--bg-primary);
-}
-
-.trashBarPurge {
-  padding: var(--spacing-3xs) var(--spacing-sm);
-  border: var(--border-accent-strong);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-label);
-  color: var(--text-accent);
-}
-
-.trashBarPurge:hover {
-  background: var(--bg-accent-light);
-}
-
-
 /* ── 진입 연출 ──
    원래 framer-motion 의 initial={{opacity:0}} 이었는데, 그러면 자바스크립트가 올라와
    하이드레이션이 끝날 때까지 글이 안 보인다. 서버가 보낸 HTML 에 본문이 다 들어 있는데도

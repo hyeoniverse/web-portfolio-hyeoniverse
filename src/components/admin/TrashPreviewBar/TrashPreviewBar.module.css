@@ -1,0 +1,20 @@
+/* 휴지통 미리보기 막대 — 안내 + 복구·영구 삭제. 글 머리 메타 줄 안에서는 오른쪽 끝으로 밀린다 */
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--spacing-sm);
+  margin-left: auto;
+}
+
+/* 머리 위 한 줄로 둘 때(작업물 미리보기) — 아래 제목과 띄운다 */
+.block {
+  width: 100%;
+  margin-bottom: var(--spacing-md);
+}
+
+.notice {
+  font-size: var(--font-size-label);
+  color: var(--text-tertiary);
+}
