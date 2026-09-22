@@ -389,6 +389,7 @@ export default function ContactDrawer({
                         <Textarea
                           id="message"
                           name="message"
+                          className={styles.textareaField}
                           textareaClassName={styles.textarea}
                           placeholder={t("contact.drawer.messagePlaceholder")}
                           rows={6}

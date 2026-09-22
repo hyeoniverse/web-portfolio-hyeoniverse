@@ -25,7 +25,7 @@
       "messageLabel": "Message",
       "namePlaceholder": "Name",
       "emailPlaceholder": "Your Email",
-      "titlePlaceholder": "Title (optional)",
+      "titlePlaceholder": "Title",
       "messagePlaceholder": "Something to say?",
       "fileUpload": "Attach a pdf/doc file, max 10MB",
       "acceptPrivacy": "Accept the ",

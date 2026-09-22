@@ -261,9 +261,14 @@
   position: relative;
 }
 
+/* 아래 여백은 공통 Textarea 의 바깥 상자에 준다. textarea 자체에 주면 크기 조절 손잡이가 붙는 상자
+   (textarea 와 손잡이를 함께 감싼 상자)가 여백만큼 길어져, 손잡이가 테두리에서 그만큼 아래에 떨어져 그려진다 */
+.textareaField {
+  margin-bottom: var(--_gap-lg);
+}
+
 .textarea {
   flex: 1;
-  margin-bottom: var(--_gap-lg);
   padding: var(--_padding);
   border: var(--border-strong);
   outline: none;
@@ -280,6 +285,14 @@
 
 .textarea::placeholder {
   color: var(--text-muted);
+}
+
+/* 테두리는 옆 입력칸과 같이 둔다. 공통 Textarea 는 자기 테두리(.textarea)와 포커스 때의 색(.textarea:focus,
+   특이도 0,2,0)을 따로 갖고 있어, 입력칸은 그대로인데 이 칸만 누르면 테두리 색이 바뀌었다.
+   평소 규칙도 공통 쪽과 특이도가 같아 빌드의 CSS 순서에 따라 승자가 바뀔 수 있으므로 클래스를 겹쳐 적는다 */
+.textarea.textarea,
+.textarea.textarea:focus {
+  border: var(--border-strong);
 }
 
 /* ---------------------------------------------------------------------------
@@ -759,6 +772,10 @@
   width: var(--_size-social-btn);
   height: var(--_size-social-btn);
   background: var(--text-black);
+  /* 글리프는 카드 바탕색으로 칠해 원에 뚫린 것처럼 보이게 한다. 아이콘(SocialBrandIcon)은 path 에
+     fill="currentColor" 를 직접 달고 있어 svg 에 fill 을 줘도 닿지 않는다 — 색은 color 로 준다.
+     예전에는 svg fill 만 줘서 글리프가 본문 글자색을 따라갔고, 밝은 테마에서 검은 원 위의 검은 글리프가 됐다 */
+  color: var(--bg-white);
   transition: all var(--duration-base) ease;
   border-radius: var(--radius-circle);
 }
@@ -766,17 +783,12 @@
 .socialIcon:hover {
   border-color: var(--text-black);
   background: transparent;
+  color: var(--text-black);
 }
 
 .socialIcon svg {
   width: var(--_size-social-icon);
   height: var(--_size-social-icon);
-  transition: fill var(--duration-base) ease;
-  fill: var(--bg-white);
-}
-
-.socialIcon:hover svg {
-  fill: var(--text-black);
 }
 
 /* ---------------------------------------------------------------------------
