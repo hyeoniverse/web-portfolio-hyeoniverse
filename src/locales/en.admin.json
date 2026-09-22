@@ -336,7 +336,7 @@
       "bgmUploadHint": "MP3, WAV, OGG, etc. · Max 10MB",
       "uploadBgm": "Upload Audio",
       "resumeFile": "Resume File",
-      "resumeUploadHint": "PDF · Max 5MB",
+      "resumeUploadHint": "PDF · Max {{max}}MB",
       "uploadResume": "Upload PDF",
       "resumeButtonText": "Resume Button Text",
       "loadingDisplayNameHint": "Shown on loading screen",
