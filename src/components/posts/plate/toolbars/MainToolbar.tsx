@@ -17,7 +17,8 @@ import FontPicker from "@/components/ui/FontPicker";
 import { loadGoogleFont } from "@/lib/loadGoogleFont";
 import TBtn from "../TBtn";
 import { useRecentColors } from "../useRecentColors";
-import { MessageSquareQuote, ChevronRight, Undo2, Redo2, SquareCheck, LayoutPanelTop, Vote, Shapes, SquareCode, Workflow, CalendarDays, ListTree, FileText, ColumnLayoutIcon, FootnoteIcon, Highlighter, Smile, Palette } from "@/components/icons";
+import { CHECKER_BG } from "../presets";
+import { MessageSquareQuote, ChevronRight, Undo2, Redo2, SquareCheck, LayoutPanelTop, Vote, Shapes, SquareCode, Workflow, CalendarDays, ListTree, FileText, ColumnLayoutIcon, FootnoteIcon, Highlighter, Smile, Palette, Clock } from "@/components/icons";
 import { genPollId } from "../PollElements";
 import { DEFAULT_CALLOUT } from "../calloutTypes";
 import { AlignIcon } from "../icons";
@@ -102,8 +103,6 @@ function EditorFontPicker({ value, onChange, preferEn }: { value: string; onChan
   );
 }
 
-const ALL_PRESETS = new Set([...BASE_COLORS, ...VIVID_COLORS, ...PASTEL_COLORS]);
-
 export default React.memo(function MainToolbar({
   editor, isMac, textStyle, postLang,
   showLinkInput, onToggleLinkInput,
@@ -117,7 +116,7 @@ export default React.memo(function MainToolbar({
   const [colorChipVal, setColorChipVal] = useState("#3b82f6");
   const colorChipPickedRef = React.useRef<string | null>(null);
   const colorChipWasOpenRef = React.useRef(false);
-  // 최근색 — 공통 useRecentColors hook. 저장은 ColorPicker onChangeComplete(드래그 뗄 때)에서만.
+  // 최근색 — 공통 useRecentColors hook(떠 있는 툴바와 같은 목록). 프리셋·최근색은 누를 때, 피커는 드래그를 뗄 때 저장.
   const recentTextColor = useRecentColors("text-mark");
   const recentBgColor = useRecentColors("bg-mark");
 
@@ -229,12 +228,13 @@ export default React.memo(function MainToolbar({
             if (colorMode === "text") editor.tf.addMarks({ color });
             else editor.tf.addMarks({ backgroundColor: color });
           };
-          // 최근색 저장 — 프리셋 제외, commit(드래그 뗄 때) 시점에만
-          const saveRecent = (color: string) => { if (!ALL_PRESETS.has(color)) recentColors.addColor(color); };
+          /* 최근색 — 실제로 적용한 색은 프리셋까지 모두 남긴다(#1117). 예전에는 피커로 고른 색만 남아 이 줄이 거의 보이지 않았다.
+             피커는 드래그 중에도 apply 가 불리므로 뗄 때(onChangeComplete)만 남긴다 */
+          const pick = (color: string) => { apply(color); recentColors.addColor(color); };
           const isLight = (c: string) => c === "#ffffff" || c === "#d1d5db" || PASTEL_COLORS.includes(c);
           const dot = (c: string) => (
             <Tooltip key={c} content={c} delay={200} placement="top">
-              <Pressable noTapScale className={`${styles.presetDot} ${activeColor === c ? styles.presetDotActive : ""}`} style={{ background: c, border: isLight(c) ? "1px solid var(--border-color-light)" : undefined }} onClick={() => apply(c)} />
+              <Pressable noTapScale className={`${styles.presetDot} ${activeColor === c ? styles.presetDotActive : ""}`} style={{ background: c, border: isLight(c) ? "1px solid var(--border-color-light)" : undefined }} onClick={() => pick(c)} />
             </Tooltip>
           );
           return (
@@ -247,14 +247,18 @@ export default React.memo(function MainToolbar({
               {recentColors.colors.length > 0 && (
                 <>
                   <div className={styles.divider} />
+                  <Tooltip content={t("editor.colorRecent")} delay={200} placement="top">
+                    <span className={styles.recentColorsMark} aria-label={t("editor.colorRecent")}><Clock size={11} strokeWidth={2} /></span>
+                  </Tooltip>
                   {recentColors.colors.map(dot)}
                 </>
               )}
               {/* 컬러피커 */}
               <div className={styles.divider} />
               <div className={styles.colorGroup}>
-                <div className={styles.colorIndicator} style={{ width: 14, height: 14, borderRadius: "50%", background: activeColor || "var(--bg-primary)", border: "1px solid var(--border-color-light)" }} />
-                <ColorPicker value={activeColor || "#000000"} onChange={(c) => apply(c.oklch)} onChangeComplete={(c) => { apply(c.oklch); saveRecent(c.oklch); }} triggerClassName={styles.colorInput} />
+                {/* 지정한 색이 없으면 실제로 보이는 색 — 글자는 본문 기본색, 배경은 없음(투명 체커). 예전엔 배경색(흰색)을 그려 기본 글자색이 흰색처럼 보였다 */}
+                <div className={styles.colorIndicator} style={{ width: 14, height: 14, borderRadius: "50%", background: activeColor || (colorMode === "text" ? "var(--text-primary)" : CHECKER_BG), border: "1px solid var(--border-color-light)" }} />
+                <ColorPicker value={activeColor || "#000000"} onChange={(c) => apply(c.oklch)} onChangeComplete={(c) => pick(c.oklch)} triggerClassName={styles.colorInput} />
               </div>
               {/* 제거 */}
               {activeColor && (
