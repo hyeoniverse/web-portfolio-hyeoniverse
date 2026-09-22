@@ -715,6 +715,20 @@
   padding: var(--spacing-sm);
   width: 264px;
 }
+/* 떠 있는 툴바의 글자색·배경색 — 프리셋 7개와 최근 색 8칸이 한 줄에 들어가는 너비(#1117) */
+.colorMenu.colorMarksMenu {
+  width: 344px;
+}
+/* 떠 있는 툴바의 글자색·배경색 분할 버튼 — [마지막 색 적용 | ▾ 메뉴] 를 한 묶음으로(#1117) */
+.colorSplit {
+  display: inline-flex;
+  align-items: center;
+}
+.toolbarBtn.colorSplitCaret {
+  min-width: 16px;
+  padding: 0 var(--spacing-3xs);
+  color: var(--text-muted);
+}
 /* group label — 그룹(섹션) 위쪽에 배치, 작은 폰트 + uppercase + muted */
 .colorMenuLabel,
 .groupLabel {
@@ -1257,6 +1271,13 @@
   align-items: center;
   gap: var(--spacing-3xs);
   padding: 0 var(--spacing-3xs);
+}
+
+/* 최근 색 줄 앞의 시계 — 프리셋과 같은 점이 이어져도 어디부터 최근 색인지 보이게(#1117) */
+.recentColorsMark {
+  display: inline-flex;
+  align-items: center;
+  color: var(--text-muted);
 }
 
 .presetDotClear {

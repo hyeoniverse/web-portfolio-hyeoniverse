@@ -5,6 +5,7 @@ import {
   useEditorId,
   useEditorRef,
   useEditorSelection,
+  useEditorSelector,
   useEventEditorValue,
   useMarkToolbarButton,
   useMarkToolbarButtonState,
@@ -16,8 +17,12 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import Popover, { MenuItem } from "@/components/ui/Popover";
 import Select from "@/components/ui/Select";
-import ColorPicker from "@/components/ui/ColorPicker";
+import { ChevronDown } from "@/components/icons";
 import { readBlockInfo } from "../hooks";
+import { ColorMenu } from "../ColorMenu";
+import { useRecentColors } from "../useRecentColors";
+import { VIVID_COLORS, PASTEL_COLORS } from "../constants";
+import { CHECKER_BG } from "../presets";
 import TBtn from "../TBtn";
 import FloatingBar from "./FloatingBar";
 import styles from "../../RichTextEditor.module.css";
@@ -91,24 +96,79 @@ function TurnIntoMenu() {
   );
 }
 
-/** 글자색 — Palette 대신 A 버튼으로 ColorPicker 팝오버 열어 선택 텍스트에 color 마크 적용.
-   댓글 툴바처럼 선택 툴바에도 색상 도구 제공. mousedown preventDefault 로 에디터 선택 유지. */
-function ColorButton() {
+const TEXT_PRESETS = VIVID_COLORS.map((hex) => ({ hex }));
+const BG_PRESETS = PASTEL_COLORS.map((hex) => ({ hex }));
+const RECENT_SLOTS = 8;
+
+const COLOR_KIND = {
+  text: { mark: "color", recentKey: "text-mark", apply: "editor.applyLastTextColor", menu: "editor.textColorMenu", name: "editor.textColor", presets: TEXT_PRESETS },
+  bg: { mark: "backgroundColor", recentKey: "bg-mark", apply: "editor.applyLastBgColor", menu: "editor.bgColorMenu", name: "editor.bgColor", presets: BG_PRESETS },
+} as const;
+
+/** 글자색·배경색 분할 버튼(#1117) — 왼쪽은 마지막에 쓴 색을 바로 적용하고, ▾ 는 색 메뉴(프리셋·최근 색·색 고르기·기본)를 연다.
+   쓴 색이 아직 없으면 왼쪽을 눌러도 메뉴를 연다. 마지막 색은 상단 툴바와 같은 최근 색 목록(useRecentColors)의 맨 앞이다.
+   메뉴 안 mousedown 은 막아 에디터 선택을 지킨다 — 선택이 풀리면 이 툴바부터 닫힌다. */
+function ColorSplitButton({ kind }: { kind: keyof typeof COLOR_KIND }) {
   const { t } = useLanguage();
   const editor = useEditorRef();
-  const apply = (color: string) => editor.tf.addMarks({ color });
+  const cfg = COLOR_KIND[kind];
+  /* 선택한 글자의 현재 색 — 색을 바꿔도 선택은 그대로라, selection 이 아니라 값에 반응해야 체크 표시가 따라온다 */
+  const current = useEditorSelector((ed) => {
+    const m = ed.api.marks() as Record<string, unknown> | null;
+    const v = m?.[cfg.mark];
+    return typeof v === "string" ? v : "";
+  }, [cfg.mark]);
+  const recent = useRecentColors(cfg.recentKey);
+  const last = recent.colors[0];
+  const [menuOpen, setMenuOpen] = React.useState(false);
+
+  const setMark = (v: string | undefined) => {
+    if (v === undefined) editor.tf.removeMarks([cfg.mark]);
+    else editor.tf.addMarks({ [cfg.mark]: v });
+  };
+  const applyLast = () => {
+    if (!last) { setMenuOpen(true); return; }
+    setMark(last);
+  };
+  /* onPick 은 피커를 끄는 동안에도 불린다 — 최근 색은 프리셋·최근 색을 누른 경우와 피커를 뗀 경우(onCommit)만 남긴다 */
+  const known = (v: string) => cfg.presets.some((p) => p.hex === v) || recent.colors.includes(v);
+  const bar = (color: string | undefined, fallback: string) => (
+    <span style={{ width: 12, height: 3, borderRadius: "var(--radius-capsule)", background: color || fallback, boxShadow: "inset 0 0 0 0.5px var(--text-muted)" }} />
+  );
+
   return (
-    <ColorPicker
-      value="#000000"
-      onChange={(c) => apply(c.oklch)}
-      onChangeComplete={(c) => { apply(c.oklch); setTimeout(() => editor.tf.focus(), 0); }}
-    >
-      {({ toggle }) => (
-        <TBtn tooltip={t("editor.textColor")} onMouseDown={(e) => e.preventDefault()} onClick={toggle}>
-          <span style={{ fontWeight: 700 }}>A</span>
-        </TBtn>
-      )}
-    </ColorPicker>
+    <span className={styles.colorSplit}>
+      <TBtn tooltip={last ? t(cfg.apply) : t(cfg.menu)} aria-label={last ? t(cfg.apply) : t(cfg.menu)} onClick={applyLast}>
+        <span style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1 }}>
+          <span style={{ fontWeight: 700, fontSize: 11 }}>{kind === "text" ? "A" : "BG"}</span>
+          {bar(last, kind === "text" ? "var(--text-primary)" : CHECKER_BG)}
+        </span>
+      </TBtn>
+      <Popover
+        open={menuOpen}
+        onOpenChange={setMenuOpen}
+        placement="bottom-start"
+        offset={8}
+        trigger={<TBtn className={styles.colorSplitCaret} tooltip={t(cfg.menu)} aria-label={t(cfg.menu)}><ChevronDown size={12} /></TBtn>}
+      >
+        {() => (
+          <div className={`${styles.colorMenu} ${styles.colorMarksMenu}`} onMouseDown={(e) => e.preventDefault()}>
+            <ColorMenu
+              label={t(cfg.name)}
+              value={current || undefined}
+              onPick={(v) => { setMark(v); if (v && known(v)) recent.addColor(v); }}
+              onCommit={(v) => { setMark(v); recent.addColor(v); }}
+              presets={[...cfg.presets]}
+              defaultColor={kind === "text" ? "var(--text-primary)" : CHECKER_BG}
+              defaultLabel={kind === "text" ? undefined : t("editor.removeBgColor")}
+              recent={recent.colors}
+              recentSlots={RECENT_SLOTS}
+              pickerFallback={kind === "text" ? "#000000" : "#ffffff"}
+            />
+          </div>
+        )}
+      </Popover>
+    </span>
   );
 }
 
@@ -159,7 +219,7 @@ export function getSelectionRect(): DOMRect {
 
 /**
  * 선택 영역/커서 위에 뜨는 floating 포맷팅 툴바.
- * 구성: [Turn into ▾] | 굵게·기울임·밑줄·취소선·코드·수식 | [⋯ kbd/첨자/형광]
+ * 구성: [Turn into ▾] | 굵게·기울임·밑줄·취소선·코드 | [글자색 | ▾] [배경색 | ▾] | 수식 | [⋯ kbd/첨자/형광]
  * collapsed 커서(클릭)에도 뜨도록 useVirtualFloating 으로 caret 위치를 추적한다.
  */
 export default function FloatingToolbar({ hideToolbar }: { hideToolbar?: boolean }) {
@@ -199,7 +259,8 @@ export default function FloatingToolbar({ hideToolbar }: { hideToolbar?: boolean
       <MarkButton nodeType="underline" tooltip={t("editor.underline")} style={{ textDecoration: "underline" }}>U</MarkButton>
       <MarkButton nodeType="strikethrough" tooltip={t("editor.strikethrough")} style={{ textDecoration: "line-through" }}>S</MarkButton>
       <MarkButton nodeType="code" tooltip={t("editor.inlineCode")}>{"<>"}</MarkButton>
-      <ColorButton />
+      <ColorSplitButton kind="text" />
+      <ColorSplitButton kind="bg" />
       <TBtn
         tooltip={t("editor.inlineEquation")}
         onClick={() => { insertInlineEquation(editor); setTimeout(() => editor.tf.focus(), 0); }}
