@@ -230,6 +230,8 @@
       "extendFailed": "보관 기간을 늘리지 못했습니다.",
       "reorderFailed": "순서를 바꾸지 못했습니다.",
       "publishFailed": "발행 상태를 바꾸지 못했습니다.",
+      "nowPublished": "발행했습니다.",
+      "nowUnpublished": "미발행으로 바꿨습니다.",
       "categoryFailed": "카테고리를 바꾸지 못했습니다.",
       "importFailed": "Markdown 파일로 항목을 만들지 못했습니다.",
       "exportFailed": "내보내지 못했습니다.",

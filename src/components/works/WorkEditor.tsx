@@ -157,7 +157,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
 
   const initialFormRef = useRef(form);
   /* 처음 값은 한 번만 문자열로 바꿔 둔다. 본문까지 든 폼이라 글자마다 두 번 바꾸면 그만큼 입력이 늦다(#850) */
-  const [initialJson] = useState(() => JSON.stringify(form));
+  const [initialJson, setInitialJson] = useState(() => JSON.stringify(form));
   const isDirty = useMemo(() => JSON.stringify(form) !== initialJson, [form, initialJson]);
 
   const { revisions: dbRevisions, loaded: revisionsLoaded, latestSnapshot, saveRevision, loadRevisionSnapshot, deleteRevision } = useRevisions<WorkFormData>({
@@ -845,7 +845,8 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   );
 
   const handleSave = useCallback(
-    async (publish?: boolean) => {
+    /* stay: 저장한 뒤 목록으로 나가지 않고 편집을 이어 간다 — 상단 상태 칩의 발행 전환(#1116) */
+    async (publish?: boolean, { stay = false }: { stay?: boolean } = {}) => {
       const willPublish = publish !== undefined ? publish : form.published;
 
       if (willPublish) {
@@ -948,6 +949,17 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           }).catch(() => {});
         }
         clearDraft();
+        if (stay) {
+          /* 저장한 값이 새 기준이다 — 그대로 두면 저장했는데도 "고친 내용이 있다" 로 남아 나갈 때 다시 묻는다 */
+          const saved = { ...form, published: willPublish };
+          initialFormRef.current = saved;
+          setInitialJson(JSON.stringify(saved));
+          setForm((prev) => ({ ...prev, published: willPublish }));
+          requestAnimationFrame(() => markBaseline());
+          setStatus(t(willPublish ? "admin.common.nowPublished" : "admin.common.nowUnpublished"));
+          setStatusType("success");
+          return;
+        }
         router.push("/admin/works");
       } catch {
         setError(tw("networkError"));
@@ -955,7 +967,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         setSaving(false);
       }
     },
-    [form, router, t, tw, savedId, primaryLang, clearDraft, isEdit],
+    [form, router, t, tw, savedId, primaryLang, clearDraft, isEdit, markBaseline],
   );
 
   const handleDelete = useCallback(async () => {
@@ -2154,6 +2166,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       deleteTargetName={work?.title}
       onSaveDraft={() => handleSave()}
       onPublish={() => handleSave(true)}
+      onTogglePublished={isEdit ? () => handleSave(!form.published, { stay: true }) : undefined}
       scheduledAt={form.scheduled_at}
       onScheduledChange={(iso) => updateField("scheduled_at", iso)}
       onPreview={handlePreview}
