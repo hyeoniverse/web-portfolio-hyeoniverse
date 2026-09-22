@@ -50,6 +50,8 @@ import { CodedError } from "@/lib/apiError";
 import styles from "./AdminWorks.module.css";
 import MarkdownUploadGuide from "./_components/MarkdownUploadGuide";
 import Pressable from "@/components/ui/Pressable";
+import WorkYear from "@/components/works/WorkYear";
+import { formatWorkYear } from "@/utils/formatWorkYear";
 
 const PAGE_SIZE_OPTIONS = [
   { value: "10", label: "10" },
@@ -209,7 +211,8 @@ export default function AdminWorksPage() {
   /* Derived filter options from data */
   const yearOptions = useMemo(() => {
     const years = [...new Set(works.map((w) => w.year).filter(Boolean))];
-    years.sort((a, b) => b.localeCompare(a));
+    /* 기간으로 저장된 연도는 JSON 이라 글자 그대로 비교하면 순서가 틀어진다 — 화면에 찍히는 글자로 비교한다(#1115) */
+    years.sort((a, b) => formatWorkYear(b, "en").localeCompare(formatWorkYear(a, "en")));
     return years;
   }, [works]);
 
@@ -575,7 +578,7 @@ export default function AdminWorksPage() {
         key: "year",
         label: t("admin.works.tableYear"),
         className: ts.colMono,
-        render: (work) => work.year,
+        render: (work) => <WorkYear value={work.year} />,
         skeletonWidth: "40px",
       },
       {
@@ -875,7 +878,7 @@ export default function AdminWorksPage() {
             value={filterYear}
             options={[
               { value: "", label: t("admin.works.allYears") },
-              ...yearOptions.map((y) => ({ value: y, label: y })),
+              ...yearOptions.map((y) => ({ value: y, label: formatWorkYear(y, language) })),
             ]}
             onChange={(v) => { setFilterYear(v); setPage(1); }}
             className={shell.filterItem}

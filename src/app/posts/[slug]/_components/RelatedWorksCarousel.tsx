@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Monitor, Image as ImageIcon } from "@/components/icons";
 import HorizontalCarousel from "@/components/ui/HorizontalCarousel";
 import TransitionLink from "@/components/ui/TransitionLink";
+import WorkYear from "@/components/works/WorkYear";
 import { useHoverPreview } from "@/components/ui/RelatedChips/useHoverPreview";
 import { isVideoUrl } from "@/lib/isVideoUrl";
 import styles from "./RelatedWorksCarousel.module.css";
@@ -79,7 +80,7 @@ export default function RelatedWorksCarousel({
               </div>
               <div className={styles.relatedCardBody}>
                 <div className={styles.relatedCardMeta}>
-                  {w.year && <span className={styles.relatedCardOrder}>{w.year}</span>}
+                  {w.year && <span className={styles.relatedCardOrder}><WorkYear value={w.year} /></span>}
                   {category && <span className={styles.relatedCardCategory}>{category}</span>}
                 </div>
                 <span className={styles.relatedCardTitle}>{title}</span>

@@ -1,4 +1,5 @@
 import { type WorkFormData } from "@/types/work";
+import { formatWorkYear } from "@/utils/formatWorkYear";
 /** Revision detail panel — lang 별 라벨/필드 로컬라이즈 + 해당 lang KO|EN 값만 노출. */
 export function workSnapshotMeta(s: WorkFormData, lang: "ko" | "en"): import("@/components/admin/AdminEditorShell/types").RevisionMetaGroup[] {
   const isKo = lang === "ko";
@@ -57,7 +58,7 @@ export function workSnapshotMeta(s: WorkFormData, lang: "ko" | "en"): import("@/
       label: L("기본", "Basic"),
       fields: {
         Slug: s.slug || "",
-        [L("연도", "Year")]: s.year || "",
+        [L("연도", "Year")]: formatWorkYear(s.year, lang),
       },
     },
     {

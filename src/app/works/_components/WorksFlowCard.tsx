@@ -4,6 +4,7 @@ import ProgressiveImage from "@/components/ui/ProgressiveImage";
 import { getFallbackCoverGradient } from "@/lib/coverFallback";
 import Tooltip from "@/components/ui/Tooltip";
 import T from "@/components/ui/T";
+import WorkYear from "@/components/works/WorkYear";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { pickLocalized } from "@/types/common";
 import type { Project } from "@/data/projects";
@@ -99,7 +100,7 @@ export default function WorksFlowCard({
             <span className={styles.metaSubtitle}>
               <T ko={project.subtitle.ko} en={project.subtitle.en} />
             </span>
-            <span className={styles.metaYear}>{project.year}</span>
+            <span className={styles.metaYear}><WorkYear value={project.year} /></span>
           </div>
         </TransitionLink>
       </Tooltip>
@@ -107,7 +108,7 @@ export default function WorksFlowCard({
       {/* 메타 그룹 — 카드 옆 세로 배치. 위치는 data-layout 변주가 잡는다 */}
       <div className={styles.metaGroup}>
         <span className={styles.metaCategory}><T ko={project.category.ko} en={project.category.en} /></span>
-        <span className={`${styles.metaYear} ${styles.metaYearDesktop}`}>{project.year}</span>
+        <span className={`${styles.metaYear} ${styles.metaYearDesktop}`}><WorkYear value={project.year} /></span>
         <div className={styles.metaTech}>
           {project.tech.slice(0, 2).map((tech: string, i: number) => (
             <span key={i}>#{tech}</span>

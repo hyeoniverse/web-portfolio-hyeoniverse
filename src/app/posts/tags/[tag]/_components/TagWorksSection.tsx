@@ -3,6 +3,7 @@
 import Link from "next/link";
 import type { TagPageData } from "@/lib/posts";
 import { useLanguage } from "@/providers/LanguageProvider";
+import WorkYear from "@/components/works/WorkYear";
 import { ArrowUpRight } from "@/components/icons";
 import styles from "./TagWorksSection.module.css";
 
@@ -36,7 +37,7 @@ export default function TagWorksSection({ works }: { works: TagPageData["works"]
             <span className={styles.workRowSubtitle}>
               {(language === "ko" ? w.subtitle_ko : w.subtitle_en) || (language === "ko" ? w.subtitle_en : w.subtitle_ko)}
             </span>
-            {w.year && <span className={styles.workRowYear}>{w.year}</span>}
+            {w.year && <span className={styles.workRowYear}><WorkYear value={w.year} /></span>}
             <ArrowUpRight className={styles.workRowArrow} size={20} strokeWidth={2} aria-hidden />
           </Link>
         ))}

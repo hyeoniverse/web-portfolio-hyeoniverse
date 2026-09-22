@@ -7,6 +7,7 @@ import DynamicFrameLayout, {
 } from "@/components/common/DynamicFrame/DynamicFrameLayout";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import T from "@/components/ui/T";
+import WorkYear from "@/components/works/WorkYear";
 import TransitionLink from "@/components/ui/TransitionLink";
 import { workHref, type WorksLayoutProps } from "./shared";
 import styles from "./GridLayout.module.css";
@@ -143,7 +144,7 @@ export default function GridLayout({ projects, onProjectClick }: WorksLayoutProp
               : { background: getFallbackCoverGradient(p.slug || p.id) }}
           />
           <div className={styles.projectGradient} />
-          <span className={styles.projectYear}>{p.year}</span>
+          <span className={styles.projectYear}><WorkYear value={p.year} /></span>
           <div className={styles.projectMeta}>
             {/* hover-only: project number — title 위로 slide-in */}
             <div className={`${styles.projectNumber} ${isHovered ? styles.projectExtraOn : ""}`}>
