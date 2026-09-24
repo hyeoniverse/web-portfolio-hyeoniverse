@@ -120,8 +120,9 @@
   flex: 0 0 auto;
   align-items: center;
   overflow: hidden;
-  width: var(--control-h-sm);
-  height: var(--control-h-sm);
+  /* md(32) — 옆의 SearchCapsule(기본 md)과 같은 줄이라 높이를 맞춘다 */
+  width: var(--control-h-md);
+  height: var(--control-h-md);
   border: var(--border-default);
   border-radius: var(--radius-circle);
   background: transparent;
@@ -372,7 +373,7 @@
 
 /* 조직 조회 실패 안내 — 조용히 비어 있으면 원인을 알 수 없다 */
 .orgWarn {
-  color: var(--text-error-strong);
+  color: var(--text-accent);
 }
 
 /* 조직 이름 뱃지 — 묶음 머리글의 "조직" 뒤에 붙는다 */

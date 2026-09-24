@@ -40,6 +40,10 @@
   gap: var(--spacing-2xs);
 }
 
+.paginationWrapSm .jumpInput {
+  height: var(--control-h-sm);
+}
+
 .pagination .pageBtn:hover:not(:disabled) {
   transform: scale(1.15);
 }
@@ -86,6 +90,8 @@
 
 .jumpInput {
   width: 56px;
+  /* 페이지 원 단추(control-h-md)와 같은 눈금 — padding 만으로는 31px 로 어긋난다 */
+  height: var(--control-h-md);
   padding: var(--field-p-sm);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
