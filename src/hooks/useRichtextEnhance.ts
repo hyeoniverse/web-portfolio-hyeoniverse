@@ -1,48 +1,9 @@
 import { useEffect, useRef, type RefObject } from "react";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { attachImageFallback } from "@/lib/imageFallback";
 
-const PLACEHOLDER_SRC = "/images/placeholder.svg";
 /** 후처리 적용 표식 — React 가 innerHTML 을 다시 세팅하면 사라져서 재적용 신호가 된다 */
 const ENHANCED_FLAG = "data-reader-enhanced";
-
-/** img 한 개를 placeholder 로 swap (이미 placeholder 면 무시) */
-function swapToPlaceholder(img: HTMLImageElement) {
-  if (img.src.endsWith(PLACEHOLDER_SRC)) return;
-  img.src = PLACEHOLDER_SRC;
-  img.removeAttribute("srcset");
-}
-
-/**
- * 컨테이너 내 모든 <img> 에 fallback 부착.
- * - 이미 실패 상태(complete + naturalWidth 0)면 즉시 swap
- * - 그렇지 않으면 error listener 부착
- * - MutationObserver 로 새로 추가되는 img 도 동일 처리 (rich-text 가 dynamic 하게 변할 때 대응)
- */
-function attachImageFallback(root: HTMLElement): () => void {
-  const handle = (img: HTMLImageElement) => {
-    if (img.dataset.fallbackBound === "1") return;
-    img.dataset.fallbackBound = "1";
-    img.addEventListener("error", () => swapToPlaceholder(img));
-    if (img.complete && img.naturalWidth === 0) swapToPlaceholder(img);
-  };
-
-  // 1) 현재 컨테이너 안 모든 img
-  root.querySelectorAll("img").forEach((el) => handle(el as HTMLImageElement));
-
-  // 2) 추가되는 img 도 추적
-  const mo = new MutationObserver((mutations) => {
-    for (const m of mutations) {
-      m.addedNodes.forEach((node) => {
-        if (node.nodeType !== 1) return;
-        const el = node as Element;
-        if (el.tagName === "IMG") handle(el as HTMLImageElement);
-        el.querySelectorAll?.("img").forEach((img) => handle(img as HTMLImageElement));
-      });
-    }
-  });
-  mo.observe(root, { childList: true, subtree: true });
-  return () => mo.disconnect();
-}
 
 /**
  * 리더뷰 richtext 후처리 — 글(posts)과 작업물(works) 상세·미리보기가 같이 쓴다.

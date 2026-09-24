@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
-import { useDepsChanged } from "@/hooks/useDepsChanged";
+import { useImageFallback } from "@/hooks/useImageFallback";
 
 import type { Size } from "@/types";
 import { CAPTION_EDIT_EVENT } from "../constants";
@@ -60,11 +60,8 @@ export function ImageElement(props: PlateElementProps) {
   const imgRef = useRef<HTMLImageElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [resizeSize, setResizeSize] = useState<Size | null>(null);
-  // 이미지 로드 실패 시 placeholder.svg 로 swap
-  const [imgErrored, setImgErrored] = useState(false);
-  const urlChanged = useDepsChanged([url]);
-  if (urlChanged) setImgErrored(false);
-  const displayUrl = imgErrored ? "/images/placeholder.svg" : url;
+  // 이미지 로드 실패 시 공용 placeholder 로 swap — url 변경 리셋까지 훅이 담당
+  const { src: displayUrl, markBroken } = useImageFallback(url);
   const draggingRef = useRef<{
     handle: "right" | "bottom" | "corner";
     startX: number; startY: number;
@@ -356,7 +353,7 @@ export function ImageElement(props: PlateElementProps) {
                   src={displayUrl}
                   alt={alt}
                   onLoad={onImgLoad}
-                  onError={() => setImgErrored(true)}
+                  onError={markBroken}
                   onClick={selectImage}
                   style={{
                     width: imgWidth > 0 ? imgWidth : undefined,
@@ -425,7 +422,7 @@ export function ImageElement(props: PlateElementProps) {
                   src={displayUrl}
                   alt={alt}
                   onLoad={onImgLoad}
-                  onError={() => setImgErrored(true)}
+                  onError={markBroken}
                   // float 은 normal flow 밖이라 클릭 시 Slate 가 뒤 텍스트로 caret 을 보냄.
                   // React stopPropagation 만으론 Slate 네이티브 리스너를 못 막으므로 nativeEvent 까지 차단 +
                   // preventDefault 로 네이티브 caret 차단, 그 뒤 이미지 void 노드를 직접 선택
