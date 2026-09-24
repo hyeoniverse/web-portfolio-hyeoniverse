@@ -7,7 +7,7 @@ import Button from "@/components/ui/Button";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useModalStore } from "@/stores/modalStore";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
-import { RoleBadge, ProviderChips } from "@/components/admin/MemberBadges";
+import { RoleBadge, ProviderChips, ProviderUnlinkedBadge } from "@/components/admin/MemberBadges";
 import type { Author } from "@/types/author";
 import type { SaveResult } from "../_types";
 import { ModalAlert } from "@/components/ui/ModalTemplates";
@@ -533,9 +533,7 @@ export default function AuthorsEditor({ authors, onChange, onPersist }: Props) {
             {member?.providers.includes("github") ? (
               <ProviderChips providers={member.providers} />
             ) : (
-              <span className={`${mStyles.role} ${mStyles.rolePendingBadge}`} title={L("GitHub OAuth 미연결", "GitHub OAuth not linked")}>
-                {L("OAuth 미연결", "OAuth not linked")}
-              </span>
+              <ProviderUnlinkedBadge />
             )}
           </div>
         )}

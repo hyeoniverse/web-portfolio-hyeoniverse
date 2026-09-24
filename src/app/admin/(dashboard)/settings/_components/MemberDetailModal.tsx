@@ -8,14 +8,13 @@ import Button from "@/components/ui/Button";
 import { useModalStore } from "@/stores/modalStore";
 import { ModalFooterContext } from "@/components/ui/Modal";
 import { useLanguage } from "@/providers/LanguageProvider";
-import { RoleBadge, ProviderChips } from "@/components/admin/MemberBadges";
+import { RoleBadge, ProviderChips, ProviderUnlinkedBadge } from "@/components/admin/MemberBadges";
 import { SOCIAL_ICONS } from "@/data/socialIcons";
 import type { Author } from "@/types/author";
 import type { Member, MemberRole } from "@/types/member";
 import { githubLoginFromLinks } from "@/utils/githubLogin";
 import AuthorAvatar from "@/components/ui/AuthorAvatar";
 import styles from "./MemberDetailModal.module.css";
-import mStyles from "@/components/admin/MembersList.module.css";
 
 interface Props {
   author: Author;
@@ -127,7 +126,7 @@ export default function MemberDetailModal({ author, member, isOwnerProfile, show
         {showAccess && (
           <>
             <div className={styles.memberDetailMetaRow}>
-              {member ? <ProviderChips providers={member.providers} /> : <span className={mStyles.role + " " + mStyles.rolePendingBadge}>{L("OAuth 미연결", "OAuth not linked")}</span>}
+              {member ? <ProviderChips providers={member.providers} /> : <ProviderUnlinkedBadge />}
             </div>
             {!isOwnerProfile && member && (
               <div className={styles.memberDetailMetaRow}>
