@@ -934,7 +934,7 @@ export const siteConfig = {
       { path: "components/", description_ko: "재사용 가능한 UI 컴포넌트 라이브러리", description_en: "Reusable UI component library", indent: 1 },
       { path: "layout/", description_ko: "Navigation, Footer, ContactDrawer, DetailLayout", description_en: "Navigation, Footer, ContactDrawer, DetailLayout", indent: 2 },
       { path: "effects/", description_ko: "StaggerText, Parallax, CursorTrail, FontMorph, ScrollTorus", description_en: "StaggerText, Parallax, CursorTrail, FontMorph, ScrollTorus", indent: 2 },
-      { path: "ui/", description_ko: "Button, Modal, Typography, OptimizedImage", description_en: "Button, Modal, Typography, OptimizedImage", indent: 2 },
+      { path: "ui/", description_ko: "Button, Modal, Typography, MediaThumb", description_en: "Button, Modal, Typography, MediaThumb", indent: 2 },
       { path: "posts/", description_ko: "PostEditor, MarkdownRenderer, CoverImagePicker", description_en: "PostEditor, MarkdownRenderer, CoverImagePicker", indent: 2 },
       { path: "admin/", description_ko: "어드민 패널 컴포넌트", description_en: "Admin panel components", indent: 2 },
       { path: "hooks/", description_ko: "15개 커스텀 훅 — useMagnetic, useScrollVelocity, useHorizontalScroll 등", description_en: "15 custom hooks — useMagnetic, useScrollVelocity, useHorizontalScroll, etc.", indent: 1 },

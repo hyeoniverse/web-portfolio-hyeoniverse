@@ -6,7 +6,7 @@ import { COPY_FEEDBACK_MS } from "@/constants";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { useMobileLayout } from "@/hooks/useMobileLayout";
 import T from "@/components/ui/T";
-import OptimizedImage from "@/components/ui/OptimizedImage";
+import MediaThumb from "@/components/ui/MediaThumb";
 import CloseButton from "@/components/ui/CloseButton";
 import Logo from "@/components/common/Logo";
 import styles from "./ContactDrawer.module.css";
@@ -73,15 +73,14 @@ export default function ContactInfoCards({
       <div className={styles.profileCard}>
         <div className={styles.profileContent}>
           <div className={styles.profileImage}>
-            <span className={styles.profilePlaceholder}>
-              <OptimizedImage
-                src="/images/profile_pic.webp"
-                alt="Profile"
-                width={400}
-                height={400}
-                priority={false}
-              />
-            </span>
+            {/* 표시용 이미지 공통 컴포넌트 — 깨지면 공용 placeholder 로 떨어진다 */}
+            <MediaThumb
+              src="/images/profile_pic.webp"
+              alt="Profile"
+              width={400}
+              height={400}
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            />
           </div>
           <div className={styles.profileInfo}>
             <h4 className={styles.profileName}>{siteConfig.personal.name}</h4>
