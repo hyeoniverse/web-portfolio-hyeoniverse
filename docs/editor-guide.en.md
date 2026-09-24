@@ -39,7 +39,7 @@ There are two editors in this project, and the supported syntax differs slightly
 
 | Syntax | Result | Post editor | Comment |
 |---|---|:---:|:---:|
-| `#` – `######` + Space | Heading 1–6 | autoformat · `Cmd+Opt+1/2/3` | ✓ |
+| `#` – `####` + Space | Heading 1–4 | autoformat · `Cmd+Opt+1/2/3` | ✓ (1–6) |
 | `>` + Space | Blockquote | autoformat · `Cmd+Shift+B` | ✓ |
 | `-` / `1.` + Space | Bullet / ordered list | autoformat · `Cmd+Shift+8/7` | ✓ |
 | `[]` + Space | Checkbox (task) | autoformat | `- [ ] todo` |
@@ -48,6 +48,8 @@ There are two editors in this project, and the supported syntax differs slightly
 | `\| a \| b \|` | Table | toolbar (table block) | ✓ |
 | `> [!NOTE]` | Alert callout | autoformat | ✓ |
 | `[^1]` | Footnote | autoformat | ✓ |
+
+**Autoformat revert** — pressing `Backspace` or `Esc` right after an autoformat undoes the conversion and restores the markdown marker (`## `, `- `, and so on) for literal input. Even outside that window, `Backspace` at the start of a block turns the block back into its markdown marker (`- ` for a bullet, `## ` for a heading). Delete the marker to get plain text, or press Space again to re-create the block.
 
 **Alert / Callout** — `> [!TYPE]` followed by the body. `TYPE` is one of `NOTE` · `TIP` · `IMPORTANT` · `WARNING` · `CAUTION`, each with its own icon and color. In the post editor, typing `[!NOTE]` and pressing `]` wraps it into a callout block.
 
@@ -73,7 +75,7 @@ There are two editors in this project, and the supported syntax differs slightly
 
 **Rich blocks** (slash menu / toolbar): poll, calendar, diagram · mermaid, tabs, toggle, math (KaTeX), code playground (Sandpack), image, column, custom emoji.
 
-**Color** — set text (A) / background (BG) color with the toolbar color picker (recent colors remembered).
+**Color** — set text (A) / background (BG) color with the toolbar color picker. The floating toolbar that appears over a selection also carries A/BG split buttons: pressing the left side applies the last-used color immediately, and ▾ opens the menu. Recent colors are shared by every color tool (main toolbar, floating toolbar, presets).
 
 **Color chip** — picking a color from the toolbar palette button inserts that value as a `` `#hex` `` inline code, with a color dot (swatch) prepended so it reads as a "chip". It renders as the same chip in the reader, published post, and comments — and **in the editor's editing view** too. Comments insert colors the same way.
 
@@ -91,7 +93,7 @@ Buttons are grouped **by scope of effect** and separated with vertical dividers.
 | Character formatting | Bold · italic · underline · strike · inline code · kbd · super/subscript · highlight · color (A text · BG background · color chip) |
 | Typography | Font · size · line height · letter spacing |
 | Paragraph | Alignment · indent |
-| Headings | H1 – H3 |
+| Headings | H1 – H4 |
 | Lists · blocks | Bullet · ordered · checklist · quote · code block |
 | Insert | Media · structure · misc (emoji included) — three clusters |
 
@@ -113,6 +115,12 @@ Buttons are grouped **by scope of effect** and separated with vertical dividers.
 | Select blocks | `Shift+↑ / ↓` · `Shift+Click` |
 
 On Windows/Linux, `Cmd → Ctrl` and `Opt → Alt`.
+
+---
+
+## Publish Status Toggle
+
+Clicking the status chip (published/scheduled/draft) in the editor top bar flips the publish state in place and saves immediately. Post and work editors behave the same. A draft with a schedule attached cannot be flipped by the chip; handle the schedule first.
 
 ---
 
