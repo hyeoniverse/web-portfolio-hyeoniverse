@@ -53,11 +53,13 @@ export default function ProfileGithubEditor({
   const patch = (next: Partial<NonNullable<ProfileData["github"]>>) =>
     setData((d) => ({ ...d, github: { ...(d.github ?? {}), ...next } }));
 
-  const load = useCallback(async () => {
+  /* orgList 를 주면 저장 전의 조직 목록으로 조회한다(?orgs=). 안 주면 서버가 저장된 값을 쓴다 */
+  const load = useCallback(async (orgList?: string[]) => {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("/api/admin/profile/github-repos");
+      const qs = orgList !== undefined ? `?orgs=${encodeURIComponent(orgList.join(","))}` : "";
+      const res = await fetch(`/api/admin/profile/github-repos${qs}`);
       const body = await res.json().catch(() => ({}));
       if (!res.ok) {
         setError(errorText(body, t, L("저장소를 불러오지 못했습니다.", "Could not load repositories.")));
@@ -143,9 +145,8 @@ export default function ProfileGithubEditor({
           </span>
           <Button
             variant="outline"
-            size="sm"
             icon={<RefreshCw size={13} />}
-            onClick={() => load()}
+            onClick={() => load(gh.orgs)}
             disabled={loading}
             loading={loading}
           >
@@ -223,6 +224,9 @@ export default function ProfileGithubEditor({
           onToggle={toggle}
           isBlocked={(key) => atLimit && !selected.includes(key)}
           failedOrgs={orgInfo.failed}
+          /* 조직 더하기·빼기 — 바꾸는 즉시 그 목록으로 다시 받아, 적은 이름이 맞는지 저장 전에 보인다 */
+          orgs={gh.orgs ?? []}
+          onOrgsChange={(v) => { patch({ orgs: v }); void load(v); }}
           styles={outer}
           hint={
             selected.length > PINNED_REPO_LIMIT
