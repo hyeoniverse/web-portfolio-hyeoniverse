@@ -393,7 +393,7 @@ npm run test:watch
 <summary><strong>Components</strong></summary>
 
 <p align="center">
-  <img src="public/images/screenshots/pc/design-system-dark.png" width="100%" alt="Design System — Components Preview" />
+  <img src="../public/images/screenshots/pc/design-system-dark.png" width="100%" alt="Design System — Components Preview" />
   <br />
   <sub><code>/design-system</code> 페이지에서 모든 토큰과 컴포넌트를 확인할 수 있습니다</sub>
 </p>

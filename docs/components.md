@@ -35,7 +35,7 @@ React Aria 의 `useButton` 과 같은 이유로 담당을 나눴습니다.
 **경로**: `src/components/effects/StaggerText`
 
 <p align="center">
-  <img src="public/images/screenshots/pc/home-dark.png" width="100%" alt="Home — StaggerText" />
+  <img src="../public/images/screenshots/pc/home-dark.png" width="100%" alt="Home — StaggerText" />
 </p>
 
 **기능**:
@@ -86,7 +86,7 @@ import StaggerText from "@/components/effects/StaggerText";
 
 | PC | Tablet | Mobile |
 |:---:|:---:|:---:|
-| <img src="public/images/screenshots/pc/home-dark.png" width="100%" /> | <img src="public/images/screenshots/tablet/home-dark.png" width="100%" /> | <img src="public/images/screenshots/mobile/home-dark.png" width="100%" /> |
+| <img src="../public/images/screenshots/pc/home-dark.png" width="100%" /> | <img src="../public/images/screenshots/tablet/home-dark.png" width="100%" /> | <img src="../public/images/screenshots/mobile/home-dark.png" width="100%" /> |
 
 **기능**:
 
@@ -130,7 +130,7 @@ import StaggerText from "@/components/effects/StaggerText";
 
 | PC (Desktop Dialog) | Tablet | Mobile (Bottom Sheet) |
 |:---:|:---:|:---:|
-| <img src="public/images/screenshots/pc/work-detail-dark.png" width="100%" alt="PC" /> | <img src="public/images/screenshots/tablet/work-detail-dark.png" width="100%" alt="Tablet" /> | <img src="public/images/screenshots/mobile/work-detail-dark.png" width="100%" alt="Mobile" /> |
+| <img src="../public/images/screenshots/pc/work-detail-dark.png" width="100%" alt="PC" /> | <img src="../public/images/screenshots/tablet/work-detail-dark.png" width="100%" alt="Tablet" /> | <img src="../public/images/screenshots/mobile/work-detail-dark.png" width="100%" alt="Mobile" /> |
 
 **경로**: `src/components/ui/Modal.tsx`
 
