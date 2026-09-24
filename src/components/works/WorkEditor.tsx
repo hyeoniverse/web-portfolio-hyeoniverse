@@ -58,6 +58,7 @@ import CoverImageField from "@/components/admin/CoverImageField";
 import CoverBanner from "@/components/admin/CoverBanner";
 import CoverImagePicker from "@/components/posts/CoverImagePicker";
 import { isVideoUrl } from "@/lib/isVideoUrl";
+import { IMAGE_FALLBACK_SRC } from "@/lib/imageFallback";
 import { useModalStore } from "@/stores/modalStore";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import { List } from "@/app/admin/(dashboard)/components";
@@ -1634,7 +1635,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                     ) : (
                       /* eslint-disable-next-line @next/next/no-img-element */
                       <img
-                        src={galleryImgErrors.has(src) ? "/images/placeholder.svg" : src}
+                        src={galleryImgErrors.has(src) ? IMAGE_FALLBACK_SRC : src}
                         alt={`Gallery ${i + 1}`}
                         className={styles.galleryImg}
                         draggable={false}

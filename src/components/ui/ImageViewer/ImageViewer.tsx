@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useSyncRef } from "@/hooks/useSyncRef";
 import { useDepsChanged } from "@/hooks/useDepsChanged";
 import { useHasMounted } from "@/hooks/useHasMounted";
+import { useImageFallbackSet } from "@/hooks/useImageFallback";
 import type { Size, Point } from "@/types";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -79,13 +80,8 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
   const [showInfo, setShowInfo] = useState(false);
   const [naturalSize, setNaturalSize] = useState<Size | null>(null);
   const [closing, setClosing] = useState(false);
-  const [imgErrors, setImgErrors] = useState<Set<string>>(new Set());
-  const PLACEHOLDER_SRC = "/images/placeholder.svg";
-  const resolveSrc = (src: string) => (src && !imgErrors.has(src) ? src : PLACEHOLDER_SRC);
-  const markError = (src: string) => {
-    if (!src) return;
-    setImgErrors((prev) => (prev.has(src) ? prev : new Set(prev).add(src)));
-  };
+  /* 깨진 주소 추적 — 공용 폴백 훅(placeholder 경로 포함) */
+  const { resolveSrc, markBroken: markError, isBroken } = useImageFallbackSet();
 
   const viewerRef = useRef<HTMLDivElement>(null);
   // Tooltip/Popover 가 뷰어(z-modal)보다 낮은 z-tooltip 으로 body 에 떠 가려지는 문제 →
@@ -880,7 +876,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
                 {loading && (
                   <div className={styles.loader}><div className={styles.loaderSpinner} /></div>
                 )}
-                {isVideoUrl(images[current]) && !imgErrors.has(images[current]) ? (
+                {isVideoUrl(images[current]) && !isBroken(images[current]) ? (
                   <video
                     src={images[current]}
                     className={`${styles.image} ${loading ? styles.imageLoading : ""}`}
@@ -947,7 +943,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
                         className={`${styles.galleryItem} ${i === current ? styles.galleryItemActive : ""}`}
                         onClick={(e) => { e.stopPropagation(); goTo(i); setThumbMode("strip"); }}
                       >
-                        {isVideoUrl(src) && !imgErrors.has(src) ? (
+                        {isVideoUrl(src) && !isBroken(src) ? (
                           <video src={src} className={styles.galleryImg} muted playsInline preload="metadata" onError={() => markError(src)} />
                         ) : (
                           /* eslint-disable-next-line @next/next/no-img-element */
@@ -1001,7 +997,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
                         className={`${styles.thumbItem} ${i === current ? styles.thumbItemActive : ""}`}
                         onClick={(e) => { e.stopPropagation(); goTo(i); }}
                       >
-                        {isVideoUrl(src) && !imgErrors.has(src) ? (
+                        {isVideoUrl(src) && !isBroken(src) ? (
                           <video
                             src={src}
                             className={styles.thumbImg}
@@ -1055,7 +1051,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
                       className={`${styles.thumbListItem} ${i === current ? styles.thumbListItemActive : ""}`}
                       onClick={() => goTo(i)}
                     >
-                      {isVideoUrl(src) && !imgErrors.has(src) ? (
+                      {isVideoUrl(src) && !isBroken(src) ? (
                         <video
                           src={src}
                           className={styles.thumbListImg}

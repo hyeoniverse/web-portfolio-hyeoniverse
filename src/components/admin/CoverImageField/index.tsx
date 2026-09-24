@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
-import { useDepsChanged } from "@/hooks/useDepsChanged";
+import { useImageFallback } from "@/hooks/useImageFallback";
+import { IMAGE_FALLBACK_SRC } from "@/lib/imageFallback";
 import { Upload, ImageIcon, Trash2, Palette, Copy } from "@/components/icons";
 import { adminEditorStyles as es } from "@/components/admin/AdminEditorShell";
 import { showToast } from "@/stores/toastStore";
@@ -72,10 +73,8 @@ export default function CoverImageField({
   enablePlaceholderFallback = true,
 }: CoverImageFieldProps) {
   const { t } = useLanguage();
-  const [imgErrored, setImgErrored] = useState(false);
-  // value 가 바뀌면 에러 상태 리셋 — 새 src 는 다시 시도
-  const valueChanged = useDepsChanged([value]);
-  if (valueChanged) setImgErrored(false);
+  // 로드 실패 추적 — value 변경 리셋까지 공용 훅이 담당
+  const { broken: imgErrored, markBroken } = useImageFallback(value);
 
   // ── 테마 색상 추출 ── value(이미지 url) 가 바뀌면 5개 팔레트 비동기 추출
   const [palette, setPalette] = useState<string[]>([]);
@@ -107,7 +106,7 @@ export default function CoverImageField({
   // picker 가 실제로 인터랙션 가능한 상태 (open 이면서 닫는 중 아님)
   const isInteractive = pickerOpen && !pickerClosing;
   const buttonText = isInteractive ? closeLabel : chooseLabel;
-  const displaySrc = enablePlaceholderFallback && imgErrored ? "/images/placeholder.svg" : value;
+  const displaySrc = enablePlaceholderFallback && imgErrored ? IMAGE_FALLBACK_SRC : value;
 
   // 라벨 라인의 inline 액션 버튼들 — 공통 Button (ghost) + className 으로 현재 크기 유지
   const inlineActions = (
@@ -142,7 +141,7 @@ export default function CoverImageField({
           variant="ghost"
           size="xs"
           className={`${styles.inlineBtn} ${styles.inlineBtnRemove}`}
-          onClick={() => { onChange(""); setImgErrored(false); }}
+          onClick={() => onChange("")}
           title={removeLabel}
           icon={<Trash2 size={12} strokeWidth={2} />}
         >
@@ -177,7 +176,7 @@ export default function CoverImageField({
                 autoPlay
                 loop
                 preload="metadata"
-                onError={() => setImgErrored(true)}
+                onError={markBroken}
               />
             ) : (
               /* eslint-disable-next-line @next/next/no-img-element */
@@ -185,7 +184,7 @@ export default function CoverImageField({
                 src={displaySrc}
                 alt={label}
                 className={styles.thumb}
-                onError={() => setImgErrored(true)}
+                onError={markBroken}
               />
             )}
           </Pressable>

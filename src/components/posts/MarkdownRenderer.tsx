@@ -8,6 +8,7 @@ import markedKatex from "marked-katex-extension";
 import { attachCodeWrapToggle, applyColorSwatches, highlightInlineCode } from "./highlightCodeBlocks";
 import { highlightCode } from "@/utils/prismHighlight";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { attachImageFallback } from "@/lib/imageFallback";
 
 /* 코드블록 토글 라벨의 자리표시자.
    렌더러는 모듈 스코프에 있고 번역값(t)은 컴포넌트 안에만 있다. 전에는 모듈 변수를 parse
@@ -73,7 +74,6 @@ interface MarkdownRendererProps {
   className?: string;
 }
 
-const PLACEHOLDER_SRC = "/images/placeholder.svg";
 
 export default function MarkdownRenderer({
   content,
@@ -128,34 +128,11 @@ export default function MarkdownRenderer({
     highlightInlineCode(root);
   }, [html, t]);
 
-  // 깨진 이미지 → /images/placeholder.svg 로 swap. MutationObserver 로 동적 추가 img 도 추적
+  // 깨진 이미지 → 공용 placeholder 로 swap. 동적 추가 img 추적까지 공용 헬퍼가 담당
   useEffect(() => {
     const root = ref.current;
     if (!root) return;
-    const swap = (img: HTMLImageElement) => {
-      if (img.src.endsWith(PLACEHOLDER_SRC)) return;
-      img.src = PLACEHOLDER_SRC;
-      img.removeAttribute("srcset");
-    };
-    const handle = (img: HTMLImageElement) => {
-      if (img.dataset.fallbackBound === "1") return;
-      img.dataset.fallbackBound = "1";
-      img.addEventListener("error", () => swap(img));
-      if (img.complete && img.naturalWidth === 0) swap(img);
-    };
-    root.querySelectorAll("img").forEach((el) => handle(el as HTMLImageElement));
-    const mo = new MutationObserver((mutations) => {
-      for (const m of mutations) {
-        m.addedNodes.forEach((node) => {
-          if (node.nodeType !== 1) return;
-          const el = node as Element;
-          if (el.tagName === "IMG") handle(el as HTMLImageElement);
-          el.querySelectorAll?.("img").forEach((img) => handle(img as HTMLImageElement));
-        });
-      }
-    });
-    mo.observe(root, { childList: true, subtree: true });
-    return () => mo.disconnect();
+    return attachImageFallback(root);
   }, [html]);
 
   return (
