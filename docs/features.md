@@ -18,8 +18,8 @@
 - **3D Scroll Torus**: Three.js(R3F) 기반 3D 메탈릭 토러스 — 리사주 곡선 경로 회전, 테마별 머티리얼, 모바일 터치 반발 인터랙션
 
 <p align="center">
-  <img src="public/images/screenshots/pc/home-dark.png" width="49%" alt="Home — Dark" />
-  <img src="public/images/screenshots/pc/home-light.png" width="49%" alt="Home — Light" />
+  <img src="../public/images/screenshots/pc/home-dark.png" width="49%" alt="Home — Dark" />
+  <img src="../public/images/screenshots/pc/home-light.png" width="49%" alt="Home — Light" />
 </p>
 
 ### Works Gallery
@@ -36,8 +36,8 @@
 - **Breakpoint Guard**: Cylinder 레이아웃은 리사이즈 시 리로드 없이 실시간 대응, 나머지 레이아웃은 breakpoint 전환 시 자동 remount
 
 <p align="center">
-  <img src="public/images/screenshots/pc/works-dark.png" width="49%" alt="Works — Dark" />
-  <img src="public/images/screenshots/pc/works-light.png" width="49%" alt="Works — Light" />
+  <img src="../public/images/screenshots/pc/works-dark.png" width="49%" alt="Works — Dark" />
+  <img src="../public/images/screenshots/pc/works-light.png" width="49%" alt="Works — Light" />
 </p>
 
 ### Blog System
@@ -95,8 +95,8 @@
 - **페이지 트랜지션 morph 재설계 — image / color / placeholder 통합**: ① `navigateWithTransition(href, image, rect, color?)` 4번째 인자 추가 — image 없을 때 morph 블록의 background. color 도 없으면 `--bg-tertiary` placeholder 로 fallback. ② **morph 단계 중 backdrop opacity 1 → 0 fade** — 끝나는 시점에 morph 블록만 hero 위치에 떠있고, 그 아래로 destination 의 loading.tsx skeleton 이 자연 노출. 사용자 시점에 "이미 다음 페이지로 들어와 있다" 는 인상. ③ **`/posts/[slug]/loading.tsx` 를 실제 PostDetailClient 와 1:1 구조 매칭** — `.hero` + `.headerSection > .articleHeader` + `.contentRow > .content` 까지 정렬. metaRow + title + excerpt + tags + headerDivider + AISummary placeholder + 단락 + code/image placeholder. morph fade 후 real page 로 swap 시 layout 점프 0. ④ **`/posts/loading.tsx` 제거** — Next.js 가 자식 segment 코드 미컴파일 시 부모 fallback (9 카드 그리드 스켈레톤) 을 잠시 노출하던 문제 차단. `/posts/page.tsx` 에 `<Suspense fallback={null}>` 인라인 wrapper 로 `useSearchParams()` prerender 대응. ⑤ **isTransitioning gating** — PostDetailClient 의 4개 `motion.div` (articleHeader / seriesBox / prose / commentSection) 가 마운트 시점에 `initial.opacity` 가 0 → fade-in delay 동안 morph fade 직후 빈 영역 노출되던 문제를 `initial={isTransitioning ? opacity:1 : opacity:0}` 로 해결. DetailLayout 의 hero 가 쓰던 패턴과 동일. ⑥ **타이밍** — EXPAND 380ms / MORPH 260ms / FADE 170ms (총 ~810ms). ⑦ **prefetch on hover** — BannerSlide / TickerBanner / CardsBanner / SplitBanner 가 `<div onClick>` 패턴이라 Link 자동 prefetch 가 없음. hover/focus 시 `router.prefetch(/posts/${slug})` 수동 호출 (Set 으로 중복 차단). SplitBanner 는 한 번에 1 슬라이드만 보여 현재 슬라이드 useEffect 로 자동 prefetch
 
 <p align="center">
-  <img src="public/images/screenshots/pc/posts-dark.png" width="49%" alt="Posts — Dark" />
-  <img src="public/images/screenshots/pc/posts-light.png" width="49%" alt="Posts — Light" />
+  <img src="../public/images/screenshots/pc/posts-dark.png" width="49%" alt="Posts — Dark" />
+  <img src="../public/images/screenshots/pc/posts-light.png" width="49%" alt="Posts — Light" />
 </p>
 
 ### Works Detail & Project Pages
@@ -105,8 +105,8 @@
 - **Work Detail**: 프로젝트 상세 페이지 — `/works/[slug]` 라우팅, 콘텐츠 내 `##` 헤딩 파싱 TOC, 갤러리 이미지, 좋아요/댓글, GitHub 링크 버튼, DB 미연결 시 정적 데이터 fallback
 
 <p align="center">
-  <img src="public/images/screenshots/pc/work-detail-dark.png" width="49%" alt="Work Detail — Dark" />
-  <img src="public/images/screenshots/pc/work-detail-light.png" width="49%" alt="Work Detail — Light" />
+  <img src="../public/images/screenshots/pc/work-detail-dark.png" width="49%" alt="Work Detail — Dark" />
+  <img src="../public/images/screenshots/pc/work-detail-light.png" width="49%" alt="Work Detail — Light" />
 </p>
 
 ### Navigation & UX
@@ -130,8 +130,8 @@
 - **Checkbox 히트영역 정리**: wrapper padding+margin (히트영역 트릭) 제거 — 시각 레이아웃은 동일하지만(서로 상쇄됐던 값들) 더 이상 상위 row 높이를 부풀리지 않음
 
 <p align="center">
-  <img src="public/images/screenshots/pc/about-dark.png" width="49%" alt="About — Dark" />
-  <img src="public/images/screenshots/pc/about-light.png" width="49%" alt="About — Light" />
+  <img src="../public/images/screenshots/pc/about-dark.png" width="49%" alt="About — Dark" />
+  <img src="../public/images/screenshots/pc/about-light.png" width="49%" alt="About — Light" />
 </p>
 
 ### Admin & CMS
@@ -210,8 +210,8 @@
 - **ColorPicker 모바일 bottom sheet + copy / paste / 잘못된 입력 흔들기**: 모바일 (`width ≤ 768px`) 에서 dropdown popover → Modal 의 sheet 패턴 (top radius / handle bar / max-height 85vh) 으로 자동 전환. backdrop-filter blur 10px + `pointer-events: none` 으로 trigger 클릭 통과 — outside-click effect 가 tap-to-close 처리. Lenis smooth scroll 환경이라 `useLenis().stop()` 까지 추가 안 그러면 메인 페이지 스크롤이 같이 움직임. 툴바에 Copy / Paste 버튼 — Copy 는 현재 format (HEX / RGB / HSL / HSV / OKLCH) 으로 클립보드 write, Paste 는 `parseAnyColorToOklch` 로 모든 5가지 포맷 + bare `r, g, b` 까지 자동 인식. HEX 형식 오류 / 붙여넣기 인식 실패 시 popover 좌우 0.4s 흔들기 + Toast `error`. picker input wrapper 폭 정렬 — `padding: var(--spacing-sm)` 균일 + min-width OKLCH 6자 기준 (`0.2249`) 으로 통일
 
 <p align="center">
-  <img src="public/images/screenshots/pc/profile-dark.png" width="49%" alt="Profile — Dark" />
-  <img src="public/images/screenshots/pc/profile-light.png" width="49%" alt="Profile — Light" />
+  <img src="../public/images/screenshots/pc/profile-dark.png" width="49%" alt="Profile — Dark" />
+  <img src="../public/images/screenshots/pc/profile-light.png" width="49%" alt="Profile — Light" />
 </p>
 
 ### Performance
@@ -235,8 +235,8 @@
 - **OKLCH 색 토큰 전체 전환**: 모든 raw color token + module CSS 의 산발 hex/rgba 가 [culori](https://culori.js.org) 를 통해 `oklch(L% C H)` 로 일괄 변환됨. **`oklch(L C H / α)` alpha syntax**, hue 무관 균일한 지각 밝기. fallback 없이 `var(--color-*)` 만 참조 (component CSS hex 직접 사용 금지). 신규 색 추가 시 culori 의 동일 정밀도(5 dp L/C, 2 dp H) 유지
 
 <p align="center">
-  <img src="public/images/screenshots/pc/design-system-dark.png" width="49%" alt="Design System — Dark" />
-  <img src="public/images/screenshots/pc/design-system-light.png" width="49%" alt="Design System — Light" />
+  <img src="../public/images/screenshots/pc/design-system-dark.png" width="49%" alt="Design System — Dark" />
+  <img src="../public/images/screenshots/pc/design-system-light.png" width="49%" alt="Design System — Light" />
 </p>
 
 > **상세 문서**: [Security](./security.md) · [DB 설계 결정](./db-design.md) · [User Flow](./user-flow.md)

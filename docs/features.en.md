@@ -18,8 +18,8 @@
 - **3D Scroll Torus**: Three.js (R3F) 3D metallic torus — Lissajous curve path rotation, theme-specific materials, mobile touch repulsion interaction
 
 <p align="center">
-  <img src="public/images/screenshots/pc/home-dark.png" width="49%" alt="Home — Dark" />
-  <img src="public/images/screenshots/pc/home-light.png" width="49%" alt="Home — Light" />
+  <img src="../public/images/screenshots/pc/home-dark.png" width="49%" alt="Home — Dark" />
+  <img src="../public/images/screenshots/pc/home-light.png" width="49%" alt="Home — Light" />
 </p>
 
 ### Works Gallery
@@ -36,8 +36,8 @@
 - **Breakpoint Guard**: Cylinder layout responds to resize in real-time without reload; other layouts auto-remount on breakpoint transitions
 
 <p align="center">
-  <img src="public/images/screenshots/pc/works-dark.png" width="49%" alt="Works — Dark" />
-  <img src="public/images/screenshots/pc/works-light.png" width="49%" alt="Works — Light" />
+  <img src="../public/images/screenshots/pc/works-dark.png" width="49%" alt="Works — Dark" />
+  <img src="../public/images/screenshots/pc/works-light.png" width="49%" alt="Works — Light" />
 </p>
 
 ### Blog System
@@ -95,8 +95,8 @@
 - **Page-transition morph redesign — image / color / placeholder unified**: ① `navigateWithTransition(href, image, rect, color?)` takes an optional 4th color arg — if `image` is absent, the morph block fills with `color`; if neither, it falls back to `var(--bg-tertiary)`. ② **Backdrop fades from 1 → 0 during the morph phase**, so by the time morph reaches the hero size, the destination's `loading.tsx` skeleton becomes visible *underneath* the morph block — gives the "you're already on the next page" impression without a hard cut. ③ **`/posts/[slug]/loading.tsx` mirrors the real `PostDetailClient` 1:1**: `.hero` + `.headerSection > .articleHeader` + `.contentRow > .content`, with metaRow + title + excerpt + tags + headerDivider + AISummary placeholder + paragraphs + code/image placeholder. Zero layout jump when the real page replaces the skeleton. ④ **`/posts/loading.tsx` removed** — Next.js was briefly rendering the parent fallback (the 9-card grid) when the child segment's code hadn't been compiled / cached yet. `/posts/page.tsx` gains an inline `<Suspense fallback={null}>` to keep `useSearchParams()` happy at prerender. ⑤ **`isTransitioning` gating** — the 4 `motion.div`s in `PostDetailClient` (articleHeader / seriesBox / prose / commentSection) used to fade-in with a delay, leaving an empty area right after morph faded. They now use `initial={isTransitioning ? { opacity:1 } : { opacity:0, y:N }}` so the destination is filled the instant morph clears (direct URL entry still gets the fade). ⑥ **Timing**: EXPAND 380 / MORPH 260 / FADE 170 (~810ms total). ⑦ **Prefetch on hover** — `<div onClick>`-style callers (BannerSlide / TickerBanner / CardsBanner / SplitBanner) don't get Link's automatic prefetch, so each manually fires `router.prefetch` on hover/focus (de-duped via a `Set`). SplitBanner auto-prefetches the currently-visible slide because only one is shown at a time
 
 <p align="center">
-  <img src="public/images/screenshots/pc/posts-dark.png" width="49%" alt="Posts — Dark" />
-  <img src="public/images/screenshots/pc/posts-light.png" width="49%" alt="Posts — Light" />
+  <img src="../public/images/screenshots/pc/posts-dark.png" width="49%" alt="Posts — Dark" />
+  <img src="../public/images/screenshots/pc/posts-light.png" width="49%" alt="Posts — Light" />
 </p>
 
 ### Works Detail & Project Pages
@@ -105,8 +105,8 @@
 - **Work Detail**: Project detail page — `/works/[slug]` routing, TOC from `##` heading parsing in content, gallery images, likes/comments, GitHub link button, static data fallback when DB is not connected
 
 <p align="center">
-  <img src="public/images/screenshots/pc/work-detail-dark.png" width="49%" alt="Work Detail — Dark" />
-  <img src="public/images/screenshots/pc/work-detail-light.png" width="49%" alt="Work Detail — Light" />
+  <img src="../public/images/screenshots/pc/work-detail-dark.png" width="49%" alt="Work Detail — Dark" />
+  <img src="../public/images/screenshots/pc/work-detail-light.png" width="49%" alt="Work Detail — Light" />
 </p>
 
 ### Navigation & UX
@@ -130,8 +130,8 @@
 - **Checkbox hit-area cleanup**: Removed wrapper padding + margin (the hit-area trick) — visually identical (the two were self-cancelling) but no longer inflates ancestor row height
 
 <p align="center">
-  <img src="public/images/screenshots/pc/about-dark.png" width="49%" alt="About — Dark" />
-  <img src="public/images/screenshots/pc/about-light.png" width="49%" alt="About — Light" />
+  <img src="../public/images/screenshots/pc/about-dark.png" width="49%" alt="About — Dark" />
+  <img src="../public/images/screenshots/pc/about-light.png" width="49%" alt="About — Light" />
 </p>
 
 ### Admin & CMS
@@ -211,8 +211,8 @@
 - **Block empty saves of required settings (UI·API·DB three-layer validation)**: the site title, name, five theme colors, and member names cannot be empty; when the comment provider is giscus, repo·repoId·category·categoryId are required; email is format-checked when provided. Previously only the global Save button had partial validation and **per-section saves bypassed it** — now three layers guard it: UI (`validationError` + `SectionHeader` save guard disable both global and per-section Save buttons + show the reason), API (`checkRequiredSettings`, returns 400 in `/api/admin/settings` PATCH on violation), DB (`settings_required_valid(config)` + `site_settings_required_valid` CHECK). Same three-layer defense convention as the About ERD validation (full rules in the [DB design doc](docs/db-design.en.md#site-settings-required-value-validation-settings_required_valid))- **ColorPicker mobile bottom sheet + copy / paste / shake-on-invalid**: On mobile (`width ≤ 768px`) the dropdown popover auto-switches to the Modal sheet pattern (top radius / handle bar / max-height 85vh). Backdrop uses `backdrop-filter: blur(10px)` with `pointer-events: none` so trigger clicks pass through — the outside-click effect handles tap-to-close. The site uses Lenis smooth scroll, so we also call `useLenis().stop()` on sheet open; otherwise the page underneath still scrolls. Toolbar gets Copy / Paste buttons — Copy writes the current format (HEX / RGB / HSL / HSV / OKLCH) to the clipboard; Paste auto-detects via `parseAnyColorToOklch` covering all 5 formats plus bare `r, g, b`. Invalid HEX commit / paste failure triggers a 0.4s left-right shake + an `error` toast. Picker input wrapper widths are aligned — uniform `padding: var(--spacing-sm)`, min-width sized to the longest OKLCH C value (`0.2249`, 6 chars).
 
 <p align="center">
-  <img src="public/images/screenshots/pc/profile-dark.png" width="49%" alt="Profile — Dark" />
-  <img src="public/images/screenshots/pc/profile-light.png" width="49%" alt="Profile — Light" />
+  <img src="../public/images/screenshots/pc/profile-dark.png" width="49%" alt="Profile — Dark" />
+  <img src="../public/images/screenshots/pc/profile-light.png" width="49%" alt="Profile — Light" />
 </p>
 
 ### Performance
@@ -236,8 +236,8 @@
 - **OKLCH color migration**: All raw color tokens and scattered module-CSS hex/rgba values converted to `oklch(L% C H)` via [culori](https://culori.js.org). Uses **`oklch(L C H / α)` alpha syntax**, perceptually uniform lightness regardless of hue. No `var()` fallbacks — component CSS must never use raw hex (use `var(--color-*)`). New colors should preserve culori's precision (5 dp for L/C, 2 dp for H)
 
 <p align="center">
-  <img src="public/images/screenshots/pc/design-system-dark.png" width="49%" alt="Design System — Dark" />
-  <img src="public/images/screenshots/pc/design-system-light.png" width="49%" alt="Design System — Light" />
+  <img src="../public/images/screenshots/pc/design-system-dark.png" width="49%" alt="Design System — Dark" />
+  <img src="../public/images/screenshots/pc/design-system-light.png" width="49%" alt="Design System — Light" />
 </p>
 
 > **Detailed docs**: [Security](./security.en.md) · [DB Design Decisions](./db-design.en.md) · [User Flow](./user-flow.en.md)
