@@ -1,12 +1,12 @@
 # Trouble Shooting: Animation · Interaction
 
-[← Index](../troubleshooting.en.md)
+[← Index](../troubleshooting.md)
 
 <details>
 <summary><strong>67. The library's source of truth: read Lenis velocity inside its event</strong></summary>
 
 <p align="center">
-  <img src="../../public/images/screenshots/pc/works-dark.png" width="100%" alt="Works — Scroll Velocity" />
+  <img src="../../../public/images/screenshots/pc/works-dark.png" width="100%" alt="Works — Scroll Velocity" />
 </p>
 
 **Problem**
@@ -109,8 +109,8 @@ Framer Motion's style prop generates inline transform, so it must be used separa
 <summary><strong>69. Infinite scroll math: modulo loops instead of teleports</strong></summary>
 
 <p align="center">
-  <img src="../../public/images/screenshots/pc/works-dark.png" width="49%" alt="Works — Dark" />
-  <img src="../../public/images/screenshots/pc/works-light.png" width="49%" alt="Works — Light" />
+  <img src="../../../public/images/screenshots/pc/works-dark.png" width="49%" alt="Works — Dark" />
+  <img src="../../../public/images/screenshots/pc/works-light.png" width="49%" alt="Works — Light" />
 </p>
 
 **Problem**
@@ -214,7 +214,7 @@ Rather than increasing content duplication sets, wrapping the scroll position it
 
 | PC | Tablet | Mobile |
 |:---:|:---:|:---:|
-| <img src="../../public/images/screenshots/pc/works-dark.png" width="100%" /> | <img src="../../public/images/screenshots/tablet/works-dark.png" width="100%" /> | <img src="../../public/images/screenshots/mobile/works-dark.png" width="100%" /> |
+| <img src="../../../public/images/screenshots/pc/works-dark.png" width="100%" /> | <img src="../../../public/images/screenshots/tablet/works-dark.png" width="100%" /> | <img src="../../../public/images/screenshots/mobile/works-dark.png" width="100%" /> |
 
 **Problem**
 
@@ -547,7 +547,7 @@ onPointerDown={(e) => {
 <summary><strong>83. What links give you for free: on canvas you rebuild all of it</strong></summary>
 
 <p align="center">
-  <img src="../../public/images/screenshots/pc/works-cylinder-light.png" width="100%" alt="Works Cylinder — 3D layout" />
+  <img src="../../../public/images/screenshots/pc/works-cylinder-light.png" width="100%" alt="Works Cylinder — 3D layout" />
 </p>
 
 **Problem**: Middle-clicking a work panel in the cylinder layout did not open a new tab, and there was no keyboard access to the panels at all.

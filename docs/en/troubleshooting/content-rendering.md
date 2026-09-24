@@ -1,6 +1,6 @@
 # Trouble Shooting: Markdown · Content Rendering
 
-[← Index](../troubleshooting.en.md)
+[← Index](../troubleshooting.md)
 
 <details>
 <summary><strong>60. Finish before render: dangerouslySetInnerHTML vs post-hoc DOM mutation</strong></summary>
