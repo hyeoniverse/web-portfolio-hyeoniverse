@@ -30,7 +30,15 @@ export async function listMembers(
   const members: Member[] = (usersRes.data?.users ?? []).map((u) => {
     const role = getUserRole(u);
     const roleLabel = toMemberRole(role);
-    const providers = Array.from(new Set((u.identities ?? []).map((i) => i.provider)));
+    /* 로그인 수단은 app_metadata.providers 가 정본 — listUsers 의 identities 는 현재
+       GoTrue 목록 API 에서 빈 배열로 온다(단건 GET 은 정상). identities 만 보면 GitHub
+       연결이 끝난 계정도 전부 "OAuth 미연결"로 표시됐다(#1149). identities 는 채워져
+       올 때만 보태는 보조 소스로 둔다 */
+    const appProviders = ((u.app_metadata as Record<string, unknown> | undefined)?.providers ?? []) as string[];
+    const providers = Array.from(new Set([
+      ...appProviders.filter((p) => typeof p === "string" && p),
+      ...(u.identities ?? []).map((i) => i.provider),
+    ]));
     const author = role.authorId ? authorById.get(role.authorId) : undefined;
     const meta = (u.user_metadata ?? {}) as Record<string, unknown>;
     // GitHub 등 OAuth identity 원본 데이터 — 프로필 없는 계정의 기본값(이름/아바타)을 여기서 채움
@@ -41,8 +49,9 @@ export async function listMembers(
       str(gh.full_name) || str(gh.name) || str(gh.user_name) ||
       (u.email ? u.email.split("@")[0] : null);
     const avatar = author?.avatar || str(meta.avatar_url) || str(gh.avatar_url);
-    const ghUser = str(gh.user_name);
-    const githubUrl = str(gh.html_url) || (ghUser ? `https://github.com/${ghUser}` : null);
+    /* GitHub 로그인 계정은 user_metadata 에도 프로필이 복사돼 있다 — identities 가 비어 와도 URL 을 만든다 */
+    const ghUser = str(gh.user_name) || str(meta.user_name) || str(meta.preferred_username);
+    const githubUrl = str(gh.html_url) || str(meta.html_url) || (ghUser ? `https://github.com/${ghUser}` : null);
     return {
       id: u.id,
       email: u.email ?? "",
