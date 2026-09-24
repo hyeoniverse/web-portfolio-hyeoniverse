@@ -225,14 +225,18 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
             onChange={(v) => update("typography", "monoFont", v)}
           />
         </div>
-        {/* 커스텀 폰트 — 업로드(Storage) + public/fonts 스캔. 위 3개 선택 + 로고·에디터 FontPicker 전체에 노출 */}
-        <p className={shared.sectionHint} style={{ marginTop: "var(--spacing-lg)" }}>
-          <T k="admin.settings.customFontsLabel" />
-        </p>
-        <CustomFontsField
-          fonts={config.typography?.customFonts ?? []}
-          onChange={(v) => update("typography", "customFonts", v)}
-        />
+        {/* 커스텀 폰트 — 업로드(Storage) + public/fonts 스캔. 위 3개 선택 + 로고·에디터 FontPicker 전체에 노출.
+            라벨과 필드를 한 블록으로 묶는다 — 그리드 형제로 두면 라벨 margin-bottom 에 섹션 row-gap 까지
+            더해져 사이가 두 배로 벌어진다 */}
+        <div className={styles.customFontsBlock}>
+          <p className={`${shared.sectionHint} ${styles.customFontsLabel}`}>
+            <T k="admin.settings.customFontsLabel" />
+          </p>
+          <CustomFontsField
+            fonts={config.typography?.customFonts ?? []}
+            onChange={(v) => update("typography", "customFonts", v)}
+          />
+        </div>
       </section>
 
     </>

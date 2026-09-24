@@ -145,7 +145,6 @@ export default function RepoPickerList({
               search={search}
               onSearchChange={onSearchChange}
               placeholder={L("저장소 검색", "Search repositories")}
-              size="sm"
               historyKey={null}
               showHelp={false}
             />
