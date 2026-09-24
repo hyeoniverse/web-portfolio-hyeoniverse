@@ -789,15 +789,23 @@
   transition: color var(--duration-base) ease;
 }
 
-/* env row — 가로 grid: 라벨 좌측 fixed, input + actions 우측 flex (전체 폭 활용) */
+/* env row — 라벨(+배지) 전체폭 윗줄, 아래 [입력 | 액션] 두 줄 고정.
+   예전 3열(라벨 12.5rem | 입력 | 액션)은 라벨 칸이 flex-wrap 이라 긴 라벨·배지 조합에서만
+   배지가 칸 안에서 줄바꿈돼 그 행만 높아졌다 — 행마다 내용이 달라도 높이가 같으려면
+   접힘 레이아웃을 모든 폭에서 쓰는 수밖에 없다. 입력도 열 전체 폭을 쓰게 된다 */
 .envFieldRow {
   display: grid;
-  /* 라벨 고정폭 → 입력 시작 위치 일정 · 입력 minmax 로 최소너비 보장 · 액션 고정폭(항상 예약) → 입력 너비·버튼 위치 일정 */
-  grid-template-columns: 12.5rem minmax(7rem, 1fr) 3.75rem;
+  /* 입력 minmax 로 최소너비 보장 · 액션 고정폭(항상 예약) → 입력 너비·버튼 위치 일정 */
+  grid-template-columns: minmax(7rem, 1fr) 3.75rem;
   align-items: center;
   column-gap: var(--spacing-sm);
+  row-gap: var(--spacing-2xs);
   /* .fieldRow base (flex column) override */
   flex-direction: row;
+}
+
+.envFieldRow > .fieldLabel {
+  grid-column: 1 / -1;
 }
 
 /* env label — text + badges 한 행 정렬 (default .fieldLabel 의 flex column 오버라이드) */
@@ -807,19 +815,6 @@
   gap: var(--spacing-xs);
   flex-wrap: wrap;
   min-width: 0;
-}
-
-/* 열 폭이 3열(라벨·입력·액션)을 담기 좁아지면(스크롤바·마진 포함 실측 폭 기준)
-   라벨을 전체폭 위로, 아래 입력 | 액션. .envGroupCol 이 container 라 뷰포트가 아닌
-   실제 열 폭 기준 → 어떤 태블릿/모바일 폭에서도 넘치지 않는다. */
-@container (max-width: 25rem) {
-  .envFieldRow {
-    grid-template-columns: minmax(0, 1fr) auto;
-    row-gap: var(--spacing-2xs);
-  }
-  .envFieldRow > .fieldLabel {
-    grid-column: 1 / -1;
-  }
 }
 
 /* ── Tag descriptions editor — bilingual + search/sort/pagination ── */
