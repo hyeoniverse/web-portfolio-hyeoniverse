@@ -301,3 +301,16 @@ Admin settings (General·Appearance·Services tabs) contain required values that
 - The function is `IMMUTABLE` and the constraint is added `NOT VALID` (existing rows unchecked). It is also in `setup.sql`, so a DB set up from scratch enforces it identically. Migration file: `2026_08_02_settings_required.sql`.
 
 
+
+### Work Popularity Signals: `works.is_pinned` / `view_count` / `like_count` + `work_views`
+
+To rank the home Selected Works section "pinned → popular → recent", the signals that only posts had were mirrored onto works (`2026_09_15_works_pinned_views_likes.sql`). The popularity score uses the same `lib/popularity.ts` as posts (`view_count + like_count*3 + comments*5`). The view time series lives in the `work_views` table, recorded through the `record_work_view` RPC.
+
+### Per-slide Audio for Galleries: `works.gallery_notes`
+
+Galleries only held a list of image URLs (`gallery text[]`). To attach a script and audio to each slide, a `jsonb` keyed by image URL was added (`2026_09_21_works_gallery_notes.sql`). Because the key is the URL rather than an array index, reordering or deleting a slide never shifts audio onto the wrong one.
+
+```json
+{ "<image url>": { "script": "narration script", "audio": "audio file url",
+                   "audioSource": "tts | recorded", "audioScript": "script the audio was generated from" } }
+```

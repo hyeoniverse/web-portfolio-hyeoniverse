@@ -6,7 +6,7 @@
 <summary><strong>1. Lenis Scroll Velocity Effect Not Working</strong></summary>
 
 <p align="center">
-  <img src="public/images/screenshots/pc/works-dark.png" width="100%" alt="Works — Scroll Velocity" />
+  <img src="../public/images/screenshots/pc/works-dark.png" width="100%" alt="Works — Scroll Velocity" />
 </p>
 
 #### Problem
@@ -149,8 +149,8 @@ const resetTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
 <summary><strong>4. GSAP ScrollTrigger Horizontal Infinite Scroll Implementation</strong></summary>
 
 <p align="center">
-  <img src="public/images/screenshots/pc/works-dark.png" width="49%" alt="Works — Dark" />
-  <img src="public/images/screenshots/pc/works-light.png" width="49%" alt="Works — Light" />
+  <img src="../public/images/screenshots/pc/works-dark.png" width="49%" alt="Works — Dark" />
+  <img src="../public/images/screenshots/pc/works-light.png" width="49%" alt="Works — Light" />
 </p>
 
 #### Problem
@@ -206,7 +206,7 @@ A long scroll range + visual position loop approach provides a more natural infi
 <summary><strong>5. Lighthouse Performance Optimization — reCAPTCHA Lazy Loading</strong></summary>
 
 <p align="center">
-  <img src="public/images/screenshots/pc/home-light.png" width="100%" alt="Home — Lighthouse" />
+  <img src="../public/images/screenshots/pc/home-light.png" width="100%" alt="Home — Lighthouse" />
 </p>
 
 #### Problem
@@ -313,7 +313,7 @@ DOM elements injected by third parties can have z-index conflicts with custom ov
 
 | PC | Tablet | Mobile |
 |:---:|:---:|:---:|
-| <img src="public/images/screenshots/pc/home-light.png" width="100%" alt="Home PC" /> | <img src="public/images/screenshots/tablet/home-light.png" width="100%" alt="Home Tablet" /> | <img src="public/images/screenshots/mobile/home-light.png" width="100%" alt="Home Mobile" /> |
+| <img src="../public/images/screenshots/pc/home-light.png" width="100%" alt="Home PC" /> | <img src="../public/images/screenshots/tablet/home-light.png" width="100%" alt="Home Tablet" /> | <img src="../public/images/screenshots/mobile/home-light.png" width="100%" alt="Home Mobile" /> |
 <sub>Optimization target: Home page — achieved Performance score of 98 across all 3 devices</sub>
 
 #### Problem
@@ -519,7 +519,7 @@ When supporting multiple languages, reserving space with `min-height` based on m
 <summary><strong>10. Loading Screen Reappears on Language Switch</strong></summary>
 
 <p align="center">
-  <img src="public/images/screenshots/pc/home-dark.png" width="100%" alt="Home — Loading Screen" />
+  <img src="../public/images/screenshots/pc/home-dark.png" width="100%" alt="Home — Loading Screen" />
 </p>
 
 #### Problem
@@ -568,7 +568,7 @@ Conditionally rendering a third-party Provider (`Fragment` <-> `Provider`) cause
 
 | PC | Tablet | Mobile |
 |:---:|:---:|:---:|
-| <img src="public/images/screenshots/pc/works-dark.png" width="100%" /> | <img src="public/images/screenshots/tablet/works-dark.png" width="100%" /> | <img src="public/images/screenshots/mobile/works-dark.png" width="100%" /> |
+| <img src="../public/images/screenshots/pc/works-dark.png" width="100%" /> | <img src="../public/images/screenshots/tablet/works-dark.png" width="100%" /> | <img src="../public/images/screenshots/mobile/works-dark.png" width="100%" /> |
 
 #### Problem
 
@@ -638,7 +638,7 @@ For animations that depend on viewport size at creation time (like GSAP ScrollTr
 
 | PC | Tablet | Mobile |
 |:---:|:---:|:---:|
-| <img src="public/images/screenshots/pc/home-dark.png" width="100%" /> | <img src="public/images/screenshots/tablet/home-dark.png" width="100%" /> | <img src="public/images/screenshots/mobile/home-dark.png" width="100%" /> |
+| <img src="../public/images/screenshots/pc/home-dark.png" width="100%" /> | <img src="../public/images/screenshots/tablet/home-dark.png" width="100%" /> | <img src="../public/images/screenshots/mobile/home-dark.png" width="100%" /> |
 
 #### Problem
 
@@ -1215,6 +1215,58 @@ Changed `LoadingScreen` to a regular `import` so it's included in server HTML. S
 </details>
 
 ---
+
+<details>
+<summary><strong>33. CTA Button backdrop-filter Not Working in Chrome</strong></summary>
+
+**Problem**: The `backdrop-filter` on the home CTA button had no effect in Chrome.
+
+**Cause**: The `.home` entrance animation ran on a `y` transform, which created a compositing layer on an ancestor. That layer cut off the backdrop sampling range, so the button had no backdrop to reference. The `-webkit-backdrop-filter` prefix additionally confused Chrome's declaration parsing and killed the effect.
+
+**Solution**: Switched the entrance animation from transform to `marginTop` so no compositing layer is created, and removed the prefixed declaration.
+
+**Key insight**: `backdrop-filter` is not decided by its own declaration alone. A compositing layer created by an ancestor cuts the sampling range, so when the effect is missing, check ancestor transforms first.
+
+</details>
+
+<details>
+<summary><strong>34. CSS Transition Not Firing in Portal-based Dropdowns</strong></summary>
+
+**Problem**: Dropdowns rendered through a portal appeared instantly with no open transition.
+
+**Cause**: The open-state class was already applied at mount, so the transition's start and end values were identical. The browser does not run a transition on a property whose value never changed.
+
+**Solution**: Added a separate `animateOpen` state and used two `requestAnimationFrame` calls to guarantee the mount, closed, open order. Raised specificity with a compound selector so the global theme transition rule does not override it.
+
+**Key insight**: A transition needs a value change. Rendering the final state at mount leaves nothing to transition, so the initial state must persist for at least one frame.
+
+</details>
+
+<details>
+<summary><strong>35. mix-blend-mode: difference Forces Colors on All Children</strong></summary>
+
+**Problem**: Applying `mix-blend-mode: difference` to the hero inverted every piece of text inside it, making it impossible to keep the description in its original color.
+
+**Cause**: Blending a parent composites all of its children as one unit. Re-declaring a color on a child does not help because the blend applies on top of it, so per-child exceptions cannot exist.
+
+**Solution**: Kept only the title and category in the difference element, and moved the description and details into a sibling overlay. The two elements are position-synced in rAF.
+
+**Key insight**: Blending can only be excepted at the element level. When only part of the content should blend, the DOM has to be split.
+
+</details>
+
+<details>
+<summary><strong>36. About Page First Panel Starting at the Wrong Position</strong></summary>
+
+**Problem**: Opening the About page, the first panel started off-screen or stopped at a misaligned position.
+
+**Cause**: The skeleton width of a dynamically imported panel did not match its real width. ErdPanel's skeleton was 350vw while the real panel was 100vw. On top of that, React strict mode's second mount reset the GSAP transform in cleanup, throwing the calculation off once more.
+
+**Solution**: Matched the skeleton width to the real width, stopped resetting the transform in cleanup, and guarded double initialization with an `initializedRef`.
+
+**Key insight**: Horizontal scroll math depends on placeholder sizes. A skeleton with a different size from the real content skews the first calculation entirely.
+
+</details>
 
 <details>
 <summary><strong>37. Plate Inline Code Arrow Key Cursor Jump</strong></summary>
@@ -2022,5 +2074,290 @@ Plate catches the throw and **silently falls back to plaintext**, so the UI only
 **Solution**: During composition, suppress parent state changes like `onOpenChange` (without freezing `open` itself — keeps search working).
 
 **Key insight**: A parent re-render during IME composition resets the composition — defer state commits during composition events.
+
+</details>
+
+<details>
+<summary><strong>72. Toolbar Line-height Select Blank on Headings + Duplicate Key Warning</strong></summary>
+
+**Problem**: The toolbar line-height Select could not resolve values that are not in the presets (such as 1.25 on headings), showing a blank field, and the console warned about duplicate option keys.
+
+**Cause**: The value's type diverged in two layers. `setLineHeight` stores line-height on the node as a number (`1.6`) while the toolbar preset options compare as strings (`"1.6"`), so the same value entered the options twice and produced duplicate keys. The detection logic also returned an empty string when the computed value was not close to any preset, so values like a heading's 1.25 were never displayed.
+
+**Solution**: Normalized the node value with `String(...)` so it compares and renders with the same type as the string presets, and exposed non-preset values as-is at the top of the Select options.
+
+**Key insight**: Values stored on Slate nodes as numbers must be normalized with `String` before comparing against string-based options. Preset matching has to handle both branches, "close to a preset" and "actual value", or blanks appear.
+
+</details>
+
+<details>
+<summary><strong>74. Mobile Navigation Buttons Overlapping the Logo</strong></summary>
+
+**Problem**: After hiding the center menu (`navCenter`) with `display: none` on mobile, the right-hand button group (`navActions`) moved left and overlapped the fixed logo.
+
+**Cause**: `.nav` uses `justify-content: space-between`, and when only one child remains it aligns to the start. The logo is fixed, outside the flex flow, drawn at the same spot with `left: var(--page-px)`.
+
+**Solution**: Forced `.nav { justify-content: flex-end }` in the mobile media query. The logo is outside the flex flow, but with the buttons on the right the layout reads "logo, space, buttons" naturally.
+
+**Key insight**: `space-between` changes its alignment result as the child count changes. A container that overlays a fixed element needs the single-child branch spelled out separately.
+
+</details>
+
+<details>
+<summary><strong>77. Task List `:has()` — Under-matching and Over-matching</strong></summary>
+
+**Problem**: The `:has()` selector that hides bullets on checkbox lists left bullets behind on lists with blank lines between items, and widening it removed bullets from ordinary lists too.
+
+**Cause**: marked renders a tight list as `<li><input>` and a loose list as `<li><p><input>`. `:has(> li > input)` misses the loose shape, and a descendant combinator like `:has(input)` also matches a parent list that merely contains a checkbox sublist.
+
+**Solution**: Enumerated only the two direct paths the renderer produces: `:has(> li > input[type="checkbox"], > li > p > input[type="checkbox"])`.
+
+**Key insight**: With `:has()`, the choice of combinator is the matching scope. Enumerate every DOM shape the renderer actually produces and pin them down with direct-child paths.
+
+</details>
+
+<details>
+<summary><strong>78. Global input Reset Prevents Native Checkboxes from Rendering at All</strong></summary>
+
+**Problem**: Task list checkboxes in comments did not render.
+
+**Cause**: The `input { border: none; background: none }` reset in `_base.css` erased the UA default styles, leaving no surface for the checkbox to be drawn on. `appearance: auto` alone did not bring it back.
+
+**Solution**: Restored the UA styles on checkboxes with `background: revert; border: revert`. Being shorthands, these also pass the stylelint token-enforcement rules.
+
+**Key insight**: `appearance: auto` only means "draw as a native widget". It does not restore the background and border that a reset erased; `revert` does.
+
+</details>
+
+<details>
+<summary><strong>79. Toolbar Markdown Insertion Fails on Blank Lines and Block Syntax</strong></summary>
+
+**Problem**: Pressing the checkbox button on a blank line produced a bullet containing literal `[ ]` instead of a checkbox. The divider button produced a heading instead of a rule when text sat on the line above.
+
+**Cause**: GFM only parses `- [ ] ` as a task list when text follows the marker. `---` with text on the line directly above is parsed as a setext h2, not a horizontal rule.
+
+**Solution**: Prefix-style buttons fill in example text and select it when the line is blank. Block inserts first ensure a blank line above.
+
+**Key insight**: An insert button is not done when it drops a string. It must also create the context in which the parser recognizes that syntax.
+
+</details>
+
+<details>
+<summary><strong>80. Per-text mix-blend-mode: difference Inside a Popover Is Incompatible with backdrop-filter</strong></summary>
+
+**Problem**: Inside a glass (blurred) panel, applying `mix-blend-mode: difference` per text element to invert against the backdrop did not work in any combination.
+
+**Cause**: `backdrop-filter` and `isolation: isolate` establish a Backdrop Root that cuts what backdrop-filter can see, and the output of a backdrop-filter is never offered to descendants or siblings as a blendable backdrop. The combination is impossible in principle.
+
+**Solution**: Applying `filter: invert(1)` to the content and `mix-blend-mode: difference` to the panel restores the color via `|backdrop − (1−color)|`. Ultimately glass (translucent plus blur) became the default look and difference remains a variant.
+
+**Key insight**: The two effects look like they read the same backdrop, but neither can be the other's input. A boundary drawn by the spec can only be crossed with a workaround formula.
+
+</details>
+
+<details>
+<summary><strong>81. @vercel/analytics Install Fails over a Svelte Package That Is Never Installed</strong></summary>
+
+**Problem**: `npm i @vercel/analytics` failed with an ERESOLVE peer conflict on `@sveltejs/vite-plugin-svelte`. This project has no Svelte in it.
+
+**Cause**: `@vercel/analytics` declares vue, nuxt, svelte and friends as optional peers to ship per-framework entry points. npm 11 still walks the peers of candidates that will never be installed. Along that path, `@sveltejs/vite-plugin-svelte@5` requires `vite ^6`, clashing with this repo's vite 8.
+
+**Solution**: Added `"@sveltejs/vite-plugin-svelte": "^7"` to `overrides` so only the candidate npm inspects changes to a vite 8 compatible version. No svelte package ends up in the installed tree. `--legacy-peer-deps` was rejected because it silences the whole check, including real conflicts.
+
+**Key insight**: An optional peer is not "ignored when unused" — it still has to be resolvable. Overriding just the conflicting node keeps the check alive while letting the install pass.
+
+</details>
+
+<details>
+<summary><strong>82. Detail Page Transition Cover Lifts While the Previous Page Is Still Visible</strong></summary>
+
+**Problem**: Navigating from a list to a detail page, the departed list stayed visible for about half a second after the transition cover lifted.
+
+**Cause**: The morph transition ran on a fixed timeline (380ms expand, then 260ms morph) and the cover lifted unconditionally at 640ms. The new route's commit time is unrelated to that timeline. List card links do not prefetch, so the RSC payload is fetched only after the click; the measured commit on the deployed build was 1161ms.
+
+**Solution**: Added a `cover` phase that keeps the screen covered when the expansion finishes but the route has not committed yet, and starts the morph only after confirming the commit. The commit signal comes from `usePathname()` inside the overlay, which only exists during a transition.
+
+**Key insight**: A transition choreographed by timetable leaks the screen the moment the network diverges. Lift the cover on the actual route commit, not on time. Verification used Playwright recordings turned into ffmpeg contact sheets to inspect frames.
+
+</details>
+
+<details>
+<summary><strong>83. preventDefault Does Not Stop the Page from Scrolling in Horizontal Sections</strong></summary>
+
+**Problem**: In a horizontal scroll section the panels rotated sideways, but the page also scrolled vertically at the same time.
+
+**Cause**: The global Lenis attaches its own wheel listener on window and drives the page directly with `scrollTo`. `onVirtualScroll` in Lenis 1.0.42 never checks `event.defaultPrevented`. `preventDefault()` only stops the browser's native scroll.
+
+**Solution**: Marked the wheel-capturing element with `data-lenis-prevent-wheel`, which Lenis looks for in `composedPath`. When the section reaches its end and should hand scrolling back, the attribute is removed so Lenis takes over. The cleanup function must remove the attribute, or vertical scrolling dies in the mobile layout.
+
+**Key insight**: Smooth-scroll libraries operate outside the browser's event contract. `preventDefault` and the library's own opt-out marker must be managed as a pair.
+
+</details>
+
+<details>
+<summary><strong>84. Unpublishing Every Work Still Shows Demo Works in the List</strong></summary>
+
+<p align="center">
+  <img src="../public/images/screenshots/pc/works-grid-dark.png" width="100%" alt="Works Grid — published works list" />
+</p>
+
+**Problem**: After unpublishing every work in the admin, the public list showed the static demo list bundled in the code instead of going empty.
+
+**Cause**: `getWorks` keeps a static `data/projects.ts` fallback so a fresh clone without a DB still renders. But "the table has no rows" and "rows exist but all are unpublished" both arrive as the same empty array. Falling back on length alone means the demo list fills the screen the moment everything is unpublished.
+
+**Solution**: On an empty result, count the total rows once more with `count: "exact", head: true`. If rows exist, emit the empty list as-is. The home page splits "could not reach the DB" (`null`) from "nothing published" (`[]`) and falls back to static data only in the former case.
+
+**Key insight**: A fallback condition must be defined as "the source is unavailable", not "the result is empty". When two states return the same value, ask again to tell them apart.
+
+</details>
+
+<details>
+<summary><strong>85. Favicon Symbol Rendered in a Different Font than Configured</strong></summary>
+
+**Problem**: The logo symbol (✦) in the browser tab rendered differently on every device instead of in the configured brand font.
+
+**Cause**: Two layers. Browsers do not fetch web fonts when drawing tab icons, so the `font-family` name in the SVG falls back to device fonts. And the brand font (Instrument Serif) does not contain the U+2726 glyph at all (.notdef) — even the on-page logo symbol was actually drawn by a system fallback font.
+
+**Solution**: Extracted only the needed symbols from a symbol font (Noto Sans Symbols 2) into a base64 module, and the favicon route now converts the glyph to an outline `<path>` with opentype.js. The page loads the same font via `@font-face`, placed before generic names like serif in the stack — placed after, serif wins first.
+
+**Key insight**: `document.fonts.check()` returns true when a fallback can draw the glyph, so it cannot identify the rendering font. Which font actually drew a glyph was determined by rendering it per stack and measuring widths. Glyphs on surfaces web fonts cannot reach (like tabs) are safest frozen as paths.
+
+</details>
+
+<details>
+<summary><strong>86. After Email Login, the Admin Screen and Navigation Don't Know You're Logged In</strong></summary>
+
+**Problem**: After a successful email login, entering admin pages required a refresh, and the navigation's logged-in state (email, notifications, logout) never appeared.
+
+**Cause**: Login happens in a server route, so only the session cookie is set via Set-Cookie in the response. The browser Supabase client never receives a SIGNED_IN event. Navigating with `router.push` from there, the server layout's `getUser()` does not see the new cookie, and the Navigation hook, mounted since the login page, checks the cookie only once on mount and never again.
+
+**Solution**: Changed the post-login navigation to a full reload with `window.location.assign`, the same pattern as the GitHub OAuth server redirect. The full reload remounts Navigation with the cookie present, clearing both symptoms.
+
+**Key insight**: A cookie set by the server does not propagate through client-side navigation. Right after changing auth state, a full navigation is the safe move.
+
+</details>
+
+<details>
+<summary><strong>87. Hydration Mismatch on 404 Screens for Unknown URLs</strong></summary>
+
+**Problem**: 404 screens under prefixes like `/admin/unknown` threw React #418 (HTML mismatch). Unknown URLs in the public area were fine.
+
+**Cause**: Unmatched URLs receive the static `/_not-found` HTML rendered at build time, which was drawn with no path and therefore contains the public navigation and footer. The root layout's Navigation and Footer change shape based on the path prefix (`/admin`, `/design-system`), so the browser render disagrees with the server HTML.
+
+**Solution**: Added a catch-all route (`[...missing]`) for every prefix that changes the layout's shape, calling `notFound()` there so the 404 renders at request time with the correct path. Making the root not-found dynamic was rejected: every 404 would then query the DB.
+
+**Key insight**: When the root layout shapes itself by path, every such prefix needs its 404 rendered on that same path. It is easy to forget that a static 404 is rendered in a "no path" state.
+
+</details>
+
+<details>
+<summary><strong>88. LCP Image Fetched at Low Priority, and the Streaming Boundary Delays Reveal by 300ms</strong></summary>
+
+**Problem**: Mobile LCP regressed on the posts list and detail pages. The cover image arrived late, sharing bandwidth with CSS and fonts, and even after arriving, the reveal was delayed.
+
+**Cause**: Two gates stacked. Next 16's `priority` only injects a head preload and no longer sets the `fetchpriority` attribute, so the LCP image is requested as Low. And React 19.2 reveals late-arriving Suspense boundaries 300ms after the first frame once the shell has painted. An LCP element inside a loading.tsx boundary takes that delay in full.
+
+**Solution**: Pass `fetchPriority="high"` alongside `priority`. Moved the detail cover outside the loading boundary into `[slug]/layout.tsx` (DetailShell) so it paints with the shell.
+
+**Key insight**: LCP gates apply serially. Fixing only the request priority or only the reveal timing moves nothing. The fundamental fix is placing the LCP element in the layout, outside the streaming boundary.
+
+</details>
+
+<details>
+<summary><strong>89. One Chip Hover Rule Recalculating Styles for 6,000 Elements per Keystroke</strong></summary>
+
+**Problem**: In the works editor, roughly two keystrokes out of ten triggered a full style recalculation over 6,357 elements, spiking input delay p90. Merely moving the mouse did the same.
+
+**Cause**: A single rule: `.chip:has([data-close-trigger]:hover) .label *`. Typing changes the element under the pointer, causing hover recalculation, and when `:has()` contains `:hover` with a universal `*` descendant after it, Chrome invalidates the entire body subtree. The same shape without the `*` was fine.
+
+**Solution**: Kept the selector structure and moved only the condition to JS. The close button's onPointerEnter/Leave toggles `data-remove-hover` on the chip, and CSS matches `.chip[data-remove-hover] .label *`.
+
+**Key insight**: The culprit rule was found not by guessing but by deleting rules from the CSSOM and bisecting. The combination of `:has(:hover)` and a universal descendant invites global invalidation.
+
+</details>
+
+<details>
+<summary><strong>90. Middle Click on the 3D Cylinder Panels Doesn't Open a New Tab</strong></summary>
+
+<p align="center">
+  <img src="../public/images/screenshots/pc/works-cylinder-light.png" width="100%" alt="Works Cylinder — 3D layout" />
+</p>
+
+**Problem**: Middle-clicking a work panel in the cylinder layout did not open a new tab, and there was no keyboard access to the panels at all.
+
+**Cause**: Browsers fire `auxclick` instead of `click` for middle clicks, and react-three-fiber does not listen for auxclick. Wrapping the canvas in an `<a>` was unusable because the custom cursor (CursorTrail) matches `closest("a, button")` and drew the link cursor even where no panel exists.
+
+**Solution**: Pair `button === 1` in the mesh's `onPointerDown` and `onPointerUp` on the same mesh, clearing the record in `onPointerLeave`. Modified clicks open via `window.open(href, "_blank", "noopener")`. Keyboard access is a link list that appears on focus, rotating the cylinder as focus moves.
+
+**Key insight**: Making canvas interactions behave like links means re-implementing everything the browser gives links for free: middle click, modifier keys, keyboard focus. Missing any one becomes an accessibility hole.
+
+</details>
+
+<details>
+<summary><strong>91. Reordering a Work Shuffles Other Works Before Saving</strong></summary>
+
+**Problem**: Changing the sort order in the editor mutated other works' order before saving, and saving produced an order different from the intent.
+
+**Cause**: The drag list's onChange sent a PATCH in parallel for every displaced work, and the server re-read everything and reassigned 1..N on every sort_order PATCH. The reassignment outcome depended on arrival order — a race.
+
+**Solution**: The editor now reflects reordering as a preview only and sends no requests for other works. On save it sends only its own position, and the server's placement logic (`placeWork`) inserts at the end then moves to the received position. The race was reproduced by running the real routes in vitest against an in-memory table fake with per-call read delays that flip the write order.
+
+**Key insight**: Sending parallel writes to an API that "reassigns everything each time" makes the result depend on arrival order. Derived state like ordering must be sent as one request at save time.
+
+</details>
+
+<details>
+<summary><strong>92. Office Document Preview iframe Shows "gview download failed"</strong></summary>
+
+**Problem**: The iframe previewing attached Office documents frequently rendered blank, and Chrome showed a "gview download failed" notification.
+
+**Cause**: `docs.google.com/gview?embedded=true` returned an empty 204 response to iframe requests (Sec-Fetch-Dest: iframe) about 5 times out of 12. The iframe goes blank, and Chrome treats that navigation as a failed file download. Not a bug in our code; it is the service's behavior.
+
+**Solution**: Switched to the MS viewer (`view.officeapps.live.com/op/embed.aspx`), which returned 200 on 8 out of 8 under the same conditions. Old gview URLs frozen into saved HTML are rewritten at render time by `migrateOfficeViewerUrls`. The MS viewer's console errors (`appChrome is not defined`) are unrelated to the rendered output — an earlier switch to gview based on those very errors is how the 204s were met.
+
+**Key insight**: Judge an external viewer's reliability by its status code distribution, not its console errors. Measured with repeated curl calls carrying the `Sec-Fetch-Dest: iframe` header.
+
+</details>
+
+<details>
+<summary><strong>93. Backspace Right After Clearing Formatting Reverts the Previous Edit Instead of Deleting</strong></summary>
+
+<p align="center">
+  <img src="../public/images/screenshots/pc/editor-light.png" width="100%" alt="Plate editor" />
+</p>
+
+**Problem**: After deleting a bullet created by markdown autoformat, continuing to press Backspace resurrected the bullet or jumped the cursor to another line instead of deleting characters.
+
+**Cause**: The logic treating Backspace right after an autoformat as "undo the conversion" called undo without checking history. If any other edit had happened since the conversion, undo reverted that edit instead. A detection bug that misjudged a mid-paragraph space as a conversion compounded it.
+
+**Solution**: Record the history position before inserting the trigger, and before reverting, verify the history is still exactly as it was right after the conversion. If so, inverse-apply only the operations since that point to restore the markdown marker; otherwise Backspace behaves normally. Backspace at the start of a block also restores the markdown marker (`- `, `## `, `> `) even when it is not right after an autoformat.
+
+**Key insight**: `editor.undo()` reverts the whole last batch. To revert "just that conversion", snapshot the history position and inverse-apply only the operations recorded since.
+
+</details>
+
+<details>
+<summary><strong>94. Work Year Saved as a Period Shows Raw JSON on Screen</strong></summary>
+
+**Problem**: The year slot on work cards displayed raw JSON like `{"start":{"year":2024,...}}`.
+
+**Cause**: The editor saves period input as a JSON string in the `year` column, and the list screens printed the value verbatim. The logic assembling a period into a readable string existed only in the editor preview.
+
+**Solution**: Extracted `parseStoredPeriod` and `formatWorkYear` utilities: if the stored value is a JSON period it formats a language-appropriate period string, otherwise it returns the original text. Every component that renders the year shares these utilities.
+
+**Key insight**: When one column holds two representations (plain text and JSON), the interpretation logic belongs in one shared utility. Keeping it only in the editor lets public screens leak the raw form.
+
+</details>
+
+<details>
+<summary><strong>95. Global strong Color Overriding Text Colors Set in the Body</strong></summary>
+
+**Problem**: Bold text always appeared in the theme accent color in article bodies, even when a text color was explicitly set on it.
+
+**Cause**: The global `strong { color: var(--text-accent) }` is the site-wide default, and it also applied to the editor and article bodies. Saved HTML writes colors on an outer span (`<span style="color: X"><strong>`), so the global color on strong itself beat the inherited value.
+
+**Solution**: In the prose scope (`.prose-content`), strong is `color: var(--_strong-color, inherit)`, and only strong inside spans whose style starts with a color declaration gets `inherit` to follow that color. Contexts whose body text color differs (work bodies) pass the default through `--_strong-color`.
+
+**Key insight**: When a global default and a user-set value fight over the same property, a scoped variable with a fallback expresses "default unless specified" in pure CSS.
 
 </details>

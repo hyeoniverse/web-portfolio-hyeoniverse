@@ -301,3 +301,16 @@ DB 함수도 같은 규칙을 검사합니다 — 있으면 타입이 맞아야 
 - 함수는 `IMMUTABLE`, 제약은 `NOT VALID` 로 추가합니다(기존 행 미검사). `setup.sql` 에도 포함되어 처음부터 세팅한 DB 에서도 동일하게 적용됩니다. 마이그레이션 파일: `2026_08_02_settings_required.sql`.
 
 
+
+### 작업물 인기 신호: `works.is_pinned` / `view_count` / `like_count` + `work_views`
+
+홈 Selected Works 를 "핀 → 인기순 → 최신순" 으로 정렬하기 위해 posts 에만 있던 신호를 works 에도 동형으로 추가했습니다(`2026_09_15_works_pinned_views_likes.sql`). 인기 점수 계산은 posts 와 같은 `lib/popularity.ts` 를 씁니다(`view_count + like_count*3 + comments*5`). 조회 시계열은 `work_views` 테이블이 담고, 기록은 `record_work_view` RPC 로 합니다.
+
+### 갤러리 장별 음성: `works.gallery_notes`
+
+갤러리는 그림 주소 목록(`gallery text[]`)만 들고 있었는데, 장마다 대본과 음성을 붙이기 위해 그림 주소를 키로 한 `jsonb` 를 더했습니다(`2026_09_21_works_gallery_notes.sql`). 배열 인덱스가 아니라 주소를 키로 쓰므로 장의 차례를 바꾸거나 한 장을 지워도 음성이 다른 장으로 밀리지 않습니다.
+
+```json
+{ "<그림 주소>": { "script": "읽을 대본", "audio": "음성 파일 주소",
+                  "audioSource": "tts | recorded", "audioScript": "음성을 만든 대본" } }
+```

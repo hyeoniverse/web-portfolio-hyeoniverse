@@ -9,9 +9,11 @@ Multi-layered security validation is applied to all public API endpoints.
 | **Comment Markdown Sanitize** | `marked` → `isomorphic-dompurify` tag/attribute allowlist + URL scheme restriction (below) | Comment bodies |
 | **Input Validation** | UUID format validation, length limits, email format validation, enum type validation, category whitelist validation | All public APIs |
 | **Authentication** | Comment dual authentication (commenter_hash + bcrypt password), admin comment server-side Supabase Auth re-verification | Comment edit/delete, admin |
-| **RLS** | Supabase Row Level Security policies | All tables |
+| **RLS** | Policy helpers reading the JWT (`app_metadata`) decide access per role + anon write GRANTs revoked + direct Storage upload policy removed (below) | All tables, Storage |
 | **Route Protection** | Layout-level Supabase Auth session check + access denied page | `/admin/*` |
-| **Role-based authorization** | Owner/editor/author roles + `permission_level` — `requireOwner()` / `requireRole()` / `requireAuth()` re-read `app_metadata` on every request. Site-config tabs are owner-only (a non-owner's `/api/admin/settings` PATCH rejects writes to anything but their own author entry), and the client also exposes only the Account tab | Member management, Settings, admin API |
+| **CSRF origin check** | The proxy (middleware) compares Origin/Referer on every `/api/*` POST/PATCH/PUT/DELETE against the `SITE_URL` origin — mismatch or unparsable config means 403 (fail-closed). GET is skipped | All API mutations |
+| **Login protection** | 15-minute lockout after 5 failures (`admin_login_attempts`) + logins from unseen devices are denied until approved by email (`admin_known_devices`, UA fingerprint + 24-hour token) + sign-out-everywhere | `/api/admin/auth` |
+| **Role-based authorization** | Four tiers: owner (full control) / admin (all posts + moderation) / author (own posts only) / visitor (public only) + `permission_level` — `requireOwner()` / `requireRole()` / `requireAuth()` re-read `app_metadata` on every request. Site-config tabs are owner-only (a non-owner's `/api/admin/settings` PATCH rejects writes to anything but their own author entry), and the client also exposes only the Account tab | Member management, Settings, admin API |
 | **OAuth authorization gate** | After the session exchange at `/auth/callback`, the email must be `OWNER_EMAIL` / already have a role / have an `author_invites` row to pass — otherwise `signOut()` + service-role `deleteUser()` blocks the un-invited account. When `OWNER_EMAIL` is unset, the account is kept and only a config error is shown (prevents bootstrap lockout) | GitHub OAuth login |
 | **Duplicate Prevention** | IP-based UNIQUE constraints (votes use `poll_votes(poll_id, option_id, ip)` UNIQUE); comment reactions use `reactor_hash` (below) | Likes, visitor statistics, votes, comment reactions |
 | **service_role Writes** | `/api/polls` votes + related-series writes are handled by the service_role admin client | Votes, related-series editing |
@@ -98,3 +100,29 @@ GitHub OAuth only **authenticates** — any GitHub account can complete the sign
 `AdminAuthSync` subscribes to Supabase `onAuthStateChange` and redirects to `/admin/login` on a `SIGNED_OUT` event. Because Supabase broadcasts auth state across tabs, logging out in one tab — or signing out everywhere (`signOut({ scope: "global" })`) — drops every open tab to the login screen immediately, whereas previously an invalidated session lingered in other tabs until a manual refresh.
 
 
+
+**CSRF origin check (proxy):**
+
+The middleware (`src/proxy.ts`) compares Origin/Referer against `SITE_URL` on every POST/PATCH/PUT/DELETE under `/api/*`. Same-origin browser fetches carry an automatic Origin header and pass; cross-origin requests and requests without an Origin (curl and the like) are blocked. GET is skipped since cookie CSRF does not affect it. This is an application-level defense that does not rely on SameSite=Lax cookies alone.
+
+The comparison base is normalized with `new URL(SITE_URL).origin`. Request Origin headers have no trailing `/`, so comparing a configured `https://x.com/` verbatim would 403 everything. When the configured value cannot be parsed (missing scheme and the like), it becomes an empty string and falls through to fail-closed. With `SITE_URL` unset in production, every admin mutation is a 403.
+
+**Admin login protection (`/api/admin/auth`):**
+
+| Mechanism | Behavior |
+|-----------|----------|
+| Failure lockout | 15-minute lockout after 5 failures (`admin_login_attempts`). Auto-released on the next attempt once the window passes; the row is deleted on success |
+| New-device approval | The fingerprint hashes only the parsed browser+OS+device from the UA (`admin_known_devices`) — version changes are ignored, so browser auto-updates do not create duplicate rows. An unseen fingerprint gets an approval token (valid 24 hours) sent by email, and until approved, login is denied even with the correct password |
+| Sign out everywhere | `signOut({ scope: "global" })` — Supabase broadcasts auth state across tabs, so every open tab drops to the login screen immediately |
+
+**RLS — from service-role bypass to policy-based authorization:**
+
+Previously, admin reads and writes bypassed RLS entirely with the service_role key, and API code was the only thing checking that the requester was an admin. When that check is missing, data leaks — a `?all=true` query with no check once exposed every unpublished post. Now SQL helpers read the requester's JWT (`app_metadata`) to decide role, permission level and linked author, policies use those helpers, and admin routes query with the session client so the code check and the policies overlap.
+
+Defense-in-depth measures:
+
+- **Anon write GRANTs revoked** — Supabase grants anon INSERT/UPDATE/DELETE on every table by default. One miswritten policy (a missing TO clause) once opened 14 tables to anonymous users, so the GRANTs were revoked: even with a broken policy, anon cannot attempt a write at all. Public writes (comments, likes, votes, visit logs) all go through server APIs.
+- **Direct Storage upload policy removed** — a policy allowed any `authenticated` user to upload straight from the browser, bypassing the server's extension whitelist and size limits entirely. Removed; uploads only go through `/api/upload/signed-url`.
+- **Unified permission-claim parsing** — the RLS helper cast `permission_level` with `::int`, where a value like `1.5` does not evaluate to false but kills the statement, and the string `"2"` read as author in code but admin in SQL. Both sides now accept only defined values and drop everything else to the narrowest permission.
+- **Deciding vs. enforcing** — post and work mutations go through `requirePostAccess`, which decides ownership and, on pass, hands back the session client so the actual reads and writes face the policies. Only the deciding lookup uses service_role: read with the session client, policies filter rows first, making "no permission" and "does not exist" the same zero rows, and a perfectly existing post would be answered with 404. If the code gets the decision wrong, the policies remain.
+- **Work team-member access** — works has no `author_ids` column; ownership is expressed through author profiles linked in `team_members`. An author registered as a team member on a work can edit that work only.

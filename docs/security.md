@@ -9,9 +9,11 @@
 | **댓글 마크다운 sanitize** | `marked` → `isomorphic-dompurify` 태그·속성 화이트리스트 + URL 스킴 제한 (아래) | 댓글 본문 |
 | **입력 검증** | UUID 포맷 검증, 길이 제한, 이메일 포맷 검증, enum 타입 검증, 카테고리 화이트리스트 검증 | 모든 공개 API |
 | **인증** | 댓글 이중 인증 (commenter_hash + bcrypt password), 관리자 댓글 서버 측 Supabase Auth 재검증 | 댓글 수정/삭제, 관리자 |
-| **RLS** | Supabase Row Level Security 정책 | 모든 테이블 |
+| **RLS** | JWT(`app_metadata`) 를 읽는 정책 헬퍼로 역할별 접근 판정 + anon 쓰기 GRANT 회수 + Storage 직접 업로드 정책 제거 (아래) | 모든 테이블, Storage |
 | **경로 보호** | Layout 레벨 Supabase Auth 세션 확인 + 접근 거부 페이지 | `/admin/*` |
-| **역할 기반 인가** | 소유자/편집자/저자 역할 + `permission_level` — `requireOwner()` / `requireRole()` / `requireAuth()` 가 매 요청 `app_metadata` 재조회. 사이트 설정 탭은 소유자 전용(비소유자는 `/api/admin/settings` PATCH 가 본인 author 항목 외 쓰기 거부), 클라이언트도 Account 탭만 노출 | 멤버 관리, Settings, admin API |
+| **CSRF Origin 검증** | proxy(미들웨어)가 모든 `/api/*` POST/PATCH/PUT/DELETE 의 Origin/Referer 를 `SITE_URL` origin 과 대조 — 불일치·해석 불가 시 403 (fail-closed). GET 은 skip | 모든 API mutation |
+| **로그인 보호** | 5회 실패 시 15분 잠금(`admin_login_attempts`) + 처음 보는 기기는 이메일 승인 전 로그인 거부(`admin_known_devices`, UA fingerprint + 24시간 토큰) + 전기기 로그아웃 | `/api/admin/auth` |
+| **역할 기반 인가** | owner(전권) / admin(모든 글 + 중재) / author(자기 글만) / visitor(공개만) 4단계 + `permission_level` — `requireOwner()` / `requireRole()` / `requireAuth()` 가 매 요청 `app_metadata` 재조회. 사이트 설정 탭은 소유자 전용(비소유자는 `/api/admin/settings` PATCH 가 본인 author 항목 외 쓰기 거부), 클라이언트도 Account 탭만 노출 | 멤버 관리, Settings, admin API |
 | **OAuth 인가 게이트** | `/auth/callback` 에서 세션 교환 후 이메일이 `OWNER_EMAIL` / 역할 보유 / `author_invites` 초대 중 하나여야 통과 — 아니면 `signOut()` + service-role `deleteUser()` 로 미초대 계정 차단. 단 `OWNER_EMAIL` 미설정 시엔 삭제하지 않고 설정 에러만 표시(부트스트랩 락아웃 방지) | GitHub OAuth 로그인 |
 | **중복 방지** | IP 기반 UNIQUE 제약조건 (투표는 `poll_votes(poll_id, option_id, ip)` UNIQUE), 댓글 반응은 `reactor_hash` (아래) | 좋아요, 방문자 통계, 투표, 댓글 반응 |
 | **service_role 쓰기** | `/api/polls` 투표 + related-series 쓰기는 service_role admin client 로 처리 | 투표, 관련 시리즈 편집 |
@@ -98,3 +100,29 @@ GitHub OAuth 는 **인증만** 합니다 — 아무 GitHub 계정이나 로그�
 `AdminAuthSync` 가 Supabase `onAuthStateChange` 를 구독해 `SIGNED_OUT` 이벤트에 `/admin/login` 으로 보냅니다. Supabase 가 auth 상태를 탭 간 브로드캐스트하므로 한 탭에서 로그아웃하거나 전기기 로그아웃(`signOut({ scope: "global" })`)하면 열린 모든 탭이 즉시 로그인 화면으로 떨어집니다 — 이전엔 무효화된 세션이 다른 탭에 수동 새로고침 전까지 남아 있었습니다.
 
 
+
+**CSRF Origin 검증 (proxy):**
+
+미들웨어(`src/proxy.ts`)가 모든 `/api/*` 의 POST/PATCH/PUT/DELETE 에서 Origin/Referer 를 `SITE_URL` 과 대조합니다. same-origin 브라우저 fetch 는 Origin 이 자동으로 붙어 통과하고, cross-origin 요청과 Origin 없는 요청(curl 등)은 차단됩니다. GET 은 쿠키 CSRF 의 영향이 없어 건너뜁니다. SameSite=Lax 쿠키에만 의존하지 않는 application-level 방어입니다.
+
+비교 기준은 `new URL(SITE_URL).origin` 으로 정규화합니다. 요청의 Origin 헤더에는 끝 `/` 가 없어서 설정값 `https://x.com/` 을 그대로 비교하면 전부 403 이 됩니다. 설정값을 해석할 수 없으면(스킴 누락 등) 빈 문자열로 두어 fail-closed 로 떨어집니다. production 에 `SITE_URL` 미설정이면 admin mutation 이 모두 403 입니다.
+
+**관리자 로그인 보호 (`/api/admin/auth`):**
+
+| 장치 | 동작 |
+|------|------|
+| 실패 잠금 | 5회 실패 시 15분 잠금(`admin_login_attempts`). 잠금 시간이 지나면 다음 시도에서 자동 해제, 성공 시 row 삭제 |
+| 새 기기 승인 | UA 를 파싱한 브라우저+OS+기기만 해시한 fingerprint(`admin_known_devices`) — 버전 변동을 무시해 브라우저 자동 업데이트로 중복 row 가 생기지 않습니다. 처음 보는 fingerprint 면 승인 토큰(24시간 유효)을 발급해 이메일로 보내고, 승인 전에는 올바른 비밀번호여도 로그인이 거부됩니다 |
+| 전기기 로그아웃 | `signOut({ scope: "global" })` — Supabase 가 auth 상태를 탭 간 브로드캐스트해 열린 모든 탭이 즉시 로그인 화면으로 이동합니다 |
+
+**RLS — service-role 우회에서 정책 기반 인가로:**
+
+이전에는 관리자 조회·수정이 service_role 키로 RLS 를 통째로 우회하고, 요청자가 관리자인지는 API 코드가 확인했습니다. 그 확인이 빠지면 그대로 샙니다. 실제로 `?all=true` 쿼리에 검문이 없어 비공개 글이 전량 노출된 적이 있습니다. 지금은 요청자의 JWT(`app_metadata`)를 읽어 역할·권한 레벨·연결된 저자를 판정하는 SQL 헬퍼와 그 헬퍼를 쓰는 정책이 있고, admin 라우트는 세션 클라이언트로 쿼리해 코드 검사와 정책이 이중으로 겹칩니다.
+
+심층 방어 조치:
+
+- **anon 쓰기 GRANT 회수** — Supabase 는 기본으로 anon 에게 모든 테이블의 INSERT·UPDATE·DELETE 까지 GRANT 합니다. 정책 하나가 잘못 적혀(TO 절 누락) 14개 테이블이 익명에게 열린 적이 있어, 정책이 잘못돼도 익명은 쓰기 자체를 시도할 수 없도록 GRANT 를 회수했습니다. 공개 쓰기(댓글·좋아요·투표·방문기록)는 전부 서버 API 가 처리합니다.
+- **Storage 직접 업로드 정책 제거** — `authenticated` 면 브라우저에서 Storage 에 직접 업로드할 수 있는 정책이 있었습니다. 서버의 확장자 화이트리스트와 크기 제한을 전부 건너뛰는 경로라 제거했습니다. 업로드는 `/api/upload/signed-url` 만 거칩니다.
+- **권한 클레임 파싱 통일** — RLS 헬퍼는 `permission_level` 을 `::int` 로 캐스트했는데, `1.5` 같은 값은 판정이 false 가 되는 게 아니라 statement 자체가 죽고, 문자열 `"2"` 는 코드가 저자로, SQL 이 관리자로 읽어 판정이 갈렸습니다. 양쪽 모두 정의된 값만 통과시키고 그 외는 가장 좁은 권한으로 떨어뜨리도록 좁혔습니다.
+- **판정과 강제의 분리** — 글·작업물 수정 요청은 `requirePostAccess` 가 소유권을 판정하고, 통과하면 세션 클라이언트를 돌려줘 실제 읽기·쓰기는 정책의 검사를 그대로 받습니다. 판정 조회만 service_role 로 합니다. 세션 클라이언트로 읽으면 정책이 먼저 행을 걸러 "권한 없음" 과 "존재하지 않음" 이 같은 0행이 되고, 멀쩡히 있는 글에 404 를 답하게 되기 때문입니다. 판정을 코드가 틀려도 정책이 남습니다.
+- **작업물 팀원 권한** — works 에는 `author_ids` 컬럼이 없고, 팀원 목록(`team_members`)에 연결된 저자 프로필로 소유권을 표현합니다. 작업물에 팀원으로 등록된 저자는 그 작업물만 편집할 수 있습니다.
