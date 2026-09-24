@@ -36,8 +36,9 @@ GOOGLE_TRANSLATE_API_KEY=your_google_key        # provider: "google"
 GEMINI_API_KEY=your_gemini_key                  # provider: "gemini"
 ANTHROPIC_API_KEY=your_anthropic_key            # provider: "claude" (translation + AI summary)
 
-# giscus comments (optional) — used only to load a repository's Discussion categories
-# from the admin settings. A GitHub PAT for reading public repos (no scopes needed)
+# GitHub API token (optional) — profile/home GitHub integration (repos, org repos,
+# contribution graph) + giscus Discussion category lookup. A PAT for reading public
+# repos (no scopes needed)
 GITHUB_TOKEN=ghp_...
 ```
 
@@ -297,15 +298,17 @@ HUGGINGFACE_API_KEY=hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 > Free — 200 requests/hour, 20,000/month. Useful as a fallback when Unsplash changes policy or rate-limits you.
 
-#### GitHub Token Setup (only for giscus)
+#### GitHub Token Setup
 
-Used solely to auto-load a repository's Discussion categories in the admin settings when comments run on giscus.
+Used by the profile/home GitHub integration (repository lists, organization repositories, the contribution graph) and, when comments run on giscus, to auto-load a repository's Discussion categories in the admin settings.
 
 1. Go to [GitHub → Settings → Developer settings → Personal access tokens](https://github.com/settings/tokens)
-2. Create a token — **no scopes need to be checked**, since it only reads Discussion categories on public repos
+2. Create a token — **no scopes need to be checked**, since it only reads public data
 3. Enter `GITHUB_TOKEN=...` in `.env.local`, or save it in the admin **Services** tab (the DB secret takes priority over the environment variable)
 
-> The giscus widget itself works without a token — the token only powers the category auto-lookup convenience in the admin settings screen.
+> Without a token, public repository lists are fetched anonymously, but the anonymous quota is 60 requests per hour per IP — once it runs out, organization repositories drop out intermittently. The `/profile` contribution graph is GraphQL-only and strictly requires a token.
+>
+> **If organization repositories go missing**: organizations may reject fine-grained (`github_pat_`) tokens whose lifetime exceeds 366 days. Reissue the token with a lifetime of one year or less, or use a classic (`ghp_`) token.
 
 **Authentication flow:**
 
