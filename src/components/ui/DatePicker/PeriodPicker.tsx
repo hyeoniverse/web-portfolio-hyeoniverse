@@ -66,7 +66,7 @@ function DatePart({
       onChange={onChange}
       disabled={disabled}
       showCheck
-      size="sm"
+      /* 기본(32) — 프로필·작업물 편집기의 이웃 입력칸이 전부 md 라 sm 이면 이 줄만 낮아 보인다 */
       width="min"
       editable
       editableInputProps={{

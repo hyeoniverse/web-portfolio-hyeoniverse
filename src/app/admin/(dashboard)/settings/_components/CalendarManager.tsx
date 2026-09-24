@@ -170,7 +170,7 @@ export default function CalendarManager() {
           <h2 className={settings.sectionTitle}>{t("달력 관리", "Calendars")}</h2>
           {items && <span className={styles.headCount}>{items.length}</span>}
           <div className={styles.headSearch}>
-            <SearchCapsule search={search} onSearchChange={setSearch} placeholder={t("제목·월 검색", "Search title or month")} align="left" size="sm" />
+            <SearchCapsule search={search} onSearchChange={setSearch} placeholder={t("제목·월 검색", "Search title or month")} align="left" />
           </div>
         </div>
         <p className={settings.sectionHint}>

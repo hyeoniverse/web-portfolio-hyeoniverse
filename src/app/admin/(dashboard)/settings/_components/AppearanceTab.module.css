@@ -741,6 +741,20 @@
 }
 
 /* ── 커스텀 폰트 업로드·목록 ── */
+/* 라벨 + 필드 한 블록 — 섹션 그리드에 한 아이템으로 들어가 row-gap 이 사이에 끼지 않는다 */
+.customFontsBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-lg);
+}
+
+/* sectionHint 의 margin-bottom(md)을 끈다 — 간격은 블록 gap 하나로.
+   같은 (0,1,0) 이면 번들 순서가 승자를 정하므로 부모를 태워 (0,2,0) (#632) */
+.customFontsBlock .customFontsLabel {
+  margin-bottom: 0;
+}
+
 .customFonts {
   display: flex;
   flex-direction: column;

@@ -699,12 +699,11 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
             <T k="admin.posts.seriesModal.newTitle" />
           </Pressable>
           <div className={shared.newSeriesShellActions}>
-            <Button variant="outline" size="sm" onClick={() => setCreatingNew(false)} soundDisabled>
+            <Button variant="outline" onClick={() => setCreatingNew(false)} soundDisabled>
               <T k="admin.posts.seriesModal.cancel" />
             </Button>
             <Button
               variant="primary"
-              size="sm"
               onClick={() => newEditorRef.current?.save()}
               disabled={newEditorSaving}
               loading={newEditorSaving}

@@ -695,7 +695,7 @@ export default function AuthorsEditor({ authors, onChange, onPersist }: Props) {
 
       {/* 추가는 owner 만 */}
       {isOwner && (
-        <Button variant="outline" size="sm" icon={<Plus size={14} />} onClick={openAdd}>
+        <Button variant="outline" icon={<Plus size={14} />} onClick={openAdd}>
           {L("멤버 추가", "Add member")}
         </Button>
       )}

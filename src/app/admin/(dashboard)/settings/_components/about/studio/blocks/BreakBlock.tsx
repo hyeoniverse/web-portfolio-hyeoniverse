@@ -16,8 +16,9 @@ export function BreakBlock({ url, onSet, t }: { url: string; onSet: (u: string) 
         {url ? <MediaThumb src={url} fill sizes="(max-width: 540px) 100vw, 480px" /> : null}
       </div>
       <div className={css.mediaActions}>
-        <Button variant="outline" size="sm" onClick={() => setPick((v) => !v)}>{pick ? t("admin.posts.seriesModal.closePicker") : t("admin.posts.seriesModal.chooseCover")}</Button>
-        {url && <Button variant="outline" size="sm" onClick={() => onSet("")}>{t("admin.settings.aboutHeroBgClear")}</Button>}
+        {/* md(32) — 팝오버 패널이 아니라 스튜디오 본 표면이라 Layout/Background 단추(md)와 같은 줄감 */}
+        <Button variant="outline" onClick={() => setPick((v) => !v)}>{pick ? t("admin.posts.seriesModal.closePicker") : t("admin.posts.seriesModal.chooseCover")}</Button>
+        {url && <Button variant="outline" onClick={() => onSet("")}>{t("admin.settings.aboutHeroBgClear")}</Button>}
       </div>
       {pick && (
         <CoverImagePicker onSelect={(u) => { onSet(u); setPick(false); }} onClose={() => setPick(false)} currentUrl={url}

@@ -227,19 +227,24 @@
   line-height: 1.6;
 }
 
-/* ── 뷰 전환 ── */
+/* ── 뷰 전환 — 스튜디오의 SegmentedControl(sm, 28)과 같은 눈금.
+   테두리는 SegmentedControl 처럼 inset box-shadow 로 — border 는 높이에 1px 씩 더해
+   패딩 합산이 눈금(28)에서 어긋난다 ── */
 .viewSwitch {
   display: inline-flex;
+  align-items: center;
   gap: var(--spacing-3xs);
+  height: var(--control-h-sm);
   padding: var(--spacing-3xs);
-  border: var(--border-light);
+  box-shadow: inset 0 0 0 1px var(--border-color-light);
   border-radius: var(--radius-capsule);
 }
 .viewBtn {
   display: inline-flex;
   gap: var(--spacing-3xs);
   align-items: center;
-  padding: var(--button-p-xs);
+  height: calc(var(--control-h-sm) - 4px);
+  padding: 0 var(--spacing-sm);
   border: 0;
   border-radius: var(--radius-capsule);
   background: transparent;
