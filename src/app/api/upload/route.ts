@@ -1,5 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import { STORAGE_MAX_MB } from "@/lib/uploadFormats";
+import { STORAGE_MAX_MB, resolveStorageMaxMb } from "@/lib/uploadFormats";
 import { requireAuth } from "@/lib/api/requireAuth";
 import { jsonError, jsonOk, jsonServerError } from "@/lib/api/response";
 import { needsConversion, convertToWebp } from "@/lib/convertImage";
@@ -53,25 +53,44 @@ const MIME_EXT_MAP: Record<string, string[]> = {
 
 // 기본 크기 제한 (MB) — 설정이 없을 때 사용
 const DEFAULT_LIMIT_MB = 20;
-/* 어떤 경우에도 넘을 수 없는 값 — 저장소(Supabase)의 한 파일 상한과 같게 둔다.
-   이 프로젝트에서 재 보면 50MB 는 통과하고 51MB 는 413(EntityTooLarge)으로 막힌다.
-   설정 화면의 크기 선택지도 같은 값(STORAGE_MAX_MB)에서 끊는다 */
-const MAX_ABSOLUTE_MB = STORAGE_MAX_MB;
 
 // POST /api/upload — 파일 업로드 (admin only)
 export async function POST(request: Request) {
   const { error: authError } = await requireAuth();
   if (authError) return authError;
 
+  // ── 설정 로드 (허용 MIME + 차단 확장자 + 크기 제한 + 저장소 상한) ──
+  // getSiteConfig() 가 site.config defaults + DB delta 를 자동 머지해서 반환.
+  // 이전엔 DB 만 직접 읽어서 admin 이 한 번도 안 건드린 경우 site.config 의
+  // 기본 limits/차단 확장자가 무시되던 버그가 있었음.
+  /* 저장소(Supabase)의 한 파일 상한은 플랜에 따라 다르다 — 무료 플랜은 50MB 가 실측 한계
+     (50MB 통과, 51MB 는 413 EntityTooLarge). 그래서 상한은 설정(media.storageMaxMb)이 정하고,
+     설정 화면의 크기 선택지도 같은 값에서 끊는다. 설정보다 큰 파일은 어차피 저장소가 거부한다 */
+  let blockedExt = DEFAULT_BLOCKED_EXT;
+  let limits: Record<string, number> = {};
+  let maxAbsoluteMb = STORAGE_MAX_MB;
+  try {
+    const cfg = await getSiteConfig();
+    const customBlocked = cfg.media?.blockedExtensions;
+    if (customBlocked && customBlocked.length > 0) {
+      blockedExt = new Set(customBlocked);
+    }
+    const dbLimits = cfg.media?.limits as Record<string, number> | undefined;
+    if (dbLimits) limits = dbLimits;
+    maxAbsoluteMb = resolveStorageMaxMb((cfg.media as Record<string, unknown>)?.storageMaxMb);
+  } catch {
+    // DB 설정 로드 실패 시 기본값 사용
+  }
+
   // 본문 파싱 전에 Content-Length 로 크기를 먼저 판별 — formData() 는 큰 body 에서 throw 하는데
   // 그 시점엔 파일 크기를 알 수 없어 "크거나 손상" 처럼 사유가 섞인다. 헤더는 파싱 없이 읽히므로
   // 이걸로 "용량 초과" 와 "손상/형식오류" 를 명확히 구분한다.
   const declaredBytes = Number(request.headers.get("content-length") || 0);
-  const absoluteBytes = MAX_ABSOLUTE_MB * 1024 * 1024;
+  const absoluteBytes = maxAbsoluteMb * 1024 * 1024;
   if (declaredBytes > absoluteBytes) {
     const mb = (declaredBytes / (1024 * 1024)).toFixed(1);
-    return jsonError(`동영상·파일 용량이 너무 큽니다 (약 ${mb}MB). 최대 ${MAX_ABSOLUTE_MB}MB까지 업로드할 수 있어요.`, 400,
-      { code: "UPLOAD_TOO_LARGE", params: { size: mb, max: MAX_ABSOLUTE_MB } });
+    return jsonError(`동영상·파일 용량이 너무 큽니다 (약 ${mb}MB). 최대 ${maxAbsoluteMb}MB까지 업로드할 수 있어요.`, 400,
+      { code: "UPLOAD_TOO_LARGE", params: { size: mb, max: maxAbsoluteMb } });
   }
 
   // formData 파싱은 try 밖에서 던지면 빈 500(HTML)이 되어 클라가 사유를 못 받음 → 감싸서 JSON 으로.
@@ -90,24 +109,6 @@ export async function POST(request: Request) {
   const file = formData.get("file") as File | null;
 
   if (!file) return jsonError("No file provided", 400);
-
-  // ── 설정 로드 (허용 MIME + 차단 확장자 + 크기 제한) ──
-  // getSiteConfig() 가 site.config defaults + DB delta 를 자동 머지해서 반환.
-  // 이전엔 DB 만 직접 읽어서 admin 이 한 번도 안 건드린 경우 site.config 의
-  // 기본 limits/차단 확장자가 무시되던 버그가 있었음.
-  let blockedExt = DEFAULT_BLOCKED_EXT;
-  let limits: Record<string, number> = {};
-  try {
-    const cfg = await getSiteConfig();
-    const customBlocked = cfg.media?.blockedExtensions;
-    if (customBlocked && customBlocked.length > 0) {
-      blockedExt = new Set(customBlocked);
-    }
-    const dbLimits = cfg.media?.limits as Record<string, number> | undefined;
-    if (dbLimits) limits = dbLimits;
-  } catch {
-    // DB 설정 로드 실패 시 기본값 사용
-  }
 
   // ── 1. 확장자 검증 (블랙리스트) ──
   const ext = (file.name.split(".").pop() || "").toLowerCase();
@@ -136,7 +137,7 @@ export async function POST(request: Request) {
   let limitMB = hasLimits
     ? (limits[ext] ?? limits._default ?? DEFAULT_LIMIT_MB)
     : DEFAULT_LIMIT_MB;
-  limitMB = Math.min(limitMB, MAX_ABSOLUTE_MB);
+  limitMB = Math.min(limitMB, maxAbsoluteMb);
   const limitBytes = limitMB * 1024 * 1024;
 
   if (file.size > limitBytes) {

@@ -1,24 +1,53 @@
-/* MediaLimitsEditor — 카테고리별 형식 목록 + 인라인 사이즈 드롭다운 (드래그 방식에서 전환) */
+/* MediaLimitsEditor — 카테고리 한 줄(왼쪽 라벨 + 칩 wrap) 구성.
+   예전에는 형식마다 풀폭 행 + 사이즈 드롭다운 + "기본" 배지가 반복돼(22행) 세로가 지나치게 길었고,
+   2열 그리드가 카테고리 높이 차만큼 빈 공간을 만들었다. 형식 하나를 칩 하나로 접는다. */
 
 .mediaLimits {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
-  gap: var(--spacing-xl) var(--spacing-2xl);
-  align-items: start;
-}
-
-.mediaCategory {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
-  min-width: 0;
+}
+
+/* ── 상단 컨트롤 — 저장소 상한 + 사용자 정의 확장자 추가 한 줄 ── */
+.mediaControls {
+  display: grid;
+  grid-template-columns: minmax(16rem, 22rem) minmax(16rem, 1fr);
+  gap: var(--spacing-lg) var(--spacing-3xl);
+  align-items: start;
+  padding-bottom: var(--spacing-lg);
+  margin-bottom: var(--spacing-sm);
+  border-bottom: var(--border-light);
+}
+
+@media (max-width: 768px) {
+  .mediaControls {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── 카테고리 행 — 왼쪽 고정 폭 헤드 + 오른쪽 칩 wrap ── */
+.mediaCategory {
+  display: grid;
+  grid-template-columns: 8.5rem 1fr;
+  gap: var(--spacing-md);
+  align-items: baseline;
+  padding: var(--spacing-sm) 0;
+}
+
+.mediaCategory + .mediaCategory {
+  border-top: var(--border-light);
+}
+
+@media (max-width: 640px) {
+  .mediaCategory {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-2xs);
+  }
 }
 
 .mediaCategoryHead {
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
-  padding-bottom: var(--spacing-2xs);
   color: var(--text-tertiary);
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-hint);
@@ -36,64 +65,99 @@
 
 .mediaFormatList {
   display: flex;
-  flex-direction: column;
-}
-
-.mediaFormatRow {
-  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-2xs) 0;
-  border-bottom: var(--border-light);
+  gap: var(--spacing-2xs) var(--spacing-xs);
 }
 
-.mediaFormatLabel {
-  flex: 1;
-  min-width: 0;
+/* ── 형식 칩 — "이름 [크기▾] ×" 한 캡슐 ── */
+.formatChip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  /* 탭의 폼 컨트롤 표준(md, 32)과 같은 눈금 — 패딩 합산이면 낮아져서 줄이 들쭉난다 */
+  height: var(--control-h-md);
+  padding: 0 var(--spacing-2xs) 0 var(--spacing-sm);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  /* 배경은 페이지와 같게 — 주변 캡슐(버튼·Select)이 전부 아웃라인이라 채운 회색만 혼자 탁해 보인다 */
+  background: transparent;
+}
+
+.formatChip:hover {
+  background: var(--bg-secondary);
+}
+
+/* × 없는(기본) 칩은 오른쪽도 이름 쪽과 같은 여백 */
+.formatChip[data-builtin] {
+  padding-right: var(--spacing-2xs);
+}
+
+.formatChipName {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   color: var(--text-secondary);
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-/* 트레일링 슬롯 — 공통 CloseButton(×) / "기본" 배지 공통 고정폭(사이즈 드롭다운 정렬), 우측 정렬 */
-.mediaFormatTrailing {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: flex-end;
-  width: 3.5rem;
-  height: var(--control-h-xs);
+/* 칩 안 사이즈 Select — 무테로 녹여 넣는다. 값(예: "5 MB")이 곧 트리거 */
+.formatChip .formatChipSelect {
+  border: none;
+  background: transparent;
+  padding: 0 var(--spacing-3xs);
+  height: auto;
+  min-height: 0;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
+  color: var(--text-primary);
 }
 
-/* built-in 형식 — 제거 불가. 옅은 "기본" 텍스트 배지 (× 자리 대체) */
-.mediaFormatBuiltin {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-micro);
+/* "+ 형식 추가" — 점선 고스트 칩. 눌러서 여는 것임을 모양으로 구분.
+   Select 트리거 기본 클래스와의 동점(0,1,0)을 피해 부모를 태워 (0,2,0) 으로 이긴다(#632) */
+.mediaFormatList .addFormatChip {
+  border-style: dashed;
+  background: transparent;
+  border-radius: var(--radius-capsule);
   color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  white-space: nowrap;
-  opacity: 0.7;
 }
 
-.mediaAddFormat {
-  margin-top: var(--spacing-xs);
-  align-self: flex-start;
-}
-
-/* ── 사용자 정의 MIME 추가 ── */
-.customMimeAdder {
-  /* 그리드 전폭 스팬 — 상단에 배치, 아래 카테고리들과 구분선으로 분리 */
-  grid-column: 1 / -1;
+/* ── 저장소 한 파일 상한 ── */
+.storageMax {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-2xs);
-  margin-bottom: var(--spacing-sm);
-  padding-bottom: var(--spacing-lg);
-  border-bottom: var(--border-light);
+}
+
+.storageMaxRow {
+  display: flex;
+  gap: var(--spacing-xs);
+  align-items: center;
+  max-width: 12rem;
+}
+
+.storageMaxRow > :first-child {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.storageMaxUnit {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-label);
+  color: var(--text-tertiary);
+}
+
+.storageMaxHint {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-hint);
+  color: var(--text-accent);
+  margin: 0;
+}
+
+/* ── 사용자 정의 확장자 추가 ── */
+.customMimeAdder {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
 }
 
 .customMimeLabel {
@@ -109,8 +173,9 @@
   display: flex;
   gap: var(--spacing-xs);
   align-items: center;
-  max-width: 32rem;
+  max-width: 24rem;
 }
+
 /* 입력칸(Input wrapper)이 남는 폭을 채우도록 */
 .customMimeRow > :first-child {
   flex: 1 1 auto;
