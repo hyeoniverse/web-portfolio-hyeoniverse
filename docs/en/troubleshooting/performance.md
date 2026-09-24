@@ -1,12 +1,12 @@
 # Trouble Shooting: Performance
 
-[← Index](../troubleshooting.en.md)
+[← Index](../troubleshooting.md)
 
 <details>
 <summary><strong>22. Deferring third-party scripts: taking reCAPTCHA off the initial load</strong></summary>
 
 <p align="center">
-  <img src="../../public/images/screenshots/pc/home-light.png" width="100%" alt="Home — Lighthouse" />
+  <img src="../../../public/images/screenshots/pc/home-light.png" width="100%" alt="Home — Lighthouse" />
 </p>
 
 **Problem**
@@ -82,7 +82,7 @@ return <GoogleReCaptchaProvider ...>{children}</GoogleReCaptchaProvider>;
 
 | PC | Tablet | Mobile |
 |:---:|:---:|:---:|
-| <img src="../../public/images/screenshots/pc/home-light.png" width="100%" alt="Home PC" /> | <img src="../../public/images/screenshots/tablet/home-light.png" width="100%" alt="Home Tablet" /> | <img src="../../public/images/screenshots/mobile/home-light.png" width="100%" alt="Home Mobile" /> |
+| <img src="../../../public/images/screenshots/pc/home-light.png" width="100%" alt="Home PC" /> | <img src="../../../public/images/screenshots/tablet/home-light.png" width="100%" alt="Home Tablet" /> | <img src="../../../public/images/screenshots/mobile/home-light.png" width="100%" alt="Home Mobile" /> |
 <sub>Optimization target: Home page — achieved Performance score of 98 across all 3 devices</sub>
 
 **Problem**
@@ -189,7 +189,7 @@ Results (Lighthouse CLI, median of 3 measurements):
 
 | PC | Tablet | Mobile |
 |:---:|:---:|:---:|
-| <img src="../../public/images/screenshots/pc/home-dark.png" width="100%" /> | <img src="../../public/images/screenshots/tablet/home-dark.png" width="100%" /> | <img src="../../public/images/screenshots/mobile/home-dark.png" width="100%" /> |
+| <img src="../../../public/images/screenshots/pc/home-dark.png" width="100%" /> | <img src="../../../public/images/screenshots/tablet/home-dark.png" width="100%" /> | <img src="../../../public/images/screenshots/mobile/home-dark.png" width="100%" /> |
 
 **Problem**
 

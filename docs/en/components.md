@@ -35,7 +35,7 @@ A component that splits text into individual characters and applies sequential o
 **Path**: `src/components/effects/StaggerText`
 
 <p align="center">
-  <img src="../public/images/screenshots/pc/home-dark.png" width="100%" alt="Home — StaggerText" />
+  <img src="../../public/images/screenshots/pc/home-dark.png" width="100%" alt="Home — StaggerText" />
 </p>
 
 **Features**:
@@ -86,7 +86,7 @@ A component that automatically unmounts/remounts page content when the viewport 
 
 | PC | Tablet | Mobile |
 |:---:|:---:|:---:|
-| <img src="../public/images/screenshots/pc/home-dark.png" width="100%" /> | <img src="../public/images/screenshots/tablet/home-dark.png" width="100%" /> | <img src="../public/images/screenshots/mobile/home-dark.png" width="100%" /> |
+| <img src="../../public/images/screenshots/pc/home-dark.png" width="100%" /> | <img src="../../public/images/screenshots/tablet/home-dark.png" width="100%" /> | <img src="../../public/images/screenshots/mobile/home-dark.png" width="100%" /> |
 
 **Features**:
 
@@ -130,7 +130,7 @@ A modal component that behaves as a bottom sheet pattern on mobile. Center dialo
 
 | PC (Desktop Dialog) | Tablet | Mobile (Bottom Sheet) |
 |:---:|:---:|:---:|
-| <img src="../public/images/screenshots/pc/work-detail-dark.png" width="100%" alt="PC" /> | <img src="../public/images/screenshots/tablet/work-detail-dark.png" width="100%" alt="Tablet" /> | <img src="../public/images/screenshots/mobile/work-detail-dark.png" width="100%" alt="Mobile" /> |
+| <img src="../../public/images/screenshots/pc/work-detail-dark.png" width="100%" alt="PC" /> | <img src="../../public/images/screenshots/tablet/work-detail-dark.png" width="100%" alt="Tablet" /> | <img src="../../public/images/screenshots/mobile/work-detail-dark.png" width="100%" alt="Mobile" /> |
 
 **Path**: `src/components/ui/Modal.tsx`
 

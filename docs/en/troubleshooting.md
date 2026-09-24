@@ -2,7 +2,7 @@
 
 > A record of 88 problems hit during development, with causes and fixes. Every entry follows Problem → Cause → Solution → Insight, and titles lead with the technical concept involved. The ten that left principles worth carrying beyond this project form the Top 10.
 
-## [Top 10 · Deep Dives into Root Causes](troubleshooting/top10.en.md)
+## [Top 10 · Deep Dives into Root Causes](troubleshooting/top10.md)
 
 - 1. Bundler downleveling: a regex that passes every test but dies only in the browser
 - 2. CSS invalidation scope: global recalc from `:has(:hover)` with a universal descendant
@@ -15,7 +15,7 @@
 - 9. Designing fallback conditions: an empty result is not an unavailable source
 - 10. Package resolution: optional peers must still be resolvable
 
-## [Architecture · Data](troubleshooting/architecture-data.en.md)
+## [Architecture · Data](troubleshooting/architecture-data.md)
 
 - 11. React reconciliation: changing a component's type in place remounts the subtree
 - 12. Baseline initialization: a mismatched initial value always reads as changed
@@ -29,14 +29,14 @@
 - 20. Measuring external-service reliability: status codes, not console errors
 - 21. Two representations in one column: interpretation must be shared by every consumer
 
-## [Performance](troubleshooting/performance.en.md)
+## [Performance](troubleshooting/performance.md)
 
 - 22. Deferring third-party scripts: taking reCAPTCHA off the initial load
 - 23. Resource inventory: removing unused fonts and tuning the loading strategy
 - 24. Main thread vs compositor: animation, re-renders and GPU memory
 - 25. Client-side image compression: shrinking before upload
 
-## [Layout · CSS](troubleshooting/layout-css.en.md)
+## [Layout · CSS](troubleshooting/layout-css.md)
 
 - 26. Reserving space across locales: em-based min-height against layout shift
 - 27. Breakpoint-only elements: hide them at the opposite breakpoint
@@ -57,7 +57,7 @@
 - 42. space-between with a single child: the branch that overlaps fixed elements
 - 43. Global defaults vs scoped variables: splitting strong color with a fallback
 
-## [Plate Editor](troubleshooting/plate-editor.en.md)
+## [Plate Editor](troubleshooting/plate-editor.md)
 
 - 44. Preserving inline flow: a div inside an inline void blocks the caret
 - 45. Serialization round-trips: custom attributes survive only if encoded
@@ -76,7 +76,7 @@
 - 58. Normalizing value types: numeric node values vs string options
 - 59. History snapshots: undoing exactly one conversion
 
-## [Markdown · Content Rendering](troubleshooting/content-rendering.en.md)
+## [Markdown · Content Rendering](troubleshooting/content-rendering.md)
 
 - 60. Finish before render: dangerouslySetInnerHTML vs post-hoc DOM mutation
 - 61. Parser extension ordering: postprocess over custom renderers
@@ -86,7 +86,7 @@
 - 65. Allowlists vs value checks: DOMPurify's two separate axes
 - 66. Context the parser reads: markdown insertion is more than a string
 
-## [Animation · Interaction](troubleshooting/animation-interaction.en.md)
+## [Animation · Interaction](troubleshooting/animation-interaction.md)
 
 - 67. The library's source of truth: read Lenis velocity inside its event
 - 68. Inline transform conflicts: Framer Motion and CSS fight over one property
@@ -106,7 +106,7 @@
 - 82. Events outside the library's contract: pair preventDefault with opt-out markers
 - 83. What links give you for free: on canvas you rebuild all of it
 
-## [Components · Misc](troubleshooting/components-misc.en.md)
+## [Components · Misc](troubleshooting/components-misc.md)
 
 - 84. Reading type definitions: clearTimeout accepts undefined, not null
 - 85. Third-party DOM and z-index: manage stacking dynamically

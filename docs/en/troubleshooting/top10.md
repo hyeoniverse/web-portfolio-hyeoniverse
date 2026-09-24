@@ -1,6 +1,6 @@
 # Trouble Shooting: Top 10 Deep Dives
 
-[← Index](../troubleshooting.en.md)
+[← Index](../troubleshooting.md)
 
 <details>
 <summary><strong>1. Bundler downleveling: a regex that passes every test but dies only in the browser</strong></summary>
@@ -79,7 +79,7 @@ export function browserSafeGrammar(node: any, seen = new WeakMap<object, any>())
 <summary><strong>3. Resource priority and streaming reveal: the serial gates that delay LCP</strong></summary>
 
 <p align="center">
-  <img src="../../public/images/screenshots/pc/post-detail-light.png" width="100%" alt="Post detail: the cover image is the LCP element" />
+  <img src="../../../public/images/screenshots/pc/post-detail-light.png" width="100%" alt="Post detail: the cover image is the LCP element" />
 </p>
 
 **Problem**: Mobile LCP regressed on the posts list and detail pages. The cover image arrived late, sharing bandwidth with CSS and fonts, and even after arriving, the reveal was delayed.
@@ -104,7 +104,7 @@ export function browserSafeGrammar(node: any, seen = new WeakMap<object, any>())
 
 | From (list) | To (detail) |
 |:---:|:---:|
-| <img src="../../public/images/screenshots/pc/works-light.png" width="100%" alt="Works list" /> | <img src="../../public/images/screenshots/pc/work-detail-light.png" width="100%" alt="Work detail" /> |
+| <img src="../../../public/images/screenshots/pc/works-light.png" width="100%" alt="Works list" /> | <img src="../../../public/images/screenshots/pc/work-detail-light.png" width="100%" alt="Work detail" /> |
 
 **Problem**: Navigating from a list to a detail page, the departed list stayed visible for about half a second after the transition cover lifted.
 
@@ -195,7 +195,7 @@ CSS `transition` is a shorthand — specifying just a few properties globally **
 <summary><strong>7. Backdrop Root: why backdrop-filter and mix-blend-mode cannot feed each other</strong></summary>
 
 <p align="center">
-  <img src="../../public/images/screenshots/pc/editor-color-light.png" width="100%" alt="A glass panel with the color menu floating over a video" />
+  <img src="../../../public/images/screenshots/pc/editor-color-light.png" width="100%" alt="A glass panel with the color menu floating over a video" />
 </p>
 
 **Problem**: Building a popover that stays readable over any background — `backdrop-filter` on the panel, `difference` on the inner text — left the blend unable to see the background.
@@ -244,7 +244,7 @@ CSS `transition` is a shorthand — specifying just a few properties globally **
 <summary><strong>9. Designing fallback conditions: an empty result is not an unavailable source</strong></summary>
 
 <p align="center">
-  <img src="../../public/images/screenshots/pc/works-grid-dark.png" width="100%" alt="Works Grid — published works list" />
+  <img src="../../../public/images/screenshots/pc/works-grid-dark.png" width="100%" alt="Works Grid — published works list" />
 </p>
 
 **Problem**: After unpublishing every work in the admin, the public list showed the static demo list bundled in the code instead of going empty.

@@ -90,7 +90,7 @@ about.contentSyncedAt: Record<string, string>   // md 에서 가져온 시각
 
 ## 4. 파일 배치
 
-`docs/` 가 이미 `security.md` / `security.en.md` 로 언어를 나눈다. About 의 모든 텍스트가
+`docs/` 가 이미 한국어(`docs/`)·영어(`docs/en/`) 폴더로 언어를 나누고, `content/about` 은 `x.md` / `x.en.md` 접미사 쌍을 쓴다. About 의 모든 텍스트가
 `LocalizedText {ko, en}` 이라 한 쌍이 한 항목이 된다.
 
 ```

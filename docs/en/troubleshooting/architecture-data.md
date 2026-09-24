@@ -1,12 +1,12 @@
 # Trouble Shooting: Architecture · Data
 
-[← Index](../troubleshooting.en.md)
+[← Index](../troubleshooting.md)
 
 <details>
 <summary><strong>11. React reconciliation: changing a component's type in place remounts the subtree</strong></summary>
 
 <p align="center">
-  <img src="../../public/images/screenshots/pc/home-dark.png" width="100%" alt="Home — Loading Screen" />
+  <img src="../../../public/images/screenshots/pc/home-dark.png" width="100%" alt="Home — Loading Screen" />
 </p>
 
 **Problem**

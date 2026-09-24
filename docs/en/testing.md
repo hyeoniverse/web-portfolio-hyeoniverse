@@ -1,6 +1,6 @@
 # Testing
 
-[← README](../README.en.md)
+[← README](../../README.en.md)
 
 Unit tests (Vitest) plus smoke e2e (Playwright). The suite does not pin pixels; it only catches breakage.
 
@@ -61,8 +61,8 @@ npm run test:smoke:admin   # admin routes (requires a login session — see belo
 | Checks | Screenshot diff + page runtime errors |
 | Stability | public 24/24 across 3 runs · admin 16/16 across 2 runs (zero flakes) |
 
-Two traps worth knowing: the full-screen `LoadingScreen` must be awaited or a "black screen + logo" frame gets baked into the baseline, and masking a WebGL canvas paints a rectangle *over* it — turning the whole page into a solid block (use `visibility: hidden` instead). Full notes and coverage gaps are in **[docs/perf-baseline.md](./perf-baseline.md#시각-회귀-baseline)**.
+Two traps worth knowing: the full-screen `LoadingScreen` must be awaited or a "black screen + logo" frame gets baked into the baseline, and masking a WebGL canvas paints a rectangle *over* it — turning the whole page into a solid block (use `visibility: hidden` instead). Full notes and coverage gaps are in **[docs/perf-baseline.md](../perf-baseline.md#시각-회귀-baseline)**.
 
 **Admin routes** need a login session. Put `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD` in `.env.local` (use the owner account — a freshly created one has no role and gets rejected), then run `npm run test:smoke:admin`. The new-device gate makes the first run fail; flip `approved` to `true` on the new `admin_known_devices` row to clear it (**no real inbox needed** — that is all the approval link does). After that the stored session (`e2e/.auth/` — auth tokens, git-ignored) is reused.
 
-> **Refactoring docs**: [Refactoring guide](./refactoring-guide.md) · [Performance baseline](./perf-baseline.md) · [Dead code inventory](./dead-code-inventory.md)
+> **Refactoring docs**: [Refactoring guide](../refactoring-guide.md) · [Performance baseline](../perf-baseline.md) · [Dead code inventory](../dead-code-inventory.md)

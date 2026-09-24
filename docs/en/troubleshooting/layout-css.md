@@ -1,6 +1,6 @@
 # Trouble Shooting: Layout · CSS
 
-[← Index](../troubleshooting.en.md)
+[← Index](../troubleshooting.md)
 
 <details>
 <summary><strong>26. Reserving space across locales: em-based min-height against layout shift</strong></summary>
@@ -381,7 +381,7 @@ useEffect(() => {
 <summary><strong>43. Global defaults vs scoped variables: splitting strong color with a fallback</strong></summary>
 
 <p align="center">
-  <img src="../../public/images/screenshots/pc/editor-light.png" width="100%" alt="Editor: bold and colored text" />
+  <img src="../../../public/images/screenshots/pc/editor-light.png" width="100%" alt="Editor: bold and colored text" />
 </p>
 
 **Problem**: Bold text always appeared in the theme accent color in article bodies, even when a text color was explicitly set on it.

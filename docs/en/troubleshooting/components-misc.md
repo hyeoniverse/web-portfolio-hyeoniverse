@@ -1,6 +1,6 @@
 # Trouble Shooting: Components · Misc
 
-[← Index](../troubleshooting.en.md)
+[← Index](../troubleshooting.md)
 
 <details>
 <summary><strong>84. Reading type definitions: clearTimeout accepts undefined, not null</strong></summary>

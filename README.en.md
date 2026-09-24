@@ -122,7 +122,7 @@ cp .env.example .env.local   # fill in the Supabase URL and keys
 npm run dev                  # http://localhost:3000
 ```
 
-Posts, works and the admin need a Supabase project. Table SQL, storage buckets, creating the admin account and the optional keys for cover images and translation are laid out in order in **[docs/supabase-setup.en.md](./docs/supabase-setup.en.md)**.
+Posts, works and the admin need a Supabase project. Table SQL, storage buckets, creating the admin account and the optional keys for cover images and translation are laid out in order in **[docs/supabase-setup.en.md](./docs/en/supabase-setup.md)**.
 
 Commands used often:
 
@@ -140,14 +140,14 @@ npm run sync-all       # sync content/*.md with the database
 
 | Document | Contents |
 |:---|:---|
-| [Features](./docs/features.en.md) | Every feature by screen — interaction, works, posts, admin, performance, security |
-| [Supabase setup](./docs/supabase-setup.en.md) | Environment variables, tables, storage, admin account, cover images |
-| [Deployment](./docs/deploy.en.md) | Vercel, domains, mail, post-deploy checks |
-| [Testing](./docs/testing.en.md) | Vitest suites, smoke e2e, preparing the admin session |
+| [Features](./docs/en/features.md) | Every feature by screen — interaction, works, posts, admin, performance, security |
+| [Supabase setup](./docs/en/supabase-setup.md) | Environment variables, tables, storage, admin account, cover images |
+| [Deployment](./docs/en/deploy.md) | Vercel, domains, mail, post-deploy checks |
+| [Testing](./docs/en/testing.md) | Vitest suites, smoke e2e, preparing the admin session |
 | [Design system](./docs/design-system.md) | Three token tiers, rules R1–R7, naming and specificity |
-| [Troubleshooting](./docs/troubleshooting.en.md) | What broke, why, and how it was fixed |
-| [Components](./docs/components.en.md) · [DB design](./docs/db-design.en.md) · [Security](./docs/security.en.md) · [User flow](./docs/user-flow.en.md) | Area deep dives |
-| [Editor guide](./docs/editor-guide.en.md) | Editor usage and `.md` authoring rules |
+| [Troubleshooting](./docs/en/troubleshooting.md) | What broke, why, and how it was fixed |
+| [Components](./docs/en/components.md) · [DB design](./docs/en/db-design.md) · [Security](./docs/en/security.md) · [User flow](./docs/en/user-flow.md) | Area deep dives |
+| [Editor guide](./docs/en/editor-guide.md) | Editor usage and `.md` authoring rules |
 | [Refactoring guide](./docs/refactoring-guide.md) · [Performance baseline](./docs/perf-baseline.md) | Structural cleanup notes and the performance baseline |
 
 ---
