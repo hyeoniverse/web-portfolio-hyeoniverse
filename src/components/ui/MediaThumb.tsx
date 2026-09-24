@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { isVideoUrl } from "@/lib/isVideoUrl";
+import { useImageFallback } from "@/hooks/useImageFallback";
 import { getFallbackCoverGradient } from "@/lib/coverFallback";
 import { firstFrameSrc, hoverVideoHandlers } from "./hoverVideo";
 
@@ -31,10 +32,6 @@ export interface MediaThumbProps {
   fallbackSeed?: string;
 }
 
-/* 죽은 URL 의 대체 이미지 — 본문 이미지(ImageElement)·커버 필드(CoverImageField)와 같은 파일.
-   엑박을 그대로 두면 깨진 건지 아직 로드 중인지 목록에서 구분이 안 된다 */
-const BROKEN_SRC = "/images/placeholder.svg";
-
 /** Video URL 이면 <video>, 아니면 next/image. src 없고 fallbackSeed 있으면 gradient. */
 export default function MediaThumb({
   src, alt = "", className, fill, width, height, sizes, priority, loading, unoptimized, style, onError, fallbackSeed,
@@ -42,13 +39,12 @@ export default function MediaThumb({
   /* 최적화가 거부된 주소를 기억한다. 표지는 사용자가 고르는 값이라 허용 목록 밖 주소가
      들어올 수 있는데, 그때만 원본으로 되돌린다. 주소가 바뀌면 다시 최적화부터 시도한다. */
   const [failedSrc, setFailedSrc] = useState<string | null>(null);
-  /* 원본으로 되돌려도 실패한 주소 — 죽은 URL 이다. 엑박 대신 대체 이미지를 그린다 */
-  const [brokenSrc, setBrokenSrc] = useState<string | null>(null);
+  /* 원본으로 되돌려도 실패한 주소 — 죽은 URL 이다. 엑박 대신 공용 placeholder 를 그린다(#1143) */
+  const { src: displaySrc, broken, markBroken } = useImageFallback(src);
   const skipOptimize = unoptimized || failedSrc === src;
-  const broken = !!src && brokenSrc === src;
   const handleError = () => {
     if (!skipOptimize) { setFailedSrc(src); return; }
-    setBrokenSrc(src);
+    markBroken();
     onError?.();
   };
   // src 비어있고(또는 죽어 있고) fallbackSeed 있으면 gradient 배경
@@ -87,8 +83,6 @@ export default function MediaThumb({
       />
     );
   }
-  /* 죽은 URL 은 본문 이미지들과 같은 대체 이미지로 바꿔 그린다. 로컬 svg 라 최적화는 건너뛴다 */
-  const displaySrc = broken ? BROKEN_SRC : src;
   if (fill) {
     return (
       <Image

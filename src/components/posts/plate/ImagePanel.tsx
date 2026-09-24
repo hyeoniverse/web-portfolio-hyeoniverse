@@ -10,6 +10,7 @@ import { useModalStore } from "@/stores/modalStore";
 import { ModalConfirm, ModalAlert } from "@/components/ui/ModalTemplates";
 import type { EditorImageInfo } from "./types";
 import { uploadErrorText } from "./uploadErrorText";
+import { swapToImageFallback } from "@/lib/imageFallback";
 import styles from "../EditorMedia.module.css";
 
 function formatBytes(bytes: number): string {
@@ -355,13 +356,7 @@ export function ImagePanel({
                     src={img.url}
                     alt={fileName}
                     draggable={false}
-                    onError={(e) => {
-                      const el = e.currentTarget;
-                      if (!el.src.endsWith("/images/placeholder.svg")) {
-                        el.src = "/images/placeholder.svg";
-                        el.removeAttribute("srcset");
-                      }
-                    }}
+                    onError={(e) => swapToImageFallback(e.currentTarget)}
                     style={isDetached ? { opacity: 0.7 } : undefined}
                   />
               }
