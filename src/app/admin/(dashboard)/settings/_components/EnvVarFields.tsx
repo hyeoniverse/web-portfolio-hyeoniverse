@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { STATUS_MESSAGE_DISMISS_MS } from "@/constants";
-import { Trash2, Eye, EyeOff, Info, ExternalLink, ClipboardPaste, AlertTriangle, Lock, Database, Mail, Shield, Image as ImageIcon, Sparkles, Languages, Bell, Check, MessageSquare, type LucideIcon } from "@/components/icons";
+import { Trash2, Eye, EyeOff, Info, ExternalLink, ClipboardPaste, AlertTriangle, Lock, Database, Mail, Shield, Image as ImageIcon, Sparkles, Languages, Bell, Check, GitFork, type LucideIcon } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useModalStore } from "@/stores/modalStore";
 import { showToast } from "@/stores/toastStore";
@@ -61,8 +61,6 @@ interface EnvVarFieldsProps {
   commentEmailNotify: boolean;
   summaryProvider?: string;
   summaryFallbacks?: string[];
-  /** giscus 댓글 사용 시 GITHUB_TOKEN 필드 노출 */
-  giscusEnabled?: boolean;
   /** SectionHeader 를 EnvVarFields 안에서 직접 렌더하기 위한 props. 액션 버튼이 title 옆 spacer 자리로 가도록 customActions 로 꽂음. */
   sectionHeader?: {
     title: React.ReactNode;
@@ -84,7 +82,6 @@ export default function EnvVarFields({
   commentEmailNotify: _commentEmailNotify,
   summaryProvider = "gemini",
   summaryFallbacks = [],
-  giscusEnabled = false,
   sectionHeader,
 }: EnvVarFieldsProps) {
   const { t } = useLanguage();
@@ -104,7 +101,8 @@ export default function EnvVarFields({
       .finally(() => setLoaded(true));
   }, []);
 
-  type FieldRow = { key: string; label: string };
+  /* optional — 기능을 쓸 때만 넣는 키. 비어 있어도 "누락"이 아니고 통계에서도 빠진다 */
+  type FieldRow = { key: string; label: string; optional?: boolean };
 
   const PROVIDER_KEYS: Record<string, { key: string; label: string }[]> = {
     nanobanana: [{ key: "NANOBANANA_API_KEY", label: "NanoBanana API Key" }],
@@ -159,8 +157,11 @@ export default function EnvVarFields({
     { id: "summary", rows: toRows(sumProviders), icon: Sparkles },
     { id: "translate", rows: toRows(transProviders), icon: Languages },
     { id: "notify", rows: [{ key: "RESEND_API_KEY", label: "Resend API Key" }], icon: Bell },
-    { id: "comments", rows: giscusEnabled ? [{ key: "GITHUB_TOKEN", label: "GitHub Token (giscus)" }] : [], icon: MessageSquare },
-    { id: "system", rows: [{ key: "CRON_SECRET", label: "Cron Secret" }], icon: Shield },
+    /* GITHUB_TOKEN 은 giscus 만이 아니라 프로필·홈의 GitHub 연동(저장소 목록·잔디)도 쓴다 —
+       giscus 조건부로 두면 그쪽을 쓰는 사람이 토큰 적을 곳을 못 찾는다. 항상 노출 */
+    { id: "github", rows: [{ key: "GITHUB_TOKEN", label: "GitHub Token" }], icon: GitFork },
+    /* CRON_SECRET 은 외부 크론 트리거를 쓸 때만 필요 — 비어 있는 게 기본 상태다 */
+    { id: "system", rows: [{ key: "CRON_SECRET", label: "Cron Secret", optional: true }], icon: Shield },
   ];
 
   const visibleGroups = groups.filter((g) => g.rows.length > 0);
@@ -178,10 +179,12 @@ export default function EnvVarFields({
   }, [edits, secrets]);
 
   const stats = useMemo(() => {
-    const total = visible.length;
-    let env = 0, db = 0, missing = 0, edit = 0;
-    for (const { key } of visible) {
+    let total = 0, env = 0, db = 0, missing = 0, edit = 0;
+    for (const { key, optional } of visible) {
       const s = rowStatusOf(key);
+      /* 선택 키는 비어 있는 게 기본 상태 — 누락도, 분모도 아니다. 값을 넣으면 그때부터 센다 */
+      if (s === "none" && optional) continue;
+      total++;
       if (s === "edit") edit++;
       else if (s === "env") env++;
       else if (s === "db") db++;
@@ -450,7 +453,7 @@ export default function EnvVarFields({
 
   if (visible.length === 0) return null;
 
-  const renderField = (key: string, label: string) => {
+  const renderField = (key: string, label: string, optional?: boolean) => {
     const info = secrets[key];
     const isReadOnly = info?.readOnly === true;
     const isEditing = !isReadOnly && key in edits;
@@ -468,8 +471,8 @@ export default function EnvVarFields({
     /* prefix mismatch — 사용자가 편집 중이고 prefix 정의돼 있고 value 가 prefix 로 시작 안 할 때만 */
     const prefixMismatch = isEditing && meta?.prefix && edits[key] && !edits[key].startsWith(meta.prefix);
 
-    /* row 상태 — missing 강조 (left border) 용 */
-    const rowMissing = loaded && source === "none" && !isEditing;
+    /* row 상태 — missing 강조 (left border) 용. 선택 키는 비어 있어도 정상이라 경고하지 않는다 */
+    const rowMissing = loaded && source === "none" && !isEditing && !optional;
     const sourceForBadge = isEditing ? "edit" : source;
     return (
       <div
@@ -482,11 +485,18 @@ export default function EnvVarFields({
           {/* 메타(소스 배지·경고·info)를 우측 정렬 슬롯에 모아 라벨 길이와 무관하게 정렬.
              info(ⓘ)는 맨 끝(최우측)에 둬 모든 행에서 같은 x 에 오게 한다. 배지는 그 왼쪽에서 정렬. */}
           <span className={styles.envBadgeSlot}>
-            {sourceForBadge !== "none" && !isReadOnly && (
-              <span className={styles.envSourceBadge} data-source={sourceForBadge}>
+            {/* 칩은 모든 행에 — read-only 도 소스는 보여주고, 미설정이면 "누락".
+               칩이 있다 없다 하면 행마다 슬롯 폭이 달라져 줄이 어긋나 보인다 */}
+            {loaded && (
+              <span
+                className={styles.envSourceBadge}
+                data-source={sourceForBadge === "none" && optional ? "optional" : sourceForBadge}
+              >
                 {sourceForBadge === "env" && ".env"}
                 {sourceForBadge === "db" && "DB"}
                 {sourceForBadge === "edit" && t("admin.settings.envSourceEdit")}
+                {sourceForBadge === "none" &&
+                  (optional ? t("admin.settings.envOptional") : t("admin.settings.envStatMissing"))}
               </span>
             )}
             {isReadOnly && (
@@ -632,7 +642,9 @@ export default function EnvVarFields({
   );
 
   return (
-    <div className={shared.fields}>
+    /* SectionHeader 는 .fields 밖(fragment) — .title/.spacer 는 grid-row:1 로 부모 .section 그리드를
+       전제하므로, .fields(flex column) 안에 넣으면 배치가 무효화돼 버튼이 제목 아랫줄로 떨어진다 */
+    <>
       {sectionHeader && (
         <SectionHeader
           title={sectionHeader.title}
@@ -646,7 +658,10 @@ export default function EnvVarFields({
         />
       )}
 
-      {/* ── 상단 status overview ── */}
+    <div className={shared.fields}>
+      {/* ── 상단 status overview — 상태줄과 진행바는 한 단위. .fields 의 gap(12) 위에
+          개별 margin 이 더 얹히면 아래 그룹과의 간격이 두 배로 벌어진다 ── */}
+      <div className={styles.envStatus}>
       <div className={styles.envStatusBar}>
         <div className={styles.envStatusSummary}>
           <span className={styles.envStatusCount}>
@@ -668,13 +683,14 @@ export default function EnvVarFields({
             </span>
           )}
         </div>
-        <Button variant="outline" size="sm" icon={<ClipboardPaste size={12} />} onClick={openPasteModal}>
+        <Button variant="outline" icon={<ClipboardPaste size={12} />} onClick={openPasteModal}>
           <T k="admin.settings.envPasteBtn" />
         </Button>
       </div>
       {/* progress 바 — set ratio 시각화 */}
       <div className={styles.envProgressBar}>
         <div className={styles.envProgressFill} style={{ width: `${stats.total ? (stats.set / stats.total) * 100 : 0}%` }} />
+      </div>
       </div>
 
       {/* 그룹을 2열로 균형 분배(행 수 가중치 greedy) — full-width 섹션 폭을 채운다.
@@ -693,19 +709,23 @@ export default function EnvVarFields({
             {cols.map((colGroups, ci) => (
               <div className={styles.envGroupCol} key={ci}>
                 {colGroups.map((group) => {
-                  const grpSet = group.rows.filter((r) => rowStatusOf(r.key) !== "none").length;
-                  const grpTotal = group.rows.length;
+                  /* 비어 있는 선택 키는 그룹 분모에서도 뺀다 — "0/1" 이 미완처럼 읽히면 안 된다 */
+                  const counted = group.rows.filter((r) => !(r.optional && rowStatusOf(r.key) === "none"));
+                  const grpSet = counted.filter((r) => rowStatusOf(r.key) !== "none").length;
+                  const grpTotal = counted.length;
                   const GroupIcon = group.icon;
                   return (
                     <div className={styles.envGroup} key={group.id}>
                       <h3 className={styles.envGroupLabel}>
                         <GroupIcon size={14} strokeWidth={2} />
                         <span>{t(`admin.settings.envGroups.${group.id}`)}</span>
-                        <span className={styles.envGroupCount} data-ok={grpSet === grpTotal || undefined}>
-                          {grpSet}/{grpTotal}
-                        </span>
+                        {grpTotal > 0 && (
+                          <span className={styles.envGroupCount} data-ok={grpSet === grpTotal || undefined}>
+                            {grpSet}/{grpTotal}
+                          </span>
+                        )}
                       </h3>
-                      {group.rows.map(({ key, label }) => renderField(key, label))}
+                      {group.rows.map(({ key, label, optional }) => renderField(key, label, optional))}
                     </div>
                   );
                 })}
@@ -716,5 +736,6 @@ export default function EnvVarFields({
       })()}
       {msg && <div className={styles.envActions}><span className={styles.envMsg}>{msg}</span></div>}
     </div>
+    </>
   );
 }

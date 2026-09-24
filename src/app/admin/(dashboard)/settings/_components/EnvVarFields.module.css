@@ -62,13 +62,23 @@
 .envGroupCount[data-ok] {
   color: var(--bg-success-solid);
 }
+/* 상태줄 + 진행바 한 단위. 상태줄과 진행바 사이도 숨 쉴 만큼(12) 띄우고,
+   아래 그룹과는 .fields gap(12) + margin(12) = 24 —
+   진행바가 개요와 본문(그룹 목록)을 가르는 선이라 다른 필드 간격보다 한 뼘 더 띈다 */
+.envStatus {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
+}
+
 .envStatusBar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: var(--spacing-xs);
-  margin-bottom: var(--spacing-2xs);
 }
 /* row 개별 저장 버튼 — Check 아이콘, 편집 중 노출 */
 .envRowSaveBtn {
@@ -168,7 +178,6 @@
   background: var(--border-color-light);
   border-radius: var(--radius-capsule);
   overflow: hidden;
-  margin-bottom: var(--spacing-md);
 }
 
 .envProgressFill {
@@ -336,9 +345,13 @@
   color: var(--text-tertiary);
   flex-shrink: 0;
 }
-/* 소스별 텍스트 색 차별화 — env(녹색), db(기본), edit(액센트). Read-only 는 data-source 없어 기본 tertiary 유지 */
+/* 소스별 텍스트 색 차별화 — env(녹색), db(기본), edit·none(액센트) */
 .envSourceBadge[data-source="env"] {
   color: var(--bg-success-solid);
+}
+
+.envSourceBadge[data-source="none"] {
+  color: var(--text-accent);
 }
 .envSourceBadge[data-source="db"] {
   color: var(--text-primary);

@@ -57,7 +57,7 @@ function AutoCoverMigrator({ t }: { t: TFunction }) {
     <div style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-2xs)", marginTop: "var(--spacing-md)" }}>
       <p className={shared.fieldHint}>{t("admin.settings.autoCoverHint")}</p>
       <div style={{ display: "flex", gap: "var(--spacing-xs)", alignItems: "center", flexWrap: "wrap" }}>
-        <Button variant="outline" size="sm" onClick={handleRun} loading={running} loadingVariant="wave">
+        <Button variant="outline" onClick={handleRun} loading={running} loadingVariant="wave">
           {t("admin.settings.autoCoverRun")}
         </Button>
         {lastResult && (
@@ -686,7 +686,6 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
           commentEmailNotify={config.commentEmailNotify ?? false}
           summaryProvider={config.aiSummary?.provider ?? "gemini"}
           summaryFallbacks={config.aiSummary?.fallback?.enabled ? (config.aiSummary.fallback.priority ?? []) as string[] : []}
-          giscusEnabled={config.comments?.provider === "giscus"}
           sectionHeader={{
             title: t("admin.settings.envVars"),
             config: sh.config,
