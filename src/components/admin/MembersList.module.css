@@ -188,22 +188,22 @@
   gap: var(--spacing-2xs);
 }
 
+/* 로그인 수단 표시 — .role 배지와 같은 결(무테·small caps). 테두리를 두르면
+   설정 화면의 아웃라인 버튼과 같은 모양이 되어 눌리는 것처럼 읽힌다.
+   여기 나오는 수단은 전부 "사용 가능" 상태라 성공색으로 — roleOwner(accent) 와 같은 관용구 */
 .provider {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-2xs);
-  padding: var(--spacing-3xs) var(--spacing-xs);
+  padding: var(--spacing-4xs) var(--spacing-xs);
   border-radius: var(--radius-capsule);
-  border: var(--border-light);
-  background: var(--bg-secondary);
+  background: var(--bg-success);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-hint);
-  font-weight: var(--font-weight-medium);
-  color: var(--text-tertiary);
-}
-
-.providerGithub {
-  color: var(--text-primary);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-success-strong);
 }
 
 /* 행 우측 액션 버튼 그룹 (수정/삭제) — AuthorsEditor 리스트에서 사용 */
