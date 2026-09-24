@@ -374,7 +374,7 @@ npm run test:watch
 
 | 파일 | 수 | 설명 |
 | --- | --- | --- |
-| `browserSafeGrammar.test.ts` | 15 | hljs 문법의 브라우저 안전성 — 등록된 정규식이 hljs 의 flag 없는 재파싱을 견디는지 (트러블슈팅 75번). node 는 원본을 쓰므로 **번들된 형태를 합성**해서 검증 |
+| `browserSafeGrammar.test.ts` | 15 | hljs 문법의 브라우저 안전성 — 등록된 정규식이 hljs 의 flag 없는 재파싱을 견디는지 (트러블슈팅 1번). node 는 원본을 쓰므로 **번들된 형태를 합성**해서 검증 |
 | `fitColumnsForInsert.test.ts` | 10 | 열 블록 폭 배분 — 블록 상한 유지, 최소 폭 하한, 내림 잔여 배분 |
 | `columnHasContent.test.ts` | 9 | 열 삭제 전 내용 판정 — 텍스트가 없어도 이미지/구분선은 내용 |
 | `codePaste.test.ts` | 7 | 코드블록 **밖**에 코드 붙여넣기 — markdown 파서가 들여쓰기로 코드를 찢지 않는지 |
