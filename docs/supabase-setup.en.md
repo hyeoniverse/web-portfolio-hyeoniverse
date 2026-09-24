@@ -374,7 +374,7 @@ npm run test:watch
 
 | File | Tests | Description |
 | --- | --- | --- |
-| `browserSafeGrammar.test.ts` | 15 | Browser safety of hljs grammars — whether registered regexes survive hljs's flag-less re-parse (troubleshooting #75). Node uses the original source, so the tests **synthesize the bundled shape** |
+| `browserSafeGrammar.test.ts` | 15 | Browser safety of hljs grammars — whether registered regexes survive hljs's flag-less re-parse (troubleshooting #1). Node uses the original source, so the tests **synthesize the bundled shape** |
 | `fitColumnsForInsert.test.ts` | 10 | Column width distribution — block cap, minimum width, remainder allocation |
 | `columnHasContent.test.ts` | 9 | Content check before deleting a column — images and dividers count even with no text |
 | `codePaste.test.ts` | 7 | Pasting code **outside** a code block — the markdown parser must not shred it on indentation |
