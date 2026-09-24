@@ -393,7 +393,7 @@ Config: `vitest.config.ts` (jsdom, `@platejs/*` inlined so the full EditorKit lo
 <summary><strong>Components</strong></summary>
 
 <p align="center">
-  <img src="public/images/screenshots/pc/design-system-dark.png" width="100%" alt="Design System — Components Preview" />
+  <img src="../public/images/screenshots/pc/design-system-dark.png" width="100%" alt="Design System — Components Preview" />
   <br />
   <sub>View all tokens and components on the <code>/design-system</code> page</sub>
 </p>
