@@ -131,11 +131,28 @@ export function normalizeLimits(limits: Record<string, number> | undefined): Rec
 }
 
 /**
- * 저장소(Supabase 무료 플랜)가 파일 하나에 받는 최대 크기(MB).
- * 이보다 큰 한도는 골라도 쓸 수 없다 — 저장소가 413 으로 돌려보내고, 업로드 라우트도 이 값에서 자른다.
+ * 저장소가 파일 하나에 받는 최대 크기(MB)의 기본값 — Supabase 무료 플랜 기준.
+ * 실제 상한은 사이트 설정 `media.storageMaxMb` 가 정하고(설정 화면에서 입력), 이 값은 미설정일 때의 기본이다.
+ * 상한보다 큰 한도는 골라도 쓸 수 없다 — 저장소가 413 으로 돌려보내고, 업로드 라우트도 상한에서 자른다.
  */
 export const STORAGE_MAX_MB = 50;
 
-export const SIZE_OPTIONS: SelectOption[] = [1, 2, 5, 10, 20, 50]
-  .filter((mb) => mb <= STORAGE_MAX_MB)
-  .map((mb) => ({ value: String(mb), label: `${mb} MB` }));
+/** 설정에 적을 수 있는 상한의 천장(50GB) — 오타로 비정상 값이 저장되는 것만 막는다 */
+export const STORAGE_MAX_MB_CEILING = 51200;
+
+/** 신뢰할 수 없는 설정값 → 저장소 상한(MB). 숫자가 아니거나 범위 밖이면 기본값으로 떨어뜨린다 */
+export function resolveStorageMaxMb(raw: unknown): number {
+  const n = Number(raw);
+  return Number.isFinite(n) && n >= 1 && n <= STORAGE_MAX_MB_CEILING ? Math.floor(n) : STORAGE_MAX_MB;
+}
+
+/** 크기 선택지 눈금 — 상한 이하만 노출하고, 상한 자체가 눈금에 없으면 선택지로 추가한다 */
+const SIZE_SCALE = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1024, 2048, 5120];
+
+export function sizeOptionsFor(maxMb: number): SelectOption[] {
+  const values = SIZE_SCALE.filter((mb) => mb <= maxMb);
+  if (!values.includes(maxMb)) values.push(maxMb);
+  return values.map((mb) => ({ value: String(mb), label: `${mb} MB` }));
+}
+
+export const SIZE_OPTIONS: SelectOption[] = sizeOptionsFor(STORAGE_MAX_MB);

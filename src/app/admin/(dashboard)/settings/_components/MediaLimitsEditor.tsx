@@ -7,11 +7,12 @@ import {
   MIME_GROUP_ICON,
   MIME_GROUP_ORDER,
   type MimeGroupKey,
-  SIZE_OPTIONS,
-  STORAGE_MAX_MB,
+  STORAGE_MAX_MB_CEILING,
   inferGroup,
   normalizeLimits,
   recommendedSize,
+  resolveStorageMaxMb,
+  sizeOptionsFor,
 } from "../_data/servicesUploadConfig";
 import { Plus } from "@/components/icons";
 import Select from "@/components/ui/Select";
@@ -38,6 +39,9 @@ export function MediaLimitsEditor({ config, setConfig, t }: {
   // 구 MIME-키 config 도 확장자로 정규화해서 표시 (마이그레이션)
   const limits = normalizeLimits((config.media as Record<string, unknown>)?.limits as Record<string, number>);
   const blockedExtensions = ((config.media as Record<string, unknown>)?.blockedExtensions ?? []) as string[];
+  /* 저장소 상한 — 형식별 선택지의 천장. 무료 플랜 기본 50, 설정에서 플랜에 맞게 올린다 */
+  const storageMax = resolveStorageMaxMb((config.media as Record<string, unknown>)?.storageMaxMb);
+  const sizeOptions = sizeOptionsFor(storageMax);
 
   // 쓰기는 항상 정규화된(확장자) limits 위에서 — 저장 시 MIME 키가 자연스럽게 확장자로 이관된다
   const updateLimits = (newLimits: Record<string, number>) => {
@@ -63,32 +67,37 @@ export function MediaLimitsEditor({ config, setConfig, t }: {
     customByGroup.get(g)!.push(e);
   }
 
-  const renderRow = (ext: string, label: string, isBuiltin: boolean) => (
-    <div key={ext} className={styles.mediaFormatRow}>
-      <span className={styles.mediaFormatLabel} title={`.${ext}`}>{label}</span>
+  /* 형식 하나 = 칩 하나("이름 [크기▾] ×") — 행 반복 대신 칩 wrap 으로 압축.
+     기본 형식은 × 가 없는 것으로 구분한다(라벨 반복 제거), 사유는 title 로 남긴다 */
+  const renderChip = (ext: string, label: string, isBuiltin: boolean) => (
+    <span
+      key={ext}
+      className={styles.formatChip}
+      data-builtin={isBuiltin || undefined}
+      title={isBuiltin ? `.${ext} — ${t("admin.settings.builtInCannotDisable")}` : `.${ext}`}
+    >
+      <span className={styles.formatChipName}>{label}</span>
       <Select
         size="sm"
-        width="s"
-        /* 예전에 저장한 100·200MB 는 저장소 한도(50MB)를 넘어 선택지에 없다 — 실제로 적용되는 값으로 보인다 */
-        value={String(Math.min(limits[ext] ?? 20, STORAGE_MAX_MB))}
-        options={SIZE_OPTIONS}
+        width="min"
+        /* 저장소 상한을 넘는 저장값은 선택지에 없다 — 실제로 적용되는 값(상한)으로 보인다 */
+        value={String(Math.min(limits[ext] ?? 20, storageMax))}
+        options={sizeOptions}
         onChange={(v) => updateLimits({ [ext]: Number(v) })}
+        triggerClassName={styles.formatChipSelect}
       />
-      <span className={styles.mediaFormatTrailing}>
-        {isBuiltin ? (
-          <span className={styles.mediaFormatBuiltin}>{t("admin.settings.mediaBuiltIn")}</span>
-        ) : (
-          <CloseButton
-            size="xs"
-            onClick={() => removeExt(ext)}
-            ariaLabel={t("admin.settings.mediaRemoveFormat")}
-            title={t("admin.settings.mediaRemoveFormat")}
-          />
-        )}
-      </span>
-    </div>
+      {!isBuiltin && (
+        <CloseButton
+          size="xs"
+          onClick={() => removeExt(ext)}
+          ariaLabel={t("admin.settings.mediaRemoveFormat")}
+          title={t("admin.settings.mediaRemoveFormat")}
+        />
+      )}
+    </span>
   );
 
+  /* 카테고리 하나 = 한 행 — 왼쪽 고정 폭 라벨 + 오른쪽 칩 wrap. 세로 나열보다 훨씬 얕다 */
   const renderCategory = (catKey: MimeGroupKey | "other", label: string, count: number, body: React.ReactNode) => {
     const Icon = MIME_GROUP_ICON[catKey];
     return (
@@ -105,13 +114,24 @@ export function MediaLimitsEditor({ config, setConfig, t }: {
 
   return (
     <div className={styles.mediaLimits}>
-      {/* 사용자 정의 확장자 추가 (상단) — 입력 시 inferGroup 으로 알맞은 카테고리에 배정 */}
-      <CustomExtAdder
-        blockedExtensions={blockedExtensions}
-        existingKeys={Object.keys(limits)}
-        onAdd={(ext) => updateLimits({ [ext]: recommendedSize(ext, inferGroup(ext)) })}
-        t={t}
-      />
+      {/* 상단 컨트롤 — 저장소 상한(왼쪽)과 사용자 정의 확장자 추가(오른쪽)를 한 줄에 */}
+      <div className={styles.mediaControls}>
+        <StorageMaxInput
+          key={storageMax}
+          storageMax={storageMax}
+          onCommit={(mb) =>
+            setConfig((prev) => ({ ...prev, media: { ...prev.media, storageMaxMb: mb } }))
+          }
+          t={t}
+        />
+        {/* 입력 시 inferGroup 으로 알맞은 카테고리에 배정 */}
+        <CustomExtAdder
+          blockedExtensions={blockedExtensions}
+          existingKeys={Object.keys(limits)}
+          onAdd={(ext) => updateLimits({ [ext]: recommendedSize(ext, inferGroup(ext)) })}
+          t={t}
+        />
+      </div>
 
       {MIME_GROUP_ORDER.map((catKey) => {
         const enabled = FORMAT_CATALOG.filter((f) => f.group === catKey && f.ext in limits);
@@ -123,11 +143,10 @@ export function MediaLimitsEditor({ config, setConfig, t }: {
           t(`admin.settings.mimeGroup${catKey[0].toUpperCase()}${catKey.slice(1)}`),
           enabled.length + custom.length,
           <>
-            {enabled.map((f) => renderRow(f.ext, f.label, f.isBuiltin))}
-            {custom.map((e) => renderRow(e, e.toUpperCase(), false))}
+            {enabled.map((f) => renderChip(f.ext, f.label, f.isBuiltin))}
+            {custom.map((e) => renderChip(e, e.toUpperCase(), false))}
             {available.length > 0 && (
               <Select
-                size="sm"
                 value=""
                 placeholder={`+ ${t("admin.settings.mediaAddFormat")}`}
                 options={available.map((f) => ({ value: f.ext, label: f.label }))}
@@ -135,7 +154,7 @@ export function MediaLimitsEditor({ config, setConfig, t }: {
                   const f = available.find((x) => x.ext === ext);
                   if (f) updateLimits({ [f.ext]: recommendedSize(f.ext, f.group) });
                 }}
-                className={styles.mediaAddFormat}
+                triggerClassName={styles.addFormatChip}
               />
             )}
           </>,
@@ -148,8 +167,52 @@ export function MediaLimitsEditor({ config, setConfig, t }: {
           "other",
           t("admin.settings.mediaCustomCategory"),
           customByGroup.get("other")!.length,
-          <>{customByGroup.get("other")!.map((e) => renderRow(e, e.toUpperCase(), false))}</>,
+          <>{customByGroup.get("other")!.map((e) => renderChip(e, e.toUpperCase(), false))}</>,
         )}
+    </div>
+  );
+}
+
+/** 저장소 한 파일 최대 용량(MB) 입력 — blur/Enter 에 확정. 범위 밖·숫자 아님은 확정하지 않고 사유를 보인다 */
+function StorageMaxInput({
+  storageMax,
+  onCommit,
+  t,
+}: {
+  storageMax: number;
+  onCommit: (mb: number) => void;
+  t: TFunction;
+}) {
+  const [draft, setDraft] = useState(String(storageMax));
+  const [error, setError] = useState("");
+
+  const commit = () => {
+    const n = Number(draft.trim());
+    if (!Number.isFinite(n) || !Number.isInteger(n) || n < 1 || n > STORAGE_MAX_MB_CEILING) {
+      setError(t("admin.settings.mediaStorageMaxInvalid"));
+      return;
+    }
+    setError("");
+    if (n !== storageMax) onCommit(n);
+  };
+
+  return (
+    <div className={styles.storageMax}>
+      <span className={styles.customMimeLabel}>{t("admin.settings.mediaStorageMaxLabel")}</span>
+      <div className={styles.storageMaxRow}>
+        {/* md(32) — 탭의 다른 입력칸(API 키 등)이 전부 md 라 sm 이면 이 둘만 낮아 보인다 */}
+        <Input
+          value={draft}
+          onChange={(v) => { setDraft(v); if (error) setError(""); }}
+          onBlur={commit}
+          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); commit(); } }}
+          error={!!error}
+        />
+        <span className={styles.storageMaxUnit}>MB</span>
+      </div>
+      {error
+        ? <p className={styles.customMimeError}>{error}</p>
+        : <p className={styles.storageMaxHint}>{t("admin.settings.mediaStorageMaxHint")}</p>}
     </div>
   );
 }
@@ -197,13 +260,12 @@ function CustomExtAdder({
       <span className={styles.customMimeLabel}>{t("admin.settings.customMimeAdd")}</span>
       <div className={styles.customMimeRow}>
         <Input
-          size="sm"
           value={ext}
           onChange={(v) => { setExt(v); if (error) setError(""); }}
           onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleAdd(); } }}
           placeholder={t("admin.settings.customMimePlaceholder")}
         />
-        <Button variant="outline" size="sm" icon={<Plus size={12} strokeWidth={2.4} />} onClick={handleAdd}>
+        <Button variant="outline" icon={<Plus size={12} strokeWidth={2.4} />} onClick={handleAdd}>
           {t("admin.settings.add")}
         </Button>
       </div>
