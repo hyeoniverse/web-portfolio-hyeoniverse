@@ -16,7 +16,7 @@ import { HOME_SLOT_COUNT, HOME_POOL_SPARE } from "@/data/works";
  *
  * owner 전용. 프로필 페이지 설정을 다루는 화면에서만 쓰인다.
  */
-export async function GET() {
+export async function GET(request: Request) {
   const { error } = await requireOwner();
   if (error) return error;
 
@@ -31,10 +31,16 @@ export async function GET() {
     );
   }
 
-  /* 조직 저장소도 같이 준다. 공개 소속 조직은 자동으로 잡히고, 여기 적힌 조직은 거기에 더해진다 */
+  /* 조직 저장소도 같이 준다. 공개 소속 조직은 자동으로 잡히고, 여기 적힌 조직은 거기에 더해진다.
+     ?orgs= 가 오면 저장된 값 대신 그걸 쓴다 — 설정 화면에서 방금 적은(아직 저장 전) 조직도
+     목록에 바로 반영돼야 적은 이름이 맞는지 저장 전에 확인할 수 있다 */
   const gh = (await getProfileData()).github;
+  const orgsParam = new URL(request.url).searchParams.get("orgs");
+  const extraOrgs = orgsParam !== null
+    ? orgsParam.split(",").map((s) => s.trim()).filter(Boolean)
+    : gh?.orgs ?? [];
   const [owned, due] = await Promise.all([
-    listOwnedRepos(login, gh?.orgs ?? []),
+    listOwnedRepos(login, extraOrgs),
     /* 아무것도 고르지 않았을 때 홈에 나갈 저장소 후보. 설정 화면이 그걸 보여줘야 표지·제목을
        미리 손볼 수 있다 — 안 그러면 자동으로 나가는 것들은 건드릴 방법이 없다(#1057).
        규칙은 홈이 쓰는 것과 같은 함수를 부른다. 여기서 따로 계산하면 둘이 어긋난다.
