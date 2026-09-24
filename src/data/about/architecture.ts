@@ -102,8 +102,8 @@ export const projectStructure: StructureItem[] = [
   {
     path: "ui/",
     description: {
-      ko: "Pressable(동작만) → Button(동작+생김새), Modal, Typography, OptimizedImage, Chip, HighlightInput, FontPicker, HighlightedText, LetterFilter, MediaThumb, SearchCapsule, ColorPicker (mobile sheet)",
-      en: "Pressable (behavior only) → Button (behavior + appearance), Modal, Typography, OptimizedImage, Chip, HighlightInput, FontPicker, HighlightedText, LetterFilter, MediaThumb, SearchCapsule, ColorPicker (mobile sheet)",
+      ko: "Pressable(동작만) → Button(동작+생김새), Modal, Typography, Chip, HighlightInput, FontPicker, HighlightedText, LetterFilter, MediaThumb, SearchCapsule, ColorPicker (mobile sheet)",
+      en: "Pressable (behavior only) → Button (behavior + appearance), Modal, Typography, Chip, HighlightInput, FontPicker, HighlightedText, LetterFilter, MediaThumb, SearchCapsule, ColorPicker (mobile sheet)",
     },
     indent: 2,
   },
