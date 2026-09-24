@@ -6,7 +6,7 @@
 <summary><strong>1. Lenis Scroll Velocity 효과 미작동</strong></summary>
 
 <p align="center">
-  <img src="public/images/screenshots/pc/works-dark.png" width="100%" alt="Works — Scroll Velocity" />
+  <img src="../public/images/screenshots/pc/works-dark.png" width="100%" alt="Works — Scroll Velocity" />
 </p>
 
 #### 문제
@@ -149,8 +149,8 @@ const resetTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
 <summary><strong>4. GSAP ScrollTrigger 수평 무한 스크롤 구현</strong></summary>
 
 <p align="center">
-  <img src="public/images/screenshots/pc/works-dark.png" width="49%" alt="Works — Dark" />
-  <img src="public/images/screenshots/pc/works-light.png" width="49%" alt="Works — Light" />
+  <img src="../public/images/screenshots/pc/works-dark.png" width="49%" alt="Works — Dark" />
+  <img src="../public/images/screenshots/pc/works-light.png" width="49%" alt="Works — Light" />
 </p>
 
 #### 문제
@@ -206,7 +206,7 @@ gsap.to(container, {
 <summary><strong>5. Lighthouse 성능 최적화 — reCAPTCHA 지연 로딩</strong></summary>
 
 <p align="center">
-  <img src="public/images/screenshots/pc/home-light.png" width="100%" alt="Home — Lighthouse" />
+  <img src="../public/images/screenshots/pc/home-light.png" width="100%" alt="Home — Lighthouse" />
 </p>
 
 #### 문제
@@ -313,7 +313,7 @@ badge.style.zIndex = isOpen ? "9999" : "";
 
 | PC | Tablet | Mobile |
 |:---:|:---:|:---:|
-| <img src="public/images/screenshots/pc/home-light.png" width="100%" alt="Home PC" /> | <img src="public/images/screenshots/tablet/home-light.png" width="100%" alt="Home Tablet" /> | <img src="public/images/screenshots/mobile/home-light.png" width="100%" alt="Home Mobile" /> |
+| <img src="../public/images/screenshots/pc/home-light.png" width="100%" alt="Home PC" /> | <img src="../public/images/screenshots/tablet/home-light.png" width="100%" alt="Home Tablet" /> | <img src="../public/images/screenshots/mobile/home-light.png" width="100%" alt="Home Mobile" /> |
 <sub>최적화 대상: Home 페이지 — 3개 디바이스에서 Performance 98점 달성</sub>
 
 #### 문제
@@ -519,7 +519,7 @@ Works 인트로 섹션에서 한국어↔영어 전환 시 텍스트 영역의 �
 <summary><strong>10. 언어 전환 시 로딩 화면 재출현</strong></summary>
 
 <p align="center">
-  <img src="public/images/screenshots/pc/home-dark.png" width="100%" alt="Home — Loading Screen" />
+  <img src="../public/images/screenshots/pc/home-dark.png" width="100%" alt="Home — Loading Screen" />
 </p>
 
 #### 문제
@@ -568,7 +568,7 @@ export function useLoadingScreen() {
 
 | PC | Tablet | Mobile |
 |:---:|:---:|:---:|
-| <img src="public/images/screenshots/pc/works-dark.png" width="100%" /> | <img src="public/images/screenshots/tablet/works-dark.png" width="100%" /> | <img src="public/images/screenshots/mobile/works-dark.png" width="100%" /> |
+| <img src="../public/images/screenshots/pc/works-dark.png" width="100%" /> | <img src="../public/images/screenshots/tablet/works-dark.png" width="100%" /> | <img src="../public/images/screenshots/mobile/works-dark.png" width="100%" /> |
 
 #### 문제
 
@@ -638,7 +638,7 @@ GSAP ScrollTrigger처럼 생성 시점의 뷰포트에 의존하는 애니메이
 
 | PC | Tablet | Mobile |
 |:---:|:---:|:---:|
-| <img src="public/images/screenshots/pc/home-dark.png" width="100%" /> | <img src="public/images/screenshots/tablet/home-dark.png" width="100%" /> | <img src="public/images/screenshots/mobile/home-dark.png" width="100%" /> |
+| <img src="../public/images/screenshots/pc/home-dark.png" width="100%" /> | <img src="../public/images/screenshots/tablet/home-dark.png" width="100%" /> | <img src="../public/images/screenshots/mobile/home-dark.png" width="100%" /> |
 
 #### 문제
 
@@ -1215,6 +1215,58 @@ CSS 토큰 감사 과정에서 `padding: var(--spacing-3xs) var(--spacing-xs)` (
 </details>
 
 ---
+
+<details>
+<summary><strong>33. CTA 버튼의 backdrop-filter 가 Chrome 에서 동작하지 않음</strong></summary>
+
+**문제**: 홈 CTA 버튼에 건 `backdrop-filter` 가 Chrome 에서 아무 효과도 내지 않았다.
+
+**원인**: `.home` 의 등장 애니메이션이 `y` transform 으로 돌아가면서 상위에 합성 레이어가 생겼다. 그 레이어가 backdrop 샘플링 범위를 잘라서 버튼이 참조할 배경이 사라졌다. `-webkit-backdrop-filter` 접두사도 Chrome 의 선언 파싱을 어긋나게 해 효과를 함께 죽였다.
+
+**해결**: 등장 애니메이션을 transform 대신 `marginTop` 으로 바꿔 합성 레이어를 만들지 않도록 하고, 접두사 선언을 제거했다.
+
+**핵심 인사이트**: `backdrop-filter` 는 자기 선언만으로 결정되지 않는다. 조상이 만든 합성 레이어가 샘플링 범위를 자르므로, 효과가 안 보이면 조상의 transform 부터 확인한다.
+
+</details>
+
+<details>
+<summary><strong>34. Portal 기반 드롭다운에서 CSS transition 이 걸리지 않음</strong></summary>
+
+**문제**: Portal 로 띄우는 드롭다운이 열릴 때 전환 없이 즉시 나타났다.
+
+**원인**: 마운트 시점에 이미 열림 상태 클래스가 붙어 있어 전환의 시작값과 끝값이 같았다. 브라우저는 값이 바뀌지 않은 속성에 전환을 걸지 않는다.
+
+**해결**: `animateOpen` 상태를 따로 두고 `requestAnimationFrame` 두 번으로 마운트, 닫힘, 열림 순서를 보장했다. 전역 테마 전환 규칙에 밀리지 않도록 복합 선택자로 특이도를 올렸다.
+
+**핵심 인사이트**: 전환은 값이 바뀌어야 일어난다. 마운트와 동시에 최종 상태로 그리면 전환할 구간 자체가 없으므로, 초기 상태를 한 프레임 이상 유지해야 한다.
+
+</details>
+
+<details>
+<summary><strong>35. mix-blend-mode: difference 안에서 자식 색을 개별 지정할 수 없음</strong></summary>
+
+**문제**: 히어로 영역에 `mix-blend-mode: difference` 를 걸었더니 그 안 모든 글자가 함께 반전돼, 설명 문구만 원래 색으로 두는 것이 불가능했다.
+
+**원인**: 부모에 blend 를 걸면 자식 전체가 한 덩어리로 합성된다. 자식에서 색을 다시 지정해도 합성 결과가 그 위에 적용되므로 개별 예외를 만들 수 없다.
+
+**해결**: difference 를 적용할 제목과 카테고리만 별도 요소에 두고, 설명과 상세는 형제 오버레이로 분리했다. 두 요소의 위치는 rAF 에서 맞춘다.
+
+**핵심 인사이트**: blend 는 요소 단위로만 예외를 만들 수 있다. 일부만 합성해야 하면 DOM 을 나눠야 한다.
+
+</details>
+
+<details>
+<summary><strong>36. About 페이지 첫 패널이 잘못된 위치에서 시작</strong></summary>
+
+**문제**: About 페이지를 열면 첫 패널이 화면 밖에서 시작하거나 어긋난 자리에서 멈췄다.
+
+**원인**: 동적 import 로 불러오는 패널의 스켈레톤 폭과 실제 폭이 달랐다. ErdPanel 은 스켈레톤이 350vw 로 잡혀 있었고 실제는 100vw 였다. 여기에 React strict mode 의 두 번째 마운트에서 GSAP 이 transform 을 초기화하면서 계산이 한 번 더 어긋났다.
+
+**해결**: 스켈레톤 폭을 실제 폭과 맞추고, cleanup 에서 transform 을 되돌리지 않도록 바꿨다. 초기화가 두 번 도는 것은 `initializedRef` 가드로 막았다.
+
+**핵심 인사이트**: 가로 스크롤 계산은 자리표시자의 크기에 의존한다. 스켈레톤이 실제와 다른 크기면 첫 계산이 통째로 틀어진다.
+
+</details>
 
 <details>
 <summary><strong>37. Plate 인라인 코드에서 방향키 커서 점프</strong></summary>
@@ -2036,5 +2088,277 @@ Plate 가 이 throw 를 catch 해서 **조용히 plaintext 로 떨구므로** �
 **해결**: 노드 값을 `String(...)` 으로 정규화해 문자열 프리셋과 같은 타입으로 비교·렌더하도록 해 중복 key 를 없앴고, 프리셋에 근접하지 않는 값은 그 실제 비율을 Select 옵션 맨 위에 그대로 노출해 표시하도록 했다.
 
 **핵심 인사이트**: Slate 노드에 숫자로 저장되는 값(line-height 등)은 문자열 기반 옵션과 비교·렌더하기 전에 반드시 `String` 으로 정규화한다. 프리셋 매칭은 "근접하면 프리셋, 아니면 실제값" 두 갈래를 모두 처리해야 빈칸이 생기지 않는다.
+
+</details>
+
+<details>
+<summary><strong>74. 모바일에서 네비게이션 버튼이 로고 위에 겹침</strong></summary>
+
+**문제**: 모바일에서 가운데 메뉴(`navCenter`)를 `display: none` 으로 숨기자, 오른쪽 버튼 묶음(`navActions`)이 왼쪽으로 이동해 fixed 로고와 같은 자리에 겹쳤다.
+
+**원인**: `.nav` 는 `justify-content: space-between` 인데, 자식이 하나만 남으면 그 하나가 시작 쪽에 붙는다. 로고는 fixed 라 flex 흐름 밖에 있고 `left: var(--page-px)` 로 같은 자리에 그려진다.
+
+**해결**: 모바일 미디어쿼리에서 `.nav { justify-content: flex-end }` 로 남은 자식을 오른쪽에 고정했다. 로고는 flex 흐름 밖이지만 buttons 가 오른쪽에 있으면 "로고, 여백, 버튼" 배치가 된다.
+
+**핵심 인사이트**: `space-between` 은 자식 수가 줄면 정렬 결과가 달라진다. fixed 요소와 겹쳐 배치한 컨테이너라면 자식이 하나 남는 분기를 따로 명시해야 한다.
+
+</details>
+
+<details>
+<summary><strong>77. task list 판별 `:has()` 의 과소 매칭과 과다 매칭</strong></summary>
+
+**문제**: 체크박스 목록에서 불릿을 숨기는 `:has()` 선택자가, 항목 사이에 빈 줄이 있는 목록에서는 불릿을 남기고, 자손 조합으로 고치면 일반 목록의 불릿까지 지웠다.
+
+**원인**: marked 는 tight list 를 `<li><input>` 으로, loose list 를 `<li><p><input>` 으로 만든다. `:has(> li > input)` 은 loose 형태를 놓치고, `:has(input)` 처럼 자손 조합자로 넓히면 체크박스 하위 목록을 품은 부모 목록까지 매칭된다.
+
+**해결**: 렌더러가 만드는 두 직계 경로만 열거했다. `:has(> li > input[type="checkbox"], > li > p > input[type="checkbox"])`.
+
+**핵심 인사이트**: `:has()` 는 조합자 선택이 곧 매칭 범위다. 렌더러가 실제로 만드는 DOM 형태를 전부 확인하고 직계로 못 박아야 안전하다.
+
+</details>
+
+<details>
+<summary><strong>78. 전역 input 리셋이 네이티브 체크박스를 아예 그리지 않음</strong></summary>
+
+**문제**: 댓글의 task list 체크박스가 화면에 그려지지 않았다.
+
+**원인**: `_base.css` 의 `input { border: none; background: none }` 리셋이 UA 기본 스타일을 지워서 체크박스가 그려질 표면 자체가 없었다. `appearance: auto` 를 줘도 되살아나지 않았다.
+
+**해결**: 체크박스에 `background: revert; border: revert` 를 줘 UA 스타일을 복원했다. shorthand 라 stylelint 의 토큰 강제 규칙에도 걸리지 않는다.
+
+**핵심 인사이트**: `appearance: auto` 는 "네이티브 위젯으로 그려라" 라는 뜻일 뿐이고, 리셋이 지운 background 와 border 를 되살리지는 않는다. 되살리는 값은 `revert` 다.
+
+</details>
+
+<details>
+<summary><strong>79. 툴바 마크다운 삽입이 빈 줄과 블록 문법에서 의도한 요소를 만들지 못함</strong></summary>
+
+**문제**: 빈 줄에서 체크박스 버튼을 누르면 체크박스 대신 `[ ]` 글자가 든 불릿이 나왔다. 구분선 버튼은 앞 줄에 글이 있으면 구분선 대신 제목을 만들었다.
+
+**원인**: GFM 은 `- [ ] ` 마커 뒤에 텍스트가 있어야 task list 로 파싱한다. `---` 는 바로 윗줄에 텍스트가 붙어 있으면 수평선이 아니라 setext h2 로 파싱된다.
+
+**해결**: prefix 계열 버튼은 빈 줄이면 예시 텍스트를 채우고 선택 상태로 두는 placeholder 를 넣었다. 블록 삽입은 먼저 위에 빈 줄을 확보한다.
+
+**핵심 인사이트**: 삽입 버튼은 문자열을 넣는 것으로 끝나지 않는다. 파서가 그 문법을 인식할 문맥까지 만들어야 한다.
+
+</details>
+
+<details>
+<summary><strong>80. Popover 안 텍스트별 mix-blend-mode: difference 가 backdrop-filter 와 양립 불가</strong></summary>
+
+**문제**: 유리(blur) 패널 안에서 글자마다 `mix-blend-mode: difference` 를 걸어 배경색을 반전시키려 했지만 어떤 조합으로도 되지 않았다.
+
+**원인**: `backdrop-filter` 와 `isolation: isolate` 는 Backdrop Root 를 만들어 backdrop-filter 가 참조할 범위를 자른다. 그리고 backdrop-filter 의 출력은 자손이나 형제에게 blend 가능한 배경으로 제공되지 않는다. 원리적으로 불가능한 조합이다.
+
+**해결**: 콘텐츠에 `filter: invert(1)` 을 주고 패널에 `mix-blend-mode: difference` 를 걸면 `|배경 − (1−색)|` 으로 원래 색이 복원된다. 최종적으로 기본 모양은 유리(반투명과 blur)로 정하고 difference 는 변형으로만 남겼다.
+
+**핵심 인사이트**: 두 효과는 같은 배경을 보는 것 같지만 서로의 입력이 되지 못한다. 사양이 만든 경계는 우회 수식으로만 넘을 수 있다.
+
+</details>
+
+<details>
+<summary><strong>81. 설치되지도 않는 Svelte 패키지 때문에 @vercel/analytics 설치가 실패</strong></summary>
+
+**문제**: `npm i @vercel/analytics` 가 `@sveltejs/vite-plugin-svelte` 의 peer 충돌 ERESOLVE 로 실패했다. 이 프로젝트에 Svelte 는 없다.
+
+**원인**: `@vercel/analytics` 는 프레임워크별 진입점을 위해 vue, nuxt, svelte 등을 optional peer 로 선언한다. npm 11 은 설치되지 않을 후보의 peer 까지 따라가 검증한다. 그 경로의 `@sveltejs/vite-plugin-svelte@5` 가 `vite ^6` 을 요구해 이 저장소의 vite 8 과 충돌했다.
+
+**해결**: `overrides` 에 `"@sveltejs/vite-plugin-svelte": "^7"` 을 넣어 npm 이 검증하는 후보만 vite 8 지원 버전으로 바꿨다. 실제 설치 트리에는 svelte 관련 패키지가 하나도 들어오지 않는다. `--legacy-peer-deps` 는 검사 전체를 끄는 것이라 다른 진짜 충돌까지 놓치므로 쓰지 않았다.
+
+**핵심 인사이트**: optional peer 는 "안 쓰면 무시" 가 아니라 "해결 가능해야 통과" 다. 충돌 지점만 overrides 로 바꾸면 검사를 살린 채 통과할 수 있다.
+
+</details>
+
+<details>
+<summary><strong>82. 상세 페이지 전환 덮개가 걷힌 뒤에도 이전 페이지가 보임</strong></summary>
+
+**문제**: 목록에서 상세로 넘어갈 때, 전환 덮개가 걷힌 뒤 약 0.5초 동안 떠나온 목록 화면이 그대로 보였다.
+
+**원인**: morph 전환이 고정 시간표(확대 380ms 뒤 morph 260ms)로 돌았고 덮개는 640ms 에 무조건 걷혔다. 새 경로의 커밋 시각은 이 시간표와 무관하다. 목록 카드 링크는 선불러오기를 하지 않아 누른 뒤에야 RSC 페이로드를 받고, 배포본 실측 커밋은 1161ms 였다.
+
+**해결**: 확대가 끝났는데 경로가 아직 안 바뀌었으면 화면을 덮은 채 기다리는 `cover` 단계를 추가하고, 커밋을 확인한 뒤 morph 를 시작한다. 커밋 신호는 오버레이 안에서 `usePathname()` 으로 받는다. 오버레이는 전환 중에만 떠 있어 구독도 그때만 생긴다.
+
+**핵심 인사이트**: 전환 연출을 시간표로 짜면 네트워크가 어긋나는 순간 화면이 샌다. 덮개는 시간이 아니라 실제 경로 커밋에 맞춰 걷어야 한다. 검증은 Playwright 녹화 영상을 ffmpeg 콘택트 시트로 만들어 프레임 단위로 봤다.
+
+</details>
+
+<details>
+<summary><strong>83. 가로 스크롤 구간에서 preventDefault 를 불러도 페이지가 세로로 밀림</strong></summary>
+
+**문제**: 가로 스크롤 섹션에서 패널은 좌우로 도는데 페이지도 같이 세로로 밀렸다.
+
+**원인**: 전역 Lenis 는 window 에 자기 휠 리스너를 달고 델타를 받아 `scrollTo` 로 페이지를 직접 굴린다. Lenis 1.0.42 의 `onVirtualScroll` 은 `event.defaultPrevented` 를 확인하지 않는다. `preventDefault()` 가 막는 것은 브라우저 기본 스크롤뿐이다.
+
+**해결**: 휠을 가로채는 요소에 `data-lenis-prevent-wheel` 표시를 붙였다. Lenis 는 `composedPath` 에서 이 표시를 찾으면 물러난다. 끝에 닿아 세로로 넘겨야 할 때는 표시를 떼서 Lenis 가 이어받게 한다. 정리 함수에서 표시를 걷지 않으면 모바일 배치에서 세로 스크롤이 죽는다.
+
+**핵심 인사이트**: 스크롤 라이브러리는 브라우저의 이벤트 규약 밖에서 돈다. `preventDefault` 와 라이브러리 전용 표시를 짝으로 관리해야 한다.
+
+</details>
+
+<details>
+<summary><strong>84. 작업물을 전부 미발행으로 돌려도 목록에 데모 작업물이 나옴</strong></summary>
+
+<p align="center">
+  <img src="../public/images/screenshots/pc/works-grid-dark.png" width="100%" alt="Works Grid — 발행된 작업물 목록" />
+</p>
+
+**문제**: 관리자에서 작업물을 전부 미발행으로 내렸는데, 공개 목록에 코드에 든 정적 데모 목록이 대신 나타났다.
+
+**원인**: `getWorks` 는 DB 없는 새 클론에서도 화면이 나오도록 정적 `data/projects.ts` 폴백을 둔다. 그런데 "표에 행이 없다" 와 "행은 있는데 전부 미발행이다" 가 똑같은 빈 배열로 온다. 길이만 보고 폴백하면 전부 내리는 순간 데모 목록이 그 자리를 채운다.
+
+**해결**: 빈 결과를 만나면 `count: "exact", head: true` 조회로 전체 행 수를 한 번 더 센다. 행이 있으면 빈 목록을 그대로 내보낸다. 홈 쪽은 DB 접근 실패를 `null`, 발행 없음을 `[]` 로 갈라 앞의 경우에만 정적으로 돌아간다.
+
+**핵심 인사이트**: 폴백 조건은 "결과가 비었다" 가 아니라 "원천을 쓸 수 없다" 로 정의해야 한다. 두 상태가 같은 값으로 돌아오면 한 번 더 물어서라도 갈라야 한다.
+
+</details>
+
+<details>
+<summary><strong>85. 파비콘 기호가 설정한 글꼴과 다르게 그려짐</strong></summary>
+
+**문제**: 탭 아이콘의 로고 기호(✦)가 설정한 브랜드 글꼴 모양이 아니라 기기마다 다른 모양으로 나왔다.
+
+**원인**: 두 겹이었다. 브라우저는 탭 아이콘을 그릴 때 웹폰트를 받아오지 않아서 SVG 의 `font-family` 이름은 기기 글꼴로 대체된다. 그리고 브랜드 글꼴(Instrument Serif)에는 U+2726 글리프가 아예 없다(.notdef). 사이트 로고의 기호도 사실은 시스템 대체 글꼴이 그리고 있었다.
+
+**해결**: 기호 글꼴(Noto Sans Symbols 2)에서 쓸 기호만 추려 base64 모듈로 굳히고, 파비콘 라우트는 opentype.js 로 외곽선을 뽑아 `<path>` 로 넣는다. 페이지도 같은 글꼴을 `@font-face` 로 얹되 serif 같은 총칭 이름보다 앞에 둔다. 뒤에 두면 serif 가 먼저 걸린다.
+
+**핵심 인사이트**: `document.fonts.check()` 는 대체 글꼴로 그릴 수 있어도 true 라 판별에 쓸 수 없다. 어느 글꼴이 그렸는지는 같은 글자를 스택별로 렌더해 폭을 재서 갈랐다. 탭처럼 웹폰트가 닿지 않는 표면의 글자는 path 로 굳히는 것이 확실하다.
+
+</details>
+
+<details>
+<summary><strong>86. 이메일 로그인 뒤 관리자 화면과 네비게이션이 로그인 상태를 모름</strong></summary>
+
+**문제**: 이메일 로그인에 성공해도 admin 페이지 진입에 새로고침이 필요했고, 네비게이션의 로그인 상태 표시(이메일, 알림, 로그아웃)가 나타나지 않았다.
+
+**원인**: 로그인이 서버 라우트에서 일어나 응답의 Set-Cookie 로 세션 쿠키만 심긴다. 브라우저 Supabase 클라이언트는 SIGNED_IN 이벤트를 받지 못한다. 이 상태에서 `router.push` 로 이동하면 서버 layout 의 `getUser()` 가 새 쿠키를 못 보고, 루트에 계속 마운트돼 있던 Navigation 의 훅은 마운트 시 한 번만 쿠키를 확인해서 다시 보지 않는다.
+
+**해결**: 로그인 성공 후 이동을 `window.location.assign` 전체 리로드로 바꿨다. GitHub OAuth 의 서버 redirect 와 같은 방식이다. 전체 리로드가 Navigation 을 쿠키 실은 채 새로 마운트시켜 두 증상이 함께 사라진다.
+
+**핵심 인사이트**: 서버가 심은 쿠키는 클라이언트 내비게이션으로 전파되지 않는다. 인증 상태를 바꾼 직후는 전체 내비게이션이 안전하다.
+
+</details>
+
+<details>
+<summary><strong>87. 없는 주소의 404 화면에서 하이드레이션 불일치</strong></summary>
+
+**문제**: `/admin/없는주소` 같은 404 화면에서 React #418(HTML 불일치) 오류가 났다. 공개 영역의 없는 주소는 괜찮았다.
+
+**원인**: 매칭되지 않는 주소는 빌드 때 그려 둔 정적 `/_not-found` HTML 을 그대로 받는다. 이 HTML 은 경로 없이 그려져 공개용 네비게이션과 푸터가 들어 있다. 루트 레이아웃의 Navigation 과 Footer 는 경로 앞머리(`/admin`, `/design-system`)로 모양을 바꾸므로 브라우저에서 다시 그린 결과와 어긋난다.
+
+**해결**: 경로로 모양이 바뀌는 앞머리마다 catch-all 라우트(`[...missing]`)를 두고 거기서 `notFound()` 를 부른다. 요청 시점에 그려져 경로가 일치한다. 루트 not-found 를 통째로 동적으로 만들면 모든 404 가 DB 를 조회하게 돼 기각했다.
+
+**핵심 인사이트**: 루트 레이아웃이 경로를 보고 모양을 바꾸면, 그 모든 앞머리에 대해 404 도 같은 경로에서 그려져야 한다. 정적 404 는 "경로 없음" 상태로 그려진다는 사실을 잊기 쉽다.
+
+</details>
+
+<details>
+<summary><strong>88. LCP 이미지가 낮은 우선순위로 받히고, 스트리밍 경계가 공개를 300ms 미룸</strong></summary>
+
+**문제**: 모바일 글 목록과 상세의 LCP 가 회귀했다. 커버 이미지가 CSS, 글꼴과 회선을 나누며 늦게 도착했고, 도착한 뒤에도 화면 공개가 밀렸다.
+
+**원인**: 둘이 겹쳤다. Next 16 의 `priority` 는 head preload 만 넣고 `fetchpriority` 속성을 붙이지 않아 LCP 이미지가 Low 로 요청된다. 그리고 React 19.2 는 셸이 먼저 칠해진 뒤 늦게 온 Suspense 경계를 첫 프레임 기준 300ms 뒤에 공개한다. loading.tsx 경계 안에 LCP 요소가 있으면 이 지연을 그대로 받는다.
+
+**해결**: `priority` 를 주는 자리에 `fetchPriority="high"` 를 함께 넘긴다. 상세의 커버는 loading 경계 밖인 `[slug]/layout.tsx` 로 옮겨(DetailShell) 셸과 함께 칠해지게 했다.
+
+**핵심 인사이트**: LCP 관문은 직렬로 걸린다. 요청 우선순위와 공개 시점 중 하나만 고치면 수치가 움직이지 않는다. LCP 요소는 스트리밍 경계 밖 레이아웃에 두는 것이 근본 해결이다.
+
+</details>
+
+<details>
+<summary><strong>89. 칩 hover 규칙 하나가 타이핑마다 6천 개 요소 스타일 재계산</strong></summary>
+
+**문제**: 작업물 편집기에서 글자를 칠 때마다 열 번에 두 번꼴로 요소 6,357개 전체 스타일 재계산이 일어나 입력 지연 p90 이 튀었다. 마우스만 움직여도 같은 일이 일어났다.
+
+**원인**: `.chip:has([data-close-trigger]:hover) .label *` 규칙 하나였다. 글자를 치면 포인터 아래 요소가 바뀌어 hover 재계산이 일어나는데, `:has()` 안에 `:hover` 가 있고 뒤에 universal `*` 자손이 붙으면 Chrome 이 body 서브트리 전체를 무효화한다. `*` 를 뺀 같은 모양 선택자는 괜찮았다.
+
+**해결**: 선택자 구조는 두고 조건만 JS 로 옮겼다. 닫기 버튼의 onPointerEnter 와 onPointerLeave 가 칩에 `data-remove-hover` 속성을 붙이고, CSS 는 `.chip[data-remove-hover] .label *` 로 매칭한다.
+
+**핵심 인사이트**: 원인 규칙은 추측이 아니라 CSSOM 에서 규칙을 지워 가며 이분해서 찾았다. `:has(:hover)` 와 universal 자손의 조합은 전역 무효화를 부른다.
+
+</details>
+
+<details>
+<summary><strong>90. 3D 원통의 판에서 가운데 클릭이 새 탭을 열지 않음</strong></summary>
+
+<p align="center">
+  <img src="../public/images/screenshots/pc/works-cylinder-light.png" width="100%" alt="Works Cylinder — 3D 원통 배치" />
+</p>
+
+**문제**: 원통 배치의 작업물 판을 가운데 클릭해도 새 탭이 열리지 않았다. 키보드로는 판에 접근할 방법이 없었다.
+
+**원인**: 브라우저는 가운데 클릭에 `click` 대신 `auxclick` 을 쏘고 react-three-fiber 는 auxclick 을 듣지 않는다. 캔버스를 `<a>` 로 감싸는 방법은 커스텀 커서(CursorTrail)가 `closest("a, button")` 로 판이 없는 자리까지 링크 커서로 그려 쓸 수 없었다.
+
+**해결**: 메시의 `onPointerDown` 과 `onPointerUp` 에서 `button === 1` 을 같은 메시로 짝지어 처리하고, `onPointerLeave` 에서 기록을 지운다. 보조 키 클릭은 `window.open(href, "_blank", "noopener")` 로 연다. 키보드는 초점이 오면 보이는 링크 목록을 두고 초점 이동에 맞춰 원통을 돌린다.
+
+**핵심 인사이트**: 캔버스 위 상호작용을 링크처럼 만들려면 브라우저가 링크에 공짜로 주는 것들(가운데 클릭, 보조 키, 키보드 초점)을 하나씩 직접 구현해야 한다. 어느 하나라도 빠지면 접근성 구멍이 된다.
+
+</details>
+
+<details>
+<summary><strong>91. 작업물 순서를 바꾸면 저장 전인데 다른 작업물 순서까지 뒤섞임</strong></summary>
+
+**문제**: 편집기에서 정렬 순서를 바꾸면 저장 전인데도 다른 작업물의 순서가 바뀌었고, 저장하면 의도와 다른 순서가 됐다.
+
+**원인**: 드래그 목록의 onChange 가 밀리는 작업물마다 PATCH 를 병렬로 보냈고, 서버는 sort_order PATCH 마다 전체를 읽어 1부터 다시 매겼다. 병렬 요청의 도착 순서에 따라 재할당 결과가 달라지는 경쟁이었다.
+
+**해결**: 편집기는 순서 변경을 미리보기로만 반영하고 다른 작업물에는 요청을 보내지 않는다. 저장할 때 자기 위치 하나만 보내고, 서버의 배치 로직(`placeWork`)이 맨 뒤 삽입 후 받은 자리로 이동시킨다. 재현은 실제 라우트를 vitest 에서 메모리 표 가짜 클라이언트로 돌리고 읽기 지연을 호출마다 달리 줘 쓰기 순서를 뒤집는 방식으로 했다.
+
+**핵심 인사이트**: "서버가 매번 전체를 재할당" 하는 API 에 병렬 쓰기를 보내면 결과가 도착 순서에 달린다. 순서 같은 파생 상태는 저장 시점에 한 요청으로 보내야 한다.
+
+</details>
+
+<details>
+<summary><strong>92. 오피스 문서 미리보기 iframe 이 "gview 다운로드 실패" 를 띄움</strong></summary>
+
+**문제**: 첨부한 오피스 문서 미리보기 iframe 이 수시로 비고, Chrome 이 "gview 다운로드 실패" 알림을 띄웠다.
+
+**원인**: `docs.google.com/gview?embedded=true` 는 iframe 요청(Sec-Fetch-Dest: iframe)에 12번 중 5번꼴로 204 빈 응답을 돌려줬다. iframe 이 비고, Chrome 은 그 이동을 파일 다운로드 시도로 받아 실패 알림을 띄운다. 코드 문제가 아니라 서비스 자체의 동작이다.
+
+**해결**: MS 뷰어(`view.officeapps.live.com/op/embed.aspx`)로 바꿨다. 같은 조건에서 8번 모두 200 이었다. 저장된 HTML 에 굳어 있는 예전 gview 주소는 그릴 때 `migrateOfficeViewerUrls` 가 바꾼다. MS 뷰어 콘솔의 `appChrome is not defined` 오류는 화면과 무관하다. 예전에 이 콘솔 오류만 보고 gview 로 옮겼다가 204 를 만났다.
+
+**핵심 인사이트**: 외부 뷰어의 신뢰성은 콘솔 오류가 아니라 상태 코드 분포로 판단한다. curl 에 `Sec-Fetch-Dest: iframe` 헤더를 넣고 반복 호출해 실측했다.
+
+</details>
+
+<details>
+<summary><strong>93. 서식을 지운 직후 Backspace 가 글자 대신 직전 편집을 되돌림</strong></summary>
+
+<p align="center">
+  <img src="../public/images/screenshots/pc/editor-light.png" width="100%" alt="Plate 편집기" />
+</p>
+
+**문제**: 마크다운 자동변환으로 만든 불릿을 지우고 계속 Backspace 를 누르면, 글자가 지워지는 대신 불릿이 되살아나거나 커서가 다른 줄로 이동했다.
+
+**원인**: 자동변환 직후 Backspace 를 변환 취소로 처리하는 로직이 history 를 확인하지 않고 undo 를 불렀다. 변환 뒤에 다른 편집이 끼어 있으면 undo 가 그 편집을 되돌렸다. 문단 중간에서 친 스페이스를 변환으로 오판하는 판정 버그도 겹쳤다.
+
+**해결**: trigger 를 넣기 전 history 위치를 적어 두고, 되돌리기 직전에 history 가 변환 직후 그대로인지 확인한다. 맞으면 그 이후 연산만 역적용해 마크다운 표시를 복원하고, 아니면 평범한 Backspace 로 동작한다. 블록 맨 앞 Backspace 는 자동변환 직후가 아니어도 마크다운 표시(`- `, `## `, `> `)로 되돌린다.
+
+**핵심 인사이트**: `editor.undo()` 는 마지막 묶음을 통째로 되돌린다. "방금 그 변환만" 되돌리려면 history 시점을 스냅숏하고 그 이후 연산을 골라 역적용해야 한다.
+
+</details>
+
+<details>
+<summary><strong>94. 기간으로 저장한 작업물 연도가 화면에 JSON 으로 노출</strong></summary>
+
+**문제**: 작업물 카드의 연도 자리에 `{"start":{"year":2024,...}}` 같은 JSON 원문이 그대로 보였다.
+
+**원인**: 편집기는 기간 입력을 JSON 문자열로 `year` 컬럼에 저장하는데, 목록 화면은 그 값을 그대로 출력했다. 기간을 문자열로 조립하는 로직은 편집기 미리보기에만 있었다.
+
+**해결**: `parseStoredPeriod` 와 `formatWorkYear` 유틸을 분리해 저장값이 JSON 기간이면 언어에 맞는 기간 문자열로, 아니면 원문 그대로 보여 준다. 연도를 그리는 컴포넌트들이 이 유틸을 공유한다.
+
+**핵심 인사이트**: 한 컬럼에 두 가지 표현(평문과 JSON)이 공존하면, 해석 로직은 유틸로 한 곳에 두고 모든 소비자가 공유해야 한다. 편집기에만 두면 공개 화면이 원문을 노출한다.
+
+</details>
+
+<details>
+<summary><strong>95. 전역 strong 색이 본문에서 지정한 글자색을 덮음</strong></summary>
+
+**문제**: 굵은 글씨에 글자색을 지정해도 본문에서는 항상 테마 강조색으로 보였다.
+
+**원인**: 전역 `strong { color: var(--text-accent) }` 가 사이트 공통 기본값인데, 편집기와 본문에도 그대로 적용됐다. 저장된 HTML 은 색을 바깥 span 에 적으므로(`<span style="color: X"><strong>`), strong 자신에게 걸린 전역 색이 상속값을 이겼다.
+
+**해결**: 본문 스코프(`.prose-content`)의 strong 은 `color: var(--_strong-color, inherit)` 로 두고, 색 선언으로 시작하는 span 안의 strong 만 `inherit` 로 그 색을 따르게 했다. 본문 글자색이 다른 곳(작업물 본문)은 `--_strong-color` 로 기본색을 넘긴다.
+
+**핵심 인사이트**: 전역 기본값과 사용자 지정값이 같은 속성을 다투면, 스코프 변수에 fallback 을 태워 "지정 없으면 기본, 있으면 그 값" 을 CSS 만으로 가를 수 있다.
 
 </details>
