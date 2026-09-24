@@ -39,8 +39,10 @@ Optional:
   GEMINI_API_KEY               # Translation + AI Summary — Gemini
   OPENAI_API_KEY               # AI Summary — OpenAI
   ANTHROPIC_API_KEY            # Translation + AI Summary — Claude
-  GITHUB_TOKEN                 # giscus repo lookup + /profile contribution graph (GraphQL needs auth).
-                               # Public-repo read PAT; the admin Services tab secret takes priority
+  GITHUB_TOKEN                 # Profile/home GitHub integration (repos, org repos; the contribution
+                               # graph is GraphQL and needs auth) + giscus repo lookup. Public-repo read
+                               # PAT; the admin Services tab secret takes priority. Orgs may reject
+                               # fine-grained tokens with a lifetime over 366 days — issue under 1 year
 ```
 
 **Four rules for `SITE_URL`.**

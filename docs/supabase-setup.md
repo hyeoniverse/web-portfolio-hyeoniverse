@@ -36,7 +36,7 @@ GOOGLE_TRANSLATE_API_KEY=your_google_key        # provider: "google"
 GEMINI_API_KEY=your_gemini_key                  # provider: "gemini"
 ANTHROPIC_API_KEY=your_anthropic_key            # provider: "claude" (번역 + AI 요약)
 
-# giscus 댓글 (선택) — admin 설정에서 저장소의 Discussion 카테고리를 불러올 때만 사용
+# GitHub API 토큰 (선택) — 프로필·홈 GitHub 연동(저장소·조직 저장소·잔디) + giscus Discussion 카테고리 조회
 # 공개 저장소 읽기용 GitHub PAT (별도 권한 없이도 공개 데이터 조회 가능)
 GITHUB_TOKEN=ghp_...
 ```
@@ -297,15 +297,17 @@ HUGGINGFACE_API_KEY=hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 > 무료 — 시간당 200건, 월 20,000건. Unsplash 정책 변경 / rate limit 시 대안으로 활용.
 
-#### GitHub Token 발급 (giscus 사용 시)
+#### GitHub Token 발급
 
-댓글을 giscus 로 쓸 때, admin 설정에서 저장소의 Discussion 카테고리를 자동으로 불러오는 데만 사용합니다.
+프로필·홈의 GitHub 연동(저장소 목록·조직 저장소·활동 잔디)과, 댓글을 giscus 로 쓸 때 admin 설정에서 저장소의 Discussion 카테고리를 자동으로 불러오는 데 사용합니다.
 
 1. [GitHub → Settings → Developer settings → Personal access tokens](https://github.com/settings/tokens) 이동
-2. 토큰 생성 — **공개 저장소의 Discussion 카테고리만 읽으므로 별도 스코프 체크 불필요**
+2. 토큰 생성 — **공개 데이터만 읽으므로 별도 스코프 체크 불필요**
 3. `.env.local` 에 `GITHUB_TOKEN=...` 입력하거나, admin **Services** 탭에 저장 (DB 시크릿이 환경변수보다 우선)
 
-> giscus 위젯 자체는 토큰 없이 동작합니다 — 토큰은 admin 설정 화면의 카테고리 자동 조회 편의 기능 전용입니다.
+> 토큰이 없어도 공개 저장소 목록은 익명으로 조회하지만, IP당 시간 60회 제한이라 소진되면 조직 저장소가 간헐적으로 빠집니다. `/profile` 의 활동 잔디는 GraphQL 전용이라 토큰이 꼭 필요합니다.
+>
+> **조직 저장소가 안 잡히면**: 조직은 만료 기한이 366일을 넘는 fine-grained(`github_pat_`) 토큰을 거부할 수 있습니다. 기한을 1년 이하로 줄여 다시 발급하거나 classic(`ghp_`) 토큰을 쓰세요.
 
 **인증 플로우:**
 

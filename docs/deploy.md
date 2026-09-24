@@ -39,8 +39,9 @@ Production 배포는 저장소 기본 브랜치(`master`) push 로, Preview 배�
   GEMINI_API_KEY               # 번역 + AI 요약 — Gemini
   OPENAI_API_KEY               # AI 요약 — OpenAI
   ANTHROPIC_API_KEY            # 번역 + AI 요약 — Claude
-  GITHUB_TOKEN                 # giscus 저장소 조회 + /profile 잔디(GraphQL 은 인증 필수).
-                               # 공개 저장소 읽기 PAT. admin Services 탭 시크릿이 우선
+  GITHUB_TOKEN                 # 프로필·홈 GitHub 연동(저장소·조직 저장소·잔디는 GraphQL 이라 인증 필수)
+                               # + giscus 저장소 조회. 공개 저장소 읽기 PAT. admin Services 탭 시크릿이 우선.
+                               # 조직은 만료 366일 초과 fine-grained 토큰을 거부할 수 있음 — 1년 이하로 발급
 ```
 
 **`SITE_URL` 은 네 가지를 지킵니다.**
