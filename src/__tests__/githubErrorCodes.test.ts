@@ -61,7 +61,7 @@ describe("/api/admin/giscus-repo", () => {
 
 describe("/api/admin/profile/github-repos", () => {
   it("소유자 프로필에 GitHub 링크가 없으면 GITHUB_OWNER_LINK_MISSING", async () => {
-    const res = await githubRepos();
+    const res = await githubRepos(new Request("http://localhost/api/admin/profile/github-repos"));
     const body = await res.json();
     expect(res.status).toBe(400);
     expect(body).toMatchObject({ code: "GITHUB_OWNER_LINK_MISSING", repos: [] });
