@@ -57,7 +57,7 @@ GITHUB_TOKEN=ghp_...
 
 ### 2. 데이터베이스 테이블 생성
 
-[`supabase/setup.sql`](supabase/setup.sql) 파일에 전체 테이블 생성 + RLS 정책이 포함되어 있습니다.
+[`supabase/setup.sql`](../supabase/setup.sql) 파일에 전체 테이블 생성 + RLS 정책이 포함되어 있습니다.
 
 Supabase Dashboard → **SQL Editor**에서 파일 내용을 복사하여 한 번에 실행하면 됩니다.
 

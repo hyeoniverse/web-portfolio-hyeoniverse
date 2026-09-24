@@ -1,6 +1,6 @@
 # Trouble Shooting: Plate Editor
 
-[← Index](../troubleshooting.en.md)
+[← Index](../troubleshooting.md)
 
 <details>
 <summary><strong>44. Preserving inline flow: a div inside an inline void blocks the caret</strong></summary>
