@@ -48,18 +48,20 @@ interface TypographyConfig {
   customFonts?: CustomFont[];
 }
 
-/** font display name → CSS font-family string (empty = use preloaded default) */
+/** font display name → CSS font-family string (empty = use preloaded default)
+ *  라틴 전용 프리셋엔 generic 앞에 한글 웹폰트를 끼운다(#1158) — 안 끼우면 그 프리셋을
+ *  고른 순간 한글이 다시 OS 기본 글꼴로 떨어진다. 한글 프리셋은 자체 글리프라 불필요. */
 const HEADING_FONTS: Record<string, string> = {
   "Instrument Serif": "",
   "Noto Serif KR": '"Noto Serif KR", serif',
   "Nanum Myeongjo": '"Nanum Myeongjo", serif',
   "Gowun Batang": '"Gowun Batang", serif',
   "Hahmlet": '"Hahmlet", serif',
-  "Playfair Display": '"Playfair Display", serif',
-  "Cormorant Garamond": '"Cormorant Garamond", serif',
-  "Lora": '"Lora", serif',
-  "EB Garamond": '"EB Garamond", serif',
-  "Merriweather": '"Merriweather", serif',
+  "Playfair Display": '"Playfair Display", var(--font-noto-serif-kr), serif',
+  "Cormorant Garamond": '"Cormorant Garamond", var(--font-noto-serif-kr), serif',
+  "Lora": '"Lora", var(--font-noto-serif-kr), serif',
+  "EB Garamond": '"EB Garamond", var(--font-noto-serif-kr), serif',
+  "Merriweather": '"Merriweather", var(--font-noto-serif-kr), serif',
 };
 
 const BODY_FONTS: Record<string, string> = {
@@ -69,23 +71,23 @@ const BODY_FONTS: Record<string, string> = {
   "IBM Plex Sans KR": '"IBM Plex Sans KR", sans-serif',
   "Nanum Gothic": '"Nanum Gothic", sans-serif',
   "Gowun Dodum": '"Gowun Dodum", sans-serif',
-  "Inter": '"Inter", sans-serif',
-  "DM Sans": '"DM Sans", sans-serif',
-  "Poppins": '"Poppins", sans-serif',
-  "Nunito": '"Nunito", sans-serif',
+  "Inter": '"Inter", "Pretendard Variable", sans-serif',
+  "DM Sans": '"DM Sans", "Pretendard Variable", sans-serif',
+  "Poppins": '"Poppins", "Pretendard Variable", sans-serif',
+  "Nunito": '"Nunito", "Pretendard Variable", sans-serif',
 };
 
 const MONO_FONTS: Record<string, string> = {
   "JetBrains Mono": "",
-  "Fira Code": '"Fira Code", monospace',
-  "Source Code Pro": '"Source Code Pro", monospace',
-  "IBM Plex Mono": '"IBM Plex Mono", monospace',
-  "Roboto Mono": '"Roboto Mono", monospace',
-  "Inconsolata": '"Inconsolata", monospace',
+  "Fira Code": '"Fira Code", "Pretendard Variable", monospace',
+  "Source Code Pro": '"Source Code Pro", "Pretendard Variable", monospace',
+  "IBM Plex Mono": '"IBM Plex Mono", "Pretendard Variable", monospace',
+  "Roboto Mono": '"Roboto Mono", "Pretendard Variable", monospace',
+  "Inconsolata": '"Inconsolata", "Pretendard Variable", monospace',
   "Nanum Gothic Coding": '"Nanum Gothic Coding", monospace',
-  "Ubuntu Mono": '"Ubuntu Mono", monospace',
-  "DM Mono": '"DM Mono", monospace',
-  "Courier Prime": '"Courier Prime", monospace',
+  "Ubuntu Mono": '"Ubuntu Mono", "Pretendard Variable", monospace',
+  "DM Mono": '"DM Mono", "Pretendard Variable", monospace',
+  "Courier Prime": '"Courier Prime", "Pretendard Variable", monospace',
 };
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
@@ -315,9 +317,11 @@ function applyFontOverrides(
     ...(typography.customFonts ?? []).map((f) => f.name),
   ]);
 
-  applyFont(root, "--font-instrument", typography.headingFont, HEADING_FONTS, "serif", customSet);
-  applyFont(root, "--font-space-grotesk", typography.bodyFont, BODY_FONTS, "sans-serif", customSet);
-  applyFont(root, "--font-mono", typography.monoFont, MONO_FONTS, "monospace", customSet);
+  /* fallback 에도 한글 웹폰트 포함(#1158) — 커스텀(Google 동적 로드) 폰트가 라틴 전용이어도
+     한글이 OS 글꼴로 떨어지지 않게 */
+  applyFont(root, "--font-instrument", typography.headingFont, HEADING_FONTS, "var(--font-noto-serif-kr), serif", customSet);
+  applyFont(root, "--font-space-grotesk", typography.bodyFont, BODY_FONTS, '"Pretendard Variable", sans-serif', customSet);
+  applyFont(root, "--font-mono", typography.monoFont, MONO_FONTS, '"Pretendard Variable", monospace', customSet);
 }
 
 function applyFont(
