@@ -1,12 +1,16 @@
 import type { Metadata, Viewport } from "next";
 import type React from "react";
 import "@/styles/global.css";
+/* 한글 본문·UI 폰트 — 라틴 웹폰트들엔 한글 글리프가 없어 OS 기본 글꼴(맥 애플고딕/윈도우 맑은고딕)로
+   떨어지던 것을 Pretendard 로 통일한다(#1158). dynamic subset 이라 쓰는 글자 조각만 내려받는다 */
+import "pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css";
 import {
   Inter,
   Playfair_Display,
   JetBrains_Mono,
   Space_Grotesk,
   Instrument_Serif,
+  Noto_Serif_KR,
 } from "next/font/google";
 // 나머지 25개 옵션 폰트는 ThemeProvider의 loadGoogleFont()으로 동적 로드
 
@@ -79,10 +83,14 @@ const inter = Inter({
   display: "optional",
   preload: false,
 });
+/* -latin 접미사 변수들: next/font 값을 그대로 노출하지 않고 _typography.css 토큰에서
+   한글 웹폰트를 뒤에 합성해 --font-playfair 등 원래 이름으로 다시 내보낸다(#1158).
+   ThemeProvider 의 폰트 설정 override(inline setProperty/removeProperty)와도 안전하게 공존:
+   override 는 토큰을 덮고, 기본값 복원은 토큰(한글 폴백 포함)으로 돌아온다. */
 const playfair = Playfair_Display({
   subsets: ["latin"],
   weight: ["400", "700"],
-  variable: "--font-playfair",
+  variable: "--font-playfair-latin",
   display: "optional",
   preload: false,
 });
@@ -100,7 +108,7 @@ const jetbrains = JetBrains_Mono({
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
   weight: ["400", "500", "700"],
-  variable: "--font-space-grotesk",
+  variable: "--font-space-grotesk-latin",
   // menu drawer / nav / posts 등 노출 빈도 높은 핵심 폰트 — fallback (system sans-serif)
   // 영구 표시 안 되도록 swap + preload (LCP 영향 < UI 일관성 손실 비용)
   display: "swap",
@@ -109,8 +117,17 @@ const spaceGrotesk = Space_Grotesk({
 const instrumentSerif = Instrument_Serif({
   subsets: ["latin"],
   weight: ["400"],
-  variable: "--font-instrument",
+  variable: "--font-instrument-latin",
   display: "swap",
+});
+/* 세리프 컨텍스트(포스트 카드·시리즈·태그 제목 등)의 한글 — Playfair·Instrument 뒤 폴백.
+   한글 폰트는 슬라이스가 많아 preload 하지 않는다(unicode-range 로 필요한 조각만 요청됨) */
+const notoSerifKr = Noto_Serif_KR({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-noto-serif-kr",
+  display: "swap",
+  preload: false,
 });
 
 export default async function RootLayout({
@@ -124,7 +141,7 @@ export default async function RootLayout({
     <html
       lang="ko"
       suppressHydrationWarning
-      className={`${inter.variable} ${playfair.variable} ${jetbrains.variable} ${spaceGrotesk.variable} ${instrumentSerif.variable}`}
+      className={`${inter.variable} ${playfair.variable} ${jetbrains.variable} ${spaceGrotesk.variable} ${instrumentSerif.variable} ${notoSerifKr.variable}`}
     >
       {/* favicon — FaviconSync(client) 가 브라우저 prefers-color-scheme 에 맞춰 /api/favicon 을 건다 */}
 
