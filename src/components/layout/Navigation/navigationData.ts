@@ -43,7 +43,19 @@ export const menuItems = [
 ];
 
 export const adminNavItems: NavItem[] = [
-  { key: "admin-dashboard", href: "/admin", label: "Dashboard" },
+  {
+    key: "admin-dashboard",
+    href: "/admin",
+    label: "Dashboard",
+    /* 대시보드에 묶인 관리 화면들 — 전에는 알림·신고가 햄버거 메뉴 최상위에만 있었고
+       댓글 관리는 어느 메뉴에도 없어 주소로만 들어갈 수 있었다. 세 화면 모두 관리자
+       전용이라 권한 필터(visibleAdminItems)가 대시보드와 함께 걸러 준다 */
+    children: [
+      { key: "dashboard-notifications", href: "/admin/notifications", label: "Notifications" },
+      { key: "dashboard-reports", href: "/admin/reports", label: "Reports" },
+      { key: "dashboard-comments", href: "/admin/comments", label: "Comments" },
+    ],
+  },
   {
     key: "admin-settings",
     href: "/admin/settings",
@@ -61,10 +73,9 @@ export const adminNavItems: NavItem[] = [
   { key: "admin-posts", href: "/admin/posts", label: "Posts" },
 ];
 
+/* 알림·신고는 Dashboard 하위 메뉴로 옮겨져 최상위 중복 항목을 두지 않는다 */
 export const adminMenuItems = [
   ...adminNavItems,
-  { key: "admin-notifications", href: "/admin/notifications", label: "Notifications" },
-  { key: "admin-reports", href: "/admin/reports", label: "Reports" },
   { key: "logout", href: null as string | null, label: "Logout" },
 ];
 

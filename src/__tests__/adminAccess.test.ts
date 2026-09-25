@@ -48,7 +48,9 @@ describe("visibleAdminItems", () => {
     const nav = visibleAdminItems(adminNavItems, ADMIN);
     expect(keys(nav)).toEqual(["admin-dashboard", "admin-settings", "admin-works", "admin-posts"]);
     expect(settingsTabs(nav)).toEqual(["settings-account"]);
-    expect(keys(visibleAdminItems(adminMenuItems, ADMIN))).toContain("admin-notifications");
+    // 알림·신고·댓글은 대시보드 하위 메뉴 — 관리자에게 전부 열린다
+    const dashChildren = (nav.find((i) => i.key === "admin-dashboard")?.children ?? []).map((c) => c.key);
+    expect(dashChildren).toEqual(["dashboard-notifications", "dashboard-reports", "dashboard-comments"]);
   });
 
   it("작성자는 대시보드·알림·신고가 빠지고 설정은 계정 탭만 본다", () => {
