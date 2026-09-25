@@ -97,15 +97,34 @@ export async function GET() {
       .limit(5),
     admin.rpc("sum_post_views").maybeSingle(),
     admin.from("site_settings").select("config").eq("id", "secrets").maybeSingle(),
-    // 최근 90일 일별 조회수 — 차트용 (KST 기준). 클라이언트에서 7/14/30/90 기간으로 슬라이스.
-    (() => {
+    // 일별 조회수 — 차트·달력·날짜 선택기용 (KST 기준). 클라이언트에서 기간 슬라이스.
+    // 고정 90일 창이었는데 추적이 그보다 길어지자 앞이 잘려 달력이 과거로 못 갔다(#1154).
+    // 가장 오래된 기록부터 오늘까지를 창으로 쓴다 — 90일 하한(차트 기본 구간·WoW 슬라이스),
+    // 2년 캡(응답 크기). 첫 기록 조회는 이 항목 안에서 직렬이라 다른 집계와는 계속 병렬이다.
+    (async () => {
+      const { data: first } = await admin
+        .from("post_views")
+        .select("viewed_date")
+        .order("viewed_date", { ascending: true })
+        .limit(1)
+        .maybeSingle();
       const end = new Date();
+      const todayKst = kstDateStr(end);
+      let days = 90;
+      const firstDay = (first as { viewed_date?: string } | null)?.viewed_date;
+      if (firstDay) {
+        const [fy, fm, fd] = firstDay.split("-").map(Number);
+        const [ty, tm, td] = todayKst.split("-").map(Number);
+        const span = Math.floor((Date.UTC(ty, tm - 1, td) - Date.UTC(fy, fm - 1, fd)) / 86_400_000) + 1;
+        days = Math.min(Math.max(span, 90), 730);
+      }
       const start = new Date(end);
-      start.setDate(start.getDate() - 89);
-      return admin.rpc("daily_post_views", {
+      start.setDate(start.getDate() - (days - 1));
+      const res = await admin.rpc("daily_post_views", {
         p_start: kstDateStr(start),
-        p_end: kstDateStr(end),
+        p_end: todayKst,
       });
+      return { ...res, days };
     })(),
     // 카테고리/태그 집계용 — 발행된 게시물 전체
     admin
@@ -213,10 +232,10 @@ export async function GET() {
     stats: {
       totalPostViews,
       popularPosts: popularPosts.data ?? [],
-      // 최근 90일치 일별 조회수. 누락된 날짜는 0 으로 채워서 클라이언트에서 슬라이스 해서 그릴 수 있게.
+      // 첫 기록~오늘 일별 조회수. 누락된 날짜는 0 으로 채워서 클라이언트에서 슬라이스 해서 그릴 수 있게.
       dailyViews: fillDailyViews(
         (dailyViewsRes.data ?? []) as Array<{ day: string; views: number }>,
-        90,
+        dailyViewsRes.days,
       ),
       categories,
       tags,
