@@ -9,3 +9,12 @@
 .skelDevicesRow > * {
   flex: 1;
 }
+
+/* quick actions skeleton 셀 — gap trick 위에서 실제 actionBtn 처럼 불투명 배경으로 셀을 덮는다.
+   배경은 부모 gridHairlines > * 규칙(bg-primary)이 주고, 여기선 실제 버튼과 같은 안 여백만 */
+.qaCell {
+  display: flex;
+  align-items: center;
+  min-height: 52px;
+  padding: var(--spacing-md);
+}

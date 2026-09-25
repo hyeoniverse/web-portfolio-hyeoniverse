@@ -82,6 +82,8 @@
   composes: item from "./components/List.module.css";
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
+  /* 정수 line-height — .sectionTitle 과 같은 divider 번짐 방지 */
+  line-height: 20px;
   color: var(--text-tertiary);
   margin: 0;
   border-bottom: none;
@@ -118,6 +120,8 @@
   background: var(--bg-primary); /* 셀 불투명 → grid gap(1px)이 hairline 으로 노출 */
   justify-content: flex-start;
   height: auto;
+  /* 정수 line-height — height:auto 라 라벨 줄높이(소수점)가 그대로 섹션 높이로 누적된다 */
+  line-height: 22px;
   padding: var(--spacing-md) var(--spacing-md);
   color: var(--text-primary);
   letter-spacing: normal;
@@ -168,6 +172,8 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   font-weight: 600;
+  /* 정수 line-height — .statLabel 과 같은 divider 번짐 방지 */
+  line-height: 20px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--text-tertiary);
@@ -281,6 +287,9 @@ a.statCard:hover .statValue {
 .statLabel {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
+  /* 정수 line-height — 상속(1.6)이면 13px×1.6=20.8px 로 셀 높이가 소수점에 걸리고,
+     그 아래 섹션 divider(1px)가 픽셀 사이에 앉아 안티앨리어싱으로 번져 굵어 보인다 */
+  line-height: 20px;
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -298,6 +307,8 @@ a.statCard:hover .statValue {
 .statMeta {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-hint);
+  /* 정수 line-height — .statLabel 과 같은 divider 번짐 방지 */
+  line-height: 19px;
   color: var(--text-tertiary);
 }
 
@@ -331,11 +342,12 @@ a.statCard:hover .statValue {
   background: var(--color-accent-alpha-50);
 }
 
+/* 진한 쪽이 막대 끝(오른쪽) — 채워진 만큼의 "도달점"이 강조되게 */
 .barFillGradient {
   background: linear-gradient(
     90deg,
-    var(--color-accent),
-    var(--color-accent-light)
+    var(--color-accent-light),
+    var(--color-accent)
   );
 }
 
@@ -404,6 +416,8 @@ a.statCard:hover .statValue {
 /* ── Devices drill-down 확장 — Traffic 패널 접고 Devices 풀폭 ── */
 .twoColExpanded {
   grid-template-columns: 0fr 1fr;
+  /* 셀 사이 hairline(gap trick)도 접는다 — 남기면 확장된 패널 왼쪽에 선이 한 줄 남는다 */
+  column-gap: 0;
 }
 
 /* 확장 시 두 패널 사이 vertical divider 도 함께 사라져야 자연스러움 */

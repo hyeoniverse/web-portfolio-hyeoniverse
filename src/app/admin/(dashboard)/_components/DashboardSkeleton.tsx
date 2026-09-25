@@ -23,9 +23,14 @@ function DashboardSkeleton() {
         <SectionHeader>
           <SkeletonLine width={80} />
         </SectionHeader>
+        {/* gap trick 패널은 컨테이너 배경이 경계색이라, 셀을 불투명 배경으로 덮어야 한다.
+           둥근 SkeletonBlock 을 직접 놓으면 그 배경이 셀 밖으로 넓게 드러나 패널이 어둡게 보였다 —
+           실제 actionBtn 처럼 불투명 셀 안에 라벨 스켈레톤을 넣는다. 실제 버튼 수(6)와도 맞춘다 */}
         <Panel variant="grid" className={styles.quickActions}>
-          {Array.from({ length: 4 }).map((_, i) => (
-            <SkeletonBlock key={i} height={56} />
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className={styles.qaCell}>
+              <SkeletonLine width={110} />
+            </div>
           ))}
         </Panel>
       </Section>
