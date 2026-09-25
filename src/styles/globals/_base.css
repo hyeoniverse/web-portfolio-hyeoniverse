@@ -199,15 +199,9 @@ body {
   width: 100%;
   max-width: 100vw;
   background: var(--bg-primary);
-  font-family:
-    var(--font-sans),
-    -apple-system,
-    BlinkMacSystemFont,
-    "Malgun Gothic",
-    "맑은 고딕",
-    helvetica,
-    "Apple SD Gothic Neo",
-    sans-serif;
+  /* 한글 OS별 지정(맑은 고딕/애플고딕)은 --font-sans 안의 Pretendard 로 대체됐다(#1158).
+     --font-sans 가 generic 까지 포함하므로 뒤에 다른 폰트를 더 달면 도달 불가 죽은 코드가 된다 */
+  font-family: var(--font-sans);
   color: var(--text-primary);
   /* 위 첫 번째 body 룰의 flex 설정 유지 — 여기선 font/overflow 만 보강 */
 }
