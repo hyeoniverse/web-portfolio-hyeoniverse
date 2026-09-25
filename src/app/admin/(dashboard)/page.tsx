@@ -535,7 +535,7 @@ export default function AdminDashboard() {
         </SectionHeader>
         <Panel variant="grid" className={styles.twoCol}>
           <Panel className={styles.panelCell}>
-            <PanelTitle>
+            <PanelTitle href="/admin/posts">
               <T k="admin.dashboard.recentPosts" />
             </PanelTitle>
             {data.posts.recent.length === 0 ? (
@@ -579,7 +579,7 @@ export default function AdminDashboard() {
           </Panel>
 
           <Panel className={styles.panelCell}>
-            <PanelTitle>
+            <PanelTitle href="/admin/works">
               <T k="admin.dashboard.recentWorks" />
             </PanelTitle>
             {data.works.recent.length === 0 ? (
@@ -619,7 +619,7 @@ export default function AdminDashboard() {
 
         {/* 최근 댓글 — 같은 섹션 (최근 활동) 안 third block */}
         <Panel className={styles.panelCell}>
-          <PanelTitle>
+          <PanelTitle href="/admin/comments">
             <T k="admin.dashboard.recentComments" />
           </PanelTitle>
           {data.comments.recent.length === 0 ? (
@@ -719,7 +719,8 @@ export default function AdminDashboard() {
         </SectionHeader>
         <Panel variant="grid" className={styles.twoCol}>
           <Panel className={styles.panelCell}>
-            <PanelTitle href="/admin/posts">
+            {/* 목록의 인기 정렬로 딥링크 — 이 패널은 그 목록의 상위 5개 미리보기다 */}
+            <PanelTitle href="/admin/posts?sort=popular">
               <T k="admin.dashboard.popularPosts" />
             </PanelTitle>
             {data.stats.popularPosts.length === 0 ? (

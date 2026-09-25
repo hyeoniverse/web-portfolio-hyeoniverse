@@ -81,7 +81,8 @@ export default function PostsClient({ initialPosts, initialTotalPages, initialPe
   }, [search]);
   const [searchType, setSearchType] = useState("all");
   const [syntaxMode, setSyntaxMode] = useState<"prefix" | "regex">("prefix");
-  const [sort, setSort] = useState("newest");
+  /* 대시보드 "인기 게시물" 패널이 ?sort=popular 로 딥링크한다 — 정렬 초기값을 주소가 정할 수 있게 */
+  const [sort, setSort] = useState(() => (searchParams.get("sort") === "popular" ? "popular" : "newest"));
   const [filterCategory, setFilterCategory] = useState("");
   const [filterSeries, setFilterSeries] = useState("");
   /* 작성자 필터. "__mine" 은 내 저자 프로필로 치환한다 — 자기 id 를 몰라도 고를 수 있게. */
@@ -320,8 +321,10 @@ export default function PostsClient({ initialPosts, initialTotalPages, initialPe
      같은 effect 안에서 ref 로 한 번만 부른다(effect 를 쪼개지 않아 불필요한 리렌더도 없다). */
   const seriesLoadedRef = useRef(false);
   /* 첫 조회는 서버가 이미 initialPosts 로 그려 내려보냈으니 건너뛴다. 이후 필터·정렬·페이지가
-     바뀌어 fetchPosts 정체성이 달라질 때만 다시 부른다(기본 뷰에선 role 이 늦게 와도 안 바뀐다). */
-  const skipFirstFetch = useRef(true);
+     바뀌어 fetchPosts 정체성이 달라질 때만 다시 부른다(기본 뷰에선 role 이 늦게 와도 안 바뀐다).
+     단 딥링크(?sort=popular)로 초기 정렬이 서버 기본(newest)과 다르면 첫 조회부터 해야 한다 —
+     건너뛰면 "인기" 세그먼트 아래 최신순 목록이 그대로 남는다. */
+  const skipFirstFetch = useRef(sort === "newest");
   useEffect(() => {
     if (skipFirstFetch.current) {
       skipFirstFetch.current = false;
