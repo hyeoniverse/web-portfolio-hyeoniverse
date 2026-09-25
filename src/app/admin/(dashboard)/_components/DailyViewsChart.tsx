@@ -87,7 +87,10 @@ function DailyViewsChart({
   const [startDate, setStartDate] = useState(defaultRange.start);
   const [endDate, setEndDate] = useState(defaultRange.end);
   const [openPicker, setOpenPicker] = useState<"start" | "end" | null>(null);
-  const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
+  /* 선택은 인덱스가 아니라 날짜 문자열로 든다 — 범위가 바뀌어도 그 날짜가 새 슬라이스 안에
+     있으면 선택이 그대로 살고, 밖이면 파생 인덱스가 저절로 null 이 된다. 인덱스로 들면 범위
+     변경마다 리셋·보존 분기(ref 플래그)가 필요했고 그 분기가 상세 패널을 못 열게 만들었다 */
+  const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
   const [viewMode, setViewMode] = useState<"line" | "calendar">("line");
 
@@ -156,12 +159,10 @@ function DailyViewsChart({
   const [normStart, normEnd] =
     startDate <= endDate ? [startDate, endDate] : [endDate, startDate];
 
-  // 범위 변경 시 인덱스 리셋
+  // 범위 변경 시 hover 만 리셋 — 인덱스 기반이라 새 슬라이스에선 다른 날을 가리킨다.
+  // 선택은 날짜 기반(selectedDay)이라 리셋이 필요 없다.
   const rangeChanged = useDepsChanged([normStart, normEnd]);
-  if (rangeChanged) {
-    setSelectedIdx(null);
-    setHoveredIdx(null);
-  }
+  if (rangeChanged) setHoveredIdx(null);
 
   // chartScroll 위에서 wheel — vertical wheel 을 horizontal scroll 로 변환, 페이지 세로 scroll 차단.
   // React onWheel 은 passive 라 preventDefault 불가 → native addEventListener (passive: false)
@@ -182,6 +183,13 @@ function DailyViewsChart({
     () => rawData.filter((d) => d.day >= normStart && d.day <= normEnd),
     [rawData, normStart, normEnd],
   );
+
+  /* 선택 날짜의 현재 슬라이스 안 인덱스 — 밖이면 null (상세 패널 자동 닫힘) */
+  const selectedIdx = useMemo(() => {
+    if (!selectedDay) return null;
+    const i = data.findIndex((d) => d.day === selectedDay);
+    return i === -1 ? null : i;
+  }, [data, selectedDay]);
 
   // 같은 길이의 직전 구간과 비교한 변화율 (line mode)
   const wow = useMemo(() => {
@@ -232,8 +240,9 @@ function DailyViewsChart({
   const minDate = rawData[0]?.day ?? "";
   const maxDate = rawData[rawData.length - 1]?.day ?? "";
 
-  // 최대 선택 가능 범위: 2주(14일)
-  const MAX_RANGE_DAYS = 14;
+  // 최대 선택 가능 범위: 3개월(90일). 차트는 데스크톱에서 컨테이너 폭에 맞춰지고
+  // 날짜 라벨은 labelStep 이 ~14개로 솎아내므로 90일도 한 화면에 들어간다.
+  const MAX_RANGE_DAYS = 90;
   const addDays = (iso: string, days: number): string => {
     const d = new Date(`${iso}T00:00:00Z`);
     d.setUTCDate(d.getUTCDate() + days);
@@ -247,10 +256,10 @@ function DailyViewsChart({
       language === "ko"
         ? reason === "future"
           ? "오늘 이후 날짜는 선택할 수 없습니다. 오늘 날짜로 변경했습니다."
-          : "최대 14일까지만 선택 가능합니다. 14일 범위로 변경했습니다."
+          : "최대 90일(3개월)까지만 선택 가능합니다. 90일 범위로 변경했습니다."
         : reason === "future"
           ? "Future dates aren't selectable. Adjusted to today."
-          : "Up to 14 days can be selected. Adjusted to a 14-day range.";
+          : "Up to 90 days (3 months) can be selected. Adjusted to a 90-day range.";
     openModal(
       <ModalAlert
         desc={desc}
@@ -323,12 +332,18 @@ function DailyViewsChart({
   const activeIdx = hoveredIdx ?? selectedIdx;
   const activePt = activeIdx !== null ? points[activeIdx] : null;
 
-  // 라벨 culling — 30일 이하면 모두 표시. 그 이상은 ~14개 정도로 추리기
-  const labelStep = data.length <= 30 ? 1 : Math.ceil(data.length / 14);
-  const showLabel = (i: number) =>
-    i === 0 || i === data.length - 1 || i % labelStep === 0;
+  // 라벨 culling — 폭에 맞게 ~14개로 추린다. 예전 "30일 이하 전부 표시"는 15~30일 구간에서
+  // 라벨 서른 개가 겹쳐 뭉개졌다. 마지막 라벨과 반 step 안쪽으로 붙는 step 라벨은 건너뛴다
+  // (step 7 에서 84·89 처럼 이웃해 이중으로 보이는 것 방지).
+  const labelStep = Math.max(1, Math.ceil(data.length / 14));
+  const showLabel = (i: number) => {
+    const last = data.length - 1;
+    if (i === last) return true;
+    return i % labelStep === 0 && last - i >= Math.ceil(labelStep / 2);
+  };
 
-  const toggle = (i: number) => setSelectedIdx((cur) => (cur === i ? null : i));
+  const toggle = (i: number) =>
+    setSelectedDay((cur) => (cur === data[i].day ? null : data[i].day));
 
   return (
     <div className={styles.dailyChart}>
@@ -424,6 +439,37 @@ function DailyViewsChart({
               maxDate={maxDate}
             />
           </div>
+          {/* 기간 숏컷 — 오늘을 끝점으로 최근 N 일. "최대"는 상한(90일)이며 데이터 시작일에서 잘린다 */}
+          <div className={styles.periodPresets}>
+            {[7, 14, 30, MAX_RANGE_DAYS].map((days) => {
+              const presetStart = (() => {
+                const s = addDays(maxDate, -(days - 1));
+                return s < minDate ? minDate : s;
+              })();
+              const isActive = normStart === presetStart && normEnd === maxDate;
+              const label =
+                days === MAX_RANGE_DAYS
+                  ? language === "ko" ? "최대" : "Max"
+                  : language === "ko" ? `${days}일` : `${days}d`;
+              return (
+                <Button
+                  key={days}
+                  type="button"
+                  variant="outline"
+                  size="md"
+                  active={isActive}
+                  soundDisabled
+                  onClick={() => {
+                    setOpenPicker(null);
+                    setEndDate(maxDate);
+                    setStartDate(presetStart);
+                  }}
+                >
+                  {label}
+                </Button>
+              );
+            })}
+          </div>
         </div>
       )}
       {viewMode === "calendar" ? (
@@ -433,24 +479,34 @@ function DailyViewsChart({
           focus={focusYM}
           setFocus={setFocusYM}
           onSelectDay={(day) => {
-            // 캘린더에서 선택한 날짜를 line mode 의 selectedIdx 로 연결 (DayDetailPanel 표시).
-            // data 가 슬라이스라 범위 밖이면 line mode 의 startDate/endDate 를 조정해서 포함시킴.
+            // 캘린더에서 선택한 날짜를 line mode 의 선택으로 연결 (DayDetailPanel 표시).
+            // 선택은 날짜 기반이라 그냥 심으면 되고, 범위 밖이면 그 날 중심으로 범위만 조정한다.
             const idx = data.findIndex((d) => d.day === day);
             if (idx >= 0) {
-              setSelectedIdx(idx);
+              setSelectedDay(day);
             } else {
-              // 선택한 날짜가 현재 line slice 밖이면 startDate/endDate 를 그 날 중심으로 14일 조정
+              // 폭은 최대치(90)가 아니라 지금 보고 있던 구간 길이를 유지한다 — 달력에서 하루
+              // 찍었다고 3개월 차트로 벌어지면 당황스럽다.
               const dayIdxRaw = rawData.findIndex((d) => d.day === day);
               if (dayIdxRaw >= 0) {
-                const halfRange = Math.floor(MAX_RANGE_DAYS / 2);
+                const spanDays = Math.min(
+                  MAX_RANGE_DAYS,
+                  Math.max(
+                    1,
+                    Math.round(
+                      (new Date(normEnd).getTime() - new Date(normStart).getTime()) / 86_400_000,
+                    ) + 1,
+                  ),
+                );
+                const halfRange = Math.floor(spanDays / 2);
                 const startIdx = Math.max(0, dayIdxRaw - halfRange);
                 const endIdx = Math.min(
                   rawData.length - 1,
-                  startIdx + MAX_RANGE_DAYS - 1,
+                  startIdx + spanDays - 1,
                 );
                 setStartDate(rawData[startIdx].day);
                 setEndDate(rawData[endIdx].day);
-                setSelectedIdx(dayIdxRaw - startIdx);
+                setSelectedDay(day);
                 setViewMode("line");
               }
             }
@@ -553,10 +609,13 @@ function DailyViewsChart({
                 >
                   {/* 각 dot 위 숫자 label — today/selected/hover 시 강조 */}
                   <span
-                    className={`${styles.dotValue} ${isEmphasized ? styles.dotValueEmphasized : ""}`}
+                    className={`${styles.dotValue} ${isEmphasized ? styles.dotValueEmphasized : ""} ${p.x / W > 0.94 ? styles.dotValueEnd : ""} ${p.x / W < 0.06 ? styles.dotValueStart : ""}`}
                     style={{ top: `${(p.y / H) * 100}%` }}
                   >
-                    {p.v.toLocaleString()}
+                    {/* 라벨을 솎아낸 긴 구간은 축에서 날짜를 못 읽는다 — 점 위 툴팁이 날짜까지 말한다 */}
+                    {labelStep > 1
+                      ? `${new Date(p.day).getMonth() + 1}/${new Date(p.day).getDate()} · ${p.v.toLocaleString()}`
+                      : p.v.toLocaleString()}
                   </span>
                   <span
                     className={`${styles.dotCircle} ${showAsToday ? styles.dotToday : ""} ${showAsSelected ? styles.dotSelected : ""} ${isHovered ? styles.dotHovered : ""}`}
@@ -569,8 +628,9 @@ function DailyViewsChart({
           {/* 하단 day 라벨 — absolute 포지션, 점과 같은 X 위치(0%~100%)에 중앙 정렬.
             indicator 는 hovered → selected → today 순으로 위치, smooth slide */}
           <div className={styles.areaDays}>
-            {/* Sliding circle indicator — 라벨 뒤 배경 */}
-            {(() => {
+            {/* Sliding circle indicator — 라벨 뒤 배경. 라벨을 솎아낸 긴 구간에서는 끈다 —
+               라벨 없는 위치로 미끄러지면 빈 원만 떠서 어긋나 보인다(hover 피드백은 점 위 툴팁) */}
+            {labelStep === 1 && (() => {
               const targetIdx = hoveredIdx ?? selectedIdx ?? data.length - 1;
               /* points 의 x (PAD_X inset 적용된 값) 기반 → SVG dot 과 라벨이 동일 위치 정렬 */
               const leftPct = (points[targetIdx].x / W) * 100;
@@ -585,10 +645,14 @@ function DailyViewsChart({
               );
             })()}
             {data.map((d, i) => {
-              // 30/90일은 라벨 너무 많아 culling — 0/마지막/labelStep 단위만 표시
+              // 30/90일은 라벨 너무 많아 culling — 0/마지막/labelStep 단위만 고정 표시.
+              // hover 정보를 라벨 줄에 동적으로 끼워 넣지 않는다 — 라벨이 마우스를 따라
+              // 생겼다 사라지면 축이 흔들려 보인다. 긴 구간의 hover 날짜·값은 점 위
+              // 툴팁(dotValue)이 말한다.
               if (!showLabel(i)) return null;
               const date = new Date(d.day);
-              const dn = date.getDate();
+              /* 솎아낸 긴 구간은 일 숫자만으론 몇 월인지 알 수 없다 — M/D 로 표기 */
+              const dn = labelStep > 1 ? `${date.getMonth() + 1}/${date.getDate()}` : date.getDate();
               const dow = date.toLocaleDateString(
                 language === "ko" ? "ko-KR" : "en-US",
                 { weekday: "short" },
@@ -618,7 +682,7 @@ function DailyViewsChart({
         <DayDetailPanel
           data={data}
           selectedIdx={selectedIdx}
-          onClose={() => setSelectedIdx(null)}
+          onClose={() => setSelectedDay(null)}
           language={language}
           t={t}
         />
@@ -660,8 +724,8 @@ function DateRangeTrigger({
 
   const tooltipText =
     language === "ko"
-      ? "최대 14일 범위, 미래 날짜는 선택 불가"
-      : "Up to 14-day range, future dates not allowed";
+      ? "최대 90일(3개월) 범위, 미래 날짜는 선택 불가"
+      : "Up to 90-day (3-month) range, future dates not allowed";
 
   return (
     <div className={styles.periodTrigger}>
@@ -669,9 +733,10 @@ function DateRangeTrigger({
         <Button
           type="button"
           variant="outline"
-          size="2xs"
+          /* md(32) — 같은 헤더의 보기 전환 SegmentedControl 과 같은 눈금. 2xs(20)는 혼자 낮았다 */
+          size="md"
           active={isOpen}
-          className={styles.periodTriggerBtn}
+          className={`${styles.periodTriggerBtn} ${isOpen ? styles.periodTriggerBtnOpen : ""}`}
           onClick={onOpen}
           aria-label={`${label}: ${formatted}`}
         >

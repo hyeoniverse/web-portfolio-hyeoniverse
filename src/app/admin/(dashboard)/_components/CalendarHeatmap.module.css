@@ -100,6 +100,21 @@
   line-height: 1;
 }
 
+/* 오늘 — 날짜 숫자만 accent (달력 언어) */
+.calendarCell[data-today] .calendarCellDay {
+  color: var(--text-accent);
+  font-weight: 700;
+}
+
+/* 최고 단계 셀 — 진한 배경이라 날짜·조회수 모두 반전. 오늘 규칙보다 뒤에 둬 겹치면 반전이 이긴다 */
+.calendarCell[data-strong] .calendarCellDay {
+  color: var(--text-white);
+}
+
+.calendarCell[data-strong] .calendarCellViews {
+  color: var(--text-white);
+}
+
 /* 조회수 — 셀 중앙, 크게 */
 .calendarCellViews {
   font-family: var(--font-space-grotesk);

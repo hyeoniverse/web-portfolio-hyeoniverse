@@ -4,6 +4,15 @@
 .dailyChartHeaderSub {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm) var(--spacing-lg);
+}
+
+/* 기간 숏컷 버튼 묶음 — 날짜 트리거와 같은 줄, 좁으면 다음 줄로 */
+.periodPresets {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
 }
 
 /* 각 stat 항목 — label 과 값을 가로로 나란히 (baseline 정렬).
@@ -71,6 +80,13 @@
   letter-spacing: 0.04em;
   font-size: var(--font-size-hint);
   font-weight: 600;
+}
+
+/* active·hover(반전 배경) 때 라벨이 tertiary 그대로면 어두운 배경에 묻힌다 — 반전색 + 옅게 위계 유지 */
+.periodTriggerBtnOpen .periodTriggerLabel,
+.periodTriggerBtn:hover:not(:disabled) .periodTriggerLabel {
+  color: var(--text-inverse);
+  opacity: 0.7;
 }
 
 .periodTriggerDate {
@@ -166,6 +182,15 @@
   transition: opacity 0.15s ease;
 }
 
+/* 가장자리 점의 툴팁 — 중앙 정렬이면 컨테이너 밖으로 나가 잘린다. 안쪽으로 붙인다 */
+.dotValueEnd {
+  transform: translate(calc(-100% + 12px), calc(-100% - 10px));
+}
+
+.dotValueStart {
+  transform: translate(-12px, calc(-100% - 10px));
+}
+
 .dotValueEmphasized {
   opacity: 1;
 }
@@ -227,10 +252,8 @@
   pointer-events: none;
   transform-origin: bottom;
   animation: selectedLineIn 0.2s ease;
-  /* hover 시 다른 dot 으로 부드럽게 슬라이드 — left/top transition */
-  transition:
-    left 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-    top 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  /* left/top transition 없이 즉시 스냅 — 슬라이드를 주면 점·툴팁은 새 날짜에 즉시 뜨는데
+     세로선만 뒤따라와, 점이 선에서 빗겨난 순간이 그대로 보인다 */
 }
 
 @keyframes selectedLineIn {

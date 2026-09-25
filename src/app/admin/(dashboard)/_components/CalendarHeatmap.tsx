@@ -55,17 +55,34 @@ function CalendarHeatmap({
     nonZero.length === 0 ? 0 : (nonZero[Math.floor(nonZero.length * p)] ?? 0);
   const lvl1 = q(0.33);
   const lvl2 = q(0.66);
-  const colorFor = (v: number): string => {
-    // 0 조회 cell 은 section bg 와 동일 색 — grid 의 hairline (1px gap) 만 보이고 cell 자체는 비어있게.
-    // color-mix 로 accent + bg-primary 를 비율별로 섞어 opaque 단계 생성.
-    // accent-alpha-XX 같은 alpha 색을 쓰면 grid bg (border-light-color, 30% alpha 어두운 색) 가 비쳐 탁해짐.
-    if (v <= 0) return "var(--bg-primary)";
-    if (v <= lvl1)
-      return "color-mix(in srgb, var(--color-accent) 22%, var(--bg-primary))";
-    if (v <= lvl2)
-      return "color-mix(in srgb, var(--color-accent) 50%, var(--bg-primary))";
-    return "var(--color-accent)";
+  /* 상대(quantile) 등급에 절대 하한을 섞는다 — 표본이 작은 시기엔 2~3 조회가 상위 33% 라는
+     이유만으로 "많음"으로 칠해졌다. 최고 등급은 10 이상, 중간 등급은 3 이상일 때만 준다
+     (중간 하한을 더 올리면 저트래픽 시기에 달력 전체가 한 색이 되어 단계가 사라진다). */
+  const STRONG_MIN = 10;
+  const MID_MIN = 3;
+  const levelFor = (v: number): 0 | 1 | 2 | 3 => {
+    if (v <= 0) return 0;
+    let lvl: 1 | 2 | 3 = v <= lvl1 ? 1 : v <= lvl2 ? 2 : 3;
+    if (lvl === 3 && v < STRONG_MIN) lvl = 2;
+    if (lvl === 2 && v < MID_MIN) lvl = 1;
+    return lvl;
   };
+  // 0 조회 cell 은 section bg 와 동일 색 — grid 의 hairline (1px gap) 만 보이고 cell 자체는 비어있게.
+  // color-mix 로 accent + bg-primary 를 비율별로 섞어 opaque 단계 생성.
+  // accent-alpha-XX 같은 alpha 색을 쓰면 grid bg (border-light-color, 30% alpha 어두운 색) 가 비쳐 탁해짐.
+  // 최고 단계도 원색 대신 80% — 원색 전면 칠은 달력에서 혼자 너무 쨍하다.
+  const LEVEL_COLORS = [
+    "var(--bg-primary)",
+    "color-mix(in srgb, var(--color-accent) 22%, var(--bg-primary))",
+    "color-mix(in srgb, var(--color-accent) 50%, var(--bg-primary))",
+    "color-mix(in srgb, var(--color-accent) 80%, var(--bg-primary))",
+  ] as const;
+
+  /* 오늘 표시용 — 데이터가 KST 날짜 문자열이므로 오늘도 KST 로 만든다 */
+  const todayIso = useMemo(
+    () => new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Seoul" }),
+    [],
+  );
 
   // 6행×7열 grid — 첫 일주의 빈 cell 부터 시작
   const CELLS = 42;
@@ -154,11 +171,13 @@ function CalendarHeatmap({
           <Pressable
             key={i}
             className={`${styles.calendarCell} ${!cell ? styles.calendarCellEmpty : ""}`}
-            style={cell ? { background: colorFor(cell.views) } : undefined}
+            style={cell ? { background: LEVEL_COLORS[levelFor(cell.views)] } : undefined}
             onClick={cell ? () => onSelectDay?.(cell.iso) : undefined}
             disabled={!cell}
             title={cell ? `${cell.iso} · ${cell.views.toLocaleString()}` : ""}
             aria-label={cell ? `${cell.iso}: ${cell.views} views` : "empty"}
+            data-strong={(cell && levelFor(cell.views) === 3) || undefined}
+            data-today={cell?.iso === todayIso || undefined}
           >
             {cell && (
               <>
@@ -180,14 +199,7 @@ function CalendarHeatmap({
           <span
             key={i}
             className={styles.calendarLegendCell}
-            style={{
-              background: [
-                "var(--bg-primary)",
-                "color-mix(in srgb, var(--color-accent) 22%, var(--bg-primary))",
-                "color-mix(in srgb, var(--color-accent) 50%, var(--bg-primary))",
-                "var(--color-accent)",
-              ][i],
-            }}
+            style={{ background: LEVEL_COLORS[i] }}
           />
         ))}
         <span className={styles.calendarLegendLabel}>
