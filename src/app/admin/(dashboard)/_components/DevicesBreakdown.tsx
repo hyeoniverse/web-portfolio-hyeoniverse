@@ -228,11 +228,13 @@ function DevicesBreakdown({
             return (
               <ListItem
                 key={`${arc.name}-${i}`}
-                className={styles.deviceLegendItem}
+                /* hover·선택 배경은 행 전체(ListItem)가 갖는다 — 버튼에 주면 item 패딩이 빠져 일부만 칠해진다 */
+                className={`${styles.deviceLegendItem} ${isOpen ? styles.deviceLegendItemActive : ""}`}
+                data-drillable={drillable || undefined}
               >
                 {drillable ? (
                   <Pressable
-                    className={`${styles.deviceLegendBtn} ${isOpen ? styles.deviceLegendBtnActive : ""}`}
+                    className={styles.deviceLegendBtn}
                     onClick={() =>
                       onDrillChange(isOpen ? null : (arc.kind as DeviceKind))
                     }

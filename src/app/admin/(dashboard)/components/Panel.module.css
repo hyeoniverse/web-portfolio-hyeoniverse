@@ -27,6 +27,9 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-body);
   font-weight: 600;
+  /* 정수 line-height — 상속(1.6)이면 소수점 높이가 아래로 누적돼, 뒤 섹션의 1px divider 가
+     픽셀 사이에 앉아 안티앨리어싱으로 번져 굵어 보인다(일별 조회수 위 선) */
+  line-height: 22px;
   color: var(--text-secondary);
   margin: 0;
   padding-block: var(--spacing-sm);
