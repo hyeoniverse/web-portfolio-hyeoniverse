@@ -598,6 +598,7 @@ function DailyViewsChart({
               return (
                 <Pressable
                   key={i}
+                  noTapScale
                   className={styles.dotColumn}
                   style={{
                     left: `${(p.x / W) * 100}%`,
@@ -663,6 +664,7 @@ function DailyViewsChart({
               return (
                 <Pressable
                   key={d.day}
+                  noTapScale
                   className={`${styles.areaDay} ${isToday ? styles.areaDayToday : ""} ${isSelected ? styles.areaDaySelected : ""}`}
                   style={{ left: `${leftPct}%` }}
                   title={`${d.day} · ${d.views.toLocaleString()}`}
