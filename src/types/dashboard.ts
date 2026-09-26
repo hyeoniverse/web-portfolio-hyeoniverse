@@ -86,8 +86,6 @@ export interface DashboardData {
     dailyViews: DailyViews[];
     categories: Array<{ name: string; postCount: number; views: number }>;
     tags: Array<{ tag: string; count: number }>;
-    /** 유입 경로 top — referrer 호스트 단위 집계 (site_visits.referrer 필요 — 마이그레이션 후 활성) */
-    referrers?: Array<{ source: string; count: number; pct: number }>;
     /** 기기 분석 — UA 파싱 후 desktop/mobile/tablet 비율 (site_visits.user_agent 필요) */
     devices?: Array<{
       kind: "desktop" | "mobile" | "tablet";
@@ -104,6 +102,63 @@ export interface DashboardData {
       mobile: ModelStat[];
       tablet: ModelStat[];
     };
+    /** 유입 채널(검색/SNS/커뮤니티/개발/직접/기타) + 채널별 호스트 드릴다운 (#1161) */
+    channels?: ChannelStatDto[];
+    /** 신규 vs 재방문 — 최근 30일 유니크 방문자 기준 */
+    newVsReturning?: { newCount: number; returningCount: number; returningPct: number };
+    /** 최근 30일 방문·조회 요약 — 방문당 평균 조회수 */
+    visitSummary?: { visits30: number; views30: number; viewsPerVisit: number };
   };
   services: Record<string, "configured" | "missing">;
+}
+
+export type ChannelStatDto = {
+  channel: "search" | "social" | "community" | "dev" | "direct" | "other";
+  count: number;
+  pct: number;
+  hosts: Array<{ host: string; count: number; pct: number }>;
+};
+
+/** GET /api/admin/traffic — 트래픽 전용 페이지 데이터(#1161). 대시보드는 이 중 간략 세트만 보여준다. */
+export interface TrafficData {
+  /** 조회 창 길이 (7·14·30·90일) — 요청 파라미터를 정규화해 되돌려준다 */
+  days: number;
+  /** UTM 링크 생성기의 기준 도메인 — SITE_URL(정본). 비어 있으면 클라가 origin 폴백 */
+  siteUrl: string;
+  /** 일별 방문(유니크 ip·일) 추이 — 창 길이만큼, 빈 날짜 0 */
+  dailyVisits: Array<{ day: string; count: number }>;
+  /** 기간 내 걸러진 봇 방문 수 (집계엔 미포함) */
+  botVisits: number;
+  /** 기간 내 조회 상위 글 — 누적이 아니라 선택한 창 안의 post_views 기준 */
+  topContent: Array<{ id: string; title: string; slug: string; count: number; pct: number }>;
+  /** 직전 동기간 대비 증감률(%) — 이전 값이 0 이면 null */
+  changes: {
+    visits: number | null;
+    newVisitors: number | null;
+    returning: number | null;
+  };
+  channels: ChannelStatDto[];
+  devices: Array<{ kind: "desktop" | "mobile" | "tablet"; count: number; pct: number }>;
+  operatingSystems: NamedStat[];
+  browsers: NamedStat[];
+  deviceModels: {
+    desktop: ModelStat[];
+    mobile: ModelStat[];
+    tablet: ModelStat[];
+  };
+  /** 국가별 방문 상위 — ISO 3166-1 alpha-2 (마이그레이션·배포 후 쌓임) */
+  countries: Array<{ code: string; count: number; pct: number }>;
+  /** 랜딩 페이지 상위 (마이그레이션 후 쌓임) */
+  landingPages: Array<{ path: string; count: number; pct: number }>;
+  /** 방문 시간대 히트맵 — KST 요일(0=일)×시각(0~23) */
+  visitHeatmap: { matrix: number[][]; max: number };
+  newVsReturning: { newCount: number; returningCount: number; returningPct: number };
+  /** UTM 캠페인 — utm_source 있는 방문만 (없으면 빈 배열) */
+  utmCampaigns: Array<{
+    source: string;
+    medium: string | null;
+    campaign: string | null;
+    count: number;
+  }>;
+  visitSummary: { visits30: number; views30: number; viewsPerVisit: number };
 }
