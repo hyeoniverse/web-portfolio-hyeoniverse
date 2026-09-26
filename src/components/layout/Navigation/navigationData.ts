@@ -51,6 +51,7 @@ export const adminNavItems: NavItem[] = [
        댓글 관리는 어느 메뉴에도 없어 주소로만 들어갈 수 있었다. 세 화면 모두 관리자
        전용이라 권한 필터(visibleAdminItems)가 대시보드와 함께 걸러 준다 */
     children: [
+      { key: "dashboard-traffic", href: "/admin/traffic", label: "Traffic" },
       { key: "dashboard-notifications", href: "/admin/notifications", label: "Notifications" },
       { key: "dashboard-reports", href: "/admin/reports", label: "Reports" },
       { key: "dashboard-comments", href: "/admin/comments", label: "Comments" },

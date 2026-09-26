@@ -1,0 +1,67 @@
+/* VisitsTrend 전용 스타일 — 일별 방문 곡선(#1161) */
+
+.trend {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  padding-top: var(--spacing-sm);
+}
+
+.trendArea {
+  position: relative;
+  width: 100%;
+  height: 200px;
+}
+
+.trendSvg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+
+/* 점 — Tooltip 래퍼(absolute 컬럼, transform 있음)가 containing block 이라 그 기준으로 배치.
+   래퍼(hit 컬럼) hover 시에만 보인다 */
+.trendDot {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-circle);
+  background: var(--bg-accent-solid);
+  border: var(--spacing-3xs) solid var(--bg-primary);
+  box-sizing: content-box;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+  pointer-events: none;
+}
+
+.trendArea span:hover > .trendDot {
+  opacity: 1;
+}
+
+.trendDays {
+  position: relative;
+  height: 16px;
+}
+
+.trendDay {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.trendCaption {
+  align-self: flex-end;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
+  color: var(--text-muted);
+}
