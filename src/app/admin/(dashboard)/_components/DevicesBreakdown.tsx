@@ -7,6 +7,7 @@ import local from "./DevicesBreakdown.module.css";
    Dashboard.module.css 에 있다. 둘을 합쳐서 styles 하나로 쓴다. */
 const styles = { ...shared, ...local };
 import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { List, ListItem } from "../components";
 import { describeDonutArc } from "./donutArc";
 import { ChevronRight, Monitor, Smartphone, Tablet } from "@/components/icons";
@@ -251,15 +252,27 @@ function DevicesBreakdown({
         </List>
       </div>
 
-      {/* Drill-down — Type 탭에서 데스크탑/모바일/태블릿 클릭 시 모델별 분포 */}
-      {activeTab === "type" && drillKind && deviceModels?.[drillKind] && (
-        <DeviceModelsPanel
-          kind={drillKind}
-          models={deviceModels[drillKind]}
-          language={language}
-          onClose={() => onDrillChange(null)}
-        />
-      )}
+      {/* Drill-down — Type 탭에서 데스크탑/모바일/태블릿 클릭 시 모델별 분포.
+          높이 0↔auto 아코디언 — overflow hidden(BFC)이라 안쪽 margin-top 도 높이에 포함된다 */}
+      <AnimatePresence initial={false}>
+        {activeTab === "type" && drillKind && deviceModels?.[drillKind] && (
+          <motion.div
+            key="device-drill"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.28, ease: [0.4, 0, 0.2, 1] }}
+            style={{ overflow: "hidden" }}
+          >
+            <DeviceModelsPanel
+              kind={drillKind}
+              models={deviceModels[drillKind]}
+              language={language}
+              onClose={() => onDrillChange(null)}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }
