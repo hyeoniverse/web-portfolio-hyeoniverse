@@ -20,7 +20,6 @@ import {
   MessageSquare,
   Eye,
   Heart,
-  Globe,
   LayoutDashboard,
   Flag,
   UserRound,
@@ -49,6 +48,7 @@ import DashboardSkeleton from "./_components/DashboardSkeleton";
 import CategoryDonut from "./_components/CategoryDonut";
 import DailyViewsChart from "./_components/DailyViewsChart";
 import DevicesBreakdown from "./_components/DevicesBreakdown";
+import TrafficChannels from "./_components/TrafficChannels";
 import { errorFromResponse, errorText } from "@/lib/apiError";
 
 
@@ -821,21 +821,21 @@ export default function AdminDashboard() {
         </Panel>
       </Section>
 
-      {/* ━━━━━━━━━━ 그룹: 트래픽 ━━━━━━━━━━ */}
+      {/* ━━━━━━━━━━ 그룹: 트래픽 (간략) — 전체 분석은 /admin/traffic(#1161) ━━━━━━━━━━ */}
       {/* ── 유입경로 + 기기분석 — 2-col, 기기 drill-down 시 유입경로 접히고 기기 풀폭 확장 ── */}
-      {(data.stats.referrers || data.stats.devices) && (
+      {(data.stats.channels || data.stats.devices) && (
         <Section
           ref={devicesSectionRef}
           data-expanded={deviceDrillKind ? "devices" : undefined}
         >
-          <SectionHeader>
+          <SectionHeader href="/admin/traffic">
             <T k="admin.dashboard.groupTraffic" />
           </SectionHeader>
           <Panel
             variant="grid"
             className={`${styles.twoCol} ${deviceDrillKind ? styles.twoColExpanded : ""}`}
           >
-            {data.stats.referrers && (
+            {data.stats.channels && (
               <Panel
                 className={`${styles.panelCell} ${deviceDrillKind ? styles.panelCollapsed : ""}`}
                 aria-hidden={!!deviceDrillKind}
@@ -843,39 +843,18 @@ export default function AdminDashboard() {
                 <PanelTitle>
                   <T k="admin.dashboard.trafficSources" />
                 </PanelTitle>
-                {data.stats.referrers.length === 0 ? (
+                {!data.stats.channels?.length ? (
                   <p className={styles.muted}>
                     {language === "ko"
                       ? "아직 방문 데이터가 없습니다."
                       : "No visit data yet."}
                   </p>
                 ) : (
-                  <List>
-                    {data.stats.referrers.map((r) => (
-                      <ListItem
-                        key={r.source}
-                        layout="grid"
-                        className={styles.referrerRow}
-                      >
-                        <span className={styles.referrerSource}>
-                          <Globe size={11} strokeWidth={2} />
-                          {r.source}
-                        </span>
-                        <div className={styles.bar} aria-hidden>
-                          <div
-                            className={`${styles.barFill} ${styles.barFillSoft}`}
-                            style={{ width: `${r.pct}%` }}
-                          />
-                        </div>
-                        <span className={styles.referrerMeta}>
-                          <span className={styles.referrerPct}>{r.pct}%</span>
-                          <span className={styles.referrerCount}>
-                            {r.count.toLocaleString()}
-                          </span>
-                        </span>
-                      </ListItem>
-                    ))}
-                  </List>
+                  /* 호스트 나열 대신 채널(검색/SNS/커뮤니티/…) 묶음 + 드릴다운(#1161) */
+                  <TrafficChannels
+                    channels={data.stats.channels}
+                    language={language}
+                  />
                 )}
               </Panel>
             )}
@@ -904,6 +883,50 @@ export default function AdminDashboard() {
               </Panel>
             )}
           </Panel>
+
+          {/* ── 방문 요약 — 30일 방문·신규/재방문·방문당 조회 (#1161) ── */}
+          {data.stats.visitSummary && data.stats.newVsReturning && (
+            <Panel className={styles.panelCell}>
+              <div className={styles.trafficSummary}>
+                <span className={styles.trafficStat}>
+                  <span className={styles.trafficStatLabel}>
+                    <T k="admin.dashboard.visits30" />
+                  </span>
+                  <span className={styles.trafficStatValue}>
+                    {data.stats.visitSummary.visits30.toLocaleString()}
+                  </span>
+                </span>
+                <span className={styles.trafficStat}>
+                  <span className={styles.trafficStatLabel}>
+                    <T k="admin.dashboard.newVisitors" />
+                  </span>
+                  <span className={styles.trafficStatValue}>
+                    {data.stats.newVsReturning.newCount.toLocaleString()}
+                  </span>
+                </span>
+                <span className={styles.trafficStat}>
+                  <span className={styles.trafficStatLabel}>
+                    <T k="admin.dashboard.returningVisitors" />
+                  </span>
+                  <span className={styles.trafficStatValue}>
+                    {data.stats.newVsReturning.returningCount.toLocaleString()}
+                    <span className={styles.trafficStatSub}>
+                      {data.stats.newVsReturning.returningPct}%
+                    </span>
+                  </span>
+                </span>
+                <span className={styles.trafficStat}>
+                  <span className={styles.trafficStatLabel}>
+                    <T k="admin.dashboard.viewsPerVisit" />
+                  </span>
+                  <span className={styles.trafficStatValue}>
+                    {data.stats.visitSummary.viewsPerVisit.toLocaleString()}
+                  </span>
+                </span>
+              </div>
+            </Panel>
+          )}
+
         </Section>
       )}
 
