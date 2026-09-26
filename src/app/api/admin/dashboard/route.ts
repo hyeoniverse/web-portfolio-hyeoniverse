@@ -5,11 +5,14 @@ import { PERM } from "@/lib/api/roles";
 import type { DashboardData } from "@/types";
 import {
   aggregateCategoriesAndTags,
+  aggregateChannels,
+  aggregateNewVsReturning,
   aggregateTraffic,
   fillDailyViews,
+  HUMAN_VISITS_FILTER,
   kstDateStr,
+  type AnalyticsVisitRow,
   type PostAggRow,
-  type VisitRow,
 } from "@/lib/api/dashboardAggregates";
 
 // GET /api/admin/dashboard — 어드민 대시보드용 집계 데이터
@@ -55,6 +58,7 @@ export async function GET() {
     dailyViewsRes,
     allPostsAgg,
     trafficAgg,
+    allVisitsAgg,
   ] = await Promise.all([
     admin.from("posts").select("*", { count: "exact", head: true }).is("deleted_at", null),
     admin.from("posts").select("*", { count: "exact", head: true }).is("deleted_at", null).eq("published", false),
@@ -132,25 +136,54 @@ export async function GET() {
       .select("category, tags, view_count")
       .is("deleted_at", null)
       .eq("published", true),
-    // 트래픽 분석 — site_visits 메타 (최근 30일)
+    // 트래픽 분석 — site_visits 메타 (최근 30일).
+    // 컬럼을 나열하지 않고 * 로 받는다 — 분석 컬럼(country·path·utm_*, #1161)은 마이그레이션
+    // 전 DB 엔 없어서, 나열하면 쿼리 전체가 죽고 기기 분석까지 같이 사라진다.
     (() => {
       const end = new Date();
       const start = new Date(end);
       start.setDate(start.getDate() - 30);
       return admin
         .from("site_visits")
-        .select("referrer, device_kind, os, browser, device_model")
-        .gte("date", start.toISOString().slice(0, 10));
+        .select("*")
+        .gte("date", start.toISOString().slice(0, 10))
+        .or(HUMAN_VISITS_FILTER);
     })(),
+    // 신규/재방문 판별용 전체 방문 이력 — ip 하루 1행이라 크기가 작다 (방문자수×방문일수)
+    admin.from("site_visits").select("ip, date").or(HUMAN_VISITS_FILTER),
   ]);
 
   const { categories, tags } = aggregateCategoriesAndTags(
     (allPostsAgg.data ?? []) as PostAggRow[],
   );
 
-  const { referrers, devices, operatingSystems, browsers, deviceModels } = aggregateTraffic(
-    (trafficAgg.data ?? []) as VisitRow[],
+  const trafficRows = (trafficAgg.data ?? []) as AnalyticsVisitRow[];
+  const { devices, operatingSystems, browsers, deviceModels } = aggregateTraffic(trafficRows);
+
+  // 트래픽 간략 세트(#1161) — 심화(국가·랜딩·시간대·UTM)는 /api/admin/traffic 이 가진다
+  const channels = aggregateChannels(trafficRows);
+  const windowStart = (() => {
+    const d = new Date();
+    d.setDate(d.getDate() - 30);
+    return d.toISOString().slice(0, 10);
+  })();
+  const newVsReturning = aggregateNewVsReturning(
+    (allVisitsAgg.data ?? []) as Array<{ ip: string | null; date: string | null }>,
+    windowStart,
   );
+
+  const filledDailyViews = fillDailyViews(
+    (dailyViewsRes.data ?? []) as Array<{ day: string; views: number }>,
+    dailyViewsRes.days,
+  );
+  // 방문당 평균 조회수 — 최근 30일 조회수 합 / 최근 30일 방문 수
+  const views30 = filledDailyViews.slice(-30).reduce((s, d) => s + d.views, 0);
+  const visits30 = trafficRows.length;
+  const visitSummary = {
+    visits30,
+    views30,
+    viewsPerVisit: visits30 > 0 ? Math.round((views30 / visits30) * 10) / 10 : 0,
+  };
 
   // 인기 게시물 댓글 수도 표시하려면 별도 집계 필요. MVP는 view_count + like_count.
 
@@ -233,17 +266,16 @@ export async function GET() {
       totalPostViews,
       popularPosts: popularPosts.data ?? [],
       // 첫 기록~오늘 일별 조회수. 누락된 날짜는 0 으로 채워서 클라이언트에서 슬라이스 해서 그릴 수 있게.
-      dailyViews: fillDailyViews(
-        (dailyViewsRes.data ?? []) as Array<{ day: string; views: number }>,
-        dailyViewsRes.days,
-      ),
+      dailyViews: filledDailyViews,
       categories,
       tags,
-      referrers,
       devices,
       operatingSystems,
       browsers,
       deviceModels,
+      channels,
+      newVsReturning,
+      visitSummary,
     },
     services,
   } satisfies DashboardData);

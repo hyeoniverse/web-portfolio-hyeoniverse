@@ -359,7 +359,9 @@ a.statCard:hover .statValue {
    깔리면 border (alpha-30) 와 합성돼 alpha 0.51 로 진해짐. padding-box 로 border 영역 제외. */
 .twoCol {
   composes: panelGrid from "./components/Panel.module.css";
-  grid-template-columns: var(--grid-cols-2);
+  /* --grid-cols-2 는 repeat() 표기라 확장값(0fr 1fr)과 보간이 안 돼 transition 이 즉시
+     점프했다 — 양쪽을 같은 minmax 구조로 풀어 써야 grid-template-columns 가 animate 된다 */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   background-clip: padding-box;
   /* grid-template-columns transition: 기기 분석 확장 시 부드럽게 */
   transition: grid-template-columns 0.4s var(--ease-material);
@@ -414,9 +416,11 @@ a.statCard:hover .statValue {
 }
 
 /* ── Devices drill-down 확장 — Traffic 패널 접고 Devices 풀폭 ── */
-.twoColExpanded {
-  grid-template-columns: 0fr 1fr;
-  /* 셀 사이 hairline(gap trick)도 접는다 — 남기면 확장된 패널 왼쪽에 선이 한 줄 남는다 */
+/* 셀 사이 hairline(gap trick)도 접는다 — 남기면 확장된 패널 왼쪽에 선이 한 줄 남는다.
+   .twoCol.twoCol 의 (0,2,0) column-gap 에 지지 않도록 같은 급으로 올린다.
+   트랙은 base 와 같은 minmax 구조여야 폭 전환이 animate 된다 */
+.twoCol.twoColExpanded {
+  grid-template-columns: minmax(0, 0fr) minmax(0, 1fr);
   column-gap: 0;
 }
 
@@ -426,21 +430,32 @@ a.statCard:hover .statValue {
 }
 
 .panelCollapsed {
-  opacity: 0;
-  visibility: hidden;
   padding-left: 0;
   padding-right: 0;
   overflow: hidden;
+  /* grid item 의 min-width:auto 가 트랙 축소를 막으면 폭 전환이 끊긴다 */
+  min-width: 0;
   pointer-events: none;
   border-left: none !important;
+  transition: padding 0.4s var(--ease-material);
+}
+
+/* 셀이 아니라 내용물만 페이드 — 셀 opacity 를 내리면 불투명 배경까지 빠지면서
+   격자의 회색 바탕(gap trick 배경)이 접히는 동안 비쳐 보인다 */
+.twoCol > .panelCell > * {
   transition:
     opacity 0.25s ease,
-    visibility 0.25s ease,
-    padding 0.4s var(--ease-material);
+    visibility 0.25s ease;
+}
+
+.panelCollapsed > * {
+  opacity: 0;
+  visibility: hidden;
 }
 
 @media (max-width: 768px) {
-  .twoColExpanded {
+  /* 기본 rule 이 (0,2,0)으로 올라가서 여기도 같은 급이어야 이긴다 */
+  .twoCol.twoColExpanded {
     grid-template-columns: 1fr;
   }
   .panelCollapsed {
@@ -968,7 +983,9 @@ a.commentSource:hover {
 /* ── Traffic Sources — referrer horizontal bar ── */
 /* ListItem layout="grid" 가 display/align/gap/padding/border 처리. referrerRow 는 columns 만 정의 */
 .referrerRow {
-  grid-template-columns: minmax(110px, max-content) 1fr auto;
+  /* 첫 칸 고정 폭 — 행마다 독립 grid 라 max-content 면 라벨 길이 따라 바 시작점이
+     제각각이 된다. 고정해야 목록 안에서 프로그레스바 폭이 나란히 맞는다 */
+  grid-template-columns: 180px 1fr auto;
 }
 
 .referrerSource {
@@ -1011,6 +1028,65 @@ a.commentSource:hover {
 .referrerCount::before {
   content: "·";
   margin-right: var(--spacing-2xs);
+  color: var(--text-muted);
+}
+
+/* ── 트래픽 분석 확장(#1161) ── */
+
+/* 방문 요약 스트립 — 방문(30일)·신규·재방문·방문당 조회 */
+.trafficSummary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm) var(--spacing-2xl);
+  padding: var(--spacing-xs) 0;
+}
+
+.trafficStat {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--spacing-2xs);
+}
+
+.trafficStatLabel {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-hint);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-tertiary);
+}
+
+.trafficStatValue {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--spacing-2xs);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-md);
+  font-weight: 700;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  line-height: 20px;
+}
+
+.trafficStatSub {
+  font-size: var(--font-size-hint);
+  font-weight: 600;
+  color: var(--text-tertiary);
+}
+
+/* 랜딩 페이지 경로 — 호스트와 달리 코드 성격이라 mono.
+   referrerSource 의 inline-flex 를 block 으로 덮어야 말줄임이 걸린다 */
+.landingPath {
+  display: block;
+  font-family: var(--font-mono);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* UTM 행의 medium·campaign 부연 */
+.utmDetail {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
   color: var(--text-muted);
 }
 
