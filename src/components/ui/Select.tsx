@@ -3,7 +3,7 @@
 import { useState, useEffect, useLayoutEffect, useRef, useCallback, useMemo, useId, Fragment, type ReactNode, type KeyboardEvent } from "react";
 import { useDepsChanged } from "@/hooks/useDepsChanged";
 import { createPortal } from "react-dom";
-import { ChevronRight, X } from "@/components/icons";
+import { ChevronRight, PenLine, X } from "@/components/icons";
 import { usePortalContainer } from "./portalContainer";
 import styles from "./Select.module.css";
 import Pressable from "@/components/ui/Pressable";
@@ -123,7 +123,11 @@ export default function Select({
      사용자가 건드리기 전에 값이 들어오면 단추 모드로 돌아간다 */
   const [userEditing, setUserEditing] = useState(false);
   if (editing && !userEditing && value) setEditing(false);
-  const startEditing = () => { setEditing(true); setUserEditing(true); };
+  /* "직접 입력" 옵션으로 들어오면 빈 입력으로 시작 — 이전 선택값이 채워져 있으면
+     지우고 쳐야 해서 불편했다. 더블클릭(값 수정 의도)은 기존 값 유지.
+     빈 채로 떠나면(커밋 없이) 취소로 취급해 기존 값이 남는다 */
+  const [startBlank, setStartBlank] = useState(false);
+  const startEditing = (blank = false) => { setStartBlank(blank); setEditing(true); setUserEditing(true); };
   const stopEditing = () => { setEditing(false); setUserEditing(false); };
   const [open, setOpen] = useState(false);
   const [visible, setVisible] = useState(false);
@@ -387,10 +391,14 @@ export default function Select({
         type="button"
         className={styles.option}
         onMouseDown={preserveFocus ? (e) => e.preventDefault() : undefined}
-        onClick={() => { setOpen(false); startEditing(); }}
+        onClick={() => { setOpen(false); startEditing(true); }}
       >
         {showCheck && (<span className={styles.check} style={{ visibility: "hidden" }}>{"✓"}</span>)}
         <span className={styles.optionContent}>
+          {/* 다른 옵션들이 아이콘을 쓰는 목록에서만 펜 아이콘 — 아이콘 열 정렬 유지 */}
+          {options.some((o) => o.icon) && (
+            <span className={styles.optionIcon}><PenLine size={13} strokeWidth={2} /></span>
+          )}
           <span className={styles.optionLabel}>{t("common.selectCustom")}</span>
         </span>
       </Pressable>
@@ -477,14 +485,16 @@ export default function Select({
         <input
           type="text"
           autoFocus={userEditing}
-          defaultValue={value}
-          className={`${styles.trigger} ${size === "sm" ? styles.triggerSm : ""}`}
+          defaultValue={startBlank ? "" : value}
+          className={`${styles.trigger} ${size === "sm" ? styles.triggerSm : ""} ${triggerClassName ?? ""}`}
           /* trigger 는 고정 너비를 받지 않고 자기 자연 너비(.root width: max-content)를 쓴다 */
           maxLength={editableInputProps?.maxLength}
           placeholder={editableInputProps?.placeholder ?? placeholder}
           disabled={disabled}
           onBlur={(e) => {
             const raw = e.target.value;
+            // 빈 시작에서 아무것도 안 치고 떠나면 취소 — 기존 값 유지
+            if (startBlank && raw.trim() === "") { stopEditing(); return; }
             const v = editableInputProps?.sanitize ? editableInputProps.sanitize(raw) : raw;
             onChange(v);
             stopEditing();
@@ -492,6 +502,7 @@ export default function Select({
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               const raw = e.currentTarget.value;
+              if (startBlank && raw.trim() === "") { stopEditing(); return; }
               const v = editableInputProps?.sanitize ? editableInputProps.sanitize(raw) : raw;
               onChange(v);
               stopEditing();
