@@ -1,0 +1,76 @@
+/* TrafficChannels 전용 스타일 — 유입 채널 행 + 호스트 드릴다운(#1161) */
+
+/* 드릴 가능한 채널 행 — 기기 분석과 같은 규칙: 풀블리드 하이라이트, radius 없음 */
+.channelItem[data-drillable]:hover,
+.channelItemActive {
+  background: var(--bg-secondary);
+}
+
+/* 행 내용 — referrerRow 와 같은 3열 정렬(첫 칸 고정 폭으로 바 정렬 유지). 버튼이 li 폭을 꽉 채운다 */
+.channelBtn {
+  display: grid;
+  grid-template-columns: 180px 1fr auto;
+  align-items: center;
+  gap: var(--spacing-md);
+  width: 100%;
+  text-align: left;
+}
+
+.channelChevron {
+  color: var(--text-tertiary);
+  transition: transform 0.18s ease;
+}
+
+.channelChevronOpen {
+  transform: rotate(90deg);
+}
+
+/* 자리 고정 — 토글 없는 행에서도 숫자 열이 흔들리지 않게 */
+.channelChevronGhost {
+  display: inline-block;
+  width: 12px;
+}
+
+/* 호스트 하위 목록 — 채널 행 아래 들여쓴 서브 행들.
+   ListItem(.item)이 아니라 구분선이 없어서, 펼치면 다음 채널과의 hairline 이 사라졌다 —
+   같은 hairline 을 직접 단다. 마지막 채널을 펼쳤을 땐 목록 규칙대로 뗀다.
+   높이 아코디언(framer)이라 li 는 overflow hidden, padding 은 안쪽(.channelHostsInner)이 담당 */
+.channelHosts {
+  overflow: hidden;
+  border-bottom: var(--border-light);
+}
+
+.channelHosts:last-child {
+  border-bottom: none;
+}
+
+.channelHostsInner {
+  padding: var(--spacing-2xs) 0 var(--spacing-sm);
+}
+
+.channelHostRow {
+  display: grid;
+  /* 들여쓰기(padding-left lg)만큼 첫 칸을 줄여 바 시작점을 채널 행과 맞춘다 */
+  grid-template-columns: calc(180px - var(--spacing-lg)) 1fr auto;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding-block: var(--spacing-3xs);
+  /* 채널 행(ListItem .item)이 소비하는 칸 방향 들여쓰기를 똑같이 받아야
+     오른쪽 숫자 끝이 상위 항목과 맞는다 — 안 받으면 그만큼 오른쪽으로 튀어나온다 */
+  padding-inline-start: calc(var(--_item-inline-start, 0px) + var(--spacing-lg));
+  padding-inline-end: var(--_item-inline-end, 0px);
+}
+
+/* 호스트 행엔 체브런이 없다 — 채널 행의 숫자 열과 끝을 맞추기 위한 보정 */
+.channelHostRow > span:last-child {
+  padding-right: calc(12px + var(--spacing-2xs));
+}
+
+.channelHostName {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

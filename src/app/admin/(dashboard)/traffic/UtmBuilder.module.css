@@ -1,0 +1,229 @@
+/* UtmBuilder 전용 스타일(#1161) */
+
+.builder {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  padding-top: var(--spacing-sm);
+  /* twoCol 이 칸 방향에 맞춰 내려주는 들여쓰기 — List item 들과 같은 규칙으로 소비한다.
+     이게 없으면 오른쪽 칸에서 경계선에 딱 붙는다 */
+  padding-inline-start: var(--_item-inline-start, 0);
+  padding-inline-end: var(--_item-inline-end, 0);
+}
+
+/* 필드 2×2 — 라벨·컨트롤 전부 기본(md) 눈금이라 줄이 맞는다 */
+.fieldsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-md);
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .fieldsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 출처·경로 캡슐 그룹 칸 — 라벨 + 캡슐(+ 직접 입력이면 아래 입력). 한 줄을 통째로 쓴다 */
+.comboCell {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+/* [출처 │ 경로] 캡슐 — Input 의 grouped wrapper 와 같은 문법: 캡슐이 border 담당,
+   안쪽 컨트롤은 민짜, 사이는 세로 hairline */
+.comboCapsule {
+  display: flex;
+  align-items: stretch;
+  height: var(--control-h-md);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  overflow: hidden;
+  transition: border-color var(--duration-base) ease;
+}
+
+.comboCapsule:focus-within,
+.comboCapsule:hover {
+  border-color: var(--text-tertiary);
+}
+
+/* Select 트리거 — 자체 보더·radius 제거, 캡슐 높이에 맞춤. .trigger (0,1,0) 동점은
+   번들 순서 싸움(#632)이라 이길 쪽을 .x.x 로 올린다 */
+.comboTrigger.comboTrigger {
+  border: none;
+  border-radius: 0;
+  height: 100%;
+  background: transparent;
+}
+
+.comboDivider {
+  border-left: var(--border-light);
+}
+
+/* 캡슐 안 input 은 전부 민짜 — 경로 입력만이 아니라 Select 의 직접 입력(editing)도
+   기본 .trigger 캡슐 스타일로 렌더되므로 여기서 함께 벗긴다. (0,1,1) 라 순서 무관 */
+.comboCapsule input {
+  border: none;
+  border-radius: 0;
+  height: 100%;
+  background: transparent;
+}
+
+/* 경로 입력 — Input 은 wrapper > fieldWrap > input 3겹이라
+   높이 체인을 끝까지 100% 로 이어야 세로 가운데가 맞는다 (안 이으면 위로 치우침) */
+.comboPath {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+}
+
+.comboPath > div {
+  height: 100%;
+}
+
+/* Input 의 라벨과 같은 톤 — Select 엔 라벨 슬롯이 없어 직접 단다 */
+.fieldLabel {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-body);
+  color: var(--text-secondary);
+  letter-spacing: 0.03em;
+}
+
+
+/* 결과줄 — 필드와 hairline 으로 구분 */
+.builderResult {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  border-top: var(--border-light);
+  padding-top: var(--spacing-md);
+}
+
+/* 결과 링크 — 한 줄 mono, 길면 말줄임. 클릭하면 전체 선택 */
+.builderUrl {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
+  color: var(--text-secondary);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-capsule);
+  padding: var(--spacing-xs) var(--spacing-md);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: text;
+}
+
+/* ── 도움말 ? 버튼 + 말풍선 — SearchCapsule 문법 도움말과 같은 문법 ──
+   버튼은 제목 흐름에서 빼서(absolute) 오른쪽 끝·수직 가운데 — 인라인로 두면
+   20px 버튼이 라인박스를 키워 제목 높이가 다른 패널과 달라진다 */
+.helpWrap {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+}
+
+.helpBtn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  color: var(--text-tertiary);
+  opacity: 0.7;
+  transition:
+    opacity var(--duration-base) ease,
+    color var(--duration-base) ease;
+}
+
+.helpBtn:hover {
+  opacity: 1;
+  color: var(--text-primary);
+}
+
+.helpPopover {
+  max-width: 340px;
+}
+
+.helpContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm);
+}
+
+.helpTitle {
+  margin: 0;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-label);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.helpText {
+  margin: 0;
+  font-size: var(--font-size-label);
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+/* 파라미터 뜻 — 이름(mono) + 설명 한 줄씩 */
+.helpParams {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+  font-size: var(--font-size-label);
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.helpParams li {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-xs);
+}
+
+.helpParams code {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
+  color: var(--text-primary);
+}
+
+.helpSteps {
+  margin: 0;
+  padding-left: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+  font-size: var(--font-size-label);
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.helpExample {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
+  color: var(--text-accent);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-capsule);
+  padding: var(--spacing-3xs) var(--spacing-sm);
+  align-self: flex-start;
+}
+
+/* 트리거 값 — 옵션 행과 같은 아이콘+라벨 배치 (직접 입력 값은 펜 아이콘) */
+.triggerValue {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+}

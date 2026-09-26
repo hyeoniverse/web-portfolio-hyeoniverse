@@ -1,0 +1,80 @@
+/* 트래픽 전용 페이지 셸(#1161) — admin/notifications 등 다른 관리 화면과 동일 베이스 */
+
+.trafficContainer {
+  max-width: var(--page-max-width);
+  margin: 0 auto;
+  padding: var(--spacing-6xl) var(--page-px) var(--spacing-3xl);
+}
+
+.trafficHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-2xl);
+}
+
+.trafficTitle {
+  font-family: var(--font-instrument);
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-regular);
+  color: var(--text-primary);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.trafficTitleIcon {
+  color: var(--text-secondary);
+}
+
+/* ?demo=1 표시 — 실데이터로 오해하지 않게 */
+.trafficDemoBadge {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--text-accent);
+  border: var(--border-accent);
+  border-radius: var(--radius-capsule);
+  padding: var(--spacing-3xs) var(--spacing-sm);
+  align-self: center;
+}
+
+.trafficSkeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-xl) 0;
+}
+
+/* UTM 패널 제목 — 도움말 ? 버튼(absolute)의 기준 박스 */
+.utmPanelTitle {
+  position: relative;
+}
+
+/* 인기 콘텐츠 행 — 순위 숫자 + 제목 링크 (고정 폭 라벨 칸 안에서 말줄임) */
+.topContentTitle {
+  min-width: 0;
+}
+
+.topContentRank {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.topContentLink {
+  color: var(--text-primary);
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.topContentLink:hover {
+  color: var(--text-accent);
+}

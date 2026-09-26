@@ -1,0 +1,90 @@
+/* VisitHeatmap 전용 스타일 — 요일×시각 잔디 매트릭스(#1161).
+   GitHub 잔디처럼 고정 크기 정사각 셀(24px)을 4px 거터로 촘촘하게 좌측 정렬 —
+   패널 폭에 늘리면 표처럼 보인다. 셀 색은 컴포넌트가 인라인로 준다(단계 램프). */
+
+.heatmapWrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm) 0 var(--spacing-2xs);
+  /* 범례(align-self: flex-end)가 패널 끝이 아니라 잔디 블록 오른쪽에 붙도록 */
+  width: max-content;
+}
+
+.heatmap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  width: max-content;
+}
+
+.heatmapRow {
+  display: grid;
+  grid-template-columns: 32px repeat(24, 24px);
+  gap: var(--spacing-2xs);
+  align-items: center;
+}
+
+.heatmapDow {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
+  color: var(--text-tertiary);
+  line-height: 24px;
+}
+
+.heatmapCell {
+  width: 24px;
+  height: 24px;
+}
+
+/* hover — 어둡게 덮지 않고 accent 링으로 짚는다 (brightness 는 빈 칸에서 회색 얼룩처럼 보였다).
+   링이 이웃 칸에 안 가리게 z 올림. 범례 칸(행 밖)엔 적용 안 됨 */
+.heatmapRow .heatmapCell:hover {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 55%, transparent);
+  position: relative;
+  z-index: 1;
+}
+
+/* 12/24시간제 토글 — 잔디 블록 오른쪽 위 */
+.heatmapToolbar {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* 시각 라벨 — 24개 전부. 두 자리 숫자가 칸보다 넓어도 flex 가운데 정렬로
+   양옆 거터에 대칭으로 흘린다 (칸 pitch 28px > "23" 14px 라 이웃과 안 겹침) */
+.heatmapHourLabel {
+  display: flex;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
+  color: var(--text-muted);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  padding-top: var(--spacing-3xs);
+}
+
+/* 오전/오후 캡션 — 12시간제일 때 앞·뒤 12칸 아래 */
+.heatmapMeridiem {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
+  color: var(--text-tertiary);
+}
+
+.heatmapLegend {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  align-self: flex-end;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
+  color: var(--text-muted);
+}
+
+.heatmapLegend > span:first-child {
+  margin-right: var(--spacing-3xs);
+}
+
+.heatmapLegend > span:last-child {
+  margin-left: var(--spacing-3xs);
+}
