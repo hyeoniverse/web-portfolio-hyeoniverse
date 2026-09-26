@@ -3,7 +3,7 @@
 import { Fragment, useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageCircle, Reply, Heart, Bell, Flag, RefreshCw, Key, Monitor, ListChecks, Trash2 } from "@/components/icons";
+import { MessageCircle, Reply, Heart, Bell, Flag, RefreshCw, Key, Monitor, ListChecks, Trash2, TrendingUp } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useModalStore } from "@/stores/modalStore";
 import NotificationDetail from "./_components/NotificationDetail";
@@ -46,6 +46,7 @@ const TYPE_KEYS: Record<string, string> = {
   system: "admin.notifications.typeSystem",
   access_request: "admin.notifications.typeAccessRequest",
   device_login: "admin.notifications.typeDeviceLogin",
+  traffic_spike: "admin.notifications.typeTrafficSpike",
 };
 
 const PAGE_SIZE = 50;
@@ -260,6 +261,7 @@ export default function NotificationsPage() {
       case "report": return <Flag {...common} />;
       case "access_request": return <Key {...common} />;
       case "device_login": return <Monitor {...common} />;
+      case "traffic_spike": return <TrendingUp {...common} />;
       default: return <Bell {...common} />;
     }
   };
