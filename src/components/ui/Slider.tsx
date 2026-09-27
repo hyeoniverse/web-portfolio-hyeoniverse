@@ -29,6 +29,9 @@ function Slider({
   const [internalValue, setInternalValue] = useState(
     () => controlledValue ?? defaultValue ?? [min]
   );
+  /* 드래그 중 시각 위치 — 값은 step 으로 양자화돼 나가지만, thumb 은 포인터를 연속으로 따라간다.
+     안 그러면 굵은 step + 긴 트랙에서 thumb 이 계단으로 점프해 뻑뻑해 보인다. */
+  const [dragVisual, setDragVisual] = useState<{ idx: number; val: number } | null>(null);
   const values = controlledValue ?? internalValue;
   const trackRef = useRef<HTMLDivElement>(null);
   const valuesRef = useRef(values);
@@ -38,16 +41,21 @@ function Slider({
   const quantize = (v: number) => Math.round((v - min) / step) * step + min;
   const pct = (v: number) => ((v - min) / (max - min)) * 100;
 
-  const getValueFromPointer = useCallback(
+  const getRawFromPointer = useCallback(
     (clientX: number) => {
       const track = trackRef.current;
       if (!track) return min;
       const rect = track.getBoundingClientRect();
       const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-      return clamp(quantize(min + ratio * (max - min)));
+      return min + ratio * (max - min);
     },
+    [min, max]
+  );
+
+  const getValueFromPointer = useCallback(
+    (clientX: number) => clamp(quantize(getRawFromPointer(clientX))),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [min, max, step]
+    [getRawFromPointer, min, max, step]
   );
 
   const doUpdate = useCallback(
@@ -75,11 +83,20 @@ function Slider({
       document.body.style.userSelect = "none";
 
       const onMove = (ev: PointerEvent) => {
-        doUpdate(idx, getValueFromPointer(ev.clientX));
+        // 시각은 연속(포인터 추적), 값은 양자화가 바뀔 때만 내보낸다 — pointermove 마다
+        // 무거운 상위 setState 를 부르면 드래그가 버벅인다
+        let raw = clamp(getRawFromPointer(ev.clientX));
+        // range 모드: 시각 위치도 이웃 thumb 을 넘지 않게
+        const cur = valuesRef.current;
+        if (cur.length === 2) raw = idx === 0 ? Math.min(raw, cur[1]) : Math.max(raw, cur[0]);
+        setDragVisual({ idx, val: raw });
+        const q = clamp(quantize(raw));
+        if (q !== valuesRef.current[idx]) doUpdate(idx, q);
       };
 
       const onUp = () => {
         document.body.style.userSelect = "";
+        setDragVisual(null);
         window.removeEventListener("pointermove", onMove);
         window.removeEventListener("pointerup", onUp);
       };
@@ -87,7 +104,8 @@ function Slider({
       window.addEventListener("pointermove", onMove);
       window.addEventListener("pointerup", onUp);
     },
-    [disabled, doUpdate, getValueFromPointer]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [disabled, doUpdate, getRawFromPointer, min, max, step]
   );
 
   const handleTrackClick = (e: React.PointerEvent) => {
@@ -103,9 +121,10 @@ function Slider({
     startDrag(closestIdx, e);
   };
 
-  // range 계산
-  const rangeLeft = values.length === 1 ? 0 : pct(values[0]);
-  const rangeRight = pct(values[values.length - 1]);
+  // range 계산 — 드래그 중엔 연속 시각 위치로 그린다 (값은 양자화된 values 그대로)
+  const displayValues = values.map((v, i) => (dragVisual && dragVisual.idx === i ? dragVisual.val : v));
+  const rangeLeft = displayValues.length === 1 ? 0 : pct(displayValues[0]);
+  const rangeRight = pct(displayValues[displayValues.length - 1]);
 
   return (
     <div
@@ -136,7 +155,7 @@ function Slider({
           aria-valuenow={v}
           aria-disabled={disabled}
           data-draggable
-          style={{ left: `calc(${pct(v)}% - 8px)` }}
+          style={{ left: `calc(${pct(displayValues[i])}% - 8px)` }}
           onPointerDown={(e) => startDrag(i, e)}
           onKeyDown={(e) => {
             if (disabled) return;
