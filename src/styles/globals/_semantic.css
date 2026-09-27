@@ -50,6 +50,9 @@
   --bg-inverse: var(--color-neutral-950);
   --bg-inverse-light: var(--color-neutral-700);
   --bg-inverse-alt: var(--color-inverse-alpha-30);
+  /* 테마 고정 — 사이트 라이트/다크 테마의 실제 배경. inverse 와 달리 화면 테마 따라 안 뒤집힌다 */
+  --bg-scheme-light: var(--color-scheme-light-bg);
+  --bg-scheme-dark: var(--color-scheme-dark-bg);
 
   /* 글래스 "패널" 표면 — dropdown / popover / toast 처럼 뒤를 비추며 떠 있는 면.
      Select · SearchCapsule · Popover · Toast · DatePicker 가 `반투명 bg + blur + saturate` 라는

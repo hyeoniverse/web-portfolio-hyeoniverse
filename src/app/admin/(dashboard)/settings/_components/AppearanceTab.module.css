@@ -262,7 +262,15 @@
   gap: var(--spacing-3xs);
   min-width: 0;
 }
-/* 라이트/다크 색 편의 버튼 (맞추기·서로 바꾸기·지우기) — duo 두 칼럼 아래 우측 툴바 */
+/* 색 입력 캡슐 — 배치만 여기서(행 폭 채움). 모양 규칙(민짜 input·정사각 세그먼트·포커스)은
+   공통 ButtonGroup(neutral)이 진다 */
+.colorCapsuleGroup {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+}
+
+/* 공용 ⇄(서로 바꾸기) — duo 두 칼럼 아래 우측 */
 .faviconColorTools {
   grid-column: 1 / -1;
   display: flex;
