@@ -99,6 +99,17 @@
   opacity: 0.6;
 }
 
+/* difference 를 끈 로고 — 흰색 고정은 blend 반전 전제라 라이트 배경에서 안 보인다.
+   blend 없이는 칩이 스스로 대비를 책임져야 한다: 불투명 배경 + 테마 텍스트로,
+   커스텀 배경색·커버 이미지 위 어디서든 읽힌다. 흐리게 만들던 opacity 도 걷는다 */
+.logoNavBarNoDifference .adminBadge {
+  color: var(--text-primary);
+  /* default(neutral 50%)는 캡슐 테두리가 흐릿하다 — 글자와 같은 농도의 strong 으로 */
+  border: var(--border-strong);
+  background: var(--bg-primary);
+  opacity: 1;
+}
+
 .logo {
   font-family: var(--font-instrument), serif;
   font-size: var(--font-size-3xl);
@@ -216,6 +227,16 @@
 .logoImageWrap {
   display: flex;
   align-items: center;
+}
+
+/* 로딩 워드마크 오버레이 — absolute 라 담는 블록(숏 로고 폭 ~38px)에 shrink-to-fit 으로
+   짜부되며 img 가 정사각이 됐다. 제 폭(max-content)을 갖고 부모 중앙에 정렬한다.
+   translate 프로퍼티를 쓰는 이유: framer 가 transform 을 만질 수 있어 transform 은 피한다. */
+.logoLoadingWrap {
+  position: absolute;
+  width: max-content;
+  left: 50%;
+  translate: -50%;
 }
 
 .logoImage {

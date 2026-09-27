@@ -15,21 +15,47 @@ const MIN_DISPLAY_MS = 300;
 const TRANSITION_MS = 400;
 /* 워드마크 등장이 끝난 뒤 완성된 상태로 잠깐 머무는 시간(전환 시작 전 한 박자). */
 const LOGO_HOLD_MS = 250;
+/* 이미지 풀 로고(워드마크)의 등장 길이 — Navigation 의 로딩 연출 프리셋 중 가장 긴 것
+   (wipe: 딜레이 0.15 + 0.8초)과 맞춘 값. framer 는 JS 구동이라 getAnimations 로 잴 수 없어
+   상수로 기다린다. */
+const IMAGE_WORDMARK_INTRO_MS = 800;
 
-/* 로딩 로고(텍스트 워드마크) 등장 애니메이션이 끝날 때까지 기다린다 — 빠른 로드에서 글자가
-   반쯤 그려진 채 shrink+crossfade 로 넘어가 버리지 않게. 마지막 글자의 rise/sharpen 이 끝난 뒤
-   LOGO_HOLD_MS 만큼 더 머문 뒤 resolve. 이미지·배지 로고엔 [data-loading-letter] 가 없어 즉시
-   resolve → 예전 속도 유지. 애니메이션이 등록되기 전에 재지 않도록 두 프레임 뒤 수집한다. */
+/* 로딩 로고(워드마크) 등장 애니메이션이 끝날 때까지 기다린다 — 빠른 로드에서 로고가
+   반쯤 그려진 채 shrink+crossfade 로 넘어가 버리지 않게.
+   - 글자 로고: 마지막 글자의 rise/sharpen 애니메이션이 끝난 뒤 LOGO_HOLD_MS 만큼 머문다.
+   - 이미지 풀 로고([data-loading-wordmark]): img 로드 후 페이드 길이 + LOGO_HOLD_MS 만큼 머문다.
+     예전엔 즉시 resolve 라 인트로가 최소 대기(300ms)만에 끝나 워드마크가 보이지도 않았다.
+   - 숏만 있는 이미지·배지 로고: 즉시 resolve → 예전 속도 유지.
+   애니메이션이 등록되기 전에 재지 않도록 두 프레임 뒤 수집한다. */
 function waitForLogoIntro(): Promise<void> {
   return new Promise((resolve) => {
     if (typeof document === "undefined") return resolve();
     const hold = () => setTimeout(resolve, LOGO_HOLD_MS);
+    let tries = 0;
     const collect = () => {
       const letters = document.querySelectorAll("[data-loading-letter]");
-      if (!letters.length) return resolve();
-      const anims = Array.from(letters).flatMap((el) => el.getAnimations());
-      if (!anims.length) return hold();
-      Promise.all(anims.map((a) => a.finished.catch(() => {}))).then(hold);
+      if (letters.length) {
+        const anims = Array.from(letters).flatMap((el) => el.getAnimations());
+        if (!anims.length) return hold();
+        return void Promise.all(anims.map((a) => a.finished.catch(() => {}))).then(hold);
+      }
+      const wordmark = document.querySelector<HTMLElement>("[data-loading-wordmark]");
+      if (!wordmark) {
+        /* 모바일 폭은 BreakpointGuard 첫 리마운트로 로고 DOM 이 한두 프레임 비어 있다.
+           그 틈에 재면 로고 없는 사이트로 판정돼 인트로가 최소 대기만에 끝난다(워드마크
+           안 보임) — 몇 프레임 더 보고 판단한다. 진짜 로고 없는 구성은 이 재시도(~0.3초)가
+           MIN_DISPLAY_MS 안이라 체감 지연이 없다. */
+        if (tries++ < 20) return void requestAnimationFrame(collect);
+        return resolve();
+      }
+      const img = wordmark.querySelector("img");
+      const ready = img && !img.complete
+        ? new Promise<void>((r) => {
+            img.addEventListener("load", () => r(), { once: true });
+            img.addEventListener("error", () => r(), { once: true });
+          })
+        : Promise.resolve();
+      ready.then(() => setTimeout(resolve, IMAGE_WORDMARK_INTRO_MS + LOGO_HOLD_MS));
     };
     requestAnimationFrame(() => requestAnimationFrame(collect));
   });

@@ -86,6 +86,13 @@ export function useLogoMeasure(
       document.body.removeChild(tempEl);
       const navFontSize = parseFloat(getComputedStyle(el).fontSize);
       scale = navFontSize > 0 ? loadingFontSize / navFontSize : 1;
+      /* 워드마크(가로로 긴 이미지)는 글자 기준 배율을 그대로 쓰면 화면을 넘친다 —
+         스케일된 폭이 화면의 72%를 넘지 않게 상한을 건다. 마크(정사각)에는 사실상 무효. */
+      const wordmark = el.querySelector<HTMLElement>("[data-loading-wordmark]");
+      if (wordmark) {
+        const wmWidth = wordmark.getBoundingClientRect().width;
+        if (wmWidth > 0) scale = Math.min(scale, (window.innerWidth * 0.72) / wmWidth);
+      }
       // transformOrigin: "left center" 기준 → 스케일된 너비를 반영한 중앙 오프셋
       const rect = el.getBoundingClientRect();
       x = window.innerWidth / 2 - rect.left - (rect.width * scale) / 2;

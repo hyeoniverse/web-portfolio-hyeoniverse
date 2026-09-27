@@ -19,7 +19,9 @@ export const TAB_IDS = ["general", "content", "appearance", "services", "account
 
 export const TAB_CONFIG_KEYS: Record<string, (keyof SiteConfigData)[]> = {
   general: ["personal", "contact", "metadata", "bgm"],
-  content: ["brand", "hero", "home3d", "homeIntro", "services", "marquee", "cta", "loading", "footer", "posts", "works", "profile", "about", "socialLinks"],
+  /* brand 는 외관 탭(BrandSection)으로 옮겨져 content 에서 뺐다 — 양쪽에 두면 충돌 패널이
+     콘텐츠>HOME 에 뜨고, 콘텐츠 탭 저장이 브랜드 변경까지 스냅샷해 덮어쓴다 */
+  content: ["hero", "home3d", "homeIntro", "services", "marquee", "cta", "loading", "footer", "posts", "works", "profile", "about", "socialLinks"],
   appearance: ["theme", "typography", "datePickerStyle", "brand"],
   services: ["emailService", "aiCover", "aiSummary", "recaptcha", "translation", "commentEmailNotify", "comments", "media"],
 };
@@ -115,7 +117,7 @@ export type ContentSubTab = (typeof CONTENT_SUBTABS)[number];
 
 /** content 탭 내 siteConfig 키 → sub-tab 매핑 */
 const CONTENT_SUBTAB_KEYS: Record<ContentSubTab, (keyof SiteConfigData)[]> = {
-  home: ["brand", "hero", "home3d", "homeIntro", "services", "marquee", "cta", "loading", "footer", "socialLinks"],
+  home: ["hero", "home3d", "homeIntro", "services", "marquee", "cta", "loading", "footer", "socialLinks"],
   profile: ["profile"],
   about: ["about"],
   works: ["works"],
