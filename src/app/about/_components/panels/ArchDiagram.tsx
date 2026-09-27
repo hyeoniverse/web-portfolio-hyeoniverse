@@ -18,6 +18,19 @@ export default function ArchDiagram() {
 
   const [nodes, setNodes] = useState<ArchNode[]>(initNodes);
   const [hovered, setHovered] = useState<string | null>(null);
+  /* 노드를 떠날 때 바로 비우지 않는다 — 이웃 노드로 옮겨가거나 사이 빈틈을 지나는 동안
+     전체가 밝아졌다 다시 어두워지는 깜빡임이 생긴다. 다음 노드에 들어가면 취소된다 */
+  const leaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const enterNode = useCallback((id: string) => {
+    if (leaveTimer.current) clearTimeout(leaveTimer.current);
+    leaveTimer.current = null;
+    setHovered(id);
+  }, []);
+  const leaveNode = useCallback(() => {
+    if (leaveTimer.current) clearTimeout(leaveTimer.current);
+    leaveTimer.current = setTimeout(() => setHovered(null), 120);
+  }, []);
+  useEffect(() => () => { if (leaveTimer.current) clearTimeout(leaveTimer.current); }, []);
   const [dragging, setDragging] = useState<string | null>(null);
   const dragOffset = useRef({ x: 0, y: 0 });
   const svgRef = useRef<SVGSVGElement>(null);
@@ -168,7 +181,7 @@ export default function ArchDiagram() {
             strokeWidth={isHl ? 1.5 : 0.8}
             strokeDasharray={edge.dashed ? "4 3" : undefined}
             markerEnd={isHl ? "url(#archArrowAccent)" : "url(#archArrow)"}
-            opacity={isDim ? 0.12 : 1}
+            style={{ opacity: isDim ? 0.12 : 1 }}
             className={styles.edge}
           />
         );
@@ -184,9 +197,9 @@ export default function ArchDiagram() {
           <g
             key={node.id}
             onPointerDown={(e) => handlePointerDown(node.id, e)}
-            onMouseEnter={() => { if (!dragging) setHovered(node.id); }}
-            onMouseLeave={() => { if (!dragging) setHovered(null); }}
-            opacity={isHl ? 1 : 0.15}
+            onMouseEnter={() => { if (!dragging) enterNode(node.id); }}
+            onMouseLeave={() => { if (!dragging) leaveNode(); }}
+            style={{ opacity: isHl ? 1 : 0.15 }}
             className={`${styles.node} ${dragging === node.id ? styles.dragging : ""}`}
           >
             <rect
