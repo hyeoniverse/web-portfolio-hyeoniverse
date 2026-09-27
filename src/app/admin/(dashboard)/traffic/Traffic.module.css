@@ -29,19 +29,6 @@
   color: var(--text-secondary);
 }
 
-/* ?demo=1 표시 — 실데이터로 오해하지 않게 */
-.trafficDemoBadge {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: var(--text-accent);
-  border: var(--border-accent);
-  border-radius: var(--radius-capsule);
-  padding: var(--spacing-3xs) var(--spacing-sm);
-  align-self: center;
-}
-
 .trafficSkeleton {
   display: flex;
   flex-direction: column;

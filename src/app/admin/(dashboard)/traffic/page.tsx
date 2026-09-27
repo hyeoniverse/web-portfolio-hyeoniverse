@@ -17,7 +17,6 @@ import DevicesBreakdown from "../_components/DevicesBreakdown";
 import VisitHeatmap from "../_components/VisitHeatmap";
 import VisitsTrend from "../_components/VisitsTrend";
 import { countryName, flagEmoji } from "../_components/countryDisplay";
-import { makeDemoTrafficData } from "./demoData";
 import UtmBuilder, { UtmHelpButton } from "./UtmBuilder";
 import { errorFromResponse, errorText } from "@/lib/apiError";
 import Link from "next/link";
@@ -57,24 +56,9 @@ export default function AdminTrafficPage() {
   const [deviceDrillKind, setDeviceDrillKind] = useState<DeviceKind | null>(null);
   const [days, setDays] = useState<Days>("30");
 
-  const [isDemo, setIsDemo] = useState(false);
 
   useEffect(() => {
     let alive = true;
-    /* ?demo=1 — 실데이터가 쌓이기 전 UI 전체 확인용. DB·API 안 거치고 생성 더미를 쓴다.
-       searchParams 훅 대신 effect 에서 읽는다 — 값이 effect 전용이면 그걸로 충분하다 */
-    if (new URLSearchParams(window.location.search).has("demo")) {
-      // 데모도 fetch 응답처럼 다음 틱에 심는다 — effect 안 동기 setState 는 연쇄 렌더를 만든다
-      const id = setTimeout(() => {
-        if (!alive) return;
-        setIsDemo(true);
-        setData(makeDemoTrafficData(Number(days)));
-      }, 0);
-      return () => {
-        alive = false;
-        clearTimeout(id);
-      };
-    }
     (async () => {
       try {
         const res = await fetch(`/api/admin/traffic?days=${days}`);
@@ -106,10 +90,6 @@ export default function AdminTrafficPage() {
         <h1 className={styles.trafficTitle}>
           <TrendingUp size={26} strokeWidth={1.6} aria-hidden className={styles.trafficTitleIcon} />
           <T k="admin.dashboard.groupTraffic" />
-          {isDemo && (
-            /* 실데이터와 헷갈리지 않게 — ?demo=1 일 때만 */
-            <span className={styles.trafficDemoBadge}>DEMO</span>
-          )}
         </h1>
         {/* 기간 선택 — 페이지 전체(요약·추이·채널·기기·국가·랜딩·시간대)가 같이 바뀐다 */}
         <SegmentedControl<Days>
