@@ -20,7 +20,6 @@ import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { resolveBrandLogos } from "@/lib/brandLogos";
 import { loadGoogleFont } from "@/lib/loadGoogleFont";
 import {
-  resolveFaviconShadow,
   firstGrapheme,
   graphemes,
   FaviconBadge,
@@ -164,31 +163,12 @@ export default function Navigation() {
   /* difference — 명시 안 하면 자동: 업로드 이미지 로고는 해제(이미지 색이 배경 따라 반전돼 버림),
      시스템(텍스트) 로고는 적용 */
   const logoDifferenceOn = siteConfig.brand.logoDifference ?? !hasImageLogo;
-  // nav/loading 로고 그림자 — 로고 이미지(숏·풀)에 CSS drop-shadow 로 적용. favicon SVG 와 별개 설정.
-  // logoShadow 가 활성이면 그 값을, 미설정이면 favicon 로고 그림자(faviconImageShadow)를 상속(기존 동작 보존).
-  // drop-shadow 는 outer 만 지원하므로 inset 이면 미적용.
-  const _logoShadowCfg = siteConfig.brand.logoShadow?.enabled ? siteConfig.brand.logoShadow : siteConfig.brand.faviconImageShadow;
-  const _imgShadow = resolveFaviconShadow(_logoShadowCfg);
-  const logoShadowFilter = _imgShadow && !_imgShadow.inset
-    ? `drop-shadow(${_imgShadow.dx}px ${_imgShadow.dy}px ${_imgShadow.blur}px ${_imgShadow.color})`
-    : undefined;
-  // 텍스트 글리프·배지 nav/로딩 로고 그림자 (drop-shadow). favicon SVG(브라우저 탭)와 별개.
-  const toDropShadow = (cfg: typeof siteConfig.brand.logoShadow) => {
-    const s = resolveFaviconShadow(cfg);
-    return s && !s.inset ? `drop-shadow(${s.dx}px ${s.dy}px ${s.blur}px ${s.color})` : undefined;
-  };
-  const useSeparateLogoShadow = !!siteConfig.brand.logoShadow?.enabled;
+  // nav/로딩 로고에는 그림자를 두지 않는다 — favicon 그림자는 브라우저 탭 아이콘 전용이다.
 
   // nav 로고를 favicon 배지(배경+글리프)로 — 브라우저 탭 아이콘과 통일. 배경 없음(shape=none)이거나
   // 업로드 이미지 로고면 미적용(각각 텍스트 리빌 / 이미지 유지).
   const navVariant: "light" | "dark" = isDark ? "dark" : "light";
   const useBadgeLogo = !hasImageLogo && (siteConfig.brand.faviconShape ?? "circle") !== "none";
-  // 텍스트 글리프·배지 nav/로딩 로고 그림자:
-  // - 별도 그림자 ON → glyph·badge 모두 logoShadow 적용 (배지의 구운 그림자는 navFaviconInput 에서 끔)
-  // - OFF → glyph 는 favicon 텍스트 그림자를 상속(배지는 SVG 에 구워지므로 여기선 미적용)
-  const navGlyphShadowFilter = useSeparateLogoShadow
-    ? toDropShadow(siteConfig.brand.logoShadow)
-    : (!useBadgeLogo ? toDropShadow(siteConfig.brand.faviconTextShadow ?? DEFAULT_FAVICON_TEXT_SHADOW) : undefined);
   const navFaviconInput: FaviconRenderInput = {
     shape: (siteConfig.brand.faviconShape ?? "circle") as FaviconShape,
     faviconRadius: siteConfig.brand.faviconRadius ?? "",
@@ -205,9 +185,9 @@ export default function Navigation() {
     faviconFontSize: siteConfig.brand.faviconFontSize ?? "20",
     faviconColor: siteConfig.brand.faviconColor ?? "",
     faviconColorDark: siteConfig.brand.faviconColorDark ?? "",
-    // 별도 nav 로고 그림자가 켜져 있으면 배지에 굽는 favicon 그림자는 끈다 (sepLogoShadowFilter 와 이중 적용 방지).
-    faviconTextShadow: useSeparateLogoShadow ? { ...DEFAULT_FAVICON_TEXT_SHADOW, enabled: false } : (siteConfig.brand.faviconTextShadow ?? DEFAULT_FAVICON_TEXT_SHADOW),
-    faviconBgShadow: useSeparateLogoShadow ? { ...DEFAULT_FAVICON_BG_SHADOW, enabled: false } : (siteConfig.brand.faviconBgShadow ?? DEFAULT_FAVICON_BG_SHADOW),
+    // 배지는 favicon 렌더를 빌려 그리지만 그림자는 굽지 않는다 (탭 아이콘 전용 설정)
+    faviconTextShadow: { ...DEFAULT_FAVICON_TEXT_SHADOW, enabled: false },
+    faviconBgShadow: { ...DEFAULT_FAVICON_BG_SHADOW, enabled: false },
     presetLight: siteConfig.brand.logoColor || siteConfig.theme.lightText,
     presetDark: siteConfig.brand.logoColorDark || siteConfig.theme.darkText,
   };
@@ -216,14 +196,14 @@ export default function Navigation() {
     tintColor ? (
       <span
         className={styles.logoImageTinted}
-        style={{ backgroundColor: tintColor, maskImage: `url("${src}")`, WebkitMaskImage: `url("${src}")`, filter: logoShadowFilter }}
+        style={{ backgroundColor: tintColor, maskImage: `url("${src}")`, WebkitMaskImage: `url("${src}")` }}
         role="img"
         aria-label={altText}
       >
         <Image src={src} alt="" width={w} height={32} unoptimized />
       </span>
     ) : (
-      <Image src={src} alt={altText} width={w} height={32} className={styles.logoImage} unoptimized style={logoShadowFilter ? { filter: logoShadowFilter } : undefined} />
+      <Image src={src} alt={altText} width={w} height={32} className={styles.logoImage} unoptimized />
     );
   const { isLoading, isTransitioning } = useLoadingScreen();
   const { isMuted, toggleMute } = useSoundStore();
@@ -534,8 +514,6 @@ export default function Navigation() {
           };
           if (siteConfig.brand.logoFont) inlineStyle.fontFamily = withMetricFallback(siteConfig.brand.logoFont);
           if (color) inlineStyle.color = color;
-          // 텍스트 글리프·배지 nav/로딩 로고 그림자 (이미지 로고는 img 자체에 logoShadowFilter 를 걸므로 제외).
-          if (!hasImageLogo && navGlyphShadowFilter) inlineStyle.filter = navGlyphShadowFilter;
           return (
             <motion.span
               ref={logoRef}
