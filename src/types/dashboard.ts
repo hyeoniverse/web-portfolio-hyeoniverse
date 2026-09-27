@@ -161,4 +161,20 @@ export interface TrafficData {
     count: number;
   }>;
   visitSummary: { visits30: number; views30: number; viewsPerVisit: number };
+  /** IP 별 방문 상위 — 마스킹 값과 불투명 키만 (원문 IP 는 응답에 없다) */
+  ipVisitors: Array<{
+    key: string;
+    masked: string;
+    days: number;
+    firstDate: string;
+    lastDate: string;
+    country: string | null;
+    device: string | null;
+    os: string | null;
+    browser: string | null;
+  }>;
+  /** 지금 이 페이지를 연 요청의 IP — '내 IP 로 등록' 용. 알 수 없으면 null */
+  currentIp: { key: string; masked: string; excluded: boolean } | null;
+  /** '내 IP' 로 지정돼 집계에서 빠지는 IP */
+  excludedIps: Array<{ key: string; masked: string }>;
 }
