@@ -14,6 +14,7 @@ import {
   type AnalyticsVisitRow,
   type PostAggRow,
 } from "@/lib/api/dashboardAggregates";
+import { loadExcludedIps } from "@/lib/api/ipAnalytics";
 
 // GET /api/admin/dashboard — 어드민 대시보드용 집계 데이터
 // posts/works/comments 카운트 + 최근 항목 + 알림 + 인기 게시물 + AI 키 상태를
@@ -157,7 +158,10 @@ export async function GET() {
     (allPostsAgg.data ?? []) as PostAggRow[],
   );
 
-  const trafficRows = (trafficAgg.data ?? []) as AnalyticsVisitRow[];
+  // '내 IP' 로 지정된 방문은 트래픽 페이지와 같이 뺀다
+  const excludedIps = await loadExcludedIps(admin);
+  const notExcluded = (r: { ip?: string | null }) => !r.ip || !excludedIps.has(r.ip);
+  const trafficRows = ((trafficAgg.data ?? []) as Array<AnalyticsVisitRow & { ip?: string | null }>).filter(notExcluded);
   const { devices, operatingSystems, browsers, deviceModels } = aggregateTraffic(trafficRows);
 
   // 트래픽 간략 세트(#1161) — 심화(국가·랜딩·시간대·UTM)는 /api/admin/traffic 이 가진다
@@ -168,7 +172,7 @@ export async function GET() {
     return d.toISOString().slice(0, 10);
   })();
   const newVsReturning = aggregateNewVsReturning(
-    (allVisitsAgg.data ?? []) as Array<{ ip: string | null; date: string | null }>,
+    ((allVisitsAgg.data ?? []) as Array<{ ip: string | null; date: string | null }>).filter(notExcluded),
     windowStart,
   );
 

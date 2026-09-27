@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { loadExcludedIps } from "@/lib/api/ipAnalytics";
 import { createClient as createServerClient } from "@/lib/supabase/server";
 import { getIp } from "@/utils/getIp";
 import { jsonOk } from "@/lib/api/response";
@@ -26,6 +27,7 @@ export async function GET() {
 // 정책:
 //   - admin (로그인한 본인) 의 방문은 카운트 제외 — /api/posts/[id]/view 와 동일 정책 통일
 //   - bot 의 방문도 카운트 제외 — 크롤러 노이즈 차단
+//   - 운영자가 '내 IP' 로 지정한 IP 도 제외 (traffic_excluded_ips)
 export async function POST(request: Request) {
   // admin 인지 확인 (cookie 기반) — 본인 방문은 skip
   const server = await createServerClient();
@@ -37,6 +39,11 @@ export async function POST(request: Request) {
   const ip = getIp(request);
   const admin = createAdminClient();
   const today = new Date().toISOString().slice(0, 10);
+
+  // 운영자가 '내 IP' 로 지정한 IP — 로그아웃 상태·다른 기기의 본인 방문도 빼기 위해
+  if ((await loadExcludedIps(admin)).has(ip)) {
+    return jsonOk({ success: true, skipped: "excluded" });
+  }
 
   const userAgent = request.headers.get("user-agent") ?? "";
   const referer = request.headers.get("referer") ?? "";

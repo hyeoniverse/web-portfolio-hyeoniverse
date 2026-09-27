@@ -18,6 +18,7 @@ import VisitHeatmap from "../_components/VisitHeatmap";
 import VisitsTrend from "../_components/VisitsTrend";
 import { countryName, flagEmoji } from "../_components/countryDisplay";
 import UtmBuilder, { UtmHelpButton } from "./UtmBuilder";
+import IpVisitors from "./IpVisitors";
 import { errorFromResponse, errorText } from "@/lib/apiError";
 import Link from "next/link";
 
@@ -55,6 +56,8 @@ export default function AdminTrafficPage() {
   const [error, setError] = useState<string | null>(null);
   const [deviceDrillKind, setDeviceDrillKind] = useState<DeviceKind | null>(null);
   const [days, setDays] = useState<Days>("30");
+  // '내 IP' 지정·해제 뒤 다시 불러오기 — 제외 IP 가 모든 집계에 반영된다
+  const [reloadKey, setReloadKey] = useState(0);
 
 
   useEffect(() => {
@@ -82,7 +85,7 @@ export default function AdminTrafficPage() {
     return () => {
       alive = false;
     };
-  }, [language, t, days]);
+  }, [language, t, days, reloadKey]);
 
   return (
     <div className={styles.trafficContainer}>
@@ -293,6 +296,19 @@ export default function AdminTrafficPage() {
                   </List>
                 )}
               </Panel>
+            </Panel>
+
+            {/* ── IP 분석 — 마스킹된 IP 별 재방문 + 내 IP 제외 ── */}
+            <Panel className={styles.panelCell}>
+              <PanelTitle>
+                <T k="admin.dashboard.ipAnalysis" />
+              </PanelTitle>
+              <IpVisitors
+                ipVisitors={data.ipVisitors}
+                currentIp={data.currentIp}
+                excludedIps={data.excludedIps}
+                onChanged={() => setReloadKey((k) => k + 1)}
+              />
             </Panel>
 
             {/* ── 기간 내 인기 콘텐츠 ── */}
