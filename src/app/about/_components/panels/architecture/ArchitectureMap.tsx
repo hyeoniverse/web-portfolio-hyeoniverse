@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useCallback, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Pressable from "@/components/ui/Pressable";
 import type { Language } from "@/providers/LanguageProvider";
@@ -105,14 +105,30 @@ function ArchitectureMap({ structure, language }: { structure: StructureItem[]; 
     [toViewbox, onDragStart, onDrag, onDragEnd, handleClick],
   );
 
+  /* 떠날 때 바로 비우지 않는다 — 이웃 항목으로 옮겨가는 사이 툴팁·강조가 꺼졌다 켜지며 깜빡인다.
+     다음 항목에 들어가면 취소된다 */
+  const leaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const clearLeaveTimer = () => {
+    if (leaveTimer.current) clearTimeout(leaveTimer.current);
+    leaveTimer.current = null;
+  };
+  useEffect(() => clearLeaveTimer, []);
+
   const handleMouseEnter = useCallback((index: number) => {
     if (isDraggingRef.current) return;
+    clearLeaveTimer();
     setHoveredIndex(index);
   }, []);
 
   const handleMouseLeave = useCallback(() => {
-    setHoveredIndex(null);
+    clearLeaveTimer();
+    leaveTimer.current = setTimeout(() => setHoveredIndex(null), 120);
   }, []);
+
+  const handleTreeHover = useCallback((index: number | null) => {
+    if (index === null) handleMouseLeave();
+    else handleMouseEnter(index);
+  }, [handleMouseEnter, handleMouseLeave]);
 
   const tooltipInfo = useMemo(() => {
     if (hoveredIndex === null) return null;
@@ -176,7 +192,7 @@ function ArchitectureMap({ structure, language }: { structure: StructureItem[]; 
             graph={graph}
             selectedIndex={selectedIndex}
             onSelect={handleClick}
-            onHover={setHoveredIndex}
+            onHover={handleTreeHover}
           />
         )}
 
@@ -265,7 +281,7 @@ function ArchitectureMap({ structure, language }: { structure: StructureItem[]; 
         <AnimatePresence>
           {hoveredNode && tooltipInfo && (
             <motion.div
-              key={`tooltip-${hoveredIndex}`}
+              key="arch-tooltip"
               className={styles.archTooltip}
               style={{
                 left: tooltipInfo.left,
