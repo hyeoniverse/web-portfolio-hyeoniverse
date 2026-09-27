@@ -175,6 +175,11 @@ export async function GET(request: Request) {
       const imgSize = 32 * imgScale;
       const imgOff = (32 - imgSize) / 2;
       let imageEl = `<image href="${dataUri}" x="${imgOff}" y="${imgOff}" width="${imgSize}" height="${imgSize}" preserveAspectRatio="xMidYMid meet"${logoTint ? ` filter="url(#${tintId})"` : ""} />`;
+      // 이미지도 모양·모서리대로 클리핑 — 배경 모서리 밖으로 삐져나오지 않게 (미리보기와 동일)
+      if (imgRender.hasBg) {
+        defsParts.push(`<clipPath id="favicon-img-clip-${variant}"><rect x="${imgRender.bgX}" y="${imgRender.bgY}" width="${imgRender.bgW}" height="${imgRender.bgH}" rx="${imgRender.radius}" ry="${imgRender.radius}" /></clipPath>`);
+        imageEl = `<g clip-path="url(#favicon-img-clip-${variant})">${imageEl}</g>`;
+      }
       if (imgShadow) {
         defsParts.push(faviconFilterString(imgShadow, imgShadowId));
         imageEl = `<g filter="url(#${imgShadowId})">${imageEl}</g>`;
