@@ -1,216 +1,147 @@
-/* Override shared hash: local wins in { ...shared, ...local } merge,
-   so we must replicate the desktop rule here. */
+/* ── Desktop: 제목 아래부터 하단 내비 위까지 채우는 단계 행 목록 ──
+   공용(AboutEntry)의 processBody 는 display: contents 라 { ...shared, ...local } 병합에서 이 클래스가 쓰인다.
+   현재 단계 행이 남은 높이를 전부 가져가고 나머지는 한 줄로 접힌다 */
 .processBody {
-  display: contents;
-}
-
-.processTimeline {
-  flex-shrink: 0;
-  margin-bottom: clamp(3rem, min(6vh, 3.5vw), 5rem);
-  padding: clamp(12px, min(1.8vh, 1vw), 24px) 0;
-  position: relative;
-}
-
-.processTimelineTrack {
-  position: relative;
-  width: 100%;
-  height: 2px;
-  background: var(--text-tertiary);
-  opacity: 0.15;
-  border-radius: var(--spacing-4xs);
-}
-
-.processTimelineProgress {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  background: var(--bg-accent-solid);
-  border-radius: var(--spacing-4xs);
-  will-change: width;
-}
-
-/* Compound selector (0,2,0) */
-.processTimeline .processTimelineProgress {
-  transition: width var(--duration-slow) var(--ease-material);
-}
-
-.processTimelineNodes {
   display: flex;
-  justify-content: space-between;
-  position: absolute;
-  top: 0;
-  right: 0;
-  left: 0;
-}
-
-.processTimelineNode {
-  display: flex;
-  gap: clamp(6px, min(0.8vh, 0.5vw), 12px);
-  align-items: center;
-  flex-direction: column;
-  width: 0;
-}
-
-/* Dot wrapper — positions pulse ring behind the dot */
-.processNodeDotWrap {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  width: clamp(18px, min(2.2vh, 1.2vw), 28px);
-  height: clamp(18px, min(2.2vh, 1.2vw), 28px);
-}
-
-.processNodeDot {
-  border: var(--border-light-2);
-  z-index: 1;
-  width: clamp(10px, min(1.4vh, 0.8vw), 16px);
-  height: clamp(10px, min(1.4vh, 0.8vw), 16px);
-  background: var(--bg-primary);
-  border-radius: var(--radius-circle);
-  opacity: 0.4;
-}
-
-/* Compound selector (0,2,0) */
-.processTimelineNode .processNodeDot {
-  transition:
-    border-color 0.4s ease,
-    background-color 0.4s ease,
-    opacity 0.4s ease,
-    transform 0.4s ease,
-    box-shadow 0.4s ease;
-}
-
-.processNodeDotDone {
-  border-color: var(--text-accent);
-  background: var(--text-accent);
-  opacity: 1;
-}
-
-.processNodeDotActive {
-  border-color: var(--text-accent);
-  box-shadow: 0 0 12px var(--color-accent-alpha-50);
-  background: var(--text-accent);
-  opacity: 1;
-  transform: scale(1.3);
-}
-
-/* Pulse ring animation on active node */
-.processNodePulse {
-  border: var(--border-accent-strong-2);
-  position: absolute;
-  animation: processPulse 2s ease-out infinite;
-  inset: 0;
-  border-radius: var(--radius-circle);
-}
-
-@keyframes processPulse {
-  0% {
-    opacity: 0.6;
-    transform: scale(1);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(2.2);
-  }
-}
-
-.processNodeLabel {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-prose-caption);
-  font-weight: var(--font-weight-medium);
-  color: var(--text-tertiary);
-  opacity: 0.4;
-}
-
-/* Compound selector (0,2,0) */
-.processTimelineNode .processNodeLabel {
-  transition:
-    color var(--duration-base) ease,
-    opacity var(--duration-base) ease;
-}
-
-.processNodeLabelActive {
-  color: var(--text-accent);
-  opacity: 1;
-}
-
-/* Truncated step title under each node */
-/* ── Step content (single view) — marquee slide ── */
-.processSingleView {
   flex: 1;
-  overflow: hidden;
-  position: relative;
-  min-width: 0;
-  min-height: 0;
-}
-
-.processSinglePane {
-  display: flex;
-  gap: var(--_space-block);
-  align-items: flex-start;
-  margin-top: var(--_space-divide);
-  position: absolute;
-  pointer-events: none;
-  inset: 0;
-  transform: translateX(100%);
-}
-
-/* Compound selector (0,2,0) to beat global html[data-theme-transitioning] * (0,1,1) */
-.processSingleView .processSinglePane {
-  transition: transform var(--duration-slow) var(--ease-material);
-}
-
-.processSinglePanePast {
-  transform: translateX(-100%);
-}
-
-.processSinglePaneActive {
-  pointer-events: auto;
-  transform: translateX(0);
-}
-
-/* Giant step number — fills the left side vertically */
-.processStepBigNum {
-  flex-shrink: 0;
-  font-family: var(--_font-display);
-  font-size: clamp(8rem, min(22vw, 38vh), 24rem);
-  font-weight: var(--font-weight-regular);
-  line-height: 0.85;
-  color: var(--text-accent);
-  opacity: 0.15;
-}
-
-/* Right column: title + description — aligned to bottom */
-.processStepRight {
-  display: flex;
-  align-self: stretch; /* 부모 pane 높이에 맞춰 stretch → flex-end 실제 작동 */
-  justify-content: flex-end;
   flex-direction: column;
-  padding-bottom: clamp(0.5rem, min(1.5vh, 0.8vw), 2rem);
-  padding-left: clamp(1rem, min(2.5vw, 4vh), 2.5rem);
-  border-left: 2px solid var(--color-accent-alpha-30);
+  margin: 0 0 clamp(4.5rem, 10vh, 6rem);
+  padding: 0;
+  min-height: 0;
+  list-style: none;
+  border-bottom: var(--border-light);
 }
 
-.processStepTitle {
-  margin: 0 0 var(--_space-block);
+.processRow {
+  display: grid;
+  flex: 0 0 auto;
+  grid-template-columns: clamp(4.5rem, 9vw, 9rem) minmax(0, 1.15fr) minmax(0, 1.35fr);
+  column-gap: clamp(1.5rem, 3vw, 4rem);
+  align-items: start;
+  position: relative;
+  overflow: hidden;
+  padding: clamp(0.6rem, 1.6vh, 1rem) 0;
+  border-top: var(--border-light);
+  cursor: pointer;
+}
+
+/* 윗선을 덮는 강조선 — 현재 단계에서 왼쪽부터 채워진다 */
+.processRow::before {
+  position: absolute;
+  top: -1px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: var(--text-accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  content: "";
+}
+
+/* Compound selector (0,2,0) */
+.processBody .processRow {
+  transition: flex-grow var(--duration-slower) var(--ease-material);
+}
+
+.processBody .processRow::before {
+  transition: transform var(--duration-slower) var(--ease-material);
+}
+
+.processRow:focus-visible {
+  outline: var(--border-accent);
+  outline-offset: calc(var(--spacing-3xs) * -1);
+}
+
+.processRowActive {
+  flex-grow: 1;
+  padding-top: clamp(1rem, 2.6vh, 1.75rem);
+}
+
+.processRowActive::before {
+  transform: scaleX(1);
+}
+
+/* 번호 — 페이지 제목과 같은 세리프. 현재 단계에서 크게 */
+.processRowNum {
   font-family: var(--font-instrument);
-  font-size: clamp(1.5rem, min(4.5vw, 8vh), 5rem);
+  font-size: clamp(1.1rem, min(1.5vw, 2.6vh), 1.5rem);
   font-style: italic;
+  line-height: 1;
+  color: var(--text-tertiary);
+}
+
+.processRowTitle {
+  margin: 0;
+  word-break: keep-all;
+  font-size: clamp(1.05rem, min(1.5vw, 2.6vh), 1.5rem);
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-snug);
-  letter-spacing: var(--_ls-title);
-  min-height: 2.7em; /* 2줄 × 1.35 — ko/en 폰트 차이로 인한 줄 수 변동 방지 */
+  color: var(--text-tertiary);
 }
 
-.processStepDesc {
+/* Compound selector (0,2,0) */
+.processRow .processRowNum,
+.processRow .processRowTitle {
+  transition:
+    font-size var(--duration-slower) var(--ease-material),
+    color var(--duration-slow) ease;
+}
+
+.processRow:hover .processRowNum,
+.processRow:hover .processRowTitle {
+  color: var(--text-secondary);
+}
+
+.processRowActive .processRowNum,
+.processRowActive:hover .processRowNum {
+  font-size: clamp(3.5rem, min(7vw, 12vh), 7.5rem);
+  line-height: 0.8;
+  color: var(--text-accent);
+}
+
+.processRowActive .processRowTitle,
+.processRowActive:hover .processRowTitle {
+  font-size: clamp(1.5rem, min(2.4vw, 4vh), 2.5rem);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+}
+
+/* 설명 칸 — 현재 단계만 보인다 */
+.processRowDesc {
   margin: 0;
-  max-width: clamp(400px, 50vw, 800px);
-  font-size: clamp(0.85rem, min(1.3vw, 2.2vh), 1.4rem);
+  word-break: keep-all;
+  max-width: 60ch;
+  font-size: clamp(0.9rem, min(1.1vw, 1.9vh), 1.1rem);
   line-height: var(--_lh-reading);
   color: var(--text-secondary);
-  min-height: 8.25em; /* 5줄 × 1.65 — ko/en 텍스트 길이 차이 레이아웃 시프트 방지 */
+  opacity: 0;
+  transform: translateY(var(--spacing-sm));
+}
+
+/* Compound selector (0,2,0) */
+.processRow .processRowDesc {
+  transition:
+    opacity var(--duration-slow) var(--ease-material),
+    transform var(--duration-slow) var(--ease-material);
+}
+
+.processRowActive .processRowDesc {
+  opacity: 1;
+  transform: none;
+}
+
+/* 접힌 행은 설명이 행 높이를 늘리지 않게 */
+.processRow:not(.processRowActive) .processRowDesc {
+  max-height: 0;
+}
+
+/* 본문의 **강조** — 이 패널에서는 형광펜 대신 진한 글씨로만.
+   전역 [data-theme="dark"] .highlighted-text (0,2,0) 를 번들 순서와 무관하게 이기도록 (0,3,0) */
+.processRowDesc.processRowDesc :global(.highlighted-text) {
+  padding: 0;
+  background: none;
+  color: var(--text-primary);
+  font-weight: var(--font-weight-medium);
 }
 
 /* ── Mobile: paired step rows (hidden on desktop) ── */

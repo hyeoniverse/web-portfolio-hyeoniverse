@@ -33,22 +33,10 @@ function ProcessPanel({ language, process: fallbackProcess, scrollBy }: ProcessP
      덮어쓰지 않는다 — 부모가 준 값이라 이 컴포넌트가 고칠 것이 아니다. */
   const process = cfgList && cfgList.length > 0 ? adaptProcess(cfgList) : fallbackProcess;
   const isMobile = useMobileLayout();
-  const progressRef = useRef<HTMLDivElement>(null);
-
-  // 데스크톱: 인덱스 변경 시 프로그레스 바 업데이트
-  const onIndexChange = useCallback(
-    (index: number) => {
-      if (progressRef.current) {
-        const progressPct = ((index + 0.5) / process.length) * 100;
-        progressRef.current.style.width = `${progressPct}%`;
-      }
-    },
-    [process.length],
-  );
 
   const { panelRef, contentRef, activeIndex, scrollToItem } = usePinnedScroll(
     process.length,
-    onIndexChange,
+    undefined,
     scrollBy,
   );
 
@@ -123,80 +111,31 @@ function ProcessPanel({ language, process: fallbackProcess, scrollBy }: ProcessP
         {/* 타이틀 행 */}
         <PinnedTitleRow panelKey="process" className={isMobile ? styles.procTitleRow : undefined} />
 
-        {/* 타임라인 + 콘텐츠 본문 (모바일은 행, 데스크톱은 열) */}
-        <div className={styles.processBody}>
-          {/* 타임라인: 데스크톱은 수평, 모바일은 수직 */}
-          <div className={styles.processTimeline}>
-            <div className={styles.processTimelineTrack}>
-              <div
-                ref={progressRef}
-                className={styles.processTimelineProgress}
-              />
-            </div>
-            <div className={styles.processTimelineNodes}>
-              {process.map((p, i) => {
-                const isDone = i < activeIndex;
-                const isActive = i === activeIndex;
-                return (
-                  <div
-                    data-clickable="true"
-                    key={i}
-                    className={`${styles.processTimelineNode} ${
-                      isActive ? styles.processTimelineNodeActive : ""
-                    }`}
-                    onClick={() => handleRowClick(i)}
-                  >
-                    <div className={styles.processNodeDotWrap}>
-                      <div
-                        className={`${styles.processNodeDot} ${
-                          isDone
-                            ? styles.processNodeDotDone
-                            : isActive
-                              ? styles.processNodeDotActive
-                              : ""
-                        }`}
-                      />
-                      {isActive && <div className={styles.processNodePulse} />}
-                    </div>
-                    <span
-                      className={`${styles.processNodeLabel} ${
-                        isDone || isActive ? styles.processNodeLabelActive : ""
-                      }`}
-                    >
-                      {p.step}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* 스텝 콘텐츠 영역 — 데스크톱은 슬라이드, 모바일은 크로스페이드 */}
-          <div className={styles.processSingleView}>
-            {process.map((p, i) => (
-              <div
+        {/* 데스크톱: 제목 바로 아래 단계 행을 쌓는다. 스크롤 위치의 단계가 남은 높이를 차지하며 펼쳐진다 */}
+        <ol className={styles.processBody}>
+          {process.map((p, i) => {
+            const isActive = i === activeIndex;
+            return (
+              <li
+                data-clickable="true"
                 key={i}
-                className={`${styles.processSinglePane} ${
-                  i === activeIndex
-                    ? styles.processSinglePaneActive
-                    : i < activeIndex
-                      ? styles.processSinglePanePast
-                      : ""
+                tabIndex={0}
+                aria-current={isActive ? "step" : undefined}
+                className={`${styles.processRow} ${isActive ? styles.processRowActive : ""} ${
+                  i < activeIndex ? styles.processRowDone : ""
                 }`}
+                onClick={() => handleRowClick(i)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleRowClick(i); }
+                }}
               >
-                <span className={styles.processStepBigNum}>{p.step}</span>
-                <div className={styles.processStepRight}>
-                  <h4 className={styles.processStepTitle}>
-                    {p.title[language]}
-                  </h4>
-                  <p className={styles.processStepDesc}>
-                    {renderHighlight(p.description[language])}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+                <span className={styles.processRowNum}>{p.step}</span>
+                <h4 className={styles.processRowTitle}>{p.title[language]}</h4>
+                <p className={styles.processRowDesc}>{renderHighlight(p.description[language])}</p>
+              </li>
+            );
+          })}
+        </ol>
 
         {/* 모바일: 아코디언 스텝 행 — 활성은 확장, 나머지는 축소 */}
         <div ref={stepListRef} className={styles.processStepList}>
