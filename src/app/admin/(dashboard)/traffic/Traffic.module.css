@@ -65,3 +65,53 @@
 .topContentLink:hover {
   color: var(--text-accent);
 }
+
+/* ── IP 분석(#1169) ── */
+.ipAnalysis {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+/* 지금 접속한 IP + 내 IP 등록 */
+.ipCurrent,
+.ipExcluded {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.ipCurrentLabel {
+  font-size: var(--font-size-label);
+  color: var(--text-tertiary);
+}
+
+.ipCurrentState {
+  font-size: var(--font-size-label);
+  color: var(--text-accent);
+}
+
+.ipMasked {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-label);
+  color: var(--text-primary);
+}
+
+/* 행 — referrerRow 와 첫 칸 폭을 맞춰 바 시작점이 다른 목록과 나란하고, 끝에 버튼 칸 */
+.ipRow {
+  /* 날짜 칸도 폭을 잡아 둔다 — auto 면 기간 길이 따라 막대 끝이 행마다 어긋난다 */
+  grid-template-columns: 180px 1fr 136px auto;
+}
+
+.ipIdentity {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.ipDates {
+  font-size: var(--font-size-hint);
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}

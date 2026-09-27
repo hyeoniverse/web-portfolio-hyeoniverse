@@ -17,6 +17,8 @@ import {
   pctChange,
   type AnalyticsVisitRow,
 } from "@/lib/api/dashboardAggregates";
+import { aggregateIpVisitors, ipKey, loadExcludedIps, maskIp, type IpVisitRow } from "@/lib/api/ipAnalytics";
+import { getIp } from "@/utils/getIp";
 
 const ALLOWED_DAYS = [7, 14, 30, 90] as const;
 
@@ -42,7 +44,7 @@ export async function GET(request: Request) {
   const windowStart = dayStr(days - 1);
   const prevStart = dayStr(2 * days - 1);
 
-  const [trafficAgg, allVisitsAgg, botCountRes, dailyViewsRes, topContent] = await Promise.all([
+  const [trafficAgg, allVisitsAgg, botCountRes, dailyViewsRes, topContent, excludedIps] = await Promise.all([
     // 분석 컬럼(country·path·utm_*)은 마이그레이션 전 DB 엔 없다 — 나열하면 쿼리가 통째로 죽는다
     admin.from("site_visits").select("*").gte("date", windowStart).or(HUMAN_VISITS_FILTER),
     // 신규/재방문·일별 추이·직전 기간 비교용 전체 방문 이력 — ip 하루 1행이라 크기가 작다
@@ -89,10 +91,14 @@ export async function GET(request: Request) {
         return [{ id, title: p.title, slug: p.slug, count, pct: Math.round((count / total) * 100) }];
       });
     })(),
+    // '내 IP' — 이미 쌓인 방문도 집계에서 뺀다 (새 방문은 /api/visits 가 기록 전에 거른다)
+    loadExcludedIps(admin, { fresh: true }),
   ]);
 
-  const trafficRows = (trafficAgg.data ?? []) as AnalyticsVisitRow[];
-  const allVisits = (allVisitsAgg.data ?? []) as Array<{ ip: string | null; date: string | null }>;
+  const notExcluded = (r: { ip?: string | null }) => !r.ip || !excludedIps.has(r.ip);
+  const trafficRows = ((trafficAgg.data ?? []) as Array<AnalyticsVisitRow & IpVisitRow>).filter(notExcluded);
+  const allVisits = ((allVisitsAgg.data ?? []) as Array<{ ip: string | null; date: string | null }>).filter(notExcluded);
+  const requestIp = getIp(request);
   const { devices, operatingSystems, browsers, deviceModels } = aggregateTraffic(trafficRows);
 
   const views = ((dailyViewsRes.data ?? []) as Array<{ views: number }>).reduce(
@@ -124,6 +130,11 @@ export async function GET(request: Request) {
     dailyVisits: aggregateDailyVisits(allVisits, days),
     botVisits: botCountRes.count ?? 0,
     topContent,
+    ipVisitors: aggregateIpVisitors(trafficRows),
+    currentIp: maskIp(requestIp)
+      ? { key: ipKey(requestIp), masked: maskIp(requestIp)!, excluded: excludedIps.has(requestIp) }
+      : null,
+    excludedIps: [...excludedIps].map((ip) => ({ key: ipKey(ip), masked: maskIp(ip) ?? ip })),
     changes: {
       visits: pctChange(visits, prevVisits),
       newVisitors: pctChange(newVsReturning.newCount, prevNvr.newCount),
