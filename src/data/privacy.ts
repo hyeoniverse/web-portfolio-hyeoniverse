@@ -33,7 +33,7 @@ export interface PrivacyContent {
 export type Language = "en" | "ko";
 
 // 실제 최종 개정일 (YYYY-MM-DD) — 표시는 항상 이 값 기준. 정책을 고칠 때마다 갱신.
-export const lastUpdatedDate = "2026-07-18";
+export const lastUpdatedDate = "2026-09-27";
 
 // 콘텐츠 번역
 export const content: Record<Language, PrivacyContent> = {
@@ -53,7 +53,7 @@ export const content: Record<Language, PrivacyContent> = {
       {
         title: "2. Information We Collect",
         content:
-          "This portfolio site collects minimal information when you use the contact form or comment features:",
+          "This portfolio site collects the following information when you visit the site or use the contact form and comment features:",
         list: [
           {
             strong: "Contact Form:",
@@ -64,8 +64,12 @@ export const content: Record<Language, PrivacyContent> = {
             text: "Nickname (randomly assigned), comment content, password (stored as a hash), and an optional email address for reply notifications. A browser-based identifier is used to verify comment ownership.",
           },
           {
-            strong: "Technical Data:",
-            text: "Basic analytics data such as page views and device type for improving the site experience.",
+            strong: "Visit Records:",
+            text: "Once per day for each visit: IP address, browser, operating system, and device type (derived from the User-Agent), country (estimated from the IP address by our hosting provider), the domain of the referring site, the first page you landed on, UTM parameters in the link, and the visit date.",
+          },
+          {
+            strong: "Views, Likes, and Poll Votes:",
+            text: "Your IP address is stored with post and project views, likes, and poll votes to prevent duplicate counting.",
           },
           {
             strong: "Administrator Sign-In:",
@@ -82,10 +86,21 @@ export const content: Record<Language, PrivacyContent> = {
           { text: "Verify comment ownership for editing and deletion" },
           { text: "Send reply notifications to the email address you provide (optional)" },
           { text: "Prevent spam through reCAPTCHA verification" },
+          { text: "Compile visit statistics such as referral channels, devices, countries, and returning visits" },
+          { text: "Prevent duplicate views, likes, and poll votes, and separate automated (bot) traffic" },
         ],
       },
       {
-        title: "4. Third-Party Services",
+        title: "4. Retention",
+        content: "Information is kept only as long as described below:",
+        list: [
+          { text: "IP addresses in visit and view records are deleted or anonymized 90 days after the visit. Only aggregate fields (device, country, referral) remain." },
+          { text: "IP addresses stored with likes and poll votes are kept while the like or vote exists, and are deleted together when you remove the like or change your vote." },
+          { text: "In the administrator traffic screen, IP addresses are shown only partially masked (e.g. 211.234.x.x)." },
+        ],
+      },
+      {
+        title: "5. Third-Party Services",
         content: "This site uses the following services:",
         list: [
           {
@@ -113,6 +128,14 @@ export const content: Record<Language, PrivacyContent> = {
             },
           },
           {
+            strong: "Vercel:",
+            text: "Hosts this website. It processes your IP address to deliver pages and provides the estimated country used in visit statistics.",
+            link: {
+              text: "Privacy Policy",
+              url: "https://vercel.com/legal/privacy-policy",
+            },
+          },
+          {
             strong: "Supabase:",
             text: "Hosts the database and file storage. Comments, post data, and uploaded media are stored on Supabase infrastructure.",
             link: {
@@ -135,7 +158,7 @@ export const content: Record<Language, PrivacyContent> = {
         ],
       },
       {
-        title: "5. Comment Policy",
+        title: "6. Comment Policy",
         content:
           "Comments are a public feature of this site. Please be aware of the following:",
         list: [
@@ -145,12 +168,12 @@ export const content: Record<Language, PrivacyContent> = {
         ],
       },
       {
-        title: "6. Your Rights",
+        title: "7. Your Rights",
         content:
           "You may request access to, correction of, or deletion of any personal data you have submitted through the contact form or comment features by reaching out directly.",
       },
       {
-        title: "7. Contact",
+        title: "8. Contact",
         content: "For any privacy-related questions, please contact: ",
         email: true,
       },
@@ -172,7 +195,7 @@ export const content: Record<Language, PrivacyContent> = {
       {
         title: "2. 수집하는 정보",
         content:
-          "본 포트폴리오 사이트는 문의 양식 및 댓글 기능 사용 시 최소한의 정보를 수집합니다:",
+          "본 포트폴리오 사이트는 사이트 방문과 문의 양식·댓글 기능 사용 시 다음 정보를 수집합니다:",
         list: [
           {
             strong: "문의 양식:",
@@ -183,8 +206,12 @@ export const content: Record<Language, PrivacyContent> = {
             text: "닉네임(자동 부여), 댓글 내용, 비밀번호(해시 저장), 답글 알림용 이메일(선택)을 수집합니다. 댓글 소유권 확인을 위해 브라우저 기반 식별자가 사용됩니다.",
           },
           {
-            strong: "기술 데이터:",
-            text: "사이트 경험 개선을 위한 페이지 조회수, 기기 유형 등 기본적인 분석 데이터를 수집합니다.",
+            strong: "방문 기록:",
+            text: "방문마다 하루 한 번 IP 주소, 브라우저·운영체제·기기 종류(User-Agent 에서 추출), 국가(호스팅 사업자가 IP 로 추정), 유입된 사이트의 도메인, 처음 들어온 페이지 경로, 링크의 UTM 파라미터, 방문 날짜를 기록합니다.",
+          },
+          {
+            strong: "조회·좋아요·투표:",
+            text: "게시물·작업물 조회, 좋아요, 투표의 중복을 막기 위해 IP 주소를 함께 저장합니다.",
           },
           {
             strong: "관리자 로그인:",
@@ -201,10 +228,21 @@ export const content: Record<Language, PrivacyContent> = {
           { text: "댓글 수정·삭제 시 소유권 확인" },
           { text: "답글 알림 이메일 발송 (선택 제공 시)" },
           { text: "reCAPTCHA를 통한 스팸 방지" },
+          { text: "유입 경로·기기·국가·재방문 등 방문 통계 집계" },
+          { text: "조회수·좋아요·투표 중복 방지 및 자동화(봇) 트래픽 구분" },
         ],
       },
       {
-        title: "4. 제3자 서비스",
+        title: "4. 보관 기간",
+        content: "수집한 정보는 다음 기간 동안만 보관합니다:",
+        list: [
+          { text: "방문·조회 기록의 IP 주소는 방문일로부터 90일이 지나면 삭제하거나 익명화합니다. 기기·국가·유입 경로 같은 집계 항목만 남습니다." },
+          { text: "좋아요·투표와 함께 저장한 IP 주소는 해당 좋아요·투표가 있는 동안 보관하며, 좋아요를 취소하거나 투표를 바꾸면 함께 삭제됩니다." },
+          { text: "관리자 트래픽 화면에서도 IP 주소는 일부를 가린 형태(예: 211.234.x.x)로만 표시합니다." },
+        ],
+      },
+      {
+        title: "5. 제3자 서비스",
         content: "본 사이트는 다음 서비스를 사용합니다:",
         list: [
           {
@@ -232,6 +270,14 @@ export const content: Record<Language, PrivacyContent> = {
             },
           },
           {
+            strong: "Vercel:",
+            text: "웹사이트를 호스팅합니다. 페이지 전송 과정에서 IP 주소를 처리하며, 방문 통계에 쓰는 국가 정보를 IP 로 추정해 제공합니다.",
+            link: {
+              text: "개인정보 처리방침",
+              url: "https://vercel.com/legal/privacy-policy",
+            },
+          },
+          {
             strong: "Supabase:",
             text: "데이터베이스와 파일 저장소를 호스팅합니다. 댓글, 게시물 데이터, 업로드된 미디어가 Supabase 인프라에 저장됩니다.",
             link: {
@@ -254,7 +300,7 @@ export const content: Record<Language, PrivacyContent> = {
         ],
       },
       {
-        title: "5. 댓글 정책",
+        title: "6. 댓글 정책",
         content:
           "댓글은 본 사이트의 공개 기능입니다. 다음 사항을 유의해 주세요:",
         list: [
@@ -264,12 +310,12 @@ export const content: Record<Language, PrivacyContent> = {
         ],
       },
       {
-        title: "6. 귀하의 권리",
+        title: "7. 귀하의 권리",
         content:
           "문의 양식 또는 댓글 기능을 통해 제출한 개인정보에 대한 열람, 정정 또는 삭제를 요청하실 수 있습니다. 직접 연락해 주시기 바랍니다.",
       },
       {
-        title: "7. 문의",
+        title: "8. 문의",
         content: "개인정보 관련 문의사항은 다음으로 연락해 주세요: ",
         email: true,
       },
