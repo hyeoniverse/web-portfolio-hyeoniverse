@@ -1,64 +1,118 @@
-.techGrid {
+/* 영역 → 분류 → 도구 트리. 영역마다 한 단, 분류는 세로 줄기에서 가지로 뻗는다 */
+.techTree {
   display: grid;
-  gap: 0 var(--spacing-3xl);
-  border-top: var(--_line-primary);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(1.5rem, 3vw, 3rem);
   max-width: clamp(500px, 80vw, 1200px);
-  grid-template-columns: var(--grid-cols-2);
+}
+
+.techDomainTitle {
+  margin: 0 0 var(--spacing-sm);
+  font-family: var(--font-instrument);
+  font-size: clamp(1.5rem, min(2.2vw, 3.8vh), 2.25rem);
+  font-style: italic;
+  font-weight: var(--font-weight-regular);
+  line-height: 1;
+  color: var(--text-accent);
+}
+
+.techBranch,
+.techLeaves {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.techBranch {
+  --node-py: clamp(0.35rem, 1vh, 0.6rem);
+
+  margin-left: var(--spacing-2xs);
+}
+
+.techNode {
+  position: relative;
+  padding: var(--node-py) 0 var(--node-py) var(--spacing-md);
+}
+
+/* 세로 줄기 — 분류마다 제 몫을 긋고, 마지막 분류는 제 가지에서 멈춘다 */
+.techNode::after {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-left: var(--_line-secondary);
+  content: "";
+}
+
+.techNode:last-child::after {
+  bottom: auto;
+  height: calc(var(--node-py) + 0.55em);
+}
+
+/* 줄기에서 분류로 뻗는 가지 */
+.techNode::before {
+  position: absolute;
+  top: calc(var(--node-py) + 0.55em);
+  left: 0;
+  width: calc(var(--spacing-md) - var(--spacing-2xs));
+  border-top: var(--_line-secondary);
+  content: "";
+}
+
+.techCategory {
+  display: block;
+  margin-bottom: var(--spacing-2xs);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-label);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.techLeaves {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
 }
 
 .techItem {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: clamp(0.6rem, 1vh, 1rem) 0;
-  border-bottom: var(--_line-secondary);
-  transition: border-color var(--duration-base) ease;
-}
-
-.techNameGroup {
-  display: flex;
   gap: var(--spacing-sm);
   align-items: center;
-  flex: 1;
-  min-width: 0;
 }
 
 .techIcon {
+  display: block;
   flex-shrink: 0;
-  width: 16px;
-  height: 16px;
-  color: var(--text-secondary);
+  width: clamp(1.25rem, min(1.7vw, 3vh), 1.75rem);
+  height: clamp(1.25rem, min(1.7vw, 3vh), 1.75rem);
+  object-fit: contain;
 }
 
-.techItem:hover {
-  border-bottom-color: var(--border-accent);
+:global([data-theme="dark"]) .techIconDarkBrand {
+  filter: invert(1);
 }
 
 .techName {
-  font-size: var(--font-size-title-md);
+  min-width: 0;
+  font-size: clamp(0.95rem, min(1.1vw, 1.9vh), 1.1rem);
   font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-snug);
+  color: var(--text-primary);
+}
+
+/* Compound selector (0,2,0) */
+.techItem .techName {
   transition: color var(--duration-base) ease;
-  white-space: nowrap;
 }
 
 .techItem:hover .techName {
   color: var(--text-accent);
 }
 
-.techCategory {
-  font-size: var(--font-size-prose-small);
-  font-weight: var(--font-weight-regular);
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  flex-shrink: 0;
-  white-space: nowrap;
-  text-align: right;
-}
-
 @media (max-width: 1024px), (max-height: 700px) {
-  .techGrid {
+  .techTree {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     max-width: 100%;
-    grid-template-columns: 1fr;
   }
 }
