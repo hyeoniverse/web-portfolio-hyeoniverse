@@ -6,4 +6,4 @@ image: /images/screenshots/pc/feat-torus.png
 
 # 3D Scroll Torus
 
-A metallic 3D torus floats along a Lissajous curve path as you scroll, with its texture adapting to the current theme.
+A metallic 3D torus that floats across the screen with scrolling. It follows a Lissajous curve and its material changes with the theme.
