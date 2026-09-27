@@ -173,7 +173,7 @@ export interface OverviewValues {
 
 const STATS_HEADING = "## Stats";
 
-/* 카드 라벨에 줄바꿈이 들어간다("개발 기간\n(2/5 – 진행 중)"). 표 칸에는 실제 줄바꿈을
+/* 카드 라벨에 줄바꿈이 들어간다("개발 기간\n(2/5 – 지속 업데이트 중)"). 표 칸에는 실제 줄바꿈을
    넣을 수 없어 `<br>` 로 바꿔 적고 되읽을 때 되돌린다. */
 const brOut = (s: string) => s.replace(/\n/g, "<br>");
 const brIn = (s: string) => s.replace(/<br\s*\/?>/gi, "\n");

@@ -47,6 +47,8 @@ What the schedule runs is not the job function but a `safe_` wrapper around it. 
 
 The registration statements `unschedule` before they `schedule`, so re-running the whole setup file never registers the same job twice.
 
+When a job to anonymize visit IPs after 90 days was added later, `anonymize_old_site_visits()` was registered the same way. It needed no new endpoint and no secret.
+
 ## Key Insight
 
 Driving a scheduled job over HTTP means opening one more door on the internet whose only purpose is to run that job. The door has to be guarded, and the guarding code becomes something else to maintain.

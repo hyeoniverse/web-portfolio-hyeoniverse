@@ -52,7 +52,7 @@ describe("Features 왕복", () => {
      화면의 칩 개수가 달라진다. */
   it("tech 를 배열로 적었다가 다시 한 줄로 돌린다", () => {
     const md = featuresPanel.write(about.features[0], "ko");
-    expect(md).toContain("tech: [Lenis, Infinite Scroll, Bridge Section]");
+    expect(md).toContain("tech: [Lenis, syncTouch, Bridge Section]");
   });
 });
 
@@ -77,7 +77,7 @@ describe("Overview 왕복", () => {
   /* 카드 라벨에 줄바꿈이 들어간다. 표 칸에는 실제 줄바꿈을 못 넣어 <br> 로 적는다. */
   it("라벨의 줄바꿈을 <br> 로 적고 되돌린다", () => {
     const md = overviewPanel.write(values, "ko");
-    expect(md).toContain("| 6 Mo+ | 개발 기간<br>(2/5 – 진행 중) |");
+    expect(md).toContain("| 7 Mo+ | 개발 기간<br>(2/5 – 지속 업데이트 중) |");
     expect(trip(values, overviewPanel).overview_stats[0].label_ko).toBe(about.overview_stats[0].label_ko);
   });
 

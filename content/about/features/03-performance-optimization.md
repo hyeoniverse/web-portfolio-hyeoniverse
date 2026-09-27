@@ -1,9 +1,9 @@
 ---
 icon: 03
 tech: [Font Subsetting, Lazy Loading, font-display, browserslist]
-image: https://images.unsplash.com/photo-1611760357505-922600d8ffa6?w=800&q=80
+image: https://rqebkijkxkvsiyhdtvui.supabase.co/storage/v1/object/public/uploads/about/1790517630472.webp
 ---
 
 # Performance Optimization
 
-성능 분석을 통해 모바일 Lighthouse 점수를 60점에서 98점으로 끌어올리고, 페이지 용량을 70% 줄였습니다.
+운영 사이트 데스크톱 Lighthouse 기준 성능 97 · 접근성 100 · SEO 100 입니다(3회 측정 중앙값). LCP 0.7초, TBT 20ms, CLS 0.

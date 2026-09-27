@@ -44,6 +44,8 @@ export const ARCH_ICONS: Record<string, { path: string; color: string }> = {
   vercel:   { path: "M12 2L2 19.5h20L12 2z", color: "#000000" },
   ssr:      { path: "M2 5h6v6H2zM10 5h12v2H10zM10 9h8v2h-8zM2 13h20v2H2zM2 17h14v2H2z", color: "#3b82f6" },
   realtime: { path: "M12 12m-2 0a2 2 0 1 0 4 0 2 2 0 1 0-4 0M7.8 16.2a6 6 0 0 1 0-8.4M16.2 7.8a6 6 0 0 1 0 8.4M4.9 19.1a10 10 0 0 1 0-14.2M19.1 4.9a10 10 0 0 1 0 14.2", color: "#3ecf8e" },
+  cron:     { path: "M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM12 6v6l4 2", color: "#64748b" },
+  mail:     { path: "M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM22 6l-10 7L2 6", color: "#111827" },
   giscus:   { path: "M21 11.5a8.4 8.4 0 0 1-9 8.4 9.9 9.9 0 0 1-4.2-.9L3 20.5l1.6-4.4A8.3 8.3 0 0 1 3.6 11.5a8.4 8.4 0 0 1 9-8.4 8.4 8.4 0 0 1 8.4 8.4z", color: "#6e5494" },
 };
 
@@ -74,15 +76,17 @@ export const DEFAULT_ARCH_NODES: ArchNode[] = [
   { id: "threejs", label: "Three.js", x: 470, y: 210, w: 100, h: 40, icon: "threejs", group: "animation" },
   { id: "lenis", label: "Lenis", x: 470, y: 265, w: 100, h: 40, icon: "lenis", group: "animation" },
   { id: "api", label: "API Routes", x: 640, y: 400, w: 120, h: 48, icon: "api", group: "backend" },
-  { id: "plate", label: "Plate.js", x: 470, y: 400, w: 100, h: 40, icon: "plate", group: "backend" },
+  { id: "plate", label: "Plate.js", x: 470, y: 400, w: 100, h: 40, icon: "plate" },
   { id: "supabase", label: "Supabase", x: 300, y: 440, w: 110, h: 48, icon: "supabase", group: "db" },
   { id: "postgres", label: "PostgreSQL", x: 140, y: 380, w: 110, h: 40, icon: "postgres", group: "db" },
   { id: "auth", label: "Auth", x: 140, y: 435, w: 110, h: 40, icon: "auth", group: "db" },
   { id: "storage", label: "Storage", x: 140, y: 490, w: 110, h: 40, icon: "storage", group: "db" },
   { id: "realtime", label: "Realtime", x: 300, y: 380, w: 110, h: 40, icon: "realtime", group: "db" },
+  { id: "pgcron", label: "pg_cron", x: 300, y: 500, w: 110, h: 40, icon: "cron", group: "db" },
   { id: "vercel", label: "Vercel", x: 820, y: 400, w: 100, h: 48, icon: "vercel", group: "deploy" },
   { id: "ssr", label: "SSR / ISR", x: 820, y: 100, w: 100, h: 40, icon: "ssr", group: "deploy" },
   { id: "giscus", label: "giscus", x: 620, y: 480, w: 110, h: 44, icon: "giscus", group: "external" },
+  { id: "resend", label: "Resend", x: 760, y: 480, w: 110, h: 44, icon: "mail", group: "external" },
 ];
 
 export const DEFAULT_ARCH_EDGES: ArchEdge[] = [
@@ -97,14 +101,16 @@ export const DEFAULT_ARCH_EDGES: ArchEdge[] = [
   { from: "react", to: "lenis" },
   { from: "nextjs", to: "api" },
   { from: "api", to: "supabase" },
-  { from: "api", to: "plate" },
+  { from: "react", to: "plate" },
   { from: "supabase", to: "postgres" },
   { from: "supabase", to: "auth" },
   { from: "supabase", to: "storage" },
   { from: "supabase", to: "realtime" },
+  { from: "supabase", to: "pgcron" },
   { from: "api", to: "vercel", dashed: true },
   { from: "nextjs", to: "vercel", dashed: true },
-  { from: "api", to: "giscus", dashed: true },
+  { from: "react", to: "giscus", dashed: true },
+  { from: "api", to: "resend", dashed: true },
 ];
 
 function archNodeCenter(n: ArchNode) {

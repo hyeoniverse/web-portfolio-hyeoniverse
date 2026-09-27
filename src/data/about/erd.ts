@@ -157,6 +157,18 @@ export const erdTables: ErdTable[] = [
       { name: "os", type: "TEXT" },
       { name: "browser", type: "TEXT" },
       { name: "device_model", type: "TEXT" },
+      { name: "country", type: "TEXT" },
+      { name: "path", type: "TEXT" },
+      { name: "utm_source", type: "TEXT" },
+      { name: "utm_medium", type: "TEXT" },
+      { name: "utm_campaign", type: "TEXT" },
+    ],
+  },
+  {
+    name: "traffic_excluded_ips",
+    columns: [
+      { name: "ip", type: "TEXT", pk: true },
+      { name: "created_at", type: "TIMESTAMPTZ" },
     ],
   },
   {
@@ -188,6 +200,16 @@ export const erdTables: ErdTable[] = [
     columns: [
       { name: "id", type: "UUID", pk: true },
       { name: "post_id", type: "UUID", fk: "posts.id" },
+      { name: "ip", type: "TEXT" },
+      { name: "viewed_at", type: "TIMESTAMPTZ" },
+      { name: "viewed_date", type: "DATE GENERATED" },
+    ],
+  },
+  {
+    name: "work_views",
+    columns: [
+      { name: "id", type: "UUID", pk: true },
+      { name: "work_id", type: "UUID", fk: "works.id" },
       { name: "ip", type: "TEXT" },
       { name: "viewed_at", type: "TIMESTAMPTZ" },
       { name: "viewed_date", type: "DATE GENERATED" },
@@ -333,6 +355,7 @@ export const erdRelations: ErdRelation[] = [
   { from: "revisions", fromField: "entity_id", to: "posts", toField: "id", label: "N:1" },
   { from: "revisions", fromField: "entity_id", to: "works", toField: "id", label: "N:1" },
   { from: "post_views", fromField: "post_id", to: "posts", toField: "id", label: "N:1" },
+  { from: "work_views", fromField: "work_id", to: "works", toField: "id", label: "N:1" },
   { from: "post_work_relations", fromField: "post_id", to: "posts", toField: "id", label: "N:1" },
   { from: "post_work_relations", fromField: "work_id", to: "works", toField: "id", label: "N:1" },
   { from: "series_work_relations", fromField: "series_id", to: "series", toField: "id", label: "N:1" },
@@ -355,8 +378,8 @@ export const erdDesignNotes: ErdDesignNote[] = [
     title: { ko: "조회수 — 생성 컬럼으로 KST 하루 집계", en: "View Counts — Generated Column for KST Days" },
     tag: "viewed_date GENERATED · UNIQUE (post_id, ip, viewed_date)",
     description: {
-      ko: "viewed_date 는 viewed_at 을 Asia/Seoul 로 변환해 저장하는 생성 컬럼입니다. 애플리케이션이 날짜를 계산해 넣지 않으므로 서버 타임존이 달라도 집계가 흔들리지 않습니다. 여기에 (post_id, ip, viewed_date) UNIQUE 를 걸어 같은 IP 의 같은 날 조회를 한 번만 세고, 동시 요청이 겹쳐도 DB 가 막습니다.",
-      en: "viewed_date is a generated column that converts viewed_at to Asia/Seoul. The app never computes the date itself, so counts don't drift when the server timezone differs. A UNIQUE index on (post_id, ip, viewed_date) counts one view per IP per day and blocks races at the DB level.",
+      ko: "viewed_date 는 viewed_at 을 Asia/Seoul 로 변환해 저장하는 생성 컬럼입니다. 애플리케이션이 날짜를 계산해 넣지 않으므로 서버 타임존이 달라도 집계가 흔들리지 않습니다. 여기에 (post_id, ip, viewed_date) UNIQUE 를 걸어 같은 IP 의 같은 날 조회를 한 번만 세고, 동시 요청이 겹쳐도 DB 가 막습니다. work_views 도 같은 구조이며, 두 테이블의 IP 는 90일 뒤 비웁니다.",
+      en: "viewed_date is a generated column that converts viewed_at to Asia/Seoul. The app never computes the date itself, so counts don't drift when the server timezone differs. A UNIQUE index on (post_id, ip, viewed_date) counts one view per IP per day and blocks races at the DB level. work_views has the same shape, and IPs in both tables are cleared after 90 days.",
     },
     relatedTable: "post_views",
   },
@@ -524,12 +547,21 @@ export const erdDesignNotes: ErdDesignNote[] = [
   },
   {
     title: { ko: "IP + 날짜 일간 방문자", en: "Daily Visitors by IP + Date" },
-    tag: "UNIQUE (ip, date)",
+    tag: "UNIQUE (ip, date) · 90일 익명화",
     description: {
-      ko: "같은 IP에서 같은 날 중복 방문을 DB 레벨에서 차단합니다. 일간/누적 카운트를 Footer에 실시간 표시합니다.",
-      en: "Prevents duplicate visits from the same IP on the same day at the DB level. Daily/total counts are displayed in real-time in the Footer.",
+      ko: "같은 IP 의 같은 날 방문은 한 행만 남습니다. 봇은 ip 앞에 bot: 을 붙여 사람 방문과 따로 셉니다. 90일이 지나면 pg_cron 이 ip 를 anon:<id> 로 바꾸고, 기기·국가·유입 컬럼만 집계에 남습니다.",
+      en: "One row per IP per day. Bots get a bot: prefix on ip and are counted apart from people. After 90 days pg_cron rewrites ip to anon:<id>, leaving only the device, country, and referral columns for stats.",
     },
     relatedTable: "site_visits",
+  },
+  {
+    title: { ko: "운영자 IP 제외", en: "Excluding the Operator's IP" },
+    tag: "PK (ip) · service_role 전용",
+    description: {
+      ko: "운영자가 '내 IP' 로 지정한 IP 입니다. 이 IP 의 방문은 기록하지 않고, 이미 쌓인 방문도 집계에서 뺍니다. RLS 를 켜고 정책을 두지 않아 서버만 읽고 씁니다.",
+      en: "IPs the operator marked as their own. Their visits are not recorded and past visits are dropped from stats. RLS is on with no policies, so only the server reads and writes it.",
+    },
+    relatedTable: "traffic_excluded_ips",
   },
   {
     title: { ko: "관리자 알림 로그", en: "Admin Notification Log" },
