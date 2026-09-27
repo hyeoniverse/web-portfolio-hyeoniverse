@@ -94,10 +94,10 @@ export function resolveFaviconFontSize(raw: string | undefined): number {
   return Math.min(30, Math.max(8, n));
 }
 
-/** 장평 — 빈/invalid 면 0.8 default */
+/** 장평 — 빈/invalid 면 1 default */
 function resolveFaviconStretch(raw: string | undefined): number {
   const n = parseFloat(raw ?? "");
-  return Number.isFinite(n) && n > 0 ? n : 0.8;
+  return Number.isFinite(n) && n > 0 ? n : 1;
 }
 
 /** viewBox 중심 (16,16) 기준 scaleX transform. stretch===1 이면 undefined */

@@ -7,7 +7,7 @@ import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRoutePathname } from "@/hooks/useRoutePathname";
-import { motion, AnimatePresence, useMotionValue } from "framer-motion";
+import { motion, AnimatePresence, useMotionValue, type TargetAndTransition } from "framer-motion";
 import { Moon, Sun, Bell, ArrowRight, Settings } from "@/components/icons";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -17,6 +17,7 @@ import { useContactStore } from "@/stores/contactStore";
 import { useLenis } from "@/providers/LenisProvider";
 import { SYMBOL_FONT_FAMILY } from "@/config/symbolFont.generated";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
+import { resolveBrandLogos } from "@/lib/brandLogos";
 import { loadGoogleFont } from "@/lib/loadGoogleFont";
 import {
   resolveFaviconShadow,
@@ -56,6 +57,18 @@ import { useMobileMenu } from "./useMobileMenu";
 const MotionLink = motion.create(Link);
 // 서브메뉴 열림/접힘 공통 ease
 const SUB_EASE = [0.22, 1, 0.36, 1] as const;
+
+/* 로딩 스크린 로고 등장 연출 — 설정(brand.loadingAnimation)으로 선택한다. 퇴장(전환)은
+   프리셋과 무관하게 공통 블러 페이드. wipe 는 서버 HTML 부터 clip 으로 가려져 첫 페인트에
+   안 보이고, none 은 반대로 하이드레이션 전에도 바로 보인다. */
+const LOADING_INTRO_PRESETS: Record<string, { initial: TargetAndTransition; visible: TargetAndTransition }> = {
+  fade: { initial: { opacity: 0, filter: "blur(12px)" }, visible: { opacity: 1, filter: "blur(0px)" } },
+  rise: { initial: { opacity: 0, y: 36, filter: "blur(6px)" }, visible: { opacity: 1, y: 0, filter: "blur(0px)" } },
+  scale: { initial: { opacity: 0, scale: 0.82, filter: "blur(8px)" }, visible: { opacity: 1, scale: 1, filter: "blur(0px)" } },
+  /* 위아래 -8%: 로고 그림자·디센더가 clip 에 잘리지 않게 여유 */
+  wipe: { initial: { opacity: 1, clipPath: "inset(-8% 100% -8% 0)" }, visible: { opacity: 1, clipPath: "inset(-8% 0% -8% 0)" } },
+  none: { initial: { opacity: 1, filter: "blur(0px)" }, visible: { opacity: 1, filter: "blur(0px)" } },
+};
 
 /* notification dropdown 항목 — 5개 + 추가 5개에서 동일하게 사용되도록 helper 로 추출 */
 type NotifItemData = { id: string; type: string; title: string; message: string; metadata: Record<string, string>; read: boolean; created_at: string };
@@ -124,17 +137,33 @@ export default function Navigation() {
   /* 알림 목록의 상대시간 기준 시각. 렌더에서 Date.now() 를 부르면 매 렌더 값이 달라진다. */
   const now = useNow();
 
-  // 이미지 로고 URL (다크모드 우선 폴백)
+  // 이미지 로고 URL (다크모드 우선 폴백). 숏/풀 중 한쪽만 커스텀이면 그 업로드본을 양쪽에 쓴다.
+  // logoMode=system 이면 이미지를 버리고 텍스트(시스템) 로고 경로를 탄다.
   const isDark = theme === "dark";
-  const shortLogoUrl = (isDark && siteConfig.brand.logoShortDarkUrl) || siteConfig.brand.logoShortUrl;
-  const fullLogoUrl = (isDark && siteConfig.brand.logoFullDarkUrl) || siteConfig.brand.logoFullUrl;
+  const useSystemLogo = siteConfig.brand.logoMode === "system";
+  const logos = resolveBrandLogos(siteConfig.brand);
+  const shortLogoUrl = useSystemLogo ? "" : (isDark && logos.short.dark) || logos.short.light;
   const hasImageLogo = !!shortLogoUrl;
-  const loadingLogoUrl = fullLogoUrl || shortLogoUrl;
-  const hasDistinctFullLogo = !!fullLogoUrl && fullLogoUrl !== shortLogoUrl;
+  /* 로딩 덮개는 화면 테마와 무관하게 항상 검다(--bg-black). 로딩에 띄우는 로고는 테마가 아니라
+     덮개 기준으로 다크 변형을 우선한다 — 라이트 테마에서 어두운 로고가 덮개에 묻혀 안 보였다.
+     풀(다크 우선)이 없으면 숏 다크 변형을 오버레이로 쓰고, nav 숏은 전환 때 crossfade 로 나타난다. */
+  const loadingFullUrl = logos.full.dark || logos.full.light;
+  const loadingShortDark = !loadingFullUrl && !!logos.short.dark;
+  const loadingLogoUrl = loadingFullUrl || (loadingShortDark ? logos.short.dark : logos.short.light);
+  const hasDistinctLoadingLogo = !!loadingLogoUrl && loadingLogoUrl !== shortLogoUrl;
+  // 로딩 오버레이 이미지 폭 — 풀은 워드마크(120), 숏 다크 변형은 마크(32)
+  const loadingLogoW = loadingFullUrl ? 120 : 32;
   // 업로드 로고 리컬러 색 (설정 지정 시) — 이미지를 마스크로 그 색 채움. 빈 값 = 원본
-  const shortTint = (isDark ? siteConfig.brand.logoShortColorDark : siteConfig.brand.logoShortColor) || "";
-  const fullTint = (isDark ? siteConfig.brand.logoFullColorDark : siteConfig.brand.logoFullColor) || "";
-  const loadingTint = hasDistinctFullLogo ? fullTint : shortTint;
+  const shortTint = (isDark ? logos.short.colorDark : logos.short.colorLight) || "";
+  // 로딩 로고 리컬러는 위에서 고른 URL 과 같은 변형·슬롯을 따라간다
+  const loadingTint = loadingFullUrl
+    ? (logos.full.dark ? logos.full.colorDark : logos.full.colorLight) || ""
+    : (loadingShortDark ? logos.short.colorDark : logos.short.colorLight) || "";
+  // 로딩 로고 등장 연출 (설정에서 선택, 모르는 값이면 기본 fade)
+  const loadingIntro = LOADING_INTRO_PRESETS[siteConfig.brand.loadingAnimation ?? "fade"] ?? LOADING_INTRO_PRESETS.fade;
+  /* difference — 명시 안 하면 자동: 업로드 이미지 로고는 해제(이미지 색이 배경 따라 반전돼 버림),
+     시스템(텍스트) 로고는 적용 */
+  const logoDifferenceOn = siteConfig.brand.logoDifference ?? !hasImageLogo;
   // nav/loading 로고 그림자 — 로고 이미지(숏·풀)에 CSS drop-shadow 로 적용. favicon SVG 와 별개 설정.
   // logoShadow 가 활성이면 그 값을, 미설정이면 favicon 로고 그림자(faviconImageShadow)를 상속(기존 동작 보존).
   // drop-shadow 는 outer 만 지원하므로 inset 이면 미적용.
@@ -411,9 +440,10 @@ export default function Navigation() {
 
   // --- 로고 중앙→nav 이동 애니메이션 ---
   const logoRef = useRef<HTMLDivElement>(null);
-  // 장평 — scaleX. 빈/invalid 면 0.8 default. 배지 로고(SVG)는 정사각이라 장평 미적용(1).
+  // 장평 — scaleX. 빈/invalid 면 1 default. 시스템(텍스트) 로고 전용 — 배지 로고(SVG)는
+  // 정사각이라, 업로드 이미지 로고는 원본 비율을 지켜야 해서 미적용(1).
   const rawStretch = parseFloat(siteConfig.brand.logoFontStretch ?? "");
-  const stretchN = useBadgeLogo ? 1 : (Number.isFinite(rawStretch) && rawStretch > 0 ? rawStretch : 0.8);
+  const stretchN = useBadgeLogo || hasImageLogo ? 1 : (Number.isFinite(rawStretch) && rawStretch > 0 ? rawStretch : 1);
   /* 글자 로고는 로딩 상태(화면 한가운데 · 큰 글자)를 CSS 로 그린다. 서버 HTML 부터 보여서
      자바스크립트를 기다리지 않는다. 이미지·배지 로고는 크기 비율을 CSS 로 낼 수 없어 예전처럼
      재고 나서 보인다. */
@@ -488,13 +518,13 @@ export default function Navigation() {
     <Link
       href={isAdminPage ? "/admin" : "/"}
       aria-label={useBadgeLogo || !morphIsCharCut ? DISPLAY_NAME : undefined}
-      className={`${styles.logoNavBar} ${siteConfig.brand.logoDifference === false ? styles.logoNavBarNoDifference : ""} ${showLoadingLogo || elevatedZ ? styles.logoNavBarElevated : ""} ${siteConfig.brand.logoGlitch ? "glith-on-hover" : ""}`}
+      className={`${styles.logoNavBar} ${logoDifferenceOn ? "" : styles.logoNavBarNoDifference} ${showLoadingLogo || elevatedZ ? styles.logoNavBarElevated : ""} ${siteConfig.brand.logoGlitch ? "glith-on-hover" : ""}`}
     >
         {(() => {
           // 로고 색상 (테마별 override). 커스텀 미지정(기본)이고 difference 를 끈 상태면
           // 블렌드가 없어 색 기준이 사라지므로 text-primary 로 명시.
           const customColor = isDark ? siteConfig.brand.logoColorDark : siteConfig.brand.logoColor;
-          const color = customColor || (siteConfig.brand.logoDifference === false ? "var(--text-primary)" : "");
+          const color = customColor || (!logoDifferenceOn ? "var(--text-primary)" : "");
           const inlineStyle: React.CSSProperties = {
             transformOrigin: "left center",
             /* 글자 로고는 재기 전에도 CSS 로딩 클래스로 제자리(한가운데)에 있으니 숨기지 않는다. */
@@ -516,21 +546,27 @@ export default function Navigation() {
           {hasImageLogo ? (
             <>
               {/* 로딩 중 풀 로고 이미지 (숏과 다를 때만) */}
-              {showLoadingLogo && hasDistinctFullLogo && (
+              {showLoadingLogo && hasDistinctLoadingLogo && (
                 <motion.span
-                  className={styles.logoImageWrap}
-                  initial={{ opacity: 0, filter: "blur(12px)" }}
-                  animate={{
-                    opacity: isTransitioning ? 0 : 1,
-                    filter: isTransitioning ? "blur(6px)" : "blur(0px)",
-                  }}
+                  className={`${styles.logoImageWrap} ${styles.logoLoadingWrap}`}
+                  /* useLoadingProgress 가 이 마커로 워드마크 등장을 기다린다 — 없으면 이미지 로고는
+                     인트로가 최소 대기(300ms)만에 끝나 페이드가 끝나기도 전에 전환돼 버린다 */
+                  data-loading-wordmark
+                  initial={loadingIntro.initial}
+                  animate={
+                    isTransitioning
+                      ? { ...loadingIntro.visible, opacity: 0, filter: "blur(6px)" }
+                      : loadingIntro.visible
+                  }
                   transition={{
                     opacity: { duration: isTransitioning ? 0.3 : 0.6, delay: 0.1, ease: "easeOut" },
                     filter: { duration: isTransitioning ? 0.3 : 1.0, delay: 0.1, ease: "easeOut" },
+                    y: { duration: 0.7, delay: 0.1, ease: SUB_EASE },
+                    scale: { duration: 0.7, delay: 0.1, ease: SUB_EASE },
+                    clipPath: { duration: 0.8, delay: 0.15, ease: SUB_EASE },
                   }}
-                  style={{ position: "absolute" }}
                 >
-                  {renderLogoImg(loadingLogoUrl!, 120, DISPLAY_NAME, loadingTint)}
+                  {renderLogoImg(loadingLogoUrl!, loadingLogoW, DISPLAY_NAME, loadingTint)}
                 </motion.span>
               )}
               {/* 숏 로고 이미지 */}
@@ -538,7 +574,7 @@ export default function Navigation() {
                 className={styles.logoImageWrap}
                 initial={showLoadingLogo ? { opacity: 0, filter: "blur(12px)" } : false}
                 animate={{
-                  opacity: showLoadingLogo && hasDistinctFullLogo && !isTransitioning ? 0 : 1,
+                  opacity: showLoadingLogo && hasDistinctLoadingLogo && !isTransitioning ? 0 : 1,
                   filter: "blur(0px)",
                 }}
                 transition={{
