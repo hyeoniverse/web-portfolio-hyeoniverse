@@ -234,9 +234,11 @@ interface UploadFieldProps {
   originalLabel?: string;
   /** 미리보기 받침 — 로고가 실제로 쓰일 사이트 테마의 배경을 화면 테마와 무관하게 깐다 */
   previewBg?: "light" | "dark";
+  /** 기본 미리보기 대신 그릴 노드 — favicon 필드는 실제 탭 아이콘 렌더를 하나로 통일해 보여준다 */
+  previewNode?: React.ReactNode;
 }
 
-export function UploadField({ kind, label, url, uploadLabel, removeLabel, onUploaded, onRemove, hint, tint, onTintChange, defaultTint, recolorLabel, originalLabel, previewBg }: UploadFieldProps) {
+export function UploadField({ kind, label, url, uploadLabel, removeLabel, onUploaded, onRemove, hint, tint, onTintChange, defaultTint, recolorLabel, originalLabel, previewBg, previewNode }: UploadFieldProps) {
   const { folder, accept, preview, icon, fallbackName } = UPLOAD_PRESETS[kind];
   const { t } = useLanguage();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -275,10 +277,23 @@ export function UploadField({ kind, label, url, uploadLabel, removeLabel, onUplo
     const openPicker = () => fileRef.current?.click();
     return (
       <div className={styles.fieldRow}>
-        <label className={styles.fieldLabel}>
-          {label}
-          {hint && <span className={styles.fieldLabelHint}>{hint}</span>}
-        </label>
+        {/* 라벨 라인 우측에 업로드/삭제 — 드롭존 안에 두면 카드가 두 줄로 커진다 */}
+        <div className={styles.logoLabelRow}>
+          <label className={styles.fieldLabel}>
+            {label}
+            {hint && <span className={styles.fieldLabelHint}>{hint}</span>}
+          </label>
+          {url && (
+            <div className={styles.logoActions}>
+              <Button variant="outline" size="sm" onClick={openPicker} loading={uploading}>
+                {uploadLabel}
+              </Button>
+              <Button variant="outline" size="sm" tone="danger" onClick={onRemove}>
+                {removeLabel}
+              </Button>
+            </div>
+          )}
+        </div>
         <div
           className={`${styles.logoDropzone}${dragOver ? ` ${styles.logoDropzoneOver}` : ""}${url ? ` ${styles.logoDropzoneFilled}` : ""}`}
           role="button"
@@ -299,18 +314,24 @@ export function UploadField({ kind, label, url, uploadLabel, removeLabel, onUplo
           {url ? (
             <>
               <div className={styles.logoPreviewRow}>
+                {previewNode ?? (
                 <div className={`${styles.logoPreview}${previewBg === "dark" ? ` ${styles.logoPreviewOnDark}` : ""}${previewBg === "light" ? ` ${styles.logoPreviewOnLight}` : ""}`}>
                   {tint ? (
+                    /* 숨긴 img 로 원본 비율의 폭을 잡고 그 형태를 mask 로 tint 색 채움 —
+                       span 100% 채움 방식은 원본과 크기가 달라져 색만 바꿔도 로고가 커졌다 */
                     <span
                       className={styles.logoPreviewTint}
                       style={{ maskImage: `url("${url}")`, WebkitMaskImage: `url("${url}")`, backgroundColor: tint }}
                       role="img"
                       aria-label={label}
-                    />
+                    >
+                      <Image src={url} alt="" width={120} height={48} unoptimized className={styles.logoPreviewImage} />
+                    </span>
                   ) : (
                     <Image src={url} alt={label} width={120} height={48} unoptimized className={styles.logoPreviewImage} />
                   )}
                 </div>
+                )}
                 {onTintChange && (
                   /* 정체불명 색상원이던 것 — 라벨을 붙이고, 빈 값(원본)은 사선으로 표시,
                      기능 설명은 hover 툴팁이 말한다 */
@@ -328,14 +349,6 @@ export function UploadField({ kind, label, url, uploadLabel, removeLabel, onUplo
                     </div>
                   </Tooltip>
                 )}
-              </div>
-              <div className={styles.logoActions}>
-                <Button variant="outline" size="sm" onClick={openPicker} loading={uploading}>
-                  {uploadLabel}
-                </Button>
-                <Button variant="outline" size="sm" tone="danger" onClick={onRemove}>
-                  {removeLabel}
-                </Button>
               </div>
             </>
           ) : (
