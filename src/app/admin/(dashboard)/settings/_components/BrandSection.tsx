@@ -60,20 +60,33 @@ type BrandSectionProps = SettingsTabProps & {
  *  picker/input 값을 따로 받아 "빈 값이면 fallback 색으로 미리보기"(picker) vs
  *  "빈 값은 빈 채로 표시"(input) 차이를 표현. 도구는 입력과 한 캡슐의 세그먼트로 묶인다
  *  (가운데는 사각, 끝은 캡슐 클리핑으로 반원). */
-function HexColorField({ pickerValue, inputValue, onChange, placeholder, trailing }: {
+function HexColorField({ pickerValue, inputValue, onChange, placeholder, trailing, after, checkerWhenEmpty = false }: {
   pickerValue: string;
   inputValue: string;
   onChange: (v: string) => void;
   placeholder?: string;
   trailing?: ReactNode;
+  /** 캡슐 밖 오른쪽에 붙일 노드 — 쌍 단위 ⇄ 를 다크 칸 옆에 인라인으로 둘 때 */
+  after?: ReactNode;
+  /** 빈 값이 "투명" 의미인 필드(favicon 배경 등)는 스와치에 체커보드를 보여준다 */
+  checkerWhenEmpty?: boolean;
 }) {
   return (
     <div className={shared.colorField}>
-      <ColorPicker value={pickerValue} onChange={(c) => onChange(c.hex)} triggerClassName={shared.colorPicker} />
+      {checkerWhenEmpty && !inputValue ? (
+        <ColorPicker value={pickerValue} onChange={(c) => onChange(c.hex)}>
+          {({ toggle }) => (
+            <Pressable className={`${shared.colorPicker} ${styles.checkerBg}`} onClick={toggle} aria-label={placeholder} />
+          )}
+        </ColorPicker>
+      ) : (
+        <ColorPicker value={pickerValue} onChange={(c) => onChange(c.hex)} triggerClassName={shared.colorPicker} />
+      )}
       <ButtonGroup variant="neutral" className={styles.colorCapsuleGroup}>
         <Input className={shared.colorInput} value={inputValue} onChange={onChange} placeholder={placeholder} maxLength={7} />
         {trailing}
       </ButtonGroup>
+      {after}
     </div>
   );
 }
@@ -81,12 +94,14 @@ function HexColorField({ pickerValue, inputValue, onChange, placeholder, trailin
 /** 라이트/다크 색 한 쌍 — 캡션 + HexColorField ×2. tools 를 켜면 칸마다 =(반대쪽과 같게)·×(그 칸 지우기),
  *  아래 공용 ⇄(서로 바꾸기). 빈 입력은 스와치가 보여주는 폴백(picker) 색으로 동작한다 —
  *  빈 문자열끼리 복사/교환하면 아무 변화가 없어 버튼이 죽은 것처럼 보인다. */
-function ColorDuoRow({ t, placeholder, light, dark, tools = false }: {
+function ColorDuoRow({ t, placeholder, light, dark, tools = false, checkerWhenEmpty = false }: {
   t: TFunction;
   placeholder?: string;
   light: { picker: string; input: string; onChange: (v: string) => void };
   dark: { picker: string; input: string; onChange: (v: string) => void };
   tools?: boolean;
+  /** 빈 값 = 투명 의미면 스와치에 체커보드 */
+  checkerWhenEmpty?: boolean;
 }) {
   const lightEff = light.input || light.picker;
   const darkEff = dark.input || dark.picker;
@@ -115,27 +130,42 @@ function ColorDuoRow({ t, placeholder, light, dark, tools = false }: {
     <div className={styles.faviconColorDuo}>
       <div className={styles.faviconColorItem}>
         <span className={styles.faviconColorCaption}>{t("admin.settings.faviconVariantLight")}</span>
-        <HexColorField pickerValue={light.picker} inputValue={light.input} onChange={light.onChange} placeholder={placeholder} trailing={tools ? itemTools("light") : undefined} />
+        <HexColorField
+          pickerValue={light.picker}
+          inputValue={light.input}
+          onChange={light.onChange}
+          placeholder={placeholder}
+          trailing={tools ? itemTools("light") : undefined}
+          checkerWhenEmpty={checkerWhenEmpty}
+          /* 다크 칸의 ⇄ 만큼 자리 맞춤 — 없으면 좌우 캡슐 폭이 달라 보인다 */
+          after={tools ? <span className={styles.swapSpacer} aria-hidden /> : undefined}
+        />
       </div>
       <div className={styles.faviconColorItem}>
         <span className={styles.faviconColorCaption}>{t("admin.settings.faviconVariantDark")}</span>
-        <HexColorField pickerValue={dark.picker} inputValue={dark.input} onChange={dark.onChange} placeholder={placeholder} trailing={tools ? itemTools("dark") : undefined} />
+        <HexColorField
+          pickerValue={dark.picker}
+          inputValue={dark.input}
+          onChange={dark.onChange}
+          placeholder={placeholder}
+          trailing={tools ? itemTools("dark") : undefined}
+          checkerWhenEmpty={checkerWhenEmpty}
+          /* 공용 ⇄ — 별도 행으로 두면 왼쪽이 텅 비어 아래 컨트롤과의 간격만 벌린다.
+             다크 캡슐 옆 인라인 단독 캡슐로 */
+          after={tools ? (
+            <ButtonGroup variant="neutral">
+              <Pressable
+                className={styles.faviconColorTool}
+                title={t("admin.settings.colorSwap")}
+                aria-label={t("admin.settings.colorSwap")}
+                onClick={() => { light.onChange(darkEff); dark.onChange(lightEff); }}
+              >
+                <ArrowLeftRight size={13} strokeWidth={2} />
+              </Pressable>
+            </ButtonGroup>
+          ) : undefined}
+        />
       </div>
-      {tools && (
-        <div className={styles.faviconColorTools}>
-          {/* 공용 ⇄ — 단독 세그먼트 캡슐 */}
-          <ButtonGroup variant="neutral">
-            <Pressable
-              className={styles.faviconColorTool}
-              title={t("admin.settings.colorSwap")}
-              aria-label={t("admin.settings.colorSwap")}
-              onClick={() => { light.onChange(darkEff); dark.onChange(lightEff); }}
-            >
-              <ArrowLeftRight size={13} strokeWidth={2} />
-            </Pressable>
-          </ButtonGroup>
-        </div>
-      )}
     </div>
   );
 }
@@ -157,11 +187,12 @@ function ImageFaviconPreviewSvg({ src, tint, bg, render, imgShadow, imgBgShadow,
   const tintId = `favimg-tint-${variant}`;
   const shadowId = `favimg-shadow-${variant}`;
   const bgShadowId = `favimg-bg-shadow-${variant}`;
+  const clipId = `favimg-clip-${variant}`;
   const imgSize = 32 * Math.max(0.4, Math.min(1, scale));
   const imgOff = (32 - imgSize) / 2;
   return (
     <svg className={styles.faviconPreview} viewBox="0 0 32 32" width="48" height="48" aria-hidden style={{ overflow: "visible" }}>
-      {(tint || imgShadow || (bg && imgBgShadow)) && (
+      {(tint || imgShadow || (bg && imgBgShadow) || render.hasBg) && (
         <defs>
           {tint && (
             <filter id={tintId} x="0" y="0" width="100%" height="100%">
@@ -171,6 +202,12 @@ function ImageFaviconPreviewSvg({ src, tint, bg, render, imgShadow, imgBgShadow,
           )}
           {imgShadow && <FaviconFilter resolved={imgShadow} id={shadowId} />}
           {bg && imgBgShadow && <FaviconFilter resolved={imgBgShadow} id={bgShadowId} />}
+          {/* 이미지도 모양·모서리대로 클리핑 — 슬라이더가 배경 없이도 보이고, 모서리 밖 삐져나옴 방지 */}
+          {render.hasBg && (
+            <clipPath id={clipId}>
+              <rect x={render.bgX} y={render.bgY} width={render.bgW} height={render.bgH} rx={render.radius} ry={render.radius} />
+            </clipPath>
+          )}
         </defs>
       )}
       <g transform={faviconContentTransform(render.contentScale) || undefined}>
@@ -189,7 +226,9 @@ function ImageFaviconPreviewSvg({ src, tint, bg, render, imgShadow, imgBgShadow,
           />
         )}
         <g filter={imgShadow ? `url(#${shadowId})` : undefined}>
-          <image href={src} x={imgOff} y={imgOff} width={imgSize} height={imgSize} preserveAspectRatio="xMidYMid meet" filter={tint ? `url(#${tintId})` : undefined} />
+          <g clipPath={render.hasBg ? `url(#${clipId})` : undefined}>
+            <image href={src} x={imgOff} y={imgOff} width={imgSize} height={imgSize} preserveAspectRatio="xMidYMid meet" filter={tint ? `url(#${tintId})` : undefined} />
+          </g>
         </g>
       </g>
     </svg>
@@ -287,9 +326,102 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
     update("brand", "logoColorPresets", presets.filter((_, j) => j !== i));
   };
 
+  /* 업로드 favicon 미리보기 — /api/favicon 과 같은 계산으로 그리는 단일 미리보기.
+     UploadField 의 기본 미리보기를 대체해 "필드 미리보기 = 최종 탭 아이콘 렌더"로 통일한다.
+     기하는 업로드 favicon 전용 필드(faviconImage*), 받침은 실제 테마 배경색. */
+  const renderImageFaviconPreview = (variant: "light" | "dark") => {
+    const logos = resolveBrandLogos(config.brand);
+    const src = (variant === "dark" ? logos.short.dark || logos.short.light : logos.short.light || logos.short.dark) || "";
+    const tint = (variant === "dark" ? logos.short.colorDark : logos.short.colorLight) || "";
+    const bg = (variant === "dark" ? config.brand.faviconImageBgDark : config.brand.faviconImageBgLight) || "";
+    const render = resolveFavicon(
+      {
+        shape: (config.brand.faviconImageShape ?? "circle") as FaviconShape,
+        faviconRadius: config.brand.faviconImageRadius ?? "",
+        faviconBgRatio: config.brand.faviconImageBgRatio ?? "1",
+        weight: "light" as FaviconWeight,
+        logoText: "",
+        logoFont: "",
+        logoFontStretch: "",
+        faviconBgLight: config.brand.faviconImageBgLight ?? "",
+        faviconBgDark: config.brand.faviconImageBgDark ?? "",
+        faviconBorderWidth: config.brand.faviconImageBorderWidth ?? "0",
+        faviconBorderColorLight: config.brand.faviconImageBorderColorLight ?? "",
+        faviconBorderColorDark: config.brand.faviconImageBorderColorDark ?? "",
+        faviconFontSize: "20",
+        faviconColor: "",
+        faviconColorDark: "",
+        faviconTextShadow: DEFAULT_FAVICON_TEXT_SHADOW,
+        faviconBgShadow: DEFAULT_FAVICON_BG_SHADOW,
+        presetLight: config.brand.logoColor || config.theme.lightText,
+        presetDark: config.brand.logoColorDark || config.theme.darkText,
+      },
+      variant,
+    );
+    const imgShadow = resolveFaviconShadow(config.brand.faviconImageShadow ?? DEFAULT_FAVICON_TEXT_SHADOW);
+    const imgBgShadow = bg ? resolveFaviconShadow(config.brand.faviconImageBgShadow ?? DEFAULT_FAVICON_BG_SHADOW) : null;
+    const imgScaleRaw = parseFloat(config.brand.faviconImageScale ?? "");
+    const imgScale = Number.isFinite(imgScaleRaw) ? imgScaleRaw : 1;
+    return (
+      <span
+        className={styles.faviconImagePreviewBackdrop}
+        style={{
+          background: variant === "light" ? config.theme.lightBg : config.theme.darkBg,
+          /* 받침 타일 모서리가 모양·모서리 슬라이더를 그대로 따라간다 — 배경색이 없어도
+             슬라이더 반응이 눈에 보이게 (radius 16/32 = 50% = 원) */
+          borderRadius: render.hasBg ? `${(render.radius / 32) * 100}%` : undefined,
+        }}
+      >
+        <ImageFaviconPreviewSvg src={src} tint={tint} bg={bg} render={render} imgShadow={imgShadow} imgBgShadow={imgBgShadow} variant={variant} scale={imgScale} />
+      </span>
+    );
+  };
+
   return (
       <section className={`${shared.section} ${shared.sectionWide}`}>
         <SectionHeader title={t("admin.settings.brand")} paths={["brand"]} {...sh} />
+
+        {/* ══ 공통 — 소스(업로드/시스템)와 무관하게 네비 마크·로딩 스크린 로고에 적용되는 표시 설정.
+            그림자는 별도 설정 없이 Favicon 그림자를 따른다 ══ */}
+        <div className={`${styles.brandGroup} ${styles.brandTopShared}`}>
+          <div className={styles.brandPart}>
+            <div className={styles.brandPartHead}>
+              <h4 className={styles.brandPartTitle}>
+                {t("admin.settings.navLogoPart")}
+                <span className={styles.brandPartTitleHint}>{t("admin.settings.navLogoPartHint")}</span>
+              </h4>
+            </div>
+            <div className={styles.logoEffectsRow}>
+              <span className={styles.logoEffectsLabel}>{t("admin.settings.logoEffects")}</span>
+              <div className={styles.logoEffectsToggles}>
+                <label className={styles.inlineToggle}>
+                  {t("admin.settings.logoGlitch")}
+                  <Checkbox checked={config.brand.logoGlitch} onChange={(v) => update("brand", "logoGlitch", v)} shape="square" />
+                </label>
+                <label className={styles.inlineToggle}>
+                  {t("admin.settings.logoDifference")}
+                  {/* 미지정(undefined) = 자동 — 보고 있는 탭의 기본을 보여준다: 업로드(이미지)는 해제,
+                     시스템(텍스트)은 적용. 만지면 명시값(boolean)이 저장돼 자동을 덮는다 */}
+                  <Checkbox checked={config.brand.logoDifference ?? brandTab === "system"} onChange={(v) => update("brand", "logoDifference", v)} shape="square" />
+                </label>
+              </div>
+            </div>
+            {/* 로딩 스크린 등장 연출 — 이미지 로딩 로고(풀, 없으면 숏 다크)에 적용 */}
+            <FieldRow label={t("admin.settings.loadingAnimation")}>
+              <Select
+                value={config.brand.loadingAnimation ?? "fade"}
+                onChange={(v) => update("brand", "loadingAnimation", v as typeof config.brand.loadingAnimation)}
+                options={[
+                  { value: "fade", label: t("admin.settings.loadingAnimationFade") },
+                  { value: "rise", label: t("admin.settings.loadingAnimationRise") },
+                  { value: "scale", label: t("admin.settings.loadingAnimationScale") },
+                  { value: "wipe", label: t("admin.settings.loadingAnimationWipe") },
+                  { value: "none", label: t("admin.settings.loadingAnimationNone") },
+                ]}
+              />
+            </FieldRow>
+          </div>
+        </div>
 
         {/* 그룹 탭 — 언더라인 탭(세그먼트 pill 과 구분). 업로드 로고 / 시스템 로고(텍스트) */}
         <div className={styles.brandTabs} role="tablist">
@@ -314,23 +446,6 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
           {brandTab === "uploaded" ? t("admin.settings.uploadedLogoHint") : t("admin.settings.systemLogoHint")}
         </p>
 
-        {/* 로고 표시 효과 — 탭·숏/풀 무관하게 nav 로고 전체에 적용(숏 배지 포함). 그래서 탭 밖 섹션 레벨에 둔다 */}
-        <div className={styles.logoEffectsRow}>
-          <span className={styles.logoEffectsLabel}>{t("admin.settings.logoEffects")}</span>
-          <div className={styles.logoEffectsToggles}>
-            <label className={styles.inlineToggle}>
-              {t("admin.settings.logoGlitch")}
-              <Checkbox checked={config.brand.logoGlitch} onChange={(v) => update("brand", "logoGlitch", v)} shape="square" />
-            </label>
-            <label className={styles.inlineToggle}>
-              {t("admin.settings.logoDifference")}
-              {/* 미지정(undefined) = 자동 — 보고 있는 탭의 기본을 보여준다: 업로드(이미지)는 해제,
-                 시스템(텍스트)은 적용. 만지면 명시값(boolean)이 저장돼 자동을 덮는다 */}
-              <Checkbox checked={config.brand.logoDifference ?? brandTab === "system"} onChange={(v) => update("brand", "logoDifference", v)} shape="square" />
-            </label>
-          </div>
-        </div>
-
         {/* ══ 업로드 로고 — 이미지. 올리면 텍스트 로고를 대체 ══ */}
         <AnimatePresence mode="wait">
         {brandTab === "uploaded" && (
@@ -343,12 +458,12 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
           transition={{ duration: 0.18, ease: [0.4, 0, 0.2, 1] }}
         >
 
-          {/* Favicon(숏) 이미지 — 비우면 텍스트 favicon 으로 fallback */}
+          {/* 숏로고 자산 — 네비 마크·favicon 에 쓰이는 이미지. 렌더 옵션은 아래 Favicon 그룹 */}
           <div className={styles.brandPart}>
             <div className={styles.brandPartHead}>
               <h4 className={styles.brandPartTitle}>
-                {t("admin.settings.logoFaviconPart")}
-                <span className={styles.brandPartTitleHint}>{t("admin.settings.logoFaviconPartHint")}</span>
+                {t("admin.settings.logoShortPart")}
+                <span className={styles.brandPartTitleHint}>{t("admin.settings.logoShortPartHint")}</span>
               </h4>
               {/* 파트별 "기본 로고 사용" 버튼은 섹션 머리의 기본값 버튼과 중복이라 없앴다 */}
             </div>
@@ -370,218 +485,139 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
               <UploadField kind="logo" tint={config.brand.logoFullColor} onTintChange={(c) => update("brand", "logoFullColor", c)} defaultTint={config.brand.logoColor || config.theme.lightText} recolorLabel={t("admin.settings.logoRecolor")} originalLabel={t("admin.settings.logoOriginal")} previewBg="light" label={t("admin.settings.faviconVariantLight")} url={config.brand.logoFullUrl} uploadLabel={t("admin.settings.uploadLogo")} removeLabel={t("admin.settings.removeLogo")} onUploaded={(url) => update("brand", "logoFullUrl", url)} onRemove={() => update("brand", "logoFullUrl", "")} />
               <UploadField kind="logo" tint={config.brand.logoFullColorDark} onTintChange={(c) => update("brand", "logoFullColorDark", c)} defaultTint={config.brand.logoColorDark || config.theme.darkText} recolorLabel={t("admin.settings.logoRecolor")} originalLabel={t("admin.settings.logoOriginal")} previewBg="dark" label={t("admin.settings.faviconVariantDark")} url={config.brand.logoFullDarkUrl} uploadLabel={t("admin.settings.uploadLogo")} removeLabel={t("admin.settings.removeLogo")} onUploaded={(url) => update("brand", "logoFullDarkUrl", url)} onRemove={() => update("brand", "logoFullDarkUrl", "")} />
             </div>
-            {/* 로딩 스크린 등장 연출 — 이미지 로딩 로고(풀, 없으면 숏 다크)에 적용 */}
-            <FieldRow label={t("admin.settings.loadingAnimation")}>
-              <Select
-                value={config.brand.loadingAnimation ?? "fade"}
-                onChange={(v) => update("brand", "loadingAnimation", v as typeof config.brand.loadingAnimation)}
-                options={[
-                  { value: "fade", label: t("admin.settings.loadingAnimationFade") },
-                  { value: "rise", label: t("admin.settings.loadingAnimationRise") },
-                  { value: "scale", label: t("admin.settings.loadingAnimationScale") },
-                  { value: "wipe", label: t("admin.settings.loadingAnimationWipe") },
-                  { value: "none", label: t("admin.settings.loadingAnimationNone") },
-                ]}
-              />
-            </FieldRow>
           </div>
 
-          {/* 업로드 로고 옵션 (그룹 레벨) — 배경=favicon 전용, 그림자=모든 업로드 로고. 로고 하나라도 있으면 표시 */}
-          {(config.brand.logoShortUrl || config.brand.logoShortDarkUrl || config.brand.logoFullUrl || config.brand.logoFullDarkUrl) && (
-            <div className={styles.faviconImageOptions}>
-              <h5 className={styles.faviconImageOptionsTitle}>{t("admin.settings.uploadedLogoOptions")}</h5>
-              <p className={styles.faviconImageOptionsHint}>{t("admin.settings.uploadedLogoOptionsHint")}</p>
-              {/* 업로드 favicon 미리보기 — 배경·그림자가 실제 탭 아이콘에 어떻게 그려지는지 즉시 확인.
-                  없으면 "설정해도 바뀌는 게 없다"고 느낀다(적용처가 브라우저 탭뿐이라 화면 피드백이 없었음) */}
-              <div className={styles.faviconPreviewBar}>
-                {(["light", "dark"] as const).map((variant) => {
-                  const logos = resolveBrandLogos(config.brand);
-                  const src = (variant === "dark" ? logos.short.dark || logos.short.light : logos.short.light || logos.short.dark) || "";
-                  const tint = (variant === "dark" ? logos.short.colorDark : logos.short.colorLight) || "";
-                  const bg = (variant === "dark" ? config.brand.faviconImageBgDark : config.brand.faviconImageBgLight) || "";
-                  // 기하는 업로드 favicon 전용 필드(faviconImage*) — 시스템 favicon 설정과 독립
-                  const render = resolveFavicon(
-                    {
-                      shape: (config.brand.faviconImageShape ?? "circle") as FaviconShape,
-                      faviconRadius: config.brand.faviconImageRadius ?? "",
-                      faviconBgRatio: config.brand.faviconImageBgRatio ?? "1",
-                      weight: "light" as FaviconWeight,
-                      logoText: "",
-                      logoFont: "",
-                      logoFontStretch: "",
-                      faviconBgLight: config.brand.faviconImageBgLight ?? "",
-                      faviconBgDark: config.brand.faviconImageBgDark ?? "",
-                      faviconBorderWidth: config.brand.faviconImageBorderWidth ?? "0",
-                      faviconBorderColorLight: config.brand.faviconImageBorderColorLight ?? "",
-                      faviconBorderColorDark: config.brand.faviconImageBorderColorDark ?? "",
-                      faviconFontSize: "20",
-                      faviconColor: "",
-                      faviconColorDark: "",
-                      faviconTextShadow: DEFAULT_FAVICON_TEXT_SHADOW,
-                      faviconBgShadow: DEFAULT_FAVICON_BG_SHADOW,
-                      presetLight: config.brand.logoColor || config.theme.lightText,
-                      presetDark: config.brand.logoColorDark || config.theme.darkText,
-                    },
-                    variant,
-                  );
-                  const imgShadow = resolveFaviconShadow(config.brand.faviconImageShadow ?? DEFAULT_FAVICON_TEXT_SHADOW);
-                  const imgBgShadow = bg ? resolveFaviconShadow(config.brand.faviconImageBgShadow ?? DEFAULT_FAVICON_BG_SHADOW) : null;
-                  const imgScaleRaw = parseFloat(config.brand.faviconImageScale ?? "");
-                  const imgScale = Number.isFinite(imgScaleRaw) ? imgScaleRaw : 1;
-                  return (
-                    <div key={variant} className={styles.faviconPreviewCell}>
-                      <ImageFaviconPreviewSvg src={src} tint={tint} bg={bg} render={render} imgShadow={imgShadow} imgBgShadow={imgBgShadow} variant={variant} scale={imgScale} />
-                      <span className={styles.faviconPreviewLabel}>{variant}</span>
-                    </div>
-                  );
-                })}
+          {/* FAVICON — 이 소스(업로드 이미지)의 브라우저 탭 렌더 */}
+            <div className={styles.brandPart}>
+              <div className={styles.brandPartHead}>
+                <h4 className={styles.brandPartTitle}>
+                  {t("admin.settings.logoFaviconPart")}
+                  <span className={styles.brandPartTitleHint}>{t("admin.settings.logoFaviconPartHint")}</span>
+                </h4>
               </div>
-              {/* 로고 크기 — 캔버스(배경) 대비 배율. 배경 없이도 탭 아이콘 여백 조절에 쓰인다 */}
-              <div className={styles.faviconForm}>
-                <FieldRow label={t("admin.settings.faviconImageScale")}>
+              {/* 미리보기 — 라우트와 같은 계산의 실제 탭 아이콘 렌더 */}
+              <div className={styles.faviconPreviewBar}>
+                {(["light", "dark"] as const).map((variant) => (
+                  <div key={variant} className={styles.faviconPreviewCell}>
+                    {renderImageFaviconPreview(variant)}
+                    <span className={styles.faviconPreviewLabel}>{variant}</span>
+                  </div>
+                ))}
+              </div>
+            {/* favicon 전용 옵션 — 적용처가 브라우저 탭이라 FAVICON 파트 안에 둔다 */}
+            <div className={styles.faviconForm}>
+              <FieldRow label={t("admin.settings.faviconImageScale")}>
+                <div className={styles.faviconSliderControl}>
+                  <Slider
+                    min={40}
+                    max={100}
+                    step={1}
+                    value={[(() => { const n = parseFloat(config.brand.faviconImageScale ?? ""); return Math.round((Number.isFinite(n) ? Math.max(0.4, Math.min(1, n)) : 1) * 100); })()]}
+                    onValueChange={([v]) => update("brand", "faviconImageScale", String(v / 100))}
+                    className={styles.faviconSlider}
+                  />
+                  <span className={styles.faviconSliderValue}>
+                    {(() => { const n = parseFloat(config.brand.faviconImageScale ?? ""); return `${Math.round((Number.isFinite(n) ? Math.max(0.4, Math.min(1, n)) : 1) * 100)}%`; })()}
+                  </span>
+                </div>
+              </FieldRow>
+              <FieldRow label={t("admin.settings.faviconBg")}>
+                <ColorDuoRow
+                  t={t}
+                  placeholder={t("admin.settings.faviconImageBgPlaceholder")}
+                  light={{ picker: config.brand.faviconImageBgLight || config.theme.lightBg, input: config.brand.faviconImageBgLight, onChange: (v) => update("brand", "faviconImageBgLight", v) }}
+                  dark={{ picker: config.brand.faviconImageBgDark || config.theme.darkBg, input: config.brand.faviconImageBgDark, onChange: (v) => update("brand", "faviconImageBgDark", v) }}
+                  tools
+                  checkerWhenEmpty
+                />
+              </FieldRow>
+              <FieldRow label={t("admin.settings.faviconShape")}>
+                <RadioGroup<FaviconShape>
+                  value={(config.brand.faviconImageShape ?? "circle") as FaviconShape}
+                  onChange={(v) => {
+                    if (v === "none") { update("brand", "faviconImageShape", "none"); return; }
+                    // circle/square 프리셋 → 해당 기본 반경으로 (라디오·슬라이더·미리보기 동기화)
+                    setConfig((p) => ({
+                      ...p,
+                      brand: { ...p.brand, faviconImageShape: v, faviconImageRadius: v === "circle" ? "16" : "4" },
+                    }));
+                  }}
+                  options={[
+                    { value: "circle", label: "Circle" },
+                    { value: "square", label: "Square" },
+                    { value: "none", label: "None" },
+                  ]}
+                />
+              </FieldRow>
+              {config.brand.faviconImageShape !== "none" && (
+                <FieldRow label={t("admin.settings.faviconRadius")}>
                   <div className={styles.faviconSliderControl}>
+                    {/* 반경이 곧 모양 — 라디오 동기화(16=Circle, 그 외=Square), 시스템 쪽과 같은 규칙 */}
                     <Slider
-                      min={40}
-                      max={100}
+                      min={0}
+                      max={16}
                       step={1}
-                      value={[(() => { const n = parseFloat(config.brand.faviconImageScale ?? ""); return Math.round((Number.isFinite(n) ? Math.max(0.4, Math.min(1, n)) : 1) * 100); })()]}
-                      onValueChange={([v]) => update("brand", "faviconImageScale", String(v / 100))}
+                      value={[resolveFaviconRadius(config.brand.faviconImageRadius, config.brand.faviconImageShape === "square" ? 4 : 16)]}
+                      onValueChange={([v]) => setConfig((p) => ({
+                        ...p,
+                        brand: { ...p.brand, faviconImageRadius: String(v), faviconImageShape: v >= 16 ? "circle" : "square" },
+                      }))}
                       className={styles.faviconSlider}
                     />
                     <span className={styles.faviconSliderValue}>
-                      {(() => { const n = parseFloat(config.brand.faviconImageScale ?? ""); return `${Math.round((Number.isFinite(n) ? Math.max(0.4, Math.min(1, n)) : 1) * 100)}%`; })()}
+                      {resolveFaviconRadius(config.brand.faviconImageRadius, config.brand.faviconImageShape === "square" ? 4 : 16)}
                     </span>
                   </div>
                 </FieldRow>
-              </div>
-              <div className={styles.faviconImageBgRow}>
-                <span className={styles.faviconImageBgLabel}>{t("admin.settings.faviconBg")}</span>
-                <div className={styles.faviconImageBgFields}>
-                  <div className={shared.faviconImageBgField}>
-                    <span className={styles.faviconImageBgCap}>{t("admin.settings.faviconVariantLight")}</span>
-                    <div className={shared.colorField}>
-                      <ColorPicker value={config.brand.faviconImageBgLight || "#ffffff"} onChange={(c) => update("brand", "faviconImageBgLight", c.hex)}>
-                        {({ toggle }) => (
-                          <Pressable className={`${shared.colorPicker}${config.brand.faviconImageBgLight ? "" : ` ${styles.checkerBg}`}`} style={config.brand.faviconImageBgLight ? { background: config.brand.faviconImageBgLight } : undefined} onClick={toggle} aria-label={t("admin.settings.faviconBg")} />
-                        )}
-                      </ColorPicker>
-                      <Input className={shared.colorInput} value={config.brand.faviconImageBgLight} onChange={(v) => update("brand", "faviconImageBgLight", v)} placeholder={t("admin.settings.faviconImageBgPlaceholder")} maxLength={7} />
-                    </div>
-                  </div>
-                  <div className={shared.faviconImageBgField}>
-                    <span className={styles.faviconImageBgCap}>{t("admin.settings.faviconVariantDark")}</span>
-                    <div className={shared.colorField}>
-                      <ColorPicker value={config.brand.faviconImageBgDark || "#0a0a0a"} onChange={(c) => update("brand", "faviconImageBgDark", c.hex)}>
-                        {({ toggle }) => (
-                          <Pressable className={`${shared.colorPicker}${config.brand.faviconImageBgDark ? "" : ` ${styles.checkerBg}`}`} style={config.brand.faviconImageBgDark ? { background: config.brand.faviconImageBgDark } : undefined} onClick={toggle} aria-label={t("admin.settings.faviconBg")} />
-                        )}
-                      </ColorPicker>
-                      <Input className={shared.colorInput} value={config.brand.faviconImageBgDark} onChange={(v) => update("brand", "faviconImageBgDark", v)} placeholder={t("admin.settings.faviconImageBgPlaceholder")} maxLength={7} />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              {/* 배경 기하 — 시스템 favicon 과 같은 컨트롤(모양·모서리·비율·테두리), 별도 필드(faviconImage*).
-                  배경색이 있어야 그려지므로 색을 정했을 때만 노출 */}
-              {(config.brand.faviconImageBgLight || config.brand.faviconImageBgDark) && (
-                <div className={styles.faviconForm}>
-                  <FieldRow label={t("admin.settings.faviconShape")}>
-                    <RadioGroup<FaviconShape>
-                      value={(config.brand.faviconImageShape ?? "circle") as FaviconShape}
-                      onChange={(v) => {
-                        if (v === "none") { update("brand", "faviconImageShape", "none"); return; }
-                        // circle/square 프리셋 → 해당 기본 반경으로 (라디오·슬라이더·미리보기 동기화)
-                        setConfig((p) => ({
-                          ...p,
-                          brand: { ...p.brand, faviconImageShape: v, faviconImageRadius: v === "circle" ? "16" : "4" },
-                        }));
-                      }}
-                      options={[
-                        { value: "circle", label: "Circle" },
-                        { value: "square", label: "Square" },
-                        { value: "none", label: "None" },
-                      ]}
-                    />
-                  </FieldRow>
-                  {config.brand.faviconImageShape !== "none" && (
-                    <FieldRow label={t("admin.settings.faviconRadius")}>
-                      <div className={styles.faviconSliderControl}>
-                        {/* 반경이 곧 모양 — 라디오 동기화(16=Circle, 그 외=Square), 시스템 쪽과 같은 규칙 */}
-                        <Slider
-                          min={0}
-                          max={16}
-                          step={1}
-                          value={[resolveFaviconRadius(config.brand.faviconImageRadius, config.brand.faviconImageShape === "square" ? 4 : 16)]}
-                          onValueChange={([v]) => setConfig((p) => ({
-                            ...p,
-                            brand: { ...p.brand, faviconImageRadius: String(v), faviconImageShape: v >= 16 ? "circle" : "square" },
-                          }))}
-                          className={styles.faviconSlider}
-                        />
-                        <span className={styles.faviconSliderValue}>
-                          {resolveFaviconRadius(config.brand.faviconImageRadius, config.brand.faviconImageShape === "square" ? 4 : 16)}
-                        </span>
-                      </div>
-                    </FieldRow>
-                  )}
-                  {config.brand.faviconImageShape !== "none" && (
-                    <FieldRow label={t("admin.settings.faviconBgRatio")}>
-                      <div className={styles.faviconSliderControl}>
-                        <Slider
-                          min={50}
-                          max={200}
-                          step={10}
-                          value={[Math.round(resolveFaviconRatio(config.brand.faviconImageBgRatio) * 100)]}
-                          onValueChange={([v]) => update("brand", "faviconImageBgRatio", String(v / 100))}
-                          className={styles.faviconSlider}
-                        />
-                        <span className={styles.faviconSliderValue}>
-                          {(() => {
-                            const r = resolveFaviconRatio(config.brand.faviconImageBgRatio);
-                            return r > 1 ? `${r.toFixed(1)}:1` : r < 1 ? `1:${(1 / r).toFixed(1)}` : "1:1";
-                          })()}
-                        </span>
-                      </div>
-                    </FieldRow>
-                  )}
-                  {config.brand.faviconImageShape !== "none" && (
-                    <FieldRow label={t("admin.settings.faviconBorder")}>
-                      <div className={styles.faviconSliderControl}>
-                        <Slider
-                          min={0}
-                          max={8}
-                          step={1}
-                          value={[Math.max(0, Math.min(8, Number(config.brand.faviconImageBorderWidth) || 0))]}
-                          onValueChange={([v]) => update("brand", "faviconImageBorderWidth", String(v))}
-                          className={styles.faviconSlider}
-                        />
-                        <span className={styles.faviconSliderValue}>
-                          {Math.max(0, Math.min(8, Number(config.brand.faviconImageBorderWidth) || 0))}
-                        </span>
-                      </div>
-                    </FieldRow>
-                  )}
-                  {config.brand.faviconImageShape !== "none" && (Number(config.brand.faviconImageBorderWidth) || 0) > 0 && (
-                    <FieldRow label={t("admin.settings.faviconBorderColor")}>
-                      <ColorDuoRow
-                        t={t}
-                        placeholder={t("admin.settings.faviconBgPlaceholder")}
-                        light={{ picker: config.brand.faviconImageBorderColorLight || "#0a0a0a", input: config.brand.faviconImageBorderColorLight, onChange: (v) => update("brand", "faviconImageBorderColorLight", v) }}
-                        dark={{ picker: config.brand.faviconImageBorderColorDark || "#f5f5f0", input: config.brand.faviconImageBorderColorDark, onChange: (v) => update("brand", "faviconImageBorderColorDark", v) }}
-                        tools
-                      />
-                    </FieldRow>
-                  )}
-                </div>
               )}
-              <FaviconShadowControls
-                single
-                textShadow={config.brand.logoShadow ?? DEFAULT_FAVICON_TEXT_SHADOW}
-                onChangeText={(v) => update("brand", "logoShadow", v)}
-                t={t}
-                textLabel={t("admin.settings.navLogoShadow")}
-              />
-              <p className={styles.faviconImageOptionsHint}>{t("admin.settings.navLogoShadowHint")}</p>
+              {config.brand.faviconImageShape !== "none" && (
+                <FieldRow label={t("admin.settings.faviconBgRatio")}>
+                  <div className={styles.faviconSliderControl}>
+                    <Slider
+                      min={50}
+                      max={200}
+                      step={10}
+                      value={[Math.round(resolveFaviconRatio(config.brand.faviconImageBgRatio) * 100)]}
+                      onValueChange={([v]) => update("brand", "faviconImageBgRatio", String(v / 100))}
+                      className={styles.faviconSlider}
+                    />
+                    <span className={styles.faviconSliderValue}>
+                      {(() => {
+                        const r = resolveFaviconRatio(config.brand.faviconImageBgRatio);
+                        return r > 1 ? `${r.toFixed(1)}:1` : r < 1 ? `1:${(1 / r).toFixed(1)}` : "1:1";
+                      })()}
+                    </span>
+                  </div>
+                </FieldRow>
+              )}
+              {config.brand.faviconImageShape !== "none" && (
+                <FieldRow label={t("admin.settings.faviconBorder")}>
+                  <div className={styles.faviconSliderControl}>
+                    <Slider
+                      min={0}
+                      max={8}
+                      step={1}
+                      value={[Math.max(0, Math.min(8, Number(config.brand.faviconImageBorderWidth) || 0))]}
+                      onValueChange={([v]) => update("brand", "faviconImageBorderWidth", String(v))}
+                      className={styles.faviconSlider}
+                    />
+                    <span className={styles.faviconSliderValue}>
+                      {Math.max(0, Math.min(8, Number(config.brand.faviconImageBorderWidth) || 0))}
+                    </span>
+                  </div>
+                </FieldRow>
+              )}
+              {config.brand.faviconImageShape !== "none" && (Number(config.brand.faviconImageBorderWidth) || 0) > 0 && (
+                <FieldRow label={t("admin.settings.faviconBorderColor")}>
+                  <ColorDuoRow
+                    t={t}
+                    placeholder={t("admin.settings.faviconBgPlaceholder")}
+                    light={{ picker: config.brand.faviconImageBorderColorLight || "#0a0a0a", input: config.brand.faviconImageBorderColorLight, onChange: (v) => update("brand", "faviconImageBorderColorLight", v) }}
+                    dark={{ picker: config.brand.faviconImageBorderColorDark || "#f5f5f0", input: config.brand.faviconImageBorderColorDark, onChange: (v) => update("brand", "faviconImageBorderColorDark", v) }}
+                    tools
+                  />
+                </FieldRow>
+              )}
               <FaviconShadowControls
                 textShadow={config.brand.faviconImageShadow ?? DEFAULT_FAVICON_TEXT_SHADOW}
                 bgShadow={config.brand.faviconImageBgShadow ?? DEFAULT_FAVICON_BG_SHADOW}
@@ -592,7 +628,7 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
                 bgLabel={t("admin.settings.faviconBgShadow")}
               />
             </div>
-          )}
+            </div>
         </motion.div>
         )}
 
@@ -617,7 +653,8 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
               </h4>
             </div>
             <div className={styles.faviconForm}>
-              {/* 로고 폰트 — 로고와 favicon 둘 다 결정. FontPicker (Google Fonts 검색 + 부분매칭). */}
+              {/* 로고 폰트 + 장평 — 둘 다 타이포그래피라 한 행에 나란히 (태블릿 이하에서도 유지) */}
+              <div className={styles.typoPair}>
               <FieldRow label={t("admin.settings.logoFont")}>
                 <FontPicker
                   value={config.brand.logoFont ?? ""}
@@ -659,9 +696,121 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
                   ]}
                 />
               </FieldRow>
+              </div>
             </div>
           </div>
 
+          {/* 풀로고(메인) — 긴 텍스트 + 로고 색상 + 효과. 이미지 없을 때 로딩/네비 로고 */}
+          <div className={styles.brandPart}>
+            <div className={styles.brandPartHead}>
+              <h4 className={styles.brandPartTitle}>
+                {t("admin.settings.logoFullPart")}
+                <span className={styles.brandPartTitleHint}>{t("admin.settings.logoFullPartHint")}</span>
+                <FieldHelp content={t("admin.settings.wcagHelp")} />
+              </h4>
+            </div>
+            {/* 풀로고 미리보기 — 텍스트 로고를 폰트·색·장평 적용해 라이트/다크 배경에서 확인 */}
+            <div className={styles.fullLogoPreview}>
+              {(["light", "dark"] as const).map((variant) => {
+                const bg = variant === "light" ? config.theme.lightBg : config.theme.darkBg;
+                const color = variant === "light" ? (config.brand.logoColor || config.theme.lightText) : (config.brand.logoColorDark || config.theme.darkText);
+                const stretch = parseFloat(config.brand.logoFontStretch || "1") || 1;
+                const ratio = contrastRatio(color, bg);
+                const level = ratio != null ? contrastLevel(ratio) : null;
+                return (
+                  <div key={variant} className={styles.fullLogoPreviewCell}>
+                    <div className={styles.fullLogoPreviewBox} style={{ background: bg }}>
+                      <span className={styles.fullLogoPreviewText} style={{ fontFamily: config.brand.logoFont || undefined, color, transform: `scaleX(${stretch})` }}>
+                        {config.brand.logoFullText || "LOGO"}
+                      </span>
+                    </div>
+                    <span className={styles.fullLogoPreviewMeta}>
+                      <span className={styles.fullLogoPreviewCap}>{variant}</span>
+                      {ratio != null && level != null && (
+                        <span className={styles.faviconContrast}>
+                          <span className={styles.faviconContrastRatio}>{ratio.toFixed(2)}:1</span>
+                          <span className={`${styles.faviconContrastBadge} ${level === "fail" ? styles.faviconContrastFail : styles.faviconContrastPass}`} title={t(`admin.settings.faviconContrast_${level}`)}>
+                            {t(`admin.settings.faviconContrast_${level}`)}
+                          </span>
+                        </span>
+                      )}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+            <div className={styles.faviconForm}>
+              <FieldRow label={t("admin.settings.logoFullText")}>
+                <div className={styles.brandTextInputWrap}>
+                  <HighlightInput value={config.brand.logoFullText} onChange={(v) => update("brand", "logoFullText", v)} maxHint={20} maxLength={20} />
+                </div>
+              </FieldRow>
+              {/* 로고 색상 — 프리셋 + Light/Dark override (풀로고·텍스트 로고 색) */}
+              <FieldRow label={t("admin.settings.logoColorPresets")}>
+            <div className={styles.logoColorPresets}>
+              {presets.map((p, i) => (
+                <div key={`${p.name}-${i}`} className={styles.logoColorPresetWrap}>
+                  <Pressable
+                    title={p.name}
+                    className={`${shared.logoColorPresetBtn} ${
+                      config.brand.logoColor === p.light && config.brand.logoColorDark === p.dark
+                        ? styles.logoColorPresetBtnActive : ""
+                    }`}
+                    onClick={() => {
+                      update("brand", "logoColor", p.light);
+                      update("brand", "logoColorDark", p.dark);
+                    }}
+                  >
+                    <span className={styles.logoColorPresetHalf} style={{ background: p.light || "#1a1a1a" }} />
+                    <span className={styles.logoColorPresetHalf} style={{ background: p.dark || "#f5f5f0" }} />
+                  </Pressable>
+                  {presets.length > 1 && (
+                    <Pressable
+                      className={styles.logoColorPresetRemove}
+                      onClick={() => removePreset(i)}
+                      aria-label={fillTemplate(t("admin.settings.removeNamedPreset"), { name: p.name })}
+                      title={t("admin.settings.removeThemePreset")}
+                    >
+                      <X size={10} strokeWidth={2.5} />
+                    </Pressable>
+                  )}
+                </div>
+              ))}
+              {canAddPreset && (
+                <Pressable
+                  className={styles.logoColorPresetAddBtn}
+                  onClick={() => { setAddingPresetName(true); showToast(t("admin.settings.enterPresetName"), "info"); }}
+                  title={t("admin.settings.savePreset")}
+                  aria-label={t("admin.settings.savePreset")}
+                >
+                  <Plus size={14} strokeWidth={2} />
+                </Pressable>
+              )}
+            </div>
+          </FieldRow>
+              <FieldRow label={t("admin.settings.logoColorLabel")}>
+                <ColorDuoRow
+                  t={t}
+                  placeholder={t("admin.settings.logoColorPlaceholder")}
+                  light={{ picker: config.brand.logoColor || "#000000", input: config.brand.logoColor || "#000000", onChange: (v) => update("brand", "logoColor", v) }}
+                  dark={{ picker: config.brand.logoColorDark || "#ffffff", input: config.brand.logoColorDark || "#ffffff", onChange: (v) => update("brand", "logoColorDark", v) }}
+                />
+              </FieldRow>
+            </div>
+          {/* 프리셋 이름 입력 row — .fields 바깥 */}
+          <PresetNameAddRow
+            open={addingPresetName}
+            value={newPresetName}
+            onChange={setNewPresetName}
+            saveDisabled={!newPresetName.trim() || presets.some((p) => p.name === newPresetName.trim())}
+            onCancel={() => { setAddingPresetName(false); setNewPresetName(""); }}
+            onSave={addCurrentAsPreset}
+            t={t}
+          />
+          </div>
+
+          {/* 그림자 파트는 없앴다 — favicon 그림자는 위 FAVICON 파트 안(업로드 탭과 동일 구조),
+              네비게이션 로고 그림자는 탭 위 공용 블록이 담당(중복 노출 제거) */}
           {/* Favicon(숏) — 짧은 텍스트 → 브라우저 탭 아이콘 렌더 */}
           <div className={styles.brandPart}>
             <div className={styles.brandPartHead}>
@@ -927,150 +1076,19 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
                 </div>
               </div>
             </div>
-          </div>
-
-          {/* 풀로고(메인) — 긴 텍스트 + 로고 색상 + 효과. 이미지 없을 때 로딩/네비 로고 */}
-          <div className={styles.brandPart}>
-            <div className={styles.brandPartHead}>
-              <h4 className={styles.brandPartTitle}>
-                {t("admin.settings.logoFullPart")}
-                <span className={styles.brandPartTitleHint}>{t("admin.settings.logoFullPartHint")}</span>
-                <FieldHelp content={t("admin.settings.wcagHelp")} />
-              </h4>
-            </div>
-            {/* 풀로고 미리보기 — 텍스트 로고를 폰트·색·장평 적용해 라이트/다크 배경에서 확인 */}
-            <div className={styles.fullLogoPreview}>
-              {(["light", "dark"] as const).map((variant) => {
-                const bg = variant === "light" ? config.theme.lightBg : config.theme.darkBg;
-                const color = variant === "light" ? (config.brand.logoColor || config.theme.lightText) : (config.brand.logoColorDark || config.theme.darkText);
-                const stretch = parseFloat(config.brand.logoFontStretch || "1") || 1;
-                const ratio = contrastRatio(color, bg);
-                const level = ratio != null ? contrastLevel(ratio) : null;
-                return (
-                  <div key={variant} className={styles.fullLogoPreviewCell}>
-                    <div className={styles.fullLogoPreviewBox} style={{ background: bg }}>
-                      <span className={styles.fullLogoPreviewText} style={{ fontFamily: config.brand.logoFont || undefined, color, transform: `scaleX(${stretch})` }}>
-                        {config.brand.logoFullText || "LOGO"}
-                      </span>
-                    </div>
-                    <span className={styles.fullLogoPreviewMeta}>
-                      <span className={styles.fullLogoPreviewCap}>{variant}</span>
-                      {ratio != null && level != null && (
-                        <span className={styles.faviconContrast}>
-                          <span className={styles.faviconContrastRatio}>{ratio.toFixed(2)}:1</span>
-                          <span className={`${styles.faviconContrastBadge} ${level === "fail" ? styles.faviconContrastFail : styles.faviconContrastPass}`} title={t(`admin.settings.faviconContrast_${level}`)}>
-                            {t(`admin.settings.faviconContrast_${level}`)}
-                          </span>
-                        </span>
-                      )}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-            <div className={styles.faviconForm}>
-              <FieldRow label={t("admin.settings.logoFullText")}>
-                <div className={styles.brandTextInputWrap}>
-                  <HighlightInput value={config.brand.logoFullText} onChange={(v) => update("brand", "logoFullText", v)} maxHint={20} maxLength={20} />
-                </div>
-              </FieldRow>
-              {/* 로고 색상 — 프리셋 + Light/Dark override (풀로고·텍스트 로고 색) */}
-              <FieldRow label={t("admin.settings.logoColorPresets")}>
-            <div className={styles.logoColorPresets}>
-              {presets.map((p, i) => (
-                <div key={`${p.name}-${i}`} className={styles.logoColorPresetWrap}>
-                  <Pressable
-                    title={p.name}
-                    className={`${shared.logoColorPresetBtn} ${
-                      config.brand.logoColor === p.light && config.brand.logoColorDark === p.dark
-                        ? styles.logoColorPresetBtnActive : ""
-                    }`}
-                    onClick={() => {
-                      update("brand", "logoColor", p.light);
-                      update("brand", "logoColorDark", p.dark);
-                    }}
-                  >
-                    <span className={styles.logoColorPresetHalf} style={{ background: p.light || "#1a1a1a" }} />
-                    <span className={styles.logoColorPresetHalf} style={{ background: p.dark || "#f5f5f0" }} />
-                  </Pressable>
-                  {presets.length > 1 && (
-                    <Pressable
-                      className={styles.logoColorPresetRemove}
-                      onClick={() => removePreset(i)}
-                      aria-label={fillTemplate(t("admin.settings.removeNamedPreset"), { name: p.name })}
-                      title={t("admin.settings.removeThemePreset")}
-                    >
-                      <X size={10} strokeWidth={2.5} />
-                    </Pressable>
-                  )}
-                </div>
-              ))}
-              {canAddPreset && (
-                <Pressable
-                  className={styles.logoColorPresetAddBtn}
-                  onClick={() => { setAddingPresetName(true); showToast(t("admin.settings.enterPresetName"), "info"); }}
-                  title={t("admin.settings.savePreset")}
-                  aria-label={t("admin.settings.savePreset")}
-                >
-                  <Plus size={14} strokeWidth={2} />
-                </Pressable>
-              )}
-            </div>
-          </FieldRow>
-              <FieldRow label={t("admin.settings.logoColorLabel")}>
-                <ColorDuoRow
-                  t={t}
-                  placeholder={t("admin.settings.logoColorPlaceholder")}
-                  light={{ picker: config.brand.logoColor || "#000000", input: config.brand.logoColor || "#000000", onChange: (v) => update("brand", "logoColor", v) }}
-                  dark={{ picker: config.brand.logoColorDark || "#ffffff", input: config.brand.logoColorDark || "#ffffff", onChange: (v) => update("brand", "logoColorDark", v) }}
-                />
-              </FieldRow>
-            </div>
-          {/* 프리셋 이름 입력 row — .fields 바깥 */}
-          <PresetNameAddRow
-            open={addingPresetName}
-            value={newPresetName}
-            onChange={setNewPresetName}
-            saveDisabled={!newPresetName.trim() || presets.some((p) => p.name === newPresetName.trim())}
-            onCancel={() => { setAddingPresetName(false); setNewPresetName(""); }}
-            onSave={addCurrentAsPreset}
-            t={t}
-          />
-          </div>
-
-          {/* ══ 그림자 — favicon(탭 아이콘) + 네비게이션 로고. 풀로고(로딩) 아래 별도 섹션 ══ */}
-          <div className={styles.brandPart}>
-            <div className={styles.brandPartHead}>
-              <h4 className={styles.brandPartTitle}>{t("admin.settings.faviconGroupShadow")}</h4>
-            </div>
-            <div className={styles.faviconShadowGroup}>
-              <div className={styles.faviconShadowItem}>
-                <span className={styles.faviconShadowSubLabel}>{t("admin.settings.logoFaviconPart")}</span>
-                <FaviconShadowControls
-                  textShadow={config.brand.faviconTextShadow ?? DEFAULT_FAVICON_TEXT_SHADOW}
-                  bgShadow={config.brand.faviconBgShadow ?? DEFAULT_FAVICON_BG_SHADOW}
-                  onChangeText={(v) => update("brand", "faviconTextShadow", v)}
-                  onChangeBg={(v) => update("brand", "faviconBgShadow", v)}
-                  t={t}
-                />
-              </div>
-              {/* 네비게이션 로고 그림자 — favicon(브라우저 탭)과 별개. ON 이면 이 값, OFF 면 favicon 텍스트 그림자 상속 */}
-              <div className={styles.faviconShadowItem}>
-                <span className={styles.faviconShadowSubLabel}>{t("admin.settings.navLogoShadow")}</span>
-                <FaviconShadowControls
-                  single
-                  textLabel=""
-                  textShadow={config.brand.logoShadow ?? DEFAULT_FAVICON_TEXT_SHADOW}
-                  onChangeText={(v) => update("brand", "logoShadow", v)}
-                  t={t}
-                />
-                <p className={styles.faviconImageOptionsHint}>{t("admin.settings.navLogoShadowHint")}</p>
-              </div>
-            </div>
+            {/* favicon 그림자 — 업로드 탭과 같은 구조로 FAVICON 파트 안에 둔다 (별도 그림자 파트 없앰) */}
+            <FaviconShadowControls
+              textShadow={config.brand.faviconTextShadow ?? DEFAULT_FAVICON_TEXT_SHADOW}
+              bgShadow={config.brand.faviconBgShadow ?? DEFAULT_FAVICON_BG_SHADOW}
+              onChangeText={(v) => update("brand", "faviconTextShadow", v)}
+              onChangeBg={(v) => update("brand", "faviconBgShadow", v)}
+              t={t}
+            />
           </div>
         </motion.div>
         )}
         </AnimatePresence>
+
       </section>
   );
 }
