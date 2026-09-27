@@ -41,3 +41,81 @@
   background: transparent !important;
   color: var(--text-primary) !important;
 }
+
+/* ── neutral 변형 — CTA 색 없이 중립 세그먼트(색 입력 + 아이콘 도구 결합용).
+   기본(cta) 규칙과 셀렉터 모양을 맞춰 동점 특이도 + 뒤 선언으로 이긴다 ── */
+.neutral {
+  border: var(--border-light);
+  /* 포커스 시 테두리 색이 튀지 않고 스르륵 */
+  transition: border-color 0.2s ease;
+}
+
+.neutral > * + * {
+  border-left: var(--border-light) !important;
+}
+
+/* 모든 자식(입력 wrapper 포함) — cta 의 색 규칙을 걷어낸다 */
+.neutral > *:not(:last-child),
+.neutral > *:last-child {
+  background: transparent !important;
+  color: inherit !important;
+}
+
+.neutral > *:not(:last-child):hover:not(:disabled),
+.neutral > *:last-child:hover:not(:disabled) {
+  background: transparent !important;
+  color: inherit !important;
+}
+
+.neutral > *:not(:last-child):hover + * {
+  border-left-color: var(--border-color-light) !important;
+}
+
+/* 버튼 세그먼트만 도구 색 + 은은한 hover */
+.neutral > button:not(:last-child),
+.neutral > button:last-child {
+  color: var(--text-tertiary) !important;
+}
+
+/* 버튼 hover 는 cta 와 같은 반전 언어 — 입력(비버튼)만 반전에서 제외된다 */
+.neutral > button:not(:last-child):hover:not(:disabled),
+.neutral > button:last-child:hover:not(:disabled) {
+  background: var(--bg-inverse) !important;
+  color: var(--text-inverse) !important;
+}
+
+/* 반전된 버튼 옆 구분선은 흰 계열로 (cta 와 동일) */
+.neutral > button:not(:last-child):hover:not(:disabled) + * {
+  border-left-color: var(--border-color-white) !important;
+}
+
+/* ── neutral 필드 그룹 공통 규칙 — 어느 사용처에서든 같은 모양이 되도록 여기서 정한다 ── */
+
+/* 버튼이 아닌 자식(입력 등)이 남는 폭을 채운다 */
+.neutral > :not(button) {
+  flex: 1;
+  min-width: 0;
+}
+
+/* 안쪽 input 은 민짜 — 테두리는 그룹이 진다(캡슐 속 알약 방지) */
+.neutral input {
+  border: none;
+  background: transparent;
+}
+
+/* 입력 포커스 표시 — input 테두리를 벗겼으니 그룹 테두리가 대신 */
+.neutral:focus-within {
+  border-color: var(--text-primary);
+}
+
+/* 버튼 세그먼트 — md 정사각(입력 md 높이와 1:1). 끝 세그먼트는 캡슐 클리핑으로 반원.
+   반전 hover 가 튀지 않게 색 전환은 transition 으로 */
+.neutral > button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-h-md);
+  height: var(--control-h-md);
+  padding: 0;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
