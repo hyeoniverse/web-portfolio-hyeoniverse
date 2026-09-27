@@ -14,6 +14,7 @@ import type { Author } from "@/types/author";
 import type { LocalizedText } from "@/types/common";
 import type { BackendItem, UserFlow, TroubleShootingItem, ErdTable, ErdRelation } from "@/data/about/types";
 import type { CustomFont } from "@/lib/customFonts";
+import { DEFAULT_LOGO_SHORT, DEFAULT_LOGO_SHORT_DARK, DEFAULT_LOGO_FULL, DEFAULT_LOGO_FULL_DARK } from "@/lib/brandLogos";
 
 export const siteConfig = {
   // ---------------------------------------------------------------------------
@@ -47,14 +48,20 @@ export const siteConfig = {
   // 브랜드 / 사이트 아이덴티티
   // ---------------------------------------------------------------------------
   brand: {
-    logoText: "H", // 숏 로고 텍스트 (이미지 미사용 시)
+    // 로고 모드 — uploaded: 업로드/기본 이미지 로고, system: 텍스트로 그리는 시스템 로고.
+    // 설정의 업로드 로고/시스템 로고 탭 선택이 저장 시 이 값으로 반영된다.
+    logoMode: "uploaded" as "uploaded" | "system",
+    logoText: "✦", // 숏 로고 텍스트 (시스템 로고 모드) — 기호는 favicon 에서 path 로 굳는다(#1048)
     logoFullText: "HYEONIVERSE", // 풀 로고 텍스트 (이미지 미사용 시, 로딩 화면)
     logoColor: "", // 라이트 모드 로고 색상 (빈 문자열 = 기본 텍스트 색상)
     logoColorDark: "", // 다크 모드 로고 색상 (빈 문자열 = 기본 텍스트 색상)
-    logoFontStretch: "0.8", // 로고/favicon 글자 장평 (폰트 가로 너비) — scaleX 배수. default 0.8 (좁아야 예쁨)
+    logoFontStretch: "1", // 로고/favicon 글자 장평 (폰트 가로 너비) — scaleX 배수. default 1 (원본 폭)
     logoFont: "'Instrument Serif', serif", // 로고 폰트 (CSS font-family string). 기본 = Instrument Serif
     logoGlitch: true, // 로고 글리치 효과 on/off
-    logoDifference: true, // 네비 mix-blend-mode: difference on/off (배경에 따라 자동 반전)
+    // 네비 mix-blend-mode: difference on/off (배경에 따라 자동 반전).
+    // 미지정(undefined) = 자동 — 업로드 이미지 로고는 해제(이미지 색이 반전돼 버림),
+    // 시스템(텍스트) 로고는 적용. 설정에서 체크박스를 만지면 명시값(boolean)이 저장된다.
+    logoDifference: undefined as boolean | undefined,
     faviconShape: "circle" as "circle" | "square" | "none", // 브라우저 탭 favicon 배경 모양
     faviconRadius: "", // 배경 모서리 반경 override (0~16, viewBox 0~32 기준). 빈 값 = shape 기본값(circle=16/square=4)
     faviconBgRatio: "1", // 배경 종횡비 w/h (0.5~2). 1=정사각, >1=가로 길쭉(타원/직사각), <1=세로 길쭉. 콘텐츠는 중심 고정
@@ -74,16 +81,29 @@ export const siteConfig = {
     // 업로드 favicon(이미지) 전용 — 텍스트 favicon 과 별도. 배경색 빈 값 = 투명(로고만)
     faviconImageBgLight: "", // 업로드 favicon 배경색 (라이트, 빈 값 = 투명)
     faviconImageBgDark: "", // 업로드 favicon 배경색 (다크, 빈 값 = 투명)
+    // 업로드 favicon 배경 기하 — 시스템 favicon(faviconShape 등)과 독립. 배경색 있을 때만 그려진다
+    faviconImageScale: "1", // 로고 크기 — 캔버스(배경) 대비 배율 (0.4~1, 1 = 꽉 채움)
+    faviconImageShape: "circle" as "circle" | "square" | "none",
+    faviconImageRadius: "", // 배경 모서리 반경 (빈 값 = shape 기본, circle=16/square=4)
+    faviconImageBgRatio: "1", // 배경 종횡비 (0.5~2)
+    faviconImageBorderWidth: "0", // 배경 테두리 두께 (0~8)
+    faviconImageBorderColorLight: "", // 테두리 색 (라이트, 빈 값 = 글자색 폴백)
+    faviconImageBorderColorDark: "", // 테두리 색 (다크)
     // 업로드 favicon 로고 그림자(드롭)
     faviconImageShadow: { enabled: false, inset: false, size: "md", custom: "", color: "", angle: "135" } as { enabled: boolean; inset: boolean; size: "sm" | "md" | "lg" | "custom"; custom: string; color: string; angle: string },
     // 업로드 favicon 배경(rect) 그림자 — 배경색 있을 때만 의미
     faviconImageBgShadow: { enabled: false, inset: true, size: "md", custom: "", color: "", angle: "135" } as { enabled: boolean; inset: boolean; size: "sm" | "md" | "lg" | "custom"; custom: string; color: string; angle: string },
     // nav + 로딩스크린 로고 그림자(드롭) — favicon 과 별개. 미설정 시 faviconImageShadow 로 fallback(기존 동작 보존)
     logoShadow: { enabled: false, inset: false, size: "md", custom: "", color: "", angle: "135" } as { enabled: boolean; inset: boolean; size: "sm" | "md" | "lg" | "custom"; custom: string; color: string; angle: string },
-    logoShortUrl: "", // 빈 문자열 = 텍스트 로고(logoText) 사용
-    logoShortDarkUrl: "", // 다크 모드 숏 로고 (빈 문자열 = logoShortUrl 사용)
-    logoFullUrl: "", // 빈 문자열 = 텍스트 로고(displayName) 사용
-    logoFullDarkUrl: "", // 다크 모드 풀 로고 (빈 문자열 = logoFullUrl 사용)
+    // 기본 숏 로고 = public 의 브랜드 마크(favicon 이미지). 빈 값 delta 는 deepMerge 가 무시하므로
+    // 빈 값을 저장해도 이 기본으로 돌아온다. 텍스트 로고로 쓰려면 여기를 "" 로.
+    logoShortUrl: DEFAULT_LOGO_SHORT, // 라이트 테마용(어두운 마크)
+    logoShortDarkUrl: DEFAULT_LOGO_SHORT_DARK, // 다크 테마용(밝은 마크)
+    // 기본 풀로고 = public 의 워드마크. 숏과 같은 규칙 — "" 로 저장해도 deepMerge 가 기본을 지킨다.
+    logoFullUrl: DEFAULT_LOGO_FULL, // 라이트 테마용(어두운 워드마크)
+    logoFullDarkUrl: DEFAULT_LOGO_FULL_DARK, // 다크 테마용(밝은 워드마크)
+    // 로딩 스크린 로고 등장 연출 (이미지 로고 전용, 퇴장은 공통 블러 페이드)
+    loadingAnimation: "fade" as "fade" | "rise" | "scale" | "wipe" | "none",
     // 업로드 로고 리컬러 — 업로드 이미지를 마스크로 이 색을 입혀 표시(모노 로고용). 빈 값 = 원본 그대로
     logoShortColor: "", // 숏 로고(라이트) 리컬러 색
     logoShortColorDark: "", // 숏 로고(다크) 리컬러 색

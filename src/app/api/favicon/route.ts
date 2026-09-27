@@ -12,6 +12,7 @@ import {
   type FaviconWeight,
 } from "@/lib/favicon";
 import { symbolGlyphPath } from "@/lib/symbolGlyph";
+import { resolveBrandLogos } from "@/lib/brandLogos";
 
 /** 다이내믹 SVG favicon — query ?variant=light|dark 로 단일 테마 SVG 반환.
  *  layout metadata 에서 prefers-color-scheme media 와 함께 두 URL 등록:
@@ -61,12 +62,15 @@ export async function GET(request: Request) {
   const config = await getSiteConfig().catch(() => null);
   // 빈 값이면 "" — 글리프 없이 배경만(하드코딩 "H" 폴백 제거). 이모지 보존(grapheme).
   const logoText = firstGrapheme(config?.brand?.logoText);
-  // variant 별로 알맞은 숏 로고 이미지 (다크 미설정 시 라이트 fallback)
-  const logoUrl = (variant === "dark"
-    ? config?.brand?.logoShortDarkUrl || config?.brand?.logoShortUrl
-    : config?.brand?.logoShortUrl || config?.brand?.logoShortDarkUrl) || "";
+  // variant 별로 알맞은 숏 로고 이미지 (다크 미설정 시 라이트 fallback).
+  // 숏/풀 중 한쪽만 커스텀 업로드면 그 업로드본을 양쪽에 쓴다 (lib/brandLogos).
+  // logoMode=system 이면 이미지 대신 텍스트 글리프 favicon 을 그린다.
+  const logos = resolveBrandLogos(config?.brand ?? {});
+  const logoUrl = config?.brand?.logoMode === "system"
+    ? ""
+    : (variant === "dark" ? logos.short.dark || logos.short.light : logos.short.light || logos.short.dark) || "";
   // 업로드 favicon 리컬러 색 — 모노 로고를 이 색으로 채움 (빈 값 = 원본)
-  const logoTint = (variant === "dark" ? config?.brand?.logoShortColorDark : config?.brand?.logoShortColor) || "";
+  const logoTint = (variant === "dark" ? logos.short.colorDark : logos.short.colorLight) || "";
   // 업로드 favicon 전용 배경색(빈 값 = 투명) + 그림자 (로고 드롭 / 배경)
   const imgBg = (variant === "dark" ? config?.brand?.faviconImageBgDark : config?.brand?.faviconImageBgLight) || "";
   const imgShadow = resolveFaviconShadow(config?.brand?.faviconImageShadow ?? DEFAULT_FAVICON_TEXT_SHADOW);
@@ -94,6 +98,32 @@ export async function GET(request: Request) {
       faviconColorDark: config?.brand?.faviconColorDark ?? "",
       faviconTextShadow: config?.brand?.faviconTextShadow ?? DEFAULT_FAVICON_TEXT_SHADOW,
       faviconBgShadow: config?.brand?.faviconBgShadow ?? DEFAULT_FAVICON_BG_SHADOW,
+      presetLight,
+      presetDark,
+    },
+    variant,
+  );
+
+  /* 업로드 favicon 배경 기하 — 시스템 favicon 설정과 독립(faviconImage* 필드). 기하 계산만 빌린다. */
+  const imgRender = resolveFavicon(
+    {
+      shape: (config?.brand?.faviconImageShape ?? "circle") as FaviconShape,
+      faviconRadius: config?.brand?.faviconImageRadius ?? "",
+      faviconBgRatio: config?.brand?.faviconImageBgRatio ?? "1",
+      weight: "light" as FaviconWeight,
+      logoText: "",
+      logoFont: "",
+      logoFontStretch: "",
+      faviconBgLight: config?.brand?.faviconImageBgLight ?? "",
+      faviconBgDark: config?.brand?.faviconImageBgDark ?? "",
+      faviconBorderWidth: config?.brand?.faviconImageBorderWidth ?? "0",
+      faviconBorderColorLight: config?.brand?.faviconImageBorderColorLight ?? "",
+      faviconBorderColorDark: config?.brand?.faviconImageBorderColorDark ?? "",
+      faviconFontSize: "20",
+      faviconColor: "",
+      faviconColorDark: "",
+      faviconTextShadow: DEFAULT_FAVICON_TEXT_SHADOW,
+      faviconBgShadow: DEFAULT_FAVICON_BG_SHADOW,
       presetLight,
       presetDark,
     },
@@ -130,13 +160,21 @@ export async function GET(request: Request) {
   let inner = textInner;
   let hasImage = false;
   if (logoUrl) {
-    const dataUri = await fetchAsDataUri(logoUrl);
+    // 기본 로고는 public 상대 경로("/images/…") — fetch 는 절대 URL 만 받으니 절대화한다.
+    // 프록시 뒤에서는 요청 origin 이 내부 주소일 수 있어 SITE_URL 을 우선한다.
+    const base = process.env.SITE_URL?.replace(/\/+$/, "") || url.origin;
+    const dataUri = await fetchAsDataUri(logoUrl.startsWith("/") ? new URL(logoUrl, base).toString() : logoUrl);
     if (dataUri) {
       hasImage = true;
       if (logoTint) {
         defsParts.push(`<filter id="${tintId}" x="0" y="0" width="100%" height="100%"><feFlood flood-color="${esc(logoTint)}" result="f"/><feComposite in="f" in2="SourceAlpha" operator="in"/></filter>`);
       }
-      let imageEl = `<image href="${dataUri}" x="0" y="0" width="32" height="32" preserveAspectRatio="xMidYMid meet"${logoTint ? ` filter="url(#${tintId})"` : ""} />`;
+      // 로고 크기 — 캔버스(배경) 대비 배율. 중심 고정으로 줄인다 (1 = 꽉 채움)
+      const imgScaleRaw = parseFloat(config?.brand?.faviconImageScale ?? "");
+      const imgScale = Number.isFinite(imgScaleRaw) ? Math.max(0.4, Math.min(1, imgScaleRaw)) : 1;
+      const imgSize = 32 * imgScale;
+      const imgOff = (32 - imgSize) / 2;
+      let imageEl = `<image href="${dataUri}" x="${imgOff}" y="${imgOff}" width="${imgSize}" height="${imgSize}" preserveAspectRatio="xMidYMid meet"${logoTint ? ` filter="url(#${tintId})"` : ""} />`;
       if (imgShadow) {
         defsParts.push(faviconFilterString(imgShadow, imgShadowId));
         imageEl = `<g filter="url(#${imgShadowId})">${imageEl}</g>`;
@@ -149,11 +187,13 @@ export async function GET(request: Request) {
   const bgRectAttrs = `x="${render.bgX}" y="${render.bgY}" width="${render.bgW}" height="${render.bgH}" rx="${render.radius}" ry="${render.radius}"`;
   const borderAttrs = render.borderWidth > 0 ? ` stroke="${esc(render.borderColor)}" stroke-width="${render.borderWidth}"` : "";
 
-  // 업로드 favicon 배경 rect — 배경색 지정 시에만(빈 값 = 투명). 이미지 뒤에 깔고 배경 그림자 적용.
+  // 업로드 favicon 배경 rect — 배경색 지정 + 모양 none 아닐 때만. 기하는 이미지 전용(imgRender).
+  const imgBgRectAttrs = `x="${imgRender.bgX}" y="${imgRender.bgY}" width="${imgRender.bgW}" height="${imgRender.bgH}" rx="${imgRender.radius}" ry="${imgRender.radius}"`;
+  const imgBorderAttrs = imgRender.borderWidth > 0 ? ` stroke="${esc(imgRender.borderColor)}" stroke-width="${imgRender.borderWidth}"` : "";
   let imgBgRect = "";
-  if (hasImage && imgBg) {
+  if (hasImage && imgBg && imgRender.hasBg) {
     if (imgBgShadow) defsParts.push(faviconFilterString(imgBgShadow, imgBgShadowId));
-    imgBgRect = `<rect ${bgRectAttrs} fill="${esc(imgBg)}"${borderAttrs}${imgBgShadow ? ` filter="url(#${imgBgShadowId})"` : ""} />`;
+    imgBgRect = `<rect ${imgBgRectAttrs} fill="${esc(imgBg)}"${imgBorderAttrs}${imgBgShadow ? ` filter="url(#${imgBgShadowId})"` : ""} />`;
   }
 
   const defs = defsParts.length ? `<defs>${defsParts.join("")}</defs>` : "";
@@ -163,8 +203,8 @@ export async function GET(request: Request) {
     ? `<rect ${bgRectAttrs} fill="${esc(render.bgColor)}"${borderAttrs}${render.bgShadow ? ` filter="url(#${bgShadowId})"` : ""} />`
     : "";
 
-  // 테두리가 배경 밖으로 안 잘리게 배경+콘텐츠를 축소해 감싸는 형태로
-  const contentTransform = faviconContentTransform(render.contentScale);
+  // 테두리가 배경 밖으로 안 잘리게 배경+콘텐츠를 축소해 감싸는 형태로 (이미지·텍스트 각자 기하)
+  const contentTransform = faviconContentTransform(hasImage ? imgRender.contentScale : render.contentScale);
   const content = `${bgShape}${imgBgRect}${inner}`;
   const wrapped = contentTransform ? `<g transform="${contentTransform}">${content}</g>` : content;
 
