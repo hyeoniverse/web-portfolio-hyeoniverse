@@ -74,39 +74,6 @@ export const aboutDecisions: TroubleShootingItem[] = [
     "vizKey": "all-param-leak"
   },
   {
-    "id": "single-auth-path-for-anonymous-comments",
-    "problem": {
-      "ko": "로그인 세션이 없는 익명 댓글의 작성자를 무엇으로 확인할 것인가",
-      "en": "How to verify the author of an anonymous comment with no session"
-    },
-    "title": {
-      "ko": "인증 경로를 하나로 둔다",
-      "en": "Keep a single authentication path"
-    },
-    "definition": {
-      "ko": "이 사이트의 댓글은 로그인 없이 쓸 수 있다. 대신 댓글을 쓸 때 비밀번호를 함께 받아 두고, 나중에 고치거나 지울 때 그 비밀번호를 묻는다.\n\n로그인한 사용자라면 서버가 세션을 보고 누구인지 바로 안다. 익명 댓글에는 그 세션이 없다. 수정이나 삭제 요청이 들어오면 서버는 요청자가 그 댓글을 쓴 사람인지 다른 근거로 판정해야 한다.",
-      "en": "Comments on this site can be written without signing in. Instead, a password is collected when the comment is written and asked for again when it is edited or deleted.\n\nFor a signed-in user the server reads the session and knows who it is. An anonymous comment has no session. When an edit or delete request arrives, the server has to decide whether the caller wrote that comment using some other evidence."
-    },
-    "cause": {
-      "ko": "쓸 수 있는 근거가 둘이었다.\n\n첫 번째는 비밀번호다. 댓글을 쓸 때 받은 비밀번호를 bcrypt 로 해싱해 저장해 둔다. 해싱은 원래 값을 되돌릴 수 없는 형태로 바꾸는 것이라, 저장된 값이 새어 나가도 비밀번호 자체는 드러나지 않는다. 수정 요청이 오면 요청에 담겨 온 비밀번호를 같은 방식으로 처리해 저장된 값과 대조한다.\n\n두 번째는 브라우저 식별자다. 브라우저가 이 사이트에 처음 들어오면 임의의 UUID 를 하나 만들어 `localStorage` 에 넣어 둔다. 이 값과 글 id 를 합쳐 해시를 계산한 결과를 댓글에 함께 저장해 두면, 같은 브라우저에서 온 요청은 비밀번호를 묻지 않고 통과시킬 수 있다. 이 해시는 원래 인증용으로 만든 값이 아니다. 익명 댓글마다 아바타 이모지와 닉네임을 정하려고 계산해 둔 값이라 이미 저장되어 있었다.\n\n초기 구현은 둘을 함께 받아 **어느 한쪽이라도 맞으면 통과**시켰다. 폼은 항상 비밀번호를 함께 보내므로 화면에서는 늘 첫 번째 근거로 인증된다. 폼을 거치지 않고 요청을 직접 만들면 비밀번호를 빼고 해시만 담아 보낼 수 있다.",
-      "en": "There were two candidates.\n\nThe first is the password. It is hashed with bcrypt and stored. Hashing turns the value into a form that cannot be reversed, so even if the stored value leaks, the password itself does not. An edit request runs the submitted password through the same process and compares.\n\nThe second is a browser identifier. On its first visit the browser generates a random UUID and keeps it in `localStorage`. Hashing that UUID together with the post id and storing the result on the comment lets requests from the same browser through without a password. That hash was never built for authentication: it exists to pick each anonymous comment's avatar emoji and nickname, so it was already stored.\n\nThe original implementation accepted both and let a request through if either matched. The form always sends a password, so anything done through the UI authenticates on the first one. A request built by hand can leave the password out and send only the hash."
-    },
-    "solution": {
-      "ko": "해시 경로가 주는 이득은 **같은 브라우저에서 비밀번호를 한 번 덜 묻는 것**이다. 그 대가로 공개 응답에 실려 나가는 31비트 값 하나로 남의 댓글을 고칠 수 있게 된다. 편의는 작고 손해는 되돌릴 수 없어서, 경로를 남길 이유가 없었다.\n\n해시 경로를 없애고 비밀번호만 남겼다.\n\n```ts\n// commenter_hash 기반 인증 경로는 제거됨 — simpleHash 가 31-bit 비암호 해시라\n// commenter_id 를 brute force 로 위변조 가능했음. 익명 사용자는 비번이 유일한 인증.\nif (!comment.password_hash) return jsonError(\"Password required\", 403);\nif (!password) return jsonError(\"Password required\", 401);\nconst authorized = await bcrypt.compare(password, comment.password_hash);\nif (!authorized) return jsonError(\"Not authorized\", 403);\n```\n\n해시를 만드는 `simpleHash` 는 문자를 하나씩 곱하고 더하는 31비트 함수다. 나올 수 있는 값의 가짓수가 21억 개 남짓이라, 같은 결과가 나오는 UUID 를 임의로 찾아내는 데 오래 걸리지 않는다. bcrypt 는 반대로 한 번 대조하는 데 일부러 시간이 걸리도록 설계되어 있어 같은 시도가 통하지 않는다.\n\n게다가 이 해시는 아바타를 그려야 해서 공개 조회 응답에 그대로 담겨 나간다. 맞춰야 할 값을 공격자가 먼저 받아 볼 수 있다는 뜻이다. 비밀번호 쪽은 반대로 저장된 해시가 응답에 나가지 않는다.",
-      "en": "What the hash path buys is **one fewer password prompt in the same browser**. What it costs is that a 31-bit value shipped in the public response can edit somebody else's comment. The convenience is small and the damage is permanent, so there was no case for keeping it.\n\nThe hash path was removed, leaving the password alone.\n\n```ts\n// commenter_hash 기반 인증 경로는 제거됨 — simpleHash 가 31-bit 비암호 해시라\n// commenter_id 를 brute force 로 위변조 가능했음. 익명 사용자는 비번이 유일한 인증.\nif (!comment.password_hash) return jsonError(\"Password required\", 403);\nif (!password) return jsonError(\"Password required\", 401);\nconst authorized = await bcrypt.compare(password, comment.password_hash);\nif (!authorized) return jsonError(\"Not authorized\", 403);\n```\n\n`simpleHash`, which produces that value, is a 31-bit function that multiplies and adds one character at a time. Only about 2.1 billion results are possible, so searching for a UUID that lands on the same one does not take long. bcrypt is built the opposite way: a single comparison is deliberately slow, which makes the same search impractical.\n\nThe hash is also returned in the public read response, since the avatar has to be drawn from it. The value an attacker needs to match is handed to them up front. The stored password hash, by contrast, never leaves the server."
-    },
-    "keyInsight": {
-      "ko": "두 인증 수단을 어느 쪽이든 맞으면 통과로 묶으면 **전체 강도는 약한 쪽으로 정해진다**. 강한 쪽을 아무리 잘 만들어도 공격자는 약한 쪽만 상대하면 되기 때문이다.\n\n편의를 위해 경로를 하나 더 여는 판단은 그 경로의 강도까지 함께 정하는 판단이다. 경로를 늘리는 대신 하나로 두고 그 하나를 제대로 만드는 편이 낫다.",
-      "en": "Joining two authentication methods with \"either one passes\" fixes the overall strength at the weaker one. However well the strong path is built, an attacker only ever has to face the weak one.\n\nOpening an extra path for convenience is also a decision about how strong that path is. One path, built properly, beats two."
-    },
-    "section": {
-      "ko": "인증 / 인가",
-      "en": "Authentication & Authorization"
-    },
-    "difficulty": 3,
-    "vizKey": "anon-comment-auth"
-  },
-  {
     "id": "delete-is-a-reversible-state-change",
     "problem": {
       "ko": "삭제를 행 제거로 처리할 것인가, 되돌릴 수 있는 상태 변경으로 처리할 것인가",
@@ -173,72 +140,6 @@ export const aboutDecisions: TroubleShootingItem[] = [
     "vizKey": "optimistic-lock"
   },
   {
-    "id": "duplicate-prevention-belongs-in-the-database",
-    "problem": {
-      "ko": "좋아요와 투표의 중복을 API 코드에서 검사할 것인가, 데이터베이스 제약으로 막을 것인가",
-      "en": "Check for duplicate likes and votes in API code, or block them with a database constraint?"
-    },
-    "title": {
-      "ko": "중복 방지는 데이터베이스에서",
-      "en": "Duplicate prevention belongs in the database"
-    },
-    "definition": {
-      "ko": "글에는 좋아요 버튼이 있고, 본문에는 투표 블록을 넣을 수 있다. 둘 다 로그인 없이 누를 수 있어서 같은 사람이 여러 번 누르는 것을 막아야 한다.\n\n로그인이 없으므로 사람을 구분할 근거는 IP 주소뿐이다. 그래서 규칙은 같은 대상에 같은 IP 는 한 번만이 된다.",
-      "en": "Posts have a like button, and a post body can embed a poll block. Both work without signing in, so the same person pressing repeatedly has to be blocked.\n\nWith no sign-in, the only thing distinguishing one person from another is the IP address. The rule becomes: one press per IP per target."
-    },
-    "cause": {
-      "ko": "확인을 어디서 하느냐가 갈린다.\n\nAPI 코드에서 할 수 있다. 요청이 오면 먼저 그 IP 의 기록이 있는지 조회하고, 없으면 새로 넣는다. 읽기와 쓰기가 두 단계로 나뉜다.\n\n두 요청이 거의 같은 순간에 도착하면 둘 다 조회 단계에서 기록이 없다고 판단하게 된다. 그러면 **둘 다 넣기로 진행해 중복이 생긴다**. 버튼을 빠르게 두 번 누르거나 네트워크가 요청을 중복 전송하면 실제로 일어난다.\n\n데이터베이스 제약으로 할 수도 있다. 테이블에 이 조합은 중복될 수 없다는 규칙을 걸어 두면 두 번째 삽입은 데이터베이스가 거절한다. 조회와 삽입 사이의 틈이 사라진다.",
-      "en": "It comes down to where the check lives.\n\nIt can live in the API code: on each request, look up whether that IP already has a record, and insert if it does not. Reading and writing are two separate steps.\n\nWhen two requests arrive at nearly the same moment, both see no record at the lookup step. Both then proceed to insert, and a duplicate appears. A fast double-press or a network retry is enough to trigger it.\n\nIt can also live in the database as a constraint. Declaring that a combination cannot repeat makes the database itself reject the second insert. The gap between lookup and insert disappears."
-    },
-    "solution": {
-      "ko": "API 코드에서 확인해도 대부분은 막힌다. 문제는 **대부분**이라는 점이다. 조회와 삽입 사이의 틈은 요청이 겹칠 때만 열리는데, 겹치는 순간은 고를 수 없다. 제약은 그 틈 자체를 없애고 비용은 **인덱스 하나**뿐이다.\n\n제약을 데이터베이스에 건다.\n\n```sql\n-- 동일 대상에 같은 IP 중복 방지\nCREATE UNIQUE INDEX IF NOT EXISTS idx_likes_unique\n  ON likes (target_type, target_id, ip);\n```\n\n세 값의 조합이 이미 있으면 삽입 자체가 실패한다. 두 요청의 순서가 어떻게 얽히든 살아남는 행은 하나다. 투표 블록에도 같은 방식으로 `(poll_id, option_id, ip)` 조합에 제약을 걸었다.\n\n`target_type` 이 함께 들어간 이유는 좋아요가 글과 작품 양쪽에 붙기 때문이다. 두 테이블의 id 가 우연히 같아도 서로 다른 대상으로 구분된다.",
-      "en": "Checking in API code blocks **most** of them — and *most* is the problem. The gap between lookup and insert only opens when requests overlap, and you don't get to choose when that happens. A constraint removes the gap itself, and it costs **one index**.\n\nThe constraint goes into the database.\n\n```sql\n-- 동일 대상에 같은 IP 중복 방지\nCREATE UNIQUE INDEX IF NOT EXISTS idx_likes_unique\n  ON likes (target_type, target_id, ip);\n```\n\nIf that combination of three values already exists, the insert itself fails. However the two requests interleave, exactly one row survives. The poll block got the same treatment on `(poll_id, option_id, ip)`.\n\n`target_type` is part of the key because likes attach to both posts and works. Even if an id happens to coincide across the two tables, they stay distinct targets."
-    },
-    "keyInsight": {
-      "ko": "**먼저 확인하고 나서 쓴다**는 방식은 두 요청이 겹치는 순간 깨진다. 확인과 쓰기 사이에 다른 요청이 끼어들 수 있기 때문이다.\n\n같은 규칙을 제약으로 표현하면 그 틈이 없어진다. 데이터가 지켜야 할 규칙은 그 데이터를 다루는 코드마다 반복해 적는 것보다, 데이터가 저장되는 곳에 한 번 적어 두는 편이 낫다.",
-      "en": "\"Check first, then write\" breaks the moment two requests overlap, because another request can land between the check and the write.\n\nExpressing the same rule as a constraint removes that gap. A rule the data must satisfy is better written once where the data lives than repeated in every piece of code that touches it."
-    },
-    "section": {
-      "ko": "데이터 / 정합성",
-      "en": "Data & Integrity"
-    },
-    "difficulty": 2,
-    "vizKey": "unique-constraint"
-  },
-  {
-    "id": "revision-history-is-capped-per-entity",
-    "problem": {
-      "ko": "자동저장 스냅샷이 무한히 쌓이는 것을 어떤 기준으로 정리할 것인가",
-      "en": "On what basis should autosave snapshots be pruned instead of growing forever?"
-    },
-    "title": {
-      "ko": "쌓이기만 하는 데이터에는 상한을 정한다",
-      "en": "Data that only accumulates needs a ceiling"
-    },
-    "definition": {
-      "ko": "편집기는 작성 중인 내용을 서버에도 주기적으로 저장한다. 이 스냅샷을 리비전이라고 부른다. 편집 도중 브라우저가 닫히거나 실수로 문단을 지웠을 때 되돌리는 데 쓴다.\n\n리비전은 저장할 때마다 새로 쌓인다. 긴 글을 오래 편집하면 글 하나에만 수백 개가 생긴다. 아무 제한이 없으면 **늘어나기만 한다**.",
-      "en": "The editor also saves snapshots to the server as you write. Each snapshot is called a revision, and they exist for recovering from a closed browser or an accidentally deleted paragraph.\n\nA new revision is stored on every save. Editing a long post over time produces hundreds for that post alone. With no limit, the number only goes up."
-    },
-    "cause": {
-      "ko": "보관 정책을 정해야 한다.\n\n시간을 기준으로 자를 수 있다. 30일이 지난 리비전을 지우는 식이다. 이 경우 오래된 글은 리비전이 하나도 남지 않는다. 오래 두었다 다시 손대는 글일수록 되돌릴 근거가 필요한데 그때 아무것도 없다.\n\n개수를 기준으로 자를 수도 있다. 글마다 최근 몇 개만 남긴다. 글이 얼마나 오래됐는지와 무관하게 항상 되돌릴 거리가 남는다. 대신 짧은 시간에 많이 저장하면 그만큼 과거가 빨리 밀려난다.\n\n지우지 않는 선택지도 있다. 저장 공간이 계속 늘고, 리비전 목록을 읽는 조회도 함께 느려진다.",
-      "en": "A retention policy has to be chosen.\n\nYou can cut by time, deleting revisions older than thirty days. Then an old post keeps none at all, and a post you return to after a long gap is exactly the case where something to roll back to is most useful.\n\nYou can cut by count, keeping the most recent few per post. Something to roll back to always exists regardless of the post's age. In exchange, a burst of saves pushes older states out faster.\n\nYou can also keep everything. Storage grows without bound, and reading the revision list slows down with it."
-    },
-    "solution": {
-      "ko": "기간으로 자르면 오래된 글의 리비전이 **하나도 남지 않는다**. 그런데 오래 두었다 다시 손대는 글이야말로 되돌릴 근거가 필요한 경우다. 가장 필요한 순간에 비어 있는 정책이라 택하지 않았다. 개수 기준은 글의 나이와 무관하게 **최근 것을 항상 남긴다**.\n\n글 하나당 최근 50개만 남긴다. 새 리비전을 넣은 직후에 초과분을 정리한다.\n\n```ts\nconst MAX_REVISIONS = 50;\n\n// 엔티티당 MAX_REVISIONS 초과분 정리\nconst { data: overflow } = await admin\n  .from(\"revisions\")\n  .select(\"id\")\n  .eq(\"entity_type\", entity_type)\n  .eq(\"entity_id\", entity_id)\n  .order(\"created_at\", { ascending: false })\n  .range(MAX_REVISIONS, MAX_REVISIONS + 1000);\n```\n\n최신순으로 정렬한 뒤 51번째부터 골라 지운다. 정리를 별도 예약 작업으로 미루지 않고 저장할 때 함께 처리하므로, 상한을 넘긴 상태로 오래 머무르지 않는다.\n\n리비전은 글과 작품이 한 테이블을 같이 쓴다. `entity_type` 이 어느 쪽인지 구분하고, 본문은 통째로 JSON 스냅샷으로 넣는다. 편집 폼에 항목이 늘어도 테이블 구조를 바꾸지 않아도 된다.",
-      "en": "Cutting by time leaves an old post with **nothing at all** — yet a post you return to after a long gap is exactly when something to roll back to matters. A policy that is empty when it is most needed was not worth taking. A count keeps **the recent ones regardless of age**.\n\nFifty per post, and the excess is trimmed right after a new revision is inserted.\n\n```ts\nconst MAX_REVISIONS = 50;\n\n// 엔티티당 MAX_REVISIONS 초과분 정리\nconst { data: overflow } = await admin\n  .from(\"revisions\")\n  .select(\"id\")\n  .eq(\"entity_type\", entity_type)\n  .eq(\"entity_id\", entity_id)\n  .order(\"created_at\", { ascending: false })\n  .range(MAX_REVISIONS, MAX_REVISIONS + 1000);\n```\n\nSorted newest first, everything from the fifty-first onward is selected and deleted. Trimming happens as part of the save rather than in a separate scheduled job, so the table never sits over the limit for long.\n\nPosts and works share one revisions table. `entity_type` says which side a row belongs to, and the body goes in whole as a JSON snapshot. Adding a field to the edit form does not require changing the table."
-    },
-    "keyInsight": {
-      "ko": "**자동으로 쌓이는 데이터에는 상한이 필요하다.** 상한이 없으면 문제는 나중에, 데이터가 이미 많아진 뒤에 드러난다.\n\n상한을 개수로 둘지 기간으로 둘지는 그 데이터를 언제 꺼내 쓰는지에 달렸다. 리비전은 방금 편집한 것을 되돌리는 용도라서 최근 몇 개가 남아 있는지가 중요하고, 얼마나 오래 보관했는지는 덜 중요하다.",
-      "en": "Data that accumulates on its own needs a ceiling. Without one, the problem surfaces later, once there is already too much of it.\n\nWhether the ceiling is a count or a duration depends on when the data gets used. Revisions exist to undo something you just edited, so what matters is how many recent ones survive, not how long any of them have been kept."
-    },
-    "section": {
-      "ko": "데이터 / 정합성",
-      "en": "Data & Integrity"
-    },
-    "difficulty": 1,
-    "vizKey": "revision-cap"
-  },
-  {
     "id": "scheduled-jobs-run-inside-the-database",
     "problem": {
       "ko": "예약 발행과 휴지통 정리를 호스팅 cron 으로 돌릴 것인가, 데이터베이스 안에서 돌릴 것인가",
@@ -257,8 +158,8 @@ export const aboutDecisions: TroubleShootingItem[] = [
       "en": "Two options were on the table.\n\nHosting platforms provide cron. A schedule in a config file makes the platform call a fixed URL at that time. This requires exposing a URL on the internet whose only job is to run the task, which then has to be guarded by a secret since anyone who learns the address can call it. The first version worked this way, on a five-minute schedule.\n\n`pg_cron` runs the function inside the database. No URL is exposed, and the job runs where the data it touches already is. In exchange, an extension has to be enabled, and the schedule lives in the database rather than in the repository, so checking how often something runs means looking at the database."
     },
     "solution": {
-      "ko": "이 두 작업이 건드리는 대상은 **전부 데이터베이스 안에** 있다. HTTP cron 은 그 안의 일을 시키려고 밖에 입구를 하나 열고, 그 입구를 비밀키로 지키는 코드까지 함께 관리해야 한다. 실행 주체를 데이터가 있는 곳으로 옮기면 **입구도 그 코드도 필요 없어진다**.\n\n두 작업을 `pg_cron` 으로 옮기고 설정 파일의 주기는 비웠다.\n\n```sql\nSELECT cron.schedule(\n  'publish-scheduled',\n  '* * * * *',\n  $cron$ SELECT safe_publish_scheduled(); $cron$\n);\n```\n\n가운데 줄이 실행 주기다. 별표 다섯 개는 매분을 뜻한다. 5분에서 1분으로 줄인 이유는 발행 시각을 분 단위로 지정하기 때문이다. 5분 간격으로 확인하면 지정한 시각보다 최대 5분 늦게 공개된다.\n\n실행 대상은 작업 함수 자체가 아니라 `safe_` 로 감싼 함수다. 안쪽에서 예외가 나면 잡아서 `admin_notifications` 에 오류 내용을 기록한다.\n\n등록 구문도 먼저 `unschedule` 한 뒤 다시 `schedule` 하는 형태로 적어 두었다. 설정 파일 전체를 다시 실행해도 같은 작업이 두 번 등록되지 않는다.",
-      "en": "Everything these two jobs touch **already lives inside the database**. HTTP cron opens a door on the outside just to trigger work on the inside, and then adds guarding code to maintain alongside it. Moving the runner to where the data is **removes both the door and that code**.\n\nBoth jobs moved to `pg_cron`, and the schedule list in the config file was emptied.\n\n```sql\nSELECT cron.schedule(\n  'publish-scheduled',\n  '* * * * *',\n  $cron$ SELECT safe_publish_scheduled(); $cron$\n);\n```\n\nThe middle line is the schedule; five asterisks mean every minute. It went from five minutes to one because publish times are chosen to the minute, and checking every five could leave a post up to five minutes late.\n\nWhat the schedule runs is not the job function but a `safe_` wrapper around it. If the inner call raises, the wrapper catches it and records the error in `admin_notifications`.\n\nThe registration statements `unschedule` before they `schedule`, so re-running the whole setup file never registers the same job twice."
+      "ko": "이 두 작업이 건드리는 대상은 **전부 데이터베이스 안에** 있다. HTTP cron 은 그 안의 일을 시키려고 밖에 입구를 하나 열고, 그 입구를 비밀키로 지키는 코드까지 함께 관리해야 한다. 실행 주체를 데이터가 있는 곳으로 옮기면 **입구도 그 코드도 필요 없어진다**.\n\n두 작업을 `pg_cron` 으로 옮기고 설정 파일의 주기는 비웠다.\n\n```sql\nSELECT cron.schedule(\n  'publish-scheduled',\n  '* * * * *',\n  $cron$ SELECT safe_publish_scheduled(); $cron$\n);\n```\n\n가운데 줄이 실행 주기다. 별표 다섯 개는 매분을 뜻한다. 5분에서 1분으로 줄인 이유는 발행 시각을 분 단위로 지정하기 때문이다. 5분 간격으로 확인하면 지정한 시각보다 최대 5분 늦게 공개된다.\n\n실행 대상은 작업 함수 자체가 아니라 `safe_` 로 감싼 함수다. 안쪽에서 예외가 나면 잡아서 `admin_notifications` 에 오류 내용을 기록한다.\n\n등록 구문도 먼저 `unschedule` 한 뒤 다시 `schedule` 하는 형태로 적어 두었다. 설정 파일 전체를 다시 실행해도 같은 작업이 두 번 등록되지 않는다.\n\n나중에 방문 기록의 IP 를 90일 뒤 익명화하는 작업이 생겼을 때도 같은 방식으로 `anonymize_old_site_visits()` 를 하나 더 등록했다. 새 주소도 비밀키도 필요 없었다.",
+      "en": "Everything these two jobs touch **already lives inside the database**. HTTP cron opens a door on the outside just to trigger work on the inside, and then adds guarding code to maintain alongside it. Moving the runner to where the data is **removes both the door and that code**.\n\nBoth jobs moved to `pg_cron`, and the schedule list in the config file was emptied.\n\n```sql\nSELECT cron.schedule(\n  'publish-scheduled',\n  '* * * * *',\n  $cron$ SELECT safe_publish_scheduled(); $cron$\n);\n```\n\nThe middle line is the schedule; five asterisks mean every minute. It went from five minutes to one because publish times are chosen to the minute, and checking every five could leave a post up to five minutes late.\n\nWhat the schedule runs is not the job function but a `safe_` wrapper around it. If the inner call raises, the wrapper catches it and records the error in `admin_notifications`.\n\nThe registration statements `unschedule` before they `schedule`, so re-running the whole setup file never registers the same job twice.\n\nWhen a job to anonymize visit IPs after 90 days was added later, `anonymize_old_site_visits()` was registered the same way. It needed no new endpoint and no secret."
     },
     "keyInsight": {
       "ko": "정기 작업을 HTTP 로 호출하는 구조는 작업을 실행하기 위한 입구를 인터넷에 하나 더 여는 일이다. 그 입구는 지켜야 하고, 지키는 코드도 관리 대상이 된다.\n\n작업이 다루는 대상이 전부 데이터베이스 안에 있다면 실행도 그 안에서 하는 편이 단순하다. 입구가 없으면 지킬 것도 없다.",
@@ -270,39 +171,6 @@ export const aboutDecisions: TroubleShootingItem[] = [
     },
     "difficulty": 2,
     "vizKey": "db-cron"
-  },
-  {
-    "id": "notification-failure-must-not-fail-the-job",
-    "problem": {
-      "ko": "알림 발송이 실패했을 때 본 작업까지 되돌릴 것인가",
-      "en": "When sending a notification fails, should the underlying job roll back too?"
-    },
-    "title": {
-      "ko": "실패할 때 어느 쪽으로 넘어질지 정해 둔다",
-      "en": "Decide which way each failure falls"
-    },
-    "definition": {
-      "ko": "예약 작업이 글을 공개하거나 휴지통을 비우면 무슨 일이 있었는지 관리자에게 이메일로 알린다. 발송은 Resend 라는 외부 서비스를 쓰고, 발송에 필요한 API 키는 Vault 라는 데이터베이스 안의 비밀 저장소에 넣어 둔다.\n\n알림이 실패할 수 있는 상황이 두 가지다. 새 환경에 처음 설치했을 때처럼 키가 아직 등록되지 않은 경우가 하나다. 키는 있는데 외부 서비스가 응답하지 않는 경우가 다른 하나다.\n\n중요한 것은 두 작업이 하나의 데이터베이스 트랜잭션 안에서 돈다는 점이다. 트랜잭션은 그 안에서 한 일을 **전부 성공시키거나 전부 취소**하는 단위다. 이메일 발송도 같은 트랜잭션 안에 있다.",
-      "en": "When a scheduled job publishes posts or empties the trash, it emails the admin about what happened. Delivery goes through an external service called Resend, and the API key it needs is kept in Vault, a secret store inside the database.\n\nNotification can fail in two ways. The key may not be registered yet, as on a fresh install. Or the key exists but the external service does not respond.\n\nWhat matters is that both jobs run inside a single database transaction. A transaction is a unit that either commits everything done inside it or cancels all of it. The email send sits inside that same transaction."
-    },
-    "cause": {
-      "ko": "알림이 실패했을 때 어떻게 할지 정해야 한다.\n\n오류를 그대로 올리면 트랜잭션이 취소된다. 글은 공개되지 않고 휴지통도 정리되지 않는다. 이메일을 못 보냈다는 이유로 본 작업까지 되돌아가는 셈이다.\n\n무시하면 본 작업은 완료된다. 대신 알림이 오지 않았다는 사실을 아무도 모른다.\n\n두 실패는 성격이 다르다. 이메일은 결과를 전달하는 수단이고, 글을 공개하는 것이 본래 하려던 일이다. 수단이 실패했다고 목적까지 되돌릴 이유는 없다.",
-      "en": "A policy has to be chosen for a failed notification.\n\nLetting the error propagate cancels the transaction. Posts do not get published and the trash is not emptied. The real work is undone because an email could not be sent.\n\nSwallowing it lets the real work finish, but then nobody learns the notification never arrived.\n\nThe two failures are not the same kind of thing. Email is the means of reporting a result; publishing the post is the thing you actually set out to do. A failed means is no reason to undo the end."
-    },
-    "solution": {
-      "ko": "두 실패의 무게가 다르다. 이메일이 안 가면 관리자가 나중에 화면에서 확인하면 되지만, 발행이 취소되면 **독자가 볼 예정이던 글이 안 올라간다**. 가벼운 쪽의 실패로 무거운 쪽을 되돌릴 이유가 없어서 알림만 삼키기로 했다.\n\n키를 읽는 함수와 이메일을 보내는 함수 모두 실패를 삼키고 넘어간다.\n\n```sql\n-- 유틸: Vault secret 안전 조회 (없으면 NULL)\nCREATE OR REPLACE FUNCTION _get_vault_secret(secret_name text)\n...\nEXCEPTION WHEN OTHERS THEN\n  RETURN NULL;\n\n-- 유틸: Resend 이메일 발송 (Vault 비어있으면 skip, 실패는 무시 — DB 본 작업은 성공해야)\nBEGIN\n  IF api_key IS NULL OR to_email IS NULL OR from_email IS NULL THEN\n    RETURN;\n  END IF;\n```\n\n키가 없으면 조회 함수가 NULL 을 돌려주고, 발송 함수는 그 NULL 을 보고 아무것도 하지 않은 채 끝난다. 오류가 발생하지 않으므로 트랜잭션은 그대로 진행되고 글은 예정대로 공개된다.\n\n이 판단은 알림에만 적용한다. 예약 작업 자체가 실패했을 때는 반대로 반드시 기록을 남긴다. 작업 함수를 감싼 `safe_` 래퍼가 예외를 잡아 `admin_notifications` 에 넣는 것이 그 역할이다.",
-      "en": "The two failures do not weigh the same. A missing email means the admin checks the screen later; a rolled-back publish means **a post readers were meant to see never went up**. There was no reason to let the lighter failure undo the heavier one, so only the notification is swallowed.\n\nBoth the function that reads the key and the function that sends the mail swallow their failures.\n\n```sql\n-- 유틸: Vault secret 안전 조회 (없으면 NULL)\nCREATE OR REPLACE FUNCTION _get_vault_secret(secret_name text)\n...\nEXCEPTION WHEN OTHERS THEN\n  RETURN NULL;\n\n-- 유틸: Resend 이메일 발송 (Vault 비어있으면 skip, 실패는 무시 — DB 본 작업은 성공해야)\nBEGIN\n  IF api_key IS NULL OR to_email IS NULL OR from_email IS NULL THEN\n    RETURN;\n  END IF;\n```\n\nWith no key, the lookup returns NULL, and the sender sees that NULL and returns without doing anything. No error is raised, so the transaction proceeds and the post publishes as planned.\n\nThis applies to notifications only. A failure in the scheduled job itself must be recorded instead, which is what the `safe_` wrapper does when it catches an exception and writes it to `admin_notifications`."
-    },
-    "keyInsight": {
-      "ko": "실패했을 때 어느 쪽으로 넘어질지는 **그 동작이 목적인지 수단인지**에 따라 다르다.\n\n알림은 수단이므로 실패해도 본 작업을 건드리지 않는다. 본 작업의 실패는 반대로 반드시 드러나야 한다. 둘을 같은 규칙으로 다루면 알림 때문에 글이 공개되지 않거나, 작업이 실패해도 아무도 모르는 상태 중 하나가 된다.",
-      "en": "Which way a failure should fall depends on whether the action is an end or a means.\n\nNotification is a means, so its failure leaves the real work alone. Failure of the real work is the opposite: it has to surface. Treating both the same way lands you with either a post that never publishes because of an email, or a job that fails while nobody finds out."
-    },
-    "section": {
-      "ko": "인프라 / 자동화",
-      "en": "Infrastructure & Automation"
-    },
-    "difficulty": 2,
-    "vizKey": "fail-soft-notify"
   },
   {
     "id": "two-sources-need-a-rule-for-which-one-wins",
@@ -333,38 +201,6 @@ export const aboutDecisions: TroubleShootingItem[] = [
     "section": {
       "ko": "인프라 / 자동화",
       "en": "Infrastructure & Automation"
-    },
-    "difficulty": 2
-  },
-  {
-    "id": "behavior-and-appearance-are-separate-concerns",
-    "problem": {
-      "ko": "공통 버튼 컴포넌트에 담기지 않는 버튼들을 어떻게 다룰 것인가",
-      "en": "What to do with the buttons that do not fit the shared button component"
-    },
-    "title": {
-      "ko": "눌리는 것에서 동작과 생김새를 나눈다",
-      "en": "Separate behavior from appearance in pressable things"
-    },
-    "definition": {
-      "ko": "이 사이트에는 공통 버튼 컴포넌트가 있다. 종류와 크기와 색조를 골라 쓰면 생김새가 정해지고, 클릭음과 비활성 처리와 누를 때의 반응도 함께 따라온다.\n\n그런데 실제로 이 컴포넌트를 쓰는 버튼은 소수였다. 나머지 456곳은 브라우저 기본 버튼 태그에 각자 스타일을 붙여 쓰고 있었다.\n\n이유를 하나씩 살펴보니 대부분 생김새 때문이었다. 사이드바 위에 절대 위치로 깔린 클릭 영역은 크기와 자리를 밖에서 정해야 한다. 코드 블록 옆의 페이지 번호는 부모의 글꼴 크기를 그대로 물려받아야 한다. 필터 줄의 탭은 그 줄 높이에 맞춰야 하고, 소분류 칩은 선택되면 밑줄이 그려지며 늘어나는 애니메이션을 갖는다.\n\n이런 것들은 공통 컴포넌트가 정해 주는 생김새와 맞지 않는다. 그래서 쓰지 못했다.",
-      "en": "The site has a shared button component. Pick a variant, a size and a tone and the appearance is settled; the click sound, the disabled handling and the press reaction come along with it.\n\nVery few buttons actually used it. The other 456 were plain browser button elements with their own styles attached.\n\nLooking at them one by one, the reason was almost always the appearance. A hit area laid over the sidebar is absolutely positioned, so its size and place must be set from outside. The page number beside a code block has to inherit the parent's font size. A tab in the filter row must match that row's height, and a sub-category chip draws an underline that grows when selected.\n\nNone of that fits an appearance the shared component decides. So they could not use it."
-    },
-    "cause": {
-      "ko": "첫 번째 방법은 공통 컴포넌트를 넓히는 것이다. 높이를 밖에서 받는 옵션, 글꼴을 물려받는 종류, 다른 방식의 선택 표시를 더한다. 그러면 지금 못 담는 것들이 들어온다.\n\n대신 컴포넌트가 무거워진다. 옵션이 늘어날수록 어떤 조합이 유효한지 알기 어려워지고, 예외를 위한 옵션이 기본 사용법을 가린다. 예외는 계속 생기므로 이 방향은 끝이 없다.\n\n두 번째 방법은 그대로 두는 것이다. 버튼처럼 생긴 것만 공통 컴포넌트를 쓰고 나머지는 각자 만든다. 컴포넌트는 가볍게 유지된다.\n\n그런데 이 456곳이 놓치고 있던 것은 생김새가 아니었다. 클릭음이 울리지 않았고, 63곳은 버튼 태그의 종류를 지정하지 않아 폼 안에 있으면 클릭할 때마다 폼이 제출되는 상태였다. 비활성 처리도 자리마다 달랐다. **생김새는 달라도 되지만 동작은 같아야 하는 것들이었다.**",
-      "en": "The first option is to widen the shared component: an option to accept an external height, a variant that inherits the font, another way of showing selection. That would let the current holdouts in.\n\nBut the component grows heavy. As options multiply it gets harder to tell which combinations are valid, and options that exist for exceptions obscure the ordinary usage. Exceptions keep appearing, so this direction has no end.\n\nThe second option is to leave it alone. Only things that look like buttons use the shared component; everything else stays bespoke. The component stays light.\n\nExcept that what those 456 places were missing was not appearance. There was no click sound; 63 of them never set the button element's type, so inside a form every click submitted it; disabled handling differed from place to place. **They were things whose appearance may differ but whose behavior must not.**"
-    },
-    "solution": {
-      "ko": "담당을 둘로 나눴다. 동작만 담는 기반을 만들고, 기존 버튼 컴포넌트는 그 위에서 생김새를 더하는 것으로 둔다.\n\n기반 컴포넌트는 시각적인 속성을 하나도 받지 않는다. 버튼 태그의 종류를 지정하고, 클릭음과 호버음을 울리고, 비활성 상태를 처리하고, 누를 때 살짝 줄어드는 반응을 준다. 여백과 색과 글꼴과 모서리는 쓰는 쪽이 자기 스타일로 정한다.\n\n```\nPressable   type=\"button\" · 클릭/호버 사운드 · disabled · 누를 때 축소\n   └ Button  그 위에 variant / size / tone / shape\n```\n\n버튼처럼 생긴 것은 기존 컴포넌트를 쓰고, 생김새가 그 자리 사정을 따라야 하는 것은 기반 컴포넌트를 쓴다. 456곳이 전부 옮겨졌고 브라우저 기본 버튼 태그는 남지 않았다.\n\n성격에 따른 예외 두 가지를 옵션으로 뒀다. 길게 눌러 값을 반복해서 바꾸는 컨트롤은 클릭음을 끄고, 절대 위치로 떠 있는 요소는 누를 때 줄어드는 반응을 끈다. 크기가 변하면 자리가 흔들리기 때문이다.\n\n기반 컴포넌트는 브라우저 기본 스타일을 지우지 않는다. 전역 스타일시트가 모든 버튼 태그에 이미 그 일을 하고 있어서, 여기서 또 적으면 클래스 우선순위 때문에 각 컴포넌트가 정한 값을 덮어쓴다. 실제로 처음에 그렇게 만들었다가 글자 크기 배수가 덮여 어떤 버튼의 높이가 늘어났다.",
-      "en": "The responsibility was split in two. A base that carries only behavior, with the existing button component layered on top to add appearance.\n\nThe base takes no visual props at all. It sets the button element's type, plays the click and hover sounds, handles the disabled state, and gives the slight shrink on press. Spacing, color, font and radius are left to the caller's own styles.\n\n```\nPressable   type=\"button\" · click/hover sound · disabled · tap scale\n   └ Button  variant / size / tone / shape on top\n```\n\nThings that look like buttons use the existing component; things whose appearance must follow their own context use the base. All 456 moved across, and no plain browser button element remains.\n\nTwo exceptions became options. Controls that repeat while held turn the click sound off, and absolutely positioned elements turn the shrink off, because a size change would shift their position.\n\nThe base does not reset the browser's default button styles. The global stylesheet already does that for every button element, and repeating it here overrides what each component set, by class specificity. That is exactly what happened in the first version: an inherited line height won over a component's own value and made one button taller."
-    },
-    "keyInsight": {
-      "ko": "같은 종류의 요소라도 **공유해야 하는 것과 공유하면 안 되는 것이 다를 수 있다.**\n\n여기서는 동작이 앞이고 생김새가 뒤였다. 생김새를 통일하려고 옵션을 늘리면 컴포넌트가 무너지고, 그대로 두면 동작이 자리마다 갈린다. 공유할 축을 먼저 가려내면 컴포넌트를 넓히지 않고도 필요한 일관성을 얻는다.\n\n같은 구조를 여러 UI 라이브러리가 쓴다. 동작만 담은 기반 위에 여러 생김새를 올리는 방식으로, 버튼과 아이콘 버튼과 탭과 메뉴 항목이 하나의 기반을 공유한다.",
-      "en": "Even within one kind of element, **what must be shared and what must not can be different axes.**\n\nHere behavior came first and appearance second. Widening the component to unify appearance breaks it; leaving things alone lets behavior drift per site. Identifying which axis to share yields the consistency that matters without growing the component.\n\nSeveral UI libraries use the same structure — one behavior-only base carrying several appearances, so buttons, icon buttons, tabs and menu items all share it."
-    },
-    "section": {
-      "ko": "인터페이스 / 컴포넌트",
-      "en": "Interface & Components"
     },
     "difficulty": 2
   }
@@ -427,12 +263,12 @@ export const aboutSecurity: CfgSecurity[] = [
   },
   {
     "icon": "fingerprint",
-    "title_ko": "중복 방지",
-    "title_en": "Duplication Prevention",
-    "description_ko": "좋아요·방문자 통계에 **IP 기반 UNIQUE 제약조건**을 적용합니다. `UNIQUE(target_type, target_id, ip)` 하나로 모든 엔티티의 중복을 DB 레벨에서 차단합니다.",
-    "description_en": "**IP-based UNIQUE constraints** prevent duplicate likes and visit counts. A single `UNIQUE(target_type, target_id, ip)` blocks all entity duplicates at the DB level.",
-    "scope_ko": "좋아요, 방문자 통계",
-    "scope_en": "Likes, visit stats"
+    "title_ko": "중복 방지 · IP 최소 보관",
+    "title_en": "Duplication Prevention · Minimal IP Retention",
+    "description_ko": "좋아요는 `(대상, IP)`, 투표는 `(투표, 선택지, IP)`, 조회는 `(대상, IP, 날짜)`, 방문은 `(IP, 날짜)` **UNIQUE 인덱스**로 DB 에서 중복을 막습니다. 원문 IP 는 응답에 싣지 않고 가려서 보여주며, 방문·조회 기록의 IP 는 90일 뒤 익명화합니다.",
+    "description_en": "**UNIQUE indexes** block duplicates in the database: `(target, IP)` for likes, `(poll, option, IP)` for poll votes, `(target, IP, date)` for views, and `(IP, date)` for visits. Raw IPs never leave the server and are shown masked, and IPs in visit and view records are anonymized after 90 days.",
+    "scope_ko": "좋아요, 조회수, 방문 통계",
+    "scope_en": "Likes, views, visit stats"
   },
   {
     "icon": "key",
@@ -449,73 +285,73 @@ export const aboutFeatures: CfgFeature[] = [
   {
     "icon": "01",
     "title": "Infinite Scroll Loop",
-    "description_ko": "페이지 끝에 도달해도 끊김 없이 처음으로 돌아가는 무한 스크롤을 구현했습니다. 마지막과 첫 섹션 사이에 Bridge Section을 삽입해 루프 이음새가 자연스럽습니다.",
-    "description_en": "Scroll reaches the end and seamlessly loops back to the beginning. A bridge section between the last and first panels keeps the loop seam invisible.",
-    "tech": "Lenis, Infinite Scroll, Bridge Section",
+    "description_ko": "홈 페이지 끝에서 처음으로 끊김 없이 돌아갑니다. 마지막과 첫 섹션 사이의 Bridge 섹션이 이음새를 가리고, 터치에서도 같은 방식으로 감깁니다.",
+    "description_en": "The home page wraps from its end back to the start without a break. A Bridge section between the last and first sections hides the seam, and it wraps the same way on touch.",
+    "tech": "Lenis, syncTouch, Bridge Section",
     "image": "/images/screenshots/pc/home-dark.png"
   },
   {
     "icon": "02",
     "title": "i18n Bilingual System",
-    "description_ko": "한국어/영어 전환을 지원하는 다국어 시스템입니다. Context API 기반으로 모든 UI가 즉시 전환되며, 어드민 콘텐츠도 이중 언어를 지원합니다. DeepL/Google/Gemini/Claude API 기반 자동 번역도 제공합니다.",
-    "description_en": "A bilingual system with instant Korean/English switching via Context API. Admin content supports dual languages, with auto-translation powered by DeepL/Google/Gemini/Claude API.",
-    "tech": "Context API, JSON Locale, Bilingual Content, DeepL/Gemini/Claude",
+    "description_ko": "한국어·영어를 즉시 전환하고, 글·작업물·프로필도 두 언어로 저장합니다. 자동 번역은 DeepL·Google·Gemini·Claude·OpenAI 를 설정한 순서대로 시도합니다.",
+    "description_en": "Korean and English switch instantly, and posts, works, and profiles are stored in both languages. Auto-translation tries DeepL, Google, Gemini, Claude, and OpenAI in the configured order.",
+    "tech": "Context API, JSON Locale, Bilingual Content, DeepL/Google/Gemini/Claude/OpenAI",
     "image": "/images/screenshots/pc/feat-i18n.png"
   },
   {
     "icon": "03",
     "title": "Performance Optimization",
-    "description_ko": "성능 분석을 통해 모바일 Lighthouse 점수를 60점에서 98점으로 끌어올리고, 페이지 용량을 70% 줄였습니다.",
-    "description_en": "Boosted mobile Lighthouse score from 60 to 98 and reduced page size by 70% through targeted optimization.",
+    "description_ko": "운영 사이트 데스크톱 Lighthouse 기준 성능 97 · 접근성 100 · SEO 100 입니다(3회 측정 중앙값). LCP 0.7초, TBT 20ms, CLS 0.",
+    "description_en": "The live site scores 97 performance, 100 accessibility, and 100 SEO on desktop Lighthouse (median of 3 runs). LCP 0.7s, TBT 20ms, CLS 0.",
     "tech": "Font Subsetting, Lazy Loading, font-display, browserslist",
-    "image": "https://images.unsplash.com/photo-1611760357505-922600d8ffa6?w=800&q=80"
+    "image": "https://rqebkijkxkvsiyhdtvui.supabase.co/storage/v1/object/public/uploads/about/1790517630472.webp"
   },
   {
     "icon": "04",
-    "title": "Works Horizontal Gallery",
-    "description_ko": "작품들을 좌우로 스크롤하며 감상할 수 있는 가로 갤러리입니다. GSAP 기반 양방향 무한 래핑과 한/영 레이아웃 분기를 지원합니다.",
-    "description_en": "Browse works in a horizontal gallery with GSAP-powered infinite wrapping in both directions and layout branching for Korean/English.",
-    "tech": "GSAP, Infinite Wrapping, i18n Layout, Responsive",
+    "title": "Works Gallery",
+    "description_ko": "작업물 페이지 배치를 흐름·전체화면·시네마틱·그리드·분할·원통 6가지 중 설정에서 고릅니다. 흐름은 GSAP 가로 스크롤, 원통은 React Three Fiber 3D 입니다.",
+    "description_en": "The works page layout is chosen in settings from six: flow, fullscreen, cinematic, grid, split, and cylinder. Flow is a GSAP horizontal scroll, and cylinder is a React Three Fiber 3D scene.",
+    "tech": "GSAP, React Three Fiber, 6 Layouts",
     "image": "/images/screenshots/pc/feat-works.png"
   },
   {
     "icon": "05",
     "title": "Dark / Light Theme",
-    "description_ko": "다크 모드와 라이트 모드를 전환하면 모든 요소가 부드럽게 테마에 맞춰 변합니다. 시스템 설정 감지와 사용자 선택 기억을 동시에 지원합니다.",
-    "description_en": "Switch between dark and light modes — every element smoothly transitions. Respects system preferences while remembering user choice.",
+    "description_ko": "다크·라이트 전환 때 모든 요소가 함께 부드럽게 바뀝니다. 시스템 설정을 따르다가 사용자가 고르면 그 선택을 기억합니다.",
+    "description_en": "Switching between dark and light changes every element smoothly together. It follows the system setting until you pick one, then remembers your choice.",
     "tech": "CSS Variables, data-theme, prefers-color-scheme, localStorage",
     "image": "/images/screenshots/pc/feat-colors.png"
   },
   {
     "icon": "06",
     "title": "3D Scroll Torus",
-    "description_ko": "스크롤하면 화면 위를 떠다니는 금속 느낌의 3D 도넛 오브젝트입니다. 리사주 곡선 경로를 따라 움직이며 테마에 따라 질감이 바뀝니다.",
-    "description_en": "A metallic 3D torus floats along a Lissajous curve path as you scroll, with its texture adapting to the current theme.",
+    "description_ko": "스크롤에 맞춰 화면을 떠다니는 금속 질감의 3D 도넛입니다. 리사주 곡선을 따라 움직이고 테마에 따라 질감이 바뀝니다.",
+    "description_en": "A metallic 3D torus that floats across the screen with scrolling. It follows a Lissajous curve and its material changes with the theme.",
     "tech": "Three.js, React Three Fiber, Lissajous Curve, Environment Map",
     "image": "/images/screenshots/pc/feat-torus.png"
   },
   {
     "icon": "07",
     "title": "Posts & Series",
-    "description_ko": "Supabase 기반 블로그 시스템. Markdown/Rich Text 전환 에디터, 시리즈 발행, 카테고리별 책 모양 카드 탐색, 검색·태그 필터, 커버 이미지(프리셋/Unsplash/AI 생성), 발행 시 Gemini/OpenAI/Claude AI 자동 요약(ko+en)을 지원합니다.",
-    "description_en": "A full blog system on Supabase. Switchable Markdown/Rich Text editor, series publishing, book-shaped category browsing, search/tag filtering, cover images (presets/Unsplash/AI generation), and Gemini/OpenAI/Claude auto-summary (ko+en) on publish.",
-    "tech": "Supabase, Plate, Series, Canvas API, AI Cover, AI Summary",
+    "description_ko": "Plate 리치 텍스트 에디터로 쓰는 블로그입니다. 시리즈 발행, 검색·태그 필터, 커버 이미지(Unsplash·Pexels·AI 생성), 발행 시 Gemini·OpenAI·Claude 한/영 자동 요약을 지원합니다.",
+    "description_en": "A blog written in the Plate rich-text editor. It supports series, search and tag filters, cover images (Unsplash, Pexels, AI-generated), and Korean/English AI summaries from Gemini, OpenAI, or Claude on publish.",
+    "tech": "Supabase, Plate, Series, AI Cover, AI Summary",
     "image": "/images/screenshots/pc/feat-series.png"
   },
   {
     "icon": "08",
     "title": "Comment & Like System",
-    "description_ko": "로그인 없이 쓰는 쓰레드형 댓글입니다. 비밀번호를 함께 받아 수정·삭제 때 대조하고, 관리자 답변 시 이메일로 알립니다. 댓글에는 giscus 식 이모지 반응 8종을, 게시물에는 IP 기준 좋아요를 답니다.",
-    "description_en": "Threaded comments that need no sign-in. A password is collected up front and checked on edit or delete, and the admin's reply triggers an email. Comments carry a giscus-style set of 8 emoji reactions; posts carry IP-based likes.",
+    "description_ko": "로그인 없이 쓰는 쓰레드형 댓글입니다. 수정·삭제는 함께 받은 비밀번호로 확인하고, 관리자 답글은 이메일로 알립니다. 댓글에는 이모지 반응 8종을, 글·작업물에는 IP 기준 좋아요를 답니다.",
+    "description_en": "Threaded comments that need no login. Edits and deletions are checked against a password given with the comment, and admin replies are sent by email. Comments take 8 emoji reactions, and posts and works take IP-based likes.",
     "tech": "Supabase, Threaded Replies, Emoji Reactions, bcrypt, Email Notify",
     "image": "/images/screenshots/pc/feat-comment.png"
   },
   {
     "icon": "09",
     "title": "Admin CMS",
-    "description_ko": "로그인 버튼 없이 URL 직접 접속 방식의 숨겨진 어드민입니다. 포스트·작품·프로필을 이중 언어로 CRUD하고, 테마·폰트·사이트 설정을 실시간으로 변경할 수 있습니다. DB 미연결 시 정적 데이터로 자동 fallback됩니다.",
-    "description_en": "A hidden admin accessed via direct URL — no visible login button. Full CRUD for posts, works, and profiles in dual languages, plus real-time theme, font, and site settings. Auto-falls back to static data when DB is unavailable.",
-    "tech": "Supabase Auth, Next.js Middleware, JSONB, Static Fallback",
+    "description_ko": "URL 로 직접 들어가는 숨겨진 어드민입니다. 포스트·작업물·프로필을 이중 언어로 관리하고, 테마·폰트·브랜드 설정을 바로 바꿉니다. 트래픽 페이지에서 유입 채널·기기·국가·UTM·재방문 IP 를 봅니다. DB 에 연결되지 않으면 정적 데이터로 돌아갑니다.",
+    "description_en": "A hidden admin reached by direct URL. Posts, works, and profiles are managed in two languages, and theme, font, and brand settings change instantly. The traffic page shows referral channels, devices, countries, UTM campaigns, and returning IPs. Without a database it falls back to static data.",
+    "tech": "Supabase Auth, Next.js Proxy, JSONB, Static Fallback",
     "image": "/images/screenshots/pc/feat-admin.png"
   }
 ];
@@ -546,8 +382,8 @@ export const aboutProcess: CfgProcess[] = [
     "step": "04",
     "title_ko": "성능 최적화",
     "title_en": "Performance Optimization",
-    "description_ko": "**Lighthouse CLI**로 프로덕션 빌드를 측정하며 2차에 걸쳐 최적화를 진행했습니다. reCAPTCHA를 **invisible 모드 + 지연 로딩**으로 전환하고, 미사용 폰트 4종(12파일)을 제거하여 페이지 용량을 **70% 절감**, 모바일 **Performance 98점**을 달성했습니다.",
-    "description_en": "Measured production builds with **Lighthouse CLI** through two rounds of optimization. Switched reCAPTCHA to **invisible mode with lazy loading**, removed 4 unused font families (12 files), reduced page weight by **70%**, and achieved a mobile **Performance score of 98**."
+    "description_ko": "**Lighthouse CLI**로 프로덕션 빌드를 측정하며 2차에 걸쳐 최적화를 진행했습니다. reCAPTCHA를 **invisible 모드 + 지연 로딩**으로 전환하고, 미사용 폰트 4종(12파일)을 제거하여 페이지 용량을 **70% 절감**했습니다. 현재 운영 사이트는 데스크톱 **Performance 97점**입니다.",
+    "description_en": "Measured production builds with **Lighthouse CLI** through two rounds of optimization. Switched reCAPTCHA to **invisible mode with lazy loading**, removed 4 unused font families (12 files), and reduced page weight by **70%**. The live site now scores **97 in desktop Performance**."
   },
   {
     "step": "05",
@@ -564,24 +400,24 @@ export const aboutOverview: OverviewValues | null = {
   "overview_highlights": "Next.js 16, GSAP ScrollTrigger, Framer Motion, Lenis Smooth Scroll, Three.js (R3F), CSS Variables, Supabase, i18n (KO/EN), IP-Based Likes, Dark/Light Theme",
   "overview_stats": [
     {
-      "value": "6 Mo+",
-      "label_ko": "개발 기간\n(2/5 – 진행 중)",
-      "label_en": "Dev Period\n(Feb 5 – ongoing)"
+      "value": "7 Mo+",
+      "label_ko": "개발 기간\n(2/5 – 지속 업데이트 중)",
+      "label_en": "Dev Period\n(Feb 5 – continuously updated)"
     },
     {
-      "value": "250+",
+      "value": "300+",
       "label_ko": "컴포넌트",
       "label_en": "Components"
     },
     {
-      "value": "50+",
+      "value": "100+",
       "label_ko": "커스텀 훅",
       "label_en": "Custom Hooks"
     },
     {
-      "value": "98",
-      "label_ko": "Lighthouse\n(모바일 Performance)",
-      "label_en": "Lighthouse\n(mobile performance)"
+      "value": "97",
+      "label_ko": "Lighthouse\n(데스크톱 Performance)",
+      "label_en": "Lighthouse\n(desktop performance)"
     },
     {
       "value": "2",
@@ -589,7 +425,7 @@ export const aboutOverview: OverviewValues | null = {
       "label_en": "Languages"
     },
     {
-      "value": "70+",
+      "value": "80+",
       "label_ko": "라이브러리",
       "label_en": "Libraries"
     }

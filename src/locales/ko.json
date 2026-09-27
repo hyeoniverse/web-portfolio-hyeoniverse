@@ -78,7 +78,7 @@
       },
       "lighthouse": {
         "title": "Lighthouse 성능 최적화",
-        "desc": "2차에 걸친 Lighthouse 분석 기반 성능 최적화. 미사용 폰트 4개(12파일) 제거, reCAPTCHA 인터랙션 기반 지연 로딩, font-display:swap 적용으로 모바일 Performance 60→98점, 페이지 용량 70% 감소를 달성했습니다."
+        "desc": "2차에 걸친 Lighthouse 분석 기반 성능 최적화. 미사용 폰트 4개(12파일) 제거, reCAPTCHA 인터랙션 기반 지연 로딩, font-display:swap 적용으로 페이지 용량을 70% 줄였습니다. 현재 데스크톱 Performance 97점입니다."
       },
       "worksGallery": {
         "title": "Works 가로 갤러리",

@@ -10,9 +10,9 @@ A full-stack portfolio built alongside Claude. Designed and implemented from scr
 
 | value | label |
 | --- | --- |
-| 6 Mo+ | Dev Period<br>(Feb 5 – ongoing) |
-| 250+ | Components |
-| 50+ | Custom Hooks |
-| 98 | Lighthouse<br>(mobile performance) |
+| 7 Mo+ | Dev Period<br>(Feb 5 – continuously updated) |
+| 300+ | Components |
+| 100+ | Custom Hooks |
+| 97 | Lighthouse<br>(desktop performance) |
 | 2 | Languages |
-| 70+ | Libraries |
+| 80+ | Libraries |

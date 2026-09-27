@@ -78,7 +78,7 @@
       },
       "lighthouse": {
         "title": "Lighthouse Performance Optimization",
-        "desc": "Performance optimization based on two rounds of Lighthouse analysis. Removed 4 unused fonts (12 files), implemented interaction-based lazy loading for reCAPTCHA, applied font-display:swap to achieve mobile Performance 60→98, and reduced page size by 70%."
+        "desc": "Performance optimization based on two rounds of Lighthouse analysis. Removed 4 unused fonts (12 files), implemented interaction-based lazy loading for reCAPTCHA, and applied font-display:swap, reducing page size by 70%. The site now scores 97 in desktop Performance."
       },
       "worksGallery": {
         "title": "Works Horizontal Gallery",

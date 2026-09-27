@@ -6,4 +6,4 @@ image: /images/screenshots/pc/feat-colors.png
 
 # Dark / Light Theme
 
-Switch between dark and light modes — every element smoothly transitions. Respects system preferences while remembering user choice.
+Switching between dark and light changes every element smoothly together. It follows the system setting until you pick one, then remembers your choice.

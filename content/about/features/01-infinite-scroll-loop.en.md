@@ -1,9 +1,9 @@
 ---
 icon: 01
-tech: [Lenis, Infinite Scroll, Bridge Section]
+tech: [Lenis, syncTouch, Bridge Section]
 image: /images/screenshots/pc/home-dark.png
 ---
 
 # Infinite Scroll Loop
 
-Scroll reaches the end and seamlessly loops back to the beginning. A bridge section between the last and first panels keeps the loop seam invisible.
+The home page wraps from its end back to the start without a break. A Bridge section between the last and first sections hides the seam, and it wraps the same way on touch.

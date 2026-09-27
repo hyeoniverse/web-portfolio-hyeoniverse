@@ -1,9 +1,9 @@
 ---
 icon: 03
 tech: [Font Subsetting, Lazy Loading, font-display, browserslist]
-image: https://images.unsplash.com/photo-1611760357505-922600d8ffa6?w=800&q=80
+image: https://rqebkijkxkvsiyhdtvui.supabase.co/storage/v1/object/public/uploads/about/1790517630472.webp
 ---
 
 # Performance Optimization
 
-Boosted mobile Lighthouse score from 60 to 98 and reduced page size by 70% through targeted optimization.
+The live site scores 97 performance, 100 accessibility, and 100 SEO on desktop Lighthouse (median of 3 runs). LCP 0.7s, TBT 20ms, CLS 0.

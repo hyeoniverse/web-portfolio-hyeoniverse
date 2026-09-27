@@ -1,9 +1,9 @@
 ---
 icon: 04
-tech: [GSAP, Infinite Wrapping, i18n Layout, Responsive]
+tech: [GSAP, React Three Fiber, 6 Layouts]
 image: /images/screenshots/pc/feat-works.png
 ---
 
-# Works Horizontal Gallery
+# Works Gallery
 
-Browse works in a horizontal gallery with GSAP-powered infinite wrapping in both directions and layout branching for Korean/English.
+The works page layout is chosen in settings from six: flow, fullscreen, cinematic, grid, split, and cylinder. Flow is a GSAP horizontal scroll, and cylinder is a React Three Fiber 3D scene.
