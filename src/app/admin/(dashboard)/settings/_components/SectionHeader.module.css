@@ -25,7 +25,10 @@
   line-height: var(--line-height-fit);
 }
 
-/* 액션(버튼/링크) — 우측 열, 제목과 같이 sticky. blend 밖이라 정상 색. */
+/* 액션(버튼/링크) — 우측 열, 제목과 같이 sticky. blend 밖이라 정상 색.
+   제목은 difference 반전으로 겹침을 처리하지만 버튼엔 그게 없어서, 스크롤 중
+   컨텐츠 버튼 위를 지나가면 서로 비쳐 보였다 — 글래스 칩(blur만, 배경색 없음)으로
+   뒤를 흐려 준다. 평소(맨 배경 위)엔 티가 안 난다 */
 .spacer {
   grid-column: 2;
   grid-row: 1;
@@ -37,6 +40,9 @@
   align-items: center;
   gap: var(--spacing-2xs);
   flex-shrink: 0;
+  padding: var(--spacing-3xs) var(--spacing-2xs);
+  border-radius: var(--radius-capsule);
+  backdrop-filter: blur(24px) saturate(1.6);
 }
 /* 바뀐 섹션 점 — About 패널 머리(.psDot)와 같은 모양. 안 바뀌면 자리만 차지해 버튼이 흔들리지 않는다 */
 .dot {

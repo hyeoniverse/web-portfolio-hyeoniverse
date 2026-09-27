@@ -232,9 +232,11 @@ interface UploadFieldProps {
   /** 리컬러 피커 title, 원본 리셋 라벨 */
   recolorLabel?: string;
   originalLabel?: string;
+  /** 미리보기 받침 — 로고가 실제로 쓰일 사이트 테마의 배경을 화면 테마와 무관하게 깐다 */
+  previewBg?: "light" | "dark";
 }
 
-export function UploadField({ kind, label, url, uploadLabel, removeLabel, onUploaded, onRemove, hint, tint, onTintChange, defaultTint, recolorLabel, originalLabel }: UploadFieldProps) {
+export function UploadField({ kind, label, url, uploadLabel, removeLabel, onUploaded, onRemove, hint, tint, onTintChange, defaultTint, recolorLabel, originalLabel, previewBg }: UploadFieldProps) {
   const { folder, accept, preview, icon, fallbackName } = UPLOAD_PRESETS[kind];
   const { t } = useLanguage();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -296,8 +298,8 @@ export function UploadField({ kind, label, url, uploadLabel, removeLabel, onUplo
         >
           {url ? (
             <>
-              <div className={styles.logoPreviewGroup}>
-                <div className={styles.logoPreview}>
+              <div className={styles.logoPreviewRow}>
+                <div className={`${styles.logoPreview}${previewBg === "dark" ? ` ${styles.logoPreviewOnDark}` : ""}${previewBg === "light" ? ` ${styles.logoPreviewOnLight}` : ""}`}>
                   {tint ? (
                     <span
                       className={styles.logoPreviewTint}
@@ -310,16 +312,21 @@ export function UploadField({ kind, label, url, uploadLabel, removeLabel, onUplo
                   )}
                 </div>
                 {onTintChange && (
-                  <div className={styles.logoTintControl}>
-                    <span className={styles.logoPreviewColor} title={recolorLabel}>
-                      <ColorPicker value={tint || defaultTint || "#000000"} onChange={(c) => onTintChange(c.hex)} triggerClassName={styles.logoPreviewColorBtn} />
-                    </span>
-                    {tint && (
-                      <Pressable className={styles.logoTintReset} onClick={() => onTintChange("")}>
-                        {originalLabel}
-                      </Pressable>
-                    )}
-                  </div>
+                  /* 정체불명 색상원이던 것 — 라벨을 붙이고, 빈 값(원본)은 사선으로 표시,
+                     기능 설명은 hover 툴팁이 말한다 */
+                  <Tooltip content={t("admin.settings.logoRecolorHint")} placement="top" delay={250}>
+                    <div className={styles.logoTintControl}>
+                      <span className={styles.logoTintLabel}>{recolorLabel}</span>
+                      <span className={`${styles.logoPreviewColor}${!tint ? ` ${styles.logoPreviewColorEmpty}` : ""}`}>
+                        <ColorPicker value={tint || defaultTint || "#000000"} onChange={(c) => onTintChange(c.hex)} triggerClassName={styles.logoPreviewColorBtn} />
+                      </span>
+                      {tint && (
+                        <Pressable className={styles.logoTintReset} onClick={() => onTintChange("")}>
+                          {originalLabel}
+                        </Pressable>
+                      )}
+                    </div>
+                  </Tooltip>
                 )}
               </div>
               <div className={styles.logoActions}>
