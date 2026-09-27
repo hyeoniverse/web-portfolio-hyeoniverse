@@ -2,7 +2,6 @@
 
 import { useState, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Equal, ArrowLeftRight, X } from "@/components/icons";
 import { type TFunction } from "@/providers/LanguageProvider";
 import ColorPicker from "@/components/ui/ColorPicker";
 import Input from "@/components/ui/Input";
@@ -17,36 +16,6 @@ import { FAVICON_SHADOW_PRESETS, FAVICON_SIZE_BLUR } from "../_data/faviconPrese
 import { resolveFaviconShadow, type FaviconShadow } from "@/lib/favicon";
 import styles from "./AppearanceTab.module.css";
 import shared from "../Settings.module.css";
-import Pressable from "@/components/ui/Pressable";
-
-/** 라이트/다크 색 쌍 편의 버튼 — 맞추기(다크=라이트) / 서로 바꾸기 / 지우기 */
-export function ColorDuoTools({
-  light,
-  dark,
-  onLight,
-  onDark,
-  labels,
-}: {
-  light: string;
-  dark: string;
-  onLight: (v: string) => void;
-  onDark: (v: string) => void;
-  labels: { match: string; swap: string; clear: string };
-}) {
-  return (
-    <div className={styles.faviconColorTools}>
-      <Pressable className={styles.faviconColorTool} title={labels.match} aria-label={labels.match} onClick={() => onDark(light)}>
-        <Equal size={13} strokeWidth={2} />
-      </Pressable>
-      <Pressable className={styles.faviconColorTool} title={labels.swap} aria-label={labels.swap} onClick={() => { const l = light; onLight(dark); onDark(l); }}>
-        <ArrowLeftRight size={13} strokeWidth={2} />
-      </Pressable>
-      <Pressable className={styles.faviconColorTool} title={labels.clear} aria-label={labels.clear} onClick={() => { onLight(""); onDark(""); }}>
-        <X size={13} strokeWidth={2} />
-      </Pressable>
-    </div>
-  );
-}
 
 /** 텍스트/배경 그림자 — 미리보기 안 광원(빛)을 드래그해 방향·거리(blur)를 정하고, 색/inset 은 옆에서 조정. */
 export function FaviconShadowControls({

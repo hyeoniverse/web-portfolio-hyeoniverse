@@ -29,6 +29,11 @@
   --color-neutral-950: oklch(21.81% 0.0041 84.59);
   --color-neutral-999: oklch(0.00% 0.0000 0.00);
 
+  /* 테마 고정 배경 — 사이트 라이트/다크 테마의 실제 배경색을 화면 테마와 무관하게 쓸 때
+     (예: 관리자 설정의 로고 변형 미리보기 받침). 다크 블록에서 재정의하지 않는다. */
+  --color-scheme-light-bg: oklch(97.30% 0.0082 91.48);
+  --color-scheme-dark-bg: oklch(21.81% 0.0041 84.59);
+
   /* Cursor Trail */
   --color-cursor-trail: oklch(62.31% 0.1880 259.81);
 
