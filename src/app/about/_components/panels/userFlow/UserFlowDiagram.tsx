@@ -25,7 +25,12 @@ type Flow = (typeof userFlows)[number];
 
 /* 사용자 플로우 다이어그램 (데스크탑) — 노드 좌표는 flowLayout 이 계산하고 여기서는 그리기만 한다.
    등장 순서는 start 에서 BFS 로 매겨 엣지와 노드가 흐름대로 하나씩 나타나게 한다. */
-function UserFlowDiagram({ flow, language, seqKey }: { flow: Flow; language: Language; seqKey: number }) {
+function UserFlowDiagram({ flow, language, seqKey, frame }: {
+  flow: Flow; language: Language; seqKey: number;
+  /** 공통 틀 — 높이는 가장 높은 흐름, 폭은 흐름 폭의 위쪽 1/4 지점. 이보다 좁은 흐름은 이 폭 가운데 놓여
+      흐름끼리 확대 배율이 비슷해진다(예전 1.0~1.88배 → 1.0~1.33배). 더 넓은 흐름은 제 폭을 쓴다 */
+  frame?: { w: number; h: number };
+}) {
 
   /* ── Node map for edge lookups ── */
   const nodeMap = useMemo(() => {
@@ -59,7 +64,7 @@ function UserFlowDiagram({ flow, language, seqKey }: { flow: Flow; language: Lan
         }
       }
     }
-    return { nodeSeq, edgeSeq };
+    return { nodeSeq, edgeSeq, total: seq };
   }, [flow]);
 
   /* ── SVG dimensions (horizontal) ── */
@@ -86,9 +91,12 @@ function UserFlowDiagram({ flow, language, seqKey }: { flow: Flow; language: Lan
           </div>
 
           {/* SVG Flowchart */}
-          <div className={styles.ufFlowDiagram} key={seqKey}>
+          {/* 데스크톱은 스크롤을 따라 그려진다 — 순서(--s)가 흐름 구간 진행도(--item-p) × 전체 순서 수(--n)에 닿으면 나타난다 */}
+          <div className={styles.ufFlowDiagram} key={seqKey} style={{ "--n": seqOrder.total } as React.CSSProperties}>
             <svg
-              viewBox={`0 0 ${svgW} ${svgH}`}
+              viewBox={frame
+                ? `${-(Math.max(svgW, frame.w) - svgW) / 2} ${-(frame.h - svgH) / 2} ${Math.max(svgW, frame.w)} ${frame.h}`
+                : `0 0 ${svgW} ${svgH}`}
               className={styles.ufFlowSvg}
               preserveAspectRatio="xMidYMid meet"
             >
@@ -122,7 +130,7 @@ function UserFlowDiagram({ flow, language, seqKey }: { flow: Flow; language: Lan
                   <g
                     key={node.id}
                     className={styles.ufNodeGroup}
-                    style={{ animationDelay: `${delay}s` }}
+                    style={{ animationDelay: `${delay}s`, "--s": seq } as React.CSSProperties}
                   >
                     {/* ── Start / End ── */}
                     {(node.type === "start" || node.type === "end") && (() => {

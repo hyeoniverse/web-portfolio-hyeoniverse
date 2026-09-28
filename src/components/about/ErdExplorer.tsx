@@ -24,7 +24,7 @@ import Pressable from "@/components/ui/Pressable";
 export default function ErdExplorer({
   tables, relations, notes, lang,
   onEdit, onCreateRelation, initialZoom, children, className,
-  renderFocusBar,
+  renderFocusBar, wheelZoom = true,
 }: {
   tables: ErdTable[];
   relations: ErdRelation[];
@@ -35,6 +35,8 @@ export default function ErdExplorer({
   /** 주면 컬럼 handle 을 끌어 관계를 만들 수 있다 (admin 전용) */
   onCreateRelation?: (rel: ErdRelation) => void;
   initialZoom?: number;
+  /** 휠로 확대 (default: true). 끄면 휠이 페이지로 넘어가고 확대는 핀치·Ctrl+휠·버튼으로만 */
+  wheelZoom?: boolean;
   /** ReactFlow 안에 넣을 추가 요소 (커스텀 줌 컨트롤 등) */
   children?: ReactNode;
   className?: string;
@@ -193,7 +195,7 @@ export default function ErdExplorer({
 
   /* 개념 뷰 — Chen 표기. 클릭하면 그 엔티티로 좁혀 보고, 숨겨졌던 관계를 함께 보여준다. */
   const conceptPane = (extra?: ReactNode) => (
-    <ChenFlow tables={tables} relations={relations} lang={lang}
+    <ChenFlow tables={tables} relations={relations} lang={lang} wheelZoom={wheelZoom}
       showControls={false} onEntityClick={focusEntity} focus={focus}>
       {focus && (
         <Panel position="top-left" className={css.focusChip}>
@@ -230,6 +232,7 @@ export default function ErdExplorer({
       onPaneClick={clearFocus}
       showControls={false}
       initialZoom={initialZoom}
+      wheelZoom={wheelZoom}
       lang={lang}
       /* 개념 주석(관계 동사·M:N·다중값/파생)을 타입과 함께 항상 보여준다 */
       concept={overlay}

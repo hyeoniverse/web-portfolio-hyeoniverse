@@ -583,3 +583,65 @@
     margin: 0;
   }
 }
+
+/* ── 데스크톱: 제목 한 줄 아래 IDE 창 ── */
+@media (min-width: 1025px) and (min-height: 701px) {
+  /* 제목은 위 한 줄, IDE 창이 그 아래 폭 전체를 쓴다. 패널 여백(위 --_panel-py, 아래 2xl + 2.5rem)을
+     되물리고 필요한 만큼만 다시 둔다 — 여백이 겹쳐 창이 납작해 보였다 */
+  .troubleContent {
+    display: flex;
+    flex-direction: column;
+    margin: calc(var(--_panel-py) * -1) 0 calc((var(--spacing-2xl) + 2.5rem) * -1);
+    padding-top: calc(var(--header-height) + var(--spacing-lg));
+    padding-bottom: var(--spacing-5xl);
+  }
+
+  .troubleContent > .troublePinTitleRow {
+    flex-shrink: 0;
+    margin: 0 0 var(--spacing-md);
+    padding: 0;
+  }
+
+  .troubleContent > .troublePinTitleRow h3 {
+    margin: 0;
+    font-size: clamp(2.5rem, min(4.5vw, 7vh), 4.5rem);
+  }
+
+  /* IDE 창이 남은 높이를 끝까지 채운다 */
+  .troubleContent > .ideWrap {
+    flex: 1;
+    min-height: 0;
+  }
+}
+
+@media (min-width: 1025px) and (min-height: 701px) and (prefers-reduced-motion: no-preference) {
+  /* 항목이 바뀌면(휠로 다음 항목) 줄이 위에서부터 차례로 나타난다. 이 패널은 가로 진행도가 아니라 편집기
+     휠로 항목을 넘기므로(useTroubleWheelNav) 항목 흐름 값(--item-in)에 묶지 않는다 */
+  .ideEditorContent > * {
+    animation: ideLineIn var(--duration-slow) var(--ease-out-expo) both;
+  }
+
+  .ideEditorContent > :nth-child(2) { animation-delay: 70ms; }
+  .ideEditorContent > :nth-child(3) { animation-delay: 105ms; }
+  .ideEditorContent > :nth-child(4) { animation-delay: 140ms; }
+  .ideEditorContent > :nth-child(5) { animation-delay: 175ms; }
+  .ideEditorContent > :nth-child(6) { animation-delay: 210ms; }
+  .ideEditorContent > :nth-child(7) { animation-delay: 245ms; }
+  .ideEditorContent > :nth-child(8) { animation-delay: 280ms; }
+  .ideEditorContent > :nth-child(9) { animation-delay: 315ms; }
+  .ideEditorContent > :nth-child(10) { animation-delay: 350ms; }
+  .ideEditorContent > :nth-child(11) { animation-delay: 385ms; }
+  .ideEditorContent > :nth-child(12) { animation-delay: 420ms; }
+  .ideEditorContent > :nth-child(13) { animation-delay: 455ms; }
+  .ideEditorContent > :nth-child(14) { animation-delay: 490ms; }
+  .ideEditorContent > :nth-child(15) { animation-delay: 525ms; }
+  .ideEditorContent > :nth-child(16) { animation-delay: 560ms; }
+  .ideEditorContent > :nth-child(n + 17) { animation-delay: 560ms; }
+}
+
+@keyframes ideLineIn {
+  from {
+    opacity: 0;
+    translate: calc(var(--spacing-sm) * -1) 0;
+  }
+}

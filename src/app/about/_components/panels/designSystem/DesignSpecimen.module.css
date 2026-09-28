@@ -1,0 +1,216 @@
+/* Design System 견본표 — 제목 줄 아래 3열 2행 격자. 칸 사이는 가는 선 */
+.specimen {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding-bottom: calc(var(--spacing-2xl) + 3.5rem);
+}
+
+.board {
+  display: grid;
+  flex: 1;
+  grid-template-columns: 1.3fr 1.3fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  min-height: 0;
+  border-top: var(--border-default);
+  border-left: var(--border-default);
+}
+
+.cell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  min-width: 0;
+  min-height: 0;
+  padding: clamp(0.9rem, 2vh, 1.4rem) clamp(1rem, 1.6vw, 1.6rem);
+  border-right: var(--border-default);
+  border-bottom: var(--border-default);
+}
+
+.cellTitle {
+  margin: 0;
+  font-family: var(--font-instrument);
+  font-size: clamp(1.4rem, 2vw, 2rem);
+  font-style: italic;
+  font-weight: var(--font-weight-regular);
+  line-height: 1;
+  color: var(--text-accent);
+}
+
+.tokenName {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
+  color: var(--text-tertiary);
+}
+
+/* 색 */
+.swatches {
+  display: grid;
+  flex: 1;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-sm);
+}
+
+.swatch {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  min-height: 0;
+}
+
+.chip {
+  flex: 1;
+  min-height: 2rem;
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+}
+
+/* 서체 */
+.fonts {
+  display: grid;
+  flex: 1;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-sm);
+  align-items: end;
+}
+
+.font {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+}
+
+.fontSample {
+  font-size: clamp(2.5rem, min(4.5vw, 8vh), 4.5rem);
+  line-height: 1;
+  color: var(--text-primary);
+}
+
+.fontName {
+  font-size: var(--font-size-label);
+  color: var(--text-primary);
+}
+
+/* 간격 — 눈금마다 세로 막대, 높이가 그 간격 값 */
+.spaces {
+  display: flex;
+  flex: 1;
+  gap: var(--spacing-xs);
+  align-items: flex-end;
+}
+
+.space {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  align-items: center;
+}
+
+.spaceBar {
+  width: 10px;
+  background: var(--text-accent);
+  border-radius: var(--radius-capsule);
+}
+
+/* 모서리 */
+.radii {
+  display: flex;
+  flex: 1;
+  gap: var(--spacing-md);
+  align-items: center;
+}
+
+.radius {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  align-items: center;
+}
+
+.radiusBox {
+  width: clamp(3rem, 5vw, 4.5rem);
+  height: clamp(3rem, 5vw, 4.5rem);
+  border: 2px solid var(--text-accent);
+}
+
+/* 움직임 — 점이 같은 시간 동안 이징만 달리 오간다 */
+.easings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.easing {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+}
+
+.track {
+  position: relative;
+  height: 12px;
+  border-bottom: var(--border-light);
+}
+
+.dot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 12px;
+  height: 12px;
+  background: var(--text-accent);
+  border-radius: var(--radius-circle);
+  animation: slide 1.8s infinite alternate;
+}
+
+@keyframes slide {
+  to {
+    left: calc(100% - 12px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dot {
+    animation: none;
+  }
+}
+
+/* 아이콘 */
+.icons {
+  display: grid;
+  flex: 1;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-md);
+  align-content: center;
+  color: var(--text-primary);
+}
+
+/* 낮은 화면 — 두 줄 격자가 넘치지 않게 견본을 줄인다 */
+@media (max-height: 860px) {
+  .cell {
+    gap: var(--spacing-xs);
+    padding: var(--spacing-sm) var(--spacing-md);
+    overflow: hidden;
+  }
+
+  .cellTitle {
+    font-size: 1.3rem;
+  }
+
+  .chip {
+    min-height: 1.1rem;
+  }
+
+  .fontSample {
+    font-size: 2.2rem;
+  }
+
+  .easings {
+    gap: var(--spacing-xs);
+  }
+
+  .radiusBox {
+    width: 2.6rem;
+    height: 2.6rem;
+  }
+}

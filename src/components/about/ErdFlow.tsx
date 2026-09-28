@@ -141,7 +141,10 @@ function ErdFlowInner({
   tables, relations, selected, related, onHover, onOpen, onNodeEdit, onCreateRelation, onPaneClick, concept,
   className,
   focus, zoomTo, onNoteClick, lastViewport, onViewportSettled, note, noteAnchor, showControls = true, initialZoom = 0.62, children, lang = "ko",
+  wheelZoom = true,
 }: {
+  /** 휠로 확대 (default: true). 끄면 휠이 페이지로 넘어간다 — 가로로 넘기는 공개 About 에서 */
+  wheelZoom?: boolean;
   tables: ErdTable[];
   relations: ErdRelation[];
   selected?: string | null;
@@ -308,6 +311,8 @@ function ErdFlowInner({
             : { padding: 0.1, maxZoom: initialZoom, duration: FIT_MS }}
         minZoom={0.15}
         maxZoom={2}
+        zoomOnScroll={wheelZoom}
+        preventScrolling={wheelZoom}
         nodesDraggable={false}
         /* 더블클릭을 편집에 쓰는 admin 에서는 기본 동작(캔버스 확대)을 끈다 —
            안 끄면 편집 모달이 열리면서 화면이 같이 줌돼 '움찔'거린다. 공개 패널은 그대로 둔다. */

@@ -1,0 +1,129 @@
+/* About 엔딩 크레딧 — 가운데 한 줄에 맞춘 두 단(왼쪽 이름표는 오른쪽 정렬, 오른쪽 내용은 왼쪽 정렬) */
+.creditsPanel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.creditsRoll {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: clamp(var(--spacing-md), 3vh, var(--spacing-2xl));
+  width: min(100%, 56rem);
+  text-align: center;
+}
+
+.creditsEyebrow {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-label);
+  color: var(--text-tertiary);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+.creditsTitle {
+  margin: 0;
+  font-family: var(--font-instrument);
+  font-size: clamp(3rem, min(7vw, 12vh), 7rem);
+  font-style: italic;
+  font-weight: var(--font-weight-regular);
+  line-height: 1;
+  color: var(--text-accent);
+}
+
+.creditsList {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(var(--spacing-xs), 1.6vh, var(--spacing-md));
+  width: 100%;
+  margin: 0;
+}
+
+.creditsList > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+  column-gap: var(--spacing-xl);
+  align-items: baseline;
+}
+
+.creditsList dt {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
+  color: var(--text-tertiary);
+  letter-spacing: 0.12em;
+  text-align: right;
+  text-transform: uppercase;
+}
+
+.creditsList dd {
+  margin: 0;
+  word-break: keep-all;
+  font-size: var(--font-size-body);
+  line-height: var(--_lh-reading);
+  color: var(--text-primary);
+  text-align: left;
+}
+
+.creditsSign {
+  padding-top: var(--spacing-md);
+  border-top: var(--border-light);
+}
+
+.creditsReplay {
+  padding: var(--spacing-2xs) var(--spacing-md);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-label);
+  color: var(--text-accent);
+  border: var(--border-accent);
+  border-radius: var(--radius-capsule);
+}
+
+/* 들어오는 동안 자막이 아래에서 스크롤만큼 올라온다(--flow-in, useHorizontalScroll) */
+@media (min-width: 1025px) and (min-height: 701px) and (prefers-reduced-motion: no-preference) {
+  .creditsPanel .creditsRoll {
+    opacity: calc(1 - var(--flow-in) * 0.8);
+    translate: 0 calc(var(--flow-in) * 40vh);
+  }
+}
+
+/* 낮은 화면 — 위 메뉴에 닿지 않게 간격을 줄이고 머리말은 뺀다 */
+@media (min-width: 1025px) and (min-height: 701px) and (max-height: 860px) {
+  .creditsPanel {
+    padding-top: var(--header-height);
+  }
+
+  .creditsRoll {
+    gap: var(--spacing-sm);
+  }
+
+  .creditsEyebrow {
+    display: none;
+  }
+
+  .creditsTitle {
+    font-size: clamp(2.5rem, 9vh, 4.5rem);
+  }
+
+  .creditsList {
+    gap: var(--spacing-2xs);
+  }
+}
+
+/* 모바일 — 고정 상단 메뉴 아래에서 시작하고, 두 단 이름표를 한 단으로 쌓는다 */
+@media (max-width: 1024px), (max-height: 700px) {
+  .creditsPanel {
+    padding-top: calc(var(--header-height) + var(--spacing-xl));
+  }
+
+  .creditsList > div {
+    grid-template-columns: 1fr;
+    row-gap: var(--spacing-3xs);
+  }
+
+  .creditsList dt,
+  .creditsList dd {
+    text-align: center;
+  }
+}

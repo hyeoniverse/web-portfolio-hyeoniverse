@@ -24,7 +24,6 @@
   overflow: hidden;
   cursor: grab;
   touch-action: none;
-  border-radius: var(--radius-2xl);
   border: var(--border-light);
 }
 
@@ -82,5 +81,34 @@
     left: var(--spacing-sm);
     max-width: 48%;
     transform: none;
+  }
+}
+
+/* ── 데스크톱 전시실 구도: 도면을 패널 전체에 크게 걸고, 제목은 왼쪽 위에 겹쳐 둔다 ── */
+@media (min-width: 1025px) and (min-height: 701px) {
+  .erdPanel {
+    padding: var(--header-height) 0 calc(var(--spacing-2xl) + 4rem);
+  }
+
+  .erdPanel .erdViewport {
+    padding-top: 0;
+  }
+
+  /* 제목은 도면 위 한 줄 — 도면 위에 겹쳐 두면 테이블을 가렸다 */
+  .erdTitleOverlay {
+    margin: 0;
+    padding: var(--spacing-md) var(--_panel-px) var(--spacing-sm);
+  }
+
+  .erdTitleOverlay h3 {
+    margin: 0;
+    font-size: clamp(2.5rem, min(4.5vw, 7vh), 4.5rem);
+  }
+
+  .erdPanel .erdZoomViewport {
+    border: none;
+    border-top: var(--_line-secondary);
+    border-bottom: var(--_line-secondary);
+    border-radius: 0;
   }
 }

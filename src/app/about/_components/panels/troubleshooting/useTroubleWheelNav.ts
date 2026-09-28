@@ -133,12 +133,14 @@ export function useTroubleWheelNav({
 
       const doAdvance = () => {
         if (atBoundary) {
-          // 마지막 항목 + 아래 방향일 때만 다음 패널로
-          if (dir > 0 && scrollBy) {
+          /* 끝 항목에서 더 굴리면 패널을 한 번에 빠져나간다 — 마지막 항목이면 다음 패널이 자리 잡는 곳(이 패널
+             오른쪽 끝이 화면 왼쪽)까지, 첫 항목에서 거꾸로면 이전 패널이 자리 잡는 곳(왼쪽 끝이 화면 오른쪽)까지.
+             예전에는 화면 폭만큼만 밀어, 3.5배 넓은 이 패널을 벗어나려면 세게 여러 번 굴려야 했다 */
+          if (scrollBy) {
             lastAdvanceRef.current = now;
             atEdgeSince = 0;
             scrollAccumRef.current = 0;
-            scrollBy(window.innerWidth);
+            scrollBy(dir > 0 ? panelRect.right : panelRect.left - window.innerWidth);
           }
           return;
         }

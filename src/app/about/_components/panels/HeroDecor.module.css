@@ -1,0 +1,91 @@
+/* Hero 꾸밈 — 데스크톱 포스터 구도에서만 보인다 */
+.decor {
+  display: none;
+}
+
+@media (min-width: 1025px) and (min-height: 701px) {
+  .decor {
+    display: block;
+    position: absolute;
+    inset: calc(var(--header-height) + var(--spacing-2xl)) var(--_panel-px) calc(var(--spacing-2xl) + 3.5rem);
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .rec,
+  .meta {
+    position: absolute;
+    top: 0;
+    display: flex;
+    gap: var(--spacing-xs);
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: var(--font-size-label);
+    letter-spacing: 0.1em;
+    color: var(--text-secondary);
+  }
+
+  .rec {
+    left: 0;
+  }
+
+  .meta {
+    right: 0;
+    color: var(--text-tertiary);
+  }
+
+  .recDot {
+    width: 9px;
+    height: 9px;
+    background: var(--text-accent);
+    border-radius: var(--radius-circle);
+    animation: blink 1.2s steps(1) infinite;
+  }
+
+  .timecode {
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* 원형 문구 배지 — 제목 오른쪽 위에서 천천히 돈다 */
+  .badge {
+    position: absolute;
+    top: 50%;
+    right: clamp(1rem, 5vw, 6rem);
+    width: clamp(8.5rem, min(13vw, 21vh), 13rem);
+    height: auto;
+    translate: 0 -95%;
+    animation: spin 24s linear infinite;
+  }
+
+  .badgeText {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    text-transform: uppercase;
+    fill: var(--text-primary);
+  }
+
+  .badgeStar {
+    font-size: 30px;
+    fill: var(--text-accent);
+  }
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes spin {
+  to {
+    rotate: 360deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .recDot,
+  .badge {
+    animation: none;
+  }
+}

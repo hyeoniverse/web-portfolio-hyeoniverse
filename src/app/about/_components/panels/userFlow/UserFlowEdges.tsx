@@ -70,8 +70,9 @@ function UserFlowEdges({
                       d={d}
                       fill="none"
                       markerEnd={isCascade || edge.noArrow ? undefined : "url(#uf-arrow)"}
+                      pathLength={1}
                       className={styles.ufEdgePath}
-                      style={{ animationDelay: `${delay}s` }}
+                      style={{ animationDelay: `${delay}s`, "--s": seq } as React.CSSProperties}
                     />
                     {edge.label && (() => {
                       const pos = edgeLabelPos(from, to);
@@ -81,7 +82,7 @@ function UserFlowEdges({
                           y={pos.y}
                           textAnchor={pos.anchor}
                           className={styles.ufEdgeLabel}
-                          style={{ animationDelay: `${delay}s` }}
+                          style={{ animationDelay: `${delay}s`, "--s": seq } as React.CSSProperties}
                         >
                           {edge.label}
                         </text>

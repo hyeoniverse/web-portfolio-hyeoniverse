@@ -18,6 +18,7 @@ import MotionScrollDemo from "./demos/MotionScrollDemo";
 import LayoutSpacingDemo from "./demos/LayoutSpacingDemo";
 import GridSystemDemo from "./demos/GridSystemDemo";
 import IconographyDemo from "./demos/IconographyDemo";
+import DesignSpecimen from "./designSystem/DesignSpecimen";
 import frame from "../AboutPanel.module.css";
 import nav from "../AboutNav.module.css";
 import local from "./DesignSystemPanel.module.css";
@@ -201,6 +202,15 @@ function DesignSystemPanel({
     );
   });
 
+  /* 데스크톱은 토큰 견본표 한 화면. 가로로 넘기는 개념 카드는 모바일에서만 쓴다 */
+  if (!isMobile) {
+    return (
+      <div className={`${styles.panel} ${styles.dcSpecimenPanel}`}>
+        <DesignSpecimen language={language} />
+      </div>
+    );
+  }
+
   return (
     <div
       ref={panelRef}
@@ -227,7 +237,7 @@ function DesignSystemPanel({
         )}
         <PinnedTitleRow
           panelKey="designSystem"
-          className={isMobile ? styles.dcTitleRow : undefined}
+          className={isMobile ? styles.dcTitleRow : styles.dcTitleRight}
           rightContent={
             <Button variant="link" href="/design-system" external className={styles.externalLink} icon={<span>↗</span>} iconPosition="right" soundDisabled>
               Open

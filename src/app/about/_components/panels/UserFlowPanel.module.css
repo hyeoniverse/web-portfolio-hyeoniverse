@@ -126,13 +126,14 @@
   stroke: none;
 }
 
+/* 자간을 벌리면 영문 대문자 라벨(GET IN TOUCH 등)이 알약 밖으로 넘쳤다 */
 .ufTerminalText {
   font-family: var(--font-mono);
   font-size: var(--font-size-label);
   font-weight: 600;
   fill: var(--bg-primary);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0;
 }
 
 /* ── SVG: Action ── */
@@ -349,5 +350,92 @@
 
   .ufMobileList {
     display: none;
+  }
+}
+
+/* ── 데스크톱 전시실 구도: 흐름도가 왼쪽 넓은 칸, 제목·범례·흐름 선택은 오른쪽 좁은 칸에 오른쪽 정렬 ── */
+@media (min-width: 1025px) and (min-height: 701px) {
+  .ufContent {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(15rem, 21vw);
+    column-gap: clamp(2rem, 4vw, 4.5rem);
+    padding-bottom: calc(var(--spacing-2xl) + 3rem);
+  }
+
+  .ufContent > * {
+    grid-row: 1;
+    grid-column: 1;
+    min-width: 0;
+    min-height: 0;
+  }
+
+  .ufContent > .ufTitleSide {
+    grid-column: 2;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin: var(--header-height) 0 0;
+    padding-left: clamp(1rem, 2vw, 2rem);
+    text-align: right;
+    border-left: var(--_line-secondary);
+  }
+
+  .ufTitleSide > :first-child {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--spacing-lg);
+  }
+
+  .ufTitleSide h3 {
+    margin: 0;
+  }
+
+  .ufTitleSide .ufFlowLegend {
+    align-items: flex-end;
+  }
+
+  .ufContent > :not(.ufTitleSide) {
+    margin-top: var(--header-height);
+  }
+}
+
+/* ── 데스크톱: 스크롤을 따라 그린다 ──
+   흐름 구간 진행도(--item-p, usePinnedScroll) × 전체 순서 수(--n) 가 요소의 순서(--s)를 지나면 나타난다.
+   구간의 앞 2/3 에서 다 그려지고 나머지는 완성된 그림을 보여 준다. 선은 pathLength=1 로 길이를 1 로 두고
+   dashoffset 을 줄여 경로를 따라 그어진다. 시간 기반 등장(keyframes)은 끈다 */
+@media (min-width: 1025px) and (min-height: 701px) and (prefers-reduced-motion: no-preference) {
+  .ufFlowDiagram .ufNodeGroup,
+  .ufFlowDiagram .ufEdgePath,
+  .ufFlowDiagram .ufEdgeLabel {
+    --_r: clamp(0, calc(var(--item-p, 1) * var(--n, 1) * 1.5 - var(--s, 0)), 1);
+    animation: none;
+  }
+
+  .ufFlowDiagram .ufNodeGroup {
+    opacity: var(--_r);
+    translate: 0 calc((1 - var(--_r)) * 6px);
+  }
+
+  .ufFlowDiagram .ufEdgePath {
+    stroke-dasharray: 1;
+    stroke-dashoffset: calc(1 - var(--_r));
+    opacity: clamp(0, calc(var(--_r) * 8), 1);
+  }
+
+  .ufFlowDiagram .ufEdgeLabel {
+    opacity: var(--_r);
+  }
+
+  /* 흐름 설명 — 구간 앞에서 스크롤만큼 떠오른다(--item-in) */
+  .ufFlowInfo {
+    --_r: clamp(0, calc(var(--item-in, 1) * 1.8), 1);
+    opacity: var(--_r);
+    translate: 0 calc((1 - var(--_r)) * var(--spacing-md));
+    animation: none;
+  }
+
+  /* 구간 끝 — 다 그린 흐름이 다음 흐름에 자리를 내주며 흐려진다(--item-out) */
+  .ufFlowLayout {
+    opacity: calc(1 - var(--item-out, 0));
   }
 }

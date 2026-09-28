@@ -693,3 +693,20 @@
   opacity: 0.7;
 }
 
+
+/* ── 데스크톱 전시실 구도: 제목은 오른쪽 위에 오른쪽 정렬, 주제 선택 점은 왼쪽 ── */
+@media (min-width: 1025px) and (min-height: 701px) {
+  .dcTitleRight {
+    flex-direction: row-reverse;
+  }
+
+  .dcTitleRight > :first-child {
+    flex-direction: row-reverse;
+    text-align: right;
+  }
+}
+
+/* 데스크톱 견본표 패널 — 제목 줄부터 위에서 채운다 */
+.dcSpecimenPanel {
+  padding-top: calc(var(--header-height) + var(--spacing-md));
+}

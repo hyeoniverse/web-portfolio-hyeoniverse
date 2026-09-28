@@ -110,6 +110,30 @@
   color: var(--text-accent);
 }
 
+/* ── 데스크톱 전시실 구도: 진열장 네 개는 위쪽 전체 폭, 제목은 왼쪽 아래 명판 자리 ── */
+@media (min-width: 1025px) and (min-height: 701px) {
+  .techPanel {
+    display: grid;
+    padding-bottom: calc(var(--spacing-2xl) + 4.5rem);
+    grid-template-rows: minmax(0, 1fr) auto;
+    row-gap: var(--spacing-xl);
+    padding-top: calc(var(--header-height) + var(--_panel-py));
+  }
+
+  .techPanel > h2 {
+    grid-row: 2;
+    margin: 0;
+    font-size: clamp(3rem, min(5.5vw, 10vh), 6.5rem);
+  }
+
+  .techPanel .techTree {
+    grid-row: 1;
+    align-self: center;
+    width: 100%;
+    max-width: none;
+  }
+}
+
 @media (max-width: 1024px), (max-height: 700px) {
   .techTree {
     grid-template-columns: repeat(2, minmax(0, 1fr));
