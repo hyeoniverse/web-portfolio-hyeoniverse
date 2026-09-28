@@ -142,18 +142,45 @@ export interface CfgProcess {
   step: string;
   title_ko: string; title_en: string;
   description_ko: string; description_en: string;
+  /** 기간(YYYY-MM-DD)과 그 사이 커밋·병합 PR 수 — 타임라인 막대 길이와 수치. 언어와 무관해 ko 파일 것을 쓴다 */
+  start?: string; end?: string;
+  commits?: string; prs?: string;
+  /** 주별 커밋 수(공백 구분, 시작일부터 7일씩) — 활동 막대 */
+  weekly?: string;
+  /** 커밋 종류별 수 — "feat:82 fix:77 design:27 refactor:32 perf:5 etc:32" */
+  mix?: string;
+  /** 대표 수치(언어 무관)와 그 이름(언어별) */
+  metric?: string;
+  metric_label_ko?: string; metric_label_en?: string;
 }
 
 export const processPanel = {
   fileName: (item: CfgProcess, i: number) => `${pad(i)}-${slugify(item.title_en || item.title_ko)}`,
   write: (item: CfgProcess, lang: "ko" | "en") =>
     writeSimpleMarkdown(
-      [["step", item.step]],
+      [
+        ["step", item.step],
+        ["start", item.start ?? ""], ["end", item.end ?? ""],
+        ["commits", item.commits ?? ""], ["prs", item.prs ?? ""],
+        ["weekly", item.weekly ?? ""], ["mix", item.mix ?? ""], ["metric", item.metric ?? ""],
+        ["metric_label", (lang === "ko" ? item.metric_label_ko : item.metric_label_en) ?? ""],
+      ],
       lang === "ko" ? item.title_ko : item.title_en,
       lang === "ko" ? item.description_ko : item.description_en,
     ),
   read: (ko: SimpleDoc, en: SimpleDoc | undefined): CfgProcess => ({
     step: str(ko.meta.step),
+    ...(str(ko.meta.start) && { start: str(ko.meta.start) }),
+    ...(str(ko.meta.end) && { end: str(ko.meta.end) }),
+    ...(str(ko.meta.commits) && { commits: str(ko.meta.commits) }),
+    ...(str(ko.meta.prs) && { prs: str(ko.meta.prs) }),
+    ...(str(ko.meta.weekly) && { weekly: str(ko.meta.weekly) }),
+    ...(str(ko.meta.mix) && { mix: str(ko.meta.mix) }),
+    ...(str(ko.meta.metric) && { metric: str(ko.meta.metric) }),
+    ...(str(ko.meta.metric_label) && { metric_label_ko: str(ko.meta.metric_label) }),
+    ...((str(en?.meta.metric_label) || str(ko.meta.metric_label)) && {
+      metric_label_en: str(en?.meta.metric_label) || str(ko.meta.metric_label),
+    }),
     title_ko: ko.title,
     title_en: en?.title || ko.title,
     description_ko: ko.body,

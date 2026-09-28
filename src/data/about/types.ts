@@ -15,6 +15,18 @@ export interface ProcessStep {
   step: string;
   title: LocalizedText;
   description: LocalizedText;
+  /** 기간(YYYY-MM-DD). 둘 다 있으면 타임라인 막대가 실제 기간만큼 길어진다 */
+  start?: string;
+  end?: string;
+  commits?: number;
+  prs?: number;
+  /** 주별 커밋 수 */
+  weekly?: number[];
+  /** 커밋 종류별 수 — 순서대로 쌓는다 */
+  mix?: { kind: string; count: number }[];
+  /** 대표 수치와 그 이름 */
+  metric?: string;
+  metricLabel?: LocalizedText;
 }
 
 export interface CodeExample {

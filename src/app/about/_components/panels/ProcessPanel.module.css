@@ -1,148 +1,448 @@
-/* ── Desktop: 제목 아래부터 하단 내비 위까지 채우는 단계 행 목록 ──
-   공용(AboutEntry)의 processBody 는 display: contents 라 { ...shared, ...local } 병합에서 이 클래스가 쓰인다.
-   현재 단계 행이 남은 높이를 전부 가져가고 나머지는 한 줄로 접힌다 */
-.processBody {
-  display: flex;
+/* ── Desktop: 위에 지금 단계의 상세, 아래에 기간만큼 나눈 타임라인 ──
+   공용(AboutEntry)의 processBody 는 display: contents 라 { ...shared, ...local } 병합에서 이 파일 클래스가 쓰인다 */
+.procStage {
+  display: grid;
   flex: 1;
-  flex-direction: column;
-  margin: 0 0 clamp(4.5rem, 10vh, 6rem);
-  padding: 0;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  column-gap: clamp(2.5rem, 5vw, 6rem);
+  align-items: stretch;
+  margin-bottom: clamp(4.5rem, 10vh, 6rem);
   min-height: 0;
-  list-style: none;
+}
+
+/* 상세 — 왼쪽 큰 번호와 수치, 오른쪽 기간·제목·설명 */
+.procDetail {
+  display: grid;
+  flex: 1;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: clamp(var(--spacing-md), 2.5vh, var(--spacing-xl)) clamp(1.25rem, 2.5vw, 2.5rem);
+  align-content: start;
+  align-items: end;
+  column-gap: clamp(1.5rem, 3vw, 3.5rem);
+  min-height: 0;
+}
+
+.procDetailNum {
+  font-family: var(--font-instrument);
+  font-size: clamp(4rem, min(7vw, 15vh), 8rem);
+  font-style: italic;
+  line-height: 0.8;
+  color: var(--text-accent);
+  letter-spacing: -0.03em;
+}
+
+/* 수치 — 설명 아래 한 줄. 숫자 위, 이름 아래 */
+/* 수치는 상세 칸 맨 아래 — 간트 마지막 줄과 높이를 맞춘다 */
+.procDetailStats {
+  display: flex;
+  grid-column: 1 / -1;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm) clamp(var(--spacing-xl), 4vw, var(--spacing-5xl));
+  margin: auto 0 0;
+  padding-top: var(--spacing-md);
+  border-top: var(--border-light);
+}
+
+.procDetailStats > div {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+}
+
+.procDetailStats dt {
+  font-size: var(--font-size-label);
+  color: var(--text-tertiary);
+}
+
+.procDetailStats dd {
+  margin: 0;
+  font-family: var(--font-instrument);
+  font-size: clamp(1.5rem, min(2.2vw, 3.6vh), 2.25rem);
+  line-height: 1;
+  color: var(--text-primary);
+}
+
+.procDetailMain {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  gap: clamp(var(--spacing-sm), 2vh, var(--spacing-lg));
+  padding-top: var(--spacing-xs);
+}
+
+.procDetailPeriod {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-label);
+  color: var(--text-tertiary);
+  letter-spacing: 0.04em;
+}
+
+.procDetailTitle {
+  margin: 0;
+  word-break: keep-all;
+  font-size: clamp(1.75rem, min(3vw, 5vh), 3rem);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-snug);
+  color: var(--text-primary);
+}
+
+.procDetailDesc {
+  grid-column: 1 / -1;
+  margin: 0;
+  word-break: keep-all;
+  max-width: 62ch;
+  font-size: var(--font-size-prose);
+  line-height: var(--_lh-reading);
+  color: var(--text-secondary);
+}
+
+/* 본문의 **강조** — 형광펜 대신 진한 글씨로만. 전역 [data-theme="dark"] .highlighted-text (0,2,0) 를 이기도록 (0,3,0) */
+.procDetailDesc.procDetailDesc :global(.highlighted-text) {
+  padding: 0;
+  background: none;
+  color: var(--text-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+/* 낮은 화면(노트북 창 등) — 상세가 타임라인을 덮지 않게 글자와 간격을 줄인다 */
+@media (min-width: 1025px) and (min-height: 701px) and (max-height: 860px) {
+  .procStage {
+    margin-bottom: clamp(3.5rem, 8vh, 4.5rem);
+  }
+
+  .procDetailNum {
+    font-size: clamp(3.5rem, 11vh, 5.5rem);
+  }
+
+  .procDetailMain {
+    gap: var(--spacing-xs);
+    padding-top: 0;
+  }
+
+  .procDetailTitle {
+    font-size: clamp(1.4rem, 3.6vh, 2rem);
+  }
+
+  .procDetailDesc {
+    font-size: var(--font-size-body);
+  }
+
+  .procDetailStats dd {
+    font-size: clamp(1.25rem, 3vh, 1.5rem);
+  }
+
+  .procSide {
+    gap: var(--spacing-md);
+  }
+
+  .procGanttBtn {
+    padding: var(--spacing-3xs) 0;
+  }
+
+  /* 전체 합계 줄은 기간 줄·수치와 겹치는 정보라 낮은 화면에서는 뺀다 */
+  .procSummary {
+    display: none;
+  }
+
+  .procWeeklyBars {
+    height: clamp(1.5rem, 4vh, 2rem);
+  }
+
+  .procMixBar {
+    height: var(--spacing-sm);
+  }
+
+  .procMetricValue {
+    font-size: clamp(1.75rem, 5vh, 2.5rem);
+  }
+
+  .procGanttNum {
+    font-size: var(--font-size-body);
+  }
+
+  .procGanttTitle {
+    font-size: var(--font-size-label);
+  }
+
+}
+
+/* 오른쪽 칸 — 사실 줄 위, 간트 아래 */
+.procSide {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(var(--spacing-md), 3vh, var(--spacing-2xl));
+  min-width: 0;
+  min-height: 0;
+}
+
+/* 사실 줄 — 대표 수치 · 주별 커밋 · 커밋 종류 */
+.procFacts {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.8fr) minmax(0, 1.1fr);
+  gap: clamp(var(--spacing-lg), 2.5vw, var(--spacing-3xl));
+  align-items: end;
+  padding-top: var(--spacing-md);
+  border-top: var(--border-light);
+}
+
+.procFacts figure {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  margin: 0;
+  min-width: 0;
+}
+
+.procFacts figcaption {
+  order: -1;
+  word-break: keep-all;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
+  color: var(--text-tertiary);
+  letter-spacing: 0.02em;
+}
+
+/* 대표 수치 — 큰 세리프 숫자와 그 이름 */
+.procMetric {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+}
+
+.procMetricValue {
+  font-family: var(--font-instrument);
+  font-size: clamp(2rem, min(3.4vw, 6.5vh), 3.75rem);
+  font-style: italic;
+  line-height: 1;
+  color: var(--text-accent);
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+.procMetricLabel {
+  font-size: var(--font-size-label);
+  color: var(--text-secondary);
+}
+
+/* 주별 커밋 — 높이 = 그 주 커밋 / 가장 바쁜 주. 스크롤이 지나간 주는 강조색(--item-p) */
+.procWeeklyBars {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--spacing-3xs);
+  height: clamp(2.5rem, 7vh, 4.5rem);
   border-bottom: var(--border-light);
 }
 
-.processRow {
-  display: grid;
-  flex: 0 0 auto;
-  grid-template-columns: clamp(4.5rem, 9vw, 9rem) minmax(0, 1.15fr) minmax(0, 1.35fr);
-  column-gap: clamp(1.5rem, 3vw, 4rem);
-  align-items: start;
-  position: relative;
-  overflow: hidden;
-  padding: clamp(0.6rem, 1.6vh, 1rem) 0;
-  border-top: var(--border-light);
-  cursor: pointer;
+.procWeeklyBar {
+  --_on: clamp(0, calc(var(--item-p, 1) * var(--n, 1) - var(--i, 0)), 1);
+  flex: 1;
+  height: max(2px, calc(var(--h, 0) * 100%));
+  background: color-mix(
+    in srgb,
+    var(--text-accent) calc(var(--_on) * 100%),
+    color-mix(in srgb, var(--text-tertiary) 30%, transparent)
+  );
 }
 
-/* 윗선을 덮는 강조선 — 현재 단계에서 왼쪽부터 채워진다 */
-.processRow::before {
+/* 커밋 종류 — 한 줄 띠와 범례. 기능·수정·디자인은 강조색 농도, 나머지는 회색 농도로 */
+.procMixBar {
+  display: flex;
+  overflow: hidden;
+  height: var(--spacing-md);
+}
+
+.procMixSeg {
+  flex-basis: 0;
+  min-width: 2px;
+}
+
+.procMixBar,
+.procMixLegend {
+  --_feat: var(--text-accent);
+  --_fix: color-mix(in srgb, var(--text-accent) 62%, transparent);
+  --_design: color-mix(in srgb, var(--text-accent) 32%, transparent);
+  --_refactor: color-mix(in srgb, var(--text-primary) 62%, transparent);
+  --_perf: color-mix(in srgb, var(--text-primary) 36%, transparent);
+  --_etc: color-mix(in srgb, var(--text-tertiary) 30%, transparent);
+}
+
+.procMix [data-kind="feat"] { --_c: var(--_feat); }
+.procMix [data-kind="fix"] { --_c: var(--_fix); }
+.procMix [data-kind="design"] { --_c: var(--_design); }
+.procMix [data-kind="refactor"] { --_c: var(--_refactor); }
+.procMix [data-kind="perf"] { --_c: var(--_perf); }
+.procMix [data-kind="etc"] { --_c: var(--_etc); }
+
+.procMixSeg {
+  background: var(--_c);
+}
+
+.procMixLegend {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--spacing-3xs) var(--spacing-md);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--font-size-hint);
+  color: var(--text-secondary);
+}
+
+.procMixLegend li {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+}
+
+.procMixLegend li::before {
+  flex: none;
+  width: var(--spacing-xs);
+  height: var(--spacing-xs);
+  background: var(--_c);
+  content: "";
+}
+
+.procMixLegend b {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-weight: var(--font-weight-regular);
+  color: var(--text-tertiary);
+}
+
+/* 간트 — 번호 · 단계 이름 · 공통 달력 축 위 막대. 막대 두께 = 하루 평균 커밋(--rate, 가장 바쁜 단계 1) */
+.procGantt {
+  --_num-w: 2rem;
+  --_title-w: 8.5rem;
+  --_col-gap: var(--spacing-md);
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+.procGanttAxis {
+  position: relative;
+  height: var(--spacing-xl);
+  margin-left: calc(var(--_num-w) + var(--_title-w) + var(--_col-gap) * 2);
+  border-bottom: var(--border-light);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
+  color: var(--text-tertiary);
+}
+
+.procGanttAxis > span {
   position: absolute;
-  top: -1px;
-  left: 0;
+  bottom: var(--spacing-2xs);
+  padding-left: var(--spacing-2xs);
+  border-left: var(--border-light);
+  line-height: 1;
+}
+
+/* 줄이 남은 높이를 나눠 가진다 — 화면 아래가 비지 않게 */
+.procGanttRows {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  min-height: 0;
+  list-style: none;
+}
+
+/* 줄은 글자 높이 아래로 줄지 않는다(겹침 방지). 남으면 조금 늘어난다 */
+.procGanttRow {
+  display: flex;
+  flex: 1 0 auto;
+}
+
+.procGanttBtn {
+  display: grid;
+  grid-template-columns: var(--_num-w) var(--_title-w) minmax(0, 1fr);
+  column-gap: var(--_col-gap);
+  align-items: center;
   width: 100%;
-  height: 1px;
+  padding: var(--spacing-xs) 0;
+  text-align: left;
+  color: var(--text-tertiary);
+  border-bottom: var(--border-light);
+}
+
+/* 기간 없는 목록 — 막대 칸이 없으니 이름이 남은 폭을 다 쓴다 */
+.procGanttPlain .procGanttBtn {
+  grid-template-columns: var(--_num-w) minmax(0, 1fr);
+}
+
+.procGanttNum {
+  font-family: var(--font-instrument);
+  font-size: clamp(1.1rem, min(1.6vw, 2.8vh), 1.6rem);
+  font-style: italic;
+  line-height: 1;
+}
+
+.procGanttTitle {
+  overflow: hidden;
+  font-size: var(--font-size-label);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.procGanttTrack {
+  position: relative;
+  height: var(--spacing-lg);
+}
+
+.procGanttBar {
+  position: absolute;
+  top: 50%;
+  overflow: hidden;
+  height: calc(var(--spacing-2xs) + var(--rate, 0.3) * var(--spacing-md));
+  background: color-mix(in srgb, var(--text-tertiary) 30%, transparent);
+  translate: 0 -50%;
+}
+
+/* 채움 — 지나간 단계는 가득(옅게), 지금 단계는 스크롤만큼(--item-p) */
+.procGanttBar::after {
+  position: absolute;
+  inset: 0;
   background: var(--text-accent);
   transform: scaleX(0);
   transform-origin: left;
   content: "";
 }
 
-/* Compound selector (0,2,0) */
-.processBody .processRow {
-  transition: flex-grow var(--duration-slower) var(--ease-material);
-}
-
-.processBody .processRow::before {
-  transition: transform var(--duration-slower) var(--ease-material);
-}
-
-.processRow:focus-visible {
-  outline: var(--border-accent);
-  outline-offset: calc(var(--spacing-3xs) * -1);
-}
-
-.processRowActive {
-  flex-grow: 1;
-  padding-top: clamp(1rem, 2.6vh, 1.75rem);
-}
-
-.processRowActive::before {
+.procGanttRowDone .procGanttBar::after {
   transform: scaleX(1);
+  opacity: 0.45;
 }
 
-/* 번호 — 페이지 제목과 같은 세리프. 현재 단계에서 크게 */
-.processRowNum {
-  font-family: var(--font-instrument);
-  font-size: clamp(1.1rem, min(1.5vw, 2.6vh), 1.5rem);
-  font-style: italic;
-  line-height: 1;
-  color: var(--text-tertiary);
+.procGanttRowActive .procGanttBar::after {
+  transform: scaleX(var(--item-p, 1));
 }
 
-.processRowTitle {
-  margin: 0;
-  word-break: keep-all;
-  font-size: clamp(1.05rem, min(1.5vw, 2.6vh), 1.5rem);
-  font-weight: var(--font-weight-regular);
-  line-height: var(--line-height-snug);
-  color: var(--text-tertiary);
+.procGanttBtn:hover,
+.procGanttRowActive .procGanttBtn {
+  color: var(--text-primary);
 }
 
-/* Compound selector (0,2,0) */
-.processRow .processRowNum,
-.processRow .processRowTitle {
-  transition:
-    font-size var(--duration-slower) var(--ease-material),
-    color var(--duration-slow) ease;
-}
-
-.processRow:hover .processRowNum,
-.processRow:hover .processRowTitle {
-  color: var(--text-secondary);
-}
-
-.processRowActive .processRowNum,
-.processRowActive:hover .processRowNum {
-  font-size: clamp(3.5rem, min(7vw, 12vh), 7.5rem);
-  line-height: 0.8;
+.procGanttRowActive .procGanttNum {
   color: var(--text-accent);
 }
 
-.processRowActive .processRowTitle,
-.processRowActive:hover .processRowTitle {
-  font-size: clamp(1.5rem, min(2.4vw, 4vh), 2.5rem);
-  font-weight: var(--font-weight-medium);
-  color: var(--text-primary);
-}
-
-/* 설명 칸 — 현재 단계만 보인다 */
-.processRowDesc {
-  margin: 0;
-  word-break: keep-all;
-  max-width: 60ch;
-  font-size: clamp(0.9rem, min(1.1vw, 1.9vh), 1.1rem);
-  line-height: var(--_lh-reading);
-  color: var(--text-secondary);
-  opacity: 0;
-  transform: translateY(var(--spacing-sm));
-}
-
 /* Compound selector (0,2,0) */
-.processRow .processRowDesc {
-  transition:
-    opacity var(--duration-slow) var(--ease-material),
-    transform var(--duration-slow) var(--ease-material);
+.procGanttRows .procGanttBtn {
+  transition: color var(--duration-base) ease;
 }
 
-.processRowActive .processRowDesc {
-  opacity: 1;
-  transform: none;
+.procSummary {
+  margin: var(--spacing-sm) 0 0;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
+  color: var(--text-tertiary);
+  letter-spacing: 0.04em;
 }
 
-/* 접힌 행은 설명이 행 높이를 늘리지 않게 */
-.processRow:not(.processRowActive) .processRowDesc {
-  max-height: 0;
-}
-
-/* 본문의 **강조** — 이 패널에서는 형광펜 대신 진한 글씨로만.
-   전역 [data-theme="dark"] .highlighted-text (0,2,0) 를 번들 순서와 무관하게 이기도록 (0,3,0) */
-.processRowDesc.processRowDesc :global(.highlighted-text) {
-  padding: 0;
-  background: none;
-  color: var(--text-primary);
-  font-weight: var(--font-weight-medium);
-}
 
 /* ── Mobile: paired step rows (hidden on desktop) ── */
 .processStepList {
@@ -169,7 +469,8 @@
     margin-bottom: 0;
   }
 
-  .processBody {
+  .processBody,
+  .procStage {
     display: none;
   }
 
@@ -316,6 +617,13 @@
     min-height: 2.7em;
   }
 
+  .processStepPeriod {
+    margin: 0 0 var(--spacing-sm);
+    font-family: var(--font-mono);
+    font-size: var(--font-size-hint);
+    color: var(--text-tertiary);
+  }
+
   .processStepContentDesc {
     margin: 0;
     font-size: var(--font-size-prose);
@@ -337,5 +645,26 @@
   .processStepDesc {
     max-width: none;
     font-size: var(--font-size-prose);
+  }
+}
+
+@media (min-width: 1025px) and (min-height: 701px) and (prefers-reduced-motion: no-preference) {
+  /* 스크롤을 따라 — 단계 구간에 들어서면 번호 → 기간·제목 → 설명·수치 순으로 굴리는 만큼 떠오르고,
+     구간 끝에서 위로 빠진다(--item-in/--item-out, usePinnedScroll) */
+  .procDetailNum,
+  .procDetailMain > *,
+  .procFacts > * {
+    --_r: clamp(0, calc(var(--item-in, 1) * 1.8 - var(--_k, 0) * 0.3), 1);
+    opacity: calc(var(--_r) - var(--item-out, 0) * 1.2);
+    translate: 0 calc((1 - var(--_r) - var(--item-out, 0)) * var(--spacing-xl));
+  }
+
+  .procDetailMain > :nth-child(2) { --_k: 1; }
+  .procDetailMain > :nth-child(n + 3),
+  .procFacts > * { --_k: 2; }
+
+  /* 번호는 구간 내내 천천히 위로 흐른다 */
+  .procDetailNum {
+    translate: 0 calc((1 - var(--_r) - var(--item-out, 0)) * var(--spacing-xl) + (0.5 - var(--item-p, 0.5)) * var(--spacing-3xl));
   }
 }

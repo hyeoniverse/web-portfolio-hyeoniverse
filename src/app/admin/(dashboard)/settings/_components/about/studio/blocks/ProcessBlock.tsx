@@ -84,6 +84,32 @@ function ProcessRow({ index, item, lang, t, set, onRemove }: {
           onChange={(v) => set(index, lang === "ko" ? { title_ko: v } : { title_en: v })} placeholder={t("admin.settings.aboutItemTitle")} ariaLabel={L("제목", "Title")} style={{ maxWidth: "100%" }} />
         <EditableText multiline className={css.procDesc} value={lang === "ko" ? item.description_ko : item.description_en}
           onChange={(v) => set(index, lang === "ko" ? { description_ko: v } : { description_en: v })} placeholder={t("admin.settings.aboutItemDesc")} ariaLabel={L("설명", "Description")} style={{ width: "100%" }} />
+        {/* 기간·수치 — 언어와 무관하다. 공개 화면의 타임라인 막대 길이와 수치가 된다 */}
+        <div className={css.procMeta}>
+          <EditableText value={item.start ?? ""} onChange={(v) => set(index, { start: v })}
+            placeholder="2026-02-05" ariaLabel={L("시작일", "Start date")} />
+          <span aria-hidden>~</span>
+          <EditableText value={item.end ?? ""} onChange={(v) => set(index, { end: v })}
+            placeholder="2026-02-22" ariaLabel={L("종료일", "End date")} />
+          <EditableText value={item.commits ?? ""} onChange={(v) => set(index, { commits: v })}
+            placeholder={L("커밋 수", "Commits")} ariaLabel={L("커밋 수", "Commits")} />
+          <EditableText value={item.prs ?? ""} onChange={(v) => set(index, { prs: v })}
+            placeholder={L("PR 수", "PRs")} ariaLabel={L("병합 PR 수", "Merged PRs")} />
+        </div>
+        {/* 대표 수치(언어 무관) · 그 이름(지금 언어) · 주별 커밋 · 커밋 종류 */}
+        <div className={css.procMeta}>
+          <EditableText value={item.metric ?? ""} onChange={(v) => set(index, { metric: v })}
+            placeholder="4.8 → 1.0 MB" ariaLabel={L("대표 수치", "Key metric")} />
+          <EditableText value={(lang === "ko" ? item.metric_label_ko : item.metric_label_en) ?? ""}
+            onChange={(v) => set(index, lang === "ko" ? { metric_label_ko: v } : { metric_label_en: v })}
+            placeholder={L("대표 수치 이름", "Metric label")} ariaLabel={L("대표 수치 이름", "Metric label")} />
+        </div>
+        <div className={css.procMeta}>
+          <EditableText value={item.weekly ?? ""} onChange={(v) => set(index, { weekly: v })}
+            placeholder={L("주별 커밋 (예: 106 101 48)", "Weekly commits (e.g. 106 101 48)")} ariaLabel={L("주별 커밋", "Weekly commits")} />
+          <EditableText value={item.mix ?? ""} onChange={(v) => set(index, { mix: v })}
+            placeholder="feat:82 fix:77 design:27 refactor:32 perf:5 etc:32" ariaLabel={L("커밋 종류", "Commit types")} />
+        </div>
       </div>
       <span className={css.itemTools}><RemoveButton onClick={onRemove} /></span>
     </div>
