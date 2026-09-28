@@ -15,6 +15,11 @@
   font-weight: var(--font-weight-light);
   color: var(--text-primary);
   box-sizing: border-box;
+  /* 흐름 값 — 가로 스크롤이 매 프레임 인라인으로 덮어쓴다(useHorizontalScroll). 0 = 제자리 */
+  --flow-in: 0;
+  --flow-out: 0;
+  /* 장면 전환에서 패널이 서로 겹친다 — 아래 패널이 비쳐 보이지 않게 불투명한 바탕 */
+  background: var(--bg-primary);
 }
 
 .panelWide {
@@ -209,5 +214,27 @@
   .panelExtraWide,
   .panelCompact {
     padding: var(--m-lg) var(--m-sm);
+  }
+}
+
+/* 흐름 — 장면 전환 동안 내용이 스크롤을 따라 움직인다(--flow-in 1 → 0 들어옴, --flow-out 0 → 1 나감).
+   들어올 때는 제목·본문·나머지가 저마다 다른 거리에서 오른쪽으로부터 따라 들어와 층이 갈리고(--_d 가 클수록 멀리서),
+   나갈 때는 왼쪽으로 밀려나며 흐려진다. :where 로 특이도를 0 으로 둬 패널이 자기 흐름 규칙을 쓰면 그쪽이 이긴다 */
+@media (min-width: 1025px) and (min-height: 701px) and (prefers-reduced-motion: no-preference) {
+  :where(.panel) > :where(:not(.pinnedContent)),
+  :where(.panel) > :where(.pinnedContent) > * {
+    --_d: 0;
+    opacity: calc(1 - var(--flow-in) * (0.5 + var(--_d) * 0.25) - var(--flow-out) * (0.5 + var(--_d) * 0.2));
+    translate: calc(var(--flow-in) * (10vw + var(--_d) * 14vw) - var(--flow-out) * (6vw + var(--_d) * 6vw)) 0;
+  }
+
+  :where(.panel) > :where(:nth-child(2):not(.pinnedContent)),
+  :where(.panel) > :where(.pinnedContent) > :where(:nth-child(2)) {
+    --_d: 1;
+  }
+
+  :where(.panel) > :where(:nth-child(n + 3):not(.pinnedContent)),
+  :where(.panel) > :where(.pinnedContent) > :where(:nth-child(n + 3)) {
+    --_d: 2;
   }
 }

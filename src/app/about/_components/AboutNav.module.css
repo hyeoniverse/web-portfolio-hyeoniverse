@@ -142,210 +142,305 @@
 
 /* Horizontal dot nav — 하단 중앙 fixed. transparent bg + backdrop blur + mix-blend difference.
    color/dot 도 흰 톤 토큰 사용 — difference 가 배경 색에 맞춰 자동 반전. */
-.sectionNav {
-  display: flex;
-  flex-direction: row;
-  gap: var(--spacing-2xs);
-  align-items: center;
-  padding: var(--spacing-2xs) var(--spacing-xs);
+/* ── 하단 내비 — 전시실 평면도 ──
+   왼쪽 지금 위치, 가운데 챕터 구간과 패널 눈금의 레일, 오른쪽 이전·다음. 화면 아래 폭 전체에 붙는 얇은 바 */
+.floorNav {
+  display: grid;
+  grid-template-columns: minmax(12rem, 14vw) minmax(0, 1fr) auto;
+  column-gap: clamp(1.25rem, 2.2vw, 2.5rem);
+  align-items: end;
   position: fixed;
-  bottom: var(--spacing-2xl);
-  left: 50%;
+  right: 0;
+  bottom: 0;
+  left: 0;
   z-index: var(--z-float);
-  max-width: calc(100vw - var(--spacing-2xl) * 2);
-  background: transparent;
+  padding: var(--spacing-sm) var(--page-px) var(--spacing-md);
+  background: color-mix(in srgb, var(--bg-primary) 88%, transparent);
   backdrop-filter: blur(12px);
-  mix-blend-mode: difference;
-  transform: translateX(-50%);
-  border-radius: var(--radius-capsule);
-  border: var(--border-white-muted);
-  overflow: hidden;
+  border-top: var(--border-light);
 }
 
-/* horizontal indicator — text 감싸는 capsule. difference 합성용 흰 톤 outline */
-.navIndicator {
+
+.floorHere {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+  min-width: 0;
+}
+
+.floorRoom {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.floorCurrent {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: baseline;
+}
+
+.floorCurrent b {
+  font-family: var(--font-instrument);
+  font-size: clamp(1.4rem, 1.9vw, 1.9rem);
+  font-style: italic;
+  font-weight: var(--font-weight-regular);
+  line-height: 1;
+  color: var(--text-accent);
+  white-space: nowrap;
+}
+
+.floorCurrent small {
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 레일 — 구간 폭은 담긴 패널 수에 비례(flex-grow 를 인라인으로 준다) */
+.floorRail {
+  display: flex;
+  gap: clamp(0.6rem, 1.2vw, 1.2rem);
+  align-items: flex-end;
+  min-width: 0;
+}
+
+/* 칸이 하나뿐인 구간(Intro·Exit)도 이름이 잘리지 않을 만큼은 둔다 */
+.floorGroup {
+  display: flex;
+  flex-basis: 0;
+  min-width: 3rem;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.floorGroupTitle {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Compound selector (0,2,0) */
+.floorGroup .floorGroupTitle {
+  transition: color var(--duration-base) ease;
+}
+
+.floorGroup[data-current] .floorGroupTitle {
+  color: var(--text-primary);
+}
+
+.floorTicks {
+  display: flex;
+}
+
+/* 눈금 — 가로 선 한 칸. 지나온 칸은 강조색으로 차오르고, 지금 칸은 끝에 점 */
+.floorTick {
+  position: relative;
+  flex: 1;
+  height: 22px;
+  cursor: pointer;
+}
+
+.floorTick::before {
   position: absolute;
   top: 50%;
-  left: 0;
-  z-index: 0;
-  height: clamp(18px, 2.4vh, 24px);
-  background: transparent;
-  border: var(--border-white);
-  pointer-events: none;
-  border-radius: var(--radius-capsule);
+  right: 1px;
+  left: 1px;
+  height: 2px;
+  background: var(--border-color-light);
   translate: 0 -50%;
-}
-
-.slideArrow {
-  position: fixed;
-  top: 50%;
-  left: var(--spacing-md);
-  z-index: var(--z-float);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  border: none;
-  background: transparent;
-  backdrop-filter: blur(8px);
-  border-radius: var(--radius-circle);
-  color: var(--text-white);
-  font-size: 0;
-  line-height: 1;
-  opacity: 0.6;
-  transform: translateY(-50%);
-  transition: opacity var(--duration-base) ease;
-  mix-blend-mode: difference;
-}
-
-/* 화살표 chevron — border 2개 rotate. 회전 후 "꼭지점" 이 bbox 중앙이 아닌 한쪽으로 치우쳐서
-   margin 으로 visual 중앙 보정 (좌측 arrow 는 꼭지점이 왼쪽 → 오른쪽으로 살짝 밀어줌) */
-.slideArrow::before {
   content: "";
-  display: block;
-  width: 12px;
-  height: 12px;
-  margin-left: var(--spacing-2xs);
-  border-left: 1.5px solid currentColor;
-  border-bottom: 1.5px solid currentColor;
-  transform: rotate(45deg);
-  opacity: 0.85;
 }
 
-.slideArrowRight::before {
-  margin-left: 0;
-  margin-right: var(--spacing-2xs);
-}
-
-.slideArrowRight {
-  left: auto;
-  right: var(--spacing-md);
-}
-
-.slideArrowRight::before {
-  transform: rotate(-135deg);
-}
-
-.slideArrow:hover {
-  opacity: 1;
-}
-
-.slideArrow:hover::before {
-  opacity: 1;
-}
-
-/* horizontal nav row — dot + label 한 줄, items 가로 stack */
-.navItem {
-  display: flex;
-  flex-direction: row;
-  gap: clamp(0.25rem, 0.3vw, 0.4rem);
-  align-items: center;
-  padding: clamp(0.25rem, 0.35vh, 0.4rem) clamp(0.45rem, 0.55vw, 0.65rem);
-  border: none;
-  overflow: hidden;
-  position: relative;
-  z-index: 1;
-  background: transparent;
-  white-space: nowrap;
-  border-radius: var(--radius-capsule);
-}
-
-.sectionNav .navItem {
-  transition: gap var(--duration-base) ease;
-}
-
-.navItem .navDot {
-  flex-shrink: 0;
-  width: 6px;
-  height: 6px;
-  background: var(--bg-white);
+.floorTick::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  background: var(--text-accent);
   border-radius: var(--radius-circle);
+  scale: 0;
+  translate: -50% -50%;
+  content: "";
 }
 
-.sectionNav .navItem .navDot {
-  transition:
-    background var(--duration-base) ease,
-    width var(--duration-base) ease,
-    height var(--duration-base) ease;
+/* Compound selector (0,2,0) */
+.floorTicks .floorTick::before {
+  transition: background-color var(--duration-slow) var(--ease-material);
 }
 
-/* 기본 — title 항상 표시. mix-blend difference 가 배경에 따라 자동 반전. */
-.navItem .navLabel {
-  margin-left: 0;
-  max-width: clamp(60px, 6vw, 90px);
+.floorTicks .floorTick::after {
+  transition: scale var(--duration-base) var(--ease-bounce);
+}
+
+.floorTick[data-state]::before {
+  background: var(--text-accent);
+}
+
+.floorTick[data-state="active"]::after {
+  scale: 1;
+}
+
+.floorTick[data-hovered]:not([data-state="active"])::after {
+  background: var(--text-primary);
+  scale: 0.6;
+}
+
+.floorTick:focus-visible {
+  outline: var(--border-accent);
+  outline-offset: 2px;
+}
+
+/* 눈금 이름 — 올렸을 때만 위에 뜬다 */
+.floorTickLabel {
+  position: absolute;
+  bottom: calc(100% + var(--spacing-xs));
+  left: 50%;
+  padding: var(--spacing-3xs) var(--spacing-xs);
   font-family: var(--font-mono);
-  font-size: clamp(var(--font-size-micro), 0.55vw, 0.65rem);
-  font-weight: var(--font-weight-medium);
-  color: var(--text-white);
-  opacity: 0.6;
-}
-
-.sectionNav .navItem .navLabel {
-  transition:
-    font-size var(--duration-base) ease,
-    opacity var(--duration-base) ease,
-    max-width var(--duration-base) ease,
-    margin-left var(--duration-base) ease;
-}
-
-/* Hover: expand dot + show label */
-.navItem:hover {
-  gap: clamp(0.25rem, 0.3vw, 0.4rem);
-}
-
-.navItem:hover .navDot {
-  width: 7px;
-  height: 7px;
-}
-
-.navItem:hover .navLabel {
-  max-width: clamp(60px, 6vw, 90px);
-  font-size: clamp(var(--font-size-micro), 0.55vw, 0.65rem);
-  color: var(--text-white);
-  opacity: 0.9;
-}
-
-/* Active state */
-.navItemActive {
-  gap: clamp(0.3rem, 0.35vw, 0.5rem);
-}
-
-.navItemActive .navDot {
-  background: var(--bg-white);
-  width: 8px;
-  height: 8px;
-}
-
-/* 지나온 항목 — dim. dot/label 모두 흐리게 → 현재 위치/진행도 시각화 */
-.navItemPast .navDot {
-  opacity: 0.45;
-}
-
-.navItemPast .navLabel {
-  opacity: 0.3;
-}
-
-/* 섹션 그룹 사이 구분선 — 1px hairline (difference 합성으로 자동 반전) */
-.navGroupDivider {
-  flex: none;
-  width: 1px;
-  height: 14px;
-  margin: 0 var(--spacing-2xs);
-  background: var(--bg-white);
-  opacity: 0.35;
+  font-size: var(--font-size-hint);
+  white-space: nowrap;
+  color: var(--text-inverse);
+  background: var(--bg-inverse);
+  border-radius: var(--radius-capsule);
+  opacity: 0;
   pointer-events: none;
+  translate: -50% 4px;
 }
 
-.navItemActive .navLabel {
-  margin-left: 0;
-  max-width: clamp(60px, 6vw, 90px);
-  /* font-size 는 default 와 동일 유지 — active 시 폰트 커지면 indicator 위치/너비 흔들림 */
-  color: var(--text-white);
+/* Compound selector (0,2,0) */
+.floorTick .floorTickLabel {
+  transition:
+    opacity var(--duration-fast) ease,
+    translate var(--duration-fast) ease;
+}
+
+.floorTick[data-hovered] .floorTickLabel {
   opacity: 1;
+  translate: -50% 0;
 }
 
-/* ── Mobile tab bar (hidden on desktop) ── */
+/* 이전·다음 — 원형 버튼 대신 이웃 패널 이름을 적은 글자 버튼. 다음 쪽이 주인공 */
+/* 폭을 고정한다 — 이웃 패널 이름 길이에 따라 화살표 자리가 움직이지 않게 */
+.floorSteps {
+  display: grid;
+  grid-template-columns: 7rem 10rem;
+  gap: var(--spacing-lg);
+  align-items: baseline;
+}
+
+.floorStep {
+  display: flex;
+  min-width: 0;
+  gap: var(--spacing-xs);
+  align-items: baseline;
+  position: relative;
+  padding: var(--spacing-2xs) 0;
+  white-space: nowrap;
+  color: var(--text-tertiary);
+}
+
+.floorStepName {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-label);
+  text-overflow: ellipsis;
+}
+
+.floorStepHint {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.floorStepArrow {
+  font-size: var(--font-size-body);
+}
+
+/* 다음 — NEXT 는 칸 왼쪽, 이름과 화살표는 칸 오른쪽 끝에 붙는다 */
+.floorStepNext {
+  color: var(--text-primary);
+}
+
+.floorStepNext .floorStepHint {
+  margin-right: auto;
+}
+
+.floorStepNext .floorStepName {
+  flex: 0 1 auto;
+}
+
+.floorStepNext .floorStepName {
+  font-family: var(--font-instrument);
+  font-size: clamp(1.15rem, 1.5vw, 1.5rem);
+  font-style: italic;
+  color: var(--text-accent);
+}
+
+/* 밑줄 — 올리면 왼쪽부터 그어진다 */
+.floorStep::after {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  content: "";
+}
+
+/* Compound selector (0,2,0) */
+.floorSteps .floorStep::after {
+  transition: transform var(--duration-base) var(--ease-material);
+}
+
+.floorSteps .floorStepArrow {
+  transition: translate var(--duration-base) var(--ease-material);
+}
+
+.floorStep:not(:disabled):hover::after {
+  transform: scaleX(1);
+}
+
+/* 이전은 오른쪽 정렬 — 화살표는 늘 칸 왼쪽 끝, 이름은 그 뒤 */
+.floorStepPrev .floorStepName {
+  text-align: left;
+}
+
+.floorStepPrev:not(:disabled):hover {
+  color: var(--text-primary);
+}
+
+.floorStepPrev:not(:disabled):hover .floorStepArrow {
+  translate: -3px 0;
+}
+
+.floorStepNext:not(:disabled):hover .floorStepArrow {
+  translate: 3px 0;
+}
+
+.floorStep:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
 .mobileTabBar {
   display: none;
 }
@@ -447,7 +542,7 @@
       opacity 0.2s ease;
   }
 
-  .sectionNav {
+  .floorNav {
     display: none;
   }
 
