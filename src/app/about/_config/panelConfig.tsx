@@ -158,7 +158,7 @@ export const desktopPanels: PanelConfig[] = [
   {
     key: "credits",
     Component: CreditsPanel,
-    props: (ctx) => ({ goToPanel: ctx.goToPanel }),
+    props: () => ({}),
   },
 ];
 
@@ -249,7 +249,7 @@ export const mobileTabPanels: Record<string, PanelConfig[]> = {
     {
       key: "credits",
       Component: CreditsPanel,
-      props: (ctx) => ({ goToPanel: ctx.goToPanel }),
+      props: () => ({}),
     },
   ],
 };
