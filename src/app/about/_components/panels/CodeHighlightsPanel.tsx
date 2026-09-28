@@ -18,6 +18,7 @@ import frame from "../AboutPanel.module.css";
 import shell from "../AboutSection.module.css";
 import local from "./CodeHighlightsPanel.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { ChevronDown, ChevronUp } from "@/components/icons";
 const shared = { ...frame, ...shell };
 const styles = { ...shared, ...local };
 
@@ -33,6 +34,7 @@ function hasDemo(e: CodeExample): boolean {
     return !!e.demoFiles && Object.values(e.demoFiles).some((c) => c.trim());
   }
   if (e.demoMode === "media") return !!e.demoMedia?.trim();
+  if (e.demoMode === "live") return !!e.demoKey;
   return false;
 }
 
@@ -137,7 +139,7 @@ function CodeHighlightsPanel({
               </div>
               <div className={styles.codeSingleBody}>
                 {hasDemo(example) && (
-                  <div className={styles.codeDemo} style={example.demoBg ? { background: example.demoBg } : undefined}><CodeDemoSlot mode={example.demoMode} media={example.demoMedia} files={example.demoFiles} template={example.demoTemplate} active={near && index === activeIndex} /></div>
+                  <div className={styles.codeDemo} style={example.demoBg ? { background: example.demoBg } : undefined}><CodeDemoSlot mode={example.demoMode} media={example.demoMedia} files={example.demoFiles} template={example.demoTemplate} demoKey={example.demoKey} active={near && index === activeIndex} /></div>
                 )}
                 <div
                   ref={(el) => {
@@ -156,19 +158,21 @@ function CodeHighlightsPanel({
                         className={styles.codePageBtn}
                         disabled={codePage.page <= 1}
                         onClick={() => scrollCodePage(-1)}
+                        aria-label={language === "ko" ? "코드 이전 쪽" : "Previous code page"}
                       >
-                        ↑
+                        <ChevronUp size={18} strokeWidth={1.75} aria-hidden />
                       </Pressable>
-                      <span>
-                        {codePage.page}/{codePage.total}
+                      <span className={styles.codePageCount}>
+                        {codePage.page}<i>/</i>{codePage.total}
                       </span>
                       <Pressable
                         data-clickable="true"
                         className={styles.codePageBtn}
                         disabled={codePage.page >= codePage.total}
                         onClick={() => scrollCodePage(1)}
+                        aria-label={language === "ko" ? "코드 다음 쪽" : "Next code page"}
                       >
-                        ↓
+                        <ChevronDown size={18} strokeWidth={1.75} aria-hidden />
                       </Pressable>
                     </div>
                   )}

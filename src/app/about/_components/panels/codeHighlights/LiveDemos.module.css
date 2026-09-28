@@ -1,0 +1,318 @@
+/* Code Highlights 라이브 데모 — 코드 옆 칸 안에 들어가는 작은 화면 */
+.demo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  width: 100%;
+  max-width: 22rem;
+  margin: 0;
+}
+
+.caption {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
+  line-height: var(--line-height-snug);
+  color: var(--text-tertiary);
+  text-align: center;
+}
+
+.slider {
+  width: 100%;
+}
+
+/* ── 1. 장면 전환 ── */
+.stage {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  border: var(--border-light);
+}
+
+.scene {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  inset: 0;
+  font-family: var(--font-instrument);
+  font-size: clamp(1.1rem, 1.6vw, 1.5rem);
+  font-style: italic;
+}
+
+.sceneA {
+  color: var(--text-primary);
+  background: var(--bg-secondary);
+}
+
+.sceneB {
+  color: var(--text-inverse);
+  background: var(--text-accent);
+}
+
+.chips {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-2xs);
+}
+
+.chip {
+  padding: var(--spacing-3xs) var(--spacing-sm);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
+  color: var(--text-tertiary);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+}
+
+.chipOn {
+  color: var(--text-accent);
+  border: var(--border-accent);
+}
+
+/* ── 2. 스냅 곡선 ── */
+.plot {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.axis,
+.target {
+  stroke: var(--text-tertiary);
+  stroke-width: 1;
+}
+
+.target {
+  stroke-dasharray: 3 3;
+}
+
+.incoming,
+.curveLerp,
+.curveHermite {
+  fill: none;
+  stroke-width: 2;
+}
+
+.incoming {
+  stroke: var(--text-secondary);
+}
+
+.curveLerp {
+  stroke: var(--text-tertiary);
+}
+
+.curveHermite {
+  stroke: var(--text-accent);
+}
+
+.dotLerp {
+  fill: var(--text-tertiary);
+}
+
+.dotHermite {
+  fill: var(--text-accent);
+}
+
+.plotLabel {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-micro);
+  fill: var(--text-tertiary);
+}
+
+.lanes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.lane {
+  display: grid;
+  grid-template-columns: 4.5rem minmax(0, 1fr);
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.laneName {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
+  color: var(--text-secondary);
+}
+
+.laneTrack {
+  position: relative;
+  height: var(--spacing-md);
+  border-bottom: var(--border-light);
+}
+
+.laneDotLerp,
+.laneDotHermite {
+  position: absolute;
+  top: 50%;
+  width: var(--spacing-sm);
+  height: var(--spacing-sm);
+  border-radius: var(--radius-circle);
+  translate: -50% -50%;
+}
+
+.laneDotLerp {
+  background: var(--text-tertiary);
+}
+
+.laneDotHermite {
+  background: var(--text-accent);
+}
+
+/* ── 3. 구간 진행도 ── */
+.varsCard {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  overflow: hidden;
+  padding: var(--spacing-md);
+  border: var(--border-light);
+  min-height: 6.5rem;
+}
+
+.varsIndex {
+  font-family: var(--font-instrument);
+  font-size: 2.25rem;
+  font-style: italic;
+  line-height: 0.9;
+  color: var(--text-accent);
+}
+
+.varsBody {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-label);
+  color: var(--text-primary);
+}
+
+.varsLines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+}
+
+.varsLines i {
+  height: var(--spacing-2xs);
+  background: color-mix(in srgb, var(--text-tertiary) 45%, transparent);
+}
+
+.varsLines i:nth-child(2) {
+  width: 85%;
+}
+
+.varsLines i:nth-child(3) {
+  width: 60%;
+}
+
+.varsBars {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.varsBars li {
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr) 2.5rem;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.varsBars code {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
+  color: var(--text-secondary);
+}
+
+.varsBars b {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
+  font-weight: var(--font-weight-regular);
+  color: var(--text-tertiary);
+  text-align: right;
+}
+
+.varsTrack {
+  overflow: hidden;
+  height: var(--spacing-xs);
+  background: color-mix(in srgb, var(--text-tertiary) 18%, transparent);
+}
+
+.varsTrack i {
+  display: block;
+  height: 100%;
+  background: var(--text-accent);
+  transform-origin: left;
+}
+
+/* ── 4. Lenis 휠 ── */
+.lenisView {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  border: var(--border-light);
+}
+
+.lenisPage {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  transition: transform 0.25s var(--ease-out-expo);
+}
+
+.lenisBlock {
+  display: block;
+  height: 2.5rem;
+  background: color-mix(in srgb, var(--text-tertiary) 14%, transparent);
+}
+
+.lenisSection {
+  overflow: hidden;
+  padding: var(--spacing-xs) 0;
+  border-block: var(--border-light);
+}
+
+.lenisSection[data-marked] {
+  border-block: var(--border-accent);
+}
+
+.lenisTrack {
+  display: flex;
+  gap: var(--spacing-xs);
+  transition: transform 0.25s var(--ease-out-expo);
+}
+
+.lenisTrack span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 4.5rem;
+  height: 3.5rem;
+  font-family: var(--font-instrument);
+  font-style: italic;
+  color: var(--text-inverse);
+  background: var(--text-accent);
+}
+
+.lenisCount {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-lg);
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-label);
+  color: var(--text-secondary);
+}
+
+.lenisBad {
+  color: var(--color-error);
+}
