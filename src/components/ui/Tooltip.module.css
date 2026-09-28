@@ -27,6 +27,12 @@
   padding: var(--spacing-xs) var(--spacing-md);
 }
 
+/* 3줄 이상 — 둥근 사각형. 반원 끝이 없으니 가로 padding 도 세로와 비슷하게 */
+.bubble[data-tall="true"] {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-2xl);
+}
+
 .arrow {
   position: absolute;
   width: 6px;
