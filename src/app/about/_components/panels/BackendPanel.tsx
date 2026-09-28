@@ -1,11 +1,12 @@
 "use client";
 
-import { useCallback, useRef, useState, useEffect, memo } from "react";
+import { useCallback, useMemo, useState, memo } from "react";
 import type { Language } from "@/providers/LanguageProvider";
 import { backendItems } from "@/data/about/backend";
 import { useAboutConfig } from "../AboutConfig";
-import { useMobileLayout } from "@/hooks/useMobileLayout";
 import { renderDetail } from "./BackendDetail";
+import { renderHighlight } from "../renderHighlight";
+import type { BackendItem } from "@/data/about/types";
 import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
 import PinnedTitleRow from "../PinnedTitleRow";
 import frame from "../AboutPanel.module.css";
@@ -15,6 +16,14 @@ import local from "./BackendPanel.module.css";
 import Pressable from "@/components/ui/Pressable";
 const shared = { ...frame, ...nav, ...shell };
 const styles = { ...shared, ...local };
+
+/** 상세에서 처음 보여 줄 엔드포인트 수 — 나머지는 펼쳐 본다 */
+const KEY_ENDPOINTS = 4;
+const METHOD_ORDER = ["GET", "POST", "PATCH", "PUT", "DELETE"];
+const orderMethods = (m: Map<string, number>) =>
+  [...m.entries()].sort((a, b) => METHOD_ORDER.indexOf(a[0]) - METHOD_ORDER.indexOf(b[0]));
+const isAdminEndpoint = (ep: NonNullable<BackendItem["endpoints"]>[number]) =>
+  ep.path.startsWith("/api/admin/") || /\badmin\b/i.test(ep.description.en ?? "");
 
 interface BackendPanelProps {
   language: Language;
@@ -29,158 +38,56 @@ function BackendPanel({
   const about = useAboutConfig();
   const cfgItems = about.backend;
   const items = cfgItems && cfgItems.length > 0 ? cfgItems : backendItems;
-  const isMobile = useMobileLayout();
-  const listRef = useRef<HTMLDivElement>(null);
-  const detailRef = useRef<HTMLDivElement>(null);
-  const [listPage, setListPage] = useState({ page: 1, total: 1 });
-  const [detailIndex, setDetailIndex] = useState(0);
-  const { panelRef, contentRef } = usePinnedScroll(
+  const { panelRef, contentRef, activeIndex, scrollToItem } = usePinnedScroll(
     items.length,
     undefined,
     scrollBy,
   );
+  const L = (ko: string, en: string) => (language === "ko" ? ko : en);
 
-  const displayIndex = detailIndex;
-
-  // 클릭 핸들러 — 데스크톱: 디테일 영역으로 스크롤
-  const handleItemClick = useCallback(
-    (index: number) => {
-      const detail = detailRef.current;
-      if (!detail) return;
-      const itemEls = detail.querySelectorAll(`.${styles.dbDetailItem}`);
-      const target = itemEls[index] as HTMLElement | undefined;
-      if (target) {
-        detail.scrollTo({ top: target.offsetTop, behavior: "smooth" });
-      }
-    },
-    [],
-  );
-
-  // 활성 항목 변경 시 리스트 자동 스크롤
-  useEffect(() => {
-    const list = listRef.current;
-    if (!list || isMobile) return;
-    const item = list.children[displayIndex] as HTMLElement | undefined;
-    if (!item) return;
-    const lastChild = list.lastElementChild as HTMLElement | null;
-    const navH = lastChild?.classList.contains(styles.dbPageNav)
-      ? lastChild.offsetHeight
-      : 0;
-    const itemTop = item.offsetTop;
-    const itemBottom = itemTop + item.offsetHeight;
-    const viewTop = list.scrollTop;
-    const visibleBottom = viewTop + list.clientHeight - navH;
-    if (itemTop < viewTop) {
-      list.scrollTo({ top: itemTop, behavior: "smooth" });
-    } else if (itemBottom > visibleBottom) {
-      list.scrollTo({ top: itemBottom - list.clientHeight + navH, behavior: "smooth" });
-    }
-  }, [displayIndex, isMobile]);
-
-  // 리스트 오버플로 감지
-  useEffect(() => {
-    const el = listRef.current;
-    if (!el || isMobile) return;
-    const update = () => {
-      const { clientHeight, scrollHeight, scrollTop } = el;
-      if (scrollHeight <= clientHeight) { setListPage({ page: 1, total: 1 }); return; }
-      const maxScroll = scrollHeight - clientHeight;
-      const steps = Math.max(1, Math.round(maxScroll / clientHeight));
-      const total = steps + 1;
-      const page = Math.min(total, Math.round((scrollTop / maxScroll) * steps) + 1);
-      setListPage({ page, total });
+  /* 지도 수치 — 데이터에서 센다. 관리자 전용 = 경로가 /api/admin/ 이거나 설명에 admin 이 적힌 엔드포인트 */
+  const stats = useMemo(() => {
+    const perItem = items.map((item) => {
+      const eps = item.endpoints ?? [];
+      const m = new Map<string, number>();
+      for (const ep of eps) m.set(ep.method, (m.get(ep.method) ?? 0) + 1);
+      return { count: eps.length, admin: eps.filter(isAdminEndpoint).length, methods: orderMethods(m) };
+    });
+    const methods = new Map<string, number>();
+    for (const p of perItem) for (const [k, n] of p.methods) methods.set(k, (methods.get(k) ?? 0) + n);
+    return {
+      total: perItem.reduce((n, p) => n + p.count, 0),
+      admin: perItem.reduce((n, p) => n + p.admin, 0),
+      methods: orderMethods(methods),
+      perItem,
+      maxCount: Math.max(1, ...perItem.map((p) => p.count)),
     };
-    const ro = new ResizeObserver(update);
-    ro.observe(el);
-    el.addEventListener("scroll", update, { passive: true });
-    return () => { ro.disconnect(); el.removeEventListener("scroll", update); };
-  }, [isMobile]);
+  }, [items]);
 
-  const scrollListPage = useCallback((dir: 1 | -1) => {
-    const el = listRef.current;
+  // 지금 묶음의 엔드포인트 — 처음엔 몇 개만, 펼치면 전부. 펼친 묶음을 기억해 다른 묶음으로 가면 저절로 접힌다
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+  const expanded = expandedIndex === activeIndex;
+  /* 펼친 목록 위의 휠은 목록만 굴린다 — 가로 스크롤(섹션의 휠 리스너)보다 먼저 받아 멈춘다.
+     끝에 닿은 방향이면 그대로 흘려보내 패널을 계속 넘길 수 있게 둔다 */
+  const endpointListRef = useCallback((el: HTMLUListElement | null) => {
     if (!el) return;
-    el.scrollBy({ top: dir * el.clientHeight, behavior: "smooth" });
+    const onWheel = (e: WheelEvent) => {
+      const down = e.deltaY > 0;
+      const atEnd = down
+        ? el.scrollTop + el.clientHeight >= el.scrollHeight - 1
+        : el.scrollTop <= 0;
+      if (!atEnd) e.stopPropagation();
+    };
+    el.addEventListener("wheel", onWheel, { passive: true });
+    return () => el.removeEventListener("wheel", onWheel);
   }, []);
 
-  // 데스크톱: 디테일 스크롤 → detailIndex 추적
-  useEffect(() => {
-    const detail = detailRef.current;
-    if (!detail || isMobile) return;
-
-    const onScroll = () => {
-      const itemEls = detail.querySelectorAll(`.${styles.dbDetailItem}`);
-      const mid = detail.scrollTop + detail.clientHeight / 2;
-      let idx = 0;
-      for (let i = 0; i < itemEls.length; i++) {
-        const el = itemEls[i] as HTMLElement;
-        if (el.offsetTop <= mid) idx = i;
-      }
-      setDetailIndex(idx);
-    };
-
-    detail.addEventListener("scroll", onScroll, { passive: true });
-    return () => detail.removeEventListener("scroll", onScroll);
-  }, [isMobile]);
-
-  // 데스크톱: wheel → 디테일 스크롤, 경계 시 가로 스크롤
-  useEffect(() => {
-    if (isMobile) return;
-
-    const handleWheel = (e: WheelEvent) => {
-      const panel = panelRef.current;
-      const detail = detailRef.current;
-      if (!panel || !detail) return;
-
-      const panelRect = panel.getBoundingClientRect();
-      const extraWidth = panelRect.width - window.innerWidth;
-      if (extraWidth <= 0) return;
-      const progress = -panelRect.left / extraWidth;
-      if (progress < 0.02 || progress > 0.98) return;
-
-      const { scrollTop, scrollHeight, clientHeight } = detail;
-      if (scrollHeight <= clientHeight) return;
-
-      const atTop = scrollTop <= 0;
-      const atBottom = scrollTop + clientHeight >= scrollHeight - 1;
-
-      if ((e.deltaY > 0 && !atBottom) || (e.deltaY < 0 && !atTop)) {
-        e.stopPropagation();
-        e.preventDefault();
-        detail.scrollBy({ top: e.deltaY });
-      }
-    };
-
-    window.addEventListener("wheel", handleWheel, { capture: true, passive: false });
-    return () => window.removeEventListener("wheel", handleWheel, { capture: true });
-  }, [isMobile, panelRef]);
-
-  // 데스크톱: 뷰포트 밖일 때 스크롤 위치 사전 설정
-  useEffect(() => {
-    if (isMobile) return;
-    const panel = panelRef.current;
-    const detail = detailRef.current;
-    if (!panel || !detail) return;
-
-    const check = () => {
-      const rect = panel.getBoundingClientRect();
-      const extra = rect.width - window.innerWidth;
-      if (extra <= 0) return;
-      const progress = -rect.left / extra;
-
-      if (progress >= 0.98) {
-        detail.scrollTop = detail.scrollHeight - detail.clientHeight;
-      } else if (progress <= 0.02) {
-        detail.scrollTop = 0;
-      }
-    };
-
-    const raf = { id: requestAnimationFrame(function loop() { check(); raf.id = requestAnimationFrame(loop); }) };
-    return () => cancelAnimationFrame(raf.id);
-  }, [isMobile, panelRef]);
+  const active = items[activeIndex];
+  const activeStats = stats.perItem[activeIndex];
 
   return (
     <div ref={panelRef} className={`${styles.panel} ${styles.panelExtraWide}`}>
-      <div ref={contentRef} className={styles.pinnedContent}>
+      <div ref={contentRef} className={`${styles.pinnedContent} ${styles.dbContent}`}>
         <PinnedTitleRow
           panelKey="backend"
          
@@ -188,64 +95,107 @@ function BackendPanel({
           animate
           dotNav={{
             count: items.length,
-            activeIndex: displayIndex,
-            onDotClick: handleItemClick,
+            activeIndex,
+            onDotClick: scrollToItem,
             labels: items.map((t) => t.name),
             className: styles.dotNavMobileOnly,
           }}
         />
 
-        {/* 데스크톱: 분할 레이아웃 — 목록 + 상세 */}
-        <div className={`${styles.dbSplit} ${styles.animate}`}>
-          {/* 왼쪽: 항목 목록 */}
-          <div ref={listRef} className={styles.dbList} style={{ "--items-count": items.length } as React.CSSProperties}>
-            {items.map((item, index) => (
-              <div
-                data-clickable="true"
-                key={index}
-                className={`${styles.dbListItem} ${
-                  index === displayIndex ? styles.dbListItemActive : ""
-                }`}
-                onClick={() => handleItemClick(index)}
-              >
-                <span className={styles.dbNumber}>
-                  {String(index + 1).padStart(2, "0")}
-                </span>
-                <div className={styles.dbListMeta}>
-                  <span className={styles.dbListTitle}>
-                    {item.name}
-                    <span className={`${styles.dbKindBadge} ${styles.dbKindBadgeSm} ${item.kind === "api" ? styles.dbKindApi : styles.dbKindTable}`}>
-                      {item.kind === "api" ? "API" : "TABLE"}
-                    </span>
-                  </span>
-                  <span className={styles.dbListDesc}>
-                    {item.description[language]}
-                  </span>
+        {/* 데스크톱: API 지도 — 왼쪽은 전체 수치와 묶음 타일, 오른쪽은 지금 묶음의 상세 */}
+        <div className={styles.apiStage}>
+          <div className={styles.apiOverview}>
+            <div className={styles.apiTotals}>
+              <p className={styles.apiTotal}>
+                <b>{stats.total}</b>
+                <span>{L("엔드포인트", "endpoints")}</span>
+              </p>
+              <dl className={styles.apiTotalsMeta}>
+                <div><dt>{L("묶음", "Groups")}</dt><dd>{items.length}</dd></div>
+                <div><dt>{L("관리자 전용", "Admin only")}</dt><dd>{stats.admin}</dd></div>
+              </dl>
+              <figure className={styles.apiMethods}>
+                <div className={styles.apiMethodBar}>
+                  {stats.methods.map(([m, n]) => (
+                    <span key={m} className={styles.apiMethodSeg} data-method={m} style={{ flexGrow: n }} />
+                  ))}
                 </div>
-              </div>
-            ))}
-            {listPage.total > 1 && (
-              <div className={styles.dbPageNav}>
-                <Pressable className={styles.dbPageBtn} disabled={listPage.page <= 1} onClick={() => scrollListPage(-1)}>↑</Pressable>
-                <span>{listPage.page}/{listPage.total}</span>
-                <Pressable className={styles.dbPageBtn} disabled={listPage.page >= listPage.total} onClick={() => scrollListPage(1)}>↓</Pressable>
-              </div>
-            )}
+                <ul className={styles.apiMethodLegend}>
+                  {stats.methods.map(([m, n]) => (
+                    <li key={m} data-method={m}><span>{m}</span><b>{n}</b></li>
+                  ))}
+                </ul>
+              </figure>
+            </div>
+
+            <ol className={styles.apiMap}>
+              {items.map((item, i) => {
+                const st = stats.perItem[i];
+                return (
+                  <li key={item.name} className={`${styles.apiTile} ${i === activeIndex ? styles.apiTileActive : ""}`}>
+                    <Pressable
+                      data-clickable="true"
+                      className={styles.apiTileBtn}
+                      onClick={() => scrollToItem(i)}
+                      aria-current={i === activeIndex ? "step" : undefined}
+                    >
+                      <span className={styles.apiTileNum}>{String(i + 1).padStart(2, "0")}</span>
+                      <span className={styles.apiTileName}>{item.name.replace(/ API$/, "")}</span>
+                      <span className={styles.apiTileBar} aria-hidden>
+                        {st.methods.map(([m, n]) => (
+                          <span key={m} className={styles.apiMethodSeg} data-method={m} style={{ flexGrow: n }} />
+                        ))}
+                        <span style={{ flexGrow: stats.maxCount - st.count }} />
+                      </span>
+                      <span className={styles.apiTileCount}>{st.count}</span>
+                    </Pressable>
+                  </li>
+                );
+              })}
+            </ol>
           </div>
 
-          {/* 오른쪽: 상세 콘텐츠 */}
-          <div ref={detailRef} className={styles.dbDetail}>
-            {items.map((item, index) => (
-              <div
-                key={index}
-                className={`${styles.dbDetailItem} ${
-                  index === displayIndex ? styles.dbDetailItemActive : ""
-                }`}
-              >
-                {renderDetail(item, index, language)}
-              </div>
-            ))}
-          </div>
+          {active && (
+            <article className={`${styles.apiDetail} ${expanded ? styles.apiDetailExpanded : ""}`} key={activeIndex}>
+              <header className={styles.apiDetailHead}>
+                <span className={styles.apiDetailNum}>{String(activeIndex + 1).padStart(2, "0")}</span>
+                <div>
+                  <h4 className={styles.apiDetailName}>{active.name}</h4>
+                  <p className={styles.apiDetailMeta}>
+                    {L("엔드포인트", "Endpoints")} {activeStats.count}
+                    {activeStats.admin > 0 && ` · ${L("관리자 전용", "admin only")} ${activeStats.admin}`}
+                  </p>
+                </div>
+              </header>
+              <p className={styles.apiDetailDesc}>{active.description[language]}</p>
+              {active.designNote && (
+                <aside className={styles.apiDetailNote}>
+                  <span>{L("설계 포인트", "Design point")}</span>
+                  <p>{renderHighlight(active.designNote[language])}</p>
+                </aside>
+              )}
+              {active.endpoints && active.endpoints.length > 0 && (
+                <div className={`${styles.apiEndpoints} ${expanded ? styles.apiEndpointsOpen : ""}`}>
+                  <ul ref={expanded ? endpointListRef : undefined} data-lenis-prevent-wheel={expanded ? "" : undefined}>
+                    {(expanded ? active.endpoints : active.endpoints.slice(0, KEY_ENDPOINTS)).map((ep, ei) => (
+                      <li key={ei}>
+                        <span className={`${styles.dbMethodBadge} ${styles[`dbMethod${ep.method}` as keyof typeof styles] || ""}`}>{ep.method}</span>
+                        <code>{ep.path}</code>
+                        <span>{ep.description[language]}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  {active.endpoints.length > 3 && (
+                    <Pressable className={styles.apiMore} onClick={() => setExpandedIndex(expanded ? null : activeIndex)}>
+                      {expanded
+                        ? L("접기", "Show less")
+                        : L(`엔드포인트 ${active.endpoints.length}개 모두 보기`, `Show all ${active.endpoints.length} endpoints`)}
+                    </Pressable>
+                  )}
+                </div>
+              )}
+            </article>
+          )}
         </div>
 
         {/* 모바일: 모든 항목 표시 */}
