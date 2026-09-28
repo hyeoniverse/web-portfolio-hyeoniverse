@@ -85,21 +85,23 @@
   display: none;
 }
 
-/* Code page navigation — minimal floating indicator */
+/* 코드 쪽 넘김 — 오른쪽 아래 가로 알약(위 · 쪽수 · 아래). 코드 위에 떠 있으므로 바탕은 비우고
+   뒤를 세게 흐려 글자와 섞이지 않게 한다 */
 .codePageNav {
   display: flex;
-  gap: var(--_space-block);
   align-items: center;
-  padding: var(--spacing-xs) var(--spacing-md);
-  border: var(--_line-secondary);
+  gap: var(--spacing-3xs);
+  padding: 0 var(--spacing-2xs);
   position: absolute;
   right: var(--_space-line);
   bottom: var(--_space-line);
   z-index: 2;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-prose-label);
-  color: var(--text-primary);
+  border: var(--border-light);
   border-radius: var(--radius-capsule);
+  background: transparent;
+  backdrop-filter: blur(14px) saturate(1.4);
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
 }
 
 /* Compound selector (0,2,0) to beat global theme transition (0,1,1) */
@@ -107,28 +109,52 @@
   transition: opacity var(--duration-base) ease;
 }
 
-.codePageNav:hover {
-  opacity: 1;
+.codePageCount {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  font-size: var(--font-size-hint);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
 }
 
+.codePageCount i {
+  font-style: normal;
+  color: var(--text-tertiary);
+}
+
+/* 단추 — 바탕 없이 화살표만. 올리면 강조색으로 바뀌고 가리키는 쪽으로 살짝 움직인다 */
 .codePageBtn {
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 2rem;
+  height: 2rem;
   padding: 0;
   border: none;
   background: transparent;
-  font-size: inherit;
-  line-height: 1;
-  color: inherit;
+  color: var(--text-primary);
 }
 
-.codePageBtn:hover {
+/* Compound selector (0,2,0) */
+.codePageNav .codePageBtn {
+  transition: color var(--duration-fast) ease, translate var(--duration-fast) ease;
+}
+
+.codePageBtn:hover:not(:disabled) {
   color: var(--text-accent);
 }
 
+.codePageBtn:first-child:hover:not(:disabled) {
+  translate: 0 -2px;
+}
+
+.codePageBtn:last-child:hover:not(:disabled) {
+  translate: 0 2px;
+}
+
 .codePageBtn:disabled {
-  opacity: 0.3;
+  opacity: 0.25;
 }
 
 .codePageBtn:disabled:hover {
@@ -585,6 +611,13 @@
     line-height: 1.7;
   }
 
+  /* 데모와 나란히 설 때 칸이 좁아 긴 줄이 오른쪽에서 잘렸다 — 줄을 접는다(넘치면 쪽 넘김이 받는다) */
+  .codeContent .codeBlock pre,
+  .codeContent .codeBlock code {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
   /* 설명의 **강조** — 형광펜 대신 진한 글씨로만 (전역 규칙보다 세게) */
   .codeSingleDesc.codeSingleDesc :global(.highlighted-text) {
     padding: 0;
@@ -634,7 +667,8 @@
     content: "";
   }
 
-  .codeSinglePaneActive .codeScrollWrap {
+  /* 마스크는 코드 상자에만 — 감싸는 칸에 걸면 그 안의 쪽 넘김(backdrop-filter)이 흐림을 잃는다 */
+  .codeSinglePaneActive .codeScrollWrap > :not(.codePageNav) {
     --_w: clamp(0%, calc((0.08 + var(--item-p, 1) * 1.5) * 100%), 100%);
     mask-image: linear-gradient(to bottom, var(--bg-primary) var(--_w), transparent calc(var(--_w) + 8rem));
   }

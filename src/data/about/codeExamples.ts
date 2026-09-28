@@ -33,99 +33,116 @@ const z = Math.sin(t * 0.4 * Math.PI * 2) * 1.5 - 2;
   {
     title: "Scene Cut Transitions",
     description: {
-      ko: "About 가로 스크롤에서 화면 폭을 채우는 패널은 **옆으로 밀리지 않고 화면에 고정**됩니다. 다음 패널이 그 위를 **와이프·아이리스·아래에서 걷히기** 중 하나로 덮으며 나타나고, 전환 진행도는 **스크롤 위치 그대로**라 멈추면 멈추고 되감으면 거꾸로 돌아갑니다. 위치는 화면 측정값이 아니라 **레이아웃 값(offsetLeft)** 으로 계산해, 여기서 건 transform 이 다음 프레임 측정에 섞이지 않게 합니다.",
-      en: "In the About horizontal scroll, full-width panels **stay pinned instead of sliding sideways**. The next panel covers them with a **wipe, iris or rise**, and progress is **the scroll position itself**, so it pauses when you stop and reverses when you scroll back. Positions come from **layout values (offsetLeft)**, not measured rects, so the transform applied here never feeds back into the next frame.",
+      ko: "About 가로 스크롤에서 화면 폭을 채우는 패널은 **옆으로 밀리지 않고 화면에 붙잡힌 채** 다음 패널에 덮입니다. 들어오는 패널은 **와이프·원형·아래에서 걷힘·통째로 밀어 올림** 중 하나로 드러나고, 패널이 `data-cut-kind` 로 자기 컷을 고를 수 있습니다. 진행도는 **스크롤 위치 그 자체**라 멈추면 멈추고 되감으면 거꾸로 돌아가며, 처음과 끝을 누른 곡선을 거쳐 기계적으로 보이지 않게 합니다. 위치는 화면 측정값이 아니라 **레이아웃 값(offsetLeft)** 으로 계산해, 여기서 건 transform 이 다음 프레임의 측정에 섞이지 않습니다.",
+      en: "In the About horizontal scroll, full-width panels **stay pinned instead of sliding away** and the next panel covers them. The incoming panel appears with a **wipe, iris, rise, or a full slide-up**, and a panel can pick its own cut with `data-cut-kind`. Progress is **the scroll position itself**, so it pauses when you stop and reverses when you scroll back, passed through an eased curve so it never looks mechanical. Positions come from **layout values (offsetLeft)**, not measured rects, so the transform applied here never feeds back into the next frame.",
     },
+    demoMode: "live",
+    demoKey: "sceneCut",
     language: "typescript",
-    code: `// 들어오는 패널 — 0 에 붙잡고, 남은 거리만큼 전환을 덜 진행한 상태
-const left = trackX + panel.offsetLeft;
+    code: `// 처음과 끝을 누른 곡선 — 거리에 정비례하면 기계적으로 보인다
+const easeCut = (p: number) => 0.5 - Math.cos(Math.PI * p) / 2;
+
+const left = trackX + panel.offsetLeft;   // 화면 측정값이 아니라 레이아웃 값
 if (left > 0 && left < vw) {
-  const t = left / vw;               // 1 → 0 으로 줄며 전환이 끝난다
-  const kind = CUT_KINDS[i % 3];      // wipe · iris · rise
+  // 들어오는 중 — 화면 왼쪽에 붙잡고, 남은 거리만큼 덜 드러낸다
+  const t = 1 - easeCut(1 - left / vw);   // 1 → 0 으로 줄며 전환이 끝난다
+  const kind = panel.dataset.cutKind ?? CUT_KINDS[i % CUT_KINDS.length];
+  s.zIndex = "3";
   s.transform = \`translateX(\${-left}px)\`;
   if (kind === "wipe") s.clipPath = \`inset(0 0 0 \${t * vw}px)\`;
-  if (kind === "iris") s.clipPath = \`circle(\${(1 - t) * diag}px at 50% 50%)\`;
+  if (kind === "iris") s.clipPath = \`circle(\${(1 - t) * Math.hypot(vw, vh) * 0.55}px at 50% 50%)\`;
   if (kind === "rise") s.clipPath = \`inset(\${t * 100}% 0 0 0)\`;
-}
-
-// 휠을 멈추면 굴리던 방향으로 전환을 끝까지 마친다
-const desired = lastDir > 0 ? (left < vw * 0.96 ? 0 : vw)
-                            : (left > vw * 0.04 ? vw : 0);
-state.targetScrollX = initialX + panel.offsetLeft - desired;`,
-  },
-  {
-    title: "Authorization in the Database (RLS)",
-    description: {
-      ko: "글 수정 권한을 API 코드가 아니라 **데이터베이스 규칙(Row Level Security)** 으로 판정합니다. 판정 함수 하나(`can_edit_post`)가 **소유자·관리자·해당 글의 저자**만 통과시키고, UPDATE·DELETE 정책이 이 함수를 그대로 씁니다. 어느 경로로 쿼리가 들어오든 **DB 가 마지막 관문**이 되어, API 에서 검사를 빠뜨려도 다른 사람의 글은 바뀌지 않습니다.",
-      en: "Edit permission is decided by **database rules (Row Level Security)**, not API code. One predicate (`can_edit_post`) lets through **only the owner, admins, or an author of that post**, and the UPDATE and DELETE policies call it directly. Whatever path a query takes, **the database is the last gate**, so a missing API check still can't change someone else's post.",
-    },
-    language: "sql",
-    code: `-- 이 글을 수정할 수 있는가 — JWT 의 app_metadata 로 판정
-CREATE OR REPLACE FUNCTION can_edit_post(target_author_ids text[])
-RETURNS boolean LANGUAGE sql STABLE AS $$
-  SELECT is_owner()
-      OR app_level() >= 2
-      OR (app_role() = 'author'
-          AND app_author_id() IS NOT NULL
-          AND app_author_id() = ANY (coalesce(target_author_ids, '{}')));
-$$;
-
-CREATE POLICY "posts_admin_update" ON posts FOR UPDATE TO authenticated
-  USING (can_edit_post(author_ids)) WITH CHECK (can_edit_post(author_ids));
-
-CREATE POLICY "posts_admin_delete" ON posts FOR DELETE TO authenticated
-  USING (can_edit_post(author_ids));`,
-  },
-  {
-    title: "Optimistic Concurrency (409)",
-    description: {
-      ko: "두 사람이 같은 글을 동시에 고치면 나중 저장이 앞의 수정을 **조용히 덮어쓰는** 문제가 있습니다. 편집기는 불러올 때의 `version` 을 함께 보내고, 서버는 **버전이 그대로일 때만** 갱신하며 번호를 올립니다. 갱신된 행이 0개면 누군가 먼저 저장한 것이므로 **409 와 현재 버전**을 돌려주고, 편집기는 덮어쓸지 다시 불러올지 묻습니다. 잠금 없이 **충돌을 감지**하는 방식입니다.",
-      en: "When two people edit the same post, the later save can **silently overwrite** the earlier one. The editor sends the `version` it loaded, and the server updates **only if that version is unchanged**, bumping the number. If zero rows change, someone saved first, so it returns **409 with the current version** and the editor asks whether to overwrite or reload. Conflicts are **detected, not locked**.",
-    },
-    language: "typescript",
-    code: `const baseVersion = typeof body.baseVersion === "number" ? body.baseVersion : null;
-
-if (baseVersion !== null) {
-  const { data, error } = await supabase
-    .from("posts")
-    .update({ ...body, version: baseVersion + 1, updated_at: new Date().toISOString() })
-    .eq("id", id)
-    .eq("version", baseVersion)   // 버전이 그대로일 때만
-    .select()
-    .single();
-
-  // 0행 갱신 = 없거나 버전 불일치 → 현재 버전을 읽어 충돌/404 구분
-  if (error?.code === "PGRST116") {
-    const { data: cur } = await supabase.from("posts").select("version").eq("id", id).maybeSingle();
-    if (cur) return NextResponse.json({ error: "version_conflict", currentVersion: cur.version }, { status: 409 });
-  }
+  if (kind === "slide") s.transform += \` translateY(\${t * vh}px)\`;
+} else if (right > 0 && right < vw) {
+  // 나가는 중 — 오른쪽 끝을 화면에 붙잡고 작아지며 어두워진다
+  const t = easeCut((vw - right) / vw);
+  s.zIndex = "2";
+  s.transform = \`translateX(\${vw - right}px) scale(\${1 - t * 0.08})\`;
+  s.filter = \`brightness(\${1 - t * 0.15})\`;
 }`,
   },
   {
-    title: "Scheduled Jobs that Report Their Own Failures",
+    title: "Velocity-Matched Snap (Hermite Curve)",
     description: {
-      ko: "예약 발행은 호스팅 cron 대신 **데이터베이스 안의 pg_cron** 이 매분 실행합니다. 작업 함수를 그대로 등록하지 않고 **`safe_` 래퍼**로 감싸, 예외가 나면 삼키지 않고 **관리자 알림 테이블에 오류 내용을 남깁니다**. 외부에 여는 주소도, 그 주소를 지키는 비밀키도 필요 없고, 실패는 관리자 화면에서 바로 보입니다.",
-      en: "Scheduled publishing runs every minute in **pg_cron inside the database**, not a hosting cron. The job isn't registered directly but through a **`safe_` wrapper** that, on an exception, **writes the error to the admin notifications table** instead of swallowing it. No public endpoint or secret is needed, and failures show up in the admin screen.",
+      ko: "장면 전환 도중에 휠을 멈추면 반쯤 걷힌 컷이 화면에 남습니다. 굴리던 방향으로 조금이라도 진행했으면 그쪽으로 **전환을 마저 끝내는데**, 보통의 따라잡기(lerp)로 마치면 끝이 한없이 느려져 흐지부지 끝나고, 새 이징 트윈을 걸면 **이어받는 순간 속도가 튑니다**. 그래서 **지금 속도에서 출발해 도착점에서 멈추는 3차 Hermite 곡선**으로 움직입니다. 출발 속도가 3·거리/시간을 넘으면 지나쳤다 돌아오므로 그 안으로 묶습니다.",
+      en: "If the wheel stops mid-transition, a half-open cut is left on screen, so the transition **finishes in the direction you were scrolling**. Finishing with the usual lerp crawls forever at the end, and a fresh eased tween **jerks at the hand-off**. Instead it moves along a **cubic Hermite curve that starts at the current velocity and comes to rest at the target**. A start velocity above 3·distance/time would overshoot and come back, so it is clamped below that.",
     },
-    language: "sql",
-    code: `CREATE OR REPLACE FUNCTION safe_publish_scheduled()
-RETURNS void
-LANGUAGE plpgsql SECURITY DEFINER AS $$
-BEGIN
-  PERFORM publish_scheduled();
-EXCEPTION WHEN OTHERS THEN
-  INSERT INTO admin_notifications (type, title, message, metadata)
-  VALUES (
-    'cron_error',
-    '⚠️ publish_scheduled cron 에러',
-    'publish_scheduled() 실행 중 예외 발생: ' || SQLERRM,
-    jsonb_build_object('function', 'publish_scheduled', 'sqlstate', SQLSTATE, 'message', SQLERRM)
-  );
-END;
-$$;
+    demoMode: "live",
+    demoKey: "snap",
+    language: "typescript",
+    code: `const startSnap = (dest: number) => {
+  const from = state.scrollX;
+  const dist = dest - from;
+  // 지금 속도(px/s) — 따라잡기 한 프레임(60fps 기준) 이동량
+  let v = (state.targetScrollX - from) * SCROLL_LERP * 60;
+  state.targetScrollX = dest;
+  const duration = gsap.utils.clamp(0.45, 1, 0.4 + (Math.abs(dist) / vw) * 0.5);
+  if (Math.sign(v) !== Math.sign(dist)) v = 0;   // 반대로 가던 중이면 정지에서 출발
+  // 거리 단위 접선 — 3·거리를 넘으면 지나쳤다 돌아온다
+  v = Math.sign(dist) * Math.min(Math.abs(v) * duration, Math.abs(dist) * 3);
 
--- 매분 실행
-SELECT cron.schedule('publish-scheduled', '* * * * *',
-  $cron$ SELECT safe_publish_scheduled(); $cron$);`,
+  const k = { u: 0 };
+  snapTween = gsap.to(k, {
+    u: 1, duration, ease: "none",
+    onUpdate: () => {
+      const u = k.u, u2 = u * u, u3 = u2 * u;
+      // Hermite: p(u) = h10·v + h01·dist  (끝 속도 0)
+      state.scrollX = from + (u3 - 2 * u2 + u) * v + (-2 * u3 + 3 * u2) * dist;
+    },
+  });
+};`,
+  },
+  {
+    title: "Scroll Progress as CSS Variables",
+    description: {
+      ko: "긴 패널은 항목마다 스크롤 구간이 있습니다. 스크롤 엔진이 트랙을 옮긴 **같은 프레임**에, 지금 구간 안에서 어디쯤인지를 **CSS 변수 세 개**로 내보냅니다. `--item-in` 은 구간 앞 35% 동안 0→1, `--item-out` 은 끝 20% 동안 0→1, `--item-p` 는 구간 전체 0→1 입니다. JS 는 **숫자만 쓰고** 연출은 CSS 가 맡으므로, 패널마다 `calc()` 한 줄로 등장·퇴장·진행 막대·코드가 써 내려가는 마스크를 만듭니다. 값이 바뀔 때만 써서 매 프레임 스타일을 다시 계산하지 않습니다.",
+      en: "Long panels give each item its own stretch of scroll. In **the same frame** the scroll engine moves the track, the hook exposes where you are inside the current stretch as **three CSS variables**: `--item-in` goes 0→1 over the first 35%, `--item-out` 0→1 over the last 20%, and `--item-p` 0→1 across the whole stretch. JS **only writes numbers** and CSS owns the motion, so each panel builds its entrance, exit, progress bars and the mask that writes out code with a single `calc()`. Values are written only when they change, so styles aren't recalculated every frame.",
+    },
+    demoMode: "live",
+    demoKey: "scrollVars",
+    language: "typescript",
+    code: `// usePinnedScroll — 트랙을 옮긴 같은 프레임(HSCROLL_FRAME_EVENT)에 계산
+const progress = clamp(0, 1, -rect.left / extraWidth);
+const index = Math.min(itemCount - 1, Math.floor(progress * itemCount));
+const f = progress * itemCount - index;              // 지금 구간 안의 위치
+
+const itemIn = index === 0 ? 1 : Math.min(1, f / 0.35);
+const itemOut = index === itemCount - 1 ? 0 : Math.max(0, (f - 0.8) / 0.2);
+const key = \`\${f.toFixed(3)} \${itemIn.toFixed(3)} \${itemOut.toFixed(3)}\`;
+if (key !== prevFlow) {                              // 바뀔 때만 쓴다
+  prevFlow = key;
+  content.style.setProperty("--item-p", Math.min(1, f).toFixed(3));
+  content.style.setProperty("--item-in", itemIn.toFixed(3));
+  content.style.setProperty("--item-out", itemOut.toFixed(3));
+}
+
+/* CSS — 코드가 스크롤만큼 위에서부터 써 내려간다
+.codeSinglePaneActive .codeScrollWrap {
+  --_w: clamp(0%, calc((0.08 + var(--item-p, 1) * 1.5) * 100%), 100%);
+  mask-image: linear-gradient(to bottom, #000 var(--_w), transparent calc(var(--_w) + 8rem));
+} */`,
+  },
+  {
+    title: "Horizontal Scroll vs. Lenis Wheel",
+    description: {
+      ko: "사이트 전체는 Lenis 로 부드럽게 세로 스크롤되고, About·프로필 섹션은 휠을 가로채 가로로 넘깁니다. 그런데 가로로 넘기는 동안 **페이지가 세로로도 같이 밀렸습니다**. 재 보니 휠 한 번에 트랙이 가로로 51px 가는 동안 페이지는 98px 내려갔습니다(#1045). Lenis 는 `preventDefault` 를 보지 않고 window 의 자기 리스너에서 **직접 `scrollTo`** 하기 때문입니다. Lenis 가 물러나는 유일한 신호는 이벤트 경로에 있는 **`data-lenis-prevent-wheel` 표시**라, 가로가 가져갈 휠에만 섹션에 표시를 붙이고, 끝에 닿아 세로로 넘길 휠에는 떼서 이어받기를 남깁니다.",
+      en: "The whole site scrolls smoothly with Lenis, and the About and profile sections take over the wheel to move sideways. While moving sideways, **the page also slid down**: one wheel tick moved the track 51px horizontally and the page 98px vertically (#1045). Lenis ignores `preventDefault` and **calls `scrollTo` itself** from its own window listener. The only signal it backs off from is a **`data-lenis-prevent-wheel` marker** on the event path, so the section sets the marker only for wheels it takes, and removes it for wheels at the edge so vertical scrolling can take over.",
+    },
+    demoMode: "live",
+    demoKey: "lenisWheel",
+    language: "typescript",
+    code: `const handleWheel = (e: WheelEvent) => {
+  const aligned = Math.abs(section.getBoundingClientRect().top) <= ALIGN_TOLERANCE_PX;
+  // 끝에 닿았고 그 방향으로 더 굴리면 막지 않는다 — Lenis 가 세로로 이어받는다
+  const take = aligned && !atHorizontalEdge(e.deltaY);
+
+  // Lenis 는 defaultPrevented 를 보지 않는다. 물러나게 하는 수단은 이 표시뿐이다 —
+  // Lenis 가 composedPath 를 훑어 확인하고, 이 리스너가 window 보다 먼저 돌므로 같은 이벤트에 먹는다
+  section.toggleAttribute("data-lenis-prevent-wheel", take);
+  if (!take) return;
+
+  e.preventDefault();                                // 브라우저 기본 스크롤만 막는다
+  state.targetScrollX += clamp(-MAX_WHEEL_DELTA, MAX_WHEEL_DELTA, e.deltaY);
+};`,
   },
 ];
