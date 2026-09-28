@@ -26,7 +26,10 @@ import flow from "./flowShared.module.css";
    선이 도형 위를 가로지르고 서로 교차한다. */
 export default function ChenFlow({
   tables, relations, lang, className, onEntityClick, focus = null, children, showControls = true,
+  wheelZoom = true,
 }: {
+  /** 휠로 확대 (default: true). 끄면 휠이 페이지로 넘어간다 */
+  wheelZoom?: boolean;
   tables?: ErdTable[];
   relations?: ErdRelation[];
   lang: "ko" | "en";
@@ -156,6 +159,8 @@ export default function ChenFlow({
         edges={edges}
         nodeTypes={CHEN_NODE_TYPES}
         onNodesChange={onNodesChange}
+        zoomOnScroll={wheelZoom}
+        preventScrolling={wheelZoom}
         /* 클릭은 ReactFlow 의 onNodeClick 으로 받는다 — 노드 안 onClick 은
            라이브러리 포인터 처리에 삼켜져 실제 마우스 클릭에서 안 먹는다 */
         onNodeClick={(_, n) => {

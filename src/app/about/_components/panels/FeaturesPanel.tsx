@@ -94,16 +94,21 @@ function FeaturesPanel({
   );
 
   return (
-    <div className={`${styles.panel} ${styles.panelWide}`}>
+    <div className={`${styles.panel} ${styles.panelWide} ${styles.featuresPanel}`}>
       <h2 className={`${styles.panelTitle} ${styles.animate}`}>
         {panelTitle}
       </h2>
+      {/* 명판 — 데스크톱 전시실 구도에서만 보인다 */}
+      <p className={`${styles.featurePlacard} ${styles.animate}`}>
+        {language === "ko" ? `주요 기능 ${features.length}가지` : `${features.length} key features`}
+        <span>{language === "ko" ? "항목에 마우스를 올리면 설명이 펼쳐집니다." : "Hover over an item to read more."}</span>
+      </p>
 
       {/* 데스크톱: DynamicFrameLayout */}
       <div className={styles.featureDynamic}>
         <DynamicFrameLayout
           initialFrames={frames}
-          initialGapSize={0}
+          initialGapSize={12}
           initialHoverSize={6}
           initialAutoplayMode="all"
           renderOverlay={renderOverlay}

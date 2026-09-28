@@ -1,5 +1,10 @@
 /* ── Security Panel ── */
 
+/* 요청 흐름 — 데스크톱에서만 보인다 */
+.flow {
+  display: none;
+}
+
 .secGrid {
   display: grid;
   gap: 0;
@@ -80,4 +85,198 @@
   .secItem:nth-child(odd) {
     border-right: none;
   }
+}
+
+/* ── 데스크톱 구도: 요청 흐름 — 제목 아래 Browser → Route → API → Database 네 단계가 화살표 줄로 이어지고,
+   단계마다 그 자리에서 걸리는 보안 항목이 아래로 달린다. 관리자 미리보기는 .secGrid 를 쓴다 */
+@media (min-width: 1025px) and (min-height: 701px) {
+  .securityPanel {
+    padding-top: calc(var(--header-height) + var(--spacing-md));
+    padding-bottom: calc(var(--spacing-2xl) + 4rem);
+  }
+
+  .securityPanel > h2 {
+    margin: 0 0 var(--spacing-xl);
+  }
+
+  .securityPanel .secGrid {
+    display: none;
+  }
+
+  /* 항목이 많은 단계(data-wide)는 두 배 폭에 두 열로 — 한 열에 몰려 글이 잘리지 않게 */
+  .flow {
+    display: grid;
+    flex: 1;
+    grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+    grid-auto-flow: column;
+    column-gap: clamp(1.25rem, 2.5vw, 2.5rem);
+    min-height: 0;
+  }
+
+  .flowStage {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    min-width: 0;
+  }
+
+  .flowStage[data-wide] {
+    grid-column: span 2;
+  }
+
+  .flowStage[data-wide] .flowItems {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: clamp(1rem, 2vw, 2rem);
+  }
+
+  /* 단계 노드 — 오른쪽으로 다음 단계까지 화살표 선이 이어진다 */
+  .flowNode {
+    display: flex;
+    gap: var(--spacing-sm);
+    align-items: baseline;
+    position: relative;
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 2px solid var(--text-accent);
+  }
+
+  .flowStage:not(:last-child) .flowNode::after {
+    position: absolute;
+    right: calc(clamp(1.25rem, 2.5vw, 2.5rem) * -1);
+    bottom: -7px;
+    width: clamp(1.25rem, 2.5vw, 2.5rem);
+    font-size: 12px;
+    line-height: 12px;
+    text-align: center;
+    color: var(--text-accent);
+    content: "▶";
+  }
+
+  .flowStep {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-label);
+    color: var(--text-accent);
+  }
+
+  .flowName {
+    font-family: var(--font-instrument);
+    font-size: clamp(2rem, min(3.4vw, 6vh), 3.5rem);
+    font-style: italic;
+    line-height: 1;
+    color: var(--text-primary);
+  }
+
+  .flowItems {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .flowItem {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2xs);
+    padding-left: var(--spacing-sm);
+    border-left: var(--border-default);
+  }
+
+  /* Compound selector (0,2,0) */
+  .flowItems .flowItem {
+    transition: border-color var(--duration-base) ease;
+  }
+
+  .flowItem:hover {
+    border-left-color: var(--text-accent);
+  }
+
+  .flowItemHead {
+    display: flex;
+    gap: var(--spacing-xs);
+    align-items: center;
+    font-size: var(--font-size-body);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+  }
+
+  /* 설명 — 넉넉한 화면에서는 전부 보인다(예전엔 네 줄로 접어 아래 절반이 비었다). 낮은 화면은 아래에서 접고
+     올리면 높이가 부드럽게 늘어난다. 강조는 형광펜 대신 진한 글씨로만 */
+  .flowItemDesc {
+    --desc-lines: 7;
+
+    overflow: hidden;
+    max-height: calc(var(--desc-lines) * 1lh);
+    margin: 0;
+    mask-image: linear-gradient(to bottom, var(--bg-primary) calc(100% - 1lh), transparent);
+    font-size: var(--font-size-body);
+    line-height: 1.7;
+    word-break: keep-all;
+    color: var(--text-secondary);
+  }
+
+  /* Compound selector (0,2,0) */
+  .flowItem .flowItemDesc {
+    transition: max-height var(--duration-slow) var(--ease-material);
+  }
+
+  .flowItem:hover .flowItemDesc,
+  .flowItem:focus-within .flowItemDesc {
+    max-height: calc(14 * 1lh);
+    mask-image: none;
+  }
+
+  /* 단계 사이 세로선 — 노드 줄 아래로 칸을 끝까지 나눠 빈 바닥 없이 네 기둥으로 선다 */
+  .flowStage + .flowStage {
+    padding-left: clamp(1.25rem, 2.5vw, 2.5rem);
+    border-left: var(--border-light);
+  }
+
+  .flowItemDesc.flowItemDesc :global(.highlighted-text) {
+    padding: 0;
+    background: none;
+    color: var(--text-primary);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  .flowScope {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-hint);
+    color: var(--text-tertiary);
+  }
+}
+
+/* 키 큰 화면 — 설명을 전부 */
+@media (min-width: 1025px) and (min-height: 1000px) {
+  .flowItemDesc {
+    --desc-lines: 14;
+  }
+}
+
+/* 낮은 데스크톱 화면 — 설명을 다섯 줄로 접고 범위는 숨긴다 */
+@media (min-width: 1025px) and (min-height: 701px) and (max-height: 860px) {
+  .flowItems {
+    gap: var(--spacing-sm);
+  }
+
+  .flowItemDesc {
+    --desc-lines: 5;
+  }
+
+  .flowScope {
+    display: none;
+  }
+
+  .securityPanel > h2 {
+    margin-bottom: var(--spacing-md);
+  }
+}
+
+@media (min-width: 1025px) and (min-height: 701px) and (prefers-reduced-motion: no-preference) {
+  /* 흐름 — 요청이 들어오듯 단계가 차례로 따라 들어온다 */
+  .flowStage:nth-child(1) { translate: calc(var(--flow-in) * 5vw) 0; }
+  .flowStage:nth-child(2) { translate: calc(var(--flow-in) * 12vw) 0; }
+  .flowStage:nth-child(3) { translate: calc(var(--flow-in) * 19vw) 0; }
+  .flowStage:nth-child(4) { translate: calc(var(--flow-in) * 26vw) 0; }
 }

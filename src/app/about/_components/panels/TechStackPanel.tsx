@@ -85,8 +85,9 @@ export default function TechStackPanel({ techStack }: TechStackPanelProps) {
   /* admin 편집 가능한 siteConfig.about.techStack 우선. 없으면(legacy) prop 으로 fallback. */
   const cfgStack = about.techStack;
   const list = cfgStack ?? techStack;
+  // 장면 전환 — Build Process 에서 넘어올 때 패널째 아래에서 올라온다(useHorizontalScroll)
   return (
-    <div className={`${styles.panel} ${styles.panelCompact}`}>
+    <div className={`${styles.panel} ${styles.techPanel}`} data-cut-kind="slide">
       <h2 className={`${styles.panelTitle} ${styles.animate}`}>{panelTitle}</h2>
       <div className={styles.techTree}>
         {buildTree(list).map((domain) => (

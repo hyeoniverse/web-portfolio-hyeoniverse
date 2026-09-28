@@ -22,8 +22,8 @@ interface ErdPanelProps {
 
 const ERD_HINT = {
   pointer: {
-    ko: "휠로 확대 · 드래그로 이동 · 테이블 클릭",
-    en: "scroll to zoom · drag to pan · click table to inspect",
+    ko: "Ctrl+휠·핀치로 확대 · 드래그로 이동 · 테이블 클릭",
+    en: "Ctrl+scroll or pinch to zoom · drag to pan · click a table",
   },
   touch: {
     ko: "손가락으로 확대 · 테이블 탭",
@@ -45,9 +45,9 @@ function ErdPanel({ language }: ErdPanelProps) {
   const { ref: boxRef, near } = useNearViewport<HTMLDivElement>();
 
   return (
-    <div className={styles.panel}>
+    <div className={`${styles.panel} ${styles.erdPanel}`}>
       <div className={styles.erdViewport}>
-        <PinnedTitleRow panelKey="erd" className={isMobile ? styles.erdTitleRow : undefined} />
+        <PinnedTitleRow panelKey="erd" className={isMobile ? styles.erdTitleRow : styles.erdTitleOverlay} />
 
         <div className={styles.erdZoomViewport} ref={boxRef}>
           {/* 조작 안내는 입력 방식마다 다르다 — 터치에는 scroll/drag 가 아니라
@@ -62,6 +62,8 @@ function ErdPanel({ language }: ErdPanelProps) {
               notes={erdDesignNotes}
               lang={language === "ko" ? "ko" : "en"}
               initialZoom={0.5}
+              /* 휠은 가로 넘김에 쓴다 — 도면이 휠을 확대로 가져가면 ERD 에서 멈춘다 */
+              wheelZoom={isMobile}
             />
           )}
         </div>

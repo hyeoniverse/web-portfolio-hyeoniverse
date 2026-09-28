@@ -41,7 +41,7 @@ export default function OverviewPanel({ language, overview }: OverviewPanelProps
     stats: stats.map((x) => ({ value: x.value, label: { ko: x.label_ko, en: x.label_en } as Record<Language, string> })),
   };
   return (
-    <div className={styles.panel}>
+    <div className={`${styles.panel} ${styles.overviewPanel}`}>
       <h2 className={`${styles.panelTitle} ${styles.animate}`}>{panelTitle}</h2>
       <div className={styles.overviewLayout}>
         <div className={styles.overviewTop}>

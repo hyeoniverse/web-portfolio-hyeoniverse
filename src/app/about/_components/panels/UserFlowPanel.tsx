@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, memo } from "react";
+import { useState, useCallback, useMemo, memo } from "react";
 import type { Language } from "@/providers/LanguageProvider";
 import { userFlows } from "@/data/about/architecture";
 import { useAboutConfig } from "../AboutConfig";
@@ -11,6 +11,7 @@ import PinnedTitleRow from "../PinnedTitleRow";
 import T from "@/components/ui/T";
 
 import UserFlowDiagram from "./userFlow/UserFlowDiagram";
+import { svgDimensions } from "../_utils/flowLayout";
 import UserFlowMobileList from "./userFlow/UserFlowMobileList";
 import shared from "../AboutPanel.module.css";
 import local from "./UserFlowPanel.module.css";
@@ -48,6 +49,17 @@ function UserFlowPanel({
     [],
   );
 
+  /* 공통 틀 — 흐름마다 제 크기에 맞춰 확대하면 좁은 흐름(Contact)은 크게, 넓은 흐름(Works)은 작게 보여 축척이
+     제각각이었다. 폭은 위쪽 1/4 지점으로 잡는다 — 가장 넓은 흐름에 맞추면 모두 작아진다 */
+  const frame = useMemo(() => {
+    const dims = flows.map((f) => svgDimensions(f.nodes));
+    const widths = dims.map((d) => d.svgW).sort((a, b) => a - b);
+    return {
+      w: widths[Math.min(widths.length - 1, Math.floor(widths.length * 0.75))] ?? 0,
+      h: Math.max(...dims.map((d) => d.svgH)),
+    };
+  }, [flows]);
+
   const currentIdx = isMobile ? mobileActiveIdx : activeIndex;
   const activeFlow = flows[currentIdx] ?? flows[0];
 
@@ -58,11 +70,11 @@ function UserFlowPanel({
     >
       <div
         ref={contentRef}
-        className={`${styles.pinnedContent} ${styles.mobilePinViewport}`}
+        className={`${styles.pinnedContent} ${styles.mobilePinViewport} ${styles.ufContent}`}
       >
         <PinnedTitleRow
           panelKey="userflow"
-          className={isMobile ? styles.ufTitleRow : undefined}
+          className={isMobile ? styles.ufTitleRow : styles.ufTitleSide}
           dotNav={{
             count: flowCount,
             activeIndex: currentIdx,
@@ -94,7 +106,7 @@ function UserFlowPanel({
         />
 
         {/* ── Desktop: Info (top) + Diagram (bottom) ── */}
-        <UserFlowDiagram flow={activeFlow} language={language} seqKey={currentIdx} />
+        <UserFlowDiagram flow={activeFlow} language={language} seqKey={currentIdx} frame={isMobile ? undefined : frame} />
 
         {/* ── Mobile: simplified flow list ── */}
         <UserFlowMobileList flows={flows} language={language} activeIdx={currentIdx} />
