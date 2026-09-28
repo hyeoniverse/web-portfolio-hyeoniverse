@@ -25,7 +25,7 @@ test.describe("데스크톱 /about 코드 데모", () => {
   test("열 때는 띄우지 않고, Code Highlights 로 가면 한 벌만 띄운다", async ({ page }) => {
     const sandbox = watchSandbox(page);
     await page.goto("/about", { waitUntil: "load" });
-    const toCode = page.getByRole("button", { name: "Go to Code", exact: true });
+    const toCode = page.getByRole("button", { name: "Go to Code Highlights", exact: true });
     await expect(toCode, "섹션 이동 막대가 뜬다").toBeVisible({ timeout: 60_000 });
     await page.waitForTimeout(3_000);
     expect(sandbox, "열 때는 CodeSandbox 로 요청하지 않는다").toEqual([]);

@@ -9,6 +9,9 @@
   /* ── Font families ── */
   --_font-display: var(--font-display);
   --_font-grotesk: var(--font-grotesk);
+  /* 전시실 배치에서 큰 수치·전시실 이름(세리프)과 명판(본문 글꼴)에 쓰는 글꼴 — 사이트 글꼴 그대로 */
+  --_museum-serif: var(--font-instrument);
+  --_museum-sans: inherit;
 
   /* ── Font sizes (complement global --font-size-*) ── */
 
@@ -56,10 +59,17 @@
   height: 100vh;
 }
 
+/* 데스크톱 장면 전환에서는 쉬어 가는 이미지 칸(35vw)을 빼 둔다 — 화면보다 좁아 컷 없이 그냥 밀려 지나가,
+   Build Process → Tech Stack 전환 사이 빈틈으로 어두운 이미지 조각이 비쳤다 */
+@media (min-width: 1025px) and (min-height: 701px) {
+  .breakPanel {
+    display: none;
+  }
+}
+
+/* 데스크톱은 장면 전환의 흐름 규칙(AboutPanel.module.css)이 내용을 움직인다 — 감추는 초기값은 모바일에만 둔다 */
 .animate {
-  opacity: 0;
-  transform: translateY(40px);
-  will-change: transform, opacity;
+  /* desktop: no-op */
 }
 
 /* ==========================================================================
@@ -111,3 +121,4 @@
 /* ==========================================================================
    Shared — Mobile panel utilities (applied via className in TSX)
    ========================================================================== */
+

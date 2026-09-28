@@ -11,7 +11,7 @@ export function useNavIndicator(activeSection: number, navMounted = false): {
   highlightedSection: number;
   springX: MotionValue<number>;
   springWidth: MotionValue<number>;
-  navSections: { id: number; label: string }[];
+  navSections: { id: number; key: string; label: string }[];
 } {
   const [hoveredSection, setHoveredSection] = useState<number | null>(null);
   const navRef = useRef<HTMLElement>(null);
@@ -66,20 +66,20 @@ export function useNavIndicator(activeSection: number, navMounted = false): {
 
   const navSections = useMemo(
     () => [
-      { id: 0, label: "Hello" },
-      { id: 1, label: "Overview" },
-      { id: 2, label: "Architecture" },
-      { id: 3, label: "User Flow" },
-      { id: 4, label: "Features" },
-      { id: 5, label: "System" },
-      { id: 6, label: "Process" },
-      { id: 7, label: "Tech" },
-      { id: 8, label: "Backend" },
-      { id: 9, label: "ERD" },
-      { id: 10, label: "Code" },
-      { id: 11, label: "Decisions" },
-      { id: 12, label: "Security" },
-      { id: 13, label: "Credits" },
+      { id: 0, key: "hero", label: "Hello" },
+      { id: 1, key: "overview", label: "Overview" },
+      { id: 2, key: "architecture", label: "Architecture" },
+      { id: 3, key: "userflow", label: "User Flow" },
+      { id: 4, key: "features", label: "Features" },
+      { id: 5, key: "designSystem", label: "Design System" },
+      { id: 6, key: "process", label: "Build Process" },
+      { id: 7, key: "techStack", label: "Tech Stack" },
+      { id: 8, key: "backend", label: "API" },
+      { id: 9, key: "erd", label: "ERD" },
+      { id: 10, key: "codeHighlights", label: "Code Highlights" },
+      { id: 11, key: "troubleshooting", label: "Decisions" },
+      { id: 12, key: "security", label: "Security" },
+      { id: 13, key: "credits", label: "Credits" },
     ],
     [],
   );

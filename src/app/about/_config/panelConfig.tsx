@@ -24,6 +24,8 @@ import styles from "../_components/AboutPanel.module.css";
 export interface PanelContext {
   language: Language;
   scrollBy?: (deltaX: number) => void;
+  /** 패널 key 로 그 패널까지 이동한다(데스크톱 가로 트랙·모바일 공통) */
+  goToPanel?: (key: string) => void;
 }
 
 /* ── Config shape ── */
@@ -77,7 +79,7 @@ export const desktopPanels: PanelConfig[] = [
   {
     key: "hero",
     Component: HeroPanel,
-    props: () => ({}),
+    props: (ctx) => ({ goToPanel: ctx.goToPanel }),
   },
   {
     key: "overview",
@@ -156,7 +158,7 @@ export const desktopPanels: PanelConfig[] = [
   {
     key: "credits",
     Component: CreditsPanel,
-    props: () => ({}),
+    props: (ctx) => ({ goToPanel: ctx.goToPanel }),
   },
 ];
 
@@ -247,7 +249,7 @@ export const mobileTabPanels: Record<string, PanelConfig[]> = {
     {
       key: "credits",
       Component: CreditsPanel,
-      props: () => ({}),
+      props: (ctx) => ({ goToPanel: ctx.goToPanel }),
     },
   ],
 };

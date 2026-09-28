@@ -1,7 +1,0 @@
----
-step: 04
----
-
-# Performance Optimization
-
-Measured production builds with **Lighthouse CLI** through two rounds of optimization. Switched reCAPTCHA to **invisible mode with lazy loading**, removed 4 unused font families (12 files), and reduced page weight by **70%**. The live site now scores **97 in desktop Performance**.

@@ -43,23 +43,23 @@ function checkDecisions(about: Rec): string | null {
 
     const id = typeof item.id === "string" ? item.id.trim() : "";
     if (!id) return `troubleshooting[${i}] 에 id 가 없습니다.`;
-    if (seen.has(id)) return `Design Decisions 항목 id "${id}" 가 중복되었습니다.`;
+    if (seen.has(id)) return `Engineering Decisions 항목 id "${id}" 가 중복되었습니다.`;
     seen.add(id);
 
     for (const field of REQUIRED_DECISION_FIELDS) {
       if (!isLocalized(item[field])) {
-        return `Design Decisions "${id}" 의 ${field} 가 { ko, en } 형식이 아닙니다.`;
+        return `Engineering Decisions "${id}" 의 ${field} 가 { ko, en } 형식이 아닙니다.`;
       }
     }
 
     if (item.difficulty !== undefined) {
       const d = item.difficulty;
       if (d !== 1 && d !== 2 && d !== 3) {
-        return `Design Decisions "${id}" 의 difficulty 는 1~3 이어야 합니다.`;
+        return `Engineering Decisions "${id}" 의 difficulty 는 1~3 이어야 합니다.`;
       }
     }
     if (item.section !== undefined && !isLocalized(item.section)) {
-      return `Design Decisions "${id}" 의 section 이 { ko, en } 형식이 아닙니다.`;
+      return `Engineering Decisions "${id}" 의 section 이 { ko, en } 형식이 아닙니다.`;
     }
   }
   return null;
