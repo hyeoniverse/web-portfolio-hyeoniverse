@@ -1,7 +1,6 @@
 "use client";
 
 import CreditsFooter from "@/components/layout/CreditsFooter/CreditsFooter";
-import Pressable from "@/components/ui/Pressable";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { ABOUT_CHAPTERS } from "@/data/about/chapters";
 import { aboutPanelLabel } from "@/data/about/panels";
@@ -13,15 +12,11 @@ import shell from "../AboutSection.module.css";
 import local from "./CreditsPanel.module.css";
 const styles = { ...frame, ...shell, ...local };
 
-interface CreditsPanelProps {
-  goToPanel?: (key: string) => void;
-}
-
 /* 엔딩 크레딧 — 챕터마다 거쳐 온 장면, 쓴 도구, 개발 기록 수치를 영화 끝 자막처럼 올린다.
    값은 모두 다른 패널과 같은 데이터에서 온다(챕터·패널 이름, Tech Stack, Build Process 기간·커밋·PR).
-   화면 전체 폭이다 — 좁은 칸(60vw)이면 장면 전환 대상이 아니라서, 앞 패널(Security)이 나가는 동안 화면에
-   붙잡혀 그 위를 덮은 채 끝나 크레딧이 보이지 않았다 */
-export default function CreditsPanel({ goToPanel }: CreditsPanelProps) {
+   화면보다 넓다 — 첫 화면은 크레딧, 오른쪽으로 더 넘기면 서명. 좁은 칸(60vw)이면 장면 전환 대상이 아니라서,
+   앞 패널(Security)이 나가는 동안 화면에 붙잡혀 그 위를 덮은 채 끝나 크레딧이 보이지 않았다 */
+export default function CreditsPanel() {
   const about = useAboutConfig();
   const { language } = useLanguage();
   const L = (ko: string, en: string) => (language === "ko" ? ko : en);
@@ -76,14 +71,11 @@ export default function CreditsPanel({ goToPanel }: CreditsPanelProps) {
             </div>
           )}
         </dl>
+      </div>
 
+      {/* 서명 — 크레딧을 다 올린 뒤 오른쪽으로 더 넘기면 따로 나온다 */}
+      <div className={styles.creditsSignArea}>
         <CreditsFooter variant="panel" className={styles.creditsSign} />
-
-        {goToPanel && (
-          <Pressable data-clickable="true" className={styles.creditsReplay} onClick={() => goToPanel("hero")}>
-            {L("처음으로 ↺", "Back to start ↺")}
-          </Pressable>
-        )}
       </div>
     </div>
   );

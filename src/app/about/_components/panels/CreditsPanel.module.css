@@ -1,8 +1,20 @@
-/* About 엔딩 크레딧 — 가운데 한 줄에 맞춘 두 단(왼쪽 이름표는 오른쪽 정렬, 오른쪽 내용은 왼쪽 정렬) */
+/* About 엔딩 크레딧 — 첫 화면(100vw)은 크레딧, 그 오른쪽(60vw)은 서명.
+   크레딧은 가운데 한 줄에 맞춘 두 단(왼쪽 이름표는 오른쪽 정렬, 오른쪽 내용은 왼쪽 정렬) */
 .creditsPanel {
+  display: grid;
+  grid-template-columns: calc(100vw - var(--_panel-px) * 2) minmax(0, 1fr);
+  column-gap: calc(var(--_panel-px) * 2);
+  align-items: center;
+  justify-items: center;
+}
+
+.creditsSignArea {
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  height: 50vh;
+  border-left: var(--border-light);
 }
 
 .creditsRoll {
@@ -66,18 +78,9 @@
   text-align: left;
 }
 
-.creditsSign {
-  padding-top: var(--spacing-md);
-  border-top: var(--border-light);
-}
-
-.creditsReplay {
-  padding: var(--spacing-2xs) var(--spacing-md);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
-  color: var(--text-accent);
-  border: var(--border-accent);
-  border-radius: var(--radius-capsule);
+/* 서명 — 한 화면 가까이를 혼자 쓰므로 크게 */
+.creditsSign p {
+  font-size: clamp(1.1rem, min(1.8vw, 3vh), 1.75rem);
 }
 
 /* 들어오는 동안 자막이 아래에서 스크롤만큼 올라온다(--flow-in, useHorizontalScroll) */
@@ -112,9 +115,24 @@
 }
 
 /* 모바일 — 고정 상단 메뉴 아래에서 시작하고, 두 단 이름표를 한 단으로 쌓는다 */
+/* 공용 패널 폭(100vw)을 번들 순서와 무관하게 이기도록 (0,2,0) */
+@media (min-width: 1025px) and (min-height: 701px) {
+  .creditsPanel.creditsPanel {
+    width: 160vw;
+  }
+}
+
 @media (max-width: 1024px), (max-height: 700px) {
   .creditsPanel {
+    grid-template-columns: 1fr;
+    row-gap: var(--spacing-3xl);
     padding-top: calc(var(--header-height) + var(--spacing-xl));
+  }
+
+  .creditsSignArea {
+    padding-top: var(--spacing-xl);
+    border-top: var(--border-light);
+    border-left: none;
   }
 
   .creditsList > div {
