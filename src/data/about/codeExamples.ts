@@ -3,112 +3,6 @@ import { codeDemoFiles } from "./codeDemoFiles";
 
 export const codeExamples: CodeExample[] = [
   {
-    title: "StaggerText Component",
-    description: {
-      ko: "텍스트에 마우스를 올리면 글자가 왼쪽부터 차례로 **외곽선만 남으며 비워지고**, 마우스를 떼면 **오른쪽부터 역순으로 색이 다시 채워집니다**. 한꺼번에 바뀌는 것이 아니라 글자마다 **0.04초씩 시간차**를 두어 도미노처럼 퍼지는 느낌을 줍니다.",
-      en: "When you hover over text, letters **empty out to just outlines** from left to right. When you move away, colors **fill back in reverse order**. Each letter changes with a **0.04-second delay** after the previous one, creating a **domino-like ripple effect**.",
-    },
-    language: "javascript",
-    code: `// 호버: 순방향 (첫 글자 → 마지막)
-// 해제: 역방향 (마지막 → 첫 글자), stroke 유지
-const forwardDelay = i * 0.04;
-const reverseDelay = (totalChars - 1 - i) * 0.04;
-const delay = isHovered ? forwardDelay : reverseDelay;
-
-// CSS: step-end로 즉시 전환
-.char { transition: color 0.01s step-end; }
-.charHovered { color: transparent; -webkit-text-stroke: 1px; }
-.charExiting { -webkit-text-stroke: 1px; } // stroke 유지`,
-    demoMode: "sandbox",
-    demoFiles: codeDemoFiles.staggerText,
-  },
-  {
-    title: "SSR + ISR Server Component",
-    description: {
-      ko: "블로그 목록과 상세 페이지를 **Server Component로 전환**하여 초기 데이터를 서버에서 렌더링합니다. 목록은 **60초마다 재검증(ISR)**하고, 상세 페이지는 빌드 시 **35개 이상의 정적 HTML을 미리 생성**합니다. 클라이언트에서 4개의 API를 순차 호출하던 워터폴이 서버에서 **`Promise.all` 병렬 fetch로 대체**되어 TTFB가 크게 개선됩니다.",
-      en: "Blog list and detail pages are converted to **Server Components** that render initial data on the server. The list **revalidates every 60 seconds (ISR)**, while detail pages **pre-generate 35+ static HTML files** at build time. The client-side waterfall of 4 sequential API calls is replaced by **`Promise.all` parallel fetch on the server**, significantly improving TTFB.",
-    },
-    language: "tsx",
-    code: `// 서버 컴포넌트 — 빌드 시 정적 생성 + ISR 재검증
-export const revalidate = 300;
-
-export async function generateStaticParams() {
-  const slugs = await getAllPostSlugs();
-  return slugs.map((slug) => ({ slug }));
-}
-
-export default async function PostDetailPage({ params }) {
-  const { slug } = await params;
-  const post = await getPostBySlug(slug);
-  if (!post) notFound();
-  return <PostDetailClient post={post} />;
-}
-// → 클라이언트는 이미 렌더된 HTML을 받아 즉시 표시`,
-    /* 서버 렌더링은 클라이언트 샌드박스로 시연할 수 없다. 무관한 데모를 붙이는 대신
-       데모 칸을 비워 코드가 전체 폭을 쓰게 한다. */
-  },
-  {
-    title: "Infinite Scroll Wrapping",
-    description: {
-      ko: "프로젝트 카드가 **좌우 어느 방향으로든 끝없이 순환**하는 가로 갤러리입니다. 같은 카드를 여러 세트 복제해 놓고, 스크롤이 끝에 가까워지면 **눈에 보이지 않게 위치를 되감아** 처음으로 돌려놓습니다. 사용자는 끊김 없이 계속 스크롤할 수 있습니다.",
-      en: "A horizontal gallery where project cards **loop endlessly in both directions**. The same cards are duplicated in sets, and when you scroll near the edge, the position is **silently reset** so you never reach the end. The result is a **seamless infinite scroll** experience.",
-    },
-    language: "javascript",
-    code: `// 연속된 인트로 간 거리로 한 세트 너비 계산
-const introEls = slider.querySelectorAll('.intro');
-const oneSetWidth = introEls[1].offsetLeft - introEls[0].offsetLeft;
-
-// rAF 루프에서 양방향 래핑
-while (scrollX > oneSetWidth * 3) {
-  scrollX -= oneSetWidth;
-  targetScrollX -= oneSetWidth;
-}
-while (scrollX < -oneSetWidth * 3) {
-  scrollX += oneSetWidth;
-  targetScrollX += oneSetWidth;
-}`,
-    demoMode: "sandbox",
-    demoFiles: codeDemoFiles.infiniteScroll,
-  },
-  {
-    title: "Pinned Scroll Panels",
-    description: {
-      ko: "About 페이지의 패널은 **화면보다 넓게** 만들어 두고, 세로로 스크롤하면 가로로 지나갑니다. 그대로 두면 글자가 같이 밀려나가므로 **밀려난 만큼 콘텐츠를 반대로 되밀어** 제자리에 고정된 것처럼 보이게 했습니다. 진행도는 **0~1로 환산해 현재 항목 번호**가 되고, 점을 누르면 그 위치로 스크롤합니다.",
-      en: "About page panels are built **wider than the screen**, so scrolling down moves them sideways. Left alone the text would slide away, so the content is **pushed back by exactly the amount it shifted**, making it look pinned in place. Progress maps to **0-1 and becomes the active index**, and clicking a dot scrolls to that position.",
-    },
-    language: "javascript",
-    code: `// _hooks/usePinnedScroll.ts — 카운터 트랜슬레이션 + 진행도 → activeIndex
-const update = () => {
-  const rect = panelRef.current.getBoundingClientRect();
-  // 패널이 뷰포트보다 넓은 만큼이 "지나갈 거리"
-  const extraWidth = rect.width - window.innerWidth;
-
-  if (extraWidth > 0) {
-    // 왼쪽으로 밀려난 만큼 콘텐츠를 오른쪽으로 되밀어 고정된 것처럼
-    const offset = Math.max(0, Math.min(-rect.left, extraWidth));
-    contentRef.current.style.transform = \`translateX(\${offset}px)\`;
-
-    // 진행도 0~1 → 현재 항목 번호
-    const progress = Math.max(0, Math.min(1, -rect.left / extraWidth));
-    const newIndex = Math.min(itemCount - 1, Math.floor(progress * itemCount));
-    if (newIndex !== prevIndex) {
-      prevIndex = newIndex;
-      setActiveIndex(newIndex);
-    }
-  }
-  rafId = requestAnimationFrame(update);
-};
-
-// 점 클릭 → 해당 항목이 화면 중앙에 오도록 스크롤
-const scrollToItem = (index) => {
-  const targetProgress = (index + 0.5) / itemCount;
-  const delta = rect.left - -(targetProgress * extraWidth);
-  scrollBy ? scrollBy(delta) : window.scrollTo({ top: scrollY + delta });
-};`,
-    demoMode: "sandbox",
-    demoFiles: codeDemoFiles.pinnedScroll,
-  },
-  {
     title: "3D Scroll Torus (Lissajous Curve)",
     description: {
       ko: "스크롤할 때마다 3D 토러스가 **화면 안에서 끝없이 떠다니는** 효과입니다. X와 Y 축에 **서로 다른 주파수의 사인파**를 적용하여 리사주 곡선을 그리며, 화면 밖으로 나가지 않으면서도 **반복되지 않는 유기적인 궤적**을 만듭니다. Lenis 무한 스크롤의 **누적 거리를 추적**하여 스크롤 방향에 관계없이 연속적으로 움직입니다.",
@@ -135,5 +29,103 @@ const z = Math.sin(t * 0.4 * Math.PI * 2) * 1.5 - 2;
   envMapIntensity={1.5} />`,
     demoMode: "sandbox",
     demoFiles: codeDemoFiles.scrollTorus,
+  },
+  {
+    title: "Scene Cut Transitions",
+    description: {
+      ko: "About 가로 스크롤에서 화면 폭을 채우는 패널은 **옆으로 밀리지 않고 화면에 고정**됩니다. 다음 패널이 그 위를 **와이프·아이리스·아래에서 걷히기** 중 하나로 덮으며 나타나고, 전환 진행도는 **스크롤 위치 그대로**라 멈추면 멈추고 되감으면 거꾸로 돌아갑니다. 위치는 화면 측정값이 아니라 **레이아웃 값(offsetLeft)** 으로 계산해, 여기서 건 transform 이 다음 프레임 측정에 섞이지 않게 합니다.",
+      en: "In the About horizontal scroll, full-width panels **stay pinned instead of sliding sideways**. The next panel covers them with a **wipe, iris or rise**, and progress is **the scroll position itself**, so it pauses when you stop and reverses when you scroll back. Positions come from **layout values (offsetLeft)**, not measured rects, so the transform applied here never feeds back into the next frame.",
+    },
+    language: "typescript",
+    code: `// 들어오는 패널 — 0 에 붙잡고, 남은 거리만큼 전환을 덜 진행한 상태
+const left = trackX + panel.offsetLeft;
+if (left > 0 && left < vw) {
+  const t = left / vw;               // 1 → 0 으로 줄며 전환이 끝난다
+  const kind = CUT_KINDS[i % 3];      // wipe · iris · rise
+  s.transform = \`translateX(\${-left}px)\`;
+  if (kind === "wipe") s.clipPath = \`inset(0 0 0 \${t * vw}px)\`;
+  if (kind === "iris") s.clipPath = \`circle(\${(1 - t) * diag}px at 50% 50%)\`;
+  if (kind === "rise") s.clipPath = \`inset(\${t * 100}% 0 0 0)\`;
+}
+
+// 휠을 멈추면 굴리던 방향으로 전환을 끝까지 마친다
+const desired = lastDir > 0 ? (left < vw * 0.96 ? 0 : vw)
+                            : (left > vw * 0.04 ? vw : 0);
+state.targetScrollX = initialX + panel.offsetLeft - desired;`,
+  },
+  {
+    title: "Authorization in the Database (RLS)",
+    description: {
+      ko: "글 수정 권한을 API 코드가 아니라 **데이터베이스 규칙(Row Level Security)** 으로 판정합니다. 판정 함수 하나(`can_edit_post`)가 **소유자·관리자·해당 글의 저자**만 통과시키고, UPDATE·DELETE 정책이 이 함수를 그대로 씁니다. 어느 경로로 쿼리가 들어오든 **DB 가 마지막 관문**이 되어, API 에서 검사를 빠뜨려도 다른 사람의 글은 바뀌지 않습니다.",
+      en: "Edit permission is decided by **database rules (Row Level Security)**, not API code. One predicate (`can_edit_post`) lets through **only the owner, admins, or an author of that post**, and the UPDATE and DELETE policies call it directly. Whatever path a query takes, **the database is the last gate**, so a missing API check still can't change someone else's post.",
+    },
+    language: "sql",
+    code: `-- 이 글을 수정할 수 있는가 — JWT 의 app_metadata 로 판정
+CREATE OR REPLACE FUNCTION can_edit_post(target_author_ids text[])
+RETURNS boolean LANGUAGE sql STABLE AS $$
+  SELECT is_owner()
+      OR app_level() >= 2
+      OR (app_role() = 'author'
+          AND app_author_id() IS NOT NULL
+          AND app_author_id() = ANY (coalesce(target_author_ids, '{}')));
+$$;
+
+CREATE POLICY "posts_admin_update" ON posts FOR UPDATE TO authenticated
+  USING (can_edit_post(author_ids)) WITH CHECK (can_edit_post(author_ids));
+
+CREATE POLICY "posts_admin_delete" ON posts FOR DELETE TO authenticated
+  USING (can_edit_post(author_ids));`,
+  },
+  {
+    title: "Optimistic Concurrency (409)",
+    description: {
+      ko: "두 사람이 같은 글을 동시에 고치면 나중 저장이 앞의 수정을 **조용히 덮어쓰는** 문제가 있습니다. 편집기는 불러올 때의 `version` 을 함께 보내고, 서버는 **버전이 그대로일 때만** 갱신하며 번호를 올립니다. 갱신된 행이 0개면 누군가 먼저 저장한 것이므로 **409 와 현재 버전**을 돌려주고, 편집기는 덮어쓸지 다시 불러올지 묻습니다. 잠금 없이 **충돌을 감지**하는 방식입니다.",
+      en: "When two people edit the same post, the later save can **silently overwrite** the earlier one. The editor sends the `version` it loaded, and the server updates **only if that version is unchanged**, bumping the number. If zero rows change, someone saved first, so it returns **409 with the current version** and the editor asks whether to overwrite or reload. Conflicts are **detected, not locked**.",
+    },
+    language: "typescript",
+    code: `const baseVersion = typeof body.baseVersion === "number" ? body.baseVersion : null;
+
+if (baseVersion !== null) {
+  const { data, error } = await supabase
+    .from("posts")
+    .update({ ...body, version: baseVersion + 1, updated_at: new Date().toISOString() })
+    .eq("id", id)
+    .eq("version", baseVersion)   // 버전이 그대로일 때만
+    .select()
+    .single();
+
+  // 0행 갱신 = 없거나 버전 불일치 → 현재 버전을 읽어 충돌/404 구분
+  if (error?.code === "PGRST116") {
+    const { data: cur } = await supabase.from("posts").select("version").eq("id", id).maybeSingle();
+    if (cur) return NextResponse.json({ error: "version_conflict", currentVersion: cur.version }, { status: 409 });
+  }
+}`,
+  },
+  {
+    title: "Scheduled Jobs that Report Their Own Failures",
+    description: {
+      ko: "예약 발행은 호스팅 cron 대신 **데이터베이스 안의 pg_cron** 이 매분 실행합니다. 작업 함수를 그대로 등록하지 않고 **`safe_` 래퍼**로 감싸, 예외가 나면 삼키지 않고 **관리자 알림 테이블에 오류 내용을 남깁니다**. 외부에 여는 주소도, 그 주소를 지키는 비밀키도 필요 없고, 실패는 관리자 화면에서 바로 보입니다.",
+      en: "Scheduled publishing runs every minute in **pg_cron inside the database**, not a hosting cron. The job isn't registered directly but through a **`safe_` wrapper** that, on an exception, **writes the error to the admin notifications table** instead of swallowing it. No public endpoint or secret is needed, and failures show up in the admin screen.",
+    },
+    language: "sql",
+    code: `CREATE OR REPLACE FUNCTION safe_publish_scheduled()
+RETURNS void
+LANGUAGE plpgsql SECURITY DEFINER AS $$
+BEGIN
+  PERFORM publish_scheduled();
+EXCEPTION WHEN OTHERS THEN
+  INSERT INTO admin_notifications (type, title, message, metadata)
+  VALUES (
+    'cron_error',
+    '⚠️ publish_scheduled cron 에러',
+    'publish_scheduled() 실행 중 예외 발생: ' || SQLERRM,
+    jsonb_build_object('function', 'publish_scheduled', 'sqlstate', SQLSTATE, 'message', SQLERRM)
+  );
+END;
+$$;
+
+-- 매분 실행
+SELECT cron.schedule('publish-scheduled', '* * * * *',
+  $cron$ SELECT safe_publish_scheduled(); $cron$);`,
   },
 ];
