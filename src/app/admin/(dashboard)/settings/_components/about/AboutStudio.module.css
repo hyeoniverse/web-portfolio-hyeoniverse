@@ -871,6 +871,17 @@ textarea.edit {
   line-height: 1.6;
   color: var(--text-secondary);
 }
+/* Process 기간·수치 줄 — 시작일 ~ 종료일 · 커밋 · PR */
+.procMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs) var(--spacing-md);
+  align-items: baseline;
+  margin-top: var(--spacing-sm);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-label);
+  color: var(--text-tertiary);
+}
 /* Process 제목 아래 ** 강조 문법 안내 — hint 색은 accent */
 .procHint {
   margin: var(--spacing-2xs) 0 var(--spacing-xl);
