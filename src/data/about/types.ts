@@ -36,7 +36,9 @@ export interface CodeExample {
   language: string;
   media?: string;
   /** 왼쪽 데모 칸 — "media"(업로드) / "sandbox"(실행 코드). 미설정이면 표시 안 함 */
-  demoMode?: "media" | "sandbox";
+  demoMode?: "media" | "sandbox" | "live";
+  /** demoMode="live" 일 때 코드에 정의된 데모 이름(codeHighlights/LiveDemos 의 LIVE_DEMOS 키) */
+  demoKey?: string;
   /** demoMode="media" 일 때 GIF/영상/이미지 URL */
   demoMedia?: string;
   /** demoMode="sandbox" 일 때 실행용 파일 맵(경로 → 코드). 좌측 표시용 code 와 별개.
