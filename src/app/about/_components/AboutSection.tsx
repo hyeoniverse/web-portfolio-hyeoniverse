@@ -57,27 +57,29 @@ export default function AboutSection() {
   const { language } = useLanguage();
   const isMobile = useMobileLayout();
   const hasMounted = useHasMounted();
+
+  /* 데스크톱 트랙에 놓일 순서 — 숨긴 패널을 뺀다 */
+  const desktopItems = useMemo(
+    () => orderPanels(desktopPanels, panelOrder).filter(({ key }) => !hiddenPanels.has(key)),
+    [panelOrder, hiddenPanels],
+  );
+  /* 가로 스크롤이 세는 칸: 트랙의 모든 칸(무한 모드 한 세트 크기)과, 그중 하단 내비 항목이 되는 칸(전환 장면 제외) */
+  const panelSetSize = desktopItems.length;
+  const navSectionCount = desktopItems.filter((item) => item.key !== "visualBreak").length;
   /* 무한 스크롤의 앞뒤 세트는 브라우저에서 데스크톱일 때만 붙인다. 서버 HTML 에 세 벌을 다 넣으면 모바일도 그것을
      받아 하이드레이션한 뒤 버렸다(#942). 가로 스크롤은 세 벌이 다 붙은 뒤에 초기 위치를 잡는다 */
   const withCopies = infiniteScroll && hasMounted && !isMobile;
   const { sectionRef, trackRef, activeSection, goToSection, scrollBy } =
     useHorizontalScroll(styles, {
       infinite: infiniteScroll,
-      panelSetSize: 15,
-      navSectionCount: 14,
+      panelSetSize,
+      navSectionCount,
       ready: !infiniteScroll || withCopies,
+      cinematic: true,
     });
   useInViewMobile(trackRef, styles.animate, styles.animateVisible);
   const { isLoading } = useLoadingScreen();
-  const {
-    navRef,
-    navItemRefs,
-    setHoveredSection,
-    highlightedSection,
-    springX,
-    springWidth,
-    navSections,
-  } = useNavIndicator(activeSection, !isLoading);
+  const { navRef, setHoveredSection, highlightedSection, navSections } = useNavIndicator(activeSection, !isLoading);
 
   const {
     mobileTab,
@@ -92,6 +94,10 @@ export default function AboutSection() {
   const ctx: PanelContext = {
     language,
     scrollBy,
+    goToPanel: (key) => {
+      const index = navSections.findIndex((s) => s.key === key);
+      if (index >= 0) goToSection(index);
+    },
   };
 
   /* ── Render panels from config — about.hiddenPanels 에 등록된 key 는 skip.
@@ -105,7 +111,12 @@ export default function AboutSection() {
         </div>
       ));
 
-  const desktopSet = () => renderPanels(orderPanels(desktopPanels, panelOrder));
+  const desktopSet = () =>
+    desktopItems.map(({ key, Component, props }) => (
+      <div key={key} className={styles.panelSlot} data-tab={TAB_OF_PANEL[key]}>
+        <Component {...props(ctx)} />
+      </div>
+    ));
 
   return (
     <>
@@ -166,42 +177,12 @@ export default function AboutSection() {
       <div style={isLoading ? { visibility: "hidden" } : undefined} suppressHydrationWarning>
           <SectionNav
             navRef={navRef}
-            navItemRefs={navItemRefs}
             navSections={navSections}
+            activeSection={activeSection}
             highlightedSection={highlightedSection}
-            springX={springX}
-            springWidth={springWidth}
             onHover={setHoveredSection}
             onNavigate={goToSection}
           />
-          {!isMobile && (
-            <>
-              <Pressable noTapScale
-                data-clickable="true"
-                className={styles.slideArrow}
-                onClick={() => {
-                  const navIdx = highlightedSection;
-                  const prev = (navIdx - 1 + navSections.length) % navSections.length;
-                  goToSection(prev);
-                }}
-                aria-label="Previous section"
-              >
-                ‹
-              </Pressable>
-              <Pressable noTapScale
-                data-clickable="true"
-                className={`${styles.slideArrow} ${styles.slideArrowRight}`}
-                onClick={() => {
-                  const navIdx = highlightedSection;
-                  const next = (navIdx + 1) % navSections.length;
-                  goToSection(next);
-                }}
-                aria-label="Next section"
-              >
-                ›
-              </Pressable>
-            </>
-          )}
       </div>
     </>
   );

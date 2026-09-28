@@ -15,6 +15,8 @@ const SCROLL_LERP = 0.08;
 const MAX_WHEEL_DELTA = 150;
 /** 전역 Lenis 가 이 요소 위의 휠을 건드리지 않게 하는 표시 — Lenis 가 읽는 이름 그대로여야 한다 */
 const LENIS_PREVENT_WHEEL = "data-lenis-prevent-wheel";
+/** 트랙 위치를 바꾼 직후 매 프레임 보내는 이벤트 — 긴 패널의 안쪽 고정이 같은 프레임에 따라온다 */
+export const HSCROLL_FRAME_EVENT = "hscroll:frame";
 
 export interface HorizontalScrollOptions {
   /** Infinite wrapping (default: false) */
@@ -28,6 +30,9 @@ export interface HorizontalScrollOptions {
   /** 트랙의 패널이 다 그려졌는지 (default: true). 무한 모드에서 앞뒤 세트를 브라우저에서 늦게 붙이면
       그때까지 false 로 두어, 한 세트만 있을 때 초기 위치를 잡지 않게 한다 */
   ready?: boolean;
+  /** 장면 전환 방식 (default: false). 켜면 화면 폭 이상인 패널은 옆으로 밀리지 않고 화면에 고정된 채
+      다음 패널이 와이프·아이리스·디졸브로 덮으며 바뀐다. 진행도는 스크롤 위치 그대로다 */
+  cinematic?: boolean;
 }
 
 /**
@@ -53,6 +58,7 @@ export function useHorizontalScroll(
     navSectionCount = infinite ? panelSetSize - 1 : 0,
     mobileAnimateVisible = false,
     ready = true,
+    cinematic = false,
   } = options ?? {};
 
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -101,7 +107,11 @@ export function useHorizontalScroll(
         return;
       }
 
-      // 데스크탑: 가장 가까운 해당 패널을 찾아서 targetScrollX 조정
+      /* 데스크탑: 가장 가까운 해당 패널을 찾아서 targetScrollX 조정.
+         위치는 레이아웃 값(트랙 x + offsetLeft)으로 잰다 — 장면 전환이 화면 가장자리에서 기다리는 패널을
+         화면에 붙잡아 두므로 getBoundingClientRect 로 재면 0 으로 나와, 옆 패널로 가는 버튼이 움직이지 않았다 */
+      const trackX = new DOMMatrix(getComputedStyle(track).transform).m41;
+      const leftOf = (el: HTMLElement) => trackX + el.offsetLeft;
       let bestTarget: HTMLElement | undefined;
       let bestDist = Infinity;
       let navCount = 0;
@@ -110,8 +120,7 @@ export function useHorizontalScroll(
         if (breakClass && panels[i].classList.contains(breakClass)) continue;
         const idx = infinite ? navCount % navSectionCount : navCount;
         if (idx === navIndex) {
-          const rect = panels[i].getBoundingClientRect();
-          const dist = Math.abs(rect.left);
+          const dist = Math.abs(leftOf(panels[i]));
           if (dist < bestDist) {
             bestDist = dist;
             bestTarget = panels[i];
@@ -121,9 +130,10 @@ export function useHorizontalScroll(
       }
 
       if (bestTarget) {
-        const rect = bestTarget.getBoundingClientRect();
+        const left = leftOf(bestTarget);
+        const width = bestTarget.offsetWidth;
         const vw = window.innerWidth;
-        const offset = rect.width < vw ? rect.left - (vw - rect.width) / 2 : rect.left;
+        const offset = width < vw ? left - (vw - width) / 2 : left;
         scrollStateRef.current.targetScrollX += offset;
       }
     },
@@ -177,11 +187,6 @@ export function useHorizontalScroll(
     if (infinite && allPanels.length < panelSetSize) return;
     if (!infinite && allPanels.length === 0) return;
 
-    // extraWide 패널 (350vw 등) — 이 구간에서는 lookahead 제한 해제
-    let extraWidePanels = allPanels.filter(
-      (p) => p.offsetWidth > window.innerWidth * 2,
-    );
-
     // 한 세트 너비 (infinite 모드)
     let oneSetWidth = 0;
     if (infinite) {
@@ -200,9 +205,6 @@ export function useHorizontalScroll(
     const refreshPanelsIfStale = () => {
       if (!allPanels.some((el) => !document.contains(el))) return;
       allPanels = gsap.utils.toArray<HTMLElement>(panelSelector, track);
-      extraWidePanels = allPanels.filter(
-        (p) => p.offsetWidth > window.innerWidth * 2,
-      );
       if (infinite) {
         oneSetWidth = 0;
         for (let i = 0; i < panelSetSize && i < allPanels.length; i++) {
@@ -223,8 +225,9 @@ export function useHorizontalScroll(
     state.targetScrollX = 0;
     gsap.set(track, { x: initialX });
 
-    // .animate 요소 초기화 — 1회만
-    if (!initializedRef.current) {
+    /* .animate 요소 초기화 — 1회만. 장면 전환(cinematic)에서는 내용이 흐름 값(--flow-in/out)을 따라 CSS 로
+       움직이므로(AboutPanel.module.css) 쓰지 않는다 — 인라인 opacity·transform 을 박으면 그 규칙을 덮는다 */
+    if (!initializedRef.current && !cinematic) {
       initializedRef.current = true;
       allPanels.forEach((panel, i) => {
         const isHero = infinite ? i % panelSetSize === 0 : i === 0;
@@ -273,29 +276,173 @@ export function useHorizontalScroll(
       const clamped = Math.max(-MAX_WHEEL_DELTA, Math.min(MAX_WHEEL_DELTA, e.deltaY));
       state.targetScrollX += clamped;
 
-      // 실수로 여러 패널 건너뜀 방지: extraWide 패널 구간이 아니면 lookahead 제한
-      const insideWide = extraWidePanels.some((p) => {
-        const enter = initialX + p.offsetLeft - window.innerWidth;
-        const exit = initialX + p.offsetLeft + p.offsetWidth;
-        return state.scrollX > enter && state.scrollX < exit;
+      /* 목표 위치가 지금 위치보다 너무 앞서 가지 않게 늘 같은 폭으로 묶는다(여러 패널 건너뜀 방지).
+         예전에는 긴 패널 안에서만 이 제한을 풀었는데, 그러면 긴 패널을 빠르게 넘기는 동안 목표가 멀리
+         앞서 갔다가 패널을 벗어나는 순간 제한에 걸려 뒤로 끌려왔다 — 다음 패널로 넘어갈 때의 당김 */
+      const cap = window.innerWidth * 1.2;
+      state.targetScrollX = gsap.utils.clamp(
+        state.scrollX - cap,
+        state.scrollX + cap,
+        state.targetScrollX,
+      );
+    };
+    /* 장면 전환 도중에 휠을 멈추면 전환을 끝까지 마친다 — 굴리던 방향으로 조금이라도(화면 폭의 4%, 휠 한 칸보다 작다) 진행했으면 그
+       방향으로, 아니면 원래 장면으로. 멈춘 자리에 반쯤 걷힌 와이프나 덜 닫힌 원이 남으면 화면이 어정쩡했다.
+       한 칸씩 끊어 굴려도 앞으로 나아가도록 방향을 기준으로 한다 */
+    let snapTimer = 0;
+    let lastDir = 1;
+    const COMMIT = 0.04;
+    /* 마무리는 따로 트윈으로 몬다 — 따라잡기(lerp)로 마치면 끝이 한없이 느려져 컷이 흐지부지 끝났다.
+       지금 속도에서 출발해 도착점에서 멈추는 3차 곡선(Hermite)이라 이어받는 순간 튀지 않는다.
+       출발 속도가 3·거리/시간을 넘으면 지나쳤다 돌아오므로 그 안으로 묶는다 */
+    let snapTween: gsap.core.Tween | null = null;
+    let snapDest = 0;
+    const killSnap = () => {
+      snapTween?.kill();
+      snapTween = null;
+    };
+    const startSnap = (dest: number) => {
+      const vw = window.innerWidth;
+      const from = state.scrollX;
+      const dist = dest - from;
+      // 지금 속도(px/s) — 따라잡기 한 프레임(60fps 기준) 이동량
+      let v = (state.targetScrollX - from) * SCROLL_LERP * 60;
+      state.targetScrollX = dest;
+      killSnap();
+      if (Math.abs(dist) < 1) return;
+      const duration = gsap.utils.clamp(0.45, 1, 0.4 + (Math.abs(dist) / vw) * 0.5);
+      if (Math.sign(v) !== Math.sign(dist)) v = 0;
+      v = Math.sign(dist) * Math.min(Math.abs(v) * duration, Math.abs(dist) * 3); // 거리 단위로
+      const k = { u: 0 };
+      snapDest = dest;
+      snapTween = gsap.to(k, {
+        u: 1,
+        duration,
+        ease: "none",
+        onUpdate: () => {
+          const u = k.u;
+          const u2 = u * u;
+          const u3 = u2 * u;
+          state.scrollX = from + (u3 - 2 * u2 + u) * v + (-2 * u3 + 3 * u2) * dist;
+        },
+        onComplete: () => { snapTween = null; },
       });
-      if (!insideWide) {
-        const cap = window.innerWidth * 1.2;
-        state.targetScrollX = gsap.utils.clamp(
-          state.scrollX - cap,
-          state.scrollX + cap,
-          state.targetScrollX,
-        );
+    };
+    const snapCut = () => {
+      const vw = window.innerWidth;
+      const baseX = initialX - state.targetScrollX;
+      for (const panel of allPanels) {
+        if (panel.offsetWidth < vw * 0.98) continue;
+        const left = baseX + panel.offsetLeft;
+        if (left > 1 && left < vw - 1) {
+          const commitForward = left < vw * (1 - COMMIT);
+          const commitBackward = left > vw * COMMIT;
+          const desired = lastDir > 0 ? (commitForward ? 0 : vw) : (commitBackward ? vw : 0);
+          startSnap(initialX + panel.offsetLeft - desired);
+          return;
+        }
       }
     };
+    const scheduleSnap = (e: WheelEvent) => {
+      if (!cinematic) return;
+      const d = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
+      if (d !== 0) lastDir = d > 0 ? 1 : -1;
+      killSnap();
+      window.clearTimeout(snapTimer);
+      snapTimer = window.setTimeout(snapCut, 180);
+    };
+    section.addEventListener("wheel", scheduleSnap, { passive: true });
     section.addEventListener("wheel", handleWheel, { passive: false });
+
+    /* 장면 전환 — 화면 폭 이상인 패널은, 들어오는 동안(왼쪽 끝이 화면 안)과 나가는 동안(오른쪽 끝이 화면 안)
+       화면에 붙잡아 둔다. 들어오는 패널이 위에서 와이프·아이리스·아래에서 걷히기로 드러나고, 나가는 패널은 아래에서 살짝 작아진다.
+       위치는 레이아웃 값(offsetLeft)으로 계산한다 — 여기서 건 transform 이 다시 측정값에 섞이지 않게 */
+    const CUT_KINDS = ["wipe", "iris", "rise"] as const;
+    // 전환 곡선 — 거리에 정비례하면 기계적이다. 처음과 끝을 눌러 컷이 스르르 열리고 닫히게(sine in-out)
+    const easeCut = (p: number) => 0.5 - Math.cos(Math.PI * p) / 2;
+    const applyCuts = (trackX: number) => {
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      allPanels.forEach((panel, i) => {
+        const w = panel.offsetWidth;
+        const left = trackX + panel.offsetLeft;
+        const right = left + w;
+        const s = panel.style;
+        const reset = () => {
+          if (!s.transform && !s.clipPath && !s.filter) return;
+          s.transform = "";
+          s.clipPath = "";
+          s.filter = "";
+          s.opacity = "";
+          s.zIndex = "";
+          s.transformOrigin = "";
+        };
+        if (w < vw * 0.98 || right < -2 || left > vw + 2) {
+          reset();
+          return;
+        }
+        if (left > 0 && left < vw) {
+          // 들어오는 중 — 0 에 붙잡고, 남은 거리만큼 전환을 덜 진행한 상태
+          const t = 1 - easeCut(1 - left / vw);
+          /* 패널이 컷을 고를 수 있다(data-cut-kind) — 없으면 차례대로 돌린다 */
+          const kind = panel.dataset.cutKind ?? CUT_KINDS[i % CUT_KINDS.length];
+          s.zIndex = "3";
+          s.filter = "";
+          if (kind === "wipe") {
+            s.transform = `translateX(${-left}px)`;
+            s.clipPath = `inset(0 0 0 ${(t * vw).toFixed(1)}px)`;
+            s.opacity = "";
+          } else if (kind === "iris") {
+            const r = (1 - t) * Math.hypot(vw, vh) * 0.55;
+            s.transform = `translateX(${-left}px)`;
+            s.clipPath = `circle(${r.toFixed(1)}px at ${vw / 2}px 50%)`;
+            s.opacity = "";
+          } else if (kind === "slide") {
+            // 패널째 아래에서 올라와 덮는다 — 잘라 드러내지 않고 통째로 민다
+            s.transform = `translateX(${-left}px) translateY(${(t * vh).toFixed(1)}px)`;
+            s.clipPath = "";
+            s.opacity = "";
+          } else {
+            // 아래에서 위로 걷힌다
+            s.transform = `translateX(${-left}px)`;
+            s.clipPath = `inset(${(t * 100).toFixed(2)}% 0 0 0)`;
+            s.opacity = "";
+          }
+        } else if (right > 0 && right < vw) {
+          // 나가는 중 — 오른쪽 끝을 화면 오른쪽에 붙잡고 작아지며 어두워진다
+          const shift = vw - right;
+          const t = easeCut(shift / vw);
+          s.zIndex = "2";
+          s.clipPath = "";
+          s.opacity = "";
+          s.transformOrigin = `${w - vw / 2}px 50%`;
+          /* 화면보다 넓은 패널은 작아지지 않는다 — 크기가 바뀌면 안쪽 고정(usePinnedScroll)이 재는 폭이 틀어져
+             내용이 밀린다. 위치만 붙잡는다 */
+          const scale = w > vw * 1.05 ? 1 : 1 - t * 0.08;
+          s.transform = `translateX(${shift}px) scale(${scale.toFixed(4)})`;
+          s.filter = `brightness(${(1 - t * 0.15).toFixed(3)})`;
+        } else {
+          reset();
+        }
+      });
+    };
+
+    // 패널마다 마지막으로 쓴 흐름 값 — 같으면 다시 쓰지 않는다
+    const flowCache = new WeakMap<HTMLElement, string>();
 
     // RAF 애니메이션 루프
     const animate = () => {
       // dynamic import로 교체된 DOM 요소가 있으면 allPanels 재쿼리
       refreshPanelsIfStale();
 
-      state.scrollX += (state.targetScrollX - state.scrollX) * SCROLL_LERP;
+      // 마무리 트윈 중에는 트윈이 위치를 몬다. 그 사이 목표가 바뀌면(내비 이동 등) 트윈을 버리고 따라잡기로 돌아간다
+      if (snapTween && state.targetScrollX !== snapDest) killSnap();
+      if (!snapTween) {
+        state.scrollX += (state.targetScrollX - state.scrollX) * SCROLL_LERP;
+        /* 따라잡기는 끝없이 가까워지기만 해서 0.0004px 같은 틈이 남는다 — 그러면 도착한 패널이 '나가는 중'으로
+           잡혀 전환 스타일이 걸린 채 멈춘다. 반 픽셀 안이면 딱 맞춘다 */
+        if (Math.abs(state.targetScrollX - state.scrollX) < 0.5) state.scrollX = state.targetScrollX;
+      }
 
       // infinite 래핑 또는 clamp
       if (infinite && oneSetWidth > 0) {
@@ -319,10 +466,33 @@ export function useHorizontalScroll(
 
       // 트랙 위치 업데이트
       gsap.set(track, { x: initialX - state.scrollX });
+      if (cinematic) applyCuts(initialX - state.scrollX);
+      /* 트랙을 옮긴 바로 그 프레임에 긴 패널의 안쪽 고정도 맞춘다(usePinnedScroll). 따로 돌면 한 프레임 전
+         위치로 맞춰 스크롤이 빠를수록 안쪽 내용이 밀렸다가 따라붙었다(튕김) */
+      window.dispatchEvent(new Event(HSCROLL_FRAME_EVENT));
 
       // 패널 애니메이션 (뷰포트 기반) — off-screen 패널 스킵
       const vw = window.innerWidth;
+      /* 흐름 값 — 패널이 오른쪽에서 들어오는 정도(--flow-in, 1 → 0)와 왼쪽으로 나가는 정도(--flow-out, 0 → 1).
+         CSS 가 이 값에 제목·큰 요소의 위치와 크기를 묶어, 스크롤을 따라 영상처럼 이어서 움직인다.
+         화면보다 넓은 패널은 가운데를 지나는 동안 둘 다 0 이다 */
+      /* 장면 전환은 들어오고 나가는 패널을 화면에 붙잡아 두므로 화면상 위치(getBoundingClientRect)로 재면 늘 0 이었다 —
+         흐름 규칙이 전환 중에 전혀 움직이지 않았다. 레이아웃 위치(트랙 + offsetLeft)로 잰다 */
+      const flowX = initialX - state.scrollX;
       allPanels.forEach((panel) => {
+        const rect = cinematic
+          ? { left: flowX + panel.offsetLeft, right: flowX + panel.offsetLeft + panel.offsetWidth }
+          : panel.getBoundingClientRect();
+        if (rect.right < -vw || rect.left > vw * 2) return;
+        const flowIn = gsap.utils.clamp(0, 1, rect.left / vw);
+        const flowOut = gsap.utils.clamp(0, 1, (vw - rect.right) / vw);
+        const key = `${flowIn.toFixed(3)} ${flowOut.toFixed(3)}`;
+        if (flowCache.get(panel) === key) return;
+        flowCache.set(panel, key);
+        panel.style.setProperty("--flow-in", flowIn.toFixed(3));
+        panel.style.setProperty("--flow-out", flowOut.toFixed(3));
+      });
+      if (!cinematic) allPanels.forEach((panel) => {
         const items = panel.querySelectorAll<HTMLElement>(
           `.${styles.animate}`,
         );
@@ -392,9 +562,13 @@ export function useHorizontalScroll(
       let navIdx = 0;
       let found = false;
 
+      /* 장면 전환(cinematic)이 붙잡아 둔 패널은 화면상 위치가 레이아웃과 다르다 — 들어오기 직전 패널이
+         화면 전체를 덮은 것으로 잡혀 내비가 한 칸 앞을 가리켰다. 트랙 위치와 offsetLeft 로 계산한다 */
+      const layoutX = initialX - state.scrollX;
       for (let i = 0; i < allPanels.length; i++) {
         if (breakClass && allPanels[i].classList.contains(breakClass)) continue;
-        const rect = allPanels[i].getBoundingClientRect();
+        const left = layoutX + allPanels[i].offsetLeft;
+        const rect = { left, right: left + allPanels[i].offsetWidth, width: allPanels[i].offsetWidth };
         const idx = infinite && navSectionCount
           ? navIdx % navSectionCount
           : navIdx;
@@ -445,6 +619,9 @@ export function useHorizontalScroll(
     return () => {
       cancelAnimationFrame(rafIdRef.current);
       section.removeEventListener("wheel", handleWheel);
+      section.removeEventListener("wheel", scheduleSnap);
+      window.clearTimeout(snapTimer);
+      killSnap();
       section.removeAttribute(LENIS_PREVENT_WHEEL);
       window.removeEventListener("resize", handleResize);
     };
@@ -458,6 +635,7 @@ export function useHorizontalScroll(
     navSectionCount,
     lenisScrollTo,
     ready,
+    cinematic,
   ]);
 
   // ── 모바일: IntersectionObserver로 활성 섹션 추적 ──
