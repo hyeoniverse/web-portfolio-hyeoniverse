@@ -191,8 +191,12 @@ export default function Tooltip({
 
     // 다중 줄이면 pill 반원 끝 곡선을 피하도록 가로 padding 을 키운다(아래 CSS). max-width 반영 후
     // 실제 높이로 판정(1줄 ~25px, 2줄 ~40px → 34 로 가름).
-    const isMultiline = bubble.getBoundingClientRect().height > 34;
+    const bubbleH = bubble.getBoundingClientRect().height;
+    const isMultiline = bubbleH > 34;
     bubble.dataset.multiline = isMultiline ? "true" : "false";
+    /* 3줄 이상(제목·설명·난이도처럼 여러 단을 담은 말풍선)은 pill 이면 반원 반지름이 높이의 절반이라
+       맨 윗줄·아랫줄 글자가 곡선 밖으로 나가 바탕 없이 잘려 보였다. 둥근 사각형으로 바꾼다(아래 CSS) */
+    bubble.dataset.tall = bubbleH > 56 ? "true" : "false";
     if (isMultiline) {
       // 늘어난 가로 padding((md-xs)*2 = 16px) 만큼 max-width 도 키워, padding 때문에 줄이 더 늘지 않게 한다.
       bubble.style.setProperty("--_max-w", `${Math.ceil(idealMax + 16)}px`);
