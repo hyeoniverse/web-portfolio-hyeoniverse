@@ -34,5 +34,20 @@ export function adaptProcess(list: CfgProcess[]): ProcessStep[] {
     step: p.step,
     title: { ko: p.title_ko, en: p.title_en },
     description: { ko: p.description_ko, en: p.description_en },
+    start: p.start || undefined,
+    end: p.end || undefined,
+    commits: p.commits ? Number(p.commits) : undefined,
+    prs: p.prs ? Number(p.prs) : undefined,
+    weekly: p.weekly ? p.weekly.trim().split(/\s+/).map(Number).filter((n) => !Number.isNaN(n)) : undefined,
+    mix: p.mix
+      ? p.mix.trim().split(/\s+/).map((pair) => {
+          const [kind, n] = pair.split(":");
+          return { kind, count: Number(n) || 0 };
+        }).filter((m) => m.kind && m.count > 0)
+      : undefined,
+    metric: p.metric || undefined,
+    metricLabel: p.metric
+      ? { ko: p.metric_label_ko ?? "", en: p.metric_label_en || p.metric_label_ko || "" }
+      : undefined,
   }));
 }

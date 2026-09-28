@@ -910,8 +910,8 @@ export const siteConfig = {
     ] as Array<{ name: string; category: string; icon?: string }>,
     /* ── Features panel — 아이콘/제목/설명(ko,en)/tech 칩/이미지 URL ── */
     features: [] as Array<{ icon: string; title: string; description_ko: string; description_en: string; tech: string; image: string }>,
-    /* ── Process panel — 단계/제목(ko,en)/설명(ko,en) ── */
-    process: [] as Array<{ step: string; title_ko: string; title_en: string; description_ko: string; description_en: string }>,
+    /* ── Process panel — 단계/제목(ko,en)/설명(ko,en)/기간(start·end)/커밋·PR 수 ── */
+    process: [] as Array<{ step: string; title_ko: string; title_en: string; description_ko: string; description_en: string; start?: string; end?: string; commits?: string; prs?: string; weekly?: string; mix?: string; metric?: string; metric_label_ko?: string; metric_label_en?: string }>,
     /* ── Security panel — icon/title(ko,en)/description(ko,en)/scope(ko,en) ── */
     security: [] as Array<{ icon: string; title_ko: string; title_en: string; description_ko: string; description_en: string; scope_ko: string; scope_en: string }>,
     /* ── Design System 패널 — 컨셉 항목. 비어있으면 기본 정적 데이터(designConcepts) 사용 ── */
