@@ -83,7 +83,7 @@ function CodeHighlightsPanel({
   return (
     <div ref={panelRef} className={`${styles.panel} ${styles.panelExtraWide} ${styles.panelFlush}`}>
       {/* 내부 래퍼: 고정된 것처럼 보이도록 카운터 트랜슬레이션 */}
-      <div ref={contentRef} className={styles.pinnedContent}>
+      <div ref={contentRef} className={`${styles.pinnedContent} ${local.codeContent}`}>
         <PinnedTitleRow
           panelKey="codeHighlights"
           className={`${styles.titleRowCompact} ${local.codePinTitleRow}`}
@@ -96,6 +96,24 @@ function CodeHighlightsPanel({
             labels: examples.map((e) => e.title),
           }}
         />
+
+        {/* 데스크톱: 예제 목록 — 누르면 그 예제로 */}
+        <ol className={local.codeIndex} aria-label={language === "ko" ? "예제 목록" : "Examples"}>
+          {examples.map((example, index) => (
+            <li key={index}>
+              <Pressable
+                data-clickable="true"
+                className={`${local.codeIndexItem} ${index === activeIndex ? local.codeIndexItemActive : ""}`}
+                onClick={() => scrollToItem(index)}
+                aria-current={index === activeIndex ? "step" : undefined}
+              >
+                <span className={local.codeIndexNum}>{String(index + 1).padStart(2, "0")}</span>
+                <span className={local.codeIndexTitle}>{example.title}</span>
+                <span className={local.codeIndexLang}>{example.language}</span>
+              </Pressable>
+            </li>
+          ))}
+        </ol>
 
         {/* 데스크톱: 단일 패인 뷰 — 한 번에 하나씩 */}
         <div ref={singleViewRef} className={`${styles.codeSingleView} ${styles.animate}`}>
