@@ -381,3 +381,14 @@
     display: none;
   }
 }
+
+@media (min-width: 1025px) and (min-height: 701px) and (prefers-reduced-motion: no-preference) {
+  /* 읽는 만큼 — 탐색기의 지금 항목 배경이 편집기 본문을 내린 만큼 왼쪽에서 차오른다(--read-p, TroubleshootingPanel) */
+  .troubleList .troubleListItemActive {
+    background: linear-gradient(
+      to right,
+      color-mix(in srgb, var(--text-accent) 14%, transparent) calc(var(--read-p, 1) * 100%),
+      color-mix(in srgb, var(--text-accent) 4%, transparent) 0
+    );
+  }
+}

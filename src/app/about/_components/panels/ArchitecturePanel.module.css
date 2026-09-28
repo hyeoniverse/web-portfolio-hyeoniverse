@@ -292,6 +292,37 @@
   backdrop-filter: blur(8px);
 }
 
+/* ── 데스크톱 전시실 구도: 제목은 왼쪽 가장자리에 세로로 세우고, 다이어그램이 나머지 화면 전체를 쓴다 ── */
+@media (min-width: 1025px) and (min-height: 701px) {
+  .archPanel {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: clamp(2rem, 4vw, 4.5rem);
+    padding-top: calc(var(--header-height) + var(--_panel-py));
+    padding-bottom: calc(var(--spacing-2xl) + 4.5rem);
+  }
+
+  .archTitleRow {
+    display: flex;
+    align-items: flex-end;
+    padding-right: clamp(1rem, 2vw, 2rem);
+    border-right: var(--_line-secondary);
+  }
+
+  /* 아래에서 위로 읽히게 세운다 */
+  .archPanel .archTitle {
+    margin: 0;
+    font-size: clamp(3.5rem, min(7vw, 11vh), 7.5rem);
+    line-height: 1;
+    writing-mode: vertical-rl;
+    rotate: 180deg;
+  }
+
+  .archPanel .archMap {
+    height: 100%;
+  }
+}
+
 @media (max-width: 1024px), (max-height: 700px) {
   .archTitle {
     margin-bottom: var(--spacing-lg);
@@ -375,5 +406,13 @@
     color: var(--text-tertiary);
     padding-left: 0;
     line-height: 1.5;
+  }
+}
+
+@media (min-width: 1025px) and (min-height: 701px) and (prefers-reduced-motion: no-preference) {
+  /* 흐름 — 다이어그램이 멀리서 다가오듯 작게 들어와 커진다 */
+  .archPanel .archMap {
+    scale: calc(1 - var(--flow-in) * 0.3 + var(--flow-out) * 0.15);
+    opacity: calc(1 - var(--flow-in) * 0.6 - var(--flow-out) * 0.6);
   }
 }

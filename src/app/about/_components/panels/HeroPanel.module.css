@@ -221,6 +221,97 @@ html[data-theme="dark"] .heroBgDark {
   }
 }
 
+/* 챕터 목차 — 포스터 구도에서만 보인다 */
+.heroToc {
+  display: none;
+}
+
+/* ── 데스크톱 포스터 구도(정렬이 기본값일 때): 가운데에 라벨·제목·설명, 아래에 챕터 목차 ── */
+@media (min-width: 1025px) and (min-height: 701px) {
+  .heroPoster {
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-lg);
+    padding: var(--header-height) 0 calc(var(--spacing-2xl) + 4.5rem);
+    text-align: center;
+  }
+
+  .heroPoster > .label {
+    margin: 0;
+  }
+
+  .heroPoster > h1 {
+    margin: 0;
+    font-size: var(--_hero-line1-font-size, clamp(4.5rem, min(10vw, 17vh), 11rem));
+    line-height: 0.9;
+  }
+
+  .heroPoster > .heroSubtitle {
+    max-width: 46ch;
+    word-break: keep-all;
+    font-size: var(--_hero-subtitle-font-size, var(--font-size-body));
+  }
+
+  .heroPoster > .heroAccentLine,
+  .heroPoster > .heroWatermark {
+    display: none;
+  }
+
+  .heroPoster > .heroToc {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    width: min(100%, 64rem);
+    margin-top: var(--spacing-lg);
+    border-top: var(--border-default);
+  }
+
+  .heroTocItem {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3xs);
+    align-items: flex-start;
+    padding: var(--spacing-sm) var(--spacing-md);
+    text-align: left;
+    border-left: var(--border-light);
+  }
+
+  .heroTocItem:first-child {
+    border-left: none;
+  }
+
+  /* Compound selector (0,2,0) */
+  .heroToc .heroTocItem {
+    transition: background-color var(--duration-base) ease;
+  }
+
+  .heroTocItem:hover {
+    background: var(--bg-accent-subtle);
+  }
+
+  .heroTocNum {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-hint);
+    color: var(--text-accent);
+  }
+
+  .heroTocTitle {
+    font-family: var(--font-instrument);
+    font-size: clamp(1.25rem, 1.7vw, 1.75rem);
+    font-style: italic;
+    line-height: 1.1;
+    color: var(--text-primary);
+  }
+
+  .heroTocItem:hover .heroTocTitle {
+    color: var(--text-accent);
+  }
+
+  .heroTocSummary {
+    font-size: var(--font-size-label);
+    color: var(--text-tertiary);
+  }
+}
+
 @media (max-width: 1024px), (max-height: 700px) {
   .heroContent {
     padding-top: calc(var(--header-height) + var(--_space-divide));
@@ -235,4 +326,14 @@ html[data-theme="dark"] .heroBgDark {
   .heroSubtitle {
     max-width: none;
   }
+}
+
+@media (min-width: 1025px) and (min-height: 701px) and (prefers-reduced-motion: no-preference) {
+  /* 흐름 — 떠날 때 제목이 작아지며 뒤로 빠진다 */
+  .heroPoster > h1 {
+    scale: calc(1 - var(--flow-out) * 0.4);
+    translate: calc(var(--flow-out) * -8vw) 0;
+    opacity: calc(1 - var(--flow-out) * 0.9);
+  }
+
 }

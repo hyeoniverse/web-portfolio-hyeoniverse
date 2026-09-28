@@ -4,6 +4,9 @@ import { useLoadingScreen } from "@/hooks/useLoadingProgress";
 import { useAboutConfig } from "../AboutConfig";
 import { useLanguage } from "@/providers/LanguageProvider";
 import KineticHeroTitle from "@/components/common/KineticHeroTitle";
+import { ABOUT_CHAPTERS } from "@/data/about/chapters";
+import Pressable from "@/components/ui/Pressable";
+import HeroDecor from "./HeroDecor";
 import T from "@/components/ui/T";
 import frame from "../AboutPanel.module.css";
 import shell from "../AboutSection.module.css";
@@ -11,7 +14,7 @@ import local from "./HeroPanel.module.css";
 const shared = { ...frame, ...shell };
 const styles = { ...shared, ...local };
 
-export default function HeroPanel() {
+export default function HeroPanel({ goToPanel }: { goToPanel?: (key: string) => void }) {
   const { isLoading } = useLoadingScreen();
   const about = useAboutConfig();
   const { language } = useLanguage();
@@ -44,7 +47,9 @@ export default function HeroPanel() {
   const heroHidden = new Set(a.heroHidden ?? []);
   const alignH = a.heroAlignH ?? "left";
   const alignV = a.heroAlignV ?? "center";
-  const contentStyle: React.CSSProperties = {
+  /* 정렬이 기본값(왼쪽·가운데)이면 데스크톱에서 전시회 입구 포스터 구도를 쓴다. 관리자가 정렬을 바꾸면 그 설정을 따른다 */
+  const poster = alignH === "left" && alignV === "center";
+  const contentStyle: React.CSSProperties = poster ? {} : {
     alignItems: alignH === "center" ? "center" : alignH === "right" ? "flex-end" : "flex-start",
     justifyContent: alignV === "top" ? "flex-start" : alignV === "bottom" ? "flex-end" : "center",
     textAlign: alignH,
@@ -134,7 +139,8 @@ export default function HeroPanel() {
         />
       )}
       {(videoUrl || imageUrl) && <div className={styles.heroBgOverlay} aria-hidden />}
-      <div className={styles.heroContent} style={contentStyle}>
+      {poster && <HeroDecor />}
+      <div className={`${styles.heroContent} ${poster ? styles.heroPoster : ""}`} style={contentStyle}>
         {!heroHidden.has("label") && (
           <span className={`${styles.label} ${styles.animate} ${styles.heroFadeIn1}`}>
             {labelOverride || <T k="aboutPage.title" />}
@@ -147,6 +153,23 @@ export default function HeroPanel() {
           </p>
         )}
         <span className={styles.heroAccentLine} />
+        {/* 챕터 목차 — 눌러서 그 챕터의 첫 패널로. 포스터 구도에서만 보인다 */}
+        {poster && (
+          <nav className={`${styles.heroToc} ${styles.animate} ${styles.heroFadeIn2}`} aria-label={language === "ko" ? "챕터" : "Chapters"}>
+            {ABOUT_CHAPTERS.map((chapter, i) => (
+              <Pressable
+                key={chapter.key}
+                data-clickable="true"
+                className={styles.heroTocItem}
+                onClick={() => goToPanel?.(chapter.panels[0])}
+              >
+                <span className={styles.heroTocNum}>{String(i + 1).padStart(2, "0")}</span>
+                <span className={styles.heroTocTitle}>{chapter.title}</span>
+                <span className={styles.heroTocSummary}>{chapter.summary[language]}</span>
+              </Pressable>
+            ))}
+          </nav>
+        )}
         {!heroHidden.has("watermark") && <span className={styles.heroWatermark}>{watermark}</span>}
       </div>
     </div>

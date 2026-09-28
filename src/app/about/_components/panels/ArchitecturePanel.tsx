@@ -35,8 +35,8 @@ function ArchitecturePanel({ language }: ArchitecturePanelProps) {
     }));
   }, [cfgItems]);
   return (
-    <div className={`${styles.panel} ${styles.panelFlush}`}>
-      <div className={styles.titleRowCompact}>
+    <div className={`${styles.panel} ${styles.panelFlush} ${styles.archPanel}`}>
+      <div className={`${styles.titleRowCompact} ${styles.archTitleRow}`}>
         <h2 className={`${styles.panelTitle} ${styles.archTitle} ${styles.animate}`}>{panelTitle}</h2>
       </div>
 

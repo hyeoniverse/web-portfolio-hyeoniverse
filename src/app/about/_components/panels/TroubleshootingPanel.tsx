@@ -234,11 +234,29 @@ function TroubleshootingPanel({
     return () => cancelAnimationFrame(raf);
   }, [displayIndex, isMobile]);
 
+  /* 읽은 정도(--read-p, 0 → 1) — 편집기 본문을 내린 만큼. 탐색기의 지금 항목 배경이 여기에 맞춰 차오른다.
+     본문이 짧아 스크롤이 없으면 다 읽은 것으로 둔다. scroll 은 버블링하지 않아 캡처로 받는다 */
+  useEffect(() => {
+    if (isMobile) return;
+    const editor = ideEditorRef.current;
+    const content = contentRef.current;
+    if (!editor || !content) return;
+    const update = (e?: Event) => {
+      const el = (e?.target as HTMLElement | undefined) ?? editor.querySelector<HTMLElement>(`.${styles.ideEditorContent}`);
+      if (!el || !el.classList?.contains(styles.ideEditorContent)) return;
+      const max = el.scrollHeight - el.clientHeight;
+      content.style.setProperty("--read-p", (max > 1 ? Math.min(1, el.scrollTop / max) : 1).toFixed(3));
+    };
+    update();
+    editor.addEventListener("scroll", update, { capture: true, passive: true });
+    return () => editor.removeEventListener("scroll", update, { capture: true });
+  }, [displayIndex, isMobile, contentRef]);
+
   return (
     <div ref={panelRef} className={`${styles.panel} ${styles.panelExtraWide}`}>
       {/* 내부 래퍼: 고정된 것처럼 보이도록 카운터 트랜슬레이션 (데스크톱),
           모바일에서는 useMobilePinScroll 가 contentRef 를 핀 → 100vh 뷰포트 */}
-      <div ref={contentRef} className={`${styles.pinnedContent} ${styles.mobilePinViewport}`}>
+      <div ref={contentRef} className={`${styles.pinnedContent} ${styles.mobilePinViewport} ${local.troubleContent}`}>
         <PinnedTitleRow
           panelKey="troubleshooting"
           className={`${styles.titleRowCompact} ${local.troublePinTitleRow}`}

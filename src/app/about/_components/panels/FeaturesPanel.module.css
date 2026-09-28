@@ -1,3 +1,8 @@
+/* 명판 — 데스크톱 전시실 구도에서만 보인다 */
+.featurePlacard {
+  display: none;
+}
+
 .featureDynamic {
   flex: 1;
   margin-bottom: var(--spacing-4xl);
@@ -233,5 +238,58 @@
 
   .featureFolderWrap:nth-child(even) {
     align-self: flex-end;
+  }
+}
+
+/* ── 데스크톱 전시실 구도: 왼쪽 좁은 칸 아래에 명판과 제목, 오른쪽 벽 전체에 작품 9점 ── */
+@media (min-width: 1025px) and (min-height: 701px) {
+  .featuresPanel {
+    display: grid;
+    padding-bottom: calc(var(--spacing-2xl) + 4.5rem);
+    grid-template-columns: minmax(12rem, 17vw) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto auto;
+    column-gap: clamp(2.5rem, 4vw, 4.5rem);
+    padding-top: calc(var(--header-height) + var(--_panel-py));
+  }
+
+  .featuresPanel > h2 {
+    grid-row: 3;
+    grid-column: 1;
+    margin: 0;
+    font-size: clamp(3rem, min(5.5vw, 10vh), 6.5rem);
+  }
+
+  .featuresPanel .featurePlacard {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2xs);
+    grid-row: 2;
+    grid-column: 1;
+    margin: 0 0 var(--spacing-lg);
+    padding-left: var(--spacing-sm);
+    border-left: var(--_line-primary);
+    font-size: var(--font-size-label);
+    color: var(--text-primary);
+  }
+
+  .featuresPanel .featurePlacard span {
+    color: var(--text-tertiary);
+  }
+
+  .featuresPanel .featureDynamic {
+    grid-row: 1 / span 3;
+    grid-column: 2;
+    max-width: none;
+    max-height: none;
+    min-height: 0;
+    margin: 0;
+  }
+}
+
+@media (min-width: 1025px) and (min-height: 701px) and (prefers-reduced-motion: no-preference) {
+  /* 흐름 — 영상 벽이 살짝 기울어진 채 들어와 똑바로 선다 */
+  .featuresPanel .featureDynamic {
+    rotate: calc(var(--flow-in) * 4deg - var(--flow-out) * 3deg);
+    scale: calc(1 - var(--flow-in) * 0.12);
   }
 }
