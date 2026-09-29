@@ -8,6 +8,7 @@ import { Plus, Trash2, Mail, Clock } from "@/components/icons";
 import { SiGithub } from "react-icons/si";
 import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
+import LanguageToggle from "@/components/ui/LanguageToggle";
 import { useModalStore } from "@/stores/modalStore";
 import { ModalFooterContext } from "@/components/ui/Modal";
 import EmojiPicker from "@/components/ui/EmojiPicker";
@@ -69,6 +70,11 @@ export default function MemberEditModal({
   const [status, setStatus] = useState<{ ok: boolean; msg: string } | null>(null);
 
   const set = (p: Partial<Author>) => setDraft((d) => ({ ...d, ...p }));
+  /* 프로필 글(이름·역할·지역·소개)을 어느 언어로 적는지 — 기본 필드가 한국어, *_en 이 영어.
+     영어 칸이 비어 있으면 영어 화면과 작업물 팀원 연결에서 한국어 값을 대신 쓴다(localizeAuthor) */
+  const [profileLang, setProfileLang] = useState<"ko" | "en">("ko");
+  const en = profileLang === "en";
+  const enHint = (ko: string | undefined) => (ko ? `${L("비우면", "If empty")}: ${ko}` : undefined);
 
   /* 아바타는 이미지 URL 뿐 아니라 이모지·아이콘도 될 수 있다. EmojiPicker 가 돌려주는 값을
      그대로 담고, 그리는 쪽은 AuthorAvatar 가 판별한다. 빈 값이면 이름 첫 글자로 돌아간다. */
@@ -254,15 +260,31 @@ export default function MemberEditModal({
         </div>
       )}
 
+      <div className={styles.profileLangRow}>
+        <span className={shared.fieldHint}>
+          {L("이름·역할·지역·소개는 한국어와 영어로 따로 적을 수 있습니다. 영어 칸이 비어 있으면 한국어 값을 씁니다.",
+             "Name, role, location and bio can be written in Korean and English. Empty English fields fall back to Korean.")}
+        </span>
+        <LanguageToggle lang={profileLang} onLangChange={(l) => setProfileLang(l === "en" ? "en" : "ko")} size="sm" />
+      </div>
+
       <div className={styles.authorCardFields}>
-        <Field label={L("이름", "Name")} value={draft.name} onChange={(v) => set({ name: v })} required />
+        {en
+          ? <Field label={L("이름 (EN)", "Name (EN)")} value={draft.name_en ?? ""} onChange={(v) => set({ name_en: v })} placeholder={enHint(draft.name)} />
+          : <Field label={L("이름", "Name")} value={draft.name} onChange={(v) => set({ name: v })} required />}
         <Field label={L("아바타 URL", "Avatar URL")} value={draft.avatar} onChange={(v) => set({ avatar: v })} placeholder="https://..." maxHint={null} />
-        <Field label={L("역할", "Role")} value={draft.role} onChange={(v) => set({ role: v })} placeholder={L("예: 프론트엔드 개발자", "e.g. Frontend Developer")} suggestions={suggestions?.role} />
+        {en
+          ? <Field label={L("역할 (EN)", "Role (EN)")} value={draft.role_en ?? ""} onChange={(v) => set({ role_en: v })} placeholder={enHint(draft.role) ?? "e.g. Frontend Developer"} />
+          : <Field label={L("역할", "Role")} value={draft.role} onChange={(v) => set({ role: v })} placeholder={L("예: 프론트엔드 개발자", "e.g. Frontend Developer")} suggestions={suggestions?.role} />}
         <Field label={L("이메일", "Email")} value={draft.email} onChange={(v) => set({ email: v })} placeholder="name@example.com" maxHint={null} required />
-        <Field label={L("지역", "Location")} value={draft.location ?? ""} onChange={(v) => set({ location: v })} placeholder={L("예: 서울, 대한민국", "e.g. Seoul, South Korea")} suggestions={suggestions?.location} />
+        {en
+          ? <Field label={L("지역 (EN)", "Location (EN)")} value={draft.location_en ?? ""} onChange={(v) => set({ location_en: v })} placeholder={enHint(draft.location) ?? "e.g. Seoul, South Korea"} />
+          : <Field label={L("지역", "Location")} value={draft.location ?? ""} onChange={(v) => set({ location: v })} placeholder={L("예: 서울, 대한민국", "e.g. Seoul, South Korea")} suggestions={suggestions?.location} />}
         {/* 소개는 여러 줄 입력이라 반 칸에 두면 한 줄에 몇 글자 못 들어간다 — 두 열을 다 쓴다. */}
         <div className={styles.authorCardFieldWide}>
-          <Field label={L("소개", "Bio")} value={draft.bio} onChange={(v) => set({ bio: v })} multiline />
+          {en
+            ? <Field label={L("소개 (EN)", "Bio (EN)")} value={draft.bio_en ?? ""} onChange={(v) => set({ bio_en: v })} placeholder={enHint(draft.bio)} multiline />
+            : <Field label={L("소개", "Bio")} value={draft.bio} onChange={(v) => set({ bio: v })} multiline />}
         </div>
       </div>
 

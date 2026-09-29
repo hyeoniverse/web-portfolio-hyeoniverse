@@ -863,7 +863,7 @@ export function CalendarElement(props: PlateElementProps) {
             offset={6}
             maxHeight={false}
             responsive={false}
-            contentClassName={styles.exportMenu}
+            menu contentClassName={styles.exportMenu}
             trigger={
               <Tooltip content={t("내보내기 (.ics/CSV/JSON/MD)", "Export (.ics/CSV/JSON/MD)")} placement="top">
                 <Pressable noTapScale className={styles.blockBarIconBtn} aria-label={t("내보내기", "Export")}>

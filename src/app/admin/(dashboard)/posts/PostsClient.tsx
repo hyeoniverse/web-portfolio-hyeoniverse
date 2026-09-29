@@ -197,13 +197,43 @@ export default function PostsClient({ initialPosts, initialTotalPages, initialPe
     setLoading(false);
   }, [page, perPage, sort, filterCategory, filterSeries, effectiveAuthor, debouncedSearch, searchType, syntaxMode]);
 
-  const fetchSeries = useCallback(async () => {
-    setSeriesLoading(true);
+  /** silent — 스켈레톤 없이 뒤에서 맞춘다(순서를 바꾼 뒤 등 화면에 이미 반영한 변경) */
+  const fetchSeries = useCallback(async ({ silent = false }: { silent?: boolean } = {}) => {
+    if (!silent) setSeriesLoading(true);
     const res = await fetch("/api/series?all=true");
     const data = await res.json();
     setSeriesList(Array.isArray(data) ? data : []);
-    setSeriesLoading(false);
+    if (!silent) setSeriesLoading(false);
   }, []);
+
+  /* 시리즈 순서 바꾸기 — 화면에 곧바로 반영하고 서버 저장은 뒤에서 차례로 한다. 예전엔 저장 뒤 목록을 스켈레톤과 함께
+     다시 불러와 여러 개를 연달아 옮기면 매번 기다렸다. 실패하면 서버 값으로 되돌리고, 성공하면 연달아 옮기기가
+     멈춘 뒤 한 번 조용히 맞춘다(admin/works 와 같은 방식) */
+  const seriesQueue = useRef<Promise<unknown>>(Promise.resolve());
+  const seriesSync = useRef<number | undefined>(undefined);
+  const reorderSeries = useCallback((target: Series, newOrder: number) => {
+    setSeriesList((cur) => {
+      const sorted = [...cur].sort((a, b) => a.sort_order - b.sort_order);
+      const from = sorted.findIndex((x) => x.id === target.id);
+      const to = Math.max(0, Math.min(sorted.length - 1, newOrder - 1));
+      if (from < 0) return cur;
+      const [item] = sorted.splice(from, 1);
+      sorted.splice(to, 0, item);
+      return sorted.map((x, i) => ({ ...x, sort_order: i + 1 }));
+    });
+    window.clearTimeout(seriesSync.current);
+    seriesQueue.current = seriesQueue.current.then(async () => {
+      const res = await sendAction(`/api/series/${target.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sort_order: newOrder }),
+      }, t, t("admin.common.reorderFailed"));
+      window.clearTimeout(seriesSync.current);
+      if (!res) { void fetchSeries({ silent: true }); return; }
+      seriesSync.current = window.setTimeout(() => { void fetchSeries({ silent: true }); }, 1200);
+    });
+  }, [fetchSeries, t]);
+  useEffect(() => () => window.clearTimeout(seriesSync.current), []);
 
   const mdInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -426,7 +456,7 @@ export default function PostsClient({ initialPosts, initialTotalPages, initialPe
       headerExtra={
         <>
           <input ref={mdInputRef} type="file" accept=".md" multiple hidden onChange={handleMdUpload} />
-          <HelpButton
+          <HelpButton size="sm"
             title={t("admin.posts.uploadGuide")}
             aria-label={t("admin.posts.uploadGuide")}
             onClick={() => {
@@ -453,6 +483,7 @@ export default function PostsClient({ initialPosts, initialTotalPages, initialPe
           busy={busy}
           setBusy={setBusy}
           onRefresh={fetchSeries}
+          onReorder={reorderSeries}
           onDeleted={() => {
             fetchSeries();
             fetchPosts();
@@ -652,10 +683,11 @@ export default function PostsClient({ initialPosts, initialTotalPages, initialPe
         }
       />
 
-      {/* Hover / Tap preview tooltip — key 가 바뀔 때마다 새로 그린다 */}
+      {/* Hover / Tap preview tooltip — 처음 뜰 때만 새로 그리고, 행을 옮기면 내용만 바뀐다(usePreviewTooltip) */}
       <PreviewTooltip
         key={tooltip.key}
         post={tooltip.item}
+        open={tooltip.open}
         pos={tooltip.pos}
         imgError={tooltip.imgError}
         onImgError={handleImgError}

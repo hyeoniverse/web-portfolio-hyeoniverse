@@ -10,6 +10,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 /* ── Isolated tooltip to prevent parent re-renders from reaching AdminTable ── */
 export default function PreviewTooltip({
   post,
+  open = true,
   pos,
   imgError,
   onImgError,
@@ -17,6 +18,8 @@ export default function PreviewTooltip({
   onNavigate,
 }: {
   post: Post | null;
+  /** 떠 있는 중인지 — 닫힐 때는 false 로 사라지는 효과를 보인 뒤 post 가 비워진다 */
+  open?: boolean;
   pos: { top: number; left: number };
   imgError: boolean;
   onImgError: () => void;
@@ -30,9 +33,13 @@ export default function PreviewTooltip({
       <div className={shell.previewBackdrop} onClick={onDismiss} />
       <div
         className={shell.previewTooltip}
+        data-preview-tooltip
+        data-state={open ? "open" : "closed"}
         style={{ top: pos.top, left: pos.left }}
         onClick={onNavigate}
       >
+        {/* 행을 옮기면 같은 툴팁 안에서 내용만 바뀐다 — 바뀐 내용은 살짝 번지듯 들어온다 */}
+        <div key={post.id} className={shell.previewSwap}>
         <div className={shell.previewImage}>
           {post.cover_image && !imgError ? (
             <MediaThumb
@@ -58,6 +65,7 @@ export default function PreviewTooltip({
               ))}
             </div>
           )}
+        </div>
         </div>
       </div>
     </>

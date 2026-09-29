@@ -173,7 +173,7 @@ export default function RowActionsMenu({
           if (next) setPos(String(currentOrder));
         }}
         placement="bottom-end"
-        contentClassName={styles.body}
+        menu contentClassName={styles.body}
         sheetTitle={labels.move}
         trigger={
           <IconTriggerButton
@@ -209,7 +209,7 @@ export default function RowActionsMenu({
         }
       }}
       placement="bottom-end"
-      contentClassName={styles.body}
+      menu contentClassName={styles.body}
       sheetTitle={labels.menuTitle}
       trigger={
         <IconTriggerButton

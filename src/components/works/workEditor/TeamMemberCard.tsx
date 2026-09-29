@@ -3,10 +3,11 @@
 import styles from "../WorkEditor.module.css";
 import { useRef, useState } from "react";
 import { ListItem } from "@/app/admin/(dashboard)/components";
-import { ChevronRight, Link2 as LinkIcon, Pencil, Plus, User, X } from "@/components/icons";
+import { BadgeCheck, ChevronRight, Pencil, Plus, User, X } from "@/components/icons";
 import CloseButton from "@/components/ui/CloseButton";
 import Pressable from "@/components/ui/Pressable";
 import { showToast } from "@/stores/toastStore";
+import { fillTemplate } from "@/utils/format";
 import { type TeamMember } from "@/types/work";
 import { deriveTeamMemberAvatar, getMemberInitial } from "@/utils/teamMemberAvatar";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -249,14 +250,11 @@ export function TeamMemberCard({
                 {linkedAuthorName && (
                   <span
                     className={styles.memberLinkedBadge}
-                    title={
-                      editorLang === "ko"
-                        ? `${linkedAuthorName} 계정이 이 작업물을 편집할 수 있습니다.`
-                        : `${linkedAuthorName} can edit this project.`
-                    }
+                    title={fillTemplate(tw("memberLinkedTitle"), { name: linkedAuthorName })}
                   >
-                    <LinkIcon size={10} strokeWidth={2} />
-                    {linkedAuthorName}
+                    {/* 누구와 이어졌는지는 이름 칸이 이미 말한다 — 배지는 "사이트 멤버 계정"이라는 사실만. 이름은 title 로 */}
+                    <BadgeCheck size={12} strokeWidth={2} />
+                    {tw("memberLinkedBadge")}
                   </span>
                 )}
               </span>

@@ -652,7 +652,7 @@ function DraggableBlock({ element, children }: { element: TElement; children: Re
         </Pressable>
         <Popover
           placement="bottom-start"
-          contentClassName={styles.blockToolsMenu}
+          menu contentClassName={styles.blockToolsMenu}
           onOpenChange={setToolsOpen}
           trigger={
             <Pressable soundDisabled noTapScale
@@ -837,7 +837,7 @@ function DraggableBlock({ element, children }: { element: TElement; children: Re
         <div className={styles.blockGroupHandleWrap} contentEditable={false}>
           <Popover
             placement="bottom-start"
-            contentClassName={styles.blockToolsMenu}
+            menu contentClassName={styles.blockToolsMenu}
             onOpenChange={setToolsOpen}
             trigger={
               <Pressable soundDisabled noTapScale

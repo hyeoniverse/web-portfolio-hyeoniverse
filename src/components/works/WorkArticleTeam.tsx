@@ -4,6 +4,8 @@ import { useState } from "react";
 import { Users, Link2, Mail } from "@/components/icons";
 import "katex/dist/katex.min.css";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
+import type { Author } from "@/types/author";
+import { OWNER_AUTHOR_ID } from "@/utils/resolvePostAuthors";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { fillTemplate } from "@/utils/format";
 import { deriveTeamMemberAvatar, getMemberInitial } from "@/utils/teamMemberAvatar";
@@ -36,16 +38,32 @@ export function WorkArticleTeam({ project, viewLang }: WorkArticleViewProps) {
   const githubLink = siteConfig?.socialLinks?.find((l) => l.platform === "github");
   const ownerMember = personal ? {
     name: personal.name,
-    /* siteConfig.personal 에는 영문 이름 별도 필드가 없어 undefined.
-       union 으로 ProjectTeamMember 와 합쳐질 때 name_en?: string 시그니처 일치시키기 위해 명시. */
-    name_en: undefined as string | undefined,
+    /* siteConfig.personal 에는 영문 이름이 없어 소유자 멤버 프로필(설정 > 계정)의 영어 이름을 쓴다 */
+    name_en: ((siteConfig?.authors ?? []) as Author[]).find((a) => a.id === OWNER_AUTHOR_ID)?.name_en?.trim() || undefined,
     role: { ko: project.role.ko, en: project.role.en },
     url: githubLink?.url || undefined,
     email: siteConfig?.contact?.email || undefined,
     avatar_url: personal.profileImage || undefined,
     contributions: project.contributions,
   } : null;
-  const teamArr = project.teamMembers ?? [];
+  /* 사이트 멤버에 연결된 팀원은 비어 있는 칸을 지금의 멤버 프로필로 채운다 — 연결할 때 한 번 복사한 값만 있으면
+     프로필에서 영어 이름·사진을 고쳐도 작업물에는 반영되지 않았다. 적어 둔 값이 있으면 그 값이 먼저다 */
+  const authors = (siteConfig?.authors ?? []) as Author[];
+  const teamArr = (project.teamMembers ?? []).map((m) => {
+    const prof = m.author_id ? authors.find((a) => a.id === m.author_id) : undefined;
+    if (!prof) return m;
+    const profUrl = prof.links?.find((l) => l.platform === "github")?.url || prof.links?.[0]?.url;
+    /* 프로필 사진은 이모지·아이콘일 수도 있다 — 팀원 카드는 그림 주소만 그리므로 주소일 때만 */
+    const av = prof.avatar ?? "";
+    const profAvatar = /^(https?:)?\/\//.test(av) || av.startsWith("/") ? av : undefined;
+    return {
+      ...m,
+      name_en: m.name_en || prof.name_en?.trim() || undefined,
+      url: m.url || profUrl || undefined,
+      email: m.email || prof.email || undefined,
+      avatar_url: m.avatar_url || profAvatar,
+    };
+  });
   const members = ownerMember ? [ownerMember, ...teamArr] : teamArr;
 
   const getContribsEntries = (m: typeof members[number]) => {

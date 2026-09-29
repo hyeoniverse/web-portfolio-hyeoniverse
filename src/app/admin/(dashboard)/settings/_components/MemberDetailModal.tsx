@@ -11,6 +11,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import { RoleBadge, ProviderChips, ProviderUnlinkedBadge } from "@/components/admin/MemberBadges";
 import { SOCIAL_ICONS } from "@/data/socialIcons";
 import type { Author } from "@/types/author";
+import { localizeAuthor } from "@/utils/localizeAuthor";
 import type { Member, MemberRole } from "@/types/member";
 import { githubLoginFromLinks } from "@/utils/githubLogin";
 import AuthorAvatar from "@/components/ui/AuthorAvatar";
@@ -33,8 +34,10 @@ const LEVEL_LABEL = (level: number | null, ko: boolean) =>
   level != null && level >= 2 ? (ko ? "편집자 (모든 글)" : "Editor (all posts)") : ko ? "작성자 (자기 글)" : "Author (own posts)";
 
 /** 멤버 상세 프로필 (읽기 전용) — 행 클릭 시 표시. 권한 있으면 "수정" 으로 편집 모달 전환. (이슈 #334) */
-export default function MemberDetailModal({ author, member, isOwnerProfile, showAccess, canEdit, onEdit, editLabel }: Props) {
+export default function MemberDetailModal({ author: raw, member, isOwnerProfile, showAccess, canEdit, onEdit, editLabel }: Props) {
   const { language } = useLanguage();
+  /* 관리 화면 언어에 맞춰 — 영어면 프로필의 영어 값(비어 있으면 한국어) */
+  const author = localizeAuthor(raw, language === "en" ? "en" : "ko");
   const ko = language === "ko";
   const L = (k: string, e: string) => (ko ? k : e);
   const { closeModal } = useModalStore();

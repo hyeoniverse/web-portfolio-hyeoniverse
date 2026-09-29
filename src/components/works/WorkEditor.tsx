@@ -7,7 +7,8 @@ import { PREVIEW_KEY } from "@/constants";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { mdToRichHtml } from "@/components/posts/mdToRichHtml";
-import { ChevronLeft, ChevronRight, Plus, Star, Check, X, User, Maximize2, FileText } from "@/components/icons";
+import { BadgeCheck, ChevronLeft, ChevronRight, Plus, Star, Check, X, User, Maximize2, FileText } from "@/components/icons";
+import Popover, { MenuDivider, MenuItem } from "@/components/ui/Popover";
 import HorizontalCarousel from "@/components/ui/HorizontalCarousel";
 import { isOfficeDocUrl, officeDocKind } from "@/lib/officeViewer";
 import { GalleryNarrationPanel, NarrationBadge, useNarrationActions } from "./GalleryNarrationEditor";
@@ -23,7 +24,6 @@ import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { validateContentSecurity } from "@/utils/contentSecurity";
 import { focusFirstMissingField } from "@/utils/focusFirstMissing";
 import { generateSlug, validateSlug } from "@/utils/postSlug";
-import Chip, {} from "@/components/ui/Chip";
 import AdminEditorShell, {
   adminEditorStyles as es,
 } from "@/components/admin/AdminEditorShell";
@@ -39,6 +39,7 @@ import { useServiceStatus } from "@/hooks/useServiceStatus";
 import { useTagInput } from "@/hooks/useTagInput";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { autoTranslate } from "@/utils/autoTranslate";
+import { notifyAiFailures, reportAiResponse } from "@/lib/ai/notifyFailures";
 import { WORK_TEMPLATES, TECH_PRESETS, type WorkTemplate } from "@/data/workTemplates";
 import { getTechIcon, normalizeTechName, getTechAliases } from "@/data/techIcons";
 import { showToast } from "@/stores/toastStore";
@@ -352,6 +353,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   const { clearDraft } = useEditorDraft<WorkFormData>({
     entityType: "work",
     entityId: work?.id,
+    baseSavedAt: work?.updated_at ? new Date(work.updated_at).getTime() : undefined,
     snapshot: form,
     // 로컬 로드 완료 → localStorage 복원 + baseline. 서버 로드 완료 → 서버(cross-device) 복원(단 미편집 시).
     ready: initialLoadsReady,
@@ -414,16 +416,20 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       const result = await autoTranslate(texts, sourceLang, targetLang);
       setTranslating(false);
 
+      const feature = t("admin.aiHealth.feature.translation");
       if ("translations" in result) {
+        /* 번역이 비어 온 칸(failedIndices)은 건드리지 않는다 — 빈 문자열로 덮으면 그 언어의 글이 지워진다 */
         const patch: Partial<WorkFormData> = {};
         activeFields.forEach((f, i) => {
-          patch[fieldKeyFor(f, targetLang)] = result.translations[i] as never;
+          if (!result.failedIndices.includes(i)) patch[fieldKeyFor(f, targetLang)] = result.translations[i] as never;
         });
         setForm((prev) => ({ ...prev, ...patch }));
         setStatus(tw("autoTranslated"));
         setStatusType("success");
+        notifyAiFailures(result, t, { feature, ok: true });
       } else {
         setError(errorText(result.error, t, tw("translateFailed")));
+        notifyAiFailures(result, t, { feature, ok: false });
       }
     },
     [form, t, tw, TRANSLATABLE_FIELDS, fieldKeyFor],
@@ -468,7 +474,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   const myRole = useMyRole();
   const siteAuthorsConfig = useSiteConfig().authors;
   const siteAuthors = useMemo(
-    () => (siteAuthorsConfig ?? []) as Array<{ id: string; name: string; avatar?: string; email?: string; role?: string }>,
+    () => (siteAuthorsConfig ?? []) as Array<{ id: string; name: string; name_en?: string; avatar?: string; email?: string; role?: string; links?: { platform: string; url: string }[] }>,
     [siteAuthorsConfig],
   );
   const linkedAuthorIds = useMemo(
@@ -476,16 +482,20 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     [form.team_members],
   );
   /** 연결 토글 — 이미 다른 팀원이 쓰고 있는 계정은 고를 수 없다(한 사람이 두 줄이 되면 안 된다). */
-  const toggleLinkedAuthor = useCallback((a: { id: string; name: string; avatar?: string; email?: string }) => {
+  const toggleLinkedAuthor = useCallback((a: { id: string; name: string; name_en?: string; avatar?: string; email?: string; links?: { platform: string; url: string }[] }) => {
     if (team.memberAuthorId === a.id) {
       team.setMemberAuthorId(undefined);
       return;
     }
     team.setMemberAuthorId(a.id);
     // 비어 있는 칸만 채운다 — 이미 적어 둔 표시 이름·아바타를 덮지 않는다.
+    /* 멤버 프로필(설정 > 계정)의 한국어·영어 이름, 사진, 이메일, GitHub 주소를 가져온다 */
     if (!team.memberName.trim()) team.setMemberName(a.name);
-    if (!team.memberAvatarUrl.trim() && a.avatar) team.setMemberAvatarUrl(a.avatar);
+    if (!team.memberNameEn.trim() && a.name_en?.trim()) team.setMemberNameEn(a.name_en.trim());
+    if (!team.memberAvatarUrl.trim() && a.avatar && (/^(https?:)?\/\//.test(a.avatar) || a.avatar.startsWith("/"))) team.setMemberAvatarUrl(a.avatar);
     if (!team.memberEmail.trim() && a.email) team.setMemberEmail(a.email);
+    const url = a.links?.find((l) => l.platform === "github")?.url || a.links?.[0]?.url;
+    if (!team.memberUrl.trim() && url) team.setMemberUrl(url);
   }, [team]);
 
   // 팀원 역할 multi-picker — select 와 chip 을 분리 배치 (chip 은 URL row 아래) */
@@ -834,6 +844,10 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   const narration = useNarrationActions({ gallery: form.gallery, notes: form.gallery_notes ?? {}, update: updateGalleryNote, tw });
   /* 작업대 위에 연 장 — 고른 적이 없으면 첫 장 */
   const narrationCurrent = narration.openIndex >= 0 ? narration.openIndex : 0;
+  /* 갤러리를 고치지 못하는 동안 — PDF 를 들이는 중이거나 음성을 만드는 중. 만드는 중에 장을 빼거나 옮기면
+     만든 음성이 엉뚱한 장에 붙거나 사라진 장에 붙는다 */
+  const narrationBusy = narration.busy.size > 0 || !!narration.bulk;
+  const galleryLocked = !!pdfProgress || narrationBusy;
 
   const removeGalleryItem = useCallback(
     (index: number) => {
@@ -937,7 +951,10 @@ export default function WorkEditor({ work }: WorkEditorProps) {
 
         // 발행 시 AI 요약 자동 생성 (fire-and-forget)
         if (willPublish && savedId.current) {
-          fetch(`/api/works/${savedId.current}/ai-summary`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({}) }).catch(() => {});
+          /* 기다리지 않지만 실패는 알린다 — 조용히 버리면 키가 만료돼도 요약이 왜 안 생기는지 모른다 */
+          fetch(`/api/works/${savedId.current}/ai-summary`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({}) })
+            .then((res) => reportAiResponse(res, t, t("admin.aiHealth.feature.summary"), { background: true }))
+            .catch(() => {});
         }
 
         // 실제 save 성공 — localStorage draft 정리 + 이 저장으로 대체된 autosave revision dismiss
@@ -1054,8 +1071,9 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ force: true }),
       });
+      /* 공급자마다의 원인(키 만료·한도 등)은 토스트로 — 설정 › 서비스의 AI 상태 패널에도 남는다 */
+      const data = await reportAiResponse(res, t, t("admin.aiHealth.feature.summary"));
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
         /* 서버는 "왜" 를 reason 에 담는다 — error 만 쓰면 "Forbidden" 밖에 안 남아 원인을 알 수 없다. */
         setError(errorText(data, t, tw("saveFailed")));
         return;
@@ -1435,10 +1453,10 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           {gallerySelected.size > 0 && (
             <span className={styles.gallerySelectionBar}>
               <span>{fillTemplate(t("admin.common.selectedCount"), { count: gallerySelected.size })}</span>
-              <Button variant="ghost" size="xs" shape="capsule" onClick={() => setGallerySelected(new Set())} disabled={!!pdfProgress} soundDisabled>
+              <Button variant="ghost" size="xs" shape="capsule" onClick={() => setGallerySelected(new Set())} disabled={galleryLocked} soundDisabled>
                 {t("admin.common.clearSelection")}
               </Button>
-              <Button variant="outline" size="xs" shape="capsule" onClick={removeSelectedGallery} disabled={!!pdfProgress} soundDisabled>
+              <Button variant="outline" size="xs" shape="capsule" onClick={removeSelectedGallery} disabled={galleryLocked} soundDisabled>
                 {t("admin.common.deleteSelected")}
               </Button>
             </span>
@@ -1466,7 +1484,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
             size="xs"
             shape="capsule"
             onClick={() => handleImageUpload("gallery")}
-            disabled={!!pdfProgress}
+            disabled={galleryLocked}
             soundDisabled
           >
             {tw("addMore")}
@@ -1477,10 +1495,10 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           <Pressable
             className={`${styles.galleryAddTile}${galleryFileOver ? ` ${styles.galleryFileOver}` : ""}`}
             onClick={() => handleImageUpload("gallery")}
-            disabled={!!pdfProgress}
+            disabled={galleryLocked}
             onDragOver={onGalleryDragOver}
             onDragLeave={onGalleryDragLeave}
-            onDrop={onGalleryDrop}
+            onDrop={(e) => { if (narrationBusy) { e.preventDefault(); return; } onGalleryDrop(e); }}
           >
             <Plus size={20} strokeWidth={1.5} />
             <span>{tw("addGallery")}</span>
@@ -1496,7 +1514,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
             data-busy={pdfProgress ? "" : undefined}
             onKeyDown={(e: React.KeyboardEvent) => {
               if (pdfProgress) return;
-              if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "a") {
+              if (!narrationBusy && (e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "a") {
                 e.preventDefault();
                 setGallerySelected(new Set(form.gallery.map((_, i) => i)));
               }
@@ -1515,7 +1533,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
             className={`${styles.gallerySelectArea}${galleryFileOver ? ` ${styles.galleryFileOver}` : ""}`}
             onDragOver={onGalleryDragOver}
             onDragLeave={onGalleryDragLeave}
-            onDrop={onGalleryDrop}
+            onDrop={(e) => { if (narrationBusy) { e.preventDefault(); return; } onGalleryDrop(e); }}
           >
           <div ref={galleryBenchRef} className={styles.galleryBench} style={benchSplit.benchStyle}>
           {/* 위 — 고른 장을 크게 보며 대본을 쓴다(왼쪽 칸 슬라이드, 오른쪽 칸 대본, 그 아래 조작 막대) */}
@@ -1560,9 +1578,9 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                         : "",
                     ].filter(Boolean).join(" ")}
                     /* 칸을 통째로 끌어 차례를 바꾼다(들이는 중에는 못 끈다) */
-                    draggable={!pdfProgress}
+                    draggable={!galleryLocked}
                     onDragStart={(e) => {
-                      if (pdfProgress) { e.preventDefault(); return; }
+                      if (galleryLocked) { e.preventDefault(); return; }
                       setGalleryDragIdx(i);
                       e.dataTransfer.effectAllowed = "move";
                       /* 자료를 하나도 담지 않으면 브라우저가 끌기를 그 자리에서 취소한다 —
@@ -1665,7 +1683,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                           variant="difference"
                           size="xs"
                           shape="circle"
-                          disabled={i === 0}
+                          disabled={galleryLocked || i === 0}
                           onClick={() => moveGalleryItem(i, -1)}
                           aria-label={tw("moveEarlier")}
                           title={tw("moveEarlier")}
@@ -1676,7 +1694,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                           variant="difference"
                           size="xs"
                           shape="circle"
-                          disabled={i === form.gallery.length - 1}
+                          disabled={galleryLocked || i === form.gallery.length - 1}
                           onClick={() => moveGalleryItem(i, 1)}
                           aria-label={tw("moveLater")}
                           title={tw("moveLater")}
@@ -1698,6 +1716,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                           size="xs"
                           shape="circle"
                           active={isMain}
+                          disabled={narrationBusy}
                           onClick={() => { if (!isMain) updateField("image", src); }}
                           aria-label={tw("setAsMain")}
                           title={tw("setAsMain")}
@@ -1708,6 +1727,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                           variant="difference"
                           size="xs"
                           shape="circle"
+                          disabled={galleryLocked}
                           onClick={() => removeGalleryItem(i)}
                           aria-label={tw("remove")}
                           title={tw("remove")}
@@ -1737,13 +1757,14 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     galleryDragIdx, galleryFileOver, galleryOverIdx, gallerySelected, handleImageUpload, moveGalleryItem,
     onGalleryDragLeave, onGalleryDragOver, onGalleryDrop, pdfProgress, pickGalleryItem, removeGalleryItem,
     removeSelectedGallery, reorderGallery, stopAutoScroll,
-    showCoverPicker, showErrors, t, tw, updateField, narration, narrationCurrent, benchSplit,
+    showCoverPicker, showErrors, t, tw, updateField, narration, narrationCurrent, benchSplit, galleryLocked, narrationBusy,
   ]);
 
   /* Tech Stack */
   const techSection = useMemo(() => (
     <div className={styles.section}>
       <h2 className={styles.sectionTitle}>{tw("techStack")}</h2>
+      <p className={styles.extraHint}>{tw("techHint")}</p>
       <div className={es.field}>
         <div className={styles.techInputRow}>
           {/* combobox 형태 — input 에 타이핑 시 프리셋 추천 dropdown.
@@ -1817,6 +1838,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           editLabel={tw("noteEdit")}
           removeTitle={tw("techRemove")}
           multiLine
+          quietActions
         />
       </div>
     </div>
@@ -1826,10 +1848,13 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   const teamSection = useMemo(() => (
     <div className={styles.section}>
       <h2 className={styles.sectionTitle}>{tw("teamMembers")}</h2>
-      {/* 추가된 팀원 — 저장된 멤버가 있을 때만 */}
-      {form.team_members.length > 0 && (
-        <div className={styles.memberListBlock}>
-          <div className={styles.memberSubLabel}>{tw("memberListLabel")}</div>
+      <p className={styles.extraHint}>{tw("teamHint")}</p>
+      {/* 추가된 팀원 — 없어도 자리는 두고 비었다고 알린다 */}
+      <div className={styles.memberListBlock}>
+        <div className={styles.memberSubLabel}>{tw("memberListLabel")}</div>
+        {form.team_members.length === 0 ? (
+          <p className={styles.memberListEmpty}>{tw("memberListEmpty")}</p>
+        ) : (
           <List className={styles.memberList}>
             {form.team_members.map((m, i) => (
               <TeamMemberCard
@@ -1847,8 +1872,8 @@ export default function WorkEditor({ work }: WorkEditorProps) {
               />
             ))}
           </List>
-        </div>
-      )}
+        )}
+      </div>
       {/* 새 팀원 추가 — add-mode 카드 */}
       <div className={styles.memberFormBlock}>
         <div className={styles.memberSubLabelRow}>
@@ -1857,8 +1882,71 @@ export default function WorkEditor({ work }: WorkEditorProps) {
               ? tw("memberEdit")
               : tw("memberFormLabel")}
           </span>
+          <div className={styles.memberFormActions}>
+          {/* 사이트 멤버 연결 — 입력칸이 아니라 "이 사람이 사이트 계정의 누구인가"를 고르는 일이라 카드 밖, 추가 단추 옆에 둔다.
+              작업물 편집 권한을 주는 것이라 관리자에게만 보인다 */}
+          {myRole.canManageWorks && siteAuthors.length > 0 && (() => {
+            const linked = siteAuthors.find((a) => a.id === team.memberAuthorId);
+            return (
+              <Popover
+                placement="bottom-end"
+                responsive={false}
+                maxHeight={false}
+                menu
+                contentClassName={styles.memberLinkMenu}
+                trigger={
+                  <Button
+                    variant={linked ? "subtle" : "outline"}
+                    size="xs"
+                    className={styles.avatarUploadBtn}
+                    title={tw("memberLinkHint")}
+                    icon={linked
+                      ? <AuthorAvatar value={linked.avatar} name={linked.name} size={16} imgClassName={styles.memberLinkChipAvatar} initialClassName={styles.memberLinkChipAvatar} />
+                      : <BadgeCheck size={12} strokeWidth={2} />}
+                  >
+                    {linked ? fillTemplate(tw("memberLinkedTo"), { name: linked.name }) : tw("linkSiteMember")}
+                  </Button>
+                }
+              >
+                {({ close }) => (
+                  <>
+                    <p className={styles.memberLinkMenuHint}>{tw("memberLinkHint")}</p>
+                    {siteAuthors.map((a) => {
+                      const selected = team.memberAuthorId === a.id;
+                      // 다른 팀원이 이미 쓰고 있는 계정 — 편집 중인 본인 것은 제외
+                      const takenByOther = !selected && linkedAuthorIds.has(a.id);
+                      return (
+                        <MenuItem
+                          key={a.id}
+                          active={selected}
+                          className={takenByOther ? styles.memberLinkChipTaken : undefined}
+                          icon={<AuthorAvatar value={a.avatar} name={a.name} size={16} imgClassName={styles.memberLinkChipAvatar} initialClassName={styles.memberLinkChipAvatar} />}
+                          label={a.name}
+                          trailing={selected ? <Check size={14} strokeWidth={2} /> : undefined}
+                          onClick={() => {
+                            if (takenByOther) {
+                              showToast(fillTemplate(tw("memberLinkTaken"), { name: a.name }), "info");
+                              return;
+                            }
+                            toggleLinkedAuthor(a);
+                            close();
+                          }}
+                        />
+                      );
+                    })}
+                    {linked && (
+                      <>
+                        <MenuDivider />
+                        <MenuItem label={tw("memberUnlink")} onClick={() => { team.setMemberAuthorId(undefined); close(); }} />
+                      </>
+                    )}
+                  </>
+                )}
+              </Popover>
+            );
+          })()}
           {team.editingIdx !== null ? (
-            <div className={styles.memberFormActions}>
+            <>
               <Button
                 variant="outline"
                 size="xs"
@@ -1880,7 +1968,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
               >
                 {tw("memberSave")}
               </Button>
-            </div>
+            </>
           ) : (
             <Button
               variant="outline"
@@ -1894,6 +1982,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
               {tw("memberAddButton")}
             </Button>
           )}
+          </div>
         </div>
         <div className={`${styles.memberCard} ${styles.memberCardAdd}`}>
           <input
@@ -1935,77 +2024,48 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                 <Plus size={10} strokeWidth={2.5} />
               </Pressable>
             </span>
-            <BilingualInputPair
-              value={{ ko: team.memberName, en: team.memberNameEn }}
-              onChange={(next) => { team.setMemberName(next.ko); team.setMemberNameEn(next.en); }}
-              placeholder={tw("memberName")}
-            />
-          </div>
-          {/* email + url — name 아래 row */}
-          <div className={styles.memberFormRow}>
-            <input
-              className={es.fieldInput}
-              type="email"
-              value={team.memberEmail}
-              onChange={(e) => team.setMemberEmail(e.target.value)}
-              placeholder={tw("memberEmail")}
-            />
-            <input
-              className={es.fieldInput}
-              type="url"
-              value={team.memberUrl}
-              onChange={(e) => team.setMemberUrl(e.target.value)}
-              placeholder={tw("memberUrl")}
-            />
-          </div>
-          {/* 사이트 멤버 연결 — 이 작업물의 편집 권한을 주는 것이라 관리자에게만 보인다 */}
-          {myRole.canManageWorks && siteAuthors.length > 0 && (
-            <div className={styles.memberLinkRow}>
-              <span className={styles.memberLinkLabel}>
-                {tw("linkSiteMember")}
-              </span>
-              <div className={styles.memberLinkChips}>
-                {siteAuthors.map((a) => {
-                  const selected = team.memberAuthorId === a.id;
-                  // 다른 팀원이 이미 쓰고 있는 계정 — 편집 중인 본인 것은 제외
-                  const takenByOther = !selected && linkedAuthorIds.has(a.id);
-                  return (
-                    <Chip
-                      key={a.id}
-                      active={selected}
-                      className={takenByOther ? styles.memberLinkChipTaken : undefined}
-                      leftIcon={
-                        <AuthorAvatar
-                          value={a.avatar}
-                          name={a.name}
-                          size={16}
-                          imgClassName={styles.memberLinkChipAvatar}
-                          initialClassName={styles.memberLinkChipAvatar}
-                        />
-                      }
-                      onClick={() => {
-                        if (takenByOther) {
-                          showToast(
-                            editorLang === "ko"
-                              ? `${a.name} 은(는) 이미 다른 팀원에 연결돼 있습니다.`
-                              : `${a.name} is already linked to another member.`,
-                            "info",
-                          );
-                          return;
-                        }
-                        toggleLinkedAuthor(a);
-                      }}
-                    >
-                      {a.name}
-                    </Chip>
-                  );
-                })}
-              </div>
-              <p className={styles.memberLinkHint}>{tw("memberLinkHint")}</p>
+            <div className={styles.memberField}>
+              <span className={es.fieldLabel}>{tw("memberName")}</span>
+              <BilingualInputPair
+                value={{ ko: team.memberName, en: team.memberNameEn }}
+                onChange={(next) => { team.setMemberName(next.ko); team.setMemberNameEn(next.en); }}
+                koPlaceholder="홍길동"
+                enPlaceholder="Gildong Hong"
+              />
             </div>
-          )}
+          </div>
+          {/* email + url — name 아래 row. 칸마다 무엇을 적는지 라벨로 적고, placeholder 는 예시만 */}
+          <div className={styles.memberFormRow}>
+            <label className={styles.memberField}>
+              <span className={es.fieldLabel}>
+                {tw("memberEmailLabel")}
+                <span className={styles.memberFieldOptional}>{tw("memberOptional")}</span>
+              </span>
+              <input
+                className={es.fieldInput}
+                type="email"
+                value={team.memberEmail}
+                onChange={(e) => team.setMemberEmail(e.target.value)}
+                placeholder="name@example.com"
+              />
+            </label>
+            <label className={styles.memberField}>
+              <span className={es.fieldLabel}>
+                {tw("memberUrlLabel")}
+                <span className={styles.memberFieldOptional}>{tw("memberOptional")}</span>
+              </span>
+              <input
+                className={es.fieldInput}
+                type="url"
+                value={team.memberUrl}
+                onChange={(e) => team.setMemberUrl(e.target.value)}
+                placeholder={tw("memberUrlPlaceholder")}
+              />
+            </label>
+          </div>
           {/* role select — 별도 row (full width) */}
-          <div className={styles.memberRoleRow}>
+          <div className={`${styles.memberField} ${styles.memberRoleRow}`}>
+            <span className={es.fieldLabel}>{tw("memberRole")}</span>
             {teamRole.selectNode}
           </div>
           {/* 신규 멤버 add-card 역할별 작업 내용 — 공통 TagNotesEditor (ko/en 동시) */}
@@ -2065,6 +2125,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   const linksSection = useMemo(() => (
     <div className={styles.section}>
       <h2 className={styles.sectionTitle}>{tw("links")}</h2>
+      <p className={styles.extraHint}>{tw("linksHint")}</p>
       <div className={es.row}>
         <div className={es.field}>
           <label className={es.fieldLabel}>{tw("liveUrl")}</label>
@@ -2093,13 +2154,10 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   /* 관련 글 */
   const relatedPostsSection = useMemo(() => (
     <div className={styles.section}>
-      <div className={styles.sectionTitleRow}>
-        <h2 className={styles.sectionTitle}>{tw("relatedPosts")}</h2>
-        {(form.related_post_ids ?? []).length === 0 && (
-          <span className={styles.sectionTitleHint}>{tw("relatedPostsEmpty")}</span>
-        )}
-      </div>
+      <h2 className={styles.sectionTitle}>{tw("relatedPosts")}</h2>
+      <p className={styles.extraHint}>{tw("relatedPostsHint")}</p>
       <RelationPicker
+        className={styles.relationPicker}
         items={allPosts}
         selectedIds={form.related_post_ids ?? []}
         onChange={(ids) => updateField("related_post_ids", ids)}
@@ -2118,13 +2176,10 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   /* 관련 시리즈 */
   const relatedSeriesSection = useMemo(() => (
     <div className={styles.section}>
-      <div className={styles.sectionTitleRow}>
-        <h2 className={styles.sectionTitle}>{tw("relatedSeries")}</h2>
-        {(form.related_series_ids ?? []).length === 0 && (
-          <span className={styles.sectionTitleHint}>{tw("relatedSeriesEmpty")}</span>
-        )}
-      </div>
+      <h2 className={styles.sectionTitle}>{tw("relatedSeries")}</h2>
+      <p className={styles.extraHint}>{tw("relatedSeriesHint")}</p>
       <RelationPicker
+        className={styles.relationPicker}
         items={allSeries}
         selectedIds={form.related_series_ids ?? []}
         onChange={(ids) => updateField("related_series_ids", ids)}
@@ -2307,16 +2362,27 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       {imagesSection}
 
       {/* ── 추가 정보 (Tech + Team + Links + RelatedPosts) — 선택 입력 통합 collapsible ── */}
-      <div className={styles.extraSections}>
+      {/* 추가 정보 — 큰 상자 대신 구분선 아래 한 줄 머리(제목 · 무엇이 들었는지 요약 · 펼치기). 펼치면 항목마다
+          왼쪽에 제목과 짧은 설명, 오른쪽에 입력이 오는 설정 화면식 배치(.extraSectionsContent .section) */}
+      <div className={styles.extraSections} data-open={extraOpen ? "" : undefined}>
         <Pressable
-          className={styles.optionalToggle}
+          className={styles.extraHead}
           onClick={() => setExtraOpen((v) => !v)}
+          aria-expanded={extraOpen}
         >
-          <span>{tw("additionalInfo")}</span>
+          <span className={styles.extraHeadTitle}>{tw("additionalInfo")}</span>
+          <span className={styles.extraHeadSummary}>
+            {fillTemplate(tw("additionalInfoSummary"), {
+              tech: form.tech.length,
+              team: form.team_members.length,
+              links: [form.live_url, form.github_url].filter((u) => u?.trim()).length,
+              posts: (form.related_post_ids ?? []).length,
+            })}
+          </span>
           <ChevronRight
-            size={12}
-            strokeWidth={2.5}
-            style={{ transform: extraOpen ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 0.2s" }}
+            size={14}
+            strokeWidth={2}
+            className={styles.extraHeadChevron}
           />
         </Pressable>
         <div className={`${styles.extraSectionsContent}${extraOpen ? ` ${styles.extraSectionsContentOpen}` : ""}`}>

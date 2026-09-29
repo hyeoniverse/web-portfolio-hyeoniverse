@@ -23,7 +23,6 @@
   display: flex;
   flex-direction: column;
   min-width: 220px;
-  padding: var(--spacing-2xs);
 }
 
 /* touch sheet 에서는 width 자동, 외부 padding 은 sheet 가 처리 */

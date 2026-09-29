@@ -1,13 +1,17 @@
 "use client";
 
 import type { Author } from "@/types/author";
+import { useLanguage } from "@/providers/LanguageProvider";
+import { localizeAuthor } from "@/utils/localizeAuthor";
 import { avatarImage, isImageAvatar } from "@/components/ui/AuthorAvatar";
 import { EmojiIcon } from "@/components/ui/EmojiPicker/EmojiIcon";
 import styles from "./PostCardAuthor.module.css";
 
 /* 카드 메타 줄의 작성자 칩 — 네 변형이 같이 쓴다. author 가 없으면 렌더하지 않는다. */
-export default function PostCardAuthor({ author }: { author: Author | null }) {
-  if (!author) return null;
+export default function PostCardAuthor({ author: raw }: { author: Author | null }) {
+  const { language } = useLanguage();
+  if (!raw) return null;
+  const author = localizeAuthor(raw, language === "en" ? "en" : "ko");
   return (
     <span className={styles.metaAuthor} title={author.name}>
       {/* 아바타는 이미지 URL 일 수도, 이모지·아이콘일 수도 있다. 배경 이미지로 그리면
