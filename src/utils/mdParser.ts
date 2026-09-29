@@ -108,5 +108,11 @@ export function parseMdWork(raw: string, fileName: string): Record<string, unkno
   if (meta.image) body.image = meta.image;
   if (meta.live_url) body.live_url = meta.live_url;
   if (meta.github_url) body.github_url = meta.github_url;
+  /* 본문 형식 — `format: richtext` 면 본문이 편집기가 저장하는 HTML(slateToHtml 결과)이다.
+     열 블록·토글·색 콜아웃처럼 마크다운으로 적을 수 없는 편집기 블록을 그대로 싣는다 */
+  if (String(meta.format ?? "").trim() === "richtext") body.content_type = "richtext";
+  // 목록 순서 — 작을수록 앞(공개 목록은 sort_order 오름차순)
+  const order = toNum(meta.order);
+  if (order != null) body.sort_order = order;
   return body;
 }

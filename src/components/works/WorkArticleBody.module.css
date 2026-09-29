@@ -174,3 +174,158 @@
 .sectionProse :global(.tbl-scroll) > table {
   margin: 0;
 }
+
+/* ── 마크다운 본문의 표·알림 — 글 본문(PostArticleBody .prose)과 같은 모양.
+   richtext 표는 .tbl-scroll 로 감싸져 위 규칙을 타지만, 마크다운(sync-works 로 넣은 글)은 맨 <table> 이라
+   테두리·머리행 없이 글자만 늘어섰다 ── */
+.sectionProse table {
+  width: 100%;
+  margin: var(--spacing-xl) 0;
+  border-collapse: collapse;
+  border: var(--border-light);
+  font-size: var(--font-size-body);
+}
+
+.sectionProse table th,
+.sectionProse table td {
+  padding: var(--cell-p-sm);
+  border: var(--border-light);
+  text-align: left;
+  vertical-align: top;
+}
+
+.sectionProse table th {
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+  letter-spacing: 0.05em;
+  background: var(--bg-tertiary-alt);
+}
+
+.sectionProse table td:first-child {
+  word-break: keep-all;
+  color: var(--text-primary);
+}
+
+.sectionProse :global(.markdown-alert) {
+  margin: var(--spacing-xl) 0;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  background: var(--bg-secondary);
+}
+
+.sectionProse :global(.markdown-alert-title) {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-xs);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-accent);
+  letter-spacing: 0.03em;
+}
+
+.sectionProse :global(.markdown-alert-title) svg {
+  width: 16px;
+  height: 16px;
+}
+
+.sectionProse :global(.markdown-alert) > :last-child {
+  margin-bottom: 0;
+}
+
+/* 본문 그림 — 화면 캡처는 바탕이 페이지와 같은 색이라 경계가 사라진다. 얇은 테두리로 칸을 세운다.
+   GIF(시연)도 같은 모양 */
+.sectionProse figure img,
+.sectionProse > p > img {
+  border: var(--border-light);
+}
+
+.sectionProse figure {
+  margin: var(--spacing-2xl) 0;
+}
+
+/* ── 읽기 리듬 — 작업물 본문엔 구분선 규칙이 없어 브라우저 기본(8px)으로 제목에 붙었고,
+   제목 위 여백도 문단 간격(16px)과 같아 섹션 경계가 흐렸다. 큰 경계일수록 넓게 ── */
+.sectionProse hr {
+  margin: var(--spacing-5xl) 0 var(--spacing-3xl);
+  border: none;
+  border-top: var(--border-light);
+}
+
+.sectionProse h2 {
+  margin-top: var(--spacing-4xl);
+  margin-bottom: var(--spacing-lg);
+  letter-spacing: -0.01em;
+}
+
+/* h3 는 사례·주제 단위(Troubleshooting #1 등)라 앞 내용과 확실히 끊는다. 그 안의 h4(문제·원인…)는 좁게 */
+.sectionProse h3 {
+  margin-top: var(--spacing-3xl);
+  margin-bottom: var(--spacing-md);
+}
+
+.sectionProse h4 {
+  margin-top: var(--spacing-xl);
+  margin-bottom: var(--spacing-xs);
+}
+
+/* 구분선 바로 뒤 제목은 구분선이 여백을 맡는다 */
+.sectionProse hr + h2,
+.sectionProse hr + h3 {
+  margin-top: 0;
+}
+
+/* 열 블록 안 제목은 카드 머리 — 위 여백 없이 */
+.sectionProse [data-column] > :first-child,
+.sectionProse [data-callout] p:first-child {
+  margin-top: 0;
+}
+
+.sectionProse [data-column] h3 {
+  margin-top: var(--spacing-xs);
+}
+
+.sectionProse [data-column] > :last-child,
+.sectionProse [data-callout] p:last-child {
+  margin-bottom: 0;
+}
+
+/* 편집기 블록(콜아웃·열·토글·표) 위아래 — 인라인 16px 보다 넓게 */
+.sectionProse [data-callout],
+.sectionProse [data-column-group],
+.sectionProse [data-toggle],
+.sectionProse table {
+  margin-top: var(--spacing-xl) !important;
+  margin-bottom: var(--spacing-xl) !important;
+}
+
+.sectionProse [data-callout] {
+  padding: var(--spacing-lg) var(--spacing-xl) !important;
+  line-height: var(--line-height-relaxed);
+}
+
+/* 열 카드 안쪽 여백 */
+.sectionProse [data-column-group] > [data-column] {
+  padding: var(--spacing-lg) !important;
+}
+
+.sectionProse figure {
+  margin-top: var(--spacing-2xl) !important;
+  margin-bottom: var(--spacing-2xl) !important;
+}
+
+.sectionProse blockquote {
+  margin: var(--spacing-2xl) 0;
+  font-size: var(--font-size-lg);
+  line-height: 1.7;
+  color: var(--text-primary);
+}
+
+/* 코드 창 — 전역은 20rem 고정 높이라 몇 줄짜리 코드 아래가 텅 비었다. 본문에선 내용만큼, 길면 20rem 까지 */
+.sectionProse :global(.code-block-wrap.has-code-bar) {
+  height: auto;
+  max-height: 20rem;
+  min-height: 0;
+}
