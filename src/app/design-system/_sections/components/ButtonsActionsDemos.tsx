@@ -124,7 +124,7 @@ export default function ButtonsActionsDemos() {
             ))}
             <motion.div variants={staggerItemX} {...scrollChildX(6, 7)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--spacing-2xs)" }}>
               <Popover
-                trigger={<HelpButton aria-label="도움말" />}
+                trigger={<HelpButton size="sm" aria-label="도움말" />}
                 placement="bottom-start"
                 sheetTitle={language === "ko" ? "도움말" : "Help"}
               >

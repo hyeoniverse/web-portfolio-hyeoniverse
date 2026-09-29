@@ -23,7 +23,7 @@ export const TAB_CONFIG_KEYS: Record<string, (keyof SiteConfigData)[]> = {
      콘텐츠>HOME 에 뜨고, 콘텐츠 탭 저장이 브랜드 변경까지 스냅샷해 덮어쓴다 */
   content: ["hero", "home3d", "homeIntro", "services", "marquee", "cta", "loading", "footer", "posts", "works", "profile", "about", "socialLinks"],
   appearance: ["theme", "typography", "datePickerStyle", "brand"],
-  services: ["emailService", "aiCover", "aiSummary", "recaptcha", "translation", "commentEmailNotify", "comments", "media"],
+  services: ["emailService", "aiCover", "aiSummary", "recaptcha", "translation", "tts", "commentEmailNotify", "comments", "media"],
 };
 
 export type TabId = (typeof TAB_IDS)[number];

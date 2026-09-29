@@ -202,7 +202,8 @@ export default function SettingsPage() {
     const params = new URLSearchParams();
     params.set("tab", activeTab);
     if (activeTab === "content") params.set("sub", contentSubTab);
-    window.history.replaceState(null, "", `${window.location.pathname}?${params.toString()}`);
+    /* 해시는 지킨다 — 다른 화면이 섹션으로 바로 보내는 링크(#tts-lexicon 등)가 탭을 그리기 전에 지워지지 않게 */
+    window.history.replaceState(null, "", `${window.location.pathname}?${params.toString()}${window.location.hash}`);
   }, [activeTab, contentSubTab]);
 
   // ── 통합 충돌 상태 ──
