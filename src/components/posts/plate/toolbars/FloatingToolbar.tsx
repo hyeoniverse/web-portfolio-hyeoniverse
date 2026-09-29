@@ -186,7 +186,7 @@ function OverflowMenu() {
     <Popover
       openOnHover
       placement="bottom-end"
-      contentClassName={styles.floatingMenu}
+      menu contentClassName={styles.floatingMenu}
       trigger={<TBtn square tooltip={t("editor.more")}>⋯</TBtn>}
     >
       {({ close }) => (

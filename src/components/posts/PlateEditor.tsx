@@ -2646,7 +2646,7 @@ function PlateEditorBody({
                   {/* 액션 */}
                   <span className={styles.divider} />
                   {/* 정리 / 초기화 — 열 그룹 대상 */}
-                  <Popover openOnHover placement="bottom-end" offset={8} contentClassName={styles.cleanupMenu}
+                  <Popover openOnHover placement="bottom-end" offset={8} menu contentClassName={styles.cleanupMenu}
                     trigger={<TBtn square tooltip={L2("정리 · 초기화", "Clean up")}><Sparkles size={15} strokeWidth={1.75} /></TBtn>}>
                     {({ close }: { close: () => void }) => (
                       <div onMouseDown={(e) => e.preventDefault()}>
@@ -2718,7 +2718,7 @@ function PlateEditorBody({
                   {/* cleanupMenu — 열 바의 정리·초기화와 같은 규격.
                       blockToolsMenu(220px 고정 + 라벨 padding 2px)를 쓰면 짧은 항목 2개에 비해 과하게 넓고,
                       헤더 라벨이 MenuItem(좌측 --spacing-sm)과 좌측 정렬이 어긋난 채 위 모서리에 붙는다. */}
-                  <Popover openOnHover placement="bottom-end" offset={8} contentClassName={styles.cleanupMenu}
+                  <Popover openOnHover placement="bottom-end" offset={8} menu contentClassName={styles.cleanupMenu}
                     trigger={<TBtn square tooltip={L2("정리 · 초기화", "Clean up")}><Sparkles size={15} strokeWidth={1.75} /></TBtn>}>
                     {({ close }: { close: () => void }) => (
                       <div onMouseDown={(e) => e.preventDefault()}>

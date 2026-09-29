@@ -656,7 +656,7 @@ export default React.memo(function TableToolbar({
       </TBtn>
 
       {/* 정리 / 초기화 — 선택 영역(선택 셀/현재 셀)에만 적용 */}
-      <Popover openOnHover placement="bottom-end" offset={8} contentClassName={styles.blockToolsMenu}
+      <Popover openOnHover placement="bottom-end" offset={8} menu contentClassName={styles.blockToolsMenu}
         trigger={<TBtn square tooltip={language === "ko" ? "정리 · 초기화" : "Clean up"}><TblResetFormat /></TBtn>}>
         {({ close }: { close: () => void }) => (
           <div onMouseDown={(e) => e.preventDefault()}>

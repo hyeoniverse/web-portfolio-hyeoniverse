@@ -31,6 +31,8 @@ type Props = {
   setBusy: (v: boolean) => void;
   /** 시리즈만 다시 불러온다. */
   onRefresh: () => void;
+  /** 순서 바꾸기 — 부모가 화면에 먼저 반영하고 뒤에서 저장한다 */
+  onReorder: (s: Series, newOrder: number) => void;
   /** 시리즈가 지워졌을 때 — 글 목록과 휴지통도 함께 영향을 받는다. */
   onDeleted: () => void;
 };
@@ -41,7 +43,7 @@ type Props = {
  * 정렬·검색·쪽 번호처럼 이 패널 안에서만 쓰이는 상태를 스스로 들고 있다.
  * 바깥은 시리즈 목록과 새로고침 방법만 넘긴다.
  */
-export default function SeriesPanel({ seriesList, loading, busy, setBusy, onRefresh, onDeleted }: Props) {
+export default function SeriesPanel({ seriesList, loading, busy, setBusy, onRefresh, onReorder, onDeleted }: Props) {
   const { t, language } = useLanguage();
   const categories = useCategories();
   const { openModal } = useModalStore();
@@ -100,17 +102,12 @@ export default function SeriesPanel({ seriesList, loading, busy, setBusy, onRefr
   const reorder = useMemo(
     () =>
       sort === "order" && !search && filter === ""
-        ? async (s: Series, newOrder: number) => {
+        ? (s: Series, newOrder: number) => {
             if (newOrder === s.sort_order) return;
-            const res = await sendAction(`/api/series/${s.id}`, {
-              method: "PATCH",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ sort_order: newOrder }),
-            }, t, t("admin.common.reorderFailed"));
-            if (res) onRefresh();
+            onReorder(s, newOrder);
           }
         : undefined,
-    [sort, search, filter, onRefresh, t],
+    [sort, search, filter, onReorder],
   );
 
   // eslint-disable-next-line react-hooks/exhaustive-deps

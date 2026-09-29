@@ -219,7 +219,7 @@ export default React.memo(function ImageToolbar({
         <TBtn square onClick={replaceImage} tooltip={t("editor.replaceImage")}><ImageUp size={15} strokeWidth={1.75} /></TBtn>
       )}
       {/* 삭제 — 확인 후 삭제 */}
-      <Popover openOnHover placement="bottom-end" offset={12} contentClassName={styles.floatingMenu}
+      <Popover openOnHover placement="bottom-end" offset={12} menu contentClassName={styles.floatingMenu}
         trigger={<TBtn square className={styles.tableDangerBtn} tooltip={t("editor.deleteImage")}><TblTrash /></TBtn>}>
         {({ close }) => (
           <div onMouseDown={(e) => e.preventDefault()} className={styles.imgConfirm}>

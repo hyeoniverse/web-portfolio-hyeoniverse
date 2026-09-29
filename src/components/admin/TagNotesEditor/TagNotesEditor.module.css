@@ -476,3 +476,20 @@
 .editPopover {
   max-width: min(32rem, 92vw);
 }
+
+/* quietActions — 설명 추가·편집 버튼은 올리거나 초점이 온 항목에만 */
+.section[data-quiet] .toggleBtn {
+  opacity: 0;
+  transition: opacity var(--duration-fast) ease;
+}
+
+.section[data-quiet] .group:hover .toggleBtn,
+.section[data-quiet] .group:focus-within .toggleBtn {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .section[data-quiet] .toggleBtn {
+    opacity: 1;
+  }
+}

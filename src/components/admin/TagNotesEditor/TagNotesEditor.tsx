@@ -156,6 +156,9 @@ export interface TagNotesEditorProps {
   disableReorder?: boolean;
   /** true 면 chip 들을 1열 strict — 정렬 순서가 위→아래 명확. 기본은 auto-fill multi-col. */
   singleColumn?: boolean;
+  /** 설명 추가·편집 버튼을 마우스를 올린(또는 초점이 온) 항목에만 보인다 — 항목이 많은 목록에서 줄마다 버튼이 늘어서
+   *  복잡해 보일 때. 설명이 있는 항목은 설명 자체가 보이므로 편집 버튼만 숨는다 */
+  quietActions?: boolean;
   /** true 면 chip 앞에 정렬 순서 번호 (1-based) 표시 — 2열 grid 에서 정렬 방향 명확화. */
   showIndex?: boolean;
   /** showIndex 시 시작 번호 — pagination 글로벌 idx 보여주려면 pageStart 전달. 기본 0. */
@@ -196,6 +199,7 @@ export default function TagNotesEditor({
   renderEditPopover,
   disableReorder = false,
   singleColumn = false,
+  quietActions = false,
   showIndex = false,
   startIndex = 0,
   getDisplayIndex,
@@ -334,6 +338,7 @@ export default function TagNotesEditor({
   return (
     <div
       className={`${styles.section} ${singleColumn ? styles.sectionSingleCol : ""}`}
+      data-quiet={quietActions ? "" : undefined}
       ref={sectionRef}
       // section 전체 cursor 를 grab 으로 일관 — group 사이 gap 영역 통과 시에도 동일 cursor.
       // input/button 처럼 own data-cursor 가진 자식은 innermost 우선 룰로 자동 override

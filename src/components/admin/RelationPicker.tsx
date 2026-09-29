@@ -30,6 +30,8 @@ interface RelationPickerProps<T> {
   /** 검색 input placeholder (열림 시) */
   searchInputPlaceholder?: string;
   noResultsText?: string;
+  /** 바깥 틀에 더할 클래스 — 놓이는 자리에 맞춰 바깥 여백을 조정할 때 */
+  className?: string;
 }
 
 /**
@@ -49,6 +51,7 @@ export default function RelationPicker<T>({
   searchPlaceholder,
   searchInputPlaceholder,
   noResultsText,
+  className,
 }: RelationPickerProps<T>) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -127,7 +130,7 @@ export default function RelationPicker<T>({
     : (searchPlaceholder || "+ Add");
 
   return (
-    <div ref={wrapRef} className={styles.wrap}>
+    <div ref={wrapRef} className={`${styles.wrap}${className ? ` ${className}` : ""}`}>
       {/* 입력 영역 — chip 없이 검색 input 만 (selected 는 아래 chipRow 에 별도 표시) */}
       <div className={`${styles.inputArea} ${open ? styles.inputAreaOpen : ""}`}>
         <div className={styles.inputAreaTop}>

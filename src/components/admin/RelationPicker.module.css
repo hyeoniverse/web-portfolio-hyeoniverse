@@ -38,15 +38,15 @@
   transition: border-radius 0.2s ease 0s, border-color 0.15s ease;
 }
 
-/* 상단 row — 칩 + 트리거 (항상 보임). 다른 form control 과 동일 28px */
+/* 상단 row — 칩 + 트리거 (항상 보임). 테두리까지 합쳐 다른 입력칸(--control-h-md)과 같은 높이 */
 .inputAreaTop {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--spacing-xs);
   padding: 0 0 0 var(--spacing-md);
-  height: 28px;
-  min-height: 28px;
+  height: calc(var(--control-h-md) - 2px);
+  min-height: calc(var(--control-h-md) - 2px);
   cursor: text;
 }
 
