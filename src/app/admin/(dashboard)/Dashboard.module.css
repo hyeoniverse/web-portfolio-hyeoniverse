@@ -1091,3 +1091,39 @@ a.commentSource:hover {
 }
 
 /* ━━━━━━━━━━ Skeleton-only helpers ━━━━━━━━━━ */
+
+/* 빠른 작업 아래 한 줄 — AI·외부 서비스 호출 기록으로. 실패·꺼진 공급자가 있으면 숫자를 강조색으로 */
+.serviceBar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-sm);
+  /* 아래 선은 다음 섹션 머리의 선이 맡는다 — 둘 다 그으면 두 겹 */
+  border-top: var(--border-light);
+  color: var(--text-secondary);
+  font-size: var(--font-size-label);
+  text-decoration: none;
+  transition: color var(--duration-base) ease;
+}
+
+.serviceBar:hover {
+  color: var(--text-primary);
+}
+
+.serviceBarTitle {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.serviceBarStats {
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.serviceBar[data-alert] .serviceBarStats {
+  color: var(--text-accent);
+}
+
+.serviceBarArrow {
+  margin-left: auto;
+}

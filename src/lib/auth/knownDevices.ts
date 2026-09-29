@@ -3,6 +3,7 @@ import { MAIL_FROM } from "@/constants";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { emailLayout, escapeHtml } from "@/lib/mail/template";
 import { deviceKey } from "@/lib/auth/uaParser";
+import { logMail } from "@/lib/mail/log";
 
 /** UA 기반 device fingerprint — parsed browser+OS+device 만 해시 (버전 변동 무시).
  *  Chrome auto-update 등으로 UA minor 가 바뀌어도 같은 fingerprint 가 나와 중복 row 가 안 생김. */
@@ -175,7 +176,7 @@ export async function sendNewDeviceEmail(args: {
   `;
   const footer = `If this wasn't you, ignore this email and change your password immediately. The link expires in ${APPROVE_TOKEN_TTL_HOURS} hours.`;
   try {
-    await fetch("https://api.resend.com/emails", {
+    const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,
@@ -188,7 +189,10 @@ export async function sendNewDeviceEmail(args: {
         html: emailLayout({ title: "New device sign-in", body, footer }),
       }),
     });
-  } catch {
-    // 메일 실패는 무시 — token 은 DB 에 남음
+    /* 실패하면 승인 메일이 안 가 로그인이 막힌다 — 원인을 호출 기록에 남긴다 */
+    await logMail("new-device", res);
+  } catch (e) {
+    // 메일 실패는 무시 — token 은 DB 에 남음. 기록만 남긴다
+    await logMail("new-device", e);
   }
 }

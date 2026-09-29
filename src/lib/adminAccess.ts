@@ -15,6 +15,9 @@ export interface AdminAccess {
     보이고 대시보드는 403 을 받은 뒤에야 글 목록으로 넘어간다 */
 const ADMIN_ONLY_PAGES = ["/admin", "/admin/notifications", "/admin/reports", "/admin/comments"];
 
+/** 소유자만 쓰는 화면 — AI·외부 서비스 호출 기록은 부르는 API(ai-log·ai-health)가 requireOwner 다 */
+const OWNER_ONLY_PAGES = ["/admin/service-log"];
+
 /** 작성자가 관리자 전용 화면으로 들어오면 보낼 곳 */
 export const AUTHOR_HOME = "/admin/posts";
 
@@ -22,7 +25,9 @@ export const AUTHOR_HOME = "/admin/posts";
 export const ADMIN_ACCESS_CHANGED = "admin-access-changed";
 
 export function canOpenAdminPage(pathname: string, access: AdminAccess): boolean {
-  if (access.isOwner || access.level >= PERM.ADMIN) return true;
+  if (access.isOwner) return true;
+  if (OWNER_ONLY_PAGES.some((page) => pathname === page || pathname.startsWith(`${page}/`))) return false;
+  if (access.level >= PERM.ADMIN) return true;
   // "/admin" 은 대시보드 한 화면이다. 그 아래 경로 전체가 아니다
   return !ADMIN_ONLY_PAGES.some((page) => pathname === page || (page !== "/admin" && pathname.startsWith(`${page}/`)));
 }

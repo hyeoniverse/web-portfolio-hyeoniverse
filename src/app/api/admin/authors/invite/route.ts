@@ -5,6 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { applyInviteToExistingUser, type AuthorInvite } from "@/lib/api/authorInvites";
 import { PERM, parsePermissionLevelInput } from "@/lib/api/roles";
 import { MAIL_FROM } from "@/constants";
+import { logMail } from "@/lib/mail/log";
 
 /** 초대 메일 발송 (Resend). API key 없으면 skip(초대 기록은 남으므로 링크 수동 전달 가능). */
 async function sendInviteEmail(email: string, loginUrl: string): Promise<{ sent: boolean; reason?: string }> {
@@ -29,6 +30,7 @@ async function sendInviteEmail(email: string, loginUrl: string): Promise<{ sent:
         `,
       }),
     });
+    await logMail("author-invite", res);
     if (res.ok) return { sent: true };
     // 실패 시 Resend 가 본문에 담아주는 사유까지 그대로 전달(도메인 미인증 등 원인 파악용)
     const detail = await res.json().catch(() => null);

@@ -55,6 +55,8 @@ export const adminNavItems: NavItem[] = [
       { key: "dashboard-notifications", href: "/admin/notifications", label: "Notifications" },
       { key: "dashboard-reports", href: "/admin/reports", label: "Reports" },
       { key: "dashboard-comments", href: "/admin/comments", label: "Comments" },
+      /* AI·외부 서비스 호출 기록 — 소유자 전용(lib/adminAccess 의 OWNER_ONLY_PAGES) */
+      { key: "dashboard-service-log", href: "/admin/service-log", label: "Service Log" },
     ],
   },
   {
