@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
-import { useForm } from "@formspree/react";
+import { useState, useCallback, useRef } from "react";
+import { sendContact, type ContactProvider } from "@/lib/contactSend";
 import ReCAPTCHA from "react-google-recaptcha";
 import { useRecaptcha } from "@/providers/RecaptchaProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
@@ -18,9 +18,15 @@ interface SubmittedData {
   fileName: string;
 }
 
+/** 전송 상태 — 예전 @formspree/react 의 formState 가운데 화면이 쓰던 두 값 */
+export interface ContactFormState {
+  submitting: boolean;
+  succeeded: boolean;
+}
+
 interface UseContactFormReturn {
   // 폼 상태
-  formState: ReturnType<typeof useForm>[0];
+  formState: ContactFormState;
   formRef: React.RefObject<HTMLFormElement | null>;
   fileInputRef: React.RefObject<HTMLInputElement | null>;
   recaptchaRef: React.RefObject<ReCAPTCHA | null>;
@@ -58,7 +64,9 @@ interface UseContactFormReturn {
 }
 
 export function useContactForm(): UseContactFormReturn {
-  const [formState, handleFormspreeSubmit, resetFormspree] = useForm("xlgwrpvq");
+  /* 설정 › 서비스 › 이메일 서비스에서 고른 공급자로 보낸다(lib/contactSend). 예전에는 Formspree 폼 ID 를 여기 박아 두어
+     공급자를 바꿔도 Formspree 로만 갔다 */
+  const [formState, setFormState] = useState<ContactFormState>({ submitting: false, succeeded: false });
 
   const formRef = useRef<HTMLFormElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -87,9 +95,8 @@ export function useContactForm(): UseContactFormReturn {
   const recaptchaVersion = cfg.recaptcha.version as "v2" | "v3";
   const { executeRecaptcha } = useRecaptcha();
 
-  // 이전 상태 추적
-  const prevSubmittingRef = useRef(false);
-  const prevSucceededRef = useRef(false);
+  const provider = (cfg.emailService?.provider ?? "formspree") as ContactProvider;
+  const publicKeys = cfg.publicKeys;
 
   const onShowFormToast = useCallback(
     (callback: (message: string, type?: "error" | "success") => void) => {
@@ -110,7 +117,7 @@ export function useContactForm(): UseContactFormReturn {
       e?.preventDefault();
       e?.stopPropagation();
       formRef.current?.reset();
-      resetFormspree();
+      setFormState({ submitting: false, succeeded: false });
       setName("");
       setEmail("");
       setTitle("");
@@ -120,9 +127,8 @@ export function useContactForm(): UseContactFormReturn {
       setRecaptchaToken(null);
       setSubmittedData(null);
       recaptchaRef.current?.reset();
-      prevSucceededRef.current = false;
     },
-    [resetFormspree]
+    []
   );
 
   const handleSubmit = useCallback(
@@ -202,14 +208,56 @@ export function useContactForm(): UseContactFormReturn {
           }
         }
 
-        await handleFormspreeSubmit(formData);
+        /* 파일을 고르지 않았으면 빈 파일 칸을 빼고 보낸다 — 빈 칸도 첨부로 치는 공급자가 있다 */
+        const withAttachment = !!attachedFile;
+        if (!withAttachment) formData.delete("attachment");
+
+        setFormState({ submitting: true, succeeded: false });
+        const result = await sendContact(provider, {
+          ...publicKeys,
+          /* 빌드 때 넣은 환경 변수도 받는다 — 설정 화면에 저장한 값이 없을 때 */
+          NEXT_PUBLIC_FORMSPREE_ID: publicKeys.NEXT_PUBLIC_FORMSPREE_ID || process.env.NEXT_PUBLIC_FORMSPREE_ID,
+          NEXT_PUBLIC_WEB3FORMS_KEY: publicKeys.NEXT_PUBLIC_WEB3FORMS_KEY || process.env.NEXT_PUBLIC_WEB3FORMS_KEY,
+          NEXT_PUBLIC_EMAILJS_SERVICE_ID: publicKeys.NEXT_PUBLIC_EMAILJS_SERVICE_ID || process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
+          NEXT_PUBLIC_EMAILJS_TEMPLATE_ID: publicKeys.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID || process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID,
+          NEXT_PUBLIC_EMAILJS_PUBLIC_KEY: publicKeys.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY || process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY,
+        }, formData);
+        setFormState({ submitting: false, succeeded: result.ok });
+
+        /* 첨부를 단 전송의 결과를 알린다 — 이어 실패하면 첨부만 저절로 꺼진다(/api/contact/attachment).
+           연결 실패·설정 없음은 첨부 탓이 아니라 세지 않는다. 기다리지 않는다 */
+        if (withAttachment && (result.ok || result.reason === "rejected")) {
+          void fetch("/api/contact/attachment", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ok: result.ok, reason: result.ok ? undefined : result.detail }),
+          }).catch(() => {});
+        }
+
+        if (result.ok) {
+          showFormToastRef.current(t("contact.validation.sent"), "success");
+          setRecaptchaToken(null);
+          recaptchaRef.current?.reset();
+        } else if (result.reason === "network") {
+          showToastRef.current(t("contact.validation.networkError"), "error");
+        } else if (result.reason === "not_configured") {
+          console.error(`Contact form: ${provider} keys are not configured`);
+          showFormToastRef.current(t("contact.validation.sendFailed"));
+        } else {
+          /* 공급자가 돌려준 사유는 영어 한 언어고 방문자가 고칠 수 있는 것도 아니라 콘솔에 남긴다(#862).
+             첨부를 달았으면 파일 없이 다시 보내 보라고 알린다 — 첨부 때문에 막혔을 수 있다 */
+          if (result.detail) console.error(`${provider} rejected the message:`, result.detail);
+          showFormToastRef.current(t(withAttachment ? "contact.validation.sendFailedAttachment" : "contact.validation.sendFailed"));
+        }
       } catch (error) {
         console.error("Form submission error:", error);
+        setFormState({ submitting: false, succeeded: false });
         showToastRef.current(t("contact.validation.networkError"), "error");
       }
     },
     [
-      handleFormspreeSubmit,
+      provider,
+      publicKeys,
       privacyAccepted,
       recaptchaToken,
       recaptchaEnabled,
@@ -222,36 +270,6 @@ export function useContactForm(): UseContactFormReturn {
     ]
   );
 
-  // 폼 성공/에러 처리
-  useEffect(() => {
-    const justFinishedSubmitting = prevSubmittingRef.current && !formState.submitting;
-    const justSucceeded = !prevSucceededRef.current && formState.succeeded;
-
-    prevSubmittingRef.current = formState.submitting;
-    prevSucceededRef.current = formState.succeeded;
-
-    if (justFinishedSubmitting) {
-      if (justSucceeded) {
-        showFormToastRef.current(t("contact.validation.sent"), "success");
-        setRecaptchaToken(null);
-        recaptchaRef.current?.reset();
-      } else if (!formState.succeeded) {
-        /* Formspree 가 돌려준 사유는 영어 한 언어고(폼 없음·비활성 등) 방문자가 고칠 수 있는 것도 아니라,
-           화면에는 화면 언어의 실패 문구만 보이고 사유는 콘솔에 남긴다(#862). 입력 형식은 위에서 먼저 검사한다. */
-        if (formState.errors) {
-          const formErrors = formState.errors.getFormErrors?.() || [];
-          const fieldErrors = formState.errors.getAllFieldErrors?.() || [];
-          const reasons = [
-            ...formErrors.map((err) => err.message),
-            ...fieldErrors.flatMap(([, errors]) => errors.map((err) => err.message)),
-          ];
-          if (reasons.length > 0) console.error("Formspree rejected the message:", reasons.join(", "));
-        }
-
-        showFormToastRef.current(t("contact.validation.sendFailed"));
-      }
-    }
-  }, [formState.submitting, formState.succeeded, formState.errors, t]);
 
   return {
     formState,

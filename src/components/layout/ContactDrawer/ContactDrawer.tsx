@@ -28,14 +28,6 @@ interface SubmittedData {
 }
 
 interface FormState {
-  errors: {
-    getFormErrors?: () => readonly { message: string }[];
-    getAllFieldErrors?: () => readonly [
-      string,
-      readonly { message: string }[],
-    ][];
-  } | null;
-  result: unknown;
   submitting: boolean;
   succeeded: boolean;
 }
@@ -106,6 +98,18 @@ export default function ContactDrawer({
 }: ContactDrawerProps) {
   const siteConfig = useSiteConfig();
   const { t, language } = useLanguage();
+  /* 첨부가 여러 번 이어 실패해 저절로 꺼졌는지 — 설정은 켜져 있어도 꺼질 수 있다(/api/contact/attachment).
+     서랍을 처음 열 때 한 번 묻는다. 모르는 동안은 설정을 따른다 */
+  const [attachmentOn, setAttachmentOn] = useState(true);
+  const checkedAttachmentRef = useRef(false);
+  useEffect(() => {
+    if (!isOpen || !siteConfig.emailService.enableFileUpload || checkedAttachmentRef.current) return;
+    checkedAttachmentRef.current = true;
+    void fetch("/api/contact/attachment")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => { if (data && data.enabled === false) setAttachmentOn(false); })
+      .catch(() => {});
+  }, [isOpen, siteConfig.emailService.enableFileUpload]);
   const { stop: lenisStop, start: lenisStart } = useLenis();
   const isMobile = useMobileLayout();
   const drawerRef = useRef<HTMLDivElement>(null);
@@ -280,7 +284,7 @@ export default function ContactDrawer({
             aria-label={t("contact.drawer.formLabel")}
           >
             {/* 닫기 버튼 */}
-            <CloseButton
+            <CloseButton size="sm"
               className={styles.closeBtn}
               onClick={() => {
                 onClose();
@@ -347,7 +351,7 @@ export default function ContactDrawer({
                         onChange={(e) => setTitle(e.target.value)}
                       />
 
-                      {siteConfig.emailService.enableFileUpload && (
+                      {siteConfig.emailService.enableFileUpload && attachmentOn && (
                         <div
                           className={fileName ? styles.fileWrapper : undefined}
                         >
