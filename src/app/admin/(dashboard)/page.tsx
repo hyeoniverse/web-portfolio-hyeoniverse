@@ -23,6 +23,8 @@ import {
   LayoutDashboard,
   Flag,
   UserRound,
+  History,
+  ChevronRight,
 } from "@/components/icons";
 import { useStaticPageScroll } from "@/hooks/useStaticPageScroll";
 import { useLanguage} from "@/providers/LanguageProvider";
@@ -121,6 +123,28 @@ export default function AdminDashboard() {
     return () => {
       alive = false;
     };
+  }, []);
+
+  /* AI·외부 서비스 — 최근 24시간 실패 수와 꺼진 공급자 수. 기록·상태는 소유자만 볼 수 있어(403) 그 밖에는 줄을 그리지 않는다 */
+  const [service, setService] = useState<{ fails24h: number; total24h: number; off: number } | null>(null);
+  useEffect(() => {
+    let alive = true;
+    Promise.all([fetch("/api/admin/ai-log"), fetch("/api/admin/ai-health")])
+      .then(async ([logRes, healthRes]) => {
+        if (!logRes.ok || !healthRes.ok) return;
+        const log = (await logRes.json()) as { entries?: { at: string; ok: boolean }[] };
+        const health = (await healthRes.json()) as { health?: Record<string, { disabled?: unknown }> };
+        const since = Date.now() - 24 * 60 * 60 * 1000;
+        const recent = (log.entries ?? []).filter((e) => new Date(e.at).getTime() >= since);
+        if (!alive) return;
+        setService({
+          fails24h: recent.filter((e) => !e.ok).length,
+          total24h: recent.length,
+          off: Object.values(health.health ?? {}).filter((h) => h?.disabled).length,
+        });
+      })
+      .catch(() => {});
+    return () => { alive = false; };
   }, []);
 
   /* Total Views 카드용 WoW (week-over-week) — 최근 7일 vs 이전 7일.
@@ -341,6 +365,20 @@ export default function AdminDashboard() {
             </Button>
           </Tooltip>
         </Panel>
+        {/* AI·외부 서비스 호출 기록 — 최근 24시간 실패·꺼진 공급자가 있으면 강조색. 누르면 기록 페이지로 */}
+        {service && (
+          <Link href="/admin/service-log" className={styles.serviceBar} data-alert={service.fails24h > 0 || service.off > 0 ? "" : undefined}>
+            <History size={16} strokeWidth={1.6} aria-hidden />
+            <span className={styles.serviceBarTitle}>{t("admin.dashboard.serviceLog")}</span>
+            <span className={styles.serviceBarStats}>
+              {t("admin.dashboard.serviceLogStats")
+                .replace("{{total}}", String(service.total24h))
+                .replace("{{fails}}", String(service.fails24h))}
+              {service.off > 0 && ` · ${t("admin.dashboard.serviceLogOff").replace("{{n}}", String(service.off))}`}
+            </span>
+            <ChevronRight size={16} strokeWidth={1.6} className={styles.serviceBarArrow} aria-hidden />
+          </Link>
+        )}
       </Section>
 
       {/* ── Stats: heroStat (총 조회수) + 프로젝트/게시물/댓글. 2-col 에선 2×2, 3-col 에선 heroStat full row + statCard 3개 ── */}

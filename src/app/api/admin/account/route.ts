@@ -6,6 +6,7 @@ import { jsonError, jsonOk } from "@/lib/api/response";
 import { authErrorCode } from "@/lib/api/authErrorCode";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 import { emailLayout, escapeHtml } from "@/lib/mail/template";
+import { logMail } from "@/lib/mail/log";
 
 async function sendSecurityAlert(to: string, action: string, detail?: string) {
   const apiKey = process.env.RESEND_API_KEY;
@@ -22,7 +23,7 @@ async function sendSecurityAlert(to: string, action: string, detail?: string) {
   `;
   const footer = "If you did not make this change, please secure your account immediately.";
   try {
-    await fetch("https://api.resend.com/emails", {
+    const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,
@@ -35,8 +36,11 @@ async function sendSecurityAlert(to: string, action: string, detail?: string) {
         html: emailLayout({ title, body, footer }),
       }),
     });
-  } catch {
-    // 보안 메일 실패는 무시
+    /* 실패해도 요청은 막지 않지만 기록은 남긴다 — 설정 › 서비스 호출 기록 */
+    await logMail("account-security", res);
+  } catch (e) {
+    // 보안 메일 실패는 무시 — 기록만 남긴다
+    await logMail("account-security", e);
   }
 }
 
