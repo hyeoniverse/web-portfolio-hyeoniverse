@@ -197,7 +197,7 @@
   gap: var(--spacing-2xs);
   padding: var(--spacing-4xs) var(--spacing-xs);
   border-radius: var(--radius-capsule);
-  background: var(--bg-success);
+  background: var(--bg-success-soft);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-hint);
   font-weight: var(--font-weight-semibold);

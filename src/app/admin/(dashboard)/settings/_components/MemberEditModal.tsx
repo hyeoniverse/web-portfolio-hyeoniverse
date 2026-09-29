@@ -74,7 +74,7 @@ export default function MemberEditModal({
      영어 칸이 비어 있으면 영어 화면과 작업물 팀원 연결에서 한국어 값을 대신 쓴다(localizeAuthor) */
   const [profileLang, setProfileLang] = useState<"ko" | "en">("ko");
   const en = profileLang === "en";
-  const enHint = (ko: string | undefined) => (ko ? `${L("비우면", "If empty")}: ${ko}` : undefined);
+  const enHint = (ko: string | undefined) => ko || undefined;
 
   /* 아바타는 이미지 URL 뿐 아니라 이모지·아이콘도 될 수 있다. EmojiPicker 가 돌려주는 값을
      그대로 담고, 그리는 쪽은 AuthorAvatar 가 판별한다. 빈 값이면 이름 첫 글자로 돌아간다. */
