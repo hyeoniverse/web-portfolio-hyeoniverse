@@ -32,6 +32,7 @@ import "@/components/admin/seoFlash.css";
 import { flashSeoField } from "@/components/admin/seoFlash";
 import type { TeamMember, Work, WorkFormData } from "@/types/work";
 import { OWNER_AUTHOR_ID } from "@/utils/resolvePostAuthors";
+import { noteFor, notesForLang, patchNote } from "@/lib/galleryNotes";
 import { useRevisions } from "@/hooks/useRevisions";
 import { useEditorAutoSave } from "@/hooks/useEditorAutoSave";
 import { useEditorLeaveGuard } from "@/hooks/useEditorLeaveGuard";
@@ -429,8 +430,10 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     [],
   );
 
+  /* fieldKeys 에 "gallery" 가 있으면 갤러리 대본도 번역한다 — 원문 언어 대본이 있는 장마다 한 문장씩.
+     onlyMissing: 반대 언어 대본이 이미 있는 장은 건너뛴다(편집 언어를 바꿀 때의 자동 번역) */
   const translateFields = useCallback(
-    async (fieldKeys: string[], lang: "ko" | "en") => {
+    async (fieldKeys: string[], lang: "ko" | "en", { onlyMissing = false }: { onlyMissing?: boolean } = {}) => {
       const isToEn = lang === "en";
       const sourceLang: "ko" | "en" = isToEn ? "ko" : "en";
       const targetLang: "ko" | "en" = isToEn ? "en" : "ko";
@@ -439,7 +442,14 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       const activeFields = TRANSLATABLE_FIELDS.filter(
         (f) => want.has(f) && (form[fieldKeyFor(f, sourceLang)] as string)?.trim(),
       );
-      const texts = activeFields.map((f) => form[fieldKeyFor(f, sourceLang)]) as string[];
+      const scriptOf = (url: string, l: "ko" | "en") => noteFor(form.gallery_notes?.[url], l)?.script?.trim() ?? "";
+      const scriptUrls = want.has("gallery")
+        ? form.gallery.filter((url) => scriptOf(url, sourceLang) && (!onlyMissing || !scriptOf(url, targetLang)))
+        : [];
+      const texts = [
+        ...(activeFields.map((f) => form[fieldKeyFor(f, sourceLang)]) as string[]),
+        ...scriptUrls.map((url) => scriptOf(url, sourceLang)),
+      ];
 
       if (texts.length === 0) return;
 
@@ -457,7 +467,15 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         activeFields.forEach((f, i) => {
           if (!result.failedIndices.includes(i)) patch[fieldKeyFor(f, targetLang)] = result.translations[i] as never;
         });
-        setForm((prev) => ({ ...prev, ...patch }));
+        setForm((prev) => {
+          /* 갤러리 대본 — 텍스트 칸 뒤에 이어 보낸 순서대로 제 장에 넣는다 */
+          let notes = prev.gallery_notes ?? {};
+          scriptUrls.forEach((url, j) => {
+            const i = activeFields.length + j;
+            if (!result.failedIndices.includes(i) && result.translations[i]) notes = patchNote(notes, url, targetLang, { script: result.translations[i] });
+          });
+          return { ...prev, ...patch, ...(scriptUrls.length ? { gallery_notes: notes } : {}) };
+        });
         setStatus(tw("autoTranslated"));
         setStatusType("success");
         notifyAiFailures(result, t, { feature, ok: true });
@@ -480,13 +498,12 @@ export default function WorkEditor({ work }: WorkEditorProps) {
 
       const hasSrc = TRANSLATABLE_FIELDS.some((f) => (form[fieldKeyFor(f, srcLang)] as string)?.trim());
       const hasDst = TRANSLATABLE_FIELDS.some((f) => (form[fieldKeyFor(f, dstLang)] as string)?.trim());
+      /* 갤러리 대본은 칸마다 따로 — 원문은 있는데 그 언어 대본이 빈 장이 하나라도 있으면 그 장들만 채운다 */
+      const missingScript = form.gallery.some((url) =>
+        noteFor(form.gallery_notes?.[url], srcLang)?.script?.trim() && !noteFor(form.gallery_notes?.[url], dstLang)?.script?.trim());
 
-      if (hasSrc && !hasDst) {
-        await translateFields(
-          TRANSLATABLE_FIELDS.slice(),
-          newLang,
-        );
-      }
+      const keys = [...(hasSrc && !hasDst ? TRANSLATABLE_FIELDS : []), ...(missingScript ? ["gallery"] : [])];
+      if (keys.length > 0) await translateFields(keys, newLang, { onlyMissing: true });
     },
     [form, translating, translateFields, TRANSLATABLE_FIELDS, fieldKeyFor],
   );
@@ -494,7 +511,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   const handleRetranslate = useCallback(
     async (fieldKeys?: string[]) => {
       if (translating) return;
-      await translateFields(fieldKeys ?? TRANSLATABLE_FIELDS.slice(), editorLang);
+      await translateFields(fieldKeys ?? [...TRANSLATABLE_FIELDS, "gallery"], editorLang);
     },
     [translating, editorLang, translateFields, TRANSLATABLE_FIELDS],
   );
@@ -857,18 +874,14 @@ export default function WorkEditor({ work }: WorkEditorProps) {
 
   /* 갤러리 장 하나의 음성 값을 바꾼다 — 폼 최신값 위에 덧쓰므로 음성을 만드는 동안 다른 장을 고쳐도 섞이지 않는다.
      undefined 인 칸은 지우고, 다 비면 그 장의 항목을 없앤다 */
+  /* 대본·음성은 편집 언어(KO/EN)를 따른다 — 한국어는 노트 기본 칸, 영어는 노트의 en 칸(lib/galleryNotes) */
   const updateGalleryNote = useCallback((url: string, patch: Partial<GalleryNote>) => {
-    setForm((prev) => {
-      const notes: GalleryNotes = { ...(prev.gallery_notes ?? {}) };
-      const next: GalleryNote = { ...(notes[url] ?? {}), ...patch };
-      for (const k of Object.keys(next) as (keyof GalleryNote)[]) if (next[k] === undefined || next[k] === "") delete next[k];
-      if (Object.keys(next).length === 0) delete notes[url]; else notes[url] = next;
-      return { ...prev, gallery_notes: notes };
-    });
-  }, []);
+    setForm((prev) => ({ ...prev, gallery_notes: patchNote(prev.gallery_notes ?? {}, url, editorLang, patch) }));
+  }, [editorLang]);
+  const langNotes: GalleryNotes = useMemo(() => notesForLang(form.gallery_notes, editorLang), [form.gallery_notes, editorLang]);
 
   /* 슬라이드 음성 — 칸마다의 음성 단추와 제목 줄의 "음성 만들기"가 목소리·진행 상태를 같이 쓴다 */
-  const narration = useNarrationActions({ gallery: form.gallery, notes: form.gallery_notes ?? {}, update: updateGalleryNote, tw });
+  const narration = useNarrationActions({ gallery: form.gallery, notes: langNotes, update: updateGalleryNote, tw });
   /* 작업대 위에 연 장 — 고른 적이 없으면 첫 장 */
   const narrationCurrent = narration.openIndex >= 0 ? narration.openIndex : 0;
   /* 갤러리를 고치지 못하는 동안 — PDF 를 들이는 중이거나 음성을 만드는 중. 만드는 중에 장을 빼거나 옮기면
@@ -1145,6 +1158,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       { key: "subtitle", label: tw("subtitle") },
       { key: "description", label: tw("description") },
       { key: "content", label: tw("content") },
+      { key: "gallery", label: tw("galleryScripts") },
     ],
     [tw],
   );
@@ -1466,7 +1480,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           {/* 위 — 고른 장을 크게 보며 대본을 쓴다(왼쪽 칸 슬라이드, 오른쪽 칸 대본, 그 아래 조작 막대) */}
           <GalleryNarrationPanel
           gallery={form.gallery}
-          notes={form.gallery_notes ?? {}}
+          notes={langNotes}
           actions={narration}
           tw={tw}
           renderSlide={(src) => isOfficeDocUrl(src) ? (
@@ -1668,7 +1682,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                       </div>
                     </div>
                     {/* 이 장의 음성 — 음성 파일(스피커)·대본만(글줄). 없으면 그리지 않는다 */}
-                    <NarrationBadge note={form.gallery_notes?.[src]} className={styles.galleryNarrationBadge} />
+                    <NarrationBadge note={langNotes[src]} className={styles.galleryNarrationBadge} />
                   </div>
               );
             })}
@@ -1680,7 +1694,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       </div>
     </div>
   ), [
-    form.description_en, form.description_ko, form.gallery, form.gallery_notes, form.image, form.tech, form.title, galleryImgErrors,
+    form.description_en, form.description_ko, form.gallery, langNotes, form.image, form.tech, form.title, galleryImgErrors,
     galleryDragIdx, galleryFileOver, galleryOverIdx, gallerySelected, handleImageUpload, moveGalleryItem,
     onGalleryDragLeave, onGalleryDragOver, onGalleryDrop, pdfProgress, pickGalleryItem, removeGalleryItem,
     removeSelectedGallery, reorderGallery, stopAutoScroll,
