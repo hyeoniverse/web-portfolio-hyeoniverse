@@ -174,7 +174,11 @@
   gap: var(--spacing-2xs);
 }
 
+/* 라벨 칸 폭 — 기본은 글자만큼. 여러 스위치를 한 줄로 세울 때는 부모(FormGroup switchLabelWidth)나
+   labelWidth 로 --switch-label-width 를 주면 라벨 길이와 상관없이 스위치가 같은 자리에서 시작한다 */
 .label {
+  flex-shrink: 0;
+  width: var(--switch-label-width, auto);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   font-weight: 500;

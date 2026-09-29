@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { STATUS_MESSAGE_DISMISS_MS } from "@/constants";
-import { Trash2, Eye, EyeOff, Info, ExternalLink, ClipboardPaste, AlertTriangle, Lock, Database, Mail, Shield, Image as ImageIcon, Sparkles, Languages, Bell, Check, GitFork, type LucideIcon } from "@/components/icons";
+import { Trash2, Eye, EyeOff, Info, ExternalLink, ClipboardPaste, AlertTriangle, Lock, Database, Mail, Shield, Image as ImageIcon, Sparkles, AudioLines, Languages, Bell, Check, GitFork, type LucideIcon } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useModalStore } from "@/stores/modalStore";
 import { showToast } from "@/stores/toastStore";
@@ -43,6 +43,9 @@ const ENV_VAR_META: Record<string, { docsUrl?: string; prefix?: string }> = {
   DEEPL_API_KEY: { docsUrl: "https://www.deepl.com/account/summary" },
   UNSPLASH_ACCESS_KEY: { docsUrl: "https://unsplash.com/oauth/applications" },
   PEXELS_API_KEY: { docsUrl: "https://www.pexels.com/api/new/" },
+  // 슬라이드 음성
+  FISH_AUDIO_API_KEY: { docsUrl: "https://fish.audio/app/api-keys" },
+  GOOGLE_TTS_API_KEY: { docsUrl: "https://console.cloud.google.com/apis/credentials", prefix: "AIza" },
   // 알림
   RESEND_API_KEY: { docsUrl: "https://resend.com/api-keys", prefix: "re_" },
   // 댓글 (giscus)
@@ -157,6 +160,11 @@ export default function EnvVarFields({
     { id: "summary", rows: toRows(sumProviders), icon: Sparkles },
     { id: "translate", rows: toRows(transProviders), icon: Languages },
     { id: "notify", rows: [{ key: "RESEND_API_KEY", label: "Resend API Key" }], icon: Bell },
+    /* 슬라이드 음성 — Fish Audio → Google → Edge(키 없음) 순서. 모두 비어 있어도 Edge 로 만든다 */
+    { id: "tts", rows: [
+      { key: "FISH_AUDIO_API_KEY", label: "Fish Audio API Key", optional: true },
+      { key: "GOOGLE_TTS_API_KEY", label: "Google Cloud TTS API Key", optional: true },
+    ], icon: AudioLines },
     /* GITHUB_TOKEN 은 giscus 만이 아니라 프로필·홈의 GitHub 연동(저장소 목록·잔디)도 쓴다 —
        giscus 조건부로 두면 그쪽을 쓰는 사람이 토큰 적을 곳을 못 찾는다. 항상 노출 */
     { id: "github", rows: [{ key: "GITHUB_TOKEN", label: "GitHub Token" }], icon: GitFork },
@@ -693,44 +701,43 @@ export default function EnvVarFields({
       </div>
       </div>
 
-      {/* 그룹을 2열로 균형 분배(행 수 가중치 greedy) — full-width 섹션 폭을 채운다.
-         각 열은 container 라, 열이 좁아지면 필드 행이 컨테이너 쿼리로 스스로 접힌다(라벨 위로).
-         태블릿/모바일은 CSS 로 1열. */}
+      {/* 그룹을 두 개씩 한 행에 놓는다 — 열마다 따로 쌓으면 아래로 갈수록 좌우 그룹 제목의 높이가 어긋났다.
+         같은 행의 두 그룹은 제목이 같은 줄에서 시작한다. 빈자리를 줄이려고 짝은 행 수가 같은 그룹을
+         뒤에서 찾아 붙이고(없으면 바로 다음 것), 그 밖의 차례는 정의한 순서를 따른다.
+         태블릿/모바일은 CSS 로 1열(행 순서대로 이어진다). */}
       {(() => {
-        const cols: (typeof visibleGroups)[] = [[], []];
-        const colWeight = [0, 0];
-        for (const g of visibleGroups) {
-          const i = colWeight[0] <= colWeight[1] ? 0 : 1;
-          cols[i].push(g);
-          colWeight[i] += g.rows.length + 1;
+        const rest = [...visibleGroups];
+        const ordered: typeof visibleGroups = [];
+        while (rest.length) {
+          const a = rest.shift()!;
+          ordered.push(a);
+          if (!rest.length) break;
+          const same = rest.findIndex((g) => g.rows.length === a.rows.length);
+          ordered.push(rest.splice(same >= 0 ? same : 0, 1)[0]);
         }
         return (
           <div className={styles.envGroupCols}>
-            {cols.map((colGroups, ci) => (
-              <div className={styles.envGroupCol} key={ci}>
-                {colGroups.map((group) => {
-                  /* 비어 있는 선택 키는 그룹 분모에서도 뺀다 — "0/1" 이 미완처럼 읽히면 안 된다 */
-                  const counted = group.rows.filter((r) => !(r.optional && rowStatusOf(r.key) === "none"));
-                  const grpSet = counted.filter((r) => rowStatusOf(r.key) !== "none").length;
-                  const grpTotal = counted.length;
-                  const GroupIcon = group.icon;
-                  return (
-                    <div className={styles.envGroup} key={group.id}>
-                      <h3 className={styles.envGroupLabel}>
-                        <GroupIcon size={14} strokeWidth={2} />
-                        <span>{t(`admin.settings.envGroups.${group.id}`)}</span>
-                        {grpTotal > 0 && (
-                          <span className={styles.envGroupCount} data-ok={grpSet === grpTotal || undefined}>
-                            {grpSet}/{grpTotal}
-                          </span>
-                        )}
-                      </h3>
-                      {group.rows.map(({ key, label, optional }) => renderField(key, label, optional))}
-                    </div>
-                  );
-                })}
-              </div>
-            ))}
+            {ordered.map((group) => {
+              /* 비어 있는 선택 키는 그룹 분모에서도 뺀다 — "0/1" 이 미완처럼 읽히면 안 된다 */
+              const counted = group.rows.filter((r) => !(r.optional && rowStatusOf(r.key) === "none"));
+              const grpSet = counted.filter((r) => rowStatusOf(r.key) !== "none").length;
+              const grpTotal = counted.length;
+              const GroupIcon = group.icon;
+              return (
+                <div className={styles.envGroup} key={group.id}>
+                  <h3 className={styles.envGroupLabel}>
+                    <GroupIcon size={14} strokeWidth={2} />
+                    <span>{t(`admin.settings.envGroups.${group.id}`)}</span>
+                    {grpTotal > 0 && (
+                      <span className={styles.envGroupCount} data-ok={grpSet === grpTotal || undefined}>
+                        {grpSet}/{grpTotal}
+                      </span>
+                    )}
+                  </h3>
+                  {group.rows.map(({ key, label, optional }) => renderField(key, label, optional))}
+                </div>
+              );
+            })}
           </div>
         );
       })()}

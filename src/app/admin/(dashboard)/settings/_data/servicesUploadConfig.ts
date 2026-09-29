@@ -6,6 +6,7 @@ import type { MimeGroupKey } from "@/lib/uploadFormats";
 export type AICoverProvider = "nanobanana" | "huggingface";
 export type AISummaryProvider = "gemini" | "openai" | "claude";
 export type TranslationProvider = "gemini" | "google" | "deepl" | "claude";
+export type TtsProviderOption = "fish" | "google" | "edge";
 
 export const AI_COVER_OPTIONS: SelectOption<AICoverProvider>[] = [
   { value: "nanobanana", label: "NanoBanana (Gemini)" },
@@ -16,10 +17,16 @@ export const AI_SUMMARY_OPTIONS: SelectOption<AISummaryProvider>[] = [
   { value: "openai", label: "OpenAI GPT-4o mini" },
   { value: "claude", label: "Claude Haiku 4.5" },
 ];
+export const TTS_OPTIONS: SelectOption<TtsProviderOption>[] = [
+  { value: "fish", label: "Fish Audio" },
+  { value: "google", label: "Google Cloud TTS (Neural2)" },
+  { value: "edge", label: "Edge TTS" },
+];
 export const TRANSLATION_OPTIONS: SelectOption<TranslationProvider>[] = [
   { value: "gemini", label: "Gemini 2.0 Flash" },
   { value: "google", label: "Google Cloud Translation" },
-  { value: "deepl", label: "DeepL API Free" },
+  /* 무료 키(:fx)와 유료 키 모두 받는다 — 키에 맞는 주소로 보낸다(translationProviders) */
+  { value: "deepl", label: "DeepL" },
   { value: "claude", label: "Claude Haiku 4.5" },
 ];
 

@@ -305,7 +305,7 @@ function DeviceModelsPanel({
         <span className={styles.deviceDrillTitle}>
           {kindLabels[kind]} · {language === "ko" ? "기기 모델" : "Top devices"}
         </span>
-        <CloseButton
+        <CloseButton size="sm"
           onClick={onClose}
           ariaLabel={language === "ko" ? "닫기" : "Close"}
         />

@@ -52,6 +52,9 @@
 }
 
 .priorityLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
   flex: 1;
   padding: var(--spacing-xs) var(--spacing-sm);
   font-family: var(--font-space-grotesk);

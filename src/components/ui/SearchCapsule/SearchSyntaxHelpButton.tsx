@@ -28,7 +28,7 @@ export default function SearchSyntaxHelpButton({ optionsKey, className }: Props)
       placement="bubble"
       contentClassName={styles.searchHelpPopover}
       trigger={
-        <HelpButton
+        <HelpButton size="sm"
           aria-label={t("common.searchHelp.title")}
           title={t("common.searchHelp.tooltip")}
           className={className}

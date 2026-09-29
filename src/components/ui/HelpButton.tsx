@@ -18,7 +18,7 @@ type HelpButtonProps = Omit<
   React.ButtonHTMLAttributes<HTMLButtonElement>,
   "children"
 > & {
-  /** 기본 "sm"(28px). 폼 라벨 옆처럼 좁은 자리는 "2xs"(20px) / "xs"(24px) */
+  /** 기본 "md"(32px). 조작 막대 등 낮은 줄은 "sm"(28px), 폼 라벨 옆처럼 좁은 자리는 "2xs"(20px) / "xs"(24px) */
   size?: HelpButtonSize;
   /** 표시 글리프 — 도움말 "?"(기본) 또는 정보 "i". 둘 다 circle 규격 공유 */
   symbol?: "?" | "i";
@@ -33,7 +33,7 @@ type HelpButtonProps = Omit<
 };
 
 const HelpButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, HelpButtonProps>(
-  ({ size = "sm", symbol = "?", variant = "subtle", ...props }, ref) => (
+  ({ size = "md", symbol = "?", variant = "subtle", ...props }, ref) => (
     <Button ref={ref} variant={variant} shape="circle" size={size} {...props}>
       {symbol}
     </Button>

@@ -28,3 +28,186 @@
 }
 
 
+
+/* 첫 공급자·fallback 순서가 쓸 수 없는 상태일 때의 한 줄 — 두 칸을 가로질러 */
+.providerWarn {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: var(--font-size-label);
+  line-height: 1.5;
+  color: var(--text-accent);
+}
+
+/* fallback 순서의 공급자 상태 — 키 없음(흐림)·꺼짐(강조색)·실패 중(노랑) */
+.providerBadge {
+  padding: var(--badge-p-md);
+  border-radius: var(--radius-capsule);
+  font-size: var(--font-size-label);
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.providerBadge[data-state="nokey"] {
+  background: var(--bg-tertiary);
+  color: var(--text-tertiary);
+}
+
+.providerBadge[data-state="off"] {
+  background: var(--bg-accent-light);
+  color: var(--text-accent);
+}
+
+.providerBadge[data-state="failing"] {
+  background: var(--bg-warning-soft);
+  color: var(--bg-warning-solid);
+}
+
+/* 문의 폼 첨부가 저절로 꺼졌을 때 — 스위치 아래 두 칸을 가로질러 문구와 다시 켜기 */
+.attachmentNote {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-xs) var(--spacing-sm);
+}
+
+/* "필요한 키: …" 한 줄 — 두 칸 격자 안에서도 가로질러 */
+.envKeyHint {
+  grid-column: 1 / -1;
+}
+
+/* 키가 없는 것으로 알고 있는 이름 */
+.envKeyLink[data-missing] {
+  color: var(--text-accent);
+}
+
+/* 설명 목록 — 섹션 격자 안에서는 아래 여백을 격자 간격에 맡긴다 */
+.hintList.hintList {
+  margin-bottom: 0;
+}
+
+/* 댓글 제공자 줄 — 고르기와 giscus 설정 방법 단추 */
+.providerRow {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+}
+
+/* giscus 저장소 — 입력칸과 불러오기 단추를 한 줄에(단추는 입력칸 높이에 맞춰 아래로) */
+.repoRow {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--spacing-xs);
+}
+
+.repoStatus {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-top: calc(-1 * var(--spacing-2xs));
+  font-size: var(--font-size-label);
+}
+
+/* 불러오기 결과 — 실패는 강조색(빨강은 쓰지 않는다), 성공은 초록 */
+.repoStatusError {
+  color: var(--text-accent);
+}
+
+.repoStatusOk {
+  color: var(--bg-success-solid);
+}
+
+.themeCol {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  min-width: 0;
+}
+
+@media (max-width: 640px) {
+}
+
+/* 자동 커버 — 설명 + 실행 단추 */
+.autoCover {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+}
+
+.autoCoverRunRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-xs) var(--spacing-sm);
+}
+
+/* 자동 커버 확인 창 — 대상 글 목록(제목 · 검색 키워드) */
+.autoCoverModal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--modal-p-md);
+}
+
+.autoCoverBar {
+  padding-bottom: var(--spacing-xs);
+  border-bottom: var(--border-light);
+}
+
+.autoCoverList {
+  display: flex;
+  flex-direction: column;
+  max-height: 50vh;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  list-style: none;
+}
+
+.autoCoverRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-xs) 0;
+  border-bottom: var(--border-light);
+}
+
+.autoCoverQuery {
+  flex-shrink: 0;
+  max-width: 45%;
+  overflow: hidden;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-label);
+  color: var(--text-tertiary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.autoCoverActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-xs);
+}
+
+/* 저장소 입력칸 — 단추 옆에서 남는 폭을 다 쓴다 */
+.repoField {
+  flex: 1;
+  min-width: 0;
+}
+
+/* 설명 안의 바깥 링크(공급자 사이트) — 키 바로가기와 같은 모양, 글꼴만 본문 */
+.hintLink {
+  color: var(--text-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color var(--duration-base) ease;
+}
+
+.hintLink:hover {
+  color: var(--text-accent);
+}
