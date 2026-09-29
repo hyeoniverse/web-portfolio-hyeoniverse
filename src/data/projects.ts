@@ -16,6 +16,8 @@ interface ProjectTeamMember {
   url?: string;
   email?: string;
   avatar_url?: string;
+  /** 자기소개 — 팀 카드 뒷면에 보인다 */
+  bio?: LocalizedText;
   /** 기여 항목 — 역할별 그룹 (key: 역할 이름, value: 항목 배열). ko/en 독립 */
   contributions?: { ko: Record<string, string[]>; en: Record<string, string[]> };
 }
