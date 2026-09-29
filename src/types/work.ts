@@ -241,6 +241,7 @@ export function workToProject(w: Work): Project {
     buildLegacyContent(w.overview_en, w.challenge_en, w.solution_en, w.overview_image, w.challenge_image, w.solution_image);
 
   const teamMembers = (w.team_members ?? []).map((m) => ({
+    author_id: m.author_id || undefined,
     name: m.name,
     name_en: m.name_en || undefined,
     role: loc(m.role_ko, m.role_en),

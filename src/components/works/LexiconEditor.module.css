@@ -1,0 +1,260 @@
+/* ── 읽기 사전 편집기 (설정 · 갤러리 음성 창 공용) ── */
+.editor {
+  --lexicon-from: minmax(0, 0.9fr);
+  --lexicon-to: minmax(0, 1.3fr);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  min-width: 0;
+}
+
+/* 빠른 추가 — 테두리 하나의 입력 막대. 높이는 검색창(control-h-md)과 같다. 안쪽 입력칸은 테두리를 끈다 */
+.addBar {
+  display: grid;
+  grid-template-columns: var(--lexicon-from) auto var(--lexicon-to) auto;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  height: var(--control-h-md);
+  padding-right: var(--spacing-3xs);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  transition: border-color var(--duration-base) ease;
+}
+
+.addBar:focus-within {
+  border-color: var(--text-primary);
+}
+
+/* 막대 안 입력칸 — 테두리·배경 없이 막대 높이를 채운다 (Input 의 .input 보다 셈) */
+.barField :global(input) {
+  height: calc(var(--control-h-md) - 2px);
+  border: 0;
+  background: transparent;
+}
+
+.addButton.addButton {
+  flex-shrink: 0;
+}
+
+.fromField :global(input) {
+  font-family: var(--font-mono);
+}
+
+.arrow {
+  flex-shrink: 0;
+  color: var(--text-tertiary);
+}
+
+/* 목록 머리 — 개수(왼쪽) · 검색 · 붙여넣기(오른쪽) */
+.listBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.count {
+  font-size: var(--font-size-label);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
+}
+
+.search {
+  width: min(240px, 100%);
+  margin-left: auto;
+}
+
+.pastePanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+}
+
+.note {
+  margin: 0;
+  font-size: var(--font-size-label);
+  line-height: 1.6;
+  color: var(--text-tertiary);
+}
+
+.pasteTextarea.pasteTextarea {
+  min-height: 140px;
+  font-family: var(--font-mono);
+}
+
+.pasteFoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+}
+
+/* 목록 — 줄 사이 가는 선, 올리면 capsule 하이라이트 */
+.list {
+  display: flex;
+  flex-direction: column;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.editor[data-compact] .list {
+  max-height: 40vh;
+  overflow-y: auto;
+}
+
+.row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  min-height: calc(var(--control-h-sm) + var(--spacing-xs));
+  padding: var(--spacing-3xs) var(--spacing-2xs) var(--spacing-3xs) 0;
+  border-bottom: var(--border-light);
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+/* 불러오는 동안의 줄 — 실제 줄과 같은 높이·배치 */
+.skeletonRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  min-height: calc(var(--control-h-sm) + var(--spacing-xs));
+  border-bottom: var(--border-light);
+}
+
+.skeletonRow:last-child {
+  border-bottom: none;
+}
+
+.skeletonChip.skeletonChip {
+  border-radius: var(--radius-capsule);
+}
+
+/* 고치는 줄 — 입력칸 둘이 추가 막대와 같은 열에 선다 */
+.row[data-editing] {
+  display: grid;
+  grid-template-columns: var(--lexicon-from) auto var(--lexicon-to) auto;
+  padding: var(--spacing-2xs) 0;
+}
+
+.rowMain {
+  display: grid;
+  flex: 1;
+  grid-template-columns: var(--lexicon-from) auto var(--lexicon-to);
+  align-items: center;
+  gap: var(--spacing-xs);
+  min-width: 0;
+  padding: var(--spacing-xs) 0;
+  border-radius: var(--radius-capsule);
+  text-align: left;
+  cursor: text;
+}
+
+/* 올리면 바탕 대신 글자만 또렷해진다 */
+.rowMain:hover .toText,
+.rowMain:focus-visible .toText {
+  color: var(--text-primary);
+}
+
+.rowMain:focus-visible {
+  outline: 2px solid var(--text-accent);
+  outline-offset: 2px;
+}
+
+.fromText {
+  justify-self: start;
+  max-width: 100%;
+  overflow: hidden;
+  padding: var(--spacing-3xs) var(--spacing-xs);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-label);
+  color: var(--text-primary);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.toText {
+  overflow: hidden;
+  font-size: var(--font-size-body);
+  color: var(--text-secondary);
+  transition: color var(--duration-fast) ease;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* 줄 도구 — 올리거나 초점이 온 줄에만 */
+.rowActions {
+  display: inline-flex;
+  flex-shrink: 0;
+  gap: var(--spacing-3xs);
+  opacity: 0;
+  transition: opacity var(--duration-fast) ease;
+}
+
+.row:hover .rowActions,
+.row:focus-within .rowActions,
+.rowActions[data-show] {
+  opacity: 1;
+}
+
+.empty {
+  margin: 0;
+  padding: var(--spacing-xl) 0;
+  font-size: var(--font-size-label);
+  color: var(--text-tertiary);
+  text-align: center;
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: var(--spacing-sm);
+  border-top: var(--border-light);
+}
+
+/* 터치 기기 — 올리기가 없으니 줄 도구를 늘 보인다 */
+@media (hover: none) {
+  .rowActions {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 640px) {
+  /* 좁으면 화살표를 빼고 두 칸을 반씩 */
+  .addBar {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  }
+
+  .addBar .arrow {
+    display: none;
+  }
+
+  .row[data-editing] {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .row[data-editing] .arrow {
+    display: none;
+  }
+
+  /* 좁으면 표기 칸을 한 줄 전체로, 읽을 말 · 버튼을 그 아래 한 줄에 */
+  .row[data-editing] .fromField {
+    grid-column: 1 / -1;
+  }
+
+  .search {
+    width: 100%;
+    margin-left: 0;
+  }
+}
