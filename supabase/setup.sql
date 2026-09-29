@@ -15,7 +15,7 @@
 --
 -- 사전 준비:
 --   1. Database > Extensions 에서 다음을 활성화:
---        - pg_cron  (예약 발행 + 휴지통 자동 영구삭제 cron)
+--        - pg_cron  (예약 발행 · 휴지통 영구삭제 · 방문 IP 익명화 · service_logs 정리 cron)
 --        - pg_net   (cron job 안에서 Resend HTTP 호출)
 --      (아래 CREATE EXTENSION 이 함께 시도하지만, dashboard 활성화가 필요한 환경도 있음)
 --
@@ -78,6 +78,13 @@
 --   2026_08_25  app_level/app_author_id 클레임 파싱 강화 — TS 와 SQL 이 같은 값을 같게 읽도록
 --   2026_08_25  anon 역할 쓰기 권한 회수 (심층 방어)
 --   2026_08_25  can_edit_work — 팀원으로 등록된 멤버에게 그 작업물만 개방
+--   2026_09_03  series_public_read — 방문자가 공개 시리즈를 읽도록 복구
+--   2026_09_15  works.is_pinned/view_count/like_count + work_views + record_work_view
+--   2026_09_21  works.gallery_notes — 갤러리 장마다의 음성
+--   2026_09_25  site_visits — 분석 컬럼 (country/path/utm_*)
+--   2026_09_27  traffic_excluded_ips + anonymize_old_site_visits (방문 IP 90일 보관) + pg_cron
+--   2026_09_30  service_logs + 예약 작업 기록(_log_cron) + 90일 보관 pg_cron
+--   2026_09_30  purge_trash_scheduled 에 calendars 포함 (운영 DB 를 setup 과 같은 범위로)
 --
 -- 권한 모델 요약 (owner / admin / author / visitor):
 --   owner   app_role() = 'owner'                 전부
@@ -666,6 +673,9 @@ CREATE TABLE IF NOT EXISTS works (
   scheduled_at     timestamptz DEFAULT NULL
 );
 
+COMMENT ON COLUMN works.gallery_notes IS
+  '갤러리 장마다의 음성 — 그림 주소 → { script, audio, audioSource, audioScript }';
+
 CREATE INDEX IF NOT EXISTS works_purge_after_idx
   ON works (purge_after) WHERE deleted_at IS NOT NULL;
 -- 기존 DB 호환 — number / size 컬럼 (deprecated, sort_order 에서 derive) 제거
@@ -724,7 +734,13 @@ CREATE TABLE IF NOT EXISTS site_visits (
   device_kind  text DEFAULT NULL,  -- desktop / mobile / tablet
   os           text DEFAULT NULL,  -- macOS / Windows / iOS / iPadOS / Android / Linux / ChromeOS / Other
   browser      text DEFAULT NULL,  -- Chrome / Safari / Firefox / Edge / Samsung Internet / Opera / Other
-  device_model text DEFAULT NULL   -- "iPhone" / "iPad" / "Pixel 8" / "SM-S921N" / "Mac" / "PC" 등
+  device_model text DEFAULT NULL,  -- "iPhone" / "iPad" / "Pixel 8" / "SM-S921N" / "Mac" / "PC" 등
+  -- 분석 확장 (#1161)
+  country      text,               -- Vercel x-vercel-ip-country (ISO 3166-1 alpha-2, 로컬은 null)
+  path         text,               -- 그날 첫 방문의 랜딩 경로 (querystring 제외)
+  utm_source   text,               -- 랜딩 URL 의 UTM 파라미터 (링크 공유 채널 추적)
+  utm_medium   text,
+  utm_campaign text
 );
 
 -- 같은 IP는 하루에 한 번만
@@ -789,6 +805,20 @@ CREATE UNIQUE INDEX IF NOT EXISTS uniq_work_views_work_ip_date
   ON work_views (work_id, ip, viewed_date);
 
 ALTER TABLE work_views ENABLE ROW LEVEL SECURITY;
+
+
+-- ────────────────────────────────────────────────────────────
+-- 7-3. traffic_excluded_ips — 운영자가 '내 IP' 로 지정한 IP (#1169)
+--      이 IP 의 방문은 기록하지 않고, 이미 쌓인 방문도 트래픽 집계에서 뺀다.
+--      서버(service_role)만 읽고 쓴다 — RLS 켜고 정책은 두지 않는다.
+-- ────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS traffic_excluded_ips (
+  ip         text PRIMARY KEY,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
+ALTER TABLE traffic_excluded_ips ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON traffic_excluded_ips FROM anon, authenticated;
 
 
 -- ────────────────────────────────────────────────────────────
@@ -862,44 +892,7 @@ ALTER TABLE author_invites ENABLE ROW LEVEL SECURITY;
 
 -- ────────────────────────────────────────────────────────────
 -- 9-b. applied_migrations — schema migration 적용 추적 + 알림
---      각 migration 파일 마지막에 -- ────────────────────────────────────────────────────────────
--- 관리자 RLS 정책 (일괄) — 세션 클라이언트로도 관리 화면이 동작하도록.
---   admin  = owner + author  · owner = 소유자만(코드의 requireOwner 와 짝)
---   service_role 정책은 별도로 남아 있다(BYPASSRLS 라 정책과 무관하게 통과).
--- ────────────────────────────────────────────────────────────
-DO $$
-DECLARE t text;
-BEGIN
-  -- owner 전용
-  FOREACH t IN ARRAY ARRAY['site_settings', 'author_invites'] LOOP
-    IF to_regclass('public.' || t) IS NULL THEN CONTINUE; END IF;
-    EXECUTE format('DROP POLICY IF EXISTS %I ON public.%I', t || '_owner_all', t);
-    EXECUTE format('CREATE POLICY %I ON public.%I FOR ALL TO authenticated USING (is_owner()) WITH CHECK (is_owner())', t || '_owner_all', t);
-  END LOOP;
-
-  -- admin 이상 (중재 · 운영 지표)
-  FOREACH t IN ARRAY ARRAY[
-    'comments', 'work_comments', 'comment_reports', 'comment_reactions',
-    'admin_notifications', 'site_visits', 'post_views', 'poll_votes'
-  ] LOOP
-    IF to_regclass('public.' || t) IS NULL THEN CONTINUE; END IF;
-    EXECUTE format('DROP POLICY IF EXISTS %I ON public.%I', t || '_admin_all', t);
-    EXECUTE format('CREATE POLICY %I ON public.%I FOR ALL TO authenticated USING (is_admin()) WITH CHECK (is_admin())', t || '_admin_all', t);
-  END LOOP;
-
-  -- member 이상 (자기 글 작업)
-  FOREACH t IN ARRAY ARRAY[
-    'series', 'calendars', 'revisions', 'post_work_relations', 'series_work_relations',
-    'custom_emojis', 'cover_image_history'   -- 에디터 기능 (커버 picker · 이모지 picker)
-  ] LOOP
-    IF to_regclass('public.' || t) IS NULL THEN CONTINUE; END IF;
-    EXECUTE format('DROP POLICY IF EXISTS %I ON public.%I', t || '_member_all', t);
-    EXECUTE format('CREATE POLICY %I ON public.%I FOR ALL TO authenticated USING (is_member()) WITH CHECK (is_member())', t || '_member_all', t);
-  END LOOP;
-END $$;
-
-
-SELECT log_migration_applied('name', 'desc');
+--      (각 migration 파일 마지막에 SELECT log_migration_applied('name', 'desc'); 호출)
 --      재실행 안전 (ON CONFLICT DO NOTHING). 처음 적용 시에만 admin_notifications insert.
 -- ────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS applied_migrations (
@@ -934,6 +927,33 @@ BEGIN
   END IF;
 END;
 $$;
+
+
+-- ────────────────────────────────────────────────────────────
+-- 9-c. service_logs — AI·외부 서비스·메일·GitHub·예약 작업의 성공/실패 기록
+--      category: ai(AI·이미지 검색·TTS) · mail(Resend) · github · cron(예약 작업) · contact(문의 폼 첨부)
+--      provider: 공급자나 작업 이름 (gemini, resend, publish-scheduled …)
+--      서버(service_role)만 읽고 쓴다 — RLS 켜고 정책은 두지 않는다. 화면은 /api/admin/ai-log(owner).
+--      보관 90일 — purge_old_service_logs 를 pg_cron 이 매일 지운다 (아래 예약 작업 섹션).
+-- ────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS service_logs (
+  id        bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  at        timestamptz NOT NULL DEFAULT now(),
+  category  text NOT NULL CHECK (category IN ('ai', 'mail', 'github', 'cron', 'contact')),
+  provider  text NOT NULL,
+  ok        boolean NOT NULL,
+  kind      text,
+  status    int,
+  message   text,
+  units     int,
+  meta      jsonb
+);
+
+CREATE INDEX IF NOT EXISTS service_logs_at_idx ON service_logs (at DESC);
+CREATE INDEX IF NOT EXISTS service_logs_category_at_idx ON service_logs (category, at DESC);
+
+ALTER TABLE service_logs ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON service_logs FROM anon, authenticated;
 
 
 -- ────────────────────────────────────────────────────────────
@@ -1158,6 +1178,8 @@ $$;
 -- 예약 발행 + 휴지통 영구삭제 자동화 — pg_cron + pg_net + Vault
 -- ────────────────────────────────────────────────────────────
 -- 매분 publish_scheduled() / 매일 03:00 KST purge_trash_scheduled() 실행.
+-- 매일 03:30 KST 방문 IP 익명화, 03:40 KST service_logs 90일 정리.
+-- 각 작업 결과는 _log_cron 이 service_logs(category='cron') 에 남긴다.
 -- Vault 에 resend_api_key / admin_email / notify_from 등록되어 있으면
 -- 처리 결과를 admin_notifications + Resend 이메일로 알림.
 -- Vault 미등록 시 DB 작업은 정상, 이메일만 skip.
@@ -1334,14 +1356,37 @@ BEGIN
 END;
 $$;
 
--- safe_* wrapper — cron 실행 실패 시 admin_notifications(type='cron_error') insert.
+-- 예약 작업 기록 — service_logs(category='cron') 한 줄. 기록 실패가 작업을 막지 않는다.
+CREATE OR REPLACE FUNCTION public._log_cron(job text, ok boolean, n int, msg text DEFAULT NULL)
+RETURNS void
+LANGUAGE plpgsql SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  INSERT INTO public.service_logs (category, provider, ok, kind, units, message)
+  VALUES ('cron', job, ok, CASE WHEN ok THEN NULL ELSE 'server' END, n, msg);
+EXCEPTION WHEN OTHERS THEN
+  NULL;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public._log_cron(text, boolean, int, text) FROM PUBLIC, anon, authenticated;
+
+-- safe_* wrapper — cron 실행 결과를 service_logs 에 남기고, 실패 시 admin_notifications(type='cron_error') insert.
 -- 원본 함수가 throw 하면 cron 이 silent 실패하므로 관리자 알 길 없음 → wrapper 가 catch
+-- publish-scheduled 는 매분 돌아서 실제로 발행했거나 실패했을 때만 남긴다 (하루 1,440줄 방지).
 CREATE OR REPLACE FUNCTION safe_publish_scheduled()
 RETURNS void
 LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+  n int;
 BEGIN
-  PERFORM publish_scheduled();
+  SELECT count(*) INTO n FROM publish_scheduled();
+  IF n > 0 THEN
+    PERFORM public._log_cron('publish-scheduled', true, n);
+  END IF;
 EXCEPTION WHEN OTHERS THEN
+  PERFORM public._log_cron('publish-scheduled', false, NULL, SQLERRM);
   INSERT INTO admin_notifications (type, title, message, metadata)
   VALUES (
     'cron_error',
@@ -1355,9 +1400,13 @@ $$;
 CREATE OR REPLACE FUNCTION safe_purge_trash_scheduled()
 RETURNS void
 LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+  n int;
 BEGIN
-  PERFORM purge_trash_scheduled();
+  n := purge_trash_scheduled();
+  PERFORM public._log_cron('purge-trash-scheduled', true, n);
 EXCEPTION WHEN OTHERS THEN
+  PERFORM public._log_cron('purge-trash-scheduled', false, NULL, SQLERRM);
   INSERT INTO admin_notifications (type, title, message, metadata)
   VALUES (
     'cron_error',
@@ -1368,11 +1417,83 @@ EXCEPTION WHEN OTHERS THEN
 END;
 $$;
 
+-- 방문 IP 보관 기한 (#1169) — retention_days 가 지난 기록의 원문 IP 를 지운다.
+--   site_visits: (ip, date) 유니크를 지키려고 'anon:<id>' 로 바꾼다. 기기·국가·유입 등 집계 컬럼은 남는다.
+--   post_views / work_views: IP 는 당일 중복 조회 방지에만 쓰이므로 NULL 로 비운다(조회수는 그대로).
+CREATE OR REPLACE FUNCTION public.anonymize_old_site_visits(retention_days int DEFAULT 90)
+RETURNS integer
+LANGUAGE plpgsql SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  affected integer;
+BEGIN
+  UPDATE public.site_visits
+     SET ip = 'anon:' || id::text
+   WHERE date < CURRENT_DATE - retention_days
+     AND ip NOT LIKE 'anon:%';
+  GET DIAGNOSTICS affected = ROW_COUNT;
+
+  UPDATE public.post_views
+     SET ip = NULL
+   WHERE viewed_date < CURRENT_DATE - retention_days
+     AND ip IS NOT NULL;
+
+  UPDATE public.work_views
+     SET ip = NULL
+   WHERE viewed_date < CURRENT_DATE - retention_days
+     AND ip IS NOT NULL;
+
+  RETURN affected;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.anonymize_old_site_visits(int) FROM PUBLIC, anon, authenticated;
+
+-- anonymize 의 cron wrapper — 결과를 service_logs 에 남긴다 (하루 한 번이라 매번)
+CREATE OR REPLACE FUNCTION public.safe_anonymize_old_site_visits()
+RETURNS void
+LANGUAGE plpgsql SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  n int;
+BEGIN
+  n := public.anonymize_old_site_visits(90);
+  PERFORM public._log_cron('anonymize-site-visits', true, n);
+EXCEPTION WHEN OTHERS THEN
+  PERFORM public._log_cron('anonymize-site-visits', false, NULL, SQLERRM);
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.safe_anonymize_old_site_visits() FROM PUBLIC, anon, authenticated;
+
+-- service_logs 90일 지난 기록 지우기
+CREATE OR REPLACE FUNCTION public.purge_old_service_logs(retention_days int DEFAULT 90)
+RETURNS integer
+LANGUAGE plpgsql SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  affected integer;
+BEGIN
+  DELETE FROM public.service_logs WHERE at < now() - make_interval(days => retention_days);
+  GET DIAGNOSTICS affected = ROW_COUNT;
+  RETURN affected;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.purge_old_service_logs(int) FROM PUBLIC, anon, authenticated;
+
 -- pg_cron 등록 — 재실행 안전 (기존 unschedule 후 등록)
 DO $$
 BEGIN PERFORM cron.unschedule('publish-scheduled'); EXCEPTION WHEN OTHERS THEN NULL; END $$;
 DO $$
 BEGIN PERFORM cron.unschedule('purge-trash-scheduled'); EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$
+BEGIN PERFORM cron.unschedule('anonymize-site-visits'); EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$
+BEGIN PERFORM cron.unschedule('purge-service-logs'); EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- 발행: 매분 (safe wrapper 호출 — 실패 시 cron_error 알림 자동)
 SELECT cron.schedule(
@@ -1386,6 +1507,20 @@ SELECT cron.schedule(
   'purge-trash-scheduled',
   '0 18 * * *',
   $cron$ SELECT safe_purge_trash_scheduled(); $cron$
+);
+
+-- 방문 IP 익명화: 매일 UTC 18:30 (= KST 03:30)
+SELECT cron.schedule(
+  'anonymize-site-visits',
+  '30 18 * * *',
+  $cron$ SELECT public.safe_anonymize_old_site_visits(); $cron$
+);
+
+-- service_logs 정리: 매일 UTC 18:40 (= KST 03:40)
+SELECT cron.schedule(
+  'purge-service-logs',
+  '40 18 * * *',
+  $cron$ SELECT public.purge_old_service_logs(90); $cron$
 );
 
 -- cron 확인 / 해제 참고:
@@ -1421,6 +1556,43 @@ CREATE POLICY "Users manage own cover history"
   ON cover_image_history FOR ALL
   USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);
+
+
+-- ────────────────────────────────────────────────────────────
+-- 등급별 RLS 정책 (일괄) — 대상 테이블이 전부 만들어진 뒤에 건다.
+--   owner  = 소유자만(코드의 requireOwner 와 짝) · admin = owner + level>=2 · member = 로그인한 구성원 전부
+--   to_regclass 가 NULL 인 테이블은 건너뛰므로, 테이블 생성보다 먼저 돌면 정책이 빠진다.
+-- ────────────────────────────────────────────────────────────
+DO $$
+DECLARE t text;
+BEGIN
+  -- owner 전용
+  FOREACH t IN ARRAY ARRAY['site_settings', 'author_invites'] LOOP
+    IF to_regclass('public.' || t) IS NULL THEN CONTINUE; END IF;
+    EXECUTE format('DROP POLICY IF EXISTS %I ON public.%I', t || '_owner_all', t);
+    EXECUTE format('CREATE POLICY %I ON public.%I FOR ALL TO authenticated USING (is_owner()) WITH CHECK (is_owner())', t || '_owner_all', t);
+  END LOOP;
+
+  -- admin 이상 (중재 · 운영 지표)
+  FOREACH t IN ARRAY ARRAY[
+    'comments', 'work_comments', 'comment_reports', 'comment_reactions',
+    'admin_notifications', 'site_visits', 'post_views', 'poll_votes'
+  ] LOOP
+    IF to_regclass('public.' || t) IS NULL THEN CONTINUE; END IF;
+    EXECUTE format('DROP POLICY IF EXISTS %I ON public.%I', t || '_admin_all', t);
+    EXECUTE format('CREATE POLICY %I ON public.%I FOR ALL TO authenticated USING (is_admin()) WITH CHECK (is_admin())', t || '_admin_all', t);
+  END LOOP;
+
+  -- member 이상 (자기 글 작업)
+  FOREACH t IN ARRAY ARRAY[
+    'series', 'calendars', 'revisions', 'post_work_relations', 'series_work_relations',
+    'custom_emojis', 'cover_image_history'   -- 에디터 기능 (커버 picker · 이모지 picker)
+  ] LOOP
+    IF to_regclass('public.' || t) IS NULL THEN CONTINUE; END IF;
+    EXECUTE format('DROP POLICY IF EXISTS %I ON public.%I', t || '_member_all', t);
+    EXECUTE format('CREATE POLICY %I ON public.%I FOR ALL TO authenticated USING (is_member()) WITH CHECK (is_member())', t || '_member_all', t);
+  END LOOP;
+END $$;
 
 
 -- ────────────────────────────────────────────────────────────
@@ -1505,7 +1677,7 @@ END $$;
 
 
 -- ============================================================
--- 완료! 총 23개 테이블 + 17개 함수 + 2개 pg_cron job 생성됨.
+-- 완료! 총 26개 테이블 + 29개 함수 + 4개 pg_cron job 생성됨.
 --
 -- 테이블:
 --   site_settings        : 사이트 설정 + 프로필 데이터 + 시크릿/API 키 (JSONB)
@@ -1521,8 +1693,12 @@ END $$;
 --   works                : 포트폴리오 작업물 (slug, categories_ko/en text[], nature_ko/en,
 --                          contributions_ko/en jsonb, tech_notes jsonb,
 --                          team_members jsonb, scheduled_at, soft delete)
---   site_visits          : 방문자 통계 (IP + date 로 1일 1회 + UA 메타)
+--   site_visits          : 방문자 통계 (IP + date 로 1일 1회 + UA 메타 + country/path/utm_*)
 --   post_views           : 게시물별 시계열 조회 기록 (KST date generated column)
+--   work_views           : 작업물별 시계열 조회 기록 (post_views 미러)
+--   traffic_excluded_ips : 운영자 IP — 방문 기록·트래픽 집계에서 제외 (service_role 전용)
+--   service_logs         : AI·메일·GitHub·예약 작업 성공/실패 기록 (service_role 전용, 90일 보관)
+--   author_invites       : 저자 초대 (email → author_id + 권한 레벨, OAuth 매칭)
 --   work_comments        : Works 댓글 (대댓글, password 인증, tombstone)
 --   admin_notifications  : 관리자 알림 로그 (comment / publish / purge / report 등)
 --   comment_reports      : 댓글 신고 누적 (posts/works 공용, status: pending/resolved/dismissed)
@@ -1536,16 +1712,26 @@ END $$;
 -- RPC:
 --   increment_post_view_count(p_post_id)          : 조회수 atomic +1 (race-free)
 --   record_post_view(p_post_id, p_ip)             : dedup (KST 일자) + post_views insert + view_count +1 한 트랜잭션
+--   record_work_view(p_work_id, p_ip)             : record_post_view 의 works 미러
 --   sum_post_views()                              : 누적 조회수 합계
 --   daily_post_views(p_start date, p_end date)    : 일별 조회수 시계열 (KST)
 --   publish_scheduled()                           : 예약 시간 도달한 게시물/작품 발행 + 알림 (cron 매분)
 --   purge_trash_scheduled()                       : purge_after 지난 휴지통(posts/works/calendars) hard delete + 알림 (cron 매일 KST 03:00)
+--   anonymize_old_site_visits(retention_days)     : 보관 기한 지난 방문·조회 기록의 IP 익명화 (cron 매일 KST 03:30)
+--   purge_old_service_logs(retention_days)        : 보관 기한 지난 service_logs 삭제 (cron 매일 KST 03:40)
+--
+-- 권한 헬퍼 (RLS 정책용):
+--   app_role / app_level / app_author_id / is_owner / is_admin / is_member / can_edit_post / can_edit_work
 --
 -- 유틸 함수:
 --   _sql_slugify(t)                               : title → slug 변환 (마이그레이션 backfill 용)
 --   _get_vault_secret(name)                       : Vault secret 안전 조회 (없으면 NULL)
 --   _send_admin_email(subject, html)              : Resend 이메일 발송 (Vault 비어있으면 skip)
 --   normalize_series_order(p_series_id)           : series_order 0-based sequential 재정렬 (trigger 호출)
+--   log_migration_applied(name, desc)             : applied_migrations 기록 + 처음이면 알림
+--   _log_cron(job, ok, n, msg)                    : 예약 작업 결과를 service_logs 에 기록
+--   safe_publish_scheduled / safe_purge_trash_scheduled / safe_anonymize_old_site_visits
+--                                                 : cron wrapper — 결과 기록 + 실패 시 cron_error 알림
 --   about_erd_valid(cfg jsonb)                    : About Studio ERD 설정 형태 검증 (site_settings CHECK 제약, IMMUTABLE)
 --   settings_required_valid(cfg jsonb)            : 사이트 설정 필수값 검증 — 제목·이름·테마색·giscus·멤버이름 (site_settings CHECK 제약, IMMUTABLE)
 --
@@ -1555,6 +1741,8 @@ END $$;
 -- pg_cron Jobs:
 --   publish-scheduled       (* * * * *)           : 매분 publish_scheduled() 호출
 --   purge-trash-scheduled   (0 18 * * *)          : 매일 UTC 18:00 (KST 03:00) purge_trash_scheduled() 호출
+--   anonymize-site-visits   (30 18 * * *)         : 매일 UTC 18:30 (KST 03:30) safe_anonymize_old_site_visits() 호출
+--   purge-service-logs      (40 18 * * *)         : 매일 UTC 18:40 (KST 03:40) purge_old_service_logs(90) 호출
 --
 -- Storage:
 --   uploads (public)                              : admin/upload — logos/, resume/, bgm/, covers/, images/ ...
@@ -1774,12 +1962,12 @@ END $$;
 -- ────────────────────────────────────────────────────────────
 -- Applied migrations log — setup.sql 이 흡수한 마이그레이션 마킹
 -- ────────────────────────────────────────────────────────────
--- 위 파일의 모든 구조는 아래 마이그레이션 48건을 통합한 결과입니다.
+-- 위 파일의 모든 구조는 아래 마이그레이션 54건을 통합한 결과입니다.
 -- fresh install 환경에서 setup.sql 실행 직후, supabase/migrations/ 의 .sql 을
 -- 단일 실행해도 was_new = false 로 skip 되도록 record 만 미리 남깁니다.
 --
 -- log_migration_applied 대신 직접 INSERT — fresh install 시점엔 admin 이 아직
--- 없어서 알림이 의미 없고, 48건 알림이 한꺼번에 쌓이는 노이즈도 회피.
+-- 없어서 알림이 의미 없고, 54건 알림이 한꺼번에 쌓이는 노이즈도 회피.
 INSERT INTO applied_migrations (name, description) VALUES
   ('2026_05_14_post_views_kst',                'post_views — KST timezone + atomic dedup + race-free counter'),
   ('2026_05_18_admin_known_devices',           '새 기기 인증 (admin_known_devices) — UA fingerprint + approve token'),
@@ -1829,7 +2017,14 @@ INSERT INTO applied_migrations (name, description) VALUES
   ('2026_08_25_fix_posts_tier_policies',       'posts/works 정책을 4단계 권한 모델에 맞춤'),
   ('2026_08_25_harden_permission_level',       'app_level/app_author_id 클레임 파싱 강화 — 코드(TS)와 정책(SQL)이 같은 값을 같게 읽도록'),
   ('2026_08_25_revoke_anon_writes',            'anon 역할의 INSERT/UPDATE/DELETE 회수 (심층 방어)'),
-  ('2026_08_25_work_team_member_access',       'can_edit_work — 팀원으로 등록된 멤버에게 그 작업물만 개방')
+  ('2026_08_25_work_team_member_access',       'can_edit_work — 팀원으로 등록된 멤버에게 그 작업물만 개방'),
+  ('2026_09_03_series_public_read',            'series_public_read 복구 — 방문자가 공개 시리즈를 읽도록'),
+  ('2026_09_15_works_pinned_views_likes',      'works.is_pinned/view_count/like_count + work_views + record_work_view'),
+  ('2026_09_21_works_gallery_notes',           'works.gallery_notes — 갤러리 장마다의 음성'),
+  ('2026_09_25_site_visits_analytics_columns', 'site_visits 분석 컬럼 (country/path/utm_source/utm_medium/utm_campaign)'),
+  ('2026_09_27_site_visits_ip_retention',      'traffic_excluded_ips + anonymize_old_site_visits (방문 IP 90일 보관) + pg_cron'),
+  ('2026_09_30_service_logs',                  'service_logs 테이블 + 예약 작업(publish/purge/anonymize) 기록 + 90일 보관'),
+  ('2026_09_30_purge_trash_calendars',         'purge_trash_scheduled — 휴지통 영구삭제에 calendars 포함 (앱 /api/cron/purge-trash 와 같은 범위)')
 ON CONFLICT (name) DO NOTHING;
 -- 참고: 2026_07_13_category_reset / 2026_07_13_tag_descriptions_reset 은 기존 데이터를 손보는
 -- 수동 데이터 마이그레이션이라 fresh install 과 무관 → 여기서 record 하지 않는다.
