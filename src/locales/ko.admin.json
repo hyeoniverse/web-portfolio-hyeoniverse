@@ -1762,6 +1762,9 @@
         "memberUrlLabel": "프로필 링크",
         "memberUrlPlaceholder": "https://github.com/… · LinkedIn · 포트폴리오 등",
         "memberOptional": "선택",
+        "memberBioLabel": "자기소개",
+        "memberBioPlaceholderKo": "예: 사용자 경험을 설계하는 프론트엔드 개발자입니다.",
+        "memberBioPlaceholderEn": "e.g. Front-end developer who designs user experiences.",
         "memberLinkedTo": "{{name}} 연결됨",
         "memberUnlink": "연결 해제",
         "memberLinkTaken": "{{name}} 계정은 이미 다른 팀원과 연결돼 있습니다."

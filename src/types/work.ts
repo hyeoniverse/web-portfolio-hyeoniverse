@@ -24,6 +24,9 @@ export interface TeamMember {
   /** 기여 항목 — 역할별로 그룹화 (key: 역할 이름, value: 작업 항목 배열). ko/en 독립 */
   contributions_ko?: Record<string, string[]>;
   contributions_en?: Record<string, string[]>;
+  /** 자기소개 — 상세 팀 카드 뒷면에 보인다. 비어 있으면 연결된 사이트 멤버 프로필의 소개를 쓴다 */
+  bio_ko?: string;
+  bio_en?: string;
 }
 
 /** DB row shape — flat columns for ko/en.
@@ -248,6 +251,7 @@ export function workToProject(w: Work): Project {
     url: m.url || undefined,
     email: m.email || undefined,
     avatar_url: m.avatar_url || undefined,
+    bio: loc(m.bio_ko ?? "", m.bio_en ?? ""),
     contributions: {
       ko: m.contributions_ko ?? {},
       en: m.contributions_en ?? {},

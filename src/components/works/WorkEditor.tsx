@@ -474,7 +474,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   const myRole = useMyRole();
   const siteAuthorsConfig = useSiteConfig().authors;
   const siteAuthors = useMemo(
-    () => (siteAuthorsConfig ?? []) as Array<{ id: string; name: string; name_en?: string; avatar?: string; email?: string; role?: string; links?: { platform: string; url: string }[] }>,
+    () => (siteAuthorsConfig ?? []) as Array<{ id: string; name: string; name_en?: string; avatar?: string; email?: string; bio?: string; bio_en?: string; role?: string; links?: { platform: string; url: string }[] }>,
     [siteAuthorsConfig],
   );
   const linkedAuthorIds = useMemo(
@@ -482,7 +482,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     [form.team_members],
   );
   /** 연결 토글 — 이미 다른 팀원이 쓰고 있는 계정은 고를 수 없다(한 사람이 두 줄이 되면 안 된다). */
-  const toggleLinkedAuthor = useCallback((a: { id: string; name: string; name_en?: string; avatar?: string; email?: string; links?: { platform: string; url: string }[] }) => {
+  const toggleLinkedAuthor = useCallback((a: { id: string; name: string; name_en?: string; avatar?: string; email?: string; bio?: string; bio_en?: string; links?: { platform: string; url: string }[] }) => {
     if (team.memberAuthorId === a.id) {
       team.setMemberAuthorId(undefined);
       return;
@@ -496,6 +496,8 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     if (!team.memberEmail.trim() && a.email) team.setMemberEmail(a.email);
     const url = a.links?.find((l) => l.platform === "github")?.url || a.links?.[0]?.url;
     if (!team.memberUrl.trim() && url) team.setMemberUrl(url);
+    if (!team.memberBioKo.trim() && a.bio?.trim()) team.setMemberBioKo(a.bio.trim());
+    if (!team.memberBioEn.trim() && a.bio_en?.trim()) team.setMemberBioEn(a.bio_en.trim());
   }, [team]);
 
   // 팀원 역할 multi-picker — select 와 chip 을 분리 배치 (chip 은 URL row 아래) */
@@ -2062,6 +2064,21 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                 placeholder={tw("memberUrlPlaceholder")}
               />
             </label>
+          </div>
+          {/* 자기소개 — 편집 언어 탭(KO/EN)을 따른다. 비워 두면 연결된 사이트 멤버 프로필의 소개가 보인다 */}
+          <div className={styles.memberField}>
+            <span className={es.fieldLabel}>
+              {tw("memberBioLabel")}
+              <span className={styles.memberFieldOptional}>{tw("memberOptional")}</span>
+            </span>
+            <Textarea
+              textareaClassName={styles.fieldTextarea}
+              value={editorLang === "ko" ? team.memberBioKo : team.memberBioEn}
+              onChange={(v) => (editorLang === "ko" ? team.setMemberBioKo : team.setMemberBioEn)(v)}
+              placeholder={tw(editorLang === "ko" ? "memberBioPlaceholderKo" : "memberBioPlaceholderEn")}
+              rows={2}
+              maxHint="basic"
+            />
           </div>
           {/* role select — 별도 row (full width) */}
           <div className={`${styles.memberField} ${styles.memberRoleRow}`}>

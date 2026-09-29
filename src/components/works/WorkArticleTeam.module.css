@@ -141,6 +141,14 @@
   border-bottom: var(--border-light);
 }
 
+.polaroidBackBio {
+  margin: 0 0 var(--spacing-sm);
+  font-size: var(--font-size-label);
+  line-height: 1.55;
+  color: var(--text-secondary);
+  white-space: pre-line;
+}
+
 .polaroidBackName {
   font-family: var(--font-instrument), serif;
   font-size: var(--font-size-title-sm);
