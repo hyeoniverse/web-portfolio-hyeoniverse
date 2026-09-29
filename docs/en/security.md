@@ -45,7 +45,7 @@ Multi-layered security validation is applied to all public API endpoints.
 | `POST/PATCH /api/posts` | Category whitelist validation |
 | `POST/PATCH /api/works` | Category pair (ko/en) whitelist validation |
 | `POST/PATCH /api/series` | Category whitelist validation |
-| `POST /api/contact` | Name (100 chars), email format/length, message (5000 chars) |
+| `POST /api/contact/attachment` | Accepts only an `ok` boolean and a reason (200 chars); counts the same IP once per 10 minutes (prevents abusing the attachment auto-off). The message itself goes from the browser to the provider, validated by the form (`useContactForm`) |
 | `POST /api/translate` | Text (2000 chars), targetLang enum |
 | `POST /api/posts/reassign-category` | `requireAuth()` — auth required, since it bulk-updates `posts.category` through the admin client |
 | `PATCH /api/admin/settings` | About ERD shape (`checkAboutErd`) + **required values (`checkRequiredSettings`)** — empty title/name/theme-colors/member-names, giscus required fields, email format. Returns 400 on violation. Guards against client bypass (incl. per-section save) + DB CHECK (`settings_required_valid`) as the last line |

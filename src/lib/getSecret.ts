@@ -61,8 +61,13 @@ export async function getPublicKeys(): Promise<Record<string, string>> {
   const secrets = await loadSecrets();
   const result: Record<string, string> = {};
 
+  /* 문의 폼 공급자 키는 브라우저가 공급자로 바로 보내는 데 쓰는 공개용이다(lib/contactSend) */
   const PUBLIC_KEYS = [
     "NEXT_PUBLIC_FORMSPREE_ID",
+    "NEXT_PUBLIC_WEB3FORMS_KEY",
+    "NEXT_PUBLIC_EMAILJS_SERVICE_ID",
+    "NEXT_PUBLIC_EMAILJS_TEMPLATE_ID",
+    "NEXT_PUBLIC_EMAILJS_PUBLIC_KEY",
     "NEXT_PUBLIC_RECAPTCHA_SITE_KEY",
   ];
 

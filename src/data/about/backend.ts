@@ -279,7 +279,7 @@ if (category) {
       { method: "GET", path: "/api/works-categories", description: { ko: "작업물 카테고리 목록 (공개, 이중언어)", en: "Work categories (public, bilingual)" } },
       { method: "GET", path: "/api/works/showcase", description: { ko: "불러올 GitHub 저장소 목록", en: "GitHub repos available to import" } },
       { method: "POST", path: "/api/works/showcase/import", description: { ko: "GitHub 저장소를 작업물로 가져오기 (admin)", en: "Import GitHub repos as works (admin)" } },
-      { method: "POST", path: "/api/works/tts", description: { ko: "슬라이드 대본 음성 생성 (Gemini TTS)", en: "Generate slide narration audio (Gemini TTS)" } },
+      { method: "POST", path: "/api/works/tts", description: { ko: "슬라이드 대본 음성 생성 (Edge TTS)", en: "Generate slide narration audio (Edge TTS)" } },
       { method: "POST", path: "/api/works/tts/merge", description: { ko: "음성 조각을 한 파일로 합치기", en: "Merge audio chunks into one file" } },
     ],
     exampleQuery: {
@@ -493,14 +493,15 @@ if (role.isOwner) await ensureOwnerRole(admin, session.user);`,
     name: "Site API",
     kind: "api",
     description: {
-      ko: "파비콘·로고 기호 글꼴·글꼴 검색·문의 폼을 처리하는 사이트 공통 API.",
-      en: "Site-wide APIs for the favicon, logo symbol font, font search, and contact form.",
+      ko: "파비콘·로고 기호 글꼴·글꼴 검색·문의 폼 첨부 상태를 처리하는 사이트 공통 API. 문의 메일은 방문자 브라우저가 고른 공급자로 바로 보낸다.",
+      en: "Site-wide APIs for the favicon, logo symbol font, font search, and contact form attachment status. Contact messages go from the visitor's browser straight to the chosen provider.",
     },
     endpoints: [
       { method: "GET", path: "/api/favicon?variant=", description: { ko: "브랜드 설정 기반 SVG 파비콘 (light/dark)", en: "SVG favicon from brand settings (light/dark)" } },
       { method: "GET", path: "/api/brand-symbol-font", description: { ko: "로고 기호 글꼴 파일 (영구 캐시)", en: "Logo symbol font file (immutable cache)" } },
       { method: "GET", path: "/api/fonts/search?q=", description: { ko: "Google Fonts 이름 검색 (최대 8개)", en: "Search Google Fonts names (up to 8)" } },
-      { method: "POST", path: "/api/contact", description: { ko: "문의 폼 전송 (Web3Forms·Formspree·EmailJS)", en: "Send contact form (Web3Forms/Formspree/EmailJS)" } },
+      { method: "GET", path: "/api/contact/attachment", description: { ko: "문의 폼 파일 첨부 사용 여부 (이어 실패하면 저절로 꺼짐)", en: "Whether contact form attachments are on (auto-off after repeated failures)" } },
+      { method: "POST", path: "/api/contact/attachment", description: { ko: "첨부를 단 문의 메일의 전송 결과 보고 (IP당 10분 1회)", en: "Report the result of a message with an attachment (once per IP per 10 min)" } },
     ],
   },
   {
