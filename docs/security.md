@@ -45,7 +45,7 @@
 | `POST/PATCH /api/posts` | 카테고리 화이트리스트 검증 |
 | `POST/PATCH /api/works` | 카테고리 쌍(ko/en) 화이트리스트 검증 |
 | `POST/PATCH /api/series` | 카테고리 화이트리스트 검증 |
-| `POST /api/contact` | 이름 (100자), 이메일 포맷/길이, 메시지 (5000자) |
+| `POST /api/contact/attachment` | `ok` 불리언·사유(200자)만 받음, 같은 IP 는 10분에 한 번만 셈(첨부 자동 끄기 악용 방지). 문의 메일 본문은 브라우저가 공급자로 바로 보내며 입력 검증은 폼(`useContactForm`)이 한다 |
 | `POST /api/translate` | 텍스트 (2000자), targetLang enum |
 | `POST /api/posts/reassign-category` | `requireAuth()` — admin client 로 `posts.category` 를 대량 변경하므로 인증 필수 |
 | `PATCH /api/admin/settings` | About ERD 형태(`checkAboutErd`) + **필수값(`checkRequiredSettings`)** — 제목·이름·테마색·멤버이름 빈값, giscus 필수 필드, 이메일 형식. 위반 시 400. 클라이언트(섹션 저장 포함) 우회 방어 + DB CHECK(`settings_required_valid`) 최종선 |
