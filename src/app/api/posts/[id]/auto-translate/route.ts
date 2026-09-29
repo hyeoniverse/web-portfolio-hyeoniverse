@@ -8,6 +8,7 @@ import {
   type Provider,
   buildProviderList,
   translateWithFallback,
+  translationFailure,
 } from "@/lib/api/translationProviders";
 
 interface RouteContext {
@@ -44,32 +45,38 @@ export async function POST(request: Request, context: RouteContext) {
     return jsonError("Post not found", 404);
   }
 
+  /* 빈 칸은 보내지 않고, 돌아온 순서대로 제자리에 되돌린다. 예전에는 빈 칸을 걸러 낸 뒤 자리 번호로 꺼내
+     제목이 비어 있으면 본문 번역이 제목 칸에 들어갔다. 번역이 비어 온 칸(failedIndices)은 쓰지 않는다 */
+  const translateFields = async (pairs: [from: string, to: string][], src: "ko" | "en", dst: "ko" | "en", tag: string) => {
+    const row = post as Record<string, string | null>;
+    const todo = pairs.filter(([from]) => (row[from] ?? "").trim());
+    const result = await translateWithFallback(providerList, todo.map(([from]) => row[from] as string), src, dst, tag);
+    if ("error" in result) return { error: translationFailure(result.failures) };
+    const out: Record<string, string> = {};
+    todo.forEach(([, to], i) => {
+      if (result.failedIndices.includes(i) || !result.translations[i]) return;
+      out[to] = to === "title" || to === "title_en" ? clampTitle(result.translations[i]) : result.translations[i]; // 제목 상한(DB CHECK)
+    });
+    if (Object.keys(out).length > 0) await admin.from("posts").update(out).eq("id", id);
+    return { out };
+  };
+
   if (direction === "en-ko") {
     if (post.content) {
       return NextResponse.json({ title: post.title, content: post.content, excerpt: post.excerpt });
     }
-    const texts = [post.title_en, post.content_en, post.excerpt_en].filter(Boolean) as string[];
-    const result = await translateWithFallback(providerList, texts, "en", "ko", "[auto-translate en-ko]");
-    if ("error" in result) {
-      return jsonError(result.error, 502, { code: result.error.includes("not configured") ? "TRANSLATION_NOT_CONFIGURED" : "TRANSLATION_FAILED" });
-    }
-    const [titleKoRaw, contentKo, excerptKo] = result.translations;
-    const titleKo = clampTitle(titleKoRaw); // 생성 제목 상한 초과 방지 (DB CHECK 위반 방지)
-    await admin.from("posts").update({ title: titleKo, content: contentKo, excerpt: excerptKo }).eq("id", id);
-    return NextResponse.json({ title: titleKo, content: contentKo, excerpt: excerptKo });
+    const r = await translateFields([["title_en", "title"], ["content_en", "content"], ["excerpt_en", "excerpt"]], "en", "ko", "[auto-translate en-ko]");
+    if ("error" in r && r.error) return jsonError("Translation failed", r.error.status, { code: r.error.code === "AI_PROVIDERS_DISABLED" ? "TRANSLATION_FAILED" : r.error.code });
+    const { out } = r as { out: Record<string, string> };
+    return NextResponse.json({ title: out.title ?? post.title, content: out.content ?? post.content, excerpt: out.excerpt ?? post.excerpt });
   }
 
   // ko-en (default)
   if (post.content_en) {
     return NextResponse.json({ title_en: post.title_en, content_en: post.content_en, excerpt_en: post.excerpt_en });
   }
-  const texts = [post.title, post.content, post.excerpt].filter(Boolean) as string[];
-  const result = await translateWithFallback(providerList, texts, "ko", "en", "[auto-translate ko-en]");
-  if ("error" in result) {
-    return jsonError(result.error, 502, { code: result.error.includes("not configured") ? "TRANSLATION_NOT_CONFIGURED" : "TRANSLATION_FAILED" });
-  }
-  const [titleEnRaw, contentEn, excerptEn] = result.translations;
-  const titleEn = clampTitle(titleEnRaw); // 생성 제목 상한 초과 방지
-  await admin.from("posts").update({ title_en: titleEn, content_en: contentEn, excerpt_en: excerptEn }).eq("id", id);
-  return NextResponse.json({ title_en: titleEn, content_en: contentEn, excerpt_en: excerptEn });
+  const r = await translateFields([["title", "title_en"], ["content", "content_en"], ["excerpt", "excerpt_en"]], "ko", "en", "[auto-translate ko-en]");
+  if ("error" in r && r.error) return jsonError("Translation failed", r.error.status, { code: r.error.code === "AI_PROVIDERS_DISABLED" ? "TRANSLATION_FAILED" : r.error.code });
+  const { out } = r as { out: Record<string, string> };
+  return NextResponse.json({ title_en: out.title_en ?? post.title_en, content_en: out.content_en ?? post.content_en, excerpt_en: out.excerpt_en ?? post.excerpt_en });
 }

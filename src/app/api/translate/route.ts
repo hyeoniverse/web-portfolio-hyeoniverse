@@ -6,6 +6,7 @@ import {
   type Provider,
   buildProviderList,
   translateWithFallback,
+  translationFailure,
 } from "@/lib/api/translationProviders";
 
 const MAX_LENGTH = 2000;
@@ -61,9 +62,10 @@ export async function POST(request: Request) {
     providerList, [text.slice(0, MAX_LENGTH)], sourceLang, targetLang, "[translate]",
   );
 
+  /* 방문자 경로 — 공급자별 원인(failures)은 싣지 않는다. 상태는 서버가 남기고 관리자 화면에 보인다 */
   if ("error" in result) {
-    const status = result.error.includes("not configured") ? 503 : 502;
-    return NextResponse.json({ error: result.error, code: status === 503 ? "TRANSLATION_NOT_CONFIGURED" : "TRANSLATION_FAILED" }, { status });
+    const { status, code } = translationFailure(result.failures);
+    return NextResponse.json({ error: "Translation failed", code: code === "AI_PROVIDERS_DISABLED" ? "TRANSLATION_NOT_CONFIGURED" : code }, { status: code === "AI_PROVIDERS_DISABLED" ? 503 : status });
   }
 
   // 단건 번역 — 결과가 비어 있으면 (failedIndices 에 0 이 있으면) 502 로 처리

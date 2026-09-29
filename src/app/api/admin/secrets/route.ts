@@ -4,6 +4,8 @@ import { requireOwner } from "@/lib/api/requireRole";
 import { jsonError, jsonOk, jsonServerError } from "@/lib/api/response";
 import { authErrorCode } from "@/lib/api/authErrorCode";
 import { invalidateSecretsCache } from "@/lib/getSecret";
+import { resetProviders } from "@/lib/ai/health";
+import { PROVIDER_BY_KEY } from "@/lib/ai/providers";
 
 /** 편집 가능한 키 목록 */
 const EDITABLE_KEYS = [
@@ -24,6 +26,8 @@ const EDITABLE_KEYS = [
   "ANTHROPIC_API_KEY",
   "RESEND_API_KEY",
   "GITHUB_TOKEN",
+  "FISH_AUDIO_API_KEY",
+  "GOOGLE_TTS_API_KEY",
 ] as const;
 
 const READ_ONLY_KEYS = [
@@ -124,6 +128,8 @@ export async function PUT(request: Request) {
   if (error) return jsonServerError(error, "PUT /api/admin/secrets");
 
   invalidateSecretsCache();
+  /* 키를 바꿨으면 그 공급자의 오류 기록과 차단을 푼다 — 새 키로 다시 시도한다 */
+  await resetProviders(Object.keys(filtered).flatMap((k) => PROVIDER_BY_KEY[k] ?? []));
 
   return jsonOk({ success: true });
 }
@@ -207,6 +213,7 @@ export async function DELETE(request: Request) {
   if (error) return jsonServerError(error, "DELETE /api/admin/secrets");
 
   invalidateSecretsCache();
+  await resetProviders(PROVIDER_BY_KEY[key] ?? []);
 
   return jsonOk({ success: true });
 }

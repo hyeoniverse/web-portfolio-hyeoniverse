@@ -1,8 +1,11 @@
+import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAuth } from "@/lib/api/requireAuth";
 import { jsonError, jsonOk, jsonServerError } from "@/lib/api/response";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 import { getSecret } from "@/lib/getSecret";
+import { ProviderError, classifyFailure, filterEnabled, missingKey, providerErrorFrom, recordFailure, recordOk, toProviderError } from "@/lib/ai/health";
+import type { ProviderFailure } from "@/lib/ai/providers";
 
 const stylePrompts: Record<string, string> = {
   abstract: "abstract art style, flowing shapes and colors",
@@ -21,7 +24,7 @@ const stylePrompts: Record<string, string> = {
 
 async function generateWithNanoBanana(fullPrompt: string): Promise<ArrayBuffer> {
   const apiKey = await getSecret("NANOBANANA_API_KEY");
-  if (!apiKey) throw new Error("NANOBANANA_API_KEY not configured");
+  if (!apiKey) throw missingKey("nanobanana", "NANOBANANA_API_KEY");
 
   // 1. 생성 요청
   const createRes = await fetch(
@@ -41,9 +44,12 @@ async function generateWithNanoBanana(fullPrompt: string): Promise<ArrayBuffer> 
     }
   );
 
-  const createData = await createRes.json();
+  const createData = await createRes.json().catch(() => ({}));
   if (createData.code !== 200) {
-    throw new Error(createData.msg || "NanoBanana generation request failed");
+    /* NanoBanana 는 HTTP 200 안의 code 로 실패를 알린다(401 키·402 크레딧 등) — 그 code 로 원인을 가른다 */
+    const status = Number(createData.code) || createRes.status;
+    const msg = createData.msg || "NanoBanana generation request failed";
+    throw new ProviderError("nanobanana", classifyFailure(status, msg), `${status} ${msg}`, status);
   }
 
   const taskId = createData.data?.taskId;
@@ -89,7 +95,7 @@ async function generateWithNanoBanana(fullPrompt: string): Promise<ArrayBuffer> 
 
 async function generateWithHuggingFace(fullPrompt: string): Promise<ArrayBuffer> {
   const apiKey = await getSecret("HUGGINGFACE_API_KEY");
-  if (!apiKey) throw new Error("HUGGINGFACE_API_KEY not configured");
+  if (!apiKey) throw missingKey("huggingface", "HUGGINGFACE_API_KEY");
 
   const model = "black-forest-labs/FLUX.1-schnell";
 
@@ -109,12 +115,8 @@ async function generateWithHuggingFace(fullPrompt: string): Promise<ArrayBuffer>
     }
   );
 
-  if (!res.ok) {
-    // 응답 본문에 토큰 echo 가능 — 클라이언트로 노출 금지. 서버 로그만 남기고 generic 메시지 반환
-    const raw = await res.text().catch(() => "");
-    console.error("[cover/ai-generate] HF error", res.status, raw.slice(0, 500));
-    throw new Error(`Hugging Face error (${res.status})`);
-  }
+  /* 응답 본문에 토큰이 되돌아올 수 있다 — providerErrorFrom 이 가린 앞부분만 기록에 남긴다 */
+  if (!res.ok) throw await providerErrorFrom("huggingface", res);
 
   return res.arrayBuffer();
 }
@@ -141,13 +143,16 @@ export async function POST(request: Request) {
   const primary: Provider = (config?.aiCover?.provider as Provider) ?? "nanobanana";
   const fallbackCfg = config?.aiCover?.fallback;
 
-  const providerList: Provider[] = [primary];
+  const configured: Provider[] = [primary];
   if (fallbackCfg?.enabled && fallbackCfg.priority?.length) {
     const excl = new Set(fallbackCfg.excluded ?? []);
     for (const p of fallbackCfg.priority) {
-      if (p !== primary && !excl.has(p)) providerList.push(p as Provider);
+      if (p !== primary && !excl.has(p)) configured.push(p as Provider);
     }
   }
+  /* 여러 번 이어 실패해 꺼 둔 공급자는 부르지 않는다(lib/ai/health) */
+  const { enabled: providerList, skipped } = await filterEnabled(configured, (p) => p);
+  const failures: ProviderFailure[] = [...skipped];
 
   async function callProvider(provider: Provider, prompt: string): Promise<ArrayBuffer> {
     switch (provider) {
@@ -157,10 +162,20 @@ export async function POST(request: Request) {
     }
   }
 
-  let lastError = "Unknown error";
+  let lastError = skipped.length ? "All providers disabled" : "Unknown error";
   for (const provider of providerList) {
+    let imgBuffer: ArrayBuffer;
     try {
-      const imgBuffer = await callProvider(provider, fullPrompt);
+      imgBuffer = await callProvider(provider, fullPrompt);
+      await recordOk(provider);
+    } catch (e) {
+      const err = toProviderError(provider, e);
+      lastError = err.message;
+      failures.push(await recordFailure(err));
+      console.error("[cover/ai-generate]", provider, err.kind, lastError);
+      continue;
+    }
+    {
 
       const fileName = `${crypto.randomUUID()}.jpg`;
       const filePath = `posts/${fileName}`;
@@ -179,16 +194,15 @@ export async function POST(request: Request) {
         data: { publicUrl },
       } = admin.storage.from("posts").getPublicUrl(filePath);
 
-      return jsonOk({ url: publicUrl });
-    } catch (e) {
-      lastError = e instanceof Error ? e.message : "Unknown error";
-      console.error("[cover/ai-generate]", provider, lastError);
+      /* 앞 공급자가 실패해 뒤 공급자로 만들었으면 failures 에 실어 화면이 알린다 */
+      return jsonOk({ url: publicUrl, failures });
     }
   }
 
-  const status = lastError.includes("not configured") ? 503 : 502;
-  /* 제공자가 쓴 영어 문장은 로그·개발용 — 화면은 코드로 문구를 고른다(#862) */
-  return jsonError(sanitizeError(lastError), status, { code: status === 503 ? "AI_NOT_CONFIGURED" : "AI_GENERATE_FAILED" });
+  const status = failures.length > 0 && failures.every((f) => f.kind === "no_key") ? 503 : 502;
+  const code = status === 503 ? "AI_NOT_CONFIGURED" : failures.length > 0 && failures.every((f) => f.disabled) ? "AI_PROVIDERS_DISABLED" : "AI_GENERATE_FAILED";
+  /* 제공자가 쓴 영어 문장은 로그·개발용 — 화면은 코드와 failures 로 문구를 고른다(#862) */
+  return NextResponse.json({ error: sanitizeError(lastError), code, failures }, { status });
 }
 
 /** 에러 메시지에 섞여 있을 수 있는 API 토큰/key 패턴 마스킹 */
