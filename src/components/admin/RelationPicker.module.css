@@ -4,75 +4,66 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
-  /* picker 자체와 다음 섹션(예: optionalSection) 사이 최소 여백 보장.
-     내부 상태(chipRow / inputAreaOpen) 와 무관하게 항상 적용 */
   margin-bottom: var(--spacing-md);
-  transition: margin-bottom 0.2s ease;
 }
 
-/* 펼침 상태에서는 picker 아래(다음 섹션과의 거리)를 더 띄움.
-   inner gap (input ↔ chipRow) 은 wrap.gap 으로 sm 으로 일관 유지 */
-.wrap:has(.inputAreaOpen) {
-  margin-bottom: var(--spacing-xl);
-}
-
-/* 닫힌 상태: capsule pill. 열린 상태: 같은 컨테이너가 세로로 펼쳐지며 round 2xl 사각형.
-   닫힘: expand 가 먼저 collapse → 그 후 radius 가 capsule 로 (delay).
-   열림: radius 가 먼저 2xl → 그 후 expand reveal (delay). */
+/* 입력칸은 열려도 캡슐 모양 그대로 두고, 목록은 그 아래에 떠 있는 패널로 연다(Select 메뉴와 같은 방식).
+   예전에는 캡슐이 네모로 바뀌며 아래로 늘어나 다음 섹션을 밀어냈다 */
 .inputArea {
+  position: relative;
   display: flex;
   flex-direction: column;
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
-  overflow: hidden;
-  /* 닫힐 때: expand collapse 0.22s 끝나고 radius 변경 → delay 0.22s */
-  transition: border-radius 0.2s ease 0.22s, border-color 0.15s ease;
+  transition: border-color 0.15s ease;
 }
 
-.inputAreaOpen {
-  border-radius: var(--radius-2xl);
-  border-color: var(--text-primary);
-  /* 열릴 때: radius 즉시 변경 (no delay).
-     아래 spacing 은 .wrap:has(.inputAreaOpen) margin-bottom 이 담당 — 여기서 별도 추가 X */
-  transition: border-radius 0.2s ease 0s, border-color 0.15s ease;
+.inputArea:hover {
+  border-color: var(--border-color-strong);
 }
 
-/* 상단 row — 칩 + 트리거 (항상 보임). 테두리까지 합쳐 다른 입력칸(--control-h-md)과 같은 높이 */
+.inputArea.inputAreaOpen {
+  border-color: var(--color-accent);
+}
+
+/* 테두리까지 합쳐 다른 입력칸(--control-h-md)과 같은 높이 */
 .inputAreaTop {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   gap: var(--spacing-xs);
   padding: 0 0 0 var(--spacing-md);
   height: calc(var(--control-h-md) - 2px);
-  min-height: calc(var(--control-h-md) - 2px);
   cursor: text;
 }
 
-/* 펼친 영역 — 항상 렌더, max-height 로 toggle.
-   닫힘: 즉시 collapse (no delay).
-   열림: radius 가 끝난 뒤 reveal (delay). */
+/* 떠 있는 목록 패널 — 닫혀 있을 때도 그려 두고 투명도·이동으로만 여닫는다 */
 .inputAreaExpand {
-  display: flex;
-  flex-direction: column;
-  max-height: 0;
+  position: absolute;
+  top: calc(100% + var(--spacing-2xs));
+  left: 0;
+  right: 0;
+  z-index: 20;
+  max-height: 320px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  background: var(--bg-primary);
+  box-shadow: 0 12px 32px -12px rgba(0, 0, 0, 0.35);
   opacity: 0;
+  transform: translateY(-4px);
   pointer-events: none;
-  border-top: 1px solid transparent;
-  transition: max-height 0.22s ease 0s, opacity 0.16s ease 0s, border-top-color 0.15s ease 0s;
+  visibility: hidden;
+  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0s linear 0.15s;
 }
 
 .inputAreaOpen .inputAreaExpand {
-  max-height: 320px;
   opacity: 1;
+  transform: translateY(0);
   pointer-events: auto;
-  /* 펼친 영역 자체에서 세로 스크롤 — 내부 list 가 아니라 wrapper 가 스크롤 컨테이너 */
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  border-top-color: var(--border-color-light);
-  /* 열림 시: radius transition (0.2s) 끝난 뒤 reveal */
-  transition: max-height 0.28s ease 0.2s, opacity 0.2s ease 0.22s, border-top-color 0.15s ease 0.2s;
+  visibility: visible;
+  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0s;
 }
 
 /* dropdown 트리거 = 검색창. 닫힘 시 placeholder 안내 + chevron, 열림 시 input + Search 아이콘 */
@@ -303,8 +294,9 @@
   text-align: left;
 }
 
-.optionActive {
-  background: var(--bg-secondary);
+.option:hover,
+.option:focus-visible {
+  background: var(--bg-tertiary);
 }
 
 .optionThumb {
@@ -385,7 +377,7 @@
 }
 
 .noResults {
-  padding: var(--spacing-md);
+  padding: var(--spacing-lg) var(--spacing-md);
   text-align: center;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
