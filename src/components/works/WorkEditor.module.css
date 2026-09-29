@@ -1555,3 +1555,16 @@
     width: 140px;
   }
 }
+
+/* 프로필 링크 입력 + 연결된 멤버 링크에서 고르기 */
+.memberUrlRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  min-width: 0;
+}
+
+.memberUrlRow > input {
+  flex: 1;
+  min-width: 0;
+}

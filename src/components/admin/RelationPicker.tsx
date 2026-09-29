@@ -30,6 +30,8 @@ interface RelationPickerProps<T> {
   /** 검색 input placeholder (열림 시) */
   searchInputPlaceholder?: string;
   noResultsText?: string;
+  /** 고를 항목이 처음부터 하나도 없을 때 — 검색 결과 없음과 구분한다 */
+  emptyText?: string;
   /** 바깥 틀에 더할 클래스 — 놓이는 자리에 맞춰 바깥 여백을 조정할 때 */
   className?: string;
 }
@@ -51,6 +53,7 @@ export default function RelationPicker<T>({
   searchPlaceholder,
   searchInputPlaceholder,
   noResultsText,
+  emptyText,
   className,
 }: RelationPickerProps<T>) {
   const [open, setOpen] = useState(false);
@@ -130,7 +133,12 @@ export default function RelationPicker<T>({
     : (searchPlaceholder || "+ Add");
 
   return (
-    <div ref={wrapRef} className={`${styles.wrap}${className ? ` ${className}` : ""}`}>
+    /* Esc 는 검색창뿐 아니라 목록 항목에 포커스가 있을 때도 닫는다 */
+    <div
+      ref={wrapRef}
+      className={`${styles.wrap}${className ? ` ${className}` : ""}`}
+      onKeyDown={(e) => { if (e.key === "Escape" && open) { e.stopPropagation(); setOpen(false); } }}
+    >
       {/* 입력 영역 — chip 없이 검색 input 만 (selected 는 아래 chipRow 에 별도 표시) */}
       <div className={`${styles.inputArea} ${open ? styles.inputAreaOpen : ""}`}>
         <div className={styles.inputAreaTop}>
@@ -145,7 +153,6 @@ export default function RelationPicker<T>({
               value={query}
               onChange={(e) => { setQuery(e.target.value); if (!open) setOpen(true); }}
               onFocus={() => setOpen(true)}
-              onKeyDown={(e) => { if (e.key === "Escape") setOpen(false); }}
               placeholder={open ? (searchInputPlaceholder || "Search...") : closedPlaceholder}
               aria-haspopup="listbox"
               readOnly={!open && candidates.length === 0 && selected.length > 0}
@@ -166,7 +173,9 @@ export default function RelationPicker<T>({
         <div className={styles.inputAreaExpand} role="listbox" aria-hidden={!open} data-lenis-prevent>
           <div className={styles.dropdownList}>
             {candidates.length === 0 ? (
-              <div className={styles.noResults}>{noResultsText || "No matches"}</div>
+              <div className={styles.noResults}>
+                {items.length === 0 && emptyText ? emptyText : (noResultsText || "No matches")}
+              </div>
             ) : (
               candidates.map((it, idx) => {
                 const id = getId(it);
