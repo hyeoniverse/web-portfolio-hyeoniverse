@@ -56,9 +56,9 @@
   width: max-content;
 }
 
-/* width="full" 은 부모 폭에 맞춰 줄어야 하므로 자연 너비 고정을 푼다 */
+/* width="full" 은 부모 폭을 채운다 — auto 로 두면 button 은 글자 폭만큼만 잡혀 넓어지지 않았다 */
 .rootFull .trigger:where(button) {
-  width: auto;
+  width: 100%;
 }
 
 .root .trigger:hover {

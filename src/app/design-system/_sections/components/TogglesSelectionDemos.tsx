@@ -108,19 +108,19 @@ export default function TogglesSelectionDemos() {
         <DemoGroup title="Switch">
           <div className={styles.componentRow}>
             <motion.div variants={staggerItemX} {...scrollChildX(0, 4)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-xs)" }}>
-              <Switch checked={switchOn} onCheckedChange={setSwitchOn} />
+              <Switch size="sm" checked={switchOn} onCheckedChange={setSwitchOn} />
               <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-label)", color: "var(--text-secondary)" }}>Default (sm)</span>
             </motion.div>
             <motion.div variants={staggerItemX} {...scrollChildX(1, 4)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-xs)" }}>
-              <Switch checked={switchAccent} onCheckedChange={setSwitchAccent} variant="accent" />
+              <Switch size="sm" checked={switchAccent} onCheckedChange={setSwitchAccent} variant="accent" />
               <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-label)", color: "var(--text-secondary)" }}>Accent</span>
             </motion.div>
             <motion.div variants={staggerItemX} {...scrollChildX(2, 4)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-xs)" }}>
-              <Switch disabled />
+              <Switch size="sm" disabled />
               <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-label)", color: "var(--text-secondary)" }}>Disabled</span>
             </motion.div>
             <motion.div variants={staggerItemX} {...scrollChildX(3, 4)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-xs)" }}>
-              <Switch disabled defaultChecked />
+              <Switch size="sm" disabled defaultChecked />
               <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-label)", color: "var(--text-secondary)" }}>Disabled On</span>
             </motion.div>
           </div>

@@ -229,7 +229,7 @@ export default function SearchCapsule({
           options={typeSelector.options}
           onChange={typeSelector.onChange}
           className={styles.selectWrap}
-          size={size === "sm" ? "sm" : "default"}
+          size={size === "sm" ? "sm" : "md"}
         />
       )}
       <Search className={styles.icon} size={14} />

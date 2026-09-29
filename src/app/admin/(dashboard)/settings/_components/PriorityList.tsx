@@ -15,9 +15,11 @@ interface PriorityListProps<T extends string> {
   options: SelectOption<T>[];
   onChange: (next: T[]) => void;
   onExcludedChange: (next: T[]) => void;
+  /** 항목 옆 작은 표시 — 키 없음·꺼짐처럼 이 순서에 넣어도 쓰이지 않을 공급자를 알린다 */
+  badgeOf?: (value: T) => React.ReactNode;
 }
 
-export function PriorityList<T extends string>({ primary, priority, excluded, options, onChange, onExcludedChange }: PriorityListProps<T>) {
+export function PriorityList<T extends string>({ primary, priority, excluded, options, onChange, onExcludedChange, badgeOf }: PriorityListProps<T>) {
   const nonPrimary = options.filter((o) => o.value !== primary);
   const ordered = priority.length
     ? priority.filter((p) => p !== primary)
@@ -122,7 +124,10 @@ export function PriorityList<T extends string>({ primary, priority, excluded, op
               onDrop={() => handleDrop(idx)}
             >
               <span className={styles.priorityBadge}>{idx + 1}</span>
-              <span className={`${styles.priorityLabel} ${isEnabled ? "" : styles.priorityLabelDisabled}`}>{label}</span>
+              <span className={`${styles.priorityLabel} ${isEnabled ? "" : styles.priorityLabelDisabled}`}>
+                {label}
+                {badgeOf?.(val)}
+              </span>
               <div className={styles.priorityBtns}>
                 <Pressable
                   className={shared.priorityBtn}

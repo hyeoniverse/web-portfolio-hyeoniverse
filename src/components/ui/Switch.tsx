@@ -13,12 +13,14 @@ interface SwitchProps {
   className?: string;
   name?: string;
   variant?: "default" | "accent";
-  /** "sm" (default, 44×20) — 컴팩트 UI / "md" (44×24) — form row / "lg" (56×28) — 툴바 버튼 높이(control-h-sm) 맞춤 */
+  /** "sm" (44×20) — 컴팩트 UI / "md" (default, 44×24) — form row / "lg" (56×28) — 툴바 버튼 높이(control-h-sm) 맞춤 */
   size?: "sm" | "md" | "lg";
   /** 좌측에 라벨이 붙는 form-row 레이아웃. 비어 있으면 그냥 raw 토글 */
   label?: string;
   /** label 배치 — "left" (default, 좌측 inline) / "top" (라벨이 토글 위에 stack) */
   labelPosition?: "left" | "top";
+  /** 라벨 칸 폭(예: "10em") — 여러 스위치의 시작 위치를 맞출 때. 부모가 --switch-label-width 로 줘도 된다 */
+  labelWidth?: string;
   /** 토글 안에 ON/OFF 텍스트 표시 — title 라인 등 self-describing 컨텍스트용 */
   showStateText?: boolean;
   /** showStateText 시 표시할 커스텀 텍스트 (기본 ON/OFF). 예: { on: "24h", off: "12h" } */
@@ -33,9 +35,10 @@ function Switch({
   className,
   name,
   variant = "default",
-  size = "sm",
+  size = "md",
   label,
   labelPosition = "left",
+  labelWidth,
   showStateText = false,
   stateLabels,
 }: SwitchProps) {
@@ -75,7 +78,7 @@ function Switch({
   if (label) {
     return (
       <div className={cn(labelPosition === "top" ? styles.stack : styles.row, className)}>
-        <span className={styles.label}>{label}</span>
+        <span className={styles.label} style={labelWidth ? ({ "--switch-label-width": labelWidth } as React.CSSProperties) : undefined}>{label}</span>
         {button}
       </div>
     );
