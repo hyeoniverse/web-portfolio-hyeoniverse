@@ -50,6 +50,19 @@ export function WorkArticleTeam({ project, viewLang }: WorkArticleViewProps) {
      프로필에서 영어 이름·사진을 고쳐도 작업물에는 반영되지 않았다. 적어 둔 값이 있으면 그 값이 먼저다 */
   const authors = (siteConfig?.authors ?? []) as Author[];
   const teamArr = (project.teamMembers ?? []).map((m) => {
+    /* 소유자 계정에 연결한 팀원은 그 사람이 곧 소유자다 — 비어 있는 역할·기여·연락처를 작업물 본인 값으로 채운다 */
+    if (m.author_id === OWNER_AUTHOR_ID && ownerMember) {
+      const hasContribs = Object.values({ ...m.contributions?.ko, ...m.contributions?.en }).some((items) => items.length > 0);
+      return {
+        ...m,
+        name_en: m.name_en || ownerMember.name_en,
+        role: { ko: m.role.ko.trim() || ownerMember.role.ko, en: m.role.en.trim() || ownerMember.role.en },
+        url: m.url || ownerMember.url,
+        email: m.email || ownerMember.email,
+        avatar_url: m.avatar_url || ownerMember.avatar_url,
+        contributions: hasContribs ? m.contributions : ownerMember.contributions,
+      };
+    }
     const prof = m.author_id ? authors.find((a) => a.id === m.author_id) : undefined;
     if (!prof) return m;
     const profUrl = prof.links?.find((l) => l.platform === "github")?.url || prof.links?.[0]?.url;
@@ -64,7 +77,9 @@ export function WorkArticleTeam({ project, viewLang }: WorkArticleViewProps) {
       avatar_url: m.avatar_url || profAvatar,
     };
   });
-  const members = ownerMember ? [ownerMember, ...teamArr] : teamArr;
+  /* 소유자는 따로 적지 않아도 맨 앞에 넣는다. 팀원 가운데 소유자 계정에 연결한 사람이 있으면 그 사람이 소유자라 한 번만 그린다 */
+  const ownerListed = teamArr.some((m) => m.author_id === OWNER_AUTHOR_ID);
+  const members = ownerMember && !ownerListed ? [ownerMember, ...teamArr] : teamArr;
 
   const getContribsEntries = (m: typeof members[number]) => {
     const ko = m.contributions?.ko ?? {};
