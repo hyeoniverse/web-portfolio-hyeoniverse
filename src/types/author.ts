@@ -17,4 +17,9 @@ export interface Author {
   location?: string;
   /** 소셜/외부 링크 — SocialLinksEditor 로 편집 */
   links: SocialLink[];
+  /* 영어 화면용 — 비어 있으면 위의 기본(한국어) 값을 쓴다(localizeAuthor). 작업물 팀원 연결도 이 값을 가져간다 */
+  name_en?: string;
+  role_en?: string;
+  bio_en?: string;
+  location_en?: string;
 }

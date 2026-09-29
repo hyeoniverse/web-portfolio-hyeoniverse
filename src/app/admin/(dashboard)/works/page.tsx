@@ -53,6 +53,22 @@ import Pressable from "@/components/ui/Pressable";
 import WorkYear from "@/components/works/WorkYear";
 import { formatWorkYear } from "@/utils/formatWorkYear";
 
+/** 이 쪽에 보이는 목록 안에서 한 작업물을 newOrder 자리로 옮기고 사이를 한 칸씩 민다(서버와 같은 규칙).
+    목록 밖 자리면 그대로 둔다 — 서버 값으로 맞출 때 바뀐다 */
+function moveWithin(list: Work[], id: string, newOrder: number): Work[] {
+  const from = list.findIndex((w) => w.id === id);
+  const first = list[0]?.sort_order ?? 1;
+  const to = newOrder - first;
+  if (from < 0 || to < 0 || to >= list.length) return list;
+  const moved = [...list];
+  const [item] = moved.splice(from, 1);
+  moved.splice(to, 0, item);
+  return moved.map((w, i) => ({ ...w, sort_order: first + i }));
+}
+
+/** 순서를 바꾼 뒤 서버 값으로 조용히 맞추기까지 기다리는 시간 — 연달아 옮기는 동안엔 다시 불러오지 않는다 */
+const REORDER_SYNC_MS = 1200;
+
 const PAGE_SIZE_OPTIONS = [
   { value: "10", label: "10" },
   { value: "20", label: "20" },
@@ -64,6 +80,7 @@ const PAGE_SIZE_OPTIONS = [
 /* ── Isolated tooltip to prevent parent re-renders from reaching AdminTable ── */
 function PreviewTooltip({
   work,
+  open = true,
   pos,
   imgError,
   onImgError,
@@ -71,6 +88,8 @@ function PreviewTooltip({
   onNavigate,
 }: {
   work: Work | null;
+  /** 떠 있는 중인지 — 닫힐 때는 false 로 사라지는 효과를 보인 뒤 work 가 비워진다 */
+  open?: boolean;
   pos: { top: number; left: number };
   imgError: boolean;
   onImgError: () => void;
@@ -84,9 +103,13 @@ function PreviewTooltip({
       <div className={shell.previewBackdrop} onClick={onDismiss} />
       <div
         className={shell.previewTooltip}
+        data-preview-tooltip
+        data-state={open ? "open" : "closed"}
         style={{ top: pos.top, left: pos.left }}
         onClick={onNavigate}
       >
+        {/* 행을 옮기면 같은 툴팁 안에서 내용만 바뀐다 — 바뀐 내용은 살짝 번지듯 들어온다 */}
+        <div key={work.id} className={shell.previewSwap}>
         <div className={shell.previewImage}>
           {work.image && !imgError ? (
             <MediaThumb
@@ -112,6 +135,7 @@ function PreviewTooltip({
               ))}
             </div>
           )}
+        </div>
         </div>
       </div>
     </>
@@ -245,8 +269,9 @@ export default function AdminWorksPage() {
       .catch(() => {});
   }, []);
 
-  const fetchWorks = useCallback(async () => {
-    setLoading(true);
+  /** silent — 목록을 스켈레톤으로 바꾸지 않고 뒤에서 맞춘다(순서 바꾼 뒤 등 화면에 이미 반영한 변경) */
+  const fetchWorks = useCallback(async ({ silent = false }: { silent?: boolean } = {}) => {
+    if (!silent) setLoading(true);
     const params = new URLSearchParams({
       all: "true",
       page: String(page),
@@ -266,8 +291,27 @@ export default function AdminWorksPage() {
     setWorks(data.works ?? []);
     setTotalPages(data.totalPages ?? 1);
     setTotalCount(data.total ?? data.works?.length ?? 0);
-    setLoading(false);
+    if (!silent) setLoading(false);
   }, [page, perPage, sort, filterCategory, filterNature, filterYear, search, searchType, syntaxMode]);
+
+  /* 순서 바꾸기 — 화면에는 곧바로 반영하고, 서버 저장은 뒤에서 차례로 한다. 예전엔 저장이 다 끝날 때까지 기다린 뒤
+     목록을 스켈레톤과 함께 다시 불러와, 여러 개를 연달아 옮기면 매번 기다리고 깜빡였다.
+     - 저장끼리 섞이지 않게 줄을 세운다(앞 저장이 끝나야 다음 저장) — 섞이면 순서가 뒤엉킨다(#873)
+     - 실패하면 곧바로 서버 값으로 되돌리고, 성공하면 마지막으로 옮긴 뒤 잠깐 멈췄을 때 한 번 조용히 맞춘다 */
+  const reorderQueue = useRef<Promise<unknown>>(Promise.resolve());
+  const reorderSync = useRef<number | undefined>(undefined);
+  const queueReorder = useCallback((write: () => Promise<boolean>) => {
+    window.clearTimeout(reorderSync.current);
+    reorderQueue.current = reorderQueue.current.then(write).then((ok) => {
+      if (!ok) { void fetchWorks({ silent: true }); return; }
+      window.clearTimeout(reorderSync.current);
+      reorderSync.current = window.setTimeout(() => { void fetchWorks({ silent: true }); }, REORDER_SYNC_MS);
+    });
+  }, [fetchWorks]);
+  useEffect(() => () => window.clearTimeout(reorderSync.current), []);
+  /* handleMove 는 useCallback — queueReorder(→ fetchWorks)를 의존성에 넣으면 메모가 깨져 ref 로 부른다(guardMoveRef 와 같은 이유) */
+  const queueReorderRef = useRef(queueReorder);
+  useEffect(() => { queueReorderRef.current = queueReorder; }, [queueReorder]);
 
   /* GitHub 저장소의 README 를 작업물로 들인다 — 들인 뒤에는 보통 작업물과 똑같이 다룬다.
      발행 상태로 들어온다(공개 화면에 이미 나가 있던 것을 옮겨 오는 것이므로).
@@ -493,15 +537,12 @@ export default function AdminWorksPage() {
     });
     setWorks(next);
 
-    // 서버 동기화 — skipShift=true 로 batch (각 PATCH 가 normalize 안 함). 마지막에 fetchWorks 로 refresh.
-    await sendActions(
-      next.slice(lo, hi + 1).map((w) => ({
-        input: `/api/works/${w.id}?skipShift=true`,
-        init: { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sort_order: w.sort_order }) },
-      })),
-      t, t("admin.common.reorderFailed"),
-    );
-    fetchWorks();
+    // 서버 동기화 — skipShift=true 로 batch (각 PATCH 가 normalize 안 함). 줄을 세워 뒤에서 저장한다(queueReorder)
+    const writes = next.slice(lo, hi + 1).map((w) => ({
+      input: `/api/works/${w.id}?skipShift=true`,
+      init: { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sort_order: w.sort_order }) },
+    }));
+    queueReorder(async () => (await sendActions(writes, t, t("admin.common.reorderFailed"))) === writes.length);
   };
 
   /** 위치 이동 — popover 에서 선택한 newOrder 로 PATCH.
@@ -509,13 +550,14 @@ export default function AdminWorksPage() {
   const handleMove = useCallback(async (target: Work, newOrder: number) => {
     if (newOrder === target.sort_order) return;
     if (!guardMoveRef.current(target)) return;
-    const res = await sendAction(`/api/works/${target.id}`, {
+    /* 화면에 먼저 반영한다 — onMove 는 순서 정렬로 볼 때만 넘어오므로 목록 순서가 곧 sort_order 순서다 */
+    setWorks((cur) => moveWithin(cur, target.id, newOrder));
+    queueReorderRef.current(async () => !!(await sendAction(`/api/works/${target.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ sort_order: newOrder }),
-    }, t, t("admin.common.reorderFailed"));
-    if (res) fetchWorks();
-  }, [fetchWorks, t]);
+    }, t, t("admin.common.reorderFailed"))));
+  }, [setWorks, t]);
 
   // 상태 배지 클릭 → 발행/미발행 토글 (낙관적 업데이트, 실패 시 롤백)
   const handleToggleWorkPublished = useCallback(async (work: Work) => {
@@ -558,20 +600,24 @@ export default function AdminWorksPage() {
         key: "view",
         label: "",
         className: ts.colView,
-        render: (work) =>
-          work.published && (work.slug || work.id) ? (
+        /* 발행된 글은 공개 상세로, 임시저장은 같은 자리 같은 단추로 관리자 미리보기를 연다 */
+        render: (work) => {
+          const live = work.published && (work.slug || work.id);
+          const label = t(live ? "admin.works.viewDetail" : "admin.works.previewDraft");
+          return (
             <a
-              href={`/works/${work.slug || work.id}`}
+              href={live ? `/works/${work.slug || work.id}` : `/admin/works/preview?fetch=${encodeURIComponent(work.id)}`}
               target="_blank"
               rel="noopener noreferrer"
               className={ts.viewBtn}
-              title={t("admin.works.viewDetail")}
-              aria-label={t("admin.works.viewDetail")}
+              title={label}
+              aria-label={label}
               onClick={(e) => e.stopPropagation()}
             >
               <ExternalLink size={14} strokeWidth={1.5} />
             </a>
-          ) : null,
+          );
+        },
         skeletonWidth: "20px",
       },
       {
@@ -817,7 +863,7 @@ export default function AdminWorksPage() {
       headerExtra={
         <>
           <input ref={mdInputRef} type="file" accept=".md" multiple hidden onChange={handleMdUpload} />
-          <HelpButton
+          <HelpButton size="sm"
             title={t("admin.works.uploadGuide")}
             aria-label={t("admin.works.uploadGuide")}
             onClick={() => {
@@ -1042,10 +1088,11 @@ export default function AdminWorksPage() {
         }
       />
 
-      {/* Hover / Tap preview tooltip — key 가 바뀔 때마다 새로 그린다 */}
+      {/* Hover / Tap preview tooltip — 처음 뜰 때만 새로 그리고, 행을 옮기면 내용만 바뀐다(usePreviewTooltip) */}
       <PreviewTooltip
         key={tooltip.key}
         work={tooltip.item}
+        open={tooltip.open}
         pos={tooltip.pos}
         imgError={tooltip.imgError}
         onImgError={handleImgError}

@@ -362,7 +362,7 @@ export function ImagePanel({
               }
               <span className={styles.imagePanelName}>{fileName}</span>
               <Tooltip content={t("editor.imageRemove")} placement="top">
-                <CloseButton
+                <CloseButton size="sm"
                   className={styles.imagePanelRemove}
                   onClick={(e) => { e.stopPropagation(); confirmDelete(() => { if (isDetached) onRemoveDetached?.(img.url); else onRemove(img.path); }); }}
                   ariaLabel={t("editor.imageRemove")}

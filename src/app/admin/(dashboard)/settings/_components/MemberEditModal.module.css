@@ -116,3 +116,11 @@
   gap: var(--spacing-md);
   padding: 0 var(--spacing-lg) var(--spacing-lg);
 }
+
+/* 프로필 글 언어 — 안내 한 줄과 KO/EN 전환 */
+.profileLangRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+}
