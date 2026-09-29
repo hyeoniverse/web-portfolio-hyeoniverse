@@ -2056,13 +2056,35 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                 {tw("memberUrlLabel")}
                 <span className={styles.memberFieldOptional}>{tw("memberOptional")}</span>
               </span>
-              <input
-                className={es.fieldInput}
-                type="url"
-                value={team.memberUrl}
-                onChange={(e) => team.setMemberUrl(e.target.value)}
-                placeholder={tw("memberUrlPlaceholder")}
-              />
+              {/* 사이트 멤버에 연결했고 그 멤버 프로필에 링크가 있으면 거기서 고를 수 있다. 직접 적는 것도 그대로 된다 */}
+              {(() => {
+                const linkedLinks = (siteAuthors.find((a) => a.id === team.memberAuthorId)?.links ?? []).filter((l) => l.url?.trim());
+                const input = (
+                  <input
+                    className={es.fieldInput}
+                    type="url"
+                    value={team.memberUrl}
+                    onChange={(e) => team.setMemberUrl(e.target.value)}
+                    placeholder={tw("memberUrlPlaceholder")}
+                  />
+                );
+                if (linkedLinks.length === 0) return input;
+                return (
+                  <span className={styles.memberUrlRow}>
+                    {input}
+                    <Select
+                      size="sm"
+                      width="max"
+                      value={linkedLinks.some((l) => l.url === team.memberUrl) ? team.memberUrl : ""}
+                      placeholder={tw("memberUrlFromProfile")}
+                      options={linkedLinks.map((l) => ({ value: l.url, label: `${l.platform.charAt(0).toUpperCase()}${l.platform.slice(1)} · ${l.url.replace(/^https?:\/\//, "")}` }))}
+                      /* 버튼에는 플랫폼 이름만 — 주소는 옆 입력칸에 이미 보인다 */
+                      renderValue={(o) => (o ? o.label.split(" · ")[0] : tw("memberUrlFromProfile"))}
+                      onChange={(v) => team.setMemberUrl(v)}
+                    />
+                  </span>
+                );
+              })()}
             </label>
           </div>
           {/* 자기소개 — 편집 언어 탭(KO/EN)을 따른다. 비워 두면 연결된 사이트 멤버 프로필의 소개가 보인다 */}
@@ -2186,6 +2208,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         searchPlaceholder={tw("relatedPostsSearch")}
         searchInputPlaceholder={tw("relatedPostsSearchInput")}
         noResultsText={tw("relatedPostsNoResults")}
+        emptyText={tw("relatedPostsEmpty")}
       />
     </div>
   ), [allPosts, form.related_post_ids, language, tw, updateField]);
@@ -2208,6 +2231,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         searchPlaceholder={tw("relatedSeriesSearch")}
         searchInputPlaceholder={tw("relatedSeriesSearchInput")}
         noResultsText={tw("relatedSeriesNoResults")}
+        emptyText={tw("relatedSeriesEmpty")}
       />
     </div>
   ), [allSeries, form.related_series_ids, language, tw, updateField]);
