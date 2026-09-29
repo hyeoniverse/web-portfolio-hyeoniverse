@@ -28,7 +28,6 @@
   position: relative;
   flex-shrink: 0;
   width: 200px;
-  aspect-ratio: 3 / 4;
   font-family: var(--font-space-grotesk), sans-serif;
   cursor: pointer;
 }
@@ -72,6 +71,14 @@
 .polaroidCardShowBack .polaroidFront,
 .polaroidCardShowBack .polaroidBack {
   box-shadow: 0 10px 24px -8px rgba(0, 0, 0, 0.22);
+}
+
+/* 앞면은 흐름 안에 둔다 — 3:4 는 최소 크기라 역할이 길면 카드가 아래로 늘어난다(글자가 카드 밖으로 넘치지 않게).
+   뒷면은 absolute 로 앞면 크기를 그대로 따른다 */
+.polaroidFront {
+  position: relative;
+  inset: auto;
+  aspect-ratio: 3 / 4;
 }
 
 /* back 은 180도 회전 상태 (정상 보기엔 뒤로 가려져 있음) */
