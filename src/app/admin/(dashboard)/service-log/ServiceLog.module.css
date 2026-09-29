@@ -1,0 +1,547 @@
+/* ── AI·외부 서비스 호출 기록 페이지 ── */
+.titleRow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.headerActions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.hint {
+  margin: 0;
+  font-size: var(--font-size-label);
+  line-height: 1.6;
+  color: var(--text-tertiary);
+}
+
+.empty {
+  margin: 0;
+  font-size: var(--font-size-label);
+  color: var(--text-tertiary);
+}
+
+
+
+
+
+
+
+
+
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-xs) var(--spacing-sm);
+}
+
+.count {
+  margin-left: auto;
+  font-size: var(--font-size-label);
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* 한 줄 — 시각 · 공급자 · 결과 · 양이나 원인 문장 */
+.row {
+  display: grid;
+  grid-template-columns: 170px 150px auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-xs) 0;
+  border-bottom: var(--border-light);
+  font-size: var(--font-size-label);
+}
+
+.time {
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.provider {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* 결과 — 성공(초록)·실패(강조색). 빨강은 쓰지 않는다 */
+.status {
+  padding: var(--badge-p-md);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-accent-light);
+  color: var(--text-accent);
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.status[data-ok] {
+  background: var(--bg-success-soft);
+  color: var(--bg-success-solid);
+}
+
+.detail {
+  min-width: 0;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.detail code {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
+  word-break: break-all;
+}
+
+@media (max-width: 640px) {
+  .row {
+    grid-template-columns: auto auto minmax(0, 1fr);
+  }
+
+  .detail {
+    grid-column: 1 / -1;
+  }
+}
+
+/* ?demo — 예시 기록으로 보고 있다는 알림 */
+.demo {
+  margin: 0;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-accent-light);
+  color: var(--text-accent);
+  font-size: var(--font-size-label);
+  font-weight: 600;
+  align-self: flex-start;
+}
+
+
+
+/* ── 불러오는 동안 — 실제 배치와 같은 칸들 ── */
+.skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+
+.skeletonCapsule.skeletonCapsule {
+  border-radius: var(--radius-capsule);
+}
+
+/* 메일 기록 — 어떤 메일인지 */
+.purpose {
+  margin-right: var(--spacing-xs);
+  color: var(--text-secondary);
+}
+
+.emptyRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+
+/* ── 왼쪽 공급자 목록 + 오른쪽 기록 ── */
+.split {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: var(--spacing-2xl);
+  align-items: start;
+}
+
+/* 왼쪽 — 가는 테두리 패널로 오른쪽 기록과 가른다(바탕은 페이지와 같게 — 회색 바탕은 칙칙했다).
+   스크롤해도 따라온다. 누르는 줄 = 거르기 */
+.rail {
+  position: sticky;
+  top: calc(var(--header-height, 64px) + var(--spacing-md));
+  display: flex;
+  flex-direction: column;
+  padding: var(--spacing-sm);
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  background: var(--bg-primary);
+}
+
+/* 전체 — 큰 숫자 요약. hover 는 아래 줄들과 같은 옅은 회색, 고르면 바탕 없이 강조색 글자만 */
+.railTotal {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-3xs);
+  width: 100%;
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-2xl);
+  background: transparent;
+  text-align: left;
+  transition: background var(--duration-base) ease, color var(--duration-base) ease;
+}
+
+.railTotal:hover {
+  background: var(--bg-secondary);
+}
+
+.railTotalLabel {
+  font-size: var(--font-size-label);
+  font-weight: 600;
+  color: var(--text-tertiary);
+}
+
+/* 고르면 이름만 강조색 — 숫자는 그대로(강조색은 실패 표시에 쓰고 있어 섞이면 헷갈린다) */
+.railTotal[data-active] .railTotalLabel {
+  color: var(--text-accent);
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+}
+
+.railTotalNums {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-xs);
+}
+
+.railTotalNum {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-3xl);
+  font-weight: 600;
+  line-height: 1.1;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.railTotalFail {
+  font-size: var(--font-size-label);
+  font-weight: 600;
+  color: var(--text-accent);
+}
+
+.railTotalFail[data-zero] {
+  font-weight: 400;
+  color: var(--text-tertiary);
+}
+
+/* 종류 묶음 — 가는 선으로 가른다 */
+.railGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+  margin-top: var(--spacing-xs);
+  padding-top: var(--spacing-xs);
+  border-top: var(--border-light);
+}
+
+/* 한 줄 — 점 · 이름 · 건수 · 실패 네 칸을 고정 폭으로. 종류 줄·공급자 줄 모두 같은 칸이라
+   숫자가 어느 줄이든 같은 자리에 선다. 고른 줄과 hover 는 capsule 배경 */
+.railItem {
+  display: grid;
+  grid-template-columns: 6px minmax(0, 1fr) 28px 24px;
+  align-items: center;
+  gap: var(--spacing-xs);
+  width: 100%;
+  min-height: 30px;
+  padding: 0 var(--spacing-sm);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-size: var(--font-size-label);
+  color: var(--text-secondary);
+  text-align: left;
+  transition: background var(--duration-base) ease, color var(--duration-base) ease;
+}
+
+.railItem:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+/* 고른 줄 — 바탕 없이 이름만 강조색. 숫자·알약은 그대로(강조색이 실패 표시와 섞이지 않게) */
+.railItem[data-active] .railName {
+  color: var(--text-accent);
+  font-weight: 600;
+  /* 색만으로는 구분이 어려운 경우에도 보이게 밑줄을 함께 */
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+}
+
+/* 종류 줄 — 작은 대문자 제목처럼. 점 칸 없이 왼쪽 끝에서 시작해 공급자 줄과 구분된다
+   (오른쪽 건수·실패 칸은 같은 폭이라 숫자는 그대로 맞는다) */
+.railHead {
+  grid-template-columns: minmax(0, 1fr) 28px 24px;
+  min-height: 28px;
+  font-size: var(--font-size-hint);
+  font-weight: 600;
+  color: var(--text-tertiary);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+
+/* 상태 점 — 공급자의 지금 상태(설정 › 서비스 상태 패널과 같은 기준). 상태가 없는 종류는 빈 자리 */
+.railDot {
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-circle);
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--border-color-default);
+}
+
+.railDot[data-state] {
+  box-shadow: none;
+}
+
+.railDot[data-state="ok"] {
+  background: var(--bg-success-solid);
+}
+
+.railDot[data-state="failing"] {
+  background: var(--bg-warning-solid);
+}
+
+.railDot[data-state="off"] {
+  background: var(--text-accent);
+}
+
+.railDot[data-state="nokey"] {
+  background: var(--text-tertiary);
+}
+
+.railName {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.railCount {
+  justify-self: end;
+  color: var(--text-tertiary);
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 실패 칸 — 알약이 없어도 폭은 그대로 */
+.railFailSlot {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* 실패 수 — 강조색 알약 */
+.railFail {
+  min-width: 20px;
+  padding: 0 var(--spacing-2xs);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-accent-light);
+  color: var(--text-accent);
+  font-weight: 600;
+  line-height: 20px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  min-width: 0;
+}
+
+/* 오른쪽 머리 — 지금 보는 범위 · 결과 거르기 · 건수 */
+.scope {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-body);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* 좁은 화면 — 왼쪽 목록이 위로 올라가 가로로 넘기는 칩 줄이 된다 */
+@media (max-width: 900px) {
+  .split {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--spacing-md);
+  }
+
+  .rail {
+    position: static;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--spacing-2xs);
+    overflow-x: auto;
+  }
+
+  .railHeader {
+    flex-shrink: 0;
+    padding: 0 var(--spacing-2xs);
+  }
+
+
+  .railGroup {
+    flex-direction: row;
+    gap: var(--spacing-2xs);
+    margin-top: 0;
+    padding-top: 0;
+    padding-left: var(--spacing-xs);
+    border-top: none;
+    border-left: var(--border-light);
+  }
+
+  .railItem {
+    width: auto;
+    flex-shrink: 0;
+    border: var(--border-light);
+  }
+}
+
+/* 목록 머리 — "공급자·작업" + i */
+.railHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--spacing-2xs) var(--spacing-xs) var(--spacing-sm);
+  font-size: var(--font-size-label);
+  font-weight: 600;
+  color: var(--text-tertiary);
+}
+
+
+/* ── i 설명(목록 보는 법) — 예시 한 줄 + 칸 뜻, 점 색 2×2 ── */
+.legend {
+  width: 360px;
+}
+
+.legendBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  font-size: var(--font-size-label);
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.legendTitle {
+  margin: 0;
+  font-size: var(--font-size-body);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.legendSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.legendHeading {
+  font-size: var(--font-size-hint);
+  font-weight: 600;
+  color: var(--text-tertiary);
+  letter-spacing: 0.04em;
+}
+
+/* 예시 줄 — 실제 목록과 같은 칸, 누를 수 없음 */
+.legendExample.legendExample {
+  background: var(--bg-secondary);
+  pointer-events: none;
+}
+
+/* 예시 줄 아래 이름표 — 예시 줄과 같은 칸 폭(점+이름 · 건수 · 실패) */
+.legendCaptions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 28px 24px;
+  gap: var(--spacing-xs);
+  padding: 0 var(--spacing-sm);
+  margin-top: calc(-1 * var(--spacing-3xs));
+  font-size: var(--font-size-hint);
+  color: var(--text-tertiary);
+}
+
+.legendCapNum {
+  justify-self: center;
+  white-space: nowrap;
+}
+
+.legendText2 {
+  margin: 0;
+  font-size: var(--font-size-label);
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+/* 점 색 — 2×2, 이름 한 줄 · 뜻 한 줄 */
+.legendStates {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--spacing-sm) var(--spacing-md);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.legendStates li {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+}
+
+.legendStateName {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.legendStateDesc {
+  font-size: var(--font-size-hint);
+  color: var(--text-tertiary);
+}
+
+.legendNote {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin: 0;
+  padding-top: var(--spacing-xs);
+  border-top: var(--border-light);
+  font-size: var(--font-size-hint);
+  color: var(--text-tertiary);
+}
+
+/* 한 줄 읽기 · 점 색 사이 구분선 */
+.legendSection + .legendSection {
+  padding-top: var(--spacing-md);
+  border-top: var(--border-light);
+}
+
+.hintList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+  margin: 0;
+  padding-left: var(--spacing-lg);
+  font-size: var(--font-size-label);
+  line-height: 1.6;
+  color: var(--text-tertiary);
+  list-style: disc;
+}

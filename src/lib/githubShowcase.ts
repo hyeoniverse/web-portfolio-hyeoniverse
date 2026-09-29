@@ -1,5 +1,6 @@
 import { getSecret } from "@/lib/getSecret";
 import { parseReadme, absolutizeReadmeImage, type ReadmeMeta } from "@/lib/githubReadme";
+import { logGithubFailure } from "@/lib/serviceLog";
 
 /**
  * 프로필 페이지의 GitHub 활동 영역 — 지표 + 고른 저장소.
@@ -103,9 +104,10 @@ async function gh(path: string, token: string | null): Promise<unknown | null> {
       },
       next: { revalidate: REVALIDATE_SECONDS },
     });
-    if (!res.ok) return null;
+    if (!res.ok) { await logGithubFailure(path, res); return null; }
     return await res.json();
-  } catch {
+  } catch (e) {
+    await logGithubFailure(path, e);
     return null;
   }
 }
@@ -179,7 +181,7 @@ async function fetchContributions(
       body: JSON.stringify({ query, variables: { login } }),
       next: { revalidate: REVALIDATE_SECONDS },
     });
-    if (!res.ok) return null;
+    if (!res.ok) { await logGithubFailure("graphql contributions", res); return null; }
     const json = (await res.json()) as {
       data?: { user?: { contributionsCollection?: { contributionCalendar?: {
         totalContributions?: unknown;
@@ -366,9 +368,10 @@ async function ghText(path: string, token: string | null): Promise<string | null
       },
       next: { revalidate: REVALIDATE_SECONDS },
     });
-    if (!res.ok) return null;
+    if (!res.ok) { await logGithubFailure(path, res); return null; }
     return await res.text();
-  } catch {
+  } catch (e) {
+    await logGithubFailure(path, e);
     return null;
   }
 }

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { jsonError } from "@/lib/api/response";
 import { requireOwner } from "@/lib/api/requireRole";
 import { getSecret } from "@/lib/getSecret";
+import { logGithubFailure } from "@/lib/serviceLog";
 
 /**
  * GET /api/admin/giscus-repo?repo=owner/name — giscus 설정용
@@ -51,9 +52,11 @@ export async function GET(request: Request) {
       },
       body: JSON.stringify({ query, variables: { owner, name } }),
     });
-  } catch {
+  } catch (e) {
+    await logGithubFailure("giscus repository", e);
     return jsonError("GitHub 요청에 실패했습니다.", 502, { code: "GITHUB_REQUEST_FAILED" });
   }
+  await logGithubFailure("giscus repository", res);
 
   const json: {
     data?: { repository?: { id: string; hasDiscussionsEnabled: boolean; discussionCategories?: { nodes?: { id: string; name: string; emoji: string; emojiHTML: string }[] } } };

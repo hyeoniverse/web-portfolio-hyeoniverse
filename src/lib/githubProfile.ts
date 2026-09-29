@@ -1,6 +1,7 @@
 import type { User } from "@supabase/supabase-js";
 import type { SocialLink } from "@/types/social";
 import { getSecret } from "@/lib/getSecret";
+import { logGithubFailure } from "@/lib/serviceLog";
 
 /**
  * GitHub 계정에서 저자 프로필을 채운다.
@@ -84,7 +85,7 @@ export async function buildGithubAuthorFields(user: User): Promise<GithubAuthorF
       },
       signal: ac.signal,
     });
-    if (!res.ok) return base;
+    if (!res.ok) { await logGithubFailure(`/users/${login}`, res); return base; }
     const j = (await res.json()) as Record<string, unknown>;
 
     const links: SocialLink[] = [];

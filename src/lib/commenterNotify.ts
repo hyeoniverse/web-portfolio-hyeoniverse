@@ -5,6 +5,7 @@
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { MAIL_FROM } from "@/constants";
+import { logMail } from "@/lib/mail/log";
 
 interface NotifyCommenterOptions {
   table: "comments" | "work_comments";
@@ -61,10 +62,11 @@ export async function notifyCommenter(opts: NotifyCommenterOptions) {
         `,
       }),
     });
-    const resBody = await res.json();
-    console.log("[notifyCommenter] Resend response:", res.status, resBody);
+    await logMail("comment-reply", res);
+    if (!res.ok) console.error("[notifyCommenter] Resend failed:", res.status, await res.text().catch(() => ""));
   } catch (err) {
     console.error("[notifyCommenter] error:", err);
+    await logMail("comment-reply", err);
   }
 }
 

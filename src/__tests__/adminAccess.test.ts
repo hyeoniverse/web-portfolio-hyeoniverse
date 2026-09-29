@@ -33,6 +33,11 @@ describe("canOpenAdminPage", () => {
       expect(canOpenAdminPage("/admin/reports", access)).toBe(true);
     }
   });
+  it("호출 기록은 소유자만 연다", () => {
+    expect(canOpenAdminPage("/admin/service-log", OWNER)).toBe(true);
+    expect(canOpenAdminPage("/admin/service-log", ADMIN)).toBe(false);
+    expect(canOpenAdminPage("/admin/service-log", AUTHOR)).toBe(false);
+  });
 });
 
 describe("visibleAdminItems", () => {
@@ -50,6 +55,7 @@ describe("visibleAdminItems", () => {
     expect(settingsTabs(nav)).toEqual(["settings-account"]);
     // 알림·신고·댓글은 대시보드 하위 메뉴 — 관리자에게 전부 열린다
     const dashChildren = (nav.find((i) => i.key === "admin-dashboard")?.children ?? []).map((c) => c.key);
+    /* 호출 기록(소유자 전용)은 관리자 메뉴에서 빠진다 */
     expect(dashChildren).toEqual(["dashboard-traffic", "dashboard-notifications", "dashboard-reports", "dashboard-comments"]);
   });
 

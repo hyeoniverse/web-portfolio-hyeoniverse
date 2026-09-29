@@ -6,6 +6,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { MAIL_FROM } from "@/constants";
 import { getSiteConfig } from "@/lib/getSiteConfig";
+import { logMail } from "@/lib/mail/log";
 
 /** 알림 type 분류
  *  - 댓글계: comment / reply / like / report
@@ -86,8 +87,10 @@ async function sendEmail(opts: NotifyOptions) {
         `,
       }),
     });
+    await logMail("admin-notify", res);
     if (!res.ok) await logEmailFailure(`HTTP ${res.status}`);
   } catch (e) {
+    await logMail("admin-notify", e);
     await logEmailFailure(e instanceof Error ? e.message : "unknown");
   }
 }
