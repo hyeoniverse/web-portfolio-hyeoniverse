@@ -48,7 +48,8 @@
       "recaptchaNotLoaded": "reCAPTCHA didn’t load. Please refresh the page.",
       "networkError": "Network error. Please check your connection.",
       "sent": "Message sent.",
-      "sendFailed": "Couldn’t send the message. Please try again in a moment."
+      "sendFailed": "Couldn’t send the message. Please try again in a moment.",
+      "sendFailedAttachment": "Couldn’t send the message. The attachment may be the cause; please remove it and try again."
     }
   },
   "aboutPage": {
@@ -936,9 +937,7 @@
     "UPLOAD_TOO_LARGE": "The file is too large ({{size}}MB). The limit is {{max}}MB.",
     "TTS_EMPTY": "The script is empty. Write what should be read first.",
     "TTS_TOO_LONG": "The script is too long. Up to {{max}} characters per slide can be voiced.",
-    "TTS_NO_KEY": "No Gemini API key is set, so audio can’t be generated. Add GEMINI_API_KEY under API keys in Settings.",
-    "TTS_RATE_LIMITED": "Today’s audio generation limit has been reached. The browser will read this slide’s script, and you can generate it again tomorrow.",
-    "TTS_FAILED": "Couldn’t generate the audio. Please try again in a moment.",
+    "TTS_FAILED": "Couldn’t generate the audio. Please try again in a moment. (Cause: {{reason}})",
     "UPLOAD_BODY_TOO_LARGE": "The file is too large for the server to accept (about {{size}}MB). Split it or compress it.",
     "UPLOAD_UNREADABLE": "Couldn’t read the file. It may be damaged or in the wrong format.",
     "UPLOAD_NO_EXTENSION": "The file name needs an extension.",
@@ -955,6 +954,7 @@
     "COMMENT_NO_PASSWORD": "This comment was posted without a password, so it can’t be edited or deleted here. Please contact the admin.",
     "COMMENT_PASSWORD_REQUIRED": "Please enter the password.",
     "COMMENT_PASSWORD_WRONG": "The password is incorrect.",
-    "COMMENT_ALREADY_REMOVED": "This comment has already been removed."
+    "COMMENT_ALREADY_REMOVED": "This comment has already been removed.",
+    "TTS_DISABLED": "TTS is turned off. Turn it on in Settings › Services › TTS."
   }
 }

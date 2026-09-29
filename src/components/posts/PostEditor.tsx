@@ -97,6 +97,7 @@ interface PostEditorProps {
 
 import Pressable from "@/components/ui/Pressable";
 import AuthorAvatar from "@/components/ui/AuthorAvatar";
+import { reportAiResponse } from "@/lib/ai/notifyFailures";
 import { CodedError, errorFromBody, errorText } from "@/lib/apiError";
 import { sendAction, sendActions } from "@/lib/sendAction";
 
@@ -456,6 +457,7 @@ export default function PostEditor({ post }: PostEditorProps) {
   const { clearDraft } = useEditorDraft<PostFormData>({
     entityType: "post",
     entityId: post?.id,
+    baseSavedAt: post?.updated_at ? new Date(post.updated_at).getTime() : undefined,
     draftEntityId,
     snapshot: form,
     // 로컬 로드 완료 → localStorage 복원 + baseline. 서버 로드 완료 → 서버(cross-device) 복원(단 미편집 시).
@@ -845,7 +847,10 @@ export default function PostEditor({ post }: PostEditorProps) {
 
         // 발행 시 AI 요약 자동 생성 (fire-and-forget)
         if (willPublish && savedId.current) {
-          fetch(`/api/posts/${savedId.current}/ai-summary`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({}) }).catch(() => {});
+          /* 기다리지 않지만 실패는 알린다 — 조용히 버리면 키가 만료돼도 요약이 왜 안 생기는지 모른다 */
+          fetch(`/api/posts/${savedId.current}/ai-summary`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({}) })
+            .then((res) => reportAiResponse(res, t, t("admin.aiHealth.feature.summary"), { background: true }))
+            .catch(() => {});
         }
 
         const savedSlug = data.slug || form.slug;
@@ -932,16 +937,10 @@ export default function PostEditor({ post }: PostEditorProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ force: true }),
       });
+      /* 공급자마다의 원인(키 만료·한도 등)은 토스트로 — 설정 › 서비스의 AI 상태 패널에도 남는다 */
+      const data = await reportAiResponse(res, t, t("admin.aiHealth.feature.summary"));
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        const raw = data.error ?? "";
-        const status = res.status;
-        const msg = raw.includes("not configured") || status === 503 ? te("summaryNoKey")
-          : status === 429 || raw.includes("429") ? te("summaryRateLimit")
-          : status === 401 || status === 403 || raw.includes("401") || raw.includes("403") ? te("summaryAuthError")
-          : status === 400 || raw.includes("400") ? te("summaryBadRequest")
-          : te("summaryFailed");
-        setError(msg);
+        setError(res.status === 503 ? te("summaryNoKey") : errorText(data, t, te("summaryFailed")));
         return;
       }
       setStatus(te("generateSummaryDone"));

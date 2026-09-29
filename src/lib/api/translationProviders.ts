@@ -1,10 +1,28 @@
 import { getSecret } from "@/lib/getSecret";
+import { filterEnabled, missingKey, networkError, providerErrorFrom, recordFailure, recordOk, toProviderError } from "@/lib/ai/health";
+import type { AiProvider, ProviderFailure } from "@/lib/ai/providers";
 
 export type Provider = "gemini" | "google" | "deepl" | "claude";
 
+/** 번역 설정의 이름 → 상태·사용량을 세는 공급자 이름(Google 은 TTS 와 키가 달라 따로 센다) */
+export const translationAiProvider = (p: Provider): AiProvider => (p === "google" ? "google_translate" : p);
+
+/** 공급자 호출 — 연결 실패도 원인을 남길 수 있게 감싼다 */
+async function call(provider: AiProvider, url: string, init: RequestInit): Promise<Response> {
+  let res: Response;
+  try {
+    res = await fetch(url, init);
+  } catch (e) {
+    throw networkError(provider, e);
+  }
+  if (!res.ok) throw await providerErrorFrom(provider, res);
+  return res;
+}
+
 const GEMINI_API_URL =
   "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
-const DEEPL_API_URL = "https://api-free.deepl.com/v2/translate";
+/* 무료 키는 끝이 ":fx" 이고 api-free 주소만 받는다. 유료 키는 api 주소 — 주소를 하나로 박아 두면 유료 키가 403 이었다 */
+const deeplApiUrl = (key: string) => (key.endsWith(":fx") ? "https://api-free.deepl.com/v2/translate" : "https://api.deepl.com/v2/translate");
 const CLAUDE_API_URL = "https://api.anthropic.com/v1/messages";
 const GOOGLE_TRANSLATE_URL =
   "https://translation.googleapis.com/language/translate/v2";
@@ -35,7 +53,7 @@ async function translateBatchWithGemini(
   targetLang: string,
 ): Promise<ProviderBatchResult> {
   const apiKey = await getSecret("GEMINI_API_KEY");
-  if (!apiKey) throw new Error("GEMINI_API_KEY not configured");
+  if (!apiKey) throw missingKey("gemini", "GEMINI_API_KEY");
 
   const sourceName = sourceLang === "ko" ? "Korean" : "English";
   const targetName = targetLang === "ko" ? "Korean" : "English";
@@ -56,7 +74,7 @@ Rules:
 Input:
 ${JSON.stringify(inputObj, null, 2)}`;
 
-  const res = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
+  const res = await call("gemini", `${GEMINI_API_URL}?key=${apiKey}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -67,8 +85,6 @@ ${JSON.stringify(inputObj, null, 2)}`;
       },
     }),
   });
-
-  if (!res.ok) throw new Error(`Gemini API error: ${res.status}`);
 
   const data = await res.json();
   const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? "{}";
@@ -84,9 +100,9 @@ async function translateBatchWithGoogle(
   targetLang: string,
 ): Promise<ProviderBatchResult> {
   const apiKey = await getSecret("GOOGLE_TRANSLATE_API_KEY");
-  if (!apiKey) throw new Error("GOOGLE_TRANSLATE_API_KEY not configured");
+  if (!apiKey) throw missingKey("google_translate", "GOOGLE_TRANSLATE_API_KEY");
 
-  const res = await fetch(`${GOOGLE_TRANSLATE_URL}?key=${apiKey}`, {
+  const res = await call("google_translate", `${GOOGLE_TRANSLATE_URL}?key=${apiKey}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -96,8 +112,6 @@ async function translateBatchWithGoogle(
       format: "text",
     }),
   });
-
-  if (!res.ok) throw new Error(`Google Translate API error: ${res.status}`);
 
   const data = await res.json();
   const arr = data?.data?.translations;
@@ -113,9 +127,9 @@ async function translateBatchWithDeepL(
   targetLang: string,
 ): Promise<ProviderBatchResult> {
   const apiKey = await getSecret("DEEPL_API_KEY");
-  if (!apiKey) throw new Error("DEEPL_API_KEY not configured");
+  if (!apiKey) throw missingKey("deepl", "DEEPL_API_KEY");
 
-  const res = await fetch(DEEPL_API_URL, {
+  const res = await call("deepl", deeplApiUrl(apiKey), {
     method: "POST",
     headers: {
       Authorization: `DeepL-Auth-Key ${apiKey}`,
@@ -127,11 +141,6 @@ async function translateBatchWithDeepL(
       target_lang: LANG_MAP_DEEPL[targetLang],
     }),
   });
-
-  if (!res.ok) {
-    const errBody = await res.text().catch(() => "");
-    throw new Error(`DeepL API error: ${res.status} ${errBody}`);
-  }
 
   const data = await res.json();
   if (!Array.isArray(data?.translations)) throw new Error("Invalid DeepL response");
@@ -146,7 +155,7 @@ async function translateBatchWithClaude(
   targetLang: string,
 ): Promise<ProviderBatchResult> {
   const apiKey = await getSecret("ANTHROPIC_API_KEY");
-  if (!apiKey) throw new Error("ANTHROPIC_API_KEY not configured");
+  if (!apiKey) throw missingKey("claude", "ANTHROPIC_API_KEY");
 
   const sourceName = sourceLang === "ko" ? "Korean" : "English";
   const targetName = targetLang === "ko" ? "Korean" : "English";
@@ -166,7 +175,7 @@ Rules:
 Input:
 ${JSON.stringify(inputObj, null, 2)}`;
 
-  const res = await fetch(CLAUDE_API_URL, {
+  const res = await call("claude", CLAUDE_API_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -179,11 +188,6 @@ ${JSON.stringify(inputObj, null, 2)}`;
       messages: [{ role: "user", content: prompt }],
     }),
   });
-
-  if (!res.ok) {
-    const errBody = await res.text().catch(() => "");
-    throw new Error(`Claude API error: ${res.status} ${errBody}`);
-  }
 
   const data = await res.json();
   const rawText = data?.content?.[0]?.text ?? "{}";
@@ -276,10 +280,14 @@ export async function translateWithFallback(
   targetLang: string,
   logPrefix = "[translate]",
 ): Promise<
-  | { translations: string[]; failedIndices: number[] }
-  | { error: string }
+  | { translations: string[]; failedIndices: number[]; failures: ProviderFailure[] }
+  | { error: string; failures: ProviderFailure[] }
 > {
-  if (texts.length === 0) return { translations: [], failedIndices: [] };
+  if (texts.length === 0) return { translations: [], failedIndices: [], failures: [] };
+
+  /* 여러 번 이어 실패해 꺼 둔 공급자는 부르지 않는다(lib/ai/health) */
+  const { enabled, skipped } = await filterEnabled(providerList, translationAiProvider);
+  const failures: ProviderFailure[] = [...skipped];
 
   // 인덱스 기반 자동 id 부여 (호출자가 직접 id 를 다루지 않게)
   const items: TranslateItem[] = texts.map((text, i) => ({ id: `i${i}`, text }));
@@ -289,13 +297,17 @@ export async function translateWithFallback(
   let lastError = "Unknown error";
   let anyProviderTried = false;
 
-  for (const provider of providerList) {
+  for (const provider of enabled) {
     if (remaining.length === 0) break;
+    const id = translationAiProvider(provider);
     try {
+      const sent = remaining;
       const { results, failed } = await translateBatchWithProvider(
         provider, remaining, sourceLang, targetLang,
       );
       anyProviderTried = true;
+      /* 글자 단위로 매기는 공급자는 보낸 글자 수를, 나머지는 호출 수를 센다 */
+      await recordOk(id, id === "deepl" || id === "google_translate" ? sent.reduce((n, it) => n + it.text.length, 0) : undefined);
       for (const [id, text] of results) collected.set(id, text);
       // 실패한 항목들만 다음 provider 로 — 성공분은 보존
       const failedSet = new Set(failed);
@@ -304,8 +316,10 @@ export async function translateWithFallback(
         console.warn(logPrefix, provider, `partial: ${results.size}/${results.size + failed.length} succeeded, ${failed.length} retrying`);
       }
     } catch (e) {
-      lastError = e instanceof Error ? e.message : "Unknown error";
-      console.error(logPrefix, provider, lastError);
+      const err = toProviderError(id, e);
+      lastError = err.message;
+      failures.push(await recordFailure(err));
+      console.error(logPrefix, provider, err.kind, lastError);
     }
   }
 
@@ -320,7 +334,7 @@ export async function translateWithFallback(
         metadata: { context: logPrefix, providers: providerList, lastError, source: sourceLang, target: targetLang },
       });
     } catch { /* swallow */ }
-    return { error: lastError };
+    return { error: lastError, failures };
   }
 
   // 결과를 입력 순서대로 재조립 — 실패한 슬롯은 빈 문자열
@@ -333,5 +347,15 @@ export async function translateWithFallback(
     else failedIndices.push(i);
   }
 
-  return { translations, failedIndices };
+  return { translations, failedIndices, failures };
+}
+
+/** 번역 체인이 전부 실패했을 때의 응답 코드 — 키가 하나도 없으면 503, 모두 꺼져 있으면 AI_PROVIDERS_DISABLED */
+export function translationFailure(failures: ProviderFailure[]): {
+  status: 502 | 503;
+  code: "TRANSLATION_NOT_CONFIGURED" | "TRANSLATION_FAILED" | "AI_PROVIDERS_DISABLED";
+} {
+  if (failures.length > 0 && failures.every((f) => f.kind === "no_key")) return { status: 503, code: "TRANSLATION_NOT_CONFIGURED" };
+  if (failures.length > 0 && failures.every((f) => f.disabled)) return { status: 502, code: "AI_PROVIDERS_DISABLED" };
+  return { status: 502, code: "TRANSLATION_FAILED" };
 }

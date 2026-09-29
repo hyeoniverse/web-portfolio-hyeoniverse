@@ -12,6 +12,7 @@
  *  - 한 번 배정되면 lock (호출자가 cover_image 비어 있을 때만 호출)
  */
 
+import { trackedFetch } from "@/lib/ai/health";
 import { getSecret } from "@/lib/getSecret";
 
 interface AutoCoverOptions {
@@ -35,11 +36,12 @@ async function fetchUnsplash(query: string): Promise<string | null> {
   try {
     const accessKey = await getSecret("UNSPLASH_ACCESS_KEY");
     if (!accessKey) return null;
-    const res = await fetch(
+    /* 꺼 둔 공급자는 건너뛰고, 결과는 상태·사용량에 남긴다(lib/ai/health) */
+    const { res } = await trackedFetch("unsplash",
       `${UNSPLASH_API}/search/photos?query=${encodeURIComponent(query)}&page=1&per_page=1&orientation=landscape`,
       { headers: { Authorization: `Client-ID ${accessKey}` } },
     );
-    if (!res.ok) return null;
+    if (!res) return null;
     const data = await res.json();
     const photo = data.results?.[0];
     return photo?.urls?.regular ?? null;
@@ -52,11 +54,11 @@ async function fetchPexels(query: string): Promise<string | null> {
   try {
     const apiKey = await getSecret("PEXELS_API_KEY");
     if (!apiKey) return null;
-    const res = await fetch(
+    const { res } = await trackedFetch("pexels",
       `${PEXELS_API}/search?query=${encodeURIComponent(query)}&page=1&per_page=1&orientation=landscape`,
       { headers: { Authorization: apiKey } },
     );
-    if (!res.ok) return null;
+    if (!res) return null;
     const data = await res.json();
     const photo = data.photos?.[0];
     return photo?.src?.large ?? photo?.src?.original ?? null;
