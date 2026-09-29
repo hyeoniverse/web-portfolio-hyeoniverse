@@ -110,9 +110,9 @@ export function ArchitectureBlock({ value, onChange, diagram, onDiagramChange, t
         <FolderOpen size={14} className={sub.editPaneIcon} />
         <span className={sub.editPaneTitle}>{item.path || L("이름 없음", "Untitled")}</span>
       </div>
-      <Input size="sm" label={L("경로", "Path")} required clearable={false} className={sub.pathInput} autoFocus={isEmptyItem(item)}
+      <Input label={L("경로", "Path")} required clearable={false} className={sub.pathInput} autoFocus={isEmptyItem(item)}
         value={item.path} onChange={(v) => setItem(index, { path: v })} placeholder="src/app/" />
-      <Input size="sm" label={L("설명", "Description")} clearable={false}
+      <Input label={L("설명", "Description")} clearable={false}
         value={lang === "ko" ? item.description_ko : item.description_en}
         onChange={(v) => setItem(index, lang === "ko" ? { description_ko: v } : { description_en: v })}
         placeholder={lang === "ko" ? "소스 코드 루트" : "Source code root"} />

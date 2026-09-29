@@ -94,4 +94,26 @@ describe("code block copy bar", () => {
     expect(bars[0].querySelector(".code-lang-label")?.textContent).toBe("js");
     expect(bars[1].querySelector(".code-lang-label")).toBeNull();
   });
+
+  // 긴 코드(30줄 초과)만 접고 펼치기 단추를 붙인다. 짧은 코드는 접지 않는다.
+  it("collapses only long code blocks and toggles with the expand button", () => {
+    const long = Array.from({ length: 40 }, (_, i) => `line ${i + 1}`).join("\n");
+    document.body.innerHTML = `<div id="root"><pre><code>${long}</code></pre><pre><code>short</code></pre></div>`;
+    const root = document.getElementById("root")!;
+    attachCodeWrapToggle(root, { ...labels, expand: "Expand · {{n}} lines", collapse: "Collapse" });
+
+    const wraps = root.querySelectorAll(".code-block-wrap");
+    expect(wraps[0].classList.contains("is-collapsed")).toBe(true);
+    expect(wraps[1].classList.contains("is-collapsed")).toBe(false);
+    const btns = root.querySelectorAll<HTMLButtonElement>("[data-code-expand]");
+    expect(btns.length).toBe(1);
+    expect(btns[0].textContent).toBe("Expand · 40 lines");
+
+    btns[0].scrollIntoView = () => {};
+    btns[0].click();
+    expect(wraps[0].classList.contains("is-collapsed")).toBe(false);
+    expect(btns[0].textContent).toBe("Collapse");
+    btns[0].click();
+    expect(wraps[0].classList.contains("is-collapsed")).toBe(true);
+  });
 });

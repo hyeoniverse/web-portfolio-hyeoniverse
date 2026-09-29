@@ -229,7 +229,40 @@ function CalendarView({
   const monthChanged = useDepsChanged([month]);
   if (monthChanged && month) setViewMonth(Number(month));
 
-  if (format === "year") {
+  /* 보기 단계 — 날짜 → 달 → 연도. 제목(연·월)을 누르면 한 단계 위로, 격자에서 고르면 한 단계 아래로 내려온다.
+     먼 날짜로 갈 때 < > 로 한 달씩 넘기지 않아도 된다. 형식이 곧 가장 낮은 단계다(연·월 형식은 달 격자부터) */
+  const baseLevel: "day" | "month" | "year" = format === "year" ? "year" : format === "yearMonth" ? "month" : "day";
+  const [level, setLevel] = useState<"day" | "month" | "year">(baseLevel);
+  const formatChanged = useDepsChanged([format]);
+  if (formatChanged && level !== baseLevel) setLevel(baseLevel);
+  const mLabelsGrid = language === "ko" ? MONTHS_KO : MONTHS_EN;
+
+  /* 오늘 — 달력 아래. 형식에 맞게 오늘(날짜)·이번 달(연·월)·올해(연도)를 고르고, 보는 화면도 오늘로 옮긴다 */
+  const today = new Date();
+  const ty = String(today.getFullYear());
+  const tm = String(today.getMonth() + 1).padStart(2, "0");
+  const td = String(today.getDate()).padStart(2, "0");
+  const todayTime = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+  const todayOut = (minDay !== null && todayTime < minDay) || (maxDay !== null && todayTime > maxDay);
+  const todayFooter = (
+    <div className={styles.calFooter}>
+      <Pressable
+        type="button"
+        className={styles.calTodayBtn}
+        disabled={todayOut}
+        onClick={() => {
+          setViewYear(today.getFullYear());
+          setViewMonth(today.getMonth() + 1);
+          setLevel(baseLevel);
+          onSelect(ty, format === "year" ? month : tm, format === "date" ? td : day);
+        }}
+      >
+        {language === "ko" ? (format === "year" ? "올해" : format === "yearMonth" ? "이번 달" : "오늘") : (format === "year" ? "This year" : format === "yearMonth" ? "This month" : "Today")}
+      </Pressable>
+    </div>
+  );
+
+  if (level === "year") {
     const base = Math.floor(viewYear / 12) * 12;
     const years = Array.from({ length: 12 }, (_, i) => base + i);
     return (
@@ -243,37 +276,50 @@ function CalendarView({
           {years.map((y) => (
             <Pressable
               key={y} type="button"
-              className={`${styles.calCell} ${String(y) === year ? styles.calCellActive : ""}`}
-              onClick={() => onSelect(String(y), month, day)}
+              className={`${styles.calCell} ${String(y) === year ? styles.calCellActive : ""} ${y === now ? styles.calCellToday : ""}`}
+              onClick={() => {
+                /* 연도 형식이면 고른 것이 곧 값, 아니면 그 해의 달 격자로 내려간다 */
+                if (format === "year") { onSelect(String(y), month, day); return; }
+                setViewYear(y);
+                setLevel("month");
+              }}
             >{y}</Pressable>
           ))}
         </div>
+        {todayFooter}
       </div>
     );
   }
 
-  if (format === "yearMonth") {
-    const mLabels = language === "ko" ? MONTHS_KO : MONTHS_EN;
+  if (level === "month") {
     return (
       <div className={styles.calView}>
         <div className={styles.calNav}>
           <Pressable onClick={() => setViewYear(viewYear - 1)} aria-label="Previous year"><ChevronLeft size={14} strokeWidth={2} /></Pressable>
-          <span>{viewYear}</span>
+          <Pressable className={styles.calNavLabel} onClick={() => setLevel("year")} aria-label={language === "ko" ? "연도 고르기" : "Choose year"}>
+            {viewYear}
+          </Pressable>
           <Pressable onClick={() => setViewYear(viewYear + 1)} aria-label="Next year"><ChevronRight size={14} strokeWidth={2} /></Pressable>
         </div>
         <div className={styles.calMonthGrid}>
-          {mLabels.map((label, i) => {
+          {mLabelsGrid.map((label, i) => {
             const mv = String(i + 1).padStart(2, "0");
             const active = String(viewYear) === year && mv === month;
             return (
               <Pressable
                 key={mv} type="button"
                 className={`${styles.calCell} ${active ? styles.calCellActive : ""}`}
-                onClick={() => onSelect(String(viewYear), mv, day)}
+                onClick={() => {
+                  /* 연·월 형식이면 고른 것이 곧 값, 날짜 형식이면 그 달의 날짜로 내려간다 */
+                  if (format === "yearMonth") { onSelect(String(viewYear), mv, day); return; }
+                  setViewMonth(i + 1);
+                  setLevel("day");
+                }}
               >{label}</Pressable>
             );
           })}
         </div>
+        {todayFooter}
       </div>
     );
   }
@@ -304,7 +350,9 @@ function CalendarView({
       <div className={styles.calNav}>
         <Pressable onClick={() => setViewYear(viewYear - 1)} aria-label="Previous year"><ChevronsLeft size={14} strokeWidth={2} /></Pressable>
         <Pressable onClick={prevMonth} aria-label="Previous month"><ChevronLeft size={14} strokeWidth={2} /></Pressable>
-        <span>{monthLabel}</span>
+        <Pressable className={styles.calNavLabel} onClick={() => setLevel("month")} aria-label={language === "ko" ? "달 고르기" : "Choose month"}>
+          {monthLabel}
+        </Pressable>
         <Pressable onClick={nextMonth} aria-label="Next month"><ChevronRight size={14} strokeWidth={2} /></Pressable>
         <Pressable onClick={() => setViewYear(viewYear + 1)} aria-label="Next year"><ChevronsRight size={14} strokeWidth={2} /></Pressable>
       </div>
@@ -329,6 +377,7 @@ function CalendarView({
           );
         })}
       </div>
+      {todayFooter}
     </div>
   );
 }

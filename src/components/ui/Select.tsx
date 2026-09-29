@@ -3,7 +3,7 @@
 import { useState, useEffect, useLayoutEffect, useRef, useCallback, useMemo, useId, Fragment, type ReactNode, type KeyboardEvent } from "react";
 import { useDepsChanged } from "@/hooks/useDepsChanged";
 import { createPortal } from "react-dom";
-import { ChevronRight, PenLine, X } from "@/components/icons";
+import { ChevronRight, Eraser, PenLine, X } from "@/components/icons";
 import { usePortalContainer } from "./portalContainer";
 import styles from "./Select.module.css";
 import Pressable from "@/components/ui/Pressable";
@@ -49,8 +49,11 @@ interface SelectProps {
    *  "below"(trigger 아래로 연다. floating bar 처럼 위를 덮으면 안 되는 자리) */
   dropAlign?: "active" | "below";
   children?: ReactNode | ((ctx: { close: () => void }) => ReactNode);
-  /** Combobox mode — trigger 가 input. typing + free text add + suggestion 선택 모두 지원 */
-  combobox?: boolean;
+  /** Combobox mode — trigger 가 input. typing + free text add + suggestion 선택 모두 지원.
+   *  "split" 은 [선택 ▸ | 입력] 한 칸 — 왼쪽에서 "직접 입력"(맨 위) 또는 옵션을 고르고, 오른쪽 입력칸에 자유롭게 적는다.
+   *  입력값으로 목록을 거르지 않으므로 적은 값이 옵션에 없어도 목록은 그대로다. 옵션을 고르면 onChange(value),
+   *  적으면 onInputChange. value 는 지금 값과 같은 옵션의 value(없으면 "" → 왼쪽이 "직접 입력")를 넘긴다 */
+  combobox?: boolean | "split";
   /** combobox 의 input value */
   inputValue?: string;
   /** combobox typing 시 호출 */
@@ -289,7 +292,7 @@ export default function Select({
 
   // combobox: input value 로 options filter — label + searchTerms 둘 다 매칭
   const filteredOptions = useMemo(() => {
-    if (!combobox || !filterByInput) return options;
+    if (combobox !== true || !filterByInput) return options;
     const q = inputValue.trim().toLowerCase();
     if (!q) return options;
     return options.filter((o) => {
@@ -333,7 +336,9 @@ export default function Select({
         onMouseEnter={() => combobox && setActiveIdx(i)}
         onMouseDown={preserveFocus ? (e) => e.preventDefault() : undefined}
         onClick={() => {
-          if (combobox) {
+          if (combobox === "split") {
+            onChange(opt.value);
+          } else if (combobox) {
             onAdd?.(opt.value);
           } else {
             onChange(opt.value);
@@ -386,13 +391,23 @@ export default function Select({
 
   // editable: 프리셋 목록 맨 위에 "직접 입력" 항목 (다른 옵션과 동일 스타일) —
   // 클릭하면 트리거가 입력 모드로 바뀌어 프리셋 밖 값을 타이핑. (트리거 더블클릭으로도 동일.)
-  const dropdownContent = editable && !hasChildren ? (
+  const split = combobox === "split";
+  const dropdownContent = (editable || split) && !hasChildren ? (
     <>
       <Pressable
         type="button"
         className={styles.option}
         onMouseDown={preserveFocus ? (e) => e.preventDefault() : undefined}
-        onClick={() => { setOpen(false); startEditing(true); }}
+        onClick={() => {
+          setOpen(false);
+          if (split) {
+            /* 분할형 — 입력칸을 비우고 그리로 가서 새로 적는다 */
+            onInputChange?.("");
+            inputRef.current?.focus();
+            return;
+          }
+          startEditing(true);
+        }}
       >
         {showCheck && (<span className={styles.check} style={{ visibility: "hidden" }}>{"✓"}</span>)}
         <span className={styles.optionContent}>
@@ -438,7 +453,51 @@ export default function Select({
         stopEditing();
       }}
     >
-      {combobox ? (
+      {split ? (
+        <div className={`${styles.split} ${size === "sm" ? styles.splitSm : ""} ${open ? styles.splitOpen : ""} ${disabled ? styles.splitDisabled : ""}`}>
+          <Pressable
+            type="button"
+            className={styles.splitSelect}
+            onClick={() => { if (!disabled) setOpen((o) => !o); }}
+            disabled={disabled}
+            aria-haspopup="listbox"
+            aria-controls={listboxId}
+            aria-expanded={open}
+          >
+            {/* 폭은 가장 긴 항목("직접 입력" 포함)에 고정 — 무엇을 골라도 입력칸 시작점이 움직이지 않는다 */}
+            <span className={styles.valueStack}>
+              <span className={styles.value}>{selected ? selected.label : t("common.selectCustom")}</span>
+              {[t("common.selectCustom"), ...options.map((o) => o.label)].map((l, i) => (
+                <span key={i} className={styles.sizer} aria-hidden>{l}</span>
+              ))}
+            </span>
+            <ChevronRight className={`${styles.arrow} ${styles.splitArrow} ${open ? styles.arrowOpen : ""}`} size={12} strokeWidth={2.5} />
+          </Pressable>
+          <span className={styles.splitDivider} aria-hidden />
+          <input
+            ref={inputRef}
+            type="text"
+            className={styles.splitInput}
+            value={inputValue}
+            onChange={(e) => onInputChange?.(e.target.value)}
+            placeholder={placeholder}
+            disabled={disabled}
+          />
+          {inputValue && !disabled && (
+            <Pressable
+              type="button"
+              className={styles.splitClear}
+              tabIndex={-1}
+              aria-label={clearLabel}
+              title={clearLabel}
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => { onInputChange?.(""); inputRef.current?.focus(); }}
+            >
+              <Eraser size={12} strokeWidth={2} />
+            </Pressable>
+          )}
+        </div>
+      ) : combobox ? (
         <>
           <input
             ref={inputRef}

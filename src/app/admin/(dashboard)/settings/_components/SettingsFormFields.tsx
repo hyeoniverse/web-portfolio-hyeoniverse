@@ -99,6 +99,23 @@ function resolveMaxHint(v: number | MaxHintPreset | undefined | null, multiline:
   return typeof v === "string" ? MAX_HINT_PRESETS[v] : v;
 }
 
+/** input·textarea 는 selection 으로, contenteditable(HighlightInput·편집형 Textarea)은 Range 로 커서를 끝에 둔다 */
+function placeCaretAtEnd(el: HTMLElement) {
+  if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
+    const end = el.value.length;
+    el.setSelectionRange(end, end);
+    return;
+  }
+  const editable = el.isContentEditable ? el : el.querySelector<HTMLElement>("[contenteditable]");
+  if (!editable) return;
+  const range = document.createRange();
+  range.selectNodeContents(editable);
+  range.collapse(false);
+  const sel = window.getSelection();
+  sel?.removeAllRanges();
+  sel?.addRange(range);
+}
+
 export default function Field({ label, value, onChange, multiline, placeholder, hint, labelInline, required, langBadge, maxHint, maxLength, help, suggestions, inputClassName, onFocus, onBlur, tabFill }: FieldProps) {
   const { t } = useLanguage();
   const listId = useId();
@@ -107,29 +124,9 @@ export default function Field({ label, value, onChange, multiline, placeholder, 
   const options = suggestions?.filter(Boolean) ?? [];
   const badgeStr = langBadge ? langBadge.toUpperCase() : undefined;
   const hintNum = resolveMaxHint(maxHint, !!multiline);
-  /* langBadge 위치:
-     - single-line (Input) → input 박스 안 inlineLabel
-     - multiline (Textarea) → label 옆 capsule (textarea 안 inlineLabel 은 큰 영역에 시각적 어색) */
-  return (
-    <div
-      className={`${styles.fieldRow} ${labelInline ? styles.fieldRowInline : ""}`}
-      onKeyDownCapture={tabFill ? (e) => {
-        if (e.key !== "Tab" || e.shiftKey || e.nativeEvent.isComposing || value !== "") return;
-        e.preventDefault();
-        onChange(tabFill);
-      } : undefined}
-    >
-      <label className={styles.fieldLabel} htmlFor={fieldId}>
-        <span className={styles.fieldLabelText} id={`${fieldId}-label`}>
-          {label}
-          {multiline && badgeStr && <span className={styles.fieldLangBadge}>{badgeStr}</span>}
-          {required && <span className={styles.fieldRequiredDot} role="img" aria-label={t("admin.common.required")} />}
-          {help && <FieldHelp content={help} />}
-        </span>
-        {hint && <span className={styles.fieldLabelHint}>{hint}</span>}
-      </label>
-      {multiline ? (
-        <Textarea id={fieldId} size="md" value={value} onChange={onChange} placeholder={placeholder} maxHint={hintNum} />
+  /* langBadge 는 입력칸·여러 줄 칸 모두 칸 안 배지로(여러 줄 칸은 오른쪽 위, 입력 중엔 숨김) */
+  const control = multiline ? (
+        <Textarea id={fieldId} size="md" value={value} onChange={onChange} placeholder={placeholder} maxHint={hintNum} inlineLabel={badgeStr} />
       ) : hintNum != null ? (
         /* HighlightInput 은 role="textbox" div 라 htmlFor 로 안 묶인다 — aria-labelledby 로 라벨을 가리킨다 */
         <HighlightInput
@@ -161,7 +158,28 @@ export default function Field({ label, value, onChange, multiline, placeholder, 
             </datalist>
           )}
         </>
-      )}
+      );
+  return (
+    <div
+      className={`${styles.fieldRow} ${labelInline ? styles.fieldRowInline : ""}`}
+      onKeyDownCapture={tabFill ? (e) => {
+        if (e.key !== "Tab" || e.shiftKey || e.nativeEvent.isComposing || value !== "") return;
+        e.preventDefault();
+        onChange(tabFill);
+        /* 채운 뒤 커서를 글 끝으로 — 값이 그려진 다음 프레임에 옮긴다 */
+        const target = e.target as HTMLElement;
+        requestAnimationFrame(() => placeCaretAtEnd(target));
+      } : undefined}
+    >
+      <label className={styles.fieldLabel} htmlFor={fieldId}>
+        <span className={styles.fieldLabelText} id={`${fieldId}-label`}>
+          {label}
+          {required && <span className={styles.fieldRequiredDot} role="img" aria-label={t("admin.common.required")} />}
+          {help && <FieldHelp content={help} />}
+        </span>
+        {hint && <span className={styles.fieldLabelHint}>{hint}</span>}
+      </label>
+      {control}
     </div>
   );
 }

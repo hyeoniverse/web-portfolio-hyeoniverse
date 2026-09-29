@@ -913,6 +913,12 @@
   scrollbar-width: none;
   overscroll-behavior: contain;
   padding: var(--spacing-sm) var(--spacing-md);
+  border-bottom: var(--border-light);
+}
+
+/* 폴더 줄 아래 선이 있으니 첫 섹션 제목의 윗선은 뺀다(두 줄 겹침) */
+.projectSection:first-child .presetSectionHeaderDivided {
+  border-top: none;
 }
 
 .projectDirs::-webkit-scrollbar {

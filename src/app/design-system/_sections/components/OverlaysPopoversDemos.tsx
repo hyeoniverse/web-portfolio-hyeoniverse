@@ -208,12 +208,13 @@ export default function OverlaysPopoversDemos() {
         <DemoGroup title="Popover">
           <div className={styles.componentSubLabel}>base</div>
           <p className={styles.componentDesc}>
-            anchor + portal · outside click / ESC 자동 닫힘 · 터치 디바이스에선 bottom sheet 로 자동 분기 · 모달 안에선 그 stacking context 로 portal 돼 전역 z-index 없이도 모달 위에 뜬다
+            anchor + portal · outside click / ESC 자동 닫힘 · 터치 디바이스에선 bottom sheet 로 자동 분기 · 모달 안에선 그 stacking context 로 portal 돼 전역 z-index 없이도 모달 위에 뜬다 · MenuItem 목록이면 menu 를 준다 — 패널 안쪽 여백(2xs)이 공통으로 들어가 항목의 둥근 hover 배경이 패널 테두리에 붙지 않는다(호출부에서 여백을 따로 넣지 않는다)
           </p>
           <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", gap: "var(--spacing-md)", alignItems: "center" }}>
             <Popover
               trigger={<Button variant="outline" shape="square" icon={<MoreVertical size={16} />} aria-label="Row actions" />}
               sheetTitle="Row actions"
+              menu
             >
               {({ close }) => (
                 <div style={{ minWidth: 180 }}>
@@ -278,9 +279,10 @@ export default function OverlaysPopoversDemos() {
                 openOnHover
                 trigger={<Button variant="ghost" size="sm">{label}</Button>}
                 placement="bottom-start"
+                menu
               >
                 {({ close }) => (
-                  <div style={{ minWidth: 160, padding: "var(--spacing-sm)" }}>
+                  <div style={{ minWidth: 160 }}>
                     <MenuItem icon={<Star size={14} />} label={`${label} A`} onClick={close} />
                     <MenuItem icon={<Zap size={14} />} label={`${label} B`} onClick={close} />
                   </div>

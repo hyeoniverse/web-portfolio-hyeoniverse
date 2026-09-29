@@ -118,6 +118,9 @@
     }
   },
   "common": {
+    "toastConfirm": "OK",
+    "toastShowAll": "Show all",
+    "toastFullTitle": "Full message",
     "partialFailed": "Couldn’t process {{failed}} of {{total}}.",
     "loading": "Loading...",
     "error": "An error occurred",
@@ -137,6 +140,8 @@
     "codeScrollTitle": "Switch to horizontal scroll",
     "codeCopy": "Copy",
     "codeCopied": "Copied",
+    "codeExpand": "Expand · {{n}} lines",
+    "codeCollapse": "Collapse",
     "mermaidViewCode": "View code",
     "mermaidHideCode": "Hide code",
     "cancel": "Cancel",
@@ -207,6 +212,7 @@
     },
     "likeFailed": "Couldn’t update your like. Please try again.",
     "periodStart": "Start",
+    "periodTime": "Time",
     "periodEnd": "End",
     "periodOngoing": "Ongoing",
     "periodFormat": "Format",

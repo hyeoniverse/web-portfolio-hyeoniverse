@@ -2,10 +2,11 @@ import type { LocalizedText } from "@/types/common";
 import { siteConfig } from "@/config/site.config";
 
 export interface DatePeriod {
-  start: string;        // "2024" | "2024-03" | "2024-03-15"
+  start: string;        // "2024" | "2024-03" | "2024-03-15" | "2024-03-15T14:30"
   end?: string;
   ongoing?: boolean;
-  format: "year" | "yearMonth" | "date";
+  /** dateTime — 날짜 + 시각(시:분, 현지 시각). 저장은 "YYYY-MM-DDTHH:mm" */
+  format: "year" | "yearMonth" | "date" | "dateTime";
 }
 
 export interface Experience {

@@ -213,6 +213,17 @@ function buildHtml(value: string, maxHint: number, overClass: string): string {
   return `${before}<mark class="${overClass}">${after}</mark>`;
 }
 
+// 다 지우면(전체 선택 후 삭제 등) 브라우저가 빈 <br> 하나를 남겨 innerText 가 "\n" 이 된다 —
+// 글자 수가 1 로 남고 placeholder 도 안 보여서, 글자 없는 줄 하나뿐이면 빈 값으로 보고 남은 태그도 비운다.
+function readValue(el: HTMLDivElement): string {
+  const raw = el.innerText ?? "";
+  if (raw === "\n" && !el.textContent) {
+    el.innerHTML = "";
+    return "";
+  }
+  return raw;
+}
+
 /** root element 안 caret 의 텍스트 offset (innerText 기준 — 줄바꿈 \n 도 카운트).
    value 를 innerText 로 읽으므로 offset 도 innerText 좌표여야 함. Range.toString() 은 <br>/<div>
    줄바꿈을 세지 않아 어긋나므로, caret 위치에 sentinel 을 잠깐 넣고 innerText 에서 그 index 를 읽는다.
@@ -359,7 +370,7 @@ function EditableTextarea({
     (e: FormEvent<HTMLDivElement>) => {
       markTyping(); // 조합 중(한글)에도 글자는 들어오므로 early return 앞에서 부른다
       if (isComposingRef.current) return; // composition 끝나면 onCompositionEnd 에서 처리
-      const raw = e.currentTarget.innerText ?? "";
+      const raw = readValue(e.currentTarget);
       const text = capAndSync(e.currentTarget, raw);
       notifyOverflow(raw);
       onChange(text);
@@ -372,7 +383,7 @@ function EditableTextarea({
       isComposingRef.current = false;
       setComposing(false);
       markTyping();
-      const raw = e.currentTarget.innerText ?? "";
+      const raw = readValue(e.currentTarget);
       const text = capAndSync(e.currentTarget, raw);
       notifyOverflow(raw);
       onChange(text);
