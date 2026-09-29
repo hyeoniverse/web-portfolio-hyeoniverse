@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { ImageViewer } from "@/components/ui/ImageViewer";
 import { pickLocalized } from "@/types/common";
 import WorkGallery from "./WorkGallery";
+import { readerNotes } from "@/lib/galleryNotes";
 import { isOfficeDocUrl } from "@/lib/officeViewer";
 import type { WorkArticleViewProps } from "./workArticleTypes";
 
@@ -37,7 +38,8 @@ export function WorkArticleGallery({ project, viewLang }: WorkArticleViewProps) 
           images={project.gallery}
           title={pickLocalized(project.title, viewLang)}
           onOpen={(index) => setViewer({ open: true, index: toViewerIndex(index) })}
-          notes={project.galleryNotes}
+          /* 보는 언어의 대본·음성 — 영어가 없는 장은 한국어로 */
+          notes={readerNotes(project.galleryNotes, viewLang === "en" ? "en" : "ko")}
           suspended={viewer.open}
         />
       </motion.div>

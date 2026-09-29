@@ -39,6 +39,8 @@ export interface GalleryNote {
   audioScript?: string;
   /** TTS 로 만들 때 실제로 쓴 목소리("제공자:성별", lib/ttsVoices) — 고른 제공자가 실패해 넘어갔으면 다를 수 있다 */
   audioVoice?: string;
+  /** 영어 대본·음성 — 위 칸들이 한국어(기본)이고, 영어는 같은 모양으로 여기에 둔다. 비어 있으면 영어 화면은 한국어를 쓴다 */
+  en?: Omit<GalleryNote, "en">;
 }
 export type GalleryNotes = Record<string, GalleryNote>;
 
