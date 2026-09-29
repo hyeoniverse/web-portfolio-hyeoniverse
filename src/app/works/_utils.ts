@@ -1,29 +1,10 @@
 import type { TocHeading } from "@/types";
-import { slugify } from "@/components/posts/MarkdownRenderer";
+import { extractHeadings as extractDocHeadings } from "@/utils/headingUtils";
 
-/** Extract h2 headings from content for TOC */
+/** 목차 제목 — 글(posts)과 같은 공용 규칙(h1~h4, 같은 이름 제목 번호 붙이기)을 쓴다.
+ *  예전에는 h2 만 뽑아 h3·h4 가 목차에 나오지 않았고 모든 항목이 같은 단계로 보였다. */
 export function extractHeadings(content: string, isRichtext: boolean): TocHeading[] {
-  const headings: TocHeading[] = [];
-
-  if (isRichtext) {
-    const regex = /<h2[^>]*>(.*?)<\/h2>/gi;
-    let match;
-    while ((match = regex.exec(content)) !== null) {
-      const text = match[1].replace(/<[^>]+>/g, "");
-      const id = slugify(text);
-      headings.push({ id, text, level: 2 });
-    }
-  } else {
-    const regex = /^##\s+(.+)$/gm;
-    let match;
-    while ((match = regex.exec(content)) !== null) {
-      const text = match[1].trim();
-      const id = slugify(text);
-      headings.push({ id, text, level: 2 });
-    }
-  }
-
-  return headings;
+  return extractDocHeadings(content, !isRichtext);
 }
 
 /**

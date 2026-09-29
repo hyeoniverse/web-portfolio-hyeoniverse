@@ -124,10 +124,17 @@ h6 { font-size: var(--font-size-label); }
 /* 본문 제목 크기 — 편집기·글·작업물 본문에서만. 전역 h1~h6(위)는 화면 UI 제목이 함께 쓰므로 건드리지 않는다.
    본문이 16px 이라 예전 값(h1 24 · h2 20 · h3 18 · h4 16)은 본문과 거의 같아 단계가 보이지 않았다.
    h5·h6 는 편집기에서 만들 수 없고(마크다운 변환도 뺐다) 예전 글·붙여넣은 HTML 에만 남아 있어 본문 크기 언저리로 둔다. */
-.prose-content h1 { font-size: var(--font-size-3xl); }
-.prose-content h2 { font-size: var(--font-size-2xl); }
-.prose-content h3 { font-size: var(--font-size-xl); }
-.prose-content h4 { font-size: var(--font-size-lg); }
+/* 굵기도 단계로 — 모두 500 이면 굵은 본문(700)보다 제목이 약해 보이고 크기만으로 단계를 가려야 했다.
+   h2 는 28 로 올려 섹션 제목과 h3(20) 사이를 벌리고, h4 는 본문 크기에 굵기로만 구분한다(GitHub 과 같은 방식). */
+/* 본문 안 링크(#제목)로 이동할 때 상단 메뉴에 가리지 않게 */
+.prose-content :is(h1, h2, h3, h4) {
+  scroll-margin-top: calc(var(--spacing-4xl) + var(--spacing-xl));
+}
+
+.prose-content h1 { font-size: var(--font-size-3xl); font-weight: var(--font-weight-bold); }
+.prose-content h2 { font-size: var(--font-size-2xl-plus); font-weight: var(--font-weight-bold); }
+.prose-content h3 { font-size: var(--font-size-xl); font-weight: var(--font-weight-semibold); }
+.prose-content h4 { font-size: var(--font-size-md); font-weight: var(--font-weight-semibold); }
 .prose-content h5 { font-size: var(--font-size-md); }
 .prose-content h6 { font-size: var(--font-size-body); }
 
@@ -224,4 +231,59 @@ kbd {
 
 [data-theme="dark"] body::after {
   mix-blend-mode: screen;
+}
+
+/* 리더뷰 콜아웃 아이콘 — 인라인 스타일은 20px·line-height 1 이라 본문 첫 줄보다 위로 뜬다.
+   콜아웃에서 잰 한 줄 높이(1lh, 등록된 길이라 px 로 굳어 상속)를 아이콘 상자 높이로 삼아 첫 줄 가운데에 둔다 */
+@property --callout-line {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
+}
+
+.prose-content [data-callout] {
+  --callout-line: 1lh;
+}
+
+.prose-content [data-callout-icon-visual] {
+  display: flex;
+  align-self: flex-start;
+  align-items: center;
+  justify-content: center;
+  height: var(--callout-line);
+}
+
+/* 리더뷰 토글(enhanceToggles) — 첫 줄이 제목 단추, 닫혀 있으면 나머지를 숨긴다. 편집기 안(.slate-*)은 편집기가 그린다 */
+.prose-content [data-toggle] {
+  margin: var(--spacing-lg) 0;
+}
+
+.prose-content [data-toggle] > [data-toggle-head] {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin: 0;
+  cursor: pointer;
+  user-select: none;
+}
+
+.prose-content [data-toggle] > [data-toggle-head]::before {
+  flex: none;
+  font-size: var(--font-size-label);
+  color: var(--text-tertiary);
+  transition: rotate var(--duration-fast) ease;
+  content: "▶";
+}
+
+.prose-content [data-toggle][data-open] > [data-toggle-head]::before {
+  rotate: 90deg;
+}
+
+/* 이미지 블록(figure)은 직렬화 때 display:flex 가 인라인으로 박혀 있어 !important 가 없으면 닫아도 남는다 */
+.prose-content [data-toggle]:not([data-open]) > :not([data-toggle-head]) {
+  display: none !important;
+}
+
+.prose-content [data-toggle][data-open] > [data-toggle-head] {
+  margin-bottom: var(--spacing-sm);
 }

@@ -39,13 +39,15 @@ export function useRichtextEnhance(
     let cancelled = false;
     let extrasCleanup: (() => void) | undefined;
     let detachFallback: (() => void) | undefined;
+    let togglesCleanup: (() => void) | undefined;
 
     const apply = async () => {
       if (cancelled || !el.isConnected) return;
-      const [{ renderMathNodes }, code, { enhanceReaderExtras }] = await Promise.all([
+      const [{ renderMathNodes }, code, { enhanceReaderExtras }, { enhanceToggles }] = await Promise.all([
         import("@/components/posts/renderMathNodes"),
         import("@/components/posts/highlightCodeBlocks"),
         import("@/components/posts/enhanceReaderExtras"),
+        import("@/components/posts/enhanceToggles"),
       ]);
       if (cancelled || !el.isConnected) return;
       const tr = tRef.current;
@@ -78,6 +80,8 @@ export function useRichtextEnhance(
       });
       detachFallback?.();
       detachFallback = attachImageFallback(el);
+      togglesCleanup?.();
+      togglesCleanup = enhanceToggles(el);
 
       // 재적용 판정용 sentinel — React 가 innerHTML 을 다시 세팅하면 이것도 같이 지워진다.
       if (!el.querySelector(`:scope > [${ENHANCED_FLAG}]`)) {
@@ -104,6 +108,7 @@ export function useRichtextEnhance(
       mo.disconnect();
       extrasCleanup?.();
       detachFallback?.();
+      togglesCleanup?.();
     };
   }, [ref, enabled, html]);
 }

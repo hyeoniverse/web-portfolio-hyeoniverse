@@ -36,8 +36,13 @@ marked.use(
   hooks: {
     postprocess(html: string): string {
       // heading에 id 추가
+      // 같은 이름 제목은 목차(extractHeadings)와 같은 규칙으로 -2, -3 을 붙인다
+      const seen = new Map<string, number>();
       html = html.replace(/<h(\d)>([\s\S]*?)<\/h\1>/g, (_, depth, content) => {
-        const id = slugify(content);
+        const base = slugify(content);
+        const n = (seen.get(base) ?? 0) + 1;
+        seen.set(base, n);
+        const id = n === 1 ? base : `${base}-${n}`;
         return `<h${depth} id="${id}">${content}</h${depth}>`;
       });
       // 각주 정의 li에 data-label 추가 (원본 번호 표시용)
