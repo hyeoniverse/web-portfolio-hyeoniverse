@@ -3,13 +3,14 @@
 import { useMemo, useState } from "react";
 import type { LocalizedText } from "@/types/common";
 import type { SelectOption } from "@/types";
-import { Calendar } from "@/components/icons";
+import { Calendar, Clock } from "@/components/icons";
 import type { DatePeriod } from "@/data/profile";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { formatPeriod } from "@/utils/formatPeriod";
 import Checkbox from "@/components/ui/Checkbox";
 import Select from "@/components/ui/Select";
 import DatePickerPopover from "./DatePickerPopover";
+import TimePickerPopover from "./TimePickerPopover";
 import styles from "./DatePicker.module.css";
 import Pressable from "@/components/ui/Pressable";
 
@@ -32,7 +33,11 @@ const FORMAT_OPTIONS: { value: Format; label: LocalizedText }[] = [
   { value: "year", label: { ko: "연도", en: "Year" } },
   { value: "yearMonth", label: { ko: "연.월", en: "Y.M" } },
   { value: "date", label: { ko: "연.월.일", en: "Y.M.D" } },
+  { value: "dateTime", label: { ko: "연.월.일.시", en: "Y.M.D.h" } },
 ];
+
+/** 날짜까지만 보는 달력에 넘길 형식 — 시각 형식은 날짜 달력을 쓴다 */
+const calendarFormat = (f: Format): "year" | "yearMonth" | "date" => (f === "dateTime" ? "date" : f);
 
 /** 해당 월의 최대 일수 (윤년 미고려, 2월=29) */
 function daysInMonth(month: number): number {
@@ -65,7 +70,6 @@ function DatePart({
       options={options}
       onChange={onChange}
       disabled={disabled}
-      showCheck
       /* 기본(32) — 프로필·작업물 편집기의 이웃 입력칸이 전부 md 라 sm 이면 이 줄만 낮아 보인다 */
       width="min"
       editable
@@ -82,27 +86,36 @@ function DatePart({
   );
 }
 
-/** "2024-03-15" → { year: "2024", month: "03", day: "15" } */
-function parseDateStr(d: string | undefined): { year: string; month: string; day: string } {
-  if (!d) return { year: "", month: "", day: "" };
-  const parts = d.split("-");
+/** "2024-03-15T14:30" → { year: "2024", month: "03", day: "15", hour: "14", minute: "30" } */
+function parseDateStr(d: string | undefined): { year: string; month: string; day: string; hour: string; minute: string } {
+  if (!d) return { year: "", month: "", day: "", hour: "", minute: "" };
+  const [datePart, timePart = ""] = d.split("T");
+  const parts = datePart.split("-");
+  const [hour = "", minute = ""] = timePart.split(":");
   return {
     year: parts[0] || "",
     month: parts[1] || "",
     day: parts[2] || "",
+    hour,
+    minute,
   };
 }
 
-/** parts → "2024" | "2024-03" | "2024-03-15" */
+/** parts → "2024" | "2024-03" | "2024-03-15" | "2024-03-15T14:30" */
 function buildDateStr(
   year: string,
   month: string,
   day: string,
   format: Format,
+  hour = "",
+  minute = "",
 ): string {
   if (format === "year") return year;
   if (format === "yearMonth") return month ? `${year}-${month}` : year;
-  return day ? `${year}-${month || "01"}-${day}` : month ? `${year}-${month}` : year;
+  const date = day ? `${year}-${month || "01"}-${day}` : month ? `${year}-${month}` : year;
+  /* 시각은 날짜가 다 있을 때만 붙인다. 시만 골랐으면 분은 00 */
+  if (format === "dateTime" && day && hour) return `${date}T${hour}:${minute || "00"}`;
+  return date;
 }
 
 function DateInputRow({
@@ -122,9 +135,11 @@ function DateInputRow({
   minDate?: Date;
   maxDate?: Date;
 }) {
-  const { year, month, day } = parseDateStr(dateStr);
+  const { t } = useLanguage();
+  const { year, month, day, hour, minute } = parseDateStr(dateStr);
   const maxDay = daysInMonth(Number(month) || 1);
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [timeOpen, setTimeOpen] = useState(false);
 
   // 현재 선택된 year/month 기준으로 month/day 의 cap 계산 (min/maxDate 가 같은 year/month 일 때만 조여짐)
   const numericYear = Number(year);
@@ -140,17 +155,22 @@ function DateInputRow({
   const dayMinCap = (minYear !== undefined && numericYear === minYear && minMonth === numericMonth) ? minDay : undefined;
   const dayMaxCap = (maxYear !== undefined && numericYear === maxYear && maxMonth === numericMonth) ? maxDayOfBoundMonth : undefined;
 
-  const update = (part: "year" | "month" | "day", val: string) => {
+  const update = (part: "year" | "month" | "day" | "hour" | "minute", val: string) => {
     const y = part === "year" ? val : year;
     const m = part === "month" ? val : month;
     const d = part === "day" ? val : day;
-    onChange(buildDateStr(y, m, d, format));
+    const h = part === "hour" ? val : hour;
+    const mi = part === "minute" ? val : minute;
+    onChange(buildDateStr(y, m, d, format, h, mi));
   };
 
   return (
-    <div className={styles.dateRow}>
+    /* 시각까지 적는 형식은 줄이 길어 시작·종료를 나란히 두지 않는다 — 한 줄 전체를 써서 폭이 정말 모자랄 때만 줄을 바꾼다 */
+    <div className={`${styles.dateRow} ${format === "dateTime" ? styles.dateRowFull : ""}`}>
       {label && <span className={styles.dateLabel}>{label}</span>}
       <div className={styles.dateInputs}>
+        {/* 날짜 묶음(연·월·일·달력)과 시각 묶음(시간·시·분·시계)은 각각 한 덩어리 — 줄이 모자라면 묶음 단위로 내린다 */}
+        <span className={styles.dateGroup}>
         <DatePart
           value={year}
           options={(() => {
@@ -169,9 +189,9 @@ function DateInputRow({
           maxLength={4}
           placeholder="YYYY"
         />
-        {(format === "yearMonth" || format === "date") && (
+        {(format === "yearMonth" || format === "date" || format === "dateTime") && (
           <>
-            <span className={styles.dateSep} aria-hidden>·</span>
+            <span className={styles.dateDot} aria-hidden />
             <DatePart
               value={month}
               options={(() => {
@@ -189,9 +209,9 @@ function DateInputRow({
             />
           </>
         )}
-        {format === "date" && (
+        {(format === "date" || format === "dateTime") && (
           <>
-            <span className={styles.dateSep} aria-hidden>·</span>
+            <span className={styles.dateDot} aria-hidden />
             <DatePart
               value={day}
               options={(() => {
@@ -209,7 +229,7 @@ function DateInputRow({
             />
           </>
         )}
-        {/* Picker trigger */}
+        {/* 날짜 달력 — 시각 형식이면 날짜 칸 바로 뒤, 아니면 줄 끝 */}
         <div className={styles.pickerAnchor}>
           <Pressable
             type="button"
@@ -218,16 +238,17 @@ function DateInputRow({
             disabled={disabled}
             aria-label="Open date picker"
           >
-            <Calendar size={14} strokeWidth={1.5} />
+            <Calendar size={16} strokeWidth={1.5} />
           </Pressable>
           {pickerOpen && (
             <DatePickerPopover
               year={year}
               month={month}
               day={day}
-              format={format}
+              format={calendarFormat(format)}
               onSelect={(y, m, d) => {
-                onChange(buildDateStr(y, m, d, format));
+                /* 달력은 날짜만 고른다 — 이미 고른 시각은 그대로 둔다 */
+                onChange(buildDateStr(y, m, d, format, hour, minute));
               }}
               onClose={() => setPickerOpen(false)}
               minDate={minDate}
@@ -235,6 +256,57 @@ function DateInputRow({
             />
           )}
         </div>
+        </span>
+        {/* 시각 — 날짜 뒤에 한 칸 띄워 시:분. 분은 1분 단위, 직접 입력(더블클릭)도 된다 */}
+        {format === "dateTime" && (
+          <span className={styles.dateGroup}>
+            <span className={styles.dateTimeLabel}>{t("common.periodTime")}</span>
+            <DatePart
+              value={hour}
+              options={Array.from({ length: 24 }, (_, i) => {
+                const v = String(i).padStart(2, "0");
+                return { value: v, label: v };
+              })}
+              onChange={(v) => update("hour", v)}
+              disabled={disabled || !day}
+              maxLength={2}
+              placeholder="HH"
+            />
+            <span className={styles.dateSep} aria-hidden>:</span>
+            <DatePart
+              value={minute}
+              options={Array.from({ length: 60 }, (_, i) => {
+                const v = String(i).padStart(2, "0");
+                return { value: v, label: v };
+              })}
+              onChange={(v) => update("minute", v)}
+              disabled={disabled || !day}
+              maxLength={2}
+              placeholder="mm"
+            />
+            {/* 시각 선택 — 시·분 스피너(1분 단위) */}
+            <div className={styles.pickerAnchor}>
+              <Pressable
+                type="button"
+                className={styles.pickerBtn}
+                onClick={() => setTimeOpen(!timeOpen)}
+                disabled={disabled || !day}
+                aria-label="Open time picker"
+              >
+                <Clock size={16} strokeWidth={1.5} />
+              </Pressable>
+              {timeOpen && (
+                <TimePickerPopover
+                  hour={hour || "00"}
+                  minute={minute || "00"}
+                  minuteStep={1}
+                  onSelect={(h, mi) => onChange(buildDateStr(year, month, day, format, h, mi))}
+                  onClose={() => setTimeOpen(false)}
+                />
+              )}
+            </div>
+          </span>
+        )}
       </div>
     </div>
   );

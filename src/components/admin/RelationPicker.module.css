@@ -39,11 +39,8 @@
 
 /* 떠 있는 목록 패널 — 닫혀 있을 때도 그려 두고 투명도·이동으로만 여닫는다 */
 .inputAreaExpand {
-  position: absolute;
-  top: calc(100% + var(--spacing-2xs));
-  left: 0;
-  right: 0;
-  z-index: 20;
+  position: fixed;
+  z-index: var(--z-dropdown);
   max-height: 320px;
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -58,7 +55,7 @@
   transition: opacity 0.15s ease, transform 0.15s ease, visibility 0s linear 0.15s;
 }
 
-.inputAreaOpen .inputAreaExpand {
+.inputAreaExpand.inputAreaExpandOpen {
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
@@ -277,6 +274,7 @@
 .dropdownList {
   display: flex;
   flex-direction: column;
+  gap: var(--spacing-2xs);
   padding: var(--spacing-2xs);
 }
 

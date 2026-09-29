@@ -118,6 +118,9 @@
     }
   },
   "common": {
+    "toastConfirm": "확인",
+    "toastShowAll": "전체 보기",
+    "toastFullTitle": "알림 전체 보기",
     "partialFailed": "{{total}}개 중 {{failed}}개를 처리하지 못했습니다.",
     "loading": "로딩 중...",
     "error": "오류가 발생했습니다",
@@ -137,6 +140,8 @@
     "codeScrollTitle": "가로 스크롤로 전환",
     "codeCopy": "복사",
     "codeCopied": "복사됨",
+    "codeExpand": "펼치기 · {{n}}줄",
+    "codeCollapse": "접기",
     "mermaidViewCode": "코드 보기",
     "mermaidHideCode": "코드 숨기기",
     "cancel": "취소",
@@ -207,6 +212,7 @@
     },
     "likeFailed": "좋아요를 반영하지 못했습니다. 잠시 뒤 다시 시도해 주세요.",
     "periodStart": "시작",
+    "periodTime": "시간",
     "periodEnd": "종료",
     "periodOngoing": "진행 중",
     "periodFormat": "표시 형식",

@@ -1,6 +1,7 @@
 import type { Project, LocalizedText, GalleryNotes } from "@/data/projects";
 import { formatProjectNumber } from "@/utils/formatProjectNumber";
 import { getCardSize } from "@/utils/getCardSize";
+import { syncOwnerRole } from "@/utils/workFormUtils";
 
 export interface TeamMember {
   /**
@@ -176,7 +177,9 @@ function buildLegacyContent(
  * WorkFormData 에 없는 DB 전용 필드(id/slug/타임스탬프/legacy 섹션 등)는
  * 빈 값/기본값으로 채운 뒤 workToProject 로 변환 — 변환 로직 재사용.
  */
-export function workFormToProject(form: WorkFormData): Project {
+export function workFormToProject(input: WorkFormData): Project {
+  /* 내 역할·담당 업무는 본인 팀원 값 — 저장과 같은 규칙으로 미리보기 */
+  const form = syncOwnerRole(input);
   const work: Work = {
     id: "preview",
     slug: form.slug || "",

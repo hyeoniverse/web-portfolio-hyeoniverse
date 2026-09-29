@@ -366,7 +366,6 @@ function ProviderFallbackSection<P extends string>({
           />
         </FieldRow>
         <Switch
-          size="sm"
           showStateText
           label={t("admin.settings.fallbackEnabled")}
           labelPosition="top"
@@ -526,7 +525,6 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
             />
           </FieldRow>
           <Switch
-            size="sm"
             label={t("admin.settings.emailFileUpload")}
             labelPosition="top"
             checked={config.emailService.enableFileUpload}

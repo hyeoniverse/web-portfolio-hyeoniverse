@@ -10,6 +10,8 @@ import { FONT_GROUPS } from "@/components/posts/plate/constants";
 import Select from "@/components/ui/Select";
 import ColorPicker from "@/components/ui/ColorPicker";
 import PeriodPicker from "@/components/ui/DatePicker/PeriodPicker";
+import TimePicker from "@/components/ui/DatePicker/TimePicker";
+import DateTimePicker from "@/components/ui/DatePicker/DateTimePicker";
 import type { DatePeriod } from "@/data/profile";
 import Tooltip from "@/components/ui/Tooltip";
 import Chip from "@/components/ui/Chip";
@@ -38,11 +40,14 @@ export default function PickersSelectsDemos() {
   const [selectFontSize, setSelectFontSize] = useState("16");
   const [selectLineHeight, setSelectLineHeight] = useState("1.6");
   const [comboInput, setComboInput] = useState("");
+  const [splitValue, setSplitValue] = useState("");
   const [comboTags, setComboTags] = useState<string[]>(["React"]);
   const [bubbleVal, setBubbleVal] = useState("normal");
   const [dpFormat, setDpFormat] = useState<"year" | "yearMonth" | "date">("date");
   const [dpDate, setDpDate] = useState({ year: "2024", month: "03", day: "15" });
   const [period, setPeriod] = useState<DatePeriod>({ start: "2024-03", end: "2024-12", format: "yearMonth" });
+  const [dsTime, setDsTime] = useState({ hour: "14", minute: "30" });
+  const [dsDateTime, setDsDateTime] = useState<string | null>("2024-03-15T14:30:00.000Z");
   const [pickerColor, setPickerColor] = useState("#d01046");
   // EmojiPicker 데모
   const [dsEmojiOpen, setDsEmojiOpen] = useState(false);
@@ -158,6 +163,27 @@ export default function PickersSelectsDemos() {
                   ))}
                 </div>
               )}
+            </motion.div>
+          </div>
+          <div className={styles.componentSubLabel}>combobox=&quot;split&quot; — [선택 ▸ | 입력]</div>
+          <p className={styles.componentDesc}>
+            {md(language === "ko"
+              ? "한 값을 프리셋에서 고르거나 직접 적는 칸입니다. 왼쪽 선택 맨 위의 **직접 입력**을 고르면 오른쪽 입력칸을 비우고 커서를 옮기며, 프리셋을 고르면 그 값이 들어갑니다. 입력값으로 목록을 거르지 않고, 적은 값이 프리셋과 같으면 왼쪽이 그 프리셋을 가리킵니다. 왼쪽 폭은 가장 긴 항목에 고정되고, 입력칸에 값이 있으면 지우개가 붙습니다. 멤버 직무·팀원 프로필 링크·기술 스택 카테고리가 이 방식입니다."
+              : "Pick one value from presets or type your own. Choosing **Custom value** at the top of the left select clears the input and moves the caret there; picking a preset fills it. The list isn't filtered by the input, and when the typed value equals a preset the left side points to it. The left side is sized to the longest option, and an eraser appears while the input has a value. Used for member job titles, team profile links and tech-stack categories.")}
+          </p>
+          <div className={styles.sliderRow}>
+            <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-xs)", minWidth: 320 }}>
+              <Select
+                combobox="split"
+                width="full"
+                dropAlign="below"
+                value={["프론트엔드 개발자", "백엔드 개발자", "UI/UX 디자이너"].includes(splitValue) ? splitValue : ""}
+                inputValue={splitValue}
+                onInputChange={setSplitValue}
+                onChange={setSplitValue}
+                options={["프론트엔드 개발자", "백엔드 개발자", "UI/UX 디자이너"].map((v) => ({ value: v, label: v }))}
+                placeholder={language === "ko" ? "직무" : "Job title"}
+              />
             </motion.div>
           </div>
           <div className={styles.componentSubLabel}>editable — 프리셋 밖 값 직접 입력</div>
@@ -303,8 +329,28 @@ export default function PickersSelectsDemos() {
 
         {/* PeriodPicker */}
         <DemoGroup title="PeriodPicker">
-          <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-md)", maxWidth: 540 }}>
+          <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-md)", maxWidth: 760 }}>
             <PeriodPicker value={period} onChange={setPeriod} />
+          </motion.div>
+        </DemoGroup>
+
+        {/* TimePicker · DateTimePicker */}
+        <DemoGroup
+          title="TimePicker · DateTimePicker"
+          ko={"시·분을 고릅니다. 24시간·12시간(오전/오후) 표기를 바꿀 수 있고, minuteStep 으로 분 간격을 정합니다. DateTimePicker 는 날짜 달력과 시간 선택을 한 칸에 묶은 것으로, 예약 발행·캘린더 일정에 씁니다."}
+          en={"Pick hours and minutes — switch between 24-hour and 12-hour (AM/PM), with minuteStep for the minute interval. DateTimePicker combines the date calendar and time picker in one field (scheduled publishing, calendar events)."}
+        >
+          <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-start", gap: "var(--spacing-xl)" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-xs)" }}>
+              <span className={styles.sliderLabel}>TimePicker — {dsTime.hour}:{dsTime.minute}</span>
+              <div style={{ border: "var(--border-light)", borderRadius: "var(--radius-2xl)", overflow: "hidden" }}>
+                <TimePicker hour={dsTime.hour} minute={dsTime.minute} minuteStep={5} onSelect={(hour, minute) => setDsTime({ hour, minute })} />
+              </div>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-xs)", minWidth: 280 }}>
+              <span className={styles.sliderLabel}>DateTimePicker</span>
+              <DateTimePicker value={dsDateTime} onChange={setDsDateTime} />
+            </div>
           </motion.div>
         </DemoGroup>
 

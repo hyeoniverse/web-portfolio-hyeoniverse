@@ -13,7 +13,13 @@ export interface WrapLabels {
   scrollTitle: string;
   copy: string;
   copied: string;
+  /** 긴 코드 펼치기/접기 — {{n}} 은 줄 수. 없으면 한국어 기본값 */
+  expand?: string;
+  collapse?: string;
 }
+
+/** 이 줄 수를 넘는 코드만 접어 두고 "펼치기"를 붙인다. 그보다 짧으면 높이 제한 없이 다 보인다 */
+const COLLAPSE_LINES = 30;
 
 export function highlightCodeBlocks(container: HTMLElement) {
   // markdown 콘텐츠용 DOM 하이라이팅. wrap/컨트롤 버튼 주입은 attachCodeWrapToggle 이 처리.
@@ -189,6 +195,17 @@ export function attachCodeWrapToggle(
       rc.setAttribute("aria-hidden", "true");
       outer.appendChild(rc);
     }
+    /* 긴 코드는 접어 둔다 — 창 안 세로 스크롤 대신 페이지 흐름 그대로 읽고, 필요할 때 펼친다 */
+    const lineCount = (codeEl?.textContent ?? pre.textContent ?? "").replace(/\n$/, "").split("\n").length;
+    if (lineCount > COLLAPSE_LINES && !outer.querySelector(":scope > .code-expand-btn")) {
+      wrap.classList.add("is-collapsed");
+      const expandBtn = document.createElement("button");
+      expandBtn.type = "button";
+      expandBtn.className = "code-expand-btn";
+      expandBtn.setAttribute("data-code-expand", "");
+      expandBtn.dataset.lines = String(lineCount);
+      outer.appendChild(expandBtn);
+    }
     const bar = document.createElement("div");
     bar.className = "code-block-bar";
     bar.contentEditable = "false";
@@ -228,6 +245,16 @@ export function attachCodeWrapToggle(
     if (done) done.textContent = labels.copied;
   });
 
+  // 펼치기/접기 라벨 (언어별, 매 호출 갱신)
+  container.querySelectorAll<HTMLButtonElement>("button[data-code-expand]").forEach((btn) => {
+    const collapsed = btn.parentElement?.querySelector(".code-block-wrap")?.classList.contains("is-collapsed");
+    const n = btn.dataset.lines ?? "";
+    btn.dataset.expandLabel = labels.expand ?? "펼치기 · {{n}}줄";
+    btn.dataset.collapseLabel = labels.collapse ?? "접기";
+    btn.textContent = (collapsed ? btn.dataset.expandLabel : btn.dataset.collapseLabel).replace("{{n}}", n);
+    btn.setAttribute("aria-expanded", collapsed ? "false" : "true");
+  });
+
   // 초기 라벨 설정 (언어별) — 두 개의 span으로 hover 전환
   container.querySelectorAll<HTMLButtonElement>("button[data-wrap-btn]").forEach((btn) => {
     const wrap = btn.closest(".code-block-wrap");
@@ -263,8 +290,16 @@ export function attachCodeWrapToggle(
       e.preventDefault();
       const startY = e.clientY;
       const startH = wrap.offsetHeight;
+      /* 늘릴 수 있는 한도는 코드 전체 높이 — 그보다 크게 늘리면 빈 칸만 생긴다 */
+      const prevH = wrap.style.height;
+      const prevCollapsed = wrap.classList.contains("is-collapsed");
+      wrap.classList.remove("is-collapsed");
+      wrap.style.height = "auto";
+      const fullH = wrap.offsetHeight;
+      wrap.style.height = prevH;
+      if (prevCollapsed) wrap.classList.add("is-collapsed");
       const onMove = (ev: PointerEvent) => {
-        const next = Math.max(128, Math.min(window.innerHeight * 0.8, startH + (ev.clientY - startY)));
+        const next = Math.max(96, Math.min(fullH, startH + (ev.clientY - startY)));
         wrap.style.height = `${next}px`;
       };
       const onUp = () => {
@@ -283,6 +318,22 @@ export function attachCodeWrapToggle(
   container.dataset.wrapDelegated = "1";
 
   container.addEventListener("click", (e) => {
+    // 긴 코드 펼치기/접기
+    const expandBtn = (e.target as HTMLElement).closest<HTMLButtonElement>("button[data-code-expand]");
+    if (expandBtn) {
+      const w = expandBtn.parentElement?.querySelector<HTMLElement>(".code-block-wrap");
+      if (!w) return;
+      /* toggle 은 클래스가 붙었으면 true — 곧 "지금 접혔다" */
+      const nowCollapsed = w.classList.toggle("is-collapsed");
+      /* 사용자가 손잡이로 정한 높이가 있으면 펼칠 때 풀어 준다 */
+      if (!nowCollapsed) w.style.height = "";
+      const n = expandBtn.dataset.lines ?? "";
+      expandBtn.textContent = (nowCollapsed ? expandBtn.dataset.expandLabel ?? "" : expandBtn.dataset.collapseLabel ?? "").replace("{{n}}", n);
+      expandBtn.setAttribute("aria-expanded", nowCollapsed ? "false" : "true");
+      /* 접으면 블록 머리가 화면 위로 사라질 수 있다 — 버튼이 보이는 자리로 */
+      if (nowCollapsed) expandBtn.scrollIntoView({ block: "nearest" });
+      return;
+    }
     // 복사 버튼
     const copyBtn = (e.target as HTMLElement).closest<HTMLButtonElement>("button[data-copy-btn]");
     if (copyBtn) {

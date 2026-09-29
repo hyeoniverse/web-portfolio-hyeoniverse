@@ -76,7 +76,7 @@
   font-size: var(--font-size-body);
   color: var(--text-primary);
   outline: none;
-  resize: vertical;
+  /* 높이 조절 손잡이는 공통 Textarea 가 그린다 — 여기서 resize 를 또 주면 손잡이가 두 개 겹친다 */
   min-height: 100px;
   transition: border-color 0.15s ease;
 }
@@ -167,54 +167,6 @@
 .editorHeaderLeft .templateBtn:hover {
   border-color: var(--text-primary);
   color: var(--text-primary);
-}
-
-/* ── Optional fields (collapsible) — Posts editor 와 동일 패턴 ── */
-.optionalSection {
-  display: flex;
-  flex-direction: column;
-  border: var(--border-light);
-  border-radius: var(--radius-2xl);
-}
-
-.optionalToggle {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: var(--row-p-lg);
-  border: none;
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-label);
-  font-weight: 600;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  cursor: pointer;
-}
-
-.optionalSection .optionalToggle:hover {
-  color: var(--text-primary);
-}
-
-.optionalContent {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  max-height: 0;
-  clip-path: inset(0 0 100% 0);
-  padding: var(--row-p-sm);
-  transition:
-    max-height 0.3s ease,
-    clip-path 0.3s ease;
-}
-
-.optionalContentOpen {
-  max-height: var(--_content-height, 1200px);
-  clip-path: inset(0);
-  gap: var(--spacing-md);
-  padding-bottom: var(--spacing-sm);
 }
 
 /* 추가 섹션 collapsible (Tech/Team/Gallery/Links/Related 묶음) */
@@ -532,26 +484,6 @@
   width: 28px;
   height: 28px;
   min-width: 28px;
-}
-
-/* Optional 섹션 split — 좌: 정렬순서 (세로 1열 전체), 우: 다른 필드들 stack */
-.optionalSplit {
-  display: grid;
-  grid-template-columns: var(--grid-cols-2);
-  gap: var(--spacing-xl);
-  align-items: start;
-  min-width: 0;
-}
-
-.optionalSplitLeft {
-  min-width: 0;
-}
-
-.optionalSplitRight {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-  min-width: 0;
 }
 
 .subtitleInput {
@@ -1061,8 +993,8 @@
 
 .memberFormRow input {
   flex: 1;
-  /* Select trigger 와 동일 28px 로 맞추기 — 기본 .fieldInput 은 ~32px 라 role select 와 미스매치 */
-  height: 28px;
+  /* 입력칸·combobox·Select 모두 기본 크기(md) 높이로 */
+  height: var(--control-h-md);
   box-sizing: border-box;
   padding: 0 var(--spacing-md);
   line-height: 1;
@@ -1214,9 +1146,9 @@
   height: var(--control-h-md);
 }
 
-/* add-card 안 모든 fieldInput — Select trigger / + 버튼과 동일 28px 라인 (file input 은 hidden 이라 제외) */
+/* add-card 안 모든 입력칸 — 기본 크기(md) 높이로 맞춘다 (file input 은 hidden 이라 제외) */
 .memberCardAdd input:not([type="file"]) {
-  height: 28px;
+  height: var(--control-h-md);
   box-sizing: border-box;
   padding: 0 var(--spacing-md);
   line-height: 1;
@@ -1556,15 +1488,16 @@
   }
 }
 
-/* 프로필 링크 입력 + 연결된 멤버 링크에서 고르기 */
-.memberUrlRow {
-  display: flex;
-  align-items: center;
+/* 새 팀원 자기소개 KO·EN 두 칸 — 좁으면 위아래로 */
+.memberBioPair {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: var(--spacing-xs);
-  min-width: 0;
 }
 
-.memberUrlRow > input {
-  flex: 1;
+.memberBioCol {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
   min-width: 0;
 }

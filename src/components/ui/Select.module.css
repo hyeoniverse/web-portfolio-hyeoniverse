@@ -184,7 +184,8 @@
   box-shadow: 0 8px 32px oklch(0% 0 0 / 0.25);
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
+  /* 항목 사이 약간의 틈 — hover 캡슐끼리 붙어 보이지 않게 */
+  gap: var(--spacing-2xs);
   padding: var(--spacing-xs);
   transform-origin: top center;
   opacity: 0;
@@ -231,7 +232,7 @@
 .bubbleScroll {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2xs);
   max-height: 280px;
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -354,6 +355,7 @@
 .optionGroup {
   display: flex;
   flex-direction: column;
+  gap: var(--spacing-2xs);
 }
 /* 옵션 사이 구분선 (divider 옵션 위) */
 .optionDivider {
@@ -395,4 +397,109 @@
 .dropdownChecked .option {
   display: flex;
   align-items: center;
+}
+
+/* ── combobox="split" — [선택 ▸ | 입력] 한 칸. 테두리·높이는 일반 트리거(.trigger)와 같다 ── */
+.split {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  height: var(--control-h-md);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  transition: border-color 0.15s ease;
+}
+
+.split:hover {
+  border-color: var(--text-tertiary);
+}
+
+.split:focus-within,
+.split.splitOpen {
+  border-color: var(--text-accent);
+}
+
+.splitSm {
+  height: var(--control-h-sm);
+}
+
+.splitDisabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* 왼쪽 선택 — 고른 옵션 이름 또는 "직접 입력" */
+.splitSelect {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  flex: none;
+  max-width: 45%;
+  padding: 0 var(--spacing-sm) 0 var(--spacing-md);
+  text-align: left;
+  border: none;
+  border-radius: var(--radius-capsule) 0 0 var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-body);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.splitSelect:hover {
+  color: var(--text-primary);
+}
+
+.splitArrow {
+  flex: none;
+}
+
+.splitDivider {
+  align-self: center;
+  flex: none;
+  width: 1px;
+  height: 50%;
+  background: var(--border-color-light);
+}
+
+/* 오른쪽 입력 — 자유 입력 */
+.splitInput {
+  flex: 1;
+  min-width: 0;
+  padding: 0 var(--spacing-md) 0 var(--spacing-sm);
+  border: none;
+  border-radius: 0 var(--radius-capsule) var(--radius-capsule) 0;
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-body);
+  color: var(--text-primary);
+  outline: none;
+}
+
+.splitInput::placeholder {
+  color: var(--text-tertiary);
+}
+
+/* 입력 지우개 — 입력칸 오른쪽 끝, 값이 있을 때만 */
+.splitClear {
+  align-self: center;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-right: var(--spacing-sm);
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+
+.splitClear:hover {
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
 }

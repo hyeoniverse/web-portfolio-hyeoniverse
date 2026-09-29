@@ -118,11 +118,15 @@
 }
 
 /* 프로필 글 언어 — 안내 한 줄과 KO/EN 전환 */
-.profileLangRow {
+.profileActions {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-xs);
+}
+
+/* 입력 언어 스위치는 오른쪽 끝 — GitHub 단추가 없을 때도 같은 자리 */
+.profileActionsLang {
+  margin-left: auto;
 }
 
 /* GitHub 값 비교 — 칸마다 지금 값과 GitHub 값을 나란히 두고 하나를 고른다 */
@@ -200,4 +204,24 @@
   display: flex;
   justify-content: flex-end;
   gap: var(--spacing-xs);
+}
+
+/* 라벨 옆 입력 언어 배지 — 칸 안에 배지를 둘 수 없는 컨트롤(combobox)용. SettingsFormFields 의 배지와 같은 모양 */
+.labelLangBadge {
+  display: inline-flex;
+  align-items: center;
+  margin-left: var(--spacing-2xs);
+  padding: 0 var(--spacing-2xs);
+  height: 16px;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-micro);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.jobCombo {
+  display: block;
+  min-width: 0;
 }

@@ -35,6 +35,8 @@ export default function CanonicalCodeBlock({ code, lang }: { code: string; lang:
       scrollTitle: t("common.codeScrollTitle"),
       copy: t("common.codeCopy"),
       copied: t("common.codeCopied"),
+        expand: t("common.codeExpand"),
+        collapse: t("common.codeCollapse"),
     });
 
     /* 이 패널에서는 코드블록을 줄바꿈 고정으로 둔다.

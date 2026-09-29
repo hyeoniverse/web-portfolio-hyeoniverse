@@ -44,8 +44,9 @@ function TechIcon({ icon, name }: { icon?: string; name: string }) {
   return <span className={styles.techIconInitial}>{(name || "?").slice(0, 1).toUpperCase()}</span>;
 }
 
-/* 카테고리 입력 — 공통 Select combobox. 제안 = 기존 항목 카테고리 우선 + 프리셋 (대소문자 무시 dedupe).
-   타이핑은 로컬 버퍼만 두고 commit(onAdd)에서만 반영 — 키 입력마다 patch → re-group → 팝오버 닫힘 방지. */
+/* 카테고리 입력 — 공통 Select 분할형 [선택 ▸ | 입력]. 왼쪽에서 기존 항목 카테고리·프리셋을 고르거나(대소문자 무시 dedupe)
+   "직접 입력"으로 오른쪽에 적는다. 타이핑은 로컬 버퍼만 두고 Enter·칸을 벗어날 때만 반영 —
+   키 입력마다 patch → re-group → 팝오버 닫힘 방지. 목록에서 고른 값은 바로 반영한다. */
 function CategoryInput({ value, onChange, currentCats, t }: {
   value: string;
   onChange: (v: string) => void;
@@ -62,19 +63,30 @@ function CategoryInput({ value, onChange, currentCats, t }: {
     seen.add(key);
     options.push({ value: c, label: c });
   }
+  const commit = (v: string) => { if (v.trim() !== value) onChange(v.trim()); };
   return (
-    <Select
-      combobox
-      variant="bubble"
-      size="sm"
-      value={value}
-      inputValue={draft}
-      onInputChange={setDraft}
-      onChange={() => {}}
-      onAdd={(v) => onChange(v.trim())}
-      options={options}
-      placeholder={t("admin.settings.aboutTechStackCategory")}
-    />
+    <span
+      className={styles.techCategoryInput}
+      onKeyDown={(e) => { if (e.key === "Enter" && !e.nativeEvent.isComposing) { e.preventDefault(); commit(draft); } }}
+      onBlur={(e) => {
+        /* 목록(포털)이나 칸 안의 다른 요소로 포커스가 옮겨 가는 중이면 아직 편집 중이다 */
+        const next = e.relatedTarget as HTMLElement | null;
+        if (next && (e.currentTarget.contains(next) || next.closest('[class*="__dropdown"]'))) return;
+        commit(draft);
+      }}
+    >
+      <Select
+        combobox="split"
+        variant="bubble"
+        width="full"
+        value={options.some((o) => o.value === draft) ? draft : ""}
+        inputValue={draft}
+        onInputChange={setDraft}
+        onChange={(v) => { setDraft(v); commit(v); }}
+        options={options}
+        placeholder={t("admin.settings.aboutTechStackCategory")}
+      />
+    </span>
   );
 }
 
@@ -453,13 +465,12 @@ function TechIconEditor({ icon, onIconChange, t, showSearch = true }: {
           value={link}
           onChange={setLink}
           placeholder={t("admin.settings.aboutTechStackIconUrl")}
-          size="sm"
           onAdd={(v) => { const u = v.trim(); if (u) { onIconChange(u); setLink(""); } }}
         />
       </div>
       {showSearch && (
         <>
-          <Input value={q} onChange={setQ} placeholder={t("admin.settings.aboutTechStackSearch")} size="sm" clearable />
+          <Input value={q} onChange={setQ} placeholder={t("admin.settings.aboutTechStackSearch")} clearable />
           {q.trim() && <TechPresetGrid query={q} onPick={(p) => { onIconChange(p.slug); setQ(""); }} t={t} />}
         </>
       )}
@@ -509,7 +520,7 @@ function TechAddPanel({ existing, onAdd, currentCats, t }: {
   return (
     <div className={styles.techPanel}>
       <p className={styles.techPanelTitle}>{t("admin.settings.aboutTechStackPresetTitle")}</p>
-      <Input value={q} onChange={setQ} placeholder={t("admin.settings.aboutTechStackSearch")} size="sm" clearable />
+      <Input value={q} onChange={setQ} placeholder={t("admin.settings.aboutTechStackSearch")} clearable />
       <TechPresetGrid
         query={q}
         onPick={(p) => { if (!has(p.name)) onAdd({ name: p.name, category: p.category, icon: p.slug }); }}
@@ -523,7 +534,6 @@ function TechAddPanel({ existing, onAdd, currentCats, t }: {
           value={draft.name}
           onChange={(v) => setDraft((d) => ({ ...d, name: v }))}
           placeholder={t("admin.settings.aboutTechStackName")}
-          size="sm"
           className={`${isDup ? styles.techNameDup : ""} ${shake ? styles.techNameShake : ""}`.trim() || undefined}
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.nativeEvent.isComposing) { e.preventDefault(); submitCustom(); }
@@ -563,7 +573,7 @@ function TechEditPanel({ item, onChange, currentCats, t }: {
 }) {
   return (
     <div className={styles.techPanel}>
-      <Input value={item.name} onChange={(v) => onChange({ name: v })} placeholder={t("admin.settings.aboutTechStackName")} size="sm" />
+      <Input value={item.name} onChange={(v) => onChange({ name: v })} placeholder={t("admin.settings.aboutTechStackName")} />
       <CategoryInput value={item.category} onChange={(v) => onChange({ category: v })} currentCats={currentCats} t={t} />
       <hr className={styles.techDivider} />
       <p className={styles.techPanelTitle}>{t("admin.settings.aboutTechStackIcon")}</p>

@@ -129,7 +129,7 @@ export default function ProfileGithubEditor({
             {L("프로필 페이지에 활동 지표와 Pinned 저장소를 보여줍니다.", "Shows activity stats and pinned repositories on the profile page.")}
           </span>
         </span>
-        <Switch size="sm" checked={enabled} onCheckedChange={(v) => patch({ enabled: v })} />
+        <Switch checked={enabled} onCheckedChange={(v) => patch({ enabled: v })} />
       </div>
 
       {/* 계정은 여기서 정하지 않는다 — 소유자 저자 프로필의 GitHub 링크에서 온다.
