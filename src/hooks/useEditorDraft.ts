@@ -38,6 +38,9 @@ interface UseEditorDraftOptions<T> {
   /** 서버에 저장된 가장 최근 draft 스냅샷(cross-device). 사용자가 로드 후 아직 편집 안 했을 때만(pristine)
    *  적용 → 다른 기기/브라우저에서도 이어서 편집. localStorage 는 절대 끄지 않음(로컬 백업). */
   serverDraft?: { snapshot: T; savedAt: number } | null;
+  /** 저장본의 마지막 저장 시각(ms, 서버 updated_at). 로컬 draft 가 이보다 오래됐으면 복원하지 않고 지운다 —
+   *  다른 곳(다른 기기 · 동기화 스크립트)에서 저장본이 새로워진 뒤 옛 draft 가 새 내용을 덮는 것을 막는다. */
+  baseSavedAt?: number;
 }
 
 /** localStorage draft 봉투 — 타임스탬프로 서버 draft 와 신선도 비교. 구(舊) 형식(raw snapshot)은
@@ -86,6 +89,7 @@ export function useEditorDraft<T>({
   serverReady = true,
   ignoredKeys,
   serverDraft,
+  baseSavedAt,
 }: UseEditorDraftOptions<T>) {
   const effectiveId = entityId ?? draftEntityId;
   const key = effectiveId ? draftKey(entityType, effectiveId) : null;
@@ -111,7 +115,12 @@ export function useEditorDraft<T>({
     if (!key || !ready || restoredRef.current) return;
     if (typeof window === "undefined") { restoredRef.current = true; return; }
     const currentHash = stableHash(snapshot, ignoredKeysRef.current);
-    const local = readLocalDraft<T>(key);
+    let local = readLocalDraft<T>(key);
+    // 저장본보다 오래된 draft 는 버린다(구 형식은 savedAt 0 이라 저장 시각이 있으면 항상 여기 걸린다)
+    if (local && baseSavedAt && local.savedAt < baseSavedAt) {
+      try { window.localStorage.removeItem(key); } catch { /* 무시 */ }
+      local = null;
+    }
     if (local && stableHash(local.data, ignoredKeysRef.current) !== currentHash) {
       applyDraftRef.current(local.data);
       const h = stableHash(local.data, ignoredKeysRef.current);

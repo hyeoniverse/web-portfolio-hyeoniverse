@@ -6,6 +6,8 @@ export type { LocalizedText };
 export type CardSize = "large" | "small" | "medium" | "tall" | "wide";
 
 interface ProjectTeamMember {
+  /** 연결된 사이트 멤버 프로필 id — 있으면 읽는 화면이 비어 있는 칸(영어 이름·사진·링크)을 그 프로필로 채운다 */
+  author_id?: string;
   /** KO display name (필수) */
   name: string;
   /** EN display name (선택 — 없으면 name 으로 fallback) */
@@ -33,6 +35,8 @@ export interface GalleryNote {
   audioSource?: "tts" | "recorded";
   /** TTS 로 만들 때 쓴 대본 — 지금 대본과 다르면 음성이 낡았다고 알린다 */
   audioScript?: string;
+  /** TTS 로 만들 때 실제로 쓴 목소리("제공자:성별", lib/ttsVoices) — 고른 제공자가 실패해 넘어갔으면 다를 수 있다 */
+  audioVoice?: string;
 }
 export type GalleryNotes = Record<string, GalleryNote>;
 

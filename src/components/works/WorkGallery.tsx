@@ -6,7 +6,7 @@ import { useSyncRef } from "@/hooks/useSyncRef";
 import ProgressiveImage from "@/components/ui/ProgressiveImage";
 import Pressable from "@/components/ui/Pressable";
 import Tooltip from "@/components/ui/Tooltip";
-import { FileText, Play, Volume2, VolumeX } from "@/components/icons";
+import { Captions, CaptionsOff, FileText, Play, Volume2, VolumeX } from "@/components/icons";
 import Button from "@/components/ui/Button";
 import type { GalleryNotes } from "@/data/projects";
 import { useGalleryNarration } from "./useGalleryNarration";
@@ -328,6 +328,11 @@ export default function WorkGallery({ images, title, initialIndex = 0, onOpen, n
           );
         })}
 
+        {/* 자막 — 가운데 장 아래쪽에. 소리를 이미 듣는 화면 읽기 사용자에게 같은 말을 두 번 읽히지 않게 가린다 */}
+        {narration.caption && (
+          <p className={styles.caption} aria-hidden>{narration.caption}</p>
+        )}
+
         {/* 소리가 막힌 방문(주소를 직접 열거나 새로고침) — 첫 장 위에서 음성과 함께 볼지 묻는다.
             무대의 끌기·키(Enter 는 크게 보기)가 이 단추들을 가로채지 않게 막는다 */}
         {narration.waiting && (
@@ -364,6 +369,19 @@ export default function WorkGallery({ images, title, initialIndex = 0, onOpen, n
                 /* 켤 때는 갤러리를 화면 가운데로 — 반쯤 걸쳐 있으면 "보고 있지 않다"로 쳐서 읽지 않는다 */
                 onClick={() => { if (!narration.playing) centerRef.current(); narration.toggle(); }}
                 aria-label={narrationLabel}
+              />
+            </Tooltip>
+            <Tooltip content={narration.captionsOn ? t("자막 끄기", "Turn off captions") : t("자막 켜기", "Turn on captions")} placement="top" delay={120}>
+              <Button
+                variant="ghost"
+                shape="circle"
+                size="sm"
+                className={styles.captionToggle}
+                data-state={narration.captionsOn ? "on" : "off"}
+                icon={narration.captionsOn ? <Captions size={16} /> : <CaptionsOff size={16} />}
+                onClick={narration.toggleCaptions}
+                aria-label={narration.captionsOn ? t("자막 끄기", "Turn off captions") : t("자막 켜기", "Turn on captions")}
+                aria-pressed={narration.captionsOn}
               />
             </Tooltip>
           </span>

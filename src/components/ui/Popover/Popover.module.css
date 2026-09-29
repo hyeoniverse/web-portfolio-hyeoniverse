@@ -17,6 +17,14 @@
   overflow: hidden;
 }
 
+/* menu — MenuItem 목록. 항목의 capsule hover 가 패널 테두리(2xl)에 닿지 않게 안쪽 여백.
+   (0,2,0) — 호출부 contentClassName(0,1,0)은 폭·배치만 정하고 여백은 여기서 */
+.dropdown.dropdownMenu {
+  display: flex;
+  flex-direction: column;
+  padding: var(--spacing-2xs);
+}
+
 /* variant="glass" (기본) — 반투명 scrim + blur. blend 를 안 쓰므로 안쪽 색(accent/danger/칩)이 전부 살아있다.
    대비는 반전이 아니라 scrim 이 보장한다 — difference 처럼 자동 반전은 아니지만,
    52% 불투명도면 뒤에 뭐가 깔려도 텍스트가 읽힌다. (SearchCapsule 이 쓰던 유리 배경과 동일 공식) */

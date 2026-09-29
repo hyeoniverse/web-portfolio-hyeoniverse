@@ -61,6 +61,10 @@ interface PopoverProps {
   /** 데스크톱에서 trigger 에 hover 하면 열리고, trigger↔content 사이 이동은 짧은 지연으로 유지. 클릭도 그대로 동작.
    *  (터치/모바일 sheet 모드에선 무시 — hover 개념이 없음) */
   openOnHover?: boolean;
+  /** 메뉴(MenuItem 목록)로 쓴다 — 패널 안쪽 여백을 공통으로 준다. 항목의 둥근 hover 배경이 패널 둥근 테두리에
+   *  붙지 않을 만큼(2xs). 예전엔 메뉴를 쓰는 곳마다 contentClassName 으로 같은 여백을 따로 넣었고,
+   *  빠뜨린 곳은 항목이 테두리에 붙었다. 터치 bottom sheet 는 sheet 본문 여백을 그대로 쓴다. */
+  menu?: boolean;
 }
 
 // openOnHover popover 는 한 번에 하나만 열림 — 새 hover popover 가 열리면 이전 것을 닫는다
@@ -87,6 +91,7 @@ export default function Popover({
   contentRef: externalContentRef,
   maxHeight: maxHeightProp,
   openOnHover = false,
+  menu = false,
 }: PopoverProps) {
   // placement="bubble" 이면 Select 식 오른쪽 말풍선 — 오른쪽 배치·solid·꼬리를 한 번에(공간 없으면 왼쪽 flip).
   //   별도 shape/variant prop 없이 placement 값 하나로 버블이 된다.
@@ -338,6 +343,7 @@ export default function Popover({
                   styles.dropdown,
                   variant === "glass" && styles.dropdownGlass,
                   variant === "difference" && styles.dropdownDifference,
+                  menu && styles.dropdownMenu,
                   contentClassName,
                 )}
                 /* Lenis 가 wheel 을 가로채 내부 스크롤이 막히는 것 방지 */

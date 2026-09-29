@@ -1,7 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type RefObject } from "react";
-import { speak, warmUpVoices } from "@/lib/speech";
+import { speak, splitForSpeech, warmUpVoices } from "@/lib/speech";
+import { captionCues, cueAt } from "@/lib/captionCues";
+import { displayScript, spokenScript } from "@/lib/ttsLexicon";
 import { pcmToWav } from "@/lib/wav";
 import type { GalleryNotes } from "@/data/projects";
 
@@ -28,6 +30,30 @@ function writePref(on: boolean) {
     else localStorage.setItem(PREF_KEY, "off");
   } catch { /* 메모리 값으로 버틴다 */ }
   prefListeners.forEach((l) => l());
+}
+
+/* ── 자막 — 켜 둘지 방문자가 고르면 그 브라우저에 기억한다(기본은 켜짐) ── */
+const CAPTION_KEY = "gallery.captions";
+let captionMemory: boolean | null = null;
+const captionListeners = new Set<() => void>();
+
+function readCaptionPref(): boolean {
+  if (captionMemory !== null) return captionMemory;
+  try { return localStorage.getItem(CAPTION_KEY) !== "off"; } catch { return true; }
+}
+
+function writeCaptionPref(on: boolean) {
+  captionMemory = on;
+  try {
+    if (on) localStorage.removeItem(CAPTION_KEY);
+    else localStorage.setItem(CAPTION_KEY, "off");
+  } catch { /* 메모리 값으로 버틴다 */ }
+  captionListeners.forEach((l) => l());
+}
+
+function subscribeCaptionPref(cb: () => void) {
+  captionListeners.add(cb);
+  return () => { captionListeners.delete(cb); };
 }
 
 /* "음성 없이 보기" — 이번 방문 동안만 끈다(사이트 안에서 다른 작업물로 옮겨 가도 조용하고, 새로고침하면 다시 묻는다) */
@@ -84,6 +110,9 @@ function unlockSound(audio: HTMLAudioElement) {
  * 장마다 음성 파일(TTS·녹음)이 있으면 그것을, 없으면 대본을 브라우저 음성으로 읽는다. 둘 다 없으면 잠시
  * 보여 주고 넘어간다. 재생 중에 사람이 장을 옮기면 그 장의 음성부터 다시 시작한다. 마지막 장이 끝나면 멈춘다.
  * 오디오 요소는 하나를 돌려 쓴다 — 누른 동작으로 재생 허락을 받은 요소라 다음 장도 막히지 않는다.
+ *
+ * 읽는 동안 자막(caption)도 낸다. 음성 파일은 재생 자리에 맞춰 대본의 문장을 고르고(captionCues — 글자 수 비율),
+ * 브라우저 음성은 문장을 읽기 시작할 때마다 그 문장을 띄운다. 방문자가 끄면(toggleCaptions) 그 브라우저에 기억한다.
  */
 export function useGalleryNarration({
   images,
@@ -103,6 +132,9 @@ export function useGalleryNarration({
   viewRef: RefObject<HTMLElement | null>;
 }) {
   const enabled = useSyncExternalStore(subscribePref, readPref, () => true);
+  const captionsOn = useSyncExternalStore(subscribeCaptionPref, readCaptionPref, () => true);
+  /* 지금 읽는 문장 — 어느 장의 것인지 함께 둔다. 장을 옮기면 앞 장의 자막이 남지 않게 index 로 거른다 */
+  const [caption, setCaption] = useState<{ index: number; text: string } | null>(null);
   const [playing, setPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   /* 시작했거나 방문자가 고른 적이 있는지 — 들어와서 저절로 시작하는 건 한 번뿐이다 */
@@ -135,6 +167,9 @@ export function useGalleryNarration({
   const note = notes?.[images[index]];
   const audioSrc = note?.audio ?? "";
   const script = note?.script?.trim() ?? "";
+  /* 만든 음성의 자막은 만들 때 쓴 대본으로 — 그 뒤 대본을 고쳤으면 지금 대본은 음성과 다르다 */
+  /* [표기|읽을 말] 자리 지정 — 자막에는 표기, 브라우저가 읽을 때는 읽을 말 */
+  const captionScript = displayScript((note?.audioSource === "tts" && note.audioScript?.trim()) || script);
   const isLast = index >= images.length - 1;
 
   useEffect(() => {
@@ -160,11 +195,19 @@ export function useGalleryNarration({
       audio.src = audioSrc;
       if (resume && resume.index === index && resume.src === audioSrc) audio.currentTime = resume.time;
       audio.onended = advance;
+      const cues = captionCues(captionScript);
+      audio.ontimeupdate = () => {
+        if (cancelled || !cues.length || !Number.isFinite(audio.duration) || audio.duration <= 0) return;
+        const text = cueAt(cues, audio.currentTime / audio.duration);
+        setCaption((cur) => (cur?.index === index && cur.text === text ? cur : { index, text }));
+      };
       audio.onerror = () => { timer = window.setTimeout(advance, SILENT_SLIDE_MS); };
       /* 막힌 것만 묻는다 — 파일이 깨진 것(onerror)은 잠시 보여 주고 넘어간다 */
       audio.play().catch((e: unknown) => { if ((e as Error)?.name === "NotAllowedError") blocked(); });
     } else if (script) {
-      stopSpeech = speak(script, advance, blocked);
+      /* 읽는 조각은 읽을 말이라, 자막은 같은 순번의 표기 조각을 띄운다(자리 지정은 문장을 가르지 않으므로 순번이 맞는다) */
+      const shown = splitForSpeech(displayScript(script));
+      stopSpeech = speak(spokenScript(script), advance, blocked, (text, n) => { if (!cancelled) setCaption({ index, text: shown[n] ?? text }); });
       if (!stopSpeech) timer = window.setTimeout(advance, SILENT_SLIDE_MS);
     } else {
       timer = window.setTimeout(advance, SILENT_SLIDE_MS);
@@ -178,10 +221,11 @@ export function useGalleryNarration({
       if (audioSrc && audio && !audio.ended && audio.currentTime > 0) {
         resumeRef.current = { index, src: audioSrc, time: audio.currentTime };
       }
+      if (audio) audio.ontimeupdate = null;
       audio?.pause();
       stopSpeech?.();
     };
-  }, [playing, hold, visible, index, audioSrc, script, isLast, goTo]);
+  }, [playing, hold, visible, index, audioSrc, script, captionScript, isLast, goTo]);
 
   /** 누르는 동작 안에서 부른다 — 오디오 요소와 음성 합성을 그 동작으로 허락받아 둔다(사파리) */
   const unlock = useCallback(() => {
@@ -238,5 +282,12 @@ export function useGalleryNarration({
 
   const stop = useCallback(() => setPlaying(false), []);
 
-  return { hasNarration, enabled, playing, waiting: waiting && enabled && !playing, engage, play, decline, toggle, stop };
+  const toggleCaptions = useCallback(() => writeCaptionPref(!readCaptionPref()), []);
+  /* 읽는 중이고, 자막을 켜 두었고, 지금 장의 것일 때만 */
+  const captionText = playing && !hold && visible && captionsOn && caption?.index === index ? caption.text : "";
+
+  return {
+    hasNarration, enabled, playing, waiting: waiting && enabled && !playing, engage, play, decline, toggle, stop,
+    caption: captionText, captionsOn, toggleCaptions,
+  };
 }
