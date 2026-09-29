@@ -93,6 +93,7 @@
     "marked-katex-extension": "^5.1.13",
     "mermaid": "^12.0.0",
     "modern-screenshot": "^4.7.0",
+    "msedge-tts": "^2.0.8",
     "next": "^16.3.6",
     "opentype.js": "^2.0.0",
     "pdfjs-dist": "^6.3.289",

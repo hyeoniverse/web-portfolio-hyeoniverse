@@ -233,6 +233,11 @@
   justify-self: end;
 }
 
+/* 자막 단추 — 꺼 두면 흐리게(음성 단추 꺼짐과 같은 규칙) */
+.captionToggle.captionToggle[data-state="off"] {
+  color: var(--text-tertiary);
+}
+
 .counter {
   justify-self: start;
   font-family: var(--font-mono);
@@ -280,6 +285,29 @@
 /* 음성과 함께 볼지 묻는 덮개 — 가운데 장과 같은 자리·크기(.slide 와 같은 상자)에 어둡게 깐다.
    바탕이 늘 어두워서 안의 단추는 테마와 상관없이 흰색이다. 외곽선 단추(Button outline)가 쓰는 색 토큰을
    이 안에서만 흰색 쪽으로 바꿔 끼운다 */
+/* 자막 — 가운데 장 아래쪽에 검은 반투명 판. 장이 밝아도 어두워도 읽히게 테마와 상관없이 흰 글자.
+   무대의 장들(z 100 이하) 위, 소리 막힘 덮개(200) 아래 */
+.caption {
+  position: absolute;
+  bottom: var(--spacing-lg);
+  left: 50%;
+  z-index: 150;
+  max-width: min(72%, 760px);
+  margin: 0;
+  padding: var(--spacing-xs) var(--spacing-md);
+  /* 모서리를 둥글리지 않는다 — 영상 자막처럼 각진 판 */
+  border-radius: 0;
+  background: oklch(0% 0 0 / 0.72);
+  color: var(--text-white);
+  font-size: var(--font-size-body);
+  line-height: 1.5;
+  text-align: center;
+  word-break: keep-all;
+  pointer-events: none;
+  transform: translateX(-50%);
+  text-wrap: balance;
+}
+
 .cover {
   --text-primary: var(--text-white);
   --border-strong: var(--border-white);

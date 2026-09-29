@@ -60,8 +60,9 @@ function speechTimeoutMs(text: string): number {
  * 음성 합성이 없는 브라우저면 null — 부르는 쪽이 다른 방법(잠시 멈춤)으로 넘어간다.
  * 사람이 페이지를 한 번도 누르지 않아 브라우저가 막으면 onBlocked(onEnd 는 부르지 않는다) — 막힌 채로
  * 두면 읽지도 않은 장이 시간이 차서 넘어간다.
+ * onChunk 는 조각(문장)을 읽기 시작할 때마다 그 조각과 순번으로 부른다 — 자막을 읽는 자리에 맞춰 띄운다.
  */
-export function speak(text: string, onEnd: () => void, onBlocked?: () => void): (() => void) | null {
+export function speak(text: string, onEnd: () => void, onBlocked?: () => void, onChunk?: (chunk: string, index: number) => void): (() => void) | null {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return null;
   const synth = window.speechSynthesis;
   const lang = speechLangOf(text);
@@ -81,6 +82,7 @@ export function speak(text: string, onEnd: () => void, onBlocked?: () => void): 
     const u = new SpeechSynthesisUtterance(chunk);
     u.lang = lang;
     if (voice) u.voice = voice;
+    if (onChunk) u.onstart = () => { if (!stopped) onChunk(chunk, i); };
     if (i === chunks.length - 1) u.onend = finish;
     u.onerror = (e) => {
       if (e.error !== "not-allowed" || stopped || finished) return;

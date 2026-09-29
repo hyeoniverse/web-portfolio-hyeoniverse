@@ -718,7 +718,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
                               </div>
                               <div className={styles.loopRow}>
                                 <span className={styles.loopLabel}>Loop</span>
-                                <Switch
+                                <Switch size="sm"
                                   checked={autoLoop}
                                   onCheckedChange={setAutoLoop}
                                   variant="accent"
@@ -802,7 +802,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
                               </div>
                               <div className={styles.loopRow}>
                                 <span className={styles.loopLabel}>Loop</span>
-                                <Switch
+                                <Switch size="sm"
                                   checked={autoLoop}
                                   onCheckedChange={setAutoLoop}
                                   variant="accent"
@@ -817,7 +817,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
                   </AnimatePresence>
                 </span>
                 <Tooltip content="Close  Esc" placement="bottom">
-                  <CloseButton className={`${styles.actionBtn} ${styles.closeBtnAction}`} onClick={(e) => { e.stopPropagation(); handleClose(); }} ariaLabel="Close" />
+                  <CloseButton size="sm" className={`${styles.actionBtn} ${styles.closeBtnAction}`} onClick={(e) => { e.stopPropagation(); handleClose(); }} ariaLabel="Close" />
                 </Tooltip>
               </motion.span>
             </div>
