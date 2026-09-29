@@ -142,12 +142,12 @@ export default function AIGenerateTab({ onSelect, onGenerated, postContext }: AI
             onSearchChange={setPrompt}
             placeholder={tc("aiPlaceholder")}
             align="left"
-            size="sm"
+            size="md"
           />
         </div>
         <Button
           variant="primary"
-          size="sm"
+          size="md"
           className={styles.generateBtn}
           onClick={handleGenerate}
           loading={generating}

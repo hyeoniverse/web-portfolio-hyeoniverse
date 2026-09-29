@@ -177,7 +177,7 @@ export default function PresetTab({ onSelect, onImageUploaded, currentUrl, local
       />
       {localFiles.length > 0 && (
         <>
-          <div className={styles.presetSectionHeader}>
+          <div className={`${styles.presetSectionHeader} ${styles.presetSectionHeaderDivided}`}>
             <span className={styles.presetSectionLabel}>
               <FolderOpen size={11} strokeWidth={2} />
               {t("admin.posts.coverPicker.localMedia")} <span className={styles.presetSectionCount}>{localFiles.length}</span>
@@ -196,7 +196,7 @@ export default function PresetTab({ onSelect, onImageUploaded, currentUrl, local
           </div>
         </>
       )}
-      <div className={styles.presetSectionHeader}>
+      <div className={`${styles.presetSectionHeader} ${styles.presetSectionHeaderDivided}`}>
         <span className={styles.presetSectionLabel}>
           <Palette size={11} strokeWidth={2} />
           {t("admin.posts.coverPicker.gradientPresets")} <span className={styles.presetSectionCount}>{presets.length}</span>
