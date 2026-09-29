@@ -30,13 +30,13 @@ interface ProjectGroup {
 }
 
 /**
- * 칩에 쓸 짧은 이름. 경로가 깊어지면 칩 하나가 줄을 다 먹는다
- * (`content/about/decisions/01-role-stored-in-app-metadata`). 뒤 두 조각만 남긴다 —
- * 구별에 필요한 정보는 대개 끝에 있고, 전체 경로는 title 과 섹션 제목에 그대로 있다.
+ * 폴더 경로를 이름(마지막 조각)과 위 경로로 나눈다. 칩과 섹션 제목에는 이름만 크게 두고,
+ * 위 경로는 섹션 제목 옆에 흐리게 붙인다(`content/works/` + `chaseye`). 전체 경로는 title 에 있다.
  */
-function shortDir(dir: string): string {
-  const parts = dir.replace(/^images\//, "").split("/");
-  return parts.length <= 2 ? parts.join("/") : `…/${parts.slice(-2).join("/")}`;
+function splitDir(dir: string): { name: string; parent: string } {
+  const parts = dir.replace(/^images\//, "").split("/").filter(Boolean);
+  const name = parts.pop() ?? dir;
+  return { name, parent: parts.length > 0 ? `${parts.join("/")}/` : "" };
 }
 
 export default function ProjectTab({
@@ -111,7 +111,7 @@ export default function ProjectTab({
             onClick={() => setDir(g.dir)}
             title={g.dir}
           >
-            {shortDir(g.dir)}
+            {splitDir(g.dir).name}
             <span className={styles.projectDirCount}>{g.files.length}</span>
           </Pressable>
         ))}
@@ -126,7 +126,14 @@ export default function ProjectTab({
       <div className={styles.projectScroll} data-lenis-prevent>
         {shown.map((g) => (
           <section key={g.dir} className={styles.projectSection}>
-            {!dir && <h4 className={styles.projectSectionTitle}>{g.dir}</h4>}
+            {!dir && (
+              <div className={`${styles.presetSectionHeader} ${styles.presetSectionHeaderDivided}`}>
+                <h4 className={styles.presetSectionLabel}>
+                  {splitDir(g.dir).name} <span className={styles.presetSectionCount}>{g.files.length}</span>
+                </h4>
+                <span className={styles.projectSectionPath}>{splitDir(g.dir).parent}</span>
+              </div>
+            )}
             <div className={styles.presetGrid}>
               {g.files.map((file) => (
                 <Pressable noTapScale

@@ -189,7 +189,7 @@ export default function UnsplashTab({ onSelect, postContext }: UnsplashTabProps)
           onSearchChange={handleInputChange}
           placeholder={tc("searchPlaceholder")}
           align="left"
-          size="sm"
+          size="md"
         />
 
         {photos.length === 0 && !loading && (

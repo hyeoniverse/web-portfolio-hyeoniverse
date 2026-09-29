@@ -218,7 +218,7 @@ export default function PexelsTab({
           onSearchChange={handleInputChange}
           placeholder={tc("searchPlaceholder")}
           align="left"
-          size="sm"
+          size="md"
         />
 
         {!hasResults && !loading && (
