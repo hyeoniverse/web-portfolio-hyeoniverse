@@ -1,5 +1,6 @@
 "use client";
 
+import { reportAiResponse } from "@/lib/ai/notifyFailures";
 import { useState, useCallback, useMemo } from "react";
 import { COVER_STYLE_OPTIONS, type CoverStyleKey, FALLBACK_COVER_PROMPTS } from "@/data/aiCoverStyles";
 import { Check, Download, RotateCw } from "@/components/icons";
@@ -84,8 +85,9 @@ export default function AIGenerateTab({ onSelect, onGenerated, postContext }: AI
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt: prompt.trim(), style }),
       });
-      const data = await res.json();
-      if (!res.ok) throw errorFromBody(data, res.status);
+      /* 공급자마다의 원인(키 만료·한도 등)은 토스트로 — 설정 › 서비스의 AI 상태 패널에도 남는다 */
+      const data = (await reportAiResponse(res, t, t("admin.aiHealth.feature.cover"))) as { url?: string } | null;
+      if (!res.ok || !data?.url) throw errorFromBody(data, res.status);
       setPreviewUrl(data.url);
       setPermanentUrl(data.url);
       // 부모가 history 추가 + cover 자동저장 처리

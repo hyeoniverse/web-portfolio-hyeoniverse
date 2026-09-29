@@ -10,6 +10,7 @@ import {
   type Provider,
   buildProviderList,
   translateWithFallback,
+  translationFailure,
 } from "@/lib/api/translationProviders";
 
 interface RouteContext {
@@ -75,11 +76,13 @@ export async function POST(request: Request, context: RouteContext) {
   const providers = buildProviderList(primary, config?.translation?.fallback);
   const result = await translateWithFallback(providers, fields.map((f) => pick(src[f])), from, to, `[auto-translate works ${direction}]`);
   if ("error" in result) {
-    return jsonError(result.error, 502, { code: result.error.includes("not configured") ? "TRANSLATION_NOT_CONFIGURED" : "TRANSLATION_FAILED" });
+    const { status, code } = translationFailure(result.failures);
+    return jsonError("Translation failed", status, { code: code === "AI_PROVIDERS_DISABLED" ? "TRANSLATION_FAILED" : code });
   }
 
   const translated: Partial<Record<(typeof fields)[number], string>> = {};
-  fields.forEach((f, i) => { translated[f] = result.translations[i] ?? ""; });
+  /* 번역이 비어 온 칸은 쓰지 않는다 — 빈 문자열로 덮으면 다음에도 "번역됨"으로 보인다 */
+  fields.forEach((f, i) => { if (!result.failedIndices.includes(i)) translated[f] = result.translations[i] ?? ""; });
   if (translated.title) translated.title = clampTitle(translated.title);
 
   const update: Record<string, string> = {};

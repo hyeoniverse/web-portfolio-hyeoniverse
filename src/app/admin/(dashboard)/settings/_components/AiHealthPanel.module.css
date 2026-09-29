@@ -1,0 +1,212 @@
+/* ── AI 상태·사용량 (settings > 서비스) ── */
+
+/* 그룹 덩어리를 폭에 따라 1~3열로. 한 그룹이 격자의 행 --group-rows 개를 차지하고 그 행을 안에서 나눠 쓴다
+   (subgrid) — 같은 줄에 놓인 그룹끼리 제목과 n번째 공급자 줄이 같은 높이에서 시작한다.
+   공급자가 적은 그룹은 아래 행이 빈다 */
+.groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  column-gap: var(--spacing-2xl);
+  row-gap: 0;
+  margin-top: var(--spacing-sm);
+}
+
+.group {
+  display: grid;
+  grid-row: span var(--group-rows, 4);
+  grid-template-rows: subgrid;
+  align-content: start;
+  min-width: 0;
+  margin-bottom: var(--spacing-xl);
+}
+
+.groupTitle {
+  align-self: end;
+  margin: 0 0 var(--spacing-xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-label);
+  font-weight: 600;
+  color: var(--text-tertiary);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* 공급자 줄들도 그룹의 행을 그대로 이어 쓴다 */
+.list {
+  display: grid;
+  grid-row: 2 / -1;
+  grid-template-rows: subgrid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* 공급자 한 줄 — 머리(이름·기능·상태·단추), 원인, 사용량 */
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-md) 0;
+  border-top: var(--border-light);
+}
+
+.row:last-child {
+  border-bottom: var(--border-light);
+  /* 같은 행의 옆 그룹 줄이 더 길어도 밑줄은 제 내용 바로 아래 */
+  align-self: start;
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-2xs) var(--spacing-sm);
+  min-height: var(--control-h-sm);
+}
+
+.name {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-body);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.features {
+  font-size: var(--font-size-label);
+  color: var(--text-tertiary);
+}
+
+/* 상태 — 정상(초록)·실패 중(노랑)·꺼짐(강조색)·키 없음(흐림). 빨강은 쓰지 않는다 */
+.status {
+  padding: var(--badge-p-md);
+  border-radius: var(--radius-capsule);
+  font-size: var(--font-size-label);
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.status[data-state="ok"] {
+  background: var(--bg-success-soft);
+  color: var(--bg-success-solid);
+}
+
+.status[data-state="failing"] {
+  background: var(--bg-warning-soft);
+  color: var(--bg-warning-solid);
+}
+
+.status[data-state="off"] {
+  background: var(--bg-accent-light);
+  color: var(--text-accent);
+}
+
+.status[data-state="nokey"] {
+  background: var(--bg-tertiary);
+  color: var(--text-tertiary);
+}
+
+.actions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  margin-left: auto;
+}
+
+/* 원인과 고칠 방법 */
+.problem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+}
+
+.fix {
+  margin: 0;
+  font-size: var(--font-size-label);
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.fix strong {
+  color: var(--text-accent);
+  font-weight: 600;
+}
+
+.message {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2xs);
+  margin: 0;
+  font-size: var(--font-size-hint);
+  line-height: 1.5;
+  color: var(--text-tertiary);
+}
+
+.message code {
+  font-family: var(--font-mono);
+  word-break: break-all;
+}
+
+/* 사용량 — 글 한 줄 + 막대(무료 한도를 아는 공급자만) + 한도 출처·기한 */
+/* 열이 좁아 글 · 막대 · 메모를 한 줄씩 쌓는다 */
+.usage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--spacing-2xs);
+}
+
+.usageText {
+  font-size: var(--font-size-label);
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.usageNote {
+  grid-column: 1 / -1;
+  font-size: var(--font-size-hint);
+  color: var(--text-tertiary);
+}
+
+.bar {
+  position: relative;
+  height: 6px;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary);
+}
+
+.barFill {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-success-solid);
+}
+
+/* 한도(앱 상한이 있으면 그 상한)의 80% 를 넘으면 강조색 */
+.barFill[data-high] {
+  background: var(--text-accent);
+}
+
+/* 앱이 스스로 멈추는 자리 */
+.barCap {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 2px;
+  border-radius: var(--radius-capsule);
+  background: var(--text-secondary);
+}
+
+.empty {
+  margin: var(--spacing-sm) 0 0;
+  font-size: var(--font-size-label);
+  color: var(--text-tertiary);
+}
+
+
+/* 제목 줄 — 제목과 "기록 보기" */
+.titleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+}

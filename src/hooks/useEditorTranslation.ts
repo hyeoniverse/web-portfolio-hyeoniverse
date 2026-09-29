@@ -1,3 +1,4 @@
+import { notifyAiFailures } from "@/lib/ai/notifyFailures";
 import { useState, useCallback, useRef } from "react";
 import { useSyncRef } from "@/hooks/useSyncRef";
 import { autoTranslate } from "@/utils/autoTranslate";
@@ -74,15 +75,19 @@ export function useEditorTranslation({
       const result = await autoTranslate(texts, sourceLang, targetLang);
       setTranslating(false);
 
+      const feature = t("admin.aiHealth.feature.translation");
       if ("translations" in result) {
+        /* 번역이 비어 온 칸(failedIndices)은 건드리지 않는다 — 예전에는 빈 문자열로 덮어 그 언어의 글이 지워졌다 */
         const patch: Record<string, string> = {};
         active.forEach((m, i) => {
-          patch[m.targetKey] = result.translations[i];
+          if (!result.failedIndices.includes(i)) patch[m.targetKey] = result.translations[i];
         });
         onUpdate(patch);
         onStatus?.(t(`${i18nPrefix}.autoTranslated`), "success");
+        notifyAiFailures(result, t, { feature, ok: true });
       } else {
         onError?.(errorText(result.error, t, t(`${i18nPrefix}.translateFailed`)));
+        notifyAiFailures(result, t, { feature, ok: false });
       }
     },
     [fieldMapper, t, i18nPrefix, onUpdate, onStatus, onError],

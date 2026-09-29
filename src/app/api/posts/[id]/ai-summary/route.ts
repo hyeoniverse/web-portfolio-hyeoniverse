@@ -53,12 +53,15 @@ English content (if available):
 ${contentEn}`;
 
   try {
-    const { ko, en } = await generateSummary(promptText, "posts/ai-summary");
+    const { ko, en, failures } = await generateSummary(promptText, "posts/ai-summary");
     await supabase.from("posts").update({ summary_ko: ko, summary_en: en }).eq("id", id);
-    return NextResponse.json({ summary_ko: ko, summary_en: en });
+    /* 앞 공급자가 실패해 뒤 공급자로 만들었으면 failures 에 실어 화면이 알린다 */
+    return NextResponse.json({ summary_ko: ko, summary_en: en, failures });
   } catch (e) {
     if (e instanceof AiSummaryError) {
-      return NextResponse.json({ error: e.message }, { status: e.statusCode });
+      /* 원인은 failures(공급자마다의 원인)로 — 화면이 토스트로 알리고, 설정 › 서비스 상태 패널에도 남는다 */
+      const code = e.statusCode === 503 ? "AI_NOT_CONFIGURED" : e.failures.length > 0 && e.failures.every((f) => f.disabled) ? "AI_PROVIDERS_DISABLED" : "AI_SUMMARY_FAILED";
+      return NextResponse.json({ error: e.message, code, failures: e.failures }, { status: e.statusCode });
     }
     throw e;
   }

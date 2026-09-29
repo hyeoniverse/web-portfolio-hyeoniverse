@@ -5,7 +5,9 @@ import {
   type Provider,
   buildProviderList,
   translateWithFallback,
+  translationFailure,
 } from "@/lib/api/translationProviders";
+import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   const { error: authError } = await requireAuth();
@@ -29,13 +31,16 @@ export async function POST(request: Request) {
     providerList, texts, sourceLang, targetLang, "[admin/translate]",
   );
 
+  /* failures — 공급자마다의 실패 원인. 편집 화면이 토스트로 알린다(뒤 공급자로 성공했어도) */
   if ("error" in result) {
-    return jsonError(result.error, 502, { code: result.error.includes("not configured") ? "TRANSLATION_NOT_CONFIGURED" : "TRANSLATION_FAILED" });
+    const { code } = translationFailure(result.failures);
+    return NextResponse.json({ error: result.error, code, failures: result.failures }, { status: 502 });
   }
 
   // failedIndices: 모든 provider 시도 후에도 번역 못 받은 인덱스 (성공분은 그대로 유지)
   return jsonOk({
     translations: result.translations,
     failedIndices: result.failedIndices,
+    failures: result.failures,
   });
 }

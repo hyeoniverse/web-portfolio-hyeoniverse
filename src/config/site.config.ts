@@ -147,10 +147,12 @@ export const siteConfig = {
   // ---------------------------------------------------------------------------
   emailService: {
     provider: "formspree" as "web3forms" | "formspree" | "emailjs",
-    // 파일 첨부 지원:
-    // - Web3Forms: 유료 플랜만 (최대 10MB)
-    // - Formspree: 무료 (최대 10MB)
-    // - EmailJS: Base64 인코딩 (최대 500KB)
+    // 문의 폼은 방문자 브라우저가 고른 공급자로 바로 보낸다(lib/contactSend).
+    // 파일 첨부 — 받는지는 공급자 요금제에 달렸다:
+    // - Formspree: 유료 요금제에서만(무료 요금제는 파일 업로드 없음)
+    // - Web3Forms: 유료(Pro) 요금제에서만
+    // - EmailJS: 유료 요금제에서만(Personal 500KB · Professional 2MB · Business 30MB), 템플릿에 변수 첨부(이름 attachment)도 설정
+    // 첨부를 단 메일이 3번 이어 실패하면 첨부만 저절로 꺼진다(/api/contact/attachment)
     enableFileUpload: false,
   },
 
@@ -750,6 +752,25 @@ export const siteConfig = {
       enabled: false,
       priority: [] as ("gemini" | "google" | "deepl" | "claude")[],
       excluded: [] as ("gemini" | "google" | "deepl" | "claude")[],
+    },
+  },
+
+  // ---------------------------------------------------------------------------
+  // 슬라이드 음성(TTS) 설정 — 작업물 갤러리의 슬라이드 음성(lib/tts)
+  // ---------------------------------------------------------------------------
+  // provider: 편집 화면 목소리 목록의 처음 값. 실제로는 편집 화면에서 고른 목소리의 제공자부터 쓴다.
+  //   Fish Audio  FISH_AUDIO_API_KEY  — 무료 모델(s2.1-pro-free) 2026-11-30 까지
+  //   Google      GOOGLE_TTS_API_KEY  — Neural2, 앱이 달마다 80만 바이트에서 멈춘다
+  //   Edge        키 없음(비공식)
+  // fallback: 고른 제공자가 실패하면 이 순서로 같은 성별의 목소리로 넘어간다
+  // ---------------------------------------------------------------------------
+  tts: {
+    enabled: true,
+    provider: "fish" as "fish" | "google" | "edge",
+    fallback: {
+      enabled: true,
+      priority: ["google", "edge"] as ("fish" | "google" | "edge")[],
+      excluded: [] as ("fish" | "google" | "edge")[],
     },
   },
 
