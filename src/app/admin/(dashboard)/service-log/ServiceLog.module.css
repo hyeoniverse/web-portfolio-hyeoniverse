@@ -52,23 +52,64 @@
   font-variant-numeric: tabular-nums;
 }
 
+:where(.tableScroll) {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+
+/* 기록 표 — 한 격자에 줄들을 subgrid 로 얹어 열 폭을 줄끼리 맞춘다.
+   시각·공급자는 고정 폭(가로로 밀 때 왼쪽에 붙어 있을 자리), 결과는 가장 긴 배지 폭, 나머지가 메시지 */
 .list {
-  display: flex;
-  flex-direction: column;
+  --_col-time: 170px;
+  --_col-provider: 150px;
+  display: grid;
+  grid-template-columns: var(--_col-time) var(--_col-provider) max-content minmax(240px, 1fr);
+  column-gap: var(--spacing-sm);
+  min-width: 720px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-/* 한 줄 — 시각 · 공급자 · 결과 · 양이나 원인 문장 */
+.list > li {
+  display: contents;
+}
+
+/* 한 줄 — 시각 · 공급자 · 결과 · 양이나 원인 문장. 누르면 아래에 상세가 열린다 */
 .row {
+  grid-column: 1 / -1;
   display: grid;
-  grid-template-columns: 170px 150px auto minmax(0, 1fr);
+  grid-template-columns: subgrid;
   align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-xs) 0;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border: none;
   border-bottom: var(--border-light);
+  background: transparent;
   font-size: var(--font-size-label);
+  text-align: left;
+  cursor: pointer;
+}
+
+.row:hover,
+.row[data-open] {
+  background: var(--bg-secondary);
+}
+
+/* 가로로 밀어도 시각·공급자는 왼쪽에 붙어 있다 */
+.pin {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--bg-primary);
+}
+
+.row:hover .pin,
+.row[data-open] .pin {
+  background: var(--bg-secondary);
+}
+
+.pin2 {
+  left: calc(var(--_col-time) + var(--spacing-sm));
 }
 
 .time {
@@ -80,10 +121,14 @@
 .provider {
   font-weight: 600;
   color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* 결과 — 성공(초록)·실패(강조색). 빨강은 쓰지 않는다 */
 .status {
+  justify-self: start;
   padding: var(--badge-p-md);
   border-radius: var(--radius-capsule);
   background: var(--bg-accent-light);
@@ -98,8 +143,12 @@
   color: var(--bg-success-solid);
 }
 
+/* 메시지 — 한 줄로 두고 넘치면 말줄임. 전체는 줄을 눌러 본다 */
 .detail {
   min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   color: var(--text-secondary);
   font-variant-numeric: tabular-nums;
 }
@@ -107,17 +156,48 @@
 .detail code {
   font-family: var(--font-mono);
   font-size: var(--font-size-hint);
-  word-break: break-all;
 }
 
-@media (max-width: 640px) {
-  .row {
-    grid-template-columns: auto auto minmax(0, 1fr);
-  }
+/* 펼친 상세 — 항목 이름 · 값 두 열 */
+.rowMore {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: var(--spacing-2xs) var(--spacing-md);
+  margin: 0;
+  padding: var(--spacing-sm) var(--spacing-md) var(--spacing-md);
+  border-bottom: var(--border-light);
+  background: var(--bg-secondary);
+  font-size: var(--font-size-label);
+}
 
-  .detail {
-    grid-column: 1 / -1;
-  }
+.rowMore dt {
+  color: var(--text-tertiary);
+}
+
+.rowMore dd {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin: 0;
+  min-width: 0;
+  color: var(--text-primary);
+}
+
+.rowMore code {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
+  color: var(--text-tertiary);
+}
+
+.rowMessage {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: var(--text-accent);
 }
 
 /* ?demo — 예시 기록으로 보고 있다는 알림 */

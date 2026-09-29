@@ -19,7 +19,9 @@ import type { Author } from "@/types/author";
 import type { SaveResult } from "../_types";
 import type { Member, PendingMember } from "@/types/member";
 import Field from "./SettingsFormFields";
+import FieldRow from "@/components/ui/FieldRow";
 import SocialLinksEditor from "./SocialLinksEditor";
+import { JOB_TITLE_PRESETS } from "@/data/jobTitles";
 import { HintLines } from "./EnvKeyHint";
 import styles from "./MemberEditModal.module.css";
 import shared from "../Settings.module.css";
@@ -71,11 +73,21 @@ export default function MemberEditModal({
   const [status, setStatus] = useState<{ ok: boolean; msg: string } | null>(null);
 
   const set = (p: Partial<Author>) => setDraft((d) => ({ ...d, ...p }));
-  /* 프로필 글(이름·역할·지역·소개)을 어느 언어로 적는지 — 기본 필드가 한국어, *_en 이 영어.
+  /* 프로필 글(이름·직무·지역·소개)을 어느 언어로 적는지 — 기본 필드가 한국어, *_en 이 영어.
      영어 칸이 비어 있으면 영어 화면과 작업물 팀원 연결에서 한국어 값을 대신 쓴다(localizeAuthor) */
   const [profileLang, setProfileLang] = useState<"ko" | "en">("ko");
   const en = profileLang === "en";
-  const enHint = (ko: string | undefined) => ko || undefined;
+  const jobValue = (en ? draft.role_en ?? "" : draft.role).trim();
+  const commitJob = (raw: string) => {
+    const v = raw.trim();
+    const preset = JOB_TITLE_PRESETS.find((j) => j.ko === v || j.en === v);
+    if (!preset) { set(en ? { role_en: v } : { role: v }); return; }
+    set(en
+      ? { role_en: preset.en, ...(draft.role.trim() ? {} : { role: preset.ko }) }
+      : { role: preset.ko, ...(draft.role_en?.trim() ? {} : { role_en: preset.en }) });
+  };
+  /* 반대쪽 언어 값 — 비어 있는 칸의 placeholder 와 Tab 채우기에 쓴다 */
+  const other = (v: string | undefined) => v?.trim() || undefined;
 
   /* 아바타는 이미지 URL 뿐 아니라 이모지·아이콘도 될 수 있다. EmojiPicker 가 돌려주는 값을
      그대로 담고, 그리는 쪽은 AuthorAvatar 가 판별한다. 빈 값이면 이름 첫 글자로 돌아간다. */
@@ -122,7 +134,7 @@ export default function MemberEditModal({
     const incoming: { key: keyof Author; label: string; value: string }[] = [
       { key: "name", label: L("이름", "Name"), value: fetched?.name || githubInfo?.name || "" },
       { key: "avatar", label: L("아바타", "Avatar"), value: fetched?.avatar || githubInfo?.avatar || "" },
-      { key: "role", label: L("역할", "Role"), value: fetched?.role ?? "" },
+      { key: "role", label: L("직무", "Job title"), value: fetched?.role ?? "" },
       { key: "email", label: L("이메일", "Email"), value: fetched?.email ?? "" },
       { key: "bio", label: L("소개", "Bio"), value: fetched?.bio ?? "" },
       { key: "location", label: L("지역", "Location"), value: fetched?.location ?? "" },
@@ -280,17 +292,23 @@ export default function MemberEditModal({
         <span className={styles.authorCardName}>{draft.name || L("(이름 없음)", "(unnamed)")}</span>
       </div>
 
-      {ghHasData && (
-        <div className={shared.memberGithubLoad}>
-          <Button variant="outline" size="xs" icon={<SiGithub size={13} />} onClick={loadGithub} disabled={ghLoading} loading={ghLoading}>
+      {/* 동작(GitHub 불러오기 · 입력 언어)은 한 줄에, 설명은 그 아래 따로 */}
+      <div className={styles.profileActions}>
+        {ghHasData && (
+          <Button variant="outline" size="sm" icon={<SiGithub size={13} />} onClick={loadGithub} disabled={ghLoading} loading={ghLoading}>
             {L("GitHub 정보 불러오기", "Load from GitHub")}
           </Button>
-          <HintLines lines={[
-            L("이름·아바타·소개·소속·링크를 GitHub 계정 정보로 채웁니다.", "Fills name, avatar, bio, company and links from your GitHub account."),
-            L("이미 적은 값이 GitHub 값과 다르면 바꾸지 않고, 두 값을 비교해 고를 수 있게 보여 줍니다.", "Where a field already differs from GitHub, both values are shown so you can pick one."),
-          ]} />
-        </div>
-      )}
+        )}
+        <span className={styles.profileActionsLang}>
+          <LanguageToggle lang={profileLang} onLangChange={(l) => setProfileLang(l === "en" ? "en" : "ko")} size="sm" />
+        </span>
+      </div>
+      <HintLines lines={[
+        ghHasData && L("GitHub 정보 불러오기는 이름·아바타·소개·소속·링크를 GitHub 계정 정보로 채웁니다.", "Load from GitHub fills name, avatar, bio, company and links from your GitHub account."),
+        ghHasData && L("이미 적은 값이 GitHub 값과 다르면 바꾸지 않고, 두 값을 비교해 고를 수 있게 보여 줍니다.", "Where a field already differs from GitHub, both values are shown so you can pick one."),
+        L("이름·직무·지역·소개는 KO/EN 으로 바꿔 한국어와 영어를 따로 적을 수 있습니다.", "Switch KO/EN to write name, job title, location and bio in Korean and English separately."),
+        L("영어 칸이 비어 있으면 한국어 값을 씁니다. 빈 칸에서 Tab 을 누르면 흐리게 보이는 다른 언어 값을 그대로 넣습니다.", "Empty English fields fall back to Korean. Press Tab in an empty field to copy the other language's value shown in grey."),
+      ]} />
 
       {ghConflicts && (
         <div className={styles.ghCompare}>
@@ -328,31 +346,52 @@ export default function MemberEditModal({
         </div>
       )}
 
-      <div className={styles.profileLangRow}>
-        <HintLines lines={[
-          L("이름·역할·지역·소개는 한국어와 영어로 따로 적을 수 있습니다.", "Name, role, location and bio can be written in Korean and English."),
-          L("영어 칸이 비어 있으면 한국어 값을 씁니다. 빈 영어 칸에서 Tab 을 누르면 한국어 값을 그대로 넣습니다.", "Empty English fields fall back to Korean. Press Tab in an empty English field to copy the Korean value."),
-        ]} />
-        <LanguageToggle lang={profileLang} onLangChange={(l) => setProfileLang(l === "en" ? "en" : "ko")} size="sm" />
-      </div>
-
       <div className={styles.authorCardFields}>
+        {/* 이름·직무·지역·소개는 입력 언어(KO/EN)를 칸 안 배지로 보인다. 비어 있으면 반대쪽 언어 값을
+            placeholder 로 보이고, Tab 을 누르면 그 값을 그대로 넣는다(없으면 예시만) */}
         {en
-          ? <Field label={L("이름 (EN)", "Name (EN)")} value={draft.name_en ?? ""} tabFill={draft.name || undefined} onChange={(v) => set({ name_en: v })} placeholder={enHint(draft.name)} />
-          : <Field label={L("이름", "Name")} value={draft.name} onChange={(v) => set({ name: v })} required />}
+          ? <Field label={L("이름", "Name")} langBadge="en" value={draft.name_en ?? ""} tabFill={other(draft.name)} onChange={(v) => set({ name_en: v })} placeholder={other(draft.name)} />
+          : <Field label={L("이름", "Name")} langBadge="ko" value={draft.name} tabFill={other(draft.name_en)} onChange={(v) => set({ name: v })} placeholder={other(draft.name_en)} required />}
         <Field label={L("아바타 URL", "Avatar URL")} value={draft.avatar} onChange={(v) => set({ avatar: v })} placeholder="https://..." maxHint={null} />
-        {en
-          ? <Field label={L("역할 (EN)", "Role (EN)")} value={draft.role_en ?? ""} tabFill={draft.role || undefined} onChange={(v) => set({ role_en: v })} placeholder={enHint(draft.role) ?? "e.g. Frontend Developer"} />
-          : <Field label={L("역할", "Role")} value={draft.role} onChange={(v) => set({ role: v })} placeholder={L("예: 프론트엔드 개발자", "e.g. Frontend Developer")} suggestions={suggestions?.role} />}
+        {/* 직무 — 공통 Select combobox. 칸에 바로 적거나(직접 입력), 펼쳐서 프리셋(src/data/jobTitles)을 고른다.
+            프리셋을 고르면 지금 언어 칸에 넣고, 다른 언어 칸이 비어 있으면 짝도 채운다 */}
+        <FieldRow
+          className={styles.authorCardFieldWide}
+          label={<>{L("직무", "Job title")}<span className={styles.labelLangBadge}>{profileLang.toUpperCase()}</span></>}
+        >
+          <span
+            className={styles.jobCombo}
+            onKeyDownCapture={(e) => {
+              /* 빈 칸에서 Tab — 다른 언어 값을 그대로 넣는다(다른 칸과 같은 동작) */
+              const fill = other(en ? draft.role : draft.role_en);
+              if (e.key !== "Tab" || e.shiftKey || e.nativeEvent.isComposing || jobValue || !fill) return;
+              e.preventDefault();
+              set(en ? { role_en: fill } : { role: fill });
+            }}
+          >
+            <Select
+              combobox="split"
+              width="full"
+              dropAlign="below"
+              /* 왼쪽 선택은 지금 값과 같은 프리셋, 없으면 "직접 입력" */
+              value={JOB_TITLE_PRESETS.some((j) => (en ? j.en : j.ko) === jobValue) ? jobValue : ""}
+              inputValue={en ? draft.role_en ?? "" : draft.role}
+              onInputChange={(v) => set(en ? { role_en: v } : { role: v })}
+              onChange={commitJob}
+              options={JOB_TITLE_PRESETS.map((j) => ({ value: en ? j.en : j.ko, label: en ? j.en : j.ko }))}
+              placeholder={other(en ? draft.role : draft.role_en) ?? (en ? "Frontend Developer" : "프론트엔드 개발자")}
+            />
+          </span>
+        </FieldRow>
         <Field label={L("이메일", "Email")} value={draft.email} onChange={(v) => set({ email: v })} placeholder="name@example.com" maxHint={null} required />
         {en
-          ? <Field label={L("지역 (EN)", "Location (EN)")} value={draft.location_en ?? ""} tabFill={draft.location || undefined} onChange={(v) => set({ location_en: v })} placeholder={enHint(draft.location) ?? "e.g. Seoul, South Korea"} />
-          : <Field label={L("지역", "Location")} value={draft.location ?? ""} onChange={(v) => set({ location: v })} placeholder={L("예: 서울, 대한민국", "e.g. Seoul, South Korea")} suggestions={suggestions?.location} />}
+          ? <Field label={L("지역", "Location")} langBadge="en" value={draft.location_en ?? ""} tabFill={other(draft.location)} onChange={(v) => set({ location_en: v })} placeholder={other(draft.location) ?? "Seoul, South Korea"} />
+          : <Field label={L("지역", "Location")} langBadge="ko" value={draft.location ?? ""} tabFill={other(draft.location_en)} onChange={(v) => set({ location: v })} placeholder={other(draft.location_en) ?? "서울, 대한민국"} suggestions={suggestions?.location} />}
         {/* 소개는 여러 줄 입력이라 반 칸에 두면 한 줄에 몇 글자 못 들어간다 — 두 열을 다 쓴다. */}
         <div className={styles.authorCardFieldWide}>
           {en
-            ? <Field label={L("소개 (EN)", "Bio (EN)")} value={draft.bio_en ?? ""} tabFill={draft.bio || undefined} onChange={(v) => set({ bio_en: v })} placeholder={enHint(draft.bio)} multiline />
-            : <Field label={L("소개", "Bio")} value={draft.bio} onChange={(v) => set({ bio: v })} multiline />}
+            ? <Field label={L("소개", "Bio")} langBadge="en" value={draft.bio_en ?? ""} tabFill={other(draft.bio)} onChange={(v) => set({ bio_en: v })} placeholder={other(draft.bio)} multiline />
+            : <Field label={L("소개", "Bio")} langBadge="ko" value={draft.bio} tabFill={other(draft.bio_en)} onChange={(v) => set({ bio: v })} placeholder={other(draft.bio_en)} multiline />}
         </div>
       </div>
 
@@ -376,7 +415,7 @@ export default function MemberEditModal({
             {/* owner 는 전권이라 레벨 조정 불가 */}
             {member.role !== "owner" && (
               <div className={styles.authorInviteRow}>
-                <Select value={memberLevel} options={levels} size="sm" disabled={busy} onChange={changeLevel} />
+                <Select value={memberLevel} options={levels} disabled={busy} onChange={changeLevel} />
               </div>
             )}
           </>
@@ -386,7 +425,7 @@ export default function MemberEditModal({
               {L("이미 로그인한 계정입니다. 저장하면 이 프로필과 연결하고 권한을 부여합니다.", "This account has already signed in. Saving links it to this profile and grants access.")}
             </span>
             <div className={styles.authorInviteRow}>
-              <Select value={inviteLevel} options={levels} size="sm" disabled={busy} onChange={setInviteLevel} />
+              <Select value={inviteLevel} options={levels} disabled={busy} onChange={setInviteLevel} />
             </div>
           </>
         ) : (
@@ -397,8 +436,8 @@ export default function MemberEditModal({
                 : L("이 이메일과 동일한 GitHub 계정으로 로그인하면 권한이 부여됩니다.", "Access is granted when they sign in with the GitHub account that uses this email.")}
             </span>
             <div className={styles.authorInviteRow}>
-              <Select value={inviteLevel} options={levels} size="sm" onChange={setInviteLevel} />
-              <Button variant="outline" size="sm" icon={<Mail size={14} />} disabled={busy || !draft.email} onClick={invite}>
+              <Select value={inviteLevel} options={levels} onChange={setInviteLevel} />
+              <Button variant="outline" icon={<Mail size={14} />} disabled={busy || !draft.email} onClick={invite}>
                 {busy ? L("초대하고 있습니다…", "Sending…") : localInvited ? L("초대 다시 보내기", "Resend invite") : L("이메일로 초대", "Invite by email")}
               </Button>
               {localInvited && (

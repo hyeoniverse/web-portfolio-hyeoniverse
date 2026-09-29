@@ -21,15 +21,16 @@ export function failuresOf(body: unknown): ProviderFailure[] {
     && (FAILURE_KINDS as readonly string[]).includes((f as ProviderFailure).kind));
 }
 
-/** "Gemini: 키가 만료됐습니다 · OpenAI: 한도를 넘었습니다" */
+/** 공급자마다 한 줄 — "· Gemini: 키가 만료됐습니다\n· OpenAI: 한도를 넘었습니다".
+ *  한 줄에 이어 붙이면 셋만 돼도 어느 공급자의 사유인지 읽히지 않았다 */
 export function describeFailures(failures: ProviderFailure[], t: T): string {
   return failures
     .map((f) => {
       const reason = t(`admin.aiHealth.kind.${f.kind}`);
       const off = f.disabled ? ` ${t("admin.aiHealth.toastDisabled")}` : "";
-      return `${AI_PROVIDER_INFO[f.provider].label}: ${reason}${off}`;
+      return `· ${AI_PROVIDER_INFO[f.provider].label}: ${reason}${off}`;
     })
-    .join(" · ");
+    .join("\n");
 }
 
 /**

@@ -166,14 +166,16 @@
 }
 
 .editableWrapWithBadge {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--spacing-xs);
+  position: relative;
 }
 
-/* inline 배지 — textarea 바깥 왼쪽, 첫 줄과 수직 중심 정렬 (line-height 1.5 + padding 고려) */
+/* inline 배지(KO/EN 등) — 칸 **안** 오른쪽 위. 입력 중(포커스)에는 숨겨 글을 가리지 않는다.
+   칸은 배지 자리만큼 오른쪽 여백을 비워 둬 포커스가 없을 때도 글과 겹치지 않는다 */
 .inlineLabel {
-  flex-shrink: 0;
+  position: absolute;
+  top: var(--spacing-xs);
+  right: var(--spacing-sm);
+  z-index: 1;
   display: inline-flex;
   align-items: center;
   height: 18px;
@@ -187,16 +189,16 @@
   color: var(--text-tertiary);
   text-transform: uppercase;
   user-select: none;
-  /* textarea 첫 줄과 vertical 중심 맞춤 — textarea 의 padding-top 만큼 */
-  margin-top: var(--spacing-xs);
+  pointer-events: none;
+  transition: opacity 0.15s ease;
 }
 
-/* flex row 안 textarea — width:0 + flex: 1 로 남은 폭 차지. base .textarea width:100% 강제 override.
-   wrapper (.wrapper) 내에서 추가 selector specificity (0,3,0) 로 안전. */
+.editableWrapWithBadge:focus-within .inlineLabel {
+  opacity: 0;
+}
+
 .wrapper .editableWrapWithBadge > .textarea {
-  flex: 1 1 auto;
-  min-width: 0;
-  width: 0;
+  padding-right: calc(var(--spacing-sm) + 32px);
 }
 
 /* ── Editable (contenteditable div, maxHint 모드) ── */

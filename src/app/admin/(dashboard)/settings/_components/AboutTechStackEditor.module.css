@@ -301,3 +301,9 @@
     transform: translateX(5px);
   }
 }
+
+/* 카테고리 입력 래퍼 — Enter·blur 확정용. 레이아웃은 안의 Select 그대로 */
+.techCategoryInput {
+  display: block;
+  width: 100%;
+}

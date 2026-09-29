@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo, useRef, useState, useEffect } from "react";
+import { createPortal } from "react-dom";
+import { usePortalContainer } from "@/components/ui/portalContainer";
 import { useDepsChanged } from "@/hooks/useDepsChanged";
 import { ChevronRight, GripVertical, ImageIcon, Search } from "@/components/icons";
 import { motion, LayoutGroup, AnimatePresence } from "framer-motion";
@@ -65,6 +67,11 @@ export default function RelationPicker<T>({
   const [dragOverId, setDragOverId] = useState<string | null>(null);
   const dragIdRef = useRef<string | null>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
+  /* 목록 패널은 포털로 띄운다 — 편집기의 접히는 영역(overflow·clip-path)이 그림자와 아래로 넘친 패널을 잘랐다 */
+  const areaRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const portalContainer = usePortalContainer();
+  const [panelPos, setPanelPos] = useState<{ top: number; left: number; width: number } | null>(null);
   const searchRef = useRef<HTMLInputElement>(null);
 
   const markThumbError = (id: string) =>
@@ -102,12 +109,30 @@ export default function RelationPicker<T>({
   useEffect(() => {
     if (!open) return;
     const onClick = (e: MouseEvent) => {
-      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      if (wrapRef.current && !wrapRef.current.contains(target) && !panelRef.current?.contains(target)) {
         setOpen(false);
       }
     };
     document.addEventListener("mousedown", onClick);
     return () => document.removeEventListener("mousedown", onClick);
+  }, [open]);
+
+  // 열려 있는 동안 입력칸 아래에 패널 자리를 맞춘다 — 스크롤·창 크기 변화에도 따라간다
+  useEffect(() => {
+    if (!open) return;
+    const update = () => {
+      const r = areaRef.current?.getBoundingClientRect();
+      if (r) setPanelPos({ top: r.bottom + 4, left: r.left, width: r.width });
+    };
+    const raf = requestAnimationFrame(update);
+    window.addEventListener("scroll", update, true);
+    window.addEventListener("resize", update);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", update, true);
+      window.removeEventListener("resize", update);
+    };
   }, [open]);
 
   // 드롭다운 열릴 때 검색창 포커스, 닫힐 때 query 초기화
@@ -140,7 +165,7 @@ export default function RelationPicker<T>({
       onKeyDown={(e) => { if (e.key === "Escape" && open) { e.stopPropagation(); setOpen(false); } }}
     >
       {/* 입력 영역 — chip 없이 검색 input 만 (selected 는 아래 chipRow 에 별도 표시) */}
-      <div className={`${styles.inputArea} ${open ? styles.inputAreaOpen : ""}`}>
+      <div ref={areaRef} className={`${styles.inputArea} ${open ? styles.inputAreaOpen : ""}`}>
         <div className={styles.inputAreaTop}>
           <div className={styles.trigger} onClick={() => { setOpen(true); searchRef.current?.focus(); }}>
             {open && (
@@ -169,8 +194,19 @@ export default function RelationPicker<T>({
           </div>
         </div>
 
-        {/* 항상 렌더 — 닫힘 시 CSS 로 숨김. 열림 시 radius transition 먼저, 그 후 expand */}
-        <div className={styles.inputAreaExpand} role="listbox" aria-hidden={!open} data-lenis-prevent>
+      </div>
+
+      {/* 목록 패널 — 포털(모달 안이면 모달의 포털 자리). 한 번 연 뒤로는 그려 두고 투명도로 여닫는다 */}
+      {panelPos && createPortal(
+          <div
+            ref={panelRef}
+            className={`${styles.inputAreaExpand} ${open ? styles.inputAreaExpandOpen : ""}`}
+            style={{ top: panelPos.top, left: panelPos.left, width: panelPos.width }}
+            role="listbox"
+            aria-hidden={!open}
+            data-lenis-prevent
+            onKeyDown={(e) => { if (e.key === "Escape") setOpen(false); }}
+          >
           <div className={styles.dropdownList}>
             {candidates.length === 0 ? (
               <div className={styles.noResults}>
@@ -220,8 +256,9 @@ export default function RelationPicker<T>({
               })
             )}
           </div>
-        </div>
-      </div>
+        </div>,
+        portalContainer ?? document.body,
+      )}
 
       {/* 선택된 항목 — input 과 별도 row 로 표시. 좌측 grip 핸들로 드래그 정렬 가능.
           motion.span + layout prop 으로 순서 변경 시 FLIP 애니메이션 자동 적용 */}

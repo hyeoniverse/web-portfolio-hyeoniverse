@@ -19,7 +19,7 @@ import SegmentedControl from "@/components/ui/SegmentedControl";
 import { SkeletonLine } from "@/components/ui/Skeleton";
 import { sendAction, tryRequest } from "@/lib/sendAction";
 import { fillTemplate } from "@/utils/format";
-import { AI_PROVIDER_INFO, type AiProvider } from "@/lib/ai/providers";
+import { AI_PROVIDERS, AI_PROVIDER_INFO, type AiProvider } from "@/lib/ai/providers";
 import { SERVICE_PROVIDER_LABEL, type ServiceLogCategory, type ServiceLogEntry } from "@/lib/serviceLogTypes";
 import { demoServiceLog, DEMO_STATES } from "./demoEntries";
 import styles from "./ServiceLog.module.css";
@@ -28,6 +28,17 @@ type Result = "all" | "ok" | "fail";
 type Category = ServiceLogCategory | "all";
 
 const CATEGORY_ORDER: ServiceLogCategory[] = ["ai", "mail", "github", "cron", "contact"];
+
+/* 종류마다 기록을 남기는 공급자·작업 — 아직 기록이 없어도 왼쪽 목록에 0 으로 보인다 */
+const KNOWN_PROVIDERS: Record<ServiceLogCategory, string[]> = {
+  ai: [...AI_PROVIDERS],
+  mail: ["resend"],
+  github: ["github"],
+  cron: ["publish-scheduled", "purge-trash-scheduled", "anonymize-site-visits"],
+  contact: ["contact-attachment"],
+};
+
+type ProviderRef = Pick<ServiceLogEntry, "category" | "provider">;
 
 export default function ServiceLogView() {
   const { t, language } = useLanguage();
@@ -39,9 +50,11 @@ export default function ServiceLogView() {
   const [provider, setProvider] = useState<string>("all");
   const [result, setResult] = useState<Result>("all");
   const [clearing, setClearing] = useState(false);
+  /* 펼친 기록 줄 — 누르면 잘린 메시지 전체와 상세가 아래에 열린다 */
+  const [openRow, setOpenRow] = useState<string | null>(null);
   /* 공급자의 지금 상태(정상·실패 중·꺼짐·키 없음) — 설정 › 서비스 상태 패널과 같은 기준. 예시 모드면 예시 상태 */
   const health = useAiHealth();
-  const stateOf = (e: ServiceLogEntry): ProviderState | null =>
+  const stateOf = (e: ProviderRef): ProviderState | null =>
     e.category !== "ai" ? null : demo ? DEMO_STATES[e.provider] ?? "ok" : health.stateOf(e.provider as AiProvider);
 
   useEffect(() => {
@@ -76,7 +89,7 @@ export default function ServiceLogView() {
     return () => { alive = false; };
   }, []);
 
-  const labelOf = (e: Pick<ServiceLogEntry, "category" | "provider">) =>
+  const labelOf = (e: ProviderRef) =>
     e.category === "ai"
       ? AI_PROVIDER_INFO[e.provider as AiProvider]?.label ?? e.provider
       : SERVICE_PROVIDER_LABEL[e.provider]?.[language === "ko" ? "ko" : "en"] ?? e.provider;
@@ -89,11 +102,12 @@ export default function ServiceLogView() {
     && (!providerSet || providerSet.has(e.provider))), [entries, category, providerSet]);
   const shown = useMemo(() => scoped.filter((e) => result === "all" || (result === "ok" ? e.ok : !e.ok)), [scoped, result]);
 
-  /* 왼쪽 목록 — 종류마다 공급자·작업의 건수와 실패 수(전체 기록 기준) */
+  /* 왼쪽 목록 — 종류마다 공급자·작업의 건수와 실패 수(전체 기록 기준). 기록이 없는 것도 0 으로 둔다 */
   const rail = useMemo(() => {
-    const map = new Map<string, { entry: ServiceLogEntry; total: number; fail: number }>();
+    const map = new Map<string, { entry: ProviderRef; total: number; fail: number }>();
+    for (const c of CATEGORY_ORDER) for (const key of KNOWN_PROVIDERS[c]) map.set(key, { entry: { category: c, provider: key }, total: 0, fail: 0 });
     for (const e of entries ?? []) {
-      const s = map.get(e.provider) ?? { entry: e, total: 0, fail: 0 };
+      const s = map.get(e.provider) ?? { entry: { category: e.category, provider: e.provider }, total: 0, fail: 0 };
       s.total += 1;
       if (!e.ok) s.fail += 1;
       map.set(e.provider, s);
@@ -101,7 +115,7 @@ export default function ServiceLogView() {
     return CATEGORY_ORDER.map((c) => {
       const items = [...map.entries()].filter(([, v]) => v.entry.category === c).map(([key, v]) => ({ key, ...v }));
       return { category: c, items, total: items.reduce((n, i) => n + i.total, 0), fail: items.reduce((n, i) => n + i.fail, 0) };
-    }).filter((g) => g.items.length > 0);
+    });
   }, [entries]);
   const allFail = (entries ?? []).filter((e) => !e.ok).length;
 
@@ -292,18 +306,48 @@ export default function ServiceLogView() {
               {shown.length === 0 ? (
                 <p className={styles.empty}>{th("logNoMatch")}</p>
               ) : (
-                <ul className={styles.list}>
-                  {shown.map((e, i) => (
-                    <li key={`${e.at}-${i}`} className={styles.row}>
-                      <span className={styles.time}>{when(e.at)}</span>
-                      <span className={styles.provider}>{labelOf(e)}</span>
-                      <span className={styles.status} data-ok={e.ok ? "" : undefined}>
-                        {e.ok ? th("logOk") : th(`kind.${e.kind ?? "unknown"}`)}
-                      </span>
-                      <span className={styles.detail}>{detailOf(e)}</span>
-                    </li>
-                  ))}
-                </ul>
+                /* 표 하나(subgrid) — 결과 배지 열 폭이 가장 긴 배지에 맞춰져 메시지 시작점이 줄마다 같다.
+                   좁으면 가로로 밀고, 시각·공급자 열은 왼쪽에 붙어 있다 */
+                <div className={styles.tableScroll}>
+                  <ul className={styles.list}>
+                    {shown.map((e, i) => {
+                      const key = `${e.at}-${i}`;
+                      const isOpen = openRow === key;
+                      return (
+                        <li key={key}>
+                          <Pressable
+                            className={styles.row}
+                            data-open={isOpen ? "" : undefined}
+                            aria-expanded={isOpen}
+                            onClick={() => setOpenRow(isOpen ? null : key)}
+                            soundDisabled
+                          >
+                            <span className={`${styles.time} ${styles.pin}`}>{when(e.at)}</span>
+                            <span className={`${styles.provider} ${styles.pin} ${styles.pin2}`}>{labelOf(e)}</span>
+                            <span className={styles.status} data-ok={e.ok ? "" : undefined}>
+                              {e.ok ? th("logOk") : th(`kind.${e.kind ?? "unknown"}`)}
+                            </span>
+                            <span className={styles.detail}>{detailOf(e)}</span>
+                          </Pressable>
+                          {isOpen && (
+                            <dl className={styles.rowMore}>
+                              <dt>{th("logDetailTime")}</dt><dd>{new Date(e.at).toLocaleString(locale)}</dd>
+                              <dt>{th("logColProvider")}</dt><dd>{labelOf(e)} <code>{e.provider}</code></dd>
+                              <dt>{th("logDetailResult")}</dt>
+                              <dd>
+                                {e.ok ? th("logOk") : th(`kind.${e.kind ?? "unknown"}`)}
+                                {e.status ? <code>HTTP {e.status}</code> : null}
+                              </dd>
+                              {e.meta?.purpose && (<><dt>{th("logDetailPurpose")}</dt><dd>{th(`logPurpose.${e.meta.purpose}`)}</dd></>)}
+                              {e.units !== undefined && e.units !== null && (<><dt>{th("logDetailUnits")}</dt><dd>{e.units.toLocaleString(locale)}</dd></>)}
+                              {e.message && (<><dt>{th("logDetailMessage")}</dt><dd><pre className={styles.rowMessage}>{e.message}</pre></dd></>)}
+                            </dl>
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
               )}
             </div>
           </div>

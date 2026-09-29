@@ -101,3 +101,23 @@ export const defaultForm: WorkFormData = {
   scheduled_at: null,
   related_post_ids: [],
 };
+
+/** 소유자(본인) 계정에 연결된 팀원의 author_id — resolvePostAuthors 의 OWNER_AUTHOR_ID 와 같다 */
+const OWNER_ID = "owner";
+
+/**
+ * 작업물의 "내 역할·담당 업무"(role_*, contributions_*)는 팀원 목록의 본인 항목이 기준이다.
+ * 편집기에는 따로 적는 칸이 없고, 저장·미리보기 때 본인 팀원 값으로 채운다 — 목록 카드·상세 정보 칸이 이 값을 읽는다.
+ * 본인 팀원이 없으면(직접 뺀 경우) 원래 값을 그대로 둔다.
+ */
+export function syncOwnerRole(form: WorkFormData): WorkFormData {
+  const owner = form.team_members.find((m) => m.author_id === OWNER_ID);
+  if (!owner) return form;
+  return {
+    ...form,
+    role_ko: owner.role_ko ?? "",
+    role_en: owner.role_en ?? "",
+    contributions_ko: owner.contributions_ko ?? {},
+    contributions_en: owner.contributions_en ?? {},
+  };
+}

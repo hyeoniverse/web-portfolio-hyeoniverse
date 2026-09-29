@@ -163,6 +163,8 @@ export default function CommentMarkdown({ content, className }: CommentMarkdownP
       scrollTitle: t("common.codeScrollTitle"),
       copy: t("common.codeCopy"),
       copied: t("common.codeCopied"),
+        expand: t("common.codeExpand"),
+        collapse: t("common.codeCollapse"),
     });
     // 인라인 코드 색상값(`#hex` 등) 앞에 색 스와치 — 색상 버튼으로 넣은 색이 원으로 보인다
     applyColorSwatches(root);

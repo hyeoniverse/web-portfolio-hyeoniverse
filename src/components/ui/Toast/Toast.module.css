@@ -16,7 +16,8 @@
 
 .toast {
   display: inline-flex;
-  align-items: center;
+  /* 여러 줄이면 아이콘을 첫 줄에 맞춘다 — 가운데 정렬이면 아이콘이 문단 가운데로 내려가 어느 줄 것인지 흐려진다 */
+  align-items: flex-start;
   gap: var(--spacing-xs);
   padding: var(--spacing-xs) var(--spacing-md);
   /* 한 줄이면 높이의 절반보다 커서 캡슐과 같게 그려지고, 문구가 길어 줄이 바뀌면 둥근 사각형이 된다.
@@ -41,6 +42,8 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  /* 첫 줄 높이만큼 — 그 안에서 아이콘이 첫 줄과 수직 가운데 */
+  height: 1lh;
   color: var(--text-accent);
 }
 
@@ -51,6 +54,35 @@
   /* 한국어는 어절 사이에서만 줄을 바꾼다("권 / 한" 처럼 낱말이 갈리지 않게). 긴 주소처럼 끊을 곳이 없으면 아무 데서나 */
   word-break: keep-all;
   overflow-wrap: anywhere;
+  /* 문구 안 줄바꿈(\n)을 살린다 — 공급자별 실패 사유처럼 여러 항목을 줄마다 나눠 보일 때 */
+  white-space: pre-line;
+  /* 2줄까지만 — 넘치면 옆 "…" 단추로 모달에서 전체를 본다 */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+/* 잘린 문구 전체 보기 — 둘째 줄 끝 높이에 맞춘 작은 캡슐 */
+.more {
+  align-self: flex-end;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 1lh;
+  padding: 0 var(--spacing-xs);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.more:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
 }
 
 .success {

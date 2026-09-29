@@ -69,7 +69,8 @@
 
 .dateRow {
   display: flex;
-  align-items: center;
+  /* 시각 묶음이 다음 줄로 내려가도 라벨(시작·종료)은 첫 줄에 붙어 있게 — 라벨이 입력칸 높이로 가운데를 잡는다 */
+  align-items: flex-start;
   gap: var(--spacing-sm);
   /* basis 240 은 실제 콘텐츠 (label + year/month/day select + sep + calendar btn) ~320px 보다 작아
    * 부모가 ~500px 일 때 둘 다 한 줄에 우겨져 들어가서 wrap 이 트리거 안 됨. basis 를 실제 콘텐츠 폭에 맞춤. */
@@ -77,7 +78,18 @@
   min-width: 280px;
 }
 
+/* 시각 형식 — 줄 전체를 쓴다 */
+.dateRow.dateRowFull {
+  flex-basis: 100%;
+}
+
 .dateLabel {
+  display: inline-flex;
+  align-items: center;
+  height: var(--control-h-md);
+  /* 시작·종료 라벨 폭을 같게 — 줄이 바뀌어도 두 줄의 입력칸·시간 라벨이 같은 자리에서 시작한다 */
+  width: 3em;
+  flex-shrink: 0;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   font-weight: 500;
@@ -92,7 +104,8 @@
   /* 자리가 모자라면 다음 줄로 내린다 — 좁은 칸(프로필 편집기의 두 열)에서 연·월·일이 서로
      밀려 겹쳐 보였다. 줄바꿈이 없으면 각 칸이 제 너비 아래로 눌린다 */
   flex-wrap: wrap;
-  gap: var(--spacing-2xs);
+  /* 안에는 날짜 묶음·시각 묶음 둘 — 묶음 사이는 묶음 안 간격보다 넓게, 줄이 바뀌면 위아래는 좁게 */
+  gap: var(--spacing-xs) var(--spacing-md);
   flex: 1;
   min-width: 0;
 }
@@ -100,11 +113,19 @@
 /* 연·월·일 칸의 너비를 값과 무관하게 고정한다 — 내용에 맞춰 늘면 값을 넣는 순간 칸이 들썩이고,
    옆 칸까지 밀린다. 안내 글(YYYY·MM)과 값(2024·03) 어느 쪽이 들어와도 같은 너비다 */
 .datePart {
-  width: 68px;
+  width: 76px;
 }
 
 .datePartYear {
-  width: 86px;
+  width: 96px;
+}
+
+/* 칸 안의 단추·입력은 칸 폭을 넘지 않는다 — 빈 칸은 입력 모드(input)로 시작하는데 input 기본 폭이 칸보다 넓어
+   옆 칸과 겹쳤고, 단추도 글자 폭만큼 칸 밖으로 3~4px 삐져나와 옆 구분점이 한쪽에 붙어 보였다 */
+.datePart.datePart input,
+.datePart.datePart button {
+  width: 100%;
+  min-width: 0;
 }
 
 /* 연·월·일 칸은 줄지 않는다 — 줄이 모자라면 줄을 바꾼다 */
@@ -151,11 +172,41 @@
   opacity: 0.4;
 }
 
+/* 날짜 묶음·시각 묶음 — 안에서는 줄을 바꾸지 않는다 */
+.dateGroup {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: var(--spacing-2xs);
+}
+
+/* 날짜와 시각 사이 — "시간" 라벨. 시작·종료 라벨과 같은 모양, 앞쪽을 조금 더 띄운다 */
+.dateTimeLabel {
+  display: inline-flex;
+  align-items: center;
+  height: var(--control-h-md);
+  margin-right: var(--spacing-3xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-label);
+  font-weight: 500;
+  color: var(--text-tertiary);
+}
+
+/* 연·월·일 사이 점 — 글자 "·" 는 점이 글자 칸 왼쪽에 그려져 왼쪽 칸에 붙어 보였다. 가운데 점을 직접 그린다 */
+.dateDot {
+  flex-shrink: 0;
+  width: 3px;
+  height: 3px;
+  margin-inline: var(--spacing-3xs);
+  border-radius: var(--radius-circle);
+  background: var(--text-tertiary);
+}
+
 .dateSep {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 28px;
+  height: var(--control-h-md);
   line-height: 1;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-body);
@@ -283,16 +334,19 @@
 /* ── Picker trigger ── */
 .pickerAnchor {
   position: relative;
+  /* 연·월·일 칸과 조금 떨어뜨린다 — 칸 사이 간격(2xs)만으론 칸에 붙어 보였다 */
+  margin-left: var(--spacing-xs);
 }
 
+/* 달력 단추 — 옆 연·월·일 선택 칸과 같은 높이(md)의 원 */
 .pickerBtn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: var(--control-h-xs);
-  height: var(--control-h-xs);
+  width: var(--control-h-md);
+  height: var(--control-h-md);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-circle);
   background: transparent;
   color: var(--text-tertiary);
 }
@@ -641,6 +695,59 @@
   font-size: var(--font-size-body);
   font-weight: 600;
   color: var(--text-primary);
+}
+
+/* 제목(연·월) — 눌러서 달·연도 격자로 올라간다. 원형 화살표 단추 규칙을 이긴다(0,3,0) */
+.calNav .calNavLabel.calNavLabel {
+  width: auto;
+  flex: 1;
+  padding: 0 var(--spacing-sm);
+  border: none;
+  border-radius: var(--radius-capsule);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-body);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.calNav .calNavLabel.calNavLabel:hover {
+  background: var(--bg-tertiary);
+}
+
+/* 올해 — 연도 격자에서 지금 해를 옅게 표시 */
+.calCellToday {
+  box-shadow: inset 0 0 0 1px var(--border-color-light);
+}
+
+/* 오늘 단추 줄 — 달력 아래 가운데 */
+.calFooter {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--spacing-sm);
+  padding-top: var(--spacing-xs);
+  border-top: var(--border-light);
+}
+
+.calTodayBtn {
+  padding: var(--spacing-3xs) var(--spacing-md);
+  border: none;
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-label);
+  font-weight: 600;
+  color: var(--text-accent);
+  cursor: pointer;
+}
+
+.calTodayBtn:hover {
+  background: var(--bg-accent-light);
+}
+
+.calTodayBtn:disabled {
+  color: var(--text-tertiary);
+  cursor: not-allowed;
+  background: transparent;
 }
 
 /* Year grid (4x3) */

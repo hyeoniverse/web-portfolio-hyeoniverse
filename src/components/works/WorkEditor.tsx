@@ -30,7 +30,8 @@ import AdminEditorShell, {
 import SeoChecklist, { type SeoCheckId } from "@/components/admin/SeoChecklist";
 import "@/components/admin/seoFlash.css";
 import { flashSeoField } from "@/components/admin/seoFlash";
-import type { Work, WorkFormData } from "@/types/work";
+import type { TeamMember, Work, WorkFormData } from "@/types/work";
+import { OWNER_AUTHOR_ID } from "@/utils/resolvePostAuthors";
 import { useRevisions } from "@/hooks/useRevisions";
 import { useEditorAutoSave } from "@/hooks/useEditorAutoSave";
 import { useEditorLeaveGuard } from "@/hooks/useEditorLeaveGuard";
@@ -43,7 +44,7 @@ import { notifyAiFailures, reportAiResponse } from "@/lib/ai/notifyFailures";
 import { WORK_TEMPLATES, TECH_PRESETS, type WorkTemplate } from "@/data/workTemplates";
 import { getTechIcon, normalizeTechName, getTechAliases } from "@/data/techIcons";
 import { showToast } from "@/stores/toastStore";
-import { workToFormData, defaultForm } from "@/utils/workFormUtils";
+import { workToFormData, defaultForm, syncOwnerRole } from "@/utils/workFormUtils";
 import { restoreSavedForm } from "@/utils/restoreSavedForm";
 import { stripHtml } from "@/utils/htmlUtils";
 import { isVideoMedia } from "@/components/posts/plate/utils";
@@ -54,7 +55,6 @@ import type {} from "@/data/profile";
 import RelationPicker from "@/components/admin/RelationPicker";
 import TagNotesEditor from "@/components/admin/TagNotesEditor";
 import BilingualInputPair from "@/components/admin/BilingualInputPair";
-import SortOrderDragList from "@/components/admin/SortOrderDragList";
 import CoverImageField from "@/components/admin/CoverImageField";
 import CoverBanner from "@/components/admin/CoverBanner";
 import CoverImagePicker from "@/components/posts/CoverImagePicker";
@@ -126,7 +126,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     return () => { cancelled = true; clearInterval(poll); };
   }, [editorLang, setEditorImages]);
   // 필수/선택 그룹 토글 — Posts editor 와 동일 패턴
-  const [optionalOpen, setOptionalOpen] = useState(false);
   const [extraOpen, setExtraOpen] = useState(false);
   // slug — 사용자가 직접 수정한 적 있으면 manual 모드로 (제목 변경 시 auto-regenerate 안 함)
   const [slugManual, setSlugManual] = useState(!!work?.slug);
@@ -135,9 +134,49 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   const tw = useCallback((key: string) => t(`admin.works.editor.${key}`), [t]);
   const [translating, setTranslating] = useState(false);
 
+  /* 팀원 기본값 — 사이트 소유자(본인)를 따로 연결하지 않아도 팀원 맨 앞에 둔다. 상세 화면이 소유자 카드를
+     늘 붙이던 것과 편집 화면 목록을 맞추기 위해서다. 이미 소유자 계정에 연결된 팀원이 있으면 건드리지 않는다.
+     처음 값에 들어가므로 열자마자 "변경됨"으로 잡히지 않고, 다음 저장 때 목록에 남는다 */
+  const ownerSiteConfig = useSiteConfig();
+  const withOwnerMember = (f: WorkFormData): WorkFormData => {
+    /* 예전에 따로 적던 "내 역할·담당 업무"는 본인 팀원으로 옮긴다 — 본인 팀원이 이미 있으면 빈 칸만 채운다 */
+    const hasContribs = (c?: Record<string, string[]>) => !!c && Object.values(c).some((v) => v.length > 0);
+    const existing = f.team_members.find((m) => m.author_id === OWNER_AUTHOR_ID);
+    if (existing) {
+      const filled: TeamMember = {
+        ...existing,
+        role_ko: existing.role_ko?.trim() ? existing.role_ko : f.role_ko,
+        role_en: existing.role_en?.trim() ? existing.role_en : f.role_en,
+        contributions_ko: hasContribs(existing.contributions_ko) ? existing.contributions_ko : f.contributions_ko,
+        contributions_en: hasContribs(existing.contributions_en) ? existing.contributions_en : f.contributions_en,
+      };
+      return { ...f, team_members: f.team_members.map((m) => (m === existing ? filled : m)) };
+    }
+    const personal = ownerSiteConfig.personal;
+    const profile = (ownerSiteConfig.authors ?? []).find((a) => a.id === OWNER_AUTHOR_ID);
+    /* 이름은 멤버 프로필(설정 > 계정)의 한국어·영어 이름이 먼저 — 사이트 기본 정보의 이름은 대개 한 언어뿐이다 */
+    const name = profile?.name?.trim() || personal?.name?.trim();
+    if (!name) return f;
+    const profileAvatar = profile?.avatar && (/^(https?:)?\/\//.test(profile.avatar) || profile.avatar.startsWith("/")) ? profile.avatar : undefined;
+    const github = ownerSiteConfig.socialLinks?.find((l) => l.platform === "github")?.url;
+    const owner: TeamMember = {
+      author_id: OWNER_AUTHOR_ID,
+      name,
+      name_en: profile?.name_en?.trim() || (personal?.name?.trim() !== name ? personal?.name?.trim() : undefined) || undefined,
+      role_ko: f.role_ko,
+      role_en: f.role_en,
+      url: github || undefined,
+      email: profile?.email || ownerSiteConfig.contact?.email || undefined,
+      avatar_url: profileAvatar || personal?.profileImage || undefined,
+      contributions_ko: hasContribs(f.contributions_ko) ? f.contributions_ko : undefined,
+      contributions_en: hasContribs(f.contributions_en) ? f.contributions_en : undefined,
+    };
+    return { ...f, team_members: [owner, ...f.team_members] };
+  };
+
   const [form, setForm] = useState<WorkFormData>(() => {
-    if (!work) return defaultForm;
-    const f = workToFormData(work);
+    if (!work) return withOwnerMember(defaultForm);
+    const f = withOwnerMember(workToFormData(work));
     // 레거시 md 글은 열 때 richtext 로 1회 변환 후 richtext 로 고정 (토글 제거)
     if (f.content_type === "markdown") {
       return {
@@ -184,17 +223,13 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   // 새 작품 (work.id 없음) 은 async fetch 없음 → 즉시 ready. 기존은 fetch 완료 시 true.
   const [initialLoadsReady, setInitialLoadsReady] = useState(!work?.id);
 
-  // 정렬 list — 다른 작품들 (현재 편집중인 작품 제외)
+  /* 다른 작업물 — 미리보기 번호(새 작업물은 맨 뒤 자리)를 매길 때만 쓴다. 순서는 작업물 목록에서 끌어서 바꾼다 */
   const [otherWorks, setOtherWorks] = useState<Array<{ id: string; title: string; sort_order: number }>>([]);
   /* 순서 목록의 이 작업물 자리 — 값이 아니라 앞선 작업물 수로 정한다. 휴지통으로 간 작업물이 빈 번호를 남기면
      값(4)과 자리(3번째)가 어긋나기 때문이다(#873). 새 작업물(0)은 맨 뒤 */
   const sortPosition = form.sort_order > 0
     ? otherWorks.filter((w) => w.sort_order < form.sort_order).length + 1
     : otherWorks.length + 1;
-  /* 저장할 때 sort_order 는 자리를 옮겼을 때만 보낸다. 서버는 받은 값을 자리로 보고 다시 매기므로, 빈 번호 뒤
-     작업물은 그대로 저장해도 한 칸 밀렸다. 목록에서 옮겼거나 값이 마지막으로 저장한 값과 다르면 보낸다 */
-  const sortMovedRef = useRef(false);
-  const sortBaselineRef = useRef(form.sort_order);
 
   useEffect(() => {
     fetch("/api/works?all=true")
@@ -359,7 +394,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     ready: initialLoadsReady,
     serverReady: revisionsLoaded,
     applyDraft: (draft) => {
-      sortMovedRef.current = false;
       setForm((prev) => restoreSavedForm(prev, draft));
       requestAnimationFrame(markBaseline);
     },
@@ -506,15 +540,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     onChange: editorLang === "ko" ? team.setMemberRoleKo : team.setMemberRoleEn,
     presets: editorLang === "ko" ? ROLE_PRESETS_KO : ROLE_PRESETS_EN,
     placeholder: tw("memberRole"),
-  });
-
-  const onOwnRoleChange = useCallback((v: string) => updateField(editorLang === "ko" ? "role_ko" : "role_en", v), [editorLang, updateField]);
-  // 본인 역할 multi-picker — chip 은 TeamContribsByRole 의 group header 가 담당 → selectNode 만 사용 */
-  const ownRole = useRoleMultiPicker({
-    value: editorLang === "ko" ? form.role_ko : form.role_en,
-    onChange: onOwnRoleChange,
-    presets: editorLang === "ko" ? ROLE_PRESETS_KO : ROLE_PRESETS_EN,
-    placeholder: tw("rolePlaceholder"),
   });
 
   // form 의 avatar preview — 사용자 입력 기준 derive (avatar_url 우선, 없으면 url 에서)
@@ -897,15 +922,15 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       setStatus("");
 
       // works 테이블에는 관계 컬럼이 없음 — 분리해서 별도 endpoint로 sync.
-      const { related_post_ids, related_series_ids, sort_order, ...workBody } = form;
-      const sendSortOrder = sortMovedRef.current || sort_order !== sortBaselineRef.current;
+      /* 내 역할·담당 업무는 본인 팀원 값으로 — 목록 카드·상세 정보 칸이 role_*·contributions_* 를 읽는다 */
+      /* 순서(sort_order)는 보내지 않는다 — 작업물 목록에서 끌어서 바꾸고, 새 작업물은 서버가 맨 뒤에 둔다 */
+      const { related_post_ids, related_series_ids, sort_order: _sortOrder, ...workBody } = syncOwnerRole(form);
       /* 지운 장의 음성은 남기지 않는다 — 그림 주소가 열쇠라 갤러리에 없는 항목은 쓰일 일이 없다 */
       const inGallery = new Set(form.gallery);
       const galleryNotes = Object.fromEntries(Object.entries(form.gallery_notes ?? {}).filter(([url]) => inGallery.has(url)));
       const body = {
         ...workBody,
         gallery_notes: galleryNotes,
-        ...(sendSortOrder ? { sort_order } : {}),
         published: willPublish,
       };
 
@@ -934,9 +959,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         if (res.headers.get(GALLERY_NOTES_DROPPED_HEADER) && Object.keys(galleryNotes).length > 0) {
           showToast(tw("narrationNotSaved"), "error", 6000);
         }
-        sortMovedRef.current = false;
-        sortBaselineRef.current = sort_order;
-
+  
         // 관계 동기화 — 별도 endpoint. 작업물은 이미 저장됐으므로 실패해도 저장은 끝내고 알림 하나로 알린다(#868)
         const relationFailures: CodedError[] = [];
         const syncRelation = async (path: string, body: object) => {
@@ -1016,8 +1039,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       if (!rev) return;
       const snapshot = await loadRevisionSnapshot(rev.id);
       if (snapshot) {
-        sortMovedRef.current = false;
-        setForm((prev) => restoreSavedForm(prev, snapshot));
+          setForm((prev) => restoreSavedForm(prev, snapshot));
         requestAnimationFrame(() => markBaseline());
         setStatus(tw("restored"));
         setStatusType("success");
@@ -1055,7 +1077,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   );
 
   const handleRevert = useCallback(() => {
-    sortMovedRef.current = false;
     setForm(initialFormRef.current);
     setStatus(tw("reverted"));
     setStatusType("info");
@@ -1123,7 +1144,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     () => [
       { key: "subtitle", label: tw("subtitle") },
       { key: "description", label: tw("description") },
-      { key: "role", label: tw("role") },
       { key: "content", label: tw("content") },
     ],
     [tw],
@@ -1142,7 +1162,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   const titleValue = form[titleKey];
   const subtitleValue = form[`subtitle${suf}`];
   const descriptionValue = form[`description${suf}`];
-  const roleValue = form[`role${suf}`];
 
   /* Basic Info — 필수 (title, year, category) + 선택 (collapsible) */
   const basicInfoSection = useMemo(() => (
@@ -1308,105 +1327,11 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           maxHint="basic"
         />
       </div>
-
-      {/* ── 선택 (collapsible) ── */}
-      <div className={styles.optionalSection}>
-        <Pressable
-          className={styles.optionalToggle}
-          onClick={() => setOptionalOpen((v) => !v)}
-        >
-          <span>{tw("optionalFields")}</span>
-          <ChevronRight
-            size={12}
-            strokeWidth={2.5}
-            style={{ transform: optionalOpen ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 0.2s" }}
-          />
-        </Pressable>
-
-        <div className={`${styles.optionalContent}${optionalOpen ? ` ${styles.optionalContentOpen}` : ""}`}>
-          {/* 좌: 정렬순서 (세로 1열 전체)  |  우: subtitle / role (세로 stack) */}
-          <div className={styles.optionalSplit}>
-            <div className={`${es.field} ${styles.optionalSplitLeft}`}>
-              <SortOrderDragList
-                label={tw("sortOrder")}
-                currentTitle={form.title || tw("subtitle")}
-                currentOrder={sortPosition}
-                otherItems={otherWorks}
-                onChange={(newOrder, otherUpdates) => {
-                  /* 이 작업물의 자리만 바꿔 두고 저장할 때 보낸다. 서버가 그 자리에 끼우고 나머지를 다시 매긴다.
-                     예전에는 밀리는 작업물마다 PATCH 를 바로 보내 저장 전에 순서가 바뀌고, 동시에 오가며 뒤섞였다(#873).
-                     아래는 목록 미리보기만 바꾼다 */
-                  sortMovedRef.current = true;
-                  updateField("sort_order", newOrder);
-                  setOtherWorks((prev) => prev.map((w) => {
-                    const u = otherUpdates.find((x) => x.id === w.id);
-                    return u ? { ...w, sort_order: u.sort_order } : w;
-                  }).sort((a, b) => a.sort_order - b.sort_order));
-                }}
-              />
-            </div>
-            <div className={styles.optionalSplitRight}>
-              <div className={styles.memberFormBlock}>
-                <div className={styles.memberSubLabelRow}>
-                  <span className={styles.memberSubLabel}>{tw("role")}</span>
-                </div>
-                {/* multi-select — chip 은 아래 TeamContribsByRole 가 담당 (selectNode 만 사용) */}
-                {ownRole.selectNode}
-                {/* 역할별 작업 내용 — 공통 TagNotesEditor (ko/en 동시) */}
-                {(() => {
-                  const rolesArr = (roleValue || "")
-                    .split(",")
-                    .map((r) => r.trim())
-                    .filter(Boolean);
-                  const koMap = (form.contributions_ko ?? {}) as Record<string, string[]>;
-                  const enMap = (form.contributions_en ?? {}) as Record<string, string[]>;
-                  const notesMap: Record<string, LocalizedText> = {};
-                  // entry 존재 여부 보존 — 둘 중 한 쪽에라도 key 가 있으면 (빈 문자열이라도) entry 유지
-                  for (const r of rolesArr) {
-                    if (r in koMap || r in enMap) {
-                      notesMap[r] = {
-                        ko: (koMap[r] ?? []).join("\n"),
-                        en: (enMap[r] ?? []).join("\n"),
-                      };
-                    }
-                  }
-                  return (
-                    <TagNotesEditor
-                      items={rolesArr}
-                      notes={notesMap}
-                      onItemsChange={(next) => updateField(`role${suf}`, next.join(", "))}
-                      onNotesChange={(next) => {
-                        // 빈 문자열도 split 후 [] 로 저장 — entry 존재 여부 (= key in map) 유지
-                        const nextKo: Record<string, string[]> = {};
-                        const nextEn: Record<string, string[]> = {};
-                        for (const [r, v] of Object.entries(next)) {
-                          // filter 안 함 — 빈 pair 도 유지해야 + Add 가 작동
-                          nextKo[r] = v.ko !== undefined ? v.ko.split("\n") : [];
-                          nextEn[r] = v.en !== undefined ? v.en.split("\n") : [];
-                        }
-                        updateField("contributions_ko", nextKo);
-                        updateField("contributions_en", nextEn);
-                      }}
-                      prefix=""
-                      notePlaceholder={tw("memberContributionPlaceholder")}
-                      addLabel={tw("noteAdd")}
-                      cancelLabel={tw("cancel")}
-                      editLabel={tw("noteEdit")}
-                      removeTitle={tw("roleRemove")}
-                      multiLine
-                    />
-                  );
-                })()}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   ), [
-    categoryCustomMode, descriptionValue, editorLang, form.categories_en, form.categories_ko, form.contributions_en,
-    form.contributions_ko, form.nature_en, form.nature_ko, form.slug, form.title, form.year,
-    natureCustomMode, naturePresets, optionalOpen, otherWorks, ownRole.selectNode, primaryLang, reqTitle, roleValue, sortPosition,
+    categoryCustomMode, descriptionValue, editorLang, form.categories_en, form.categories_ko,
+    form.nature_en, form.nature_ko, form.slug, form.year,
+    natureCustomMode, naturePresets, primaryLang, reqTitle,
     showErrors, subtitleValue, suf, titleKey, titleValue, tw, updateField, worksCategories,
   ]);
 
@@ -2056,51 +1981,49 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                 {tw("memberUrlLabel")}
                 <span className={styles.memberFieldOptional}>{tw("memberOptional")}</span>
               </span>
-              {/* 사이트 멤버에 연결했고 그 멤버 프로필에 링크가 있으면 거기서 고를 수 있다. 직접 적는 것도 그대로 된다 */}
+              {/* 공통 Select 분할형 [선택 ▸ | 입력] — 사이트 멤버에 연결했으면 그 멤버 프로필 링크를 왼쪽에서 고르고,
+                  아니면 "직접 입력" 그대로 오른쪽에 적는다 */}
               {(() => {
-                const linkedLinks = (siteAuthors.find((a) => a.id === team.memberAuthorId)?.links ?? []).filter((l) => l.url?.trim());
-                const input = (
-                  <input
-                    className={es.fieldInput}
-                    type="url"
-                    value={team.memberUrl}
-                    onChange={(e) => team.setMemberUrl(e.target.value)}
+                const linkOptions = (siteAuthors.find((a) => a.id === team.memberAuthorId)?.links ?? [])
+                  .filter((l) => l.url?.trim())
+                  .map((l) => ({ value: l.url, label: `${l.platform.charAt(0).toUpperCase()}${l.platform.slice(1)}` }));
+                return (
+                  <Select
+                    combobox="split"
+                    width="full"
+                    dropAlign="below"
+                    value={linkOptions.some((o) => o.value === team.memberUrl) ? team.memberUrl : ""}
+                    inputValue={team.memberUrl}
+                    onInputChange={team.setMemberUrl}
+                    onChange={team.setMemberUrl}
+                    options={linkOptions}
                     placeholder={tw("memberUrlPlaceholder")}
                   />
-                );
-                if (linkedLinks.length === 0) return input;
-                return (
-                  <span className={styles.memberUrlRow}>
-                    {input}
-                    <Select
-                      size="sm"
-                      width="max"
-                      value={linkedLinks.some((l) => l.url === team.memberUrl) ? team.memberUrl : ""}
-                      placeholder={tw("memberUrlFromProfile")}
-                      options={linkedLinks.map((l) => ({ value: l.url, label: `${l.platform.charAt(0).toUpperCase()}${l.platform.slice(1)} · ${l.url.replace(/^https?:\/\//, "")}` }))}
-                      /* 버튼에는 플랫폼 이름만 — 주소는 옆 입력칸에 이미 보인다 */
-                      renderValue={(o) => (o ? o.label.split(" · ")[0] : tw("memberUrlFromProfile"))}
-                      onChange={(v) => team.setMemberUrl(v)}
-                    />
-                  </span>
                 );
               })()}
             </label>
           </div>
-          {/* 자기소개 — 편집 언어 탭(KO/EN)을 따른다. 비워 두면 연결된 사이트 멤버 프로필의 소개가 보인다 */}
+          {/* 자기소개 — 이름처럼 KO·EN 을 나란히 적는다. 비워 두면 연결된 사이트 멤버 프로필의 소개가 보인다 */}
           <div className={styles.memberField}>
             <span className={es.fieldLabel}>
               {tw("memberBioLabel")}
               <span className={styles.memberFieldOptional}>{tw("memberOptional")}</span>
             </span>
-            <Textarea
-              textareaClassName={styles.fieldTextarea}
-              value={editorLang === "ko" ? team.memberBioKo : team.memberBioEn}
-              onChange={(v) => (editorLang === "ko" ? team.setMemberBioKo : team.setMemberBioEn)(v)}
-              placeholder={tw(editorLang === "ko" ? "memberBioPlaceholderKo" : "memberBioPlaceholderEn")}
-              rows={2}
-              maxHint="basic"
-            />
+            <div className={styles.memberBioPair}>
+              {(["ko", "en"] as const).map((lang) => (
+                <div key={lang} className={styles.memberBioCol}>
+                  <Textarea
+                    inlineLabel={lang.toUpperCase()}
+                    textareaClassName={styles.fieldTextarea}
+                    value={lang === "ko" ? team.memberBioKo : team.memberBioEn}
+                    onChange={lang === "ko" ? team.setMemberBioKo : team.setMemberBioEn}
+                    placeholder={tw(lang === "ko" ? "memberBioPlaceholderKo" : "memberBioPlaceholderEn")}
+                    rows={2}
+                    maxHint="basic"
+                  />
+                </div>
+              ))}
+            </div>
           </div>
           {/* role select — 별도 row (full width) */}
           <div className={`${styles.memberField} ${styles.memberRoleRow}`}>

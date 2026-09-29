@@ -253,26 +253,6 @@
   color: var(--text-tertiary);
 }
 
-.logoDropzoneHint {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-label);
-}
-/* 언어 배지 — Field label 옆 KO/EN 표시 */
-.fieldLangBadge {
-  display: inline-flex;
-  align-items: center;
-  margin-left: var(--spacing-2xs);
-  padding: 0 var(--spacing-2xs);
-  height: 16px;
-  border-radius: var(--radius-capsule);
-  background: var(--bg-tertiary);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-micro);
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-}
 /* ── Service Items Editor ── */
 .serviceItems {
   display: flex;
