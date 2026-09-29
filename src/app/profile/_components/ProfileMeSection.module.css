@@ -32,7 +32,7 @@
 
 .track {
   position: relative;
-  /* 배경 장면(ScrollDrawScene)보다 위 */
+  /* 진행 장면(ScrollDrawScene, z 2)은 이 위에 떠서 콘텐츠에 가려지지 않는다 */
   z-index: 1;
   display: flex;
   align-items: stretch;

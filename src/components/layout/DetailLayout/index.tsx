@@ -258,9 +258,10 @@ export default function DetailLayout({
           {children}
         </div>
 
-        {/* TOC — sticky sidebar */}
+        {/* TOC — sticky sidebar. 목차가 화면보다 길면 안쪽에서 스크롤한다. 전역 Lenis 는 preventDefault 를
+            보지 않고 휠을 가로채 페이지를 굴리므로, data-lenis-prevent-wheel 이 없으면 목차 아래쪽에 닿을 수 없다. */}
         {headings.length > 0 && (
-          <aside className={styles.tocSidebar}>
+          <aside className={styles.tocSidebar} data-lenis-prevent-wheel>
             <TOC items={headings} title="Contents" position="right" />
           </aside>
         )}

@@ -20,6 +20,7 @@ import T from "@/components/ui/T";
 import TextLink from "@/components/ui/TextLink";
 import Tooltip from "@/components/ui/Tooltip";
 import type { Author } from "@/types/author";
+import { localizeAuthor } from "@/utils/localizeAuthor";
 import { SOCIAL_ICONS } from "@/data/socialIcons";
 import header from "./PostArticleHeader.module.css";
 import body from "./PostArticleBody.module.css";
@@ -166,7 +167,7 @@ export function PostArticleHeader({
       </div>
       {data.authors && data.authors.length > 0 && (
         <div className={header.authorsCompact}>
-          {data.authors.map((a) => (
+          {data.authors.map((raw) => localizeAuthor(raw, viewLang)).map((a) => (
             <a key={a.id} href="#post-authors" className={header.authorChip}>
               <AuthorAvatar
                 value={a.avatar}
@@ -258,7 +259,7 @@ export function PostArticleAuthors({ authors }: { authors?: Author[] }) {
       <h2 className={footer.authorsFooterHeading}>
         {language === "en" ? (authors.length > 1 ? "Authors" : "Author") : "작성자"}
       </h2>
-      {authors.map((a) => (
+      {authors.map((raw) => localizeAuthor(raw, language === "en" ? "en" : "ko")).map((a) => (
         <article key={a.id} className={footer.authorFooterCard}>
           <AuthorAvatar
             value={a.avatar}
