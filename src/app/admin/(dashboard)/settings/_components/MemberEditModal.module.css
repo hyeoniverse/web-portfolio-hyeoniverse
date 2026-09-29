@@ -70,7 +70,7 @@
 
 /* 제거는 되돌리기 쉬운 조작이지만 성격이 다르다 — 색으로 구분한다 */
 .authorAvatarBadgeRemove {
-  background: var(--bg-error-solid);
+  background: var(--bg-accent-solid);
 }
 
 .authorCardName {
@@ -123,4 +123,81 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-sm);
+}
+
+/* GitHub 값 비교 — 칸마다 지금 값과 GitHub 값을 나란히 두고 하나를 고른다 */
+.ghCompare {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-md);
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+}
+
+.ghCompareHead,
+.ghCompareRow {
+  display: grid;
+  grid-template-columns: 7rem minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--spacing-xs);
+  align-items: start;
+}
+
+.ghCompareHead {
+  font-size: var(--font-size-hint);
+  color: var(--text-tertiary);
+}
+
+/* 열 제목을 아래 선택 칸의 글자 시작점에 맞춘다 */
+.ghCompareHead > span {
+  padding-inline: var(--spacing-xs);
+}
+
+.ghCompareHead > span:first-child {
+  padding-inline: 0;
+}
+
+.ghCompareLabel {
+  padding-top: var(--spacing-2xs);
+  font-size: var(--font-size-label);
+  color: var(--text-secondary);
+}
+
+.ghCompareOption {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-2xs);
+  min-width: 0;
+  padding: var(--spacing-2xs) var(--spacing-xs);
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  font-size: var(--font-size-label);
+  color: var(--text-secondary);
+  text-align: left;
+}
+
+.ghCompareOption:hover {
+  background: var(--bg-tertiary);
+}
+
+.ghCompareOption.ghCompareOptionOn {
+  border-color: var(--color-accent);
+  color: var(--text-primary);
+}
+
+.ghCompareValue {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}
+
+.ghCompareAvatar {
+  flex-shrink: 0;
+  border-radius: var(--radius-circle);
+}
+
+.ghCompareActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-xs);
 }

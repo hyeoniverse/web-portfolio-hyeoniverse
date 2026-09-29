@@ -63,6 +63,11 @@ interface FieldProps {
    * 목록에 없는 값도 그대로 입력된다(datalist 는 강제하지 않는다).
    */
   suggestions?: string[];
+  /**
+   * 칸이 비어 있을 때 Tab 을 누르면 넣을 값 — 영어 칸이 대신 보여 주는 한국어 값처럼 placeholder 가 예시가 아니라
+   * "비워 두면 이 값" 일 때만 준다. 채운 뒤에는 포커스를 옮기지 않아 이어서 고칠 수 있다(한 번 더 Tab 이면 다음 칸).
+   */
+  tabFill?: string;
   /** 언어 배지 — label 옆에 capsule 형태로 표시 (예: "KO" / "EN") */
   langBadge?: "ko" | "en";
   /** Soft 글자수 권장 한도 — 카운터 표시, 80% 부터 warning, 100% 초과 시 over.
@@ -94,7 +99,7 @@ function resolveMaxHint(v: number | MaxHintPreset | undefined | null, multiline:
   return typeof v === "string" ? MAX_HINT_PRESETS[v] : v;
 }
 
-export default function Field({ label, value, onChange, multiline, placeholder, hint, labelInline, required, langBadge, maxHint, maxLength, help, suggestions, inputClassName, onFocus, onBlur }: FieldProps) {
+export default function Field({ label, value, onChange, multiline, placeholder, hint, labelInline, required, langBadge, maxHint, maxLength, help, suggestions, inputClassName, onFocus, onBlur, tabFill }: FieldProps) {
   const { t } = useLanguage();
   const listId = useId();
   /* 라벨은 텍스트만 담고 입력칸은 형제라 htmlFor 로 연결한다 — 안 하면 스크린리더가 필드 이름을 못 읽는다 */
@@ -106,7 +111,14 @@ export default function Field({ label, value, onChange, multiline, placeholder, 
      - single-line (Input) → input 박스 안 inlineLabel
      - multiline (Textarea) → label 옆 capsule (textarea 안 inlineLabel 은 큰 영역에 시각적 어색) */
   return (
-    <div className={`${styles.fieldRow} ${labelInline ? styles.fieldRowInline : ""}`}>
+    <div
+      className={`${styles.fieldRow} ${labelInline ? styles.fieldRowInline : ""}`}
+      onKeyDownCapture={tabFill ? (e) => {
+        if (e.key !== "Tab" || e.shiftKey || e.nativeEvent.isComposing || value !== "") return;
+        e.preventDefault();
+        onChange(tabFill);
+      } : undefined}
+    >
       <label className={styles.fieldLabel} htmlFor={fieldId}>
         <span className={styles.fieldLabelText} id={`${fieldId}-label`}>
           {label}
