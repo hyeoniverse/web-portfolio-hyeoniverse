@@ -36,10 +36,12 @@ export function WorkArticleTeam({ project, viewLang }: WorkArticleViewProps) {
   // 팀 멤버 — 본인(siteConfig.personal) + project.teamMembers
   const personal = siteConfig?.personal;
   const githubLink = siteConfig?.socialLinks?.find((l) => l.platform === "github");
+  const ownerProfile = ((siteConfig?.authors ?? []) as Author[]).find((a) => a.id === OWNER_AUTHOR_ID);
   const ownerMember = personal ? {
     name: personal.name,
     /* siteConfig.personal 에는 영문 이름이 없어 소유자 멤버 프로필(설정 > 계정)의 영어 이름을 쓴다 */
-    name_en: ((siteConfig?.authors ?? []) as Author[]).find((a) => a.id === OWNER_AUTHOR_ID)?.name_en?.trim() || undefined,
+    name_en: ownerProfile?.name_en?.trim() || undefined,
+    bio: { ko: ownerProfile?.bio?.trim() ?? "", en: ownerProfile?.bio_en?.trim() ?? "" },
     role: { ko: project.role.ko, en: project.role.en },
     url: githubLink?.url || undefined,
     email: siteConfig?.contact?.email || undefined,
@@ -60,6 +62,7 @@ export function WorkArticleTeam({ project, viewLang }: WorkArticleViewProps) {
         url: m.url || ownerMember.url,
         email: m.email || ownerMember.email,
         avatar_url: m.avatar_url || ownerMember.avatar_url,
+        bio: { ko: m.bio?.ko.trim() || ownerMember.bio.ko, en: m.bio?.en.trim() || ownerMember.bio.en },
         contributions: hasContribs ? m.contributions : ownerMember.contributions,
       };
     }
@@ -75,6 +78,7 @@ export function WorkArticleTeam({ project, viewLang }: WorkArticleViewProps) {
       url: m.url || profUrl || undefined,
       email: m.email || prof.email || undefined,
       avatar_url: m.avatar_url || profAvatar,
+      bio: { ko: m.bio?.ko.trim() || prof.bio?.trim() || "", en: m.bio?.en.trim() || prof.bio_en?.trim() || "" },
     };
   });
   /* 소유자는 따로 적지 않아도 맨 앞에 넣는다. 팀원 가운데 소유자 계정에 연결한 사람이 있으면 그 사람이 소유자라 한 번만 그린다 */
@@ -88,6 +92,12 @@ export function WorkArticleTeam({ project, viewLang }: WorkArticleViewProps) {
     const koHas = Object.values(ko).some((items) => items.length > 0);
     const map = viewLang === "en" ? (enHas ? en : ko) : (koHas ? ko : en);
     return Object.entries(map).filter(([, items]) => items.length > 0);
+  };
+  /* 영어 화면에서 영어 소개가 비었으면 한국어 소개로 */
+  const getBio = (m: typeof members[number]) => {
+    const ko = m.bio?.ko?.trim() ?? "";
+    const en = m.bio?.en?.trim() ?? "";
+    return viewLang === "en" ? en || ko : ko || en;
   };
   const getDisplayName = (m: typeof members[number]) =>
     viewLang === "en" && m.name_en ? m.name_en : m.name;
@@ -136,7 +146,8 @@ export function WorkArticleTeam({ project, viewLang }: WorkArticleViewProps) {
           const isHovered = hoveredMemberIdx === i;
           const hasContribs = getContribsEntries(m).length > 0;
           const hasLinks = !!(m.url || m.email);
-          const hasBack = hasContribs || hasLinks;
+          const bio = getBio(m);
+          const hasBack = hasContribs || hasLinks || Boolean(bio);
           const showBack = hasBack && (isFlipped || isHovered);
           return (
             <article
@@ -204,6 +215,7 @@ export function WorkArticleTeam({ project, viewLang }: WorkArticleViewProps) {
                         </div>
                       )}
                     </div>
+                    {bio && <p className={styles.polaroidBackBio}>{bio}</p>}
                     {hasContribs ? (
                       renderContribs(
                         m,
