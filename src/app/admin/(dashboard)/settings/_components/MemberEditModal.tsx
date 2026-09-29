@@ -20,6 +20,7 @@ import type { SaveResult } from "../_types";
 import type { Member, PendingMember } from "@/types/member";
 import Field from "./SettingsFormFields";
 import SocialLinksEditor from "./SocialLinksEditor";
+import { HintLines } from "./EnvKeyHint";
 import styles from "./MemberEditModal.module.css";
 import shared from "../Settings.module.css";
 import mStyles from "@/components/admin/MembersList.module.css";
@@ -83,6 +84,9 @@ export default function MemberEditModal({
 
   const ghHasData = !!githubInfo && (!!githubInfo.name || !!githubInfo.avatar || !!githubInfo.url);
   const [ghLoading, setGhLoading] = useState(false);
+  /* GitHub 값과 이미 적은 값이 다른 칸 — pick 은 적용할 쪽(기본은 지금 값) */
+  type GhConflict = { key: string; label: string; current: string; incoming: string; pick: "current" | "github" };
+  const [ghConflicts, setGhConflicts] = useState<GhConflict[] | null>(null);
 
   /**
    * GitHub 계정 정보로 프로필을 채운다.
@@ -91,7 +95,8 @@ export default function MemberEditModal({
    * 담기는 값이 그게 전부이기 때문이다. 소개·소속·블로그·트위터는 GitHub 공개 API 를 읽어야
    * 나오므로 서버에 물어본다. 실패하면 갖고 있던 값만으로 채운다.
    *
-   * 이미 적어 둔 값은 지우지 않는다. GitHub 쪽에 값이 있을 때만 덮어쓴다.
+   * 빈 칸만 바로 채운다. 이미 적어 둔 값이 GitHub 값과 다르면 덮어쓰지 않고 ghConflicts 에 모아
+   * 두 값을 나란히 보여 준 뒤 칸마다 고르게 한다.
    */
   const loadGithub = async () => {
     setGhLoading(true);
@@ -113,37 +118,64 @@ export default function MemberEditModal({
       return;
     }
 
-    setDraft((d) => {
-      const next: Author = { ...d };
-      const name = fetched?.name || githubInfo?.name || "";
-      const avatar = fetched?.avatar || githubInfo?.avatar || "";
-      if (name) next.name = name;
-      if (avatar) next.avatar = avatar;
-      if (fetched?.role) next.role = fetched.role;
-      if (fetched?.email) next.email = fetched.email;
-      if (fetched?.bio) next.bio = fetched.bio;
-      if (fetched?.location) next.location = fetched.location;
-
-      /* 링크는 플랫폼 단위로 합친다 — 직접 적어 둔 다른 링크를 날리지 않기 위해서다. */
-      const incoming = fetched?.links ?? (githubInfo?.url ? [{ platform: "github", url: githubInfo.url }] : []);
-      if (incoming.length > 0) {
-        const merged = [...d.links];
-        for (const link of incoming) {
-          const at = merged.findIndex((l) => l.platform === link.platform);
-          if (at >= 0) merged[at] = { ...merged[at], url: link.url };
-          else merged.push(link);
-        }
-        next.links = merged;
+    /* 칸별로 GitHub 값을 견준다 — 비어 있거나 같으면 바로 넣고, 다르면 고를 목록에 넣는다 */
+    const incoming: { key: keyof Author; label: string; value: string }[] = [
+      { key: "name", label: L("이름", "Name"), value: fetched?.name || githubInfo?.name || "" },
+      { key: "avatar", label: L("아바타", "Avatar"), value: fetched?.avatar || githubInfo?.avatar || "" },
+      { key: "role", label: L("역할", "Role"), value: fetched?.role ?? "" },
+      { key: "email", label: L("이메일", "Email"), value: fetched?.email ?? "" },
+      { key: "bio", label: L("소개", "Bio"), value: fetched?.bio ?? "" },
+      { key: "location", label: L("지역", "Location"), value: fetched?.location ?? "" },
+    ];
+    const fill: Partial<Author> = {};
+    const conflicts: GhConflict[] = [];
+    for (const f of incoming) {
+      const value = f.value.trim();
+      if (!value) continue;
+      const current = String(draft[f.key] ?? "").trim();
+      if (!current) (fill as Record<string, string>)[f.key] = value;
+      else if (current !== value) conflicts.push({ key: f.key, label: f.label, current, incoming: value, pick: "current" });
+    }
+    /* 링크는 플랫폼 단위로 합친다 — 직접 적어 둔 다른 링크를 날리지 않기 위해서다. 같은 플랫폼에 다른 주소가 있으면 고르게 한다 */
+    const links = fetched?.links ?? (githubInfo?.url ? [{ platform: "github", url: githubInfo.url }] : []);
+    const merged = [...draft.links];
+    for (const link of links) {
+      const at = merged.findIndex((l) => l.platform === link.platform);
+      if (at < 0) merged.push(link);
+      else if (!merged[at].url.trim()) merged[at] = { ...merged[at], url: link.url };
+      else if (merged[at].url.trim() !== link.url.trim()) {
+        conflicts.push({ key: `link:${link.platform}`, label: `${L("링크", "Link")} · ${link.platform}`, current: merged[at].url, incoming: link.url, pick: "current" });
       }
-      return next;
-    });
+    }
+    if (merged.length !== draft.links.length || merged.some((l, k) => l !== draft.links[k])) fill.links = merged;
+    set(fill);
+    setGhConflicts(conflicts.length > 0 ? conflicts : null);
 
     setStatus({
       ok: true,
-      msg: fetched?.enriched
+      msg: conflicts.length > 0
+        ? L("빈 칸을 채웠습니다. 이미 적은 값과 다른 칸은 아래에서 고르세요.", "Filled the empty fields. Pick a value below where GitHub differs.")
+        : fetched?.enriched
         ? L("GitHub 계정 정보로 채웠습니다.", "Filled from your GitHub account.")
         : L("GitHub 공개 프로필을 읽지 못해 기본 정보만 채웠습니다.", "Could not read the public GitHub profile, so only basic fields were filled."),
     });
+  };
+
+  /* 고른 값만 반영한다 — 지금 값을 고른 칸은 그대로 둔다 */
+  const applyGhConflicts = () => {
+    if (!ghConflicts) return;
+    const patch: Partial<Author> = {};
+    let links = draft.links;
+    for (const c of ghConflicts) {
+      if (c.pick !== "github") continue;
+      if (c.key.startsWith("link:")) {
+        const platform = c.key.slice(5);
+        links = links.map((l) => (l.platform === platform ? { ...l, url: c.incoming } : l));
+      } else (patch as Record<string, string>)[c.key] = c.incoming;
+    }
+    if (links !== draft.links) patch.links = links;
+    set(patch);
+    setGhConflicts(null);
   };
 
   const save = async () => {
@@ -253,37 +285,73 @@ export default function MemberEditModal({
           <Button variant="outline" size="xs" icon={<SiGithub size={13} />} onClick={loadGithub} disabled={ghLoading} loading={ghLoading}>
             {L("GitHub 정보 불러오기", "Load from GitHub")}
           </Button>
-          <span className={shared.fieldHint}>
-            {L("이름·아바타·소개·소속·링크를 GitHub 계정 정보로 채웁니다. 이미 적은 값은 GitHub 에 값이 있을 때만 바뀝니다.",
-               "Fills name, avatar, bio, company and links from your GitHub account. Existing values change only where GitHub has one.")}
-          </span>
+          <HintLines lines={[
+            L("이름·아바타·소개·소속·링크를 GitHub 계정 정보로 채웁니다.", "Fills name, avatar, bio, company and links from your GitHub account."),
+            L("이미 적은 값이 GitHub 값과 다르면 바꾸지 않고, 두 값을 비교해 고를 수 있게 보여 줍니다.", "Where a field already differs from GitHub, both values are shown so you can pick one."),
+          ]} />
+        </div>
+      )}
+
+      {ghConflicts && (
+        <div className={styles.ghCompare}>
+          <span className={shared.fieldLabel}>{L("GitHub 값과 다른 칸", "Fields that differ from GitHub")}</span>
+          <div className={styles.ghCompareHead} aria-hidden>
+            <span />
+            <span>{L("지금 값", "Current")}</span>
+            <span>GitHub</span>
+          </div>
+          {ghConflicts.map((c) => (
+            <div key={c.key} className={styles.ghCompareRow} role="radiogroup" aria-label={c.label}>
+              <span className={styles.ghCompareLabel}>{c.label}</span>
+              {(["current", "github"] as const).map((side) => {
+                const v = side === "current" ? c.current : c.incoming;
+                const on = c.pick === side;
+                return (
+                  <Pressable
+                    key={side}
+                    role="radio"
+                    aria-checked={on}
+                    className={`${styles.ghCompareOption} ${on ? styles.ghCompareOptionOn : ""}`}
+                    onClick={() => setGhConflicts((list) => list?.map((x) => (x.key === c.key ? { ...x, pick: side } : x)) ?? null)}
+                  >
+                    {c.key === "avatar" && <AuthorAvatar value={v} name={draft.name} size={20} imgClassName={styles.ghCompareAvatar} initialClassName={styles.ghCompareAvatar} />}
+                    <span className={styles.ghCompareValue}>{v}</span>
+                  </Pressable>
+                );
+              })}
+            </div>
+          ))}
+          <div className={styles.ghCompareActions}>
+            <Button variant="outline" size="sm" onClick={() => setGhConflicts(null)}>{L("지금 값 모두 유지", "Keep all current")}</Button>
+            <Button variant="primary" size="sm" onClick={applyGhConflicts}>{L("고른 값 적용", "Apply selection")}</Button>
+          </div>
         </div>
       )}
 
       <div className={styles.profileLangRow}>
-        <span className={shared.fieldHint}>
-          {L("이름·역할·지역·소개는 한국어와 영어로 따로 적을 수 있습니다. 영어 칸이 비어 있으면 한국어 값을 씁니다.",
-             "Name, role, location and bio can be written in Korean and English. Empty English fields fall back to Korean.")}
-        </span>
+        <HintLines lines={[
+          L("이름·역할·지역·소개는 한국어와 영어로 따로 적을 수 있습니다.", "Name, role, location and bio can be written in Korean and English."),
+          L("영어 칸이 비어 있으면 한국어 값을 씁니다. 빈 영어 칸에서 Tab 을 누르면 한국어 값을 그대로 넣습니다.", "Empty English fields fall back to Korean. Press Tab in an empty English field to copy the Korean value."),
+        ]} />
         <LanguageToggle lang={profileLang} onLangChange={(l) => setProfileLang(l === "en" ? "en" : "ko")} size="sm" />
       </div>
 
       <div className={styles.authorCardFields}>
         {en
-          ? <Field label={L("이름 (EN)", "Name (EN)")} value={draft.name_en ?? ""} onChange={(v) => set({ name_en: v })} placeholder={enHint(draft.name)} />
+          ? <Field label={L("이름 (EN)", "Name (EN)")} value={draft.name_en ?? ""} tabFill={draft.name || undefined} onChange={(v) => set({ name_en: v })} placeholder={enHint(draft.name)} />
           : <Field label={L("이름", "Name")} value={draft.name} onChange={(v) => set({ name: v })} required />}
         <Field label={L("아바타 URL", "Avatar URL")} value={draft.avatar} onChange={(v) => set({ avatar: v })} placeholder="https://..." maxHint={null} />
         {en
-          ? <Field label={L("역할 (EN)", "Role (EN)")} value={draft.role_en ?? ""} onChange={(v) => set({ role_en: v })} placeholder={enHint(draft.role) ?? "e.g. Frontend Developer"} />
+          ? <Field label={L("역할 (EN)", "Role (EN)")} value={draft.role_en ?? ""} tabFill={draft.role || undefined} onChange={(v) => set({ role_en: v })} placeholder={enHint(draft.role) ?? "e.g. Frontend Developer"} />
           : <Field label={L("역할", "Role")} value={draft.role} onChange={(v) => set({ role: v })} placeholder={L("예: 프론트엔드 개발자", "e.g. Frontend Developer")} suggestions={suggestions?.role} />}
         <Field label={L("이메일", "Email")} value={draft.email} onChange={(v) => set({ email: v })} placeholder="name@example.com" maxHint={null} required />
         {en
-          ? <Field label={L("지역 (EN)", "Location (EN)")} value={draft.location_en ?? ""} onChange={(v) => set({ location_en: v })} placeholder={enHint(draft.location) ?? "e.g. Seoul, South Korea"} />
+          ? <Field label={L("지역 (EN)", "Location (EN)")} value={draft.location_en ?? ""} tabFill={draft.location || undefined} onChange={(v) => set({ location_en: v })} placeholder={enHint(draft.location) ?? "e.g. Seoul, South Korea"} />
           : <Field label={L("지역", "Location")} value={draft.location ?? ""} onChange={(v) => set({ location: v })} placeholder={L("예: 서울, 대한민국", "e.g. Seoul, South Korea")} suggestions={suggestions?.location} />}
         {/* 소개는 여러 줄 입력이라 반 칸에 두면 한 줄에 몇 글자 못 들어간다 — 두 열을 다 쓴다. */}
         <div className={styles.authorCardFieldWide}>
           {en
-            ? <Field label={L("소개 (EN)", "Bio (EN)")} value={draft.bio_en ?? ""} onChange={(v) => set({ bio_en: v })} placeholder={enHint(draft.bio)} multiline />
+            ? <Field label={L("소개 (EN)", "Bio (EN)")} value={draft.bio_en ?? ""} tabFill={draft.bio || undefined} onChange={(v) => set({ bio_en: v })} placeholder={enHint(draft.bio)} multiline />
             : <Field label={L("소개", "Bio")} value={draft.bio} onChange={(v) => set({ bio: v })} multiline />}
         </div>
       </div>
