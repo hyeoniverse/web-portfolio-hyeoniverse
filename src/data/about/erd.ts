@@ -165,6 +165,21 @@ export const erdTables: ErdTable[] = [
     ],
   },
   {
+    name: "service_logs",
+    columns: [
+      { name: "id", type: "BIGINT", pk: true },
+      { name: "at", type: "TIMESTAMPTZ" },
+      { name: "category", type: "TEXT" },
+      { name: "provider", type: "TEXT" },
+      { name: "ok", type: "BOOLEAN" },
+      { name: "kind", type: "TEXT" },
+      { name: "status", type: "INT" },
+      { name: "message", type: "TEXT" },
+      { name: "units", type: "INT" },
+      { name: "meta", type: "JSONB" },
+    ],
+  },
+  {
     name: "traffic_excluded_ips",
     columns: [
       { name: "ip", type: "TEXT", pk: true },
@@ -477,8 +492,8 @@ export const erdDesignNotes: ErdDesignNote[] = [
     title: { ko: "설정을 JSONB 번들로 저장", en: "Settings Stored as a Bundle" },
     tag: "config JSONB NOT NULL DEFAULT '{}'",
     description: {
-      ko: "사이트 설정, 프로필, 시크릿을 각각 id='default', 'profile', 'secrets' 행의 config JSONB에 저장합니다.",
-      en: "Site settings, profile, and secrets are stored in config JSONB under id='default', 'profile', 'secrets' rows.",
+      ko: "사이트 설정, 프로필, 시크릿을 각각 id='default', 'profile', 'secrets' 행의 config JSONB에 저장합니다. 같은 방식으로 AI 공급자 상태(ai_health)와 이번 달 사용량(ai_usage), TTS 읽기 사전(tts_lexicon), 문의 폼 첨부 상태(contact_attachment)도 각자 한 행을 씁니다. 사이트에 하나뿐인 작은 값이라 표를 따로 두지 않았습니다.",
+      en: "Site settings, profile, and secrets are stored in config JSONB under id='default', 'profile', 'secrets' rows. The same way, AI provider health (ai_health), this month's usage (ai_usage), the TTS pronunciation lexicon (tts_lexicon) and the contact-attachment state (contact_attachment) each take one row — small site-wide values that don't warrant their own tables.",
     },
     relatedTable: "site_settings",
   },
@@ -553,6 +568,15 @@ export const erdDesignNotes: ErdDesignNote[] = [
       en: "One row per IP per day. Bots get a bot: prefix on ip and are counted apart from people. After 90 days pg_cron rewrites ip to anon:<id>, leaving only the device, country, and referral columns for stats.",
     },
     relatedTable: "site_visits",
+  },
+  {
+    title: { ko: "서비스 호출 기록", en: "Service Call Log" },
+    tag: "category · RLS 정책 없음 · 90일 보관",
+    description: {
+      ko: "AI·이미지 검색·TTS(ai), Resend 메일(mail), GitHub API(github), 예약 작업(cron), 문의 폼 첨부(contact)의 성공과 실패를 한 줄씩 남깁니다. 실패 원인(kind)·HTTP 상태·키를 가린 메시지와 사용량(units)을 함께 적습니다. 전에는 site_settings 한 행에 최근 300건을 읽고-고쳐-쓰기 해서 요청이 겹치면 기록이 빠졌습니다. 예약 작업은 pg_cron 이 DB 안에서 직접 남기고, 매일 90일 지난 줄을 지웁니다. RLS 를 켜고 정책을 두지 않아 서버만 읽고 씁니다.",
+      en: "One row per success or failure for AI, image search and TTS (ai), Resend mail (mail), the GitHub API (github), scheduled jobs (cron) and contact attachments (contact), with the failure cause (kind), HTTP status, a key-masked message and usage (units). It used to be a read-modify-write of the last 300 entries in one site_settings row, which dropped entries when requests overlapped. Scheduled jobs log from inside the DB via pg_cron, and rows older than 90 days are deleted daily. RLS is on with no policies, so only the server reads and writes it.",
+    },
+    relatedTable: "service_logs",
   },
   {
     title: { ko: "운영자 IP 제외", en: "Excluding the Operator's IP" },
