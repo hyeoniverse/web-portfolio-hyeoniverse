@@ -132,10 +132,13 @@
   font-weight: 600;
 }
 
+/* 공급자가 돌려준 원문 — 시각 한 줄 + 원문 상자.
+   예전엔 flex 안에 <code> 를 넣어 전역 인라인 코드(캡슐 모서리·강조색 글자)가 여러 줄짜리 덩어리에
+   그대로 씌워져, 긴 오류가 알약 모양 배경에 담겨 모서리가 크게 휘어 보였다 */
 .message {
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-2xs);
+  flex-direction: column;
+  gap: var(--spacing-3xs);
   margin: 0;
   font-size: var(--font-size-hint);
   line-height: 1.5;
@@ -143,8 +146,15 @@
 }
 
 .message code {
-  font-family: var(--font-mono);
-  word-break: break-all;
+  display: block;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-2xl);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-size: inherit;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 /* 사용량 — 글 한 줄 + 막대(무료 한도를 아는 공급자만) + 한도 출처·기한 */
