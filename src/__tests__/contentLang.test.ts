@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from "vitest";
 import { initialContentLang, isContentMissing, pickContent, textLang } from "@/lib/contentLang";
 

@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { listMembers } from "@/lib/api/members";
 import type { SupabaseClient } from "@supabase/supabase-js";

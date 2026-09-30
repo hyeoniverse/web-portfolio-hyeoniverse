@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from "vitest";
 import { adminEntryHref, AUTHOR_HOME } from "@/lib/adminAccess";
 import { PERM } from "@/lib/api/roles";

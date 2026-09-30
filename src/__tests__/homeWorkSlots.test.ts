@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from "vitest";
 import { homeWorkSlots } from "@/app/(home)/_sections/WorksSection/WorksSection";
 

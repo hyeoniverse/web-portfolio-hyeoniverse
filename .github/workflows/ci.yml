@@ -6,6 +6,13 @@ on:
   pull_request:
     branches: [master, main]
 
+# 같은 PR 에 새로 푸시하면 앞선 실행은 취소한다 — 결과를 아무도 보지 않는 실행이 Actions 사용량만 쓴다.
+# (9/16~9/23 에 모든 실행이 러너를 받지 못하고 몇 초 만에 실패했다. 사용량 한도에 걸린 것으로 보인다.)
+# master 푸시는 커밋마다 결과가 남아야 해서 취소하지 않는다.
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   check:
     name: typecheck / lint / test / audit

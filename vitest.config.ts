@@ -11,6 +11,11 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: ["./src/__tests__/setup.ts"],
     include: ["src/**/*.test.{ts,tsx}"],
+    /* CI 러너는 코어가 적은데 파일마다 jsdom 을 새로 띄워(실행 시간의 절반 이상) 워커가 한참 멈출 때가 있다.
+       그 사이 몇 ms 짜리 테스트도 기본 5초 제한을 넘겨 가끔 실패했다(postsListSsr '한국 시간 날짜').
+       CI 에서만 넉넉히 둔다 — 로컬에서는 느려진 테스트가 바로 드러나도록 기본값 그대로 */
+    testTimeout: process.env.CI ? 20_000 : 5_000,
+    hookTimeout: process.env.CI ? 20_000 : 10_000,
     globals: true,
     css: { modules: { classNameStrategy: "non-scoped" } },
     // @platejs/* 를 vite 가 변환하게 한다 (externalize 되면 위 alias 가 안 먹는다)

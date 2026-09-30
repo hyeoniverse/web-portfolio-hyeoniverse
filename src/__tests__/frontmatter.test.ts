@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from "vitest";
 import { parseFrontmatter, asArray, asInt, asBool } from "@/lib/frontmatter";
 
