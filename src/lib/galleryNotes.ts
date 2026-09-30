@@ -54,3 +54,24 @@ export function patchNote(notes: GalleryNotes, url: string, lang: NoteLang, patc
   }
   return next;
 }
+
+/**
+ * 갤러리의 한 장을 다른 주소로 바꾼다 — 자리는 그대로, 그 장의 대본·음성(두 언어 모두)은 새 주소로 옮기고,
+ * 대표 이미지였으면 대표 이미지도 바꾼다. 그 주소가 갤러리에 없으면(바꾸는 동안 지웠으면) 그대로 돌려준다.
+ */
+export function replaceGalleryUrl<T extends { gallery: string[]; gallery_notes?: GalleryNotes; image: string }>(
+  form: T,
+  oldUrl: string,
+  newUrl: string,
+): T {
+  const at = form.gallery.indexOf(oldUrl);
+  if (at < 0 || oldUrl === newUrl) return form;
+  const gallery = form.gallery.map((u, i) => (i === at ? newUrl : u));
+  const { [oldUrl]: moved, ...rest } = form.gallery_notes ?? {};
+  return {
+    ...form,
+    gallery,
+    ...(moved ? { gallery_notes: { ...rest, [newUrl]: moved } } : {}),
+    ...(form.image === oldUrl ? { image: newUrl } : {}),
+  };
+}
