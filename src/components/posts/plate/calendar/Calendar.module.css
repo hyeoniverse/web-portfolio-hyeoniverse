@@ -50,7 +50,7 @@
   padding: 0 var(--spacing-2xs);
   border-radius: var(--radius-circle);
   background: var(--color-accent);
-  color: var(--text-white);
+  color: var(--text-on-accent);
   font-size: var(--font-size-hint);
 }
 /* 필터 메뉴 */
@@ -453,7 +453,7 @@
 }
 .today .dayNum {
   background: var(--color-accent);
-  color: var(--text-white);
+  color: var(--text-on-accent);
 }
 /* 기간 이벤트 바 — 셀 폭 가득 채우고, 이어지는 쪽 모서리는 flat */
 .spanL { border-top-left-radius: 0; border-bottom-left-radius: 0; }
@@ -681,7 +681,7 @@
 .miniCalOut .miniCalCount { opacity: 0.55; }
 .miniCalToday { color: var(--text-accent); font-weight: 700; }
 .miniCalToday .miniCalCount { color: var(--text-accent); }
-.miniCalSel { background: var(--color-accent); color: var(--text-white); font-weight: 700; }
+.miniCalSel { background: var(--color-accent); color: var(--text-on-accent); font-weight: 700; }
 .miniCalSel:hover { background: var(--color-accent); }
 
 /* ── 일 뷰 인라인 상세/편집 패널 ── */
@@ -823,7 +823,7 @@
   color: var(--text-tertiary);
   font-variant-numeric: tabular-nums;
 }
-.agendaToday .agendaDate { background: var(--color-accent); color: var(--text-white); }
+.agendaToday .agendaDate { background: var(--color-accent); color: var(--text-on-accent); }
 .agendaCount {
   position: absolute;
   top: var(--spacing-2xs);
@@ -1011,7 +1011,7 @@
   padding: var(--spacing-4xs) var(--spacing-2xs);
   border-radius: var(--radius-capsule);
   background: var(--color-accent);
-  color: var(--text-white);
+  color: var(--text-on-accent);
   font-size: var(--font-size-micro);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
@@ -1555,7 +1555,7 @@
 /* 오늘 — 주말(.sun/.sat) 색보다 우선하도록 특이도 확보(0,3,0), 배경 accent 위 흰 글자 */
 .tlDay.tlDayToday .tlDayNum {
   background: var(--color-accent);
-  color: var(--text-white);
+  color: var(--text-on-accent);
   font-weight: 600;
 }
 /* 이벤트 바 영역 */
@@ -1705,7 +1705,7 @@
   padding: var(--spacing-4xs) var(--spacing-2xs);
   border-radius: var(--radius-capsule);
   background: var(--color-accent);
-  color: var(--text-white);
+  color: var(--text-on-accent);
   font-size: var(--font-size-micro);
   font-weight: 600;
   white-space: nowrap;

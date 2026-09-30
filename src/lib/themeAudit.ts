@@ -1,6 +1,6 @@
 import { contrastRatio } from "@/utils/contrast";
 import { hexToRgb } from "@/utils/color";
-import { MIN_TEXT_CONTRAST, neutralScale, readableAccent } from "@/lib/themeColors";
+import { MIN_TEXT_CONTRAST, neutralScale, readableAccent, textOnAccent } from "@/lib/themeColors";
 
 /* =============================================================================
  * 테마 색 점검 — WCAG 대비와 "테마로 쓸 만한가" 판정
@@ -86,8 +86,8 @@ function auditMode(t: ThemeColors, mode: "light" | "dark"): ModeAudit {
   const mutedR = ratio(muted, bg);
   const linkR = ratio(link, bg);
   const graphic = ratio(t.accentColor, bg);
-  // 강조색 버튼 대부분이 흰 글자를 얹는다 — 모드와 무관하게 흰 글자 기준으로 잰다
-  const button = ratio("#ffffff", t.accentColor);
+  // 강조색 면(버튼·배지) 위 글자 — 사이트가 테마 팔레트에서 고르는 색으로 잰다
+  const button = ratio(textOnAccent(t, mode, t.accentColor), t.accentColor);
   const distinct = deltaE(link, text);
 
   return {

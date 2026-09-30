@@ -974,7 +974,7 @@
   border: none;
   border-radius: var(--radius-circle);
   background: var(--bg-accent-solid);
-  color: var(--text-white);
+  color: var(--text-on-accent);
   cursor: pointer;
   /* hover 시 avatar 의 dim overlay (::after) 위에 위치 — z-index 로 stacking 우선 */
   z-index: 1;

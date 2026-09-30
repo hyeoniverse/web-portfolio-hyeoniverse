@@ -58,7 +58,7 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   font-weight: 600;
-  color: var(--text-white);
+  color: var(--text-on-accent);
 }
 
 .headerActions {

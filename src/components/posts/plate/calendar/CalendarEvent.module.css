@@ -56,7 +56,7 @@
 .evTodayTag {
   margin-left: auto;
   padding: var(--badge-p-sm); border-radius: var(--radius-capsule);
-  background: var(--color-accent); color: var(--text-white);
+  background: var(--color-accent); color: var(--text-on-accent);
   font-size: var(--font-size-micro); font-weight: 600;
 }
 
@@ -321,7 +321,7 @@
 
 .recurDay:hover { border-color: var(--border-color-strong); }
 
-.recurDayOn { background: var(--color-accent); border-color: var(--color-accent); color: var(--text-white); font-weight: 600; }
+.recurDayOn { background: var(--color-accent); border-color: var(--color-accent); color: var(--text-on-accent); font-weight: 600; }
 
 /* 날짜 grid 와 gap·위아래 여백 동일. 4열이라 폭만 좁게(셀은 day 와 비슷한 원 크기) */
 .recurMonthGrid {
@@ -346,7 +346,7 @@
 
 .recurMonth:hover { border-color: var(--border-color-strong); }
 
-.recurMonthOn { background: var(--color-accent); border-color: var(--color-accent); color: var(--text-white); font-weight: 600; }
+.recurMonthOn { background: var(--color-accent); border-color: var(--color-accent); color: var(--text-on-accent); font-weight: 600; }
 
 /* 연간 — 월 그리드(좌) + 조건 지정(우) 2열 나란히 */
 .recurYearCols { display: flex; align-items: flex-start; gap: var(--spacing-md); margin-top: var(--spacing-sm); }
@@ -377,7 +377,7 @@
 .recurWdOn {
   background: var(--color-accent);
   border-color: var(--color-accent);
-  color: var(--text-white);
+  color: var(--text-on-accent);
   font-weight: 600;
 }
 

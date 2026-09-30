@@ -198,7 +198,7 @@
 .variant-primary.btn.active {
   background: var(--bg-accent-solid);
   border-color: var(--bg-accent-solid);
-  color: var(--text-white);
+  color: var(--text-on-accent);
 }
 
 /* ---------------------------------------------------------------------------
@@ -355,7 +355,7 @@
 
 .variant-outline.tone-danger.btn:hover:not(:disabled) {
   background: var(--bg-accent-solid);
-  color: var(--text-white);
+  color: var(--text-on-accent);
   border-color: var(--bg-accent-solid);
 }
 
@@ -368,7 +368,7 @@
 /* primary + danger — 확정 삭제 CTA */
 .variant-primary.tone-danger {
   background: var(--bg-accent-solid);
-  color: var(--text-white);
+  color: var(--text-on-accent);
   border-color: var(--bg-accent-solid);
 }
 
