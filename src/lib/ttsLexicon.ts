@@ -83,11 +83,18 @@ export function displayScript(text: string): string {
   return text.replace(INLINE_READING, (_, shown: string) => shown);
 }
 
+const HANGUL = /[가-힣]/;
+
 /**
  * 음성으로 보낼 대본 — `[표기|읽을 말]` 은 읽을 말로, 나머지는 사전으로 바꾼다.
  * 자리 지정이 사전보다 먼저다 — 읽을 말을 사전이 다시 바꾸지 않게 자리표시로 빼 두었다가 되돌린다.
+ *
+ * 사전은 한국어 대본을 위해 쌓여 읽을 말이 한글인 항목이 많다("RLS → 알엘에스"). 영어 대본(표기에 한글이 없으면)에
+ * 그대로 넣으면 영어 목소리가 한글을 읽거나, 한글이 섞여 대본이 한국어로 판정돼 한국어 목소리로 읽혔다 —
+ * 그래서 영어 대본에는 읽을 말이 한글인 항목을 쓰지 않는다. 대본에 적은 자리 지정은 그대로 따른다.
  */
 export function spokenScript(text: string, entries: LexiconEntry[] = []): string {
+  if (!HANGUL.test(displayScript(text))) entries = entries.filter((e) => !HANGUL.test(e.to));
   const inline: string[] = [];
   const marked = text.replace(INLINE_READING, (_, _shown: string, spoken: string) => {
     inline.push(spoken.trim());

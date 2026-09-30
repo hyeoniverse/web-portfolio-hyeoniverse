@@ -6,8 +6,10 @@
  * 크롬의 Google 목소리는 한 번에 15초쯤 넘게 읽으면 말을 끊는 오래된 문제가 있어 문장 단위로 나눠 차례로 읽는다.
  */
 
+export type SpeechLang = "ko-KR" | "en-US";
+
 /** 대본 언어 — 한글이 있으면 한국어 */
-export function speechLangOf(text: string): "ko-KR" | "en-US" {
+export function speechLangOf(text: string): SpeechLang {
   return /[가-힣]/.test(text) ? "ko-KR" : "en-US";
 }
 
@@ -61,11 +63,11 @@ function speechTimeoutMs(text: string): number {
  * 사람이 페이지를 한 번도 누르지 않아 브라우저가 막으면 onBlocked(onEnd 는 부르지 않는다) — 막힌 채로
  * 두면 읽지도 않은 장이 시간이 차서 넘어간다.
  * onChunk 는 조각(문장)을 읽기 시작할 때마다 그 조각과 순번으로 부른다 — 자막을 읽는 자리에 맞춰 띄운다.
+ * lang 은 읽을 말로 바꾸기 전의 표기로 정해 넘긴다 — 없으면 text 로 정한다.
  */
-export function speak(text: string, onEnd: () => void, onBlocked?: () => void, onChunk?: (chunk: string, index: number) => void): (() => void) | null {
+export function speak(text: string, onEnd: () => void, onBlocked?: () => void, onChunk?: (chunk: string, index: number) => void, lang: SpeechLang = speechLangOf(text)): (() => void) | null {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return null;
   const synth = window.speechSynthesis;
-  const lang = speechLangOf(text);
   const voice = pickVoice(synth.getVoices(), lang);
   const chunks = splitForSpeech(text);
   let stopped = false;
