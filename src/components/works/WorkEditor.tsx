@@ -431,9 +431,10 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   );
 
   /* fieldKeys 에 "gallery" 가 있으면 갤러리 대본도 번역한다 — 원문 언어 대본이 있는 장마다 한 문장씩.
-     onlyMissing: 반대 언어 대본이 이미 있는 장은 건너뛴다(편집 언어를 바꿀 때의 자동 번역) */
+     onlyMissing: 반대 언어 대본이 이미 있는 장은 건너뛴다(편집 언어를 바꿀 때의 자동 번역)
+     urls: 그 장들의 대본만 번역한다(갤러리 음성 편집의 번역 버튼 — 고친 장만 다시 번역) */
   const translateFields = useCallback(
-    async (fieldKeys: string[], lang: "ko" | "en", { onlyMissing = false }: { onlyMissing?: boolean } = {}) => {
+    async (fieldKeys: string[], lang: "ko" | "en", { onlyMissing = false, urls }: { onlyMissing?: boolean; urls?: string[] } = {}) => {
       const isToEn = lang === "en";
       const sourceLang: "ko" | "en" = isToEn ? "ko" : "en";
       const targetLang: "ko" | "en" = isToEn ? "en" : "ko";
@@ -444,7 +445,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       );
       const scriptOf = (url: string, l: "ko" | "en") => noteFor(form.gallery_notes?.[url], l)?.script?.trim() ?? "";
       const scriptUrls = want.has("gallery")
-        ? form.gallery.filter((url) => scriptOf(url, sourceLang) && (!onlyMissing || !scriptOf(url, targetLang)))
+        ? form.gallery.filter((url) => (!urls || urls.includes(url)) && scriptOf(url, sourceLang) && (!onlyMissing || !scriptOf(url, targetLang)))
         : [];
       const texts = [
         ...(activeFields.map((f) => form[fieldKeyFor(f, sourceLang)]) as string[]),
@@ -515,6 +516,14 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     },
     [translating, editorLang, translateFields, TRANSLATABLE_FIELDS],
   );
+
+  /* 갤러리 대본만 번역한다 — 다른 언어의 대본을 지금 편집 언어로. 본문 번역과 따로 두어, 대본 한 장을 고칠 때마다
+     갤러리 전체를 다시 번역하지 않는다 */
+  const translateScripts = useCallback(async (urls: string[]) => {
+    if (translating || urls.length === 0) return;
+    await translateFields(["gallery"], editorLang, { urls });
+  }, [translating, editorLang, translateFields]);
+  const sourceNotes: GalleryNotes = useMemo(() => notesForLang(form.gallery_notes, editorLang === "en" ? "ko" : "en"), [form.gallery_notes, editorLang]);
 
   const onTeamMembersChange = useCallback((members: WorkFormData["team_members"]) => updateField("team_members", members), [updateField]);
   const team = useTeamMembers(form.team_members, onTeamMembersChange);
@@ -1483,6 +1492,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           notes={langNotes}
           actions={narration}
           tw={tw}
+          translate={serviceStatus.translation ? { sourceNotes, busy: translating, run: translateScripts } : undefined}
           renderSlide={(src) => isOfficeDocUrl(src) ? (
             <span className={styles.galleryDoc}>
               <FileText size={40} strokeWidth={1.25} />
@@ -1699,6 +1709,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     onGalleryDragLeave, onGalleryDragOver, onGalleryDrop, pdfProgress, pickGalleryItem, removeGalleryItem,
     removeSelectedGallery, reorderGallery, stopAutoScroll,
     showCoverPicker, showErrors, t, tw, updateField, narration, narrationCurrent, benchSplit, galleryLocked, narrationBusy,
+    serviceStatus.translation, sourceNotes, translating, translateScripts,
   ]);
 
   /* Tech Stack */
