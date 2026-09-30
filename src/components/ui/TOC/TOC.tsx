@@ -22,14 +22,13 @@ interface TOCProps {
 /* ─────────────────────────────────────────────────────────────────────────
    별자리 목차
    · 장(가장 높은 단계의 제목)마다 마디, 지금 장만 소제목을 펼친다.
-   · 레일은 곧게 서 있고, 별(사이트 로고의 ✦)이 있는 곳만 종 모양으로 안쪽으로 당겨진다.
-     제목·마디도 같은 곡선을 따라 움직인다.  dx = BEND · (1 − e^(−d² / 2σ²))
+   · 레일은 곧은 직선이고, 별(사이트 로고의 ✦)이 그 위를 오르내린다. 제목·마디는 제자리에 있다.
+     (예전엔 별 자리만 종 모양으로 안쪽으로 당겨지고 제목도 그 곡선을 따라 움직였는데, 스크롤할 때마다
+     굴곡이 오르내려 레일이 꿀렁여 보였다)
    · 지나온 길은 반투명 강조색 실선, 남은 길은 점선. 별 뒤로 짧은 빛 꼬리.
    · 머리말에 전체 진행 링과 읽기 시간, 뒤에 지금 장 번호를 크게 깐다.
    스크롤마다 React 상태를 바꾸지 않고 요소에 직접 쓴다 — 목록 전체가 다시 그려지지 않게.
    ───────────────────────────────────────────────────────────────────────── */
-const BEND = 12;
-const SIGMA = 56;
 const RAIL_X = 8;
 const TAIL = 48;
 const CHARS_PER_MIN = 500;
@@ -75,7 +74,6 @@ function shallow(items: TocItem[]) {
   return items.filter((it) => (it.level ?? 1) - top <= 1);
 }
 
-const bend = (y: number, yc: number) => BEND * (1 - Math.exp(-((y - yc) ** 2) / (2 * SIGMA * SIGMA)));
 
 export default function TOC({
   items: allItems,
@@ -211,16 +209,12 @@ export default function TOC({
 
       rows.forEach((r, k) => {
         const ty = mid(r.a);
-        const dx = bend(ty, yc);
-        r.a.style.transform = `translateX(${dx}px)`;
-        r.node.style.transform = `translate(${dx}px, ${ty}px)`;
+        r.node.style.transform = `translateY(${ty}px)`;
         r.node.classList.toggle(styles.past, k < ci);
         r.node.classList.toggle(styles.on, k === ci);
         r.subs.forEach((s) => {
           const sy = subY(r, s.el);
-          const sdx = bend(sy, yc);
-          s.el.style.transform = `translateX(${sdx}px)`;
-          s.node.style.transform = `translate(${sdx}px, ${sy}px)`;
+          s.node.style.transform = `translateY(${sy}px)`;
           s.node.classList.toggle(styles.gone, k !== ci);
           s.node.classList.toggle(styles.past, s.i < si);
           s.node.classList.toggle(styles.on, s.i === si);
@@ -232,9 +226,7 @@ export default function TOC({
       const ys = Math.min(Math.max(yc, top), bottom);
       const seg = (from: number, to: number) => {
         if (to <= from) return "";
-        let d = "";
-        for (let y = from; y < to; y += 6) d += `${d ? "L" : "M"}${(RAIL_X + bend(y, yc)).toFixed(2)} ${y.toFixed(1)}`;
-        return `${d}L${(RAIL_X + bend(to, yc)).toFixed(2)} ${to.toFixed(1)}`;
+        return `M${RAIL_X} ${from.toFixed(1)}L${RAIL_X} ${to.toFixed(1)}`;
       };
       rail.setAttribute("height", String(bottom + 16));
       pDone.setAttribute("d", seg(top, ys));
