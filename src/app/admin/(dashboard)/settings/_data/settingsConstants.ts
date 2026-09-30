@@ -33,71 +33,67 @@ export interface ThemePreset {
   theme: Omit<SiteConfigData["theme"], "presets">;
 }
 
+/**
+ * 기본 제공 테마 — 색상환을 한 바퀴 돌며 강조색이 서로 겹치지 않게 골랐다 (강조색끼리 CIELAB ΔE 25 이상).
+ *
+ * 모든 프리셋이 지키는 대비 (themePresets.test.ts 가 검사한다):
+ * - 기본 텍스트: 배경 대비 10 이상 (라이트·다크)
+ * - 강조색: 라이트 배경 대비 4.5 이상, 강조색 위 흰 글자 4.5 이상
+ *   다크에서는 ThemeProvider 가 배경 대비 4.5 가 될 때까지 밝혀 쓴다 (readableAccent)
+ * - 강조색과 기본 텍스트가 한눈에 구분될 것 (ΔE 30 이상) — 링크가 본문처럼 보이지 않게
+ */
 export const THEME_PRESETS: ThemePreset[] = [
   {
     name: "Default",
     theme: { accentColor: "#d40063", lightBg: "#f5f5f0", lightText: "#1a1a1a", darkBg: "#0a0a0a", darkText: "#f5f5f0" },
   },
-  // Reds
-  {
-    name: "Meadow",
-    theme: { accentColor: "#bc4749", lightBg: "#f2e8cf", lightText: "#2a4e30", darkBg: "#141f12", darkText: "#a7c957" },
-  },
+  // Warm — 주황·갈색·노랑
   {
     name: "Coral",
-    theme: { accentColor: "#fe5f55", lightBg: "#eef5db", lightText: "#3d2a1a", darkBg: "#1a130c", darkText: "#c7efcf" },
-  },
-  // Oranges
-  {
-    name: "Azure",
-    theme: { accentColor: "#ff6b35", lightBg: "#efefd0", lightText: "#004e89", darkBg: "#0a1a2e", darkText: "#f7c59f" },
+    theme: { accentColor: "#c2410c", lightBg: "#fbf1e6", lightText: "#2e1a10", darkBg: "#1a110b", darkText: "#f6e1cf" },
   },
   {
-    name: "Sand",
-    theme: { accentColor: "#d8a48f", lightBg: "#efebce", lightText: "#3e3c28", darkBg: "#18170e", darkText: "#d6ce93" },
-  },
-  {
-    name: "Harvest",
-    theme: { accentColor: "#dda15e", lightBg: "#fefae0", lightText: "#283618", darkBg: "#1a1e0e", darkText: "#fefae0" },
+    name: "Cocoa",
+    theme: { accentColor: "#8f3b2e", lightBg: "#f3e9e4", lightText: "#2b1d15", darkBg: "#18110d", darkText: "#eadbcd" },
   },
   {
     name: "Honey",
-    theme: { accentColor: "#f6bd60", lightBg: "#f7ede2", lightText: "#3d2e1e", darkBg: "#1c130e", darkText: "#f5cac3" },
+    theme: { accentColor: "#8a6200", lightBg: "#fbf6dc", lightText: "#2e2310", darkBg: "#1a150a", darkText: "#f5e6c4" },
   },
-  // Greens
+  // Green — 올리브·숲·청록
+  {
+    name: "Harvest",
+    theme: { accentColor: "#5d6b00", lightBg: "#f1f2dc", lightText: "#262a12", darkBg: "#14160b", darkText: "#e6e8c8" },
+  },
   {
     name: "Forest",
-    theme: { accentColor: "#588157", lightBg: "#dad7cd", lightText: "#2a4035", darkBg: "#1a2e1f", darkText: "#b0be97" },
-  },
-  {
-    name: "Rosewood",
-    theme: { accentColor: "#57886c", lightBg: "#f8c7cc", lightText: "#0e0f19", darkBg: "#0e0f19", darkText: "#81a684" },
+    theme: { accentColor: "#2a7340", lightBg: "#e9efe6", lightText: "#15261a", darkBg: "#0d1610", darkText: "#d6e6d6" },
   },
   {
     name: "Dusk",
-    theme: { accentColor: "#68a691", lightBg: "#ffe5d4", lightText: "#3d2b33", darkBg: "#101c16", darkText: "#efc7c2" },
+    theme: { accentColor: "#0f766e", lightBg: "#fdeee4", lightText: "#2d2226", darkBg: "#0f1716", darkText: "#f1dcd6" },
   },
-  // Blues
+  // Blue — 하늘·파랑·남색
   {
     name: "Arctic",
-    theme: { accentColor: "#5fa8d3", lightBg: "#cae9ff", lightText: "#1b4965", darkBg: "#0c1e2e", darkText: "#bee9e8" },
+    theme: { accentColor: "#0369a1", lightBg: "#e8f4fb", lightText: "#0f2e40", darkBg: "#0a1822", darkText: "#d4ecf5" },
   },
   {
     name: "Baltic",
-    theme: { accentColor: "#1c5d99", lightBg: "#ffffff", lightText: "#222222", darkBg: "#222222", darkText: "#bbcde5" },
+    theme: { accentColor: "#2563eb", lightBg: "#ffffff", lightText: "#1f2328", darkBg: "#1b1d21", darkText: "#d8e2f0" },
   },
   {
-    name: "Sorbet",
-    theme: { accentColor: "#79addc", lightBg: "#fcf5c7", lightText: "#2a4a5e", darkBg: "#0e1e2c", darkText: "#ffc09f" },
+    name: "Indigo",
+    theme: { accentColor: "#312e81", lightBg: "#eeeff9", lightText: "#1c1c3a", darkBg: "#0f0f1f", darkText: "#dcdcf5" },
   },
-  // Pinks
+  // Purple — 보라·자주
   {
-    name: "Tropica",
-    theme: { accentColor: "#f75590", lightBg: "#fce4d8", lightText: "#4a1530", darkBg: "#1a0a14", darkText: "#b5f8fe" },
+    name: "Lavender",
+    theme: { accentColor: "#9333ea", lightBg: "#f6effb", lightText: "#25183a", darkBg: "#140f1d", darkText: "#e6dcf5" },
   },
   {
-    name: "Petal",
-    theme: { accentColor: "#fb6f92", lightBg: "#ffe5ec", lightText: "#5c1a30", darkBg: "#1a0810", darkText: "#ffc2d1" },
+    name: "Orchid",
+    theme: { accentColor: "#a21caf", lightBg: "#fbeef8", lightText: "#33122e", darkBg: "#1a0c18", darkText: "#f5dcef" },
   },
 ];
 

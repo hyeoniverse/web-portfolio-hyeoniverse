@@ -1,5 +1,11 @@
 "use client";
-import { hexToRgb, lerpRgb, rgbHex } from "@/utils/color";
+import {
+  applyAccentAll,
+  applyNeutralScale,
+  readableAccent,
+  removeAccentAll,
+  removeNeutralScale,
+} from "@/lib/themeColors";
 
 import {
   createContext,
@@ -166,119 +172,16 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 }
 
 
-/** accent 관련 CSS 변수를 모두 세팅 (alpha, dark, light 포함) */
-const ACCENT_ALPHAS = [1, 5, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 95, 100];
-const ACCENT_LIGHT_ALPHAS = [40, 60, 70, 90];
-
-function applyAccentAll(root: HTMLElement, hex: string) {
-  const rgb = hexToRgb(hex);
-  if (!rgb) return;
-  const [r, g, b] = rgb;
-
-  root.style.setProperty("--color-accent", hex);
-
-  // alpha variants
-  for (const a of ACCENT_ALPHAS) {
-    root.style.setProperty(
-      `--color-accent-alpha-${a}`,
-      `rgba(${r}, ${g}, ${b}, ${a / 100})`,
-    );
-  }
-
-  // darker variant (~20% darker)
-  root.style.setProperty(
-    "--color-accent-dark",
-    `rgb(${Math.round(r * 0.78)}, ${Math.round(g * 0.78)}, ${Math.round(b * 0.78)})`,
-  );
-
-  // lighter variant (~40% toward white)
-  const lr = Math.min(255, Math.round(r + (255 - r) * 0.4));
-  const lg = Math.min(255, Math.round(g + (255 - g) * 0.4));
-  const lb = Math.min(255, Math.round(b + (255 - b) * 0.4));
-  root.style.setProperty("--color-accent-light", `rgb(${lr}, ${lg}, ${lb})`);
-
-  for (const a of ACCENT_LIGHT_ALPHAS) {
-    root.style.setProperty(
-      `--color-accent-light-alpha-${a}`,
-      `rgba(${lr}, ${lg}, ${lb}, ${a / 100})`,
-    );
-  }
-}
-
-/** neutral scale 동적 생성: bg(neutral-50)와 text(neutral-900) 사이를 보간 */
-const NEUTRAL_STOPS = [0, 50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950, 999] as const;
-const MID_BLENDS: [number, number][] = [
-  [100, 0.05], [200, 0.12], [300, 0.22], [400, 0.33],
-  [500, 0.46], [600, 0.65], [700, 0.80], [800, 0.92],
-];
-const NEUTRAL_ALPHA_STEPS = [1, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 100];
-
-
-
-function applyNeutralScale(root: HTMLElement, bgHex: string, textHex: string) {
-  const bg = hexToRgb(bgHex);
-  const text = hexToRgb(textHex);
-  if (!bg || !text) return;
-  const black: [number, number, number] = [0, 0, 0];
-
-  root.style.setProperty("--color-neutral-0", "#ffffff");
-  root.style.setProperty("--color-neutral-50", bgHex);
-
-  for (const [n, t] of MID_BLENDS) {
-    root.style.setProperty(`--color-neutral-${n}`, rgbHex(lerpRgb(bg, text, t)));
-  }
-
-  root.style.setProperty("--color-neutral-900", textHex);
-  root.style.setProperty("--color-neutral-950", rgbHex(lerpRgb(text, black, 0.3)));
-  root.style.setProperty("--color-neutral-999", "#000000");
-
-  // neutral-alpha: text 컬러 기반
-  for (const a of NEUTRAL_ALPHA_STEPS) {
-    root.style.setProperty(
-      `--color-neutral-alpha-${a}`,
-      `rgba(${text[0]}, ${text[1]}, ${text[2]}, ${a / 100})`,
-    );
-  }
-  // inverse-alpha: bg 컬러 기반
-  for (const a of NEUTRAL_ALPHA_STEPS) {
-    root.style.setProperty(
-      `--color-inverse-alpha-${a}`,
-      `rgba(${bg[0]}, ${bg[1]}, ${bg[2]}, ${a / 100})`,
-    );
-  }
-}
-
-function removeNeutralScale(root: HTMLElement) {
-  for (const n of NEUTRAL_STOPS) {
-    root.style.removeProperty(`--color-neutral-${n}`);
-  }
-  for (const a of NEUTRAL_ALPHA_STEPS) {
-    root.style.removeProperty(`--color-neutral-alpha-${a}`);
-    root.style.removeProperty(`--color-inverse-alpha-${a}`);
-  }
-}
-
-function removeAccentAll(root: HTMLElement) {
-  root.style.removeProperty("--color-accent");
-  root.style.removeProperty("--color-accent-dark");
-  root.style.removeProperty("--color-accent-light");
-  for (const a of ACCENT_ALPHAS) {
-    root.style.removeProperty(`--color-accent-alpha-${a}`);
-  }
-  for (const a of ACCENT_LIGHT_ALPHAS) {
-    root.style.removeProperty(`--color-accent-light-alpha-${a}`);
-  }
-}
-
 /** 사이트 설정에서 지정한 테마 색상을 CSS 변수로 주입 */
 function applyThemeColors(
   root: HTMLElement,
   theme: ResolvedTheme,
   colors: typeof DEFAULTS,
 ) {
-  // accent — 기본값과 다를 때만 오버라이드 (alpha, dark, light 전부)
+  // accent — 기본값과 다를 때만 오버라이드 (alpha, dark, light 전부).
+  // 기본 테마가 다크에서 밝은 분홍을 쓰듯, 다크에서는 배경 위에서 읽힐 만큼 밝힌다
   if (colors.accentColor && colors.accentColor !== DEFAULTS.accentColor) {
-    applyAccentAll(root, colors.accentColor);
+    applyAccentAll(root, theme === "dark" ? readableAccent(colors.accentColor, colors.darkBg) : colors.accentColor);
   } else {
     removeAccentAll(root);
   }
