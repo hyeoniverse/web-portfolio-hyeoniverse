@@ -7,7 +7,7 @@ import { PREVIEW_KEY } from "@/constants";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { mdToRichHtml } from "@/components/posts/mdToRichHtml";
-import { BadgeCheck, ChevronLeft, ChevronRight, Plus, Star, Check, X, User, Maximize2, FileText } from "@/components/icons";
+import { BadgeCheck, ChevronLeft, ChevronRight, Plus, Star, Check, X, User, Maximize2, FileText, Replace } from "@/components/icons";
 import Popover, { MenuDivider, MenuItem } from "@/components/ui/Popover";
 import HorizontalCarousel from "@/components/ui/HorizontalCarousel";
 import { isOfficeDocUrl, officeDocKind } from "@/lib/officeViewer";
@@ -32,7 +32,7 @@ import "@/components/admin/seoFlash.css";
 import { flashSeoField } from "@/components/admin/seoFlash";
 import type { TeamMember, Work, WorkFormData } from "@/types/work";
 import { OWNER_AUTHOR_ID } from "@/utils/resolvePostAuthors";
-import { noteFor, notesForLang, patchNote } from "@/lib/galleryNotes";
+import { noteFor, notesForLang, patchNote, replaceGalleryUrl } from "@/lib/galleryNotes";
 import { useRevisions } from "@/hooks/useRevisions";
 import { useEditorAutoSave } from "@/hooks/useEditorAutoSave";
 import { useEditorLeaveGuard } from "@/hooks/useEditorLeaveGuard";
@@ -679,6 +679,28 @@ export default function WorkEditor({ work }: WorkEditorProps) {
    * PDF·PPTX 는 쪽(슬라이드)마다 그림으로 펼쳐 갤러리에 붙이고, 나머지는 압축해서 올린다.
    * 옛 .ppt 는 브라우저에서 그림으로 바꿀 방법이 없어 파일째 올린다 — 읽는 화면이 문서 뷰어로 보여 준다.
    */
+  /* 그림·영상 하나를 올려 주소를 돌려준다 — 크기를 보고, 그림은 줄인 뒤 다시 본다. 실패하면 fail 로 알리고 null */
+  const uploadMedia = useCallback(async (
+    file: File,
+    fail: (err: unknown) => void,
+    { compressImage, validateFileSize }: typeof import("@/lib/compressImage"),
+  ): Promise<{ url: string } | null> => {
+    const sizeError = validateFileSize(file);
+    if (sizeError) { fail(sizeError); return null; }
+    // 비디오는 압축 X — 그대로 업로드. 이미지만 압축 파이프라인.
+    const isVideo = file.type.startsWith("video/");
+    const payload = isVideo ? file : await compressImage(file);
+    // 압축 후에도 한도 초과면 reject
+    const postError = validateFileSize(payload, undefined, { skipCompressibleBypass: true });
+    if (postError) { fail(postError); return null; }
+    const formData = new FormData();
+    formData.append("file", payload);
+    const res = await fetch("/api/upload", { method: "POST", body: formData });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.url) { fail(data); return null; }
+    return { url: data.url as string };
+  }, []);
+
   const ingestFiles = useCallback(async (files: File[], field: "image" | "gallery") => {
       if (files.length === 0) return;
 
@@ -716,19 +738,8 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       for (const { file, notes } of expanded) {
         if (fromPdf) setPdfProgress({ phase: "uploading", name: file.name, done: uploaded, total: expanded.length });
         uploaded++;
-        const sizeError = validateFileSize(file);
-        if (sizeError) { fail(sizeError); continue; }
-        // 비디오는 압축 X — 그대로 업로드. 이미지만 압축 파이프라인.
-        const isVideo = file.type.startsWith("video/");
-        const payload = isVideo ? file : await compressImage(file);
-        // 압축 후에도 한도 초과면 reject
-        const postError = validateFileSize(payload, undefined, { skipCompressibleBypass: true });
-        if (postError) { fail(postError); continue; }
-        const formData = new FormData();
-        formData.append("file", payload);
-        const res = await fetch("/api/upload", { method: "POST", body: formData });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok || !data.url) { fail(data); continue; }
+        const data = await uploadMedia(file, fail, { compressImage, validateFileSize });
+        if (!data) continue;
 
         if (field === "image") {
           updateField("image", data.url);
@@ -741,7 +752,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         }
       }
       if (fromPdf) setPdfProgress(null);
-  }, [t, updateField]);
+  }, [t, updateField, uploadMedia]);
 
   /* 고르기 창 */
   const handleImageUpload = useCallback((field: "image" | "gallery") => {
@@ -907,6 +918,31 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     },
     [],
   );
+
+  /* 한 장을 다른 그림·영상으로 바꾼다 — 자리는 그대로 두고 주소만 바꾼다. 대본·음성(KO/EN)은 그림 주소를 열쇠로
+     두므로 새 주소로 옮기고, 대표 이미지였으면 대표 이미지도, 음성 편집에서 열어 둔 장이면 그 장을 계속 연다.
+     갈아 끼우는 동안 그 칸에 올리는 중 표시를 둔다 */
+  const [replacingUrl, setReplacingUrl] = useState<string | null>(null);
+  const replaceGalleryItem = useCallback((oldUrl: string) => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*,video/mp4,video/webm,video/quicktime";
+    input.onchange = async () => {
+      const file = input.files?.[0];
+      if (!file) return;
+      setReplacingUrl(oldUrl);
+      const fail = (err: unknown) => showToast(errorText(err, t, t("admin.common.uploadFailed")), "error");
+      const data = await uploadMedia(file, fail, await import("@/lib/compressImage"));
+      setReplacingUrl(null);
+      if (!data) return;
+      const newUrl = data.url;
+      /* 올리는 동안 그 장을 지웠으면 바꿀 자리가 없다 — replaceGalleryUrl 이 그대로 돌려준다 */
+      setForm((prev) => replaceGalleryUrl(prev, oldUrl, newUrl));
+      if (narration.openUrl === oldUrl) narration.open(newUrl, false);
+      showToast(tw("galleryReplaced"), "success");
+    };
+    input.click();
+  }, [t, tw, uploadMedia, narration]);
 
   const handleSave = useCallback(
     /* stay: 저장한 뒤 목록으로 나가지 않고 편집을 이어 간다 — 상단 상태 칩의 발행 전환(#1116) */
@@ -1678,6 +1714,18 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                           variant="difference"
                           size="xs"
                           shape="circle"
+                          disabled={galleryLocked || !!replacingUrl}
+                          loading={replacingUrl === src}
+                          onClick={() => replaceGalleryItem(src)}
+                          aria-label={tw("replaceImage")}
+                          title={tw("replaceImage")}
+                          soundDisabled
+                          icon={<Replace size={12} strokeWidth={2} />}
+                        />
+                        <Button
+                          variant="difference"
+                          size="xs"
+                          shape="circle"
                           disabled={galleryLocked}
                           onClick={() => removeGalleryItem(i)}
                           aria-label={tw("remove")}
@@ -1709,7 +1757,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     onGalleryDragLeave, onGalleryDragOver, onGalleryDrop, pdfProgress, pickGalleryItem, removeGalleryItem,
     removeSelectedGallery, reorderGallery, stopAutoScroll,
     showCoverPicker, showErrors, t, tw, updateField, narration, narrationCurrent, benchSplit, galleryLocked, narrationBusy,
-    serviceStatus.translation, sourceNotes, translating, translateScripts,
+    serviceStatus.translation, sourceNotes, translating, translateScripts, replacingUrl, replaceGalleryItem,
   ]);
 
   /* Tech Stack */
