@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from "vitest";
 import { parseSqlErd } from "@/app/admin/(dashboard)/settings/_components/about/parseSqlErd";
 

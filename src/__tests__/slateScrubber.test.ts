@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from "vitest";
 import { createEditor, Node, type Descendant } from "slate";
 import "@/components/posts/plate/slateScrubber";

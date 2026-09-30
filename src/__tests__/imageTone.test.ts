@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, expect, it } from "vitest";
 import { DARK_THRESHOLD, regionLuminance } from "@/lib/imageTone";
 import { heroBackdrop } from "@/stores/navBackdropStore";

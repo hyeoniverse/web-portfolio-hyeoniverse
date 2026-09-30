@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from "vitest";
 import { checkAboutContent } from "@/lib/api/validateAboutContent";
 import { aboutDecisions } from "@/data/generated/aboutContent";

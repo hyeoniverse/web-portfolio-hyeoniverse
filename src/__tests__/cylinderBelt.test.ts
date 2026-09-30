@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from "vitest";
 import { SLOT_ANGLE, PANEL_ARC, PLANE_WIDTH, RADIUS, slotOffset } from "@/app/works/_components/layouts/cylinder/scene";
 

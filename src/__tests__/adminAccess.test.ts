@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from "vitest";
 import { canOpenAdminPage, canOpenSettingsTab, visibleAdminItems, type AdminAccess } from "@/lib/adminAccess";
 import { TAB_IDS } from "@/app/admin/(dashboard)/settings/_data/settingsConstants";

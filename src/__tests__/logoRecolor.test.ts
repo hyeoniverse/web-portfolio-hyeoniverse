@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from "vitest";
 import { analyzeLogo, recolorPixels } from "@/lib/logoRecolor";
 import type { Rgb } from "@/utils/color";

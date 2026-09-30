@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from "vitest";
 import { createPlateEditor } from "platejs/react";
 import { insertTable } from "@platejs/table";

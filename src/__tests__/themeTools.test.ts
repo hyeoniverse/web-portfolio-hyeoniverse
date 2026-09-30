@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from "vitest";
 import { auditTheme } from "@/lib/themeAudit";
 import { HARMONY_RULES, extractColors, harmonyHues, harmonyPalette, harmonyThemes, themesFromColors, usableAccent } from "@/lib/themeGenerate";
