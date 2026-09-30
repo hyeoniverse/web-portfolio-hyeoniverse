@@ -94,6 +94,24 @@ export function removeTextAccent(root: HTMLElement) {
   root.style.removeProperty("--text-accent-alt");
 }
 
+/**
+ * 강조색 면(버튼·배지·오늘 날짜 표시) 위 글자색 — 테마 팔레트 안에서 고른다.
+ * 그 모드의 배경색 → 글자색 → 반대 모드의 배경·글자색 순으로 강조색 대비 4.5 가 나오는 첫 색.
+ * 배경색이 먼저라 버튼이 바탕을 뚫은 것처럼 보인다. 테마 색이 모두 모자라면 흰색·검은색 중 잘 보이는 쪽.
+ */
+export function textOnAccent(
+  t: { lightBg: string; lightText: string; darkBg: string; darkText: string },
+  mode: "light" | "dark",
+  accentHex: string,
+): string {
+  const own = mode === "light" ? [t.lightBg, t.lightText] : [t.darkBg, t.darkText];
+  const other = mode === "light" ? [t.darkBg, t.darkText] : [t.lightBg, t.lightText];
+  for (const c of [...own, ...other]) {
+    if ((contrastRatio(c, accentHex) ?? 0) >= MIN_TEXT_CONTRAST) return c;
+  }
+  return (contrastRatio("#ffffff", accentHex) ?? 0) >= (contrastRatio("#000000", accentHex) ?? 0) ? "#ffffff" : "#000000";
+}
+
 /** accent 관련 CSS 변수를 모두 세팅 (alpha, dark, light 포함) */
 export function applyAccentAll(root: HTMLElement, hex: string) {
   const rgb = hexToRgb(hex);
@@ -156,7 +174,7 @@ export function removeNeutralScale(root: HTMLElement) {
 export function themeVarKeys(): string[] {
   const keys = [
     "--color-accent", "--color-accent-dark", "--color-accent-light",
-    "--text-accent", "--text-accent-alt", "--bg-primary", "--text-primary",
+    "--text-accent", "--text-accent-alt", "--text-on-accent", "--bg-primary", "--text-primary",
   ];
   for (const a of ACCENT_ALPHAS) keys.push(`--color-accent-alpha-${a}`);
   for (const a of ACCENT_LIGHT_ALPHAS) keys.push(`--color-accent-light-alpha-${a}`);
