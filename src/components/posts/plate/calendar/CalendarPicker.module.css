@@ -120,7 +120,7 @@
 
 .pickerItemEnd { flex-shrink: 0; display: inline-flex; align-items: center; }
 
-.pickerItemCheck { color: var(--color-accent); }
+.pickerItemCheck { color: var(--text-accent); }
 
 /* 삭제 버튼 — absolute 로 우측에 겹침(레이아웃 미점유) → 체크 아이콘 옆 유령 여백 제거. hover 시 페이드인 */
 .pickerItemDel {

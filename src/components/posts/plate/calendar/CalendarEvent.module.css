@@ -51,7 +51,7 @@
   position: sticky; top: 0; background: var(--bg-primary); z-index: 1;
 }
 
-.evGroupToday .evDate { color: var(--color-accent); border-bottom-color: color-mix(in srgb, var(--color-accent) 40%, transparent); }
+.evGroupToday .evDate { color: var(--text-accent); border-bottom-color: color-mix(in srgb, var(--color-accent) 40%, transparent); }
 
 .evTodayTag {
   margin-left: auto;

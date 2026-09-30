@@ -2,9 +2,10 @@
 import {
   applyAccentAll,
   applyNeutralScale,
-  readableAccent,
+  applyTextAccent,
   removeAccentAll,
   removeNeutralScale,
+  removeTextAccent,
 } from "@/lib/themeColors";
 
 import {
@@ -179,11 +180,13 @@ function applyThemeColors(
   colors: typeof DEFAULTS,
 ) {
   // accent — 기본값과 다를 때만 오버라이드 (alpha, dark, light 전부).
-  // 기본 테마가 다크에서 밝은 분홍을 쓰듯, 다크에서는 배경 위에서 읽힐 만큼 밝힌다
+  // 강조색은 고른 그대로 쓰고, 글자로 쓰이는 --text-accent 만 현재 배경 위에서 읽히게 맞춘다
   if (colors.accentColor && colors.accentColor !== DEFAULTS.accentColor) {
-    applyAccentAll(root, theme === "dark" ? readableAccent(colors.accentColor, colors.darkBg) : colors.accentColor);
+    applyAccentAll(root, colors.accentColor);
+    applyTextAccent(root, colors.accentColor, theme === "dark" ? colors.darkBg : colors.lightBg);
   } else {
     removeAccentAll(root);
+    removeTextAccent(root);
   }
 
   // 배경/텍스트 + neutral scale — 테마별 분기

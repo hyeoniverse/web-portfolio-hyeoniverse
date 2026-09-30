@@ -103,6 +103,6 @@
   color: var(--text-primary);
 }
 .connectOn {
-  color: var(--color-accent);
+  color: var(--text-accent);
   border-color: var(--color-accent);
 }

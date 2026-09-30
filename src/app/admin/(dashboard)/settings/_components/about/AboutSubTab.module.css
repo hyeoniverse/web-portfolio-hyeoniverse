@@ -32,7 +32,7 @@
   flex-shrink: 0;
   border-radius: var(--radius-2xl);
   background: var(--bg-accent-subtle);
-  color: var(--color-accent);
+  color: var(--text-accent);
 }
 .cardTitle {
   margin: 0;
@@ -78,7 +78,7 @@
   cursor: default;
 }
 .headBtnPrimary {
-  color: var(--color-accent);
+  color: var(--text-accent);
   border-color: var(--color-accent);
 }
 .headBtnPrimary:hover:not(:disabled) {
@@ -307,7 +307,7 @@
   color: var(--text-tertiary);
 }
 .nodeIcon[data-folder="true"] {
-  color: var(--color-accent);
+  color: var(--text-accent);
 }
 .nodeIcon[data-empty="true"] {
   opacity: 0.45;
@@ -422,7 +422,7 @@
 }
 .editPaneIcon {
   flex-shrink: 0;
-  color: var(--color-accent);
+  color: var(--text-accent);
 }
 .editPaneTitle {
   min-width: 0;
