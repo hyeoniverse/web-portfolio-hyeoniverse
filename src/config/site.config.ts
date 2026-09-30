@@ -62,6 +62,9 @@ export const siteConfig = {
     // 미지정(undefined) = 자동 — 업로드 이미지 로고는 해제(이미지 색이 반전돼 버림),
     // 시스템(텍스트) 로고는 적용. 설정에서 체크박스를 만지면 명시값(boolean)이 저장된다.
     logoDifference: undefined as boolean | undefined,
+    // 이미지 로고를 테마 색으로 칠하기 — 잉크는 본문 글자색, 포인트(분홍 점 같은 두 번째 색)는 강조색.
+    // 리컬러 색을 직접 고른 로고는 그 색이 우선. 색이 많거나 배경이 칠해진 로고는 원래 이미지 그대로.
+    logoFollowTheme: true,
     faviconShape: "circle" as "circle" | "square" | "none", // 브라우저 탭 favicon 배경 모양
     faviconRadius: "", // 배경 모서리 반경 override (0~16, viewBox 0~32 기준). 빈 값 = shape 기본값(circle=16/square=4)
     faviconBgRatio: "1", // 배경 종횡비 w/h (0.5~2). 1=정사각, >1=가로 길쭉(타원/직사각), <1=세로 길쭉. 콘텐츠는 중심 고정
