@@ -243,6 +243,8 @@
   height: 1.2em;
   width: auto;
   object-fit: contain;
+  /* 커버 위를 지나며 명암을 뒤집을 때 부드럽게 */
+  transition: filter var(--duration-base) ease;
 }
 
 /* 이 배경용 변형이 없어 반대쪽 변형을 쓸 때 — 명암만 뒤집고 색상은 hue-rotate 로 되돌린다(lib/brandLogos) */
