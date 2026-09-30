@@ -1597,6 +1597,8 @@
         "addGallery": "갤러리 이미지 추가",
         "galleryEmpty": "갤러리에 이미지가 없습니다",
         "setAsMain": "메인으로 설정",
+        "replaceImage": "이미지 교체",
+        "galleryReplaced": "이미지를 바꿨습니다. 이 장의 대본·음성은 그대로 둡니다.",
         "currentMain": "현재 메인",
         "viewImage": "이미지 보기",
         "moveEarlier": "앞으로 옮기기",

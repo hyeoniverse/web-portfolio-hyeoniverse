@@ -25,3 +25,25 @@ describe("gallery notes by language", () => {
     expect(r["/b.png"].script).toBe("둘째");
   });
 });
+
+describe("replaceGalleryUrl — 이미지 교체", () => {
+  it("자리는 그대로, 대본·음성(두 언어)과 대표 이미지를 새 주소로 옮긴다", async () => {
+    const { replaceGalleryUrl } = await import("@/lib/galleryNotes");
+    const form = {
+      gallery: ["a.png", "b.png", "c.png"],
+      image: "b.png",
+      gallery_notes: { "b.png": { script: "대본", audio: "b.mp3", en: { script: "script" } }, "c.png": { script: "셋" } },
+    };
+    const next = replaceGalleryUrl(form, "b.png", "b2.png");
+    expect(next.gallery).toEqual(["a.png", "b2.png", "c.png"]);
+    expect(next.image).toBe("b2.png");
+    expect(next.gallery_notes).toEqual({ "b2.png": { script: "대본", audio: "b.mp3", en: { script: "script" } }, "c.png": { script: "셋" } });
+  });
+
+  it("대표 이미지가 아니면 그대로 두고, 없는 주소면 폼을 바꾸지 않는다", async () => {
+    const { replaceGalleryUrl } = await import("@/lib/galleryNotes");
+    const form = { gallery: ["a.png"], image: "cover.png", gallery_notes: {} };
+    expect(replaceGalleryUrl(form, "a.png", "a2.png").image).toBe("cover.png");
+    expect(replaceGalleryUrl(form, "zzz.png", "a2.png")).toBe(form);
+  });
+});
