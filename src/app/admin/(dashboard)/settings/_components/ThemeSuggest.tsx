@@ -6,7 +6,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import { showToast } from "@/stores/toastStore";
 import type { ThemeColors } from "@/lib/themeAudit";
-import { HARMONY_RULES, extractColors, harmonyHues, harmonyTheme, themesFromColors, withHue, type ExtractedColor } from "@/lib/themeGenerate";
+import { HARMONY_RULES, extractColors, harmonyHues, harmonyPalette, harmonyThemes, themesFromColors, withHue, type ExtractedColor, type HarmonyRule } from "@/lib/themeGenerate";
 import { VerdictChip } from "./ThemeContrastReport";
 import styles from "./ThemeTools.module.css";
 
@@ -14,8 +14,9 @@ const toOklch = converter("oklch");
 
 /** 색상환 바탕 — OKLCH 색상을 30° 마다 찍은 conic-gradient. 0° 가 위, 시계 방향 */
 const WHEEL_BG = `conic-gradient(${Array.from({ length: 13 }, (_, i) => `${formatHex({ mode: "oklch", l: 0.72, c: 0.14, h: i * 30 })} ${i * 30}deg`).join(", ")})`;
-/** 점을 찍는 반지름(%) — 도넛 가운데 두께 */
+/** 점을 찍는 반지름(%) — 도넛 가운데 두께. 단색 규칙은 같은 색상의 밝기 단계라 반지름을 달리해 겹치지 않게 */
 const MARKER_R = 40;
+const MONO_R = [40, 33, 47];
 
 /** 이미지에서 색을 뽑을 때 줄이는 크기 — 색 분포만 보면 되니 작게 */
 const SAMPLE = 96;
@@ -48,31 +49,44 @@ export default function ThemeSuggest({ accent, onApply }: { accent: string; onAp
   const k = (key: string) => t(`admin.settings.themeTools.${key}`);
   const [tab, setTab] = useState<"wheel" | "image">("wheel");
   const [base, setBase] = useState(accent);
+  const [rule, setRule] = useState<HarmonyRule>("complementary");
   const [image, setImage] = useState<{ url: string; colors: ExtractedColor[] } | null>(null);
   const [dragging, setDragging] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const harmonies = useMemo(() => HARMONY_RULES.map((rule) => ({ rule, theme: harmonyTheme(base, rule) })), [base]);
+  const hues = harmonyHues(base, rule);
+  const palette = useMemo(() => harmonyPalette(base, rule), [base, rule]);
+  const harmonies = useMemo(() => harmonyThemes(base, rule), [base, rule]);
   const imageThemes = useMemo(() => (image ? themesFromColors(image.colors) : []), [image]);
-  const [baseHue, bgHue, textHue] = harmonyHues(base, "complementary");
+  /* 끄는 중인지 — 포인터 캡처만 믿으면 일부 브라우저(Safari 트랙패드 등)에서 move 가 안 와서 놓을 때만 바뀐다.
+     누른 순간부터 뗄 때까지 창 전체의 pointermove 로 따라간다 */
+  const wheelRef = useRef<HTMLDivElement>(null);
 
   const apply = (theme: ThemeColors) => {
     onApply(theme);
     showToast(k("applied"), "success");
   };
 
-  /* 색상환 — 누르거나 끌면 그 각도가 기준 색상. 포인터를 잡아 두어 원 밖으로 끌어도 계속 따라온다 */
-  const hueAt = (e: PointerEvent<HTMLDivElement>) => {
-    const r = e.currentTarget.getBoundingClientRect();
-    const dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2);
+  /* 색상환 — 누르거나 끌면 그 각도가 기준 색상. 원 밖으로 끌어도 각도만 보고 계속 따라온다 */
+  const hueAt = (x: number, y: number) => {
+    const el = wheelRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const dx = x - (r.left + r.width / 2), dy = y - (r.top + r.height / 2);
     setBase((b) => withHue(b, ((Math.atan2(dx, -dy) * 180) / Math.PI + 360) % 360));
   };
   const onWheelDown = (e: PointerEvent<HTMLDivElement>) => {
-    e.currentTarget.setPointerCapture(e.pointerId);
-    hueAt(e);
-  };
-  const onWheelMove = (e: PointerEvent<HTMLDivElement>) => {
-    if (e.currentTarget.hasPointerCapture(e.pointerId)) hueAt(e);
+    e.preventDefault();
+    hueAt(e.clientX, e.clientY);
+    const move = (ev: globalThis.PointerEvent) => hueAt(ev.clientX, ev.clientY);
+    const up = () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+      window.removeEventListener("pointercancel", up);
+    };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", up);
+    window.addEventListener("pointercancel", up);
   };
   // 키보드 — 좌우(상하) 화살표로 5°, Shift 를 누르면 30°
   const onWheelKey = (e: KeyboardEvent<HTMLDivElement>) => {
@@ -114,15 +128,11 @@ export default function ThemeSuggest({ accent, onApply }: { accent: string; onAp
     if (f) void readImage(f);
   };
 
-  const marker = (hue: number, color: string, isBase = false) => {
-    const rad = (hue * Math.PI) / 180;
-    return (
-      <span
-        className={`${styles.marker} ${isBase ? styles.markerBase : ""}`}
-        style={{ left: `${50 + MARKER_R * Math.sin(rad)}%`, top: `${50 - MARKER_R * Math.cos(rad)}%`, background: color }}
-      />
-    );
-  };
+  /** 규칙이 고른 색의 자리 (%) — 첫 번째가 기준 */
+  const points = hues.map((h, i) => {
+    const rad = (h * Math.PI) / 180, r = rule === "mono" ? MONO_R[i] : MARKER_R;
+    return { x: 50 + r * Math.sin(rad), y: 50 - r * Math.cos(rad), color: palette[i] };
+  });
 
   return (
     <div className={styles.suggest}>
@@ -137,9 +147,20 @@ export default function ThemeSuggest({ accent, onApply }: { accent: string; onAp
       </div>
 
       {tab === "wheel" ? (
+        <>
+        <div className={styles.ruleRow}>
+          <SegmentedControl
+            items={HARMONY_RULES.map((r) => ({ value: r, label: k(r) }))}
+            value={rule}
+            onChange={setRule}
+            variant="subtle"
+          />
+          <span className={styles.wheelHint}>{k(`${rule}Desc`)}</span>
+        </div>
         <div className={styles.suggestBody}>
           <div className={styles.wheelCol}>
             <div
+              ref={wheelRef}
               className={styles.wheel}
               style={{ background: WHEEL_BG }}
               role="slider"
@@ -147,17 +168,26 @@ export default function ThemeSuggest({ accent, onApply }: { accent: string; onAp
               aria-label={k("wheelLabel")}
               aria-valuemin={0}
               aria-valuemax={359}
-              aria-valuenow={Math.round(baseHue)}
-              aria-valuetext={`${Math.round(baseHue)}°`}
+              aria-valuenow={Math.round(hues[0])}
+              aria-valuetext={`${Math.round(hues[0])}°`}
               onPointerDown={onWheelDown}
-              onPointerMove={onWheelMove}
               onKeyDown={onWheelKey}
             >
-              {/* 보색 규칙 기준으로 기준·배경·글자 색상 위치를 보여 준다 */}
-              {marker(bgHue, formatHex({ mode: "oklch", l: 0.72, c: 0.14, h: bgHue }))}
-              {textHue !== bgHue && marker(textHue, formatHex({ mode: "oklch", l: 0.72, c: 0.14, h: textHue }))}
-              {marker(baseHue, base, true)}
+              {/* 가운데에서 각 색으로 뻗는 선 — 규칙이 색을 어떻게 고르는지 보인다 */}
+              <svg className={styles.wheelLines} viewBox="0 0 100 100" aria-hidden>
+                {points.map((p, i) => <line key={i} x1="50" y1="50" x2={p.x} y2={p.y} />)}
+              </svg>
+              {points.map((p, i) => (
+                <span
+                  key={i}
+                  className={`${styles.marker} ${i === 0 ? styles.markerBase : ""}`}
+                  style={{ left: `${p.x}%`, top: `${p.y}%`, background: p.color }}
+                />
+              ))}
             </div>
+            <span className={styles.palette} aria-hidden>
+              {palette.map((c, i) => <span key={i} style={{ background: c, flex: 1 }} />)}
+            </span>
             <span className={styles.wheelHint}>{k("wheelHint")}</span>
             {base !== accent && (
               <button type="button" className={styles.resetBtn} onClick={() => setBase(accent)}>
@@ -166,11 +196,12 @@ export default function ThemeSuggest({ accent, onApply }: { accent: string; onAp
             )}
           </div>
           <div className={styles.cards}>
-            {harmonies.map(({ rule, theme }) => (
-              <ThemeCard key={rule} theme={theme} name={k(rule)} desc={k(`${rule}Desc`)} onApply={apply} />
+            {harmonies.map((theme, i) => (
+              <ThemeCard key={i} theme={theme} name={`${k(rule)} ${i + 1}`} desc={theme.accentColor} onApply={apply} />
             ))}
           </div>
         </div>
+        </>
       ) : (
         <div className={styles.suggestBody}>
           <div className={styles.imageCol}>

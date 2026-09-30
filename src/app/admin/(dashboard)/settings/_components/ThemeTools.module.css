@@ -177,7 +177,7 @@
 
 .marker {
   position: absolute;
-  z-index: 1;
+  z-index: 2;
   width: 18px;
   height: 18px;
   margin: -9px 0 0 -9px;
@@ -207,6 +207,30 @@
 .resetBtn:hover {
   border-color: var(--text-accent);
   color: var(--text-accent);
+}
+
+/* 규칙 고르기 줄 — 세그먼트 + 규칙 설명 */
+.ruleRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-xs) var(--spacing-sm);
+}
+
+/* 가운데에서 각 색으로 뻗는 선 */
+.wheelLines {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.wheelLines line {
+  stroke: var(--color-white-alpha-100);
+  stroke-width: 0.8;
+  stroke-linecap: round;
 }
 
 .wheelHint {
@@ -308,6 +332,7 @@
 
 .palette {
   display: flex;
+  align-self: stretch;
   height: 20px;
   overflow: hidden;
   border-radius: var(--radius-capsule);
