@@ -52,7 +52,7 @@ export const THEME_PRESETS: ThemePreset[] = [
   // Reds
   {
     name: "Ruby",
-    theme: { accentColor: "#9d0208", lightBg: "#fbeaea", lightText: "#3b0a0a", darkBg: "#150404", darkText: "#f4c7c7" },
+    theme: { accentColor: "#9d0208", lightBg: "#fbeaea", lightText: "#3b0a0a", darkBg: "#150404", darkText: "#efe4d6" },
   },
   {
     name: "Meadow",
@@ -65,11 +65,11 @@ export const THEME_PRESETS: ThemePreset[] = [
   // Oranges · Yellows
   {
     name: "Azure",
-    theme: { accentColor: "#fd6b1d", lightBg: "#efefd0", lightText: "#004e89", darkBg: "#0a1a2e", darkText: "#f7c59f" },
+    theme: { accentColor: "#fd6b1d", lightBg: "#efefd0", lightText: "#004e89", darkBg: "#0a1a2e", darkText: "#efefd0" },
   },
   {
     name: "Sand",
-    theme: { accentColor: "#e0af9c", lightBg: "#efebce", lightText: "#3e3c28", darkBg: "#18170e", darkText: "#d6ce93" },
+    theme: { accentColor: "#e0af9c", lightBg: "#efebce", lightText: "#263340", darkBg: "#18170e", darkText: "#e6eef2" },
   },
   {
     name: "Harvest",
@@ -82,11 +82,11 @@ export const THEME_PRESETS: ThemePreset[] = [
   // Greens
   {
     name: "Forest",
-    theme: { accentColor: "#4d753d", lightBg: "#dad7cd", lightText: "#2a4035", darkBg: "#1a2e1f", darkText: "#b0be97" },
+    theme: { accentColor: "#4d753d", lightBg: "#dad7cd", lightText: "#2b2c28", darkBg: "#1a2e1f", darkText: "#e3ded2" },
   },
   {
     name: "Rosewood",
-    theme: { accentColor: "#57806d", lightBg: "#f8c7cc", lightText: "#0e0f19", darkBg: "#0e0f19", darkText: "#81a684" },
+    theme: { accentColor: "#57806d", lightBg: "#f8c7cc", lightText: "#0e0f19", darkBg: "#0e0f19", darkText: "#f4c7cc" },
   },
   {
     name: "Dusk",
@@ -95,20 +95,20 @@ export const THEME_PRESETS: ThemePreset[] = [
   // Blues
   {
     name: "Arctic",
-    theme: { accentColor: "#5aa7c3", lightBg: "#cae9ff", lightText: "#1b4965", darkBg: "#0c1e2e", darkText: "#bee9e8" },
+    theme: { accentColor: "#5aa7c3", lightBg: "#cae9ff", lightText: "#2a2320", darkBg: "#0c1e2e", darkText: "#f1ece4" },
   },
   {
     name: "Baltic",
-    theme: { accentColor: "#1c5d99", lightBg: "#ffffff", lightText: "#222222", darkBg: "#222222", darkText: "#bbcde5" },
+    theme: { accentColor: "#1c5d99", lightBg: "#ffffff", lightText: "#222222", darkBg: "#222222", darkText: "#e6e4df" },
   },
   {
     name: "Sorbet",
-    theme: { accentColor: "#7aabe9", lightBg: "#fcf5c7", lightText: "#2a4a5e", darkBg: "#0e1e2c", darkText: "#ffc09f" },
+    theme: { accentColor: "#7aabe9", lightBg: "#fcf5c7", lightText: "#3a2f2a", darkBg: "#0e1e2c", darkText: "#ffc09f" },
   },
   // Purples · Pinks
   {
     name: "Twilight",
-    theme: { accentColor: "#6d3fb0", lightBg: "#fbf3df", lightText: "#3a2560", darkBg: "#1b1330", darkText: "#f3d9a4" },
+    theme: { accentColor: "#6d3fb0", lightBg: "#fbf3df", lightText: "#2b2630", darkBg: "#1b1330", darkText: "#f3d9a4" },
   },
   {
     name: "Tropica",
@@ -116,12 +116,12 @@ export const THEME_PRESETS: ThemePreset[] = [
   },
   {
     name: "Petal",
-    theme: { accentColor: "#f8768d", lightBg: "#ffe5ec", lightText: "#5c1a30", darkBg: "#1a0810", darkText: "#ffc2d1" },
+    theme: { accentColor: "#f8768d", lightBg: "#ffe5ec", lightText: "#2e2427", darkBg: "#1a0810", darkText: "#f4ebdf" },
   },
   // Neutrals
   {
     name: "Slate",
-    theme: { accentColor: "#5c677d", lightBg: "#eef0f4", lightText: "#1f2533", darkBg: "#0e1118", darkText: "#cdd3df" },
+    theme: { accentColor: "#5c677d", lightBg: "#eef0f4", lightText: "#2a2521", darkBg: "#0e1118", darkText: "#e8e2d8" },
   },
 ];
 

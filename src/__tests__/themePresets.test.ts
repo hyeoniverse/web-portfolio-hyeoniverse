@@ -43,6 +43,12 @@ describe("THEME_PRESETS", () => {
     expect(ratio(readableAccent(theme.accentColor, theme.darkBg), theme.darkBg)).toBeGreaterThanOrEqual(MIN_TEXT_CONTRAST);
   });
 
+  it.each(presets)("$name — 강조 링크가 본문 글자와 구분된다 (라이트·다크 ΔE 30 이상)", ({ theme }) => {
+    // 같은 계열(초록 강조 + 연초록 글자)이면 링크가 본문처럼 보여 화면이 단조로워진다
+    expect(deltaE(readableAccent(theme.accentColor, theme.lightBg), theme.lightText)).toBeGreaterThanOrEqual(30);
+    expect(deltaE(readableAccent(theme.accentColor, theme.darkBg), theme.darkText)).toBeGreaterThanOrEqual(30);
+  });
+
   it("강조색끼리 겹치지 않는다", () => {
     const close: string[] = [];
     for (let i = 0; i < THEME_PRESETS.length; i++) {
