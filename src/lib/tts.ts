@@ -1,7 +1,7 @@
 import { MsEdgeTTS, OUTPUT_FORMAT } from "msedge-tts";
 import { getSecret } from "@/lib/getSecret";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { speechLangOf } from "@/lib/speech";
+import { speechLangOf, type SpeechLang } from "@/lib/speech";
 import { isDisabled, missingKey, providerErrorFrom, readHealth, readUsage, recordFailure, recordOk, toProviderError, ProviderError } from "@/lib/ai/health";
 import type { AiProvider } from "@/lib/ai/providers";
 import { TTS_PROVIDERS, edgeVoiceName, googleVoiceName, parseVoice, voiceOf, type ParsedVoice, type TtsProvider, type TtsVoice } from "@/lib/ttsVoices";
@@ -55,12 +55,11 @@ async function fishTts(text: string, { fishId }: ParsedVoice): Promise<Buffer> {
   return Buffer.from(await res.arrayBuffer());
 }
 
-async function googleTts(text: string, { gender }: ParsedVoice): Promise<Buffer> {
+async function googleTts(text: string, { gender }: ParsedVoice, lang: SpeechLang): Promise<Buffer> {
   const key = await getSecret("GOOGLE_TTS_API_KEY");
   if (!key) throw missingKey("google_tts", "GOOGLE_TTS_API_KEY");
   const bytes = Buffer.byteLength(text, "utf8");
   if ((await readGoogleUsage()) + bytes > GOOGLE_MONTHLY_BYTES) throw new TtsError("이번 달 상한에 닿았습니다");
-  const lang = speechLangOf(text);
   const res = await fetch("https://texttospeech.googleapis.com/v1/text:synthesize", {
     method: "POST",
     headers: { "Content-Type": "application/json", "x-goog-api-key": key },
@@ -76,10 +75,10 @@ async function googleTts(text: string, { gender }: ParsedVoice): Promise<Buffer>
   return Buffer.from(json.audioContent, "base64");
 }
 
-async function edgeTts(text: string, { gender }: ParsedVoice): Promise<Buffer> {
+async function edgeTts(text: string, { gender }: ParsedVoice, lang: SpeechLang): Promise<Buffer> {
   const tts = new MsEdgeTTS();
   try {
-    await tts.setMetadata(edgeVoiceName(gender, speechLangOf(text)), OUTPUT_FORMAT.AUDIO_24KHZ_96KBITRATE_MONO_MP3);
+    await tts.setMetadata(edgeVoiceName(gender, lang), OUTPUT_FORMAT.AUDIO_24KHZ_96KBITRATE_MONO_MP3);
     const { audioStream } = tts.toStream(text);
     const chunks: Buffer[] = [];
     for await (const chunk of audioStream) chunks.push(chunk as Buffer);
@@ -89,7 +88,7 @@ async function edgeTts(text: string, { gender }: ParsedVoice): Promise<Buffer> {
   }
 }
 
-const SYNTH: Record<TtsProvider, (text: string, voice: ParsedVoice) => Promise<Buffer>> = { fish: fishTts, google: googleTts, edge: edgeTts };
+const SYNTH: Record<TtsProvider, (text: string, voice: ParsedVoice, lang: SpeechLang) => Promise<Buffer>> = { fish: fishTts, google: googleTts, edge: edgeTts };
 const LABEL: Record<TtsProvider, string> = { fish: "Fish Audio", google: "Google", edge: "Edge" };
 /** 상태·사용량을 세는 공급자 이름 — Google 은 번역 키와 따로 센다 */
 const AI_ID: Record<TtsProvider, AiProvider> = { fish: "fish", google: "google_tts", edge: "edge" };
@@ -105,11 +104,13 @@ const unitsOf = (provider: TtsProvider, text: string) =>
 export async function synthesize(
   text: string,
   voice: TtsVoice,
-  { only, skip = [], fallback }: {
+  { only, skip = [], fallback, lang = speechLangOf(text) }: {
     only?: TtsProvider;
     skip?: TtsProvider[];
     /** 고른 제공자 다음에 시도할 순서(설정 › 서비스 › 슬라이드 음성). 없으면 기본 순서의 나머지 전부 */
     fallback?: TtsProvider[];
+    /** 대본 언어 — 읽을 말로 바꾸기 전의 표기로 정해 넘긴다(읽을 말에 한글이 섞여도 영어 대본은 영어로). 없으면 text 로 */
+    lang?: SpeechLang;
   } = {},
 ): Promise<{ audio: Buffer; provider: TtsProvider; voice: TtsVoice; skipped: string }> {
   const parsed = parseVoice(voice);
@@ -118,7 +119,7 @@ export async function synthesize(
   const rest = (fallback ?? TTS_PROVIDERS).filter((p) => p !== chosen);
   /* Fish 목소리 목록(lib/ttsVoices)은 모두 한국어 화자라 영어 대본을 한국어 억양으로 읽는다 — 영어 대본이면 건너뛰고
      언어에 맞춰 목소리를 고르는 Google·Edge(en-US)로 만든다 */
-  const english = speechLangOf(text) === "en-US";
+  const english = lang === "en-US";
   if (english && !only && chosen === "fish") reasons.push(`${LABEL.fish}: 한국어 목소리라 영어 대본은 건너뜁니다`);
   const order = (only ? [only] : [chosen, ...rest].filter((p) => !skip.includes(p)))
     .filter((p) => !(english && !only && p === "fish"));
@@ -131,7 +132,7 @@ export async function synthesize(
       continue;
     }
     try {
-      const audio = await SYNTH[provider](text, parsed);
+      const audio = await SYNTH[provider](text, parsed, lang);
       if (audio.length > 0) {
         await recordOk(id, unitsOf(provider, text));
         return { audio, provider, voice: voiceOf(provider, parsed), skipped: reasons.join(" · ") };

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type RefObject } from "react";
-import { speak, splitForSpeech, warmUpVoices } from "@/lib/speech";
+import { speak, speechLangOf, splitForSpeech, warmUpVoices } from "@/lib/speech";
 import { captionCues, cueAt } from "@/lib/captionCues";
 import { displayScript, spokenScript } from "@/lib/ttsLexicon";
 import { pcmToWav } from "@/lib/wav";
@@ -206,8 +206,9 @@ export function useGalleryNarration({
       audio.play().catch((e: unknown) => { if ((e as Error)?.name === "NotAllowedError") blocked(); });
     } else if (script) {
       /* 읽는 조각은 읽을 말이라, 자막은 같은 순번의 표기 조각을 띄운다(자리 지정은 문장을 가르지 않으므로 순번이 맞는다) */
-      const shown = splitForSpeech(displayScript(script));
-      stopSpeech = speak(spokenScript(script), advance, blocked, (text, n) => { if (!cancelled) setCaption({ index, text: shown[n] ?? text }); });
+      const shownScript = displayScript(script);
+      const shown = splitForSpeech(shownScript);
+      stopSpeech = speak(spokenScript(script), advance, blocked, (text, n) => { if (!cancelled) setCaption({ index, text: shown[n] ?? text }); }, speechLangOf(shownScript));
       if (!stopSpeech) timer = window.setTimeout(advance, SILENT_SLIDE_MS);
     } else {
       timer = window.setTimeout(advance, SILENT_SLIDE_MS);
