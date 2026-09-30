@@ -158,6 +158,8 @@
   border-radius: inherit;
   mix-blend-mode: difference;
   pointer-events: none;
+  /* Safari — 아래 글자 규칙의 설명 참고 */
+  transform: translateZ(0);
 }
 
 /* 첫 span 이 글자, 그 뒤가 아이콘이다. Get in touch 의 아이콘은 분홍 점이라 빼고,
@@ -166,6 +168,11 @@
 .cta .resumeBtn.resumeBtn > span {
   color: var(--text-white);
   mix-blend-mode: difference;
+  /* Safari 는 커피잔(WebGL 캔버스)을 따로 된 층으로 그리고, 그 위에 겹치는 CTA 내용도 따로 떼어
+     투명한 층에 그린다. 섞이는 요소가 그 투명한 층 안에서 섞이면 상대가 없어 흰 글자·흰 테두리가
+     그대로 남는다(흰 단추처럼 보인다). 섞이는 요소 자신을 층으로 올리면 Safari 가 층끼리 합칠 때
+     섞어서 페이지·잔과 제대로 반전된다. Chrome 은 원래도 그렇게 섞으므로 달라지지 않는다 */
+  transform: translateZ(0);
 }
 
 /* Button Indicator Dot */
