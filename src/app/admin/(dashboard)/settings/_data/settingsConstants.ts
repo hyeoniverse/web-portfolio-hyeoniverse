@@ -34,72 +34,91 @@ export interface ThemePreset {
 }
 
 /**
- * 기본 제공 테마 — 강조색이 서로 겹치지 않게 색상환을 고르게 나눴다 (강조색끼리 CIELAB ΔE 20 이상).
+ * 기본 제공 테마.
  *
- * 강조색은 선명한 그대로 둔다. 파스텔 강조색이 배경 위 글자로 쓰일 때 묻히는 문제는 프리셋 값이 아니라
- * ThemeProvider 가 --text-accent 를 배경 대비 4.5 가 되도록 명도만 옮겨 해결한다 (readableAccent).
- * 기본 텍스트는 라이트·다크 모두 배경 대비 7 이상 (themePresets.test.ts 가 검사).
+ * 강조색끼리 CIELAB ΔE 20 이상 떨어지게 둔다 — 예전엔 Arctic·Sorbet(7), Forest·Rosewood(9) 처럼
+ * 거의 같은 색이 있어서, 각 테마의 성격은 두고 강조색만 색상·명도를 조금씩 옮겼다.
+ * 강조색은 선명한 그대로 쓰고, 글자로 쓰일 때 묻히는 문제는 ThemeProvider 가 --text-accent 를
+ * 배경 대비 4.5 가 되도록 명도만 옮겨 해결한다 (readableAccent). 검사는 themePresets.test.ts.
  */
 export const THEME_PRESETS: ThemePreset[] = [
   {
     name: "Default",
     theme: { accentColor: "#d40063", lightBg: "#f5f5f0", lightText: "#1a1a1a", darkBg: "#0a0a0a", darkText: "#f5f5f0" },
   },
-  // Warm — 빨강·주황·모래·노랑
+  // Reds
   {
     name: "Meadow",
     theme: { accentColor: "#bc4749", lightBg: "#f2e8cf", lightText: "#2a4e30", darkBg: "#141f12", darkText: "#a7c957" },
   },
   {
+    name: "Coral",
+    theme: { accentColor: "#fe5f55", lightBg: "#eef5db", lightText: "#3d2a1a", darkBg: "#1a130c", darkText: "#c7efcf" },
+  },
+  // Oranges
+  {
     name: "Azure",
-    theme: { accentColor: "#ff6b35", lightBg: "#efefd0", lightText: "#004e89", darkBg: "#0a1a2e", darkText: "#f7c59f" },
+    theme: { accentColor: "#fd6b1d", lightBg: "#efefd0", lightText: "#004e89", darkBg: "#0a1a2e", darkText: "#f7c59f" },
   },
   {
     name: "Sand",
-    theme: { accentColor: "#d8a48f", lightBg: "#efebce", lightText: "#3e3c28", darkBg: "#18170e", darkText: "#d6ce93" },
+    theme: { accentColor: "#e0af9c", lightBg: "#efebce", lightText: "#3e3c28", darkBg: "#18170e", darkText: "#d6ce93" },
+  },
+  {
+    name: "Harvest",
+    theme: { accentColor: "#ce965c", lightBg: "#fefae0", lightText: "#283618", darkBg: "#1a1e0e", darkText: "#fefae0" },
   },
   {
     name: "Honey",
-    theme: { accentColor: "#f6bd60", lightBg: "#f7ede2", lightText: "#3d2e1e", darkBg: "#1c130e", darkText: "#f5cac3" },
+    theme: { accentColor: "#fbc45d", lightBg: "#f7ede2", lightText: "#3d2e1e", darkBg: "#1c130e", darkText: "#f5cac3" },
   },
-  // Green — 연두·숲·청록
-  {
-    name: "Lime",
-    theme: { accentColor: "#7cb518", lightBg: "#f4f7e6", lightText: "#243010", darkBg: "#11160a", darkText: "#dff0b8" },
-  },
+  // Greens
   {
     name: "Forest",
-    theme: { accentColor: "#588157", lightBg: "#dad7cd", lightText: "#2a4035", darkBg: "#1a2e1f", darkText: "#b0be97" },
+    theme: { accentColor: "#4d753d", lightBg: "#dad7cd", lightText: "#2a4035", darkBg: "#1a2e1f", darkText: "#b0be97" },
+  },
+  {
+    name: "Rosewood",
+    theme: { accentColor: "#57806d", lightBg: "#f8c7cc", lightText: "#0e0f19", darkBg: "#0e0f19", darkText: "#81a684" },
   },
   {
     name: "Dusk",
-    theme: { accentColor: "#2a9d8f", lightBg: "#ffe5d4", lightText: "#3d2b33", darkBg: "#101c16", darkText: "#efc7c2" },
+    theme: { accentColor: "#6abaa3", lightBg: "#ffe5d4", lightText: "#3d2b33", darkBg: "#101c16", darkText: "#efc7c2" },
   },
-  // Blue — 하늘·파랑·남색
+  // Blues
   {
     name: "Arctic",
-    theme: { accentColor: "#5fa8d3", lightBg: "#cae9ff", lightText: "#1b4965", darkBg: "#0c1e2e", darkText: "#bee9e8" },
+    theme: { accentColor: "#5aa7c3", lightBg: "#cae9ff", lightText: "#1b4965", darkBg: "#0c1e2e", darkText: "#bee9e8" },
   },
   {
     name: "Baltic",
     theme: { accentColor: "#1c5d99", lightBg: "#ffffff", lightText: "#222222", darkBg: "#222222", darkText: "#bbcde5" },
   },
   {
-    name: "Indigo",
-    theme: { accentColor: "#4f5de6", lightBg: "#eceefe", lightText: "#1e1f4a", darkBg: "#0e0f24", darkText: "#c9cbff" },
+    name: "Sorbet",
+    theme: { accentColor: "#7aabe9", lightBg: "#fcf5c7", lightText: "#2a4a5e", darkBg: "#0e1e2c", darkText: "#ffc09f" },
   },
-  // Purple · Pink — 보라·자주·분홍
+  // Pinks
   {
-    name: "Lavender",
-    theme: { accentColor: "#a06cd5", lightBg: "#f3ecfb", lightText: "#2e1f45", darkBg: "#150f1f", darkText: "#e2cff7" },
-  },
-  {
-    name: "Orchid",
-    theme: { accentColor: "#d946ef", lightBg: "#fdeefe", lightText: "#3d1240", darkBg: "#1a0a1c", darkText: "#f7c6fb" },
+    name: "Tropica",
+    theme: { accentColor: "#fa5ca4", lightBg: "#fce4d8", lightText: "#4a1530", darkBg: "#1a0a14", darkText: "#b5f8fe" },
   },
   {
     name: "Petal",
-    theme: { accentColor: "#fb6f92", lightBg: "#ffe5ec", lightText: "#5c1a30", darkBg: "#1a0810", darkText: "#ffc2d1" },
+    theme: { accentColor: "#f8768d", lightBg: "#ffe5ec", lightText: "#5c1a30", darkBg: "#1a0810", darkText: "#ffc2d1" },
+  },
+  // Neutrals · Purples
+  {
+    name: "Slate",
+    theme: { accentColor: "#5c677d", lightBg: "#eef0f4", lightText: "#1f2533", darkBg: "#0e1118", darkText: "#cdd3df" },
+  },
+  {
+    name: "Ruby",
+    theme: { accentColor: "#9d0208", lightBg: "#fbeaea", lightText: "#3b0a0a", darkBg: "#150404", darkText: "#f4c7c7" },
+  },
+  {
+    name: "Twilight",
+    theme: { accentColor: "#6d3fb0", lightBg: "#fbf3df", lightText: "#3a2560", darkBg: "#1b1330", darkText: "#f3d9a4" },
   },
 ];
 
