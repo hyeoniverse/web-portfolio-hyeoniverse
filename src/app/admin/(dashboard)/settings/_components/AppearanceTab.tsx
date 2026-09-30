@@ -20,6 +20,9 @@ import { THEME_PRESETS } from "../_data/settingsConstants";
 import styles from "./AppearanceTab.module.css";
 import shared from "../Settings.module.css";
 import Pressable from "@/components/ui/Pressable";
+import ThemeContrastReport from "./ThemeContrastReport";
+import ThemeSuggest from "./ThemeSuggest";
+import type { ThemeColors } from "@/lib/themeAudit";
 
 interface AppearanceTabProps extends SettingsTabProps {
   setConfig: Dispatch<SetStateAction<SiteConfigData>>;
@@ -32,6 +35,14 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
 
   const [addingThemePreset, setAddingThemePreset] = useState(false);
   const [newThemePresetName, setNewThemePresetName] = useState("");
+
+  /* 테마 색 한 벌 적용 — 프리셋 카드·추천 카드가 같이 쓴다. 로고 글자색도 테마 글자색으로 맞춘다 */
+  const applyTheme = (theme: ThemeColors) =>
+    setConfig((prev) => ({
+      ...prev,
+      theme: { ...prev.theme, ...theme },
+      brand: { ...prev.brand, logoColor: theme.lightText, logoColorDark: theme.darkText },
+    }));
 
   return (
     <>
@@ -76,17 +87,7 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
                   <div key={`${preset.name}-${idx}`} className={shared.presetCardWrap}>
                     <Pressable
                       className={`${shared.presetCard} ${matchesCurrent(preset) ? shared.presetCardActive : ""}`}
-                      onClick={() =>
-                        setConfig((prev) => ({
-                          ...prev,
-                          theme: { ...prev.theme, ...preset.theme },
-                          brand: {
-                            ...prev.brand,
-                            logoColor: preset.theme.lightText,
-                            logoColorDark: preset.theme.darkText,
-                          },
-                        }))
-                      }
+                      onClick={() => applyTheme(preset.theme)}
                     >
                       <div className={styles.presetSwatches}>
                         <span className={styles.presetSwatch} style={{ background: preset.theme.darkBg }} />
@@ -143,6 +144,8 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
             <ColorField label={t("admin.settings.darkText")} value={config.theme.darkText} onChange={(v) => update("theme", "darkText", v)} />
           </div>
         </div>
+        {/* 지금 색의 WCAG 대비 점검 — 프리셋으로 추가하기 전에 테마로 쓸 만한지 본다 */}
+        <ThemeContrastReport theme={config.theme} />
         {/* 테마 프리셋 이름 input row — 테마 색상 .fields 바깥 (아래) 에 배치 */}
         <PresetNameAddRow
           open={addingThemePreset}
@@ -172,6 +175,8 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
           }}
           t={t}
         />
+        {/* 색상환 조화 규칙 · 이미지에서 뽑은 색으로 테마 추천 */}
+        <ThemeSuggest accent={config.theme.accentColor} onApply={applyTheme} />
       </section>
 
       <BrandSection
