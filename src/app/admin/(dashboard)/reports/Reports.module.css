@@ -18,7 +18,7 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   font-weight: 600;
-  color: var(--text-white);
+  color: var(--text-on-accent);
 }
 
 /* 빈 상태(장식 원 포함)는 공통 <EmptyState circle> 로 이관됨 */

@@ -6,6 +6,7 @@ import {
   removeAccentAll,
   removeNeutralScale,
   removeTextAccent,
+  textOnAccent,
 } from "@/lib/themeColors";
 
 import {
@@ -38,6 +39,9 @@ interface ThemeContextType extends ThemeControls {
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+
+/** 기본 강조색의 다크 모드 값 — tokens/_color.css 의 다크 --color-accent 와 같은 색 */
+const DEFAULT_DARK_ACCENT = "#ff4da6";
 
 // siteConfig 기본값 — 변경이 없으면 CSS 토큰 유지 (오버라이드 안 함)
 const DEFAULTS = {
@@ -206,6 +210,16 @@ function applyThemeColors(
     } else {
       removeNeutralScale(root);
     }
+  }
+
+  // 강조색 면 위 글자 — 테마 팔레트 안에서 고른다(textOnAccent). 전부 기본값이면 CSS 토큰 그대로.
+  // 기본 강조색은 다크에서 토큰이 밝은 분홍으로 바뀌므로 그 값으로 잰다.
+  const custom = (Object.keys(DEFAULTS) as (keyof typeof DEFAULTS)[]).some((k) => colors[k] !== DEFAULTS[k]);
+  if (custom) {
+    const accent = colors.accentColor !== DEFAULTS.accentColor || theme === "light" ? colors.accentColor : DEFAULT_DARK_ACCENT;
+    root.style.setProperty("--text-on-accent", textOnAccent(colors, theme, accent));
+  } else {
+    root.style.removeProperty("--text-on-accent");
   }
 }
 

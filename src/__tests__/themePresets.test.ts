@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { THEME_PRESETS } from "@/app/admin/(dashboard)/settings/_data/settingsConstants";
-import { MIN_TEXT_CONTRAST, neutralScale, readableAccent } from "@/lib/themeColors";
+import { MIN_TEXT_CONTRAST, neutralScale, readableAccent, textOnAccent } from "@/lib/themeColors";
 import { contrastRatio } from "@/utils/contrast";
 import { hexToRgb } from "@/utils/color";
 
@@ -47,6 +47,12 @@ describe("THEME_PRESETS", () => {
     // 같은 계열(초록 강조 + 연초록 글자)이면 링크가 본문처럼 보여 화면이 단조로워진다
     expect(deltaE(readableAccent(theme.accentColor, theme.lightBg), theme.lightText)).toBeGreaterThanOrEqual(30);
     expect(deltaE(readableAccent(theme.accentColor, theme.darkBg), theme.darkText)).toBeGreaterThanOrEqual(30);
+  });
+
+  it.each(presets)("$name — 강조색 면 위 글자가 라이트·다크 모두 AA", ({ theme }) => {
+    for (const mode of ["light", "dark"] as const) {
+      expect(ratio(textOnAccent(theme, mode, theme.accentColor), theme.accentColor)).toBeGreaterThanOrEqual(MIN_TEXT_CONTRAST);
+    }
   });
 
   it("강조색끼리 겹치지 않는다", () => {

@@ -20,13 +20,12 @@ describe("auditTheme", () => {
     expect(a.modes[0].rows.find((r) => r.key === "body")!.status).toBe("fail");
   });
 
-  it("파스텔 강조색은 링크를 자동 보정한 것으로 표시하고, 흰 버튼 글자는 미달로 잡는다", () => {
+  it("파스텔 강조색은 링크를 자동 보정한 것으로 표시하고, 버튼 글자는 테마 글자색으로 읽힌다", () => {
     const a = auditTheme({ accentColor: "#fbc45d", lightBg: "#f7ede2", lightText: "#3d2e1e", darkBg: "#1c130e", darkText: "#f5cac3" });
     const light = a.modes[0].rows;
     expect(light.find((r) => r.key === "link")!.corrected).toBe(true);
     expect(light.find((r) => r.key === "link")!.status).toBe("pass");
-    expect(light.find((r) => r.key === "button")!.status).toBe("fail");
-    expect(a.verdict).toBe("caution");
+    expect(light.find((r) => r.key === "button")!.status).toBe("pass");
   });
 });
 

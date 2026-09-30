@@ -87,7 +87,7 @@
   height: 15px;
   border-radius: var(--radius-circle);
   background: var(--bg-accent-solid);
-  color: var(--text-white);
+  color: var(--text-on-accent);
   border: 1.5px solid var(--bg-primary);
 }
 
