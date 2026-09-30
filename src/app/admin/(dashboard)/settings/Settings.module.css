@@ -317,7 +317,8 @@
 }
 
 /* 직접 추가한 프리셋의 삭제 버튼 — 카드 안 오른쪽에 늘 보인다.
-   예전엔 모서리 밖 16px 원이 hover 때만 나타나서, 터치 화면에선 아예 안 보였고 마우스로도 찾기 어려웠다 */
+   예전엔 모서리 밖 16px 원이 hover 때만 나타나서, 터치 화면에선 아예 안 보였고 마우스로도 찾기 어려웠다.
+   hover 색은 강조색 — 빨강(error)은 되돌릴 수 없는 실패에만 아껴 쓴다 */
 .presetCardWrap:has(.presetCardRemove) > .presetCard {
   padding-right: calc(var(--control-h-xs) + var(--spacing-sm));
 }
@@ -345,9 +346,8 @@
 
 .presetCardRemove:hover,
 .presetCardRemove:focus-visible {
-  border-color: var(--text-error-strong);
-  background: var(--bg-error-soft);
-  color: var(--text-error-strong);
+  border-color: var(--text-accent);
+  color: var(--text-accent);
 }
 
 .presetName {
