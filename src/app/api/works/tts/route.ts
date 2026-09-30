@@ -5,7 +5,8 @@ import { jsonError, jsonServerError } from "@/lib/api/response";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 import { synthesize, TtsError } from "@/lib/tts";
-import { LEXICON_ROW, sanitizeLexicon, spokenScript } from "@/lib/ttsLexicon";
+import { LEXICON_ROW, displayScript, sanitizeLexicon, spokenScript } from "@/lib/ttsLexicon";
+import { speechLangOf } from "@/lib/speech";
 import { TTS_PROVIDERS, TTS_VOICES, isTtsVoice, type TtsProvider, type TtsVoice } from "@/lib/ttsVoices";
 
 /**
@@ -58,10 +59,12 @@ export async function POST(request: Request) {
   const { data: lexRow } = await admin.from("site_settings").select("config").eq("id", LEXICON_ROW).maybeSingle();
   /* 대본의 [표기|읽을 말] 자리 지정이 먼저, 나머지는 사전으로 */
   const spoken = spokenScript(text, sanitizeLexicon((lexRow?.config as { entries?: unknown } | null)?.entries));
+  /* 언어는 표기로 정한다 — 읽을 말에 한글이 들어가도 영어 대본이 한국어 목소리로 넘어가지 않게 */
+  const lang = speechLangOf(displayScript(text));
 
   let result: Awaited<ReturnType<typeof synthesize>>;
   try {
-    result = await synthesize(spoken, voice, { only, skip, fallback });
+    result = await synthesize(spoken, voice, { only, skip, fallback, lang });
   } catch (err) {
     const reason = err instanceof TtsError ? err.message : String(err);
     console.error("[POST /api/works/tts] synthesis failed:", reason);

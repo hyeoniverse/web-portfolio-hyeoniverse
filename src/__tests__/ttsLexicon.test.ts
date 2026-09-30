@@ -55,3 +55,12 @@ describe("displayScript / spokenScript", () => {
     expect(spokenScript("[ms|밀리세컨드] 와 ms", entries)).toBe("밀리세컨드 와 엠에스");
   });
 });
+
+describe("spokenScript — 영어 대본", () => {
+  it("읽을 말이 한글인 사전 항목은 영어 대본에 쓰지 않는다", async () => {
+    const { spokenScript } = await import("@/lib/ttsLexicon");
+    const entries = [{ from: "RLS", to: "알엘에스" }, { from: "?all=true", to: "all equals true" }];
+    expect(spokenScript("RLS guards ?all=true", entries)).toBe("RLS guards all equals true");
+    expect(spokenScript("RLS 로 막는다", entries)).toBe("알엘에스 로 막는다");
+  });
+});
