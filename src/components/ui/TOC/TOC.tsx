@@ -151,7 +151,12 @@ export default function TOC({
     };
 
     let lastCh = -1;
-    let starY = -1;
+    /* 부드럽게 따라가는 건 픽셀 위치가 아니라 읽는 자리(제목 번호 + 그 구간의 진행) — 장이 바뀌면 소제목이
+       접히고 펼쳐지며 목록 줄이 0.45초 동안 움직이는데, 예전처럼 별의 픽셀 위치를 쫓으면 움직이는 목표를
+       늦게 따라가며 앞뒤로 출렁였고 레일도 같이 꿀렁였다. 읽는 자리를 매 프레임 지금 줄 위치에 대입하면
+       별은 줄에 붙어 함께 움직인다 */
+    let idx = -1;
+    let lastT = 0;
     let raf = 0;
     let settleUntil = 0;
 
@@ -184,19 +189,25 @@ export default function TOC({
         });
       });
 
-      /* 마디 y — 소제목은 지금 장에서만 펼쳐져 있으므로 접힌 장의 소제목은 장 제목 자리로 */
+      /* 마디 y — 소제목의 실제 자리를 그 장의 보이는 높이 안으로 가둔다. 접히는 중이면 줄과 함께 올라가고,
+         다 접힌 장의 소제목은 장 제목 바로 아래에 모인다(예전엔 접힌 장이면 곧장 장 제목 자리로 뛰었다) */
+      const subY = (r: (typeof rows)[number], el: HTMLElement) =>
+        Math.max(mid(r.a), Math.min(mid(el), r.li.offsetTop + r.li.offsetHeight - el.offsetHeight / 2));
       const wp = (i: number) => {
-        const k = chapterOf[i];
-        const r = rows[k];
-        if (chapters[k].i === i) return mid(r.a);
+        const r = rows[chapterOf[i]];
         const s = r.subs.find((x) => x.i === i);
-        return k === ci && s ? mid(s.el) : mid(r.a);
+        return s ? subY(r, s.el) : mid(r.a);
       };
-      const y0 = wp(si);
-      const y1 = si + 1 < items.length ? wp(si + 1) : y0 + 20;
-      const target = y0 + (y1 - y0) * f;
-      starY = starY < 0 || reduce ? target : starY + (target - starY) * 0.2;
-      const yc = starY;
+      /* 읽는 자리를 시간 기준으로 따라간다(화면 주사율과 상관없이 같은 빠르기) */
+      const now = performance.now();
+      const dt = lastT ? Math.min(64, now - lastT) : 16;
+      lastT = now;
+      const want = si + f;
+      idx = idx < 0 || reduce ? want : idx + (want - idx) * (1 - Math.exp(-dt / 90));
+      const i0 = Math.min(items.length - 1, Math.floor(idx));
+      const y0 = wp(i0);
+      const y1 = i0 + 1 < items.length ? wp(i0 + 1) : y0 + 20;
+      const yc = y0 + (y1 - y0) * (idx - i0);
 
       rows.forEach((r, k) => {
         const ty = mid(r.a);
@@ -206,7 +217,7 @@ export default function TOC({
         r.node.classList.toggle(styles.past, k < ci);
         r.node.classList.toggle(styles.on, k === ci);
         r.subs.forEach((s) => {
-          const sy = k === ci ? mid(s.el) : ty;
+          const sy = subY(r, s.el);
           const sdx = bend(sy, yc);
           s.el.style.transform = `translateX(${sdx}px)`;
           s.node.style.transform = `translate(${sdx}px, ${sy}px)`;
@@ -238,7 +249,8 @@ export default function TOC({
       if (pct) pct.textContent = String(Math.round(p * 100));
       if (time && totalMin > 0) time.textContent = `${clock(p * totalMin)} / ${clock(totalMin)}`;
       if (reel) reel.style.transform = `translateY(${-ci * MARK_H}px)`;
-      return Math.abs(target - starY) > 0.3 || performance.now() < settleUntil;
+      if (Math.abs(want - idx) <= 0.002) lastT = 0;
+      return Math.abs(want - idx) > 0.002 || performance.now() < settleUntil;
     };
 
     const loop = () => { raf = paint() ? requestAnimationFrame(loop) : 0; };
