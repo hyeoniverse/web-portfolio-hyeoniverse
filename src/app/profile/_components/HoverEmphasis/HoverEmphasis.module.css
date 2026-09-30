@@ -23,7 +23,7 @@
 
 /* 지나간 행 — 맞춰진 글자는 accent 로 남는다. 커서가 떠나도 그대로다. */
 [data-emph-on] .ch {
-  color: var(--color-accent);
+  color: var(--text-accent);
 }
 
 /* 아직 안 맞춰진 글자. 흐리게 두어 제자리를 찾은 글자와 구분한다. */

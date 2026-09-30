@@ -705,7 +705,7 @@ textarea.edit {
   border-color: var(--text-primary);
 }
 .iconPickOn {
-  color: var(--color-accent);
+  color: var(--text-accent);
   border-color: var(--color-accent);
 }
 
@@ -825,7 +825,7 @@ textarea.edit {
   font-family: var(--font-instrument);
   font-size: var(--font-size-3xl);
   font-weight: 400;
-  color: var(--color-accent);
+  color: var(--text-accent);
   opacity: 0.55;
   touch-action: none;
   cursor: grab;

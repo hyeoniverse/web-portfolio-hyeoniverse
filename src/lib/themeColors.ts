@@ -1,4 +1,5 @@
 import { hexToRgb, lerpRgb, rgbHex, type Rgb } from "@/utils/color";
+import { clampChroma, converter, formatHex } from "culori";
 import { contrastRatio } from "@/utils/contrast";
 
 /* =============================================================================
@@ -6,11 +7,12 @@ import { contrastRatio } from "@/utils/contrast";
  * =============================================================================
  * ThemeProvider(실제 사이트)와 디자인 시스템 페이지의 프리셋 미리보기가 같은 규칙을 쓴다.
  *
- * 글자로 쓰이는 두 값은 대비를 보장한다 (WCAG AA 4.5).
- * - 흐린 글자(--text-muted) 는 배경과 기본 텍스트를 섞어 만드는데, 고정 비율로 섞으면
- *   기본 텍스트 대비가 낮은 테마에서 4.5 아래로 떨어진다. 필요한 만큼 텍스트 쪽으로 당긴다.
- * - 강조색은 라이트·다크에 같은 값을 쓰는데, 라이트 배경에 맞춘 진한 강조색은 다크 배경에서
- *   묻힌다. 기본 테마가 다크에서 밝은 분홍으로 바꾸듯, 다크에서는 대비가 설 때까지 밝힌다.
+ * 강조색 자체(--color-accent)는 고른 그대로 둔다 — 버튼·배지·하이라이트의 색감이 테마의 얼굴이라서.
+ * 대신 글자로 쓰이는 두 값만 대비를 보장한다 (WCAG AA 4.5).
+ * - 강조 글자(--text-accent): 파스텔 강조색은 밝은 배경에서, 진한 강조색은 어두운 배경에서 묻힌다.
+ *   색상·채도는 그대로 두고 OKLCH 명도만 배경 반대쪽으로 옮겨 대비를 맞춘다.
+ * - 흐린 글자(--text-muted): 배경과 기본 텍스트를 고정 비율로 섞으면 기본 텍스트 대비가 낮은
+ *   테마에서 4.5 아래로 떨어진다. 필요한 만큼 텍스트 쪽으로 당긴다.
  * =========================================================================== */
 
 /** 글자 최소 대비 — WCAG AA 본문 */
@@ -61,15 +63,35 @@ export function neutralScale(bgHex: string, textHex: string): Record<number, str
   return out;
 }
 
-/** 강조색을 bg 위에서 읽히게 — 대비가 모자라면 bg 반대쪽(어두운 bg 면 흰색)으로 섞는다. */
+const toOklch = converter("oklch");
+
+/**
+ * 강조색을 bg 위에서 글자로 읽히게 — 대비가 모자라면 색상·채도는 두고 명도만
+ * bg 반대쪽(어두운 bg 면 밝게)으로 옮긴다. 이미 충분하면 그대로.
+ */
 export function readableAccent(accentHex: string, bgHex: string, min = MIN_TEXT_CONTRAST): string {
-  const accent = hexToRgb(accentHex);
-  const bg = hexToRgb(bgHex);
-  if (!accent || !bg) return accentHex;
   if ((contrastRatio(accentHex, bgHex) ?? 0) >= min) return accentHex;
+  const base = toOklch(accentHex);
+  if (!base) return accentHex;
   const bgIsDark = (contrastRatio(bgHex, "#000000") ?? 21) < (contrastRatio(bgHex, "#ffffff") ?? 21);
-  const target = bgIsDark ? WHITE : BLACK;
-  return rgbHex(lerpRgb(accent, target, readableT(accent, target, bgHex, min)));
+  const step = bgIsDark ? 0.01 : -0.01;
+  for (let l = base.l + step; l > 0 && l < 1; l += step) {
+    const hex = formatHex(clampChroma({ ...base, l }, "oklch"));
+    if ((contrastRatio(hex, bgHex) ?? 0) >= min) return hex;
+  }
+  return bgIsDark ? "#ffffff" : "#000000";
+}
+
+/** 강조 글자 — 고른 강조색을 현재 배경 위에서 읽히게 맞춘 값 */
+export function applyTextAccent(root: HTMLElement, accentHex: string, bgHex: string) {
+  const hex = readableAccent(accentHex, bgHex);
+  root.style.setProperty("--text-accent", hex);
+  root.style.setProperty("--text-accent-alt", hex);
+}
+
+export function removeTextAccent(root: HTMLElement) {
+  root.style.removeProperty("--text-accent");
+  root.style.removeProperty("--text-accent-alt");
 }
 
 /** accent 관련 CSS 변수를 모두 세팅 (alpha, dark, light 포함) */
@@ -132,7 +154,10 @@ export function removeNeutralScale(root: HTMLElement) {
 
 /** presetHelpers 가 스냅샷·복원할 변수 이름 전부 */
 export function themeVarKeys(): string[] {
-  const keys = ["--color-accent", "--color-accent-dark", "--color-accent-light", "--bg-primary", "--text-primary"];
+  const keys = [
+    "--color-accent", "--color-accent-dark", "--color-accent-light",
+    "--text-accent", "--text-accent-alt", "--bg-primary", "--text-primary",
+  ];
   for (const a of ACCENT_ALPHAS) keys.push(`--color-accent-alpha-${a}`);
   for (const a of ACCENT_LIGHT_ALPHAS) keys.push(`--color-accent-light-alpha-${a}`);
   for (const n of NEUTRAL_STOPS) keys.push(`--color-neutral-${n}`);

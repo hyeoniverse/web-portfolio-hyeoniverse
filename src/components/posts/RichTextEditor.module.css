@@ -1573,7 +1573,7 @@
 .tblRowSelect:hover,
 .tblColSelect:hover,
 .tblAllSelect:hover {
-  color: var(--color-accent);
+  color: var(--text-accent);
   background: var(--bg-accent-light);
   border-color: var(--color-accent);
 }
@@ -2087,7 +2087,7 @@
 .findField .findToggleOn,
 .findField .findToggleOn:hover {
   background: var(--color-accent-alpha-10);
-  color: var(--color-accent);
+  color: var(--text-accent);
 }
 
 .findCount {
