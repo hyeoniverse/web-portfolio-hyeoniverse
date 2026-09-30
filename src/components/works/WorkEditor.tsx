@@ -881,7 +881,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   const langNotes: GalleryNotes = useMemo(() => notesForLang(form.gallery_notes, editorLang), [form.gallery_notes, editorLang]);
 
   /* 슬라이드 음성 — 칸마다의 음성 단추와 제목 줄의 "음성 만들기"가 목소리·진행 상태를 같이 쓴다 */
-  const narration = useNarrationActions({ gallery: form.gallery, notes: langNotes, update: updateGalleryNote, tw });
+  const narration = useNarrationActions({ gallery: form.gallery, notes: langNotes, update: updateGalleryNote, tw, lang: editorLang });
   /* 작업대 위에 연 장 — 고른 적이 없으면 첫 장 */
   const narrationCurrent = narration.openIndex >= 0 ? narration.openIndex : 0;
   /* 갤러리를 고치지 못하는 동안 — PDF 를 들이는 중이거나 음성을 만드는 중. 만드는 중에 장을 빼거나 옮기면

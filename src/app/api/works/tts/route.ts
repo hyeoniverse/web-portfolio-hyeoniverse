@@ -5,7 +5,7 @@ import { jsonError, jsonServerError } from "@/lib/api/response";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 import { synthesize, TtsError } from "@/lib/tts";
-import { LEXICON_ROW, displayScript, sanitizeLexicon, spokenScript } from "@/lib/ttsLexicon";
+import { LEXICON_ROW, displayScript, isLexiconLang, lexiconOf, spokenScript, type LexiconConfig } from "@/lib/ttsLexicon";
 import { speechLangOf } from "@/lib/speech";
 import { TTS_PROVIDERS, TTS_VOICES, isTtsVoice, type TtsProvider, type TtsVoice } from "@/lib/ttsVoices";
 
@@ -20,6 +20,9 @@ import { TTS_PROVIDERS, TTS_VOICES, isTtsVoice, type TtsProvider, type TtsVoice 
  * 전에는 Gemini TTS 하나였는데, 키가 든 Google Cloud 프로젝트의 무료 체험이 끝나자 403(PERMISSION_DENIED)으로
  * 막혔고 이 라우트가 그 이유를 버리고 502 만 돌려줘 원인이 화면에 드러나지 않았다(2026-09-29).
  * 그래서 실패하면 제공자마다의 원인을 reason 으로 함께 돌려준다.
+ *
+ * lang(ko|en)은 편집 화면의 KO/EN 이다. 그 언어의 목소리로 만들고(Fish 는 그 언어의 화자, lib/ttsVoices) 그 언어의 사전을 쓴다.
+ * 보내지 않으면 대본 표기로 정한다(한글이 있으면 한국어).
  *
  * 보내기 전에 대본의 [표기|읽을 말] 자리 지정과 읽기 사전(lib/ttsLexicon)으로 읽을 말을 정한다 — 자막은 표기 그대로다.
  *
@@ -42,6 +45,8 @@ export async function POST(request: Request) {
   const pick = (v: unknown) => ((TTS_PROVIDERS as readonly string[]).includes(v as string) ? (v as TtsProvider) : undefined);
   const only = pick(body?.provider);
   const skip = Array.isArray(body?.skip) ? body.skip.map(pick).filter((p: TtsProvider | undefined): p is TtsProvider => !!p) : [];
+  const noteLang = isLexiconLang(body?.lang) ? body.lang : speechLangOf(displayScript(text)) === "en-US" ? "en" : "ko";
+  const lang = noteLang === "en" ? "en-US" : "ko-KR";
   if (!text) return jsonError("Script is empty", 400, { code: "TTS_EMPTY" });
   if (text.length > MAX_CHARS) {
     return jsonError("Script is too long", 400, { code: "TTS_TOO_LONG", params: { max: MAX_CHARS } });
@@ -57,10 +62,8 @@ export async function POST(request: Request) {
 
   const admin = createAdminClient();
   const { data: lexRow } = await admin.from("site_settings").select("config").eq("id", LEXICON_ROW).maybeSingle();
-  /* 대본의 [표기|읽을 말] 자리 지정이 먼저, 나머지는 사전으로 */
-  const spoken = spokenScript(text, sanitizeLexicon((lexRow?.config as { entries?: unknown } | null)?.entries));
-  /* 언어는 표기로 정한다 — 읽을 말에 한글이 들어가도 영어 대본이 한국어 목소리로 넘어가지 않게 */
-  const lang = speechLangOf(displayScript(text));
+  /* 대본의 [표기|읽을 말] 자리 지정이 먼저, 나머지는 대본 언어의 사전으로 */
+  const spoken = spokenScript(text, lexiconOf(lexRow?.config as LexiconConfig | null, noteLang));
 
   let result: Awaited<ReturnType<typeof synthesize>>;
   try {

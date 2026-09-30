@@ -7,6 +7,7 @@
  * - 목록은 글자로만 보이고, 줄을 누르면 그 자리에서 고친다(Enter 확인 · Esc 취소).
  * - 추가·수정·삭제는 곧바로 저장한다(/api/works/tts/lexicon). 저장이 실패하면 바꾸기 전으로 돌린다.
  * - 여러 줄 붙여넣기는 자리를 덜 차지하게 접어 둔다.
+ * - 사전은 대본 언어(한국어·영어)마다 따로다. 위의 KO/EN 으로 고칠 사전을 바꾼다.
  */
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { ArrowRight, Check, ClipboardPaste, Pencil, Plus, Trash2, X } from "@/components/icons";
@@ -16,6 +17,7 @@ import Textarea from "@/components/ui/Textarea";
 import Button from "@/components/ui/Button";
 import Pressable from "@/components/ui/Pressable";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
+import SegmentedControl from "@/components/ui/SegmentedControl";
 import { SkeletonLine } from "@/components/ui/Skeleton";
 import { showToast } from "@/stores/toastStore";
 import { sendAction, tryRequest } from "@/lib/sendAction";
@@ -28,17 +30,21 @@ import {
   parseLexiconLines,
   sanitizeLexicon,
   type LexiconEntry,
+  type LexiconLang,
 } from "@/lib/ttsLexicon";
 import styles from "./LexiconEditor.module.css";
 
-export default function LexiconEditor({ compact = false, footer }: {
+export default function LexiconEditor({ compact = false, initialLang = "ko", footer }: {
   /** 창 안에서 쓸 때 — 목록 높이를 줄이고 검색을 빼지 않는다 */
   compact?: boolean;
+  /** 처음 열 사전 — 갤러리 음성 편집은 편집 언어로 연다 */
+  initialLang?: LexiconLang;
   /** 맨 아래 한 줄(창의 "설정에서 관리" 바로가기 등) */
   footer?: ReactNode;
 }) {
   const { t } = useLanguage();
   const tl = (key: string) => t(`admin.settings.lexicon.${key}`);
+  const [lang, setLang] = useState<LexiconLang>(initialLang);
   const [entries, setEntries] = useState<LexiconEntry[] | null>(null);
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
@@ -51,12 +57,12 @@ export default function LexiconEditor({ compact = false, footer }: {
 
   useEffect(() => {
     let alive = true;
-    void tryRequest("/api/works/tts/lexicon", { method: "GET" }).then(async (res) => {
+    void tryRequest(`/api/works/tts/lexicon?lang=${lang}`, { method: "GET" }).then(async (res) => {
       const data = res instanceof Response ? await res.json().catch(() => ({})) : {};
       if (alive) setEntries(sanitizeLexicon(data?.entries));
     });
     return () => { alive = false; };
-  }, []);
+  }, [lang]);
 
   /** 바로 저장한다 — 화면은 먼저 바꾸고, 실패하면 앞의 목록으로 돌린다 */
   const commit = async (next: LexiconEntry[], done?: string) => {
@@ -67,7 +73,7 @@ export default function LexiconEditor({ compact = false, footer }: {
     const res = await sendAction("/api/works/tts/lexicon", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ entries: clean }),
+      body: JSON.stringify({ lang, entries: clean }),
     }, t, tl("saveFailed"));
     setBusy(false);
     if (!res) { setEntries(prev); return false; }
@@ -116,11 +122,25 @@ export default function LexiconEditor({ compact = false, footer }: {
 
   return (
     <div className={styles.editor} data-compact={compact ? "" : undefined}>
+      {/* 고칠 사전 — 대본 언어마다 따로 */}
+      <SegmentedControl<LexiconLang>
+        size="sm"
+        items={[{ value: "ko", label: tl("langKo") }, { value: "en", label: tl("langEn") }]}
+        value={lang}
+        onChange={(v) => {
+          if (busy || v === lang) return;
+          /* 다른 사전을 불러오는 동안은 비워 둔다(불러오는 모양) — 앞 사전의 목록을 고치지 않게 */
+          setEntries(null);
+          setEditing(null);
+          setLang(v);
+        }}
+        className={styles.langSwitch}
+      />
       {/* 빠른 추가 — 테두리 하나로 묶은 입력 막대(검색창과 같은 높이). 표기 · 읽을 말 · 추가 */}
       <div className={styles.addBar}>
         <Input inputRef={fromRef} value={from} onChange={(v) => setFrom(v.slice(0, LEXICON_FROM_MAX))} onKeyDown={onAddKey} placeholder={tl("fromPlaceholder")} aria-label={tl("from")} clearable={false} className={`${styles.barField} ${styles.fromField}`} />
         <ArrowRight size={14} strokeWidth={2} className={styles.arrow} aria-hidden />
-        <Input value={to} onChange={(v) => setTo(v.slice(0, LEXICON_TO_MAX))} onKeyDown={onAddKey} placeholder={tl("toPlaceholder")} aria-label={tl("to")} clearable={false} className={styles.barField} />
+        <Input value={to} onChange={(v) => setTo(v.slice(0, LEXICON_TO_MAX))} onKeyDown={onAddKey} placeholder={tl(lang === "en" ? "toPlaceholderEn" : "toPlaceholder")} aria-label={tl("to")} clearable={false} className={styles.barField} />
         <Button variant="primary" size="xs" shape="capsule" className={styles.addButton} onClick={() => void add()} disabled={!canAdd} soundDisabled icon={<Plus size={12} strokeWidth={2.2} />}>
           {tl(exists ? "update" : "add")}
         </Button>
