@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from "vitest";
 import { formatRelativeTime } from "@/utils/relativeTime";
 import { mulberry32 } from "@/utils/seededRandom";

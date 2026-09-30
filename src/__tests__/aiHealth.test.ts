@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, expect, it } from "vitest";
 import { classifyFailure, isDisabled, toProviderError } from "@/lib/ai/health";
 import { failuresOf } from "@/lib/ai/notifyFailures";

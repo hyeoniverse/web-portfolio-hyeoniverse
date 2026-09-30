@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from "vitest";
 import { loadPanelFiles } from "@/lib/about/loadPanelFiles";
 import { securityPanel, processPanel } from "@/lib/about/panelMarkdown";

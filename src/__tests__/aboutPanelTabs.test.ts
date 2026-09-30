@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from "vitest";
 import { desktopPanels, mobileTabPanels } from "@/app/about/_config/panelConfig";
 

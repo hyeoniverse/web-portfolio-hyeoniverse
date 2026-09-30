@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from "vitest";
 import { THEME_PRESETS } from "@/app/admin/(dashboard)/settings/_data/settingsConstants";
 import { MIN_TEXT_CONTRAST, neutralScale, readableAccent, textOnAccent } from "@/lib/themeColors";

@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from "vitest";
 import { mergeErd, describeImport } from "@/app/admin/(dashboard)/settings/_components/about/mergeErd";
 import type { ErdTable, ErdRelation } from "@/data/about/types";

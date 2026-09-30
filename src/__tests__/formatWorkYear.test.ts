@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from "vitest";
 import { formatWorkYear, parseStoredPeriod } from "@/utils/formatWorkYear";
 import { parseYearAsPeriod, serializePeriodAsYear } from "@/components/works/workEditor/periodFormat";
