@@ -12,6 +12,7 @@ import Button from "@/components/ui/Button";
 import { SkeletonLine } from "@/components/ui/Skeleton";
 import { sendAction } from "@/lib/sendAction";
 import { fillTemplate } from "@/utils/format";
+import { highlightCode } from "@/utils/prismHighlight";
 import {
   AI_PROVIDERS,
   AI_PROVIDER_INFO,
@@ -26,6 +27,19 @@ import settings from "../Settings.module.css";
 import styles from "./AiHealthPanel.module.css";
 
 const DAY = 24 * 60 * 60 * 1000;
+
+/** 공급자가 돌려준 원문을 읽기 좋게 — "400 {json}" 이면 상태 코드 한 줄 + 들여쓴 JSON 으로 펴고 JSON 색을 입힌다.
+ *  JSON 이 아니면 그대로 둔다. Prism 이 HTML 을 이스케이프하므로 원문에 태그가 섞여도 그대로 글자로 보인다 */
+function formatProviderMessage(message: string): string {
+  const m = /^(\d{3})\s+([[{][\s\S]*)$/.exec(message.trim());
+  const [status, body] = m ? [m[1], m[2]] : ["", message.trim()];
+  try {
+    const pretty = JSON.stringify(JSON.parse(body), null, 2);
+    return highlightCode(status ? `${status}\n${pretty}` : pretty, "json").html;
+  } catch {
+    return highlightCode(message, "text").html;
+  }
+}
 
 /* 비슷한 공급자끼리 — 글을 다루는 AI(Gemini·OpenAI·Claude)는 번역과 요약을 같은 키로 해서 한데 둔다 */
 const GROUPS: { id: string; providers: AiProvider[] }[] = [
@@ -138,7 +152,7 @@ export default function AiHealthPanel({ health }: { health: ReturnType<typeof us
                             <strong>{th(`kind.${kind}`)}</strong> {th(`fix.${kind}`)}
                             {off && ` ${th(FATAL_KINDS.has(kind) ? "offManual" : kind === "quota" ? "offMonth" : "offHour")}`}
                           </p>
-                          {h?.message && <p className={styles.message}><span>{when(h.at)}</span> <code>{h.message}</code></p>}
+                          {h?.message && <div className={styles.message}><span>{when(h.at)}</span> <pre className={styles.raw}><code dangerouslySetInnerHTML={{ __html: formatProviderMessage(h.message) }} /></pre></div>}
                         </div>
                       )}
 
