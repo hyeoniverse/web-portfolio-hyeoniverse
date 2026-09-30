@@ -64,7 +64,7 @@ export default function FeedbackDisplayDemos() {
 
   return (
     <>
-        <h3 className={styles.componentCategory}>Feedback & Display</h3>
+        <h3 id="components-feedback" className={styles.componentCategory}>Feedback & Display</h3>
 
         {/* Toast */}
         <DemoGroup title="Toast">

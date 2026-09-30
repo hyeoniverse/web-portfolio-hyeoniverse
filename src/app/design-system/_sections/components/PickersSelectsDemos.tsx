@@ -55,7 +55,7 @@ export default function PickersSelectsDemos() {
 
   return (
     <>
-        <h3 className={styles.componentCategory}>Pickers & Selects</h3>
+        <h3 id="components-pickers" className={styles.componentCategory}>Pickers & Selects</h3>
 
         {/* Select */}
         <DemoGroup title="Select">

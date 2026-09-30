@@ -47,6 +47,12 @@ const SpinningTorus = dynamic(
 import styles from "./DesignSystem.module.css";
 
 
+/** 목차 항목 — 구역은 1단계, 그 아래 소제목은 2단계. 화면에서 바뀔 일이 없어 한 번만 만든다. */
+const tocItems = tocSections.flatMap((s) => [
+  { id: s.id, text: s.label, level: 1 },
+  ...(s.subs ?? []).map((sub) => ({ id: sub.id, text: sub.label, level: 2 })),
+]);
+
 export default function DesignSystemClient() {
   const router = useRouter();
   const { theme } = useTheme();
@@ -138,7 +144,7 @@ export default function DesignSystemClient() {
   return (
     <div className={styles.page}>
       {/* ─── TOC Sidebar ─── */}
-      <TOC items={tocSections.map((s) => ({ id: s.id, text: s.label }))} position="left" />
+      <TOC items={tocItems} position="left" />
 
       {/* ─── Main Content ─── */}
       <div className={`${styles.main} ${ready ? "" : styles.notReady}`}>
@@ -167,6 +173,7 @@ export default function DesignSystemClient() {
             {/* Principle items — SVG + text rows */}
             {[
               {
+                id: "principles-tiers",
                 title: "3-Tier Abstraction",
                 desc: language === "ko"
                   ? "원시 값을 직접 쓰지 않고 Raw → Semantic → Component 세 단계로 감싸기 때문에, 어디를 바꿔도 영향 범위가 그 계층 안에서 통제됩니다. Component 토큰은 button·badge·row 처럼 컴포넌트마다 타입이 정해져 있어서, 엉뚱한 값을 골라 일관성이 깨지는 실수를 막아 줍니다."
@@ -194,6 +201,7 @@ export default function DesignSystemClient() {
                 ),
               },
               {
+                id: "principles-ssot",
                 title: "Single Source of Truth",
                 desc: language === "ko"
                   ? "토큰 하나를 바꾸면 모든 참조가 함께 바뀝니다. hex 값이 코드베이스에 흩어지지 않습니다."
@@ -212,6 +220,7 @@ export default function DesignSystemClient() {
                 ),
               },
               {
+                id: "principles-theme",
                 title: language === "ko" ? "Semantic 레이어에서 테마 전환" : "Theme at the Semantic Layer",
                 desc: language === "ko"
                   ? "Semantic 변수만 재정의하면 dark/light 전환이 모든 컴포넌트에 자동 반영됩니다."
@@ -230,6 +239,7 @@ export default function DesignSystemClient() {
                 ),
               },
               {
+                id: "principles-no-raw",
                 title: language === "ko" ? "컴포넌트에 raw 값 금지" : "No Raw Values in Components",
                 desc: language === "ko"
                   ? "#hex 나 rgba 를 직접 쓰지 않고 반드시 토큰을 거쳐 참조합니다. 그래서 모든 시각적 결정을 토큰 단위로 되짚어 추적할 수 있습니다."
@@ -253,7 +263,7 @@ export default function DesignSystemClient() {
               <motion.div key={i} className={styles.pRow} initial="hidden" {...vp(nd())} variants={staggerItem}>
                 <div className={styles.pRowVisual}>{p.icon}</div>
                 <div className={styles.pRowText}>
-                  <h3 className={styles.pRowTitle}>{p.title}</h3>
+                  <h3 id={p.id} className={styles.pRowTitle}>{p.title}</h3>
                   <p className={styles.pRowDesc}>{p.desc}</p>
                 </div>
               </motion.div>
@@ -537,7 +547,7 @@ export default function DesignSystemClient() {
               </div>
               <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "var(--spacing-sm)" }}>
                 <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.25em", color: "var(--text-muted)", textTransform: "uppercase" }}>CTA Section</span>
-                <h3 style={{ fontSize: 24, fontFamily: "var(--font-instrument)", fontWeight: 400, margin: 0 }}>Coffee Cup</h3>
+                <h3 id="threejs-coffee" style={{ fontSize: 24, fontFamily: "var(--font-instrument)", fontWeight: 400, margin: 0 }}>Coffee Cup</h3>
                 <p style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.7, margin: 0 }}>
                   {language === "ko"
                     ? "컵과 소서는 LatheGeometry, 손잡이는 TorusGeometry, 액면은 CylinderGeometry 로 만듭니다. Canvas 2D 로 parametric heart curve 와 80-band cream↔coffee wave, blur 엽맥 라떼아트 텍스처를 생성해 MeshPhysicalMaterial 에 매핑합니다. 마우스를 따라 lerp 로 부드럽게 회전합니다."
@@ -565,7 +575,7 @@ export default function DesignSystemClient() {
               </div>
               <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "var(--spacing-sm)" }}>
                 <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.25em", color: "var(--text-muted)", textTransform: "uppercase" }}>Hero Section</span>
-                <h3 style={{ fontSize: 24, fontFamily: "var(--font-instrument)", fontWeight: 400, margin: 0 }}>Scroll Torus</h3>
+                <h3 id="threejs-torus" style={{ fontSize: 24, fontFamily: "var(--font-instrument)", fontWeight: 400, margin: 0 }}>Scroll Torus</h3>
                 <p style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.7, margin: 0 }}>
                   {language === "ko"
                     ? "누적 스크롤을 따라 리사주 곡선(X·Y·Z 주파수 차이) 경로를 끝없이 순환하는 메탈릭 토러스입니다. 테마에 따라 색상과 emissive 가 바뀌고, 커서가 가까우면 자석처럼 끌리고 멀면 반발하는 물리 인터랙션이 동작합니다."
@@ -593,7 +603,7 @@ export default function DesignSystemClient() {
               </div>
               <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "var(--spacing-sm)" }}>
                 <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.25em", color: "var(--text-muted)", textTransform: "uppercase" }}>Profile Section</span>
-                <h3 style={{ fontSize: 24, fontFamily: "var(--font-instrument)", fontWeight: 400, margin: 0 }}>Bunny Character</h3>
+                <h3 id="threejs-bunny" style={{ fontSize: 24, fontFamily: "var(--font-instrument)", fontWeight: 400, margin: 0 }}>Bunny Character</h3>
                 <p style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.7, margin: 0 }}>
                   {language === "ko"
                     ? "몸·귀·팔·발은 LatheGeometry, 머리·눈·꼬리는 SphereGeometry, 찡그린 눈은 CapsuleGeometry 로 조합한 마스코트입니다. 자동으로 눈을 깜빡이고, 클릭하면 놀람·기쁨 표정으로 전환됩니다. RAF 물리 기반으로 벽에 부딪혀 튕기며 이동하고, 충돌 시 사운드가 재생됩니다."
@@ -621,7 +631,7 @@ export default function DesignSystemClient() {
           <section id="tooltip" ref={setSectionRef("tooltip")} className={styles.section}>
             <SectionHeader title="Tooltip" />
             <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-              <div className={styles.componentGroupTitle}>Basic</div>
+              <div id="tooltip-basic" className={styles.componentGroupTitle}>Basic</div>
               <div className={styles.componentRow}>
                 <motion.div variants={staggerItemX} {...scrollChildX(0, 4)}>
                   <Tooltip content="Instant tooltip"><Button variant="outline" size="sm">Hover me</Button></Tooltip>
@@ -640,7 +650,7 @@ export default function DesignSystemClient() {
               </div>
             </motion.div>
             <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-              <div className={styles.componentGroupTitle}>Translation Tooltip — &lt;T&gt;</div>
+              <div id="tooltip-translation" className={styles.componentGroupTitle}>Translation Tooltip — &lt;T&gt;</div>
               <p className={styles.sectionSub} style={{ marginTop: -4, textTransform: "none" }}>{language === "ko" ? "마우스를 올리면 반대 언어 번역을 보여 줍니다. (지연: 0ms / 600ms)" : "Shows opposite language on hover (delay: 0ms / 600ms)"}</p>
               <div className={styles.componentRow}>
                 <motion.div variants={staggerItemX} {...scrollChildX(0, 4)}><T k="contact.title" delay={0} className={styles.tooltipDemoText} /></motion.div>

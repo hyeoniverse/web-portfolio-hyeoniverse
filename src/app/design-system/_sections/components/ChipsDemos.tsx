@@ -26,7 +26,7 @@ export default function ChipsDemos() {
 
   return (
     <>
-        <h3 className={styles.componentCategory}>Chips</h3>
+        <h3 id="components-chips" className={styles.componentCategory}>Chips</h3>
 
         {/* Chip */}
         <DemoGroup title="Chip">
