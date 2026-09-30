@@ -152,7 +152,18 @@
   border: 0;
   padding: 0;
   border-radius: var(--radius-circle);
-  cursor: crosshair;
+  cursor: grab;
+  /* 끄는 동안 페이지가 스크롤되지 않게 */
+  touch-action: none;
+}
+
+.wheel:active {
+  cursor: grabbing;
+}
+
+.wheel:focus-visible {
+  outline: 2px solid var(--text-accent);
+  outline-offset: 3px;
 }
 
 /* 가운데를 비워 도넛 모양으로 */

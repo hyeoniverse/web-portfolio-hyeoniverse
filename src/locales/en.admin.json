@@ -400,7 +400,7 @@
         "suggestTitle": "Color suggestions",
         "tabWheel": "Color wheel",
         "tabImage": "From image",
-        "wheelHint": "Click the wheel to change the base hue",
+        "wheelHint": "Click or drag the wheel to change the base hue",
         "resetBase": "Use current accent",
         "wheelLabel": "Pick a base hue",
         "analogous": "Analogous",

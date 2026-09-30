@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState, type DragEvent, type MouseEvent } from "react";
+import { useMemo, useRef, useState, type DragEvent, type KeyboardEvent, type PointerEvent } from "react";
 import { converter, formatHex } from "culori";
 import { useLanguage } from "@/providers/LanguageProvider";
 import SegmentedControl from "@/components/ui/SegmentedControl";
@@ -61,10 +61,26 @@ export default function ThemeSuggest({ accent, onApply }: { accent: string; onAp
     showToast(k("applied"), "success");
   };
 
-  const pickHue = (e: MouseEvent<HTMLButtonElement>) => {
+  /* 색상환 — 누르거나 끌면 그 각도가 기준 색상. 포인터를 잡아 두어 원 밖으로 끌어도 계속 따라온다 */
+  const hueAt = (e: PointerEvent<HTMLDivElement>) => {
     const r = e.currentTarget.getBoundingClientRect();
     const dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2);
-    setBase(withHue(base, ((Math.atan2(dx, -dy) * 180) / Math.PI + 360) % 360));
+    setBase((b) => withHue(b, ((Math.atan2(dx, -dy) * 180) / Math.PI + 360) % 360));
+  };
+  const onWheelDown = (e: PointerEvent<HTMLDivElement>) => {
+    e.currentTarget.setPointerCapture(e.pointerId);
+    hueAt(e);
+  };
+  const onWheelMove = (e: PointerEvent<HTMLDivElement>) => {
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) hueAt(e);
+  };
+  // 키보드 — 좌우(상하) 화살표로 5°, Shift 를 누르면 30°
+  const onWheelKey = (e: KeyboardEvent<HTMLDivElement>) => {
+    const step = e.shiftKey ? 30 : 5;
+    const d = e.key === "ArrowRight" || e.key === "ArrowUp" ? step : e.key === "ArrowLeft" || e.key === "ArrowDown" ? -step : 0;
+    if (!d) return;
+    e.preventDefault();
+    setBase((b) => withHue(b, (((toOklch(b)?.h ?? 0) + d) % 360 + 360) % 360));
   };
 
   const readImage = async (file: File) => {
@@ -123,12 +139,25 @@ export default function ThemeSuggest({ accent, onApply }: { accent: string; onAp
       {tab === "wheel" ? (
         <div className={styles.suggestBody}>
           <div className={styles.wheelCol}>
-            <button type="button" className={styles.wheel} style={{ background: WHEEL_BG }} onClick={pickHue} aria-label={k("wheelLabel")}>
+            <div
+              className={styles.wheel}
+              style={{ background: WHEEL_BG }}
+              role="slider"
+              tabIndex={0}
+              aria-label={k("wheelLabel")}
+              aria-valuemin={0}
+              aria-valuemax={359}
+              aria-valuenow={Math.round(baseHue)}
+              aria-valuetext={`${Math.round(baseHue)}°`}
+              onPointerDown={onWheelDown}
+              onPointerMove={onWheelMove}
+              onKeyDown={onWheelKey}
+            >
               {/* 보색 규칙 기준으로 기준·배경·글자 색상 위치를 보여 준다 */}
               {marker(bgHue, formatHex({ mode: "oklch", l: 0.72, c: 0.14, h: bgHue }))}
               {textHue !== bgHue && marker(textHue, formatHex({ mode: "oklch", l: 0.72, c: 0.14, h: textHue }))}
               {marker(baseHue, base, true)}
-            </button>
+            </div>
             <span className={styles.wheelHint}>{k("wheelHint")}</span>
             {base !== accent && (
               <button type="button" className={styles.resetBtn} onClick={() => setBase(accent)}>
