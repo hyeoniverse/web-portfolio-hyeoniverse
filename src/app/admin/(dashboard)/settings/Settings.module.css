@@ -316,38 +316,19 @@
   width: 100%;
 }
 
-/* 직접 추가한 프리셋의 삭제 버튼 — 카드 안 오른쪽에 늘 보인다.
-   예전엔 모서리 밖 16px 원이 hover 때만 나타나서, 터치 화면에선 아예 안 보였고 마우스로도 찾기 어려웠다.
-   hover 색은 강조색 — 빨강(error)은 되돌릴 수 없는 실패에만 아껴 쓴다 */
+/* 직접 추가한 프리셋의 삭제 버튼 — 공통 CloseButton(sm, 24px)을 카드 안 오른쪽에 늘 보이게 둔다.
+   모양·hover 는 CloseButton 몫이고 여기선 자리만 잡는다. 세로 가운데는 transform 대신 margin 으로 —
+   누를 때 줄어드는 효과(transform)와 겹치지 않게 */
 .presetCardWrap:has(.presetCardRemove) > .presetCard {
   padding-right: calc(var(--control-h-xs) + var(--spacing-sm));
 }
 
 .presetCardRemove {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   position: absolute;
-  top: 50%;
+  top: 0;
   right: var(--spacing-xs);
-  width: var(--control-h-xs);
-  height: var(--control-h-xs);
-  transform: translateY(-50%);
-  border: var(--border-light);
-  border-radius: var(--radius-circle);
-  background: var(--bg-primary);
-  color: var(--text-tertiary);
-  cursor: pointer;
-  transition:
-    background var(--duration-base) ease,
-    border-color var(--duration-base) ease,
-    color var(--duration-base) ease;
-}
-
-.presetCardRemove:hover,
-.presetCardRemove:focus-visible {
-  border-color: var(--text-accent);
-  color: var(--text-accent);
+  bottom: 0;
+  margin-block: auto;
 }
 
 .presetName {

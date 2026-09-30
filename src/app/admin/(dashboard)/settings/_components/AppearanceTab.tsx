@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
-import { Plus, X } from "@/components/icons";
+import { Plus } from "@/components/icons";
+import CloseButton from "@/components/ui/CloseButton";
 import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import TextLink from "@/components/ui/TextLink";
@@ -98,17 +99,16 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
                       <span className={shared.presetName}>{preset.name}</span>
                     </Pressable>
                     {preset.removable && (
-                      <Pressable noTapScale
+                      <CloseButton
+                        size="sm"
                         className={shared.presetCardRemove}
                         onClick={() => {
                           const next = userPresets.filter((_, i) => i !== idx - THEME_PRESETS.length);
                           update("theme", "presets", next);
                         }}
-                        aria-label={t("admin.settings.removeNamedPreset").replace("{{name}}", preset.name)}
+                        ariaLabel={t("admin.settings.removeNamedPreset").replace("{{name}}", preset.name)}
                         title={t("admin.settings.removeThemePreset")}
-                      >
-                        <X size={12} strokeWidth={2.25} />
-                      </Pressable>
+                      />
                     )}
                   </div>
                 ))}
