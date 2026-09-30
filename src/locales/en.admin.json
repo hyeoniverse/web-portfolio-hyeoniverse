@@ -370,8 +370,12 @@
       "removeThemePreset": "Remove preset",
       "removeNamedPreset": "Remove {{name}}",
       "colorPickerOpen": "Open color picker",
-      "enterPresetName": "Enter a preset name",
       "presetSameAsCurrent": "These colors are already a preset. Change a color below, then add it",
+      "presetNameEmpty": "Enter a name",
+      "presetNameBuiltIn": "A built-in preset is already named “{{name}}”. Choose another name",
+      "presetAddSubmit": "Add",
+      "presetNameSaved": "A preset named “{{name}}” already exists. Choose another name",
+      "presetAddLabel": "Save current colors as",
       "themeTools": {
         "title": "Contrast check (WCAG)",
         "good": "Good as a theme",

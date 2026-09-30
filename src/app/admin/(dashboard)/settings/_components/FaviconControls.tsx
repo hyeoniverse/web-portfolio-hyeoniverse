@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { type TFunction } from "@/providers/LanguageProvider";
 import ColorPicker from "@/components/ui/ColorPicker";
@@ -14,6 +14,7 @@ import FieldRow from "@/components/ui/FieldRow";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import { FAVICON_SHADOW_PRESETS, FAVICON_SIZE_BLUR } from "../_data/faviconPresets";
 import { resolveFaviconShadow, type FaviconShadow } from "@/lib/favicon";
+import type { PresetNameProblem } from "../_data/presetName";
 import styles from "./AppearanceTab.module.css";
 import shared from "../Settings.module.css";
 
@@ -215,15 +216,30 @@ export function FaviconShadowControls({
 
 /** 프리셋 이름 입력 row — 펼침/접힘 애니메이션 + 이름 Input + 저장/취소 버튼.
  *  테마 프리셋·로고색 프리셋 추가에 공용. open 조건·값·저장 동작만 호출부가 결정. */
-export function PresetNameAddRow({ open, value, onChange, onSave, onCancel, saveDisabled, t }: {
+export function PresetNameAddRow({ open, value, onChange, onSave, onCancel, problem, label, preview, t }: {
   open: boolean;
   value: string;
   onChange: (v: string) => void;
   onSave: () => void;
   onCancel: () => void;
-  saveDisabled: boolean;
+  /** 저장할 수 없는 이유 — presetNameProblem 결과. null 이면 저장 가능 */
+  problem: PresetNameProblem | null;
+  /** 입력칸 앞 설명 + 저장될 색 미리보기 — 무엇이 저장되는지 한눈에 */
+  label?: string;
+  preview?: ReactNode;
   t: TFunction;
 }) {
+  /* 빈 이름은 저장을 눌러 봤을 때만 알린다 — 열자마자 빨간 글씨가 뜨면 잘못한 것처럼 보인다 */
+  const [tried, setTried] = useState(false);
+  const shown = problem && (problem.kind !== "empty" || tried) ? problem : null;
+  const message = !shown ? "" : shown.kind === "empty"
+    ? t("admin.settings.presetNameEmpty")
+    : t(shown.kind === "builtIn" ? "admin.settings.presetNameBuiltIn" : "admin.settings.presetNameSaved").replace("{{name}}", shown.name);
+  const save = () => {
+    setTried(true);
+    if (!problem) { setTried(false); onSave(); }
+  };
+  const cancel = () => { setTried(false); onCancel(); };
   return (
     <AnimatePresence initial={false}>
       {open && (
@@ -235,20 +251,32 @@ export function PresetNameAddRow({ open, value, onChange, onSave, onCancel, save
           transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
           style={{ overflow: "hidden" }}
         >
-          <div className={styles.logoColorPresetAddRow}>
-            <Input
-              className={styles.logoColorPresetNameInput}
-              placeholder={t("admin.settings.presetNamePlaceholder")}
-              value={value}
-              onChange={onChange}
-              autoFocus
-            />
-            <Button variant="outline" size="md" onClick={onSave} disabled={saveDisabled}>
-              {t("admin.settings.applyEdit")}
-            </Button>
-            <Button variant="outline" size="md" onClick={onCancel}>
-              {t("admin.settings.cancel")}
-            </Button>
+          <div className={styles.presetAddPanel}>
+            <div className={styles.logoColorPresetAddRow}>
+              {label && <span className={styles.presetAddLabel}>{label}</span>}
+              {preview}
+              <Input
+                className={styles.logoColorPresetNameInput}
+                placeholder={t("admin.settings.presetNamePlaceholder")}
+                value={value}
+                onChange={onChange}
+                onKeyDown={(e) => {
+                  if (e.nativeEvent.isComposing) return;
+                  if (e.key === "Enter") { e.preventDefault(); save(); }
+                  else if (e.key === "Escape") { e.preventDefault(); cancel(); }
+                }}
+                error={!!shown}
+                aria-describedby={shown ? "preset-name-problem" : undefined}
+                autoFocus
+              />
+              <Button variant="outline" size="md" onClick={save} disabled={!!problem && problem.kind !== "empty"}>
+                {t("admin.settings.presetAddSubmit")}
+              </Button>
+              <Button variant="outline" size="md" onClick={cancel}>
+                {t("admin.settings.cancel")}
+              </Button>
+            </div>
+            {shown && <p id="preset-name-problem" className={styles.presetAddProblem} role="alert">{message}</p>}
           </div>
         </motion.div>
       )}

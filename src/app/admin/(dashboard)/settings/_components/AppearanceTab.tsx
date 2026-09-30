@@ -15,6 +15,7 @@ import CustomFontsField from "./CustomFontsField";
 import SectionHeader from "./SectionHeader";
 import BrandSection from "./BrandSection";
 import { PresetNameAddRow } from "./FaviconControls";
+import { presetNameProblem } from "../_data/presetName";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import { THEME_PRESETS } from "../_data/settingsConstants";
 import styles from "./AppearanceTab.module.css";
@@ -97,16 +98,16 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
                       <span className={shared.presetName}>{preset.name}</span>
                     </Pressable>
                     {preset.removable && (
-                      <Pressable
+                      <Pressable noTapScale
                         className={shared.presetCardRemove}
                         onClick={() => {
                           const next = userPresets.filter((_, i) => i !== idx - THEME_PRESETS.length);
                           update("theme", "presets", next);
                         }}
-                        aria-label={`Remove ${preset.name}`}
+                        aria-label={t("admin.settings.removeNamedPreset").replace("{{name}}", preset.name)}
                         title={t("admin.settings.removeThemePreset")}
                       >
-                        <X size={10} strokeWidth={2.5} />
+                        <X size={12} strokeWidth={2.25} />
                       </Pressable>
                     )}
                   </div>
@@ -118,7 +119,6 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
                   onClick={() => {
                     if (anyMatch) { showToast(t("admin.settings.presetSameAsCurrent"), "info"); return; }
                     setAddingThemePreset(true);
-                    showToast(t("admin.settings.enterPresetName"), "info");
                   }}
                   title={t(anyMatch ? "admin.settings.presetSameAsCurrent" : "admin.settings.saveThemePreset")}
                   aria-label={t("admin.settings.saveThemePreset")}
@@ -129,6 +129,42 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
             );
           })()}
         </div>
+        {/* 프리셋 이름 입력 — + 바로 아래. 예전엔 색상 칸·대비 점검표 밑에 있어 + 와 멀었고,
+            같은 이름이면 아무 말 없이 저장이 안 됐다(+ 누를 때 뜬 "이름을 입력하세요" 토스트만 남아 이름 누락처럼 보였다) */}
+        <PresetNameAddRow
+          open={addingThemePreset}
+          value={newThemePresetName}
+          onChange={setNewThemePresetName}
+          problem={presetNameProblem(newThemePresetName, THEME_PRESETS, config.theme.presets ?? [])}
+          label={t("admin.settings.presetAddLabel")}
+          preview={
+            <span className={styles.presetAddSwatches} aria-hidden>
+              <span style={{ background: config.theme.darkBg }} />
+              <span style={{ background: config.theme.accentColor }} />
+              <span style={{ background: config.theme.lightBg }} />
+            </span>
+          }
+          onCancel={() => { setAddingThemePreset(false); setNewThemePresetName(""); }}
+          onSave={() => {
+            const name = newThemePresetName.trim();
+            update("theme", "presets", [
+              ...(config.theme.presets ?? []),
+              {
+                name,
+                theme: {
+                  accentColor: config.theme.accentColor,
+                  lightBg: config.theme.lightBg,
+                  lightText: config.theme.lightText,
+                  darkBg: config.theme.darkBg,
+                  darkText: config.theme.darkText,
+                },
+              },
+            ]);
+            setNewThemePresetName("");
+            setAddingThemePreset(false);
+          }}
+          t={t}
+        />
         {/* 개별 색상 미세조정 — 강조색 단독 1행, 라이트(bg+text) / 다크(bg+text) 각각 2열 */}
         <div className={shared.fields}>
           {/* 강조색은 fieldPair 의 1번째 컬럼만 차지 (2번째 컬럼은 빈 공간) */}
@@ -146,35 +182,6 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
         </div>
         {/* 지금 색의 WCAG 대비 점검 — 프리셋으로 추가하기 전에 테마로 쓸 만한지 본다 */}
         <ThemeContrastReport theme={config.theme} />
-        {/* 테마 프리셋 이름 input row — 테마 색상 .fields 바깥 (아래) 에 배치 */}
-        <PresetNameAddRow
-          open={addingThemePreset}
-          value={newThemePresetName}
-          onChange={setNewThemePresetName}
-          saveDisabled={!newThemePresetName.trim()}
-          onCancel={() => { setAddingThemePreset(false); setNewThemePresetName(""); }}
-          onSave={() => {
-            const name = newThemePresetName.trim();
-            const userPresets = config.theme.presets ?? [];
-            if (!name || userPresets.some((p) => p.name === name) || THEME_PRESETS.some((p) => p.name === name)) return;
-            update("theme", "presets", [
-              ...userPresets,
-              {
-                name,
-                theme: {
-                  accentColor: config.theme.accentColor,
-                  lightBg: config.theme.lightBg,
-                  lightText: config.theme.lightText,
-                  darkBg: config.theme.darkBg,
-                  darkText: config.theme.darkText,
-                },
-              },
-            ]);
-            setNewThemePresetName("");
-            setAddingThemePreset(false);
-          }}
-          t={t}
-        />
         {/* 색상환 조화 규칙 · 이미지에서 뽑은 색으로 테마 추천 */}
         <ThemeSuggest accent={config.theme.accentColor} onApply={applyTheme} />
       </section>
