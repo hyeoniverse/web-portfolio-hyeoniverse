@@ -109,20 +109,16 @@ export async function synthesize(
     skip?: TtsProvider[];
     /** 고른 제공자 다음에 시도할 순서(설정 › 서비스 › 슬라이드 음성). 없으면 기본 순서의 나머지 전부 */
     fallback?: TtsProvider[];
-    /** 대본 언어 — 읽을 말로 바꾸기 전의 표기로 정해 넘긴다(읽을 말에 한글이 섞여도 영어 대본은 영어로). 없으면 text 로 */
+    /** 대본 언어 — 편집 화면의 KO/EN 을 넘긴다. 없으면 text 로 정한다 */
     lang?: SpeechLang;
   } = {},
 ): Promise<{ audio: Buffer; provider: TtsProvider; voice: TtsVoice; skipped: string }> {
-  const parsed = parseVoice(voice);
+  /* 대본 언어의 목소리로 — Fish 는 그 언어의 화자(lib/ttsVoices), Google·Edge 는 그 언어의 목소리 */
+  const parsed = parseVoice(voice, lang === "en-US" ? "en" : "ko");
   const chosen = parsed.provider;
   const reasons: string[] = [];
   const rest = (fallback ?? TTS_PROVIDERS).filter((p) => p !== chosen);
-  /* Fish 목소리 목록(lib/ttsVoices)은 모두 한국어 화자라 영어 대본을 한국어 억양으로 읽는다 — 영어 대본이면 건너뛰고
-     언어에 맞춰 목소리를 고르는 Google·Edge(en-US)로 만든다 */
-  const english = lang === "en-US";
-  if (english && !only && chosen === "fish") reasons.push(`${LABEL.fish}: 한국어 목소리라 영어 대본은 건너뜁니다`);
-  const order = (only ? [only] : [chosen, ...rest].filter((p) => !skip.includes(p)))
-    .filter((p) => !(english && !only && p === "fish"));
+  const order = only ? [only] : [chosen, ...rest].filter((p) => !skip.includes(p));
   /* 여러 번 이어 실패해 꺼 둔 공급자는 부르지 않는다(lib/ai/health) — 설정 › 서비스에서 다시 켠다 */
   const health = await readHealth();
   for (const provider of order) {

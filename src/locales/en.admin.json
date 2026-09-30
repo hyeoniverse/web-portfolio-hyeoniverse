@@ -841,7 +841,7 @@
       "lexicon": {
         "title": "Pronunciation dictionary",
         "search": "Search",
-        "hint": "Replaces text in scripts with how it should be read when generating TTS audio. Scripts and captions keep the original, and matches are case-sensitive. Changes save immediately; existing audio changes only when regenerated. To read one spot differently, write [ms|milliseconds] in the script — the audio says \"milliseconds\" while captions show \"ms\".",
+        "hint": "Replaces text in scripts with how it should be read when generating TTS audio. Scripts and captions keep the original, and matches are case-sensitive. Changes save immediately; existing audio changes only when regenerated. To read one spot differently, write [ms|milliseconds] in the script — the audio says \"milliseconds\" while captions show \"ms\". Korean and English scripts have separate dictionaries; only the one for the script language is used.",
         "add": "Add",
         "paste": "Paste lines",
         "pasteHint": "One entry per line as \"text = reading\". A tab or → also works. An = inside the text is not treated as a separator unless it has spaces around it. Existing text gets the new reading.",
@@ -853,6 +853,9 @@
         "from": "Text in script",
         "to": "Read as",
         "toPlaceholder": "Read as (e.g. all true option)",
+        "toPlaceholderEn": "Read as (e.g. all equals true)",
+        "langKo": "Korean scripts",
+        "langEn": "English scripts",
         "remove": "Remove entry",
         "noMatch": "No entries match the search.",
         "saveFailed": "Couldn’t save the pronunciation dictionary.",
@@ -1745,7 +1748,7 @@
           },
           "voices": {
             "title": "Voices and providers",
-            "items": "The chosen voice's provider goes first. If it fails, the next provider in the order Fish Audio → Google Cloud TTS → Edge TTS takes over with the same gender, and a notice shows the reason.\nFish Audio is free until November 30, 2026, with no availability guarantee.\nThis app uses Google Cloud TTS for up to 800,000 bytes a month and skips it after that.\nLong scripts are split into parts of about 600 characters and joined. All parts of one slide use the same provider."
+            "items": "Voices are chosen separately for each editing language (KO/EN). When editing in English only English voices are listed, and the English dictionary is used.\nThe chosen voice's provider goes first. If it fails, the next provider in the order Fish Audio → Google Cloud TTS → Edge TTS takes over with the same gender, and a notice shows the reason.\nFish Audio is free until November 30, 2026, with no availability guarantee.\nThis app uses Google Cloud TTS for up to 800,000 bytes a month and skips it after that.\nLong scripts are split into parts of about 600 characters and joined. All parts of one slide use the same provider."
           },
           "listen": {
             "title": "Listening and seeking",
