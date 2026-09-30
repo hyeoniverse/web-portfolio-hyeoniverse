@@ -62,16 +62,16 @@ export const projectStructure: StructureItem[] = [
   {
     path: "admin/",
     description: {
-      ko: "어드민 대시보드 — 포스트/작업물 CRUD, 설정(콘텐츠·프로필·계정). 계정 탭에서 멤버 관리(초대·역할)를 하며, 역할(소유자/편집자/저자)에 따라 접근 가능한 탭이 갈린다. 미리보기는 공개 상세와 동일한 아티클 뷰 재사용 (single source of truth)",
-      en: "Admin dashboard — posts/works CRUD, settings (content, profile, account). The account tab handles member management (invite, roles); accessible tabs branch by role (owner/editor/author). Preview reuses the same article view as the public detail page (single source of truth)",
+      ko: "어드민 대시보드 — 포스트/작업물 CRUD, 설정(콘텐츠·프로필·계정). 계정 탭에서 멤버 관리(초대·역할)를 하며, 역할(소유자/편집자/저자)에 따라 접근 가능한 탭이 갈린다. 미리보기는 공개 상세와 동일한 아티클 뷰 재사용 (single source of truth). service-log 는 AI·메일·GitHub·예약 작업의 성공과 실패를 공급자별로 걸러 보는 호출 기록(소유자 전용)",
+      en: "Admin dashboard — posts/works CRUD, settings (content, profile, account). The account tab handles member management (invite, roles); accessible tabs branch by role (owner/editor/author). Preview reuses the same article view as the public detail page (single source of truth). service-log is the call log that filters AI, mail, GitHub and scheduled-job successes and failures by provider (owner only)",
     },
     indent: 2,
   },
   {
     path: "api/",
     description: {
-      ko: "API 라우트 — posts, comments, comment-reactions, likes, contact, cover, calendars, custom-emojis, upload/signed-url, admin(authors 멤버·초대, me). GitHub OAuth 콜백은 app/auth/callback 에서 인가 검사 후 세션 확정 — 소유자 첫 로그인이면 owner 역할을 app_metadata 에 1회 못박음(claim-and-close)",
-      en: "API routes — posts, comments, comment-reactions, likes, contact, cover, calendars, custom-emojis, upload/signed-url, admin (authors members/invites, me). The GitHub OAuth callback lives at app/auth/callback and finalizes the session after an authorization check — on the owner's first login it pins the owner role into app_metadata once (claim-and-close)",
+      ko: "API 라우트 — posts, comments, comment-reactions, likes, contact(첨부 상태), cover, calendars, custom-emojis, upload/signed-url, works/tts(음성·읽기 사전), admin(authors 멤버·초대, me, ai-health 공급자 상태, ai-log 호출 기록). GitHub OAuth 콜백은 app/auth/callback 에서 인가 검사 후 세션 확정 — 소유자 첫 로그인이면 owner 역할을 app_metadata 에 1회 못박음(claim-and-close)",
+      en: "API routes — posts, comments, comment-reactions, likes, contact (attachment state), cover, calendars, custom-emojis, upload/signed-url, works/tts (narration, pronunciation lexicon), admin (authors members/invites, me, ai-health provider status, ai-log call log). The GitHub OAuth callback lives at app/auth/callback and finalizes the session after an authorization check — on the owner's first login it pins the owner role into app_metadata once (claim-and-close)",
     },
     indent: 2,
   },
@@ -150,8 +150,8 @@ export const projectStructure: StructureItem[] = [
   {
     path: "lib/",
     description: {
-      ko: "서버 사이드 로직 — Supabase 클라이언트, API 공통 핸들러, Posts SSR 쿼리, favicon (route 의 SVG 생성과 admin 미리보기가 같은 resolveFavicon 공유), directUpload (signed URL 로 Storage 직접 업로드 — 서버리스 본문 크기 제한 우회), categoryTree, tagMeta · autoCoverImage · searchQuery · searchHighlight · videoCompress 유틸",
-      en: "Server-side logic — Supabase clients, API shared handlers, Posts SSR queries, favicon (the route's SVG generation and the admin preview share one resolveFavicon), directUpload (direct-to-Storage upload via signed URL, bypassing the serverless body-size limit), categoryTree, plus tagMeta · autoCoverImage · searchQuery · searchHighlight · videoCompress utilities",
+      ko: "서버 사이드 로직 — Supabase 클라이언트, API 공통 핸들러, Posts SSR 쿼리, favicon (route 의 SVG 생성과 admin 미리보기가 같은 resolveFavicon 공유), directUpload (signed URL 로 Storage 직접 업로드 — 서버리스 본문 크기 제한 우회), categoryTree, tagMeta · autoCoverImage · searchQuery · searchHighlight · videoCompress 유틸. ai/ 는 AI 공급자 실패 원인 분류·자동 끄기·사용량 집계(health), serviceLog 는 호출 기록, tts 는 Fish → Google → Edge 음성 생성, contactSend 는 고른 공급자(Formspree·Web3Forms·EmailJS)로 문의 보내기",
+      en: "Server-side logic — Supabase clients, API shared handlers, Posts SSR queries, favicon (the route's SVG generation and the admin preview share one resolveFavicon), directUpload (direct-to-Storage upload via signed URL, bypassing the serverless body-size limit), categoryTree, plus tagMeta · autoCoverImage · searchQuery · searchHighlight · videoCompress utilities. ai/ classifies AI provider failures, auto-disables providers and counts usage (health); serviceLog writes the call log; tts generates narration Fish → Google → Edge; contactSend sends contact messages through the chosen provider (Formspree, Web3Forms, EmailJS)",
     },
     indent: 1,
   },
@@ -230,8 +230,8 @@ export const projectStructure: StructureItem[] = [
   {
     path: "scripts/",
     description: {
-      ko: "동기화·생성 스크립트 — sync-posts / sync-works / sync-about / gen-about-fallback / sync-content-assets",
-      en: "Sync and codegen scripts — sync-posts / sync-works / sync-about / gen-about-fallback / sync-content-assets",
+      ko: "동기화·생성 스크립트 — sync-posts / sync-works / sync-about / gen-about-fallback / sync-content-assets. sync-works 는 원고의 로컬 이미지·영상·PDF 를 Storage 에 먼저 올리고 주소를 바꿔, dev 에서 동기화한 글도 배포에서 깨지지 않는다",
+      en: "Sync and codegen scripts — sync-posts / sync-works / sync-about / gen-about-fallback / sync-content-assets. sync-works uploads a manuscript's local images, videos and PDFs to Storage first and rewrites their URLs, so works synced in dev don't break in production",
     },
     indent: 0,
   },

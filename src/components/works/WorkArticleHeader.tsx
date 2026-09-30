@@ -6,6 +6,7 @@ import "katex/dist/katex.min.css";
 import { GithubIcon } from "@/components/icons";
 import { useIsAuthenticated } from "@/hooks/useIsAuthenticated";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { OWNER_AUTHOR_ID } from "@/utils/resolvePostAuthors";
 import Button from "@/components/ui/Button";
 import ShareButton from "@/components/ui/ShareButton";
 import LanguageToggle from "@/components/ui/LanguageToggle";
@@ -54,12 +55,14 @@ export function WorkArticleHeader({
           {/* 팀/개인 + 성격 배지는 한 묶음 (좁은 gap) — metaLeft 의 lg gap 영향 안 받게 */}
           <div className={styles.tagGroup}>
             {(() => {
-              const teamCount = project.teamMembers?.length ?? 0;
-              // 본인 포함 = teamCount + 1
-              return teamCount > 0 ? (
+              /* 본인(소유자)은 늘 한 명으로 센다 — 팀원 목록에 소유자 계정으로 이미 들어 있으면 두 번 세지 않는다.
+                 예전에는 목록 수에 무조건 1을 더해, 본인 한 명뿐인 작업물이 "팀 · 2"로 보였다 */
+              const others = (project.teamMembers ?? []).filter((m) => m.author_id !== OWNER_AUTHOR_ID).length;
+              const total = others + 1;
+              return others > 0 ? (
                 <span className={`${styles.tag} ${styles.tagTeam}`}>
                   <Users size={11} strokeWidth={1.8} />
-                  <T ko={`팀 · ${teamCount + 1}`} en={`Team · ${teamCount + 1}`} />
+                  <T ko={`팀 · ${total}`} en={`Team · ${total}`} />
                 </span>
               ) : (
                 <span className={`${styles.tag} ${styles.tagSolo}`}>
