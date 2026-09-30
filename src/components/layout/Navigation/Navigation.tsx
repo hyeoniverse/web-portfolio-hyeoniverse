@@ -18,6 +18,7 @@ import { useLenis } from "@/providers/LenisProvider";
 import { SYMBOL_FONT_FAMILY } from "@/config/symbolFont.generated";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { logoOnBg, resolveBrandLogos } from "@/lib/brandLogos";
+import { heroBackdrop, useNavBackdropStore } from "@/stores/navBackdropStore";
 import { loadGoogleFont } from "@/lib/loadGoogleFont";
 import {
   firstGrapheme,
@@ -143,7 +144,11 @@ export default function Navigation() {
   const logos = resolveBrandLogos(siteConfig.brand);
   /* 화면 배경에 맞는 변형 — 없으면 반대쪽 변형을 명암만 뒤집어 쓴다(lib/brandLogos 의 logoOnBg).
      라이트용(어두운 잉크)만 올리면 다크 화면에서 로고가 배경에 묻혔다 */
-  const shortPick = logoOnBg(logos.short, isDark ? "dark" : "light");
+  /* 상세 페이지 커버가 로고 밑에 있는 동안은 테마 대신 커버 밝기로 고른다(stores/navBackdropStore) —
+     라이트 테마에서 어두운 커버 위에 어두운 잉크 로고가 그대로 올라가 묻혔다 */
+  const coverBackdrop = useNavBackdropStore(heroBackdrop);
+  const logoBg: "dark" | "light" = coverBackdrop ?? (isDark ? "dark" : "light");
+  const shortPick = logoOnBg(logos.short, logoBg);
   const shortLogoUrl = useSystemLogo ? "" : shortPick.url;
   const hasImageLogo = !!shortLogoUrl;
   /* 로딩 덮개는 화면 테마와 무관하게 항상 검다(--bg-black). 로딩에 띄우는 로고는 테마가 아니라
