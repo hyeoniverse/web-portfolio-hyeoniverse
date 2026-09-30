@@ -18,14 +18,15 @@ export type HarmonyRule = "analogous" | "complementary" | "split" | "triad" | "m
 
 export const HARMONY_RULES: HarmonyRule[] = ["analogous", "complementary", "split", "triad", "mono"];
 
-/** 규칙마다 [배경 색상 이동, 글자 색상 이동] (도). mono 는 글자를 무채색에 가깝게 둔다 */
-const OFFSETS: Record<HarmonyRule, [number, number]> = {
-  analogous: [30, -30],
-  complementary: [180, 180],
-  split: [150, 210],
-  triad: [120, 240],
-  mono: [0, 0],
+/** 규칙마다 기준 색상에서 몇 도씩 떨어진 색을 쓰는지. mono 는 한 색상의 명도 단계 */
+const OFFSETS: Record<HarmonyRule, number[]> = {
+  analogous: [0, -30, 30],
+  complementary: [0, 180],
+  split: [0, 150, 210],
+  triad: [0, 120, 240],
+  mono: [0, 0, 0],
 };
+const MONO_L = [0.62, 0.45, 0.78];
 
 /**
  * 강조색을 테마에 쓸 만한 범위로 — 명도 0.5~0.72, 채도 0.08 이상(색이 거의 없으면 그대로).
@@ -52,30 +53,49 @@ function ensureContrast(c: Oklch, bg: string, min: number): string {
 
 /**
  * 강조색 하나와 배경·글자 색상(hue)으로 테마 한 벌.
- * tint 는 배경·글자에 입힐 채도 — 0 에 가까울수록 무채색.
+ * tint 는 배경·글자에 입힐 채도 — 기존 프리셋처럼 파스텔 톤이 보일 만큼 입힌다.
  */
-export function buildTheme(accent: string, bgHue: number, textHue: number, tint = { bg: 0.025, text: 0.035 }): ThemeColors {
-  const lightBg = hex(ok(0.965, tint.bg, bgHue));
-  const darkBg = hex(ok(0.18, tint.bg * 0.9, bgHue));
-  const lightText = ensureContrast(ok(0.27, tint.text, textHue), lightBg, 10);
+export function buildTheme(accent: string, bgHue: number, textHue: number, tint: { bg: number; text: number; bgL?: number } = { bg: 0.045, text: 0.05 }): ThemeColors {
+  const lightBg = hex(ok(tint.bgL ?? 0.955, tint.bg, bgHue));
+  const darkBg = hex(ok(0.19, tint.bg * 0.8, bgHue));
+  const lightText = ensureContrast(ok(0.28, tint.text, textHue), lightBg, 10);
   const darkText = ensureContrast(ok(0.92, tint.text * 0.9, textHue), darkBg, 10);
   return { accentColor: usableAccent(accent), lightBg, lightText, darkBg, darkText };
 }
 
-/** 색상환 조화 규칙으로 테마 한 벌 — 강조색 색상(hue)을 기준으로 배경·글자 색상을 고른다 */
-export function harmonyTheme(base: string, rule: HarmonyRule): ThemeColors {
-  const h = toOklch(base)?.h ?? 0;
-  const [bgOff, textOff] = OFFSETS[rule];
-  if (rule === "mono") return buildTheme(base, h, h, { bg: 0.02, text: 0.012 });
-  return buildTheme(base, h + bgOff, h + textOff);
+const norm = (x: number) => ((x % 360) + 360) % 360;
+const hueOf = (c: string) => toOklch(c)?.h ?? 0;
+
+/** 규칙이 고른 색들의 색상(hue) — 색상환에 점을 찍는 데 쓴다. 첫 번째가 기준 */
+export function harmonyHues(base: string, rule: HarmonyRule): number[] {
+  const h = hueOf(base);
+  return OFFSETS[rule].map((o) => norm(h + o));
 }
 
-/** 조화 규칙이 쓰는 색상(hue) — 색상환에 점을 찍는 데 쓴다. [강조, 배경, 글자] */
-export function harmonyHues(base: string, rule: HarmonyRule): [number, number, number] {
-  const h = toOklch(base)?.h ?? 0;
-  const [b, t] = OFFSETS[rule];
-  const n = (x: number) => ((x % 360) + 360) % 360;
-  return [n(h), n(h + b), n(h + t)];
+/** 규칙이 고른 색 — 기준 색의 채도로 선명하게. mono 는 같은 색상의 밝기 단계 */
+export function harmonyPalette(base: string, rule: HarmonyRule): string[] {
+  const c = toOklch(base) ?? ok(0.62, 0.15, 0);
+  const chroma = Math.max(c.c, 0.1);
+  const l = Math.min(0.75, Math.max(0.55, c.l));
+  return harmonyHues(base, rule).map((h, i) => hex(ok(rule === "mono" ? MONO_L[i] : l, chroma, h)));
+}
+
+/**
+ * 조화 규칙으로 테마 후보 여러 벌 — 규칙이 고른 색을 하나씩 강조색으로 쓰고, 나머지 색의 색상을
+ * 배경·글자에 입힌다. 그래서 후보마다 강조색이 달라 한눈에 구분된다.
+ * mono 는 한 색상 안에서 강조색 밝기와 배경 물들임 정도를 달리한 세 벌.
+ */
+export function harmonyThemes(base: string, rule: HarmonyRule): ThemeColors[] {
+  const palette = harmonyPalette(base, rule);
+  if (rule === "mono") {
+    const h = hueOf(base);
+    // 밝은 배경은 담을 수 있는 채도가 적어서, 짙게 물들일수록 명도도 조금씩 내린다
+    return ([[0.97, 0.02], [0.94, 0.04], [0.91, 0.06]] as const).map(([bgL, bg], i) => buildTheme(palette[i], h, h, { bg, bgL, text: 0.04 }));
+  }
+  return palette.map((accent, i) => {
+    const others = palette.filter((_, j) => j !== i).map(hueOf);
+    return buildTheme(accent, others[0], others[1] ?? others[0]);
+  });
 }
 
 /** 같은 명도·채도로 색상(hue)만 바꾼 색 — 색상환을 눌러 기준색을 옮길 때 */
