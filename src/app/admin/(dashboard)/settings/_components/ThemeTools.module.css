@@ -1,0 +1,310 @@
+/* 외관 탭의 테마 도구 — 대비 점검표(ThemeContrastReport) · 색 추천(ThemeSuggest) */
+
+/* ─── 대비 점검표 ─── */
+.report {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  width: 100%;
+  padding: var(--spacing-md);
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+}
+
+.reportHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-xs) var(--spacing-sm);
+}
+
+.reportTitle {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-label);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.reportSummary {
+  font-size: var(--font-size-hint);
+  color: var(--text-tertiary);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-label);
+  font-variant-numeric: tabular-nums;
+}
+
+.table th {
+  padding: var(--spacing-2xs) var(--spacing-xs);
+  font-weight: 500;
+  font-size: var(--font-size-hint);
+  color: var(--text-muted);
+  text-align: left;
+}
+
+.table td {
+  padding: var(--spacing-2xs) var(--spacing-xs);
+  border-top: var(--border-light);
+  color: var(--text-secondary);
+  vertical-align: middle;
+}
+
+.rowLabel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4xs);
+}
+
+.rowHint {
+  font-size: var(--font-size-hint);
+  color: var(--text-muted);
+}
+
+.cell {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-3xs);
+}
+
+.value {
+  min-width: 3.2em;
+  color: var(--text-primary);
+}
+
+.corrected {
+  font-size: var(--font-size-hint);
+  color: var(--text-muted);
+}
+
+/* 판정 칩 — pass/warn/fail, 테마 전체 판정(good/caution/poor)도 같은 세 색을 쓴다 */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--spacing-4xs) var(--spacing-xs);
+  border-radius: var(--radius-capsule);
+  font-size: var(--font-size-hint);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.pass {
+  background: var(--bg-success-soft);
+  color: var(--text-success-strong);
+}
+
+.warn {
+  background: var(--bg-warning-soft);
+  color: var(--text-warning-strong);
+}
+
+.fail {
+  background: var(--bg-error-soft);
+  color: var(--text-error-strong);
+}
+
+.tableWrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* ─── 색 추천 ─── */
+.suggest {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  width: 100%;
+  padding: var(--spacing-md);
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+}
+
+.suggestHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+}
+
+.suggestBody {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-lg);
+  align-items: flex-start;
+}
+
+.wheelCol {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+/* 색상환 — 배경(conic-gradient)은 TSX 에서 넣는다(OKLCH 색상 순서를 계산해서) */
+.wheel {
+  position: relative;
+  width: 168px;
+  height: 168px;
+  border: 0;
+  padding: 0;
+  border-radius: var(--radius-circle);
+  cursor: crosshair;
+}
+
+/* 가운데를 비워 도넛 모양으로 */
+.wheel::after {
+  content: "";
+  position: absolute;
+  inset: 34px;
+  border-radius: var(--radius-circle);
+  background: var(--bg-primary);
+}
+
+.marker {
+  position: absolute;
+  z-index: 1;
+  width: 18px;
+  height: 18px;
+  margin: -9px 0 0 -9px;
+  border: 2px solid var(--color-white-alpha-100);
+  border-radius: var(--radius-circle);
+  box-shadow: var(--shadow-sm);
+  pointer-events: none;
+}
+
+.markerBase {
+  width: 24px;
+  height: 24px;
+  margin: -12px 0 0 -12px;
+  border-width: 3px;
+}
+
+.resetBtn {
+  padding: var(--spacing-3xs) var(--spacing-sm);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-hint);
+  cursor: pointer;
+}
+
+.resetBtn:hover {
+  border-color: var(--text-accent);
+  color: var(--text-accent);
+}
+
+.wheelHint {
+  font-size: var(--font-size-hint);
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.cards {
+  flex: 1 1 320px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--spacing-xs);
+  min-width: 0;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+  padding: 0 0 var(--spacing-xs);
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  background: transparent;
+  color: var(--text-primary);
+  text-align: left;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color var(--duration-base) ease;
+}
+
+.card:hover {
+  border-color: var(--text-accent);
+}
+
+.swatches {
+  display: flex;
+  height: 40px;
+}
+
+.swatches span {
+  flex: 1;
+}
+
+.cardName {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-xs);
+  padding: 0 var(--spacing-sm);
+  font-size: var(--font-size-label);
+  font-weight: 600;
+}
+
+.cardDesc {
+  padding: 0 var(--spacing-sm);
+  font-size: var(--font-size-hint);
+  color: var(--text-muted);
+}
+
+/* 이미지에서 뽑기 */
+.imageCol {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  width: 168px;
+}
+
+.drop {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 168px;
+  height: 120px;
+  padding: var(--spacing-xs);
+  border: var(--border-light);
+  border-style: dashed;
+  border-radius: var(--radius-2xl);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--font-size-hint);
+  text-align: center;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.drop:hover,
+.dropActive {
+  border-color: var(--text-accent);
+  color: var(--text-accent);
+}
+
+.drop img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--radius-2xl);
+}
+
+.palette {
+  display: flex;
+  height: 20px;
+  overflow: hidden;
+  border-radius: var(--radius-capsule);
+}
+
+.empty {
+  flex: 1 1 320px;
+  align-self: center;
+  font-size: var(--font-size-label);
+  color: var(--text-muted);
+}
