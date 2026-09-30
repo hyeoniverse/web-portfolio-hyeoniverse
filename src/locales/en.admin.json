@@ -371,6 +371,7 @@
       "removeNamedPreset": "Remove {{name}}",
       "colorPickerOpen": "Open color picker",
       "enterPresetName": "Enter a preset name",
+      "presetSameAsCurrent": "These colors are already a preset. Change a color below, then add it",
       "lightBg": "Light Mode Background",
       "lightText": "Light Mode Text",
       "darkBg": "Dark Mode Background",

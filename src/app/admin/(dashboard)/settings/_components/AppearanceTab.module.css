@@ -51,6 +51,11 @@
   color: var(--text-accent);
 }
 
+/* 현재 색이 이미 프리셋에 있을 때 — 누를 수는 있지만(방법 안내) 흐리게 */
+.presetCardAddBtnIdle {
+  opacity: 0.5;
+}
+
 .presetSwatches {
   display: flex;
   width: 140px;

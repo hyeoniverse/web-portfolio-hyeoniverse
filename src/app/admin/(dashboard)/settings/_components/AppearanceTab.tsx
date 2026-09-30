@@ -70,7 +70,6 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
               config.theme.lightText === p.theme.lightText &&
               config.theme.darkText === p.theme.darkText;
             const anyMatch = allPresets.some(matchesCurrent);
-            const canAdd = !anyMatch;
             return (
               <>
                 {allPresets.map((preset, idx) => (
@@ -111,17 +110,20 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
                     )}
                   </div>
                 ))}
-                {/* 현재 테마가 어떤 preset 과도 다르면 "+" 버튼 → 이름 input 펼침 */}
-                {canAdd && (
-                  <Pressable
-                    className={styles.presetCardAddBtn}
-                    onClick={() => { setAddingThemePreset(true); showToast(t("admin.settings.enterPresetName"), "info"); }}
-                    title={t("admin.settings.saveThemePreset")}
-                    aria-label={t("admin.settings.saveThemePreset")}
-                  >
-                    <Plus size={16} strokeWidth={2} />
-                  </Pressable>
-                )}
+                {/* "+" 는 늘 보인다 — 예전엔 현재 색이 프리셋과 같으면 숨겨서, 프리셋을 고른 직후엔
+                    추가 방법이 사라진 것처럼 보였다. 같은 색이면 아래에서 색을 바꾼 뒤 추가하라고 알려 준다 */}
+                <Pressable
+                  className={`${styles.presetCardAddBtn} ${anyMatch ? styles.presetCardAddBtnIdle : ""}`}
+                  onClick={() => {
+                    if (anyMatch) { showToast(t("admin.settings.presetSameAsCurrent"), "info"); return; }
+                    setAddingThemePreset(true);
+                    showToast(t("admin.settings.enterPresetName"), "info");
+                  }}
+                  title={t(anyMatch ? "admin.settings.presetSameAsCurrent" : "admin.settings.saveThemePreset")}
+                  aria-label={t("admin.settings.saveThemePreset")}
+                >
+                  <Plus size={16} strokeWidth={2} />
+                </Pressable>
               </>
             );
           })()}

@@ -371,6 +371,7 @@
       "removeNamedPreset": "{{name}} 제거",
       "colorPickerOpen": "색 선택 popover 열기",
       "enterPresetName": "프리셋 이름을 입력하세요",
+      "presetSameAsCurrent": "지금 색이 이미 프리셋에 있어요. 아래 색상 칸에서 색을 바꾼 뒤 추가하세요",
       "lightBg": "라이트 모드 배경",
       "lightText": "라이트 모드 텍스트",
       "darkBg": "다크 모드 배경",
