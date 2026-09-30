@@ -274,10 +274,12 @@
 }
 
 /* 두 쪽의 맞닿는 모서리는 각지게, 바깥 모서리만 캡슐 */
+/* 좌우 여백을 줄여 조작 막대에서 자리를 덜 차지하게 — 아이콘과 글자 사이도 좁게 */
 .generateSplit .generateMain.generateMain {
+  gap: var(--spacing-xs);
+  padding: 0 var(--spacing-sm) 0 var(--spacing-md);
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
-  padding-right: var(--spacing-sm);
   font-size: var(--font-size-label);
 }
 
@@ -287,7 +289,7 @@
 }
 
 .generateSplit .generateToggle.generateToggle {
-  width: calc(var(--control-h-sm) - 2px);
+  width: calc(var(--control-h-sm) - 4px);
   margin-left: -1px;
   padding: 0;
   border-top-left-radius: 0;
@@ -399,6 +401,7 @@
 
 /* 지금 목소리 — 구분선 아래 한 줄. 무엇으로 만들지 누르기 전에 보이게 */
 .generateMenuVoice {
+  font-family: var(--font-space-grotesk);
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
@@ -416,10 +419,18 @@
   white-space: nowrap;
 }
 
-/* 만드는 중의 점 세 개 — 아이콘(14px) 자리에 맞춘다 */
+/* 만드는 중의 점 세 개 — 아이콘(14px) 자리에 맞춘다. 점(4px)과 간격 그대로는 20px 이라 좁은 자리에서 점이
+   가로로 눌려 납작해졌다 — 점은 줄지 않게 두고 크기·간격을 줄여 14px 안에 넣는다(3px × 3 + 2px × 2 = 13px) */
 .busyDots {
   width: 14px;
   justify-content: center;
+  gap: var(--spacing-3xs);
+}
+
+.busyDots > span {
+  flex-shrink: 0;
+  width: 3px;
+  height: 3px;
 }
 
 /* 글자가 바뀌어도 너비가 그대로인 버튼 글자 — 모든 후보를 한 칸에 겹쳐 가장 긴 것이 너비를 정하고, 보이는 건 지금 글자뿐 */
