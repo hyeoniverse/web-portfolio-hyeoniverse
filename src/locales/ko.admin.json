@@ -400,7 +400,7 @@
         "suggestTitle": "색 조합 추천",
         "tabWheel": "색상환",
         "tabImage": "이미지에서",
-        "wheelHint": "색상환을 눌러 기준 색상을 바꾸세요",
+        "wheelHint": "색상환을 누르거나 끌어서 기준 색상을 바꾸세요",
         "resetBase": "현재 강조색으로",
         "wheelLabel": "기준 색상 고르기",
         "analogous": "유사색",
