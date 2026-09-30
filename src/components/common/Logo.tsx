@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { useTheme } from "@/providers/ThemeProvider";
 import { logoOnBg, resolveBrandLogos } from "@/lib/brandLogos";
+import ThemedLogoImage from "./ThemedLogoImage";
 import styles from "./Logo.module.css";
 
 interface LogoProps {
@@ -33,26 +33,15 @@ export default function Logo({ variant = "short", as = "link", className }: Logo
   const alt = variant === "short" ? SHORT : FULL;
 
   const content = logoUrl ? (
-    tint ? (
-      // 리컬러 — 숨긴 img 로 종횡비/폭 확보하고, 그 형태를 mask 로 tint 색 채움 (다크 invert 미적용)
-      <span
-        className={styles.logoTinted}
-        style={{ backgroundColor: tint, maskImage: `url("${logoUrl}")`, WebkitMaskImage: `url("${logoUrl}")` }}
-        role="img"
-        aria-label={alt}
-      >
-        <Image src={logoUrl} alt="" width={variant === "short" ? 32 : 120} height={32} unoptimized />
-      </span>
-    ) : (
-      <Image
-        src={logoUrl}
-        alt={alt}
-        width={variant === "short" ? 32 : 120}
-        height={32}
-        className={pick.invert ? `${styles.logoImage} ${styles.logoImageInvert}` : styles.logoImage}
-        unoptimized
-      />
-    )
+    <ThemedLogoImage
+      src={logoUrl}
+      bg={isDark ? "dark" : "light"}
+      width={variant === "short" ? 32 : 120}
+      alt={alt}
+      tint={tint}
+      invert={pick.invert}
+      classNames={{ image: styles.logoImage, invert: styles.logoImageInvert, tinted: styles.logoTinted }}
+    />
   ) : (
     variant === "full" ? FULL : SHORT
   );

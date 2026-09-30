@@ -404,6 +404,10 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
                      시스템(텍스트)은 적용. 만지면 명시값(boolean)이 저장돼 자동을 덮는다 */}
                   <Checkbox checked={config.brand.logoDifference ?? brandTab === "system"} onChange={(v) => update("brand", "logoDifference", v)} shape="square" />
                 </label>
+                <label className={styles.inlineToggle}>
+                  {t("admin.settings.logoFollowTheme")}
+                  <Checkbox checked={config.brand.logoFollowTheme !== false} onChange={(v) => update("brand", "logoFollowTheme", v)} shape="square" />
+                </label>
               </div>
             </div>
             {/* 로딩 스크린 등장 연출 — 이미지 로딩 로고(풀, 없으면 숏 다크)에 적용 */}
