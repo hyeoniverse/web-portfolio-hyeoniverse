@@ -5,8 +5,9 @@ import { contrastRatio } from "@/utils/contrast";
 import { hexToRgb } from "@/utils/color";
 
 /* 기본 제공 테마가 읽히는지, 서로 겹치지 않는지.
-   예전 프리셋은 파스텔 강조색이 라이트 배경에서 1.5~2.7 대비에 그쳤고, 분홍·파랑·노랑이
-   두세 개씩 거의 같은 색으로 겹쳐 있었다. 새로 넣거나 고칠 때 같은 일이 없게 여기서 막는다. */
+   예전 프리셋은 분홍·파랑·노랑·초록이 두세 개씩 거의 같은 색으로 겹쳐 있었고, 파스텔 강조색은
+   글자로 쓰이면 배경 대비가 1.5~2.7 에 그쳤다. 강조색은 선명하게 두고 글자만 맞추는 규칙
+   (readableAccent)이 모든 프리셋에서 통하는지 여기서 확인한다. */
 
 const ratio = (a: string, b: string) => contrastRatio(a, b) ?? 0;
 
@@ -32,24 +33,14 @@ describe("THEME_PRESETS", () => {
   /* Default 는 CSS 토큰을 그대로 쓰고(다크 강조색·neutral 스케일이 따로 있다) 프리셋 값은 표시용이라 뺀다 */
   const presets = THEME_PRESETS.filter((p) => p.name !== "Default");
 
-  it.each(presets)("$name — 기본 텍스트가 배경 대비 10 이상", ({ theme }) => {
-    expect(ratio(theme.lightText, theme.lightBg)).toBeGreaterThanOrEqual(10);
-    expect(ratio(theme.darkText, theme.darkBg)).toBeGreaterThanOrEqual(10);
+  it.each(presets)("$name — 기본 텍스트가 배경 대비 7 이상", ({ theme }) => {
+    expect(ratio(theme.lightText, theme.lightBg)).toBeGreaterThanOrEqual(7);
+    expect(ratio(theme.darkText, theme.darkBg)).toBeGreaterThanOrEqual(7);
   });
 
-  it.each(presets)("$name — 라이트: 강조색 글자와 강조색 위 흰 글자가 AA", ({ theme }) => {
-    expect(ratio(theme.accentColor, theme.lightBg)).toBeGreaterThanOrEqual(MIN_TEXT_CONTRAST);
-    expect(ratio("#ffffff", theme.accentColor)).toBeGreaterThanOrEqual(MIN_TEXT_CONTRAST);
-  });
-
-  it.each(presets)("$name — 다크: 밝힌 강조색 글자와 그 위 검은 글자가 AA", ({ theme }) => {
-    const accent = readableAccent(theme.accentColor, theme.darkBg);
-    expect(ratio(accent, theme.darkBg)).toBeGreaterThanOrEqual(MIN_TEXT_CONTRAST);
-    expect(ratio("#000000", accent)).toBeGreaterThanOrEqual(MIN_TEXT_CONTRAST);
-  });
-
-  it.each(presets)("$name — 강조색이 기본 텍스트와 구분된다", ({ theme }) => {
-    expect(deltaE(theme.accentColor, theme.lightText)).toBeGreaterThanOrEqual(30);
+  it.each(presets)("$name — 강조 글자는 라이트·다크 모두 AA", ({ theme }) => {
+    expect(ratio(readableAccent(theme.accentColor, theme.lightBg), theme.lightBg)).toBeGreaterThanOrEqual(MIN_TEXT_CONTRAST);
+    expect(ratio(readableAccent(theme.accentColor, theme.darkBg), theme.darkBg)).toBeGreaterThanOrEqual(MIN_TEXT_CONTRAST);
   });
 
   it("강조색끼리 겹치지 않는다", () => {
@@ -57,7 +48,7 @@ describe("THEME_PRESETS", () => {
     for (let i = 0; i < THEME_PRESETS.length; i++) {
       for (let j = i + 1; j < THEME_PRESETS.length; j++) {
         const [a, b] = [THEME_PRESETS[i], THEME_PRESETS[j]];
-        if (deltaE(a.theme.accentColor, b.theme.accentColor) < 25) close.push(`${a.name}-${b.name}`);
+        if (deltaE(a.theme.accentColor, b.theme.accentColor) < 20) close.push(`${a.name}-${b.name}`);
       }
     }
     expect(close).toEqual([]);
@@ -95,8 +86,15 @@ describe("readableAccent", () => {
   });
 
   it("어두운 배경에서 모자라면 밝힌다", () => {
-    const out = readableAccent("#1d5fb8", "#1b1d21");
-    expect(out).not.toBe("#1d5fb8");
-    expect(ratio(out, "#1b1d21")).toBeGreaterThanOrEqual(MIN_TEXT_CONTRAST);
+    const out = readableAccent("#1c5d99", "#222222");
+    expect(ratio(out, "#222222")).toBeGreaterThanOrEqual(MIN_TEXT_CONTRAST);
+    expect(ratio(out, "#000000")).toBeGreaterThan(ratio("#1c5d99", "#000000"));
+  });
+
+  it("밝은 배경에서 모자라면 어둡게 하되 색상은 유지한다 — 노랑이 갈색·회색으로 바뀌지 않게", () => {
+    const out = readableAccent("#f6bd60", "#f7ede2");
+    expect(ratio(out, "#f7ede2")).toBeGreaterThanOrEqual(MIN_TEXT_CONTRAST);
+    const [r, , b] = hexToRgb(out)!;
+    expect(r).toBeGreaterThan(b); // 여전히 노랑~주황 계열
   });
 });

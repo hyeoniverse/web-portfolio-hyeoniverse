@@ -156,7 +156,7 @@
   color: var(--text-tertiary);
   font-variant-numeric: tabular-nums;
 }
-.calNameCountMax { color: var(--color-accent); }
+.calNameCountMax { color: var(--text-accent); }
 
 /* 리더 — 읽기전용 캘린더 제목 heading */
 .calNameReader {
@@ -360,7 +360,7 @@
   font-weight: 500;
   color: var(--text-tertiary);
 }
-.sun { color: var(--color-accent); }
+.sun { color: var(--text-accent); }
 .sat { color: var(--color-info); }
 
 /* ③ 날짜 구역 — 주(week) 단위 스택 + 스팬 바 오버레이(기간 이벤트를 한 줄로 연속 표시) */
@@ -645,7 +645,7 @@
 .miniCalTitleWrap { position: relative; display: inline-flex; }
 .miniCalWeek, .miniCalGrid { display: grid; grid-template-columns: var(--grid-cols-7); gap: var(--spacing-3xs); }
 .miniCalDow { text-align: center; font-size: var(--font-size-micro); font-weight: 600; color: var(--text-tertiary); padding-bottom: var(--spacing-3xs); }
-.miniCalDow.sun { color: var(--color-accent); }
+.miniCalDow.sun { color: var(--text-accent); }
 .miniCalDow.sat { color: var(--color-info); }
 /* 셀 — 숫자 + 개수를 한 그룹으로 세로 센터. 개수 슬롯 항상 예약(빈 날은 공백)해 숫자 위치 고정 → 배경 원이 그룹 가운데. */
 .miniCalCell {
@@ -670,17 +670,17 @@
   line-height: 1;
   font-size: var(--font-size-micro);
   font-weight: 700;
-  color: var(--color-accent);
+  color: var(--text-accent);
   font-variant-numeric: tabular-nums;
 }
 /* 이벤트 없는 날 — 높이만 예약, 배경 없음 */
 /* 선택된 날(accent 원) 위 — 흰 pill + accent 숫자 */
-.miniCalSel .miniCalCount { background: var(--bg-primary); color: var(--color-accent); }
+.miniCalSel .miniCalCount { background: var(--bg-primary); color: var(--text-accent); }
 .miniCalCell:hover { background: var(--bg-secondary); }
 .miniCalOut { color: var(--text-tertiary); opacity: 0.55; }
 .miniCalOut .miniCalCount { opacity: 0.55; }
-.miniCalToday { color: var(--color-accent); font-weight: 700; }
-.miniCalToday .miniCalCount { color: var(--color-accent); }
+.miniCalToday { color: var(--text-accent); font-weight: 700; }
+.miniCalToday .miniCalCount { color: var(--text-accent); }
 .miniCalSel { background: var(--color-accent); color: var(--text-white); font-weight: 700; }
 .miniCalSel:hover { background: var(--color-accent); }
 
@@ -804,7 +804,7 @@
   font-weight: 700;
   color: var(--text-secondary);
 }
-.agendaToday .agendaDow { color: var(--color-accent); }
+.agendaToday .agendaDow { color: var(--text-accent); }
 /* 날짜 숫자 — 왼쪽 고정 */
 .agendaDate {
   position: absolute;
@@ -1173,7 +1173,7 @@
 .relNavChip:hover {
   background: color-mix(in srgb, var(--color-accent) 14%, var(--bg-secondary));
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-accent) 45%, transparent);
-  color: var(--color-accent);
+  color: var(--text-accent);
   transform: translateY(-1px);
 }
 .modalCol {
@@ -1379,7 +1379,7 @@
   border-color: var(--color-accent) !important;
   color: var(--text-accent) !important;
 }
-.suggestChip:hover svg { color: var(--color-accent); }
+.suggestChip:hover svg { color: var(--text-accent); }
 
 /* 내용 textarea — 하단 우측 리사이즈 핸들과 겹치는 우상단 지우개 버튼 숨김 (글자수 카운터는 별도 표시) */
 
@@ -1550,7 +1550,7 @@
   transition: background-color 0.12s ease, color 0.12s ease;
 }
 .tlDay:hover .tlDayNum { background: color-mix(in srgb, var(--color-accent) 12%, var(--bg-primary)); color: var(--text-primary); }
-.tlDay.sun .tlDayNum { color: var(--color-accent); }
+.tlDay.sun .tlDayNum { color: var(--text-accent); }
 .tlDay.sat .tlDayNum { color: var(--color-info); }
 /* 오늘 — 주말(.sun/.sat) 색보다 우선하도록 특이도 확보(0,3,0), 배경 accent 위 흰 글자 */
 .tlDay.tlDayToday .tlDayNum {

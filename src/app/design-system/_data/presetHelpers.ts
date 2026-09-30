@@ -1,5 +1,5 @@
 import { THEME_PRESETS } from "@/app/admin/(dashboard)/settings/_data/settingsConstants";
-import { applyAccentAll, applyNeutralScale, readableAccent, themeVarKeys } from "@/lib/themeColors";
+import { applyAccentAll, applyNeutralScale, applyTextAccent, themeVarKeys } from "@/lib/themeColors";
 
 export function snapshotVars(root: HTMLElement): Map<string, string> {
   const map = new Map<string, string>();
@@ -23,8 +23,9 @@ export function applyPresetColors(
   preset: (typeof THEME_PRESETS)[0]["theme"],
 ) {
   const dark = currentTheme === "dark";
-  applyAccentAll(root, dark ? readableAccent(preset.accentColor, preset.darkBg) : preset.accentColor);
   const bgHex = dark ? preset.darkBg : preset.lightBg;
+  applyAccentAll(root, preset.accentColor);
+  applyTextAccent(root, preset.accentColor, bgHex);
   const textHex = dark ? preset.darkText : preset.lightText;
   root.style.setProperty("--bg-primary", bgHex);
   root.style.setProperty("--text-primary", textHex);
