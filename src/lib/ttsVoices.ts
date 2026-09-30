@@ -102,6 +102,25 @@ const DETAIL: Record<string, string> = {
   "edge:male": "InJoon · Andrew",
 };
 
+const PROVIDER_SHORT: Record<TtsProvider, string> = { fish: "Fish", google: "Google", edge: "Edge" };
+
+/**
+ * 목소리 고르기에 나눠 보일 조각 — 제공자(목록의 묶음 머리) · 짧은 이름(성별 · 느낌) · 자세히(목소리 이름).
+ * 트리거에는 짧은 제공자와 짧은 이름만 보여 목록이 길어져도 조작 막대를 밀지 않는다.
+ * Google·Edge 의 자세히는 편집 언어의 목소리 하나만(ko 면 Neural2-A, en 이면 Neural2-F).
+ */
+export function voiceParts(voice: TtsVoice, tw: (key: string) => string, lang: VoiceLang = "ko") {
+  const { provider, gender, fishId } = parseVoice(voice);
+  const genderText = tw(gender === "female" ? "narrationVoiceFemale" : "narrationVoiceMale");
+  if (provider === "fish") {
+    const fish = FISH_VOICES.find((v) => v.id === fishId)!;
+    return { provider: PROVIDER_LABEL.fish, providerShort: PROVIDER_SHORT.fish, short: `${genderText} · ${tw(`narrationStyle.${fish.style}`)}`, detail: fish.name };
+  }
+  const code = lang === "en" ? "en-US" : "ko-KR";
+  const name = provider === "google" ? googleVoiceName(gender, code) : edgeVoiceName(gender, code);
+  return { provider: PROVIDER_LABEL[provider], providerShort: PROVIDER_SHORT[provider], short: genderText, detail: name.replace(`${code}-`, "").replace(/Neural$/, "") };
+}
+
 /** 화면에 보일 목소리 이름 — "Fish Audio · 여성 · 밝음 (일반여성2)", "Google · 여성 (Neural2-A · F)" */
 export function voiceLabel(voice: TtsVoice, tw: (key: string) => string): string {
   const { provider, gender, fishId } = parseVoice(voice);

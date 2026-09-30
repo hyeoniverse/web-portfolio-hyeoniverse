@@ -266,20 +266,154 @@
   color: var(--text-primary);
 }
 
-/* 음성 만들기 메뉴 — 이 장만 / N장 모두 */
-.generateMenu {
-  min-width: 200px;
+/* ── 음성 만들기 — 분할 버튼. 왼쪽(이 장 만들기)과 오른쪽 ▾(범위 메뉴)를 한 캡슐로 붙인다 ── */
+.generateSplit {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: stretch;
 }
 
-/* 대본이 없는 장의 "이 장만" — 누를 수 없게 흐리게 */
-.menuDisabled {
-  opacity: 0.4;
-  pointer-events: none;
+/* 두 쪽의 맞닿는 모서리는 각지게, 바깥 모서리만 캡슐 */
+.generateSplit .generateMain.generateMain {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  padding-right: var(--spacing-sm);
+  font-size: var(--font-size-label);
+}
+
+/* Popover 가 버튼을 span 으로 감싼다 — 감싼 칸도 높이를 채우게 */
+.generateSplit > :last-child {
+  display: inline-flex;
+}
+
+.generateSplit .generateToggle.generateToggle {
+  width: calc(var(--control-h-sm) - 2px);
+  margin-left: -1px;
+  padding: 0;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  /* 두 쪽 사이 가는 구분선 — 채운 색 위의 옅은 줄 */
+  box-shadow: inset 1px 0 0 color-mix(in srgb, var(--text-inverse) 28%, transparent);
+}
+
+.generateSplit .generateToggle.generateToggle:hover:not(:disabled),
+.generateSplit .generateToggle.generateToggle[data-open] {
+  box-shadow: none;
+}
+
+/* 메뉴가 열린 동안 ▾ 는 눌린 모양(뒤집은 색)으로 */
+.generateSplit .generateToggle.generateToggle[data-open] {
+  background: transparent;
+  color: var(--text-primary);
+}
+
+.generateToggle svg {
+  transition: transform var(--duration-base) var(--ease-material);
+}
+
+.generateToggle[data-open] svg {
+  transform: rotate(180deg);
 }
 
 /* 만드는 중 — 잠긴 버튼이 흐려지지 않게 둔다(아이콘 자리에서 점 세 개가 움직인다) */
-.bulkButton.bulkButton[data-busy] {
+.generateSplit[data-busy] .generateMain.generateMain:disabled {
   opacity: 1;
+}
+
+/* 음성 만들기 메뉴 — 이 장 / 대본 있는 장 모두, 맨 아래 지금 목소리 */
+.generateMenu {
+  width: 272px;
+}
+
+.generateMenuBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+}
+
+.generateItem {
+  font-family: var(--font-space-grotesk);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: none;
+  border-radius: var(--radius-2xl);
+  background: transparent;
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+}
+
+.generateItem.generateItem {
+  transition: background-color var(--duration-fast) ease;
+}
+
+.generateItem:hover:not(:disabled) {
+  background: var(--bg-tertiary);
+}
+
+.generateItem:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+/* 아이콘 칸 — 옅은 사각 바탕 안에 아이콘. 두 줄 글의 첫 줄에 맞춘다 */
+.generateItemIcon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-circle);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+}
+
+.generateItem:hover:not(:disabled) .generateItemIcon {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.generateItemText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4xs);
+  min-width: 0;
+}
+
+.generateItemTitle {
+  font-size: var(--font-size-label);
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.generateItemMeta {
+  font-size: var(--font-size-hint);
+  line-height: 1.35;
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 지금 목소리 — 구분선 아래 한 줄. 무엇으로 만들지 누르기 전에 보이게 */
+.generateMenuVoice {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-2xs);
+  padding: var(--spacing-sm) var(--spacing-md) var(--spacing-2xs);
+  border-top: 1px solid var(--border-color-light);
+  font-size: var(--font-size-hint);
+  color: var(--text-tertiary);
+}
+
+.generateMenuVoice > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* 만드는 중의 점 세 개 — 아이콘(14px) 자리에 맞춘다 */
@@ -484,4 +618,51 @@
   font-family: var(--font-mono);
   font-size: 0.95em;
   color: var(--text-primary);
+}
+
+/* ── 목소리 고르기 — 트리거는 제공자 칩 + "성별 · 느낌". 너무 길어지면 말줄임 ── */
+.voiceSelect {
+  max-width: 200px;
+}
+
+.voiceValue {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  min-width: 0;
+  max-width: 100%;
+}
+
+.voiceChip {
+  flex-shrink: 0;
+  padding: 0 var(--spacing-xs);
+  border-radius: var(--radius-capsule);
+  /* 글자색을 옅게 깐 바탕 — 라이트·다크 어디서나 둘레와 구분된다(bg-tertiary 는 다크에서 배경과 같았다) */
+  background: color-mix(in srgb, var(--text-primary) 9%, transparent);
+  color: var(--text-secondary);
+  font-size: var(--font-size-hint);
+  line-height: 1.6;
+}
+
+.voiceShort {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 목록의 한 줄 — 성별 · 느낌, 오른쪽에 흐린 목소리 이름 */
+.voiceOption {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-md);
+  width: 100%;
+  min-width: 0;
+}
+
+.voiceDetail {
+  margin-left: auto;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-hint);
+  white-space: nowrap;
 }
