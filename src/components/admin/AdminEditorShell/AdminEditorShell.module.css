@@ -306,6 +306,20 @@
   color: var(--text-success);
 }
 
+/* 툴바가 nav 아래에 붙으면 그 위쪽은 nav 자리라 상태 문구가 nav 와 겹쳤다 — 붙어 있는 동안에는 버튼 줄
+   아래로 내린다. 그 자리는 frost 가 흐려지는 곳이라 본문 위에서도 읽히게 옅은 유리 바탕을 깐다 */
+.topBarPinned .statusBanner,
+.topBarPinned .errorBanner,
+.topBarPinned .successBanner {
+  top: auto;
+  bottom: 0;
+  transform: translateY(calc(100% - var(--spacing-sm)));
+  padding: var(--spacing-3xs) var(--spacing-sm);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-glass);
+  backdrop-filter: blur(12px);
+}
+
 .statusTime {
   color: var(--text-tertiary);
 }
