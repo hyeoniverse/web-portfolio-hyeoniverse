@@ -134,27 +134,31 @@
 
 /* 공급자가 돌려준 원문 — 시각 한 줄 + 원문 상자.
    예전엔 flex 안에 <code> 를 넣어 전역 인라인 코드(캡슐 모서리·강조색 글자)가 여러 줄짜리 덩어리에
-   그대로 씌워져, 긴 오류가 알약 모양 배경에 담겨 모서리가 크게 휘어 보였다 */
+   그대로 씌워져, 긴 오류가 알약 모양 배경에 담겨 모서리가 크게 휘어 보였다.
+   이제 <pre><code> 로 코드 블록처럼 담고, JSON 이면 들여 쓰고 색을 입힌다(formatProviderMessage) */
 .message {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-3xs);
-  margin: 0;
   font-size: var(--font-size-hint);
   line-height: 1.5;
   color: var(--text-tertiary);
 }
 
-.message code {
-  display: block;
+.raw {
+  margin: 0;
   padding: var(--spacing-xs) var(--spacing-sm);
   border-radius: var(--radius-2xl);
   background: var(--bg-secondary);
   color: var(--text-secondary);
-  font-size: inherit;
-  line-height: 1.5;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-hint);
+  line-height: 1.6;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+  /* 아주 긴 원문은 상자 안에서 스크롤 — 패널이 한없이 길어지지 않게 */
+  max-height: 240px;
+  overflow-y: auto;
 }
 
 /* 사용량 — 글 한 줄 + 막대(무료 한도를 아는 공급자만) + 한도 출처·기한 */
