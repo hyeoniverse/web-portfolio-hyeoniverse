@@ -56,9 +56,10 @@
   opacity: 0.5;
 }
 
+/* 색 칩은 96px — 140px 일 땐 200px 카드에 이름 자리가 거의 없어 "De…" "M" 처럼 잘렸다 */
 .presetSwatches {
   display: flex;
-  width: 140px;
+  width: 96px;
   height: 100%;
   overflow: hidden;
   flex-shrink: 0;
@@ -141,13 +142,45 @@
 }
 /* + 버튼 클릭 시 펼쳐지는 이름 input 인라인 row.
    AnimatePresence motion wrapper 가 height/opacity 애니메이션 — 이 inner 는 위 구분선 + padding 만 담당 */
+/* 프리셋 이름 입력 — 추가 버튼(+)이 있는 줄 바로 아래에 펼친다 */
+.presetAddPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+  padding-top: var(--spacing-sm);
+}
+
 .logoColorPresetAddRow {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--spacing-xs);
-  margin-top: var(--spacing-md);
-  padding-top: var(--spacing-md);
-  border-top: var(--border-light);
+}
+
+.presetAddLabel {
+  font-size: var(--font-size-label);
+  color: var(--text-tertiary);
+}
+
+/* 저장될 색 미리보기 — 프리셋 카드와 같은 순서(다크 배경 · 강조 · 라이트 배경) */
+.presetAddSwatches {
+  display: flex;
+  width: 72px;
+  height: 28px;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+}
+
+.presetAddSwatches span {
+  flex: 1;
+}
+
+.presetAddProblem {
+  margin: 0;
+  font-size: var(--font-size-hint);
+  color: var(--text-error-strong);
 }
 
 .logoColorPresetNameInput {
