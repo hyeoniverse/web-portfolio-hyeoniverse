@@ -9,7 +9,7 @@ import Select from "@/components/ui/Select";
 import { Slider } from "@/components/ui/Slider";
 import Checkbox from "@/components/ui/Checkbox";
 import Popover from "@/components/ui/Popover";
-import { AlignLeft, AudioLines, BookOpen, ChevronDown, ExternalLink, File, Images, FastForward, Rewind, ChevronLeft, ChevronRight, ClipboardPaste, History, Pause, Play, Sparkles, Trash2, Upload, Volume2 } from "@/components/icons";
+import { AlignLeft, AudioLines, BookOpen, ChevronDown, ExternalLink, File, Images, Languages, ListChecks, FastForward, Rewind, ChevronLeft, ChevronRight, ClipboardPaste, History, Pause, Play, Sparkles, Trash2, Upload, Volume2 } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { showToast } from "@/stores/toastStore";
@@ -752,13 +752,16 @@ function GenerateButton({ url, index, notes, actions, tw }: { url: string; index
     );
   };
 
+  /* 여러 장을 만드는 중에는 숫자(3/19)만 — 긴 문구("3/19장 만드는 중")는 title 로. 버튼 너비가 가장 긴 글자에
+     맞춰지므로 문구를 그대로 두면 평소에도 버튼이 넓었다 */
   const label = actions.bulk
-    ? fillTemplate(tw("narrationGenerating"), actions.bulk)
+    ? `${actions.bulk.done}/${actions.bulk.total}`
     : rowBusy ? tw("narrationWorking") : tw("narrationGenerate");
+  const busyTitle = actions.bulk ? fillTemplate(tw("narrationGenerating"), actions.bulk) : undefined;
   const locked = !!actions.bulk || rowBusy;
-  /* 글자가 "음성 만들기 → 만드는 중 → 3/19장 만드는 중"으로 바뀌어도 버튼 너비가 그대로이게, 가장 긴 글자 자리를
+  /* 글자가 "음성 만들기 → 만드는 중 → 3/19"로 바뀌어도 버튼 너비가 그대로이게, 가장 긴 글자 자리를
      보이지 않게 겹쳐 잡아 둔다 — 너비가 바뀌면 조작 막대의 다른 것들이 밀렸다 */
-  const widest = [tw("narrationGenerate"), tw("narrationWorking"), fillTemplate(tw("narrationGenerating"), { done: n || 1, total: n || 1 })];
+  const widest = [tw("narrationGenerate"), tw("narrationWorking"), `${n || 1}/${n || 1}`];
   const menuLabel = tw("narrationGenerateOptions");
   const voice = voiceParts(actions.voice, tw, actions.lang);
 
@@ -775,7 +778,7 @@ function GenerateButton({ url, index, notes, actions, tw }: { url: string; index
         className={styles.generateMain}
         onClick={() => void actions.generateOne(url)}
         disabled={locked || !hasScript}
-        title={hasScript ? undefined : tw("narrationGenerateNoScript")}
+        title={busyTitle ?? (hasScript ? undefined : tw("narrationGenerateNoScript"))}
         soundDisabled
         icon={locked ? <LoadingDots className={styles.busyDots} /> : <Sparkles size={14} strokeWidth={2} />}
       >
@@ -834,6 +837,91 @@ function GenerateButton({ url, index, notes, actions, tw }: { url: string; index
         )}
       </Popover>
     </span>
+  );
+}
+
+/** 대본 번역 — 다른 언어의 대본(sourceNotes)을 지금 편집 언어로 옮긴다. run 은 번역할 장 주소를 받는다 */
+export interface ScriptTranslate {
+  sourceNotes: GalleryNotes;
+  busy: boolean;
+  run: (urls: string[]) => void | Promise<void>;
+}
+
+/* 대본 번역 — 본문을 고칠 때마다 갤러리 전체를 다시 번역하지 않도록 장을 골라 번역한다.
+   이 장만(지금 대본을 바꾼다) · 빈 장만 · 원문 있는 장 모두. 맨 아래에 어느 언어에서 어느 언어로인지 */
+function TranslateScriptsButton({ url, index, gallery, notes, translate, lang, tw, disabled }: {
+  url: string;
+  index: number;
+  gallery: string[];
+  notes: GalleryNotes;
+  translate: ScriptTranslate;
+  lang: VoiceLang;
+  tw: (key: string) => string;
+  disabled?: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const has = (n: GalleryNotes, u: string) => !!n[u]?.script?.trim();
+  const sources = gallery.filter((u) => has(translate.sourceNotes, u));
+  const missing = sources.filter((u) => !has(notes, u));
+  const replacing = sources.length - missing.length;
+  const thisHasSource = has(translate.sourceNotes, url);
+  const label = tw("narrationTranslate");
+  const langName = (l: VoiceLang) => tw(l === "en" ? "narrationLangEn" : "narrationLangKo");
+  const pick = (urls: string[]) => { setOpen(false); void translate.run(urls); };
+
+  return (
+    <Popover
+      placement="top-end"
+      responsive={false}
+      maxHeight={false}
+      menu
+      open={open}
+      onOpenChange={setOpen}
+      contentClassName={styles.generateMenu}
+      trigger={
+        <Button
+          variant="ghost"
+          size="sm"
+          shape="circle"
+          disabled={disabled || translate.busy || sources.length === 0}
+          aria-label={label}
+          title={sources.length === 0 ? tw("narrationTranslateNoSource") : label}
+          aria-haspopup="menu"
+          aria-expanded={open}
+          soundDisabled
+          icon={translate.busy ? <LoadingDots className={styles.busyDots} /> : <Languages size={14} strokeWidth={2} />}
+        />
+      }
+    >
+      {() => (
+        <div role="menu" className={styles.generateMenuBody}>
+          <GenerateMenuItem
+            icon={<File size={16} strokeWidth={1.8} />}
+            title={tw("narrationTranslateThisTitle")}
+            meta={fillTemplate(tw(!thisHasSource ? "narrationTranslateThisEmpty" : has(notes, url) ? "narrationTranslateThisMeta" : "narrationTranslateThisFresh"), { n: index + 1 })}
+            disabled={!thisHasSource}
+            onClick={() => pick([url])}
+          />
+          <GenerateMenuItem
+            icon={<ListChecks size={16} strokeWidth={1.8} />}
+            title={tw("narrationTranslateMissingTitle")}
+            meta={fillTemplate(tw(missing.length ? "narrationTranslateMissingMeta" : "narrationTranslateMissingNone"), { n: missing.length })}
+            disabled={missing.length === 0}
+            onClick={() => pick(missing)}
+          />
+          <GenerateMenuItem
+            icon={<Images size={16} strokeWidth={1.8} />}
+            title={tw("narrationTranslateAllTitle")}
+            meta={fillTemplate(tw(replacing > 0 ? "narrationTranslateAllMeta" : "narrationGenerateAllMetaFresh"), { n: sources.length, replacing })}
+            onClick={() => pick(sources)}
+          />
+          <div className={styles.generateMenuVoice}>
+            <Languages size={14} strokeWidth={2} aria-hidden />
+            <span>{fillTemplate(tw("narrationTranslateDirection"), { from: langName(lang === "en" ? "ko" : "en"), to: langName(lang) })}</span>
+          </div>
+        </div>
+      )}
+    </Popover>
   );
 }
 
@@ -958,6 +1046,7 @@ export function GalleryNarrationPanel({
   actions,
   tw,
   renderSlide,
+  translate,
 }: {
   gallery: string[];
   notes: GalleryNotes;
@@ -965,6 +1054,8 @@ export function GalleryNarrationPanel({
   tw: (key: string) => string;
   /** 슬라이드 그림 — 그림·영상·문서 칸을 편집 화면의 칸과 같게 그린다 */
   renderSlide: (url: string) => React.ReactNode;
+  /** 대본 번역 — 번역을 쓸 수 없으면 없다(버튼을 그리지 않는다) */
+  translate?: ScriptTranslate;
 }) {
   const index = actions.openIndex >= 0 ? actions.openIndex : 0;
   const url = gallery[index];
@@ -1044,6 +1135,7 @@ export function GalleryNarrationPanel({
           <NarrationTools url={url} note={note} actions={actions} tw={tw} />
           <span className={styles.barDivider} aria-hidden />
           <PasteScriptsButton gallery={gallery} notes={notes} actions={actions} tw={tw} />
+          {translate && <TranslateScriptsButton url={url} index={index} gallery={gallery} notes={notes} translate={translate} lang={actions.lang} tw={tw} disabled={generating} />}
           <LexiconButton tw={tw} lang={actions.lang} disabled={generating} />
           <NarrationHelpButton tw={tw} />
           <VoiceSelect actions={actions} tw={tw} disabled={generating} />
