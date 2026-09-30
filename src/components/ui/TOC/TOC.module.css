@@ -300,7 +300,6 @@
   line-height: 20px;
   color: var(--text-tertiary);
   text-decoration: none;
-  will-change: transform;
   transition: color var(--duration-fast) ease;
 }
 
@@ -401,7 +400,6 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  will-change: transform;
   transition: color var(--duration-fast) ease;
 }
 
