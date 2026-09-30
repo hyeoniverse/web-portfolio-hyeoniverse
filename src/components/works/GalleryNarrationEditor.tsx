@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import Button from "@/components/ui/Button";
 import HelpButton from "@/components/ui/HelpButton";
 import Pressable from "@/components/ui/Pressable";
@@ -8,8 +8,8 @@ import Textarea from "@/components/ui/Textarea";
 import Select from "@/components/ui/Select";
 import { Slider } from "@/components/ui/Slider";
 import Checkbox from "@/components/ui/Checkbox";
-import Popover, { MenuItem } from "@/components/ui/Popover";
-import { AlignLeft, BookOpen, ExternalLink, FastForward, Rewind, ChevronLeft, ChevronRight, ClipboardPaste, History, Pause, Play, Sparkles, Trash2, Upload, Volume2 } from "@/components/icons";
+import Popover from "@/components/ui/Popover";
+import { AlignLeft, AudioLines, BookOpen, ChevronDown, ExternalLink, File, Images, FastForward, Rewind, ChevronLeft, ChevronRight, ClipboardPaste, History, Pause, Play, Sparkles, Trash2, Upload, Volume2 } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { showToast } from "@/stores/toastStore";
@@ -17,7 +17,7 @@ import { useModalStore } from "@/stores/modalStore";
 import { fillTemplate } from "@/utils/format";
 import { errorText } from "@/lib/apiError";
 import { sendAction, tryRequest } from "@/lib/sendAction";
-import { isTtsVoice, parseVoice, voiceLabel, voicesFor, type TtsProvider, type TtsVoice, type VoiceLang } from "@/lib/ttsVoices";
+import { isTtsVoice, parseVoice, voiceLabel, voiceParts, voicesFor, type TtsProvider, type TtsVoice, type VoiceLang } from "@/lib/ttsVoices";
 import { chunkScript } from "@/lib/ttsChunks";
 import { planScripts, splitScriptSections } from "@/lib/splitScripts";
 import { displayScript } from "@/lib/ttsLexicon";
@@ -727,10 +727,12 @@ function GenerateManyDialog({ n, replacing, voice, tw, onReplaceAll, onMissingOn
 
 /* 음성 만들기 — 버튼 하나. 대본이 있는 장이 여럿이면 "이 장만 / N장 모두"를 고르는 메뉴를 띄운다.
    모두 만들 때 이미 음성이 있는 장이 섞여 있으면 바꾸기 전에 한 번 묻는다 */
-function GenerateButton({ url, notes, actions, tw }: { url: string; notes: GalleryNotes; actions: NarrationActions; tw: (key: string) => string }) {
+function GenerateButton({ url, index, notes, actions, tw }: { url: string; index: number; notes: GalleryNotes; actions: NarrationActions; tw: (key: string) => string }) {
   const { openModal } = useModalStore();
+  const [menuOpen, setMenuOpen] = useState(false);
   const n = actions.targets.length;
-  const hasScript = !!notes[url]?.script?.trim();
+  const script = notes[url]?.script?.trim() ?? "";
+  const hasScript = !!script;
   const rowBusy = actions.busy.has(url);
   const replacing = actions.targets.filter((u) => notes[u]?.audio).length;
 
@@ -757,29 +759,130 @@ function GenerateButton({ url, notes, actions, tw }: { url: string; notes: Galle
   /* 글자가 "음성 만들기 → 만드는 중 → 3/19장 만드는 중"으로 바뀌어도 버튼 너비가 그대로이게, 가장 긴 글자 자리를
      보이지 않게 겹쳐 잡아 둔다 — 너비가 바뀌면 조작 막대의 다른 것들이 밀렸다 */
   const widest = [tw("narrationGenerate"), tw("narrationWorking"), fillTemplate(tw("narrationGenerating"), { done: n || 1, total: n || 1 })];
-  const button = (onClick?: () => void) => (
-    /* loading 을 쓰지 않는다 — 버튼 내용을 통째로 점 세 개로 바꿔 너비가 줄고 진행 글자도 가려졌다.
-       만드는 동안에는 아이콘 자리에만 점 세 개를 움직이고, 글자(진행)는 그대로 둔다 */
-    <Button variant="subtle" size="sm" shape="capsule" className={styles.bulkButton} data-busy={locked ? "" : undefined} onClick={onClick} disabled={locked || n === 0} soundDisabled icon={locked ? <LoadingDots className={styles.busyDots} /> : <Sparkles size={14} strokeWidth={2} />}>
-      <span className={styles.stableLabel}>
-        {widest.map((w) => <span key={w} className={styles.stableGhost} aria-hidden>{w}</span>)}
-        <span>{label}</span>
-      </span>
-    </Button>
-  );
+  const menuLabel = tw("narrationGenerateOptions");
+  const voice = voiceParts(actions.voice, tw, actions.lang);
 
-  /* 만들 장이 이 장 하나뿐(또는 이 장에만 대본)이면 고를 것이 없다 */
-  if (n <= 1) return button(() => { if (hasScript) void actions.generateOne(url); else all(); });
+  const pick = (run: () => void) => { setMenuOpen(false); run(); };
 
+  /* 분할 버튼 — 왼쪽은 이 장을 바로 만들고, 오른쪽 ▾ 는 만들 범위(이 장 / 대본 있는 장 모두)와 지금 목소리를 보여 준다.
+     loading 을 쓰지 않는다 — 버튼 내용을 통째로 점 세 개로 바꿔 너비가 줄고 진행 글자도 가려졌다.
+     만드는 동안에는 아이콘 자리에만 점 세 개를 움직이고, 글자(진행)는 그대로 둔다 */
   return (
-    <Popover placement="top-end" responsive={false} maxHeight={false} menu contentClassName={styles.generateMenu} trigger={button()}>
-      {({ close }) => (
-        <>
-          <MenuItem label={tw("narrationGenerateThis")} onClick={() => { close(); void actions.generateOne(url); }} className={hasScript ? undefined : styles.menuDisabled} />
-          <MenuItem label={tw("narrationGenerateMany")} onClick={() => { close(); all(); }} />
-        </>
+    <span className={styles.generateSplit} data-busy={locked ? "" : undefined}>
+      <Button
+        variant="primary"
+        size="sm"
+        className={styles.generateMain}
+        onClick={() => void actions.generateOne(url)}
+        disabled={locked || !hasScript}
+        title={hasScript ? undefined : tw("narrationGenerateNoScript")}
+        soundDisabled
+        icon={locked ? <LoadingDots className={styles.busyDots} /> : <Sparkles size={14} strokeWidth={2} />}
+      >
+        <span className={styles.stableLabel}>
+          {widest.map((w) => <span key={w} className={styles.stableGhost} aria-hidden>{w}</span>)}
+          <span>{label}</span>
+        </span>
+      </Button>
+      <Popover
+        placement="top-end"
+        responsive={false}
+        maxHeight={false}
+        menu
+        open={menuOpen}
+        onOpenChange={setMenuOpen}
+        contentClassName={styles.generateMenu}
+        trigger={
+          <Button
+            variant="primary"
+            size="sm"
+            className={styles.generateToggle}
+            data-open={menuOpen ? "" : undefined}
+            disabled={locked || n === 0}
+            aria-label={menuLabel}
+            title={menuLabel}
+            aria-haspopup="menu"
+            aria-expanded={menuOpen}
+            soundDisabled
+            icon={<ChevronDown size={14} strokeWidth={2.2} />}
+          />
+        }
+      >
+        {() => (
+          <div role="menu" className={styles.generateMenuBody}>
+            <GenerateMenuItem
+              icon={<File size={16} strokeWidth={1.8} />}
+              title={tw("narrationGenerateThisTitle")}
+              meta={fillTemplate(tw(hasScript ? "narrationGenerateThisMeta" : "narrationGenerateThisEmpty"), { n: index + 1, chars: script.length.toLocaleString() })}
+              disabled={!hasScript}
+              onClick={() => pick(() => void actions.generateOne(url))}
+            />
+            <GenerateMenuItem
+              icon={<Images size={16} strokeWidth={1.8} />}
+              title={tw("narrationGenerateAllTitle")}
+              meta={fillTemplate(tw(replacing > 0 ? "narrationGenerateAllMeta" : "narrationGenerateAllMetaFresh"), { n, replacing })}
+              disabled={n === 0}
+              onClick={() => pick(all)}
+            />
+            {/* 지금 목소리 — 목소리 고르기 트리거와 같은 짧은 모양(칩 · 성별 · 느낌) 뒤에 목소리 이름 */}
+            <div className={styles.generateMenuVoice} title={voiceLabel(actions.voice, tw)}>
+              <AudioLines size={14} strokeWidth={2} aria-hidden />
+              <span className={styles.voiceChip}>{voice.providerShort}</span>
+              <span>{voice.short} · {voice.detail}</span>
+            </div>
+          </div>
+        )}
+      </Popover>
+    </span>
+  );
+}
+
+/* 목소리 고르기 — 목록은 제공자로 묶고 한 줄에 "성별 · 느낌" 과 흐린 목소리 이름을, 트리거에는 제공자 칩과
+   "성별 · 느낌" 만 보인다. 전체 이름("Fish Audio · 여성 · 밝음 (일반여성2)")을 트리거에 그대로 넣으니 조작 막대가 밀렸다 */
+function VoiceSelect({ actions, tw, disabled }: { actions: NarrationActions; tw: (key: string) => string; disabled?: boolean }) {
+  const options = voicesFor(actions.lang).map((v) => {
+    const p = voiceParts(v, tw, actions.lang);
+    /* label 은 트리거 너비를 정하는 데 쓰인다(Select 의 sizer) — 트리거에 보이는 모양과 같은 글자로 */
+    return { value: v, label: `${p.providerShort} ${p.short}`, group: p.provider, trailing: p.detail };
+  });
+  const current = voiceParts(actions.voice, tw, actions.lang);
+  return (
+    <Select
+      size="sm"
+      disabled={disabled}
+      value={actions.voice}
+      onChange={(v) => { if (isTtsVoice(v)) actions.setVoice(v); }}
+      options={options}
+      className={styles.voiceSelect}
+      renderValue={() => (
+        <span className={styles.voiceValue} title={voiceLabel(actions.voice, tw)}>
+          <span className={styles.voiceChip}>{current.providerShort}</span>
+          <span className={styles.voiceShort}>{current.short}</span>
+        </span>
       )}
-    </Popover>
+      renderOption={(opt) => {
+        const p = voiceParts(opt.value, tw, actions.lang);
+        return (
+          <span className={styles.voiceOption}>
+            <span>{p.short}</span>
+            <span className={styles.voiceDetail}>{p.detail}</span>
+          </span>
+        );
+      }}
+    />
+  );
+}
+
+/* 음성 만들기 메뉴의 한 줄 — 아이콘 · 제목 · 설명(몇 장, 이미 음성이 있는 장) */
+function GenerateMenuItem({ icon, title, meta, disabled, onClick }: { icon: ReactNode; title: string; meta: string; disabled?: boolean; onClick: () => void }) {
+  return (
+    <Pressable type="button" role="menuitem" className={styles.generateItem} onClick={onClick} disabled={disabled} aria-disabled={disabled || undefined}>
+      <span className={styles.generateItemIcon} aria-hidden>{icon}</span>
+      <span className={styles.generateItemText}>
+        <span className={styles.generateItemTitle}>{title}</span>
+        <span className={styles.generateItemMeta}>{meta}</span>
+      </span>
+    </Pressable>
   );
 }
 
@@ -943,8 +1046,8 @@ export function GalleryNarrationPanel({
           <PasteScriptsButton gallery={gallery} notes={notes} actions={actions} tw={tw} />
           <LexiconButton tw={tw} lang={actions.lang} disabled={generating} />
           <NarrationHelpButton tw={tw} />
-          <Select size="sm" disabled={generating} value={actions.voice} onChange={(v) => { if (isTtsVoice(v)) actions.setVoice(v); }} options={voicesFor(actions.lang).map((v) => ({ value: v, label: voiceLabel(v, tw) }))} />
-          <GenerateButton url={url} notes={notes} actions={actions} tw={tw} />
+          <VoiceSelect actions={actions} tw={tw} disabled={generating} />
+          <GenerateButton url={url} index={index} notes={notes} actions={actions} tw={tw} />
         </span>
       </div>
     </>
