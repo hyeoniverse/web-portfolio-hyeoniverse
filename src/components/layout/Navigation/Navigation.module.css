@@ -245,6 +245,11 @@
   object-fit: contain;
 }
 
+/* 이 배경용 변형이 없어 반대쪽 변형을 쓸 때 — 명암만 뒤집고 색상은 hue-rotate 로 되돌린다(lib/brandLogos) */
+.logoImageInvert {
+  filter: invert(1) hue-rotate(180deg);
+}
+
 /* 리컬러 로고 — 숨긴 img 로 폭(종횡비) 확보 + mask 로 그 형태를 tint 색으로 채움 */
 .logoImageTinted {
   display: inline-block;

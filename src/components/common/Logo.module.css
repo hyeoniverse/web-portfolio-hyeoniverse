@@ -13,8 +13,10 @@
   vertical-align: baseline;
 }
 
-[data-theme="dark"] .logoImage {
-  filter: invert(1);
+/* 이 배경용 변형이 없어 반대쪽 변형을 쓸 때만 명암을 뒤집는다 — 색상은 hue-rotate 로 되돌려 최대한 유지.
+   예전엔 다크 테마면 무조건 뒤집어서, 다크용(밝은 잉크)으로 올린 로고가 다시 어두워져 묻혔다 */
+.logoImageInvert {
+  filter: invert(1) hue-rotate(180deg);
 }
 
 /* 리컬러 로고 — 숨긴 img 가 폭(종횡비)을 잡고, mask 로 그 형태를 tint 색으로 채운다.

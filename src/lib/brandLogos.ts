@@ -54,3 +54,25 @@ export function resolveBrandLogos(brand: BrandLogoFields): ResolvedBrandLogos {
     full: !fullCustom && shortCustom ? shortSlot : fullSlot,
   };
 }
+
+export interface LogoOnBg {
+  url: string;
+  /** 그 배경용 변형이 없어 반대쪽 변형을 쓸 때 — 명암을 뒤집어야 배경에 묻히지 않는다 */
+  invert: boolean;
+  /** 그 배경용 리컬러 색 — 있으면 이 색으로 칠하므로 뒤집지 않는다 */
+  tint: string;
+}
+
+/**
+ * 배경(밝음/어두움)에 맞는 로고. 그 배경용 변형을 먼저 쓰고, 없으면 반대쪽 변형을 쓰되 명암을 뒤집는다.
+ * 라이트용(어두운 잉크)만 올리면 다크 화면·검은 로딩 덮개에서 로고가 배경에 묻혔고, 반대로 다크 화면에서
+ * 이미지를 무조건 뒤집으면 다크용(밝은 잉크)으로 올린 로고가 다시 어두워져 묻혔다.
+ */
+export function logoOnBg(slot: LogoSlot, bg: "light" | "dark"): LogoOnBg {
+  const own = bg === "dark" ? slot.dark : slot.light;
+  const other = bg === "dark" ? slot.light : slot.dark;
+  const tint = bg === "dark" ? slot.colorDark : slot.colorLight;
+  if (own) return { url: own, invert: false, tint };
+  if (other) return { url: other, invert: !tint, tint };
+  return { url: "", invert: false, tint: "" };
+}
