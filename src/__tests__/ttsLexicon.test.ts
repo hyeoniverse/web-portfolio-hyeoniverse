@@ -56,11 +56,14 @@ describe("displayScript / spokenScript", () => {
   });
 });
 
-describe("spokenScript — 영어 대본", () => {
-  it("읽을 말이 한글인 사전 항목은 영어 대본에 쓰지 않는다", async () => {
-    const { spokenScript } = await import("@/lib/ttsLexicon");
-    const entries = [{ from: "RLS", to: "알엘에스" }, { from: "?all=true", to: "all equals true" }];
-    expect(spokenScript("RLS guards ?all=true", entries)).toBe("RLS guards all equals true");
-    expect(spokenScript("RLS 로 막는다", entries)).toBe("알엘에스 로 막는다");
+describe("lexiconOf / withLexicon — 언어마다 따로", () => {
+  it("한국어는 entries, 영어는 en 칸이고 한쪽을 바꿔도 다른 쪽은 그대로다", async () => {
+    const { lexiconOf, withLexicon } = await import("@/lib/ttsLexicon");
+    const config = { entries: [{ from: "RLS", to: "알엘에스" }] };
+    expect(lexiconOf(config, "ko")).toEqual([{ from: "RLS", to: "알엘에스" }]);
+    expect(lexiconOf(config, "en")).toEqual([]);
+    const next = withLexicon(config, "en", [{ from: "RLS", to: "R L S" }]);
+    expect(lexiconOf(next, "ko")).toEqual([{ from: "RLS", to: "알엘에스" }]);
+    expect(lexiconOf(next, "en")).toEqual([{ from: "RLS", to: "R L S" }]);
   });
 });

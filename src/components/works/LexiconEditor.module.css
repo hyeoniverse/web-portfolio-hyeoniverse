@@ -258,3 +258,8 @@
     margin-left: 0;
   }
 }
+
+/* 고칠 사전(KO/EN) — 줄 전체로 늘어나지 않게 */
+.langSwitch {
+  align-self: flex-start;
+}

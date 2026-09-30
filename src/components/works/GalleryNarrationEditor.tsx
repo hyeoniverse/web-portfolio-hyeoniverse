@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import Button from "@/components/ui/Button";
 import HelpButton from "@/components/ui/HelpButton";
 import Pressable from "@/components/ui/Pressable";
@@ -17,7 +17,7 @@ import { useModalStore } from "@/stores/modalStore";
 import { fillTemplate } from "@/utils/format";
 import { errorText } from "@/lib/apiError";
 import { sendAction, tryRequest } from "@/lib/sendAction";
-import { TTS_VOICES, isTtsVoice, parseVoice, voiceLabel, type TtsProvider, type TtsVoice } from "@/lib/ttsVoices";
+import { isTtsVoice, parseVoice, voiceLabel, voicesFor, type TtsProvider, type TtsVoice, type VoiceLang } from "@/lib/ttsVoices";
 import { chunkScript } from "@/lib/ttsChunks";
 import { planScripts, splitScriptSections } from "@/lib/splitScripts";
 import { displayScript } from "@/lib/ttsLexicon";
@@ -45,17 +45,22 @@ import styles from "./GalleryNarrationEditor.module.css";
 
 type Update = (url: string, patch: Partial<GalleryNote>) => void;
 
-/** 음성 만들기·녹음 올리기 — 칸마다의 창과 한꺼번에 만들기가 목소리·진행 상태를 같이 쓰도록 편집 화면에서 한 번 부른다 */
-export function useNarrationActions({ gallery, notes, update, tw }: {
+/** 음성 만들기·녹음 올리기 — 칸마다의 창과 한꺼번에 만들기가 목소리·진행 상태를 같이 쓰도록 편집 화면에서 한 번 부른다.
+ *  lang 은 편집 언어(KO/EN) — 대본·음성이 그 언어 칸에 있고, 목소리도 언어마다 따로 고른다(Fish 는 언어마다 화자가 다르다) */
+export function useNarrationActions({ gallery, notes, update, tw, lang }: {
   gallery: string[];
   notes: GalleryNotes;
   update: Update;
   tw: (key: string) => string;
+  lang: VoiceLang;
 }) {
   const { t } = useLanguage();
-  /* 처음 목소리 — 설정 › 서비스 › 슬라이드 음성의 기본 제공자에서 첫 목소리 */
+  /* 처음 목소리 — 설정 › 서비스 › 슬라이드 음성의 기본 제공자에서 그 언어의 첫 목소리 */
   const defaultProvider = useSiteConfig().tts?.provider;
-  const [voice, setVoice] = useState<TtsVoice>(() => TTS_VOICES.find((v) => v.startsWith(`${defaultProvider}:`)) ?? TTS_VOICES[0]);
+  const firstVoice = (l: VoiceLang) => voicesFor(l).find((v) => v.startsWith(`${defaultProvider}:`)) ?? voicesFor(l)[0];
+  const [voices, setVoices] = useState<Record<VoiceLang, TtsVoice>>(() => ({ ko: firstVoice("ko"), en: firstVoice("en") }));
+  const voice = voices[lang];
+  const setVoice = useCallback((v: TtsVoice) => setVoices((prev) => ({ ...prev, [lang]: v })), [lang]);
   /* 음성을 만드는 중인 장과 진행(조각 몇 개 중 몇 개) */
   const [busy, setBusy] = useState<ReadonlyMap<string, { done: number; total: number }>>(new Map());
   const [bulk, setBulk] = useState<{ done: number; total: number } | null>(null);
@@ -117,7 +122,7 @@ export function useNarrationActions({ gallery, notes, update, tw }: {
         let retry = false;
         setRowBusy(url, { done: 0, total: chunks.length });
         for (const chunk of chunks) {
-          const res = await post("/api/works/tts", provider ? { text: chunk, voice, provider } : { text: chunk, voice, skip });
+          const res = await post("/api/works/tts", provider ? { text: chunk, voice, lang, provider } : { text: chunk, voice, lang, skip });
           if (!(res instanceof Response)) {
             /* 첫 조각이 실패했으면 서버가 남은 제공자를 다 해 본 것이다 */
             if (!provider) return fail(res);
@@ -239,14 +244,14 @@ export function useNarrationActions({ gallery, notes, update, tw }: {
     const openIndex = openUrl ? gallery.indexOf(openUrl) : -1;
 
     return {
-      voice, setVoice, busy, bulk, targets, generateOne, generateAll, uploadRecording, clearAudio, restoreHistory, pasteScripts, update, notes,
+      voice, setVoice, lang, busy, bulk, targets, generateOne, generateAll, uploadRecording, clearAudio, restoreHistory, pasteScripts, update, notes,
       openUrl, openIndex, focusTick,
       open: (url: string | null, focusScript = true) => {
         setOpenUrl(url);
         if (focusScript) setFocusTick((n) => n + 1);
       },
     };
-  }, [gallery, notes, update, tw, t, voice, busy, bulk, openUrl, focusTick]);
+  }, [gallery, notes, update, tw, t, voice, setVoice, lang, busy, bulk, openUrl, focusTick]);
 }
 
 export type NarrationActions = ReturnType<typeof useNarrationActions>;
@@ -782,13 +787,14 @@ function GenerateButton({ url, notes, actions, tw }: { url: string; notes: Galle
    설정은 편집 중인 글을 잃지 않게 새 탭으로 연다 */
 const LEXICON_MODAL_ID = "narration-lexicon";
 
-function LexiconButton({ tw, disabled }: { tw: (key: string) => string; disabled?: boolean }) {
+function LexiconButton({ tw, lang, disabled }: { tw: (key: string) => string; lang: VoiceLang; disabled?: boolean }) {
   const { openModal } = useModalStore();
   const label = tw("narrationLexicon");
   const open = () => openModal(
     <div className={styles.lexiconModal}>
     <LexiconEditor
       compact
+      initialLang={lang}
       footer={
         <Button variant="ghost" size="sm" shape="capsule" onClick={() => window.open("/admin/settings?tab=services#tts-lexicon", "_blank", "noopener")} soundDisabled icon={<ExternalLink size={14} strokeWidth={2} />}>
           {tw("narrationLexiconManage")}
@@ -935,9 +941,9 @@ export function GalleryNarrationPanel({
           <NarrationTools url={url} note={note} actions={actions} tw={tw} />
           <span className={styles.barDivider} aria-hidden />
           <PasteScriptsButton gallery={gallery} notes={notes} actions={actions} tw={tw} />
-          <LexiconButton tw={tw} disabled={generating} />
+          <LexiconButton tw={tw} lang={actions.lang} disabled={generating} />
           <NarrationHelpButton tw={tw} />
-          <Select size="sm" disabled={generating} value={actions.voice} onChange={(v) => { if (isTtsVoice(v)) actions.setVoice(v); }} options={TTS_VOICES.map((v) => ({ value: v, label: voiceLabel(v, tw) }))} />
+          <Select size="sm" disabled={generating} value={actions.voice} onChange={(v) => { if (isTtsVoice(v)) actions.setVoice(v); }} options={voicesFor(actions.lang).map((v) => ({ value: v, label: voiceLabel(v, tw) }))} />
           <GenerateButton url={url} notes={notes} actions={actions} tw={tw} />
         </span>
       </div>
