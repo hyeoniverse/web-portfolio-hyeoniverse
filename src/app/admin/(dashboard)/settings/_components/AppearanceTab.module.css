@@ -177,10 +177,11 @@
   flex: 1;
 }
 
+/* 저장 못 하는 이유 — 입력칸 error 테두리와 같은 강조색. 빨강(error)은 아껴 쓴다 */
 .presetAddProblem {
   margin: 0;
   font-size: var(--font-size-hint);
-  color: var(--text-error-strong);
+  color: var(--text-accent);
 }
 
 .logoColorPresetNameInput {
