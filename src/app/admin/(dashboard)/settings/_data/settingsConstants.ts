@@ -40,6 +40,9 @@ export interface ThemePreset {
  * 거의 같은 색이 있어서, 각 테마의 성격은 두고 강조색만 색상·명도를 조금씩 옮겼다.
  * 강조색은 선명한 그대로 쓰고, 글자로 쓰일 때 묻히는 문제는 ThemeProvider 가 --text-accent 를
  * 배경 대비 4.5 가 되도록 명도만 옮겨 해결한다 (readableAccent). 검사는 themePresets.test.ts.
+ *
+ * 순서는 Default 다음부터 강조색 색상환 순서(빨강 → 주황·노랑 → 초록 → 파랑 → 보라·분홍),
+ * 색이 거의 없는 Slate 는 맨 뒤. 설정 화면과 디자인 시스템이 이 순서대로 보여 준다.
  */
 export const THEME_PRESETS: ThemePreset[] = [
   {
@@ -48,6 +51,10 @@ export const THEME_PRESETS: ThemePreset[] = [
   },
   // Reds
   {
+    name: "Ruby",
+    theme: { accentColor: "#9d0208", lightBg: "#fbeaea", lightText: "#3b0a0a", darkBg: "#150404", darkText: "#f4c7c7" },
+  },
+  {
     name: "Meadow",
     theme: { accentColor: "#bc4749", lightBg: "#f2e8cf", lightText: "#2a4e30", darkBg: "#141f12", darkText: "#a7c957" },
   },
@@ -55,7 +62,7 @@ export const THEME_PRESETS: ThemePreset[] = [
     name: "Coral",
     theme: { accentColor: "#fe5f55", lightBg: "#eef5db", lightText: "#3d2a1a", darkBg: "#1a130c", darkText: "#c7efcf" },
   },
-  // Oranges
+  // Oranges · Yellows
   {
     name: "Azure",
     theme: { accentColor: "#fd6b1d", lightBg: "#efefd0", lightText: "#004e89", darkBg: "#0a1a2e", darkText: "#f7c59f" },
@@ -98,7 +105,11 @@ export const THEME_PRESETS: ThemePreset[] = [
     name: "Sorbet",
     theme: { accentColor: "#7aabe9", lightBg: "#fcf5c7", lightText: "#2a4a5e", darkBg: "#0e1e2c", darkText: "#ffc09f" },
   },
-  // Pinks
+  // Purples · Pinks
+  {
+    name: "Twilight",
+    theme: { accentColor: "#6d3fb0", lightBg: "#fbf3df", lightText: "#3a2560", darkBg: "#1b1330", darkText: "#f3d9a4" },
+  },
   {
     name: "Tropica",
     theme: { accentColor: "#fa5ca4", lightBg: "#fce4d8", lightText: "#4a1530", darkBg: "#1a0a14", darkText: "#b5f8fe" },
@@ -107,18 +118,10 @@ export const THEME_PRESETS: ThemePreset[] = [
     name: "Petal",
     theme: { accentColor: "#f8768d", lightBg: "#ffe5ec", lightText: "#5c1a30", darkBg: "#1a0810", darkText: "#ffc2d1" },
   },
-  // Neutrals · Purples
+  // Neutrals
   {
     name: "Slate",
     theme: { accentColor: "#5c677d", lightBg: "#eef0f4", lightText: "#1f2533", darkBg: "#0e1118", darkText: "#cdd3df" },
-  },
-  {
-    name: "Ruby",
-    theme: { accentColor: "#9d0208", lightBg: "#fbeaea", lightText: "#3b0a0a", darkBg: "#150404", darkText: "#f4c7c7" },
-  },
-  {
-    name: "Twilight",
-    theme: { accentColor: "#6d3fb0", lightBg: "#fbf3df", lightText: "#3a2560", darkBg: "#1b1330", darkText: "#f3d9a4" },
   },
 ];
 
