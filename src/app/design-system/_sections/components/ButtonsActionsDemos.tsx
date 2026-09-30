@@ -27,7 +27,7 @@ export default function ButtonsActionsDemos() {
 
   return (
     <>
-        <h3 className={styles.componentCategory}>Buttons & Actions</h3>
+        <h3 id="components-buttons" className={styles.componentCategory}>Buttons & Actions</h3>
 
         {/* Button */}
         <DemoGroup title="Button">

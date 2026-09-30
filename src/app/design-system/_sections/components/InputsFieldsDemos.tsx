@@ -38,7 +38,7 @@ export default function InputsFieldsDemos() {
 
   return (
     <>
-        <h3 className={styles.componentCategory}>Inputs & Fields</h3>
+        <h3 id="components-inputs" className={styles.componentCategory}>Inputs & Fields</h3>
 
         {/* Input */}
         <DemoGroup title="Input">

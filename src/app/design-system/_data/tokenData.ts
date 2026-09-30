@@ -111,8 +111,18 @@ export const typoVariants = [
 export const typoColors = ["primary", "secondary", "tertiary", "muted", "accent"] as const;
 
 // ─── TOC Data ───
-export const tocSections = [
-  { id: "principles", label: "Principles" },
+/** 목차 — 구역과 그 아래 소제목. 소제목 id 는 해당 제목 요소의 id 와 같아야 한다. */
+export const tocSections: { id: string; label: string; subs?: { id: string; label: string }[] }[] = [
+  {
+    id: "principles",
+    label: "Principles",
+    subs: [
+      { id: "principles-tiers", label: "3-Tier" },
+      { id: "principles-ssot", label: "Single Source" },
+      { id: "principles-theme", label: "Semantic Theme" },
+      { id: "principles-no-raw", label: "No Raw Values" },
+    ],
+  },
   { id: "colors", label: "Colors" },
   { id: "alpha", label: "Alpha" },
   { id: "semantic", label: "Semantic" },
@@ -123,9 +133,37 @@ export const tocSections = [
   { id: "shadows", label: "Shadows" },
   { id: "motion", label: "Motion" },
   { id: "z-index", label: "Z-Index" },
-  { id: "threejs", label: "3D (Three.js)" },
-  { id: "components", label: "Components" },
-  { id: "tooltip", label: "Tooltip" },
+  {
+    id: "threejs",
+    label: "3D (Three.js)",
+    subs: [
+      { id: "threejs-coffee", label: "Coffee Cup" },
+      { id: "threejs-torus", label: "Scroll Torus" },
+      { id: "threejs-bunny", label: "Bunny" },
+    ],
+  },
+  {
+    id: "components",
+    label: "Components",
+    subs: [
+      { id: "components-layout", label: "Layout" },
+      { id: "components-buttons", label: "Buttons" },
+      { id: "components-toggles", label: "Toggles" },
+      { id: "components-inputs", label: "Inputs" },
+      { id: "components-pickers", label: "Pickers" },
+      { id: "components-chips", label: "Chips" },
+      { id: "components-overlays", label: "Overlays" },
+      { id: "components-feedback", label: "Feedback" },
+    ],
+  },
+  {
+    id: "tooltip",
+    label: "Tooltip",
+    subs: [
+      { id: "tooltip-basic", label: "Basic" },
+      { id: "tooltip-translation", label: "Translation" },
+    ],
+  },
   { id: "editor", label: "Editor" },
   { id: "banner", label: "Banner Layouts" },
 ];
