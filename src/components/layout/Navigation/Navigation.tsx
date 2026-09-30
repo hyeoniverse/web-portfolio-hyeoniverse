@@ -17,7 +17,7 @@ import { useContactStore } from "@/stores/contactStore";
 import { useLenis } from "@/providers/LenisProvider";
 import { SYMBOL_FONT_FAMILY } from "@/config/symbolFont.generated";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
-import { resolveBrandLogos } from "@/lib/brandLogos";
+import { logoOnBg, resolveBrandLogos } from "@/lib/brandLogos";
 import { loadGoogleFont } from "@/lib/loadGoogleFont";
 import {
   firstGrapheme,
@@ -141,23 +141,25 @@ export default function Navigation() {
   const isDark = theme === "dark";
   const useSystemLogo = siteConfig.brand.logoMode === "system";
   const logos = resolveBrandLogos(siteConfig.brand);
-  const shortLogoUrl = useSystemLogo ? "" : (isDark && logos.short.dark) || logos.short.light;
+  /* 화면 배경에 맞는 변형 — 없으면 반대쪽 변형을 명암만 뒤집어 쓴다(lib/brandLogos 의 logoOnBg).
+     라이트용(어두운 잉크)만 올리면 다크 화면에서 로고가 배경에 묻혔다 */
+  const shortPick = logoOnBg(logos.short, isDark ? "dark" : "light");
+  const shortLogoUrl = useSystemLogo ? "" : shortPick.url;
   const hasImageLogo = !!shortLogoUrl;
   /* 로딩 덮개는 화면 테마와 무관하게 항상 검다(--bg-black). 로딩에 띄우는 로고는 테마가 아니라
-     덮개 기준으로 다크 변형을 우선한다 — 라이트 테마에서 어두운 로고가 덮개에 묻혀 안 보였다.
-     풀(다크 우선)이 없으면 숏 다크 변형을 오버레이로 쓰고, nav 숏은 전환 때 crossfade 로 나타난다. */
-  const loadingFullUrl = logos.full.dark || logos.full.light;
-  const loadingShortDark = !loadingFullUrl && !!logos.short.dark;
-  const loadingLogoUrl = loadingFullUrl || (loadingShortDark ? logos.short.dark : logos.short.light);
-  const hasDistinctLoadingLogo = !!loadingLogoUrl && loadingLogoUrl !== shortLogoUrl;
-  // 로딩 오버레이 이미지 폭 — 풀은 워드마크(120), 숏 다크 변형은 마크(32)
-  const loadingLogoW = loadingFullUrl ? 120 : 32;
-  // 업로드 로고 리컬러 색 (설정 지정 시) — 이미지를 마스크로 그 색 채움. 빈 값 = 원본
-  const shortTint = (isDark ? logos.short.colorDark : logos.short.colorLight) || "";
-  // 로딩 로고 리컬러는 위에서 고른 URL 과 같은 변형·슬롯을 따라간다
-  const loadingTint = loadingFullUrl
-    ? (logos.full.dark ? logos.full.colorDark : logos.full.colorLight) || ""
-    : (loadingShortDark ? logos.short.colorDark : logos.short.colorLight) || "";
+     덮개 기준(어두운 배경)으로 고른다 — 라이트 테마에서 어두운 로고가 덮개에 묻혀 안 보였다.
+     풀이 없으면 숏을 오버레이로 쓰고, nav 숏은 전환 때 crossfade 로 나타난다. */
+  const fullOnDark = logoOnBg(logos.full, "dark");
+  const loadingPick = fullOnDark.url ? fullOnDark : logoOnBg(logos.short, "dark");
+  const loadingLogoUrl = loadingPick.url;
+  /* 주소가 같아도 뒤집기·리컬러가 다르면 덮개용을 따로 띄운다 — 라이트용 하나만 올렸을 때 라이트 테마의
+     숏 로고(뒤집지 않음)가 검은 덮개 위에 그대로 올라가 안 보였다 */
+  const shortTint = shortPick.tint || "";
+  const loadingTint = loadingPick.tint || "";
+  const hasDistinctLoadingLogo = !!loadingLogoUrl
+    && (loadingLogoUrl !== shortLogoUrl || loadingPick.invert !== shortPick.invert || loadingTint !== shortTint);
+  // 로딩 오버레이 이미지 폭 — 풀은 워드마크(120), 숏은 마크(32)
+  const loadingLogoW = fullOnDark.url ? 120 : 32;
   // 로딩 로고 등장 연출 (설정에서 선택, 모르는 값이면 기본 fade)
   const loadingIntro = LOADING_INTRO_PRESETS[siteConfig.brand.loadingAnimation ?? "fade"] ?? LOADING_INTRO_PRESETS.fade;
   /* difference — 명시 안 하면 자동: 업로드 이미지 로고는 해제(이미지 색이 배경 따라 반전돼 버림),
@@ -192,7 +194,7 @@ export default function Navigation() {
     presetDark: siteConfig.brand.logoColorDark || siteConfig.theme.darkText,
   };
   // 리컬러 있으면 숨긴 img 로 폭 확보 + mask 로 tint 채움, 없으면 원본 Image. 그림자는 공통 적용.
-  const renderLogoImg = (src: string, w: number, altText: string, tintColor: string) =>
+  const renderLogoImg = (src: string, w: number, altText: string, tintColor: string, invert = false) =>
     tintColor ? (
       <span
         className={styles.logoImageTinted}
@@ -203,7 +205,7 @@ export default function Navigation() {
         <Image src={src} alt="" width={w} height={32} unoptimized />
       </span>
     ) : (
-      <Image src={src} alt={altText} width={w} height={32} className={styles.logoImage} unoptimized />
+      <Image src={src} alt={altText} width={w} height={32} className={invert ? `${styles.logoImage} ${styles.logoImageInvert}` : styles.logoImage} unoptimized />
     );
   const { isLoading, isTransitioning } = useLoadingScreen();
   const { isMuted, toggleMute } = useSoundStore();
@@ -544,7 +546,7 @@ export default function Navigation() {
                     clipPath: { duration: 0.8, delay: 0.15, ease: SUB_EASE },
                   }}
                 >
-                  {renderLogoImg(loadingLogoUrl!, loadingLogoW, DISPLAY_NAME, loadingTint)}
+                  {renderLogoImg(loadingLogoUrl!, loadingLogoW, DISPLAY_NAME, loadingTint, loadingPick.invert)}
                 </motion.span>
               )}
               {/* 숏 로고 이미지 */}
@@ -560,7 +562,7 @@ export default function Navigation() {
                   filter: { duration: 1.0, delay: 0.1, ease: "easeOut" },
                 }}
               >
-                {renderLogoImg(shortLogoUrl!, 32, LOGO_TEXT, shortTint)}
+                {renderLogoImg(shortLogoUrl!, 32, LOGO_TEXT, shortTint, shortPick.invert)}
               </motion.span>
             </>
           ) : useBadgeLogo ? (

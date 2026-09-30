@@ -65,3 +65,29 @@ describe("resolveBrandLogos", () => {
     expect(r.full.light).toBe("");
   });
 });
+
+describe("logoOnBg — 배경에 맞는 로고", () => {
+  const slot = (light: string, dark: string, colorLight = "", colorDark = "") => ({ light, dark, colorLight, colorDark });
+
+  it("그 배경용 변형이 있으면 뒤집지 않고 쓴다", async () => {
+    const { logoOnBg } = await import("@/lib/brandLogos");
+    expect(logoOnBg(slot("/l.png", "/d.png"), "dark")).toEqual({ url: "/d.png", invert: false, tint: "" });
+    expect(logoOnBg(slot("/l.png", "/d.png"), "light")).toEqual({ url: "/l.png", invert: false, tint: "" });
+  });
+
+  it("라이트용만 있으면 어두운 배경에서 뒤집는다 (다크용만 있을 때 밝은 배경도)", async () => {
+    const { logoOnBg } = await import("@/lib/brandLogos");
+    expect(logoOnBg(slot("/l.png", ""), "dark")).toEqual({ url: "/l.png", invert: true, tint: "" });
+    expect(logoOnBg(slot("", "/d.png"), "light")).toEqual({ url: "/d.png", invert: true, tint: "" });
+  });
+
+  it("그 배경용 리컬러 색이 있으면 뒤집지 않고 그 색으로 칠한다", async () => {
+    const { logoOnBg } = await import("@/lib/brandLogos");
+    expect(logoOnBg(slot("/l.png", "", "", "#fff"), "dark")).toEqual({ url: "/l.png", invert: false, tint: "#fff" });
+  });
+
+  it("둘 다 없으면 빈 값", async () => {
+    const { logoOnBg } = await import("@/lib/brandLogos");
+    expect(logoOnBg(slot("", ""), "dark").url).toBe("");
+  });
+});
