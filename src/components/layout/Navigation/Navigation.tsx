@@ -18,6 +18,7 @@ import { useLenis } from "@/providers/LenisProvider";
 import { SYMBOL_FONT_FAMILY } from "@/config/symbolFont.generated";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { logoOnBg, resolveBrandLogos } from "@/lib/brandLogos";
+import ThemedLogoImage from "@/components/common/ThemedLogoImage";
 import { heroBackdrop, useNavBackdropStore } from "@/stores/navBackdropStore";
 import { loadGoogleFont } from "@/lib/loadGoogleFont";
 import {
@@ -32,7 +33,6 @@ import {
 } from "@/lib/favicon";
 // Supabase client는 admin 페이지에서만 동적으로 로드 (630KB 번들 절약)
 const loadSupabaseClient = () => import("@/lib/supabase/client").then(m => m.createClient());
-import Image from "next/image";
 import Button from "@/components/ui/Button";
 import Tooltip from "@/components/ui/Tooltip";
 import MagneticWrapper from "./MagneticWrapper";
@@ -198,20 +198,11 @@ export default function Navigation() {
     presetLight: siteConfig.brand.logoColor || siteConfig.theme.lightText,
     presetDark: siteConfig.brand.logoColorDark || siteConfig.theme.darkText,
   };
-  // 리컬러 있으면 숨긴 img 로 폭 확보 + mask 로 tint 채움, 없으면 원본 Image. 그림자는 공통 적용.
-  const renderLogoImg = (src: string, w: number, altText: string, tintColor: string, invert = false) =>
-    tintColor ? (
-      <span
-        className={styles.logoImageTinted}
-        style={{ backgroundColor: tintColor, maskImage: `url("${src}")`, WebkitMaskImage: `url("${src}")` }}
-        role="img"
-        aria-label={altText}
-      >
-        <Image src={src} alt="" width={w} height={32} unoptimized />
-      </span>
-    ) : (
-      <Image src={src} alt={altText} width={w} height={32} className={invert ? `${styles.logoImage} ${styles.logoImageInvert}` : styles.logoImage} unoptimized />
-    );
+  // 리컬러 색 → 테마 색 → 원본 순으로 칠한다(ThemedLogoImage). 그림자는 공통 적용.
+  const logoImgClasses = { image: styles.logoImage, invert: styles.logoImageInvert, tinted: styles.logoImageTinted };
+  const renderLogoImg = (src: string, w: number, altText: string, tintColor: string, invert: boolean, bg: "light" | "dark") => (
+    <ThemedLogoImage src={src} bg={bg} width={w} alt={altText} tint={tintColor} invert={invert} classNames={logoImgClasses} />
+  );
   const { isLoading, isTransitioning } = useLoadingScreen();
   const { isMuted, toggleMute } = useSoundStore();
   const { openForm } = useContactStore();
@@ -551,7 +542,7 @@ export default function Navigation() {
                     clipPath: { duration: 0.8, delay: 0.15, ease: SUB_EASE },
                   }}
                 >
-                  {renderLogoImg(loadingLogoUrl!, loadingLogoW, DISPLAY_NAME, loadingTint, loadingPick.invert)}
+                  {renderLogoImg(loadingLogoUrl!, loadingLogoW, DISPLAY_NAME, loadingTint, loadingPick.invert, "dark")}
                 </motion.span>
               )}
               {/* 숏 로고 이미지 */}
@@ -567,7 +558,7 @@ export default function Navigation() {
                   filter: { duration: 1.0, delay: 0.1, ease: "easeOut" },
                 }}
               >
-                {renderLogoImg(shortLogoUrl!, 32, LOGO_TEXT, shortTint, shortPick.invert)}
+                {renderLogoImg(shortLogoUrl!, 32, LOGO_TEXT, shortTint, shortPick.invert, logoBg)}
               </motion.span>
             </>
           ) : useBadgeLogo ? (
