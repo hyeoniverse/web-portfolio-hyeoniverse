@@ -307,7 +307,7 @@
   font-weight: 600;
 }
 
-/* 사용자 추가 preset wrap — card + X 제거 버튼 absolute 우측 위 */
+/* 사용자 추가 preset wrap — card + X 제거 버튼(카드 안 오른쪽) */
 .presetCardWrap {
   position: relative;
 }
@@ -316,32 +316,38 @@
   width: 100%;
 }
 
+/* 직접 추가한 프리셋의 삭제 버튼 — 카드 안 오른쪽에 늘 보인다.
+   예전엔 모서리 밖 16px 원이 hover 때만 나타나서, 터치 화면에선 아예 안 보였고 마우스로도 찾기 어려웠다 */
+.presetCardWrap:has(.presetCardRemove) > .presetCard {
+  padding-right: calc(var(--control-h-xs) + var(--spacing-sm));
+}
+
 .presetCardRemove {
   display: flex;
   align-items: center;
   justify-content: center;
   position: absolute;
-  top: -4px;
-  right: -4px;
-  width: 16px;
-  height: 16px;
+  top: 50%;
+  right: var(--spacing-xs);
+  width: var(--control-h-xs);
+  height: var(--control-h-xs);
+  transform: translateY(-50%);
+  border: var(--border-light);
   border-radius: var(--radius-circle);
-  border: none;
   background: var(--bg-primary);
-  color: var(--text-primary);
+  color: var(--text-tertiary);
   cursor: pointer;
-  box-shadow: 0 1px 4px oklch(0% 0 0 / 0.15);
-  opacity: 0;
-  transition: opacity var(--duration-base) ease;
+  transition:
+    background var(--duration-base) ease,
+    border-color var(--duration-base) ease,
+    color var(--duration-base) ease;
 }
 
-.presetCardWrap:hover .presetCardRemove {
-  opacity: 1;
-}
-
-.presetCardRemove:hover {
-  background: var(--bg-accent-solid);
-  color: var(--text-on-accent);
+.presetCardRemove:hover,
+.presetCardRemove:focus-visible {
+  border-color: var(--text-error-strong);
+  background: var(--bg-error-soft);
+  color: var(--text-error-strong);
 }
 
 .presetName {

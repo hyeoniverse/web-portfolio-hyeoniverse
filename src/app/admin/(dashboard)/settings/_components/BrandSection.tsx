@@ -33,7 +33,6 @@ import { resolveBrandLogos } from "@/lib/brandLogos";
 import { contrastRatio, contrastLevel } from "@/utils/contrast";
 import { fillTemplate } from "@/utils/format";
 import { FONT_GROUPS, FONT_FAMILIES_FLAT } from "@/components/posts/plate/constants";
-import { showToast } from "@/stores/toastStore";
 import { FAVICON_FONT_SIZE_PRESETS } from "../_data/faviconPresets";
 import type { SiteConfigData } from "@/config/site.config";
 import type { SettingsTabProps } from "../_types";
@@ -41,6 +40,7 @@ import { UploadField, FieldHelp } from "./SettingsFormFields";
 import SectionHeader from "./SectionHeader";
 import ButtonGroup from "@/components/ui/ButtonGroup";
 import { FaviconShadowControls, PresetNameAddRow } from "./FaviconControls";
+import { presetNameProblem } from "../_data/presetName";
 import styles from "./AppearanceTab.module.css";
 import shared from "../Settings.module.css";
 import Pressable from "@/components/ui/Pressable";
@@ -316,7 +316,7 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
 
   const addCurrentAsPreset = () => {
     const name = newPresetName.trim();
-    if (!name || presets.some((p) => p.name === name)) return;
+    if (presetNameProblem(name, [], presets)) return;
     update("brand", "logoColorPresets", [...presets, { name, light: currentLight, dark: currentDark }]);
     setNewPresetName("");
     setAddingPresetName(false);
@@ -783,7 +783,7 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
               {canAddPreset && (
                 <Pressable
                   className={styles.logoColorPresetAddBtn}
-                  onClick={() => { setAddingPresetName(true); showToast(t("admin.settings.enterPresetName"), "info"); }}
+                  onClick={() => setAddingPresetName(true)}
                   title={t("admin.settings.savePreset")}
                   aria-label={t("admin.settings.savePreset")}
                 >
@@ -806,7 +806,7 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
             open={addingPresetName}
             value={newPresetName}
             onChange={setNewPresetName}
-            saveDisabled={!newPresetName.trim() || presets.some((p) => p.name === newPresetName.trim())}
+            problem={presetNameProblem(newPresetName, [], presets)}
             onCancel={() => { setAddingPresetName(false); setNewPresetName(""); }}
             onSave={addCurrentAsPreset}
             t={t}
