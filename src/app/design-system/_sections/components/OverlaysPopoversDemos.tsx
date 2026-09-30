@@ -42,7 +42,7 @@ export default function OverlaysPopoversDemos() {
 
   return (
     <>
-        <h3 className={styles.componentCategory}>Overlays & Popovers</h3>
+        <h3 id="components-overlays" className={styles.componentCategory}>Overlays & Popovers</h3>
 
         {/* Modal */}
         <DemoGroup title="Modal">

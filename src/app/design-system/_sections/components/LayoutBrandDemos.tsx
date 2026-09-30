@@ -16,7 +16,7 @@ export default function LayoutBrandDemos() {
 
   return (
     <>
-        <h3 className={styles.componentCategory}>Layout & Brand</h3>
+        <h3 id="components-layout" className={styles.componentCategory}>Layout & Brand</h3>
 
         {/* Logo */}
         <DemoGroup title="Logo">

@@ -33,7 +33,7 @@ export default function TogglesSelectionDemos() {
 
   return (
     <>
-        <h3 className={styles.componentCategory}>Toggles & Selection</h3>
+        <h3 id="components-toggles" className={styles.componentCategory}>Toggles & Selection</h3>
 
         {/* SortControl */}
         <DemoGroup
