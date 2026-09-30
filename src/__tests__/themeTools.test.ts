@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { auditTheme } from "@/lib/themeAudit";
-import { HARMONY_RULES, extractColors, harmonyHues, harmonyTheme, themesFromColors, usableAccent } from "@/lib/themeGenerate";
+import { HARMONY_RULES, extractColors, harmonyHues, harmonyPalette, harmonyThemes, themesFromColors, usableAccent } from "@/lib/themeGenerate";
+import { deltaE } from "@/lib/themeAudit";
 import { contrastRatio } from "@/utils/contrast";
 
 /* 설정 화면의 테마 도구 — 대비 점검, 색상환 추천, 이미지에서 색 뽑기. */
@@ -29,21 +30,35 @@ describe("auditTheme", () => {
   });
 });
 
-describe("harmonyTheme", () => {
+describe("harmonyThemes", () => {
   const bases = ["#d40063", "#1c5d99", "#4d753d", "#fbc45d", "#6d3fb0"];
   it.each(HARMONY_RULES)("%s — 어떤 기준색이든 본문 대비 10 이상, 부적합 없음", (rule) => {
     for (const b of bases) {
-      const t = harmonyTheme(b, rule);
-      expect(ratio(t.lightText, t.lightBg)).toBeGreaterThanOrEqual(10);
-      expect(ratio(t.darkText, t.darkBg)).toBeGreaterThanOrEqual(10);
-      expect(auditTheme(t).verdict).not.toBe("poor");
+      for (const t of harmonyThemes(b, rule)) {
+        expect(ratio(t.lightText, t.lightBg)).toBeGreaterThanOrEqual(10);
+        expect(ratio(t.darkText, t.darkBg)).toBeGreaterThanOrEqual(10);
+        expect(auditTheme(t).verdict).not.toBe("poor");
+      }
     }
   });
 
-  it("보색 규칙은 배경·글자 색상을 반대편에 둔다", () => {
-    const [a, b, c] = harmonyHues("#1c5d99", "complementary");
+  it("후보끼리 눈에 띄게 다르다 — 강조색이나 배경이 ΔE 12 이상 차이", () => {
+    for (const rule of HARMONY_RULES) {
+      const ts = harmonyThemes("#1c5d99", rule);
+      expect(ts.length).toBeGreaterThanOrEqual(2);
+      for (let i = 0; i < ts.length; i++) {
+        for (let j = i + 1; j < ts.length; j++) {
+          const d = Math.max(deltaE(ts[i].accentColor, ts[j].accentColor), deltaE(ts[i].lightBg, ts[j].lightBg));
+          expect(d).toBeGreaterThanOrEqual(12);
+        }
+      }
+    }
+  });
+
+  it("보색 규칙은 두 색을 반대편에 둔다", () => {
+    const [a, b] = harmonyHues("#1c5d99", "complementary");
     expect(Math.round(Math.abs(((b - a + 540) % 360) - 180))).toBe(180);
-    expect(c).toBe(b);
+    expect(harmonyPalette("#1c5d99", "triad")).toHaveLength(3);
   });
 
   it("너무 밝은 강조색은 쓸 만한 명도로 당긴다", () => {
