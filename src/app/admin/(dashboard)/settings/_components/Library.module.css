@@ -85,3 +85,9 @@
   margin-bottom: var(--spacing-2xl);
   border-bottom: var(--border-light);
 }
+
+/* 갤러리로 끝나는 자리는 아래 구분선에 붙인다 — 위(도구막대 실선)와 같이 선과 칸 사이를 비우지 않는다.
+   마지막 줄의 아래 선은 갤러리 틀이 잘라 내므로 구분선이 그 자리를 맡는다 */
+.lazy:not(:last-child):has(.wrap > [data-library-gallery]:last-child) {
+  padding-bottom: 0;
+}
