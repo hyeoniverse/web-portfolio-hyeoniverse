@@ -211,11 +211,10 @@ export default function EmojiKitchenModal({ onAdded }: { onAdded: (row: KitchenE
       {/* 아래 단은 늘 그린다 — 조합을 고를 때만 나타나면 모달 높이가 바뀌어 화면이 튀었다. 고르기 전엔 비활성 */}
       {footerEl && createPortal(
         <div className={styles.foot}>
-          <div className={styles.footMain}>
-            <span className={styles.formula}>{t("이모지 이름", "Emoji name")}</span>
-            <Input value={picked ? name : ""} onChange={setName} size="sm" disabled={!picked}
-              placeholder={picked ? t("이모지 이름", "Emoji name") : t("두 이모지를 고르면 정할 수 있어요", "Pick two emojis first")} />
-          </div>
+          {/* 입력과 단추를 같은 높이(md, 32px)로 한 줄에 — 라벨은 화면 읽기용으로만 둔다 */}
+          <Input value={picked ? name : ""} onChange={setName} size="md" disabled={!picked} className={styles.nameInput}
+            aria-label={t("이모지 이름", "Emoji name")}
+            placeholder={picked ? t("이모지 이름", "Emoji name") : t("두 이모지를 고르면 이름을 정할 수 있어요", "Pick two emojis to name it")} />
           <Button variant="primary" size="md" loading={saving} disabled={!picked} onClick={() => void add()}>{t("추가", "Add")}</Button>
         </div>,
         footerEl,
