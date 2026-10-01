@@ -21,83 +21,109 @@
   width: min(260px, 100%);
 }
 
+/* 목록 — 상자 대신 가는 선으로 나눈 줄. 예전엔 줄마다 큰 둥근 상자라 네 개만 있어도 화면이 찼고
+   오른쪽 대부분이 비었다. 날짜는 뜯는 달력 모양, 그 아래 줄에 쓰는 곳(글·프로젝트) */
 .list {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  border-top: var(--border-light);
 }
 
 .row {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: var(--spacing-md);
-  padding: var(--row-p-lg);
-  border: var(--border-light);
-  border-radius: var(--radius-2xl);
-  background: var(--bg-primary);
-  transition: border-color 0.15s ease, background-color 0.15s ease;
+  column-gap: var(--spacing-sm);
+  row-gap: var(--spacing-4xs);
+  padding: var(--spacing-xs) var(--spacing-2xs);
+  border-bottom: var(--border-light);
+  transition: background-color 0.15s ease;
 }
 .row:hover { background: var(--bg-secondary); }
 .rowFocus {
-  border-color: var(--color-accent);
+  background: var(--bg-accent-light);
   animation: calMgrPulse 1.6s ease;
 }
 @keyframes calMgrPulse {
-  0%, 100% { box-shadow: 0 0 0 0 transparent; }
-  30% { box-shadow: 0 0 0 3px var(--bg-accent); }
+  0%, 100% { box-shadow: inset 0 0 0 0 transparent; }
+  30% { box-shadow: inset 0 0 0 1px var(--color-accent); }
 }
 
-.rowDate {
-  flex-shrink: 0;
+/* 뜯는 달력 — 위 띠에 연도, 아래에 월. 두 줄(제목·쓰는 곳)에 걸친다 */
+.tear {
+  grid-row: span 2;
   display: flex;
   flex-direction: column;
+  width: 40px;
+  overflow: hidden;
+  border: var(--border-light);
+  /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 40px 상자에 2xl 이면 원이 돼 뜯는 달력으로 안 읽힌다 */
+  border-radius: var(--radius-sm);
+  background: var(--bg-primary);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.tearYear {
+  font-size: var(--font-size-micro);
+  line-height: 16px;
+  background: var(--bg-tertiary);
+  color: var(--text-tertiary);
+}
+.tearMon {
+  display: flex;
   align-items: center;
   justify-content: center;
-  width: 46px;
-  height: 46px;
-  border-radius: var(--radius-2xl);
-  background: var(--bg-tertiary);
-  color: var(--text-secondary);
-  line-height: 1.05;
+  min-height: 22px;
+  font-size: var(--font-size-label);
+  font-weight: 600;
+  color: var(--text-primary);
 }
-.rowMon { font-size: var(--font-size-label); font-weight: 600; }
-.rowYear { font-size: var(--font-size-micro); color: var(--text-tertiary); font-variant-numeric: tabular-nums; }
 
-.rowMain { display: flex; flex-direction: column; gap: var(--spacing-3xs); min-width: 0; flex: 1; cursor: pointer; }
+.rowMain { display: flex; flex-direction: column; gap: var(--spacing-4xs); min-width: 0; cursor: pointer; }
 .rowMain:hover .rowTitle { color: var(--text-accent); }
+.rowLine { display: flex; align-items: baseline; gap: var(--spacing-xs); min-width: 0; }
 .previewWrap { padding: var(--spacing-md); }
 .rowTitle {
+  flex-shrink: 1;
+  min-width: 0;
   font-size: var(--font-size-body);
   font-weight: 500;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  transition: color 0.15s ease;
 }
 .rowTitleMuted { color: var(--text-tertiary); font-weight: 400; }
 .rowMeta {
+  flex-shrink: 0;
   font-size: var(--font-size-hint);
   color: var(--text-tertiary);
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.rowActions { flex-shrink: 0; display: inline-flex; align-items: center; gap: var(--spacing-2xs); }
-.iconBtn {
+/* 쓰는 곳 — 제목 아래 줄. 올리면 글·프로젝트 목록(누르면 편집 화면) */
+.usage {
+  grid-column: 2;
+  justify-self: start;
+  font-size: var(--font-size-hint);
+  color: var(--text-secondary);
+  cursor: default;
+  text-decoration: underline dotted var(--border-color-strong);
+  text-underline-offset: 3px;
+}
+.usageNone { color: var(--text-muted); text-decoration: none; }
+.usageList { display: flex; flex-direction: column; gap: var(--spacing-3xs); }
+.usageLink { color: inherit; text-decoration: none; }
+.usageLink:hover { text-decoration: underline; }
+
+.rowActions {
+  grid-column: 3;
+  grid-row: 1 / span 2;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  width: var(--control-h-sm);
-  height: var(--control-h-sm);
-  padding: 0;
-  border: none;
-  border-radius: var(--radius-circle);
-  background: transparent;
+  gap: var(--spacing-4xs);
   color: var(--text-tertiary);
-  cursor: pointer;
 }
-.iconBtn:hover { color: var(--text-primary); background: var(--bg-secondary); }
-.iconBtnDanger:hover { color: var(--text-accent); background: var(--bg-accent); }
 
 /* 인라인 rename */
 .renameForm { display: flex; align-items: center; gap: var(--spacing-2xs); flex: 1; min-width: 0; }
@@ -109,22 +135,22 @@
 @keyframes calMgrSpin { to { transform: rotate(360deg); } }
 
 /* ── 휴지통 (soft delete · 30일 후 자동 영구삭제) ── */
-.trashSection { margin-top: var(--spacing-sm); border-top: var(--border-light); padding-top: var(--spacing-sm); }
+.trashSection { margin-top: var(--spacing-xs); }
 .trashHead {
   display: flex;
   align-items: center;
   gap: var(--spacing-2xs);
   width: 100%;
-  padding: var(--spacing-2xs) var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-2xs);
   border: none;
-  border-radius: var(--radius-2xl);
+  border-radius: 0;
   background: transparent;
-  color: var(--text-secondary);
+  color: var(--text-tertiary);
   cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  transition: color 0.15s ease;
 }
-.trashHead:hover { background: var(--bg-secondary); color: var(--text-primary); }
-.trashTitle { font-size: var(--font-size-body); font-weight: 500; }
+.trashHead:hover { color: var(--text-primary); }
+.trashTitle { font-size: var(--font-size-label); font-weight: 500; }
 .trashCount {
   min-width: 18px;
   padding: 0 var(--spacing-3xs);
@@ -135,10 +161,10 @@
   text-align: center;
   font-variant-numeric: tabular-nums;
 }
-.trashHint { font-size: var(--font-size-hint); color: var(--text-tertiary); }
+.trashHint { font-size: var(--font-size-hint); color: var(--text-muted); }
 .trashChev { margin-left: auto; color: var(--text-tertiary); }
 .trashChevOpen { transform: rotate(180deg); }
 /* (0,2,0) — 전역 theme transition shorthand(transform 미포함) override */
 .trashHead .trashChev { transition: transform 0.2s ease; }
-.trashBody { display: flex; flex-direction: column; gap: var(--spacing-2xs); margin-top: var(--spacing-2xs); }
+.trashBody { display: flex; flex-direction: column; border-top: var(--border-light); }
 .trashSoon { color: var(--text-accent); }
