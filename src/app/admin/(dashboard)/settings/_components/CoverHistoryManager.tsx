@@ -18,6 +18,7 @@ import { tryRequest } from "@/lib/sendAction";
 import settings from "../Settings.module.css";
 import lib from "./Library.module.css";
 import styles from "./CoverHistoryManager.module.css";
+import LibraryThumb from "./LibraryThumb";
 
 type Ref = { id: string; title: string; slug: string };
 type CoverItem = { id: string; url: string; source: "ai" | "unsplash" | "preset" | string; meta: string; created_at: string; usage?: { posts: Ref[]; works: Ref[] } };
@@ -74,8 +75,7 @@ export default function CoverHistoryManager() {
               return (
                 <figure key={c.id} className={styles.card}>
                   <div className={styles.thumb}>
-                    {/* eslint-disable-next-line @next/next/no-img-element -- 외부(Unsplash)·저장소 이미지 미리보기, next/image 도메인 설정 밖이다 */}
-                    <img src={c.url} alt="" loading="lazy" />
+                    <LibraryThumb src={c.url} sizes="(max-width: 640px) 50vw, 240px" />
                     <span className={styles.actions}>
                       <Pressable className={styles.action} onClick={() => void copy(c.url)} aria-label={t("주소 복사", "Copy URL")} title={t("주소 복사", "Copy URL")}><Copy size={13} /></Pressable>
                       <a className={styles.action} href={c.url} target="_blank" rel="noopener noreferrer" aria-label={t("새 탭에서 열기", "Open in new tab")} title={t("새 탭에서 열기", "Open in new tab")}><ExternalLink size={13} /></a>
