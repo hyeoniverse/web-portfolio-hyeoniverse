@@ -2,7 +2,9 @@
 
 /* ── 이모지 조합 (라이브러리 › 커스텀 이모지 › 조합) ──
    Google Emoji Kitchen 의 두 이모지를 섞은 그림을 골라 커스텀 이모지로 들인다.
-   1) 이모지 하나를 고르면 2) 그 이모지와 섞을 수 있는 조합 그림이 뜨고 3) 하나를 골라 이름을 붙여 추가한다.
+   1) 첫 이모지를 고르고 2) 그 이모지와 섞을 수 있는 두 번째 이모지(원래 모양)를 고르면 3) 위 줄에
+   "첫 + 두 번째 = 결과" 로 섞은 그림이 뜨고, 이름을 붙여 추가한다. 예전엔 2) 에서 섞인 그림부터 보여
+   무엇과 무엇을 섞은 것인지 알기 어려웠다.
    조합 목록은 public/emoji-kitchen(빌드 스크립트 산출물)에서, 그림은 gstatic 에서 바로 보인다.
    추가하면 서버가 그림을 받아 우리 저장소에 올린다(/api/admin/emoji-kitchen). */
 import { useContext, useEffect, useMemo, useState } from "react";
@@ -101,17 +103,35 @@ export default function EmojiKitchenModal({ onAdded }: { onAdded: (row: KitchenE
   if (failed) return <div className={styles.pad}><EmptyState pad="sm">{t("조합 목록을 불러오지 못했습니다", "Couldn’t load combinations")}</EmptyState></div>;
 
   const baseEmoji = data && base !== null ? data.meta.emojis[base] : null;
+  const partnerEmoji = data && picked ? data.meta.emojis[picked.j] : null;
   return (
     <div className={styles.wrap}>
+      {/* 식 — [첫 이모지] + [두 번째 이모지] = [결과]. 아직 고르지 않은 칸은 비워 둔다 */}
+      <div className={styles.formulaRow} aria-live="polite">
+        <span className={styles.slot} data-on={baseEmoji ? "" : undefined} title={baseEmoji?.n}>
+          {baseEmoji ? <span className={styles.slotChar}>{baseEmoji.e}</span> : <span className={styles.slotHint}>{t("첫 번째", "First")}</span>}
+        </span>
+        <span className={styles.op} aria-hidden>+</span>
+        <span className={styles.slot} data-on={partnerEmoji ? "" : undefined} title={partnerEmoji?.n}>
+          {partnerEmoji ? <span className={styles.slotChar}>{partnerEmoji.e}</span> : <span className={styles.slotHint}>{t("두 번째", "Second")}</span>}
+        </span>
+        <span className={styles.op} aria-hidden>=</span>
+        <span className={`${styles.slot} ${styles.slotResult}`} data-on={picked ? "" : undefined}>
+          {picked
+            /* eslint-disable-next-line @next/next/no-img-element -- gstatic 미리보기, next/image 허용 호스트가 아니다 */
+            ? <img src={kitchenImageUrl(picked.date, picked.left, picked.right)} alt={t("섞은 결과", "Mixed result")} className={styles.slotImg} />
+            : <span className={styles.slotHint}>{t("결과", "Result")}</span>}
+        </span>
+      </div>
+
       <div className={styles.bar}>
         {baseEmoji ? (
           <Pressable className={styles.back} onClick={() => { setBase(null); setPicked(null); setSearch(""); }}>
             <ChevronLeft size={15} />
-            <span className={styles.baseChar} aria-hidden>{baseEmoji.e}</span>
-            <span>{t(`${baseEmoji.n} 와 섞기 · ${data!.pairs[base!].length}개`, `Mix with ${baseEmoji.n} · ${data!.pairs[base!].length}`)}</span>
+            <span>{t(`첫 번째 다시 고르기 · ${baseEmoji.n} 와 섞을 수 있는 이모지 ${data!.pairs[base!].length}개`, `Change first · ${data!.pairs[base!].length} emojis mix with ${baseEmoji.n}`)}</span>
           </Pressable>
         ) : (
-          <span className={styles.step}>{t("섞을 이모지를 하나 고르세요", "Pick an emoji to mix")}</span>
+          <span className={styles.step}>{t("첫 번째 이모지를 고르세요", "Pick the first emoji")}</span>
         )}
         <div className={styles.search}>
           <SearchCapsule search={search} onSearchChange={setSearch} placeholder={t("이름·키워드 검색 (영어)", "Search name or keyword")} align="left" />
@@ -135,15 +155,14 @@ export default function EmojiKitchenModal({ onAdded }: { onAdded: (row: KitchenE
             </div>
           ) : <EmptyState pad="sm">{t("맞는 이모지가 없습니다", "No matching emoji")}</EmptyState>
         ) : combos.length ? (
-          <div className={`${styles.grid} ${styles.gridLarge}`}>
+          <div className={styles.grid}>
             {combos.map((p) => {
               const partner = data.meta.emojis[p.j];
               const on = picked?.left === p.left && picked.right === p.right;
               return (
                 <Pressable key={`${p.left}_${p.right}`} className={styles.cell} data-on={on ? "" : undefined}
                   onClick={() => choose(p)} title={partner.n} aria-label={`${baseEmoji!.n} + ${partner.n}`} aria-pressed={on}>
-                  {/* eslint-disable-next-line @next/next/no-img-element -- gstatic 미리보기, next/image 허용 호스트가 아니다 */}
-                  <img src={kitchenImageUrl(p.date, p.left, p.right)} alt="" loading="lazy" className={styles.mix} />
+                  <span className={styles.char}>{partner.e}</span>
                 </Pressable>
               );
             })}
@@ -153,10 +172,8 @@ export default function EmojiKitchenModal({ onAdded }: { onAdded: (row: KitchenE
 
       {picked && baseEmoji && data && footerEl && createPortal(
         <div className={styles.foot}>
-          {/* eslint-disable-next-line @next/next/no-img-element -- gstatic 미리보기 */}
-          <img src={kitchenImageUrl(picked.date, picked.left, picked.right)} alt="" className={styles.preview} />
           <div className={styles.footMain}>
-            <span className={styles.formula}>{baseEmoji.e} + {data.meta.emojis[picked.j].e}</span>
+            <span className={styles.formula}>{t("이모지 이름", "Emoji name")}</span>
             <Input value={name} onChange={setName} size="sm" placeholder={t("이모지 이름", "Emoji name")} />
           </div>
           <Button variant="primary" size="md" loading={saving} onClick={() => void add()}>{t("추가", "Add")}</Button>

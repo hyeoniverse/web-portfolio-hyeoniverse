@@ -12,6 +12,53 @@
   padding: var(--modal-p-md);
 }
 
+/* 식 줄 — [첫] + [두 번째] = [결과]. 칸은 붙은 격자처럼 모서리 없는 1px 상자, 고른 칸은 진한 선 */
+.formulaRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: 0 var(--spacing-lg);
+}
+
+.slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border: var(--border-light);
+}
+
+.slot[data-on] {
+  border-color: var(--text-primary);
+}
+
+.slotResult {
+  width: 72px;
+  height: 72px;
+}
+
+.slotChar {
+  font-size: var(--font-size-2xl);
+  line-height: 1;
+}
+
+.slotImg {
+  width: 80%;
+  height: 80%;
+  object-fit: contain;
+}
+
+.slotHint {
+  color: var(--text-muted);
+  font-size: var(--font-size-hint);
+}
+
+.op {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-lg);
+}
+
 .bar {
   padding: 0 var(--spacing-lg);
   display: flex;
@@ -41,10 +88,6 @@
   color: var(--text-primary);
 }
 
-.baseChar {
-  font-size: var(--font-size-lg);
-  line-height: 1;
-}
 
 .search {
   flex: 1 1 200px;
@@ -67,9 +110,6 @@
   margin: 0 -1px -1px 0;
 }
 
-.gridLarge {
-  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
-}
 
 .cell {
   display: flex;
@@ -95,11 +135,6 @@
   line-height: 1;
 }
 
-.mix {
-  width: 64%;
-  height: 64%;
-  object-fit: contain;
-}
 
 /* 모달 아래 단(.modalFooter, 오른쪽 정렬) 안에서 한 줄을 다 쓴다 */
 .foot {
@@ -110,11 +145,6 @@
   gap: var(--spacing-md);
 }
 
-.preview {
-  width: 56px;
-  height: 56px;
-  object-fit: contain;
-}
 
 .footMain {
   display: flex;
