@@ -683,7 +683,7 @@ export function CalendarElement(props: PlateElementProps) {
             setCal(seedData); setTitle(autoTitle); setViewMonth(seedData.month); setStatus("ready");
           }
         }}
-        onManage={() => { window.open("/admin/settings?tab=library", "_blank", "noopener"); }}
+        onManage={() => { window.open("/admin/settings?tab=content&sub=calendars", "_blank", "noopener"); }}
       />,
       { id: "cal-picker", header: { title: t("달력 불러오기", "Load calendar") }, width: "460px" },
     );
