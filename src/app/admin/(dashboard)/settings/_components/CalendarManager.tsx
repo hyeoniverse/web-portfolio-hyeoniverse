@@ -199,7 +199,7 @@ export default function CalendarManager() {
   };
 
   return (
-    <section className={settings.section}>
+    <section className={`${settings.section} ${settings.sectionWide}`}>
       <div className={styles.wrap}>
         <div className={styles.headRow}>
           <h2 className={settings.sectionTitle}>{t("달력", "Calendars")}</h2>

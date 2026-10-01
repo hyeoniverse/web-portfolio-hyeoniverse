@@ -49,6 +49,7 @@ const tabLoading = () => <SettingsSkeleton />;
 const ContentTab = dynamic(() => import("./_components/ContentTab"), { loading: tabLoading });
 const AppearanceTab = dynamic(() => import("./_components/AppearanceTab"), { loading: tabLoading });
 const ServicesTab = dynamic(() => import("./_components/ServicesTab"), { loading: tabLoading });
+const LibraryTab = dynamic(() => import("./_components/LibraryTab"), { loading: tabLoading });
 const AccountTab = dynamic(() => import("./_components/AccountTab"));
 const AuthorsEditor = dynamic(() => import("./_components/AuthorsEditor"));
 /* 받는 시점을 앞당기는 것은 settingsTabLoaders — 연 탭은 설정값과 함께, 다른 탭은 단추에 올렸을 때 */
@@ -135,6 +136,8 @@ export default function SettingsPage() {
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<TabId>(() => {
     const tab = searchParams.get("tab");
+    /* 달력 관리는 콘텐츠 › 달력에서 라이브러리 탭으로 옮겼다 — 예전 주소·북마크는 라이브러리로 */
+    if (tab === "content" && searchParams.get("sub") === "calendars") return "library";
     return tab && TAB_IDS.includes(tab as TabId) ? (tab as TabId) : "general";
   });
   const [contentSubTab, setContentSubTab] = useState<ContentSubTab>(() => {
@@ -795,7 +798,8 @@ export default function SettingsPage() {
           <T k="admin.settings.title" />
         </h1>
         <div className={styles.headerRight}>
-          {activeTab === "account" ? (
+          {/* 라이브러리는 항목마다 바로 저장된다 — 탭 저장 단추가 있으면 눌러야 하는 줄 안다 */}
+          {activeTab === "library" ? null : activeTab === "account" ? (
             <>
               {/* 이 탭의 저자 섹션도 saveSection 을 쓴다 — message 를 여기서도 보여주지 않으면
                   모달 밖에서 저장했을 때 성공·실패가 아무데도 안 뜬다. */}
@@ -1143,6 +1147,11 @@ export default function SettingsPage() {
                   </ProfileSectionProvider>
                 </div>
                 </>
+              )}
+              {activeTab === "library" && (
+                <div className={styles.tabGrid}>
+                  <LibraryTab />
+                </div>
               )}
               {activeTab === "appearance" && (
                 <div className={styles.tabGrid}>
