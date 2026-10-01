@@ -180,6 +180,7 @@ export {
   Search,
   SearchX,
   Send,
+  SeparatorVertical,
   Settings,
   Shapes,
   Shield,
