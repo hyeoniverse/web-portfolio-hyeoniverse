@@ -5,14 +5,17 @@
    같은 원인으로 여러 번 이어 실패해 꺼진 공급자는 원인을 고친 뒤 여기서 다시 켠다. 키를 바꾸면 저절로 풀린다.
    탭의 "저장 / 되돌리기"와 상관없이 바로 반영된다. */
 import { useState } from "react";
-import { ExternalLink, History, RotateCcw } from "@/components/icons";
+import { ChevronDown, Copy, ExternalLink, History, RotateCcw } from "@/components/icons";
 
 import { useLanguage } from "@/providers/LanguageProvider";
 import Button from "@/components/ui/Button";
+import Pressable from "@/components/ui/Pressable";
+import { showToast } from "@/stores/toastStore";
 import { SkeletonLine } from "@/components/ui/Skeleton";
 import { sendAction } from "@/lib/sendAction";
 import { fillTemplate } from "@/utils/format";
 import { highlightCode } from "@/utils/prismHighlight";
+import { parseProviderMessage } from "@/lib/ai/providerMessage";
 import {
   AI_PROVIDERS,
   AI_PROVIDER_INFO,
@@ -28,17 +31,50 @@ import styles from "./AiHealthPanel.module.css";
 
 const DAY = 24 * 60 * 60 * 1000;
 
-/** 공급자가 돌려준 원문을 읽기 좋게 — "400 {json}" 이면 상태 코드 한 줄 + 들여쓴 JSON 으로 펴고 JSON 색을 입힌다.
- *  JSON 이 아니면 그대로 둔다. Prism 이 HTML 을 이스케이프하므로 원문에 태그가 섞여도 그대로 글자로 보인다 */
-function formatProviderMessage(message: string): string {
-  const m = /^(\d{3})\s+([[{][\s\S]*)$/.exec(message.trim());
-  const [status, body] = m ? [m[1], m[2]] : ["", message.trim()];
-  try {
-    const pretty = JSON.stringify(JSON.parse(body), null, 2);
-    return highlightCode(status ? `${status}\n${pretty}` : pretty, "json").html;
-  } catch {
-    return highlightCode(message, "text").html;
-  }
+/** 최근 오류 — 시각·상태 코드·문장을 먼저 보이고, 원문(JSON)은 접어 둔다.
+ *  원문은 Prism 으로 색을 입힌다(HTML 은 Prism 이 이스케이프한다) */
+function ProviderMessage({ message, at, th }: { message: string; at: string; th: (k: string) => string }) {
+  const { t } = useLanguage();
+  const [open, setOpen] = useState(false);
+  const { status, summary, pretty } = parseProviderMessage(message);
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(pretty ? (status ? `${status}\n${pretty}` : pretty) : message);
+      showToast(t("common.codeCopied"), "success");
+    } catch {
+      showToast(t("common.copyFailed"), "error");
+    }
+  };
+  return (
+    <div className={styles.message}>
+      <p className={styles.messageHead}>
+        <span className={styles.messageAt}>{at}</span>
+        {status && <span className={styles.messageStatus}>{status}</span>}
+      </p>
+      <p className={styles.messageText}>{summary}</p>
+      {pretty && (
+        <>
+          <div className={styles.rawBar}>
+            <Pressable className={styles.rawToggle} onClick={() => setOpen((v) => !v)} aria-expanded={open}>
+              <ChevronDown size={14} className={`${styles.rawChev} ${open ? styles.rawChevOpen : ""}`} />
+              {th(open ? "rawHide" : "rawShow")}
+            </Pressable>
+            {open && (
+              <Pressable className={styles.rawToggle} onClick={copy}>
+                <Copy size={13} />
+                {t("common.codeCopy")}
+              </Pressable>
+            )}
+          </div>
+          {open && (
+            <pre className={styles.raw}>
+              <code dangerouslySetInnerHTML={{ __html: highlightCode(status ? `${status}\n${pretty}` : pretty, "json").html }} />
+            </pre>
+          )}
+        </>
+      )}
+    </div>
+  );
 }
 
 /* 비슷한 공급자끼리 — 글을 다루는 AI(Gemini·OpenAI·Claude)는 번역과 요약을 같은 키로 해서 한데 둔다 */
@@ -152,7 +188,7 @@ export default function AiHealthPanel({ health }: { health: ReturnType<typeof us
                             <strong>{th(`kind.${kind}`)}</strong> {th(`fix.${kind}`)}
                             {off && ` ${th(FATAL_KINDS.has(kind) ? "offManual" : kind === "quota" ? "offMonth" : "offHour")}`}
                           </p>
-                          {h?.message && <div className={styles.message}><span>{when(h.at)}</span> <pre className={styles.raw}><code dangerouslySetInnerHTML={{ __html: formatProviderMessage(h.message) }} /></pre></div>}
+                          {h?.message && <ProviderMessage message={h.message} at={when(h.at)} th={th} />}
                         </div>
                       )}
 
