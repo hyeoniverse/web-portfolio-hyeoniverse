@@ -1,0 +1,116 @@
+/* ── 녹음 다듬기 — 위 파형(누르면 커서, 끌면 구간), 아래 한 줄(듣기·시간 | 편집 도구 | 새로 녹음·취소·완료) ── */
+.editor {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  min-width: 0;
+  padding-block: var(--spacing-2xs);
+  outline: none;
+}
+
+.wave {
+  position: relative;
+  height: 64px;
+  overflow: hidden;
+  border: var(--border-light);
+  background: var(--bg-secondary);
+  cursor: text;
+  touch-action: none;
+  user-select: none;
+}
+
+.editor:focus-visible .wave {
+  border-color: var(--text-primary);
+}
+
+.canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  color: var(--text-secondary);
+}
+
+/* 고른 구간 — 강조색을 옅게 덮고 양 끝은 진하게 */
+.sel {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-inline: 1px solid var(--color-accent);
+  background: var(--color-accent-alpha-20);
+  pointer-events: none;
+}
+
+.cursor,
+.head {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  pointer-events: none;
+}
+
+.cursor {
+  background: var(--text-primary);
+}
+
+.head {
+  background: var(--color-accent);
+}
+
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-2xs) var(--spacing-sm);
+}
+
+.info {
+  display: inline-flex;
+  flex: 1 1 auto;
+  align-items: baseline;
+  gap: var(--spacing-xs);
+  min-width: 0;
+  font-size: var(--font-size-label);
+}
+
+.title {
+  flex-shrink: 0;
+  color: var(--text-secondary);
+}
+
+.time {
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+}
+
+.hint {
+  overflow: hidden;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-hint);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.tools {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--spacing-3xs);
+}
+
+.divider {
+  width: 1px;
+  height: var(--spacing-md);
+  margin-inline: var(--spacing-2xs);
+  background: var(--border-color-light);
+}
+
+.actions {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  margin-left: auto;
+}
