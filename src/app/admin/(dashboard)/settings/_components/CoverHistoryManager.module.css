@@ -21,27 +21,10 @@
   background: var(--bg-tertiary);
 }
 
-.thumb img,
-.thumb video {
+.thumb img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-}
-
-/* 동영상 커버 표시 — 왼쪽 아래 작은 필름 아이콘 */
-.videoBadge {
-  position: absolute;
-  left: var(--spacing-2xs);
-  bottom: var(--spacing-2xs);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--control-h-2xs);
-  height: var(--control-h-2xs);
-  border-radius: var(--radius-circle);
-  background: var(--bg-primary);
-  color: var(--text-secondary);
-  pointer-events: none;
 }
 
 .actions {
