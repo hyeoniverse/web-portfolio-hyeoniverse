@@ -29,20 +29,12 @@ export default function CoverHistoryManager() {
   const t = (k: string, e: string) => (ko ? k : e);
   const [items, setItems] = useState<CoverItem[] | null>(null);
 
-  /* 사용처 — 목록과 따로 받는다. 기록 24개는 바로 오지만 쓰는 곳은 글·프로젝트를 훑어야 해서,
-     같이 기다리면 목록까지 늦게 떴다. 목록을 먼저 그리고 사용처는 오는 대로 채운다(id → usage) */
-  const [usage, setUsage] = useState<Record<string, CoverItem["usage"]> | null>(null);
-
   useEffect(() => {
     let cancelled = false;
-    const get = (q: string) => fetch(`/api/admin/cover-history${q}`)
+    void fetch("/api/admin/cover-history?usage=1")
       .then((r) => (r.ok ? r.json() : { history: [] }))
-      .catch(() => ({ history: [] })) as Promise<{ history?: CoverItem[] }>;
-    void get("").then((d) => { if (!cancelled) setItems(Array.isArray(d.history) ? d.history : []); });
-    void get("?usage=1").then((d) => {
-      if (cancelled) return;
-      setUsage(Object.fromEntries((d.history ?? []).map((c) => [c.id, c.usage])));
-    });
+      .catch(() => ({ history: [] }))
+      .then((d: { history?: CoverItem[] }) => { if (!cancelled) setItems(Array.isArray(d.history) ? d.history : []); });
     return () => { cancelled = true; };
   }, []);
 
@@ -79,8 +71,7 @@ export default function CoverHistoryManager() {
         ) : (
           <div className={styles.grid}>
             {items.map((c) => {
-              const u = usage?.[c.id];
-              const used = [...(u?.posts ?? []).map((r) => ({ ...r, kind: "post" as const })), ...(u?.works ?? []).map((r) => ({ ...r, kind: "work" as const }))];
+              const used = [...(c.usage?.posts ?? []).map((r) => ({ ...r, kind: "post" as const })), ...(c.usage?.works ?? []).map((r) => ({ ...r, kind: "work" as const }))];
               return (
                 <figure key={c.id} className={styles.card}>
                   <div className={styles.thumb}>
@@ -93,9 +84,7 @@ export default function CoverHistoryManager() {
                   </div>
                   <figcaption className={styles.caption}>
                     <span className={styles.source}>{sourceLabel(c.source)} · {date(c.created_at)}</span>
-                    {usage === null ? (
-                      <SkeletonLine width={72} height={12} />
-                    ) : used.length ? (
+                    {used.length ? (
                       <Tooltip interactive placement="bottom" delay={150} content={
                         <span className={styles.usedList}>
                           {used.map((r) => (
