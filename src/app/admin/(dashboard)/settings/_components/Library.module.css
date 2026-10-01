@@ -43,7 +43,7 @@
   gap: var(--spacing-xs) var(--spacing-md);
 }
 
-.more {
+.pager {
   align-self: center;
 }
 

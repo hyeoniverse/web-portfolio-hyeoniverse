@@ -1,7 +1,7 @@
 import { requireOwner } from "@/lib/api/requireRole";
 import { jsonError, jsonOk, jsonServerError } from "@/lib/api/response";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { findMediaUsage, type MediaSource } from "@/lib/mediaUsage";
+import { findMediaUsage, indexMediaUsage, pageMedia, type MediaRef, type MediaSource } from "@/lib/mediaUsage";
 
 /* 라이브러리 › 업로드한 파일 — 두 저장소의 파일과 쓰는 곳.
    posts: 글·프로젝트 본문 이미지·커버·낭독 음성 (posts/ 아래)
@@ -14,16 +14,18 @@ type Admin = ReturnType<typeof createAdminClient>;
 
 interface FileRow { bucket: Bucket; path: string; name: string; size: number; mime: string; createdAt: string | null; url: string }
 
-/** 폴더를 한 단계씩 내려가며 파일을 모은다(깊이 2까지 — 지금 쓰는 경로는 모두 폴더/파일 한 단계다) */
+/** 폴더를 한 단계씩 내려가며 파일을 모은다(깊이 2까지 — 지금 쓰는 경로는 모두 폴더/파일 한 단계다).
+    하위 폴더는 한꺼번에 연다 — 하나씩 차례로 열던 때는 폴더 수만큼 왕복이 쌓였다. */
 async function listBucket(admin: Admin, bucket: Bucket, prefix = "", depth = 0): Promise<FileRow[]> {
   const out: FileRow[] = [];
+  const folders: string[] = [];
   for (let offset = 0; ; offset += PAGE) {
     const { data, error } = await admin.storage.from(bucket).list(prefix, { limit: PAGE, offset, sortBy: { column: "created_at", order: "desc" } });
     if (error) throw error;
     for (const e of data ?? []) {
       const path = prefix ? `${prefix}/${e.name}` : e.name;
       if (e.id === null) {
-        if (depth < 2) out.push(...(await listBucket(admin, bucket, path, depth + 1)));
+        if (depth < 2) folders.push(path);
         continue;
       }
       if (e.name === ".emptyFolderPlaceholder") continue;
@@ -38,6 +40,7 @@ async function listBucket(admin: Admin, bucket: Bucket, prefix = "", depth = 0):
     }
     if (!data || data.length < PAGE) break;
   }
+  for (const sub of await Promise.all(folders.map((f) => listBucket(admin, bucket, f, depth + 1)))) out.push(...sub);
   return out;
 }
 
@@ -64,21 +67,40 @@ async function usageSources(admin: Admin): Promise<MediaSource[]> {
   ];
 }
 
-// GET /api/admin/media — 파일 목록 + 쓰는 곳 (소유자 전용)
-export async function GET() {
+type MediaItem = FileRow & { usage: MediaRef[] };
+
+/* 쪽을 넘기거나 걸러 볼 때마다 저장소 전체를 다시 훑지 않게 잠깐 들고 있는다(같은 서버 인스턴스 안에서만).
+   지우면 비우고, ?fresh=1 이면 새로 훑는다 */
+const CACHE_MS = 60_000;
+let cache: { at: number; items: MediaItem[] } | null = null;
+
+async function loadAll(admin: Admin): Promise<MediaItem[]> {
+  const [files, sources] = await Promise.all([
+    Promise.all(BUCKETS.map((b) => listBucket(admin, b))).then((x) => x.flat()),
+    usageSources(admin),
+  ]);
+  const usage = indexMediaUsage(sources);
+  return files
+    .map((f) => ({ ...f, usage: usage.get(f.path) ?? [] }))
+    .sort((a, b) => (b.createdAt ?? "").localeCompare(a.createdAt ?? ""));
+}
+
+// GET /api/admin/media?page=&limit=&kind=&unused=1&q=&fresh=1 — 파일 목록 한 쪽 + 쓰는 곳 (소유자 전용)
+export async function GET(request: Request) {
   const { error: authError } = await requireOwner();
   if (authError) return authError;
   try {
-    const admin = createAdminClient();
-    const [files, sources] = await Promise.all([
-      Promise.all(BUCKETS.map((b) => listBucket(admin, b))).then((x) => x.flat()),
-      usageSources(admin),
-    ]);
-    const usage = findMediaUsage(files.map((f) => f.path), sources);
-    const items = files
-      .map((f) => ({ ...f, usage: usage.get(f.path) ?? [] }))
-      .sort((a, b) => (b.createdAt ?? "").localeCompare(a.createdAt ?? ""));
-    return jsonOk({ items });
+    const sp = new URL(request.url).searchParams;
+    if (!cache || sp.get("fresh") === "1" || Date.now() - cache.at > CACHE_MS) {
+      cache = { at: Date.now(), items: await loadAll(createAdminClient()) };
+    }
+    return jsonOk(pageMedia(cache.items, {
+      kind: sp.get("kind") ?? undefined,
+      unused: sp.get("unused") === "1",
+      q: sp.get("q") ?? undefined,
+      page: Number(sp.get("page")) || 1,
+      limit: Number(sp.get("limit")) || 48,
+    }));
   } catch (e) {
     return jsonServerError(e, "GET /api/admin/media");
   }
@@ -99,6 +121,7 @@ export async function DELETE(request: Request) {
     if (refs.length) return jsonError("File is in use", 409, { code: "MEDIA_IN_USE", params: { n: refs.length } });
     const { error } = await admin.storage.from(bucket).remove([path]);
     if (error) throw error;
+    cache = null;
     return jsonOk({ ok: true });
   } catch (e) {
     return jsonServerError(e, "DELETE /api/admin/media");
