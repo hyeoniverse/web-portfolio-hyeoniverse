@@ -40,3 +40,10 @@ describe("audioClips", () => {
     expect(moveClip(t, 1, 2)).toBe(t);
   });
 });
+
+describe("audioClips 구간 나누기", () => {
+  it("고른 구간의 양 끝을 나누면 그 구간이 한 클립이 된다", () => {
+    const t = splitAt(splitAt(take(), 0.3), 0.7);
+    expect(clipsOf(t)).toEqual([[0, 0.3], [0.3, 0.7], [0.7, 1]]);
+  });
+});
