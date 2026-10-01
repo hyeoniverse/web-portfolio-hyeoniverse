@@ -1,5 +1,6 @@
-/* ── 이모지 조합 창 — 위 줄(단계·검색), 가운데 격자(스크롤), 아래 고른 조합(미리보기·이름·추가) ──
-   격자는 라이브러리 갤러리처럼 칸을 붙이고 칸 사이만 1px 선 */
+/* ── 이모지 조합 창 — 위 줄(단계·검색), 가운데 격자(스크롤), 모달 아래 단에 고른 조합(미리보기·이름·추가) ──
+   공용 모달은 본문에 좌우 여백을 주지 않는다. 위 줄은 모달 머리·아래 단과 같은 좌우 여백(--modal-p-md)을
+   두고, 격자는 커버 고르기 창처럼 모달 가장자리까지 붙인다(칸 사이만 1px 선). */
 .wrap {
   display: flex;
   flex-direction: column;
@@ -7,7 +8,12 @@
   min-height: 0;
 }
 
+.pad {
+  padding: var(--modal-p-md);
+}
+
 .bar {
+  padding: 0 var(--spacing-lg);
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -48,6 +54,7 @@
 
 .scroll {
   max-height: min(52vh, 480px);
+  overflow-x: hidden;
   overflow-y: auto;
   border-top: var(--border-light);
   border-bottom: var(--border-light);
@@ -94,8 +101,11 @@
   object-fit: contain;
 }
 
+/* 모달 아래 단(.modalFooter, 오른쪽 정렬) 안에서 한 줄을 다 쓴다 */
 .foot {
   display: flex;
+  flex: 1;
+  min-width: 0;
   align-items: center;
   gap: var(--spacing-md);
 }
