@@ -2,8 +2,9 @@
    public/emoji-kitchen/ 에 만들어 둔다(meta.json + pairs.bin). 그림 자체는 gstatic 에 있고, 주소는
    날짜와 두 코드포인트로 만든다. 라이브러리 › 커스텀 이모지의 "조합" 창과 가져오기 API 가 같이 쓴다. */
 
-export interface KitchenEmoji { c: string; e: string; n: string; k: string }
-export interface KitchenMeta { emojis: KitchenEmoji[]; dates: string[] }
+/** g — meta.groups 의 분류 번호(유니코드 이모지 분류 순서). emojis 는 분류 → Gboard 순서로 놓여 있다 */
+export interface KitchenEmoji { c: string; e: string; n: string; k: string; g: number }
+export interface KitchenMeta { emojis: KitchenEmoji[]; groups: string[]; dates: string[] }
 /** 이모지 i 와 섞을 수 있는 상대 j 와, 그 조합 그림의 날짜·좌우 */
 export interface KitchenPair { j: number; date: string; left: string; right: string }
 
