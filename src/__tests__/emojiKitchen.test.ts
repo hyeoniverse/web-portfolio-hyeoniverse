@@ -5,7 +5,8 @@ import { decodePairs, isKitchenCode, isKitchenDate, kitchenImageUrl, type Kitche
 /* Emoji Kitchen — 조합 목록 풀기·그림 주소·입력 검사 */
 
 const meta: KitchenMeta = {
-  emojis: [{ c: "1f600", e: "😀", n: "grinning", k: "" }, { c: "2764-fe0f", e: "❤️", n: "heart", k: "" }, { c: "1f431", e: "🐱", n: "cat", k: "" }],
+  emojis: [{ c: "1f600", e: "😀", n: "grinning", k: "", g: 0 }, { c: "2764-fe0f", e: "❤️", n: "heart", k: "", g: 1 }, { c: "1f431", e: "🐱", n: "cat", k: "", g: 2 }],
+  groups: ["smileys & emotion", "symbols", "animals & nature"],
   dates: ["20201001", "20230301"],
 };
 
