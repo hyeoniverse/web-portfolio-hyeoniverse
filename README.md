@@ -144,7 +144,7 @@ npm run sync-all       # content/*.md ↔ DB 동기화
 | [Supabase 세팅](./docs/supabase-setup.md) | 환경변수, 테이블, Storage, 관리자 계정, 커버 이미지 |
 | [배포](./docs/deploy.md) | Vercel, 도메인, 메일, 배포 후 점검 |
 | [테스트](./docs/testing.md) | Vitest 목록, 스모크 e2e, admin 세션 준비 |
-| [디자인 시스템](./docs/design-system.md) | 토큰 3층, 규칙 R1~R7, 네이밍과 특이도 |
+| [디자인 시스템](./docs/design-system.md) | 토큰 3층, 축별 규칙과 강제 상태, `@layer`·이행 계획 (토큰 값은 [자동 생성 표](./docs/tokens.md)) |
 | [트러블슈팅](./docs/troubleshooting.md) | 막혔던 지점과 원인·해결 기록 |
 | [컴포넌트](./docs/components.md) · [DB 설계](./docs/db-design.md) · [보안](./docs/security.md) · [사용자 흐름](./docs/user-flow.md) | 영역별 상세 |
 | [편집기 가이드](./docs/editor-guide.md) · [글](./docs/md-posts-guide.md) · [작업물](./docs/md-works-guide.md) · [소개](./docs/md-about-guide.md) | 편집기 사용법과 `.md` 작성 규칙 |
