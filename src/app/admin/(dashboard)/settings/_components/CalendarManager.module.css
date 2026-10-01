@@ -23,9 +23,13 @@
 
 /* 목록 — 상자 대신 가는 선으로 나눈 줄. 예전엔 줄마다 큰 둥근 상자라 네 개만 있어도 화면이 찼고
    오른쪽 대부분이 비었다. 날짜는 뜯는 달력 모양, 그 아래 줄에 쓰는 곳(글·프로젝트) */
-.list {
-  display: flex;
-  flex-direction: column;
+/* 화면 너비에 따라 1~3열 — 한 칸은 300px 이상, 열은 셋까지(넓은 화면에서 한 줄이 너무 길어지지 않게) */
+.list,
+.trashBody {
+  --cal-gap: var(--spacing-lg);
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(max(300px, calc((100% - 2 * var(--cal-gap)) / 3)), 1fr));
+  column-gap: var(--cal-gap);
   border-top: var(--border-light);
 }
 
@@ -81,7 +85,8 @@
 
 .rowMain { display: flex; flex-direction: column; gap: var(--spacing-4xs); min-width: 0; cursor: pointer; }
 .rowMain:hover .rowTitle { color: var(--text-accent); }
-.rowLine { display: flex; align-items: baseline; gap: var(--spacing-xs); min-width: 0; }
+/* 좁은 칸에서는 제목을 자르지 않고 메타를 다음 줄로 */
+.rowLine { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: var(--spacing-xs); min-width: 0; }
 .previewWrap { padding: var(--spacing-md); }
 .rowTitle {
   flex-shrink: 1;
@@ -166,5 +171,7 @@
 .trashChevOpen { transform: rotate(180deg); }
 /* (0,2,0) — 전역 theme transition shorthand(transform 미포함) override */
 .trashHead .trashChev { transition: transform 0.2s ease; }
-.trashBody { display: flex; flex-direction: column; border-top: var(--border-light); }
 .trashSoon { color: var(--text-accent); }
+
+/* 휴지통이 비었을 때 문구·불러오는 줄은 칸 하나가 아니라 줄 전체 */
+.trashBody > :not(.row) { grid-column: 1 / -1; }
