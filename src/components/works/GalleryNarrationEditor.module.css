@@ -252,6 +252,71 @@
   color: var(--text-tertiary);
 }
 
+/* ── 녹음 막대 — 재생 막대 자리. 녹음 표시는 강조색(빨강은 쓰지 않는다), 소리 크기는 재생 막대와 같은 결의 막대 ── */
+.recordBar {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--spacing-sm);
+  min-width: 0;
+}
+
+.recordState {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-label);
+}
+
+.recordState[data-live] {
+  color: var(--text-accent);
+}
+
+.recordDot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-circle);
+  background: currentcolor;
+}
+
+.recordState[data-live] .recordDot {
+  animation: recordPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes recordPulse {
+  50% { opacity: 0.25; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .recordState[data-live] .recordDot {
+    animation: none;
+  }
+}
+
+.recordTime {
+  font-variant-numeric: tabular-nums;
+}
+
+.recordMeter {
+  position: relative;
+  flex: 1;
+  min-width: 40px;
+  height: 6px;
+  overflow: hidden;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary-alt);
+}
+
+.recordMeter > span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: calc(var(--level, 0) * 100%);
+  background: var(--color-accent);
+  transition: width 0.08s linear;
+}
+
 .barActions {
   display: inline-flex;
   flex-shrink: 0;

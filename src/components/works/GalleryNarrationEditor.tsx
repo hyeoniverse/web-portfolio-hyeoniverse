@@ -9,7 +9,7 @@ import Select from "@/components/ui/Select";
 import { Slider } from "@/components/ui/Slider";
 import Checkbox from "@/components/ui/Checkbox";
 import Popover from "@/components/ui/Popover";
-import { AlignLeft, AudioLines, BookOpen, ChevronDown, ExternalLink, File, Images, Languages, ListChecks, FastForward, Rewind, ChevronLeft, ChevronRight, ClipboardPaste, History, Pause, Play, Sparkles, Trash2, Upload, Volume2 } from "@/components/icons";
+import { AlignLeft, AudioLines, BookOpen, ChevronDown, ExternalLink, File, Images, Languages, ListChecks, FastForward, Rewind, ChevronLeft, ChevronRight, ClipboardPaste, History, Mic, Pause, Play, Sparkles, Square, Trash2, Upload, Volume2, X } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { showToast } from "@/stores/toastStore";
@@ -24,6 +24,7 @@ import { displayScript } from "@/lib/ttsLexicon";
 import { captionCues } from "@/lib/captionCues";
 import LoadingDots from "@/components/ui/LoadingDots";
 import LexiconEditor from "./LexiconEditor";
+import { canRecord, startMicRecording, type MicRecording } from "@/lib/micRecorder";
 import { pushNarrationHistory, readNarrationHistory, removeNarrationHistory, subscribeNarrationHistory, type NarrationHistoryEntry } from "@/lib/narrationHistory";
 import type { GalleryNote, GalleryNotes } from "@/data/projects";
 import styles from "./GalleryNarrationEditor.module.css";
@@ -72,6 +73,11 @@ export function useNarrationActions({ gallery, notes, update, tw, lang }: {
   /* 연 뒤 대본 입력칸으로 커서를 옮길지 — 썸네일·‹ › 를 누르면 옮기고, 목록에서 ↑↓ 로 옮길 때는 목록에 둔다
      (입력칸으로 가 버리면 다음 ↑↓ 가 글 안의 커서 이동이 된다). 바뀔 때마다 새 값이라 같은 장을 다시 눌러도 옮긴다 */
   const [focusTick, setFocusTick] = useState(0);
+  /* 마이크로 녹음 중인 장 — 녹음은 한 번에 한 장. 다른 장을 열어도 이 장에 넣는다(녹음 막대가 몇 장인지 보인다) */
+  const [recording, setRecording] = useState<{ url: string; starting: boolean } | null>(null);
+  const recorderRef = useRef<MicRecording | null>(null);
+  /* 편집 화면을 떠나면 마이크를 닫는다 */
+  useEffect(() => () => { recorderRef.current?.cancel(); recorderRef.current = null; }, []);
 
   /* 한 번 만든 묶음을 돌려 쓴다 — 편집 화면의 갤러리 섹션은 useMemo 로 묶여 있어, 그릴 때마다 새 묶음이 오면
      제목 한 글자를 칠 때마다 갤러리 전체를 다시 그린다 */
@@ -193,27 +199,65 @@ export function useNarrationActions({ gallery, notes, update, tw, lang }: {
       if (done > 0) showToast(fillTemplate(tw("narrationDone"), { n: done }), "success");
     };
 
+    /* 녹음 파일을 올려 이 장의 음성으로 — 파일로 올리든 마이크로 녹음하든 같은 길 */
+    const putRecording = async (url: string, file: Blob, name?: string) => {
+      setRowBusy(url, { done: 0, total: 1 });
+      const form = new FormData();
+      if (name) form.append("file", file, name); else form.append("file", file);
+      const res = await sendAction("/api/upload", { method: "POST", body: form }, t, t("admin.common.uploadFailed"));
+      setRowBusy(url, null);
+      if (!res) return;
+      const data = await res.json().catch(() => ({}));
+      if (data?.url) {
+        rememberCurrent(url);
+        pushNarrationHistory(url, { audio: data.url, source: "recorded", at: Date.now() });
+        update(url, { audio: data.url, audioSource: "recorded", audioScript: undefined, audioVoice: undefined });
+      }
+    };
+
     const uploadRecording = (url: string) => {
       const input = document.createElement("input");
       input.type = "file";
       input.accept = "audio/*";
-      input.onchange = async () => {
+      input.onchange = () => {
         const file = input.files?.[0];
-        if (!file) return;
-        setRowBusy(url, { done: 0, total: 1 });
-        const form = new FormData();
-        form.append("file", file);
-        const res = await sendAction("/api/upload", { method: "POST", body: form }, t, t("admin.common.uploadFailed"));
-        setRowBusy(url, null);
-        if (!res) return;
-        const data = await res.json().catch(() => ({}));
-        if (data?.url) {
-          rememberCurrent(url);
-          pushNarrationHistory(url, { audio: data.url, source: "recorded", at: Date.now() });
-          update(url, { audio: data.url, audioSource: "recorded", audioScript: undefined, audioVoice: undefined });
-        }
+        if (file) void putRecording(url, file);
       };
       input.click();
+    };
+
+    /** 마이크 녹음을 시작한다 — 마이크 권한을 묻는 동안은 starting */
+    const startRecording = async (url: string) => {
+      if (recorderRef.current || recording) return;
+      if (!canRecord()) { showToast(tw("narrationRecordUnsupported"), "error"); return; }
+      pausePreview();
+      setRecording({ url, starting: true });
+      try {
+        recorderRef.current = await startMicRecording();
+        setRecording({ url, starting: false });
+      } catch {
+        setRecording(null);
+        showToast(tw("narrationRecordDenied"), "error");
+      }
+    };
+
+    /** 멈추고 이 장의 음성으로 넣는다 */
+    const stopRecording = async () => {
+      const rec = recorderRef.current;
+      if (!rec || !recording) return;
+      recorderRef.current = null;
+      const { url } = recording;
+      setRecording(null);
+      if (rec.seconds() < 0.3) { rec.cancel(); showToast(tw("narrationRecordEmpty"), "error"); return; }
+      const blob = await rec.stop();
+      await putRecording(url, blob, `recording-${Date.now()}.wav`);
+    };
+
+    /** 멈추고 버린다 */
+    const cancelRecording = () => {
+      recorderRef.current?.cancel();
+      recorderRef.current = null;
+      setRecording(null);
     };
 
     const clearAudio = (url: string) => {
@@ -244,14 +288,15 @@ export function useNarrationActions({ gallery, notes, update, tw, lang }: {
     const openIndex = openUrl ? gallery.indexOf(openUrl) : -1;
 
     return {
-      voice, setVoice, lang, busy, bulk, targets, generateOne, generateAll, uploadRecording, clearAudio, restoreHistory, pasteScripts, update, notes,
+      voice, setVoice, lang, busy, bulk, targets, generateOne, generateAll, uploadRecording, clearAudio,
+      recording, recorderRef, startRecording, stopRecording, cancelRecording, restoreHistory, pasteScripts, update, notes,
       openUrl, openIndex, focusTick,
       open: (url: string | null, focusScript = true) => {
         setOpenUrl(url);
         if (focusScript) setFocusTick((n) => n + 1);
       },
     };
-  }, [gallery, notes, update, tw, t, voice, setVoice, lang, busy, bulk, openUrl, focusTick]);
+  }, [gallery, notes, update, tw, t, voice, setVoice, lang, busy, bulk, openUrl, focusTick, recording]);
 }
 
 export type NarrationActions = ReturnType<typeof useNarrationActions>;
@@ -580,13 +625,24 @@ function HistoryButton({ url, note, actions, tw, disabled }: { url: string; note
   );
 }
 
-/** 이력·녹음 올리기·지우기 — 듣기는 재생 막대 줄(PreviewSeek), 만들기는 조작 막대의 GenerateButton 하나로 */
+/** 이력·녹음하기·녹음 올리기·지우기 — 듣기는 재생 막대 줄(PreviewSeek), 만들기는 조작 막대의 GenerateButton 하나로 */
 function NarrationTools({ url, note, actions, tw }: { url: string; note: GalleryNote | undefined; actions: NarrationActions; tw: (key: string) => string }) {
   const rowBusy = actions.busy.has(url);
-  const locked = rowBusy || !!actions.bulk;
+  const locked = rowBusy || !!actions.bulk || !!actions.recording;
   return (
     <span className={styles.toolButtons}>
       <HistoryButton url={url} note={note} actions={actions} tw={tw} disabled={locked} />
+      <Button
+        variant="ghost"
+        size="sm"
+        shape="circle"
+        onClick={() => void actions.startRecording(url)}
+        disabled={locked}
+        aria-label={tw("narrationRecord")}
+        title={tw("narrationRecord")}
+        soundDisabled
+        icon={<Mic size={14} strokeWidth={2} />}
+      />
       <Button
         variant="ghost"
         size="sm"
@@ -609,6 +665,58 @@ function NarrationTools({ url, note, actions, tw }: { url: string; note: Gallery
         soundDisabled
         icon={<Trash2 size={14} strokeWidth={2} />}
       />
+    </span>
+  );
+}
+
+/* 녹음 길이 상한 — WAV(24kHz, 1초에 48KB)가 업로드 기본 한도(20MB) 안에 들도록 */
+const MAX_RECORD_MIN = 6;
+
+/**
+ * 녹음 막대 — 녹음하는 동안 재생 막대 자리에 놓인다(대본 바로 아래라 읽으면서 본다).
+ * [■ 멈추고 넣기] [● n장 녹음 중 · 0:12] [소리 크기] [× 버리기]. 상한에 닿으면 멈추고 넣는다
+ */
+function RecordingBar({ actions, gallery, tw }: { actions: NarrationActions; gallery: string[]; tw: (key: string) => string }) {
+  const rec = actions.recording!;
+  const [time, setTime] = useState(0);
+  const meterRef = useRef<HTMLSpanElement>(null);
+  const { recorderRef, stopRecording } = actions;
+  useEffect(() => {
+    if (rec.starting) return;
+    let raf = 0;
+    /* 소리 크기는 바로 오르고 천천히 내린다 — 말소리가 깜빡이지 않고 읽히게 */
+    let shown = 0;
+    const tick = () => {
+      const r = recorderRef.current;
+      if (r) {
+        const s = r.seconds();
+        setTime(Math.floor(s));
+        shown = Math.max(r.level(), shown * 0.9);
+        meterRef.current?.style.setProperty("--level", shown.toFixed(3));
+        if (s >= MAX_RECORD_MIN * 60) {
+          showToast(fillTemplate(tw("narrationRecordLimit"), { n: MAX_RECORD_MIN }), "info");
+          void stopRecording();
+          return;
+        }
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [rec.starting, recorderRef, stopRecording, tw]);
+  const n = gallery.indexOf(rec.url) + 1;
+  return (
+    <span className={styles.recordBar} role="status">
+      <Button variant="primary" size="sm" onClick={() => void actions.stopRecording()} disabled={rec.starting} soundDisabled icon={<Square size={12} strokeWidth={2.5} />}>
+        {tw("narrationRecordStop")}
+      </Button>
+      <span className={styles.recordState} data-live={rec.starting ? undefined : ""}>
+        <span className={styles.recordDot} aria-hidden />
+        {fillTemplate(tw("narrationRecording"), { n })}
+        <span className={styles.recordTime}>{clock(time)}</span>
+      </span>
+      <span ref={meterRef} className={styles.recordMeter} aria-hidden><span /></span>
+      <Button variant="ghost" size="sm" shape="circle" onClick={actions.cancelRecording} aria-label={tw("narrationRecordCancel")} title={tw("narrationRecordCancel")} soundDisabled icon={<X size={14} strokeWidth={2} />} />
     </span>
   );
 }
@@ -758,7 +866,9 @@ function GenerateButton({ url, index, notes, actions, tw }: { url: string; index
     ? `${actions.bulk.done}/${actions.bulk.total}`
     : rowBusy ? tw("narrationWorking") : tw("narrationGenerate");
   const busyTitle = actions.bulk ? fillTemplate(tw("narrationGenerating"), actions.bulk) : undefined;
-  const locked = !!actions.bulk || rowBusy;
+  const working = !!actions.bulk || rowBusy;
+  /* 녹음하는 동안은 막기만 한다(만드는 중 표시는 하지 않는다) */
+  const locked = working || !!actions.recording;
   /* 글자가 "음성 만들기 → 만드는 중 → 3/19"로 바뀌어도 버튼 너비가 그대로이게, 가장 긴 글자 자리를
      보이지 않게 겹쳐 잡아 둔다 — 너비가 바뀌면 조작 막대의 다른 것들이 밀렸다 */
   const widest = [tw("narrationGenerate"), tw("narrationWorking"), `${n || 1}/${n || 1}`];
@@ -771,7 +881,7 @@ function GenerateButton({ url, index, notes, actions, tw }: { url: string; index
      loading 을 쓰지 않는다 — 버튼 내용을 통째로 점 세 개로 바꿔 너비가 줄고 진행 글자도 가려졌다.
      만드는 동안에는 아이콘 자리에만 점 세 개를 움직이고, 글자(진행)는 그대로 둔다 */
   return (
-    <span className={styles.generateSplit} data-busy={locked ? "" : undefined}>
+    <span className={styles.generateSplit} data-busy={working ? "" : undefined}>
       <Button
         variant="primary"
         size="sm"
@@ -780,7 +890,7 @@ function GenerateButton({ url, index, notes, actions, tw }: { url: string; index
         disabled={locked || !hasScript}
         title={busyTitle ?? (hasScript ? undefined : tw("narrationGenerateNoScript"))}
         soundDisabled
-        icon={locked ? <LoadingDots className={styles.busyDots} /> : <Sparkles size={14} strokeWidth={2} />}
+        icon={working ? <LoadingDots className={styles.busyDots} /> : <Sparkles size={14} strokeWidth={2} />}
       >
         <span className={styles.stableLabel}>
           {widest.map((w) => <span key={w} className={styles.stableGhost} aria-hidden>{w}</span>)}
@@ -1090,7 +1200,7 @@ export function GalleryNarrationPanel({
   const go = (to: number) => actions.open(gallery[Math.max(0, Math.min(gallery.length - 1, to))]);
   /* 만드는 동안 잠그는 것 — 이 장(여러 장 만들기면 모든 장)의 대본, 그리고 만들기에 쓰이는 목소리·읽기 사전·대본 한꺼번에 넣기.
      장 넘기기와 듣기는 그대로 둔다 */
-  const generating = actions.busy.size > 0 || !!actions.bulk;
+  const generating = actions.busy.size > 0 || !!actions.bulk || !!actions.recording;
   const scriptLocked = actions.busy.has(url) || !!actions.bulk;
 
   return (
@@ -1116,7 +1226,7 @@ export function GalleryNarrationPanel({
       </div>
       {/* 재생 막대 — 조작 막대 안에서는 남는 폭이 좁아 따로 한 줄. 음성이 없는 장도 자리는 지킨다(disabled) */}
       <div className={styles.paneSeek}>
-        <PreviewSeek audio={note?.audio} tw={tw} />
+        {actions.recording ? <RecordingBar actions={actions} gallery={gallery} tw={tw} /> : <PreviewSeek audio={note?.audio} tw={tw} />}
       </div>
       <div className={styles.paneBar}>
         <span className={styles.barPager}>
