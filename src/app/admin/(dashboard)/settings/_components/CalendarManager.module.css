@@ -108,7 +108,7 @@
   font-size: var(--font-size-hint);
   color: var(--text-secondary);
   cursor: default;
-  text-decoration: underline dotted var(--border-color-strong);
+  text-decoration: underline var(--border-color-strong);
   text-underline-offset: 3px;
 }
 .usageNone { color: var(--text-muted); text-decoration: none; }
