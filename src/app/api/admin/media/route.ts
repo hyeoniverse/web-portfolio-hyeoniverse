@@ -1,6 +1,7 @@
 import { requireOwner } from "@/lib/api/requireRole";
 import { jsonError, jsonOk, jsonServerError } from "@/lib/api/response";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { serverTimer } from "@/lib/api/serverTiming";
 import { findMediaUsage, indexMediaUsage, pageMedia, type MediaRef, type MediaSource } from "@/lib/mediaUsage";
 
 /* 라이브러리 › 업로드한 파일 — 두 저장소의 파일과 쓰는 곳.
@@ -87,20 +88,23 @@ async function loadAll(admin: Admin): Promise<MediaItem[]> {
 
 // GET /api/admin/media?page=&limit=&kind=&unused=1&q=&fresh=1 — 파일 목록 한 쪽 + 쓰는 곳 (소유자 전용)
 export async function GET(request: Request) {
+  const timer = serverTimer();
   const { error: authError } = await requireOwner();
   if (authError) return authError;
+  timer.mark("auth");
   try {
     const sp = new URL(request.url).searchParams;
     if (!cache || sp.get("fresh") === "1" || Date.now() - cache.at > CACHE_MS) {
       cache = { at: Date.now(), items: await loadAll(createAdminClient()) };
+      timer.mark("scan");
     }
-    return jsonOk(pageMedia(cache.items, {
+    return timer.apply(jsonOk(pageMedia(cache.items, {
       kind: sp.get("kind") ?? undefined,
       unused: sp.get("unused") === "1",
       q: sp.get("q") ?? undefined,
       page: Number(sp.get("page")) || 1,
       limit: Number(sp.get("limit")) || 48,
-    }));
+    })));
   } catch (e) {
     return jsonServerError(e, "GET /api/admin/media");
   }
