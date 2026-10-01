@@ -19,7 +19,7 @@ import SettingsSkeleton from "./_components/SettingsSkeleton";
 import { profileDefaults, isProfileAllOpen, toggleProfileAll, type ProfileExpandState } from "@/components/admin/ProfileSections";
 import { ProfileSectionProvider, type ProfileKey } from "@/components/admin/ProfileSectionActions";
 import type { ProfileData } from "@/types/profile";
-import { TAB_IDS, TAB_CONFIG_KEYS, type TabId, CONTENT_SUBTABS, type ContentSubTab, deepMerge, deepEqual, computeDelta, extractDefaults, detectConflicts, isDeltaFormat, filterOrphanedKeys, getTabForConfigPath, getContentSubTabForKey, getByPath, setByPath, type ConfigConflict } from "./_data/settingsConstants";
+import { TAB_IDS, TAB_CONFIG_KEYS, type TabId, CONTENT_SUBTABS, type ContentSubTab, LIBRARY_SUBTABS, type LibrarySubTab, deepMerge, deepEqual, computeDelta, extractDefaults, detectConflicts, isDeltaFormat, filterOrphanedKeys, getTabForConfigPath, getContentSubTabForKey, getByPath, setByPath, type ConfigConflict } from "./_data/settingsConstants";
 import { buildDeltaPayload as sharedBuildDeltaPayload } from "@/lib/settingsDelta";
 import GeneralTab from "./_components/GeneralTab";
 import { preloadSettingsTab } from "./_components/settingsTabLoaders";
@@ -146,11 +146,17 @@ export default function SettingsPage() {
       ? (sub as ContentSubTab)
       : "home";
   });
+  const [librarySubTab, setLibrarySubTab] = useState<LibrarySubTab>(() => {
+    const sub = searchParams.get("sub");
+    return sub && (LIBRARY_SUBTABS as readonly string[]).includes(sub)
+      ? (sub as LibrarySubTab)
+      : "calendars";
+  });
   /* 연 탭의 편집기 청크를 설정값과 함께 받기 시작한다(→ settingsTabLoaders) */
   useEffect(() => { preloadSettingsTab(activeTab, contentSubTab); }, [activeTab, contentSubTab]);
   /* 지금 탭의 섹션 목록과 지금 보는 섹션 — 태블릿·모바일 눈금과 데스크톱 사이드바 목록이 같이 쓴다.
      불러오는 동안에는 패널이 없어 훑을 게 없으므로, 다 불러온 뒤 다시 훑도록 loading 을 키에 넣는다. */
-  const sectionNav = useSettingsSections(panelRef, `${loading ? "loading" : "ready"}:${activeTab}:${contentSubTab}`);
+  const sectionNav = useSettingsSections(panelRef, `${loading ? "loading" : "ready"}:${activeTab}:${contentSubTab}:${librarySubTab}`);
   /* 붙어 있는 사이드바는 틀(.layout)이 끝나면 위로 밀려 올라간다. About 에서 섹션 목록까지 펼치면
      사이드바가 화면 높이에 가까워, 푸터가 보이기 시작하는 페이지 끝에서 밀려 올라가 사이트 nav 의
      로고와 겹쳤다(nav 는 배경이 없다). 붙는 선에서 틀 끝까지 남은 자리만큼만 높이를 주면 밀리지 않고,
@@ -194,9 +200,10 @@ export default function SettingsPage() {
     const url = new URL(window.location.href);
     url.searchParams.set("tab", activeTab);
     if (activeTab === "content") url.searchParams.set("sub", contentSubTab);
+    else if (activeTab === "library") url.searchParams.set("sub", librarySubTab);
     else url.searchParams.delete("sub");
     window.history.replaceState(null, "", url.toString());
-  }, [activeTab, contentSubTab]);
+  }, [activeTab, contentSubTab, librarySubTab]);
   const account = useAccountSettings(t);
 
   // ── 현재 탭/서브탭을 URL 쿼리에 반영 (새로고침·북마크·딥링크 유지) ──
@@ -205,9 +212,10 @@ export default function SettingsPage() {
     const params = new URLSearchParams();
     params.set("tab", activeTab);
     if (activeTab === "content") params.set("sub", contentSubTab);
+    else if (activeTab === "library") params.set("sub", librarySubTab);
     /* 해시는 지킨다 — 다른 화면이 섹션으로 바로 보내는 링크(#tts-lexicon 등)가 탭을 그리기 전에 지워지지 않게 */
     window.history.replaceState(null, "", `${window.location.pathname}?${params.toString()}${window.location.hash}`);
-  }, [activeTab, contentSubTab]);
+  }, [activeTab, contentSubTab, librarySubTab]);
 
   // ── 통합 충돌 상태 ──
   const [allConflicts, setAllConflicts] = useState<ConfigConflict[]>([]);
@@ -730,12 +738,18 @@ export default function SettingsPage() {
   /* 탭·하위탭 옮기기. 옮기면 저장하지 않은 변경은 버린다 — 탭 저장이 보이지 않는 하위탭의 변경까지
      저장하지 않게. 사이드바 탭, 사이드바 하위탭, 모바일 하위탭 줄이 모두 이것을 쓴다. 예전에는 모바일
      하위탭 줄만 버리지 않아 데스크톱과 결과가 달랐고, 지금 탭을 다시 눌러도 변경이 버려졌다. */
-  const switchTo = (tab: TabId, sub?: ContentSubTab) => {
-    const nextSub = tab === "content" ? (sub ?? "home") : contentSubTab;
+  const switchTo = (tab: TabId, sub?: ContentSubTab | LibrarySubTab) => {
+    /* 라이브러리 하위탭은 설정값을 고치지 않으므로 저장 확인 없이 바로 옮긴다 */
+    if (tab === "library" && activeTab === "library") {
+      if (sub) setLibrarySubTab(sub as LibrarySubTab);
+      return;
+    }
+    const nextSub = tab === "content" ? ((sub as ContentSubTab | undefined) ?? "home") : contentSubTab;
     if (tab === activeTab && (tab !== "content" || nextSub === contentSubTab)) return;
     const go = () => {
       setActiveTab(tab);
       if (tab === "content") setContentSubTab(nextSub);
+      if (tab === "library" && sub) setLibrarySubTab(sub as LibrarySubTab);
       setConfig(structuredClone(savedConfigRef.current));
       setProfileData(structuredClone(savedProfileRef.current));
       setConflictExpanded(false);
@@ -968,6 +982,25 @@ export default function SettingsPage() {
                     })}
                   </div>
                 )}
+                {id === "library" && (
+                  <div className={styles.navSub}>
+                    {LIBRARY_SUBTABS.map((sub) => {
+                      const subActive = activeTab === "library" && librarySubTab === sub;
+                      return (
+                        <Pressable
+                          key={sub}
+                          className={`${styles.navSubItem} ${subActive ? styles.navSubItemActive : ""}`}
+                          aria-current={subActive ? "page" : undefined}
+                          onClick={() => switchTo("library", sub)}
+                          onPointerEnter={() => preloadSettingsTab("library")}
+                          onFocus={() => preloadSettingsTab("library")}
+                        >
+                          {t(`admin.settings.librarySub.${sub}`)}
+                        </Pressable>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             );
           })}
@@ -996,6 +1029,20 @@ export default function SettingsPage() {
                   </Pressable>
                 );
               })}
+            </div>
+          )}
+          {activeTab === "library" && (
+            <div className={styles.mobileSubNav}>
+              {LIBRARY_SUBTABS.map((sub) => (
+                <Pressable
+                  key={sub}
+                  className={`${styles.mobileSubItem} ${librarySubTab === sub ? styles.mobileSubItemActive : ""}`}
+                  aria-current={librarySubTab === sub ? "page" : undefined}
+                  onClick={() => switchTo("library", sub)}
+                >
+                  {t(`admin.settings.librarySub.${sub}`)}
+                </Pressable>
+              ))}
             </div>
           )}
           {/* 섹션 바로가기 — 섹션이 여럿이면 하위탭 아래 가로 점프 링크. 탭으로 감추지 않고 이동만. */}
@@ -1150,7 +1197,7 @@ export default function SettingsPage() {
               )}
               {activeTab === "library" && (
                 <div className={styles.tabGrid}>
-                  <LibraryTab />
+                  <LibraryTab sub={librarySubTab} />
                 </div>
               )}
               {activeTab === "appearance" && (

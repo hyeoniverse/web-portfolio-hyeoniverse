@@ -18,8 +18,11 @@ import { showToast } from "@/stores/toastStore";
 import { monthTitle, relTimeLabel } from "@/components/posts/plate/calendar/model";
 import { getTrashDaysLeft } from "@/utils/trash";
 import settings from "../Settings.module.css";
+import lib from "./Library.module.css";
 import styles from "./CalendarManager.module.css";
+import { usePagedList } from "./usePagedList";
 import EmptyState from "@/components/ui/EmptyState";
+import Pagination from "@/components/ui/Pagination";
 import Pressable from "@/components/ui/Pressable";
 import Tooltip from "@/components/ui/Tooltip";
 import TransitionLink from "@/components/ui/TransitionLink";
@@ -31,6 +34,9 @@ const ReaderCalendar = dynamic(() => import("@/components/posts/plate/ReaderCale
   ssr: false,
   loading: () => <SkeletonLine />,
 });
+
+/* 한 쪽에 3열 × 8줄 */
+const PAGE_SIZE = 24;
 
 export default function CalendarManager() {
   const { language } = useLanguage();
@@ -61,19 +67,6 @@ export default function CalendarManager() {
     return () => { cancelled = true; };
   }, []);
 
-  // deep-link ?calendar=ID → 하이라이트 + 스크롤 (picker '달력 관리' 버튼에서 진입)
-  useEffect(() => {
-    if (!targetId || !items || didScrollRef.current) return;
-    if (!items.some((x) => x.id === targetId)) return;
-    didScrollRef.current = true;
-    const raf = requestAnimationFrame(() => {
-      setFocusId(targetId);
-      rowRefs.current.get(targetId)?.scrollIntoView({ behavior: "smooth", block: "center" });
-    });
-    const tid = setTimeout(() => setFocusId(null), 2000);
-    return () => { cancelAnimationFrame(raf); clearTimeout(tid); };
-  }, [targetId, items]);
-
   const filtered = useMemo(() => {
     if (!items) return null;
     const q = search.trim().toLowerCase();
@@ -81,6 +74,25 @@ export default function CalendarManager() {
     return items.filter((it) =>
       (it.title || "").toLowerCase().includes(q) || monthTitle(it.month, language).toLowerCase().includes(q));
   }, [items, search, language]);
+  const paged = usePagedList(filtered, PAGE_SIZE);
+  const setPage = paged.setPage;
+
+  // deep-link ?calendar=ID → 하이라이트 + 스크롤 (picker '달력 관리' 버튼에서 진입)
+  useEffect(() => {
+    if (!targetId || !items || didScrollRef.current) return;
+    if (!items.some((x) => x.id === targetId)) return;
+    didScrollRef.current = true;
+    /* 다른 쪽에 있으면 그 쪽으로 넘긴 뒤 스크롤 */
+    const idx = items.findIndex((x) => x.id === targetId);
+    let raf2 = 0;
+    const raf = requestAnimationFrame(() => {
+      setPage(Math.floor(idx / PAGE_SIZE) + 1);
+      setFocusId(targetId);
+      raf2 = requestAnimationFrame(() => rowRefs.current.get(targetId)?.scrollIntoView({ behavior: "smooth", block: "center" }));
+    });
+    const tid = setTimeout(() => setFocusId(null), 2000);
+    return () => { cancelAnimationFrame(raf); cancelAnimationFrame(raf2); clearTimeout(tid); };
+  }, [targetId, items, setPage]);
 
   const badge = (month: string): { mon: string; year: string } | null => {
     const [y, m] = month.split("-").map(Number);
@@ -205,7 +217,7 @@ export default function CalendarManager() {
           <h2 className={settings.sectionTitle}>{t("달력", "Calendars")}</h2>
           {items && <span className={styles.headCount}>{items.length}</span>}
           <div className={styles.headSearch}>
-            <SearchCapsule search={search} onSearchChange={setSearch} placeholder={t("제목·월 검색", "Search title or month")} align="left" />
+            <SearchCapsule search={search} onSearchChange={(v) => { setSearch(v); setPage(1); }} placeholder={t("제목·월 검색", "Search title or month")} align="left" />
           </div>
         </div>
         <p className={settings.sectionHint}>
@@ -225,7 +237,7 @@ export default function CalendarManager() {
           <EmptyState pad="sm">{search ? t("검색 결과가 없습니다", "No results") : t("저장된 달력이 없습니다", "No calendars yet")}</EmptyState>
         ) : (
           <div className={styles.list}>
-            {filtered.map((it) => {
+            {paged.slice!.map((it) => {
               const isEditing = editingId === it.id;
               const titleText = it.title || (it.month ? monthTitle(it.month, language) : t("제목 없음", "Untitled"));
               const rel = relTimeLabel(it.updatedAt, language);
@@ -283,6 +295,9 @@ export default function CalendarManager() {
               );
             })}
           </div>
+        )}
+        {paged.totalPages > 1 && (
+          <Pagination className={lib.pager} page={paged.page} totalPages={paged.totalPages} onChange={setPage} size="sm" showJump={false} />
         )}
 
         {/* ── 휴지통 (soft delete · 30일 후 자동 영구삭제) ── */}
