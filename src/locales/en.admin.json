@@ -888,7 +888,6 @@
       "tabs": {
         "general": "General",
         "content": "Content",
-        "library": "Library",
         "appearance": "Appearance",
         "services": "Services",
         "account": "Account"
@@ -926,7 +925,8 @@
         "profile": "PROFILE",
         "about": "ABOUT",
         "works": "WORKS",
-        "posts": "POSTS"
+        "posts": "POSTS",
+        "calendars": "CALENDAR"
       },
       "aboutVisualBreakImage": "Break image URL",
       "aboutInfiniteScrollLabel": "Loop from the last panel straight back to the first instead of stopping at the end",
