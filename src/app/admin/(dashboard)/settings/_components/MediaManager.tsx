@@ -3,13 +3,13 @@
 // ── 업로드한 파일 (settings > 라이브러리) ──
 // 저장소 두 곳(posts: 글·프로젝트 이미지·커버·낭독 음성 / uploads: 로고·아이콘·이모지·배경음·폰트·이력서)의 파일과
 // 쓰는 곳. 예전엔 올린 파일을 볼 곳이 없어 쌓이기만 했다. 어디서도 쓰지 않는 파일만 지울 수 있다(서버도 다시 확인한다).
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Copy, ExternalLink, File, FileText, Film, Music, Trash2, Type } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useModalStore } from "@/stores/modalStore";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
-import Button from "@/components/ui/Button";
 import EmptyState from "@/components/ui/EmptyState";
+import Pagination from "@/components/ui/Pagination";
 import Pressable from "@/components/ui/Pressable";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import SegmentedControl from "@/components/ui/SegmentedControl";
@@ -27,7 +27,10 @@ import styles from "./MediaManager.module.css";
 
 type MediaItem = { bucket: string; path: string; name: string; size: number; mime: string; createdAt: string | null; url: string; usage: MediaRef[] };
 type Kind = ReturnType<typeof mediaType>;
-const PAGE = 48;
+const LIMIT = 48;
+
+type Summary = { counts: Partial<Record<"all" | Kind, number>>; totalSize: number; unusedCount: number; unusedSize: number };
+type PageData = { items: MediaItem[]; total: number; page: number; totalPages: number; summary: Summary };
 
 function fmtSize(n: number): string {
   if (n < 1024) return `${n} B`;
@@ -42,42 +45,49 @@ export default function MediaManager() {
   const ko = language === "ko";
   const t = (k: string, e: string) => (ko ? k : e);
   const openModal = useModalStore((s) => s.openModal);
-  const [items, setItems] = useState<MediaItem[] | null>(null);
+  const [data, setData] = useState<PageData | null>(null);
   const [failed, setFailed] = useState(false);
   const [search, setSearch] = useState("");
+  const [query, setQuery] = useState("");
   const [kind, setKind] = useState<"all" | Kind>("all");
   const [unusedOnly, setUnusedOnly] = useState(false);
-  const [shown, setShown] = useState(PAGE);
+  const [page, setPage] = useState(1);
+  /* 지운 뒤 같은 쪽을 다시 받는다 */
+  const [reload, setReload] = useState(0);
 
+  /* 검색은 잠깐 멈춘 뒤에 보낸다 — 글자마다 서버를 부르지 않게 */
+  useEffect(() => {
+    const id = setTimeout(() => { setQuery(search.trim()); setPage(1); }, 250);
+    return () => clearTimeout(id);
+  }, [search]);
+
+  /* 한 쪽씩 받는다 — 서버가 걸러 보기·쪽 나누기를 하고 종류별 개수도 같이 준다 */
   useEffect(() => {
     let cancelled = false;
-    void fetch("/api/admin/media")
+    const params = new URLSearchParams({ page: String(page), limit: String(LIMIT) });
+    if (kind !== "all") params.set("kind", kind);
+    if (unusedOnly) params.set("unused", "1");
+    if (query) params.set("q", query);
+    if (reload) params.set("fresh", "1");
+    void fetch(`/api/admin/media?${params}`)
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
-      .then((d: { items?: MediaItem[] }) => { if (!cancelled) setItems(Array.isArray(d.items) ? d.items : []); })
-      .catch(() => { if (!cancelled) { setFailed(true); setItems([]); } });
+      .then((d: PageData) => { if (!cancelled) { setFailed(false); setData(d); } })
+      .catch(() => { if (!cancelled) setFailed(true); });
     return () => { cancelled = true; };
-  }, []);
+  }, [page, kind, unusedOnly, query, reload]);
 
-  const withKind = useMemo(() => (items ?? []).map((m) => ({ ...m, kind: mediaType(m.mime, m.name) })), [items]);
-  const kinds = useMemo(() => {
-    const c = new Map<Kind, number>();
-    for (const m of withKind) c.set(m.kind, (c.get(m.kind) ?? 0) + 1);
-    return c;
-  }, [withKind]);
-  const q = search.trim().toLowerCase();
-  const filtered = withKind.filter((m) =>
-    (kind === "all" || m.kind === kind) && (!unusedOnly || m.usage.length === 0) && (!q || m.path.toLowerCase().includes(q)));
-  const unused = withKind.filter((m) => m.usage.length === 0);
-  const unusedSize = unused.reduce((a, m) => a + m.size, 0);
-  const totalSize = withKind.reduce((a, m) => a + m.size, 0);
+  const items = data?.items ?? null;
+  const summary = data?.summary;
+  const counts = summary?.counts ?? {};
+  const allCount = counts.all ?? 0;
 
   const KIND_LABEL: Record<Kind, string> = {
     image: t("이미지", "Images"), video: t("동영상", "Video"), audio: t("오디오", "Audio"),
     font: t("폰트", "Fonts"), doc: t("문서", "Docs"), other: t("기타", "Other"),
   };
   const segItems = [
-    { value: "all" as const, label: `${t("전체", "All")} ${withKind.length}` },
-    ...(["image", "video", "audio", "font", "doc", "other"] as Kind[]).filter((k) => kinds.get(k)).map((k) => ({ value: k, label: `${KIND_LABEL[k]} ${kinds.get(k)}` })),
+    { value: "all" as const, label: `${t("전체", "All")} ${allCount}` },
+    ...(["image", "video", "audio", "font", "doc", "other"] as Kind[]).filter((k) => counts[k]).map((k) => ({ value: k, label: `${KIND_LABEL[k]} ${counts[k]}` })),
   ];
 
   /* 쓰는 곳 — "글 2 · 사이트 설정". 글·프로젝트는 올리면 제목 목록(누르면 편집 화면) */
@@ -116,7 +126,7 @@ export default function MediaManager() {
             showToast(errorText(err, tr, t("파일을 지우지 못했어요.", "Couldn’t delete the file.")), "error");
             return;
           }
-          setItems((prev) => prev?.filter((x) => !(x.bucket === m.bucket && x.path === m.path)) ?? prev);
+          setReload((n) => n + 1);
         }}
       />,
       { id: "media-delete", header: { title: t("파일 지우기", "Delete file") }, closeButton: true, width: "min(460px, 92vw)" },
@@ -128,10 +138,10 @@ export default function MediaManager() {
       <div className={lib.wrap}>
         <div className={lib.headRow}>
           <h2 className={settings.sectionTitle}>{t("업로드한 파일", "Uploaded files")}</h2>
-          {items && <span className={lib.headCount}>{withKind.length} · {fmtSize(totalSize)}</span>}
+          {summary && <span className={lib.headCount}>{allCount} · {fmtSize(summary.totalSize)}</span>}
           <div className={lib.headActions}>
             <div className={lib.headSearch}>
-              <SearchCapsule search={search} onSearchChange={(v) => { setSearch(v); setShown(PAGE); }} placeholder={t("파일 이름·폴더 검색", "Search name or folder")} align="left" />
+              <SearchCapsule search={search} onSearchChange={setSearch} placeholder={t("파일 이름·폴더 검색", "Search name or folder")} align="left" />
             </div>
           </div>
         </div>
@@ -140,29 +150,30 @@ export default function MediaManager() {
             "Post and project images plus site files like logos, icons and background music. Only files used nowhere can be deleted (posts in the trash count as using them).")}
         </p>
 
-        {items && withKind.length > 0 && (
+        {summary && allCount > 0 && (
           <div className={lib.filterRow}>
-            <SegmentedControl items={segItems} value={kind} onChange={(v) => { setKind(v); setShown(PAGE); }} variant="subtle" size="sm" />
+            <SegmentedControl items={segItems} value={kind} onChange={(v) => { setKind(v); setPage(1); }} variant="subtle" size="sm" />
             <Switch
               size="sm"
               checked={unusedOnly}
-              onCheckedChange={(v) => { setUnusedOnly(v); setShown(PAGE); }}
-              label={t(`쓰지 않는 파일만 (${unused.length}개 · ${fmtSize(unusedSize)})`, `Unused only (${unused.length} · ${fmtSize(unusedSize)})`)}
+              onCheckedChange={(v) => { setUnusedOnly(v); setPage(1); }}
+              label={t(`쓰지 않는 파일만 (${summary.unusedCount}개 · ${fmtSize(summary.unusedSize)})`, `Unused only (${summary.unusedCount} · ${fmtSize(summary.unusedSize)})`)}
             />
           </div>
         )}
 
-        {items === null ? (
-          <div className={styles.grid}>{[0, 1, 2, 3].map((i) => <div key={i} className={styles.preview}><SkeletonLine width="100%" height="100%" /></div>)}</div>
-        ) : failed ? (
+        {failed && !data ? (
           <EmptyState pad="sm">{t("파일 목록을 불러오지 못했습니다", "Couldn’t load files")}</EmptyState>
-        ) : filtered.length === 0 ? (
+        ) : items === null ? (
+          <div className={styles.grid}>{[0, 1, 2, 3].map((i) => <div key={i} className={styles.preview}><SkeletonLine width="100%" height="100%" /></div>)}</div>
+        ) : items.length === 0 ? (
           <EmptyState pad="sm">{search || unusedOnly || kind !== "all" ? t("조건에 맞는 파일이 없습니다", "No matching files") : t("올린 파일이 없습니다", "No uploaded files")}</EmptyState>
         ) : (
           <>
             <div className={styles.grid}>
-              {filtered.slice(0, shown).map((m) => {
-                const Icon = m.kind === "image" ? null : KIND_ICON[m.kind];
+              {items.map((m) => {
+                const mk = mediaType(m.mime, m.name);
+                const Icon = mk === "image" ? null : KIND_ICON[mk];
                 const ext = m.name.includes(".") ? m.name.split(".").pop()!.toUpperCase() : "";
                 const used = usageSummary(m.usage);
                 const docs = m.usage.filter((r) => (r.kind === "post" || r.kind === "work") && r.id);
@@ -206,10 +217,8 @@ export default function MediaManager() {
                 );
               })}
             </div>
-            {filtered.length > shown && (
-              <Button variant="outline" size="md" className={lib.more} onClick={() => setShown((n) => n + PAGE)}>
-                {t(`더 보기 (${filtered.length - shown}개 남음)`, `Show more (${filtered.length - shown} left)`)}
-              </Button>
+            {data && data.totalPages > 1 && (
+              <Pagination className={lib.pager} page={data.page} totalPages={data.totalPages} onChange={setPage} size="sm" />
             )}
           </>
         )}
