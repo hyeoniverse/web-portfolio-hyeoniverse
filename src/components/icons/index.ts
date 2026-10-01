@@ -31,6 +31,7 @@ export {
   Baseline,
   Bell,
   BetweenHorizontalStart,
+  Blend,
   Bold,
   Book,
   BookOpen,

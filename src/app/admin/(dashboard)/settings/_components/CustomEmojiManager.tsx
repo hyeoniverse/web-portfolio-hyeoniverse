@@ -4,8 +4,9 @@
 // 에디터 이모지 피커에서 올린 이미지 이모지 목록(custom_emojis). 예전엔 피커 안에서만 보고 지울 수 있었다.
 // 여기서 지우면 피커 목록에서만 빠지고, 이미 글에 넣은 이모지는 이미지 주소가 남아 그대로 보인다.
 import { useEffect, useRef, useState } from "react";
-import { Plus } from "@/components/icons";
+import { Blend, Plus } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useModalStore } from "@/stores/modalStore";
 import Button from "@/components/ui/Button";
 import CloseButton from "@/components/ui/CloseButton";
 import EmptyState from "@/components/ui/EmptyState";
@@ -20,6 +21,7 @@ import { resizeEmojiImage, EmojiImageError, EMOJI_MIN } from "@/components/ui/Em
 import { forgetCustomEmoji } from "@/components/ui/EmojiPicker/customEmojiCache";
 import settings from "../Settings.module.css";
 import LibraryHead from "./LibraryHead";
+import EmojiKitchenModal from "./EmojiKitchenModal";
 import lib from "./Library.module.css";
 import styles from "./CustomEmojiManager.module.css";
 import { usePagedList } from "./usePagedList";
@@ -36,6 +38,7 @@ export default function CustomEmojiManager() {
   const [items, setItems] = useState<CustomEmoji[] | null>(null);
   const [search, setSearch] = useState("");
   const [uploading, setUploading] = useState(false);
+  const openModal = useModalStore((st) => st.openModal);
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -79,6 +82,12 @@ export default function CustomEmojiManager() {
     }
   };
 
+  /* 이모지 조합(Emoji Kitchen) — 두 이모지를 섞은 Google 그림을 골라 들인다 */
+  const openKitchen = () => openModal(
+    <EmojiKitchenModal onAdded={(row) => setItems((prev) => [row, ...(prev ?? [])])} />,
+    { id: "emoji-kitchen", header: { title: t("이모지 조합", "Mix emojis") }, closeButton: true, width: "min(720px, 94vw)" },
+  );
+
   const remove = async (e: CustomEmoji) => {
     const res = await tryRequest(`/api/custom-emojis/${e.id}`, { method: "DELETE" });
     if (!(res instanceof Response) || !res.ok) {
@@ -102,6 +111,9 @@ export default function CustomEmojiManager() {
           )}
           search={{ value: search, onChange: (v) => { setSearch(v); paged.setPage(1); }, placeholder: t("이름 검색", "Search name") }}
           actions={<>
+            <Button variant="outline" size="md" icon={<Blend size={14} />} onClick={openKitchen}>
+              {t("조합", "Mix")}
+            </Button>
             <Button variant="outline" size="md" icon={<Plus size={14} />} loading={uploading} onClick={() => fileRef.current?.click()}>
               {t("추가", "Add")}
             </Button>

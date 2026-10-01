@@ -1,0 +1,120 @@
+/* ── 이모지 조합 창 — 위 줄(단계·검색), 가운데 격자(스크롤), 아래 고른 조합(미리보기·이름·추가) ──
+   격자는 라이브러리 갤러리처럼 칸을 붙이고 칸 사이만 1px 선 */
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  min-height: 0;
+}
+
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-xs) var(--spacing-md);
+}
+
+.step {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-label);
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--text-secondary);
+  font-size: var(--font-size-label);
+  cursor: pointer;
+}
+
+.back:hover {
+  color: var(--text-primary);
+}
+
+.baseChar {
+  font-size: var(--font-size-lg);
+  line-height: 1;
+}
+
+.search {
+  flex: 1 1 200px;
+  max-width: 280px;
+  margin-left: auto;
+}
+
+.scroll {
+  max-height: min(52vh, 480px);
+  overflow-y: auto;
+  border-top: var(--border-light);
+  border-bottom: var(--border-light);
+}
+
+/* 붙은 격자 — 오른쪽·아래 선을 긋고 마지막 열·줄 선은 바깥 스크롤 틀이 가린다 */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(48px, 1fr));
+  margin: 0 -1px -1px 0;
+}
+
+.gridLarge {
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+}
+
+.cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  padding: 0;
+  border: none;
+  border-right: var(--border-light);
+  border-bottom: var(--border-light);
+  background: transparent;
+  cursor: pointer;
+}
+
+.cell:hover,
+.cell[data-on] {
+  outline: 1px solid var(--text-primary);
+  outline-offset: -1px;
+}
+
+.char {
+  font-size: var(--font-size-xl);
+  line-height: 1;
+}
+
+.mix {
+  width: 64%;
+  height: 64%;
+  object-fit: contain;
+}
+
+.foot {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.preview {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+}
+
+.footMain {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+  min-width: 0;
+}
+
+.formula {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-hint);
+}
