@@ -188,3 +188,27 @@ export function peaksOf(a: RecordedAudio, buckets: number): Float32Array {
   }
   return out;
 }
+
+/* ── 편집 — 녹음은 표본 배열이라 자르기·붙여넣기가 배열 잇기다. 모두 새 값을 돌려준다(되돌리기용) ── */
+
+const at = (a: RecordedAudio, sec: number) => Math.max(0, Math.min(a.samples.length, Math.round(sec * a.rate)));
+
+/** start~end 초를 빼고 앞뒤를 잇는다 */
+export function deleteRange(a: RecordedAudio, start: number, end: number): RecordedAudio {
+  const s = at(a, Math.min(start, end));
+  const e = at(a, Math.max(start, end));
+  const out = new Float32Array(a.samples.length - (e - s));
+  out.set(a.samples.subarray(0, s), 0);
+  out.set(a.samples.subarray(e), s);
+  return { samples: out, rate: a.rate };
+}
+
+/** sec 초 자리에 clip 을 끼워 넣는다(표본율이 같아야 한다 — 녹음은 늘 24kHz) */
+export function insertAt(a: RecordedAudio, sec: number, clip: RecordedAudio): RecordedAudio {
+  const s = at(a, sec);
+  const out = new Float32Array(a.samples.length + clip.samples.length);
+  out.set(a.samples.subarray(0, s), 0);
+  out.set(clip.samples, s);
+  out.set(a.samples.subarray(s), s + clip.samples.length);
+  return { samples: out, rate: a.rate };
+}

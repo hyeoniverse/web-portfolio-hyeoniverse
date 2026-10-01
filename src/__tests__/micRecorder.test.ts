@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { downsample, durationOf, encodeWav, peaksOf, silenceBounds, sliceAudio } from "@/lib/micRecorder";
+import { deleteRange, downsample, durationOf, encodeWav, insertAt, peaksOf, silenceBounds, sliceAudio } from "@/lib/micRecorder";
 import { wavToPcm } from "@/lib/wav";
 
 const int16 = (wav: Uint8Array) => {
@@ -46,5 +46,23 @@ describe("micRecorder", () => {
 
   it("파형은 구간마다 가장 큰 소리", () => {
     expect(Array.from(peaksOf({ samples: new Float32Array([0.1, -0.8, 0.3, 0.2]), rate: 4 }, 2))).toEqual([expect.closeTo(0.8), expect.closeTo(0.3)]);
+  });
+});
+
+describe("micRecorder 편집", () => {
+  const a = { samples: Float32Array.from([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), rate: 10 };
+  it("구간을 지우고 앞뒤를 잇는다(앞뒤가 바뀌어도)", () => {
+    expect(Array.from(deleteRange(a, 0.2, 0.5).samples)).toEqual([0, 1, 5, 6, 7, 8, 9]);
+    expect(Array.from(deleteRange(a, 0.5, 0.2).samples)).toEqual([0, 1, 5, 6, 7, 8, 9]);
+  });
+  it("자리에 끼워 넣는다 — 끝을 넘으면 맨 뒤에", () => {
+    const clip = { samples: Float32Array.from([-1, -2]), rate: 10 };
+    expect(Array.from(insertAt(a, 0.3, clip).samples)).toEqual([0, 1, 2, -1, -2, 3, 4, 5, 6, 7, 8, 9]);
+    expect(Array.from(insertAt(a, 5, clip).samples).slice(-3)).toEqual([9, -1, -2]);
+  });
+  it("잘라내기 = 복사(sliceAudio) + 지우기, 붙여넣기로 되돌아온다", () => {
+    const clip = sliceAudio(a, 0.2, 0.5);
+    const rest = deleteRange(a, 0.2, 0.5);
+    expect(Array.from(insertAt(rest, 0.2, clip).samples)).toEqual(Array.from(a.samples));
   });
 });
