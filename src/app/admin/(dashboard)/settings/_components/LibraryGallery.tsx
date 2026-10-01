@@ -10,7 +10,7 @@ import styles from "./LibraryGallery.module.css";
 /* 칸 크기·비율은 업로드한 파일과 커버 기록이 같게 기본값(정사각, 최소 160px)을 쓴다 */
 export function LibraryGallery({ aspect = "1 / 1", min = 160, children }: { aspect?: string; min?: number; children: ReactNode }) {
   return (
-    <div className={styles.frame}>
+    <div className={styles.frame} data-library-gallery="">
       <div className={styles.grid} style={{ "--gallery-aspect": aspect, "--gallery-min": `${min}px` } as CSSProperties}>
         {children}
       </div>

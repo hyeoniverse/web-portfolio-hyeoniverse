@@ -29,6 +29,11 @@
   border-bottom: var(--border-light);
 }
 
+/* 도구막대 바로 아래 갤러리는 실선에 붙인다 — 칸 사이 1px 선과 이어지게(목록 사이 간격을 지운다) */
+.toolbar + [data-library-gallery] {
+  margin-top: calc(var(--spacing-md) * -1);
+}
+
 .toolbarFilters {
   display: flex;
   flex-wrap: wrap;
