@@ -24,7 +24,6 @@ import { mediaType, type MediaRef } from "@/lib/mediaUsage";
 import settings from "../Settings.module.css";
 import lib from "./Library.module.css";
 import styles from "./MediaManager.module.css";
-import LibraryThumb from "./LibraryThumb";
 
 type MediaItem = { bucket: string; path: string; name: string; size: number; mime: string; createdAt: string | null; url: string; usage: MediaRef[] };
 type Kind = ReturnType<typeof mediaType>;
@@ -184,7 +183,8 @@ export default function MediaManager() {
                       {Icon ? (
                         <span className={styles.fileIcon}><Icon size={22} strokeWidth={1.5} /><span>{ext}</span></span>
                       ) : (
-                        <LibraryThumb src={m.url} sizes="(max-width: 640px) 50vw, 200px" />
+                        /* eslint-disable-next-line @next/next/no-img-element -- 저장소 원본 미리보기, 크기가 제각각이라 next/image 를 쓰지 않는다 */
+                        <img src={m.url} alt="" loading="lazy" />
                       )}
                       <span className={styles.actions}>
                         <Pressable className={styles.action} onClick={() => void copy(m.url)} aria-label={t("주소 복사", "Copy URL")} title={t("주소 복사", "Copy URL")}><Copy size={13} /></Pressable>
