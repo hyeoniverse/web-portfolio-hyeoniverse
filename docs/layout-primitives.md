@@ -3,7 +3,7 @@
 > **상태: 종결.** 반복되는 flex/grid 패턴을 어떻게 공통화할지 탐색하며 (1) React 레이아웃 프리미티브,
 > (2) Tailwind v4, (3) CSS Modules `composes` 공유 유틸을 시도했다가 **모두 되돌리고 CSS Modules
 > 단일 시스템(관용구는 각 module 에 인라인)으로 확정**했다. (3)도 #384 3단계에서 인라인으로 되돌렸다.
-> 현재 규칙은 [design-system.md](./design-system.md) §0·§3. 이 문서는 그 결정 과정 기록용.
+> 현재 규칙은 [design-system.md](./design-system.md) §1·§4. 이 문서는 그 결정 과정 기록용.
 
 관련: [design-system.md](./design-system.md) · [refactoring-guide.md](./refactoring-guide.md)
 
@@ -55,6 +55,6 @@ Settings 안 26곳, 다른 모듈 25개에서 98곳이 썼다.
 - 이 프로젝트는 커스텀 애니메이션·GSAP·Three.js·정교한 CSS 이펙트가 핵심이라 bespoke CSS 가 유리하고,
   이미 성숙한 CSS Modules + 토큰 시스템이 있다.
 - **반복 레이아웃은 공유 CSS 유틸/프리미티브가 아니라 React 컴포넌트로 추출**(rule of three).
-  파일 간 `composes` 도 공유 유틸에 든다 — [design-system.md](./design-system.md) §3.
+  파일 간 `composes` 도 공유 유틸에 든다 — [design-system.md](./design-system.md) §4(P2).
 - **등분 grid → `--grid-cols-2/3/4/5/7` 토큰**(overflow-safe)은 Tailwind 와 무관하게 유용해 **유지**.
 - 전체 규칙: [design-system.md](./design-system.md).

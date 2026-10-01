@@ -144,7 +144,7 @@ npm run sync-all       # sync content/*.md with the database
 | [Supabase setup](./docs/en/supabase-setup.md) | Environment variables, tables, storage, admin account, cover images |
 | [Deployment](./docs/en/deploy.md) | Vercel, domains, mail, post-deploy checks |
 | [Testing](./docs/en/testing.md) | Vitest suites, smoke e2e, preparing the admin session |
-| [Design system](./docs/design-system.md) | Three token tiers, rules R1–R7, naming and specificity |
+| [Design system](./docs/design-system.md) | Three token tiers, per-axis rules with enforcement status, `@layer` and migration plan (token values in the [generated table](./docs/tokens.md)) |
 | [Troubleshooting](./docs/en/troubleshooting.md) | What broke, why, and how it was fixed |
 | [Components](./docs/en/components.md) · [DB design](./docs/en/db-design.md) · [Security](./docs/en/security.md) · [User flow](./docs/en/user-flow.md) | Area deep dives |
 | [Editor guide](./docs/en/editor-guide.md) | Editor usage and `.md` authoring rules |

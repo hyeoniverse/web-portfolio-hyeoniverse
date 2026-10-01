@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "tsx scripts/sync-content-assets.ts && tsx scripts/gen-about-fallback.ts && next dev --turbopack",
     "fonts:scan": "node scripts/scan-fonts.mjs",
+    "tokens:doc": "tsx scripts/gen-token-doc.ts",
     "prebuild": "node scripts/scan-fonts.mjs && tsx scripts/sync-content-assets.ts && tsx scripts/gen-about-fallback.ts",
     "build": "next build",
     "analyze": "ANALYZE=true next build",
