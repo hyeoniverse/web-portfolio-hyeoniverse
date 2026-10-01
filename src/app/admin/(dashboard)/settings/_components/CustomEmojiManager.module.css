@@ -1,0 +1,55 @@
+/* ── 커스텀 이모지 — 촘촘한 격자(Slack 이모지 관리처럼). 이미지만 작은 칸에 두고,
+   이름(:이름:)과 지우기는 올렸을 때(터치 화면은 늘) 보인다 ── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 56px);
+  gap: var(--spacing-2xs);
+}
+
+.tile {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-2xl);
+  transition: background-color 0.15s ease;
+}
+
+.tile:hover,
+.tile:focus-within {
+  background: var(--bg-secondary);
+}
+
+.img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+/* 지우기 — 칸 모서리. 평소엔 숨겼다가 올리면 보인다. 마우스가 없는 화면(터치)은 늘 보인다 */
+.remove {
+  position: absolute;
+  top: calc(-1 * var(--spacing-3xs));
+  right: calc(-1 * var(--spacing-3xs));
+  border: var(--border-light);
+  background: var(--bg-primary);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.tile:hover .remove,
+.tile:focus-within .remove {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .remove {
+    opacity: 1;
+  }
+}
+
+.tipName {
+  font-family: var(--font-mono);
+}

@@ -13,6 +13,7 @@ import { EMOJI_CATEGORIES, ICON_CATEGORIES, EMOJI_KEYWORDS, iconSvgInner } from 
 import { EMOJI_KO } from "../emojiKo";
 import { emojiMeta } from "./emojiMeta";
 import { resizeEmojiImage, EmojiImageError, EMOJI_MIN } from "./resizeEmojiImage";
+import { CUSTOM_EMOJI_KEY, RECENT_EMOJI_KEY } from "./customEmojiCache";
 import { UploadTab } from "./UploadTab";
 import { EmojiIcon } from "./EmojiIcon";
 import styles from "./EmojiPicker.module.css";
@@ -34,8 +35,8 @@ interface EmojiPickerProps {
   getAnchorRect?: () => DOMRect | null;
 }
 
-const STORAGE_KEY = "custom-emojis";
-const RECENT_KEY = "recent-emojis";
+const STORAGE_KEY = CUSTOM_EMOJI_KEY;
+const RECENT_KEY = RECENT_EMOJI_KEY;
 const MAX_RECENT = 24;
 
 export default function EmojiPicker({ open, onClose, onSelect, currentValue, onImageUpload, getAnchorRect }: EmojiPickerProps) {
@@ -108,13 +109,16 @@ export default function EmojiPicker({ open, onClose, onSelect, currentValue, onI
         const readLS = <T,>(k: string): T[] => { try { return JSON.parse(localStorage.getItem(k) || "[]"); } catch { return []; } };
         const localCache = readLS<CustomEmoji>(STORAGE_KEY);
         const recentImgSrcs = readLS<string>(RECENT_KEY).filter((v) => typeof v === "string" && v.startsWith("img:")).map((v) => v.slice(4));
+        /* id 가 있는 캐시 항목은 이미 서버에 올라갔던 것 — 지금 서버에 없으면 다른 곳(설정 › 라이브러리)에서
+           지운 것이라 다시 올리지 않는다. 예전엔 이것까지 백필해서, 지운 이모지가 피커를 열 때마다 되살아났다 */
+        const removedElsewhere = new Set(localCache.filter((c) => c?.id && c.src && !serverSrcs.has(c.src)).map((c) => c.src));
         const seenPending = new Set<string>();
         const pending: CustomEmoji[] = [];
         for (const c of localCache) {
-          if (c?.src && !serverSrcs.has(c.src) && !seenPending.has(c.src)) { seenPending.add(c.src); pending.push({ name: c.name || "", src: c.src }); }
+          if (c?.src && !c.id && !serverSrcs.has(c.src) && !seenPending.has(c.src)) { seenPending.add(c.src); pending.push({ name: c.name || "", src: c.src }); }
         }
         for (const src of recentImgSrcs) {
-          if (src && !serverSrcs.has(src) && !seenPending.has(src)) { seenPending.add(src); pending.push({ name: "", src }); }
+          if (src && !serverSrcs.has(src) && !removedElsewhere.has(src) && !seenPending.has(src)) { seenPending.add(src); pending.push({ name: "", src }); }
         }
 
         // 백필 — 서버에 없는 것들을 지금 등록. 성공 시 id 부여, 실패해도 로컬 항목으로 유지.

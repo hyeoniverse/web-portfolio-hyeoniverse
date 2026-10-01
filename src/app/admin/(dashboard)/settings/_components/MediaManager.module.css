@@ -1,0 +1,121 @@
+/* ── 업로드한 파일 — 목록 보기(표). 갤러리 보기는 LibraryGallery ──
+   한 줄에 미리보기 · 이름/폴더 · 크기 · 올린 날 · 쓰는 곳 · 단추. 줄 사이는 실선(달력·투표 목록과 같은 결) */
+.table {
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: grid;
+  /* 단추 열도 폭을 고정해야 머리 줄(빈 칸)과 값 줄의 열이 맞는다 */
+  grid-template-columns: 44px minmax(0, 1fr) 80px 104px 140px 96px;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-xs) 0;
+  border-bottom: var(--border-light);
+  font-size: var(--font-size-label);
+}
+
+.rowHead {
+  padding: 0 0 var(--spacing-2xs);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-hint);
+}
+
+.thumb {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  overflow: hidden;
+  background: var(--bg-tertiary);
+}
+
+.thumb img,
+.thumb video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.thumbIcon {
+  display: flex;
+  color: var(--text-tertiary);
+}
+
+.nameCell {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.name {
+  overflow: hidden;
+  color: var(--text-primary);
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.folder {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-hint);
+}
+
+.num {
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.usage {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-secondary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.used {
+  text-decoration: underline var(--border-color-strong);
+  text-underline-offset: 3px;
+  cursor: default;
+}
+
+.rowActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-4xs);
+}
+
+.rowAction {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-h-xs);
+  height: var(--control-h-xs);
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+
+.rowAction:hover {
+  color: var(--text-primary);
+}
+
+/* 좁은 화면 — 크기·날짜 열을 접는다(이름·쓰는 곳·단추만) */
+@media (max-width: 640px) {
+  .row {
+    grid-template-columns: 40px minmax(0, 1fr) 96px;
+  }
+
+  .row > :nth-child(3),
+  .row > :nth-child(4),
+  .row > :nth-child(5) {
+    display: none;
+  }
+}

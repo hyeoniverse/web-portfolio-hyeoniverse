@@ -149,7 +149,7 @@ export const ADMIN_ROUTES: Route[] = [
   { path: "/admin/settings?tab=content&sub=about", name: "admin-settings-content-about" },
   { path: "/admin/settings?tab=content&sub=works", name: "admin-settings-content-works" },
   { path: "/admin/settings?tab=content&sub=posts", name: "admin-settings-content-posts" },
-  { path: "/admin/settings?tab=content&sub=calendars", name: "admin-settings-content-calendars" },
+  { path: "/admin/settings?tab=library", name: "admin-settings-library" },
   { path: "/admin/settings?tab=appearance", name: "admin-settings-appearance" },
   { path: "/admin/settings?tab=services", name: "admin-settings-services" },
   { path: "/admin/settings?tab=account", name: "admin-settings-account" },
