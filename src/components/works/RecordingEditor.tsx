@@ -52,6 +52,35 @@ function Tool({ label, shortcut, icon, onClick, disabled }: { label: string; sho
   return <Button variant="ghost" size="sm" shape="circle" onClick={onClick} disabled={disabled} aria-label={label} title={shortcut ? `${label} (${shortcut})` : label} soundDisabled icon={icon} />;
 }
 
+/* 끄는 클립의 고스트 — 클립 줄과 파형 높이에 걸쳐 그 클립의 번호와 파형을 그대로 보이며 포인터를 따라온다 */
+function ClipGhost({ piece, label, left, width }: { piece: RecordedAudio; label: number; left: number; width: number }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const { width: w, height: h } = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.max(1, Math.round(w * dpr));
+    canvas.height = Math.max(1, Math.round(h * dpr));
+    const g = canvas.getContext("2d");
+    if (!g) return;
+    const bar = 2 * dpr, gap = dpr;
+    const peaks = peaksOf(piece, Math.max(1, Math.floor(canvas.width / (bar + gap))));
+    g.fillStyle = getComputedStyle(canvas).color;
+    peaks.forEach((p, i) => {
+      if (p < 0.02) return;
+      const ph = Math.max(2 * dpr, p * canvas.height);
+      g.fillRect(i * (bar + gap), (canvas.height - ph) / 2, bar, ph);
+    });
+  }, [piece, width]);
+  return (
+    <span className={styles.ghost} style={{ left, width }} aria-hidden>
+      <span className={styles.ghostLabel}>{label}</span>
+      <canvas ref={canvasRef} className={styles.ghostWave} />
+    </span>
+  );
+}
+
 export default function RecordingEditor({ take, slide, tw, onRetake, onCancel, onDone }: RecordingEditorProps) {
   const [cur, setCur] = useState<ClipTake>({ audio: take, cuts: [] });
   const [past, setPast] = useState<ClipTake[]>([]);
@@ -61,8 +90,8 @@ export default function RecordingEditor({ take, slide, tw, onRetake, onCancel, o
   const [clip, setClip] = useState<RecordedAudio | null>(shared.clip);
   const [playing, setPlaying] = useState(false);
   const [head, setHead] = useState<number | null>(null);
-  /* 클립을 끄는 중 — 어느 클립을, 어느 자리(0~클립 수)로 */
-  const [drag, setDrag] = useState<{ from: number; to: number } | null>(null);
+  /* 클립을 끄는 중 — 어느 클립을, 어느 자리(0~클립 수)로. 고스트는 파형 왼쪽에서 left(px), 폭 width(px) */
+  const [drag, setDrag] = useState<{ from: number; to: number; left: number; width: number; piece: RecordedAudio } | null>(null);
   const playRef = useRef<{ el: HTMLAudioElement; url: string; raf: number } | null>(null);
   const waveRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -262,8 +291,16 @@ export default function RecordingEditor({ take, slide, tw, onRetake, onCancel, o
     const i = Number(e.currentTarget.dataset.index);
     e.preventDefault();
     stopPlay();
+    /* 고스트 — 잡은 자리를 손가락 아래 그대로 두고 따라온다(파형 밖으로는 나가지 않는다) */
+    const clipBox = e.currentTarget.getBoundingClientRect();
+    const grab = e.clientX - clipBox.left;
+    const piece = sliceAudio(audio, clips[i][0], clips[i][1]);
+    const ghostAt = (x: number) => {
+      const w = waveRef.current!.getBoundingClientRect();
+      return Math.max(0, Math.min(w.width - clipBox.width, x - w.left - grab));
+    };
     track(e,
-      (x) => setDrag({ from: i, to: slotAt(x) }),
+      (x) => setDrag({ from: i, to: slotAt(x), left: ghostAt(x), width: clipBox.width, piece }),
       (x, moved) => {
         setDrag(null);
         if (!moved) { setSel(clips[i]); setCursor(clips[i][0]); return; }
@@ -277,6 +314,14 @@ export default function RecordingEditor({ take, slide, tw, onRetake, onCancel, o
       });
   };
 
+  /* 끄는 동안은 손이 클립 밖으로 나가도 잡은 손 모양 */
+  const dragging = !!drag;
+  useEffect(() => {
+    if (!dragging) return;
+    document.body.style.cursor = "grabbing";
+    return () => { document.body.style.cursor = ""; };
+  }, [dragging]);
+
   const pct = (sec: number) => `${(sec / Math.max(duration, 0.001)) * 100}%`;
   const mac = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform);
   const key = (k: string) => `${mac ? "⌘" : "Ctrl+"}${k}`;
@@ -285,6 +330,7 @@ export default function RecordingEditor({ take, slide, tw, onRetake, onCancel, o
 
   return (
     <div className={styles.editor} aria-label={fillTemplate(tw("narrationRecordReview"), { n: slide })}>
+      <div className={styles.track}>
       {/* 클립 줄 — 나눈 조각. 누르면 고르고 끌면 옮긴다 */}
       <div className={styles.clips} aria-label={tw("narrationEditClips")}>
         {clips.map(([s, e], i) => (
@@ -301,7 +347,6 @@ export default function RecordingEditor({ take, slide, tw, onRetake, onCancel, o
             {i + 1}
           </span>
         ))}
-        {dropAt !== null && <span className={styles.drop} style={{ left: pct(dropAt) }} aria-hidden />}
       </div>
       <div ref={waveRef} className={styles.wave} onPointerDown={onWaveDown}>
         <canvas ref={canvasRef} className={styles.canvas} aria-hidden />
@@ -314,6 +359,11 @@ export default function RecordingEditor({ take, slide, tw, onRetake, onCancel, o
         )}
         {!sel && head === null && <span className={styles.cursor} style={{ left: pct(cursor) }} aria-hidden />}
         {head !== null && <span className={styles.head} style={{ left: pct(head) }} aria-hidden />}
+        {drag && <span className={styles.source} style={{ left: pct(clips[drag.from][0]), width: pct(clips[drag.from][1] - clips[drag.from][0]) }} aria-hidden />}
+      </div>
+      {drag && <ClipGhost piece={drag.piece} label={drag.from + 1} left={drag.left} width={drag.width} />}
+      {/* 놓을 자리 — 고스트 위로, 클립 줄과 파형을 꿰뚫는 세로선 */}
+      {dropAt !== null && <span className={styles.drop} style={{ left: pct(dropAt) }} aria-hidden />}
       </div>
       <div className={styles.bar}>
         <Button
