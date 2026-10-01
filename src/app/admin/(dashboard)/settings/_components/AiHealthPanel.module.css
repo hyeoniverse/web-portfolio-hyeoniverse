@@ -114,10 +114,13 @@
 }
 
 /* 원인과 고칠 방법 */
+/* 원인·최근 오류 묶음 — 아래 사용량과 점선으로 나눈다 */
 .problem {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-xs);
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 1px dashed var(--border-color-strong);
 }
 
 .fix {
@@ -153,12 +156,39 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* 시각과 상태 코드 사이 가운뎃점 */
+.messageSep {
+  color: var(--text-muted);
+}
+
+/* 상태 코드 — 계층별 색: 1xx 정보 · 2xx 성공 · 3xx 이동 · 4xx 요청 오류 · 5xx 서버 오류 */
 .messageStatus {
   padding: 0 var(--spacing-2xs);
-  border: var(--border-light);
   border-radius: var(--radius-capsule);
   font-family: var(--font-mono);
+  font-weight: 600;
+  background: var(--bg-tertiary);
   color: var(--text-secondary);
+}
+
+.messageStatus[data-class="2"] {
+  background: var(--bg-success-soft);
+  color: var(--text-success-strong);
+}
+
+.messageStatus[data-class="3"] {
+  background: var(--bg-info-soft);
+  color: var(--text-info-strong);
+}
+
+.messageStatus[data-class="4"] {
+  background: var(--bg-warning-soft);
+  color: var(--text-warning-strong);
+}
+
+.messageStatus[data-class="5"] {
+  background: var(--bg-error-soft);
+  color: var(--text-error-strong);
 }
 
 .messageText {

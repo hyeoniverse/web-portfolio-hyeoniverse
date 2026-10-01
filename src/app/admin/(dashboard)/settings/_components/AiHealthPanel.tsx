@@ -49,7 +49,7 @@ function ProviderMessage({ message, at, th }: { message: string; at: string; th:
     <div className={styles.message}>
       <p className={styles.messageHead}>
         <span className={styles.messageAt}>{at}</span>
-        {status && <span className={styles.messageStatus}>{status}</span>}
+        {status && <><span className={styles.messageSep} aria-hidden>·</span><span className={styles.messageStatus} data-class={status[0]} title={th(`statusClass.${status[0]}`)}>{status}</span></>}
       </p>
       <p className={styles.messageText}>{summary}</p>
       {pretty && (

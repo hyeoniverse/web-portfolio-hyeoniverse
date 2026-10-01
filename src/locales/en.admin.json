@@ -1929,6 +1929,13 @@
       "offManual": "Fix the cause, then turn it back on.",
       "rawShow": "Show raw response",
       "rawHide": "Hide raw response",
+      "statusClass": {
+        "1": "Informational",
+        "2": "Success",
+        "3": "Redirection",
+        "4": "Client error (request, key, permission or quota)",
+        "5": "Server error (provider side)"
+      },
       "offMonth": "It will retry once next month.",
       "offHour": "It will retry once in an hour.",
       "toastFailed": "{{feature}} failed.\n{{reasons}}\nCheck Settings › Services.",
