@@ -62,6 +62,7 @@ export {
   Columns3,
   Copy,
   CopyPlus,
+  Crop,
   Crown,
   Database,
   Dices,
