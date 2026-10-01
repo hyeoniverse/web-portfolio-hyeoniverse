@@ -9,7 +9,7 @@ import Select from "@/components/ui/Select";
 import { Slider } from "@/components/ui/Slider";
 import Checkbox from "@/components/ui/Checkbox";
 import Popover from "@/components/ui/Popover";
-import { AlignLeft, AudioLines, BookOpen, ChevronDown, ExternalLink, File, Images, Languages, ListChecks, FastForward, Rewind, ChevronLeft, ChevronRight, ClipboardPaste, History, Mic, Pause, Play, Sparkles, Square, Trash2, Upload, Volume2, X } from "@/components/icons";
+import { AlignLeft, AudioLines, BookOpen, ChevronDown, ExternalLink, File, Images, Languages, ListChecks, FastForward, Rewind, ChevronLeft, ChevronRight, ClipboardPaste, Check, History, Mic, Pause, Play, RotateCcw, Scissors, Sparkles, Square, Trash2, Upload, Volume2 } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { showToast } from "@/stores/toastStore";
@@ -24,7 +24,7 @@ import { displayScript } from "@/lib/ttsLexicon";
 import { captionCues } from "@/lib/captionCues";
 import LoadingDots from "@/components/ui/LoadingDots";
 import LexiconEditor from "./LexiconEditor";
-import { canRecord, startMicRecording, type MicRecording } from "@/lib/micRecorder";
+import { canRecord, durationOf, encodeWav, peaksOf, silenceBounds, sliceAudio, startMicRecording, type MicRecording, type RecordedAudio } from "@/lib/micRecorder";
 import { pushNarrationHistory, readNarrationHistory, removeNarrationHistory, subscribeNarrationHistory, type NarrationHistoryEntry } from "@/lib/narrationHistory";
 import type { GalleryNote, GalleryNotes } from "@/data/projects";
 import styles from "./GalleryNarrationEditor.module.css";
@@ -73,8 +73,11 @@ export function useNarrationActions({ gallery, notes, update, tw, lang }: {
   /* 연 뒤 대본 입력칸으로 커서를 옮길지 — 썸네일·‹ › 를 누르면 옮기고, 목록에서 ↑↓ 로 옮길 때는 목록에 둔다
      (입력칸으로 가 버리면 다음 ↑↓ 가 글 안의 커서 이동이 된다). 바뀔 때마다 새 값이라 같은 장을 다시 눌러도 옮긴다 */
   const [focusTick, setFocusTick] = useState(0);
-  /* 마이크로 녹음 중인 장 — 녹음은 한 번에 한 장. 다른 장을 열어도 이 장에 넣는다(녹음 막대가 몇 장인지 보인다) */
-  const [recording, setRecording] = useState<{ url: string; starting: boolean } | null>(null);
+  /* 마이크로 녹음 중인 장 — 녹음은 한 번에 한 장. 다른 장을 열어도 이 장에 넣는다(녹음 막대가 몇 장인지 보인다).
+     starting(마이크 권한을 묻는 중) → recording ⇄ paused → review(중지 — 들어 보고 앞뒤를 잘라 완료) */
+  const [recording, setRecording] = useState<{ url: string; phase: "starting" | "recording" | "paused" | "review" } | null>(null);
+  /* 중지한 녹음 — 완료하기 전까지 들어 보고 자른다 */
+  const [take, setTake] = useState<RecordedAudio | null>(null);
   const recorderRef = useRef<MicRecording | null>(null);
   /* 편집 화면을 떠나면 마이크를 닫는다 */
   useEffect(() => () => { recorderRef.current?.cancel(); recorderRef.current = null; }, []);
@@ -226,37 +229,66 @@ export function useNarrationActions({ gallery, notes, update, tw, lang }: {
       input.click();
     };
 
-    /** 마이크 녹음을 시작한다 — 마이크 권한을 묻는 동안은 starting */
+    /** 마이크 녹음을 시작한다 — 마이크 권한을 묻는 동안은 starting. 새로 녹음할 때도 이 길(앞 녹음은 버린다) */
     const startRecording = async (url: string) => {
-      if (recorderRef.current || recording) return;
+      if (recorderRef.current) return;
       if (!canRecord()) { showToast(tw("narrationRecordUnsupported"), "error"); return; }
       pausePreview();
-      setRecording({ url, starting: true });
+      setTake(null);
+      setRecording({ url, phase: "starting" });
       try {
         recorderRef.current = await startMicRecording();
-        setRecording({ url, starting: false });
+        setRecording({ url, phase: "recording" });
       } catch {
         setRecording(null);
         showToast(tw("narrationRecordDenied"), "error");
       }
     };
 
-    /** 멈추고 이 장의 음성으로 넣는다 */
-    const stopRecording = async () => {
+    /** 일시정지 ⇄ 이어서 녹음 */
+    const togglePause = () => {
       const rec = recorderRef.current;
-      if (!rec || !recording) return;
+      if (!rec || !recording || recording.phase === "starting" || recording.phase === "review") return;
+      if (recording.phase === "recording") rec.pause(); else rec.resume();
+      setRecording({ ...recording, phase: recording.phase === "recording" ? "paused" : "recording" });
+    };
+
+    /* 마이크를 닫고 녹음한 소리를 받는다 — 너무 짧으면(0.3초) 없는 것으로 친다 */
+    const closeMic = (): RecordedAudio | null => {
+      const rec = recorderRef.current;
+      if (!rec) return null;
       recorderRef.current = null;
+      const audio = rec.finish();
+      return durationOf(audio) >= 0.3 ? audio : null;
+    };
+
+    /** 중지 — 더 녹음하지 않고 들어 보기·자르기로. 녹음한 게 없으면 끝낸다 */
+    const stopRecording = () => {
+      if (!recording) return;
+      const audio = closeMic();
+      if (!audio) { setRecording(null); showToast(tw("narrationRecordEmpty"), "error"); return; }
+      setTake(audio);
+      setRecording({ ...recording, phase: "review" });
+    };
+
+    /** 완료 — 녹음 중이면 멈추고, 자를 구간(초)이 있으면 잘라 이 장의 음성으로 넣는다 */
+    const finishRecording = async (range?: [number, number]) => {
+      if (!recording) return;
       const { url } = recording;
+      let audio = recording.phase === "review" ? take : closeMic();
+      if (audio && range) audio = sliceAudio(audio, range[0], range[1]);
+      setTake(null);
       setRecording(null);
-      if (rec.seconds() < 0.3) { rec.cancel(); showToast(tw("narrationRecordEmpty"), "error"); return; }
-      const blob = await rec.stop();
+      if (!audio || durationOf(audio) < 0.3) { showToast(tw("narrationRecordEmpty"), "error"); return; }
+      const blob = new Blob([encodeWav(audio) as BlobPart], { type: "audio/wav" });
       await putRecording(url, blob, `recording-${Date.now()}.wav`);
     };
 
-    /** 멈추고 버린다 */
+    /** 취소 — 녹음을 버린다(이 장의 음성은 그대로) */
     const cancelRecording = () => {
       recorderRef.current?.cancel();
       recorderRef.current = null;
+      setTake(null);
       setRecording(null);
     };
 
@@ -289,14 +321,14 @@ export function useNarrationActions({ gallery, notes, update, tw, lang }: {
 
     return {
       voice, setVoice, lang, busy, bulk, targets, generateOne, generateAll, uploadRecording, clearAudio,
-      recording, recorderRef, startRecording, stopRecording, cancelRecording, restoreHistory, pasteScripts, update, notes,
+      recording, take, recorderRef, startRecording, togglePause, stopRecording, finishRecording, cancelRecording, restoreHistory, pasteScripts, update, notes,
       openUrl, openIndex, focusTick,
       open: (url: string | null, focusScript = true) => {
         setOpenUrl(url);
         if (focusScript) setFocusTick((n) => n + 1);
       },
     };
-  }, [gallery, notes, update, tw, t, voice, setVoice, lang, busy, bulk, openUrl, focusTick, recording]);
+  }, [gallery, notes, update, tw, t, voice, setVoice, lang, busy, bulk, openUrl, focusTick, recording, take]);
 }
 
 export type NarrationActions = ReturnType<typeof useNarrationActions>;
@@ -674,15 +706,22 @@ const MAX_RECORD_MIN = 6;
 
 /**
  * 녹음 막대 — 녹음하는 동안 재생 막대 자리에 놓인다(대본 바로 아래라 읽으면서 본다).
- * [■ 멈추고 넣기] [● n장 녹음 중 · 0:12] [소리 크기] [× 버리기]. 상한에 닿으면 멈추고 넣는다
+ * 녹음 중: [❚❚ 일시정지 | ● 이어서 녹음] [■ 중지] [● n장 녹음 중 0:12] [소리 크기] [취소] [완료]
+ * 중지하면 TakeEditor(들어 보기·자르기)로 바뀐다. 상한에 닿으면 중지한다
  */
 function RecordingBar({ actions, gallery, tw }: { actions: NarrationActions; gallery: string[]; tw: (key: string) => string }) {
   const rec = actions.recording!;
+  if (rec.phase === "review" && actions.take) return <TakeEditor actions={actions} take={actions.take} n={gallery.indexOf(rec.url) + 1} tw={tw} />;
+  return <LiveRecording actions={actions} n={gallery.indexOf(rec.url) + 1} tw={tw} />;
+}
+
+function LiveRecording({ actions, n, tw }: { actions: NarrationActions; n: number; tw: (key: string) => string }) {
+  const phase = actions.recording!.phase;
   const [time, setTime] = useState(0);
   const meterRef = useRef<HTMLSpanElement>(null);
   const { recorderRef, stopRecording } = actions;
   useEffect(() => {
-    if (rec.starting) return;
+    if (phase === "starting") return;
     let raf = 0;
     /* 소리 크기는 바로 오르고 천천히 내린다 — 말소리가 깜빡이지 않고 읽히게 */
     let shown = 0;
@@ -695,7 +734,7 @@ function RecordingBar({ actions, gallery, tw }: { actions: NarrationActions; gal
         meterRef.current?.style.setProperty("--level", shown.toFixed(3));
         if (s >= MAX_RECORD_MIN * 60) {
           showToast(fillTemplate(tw("narrationRecordLimit"), { n: MAX_RECORD_MIN }), "info");
-          void stopRecording();
+          stopRecording();
           return;
         }
       }
@@ -703,20 +742,159 @@ function RecordingBar({ actions, gallery, tw }: { actions: NarrationActions; gal
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [rec.starting, recorderRef, stopRecording, tw]);
-  const n = gallery.indexOf(rec.url) + 1;
+  }, [phase, recorderRef, stopRecording, tw]);
+  const starting = phase === "starting";
+  const paused = phase === "paused";
   return (
     <span className={styles.recordBar} role="status">
-      <Button variant="primary" size="sm" onClick={() => void actions.stopRecording()} disabled={rec.starting} soundDisabled icon={<Square size={12} strokeWidth={2.5} />}>
-        {tw("narrationRecordStop")}
-      </Button>
-      <span className={styles.recordState} data-live={rec.starting ? undefined : ""}>
+      <Button
+        variant="ghost"
+        size="sm"
+        shape="circle"
+        onClick={actions.togglePause}
+        disabled={starting}
+        aria-label={tw(paused ? "narrationRecordResume" : "narrationRecordPause")}
+        title={tw(paused ? "narrationRecordResume" : "narrationRecordPause")}
+        soundDisabled
+        icon={paused ? <Mic size={14} strokeWidth={2} /> : <Pause size={14} strokeWidth={2} />}
+      />
+      <Button variant="ghost" size="sm" shape="circle" onClick={actions.stopRecording} disabled={starting} aria-label={tw("narrationRecordHalt")} title={tw("narrationRecordHalt")} soundDisabled icon={<Square size={12} strokeWidth={2.5} />} />
+      <span className={styles.recordState} data-live={phase === "recording" ? "" : undefined}>
         <span className={styles.recordDot} aria-hidden />
-        {fillTemplate(tw("narrationRecording"), { n })}
+        {fillTemplate(tw(paused ? "narrationRecordPausedState" : "narrationRecording"), { n })}
         <span className={styles.recordTime}>{clock(time)}</span>
       </span>
       <span ref={meterRef} className={styles.recordMeter} aria-hidden><span /></span>
-      <Button variant="ghost" size="sm" shape="circle" onClick={actions.cancelRecording} aria-label={tw("narrationRecordCancel")} title={tw("narrationRecordCancel")} soundDisabled icon={<X size={14} strokeWidth={2} />} />
+      <span className={styles.recordActions}>
+        <Button variant="ghost" size="sm" onClick={actions.cancelRecording} soundDisabled>{tw("narrationRecordCancel")}</Button>
+        <Button variant="primary" size="sm" onClick={() => void actions.finishRecording()} disabled={starting} soundDisabled icon={<Check size={14} strokeWidth={2.25} />}>{tw("narrationRecordDone")}</Button>
+      </span>
+    </span>
+  );
+}
+
+/* 0.0초 단위 — 자르는 구간은 초보다 잘게 본다 */
+const clockTenths = (sec: number) => {
+  const s = Math.max(0, sec);
+  return `${Math.floor(s / 60)}:${(s % 60).toFixed(1).padStart(4, "0")}`;
+};
+
+/**
+ * 중지한 녹음 — 들어 보고 남길 구간을 고른 뒤 완료한다(간단한 편집).
+ * [▶ 들어 보기] [파형 + 남길 구간 손잡이] [0:00.4–0:05.2 · 4.8초] [앞뒤 무음 자르기] [새로 녹음] [취소] [완료]
+ * 들어 보기는 남길 구간만 튼다. 파형은 남길 구간 밖을 흐리게, 듣는 자리를 세로선으로 보인다
+ */
+function TakeEditor({ actions, take, n, tw }: { actions: NarrationActions; take: RecordedAudio; n: number; tw: (key: string) => string }) {
+  const duration = durationOf(take);
+  const [range, setRange] = useState<[number, number]>([0, duration]);
+  const [playing, setPlaying] = useState(false);
+  const [head, setHead] = useState<number | null>(null);
+  const audioRef = useRef<{ el: HTMLAudioElement; url: string } | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  const stopPlay = useCallback(() => {
+    const a = audioRef.current;
+    if (a) { a.el.pause(); URL.revokeObjectURL(a.url); audioRef.current = null; }
+    setPlaying(false);
+    setHead(null);
+  }, []);
+  useEffect(() => stopPlay, [stopPlay]);
+
+  /* 파형 — 칸 폭에 맞춰 다시 그린다. 색은 칸의 글자색(CSS)을 따른다 */
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const draw = () => {
+      const { width, height } = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = Math.max(1, Math.round(width * dpr));
+      canvas.height = Math.max(1, Math.round(height * dpr));
+      const g = canvas.getContext("2d");
+      if (!g) return;
+      const bar = 2 * dpr, gap = 1 * dpr;
+      const count = Math.max(1, Math.floor(canvas.width / (bar + gap)));
+      const peaks = peaksOf(take, count);
+      g.clearRect(0, 0, canvas.width, canvas.height);
+      g.fillStyle = getComputedStyle(canvas).color;
+      /* 거의 무음인 칸은 그리지 않는다 — 작은 눈금이 이어지면 점선처럼 보인다 */
+      peaks.forEach((p, i) => {
+        if (p < 0.02) return;
+        const h = Math.max(2 * dpr, p * canvas.height);
+        g.fillRect(i * (bar + gap), (canvas.height - h) / 2, bar, h);
+      });
+    };
+    draw();
+    const ro = new ResizeObserver(draw);
+    ro.observe(canvas);
+    return () => ro.disconnect();
+  }, [take]);
+
+  const play = () => {
+    if (playing) { stopPlay(); return; }
+    const url = URL.createObjectURL(new Blob([encodeWav(sliceAudio(take, range[0], range[1])) as BlobPart], { type: "audio/wav" }));
+    const el = new Audio(url);
+    audioRef.current = { el, url };
+    const start = range[0];
+    let raf = 0;
+    const tick = () => { if (audioRef.current?.el === el) { setHead(start + el.currentTime); raf = requestAnimationFrame(tick); } };
+    el.onended = () => { cancelAnimationFrame(raf); stopPlay(); };
+    el.play().then(() => { setPlaying(true); raf = requestAnimationFrame(tick); }).catch(stopPlay);
+  };
+
+  const changeRange = (v: number[]) => { stopPlay(); setRange([v[0], v[1]]); };
+  const pct = (sec: number) => `${(sec / duration) * 100}%`;
+  const kept = range[1] - range[0];
+
+  return (
+    <span className={styles.recordBar}>
+      <Button
+        variant="ghost"
+        size="sm"
+        shape="circle"
+        onClick={play}
+        disabled={kept < 0.3}
+        aria-label={tw(playing ? "narrationRecordPlayPause" : "narrationRecordPlay")}
+        title={tw(playing ? "narrationRecordPlayPause" : "narrationRecordPlay")}
+        soundDisabled
+        icon={playing ? <Pause size={14} strokeWidth={2} /> : <Play size={14} strokeWidth={2} />}
+      />
+      <span className={styles.recordState}>{fillTemplate(tw("narrationRecordReview"), { n })}</span>
+      <span className={styles.takeEdit}>
+        <span className={styles.takeWave}>
+          <canvas ref={canvasRef} className={styles.takeCanvas} aria-hidden />
+          <span className={styles.takeOut} style={{ left: 0, width: pct(range[0]) }} aria-hidden />
+          <span className={styles.takeOut} style={{ left: pct(range[1]), right: 0 }} aria-hidden />
+          {head !== null && <span className={styles.takeHead} style={{ left: pct(head) }} aria-hidden />}
+        </span>
+        <span className={styles.takeTrim} aria-label={tw("narrationRecordTrim")}>
+          <Slider value={range} min={0} max={duration} step={0.05} onValueChange={changeRange} />
+        </span>
+      </span>
+      <span className={styles.recordTime}>{clockTenths(range[0])}–{clockTenths(range[1])}</span>
+      <span className={styles.recordActions}>
+        <Button
+          variant="ghost"
+          size="sm"
+          shape="circle"
+          onClick={() => changeRange(silenceBounds(take))}
+          aria-label={tw("narrationRecordTrimSilence")}
+          title={tw("narrationRecordTrimSilence")}
+          soundDisabled
+          icon={<Scissors size={14} strokeWidth={2} />}
+        />
+        <Button
+          variant="ghost"
+          size="sm"
+          shape="circle"
+          onClick={() => { stopPlay(); void actions.startRecording(actions.recording!.url); }}
+          aria-label={tw("narrationRecordRetake")}
+          title={tw("narrationRecordRetake")}
+          soundDisabled
+          icon={<RotateCcw size={14} strokeWidth={2} />}
+        />
+        <Button variant="ghost" size="sm" onClick={() => { stopPlay(); actions.cancelRecording(); }} soundDisabled>{tw("narrationRecordCancel")}</Button>
+        <Button variant="primary" size="sm" onClick={() => { stopPlay(); void actions.finishRecording(range); }} disabled={kept < 0.3} soundDisabled icon={<Check size={14} strokeWidth={2.25} />}>{tw("narrationRecordDone")}</Button>
+      </span>
     </span>
   );
 }
