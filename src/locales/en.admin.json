@@ -1927,6 +1927,8 @@
       "console": "Check limits & billing",
       "resetFailed": "Could not turn it back on.",
       "offManual": "Fix the cause, then turn it back on.",
+      "rawShow": "Show raw response",
+      "rawHide": "Hide raw response",
       "offMonth": "It will retry once next month.",
       "offHour": "It will retry once in an hour.",
       "toastFailed": "{{feature}} failed.\n{{reasons}}\nCheck Settings › Services.",
