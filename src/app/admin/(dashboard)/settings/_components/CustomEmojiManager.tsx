@@ -9,6 +9,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import Button from "@/components/ui/Button";
 import CloseButton from "@/components/ui/CloseButton";
 import EmptyState from "@/components/ui/EmptyState";
+import Tooltip from "@/components/ui/Tooltip";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import { SkeletonLine } from "@/components/ui/Skeleton";
 import { showToast } from "@/stores/toastStore";
@@ -18,6 +19,7 @@ import { errorText } from "@/lib/apiError";
 import { resizeEmojiImage, EmojiImageError, EMOJI_MIN } from "@/components/ui/EmojiPicker/resizeEmojiImage";
 import { forgetCustomEmoji } from "@/components/ui/EmojiPicker/customEmojiCache";
 import settings from "../Settings.module.css";
+import lib from "./Library.module.css";
 import styles from "./CustomEmojiManager.module.css";
 
 type CustomEmoji = { id: string; name: string; src: string; created_at?: string };
@@ -84,12 +86,12 @@ export default function CustomEmojiManager() {
 
   return (
     <section className={`${settings.section} ${settings.sectionWide}`}>
-      <div className={styles.wrap}>
-        <div className={styles.headRow}>
+      <div className={lib.wrap}>
+        <div className={lib.headRow}>
           <h2 className={settings.sectionTitle}>{t("커스텀 이모지", "Custom emojis")}</h2>
-          {items && <span className={styles.headCount}>{items.length}</span>}
-          <div className={styles.headActions}>
-            <div className={styles.headSearch}>
+          {items && <span className={lib.headCount}>{items.length}</span>}
+          <div className={lib.headActions}>
+            <div className={lib.headSearch}>
               <SearchCapsule search={search} onSearchChange={setSearch} placeholder={t("이름 검색", "Search name")} align="left" />
             </div>
             <Button variant="outline" size="md" icon={<Plus size={14} />} loading={uploading} onClick={() => fileRef.current?.click()}>
@@ -113,25 +115,26 @@ export default function CustomEmojiManager() {
 
         {filtered === null ? (
           <div className={styles.grid}>
-            {[0, 1, 2, 3].map((i) => <div key={i} className={styles.tile}><SkeletonLine width="60%" height={12} /></div>)}
+            {[0, 1, 2, 3, 4, 5].map((i) => <div key={i} className={styles.tile}><SkeletonLine width={32} height={32} /></div>)}
           </div>
         ) : filtered.length === 0 ? (
           <EmptyState pad="sm">{search ? t("검색 결과가 없습니다", "No results") : t("올린 이모지가 없습니다", "No custom emojis yet")}</EmptyState>
         ) : (
           <div className={styles.grid}>
             {filtered.map((e) => (
-              <div key={e.id} className={styles.tile}>
-                {/* eslint-disable-next-line @next/next/no-img-element -- 사용자가 올린 작은 이모지 이미지, 최적화 대상이 아니다 */}
-                <img src={e.src} alt="" className={styles.img} loading="lazy" />
-                <span className={`${styles.name}${e.name ? "" : ` ${styles.nameMuted}`}`} title={e.name}>{e.name || t("이름 없음", "Untitled")}</span>
-                <CloseButton
-                  size="xs"
-                  className={styles.remove}
-                  onClick={() => void remove(e)}
-                  ariaLabel={t(`${e.name || "이모지"} 지우기`, `Remove ${e.name || "emoji"}`)}
-                  title={t("피커에서 빼기", "Remove from picker")}
-                />
-              </div>
+              <Tooltip key={e.id} content={<span className={styles.tipName}>{e.name ? `:${e.name}:` : t("이름 없음", "Untitled")}</span>} placement="bottom" delay={120}>
+                <div className={styles.tile} tabIndex={0}>
+                  {/* eslint-disable-next-line @next/next/no-img-element -- 사용자가 올린 작은 이모지 이미지, 최적화 대상이 아니다 */}
+                  <img src={e.src} alt={e.name} className={styles.img} loading="lazy" />
+                  <CloseButton
+                    size="xs"
+                    className={styles.remove}
+                    onClick={() => void remove(e)}
+                    ariaLabel={t(`${e.name || "이모지"} 지우기`, `Remove ${e.name || "emoji"}`)}
+                    title={t("피커에서 빼기", "Remove from picker")}
+                  />
+                </div>
+              </Tooltip>
             ))}
           </div>
         )}

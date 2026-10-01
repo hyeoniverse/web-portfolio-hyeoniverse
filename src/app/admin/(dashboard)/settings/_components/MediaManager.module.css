@@ -1,0 +1,125 @@
+/* ── 업로드한 파일 — 4:3 미리보기 격자. 이미지 밖의 파일은 종류 아이콘 + 확장자.
+   복사·열기·지우기는 미리보기 위 모서리(올렸을 때, 터치는 늘). 지우기는 쓰는 곳 없는 파일에만 ── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--spacing-md) var(--spacing-sm);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  margin: 0;
+  min-width: 0;
+}
+
+.preview {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: var(--radius-2xl);
+  background: var(--bg-tertiary);
+}
+
+.preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.fileIcon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  font-size: var(--font-size-micro);
+  font-weight: 600;
+  color: var(--text-tertiary);
+  letter-spacing: 0.04em;
+}
+
+.actions {
+  position: absolute;
+  top: var(--spacing-2xs);
+  right: var(--spacing-2xs);
+  display: flex;
+  gap: var(--spacing-3xs);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.card:hover .actions,
+.card:focus-within .actions {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .actions {
+    opacity: 1;
+  }
+}
+
+.action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-h-2xs);
+  height: var(--control-h-2xs);
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-circle);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.action:hover {
+  color: var(--text-primary);
+}
+
+.caption {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4xs);
+  min-width: 0;
+  font-size: var(--font-size-hint);
+  color: var(--text-tertiary);
+}
+
+.name {
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.used {
+  color: var(--text-secondary);
+  text-decoration: underline var(--border-color-strong);
+  text-underline-offset: 3px;
+  cursor: default;
+}
+
+.usedPlain {
+  color: var(--text-secondary);
+}
+
+.usedList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+}
+
+.usedLink {
+  color: inherit;
+  text-decoration: none;
+}
+
+.usedLink:hover {
+  text-decoration: underline;
+}
