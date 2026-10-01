@@ -1,0 +1,151 @@
+/* ── 라이브러리 갤러리 — 모서리·바탕·간격 없는 붙은 격자, 칸 사이 1px 실선 ──
+   칸마다 오른쪽·아래 실선을 긋고, 격자를 오른쪽·아래로 1px 넘기고 틀(.frame)이 잘라
+   마지막 열·마지막 줄의 선을 지운다(열 수가 화면 너비에 따라 바뀌어도 맞는다). */
+.frame {
+  overflow: hidden;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--gallery-min), 1fr));
+  gap: 0;
+  margin: 0 -1px -1px 0;
+}
+
+.item {
+  position: relative;
+  margin: 0;
+  aspect-ratio: var(--gallery-aspect);
+  overflow: hidden;
+  border-right: var(--border-light);
+  border-bottom: var(--border-light);
+}
+
+.media {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.media img,
+.media video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.item:hover,
+.item:focus-within {
+  outline: 1px solid var(--text-primary);
+  outline-offset: -1px;
+  z-index: 1;
+}
+
+/* 아래 띠 — 이름·정보. 커버 고르기 창의 이름 띠와 같은 결(겹침 바탕 + 반전 글자) */
+.caption {
+  position: absolute;
+  inset: auto 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4xs);
+  padding: var(--spacing-2xs) var(--spacing-xs);
+  background: var(--bg-overlay);
+  color: var(--text-inverse);
+  font-size: var(--font-size-hint);
+}
+
+.title {
+  overflow: hidden;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meta {
+  display: flex;
+  gap: var(--spacing-2xs);
+  overflow: hidden;
+  white-space: nowrap;
+  opacity: 0.85;
+}
+
+.meta a,
+.meta button {
+  color: inherit;
+}
+
+.actions {
+  position: absolute;
+  top: var(--spacing-2xs);
+  right: var(--spacing-2xs);
+  display: flex;
+  gap: var(--spacing-3xs);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.item:hover .actions,
+.item:focus-within .actions {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .actions {
+    opacity: 1;
+  }
+}
+
+.action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-h-2xs);
+  height: var(--control-h-2xs);
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-circle);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.action:hover {
+  color: var(--text-primary);
+}
+
+.fileIcon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  /* 아래 띠에 가리지 않게 조금 올린다 */
+  margin-bottom: var(--spacing-xl);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-micro);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+/* 띠 안 "쓰는 곳" — 올리면 글·프로젝트 목록. 반전 글자 위라 밑줄도 글자색을 따른다 */
+.used {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: default;
+}
+
+.usedList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+}
+
+.usedLink {
+  color: inherit;
+  text-decoration: none;
+}
+
+.usedLink:hover {
+  text-decoration: underline;
+}

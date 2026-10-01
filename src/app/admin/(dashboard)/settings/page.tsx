@@ -19,7 +19,7 @@ import SettingsSkeleton from "./_components/SettingsSkeleton";
 import { profileDefaults, isProfileAllOpen, toggleProfileAll, type ProfileExpandState } from "@/components/admin/ProfileSections";
 import { ProfileSectionProvider, type ProfileKey } from "@/components/admin/ProfileSectionActions";
 import type { ProfileData } from "@/types/profile";
-import { TAB_IDS, TAB_CONFIG_KEYS, type TabId, CONTENT_SUBTABS, type ContentSubTab, deepMerge, deepEqual, computeDelta, extractDefaults, detectConflicts, isDeltaFormat, filterOrphanedKeys, getTabForConfigPath, getContentSubTabForKey, getByPath, setByPath, type ConfigConflict } from "./_data/settingsConstants";
+import { TAB_IDS, TAB_CONFIG_KEYS, type TabId, CONTENT_SUBTABS, type ContentSubTab, LIBRARY_SECTIONS, type LibrarySection, deepMerge, deepEqual, computeDelta, extractDefaults, detectConflicts, isDeltaFormat, filterOrphanedKeys, getTabForConfigPath, getContentSubTabForKey, getByPath, setByPath, type ConfigConflict } from "./_data/settingsConstants";
 import { buildDeltaPayload as sharedBuildDeltaPayload } from "@/lib/settingsDelta";
 import GeneralTab from "./_components/GeneralTab";
 import { preloadSettingsTab } from "./_components/settingsTabLoaders";
@@ -49,6 +49,7 @@ const tabLoading = () => <SettingsSkeleton />;
 const ContentTab = dynamic(() => import("./_components/ContentTab"), { loading: tabLoading });
 const AppearanceTab = dynamic(() => import("./_components/AppearanceTab"), { loading: tabLoading });
 const ServicesTab = dynamic(() => import("./_components/ServicesTab"), { loading: tabLoading });
+const LibraryTab = dynamic(() => import("./_components/LibraryTab"), { loading: tabLoading });
 const AccountTab = dynamic(() => import("./_components/AccountTab"));
 const AuthorsEditor = dynamic(() => import("./_components/AuthorsEditor"));
 /* 받는 시점을 앞당기는 것은 settingsTabLoaders — 연 탭은 설정값과 함께, 다른 탭은 단추에 올렸을 때 */
@@ -135,6 +136,8 @@ export default function SettingsPage() {
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<TabId>(() => {
     const tab = searchParams.get("tab");
+    /* 달력 관리는 콘텐츠 › 달력에서 라이브러리 탭으로 옮겼다 — 예전 주소·북마크는 라이브러리로 */
+    if (tab === "content" && searchParams.get("sub") === "calendars") return "library";
     return tab && TAB_IDS.includes(tab as TabId) ? (tab as TabId) : "general";
   });
   const [contentSubTab, setContentSubTab] = useState<ContentSubTab>(() => {
@@ -142,6 +145,11 @@ export default function SettingsPage() {
     return sub && (CONTENT_SUBTABS as readonly string[]).includes(sub)
       ? (sub as ContentSubTab)
       : "home";
+  });
+  /* 라이브러리는 한 페이지다. ?sub= 는 그 섹션으로 내려 보내는 딥링크로만 읽는다(예전 하위탭 주소·달력 관리 버튼) */
+  const [libraryFocus] = useState<LibrarySection | undefined>(() => {
+    const sub = searchParams.get("sub");
+    return sub && (LIBRARY_SECTIONS as readonly string[]).includes(sub) ? (sub as LibrarySection) : undefined;
   });
   /* 연 탭의 편집기 청크를 설정값과 함께 받기 시작한다(→ settingsTabLoaders) */
   useEffect(() => { preloadSettingsTab(activeTab, contentSubTab); }, [activeTab, contentSubTab]);
@@ -756,7 +764,9 @@ export default function SettingsPage() {
     });
   };
 
-  if (loading) {
+  /* 라이브러리는 사이트 설정값을 쓰지 않고 목록마다 따로 불러온다 — 설정·프로필·계정 세 요청을 기다리지 않는다 */
+  const gated = loading && activeTab !== "library";
+  if (gated) {
     return (
       <div className={styles.container}>
         <div className={styles.header}>
@@ -795,7 +805,8 @@ export default function SettingsPage() {
           <T k="admin.settings.title" />
         </h1>
         <div className={styles.headerRight}>
-          {activeTab === "account" ? (
+          {/* 라이브러리는 항목마다 바로 저장된다 — 탭 저장 단추가 있으면 눌러야 하는 줄 안다 */}
+          {activeTab === "library" ? null : activeTab === "account" ? (
             <>
               {/* 이 탭의 저자 섹션도 saveSection 을 쓴다 — message 를 여기서도 보여주지 않으면
                   모달 밖에서 저장했을 때 성공·실패가 아무데도 안 뜬다. */}
@@ -964,6 +975,10 @@ export default function SettingsPage() {
                     })}
                   </div>
                 )}
+                {/* 라이브러리는 한 페이지 — 다섯 목록의 바로가기(데스크톱만, About 과 같은 목록) */}
+                {id === "library" && activeTab === "library" && (
+                  <SectionOutline sections={sectionNav.sections} activeIdx={sectionNav.activeIdx} onJump={sectionNav.jumpTo} dirty={sectionNav.dirty} />
+                )}
               </div>
             );
           })}
@@ -1099,7 +1114,7 @@ export default function SettingsPage() {
             );
           })()}
 
-          {loading ? (
+          {gated ? (
             <SettingsSkeleton />
           ) : (
             <>
@@ -1143,6 +1158,11 @@ export default function SettingsPage() {
                   </ProfileSectionProvider>
                 </div>
                 </>
+              )}
+              {activeTab === "library" && (
+                <div className={styles.tabGrid}>
+                  <LibraryTab focus={libraryFocus} />
+                </div>
               )}
               {activeTab === "appearance" && (
                 <div className={styles.tabGrid}>
