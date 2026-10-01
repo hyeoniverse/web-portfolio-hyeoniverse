@@ -6,7 +6,6 @@
   gap: var(--spacing-2xs);
   min-width: 0;
   padding-block: var(--spacing-2xs);
-  outline: none;
 }
 
 .wave {
@@ -20,15 +19,74 @@
   user-select: none;
 }
 
-.editor:focus-visible .wave {
-  border-color: var(--text-primary);
-}
-
 .canvas {
   display: block;
   width: 100%;
   height: 100%;
   color: var(--text-secondary);
+}
+
+/* 클립 줄 — 나눈 조각마다 한 칸. 누르면 고르고(강조색), 끌면 옮긴다(놓을 자리에 강조색 세로선) */
+.clips {
+  position: relative;
+  height: 20px;
+}
+
+.clip {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: var(--border-light);
+  background: var(--bg-secondary);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-micro);
+  font-variant-numeric: tabular-nums;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.clip + .clip {
+  border-left: none;
+}
+
+.clip:hover {
+  color: var(--text-primary);
+}
+
+.clip[data-on] {
+  border-color: var(--color-accent);
+  background: var(--color-accent-alpha-20);
+  color: var(--text-primary);
+}
+
+.clip[data-dragging] {
+  opacity: 0.5;
+  cursor: grabbing;
+}
+
+.drop {
+  position: absolute;
+  top: calc(var(--spacing-3xs) * -1);
+  bottom: calc(var(--spacing-3xs) * -1);
+  z-index: 1;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--color-accent);
+}
+
+/* 파형 위 클립 경계 */
+.cut {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--text-tertiary);
+  pointer-events: none;
 }
 
 /* 고른 구간 — 강조색을 옅게 덮고 양 끝은 진하게 */
@@ -39,6 +97,38 @@
   border-inline: 1px solid var(--color-accent);
   background: var(--color-accent-alpha-20);
   pointer-events: none;
+}
+
+/* 고른 구간 양 끝 손잡이 — 끝선을 가운데 두고 양옆으로 넉넉히 잡힌다 */
+.handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 1;
+  width: 12px;
+  cursor: ew-resize;
+  pointer-events: auto;
+  touch-action: none;
+}
+
+.handle[data-side="start"] {
+  left: -7px;
+}
+
+.handle[data-side="end"] {
+  right: -7px;
+}
+
+.handle::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 20px;
+  border-radius: var(--radius-capsule);
+  background: var(--color-accent);
+  transform: translate(-50%, -50%);
 }
 
 .cursor,
