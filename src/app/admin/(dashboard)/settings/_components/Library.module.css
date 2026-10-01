@@ -1,0 +1,87 @@
+/* ── 라이브러리 탭 공용 — 섹션 머리줄(제목·개수·검색·단추), 칸 위 지우기, 빈 상태 ── */
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.headRow {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.hint {
+  margin: calc(var(--spacing-xs) * -1) 0 0;
+  font-size: var(--font-size-label);
+  color: var(--text-tertiary);
+}
+
+/* 도구막대 — 위아래 실선 사이에 걸러 보기(왼쪽)와 검색·단추(오른쪽). 좁으면 오른쪽 묶음이 다음 줄을 채운다 */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-sm) var(--spacing-md);
+  padding: var(--spacing-sm) 0;
+  border-top: var(--border-light);
+  border-bottom: var(--border-light);
+}
+
+.toolbarFilters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-xs) var(--spacing-md);
+  min-width: 0;
+}
+
+.toolbarEnd {
+  display: flex;
+  flex: 1 1 260px;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--spacing-xs);
+  margin-left: auto;
+}
+
+.headCount {
+  font-size: var(--font-size-label);
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.headSearch {
+  flex: 1 1 200px;
+  max-width: 280px;
+  min-width: 0;
+}
+
+.pager {
+  align-self: center;
+}
+
+.muted {
+  color: var(--text-muted);
+}
+
+/* 한 페이지 섹션 자리 — 탭 격자(.tabGrid)에서 한 줄을 다 쓴다. 그리기 전엔 높이만 잡아
+   아래 섹션이 한꺼번에 화면 안으로 끌려 올라와 다 같이 불러오지 않게 한다 */
+.lazy,
+.lazyPending {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+
+.lazyPending {
+  min-height: 320px;
+}
+
+/* 섹션마다 자리(.lazy)로 감싸 .section:last-child 가 모두에 걸려 구분선이 사라진다 — 자리 사이에 다시 긋는다 */
+.lazy:not(:last-child),
+.lazyPending:not(:last-child) {
+  padding-bottom: var(--spacing-2xl);
+  margin-bottom: var(--spacing-2xl);
+  border-bottom: var(--border-light);
+}

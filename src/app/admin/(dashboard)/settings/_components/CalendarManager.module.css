@@ -5,22 +5,6 @@
   gap: var(--spacing-md);
 }
 
-.headRow {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--spacing-sm);
-}
-.headCount {
-  font-size: var(--font-size-label);
-  color: var(--text-tertiary);
-  font-variant-numeric: tabular-nums;
-}
-.headSearch {
-  margin-left: auto;
-  width: min(260px, 100%);
-}
-
 /* 목록 — 상자 대신 가는 선으로 나눈 줄. 예전엔 줄마다 큰 둥근 상자라 네 개만 있어도 화면이 찼고
    오른쪽 대부분이 비었다. 날짜는 뜯는 달력 모양, 그 아래 줄에 쓰는 곳(글·프로젝트) */
 /* 화면 너비에 따라 1~3열 — 한 칸은 300px 이상, 열은 셋까지(넓은 화면에서 한 줄이 너무 길어지지 않게) */
@@ -30,6 +14,10 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(max(300px, calc((100% - 2 * var(--cal-gap)) / 3)), 1fr));
   column-gap: var(--cal-gap);
+}
+
+/* 위 실선은 머리의 도구막대가 긋는다. 휴지통은 따로 접히는 묶음이라 자기 선을 둔다 */
+.trashBody {
   border-top: var(--border-light);
 }
 
