@@ -7,7 +7,6 @@ import type { ContentSubTab, TabId } from "../_data/settingsConstants";
    받지 못해도 여기서는 조용히 넘긴다 — 탭을 그릴 때 dynamic 이 다시 받는다. */
 const TABS: Partial<Record<TabId, () => Promise<unknown>>> = {
   content: () => import("./ContentTab"),
-  library: () => import("./LibraryTab"),
   appearance: () => import("./AppearanceTab"),
   services: () => import("./ServicesTab"),
   account: () => Promise.all([import("./AccountTab"), import("./AuthorsEditor")]),
@@ -15,6 +14,7 @@ const TABS: Partial<Record<TabId, () => Promise<unknown>>> = {
 
 const CONTENT_SUBS: Partial<Record<ContentSubTab, () => Promise<unknown>>> = {
   about: () => Promise.all([import("./about/AboutStudio"), import("./AboutTechStackEditor")]),
+  calendars: () => import("./CalendarManager"),
 };
 
 export function preloadSettingsTab(tab: TabId, sub?: ContentSubTab): void {

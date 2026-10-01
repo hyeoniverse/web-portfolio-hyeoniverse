@@ -67,7 +67,6 @@ export const adminNavItems: NavItem[] = [
     children: [
       { key: "settings-general", href: "/admin/settings?tab=general", label: "General" },
       { key: "settings-content", href: "/admin/settings?tab=content", label: "Content" },
-      { key: "settings-library", href: "/admin/settings?tab=library", label: "Library" },
       { key: "settings-appearance", href: "/admin/settings?tab=appearance", label: "Appearance" },
       { key: "settings-services", href: "/admin/settings?tab=services", label: "Services" },
       { key: "settings-account", href: "/admin/settings?tab=account", label: "Account" },

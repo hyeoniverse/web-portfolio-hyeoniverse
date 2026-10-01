@@ -888,7 +888,6 @@
       "tabs": {
         "general": "일반",
         "content": "콘텐츠",
-        "library": "라이브러리",
         "appearance": "외관",
         "services": "서비스",
         "account": "계정"
@@ -926,7 +925,8 @@
         "profile": "PROFILE",
         "about": "ABOUT",
         "works": "WORKS",
-        "posts": "POSTS"
+        "posts": "POSTS",
+        "calendars": "CALENDAR"
       },
       "aboutVisualBreakImage": "브레이크 이미지 URL",
       "aboutInfiniteScrollLabel": "마지막 패널 다음에 멈추지 않고 첫 패널로 이어지게 합니다",

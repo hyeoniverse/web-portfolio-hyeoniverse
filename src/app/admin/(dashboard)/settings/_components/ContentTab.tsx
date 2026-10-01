@@ -42,9 +42,10 @@ import Pressable from "@/components/ui/Pressable";
 import SettingsSkeleton from "./SettingsSkeleton";
 
 /* 하위 탭의 무거운 편집기는 그 하위 탭을 열 때 받는다. About 스튜디오는 코드 편집기(CodeMirror·Sandpack)·
-   ERD 캔버스(xyflow)·About 원본 데이터를 싣는다. (달력 관리는 라이브러리 탭으로 옮겼다) */
+   ERD 캔버스(xyflow)·About 원본 데이터를, 달력 관리는 에디터의 달력 모델을 싣는다. */
 const AboutStudio = dynamic(() => import("./about/AboutStudio"), { loading: () => <SettingsSkeleton /> });
 const AboutTechStackEditor = dynamic(() => import("./AboutTechStackEditor"));
+const CalendarManager = dynamic(() => import("./CalendarManager"), { loading: () => <SettingsSkeleton /> });
 const styles = { ...shared, ...local };
 
 interface ContentTabProps extends SettingsTabProps {
@@ -53,7 +54,7 @@ interface ContentTabProps extends SettingsTabProps {
   profileExpanded: ProfileExpandState;
   setProfileExpanded: Dispatch<SetStateAction<ProfileExpandState>>;
   setConfig: Dispatch<SetStateAction<SiteConfigData>>;
-  contentSubTab: "home" | "profile" | "about" | "works" | "posts";
+  contentSubTab: "home" | "profile" | "about" | "works" | "posts" | "calendars";
 }
 
 /** en/ko 한 쌍의 Field(같은 label, langBadge 만 다름) — fieldPair 레이아웃 + Field ×2. */
@@ -607,6 +608,8 @@ export default function ContentTab({
 
         </>
       )}
+
+      {contentSubTab === "calendars" && <CalendarManager />}
 
       {contentSubTab === "works" && (
         <>
