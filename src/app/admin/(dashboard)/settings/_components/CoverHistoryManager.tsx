@@ -18,7 +18,7 @@ import { tryRequest } from "@/lib/sendAction";
 import settings from "../Settings.module.css";
 import lib from "./Library.module.css";
 import styles from "./CoverHistoryManager.module.css";
-import LibraryThumb, { isVideoUrl } from "./LibraryThumb";
+import LibraryThumb from "./LibraryThumb";
 
 type Ref = { id: string; title: string; slug: string };
 type CoverItem = { id: string; url: string; source: "ai" | "unsplash" | "preset" | string; meta: string; created_at: string; usage?: { posts: Ref[]; works: Ref[] } };
@@ -46,14 +46,7 @@ export default function CoverHistoryManager() {
     return () => { cancelled = true; };
   }, []);
 
-  /* 출처 — 커버 고르기 창은 Pexels 에서 고른 것도 source "unsplash" 로 남기므로 주소로 가린다 */
-  const sourceLabel = (c: CoverItem) => {
-    if (/^https:\/\/(images|videos)\.pexels\.com\//i.test(c.url)) return "Pexels";
-    if (c.source === "ai") return "AI";
-    if (c.source === "unsplash") return "Unsplash";
-    if (c.source === "preset") return isVideoUrl(c.url) ? t("기본 동영상", "Preset video") : t("기본 이미지", "Preset");
-    return c.source;
-  };
+  const sourceLabel = (s: string) => s === "ai" ? "AI" : s === "unsplash" ? "Unsplash" : s === "preset" ? t("기본 이미지", "Preset") : s;
   const date = (s: string) => new Date(s).toLocaleDateString(ko ? "ko-KR" : "en-US", { month: "short", day: "numeric" });
 
   const copy = async (url: string) => {
@@ -91,7 +84,7 @@ export default function CoverHistoryManager() {
               return (
                 <figure key={c.id} className={styles.card}>
                   <div className={styles.thumb}>
-                    <LibraryThumb src={c.url} sizes="(max-width: 640px) 50vw, 240px" badgeClassName={styles.videoBadge} />
+                    <LibraryThumb src={c.url} sizes="(max-width: 640px) 50vw, 240px" />
                     <span className={styles.actions}>
                       <Pressable className={styles.action} onClick={() => void copy(c.url)} aria-label={t("주소 복사", "Copy URL")} title={t("주소 복사", "Copy URL")}><Copy size={13} /></Pressable>
                       <a className={styles.action} href={c.url} target="_blank" rel="noopener noreferrer" aria-label={t("새 탭에서 열기", "Open in new tab")} title={t("새 탭에서 열기", "Open in new tab")}><ExternalLink size={13} /></a>
@@ -99,7 +92,7 @@ export default function CoverHistoryManager() {
                     </span>
                   </div>
                   <figcaption className={styles.caption}>
-                    <span className={styles.source}>{sourceLabel(c)} · {date(c.created_at)}</span>
+                    <span className={styles.source}>{sourceLabel(c.source)} · {date(c.created_at)}</span>
                     {usage === null ? (
                       <SkeletonLine width={72} height={12} />
                     ) : used.length ? (
