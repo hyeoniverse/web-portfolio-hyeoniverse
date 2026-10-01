@@ -67,9 +67,36 @@ export default function EmojiKitchenModal({ onAdded }: { onAdded: (row: KitchenE
   const baseList = useMemo(() => (data ? data.meta.emojis.map((_, i) => i).filter(match) : []),
     // eslint-disable-next-line react-hooks/exhaustive-deps -- match 는 data·q 로만 정해진다
     [data, q]);
-  const combos = useMemo(() => (data && base !== null ? data.pairs[base].filter((p) => match(p.j)) : []),
+  /* 두 번째 후보는 첫 번째 목록과 같은 순서(분류 → Gboard)로 — pairs 는 i ≤ j 쌍을 양쪽에 넣어 순서가 섞여 있다 */
+  const combos = useMemo(() => (data && base !== null ? data.pairs[base].filter((p) => match(p.j)).sort((a, b) => a.j - b.j) : []),
     // eslint-disable-next-line react-hooks/exhaustive-deps -- match 는 data·q 로만 정해진다
     [data, base, q]);
+
+  /* 분류별로 나눈다 — 목록이 분류 순서로 놓여 있으므로 앞에서부터 끊으면 된다 */
+  const byGroup = <T,>(items: T[], idx: (x: T) => number) => {
+    const out: { g: number; items: T[] }[] = [];
+    for (const x of items) {
+      const g = data!.meta.emojis[idx(x)].g;
+      if (out.at(-1)?.g !== g) out.push({ g, items: [] });
+      out.at(-1)!.items.push(x);
+    }
+    return out;
+  };
+  const GROUP_LABEL: Record<string, [string, string]> = {
+    "smileys & emotion": ["표정·감정", "Smileys & emotion"],
+    "people & body": ["사람·몸", "People & body"],
+    "animals & nature": ["동물·자연", "Animals & nature"],
+    "food & drink": ["음식·음료", "Food & drink"],
+    "travel & places": ["여행·장소", "Travel & places"],
+    "activities": ["활동", "Activities"],
+    "objects": ["사물", "Objects"],
+    "symbols": ["기호", "Symbols"],
+    "": ["기타", "Other"],
+  };
+  const groupLabel = (g: number) => {
+    const [ko, en] = GROUP_LABEL[data!.meta.groups[g]] ?? GROUP_LABEL[""];
+    return t(ko, en);
+  };
 
   const chooseBase = (i: number) => { setBase(i); setPicked(null); setSearch(""); };
   const choose = (p: KitchenPair) => {
@@ -116,7 +143,7 @@ export default function EmojiKitchenModal({ onAdded }: { onAdded: (row: KitchenE
           {partnerEmoji ? <span className={styles.slotChar}>{partnerEmoji.e}</span> : <span className={styles.slotHint}>{t("두 번째", "Second")}</span>}
         </span>
         <span className={styles.op} aria-hidden>=</span>
-        <span className={`${styles.slot} ${styles.slotResult}`} data-on={picked ? "" : undefined}>
+        <span className={styles.slot} data-on={picked ? "" : undefined}>
           {picked
             /* eslint-disable-next-line @next/next/no-img-element -- gstatic 미리보기, next/image 허용 호스트가 아니다 */
             ? <img src={kitchenImageUrl(picked.date, picked.left, picked.right)} alt={t("섞은 결과", "Mixed result")} className={styles.slotImg} />
@@ -128,7 +155,8 @@ export default function EmojiKitchenModal({ onAdded }: { onAdded: (row: KitchenE
         {baseEmoji ? (
           <Pressable className={styles.back} onClick={() => { setBase(null); setPicked(null); setSearch(""); }}>
             <ChevronLeft size={15} />
-            <span>{t(`첫 번째 다시 고르기 · ${baseEmoji.n} 와 섞을 수 있는 이모지 ${data!.pairs[base!].length}개`, `Change first · ${data!.pairs[base!].length} emojis mix with ${baseEmoji.n}`)}</span>
+            <span>{t("첫 번째 바꾸기", "Change first")}</span>
+            <span className={styles.count}>{t(`두 번째 이모지 ${data!.pairs[base!].length}개`, `${data!.pairs[base!].length} to mix with`)}</span>
           </Pressable>
         ) : (
           <span className={styles.step}>{t("첫 번째 이모지를 고르세요", "Pick the first emoji")}</span>
@@ -143,40 +171,52 @@ export default function EmojiKitchenModal({ onAdded }: { onAdded: (row: KitchenE
           <div className={styles.grid}>{Array.from({ length: 24 }, (_, i) => <span key={i} className={styles.cell}><SkeletonLine width={28} height={28} /></span>)}</div>
         ) : base === null ? (
           baseList.length ? (
-            <div className={styles.grid}>
-              {baseList.map((i) => {
-                const e = data.meta.emojis[i];
-                return (
-                  <Pressable key={e.c} className={styles.cell} onClick={() => chooseBase(i)} title={e.n} aria-label={e.n}>
-                    <span className={styles.char}>{e.e}</span>
-                  </Pressable>
-                );
-              })}
-            </div>
+            byGroup(baseList, (i) => i).map(({ g, items }) => (
+              <section key={g} className={styles.group}>
+                <h3 className={styles.groupHead}>{groupLabel(g)}<span>{items.length}</span></h3>
+                <div className={styles.grid}>
+                  {items.map((i) => {
+                    const e = data.meta.emojis[i];
+                    return (
+                      <Pressable key={e.c} className={styles.cell} onClick={() => chooseBase(i)} title={e.n} aria-label={e.n}>
+                        <span className={styles.char}>{e.e}</span>
+                      </Pressable>
+                    );
+                  })}
+                </div>
+              </section>
+            ))
           ) : <EmptyState pad="sm">{t("맞는 이모지가 없습니다", "No matching emoji")}</EmptyState>
         ) : combos.length ? (
-          <div className={styles.grid}>
-            {combos.map((p) => {
-              const partner = data.meta.emojis[p.j];
-              const on = picked?.left === p.left && picked.right === p.right;
-              return (
-                <Pressable key={`${p.left}_${p.right}`} className={styles.cell} data-on={on ? "" : undefined}
-                  onClick={() => choose(p)} title={partner.n} aria-label={`${baseEmoji!.n} + ${partner.n}`} aria-pressed={on}>
-                  <span className={styles.char}>{partner.e}</span>
-                </Pressable>
-              );
-            })}
-          </div>
+          byGroup(combos, (p) => p.j).map(({ g, items }) => (
+            <section key={g} className={styles.group}>
+              <h3 className={styles.groupHead}>{groupLabel(g)}<span>{items.length}</span></h3>
+              <div className={styles.grid}>
+                {items.map((p) => {
+                  const partner = data.meta.emojis[p.j];
+                  const on = picked?.left === p.left && picked.right === p.right;
+                  return (
+                    <Pressable key={`${p.left}_${p.right}`} className={styles.cell} data-on={on ? "" : undefined}
+                      onClick={() => choose(p)} title={partner.n} aria-label={`${baseEmoji!.n} + ${partner.n}`} aria-pressed={on}>
+                      <span className={styles.char}>{partner.e}</span>
+                    </Pressable>
+                  );
+                })}
+              </div>
+            </section>
+          ))
         ) : <EmptyState pad="sm">{t("맞는 조합이 없습니다", "No matching combinations")}</EmptyState>}
       </div>
 
-      {picked && baseEmoji && data && footerEl && createPortal(
+      {/* 아래 단은 늘 그린다 — 조합을 고를 때만 나타나면 모달 높이가 바뀌어 화면이 튀었다. 고르기 전엔 비활성 */}
+      {footerEl && createPortal(
         <div className={styles.foot}>
           <div className={styles.footMain}>
             <span className={styles.formula}>{t("이모지 이름", "Emoji name")}</span>
-            <Input value={name} onChange={setName} size="sm" placeholder={t("이모지 이름", "Emoji name")} />
+            <Input value={picked ? name : ""} onChange={setName} size="sm" disabled={!picked}
+              placeholder={picked ? t("이모지 이름", "Emoji name") : t("두 이모지를 고르면 정할 수 있어요", "Pick two emojis first")} />
           </div>
-          <Button variant="primary" size="md" loading={saving} onClick={() => void add()}>{t("추가", "Add")}</Button>
+          <Button variant="primary" size="md" loading={saving} disabled={!picked} onClick={() => void add()}>{t("추가", "Add")}</Button>
         </div>,
         footerEl,
       )}

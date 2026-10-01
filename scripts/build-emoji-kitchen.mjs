@@ -7,7 +7,7 @@
  * 그래서 조합마다 (상대 이모지, 날짜, 좌우가 바뀌었는지)만 남긴다.
  *
  * 출력 (public/emoji-kitchen/)
- *   meta.json — { emojis: [{ c: 코드포인트, e: 글자, n: 이름, k: 검색어 }], dates: ["20201001", …] }
+ *   meta.json — { emojis: [{ c: 코드포인트, e: 글자, n: 이름, k: 검색어, g: 분류 번호 }], groups: [분류…], dates: ["20201001", …] }
  *   pairs.bin — 이모지 i 마다 [uint16 개수][(uint16 j, uint8 (날짜<<1 | 바뀜)) × 개수], i ≤ j 인 쌍만
  *               "바뀜" = 이미지가 (j, i) 순서로 저장돼 있다
  *
@@ -21,10 +21,14 @@ const OUT = new URL("../public/emoji-kitchen/", import.meta.url);
 const raw = process.argv[2] ? readFileSync(process.argv[2], "utf8") : await (await fetch(SRC)).text();
 const { knownSupportedEmoji, data } = JSON.parse(raw);
 
-/* 이모지 순서는 Gboard 순서 — 고르는 격자도 이 순서로 보인다 */
-const codes = [...knownSupportedEmoji].sort((a, b) => (data[a]?.gBoardOrder ?? 1e9) - (data[b]?.gBoardOrder ?? 1e9));
+/* 분류(유니코드 이모지 분류 순서)로 묶고, 같은 분류 안에서는 Gboard 순서. 고르는 격자도 이 순서로 묶어 보인다.
+   원본에 분류가 없는 것은 맨 뒤 "" 묶음 */
+const GROUPS = ["smileys & emotion", "people & body", "animals & nature", "food & drink", "travel & places", "activities", "objects", "symbols", ""];
+const groupOf = (c) => { const i = GROUPS.indexOf(data[c]?.category ?? ""); return i < 0 ? GROUPS.length - 1 : i; };
+const codes = [...knownSupportedEmoji].sort((a, b) =>
+  groupOf(a) - groupOf(b) || (data[a]?.gBoardOrder ?? 1e9) - (data[b]?.gBoardOrder ?? 1e9));
 const index = new Map(codes.map((c, i) => [c, i]));
-const emojis = codes.map((c) => ({ c, e: data[c].emoji, n: data[c].alt, k: (data[c].keywords ?? []).slice(0, 8).join(" ") }));
+const emojis = codes.map((c) => ({ c, e: data[c].emoji, n: data[c].alt, k: (data[c].keywords ?? []).slice(0, 8).join(" "), g: groupOf(c) }));
 
 const dates = [];
 const dateIdx = (d) => { let i = dates.indexOf(d); if (i < 0) { i = dates.length; dates.push(d); } return i; };
@@ -51,6 +55,6 @@ rows.forEach((m) => {
 });
 
 mkdirSync(OUT, { recursive: true });
-writeFileSync(new URL("meta.json", OUT), JSON.stringify({ emojis, dates }));
+writeFileSync(new URL("meta.json", OUT), JSON.stringify({ emojis, groups: GROUPS, dates }));
 writeFileSync(new URL("pairs.bin", OUT), buf);
 console.log(`emojis ${codes.length}, pairs ${total}, dates ${dates.length}, pairs.bin ${(buf.length / 1024).toFixed(0)}KB`);

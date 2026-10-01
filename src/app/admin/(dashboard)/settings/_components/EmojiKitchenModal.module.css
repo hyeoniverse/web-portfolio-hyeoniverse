@@ -12,20 +12,22 @@
   padding: var(--modal-p-md);
 }
 
-/* 식 줄 — [첫] + [두 번째] = [결과]. 칸은 붙은 격자처럼 모서리 없는 1px 상자, 고른 칸은 진한 선 */
+/* 식 줄 — [첫] + [두 번째] = [결과]. 세 칸은 같은 크기, 붙은 격자처럼 모서리 없는 1px 상자.
+   고른 칸은 진한 선. 연산자(+, =)는 칸 사이 가운데에 같은 폭으로 둔다 */
 .formulaRow {
+  --slot: 64px;
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
   padding: 0 var(--spacing-lg);
 }
 
 .slot {
   display: flex;
+  flex: none;
   align-items: center;
   justify-content: center;
-  width: 56px;
-  height: 56px;
+  width: var(--slot);
+  height: var(--slot);
   border: var(--border-light);
 }
 
@@ -33,19 +35,15 @@
   border-color: var(--text-primary);
 }
 
-.slotResult {
-  width: 72px;
-  height: 72px;
-}
-
+/* 이모지 글자와 섞은 그림이 칸 안에서 같은 크기로 보이게 — 글자는 칸의 절반, 그림은 칸의 64% */
 .slotChar {
-  font-size: var(--font-size-2xl);
+  font-size: calc(var(--slot) * 0.5);
   line-height: 1;
 }
 
 .slotImg {
-  width: 80%;
-  height: 80%;
+  width: 64%;
+  height: 64%;
   object-fit: contain;
 }
 
@@ -55,8 +53,11 @@
 }
 
 .op {
+  flex: none;
+  width: var(--spacing-2xl);
   color: var(--text-tertiary);
   font-size: var(--font-size-lg);
+  text-align: center;
 }
 
 .bar {
@@ -84,6 +85,16 @@
   cursor: pointer;
 }
 
+.count {
+  color: var(--text-tertiary);
+}
+
+/* 앞 글자와의 간격은 .back 의 gap 이 준다 — 점 뒤에만 같은 만큼 띄운다 */
+.count::before {
+  content: "·";
+  margin-right: var(--spacing-2xs);
+}
+
 .back:hover {
   color: var(--text-primary);
 }
@@ -101,6 +112,32 @@
   overflow-y: auto;
   border-top: var(--border-light);
   border-bottom: var(--border-light);
+}
+
+/* 분류 묶음 — 머리는 스크롤 틀 위에 붙는다(어느 분류를 보고 있는지 늘 보이게) */
+.group + .group {
+  border-top: var(--border-light);
+}
+
+.groupHead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-2xs);
+  margin: 0;
+  padding: var(--spacing-2xs) var(--spacing-lg);
+  border-bottom: var(--border-light);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  font-size: var(--font-size-label);
+  font-weight: 600;
+}
+
+.groupHead span {
+  color: var(--text-tertiary);
+  font-weight: 400;
 }
 
 /* 붙은 격자 — 오른쪽·아래 선을 긋고 마지막 열·줄 선은 바깥 스크롤 틀이 가린다 */
