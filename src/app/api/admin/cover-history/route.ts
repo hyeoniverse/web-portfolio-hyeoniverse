@@ -1,6 +1,5 @@
 import { requireAuth } from "@/lib/api/requireAuth";
 import { jsonError, jsonOk, jsonServerError } from "@/lib/api/response";
-import { serverTimer } from "@/lib/api/serverTiming";
 
 const MAX = 24;
 
@@ -8,9 +7,7 @@ const MAX = 24;
 // 인증 없을 때도 200 + 빈 리스트 (graceful degradation — UI 가 잠시 비로그인 상태일 때 콘솔 노이즈 차단)
 // ?usage=1 — 각 이미지를 커버로 쓰는 글·프로젝트를 붙인다(라이브러리 탭). 커버 고르기 창은 붙이지 않는다
 export async function GET(request: Request) {
-  const timer = serverTimer();
   const { user, supabase, error: authError } = await requireAuth();
-  timer.mark("auth");
   if (authError) return jsonOk({ history: [] });
   const withUsage = new URL(request.url).searchParams.get("usage") === "1";
 
@@ -26,14 +23,12 @@ export async function GET(request: Request) {
       console.warn("[cover-history GET]", error.message);
       return jsonOk({ history: [] });
     }
-    timer.mark("history");
-    if (!withUsage || !data?.length) return timer.apply(jsonOk({ history: data ?? [] }));
+    if (!withUsage || !data?.length) return jsonOk({ history: data ?? [] });
     const urls = data.map((r) => r.url as string);
     const [posts, works] = await Promise.all([
       supabase.from("posts").select("id, title, slug, cover_image").in("cover_image", urls).is("deleted_at", null),
       supabase.from("works").select("id, title, slug, image").in("image", urls).is("deleted_at", null),
     ]);
-    timer.mark("usage");
     const history = data.map((r) => ({
       ...r,
       usage: {
@@ -41,7 +36,7 @@ export async function GET(request: Request) {
         works: (works.data ?? []).filter((w) => w.image === r.url).map(({ id, title, slug }) => ({ id, title, slug })),
       },
     }));
-    return timer.apply(jsonOk({ history }));
+    return jsonOk({ history });
   } catch (e) {
     console.warn("[cover-history GET] unexpected:", e);
     return jsonOk({ history: [] });
