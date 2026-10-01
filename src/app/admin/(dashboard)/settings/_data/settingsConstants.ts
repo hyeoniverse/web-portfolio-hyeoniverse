@@ -15,7 +15,8 @@ export {
   isDeltaFormat,
 } from "@/lib/settingsDelta";
 
-export const TAB_IDS = ["general", "content", "appearance", "services", "account"] as const;
+/* library — 여러 글이 함께 쓰는 자료(공유 달력·커스텀 이모지). 설정값이 아니라 각자 API 로 저장한다 */
+export const TAB_IDS = ["general", "content", "library", "appearance", "services", "account"] as const;
 
 export const TAB_CONFIG_KEYS: Record<string, (keyof SiteConfigData)[]> = {
   general: ["personal", "contact", "metadata", "bgm"],
@@ -136,7 +137,7 @@ export function getTabForConfigPath(path: string): TabId {
   return "general";
 }
 
-export const CONTENT_SUBTABS = ["home", "profile", "about", "works", "posts", "calendars"] as const;
+export const CONTENT_SUBTABS = ["home", "profile", "about", "works", "posts"] as const;
 export type ContentSubTab = (typeof CONTENT_SUBTABS)[number];
 
 /** content 탭 내 siteConfig 키 → sub-tab 매핑 */
@@ -146,7 +147,6 @@ const CONTENT_SUBTAB_KEYS: Record<ContentSubTab, (keyof SiteConfigData)[]> = {
   about: ["about"],
   works: ["works"],
   posts: ["posts"],
-  calendars: [],
 };
 
 /** siteConfig 키 → content sub-tab */
