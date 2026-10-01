@@ -1,6 +1,7 @@
 // ── 공유 달력 API 클라이언트 (연결형) ──
 // 달력 원본은 서버(calendars 테이블)에 저장, 블록은 calendarId 로 참조.
 import { type CalendarData, normalizeCalendar } from "./model";
+import type { CalendarUsage } from "@/lib/calendarUsage";
 
 export type CalendarListItem = {
   id: string;
@@ -11,6 +12,8 @@ export type CalendarListItem = {
   /** 휴지통 항목일 때만 */
   deletedAt?: string | null;
   purgeAfter?: string | null;
+  /** 이 달력을 쓰는 글·프로젝트 (목록일 때만, 휴지통 글 제외) */
+  usage?: CalendarUsage;
 };
 
 /** 달력 데이터 로드 결과 — 정상 / 휴지통(삭제됨) / null(없음·에러) */

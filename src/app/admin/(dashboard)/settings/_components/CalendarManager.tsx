@@ -21,6 +21,9 @@ import settings from "../Settings.module.css";
 import styles from "./CalendarManager.module.css";
 import EmptyState from "@/components/ui/EmptyState";
 import Pressable from "@/components/ui/Pressable";
+import Tooltip from "@/components/ui/Tooltip";
+import TransitionLink from "@/components/ui/TransitionLink";
+import type { CalendarUsage } from "@/lib/calendarUsage";
 
 // 무거운 캘린더 뷰 스택 — 클릭 시 모달 미리보기에서만 필요하므로 지연 로드.
 // (settings 초기 번들에서 제외 → Turbopack chunk 안정화 + 초기 로드 경량화)
@@ -84,6 +87,38 @@ export default function CalendarManager() {
     if (!y || !m) return null;
     return { mon: ko ? `${m}월` : new Date(y, m - 1, 1).toLocaleDateString("en-US", { month: "short" }), year: String(y) };
   };
+  /* 뜯는 달력 모양 — 위 띠에 연도, 아래에 월 */
+  const dateIcon = (month: string) => {
+    const b = badge(month);
+    return (
+      <span className={styles.tear} aria-hidden>
+        {b ? <><span className={styles.tearYear}>{b.year}</span><span className={styles.tearMon}>{b.mon}</span></> : <span className={styles.tearMon}><CalendarDays size={16} /></span>}
+      </span>
+    );
+  };
+  /* 쓰는 곳 — "글 2 · 프로젝트 1". 올리면 제목 목록(누르면 편집 화면) */
+  const usageLabel = (u?: CalendarUsage) => {
+    const parts = [
+      u?.posts.length ? t(`글 ${u.posts.length}`, `${u.posts.length} post${u.posts.length > 1 ? "s" : ""}`) : "",
+      u?.works.length ? t(`프로젝트 ${u.works.length}`, `${u.works.length} project${u.works.length > 1 ? "s" : ""}`) : "",
+    ].filter(Boolean);
+    return parts.length ? parts.join(" · ") : "";
+  };
+  const usageView = (u?: CalendarUsage) => {
+    const label = usageLabel(u);
+    if (!u || !label) return <span className={`${styles.usage} ${styles.usageNone}`}>{t("쓰는 곳 없음", "Not used anywhere")}</span>;
+    const list = (
+      <span className={styles.usageList}>
+        {u.posts.map((r) => <TransitionLink key={`p-${r.id}`} href={`/admin/posts/${r.id}/edit`} className={styles.usageLink}>{t("글", "Post")} · {r.title || r.slug}</TransitionLink>)}
+        {u.works.map((r) => <TransitionLink key={`w-${r.id}`} href={`/admin/works/${r.id}/edit`} className={styles.usageLink}>{t("프로젝트", "Project")} · {r.title || r.slug}</TransitionLink>)}
+      </span>
+    );
+    return (
+      <Tooltip content={list} interactive placement="bottom" delay={150}>
+        <span className={styles.usage}>{label}</span>
+      </Tooltip>
+    );
+  };
 
   const startEdit = (it: CalendarListItem) => { setEditingId(it.id); setDraftTitle(it.title || ""); };
   const cancelEdit = () => { setEditingId(null); setDraftTitle(""); };
@@ -105,8 +140,8 @@ export default function CalendarManager() {
     openModal(
       <ModalConfirm
         desc={t(
-          `"${calLabel(it)}" 달력을 휴지통으로 옮길까요? 이 달력을 불러온 블록은 "연결 끊김"으로 표시되고, 30일 안에 복구하면 자동으로 다시 연결됩니다.`,
-          `Move "${calLabel(it)}" to trash? Blocks that loaded it will show "disconnected"; restore within 30 days to reconnect automatically.`,
+          `"${calLabel(it)}" 달력을 휴지통으로 옮길까요? ${usageLabel(it.usage) ? `이 달력을 쓰는 ${usageLabel(it.usage)}의 블록은` : "이 달력을 불러온 블록은"} "연결 끊김"으로 표시되고, 30일 안에 복구하면 자동으로 다시 연결됩니다.`,
+          `Move "${calLabel(it)}" to trash? Blocks that loaded it${usageLabel(it.usage) ? ` (${usageLabel(it.usage)})` : ""} will show "disconnected"; restore within 30 days to reconnect automatically.`,
         )}
         confirmText={t("휴지통으로", "Move to trash")}
         danger
@@ -167,7 +202,7 @@ export default function CalendarManager() {
     <section className={settings.section}>
       <div className={styles.wrap}>
         <div className={styles.headRow}>
-          <h2 className={settings.sectionTitle}>{t("달력 관리", "Calendars")}</h2>
+          <h2 className={settings.sectionTitle}>{t("달력", "Calendars")}</h2>
           {items && <span className={styles.headCount}>{items.length}</span>}
           <div className={styles.headSearch}>
             <SearchCapsule search={search} onSearchChange={setSearch} placeholder={t("제목·월 검색", "Search title or month")} align="left" />
@@ -175,8 +210,8 @@ export default function CalendarManager() {
         </div>
         <p className={settings.sectionHint}>
           {t(
-            "게시물·프로젝트 블록이 공유하는 달력입니다. 여기서 이름을 바꾸거나 삭제하면 이 달력을 불러온 모든 게시물에 반영됩니다.",
-            "Calendars shared across post/project blocks. Renaming or deleting here affects every post that loaded it.",
+            "게시물·프로젝트의 달력 블록이 함께 쓰는 달력이에요. 이름을 바꾸거나 지우면 불러온 모든 글에 반영돼요.",
+            "Calendars shared by calendar blocks in posts and projects. Renaming or deleting one affects every place that loaded it.",
           )}
         </p>
 
@@ -191,23 +226,20 @@ export default function CalendarManager() {
         ) : (
           <div className={styles.list}>
             {filtered.map((it) => {
-              const b = badge(it.month);
               const isEditing = editingId === it.id;
               const titleText = it.title || (it.month ? monthTitle(it.month, language) : t("제목 없음", "Untitled"));
               const rel = relTimeLabel(it.updatedAt, language);
               const meta = [
-                t(`이벤트 ${it.eventCount}개`, `${it.eventCount} events`),
+                t(`일정 ${it.eventCount}개`, `${it.eventCount} events`),
                 rel && t(`${rel} 수정`, `updated ${rel}`),
-              ].filter(Boolean).join("  ·  ");
+              ].filter(Boolean).join(" · ");
               return (
                 <div
                   key={it.id}
                   ref={(el) => { if (el) rowRefs.current.set(it.id, el); else rowRefs.current.delete(it.id); }}
                   className={`${styles.row}${focusId === it.id ? ` ${styles.rowFocus}` : ""}`}
                 >
-                  <span className={styles.rowDate} aria-hidden>
-                    {b ? <><span className={styles.rowMon}>{b.mon}</span><span className={styles.rowYear}>{b.year}</span></> : <CalendarDays size={18} />}
-                  </span>
+                  {dateIcon(it.month)}
                   {isEditing ? (
                     <div className={styles.renameForm}>
                       <Input
@@ -235,12 +267,15 @@ export default function CalendarManager() {
                         onClick={() => openPreview(it)}
                         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openPreview(it); } }}
                       >
-                        <span className={`${styles.rowTitle}${it.title ? "" : ` ${styles.rowTitleMuted}`}`}>{titleText}</span>
-                        <span className={styles.rowMeta}>{meta}</span>
+                        <span className={styles.rowLine}>
+                          <span className={`${styles.rowTitle}${it.title ? "" : ` ${styles.rowTitleMuted}`}`}>{titleText}</span>
+                          <span className={styles.rowMeta}>{meta}</span>
+                        </span>
                       </div>
+                      {usageView(it.usage)}
                       <div className={styles.rowActions}>
                         <Button variant="ghost" shape="circle" size="xs" icon={<Pencil size={14} />} onClick={() => startEdit(it)} aria-label={t("이름 변경", "Rename")} soundDisabled />
-                        <Button variant="ghost" shape="circle" size="xs" tone="danger" icon={<Trash2 size={14} />} onClick={() => confirmDelete(it)} aria-label={t("삭제", "Delete")} soundDisabled />
+                        <Button variant="ghost" shape="circle" size="xs" icon={<Trash2 size={14} />} onClick={() => confirmDelete(it)} aria-label={t("삭제", "Delete")} soundDisabled />
                       </div>
                     </>
                   )}
@@ -267,13 +302,10 @@ export default function CalendarManager() {
                 <EmptyState pad="sm">{t("휴지통이 비었습니다", "Trash is empty")}</EmptyState>
               ) : (
                 trash.map((it) => {
-                  const b = badge(it.month);
                   const daysLeft = getTrashDaysLeft(it.deletedAt ?? "", it.purgeAfter);
                   return (
                     <div key={it.id} className={styles.row}>
-                      <span className={styles.rowDate} aria-hidden>
-                        {b ? <><span className={styles.rowMon}>{b.mon}</span><span className={styles.rowYear}>{b.year}</span></> : <CalendarDays size={18} />}
-                      </span>
+                      {dateIcon(it.month)}
                       <div className={styles.rowMain}>
                         <span className={styles.rowTitle}>{calLabel(it)}</span>
                         <span className={`${styles.rowMeta}${daysLeft <= 7 ? ` ${styles.trashSoon}` : ""}`}>
@@ -282,7 +314,7 @@ export default function CalendarManager() {
                       </div>
                       <div className={styles.rowActions}>
                         <Button variant="ghost" shape="capsule" size="xs" icon={<RotateCcw size={13} />} loading={busyId === it.id} onClick={() => handleRestore(it.id)} soundDisabled>{t("복구", "Restore")}</Button>
-                        <Button variant="ghost" shape="circle" size="xs" tone="danger" icon={<Trash2 size={14} />} onClick={() => confirmPurge(it)} aria-label={t("영구 삭제", "Delete forever")} soundDisabled />
+                        <Button variant="ghost" shape="circle" size="xs" icon={<Trash2 size={14} />} onClick={() => confirmPurge(it)} aria-label={t("영구 삭제", "Delete forever")} soundDisabled />
                       </div>
                     </div>
                   );
