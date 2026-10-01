@@ -1,0 +1,103 @@
+/* ── 커버 이미지 기록 — 16:9 썸네일 격자. 복사·열기·기록에서 빼기는 썸네일 위 모서리(올렸을 때, 터치는 늘) ── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--spacing-md) var(--spacing-sm);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  margin: 0;
+  min-width: 0;
+}
+
+.thumb {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: var(--radius-2xl);
+  background: var(--bg-tertiary);
+}
+
+.thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.actions {
+  position: absolute;
+  top: var(--spacing-2xs);
+  right: var(--spacing-2xs);
+  display: flex;
+  gap: var(--spacing-3xs);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.card:hover .actions,
+.card:focus-within .actions {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .actions {
+    opacity: 1;
+  }
+}
+
+/* 썸네일 위 단추 — 이미지 위에서도 읽히게 바탕을 깐다 */
+.action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-h-2xs);
+  height: var(--control-h-2xs);
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-circle);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.action:hover {
+  color: var(--text-primary);
+}
+
+.caption {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4xs);
+  font-size: var(--font-size-hint);
+  color: var(--text-tertiary);
+}
+
+.source {
+  color: var(--text-secondary);
+}
+
+.used {
+  justify-self: start;
+  color: var(--text-secondary);
+  text-decoration: underline var(--border-color-strong);
+  text-underline-offset: 3px;
+  cursor: default;
+}
+
+.usedList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+}
+
+.usedLink {
+  color: inherit;
+  text-decoration: none;
+}
+
+.usedLink:hover {
+  text-decoration: underline;
+}
