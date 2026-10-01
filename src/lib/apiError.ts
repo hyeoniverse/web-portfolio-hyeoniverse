@@ -89,7 +89,6 @@ export const API_ERROR_CODES = [
   "AI_PROVIDERS_DISABLED",
   "TRANSLATION_NOT_CONFIGURED",
   "TRANSLATION_FAILED",
-  "MEDIA_IN_USE",
 ] as const;
 
 export type ApiErrorCode = (typeof API_ERROR_CODES)[number];
