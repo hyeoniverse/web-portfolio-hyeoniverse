@@ -12,7 +12,7 @@ import styles from "./RecordingEditor.module.css";
  * 녹음 다듬기 — 중지한 녹음을 들어 보고 고친 뒤 완료한다(갤러리 작업대의 재생 막대 자리).
  *
  * - 파형: 누르면 커서, 끌면 구간(Shift+누르기는 커서부터). 고른 구간은 양 끝 손잡이를 끌어 넓히고 좁힌다.
- * - 클립: 커서 자리에서 나누면(⌘/Ctrl+B) 위 클립 줄에 조각으로 보인다. 클립을 누르면 그 클립을 고르고,
+ * - 클립: 커서 자리에서 나누면(⌘/Ctrl+B) 위 클립 줄에 조각으로 보인다. 구간을 골랐으면 양 끝을 나눠 그 구간이 한 클립이 된다. 클립을 누르면 그 클립을 고르고,
  *   끌면 다른 자리로 옮긴다. 붙여 넣은 조각은 제 클립이 된다.
  * - 고른 구간: 잘라내기·복사·지우기·선택만 남기기, 붙여넣기는 커서 자리에(구간을 골랐으면 그 구간을 바꿔).
  * - 고칠 때마다 되돌리기에 쌓는다(소리와 클립 경계를 한 벌로).
@@ -152,7 +152,13 @@ export default function RecordingEditor({ take, slide, tw, onRetake, onCancel, o
     const [s, e] = silenceBounds(audio);
     if (s > 0.01 || e < duration - 0.01) apply(keepSpan(cur, s, e), Math.max(0, cursor - s));
   };
+  /* 나누기 — 구간을 골랐으면 양 끝을 모두 나눠 그 구간을 한 클립으로(고른 채로 둔다), 아니면 커서(듣는 중이면 듣는 자리)에서 */
   const split = () => {
+    if (sel) {
+      const next = splitAt(splitAt(cur, sel[0]), sel[1]);
+      if (next.cuts.length !== cur.cuts.length) apply(next, sel[0], sel);
+      return;
+    }
     const at = head ?? cursor;
     const next = splitAt(cur, at);
     if (next.cuts.length !== cur.cuts.length) apply(next, at);
