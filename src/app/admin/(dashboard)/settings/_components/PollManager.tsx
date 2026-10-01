@@ -10,7 +10,6 @@ import { useModalStore } from "@/stores/modalStore";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import Button from "@/components/ui/Button";
 import EmptyState from "@/components/ui/EmptyState";
-import Pagination from "@/components/ui/Pagination";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import TransitionLink from "@/components/ui/TransitionLink";
 import { SkeletonLine } from "@/components/ui/Skeleton";
@@ -20,9 +19,6 @@ import type { PollBlock, PollWhere } from "@/lib/pollUsage";
 import settings from "../Settings.module.css";
 import lib from "./Library.module.css";
 import styles from "./PollManager.module.css";
-import { usePagedList } from "./usePagedList";
-
-const PAGE_SIZE = 10;
 
 type PollItem = Omit<PollBlock, "options"> & {
   options: (PollBlock["options"][number] & { count: number })[];
@@ -55,7 +51,6 @@ export default function PollManager() {
   const filtered = items && q
     ? items.filter((p) => label(p).toLowerCase().includes(q) || p.where.some((w) => w.title.toLowerCase().includes(q)))
     : items;
-  const paged = usePagedList(filtered, PAGE_SIZE);
 
   const fmtDate = (s: string) => new Date(s).toLocaleDateString(ko ? "ko-KR" : "en-US", { month: "short", day: "numeric" });
   /* 기간 — 시작 전 / 진행 중 / 끝남. 기간이 없으면 표시하지 않는다 */
@@ -93,7 +88,7 @@ export default function PollManager() {
           {items && <span className={lib.headCount}>{items.length}</span>}
           <div className={lib.headActions}>
             <div className={lib.headSearch}>
-              <SearchCapsule search={search} onSearchChange={(v) => { setSearch(v); paged.setPage(1); }} placeholder={t("질문·글 제목 검색", "Search question or post")} align="left" />
+              <SearchCapsule search={search} onSearchChange={setSearch} placeholder={t("질문·글 제목 검색", "Search question or post")} align="left" />
             </div>
           </div>
         </div>
@@ -108,7 +103,7 @@ export default function PollManager() {
           <EmptyState pad="sm">{search ? t("검색 결과가 없습니다", "No results") : t("글에 넣은 투표가 없습니다", "No polls in posts yet")}</EmptyState>
         ) : (
           <div className={styles.list}>
-            {paged.slice!.map((p) => {
+            {filtered.map((p) => {
               const max = Math.max(1, ...p.options.map((o) => o.count));
               const per = period(p);
               return (
@@ -154,9 +149,6 @@ export default function PollManager() {
               );
             })}
           </div>
-        )}
-        {paged.totalPages > 1 && (
-          <Pagination className={lib.pager} page={paged.page} totalPages={paged.totalPages} onChange={paged.setPage} size="sm" showJump={false} />
         )}
       </div>
     </section>

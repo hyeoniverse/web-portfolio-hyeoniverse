@@ -928,13 +928,6 @@
         "works": "WORKS",
         "posts": "POSTS"
       },
-      "librarySub": {
-        "calendars": "달력",
-        "polls": "투표",
-        "emojis": "이모지",
-        "covers": "커버 기록",
-        "files": "파일"
-      },
       "aboutVisualBreakImage": "브레이크 이미지 URL",
       "aboutInfiniteScrollLabel": "마지막 패널 다음에 멈추지 않고 첫 패널로 이어지게 합니다",
       "aboutHero": "Hero 패널",

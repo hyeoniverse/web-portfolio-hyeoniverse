@@ -9,7 +9,6 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import Button from "@/components/ui/Button";
 import CloseButton from "@/components/ui/CloseButton";
 import EmptyState from "@/components/ui/EmptyState";
-import Pagination from "@/components/ui/Pagination";
 import Tooltip from "@/components/ui/Tooltip";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import { SkeletonLine } from "@/components/ui/Skeleton";
@@ -22,10 +21,6 @@ import { forgetCustomEmoji } from "@/components/ui/EmojiPicker/customEmojiCache"
 import settings from "../Settings.module.css";
 import lib from "./Library.module.css";
 import styles from "./CustomEmojiManager.module.css";
-import { usePagedList } from "./usePagedList";
-
-/* 격자 한 쪽 — 넓은 화면 12열 × 10줄 */
-const PAGE_SIZE = 120;
 
 type CustomEmoji = { id: string; name: string; src: string; created_at?: string };
 
@@ -49,7 +44,6 @@ export default function CustomEmojiManager() {
 
   const q = search.trim().toLowerCase();
   const filtered = items && q ? items.filter((e) => e.name.toLowerCase().includes(q)) : items;
-  const paged = usePagedList(filtered, PAGE_SIZE);
 
   const add = async (file: File) => {
     setUploading(true);
@@ -98,7 +92,7 @@ export default function CustomEmojiManager() {
           {items && <span className={lib.headCount}>{items.length}</span>}
           <div className={lib.headActions}>
             <div className={lib.headSearch}>
-              <SearchCapsule search={search} onSearchChange={(v) => { setSearch(v); paged.setPage(1); }} placeholder={t("이름 검색", "Search name")} align="left" />
+              <SearchCapsule search={search} onSearchChange={setSearch} placeholder={t("이름 검색", "Search name")} align="left" />
             </div>
             <Button variant="outline" size="md" icon={<Plus size={14} />} loading={uploading} onClick={() => fileRef.current?.click()}>
               {t("추가", "Add")}
@@ -127,7 +121,7 @@ export default function CustomEmojiManager() {
           <EmptyState pad="sm">{search ? t("검색 결과가 없습니다", "No results") : t("올린 이모지가 없습니다", "No custom emojis yet")}</EmptyState>
         ) : (
           <div className={styles.grid}>
-            {paged.slice!.map((e) => (
+            {filtered.map((e) => (
               <Tooltip key={e.id} content={<span className={styles.tipName}>{e.name ? `:${e.name}:` : t("이름 없음", "Untitled")}</span>} placement="bottom" delay={120}>
                 <div className={styles.tile} tabIndex={0}>
                   {/* eslint-disable-next-line @next/next/no-img-element -- 사용자가 올린 작은 이모지 이미지, 최적화 대상이 아니다 */}
@@ -143,9 +137,6 @@ export default function CustomEmojiManager() {
               </Tooltip>
             ))}
           </div>
-        )}
-        {paged.totalPages > 1 && (
-          <Pagination className={lib.pager} page={paged.page} totalPages={paged.totalPages} onChange={paged.setPage} size="sm" showJump={false} />
         )}
       </div>
     </section>
