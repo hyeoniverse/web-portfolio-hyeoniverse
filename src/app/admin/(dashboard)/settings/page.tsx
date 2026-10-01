@@ -773,9 +773,7 @@ export default function SettingsPage() {
     });
   };
 
-  /* 라이브러리는 사이트 설정값을 쓰지 않고 목록마다 따로 불러온다 — 설정·프로필·계정 세 요청을 기다리지 않는다 */
-  const gated = loading && activeTab !== "library";
-  if (gated) {
+  if (loading) {
     return (
       <div className={styles.container}>
         <div className={styles.header}>
@@ -1152,7 +1150,7 @@ export default function SettingsPage() {
             );
           })()}
 
-          {gated ? (
+          {loading ? (
             <SettingsSkeleton />
           ) : (
             <>
