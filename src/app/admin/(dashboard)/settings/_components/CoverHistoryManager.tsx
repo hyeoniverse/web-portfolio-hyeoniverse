@@ -5,9 +5,8 @@
 // 예전엔 커버 고르기 창 안에서만 보였다. 여기서 모아 보고 주소를 복사해 다른 글에 쓰거나 기록에서 뺀다.
 // 기록에서 빼도 이미지 파일과 이미 커버로 쓴 글은 그대로다.
 import { useEffect, useState } from "react";
-import { Copy, ExternalLink } from "@/components/icons";
+import { Copy, ExternalLink, Trash2 } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
-import CloseButton from "@/components/ui/CloseButton";
 import EmptyState from "@/components/ui/EmptyState";
 import Pressable from "@/components/ui/Pressable";
 import Tooltip from "@/components/ui/Tooltip";
@@ -79,18 +78,18 @@ export default function CoverHistoryManager() {
             "Recent covers you generated or picked in the cover picker (up to 24). Removing one keeps the image and any post using it.")}
         />
         {items === null ? (
-          <LibraryGallery aspect="16 / 9">{[0, 1, 2, 3].map((i) => <GalleryItem key={i} media={<SkeletonLine width="100%" height="100%" />} />)}</LibraryGallery>
+          <LibraryGallery>{[0, 1, 2, 3, 4, 5].map((i) => <GalleryItem key={i} media={<SkeletonLine width="100%" height="100%" />} />)}</LibraryGallery>
         ) : items.length === 0 ? (
           <EmptyState pad="sm">{t("커버 이미지 기록이 없습니다", "No cover history yet")}</EmptyState>
         ) : (
-          <LibraryGallery aspect="16 / 9" min={200}>
+          <LibraryGallery>
             {items.map((c) => {
               const u = usage?.[c.id];
               const used = [...(u?.posts ?? []).map((r) => ({ ...r, kind: "post" as const })), ...(u?.works ?? []).map((r) => ({ ...r, kind: "work" as const }))];
               return (
                 <GalleryItem
                   key={c.id}
-                  media={<MediaThumb src={c.url} fill sizes="(max-width: 640px) 50vw, 260px" fallbackSeed={c.id} />}
+                  media={<MediaThumb src={c.url} fill sizes="(max-width: 640px) 50vw, 200px" fallbackSeed={c.id} />}
                   title={`${sourceLabel(c)} · ${date(c.created_at)}`}
                   meta={usage === null ? <span>…</span> : used.length ? (
                     <Tooltip interactive placement="bottom" delay={150} content={
@@ -108,7 +107,7 @@ export default function CoverHistoryManager() {
                   actions={<>
                     <Pressable className={galleryActionClass} onClick={() => void copy(c.url)} aria-label={t("주소 복사", "Copy URL")} title={t("주소 복사", "Copy URL")}><Copy size={13} /></Pressable>
                     <a className={galleryActionClass} href={c.url} target="_blank" rel="noopener noreferrer" aria-label={t("새 탭에서 열기", "Open in new tab")} title={t("새 탭에서 열기", "Open in new tab")}><ExternalLink size={13} /></a>
-                    <CloseButton size="xs" className={galleryActionClass} onClick={() => void remove(c)} ariaLabel={t("기록에서 빼기", "Remove from history")} title={t("기록에서 빼기", "Remove from history")} />
+                    <Pressable className={galleryActionClass} onClick={() => void remove(c)} aria-label={t("기록에서 빼기", "Remove from history")} title={t("기록에서 빼기", "Remove from history")}><Trash2 size={13} /></Pressable>
                   </>}
                 />
               );

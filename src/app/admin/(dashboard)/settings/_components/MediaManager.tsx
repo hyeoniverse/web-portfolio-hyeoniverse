@@ -221,13 +221,13 @@ export default function MediaManager() {
         {failed && !data ? (
           <EmptyState pad="sm">{t("파일 목록을 불러오지 못했습니다", "Couldn’t load files")}</EmptyState>
         ) : items === null ? (
-          <LibraryGallery aspect="1 / 1" min={160}>{[0, 1, 2, 3, 4, 5].map((i) => <GalleryItem key={i} media={<SkeletonLine width="100%" height="100%" />} />)}</LibraryGallery>
+          <LibraryGallery>{[0, 1, 2, 3, 4, 5].map((i) => <GalleryItem key={i} media={<SkeletonLine width="100%" height="100%" />} />)}</LibraryGallery>
         ) : items.length === 0 ? (
           <EmptyState pad="sm">{search || unusedOnly || kind !== "all" ? t("조건에 맞는 파일이 없습니다", "No matching files") : t("올린 파일이 없습니다", "No uploaded files")}</EmptyState>
         ) : (
           <>
             {view === "gallery" ? (
-              <LibraryGallery aspect="1 / 1" min={160}>
+              <LibraryGallery>
                 {items.map((m) => (
                   <GalleryItem
                     key={`${m.bucket}/${m.path}`}
