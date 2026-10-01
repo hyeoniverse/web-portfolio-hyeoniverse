@@ -175,6 +175,7 @@ export {
   RotateCw,
   Rows2,
   Scaling,
+  Scissors,
   Search,
   SearchX,
   Send,
