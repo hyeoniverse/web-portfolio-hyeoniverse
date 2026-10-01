@@ -5,10 +5,12 @@
    1) 이모지 하나를 고르면 2) 그 이모지와 섞을 수 있는 조합 그림이 뜨고 3) 하나를 골라 이름을 붙여 추가한다.
    조합 목록은 public/emoji-kitchen(빌드 스크립트 산출물)에서, 그림은 gstatic 에서 바로 보인다.
    추가하면 서버가 그림을 받아 우리 저장소에 올린다(/api/admin/emoji-kitchen). */
-import { useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { ChevronLeft } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import Button from "@/components/ui/Button";
+import { ModalFooterContext } from "@/components/ui/Modal";
 import EmptyState from "@/components/ui/EmptyState";
 import Input from "@/components/ui/Input";
 import Pressable from "@/components/ui/Pressable";
@@ -45,6 +47,8 @@ export default function EmojiKitchenModal({ onAdded }: { onAdded: (row: KitchenE
   const [name, setName] = useState("");
   const [search, setSearch] = useState("");
   const [saving, setSaving] = useState(false);
+  /* 고른 조합(미리보기·이름·추가)은 모달 아래 단(footer)에 그린다 — 다른 모달과 같은 여백·자리 */
+  const footerEl = useContext(ModalFooterContext);
 
   useEffect(() => {
     let cancelled = false;
@@ -94,7 +98,7 @@ export default function EmojiKitchenModal({ onAdded }: { onAdded: (row: KitchenE
     }
   };
 
-  if (failed) return <EmptyState pad="sm">{t("조합 목록을 불러오지 못했습니다", "Couldn’t load combinations")}</EmptyState>;
+  if (failed) return <div className={styles.pad}><EmptyState pad="sm">{t("조합 목록을 불러오지 못했습니다", "Couldn’t load combinations")}</EmptyState></div>;
 
   const baseEmoji = data && base !== null ? data.meta.emojis[base] : null;
   return (
@@ -147,7 +151,7 @@ export default function EmojiKitchenModal({ onAdded }: { onAdded: (row: KitchenE
         ) : <EmptyState pad="sm">{t("맞는 조합이 없습니다", "No matching combinations")}</EmptyState>}
       </div>
 
-      {picked && baseEmoji && data && (
+      {picked && baseEmoji && data && footerEl && createPortal(
         <div className={styles.foot}>
           {/* eslint-disable-next-line @next/next/no-img-element -- gstatic 미리보기 */}
           <img src={kitchenImageUrl(picked.date, picked.left, picked.right)} alt="" className={styles.preview} />
@@ -156,7 +160,8 @@ export default function EmojiKitchenModal({ onAdded }: { onAdded: (row: KitchenE
             <Input value={name} onChange={setName} size="sm" placeholder={t("이모지 이름", "Emoji name")} />
           </div>
           <Button variant="primary" size="md" loading={saving} onClick={() => void add()}>{t("추가", "Add")}</Button>
-        </div>
+        </div>,
+        footerEl,
       )}
     </div>
   );
