@@ -92,7 +92,7 @@ export default function CustomEmojiManager() {
             <div className={styles.headSearch}>
               <SearchCapsule search={search} onSearchChange={setSearch} placeholder={t("이름 검색", "Search name")} align="left" />
             </div>
-            <Button variant="outline" size="md" icon={<Plus size={14} />} loading={uploading} onClick={() => fileRef.current?.click()}>
+            <Button variant="outline" size="sm" icon={<Plus size={14} />} loading={uploading} onClick={() => fileRef.current?.click()}>
               {t("추가", "Add")}
             </Button>
             <input
