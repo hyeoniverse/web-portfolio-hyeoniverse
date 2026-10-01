@@ -928,13 +928,6 @@
         "works": "WORKS",
         "posts": "POSTS"
       },
-      "librarySub": {
-        "calendars": "Calendars",
-        "polls": "Polls",
-        "emojis": "Emojis",
-        "covers": "Covers",
-        "files": "Files"
-      },
       "aboutVisualBreakImage": "Break image URL",
       "aboutInfiniteScrollLabel": "Loop from the last panel straight back to the first instead of stopping at the end",
       "aboutHero": "Hero Panel",
