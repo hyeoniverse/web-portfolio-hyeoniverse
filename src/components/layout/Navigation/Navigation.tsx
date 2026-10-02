@@ -19,7 +19,7 @@ import { SYMBOL_FONT_FAMILY } from "@/config/symbolFont.generated";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { logoOnBg, resolveBrandLogos } from "@/lib/brandLogos";
 import ThemedLogoImage from "@/components/common/ThemedLogoImage";
-import { heroBackdrop, useNavBackdropStore } from "@/stores/navBackdropStore";
+import { useNavBackdropTone } from "@/hooks/useNavBackdropTone";
 import { loadGoogleFont } from "@/lib/loadGoogleFont";
 import {
   firstGrapheme,
@@ -144,10 +144,13 @@ export default function Navigation() {
   const logos = resolveBrandLogos(siteConfig.brand);
   /* 화면 배경에 맞는 변형 — 없으면 반대쪽 변형을 명암만 뒤집어 쓴다(lib/brandLogos 의 logoOnBg).
      라이트용(어두운 잉크)만 올리면 다크 화면에서 로고가 배경에 묻혔다 */
-  /* 상세 페이지 커버가 로고 밑에 있는 동안은 테마 대신 커버 밝기로 고른다(stores/navBackdropStore) —
-     라이트 테마에서 어두운 커버 위에 어두운 잉크 로고가 그대로 올라가 묻혔다 */
-  const coverBackdrop = useNavBackdropStore(heroBackdrop);
-  const logoBg: "dark" | "light" = coverBackdrop ?? (isDark ? "dark" : "light");
+  /* 로고 바로 밑 배경이 어두운지 밝은지를 재서(lib/navBackdrop) 테마 대신 그 밝기로 변형을 고른다 — 이미지 로고는
+     blend 를 끄므로, 라이트 테마에서 어두운 커버 · 작업물 원 위에 어두운 잉크 로고가 그대로 올라가 묻혔다.
+     어느 화면이든 로고 밑을 직접 재므로 화면마다 밝기를 알릴 필요가 없다 */
+  const logoBarRef = useRef<HTMLAnchorElement>(null);
+  const hasAnyImageLogo = !useSystemLogo && !!(logoOnBg(logos.short, "light").url || logoOnBg(logos.short, "dark").url);
+  const backdropTone = useNavBackdropTone(logoBarRef, hasAnyImageLogo, pathname);
+  const logoBg: "dark" | "light" = backdropTone ?? (isDark ? "dark" : "light");
   const shortPick = logoOnBg(logos.short, logoBg);
   const shortLogoUrl = useSystemLogo ? "" : shortPick.url;
   const hasImageLogo = !!shortLogoUrl;
@@ -494,6 +497,7 @@ export default function Navigation() {
     {/* 로고 + admin 배지 flex 부모. .nav 와 동일 패턴 — mix-blend-mode 를 부모에 두면
         전체가 page backdrop 과 한 번에 blend (자식에 두면 부모 stacking context 안에서 갇혀 무효) */}
     <Link
+      ref={logoBarRef}
       href={isAdminPage ? "/admin" : "/"}
       aria-label={useBadgeLogo || !morphIsCharCut ? DISPLAY_NAME : undefined}
       className={`${styles.logoNavBar} ${logoDifferenceOn ? "" : styles.logoNavBarNoDifference} ${showLoadingLogo || elevatedZ ? styles.logoNavBarElevated : ""} ${siteConfig.brand.logoGlitch ? "glith-on-hover" : ""}`}
