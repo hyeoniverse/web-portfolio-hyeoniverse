@@ -13,5 +13,13 @@ export async function GET(request: Request, { params }: { params: Promise<{ ver:
   const url = new URL(request.url);
   url.pathname = "/api/favicon";
   url.search = query;
-  return favicon(new Request(url));
+  const res = await favicon(new Request(url));
+  if (!res.ok || res.headers.has("X-Favicon-Fallback")) return res; // 실패 · 대체 그림은 오래 들고 있지 않는다
+  /* 버전이 주소에 들어 있어 한 주소의 내용은 바뀌지 않는다(설정이 바뀌면 주소가 바뀐다). 그래서 브라우저도 CDN 도
+     오래 들고 있게 둔다 — 설정을 바꾼 뒤 첫 요청만 함수가 돌고(설정 조회 · 이미지 변환), 나머지는 CDN 이 내준다.
+     배포하면 Vercel CDN 캐시는 비워지므로 그리는 코드가 바뀌어도 남지 않는다 */
+  const headers = new Headers(res.headers);
+  headers.set("Cache-Control", "public, max-age=31536000, immutable");
+  headers.set("CDN-Cache-Control", "public, s-maxage=31536000");
+  return new Response(res.body, { status: res.status, headers });
 }
