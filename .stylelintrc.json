@@ -68,6 +68,14 @@
       {
         "message": "토큰 규칙 위반입니다. ① 글자 크기는 눈금이 아니라 역할로 — --font-size-body(14) / -label(13) / -hint(12, 가장 작은 글자). 12px 미만은 쓰지 않습니다(--font-size-micro 는 없애는 중). ② 모서리는 --radius-capsule / --radius-circle / --radius-2xl 셋만. ③ 간격은 --spacing-* 로 (눈금: 1·2·4·8·12·16·20·24·32·40·48·64·80·96·112·128px). em·vw·vh·%·calc·음수는 의도적 상대값이라 그대로 둡니다. ④ 디자인 토큰에 var() fallback 금지. 예외는 stylelint-disable-next-line 에 이유를 적으세요."
       }
+    ],
+    "property-disallowed-list": [
+      [
+        "-webkit-backdrop-filter"
+      ],
+      {
+        "message": "-webkit-backdrop-filter 금지 — 빌드(Lightning CSS)가 표준 backdrop-filter 를 지워 크롬에서 블러가 사라진다. backdrop-filter 만 쓴다(docs/design-system-decisions.md D17)."
+      }
     ]
   }
 }
