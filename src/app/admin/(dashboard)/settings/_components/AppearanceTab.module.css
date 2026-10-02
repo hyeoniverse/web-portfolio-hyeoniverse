@@ -209,7 +209,9 @@
   display: grid;
   grid-template-columns: var(--grid-columns-2);
   gap: var(--spacing-24) var(--spacing-32);
-  align-items: start;
+  /* 두 패널을 같은 높이로 — 오른쪽 패널의 세로 구분선(border-left)이 짧은 쪽 내용에서 끊기지 않고 끝까지 내려오게.
+     안의 컨트롤은 패널이 flex column 이라 위에서부터 쌓인다 */
+  align-items: stretch;
   width: 100%;
 }
 .faviconPanel {
