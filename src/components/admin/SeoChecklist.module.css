@@ -186,13 +186,13 @@
 }
 
 .panelScoreSepBig {
-  font-size: 1.25rem;
+  font-size: var(--font-size-20);
   color: var(--text-muted);
   margin: 0 var(--spacing-2);
 }
 
 .panelScoreTotalBig {
-  font-size: 1.25rem;
+  font-size: var(--font-size-20);
   color: var(--text-tertiary);
 }
 

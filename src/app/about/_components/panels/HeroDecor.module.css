@@ -60,7 +60,7 @@
 
   .badgeText {
     font-family: var(--font-mono);
-    font-size: 14px;
+    font-size: var(--font-size-body);
     text-transform: uppercase;
     fill: var(--text-primary);
   }

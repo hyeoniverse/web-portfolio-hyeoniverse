@@ -1513,7 +1513,7 @@
   padding-left: var(--spacing-12);
   font-size: var(--font-size-label);
   font-weight: 600;
-  line-height: 26px;
+  line-height: calc(26 / 13);
   letter-spacing: 0.01em;
   color: var(--text-secondary);
   white-space: nowrap;

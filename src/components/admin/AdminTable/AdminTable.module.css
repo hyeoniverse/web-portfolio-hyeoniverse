@@ -311,7 +311,7 @@
   width: 100%;
   min-width: 0;
   height: 22px;
-  line-height: 20px; /* content area = height - border(2) - padding-block(0) = 20 */
+  line-height: calc(20 / 13); /* content area = height - border(2) - padding-block(0) = 20 */
   padding: 0 var(--spacing-2);
   white-space: nowrap;
   overflow: hidden;
@@ -352,7 +352,7 @@
   min-width: 0;
   width: 100%;
   height: 22px;
-  line-height: 20px;
+  line-height: calc(20 / 13);
   padding: 0 var(--spacing-2);
   white-space: nowrap;
   border: var(--border-default);

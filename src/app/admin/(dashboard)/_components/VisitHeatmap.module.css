@@ -29,7 +29,7 @@
   font-family: var(--font-mono);
   font-size: var(--font-size-hint);
   color: var(--text-tertiary);
-  line-height: 24px;
+  line-height: calc(24 / 12);
 }
 
 .heatmapCell {

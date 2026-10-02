@@ -371,7 +371,7 @@ export function ImageElement(props: PlateElementProps) {
                 />
                 {/* Resize live size */}
                 {resizeSize && !isDragging && (
-                  <span style={{ ...infoStyle, left: "50%", bottom: "auto", top: "50%", transform: "translate(-50%, -50%)", fontSize: 13, fontWeight: 600 }}>
+                  <span style={{ ...infoStyle, left: "50%", bottom: "auto", top: "50%", transform: "translate(-50%, -50%)", fontSize: "var(--font-size-label)", fontWeight: 600 }}>
                     {resizeSize.w}×{resizeSize.h}px
                   </span>
                 )}
@@ -445,7 +445,7 @@ export function ImageElement(props: PlateElementProps) {
               </Tooltip>
               {/* Resize live size */}
               {resizeSize && !isDragging && (
-                <div style={{ ...infoStyle, left: "50%", bottom: "auto", top: "50%", transform: "translate(-50%, -50%)", fontSize: 13, fontWeight: 600 }}>
+                <div style={{ ...infoStyle, left: "50%", bottom: "auto", top: "50%", transform: "translate(-50%, -50%)", fontSize: "var(--font-size-label)", fontWeight: 600 }}>
                   {resizeSize.w}×{resizeSize.h}px
                 </div>
               )}

@@ -38,7 +38,7 @@
   box-shadow: var(--shadow-sm);
   color: var(--text-primary);
   font-family: var(--font-mono);
-  font-size: 14px;
+  font-size: var(--font-size-body);
   font-weight: var(--font-weight-bold);
 }
 
@@ -118,7 +118,7 @@
   position: relative;
   color: var(--text-accent);
   font-family: var(--font-family-body);
-  font-size: 12px;
+  font-size: var(--font-size-hint);
   font-weight: var(--font-weight-medium);
   white-space: nowrap;
 }
@@ -131,7 +131,7 @@
 .edge :global(.react-flow__edge-text) {
   fill: var(--text-tertiary);
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: var(--font-size-hint);
   font-weight: var(--font-weight-bold);
   paint-order: stroke;
   stroke: var(--bg-secondary);

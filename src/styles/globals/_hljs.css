@@ -754,7 +754,7 @@ span.math-element-wrap .math-katex-content {
 .reader-diagram-label {
   fill: var(--text-primary);
   font-family: var(--font-family-body);
-  font-size: 13px;
+  font-size: var(--font-size-label);
 }
 .reader-diagram-edge {
   stroke: var(--border-color-strong);

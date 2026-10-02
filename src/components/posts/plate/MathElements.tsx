@@ -384,7 +384,7 @@ export function EquationElement(props: PlateElementProps) {
         style={{ display: editing ? "none" : "flex", cursor: "pointer", minHeight: 40, alignItems: "center", justifyContent: "center", position: "relative" }}
       >
         <div ref={katexRef} />
-        {!tex && <span style={{ color: "var(--text-tertiary)", fontSize: 14, fontStyle: "italic" }}>{t("editor.mathEmptyBlock")}</span>}
+        {!tex && <span style={{ color: "var(--text-tertiary)", fontSize: "var(--font-size-body)", fontStyle: "italic" }}>{t("editor.mathEmptyBlock")}</span>}
       </div>
       {editing && (
         // 팝업 대신 블록 안에서 인라인 split (입력 | 미리보기)
@@ -492,7 +492,7 @@ export function InlineEquationElement(props: PlateElementProps) {
         style={{ display: editing ? "none" : "inline-flex", cursor: "pointer", minHeight: 24, alignItems: "center" }}
       >
         <span ref={katexRef} />
-        {!tex && <span style={{ color: "var(--text-tertiary)", fontSize: 13, fontStyle: "italic" }}>{t("editor.mathEmptyInline")}</span>}
+        {!tex && <span style={{ color: "var(--text-tertiary)", fontSize: "var(--font-size-label)", fontStyle: "italic" }}>{t("editor.mathEmptyInline")}</span>}
       </span>
       {/* 팝업 대신 블록과 동일한 인라인 split 에디터 */}
       {editing && <MathFloatingEdit inline anchorRef={wrapRef} inputRef={inputRef} draft={draft} onUpdate={updateDraft} onConfirm={confirmEdit} onCancel={cancelEdit} onDelete={deleteNode} onToggle={toggleMode} />}
