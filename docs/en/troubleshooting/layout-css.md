@@ -94,7 +94,7 @@ Added `--box-3xs-xs: var(--spacing-3xs) var(--spacing-xs)` definition to `_spaci
 
 **Problem**: The `backdrop-filter` on the home CTA button had no effect in Chrome.
 
-**Cause**: The `.home` entrance animation ran on a `y` transform, which created a compositing layer on an ancestor. That layer cut off the backdrop sampling range, so the button had no backdrop to reference. The `-webkit-backdrop-filter` prefix additionally confused Chrome's declaration parsing and killed the effect.
+**Cause**: The `.home` entrance animation ran on a `y` transform, which created a compositing layer on an ancestor. That layer cut off the backdrop sampling range, so the button had no backdrop to reference. The `-webkit-backdrop-filter` prefix killed the effect too — the build (Lightning CSS) treats the prefixed and standard declarations as one property and keeps only the last one, so Chrome received only the prefixed declaration and no blur at all.
 
 **Solution**: Switched the entrance animation from transform to `marginTop` so no compositing layer is created, and removed the prefixed declaration.
 

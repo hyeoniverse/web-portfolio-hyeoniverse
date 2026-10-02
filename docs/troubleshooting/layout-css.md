@@ -94,7 +94,7 @@ CSS 토큰 감사 과정에서 `padding: var(--spacing-3xs) var(--spacing-xs)` (
 
 **문제**: 홈 CTA 버튼에 건 `backdrop-filter` 가 Chrome 에서 아무 효과도 내지 않았다.
 
-**원인**: `.home` 의 등장 애니메이션이 `y` transform 으로 돌아가면서 상위에 합성 레이어가 생겼다. 그 레이어가 backdrop 샘플링 범위를 잘라서 버튼이 참조할 배경이 사라졌다. `-webkit-backdrop-filter` 접두사도 Chrome 의 선언 파싱을 어긋나게 해 효과를 함께 죽였다.
+**원인**: `.home` 의 등장 애니메이션이 `y` transform 으로 돌아가면서 상위에 합성 레이어가 생겼다. 그 레이어가 backdrop 샘플링 범위를 잘라서 버튼이 참조할 배경이 사라졌다. `-webkit-backdrop-filter` 접두사도 효과를 함께 죽였다 — 빌드(Lightning CSS)가 접두어와 표준을 같은 속성으로 보고 뒤에 적힌 접두어만 남겨서, 크롬에는 블러 선언이 아예 없었다(결정 기록 D17).
 
 **해결**: 등장 애니메이션을 transform 대신 `marginTop` 으로 바꿔 합성 레이어를 만들지 않도록 하고, 접두사 선언을 제거했다.
 
