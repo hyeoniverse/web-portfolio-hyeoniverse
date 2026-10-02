@@ -157,11 +157,11 @@
 | 토큰 | 값 |
 |---|---|
 | `--font-sans` | `"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Pretendard Variable", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"` |
-| `--font-serif` | `"Playfair Display", Georgia, Cambria, "Times New Roman", Times, "Pretendard Variable", serif` |
+| `--font-serif` | `"Playfair Display", Georgia, Cambria, "Times New Roman", Times, var(--font-noto-serif-kr), serif` |
 | `--font-mono` | `var(--font-jetbrains), SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", "Pretendard Variable", monospace` |
-| `--font-playfair` | `var(--font-playfair-latin), Georgia, "Times New Roman", "Pretendard Variable", serif` |
+| `--font-playfair` | `var(--font-playfair-latin), Georgia, "Times New Roman", var(--font-noto-serif-kr), serif` |
 | `--font-space-grotesk` | `var(--font-space-grotesk-latin), "Pretendard Variable", sans-serif` |
-| `--font-instrument` | `var(--font-instrument-latin), Georgia, "Times New Roman", "Pretendard Variable", serif` |
+| `--font-instrument` | `var(--font-instrument-latin), Georgia, "Times New Roman", var(--font-noto-serif-kr), serif` |
 | `--font-display` | `var(--font-playfair)` |
 | `--font-grotesk` | `var(--font-space-grotesk), sans-serif` |
 | `--font-size-12` | `0.75rem` |
@@ -452,13 +452,13 @@
 | `--font-size-body-xl` | `var(--font-size-18)` |  |  |
 | `--font-size-dot` | `5px` |  |  |
 | `--font-family-body` | `"Pretendard Variable", -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji"` |  |  |
-| `--font-family-heading` | `var(--font-family-body)` |  |  |
+| `--font-family-heading` | `var(--font-family-display)` |  |  |
 | `--font-family-display` | `var(--font-instrument)` |  |  |
-| `--font-heading-xl` | `var(--font-weight-semibold) var(--font-size-34) / var(--line-height-tight) var(--font-family-heading)` |  |  |
-| `--font-heading-lg` | `var(--font-weight-semibold) var(--font-size-28) / var(--line-height-tight) var(--font-family-heading)` |  |  |
-| `--font-heading-md` | `var(--font-weight-semibold) var(--font-size-22) / var(--line-height-tight) var(--font-family-heading)` |  |  |
-| `--font-heading-sm` | `var(--font-weight-semibold) var(--font-size-20) / var(--line-height-tight) var(--font-family-heading)` |  |  |
-| `--font-heading-xs` | `var(--font-weight-semibold) var(--font-size-18) / var(--line-height-tight) var(--font-family-heading)` |  |  |
+| `--font-heading-xl` | `var(--font-weight-regular) var(--font-size-34) / var(--line-height-tight) var(--font-family-heading)` |  |  |
+| `--font-heading-lg` | `var(--font-weight-regular) var(--font-size-28) / var(--line-height-tight) var(--font-family-heading)` |  |  |
+| `--font-heading-md` | `var(--font-weight-regular) var(--font-size-22) / var(--line-height-tight) var(--font-family-heading)` |  |  |
+| `--font-heading-sm` | `var(--font-weight-regular) var(--font-size-20) / var(--line-height-tight) var(--font-family-heading)` |  |  |
+| `--font-heading-xs` | `var(--font-weight-regular) var(--font-size-18) / var(--line-height-tight) var(--font-family-heading)` |  |  |
 | `--font-body-lg` | `var(--font-weight-regular) var(--font-size-16) / var(--line-height-normal) var(--font-family-body)` |  |  |
 | `--heading-line-height` | `var(--line-height-tight)` |  |  |
 | `--prose-block-gap` | `var(--spacing-16)` |  |  |

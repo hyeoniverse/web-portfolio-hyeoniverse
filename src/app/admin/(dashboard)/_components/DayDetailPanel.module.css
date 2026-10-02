@@ -10,7 +10,6 @@
 .dayDetailDate {
   font-family: var(--font-family-heading);
   font-size: var(--font-size-18);
-  font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
 }
 

@@ -14,9 +14,9 @@
    280px 미만 → 1 col, 280~560 → 2 col, 560+ → 3+ col */
 
 .sectionTitle {
-  font-family: var(--font-family-body);
+  font-family: var(--font-family-heading);
   font-size: var(--font-size-title-sm);
-  font-weight: 600;
+  font-weight: var(--font-weight-regular);
   color: var(--text-primary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -190,9 +190,9 @@
 }
 
 .extraHeadTitle {
-  font-family: var(--font-family-body);
+  font-family: var(--font-family-heading);
   font-size: var(--font-size-title-sm);
-  font-weight: 600;
+  font-weight: var(--font-weight-regular);
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--text-primary);

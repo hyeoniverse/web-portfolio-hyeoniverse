@@ -96,8 +96,8 @@ h6 {
   margin: 0;
   padding: 0;
   line-height: var(--heading-line-height);
-  /* 제목(h1~h6) 굵기 — 제목은 본문 글꼴을 굵게(600) 쓴다(3.2). 전역 단일 소스. */
-  font-weight: var(--font-weight-semibold);
+  /* 제목(h1~h6) 굵기 — 제목은 세리프 보통 굵기다(3.2, D27). Instrument Serif 는 400 하나뿐이다. 전역 단일 소스. */
+  font-weight: var(--font-weight-regular);
 }
 /* 화면 UI 제목 — 글자 묶음(Apple 기준 22 · 20 · 18). 예전 24 는 22, 16 은 18 로 */
 h1 { font: var(--font-heading-md); }
@@ -131,13 +131,10 @@ h6 { font-size: var(--font-size-label); }
 .prose-content h2 { font: var(--font-heading-lg); font-weight: var(--font-weight-bold); }
 .prose-content h3 { font: var(--font-heading-md); }
 .prose-content h4 { font: var(--font-heading-xs); }
-/* 제목 묶음은 크기 · 줄간격 · 굵기만 쓰고 글꼴은 둘레를 따른다 — 장식 글꼴 문맥 안의 제목, 글마다 고른 본문 글꼴이
-   묶음의 본문 글꼴로 바뀌지 않게. 위 두 규칙(전역 · 본문) 뒤에 둬야 이긴다 */
-h1,
-h2,
-h3,
-h4,
+/* 글 · 작업물 본문의 제목은 세리프가 아니라 본문 글꼴(글마다 고른 글꼴 · 편집기)을 굵게 쓴다(D27).
+   위 규칙 뒤에 둬야 이긴다 */
 .prose-content :is(h1, h2, h3, h4) { font-family: inherit; }
+.prose-content :is(h3, h4) { font-weight: var(--font-weight-semibold); }
 .prose-content h5 { font-size: var(--font-size-16); }
 .prose-content h6 { font-size: var(--font-size-body); }
 

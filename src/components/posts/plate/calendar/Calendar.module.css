@@ -697,14 +697,14 @@
 .dayPanelTitle {
   flex: 1; min-width: 0; border: none; background: transparent;
   padding: 0;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-title-lg); font-weight: 700; letter-spacing: -0.01em; line-height: 1.2; color: var(--text-primary);
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-title-lg); font-weight: var(--font-weight-regular); letter-spacing: -0.01em; line-height: 1.2; color: var(--text-primary);
   border-bottom: 1px solid transparent;
   transition: border-color 0.15s ease;
 }
 .dayPanelTitle::placeholder { color: var(--text-muted); font-weight: 500; }
 .dayPanelTitle:focus { outline: none; border-bottom-color: var(--border-color-accent-strong); }
-.dayPanelTitleStatic { flex: 1; min-width: 0; font-family: var(--font-family-body); font-size: var(--font-size-20); font-weight: 700; letter-spacing: -0.01em; line-height: 1.2; color: var(--text-primary); word-break: break-word; }
+.dayPanelTitleStatic { flex: 1; min-width: 0; font-family: var(--font-family-heading); font-size: var(--font-size-20); font-weight: var(--font-weight-regular); letter-spacing: -0.01em; line-height: 1.2; color: var(--text-primary); word-break: break-word; }
 /* 날짜·시간 메타 — 무배경, 아래 hairline 으로 필드와 분리 */
 .dayPanelMeta {
   display: flex; flex-direction: column; gap: var(--spacing-4);
