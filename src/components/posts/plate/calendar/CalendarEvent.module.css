@@ -199,7 +199,6 @@
 
 .evLinkCount { font-variant-numeric: tabular-nums; }
 
-/* compound selector (0,2,0) — 전역 theme transition(0,1,1)이 transform 을 안 넣어 snap 되던 것 복구 */
 .evLinkToggle .evLinkChevron { transition: transform 0.15s ease; }
 
 .evLinkChevronOn { transform: rotate(180deg); }

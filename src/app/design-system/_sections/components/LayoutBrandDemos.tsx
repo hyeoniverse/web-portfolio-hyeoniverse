@@ -79,11 +79,6 @@ export default function LayoutBrandDemos() {
                     ? "펼친 뒤 높이는 실제로 auto 입니다 — framer-motion 이 height: \"auto\" 를 실측해 애니메이트하기 때문에, 나중에 이미지가 더 로드돼 내용이 길어져도 잘리지 않습니다."
                     : "Once expanded the height is genuinely auto — framer-motion measures height: \"auto\" to animate it, so late-loading images can grow the content without it getting cut off."}
                 </p>
-                <p>
-                  {language === "ko"
-                    ? "chevron 회전 transition 은 .root .chevron 처럼 compound 셀렉터로 씁니다. 전역 theme transition(html[data-theme-ready] *)이 shorthand 라 단일 클래스로는 transform transition 이 통째로 덮어써집니다."
-                    : "The chevron's rotation transition uses a compound selector (.root .chevron). The global theme transition (html[data-theme-ready] *) is a shorthand, so a single-class selector would have its transform transition wiped out entirely."}
-                </p>
               </div>
             </Collapsible>
           </motion.div>

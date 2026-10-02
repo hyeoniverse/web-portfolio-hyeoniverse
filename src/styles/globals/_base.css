@@ -36,6 +36,13 @@ body > main {
   flex: 1;
 }
 
+/* 테마 전환 — ThemeProvider 가 document.startViewTransition() 으로 화면을 한 번에 바꾼다. 브라우저 기본 교차
+   페이드의 길이만 맞춘다(docs/design-system.md 3.9-6) */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--duration-base);
+}
+
 
 html {
   font-size: 16px; /* Base size for rem calculations */
@@ -215,10 +222,6 @@ kbd {
   vertical-align: baseline;
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
-}
-
-[data-theme="dark"] body::after {
-  mix-blend-mode: screen;
 }
 
 /* 리더뷰 콜아웃 아이콘 — 인라인 스타일은 20px·line-height 1 이라 본문 첫 줄보다 위로 뜬다.

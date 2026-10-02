@@ -172,16 +172,13 @@
 }
 .relGroup .rel {
   background: transparent;
-  border-color: transparent;
+  /* 그림자가 검정 기반이라 어두운 배경 위에서는 chip 형태가 사라진다 → 다크에서만 옅은 테두리로 윤곽을 살린다 */
+  border-color: light-dark(transparent, var(--border-color-light));
   box-shadow: var(--shadow-md);
 }
 .relGroup .rel:hover {
   background: transparent;
   box-shadow: var(--shadow-lg);
-}
-/* 그림자가 검정 기반이라 어두운 배경 위에서는 chip 형태가 사라진다 → 옅은 테두리로 윤곽만 살린다 */
-html[data-theme="dark"] .relGroup .rel {
-  border-color: var(--border-color-light);
 }
 .relCol {
   color: var(--text-secondary);

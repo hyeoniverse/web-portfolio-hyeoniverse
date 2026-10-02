@@ -1,5 +1,4 @@
-/* 전역 CSS 진입점 — 각 파일을 층에 넣는다(docs/design-system.md 4-1). 층 순서는 layers.css 가 정한다.
-   층 밖에 두는 것은 테마 전환 규칙 하나뿐이다(_theme-transition.css 의 주석). */
+/* 전역 CSS 진입점 — 각 파일을 층에 넣는다(docs/design-system.md 4-1). 층 순서는 layers.css 가 정한다. */
 
 /* 브라우저 기본값 정리 — sanitize.css(normalize 의 후속) */
 @import "sanitize.css" layer(reset);
@@ -27,6 +26,3 @@
 
 /* 서드파티 덮어쓰기 */
 @import "./globals/_overrides.css" layer(vendor);
-
-/* 층 밖 */
-@import "./globals/_theme-transition.css";

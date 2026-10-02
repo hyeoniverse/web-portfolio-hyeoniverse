@@ -1049,7 +1049,6 @@
   }
 }
 
-/* compound selector to beat global theme transition (0,2,0 > 0,1,1) */
 .viewer .toolbar,
 .viewer .imageArea {
   transition: margin-left 0.45s cubic-bezier(0.25, 0.1, 0.25, 1);

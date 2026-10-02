@@ -40,7 +40,6 @@
   min-width: 0;
 }
 
-/* trailing — chevron 등. compound (0,2,0) — 글로벌 theme transition 이김 */
 .item .itemTrailing {
   flex-shrink: 0;
   color: var(--text-tertiary);

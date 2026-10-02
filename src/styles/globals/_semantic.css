@@ -4,6 +4,25 @@
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
+   테마 — docs/design-system.md 2-5
+   테마를 고르는 건 ThemeProvider 가 붙이는 data-theme 이고, 색은 이 color-scheme 을 보고
+   역할 토큰의 light-dark() 가 고른다. 스크롤바·기본 폼 컨트롤도 이 값을 따른다.
+   [data-theme] 선택자는 이 블록에만 둔다.
+   -------------------------------------------------------------------------- */
+:root {
+  color-scheme: light;
+
+  /* 색이 아닌 값은 light-dark() 가 받지 않아서 여기서 테마마다 정한다(2-5-1) */
+  --filter-mono-logo: none; /* 검은 단색 로고(Next.js · Vercel 등) — 다크에서 흰색으로 뒤집는다 */
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --filter-mono-logo: invert(1);
+}
+
+/* --------------------------------------------------------------------------
    Text Colors
    -------------------------------------------------------------------------- */
 :root {
@@ -15,8 +34,8 @@
   --text-secondary: var(--color-neutral-800);
   --text-tertiary: var(--color-neutral-700);
   /* 라이트에서 neutral-500 은 배경 대비가 2.74 라 글자로 못 쓴다. 한 단계 진한 600(4.93)으로 둔다.
-     다크는 같은 500 이 5.87 이라 아래 [data-theme="dark"] 에서 되돌린다. */
-  --text-muted: var(--color-neutral-600);
+     다크는 같은 500 이 5.87 이라 500 을 쓴다. */
+  --text-muted: light-dark(var(--color-neutral-600), var(--color-neutral-500));
   --text-inverse: var(--color-neutral-0);
   --text-success: var(--color-success);
   --text-warning: var(--color-warning);
@@ -32,7 +51,7 @@
   --text-accent-alt: var(--color-accent);
   /* accent 면 위에 얹는 글자. accent 는 테마마다 밝기가 뒤집혀서 글자색도 같이 뒤집어야 대비가 선다.
      라이트의 #d40063 위에는 흰 글자(5.28), 다크의 #ff4da6 위에는 검은 글자(6.86). */
-  --text-on-accent: var(--text-white);
+  --text-on-accent: light-dark(var(--text-white), var(--text-black));
 }
 
 /* --------------------------------------------------------------------------
@@ -44,7 +63,7 @@
   --bg-primary: var(--color-neutral-50);
   --bg-secondary: var(--color-neutral-100);
   --bg-secondary-alt: var(--color-neutral-alpha-20);
-  --bg-tertiary: var(--color-neutral-alpha-5);
+  --bg-tertiary: light-dark(var(--color-neutral-alpha-5), var(--color-inverse-alpha-5));
   --bg-tertiary-alt: var(--color-neutral-alpha-10);
   --bg-inverse: var(--color-neutral-950);
   --bg-inverse-light: var(--color-neutral-700);
@@ -80,8 +99,12 @@
 
   --bg-accent-strong: var(--color-accent-alpha-30);
 
+  /* 글 속 강조(.highlighted-text) 형광펜 — 다크에서는 배경이 어두워 두 배 진해야 같은 세기로 보인다 */
+  --bg-highlight: light-dark(var(--color-accent-alpha-15), var(--color-accent-alpha-30));
+  --bg-highlight-strong: light-dark(var(--color-accent-alpha-30), var(--color-accent-alpha-50));
+
   /* Surface & Glass */
-  --bg-surface: var(--color-gray-alpha-5);
+  --bg-surface: light-dark(var(--color-gray-alpha-5), var(--color-white-alpha-5));
   --bg-glass-subtle: var(--color-white-alpha-5);
   --bg-glass: var(--color-white-alpha-10);
   --bg-glass-strong: var(--color-white-alpha-30);
@@ -242,17 +265,6 @@
   /* Details */
 }
 
-
-/* --------------------------------------------------------------------------
-   Dark Theme — Semantic Overrides
-   -------------------------------------------------------------------------- */
-[data-theme="dark"] {
-  --text-muted: var(--color-neutral-500);
-  --text-on-accent: var(--text-black);
-  --bg-primary: var(--color-neutral-50);
-  --bg-surface: var(--color-white-alpha-5);
-  --bg-tertiary: var(--color-inverse-alpha-5);
-}
 
 /* --------------------------------------------------------------------------
    Mobile — Editorial Overrides

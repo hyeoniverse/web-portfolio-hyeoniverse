@@ -52,7 +52,3 @@
     opacity: 0;
   }
 }
-
-[data-theme="dark"] .typewriter {
-  color: var(--text-primary);
-}

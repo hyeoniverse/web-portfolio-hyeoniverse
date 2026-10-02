@@ -1756,7 +1756,6 @@
   opacity: 0;
   z-index: 4;
 }
-/* 컴파운드 셀렉터(0,2,0)로 글로벌 테마 transition(0,1,1) 덮어쓰기 방지 → transform 애니메이션 살림 */
 .tlBar .tlBarPort {
   transition: opacity 0.12s ease, background-color 0.14s ease, border-color 0.14s ease, transform 0.22s cubic-bezier(0.34, 1.7, 0.5, 1);
 }

@@ -83,4 +83,24 @@
   --skeleton-height-line-sm: var(--font-size-label); /* 13px — 작은 메타 텍스트 */
   --skeleton-height-line-lg: var(--font-size-18); /* 18px — 헤더 텍스트 */
   --skeleton-height-pill: var(--control-height-xs); /* 24 — 태그/뱃지 */
+
+  /* 코드 하이라이트(globals/_hljs.css) — 라이트 Day Owl · 다크 Night Owl */
+  --code-syntax-tag: light-dark(oklch(47.72% 0.2870 264.37), oklch(85.61% 0.0943 225.87));
+  --code-syntax-function: light-dark(oklch(55.00% 0.1557 263.15), oklch(74.41% 0.1311 264.28));
+  --code-syntax-params: light-dark(oklch(37.69% 0.0339 286.94), oklch(89.84% 0.0198 260.17));
+  --code-syntax-keyword: light-dark(oklch(56.39% 0.1860 311.73), oklch(74.27% 0.1348 311.06));
+  --code-syntax-string: light-dark(oklch(56.40% 0.1251 22.49), oklch(84.25% 0.0844 75.06));
+  --code-syntax-number: light-dark(oklch(49.77% 0.2095 342.46), oklch(74.86% 0.1381 37.46));
+  --code-syntax-comment: light-dark(oklch(54.90% 0.0159 196.79), oklch(60.90% 0.0236 196.49));
+  --code-syntax-title: light-dark(oklch(55.00% 0.1557 263.15), oklch(74.41% 0.1311 264.28));
+  --code-syntax-variable: light-dark(oklch(61.22% 0.1023 199.06), oklch(83.44% 0.1534 127.38));
+  --code-syntax-type: light-dark(oklch(56.39% 0.1860 311.73), oklch(70.09% 0.1567 18.62));
+  --code-syntax-name: light-dark(oklch(56.39% 0.1860 311.73), oklch(70.09% 0.1567 18.62));
+  --code-syntax-symbol: light-dark(oklch(61.22% 0.1023 199.06), oklch(83.44% 0.1534 127.38));
+  --code-syntax-meta: light-dark(oklch(55.00% 0.1557 263.15), oklch(74.41% 0.1311 264.28));
+  --code-syntax-operator: light-dark(oklch(47.72% 0.2870 264.37), oklch(85.61% 0.0943 225.87));
+  --code-syntax-property: light-dark(oklch(61.22% 0.1023 199.06), oklch(82.92% 0.0920 180.70));
+  --code-syntax-regexp: light-dark(oklch(55.00% 0.1557 263.15), oklch(70.53% 0.1170 245.09));
+  --code-syntax-deletion: light-dark(oklch(60.05% 0.1983 26.06), oklch(65.39% 0.1926 25.14));
+  --code-syntax-addition: light-dark(oklch(61.22% 0.1023 199.06), oklch(83.44% 0.1534 127.38));
 }

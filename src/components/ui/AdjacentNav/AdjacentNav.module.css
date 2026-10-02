@@ -60,7 +60,6 @@
   object-fit: cover;
 }
 
-/* Compound selector — beats global theme transition */
 .card .thumbImg,
 .card .placeholder {
   transition: transform var(--duration-base) var(--ease-material);
@@ -103,7 +102,6 @@
   line-height: 1;
 }
 
-/* Compound selector — beats global theme transition */
 .card .arrow {
   transition: transform var(--duration-base) var(--ease-material);
 }
@@ -130,7 +128,6 @@
   min-height: 2lh;
 }
 
-/* Compound selector — beats global theme transition */
 .nav .title {
   transition: color var(--duration-base) var(--ease-material);
 }

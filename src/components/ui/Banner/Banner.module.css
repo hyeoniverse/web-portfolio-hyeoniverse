@@ -40,7 +40,6 @@
   pointer-events: none;
 }
 
-/* Compound selector (0,2,0) — global theme transition 우회 */
 .viewport .slide {
   transition: opacity 0.4s ease;
 }

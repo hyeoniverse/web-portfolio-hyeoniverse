@@ -38,7 +38,6 @@
   border-radius: 0;
   background: var(--bg-primary);
   overflow: hidden;
-  /* opacity 는 전역 theme transition 목록에 없어 compound(.grid .card)로 올려야 살아남는다 */
 }
 .grid .card {
   transition: border-color var(--duration-fast) var(--ease-material),

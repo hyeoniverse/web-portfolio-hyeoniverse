@@ -1443,8 +1443,7 @@ textarea.edit {
   gap: var(--spacing-12);
 }
 
-/* 펼침/접힘 — height:auto 는 트랜지션이 안 되므로 grid-template-rows 0fr↔1fr 을 쓴다.
-   이 속성은 전역 theme transition 목록에 없어 복합 선택자 (0,2,0) 으로 특이도를 올려야 살아남는다. */
+/* 펼침/접힘 — height:auto 는 트랜지션이 안 되므로 grid-template-rows 0fr↔1fr 을 쓴다. */
 .erdCollapse {
   display: grid;
   grid-template-rows: 0fr;

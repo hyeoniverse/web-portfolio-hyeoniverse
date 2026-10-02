@@ -178,7 +178,6 @@
   border-color: var(--bg-inverse);
 }
 
-/* compound selector (0,2,0) — 전역 theme transition 충돌 방지 */
 .variant-primary.btn {
   transition:
     background-color var(--duration-base) ease,

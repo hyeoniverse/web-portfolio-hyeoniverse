@@ -5,8 +5,7 @@
   padding-inline: 0 !important;
 }
 
-/* hover — 화살표 왼쪽으로 슬라이드(뒤로가기 방향).
-   compound (0,2,1) 로 전역 transition rule(0,1,1)을 이겨 transform transition 이 유지됨. */
+/* hover — 화살표 왼쪽으로 슬라이드(뒤로가기 방향). */
 .backBtn.backBtn svg {
   transition: transform var(--duration-fast) var(--ease-material);
 }
@@ -53,8 +52,7 @@
   pointer-events: none;
 }
 
-/* scroll-down 시 위로 숨김 — 클래스를 두 번 적어 (0,2,0) 으로 global theme transition 우회
-   (원래는 .container 접두였는데 툴바 모듈로 옮기며 자기 클래스 compound 로 — 특이도 같음) */
+/* scroll-down 시 위로 숨김 */
 .heroTopRow.heroTopRowHidden {
   transform: translateY(-100%);
   opacity: 0;

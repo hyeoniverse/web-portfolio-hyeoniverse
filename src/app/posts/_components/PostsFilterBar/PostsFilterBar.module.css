@@ -42,7 +42,6 @@
 }
 
 
-/* compound selector (0,2,0) — override global theme transition */
 .filterBar.filterBarHidden {
   transform: translateY(-100%);
   opacity: 0;

@@ -80,7 +80,6 @@
   border-radius: var(--radius-full);
 }
 
-/* Compound selector (0,2,0) to beat global theme transition */
 .dotNav .dotItem {
   transition:
     width var(--duration-base) ease,
@@ -462,7 +461,6 @@
   white-space: nowrap;
 }
 
-/* Compound selector (0,2,0) to beat global theme transition */
 .mobileTabBar .mobileTabBtn {
   transition: opacity var(--duration-base) ease;
 }

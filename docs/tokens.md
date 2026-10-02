@@ -276,27 +276,27 @@
 
 토큰 19개
 
-| 토큰 | 값 | 다크 |
-|---|---|---|
-| `--shadow-xs` | `0 1px 3px oklch(0.00% 0.0000 0.00 / 0.1), 0 1px 2px oklch(0.00% 0.0000 0.00 / 0.06)` | `0 1px 3px oklch(0.00% 0.0000 0.00 / 0.4), 0 1px 2px oklch(0.00% 0.0000 0.00 / 0.3)` |
-| `--shadow-sm` | `0 2px 6px oklch(0.00% 0.0000 0.00 / 0.12), 0 1px 3px oklch(0.00% 0.0000 0.00 / 0.08)` | `0 2px 6px oklch(0.00% 0.0000 0.00 / 0.45), 0 1px 3px oklch(0.00% 0.0000 0.00 / 0.35)` |
-| `--shadow-md` | `0 4px 12px oklch(0.00% 0.0000 0.00 / 0.12), 0 2px 4px oklch(0.00% 0.0000 0.00 / 0.08)` | `0 4px 12px oklch(0.00% 0.0000 0.00 / 0.45), 0 2px 4px oklch(0.00% 0.0000 0.00 / 0.35)` |
-| `--shadow-lg` | `0 10px 24px oklch(0.00% 0.0000 0.00 / 0.12), 0 4px 8px oklch(0.00% 0.0000 0.00 / 0.08)` | `0 10px 24px oklch(0.00% 0.0000 0.00 / 0.45), 0 4px 8px oklch(0.00% 0.0000 0.00 / 0.35)` |
-| `--shadow-xl` | `0 20px 40px oklch(0.00% 0.0000 0.00 / 0.14), 0 8px 16px oklch(0.00% 0.0000 0.00 / 0.08)` | `0 20px 40px oklch(0.00% 0.0000 0.00 / 0.45), 0 8px 16px oklch(0.00% 0.0000 0.00 / 0.35)` |
-| `--shadow-2xl` | `0 28px 56px oklch(0.00% 0.0000 0.00 / 0.28)` |  |
-| `--shadow-inner` | `inset 0 2px 4px oklch(0.00% 0.0000 0.00 / 0.06)` | `inset 0 2px 6px oklch(0.00% 0.0000 0.00 / 0.3)` |
-| `--shadow-text-xs` | `0 1px 2px oklch(0.00% 0.0000 0.00 / 0.15)` |  |
-| `--shadow-text-sm` | `0 1px 2px oklch(0.00% 0.0000 0.00 / 0.5)` |  |
-| `--shadow-text-md` | `0 1px 4px oklch(0.00% 0.0000 0.00 / 0.5)` |  |
-| `--shadow-text-strong` | `0 1px 3px oklch(0.00% 0.0000 0.00 / 0.4)` |  |
-| `--blur-2` | `blur(2px)` |  |
-| `--blur-4` | `blur(4px)` |  |
-| `--blur-8` | `blur(8px)` |  |
-| `--blur-12` | `blur(12px)` |  |
-| `--blur-16` | `blur(16px)` |  |
-| `--blur-24` | `blur(24px)` |  |
-| `--blur-40` | `blur(40px)` |  |
-| `--blur-60` | `blur(60px)` |  |
+| 토큰 | 값 |
+|---|---|
+| `--shadow-xs` | `0 1px 3px light-dark(oklch(0.00% 0.0000 0.00 / 0.1), oklch(0.00% 0.0000 0.00 / 0.4)), 0 1px 2px light-dark(oklch(0.00% 0.0000 0.00 / 0.06), oklch(0.00% 0.0000 0.00 / 0.3))` |
+| `--shadow-sm` | `0 2px 6px light-dark(oklch(0.00% 0.0000 0.00 / 0.12), oklch(0.00% 0.0000 0.00 / 0.45)), 0 1px 3px light-dark(oklch(0.00% 0.0000 0.00 / 0.08), oklch(0.00% 0.0000 0.00 / 0.35))` |
+| `--shadow-md` | `0 4px 12px light-dark(oklch(0.00% 0.0000 0.00 / 0.12), oklch(0.00% 0.0000 0.00 / 0.45)), 0 2px 4px light-dark(oklch(0.00% 0.0000 0.00 / 0.08), oklch(0.00% 0.0000 0.00 / 0.35))` |
+| `--shadow-lg` | `0 10px 24px light-dark(oklch(0.00% 0.0000 0.00 / 0.12), oklch(0.00% 0.0000 0.00 / 0.45)), 0 4px 8px light-dark(oklch(0.00% 0.0000 0.00 / 0.08), oklch(0.00% 0.0000 0.00 / 0.35))` |
+| `--shadow-xl` | `0 20px 40px light-dark(oklch(0.00% 0.0000 0.00 / 0.14), oklch(0.00% 0.0000 0.00 / 0.45)), 0 8px 16px light-dark(oklch(0.00% 0.0000 0.00 / 0.08), oklch(0.00% 0.0000 0.00 / 0.35))` |
+| `--shadow-2xl` | `0 28px 56px oklch(0.00% 0.0000 0.00 / 0.28)` |
+| `--shadow-inner` | `inset 0 2px 4px light-dark(oklch(0.00% 0.0000 0.00 / 0.06), transparent), inset 0 2px 6px light-dark(transparent, oklch(0.00% 0.0000 0.00 / 0.3))` |
+| `--shadow-text-xs` | `0 1px 2px oklch(0.00% 0.0000 0.00 / 0.15)` |
+| `--shadow-text-sm` | `0 1px 2px oklch(0.00% 0.0000 0.00 / 0.5)` |
+| `--shadow-text-md` | `0 1px 4px oklch(0.00% 0.0000 0.00 / 0.5)` |
+| `--shadow-text-strong` | `0 1px 3px oklch(0.00% 0.0000 0.00 / 0.4)` |
+| `--blur-2` | `blur(2px)` |
+| `--blur-4` | `blur(4px)` |
+| `--blur-8` | `blur(8px)` |
+| `--blur-12` | `blur(12px)` |
+| `--blur-16` | `blur(16px)` |
+| `--blur-24` | `blur(24px)` |
+| `--blur-40` | `blur(40px)` |
+| `--blur-60` | `blur(60px)` |
 
 ## `src/styles/tokens/_motion.css`
 
@@ -340,17 +340,18 @@
 
 ## `src/styles/globals/_semantic.css`
 
-토큰 106개
+토큰 109개
 
 | 토큰 | 값 | 다크 | 조건부 |
 |---|---|---|---|
+| `--filter-mono-logo` | `none` | `invert(1)` |  |
 | `--text-white` | `var(--color-white-alpha-100)` |  |  |
 | `--text-white-muted` | `var(--color-white-alpha-50)` |  |  |
 | `--text-black` | `var(--color-gray-alpha-100)` |  |  |
 | `--text-primary` | `var(--color-neutral-900)` |  |  |
 | `--text-secondary` | `var(--color-neutral-800)` |  |  |
 | `--text-tertiary` | `var(--color-neutral-700)` |  |  |
-| `--text-muted` | `var(--color-neutral-600)` | `var(--color-neutral-500)` |  |
+| `--text-muted` | `light-dark(var(--color-neutral-600), var(--color-neutral-500))` |  |  |
 | `--text-inverse` | `var(--color-neutral-0)` |  |  |
 | `--text-success` | `var(--color-success)` |  |  |
 | `--text-warning` | `var(--color-warning)` |  |  |
@@ -362,13 +363,13 @@
 | `--text-error-strong` | `var(--color-error-strong)` |  |  |
 | `--text-accent` | `var(--color-accent)` |  |  |
 | `--text-accent-alt` | `var(--color-accent)` |  |  |
-| `--text-on-accent` | `var(--text-white)` | `var(--text-black)` |  |
+| `--text-on-accent` | `light-dark(var(--text-white), var(--text-black))` |  |  |
 | `--bg-white` | `var(--color-white-alpha-100)` |  |  |
 | `--bg-black` | `var(--color-gray-alpha-100)` |  |  |
-| `--bg-primary` | `var(--color-neutral-50)` | `var(--color-neutral-50)` |  |
+| `--bg-primary` | `var(--color-neutral-50)` |  |  |
 | `--bg-secondary` | `var(--color-neutral-100)` |  |  |
 | `--bg-secondary-alt` | `var(--color-neutral-alpha-20)` |  |  |
-| `--bg-tertiary` | `var(--color-neutral-alpha-5)` | `var(--color-inverse-alpha-5)` |  |
+| `--bg-tertiary` | `light-dark(var(--color-neutral-alpha-5), var(--color-inverse-alpha-5))` |  |  |
 | `--bg-tertiary-alt` | `var(--color-neutral-alpha-10)` |  |  |
 | `--bg-inverse` | `var(--color-neutral-950)` |  |  |
 | `--bg-inverse-light` | `var(--color-neutral-700)` |  |  |
@@ -390,7 +391,9 @@
 | `--bg-error` | `var(--color-error-alpha)` |  |  |
 | `--bg-error-soft` | `var(--color-error-soft)` |  |  |
 | `--bg-accent-strong` | `var(--color-accent-alpha-30)` |  |  |
-| `--bg-surface` | `var(--color-gray-alpha-5)` | `var(--color-white-alpha-5)` |  |
+| `--bg-highlight` | `light-dark(var(--color-accent-alpha-15), var(--color-accent-alpha-30))` |  |  |
+| `--bg-highlight-strong` | `light-dark(var(--color-accent-alpha-30), var(--color-accent-alpha-50))` |  |  |
+| `--bg-surface` | `light-dark(var(--color-gray-alpha-5), var(--color-white-alpha-5))` |  |  |
 | `--bg-glass-subtle` | `var(--color-white-alpha-5)` |  |  |
 | `--bg-glass` | `var(--color-white-alpha-10)` |  |  |
 | `--bg-glass-strong` | `var(--color-white-alpha-30)` |  |  |
@@ -453,7 +456,7 @@
 
 ## `src/styles/globals/_component.css`
 
-토큰 42개
+토큰 60개
 
 | 토큰 | 값 |
 |---|---|
@@ -499,6 +502,24 @@
 | `--skeleton-height-line-sm` | `var(--font-size-label)` |
 | `--skeleton-height-line-lg` | `var(--font-size-18)` |
 | `--skeleton-height-pill` | `var(--control-height-xs)` |
+| `--code-syntax-tag` | `light-dark(oklch(47.72% 0.2870 264.37), oklch(85.61% 0.0943 225.87))` |
+| `--code-syntax-function` | `light-dark(oklch(55.00% 0.1557 263.15), oklch(74.41% 0.1311 264.28))` |
+| `--code-syntax-params` | `light-dark(oklch(37.69% 0.0339 286.94), oklch(89.84% 0.0198 260.17))` |
+| `--code-syntax-keyword` | `light-dark(oklch(56.39% 0.1860 311.73), oklch(74.27% 0.1348 311.06))` |
+| `--code-syntax-string` | `light-dark(oklch(56.40% 0.1251 22.49), oklch(84.25% 0.0844 75.06))` |
+| `--code-syntax-number` | `light-dark(oklch(49.77% 0.2095 342.46), oklch(74.86% 0.1381 37.46))` |
+| `--code-syntax-comment` | `light-dark(oklch(54.90% 0.0159 196.79), oklch(60.90% 0.0236 196.49))` |
+| `--code-syntax-title` | `light-dark(oklch(55.00% 0.1557 263.15), oklch(74.41% 0.1311 264.28))` |
+| `--code-syntax-variable` | `light-dark(oklch(61.22% 0.1023 199.06), oklch(83.44% 0.1534 127.38))` |
+| `--code-syntax-type` | `light-dark(oklch(56.39% 0.1860 311.73), oklch(70.09% 0.1567 18.62))` |
+| `--code-syntax-name` | `light-dark(oklch(56.39% 0.1860 311.73), oklch(70.09% 0.1567 18.62))` |
+| `--code-syntax-symbol` | `light-dark(oklch(61.22% 0.1023 199.06), oklch(83.44% 0.1534 127.38))` |
+| `--code-syntax-meta` | `light-dark(oklch(55.00% 0.1557 263.15), oklch(74.41% 0.1311 264.28))` |
+| `--code-syntax-operator` | `light-dark(oklch(47.72% 0.2870 264.37), oklch(85.61% 0.0943 225.87))` |
+| `--code-syntax-property` | `light-dark(oklch(61.22% 0.1023 199.06), oklch(82.92% 0.0920 180.70))` |
+| `--code-syntax-regexp` | `light-dark(oklch(55.00% 0.1557 263.15), oklch(70.53% 0.1170 245.09))` |
+| `--code-syntax-deletion` | `light-dark(oklch(60.05% 0.1983 26.06), oklch(65.39% 0.1926 25.14))` |
+| `--code-syntax-addition` | `light-dark(oklch(61.22% 0.1023 199.06), oklch(83.44% 0.1534 127.38))` |
 
 ## `src/styles/globals/_legacy-aliases.css`
 

@@ -157,7 +157,6 @@
 .trashHint { font-size: var(--font-size-hint); color: var(--text-muted); }
 .trashChev { margin-left: auto; color: var(--text-tertiary); }
 .trashChevOpen { transform: rotate(180deg); }
-/* (0,2,0) — 전역 theme transition shorthand(transform 미포함) override */
 .trashHead .trashChev { transition: transform 0.2s ease; }
 .trashSoon { color: var(--text-accent); }
 

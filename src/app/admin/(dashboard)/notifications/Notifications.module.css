@@ -265,8 +265,7 @@
 }
 
 /* 알림 팝업에서 넘어온 항목 — 다음 조작이 있을 때까지 천천히 깜빡인다(해제는 페이지가 한다).
-   .item:hover 와 특정도를 맞춰야(.item.itemActive) hover 배경에 밀리지 않는다.
-   transition 이 아니라 animation 이라 전역 테마 transition 규칙과 부딪히지 않는다. */
+   .item:hover 와 특정도를 맞춰야(.item.itemActive) hover 배경에 밀리지 않는다. */
 .item.itemActive {
   animation: notifActiveFlash var(--duration-slowest) var(--ease-in-out) infinite;
 }

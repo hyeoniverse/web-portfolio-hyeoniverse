@@ -36,7 +36,6 @@
   pointer-events: auto;
 }
 
-/* Compound selector (0,2,0) — beats global theme transition (0,1,1) */
 .btn.btn {
   transition:
     background-color var(--duration-base) var(--ease-material),

@@ -22,7 +22,6 @@
   overflow: hidden;
 }
 
-/* compound (0,2,0) to beat global theme transition */
 .section .conflictListClip {
   transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -201,7 +200,6 @@
 }
 
 .fieldRow .fieldCounter {
-  /* (0,2,0) — global theme transition 오버라이드 */
   transition: color var(--duration-base) ease;
 }
 
@@ -830,8 +828,7 @@
   line-height: var(--line-height-fit);
   font-variant-numeric: tabular-nums;
 }
-/* 필터 버튼 chevron — 펼침 시 회전. 전역 theme transition(0,1,1)이 transform 미포함이라
-   compound (0,2,0) 로 transform transition 을 직접 지정(전역보다 우선). */
+/* 필터 버튼 chevron — 펼침 시 회전. */
 .tagDescFilterRow .filterBtnChevron {
   transition: transform 0.2s var(--ease-material);
 }

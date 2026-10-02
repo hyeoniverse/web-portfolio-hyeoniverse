@@ -150,7 +150,6 @@
   overflow: hidden;
 }
 
-/* compound (0,2,0) — override global theme transition */
 .notifyWrap .notifyCapsule {
   transition: width 0.25s ease, border-radius 0.25s ease, border-color 0.25s ease, color 0.25s ease;
 }

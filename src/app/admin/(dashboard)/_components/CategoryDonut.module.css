@@ -91,8 +91,7 @@
   background: var(--bg-tertiary);
 }
 
-/* 선택된 (expanded) item 은 살짝 indent — 활성 상태 시각적 강조.
-   compound (0,2,0) 로 global theme transition (0,1,1) 이 padding-left transition 무력화하는 것 우회 */
+/* 선택된 (expanded) item 은 살짝 indent — 활성 상태 시각적 강조. */
 .donutLegendItemExpanded {
   background: var(--bg-tertiary);
 }
