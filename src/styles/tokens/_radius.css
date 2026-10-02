@@ -3,7 +3,8 @@
 
   눈금 — 컴포넌트는 이 이름을 직접 쓰지 않고 역할 토큰(--radius-control·surface·round·mark)을
   쓴다(docs/design-system.md 3.5-1, 이행 중). 지금은 capsule·circle·2xl 이 역할을 겸하고,
-  2xs~md 는 각진 것이 의미인 자리만 disable 주석과 함께 쓴다. lg·xl 은 역할 토큰을 둘 때 되살린다.
+  2xs~md 는 각진 것이 의미인 자리만 disable 주석과 함께 쓴다.
+  눈금은 쓰는 곳이 없어도 빠짐없이 둔다(2-6) — lg·xl 은 동심원 모서리(3.5-3)에 쓴다.
   ========================================================================== */
 
 :root {
@@ -11,6 +12,8 @@
   --radius-xs: 4px;
   --radius-sm: 6px;
   --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
   --radius-2xl: 24px;
   --radius-circle: 50%;
   --radius-capsule: 9999px;
