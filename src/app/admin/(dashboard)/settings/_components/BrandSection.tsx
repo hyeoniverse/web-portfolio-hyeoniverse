@@ -518,118 +518,127 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
               </div>
             {/* favicon 전용 옵션 — 적용처가 브라우저 탭이라 FAVICON 파트 안에 둔다 */}
             <div className={styles.faviconForm}>
-              <FieldRow label={t("admin.settings.faviconImageScale")}>
-                <div className={styles.faviconSliderControl}>
-                  <Slider
-                    min={40}
-                    max={100}
-                    step={1}
-                    value={[(() => { const n = parseFloat(config.brand.faviconImageScale ?? ""); return Math.round((Number.isFinite(n) ? Math.max(0.4, Math.min(1, n)) : 1) * 100); })()]}
-                    onValueChange={([v]) => update("brand", "faviconImageScale", String(v / 100))}
-                    className={styles.faviconSlider}
-                  />
-                  <span className={styles.faviconSliderValue}>
-                    {(() => { const n = parseFloat(config.brand.faviconImageScale ?? ""); return `${Math.round((Number.isFinite(n) ? Math.max(0.4, Math.min(1, n)) : 1) * 100)}%`; })()}
-                  </span>
+              {/* 컨트롤 2패널(크기·모양 | 색상) — 시스템 로고 FAVICON 과 같은 배치 */}
+              <div className={styles.faviconPanels}>
+                <div className={styles.faviconPanel}>
+                  <h5 className={styles.faviconPanelTitle}>{t("admin.settings.faviconGroupImageShape")}</h5>
+                  <FieldRow label={t("admin.settings.faviconImageScale")}>
+                    <div className={styles.faviconSliderControl}>
+                      <Slider
+                        min={40}
+                        max={100}
+                        step={1}
+                        value={[(() => { const n = parseFloat(config.brand.faviconImageScale ?? ""); return Math.round((Number.isFinite(n) ? Math.max(0.4, Math.min(1, n)) : 1) * 100); })()]}
+                        onValueChange={([v]) => update("brand", "faviconImageScale", String(v / 100))}
+                        className={styles.faviconSlider}
+                      />
+                      <span className={styles.faviconSliderValue}>
+                        {(() => { const n = parseFloat(config.brand.faviconImageScale ?? ""); return `${Math.round((Number.isFinite(n) ? Math.max(0.4, Math.min(1, n)) : 1) * 100)}%`; })()}
+                      </span>
+                    </div>
+                  </FieldRow>
+                  <FieldRow label={t("admin.settings.faviconShape")}>
+                    <RadioGroup<FaviconShape>
+                      value={(config.brand.faviconImageShape ?? "circle") as FaviconShape}
+                      onChange={(v) => {
+                        if (v === "none") { update("brand", "faviconImageShape", "none"); return; }
+                        // circle/square 프리셋 → 해당 기본 반경으로 (라디오·슬라이더·미리보기 동기화)
+                        setConfig((p) => ({
+                          ...p,
+                          brand: { ...p.brand, faviconImageShape: v, faviconImageRadius: v === "circle" ? "16" : "4" },
+                        }));
+                      }}
+                      options={[
+                        { value: "circle", label: "Circle" },
+                        { value: "square", label: "Square" },
+                        { value: "none", label: "None" },
+                      ]}
+                    />
+                  </FieldRow>
+                  {config.brand.faviconImageShape !== "none" && (
+                    <FieldRow label={t("admin.settings.faviconRadius")}>
+                      <div className={styles.faviconSliderControl}>
+                        {/* 반경이 곧 모양 — 라디오 동기화(16=Circle, 그 외=Square), 시스템 쪽과 같은 규칙 */}
+                        <Slider
+                          min={0}
+                          max={16}
+                          step={1}
+                          value={[resolveFaviconRadius(config.brand.faviconImageRadius, config.brand.faviconImageShape === "square" ? 4 : 16)]}
+                          onValueChange={([v]) => setConfig((p) => ({
+                            ...p,
+                            brand: { ...p.brand, faviconImageRadius: String(v), faviconImageShape: v >= 16 ? "circle" : "square" },
+                          }))}
+                          className={styles.faviconSlider}
+                        />
+                        <span className={styles.faviconSliderValue}>
+                          {resolveFaviconRadius(config.brand.faviconImageRadius, config.brand.faviconImageShape === "square" ? 4 : 16)}
+                        </span>
+                      </div>
+                    </FieldRow>
+                  )}
+                  {config.brand.faviconImageShape !== "none" && (
+                    <FieldRow label={t("admin.settings.faviconBgRatio")}>
+                      <div className={styles.faviconSliderControl}>
+                        <Slider
+                          min={50}
+                          max={200}
+                          step={10}
+                          value={[Math.round(resolveFaviconRatio(config.brand.faviconImageBgRatio) * 100)]}
+                          onValueChange={([v]) => update("brand", "faviconImageBgRatio", String(v / 100))}
+                          className={styles.faviconSlider}
+                        />
+                        <span className={styles.faviconSliderValue}>
+                          {(() => {
+                            const r = resolveFaviconRatio(config.brand.faviconImageBgRatio);
+                            return r > 1 ? `${r.toFixed(1)}:1` : r < 1 ? `1:${(1 / r).toFixed(1)}` : "1:1";
+                          })()}
+                        </span>
+                      </div>
+                    </FieldRow>
+                  )}
                 </div>
-              </FieldRow>
-              <FieldRow label={t("admin.settings.faviconBg")}>
-                <ColorDuoRow
-                  t={t}
-                  placeholder={t("admin.settings.faviconImageBgPlaceholder")}
-                  light={{ picker: config.brand.faviconImageBgLight || config.theme.lightBg, input: config.brand.faviconImageBgLight, onChange: (v) => update("brand", "faviconImageBgLight", v) }}
-                  dark={{ picker: config.brand.faviconImageBgDark || config.theme.darkBg, input: config.brand.faviconImageBgDark, onChange: (v) => update("brand", "faviconImageBgDark", v) }}
-                  tools
-                  checkerWhenEmpty
-                />
-              </FieldRow>
-              <FieldRow label={t("admin.settings.faviconShape")}>
-                <RadioGroup<FaviconShape>
-                  value={(config.brand.faviconImageShape ?? "circle") as FaviconShape}
-                  onChange={(v) => {
-                    if (v === "none") { update("brand", "faviconImageShape", "none"); return; }
-                    // circle/square 프리셋 → 해당 기본 반경으로 (라디오·슬라이더·미리보기 동기화)
-                    setConfig((p) => ({
-                      ...p,
-                      brand: { ...p.brand, faviconImageShape: v, faviconImageRadius: v === "circle" ? "16" : "4" },
-                    }));
-                  }}
-                  options={[
-                    { value: "circle", label: "Circle" },
-                    { value: "square", label: "Square" },
-                    { value: "none", label: "None" },
-                  ]}
-                />
-              </FieldRow>
-              {config.brand.faviconImageShape !== "none" && (
-                <FieldRow label={t("admin.settings.faviconRadius")}>
-                  <div className={styles.faviconSliderControl}>
-                    {/* 반경이 곧 모양 — 라디오 동기화(16=Circle, 그 외=Square), 시스템 쪽과 같은 규칙 */}
-                    <Slider
-                      min={0}
-                      max={16}
-                      step={1}
-                      value={[resolveFaviconRadius(config.brand.faviconImageRadius, config.brand.faviconImageShape === "square" ? 4 : 16)]}
-                      onValueChange={([v]) => setConfig((p) => ({
-                        ...p,
-                        brand: { ...p.brand, faviconImageRadius: String(v), faviconImageShape: v >= 16 ? "circle" : "square" },
-                      }))}
-                      className={styles.faviconSlider}
+                <div className={styles.faviconPanel}>
+                  <h5 className={styles.faviconPanelTitle}>{t("admin.settings.faviconGroupImageColor")}</h5>
+                  <FieldRow label={t("admin.settings.faviconBg")}>
+                    <ColorDuoRow
+                      t={t}
+                      placeholder={t("admin.settings.faviconImageBgPlaceholder")}
+                      light={{ picker: config.brand.faviconImageBgLight || config.theme.lightBg, input: config.brand.faviconImageBgLight, onChange: (v) => update("brand", "faviconImageBgLight", v) }}
+                      dark={{ picker: config.brand.faviconImageBgDark || config.theme.darkBg, input: config.brand.faviconImageBgDark, onChange: (v) => update("brand", "faviconImageBgDark", v) }}
+                      tools
+                      checkerWhenEmpty
                     />
-                    <span className={styles.faviconSliderValue}>
-                      {resolveFaviconRadius(config.brand.faviconImageRadius, config.brand.faviconImageShape === "square" ? 4 : 16)}
-                    </span>
-                  </div>
-                </FieldRow>
-              )}
-              {config.brand.faviconImageShape !== "none" && (
-                <FieldRow label={t("admin.settings.faviconBgRatio")}>
-                  <div className={styles.faviconSliderControl}>
-                    <Slider
-                      min={50}
-                      max={200}
-                      step={10}
-                      value={[Math.round(resolveFaviconRatio(config.brand.faviconImageBgRatio) * 100)]}
-                      onValueChange={([v]) => update("brand", "faviconImageBgRatio", String(v / 100))}
-                      className={styles.faviconSlider}
-                    />
-                    <span className={styles.faviconSliderValue}>
-                      {(() => {
-                        const r = resolveFaviconRatio(config.brand.faviconImageBgRatio);
-                        return r > 1 ? `${r.toFixed(1)}:1` : r < 1 ? `1:${(1 / r).toFixed(1)}` : "1:1";
-                      })()}
-                    </span>
-                  </div>
-                </FieldRow>
-              )}
-              {config.brand.faviconImageShape !== "none" && (
-                <FieldRow label={t("admin.settings.faviconBorder")}>
-                  <div className={styles.faviconSliderControl}>
-                    <Slider
-                      min={0}
-                      max={8}
-                      step={1}
-                      value={[Math.max(0, Math.min(8, Number(config.brand.faviconImageBorderWidth) || 0))]}
-                      onValueChange={([v]) => update("brand", "faviconImageBorderWidth", String(v))}
-                      className={styles.faviconSlider}
-                    />
-                    <span className={styles.faviconSliderValue}>
-                      {Math.max(0, Math.min(8, Number(config.brand.faviconImageBorderWidth) || 0))}
-                    </span>
-                  </div>
-                </FieldRow>
-              )}
-              {config.brand.faviconImageShape !== "none" && (Number(config.brand.faviconImageBorderWidth) || 0) > 0 && (
-                <FieldRow label={t("admin.settings.faviconBorderColor")}>
-                  <ColorDuoRow
-                    t={t}
-                    placeholder={t("admin.settings.faviconBgPlaceholder")}
-                    light={{ picker: config.brand.faviconImageBorderColorLight || "#0a0a0a", input: config.brand.faviconImageBorderColorLight, onChange: (v) => update("brand", "faviconImageBorderColorLight", v) }}
-                    dark={{ picker: config.brand.faviconImageBorderColorDark || "#f5f5f0", input: config.brand.faviconImageBorderColorDark, onChange: (v) => update("brand", "faviconImageBorderColorDark", v) }}
-                    tools
-                  />
-                </FieldRow>
-              )}
+                  </FieldRow>
+                  {config.brand.faviconImageShape !== "none" && (
+                    <FieldRow label={t("admin.settings.faviconBorder")}>
+                      <div className={styles.faviconSliderControl}>
+                        <Slider
+                          min={0}
+                          max={8}
+                          step={1}
+                          value={[Math.max(0, Math.min(8, Number(config.brand.faviconImageBorderWidth) || 0))]}
+                          onValueChange={([v]) => update("brand", "faviconImageBorderWidth", String(v))}
+                          className={styles.faviconSlider}
+                        />
+                        <span className={styles.faviconSliderValue}>
+                          {Math.max(0, Math.min(8, Number(config.brand.faviconImageBorderWidth) || 0))}
+                        </span>
+                      </div>
+                    </FieldRow>
+                  )}
+                  {config.brand.faviconImageShape !== "none" && (Number(config.brand.faviconImageBorderWidth) || 0) > 0 && (
+                    <FieldRow label={t("admin.settings.faviconBorderColor")}>
+                      <ColorDuoRow
+                        t={t}
+                        placeholder={t("admin.settings.faviconBgPlaceholder")}
+                        light={{ picker: config.brand.faviconImageBorderColorLight || "#0a0a0a", input: config.brand.faviconImageBorderColorLight, onChange: (v) => update("brand", "faviconImageBorderColorLight", v) }}
+                        dark={{ picker: config.brand.faviconImageBorderColorDark || "#f5f5f0", input: config.brand.faviconImageBorderColorDark, onChange: (v) => update("brand", "faviconImageBorderColorDark", v) }}
+                        tools
+                      />
+                    </FieldRow>
+                  )}
+                </div>
+              </div>
               <FaviconShadowControls
                 textShadow={config.brand.faviconImageShadow ?? DEFAULT_FAVICON_TEXT_SHADOW}
                 bgShadow={config.brand.faviconImageBgShadow ?? DEFAULT_FAVICON_BG_SHADOW}
