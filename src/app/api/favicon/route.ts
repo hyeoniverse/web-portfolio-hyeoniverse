@@ -224,9 +224,10 @@ export async function GET(request: Request) {
 
   /* ?format=png — 사파리용. 사파리는 SVG 탭 아이콘을 못 그리는 버전이 있고, 페이지가 뜬 뒤 JS 로 바꾼 아이콘도
      따르지 않는다. 그래서 서버 HTML 에 PNG 를 걸어 둔다(layout metadata). 레티나 탭(16px@2x · 32px@2x)에
-     맞춰 64px 로 굽는다 */
+     맞춰 64px 로 굽는다. size=180 은 apple-touch-icon(사파리 즐겨찾기 · 홈 화면) */
   if (url.searchParams.get("format") === "png") {
-    const png = await sharp(Buffer.from(svg), { density: 288 }).resize(64, 64).png().toBuffer();
+    const size = url.searchParams.get("size") === "180" ? 180 : 64;
+    const png = await sharp(Buffer.from(svg), { density: size * 9 }).resize(size, size).png().toBuffer();
     return new Response(new Uint8Array(png), { headers: { ...headers, "Content-Type": "image/png" } });
   }
 
