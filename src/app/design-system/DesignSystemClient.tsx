@@ -413,15 +413,15 @@ export default function DesignSystemClient() {
             <motion.div style={{ display: "flex", flexDirection: "column", gap: 12 }} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
               <motion.div style={{ display: "flex", alignItems: "center", gap: 16 }} variants={staggerItem} {...scrollChildY(0)}>
                 <Typography variant="h3" gradient>--gradient-accent</Typography>
-                <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--text-muted)" }}>accent-light → accent-dark</span>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--font-size-hint)", color: "var(--text-muted)" }}>accent-light → accent-dark</span>
               </motion.div>
               <motion.div style={{ display: "flex", alignItems: "center", gap: 16 }} variants={staggerItem} {...scrollChildY(1)}>
                 <span style={{ background: "var(--gradient-accent-soft)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}><Typography variant="h3">--gradient-accent-soft</Typography></span>
-                <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--text-muted)" }}>accent-light → accent</span>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--font-size-hint)", color: "var(--text-muted)" }}>accent-light → accent</span>
               </motion.div>
               <motion.div style={{ display: "flex", alignItems: "center", gap: 16 }} variants={staggerItem} {...scrollChildY(2)}>
                 <span style={{ background: "var(--gradient-neutral)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}><Typography variant="h3">--gradient-neutral</Typography></span>
-                <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--text-muted)" }}>neutral-300 → neutral-700</span>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--font-size-hint)", color: "var(--text-muted)" }}>neutral-300 → neutral-700</span>
               </motion.div>
             </motion.div>
             <motion.p className={styles.sectionSub} initial="hidden" {...vp(nd())} variants={staggerItem}>Weights</motion.p>
@@ -556,8 +556,8 @@ export default function DesignSystemClient() {
               </div>
               <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "var(--spacing-12)" }}>
                 <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.25em", color: "var(--text-muted)", textTransform: "uppercase" }}>CTA Section</span>
-                <h3 id="threejs-coffee" style={{ fontSize: 24, fontFamily: "var(--font-family-heading)", fontWeight: 400, margin: 0 }}>Coffee Cup</h3>
-                <p style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.7, margin: 0 }}>
+                <h3 id="threejs-coffee" style={{ fontSize: "var(--font-size-24)", fontFamily: "var(--font-family-heading)", fontWeight: 400, margin: 0 }}>Coffee Cup</h3>
+                <p style={{ fontSize: "var(--font-size-label)", color: "var(--text-secondary)", lineHeight: 1.7, margin: 0 }}>
                   {language === "ko"
                     ? "컵과 소서는 LatheGeometry, 손잡이는 TorusGeometry, 액면은 CylinderGeometry 로 만듭니다. Canvas 2D 로 parametric heart curve 와 80-band cream↔coffee wave, blur 엽맥 라떼아트 텍스처를 생성해 MeshPhysicalMaterial 에 매핑합니다. 마우스를 따라 lerp 로 부드럽게 회전합니다."
                     : "LatheGeometry cup/saucer profiles, TorusGeometry handle, CylinderGeometry liquid. Canvas 2D parametric heart curve + 80-band cream↔coffee wave + blur vein latte art texture mapped to MeshPhysicalMaterial. Mouse-tracked lerp rotation."}
@@ -584,8 +584,8 @@ export default function DesignSystemClient() {
               </div>
               <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "var(--spacing-12)" }}>
                 <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.25em", color: "var(--text-muted)", textTransform: "uppercase" }}>Hero Section</span>
-                <h3 id="threejs-torus" style={{ fontSize: 24, fontFamily: "var(--font-family-heading)", fontWeight: 400, margin: 0 }}>Scroll Torus</h3>
-                <p style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.7, margin: 0 }}>
+                <h3 id="threejs-torus" style={{ fontSize: "var(--font-size-24)", fontFamily: "var(--font-family-heading)", fontWeight: 400, margin: 0 }}>Scroll Torus</h3>
+                <p style={{ fontSize: "var(--font-size-label)", color: "var(--text-secondary)", lineHeight: 1.7, margin: 0 }}>
                   {language === "ko"
                     ? "누적 스크롤을 따라 리사주 곡선(X·Y·Z 주파수 차이) 경로를 끝없이 순환하는 메탈릭 토러스입니다. 테마에 따라 색상과 emissive 가 바뀌고, 커서가 가까우면 자석처럼 끌리고 멀면 반발하는 물리 인터랙션이 동작합니다."
                     : "Metallic torus orbiting endlessly along Lissajous curve (X·Y·Z frequency offset) driven by cumulative scroll. Theme-specific color/emissive switching, cursor proximity magnet attraction + far-range repulsion physics."}
@@ -612,8 +612,8 @@ export default function DesignSystemClient() {
               </div>
               <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "var(--spacing-12)" }}>
                 <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.25em", color: "var(--text-muted)", textTransform: "uppercase" }}>Profile Section</span>
-                <h3 id="threejs-bunny" style={{ fontSize: 24, fontFamily: "var(--font-family-heading)", fontWeight: 400, margin: 0 }}>Bunny Character</h3>
-                <p style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.7, margin: 0 }}>
+                <h3 id="threejs-bunny" style={{ fontSize: "var(--font-size-24)", fontFamily: "var(--font-family-heading)", fontWeight: 400, margin: 0 }}>Bunny Character</h3>
+                <p style={{ fontSize: "var(--font-size-label)", color: "var(--text-secondary)", lineHeight: 1.7, margin: 0 }}>
                   {language === "ko"
                     ? "몸·귀·팔·발은 LatheGeometry, 머리·눈·꼬리는 SphereGeometry, 찡그린 눈은 CapsuleGeometry 로 조합한 마스코트입니다. 자동으로 눈을 깜빡이고, 클릭하면 놀람·기쁨 표정으로 전환됩니다. RAF 물리 기반으로 벽에 부딪혀 튕기며 이동하고, 충돌 시 사운드가 재생됩니다."
                     : "LatheGeometry (body/ears/arms/feet) + SphereGeometry (head/eyes/tail) + CapsuleGeometry (squint eyes) mascot. Auto-blink + click expression toggle (surprise/happy). RAF physics wall-bounce movement, collision sounds."}

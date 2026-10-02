@@ -46,7 +46,7 @@
 }
 
 .ic {
-  font-size: 22px;
+  font-size: var(--font-size-22);
   line-height: 1;
 }
 
@@ -116,8 +116,8 @@
   flex: 0 0 auto;
   color: var(--text-tertiary);
 }
-.ln { font-size: 20px; line-height: 1; color: var(--text-accent); }
-.xmark { font-size: 20px; line-height: 1; color: var(--text-error); }
+.ln { font-size: var(--font-size-20); line-height: 1; color: var(--text-accent); }
+.xmark { font-size: var(--font-size-20); line-height: 1; color: var(--text-error); }
 .lb { font-family: var(--font-mono); font-size: var(--font-size-hint); letter-spacing: 0.02em; text-align: center; }
 
 /* 서버 구름 + 리비전 스택 */

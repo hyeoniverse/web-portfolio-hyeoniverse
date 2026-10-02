@@ -62,7 +62,7 @@
   background: var(--bg-tertiary);
   color: var(--text-primary);
   font-family: var(--font-mono);
-  font-size: 16px;
+  font-size: var(--font-size-16);
   font-weight: var(--font-weight-bold);
   letter-spacing: -0.01em;
 }
@@ -126,7 +126,7 @@
   align-items: center;
   padding: 0 var(--spacing-12);
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: var(--font-size-label);
   line-height: 1;
 }
 /* hover 배경은 **조작할 수 있을 때만**. 읽기 전용에서는 눌리는 것처럼 보이기만 하고

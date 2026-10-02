@@ -284,7 +284,7 @@
 .ctaInline .ctaArrow {
   position: relative;
   z-index: 1;
-  font-size: 18px;
+  font-size: var(--font-size-18);
   color: var(--text-white);
   transition: color 0.3s ease;
 }

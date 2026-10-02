@@ -82,7 +82,7 @@
   font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   /* 정수 line-height — .sectionTitle 과 같은 divider 번짐 방지 */
-  line-height: 20px;
+  line-height: calc(20 / 13);
   color: var(--text-tertiary);
   margin: 0;
   border-bottom: none;
@@ -172,7 +172,7 @@
   font-size: var(--font-size-label);
   font-weight: 600;
   /* 정수 line-height — .statLabel 과 같은 divider 번짐 방지 */
-  line-height: 20px;
+  line-height: calc(20 / 13);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--text-tertiary);
@@ -288,7 +288,7 @@ a.statCard:hover .statValue {
   font-size: var(--font-size-label);
   /* 정수 line-height — 상속(1.6)이면 13px×1.6=20.8px 로 셀 높이가 소수점에 걸리고,
      그 아래 섹션 divider(1px)가 픽셀 사이에 앉아 안티앨리어싱으로 번져 굵어 보인다 */
-  line-height: 20px;
+  line-height: calc(20 / 13);
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -307,7 +307,7 @@ a.statCard:hover .statValue {
   font-family: var(--font-family-body);
   font-size: var(--font-size-hint);
   /* 정수 line-height — .statLabel 과 같은 divider 번짐 방지 */
-  line-height: 19px;
+  line-height: calc(19 / 12);
   color: var(--text-tertiary);
 }
 
@@ -812,7 +812,7 @@ a.statCard:hover .statValue {
   font-family: var(--font-mono);
   font-size: var(--font-size-hint);
   color: var(--text-tertiary);
-  line-height: 16px;
+  line-height: calc(16 / 12);
   min-height: 16px;
 }
 
@@ -849,7 +849,7 @@ a.statCard:hover .statValue {
   color: var(--text-primary);
   text-decoration: none;
   margin: 0;
-  line-height: 20px;
+  line-height: calc(20 / 14);
   min-height: 20px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -871,7 +871,7 @@ a.commentBody:hover {
   font-family: var(--font-family-body);
   font-size: var(--font-size-hint);
   color: var(--text-tertiary);
-  line-height: 16px;
+  line-height: calc(16 / 12);
   min-height: 16px;
   text-decoration: none;
   white-space: nowrap;
@@ -891,7 +891,7 @@ a.commentSource:hover {
   font-family: var(--font-family-body);
   font-size: var(--font-size-hint);
   color: var(--text-accent);
-  line-height: 16px;
+  line-height: calc(16 / 12);
   margin: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1064,7 +1064,7 @@ a.commentSource:hover {
   font-weight: 700;
   color: var(--text-primary);
   font-variant-numeric: tabular-nums;
-  line-height: 20px;
+  line-height: calc(20 / 16);
 }
 
 .trafficStatSub {
