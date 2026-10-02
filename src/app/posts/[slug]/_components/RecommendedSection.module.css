@@ -1,7 +1,7 @@
 /* ── 추천 글 섹션 (RecommendedSection) — 헤더(더보기 토글) + 세로 목록. RelatedWorksCarousel 과 같은 layout ── */
 
 .recommendedSection {
-  padding: var(--spacing-2xl) 0 0 0;
+  padding: var(--spacing-32) 0 0 0;
 }
 
 /* ── Recommended posts header — relatedHeader 와 base 동일, 우측 moreBtn 위해 space-between ── */
@@ -9,8 +9,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-sm);
-  margin-bottom: var(--spacing-sm);
+  gap: var(--spacing-12);
+  margin-bottom: var(--spacing-12);
 }
 
 .recommendedLabel {
@@ -57,11 +57,11 @@
   grid-template-areas:
     "title    category"
     "excerpt  category";
-  column-gap: var(--spacing-md);
-  row-gap: var(--spacing-2xs);
+  column-gap: var(--spacing-16);
+  row-gap: var(--spacing-4);
   align-items: start;
   align-content: center;
-  padding: var(--row-p-lg);
+  padding: var(--row-padding-lg);
 }
 
 .recommendedItemImg {
@@ -134,9 +134,9 @@
   display: flex;
   width: fit-content;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   margin-left: auto;
-  margin-top: var(--spacing-sm);
+  margin-top: var(--spacing-12);
   padding: 0;
   border: none !important;
   outline: none;

@@ -28,13 +28,13 @@
 }
 
 .heroSpacer {
-  height: var(--spacing-3xl);
+  height: var(--spacing-48);
 }
 
 /* 로딩 뼈대(loading.tsx) 머리의 커버 없는 글 여백 — heroSpacer 에 contentNoHero 가 더하는 만큼.
    커버가 있으면 상세 경로의 레이아웃이 뼈대 바로 앞에 커버를 그리므로(#946) 접는다 */
 .skeletonNoHeroGap {
-  height: calc(var(--spacing-3xl) * 2 + 40px);
+  height: calc(var(--spacing-48) * 2 + 40px);
 }
 .hero ~ .page .skeletonNoHeroGap,
 .heroPlaceholder ~ .page .skeletonNoHeroGap {
@@ -45,11 +45,11 @@
 .heroIconRow {
   position: relative;
   z-index: 2;
-  max-width: var(--page-max-width);
+  max-width: var(--width-page-max);
   margin: -40px auto 0;
-  padding: 0 var(--page-px);
+  padding: 0 var(--spacing-page-inline);
 }
-.heroIconNoHero { margin-top: var(--spacing-lg); }
+.heroIconNoHero { margin-top: var(--spacing-20); }
 .heroIcon {
   display: inline-flex;
   line-height: 1;
@@ -71,15 +71,15 @@
 /* ── Back button ── */
 .backBtn {
   display: flex;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   align-items: center;
   position: fixed;
-  top: calc(var(--spacing-2xl) + var(--spacing-3xl));
-  left: var(--page-px);
-  z-index: var(--z-nav);
-  padding: var(--button-p-lg);
+  top: calc(var(--spacing-32) + var(--spacing-48));
+  left: var(--spacing-page-inline);
+  z-index: var(--z-index-nav);
+  padding: var(--button-padding-lg);
   border: var(--border-default);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--bg-primary);
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-body);
@@ -113,22 +113,22 @@
 
 /* ── Header — full width ── */
 .headerSection {
-  max-width: var(--page-max-width);
+  max-width: var(--width-page-max);
   margin: 0 auto;
-  padding: var(--spacing-2xl) var(--page-px) 0;
+  padding: var(--spacing-32) var(--spacing-page-inline) 0;
 }
 
 /* ── Content + TOC row ── */
 .contentRow {
   display: flex;
-  max-width: var(--page-max-width);
+  max-width: var(--width-page-max);
   margin: 0 auto;
-  padding: var(--spacing-xl) var(--page-px) var(--spacing-3xl);
-  gap: var(--spacing-2xl);
+  padding: var(--spacing-24) var(--spacing-page-inline) var(--spacing-48);
+  gap: var(--spacing-32);
 }
 
 .contentNoHero {
-  padding-top: calc(var(--spacing-2xl) + var(--spacing-3xl) + 40px);
+  padding-top: calc(var(--spacing-32) + var(--spacing-48) + 40px);
 }
 
 .content {
@@ -142,7 +142,7 @@
   flex-shrink: 0;
   align-self: flex-start;
   position: sticky;
-  top: calc(var(--spacing-2xl) + 60px);
+  top: calc(var(--spacing-32) + 60px);
   max-height: calc(100vh - 120px);
   overflow-y: auto;
 }
@@ -150,8 +150,8 @@
 .likeWrapper {
   display: flex;
   justify-content: center;
-  margin-top: var(--spacing-4xl);
-  margin-bottom: var(--spacing-lg);
+  margin-top: var(--spacing-64);
+  margin-bottom: var(--spacing-20);
 }
 
 /* 좋아요 + share 가로 배치 — 세로 여백은 row 가 담당, likeWrapper 자체 margin 은 상쇄 */
@@ -159,9 +159,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-sm);
-  margin-top: var(--spacing-4xl);
-  margin-bottom: var(--spacing-lg);
+  gap: var(--spacing-12);
+  margin-top: var(--spacing-64);
+  margin-bottom: var(--spacing-20);
 }
 
 .likeShareRow .likeWrapper {
@@ -194,28 +194,28 @@
 
 /* ── After-content wrapper (adjacent nav, comments, etc.) ── */
 .afterContent {
-  max-width: var(--page-max-width);
+  max-width: var(--width-page-max);
   margin: 0 auto;
-  padding: 0 var(--page-px);
+  padding: 0 var(--spacing-page-inline);
 }
 
 /* ── Comments wrapper ── */
 .commentWrap {
-  padding: 0 0 var(--spacing-3xl) 0;
+  padding: 0 0 var(--spacing-48) 0;
 }
 
 /* ── Bottom back-to-list link ── */
 .footerNav {
-  max-width: var(--page-max-width);
+  max-width: var(--width-page-max);
   margin: 0 auto;
-  padding: var(--spacing-xl) 0 var(--spacing-3xl);
+  padding: var(--spacing-24) 0 var(--spacing-48);
   border-top: var(--border-light);
 }
 
 .footerLink {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-body);
   color: var(--text-tertiary);
@@ -260,15 +260,15 @@
   }
 
   .heroSpacer {
-    height: var(--spacing-3xl);
+    height: var(--spacing-48);
   }
 
   .backBtn {
-    top: calc(var(--spacing-2xl) + var(--spacing-3xl));
-    left: var(--page-px);
-    padding: var(--button-p-sm);
+    top: calc(var(--spacing-32) + var(--spacing-48));
+    left: var(--spacing-page-inline);
+    padding: var(--button-padding-sm);
     font-size: var(--font-size-label);
-    gap: var(--spacing-xs);
+    gap: var(--spacing-8);
     transition: opacity 0.3s, transform 0.3s, padding 0.3s, font-size 0.3s, gap 0.3s, top 0.3s, left 0.3s;
   }
 

@@ -42,7 +42,7 @@ const theme = EditorView.theme({
   },
   ".cm-tooltip": {
     backgroundColor: "var(--bg-primary)", border: "1px solid var(--border-color-light)",
-    borderRadius: "var(--radius-2xl)", color: "var(--text-primary)",
+    borderRadius: "var(--radius-24)", color: "var(--text-primary)",
   },
   ".cm-tooltip-autocomplete ul li[aria-selected]": {
     backgroundColor: "var(--bg-accent-subtle)", color: "var(--text-primary)",

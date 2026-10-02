@@ -258,7 +258,7 @@ export function PollElement(props: PlateElementProps) {
                   <>
                     <Popover openOnHover placement="bottom-start" offset={8} maxHeight={false} contentClassName="poll-period-menu"
                       trigger={
-                        <TBtn active={!!(startAt || endAt)} tooltip={t("투표 시작·종료 시각 설정 (미설정 시 상시). hover 로 열림", "Set start/end time (open-ended if unset). Opens on hover")} style={{ gap: "var(--spacing-3xs)" }}>
+                        <TBtn active={!!(startAt || endAt)} tooltip={t("투표 시작·종료 시각 설정 (미설정 시 상시). hover 로 열림", "Set start/end time (open-ended if unset). Opens on hover")} style={{ gap: "var(--spacing-2)" }}>
                           <CalendarClock size={13} />{t("기간", "Period")}
                         </TBtn>
                       }>
@@ -269,16 +269,16 @@ export function PollElement(props: PlateElementProps) {
                     <span className="poll-tb-div" />
                   </>
                 )}
-                <TBtn active={resultsBeforeVote} tooltip={t("마감 전에도 실시간 집계를 표시", "Show live tally before it closes")} style={{ gap: "var(--spacing-3xs)" }}
+                <TBtn active={resultsBeforeVote} tooltip={t("마감 전에도 실시간 집계를 표시", "Show live tally before it closes")} style={{ gap: "var(--spacing-2)" }}
                   onMouseDown={() => update({ resultsBeforeVote: !resultsBeforeVote })}>
                   <Eye size={13} />{t("투표 전 결과 공개", "Show results")}
                 </TBtn>
-                <TBtn active={allowRetract} tooltip={t("투표자가 선택을 취소하고 다시 투표 가능", "Voters can retract and vote again")} style={{ gap: "var(--spacing-3xs)" }}
+                <TBtn active={allowRetract} tooltip={t("투표자가 선택을 취소하고 다시 투표 가능", "Voters can retract and vote again")} style={{ gap: "var(--spacing-2)" }}
                   onMouseDown={() => update({ allowRetract: !allowRetract })}>
                   <Undo2 size={13} />{t("취소 허용", "Allow retract")}
                 </TBtn>
                 <span className="poll-tb-div" />
-                <TBtn active={preview} tooltip={t("결과화면 예시 미리보기 (샘플 데이터)", "Preview result screen (sample data)")} style={{ gap: "var(--spacing-3xs)" }}
+                <TBtn active={preview} tooltip={t("결과화면 예시 미리보기 (샘플 데이터)", "Preview result screen (sample data)")} style={{ gap: "var(--spacing-2)" }}
                   onMouseDown={() => setPreview((v) => !v)}>
                   <Eye size={13} />{preview ? t("편집", "Edit") : t("결과 미리보기", "Preview")}
                 </TBtn>

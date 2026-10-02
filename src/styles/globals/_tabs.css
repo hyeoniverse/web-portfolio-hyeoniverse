@@ -2,9 +2,9 @@
 .tabs-block,
 [data-tabs] {
   margin: var(--prose-block-gap) 0; /* 일반 블록(p margin-bottom)과 같은 간격 → tint 켜져도 블록 사이 gap 통일 */
-  padding: var(--spacing-sm) var(--spacing-lg);
+  padding: var(--spacing-12) var(--spacing-20);
   border: 1px solid var(--border-color-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
 }
 
 /* 헤더 + 팝업 anchor 영역 (팝업이 여기 기준 absolute → 스크롤 따라 움직이고 editor overflow 에 잘림) */
@@ -17,20 +17,20 @@
   display: flex;
   align-items: flex-end;
   flex-wrap: wrap;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
   border-bottom: var(--border-light);
 }
 
 /* 도구/이모지 팝업 컨테이너 — JS 가 left/top/transform 으로 위치 지정 */
 .tabs-popup {
-  z-index: var(--z-dropdown);
+  z-index: var(--z-index-dropdown);
 }
 
 .tabs-tab {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-xs) 0;
+  gap: var(--spacing-8);
+  padding: var(--spacing-8) 0;
   margin-bottom: -1px; /* rail 위로 겹쳐 active 밑줄이 경계선과 이어지게 */
   border: none;
   border-bottom: 2px solid transparent;
@@ -71,7 +71,7 @@
   /* 탭 텍스트와 동일한 line box·padding 으로 → + 아이콘이 탭과 수직 정렬됨
      (flex+min-height 중앙정렬은 텍스트 광학중심과 어긋나 보였음) */
   display: inline-block;
-  padding: var(--spacing-xs) 0;
+  padding: var(--spacing-8) 0;
   margin-bottom: -1px;
   border: none;
   border-bottom: 2px solid transparent;
@@ -95,19 +95,19 @@
 .tabs-tools {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-sm);
+  gap: var(--spacing-8);
+  padding: var(--spacing-12);
   min-width: 12rem;
   background: var(--bg-primary);
   border: 1px solid var(--border-color-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   box-shadow: 0 4px 20px rgb(0 0 0 / 0.15);
 }
 
 .tabs-tools-main {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 /* 이름 입력(공통 Input) — 레이아웃만, 스타일은 컴포넌트가 담당 */
@@ -119,10 +119,10 @@
 .tabs-tools-delete {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
-  padding: var(--spacing-2xs) var(--spacing-xs);
+  gap: var(--spacing-4);
+  padding: var(--spacing-4) var(--spacing-8);
   border: none;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-body);
@@ -137,11 +137,11 @@
 
 /* 패널 내용 */
 .tabs-body {
-  padding: var(--spacing-xs) 0;
+  padding: var(--spacing-8) 0;
 }
 /* reader: 거터 없으니 본문 정렬만 */
 [data-tabs] > [data-tab-panel] {
-  padding: var(--spacing-sm) 0;
+  padding: var(--spacing-12) 0;
 }
 
 /* reader: JS 인핸스(헤더 생성) 전엔 첫 패널만 — 모든 패널이 쌓여 보이는 flash 방지 */

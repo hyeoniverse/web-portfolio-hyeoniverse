@@ -33,7 +33,7 @@
   position: sticky;
   bottom: 0;
   z-index: 2;
-  padding: var(--spacing-xs) var(--spacing-md);
+  padding: var(--spacing-8) var(--spacing-16);
   border-top: var(--_line-secondary);
   background: var(--bg-primary);
   font-family: var(--font-mono);
@@ -74,7 +74,7 @@
   flex: none;
   gap: var(--_space-line);
   align-items: flex-start;
-  padding: var(--spacing-lg) 0;
+  padding: var(--spacing-20) 0;
   padding-right: var(--_space-line);
   border-bottom: var(--_line-secondary);
 }
@@ -122,7 +122,7 @@
 .dbListMeta {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   min-width: 0;
 }
 
@@ -204,7 +204,7 @@
 .dbSchemaHeader {
   display: grid;
   grid-template-columns: 1fr 0.6fr 1.5fr;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   padding: clamp(0.6rem, 1vh, 1rem) 0;
   border-bottom: var(--_line-primary);
   font-weight: var(--font-weight-semibold);
@@ -217,7 +217,7 @@
 .dbSchemaRow {
   display: grid;
   grid-template-columns: 1fr 0.6fr 1.5fr;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   padding: clamp(0.6rem, 1vh, 1rem) 0;
   border-bottom: var(--_line-secondary);
   line-height: var(--line-height-relaxed);
@@ -226,7 +226,7 @@
 .dbColName {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   font-family: var(--font-mono);
   font-weight: var(--font-weight-medium);
   color: var(--text-primary);
@@ -250,15 +250,15 @@
 }
 
 .dbQuery {
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   overflow: hidden;
 }
 
 /* Kind badge (API / TABLE) */
 .dbKindBadge {
   flex-shrink: 0;
-  padding: var(--spacing-3xs) var(--spacing-xs);
-  border-radius: var(--radius-capsule);
+  padding: var(--spacing-2) var(--spacing-8);
+  border-radius: var(--radius-full);
   font-family: var(--font-mono);
   font-size: var(--font-size-prose-caption);
   font-weight: var(--font-weight-semibold);
@@ -267,7 +267,7 @@
 }
 
 .dbKindBadgeSm {
-  margin-left: var(--spacing-xs);
+  margin-left: var(--spacing-8);
   vertical-align: middle;
 }
 
@@ -292,7 +292,7 @@
 .dbEndpoint {
   display: grid;
   grid-template-columns: auto 1fr 1.5fr;
-  gap: var(--spacing-sm) var(--spacing-md);
+  gap: var(--spacing-12) var(--spacing-16);
   align-items: baseline;
   padding: clamp(0.6rem, 1vh, 1rem) 0;
   border-bottom: var(--_line-secondary);
@@ -300,8 +300,8 @@
 
 .dbMethodBadge {
   flex-shrink: 0;
-  padding: var(--spacing-3xs) var(--spacing-xs);
-  border-radius: var(--radius-capsule);
+  padding: var(--spacing-2) var(--spacing-8);
+  border-radius: var(--radius-full);
   font-family: var(--font-mono);
   font-size: var(--font-size-prose-caption);
   font-weight: var(--font-weight-bold);
@@ -349,7 +349,7 @@
 .dbMobileItem {
   position: relative;
   overflow: hidden;
-  padding: var(--spacing-lg) 0;
+  padding: var(--spacing-20) 0;
   border-bottom: var(--_line-secondary);
 }
 
@@ -370,11 +370,11 @@
   .dbMobileList {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-xl);
+    gap: var(--spacing-24);
   }
 
   .dbMobileItem {
-    padding: var(--spacing-xl) 0;
+    padding: var(--spacing-24) 0;
     border-bottom: var(--_line-secondary);
   }
 
@@ -405,13 +405,13 @@
 
   .dbSchemaHeader {
     grid-template-columns: 1fr 0.5fr 1fr;
-    padding: var(--spacing-sm) 0;
+    padding: var(--spacing-12) 0;
     font-size: clamp(var(--font-size-micro), 1.8vw, 0.7rem);
   }
 
   .dbSchemaRow {
     grid-template-columns: 1fr 0.5fr 1fr;
-    padding: var(--spacing-sm) 0;
+    padding: var(--spacing-12) 0;
     font-size: clamp(var(--font-size-micro), 2.2vw, 0.85rem);
   }
 
@@ -421,13 +421,13 @@
 
   .dbEndpoint {
     grid-template-columns: auto 1fr;
-    gap: var(--spacing-xs);
-    padding: var(--spacing-sm) 0;
+    gap: var(--spacing-8);
+    padding: var(--spacing-12) 0;
   }
 
   .dbMethodBadge {
     font-size: clamp(var(--font-size-micro), 1.6vw, 0.65rem);
-    padding: var(--spacing-3xs) var(--spacing-xs);
+    padding: var(--spacing-2) var(--spacing-8);
     min-width: 2.5rem;
   }
 
@@ -475,7 +475,7 @@
 .apiOverview {
   display: flex;
   flex-direction: column;
-  gap: clamp(var(--spacing-md), 3vh, var(--spacing-2xl));
+  gap: clamp(var(--spacing-16), 3vh, var(--spacing-32));
   min-width: 0;
   min-height: 0;
 }
@@ -484,14 +484,14 @@
 .apiTotals {
   display: grid;
   grid-template-columns: auto auto minmax(0, 1fr);
-  gap: clamp(var(--spacing-lg), 3vw, var(--spacing-3xl));
+  gap: clamp(var(--spacing-20), 3vw, var(--spacing-48));
   align-items: end;
 }
 
 .apiTotal {
   display: flex;
   align-items: baseline;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   margin: 0;
 }
 
@@ -512,7 +512,7 @@
 
 .apiTotalsMeta {
   display: flex;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-20);
   margin: 0;
 }
 
@@ -526,7 +526,7 @@
 .apiMethods {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   margin: 0;
   min-width: 0;
 }
@@ -534,7 +534,7 @@
 .apiMethodBar {
   display: flex;
   overflow: hidden;
-  height: var(--spacing-md);
+  height: var(--spacing-16);
 }
 
 .apiMethodSeg {
@@ -546,7 +546,7 @@
 .apiMethodLegend {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-3xs) var(--spacing-md);
+  gap: var(--spacing-2) var(--spacing-16);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -558,12 +558,12 @@
 .apiMethodLegend li {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 .apiMethodLegend li::before {
-  width: var(--spacing-xs);
-  height: var(--spacing-xs);
+  width: var(--spacing-8);
+  height: var(--spacing-8);
   background: var(--_c);
   content: "";
 }
@@ -580,7 +580,7 @@
   grid-auto-flow: column;
   grid-template-rows: repeat(8, minmax(min-content, 1fr));
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  column-gap: clamp(var(--spacing-lg), 3vw, var(--spacing-3xl));
+  column-gap: clamp(var(--spacing-20), 3vw, var(--spacing-48));
   margin: 0;
   padding: 0;
   min-height: 0;
@@ -596,10 +596,10 @@
 .apiTileBtn {
   display: grid;
   grid-template-columns: 1.5rem minmax(0, 6.5rem) minmax(0, 1fr) 1.5rem;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   align-items: center;
   width: 100%;
-  padding: var(--spacing-2xs) 0;
+  padding: var(--spacing-4) 0;
   text-align: left;
   color: var(--text-tertiary);
 }
@@ -629,7 +629,7 @@
 .apiTileBar {
   display: flex;
   overflow: hidden;
-  height: var(--spacing-xs);
+  height: var(--spacing-8);
   opacity: 0.35;
 }
 
@@ -659,7 +659,7 @@
 .apiDetail {
   display: flex;
   flex-direction: column;
-  gap: clamp(var(--spacing-sm), 2vh, var(--spacing-lg));
+  gap: clamp(var(--spacing-12), 2vh, var(--spacing-20));
   min-width: 0;
   min-height: 0;
 }
@@ -667,7 +667,7 @@
 .apiDetailHead {
   display: flex;
   align-items: flex-end;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-20);
 }
 
 .apiDetailNum {
@@ -686,7 +686,7 @@
 }
 
 .apiDetailMeta {
-  margin: var(--spacing-2xs) 0 0;
+  margin: var(--spacing-4) 0 0;
   font-family: var(--font-mono);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
@@ -705,8 +705,8 @@
 .apiDetailNote {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
-  padding-left: var(--spacing-md);
+  gap: var(--spacing-4);
+  padding-left: var(--spacing-16);
   border-left: var(--border-accent);
 }
 
@@ -741,7 +741,7 @@
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   min-height: 0;
 }
 
@@ -762,9 +762,9 @@
 .apiEndpoints li {
   display: grid;
   grid-template-columns: 4rem minmax(0, 1.1fr) minmax(0, 1fr);
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   align-items: center;
-  padding: var(--spacing-xs) 0;
+  padding: var(--spacing-8) 0;
   border-bottom: var(--border-light);
 }
 
@@ -799,12 +799,12 @@
 
 .apiMore {
   align-self: flex-start;
-  padding: var(--spacing-2xs) var(--spacing-sm);
+  padding: var(--spacing-4) var(--spacing-12);
   font-family: var(--font-mono);
   font-size: var(--font-size-hint);
   color: var(--text-accent);
   border: var(--border-accent);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
 }
 
 @media (max-width: 1024px), (max-height: 700px) {
@@ -847,7 +847,7 @@
   .apiDetail > * {
     --_r: clamp(0, calc(var(--item-in, 1) * 1.8 - var(--_k, 0) * 0.3), 1);
     opacity: calc(var(--_r) - var(--item-out, 0) * 1.2);
-    translate: 0 calc((1 - var(--_r) - var(--item-out, 0)) * var(--spacing-lg));
+    translate: 0 calc((1 - var(--_r) - var(--item-out, 0)) * var(--spacing-20));
   }
 
   .apiDetail > :nth-child(2) { --_k: 1; }

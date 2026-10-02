@@ -2,11 +2,11 @@
 .item {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   width: 100%;
-  padding: var(--row-p-md);
+  padding: var(--row-padding-md);
   border: none;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
@@ -52,6 +52,6 @@
 /* ── MenuDivider — 1px border-top (sub-pixel rounding 회피) ── */
 .divider {
   height: 0;
-  margin: var(--spacing-2xs) var(--spacing-sm);
+  margin: var(--spacing-4) var(--spacing-12);
   border-top: 1px solid var(--border-color-light);
 }

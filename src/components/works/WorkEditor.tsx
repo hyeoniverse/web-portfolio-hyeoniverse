@@ -1252,7 +1252,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
 
       {/* slug — title 자동 생성. 사용자 수정 시 manual 모드 */}
       <div className={es.field}>
-        <div style={{ display: "flex", alignItems: "baseline", gap: "var(--spacing-xs)" }}>
+        <div style={{ display: "flex", alignItems: "baseline", gap: "var(--spacing-8)" }}>
           <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${showErrors && (!form.slug.trim() || validateSlug(form.slug)) ? ` ${es.fieldLabelError}` : ""}`}>{tw("slug")}</label>
           {form.slug.trim() && validateSlug(form.slug) && (
             <span style={{ fontSize: "var(--font-size-label)", color: "var(--text-accent)" }}>{tw(`slugError.${validateSlug(form.slug)}`) || validateSlug(form.slug)}</span>
@@ -1399,7 +1399,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     <div className={styles.section}>
       <h2 className={styles.sectionTitle}>{tw("images")}</h2>
 
-      <div style={{ marginBottom: "var(--spacing-lg)" }} data-required="image">
+      <div style={{ marginBottom: "var(--spacing-20)" }} data-required="image">
         <CoverImageField
           value={form.image}
           onChange={(url) => updateField("image", url)}
@@ -2347,7 +2347,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         </div>
 
         {/* ── 본문 첨부 이미지 패널 (Posts editor 와 동일) ── */}
-        <div style={{ marginTop: "var(--spacing-md)" }}>
+        <div style={{ marginTop: "var(--spacing-16)" }}>
           <ImagePanel
             images={editorImages}
             onSelect={(path) => plateRef.current?.selectImageAt(path)}
@@ -2470,7 +2470,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         style={{
           position: "fixed",
           inset: 0,
-          zIndex: "var(--z-top)",
+          zIndex: "var(--z-index-top)",
           background: "transparent",
           cursor: "wait",
         }}

@@ -11,12 +11,12 @@ export default function SettingsSkeleton() {
       <span data-admin-pending hidden />
       {[0, 1, 2].map((s) => (
         <div key={s} className={styles.section}>
-          <Skeleton width={120} height={18} borderRadius="var(--radius-capsule)" />
-          <div className={styles.fields} style={{ marginTop: "var(--spacing-md)" }}>
+          <Skeleton width={120} height={18} borderRadius="var(--radius-full)" />
+          <div className={styles.fields} style={{ marginTop: "var(--spacing-16)" }}>
             {[0, 1].map((f) => (
               <div key={f} className={styles.fieldRow}>
                 <SkeletonLine width={80} height={12} />
-                <Skeleton width="100%" height={36} borderRadius="var(--radius-capsule)" />
+                <Skeleton width="100%" height={36} borderRadius="var(--radius-full)" />
               </div>
             ))}
           </div>

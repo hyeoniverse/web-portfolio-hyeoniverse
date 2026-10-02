@@ -87,21 +87,21 @@ export default function ButtonsActionsDemos() {
           <div className={styles.componentRow}>
             <motion.div variants={staggerItemX} {...scrollChildX(0, 3)}>
               <Tooltip content="Pressable — 생김새는 자기 CSS, 동작만 공유">
-                <Pressable style={{ padding: "var(--spacing-2xs) var(--spacing-sm)", border: "var(--border-default)", borderRadius: "var(--radius-capsule)", fontSize: "var(--font-size-label)" }}>
+                <Pressable style={{ padding: "var(--spacing-4) var(--spacing-12)", border: "var(--border-default)", borderRadius: "var(--radius-full)", fontSize: "var(--font-size-label)" }}>
                   {language === "ko" ? "직접 만든 모양" : "Own look"}
                 </Pressable>
               </Tooltip>
             </motion.div>
             <motion.div variants={staggerItemX} {...scrollChildX(1, 3)}>
               <Tooltip content="soundDisabled — 연타되는 자리(스텝퍼 등)">
-                <Pressable soundDisabled style={{ padding: "var(--spacing-2xs) var(--spacing-sm)", border: "var(--border-default)", borderRadius: "var(--radius-capsule)", fontSize: "var(--font-size-label)" }}>
+                <Pressable soundDisabled style={{ padding: "var(--spacing-4) var(--spacing-12)", border: "var(--border-default)", borderRadius: "var(--radius-full)", fontSize: "var(--font-size-label)" }}>
                   soundDisabled
                 </Pressable>
               </Tooltip>
             </motion.div>
             <motion.div variants={staggerItemX} {...scrollChildX(2, 3)}>
               <Tooltip content="noTapScale — transform 이 자리를 흔들면 안 되는 절대위치 오버레이">
-                <Pressable noTapScale style={{ padding: "var(--spacing-2xs) var(--spacing-sm)", border: "var(--border-default)", borderRadius: "var(--radius-capsule)", fontSize: "var(--font-size-label)" }}>
+                <Pressable noTapScale style={{ padding: "var(--spacing-4) var(--spacing-12)", border: "var(--border-default)", borderRadius: "var(--radius-full)", fontSize: "var(--font-size-label)" }}>
                   noTapScale
                 </Pressable>
               </Tooltip>
@@ -117,12 +117,12 @@ export default function ButtonsActionsDemos() {
         >
           <div className={styles.componentRow}>
             {(["2xs", "xs", "sm", "md", "lg", "xl"] as const).map((s, i, arr) => (
-              <motion.div key={s} variants={staggerItemX} {...scrollChildX(i, arr.length + 1)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--spacing-2xs)" }}>
+              <motion.div key={s} variants={staggerItemX} {...scrollChildX(i, arr.length + 1)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--spacing-4)" }}>
                 <HelpButton size={s} aria-label={`help ${s}`} />
                 <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--font-size-hint)", color: "var(--text-muted)" }}>{s}</span>
               </motion.div>
             ))}
-            <motion.div variants={staggerItemX} {...scrollChildX(6, 7)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--spacing-2xs)" }}>
+            <motion.div variants={staggerItemX} {...scrollChildX(6, 7)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--spacing-4)" }}>
               <Popover
                 trigger={<HelpButton size="sm" aria-label="도움말" />}
                 placement="bottom-start"
@@ -153,7 +153,7 @@ export default function ButtonsActionsDemos() {
           ko={"누르고 있으면 action 을 가속하며 반복합니다. 클릭하면 즉시 한 번 실행하고, 380ms 이상 누르고 있으면 반복을 시작합니다(130ms 에서 28ms 로 점점 빨라집니다). 버튼 밖에서 손을 떼도 pointerCapture 로 안전하게 멈춥니다. 자체 시각 스타일은 없고, 놓이는 자리의 모양을 className 으로 받습니다(NumberInput 의 스텝퍼가 그 예입니다)."}
           en={"Hold to repeat the action with acceleration — one immediate fire, then repeat after a 380ms hold (130ms → 28ms, speeding up). pointerCapture stops it safely even if you release outside the button. It ships no visual style — the host passes the look via className (NumberInput's stepper being the example)."}
         >
-          <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-sm)" }}>
+          <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-12)" }}>
             <SpinButton className={styles.spinBtn} ariaLabel="감소" onStep={() => setSpinCount((n) => n - 1)}>
               <Minus size={14} strokeWidth={2.5} />
             </SpinButton>
@@ -161,7 +161,7 @@ export default function ButtonsActionsDemos() {
             <SpinButton className={styles.spinBtn} ariaLabel="증가" onStep={() => setSpinCount((n) => n + 1)}>
               <Plus size={14} strokeWidth={2.5} />
             </SpinButton>
-            <span style={{ color: "var(--text-tertiary)", fontSize: "var(--font-size-label)", marginLeft: "var(--spacing-sm)" }}>
+            <span style={{ color: "var(--text-tertiary)", fontSize: "var(--font-size-label)", marginLeft: "var(--spacing-12)" }}>
               {language === "ko" ? "꾹 눌러보세요" : "Press and hold"}
             </span>
           </motion.div>
@@ -173,9 +173,9 @@ export default function ButtonsActionsDemos() {
           ko={"닫기 버튼입니다. 평소엔 minus(하단 line 하나)였다가 hover 하면 두 line 이 X 로 morph 합니다(`[data-active]` 로 강제 X 상태도 가능). vector line 을 `top: 50%; left: 50%` + negative margin 으로 sub-pixel 정렬해 어느 크기에서도 정확히 겹칩니다. 아래 버튼에 마우스를 올려 보세요."}
           en={"A close button — a single minus line at rest that morphs into an X on hover (or force the X via `[data-active]`). The lines are sub-pixel aligned with `top: 50%; left: 50%` + negative margins so they meet cleanly at any size. Hover the buttons below."}
         >
-          <div className={styles.componentRow} style={{ gap: "var(--spacing-2xl)", alignItems: "flex-end" }}>
+          <div className={styles.componentRow} style={{ gap: "var(--spacing-32)", alignItems: "flex-end" }}>
             {([["xs", "20px"], ["sm", "24px"], ["md", "32px"], ["lg", "38px"]] as const).map(([size, px], i) => (
-              <motion.div key={size} variants={staggerItemX} {...scrollChildX(i, 4)} style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", gap: "var(--spacing-2xs)" }}>
+              <motion.div key={size} variants={staggerItemX} {...scrollChildX(i, 4)} style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", gap: "var(--spacing-4)" }}>
                 <CloseButton size={size} onClick={() => showToast("Closed!", "info")} ariaLabel="close" />
                 <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--font-size-hint)", color: "var(--text-muted)" }}>{size} · {px}</span>
               </motion.div>
@@ -204,7 +204,7 @@ export default function ButtonsActionsDemos() {
                   setMenuDotsOpen(true);
                 }
               }}
-              style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 40, height: 40, border: "none", borderRadius: "var(--radius-capsule)", background: "transparent", cursor: "pointer", color: "var(--text-primary)" }}
+              style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 40, height: 40, border: "none", borderRadius: "var(--radius-full)", background: "transparent", cursor: "pointer", color: "var(--text-primary)" }}
               aria-label="Toggle menu"
               aria-expanded={menuDotsOpen}
             >

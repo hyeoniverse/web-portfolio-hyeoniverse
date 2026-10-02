@@ -3,13 +3,13 @@
 .dayDetailHeading {
   display: inline-flex;
   align-items: baseline;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   flex-wrap: wrap;
 }
 
 .dayDetailDate {
   font-family: var(--font-instrument);
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-18);
   font-weight: var(--font-weight-regular);
   color: var(--text-primary);
 }
@@ -20,15 +20,15 @@
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  padding: var(--spacing-3xs) var(--spacing-xs);
-  border-radius: var(--radius-capsule);
+  padding: var(--spacing-2) var(--spacing-8);
+  border-radius: var(--radius-full);
   background: var(--bg-secondary);
 }
 
 /* large emphasized number — dayDetail 의 main value */
 .dayDetailNumber {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-3xl);
+  font-size: var(--font-size-32);
   font-weight: 700;
   color: var(--text-accent);
   line-height: 1;
@@ -52,10 +52,10 @@
 /* 좌/우 cell 에 cascade var 로 padding propagate — 안쪽 ListItem/Item/PanelTitle 의
    padding-inline-start/end 자동 적용. header (1st child, 풀 row span) 제외. */
 .dayDetailPanel > :nth-child(2) {
-  --_item-inline-end: var(--spacing-md);
+  --_item-inline-end: var(--spacing-16);
 }
 .dayDetailPanel > :nth-child(3) {
-  --_item-inline-start: var(--spacing-md);
+  --_item-inline-start: var(--spacing-16);
 }
 
 .dayDetailLabel {
@@ -81,10 +81,10 @@
 .rangePosTrack {
   position: relative;
   height: 6px;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--bg-secondary);
   overflow: visible;
-  margin-block: var(--spacing-xs);
+  margin-block: var(--spacing-8);
 }
 
 .rangePosFill {
@@ -97,7 +97,7 @@
     var(--color-accent-alpha-30),
     var(--color-accent)
   );
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   animation: rangeFill 0.6s cubic-bezier(0.4, 0, 0.2, 1) 280ms both;
 }
 
@@ -135,7 +135,7 @@
 .rangePosBounds {
   display: flex;
   justify-content: space-between;
-  margin-block: var(--spacing-xs);
+  margin-block: var(--spacing-8);
   font-family: var(--font-mono);
   font-size: var(--font-size-hint);
   color: var(--text-muted);
@@ -157,6 +157,6 @@
   color: var(--text-secondary);
   font-variant-numeric: tabular-nums;
   font-weight: 600;
-  min-width: var(--control-h-xl);
+  min-width: var(--control-height-xl);
   text-align: right;
 }

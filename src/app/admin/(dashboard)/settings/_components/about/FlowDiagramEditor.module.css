@@ -1,7 +1,7 @@
 .editor {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   flex: 1;
   min-width: 0;
 }
@@ -9,7 +9,7 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 .hint {
   margin: 0;
@@ -18,7 +18,7 @@
 }
 .canvasWrap {
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   overflow: auto;
   background: var(--bg-secondary);
 }
@@ -41,17 +41,17 @@
 /* 선택 항목 편집 줄 */
 .inspect {
   display: flex;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   align-items: center;
-  padding: var(--spacing-2xs) var(--spacing-xs);
+  padding: var(--spacing-4) var(--spacing-8);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
 }
 /* 좁은 폭 — 이름을 붙인 삭제 단추까지 한 줄에 들어가지 않는다. 줄을 넘기고, 캡슐은 두 줄에 어울리지 않아 둥근 판으로 */
 @media (max-width: 768px) {
   .inspect {
     flex-wrap: wrap;
-    border-radius: var(--radius-2xl);
+    border-radius: var(--radius-24);
   }
 }
 .inspectTitle {
@@ -67,11 +67,11 @@
 .inspectInput {
   flex: 1;
   min-width: 0;
-  padding: var(--field-p-sm);
+  padding: var(--field-padding-sm);
   border: 0;
 
   /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 편집 폼의 입력 칸(R6 예외). AboutStudio .edit 주석 참고 */
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-6);
   background: transparent;
   color: var(--text-primary);
   font: inherit;
@@ -84,13 +84,13 @@
 /* 타입 범례 — 모양만으로 구분이 안 되는 start/end 를 색으로 */
 .legend {
   display: inline-flex;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   align-items: center;
   margin-left: auto;
 }
 .legendItem {
   display: inline-flex;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   align-items: center;
   color: var(--text-tertiary);
   font-family: var(--font-mono);

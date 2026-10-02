@@ -5,8 +5,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-md);
-  padding: var(--spacing-6xl) 0;
+  gap: var(--spacing-16);
+  padding: var(--spacing-128) 0;
   color: var(--text-tertiary);
 }
 
@@ -19,7 +19,7 @@
 /* ── Coming Soon variant — 시리즈 선택 + posts 0개 ──
    기본 emptyState 보다 살짝 화려한 톤. Sparkles 3 개 클러스터 + 부드러운 pulse / float 애니메이션. */
 .emptyStateComingSoon {
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 .comingSoonIconWrap {
@@ -80,7 +80,7 @@
 .comingSoonTitle {
   margin: 0;
   font-family: var(--font-instrument);
-  font-size: var(--font-size-2xl);
+  font-size: var(--font-size-24);
   font-weight: var(--font-weight-regular);
   color: var(--text-primary);
   letter-spacing: 0.02em;

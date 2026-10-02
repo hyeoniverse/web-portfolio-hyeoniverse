@@ -61,7 +61,7 @@ html.lenis body {
   height: 2px;
   background: var(--color-white-alpha-10);
   border-radius: 1px;
-  z-index: var(--z-nav);
+  z-index: var(--z-index-nav);
   opacity: 0;
   transition: opacity var(--duration-base) ease;
 }
@@ -213,7 +213,7 @@ html.lenis body {
 @media (max-width: 768px) {
   .horizontal-item {
     width: 85vw;
-    padding: var(--row-p-sm);
+    padding: var(--row-padding-sm);
   }
 
   .horizontal-progress {

@@ -134,7 +134,7 @@ function ColorSplitButton({ kind }: { kind: keyof typeof COLOR_KIND }) {
   /* onPick 은 피커를 끄는 동안에도 불린다 — 최근 색은 프리셋·최근 색을 누른 경우와 피커를 뗀 경우(onCommit)만 남긴다 */
   const known = (v: string) => cfg.presets.some((p) => p.hex === v) || recent.colors.includes(v);
   const bar = (color: string | undefined, fallback: string) => (
-    <span style={{ width: 12, height: 3, borderRadius: "var(--radius-capsule)", background: color || fallback, boxShadow: "inset 0 0 0 0.5px var(--text-muted)" }} />
+    <span style={{ width: 12, height: 3, borderRadius: "var(--radius-full)", background: color || fallback, boxShadow: "inset 0 0 0 0.5px var(--text-muted)" }} />
   );
 
   return (

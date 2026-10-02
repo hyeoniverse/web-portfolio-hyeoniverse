@@ -6,9 +6,9 @@
 .groups {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  column-gap: var(--spacing-2xl);
+  column-gap: var(--spacing-32);
   row-gap: 0;
-  margin-top: var(--spacing-sm);
+  margin-top: var(--spacing-12);
 }
 
 .group {
@@ -17,12 +17,12 @@
   grid-template-rows: subgrid;
   align-content: start;
   min-width: 0;
-  margin-bottom: var(--spacing-xl);
+  margin-bottom: var(--spacing-24);
 }
 
 .groupTitle {
   align-self: end;
-  margin: 0 0 var(--spacing-xs);
+  margin: 0 0 var(--spacing-8);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   font-weight: 600;
@@ -45,8 +45,8 @@
 .row {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-md) 0;
+  gap: var(--spacing-8);
+  padding: var(--spacing-16) 0;
   border-top: var(--border-light);
 }
 
@@ -60,8 +60,8 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--spacing-2xs) var(--spacing-sm);
-  min-height: var(--control-h-sm);
+  gap: var(--spacing-4) var(--spacing-12);
+  min-height: var(--control-height-sm);
 }
 
 .name {
@@ -78,8 +78,8 @@
 
 /* 상태 — 정상(초록)·실패 중(노랑)·꺼짐(강조색)·키 없음(흐림). 빨강은 쓰지 않는다 */
 .status {
-  padding: var(--badge-p-md);
-  border-radius: var(--radius-capsule);
+  padding: var(--badge-padding-md);
+  border-radius: var(--radius-full);
   font-size: var(--font-size-label);
   font-weight: 600;
   line-height: 1;
@@ -109,7 +109,7 @@
 .actions {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   margin-left: auto;
 }
 
@@ -118,8 +118,8 @@
 .problem {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
-  padding-bottom: var(--spacing-sm);
+  gap: var(--spacing-8);
+  padding-bottom: var(--spacing-12);
   border-bottom: var(--border-light);
 }
 
@@ -141,15 +141,15 @@
 .message {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
-  padding-left: var(--spacing-sm);
+  gap: var(--spacing-2);
+  padding-left: var(--spacing-12);
   border-left: var(--border-light);
 }
 
 .messageHead {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   margin: 0;
   font-size: var(--font-size-hint);
   color: var(--text-tertiary);
@@ -163,8 +163,8 @@
 
 /* 상태 코드 — 계층별 색: 1xx 정보 · 2xx 성공 · 3xx 이동 · 4xx 요청 오류 · 5xx 서버 오류 */
 .messageStatus {
-  padding: 0 var(--spacing-2xs);
-  border-radius: var(--radius-capsule);
+  padding: 0 var(--spacing-4);
+  border-radius: var(--radius-full);
   font-family: var(--font-mono);
   font-weight: 600;
   background: var(--bg-tertiary);
@@ -202,13 +202,13 @@
 .rawBar {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 .rawToggle {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   padding: 0;
   border: none;
   background: transparent;
@@ -233,7 +233,7 @@
 /* 원문 — 배경·둥근 모서리 없이 위아래 선으로만 나눈다. 아주 긴 원문은 안에서 스크롤 */
 .raw {
   margin: 0;
-  padding: var(--spacing-xs) 0;
+  padding: var(--spacing-8) 0;
   border-top: var(--border-light);
   border-bottom: var(--border-light);
   font-family: var(--font-mono);
@@ -251,7 +251,7 @@
 .usage {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 .usageText {
@@ -269,14 +269,14 @@
 .bar {
   position: relative;
   height: 6px;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--bg-tertiary);
 }
 
 .barFill {
   display: block;
   height: 100%;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--bg-success-solid);
 }
 
@@ -291,12 +291,12 @@
   top: -3px;
   bottom: -3px;
   width: 2px;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--text-secondary);
 }
 
 .empty {
-  margin: var(--spacing-sm) 0 0;
+  margin: var(--spacing-12) 0 0;
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
 }
@@ -307,5 +307,5 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }

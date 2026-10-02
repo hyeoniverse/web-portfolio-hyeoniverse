@@ -8,8 +8,8 @@
      flex 부모(FieldRow 등)는 align-self, grid 부모(.section 등)는 justify-self 로 각각 가로축을 막는다. */
   align-self: flex-start;
   justify-self: start;
-  padding: var(--spacing-3xs);
-  border-radius: var(--radius-capsule);
+  padding: var(--spacing-2);
+  border-radius: var(--radius-full);
   box-shadow: inset 0 0 0 1px var(--border-color-default);
 }
 
@@ -25,10 +25,10 @@
   position: relative;
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-3xs);
-  /* group padding(2+2) 빼서 group 전체 높이는 --control-h-* 토큰 그대로 유지 */
-  height: calc(var(--control-h-md) - 4px);
-  padding: 0 var(--spacing-md);
+  gap: var(--spacing-2);
+  /* group padding(2+2) 빼서 group 전체 높이는 --control-height-* 토큰 그대로 유지 */
+  height: calc(var(--control-height-md) - 4px);
+  padding: 0 var(--spacing-16);
   border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -41,14 +41,14 @@
 
 /* size sm — group 전체 28 (= 24 btn + 4 padding) */
 .btnSm {
-  height: calc(var(--control-h-sm) - 4px);
-  padding: 0 var(--spacing-sm);
+  height: calc(var(--control-height-sm) - 4px);
+  padding: 0 var(--spacing-12);
 }
 
 /* size xs — group 전체 24 (= 20 btn + 4 padding). sidebar 인기글 등 슬림 컨텍스트 */
 .btnXs {
-  height: calc(var(--control-h-xs) - 4px);
-  padding: 0 var(--spacing-xs);
+  height: calc(var(--control-height-xs) - 4px);
+  padding: 0 var(--spacing-8);
   font-size: var(--font-size-hint);
   gap: 0;
 }
@@ -65,8 +65,8 @@
 /* nested 모드 — back chevron, active main label, divider chevron.
    compound (.btn.btnNav) 로 외부 .sortWrap button (specificity 0,1,1) override */
 .btn.btnNav {
-  padding-left: var(--spacing-xs);
-  padding-right: var(--spacing-xs);
+  padding-left: var(--spacing-8);
+  padding-right: var(--spacing-8);
   color: var(--text-tertiary);
 }
 
@@ -82,9 +82,9 @@
    버튼을 control-h-8 로 줄여(--nested-btn-h) 전체 높이는 padding 4*2 + (control-h-8) = control-h 로
    main 모드와 동일하게 유지 (전환 시 높이 안 변함). */
 .nestedGroup {
-  padding: var(--spacing-2xs);
+  padding: var(--spacing-4);
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 /* 하위 메뉴(sub-items) 를 감싸는 안쪽 border + padding 제거 — 바깥 하나만, 높이는 버튼 높이로 */
@@ -114,7 +114,7 @@
 .nestedDivider {
   display: inline-flex;
   align-items: center;
-  margin: 0 var(--spacing-2xs);
+  margin: 0 var(--spacing-4);
   color: var(--text-tertiary);
 }
 
@@ -122,14 +122,14 @@
 .subInlineWrap {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 /* framer-motion indicator — hover 시 bg-tertiary-alt, active 시 bg-inverse */
 .indicator {
   position: absolute;
   inset: 2px;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--bg-tertiary-alt);
   z-index: 0;
 }
@@ -143,7 +143,7 @@
   z-index: 1;
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
 }
 
 .dirIcon {

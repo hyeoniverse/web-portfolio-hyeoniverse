@@ -2,7 +2,7 @@
 
 /* ── Series Section ── */
 .seriesSection {
-  margin-bottom: var(--spacing-2xl);
+  margin-bottom: var(--spacing-32);
 }
 
 /* sectionHeader 가 postsLabel / seriesLabel 양쪽 base. seriesLabelLink 의 hover 패턴은 별도 추가 */
@@ -54,7 +54,7 @@
   z-index: 6;
   display: flex;
   align-items: center;
-  width: calc(56px + var(--spacing-md));
+  width: calc(56px + var(--spacing-16));
   border: none;
   background: transparent;
   cursor: pointer;
@@ -69,15 +69,15 @@
 }
 
 .seriesScrollBtnLeft {
-  left: calc(var(--spacing-md) * -1);
+  left: calc(var(--spacing-16) * -1);
   justify-content: flex-start;
-  padding-left: calc(var(--spacing-md) + var(--spacing-2xs));
+  padding-left: calc(var(--spacing-16) + var(--spacing-4));
 }
 
 .seriesScrollBtnRight {
-  right: calc(var(--spacing-md) * -1);
+  right: calc(var(--spacing-16) * -1);
   justify-content: flex-end;
-  padding-right: calc(var(--spacing-md) + var(--spacing-2xs));
+  padding-right: calc(var(--spacing-16) + var(--spacing-4));
 }
 
 /* 내부 시각적 badge — 32px 원, hover 시 blur backdrop. mix-blend-mode: difference 로 배경 무관 대비 */
@@ -105,9 +105,9 @@
 .activeSeriesMeta {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
-  padding: var(--spacing-md) 0;
-  margin-top: var(--spacing-xs);
+  gap: var(--spacing-4);
+  padding: var(--spacing-16) 0;
+  margin-top: var(--spacing-8);
   border-top: var(--border-light);
   border-bottom: var(--border-light);
 }
@@ -115,7 +115,7 @@
 .activeSeriesMetaTop {
   display: flex;
   align-items: baseline;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   flex-wrap: wrap;
 }
 
@@ -132,7 +132,7 @@
 .activeSeriesMetaInfo {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
@@ -140,8 +140,8 @@
 
 .activeSeriesMetaCategory {
   /* filter bar 의 다른 capsule (tagToggleBtn / moreBtn) 과 동일 패턴 */
-  padding: var(--spacing-3xs) var(--spacing-xs);
-  border-radius: var(--radius-capsule);
+  padding: var(--spacing-2) var(--spacing-8);
+  border-radius: var(--radius-full);
   border: var(--border-light);
   color: var(--text-secondary);
 }
@@ -166,12 +166,12 @@
   position: relative;
   display: flex;
   align-items: flex-start;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
   overflow-x: auto;
   /* 카드 없을 때도 동일한 높이 유지 — exit 애니메이션 동안 row 가 무너지지 않게 */
   min-height: 240px;
-  padding: var(--spacing-md) var(--spacing-md) var(--spacing-2xl);
-  margin: 0 calc(var(--spacing-md) * -1);
+  padding: var(--spacing-16) var(--spacing-16) var(--spacing-32);
+  margin: 0 calc(var(--spacing-16) * -1);
   scrollbar-width: none;
   /* 데스크톱 드래그 swipe — 기본 cursor + active 시 grabbing */
   cursor: grab;
@@ -214,9 +214,9 @@
    .seriesRow padding (md md 2xl) 을 inset 으로 그대로 적용해 카드 영역의 시각 center 와 일치. */
 .seriesEmpty {
   position: absolute;
-  top: var(--spacing-md);
+  top: var(--spacing-16);
   right: 0;
-  bottom: var(--spacing-2xl);
+  bottom: var(--spacing-32);
   left: 0;
   display: flex;
   align-items: center;
@@ -237,6 +237,6 @@
 
 @media (max-width: 768px) {
   .seriesRow {
-    gap: var(--spacing-sm);
+    gap: var(--spacing-12);
   }
 }

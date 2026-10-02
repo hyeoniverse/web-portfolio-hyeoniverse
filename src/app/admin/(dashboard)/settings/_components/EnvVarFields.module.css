@@ -4,10 +4,10 @@
    필드 행이 컨테이너 쿼리로 스스로 접혀(라벨 위로) 넘치지 않는다 — 스크롤바·마진과 무관. */
 .envGroupCols {
   display: grid;
-  grid-template-columns: var(--grid-cols-2);
-  column-gap: var(--spacing-2xl);
+  grid-template-columns: var(--grid-columns-2);
+  column-gap: var(--spacing-32);
   /* 같은 행의 두 그룹은 위에서부터 — 제목 줄을 맞춘다 */
-  row-gap: var(--spacing-lg);
+  row-gap: var(--spacing-20);
   align-items: start;
   /* 자식(열)이 container-type 로 intrinsic 폭 0 이 되므로, grid 가 content 기준으로
      줄지 않도록 명시적 폭을 강제한다 */
@@ -24,20 +24,20 @@
 .envGroup {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   min-width: 0;
 }
 
 .envGroupLabel {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-body);
   font-weight: 600;
   color: var(--text-secondary);
   letter-spacing: 0.02em;
-  margin: 0 0 var(--spacing-xs) 0;
+  margin: 0 0 var(--spacing-8) 0;
 }
 
 .envGroupLabel > svg {
@@ -65,8 +65,8 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
-  margin-bottom: var(--spacing-sm);
+  gap: var(--spacing-12);
+  margin-bottom: var(--spacing-12);
 }
 
 .envStatusBar {
@@ -74,7 +74,7 @@
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 /* row 개별 저장 버튼 — Check 아이콘, 편집 중 노출 */
 .envRowSaveBtn {
@@ -108,7 +108,7 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 .envStatusCount {
@@ -126,7 +126,7 @@
 .envStatusChip {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   font-family: var(--font-mono);
   font-size: var(--font-size-hint);
   color: var(--text-tertiary);
@@ -165,14 +165,14 @@
 /* 누락 row 강조 — left accent 보더 + 들여쓰기 */
 .envFieldRowMissing {
   border-left: 2px solid var(--text-accent);
-  padding-left: var(--spacing-sm);
-  margin-left: calc(var(--spacing-sm) * -1 - var(--spacing-3xs));
+  padding-left: var(--spacing-12);
+  margin-left: calc(var(--spacing-12) * -1 - var(--spacing-2));
 }
 /* progress 바 — set ratio */
 .envProgressBar {
   height: 3px;
   background: var(--border-color-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   overflow: hidden;
 }
 
@@ -205,7 +205,7 @@
 .envMetaLink {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   /* tooltip 안 (bg-inverse + text-inverse) 에서도 보이도록 부모 텍스트 색 그대로 상속 + underline 으로 link 표식 */
   color: inherit;
   text-decoration: underline;
@@ -215,8 +215,8 @@
 .envPasteModal {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
-  padding: var(--modal-p-md);
+  gap: var(--spacing-12);
+  padding: var(--modal-padding-md);
 }
 
 .envPasteHint {
@@ -229,9 +229,9 @@
 .envPasteTextarea {
   width: 100%;
   min-height: 200px;
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: var(--spacing-12) var(--spacing-16);
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   background: transparent;
   font-family: var(--font-mono);
   font-size: var(--font-size-label);
@@ -248,7 +248,7 @@
 .envPasteActions {
   display: flex;
   justify-content: flex-end;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 /* .fieldLabel 의 색을 덮는 modifier — 같은 (0,1,0) 이면 번들 순서에 따라 base 색이 남는다.
@@ -260,7 +260,7 @@
 .envInputCell {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   min-width: 0;
 }
 /* Input wrapper(첫 자식 div) — 셀 폭 전체 차지 */
@@ -273,21 +273,21 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 /* 소스/경고 배지 슬롯 — 라벨 텍스트 뒤 우측 정렬로 몰아 입력 앞에서 세로선 정렬 */
 .envBadgeSlot {
   margin-left: auto;
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   flex-shrink: 0;
 }
 
 .envRevealBtn,
 .envDeleteBtn {
-  width: var(--control-h-xs);
-  height: var(--control-h-xs);
+  width: var(--control-height-xs);
+  height: var(--control-height-xs);
   border: var(--border-light);
   border-radius: var(--radius-circle);
   background: transparent;
@@ -322,7 +322,7 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   color: var(--text-muted);
-  margin-top: var(--spacing-2xs);
+  margin-top: var(--spacing-4);
   line-height: var(--line-height-snug);
 }
 
@@ -333,8 +333,8 @@
 }
 
 .envSourceBadge {
-  padding: var(--badge-p-md);
-  border-radius: var(--radius-capsule);
+  padding: var(--badge-padding-md);
+  border-radius: var(--radius-full);
   font-size: var(--font-size-hint);
   font-weight: 500;
   background: var(--bg-tertiary);
@@ -360,8 +360,8 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: var(--spacing-md);
-  padding-top: var(--spacing-sm);
+  gap: var(--spacing-16);
+  padding-top: var(--spacing-12);
 }
 
 .envMsg {

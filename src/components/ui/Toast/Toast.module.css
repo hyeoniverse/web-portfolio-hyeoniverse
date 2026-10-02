@@ -3,13 +3,13 @@
    ────────────────────────────────────────────────────────────────── */
 .container {
   position: fixed;
-  bottom: var(--spacing-2xl);
+  bottom: var(--spacing-32);
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   z-index: 9999;
   pointer-events: none;
 }
@@ -18,11 +18,11 @@
   display: inline-flex;
   /* 여러 줄이면 아이콘을 첫 줄에 맞춘다 — 가운데 정렬이면 아이콘이 문단 가운데로 내려가 어느 줄 것인지 흐려진다 */
   align-items: flex-start;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-xs) var(--spacing-md);
+  gap: var(--spacing-8);
+  padding: var(--spacing-8) var(--spacing-16);
   /* 한 줄이면 높이의 절반보다 커서 캡슐과 같게 그려지고, 문구가 길어 줄이 바뀌면 둥근 사각형이 된다.
      캡슐(9999px)로 두면 여러 줄일 때 양 끝이 크게 부풀어 문구를 가린다(#868) */
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   /* 글래스 패널 — Select/Popover/DatePicker 와 동일 표면 */
   background: var(--bg-glass-panel);
   backdrop-filter: var(--blur-glass);
@@ -72,9 +72,9 @@
   align-items: center;
   justify-content: center;
   height: 1lh;
-  padding: 0 var(--spacing-xs);
+  padding: 0 var(--spacing-8);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-secondary);
   cursor: pointer;

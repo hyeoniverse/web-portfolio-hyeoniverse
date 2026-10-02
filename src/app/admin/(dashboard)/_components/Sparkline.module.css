@@ -3,8 +3,8 @@
 /* ── 시각화: 일별 조회수 sparkline (SVG) ── */
 .sparkline {
   width: 100%;
-  height: var(--control-h-xs);
-  margin-top: var(--spacing-2xs);
+  height: var(--control-height-xs);
+  margin-top: var(--spacing-4);
   display: block;
 }
 

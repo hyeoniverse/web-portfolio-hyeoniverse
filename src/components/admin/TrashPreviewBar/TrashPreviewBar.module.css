@@ -4,14 +4,14 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: flex-end;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   margin-left: auto;
 }
 
 /* 머리 위 한 줄로 둘 때(작업물 미리보기) — 아래 제목과 띄운다 */
 .block {
   width: 100%;
-  margin-bottom: var(--spacing-md);
+  margin-bottom: var(--spacing-16);
 }
 
 .notice {

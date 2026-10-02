@@ -3,15 +3,15 @@
    backdrop-filter 가 부모 페이지 콘텐츠를 blur 할 수 있도록 isolation 제거 */
 .wrap {
   position: fixed;
-  bottom: var(--spacing-xl);
-  right: var(--spacing-xl);
-  z-index: var(--z-dropdown);
+  bottom: var(--spacing-24);
+  right: var(--spacing-24);
+  z-index: var(--z-index-dropdown);
 }
 
 @media (max-width: 768px) {
   .wrap {
-    bottom: var(--spacing-md);
-    right: var(--spacing-md);
+    bottom: var(--spacing-16);
+    right: var(--spacing-16);
   }
 }
 
@@ -46,9 +46,9 @@
   position: relative;
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   width: 100%;
-  padding: var(--badge-p-lg);
+  padding: var(--badge-padding-lg);
   border: none;
   background: transparent;
   color: inherit;
@@ -83,13 +83,13 @@
 .pillScore {
   display: inline-flex;
   align-items: baseline;
-  gap: var(--spacing-4xs);
+  gap: var(--spacing-1);
   font-family: var(--font-mono);
   font-size: var(--font-size-label);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  margin-left: var(--spacing-2xs);
-  margin-right: var(--spacing-xs);
+  margin-left: var(--spacing-4);
+  margin-right: var(--spacing-8);
 }
 
 .pillScoreCount {
@@ -148,8 +148,8 @@
 .panelHeader {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
-  padding: var(--spacing-md);
+  gap: var(--spacing-16);
+  padding: var(--spacing-16);
   border-bottom: var(--border-light);
 }
 
@@ -188,7 +188,7 @@
 .panelScoreSepBig {
   font-size: 1.25rem;
   color: var(--text-muted);
-  margin: 0 var(--spacing-3xs);
+  margin: 0 var(--spacing-2);
 }
 
 .panelScoreTotalBig {
@@ -199,7 +199,7 @@
 .panelHeaderRight {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
 }
 
 .panelHeaderLabel {
@@ -222,15 +222,15 @@
 .panelList {
   list-style: none;
   margin: 0;
-  padding: var(--spacing-2xs) 0;
+  padding: var(--spacing-4) 0;
 }
 
 .panelItem {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   width: 100%;
-  padding: var(--row-p-md);
+  padding: var(--row-padding-md);
   border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -308,7 +308,7 @@
 
 /* ── Passed items — subtle 영역 (투명 유지) ── */
 .panelPassed {
-  padding: var(--spacing-sm) var(--spacing-md) var(--spacing-md);
+  padding: var(--spacing-12) var(--spacing-16) var(--spacing-16);
   border-top: var(--border-light);
 }
 
@@ -326,13 +326,13 @@
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--text-tertiary);
-  margin-bottom: var(--spacing-xs);
+  margin-bottom: var(--spacing-8);
 }
 
 .panelPassedList {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   list-style: none;
   margin: 0;
   padding: 0;
@@ -346,9 +346,9 @@
 .panelPassedItem {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
-  padding: var(--row-p-sm);
-  border-radius: var(--radius-capsule);
+  gap: var(--spacing-4);
+  padding: var(--row-padding-sm);
+  border-radius: var(--radius-full);
   border: var(--border-light);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-hint);

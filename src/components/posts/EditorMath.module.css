@@ -4,15 +4,15 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   max-width: 20rem;
-  padding: var(--spacing-2xs);
+  padding: var(--spacing-4);
 }
 
 .mathBarDiv {
   width: 1px;
   align-self: stretch;
-  margin: var(--spacing-3xs);
+  margin: var(--spacing-2);
   background: var(--border-color-light);
   flex-shrink: 0;
 }
@@ -23,11 +23,11 @@
   width: 420px;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-sm);
+  gap: var(--spacing-8);
+  padding: var(--spacing-12);
   background: var(--bg-secondary);
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   box-shadow: var(--shadow-lg);
 }
 
@@ -64,10 +64,10 @@
   align-items: center;
   justify-content: center;
   overflow: auto;
-  padding: var(--spacing-sm);
+  padding: var(--spacing-12);
   background: var(--bg-primary);
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   color: var(--text-primary);
 }
 
@@ -79,13 +79,13 @@
 
 .mathFloatingInput {
   width: 100%;
-  padding: var(--field-p-sm);
+  padding: var(--field-padding-sm);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--bg-primary);
   color: var(--text-primary);
   font-family: var(--font-mono), monospace;
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-16);
   line-height: 1.8;
   box-sizing: border-box;
   transition: border-color 0.15s;
@@ -107,7 +107,7 @@
   display: flex;
   align-items: center;
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   overflow: hidden;
 }
 
@@ -117,7 +117,7 @@
   font-family: var(--font-mono);
   font-size: var(--font-size-label);
   font-weight: 500;
-  padding: var(--modal-p-sm);
+  padding: var(--modal-padding-sm);
   line-height: 1;
 }
 

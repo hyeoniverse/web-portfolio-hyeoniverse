@@ -3,12 +3,12 @@
   display: inline-flex;
   align-items: center;
   /* 아이콘↔제목 간격 = 상·하·좌·우 여백과 동일 (전부 2xs 로 균일) */
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   max-width: 320px;
   /* 상·하·좌 4px + 아이콘↔제목 gap 4px. 우측만 8px — 캡슐 곡면 근처에서 평평한 텍스트는
      둥근 아이콘보다 더 여백이 있어야 시각적으로 같아 보이므로 우측(텍스트쪽) 여백을 키움. */
-  padding: var(--spacing-2xs) var(--spacing-xs) var(--spacing-2xs) var(--spacing-2xs);
-  border-radius: var(--radius-capsule);
+  padding: var(--spacing-4) var(--spacing-8) var(--spacing-4) var(--spacing-4);
+  border-radius: var(--radius-full);
   background: var(--bg-tertiary);
   color: var(--text-secondary);
   font-size: 0.9em;
@@ -71,22 +71,22 @@
 
 /* ── 팝오버 메뉴 ── */
 .menu {
-  padding: var(--spacing-xs);
+  padding: var(--spacing-8);
 }
 .menuBody {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   min-width: 208px;
 }
 .menuItem {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   width: 100%;
-  padding: var(--row-p-md);
+  padding: var(--row-padding-md);
   border: none;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-secondary);
   font-size: var(--font-size-body);

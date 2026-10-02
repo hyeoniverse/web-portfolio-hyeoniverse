@@ -5,9 +5,9 @@
 .hotBadge {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-3xs);
-  padding: var(--spacing-3xs) var(--spacing-sm);
-  border-radius: var(--radius-capsule);
+  gap: var(--spacing-2);
+  padding: var(--spacing-2) var(--spacing-12);
+  border-radius: var(--radius-full);
   background: var(--bg-accent-solid);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-micro);
@@ -22,9 +22,9 @@
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;
-  padding: var(--spacing-3xs) var(--spacing-2xs);
+  padding: var(--spacing-2) var(--spacing-4);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-micro);
   font-weight: var(--font-weight-medium);
@@ -39,6 +39,6 @@
   display: inline-flex;
   align-items: center;
   justify-content: flex-start;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   min-width: 46px;
 }

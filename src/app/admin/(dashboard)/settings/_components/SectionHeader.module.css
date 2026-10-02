@@ -6,9 +6,9 @@
   grid-column: 1;
   grid-row: 1;
   position: sticky;
-  top: calc(var(--header-height) + var(--spacing-lg));
+  top: calc(var(--header-height) + var(--spacing-20));
   /* 프리셋 카드 등 positioned 콘텐츠 위로 (Settings 패널 z 사다리 참조) */
-  z-index: calc(var(--z-nav) - 3);
+  z-index: calc(var(--z-index-nav) - 3);
   mix-blend-mode: difference;
   min-width: 0;
   overflow: hidden;
@@ -34,14 +34,14 @@
   grid-row: 1;
   justify-self: end;
   position: sticky;
-  top: calc(var(--header-height) + var(--spacing-lg));
-  z-index: calc(var(--z-nav) - 3);
+  top: calc(var(--header-height) + var(--spacing-20));
+  z-index: calc(var(--z-index-nav) - 3);
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   flex-shrink: 0;
-  padding: var(--spacing-3xs) var(--spacing-2xs);
-  border-radius: var(--radius-capsule);
+  padding: var(--spacing-2) var(--spacing-4);
+  border-radius: var(--radius-full);
   backdrop-filter: blur(24px) saturate(1.6);
 }
 /* 바뀐 섹션 점 — About 패널 머리(.psDot)와 같은 모양. 안 바뀌면 자리만 차지해 버튼이 흔들리지 않는다 */
@@ -49,7 +49,7 @@
   width: 6px;
   height: 6px;
   flex-shrink: 0;
-  margin-right: var(--spacing-3xs);
+  margin-right: var(--spacing-2);
   border-radius: var(--radius-circle);
   background: transparent;
 }
@@ -61,12 +61,12 @@
 @media (max-width: 1024px) {
   .title,
   .spacer {
-    top: calc(var(--header-height) + 2.9rem + var(--spacing-md));
+    top: calc(var(--header-height) + 2.9rem + var(--spacing-16));
   }
 }
 
 /* 부가설명(hint) — 제목 바로 아래 줄. row-gap(md) 을 상쇄해 tight(2xs) 하게 붙인다. */
 .extraRow {
-  margin-top: calc(var(--spacing-2xs) - var(--spacing-md));
+  margin-top: calc(var(--spacing-4) - var(--spacing-16));
   min-width: 0;
 }

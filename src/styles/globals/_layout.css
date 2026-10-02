@@ -43,7 +43,7 @@ nav#side-navigation::after {
   background: var(--bg-surface);
   content: "";
   pointer-events: none;
-  backdrop-filter: var(--blur-lg);
+  backdrop-filter: var(--blur-12);
   mask-image: linear-gradient(
     to right,
     var(--color-neutral-alpha-95) 0%,
@@ -99,10 +99,10 @@ nav#side-navigation::after {
   display: flex;
   flex-direction: column;
   margin: 0 auto;
-  padding: 0 var(--spacing-2xl);
-  padding-bottom: var(--spacing-6xl);
+  padding: 0 var(--spacing-32);
+  padding-bottom: var(--spacing-128);
   position: relative;
-  max-width: var(--width-6xl);
+  max-width: 2400px; /* 아주 넓은 화면에서 골격이 퍼지지 않게 — 이 파일에서만 쓰는 값 */
   min-height: 100vh;
   scroll-snap-type: y mandatory;
 }
@@ -135,13 +135,13 @@ nav#side-navigation::after {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--modal-p-lg);
+  padding: var(--modal-padding-lg);
   position: fixed;
   top: 0;
   right: 0;
   bottom: 0;
   left: 0;
-  z-index: var(--z-overlay);
+  z-index: var(--z-index-overlay);
   background: transparent;
   transition: none;
 }
@@ -156,14 +156,14 @@ nav#side-navigation::after {
   position: relative;
   z-index: 2;
   width: calc(
-    100vw - (var(--action-button-width) + var(--spacing-2xl) * 2) * 2
+    100vw - (var(--action-button-width) + var(--spacing-32) * 2) * 2
   );
-  max-width: var(--width-6xl);
+  max-width: 2400px; /* 아주 넓은 화면에서 골격이 퍼지지 않게 — 이 파일에서만 쓰는 값 */
   max-height: 90vh;
   overflow: hidden;
   background: var(--color-neutral-0);
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
 }
 
 /* ==========================================================================
@@ -173,7 +173,7 @@ nav#side-navigation::after {
 @media (max-width: 1024px) {
   #modal {
     width: calc(
-      100vw - (var(--action-button-width) + var(--spacing-md) * 2) * 2
+      100vw - (var(--action-button-width) + var(--spacing-16) * 2) * 2
     );
   }
 }
@@ -196,7 +196,7 @@ nav#side-navigation::after {
     max-width: none !important;
     min-height: 0;
     max-height: 85vh;
-    border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+    border-radius: var(--radius-24) var(--radius-24) 0 0;
     translate: 0 var(--sheet-y, 0px);
     transition:
       min-height 0.35s cubic-bezier(0.16, 1, 0.3, 1),

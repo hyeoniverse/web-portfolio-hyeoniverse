@@ -1,27 +1,37 @@
 /* ==========================================================================
-  Spacing & Box Tokens
+  Spacing Tokens — 원시 눈금 (docs/design-system.md 3.3)
 
-  Scale, fluid, directional box-model shorthand variants
+  이름이 px 값이다(2-3-2) — 값은 rem 이라 루트 글자 크기를 따라간다. 4px 단위, 1 · 2 는 가는 선 보정용.
   ========================================================================== */
 
 :root {
   /* Spacing Scale */
-  --spacing-zero: 0;
-  --spacing-4xs: 1px;
-  --spacing-3xs: 0.125rem;
-  --spacing-2xs: 0.25rem;
-  --spacing-xs: 0.5rem;
-  --spacing-sm: 0.75rem;
-  --spacing-md: 1rem;
-  --spacing-lg: 1.25rem;
-  --spacing-xl: 1.5rem;
-  --spacing-2xl: 2rem;
-  --spacing-2xl-plus: 2.5rem;
-  --spacing-3xl: 3rem;
-  --spacing-4xl: 4rem;
-  --spacing-4xl-plus: 5rem;
-  --spacing-5xl: 6rem;
-  --spacing-5xl-plus: 7rem;
-  --spacing-6xl: 8rem;
+  --spacing-0: 0;
+  --spacing-1: 1px;
+  --spacing-2: 0.125rem;
+  --spacing-4: 0.25rem;
+  --spacing-8: 0.5rem;
+  --spacing-12: 0.75rem;
+  --spacing-16: 1rem;
+  --spacing-20: 1.25rem;
+  --spacing-24: 1.5rem;
+  --spacing-32: 2rem;
+  --spacing-40: 2.5rem;
+  --spacing-48: 3rem;
+  --spacing-64: 4rem;
+  --spacing-80: 5rem;
+  --spacing-96: 6rem;
+  --spacing-112: 7rem;
+  --spacing-128: 8rem;
 
+}
+
+/* 480px 이하에서만 정의되는 화면 비례 여백. 그 밖에서는 정의가 없어 쓰면 무효가 된다.
+   이름이 뜻 없는 축약이라 페이지 리듬 역할로 옮길 대상이다(docs/design-system.md 3.3-3) */
+@media (max-width: 480px) {
+  :root {
+    --m-sm: 2.1vw;
+    --m-md: 4.2vw;
+    --m-lg: 5vw;
+  }
 }

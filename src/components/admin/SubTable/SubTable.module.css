@@ -4,10 +4,10 @@
 .toggle {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   flex: 1;
   min-width: 0;
-  padding: var(--spacing-xs) 0;
+  padding: var(--spacing-8) 0;
   border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -70,7 +70,7 @@
 .bulkBar {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   padding: 0;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
@@ -87,8 +87,8 @@
 .bulkBarOpen {
   max-height: 48px;
   opacity: 1;
-  padding: var(--spacing-xs) 0;
-  margin-bottom: var(--spacing-xs);
+  padding: var(--spacing-8) 0;
+  margin-bottom: var(--spacing-8);
 }
 
 .bulkCancel {
@@ -102,8 +102,8 @@
 /* ── Table header — AdminTable 과 동일한 padding/border 패턴으로 통일 ── */
 .tableHeader {
   display: grid;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-sm) 0;
+  gap: var(--spacing-8);
+  padding: var(--spacing-12) 0;
   border-bottom: var(--border-light);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-body);
@@ -150,8 +150,8 @@
 
 .row {
   display: grid;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-md) 0;
+  gap: var(--spacing-8);
+  padding: var(--spacing-16) 0;
   border-bottom: var(--border-light);
   align-items: center;
 }
@@ -164,7 +164,7 @@
 
 .colThumbWrap {
   align-self: stretch;
-  margin: calc(-1 * var(--spacing-md)) 0;
+  margin: calc(-1 * var(--spacing-16)) 0;
 }
 
 .colThumb {
@@ -218,15 +218,15 @@
 
 .colActions {
   display: flex;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   white-space: nowrap;
 }
 
 .actionBtn {
   flex-shrink: 0;
-  padding: var(--button-p-sm);
+  padding: var(--button-padding-sm);
   border: var(--border-strong);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
@@ -242,9 +242,9 @@
 
 .dangerBtn {
   flex-shrink: 0;
-  padding: var(--button-p-sm);
+  padding: var(--button-padding-sm);
   border: var(--border-accent-strong);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
@@ -260,8 +260,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: var(--control-h-xs);
-  height: var(--control-h-xs);
+  width: var(--control-height-xs);
+  height: var(--control-height-xs);
   flex-shrink: 0;
   border: none;
   border-radius: var(--radius-circle);
@@ -298,7 +298,7 @@
 
 /* ── Empty state ── */
 .empty {
-  padding: var(--spacing-md) 0;
+  padding: var(--spacing-16) 0;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   color: var(--text-muted);
@@ -328,7 +328,7 @@
   }
 
   .row .colActions {
-    margin: calc(-1 * var(--spacing-md)) 0;
+    margin: calc(-1 * var(--spacing-16)) 0;
   }
 
   .tableHeader .colActions::before,
@@ -358,7 +358,7 @@
   }
 
   .row .colCheck {
-    margin: calc(-1 * var(--spacing-md)) 0;
+    margin: calc(-1 * var(--spacing-16)) 0;
   }
 
   .tableHeader .colCheck::after,

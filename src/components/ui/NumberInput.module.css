@@ -10,7 +10,7 @@
      Select 등 인접 컨트롤과 톤이 어긋나지 않는다. */
   background: transparent;
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   color: var(--text-primary);
   overflow: hidden;
 }
@@ -27,7 +27,7 @@
   display: inline-flex;
   align-items: center;
   height: 100%;
-  padding: 0 var(--spacing-2xs) 0 var(--spacing-xs);
+  padding: 0 var(--spacing-4) 0 var(--spacing-8);
   font-family: var(--font-mono);
   font-size: var(--font-size-label);
   font-weight: 600;
@@ -46,7 +46,7 @@
   font-size: var(--font-size-label);
   color: var(--text-primary);
   outline: none;
-  padding: 0 var(--spacing-3xs);
+  padding: 0 var(--spacing-2);
   -moz-appearance: textfield;
   appearance: textfield;
 }
@@ -68,7 +68,7 @@
   font-family: var(--font-mono);
   font-size: var(--font-size-label);
   color: var(--text-muted);
-  padding-right: var(--spacing-2xs);
+  padding-right: var(--spacing-4);
   user-select: none;
 }
 .unitText {

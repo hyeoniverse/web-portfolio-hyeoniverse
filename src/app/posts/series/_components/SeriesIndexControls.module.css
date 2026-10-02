@@ -3,20 +3,20 @@
 /* 페이징 + 검색 + 도움말 묶음 — 우측 정렬, 작은 gap */.searchTools {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   margin-left: auto;
   min-width: 0;
 }/* perPage 그룹(아이콘 + select) */.perPageGroup {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }.perPageIcon {
   flex-shrink: 0;
   color: var(--text-tertiary);
 }.perPageSelect {
   flex: 0 0 auto;
 }.perPageSelect > button {
-  padding: 0 var(--spacing-sm);
+  padding: 0 var(--spacing-12);
   font-size: var(--font-size-hint);
 }
 

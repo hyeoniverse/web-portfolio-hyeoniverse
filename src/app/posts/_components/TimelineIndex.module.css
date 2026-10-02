@@ -12,8 +12,8 @@
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-lg);
-  padding: var(--spacing-2xs) var(--spacing-sm) var(--spacing-2xs) 0;
+  gap: var(--spacing-20);
+  padding: var(--spacing-4) var(--spacing-12) var(--spacing-4) 0;
   border-right: var(--border-light);
   scrollbar-width: none;
 }
@@ -24,7 +24,7 @@
 .timelineIndexGroup {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-4xs);
+  gap: var(--spacing-1);
 }
 
 /* 연도 헤더 — 월 그룹 상단 */
@@ -34,7 +34,7 @@
   font-weight: var(--font-weight-bold);
   letter-spacing: 0.1em;
   color: var(--text-tertiary);
-  padding: 0 0 var(--spacing-3xs) var(--spacing-2xs);
+  padding: 0 0 var(--spacing-2) var(--spacing-4);
   transition: color var(--duration-fast) var(--ease-material);
 }
 .timelineIndexYearActive {
@@ -67,9 +67,9 @@
   position: relative;
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   text-align: left;
-  padding: var(--spacing-4xs) var(--spacing-2xs) var(--spacing-4xs) 0;
+  padding: var(--spacing-1) var(--spacing-4) var(--spacing-1) 0;
   border: none;
   background: transparent;
   cursor: pointer;
@@ -116,7 +116,7 @@
 }
 /* 년/월 한자 접미 — 작고 은은하게 */
 .timelineIndexHanja {
-  margin-left: var(--spacing-4xs);
+  margin-left: var(--spacing-1);
   font-size: 0.82em;
   font-weight: var(--font-weight-regular);
   opacity: 0.55;

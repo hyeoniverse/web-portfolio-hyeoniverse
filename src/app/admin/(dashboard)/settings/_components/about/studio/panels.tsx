@@ -198,7 +198,7 @@ function PanelSaveHeader({ label, hint, paths, panelKey, config, savedConfig, sa
   return (
     /* 편집 중에도 위에 붙어 있는 툴바. 패널 하나가 4,000px 을 넘기도 해서, 예전엔
        한 글자 고치고 저장하려고 화면 몇 개를 거슬러 올라가야 했다.
-       --page-px 를 여기서만 좁힌다 — 공통 바는 뷰포트 양끝까지 frost 를 펴는데,
+       --spacing-page-inline 를 여기서만 좁힌다 — 공통 바는 뷰포트 양끝까지 frost 를 펴는데,
        설정 화면은 왼쪽에 사이드바가 있는 2열이라 그대로 두면 사이드바 일부가 같이 흐려진다. */
     <StickyGlassBar className={css.psHeader}>
       <span className={css.psLabel}>{label}</span>

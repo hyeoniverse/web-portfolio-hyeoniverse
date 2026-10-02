@@ -2,15 +2,15 @@
 
 /* ══ 통합 태그 — 같은 tech 를 쓴 작업물 섹션 (tags↔tech 공유) ══ */
 .worksSection {
-  margin-top: var(--spacing-5xl);
-  padding-top: var(--spacing-2xl);
+  margin-top: var(--spacing-96);
+  padding-top: var(--spacing-32);
   border-top: var(--border-light);
 }
 .worksHeading {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  margin: 0 0 var(--spacing-xl) 0;
+  gap: var(--spacing-12);
+  margin: 0 0 var(--spacing-24) 0;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-title-md);
   font-weight: var(--font-weight-semibold);
@@ -22,8 +22,8 @@
   font-weight: var(--font-weight-medium);
   color: var(--text-tertiary);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  padding: var(--spacing-4xs) var(--spacing-sm);
+  border-radius: var(--radius-full);
+  padding: var(--spacing-1) var(--spacing-12);
   font-variant-numeric: tabular-nums;
 }
 /* 프로젝트 목록 — 간격 없이 border 로만 구분하는 라인 테이블. 큰 타이포 제목. */
@@ -38,8 +38,8 @@
   isolation: isolate;
   display: flex;
   align-items: baseline;
-  gap: var(--spacing-md) var(--spacing-lg);
-  padding: var(--spacing-lg) var(--spacing-2xs);
+  gap: var(--spacing-16) var(--spacing-20);
+  padding: var(--spacing-20) var(--spacing-4);
   border-bottom: var(--border-light);
   text-decoration: none;
   color: inherit;
@@ -61,7 +61,7 @@
   transition: padding var(--duration-base) var(--ease-out-expo);
 }
 .workRow:hover {
-  padding-left: var(--spacing-2xl);
+  padding-left: var(--spacing-32);
 }
 
 /* hover 시 우측에 썸네일 ghost.
@@ -103,7 +103,7 @@
   flex: 0 1 auto;
   min-width: 0;
   font-family: var(--font-instrument);
-  font-size: var(--font-size-3xl);
+  font-size: var(--font-size-32);
   font-weight: var(--font-weight-regular);
   color: var(--text-primary);
   letter-spacing: -0.01em;
@@ -130,9 +130,9 @@
 .workRowYear {
   flex: 0 0 auto;
   margin-left: auto;
-  margin-right: var(--spacing-md);
+  margin-right: var(--spacing-16);
   font-family: var(--font-instrument);
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-20);
   font-style: italic;
   font-weight: var(--font-weight-light);
   /* white + difference — 뒤 이미지/배경과 반전 blend 되어 항상 대비 확보 */
@@ -144,7 +144,7 @@
 /* 화살표 — 좌측 absolute. hover 들여쓰기로 열린 공간에 나타남 */
 .workRowArrow {
   position: absolute;
-  left: var(--spacing-2xs);
+  left: var(--spacing-4);
   top: 50%;
   z-index: 1;
   color: var(--text-accent);
@@ -172,7 +172,7 @@
     display: none;
   }
   .workRowTitle {
-    font-size: var(--font-size-2xl);
+    font-size: var(--font-size-24);
     white-space: normal;
   }
 }

@@ -2,13 +2,13 @@
 
 /* ── 작성자: 게시물 끝 상세 섹션 ── */
 .authorsFooter {
-  margin-top: var(--spacing-3xl);
-  padding-top: var(--spacing-xl);
+  margin-top: var(--spacing-48);
+  padding-top: var(--spacing-24);
   border-top: var(--border-light);
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-lg);
-  scroll-margin-top: var(--spacing-3xl);
+  gap: var(--spacing-20);
+  scroll-margin-top: var(--spacing-48);
 }
 .authorsFooterHeading {
   font-family: var(--font-space-grotesk);
@@ -21,7 +21,7 @@
 .authorFooterCard {
   display: flex;
   align-items: flex-start;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-20);
 }
 .authorFooterAvatar,
 .authorFooterAvatarFallback {
@@ -42,19 +42,19 @@
   color: var(--text-secondary);
   font-family: var(--font-space-grotesk);
   font-weight: var(--font-weight-semibold);
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-18);
 }
 .authorFooterBody {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   min-width: 0;
 }
 .authorFooterNameRow {
   display: flex;
   align-items: baseline;
   flex-wrap: wrap;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 .authorFooterName {
   font-family: var(--font-space-grotesk);
@@ -74,8 +74,8 @@
 .authorFooterLinks {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-md);
-  margin-top: var(--spacing-2xs);
+  gap: var(--spacing-16);
+  margin-top: var(--spacing-4);
 }
 /* 링크는 공통 TextLink(external) 사용 — 색만 accent 로 override (하위 a 셀렉터로 단일 클래스 이김) */
 .authorFooterLinks a,
@@ -95,10 +95,10 @@
 
 @media (max-width: 768px) {
   .authorsFooter {
-    margin-top: var(--spacing-2xl);
+    margin-top: var(--spacing-32);
   }
   .authorFooterCard {
-    gap: var(--spacing-md);
+    gap: var(--spacing-16);
   }
   .authorFooterAvatar,
   .authorFooterAvatarFallback {

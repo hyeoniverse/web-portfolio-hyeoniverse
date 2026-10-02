@@ -300,7 +300,7 @@ function TransitionOverlay({
       style={{
         position: "fixed",
         inset: 0,
-        zIndex: "var(--z-top)",
+        zIndex: "var(--z-index-top)",
         background: "var(--bg-primary)",
         opacity: 1,
         pointerEvents: "none",
@@ -311,7 +311,7 @@ function TransitionOverlay({
       style={{
         position: "fixed",
         overflow: "hidden",
-        zIndex: "var(--z-top)",
+        zIndex: "var(--z-index-top)",
         pointerEvents: "none",
         top: rect.top,
         left: rect.left,

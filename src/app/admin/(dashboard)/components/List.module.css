@@ -19,7 +19,7 @@
 /* base item — vertical padding + hairline divider.
    horizontal padding 은 cascade var (외부에서 --_item-inline-start/end 설정 가능). */
 .item {
-  padding-block: var(--spacing-xs);
+  padding-block: var(--spacing-8);
   padding-inline-start: var(--_item-inline-start, 0);
   padding-inline-end: var(--_item-inline-end, 0);
   border-bottom: var(--border-light);
@@ -39,7 +39,7 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 /* layout: column — multi-line, vertical stack (header / body / footer 등) */
@@ -47,7 +47,7 @@
   composes: item;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 /* layout: grid — column-aligned (referrer row: source + bar + meta / dayDetail: label + diff + ctx).
@@ -56,6 +56,6 @@
   composes: item;
   display: grid;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 

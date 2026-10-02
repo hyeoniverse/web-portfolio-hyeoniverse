@@ -210,7 +210,7 @@ export default function OverlaysPopoversDemos() {
           <p className={styles.componentDesc}>
             anchor + portal · outside click / ESC 자동 닫힘 · 터치 디바이스에선 bottom sheet 로 자동 분기 · 모달 안에선 그 stacking context 로 portal 돼 전역 z-index 없이도 모달 위에 뜬다 · MenuItem 목록이면 menu 를 준다 — 패널 안쪽 여백(2xs)이 공통으로 들어가 항목의 둥근 hover 배경이 패널 테두리에 붙지 않는다(호출부에서 여백을 따로 넣지 않는다)
           </p>
-          <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", gap: "var(--spacing-md)", alignItems: "center" }}>
+          <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", gap: "var(--spacing-16)", alignItems: "center" }}>
             <Popover
               trigger={<Button variant="outline" shape="square" icon={<MoreVertical size={16} />} aria-label="Row actions" />}
               sheetTitle="Row actions"
@@ -272,7 +272,7 @@ export default function OverlaysPopoversDemos() {
               ? "데스크톱에서는 hover 로 열립니다. 열림은 즉시 이뤄지고 닫힘은 500ms 지연되므로, trigger 와 content 사이를 지나가도 닫히지 않습니다. hover popover 는 한 번에 하나만 열립니다(둘을 번갈아 올려 보세요). 클릭도 그대로 동작하며, hover 개념이 없는 터치/sheet 모드에서는 무시됩니다."
               : "Opens on hover on desktop — instantly on enter, with a 500ms close delay so crossing from trigger to content doesn't dismiss it. Only one hover popover stays open at a time (try alternating between the two). Click still works, and it's ignored in touch/sheet mode where hover doesn't exist.")}
           </p>
-          <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", gap: "var(--spacing-sm)", alignItems: "center" }}>
+          <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", gap: "var(--spacing-12)", alignItems: "center" }}>
             {["Format", "Insert"].map((label) => (
               <Popover
                 key={label}

@@ -1,12 +1,12 @@
 /* admin/settings, admin posts/works (AdminListShell) 와 동일 베이스 */
 .container {
-  max-width: var(--page-max-width);
+  max-width: var(--width-page-max);
   margin: 0 auto;
-  padding: var(--spacing-6xl) var(--page-px) var(--spacing-3xl);
+  padding: var(--spacing-128) var(--spacing-page-inline) var(--spacing-48);
 }
 
 .loading {
-  padding: var(--spacing-4xl);
+  padding: var(--spacing-64);
   text-align: center;
   font-family: var(--font-space-grotesk);
   color: var(--text-tertiary);
@@ -16,19 +16,19 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-2xl);
+  gap: var(--spacing-16);
+  margin-bottom: var(--spacing-32);
 }
 
 .title {
   font-family: var(--font-instrument);
-  font-size: var(--font-size-3xl);
+  font-size: var(--font-size-32);
   font-weight: var(--font-weight-regular);
   color: var(--text-primary);
   margin: 0;
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 .titleIcon {
@@ -50,10 +50,10 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: var(--control-h-2xs);
-  height: var(--control-h-2xs);
-  padding: 0 var(--spacing-xs);
-  border-radius: var(--radius-capsule);
+  min-width: var(--control-height-2xs);
+  height: var(--control-height-2xs);
+  padding: 0 var(--spacing-8);
+  border-radius: var(--radius-full);
   background: var(--bg-accent-solid);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
@@ -63,7 +63,7 @@
 
 .headerActions {
   display: flex;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 
@@ -90,8 +90,8 @@
 .item {
   display: flex;
   align-items: flex-start;
-  gap: var(--spacing-sm);
-  padding: var(--row-p-lg);
+  gap: var(--spacing-12);
+  padding: var(--row-padding-lg);
   border-bottom: var(--border-light);
   position: relative;
 }
@@ -113,13 +113,13 @@
 
 .icon {
   flex-shrink: 0;
-  width: var(--control-h-xl);
-  height: var(--control-h-xl);
+  width: var(--control-height-xl);
+  height: var(--control-height-xl);
   border-radius: var(--radius-circle);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: var(--spacing-3xs);
+  margin-top: var(--spacing-2);
 }
 
 .iconComment {
@@ -167,7 +167,7 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   color: var(--text-secondary);
-  margin-top: var(--spacing-3xs);
+  margin-top: var(--spacing-2);
   white-space: pre-wrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -179,8 +179,8 @@
 .itemMeta {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  margin-top: var(--spacing-2xs);
+  gap: var(--spacing-12);
+  margin-top: var(--spacing-4);
 }
 
 .itemDate {
@@ -207,14 +207,14 @@
   border-radius: var(--radius-circle);
   background: var(--bg-accent-solid);
   flex-shrink: 0;
-  margin-top: var(--spacing-xs);
+  margin-top: var(--spacing-8);
 }
 
 /* Skeleton-only — body 안 SkeletonLine 들 사이 spacing (실제 itemTitle/itemMessage 의 margin 흉내) */
 .skelBody {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   flex: 1;
   min-width: 0;
 }
@@ -223,8 +223,8 @@
 .tabsRow {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-md);
+  gap: var(--spacing-16);
+  margin-bottom: var(--spacing-16);
   flex-wrap: wrap;
 }
 
@@ -238,9 +238,9 @@
    를 currentColor 로 상속받고 bg 는 currentColor 15% mix 로 contrast 자동 보정 —
    active 시 검정 배경 위에서 숫자가 묻히던 문제 방지 */
 .tabCount {
-  margin-left: var(--spacing-2xs);
-  padding: 0 var(--spacing-2xs);
-  border-radius: var(--radius-capsule);
+  margin-left: var(--spacing-4);
+  padding: 0 var(--spacing-4);
+  border-radius: var(--radius-full);
   background: color-mix(in oklch, currentColor 15%, transparent);
   font-family: var(--font-mono);
   font-size: var(--font-size-hint);
@@ -253,8 +253,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-md);
-  margin-top: var(--spacing-lg);
+  gap: var(--spacing-16);
+  margin-top: var(--spacing-20);
 }
 
 .loadMoreCount {
@@ -303,8 +303,8 @@
 .groupHead {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
-  padding: var(--spacing-sm) var(--spacing-md);
+  gap: var(--spacing-4);
+  padding: var(--spacing-12) var(--spacing-16);
   border-bottom: var(--border-light);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-hint);
@@ -319,8 +319,8 @@
 }
 
 .groupCount {
-  padding: 0 var(--spacing-2xs);
-  border-radius: var(--radius-capsule);
+  padding: 0 var(--spacing-4);
+  border-radius: var(--radius-full);
   background: color-mix(in oklch, currentColor 15%, transparent);
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;

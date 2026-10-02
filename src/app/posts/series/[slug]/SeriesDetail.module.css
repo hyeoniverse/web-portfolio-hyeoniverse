@@ -1,17 +1,17 @@
 /* ── 시리즈 상세 (/posts/series/[slug]) — 뒤로 · 표지+제목+설명+개수 헤더 · 연재 순서 글 목록 ── */
 
 .container {
-  max-width: var(--page-max-width);
+  max-width: var(--width-page-max);
   margin: 0 auto;
-  padding: var(--spacing-5xl) var(--page-px) var(--spacing-3xl);
+  padding: var(--spacing-96) var(--spacing-page-inline) var(--spacing-48);
 }
 
 /* 뒤로 — 시리즈 목록으로 (태그 상세의 '← 태그 목록' 과 같은 결) */
 .back {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
-  margin-bottom: var(--spacing-xl);
+  gap: var(--spacing-4);
+  margin-bottom: var(--spacing-24);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
@@ -26,8 +26,8 @@
 .hero {
   display: flex;
   align-items: flex-start;
-  gap: var(--spacing-2xl);
-  padding-bottom: var(--spacing-xl);
+  gap: var(--spacing-32);
+  padding-bottom: var(--spacing-24);
   border-bottom: var(--border-light);
 }
 
@@ -46,7 +46,7 @@
 .heroText {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   min-width: 0;
 }
 
@@ -90,7 +90,7 @@
 /* 연재 순서 목록 — 각 편(에피소드) 행: 순번 · 썸네일 · 카테고리 · 제목 · 발췌 · 메타 */
 .postList {
   list-style: none;
-  margin: var(--spacing-2xl) 0 0;
+  margin: var(--spacing-32) 0 0;
   padding: 0;
   display: flex;
   flex-direction: column;
@@ -98,14 +98,14 @@
 
 .episode {
   display: flex;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
   border-bottom: var(--border-light);
 }
 
 .epNum {
   flex-shrink: 0;
   width: 2ch;
-  padding-top: var(--spacing-lg);
+  padding-top: var(--spacing-20);
   font-family: var(--font-mono);
   font-size: var(--font-size-body);
   color: var(--text-tertiary);
@@ -118,9 +118,9 @@
   flex: 1;
   min-width: 0;
   display: flex;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-20);
   align-items: flex-start;
-  padding: var(--spacing-lg) 0;
+  padding: var(--spacing-20) 0;
   text-decoration: none;
   color: inherit;
 }
@@ -155,7 +155,7 @@
 .epBody {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   min-width: 0;
 }
 
@@ -199,8 +199,8 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--spacing-2xs);
-  margin-top: var(--spacing-3xs);
+  gap: var(--spacing-4);
+  margin-top: var(--spacing-2);
   font-family: var(--font-mono);
   font-size: var(--font-size-hint);
   color: var(--text-tertiary);
@@ -210,11 +210,11 @@
   opacity: 0.5;
 }
 .epLang {
-  margin-left: var(--spacing-2xs);
+  margin-left: var(--spacing-4);
 }
 
 .empty {
-  margin: var(--spacing-3xl) 0;
+  margin: var(--spacing-48) 0;
   text-align: center;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
@@ -224,17 +224,17 @@
 @media (max-width: 640px) {
   .hero {
     flex-direction: column;
-    gap: var(--spacing-lg);
+    gap: var(--spacing-20);
   }
   .heroCover {
     width: 100%;
     max-width: 280px;
   }
   .episode {
-    gap: var(--spacing-sm);
+    gap: var(--spacing-12);
   }
   .epLink {
-    gap: var(--spacing-md);
+    gap: var(--spacing-16);
   }
   .epThumb {
     width: 96px;

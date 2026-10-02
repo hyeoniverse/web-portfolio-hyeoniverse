@@ -1,18 +1,18 @@
 .section {
-  margin-bottom: var(--spacing-2xl);
+  margin-bottom: var(--spacing-32);
 }
 
 .label {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   font-weight: var(--font-weight-medium);
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  padding-bottom: var(--spacing-sm);
+  padding-bottom: var(--spacing-12);
   border-bottom: var(--border-light);
 }
 
@@ -24,8 +24,8 @@
 .item {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
-  padding: var(--spacing-sm) 0;
+  gap: var(--spacing-4);
+  padding: var(--spacing-12) 0;
   border-bottom: var(--border-light);
   text-decoration: none;
   cursor: pointer;
@@ -37,7 +37,7 @@
 }
 
 .section .item:hover {
-  transform: translateX(var(--spacing-2xs));
+  transform: translateX(var(--spacing-4));
 }
 
 /* hover indent 는 item 전체를 오른쪽으로 미는데, .time 은 itemTop 의 우측 끝(space-between)이라
@@ -49,7 +49,7 @@
 }
 
 .section .item:hover .time {
-  transform: translateX(calc(-1 * var(--spacing-2xs)));
+  transform: translateX(calc(-1 * var(--spacing-4)));
 }
 
 .section .item:hover .content {
@@ -65,7 +65,7 @@
 .nickname {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   font-weight: var(--font-weight-medium);
@@ -73,8 +73,8 @@
 }
 
 .adminBadge {
-  padding: var(--badge-p-sm);
-  border-radius: var(--radius-capsule);
+  padding: var(--badge-padding-sm);
+  border-radius: var(--radius-full);
   background: var(--bg-accent-solid);
   font-size: var(--font-size-hint);
   font-weight: 500;
@@ -112,6 +112,6 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-body);
   color: var(--text-tertiary);
-  padding: var(--spacing-sm) 0;
+  padding: var(--spacing-12) 0;
   font-style: italic;
 }

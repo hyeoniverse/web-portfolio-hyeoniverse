@@ -2,7 +2,7 @@
 .wrapper {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 .label {
@@ -17,7 +17,7 @@
   display: inline-block;
   width: 4px;
   height: 4px;
-  margin-left: var(--spacing-2xs);
+  margin-left: var(--spacing-4);
   border-radius: var(--radius-circle);
   background: var(--text-accent);
   vertical-align: middle;
@@ -27,11 +27,11 @@
    border 는 light 가 default (sm/xs 도 override 안 해도 됨). strong 필요한 경우 callsite 에서 className 으로 추가 */
 .input {
   width: 100%;
-  height: var(--control-h-md);
+  height: var(--control-height-md);
   box-sizing: border-box;
-  padding: 0 var(--spacing-md);
+  padding: 0 var(--spacing-16);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-body);
@@ -64,7 +64,7 @@
 .fieldBody {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   min-width: 0;
 }
 
@@ -73,7 +73,7 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 /* (0,2,0) 으로 전역 theme transition 오버라이드 */
 .wrapper .counter {
@@ -96,7 +96,7 @@
 
 /* ── Size: sm ── */
 .wrapperSm {
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 .wrapperSm .label {
@@ -108,9 +108,9 @@
 
 /* sm — 28px (border-color 는 base 가 light 라 따로 override 안 함) */
 .sm {
-  height: var(--control-h-sm);
+  height: var(--control-height-sm);
   box-sizing: border-box;
-  padding: 0 var(--spacing-md);
+  padding: 0 var(--spacing-16);
   font-size: var(--font-size-body);
   line-height: 1;
 }
@@ -121,7 +121,7 @@
 
 /* ── Size: xs — ColorPicker 등 좁은 popover 안 압축 input ── */
 .wrapperXs {
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
 }
 
 .wrapperXs .label {
@@ -133,9 +133,9 @@
 
 /* xs — 24px (ColorPicker popover 등 좁은 곳) */
 .xs {
-  height: var(--control-h-xs);
+  height: var(--control-height-xs);
   box-sizing: border-box;
-  padding: 0 var(--spacing-sm);
+  padding: 0 var(--spacing-12);
   font-size: var(--font-size-label);
   line-height: 1;
 }
@@ -149,7 +149,7 @@
   border: none;
   border-bottom: var(--border-strong);
   border-radius: 0;
-  padding: var(--input-p);
+  padding: var(--input-padding);
   padding-left: 0;
 }
 
@@ -160,9 +160,9 @@
 /* ── Multiline (textarea) — 고정 높이 대신 내용 기반. EditorTextInput 전용 ── */
 .multiline {
   height: auto;
-  min-height: var(--control-h-sm);
-  padding-top: var(--spacing-2xs);
-  padding-bottom: var(--spacing-2xs);
+  min-height: var(--control-height-sm);
+  padding-top: var(--spacing-4);
+  padding-bottom: var(--spacing-4);
   line-height: 1.5;
   resize: none;
 }
@@ -177,14 +177,14 @@
 /* inline 배지 — KO/EN 같은 짧은 식별자 표시. capsule + bg-tertiary */
 .inlineLabel {
   position: absolute;
-  left: var(--spacing-xs);
+  left: var(--spacing-8);
   top: 50%;
   transform: translateY(-50%);
   display: inline-flex;
   align-items: center;
   height: 18px;
-  padding: 0 var(--spacing-2xs);
-  border-radius: var(--radius-capsule);
+  padding: 0 var(--spacing-4);
+  border-radius: var(--radius-full);
   background: var(--bg-tertiary);
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-micro);
@@ -197,7 +197,7 @@
 }
 
 .hasInlineLabel {
-  padding-left: calc(var(--spacing-xs) + 28px);
+  padding-left: calc(var(--spacing-8) + 28px);
 }
 
 
@@ -206,20 +206,20 @@
    focus-within 으로 외곽 + 버튼 divider 까지 함께 strong 강조 (border-color: text-primary). */
 .fieldWrapGrouped {
   align-items: stretch;
-  height: var(--control-h-md);
+  height: var(--control-height-md);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   overflow: hidden;
   /* (0,2,0) — 전역 theme transition 오버라이드 */
   transition: border-color var(--duration-base) ease;
 }
 
 .fieldWrapGroupedSm {
-  height: var(--control-h-sm);
+  height: var(--control-height-sm);
 }
 
 .fieldWrapGroupedXs {
-  height: var(--control-h-xs);
+  height: var(--control-height-xs);
 }
 
 .fieldWrap.fieldWrapGrouped:focus-within {
@@ -240,7 +240,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--control-h-md);
+  width: var(--control-height-md);
   height: 100%;
   padding: 0;
   border: none;
@@ -254,8 +254,8 @@
   transition: border-color var(--duration-base) ease, color var(--duration-base) ease;
 }
 
-.fieldWrapGroupedSm .addBtn { width: var(--control-h-sm); }
-.fieldWrapGroupedXs .addBtn { width: var(--control-h-xs); }
+.fieldWrapGroupedSm .addBtn { width: var(--control-height-sm); }
+.fieldWrapGroupedXs .addBtn { width: var(--control-height-xs); }
 
 /* enabled — input 에 값 있어 활성 상태: icon primary */
 .addBtn:not(:disabled) {
@@ -275,7 +275,7 @@
 /* clearBtn — value 있을 때 우측 absolute, eraser 아이콘. input padding-right 와 정합 */
 .clearBtn {
   position: absolute;
-  right: var(--spacing-xs);
+  right: var(--spacing-8);
   top: 50%;
   transform: translateY(-50%);
   display: inline-flex;
@@ -300,14 +300,14 @@
 }
 
 .hasClear {
-  padding-right: calc(var(--spacing-sm) + 24px);
+  padding-right: calc(var(--spacing-12) + 24px);
 }
 
 /* 지우개 + 눈 토글 공존 — 눈은 맨 우측(clearBtn 기본), 지우개는 그 왼쪽으로 shift */
 .clearBtnShift {
-  right: calc(var(--spacing-xs) + 26px);
+  right: calc(var(--spacing-8) + 26px);
 }
 
 .hasClear2 {
-  padding-right: calc(var(--spacing-sm) + 50px);
+  padding-right: calc(var(--spacing-12) + 50px);
 }

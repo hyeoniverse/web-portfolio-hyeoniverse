@@ -6,7 +6,7 @@
   position: relative;
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   user-select: none;
 }
 
@@ -31,7 +31,7 @@
 
 .box.square {
   /* stylelint-disable-next-line declaration-property-value-disallowed-list -- square 변형 — 체크박스의 네모가 곧 다중선택 표시다 */
-  border-radius: var(--radius-xs);
+  border-radius: var(--radius-4);
 }
 
 .wrapper:hover:not(.disabled) .box {

@@ -7,7 +7,7 @@
 }
 
 .techDomainTitle {
-  margin: 0 0 var(--spacing-sm);
+  margin: 0 0 var(--spacing-12);
   font-family: var(--font-instrument);
   font-size: clamp(1.5rem, min(2.2vw, 3.8vh), 2.25rem);
   font-style: italic;
@@ -26,12 +26,12 @@
 .techBranch {
   --node-py: clamp(0.35rem, 1vh, 0.6rem);
 
-  margin-left: var(--spacing-2xs);
+  margin-left: var(--spacing-4);
 }
 
 .techNode {
   position: relative;
-  padding: var(--node-py) 0 var(--node-py) var(--spacing-md);
+  padding: var(--node-py) 0 var(--node-py) var(--spacing-16);
 }
 
 /* 세로 줄기 — 분류마다 제 몫을 긋고, 마지막 분류는 제 가지에서 멈춘다 */
@@ -54,14 +54,14 @@
   position: absolute;
   top: calc(var(--node-py) + 0.55em);
   left: 0;
-  width: calc(var(--spacing-md) - var(--spacing-2xs));
+  width: calc(var(--spacing-16) - var(--spacing-4));
   border-top: var(--_line-secondary);
   content: "";
 }
 
 .techCategory {
   display: block;
-  margin-bottom: var(--spacing-2xs);
+  margin-bottom: var(--spacing-4);
   font-family: var(--font-mono);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
@@ -72,12 +72,12 @@
 .techLeaves {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 .techItem {
   display: flex;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   align-items: center;
 }
 
@@ -114,9 +114,9 @@
 @media (min-width: 1025px) and (min-height: 701px) {
   .techPanel {
     display: grid;
-    padding-bottom: calc(var(--spacing-2xl) + 4.5rem);
+    padding-bottom: calc(var(--spacing-32) + 4.5rem);
     grid-template-rows: minmax(0, 1fr) auto;
-    row-gap: var(--spacing-xl);
+    row-gap: var(--spacing-24);
     padding-top: calc(var(--header-height) + var(--_panel-py));
   }
 

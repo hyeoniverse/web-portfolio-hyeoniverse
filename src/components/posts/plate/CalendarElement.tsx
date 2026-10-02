@@ -787,7 +787,7 @@ export function CalendarElement(props: PlateElementProps) {
       role="group"
       aria-label={t("이벤트 달력", "Event calendar")}
       className={fullscreen ? styles.calFullscreen : undefined}
-      style={fullscreen ? undefined : { position: "relative", width: "100%", maxWidth: "100%", marginBottom: "var(--spacing-md)" }}
+      style={fullscreen ? undefined : { position: "relative", width: "100%", maxWidth: "100%", marginBottom: "var(--spacing-16)" }}
     >
       {/* 에디터 전용 상단 바 — 제목 | 검색·필터·정렬 | 불러오기·내보내기·전체화면 (한 줄) */}
       <div className={styles.blockBar}>

@@ -1,15 +1,15 @@
 /* ── 투표 결과 — 투표마다 질문·참여 수·옵션별 막대·쓰는 곳. 화면 너비에 따라 1~2열 ── */
 .list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(max(320px, calc((100% - var(--spacing-lg)) / 2)), 1fr));
-  gap: 0 var(--spacing-lg);
+  grid-template-columns: repeat(auto-fill, minmax(max(320px, calc((100% - var(--spacing-20)) / 2)), 1fr));
+  gap: 0 var(--spacing-20);
 }
 
 .item {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-sm) var(--spacing-2xs);
+  gap: var(--spacing-8);
+  padding: var(--spacing-12) var(--spacing-4);
   border-bottom: var(--border-light);
   min-width: 0;
 }
@@ -17,7 +17,7 @@
 .head {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 .title {
@@ -40,7 +40,7 @@
 .options {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -51,7 +51,7 @@
   display: grid;
   grid-template-columns: minmax(0, 9em) minmax(0, 1fr) auto;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   font-size: var(--font-size-label);
 }
 
@@ -65,7 +65,7 @@
 .bar {
   height: 6px;
   overflow: hidden;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--bg-tertiary);
 }
 

@@ -5,10 +5,10 @@
   align-items: center;
   align-self: flex-start;
   background: transparent;
-  border-radius: var(--radius-capsule);
-  padding: var(--spacing-3xs);
+  border-radius: var(--radius-full);
+  padding: var(--spacing-2);
   padding-top: calc(
-    var(--header-height) + var(--spacing-2xl) - var(--_panel-py)
+    var(--header-height) + var(--spacing-32) - var(--_panel-py)
   );
   mix-blend-mode: difference;
 }
@@ -22,7 +22,7 @@
   background: transparent;
   font-size: var(--font-size-prose-label);
   color: var(--text-white);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
 }
 
 .dotNavWrap .dotArrow {
@@ -57,7 +57,7 @@
   z-index: 0;
   background: transparent;
   pointer-events: none;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
 }
 
 /* Modifier: dotNav visible on mobile only, hidden on desktop (Troubleshooting) */
@@ -77,7 +77,7 @@
   z-index: 1;
   background: transparent;
   white-space: nowrap;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
 }
 
 /* Compound selector (0,2,0) to beat global theme transition */
@@ -92,7 +92,7 @@
   width: 6px;
   height: 6px;
   background: var(--bg-white);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   opacity: 0.5;
 }
 
@@ -153,8 +153,8 @@
   right: 0;
   bottom: 0;
   left: 0;
-  z-index: var(--z-float);
-  padding: var(--spacing-sm) var(--page-px) var(--spacing-md);
+  z-index: var(--z-index-float);
+  padding: var(--spacing-12) var(--spacing-page-inline) var(--spacing-16);
   background: color-mix(in srgb, var(--bg-primary) 88%, transparent);
   backdrop-filter: blur(12px);
   border-top: var(--border-light);
@@ -164,7 +164,7 @@
 .floorHere {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   min-width: 0;
 }
 
@@ -181,7 +181,7 @@
 
 .floorCurrent {
   display: flex;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   align-items: baseline;
 }
 
@@ -217,7 +217,7 @@
   flex-basis: 0;
   min-width: 3rem;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 .floorGroupTitle {
@@ -306,15 +306,15 @@
 /* 눈금 이름 — 올렸을 때만 위에 뜬다 */
 .floorTickLabel {
   position: absolute;
-  bottom: calc(100% + var(--spacing-xs));
+  bottom: calc(100% + var(--spacing-8));
   left: 50%;
-  padding: var(--spacing-3xs) var(--spacing-xs);
+  padding: var(--spacing-2) var(--spacing-8);
   font-family: var(--font-mono);
   font-size: var(--font-size-hint);
   white-space: nowrap;
   color: var(--text-inverse);
   background: var(--bg-inverse);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   opacity: 0;
   pointer-events: none;
   translate: -50% 4px;
@@ -337,17 +337,17 @@
 .floorSteps {
   display: grid;
   grid-template-columns: 7rem 10rem;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-20);
   align-items: baseline;
 }
 
 .floorStep {
   display: flex;
   min-width: 0;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   align-items: baseline;
   position: relative;
-  padding: var(--spacing-2xs) 0;
+  padding: var(--spacing-4) 0;
   white-space: nowrap;
   color: var(--text-tertiary);
 }
@@ -447,7 +447,7 @@
 
 .mobileTabBtn {
   position: relative;
-  padding: var(--spacing-sm) 0;
+  padding: var(--spacing-12) 0;
   border: none;
   border-bottom: 2px solid transparent;
   background: transparent;
@@ -484,7 +484,7 @@
   width: 100%;
   height: 2px;
   background: var(--bg-white);
-  border-radius: var(--spacing-4xs);
+  border-radius: var(--spacing-1);
 }
 
 .mobileTabActions {
@@ -494,11 +494,11 @@
 @media (max-width: 1024px), (max-height: 700px) {
   .mobileTabBar {
     display: flex;
-    gap: var(--spacing-xl);
+    gap: var(--spacing-24);
     position: sticky;
     top: 80px; /* section padding-top과 일치 — nav 높이(패딩 포함) */
-    z-index: var(--z-float);
-    padding: var(--spacing-2xs) var(--page-px);
+    z-index: var(--z-index-float);
+    padding: var(--spacing-4) var(--spacing-page-inline);
     background: transparent;
     border-bottom: none;
     mix-blend-mode: difference;
@@ -514,7 +514,7 @@
   .mobileTabActions {
     display: flex;
     align-items: center;
-    gap: var(--spacing-sm);
+    gap: var(--spacing-12);
     margin-left: auto;
     pointer-events: auto;
     font-family: var(--font-mono);

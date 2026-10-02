@@ -27,7 +27,7 @@
 .toolButtons {
   display: inline-flex;
   flex-shrink: 0;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
 }
 
 /* 썸네일의 음성 표시 — 작은 원. 음성 파일이 있으면 강조색으로 채우고, 대본만 있으면 어두운 바탕.
@@ -35,8 +35,8 @@
 .badgeMark {
   display: inline-grid;
   place-items: center;
-  width: var(--control-h-2xs);
-  height: var(--control-h-2xs);
+  width: var(--control-height-2xs);
+  height: var(--control-height-2xs);
   border-radius: var(--radius-circle);
   background: oklch(0% 0 0 / 0.6);
   color: var(--text-white);
@@ -117,16 +117,16 @@
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   min-height: 0;
-  padding: var(--spacing-lg) var(--spacing-md);
+  padding: var(--spacing-20) var(--spacing-16);
   overflow-y: auto;
   scroll-behavior: smooth;
 }
 
 .lyricLine {
   display: block;
-  padding: var(--spacing-3xs) var(--spacing-xs);
+  padding: var(--spacing-2) var(--spacing-8);
   font-size: var(--font-size-body-lg);
   line-height: 1.6;
   color: var(--text-muted);
@@ -172,7 +172,7 @@
   height: auto;
   min-height: 0;
   max-height: none;
-  padding: var(--spacing-sm);
+  padding: var(--spacing-12);
   border: 0;
   border-radius: 0;
 }
@@ -183,9 +183,9 @@
   flex-wrap: wrap;
   grid-column: 1 / -1;
   align-items: center;
-  gap: var(--spacing-xs) var(--spacing-md);
-  min-height: calc(var(--control-h-sm) + 2 * var(--spacing-2xs));
-  padding: var(--spacing-2xs) var(--spacing-xs);
+  gap: var(--spacing-8) var(--spacing-16);
+  min-height: calc(var(--control-height-sm) + 2 * var(--spacing-4));
+  padding: var(--spacing-4) var(--spacing-8);
   border-top: var(--border-light);
 }
 
@@ -193,7 +193,7 @@
   display: inline-flex;
   flex-shrink: 0;
   align-items: center;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
 }
 
 .paneIndex {
@@ -210,7 +210,7 @@
   display: flex;
   flex: 1;
   align-items: baseline;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   min-width: 0;
 }
 
@@ -219,7 +219,7 @@
   display: flex;
   grid-column: 1 / -1;
   align-items: center;
-  padding: var(--spacing-2xs) var(--spacing-md);
+  padding: var(--spacing-4) var(--spacing-16);
   border-top: var(--border-light);
 }
 
@@ -227,17 +227,17 @@
   display: flex;
   flex: 1;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   min-width: 0;
   /* 손잡이가 막대 끝에서 반만큼 튀어나오므로 양옆으로 조금 비운다 */
-  padding-inline: var(--spacing-2xs);
+  padding-inline: var(--spacing-4);
 }
 
 .seekButtons {
   display: inline-flex;
   flex-shrink: 0;
   align-items: center;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
 }
 
 .seekSlider {
@@ -257,7 +257,7 @@
   display: flex;
   flex: 1;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   min-width: 0;
 }
 
@@ -265,7 +265,7 @@
   display: inline-flex;
   flex-shrink: 0;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   color: var(--text-tertiary);
   font-size: var(--font-size-label);
 }
@@ -305,7 +305,7 @@
   min-width: 40px;
   height: 6px;
   overflow: hidden;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--bg-tertiary-alt);
 }
 
@@ -321,7 +321,7 @@
   display: inline-flex;
   flex-shrink: 0;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   margin-left: auto;
 }
 
@@ -329,7 +329,7 @@
   display: inline-flex;
   flex-shrink: 0;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   margin-left: auto;
 }
 
@@ -349,8 +349,8 @@
 /* 두 쪽의 맞닿는 모서리는 각지게, 바깥 모서리만 캡슐 */
 /* 좌우 여백을 줄여 조작 막대에서 자리를 덜 차지하게 — 아이콘과 글자 사이도 좁게 */
 .generateSplit .generateMain.generateMain {
-  gap: var(--spacing-xs);
-  padding: 0 var(--spacing-sm) 0 var(--spacing-md);
+  gap: var(--spacing-8);
+  padding: 0 var(--spacing-12) 0 var(--spacing-16);
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
   font-size: var(--font-size-label);
@@ -362,7 +362,7 @@
 }
 
 .generateSplit .generateToggle.generateToggle {
-  width: calc(var(--control-h-sm) - 4px);
+  width: calc(var(--control-height-sm) - 4px);
   margin-left: -1px;
   padding: 0;
   border-top-left-radius: 0;
@@ -403,18 +403,18 @@
 .generateMenuBody {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
 }
 
 .generateItem {
   font-family: var(--font-space-grotesk);
   display: flex;
   align-items: flex-start;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   width: 100%;
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: var(--spacing-12) var(--spacing-16);
   border: none;
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   background: transparent;
   color: var(--text-primary);
   text-align: left;
@@ -455,7 +455,7 @@
 .generateItemText {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-4xs);
+  gap: var(--spacing-1);
   min-width: 0;
 }
 
@@ -477,9 +477,9 @@
   font-family: var(--font-space-grotesk);
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
-  margin-top: var(--spacing-2xs);
-  padding: var(--spacing-sm) var(--spacing-md) var(--spacing-2xs);
+  gap: var(--spacing-8);
+  margin-top: var(--spacing-4);
+  padding: var(--spacing-12) var(--spacing-16) var(--spacing-4);
   border-top: 1px solid var(--border-color-light);
   font-size: var(--font-size-hint);
   color: var(--text-tertiary);
@@ -497,7 +497,7 @@
 .busyDots {
   width: 14px;
   justify-content: center;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
 }
 
 .busyDots > span {
@@ -534,8 +534,8 @@
 .pasteModal {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
-  padding: var(--modal-p-md);
+  gap: var(--spacing-12);
+  padding: var(--modal-padding-md);
 }
 
 .pasteHint {
@@ -564,26 +564,26 @@
 .pasteActions {
   display: flex;
   justify-content: flex-end;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 /* 읽기 사전 창 — 편집기(LexiconEditor)에 모달 안쪽 여백만 준다 */
 .lexiconModal {
-  padding: var(--modal-p-md);
+  padding: var(--modal-padding-md);
 }
 
 /* 음성 이력 창 */
 .historyModal {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
-  padding: var(--modal-p-md);
+  gap: var(--spacing-12);
+  padding: var(--modal-padding-md);
 }
 
 .historyList {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   max-height: 60vh;
   margin: 0;
   padding: 0;
@@ -594,9 +594,9 @@
 .historyItem {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-2xs) var(--spacing-xs);
-  border-radius: var(--radius-2xl);
+  gap: var(--spacing-8);
+  padding: var(--spacing-4) var(--spacing-8);
+  border-radius: var(--radius-24);
 }
 
 .historyItem[data-current] {
@@ -625,7 +625,7 @@
 
 .historyCurrent {
   flex-shrink: 0;
-  padding: 0 var(--spacing-sm);
+  padding: 0 var(--spacing-12);
   font-size: var(--font-size-label);
   color: var(--text-accent);
 }
@@ -633,7 +633,7 @@
 /* 이 장의 도구 | 갤러리 전체(목소리·한꺼번에) 사이 가는 선 */
 .barDivider {
   width: 1px;
-  height: var(--spacing-md);
+  height: var(--spacing-16);
   background: var(--border-color-light);
 }
 
@@ -667,14 +667,14 @@
 .helpModal {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-lg);
-  padding: var(--modal-p-md);
+  gap: var(--spacing-20);
+  padding: var(--modal-padding-md);
 }
 
 .helpSection {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 .helpTitle {
@@ -687,7 +687,7 @@
 .helpList {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   margin: 0;
   padding-left: 1.2em;
   font-size: var(--font-size-label);
@@ -697,7 +697,7 @@
 
 .helpCode {
   padding: 0 0.3em;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--bg-tertiary);
   font-family: var(--font-mono);
   font-size: 0.95em;
@@ -712,15 +712,15 @@
 .voiceValue {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   min-width: 0;
   max-width: 100%;
 }
 
 .voiceChip {
   flex-shrink: 0;
-  padding: 0 var(--spacing-xs);
-  border-radius: var(--radius-capsule);
+  padding: 0 var(--spacing-8);
+  border-radius: var(--radius-full);
   /* 글자색을 옅게 깐 바탕 — 라이트·다크 어디서나 둘레와 구분된다(bg-tertiary 는 다크에서 배경과 같았다) */
   background: color-mix(in srgb, var(--text-primary) 9%, transparent);
   color: var(--text-secondary);
@@ -739,7 +739,7 @@
 .voiceOption {
   display: flex;
   align-items: baseline;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
   width: 100%;
   min-width: 0;
 }

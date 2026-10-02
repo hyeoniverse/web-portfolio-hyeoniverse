@@ -3,9 +3,9 @@
 .mediaUploadBody {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   /* Modal body 표준 여백 (ModalAlert 과 동일) — 좌우 lg + 하단 2xl 로 hint 안 잘리게 */
-  padding: 0 var(--spacing-lg) var(--spacing-2xl);
+  padding: 0 var(--spacing-20) var(--spacing-32);
 }
 
 .mediaUploadName {
@@ -33,7 +33,7 @@
   width: 100%;
   /* 트랙 — 회색 대신 accent 옅은 톤 */
   background: var(--color-accent-alpha-15);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   overflow: hidden;
 }
 
@@ -43,7 +43,7 @@
   height: 100%;
   min-width: 8px;
   background: var(--color-accent);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   overflow: hidden;
   transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -68,7 +68,7 @@
   position: relative;
   height: 100%;
   width: 100%;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--color-accent-alpha-20);
   overflow: hidden;
 }
@@ -79,7 +79,7 @@
   top: 0;
   bottom: 0;
   width: 40%;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: linear-gradient(90deg, transparent, var(--color-accent), transparent);
   animation: mediaUploadSweep 1.5s cubic-bezier(0.65, 0, 0.35, 1) infinite;
 }
@@ -95,7 +95,7 @@
   display: flex;
   flex-direction: column;
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   overflow: hidden;
   transition: border-color 0.15s ease;
 }
@@ -108,8 +108,8 @@
 .imagePanelHeader {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-xs) var(--spacing-sm);
+  gap: var(--spacing-12);
+  padding: var(--spacing-8) var(--spacing-12);
   background: var(--bg-secondary);
   border-bottom: var(--border-light);
 }
@@ -128,7 +128,7 @@
 .imagePanelActions {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   margin-left: auto;
 }
 
@@ -144,9 +144,9 @@
 
 .imagePanelList {
   display: flex;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   overflow-x: auto;
-  padding: var(--spacing-sm);
+  padding: var(--spacing-12);
   background: var(--bg-primary);
   scrollbar-width: thin;
   scrollbar-color: var(--border-color-strong) transparent;
@@ -160,9 +160,9 @@
   overflow: visible;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   /* hover 배경도 각지게 — 안에 든 그림이 각져서 둥근 바탕만 남으면 겉돈다 */
-  padding: var(--spacing-3xs);
+  padding: var(--spacing-2);
   transition: background-color 0.15s;
 }
 
@@ -188,7 +188,7 @@
 .imagePanelEmpty {
   font-size: var(--font-size-label);
   color: var(--text-muted);
-  padding: var(--spacing-xs) 0;
+  padding: var(--spacing-8) 0;
 }
 
 .imagePanelDetachedSection {
@@ -198,7 +198,7 @@
   display: flex;
   align-items: center;
   /* 아래(이미지 영역 쪽) 간격은 최소로 — label 과 detached 썸네일 사이 좁힘 */
-  padding: var(--spacing-2xs) var(--spacing-sm) 0;
+  padding: var(--spacing-4) var(--spacing-12) 0;
   border-top: var(--border-light);
 }
 
@@ -207,12 +207,12 @@
    위 패딩을 sm 으로 맞춰 블록 상하 여백을 동일하게. */
 .imagePanelDividerFlush {
   border-top: none;
-  padding-top: var(--spacing-sm);
+  padding-top: var(--spacing-12);
 }
 
 /* detached 리스트는 label 바로 아래라 위쪽 패딩 축소 */
 .imagePanelDetachedSection .imagePanelList {
-  padding-top: var(--spacing-3xs);
+  padding-top: var(--spacing-2);
 }
 
 .imagePanelDividerLabel {
@@ -248,7 +248,7 @@
   top: -2px;
   left: -2px;
   z-index: 2;
-  padding: var(--spacing-3xs);
+  padding: var(--spacing-2);
 }
 
 .imagePanelCheckbox {
@@ -258,7 +258,7 @@
   width: 14px;
   height: 14px;
   /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 이미지 다중선택 체크박스 — 네모가 곧 의미 */
-  border-radius: var(--radius-2xs);
+  border-radius: var(--radius-2);
   border: 1.5px solid var(--text-tertiary);
   background: var(--bg-primary);
   color: var(--bg-primary);
@@ -287,8 +287,8 @@
 .imagePanelFooter {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-xs) var(--spacing-sm);
+  gap: var(--spacing-8);
+  padding: var(--spacing-8) var(--spacing-12);
   border-top: var(--border-light);
   background: var(--bg-secondary);
 }
@@ -315,7 +315,7 @@
   justify-content: center;
   width: 16px;
   height: 22px;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-tertiary);
   cursor: grab;
@@ -357,8 +357,8 @@
 .imgConfirm {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
-  padding: var(--modal-p-sm);
+  gap: var(--spacing-8);
+  padding: var(--modal-padding-sm);
   min-width: 180px;
 }
 
@@ -371,5 +371,5 @@
 .imgConfirmActions {
   display: flex;
   justify-content: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }

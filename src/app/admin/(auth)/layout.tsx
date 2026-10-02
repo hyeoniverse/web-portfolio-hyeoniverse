@@ -26,7 +26,7 @@ export default async function AuthLayout({
   }
 
   return (
-    <div style={{ paddingTop: "var(--spacing-6xl)" }}>
+    <div style={{ paddingTop: "var(--spacing-128)" }}>
       <AdminTranslationsGate>{children}</AdminTranslationsGate>
     </div>
   );

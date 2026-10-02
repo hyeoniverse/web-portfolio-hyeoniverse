@@ -4,8 +4,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-md);
-  padding: var(--row-p-lg);
+  gap: var(--spacing-16);
+  padding: var(--row-padding-lg);
   border-bottom: var(--border-light);
 }
 
@@ -13,7 +13,7 @@
 .skeletonCard {
   border-bottom: var(--border-light);
   overflow: hidden;
-  padding-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-20);
 }
 
 /* image area — SkeletonBlock 의 radius-md 를 0 으로, height 는 aspect-ratio 가 결정.
@@ -43,13 +43,13 @@
 .skeletonCardBody {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-md) 0 0 0;
+  gap: var(--spacing-8);
+  padding: var(--spacing-16) 0 0 0;
 }
 
 /* tags row — pill 들 가로 배치 */
 .skeletonTagsRow {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }

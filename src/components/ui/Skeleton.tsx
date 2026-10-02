@@ -21,7 +21,7 @@ export function Skeleton({ className, width, height, borderRadius }: SkeletonPro
 /** 텍스트 라인 — radius-sm */
 export function SkeletonLine({
   width = "100%",
-  height = "var(--skeleton-h-line)",
+  height = "var(--skeleton-height-line)",
   className,
 }: SkeletonProps) {
   return (
@@ -45,7 +45,7 @@ export function SkeletonCircle({ size = 36, className }: { size?: number | strin
 /** 캡슐 — 태그 / 뱃지 / pill 버튼 */
 export function SkeletonPill({
   width,
-  height = "var(--skeleton-h-pill)",
+  height = "var(--skeleton-height-pill)",
   className,
 }: SkeletonProps) {
   return (

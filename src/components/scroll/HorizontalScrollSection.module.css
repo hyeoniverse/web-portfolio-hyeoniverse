@@ -18,7 +18,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-2xl);
+  padding: var(--spacing-32);
   box-sizing: border-box;
 }
 
@@ -31,8 +31,8 @@
   width: 200px;
   height: 2px;
   background: var(--bg-glass);
-  border-radius: var(--spacing-4xs);
-  z-index: var(--z-nav);
+  border-radius: var(--spacing-1);
+  z-index: var(--z-index-nav);
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--duration-base) ease;
@@ -42,7 +42,7 @@
   height: 100%;
   width: 100%;
   background: var(--bg-accent-solid);
-  border-radius: var(--spacing-4xs);
+  border-radius: var(--spacing-1);
   transform-origin: left;
   transform: scaleX(0);
 }
@@ -51,7 +51,7 @@
 @media (max-width: 768px) {
   .item {
     width: 90vw;
-    padding: var(--row-p-lg);
+    padding: var(--row-padding-lg);
   }
 
   .progress {

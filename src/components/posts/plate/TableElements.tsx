@@ -303,7 +303,7 @@ function TableElementInner({ children, attributes, style, element }: PlateElemen
       style={{
         position: "relative",
         maxWidth: "100%",
-        margin: "var(--spacing-2xs, 4px) 0 0 0",
+        margin: "var(--spacing-4, 4px) 0 0 0",
         ["--tbl-border-color" as string]: borderColor,
         ["--tbl-border-style" as string]: borderStyle,
         ["--tbl-border-width" as string]: borderWidth,
@@ -377,7 +377,7 @@ function TableElementInner({ children, attributes, style, element }: PlateElemen
           height: rowBtnShown ? 24 : 6,
           // 가로 스크롤바(.tblScroll padding-bottom: md)가 행버튼을 밀어내지 않게, 밴드 위로 끌어올려
           // 표에서 항상 2xs 간격에 고정. (스크롤바는 md 밴드 아래에 위치 — 서로 안 밀어냄)
-          marginTop: "calc(var(--spacing-2xs) - var(--spacing-md))",
+          marginTop: "calc(var(--spacing-4) - var(--spacing-16))",
           transition: "height 0.15s ease",
         }}
       >

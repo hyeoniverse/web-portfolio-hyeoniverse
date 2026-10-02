@@ -4,7 +4,7 @@
   position: relative;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: var(--spacing-sm) var(--spacing-lg);
+  gap: var(--spacing-12) var(--spacing-20);
 }
 
 /* singleColumn prop true 시 — chip 1열 stack (정렬 순서 = 위→아래 명확) */
@@ -17,13 +17,13 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: var(--badge-p-sm);
+  padding: var(--badge-padding-sm);
   font-family: var(--font-mono);
   font-size: var(--font-size-micro);
   font-weight: 600;
   color: var(--text-tertiary);
   background: var(--bg-tertiary-alt);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   font-variant-numeric: tabular-nums;
 }
 
@@ -42,8 +42,8 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
-  padding-left: var(--spacing-2xs);
+  gap: var(--spacing-4);
+  padding-left: var(--spacing-4);
   border-left: var(--border-light);
   transition: opacity 0.15s ease;
 }
@@ -60,7 +60,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   min-height: 28px;
 }
 
@@ -68,7 +68,7 @@
 .tagGroup {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   flex-shrink: 0;
 }
 
@@ -97,9 +97,9 @@
   justify-content: center;
   height: 20px;
   width: fit-content;
-  padding: 0 var(--spacing-xs);
+  padding: 0 var(--spacing-8);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-hint);
@@ -117,7 +117,7 @@
   justify-content: center;
   width: 10px;
   height: 10px;
-  margin-right: var(--spacing-2xs);
+  margin-right: var(--spacing-4);
   flex-shrink: 0;
 }
 
@@ -160,7 +160,7 @@
 .inputs {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   overflow: hidden;
 }
 
@@ -170,7 +170,7 @@
 .itemRow,
 .readonlyLine {
   display: flex;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 /* input pair row — leading 요소들 (28px) 이 input wrap 첫 line center 와 정렬 */
@@ -260,11 +260,11 @@
   align-self: flex-start;
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   height: 20px;
-  padding: 0 var(--spacing-xs);
+  padding: 0 var(--spacing-8);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-hint);
@@ -298,7 +298,7 @@
 
 /* drawer extra — chip 헤더와 description 사이 슬롯 (이름 인라인 편집 등) */
 .drawerExtra {
-  padding: var(--spacing-xs) 0;
+  padding: var(--spacing-8) 0;
 }
 
 /* readonly checkbox — KO line 안 첫 자식 (itemCheckbox 14px) */
@@ -335,21 +335,21 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 /* readonlyItem (설명) 사이 hairline 구분선 — border 위/아래 동일 여백, 컴팩트하게 */
 .readonly .readonlyItem + .readonlyItem {
   border-top: var(--border-light);
-  padding-top: var(--spacing-2xs);
-  margin-top: var(--spacing-2xs);
+  padding-top: var(--spacing-4);
+  margin-top: var(--spacing-4);
 }
 
 /* header 우측 actions wrapper — [편집/삭제 capsule] + [+ 설명 추가 standalone] */
 .headerActions {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 /* 편집/취소/삭제 capsule group — 하나의 capsule 안 분할 셀 (+ 설명 추가 는 제외) */
@@ -357,7 +357,7 @@
   display: inline-flex;
   align-items: stretch;
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   overflow: hidden;
   height: 20px;
 }
@@ -366,11 +366,11 @@
 .standaloneAddBtn {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   height: 20px;
-  padding: 0 var(--spacing-xs);
+  padding: 0 var(--spacing-8);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-hint);
@@ -399,8 +399,8 @@
 .capsuleAddBtn {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
-  padding: 0 var(--spacing-xs);
+  gap: var(--spacing-4);
+  padding: 0 var(--spacing-8);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-hint);
@@ -417,12 +417,12 @@
 .inputWrap {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   height: 28px;
-  padding-left: var(--spacing-2xs);
+  padding-left: var(--spacing-4);
   padding-right: 0;
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   box-sizing: border-box;
 }
@@ -436,10 +436,10 @@
   align-items: center;
   justify-content: center;
   height: 20px;
-  padding: 0 var(--spacing-xs);
+  padding: 0 var(--spacing-8);
   background: var(--bg-tertiary);
   color: var(--text-secondary);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-hint);
   font-weight: 600;

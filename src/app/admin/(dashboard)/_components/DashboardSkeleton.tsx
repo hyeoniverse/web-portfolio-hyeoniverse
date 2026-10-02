@@ -14,7 +14,7 @@ function DashboardSkeleton() {
     <div className={styles.container} aria-busy="true" aria-live="polite">
       {/* Header — title + refresh button */}
       <header className={styles.header}>
-        <SkeletonLine width={180} height="var(--font-size-2xl)" />
+        <SkeletonLine width={180} height="var(--font-size-24)" />
         <SkeletonPill width={84} />
       </header>
 
@@ -44,21 +44,21 @@ function DashboardSkeleton() {
           {/* heroStat — full row span at 3-col */}
           <div className={styles.heroStat}>
             <div className={styles.heroLeft}>
-              <SkeletonLine width={80} height="var(--skeleton-h-line-sm)" />
+              <SkeletonLine width={80} height="var(--skeleton-height-line-sm)" />
               <div className={styles.heroValueRow}>
                 <SkeletonLine width={140} height={48} />
                 <SkeletonPill width={56} height={20} />
               </div>
-              <SkeletonLine width={120} height="var(--skeleton-h-line-sm)" />
+              <SkeletonLine width={120} height="var(--skeleton-height-line-sm)" />
             </div>
             <SkeletonBlock width={180} height={56} />
           </div>
           {/* 3 stat cards */}
           {Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className={styles.statCard}>
-              <SkeletonLine width={60} height="var(--skeleton-h-line-sm)" />
+              <SkeletonLine width={60} height="var(--skeleton-height-line-sm)" />
               <SkeletonLine width={80} height={28} />
-              <SkeletonLine width={100} height="var(--skeleton-h-line-sm)" />
+              <SkeletonLine width={100} height="var(--skeleton-height-line-sm)" />
             </div>
           ))}
         </Panel>
@@ -116,7 +116,7 @@ function DashboardSkeleton() {
                     <SkeletonLine width={`${60 - (i % 3) * 8}%`} />
                     <SkeletonLine
                       width={56}
-                      height="var(--skeleton-h-line-sm)"
+                      height="var(--skeleton-height-line-sm)"
                     />
                   </ListItem>
                 ))}
@@ -133,11 +133,11 @@ function DashboardSkeleton() {
             {Array.from({ length: 5 }).map((_, i) => (
               <ListItem key={i} layout="column">
                 <div className={styles.commentMeta}>
-                  <SkeletonLine width={70} height="var(--skeleton-h-line-sm)" />
-                  <SkeletonLine width={50} height="var(--skeleton-h-line-sm)" />
+                  <SkeletonLine width={70} height="var(--skeleton-height-line-sm)" />
+                  <SkeletonLine width={50} height="var(--skeleton-height-line-sm)" />
                 </div>
                 <SkeletonLine width={i % 2 === 0 ? "92%" : "70%"} />
-                <SkeletonLine width={120} height="var(--skeleton-h-line-sm)" />
+                <SkeletonLine width={120} height="var(--skeleton-height-line-sm)" />
               </ListItem>
             ))}
           </List>
@@ -161,16 +161,16 @@ function DashboardSkeleton() {
                   <div className={styles.popularHeader}>
                     <SkeletonLine
                       width={28}
-                      height="var(--skeleton-h-line-sm)"
+                      height="var(--skeleton-height-line-sm)"
                     />
                     <div className={styles.popularStats}>
                       <SkeletonLine
                         width={32}
-                        height="var(--skeleton-h-line-sm)"
+                        height="var(--skeleton-height-line-sm)"
                       />
                       <SkeletonLine
                         width={28}
-                        height="var(--skeleton-h-line-sm)"
+                        height="var(--skeleton-height-line-sm)"
                       />
                     </div>
                   </div>
@@ -178,11 +178,11 @@ function DashboardSkeleton() {
                   <div className={styles.popularMeta}>
                     <SkeletonLine
                       width={50}
-                      height="var(--skeleton-h-line-sm)"
+                      height="var(--skeleton-height-line-sm)"
                     />
                     <SkeletonLine
                       width={70}
-                      height="var(--skeleton-h-line-sm)"
+                      height="var(--skeleton-height-line-sm)"
                     />
                   </div>
                 </ListItem>
@@ -248,7 +248,7 @@ function DashboardSkeleton() {
             <Item key={i} className={styles.serviceItem}>
               <SkeletonCircle size={8} />
               <SkeletonLine width="60%" />
-              <SkeletonLine width={40} height="var(--skeleton-h-line-sm)" />
+              <SkeletonLine width={40} height="var(--skeleton-height-line-sm)" />
             </Item>
           ))}
         </Panel>

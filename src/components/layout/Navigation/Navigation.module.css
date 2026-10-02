@@ -6,12 +6,12 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--spacing-2xl) var(--page-px);
+  padding: var(--spacing-32) var(--spacing-page-inline);
   position: fixed;
   top: 0;
   right: 0;
   left: 0;
-  z-index: var(--z-nav);
+  z-index: var(--z-index-nav);
   mix-blend-mode: difference;
   pointer-events: none;
 }
@@ -28,17 +28,17 @@
    (자식에 두면 부모 stacking context 안에서 transparent backdrop 과 blend → 무효) */
 .logoNavBar {
   /* 로고가 놓이는 높이. 로딩 워드마크의 transform(.logoCssLoading)이 같은 값으로 거리를 잰다. */
-  --nav-logo-top: var(--spacing-2xl);
+  --nav-logo-top: var(--spacing-32);
   position: fixed;
   top: var(--nav-logo-top);
-  left: var(--page-px);
+  left: var(--spacing-page-inline);
   /* nav(.nav flex:1 navCenter 가 좌측까지 덮음) 보다 한 단계 위 — 로고+Admin 배지 전체가 클릭 가능하도록.
      로고는 좌측, nav 링크는 중앙/우측이라 시각적 겹침 없음. */
-  z-index: calc(var(--z-nav) + 1);
+  z-index: calc(var(--z-index-nav) + 1);
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   text-decoration: none;
   color: inherit;
   cursor: pointer;
@@ -59,7 +59,7 @@
 /* glitch 의 전역 .glith-on-hover:hover { z-index:30 } 이 로고를 nav 아래로 떨어뜨려
    hover 시 클릭이 막히던 것 방지 — 로고는 hover 에도 nav 위(z-nav+1) 유지.
    (모듈에서 전역 클래스는 :global 로 매칭해야 해시 안 됨) */
-.logoNavBar:global(.glith-on-hover):hover { z-index: calc(var(--z-nav) + 1); }
+.logoNavBar:global(.glith-on-hover):hover { z-index: calc(var(--z-index-nav) + 1); }
 .logoNavBar:global(.glith-on-hover):hover .logo {
   animation: glitch var(--duration-slower) infinite alternate;
   z-index: 30;
@@ -72,10 +72,10 @@
 
 /* 로딩 중 (또는 elevated z) — LoadingScreen backdrop 위로 올림 */
 /* 로딩 중(과 덮개가 사라지는 동안) 로고를 로딩 덮개 위에 둔다.
-   덮개가 --z-overlay 에서 --z-loading 으로 올라간 뒤(59bfe90c, 드로어를 덮으려고) 여기는
-   --z-overlay + 1 에 남아 있어서, 인트로 로고가 덮개 밑에 그려지고 한 번도 보이지 않았다. */
+   덮개가 --z-index-overlay 에서 --z-index-loading 으로 올라간 뒤(59bfe90c, 드로어를 덮으려고) 여기는
+   --z-index-overlay + 1 에 남아 있어서, 인트로 로고가 덮개 밑에 그려지고 한 번도 보이지 않았다. */
 .logoNavBarElevated {
-  z-index: calc(var(--z-loading) + 1);
+  z-index: calc(var(--z-index-loading) + 1);
 }
 
 
@@ -94,8 +94,8 @@
   text-transform: uppercase;
   color: var(--text-white);
   border: var(--border-white);
-  border-radius: var(--radius-capsule);
-  padding: var(--badge-p-md);
+  border-radius: var(--radius-full);
+  padding: var(--badge-padding-md);
   opacity: 0.6;
 }
 
@@ -112,7 +112,7 @@
 
 .logo {
   font-family: var(--font-instrument), serif;
-  font-size: var(--font-size-3xl);
+  font-size: var(--font-size-32);
   font-weight: var(--font-weight-regular);
   color: var(--text-white);
   letter-spacing: -0.02em;
@@ -147,7 +147,7 @@
   transform-origin: left center;
   transform:
     translate(
-      calc(50vw - var(--page-px) - var(--logo-k) * var(--logo-stretch, 0.8) * 50%),
+      calc(50vw - var(--spacing-page-inline) - var(--logo-k) * var(--logo-stretch, 0.8) * 50%),
       calc(50svh - var(--nav-logo-top) - 50%)
     )
     scale(calc(var(--logo-k) * var(--logo-stretch, 0.8)), var(--logo-k)) !important;
@@ -285,7 +285,7 @@
   flex: 1;
   display: flex;
   justify-content: center;
-  gap: var(--spacing-4xl);
+  gap: var(--spacing-64);
   margin-inline-start: var(--_logo-reserve, 0px);
   clip-path: inset(0 -20px 0 -20px);
   transition:
@@ -367,8 +367,8 @@
   z-index: 5;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
-  padding: var(--spacing-sm) 0 var(--spacing-sm) var(--spacing-md);
+  gap: var(--spacing-4);
+  padding: var(--spacing-12) 0 var(--spacing-12) var(--spacing-16);
   pointer-events: auto;
 }
 
@@ -376,8 +376,8 @@
 .subNavDropdownLine {
   position: absolute;
   left: 0;
-  top: var(--spacing-2xs);
-  bottom: var(--spacing-2xs);
+  top: var(--spacing-4);
+  bottom: var(--spacing-4);
   width: 1px;
   background: var(--text-white);
   opacity: 0.4;
@@ -414,7 +414,7 @@
 .subNavDropdownItemActive {
   opacity: 1;
   font-weight: var(--font-weight-medium);
-  margin-left: var(--spacing-2xs);
+  margin-left: var(--spacing-4);
 }
 /* 이미 들여쓰인 선택 항목은 hover 로 추가 이동하지 않음 */
 .subNavDropdownItemActive:hover {
@@ -451,7 +451,7 @@
      같은 위치에서 끝나도록 (32 - 12) / 2 = 10px 만큼 음수 margin.
      hit area 는 그대로, 시각적 위치만 페이지 edge 와 정렬.
      logo 는 텍스트라 visual edge = 글자 시작점이 이미 page-px 와 일치 → 좌측은 조정 불필요. */
-  margin-right: calc((var(--size-sm) - 12px) / -2);
+  margin-right: calc((var(--size-32) - 12px) / -2);
   transition: opacity 0.4s ease;
 }
 
@@ -461,9 +461,9 @@
   justify-content: center;
   /* size-md(38px) → size-sm(32px) — 좀 더 컴팩트하고 좌우 spacing 부담 감소.
      icon 12px + padding 4px = 20px → 32px 원 안에서 충분히 호흡. */
-  padding: var(--spacing-2xs);
-  width: var(--size-sm);
-  height: var(--size-sm);
+  padding: var(--spacing-4);
+  width: var(--size-32);
+  height: var(--size-32);
   flex-shrink: 0;
   border-radius: var(--radius-circle);
   color: var(--text-white);
@@ -497,8 +497,8 @@
   position: absolute;
   top: calc(100% + 10px);
   right: 0;
-  padding: var(--spacing-xs) var(--spacing-sm);
-  border-radius: var(--radius-capsule);
+  padding: var(--spacing-8) var(--spacing-12);
+  border-radius: var(--radius-full);
   background: var(--text-primary);
   color: var(--bg-primary);
   font-family: var(--font-mono);
@@ -508,7 +508,7 @@
   white-space: nowrap;
   pointer-events: auto;
   animation: soundTipIn 0.4s var(--ease-material) both;
-  z-index: var(--z-tooltip);
+  z-index: var(--z-index-tooltip);
 }
 
 /* 꼬다리(회전 사각형) — 캡슐 몸통의 둥근 오른쪽 끝(반경 ≈ 높이/2)을 벗어난 평평한 윗면에 얹어야
@@ -772,7 +772,7 @@
 .menuClipWrapper.menuClipWrapper {
   position: fixed;
   inset: 0;
-  z-index: var(--z-overlay);
+  z-index: var(--z-index-overlay);
   isolation: isolate;
   clip-path: inset(0 0 100% 0);
   transition: clip-path 0.8s cubic-bezier(0.4, 0, 0.6, 1);
@@ -822,12 +822,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-2xl-plus) var(--spacing-2xl);
+  padding: var(--spacing-40) var(--spacing-32);
 }
 
 .menuLogo {
   font-family: var(--font-instrument), serif;
-  font-size: var(--font-size-2xl-plus);
+  font-size: var(--font-size-28);
   font-weight: var(--font-weight-regular);
   color: var(--text-white);
   letter-spacing: -0.02em;
@@ -839,10 +839,10 @@
   bottom: 0;
   z-index: 1;
   background: var(--_menu-bg);
-  padding: var(--spacing-2xl) var(--page-px);
+  padding: var(--spacing-32) var(--spacing-page-inline);
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 .menuFooterLabel {
@@ -856,7 +856,7 @@
   position: relative;
   display: inline-block;
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: clamp(14px, 6vw, var(--font-size-3xl));
+  font-size: clamp(14px, 6vw, var(--font-size-32));
   color: var(--text-white);
   text-decoration: underline;
   text-underline-offset: 6px;
@@ -1011,14 +1011,14 @@
 .menuNav {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   /* 푸터는 바닥에 붙어(sticky) 스크롤할 때 목록 위를 지난다 — 마지막 항목이 그 뒤에 깔리지
      않도록 푸터 높이만큼 아래를 비워 둔다 */
-  padding-bottom: var(--spacing-3xl);
+  padding-bottom: var(--spacing-48);
   /* 위쪽부터 쌓고 남는 여백은 아래로 — 푸터를 바닥에 둔다 (menuDrawer 주석 참고) */
   margin-block-end: auto;
   /* 드로어에서 좌우 padding 을 뺐으므로(헤더/푸터가 각자 관리) 링크 들여쓰기는 여기서 */
-  padding-inline: var(--page-px);
+  padding-inline: var(--spacing-page-inline);
 }
 
 .menuLink {
@@ -1047,9 +1047,9 @@
 .menuSubList {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
-  padding-left: var(--spacing-lg);
-  margin-top: calc(var(--spacing-2xs) * -1);
+  gap: var(--spacing-4);
+  padding-left: var(--spacing-20);
+  margin-top: calc(var(--spacing-4) * -1);
 }
 
 .menuSubLink {
@@ -1082,9 +1082,9 @@
   flex-direction: column;
   /* 두 항목이 각자 자리를 잡도록 폭을 줄 전체로 늘린다 */
   align-items: stretch;
-  gap: var(--spacing-sm);
-  margin-top: var(--spacing-lg);
-  padding-top: var(--spacing-md);
+  gap: var(--spacing-12);
+  margin-top: var(--spacing-20);
+  padding-top: var(--spacing-16);
   border-top: var(--border-ghost);
 }
 
@@ -1244,9 +1244,9 @@
   max-width: calc(100vw - 32px);
   background: var(--bg-primary);
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   box-shadow: 0 12px 32px oklch(0.00% 0.0000 0.00 / 0.15);
-  z-index: var(--z-dropdown);
+  z-index: var(--z-index-dropdown);
   /* overflow visible 로 ::before pointer 가 box 밖으로 나갈 수 있게 */
   overflow: visible;
 }
@@ -1279,8 +1279,8 @@
 .notifDropdownHeader {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-xs) var(--spacing-md);
+  gap: var(--spacing-8);
+  padding: var(--spacing-8) var(--spacing-16);
   border-bottom: var(--border-light);
 }
 
@@ -1289,7 +1289,7 @@
   margin-left: auto;
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-hint);
   font-weight: 600;
@@ -1327,8 +1327,8 @@
   justify-content: center;
   min-width: 18px;
   height: 18px;
-  padding: 0 var(--spacing-2xs);
-  border-radius: var(--radius-capsule);
+  padding: 0 var(--spacing-4);
+  border-radius: var(--radius-full);
   background: var(--text-accent);
   color: var(--bg-primary);
   font-family: var(--font-mono);
@@ -1338,7 +1338,7 @@
 }
 
 .notifDropdownEmpty {
-  padding: var(--spacing-xl) var(--spacing-md);
+  padding: var(--spacing-24) var(--spacing-16);
   text-align: center;
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-label);
@@ -1360,7 +1360,7 @@
 /* 더 보기 버튼 — 리스트 아래, 풀폭 */
 .notifDropdownMore {
   width: 100%;
-  padding: var(--spacing-xs) var(--spacing-md);
+  padding: var(--spacing-8) var(--spacing-16);
   border: none;
   border-top: var(--border-light);
   background: transparent;
@@ -1390,8 +1390,8 @@
 .notifDropdownItemLink {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
-  padding: var(--row-p-lg);
+  gap: var(--spacing-2);
+  padding: var(--row-padding-lg);
   text-decoration: none;
   color: inherit;
   transition: background-color 0.15s ease;
@@ -1420,7 +1420,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 .notifDropdownItemTime {
@@ -1469,7 +1469,7 @@
 /* Logout 버튼 — contactBtn과 동일하게 mix-blend-mode: difference 환경.
    notif 버튼과 사이에 visual 호흡 (navActions gap 0 이라 자체 margin 으로 처리). */
 .logoutBtn.logoutBtn {
-  margin-left: var(--spacing-sm);
+  margin-left: var(--spacing-12);
   border-color: var(--text-white);
   color: var(--text-white);
 }
@@ -1485,13 +1485,13 @@
   ========================================================================== */
 
 .navLoading {
-  z-index: calc(var(--z-overlay) + 1);
+  z-index: calc(var(--z-index-overlay) + 1);
   pointer-events: none;
 }
 
 /* LoadingScreen 페이드아웃 완료까지 z-index 유지 */
 .navElevated {
-  z-index: calc(var(--z-overlay) + 1);
+  z-index: calc(var(--z-index-overlay) + 1);
 }
 
 .navLoading .navCenter,
@@ -1502,7 +1502,7 @@
 
 /* Menu open: nav를 drawer 위로 올리고 햄버거만 표시 */
 .navMenuOpen {
-  z-index: calc(var(--z-overlay) + 1);
+  z-index: calc(var(--z-index-overlay) + 1);
 }
 
 /* logoNavBar 자식 motion.span (.logo) 의 인라인 visibility:visible 로 visibility 만으론 안 숨겨짐
@@ -1540,7 +1540,7 @@
 
 @media (max-width: 1280px) {
   .navCenter {
-    gap: var(--spacing-2xl);
+    gap: var(--spacing-32);
   }
 
   .adminEmail {
@@ -1555,7 +1555,7 @@
    navCenter 는 768 이하에서 사라지므로 이 예약은 769~1024 구간에만 작동한다. */
 @media (max-width: 1024px) {
   .navAdmin {
-    --_logo-reserve: var(--size-6xl);
+    --_logo-reserve: var(--size-112);
   }
 }
 
@@ -1601,13 +1601,13 @@
 
 @media (max-width: 480px) {
   .nav {
-    padding: var(--spacing-md) var(--page-px);
+    padding: var(--spacing-16) var(--spacing-page-inline);
   }
 
-  /* .nav 패딩이 줄면(--spacing-2xl→--spacing-md) 버튼 행이 위로 올라간다.
+  /* .nav 패딩이 줄면(--spacing-32→--spacing-16) 버튼 행이 위로 올라간다.
      로고는 별도 fixed 요소라 top 을 같이 줄여야 버튼과 수직 중심이 맞는다. */
   .logoNavBar {
-    --nav-logo-top: var(--spacing-md);
+    --nav-logo-top: var(--spacing-16);
   }
 
   .navActions {
@@ -1615,7 +1615,7 @@
   }
 
   .actionBtn {
-    padding: var(--spacing-2xs);
+    padding: var(--spacing-4);
   }
 
   .themeIcon {
@@ -1634,7 +1634,7 @@
 
   .menuDots {
     grid-template-columns: repeat(3, 1.5px);
-    gap: var(--spacing-3xs);
+    gap: var(--spacing-2);
   }
 
   .menuDot {
@@ -1647,8 +1647,8 @@
 .notifDropdownItemAction {
   flex-shrink: 0;
   margin-left: auto;
-  padding: var(--row-p-sm);
-  border-radius: var(--radius-capsule);
+  padding: var(--row-padding-sm);
+  border-radius: var(--radius-full);
   /* accent 는 읽지 않음 dot 이 이미 쓴다 — 결정이 필요한 항목은 다른 색이라야 구분된다 */
   background: var(--bg-warning-soft);
   color: var(--text-warning-strong);

@@ -6,7 +6,7 @@
   min-height: 100vh;
   /* 상단 padding 은 series/tags 인덱스(.container 의 5xl)와 맞춘다 — 서브네비·타이틀이 페이지
      전환 시 세로로 튀지 않게 (posts·history 는 .page, series·tags 는 IndexPage .container 를 쓴다). */
-  padding: var(--spacing-5xl) var(--page-px) var(--spacing-3xl);
+  padding: var(--spacing-96) var(--spacing-page-inline) var(--spacing-48);
 }
 
 /* ── Header ── */
@@ -16,12 +16,12 @@
 }
 
 .header {
-  max-width: var(--page-max-width);
-  margin: 0 auto var(--spacing-2xl);
+  max-width: var(--width-page-max);
+  margin: 0 auto var(--spacing-32);
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   animation: fadeSlideUp 0.6s cubic-bezier(0.25, 0.1, 0.25, 1) both;
 }
 
@@ -38,7 +38,7 @@
    LCP 로 세지 않아 절반 넘게 5초 뒤(배너가 커지는 연출 때)에야 잡혔다. 첫 로드에서는 로딩 화면 밑에서 끝나던 페이드라
    보이는 차이는 다른 화면에서 넘어올 때뿐이다. 상세 커버(#911)·ProgressiveImage 의 priority 처리와 같은 이유 */
 .bannerSlider {
-  margin-bottom: var(--spacing-3xl);
+  margin-bottom: var(--spacing-48);
   min-height: clamp(280px, 44vh, 480px);
 }
 
@@ -53,11 +53,11 @@
 
 /* ── Content Area (2-column) ── */
 .contentArea {
-  max-width: var(--page-max-width);
+  max-width: var(--width-page-max);
   margin: 0 auto;
   display: grid;
   grid-template-columns: 1fr 280px;
-  gap: var(--spacing-3xl);
+  gap: var(--spacing-48);
   align-items: start;
 }
 
@@ -114,7 +114,7 @@
 @media (max-width: 1024px) {
   .contentArea {
     grid-template-columns: 1fr;
-    gap: var(--spacing-2xl);
+    gap: var(--spacing-32);
   }
 }
 

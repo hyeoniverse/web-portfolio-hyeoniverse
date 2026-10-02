@@ -11,7 +11,7 @@ type Props = ComponentPropsWithoutRef<"div"> & {
   cols?: string;
   /** grid 일 때 grid-template-rows 값 */
   rows?: string;
-  /** child 들 사이 gap (CSS shorthand — "var(--spacing-md)" 또는 "12px 24px") */
+  /** child 들 사이 gap (CSS shorthand — "var(--spacing-16)" 또는 "12px 24px") */
   gap?: string;
   /** align-items 값 ("start" | "center" | "end" | "baseline" | "stretch") */
   align?: "start" | "center" | "end" | "baseline" | "stretch";

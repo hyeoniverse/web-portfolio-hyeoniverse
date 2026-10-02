@@ -4,8 +4,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-lg) var(--spacing-2xl-plus);
+  gap: var(--spacing-12);
+  padding: var(--spacing-20) var(--spacing-40);
   text-align: center;
 }
 
@@ -13,9 +13,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: var(--size-xl);
-  height: var(--size-xl);
-  margin-bottom: var(--spacing-2xs);
+  width: var(--size-56);
+  height: var(--size-56);
+  margin-bottom: var(--spacing-4);
   border-radius: var(--radius-circle);
   background: var(--bg-accent-light);
   color: var(--text-accent);
@@ -44,12 +44,12 @@
 
 /* 무엇을 요청했는지 — 여러 건이면 목록으로 되짚어 준다 */
 .resultTargets {
-  margin: var(--spacing-sm) 0 0 0;
+  margin: var(--spacing-12) 0 0 0;
   padding: 0;
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
   overflow-wrap: anywhere;

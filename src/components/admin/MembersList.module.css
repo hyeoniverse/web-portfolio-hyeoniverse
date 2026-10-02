@@ -5,8 +5,8 @@
 .header {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
-  margin-bottom: var(--spacing-xs);
+  gap: var(--spacing-8);
+  margin-bottom: var(--spacing-8);
 }
 
 .title {
@@ -19,8 +19,8 @@
 }
 
 .count {
-  padding: 0 var(--spacing-xs);
-  border-radius: var(--radius-capsule);
+  padding: 0 var(--spacing-8);
+  border-radius: var(--radius-full);
   background: var(--bg-tertiary);
   font-family: var(--font-mono);
   font-size: var(--font-size-hint);
@@ -29,7 +29,7 @@
 }
 
 .empty {
-  padding: var(--spacing-md) 0;
+  padding: var(--spacing-16) 0;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
@@ -51,8 +51,8 @@
 .row {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-sm) 0;
+  gap: var(--spacing-12);
+  padding: var(--spacing-12) 0;
   border-bottom: var(--border-light);
 }
 /* 마지막 멤버 — 리스트 하단 이중선 방지 */
@@ -101,7 +101,7 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 .name {
@@ -119,8 +119,8 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--spacing-sm);
-  margin-top: var(--spacing-3xs);
+  gap: var(--spacing-12);
+  margin-top: var(--spacing-2);
 }
 
 .email {
@@ -136,7 +136,7 @@
 .since {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   font-family: var(--font-mono);
   font-size: var(--font-size-hint);
   color: var(--text-tertiary);
@@ -146,9 +146,9 @@
 .role {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
-  padding: var(--spacing-4xs) var(--spacing-xs);
-  border-radius: var(--radius-capsule);
+  gap: var(--spacing-4);
+  padding: var(--spacing-1) var(--spacing-8);
+  border-radius: var(--radius-full);
   font-size: var(--font-size-hint);
   font-weight: var(--font-weight-semibold);
   text-transform: uppercase;
@@ -185,7 +185,7 @@
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 /* 로그인 수단 표시 — .role 배지와 같은 결(무테·small caps). 테두리를 두르면
@@ -194,9 +194,9 @@
 .provider {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
-  padding: var(--spacing-4xs) var(--spacing-xs);
-  border-radius: var(--radius-capsule);
+  gap: var(--spacing-4);
+  padding: var(--spacing-1) var(--spacing-8);
+  border-radius: var(--radius-full);
   background: var(--bg-success-soft);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-hint);
@@ -211,7 +211,7 @@
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 /* 클릭 가능한 행 — 상세 모달 오픈 */
@@ -224,13 +224,13 @@
 .rowClickable:focus-visible {
   outline: 2px solid var(--border-color-strong);
   outline-offset: 2px;
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
 }
 
 /* ── Footer "more" link ── */
 .more {
   display: inline-block;
-  margin-top: var(--spacing-sm);
+  margin-top: var(--spacing-12);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   font-weight: var(--font-weight-medium);
@@ -247,9 +247,9 @@
 .meBadge {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
-  padding: var(--badge-p-md);
-  border-radius: var(--radius-capsule);
+  gap: var(--spacing-4);
+  padding: var(--badge-padding-md);
+  border-radius: var(--radius-full);
   background: var(--bg-accent-light);
   color: var(--text-accent);
   font-size: var(--font-size-hint);

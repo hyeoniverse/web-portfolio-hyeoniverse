@@ -20,21 +20,21 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   font-weight: var(--font-weight-medium);
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  margin-bottom: var(--spacing-md);
+  margin-bottom: var(--spacing-16);
 }
 
 /* LayoutGrid icon + 글목록 text 묶음 — 둘 사이 줄바꿈 X */
 .sectionHeaderTitle {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   white-space: nowrap;
 }
 
@@ -47,14 +47,14 @@
 .sectionHeaderMain {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 /* sortWrap — SegmentedControl (nested 포함) 단위. 슬림하게 — shuffleBtn / pageSizeSelect 와 동일 높이 */
 .sortWrap {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   flex-wrap: nowrap;
 }
 
@@ -71,7 +71,7 @@
 
 /* SegmentedControl 안 button 만 컴팩트 padding — circle shuffleBtn 은 제외 (가로 padding 이 들어가면 원형 깨짐) */
 .sortWrap button:not(.shuffleBtn) {
-  padding: 0 var(--spacing-md);
+  padding: 0 var(--spacing-16);
   font-size: var(--font-size-hint);
 }
 

@@ -1,7 +1,7 @@
 .ufFlowLayout {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
   flex: 1;
   min-height: 0;
 }
@@ -25,7 +25,7 @@
 .ufFlowInfo {
   display: flex;
   align-items: center;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-20);
   animation: ufFadeIn 0.5s ease both;
 }
 
@@ -33,7 +33,7 @@
 .ufFlowProfile {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 .ufFlowAvatar {
@@ -52,7 +52,7 @@
 .ufFlowProfileText {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-4xs);
+  gap: var(--spacing-1);
 }
 
 .ufFlowTitle {
@@ -85,7 +85,7 @@
 .ufFlowLegend {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   width: max-content;
   margin-left: auto;
 }
@@ -93,7 +93,7 @@
 .ufLegendItem {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   font-family: var(--font-mono);
   font-size: var(--font-size-label);
 }
@@ -198,9 +198,9 @@
 }
 
 .ufMobileFlowGroup {
-  padding: var(--spacing-md);
+  padding: var(--spacing-16);
   border: var(--border-default);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
 }
 
 .ufMobileFlowActive {
@@ -210,7 +210,7 @@
 .ufMobileFlowHeader {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 .ufMobileFlowIcon {
@@ -235,7 +235,7 @@
 }
 
 .ufMobileFlowDesc {
-  margin: var(--spacing-sm) 0 0 0;
+  margin: var(--spacing-12) 0 0 0;
   font-family: var(--_font-grotesk);
   font-size: var(--font-size-prose-caption);
   color: var(--text-secondary);
@@ -245,15 +245,15 @@
 .ufMobileNodes {
   display: flex;
   flex-direction: column;
-  margin-top: var(--spacing-sm);
+  margin-top: var(--spacing-12);
 }
 
 .ufMobileNode {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   position: relative;
-  padding: var(--spacing-2xs) 0;
+  padding: var(--spacing-4) 0;
 }
 
 .ufMobileDot {
@@ -277,7 +277,7 @@
 .ufMobileDecision .ufMobileDot {
   width: 10px;
   height: 10px;
-  border-radius: var(--spacing-4xs);
+  border-radius: var(--spacing-1);
   transform: rotate(45deg);
   background: var(--bg-accent-solid);
 }
@@ -315,16 +315,16 @@
 @media (max-width: 1024px), (max-height: 700px) {
   .ufTitleRow.ufTitleRow.ufTitleRow {
     padding-top: 0;
-    margin-bottom: var(--spacing-sm);
+    margin-bottom: var(--spacing-12);
   }
 
   .ufTitleRow h3 {
-    margin-top: calc(80px + 40px + var(--spacing-md));
+    margin-top: calc(80px + 40px + var(--spacing-16));
     margin-bottom: 0;
   }
 
   .ufTitleRow > div:nth-child(2) {
-    padding: calc(80px + 40px + var(--spacing-md)) 0 0 0;
+    padding: calc(80px + 40px + var(--spacing-16)) 0 0 0;
     align-self: flex-start;
     margin-left: auto;
     margin-right: 0;
@@ -359,7 +359,7 @@
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(15rem, 21vw);
     column-gap: clamp(2rem, 4vw, 4.5rem);
-    padding-bottom: calc(var(--spacing-2xl) + 3rem);
+    padding-bottom: calc(var(--spacing-32) + 3rem);
   }
 
   .ufContent > * {
@@ -383,7 +383,7 @@
   .ufTitleSide > :first-child {
     flex-direction: column;
     align-items: flex-end;
-    gap: var(--spacing-lg);
+    gap: var(--spacing-20);
   }
 
   .ufTitleSide h3 {
@@ -430,7 +430,7 @@
   .ufFlowInfo {
     --_r: clamp(0, calc(var(--item-in, 1) * 1.8), 1);
     opacity: var(--_r);
-    translate: 0 calc((1 - var(--_r)) * var(--spacing-md));
+    translate: 0 calc((1 - var(--_r)) * var(--spacing-16));
     animation: none;
   }
 

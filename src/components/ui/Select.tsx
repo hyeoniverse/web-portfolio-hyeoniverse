@@ -69,7 +69,7 @@ interface SelectProps {
    *  - "max": 가장 긴 option label width 에 fit */
   width?: "full" | "s" | "m" | "l" | "min" | "max";
   /** trigger 크기 — "sm" 은 ColorPicker 등 좁은 popover 안에서 사용 */
-  /** "md"(기본, --control-h-md 32px) / "sm"(28px) — 다른 공통 컴포넌트와 같은 이름 */
+  /** "md"(기본, --control-height-md 32px) / "sm"(28px) — 다른 공통 컴포넌트와 같은 이름 */
   size?: "md" | "sm";
   /** true 면 trigger 더블클릭 시 자유 입력 input 모드로 전환. 옵션 외 값도 입력 가능. */
   editable?: boolean;

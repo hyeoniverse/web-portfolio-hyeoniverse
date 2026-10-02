@@ -6,13 +6,13 @@
 /* ── Dropdown (desktop) ── */
 .dropdown {
   position: fixed;
-  /* 팝오버는 자신을 띄운 컨테이너(모달·드로어·전체화면 에디터) 위로 뜨는 게 정석 → --z-popover */
-  z-index: var(--z-popover);
+  /* 팝오버는 자신을 띄운 컨테이너(모달·드로어·전체화면 에디터) 위로 뜨는 게 정석 → --z-index-popover */
+  z-index: var(--z-index-popover);
   /* variant="solid" 의 배경 = 기본값. glass/difference 는 아래에서 덮어쓴다.
      (예전엔 각 호출부가 blur+투명 글래스를 제각각 override 해서 제멋대로였다 → variant 로 흡수) */
   background: var(--bg-primary);
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   box-shadow: var(--shadow-md);
   overflow: hidden;
 }
@@ -22,7 +22,7 @@
 .dropdown.dropdownMenu {
   display: flex;
   flex-direction: column;
-  padding: var(--spacing-2xs);
+  padding: var(--spacing-4);
 }
 
 /* variant="glass" (기본) — 반투명 scrim + blur. blend 를 안 쓰므로 안쪽 색(accent/danger/칩)이 전부 살아있다.
@@ -82,29 +82,29 @@
 .arrowTop {
   top: -5.5px;
   margin-left: -5.5px;
-  border-top-width: var(--border-width-thin);
-  border-left-width: var(--border-width-thin);
+  border-top-width: var(--border-width-1);
+  border-left-width: var(--border-width-1);
 }
 /* 패널이 trigger 위 → 아래 모서리 tail */
 .arrowBottom {
   bottom: -5.5px;
   margin-left: -5.5px;
-  border-right-width: var(--border-width-thin);
-  border-bottom-width: var(--border-width-thin);
+  border-right-width: var(--border-width-1);
+  border-bottom-width: var(--border-width-1);
 }
 /* 패널이 trigger 오른쪽 → 왼쪽 모서리 tail (왼쪽=trigger 가리킴). Select 오른쪽 말풍선과 동일 */
 .arrowLeft {
   left: -5.5px;
   margin-top: -5.5px;
-  border-left-width: var(--border-width-thin);
-  border-bottom-width: var(--border-width-thin);
+  border-left-width: var(--border-width-1);
+  border-bottom-width: var(--border-width-1);
 }
 /* 패널이 trigger 왼쪽 → 오른쪽 모서리 tail */
 .arrowRight {
   right: -5.5px;
   margin-top: -5.5px;
-  border-top-width: var(--border-width-thin);
-  border-right-width: var(--border-width-thin);
+  border-top-width: var(--border-width-1);
+  border-right-width: var(--border-width-1);
 }
 .dropdownGlass .arrow {
   background: var(--bg-glass-panel);
@@ -119,15 +119,15 @@
   display: flex;
   align-items: center;
   flex-shrink: 0;
-  padding: 0 var(--spacing-lg) var(--spacing-2xs);
+  padding: 0 var(--spacing-20) var(--spacing-4);
 }
 
 /* 시트 본문 — 내용물(자체 padding 가진 panel 등)이 흐르는 영역 + 하단 safe-area */
 .sheetBody {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
-  padding-bottom: calc(var(--spacing-md) + env(safe-area-inset-bottom, 0));
+  gap: var(--spacing-16);
+  padding-bottom: calc(var(--spacing-16) + env(safe-area-inset-bottom, 0));
 }
 
 .sheetTitle {

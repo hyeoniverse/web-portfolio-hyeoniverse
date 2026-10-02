@@ -5,8 +5,8 @@
 .section {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-lg);
-  margin-top: var(--spacing-lg);
+  gap: var(--spacing-20);
+  margin-top: var(--spacing-20);
 }
 
 /* contribRoleGroup 들을 너비 따라 multi-col 로 분배.
@@ -20,7 +20,7 @@
   color: var(--text-primary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  padding-bottom: var(--spacing-xs);
+  padding-bottom: var(--spacing-8);
   border-bottom: var(--border-light);
 }
 
@@ -29,8 +29,8 @@
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: var(--spacing-md);
-  padding-bottom: var(--spacing-xs);
+  gap: var(--spacing-16);
+  padding-bottom: var(--spacing-8);
   border-bottom: var(--border-light);
 }
 
@@ -55,22 +55,22 @@
 
 .sectionTitleError::after {
   content: "•";
-  margin-left: var(--spacing-2xs);
+  margin-left: var(--spacing-4);
 }
 
 .row3 {
   display: grid;
-  grid-template-columns: var(--grid-cols-3);
-  gap: var(--spacing-xl);
+  grid-template-columns: var(--grid-columns-3);
+  gap: var(--spacing-24);
   align-items: start;
 }
 
 /* Textarea 공통 컴포넌트의 .textarea base style (border-strong) 보다 specificity 높아야
  * override 됨 → compound selector (0,2,0) 사용 */
 .section .fieldTextarea {
-  padding: var(--spacing-sm);
+  padding: var(--spacing-12);
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-body);
@@ -100,7 +100,7 @@
   width: fit-content;
   max-width: 100%;
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   transition: border-color 0.15s ease;
 }
 
@@ -142,22 +142,22 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: var(--spacing-lg);
-  padding-bottom: var(--spacing-xs);
+  margin-bottom: var(--spacing-20);
+  padding-bottom: var(--spacing-8);
   border-bottom: var(--border-light);
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
 }
 
 .editorHeaderLeft {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
 }
 
 .templateBtn {
-  padding: var(--button-p-sm);
+  padding: var(--button-padding-sm);
   border: var(--border-default);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
@@ -173,8 +173,8 @@
 .extraSections {
   display: flex;
   flex-direction: column;
-  margin-top: var(--spacing-2xl);
-  margin-bottom: var(--spacing-2xl);
+  margin-top: var(--spacing-32);
+  margin-bottom: var(--spacing-32);
   border-top: var(--border-light);
 }
 
@@ -182,9 +182,9 @@
 .extraHead {
   display: flex;
   align-items: baseline;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
   width: 100%;
-  padding: var(--spacing-lg) 0;
+  padding: var(--spacing-20) 0;
   text-align: left;
   cursor: pointer;
 }
@@ -248,20 +248,20 @@
   position: relative;
   min-height: 140px;
   margin-top: 0;
-  padding: var(--spacing-xl) 0 var(--spacing-xl) calc(200px + var(--spacing-2xl));
+  padding: var(--spacing-24) 0 var(--spacing-24) calc(200px + var(--spacing-32));
   border-top: var(--border-light);
 }
 
 .extraSectionsContent > .section > :is(.sectionTitle, .sectionTitleRow) {
   position: absolute;
-  top: var(--spacing-xl);
+  top: var(--spacing-24);
   left: 0;
   width: 200px;
 }
 
 .extraSectionsContent > .section > .extraHint {
   position: absolute;
-  top: calc(var(--spacing-xl) + var(--spacing-xl));
+  top: calc(var(--spacing-24) + var(--spacing-24));
   left: 0;
   width: 200px;
 }
@@ -276,7 +276,7 @@
 .extraSectionsContent > .section > .sectionTitleRow {
   flex-direction: column;
   align-items: flex-start;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
 }
 
 .extraHint {
@@ -299,7 +299,7 @@
 .extraSectionsContent > .section > .sectionTitleRow {
   flex-direction: column;
   align-items: flex-start;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
 }
 
 .extraHint {
@@ -329,17 +329,17 @@
 /* Posts 의 .editorWrap 과 동일 — vertical resizable, 78vh 시작 높이 */
 .editorBlock {
   position: relative;
-  /* stacking context — 내부 .toolbar(z:var(--z-dropdown)) 를 가둬 fixed topBar(frost) 아래로.
+  /* stacking context — 내부 .toolbar(z:var(--z-index-dropdown)) 를 가둬 fixed topBar(frost) 아래로.
      없으면 툴바 z 가 root 로 올라가 topBar blur 가 안 먹음 */
   z-index: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   height: 78vh;
   min-height: 320px;
   resize: vertical;
   overflow: hidden;
-  margin-bottom: var(--spacing-xl);
+  margin-bottom: var(--spacing-24);
 }
 
 .editorBlock > * {
@@ -352,14 +352,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 /* 카테고리 picker — 위쪽 Select + 아래쪽 chip 리스트 (column) */
 .categoryPicker {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 /* RoleMultiPicker 안 Select — 기본 fit-content 대신 부모 너비 채우기.
@@ -377,43 +377,43 @@
   display: flex;
   flex-wrap: wrap;
   align-items: stretch;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 /* 선택된 chip 들 — DraggableTag 공통 컴포넌트 wrap */
 .categoryChipList {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 /* + 버튼은 공통 Button (shape="circle") 사용 */
 
 /* ── Template modal (posts editor 와 동일 패턴) ── */
 .templateModal {
-  padding: 0 var(--spacing-2xl) var(--spacing-2xl);
+  padding: 0 var(--spacing-32) var(--spacing-32);
 }
 
 .templateModalDesc {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-body);
   color: var(--text-secondary);
-  margin: 0 0 var(--spacing-md) 0;
+  margin: 0 0 var(--spacing-16) 0;
 }
 
 .templateList {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 .templateItem {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
-  padding: var(--row-p-lg);
+  gap: var(--spacing-2);
+  padding: var(--row-padding-lg);
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   background: transparent;
   text-align: left;
   font-family: var(--font-space-grotesk);
@@ -447,14 +447,14 @@
 /* 배지 — input 안쪽 좌측, 절대 위치. input 높이에 영향 안 줌 (height 작게) */
 .customCategoryBadge {
   position: absolute;
-  left: var(--spacing-xs);
+  left: var(--spacing-8);
   top: 50%;
   transform: translateY(-50%);
   display: inline-flex;
   align-items: center;
   height: 16px;
-  padding: 0 var(--spacing-xs);
-  border-radius: var(--radius-capsule);
+  padding: 0 var(--spacing-8);
+  border-radius: var(--radius-full);
   background: var(--bg-secondary);
   font-family: var(--font-mono);
   font-size: var(--font-size-micro);
@@ -475,7 +475,7 @@
 /* padding 은 부모 wrap 컨텍스트로 specificity (0,2,0) 올려서 .fieldInput shorthand 를 확실히 이김.
    42px = badge (left 8px + width ~26px) 클리어 위해 필요한 좌측 여백 */
 .customCategoryInputWrap .customCategoryInput {
-  padding: 0 var(--spacing-md) 0 var(--spacing-2xl-plus);
+  padding: 0 var(--spacing-16) 0 var(--spacing-40);
 }
 
 /* 직접 입력 + Button override — common Button shape=circle 의 38px 대신 28x28 정사각.
@@ -488,13 +488,13 @@
 
 .subtitleInput {
   flex: 1;
-  min-height: var(--control-h-md);
+  min-height: var(--control-height-md);
   transition: border-radius 0.2s ease;
 }
 
 /* 2줄 이상 높이 — role 의 chip 들로 row 가 늘어나면 자동으로 morph */
 .subtitleInputMultiLine {
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
 }
 
 /* 선택된 chip row — input 과 별개 row, 자유롭게 wrap */
@@ -518,9 +518,9 @@
   justify-content: center;
   min-width: 18px;
   height: 18px;
-  margin-left: var(--spacing-xs);
-  padding: 0 var(--spacing-xs);
-  border-radius: var(--radius-capsule);
+  margin-left: var(--spacing-8);
+  padding: 0 var(--spacing-8);
+  border-radius: var(--radius-full);
   background: var(--bg-tertiary);
   color: var(--text-secondary);
   font-family: var(--font-space-grotesk);
@@ -555,7 +555,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: var(--spacing-md);
+  width: var(--spacing-16);
   height: var(--bench-top);
   transform: translateX(-50%);
   outline: none;
@@ -566,7 +566,7 @@
 .galleryBenchHandleBar {
   width: 3px;
   height: 32px;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--border-color-strong);
   transition: background-color 0.15s ease, height 0.15s ease;
 }
@@ -639,8 +639,8 @@
 /* 이 장의 음성 표시 — 오른쪽 아래. 겹(.galleryOverlay)의 파일 이름은 왼쪽 아래라 겹치지 않는다 */
 .galleryNarrationBadge {
   position: absolute;
-  right: var(--spacing-xs);
-  bottom: var(--spacing-xs);
+  right: var(--spacing-8);
+  bottom: var(--spacing-8);
 }
 
 .galleryImg {
@@ -660,7 +660,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   width: 100%;
   height: 100%;
   background: var(--bg-tertiary);
@@ -684,14 +684,14 @@
 /* "현재 메인" 배지 — 좌상단 (항상 표시). actions 와 동일 top 오프셋 + 동일 높이로 수직 중심 일치 */
 .galleryMainBadge {
   position: absolute;
-  top: var(--spacing-xs);
-  left: var(--spacing-xs);
+  top: var(--spacing-8);
+  left: var(--spacing-8);
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
-  height: var(--control-h-2xs);
-  padding: 0 var(--spacing-xs);
-  border-radius: var(--radius-capsule);
+  gap: var(--spacing-4);
+  height: var(--control-height-2xs);
+  padding: 0 var(--spacing-8);
+  border-radius: var(--radius-full);
   background: var(--text-accent);
   color: var(--text-inverse);
   font-family: var(--font-space-grotesk);
@@ -709,7 +709,7 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: var(--spacing-xs);
+  padding: var(--spacing-8);
   opacity: 0;
   transition: opacity 0.2s ease;
   pointer-events: none;
@@ -736,16 +736,16 @@
 .galleryActions {
   display: inline-flex;
   align-self: flex-end;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   pointer-events: auto;
 }
 
 .galleryMeta {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
-  padding: var(--spacing-2xs) var(--spacing-sm);
-  margin: 0 calc(-1 * var(--spacing-xs)) calc(-1 * var(--spacing-xs));
+  gap: var(--spacing-2);
+  padding: var(--spacing-4) var(--spacing-12);
+  margin: 0 calc(-1 * var(--spacing-8)) calc(-1 * var(--spacing-8));
   max-width: none;
 }
 
@@ -819,7 +819,7 @@
 .galleryLabelActions {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   margin-left: auto;
 }
 
@@ -827,7 +827,7 @@
 .gallerySelectionBar {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   color: var(--text-secondary);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-hint);
@@ -837,7 +837,7 @@
 .galleryPdfProgress {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   color: var(--text-secondary);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-hint);
@@ -848,14 +848,14 @@
   width: 96px;
   height: 4px;
   overflow: hidden;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--bg-tertiary);
 }
 
 .galleryProgressFill {
   display: block;
   height: 100%;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--text-accent);
   transition: width 0.2s ease;
 }
@@ -872,12 +872,12 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   width: 100%;
   height: 200px;
-  margin-top: var(--spacing-xs);
+  margin-top: var(--spacing-8);
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   background: transparent;
   color: var(--text-tertiary);
   font-family: var(--font-space-grotesk);
@@ -909,21 +909,21 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 /* label row + form 묶음 — section gap 보다 작은 gap 으로 그룹 형성 */
 .memberFormBlock {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 /* list label + list 묶음 — formBlock 과 동일 패턴 */
 .memberListBlock {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 /* 아직 팀원이 없을 때 — 자리를 비우지 않고 비었다고 알린다 */
@@ -986,17 +986,17 @@
 
 .memberFormRow {
   display: grid;
-  grid-template-columns: var(--grid-cols-2);
-  gap: var(--spacing-xs);
+  grid-template-columns: var(--grid-columns-2);
+  gap: var(--spacing-8);
   align-items: start;
 }
 
 .memberFormRow input {
   flex: 1;
   /* 입력칸·combobox·Select 모두 기본 크기(md) 높이로 */
-  height: var(--control-h-md);
+  height: var(--control-height-md);
   box-sizing: border-box;
-  padding: 0 var(--spacing-md);
+  padding: 0 var(--spacing-16);
   line-height: 1;
 }
 
@@ -1018,14 +1018,14 @@
 .memberCard.memberCard.memberCardEditing {
   background: color-mix(in oklch, var(--text-accent) 8%, transparent);
   border: none;
-  padding: var(--card-p-md);
+  padding: var(--card-padding-md);
 }
 
 /* 편집 + close 묶음 — 우측 cluster, 위쪽 정렬 */
 .memberHeaderActions {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   flex-shrink: 0;
   align-self: flex-start;
   margin-left: auto;
@@ -1037,8 +1037,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--control-h-xs);
-  height: var(--control-h-xs);
+  width: var(--control-height-xs);
+  height: var(--control-height-xs);
   border: none;
   border-radius: var(--radius-circle);
   background: transparent;
@@ -1056,7 +1056,7 @@
 .memberFormActions {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 /* List — 너비 충분하면 multi-col grid (auto-fill minmax). border 없음 */
@@ -1064,7 +1064,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
   height: auto;
-  gap: 0 var(--spacing-xl);
+  gap: 0 var(--spacing-24);
   border-top: none;
   border-bottom: none;
 }
@@ -1074,14 +1074,14 @@
  * .memberCard.memberCard 가 CSS 에서 나중에 정의되어 padding 덮어쓰는 거 (0,3,0) 으로 override */
 .memberCard.memberCardAdd.memberCardAdd {
   padding: 0;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 /* 헤더 row — [avatar | 이름 칸]. 이름 칸 위에 라벨이 붙어 사진은 입력칸 줄에 맞춘다 */
 .memberCardAdd .memberHeaderRow {
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
   align-items: end;
 }
 
@@ -1089,12 +1089,12 @@
 .memberField {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   min-width: 0;
 }
 
 .memberFieldOptional {
-  margin-left: var(--spacing-2xs);
+  margin-left: var(--spacing-4);
   font-weight: 400;
   color: var(--text-tertiary);
 }
@@ -1106,7 +1106,7 @@
 
 .memberLinkMenuHint {
   margin: 0;
-  padding: var(--spacing-2xs) var(--spacing-sm) var(--spacing-xs);
+  padding: var(--spacing-4) var(--spacing-12) var(--spacing-8);
   font-size: var(--font-size-label);
   line-height: 1.5;
   color: var(--text-tertiary);
@@ -1114,7 +1114,7 @@
 
 /* 사진·이름 줄 아래 나머지(이메일·링크, 멤버 연결, 역할, 작업 내용)는 사진 폭만큼 들여 이름 칸과 같은 선에서 시작한다 */
 .memberCardAdd > :not(.memberHeaderRow):not(input) {
-  margin-left: calc(44px + var(--spacing-md));
+  margin-left: calc(44px + var(--spacing-16));
 }
 
 @media (max-width: 640px) {
@@ -1143,14 +1143,14 @@
    같은 줄의 칸들과 같은 높이로 (add-card 규칙보다 세게) */
 .memberCardAdd .memberRoleRow > .roleSelect > input,
 .memberCardAdd .memberRoleRow > .roleSelect > button {
-  height: var(--control-h-md);
+  height: var(--control-height-md);
 }
 
 /* add-card 안 모든 입력칸 — 기본 크기(md) 높이로 맞춘다 (file input 은 hidden 이라 제외) */
 .memberCardAdd input:not([type="file"]) {
-  height: var(--control-h-md);
+  height: var(--control-height-md);
   box-sizing: border-box;
-  padding: 0 var(--spacing-md);
+  padding: 0 var(--spacing-16);
   line-height: 1;
 }
 
@@ -1181,7 +1181,7 @@
 
 .memberAvatarInitial {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-16);
   font-weight: 600;
   color: var(--text-secondary);
 }
@@ -1193,7 +1193,7 @@
   align-self: flex-start;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
 }
 
 /* display 요소 (span / anchor) 는 full-width — 더블클릭 hit area 넓어짐 */
@@ -1220,7 +1220,7 @@
   padding: 0;
   margin: 0;
   background: var(--bg-accent-subtle);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   color: var(--text-primary);
@@ -1269,7 +1269,7 @@
 .avatarUploadBtn.avatarUploadBtn {
   height: 28px;
   min-height: 28px;
-  padding: 0 var(--spacing-md);
+  padding: 0 var(--spacing-16);
   font-size: var(--font-size-label);
   border: var(--border-light);
 }
@@ -1279,8 +1279,8 @@
 .memberCard.memberCard {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
-  padding: var(--card-p-md);
+  gap: var(--spacing-12);
+  padding: var(--card-padding-md);
   border: none;
   border-radius: 0;
   box-sizing: border-box;
@@ -1296,18 +1296,18 @@
 .memberContribsGroup {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
 }
 
 /* 작업 ul — 들여쓰기 + 좌측 vertical hairline 으로 role 과 시각적 grouping (카드 없이) */
 .memberContribsList {
   list-style: disc;
-  margin: 0 0 0 var(--spacing-sm);
-  padding-left: var(--spacing-lg);
+  margin: 0 0 0 var(--spacing-12);
+  padding-left: var(--spacing-20);
   border-left: var(--border-light);
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-4xs);
+  gap: var(--spacing-1);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   color: var(--text-primary);
@@ -1323,7 +1323,7 @@
 .memberContribsWrap {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 /* role 마다 토글 버튼 — chevron + role label. 클릭 시 해당 role 의 작업 ul 펼침/접힘.
@@ -1332,7 +1332,7 @@
   width: 100%;
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   padding: 0;
   background: transparent;
   border: none;
@@ -1380,7 +1380,7 @@
 .memberHeaderRow {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
 }
 
 /* dragging 시 opacity 낮춤 */
@@ -1406,7 +1406,7 @@
 .memberLinkRow {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 .memberLinkLabel {
@@ -1421,7 +1421,7 @@
 .memberLinkChips {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 .memberLinkChipAvatar {
@@ -1451,16 +1451,16 @@
   display: flex;
   align-items: center;
   /* 이름과 연결됨 배지 사이는 넉넉히, 줄이 넘어가면 위아래는 좁게 */
-  gap: var(--spacing-2xs) var(--spacing-sm);
+  gap: var(--spacing-4) var(--spacing-12);
   flex-wrap: wrap;
 }
 
 .memberLinkedBadge {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
-  padding: var(--badge-p-md);
-  border-radius: var(--radius-capsule);
+  gap: var(--spacing-4);
+  padding: var(--badge-padding-md);
+  border-radius: var(--radius-full);
   background: var(--bg-accent-light);
   color: var(--text-accent);
   font-family: var(--font-space-grotesk);
@@ -1492,12 +1492,12 @@
 .memberBioPair {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 .memberBioCol {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   min-width: 0;
 }

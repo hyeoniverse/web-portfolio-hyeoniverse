@@ -5,8 +5,8 @@
 .selectAboveModal {
   background: var(--bg-primary) !important;
   backdrop-filter: none !important;
-  /* 모달 안 popover(--z-popover:600) 위로 — recur 팝오버 안의 freq select dropdown 이 팝오버에 가리지 않게 */
-  z-index: var(--z-tooltip) !important;
+  /* 모달 안 popover(--z-index-popover:600) 위로 — recur 팝오버 안의 freq select dropdown 이 팝오버에 가리지 않게 */
+  z-index: var(--z-index-tooltip) !important;
 }
 
 /* ── 검색/필터/정렬 툴바 ── (blockBar 인라인 겸 리더 행) */
@@ -14,20 +14,20 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   flex: 1 1 auto;
   min-width: 0;
 }
-.readerCalendar .calToolbar { margin-bottom: var(--spacing-sm); }
+.readerCalendar .calToolbar { margin-bottom: var(--spacing-12); }
 /* 툴바 버튼(필터/정렬) */
 .tbBtn {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-3xs);
-  height: var(--control-h-sm);
-  padding: 0 var(--spacing-sm);
+  gap: var(--spacing-2);
+  height: var(--control-height-sm);
+  padding: 0 var(--spacing-12);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--bg-primary);
   color: var(--text-secondary);
   font-size: var(--font-size-hint);
@@ -47,7 +47,7 @@
   justify-content: center;
   min-width: 15px;
   height: 15px;
-  padding: 0 var(--spacing-2xs);
+  padding: 0 var(--spacing-4);
   border-radius: var(--radius-circle);
   background: var(--color-accent);
   color: var(--text-on-accent);
@@ -57,8 +57,8 @@
 .filterMenu {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
-  padding: var(--spacing-md);
+  gap: var(--spacing-4);
+  padding: var(--spacing-16);
   min-width: 240px;
   max-width: 320px;
 }
@@ -66,15 +66,15 @@
   font-size: var(--font-size-hint);
   font-weight: 600;
   color: var(--text-tertiary);
-  margin-top: var(--spacing-3xs);
+  margin-top: var(--spacing-2);
 }
 .filterTag {
   display: inline-flex;
   align-items: center;
-  height: var(--control-h-sm);
-  padding: 0 var(--spacing-sm);
+  height: var(--control-height-sm);
+  padding: 0 var(--spacing-12);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--bg-primary);
   color: var(--text-tertiary);
   font-size: var(--font-size-hint);
@@ -89,16 +89,16 @@
 .filterChips {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
 }
 .filterChip {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-3xs);
-  height: var(--control-h-sm);
-  padding: 0 var(--spacing-sm);
+  gap: var(--spacing-2);
+  height: var(--control-height-sm);
+  padding: 0 var(--spacing-12);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--bg-primary);
   color: var(--text-tertiary);
   font-size: var(--font-size-hint);
@@ -123,7 +123,7 @@
 .calNameWrap {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   flex: 0 1 auto;
   min-width: 0;
 }
@@ -131,12 +131,12 @@
   width: 180px;
   max-width: 100%;
   min-width: 0;
-  padding: var(--field-p-md);
+  padding: var(--field-padding-md);
   border: none;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   font-family: inherit;
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-16);
   font-weight: 600;
   color: var(--text-primary);
   outline: none;
@@ -160,8 +160,8 @@
 
 /* 리더 — 읽기전용 캘린더 제목 heading */
 .calNameReader {
-  margin: var(--spacing-xs) 0 var(--spacing-2xs);
-  padding: 0 var(--spacing-xs);
+  margin: var(--spacing-8) 0 var(--spacing-4);
+  padding: 0 var(--spacing-8);
   font-size: var(--font-size-body-xl);
   font-weight: 600;
   color: var(--text-primary);
@@ -171,20 +171,20 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--spacing-sm);
-  margin: var(--spacing-sm) 0 var(--spacing-2xs);
+  gap: var(--spacing-12);
+  margin: var(--spacing-12) 0 var(--spacing-4);
 }
 .blockBarLabel {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   font-size: var(--font-size-hint);
   color: var(--text-tertiary);
 }
 .blockBarActions {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   flex-shrink: 0;
   margin-left: auto;
 }
@@ -192,8 +192,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--control-h-sm);
-  height: var(--control-h-sm);
+  width: var(--control-height-sm);
+  height: var(--control-height-sm);
   border: var(--border-light);
   border-radius: var(--radius-circle);
   background: var(--bg-primary);
@@ -207,13 +207,13 @@
 .exportMenu {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   min-width: 180px;
 }
 .exportItem {
-  padding: var(--row-p-sm);
+  padding: var(--row-padding-sm);
   border: none;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-primary);
   font-size: var(--font-size-body);
@@ -227,15 +227,15 @@
 .calFullscreen {
   position: fixed;
   inset: 0;
-  /* 모달(#modal-root = --z-overlay 9000)보다 아래 — 전체화면 중 열리는 이벤트/날짜/체인 모달이 위에 보이도록.
+  /* 모달(#modal-root = --z-index-overlay 9000)보다 아래 — 전체화면 중 열리는 이벤트/날짜/체인 모달이 위에 보이도록.
      (nav 100·페이지 콘텐츠보다는 위라 전체화면 커버는 유지) */
-  z-index: var(--z-modal);
+  z-index: var(--z-index-modal);
   margin: 0;
-  padding: var(--spacing-xl);
+  padding: var(--spacing-24);
   background: var(--bg-primary);
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   overflow: auto;
 }
 .calFullscreen .blockBar { margin: 0; }
@@ -255,10 +255,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   min-height: 120px;
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   background: var(--bg-primary);
   color: var(--text-tertiary);
   font-size: var(--font-size-body);
@@ -268,17 +268,17 @@
 .calDeleted {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   min-height: 96px;
-  padding: var(--spacing-md) var(--spacing-lg);
+  padding: var(--spacing-16) var(--spacing-20);
   border: 1px solid var(--border-color-strong);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   background: var(--bg-secondary);
   color: var(--text-secondary);
   font-size: var(--font-size-body);
 }
 .calDeletedIcon { flex-shrink: 0; color: var(--text-tertiary); }
-.calDeletedText { display: flex; flex-direction: column; gap: var(--spacing-3xs); flex: 1; min-width: 0; }
+.calDeletedText { display: flex; flex-direction: column; gap: var(--spacing-2); flex: 1; min-width: 0; }
 .calDeletedText strong { color: var(--text-primary); font-size: var(--font-size-body); font-weight: 600; }
 .calDeletedText span { color: var(--text-tertiary); font-size: var(--font-size-hint); line-height: 1.5; }
 .spin { animation: calspin 0.8s linear infinite; }
@@ -289,7 +289,7 @@
   /* 3개 구역(달이동/요일/날짜)을 풀폭 밴드로 분리 — padding 은 각 밴드가 담당 */
   padding: 0;
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   background: var(--bg-primary);
   /* overflow visible — 월 선택 popover 가 밖으로 펼쳐질 수 있게. 코너는 grid 가 자체 클립 */
   user-select: none;
@@ -305,20 +305,20 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-sm) var(--spacing-md);
-  padding: var(--spacing-sm) var(--spacing-md);
+  gap: var(--spacing-12) var(--spacing-16);
+  padding: var(--spacing-12) var(--spacing-16);
   border-bottom: var(--border-light);
 }
 .navGroup {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
 }
 .title {
   min-width: 8em;
-  padding: var(--spacing-3xs) var(--spacing-xs);
+  padding: var(--spacing-2) var(--spacing-8);
   border: none;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   text-align: center;
   font-size: var(--font-size-title-sm);
@@ -332,8 +332,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--control-h-sm);
-  height: var(--control-h-sm);
+  width: var(--control-height-sm);
+  height: var(--control-height-sm);
   border: var(--border-light);
   border-radius: var(--radius-circle);
   background: var(--bg-primary);
@@ -349,12 +349,12 @@
 /* ② 요일 구역 */
 .weekRow {
   display: grid;
-  grid-template-columns: var(--grid-cols-7);
-  padding: var(--spacing-2xs) 0;
+  grid-template-columns: var(--grid-columns-7);
+  padding: var(--spacing-4) 0;
   border-bottom: var(--border-light);
 }
 .weekday {
-  padding: var(--spacing-3xs) 0;
+  padding: var(--spacing-2) 0;
   text-align: center;
   font-size: var(--font-size-body);
   font-weight: 500;
@@ -368,26 +368,26 @@
 .gridViewport {
   position: relative;
   overflow: hidden;
-  border-radius: 0 0 var(--radius-2xl) var(--radius-2xl);
+  border-radius: 0 0 var(--radius-24) var(--radius-24);
 }
 .grid {
   display: flex;
   flex-direction: column;
   /* 외곽 테두리는 .calendar 가 담당(중복 방지) — 여기선 내부 week/cell 구분선만 */
-  border-radius: 0 0 var(--radius-2xl) var(--radius-2xl);
+  border-radius: 0 0 var(--radius-24) var(--radius-24);
   overflow: hidden;
 }
 .week {
   position: relative;
   display: grid;
-  grid-template-columns: var(--grid-cols-7);
+  grid-template-columns: var(--grid-columns-7);
   min-height: 104px;
   overflow: hidden;
 }
 .week + .week { border-top: 1px solid var(--border-color-light); }
 .cell {
   min-height: 104px;
-  padding: var(--spacing-3xs);
+  padding: var(--spacing-2);
   background: var(--bg-primary);
   border-right: 1px solid var(--border-color-light);
   min-width: 0;
@@ -401,20 +401,20 @@
   position: absolute;
   inset: 0;
   display: grid;
-  grid-template-columns: var(--grid-cols-7);
+  grid-template-columns: var(--grid-columns-7);
   grid-auto-rows: 20px;
-  row-gap: var(--spacing-3xs);
+  row-gap: var(--spacing-2);
   align-content: start;
-  padding: var(--spacing-2xl) 0 var(--spacing-2xs);
+  padding: var(--spacing-32) 0 var(--spacing-4);
   pointer-events: none;
 }
 .spanBar {
   height: 20px;
-  margin: 0 var(--spacing-3xs);
+  margin: 0 var(--spacing-2);
   min-width: 0;
   pointer-events: auto;
 }
-.weekBars .moreChip { pointer-events: auto; align-self: center; justify-self: stretch; text-align: left; margin: 0 var(--spacing-3xs); }
+.weekBars .moreChip { pointer-events: auto; align-self: center; justify-self: stretch; text-align: left; margin: 0 var(--spacing-2); }
 .editable {
   cursor: pointer;
   transition: background-color 0.12s ease;
@@ -461,10 +461,10 @@
 .chip {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
-  padding: var(--badge-p-sm);
+  gap: var(--spacing-4);
+  padding: var(--badge-padding-sm);
   border: none;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   /* 불투명 틴트 — 셀 hover(accent)가 뒤에서 비쳐 색이 달라 보이는 것 방지 */
   background: color-mix(in srgb, var(--_chip) 16%, var(--bg-primary));
   color: var(--text-primary);
@@ -499,9 +499,9 @@
 }
 .moreChip {
   align-self: flex-start;
-  padding: var(--badge-p-sm);
+  padding: var(--badge-padding-sm);
   border: none;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   font-size: var(--font-size-hint);
   color: var(--text-tertiary);
@@ -516,18 +516,18 @@
 /* +N 클릭 시 그 날 이벤트 전체 목록 팝오버 */
 .dayPop {
   position: fixed;
-  z-index: var(--z-top);
+  z-index: var(--z-index-top);
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-sm);
+  gap: var(--spacing-8);
+  padding: var(--spacing-12);
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   background: var(--bg-primary);
   box-shadow: var(--shadow-lg);
 }
 .dayPopHead {
-  padding: 0 var(--spacing-3xs);
+  padding: 0 var(--spacing-2);
   font-size: var(--font-size-hint);
   font-weight: 600;
   color: var(--text-secondary);
@@ -535,7 +535,7 @@
 .dayPopList {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   max-height: 260px;
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -563,44 +563,44 @@
 .modalForm {
   display: flex;
   align-items: flex-start;
-  gap: var(--spacing-lg);
-  padding: var(--modal-p-lg);
+  gap: var(--spacing-20);
+  padding: var(--modal-padding-lg);
 }
 /* 내용(리치 메모) — 편집 폼 아래 전체폭 */
 .memoSection {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
-  padding: var(--spacing-md) var(--spacing-lg) var(--spacing-lg);
+  gap: var(--spacing-4);
+  padding: var(--spacing-16) var(--spacing-20) var(--spacing-20);
 }
 /* 내용 위 구분선 — 좌우 패딩(모달 콘텐츠 여백)만큼 inset */
 .memoSection::before {
   content: "";
   position: absolute;
   top: 0;
-  left: var(--spacing-lg);
-  right: var(--spacing-lg);
+  left: var(--spacing-20);
+  right: var(--spacing-20);
   border-top: var(--border-light);
 }
 /* ── 이벤트 상세 뷰(읽기전용) ── */
 .viewDetail {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
-  padding: var(--spacing-lg);
+  gap: var(--spacing-16);
+  padding: var(--spacing-20);
 }
 
 /* ── 주/일 아젠다 뷰 — 고정 높이(이벤트 수 무관) + 컬럼 내부 스크롤 ── */
 /* 일/주 뷰 헤더 — 월뷰(.header 공유)보다 컴팩트 + 우측 이벤트 추가 버튼 */
-.agendaHeader { padding: var(--spacing-xs) var(--spacing-md); }
-.agendaHeadRight { display: flex; align-items: center; gap: var(--spacing-sm); }
+.agendaHeader { padding: var(--spacing-8) var(--spacing-16); }
+.agendaHeadRight { display: flex; align-items: center; gap: var(--spacing-12); }
 .agendaHeadAdd {
-  display: inline-flex; align-items: center; gap: var(--spacing-3xs);
-  height: var(--control-h-sm);
-  padding: 0 var(--spacing-sm);
+  display: inline-flex; align-items: center; gap: var(--spacing-2);
+  height: var(--control-height-sm);
+  padding: 0 var(--spacing-12);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--bg-primary);
   color: var(--text-secondary);
   font-size: var(--font-size-label);
@@ -610,14 +610,14 @@
 }
 .agendaHeadAdd:hover { color: var(--text-accent); border-color: var(--color-accent); }
 .agendaTitle {
-  padding: 0 var(--spacing-xs);
+  padding: 0 var(--spacing-8);
   font-size: var(--font-size-body);
   font-weight: 600;
   color: var(--text-primary);
   font-variant-numeric: tabular-nums;
 }
 /* 페이지 넘김 슬라이드 clip 래퍼 — 하단 코너 라운드 클립 */
-.agendaViewport { position: relative; overflow: hidden; border-radius: 0 0 var(--radius-2xl) var(--radius-2xl); }
+.agendaViewport { position: relative; overflow: hidden; border-radius: 0 0 var(--radius-24) var(--radius-24); }
 /* 일 뷰 — 왼쪽 시간축 + 오른쪽(미니 달력 + 상세/편집 패널). 시간축이 오른쪽 컬럼과 같은 전체 높이를 채우도록 definite 높이 + stretch */
 .agendaViewportDay { display: flex; align-items: stretch; height: 480px; }
 .agendaViewportDay .dayGrid { flex: 1; min-width: 0; height: 100%; }
@@ -634,23 +634,23 @@
 .dayRightCol .dayPanel { flex: 1; min-height: 0; overflow-y: auto; }
 .miniCal {
   flex-shrink: 0;
-  padding: 0 var(--spacing-sm);
+  padding: 0 var(--spacing-12);
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 /* 일뷰 사이드바에서만 아래 DayDetailPanel 과 구분선 (peek 팝오버 등 단독 사용 시엔 없음) */
 .dayRightCol .miniCal { border-bottom: var(--border-light); }
-.miniCalHead { display: flex; align-items: center; justify-content: space-between; margin: var(--spacing-sm) 0; }
+.miniCalHead { display: flex; align-items: center; justify-content: space-between; margin: var(--spacing-12) 0; }
 .miniCalTitleWrap { position: relative; display: inline-flex; }
-.miniCalWeek, .miniCalGrid { display: grid; grid-template-columns: var(--grid-cols-7); gap: var(--spacing-3xs); }
-.miniCalDow { text-align: center; font-size: var(--font-size-micro); font-weight: 600; color: var(--text-tertiary); padding-bottom: var(--spacing-3xs); }
+.miniCalWeek, .miniCalGrid { display: grid; grid-template-columns: var(--grid-columns-7); gap: var(--spacing-2); }
+.miniCalDow { text-align: center; font-size: var(--font-size-micro); font-weight: 600; color: var(--text-tertiary); padding-bottom: var(--spacing-2); }
 .miniCalDow.sun { color: var(--text-accent); }
 .miniCalDow.sat { color: var(--color-info); }
 /* 셀 — 숫자 + 개수를 한 그룹으로 세로 센터. 개수 슬롯 항상 예약(빈 날은 공백)해 숫자 위치 고정 → 배경 원이 그룹 가운데. */
 .miniCalCell {
   aspect-ratio: 1;
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--spacing-2xs);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--spacing-4);
   border: none; border-radius: var(--radius-circle);
   background: transparent;
   font-size: var(--font-size-hint); color: var(--text-primary);
@@ -664,8 +664,8 @@
   align-items: center;
   justify-content: center;
   min-width: 13px;
-  padding: var(--spacing-4xs) var(--spacing-2xs);
-  border-radius: var(--radius-capsule);
+  padding: var(--spacing-1) var(--spacing-4);
+  border-radius: var(--radius-full);
   background: var(--bg-tertiary);
   line-height: 1;
   font-size: var(--font-size-micro);
@@ -685,14 +685,14 @@
 .miniCalSel:hover { background: var(--color-accent); }
 
 /* ── 일 뷰 인라인 상세/편집 패널 ── */
-.dayPanel { position: relative; display: flex; flex-direction: column; gap: var(--spacing-xs); padding: var(--spacing-xs) var(--spacing-md) var(--spacing-md); }
+.dayPanel { position: relative; display: flex; flex-direction: column; gap: var(--spacing-8); padding: var(--spacing-8) var(--spacing-16) var(--spacing-16); }
 .dayPanelEmpty {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: var(--spacing-md); padding: var(--spacing-2xl) var(--spacing-md); text-align: center;
+  gap: var(--spacing-16); padding: var(--spacing-32) var(--spacing-16); text-align: center;
 }
 .dayPanelEmptyText { font-size: var(--font-size-label); color: var(--text-tertiary); line-height: 1.5; }
 /* 헤더 — 색 점 + 제목 한 줄 (dot 과 제목 사이 넉넉히) */
-.dayPanelHead { display: flex; align-items: center; gap: var(--spacing-sm); }
+.dayPanelHead { display: flex; align-items: center; gap: var(--spacing-12); }
 .dayPanelDot { flex-shrink: 0; width: 11px; height: 11px; border-radius: var(--radius-circle); background: var(--_c); box-shadow: 0 0 0 3px color-mix(in srgb, var(--_c) 20%, transparent); }
 .dayPanelTitle {
   flex: 1; min-width: 0; border: none; background: transparent;
@@ -704,31 +704,31 @@
 }
 .dayPanelTitle::placeholder { color: var(--text-muted); font-weight: 500; }
 .dayPanelTitle:focus { outline: none; border-bottom-color: var(--color-accent); }
-.dayPanelTitleStatic { flex: 1; min-width: 0; font-family: var(--font-grotesk); font-size: var(--font-size-xl); font-weight: 700; letter-spacing: -0.01em; line-height: 1.2; color: var(--text-primary); word-break: break-word; }
+.dayPanelTitleStatic { flex: 1; min-width: 0; font-family: var(--font-grotesk); font-size: var(--font-size-20); font-weight: 700; letter-spacing: -0.01em; line-height: 1.2; color: var(--text-primary); word-break: break-word; }
 /* 날짜·시간 메타 — 무배경, 아래 hairline 으로 필드와 분리 */
 .dayPanelMeta {
-  display: flex; flex-direction: column; gap: var(--spacing-2xs);
-  padding: var(--spacing-3xs) 0 var(--spacing-sm);
+  display: flex; flex-direction: column; gap: var(--spacing-4);
+  padding: var(--spacing-2) 0 var(--spacing-12);
   border-bottom: var(--border-light);
 }
-.dayPanelRow { display: flex; align-items: center; gap: var(--spacing-xs); font-size: var(--font-size-body); color: var(--text-secondary); }
+.dayPanelRow { display: flex; align-items: center; gap: var(--spacing-8); font-size: var(--font-size-body); color: var(--text-secondary); }
 .dayPanelIcon { color: var(--text-tertiary); flex-shrink: 0; }
 .dayPanelTime { color: var(--text-accent); font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: 0.01em; }
-.dayPanelField { display: flex; flex-direction: column; gap: var(--spacing-2xs); }
+.dayPanelField { display: flex; flex-direction: column; gap: var(--spacing-4); }
 .dayPanelLabel { font-size: var(--font-size-micro); font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-tertiary); }
-.dayPanelDuo { display: grid; grid-template-columns: var(--grid-cols-2); gap: var(--spacing-sm); }
-.dayPanelChips { display: flex; flex-wrap: wrap; gap: var(--spacing-2xs); }
+.dayPanelDuo { display: grid; grid-template-columns: var(--grid-columns-2); gap: var(--spacing-12); }
+.dayPanelChips { display: flex; flex-wrap: wrap; gap: var(--spacing-4); }
 .dayPanelMuted { font-size: var(--font-size-body); color: var(--text-muted); }
 .dayPanelDesc {
   font-size: var(--font-size-label); color: var(--text-secondary); line-height: 1.55;
   max-height: 168px; overflow-y: auto; word-break: break-word;
 }
-.dayPanelDesc img { max-width: 100%; border-radius: var(--radius-2xl); }
-.dayPanelActions { display: flex; gap: var(--spacing-2xs); margin-top: var(--spacing-2xs); }
+.dayPanelDesc img { max-width: 100%; border-radius: var(--radius-24); }
+.dayPanelActions { display: flex; gap: var(--spacing-4); margin-top: var(--spacing-4); }
 /* 반복 시간 변경 적용범위 다이얼로그 — 라디오 선택 후 확인 (modalScroll 이 좌우/하단 패딩 없어 여기서 부여) */
-.scopeDialog { display: flex; flex-direction: column; gap: var(--spacing-md); padding: 0 var(--spacing-lg) var(--spacing-lg); }
+.scopeDialog { display: flex; flex-direction: column; gap: var(--spacing-16); padding: 0 var(--spacing-20) var(--spacing-20); }
 .scopeDialogText { font-size: var(--font-size-body); color: var(--text-secondary); line-height: 1.5; }
-.scopeDialogFooter { display: flex; justify-content: flex-end; gap: var(--spacing-2xs); margin-top: var(--spacing-2xs); }
+.scopeDialogFooter { display: flex; justify-content: flex-end; gap: var(--spacing-4); margin-top: var(--spacing-4); }
 /* 선택된 일 이벤트 강조 */
 .dayEventSelected { box-shadow: 0 0 0 2px var(--color-accent), var(--shadow-md); z-index: 4; }
 /* 경계 당김 인디케이터 — 시간축 끝에서 계속 스크롤할 때만 나타나고, 다 차오르면(--_p=1) 넘어감 */
@@ -737,10 +737,10 @@
   display: flex; justify-content: center; pointer-events: none;
 }
 /* 일뷰: 상/하(세로 스크롤 페이징) · 주뷰: 좌/우(가로 페이징) */
-.pullBottom { bottom: 0; left: 0; right: 0; align-items: flex-end; justify-content: center; padding-bottom: var(--spacing-md); }
-.pullTop { top: 0; left: 0; right: 0; align-items: flex-start; justify-content: center; padding-top: var(--spacing-md); }
-.pullRight { right: 0; top: 0; bottom: 0; align-items: center; justify-content: flex-end; padding-right: var(--spacing-md); }
-.pullLeft { left: 0; top: 0; bottom: 0; align-items: center; justify-content: flex-start; padding-left: var(--spacing-md); }
+.pullBottom { bottom: 0; left: 0; right: 0; align-items: flex-end; justify-content: center; padding-bottom: var(--spacing-16); }
+.pullTop { top: 0; left: 0; right: 0; align-items: flex-start; justify-content: center; padding-top: var(--spacing-16); }
+.pullRight { right: 0; top: 0; bottom: 0; align-items: center; justify-content: flex-end; padding-right: var(--spacing-16); }
+.pullLeft { left: 0; top: 0; bottom: 0; align-items: center; justify-content: flex-start; padding-left: var(--spacing-16); }
 /* 원형 진행 링 — 당김 진행도(--_p)만큼 accent 로 차오르고, 다 차면(ready) 꽉 찬 원 */
 .pullRing {
   position: relative;
@@ -790,7 +790,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--cell-p-sm);
+  padding: var(--cell-padding-sm);
   border: none;
   border-bottom: var(--border-light);
   background: transparent;
@@ -808,7 +808,7 @@
 /* 날짜 숫자 — 왼쪽 고정 */
 .agendaDate {
   position: absolute;
-  left: var(--spacing-sm);
+  left: var(--spacing-12);
   top: 50%;
   transform: translateY(-50%);
   display: inline-flex;
@@ -816,7 +816,7 @@
   justify-content: center;
   min-width: 20px;
   height: 20px;
-  padding: 0 var(--spacing-4xs);
+  padding: 0 var(--spacing-1);
   border-radius: var(--radius-circle);
   font-size: var(--font-size-label);
   font-weight: 600;
@@ -826,15 +826,15 @@
 .agendaToday .agendaDate { background: var(--color-accent); color: var(--text-on-accent); }
 .agendaCount {
   position: absolute;
-  top: var(--spacing-2xs);
-  right: var(--spacing-2xs);
+  top: var(--spacing-4);
+  right: var(--spacing-4);
   min-width: 16px;
   height: 16px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0 var(--spacing-4xs);
-  border-radius: var(--radius-capsule);
+  padding: 0 var(--spacing-1);
+  border-radius: var(--radius-full);
   background: var(--bg-tertiary);
   font-size: var(--font-size-micro);
   font-weight: 600;
@@ -849,13 +849,13 @@
   overscroll-behavior: contain;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
-  padding: var(--spacing-2xs);
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 var(--spacing-2xs), #000 calc(100% - var(--spacing-2xs)), transparent 100%);
-  mask-image: linear-gradient(to bottom, transparent 0, #000 var(--spacing-2xs), #000 calc(100% - var(--spacing-2xs)), transparent 100%);
+  gap: var(--spacing-4);
+  padding: var(--spacing-4);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 var(--spacing-4), #000 calc(100% - var(--spacing-4)), transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 var(--spacing-4), #000 calc(100% - var(--spacing-4)), transparent 100%);
 }
 .agendaEmpty {
-  padding: var(--spacing-sm) var(--spacing-2xs);
+  padding: var(--spacing-12) var(--spacing-4);
   font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   text-align: center;
@@ -864,10 +864,10 @@
 .agendaItem {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
-  padding: var(--row-p-sm);
+  gap: var(--spacing-4);
+  padding: var(--row-padding-sm);
   border: none;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   text-align: left;
   cursor: pointer;
@@ -884,8 +884,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-4xs);
-  padding: var(--spacing-3xs);
+  gap: var(--spacing-1);
+  padding: var(--spacing-2);
   border: none;
   border-top: var(--border-light);
   background: transparent;
@@ -905,21 +905,21 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--spacing-2xs);
-  padding: var(--spacing-xs) var(--spacing-sm);
+  gap: var(--spacing-4);
+  padding: var(--spacing-8) var(--spacing-12);
   border-bottom: var(--border-light);
   max-height: 74px;
   overflow-y: auto;
 }
-.dayAllDayLabel { flex-shrink: 0; margin-right: var(--spacing-3xs); font-size: var(--font-size-hint); font-weight: 600; color: var(--text-tertiary); letter-spacing: 0.02em; }
+.dayAllDayLabel { flex-shrink: 0; margin-right: var(--spacing-2); font-size: var(--font-size-hint); font-weight: 600; color: var(--text-tertiary); letter-spacing: 0.02em; }
 .dayAllDayItem {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   max-width: 100%;
-  padding: var(--spacing-3xs) var(--spacing-2xs);
+  padding: var(--spacing-2) var(--spacing-4);
   border: none;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: color-mix(in srgb, var(--_c) 14%, var(--bg-primary));
   cursor: pointer;
   transition: background-color 0.12s ease;
@@ -971,8 +971,8 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  gap: var(--spacing-4xs);
-  padding: var(--spacing-2xs) var(--spacing-xs);
+  gap: var(--spacing-1);
+  padding: var(--spacing-4) var(--spacing-8);
   border: none;
   border-radius: 0;
   background: color-mix(in srgb, var(--_c) 16%, var(--bg-primary));
@@ -984,10 +984,10 @@
 }
 .dayEvent:hover { background: color-mix(in srgb, var(--_c) 26%, var(--bg-primary)); box-shadow: inset 3px 0 0 0 var(--_c), var(--shadow-sm); }
 /* 제목 + 상태 아이콘(반복/연결) 한 줄 — 제목만 truncate, 아이콘은 항상 노출 */
-.dayEventHead { display: flex; align-items: center; gap: var(--spacing-2xs); min-width: 0; }
+.dayEventHead { display: flex; align-items: center; gap: var(--spacing-4); min-width: 0; }
 .dayEventIcon { flex-shrink: 0; color: color-mix(in srgb, var(--_c) 55%, var(--text-tertiary)); }
 /* 짧은 블록(30분 등)은 한 줄 — 제목만, 좌측 정렬(시각은 hover 프리뷰로) */
-.dayEventShort { flex-direction: row; align-items: center; justify-content: flex-start; gap: var(--spacing-2xs); padding-block: var(--spacing-3xs); }
+.dayEventShort { flex-direction: row; align-items: center; justify-content: flex-start; gap: var(--spacing-4); padding-block: var(--spacing-2); }
 .dayEventShort .dayEventHead { flex: 1; }
 .dayEventShort .dayEventTime { display: none; }
 .dayEventTitle {
@@ -1006,10 +1006,10 @@
 /* 드래그 중 현재 위치 시간 배지 — 시작 엣지는 블록 위, 종료 엣지는 블록 아래 */
 .dayEventDragTime {
   position: absolute;
-  left: var(--spacing-xs);
+  left: var(--spacing-8);
   bottom: calc(100% + 3px);
-  padding: var(--spacing-4xs) var(--spacing-2xs);
-  border-radius: var(--radius-capsule);
+  padding: var(--spacing-1) var(--spacing-4);
+  border-radius: var(--radius-full);
   background: var(--color-accent);
   color: var(--text-on-accent);
   font-size: var(--font-size-micro);
@@ -1033,7 +1033,7 @@
   left: 50%; bottom: 2px;
   transform: translateX(-50%);
   width: 24px; height: 3px;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--_c);
   opacity: 0.65;
 }
@@ -1043,7 +1043,7 @@
   left: var(--_axis);
   right: 3px;
   z-index: 4;
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   background: color-mix(in srgb, var(--color-accent) 16%, var(--bg-primary));
   border: 1px dashed var(--color-accent);
   pointer-events: none;
@@ -1051,9 +1051,9 @@
 
 /* ── 날짜 상세 모달 ── */
 /* ── 날짜별 이벤트 모달 — 라인 기반 트렌디 리스트 ── */
-.dayModal { display: flex; flex-direction: column; min-height: 60px; padding: var(--spacing-sm) var(--spacing-md) var(--spacing-lg); }
+.dayModal { display: flex; flex-direction: column; min-height: 60px; padding: var(--spacing-12) var(--spacing-16) var(--spacing-20); }
 .dayModalEmpty {
-  padding: var(--spacing-2xl) var(--spacing-md);
+  padding: var(--spacing-32) var(--spacing-16);
   text-align: center;
   font-size: var(--font-size-body);
   color: var(--text-tertiary);
@@ -1063,11 +1063,11 @@
 .dayRow {
   display: flex;
   align-items: flex-start;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
   width: 100%;
-  padding: var(--row-p-lg);
+  padding: var(--row-padding-lg);
   border: none;
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   background: transparent;
   text-align: left;
   cursor: pointer;
@@ -1079,28 +1079,28 @@
 .dayRowTime {
   flex-shrink: 0;
   width: 58px;
-  padding-top: var(--spacing-3xs);
+  padding-top: var(--spacing-2);
   font-size: var(--font-size-hint);
   font-weight: 600;
   color: var(--text-tertiary);
   font-variant-numeric: tabular-nums;
   line-height: 1.4;
 }
-.dayRowBody { display: flex; flex-direction: column; gap: var(--spacing-3xs); min-width: 0; flex: 1; }
-.dayRowTitleLine { display: flex; align-items: center; gap: var(--spacing-2xs); min-width: 0; }
+.dayRowBody { display: flex; flex-direction: column; gap: var(--spacing-2); min-width: 0; flex: 1; }
+.dayRowTitleLine { display: flex; align-items: center; gap: var(--spacing-4); min-width: 0; }
 .dayRowDot { flex-shrink: 0; width: 7px; height: 7px; border-radius: var(--radius-circle); background: var(--_c); }
 .dayRowTitle { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--font-size-body); font-weight: 600; color: var(--text-primary); min-width: 0; }
 .dayRowRange {
   flex-shrink: 0;
-  padding: 0 var(--spacing-2xs);
-  border-radius: var(--radius-capsule);
+  padding: 0 var(--spacing-4);
+  border-radius: var(--radius-full);
   background: var(--bg-tertiary);
   font-size: var(--font-size-micro);
   font-weight: 600;
   color: var(--text-tertiary);
 }
 .dayRowSub {
-  padding-left: calc(7px + var(--spacing-2xs));
+  padding-left: calc(7px + var(--spacing-4));
   font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
@@ -1108,26 +1108,26 @@
 
 /* ── 관계(선행/후속) 인디케이터 ── */
 /* 반복·연결 아이콘 묶음 — 우측 정렬, 아이콘 사이 간격 */
-.chipInd { flex-shrink: 0; margin-left: auto; display: inline-flex; align-items: center; gap: var(--spacing-4xs); color: var(--text-tertiary); opacity: 0.7; }
-.agendaRel { flex-shrink: 0; margin-left: var(--spacing-4xs); color: var(--text-tertiary); opacity: 0.7; vertical-align: -1px; }
+.chipInd { flex-shrink: 0; margin-left: auto; display: inline-flex; align-items: center; gap: var(--spacing-1); color: var(--text-tertiary); opacity: 0.7; }
+.agendaRel { flex-shrink: 0; margin-left: var(--spacing-1); color: var(--text-tertiary); opacity: 0.7; vertical-align: -1px; }
 
 /* ── 저장 상태 표시 ── */
 .saveState {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-4xs);
+  gap: var(--spacing-1);
   font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   white-space: nowrap;
 }
 
 /* ── 키보드 단축키 힌트 (툴팁 안) ── */
-.kbdHint { display: flex; flex-direction: column; gap: var(--spacing-3xs); font-size: var(--font-size-hint); text-align: left; }
+.kbdHint { display: flex; flex-direction: column; gap: var(--spacing-2); font-size: var(--font-size-hint); text-align: left; }
 .kbdHint kbd {
   display: inline-block;
   min-width: 1.4em;
-  padding: var(--spacing-4xs) var(--spacing-4xs);
-  border-radius: var(--radius-capsule);
+  padding: var(--spacing-1) var(--spacing-1);
+  border-radius: var(--radius-full);
   /* 툴팁 글자색(text-inverse) 기반 — 전역 kbd{color:text-primary} 를 덮어써 툴팁(inverse 배경)에서 보이게 */
   color: var(--text-inverse);
   background: color-mix(in srgb, var(--text-inverse) 16%, transparent);
@@ -1139,7 +1139,7 @@
 }
 
 /* ── 이벤트 모달 헤더 back/forward ── */
-.navBtns { display: inline-flex; align-items: center; gap: var(--spacing-4xs); }
+.navBtns { display: inline-flex; align-items: center; gap: var(--spacing-1); }
 .navBtn {
   display: inline-flex;
   align-items: center;
@@ -1147,7 +1147,7 @@
   width: 28px;
   height: 28px;
   border: none;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-secondary);
   cursor: pointer;
@@ -1157,17 +1157,17 @@
 .navBtn:disabled { opacity: 0.35; cursor: default; }
 
 /* ── 연관 이벤트 (편집 필드) ── */
-.relField { display: flex; flex-direction: column; gap: var(--spacing-3xs); }
-.relField + .relField { margin-top: var(--spacing-2xs); }
+.relField { display: flex; flex-direction: column; gap: var(--spacing-2); }
+.relField + .relField { margin-top: var(--spacing-4); }
 .relFieldLabel {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-4xs);
+  gap: var(--spacing-1);
   font-size: var(--font-size-hint);
   color: var(--text-secondary);
 }
 /* 선택된 관계 이벤트 칩 목록 (공통 Chip) — 한 줄 유지·줄바꿈 금지·왼쪽 정렬·넘치면 잘림 */
-.relChips { display: flex; flex-wrap: nowrap; justify-content: flex-start; gap: var(--spacing-3xs); min-width: 0; overflow: hidden; padding-block: var(--spacing-2xs); margin-block: -5px; }
+.relChips { display: flex; flex-wrap: nowrap; justify-content: flex-start; gap: var(--spacing-2); min-width: 0; overflow: hidden; padding-block: var(--spacing-4); margin-block: -5px; }
 /* 클릭 시 해당 이벤트로 이동 — hover 로 명확히 표시(accent 틴트 + 살짝 올라옴) */
 .relNavChip { cursor: pointer; transition: background-color 0.12s ease, transform 0.12s ease, box-shadow 0.12s ease; }
 .relNavChip:hover {
@@ -1181,22 +1181,22 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
 }
 .sectionFull { /* flex 컬럼에선 자동 전체폭 */ }
 @media (max-width: 560px) {
-  .modalForm { flex-direction: column; gap: var(--spacing-md); }
+  .modalForm { flex-direction: column; gap: var(--spacing-16); }
 }
 .sectionLabelRow {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 /* 두 필드를 나란히 (상태·중요도). 모바일은 세로 */
 .sectionRow {
   display: flex;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
 }
 .sectionRow > .section { flex: 1 1 0; min-width: 0; }
 @media (max-width: 560px) {
@@ -1215,10 +1215,10 @@
 .section {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 /* 그룹 경계 구분선 (섹션 아래) — 지정 위치에만 */
-.grpDividerBottom { border-bottom: var(--border-light); padding-bottom: var(--spacing-md); }
+.grpDividerBottom { border-bottom: var(--border-light); padding-bottom: var(--spacing-16); }
 
 /* ── 반복 사용자화(custom recurrence) — popover 내부 ── */
 /* 월간 날짜 그리드 1~31 (7열) */
@@ -1227,14 +1227,14 @@
 .dateTrigger {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   align-self: flex-start;
   max-width: 100%;
   min-width: 0;
-  height: var(--control-h-md);
-  padding: 0 var(--spacing-md);
+  height: var(--control-height-md);
+  padding: 0 var(--spacing-16);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--bg-secondary);
   color: var(--text-primary);
   font-size: var(--font-size-body);
@@ -1249,7 +1249,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 .dateTilde { color: var(--text-tertiary); }
 .sectionLabel {
@@ -1262,7 +1262,7 @@
   display: inline-block;
   width: 5px;
   height: 5px;
-  margin-left: var(--spacing-3xs);
+  margin-left: var(--spacing-2);
   border-radius: var(--radius-circle);
   background: var(--color-accent);
   vertical-align: middle;
@@ -1272,16 +1272,16 @@
 .labelRow {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   align-items: center;
 }
 /* 라벨 칩 컨테이너 — [반구+이름 선택버튼][수정버튼] */
 .labelChip {
   display: inline-flex;
   align-items: stretch;
-  height: var(--control-h-sm);
+  height: var(--control-height-sm);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--bg-primary);
   color: var(--text-secondary);
   font-size: var(--font-size-hint);
@@ -1298,8 +1298,8 @@
 .labelChipSelect {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  padding: 0 var(--spacing-sm) 0 0;
+  gap: var(--spacing-12);
+  padding: 0 var(--spacing-12) 0 0;
   border: none;
   background: transparent;
   color: inherit;
@@ -1310,7 +1310,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--control-h-sm);
+  width: var(--control-height-sm);
   border: none;
   background: transparent;
   color: var(--text-tertiary);
@@ -1323,17 +1323,17 @@
   align-self: stretch;
   width: 22px;
   flex-shrink: 0;
-  border-radius: var(--radius-capsule) 0 0 var(--radius-capsule);
+  border-radius: var(--radius-full) 0 0 var(--radius-full);
   background: var(--_lc);
 }
 .labelAdd {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-3xs);
-  height: var(--control-h-sm);
-  padding: 0 var(--spacing-md);
+  gap: var(--spacing-2);
+  height: var(--control-height-sm);
+  padding: 0 var(--spacing-16);
   border: 1px dashed var(--border-color-strong);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-secondary);
   font-size: var(--font-size-hint);
@@ -1344,10 +1344,10 @@
 .labelCreate {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-md);
+  gap: var(--spacing-12);
+  padding: var(--spacing-16);
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   background: transparent;
 }
 .statusDot {
@@ -1361,12 +1361,12 @@
 .tagRow {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 .tagSuggest {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 /* 태그 제안 칩 — 추가 칩(공통 Chip capsule)과 같은 크기 + 대시 외곽선으로 구분 */
 .suggestChip {
@@ -1387,7 +1387,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 .swatch {
   flex-shrink: 0;
@@ -1426,12 +1426,12 @@
 .timeToggle {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   align-self: flex-start;
-  height: var(--control-h-md);
-  padding: 0 var(--spacing-md);
+  height: var(--control-height-md);
+  padding: 0 var(--spacing-16);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--bg-secondary);
   color: var(--text-secondary);
   font-size: var(--font-size-body);
@@ -1446,7 +1446,7 @@
 }
 
 /* 리더 — 편집 불가라 hover/커서 없음 */
-.readerCalendar { margin: var(--spacing-md) 0; }
+.readerCalendar { margin: var(--spacing-16) 0; }
 .readerCalendar .chip { cursor: default; }
 
 /* ── 타임라인(어젠다) 뷰 ── */
@@ -1456,8 +1456,8 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-sm) var(--spacing-md);
-  padding: var(--spacing-sm) var(--spacing-md);
+  gap: var(--spacing-12) var(--spacing-16);
+  padding: var(--spacing-12) var(--spacing-16);
 }
 .tlHeadRight { flex-wrap: wrap; justify-content: flex-end; }
 .tlHeadTitle {
@@ -1468,16 +1468,16 @@
 .tlHeadRight {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 .tlAdd {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-3xs);
-  height: var(--control-h-sm);
-  padding: 0 var(--spacing-md);
+  gap: var(--spacing-2);
+  height: var(--control-height-sm);
+  padding: 0 var(--spacing-16);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--bg-primary);
   color: var(--text-secondary);
   font-size: var(--font-size-hint);
@@ -1510,7 +1510,7 @@
 .tlMonthLabel {
   position: absolute;
   top: 0;
-  padding-left: var(--spacing-sm);
+  padding-left: var(--spacing-12);
   font-size: var(--font-size-label);
   font-weight: 600;
   line-height: 26px;
@@ -1532,7 +1532,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  padding: var(--spacing-2xs) 0;
+  padding: var(--spacing-4) 0;
   border: none;
   background: transparent;
   cursor: pointer;
@@ -1568,7 +1568,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   border: 1.5px dashed var(--border-color-strong);
   background: var(--bg-secondary);
   color: var(--text-tertiary);
@@ -1606,12 +1606,12 @@
   position: absolute;
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   /* inline-flex 기본 min-width:auto(=내용폭) 때문에 width 무시되고 넓어지는 것 방지 → 지정 span 폭 유지, 제목은 넘침 */
   min-width: 0;
-  padding: 0 var(--spacing-sm);
+  padding: 0 var(--spacing-12);
   border: none;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   /* 배경은 bg-primary 로 통일, 색상은 왼쪽 스트라이프에만 */
   background: var(--bg-primary);
   box-shadow: inset 0 0 0 1px var(--border-color-light);
@@ -1669,9 +1669,9 @@
   z-index: 7;
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
-  padding: 0 var(--spacing-xs);
-  border-radius: var(--radius-capsule);
+  gap: var(--spacing-4);
+  padding: 0 var(--spacing-8);
+  border-radius: var(--radius-full);
   border: 1.5px dashed var(--_c);
   background: color-mix(in srgb, var(--_c) 22%, transparent);
   pointer-events: none;
@@ -1702,8 +1702,8 @@
   position: absolute;
   top: 2px;
   left: 3px;
-  padding: var(--spacing-4xs) var(--spacing-2xs);
-  border-radius: var(--radius-capsule);
+  padding: var(--spacing-1) var(--spacing-4);
+  border-radius: var(--radius-full);
   background: var(--color-accent);
   color: var(--text-on-accent);
   font-size: var(--font-size-micro);
@@ -1827,7 +1827,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  padding-left: var(--spacing-2xs);
+  padding-left: var(--spacing-4);
 }
 /* 간트 바 안에서는 폭보다 길면 오른쪽으로 넘침 — 단 적당히(최대폭 넘으면 ellipsis) */
 .tlBar .tlBarTitle {

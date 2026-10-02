@@ -6,7 +6,7 @@
   /* sticky-footer — body 가 flex column + main flex:1 이므로 auto 가 짧은 페이지에서 footer 를
      viewport 하단으로 밀어줌. padding-top 으로 콘텐츠와의 시각적 여백 확보. */
   margin-top: auto;
-  padding: var(--spacing-6xl) var(--page-px) var(--spacing-3xl);
+  padding: var(--spacing-128) var(--spacing-page-inline) var(--spacing-48);
   background: transparent;
 }
 
@@ -20,10 +20,10 @@
 
 .content {
   display: flex;
-  gap: var(--spacing-3xl);
+  gap: var(--spacing-48);
   flex-direction: column;
   margin: 0 auto;
-  max-width: var(--page-max-width);
+  max-width: var(--width-page-max);
   font-family: var(--font-mono);
   font-size: var(--font-size-label);
 }
@@ -32,7 +32,7 @@
 .links {
   position: relative;
   display: flex;
-  gap: var(--spacing-xl);
+  gap: var(--spacing-24);
   align-items: center;
   justify-content: center;
   flex-direction: row;
@@ -111,7 +111,7 @@
 
 .bottom {
   display: flex;
-  gap: var(--spacing-4xl);
+  gap: var(--spacing-64);
   justify-content: space-between;
   flex-direction: row;
   color: var(--text-accent-alt);
@@ -121,7 +121,7 @@
 .bottomLeft {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 .email {
@@ -170,20 +170,20 @@
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 /* Visitor counter */
 .visits {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 .visitItem {
   display: flex;
   align-items: baseline;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 .visitLabel {
@@ -209,7 +209,7 @@
 
 .stretchLine {
   flex: 1;
-  min-width: var(--spacing-lg);
+  min-width: var(--spacing-20);
   height: 1px;
   background: var(--border-color-light);
 }
@@ -238,7 +238,7 @@
 
 .footerMinimal {
   margin-top: 0;
-  padding: var(--spacing-2xl) var(--spacing-4xl) var(--spacing-xl);
+  padding: var(--spacing-32) var(--spacing-64) var(--spacing-24);
 }
 
 .bottomMinimal {
@@ -265,16 +265,16 @@
 
 @media (max-width: 768px) {
   .footer {
-    padding: var(--spacing-4xl) var(--spacing-xl) var(--spacing-2xl);
+    padding: var(--spacing-64) var(--spacing-24) var(--spacing-32);
   }
 
   .content {
-    gap: var(--spacing-xl);
+    gap: var(--spacing-24);
   }
 
   .links {
     flex-wrap: wrap;
-    gap: var(--spacing-sm) var(--spacing-md);
+    gap: var(--spacing-12) var(--spacing-16);
   }
 
   .footerIndicator {
@@ -282,7 +282,7 @@
   }
 
   .bottom {
-    gap: var(--spacing-lg);
+    gap: var(--spacing-20);
     align-items: center;
     flex-direction: column;
     text-align: center;
@@ -291,7 +291,7 @@
   .bottomMinimal {
     flex-direction: column;
     align-items: center;
-    gap: var(--spacing-lg);
+    gap: var(--spacing-20);
     text-align: center;
   }
 

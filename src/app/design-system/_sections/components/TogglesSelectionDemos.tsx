@@ -64,7 +64,7 @@ export default function TogglesSelectionDemos() {
           en={"A capsule control for picking one of several — used in 33 places (post sorting, series/tag filters, calendar view switching). Its outline is an inset box-shadow, not a border: a real border affects layout and breaks the \"total height = button height + padding\" rule (which is also why border-color won't override it). variant only changes outline weight — subtle keeps the default from standing out where everything around it is border-light, like the calendar block."}
         >
           <div className={styles.componentRow}>
-            <motion.div variants={staggerItemX} {...scrollChildX(0, 2)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--spacing-2xs)" }}>
+            <motion.div variants={staggerItemX} {...scrollChildX(0, 2)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--spacing-4)" }}>
               <SegmentedControl<string>
                 items={[
                   { value: "all", label: language === "ko" ? "전체" : "All" },
@@ -77,7 +77,7 @@ export default function TogglesSelectionDemos() {
               />
               <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--font-size-hint)", color: "var(--text-muted)" }}>default</span>
             </motion.div>
-            <motion.div variants={staggerItemX} {...scrollChildX(1, 2)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--spacing-2xs)" }}>
+            <motion.div variants={staggerItemX} {...scrollChildX(1, 2)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--spacing-4)" }}>
               <SegmentedControl<string>
                 variant="subtle"
                 items={[
@@ -107,29 +107,29 @@ export default function TogglesSelectionDemos() {
         {/* Switch */}
         <DemoGroup title="Switch">
           <div className={styles.componentRow}>
-            <motion.div variants={staggerItemX} {...scrollChildX(0, 4)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-xs)" }}>
+            <motion.div variants={staggerItemX} {...scrollChildX(0, 4)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-8)" }}>
               <Switch size="sm" checked={switchOn} onCheckedChange={setSwitchOn} />
               <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-label)", color: "var(--text-secondary)" }}>Default (sm)</span>
             </motion.div>
-            <motion.div variants={staggerItemX} {...scrollChildX(1, 4)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-xs)" }}>
+            <motion.div variants={staggerItemX} {...scrollChildX(1, 4)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-8)" }}>
               <Switch size="sm" checked={switchAccent} onCheckedChange={setSwitchAccent} variant="accent" />
               <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-label)", color: "var(--text-secondary)" }}>Accent</span>
             </motion.div>
-            <motion.div variants={staggerItemX} {...scrollChildX(2, 4)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-xs)" }}>
+            <motion.div variants={staggerItemX} {...scrollChildX(2, 4)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-8)" }}>
               <Switch size="sm" disabled />
               <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-label)", color: "var(--text-secondary)" }}>Disabled</span>
             </motion.div>
-            <motion.div variants={staggerItemX} {...scrollChildX(3, 4)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-xs)" }}>
+            <motion.div variants={staggerItemX} {...scrollChildX(3, 4)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-8)" }}>
               <Switch size="sm" disabled defaultChecked />
               <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-label)", color: "var(--text-secondary)" }}>Disabled On</span>
             </motion.div>
           </div>
           {/* label(옆 form-row 라벨) vs showStateText(토글 안 ON/OFF 텍스트) */}
-          <div className={styles.componentRow} style={{ marginTop: "var(--spacing-sm)", gap: "var(--spacing-2xl)" }}>
+          <div className={styles.componentRow} style={{ marginTop: "var(--spacing-12)", gap: "var(--spacing-32)" }}>
             <motion.div variants={staggerItemX} {...scrollChildX(0, 2)} style={{ display: "inline-flex" }}>
               <Switch size="md" label="With label" checked={switchLabeled} onCheckedChange={setSwitchLabeled} />
             </motion.div>
-            <motion.div variants={staggerItemX} {...scrollChildX(1, 2)} style={{ display: "inline-flex", alignItems: "center", gap: "var(--spacing-xs)" }}>
+            <motion.div variants={staggerItemX} {...scrollChildX(1, 2)} style={{ display: "inline-flex", alignItems: "center", gap: "var(--spacing-8)" }}>
               <Switch size="md" showStateText checked={switchStateText} onCheckedChange={setSwitchStateText} />
               <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-label)", color: "var(--text-secondary)" }}>showStateText (ON/OFF)</span>
             </motion.div>
@@ -139,11 +139,11 @@ export default function TogglesSelectionDemos() {
         {/* LanguageToggle — 사이즈 md / sm */}
         <DemoGroup title="LanguageToggle">
           <div className={styles.componentRow}>
-            <motion.div variants={staggerItemX} {...scrollChildX(0, 2)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-sm)" }}>
+            <motion.div variants={staggerItemX} {...scrollChildX(0, 2)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-12)" }}>
               <LanguageToggle lang={langMd} onLangChange={setLangMd} />
               <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-label)", color: "var(--text-secondary)" }}>Default (md, 28px)</span>
             </motion.div>
-            <motion.div variants={staggerItemX} {...scrollChildX(1, 2)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-sm)" }}>
+            <motion.div variants={staggerItemX} {...scrollChildX(1, 2)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-12)" }}>
               <LanguageToggle lang={langSm} onLangChange={setLangSm} size="sm" />
               <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-label)", color: "var(--text-secondary)" }}>size=&quot;sm&quot; (22px)</span>
             </motion.div>

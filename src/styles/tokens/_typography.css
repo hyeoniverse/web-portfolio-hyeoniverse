@@ -35,36 +35,29 @@
   --font-display: var(--font-playfair);
   --font-grotesk: var(--font-space-grotesk), sans-serif;
 
-  /* Font Sizes - Fixed */
-  /* ── 하한 규칙 ───────────────────────────────────────────────
-   * **글자는 12px 밑으로 내려가지 않는다.** 11px(3xs·micro)은 없애는 중이다 — 쓰는 곳을 hint 로 옮긴 뒤 지운다.
-   * 예전 스케일은 2xs 가 10px, 3xs 가 8px 이었는데 그 둘이 라벨·힌트·뱃지에
-   * 424 + 55 곳에서 쓰이고 있었다. 관리 화면 전체가 읽기 힘든 원인이었다.
-   * 그래서 아래 세 칸을 끌어올렸다 — 10→12, 8→11, 12→13.
+  /* 글자 크기 눈금 — 이름이 px 값이다(docs/design-system.md 2-3-2).
+   * **글자는 12px 밑으로 내려가지 않는다(3.2-2).** 11 은 없애는 중이다 — 쓰는 곳을 12 로 옮긴 뒤 지운다.
+   * 예전 스케일은 10px · 8px 단계가 라벨·힌트·뱃지에 424 + 55 곳 쓰였다. 관리 화면 전체가 읽기 힘든 원인이어서
+   * 10→12, 8→11, 12→13 으로 끌어올렸다.
    *
-   *   3xs 11px  →  --font-size-micro   없애는 중 — 새로 쓰지 않는다(docs/design-system.md 3.2-2)
-   *   2xs 12px  →  --font-size-hint    **가장 작은 글자.** 힌트·뱃지·메타·카운터
-   *   xs  13px  →  --font-size-label   필드 라벨·버튼
-   *   sm  14px  →  --font-size-body    본문·입력값·목록 항목
-   *
-   * **컴포넌트 CSS 는 왼쪽(단계)을 쓰지 않고 오른쪽(역할)을 쓴다.** 위 네 칸은 오로지 저
-   * 역할들을 위해 있는 값이라 1:1 이다 — stylelint 와 eslint 가 왼쪽 사용을 막는다.
-   * md 이상(제목·디스플레이)은 아직 역할 이름이 없어서 단계 이름을 그대로 쓴다.
+   * **컴포넌트 CSS 는 눈금을 쓰지 않고 역할을 쓴다** — 지금은 14px 이하만 역할이 있다
+   * (11 --font-size-micro · 12 --font-size-hint · 13 --font-size-label · 14 --font-size-body, _semantic.css).
+   * stylelint 와 eslint 가 11~14 눈금 사용을 막는다. 16 이상도 글자 묶음 역할로 옮기는 중이다(3.2-1).
    *
    * 장식용 5px 은 `--font-size-dot` 으로 `_semantic.css` 에 있다 — 단계가 아니라 역할이다. */
-  --font-size-3xs: 0.6875rem;
-  --font-size-2xs: 0.75rem;
-  --font-size-xs: 0.8125rem;
-  --font-size-sm: 0.875rem;
-  --font-size-md: 1rem;
-  --font-size-lg: 1.125rem;
-  --font-size-xl: 1.25rem;
-  --font-size-2xl: 1.5rem;
-  --font-size-2xl-plus: 1.75rem;
-  --font-size-3xl: 2rem;
-  --font-size-4xl: 2.5rem;
-  --font-size-5xl: 3rem;
-  --font-size-6xl: 4rem;
+  --font-size-11: 0.6875rem;
+  --font-size-12: 0.75rem;
+  --font-size-13: 0.8125rem;
+  --font-size-14: 0.875rem;
+  --font-size-16: 1rem;
+  --font-size-18: 1.125rem;
+  --font-size-20: 1.25rem;
+  --font-size-24: 1.5rem;
+  --font-size-28: 1.75rem;
+  --font-size-32: 2rem;
+  --font-size-40: 2.5rem;
+  --font-size-48: 3rem;
+  --font-size-64: 4rem;
 
   /* Font Sizes - Fluid
    * 하한이 전부 0.5rem(8px) 로 복붙돼 있었다 — 10xl 같은 디스플레이 크기까지 8px 로

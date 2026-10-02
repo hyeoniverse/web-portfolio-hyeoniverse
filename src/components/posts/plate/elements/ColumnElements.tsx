@@ -173,7 +173,7 @@ export function ColumnGroupElement(props: PlateElementProps) {
   const groupStyle: React.CSSProperties = {
     ...props.style,
     display: "flex",
-    gap: "var(--spacing-xs)",
+    gap: "var(--spacing-8)",
     // 다른 블록과 같은 블록 간격(에디터 --prose-block-gap=28px) — 탭·일반블록과 gap 통일, tint 겹침/닿음 방지
     marginBlock: "var(--prose-block-gap)",
     // 첫 열 블록의 좌측 핸들(gutter left:-40px)이 overflow-x 에 안 잘리게 좌측 40px 공간(paddingLeft) 확보.
@@ -297,9 +297,9 @@ export function ColumnElement(props: PlateElementProps) {
       ...props.style,
       ...(px != null ? { flex: `0 var(--_col-shrink, 0) ${px}px` } : { flex: `${weight} 1 0` }),
       minWidth: COLUMN_MIN_PX,
-      borderRadius: "var(--radius-2xl)",
+      borderRadius: "var(--radius-24)",
       background: `var(--_col-bg, ${COLUMN_DEFAULT_BG})`,
-      padding: "var(--spacing-sm)",
+      padding: "var(--spacing-12)",
     }}>
       {props.children}
     </PlateElement>

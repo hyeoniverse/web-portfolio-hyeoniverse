@@ -34,9 +34,9 @@
   position: relative;
   display: inline-flex;
   flex: none;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   align-items: center;
-  padding: var(--spacing-xs) var(--spacing-md);
+  padding: var(--spacing-8) var(--spacing-16);
   border: none;
   border-right: 1px solid
     color-mix(in srgb, var(--text-secondary) 12%, transparent);

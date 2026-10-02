@@ -1,9 +1,9 @@
 .peek {
   position: fixed;
-  z-index: var(--z-tooltip);
-  padding: var(--spacing-2xs);
+  z-index: var(--z-index-tooltip);
+  padding: var(--spacing-4);
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   background: var(--bg-primary);
   box-shadow: var(--shadow-md);
 }

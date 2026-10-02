@@ -36,7 +36,7 @@
 .altIntro .introSlot {
   /* 판 높이가 고정이므로 위아래 여백은 판이 감당할 만큼만 — 머리띠(헤더)에 가리지 않을 정도로
      띄우고 나머지는 글에 준다 */
-  padding-block: calc(var(--header-height) + var(--spacing-sm)) var(--spacing-lg);
+  padding-block: calc(var(--header-height) + var(--spacing-12)) var(--spacing-20);
   height: auto;
   max-height: 100%;
   max-width: 520px;
@@ -96,7 +96,7 @@
    ========================================================================== */
 @media (max-width: 1024px), (max-height: 700px) {
   .gallery {
-    padding-top: var(--spacing-5xl);
+    padding-top: var(--spacing-96);
     overflow: hidden;
     width: 100%;
     height: auto;
@@ -136,7 +136,7 @@
    ========================================================================== */
 @media (min-width: 1025px) and (max-height: 700px) {
   .gallery {
-    padding-top: var(--spacing-5xl);
+    padding-top: var(--spacing-96);
     overflow: auto;
     height: auto;
     min-height: 100vh;
@@ -200,7 +200,7 @@
   .creditsPanel {
     width: 100%;
     height: auto;
-    padding: var(--spacing-3xl) var(--spacing-xl) var(--spacing-2xl);
+    padding: var(--spacing-48) var(--spacing-24) var(--spacing-32);
     border-top: var(--border-strong);
   }
 

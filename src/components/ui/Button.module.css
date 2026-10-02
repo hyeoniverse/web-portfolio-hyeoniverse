@@ -9,7 +9,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   position: relative;
   border: 1px solid transparent;
   background: transparent;
@@ -47,45 +47,45 @@
 .label {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 /* ---------------------------------------------------------------------------
    Sizes — capsule. 4-pt grid, height 명시 (controls 정렬 안정성).
-   --control-h-* token 사용 (--control-h-xs:24 / sm:28 / md:32 / lg:36)
+   --control-height-* token 사용 (--control-height-xs:24 / sm:28 / md:32 / lg:36)
    --------------------------------------------------------------------------- */
 .size-2xs {
   height: 20px;
   box-sizing: border-box;
-  padding: 0 var(--spacing-sm);
+  padding: 0 var(--spacing-12);
   font-size: var(--font-size-hint);
 }
 
 .size-xs {
-  height: var(--control-h-xs);
+  height: var(--control-height-xs);
   box-sizing: border-box;
-  padding: 0 var(--spacing-md);
+  padding: 0 var(--spacing-16);
   font-size: var(--font-size-label);
 }
 
 .size-sm {
-  height: var(--control-h-sm);
+  height: var(--control-height-sm);
   box-sizing: border-box;
-  padding: 0 var(--spacing-md);
+  padding: 0 var(--spacing-16);
   font-size: var(--font-size-body);
 }
 
 .size-md {
-  height: var(--control-h-md);
+  height: var(--control-height-md);
   box-sizing: border-box;
-  padding: 0 var(--spacing-lg);
+  padding: 0 var(--spacing-20);
   font-size: var(--font-size-body);
 }
 
 .size-lg {
-  height: var(--control-h-lg);
+  height: var(--control-height-lg);
   box-sizing: border-box;
-  padding: 0 var(--spacing-lg);
+  padding: 0 var(--spacing-20);
   font-size: var(--font-size-body);
   letter-spacing: 0.05em;
 }
@@ -93,7 +93,7 @@
 .size-xl {
   height: 40px;
   box-sizing: border-box;
-  padding: 0 var(--spacing-xl);
+  padding: 0 var(--spacing-24);
   font-size: var(--font-size-body);
   letter-spacing: 0.05em;
 }
@@ -102,7 +102,7 @@
    Shapes
    --------------------------------------------------------------------------- */
 .shape-capsule {
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
 }
 
 /* circle/square — 항상 정사각. flex 컨테이너 안에서 가로로 찌그러지는 것 방지:
@@ -118,7 +118,7 @@
 
 .shape-square {
   /* stylelint-disable-next-line declaration-property-value-disallowed-list -- shape=square 는 capsule 을 벗어나려고 있는 변형이라 각져야 한다 */
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-6);
   padding: 0;
   aspect-ratio: 1;
   flex: 0 0 auto;
@@ -127,37 +127,37 @@
 /* circle / square — height = width. capsule .size-* 의 height (control-h-*) 와 동일하게 매핑 */
 .shape-circle.size-2xs,
 .shape-square.size-2xs {
-  width: var(--control-h-2xs);
-  height: var(--control-h-2xs);
-  min-width: var(--control-h-2xs);
+  width: var(--control-height-2xs);
+  height: var(--control-height-2xs);
+  min-width: var(--control-height-2xs);
 }
 
 .shape-circle.size-xs,
 .shape-square.size-xs {
-  width: var(--control-h-xs);
-  height: var(--control-h-xs);
-  min-width: var(--control-h-xs);
+  width: var(--control-height-xs);
+  height: var(--control-height-xs);
+  min-width: var(--control-height-xs);
 }
 
 .shape-circle.size-sm,
 .shape-square.size-sm {
-  width: var(--control-h-sm);
-  height: var(--control-h-sm);
-  min-width: var(--control-h-sm);
+  width: var(--control-height-sm);
+  height: var(--control-height-sm);
+  min-width: var(--control-height-sm);
 }
 
 .shape-circle.size-md,
 .shape-square.size-md {
-  width: var(--control-h-md);
-  height: var(--control-h-md);
-  min-width: var(--control-h-md);
+  width: var(--control-height-md);
+  height: var(--control-height-md);
+  min-width: var(--control-height-md);
 }
 
 .shape-circle.size-lg,
 .shape-square.size-lg {
-  width: var(--control-h-lg);
-  height: var(--control-h-lg);
-  min-width: var(--control-h-lg);
+  width: var(--control-height-lg);
+  height: var(--control-height-lg);
+  min-width: var(--control-height-lg);
 }
 
 .shape-circle.size-xl,
@@ -302,7 +302,7 @@
   height: auto;
   text-decoration: none;
   font-size: var(--font-size-label);
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   position: relative;
 }
 

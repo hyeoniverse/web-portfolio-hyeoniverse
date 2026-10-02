@@ -7,7 +7,7 @@
   .decor {
     display: block;
     position: absolute;
-    inset: calc(var(--header-height) + var(--spacing-2xl)) var(--_panel-px) calc(var(--spacing-2xl) + 3.5rem);
+    inset: calc(var(--header-height) + var(--spacing-32)) var(--_panel-px) calc(var(--spacing-32) + 3.5rem);
     z-index: 0;
     pointer-events: none;
   }
@@ -17,7 +17,7 @@
     position: absolute;
     top: 0;
     display: flex;
-    gap: var(--spacing-xs);
+    gap: var(--spacing-8);
     align-items: center;
     font-family: var(--font-mono);
     font-size: var(--font-size-label);

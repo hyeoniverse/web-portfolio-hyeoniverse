@@ -5,8 +5,8 @@
 .tagDeleteConfirmBody {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
-  padding: var(--modal-p-md);
+  gap: var(--spacing-16);
+  padding: var(--modal-padding-md);
 }
 
 .tagDeleteConfirmDesc {
@@ -20,24 +20,24 @@
 .tagDeleteConfirmActions {
   display: flex;
   justify-content: flex-end;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 /* 기본값 초기화 모달 chip — 클릭 시 해당 태그 사용 게시물 노출. 취소선 없음(삭제 대기 chip 과 구분). */
 .tagResetChipRow {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-2xs);
-  margin: var(--spacing-sm) 0;
+  gap: var(--spacing-4);
+  margin: var(--spacing-12) 0;
 }
 
 .tagResetChip {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
-  padding: var(--badge-p-lg);
+  gap: var(--spacing-4);
+  padding: var(--badge-padding-lg);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--bg-primary);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);

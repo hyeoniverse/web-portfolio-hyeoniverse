@@ -615,8 +615,8 @@ export default function TagNotesEditor({
                     className={styles.readonly}
                     style={{
                       paddingLeft: !disableReorder
-                        ? "calc(14px + var(--spacing-2xs))"
-                        : "var(--spacing-2xs)",
+                        ? "calc(14px + var(--spacing-4))"
+                        : "var(--spacing-4)",
                     }}
                     onDoubleClick={editingItem !== item ? (e) => { e.stopPropagation(); setEditingItem(item); } : undefined}
                   >

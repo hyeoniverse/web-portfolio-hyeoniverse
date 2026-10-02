@@ -3,19 +3,19 @@
 /* 위 구분선 — 바로 위 "AI 자동 번역"은 반쪽 폭이라 밑줄을 긋지 않는다(borderless). 그대로면 선 없이 붙어
    보여 여기서 전폭으로 긋는다. 위 섹션이 남긴 아래 여백(margin)만큼 끌어올려 선 위아래 간격을 다른 섹션과 맞춘다 */
 .section.section {
-  margin-top: calc(-1 * var(--spacing-2xl));
-  padding-top: var(--spacing-2xl);
+  margin-top: calc(-1 * var(--spacing-32));
+  padding-top: var(--spacing-32);
   border-top: var(--border-light);
 }
 .wrap {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   grid-column: 1 / -1;
 }
 
 /* 읽기 좋은 폭으로 — 표기 → 읽을 말 두 칸이 화면 끝까지 벌어지지 않게 */
 .body {
   max-width: 880px;
-  margin-top: var(--spacing-sm);
+  margin-top: var(--spacing-12);
 }

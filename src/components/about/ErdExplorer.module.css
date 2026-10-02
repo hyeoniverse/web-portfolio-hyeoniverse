@@ -19,7 +19,7 @@
 /* ── 나란히 보기 ── */
 .split {
   display: flex;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   flex: 1;
   min-height: 0;
 }
@@ -33,11 +33,11 @@
 /* ── 포커스 칩 — 캔버스 안 좌상단에 떠 있다 ── */
 .focusChip {
   display: flex;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   align-items: center;
-  padding: var(--spacing-3xs) var(--spacing-3xs) var(--spacing-3xs) var(--spacing-sm);
+  padding: var(--spacing-2) var(--spacing-2) var(--spacing-2) var(--spacing-12);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--bg-primary);
   box-shadow: var(--shadow-md);
 }
@@ -54,10 +54,10 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: var(--control-h-sm);
-  padding: 0 var(--spacing-xs);
+  height: var(--control-height-sm);
+  padding: 0 var(--spacing-8);
   border: 0;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-secondary);
   font-family: var(--font-space-grotesk);
@@ -73,16 +73,16 @@
 .notes {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   width: 300px;
 }
 .note {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
-  padding: var(--spacing-xs) var(--spacing-md);
+  gap: var(--spacing-2);
+  padding: var(--spacing-8) var(--spacing-16);
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   background: var(--bg-primary);
   box-shadow: var(--shadow-md);
 }
@@ -94,8 +94,8 @@
 }
 .noteTag {
   align-self: flex-start;
-  padding: var(--badge-p-md);
-  border-radius: var(--radius-capsule);
+  padding: var(--badge-padding-md);
+  border-radius: var(--radius-full);
   background: var(--bg-accent-subtle);
   color: var(--text-accent);
   font-family: var(--font-mono);
@@ -112,20 +112,20 @@
 /* ── 개념 / 스키마 전환 — 캔버스 안 우상단 ── */
 .viewSwitch {
   display: flex;
-  gap: var(--spacing-3xs);
-  padding: var(--spacing-3xs);
+  gap: var(--spacing-2);
+  padding: var(--spacing-2);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--bg-primary);
   box-shadow: var(--shadow-md);
 }
 .viewBtn {
   display: inline-flex;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   align-items: center;
-  padding: var(--button-p-xs);
+  padding: var(--button-padding-xs);
   border: 0;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-tertiary);
   font-family: var(--font-space-grotesk);
@@ -145,8 +145,8 @@
 /* 편집 경로 안내 — admin 에서만 뜬다(공개 패널은 onEdit 이 없어 렌더 안 됨).
    포커스 중엔 칩이 그 자리를 대신하므로 감춘다. */
 .editHint {
-  padding: var(--spacing-2xs) var(--spacing-xs);
-  border-radius: var(--radius-capsule);
+  padding: var(--spacing-4) var(--spacing-8);
+  border-radius: var(--radius-full);
   background: var(--bg-glass-panel);
   backdrop-filter: var(--blur-glass);
   color: var(--text-tertiary);

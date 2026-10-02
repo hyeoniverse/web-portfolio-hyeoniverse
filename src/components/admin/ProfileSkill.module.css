@@ -6,14 +6,14 @@
 /* profile expandable panel 안 fieldGroup 들 사이 간격 */
 .profileExpandableInner { display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
 }
 
 /* sub-section 시각적 중첩 — section h2 아래 h3 그룹을 들여쓰기 + 좌측 라인 */
 .subSection {
-  padding-left: var(--spacing-md);
+  padding-left: var(--spacing-16);
   border-left: 2px solid var(--border-color-light);
-  margin-bottom: var(--spacing-xl);
+  margin-bottom: var(--spacing-24);
 }
 
 .subSection:last-child {
@@ -26,7 +26,7 @@
    add button 모두 동일하게 적용. */
 .sortableList { display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
 }
 
 /* ── Expand/collapse animation ──
@@ -36,19 +36,19 @@
   height: 0;
   overflow: hidden;
   transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  margin-left: var(--spacing-xl);
+  margin-left: var(--spacing-24);
 }
 
 .sortableList .skillExpandable > * {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 .sortableItem {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   --_skill-row-h: 36px;
   transition: background-color 0.2s ease;
 }
@@ -56,7 +56,7 @@
 .sortableItemDragging {
   background: var(--bg-secondary);
   /* 드래그 중 항목 — 섹션 제목 위로 들려 보이되 탭바/nav 아래 (패널 z 사다리 참조) */
-  z-index: calc(var(--z-nav) - 2);
+  z-index: calc(var(--z-index-nav) - 2);
 }
 
 .skillDragHandle {
@@ -87,7 +87,7 @@
 .skillFields {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   flex: 1;
   min-width: 0;
 }
@@ -95,7 +95,7 @@
 .skillGroupHeader {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   min-height: var(--_skill-row-h);
 }
 
@@ -151,19 +151,19 @@
 .periodBadge {
   display: inline-block;
   width: 9em;
-  padding: 0 var(--spacing-sm);
+  padding: 0 var(--spacing-12);
   text-align: left;
 }
 
 .skillNested {
-  padding-left: var(--spacing-sm);
+  padding-left: var(--spacing-12);
 }
 
 .skillNestedRow {
   display: flex;
   align-items: flex-start;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-xs) 0;
+  gap: var(--spacing-8);
+  padding: var(--spacing-8) 0;
 }
 
 .skillNestedRow + .skillNestedRow {
@@ -198,7 +198,7 @@
   width: 12px;
   height: 1.5px;
   background: currentColor;
-  border-radius: var(--spacing-4xs);
+  border-radius: var(--spacing-1);
   transition: transform 0.25s ease;
   transform: rotate(0deg);
 }
@@ -215,8 +215,8 @@
    설정 화면의 다른 이중언어 칸(.fieldPair)과 같은 간격·같은 접힘 폭을 쓴다 */
 .profileGrid {
   display: grid;
-  grid-template-columns: var(--grid-cols-2);
-  gap: var(--spacing-xs) var(--spacing-md);
+  grid-template-columns: var(--grid-columns-2);
+  gap: var(--spacing-8) var(--spacing-16);
   width: 100%;
 }
 

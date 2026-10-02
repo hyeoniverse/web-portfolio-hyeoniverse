@@ -9,7 +9,7 @@
   text-decoration: none;
   color: inherit;
   overflow: hidden;
-  padding-bottom: var(--spacing-xl);
+  padding-bottom: var(--spacing-24);
   /* container query — 자식의 body excerpt 가 card 폭에 따라 swap.
    * (imageWrap 폭은 비례하므로 card 폭으로 충분 — series 모드 제외) */
   container-type: inline-size;
@@ -49,8 +49,8 @@
 /* 페이지 이모지 — 커버 좌하단 오버레이(디테일 페이지와 동일 감성) */
 .cardIcon {
   position: absolute;
-  left: var(--spacing-sm);
-  bottom: var(--spacing-sm);
+  left: var(--spacing-12);
+  bottom: var(--spacing-12);
   z-index: 2;
   display: inline-flex;
   line-height: 1;
@@ -151,7 +151,7 @@
   align-items: center;
   /* hot·pinned·icon 좌측 정렬 (lang 은 imageWrap 우상단으로 분리됨) */
   justify-content: flex-start;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 /* 텍스트 그룹 — category + title + excerpt 묶음. 하단 anchored (space-between).
@@ -208,8 +208,8 @@
 .body {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-sm) 0 0 0;
+  gap: var(--spacing-8);
+  padding: var(--spacing-12) 0 0 0;
   flex: 1;
 }
 
@@ -217,7 +217,7 @@
 .badgeRow {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   flex-wrap: wrap;
 }
 
@@ -227,9 +227,9 @@
   align-items: center;
   width: fit-content;
   white-space: nowrap;
-  padding: var(--badge-p-md);
+  padding: var(--badge-padding-md);
   border: var(--border-accent-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-hint);
@@ -242,11 +242,11 @@
 /* ── Title ── */
 .title {
   font-family: var(--font-instrument);
-  font-size: var(--font-size-2xl-plus);
+  font-size: var(--font-size-28);
   font-weight: var(--font-weight-regular);
   color: var(--text-primary);
   line-height: var(--line-height-tight);
-  min-height: calc(var(--font-size-2xl-plus) * var(--line-height-tight) * 2);
+  min-height: calc(var(--font-size-28) * var(--line-height-tight) * 2);
   /* 한글 단어 보존 + 영문 긴 단어 break (line-clamp 시 ellipsis 정확히 표시되게) */
   word-break: break-word;
   overflow-wrap: anywhere;
@@ -283,19 +283,19 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
   margin-top: auto;
-  padding-top: var(--spacing-xs);
+  padding-top: var(--spacing-8);
 }
 
 /* meta 그룹 — 날짜+min read 한 묶음, 조회+좋아요 한 묶음. 줄바꿈은 그룹 단위로만 발생 */
 .metaGroup {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   white-space: nowrap;
 }
 
@@ -305,7 +305,7 @@
   content: "";
   display: inline-block;
   height: var(--font-size-body);
-  margin-left: var(--spacing-xs);
+  margin-left: var(--spacing-8);
   border-left: var(--border-default);
 }
 
@@ -318,7 +318,7 @@
 .metaItem {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 .dot {
@@ -330,8 +330,8 @@
    ═══════════════════════════════════════════ */
 .featured {
   flex-direction: row;
-  gap: var(--spacing-2xl);
-  padding-bottom: var(--spacing-xl);
+  gap: var(--spacing-32);
+  padding-bottom: var(--spacing-24);
 }
 
 .featured .imageWrap {
@@ -339,8 +339,8 @@
 }
 
 .featured .body {
-  padding: var(--spacing-sm) 0;
-  gap: var(--spacing-sm);
+  padding: var(--spacing-12) 0;
+  gap: var(--spacing-12);
 }
 
 .featured .title {
@@ -354,7 +354,7 @@
 }
 
 .featured .meta {
-  padding-top: var(--spacing-sm);
+  padding-top: var(--spacing-12);
 }
 
 /* ═══════════════════════════════════════════
@@ -365,10 +365,10 @@
 }
 
 .compact .body {
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   /* 이미지와 본문 사이 여백은 유지하되 전체 본문 padding 만 축소.
      원래 너무 빡빡해서 살짝 늘림 (sm→md) — 작은 카드에서 호흡 확보 */
-  padding: var(--spacing-md) 0 0 0;
+  padding: var(--spacing-16) 0 0 0;
 }
 
 .compact .title {
@@ -377,11 +377,11 @@
   -webkit-line-clamp: 1;
   white-space: nowrap;
   text-overflow: ellipsis;
-  padding-right: var(--spacing-xs);
+  padding-right: var(--spacing-8);
 }
 
 .compact .meta {
-  padding-top: var(--spacing-xs);
+  padding-top: var(--spacing-8);
 }
 
 /* compact 의 body excerpt 는 항상 표시 — display:none 제거 (이전엔 슬림하게 가렸음).
@@ -389,7 +389,7 @@
  * compact + cover image: body 에서 그대로 표시. */
 
 .compact.card {
-  padding: 0 var(--spacing-2xs) var(--spacing-md);
+  padding: 0 var(--spacing-4) var(--spacing-16);
 }
 
 /* ═══════════════════════════════════════════
@@ -413,14 +413,14 @@
 /* ── Image overlay badges 좌상단 stack (HOT + Pinned) ── */
 .imageBadgesLeft {
   position: absolute;
-  top: var(--spacing-sm);
-  left: var(--spacing-sm);
+  top: var(--spacing-12);
+  left: var(--spacing-12);
   z-index: 2;
   display: flex;
   /* hot·pinned 나란히(가로) */
   flex-direction: row;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 /* list 레이아웃 — pinned·언어칩을 좌상단 한 줄로 나란히(gap 유지) */
 /* 좌상단 배지 스택 안의 lang 칩 — absolute 해제하고 세로 flow (pinned 아래로 스택) */
@@ -434,9 +434,9 @@
 .pinnedOverlay {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-3xs);
-  padding: var(--spacing-3xs) var(--spacing-sm);
-  border-radius: var(--radius-capsule);
+  gap: var(--spacing-2);
+  padding: var(--spacing-2) var(--spacing-12);
+  border-radius: var(--radius-full);
   background: var(--bg-overlay);
   backdrop-filter: blur(8px);
   border: var(--border-ghost-light);
@@ -452,13 +452,13 @@
 /* ── Lang badge 우상단 오버레이 ── */
 .langOverlay {
   position: absolute;
-  top: var(--spacing-sm);
-  right: var(--spacing-sm);
+  top: var(--spacing-12);
+  right: var(--spacing-12);
   z-index: 2;
   display: inline-flex;
   align-items: center;
-  padding: var(--spacing-3xs) var(--spacing-sm);
-  border-radius: var(--radius-capsule);
+  padding: var(--spacing-2) var(--spacing-12);
+  border-radius: var(--radius-full);
   background: var(--bg-overlay);
   backdrop-filter: blur(8px);
   border: var(--border-ghost-light);
@@ -484,7 +484,7 @@
   }
 
   .featured .body {
-    padding: var(--spacing-md) 0 0 0;
+    padding: var(--spacing-16) 0 0 0;
   }
 
   .featured .title {
@@ -494,13 +494,13 @@
 
 @media (max-width: 640px) {
   .body {
-    padding: var(--spacing-sm) 0 0 0;
+    padding: var(--spacing-12) 0 0 0;
   }
 
   /* 모바일 — title 축소, excerpt 는 meta(xs) 와 동일 크기 */
   .title {
     font-size: var(--font-size-title-sm);
-    min-height: calc(var(--font-size-md) * var(--line-height-tight) * 2);
+    min-height: calc(var(--font-size-16) * var(--line-height-tight) * 2);
   }
 
   .excerpt {
@@ -520,7 +520,7 @@
   .featured {
     flex-direction: column;
     gap: 0;
-    padding-bottom: var(--spacing-lg);
+    padding-bottom: var(--spacing-20);
   }
 
   .featured .imageWrap {
@@ -528,8 +528,8 @@
   }
 
   .featured .body {
-    padding: var(--spacing-sm) 0 0 0;
-    gap: var(--spacing-xs);
+    padding: var(--spacing-12) 0 0 0;
+    gap: var(--spacing-8);
   }
 
   .featured .title {
@@ -550,8 +550,8 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--spacing-2xs);
-  margin-top: var(--spacing-xs);
+  gap: var(--spacing-4);
+  margin-top: var(--spacing-8);
   max-height: 24px;
   overflow: hidden;
 }
@@ -563,8 +563,8 @@
 .tagPill {
   display: inline-flex;
   align-items: center;
-  padding: var(--badge-p-md);
-  border-radius: var(--radius-capsule);
+  padding: var(--badge-padding-md);
+  border-radius: var(--radius-full);
   background: var(--bg-tertiary);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-hint);
@@ -586,7 +586,7 @@
   height: 20px;
   padding: 0;
   border: none;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-tertiary);
   font-size: 14px;

@@ -530,7 +530,7 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
           </div>
         ) : (
           <>
-            <div style={{ display: "flex", gap: "var(--spacing-xs)" }}>
+            <div style={{ display: "flex", gap: "var(--spacing-8)" }}>
               <Button variant="outline" size="md" onClick={handleImageUpload} loading={uploading}>
                 <T k="admin.posts.seriesModal.uploadCover" />
               </Button>
@@ -597,7 +597,7 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
                 data-lenis-prevent
               >
                 {addLoading ? (
-                  <div style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-2xs)", padding: "var(--spacing-xs) var(--spacing-sm)" }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-4)", padding: "var(--spacing-8) var(--spacing-12)" }}>
                     {[0, 1, 2, 3, 4].map((i) => <SkeletonLine key={i} width={`${70 - i * 8}%`} height={24} />)}
                   </div>
                 ) : (() => {
@@ -660,7 +660,7 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
             </div>
           </div>
           {postsLoading ? (
-            <div style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-xs)" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-8)" }}>
               {[0, 1, 2].map((i) => <SkeletonLine key={i} width="100%" height={32} />)}
             </div>
           ) : posts.length === 0 ? (

@@ -4,7 +4,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: var(--spacing-md);
+  margin-bottom: var(--spacing-16);
 }
 
 /* meta 다음 줄 — Visit Site / GitHub / Share 묶음, 오른쪽 정렬 */
@@ -13,20 +13,20 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: flex-end;
-  gap: var(--spacing-xs);
-  margin-bottom: var(--spacing-xl);
+  gap: var(--spacing-8);
+  margin-bottom: var(--spacing-24);
 }
 
 /* liveUrl/GitHub 버튼(size xs=24)과 ShareButton(패딩 기반 ~27)의 높이가 달라 → 모두 동일 높이로 강제 */
 .headerActions :is(a, button) {
-  height: var(--control-h-sm);
+  height: var(--control-height-sm);
   box-sizing: border-box;
 }
 
 .metaLeft {
   display: flex;
   align-items: center;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-20);
 }
 
 .metaDivider {
@@ -48,14 +48,14 @@
 .tag {
   display: inline-flex;
   align-items: center;
-  height: var(--control-h-xs);
-  padding: 0 var(--spacing-md);
+  height: var(--control-height-xs);
+  padding: 0 var(--spacing-16);
   border: var(--border-default);
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-hint);
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   color: var(--text-tertiary);
 }
 
@@ -68,13 +68,13 @@
 .tagGroup {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 /* 팀/개인 배지 — 아이콘 + 라벨 inline. 다른 tag 보다 약간 흐린 톤 */
 .tagSolo,
 .tagTeam {
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   color: var(--text-secondary);
 }
 
@@ -84,7 +84,7 @@
 
 /* ── Title ── */
 .title {
-  margin-bottom: var(--spacing-xl);
+  margin-bottom: var(--spacing-24);
   font-family: var(--font-instrument), serif;
   font-size: clamp(3rem, 8vw, 5.5rem);
   font-weight: var(--font-weight-regular);
@@ -94,7 +94,7 @@
 
 /* ── Description ── */
 .description {
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: var(--spacing-20);
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-body-xl);
   line-height: 1.7;
@@ -115,7 +115,7 @@
 /* ── Mobile ── */
 @media (max-width: 768px) {
   .metaLeft {
-    gap: var(--spacing-sm);
+    gap: var(--spacing-12);
   }
 
   .title {
@@ -124,6 +124,6 @@
 
   .description {
     font-size: var(--font-size-body-lg);
-    margin-bottom: var(--spacing-2xl);
+    margin-bottom: var(--spacing-32);
   }
 }

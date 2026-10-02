@@ -61,7 +61,7 @@ function FilePreviewContent({ url, fileName, isPdf, isOffice, isText }: {
     return (
       <pre style={{
         margin: 0, padding: "12px 16px",
-        borderRadius: "var(--radius-2xl)", background: "var(--bg-primary)",
+        borderRadius: "var(--radius-24)", background: "var(--bg-primary)",
         fontSize: 12, color: "var(--text-secondary)", overflow: "auto",
         maxHeight: 400, whiteSpace: "pre-wrap", wordBreak: "break-all",
         fontFamily: "var(--font-mono)",
@@ -109,7 +109,7 @@ export function FileElement(props: PlateElementProps) {
         <div {...blockDragProps} contentEditable={false} style={{
           maxWidth: hasPreview ? 640 : 480, cursor: "default",
           border: "1px solid var(--border-color-light)",
-          borderRadius: previewOpen ? "var(--radius-2xl)" : "var(--radius-capsule, 999px)",
+          borderRadius: previewOpen ? "var(--radius-24)" : "var(--radius-full, 999px)",
           background: "var(--bg-secondary)", overflow: "hidden",
           display: "flex", flexDirection: "column" as const,
           transition: previewOpen
@@ -159,7 +159,7 @@ export function FileElement(props: PlateElementProps) {
             </a>
           </div>
           {isAudio && (
-            <audio src={url} controls preload="metadata" style={{ width: "100%", padding: "0 12px 8px", borderRadius: "var(--radius-2xl)" }} />
+            <audio src={url} controls preload="metadata" style={{ width: "100%", padding: "0 12px 8px", borderRadius: "var(--radius-24)" }} />
           )}
           {hasPreview && (
             <div style={{

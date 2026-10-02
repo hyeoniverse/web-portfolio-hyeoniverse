@@ -123,12 +123,12 @@ function EditorSection({ language, setSectionRef }: EditorSectionProps) {
           variants={staggerItem}
           style={{
             marginBottom: 24,
-            padding: "var(--spacing-md) var(--spacing-lg)",
+            padding: "var(--spacing-16) var(--spacing-20)",
             border: "var(--border-light)",
-            borderRadius: "var(--radius-2xl)",
+            borderRadius: "var(--radius-24)",
             display: "flex",
             flexDirection: "column",
-            gap: "var(--spacing-xs)",
+            gap: "var(--spacing-8)",
           }}
         >
           <span
@@ -149,7 +149,7 @@ function EditorSection({ language, setSectionRef }: EditorSectionProps) {
               paddingLeft: "1.1em",
               display: "flex",
               flexDirection: "column",
-              gap: "var(--spacing-2xs)",
+              gap: "var(--spacing-4)",
               fontSize: "var(--font-size-body)",
               color: "var(--text-secondary)",
               lineHeight: 1.6,

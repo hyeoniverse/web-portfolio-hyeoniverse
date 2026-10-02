@@ -3,8 +3,8 @@
 .builder {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-lg);
-  padding-top: var(--spacing-sm);
+  gap: var(--spacing-20);
+  padding-top: var(--spacing-12);
   /* twoCol 이 칸 방향에 맞춰 내려주는 들여쓰기 — List item 들과 같은 규칙으로 소비한다.
      이게 없으면 오른쪽 칸에서 경계선에 딱 붙는다 */
   padding-inline-start: var(--_item-inline-start, 0);
@@ -15,7 +15,7 @@
 .fieldsGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
   align-items: start;
 }
 
@@ -30,7 +30,7 @@
   grid-column: 1 / -1;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 /* [출처 │ 경로] 캡슐 — Input 의 grouped wrapper 와 같은 문법: 캡슐이 border 담당,
@@ -38,9 +38,9 @@
 .comboCapsule {
   display: flex;
   align-items: stretch;
-  height: var(--control-h-md);
+  height: var(--control-height-md);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   overflow: hidden;
   transition: border-color var(--duration-base) ease;
 }
@@ -97,9 +97,9 @@
 .builderResult {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   border-top: var(--border-light);
-  padding-top: var(--spacing-md);
+  padding-top: var(--spacing-16);
 }
 
 /* 결과 링크 — 한 줄 mono, 길면 말줄임. 클릭하면 전체 선택 */
@@ -110,8 +110,8 @@
   font-size: var(--font-size-hint);
   color: var(--text-secondary);
   background: var(--bg-secondary);
-  border-radius: var(--radius-capsule);
-  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--radius-full);
+  padding: var(--spacing-8) var(--spacing-16);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -155,8 +155,8 @@
 .helpContent {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-sm);
+  gap: var(--spacing-8);
+  padding: var(--spacing-12);
 }
 
 .helpTitle {
@@ -181,7 +181,7 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   font-size: var(--font-size-label);
   line-height: 1.6;
   color: var(--text-secondary);
@@ -190,7 +190,7 @@
 .helpParams li {
   display: flex;
   align-items: baseline;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 .helpParams code {
@@ -202,10 +202,10 @@
 
 .helpSteps {
   margin: 0;
-  padding-left: var(--spacing-lg);
+  padding-left: var(--spacing-20);
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   font-size: var(--font-size-label);
   line-height: 1.6;
   color: var(--text-secondary);
@@ -216,8 +216,8 @@
   font-size: var(--font-size-hint);
   color: var(--text-accent);
   background: var(--bg-secondary);
-  border-radius: var(--radius-capsule);
-  padding: var(--spacing-3xs) var(--spacing-sm);
+  border-radius: var(--radius-full);
+  padding: var(--spacing-2) var(--spacing-12);
   align-self: flex-start;
 }
 
@@ -225,5 +225,5 @@
 .triggerValue {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }

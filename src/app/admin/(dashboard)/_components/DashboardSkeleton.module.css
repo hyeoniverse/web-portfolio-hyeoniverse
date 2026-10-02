@@ -3,8 +3,8 @@
 /* devices breakdown skeleton — 3 charts side by side */
 .skelDevicesRow {
   display: flex;
-  gap: var(--spacing-md);
-  padding-block: var(--spacing-md);
+  gap: var(--spacing-16);
+  padding-block: var(--spacing-16);
 }
 .skelDevicesRow > * {
   flex: 1;
@@ -16,5 +16,5 @@
   display: flex;
   align-items: center;
   min-height: 52px;
-  padding: var(--spacing-md);
+  padding: var(--spacing-16);
 }

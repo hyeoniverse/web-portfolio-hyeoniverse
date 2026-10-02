@@ -3,7 +3,7 @@
 .outline {
   display: flex;
   flex-direction: column;
-  margin: var(--spacing-2xs) 0 var(--spacing-sm) calc(var(--spacing-md) + var(--spacing-xs));
+  margin: var(--spacing-4) 0 var(--spacing-12) calc(var(--spacing-16) + var(--spacing-8));
   padding: 0;
   list-style: none;
   border-left: var(--border-light);
@@ -11,10 +11,10 @@
 
 .item {
   display: flex;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   align-items: center;
   width: 100%;
-  padding: var(--spacing-3xs) var(--spacing-sm);
+  padding: var(--spacing-2) var(--spacing-12);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   line-height: 1.5;

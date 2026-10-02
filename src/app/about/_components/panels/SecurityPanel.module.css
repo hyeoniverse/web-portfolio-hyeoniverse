@@ -10,13 +10,13 @@
   gap: 0;
   border-top: var(--_line-primary);
   max-width: clamp(500px, 85vw, 1400px);
-  grid-template-columns: var(--grid-cols-2);
+  grid-template-columns: var(--grid-columns-2);
 }
 
 .secItem {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   padding: clamp(0.8rem, 1.5vh, 1.4rem) clamp(0.6rem, 1.5vw, 1.5rem);
   border-bottom: var(--_line-secondary);
 }
@@ -27,7 +27,7 @@
 
 .secHeader {
   display: flex;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
   align-items: center;
 }
 
@@ -62,9 +62,9 @@
 .secScope {
   display: inline-flex;
   align-self: flex-start;
-  padding: var(--spacing-3xs) var(--spacing-xs);
+  padding: var(--spacing-2) var(--spacing-8);
   border: var(--border-default);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   font-size: var(--font-size-prose-caption);
   font-weight: var(--font-weight-medium);
   color: var(--text-tertiary);
@@ -91,12 +91,12 @@
    단계마다 그 자리에서 걸리는 보안 항목이 아래로 달린다. 관리자 미리보기는 .secGrid 를 쓴다 */
 @media (min-width: 1025px) and (min-height: 701px) {
   .securityPanel {
-    padding-top: calc(var(--header-height) + var(--spacing-md));
-    padding-bottom: calc(var(--spacing-2xl) + 4rem);
+    padding-top: calc(var(--header-height) + var(--spacing-16));
+    padding-bottom: calc(var(--spacing-32) + 4rem);
   }
 
   .securityPanel > h2 {
-    margin: 0 0 var(--spacing-xl);
+    margin: 0 0 var(--spacing-24);
   }
 
   .securityPanel .secGrid {
@@ -116,7 +116,7 @@
   .flowStage {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-md);
+    gap: var(--spacing-16);
     min-width: 0;
   }
 
@@ -133,10 +133,10 @@
   /* 단계 노드 — 오른쪽으로 다음 단계까지 화살표 선이 이어진다 */
   .flowNode {
     display: flex;
-    gap: var(--spacing-sm);
+    gap: var(--spacing-12);
     align-items: baseline;
     position: relative;
-    padding-bottom: var(--spacing-sm);
+    padding-bottom: var(--spacing-12);
     border-bottom: 2px solid var(--text-accent);
   }
 
@@ -169,7 +169,7 @@
   .flowItems {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-md);
+    gap: var(--spacing-16);
     margin: 0;
     padding: 0;
     list-style: none;
@@ -178,8 +178,8 @@
   .flowItem {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-2xs);
-    padding-left: var(--spacing-sm);
+    gap: var(--spacing-4);
+    padding-left: var(--spacing-12);
     border-left: var(--border-default);
   }
 
@@ -194,7 +194,7 @@
 
   .flowItemHead {
     display: flex;
-    gap: var(--spacing-xs);
+    gap: var(--spacing-8);
     align-items: center;
     font-size: var(--font-size-body);
     font-weight: var(--font-weight-semibold);
@@ -257,7 +257,7 @@
 /* 낮은 데스크톱 화면 — 설명을 다섯 줄로 접고 범위는 숨긴다 */
 @media (min-width: 1025px) and (min-height: 701px) and (max-height: 860px) {
   .flowItems {
-    gap: var(--spacing-sm);
+    gap: var(--spacing-12);
   }
 
   .flowItemDesc {
@@ -269,7 +269,7 @@
   }
 
   .securityPanel > h2 {
-    margin-bottom: var(--spacing-md);
+    margin-bottom: var(--spacing-16);
   }
 }
 

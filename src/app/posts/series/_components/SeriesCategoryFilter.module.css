@@ -4,8 +4,8 @@
 .categoryRow {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-3xs);
-  margin-bottom: var(--spacing-lg);
+  gap: var(--spacing-2);
+  margin-bottom: var(--spacing-20);
 }
 
 /* 색을 고정하지 않고 버튼에서 물려받는다 — 선택되면 버튼 글자색이 반전되는데,

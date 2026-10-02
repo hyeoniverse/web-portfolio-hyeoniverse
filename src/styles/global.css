@@ -4,6 +4,8 @@
 @import "./tokens/_index.css";
 @import "./globals/_animations.css";
 @import "./globals/_semantic.css";
+@import "./globals/_component.css";
+@import "./globals/_legacy-aliases.css";
 @import "./globals/_base.css";
 @import "./globals/_utilities.css";
 @import "./globals/_layout.css";

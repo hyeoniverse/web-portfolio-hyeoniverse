@@ -5,14 +5,14 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--spacing-sm) var(--spacing-lg);
+  gap: var(--spacing-12) var(--spacing-20);
 }
 
 /* 기간 숏컷 버튼 묶음 — 날짜 트리거와 같은 줄, 좁으면 다음 줄로 */
 .periodPresets {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 /* 각 stat 항목 — label 과 값을 가로로 나란히 (baseline 정렬).
@@ -20,12 +20,12 @@
 .dailyChartStatItem {
   display: inline-flex;
   align-items: baseline;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 .dailyChartStatItem + .dailyChartStatItem {
   position: relative;
-  padding-left: var(--spacing-md);
+  padding-left: var(--spacing-16);
 }
 
 .dailyChartStatItem + .dailyChartStatItem::before {
@@ -50,7 +50,7 @@
 
 .dailyChartTotal {
   font-family: var(--font-mono);
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-16);
   font-weight: 700;
   color: var(--text-primary);
   font-variant-numeric: tabular-nums;
@@ -61,7 +61,7 @@
 .periodRange {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 .periodTrigger {
@@ -273,8 +273,8 @@
    height 는 button-h-md (38) — 날짜 숫자 + dow 라벨 둘 다 안 잘리도록 */
 .areaDays {
   position: relative;
-  height: var(--control-h-xl);
-  margin-block: var(--spacing-sm);
+  height: var(--control-height-xl);
+  margin-block: var(--spacing-12);
   overflow: visible;
 }
 
@@ -297,7 +297,7 @@
 .areaDayDow {
   font-size: var(--font-size-hint);
   color: var(--text-muted);
-  margin-top: var(--spacing-3xs);
+  margin-top: var(--spacing-2);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -315,7 +315,7 @@
 .areaDay {
   background: transparent;
   border: none;
-  padding: var(--spacing-2xs) var(--spacing-3xs);
+  padding: var(--spacing-4) var(--spacing-2);
   cursor: pointer;
   transition: color 0.15s ease;
   z-index: 1; /* indicator 위에 텍스트 */
@@ -340,8 +340,8 @@
   position: absolute;
   top: 50%;
   /* areaDays height (button-h-md) 에 맞춰 — 날짜 + dow 두 줄 텍스트 다 덮음 */
-  width: var(--control-h-xl);
-  height: var(--control-h-xl);
+  width: var(--control-height-xl);
+  height: var(--control-height-xl);
   border-radius: var(--radius-circle);
   background: var(--bg-tertiary);
   transform: translate(-50%, -50%);

@@ -1,9 +1,9 @@
 /*  page 전용 스타일 — Settings.module.css 에서 분리(#384)  */
 
 .container {
-  max-width: var(--page-max-width);
+  max-width: var(--width-page-max);
   margin: 0 auto;
-  padding: var(--spacing-6xl) var(--page-px) var(--spacing-3xl);
+  padding: var(--spacing-128) var(--spacing-page-inline) var(--spacing-48);
 }
 
 /* settings 페이지 한정 — Button outline 톤을 light 로 낮춤.
@@ -23,17 +23,17 @@
   /* 좁은 폭에서 타이틀·토글·액션 버튼이 한 줄에 못 들어가면 접힌다 —
      nowrap 이면 서로 겹쳐버린다 */
   flex-wrap: wrap;
-  gap: var(--spacing-sm) var(--spacing-md);
-  margin-bottom: var(--spacing-2xl);
+  gap: var(--spacing-12) var(--spacing-16);
+  margin-bottom: var(--spacing-32);
 }
 
 .title {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   margin: 0;
   font-family: var(--font-instrument);
-  font-size: var(--font-size-3xl);
+  font-size: var(--font-size-32);
   font-weight: var(--font-weight-regular);
   color: var(--text-primary);
 }
@@ -45,7 +45,7 @@
 /* ── Layout: Side Nav + Panel ── */
 .layout {
   display: flex;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-20);
 }
 
 /* 데스크탑(>1024): 세로 sticky 사이드바. 태블릿·모바일(≤1024)에서는 아래
@@ -56,13 +56,13 @@
   width: 200px;
   flex-shrink: 0;
   position: sticky;
-  top: calc(var(--header-height) + var(--spacing-2xl));
+  top: calc(var(--header-height) + var(--spacing-32));
   align-self: flex-start;
   /* About 에서 섹션 목록(SectionOutline)까지 펼치면 화면보다 길어진다. 붙어 있는 동안에는 화면 아래로
      넘친 항목(Appearance·Account)이 보이지 않으므로, 화면 높이까지만 두고 안에서 스크롤한다. */
   /* --side-nav-room — 붙는 선에서 틀(.layout) 끝까지 남은 자리. 페이지 끝에서 틀에 밀려 nav 와
      겹치지 않게 그만큼으로 줄인다(page.tsx 효과가 스크롤마다 넣는다). */
-  max-height: min(calc(100dvh - var(--header-height) - var(--spacing-2xl) - var(--spacing-md)), var(--side-nav-room, 100dvh));
+  max-height: min(calc(100dvh - var(--header-height) - var(--spacing-32) - var(--spacing-16)), var(--side-nav-room, 100dvh));
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: thin;
@@ -78,16 +78,16 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   /* min-height 로 모든 nav row 동일 — padding 상하 0 이라 텍스트는 자동 정중앙 */
-  min-height: calc(var(--control-h-md) + var(--spacing-sm));
-  padding: 0 var(--spacing-xs);
+  min-height: calc(var(--control-height-md) + var(--spacing-12));
+  padding: 0 var(--spacing-8);
   border: none;
   border-bottom: var(--border-light);
   border-radius: 0;
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-16);
   font-weight: 500;
   color: var(--text-primary);
   text-align: left;
@@ -110,11 +110,11 @@
 }
 
 /* 좁은 폭에서는 섹션 바로가기 눈금(SectionJumpNav)이 화면 오른쪽 가장자리에 떠 있다.
-   눈금 자리는 오른쪽 끝에서 spacing-md 안쪽, 폭 18px 이다. 본문 여백(--page-px, 480px 이하 4vw)이
+   눈금 자리는 오른쪽 끝에서 spacing-md 안쪽, 폭 18px 이다. 본문 여백(--spacing-page-inline, 480px 이하 4vw)이
    그보다 좁으면 눈금이 버튼과 카드 가장자리를 가리므로, 모자란 만큼 본문 오른쪽을 비운다. */
 @media (max-width: 768px) {
   .panel {
-    padding-right: max(0px, calc(var(--spacing-md) + 18px + var(--spacing-2xs) - var(--page-px)));
+    padding-right: max(0px, calc(var(--spacing-16) + 18px + var(--spacing-4) - var(--spacing-page-inline)));
   }
 }
 
@@ -154,7 +154,7 @@
     flex-shrink: 0;
     width: auto;
     border-bottom: 2px solid transparent;
-    padding: var(--row-p-lg);
+    padding: var(--row-padding-lg);
     font-size: var(--font-size-label);
     text-align: center;
   }
@@ -166,11 +166,11 @@
 
   /* 모바일 미세 조정 — font / padding */
   .header {
-    gap: var(--spacing-sm);
+    gap: var(--spacing-12);
   }
 
   .title {
-    font-size: var(--font-size-2xl);
+    font-size: var(--font-size-24);
   }
 }
 
@@ -181,7 +181,7 @@
   /* 모바일에서 세 버튼(Reset to Defaults·Revert·Save Tab)이 한 줄에 안 들어가면 줄바꿈한다.
      nowrap 이면 Save Tab 이 화면 오른쪽 밖으로 잘린다. */
   flex-wrap: wrap;
-  gap: var(--spacing-sm) var(--spacing-md);
+  gap: var(--spacing-12) var(--spacing-16);
 }
 /* 탭 저장 단추 안의 "바뀐 곳" 수 — 단추 글자색을 옅게 깐 캡슐. 섹션 머리·사이드바 목록의 점 개수와 같다 */
 .saveCount {
@@ -190,9 +190,9 @@
   justify-content: center;
   min-width: 1.5em;
   height: 1.5em;
-  margin-left: var(--spacing-2xs);
-  padding: 0 var(--spacing-3xs);
-  border-radius: var(--radius-capsule);
+  margin-left: var(--spacing-4);
+  padding: 0 var(--spacing-2);
+  border-radius: var(--radius-full);
   background: color-mix(in srgb, currentColor 22%, transparent);
   font-size: var(--font-size-hint);
   font-variant-numeric: tabular-nums;
@@ -201,18 +201,18 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
-  margin-bottom: var(--spacing-md);
+  margin-bottom: var(--spacing-16);
 }
 
 .conflictToggle {
   width: 100%;
   background: none;
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   color: var(--text-primary);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
-  padding: var(--spacing-xs) var(--spacing-sm);
+  padding: var(--spacing-8) var(--spacing-12);
   font-weight: var(--font-weight-medium);
 }
 /* 양옆이 트인 flat list — 좌우 border 없음, 위/각 row 아래에만 border.
@@ -226,8 +226,8 @@
 .conflictPreviewItem {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-xs) 0;
+  gap: var(--spacing-12);
+  padding: var(--spacing-8) 0;
   font-size: var(--font-size-label);
   border-bottom: var(--border-light);
   border-radius: 0;
@@ -240,8 +240,8 @@
 .conflictSelectAll {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-xs) 0;
+  gap: var(--spacing-12);
+  padding: var(--spacing-8) 0;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
@@ -264,7 +264,7 @@
 
 .conflictValues {
   display: flex;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
   flex: 1;
   min-width: 0;
 }
@@ -323,8 +323,8 @@
   align-items: center;
   justify-content: space-between;
   /* navItem 과 동일 min-height — 폰트 크기는 작지만 row 높이 일관 */
-  min-height: calc(var(--control-h-md) + var(--spacing-sm));
-  padding: 0 0 0 var(--spacing-md);
+  min-height: calc(var(--control-height-md) + var(--spacing-12));
+  padding: 0 0 0 var(--spacing-16);
   border: none;
   border-bottom: var(--border-light);
   border-radius: 0;
@@ -357,7 +357,7 @@
   /* min(440px, 100%) — 뷰포트가 440px 보다 좁으면(모바일) 트랙이 100% 로 줄어 가로 오버플로우
      방지. 넓으면 440px min 으로 2 col wrap 기준 유지. */
   grid-template-columns: repeat(auto-fit, minmax(min(440px, 100%), 1fr));
-  gap: 0 var(--spacing-2xl);
+  gap: 0 var(--spacing-32);
   max-width: 1040px;
   margin: 0 auto;
 }
@@ -370,19 +370,19 @@
 .skeletonFields {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
-  margin-top: var(--spacing-lg);
+  gap: var(--spacing-12);
+  margin-top: var(--spacing-20);
 }
 /* ── Skeleton (tab layout) ── */
 .skeletonNav {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 .skeletonSection {
-  padding-bottom: var(--spacing-2xl);
-  margin-bottom: var(--spacing-2xl);
+  padding-bottom: var(--spacing-32);
+  margin-bottom: var(--spacing-32);
   border-bottom: var(--border-light);
 }
 
@@ -396,7 +396,7 @@
     position: sticky;
     top: var(--header-height);
     /* frost(::before)가 사이트 nav 뒤로 깔리고 nav 는 그 위에 보이도록 nav 보다 한 단계 아래 */
-    z-index: calc(var(--z-nav) - 1);
+    z-index: calc(var(--z-index-nav) - 1);
   }
   /* 고정(pin) 시 nav 영역까지 위로 확장해 blur — 배경색 없이 backdrop-filter 만.
        overflow 는 안쪽 sideNav 라 이 ::before 는 안 잘린다. */
@@ -404,14 +404,14 @@
     content: "";
     position: absolute;
     top: calc(-1 * var(--header-height));
-    left: calc(-1 * var(--page-px));
-    right: calc(-1 * var(--page-px));
+    left: calc(-1 * var(--spacing-page-inline));
+    right: calc(-1 * var(--spacing-page-inline));
     /* 탭바 밑줄(하단 indicator)까지 blur 를 균일하게 — 페이드는 탭바 아래 여백에서만.
        예전엔 bottom:0 + 90% 라 밑줄이 페이드 구간에 걸려 그 부분만 blur 가 약했다. */
-    bottom: calc(-1 * var(--spacing-md));
+    bottom: calc(-1 * var(--spacing-16));
     z-index: -1;
     backdrop-filter: var(--blur-glass);
-    mask-image: linear-gradient(to bottom, #000 calc(100% - var(--spacing-md)), transparent);
+    mask-image: linear-gradient(to bottom, #000 calc(100% - var(--spacing-16)), transparent);
     pointer-events: none;
     opacity: 0;
     transition: opacity var(--duration-base) ease;
@@ -430,7 +430,7 @@
     gap: 0;
     /* 바로 아래 섹션 점프바와 딱 붙게 — 예전 lg 는 그 사이가 너무 떴다.
        점프바가 없는 하위탭(섹션 1개)일 때의 콘텐츠 간격은 tabGrid margin-top 이 맡는다. */
-    margin-bottom: var(--spacing-2xs);
+    margin-bottom: var(--spacing-4);
     border-bottom: var(--border-light);
     overflow-x: auto;
     scrollbar-width: none;
@@ -442,7 +442,7 @@
 
   .mobileSubItem {
     flex-shrink: 0;
-    padding: var(--row-p-md);
+    padding: var(--row-padding-md);
     border: none;
     border-bottom: 2px solid transparent;
     background: transparent;
@@ -462,7 +462,7 @@
        의 margin-bottom 이 이미 그 여백을 주므로, subNav 바로 뒤 tabGrid 는 예외로 둬
        2단 탭(메인 + 하위)이 붙어 보이게 유지한다. */
   .tabGrid {
-    margin-top: var(--spacing-lg);
+    margin-top: var(--spacing-20);
   }
 
   /* 점프바(SectionJumpNav)가 없는 하위탭은 tabGrid margin-top 이 탭 메뉴와의 간격을 담당한다.
