@@ -13,6 +13,8 @@ export const FONT_GROUPS: FontGroup[] = [
     group: "Korean (한글)",
     // Google Fonts 의 한글 subset 지원 전반 (사이트 라이브 메타데이터 기준)
     fonts: [
+      /* 자체 호스팅(styles/vendor/pretendard.css) — 사이트 본문 기본 글꼴 */
+      { label: "Pretendard", value: "'Pretendard Variable', sans-serif", korean: true },
       gfk("Noto Sans KR", "sans-serif"), gfk("Nanum Gothic", "sans-serif"), gfk("Gothic A1", "sans-serif"),
       gfk("IBM Plex Sans KR", "sans-serif"), gfk("Gowun Dodum", "sans-serif"), gfk("Sunflower", "sans-serif"),
       gfk("Stylish", "sans-serif"), gfk("Asta Sans", "sans-serif"), gfk("Do Hyeon", "sans-serif"),

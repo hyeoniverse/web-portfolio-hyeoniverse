@@ -20,7 +20,7 @@
 /* display 는 TextLink 의 .external 이 inline-flex 로 처리 (아이콘과 한 줄 정렬). 여기선 override 안 함. */
 .designSystemLink {
   margin-top: var(--spacing-20);
-  font-family: var(--font-space-grotesk), sans-serif;
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
   text-decoration: none;

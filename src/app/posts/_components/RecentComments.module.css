@@ -6,7 +6,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-8);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   font-weight: var(--font-weight-medium);
   color: var(--text-secondary);
@@ -64,7 +64,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-4);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   font-weight: var(--font-weight-medium);
   color: var(--text-primary);
@@ -80,13 +80,13 @@
 }
 
 .time {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-micro);
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
 }
 
 .content {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   color: var(--text-secondary);
   line-height: 1.5;
@@ -97,8 +97,8 @@
 }
 
 .postTitle {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-micro);
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
 }
 
@@ -107,7 +107,7 @@
 }
 
 .empty {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   color: var(--text-tertiary);
   padding: var(--spacing-12) 0;

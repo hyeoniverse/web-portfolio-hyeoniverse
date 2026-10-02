@@ -199,7 +199,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-4);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   font-weight: 600;
   text-transform: uppercase;
@@ -285,7 +285,7 @@
   top: 0;
   right: 0;
   transform: translateY(calc(-100% - 2px));
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   line-height: 1.4;
   white-space: nowrap;
@@ -340,7 +340,7 @@
 .revisionEmpty {
   padding: var(--spacing-24);
   text-align: center;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-primary);
 }
@@ -355,7 +355,7 @@
   align-items: center;
   justify-content: space-between;
   padding: var(--spacing-12) var(--spacing-16);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   font-weight: 600;
   color: var(--text-secondary);
@@ -367,7 +367,7 @@
 .revisionSelectToggle {
   border: none;
   background: transparent;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   font-weight: 500;
   color: var(--text-secondary);
@@ -398,7 +398,7 @@
 .revisionDeleteSelectedBtn {
   border: none;
   background: transparent;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   font-weight: 600;
   color: var(--text-secondary);
@@ -415,7 +415,7 @@
 .revisionSelectCancel {
   border: none;
   background: transparent;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   font-weight: 500;
   color: var(--text-secondary);
@@ -461,7 +461,7 @@
 }
 
 .revisionTime {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
   font-variant-numeric: tabular-nums;
@@ -469,7 +469,7 @@
 }
 
 .revisionTitle {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-primary);
   overflow: hidden;
@@ -600,7 +600,7 @@
   gap: var(--spacing-4);
   border: none;
   background: transparent;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   font-weight: 600;
   color: var(--text-secondary);
@@ -623,7 +623,7 @@
   display: grid;
   grid-template-columns: minmax(40px, 56px) 1fr;
   gap: var(--spacing-8) var(--spacing-16);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-hint);
   line-height: 1.45;
 }
@@ -650,7 +650,7 @@
 .revisionDetailContent {
   padding: var(--spacing-16);
   border-top: var(--border-light);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   color: var(--text-secondary);
   line-height: 1.6;
@@ -669,7 +669,7 @@
   border-radius: var(--radius-full);
   background: color-mix(in oklch, var(--text-success) 8%, transparent);
   color: var(--text-success);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-hint);
   letter-spacing: 0.02em;
   text-transform: uppercase;
@@ -691,7 +691,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-16);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-hint);
   line-height: 1.45;
 }
@@ -924,7 +924,7 @@
   border-bottom: var(--border-light);
   background: transparent;
   font-family: var(--font-instrument);
-  font-size: var(--font-size-32);
+  font-size: var(--font-size-34);
   font-weight: var(--font-weight-regular);
   color: var(--text-primary);
   outline: none;
@@ -998,7 +998,7 @@
   display: inline-flex;
   align-items: center;
   min-height: var(--size-20);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   font-weight: 600;
   color: var(--text-secondary);
@@ -1020,7 +1020,7 @@
 }
 
 .fieldHint {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   letter-spacing: 0;
@@ -1036,7 +1036,7 @@
   border: var(--border-light);
   border-radius: var(--radius-full);
   background: transparent;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   color: var(--text-primary);
   outline: none;
@@ -1099,7 +1099,7 @@
   background: var(--bg-secondary);
   border: var(--border-light);
   border-radius: var(--radius-full);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-secondary);
 }
@@ -1141,7 +1141,7 @@
   padding: 0 var(--spacing-8);
   background: var(--bg-tertiary);
   border-radius: var(--radius-full);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-secondary);
 }
@@ -1181,7 +1181,7 @@
   border: var(--border-light);
   border-radius: var(--radius-full);
   background: transparent;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   color: var(--text-secondary);
   cursor: pointer;
@@ -1214,7 +1214,7 @@
   padding: var(--row-padding-md);
   border: none;
   background: transparent;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-primary);
   text-align: left;
@@ -1283,7 +1283,7 @@
   }
 
   .titleInput {
-    font-size: var(--font-size-24);
+    font-size: var(--font-size-22);
   }
 
   .topBar {

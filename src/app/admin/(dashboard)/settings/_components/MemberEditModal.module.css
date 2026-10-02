@@ -39,7 +39,7 @@
   justify-content: center;
 }
 .authorAvatarInitial {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-weight: var(--font-weight-semibold);
   font-size: var(--font-size-18);
   color: var(--text-tertiary);
@@ -76,7 +76,7 @@
 .authorCardName {
   flex: 1;
   min-width: 0;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-weight: var(--font-weight-semibold);
   font-size: var(--font-size-body);
   color: var(--text-primary);
@@ -215,8 +215,8 @@
   height: 16px;
   border-radius: var(--radius-full);
   background: var(--bg-tertiary);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-micro);
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-hint);
   font-weight: 600;
   color: var(--text-secondary);
 }

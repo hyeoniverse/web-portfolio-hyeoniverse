@@ -117,7 +117,7 @@
   gap: var(--spacing-4);
   align-items: center;
   margin-top: var(--spacing-12);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-accent);
   text-decoration: none;

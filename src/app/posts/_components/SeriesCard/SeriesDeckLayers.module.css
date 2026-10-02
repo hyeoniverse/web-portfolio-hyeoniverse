@@ -42,7 +42,7 @@
   justify-content: space-between;
   gap: var(--spacing-8);
   padding: 0 var(--spacing-2) var(--spacing-8);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
   letter-spacing: 0.04em;

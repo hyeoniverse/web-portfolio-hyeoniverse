@@ -124,7 +124,7 @@
   flex: 1;
   border: none;
   background: transparent;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-primary);
   outline: none;
@@ -160,7 +160,7 @@
   background: transparent;
   text-align: left;
   user-select: none;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-secondary);
 }
@@ -240,7 +240,7 @@
   border: var(--border-light);
   border-radius: var(--radius-circle);
   background: transparent;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-hint);
   color: var(--text-tertiary);
 }
@@ -390,7 +390,7 @@
 .seriesPostTitle {
   flex: 1;
   min-width: 0;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-primary);
   overflow: hidden;

@@ -164,16 +164,17 @@
 | `--font-instrument` | `var(--font-instrument-latin), var(--font-noto-serif-kr), serif` |
 | `--font-display` | `var(--font-playfair)` |
 | `--font-grotesk` | `var(--font-space-grotesk), sans-serif` |
-| `--font-size-11` | `0.6875rem` |
 | `--font-size-12` | `0.75rem` |
 | `--font-size-13` | `0.8125rem` |
 | `--font-size-14` | `0.875rem` |
 | `--font-size-16` | `1rem` |
 | `--font-size-18` | `1.125rem` |
 | `--font-size-20` | `1.25rem` |
+| `--font-size-22` | `1.375rem` |
 | `--font-size-24` | `1.5rem` |
 | `--font-size-28` | `1.75rem` |
 | `--font-size-32` | `2rem` |
+| `--font-size-34` | `2.125rem` |
 | `--font-size-40` | `2.5rem` |
 | `--font-size-48` | `3rem` |
 | `--font-size-64` | `4rem` |
@@ -198,7 +199,6 @@
 | `--line-height-tight` | `1.25` |
 | `--line-height-snug` | `1.35` |
 | `--line-height-normal` | `1.6` |
-| `--line-height-relaxed` | `1.65` |
 | `--line-height-loose` | `1.8` |
 | `--font-weight-light` | `300` |
 | `--font-weight-regular` | `400` |
@@ -335,7 +335,7 @@
 
 ## `src/styles/globals/_semantic.css`
 
-토큰 119개
+토큰 126개
 
 | 토큰 | 값 | 다크 | 조건부 |
 |---|---|---|---|
@@ -445,13 +445,20 @@
 | `--font-size-body` | `var(--font-size-14)` |  |  |
 | `--font-size-label` | `var(--font-size-13)` |  |  |
 | `--font-size-hint` | `var(--font-size-12)` |  |  |
-| `--font-size-micro` | `var(--font-size-11)` |  |  |
-| `--font-size-title-sm` | `var(--font-size-16)` |  |  |
+| `--font-size-title-sm` | `var(--font-size-18)` |  |  |
 | `--font-size-title-md` | `var(--font-size-18)` |  |  |
 | `--font-size-title-lg` | `var(--font-size-20)` |  |  |
 | `--font-size-body-lg` | `var(--font-size-16)` |  |  |
 | `--font-size-body-xl` | `var(--font-size-18)` |  |  |
 | `--font-size-dot` | `5px` |  |  |
+| `--font-family-body` | `"Pretendard Variable", -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji"` |  |  |
+| `--font-family-heading` | `var(--font-family-body)` |  |  |
+| `--font-heading-xl` | `var(--font-weight-semibold) var(--font-size-34) / var(--line-height-tight) var(--font-family-heading)` |  |  |
+| `--font-heading-lg` | `var(--font-weight-semibold) var(--font-size-28) / var(--line-height-tight) var(--font-family-heading)` |  |  |
+| `--font-heading-md` | `var(--font-weight-semibold) var(--font-size-22) / var(--line-height-tight) var(--font-family-heading)` |  |  |
+| `--font-heading-sm` | `var(--font-weight-semibold) var(--font-size-20) / var(--line-height-tight) var(--font-family-heading)` |  |  |
+| `--font-heading-xs` | `var(--font-weight-semibold) var(--font-size-18) / var(--line-height-tight) var(--font-family-heading)` |  |  |
+| `--font-body-lg` | `var(--font-weight-regular) var(--font-size-16) / var(--line-height-normal) var(--font-family-body)` |  |  |
 | `--heading-line-height` | `var(--line-height-tight)` |  |  |
 | `--prose-block-gap` | `var(--spacing-16)` |  |  |
 | `--spacing-section` | `clamp(1rem, min(3.5vh, 2vw), 3.5rem)` |  |  |
@@ -615,7 +622,7 @@
 | `--radius-xl` | `var(--radius-16)` |
 | `--radius-2xl` | `var(--radius-24)` |
 | `--radius-capsule` | `var(--radius-full)` |
-| `--font-size-3xs` | `var(--font-size-11)` |
+| `--font-size-3xs` | `var(--font-size-12)` |
 | `--font-size-2xs` | `var(--font-size-12)` |
 | `--font-size-xs` | `var(--font-size-13)` |
 | `--font-size-sm` | `var(--font-size-14)` |

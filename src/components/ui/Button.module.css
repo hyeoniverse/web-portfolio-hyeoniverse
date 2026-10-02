@@ -15,7 +15,7 @@
   position: relative;
   border: 1px solid transparent;
   background: transparent;
-  font-family: var(--font-space-grotesk), sans-serif;
+  font-family: var(--font-family-body);
   font-weight: var(--font-weight-regular);
   color: var(--text-primary);
   text-decoration: none;

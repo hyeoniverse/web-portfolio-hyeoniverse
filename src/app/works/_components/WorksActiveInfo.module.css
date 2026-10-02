@@ -8,7 +8,7 @@
   bottom: 80px;
   left: 60px;
   z-index: var(--z-index-float);
-  font-family: var(--font-space-grotesk), sans-serif;
+  font-family: var(--font-family-body);
   color: var(--text-primary);
   pointer-events: none;
 }

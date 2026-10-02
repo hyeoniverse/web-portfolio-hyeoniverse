@@ -1,5 +1,5 @@
 .message {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   padding: var(--spacing-4) var(--spacing-16);
   border-radius: var(--radius-full);
@@ -82,7 +82,7 @@
    ───────────────────────────────────────────────────────────────────────── */
 
 .sectionTitle {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-title-sm);
   font-weight: 700;
   color: var(--text-primary);
@@ -95,7 +95,7 @@
    나눌 때 빠진 것으로 보인다). 규칙이 없으면 클래스가 아예 안 붙어 브라우저 기본값이 나온다 —
    h3 기본 크기(1.17em 굵게)라 위의 섹션 제목(16px)보다 커 보였다. */
 .sectionSubTitle {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
@@ -106,7 +106,7 @@
 .fieldGroupLabel {
   display: block;
   margin-bottom: var(--spacing-2);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-hint);
   font-weight: var(--font-weight-medium);
   color: var(--text-tertiary);
@@ -189,9 +189,9 @@
   right: var(--spacing-12);
   top: 50%;
   translate: 0 -50%;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   /* counter 는 작게 — input text 보다 한 단계 down */
-  font-size: var(--font-size-micro);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.02em;
@@ -223,7 +223,7 @@
   flex-direction: column;
   gap: var(--spacing-2);
   width: auto;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   font-weight: 500;
   color: var(--text-tertiary);
@@ -330,7 +330,7 @@
 }
 
 .presetName {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
   letter-spacing: 0.02em;
@@ -395,7 +395,7 @@
 
 /* ── Section hint ── */
 .sectionHint {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
   margin-bottom: var(--spacing-16);
@@ -412,7 +412,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-2);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
   margin-bottom: var(--spacing-16);
@@ -422,7 +422,7 @@
 }
 
 .fieldHint {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
   margin: 0;
@@ -531,7 +531,7 @@
 }
 
 .publishLabel {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-secondary);
   min-width: 3em;
@@ -621,7 +621,7 @@
   padding: var(--spacing-8) var(--spacing-16);
   border: none;
   background: transparent;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-fit);
@@ -753,7 +753,7 @@
   width: 320px;
   padding: 0;
   gap: 0;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   border-radius: var(--radius-24);
   max-height: none;
   overflow: visible;
@@ -843,7 +843,7 @@
 }
 
 .tagDescFilterGroupLabel {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-hint);
   font-weight: 500;
   color: var(--text-tertiary);
@@ -916,7 +916,7 @@
   padding: var(--spacing-32) 0;
   text-align: center;
   color: var(--text-tertiary);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
 }
 
@@ -967,7 +967,7 @@
 
 .tagRelatedEmpty {
   justify-content: center;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
 }
@@ -978,7 +978,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-16);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   color: var(--text-primary);
   text-decoration: none;
@@ -1090,7 +1090,7 @@ a.tagRelatedItem:hover {
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-12);
-  font-family: var(--font-space-grotesk), sans-serif;
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   font-weight: 500;
   color: var(--text-tertiary);
@@ -1124,7 +1124,7 @@ a.tagRelatedItem:hover {
 }
 
 .worksCatAddRowLabel {
-  font-family: var(--font-space-grotesk), sans-serif;
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   font-weight: 500;
   color: var(--text-tertiary);

@@ -111,7 +111,7 @@
   padding: var(--spacing-4) var(--spacing-16);
   border: none;
   background: transparent;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   font-weight: 500;
   color: var(--text-tertiary);
@@ -142,7 +142,7 @@
   border: var(--border-default);
   border-radius: var(--radius-full);
   background: transparent;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   font-weight: 500;
   color: var(--text-tertiary);
@@ -278,7 +278,7 @@
   right: 0;
   padding: var(--spacing-2) var(--spacing-4);
   background: var(--bg-overlay);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-hint);
   color: var(--text-inverse);
   text-align: center;
@@ -303,7 +303,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-4);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
   text-transform: uppercase;
@@ -315,7 +315,7 @@
   border-radius: var(--radius-full);
   background: var(--bg-secondary);
   font-family: var(--font-mono);
-  font-size: var(--font-size-micro);
+  font-size: var(--font-size-hint);
   color: var(--text-secondary);
   text-transform: none;
   letter-spacing: 0;
@@ -324,7 +324,7 @@
 .presetSectionHint {
   margin: 0;
   padding: 0 var(--spacing-16) var(--spacing-8);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-secondary);
 }
@@ -380,7 +380,7 @@
   align-items: center;
   gap: var(--spacing-8);
   padding: var(--spacing-12) var(--spacing-12) var(--spacing-16);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   border-bottom: var(--border-light);
@@ -461,7 +461,7 @@
   padding: var(--button-padding-sm);
   border: none;
   background: transparent;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
   cursor: pointer;
@@ -487,7 +487,7 @@
   right: 0;
   padding: var(--spacing-2) var(--spacing-4);
   background: var(--bg-overlay);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-hint);
   /* preset.presetName 과 동일 색·정렬 */
   color: var(--text-inverse);
@@ -547,7 +547,7 @@
   border: var(--border-default);
   border-radius: var(--radius-full);
   background: transparent;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
 }
@@ -690,7 +690,7 @@
   padding: var(--badge-padding-md);
   border-radius: var(--radius-full);
   background: var(--bg-overlay);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-hint);
   color: var(--text-inverse);
   pointer-events: none;
@@ -812,7 +812,7 @@
   border: var(--border-default);
   border-radius: var(--radius-full);
   background: transparent;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-secondary);
   text-align: left;
@@ -833,7 +833,7 @@
   width: 100%;
   margin: 0;
   padding: var(--spacing-12) 0;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-muted);
   text-align: center;
@@ -842,7 +842,7 @@
 .emptyMsg {
   text-align: center;
   padding: var(--spacing-24);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   color: var(--text-muted);
   font-style: italic;
@@ -851,7 +851,7 @@
 .errorMsg {
   text-align: center;
   padding: var(--spacing-12);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-accent);
 }

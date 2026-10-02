@@ -111,7 +111,7 @@
    크기는 화면 픽셀이 아니라 viewBox 단위다 — SVG 가 화면에 맞춰 늘리면 같이 늘어난다 */
 .name {
   fill: var(--sky-star);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: 13px;
   letter-spacing: 0.18em;
   opacity: 0.5;

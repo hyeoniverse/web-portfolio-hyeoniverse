@@ -76,8 +76,10 @@ const HEADING_FONTS: Record<string, string> = {
   "Merriweather": '"Merriweather", var(--font-noto-serif-kr), serif',
 };
 
+/* 본문 글꼴 — `--font-family-body` 를 덮는다. 기본(Pretendard)은 CSS 토큰 그대로라 빈 값이다(docs/design-system.md 3.2) */
 const BODY_FONTS: Record<string, string> = {
-  "Space Grotesk": "",
+  "Pretendard": "",
+  "Space Grotesk": "var(--font-space-grotesk)",
   "Noto Sans KR": '"Noto Sans KR", sans-serif',
   "Gothic A1": '"Gothic A1", sans-serif',
   "IBM Plex Sans KR": '"IBM Plex Sans KR", sans-serif',
@@ -232,7 +234,7 @@ function applyFontOverrides(
   /* fallback 에도 한글 웹폰트 포함(#1158) — 커스텀(Google 동적 로드) 폰트가 라틴 전용이어도
      한글이 OS 글꼴로 떨어지지 않게 */
   applyFont(root, "--font-instrument", typography.headingFont, HEADING_FONTS, "var(--font-noto-serif-kr), serif", customSet);
-  applyFont(root, "--font-space-grotesk", typography.bodyFont, BODY_FONTS, '"Pretendard Variable", sans-serif', customSet);
+  applyFont(root, "--font-family-body", typography.bodyFont, BODY_FONTS, '"Pretendard Variable", sans-serif', customSet);
   applyFont(root, "--font-mono", typography.monoFont, MONO_FONTS, '"Pretendard Variable", monospace', customSet);
 }
 

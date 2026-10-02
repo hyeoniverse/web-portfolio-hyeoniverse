@@ -81,7 +81,7 @@
   border: var(--border-default);
   border-radius: var(--radius-full);
   background: var(--bg-primary);
-  font-family: var(--font-space-grotesk), sans-serif;
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   color: var(--text-primary);
   text-decoration: none;
@@ -215,7 +215,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-8);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   color: var(--text-tertiary);
   text-decoration: none;

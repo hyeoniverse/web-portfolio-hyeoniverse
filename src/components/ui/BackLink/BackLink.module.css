@@ -5,7 +5,7 @@
   align-items: center;
   gap: var(--spacing-4);
   flex-shrink: 0;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   color: var(--text-secondary);
   text-decoration: none;

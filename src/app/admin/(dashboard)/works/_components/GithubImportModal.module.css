@@ -6,7 +6,7 @@
 /* 창을 여는 사람이 먼저 읽는 문장이라 본문 크기로 — 보조 설명 크기(12px)로 두면 눈에 안 들어온다 */
 .hint {
   margin: 0 0 var(--spacing-16);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   color: var(--text-secondary);
   line-height: 1.6;
@@ -14,7 +14,7 @@
 
 .empty {
   margin: var(--spacing-20) 0;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
   text-align: center;
@@ -27,7 +27,7 @@
   padding: 0 var(--spacing-12);
   gap: var(--spacing-12);
   margin-bottom: var(--spacing-8);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-secondary);
   cursor: pointer;
@@ -55,7 +55,7 @@
   gap: var(--spacing-8);
   margin: 0;
   padding: 0 var(--spacing-12);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-hint);
   font-weight: 600;
   color: var(--text-secondary);
@@ -70,7 +70,7 @@
   padding: 0 var(--spacing-8);
   border-radius: var(--radius-full);
   background: var(--bg-tertiary);
-  font-size: var(--font-size-micro);
+  font-size: var(--font-size-hint);
   font-weight: 500;
   color: var(--text-tertiary);
 }
@@ -108,7 +108,7 @@
   flex: 1;
   min-width: 0;
   overflow: hidden;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   color: var(--text-primary);
   text-overflow: ellipsis;
@@ -127,7 +127,7 @@
   padding: 0 var(--spacing-8);
   border-radius: var(--radius-full);
   background: var(--bg-tertiary);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-hint);
   color: var(--text-secondary);
 }

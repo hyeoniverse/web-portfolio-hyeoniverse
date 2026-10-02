@@ -40,7 +40,7 @@
 }
 
 .seriesPreviewTitle {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
@@ -52,7 +52,7 @@
 }
 
 .seriesPreviewExcerpt {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
   line-height: 1.4;
@@ -74,13 +74,13 @@
   padding: var(--badge-padding-md);
   background: var(--bg-tertiary);
   border-radius: var(--radius-full);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-hint);
   color: var(--text-tertiary);
 }
 
 .seriesPreviewDate {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-hint);
   color: var(--text-muted);
 }

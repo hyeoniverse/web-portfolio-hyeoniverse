@@ -44,7 +44,7 @@
   align-self: stretch;
   border-right: var(--border-light);
   background: var(--bg-tertiary);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-hint);
   font-weight: 600;
   color: var(--text-tertiary);
@@ -57,7 +57,7 @@
   gap: var(--spacing-8);
   flex: 1;
   padding: var(--spacing-8) var(--spacing-12);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-primary);
   min-width: 0;

@@ -14,7 +14,7 @@
 
 .desc {
   margin: 0 0 var(--spacing-48) 0;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   color: var(--text-secondary);
   line-height: 1.5;
@@ -23,7 +23,7 @@
 
 .hint {
   margin: 0 0 var(--spacing-16) 0;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   color: var(--text-tertiary);
 }
@@ -47,7 +47,7 @@
 
 .error {
   margin: calc(-1 * var(--spacing-12)) 0 var(--spacing-20);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-accent);
 }
@@ -74,7 +74,7 @@
 }
 
 .itemList li {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   line-height: 1.5;
   color: var(--text-secondary);

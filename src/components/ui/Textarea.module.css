@@ -7,7 +7,7 @@
 }
 
 .label {
-  font-family: var(--font-space-grotesk), sans-serif;
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   color: var(--text-secondary);
   letter-spacing: 0.03em;
@@ -19,7 +19,7 @@
   border: var(--border-light);
   border-radius: var(--radius-24);
   background: transparent;
-  font-family: var(--font-space-grotesk), sans-serif;
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   line-height: 1.5;
   color: var(--text-primary);
@@ -183,8 +183,8 @@
   padding: 0 var(--spacing-4);
   border-radius: var(--radius-full);
   background: var(--bg-tertiary);
-  font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-micro);
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-hint);
   font-weight: 600;
   letter-spacing: 0.05em;
   color: var(--text-tertiary);
@@ -291,8 +291,8 @@
 /* ── Soft 글자수 카운터 — Input 의 fieldCounter 와 동일 크기 (3xs). (0,2,0) 으로 specificity 확보.
    bottomRow flex 안 child 라 align-self 불필요 (parent 의 align-items:center 가 처리). */
 .wrapper .counter {
-  font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-micro);
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.02em;

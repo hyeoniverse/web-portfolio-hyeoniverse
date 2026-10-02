@@ -185,7 +185,7 @@
 }
 
 .visitLabel {
-  font-size: var(--font-size-micro);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -221,7 +221,7 @@
   color: var(--text-tertiary);
   text-align: right;
   letter-spacing: 0.05em;
-  font-size: var(--font-size-micro);
+  font-size: var(--font-size-hint);
 }
 
 .musicCredit a {

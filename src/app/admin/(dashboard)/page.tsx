@@ -1007,7 +1007,7 @@ export default function AdminDashboard() {
         </Panel>
         <Item
           style={{
-            fontFamily: "var(--font-space-grotesk)",
+            fontFamily: "var(--font-family-body)",
             fontSize: "var(--font-size-hint)",
             color: "var(--text-tertiary)",
           }}

@@ -8,7 +8,7 @@
   min-width: 0;
   height: 1.5em;
   overflow: hidden;
-  font-size: var(--font-size-micro);
+  font-size: var(--font-size-hint);
   line-height: 1.5;
   color: var(--text-tertiary);
   text-overflow: ellipsis;
@@ -247,7 +247,7 @@
 
 .seekTime {
   flex-shrink: 0;
-  font-size: var(--font-size-micro);
+  font-size: var(--font-size-hint);
   font-variant-numeric: tabular-nums;
   color: var(--text-tertiary);
 }
@@ -407,7 +407,7 @@
 }
 
 .generateItem {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   display: flex;
   align-items: flex-start;
   gap: var(--spacing-12);
@@ -474,7 +474,7 @@
 
 /* 지금 목소리 — 구분선 아래 한 줄. 무엇으로 만들지 누르기 전에 보이게 */
 .generateMenuVoice {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   display: flex;
   align-items: center;
   gap: var(--spacing-8);
@@ -617,7 +617,7 @@
 
 .historyMeta {
   overflow: hidden;
-  font-size: var(--font-size-micro);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -640,7 +640,7 @@
 /* 글자 수 — 길면 몇 번에 나눠 만드는지도(나눈 만큼 TTS 요청을 쓴다) */
 .paneCount {
   flex-shrink: 0;
-  font-size: var(--font-size-micro);
+  font-size: var(--font-size-hint);
   font-variant-numeric: tabular-nums;
   color: var(--text-tertiary);
   white-space: nowrap;

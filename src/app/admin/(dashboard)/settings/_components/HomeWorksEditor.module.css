@@ -202,7 +202,7 @@
   display: flex;
   gap: var(--spacing-2);
   align-items: center;
-  font-size: var(--font-size-micro);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
 }
 
@@ -276,7 +276,7 @@
 }
 
 .coverHint {
-  font-size: var(--font-size-micro);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
 }
 
@@ -316,7 +316,7 @@
   padding: 0 var(--spacing-4);
   border-radius: var(--radius-full);
   background: var(--bg-tertiary);
-  font-size: var(--font-size-micro);
+  font-size: var(--font-size-hint);
   color: var(--text-secondary);
 }
 

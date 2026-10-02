@@ -115,7 +115,7 @@
 
 .plotLabel {
   font-family: var(--font-mono);
-  font-size: var(--font-size-micro);
+  font-size: var(--font-size-hint);
   fill: var(--text-tertiary);
 }
 

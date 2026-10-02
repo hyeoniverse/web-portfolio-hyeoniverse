@@ -43,7 +43,7 @@
   border: var(--border-light);
   background: var(--bg-secondary);
   color: var(--text-tertiary);
-  font-size: var(--font-size-micro);
+  font-size: var(--font-size-hint);
   font-variant-numeric: tabular-nums;
   cursor: grab;
   touch-action: none;
@@ -111,7 +111,7 @@
   height: 20px;
   background: var(--bg-accent-solid);
   color: var(--text-inverse);
-  font-size: var(--font-size-micro);
+  font-size: var(--font-size-hint);
   font-variant-numeric: tabular-nums;
 }
 

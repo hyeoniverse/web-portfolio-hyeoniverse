@@ -539,7 +539,7 @@ function serializeNode(node: SlateNode): string {
           el.noDownload ? 'controlsList="nodownload noplaybackrate"' : "",
         ].filter(Boolean).join(" ");
         const cap = (el.caption as string) || "";
-        const capHtml = cap ? `<figcaption data-video-caption style="text-align:center;font-size:0.85em;color:var(--text-tertiary);margin-top:6px;font-family:var(--font-space-grotesk)">${esc(cap)}</figcaption>` : "";
+        const capHtml = cap ? `<figcaption data-video-caption style="text-align:center;font-size:0.85em;color:var(--text-tertiary);margin-top:6px;font-family:var(--font-family-body)">${esc(cap)}</figcaption>` : "";
         if (vidLayout === "float-left" || vidLayout === "float-right") {
           const side = vidLayout === "float-left" ? "left" : "right";
           const m = vidLayout === "float-left" ? "4px 20px 8px 0" : "4px 0 8px 20px";
@@ -600,14 +600,14 @@ function serializeNode(node: SlateNode): string {
         : "";
       let previewHtml = "";
       if (isPdf) {
-        previewHtml = `<details style="margin-top:6px"><summary style="cursor:pointer;font-size:12px;color:var(--text-secondary);font-family:var(--font-space-grotesk);margin-bottom:6px">Preview</summary>`
+        previewHtml = `<details style="margin-top:6px"><summary style="cursor:pointer;font-size:12px;color:var(--text-secondary);font-family:var(--font-family-body);margin-bottom:6px">Preview</summary>`
           + `<iframe src="${fileUrl}" title="${fName}" style="width:100%;height:500px;border:1px solid var(--border-color-light);border-radius:var(--radius-24)"></iframe></details>`;
       } else if (isOffice) {
         const viewerUrl = officeViewerUrl(fileUrl);
-        previewHtml = `<details style="margin-top:6px"><summary style="cursor:pointer;font-size:12px;color:var(--text-secondary);font-family:var(--font-space-grotesk);margin-bottom:6px">Preview</summary>`
+        previewHtml = `<details style="margin-top:6px"><summary style="cursor:pointer;font-size:12px;color:var(--text-secondary);font-family:var(--font-family-body);margin-bottom:6px">Preview</summary>`
           + `<iframe src="${viewerUrl}" title="${fName}" style="width:100%;height:500px;border:1px solid var(--border-color-light);border-radius:var(--radius-24)"></iframe></details>`;
       } else if (isText) {
-        previewHtml = `<details style="margin-top:6px" data-text-preview="${fileUrl}"><summary style="cursor:pointer;font-size:12px;color:var(--text-secondary);font-family:var(--font-space-grotesk);margin-bottom:6px">Preview</summary>`
+        previewHtml = `<details style="margin-top:6px" data-text-preview="${fileUrl}"><summary style="cursor:pointer;font-size:12px;color:var(--text-secondary);font-family:var(--font-family-body);margin-bottom:6px">Preview</summary>`
           + `<pre style="padding:12px 16px;border:1px solid var(--border-color-light);border-radius:var(--radius-24);background:var(--bg-secondary);font-size:12px;color:var(--text-secondary);overflow:auto;max-height:400px;white-space:pre-wrap;word-break:break-all;font-family:var(--font-mono)">Loading...</pre></details>`;
       }
       const maxW = hasPreview ? "640px" : "480px";

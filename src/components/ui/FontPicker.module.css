@@ -100,8 +100,8 @@
 /* 한글 지원 배지 "가" — 미리보기 폰트 말고 중립 폰트로 라벨화, 옅은 캡슐 */
 .itemKr {
   flex-shrink: 0;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-micro);
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-hint);
   line-height: 1;
   padding: var(--row-padding-sm);
   border-radius: var(--radius-full);

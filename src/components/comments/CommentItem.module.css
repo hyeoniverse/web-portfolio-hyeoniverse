@@ -182,7 +182,7 @@
 .deletedPlaceholder {
   margin: 0;
   min-width: 0;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   color: var(--text-tertiary);
   font-style: italic;
@@ -232,7 +232,7 @@
 }
 
 .nickname {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   font-weight: var(--font-weight-medium);
   color: var(--text-primary);
@@ -242,20 +242,20 @@
   padding: var(--badge-padding-md);
   border-radius: var(--radius-full);
   background: var(--bg-accent);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-hint);
   font-weight: 500;
   color: var(--text-accent);
 }
 
 .date {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-secondary);
 }
 
 .editedBadge {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
   font-style: italic;
@@ -265,10 +265,10 @@
    height 0↔auto 애니메이션 중이라 margin 은 밖(여기)에 둬야 접힐 때 같이 사라진다. */
 .translatedContent {
   margin-top: var(--spacing-20);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   color: var(--text-tertiary);
-  line-height: var(--line-height-relaxed);
+  line-height: var(--line-height-normal);
   white-space: pre-wrap;
   font-style: italic;
   padding-left: var(--spacing-12);
@@ -317,7 +317,7 @@
   border: var(--border-light);
   border-radius: var(--radius-full);
   background: transparent;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-secondary);
   line-height: 1;
@@ -515,7 +515,7 @@
 
 .deleteError {
   text-align: right;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-accent);
 }
@@ -543,7 +543,7 @@
 
 .editError {
   text-align: right;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-accent);
 }

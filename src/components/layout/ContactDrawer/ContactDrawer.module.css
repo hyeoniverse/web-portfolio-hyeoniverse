@@ -29,7 +29,7 @@
   --_padding-card: 2.5vw 2vw;
 
   /* Typography */
-  --_font: var(--font-grotesk);
+  --_font: var(--font-family-body);
   --_font-size-title: 2.25vw;
   --_font-size-xl: 1.85vw;
   --_font-size-lg: 1.125vw;
