@@ -71,6 +71,9 @@ export async function generateMetadata(): Promise<Metadata> {
         { url: "/api/favicon?variant=light&format=png", type: "image/png", sizes: "64x64", media: "(prefers-color-scheme: light)" },
         { url: "/api/favicon?variant=dark&format=png", type: "image/png", sizes: "64x64", media: "(prefers-color-scheme: dark)" },
       ],
+      /* media 를 안 따르는 브라우저용 — 라이트 아이콘(/favicon.ico · /apple-touch-icon.png 은 next.config 에서 /api/favicon 으로) */
+      shortcut: "/favicon.ico",
+      apple: { url: "/apple-touch-icon.png", sizes: "180x180" },
     },
   };
 }
