@@ -248,7 +248,7 @@ function FaviconPreviewSvg({ render, textShadowId, bgShadowId }: {
       width="48"
       height="48"
       aria-hidden
-      style={render.shape === "none" ? { overflow: "visible", border: "1px dashed var(--border-color-light)", borderRadius: 4 } : { overflow: "visible" }}
+      style={{ overflow: "visible" }}
     >
       {(render.textShadow || render.bgShadow) && (
         <defs>
@@ -858,20 +858,23 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
                   );
                   const textShadowId = `favicon-text-shadow-${variant}`;
                   const bgShadowId = `favicon-bg-shadow-${variant}`;
-                  // 대비율 — 배경 있을 때만(글자색 vs 배경색). shape=none 이면 배경 없어 N/A
-                  const ratio = render.hasBg ? contrastRatio(render.fgColor, render.bgColor) : null;
+                  /* 대비율 — 글자색 vs 실제로 글자 뒤에 깔리는 색. 배경이 없으면 테마 바탕(미리보기 받침과 같은 색) */
+                  const themeBg = variant === "light" ? config.theme.lightBg : config.theme.darkBg;
+                  const ratio = contrastRatio(render.fgColor, render.hasBg ? render.bgColor : themeBg);
                   const level = ratio != null ? contrastLevel(ratio) : null;
                   return (
                     <div key={variant} className={styles.faviconPreviewCell}>
-                      <FaviconPreviewSvg render={render} textShadowId={textShadowId} bgShadowId={bgShadowId} />
+                      {/* 테마 바탕 위에 올린다 — 배경이 투명하면 실제로 이 색 위에 보인다(이미지 favicon 미리보기와 같은 받침) */}
+                      <span
+                        className={styles.faviconImagePreviewBackdrop}
+                        style={{ background: themeBg, borderRadius: render.hasShape ? `${(render.radius / 32) * 100}%` : undefined }}
+                      >
+                        <FaviconPreviewSvg render={render} textShadowId={textShadowId} bgShadowId={bgShadowId} />
+                      </span>
                       <span className={styles.faviconPreviewLabel}>{variant}</span>
                       {/* 대비율 + WCAG 배지 — favicon 은 그래픽 글리프라 3:1(1.4.11)이 실질 최소 */}
                       <span className={styles.faviconContrast}>
-                        {!render.hasBg ? (
-                          <span className={styles.faviconContrastMuted}>
-                            {t("admin.settings.faviconContrastNoBg")}
-                          </span>
-                        ) : ratio == null || level == null ? (
+                        {ratio == null || level == null ? (
                           <span className={styles.faviconContrastMuted}>—</span>
                         ) : (
                           <>
