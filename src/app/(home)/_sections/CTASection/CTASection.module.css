@@ -63,7 +63,7 @@
 }
 
 .titleLine {
-  font-family: var(--font-instrument), serif;
+  font-family: var(--font-family-display);
   font-size: var(--fluid-font-size-5xl);
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-compact);

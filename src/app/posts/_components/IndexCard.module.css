@@ -49,7 +49,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-instrument);
+  font-family: var(--font-family-display);
   font-size: clamp(2.5rem, 6vw, 4rem);
   color: var(--text-tertiary);
 }
@@ -80,7 +80,7 @@
 
 .cardTitle {
   /* /posts 본문 카드·history 와 동일한 editorial instrument serif 로 통일 */
-  font-family: var(--font-instrument);
+  font-family: var(--font-family-display);
   font-size: var(--font-size-title-md);
   font-weight: var(--font-weight-regular);
   letter-spacing: -0.01em;

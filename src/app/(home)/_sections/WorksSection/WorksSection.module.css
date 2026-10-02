@@ -42,7 +42,7 @@
 }
 
 .titleText {
-  font-family: var(--font-instrument), serif;
+  font-family: var(--font-family-display);
   font-size: clamp(2rem, 7vw, var(--fluid-font-size-6xl));
   font-weight: var(--font-weight-regular);
   line-height: 0.95;
@@ -183,7 +183,7 @@
 /* 글자는 흰색 — 섞는 일은 위의 .textOverlay 가 맡는다. 표지 그림이 어떤 색이든 뒤집힌 색으로
    나와 늘 읽힌다. 테마를 따라 뒤집히는 색(--text-inverse)을 쓰면 밝은 표지 위에서 글자가 사라졌다. */
 .overlayTitle {
-  font-family: var(--font-instrument), serif;
+  font-family: var(--font-family-display);
   font-size: clamp(15px, 1.6vw, var(--font-size-20));
   font-weight: var(--font-weight-regular);
   color: var(--text-white);

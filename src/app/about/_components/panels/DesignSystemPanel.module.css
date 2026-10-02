@@ -128,7 +128,7 @@
 .dcCardSubtitle {
   flex-shrink: 0;
   margin: 0 0 clamp(6px, min(1vh, 0.55vw), 18px);
-  font-family: var(--font-instrument);
+  font-family: var(--font-family-display);
   font-size: clamp(1.3rem, min(4.5vw, 8vh), 4.8rem);
   font-weight: var(--font-weight-light);
   color: var(--text-white);

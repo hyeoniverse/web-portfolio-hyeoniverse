@@ -57,7 +57,7 @@
   position: relative;
   align-self: start;
   padding-top: var(--spacing-8);
-  font-family: var(--font-instrument);
+  font-family: var(--font-family-display);
   font-size: clamp(1.5rem, 3vw, 2rem);
   font-weight: var(--font-weight-light);
   font-style: italic;

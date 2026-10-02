@@ -21,7 +21,7 @@
   align-items: center;
   gap: var(--spacing-12);
   margin: 0;
-  font-family: var(--font-instrument);
+  font-family: var(--font-family-display);
   font-size: clamp(2.25rem, 5vw, 3.25rem);
   font-weight: var(--font-weight-regular);
   color: var(--text-primary);

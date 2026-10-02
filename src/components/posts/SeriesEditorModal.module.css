@@ -31,9 +31,9 @@
 }
 
 .modalTitle {
-  font-family: var(--font-instrument);
+  font-family: var(--font-family-heading);
   font-size: var(--font-size-title-lg);
-  font-weight: var(--font-weight-regular);
+  font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
 }
 
