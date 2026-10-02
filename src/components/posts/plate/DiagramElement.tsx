@@ -3,7 +3,7 @@
 // ── 비주얼 다이어그램 블록 (void) ──
 // 위치 보존 자체 포맷(DiagramData)을 React Flow 캔버스로 편집. Slate 노드의 el.data 에 저장.
 // 도형(사각/둥근/스타디움/마름모/원) + 색상 지원. mermaid 로 내보내기(구조만 한 방향).
-import "@xyflow/react/dist/style.css";
+import "@/styles/vendor/xyflow.css";
 
 import React, { useCallback, useContext, useMemo, useRef, useState } from "react";
 import { useSyncRef } from "@/hooks/useSyncRef";

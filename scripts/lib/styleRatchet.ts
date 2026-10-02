@@ -231,6 +231,12 @@ export const METRICS: Metric[] = [
   /* 4 우선순위 */
   { id: "cascade-vendor-js-import", rule: "4-3", what: "JS 에서 바로 import 한 서드파티 CSS", count: regex(["code"], /^import\s+["'](?:katex|@xyflow|pretendard)[^"']*\.css["']/m) },
   { id: "cascade-important", rule: "4-4", what: "`!important`", count: regex(CSS, /!important/) },
+  { id: "cascade-doubled-class", rule: "4-4", what: "특이도를 올리려고 같은 클래스를 두 번 쓴 선택자(`.x.x`)", count: regex(CSS, /\.([A-Za-z][\w]*)\.\1\b/) },
+  { id: "cascade-ui-unlayered", rule: "4-4", what: "`@layer components` 로 감싸지 않은 공용 컴포넌트 CSS Module", count: (src) => {
+    const out: Counts = {};
+    for (const [file, { text }] of src.files) if (file.startsWith("src/components/ui/") && file.endsWith(".module.css") && !/@layer\s+components\s*\{/.test(text)) out[file] = 1;
+    return out;
+  } },
   { id: "cascade-composes-other-file", rule: "4-5", what: "다른 파일에서 가져온 `composes`", count: regex(CSS, /composes:[^;]*\bfrom\b/) },
   /* 5 · 6 */
   { id: "component-raw-button", rule: "5-1", what: "`Button` · `Pressable` 밖의 JSX `<button>`", count: rawButtons },

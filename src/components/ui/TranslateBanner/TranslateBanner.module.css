@@ -1,3 +1,5 @@
+/* 공용 컴포넌트 — components 층(docs/design-system.md 4-4). 쓰는 쪽이 className 으로 넘긴 클래스가 번들 순서 · 특이도와 상관없이 이긴다 */
+@layer components {
 /* ── 번역 안내 배너 (TranslateBanner) — 보는 언어의 본문이 없을 때, 자동 번역 버튼 / 실패 메시지 ── */
 
 /* ── Translation banner ── */
@@ -29,4 +31,5 @@
   font-size: var(--font-size-label);
   color: var(--text-error-strong);
   margin: 0;
+}
 }

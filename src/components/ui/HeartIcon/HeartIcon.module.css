@@ -1,3 +1,5 @@
+/* 공용 컴포넌트 — components 층(docs/design-system.md 4-4). 쓰는 쪽이 className 으로 넘긴 클래스가 번들 순서 · 특이도와 상관없이 이긴다 */
+@layer components {
 /* ── HeartIcon — wave fill + burst 효과 ──
    상태 머신: data-state="empty" | "filling" | "filled" | "draining" */
 
@@ -141,4 +143,5 @@
     opacity: 0;
     transform: translate(var(--drift-x), calc(var(--rise) * -1)) scale(calc(var(--scale) * 0.85));
   }
+}
 }

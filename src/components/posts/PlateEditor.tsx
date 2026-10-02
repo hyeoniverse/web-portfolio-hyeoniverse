@@ -1,7 +1,7 @@
 "use client";
 
 // React Flow(다이어그램 블록) core 스타일 — 에디터 루트에서 전역 로드(pane/handle/edge 동작에 필수)
-import "@xyflow/react/dist/style.css";
+import "@/styles/vendor/xyflow.css";
 import React, { useState, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useImperativeHandle } from "react";
 import { useSyncRef } from "@/hooks/useSyncRef";
 import { useEchoFreeValue } from "./plate/useEchoFreeValue";
@@ -18,7 +18,7 @@ import { upsertLink, unwrapLink } from "@platejs/link";
 import { toggleList } from "@platejs/list";
 import { outdent } from "@platejs/indent";
 import { setColumns } from "@platejs/layout";
-import "katex/dist/katex.min.css";
+import "@/styles/vendor/katex.css";
 import { slateToHtml, setWrapLabel, setScrollLabel, type SlateNode } from "./plateSerializer";
 import { detectCodeLanguage } from "./plate/lowlightInstance";
 import { useRecentColors } from "./plate/useRecentColors";

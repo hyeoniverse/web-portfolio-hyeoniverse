@@ -36,18 +36,6 @@ body > main {
   flex: 1;
 }
 
-/* Theme transition - only active during theme switch (350ms window) */
-html[data-theme-transitioning] *,
-html[data-theme-transitioning] *::before,
-html[data-theme-transitioning] *::after {
-  transition:
-    background-color var(--duration-base) ease,
-    border-color var(--duration-base) ease,
-    color var(--duration-base) ease,
-    fill var(--duration-base) ease,
-    stroke var(--duration-base) ease,
-    box-shadow var(--duration-base) ease;
-}
 
 html {
   font-size: 16px; /* Base size for rem calculations */

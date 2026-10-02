@@ -1,3 +1,5 @@
+/* 공용 컴포넌트 — components 층(docs/design-system.md 4-4). 쓰는 쪽이 className 으로 넘긴 클래스가 번들 순서 · 특이도와 상관없이 이긴다 */
+@layer components {
 /* ──────────────────────────────────────────────────────────────────
    ColorPicker — saturation/value pad + hue slider + hex/rgb input
    popover 형태로 trigger 옆에 portal 렌더
@@ -505,4 +507,5 @@
 .infoButton:hover {
   background: var(--bg-tertiary);
   color: var(--text-primary);
+}
 }

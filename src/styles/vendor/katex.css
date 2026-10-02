@@ -1,0 +1,3 @@
+/* KaTeX(수식) — 서드파티 CSS 를 vendor 층에 넣는다(docs/design-system.md 4-3).
+   JS 에서 바로 import 하면 층 밖이 되어 모든 전역 규칙과 vendor 층의 덮어쓰기를 이긴다. 쓰는 화면에서 이 파일을 import 한다 */
+@import "katex/dist/katex.min.css" layer(vendor);

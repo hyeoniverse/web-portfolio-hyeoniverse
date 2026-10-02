@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Globe, Users, User, Pencil, ExternalLink } from "@/components/icons";
-import "katex/dist/katex.min.css";
+import "@/styles/vendor/katex.css";
 import { GithubIcon } from "@/components/icons";
 import { useIsAuthenticated } from "@/hooks/useIsAuthenticated";
 import { useLanguage } from "@/providers/LanguageProvider";

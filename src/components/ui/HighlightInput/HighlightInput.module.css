@@ -1,3 +1,5 @@
+/* 공용 컴포넌트 — components 층(docs/design-system.md 4-4). 쓰는 쪽이 className 으로 넘긴 클래스가 번들 순서 · 특이도와 상관없이 이긴다 */
+@layer components {
 /* contentEditable single-line input — Input(native) 의 capsule 스타일 모방.
    border 는 .fieldWrap 에 (한 capsule 안에 badge / input / clear / counter 모두 flex children). */
 
@@ -178,4 +180,5 @@
 .counterOver > span {
   color: var(--text-accent);
   font-weight: 500;
+}
 }

@@ -1,0 +1,5 @@
+/* 층 순서 선언 — 이 파일은 이 한 줄만 담고, 루트 layout.tsx 에서 **가장 먼저** import 한다(docs/design-system.md 4-2).
+   층 순서는 각 층 이름이 처음 나온 순서로 정해진다. Turbopack 은 @import 로 가져온 내용을 그 파일의 다른 내용보다 앞에
+   놓으므로, 이 선언을 global.css 안에 두면 가져온 층이 먼저 나와 순서가 뒤집힌다. 그래서 @import 없는 파일로 따로 둔다.
+   뒤 층이 앞 층을 이기고, 층 밖(페이지 · 기능 컴포넌트의 CSS Module)은 모든 층을 이긴다. */
+@layer reset, vendor, tokens, base, components, utilities;

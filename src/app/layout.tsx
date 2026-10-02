@@ -1,9 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import type React from "react";
+import "@/styles/layers.css"; // 층 순서 선언 — 반드시 첫 CSS import(docs/design-system.md 4-2)
 import "@/styles/global.css";
 /* 한글 본문·UI 폰트 — 라틴 웹폰트들엔 한글 글리프가 없어 OS 기본 글꼴(맥 애플고딕/윈도우 맑은고딕)로
    떨어지던 것을 Pretendard 로 통일한다(#1158). dynamic subset 이라 쓰는 글자 조각만 내려받는다 */
-import "pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css";
+import "@/styles/vendor/pretendard.css";
 import {
   Inter,
   Playfair_Display,

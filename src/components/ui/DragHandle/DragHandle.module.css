@@ -1,3 +1,5 @@
+/* 공용 컴포넌트 — components 층(docs/design-system.md 4-4). 쓰는 쪽이 className 으로 넘긴 클래스가 번들 순서 · 특이도와 상관없이 이긴다 */
+@layer components {
 /* 잡을 곳은 아이콘보다 넓어야 한다 — 점 세 개의 실제 크기로만 두면 조준이 어렵다.
    touch-action: none — 모바일에서 손잡이를 끌 때 페이지가 같이 스크롤되지 않게 */
 .handle {
@@ -24,4 +26,5 @@
 .handle svg {
   width: 14px;
   height: 14px;
+}
 }
