@@ -13,7 +13,7 @@
 }
 
 /* 같은 요소의 .fields(Settings, flex column) 와 (0,1,0) 동점이라 번들 순서에 따라 grid 가 뒤집힌다.
-   클래스를 두 번 적어 (0,2,0) — design-system §3. */
+   클래스를 두 번 적어 (0,2,0) — 공용 컴포넌트 층(design-system 4-4)이 생기기 전까지의 편법. */
 .fieldsGrid3.fieldsGrid3 {
   display: grid;
   grid-template-columns: var(--grid-cols-3);

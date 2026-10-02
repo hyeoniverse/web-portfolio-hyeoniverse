@@ -55,6 +55,6 @@ Settings 안 26곳, 다른 모듈 25개에서 98곳이 썼다.
 - 이 프로젝트는 커스텀 애니메이션·GSAP·Three.js·정교한 CSS 이펙트가 핵심이라 bespoke CSS 가 유리하고,
   이미 성숙한 CSS Modules + 토큰 시스템이 있다.
 - **반복 레이아웃은 공유 CSS 유틸/프리미티브가 아니라 React 컴포넌트로 추출**(rule of three).
-  파일 간 `composes` 도 공유 유틸에 든다 — [design-system.md](./design-system.md) 4-4.
+  파일 간 `composes` 도 공유 유틸에 든다 — [design-system.md](./design-system.md) 4-5.
 - **등분 grid → `--grid-cols-2/3/4/5/7` 토큰**(overflow-safe)은 Tailwind 와 무관하게 유용해 **유지**.
 - 전체 규칙: [design-system.md](./design-system.md).
