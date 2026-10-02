@@ -5,7 +5,7 @@
 
 .featureDynamic {
   flex: 1;
-  margin-bottom: var(--spacing-4xl);
+  margin-bottom: var(--spacing-64);
   max-width: calc(100vw - var(--_panel-px) * 2);
   min-height: clamp(200px, 32vh, 320px);
   max-height: calc(100vh - clamp(180px, 25vh, 260px));
@@ -31,7 +31,7 @@
 .featureDfInfo {
   display: flex;
   flex-direction: column;
-  padding: var(--spacing-sm) var(--spacing-md) var(--spacing-md);
+  padding: var(--spacing-12) var(--spacing-16) var(--spacing-16);
   /* 타일 이미지가 밝으면(실제 화면 캡처 등) 흰 라벨이 안 읽힌다. 60% 한 겹만으로는
      밝은 배경에서 대비가 2.22:1 까지 떨어졌다(본문 기준 4.5:1). 라벨이 놓이는
      아래쪽 구간을 더 진하게 깔고 위로 가며 사라지게 한다. */
@@ -58,8 +58,8 @@
 .featureDfDetails {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
-  padding-top: var(--spacing-xs);
+  gap: var(--spacing-8);
+  padding-top: var(--spacing-8);
 }
 
 .featureDfDesc {
@@ -82,8 +82,8 @@
 /* Mobile fallback grid (hidden on desktop) */
 .featureGrid {
   display: none;
-  gap: var(--spacing-2xl) var(--spacing-xl);
-  grid-template-columns: var(--grid-cols-4);
+  gap: var(--spacing-32) var(--spacing-24);
+  grid-template-columns: var(--grid-columns-4);
 }
 
 .featureGridPinned {
@@ -108,7 +108,7 @@
   transition:
     color var(--duration-moderate) ease,
     border-color var(--duration-moderate) ease;
-  border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+  border-radius: var(--radius-24) var(--radius-24) 0 0;
 }
 
 .featureFolderTab::after {
@@ -133,8 +133,8 @@
   gap: var(--_space-block);
   justify-content: space-between;
   flex-direction: column;
-  padding: var(--spacing-2xl);
-  padding-top: var(--spacing-5xl);
+  padding: var(--spacing-32);
+  padding-top: var(--spacing-96);
   border: var(--_line-primary);
   min-height: clamp(150px, 23vh, 240px);
   background: var(--bg-primary);
@@ -179,7 +179,7 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    margin-top: var(--spacing-5xl); /* nav(80) + tab(40) — 헤더+탭 아래로 밀기 */
+    margin-top: var(--spacing-96); /* nav(80) + tab(40) — 헤더+탭 아래로 밀기 */
     /* padding-top is set dynamically by JS so the last card's
        tab aligns with the viewport bottom */
   }
@@ -197,11 +197,11 @@
     flex-shrink: 0;
     align-self: flex-start;
     margin-bottom: -2px;
-    padding: var(--spacing-xs) var(--spacing-lg);
+    padding: var(--spacing-8) var(--spacing-20);
     position: relative;
     z-index: 1;
     font-size: var(--font-size-subhead);
-    border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+    border-radius: var(--radius-24) var(--radius-24) 0 0;
   }
 
   .featureFolderWrap .featureFolderTab::after {
@@ -245,7 +245,7 @@
 @media (min-width: 1025px) and (min-height: 701px) {
   .featuresPanel {
     display: grid;
-    padding-bottom: calc(var(--spacing-2xl) + 4.5rem);
+    padding-bottom: calc(var(--spacing-32) + 4.5rem);
     grid-template-columns: minmax(12rem, 17vw) minmax(0, 1fr);
     grid-template-rows: minmax(0, 1fr) auto auto;
     column-gap: clamp(2.5rem, 4vw, 4.5rem);
@@ -262,11 +262,11 @@
   .featuresPanel .featurePlacard {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-2xs);
+    gap: var(--spacing-4);
     grid-row: 2;
     grid-column: 1;
-    margin: 0 0 var(--spacing-lg);
-    padding-left: var(--spacing-sm);
+    margin: 0 0 var(--spacing-20);
+    padding-left: var(--spacing-12);
     border-left: var(--_line-primary);
     font-size: var(--font-size-label);
     color: var(--text-primary);

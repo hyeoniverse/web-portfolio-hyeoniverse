@@ -2,26 +2,26 @@
 .project {
   --_meta-z: 50;
   --_meta-accent: var(--text-accent-alt);
-  --_card-radius: var(--radius-2xl);
+  --_card-radius: var(--radius-24);
   --_card-w: 520px;
   --_card-h: 340px;
   --_number-size: var(--fluid-font-size-5xl);
   --_desc-max-width: 500px;
-  --_safe-top: calc(var(--header-height) + var(--spacing-xl));
+  --_safe-top: calc(var(--header-height) + var(--spacing-24));
   --_safe-bottom: 200px;
   /* 카드를 내려 앉힐 때 아래에 남겨 두는 자리 — 변주에 따라 설명 글이 카드 밑으로 흐르므로,
      카드만 안전선 안에 두면 그 글이 화면 밖으로 밀린다 */
   --_shift-reserve: 80px;
 
   display: flex;
-  gap: var(--spacing-xl);
+  gap: var(--spacing-24);
   align-items: flex-start;
   flex-shrink: 0;
   flex-direction: column;
   height: calc(100vh - var(--_safe-top) - var(--_safe-bottom));
   margin-top: var(--_safe-top);
   margin-bottom: var(--_safe-bottom);
-  padding: 0 var(--spacing-5xl);
+  padding: 0 var(--spacing-96);
   position: relative;
   /* 섹션과 같은 바탕을 칸에도 깐다 — 연도가 밑에 깔린 것과 반전해 섞이는데(metaYear), 섞이는
      범위는 GSAP 가 transform 을 거는 트랙까지다. 그 안에 깔린 것이 카드뿐이면 카드 밖에서는
@@ -83,7 +83,7 @@
   --_shift-size: 0.5;
 
   align-self: flex-start;
-  gap: var(--spacing-xl);
+  gap: var(--spacing-24);
 }
 
 .sizeSmall {
@@ -248,18 +248,18 @@
 
 .metaTech {
   display: flex;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   flex-direction: column;
-  margin-left: calc(-1 * var(--spacing-md));
+  margin-left: calc(-1 * var(--spacing-16));
 }
 
 .metaTech span {
-  padding: var(--spacing-xs) var(--spacing-md);
+  padding: var(--spacing-8) var(--spacing-16);
   border: 1px solid var(--text-accent-alt);
   font-family: var(--font-mono);
   font-size: var(--font-size-body);
   letter-spacing: 0.1em;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
 }
 
 .metaRole {
@@ -281,12 +281,12 @@
 }
 
 .metaDesc {
-  margin: var(--spacing-md) 0 0 0;
+  margin: var(--spacing-16) 0 0 0;
   margin-left: auto;
   position: relative;
   z-index: var(--_meta-z);
   max-width: var(--_desc-max-width);
-  font-size: var(--font-size-2xl);
+  font-size: var(--font-size-24);
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-loose);
   color: var(--text-primary);
@@ -310,7 +310,7 @@
 .project[data-layout="4"] .metaDesc,
 .project[data-layout="5"] .metaDesc,
 .project[data-layout="6"] .metaDesc {
-  margin-top: var(--spacing-md);
+  margin-top: var(--spacing-16);
 }
 
 /* Layout 1: number TL · year TR · category MR · tech BL · role ML · desc 하단 flow */
@@ -333,7 +333,7 @@
 }
 
 .project[data-layout="1"] .metaTech {
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   flex-direction: column;
   top: auto;
   bottom: 0;
@@ -341,7 +341,7 @@
 }
 
 .project[data-layout="1"] .metaTech span {
-  padding: var(--spacing-2xs) var(--spacing-sm);
+  padding: var(--spacing-4) var(--spacing-12);
 }
 
 .project[data-layout="1"] .metaRole {
@@ -374,7 +374,7 @@
 }
 
 .project[data-layout="2"] .metaTech {
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   top: 0;
   right: auto;
   bottom: auto;
@@ -413,9 +413,9 @@
 }
 
 .project[data-layout="3"] .metaTech {
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   top: 0;
-  right: var(--spacing-md);
+  right: var(--spacing-16);
   bottom: auto;
   left: auto;
 }
@@ -435,7 +435,7 @@
 
 .project[data-layout="4"] .metaYear {
   top: 50%;
-  right: calc(-1 * var(--spacing-3xl));
+  right: calc(-1 * var(--spacing-48));
   bottom: auto;
   left: auto;
   transform: translateY(-50%);
@@ -450,7 +450,7 @@
 }
 
 .project[data-layout="4"] .metaTech {
-  right: var(--spacing-md);
+  right: var(--spacing-16);
   top: 0;
   bottom: auto;
   left: auto;
@@ -495,7 +495,7 @@
 }
 
 .project[data-layout="5"] .metaTech {
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   top: 0;
   right: 0;
   bottom: auto;
@@ -531,7 +531,7 @@
 }
 
 .project[data-layout="6"] .metaTech {
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   top: 0;
   bottom: auto;
   left: 0;
@@ -560,18 +560,18 @@
   .sizeWide {
     --_mobile-px: 1.5rem;
 
-    gap: var(--spacing-lg);
+    gap: var(--spacing-20);
     align-self: stretch;
     height: auto;
     margin: 0;
-    padding: var(--spacing-md) var(--_mobile-px) var(--spacing-2xl);
+    padding: var(--spacing-16) var(--_mobile-px) var(--spacing-32);
     pointer-events: auto;
   }
 
   .card {
     margin-left: calc(-1 * var(--_mobile-px));
     margin-right: calc(-1 * var(--_mobile-px));
-    margin-top: calc(-1 * var(--spacing-md));
+    margin-top: calc(-1 * var(--spacing-16));
     aspect-ratio: 16 / 10;
   }
 
@@ -631,7 +631,7 @@
 
   .project[data-layout] .metaNumber {
     position: absolute !important;
-    top: var(--spacing-md);
+    top: var(--spacing-16);
     left: var(--_mobile-px) !important;
     right: auto !important;
     margin: 0;
@@ -643,7 +643,7 @@
     text-shadow: 0 2px 10px oklch(0.00% 0.0000 0.00 / 0.6);
     font-family: var(--font-instrument), serif;
     font-weight: var(--font-weight-light);
-    font-size: var(--font-size-6xl) !important;
+    font-size: var(--font-size-64) !important;
     line-height: 1;
     letter-spacing: -0.03em;
   }
@@ -651,8 +651,8 @@
   .metaGroup {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-md);
-    padding: var(--spacing-xs) 0 0 0;
+    gap: var(--spacing-16);
+    padding: var(--spacing-8) 0 0 0;
   }
 
   /* 읽기 순서 — category → role → tech → desc. year 는 카드 오버레이에만 표시 */
@@ -705,10 +705,10 @@
   .cardOverlay {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-3xs);
+    gap: var(--spacing-2);
     position: absolute;
     top: auto;
-    bottom: var(--spacing-lg);
+    bottom: var(--spacing-20);
     left: var(--_mobile-px);
     right: var(--_mobile-px);
     z-index: 2;
@@ -736,7 +736,7 @@
     font-weight: var(--font-weight-regular);
     letter-spacing: 0.01em;
     opacity: 0.9;
-    margin-top: var(--spacing-2xs);
+    margin-top: var(--spacing-4);
   }
 
   /* cardOverlay 내부 metaYear — 작은 액센트 라벨, 타이틀 위.
@@ -749,7 +749,7 @@
     right: auto;
     bottom: auto;
     left: auto;
-    margin: 0 0 var(--spacing-2xs) 0;
+    margin: 0 0 var(--spacing-4) 0;
     font-size: var(--font-size-label);
     font-weight: var(--font-weight-semibold);
     letter-spacing: 0.35em;
@@ -761,7 +761,7 @@
   }
 
   .project[data-layout] .metaTech {
-    gap: var(--spacing-xs);
+    gap: var(--spacing-8);
     flex-wrap: wrap;
     flex-direction: row;
     margin-top: 0;
@@ -769,14 +769,14 @@
   }
 
   .project[data-layout] .metaTech span {
-    padding: var(--spacing-2xs) var(--spacing-md);
+    padding: var(--spacing-4) var(--spacing-16);
     font-family: var(--font-mono);
     font-size: var(--font-size-label);
     font-weight: var(--font-weight-medium);
     letter-spacing: 0.08em;
     border: 1px solid var(--text-accent-alt);
     color: var(--text-accent-alt);
-    border-radius: var(--radius-capsule);
+    border-radius: var(--radius-full);
   }
 
   .project[data-layout] .metaRole {
@@ -792,7 +792,7 @@
   .project[data-layout] .metaDesc {
     margin-top: 0;
     max-width: none;
-    font-size: var(--font-size-xl);
+    font-size: var(--font-size-20);
     font-weight: var(--font-weight-regular);
     line-height: var(--line-height-relaxed);
     text-align: left;
@@ -803,7 +803,7 @@
 @media (max-width: 480px) {
   .project {
     --_card-w: 100vw;
-    --_number-size: var(--font-size-5xl);
+    --_number-size: var(--font-size-48);
   }
 
   .project,
@@ -812,9 +812,9 @@
   .sizeMedium,
   .sizeTall,
   .sizeWide {
-    --_mobile-px: var(--spacing-md);
+    --_mobile-px: var(--spacing-16);
 
-    padding: var(--spacing-md) var(--_mobile-px) var(--spacing-xl);
+    padding: var(--spacing-16) var(--_mobile-px) var(--spacing-24);
   }
 
   .card {
@@ -823,7 +823,7 @@
   }
 
   .cardOverlay {
-    bottom: var(--spacing-md);
+    bottom: var(--spacing-16);
     left: var(--_mobile-px);
     right: var(--_mobile-px);
   }
@@ -838,7 +838,7 @@
   }
 
   .project[data-layout] .metaNumber {
-    font-size: var(--font-size-5xl) !important;
+    font-size: var(--font-size-48) !important;
   }
 
   .project[data-layout] .metaCategory {
@@ -850,7 +850,7 @@
   }
 
   .project[data-layout] .metaTech span {
-    padding: var(--spacing-3xs) var(--spacing-sm);
+    padding: var(--spacing-2) var(--spacing-12);
     font-size: var(--font-size-label);
   }
 
@@ -864,13 +864,13 @@
   .project {
     --_card-w: 45%;
     --_card-h: auto;
-    --_card-radius: var(--radius-2xl);
+    --_card-radius: var(--radius-24);
 
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
     align-items: flex-start !important;
-    gap: var(--spacing-2xl) !important;
+    gap: var(--spacing-32) !important;
     width: 100%;
     border-bottom: var(--border-light);
   }
@@ -884,7 +884,7 @@
     align-self: stretch !important;
     margin-top: 0 !important;
     margin-bottom: 0 !important;
-    padding: var(--spacing-2xl) var(--spacing-2xl-plus) !important;
+    padding: var(--spacing-32) var(--spacing-40) !important;
   }
 
   .project .card {
@@ -902,7 +902,7 @@
   .metaGroup {
     display: flex !important;
     flex-direction: column;
-    gap: var(--spacing-xs);
+    gap: var(--spacing-8);
     flex: 1;
     min-width: 0;
   }
@@ -910,7 +910,7 @@
   .project[data-layout] .metaNumber {
     position: relative !important;
     margin: 0 !important;
-    font-size: var(--font-size-4xl);
+    font-size: var(--font-size-40);
     opacity: 0.4 !important;
   }
 
@@ -921,7 +921,7 @@
     right: auto !important;
     bottom: auto !important;
     left: auto !important;
-    font-size: var(--font-size-xl);
+    font-size: var(--font-size-20);
     -webkit-text-stroke: 1px var(--text-primary);
     color: transparent;
     opacity: 0.5 !important;
@@ -942,7 +942,7 @@
   }
 
   .project[data-layout] .metaTech span {
-    padding: var(--spacing-2xs) var(--spacing-xs) !important;
+    padding: var(--spacing-4) var(--spacing-8) !important;
     font-size: var(--font-size-label);
   }
 
@@ -954,7 +954,7 @@
 
   .project[data-layout] .metaDesc {
     position: relative !important;
-    margin: var(--spacing-xs) 0 0 !important;
+    margin: var(--spacing-8) 0 0 !important;
     max-width: none;
     font-size: var(--font-size-body-lg);
     text-align: left;

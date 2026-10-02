@@ -218,7 +218,7 @@ export default function InputsFieldsDemos() {
               ? "`size` 는 캡슐 높이를 정합니다 — sm(28) · md(32, 기본). `align` 은 dropdown 정렬을 좌/우로 잡습니다."
               : "`size` sets the capsule height — sm(28) / md(32, default). `align` anchors the dropdown left/right.")}
           </p>
-          <div className={styles.componentRow} style={{ gap: "var(--spacing-lg)" }}>
+          <div className={styles.componentRow} style={{ gap: "var(--spacing-20)" }}>
             <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ minWidth: 200 }}>
               <SearchCapsule
                 search={searchDemo}
@@ -248,7 +248,7 @@ export default function InputsFieldsDemos() {
           ko={"native `<input>` 은 텍스트 **일부만** 색칠할 수 없어서, 초과 글자에 inline `<mark>` 하이라이트를 하려면 contentEditable 이 필요합니다 — 그걸 위한 단일행 contentEditable input 입니다(native 가 공짜로 주는 caret·IME·autofill 을 대신 손으로 재구현하는 대신 하이라이트를 얻는 트레이드오프). 하이라이트가 필요할 때만 이걸 직접 쓰고, 그 외엔 native `Input` 을 씁니다 — 둘은 완전히 분리돼 있고 서로를 모릅니다. 제한은 두 갈래 — `maxHint` 는 **권장** 한도라 초과분에 `<mark>` 와 카운터만 띄우고 자르진 않으며(붙여넣은 긴 제목 보존), `maxLength` 는 **하드** 상한이라 입력·붙여넣기 시점에 잘라냅니다. `inlineLabel` 로 KO/EN 배지를 input 안에 넣습니다."}
           en={"A native `<input>` can't style **part** of its text, so inline `<mark>` highlighting of overflow needs contentEditable — this is that single-line contentEditable input (the trade-off: you re-implement caret/IME/autofill that native gives for free, in exchange for the highlight). Reach for it only when you need the highlight; otherwise use native `Input` — the two are fully separate and don't know about each other. Two-tier limit: `maxHint` is a **soft** cap (marks the overflow + counter, never truncates a long pasted title), `maxLength` is a **hard** cap enforced on type/paste. `inlineLabel` adds a badge like KO/EN inside the field."}
         >
-          <div className={styles.componentRow} style={{ flexDirection: "column", alignItems: "stretch", gap: "var(--spacing-sm)", maxWidth: 380 }}>
+          <div className={styles.componentRow} style={{ flexDirection: "column", alignItems: "stretch", gap: "var(--spacing-12)", maxWidth: 380 }}>
             <motion.div variants={staggerItemX} {...scrollChildX(0, 2)}>
               <HighlightInput value={editableDemo} onChange={setEditableDemo} inlineLabel="KO" placeholder={language === "ko" ? "제목" : "Title"} />
             </motion.div>

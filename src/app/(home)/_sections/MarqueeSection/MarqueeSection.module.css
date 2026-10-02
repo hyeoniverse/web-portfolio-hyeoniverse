@@ -3,7 +3,7 @@
    ========================================================================== */
 
 .marquee {
-  padding: var(--spacing-4xl) 0;
+  padding: var(--spacing-64) 0;
   border-top: var(--border-strong);
   border-bottom: var(--border-strong);
   overflow: hidden;
@@ -31,8 +31,8 @@
 .text {
   display: flex;
   align-items: center;
-  gap: var(--spacing-3xl);
-  padding-right: var(--spacing-3xl);
+  gap: var(--spacing-48);
+  padding-right: var(--spacing-48);
   font-family: var(--font-instrument), serif;
   font-size: var(--fluid-font-size-4xl);
   font-weight: var(--font-weight-regular);
@@ -65,7 +65,7 @@
    --------------------------------------------------------------------------- */
 @media (max-width: 480px) {
   .text {
-    font-size: var(--font-size-4xl);
+    font-size: var(--font-size-40);
   }
 
   .oval {

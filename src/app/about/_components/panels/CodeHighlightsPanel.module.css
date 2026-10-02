@@ -60,9 +60,9 @@
 /* Body: demo + code side by side */
 .codeSingleBody {
   display: flex;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-20);
   flex: 1;
-  padding-bottom: var(--spacing-3xl);
+  padding-bottom: var(--spacing-48);
   min-height: 0;
 }
 
@@ -90,14 +90,14 @@
 .codePageNav {
   display: flex;
   align-items: center;
-  gap: var(--spacing-3xs);
-  padding: 0 var(--spacing-2xs);
+  gap: var(--spacing-2);
+  padding: 0 var(--spacing-4);
   position: absolute;
   right: var(--_space-line);
   bottom: var(--_space-line);
   z-index: 2;
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   backdrop-filter: blur(14px) saturate(1.4);
   font-family: var(--font-mono);
@@ -112,7 +112,7 @@
 .codePageCount {
   display: flex;
   align-items: center;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   font-size: var(--font-size-hint);
   line-height: 1;
   font-variant-numeric: tabular-nums;
@@ -179,7 +179,7 @@
 
 .codeDesc {
   flex-shrink: 0;
-  margin: var(--spacing-2xs) 0 0 0;
+  margin: var(--spacing-4) 0 0 0;
   font-size: var(--font-size-prose);
   line-height: var(--_lh-reading);
   color: var(--text-tertiary);
@@ -217,9 +217,9 @@
 
 .codeMobileHeader {
   display: flex;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   align-items: flex-start;
-  padding: var(--spacing-lg) 0;
+  padding: var(--spacing-20) 0;
 }
 
 .codeMobilePreview {
@@ -228,7 +228,7 @@
 }
 
 .codeMobilePreview .codeTitle {
-  margin-bottom: var(--spacing-2xs);
+  margin-bottom: var(--spacing-4);
 }
 
 .codeMobileToggle {
@@ -236,7 +236,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  margin-top: var(--spacing-3xs);
+  margin-top: var(--spacing-2);
   border: var(--_line-primary);
   width: clamp(24px, 2vw, 32px);
   height: clamp(24px, 2vw, 32px);
@@ -270,7 +270,7 @@
 }
 
 .codeMobileBodyOpen {
-  padding: 0 0 var(--spacing-lg) 0;
+  padding: 0 0 var(--spacing-20) 0;
   max-height: 2000px;
   opacity: 1;
 }
@@ -287,7 +287,7 @@
 /* Demo + Code horizontal layout wrapper */
 .codeRevealContent {
   display: flex;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-20);
   height: 100%;
 }
 
@@ -297,7 +297,7 @@
   align-items: center;
   justify-content: center;
   flex: 1;
-  padding-right: var(--spacing-lg);
+  padding-right: var(--spacing-20);
   overflow: hidden;
   min-width: 0;
   min-height: 0;
@@ -309,7 +309,7 @@
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  padding-bottom: var(--spacing-2xl);
+  padding-bottom: var(--spacing-32);
   position: relative;
   width: 100%;
   height: 100%;
@@ -354,7 +354,7 @@
 /* 12 blocks per set × (40px + 6px gap) = 552px per set */
 .demoInfiniteTrack {
   display: flex;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   width: max-content;
   animation: demoMarquee 8s linear infinite;
 }
@@ -367,7 +367,7 @@
   flex-shrink: 0;
   width: 40px;
   height: 30px;
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
 }
 
 @keyframes demoMarquee {
@@ -391,8 +391,8 @@
   /* Title row 통일 — TroubleshootingPanel 의 troublePinTitleRow 와 동일 스펙
      padding-top: nav(80) + tab(40) + spacing-2xl, margin-bottom: spacing-xl, h3 margin: 0 */
   .codePinTitleRow.codePinTitleRow.codePinTitleRow.codePinTitleRow {
-    padding-top: calc(80px + 40px + var(--spacing-2xl));
-    margin-bottom: var(--spacing-xl);
+    padding-top: calc(80px + 40px + var(--spacing-32));
+    margin-bottom: var(--spacing-24);
   }
   .codePinTitleRow h3 {
     margin: 0;
@@ -409,7 +409,7 @@
   .codeDemo {
     flex: none;
     padding-right: 0;
-    padding-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-16);
     border-bottom: var(--_line-secondary);
     border-right: none;
     height: 240px;
@@ -422,8 +422,8 @@
   }
 
   .codeMobileHeader {
-    gap: var(--spacing-md);
-    padding: var(--spacing-xl) 0;
+    gap: var(--spacing-16);
+    padding: var(--spacing-24) 0;
   }
 
   .codeMobileToggle {
@@ -432,7 +432,7 @@
   }
 
   .codeMobileBodyOpen {
-    padding-bottom: var(--spacing-xl);
+    padding-bottom: var(--spacing-24);
   }
 
   .codeDemo {
@@ -493,14 +493,14 @@
     grid-template-columns: minmax(16rem, 23vw) minmax(0, 1fr);
     grid-template-rows: auto minmax(0, 1fr);
     column-gap: clamp(2rem, 4vw, 4.5rem);
-    padding-top: calc(var(--header-height) + var(--spacing-md));
-    padding-bottom: calc(var(--spacing-2xl) + 3rem);
+    padding-top: calc(var(--header-height) + var(--spacing-16));
+    padding-bottom: calc(var(--spacing-32) + 3rem);
   }
 
   .codeContent > .codePinTitleRow {
     grid-row: 1;
     grid-column: 1;
-    margin: 0 0 var(--spacing-lg);
+    margin: 0 0 var(--spacing-20);
   }
 
   .codeContent > .codePinTitleRow h3 {
@@ -534,9 +534,9 @@
   .codeIndexItem {
     display: grid;
     grid-template-columns: 2.25rem minmax(0, 1fr);
-    column-gap: var(--spacing-sm);
+    column-gap: var(--spacing-12);
     width: 100%;
-    padding: var(--spacing-sm) 0;
+    padding: var(--spacing-12) 0;
     text-align: left;
     color: var(--text-tertiary);
     border-bottom: var(--_line-secondary);
@@ -553,7 +553,7 @@
 
   .codeIndexItemActive,
   .codeIndexItemActive:hover {
-    padding-left: var(--spacing-sm);
+    padding-left: var(--spacing-12);
     color: var(--text-primary);
   }
 
@@ -588,7 +588,7 @@
   }
 
   .codeContent .codeSingleHeader {
-    margin-bottom: var(--spacing-lg);
+    margin-bottom: var(--spacing-20);
   }
 
   .codeContent .codeSingleMeta h4 {
@@ -636,7 +636,7 @@
   .codeSinglePaneActive .codeSingleBody {
     --_r: clamp(0, calc(var(--item-in, 1) * 1.8 - var(--_k, 0) * 0.35), 1);
     opacity: calc(var(--_r) - var(--item-out, 0) * 1.2);
-    translate: 0 calc((1 - var(--_r) + var(--item-out, 0) * -1) * var(--spacing-xl));
+    translate: 0 calc((1 - var(--_r) + var(--item-out, 0) * -1) * var(--spacing-24));
   }
 
   .codeSinglePaneActive .codeSingleDesc {

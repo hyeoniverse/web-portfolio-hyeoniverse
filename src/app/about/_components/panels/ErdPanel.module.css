@@ -10,7 +10,7 @@
   flex-direction: column;
   flex: 1;
   min-height: 0;
-  padding-top: var(--spacing-xs);
+  padding-top: var(--spacing-8);
 }
 
 /* flex 컨테이너여야 한다 — 아래 미디어쿼리에서 높이를 min-height 로 주는데,
@@ -34,7 +34,7 @@
 /* ── Hint ── */
 .erdHint {
   position: absolute;
-  bottom: var(--spacing-md);
+  bottom: var(--spacing-16);
   left: 50%;
   transform: translateX(-50%);
   z-index: 4;
@@ -42,8 +42,8 @@
 }
 
 .erdHint span {
-  padding: var(--spacing-xs) var(--spacing-sm);
-  border-radius: var(--radius-capsule);
+  padding: var(--spacing-8) var(--spacing-12);
+  border-radius: var(--radius-full);
   background: color-mix(in srgb, var(--bg-primary) 80%, transparent);
   backdrop-filter: blur(4px);
   font-family: var(--font-mono);
@@ -76,9 +76,9 @@
      페이지 좌하단에 떠 있는 스크롤 버튼(힌트 끝줄을 덮는다).
      좌상단만 비어 있다. 우상단 뷰 전환이 폭의 52% 지점부터라 48% 로 자른다. */
   .erdHint {
-    top: var(--spacing-sm);
+    top: var(--spacing-12);
     bottom: auto;
-    left: var(--spacing-sm);
+    left: var(--spacing-12);
     max-width: 48%;
     transform: none;
   }
@@ -87,7 +87,7 @@
 /* ── 데스크톱 전시실 구도: 도면을 패널 전체에 크게 걸고, 제목은 왼쪽 위에 겹쳐 둔다 ── */
 @media (min-width: 1025px) and (min-height: 701px) {
   .erdPanel {
-    padding: var(--header-height) 0 calc(var(--spacing-2xl) + 4rem);
+    padding: var(--header-height) 0 calc(var(--spacing-32) + 4rem);
   }
 
   .erdPanel .erdViewport {
@@ -97,7 +97,7 @@
   /* 제목은 도면 위 한 줄 — 도면 위에 겹쳐 두면 테이블을 가렸다 */
   .erdTitleOverlay {
     margin: 0;
-    padding: var(--spacing-md) var(--_panel-px) var(--spacing-sm);
+    padding: var(--spacing-16) var(--_panel-px) var(--spacing-12);
   }
 
   .erdTitleOverlay h3 {

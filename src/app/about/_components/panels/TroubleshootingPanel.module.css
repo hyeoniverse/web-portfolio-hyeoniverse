@@ -10,8 +10,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: flex-end;
-  padding: var(--badge-p-md);
-  border-radius: var(--radius-capsule);
+  padding: var(--badge-padding-md);
+  border-radius: var(--radius-full);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   font-weight: var(--font-weight-medium);
@@ -28,8 +28,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: var(--badge-p-lg);
-  border-radius: var(--radius-capsule);
+  padding: var(--badge-padding-lg);
+  border-radius: var(--radius-full);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-hint);
   font-weight: 500;
@@ -91,7 +91,7 @@
 }
 
 .troubleTable th {
-  padding: var(--cell-p-md);
+  padding: var(--cell-padding-md);
   text-align: left;
   font-weight: var(--font-weight-semibold);
   color: var(--text-tertiary);
@@ -100,7 +100,7 @@
 }
 
 .troubleTable td {
-  padding: var(--cell-p-md);
+  padding: var(--cell-padding-md);
   color: var(--text-secondary);
   border-bottom: var(--_line-secondary);
   line-height: var(--line-height-snug);
@@ -114,7 +114,7 @@
 .troubleTable td:first-child {
   color: var(--text-primary);
   white-space: nowrap;
-  padding-right: var(--spacing-md);
+  padding-right: var(--spacing-16);
 }
 
 .troubleTableRowHighlight td {
@@ -148,7 +148,7 @@
    mobile @media 안에서는 tab bar 까지 고려해 더 큰 값으로 override. specificity 2중복 으로
    shared .titleRowCompact (no-op) 보다 우선. */
 .troublePinTitleRow.troublePinTitleRow {
-  padding-top: calc(var(--header-height) + var(--spacing-md));
+  padding-top: calc(var(--header-height) + var(--spacing-16));
 }
 .troublePinTitleRow h3 {
   margin: 0;
@@ -162,7 +162,7 @@
   min-height: 0;
   background: var(--bg-tertiary);
   border: 1px solid color-mix(in srgb, var(--text-secondary) 20%, transparent);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   overflow: hidden;
   font-family: var(--font-mono);
   /* margin-bottom 은 mobile 만 — PC 에선 troubleSplit gap 이 처리 */
@@ -172,10 +172,10 @@
 .ideBreadcrumb {
   display: flex;
   flex: none;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   align-items: center;
-  padding: var(--spacing-xs) var(--spacing-md);
-  min-height: calc(var(--font-size-label) * 1.6 + var(--spacing-xs) * 2);
+  padding: var(--spacing-8) var(--spacing-16);
+  min-height: calc(var(--font-size-label) * 1.6 + var(--spacing-8) * 2);
   box-sizing: border-box;
   background: var(--bg-secondary);
   border-bottom: 1px solid
@@ -220,7 +220,7 @@
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--border-default) transparent;
-  padding: var(--spacing-md) 0;
+  padding: var(--spacing-16) 0;
   counter-reset: ide-line;
 }
 
@@ -230,15 +230,15 @@
 
 .ideEditorContent::-webkit-scrollbar-thumb {
   background: var(--border-default);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
 }
 
 /* 코드 라인 — gutter (line num) + text. 모든 라인 동일한 padding/line-height 로 일정한 rhythm */
 .ideLine {
   display: flex;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
   align-items: flex-start;
-  padding: 0 var(--spacing-md);
+  padding: 0 var(--spacing-16);
   line-height: 1.75;
   counter-increment: ide-line;
 }
@@ -285,9 +285,9 @@
    위아래 여백을 넉넉히 줘서 섹션 구분이 분명하게 */
 .ideDivider {
   display: flex;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
   align-items: center;
-  padding: var(--spacing-lg) var(--spacing-md);
+  padding: var(--spacing-20) var(--spacing-16);
   line-height: 1.7;
 }
 
@@ -307,8 +307,8 @@
 
 /* Table/diagram 인덴트 — gutter(3ch) + 선행 padding 만큼 들여쓰기 → 본문 텍스트 시작 X 와 정확히 정렬 */
 .ideIndent {
-  padding: var(--spacing-xs) var(--spacing-md);
-  padding-left: calc(3ch + var(--spacing-md) * 2);
+  padding: var(--spacing-8) var(--spacing-16);
+  padding-left: calc(3ch + var(--spacing-16) * 2);
 }
 
 /* 클릭 가능한 diagram wrap — 위치 컨텍스트만 제공. 실제 클릭은 .ideDiagramHint 버튼 */
@@ -320,9 +320,9 @@
 
 .troubleDiagramFrame {
   border: 1px solid color-mix(in srgb, var(--text-secondary) 12%, transparent);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   overflow: hidden;
-  padding: var(--spacing-sm);
+  padding: var(--spacing-12);
   background: var(--bg-secondary);
 }
 
@@ -330,15 +330,15 @@
      spacing-sm 만큼 inset → 부모 컨테이너의 border-radius 에 잘리지 않음 */
 .ideDiagramHint {
   position: absolute;
-  top: var(--spacing-sm);
-  right: var(--spacing-sm);
+  top: var(--spacing-12);
+  right: var(--spacing-12);
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
-  padding: var(--spacing-2xs) var(--spacing-sm);
+  gap: var(--spacing-4);
+  padding: var(--spacing-4) var(--spacing-12);
   background: var(--bg-secondary);
   border: 1px solid color-mix(in srgb, var(--text-secondary) 15%, transparent);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   font-family: var(--font-mono);
   font-size: var(--font-size-label);
   font-weight: var(--font-weight-medium);
@@ -370,14 +370,14 @@
 .troubleImages {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
 }
 
 .troubleImage {
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 /* wrap — image button 의 overflow:hidden 밖으로 hint 버튼 빼서 잘림 방지 */
@@ -392,7 +392,7 @@
   width: 100%;
   padding: 0;
   border: 1px solid color-mix(in srgb, var(--text-secondary) 12%, transparent);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   background: var(--bg-secondary);
   overflow: hidden;
   cursor: zoom-in;
@@ -405,8 +405,8 @@
 
 /* hint 는 wrap 의 직속 자식 — image button 의 radius/overflow 영향 안 받음 */
 .troubleImageWrap > .ideDiagramHint {
-  top: var(--spacing-sm);
-  right: var(--spacing-sm);
+  top: var(--spacing-12);
+  right: var(--spacing-12);
 }
 
 .troubleImageImg {
@@ -429,10 +429,10 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-2xl) var(--spacing-md);
+  gap: var(--spacing-8);
+  padding: var(--spacing-32) var(--spacing-16);
   border: 1.5px dashed color-mix(in srgb, var(--text-tertiary) 35%, transparent);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   background: color-mix(in srgb, var(--text-secondary) 4%, transparent);
   color: var(--text-tertiary);
   text-align: center;
@@ -503,7 +503,7 @@
 /* 깜빡이는 커서 */
 .ideCursor {
   display: inline-block;
-  margin-left: var(--spacing-3xs);
+  margin-left: var(--spacing-2);
   color: var(--text-accent);
   animation: ideCursorBlink 1s steps(2, start) infinite;
 }
@@ -553,7 +553,7 @@
    ========================================================================== */
 .ideWrap {
   flex-direction: row;
-  margin-bottom: var(--spacing-2xl);
+  margin-bottom: var(--spacing-32);
 }
 
 .ideMainPane {
@@ -572,12 +572,12 @@
   /* ideWrap row → column (sidebar 숨겨지므로 mainPane 만 stack) */
   .ideWrap {
     flex-direction: column;
-    margin-bottom: var(--spacing-lg);
+    margin-bottom: var(--spacing-20);
   }
   /* 핀 타이틀 row 위 여백 (nav 80 + tab 40 + 추가 호흡) */
   .troublePinTitleRow.troublePinTitleRow.troublePinTitleRow.troublePinTitleRow {
-    padding-top: calc(80px + 40px + var(--spacing-2xl));
-    margin-bottom: var(--spacing-xl);
+    padding-top: calc(80px + 40px + var(--spacing-32));
+    margin-bottom: var(--spacing-24);
   }
   .troublePinTitleRow h3 {
     margin: 0;
@@ -591,14 +591,14 @@
   .troubleContent {
     display: flex;
     flex-direction: column;
-    margin: calc(var(--_panel-py) * -1) 0 calc((var(--spacing-2xl) + 2.5rem) * -1);
-    padding-top: calc(var(--header-height) + var(--spacing-lg));
-    padding-bottom: var(--spacing-5xl);
+    margin: calc(var(--_panel-py) * -1) 0 calc((var(--spacing-32) + 2.5rem) * -1);
+    padding-top: calc(var(--header-height) + var(--spacing-20));
+    padding-bottom: var(--spacing-96);
   }
 
   .troubleContent > .troublePinTitleRow {
     flex-shrink: 0;
-    margin: 0 0 var(--spacing-md);
+    margin: 0 0 var(--spacing-16);
     padding: 0;
   }
 
@@ -642,6 +642,6 @@
 @keyframes ideLineIn {
   from {
     opacity: 0;
-    translate: calc(var(--spacing-sm) * -1) 0;
+    translate: calc(var(--spacing-12) * -1) 0;
   }
 }

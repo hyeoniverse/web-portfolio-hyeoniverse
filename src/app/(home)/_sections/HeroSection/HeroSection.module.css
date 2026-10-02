@@ -64,12 +64,12 @@
 .content {
   margin-top: 5vh;
   position: relative;
-  z-index: var(--z-content);
+  z-index: var(--z-index-content);
 }
 
 .title {
   display: flex;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   flex-direction: column;
   font-family: var(--font-instrument), serif;
   font-size: var(--fluid-font-size-6xl);
@@ -79,7 +79,7 @@
 .titleRow {
   display: flex;
   flex-wrap: wrap;
-  gap: 0 var(--spacing-xl);
+  gap: 0 var(--spacing-24);
   align-items: center;
   overflow: hidden;
   word-break: keep-all;
@@ -117,9 +117,9 @@
    --------------------------------------------------------------------------- */
 .meta {
   display: flex;
-  gap: var(--spacing-2xl);
+  gap: var(--spacing-32);
   align-items: center;
-  margin-top: var(--spacing-4xl);
+  margin-top: var(--spacing-64);
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-body);
   color: var(--text-secondary);
@@ -134,7 +134,7 @@
 
 .availabilityWrapper {
   display: flex;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   align-items: center;
 }
 
@@ -173,17 +173,17 @@
    --------------------------------------------------------------------------- */
 .scrollIndicator {
   display: flex;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   align-items: center;
   flex-direction: column;
   position: absolute;
-  bottom: var(--spacing-4xl);
+  bottom: var(--spacing-64);
   left: 50%;
   transform: translateX(-50%);
 
   background: none;
   border: none;
-  padding: var(--spacing-sm);
+  padding: var(--spacing-12);
 }
 
 .scrollText {
@@ -224,17 +224,17 @@
 
 @media (max-width: 768px) {
   .titleRow {
-    gap: var(--spacing-sm);
+    gap: var(--spacing-12);
   }
 
   .content {
-    padding-bottom: var(--spacing-6xl);
+    padding-bottom: var(--spacing-128);
   }
 
   .meta {
-    gap: var(--spacing-md);
+    gap: var(--spacing-16);
     flex-direction: column;
-    margin-top: var(--spacing-2xl);
+    margin-top: var(--spacing-32);
   }
 
   .metaDivider {
@@ -242,7 +242,7 @@
   }
 
   .scrollIndicator {
-    bottom: var(--spacing-xl);
+    bottom: var(--spacing-24);
   }
 
   .ovalPrimaryGroup {
@@ -274,10 +274,10 @@
   .scrollIndicator {
     flex-direction: row;
     align-items: center;
-    gap: var(--spacing-md);
-    bottom: var(--spacing-xl);
+    gap: var(--spacing-16);
+    bottom: var(--spacing-24);
     left: auto;
-    right: var(--page-px);
+    right: var(--spacing-page-inline);
     transform: none;
   }
 
@@ -288,7 +288,7 @@
   .scrollLineWrapper {
     flex-shrink: 0;
     transform: rotate(90deg);
-    margin-left: var(--spacing-lg);
+    margin-left: var(--spacing-20);
   }
 }
 

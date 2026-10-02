@@ -113,7 +113,7 @@ export default function DateTimePicker({ value, onChange, disabled, minDate, max
             onDoubleClick={asText ? toggleDate : undefined}
             disabled={disabled}
             className={asText ? styles.pickerText : styles.yearInput}
-            style={{ width: "auto", minWidth: asText ? 0 : 110, textAlign: "left", padding: "var(--spacing-2xs) var(--spacing-xs)" }}
+            style={{ width: "auto", minWidth: asText ? 0 : 110, textAlign: "left", padding: "var(--spacing-4) var(--spacing-8)" }}
           >
             {dateLabel}
           </Pressable>
@@ -138,7 +138,7 @@ export default function DateTimePicker({ value, onChange, disabled, minDate, max
             onDoubleClick={asText ? toggleTime : undefined}
             disabled={disabled}
             className={asText ? styles.pickerText : styles.yearInput}
-            style={{ width: "auto", minWidth: asText ? 0 : 90, textAlign: "left", padding: "var(--spacing-2xs) var(--spacing-xs)" }}
+            style={{ width: "auto", minWidth: asText ? 0 : 90, textAlign: "left", padding: "var(--spacing-4) var(--spacing-8)" }}
           >
             {validLocal ? time : (language === "ko" ? "시간" : "Time")}
           </Pressable>

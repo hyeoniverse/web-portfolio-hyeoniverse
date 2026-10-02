@@ -4,17 +4,17 @@
    ────────────────────────────────────────────────────────────────── */
 .popover {
   position: fixed;
-  z-index: var(--z-dropdown);
+  z-index: var(--z-index-dropdown);
   width: 260px;
   /* 좌우 패딩은 .controls 래퍼가 전담 — pad/hueSlider 는 full-bleed, 컨트롤 행만 inset */
-  padding: var(--spacing-sm) 0;
+  padding: var(--spacing-12) 0;
   background: var(--bg-primary);
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   box-shadow: 0 8px 24px oklch(0.00% 0.0000 0.00 / 0.15);
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   user-select: none;
   overflow: hidden;
 }
@@ -25,9 +25,9 @@
   order: 99;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   width: 100%;
-  margin-top: var(--spacing-2xs);
+  margin-top: var(--spacing-4);
   user-select: none;
   overflow: hidden;
 }
@@ -38,7 +38,7 @@
 .sheetBackdrop {
   position: fixed;
   inset: 0;
-  z-index: var(--z-overlay);
+  z-index: var(--z-index-overlay);
   background: oklch(0.00% 0.0000 0.00 / 0.25);
   backdrop-filter: blur(10px);
   pointer-events: none;
@@ -47,7 +47,7 @@
 /* 시트 컨테이너 시각은 글로벌 .ui-sheet (styles/globals/_sheet.css). 여기선 content padding + select 차단만. */
 .sheet {
   /* 좌우 패딩은 .controls 래퍼가 전담. 하단 여백만 유지(홈 인디케이터/썸 여유) */
-  padding: 0 0 var(--spacing-xl) 0;
+  padding: 0 0 var(--spacing-24) 0;
   user-select: none;
 }
 
@@ -55,8 +55,8 @@
 .controls {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
-  padding: 0 var(--spacing-sm);
+  gap: var(--spacing-8);
+  padding: 0 var(--spacing-12);
 }
 
 /* handle bar 는 글로벌 .ui-sheet-handle / .ui-sheet-handle-bar 사용 */
@@ -64,7 +64,7 @@
 /* Modal title 패턴 — handle bar 바로 아래 단독 h3 (close 버튼 없음, 탭 outside / ESC 로 닫음) */
 .sheetTitle {
   margin: 0;
-  padding: 0 var(--spacing-2xs);
+  padding: 0 var(--spacing-4);
   font-family: var(--font-grotesk), sans-serif;
   font-size: var(--font-size-title-md);
   font-weight: var(--font-weight-medium);
@@ -77,11 +77,11 @@
 .svPad {
   position: relative;
   /* popover padding 을 negative margin 으로 상쇄해 외곽까지 채움 */
-  width: calc(100% + var(--spacing-sm) * 2);
-  margin: calc(var(--spacing-sm) * -1) calc(var(--spacing-sm) * -1) 0;
+  width: calc(100% + var(--spacing-12) * 2);
+  margin: calc(var(--spacing-12) * -1) calc(var(--spacing-12) * -1) 0;
   height: 140px;
   /* 위쪽 두 모서리만 popover 의 radius-2xl 과 매칭, 아래는 평면 */
-  border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+  border-radius: var(--radius-24) var(--radius-24) 0 0;
   overflow: hidden;
   cursor: crosshair;
   /* 두 개의 그라데이션 겹침 — 가로:white→hueColor, 세로:transparent→black */
@@ -128,7 +128,7 @@
   aspect-ratio: 1 / 1;
   margin: 0 auto;
   /* 살짝 padding 으로 ring 이 popover 바깥에 안 닿게 */
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   background: transparent;
 }
 
@@ -173,7 +173,7 @@
   position: absolute;
   inset: 32%;
   /* stylelint-disable-next-line declaration-property-value-disallowed-list -- SV 사각형 — 모서리에 순색이 있어 둥글리면 못 고른다 */
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-8);
   overflow: hidden;
   cursor: crosshair;
   touch-action: none;
@@ -185,10 +185,10 @@
 /* ── 2D pad 공통 — 좌상단을 popover 외곽까지 flush ── */
 .svPad, .slPad, .lcPad {
   position: relative;
-  width: calc(100% + var(--spacing-sm) * 2);
-  margin: calc(var(--spacing-sm) * -1) calc(var(--spacing-sm) * -1) 0;
+  width: calc(100% + var(--spacing-12) * 2);
+  margin: calc(var(--spacing-12) * -1) calc(var(--spacing-12) * -1) 0;
   height: 140px;
-  border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+  border-radius: var(--radius-24) var(--radius-24) 0 0;
   overflow: hidden;
   cursor: crosshair;
   touch-action: none;
@@ -221,8 +221,8 @@
 .lcPad {
   background: var(--bg-secondary);
   border-radius: 0;
-  margin-top: var(--spacing-sm);
-  margin-bottom: var(--spacing-sm);
+  margin-top: var(--spacing-12);
+  margin-bottom: var(--spacing-12);
 }
 
 .lcCanvas {
@@ -239,8 +239,8 @@
 .oklchStack {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
-  padding: var(--spacing-sm) 0;
+  gap: var(--spacing-4);
+  padding: var(--spacing-12) 0;
 }
 
 .oklchRow {
@@ -248,7 +248,7 @@
   align-items: center;
   /* thumb 가 0%/100% 일 때 translateX(-50%) 로 slider 좌/우 7px 침범 +
    * input/popover 와 시각적 여유까지 위해 thumb 반경보다 넉넉히 */
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 .oklchChLabel {
@@ -266,15 +266,15 @@
 }
 
 /* picker input wrapper — 모든 input (HEX / RGB / HSL / HSV / OKLCH) 폭 동일.
-   가장 긴 content (HEX "#ffffff" 7자) + 좌우 padding (--spacing-xs × 2) + border (2px). eraser 비활성 (clearable={false}). */
+   가장 긴 content (HEX "#ffffff" 7자) + 좌우 padding (--spacing-8 × 2) + border (2px). eraser 비활성 (clearable={false}). */
 .pickerInput {
-  width: calc(7ch + var(--spacing-xs) * 2 + 2px);
+  width: calc(7ch + var(--spacing-8) * 2 + 2px);
 }
 
 /* picker input 내부 padding — 좌우 콤팩트 동일. Input.hasClear (32px) 미적용 (clearable={false}). */
 .pickerInput input {
-  padding-left: var(--spacing-xs);
-  padding-right: var(--spacing-xs);
+  padding-left: var(--spacing-8);
+  padding-right: var(--spacing-8);
 }
 
 .oklchChSlider {
@@ -287,8 +287,8 @@
   position: relative;
   width: 100%;
   height: 12px;
-  margin: var(--spacing-2xs) 0;
-  border-radius: var(--radius-capsule);
+  margin: var(--spacing-4) 0;
+  border-radius: var(--radius-full);
   cursor: ew-resize;
   touch-action: none;
   /* background 은 inline style 로 동적 gradient — L, C, H 값 따라 매번 다름 */
@@ -312,8 +312,8 @@
   position: relative;
   width: 100%;
   height: 12px;
-  margin: var(--spacing-2xs) 0;
-  border-radius: var(--radius-capsule);
+  margin: var(--spacing-4) 0;
+  border-radius: var(--radius-full);
   cursor: ew-resize;
   background: linear-gradient(
     to right,
@@ -345,24 +345,24 @@
 .inputs {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
-  padding: var(--spacing-sm) 0;
+  gap: var(--spacing-4);
+  padding: var(--spacing-12) 0;
 }
 
 /* i·복사·붙여넣기 버튼 묶음 — format select 와 확실히 분리 */
 .inputActions {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   flex-shrink: 0;
-  margin-left: var(--spacing-md);
+  margin-left: var(--spacing-16);
 }
 
 /* 색(반투명 가능)을 checkerboard 위에 얹어 투명도가 보이게. 색 레이어가 최상단, 아래 2겹이 격자 */
 .preview {
   flex-shrink: 0;
-  width: var(--control-h-xs);
-  height: var(--control-h-xs);
+  width: var(--control-height-xs);
+  height: var(--control-height-xs);
   border-radius: var(--radius-circle);
   /* solid 테두리 — 반투명(border-light)이면 색이 가장자리에서 배경과 섞여 덜 찬 것처럼 보임 */
   border: 1px solid var(--color-neutral-300);
@@ -394,7 +394,7 @@
 .alphaRow {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 /* Hue slider 와 같은 lineup. 투명→불투명 그라디언트를 checkerboard 위에 */
@@ -403,8 +403,8 @@
   flex: 1;
   min-width: 0;
   height: 12px;
-  margin: var(--spacing-2xs) 0;
-  border-radius: var(--radius-capsule);
+  margin: var(--spacing-4) 0;
+  border-radius: var(--radius-full);
   cursor: ew-resize;
   touch-action: none;
   /* 투명→불투명 그라디언트(위) + 격자(아래). presets.ts CHECKER_BG 와 동일 패턴. */
@@ -419,9 +419,9 @@
 
 /* % 입력 — pickerInput 폭 override (3자리 "100") */
 .alphaInput {
-  width: calc(4ch + var(--spacing-xs) * 2 + 2px);
+  width: calc(4ch + var(--spacing-8) * 2 + 2px);
   /* slider 와 붙지 않게 간격 (% 단위는 input 에 붙여 둠) */
-  margin-left: var(--spacing-sm);
+  margin-left: var(--spacing-12);
 }
 
 .alphaUnit {
@@ -432,8 +432,8 @@
 
 .rgbRow {
   display: flex;
-  gap: var(--spacing-2xs);
-  padding: var(--spacing-sm) 0;
+  gap: var(--spacing-4);
+  padding: var(--spacing-12) 0;
 }
 
 /* row 직속 자식 — flex grow 끄고 picker input 자체 width 가 결정. HEX 도 다른 채널 input 과 같은 폭. */
@@ -481,9 +481,9 @@
 /* Select trigger 가 sm (28px) 로 렌더 — Input xs (24px), preview/info button (24px) 과 맞추려고
    trigger button 에 xs 사이즈 강제. (0,2,1) — Select 모듈의 .trigger.triggerSm (0,2,0) 이김. */
 .formatSelect button[class*="trigger"] {
-  height: var(--control-h-xs);
+  height: var(--control-height-xs);
   font-size: var(--font-size-label);
-  padding: 0 var(--spacing-sm);
+  padding: 0 var(--spacing-12);
 }
 
 /* ── i info button — Select 오른쪽, Tooltip 으로 format 설명 ── */
@@ -492,8 +492,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--control-h-xs);
-  height: var(--control-h-xs);
+  width: var(--control-height-xs);
+  height: var(--control-height-xs);
   padding: 0;
   border: none;
   border-radius: var(--radius-circle);

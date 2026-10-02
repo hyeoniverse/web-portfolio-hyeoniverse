@@ -2,15 +2,15 @@
   display: flex;
   flex-direction: column;
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   overflow: hidden;
   background: var(--bg-primary);
 }
 .toolbar {
   display: flex;
   align-items: center;
-  gap: var(--spacing-4xs);
-  padding: var(--spacing-3xs) var(--spacing-2xs);
+  gap: var(--spacing-1);
+  padding: var(--spacing-2) var(--spacing-4);
   border-bottom: var(--border-light);
 }
 .tbBtn {
@@ -20,7 +20,7 @@
   width: 28px;
   height: 28px;
   border: none;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-secondary);
   cursor: pointer;
@@ -29,7 +29,7 @@
 .tbBtn:hover { color: var(--text-primary); background: var(--bg-secondary); }
 .tbBtn:disabled { opacity: 0.5; cursor: default; }
 .tbBtnOn, .tbBtnOn:hover { color: var(--text-accent); background: var(--bg-accent-subtle); }
-.sep { width: 1px; align-self: stretch; margin: var(--spacing-2xs) var(--spacing-3xs); background: var(--border-color-light); }
+.sep { width: 1px; align-self: stretch; margin: var(--spacing-4) var(--spacing-2); background: var(--border-color-light); }
 .spin { animation: rmSpin 0.8s linear infinite; }
 @keyframes rmSpin { to { transform: rotate(360deg); } }
 
@@ -38,7 +38,7 @@
   max-height: 70vh;
   resize: vertical;
   overflow-y: auto;
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: var(--spacing-12) var(--spacing-16);
   font-size: var(--font-size-body);
   color: var(--text-primary);
   line-height: 1.6;
@@ -53,31 +53,31 @@
 }
 .editable :is(h1, h2, h3) { font-size: var(--font-size-title-sm); font-weight: 700; margin: 0.4em 0 0.2em; }
 .editable ul, .editable ol { margin: 0.2em 0; padding-left: 1.4em; }
-.editable img { max-width: 100%; border-radius: var(--radius-2xl); margin: var(--spacing-2xs) 0; }
+.editable img { max-width: 100%; border-radius: var(--radius-24); margin: var(--spacing-4) 0; }
 .editable a { color: var(--text-accent); text-decoration: underline; }
 
 /* @ 멘션 드롭다운 메뉴 */
 .mentionMenu {
-  z-index: calc(var(--z-overlay) + 20);
+  z-index: calc(var(--z-index-overlay) + 20);
   min-width: 180px;
   max-width: 280px;
-  padding: var(--spacing-3xs);
+  padding: var(--spacing-2);
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   background: var(--bg-primary);
   box-shadow: var(--shadow-md);
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-4xs);
+  gap: var(--spacing-1);
 }
 .mentionItem {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   width: 100%;
-  padding: var(--row-p-sm);
+  padding: var(--row-padding-sm);
   border: none;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-primary);
   font-size: var(--font-size-label);
@@ -90,14 +90,14 @@
 .mentionItem:hover { background: var(--bg-secondary); }
 .mentionItemOn { background: var(--bg-accent-subtle); color: var(--text-accent); }
 .mentionIcon { flex-shrink: 0; color: var(--text-tertiary); }
-.mentionEmpty { padding: var(--spacing-2xs) var(--spacing-sm); font-size: var(--font-size-label); color: var(--text-tertiary); }
-.mentionDate { padding: var(--spacing-3xs); }
+.mentionEmpty { padding: var(--spacing-4) var(--spacing-12); font-size: var(--font-size-label); color: var(--text-tertiary); }
+.mentionDate { padding: var(--spacing-2); }
 
 /* 멘션 칩 — 에디터/뷰 공통 (전역: 저장된 HTML 이 다른 CSS 모듈에서 렌더돼도 적용) */
 :global(.cal-event-mention) {
   display: inline;
   padding: 0.05em 0.35em;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--bg-accent-subtle);
   color: var(--text-accent);
   font-weight: 500;
@@ -111,7 +111,7 @@
 :global(.cal-date-mention) {
   display: inline;
   padding: 0.05em 0.35em;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--bg-tertiary);
   color: var(--text-secondary);
   font-weight: 500;

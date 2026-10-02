@@ -5,7 +5,7 @@
 .container {
   display: flex;
   flex-direction: column;
-  padding: var(--spacing-xl);
+  padding: var(--spacing-24);
   overflow: hidden;
   position: relative;
   min-height: 100vh;
@@ -26,7 +26,7 @@
 
 /* Icon */
 .iconWrapper {
-  margin-bottom: var(--spacing-2xl);
+  margin-bottom: var(--spacing-32);
 }
 
 .icon {
@@ -49,7 +49,7 @@
 
 /* Typography */
 .title {
-  margin: 0 0 var(--spacing-md) 0;
+  margin: 0 0 var(--spacing-16) 0;
   font-family: var(--font-instrument), serif;
   font-size: var(--fluid-font-size-3xl);
   font-weight: 400;
@@ -58,7 +58,7 @@
 }
 
 .description {
-  margin: 0 0 var(--spacing-xl) 0;
+  margin: 0 0 var(--spacing-24) 0;
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-body-lg);
   line-height: 1.6;
@@ -66,7 +66,7 @@
 }
 
 .errorRef {
-  margin: 0 0 var(--spacing-xl) 0;
+  margin: 0 0 var(--spacing-24) 0;
   font-family: var(--font-mono), monospace;
   font-size: var(--font-size-body);
   color: var(--text-secondary);
@@ -78,13 +78,13 @@
 /* Actions */
 .actions {
   display: flex;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
   justify-content: center;
   flex-wrap: wrap;
 }
 
 .primaryButton {
-  padding: var(--button-p-lg);
+  padding: var(--button-padding-lg);
   border: var(--border-strong);
   background: var(--text-primary);
   font-family: var(--font-space-grotesk), sans-serif;
@@ -93,7 +93,7 @@
   color: var(--bg-primary);
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
 }
 
 /* (0,2,0) — 전역 theme transition (0,1,1) 오버라이드 */
@@ -107,7 +107,7 @@
 }
 
 .secondaryButton {
-  padding: var(--button-p-lg);
+  padding: var(--button-padding-lg);
   border: var(--border-strong);
   background: transparent;
   font-family: var(--font-space-grotesk), sans-serif;
@@ -117,7 +117,7 @@
   text-decoration: none;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
 }
 
 /* (0,2,0) — 전역 theme transition (0,1,1) 오버라이드 */

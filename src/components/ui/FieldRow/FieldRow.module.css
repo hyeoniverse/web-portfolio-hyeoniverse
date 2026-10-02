@@ -6,7 +6,7 @@
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   /* .fields(align-items:flex-start) 부모 안에서도 열 폭을 채우도록 */
   width: 100%;
   /* flex/grid 부모 안에서 긴 input value 따라 grow 방지 */
@@ -26,7 +26,7 @@
   font-weight: 500;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   color: var(--text-tertiary);
   letter-spacing: 0.02em;
 }
@@ -34,7 +34,7 @@
 .fieldLabelText {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 /* label 아래 보조 설명 (작은 글씨) */

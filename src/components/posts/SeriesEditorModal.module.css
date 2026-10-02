@@ -5,14 +5,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: var(--z-overlay);
-  padding: var(--spacing-lg);
+  z-index: var(--z-index-overlay);
+  padding: var(--spacing-20);
 }
 
 .modal {
   background: var(--bg-primary);
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   width: 100%;
   max-width: 560px;
   max-height: 85vh;
@@ -25,7 +25,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--modal-p-lg);
+  padding: var(--modal-padding-lg);
   border-bottom: var(--border-light);
   flex-shrink: 0;
 }
@@ -40,7 +40,7 @@
 .closeBtn {
   border: none;
   background: transparent;
-  font-size: var(--font-size-2xl);
+  font-size: var(--font-size-24);
   color: var(--text-secondary);
   line-height: 1;
   padding: 0;
@@ -51,10 +51,10 @@
 }
 
 .body {
-  padding: var(--spacing-lg) var(--spacing-xl);
+  padding: var(--spacing-20) var(--spacing-24);
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
   flex: 1;
   overflow-y: auto;
   min-height: 0;
@@ -63,7 +63,7 @@
 .fieldGroup {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 .label {
@@ -77,9 +77,9 @@
 .input,
 .select {
   width: 100%;
-  padding: var(--field-p-lg);
+  padding: var(--field-padding-lg);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-body);
@@ -89,9 +89,9 @@
 
 .textarea {
   width: 100%;
-  padding: var(--spacing-xs) var(--spacing-sm);
+  padding: var(--spacing-8) var(--spacing-12);
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-body);
@@ -113,39 +113,39 @@
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M2 4l4 4 4-4'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right var(--spacing-sm) center;
-  padding-right: var(--spacing-xl);
+  background-position: right var(--spacing-12) center;
+  padding-right: var(--spacing-24);
 }
 
 .row {
   display: grid;
-  grid-template-columns: var(--grid-cols-2);
-  gap: var(--spacing-md);
+  grid-template-columns: var(--grid-columns-2);
+  gap: var(--spacing-16);
 }
 
 .toggle {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-body);
   color: var(--text-secondary);
-  padding: var(--spacing-xs) 0;
+  padding: var(--spacing-8) 0;
 }
 
 .coverActions {
   display: flex;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 .coverPreview {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 .coverThumb {
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   object-fit: cover;
 }
 
@@ -162,9 +162,9 @@
 }
 
 .uploadBtn {
-  padding: var(--button-p-md);
+  padding: var(--button-padding-md);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
@@ -182,7 +182,7 @@
 }
 
 .error {
-  padding: 0 var(--spacing-xl);
+  padding: 0 var(--spacing-24);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   color: var(--text-accent);
@@ -191,16 +191,16 @@
 .footer {
   display: flex;
   justify-content: flex-end;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-lg) var(--spacing-xl);
+  gap: var(--spacing-12);
+  padding: var(--spacing-20) var(--spacing-24);
   border-top: var(--border-light);
   flex-shrink: 0;
 }
 
 .cancelBtn {
-  padding: var(--button-p-lg);
+  padding: var(--button-padding-lg);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-body);
@@ -214,9 +214,9 @@
 }
 
 .saveBtn {
-  padding: var(--button-p-lg);
+  padding: var(--button-padding-lg);
   border: var(--border-strong);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--text-primary);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-body);
@@ -237,9 +237,9 @@
 .postsSection {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
-  margin-top: var(--spacing-sm);
-  padding-top: var(--spacing-md);
+  gap: var(--spacing-4);
+  margin-top: var(--spacing-12);
+  padding-top: var(--spacing-16);
   border-top: var(--border-light);
 }
 
@@ -247,21 +247,21 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
-  padding: var(--spacing-sm) 0;
+  padding: var(--spacing-12) 0;
 }
 
 .postsList {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
 }
 
 .postItem {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--row-p-md);
-  border-radius: var(--radius-capsule);
+  gap: var(--spacing-12);
+  padding: var(--row-padding-md);
+  border-radius: var(--radius-full);
 }
 
 .postItem:hover {
@@ -272,7 +272,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-4xs);
+  gap: var(--spacing-1);
   flex-shrink: 0;
 }
 
@@ -341,7 +341,7 @@
   flex-shrink: 0;
   border: none;
   background: transparent;
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-16);
   color: var(--text-secondary);
   padding: 0;
   line-height: 1;

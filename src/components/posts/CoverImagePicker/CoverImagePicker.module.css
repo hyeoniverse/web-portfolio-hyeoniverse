@@ -1,8 +1,8 @@
 /* ── Container ── */
 .picker {
-  margin-top: var(--spacing-md);
+  margin-top: var(--spacing-16);
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   overflow: hidden;
   /* 펼칠 때 — clip-path 로 위→아래 reveal + max-height 로 아래 layout 도 함께 push down */
   animation: coverPickerExpand 0.55s cubic-bezier(0.22, 1, 0.36, 1);
@@ -51,14 +51,14 @@
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: var(--z-overlay);
+  z-index: var(--z-index-overlay);
   width: 100vw;
   max-height: 90vh;
   margin: 0;
   background: var(--color-neutral-0);
   border: none;
   border-top: var(--border-light);
-  border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+  border-radius: var(--radius-24) var(--radius-24) 0 0;
   /* 인라인 expand 애니메이션 disable — framer-motion 이 slide 처리 */
   animation: none;
   display: flex;
@@ -87,8 +87,8 @@
 .header {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-xs) var(--spacing-sm);
+  gap: var(--spacing-8);
+  padding: var(--spacing-8) var(--spacing-12);
   border-bottom: var(--border-light);
   background: var(--bg-tertiary);
 }
@@ -103,12 +103,12 @@
 .tabs {
   display: flex;
   border: var(--border-default);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   overflow: hidden;
 }
 
 .tab {
-  padding: var(--spacing-2xs) var(--spacing-md);
+  padding: var(--spacing-4) var(--spacing-16);
   border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -137,10 +137,10 @@
 .historyTab {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
-  padding: var(--spacing-2xs) var(--spacing-md);
+  gap: var(--spacing-4);
+  padding: var(--spacing-4) var(--spacing-16);
   border: var(--border-default);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
@@ -177,8 +177,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--control-h-xs);
-  height: var(--control-h-xs);
+  width: var(--control-height-xs);
+  height: var(--control-height-xs);
   padding: 0;
   border: none;
   background: transparent;
@@ -218,7 +218,7 @@
 
 .body::-webkit-scrollbar-thumb {
   background: var(--border-color-strong);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
 }
 
 /* ── Custom Gradient Editor — preset 위, 가로 배치로 컴팩트하게 ── */
@@ -234,7 +234,7 @@
 /* ── Preset Grid (gap·padding 없이 picker 외곽과 flush) ── */
 .presetGrid {
   display: grid;
-  grid-template-columns: var(--grid-cols-4);
+  grid-template-columns: var(--grid-columns-4);
   gap: 0;
 }
 
@@ -276,7 +276,7 @@
   bottom: 0;
   left: 0;
   right: 0;
-  padding: var(--spacing-3xs) var(--spacing-2xs);
+  padding: var(--spacing-2) var(--spacing-4);
   background: var(--bg-overlay);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-hint);
@@ -289,8 +289,8 @@
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: var(--spacing-md);
-  padding: var(--spacing-sm) var(--spacing-md) var(--spacing-xs);
+  gap: var(--spacing-16);
+  padding: var(--spacing-12) var(--spacing-16) var(--spacing-8);
 }
 
 .presetSectionHeaderDivided {
@@ -302,7 +302,7 @@
   margin: 0;
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
@@ -311,8 +311,8 @@
 }
 
 .presetSectionCount {
-  padding: var(--spacing-4xs) var(--spacing-xs);
-  border-radius: var(--radius-capsule);
+  padding: var(--spacing-1) var(--spacing-8);
+  border-radius: var(--radius-full);
   background: var(--bg-secondary);
   font-family: var(--font-mono);
   font-size: var(--font-size-micro);
@@ -323,7 +323,7 @@
 
 .presetSectionHint {
   margin: 0;
-  padding: 0 var(--spacing-md) var(--spacing-xs);
+  padding: 0 var(--spacing-16) var(--spacing-8);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   color: var(--text-secondary);
@@ -355,17 +355,17 @@
    .body padding 0 환경 — 비-그리드 콘텐츠 (검색 input / suggestions / form) 는
    이 wrapper 안에 두면 일관된 외곽 spacing 확보. 그리드는 wrapper 밖에 두면 flush. */
 .tabSection {
-  padding: var(--spacing-sm);
+  padding: var(--spacing-12);
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 /* AI 탭 — input + 생성 버튼을 한 줄로 */
 .inputRow {
   display: flex;
   align-items: stretch;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   /* margin-bottom 제거 — 부모 .aiForm(.tabSection) 의 gap 이 처리 */
 }
 
@@ -378,8 +378,8 @@
 .unsplashLicenseNote {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-sm) var(--spacing-sm) var(--spacing-md);
+  gap: var(--spacing-8);
+  padding: var(--spacing-12) var(--spacing-12) var(--spacing-16);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-hint);
   color: var(--text-tertiary);
@@ -411,7 +411,7 @@
 /* ── Unsplash Grid (preset 과 동일 — 4-col, 1200:630 aspect, 같은 오버레이) ── */
 .unsplashGrid {
   display: grid;
-  grid-template-columns: var(--grid-cols-4);
+  grid-template-columns: var(--grid-columns-4);
   gap: 0;
 }
 
@@ -448,17 +448,17 @@
 .pexelsTypeToggle {
   display: inline-flex;
   gap: 0;
-  margin: var(--spacing-sm) var(--spacing-md) 0;
+  margin: var(--spacing-12) var(--spacing-16) 0;
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   overflow: hidden;
 }
 
 .pexelsTypeBtn {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
-  padding: var(--button-p-sm);
+  gap: var(--spacing-4);
+  padding: var(--button-padding-sm);
   border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -485,7 +485,7 @@
   bottom: 0;
   left: 0;
   right: 0;
-  padding: var(--spacing-3xs) var(--spacing-2xs);
+  padding: var(--spacing-2) var(--spacing-4);
   background: var(--bg-overlay);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-hint);
@@ -510,7 +510,7 @@
   right: 4px;
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   z-index: 2;
 }
 
@@ -538,14 +538,14 @@
 
 .styleRow {
   display: flex;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   flex-wrap: wrap;
 }
 
 .styleChip {
-  padding: var(--badge-p-lg);
+  padding: var(--badge-padding-lg);
   border: var(--border-default);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
@@ -685,10 +685,10 @@
   right: 4px;
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   max-width: calc(100% - 8px);
-  padding: var(--badge-p-md);
-  border-radius: var(--radius-capsule);
+  padding: var(--badge-padding-md);
+  border-radius: var(--radius-full);
   background: var(--bg-overlay);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-hint);
@@ -734,8 +734,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--control-h-2xs);
-  height: var(--control-h-2xs);
+  width: var(--control-height-2xs);
+  height: var(--control-height-2xs);
   min-width: 0;
   padding: 0;
   border: none;
@@ -760,7 +760,7 @@
   left: 4px;
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   z-index: 2;
 }
 
@@ -769,11 +769,11 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin-left: var(--spacing-xs);
+  margin-left: var(--spacing-8);
   min-width: 16px;
   height: 14px;
-  padding: 0 var(--spacing-2xs);
-  border-radius: var(--radius-capsule);
+  padding: 0 var(--spacing-4);
+  border-radius: var(--radius-full);
   background: var(--bg-tertiary);
   font-family: var(--font-mono);
   font-size: var(--font-size-hint);
@@ -803,14 +803,14 @@
 .suggestions {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   /* margin 제거 — 부모 .tabSection 의 gap 이 처리 */
 }
 
 .suggestionChip {
-  padding: var(--badge-p-lg);
+  padding: var(--badge-padding-lg);
   border: var(--border-default);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
@@ -829,10 +829,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   width: 100%;
   margin: 0;
-  padding: var(--spacing-sm) 0;
+  padding: var(--spacing-12) 0;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   color: var(--text-muted);
@@ -841,7 +841,7 @@
 
 .emptyMsg {
   text-align: center;
-  padding: var(--spacing-xl);
+  padding: var(--spacing-24);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-body);
   color: var(--text-muted);
@@ -850,7 +850,7 @@
 
 .errorMsg {
   text-align: center;
-  padding: var(--spacing-sm);
+  padding: var(--spacing-12);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   color: var(--text-accent);
@@ -860,11 +860,11 @@
 
   /* preset / unsplash grid — 모바일에선 3열 (이전엔 2열) */
   .presetGrid {
-    grid-template-columns: var(--grid-cols-3);
+    grid-template-columns: var(--grid-columns-3);
   }
 
   .unsplashGrid {
-    grid-template-columns: var(--grid-cols-2);
+    grid-template-columns: var(--grid-columns-2);
   }
 
   /* 3-col 이라 nth-child(3n) 가 우측 열. 우측 border 제거 (4n PC 룰 무력화) */
@@ -901,18 +901,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-4xl) 0;
+  padding: var(--spacing-64) 0;
 }
 
 /* 폴더 필터 — 가로로 넘치면 밀어서 본다. Lenis 가 휠을 가로채므로 data-lenis-prevent 필요. */
 .projectDirs {
   display: flex;
   flex: none;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   overflow-x: auto;
   scrollbar-width: none;
   overscroll-behavior: contain;
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: var(--spacing-12) var(--spacing-16);
   border-bottom: var(--border-light);
 }
 
@@ -928,11 +928,11 @@
 .projectDir {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   flex: none;
-  padding: var(--spacing-2xs) var(--spacing-sm);
+  padding: var(--spacing-4) var(--spacing-12);
   border: 1px solid var(--border-color-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   font-size: var(--font-size-label);
   color: var(--text-secondary);
@@ -963,7 +963,7 @@
 
 .projectHint {
   margin: 0;
-  padding: 0 var(--spacing-md) var(--spacing-xs);
+  padding: 0 var(--spacing-16) var(--spacing-8);
   font-size: var(--font-size-label);
   color: var(--text-accent);
 }

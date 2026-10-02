@@ -15,9 +15,9 @@
     "preview scheme"
     "preview stops"
     "preview group";
-  column-gap: var(--spacing-xl);
-  row-gap: var(--spacing-md);
-  padding: var(--spacing-sm);
+  column-gap: var(--spacing-24);
+  row-gap: var(--spacing-16);
+  padding: var(--spacing-12);
   align-items: start;
 }
 
@@ -56,7 +56,7 @@
   height: 100px;
   aspect-ratio: 16 / 9;
   background: var(--bg-primary);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   overflow: hidden;
 }
 
@@ -70,7 +70,7 @@
 .schemeRow {
   display: flex;
   align-items: flex-start;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   flex-wrap: wrap;
 }
 
@@ -84,8 +84,8 @@
 
 .schemeBaseSwatch {
   display: block;
-  width: var(--control-h-xs);
-  height: var(--control-h-xs);
+  width: var(--control-height-xs);
+  height: var(--control-height-xs);
   border-radius: var(--radius-circle);
   border: 2px solid var(--bg-primary);
   box-shadow:
@@ -98,16 +98,16 @@
 .schemeChips {
   display: inline-flex;
   flex-wrap: wrap;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   flex: 1;
   min-width: 0;
 }
 
 .schemeChip {
-  height: var(--size-2xs);
-  padding: 0 var(--spacing-sm);
+  height: var(--size-20);
+  padding: 0 var(--spacing-12);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-hint);
@@ -135,8 +135,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--size-2xs);
-  height: var(--size-2xs);
+  width: var(--size-20);
+  height: var(--size-20);
   flex-shrink: 0;
   padding: 0;
   margin-left: auto;
@@ -166,8 +166,8 @@
 .extractedRow {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
-  padding-top: var(--spacing-2xs);
+  gap: var(--spacing-4);
+  padding-top: var(--spacing-4);
   flex-wrap: wrap;
 }
 
@@ -178,7 +178,7 @@
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  margin-right: var(--spacing-2xs);
+  margin-right: var(--spacing-4);
 }
 
 .extractedSwatch {
@@ -200,19 +200,19 @@
   display: flex;
   /* bar 와 + 버튼이 같은 top 라인에 정렬 (handle 영역은 bar margin-bottom 으로 흡수) */
   align-items: flex-start;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 .stopBar {
   position: relative;
   flex: 1;
   /* 약간 컴팩트한 높이 */
-  height: var(--control-h-2xs);
-  border-radius: var(--radius-capsule);
+  height: var(--control-height-2xs);
+  border-radius: var(--radius-full);
   border: var(--border-light);
   cursor: copy;
   /* handle 들이 bar 아래에 표시될 공간 + 추가 여백 확보 */
-  margin-bottom: var(--spacing-2xl);
+  margin-bottom: var(--spacing-32);
 }
 
 /* handle = bar 아래에 absolute (top: 100%), pos% left, 화살표 위로 향함 */
@@ -224,7 +224,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: var(--spacing-3xs);
+  margin-top: var(--spacing-2);
   cursor: grab;
   user-select: none;
   touch-action: none;
@@ -326,8 +326,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--control-h-2xs);
-  height: var(--control-h-2xs);
+  width: var(--control-height-2xs);
+  height: var(--control-height-2xs);
   flex-shrink: 0;
   padding: 0;
   border: var(--border-light);
@@ -358,7 +358,7 @@
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   flex-wrap: wrap;
 }
 
@@ -366,13 +366,13 @@
 .customTypeToggle {
   display: inline-flex;
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   overflow: hidden;
-  height: var(--size-2xs);
+  height: var(--size-20);
 }
 
 .customTypeBtn {
-  padding: 0 var(--spacing-sm);
+  padding: 0 var(--spacing-12);
   border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -394,20 +394,20 @@
 .customSliders {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 /* customRow + customSliders 를 묶는 wrapper — 모바일 layout 분기 단위 */
 .customGroup {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 .customSlider {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   font-family: var(--font-mono);
   font-size: var(--font-size-hint);
   color: var(--text-tertiary);
@@ -448,8 +448,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--size-2xs);
-  height: var(--size-2xs);
+  width: var(--size-20);
+  height: var(--size-20);
   padding: 0;
   border: var(--border-light);
   border-radius: var(--radius-circle);
@@ -472,13 +472,13 @@
 .customApplyBtn {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-xs);
-  height: var(--size-2xs);
-  padding: 0 var(--spacing-md);
+  gap: var(--spacing-8);
+  height: var(--size-20);
+  padding: 0 var(--spacing-16);
   /* customRow flex 안 마지막 item 을 오른쪽 끝으로 push */
   margin-left: auto;
   border: none;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--text-primary);
   color: var(--bg-primary);
   font-family: var(--font-space-grotesk);
@@ -500,7 +500,7 @@
       "preview group"
       "scheme  scheme"
       "stops   stops";
-    column-gap: var(--spacing-md);
-    row-gap: var(--spacing-md);
+    column-gap: var(--spacing-16);
+    row-gap: var(--spacing-16);
   }
 }

@@ -4,9 +4,9 @@
 .group {
   display: inline-flex;
   align-items: stretch;
-  height: var(--control-h-sm);
+  height: var(--control-height-sm);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   /* 배경 없음 — 다른 컨트롤처럼 투명. 캡슐 끝단까지 테두리가 온전히 보이도록 내부 컨트롤을 clip */
   overflow: hidden;
 }
@@ -24,5 +24,5 @@
 /* 역순 버튼 — Select 와 사이 구분선 */
 .group .dir {
   border-left: var(--border-light) !important;
-  padding-inline: var(--spacing-sm);
+  padding-inline: var(--spacing-12);
 }

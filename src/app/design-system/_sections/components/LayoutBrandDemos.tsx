@@ -38,7 +38,7 @@ export default function LayoutBrandDemos() {
           ko={"제목과 선택적 부가설명, 선택적 우측 액션 슬롯으로 구성됩니다. 여러 곳에 흩어져 있던 `<h2>제목</h2> + <p>부가설명</p>` 인라인 패턴을 흡수합니다. 저장/되돌리기와 dirty 계산이 결합된 admin 설정의 SectionHeader 와 달리, 이 컴포넌트는 프레젠테이션 전용입니다."}
           en={"Title + optional sub + optional right-side action slot. Absorbs the scattered inline `<h2>` + `<p>` pattern. Presentation-only — unlike the settings `SectionHeader` which is coupled to save/dirty logic."}
         >
-          <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-xl)", width: "100%", maxWidth: 520 }}>
+          <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-24)", width: "100%", maxWidth: 520 }}>
             <SectionHeader
               title={language === "ko" ? "섹션 제목" : "Section title"}
               sub={language === "ko" ? "제목 아래 부가설명이 들어갑니다." : "A subtitle sits below the title."}

@@ -160,21 +160,21 @@ export default function FeedbackDisplayDemos() {
 
         {/* TypeWriter */}
         <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-          <div style={{ display: "flex", alignItems: "center", gap: "var(--spacing-sm)", marginBottom: "var(--spacing-sm)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "var(--spacing-12)", marginBottom: "var(--spacing-12)" }}>
             <div className={styles.componentGroupTitle} style={{ marginBottom: 0 }}>TypeWriter</div>
             <Pressable className={styles.replayBtn} onClick={() => setTwReplay((n) => n + 1)} aria-label="Replay">
               <RotateCcw size={14} />
             </Pressable>
           </div>
           <motion.div className={styles.typewriterDemo} variants={staggerItemX} {...scrollChildX(0, 1)}>
-            <TypeWriter text="Design tokens bring consistency." typingSpeed={80} caption="— Design System" fontSize="var(--font-size-xl)" align="center" replayTrigger={twReplay} />
+            <TypeWriter text="Design tokens bring consistency." typingSpeed={80} caption="— Design System" fontSize="var(--font-size-20)" align="center" replayTrigger={twReplay} />
           </motion.div>
         </motion.div>
 
         {/* HeartIcon — wave fill + burst (size 별 단독 데모) */}
         <DemoGroup title="HeartIcon">
           <p className={styles.componentDesc}>state machine (empty / filling / filled / draining) · 3-layer wave fill (SVG path d 애니메이션) · 채우기 완료 시 burst 1회 · burst 거리/크기 size 비례 스케일 · stroke / fill 모두 currentColor 상속 (부모 color 따라감)</p>
-          <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-2xl)", cursor: "pointer", color: iconLiked ? "var(--text-accent)" : "var(--text-secondary)" }} onClick={toggleIcon}>
+          <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-32)", cursor: "pointer", color: iconLiked ? "var(--text-accent)" : "var(--text-secondary)" }} onClick={toggleIcon}>
             <span style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
               <HeartIcon liked={iconLiked} busy={iconBusy} size={14} />
               <span style={{ fontSize: "var(--font-size-label)", color: "var(--text-tertiary)" }}>size 14</span>
@@ -196,7 +196,7 @@ export default function FeedbackDisplayDemos() {
           ko={"검색어와 일치하는 부분만 `<mark>` 로 감쌉니다. `query` 를 주지 않으면 SearchHighlightProvider context 의 값을 쓰므로, 리스트의 각 행이 검색어를 일일이 넘겨받을 필요가 없습니다. query 가 비면 그냥 평문으로 렌더되므로, 조건 분기 없이 항상 이 컴포넌트를 쓰면 됩니다."}
           en={"Wraps only the matched span in `<mark>`. Without an explicit `query` it reads the one from `SearchHighlightProvider` context, so list rows don't each have to thread the search term through. An empty query renders plain text, so you can use it unconditionally."}
         >
-          <div className={styles.componentRow} style={{ flexDirection: "column", alignItems: "flex-start", gap: "var(--spacing-2xs)" }}>
+          <div className={styles.componentRow} style={{ flexDirection: "column", alignItems: "flex-start", gap: "var(--spacing-4)" }}>
             <motion.div variants={staggerItemX} {...scrollChildX(0, 2)}>
               <HighlightedText text={language === "ko" ? "검색어가 들어간 문장입니다" : "A sentence containing the search term"} query={language === "ko" ? "검색어" : "search"} />
             </motion.div>
@@ -212,7 +212,7 @@ export default function FeedbackDisplayDemos() {
           ko={"인라인 `code` 의 내용이 색상값(`#hex` · `rgb()` · `hsl()`)이면 앞에 색 원(스와치)이 붙습니다 — GitHub 스타일. 렌더 후 `applyColorSwatches` 가 인라인 코드를 스캔해 **검증된 색만** 배경으로 주입하므로, 이름색·비색상은 평문으로 남습니다. 인라인 코드 자체는 Notion 식 배경형(보더 없음)입니다. 에디터에서는 툴바의 **색상 칩** 도구(Palette 아이콘)로 팔레트에서 고른 `#hex` 를 인라인 코드로 삽입하고, 리더가 이걸 그대로 이 스와치로 렌더합니다."}
           en={"When inline `code` holds a color value (`#hex` · `rgb()` · `hsl()`), a color dot (swatch) is prepended — GitHub style. After render, `applyColorSwatches` scans inline code and injects **only validated colors**, so named colors / non-colors stay plain. The inline code itself is Notion-style (borderless background). In the editor, the toolbar's **color chip** tool (Palette icon) inserts a picked `#hex` as inline code, and the reader renders exactly that as this swatch."}
         >
-          <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexWrap: "wrap", gap: "var(--spacing-sm)", alignItems: "center", lineHeight: 2.2 }}>
+          <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexWrap: "wrap", gap: "var(--spacing-12)", alignItems: "center", lineHeight: 2.2 }}>
             <code><span className="color-swatch" style={{ background: "#e11d48" }} aria-hidden />#e11d48</code>
             <code><span className="color-swatch" style={{ background: "rgb(46, 204, 113)" }} aria-hidden />rgb(46, 204, 113)</code>
             <code><span className="color-swatch" style={{ background: "hsl(280, 70%, 55%)" }} aria-hidden />hsl(280, 70%, 55%)</code>

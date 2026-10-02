@@ -17,7 +17,7 @@ function WorkEditorSkeleton() {
     <div className={es.container} aria-busy="true">
       {/* Top bar — title + action buttons */}
       <div className={es.topBar}>
-        <SkeletonLine width={140} height="var(--skeleton-h-line-lg)" />
+        <SkeletonLine width={140} height="var(--skeleton-height-line-lg)" />
         <div className={es.topBarActions}>
           <SkeletonPill width={80} />
           <SkeletonPill width={80} />
@@ -30,17 +30,17 @@ function WorkEditorSkeleton() {
         <SkeletonLine width={100} />
         <SkeletonBlock height={44} />
         <div className={wStyles.row3}>
-          <SkeletonBlock height="var(--control-h-xl)" />
-          <SkeletonBlock height="var(--control-h-xl)" />
-          <SkeletonBlock height="var(--control-h-xl)" />
+          <SkeletonBlock height="var(--control-height-xl)" />
+          <SkeletonBlock height="var(--control-height-xl)" />
+          <SkeletonBlock height="var(--control-height-xl)" />
         </div>
         <div className={es.row}>
-          <SkeletonBlock height="var(--control-h-xl)" />
-          <SkeletonBlock height="var(--control-h-xl)" />
+          <SkeletonBlock height="var(--control-height-xl)" />
+          <SkeletonBlock height="var(--control-height-xl)" />
         </div>
         <div className={es.row}>
-          <SkeletonBlock height="var(--control-h-xl)" />
-          <SkeletonBlock height="var(--control-h-xl)" />
+          <SkeletonBlock height="var(--control-height-xl)" />
+          <SkeletonBlock height="var(--control-height-xl)" />
         </div>
       </div>
 
@@ -62,7 +62,7 @@ function WorkEditorSkeleton() {
       {/* Tech Stack */}
       <div className={wStyles.section}>
         <SkeletonLine width={80} />
-        <SkeletonBlock height="var(--control-h-xl)" />
+        <SkeletonBlock height="var(--control-height-xl)" />
         <div className={es.tags}>
           <SkeletonPill width={60} />
           <SkeletonPill width={80} />

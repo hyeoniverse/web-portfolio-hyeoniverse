@@ -1,8 +1,8 @@
 .panel {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-xs) var(--spacing-md);
+  gap: var(--spacing-8);
+  padding: var(--spacing-8) var(--spacing-16);
   width: 40rem;
   max-width: 84vw;
 }
@@ -22,9 +22,9 @@
 /* ── VS Code 식 탭 바 ── */
 .tabs {
   display: flex;
-  gap: var(--spacing-4xs);
+  gap: var(--spacing-1);
   align-items: stretch;
-  padding-right: var(--spacing-2xs);
+  padding-right: var(--spacing-4);
   border-bottom: var(--border-light);
   background: var(--bg-secondary);
   overflow-x: auto;
@@ -32,11 +32,11 @@
 .tab {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   flex-shrink: 0;
-  /* 탭 = 컨트롤과 같은 높이. Button size="xs" 가 --control-h-xs 를 쓰므로 같은 토큰 */
-  height: var(--control-h-xs);
-  padding: 0 var(--spacing-2xs) 0 var(--spacing-sm);
+  /* 탭 = 컨트롤과 같은 높이. Button size="xs" 가 --control-height-xs 를 쓰므로 같은 토큰 */
+  height: var(--control-height-xs);
+  padding: 0 var(--spacing-4) 0 var(--spacing-12);
   border-right: var(--border-light);
   color: var(--text-tertiary);
 }
@@ -101,8 +101,8 @@
 .tabInput {
   flex-shrink: 0;
   width: 9rem;
-  padding: 0 var(--spacing-sm);
-  height: var(--control-h-xs);
+  padding: 0 var(--spacing-12);
+  height: var(--control-height-xs);
   border: 0;
   border-right: var(--border-light);
   border-bottom: 2px solid var(--color-accent);
@@ -116,10 +116,10 @@
 .addTab {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   flex-shrink: 0;
-  height: var(--control-h-xs);
-  padding: 0 var(--spacing-sm);
+  height: var(--control-height-xs);
+  padding: 0 var(--spacing-12);
   border: 0;
   border-right: var(--border-light);
   background: transparent;

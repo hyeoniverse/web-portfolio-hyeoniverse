@@ -73,10 +73,10 @@ function EditorSkeleton() {
       {/* Top bar */}
       <div className={es.topBar}>
         <SkeletonLine width={100} height={16} />
-        <div style={{ display: "flex", gap: "var(--spacing-sm)" }}>
-          <Skeleton width={80} height={34} borderRadius="var(--radius-capsule)" />
-          <Skeleton width={90} height={34} borderRadius="var(--radius-capsule)" />
-          <Skeleton width={80} height={34} borderRadius="var(--radius-capsule)" />
+        <div style={{ display: "flex", gap: "var(--spacing-12)" }}>
+          <Skeleton width={80} height={34} borderRadius="var(--radius-full)" />
+          <Skeleton width={90} height={34} borderRadius="var(--radius-full)" />
+          <Skeleton width={80} height={34} borderRadius="var(--radius-full)" />
         </div>
       </div>
 
@@ -88,27 +88,27 @@ function EditorSkeleton() {
         <div className={es.row}>
           <div className={es.field}>
             <SkeletonLine width={40} height={10} />
-            <Skeleton height={34} borderRadius="var(--radius-capsule)" />
+            <Skeleton height={34} borderRadius="var(--radius-full)" />
           </div>
         </div>
 
         {/* Excerpt */}
         <div className={es.field}>
           <SkeletonLine width={50} height={10} />
-          <Skeleton height={60} borderRadius="var(--radius-2xl)" />
+          <Skeleton height={60} borderRadius="var(--radius-24)" />
         </div>
 
         {/* Tags + Cover row */}
         <div className={es.row}>
           <div className={es.field}>
             <SkeletonLine width={30} height={10} />
-            <Skeleton height={34} borderRadius="var(--radius-capsule)" />
+            <Skeleton height={34} borderRadius="var(--radius-full)" />
           </div>
           <div className={es.field}>
             <SkeletonLine width={80} height={10} />
-            <div style={{ display: "flex", gap: "var(--spacing-sm)" }}>
-              <Skeleton width={70} height={34} borderRadius="var(--radius-capsule)" />
-              <Skeleton width={100} height={34} borderRadius="var(--radius-capsule)" />
+            <div style={{ display: "flex", gap: "var(--spacing-12)" }}>
+              <Skeleton width={70} height={34} borderRadius="var(--radius-full)" />
+              <Skeleton width={100} height={34} borderRadius="var(--radius-full)" />
             </div>
           </div>
         </div>
@@ -118,9 +118,9 @@ function EditorSkeleton() {
       <div className={styles.editorSection}>
         <div className={es.editorHeader}>
           <SkeletonLine width={60} height={14} />
-          <Skeleton width={160} height={30} borderRadius="var(--radius-capsule)" />
+          <Skeleton width={160} height={30} borderRadius="var(--radius-full)" />
         </div>
-        <Skeleton height={400} borderRadius="var(--radius-2xl)" />
+        <Skeleton height={400} borderRadius="var(--radius-24)" />
       </div>
     </div>
   );

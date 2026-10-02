@@ -3,11 +3,11 @@
 .mermaidPreview {
   display: flex;
   justify-content: center;
-  padding: var(--spacing-xs) var(--spacing-md);
-  margin-top: var(--spacing-2xs);
-  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-8) var(--spacing-16);
+  margin-top: var(--spacing-4);
+  margin-bottom: var(--spacing-20);
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   background: var(--bg-primary);
   overflow-x: auto;
 }
@@ -20,7 +20,7 @@
 /* ── 리더 mermaid (에디터와 동일 UI 재사용) — 뷰 토글 + 복사는 우상단 ── */
 .readerMermaid {
   position: relative;
-  margin: var(--spacing-xl) 0;
+  margin: var(--spacing-24) 0;
 }
 
 .readerMermaidBar {
@@ -30,14 +30,14 @@
   z-index: 2;
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 .readerMermaidCopy {
-  height: var(--control-h-sm);
-  padding: 0 var(--spacing-md);
+  height: var(--control-height-sm);
+  padding: 0 var(--spacing-16);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--bg-primary);
   color: var(--text-secondary);
   font-family: var(--font-space-grotesk);
@@ -58,10 +58,10 @@
 
 .readerMermaidCode {
   margin: 0;
-  padding: var(--spacing-md) var(--spacing-lg);
+  padding: var(--spacing-16) var(--spacing-20);
   background: var(--bg-tertiary);
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   overflow-x: auto;
   font-family: var(--font-mono);
   font-size: var(--font-size-body);
@@ -79,14 +79,14 @@
 
 /* 우상단 바가 겹치지 않게 상단 여백(진단/스플릿 공통) */
 .readerMermaid > div:last-child {
-  padding-top: calc(var(--control-h-sm) + var(--spacing-xs));
+  padding-top: calc(var(--control-height-sm) + var(--spacing-8));
 }
 
 /* 그래프 블록 나란히(split) — 코드 | 다이어그램이 같은 컨테이너에서 동일 높이(stretch), 가운데 핸들로 폭 조절 */
 .graphSplit {
   display: flex;
   align-items: stretch;
-  margin: var(--spacing-md) 0;
+  margin: var(--spacing-16) 0;
 }
 
 /* mermaid code-only 뷰 컨테이너 — 리사이즈 오버레이(.codeResizeHandle)가 pre 의 형제가 되게 하는 바깥 컨테이너.
@@ -94,12 +94,12 @@
    마진을 여기로 옮겨 pre 를 꽉 채워야 오버레이가 pre 우하단 그립에 정확히 정렬된다. */
 .graphCodeShell {
   position: relative;
-  margin: var(--spacing-md) 0;
+  margin: var(--spacing-16) 0;
 }
 
 /* 코드 pre — 폭 비율(--split-pct)만큼 고정, 나머지는 그래프가 채움 */
 .graphSplitCode {
-  flex: 0 0 calc(var(--split-pct, 50%) - var(--spacing-xs));
+  flex: 0 0 calc(var(--split-pct, 50%) - var(--spacing-8));
 }
 
 .graphSplit .mermaidPreviewSplit {
@@ -111,7 +111,7 @@
 
 /* 리사이즈 핸들 — 가운데 세로 바(드래그로 코드/그래프 폭 비율 조절) */
 .graphSplitHandle {
-  flex: 0 0 var(--spacing-md);
+  flex: 0 0 var(--spacing-16);
   align-self: stretch;
   display: flex;
   align-items: center;
@@ -124,7 +124,7 @@
   width: 3px;
   height: 32px;
   max-height: 50%;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--border-color-strong);
   transition: background-color 0.15s ease, height 0.15s ease;
 }
@@ -153,8 +153,8 @@
 .mermaidHelp {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-lg);
+  gap: var(--spacing-12);
+  padding: var(--spacing-20);
 }
 
 .mermaidHelpIntro {
@@ -172,7 +172,7 @@
 .mermaidHelpExample {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   min-width: 0;
 }
 
@@ -180,7 +180,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 .mermaidHelpLabel {
@@ -195,12 +195,12 @@
 .mermaidHelpCopy {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   flex-shrink: 0;
-  height: var(--control-h-xs);
-  padding: 0 var(--spacing-sm);
+  height: var(--control-height-xs);
+  padding: 0 var(--spacing-12);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-secondary);
   font-family: var(--font-space-grotesk);
@@ -226,7 +226,7 @@
 .mermaidHelpSection {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 /* 규칙 목록 — 배경·테두리 없이 얇은 구분선만(문서 표처럼 가볍게) */
@@ -243,17 +243,17 @@
 .mermaidHelpRule {
   display: grid;
   grid-template-columns: minmax(130px, max-content) minmax(0, 1fr);
-  gap: var(--spacing-lg);
+  gap: var(--spacing-20);
   align-items: baseline;
-  padding: var(--spacing-sm) var(--spacing-3xs);
+  padding: var(--spacing-12) var(--spacing-2);
   border-bottom: var(--border-light);
   font-size: var(--font-size-body);
 }
 
 .mermaidHelpRule code {
   justify-self: start;
-  padding: var(--spacing-3xs) var(--spacing-2xs);
-  border-radius: var(--radius-capsule);
+  padding: var(--spacing-2) var(--spacing-4);
+  border-radius: var(--radius-full);
   background: var(--bg-tertiary);
   font-family: var(--font-mono);
   font-size: var(--font-size-label);
@@ -269,7 +269,7 @@
 @media (max-width: 560px) {
   .mermaidHelpRule {
     grid-template-columns: 1fr;
-    gap: var(--spacing-3xs);
+    gap: var(--spacing-2);
   }
 }
 
@@ -277,14 +277,14 @@
 .mermaidHelpExampleBody {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 .mermaidHelpCode {
   margin: 0;
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: var(--spacing-12) var(--spacing-16);
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   background: var(--bg-tertiary);
   font-family: var(--font-mono);
   font-size: var(--font-size-body);
@@ -297,13 +297,13 @@
 /* 종류 탭 바 — 좁으면 가로 스크롤 */
 .mermaidHelpTabs {
   overflow-x: auto;
-  padding-bottom: var(--spacing-3xs);
+  padding-bottom: var(--spacing-2);
 }
 
 .mermaidHelpTabBody {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-20);
 }
 
 /* 차트 뷰포트 래퍼 — 컨트롤을 스크롤 밖 우상단에 고정 */
@@ -313,15 +313,15 @@
 
 .mermaidHelpDiagramCtrls {
   position: absolute;
-  top: var(--spacing-2xs);
-  right: var(--spacing-2xs);
+  top: var(--spacing-4);
+  right: var(--spacing-4);
   z-index: 2;
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-3xs);
-  padding: var(--spacing-3xs);
+  gap: var(--spacing-2);
+  padding: var(--spacing-2);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--bg-primary);
   box-shadow: var(--shadow-sm);
 }
@@ -332,9 +332,9 @@
   justify-content: center;
   min-height: 9rem; /* 작은 그래프도 넉넉히 */
   overflow: auto; /* 확대(scale) 시 스크롤 */
-  padding: var(--spacing-md);
+  padding: var(--spacing-16);
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   background: var(--bg-secondary);
   cursor: grab; /* 드래그로 이동 */
   touch-action: none;
@@ -357,7 +357,7 @@
 
 .mermaidHelpDiagram::-webkit-scrollbar-thumb {
   background: var(--border-color-strong);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
 }
 
 .mermaidHelpDiagram::-webkit-scrollbar-track {
@@ -394,7 +394,7 @@
   overflow-x: scroll; /* 가로 스크롤바 항상 표시 */
   overflow-y: auto;
   /* 좌우 패딩은 컨테이너가 아닌 내용(inner)에 주어야 스크롤 끝까지 여백이 보임 → padding 은 세로만 */
-  padding: var(--spacing-md) 0;
+  padding: var(--spacing-16) 0;
 }
 
 .mermaidHelpExampleWide .mermaidHelpZoomInner,
@@ -404,7 +404,7 @@
 
 /* 스크롤되는 내용 좌우에 여백 — 양끝까지 패딩이 보임 */
 .mermaidHelpExampleWide .mermaidHelpZoomInner {
-  margin-inline: var(--spacing-xl);
+  margin-inline: var(--spacing-24);
 }
 
 .mermaidHelpExampleWide .mermaidHelpDiagram .mermaidPreview svg {
@@ -446,7 +446,7 @@
 .mermaidHelpFsOverlay {
   position: fixed;
   inset: 0;
-  z-index: var(--z-fullscreen);
+  z-index: var(--z-index-fullscreen);
   display: flex;
   flex-direction: column;
   background: var(--bg-primary);
@@ -456,16 +456,16 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-md);
-  padding: var(--spacing-lg) var(--spacing-xl) var(--spacing-sm);
+  gap: var(--spacing-16);
+  padding: var(--spacing-20) var(--spacing-24) var(--spacing-12);
 }
 
 .mermaidHelpFsTitle {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
-  padding: var(--spacing-3xs) var(--spacing-md);
-  border-radius: var(--radius-capsule);
+  gap: var(--spacing-4);
+  padding: var(--spacing-2) var(--spacing-16);
+  border-radius: var(--radius-full);
   background: var(--bg-secondary);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-body);
@@ -481,7 +481,7 @@
   align-items: center;
   justify-content: center;
   overflow: auto;
-  padding: var(--spacing-xl);
+  padding: var(--spacing-24);
 }
 
 .mermaidHelpFsBody .mermaidPreview {
@@ -502,10 +502,10 @@
 .mermaidHelpFsCtrls {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-3xs);
-  padding: var(--spacing-3xs);
+  gap: var(--spacing-2);
+  padding: var(--spacing-2);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--bg-secondary);
 }
 
@@ -523,7 +523,7 @@
   display: inline-flex;
   align-items: center;
   align-self: flex-start;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   font-size: var(--font-size-body);
   font-weight: 500;
   color: var(--text-accent);

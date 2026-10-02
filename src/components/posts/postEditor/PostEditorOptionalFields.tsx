@@ -147,7 +147,7 @@ export default function PostEditorOptionalFields({
           </Pressable>
 
           {/* 시리즈 — 항상 표시 (optionalContent 바깥이라 직접 padding 부여) */}
-          <div style={{ padding: "0 var(--spacing-md) var(--spacing-md)" }}>
+          <div style={{ padding: "0 var(--spacing-16) var(--spacing-16)" }}>
             <div className={es.row}>
               <div className={es.field} onFocusCapture={() => { if (!optionalOpen) setOptionalOpen(true); }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
@@ -209,7 +209,7 @@ export default function PostEditorOptionalFields({
             </div>
           </div>
           <div ref={optionalContentRef} className={`${styles.optionalContent}${optionalOpen ? ` ${styles.optionalContentOpen}` : ""}`}>
-            <div ref={optionalInnerRef} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-md)" }}>
+            <div ref={optionalInnerRef} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-16)" }}>
               {/* 줄1: [시리즈 순서(1열) + 관련 프로젝트(2열)] — 시리즈 없으면 관련 프로젝트 단독 */}
               {(() => {
                 const seriesOrderEl = form.series_id ? (

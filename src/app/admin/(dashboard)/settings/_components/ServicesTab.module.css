@@ -4,7 +4,7 @@
 .switchHelpRow {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 
@@ -40,8 +40,8 @@
 
 /* fallback 순서의 공급자 상태 — 키 없음(흐림)·꺼짐(강조색)·실패 중(노랑) */
 .providerBadge {
-  padding: var(--badge-p-md);
-  border-radius: var(--radius-capsule);
+  padding: var(--badge-padding-md);
+  border-radius: var(--radius-full);
   font-size: var(--font-size-label);
   font-weight: 600;
   line-height: 1;
@@ -69,7 +69,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--spacing-xs) var(--spacing-sm);
+  gap: var(--spacing-8) var(--spacing-12);
 }
 
 /* "필요한 키: …" 한 줄 — 두 칸 격자 안에서도 가로질러 */
@@ -92,21 +92,21 @@
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 /* giscus 저장소 — 입력칸과 불러오기 단추를 한 줄에(단추는 입력칸 높이에 맞춰 아래로) */
 .repoRow {
   display: flex;
   align-items: flex-end;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 .repoStatus {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  margin-top: calc(-1 * var(--spacing-2xs));
+  gap: var(--spacing-12);
+  margin-top: calc(-1 * var(--spacing-4));
   font-size: var(--font-size-label);
 }
 
@@ -122,7 +122,7 @@
 .themeCol {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   min-width: 0;
 }
 
@@ -133,27 +133,27 @@
 .autoCover {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
-  margin-top: var(--spacing-md);
+  gap: var(--spacing-12);
+  margin-top: var(--spacing-16);
 }
 
 .autoCoverRunRow {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--spacing-xs) var(--spacing-sm);
+  gap: var(--spacing-8) var(--spacing-12);
 }
 
 /* 자동 커버 확인 창 — 대상 글 목록(제목 · 검색 키워드) */
 .autoCoverModal {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
-  padding: var(--modal-p-md);
+  gap: var(--spacing-12);
+  padding: var(--modal-padding-md);
 }
 
 .autoCoverBar {
-  padding-bottom: var(--spacing-xs);
+  padding-bottom: var(--spacing-8);
   border-bottom: var(--border-light);
 }
 
@@ -172,8 +172,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-xs) 0;
+  gap: var(--spacing-12);
+  padding: var(--spacing-8) 0;
   border-bottom: var(--border-light);
 }
 
@@ -191,7 +191,7 @@
 .autoCoverActions {
   display: flex;
   justify-content: flex-end;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 /* 저장소 입력칸 — 단추 옆에서 남는 폭을 다 쓴다 */

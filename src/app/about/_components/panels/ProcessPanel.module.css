@@ -15,7 +15,7 @@
   display: grid;
   flex: 1;
   grid-template-columns: auto minmax(0, 1fr);
-  gap: clamp(var(--spacing-md), 2.5vh, var(--spacing-xl)) clamp(1.25rem, 2.5vw, 2.5rem);
+  gap: clamp(var(--spacing-16), 2.5vh, var(--spacing-24)) clamp(1.25rem, 2.5vw, 2.5rem);
   align-content: start;
   align-items: end;
   column-gap: clamp(1.5rem, 3vw, 3.5rem);
@@ -37,16 +37,16 @@
   display: flex;
   grid-column: 1 / -1;
   flex-wrap: wrap;
-  gap: var(--spacing-sm) clamp(var(--spacing-xl), 4vw, var(--spacing-5xl));
+  gap: var(--spacing-12) clamp(var(--spacing-24), 4vw, var(--spacing-96));
   margin: auto 0 0;
-  padding-top: var(--spacing-md);
+  padding-top: var(--spacing-16);
   border-top: var(--border-light);
 }
 
 .procDetailStats > div {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 .procDetailStats dt {
@@ -66,8 +66,8 @@
   display: flex;
   flex-direction: column;
   min-height: 0;
-  gap: clamp(var(--spacing-sm), 2vh, var(--spacing-lg));
-  padding-top: var(--spacing-xs);
+  gap: clamp(var(--spacing-12), 2vh, var(--spacing-20));
+  padding-top: var(--spacing-8);
 }
 
 .procDetailPeriod {
@@ -116,7 +116,7 @@
   }
 
   .procDetailMain {
-    gap: var(--spacing-xs);
+    gap: var(--spacing-8);
     padding-top: 0;
   }
 
@@ -133,11 +133,11 @@
   }
 
   .procSide {
-    gap: var(--spacing-md);
+    gap: var(--spacing-16);
   }
 
   .procGanttBtn {
-    padding: var(--spacing-3xs) 0;
+    padding: var(--spacing-2) 0;
   }
 
   /* 전체 합계 줄은 기간 줄·수치와 겹치는 정보라 낮은 화면에서는 뺀다 */
@@ -150,7 +150,7 @@
   }
 
   .procMixBar {
-    height: var(--spacing-sm);
+    height: var(--spacing-12);
   }
 
   .procMetricValue {
@@ -171,7 +171,7 @@
 .procSide {
   display: flex;
   flex-direction: column;
-  gap: clamp(var(--spacing-md), 3vh, var(--spacing-2xl));
+  gap: clamp(var(--spacing-16), 3vh, var(--spacing-32));
   min-width: 0;
   min-height: 0;
 }
@@ -180,16 +180,16 @@
 .procFacts {
   display: grid;
   grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.8fr) minmax(0, 1.1fr);
-  gap: clamp(var(--spacing-lg), 2.5vw, var(--spacing-3xl));
+  gap: clamp(var(--spacing-20), 2.5vw, var(--spacing-48));
   align-items: end;
-  padding-top: var(--spacing-md);
+  padding-top: var(--spacing-16);
   border-top: var(--border-light);
 }
 
 .procFacts figure {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   margin: 0;
   min-width: 0;
 }
@@ -207,7 +207,7 @@
 .procMetric {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 .procMetricValue {
@@ -229,7 +229,7 @@
 .procWeeklyBars {
   display: flex;
   align-items: flex-end;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   height: clamp(2.5rem, 7vh, 4.5rem);
   border-bottom: var(--border-light);
 }
@@ -249,7 +249,7 @@
 .procMixBar {
   display: flex;
   overflow: hidden;
-  height: var(--spacing-md);
+  height: var(--spacing-16);
 }
 
 .procMixSeg {
@@ -281,7 +281,7 @@
 .procMixLegend {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--spacing-3xs) var(--spacing-md);
+  gap: var(--spacing-2) var(--spacing-16);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -292,13 +292,13 @@
 .procMixLegend li {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 .procMixLegend li::before {
   flex: none;
-  width: var(--spacing-xs);
-  height: var(--spacing-xs);
+  width: var(--spacing-8);
+  height: var(--spacing-8);
   background: var(--_c);
   content: "";
 }
@@ -314,7 +314,7 @@
 .procGantt {
   --_num-w: 2rem;
   --_title-w: 8.5rem;
-  --_col-gap: var(--spacing-md);
+  --_col-gap: var(--spacing-16);
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -324,7 +324,7 @@
 
 .procGanttAxis {
   position: relative;
-  height: var(--spacing-xl);
+  height: var(--spacing-24);
   margin-left: calc(var(--_num-w) + var(--_title-w) + var(--_col-gap) * 2);
   border-bottom: var(--border-light);
   font-family: var(--font-mono);
@@ -334,8 +334,8 @@
 
 .procGanttAxis > span {
   position: absolute;
-  bottom: var(--spacing-2xs);
-  padding-left: var(--spacing-2xs);
+  bottom: var(--spacing-4);
+  padding-left: var(--spacing-4);
   border-left: var(--border-light);
   line-height: 1;
 }
@@ -363,7 +363,7 @@
   column-gap: var(--_col-gap);
   align-items: center;
   width: 100%;
-  padding: var(--spacing-xs) 0;
+  padding: var(--spacing-8) 0;
   text-align: left;
   color: var(--text-tertiary);
   border-bottom: var(--border-light);
@@ -390,14 +390,14 @@
 
 .procGanttTrack {
   position: relative;
-  height: var(--spacing-lg);
+  height: var(--spacing-20);
 }
 
 .procGanttBar {
   position: absolute;
   top: 50%;
   overflow: hidden;
-  height: calc(var(--spacing-2xs) + var(--rate, 0.3) * var(--spacing-md));
+  height: calc(var(--spacing-4) + var(--rate, 0.3) * var(--spacing-16));
   background: color-mix(in srgb, var(--text-tertiary) 30%, transparent);
   translate: 0 -50%;
 }
@@ -436,7 +436,7 @@
 }
 
 .procSummary {
-  margin: var(--spacing-sm) 0 0;
+  margin: var(--spacing-12) 0 0;
   font-family: var(--font-mono);
   font-size: var(--font-size-hint);
   color: var(--text-tertiary);
@@ -455,13 +455,13 @@
 
 @media (max-width: 1024px), (max-height: 700px) {
   .procPanel {
-    padding-top: var(--spacing-xl);
+    padding-top: var(--spacing-24);
     padding-bottom: 0;
   }
 
   .procTitleRow.procTitleRow.procTitleRow {
-    padding-top: calc(80px + 40px + var(--spacing-md));
-    margin-bottom: var(--spacing-sm);
+    padding-top: calc(80px + 40px + var(--spacing-16));
+    margin-bottom: var(--spacing-12);
   }
 
   .procTitleRow h3 {
@@ -618,7 +618,7 @@
   }
 
   .processStepPeriod {
-    margin: 0 0 var(--spacing-sm);
+    margin: 0 0 var(--spacing-12);
     font-family: var(--font-mono);
     font-size: var(--font-size-hint);
     color: var(--text-tertiary);
@@ -656,7 +656,7 @@
   .procFacts > * {
     --_r: clamp(0, calc(var(--item-in, 1) * 1.8 - var(--_k, 0) * 0.3), 1);
     opacity: calc(var(--_r) - var(--item-out, 0) * 1.2);
-    translate: 0 calc((1 - var(--_r) - var(--item-out, 0)) * var(--spacing-xl));
+    translate: 0 calc((1 - var(--_r) - var(--item-out, 0)) * var(--spacing-24));
   }
 
   .procDetailMain > :nth-child(2) { --_k: 1; }
@@ -665,6 +665,6 @@
 
   /* 번호는 구간 내내 천천히 위로 흐른다 */
   .procDetailNum {
-    translate: 0 calc((1 - var(--_r) - var(--item-out, 0)) * var(--spacing-xl) + (0.5 - var(--item-p, 0.5)) * var(--spacing-3xl));
+    translate: 0 calc((1 - var(--_r) - var(--item-out, 0)) * var(--spacing-24) + (0.5 - var(--item-p, 0.5)) * var(--spacing-48));
   }
 }

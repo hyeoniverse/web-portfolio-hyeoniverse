@@ -432,10 +432,10 @@ export function DiagramElement(props: PlateElementProps) {
         <PlateElement {...props} className={styles.diagramBlock}>
           <div contentEditable={false} className={`${styles.diagramInner}${fullscreen ? ` ${styles.diagramFullscreen}` : ""}`} data-selected={selected ? "" : undefined}>
             <div className={styles.diagramToolbar}>
-              <TBtn onMouseDown={(e) => { e.preventDefault(); addNode(); }} tooltip={t("노드 추가", "Add node")} style={{ gap: "var(--spacing-3xs)" }}>
+              <TBtn onMouseDown={(e) => { e.preventDefault(); addNode(); }} tooltip={t("노드 추가", "Add node")} style={{ gap: "var(--spacing-2)" }}>
                 <Plus size={14} />{t("노드", "Node")}
               </TBtn>
-              <TBtn onMouseDown={(e) => { e.preventDefault(); addNode("text"); }} tooltip={t("텍스트 추가", "Add text")} style={{ gap: "var(--spacing-3xs)" }}>
+              <TBtn onMouseDown={(e) => { e.preventDefault(); addNode("text"); }} tooltip={t("텍스트 추가", "Add text")} style={{ gap: "var(--spacing-2)" }}>
                 <Type size={14} />{t("텍스트", "Text")}
               </TBtn>
               {/* 선택 노드 도형/색/삭제 (캔버스에서만) */}
@@ -538,7 +538,7 @@ export function DiagramElement(props: PlateElementProps) {
                 />
               </span>
               <span className={styles.diagramToolbarDiv} />
-              <TBtn onMouseDown={(e) => { e.preventDefault(); exportMermaid(); }} tooltip={t("mermaid 코드로 복사", "Copy as mermaid")} style={{ gap: "var(--spacing-3xs)" }}>
+              <TBtn onMouseDown={(e) => { e.preventDefault(); exportMermaid(); }} tooltip={t("mermaid 코드로 복사", "Copy as mermaid")} style={{ gap: "var(--spacing-2)" }}>
                 <FileCode2 size={14} />Mermaid
               </TBtn>
               <TBtn active={fullscreen} onMouseDown={(e) => { e.preventDefault(); setFullscreen((v) => !v); }} tooltip={fullscreen ? t("전체화면 종료", "Exit fullscreen") : t("전체화면", "Fullscreen")} square>
@@ -578,7 +578,7 @@ export function DiagramElement(props: PlateElementProps) {
                 {/* ── 노드 ── */}
                 <div className={styles.diagramFormSectionHead}>
                   <span className={styles.diagramFormLabel}>{t("노드", "Nodes")}</span>
-                  <div style={{ display: "inline-flex", gap: "var(--spacing-3xs)" }}>
+                  <div style={{ display: "inline-flex", gap: "var(--spacing-2)" }}>
                     <Button variant="outline" size="xs" icon={<Plus size={13} />} onClick={() => addNode()}>{t("노드", "Node")}</Button>
                     <Button variant="outline" size="xs" icon={<Type size={13} />} onClick={() => addNode("text")}>{t("텍스트", "Text")}</Button>
                   </div>

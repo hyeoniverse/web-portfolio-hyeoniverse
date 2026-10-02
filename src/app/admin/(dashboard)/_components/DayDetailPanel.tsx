@@ -172,11 +172,11 @@ function DayDetailPanel({
         <Item
           style={{
             display: "flex",
-            gap: "var(--spacing-xs)",
+            gap: "var(--spacing-8)",
             alignItems: "baseline",
-            paddingTop: "var(--spacing-2xs)",
-            paddingBottom: "var(--spacing-2xs)",
-            height: "calc(var(--font-size-3xl) + var(--spacing-xs))",
+            paddingTop: "var(--spacing-4)",
+            paddingBottom: "var(--spacing-4)",
+            height: "calc(var(--font-size-32) + var(--spacing-8))",
             flexShrink: 0,
             overflow: "visible",
           }}
@@ -194,7 +194,7 @@ function DayDetailPanel({
             <ListItem
               key={row.id}
               layout="grid"
-              style={{ gridTemplateColumns: "1fr auto", height: "var(--control-h-xl)", flexShrink: 0 }}
+              style={{ gridTemplateColumns: "1fr auto", height: "var(--control-height-xl)", flexShrink: 0 }}
             >
               <span className={styles.dayDetailLabel}>{row.label}</span>
               <DiffBadge diff={row.diff} />
@@ -218,9 +218,9 @@ function DayDetailPanel({
         <PanelTitle
           variant="inset"
           style={{
-            height: "calc(var(--font-size-3xl) + var(--spacing-xs))",
-            paddingTop: "var(--spacing-2xs)",
-            paddingBottom: "var(--spacing-2xs)",
+            height: "calc(var(--font-size-32) + var(--spacing-8))",
+            paddingTop: "var(--spacing-4)",
+            paddingBottom: "var(--spacing-4)",
             display: "flex",
             alignItems: "end",
             flexShrink: 0,
@@ -250,7 +250,7 @@ function DayDetailPanel({
                   style={{
                     gridTemplateColumns:
                       "auto minmax(0, 1.4fr) minmax(60px, 1fr) auto",
-                    height: "var(--control-h-xl)",
+                    height: "var(--control-height-xl)",
                     flexShrink: 0,
                   }}
                 >

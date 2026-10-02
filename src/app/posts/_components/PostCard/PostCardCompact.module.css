@@ -7,8 +7,8 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  column-gap: var(--spacing-md);
-  padding: var(--spacing-sm) var(--spacing-md);
+  column-gap: var(--spacing-16);
+  padding: var(--spacing-12) var(--spacing-16);
   border-bottom: var(--border-light);
   border-radius: 0;
   height: auto;
@@ -23,10 +23,10 @@
 .compactLead {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   min-width: 0;
   overflow: hidden; /* grid col1 안에서 클립 — 넘쳐도 meta(col2) 침범 안 함 */
-  padding-right: var(--spacing-xs); /* 마지막 칩(lang)이 클립 경계에 딱 붙어 잘리지 않게 버퍼 */
+  padding-right: var(--spacing-8); /* 마지막 칩(lang)이 클립 경계에 딱 붙어 잘리지 않게 버퍼 */
 }
 /* pinned — 아이콘만 accent 색(채움) + 살짝 기울여 꽂힌 느낌 */
 .compactPin {
@@ -95,7 +95,7 @@
 .compactMeta {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   flex-shrink: 0;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
@@ -129,7 +129,7 @@
 }
 .compactStatsMobile {
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
@@ -143,7 +143,7 @@
 .compactChip.compactChip {
   height: 17px;
   box-sizing: border-box;
-  padding: 0 var(--spacing-2xs);
+  padding: 0 var(--spacing-4);
 }
 .compactHotBadge.compactHotBadge {
   border: 1px solid transparent; /* lang 의 1px border 와 box 폭/높이 계산 동일하게 */
@@ -175,17 +175,17 @@
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: var(--spacing-xs);
+    gap: var(--spacing-8);
     grid-column: 1;
     min-width: 0;
-    margin-top: var(--spacing-2xs);
+    margin-top: var(--spacing-4);
     /* 1줄 제목 시작점과 정렬 — 핀(15) + gap + 썸네일(26) + gap 만큼 좌측 들여쓰기 */
-    padding-left: calc(15px + 26px + var(--spacing-xs) * 2);
+    padding-left: calc(15px + 26px + var(--spacing-8) * 2);
   }
   .compactStatsMobile {
     display: inline-flex;
     grid-column: 2;
-    margin-top: var(--spacing-2xs);
+    margin-top: var(--spacing-4);
     white-space: nowrap;
   }
 }

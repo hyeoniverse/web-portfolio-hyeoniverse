@@ -3,8 +3,8 @@
 .trend {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
-  padding-top: var(--spacing-sm);
+  gap: var(--spacing-4);
+  padding-top: var(--spacing-12);
 }
 
 .trendArea {
@@ -32,7 +32,7 @@
   height: 6px;
   border-radius: var(--radius-circle);
   background: var(--bg-accent-solid);
-  border: var(--spacing-3xs) solid var(--bg-primary);
+  border: var(--spacing-2) solid var(--bg-primary);
   box-sizing: content-box;
   opacity: 0;
   transition: opacity 0.12s ease;

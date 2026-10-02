@@ -74,7 +74,7 @@ export default function SelectionCountTip({ countSpaces, hidden }: { countSpaces
       ref={refs.setFloating}
       /* 생김새는 공통 Tooltip 의 말풍선 그대로 — 같은 정보를 주는 표시라 모양이 달라 보이면 안 된다 */
       className={`${tooltip.bubble} ${tooltip.bubbleGlass} ${styles.selectionCountTip}`}
-      style={{ ...style, zIndex: "var(--z-dropdown)" }}
+      style={{ ...style, zIndex: "var(--z-index-dropdown)" }}
     >
       {fillTemplate(t("editor.selectedChars"), { n: count.toLocaleString() })}
       {/* 꼬리는 말풍선이 붙은 반대쪽에 — 아래에 떴으면 위를 가리킨다 */}

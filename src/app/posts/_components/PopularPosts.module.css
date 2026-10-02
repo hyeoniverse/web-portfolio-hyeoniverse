@@ -1,11 +1,11 @@
 .section {
-  margin-bottom: var(--spacing-2xl);
+  margin-bottom: var(--spacing-32);
 }
 
 .label {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   font-weight: var(--font-weight-medium);
@@ -13,7 +13,7 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
   margin-bottom: 0;
-  padding-bottom: var(--spacing-sm);
+  padding-bottom: var(--spacing-12);
   border-bottom: var(--border-light);
 }
 
@@ -53,7 +53,7 @@
 }
 
 .metricControl button {
-  padding: var(--button-p-xs);
+  padding: var(--button-padding-xs);
   font-size: var(--font-size-hint);
 }
 
@@ -65,8 +65,8 @@
 .item {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-sm) 0;
+  gap: var(--spacing-12);
+  padding: var(--spacing-12) 0;
   border-bottom: var(--border-light);
   text-decoration: none;
   cursor: pointer;
@@ -78,7 +78,7 @@
 }
 
 .section .item:hover {
-  transform: translateX(var(--spacing-2xs));
+  transform: translateX(var(--spacing-4));
 }
 
 .section .item:hover .itemTitle {
@@ -106,14 +106,14 @@
 .info {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   min-width: 0;
 }
 
 .titleRow {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   min-width: 0;
 }
 

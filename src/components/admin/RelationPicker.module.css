@@ -3,8 +3,8 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
-  margin-bottom: var(--spacing-md);
+  gap: var(--spacing-12);
+  margin-bottom: var(--spacing-16);
 }
 
 /* 입력칸은 열려도 캡슐 모양 그대로 두고, 목록은 그 아래에 떠 있는 패널로 연다(Select 메뉴와 같은 방식).
@@ -14,7 +14,7 @@
   display: flex;
   flex-direction: column;
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   transition: border-color 0.15s ease;
 }
@@ -27,25 +27,25 @@
   border-color: var(--color-accent);
 }
 
-/* 테두리까지 합쳐 다른 입력칸(--control-h-md)과 같은 높이 */
+/* 테두리까지 합쳐 다른 입력칸(--control-height-md)과 같은 높이 */
 .inputAreaTop {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
-  padding: 0 0 0 var(--spacing-md);
-  height: calc(var(--control-h-md) - 2px);
+  gap: var(--spacing-8);
+  padding: 0 0 0 var(--spacing-16);
+  height: calc(var(--control-height-md) - 2px);
   cursor: text;
 }
 
 /* 떠 있는 목록 패널 — 닫혀 있을 때도 그려 두고 투명도·이동으로만 여닫는다 */
 .inputAreaExpand {
   position: fixed;
-  z-index: var(--z-dropdown);
+  z-index: var(--z-index-dropdown);
   max-height: 320px;
   overflow-y: auto;
   overscroll-behavior: contain;
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   background: var(--bg-primary);
   box-shadow: 0 12px 32px -12px rgba(0, 0, 0, 0.35);
   opacity: 0;
@@ -68,7 +68,7 @@
   flex: 1;
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   min-width: 120px;
   cursor: text;
 }
@@ -81,7 +81,7 @@
 .triggerInput {
   flex: 1;
   min-width: 0;
-  padding: var(--spacing-2xs) 0;
+  padding: var(--spacing-4) 0;
   padding-inline-start: 0 !important;
   padding-inline-end: 0 !important;
   margin: 0;
@@ -106,7 +106,7 @@
   width: 20px;
   height: 20px;
   padding: 0;
-  margin-right: var(--spacing-xs);
+  margin-right: var(--spacing-8);
   border: none;
   background: transparent;
   color: var(--text-tertiary);
@@ -130,7 +130,7 @@
 .chipRow {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   padding: 0;
   /* margin-top 은 .wrap 의 gap 이 자연스럽게 spacing 제공 — 별도 상쇄/추가 안 함 */
 }
@@ -139,11 +139,11 @@
   position: relative;
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
-  padding: 0 var(--spacing-xs);
+  gap: var(--spacing-4);
+  padding: 0 var(--spacing-8);
   height: 28px;
   box-sizing: border-box;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--bg-tertiary);
   border: none;
   font-family: var(--font-space-grotesk);
@@ -184,11 +184,11 @@
 
 /* 좌측에 라인 — chip gap(2xs) 의 절반쯤 외부에 위치해 두 chip 사이 정확히 중앙 */
 .chipInsertBefore::before {
-  left: calc(var(--spacing-2xs) * -0.5 - 1px);
+  left: calc(var(--spacing-4) * -0.5 - 1px);
 }
 
 .chipInsertAfter::after {
-  right: calc(var(--spacing-2xs) * -0.5 - 1px);
+  right: calc(var(--spacing-4) * -0.5 - 1px);
 }
 
 /* 좌측 grip 핸들 — mousedown 시점에만 chip 의 draggable 이 켜져서, 핸들 외 영역으로 드래그 안 시작됨 */
@@ -237,7 +237,7 @@
 .chipLabel {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   overflow: hidden;
   white-space: nowrap;
   max-width: 220px;
@@ -274,18 +274,18 @@
 .dropdownList {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
-  padding: var(--spacing-2xs);
+  gap: var(--spacing-4);
+  padding: var(--spacing-4);
 }
 
 .option {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
-  padding: var(--row-p-md);
+  gap: var(--spacing-8);
+  padding: var(--row-padding-md);
   border: none;
   background: transparent;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   cursor: pointer;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-body);
@@ -298,9 +298,9 @@
 }
 
 .optionThumb {
-  width: var(--control-h-xs);
-  height: var(--control-h-xs);
-  border-radius: var(--radius-2xl);
+  width: var(--control-height-xs);
+  height: var(--control-height-xs);
+  border-radius: var(--radius-24);
   object-fit: cover;
   flex-shrink: 0;
 }
@@ -310,9 +310,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--control-h-xs);
-  height: var(--control-h-xs);
-  border-radius: var(--radius-2xl);
+  width: var(--control-height-xs);
+  height: var(--control-height-xs);
+  border-radius: var(--radius-24);
   background: var(--bg-tertiary-alt);
   color: var(--text-tertiary);
   flex-shrink: 0;
@@ -323,7 +323,7 @@
   min-width: 0;
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   color: var(--text-primary);
   overflow: hidden;
   white-space: nowrap;
@@ -345,8 +345,8 @@
 .statusDraft {
   display: inline-flex;
   align-items: center;
-  padding: var(--spacing-3xs) var(--spacing-xs);
-  border-radius: var(--radius-capsule);
+  padding: var(--spacing-2) var(--spacing-8);
+  border-radius: var(--radius-full);
   background: var(--bg-warning-soft);
   color: var(--text-warning);
   font-size: var(--font-size-hint);
@@ -375,7 +375,7 @@
 }
 
 .noResults {
-  padding: var(--spacing-lg) var(--spacing-md);
+  padding: var(--spacing-20) var(--spacing-16);
   text-align: center;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);

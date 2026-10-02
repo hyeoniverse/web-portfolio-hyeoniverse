@@ -1,6 +1,6 @@
 .mark {
-  padding: 0 var(--spacing-3xs);
-  border-radius: var(--radius-capsule);
+  padding: 0 var(--spacing-2);
+  border-radius: var(--radius-full);
   background: var(--bg-accent);
   color: inherit;
   font-weight: inherit;

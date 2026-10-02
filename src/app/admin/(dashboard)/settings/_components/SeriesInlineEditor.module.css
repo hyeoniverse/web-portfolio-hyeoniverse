@@ -4,23 +4,23 @@
 .seriesCardBody {
   border: var(--border-light);
   border-top: none;
-  border-radius: 0 0 var(--radius-2xl) var(--radius-2xl);
-  padding: var(--card-p-md);
+  border-radius: 0 0 var(--radius-24) var(--radius-24);
+  padding: var(--card-padding-md);
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 /* 새 시리즈 생성 시 — head 가 없어 단독으로 렌더, 상단 border + 풀 radius 필요 */
 .seriesCardBodyStandalone {
   border-top: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
 }
 /* shell 내부에서 사용될 때 — 자체 border / radius 없이 padding+layout 만 */
 .seriesCardBodyBare {
-  padding: var(--card-p-md);
+  padding: var(--card-padding-md);
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 /* standalone 모드 — 새 시리즈 생성 시 상단 제목 + 버튼 라인
    border-bottom 을 카드 좌우 끝까지 붙이기 위해 negative margin + padding 사용 */
@@ -28,9 +28,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-sm);
-  margin: 0 calc(-1 * var(--spacing-md));
-  padding: 0 var(--spacing-md) var(--spacing-sm);
+  gap: var(--spacing-12);
+  margin: 0 calc(-1 * var(--spacing-16));
+  padding: 0 var(--spacing-16) var(--spacing-12);
   border-bottom: var(--border-light);
 }
 
@@ -44,13 +44,13 @@
 .seriesStandaloneActions {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 .seriesCardActions {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 /* ── Series Posts List (inline) ── */
 .seriesPostsSection {
@@ -60,7 +60,7 @@
 }
 
 .seriesPostsSection > * + * {
-  margin-top: var(--spacing-sm);
+  margin-top: var(--spacing-12);
 }
 
 .seriesPostsSection > .addPostModal {
@@ -81,8 +81,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-xs);
-  padding-block: var(--spacing-xs);
+  gap: var(--spacing-8);
+  padding-block: var(--spacing-8);
 }
 /* ── Add Post Modal ── */
 .addPostModal {
@@ -108,14 +108,14 @@
 .addPostHeader {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-2xs) 0;
+  gap: var(--spacing-8);
+  padding: var(--spacing-4) 0;
   border-bottom: var(--border-light);
-  height: var(--control-h-xl);
+  height: var(--control-height-xl);
 }
 
 .addPostHeader button[class] {
-  padding: var(--button-p-xs);
+  padding: var(--button-padding-xs);
   font-size: var(--font-size-hint);
   line-height: var(--line-height-fit);
 }
@@ -128,7 +128,7 @@
   font-size: var(--font-size-label);
   color: var(--text-primary);
   outline: none;
-  padding: var(--spacing-2xs) 0;
+  padding: var(--spacing-4) 0;
 }
 
 .addPostSearch::placeholder {
@@ -152,9 +152,9 @@
 .addPostItem {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   width: 100%;
-  padding: var(--spacing-xs) 0;
+  padding: var(--spacing-8) 0;
   border: none;
   border-bottom: var(--border-light);
   background: transparent;
@@ -182,7 +182,7 @@
   font-family: var(--font-mono);
   font-size: var(--font-size-hint);
   color: var(--text-muted);
-  min-width: var(--control-h-xs);
+  min-width: var(--control-height-xs);
 }
 
 .addPostTitle {
@@ -200,10 +200,10 @@
 }
 
 .seriesPostOrderInput {
-  width: var(--control-h-xs);
-  padding: var(--spacing-4xs) var(--spacing-3xs);
+  width: var(--control-height-xs);
+  padding: var(--spacing-1) var(--spacing-2);
   border: var(--border-default);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   font-family: var(--font-mono);
   font-size: var(--font-size-hint);
@@ -227,8 +227,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-2xs);
-  padding: var(--spacing-xs) 0;
+  gap: var(--spacing-4);
+  padding: var(--spacing-8) 0;
 }
 
 .seriesPostsPageBtn {
@@ -276,13 +276,13 @@
 .seriesPostItem {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-xs) 0;
+  gap: var(--spacing-12);
+  padding: var(--spacing-8) 0;
   border-radius: 0;
 }
 /* handle 과 order 묶음 — 부모 gap 상쇄 (gap 0 으로 붙임) */
 .seriesPostHandle + .seriesPostOrder {
-  margin-left: calc(-1 * var(--spacing-sm));
+  margin-left: calc(-1 * var(--spacing-12));
 }
 
 .seriesPostItem {
@@ -337,14 +337,14 @@
 .seriesPostOrder {
   display: flex;
   align-items: center;
-  gap: var(--spacing-4xs);
+  gap: var(--spacing-1);
   flex-shrink: 0;
 }
 /* unlink + 삭제 버튼 — 캡슐로 묶지 않고 각자 ghost 스타일 (border/배경 없음) */
 .seriesPostActions {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   flex-shrink: 0;
 }
 

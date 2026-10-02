@@ -19,7 +19,7 @@
 }
 
 .commentMarkdown p {
-  margin: var(--spacing-xs) 0;
+  margin: var(--spacing-8) 0;
 }
 
 .commentMarkdown strong,
@@ -50,8 +50,8 @@
 }
 
 .commentMarkdown mark {
-  padding: 0 var(--spacing-3xs);
-  border-radius: var(--radius-capsule);
+  padding: 0 var(--spacing-2);
+  border-radius: var(--radius-full);
 }
 
 .commentMarkdown a {
@@ -71,7 +71,7 @@
 .commentMarkdown h4,
 .commentMarkdown h5,
 .commentMarkdown h6 {
-  margin: var(--spacing-sm) 0;
+  margin: var(--spacing-12) 0;
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-normal);
   color: var(--text-primary);
@@ -105,8 +105,8 @@
 /* ── 목록 ── */
 .commentMarkdown ul,
 .commentMarkdown ol {
-  margin: var(--spacing-xs) 0;
-  padding-left: var(--spacing-xl);
+  margin: var(--spacing-8) 0;
+  padding-left: var(--spacing-24);
 }
 
 .commentMarkdown ul {
@@ -118,7 +118,7 @@
 }
 
 .commentMarkdown li {
-  margin: var(--spacing-3xs) 0;
+  margin: var(--spacing-2) 0;
 }
 
 /* 리스트 마커는 본문색(검정) — accent 는 인용문·체크박스 등에만 (종류별 구분) */
@@ -129,7 +129,7 @@
 /* 중첩 목록 — 살짝 촘촘하게 (들여쓰기는 부모 padding-left 가 담당) */
 .commentMarkdown li > ul,
 .commentMarkdown li > ol {
-  margin: var(--spacing-3xs) 0;
+  margin: var(--spacing-2) 0;
 }
 
 /* ── task list (체크박스) — marked 는 class 를 안 붙여 :has 로 판별 (PostDetail 과 동일 패턴).
@@ -143,7 +143,7 @@
 /* 일반 리스트와 같은 padding-left(xl) → 텍스트 시작점이 불릿 리스트와 정렬된다.
    체크박스는 아래에서 음수 margin 으로 그 indent(불릿 자리) 안으로 당겨 마커 역할. */
 .commentMarkdown ul:has(> li > input[type="checkbox"], > li > p > input[type="checkbox"]) {
-  padding-left: var(--spacing-xl);
+  padding-left: var(--spacing-24);
   list-style: none;
 }
 
@@ -160,12 +160,12 @@
   height: 1em;
   flex-shrink: 0;
   /* indent(불릿 자리) 안으로 당겨, 뒤따르는 텍스트가 리스트 텍스트와 같은 x 에서 시작하게 */
-  margin-left: calc(-1em - var(--spacing-2xs));
-  margin-right: var(--spacing-2xs);
+  margin-left: calc(-1em - var(--spacing-4));
+  margin-right: var(--spacing-4);
   vertical-align: -0.1em;
   border: 1.5px solid var(--text-accent);
   /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 체크리스트 체크박스 — 네모가 곧 의미 */
-  border-radius: var(--radius-xs);
+  border-radius: var(--radius-4);
   background: transparent;
   cursor: default;
   position: relative;
@@ -211,11 +211,11 @@
    최소한의 프레임을 갖게 한다. 감싸진 뒤엔 pre 가 .code-block-wrap 안이라 직계(>)가 아니게 되어
    이 규칙은 매치 안 됨 → 전역 프레임(바+복사 버튼)이 그대로 담당한다(공유 안 깨짐). */
 .commentMarkdown > pre {
-  margin: var(--spacing-xs) 0;
-  padding: var(--spacing-xs) var(--spacing-md);
+  margin: var(--spacing-8) 0;
+  padding: var(--spacing-8) var(--spacing-16);
   background: var(--bg-tertiary);
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   overflow-x: auto;
 }
 
@@ -229,17 +229,17 @@
 
 /* ── blockquote — accent 바 + 들여쓰기 ── */
 .commentMarkdown blockquote {
-  margin: var(--spacing-xs) 0;
+  margin: var(--spacing-8) 0;
   /* 텍스트 시작점을 리스트(padding-left xl)와 정렬 — bar+padding(md) 만큼 빼서 들여쓴다 */
-  margin-left: calc(var(--spacing-xl) - var(--spacing-md));
-  padding-left: var(--spacing-md);
+  margin-left: calc(var(--spacing-24) - var(--spacing-16));
+  padding-left: var(--spacing-16);
   border-left: 2px solid var(--color-accent);
   color: var(--text-secondary);
 }
 
 /* ── hr ── */
 .commentMarkdown hr {
-  margin: var(--spacing-sm) 0;
+  margin: var(--spacing-12) 0;
   border: none;
   border-top: var(--border-light);
 }
@@ -253,8 +253,8 @@
   max-height: 420px;
   width: auto;
   height: auto;
-  margin: var(--spacing-xs) 0;
-  border-radius: var(--radius-2xl);
+  margin: var(--spacing-8) 0;
+  border-radius: var(--radius-24);
   cursor: zoom-in;
 }
 
@@ -266,7 +266,7 @@
   display: block;
   width: max-content;
   max-width: 100%;
-  margin: var(--spacing-xs) 0;
+  margin: var(--spacing-8) 0;
   border: none;
   border-collapse: collapse;
   overflow-x: auto;
@@ -281,7 +281,7 @@
 /* 가로 규칙만 — 세로선/외곽선 없음 (giscus `th, td { border: 0; border-bottom: 1px }`) */
 .commentMarkdown th,
 .commentMarkdown td {
-  padding: var(--cell-p-md);
+  padding: var(--cell-padding-md);
   border: none;
   border-bottom: var(--border-light);
   text-align: left;
@@ -303,10 +303,10 @@
 /* ── GitHub 알림(Alerts) — > [!NOTE/TIP/IMPORTANT/WARNING/CAUTION] ──
    variant 마다 --_alert-color 만 바꾸고 좌측 바·제목색·옅은 배경(color-mix)을 파생. */
 .commentMarkdown .markdown-alert {
-  margin: var(--spacing-xs) 0;
-  padding: var(--spacing-xs) var(--spacing-sm);
+  margin: var(--spacing-8) 0;
+  padding: var(--spacing-8) var(--spacing-12);
   border-left: 3px solid var(--_alert-color);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   background: color-mix(in srgb, var(--_alert-color) 10%, transparent);
   color: var(--text-secondary);
 }
@@ -322,8 +322,8 @@
 .commentMarkdown .markdown-alert-title {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
-  margin-bottom: var(--spacing-2xs);
+  gap: var(--spacing-4);
+  margin-bottom: var(--spacing-4);
   font-weight: var(--font-weight-semibold);
   color: var(--_alert-color);
 }
@@ -350,14 +350,14 @@
 
 /* ── GitHub 각주(Footnotes) — 본문 [^1] 참조 + 하단 목록 ── */
 .commentMarkdown sup a[data-footnote-ref] {
-  padding: 0 var(--spacing-4xs);
+  padding: 0 var(--spacing-1);
   text-decoration: none;
   color: var(--text-accent);
 }
 
 .commentMarkdown .footnotes {
-  margin-top: var(--spacing-lg);
-  padding-top: var(--spacing-sm);
+  margin-top: var(--spacing-20);
+  padding-top: var(--spacing-12);
   border-top: var(--border-light);
   font-size: var(--font-size-label);
   color: var(--text-secondary);

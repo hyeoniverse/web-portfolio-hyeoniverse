@@ -3,8 +3,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-sm);
-  margin: var(--spacing-md) 0 var(--spacing-xs);
+  gap: var(--spacing-12);
+  margin: var(--spacing-16) 0 var(--spacing-8);
 }
 
 /* 크기·굵기·색은 설정 화면의 역할 클래스(.sectionSubTitle)가 정한다.
@@ -14,7 +14,7 @@
 .listLabel.listLabel {
   display: inline-flex;
   align-items: baseline;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   margin: 0;
 }
 
@@ -34,7 +34,7 @@
 .storyList {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -44,13 +44,13 @@
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: start;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 /* 번호·삭제는 첫 줄에 맞춘다 — 입력이 두 줄이라 가운데 정렬하면 아래로 처진다 */
 .storyRow > .rowIndex,
 .storyRow > button {
-  margin-top: var(--spacing-3xs);
+  margin-top: var(--spacing-2);
 }
 
 .rowIndex {
@@ -78,12 +78,12 @@
 .card {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 /* 선을 지운 만큼 사이를 벌린다 — 여백이 곧 구분이다 */
 .card + .card {
-  margin-top: var(--spacing-2xl);
+  margin-top: var(--spacing-32);
 }
 
 
@@ -92,14 +92,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 /* 크기는 .sectionSubTitle 이 정한다 — 여기는 배치만 (.listLabel 주석) */
 .cardTitle.cardTitle {
   display: inline-flex;
   align-items: baseline;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   flex-wrap: wrap;
   min-width: 0;
   margin: 0;
@@ -111,7 +111,7 @@
 .lines {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -127,12 +127,12 @@
 }
 
 .line > button {
-  margin-left: var(--spacing-sm);
+  margin-left: var(--spacing-12);
 }
 
 /* 줄마다 위아래 숨통 — 밑줄이 바로 다음 글자에 닿으면 표가 아니라 격자로 보인다 */
 .line input {
-  height: var(--control-h-md);
+  height: var(--control-height-md);
 }
 
 /* 항목은 값보다 한 톤 낮게 — 읽는 것은 값이고 항목은 그 이름표다.

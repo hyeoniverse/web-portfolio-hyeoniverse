@@ -59,7 +59,7 @@
   justify-content: center;
   width: 116px;
   height: 46px;
-  padding: 0 var(--spacing-xs);
+  padding: 0 var(--spacing-8);
   border: 1px solid var(--border-color-strong);
   /* Chen 표기의 속성은 타원 — 캡슐(알약)이 아니라 진짜 ellipse */
   border-radius: var(--radius-circle);

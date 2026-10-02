@@ -15,7 +15,7 @@ export default function AccessDeniedPage() {
   }, [setInfinite]);
 
   return (
-    <div className={styles.container} style={{ marginTop: "calc(-1 * var(--spacing-6xl))" }}>
+    <div className={styles.container} style={{ marginTop: "calc(-1 * var(--spacing-128))" }}>
       <motion.div
         className={styles.content}
         initial={{ opacity: 0, y: 20 }}

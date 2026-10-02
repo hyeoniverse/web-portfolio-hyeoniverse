@@ -10,21 +10,21 @@ export default function WorkDetailLoading() {
       <div className={layoutStyles.content}>
         {/* Meta: category + year */}
         <div className={styles.meta}>
-          <Skeleton width={90} height={28} borderRadius="var(--radius-capsule)" />
+          <Skeleton width={90} height={28} borderRadius="var(--radius-full)" />
           <SkeletonLine width={40} height={14} />
         </div>
 
         {/* Title */}
         <SkeletonLine width="70%" height={52} />
-        <div style={{ height: "var(--spacing-3xl)" }} />
+        <div style={{ height: "var(--spacing-48)" }} />
 
         {/* Description */}
         <SkeletonLine width="100%" height={16} />
-        <div style={{ height: "var(--spacing-xs)" }} />
+        <div style={{ height: "var(--spacing-8)" }} />
         <SkeletonLine width="90%" height={16} />
-        <div style={{ height: "var(--spacing-xs)" }} />
+        <div style={{ height: "var(--spacing-8)" }} />
         <SkeletonLine width="65%" height={16} />
-        <div style={{ height: "var(--spacing-4xl)" }} />
+        <div style={{ height: "var(--spacing-64)" }} />
 
         {/* Info row: Role + Tech */}
         <div className={styles.infoGrid}>
@@ -34,23 +34,23 @@ export default function WorkDetailLoading() {
           </div>
           <div className={styles.infoBlock}>
             <SkeletonLine width={30} height={10} />
-            <div style={{ display: "flex", gap: "var(--spacing-xs)" }}>
-              <Skeleton width={60} height={24} borderRadius="var(--radius-capsule)" />
-              <Skeleton width={70} height={24} borderRadius="var(--radius-capsule)" />
-              <Skeleton width={55} height={24} borderRadius="var(--radius-capsule)" />
+            <div style={{ display: "flex", gap: "var(--spacing-8)" }}>
+              <Skeleton width={60} height={24} borderRadius="var(--radius-full)" />
+              <Skeleton width={70} height={24} borderRadius="var(--radius-full)" />
+              <Skeleton width={55} height={24} borderRadius="var(--radius-full)" />
             </div>
           </div>
         </div>
 
         {/* Sections */}
         {[1, 2, 3].map((i) => (
-          <div key={i} style={{ marginBottom: "var(--spacing-4xl)" }}>
+          <div key={i} style={{ marginBottom: "var(--spacing-64)" }}>
             <SkeletonLine width={140} height={22} />
-            <div style={{ height: "var(--spacing-lg)" }} />
+            <div style={{ height: "var(--spacing-20)" }} />
             <SkeletonLine width="100%" height={14} />
-            <div style={{ height: "var(--spacing-xs)" }} />
+            <div style={{ height: "var(--spacing-8)" }} />
             <SkeletonLine width="95%" height={14} />
-            <div style={{ height: "var(--spacing-xs)" }} />
+            <div style={{ height: "var(--spacing-8)" }} />
             <SkeletonLine width="80%" height={14} />
           </div>
         ))}

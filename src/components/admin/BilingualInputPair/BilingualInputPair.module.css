@@ -3,7 +3,7 @@
 .pair {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 .pairFit {
@@ -12,19 +12,19 @@
 
 /* layout=row — 컨테이너 좁아도 wrap 안하고 항상 ko/en 1:1 분할로 강제 (auto-fit override) */
 .pairRow {
-  grid-template-columns: var(--grid-cols-2);
+  grid-template-columns: var(--grid-columns-2);
 }
 
 /* capsule + border-light. 기본 height md (32px) — 다른 control 들과 통일. */
 .wrap {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   height: 32px;
-  padding-left: var(--spacing-2xs);
+  padding-left: var(--spacing-4);
   padding-right: 0;
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   box-sizing: border-box;
 }
@@ -46,10 +46,10 @@
   align-items: center;
   justify-content: center;
   height: 20px;
-  padding: 0 var(--spacing-xs);
+  padding: 0 var(--spacing-8);
   background: var(--bg-tertiary);
   color: var(--text-secondary);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-hint);
   font-weight: 600;
@@ -85,7 +85,7 @@
   justify-content: center;
   width: 20px;
   height: 20px;
-  margin-right: var(--spacing-2xs);
+  margin-right: var(--spacing-4);
   border: none;
   background: transparent;
   color: var(--text-tertiary);

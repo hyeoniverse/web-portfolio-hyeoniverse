@@ -123,7 +123,7 @@ export function InlineCaption({ caption, onCommit, onEditingChange, autoEdit, ov
         textAlign: "center",
         fontSize: overlayMode ? 11 : "var(--font-size-body)",
         lineHeight: 1.5,
-        padding: overlayMode ? "0" : "var(--spacing-2xs) var(--spacing-3xs) 0",
+        padding: overlayMode ? "0" : "var(--spacing-4) var(--spacing-2) 0",
         fontFamily: "var(--font-space-grotesk)",
         color: overlayMode
           ? (editing ? "#fff" : "rgba(255,255,255,0.9)")

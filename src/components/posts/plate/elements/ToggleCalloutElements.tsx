@@ -34,9 +34,9 @@ export function ToggleElement(props: PlateElementProps) {
   const children = (el.children as any[]) || [];
   const firstType = children[0]?.type || "p";
   const headingStyles: Record<string, React.CSSProperties> = {
-    h1: { fontSize: "var(--font-size-2xl)", fontFamily: "var(--font-instrument)", fontWeight: "var(--font-weight-regular)" as string },
-    h2: { fontSize: "var(--font-size-lg)", fontFamily: "var(--font-instrument)", fontWeight: "var(--font-weight-regular)" as string },
-    h3: { fontSize: "var(--font-size-md)", fontFamily: "var(--font-instrument)", fontWeight: "var(--font-weight-regular)" as string },
+    h1: { fontSize: "var(--font-size-24)", fontFamily: "var(--font-instrument)", fontWeight: "var(--font-weight-regular)" as string },
+    h2: { fontSize: "var(--font-size-18)", fontFamily: "var(--font-instrument)", fontWeight: "var(--font-weight-regular)" as string },
+    h3: { fontSize: "var(--font-size-16)", fontFamily: "var(--font-instrument)", fontWeight: "var(--font-weight-regular)" as string },
   };
   const titleStyle: React.CSSProperties = headingStyles[firstType] || {};
 
@@ -93,7 +93,7 @@ export function CalloutElement(props: PlateElementProps) {
       <div {...blockDragProps} style={{ position: "relative", margin: "var(--prose-block-gap) 0" }}>
         {hasIcon && (
           <span ref={iconRef} contentEditable={false} style={{
-            position: "absolute", left: 12, top: "calc(var(--spacing-md) + 2px)", zIndex: 1,
+            position: "absolute", left: 12, top: "calc(var(--spacing-16) + 2px)", zIndex: 1,
             fontSize: 20, lineHeight: 1, cursor: "pointer", userSelect: "none",
           }} onMouseDown={(e) => e.preventDefault()} onClick={() => setShowIconPicker(!showIconPicker)} data-clickable="true">
             <EmojiIcon value={icon} />
@@ -109,8 +109,8 @@ export function CalloutElement(props: PlateElementProps) {
         />
         <PlateElement {...props} style={{
           ...props.style,
-          padding: hasIcon ? "var(--spacing-md) var(--spacing-md) var(--spacing-md) 44px" : "var(--spacing-md)",
-          borderRadius: "var(--radius-2xl)", background: bg,
+          padding: hasIcon ? "var(--spacing-16) var(--spacing-16) var(--spacing-16) 44px" : "var(--spacing-16)",
+          borderRadius: "var(--radius-24)", background: bg,
           border: (bg === "var(--bg-primary)" || bg === "transparent") ? "1px solid var(--border-color-light)" : "1px solid transparent",
         }}>
           {props.children}

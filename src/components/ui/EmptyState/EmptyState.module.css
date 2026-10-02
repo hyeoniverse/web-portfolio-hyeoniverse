@@ -8,7 +8,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
 }
 .circle {
   width: 64px;
@@ -28,11 +28,11 @@
 }
 
 .pad-xl {
-  padding: var(--spacing-xl) 0;
+  padding: var(--spacing-24) 0;
 }
 
 .pad-sm {
-  padding: var(--spacing-sm) 0;
+  padding: var(--spacing-12) 0;
 }
 
 .pad-none {

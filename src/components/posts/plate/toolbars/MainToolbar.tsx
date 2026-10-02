@@ -202,7 +202,7 @@ export default React.memo(function MainToolbar({
         >
           <span style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1 }}>
             <span style={{ fontWeight: 700, fontSize: 11 }}>A</span>
-            <span style={{ width: 12, height: 3, borderRadius: "var(--radius-capsule)", background: currentColor || "var(--text-primary)", boxShadow: "inset 0 0 0 0.5px var(--text-muted)" }} />
+            <span style={{ width: 12, height: 3, borderRadius: "var(--radius-full)", background: currentColor || "var(--text-primary)", boxShadow: "inset 0 0 0 0.5px var(--text-muted)" }} />
           </span>
         </TBtn>
         <TBtn
@@ -213,7 +213,7 @@ export default React.memo(function MainToolbar({
           <span style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1 }}>
             <span style={{ fontWeight: 700, fontSize: 11 }}>BG</span>
             <span style={{
-              width: 12, height: 3, borderRadius: "var(--radius-capsule)",
+              width: 12, height: 3, borderRadius: "var(--radius-full)",
               background: currentBgColor || "repeating-conic-gradient(#ccc 0% 25%, #fff 0% 50%) 0 0 / 4px 4px",
               boxShadow: "inset 0 0 0 0.5px var(--text-muted)",
             }} />

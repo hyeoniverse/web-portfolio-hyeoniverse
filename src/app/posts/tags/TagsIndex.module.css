@@ -3,8 +3,8 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-lg);
+  gap: var(--spacing-16);
+  margin-bottom: var(--spacing-20);
 }
 
 /* letter chip 스타일은 공통 LetterFilter 컴포넌트가 보유 — 본 파일은 layout 만 (사용처 없으면 제거 가능). */
@@ -17,7 +17,7 @@
 .sheetRelated {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 .sheetSectionLabel {
@@ -32,5 +32,5 @@
 .sheetRelatedPills {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }

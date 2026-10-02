@@ -6,7 +6,7 @@
 .overlayBg {
   position: fixed;
   inset: 0;
-  z-index: var(--z-modal);
+  z-index: var(--z-index-modal);
   background: transparent;
   backdrop-filter: blur(32px) saturate(1.4);
   pointer-events: none;
@@ -18,7 +18,7 @@
   --_list-width: 140px;
   position: fixed;
   inset: 0;
-  z-index: var(--z-modal);
+  z-index: var(--z-index-modal);
   display: flex;
   flex-direction: column;
   -webkit-tap-highlight-color: transparent;
@@ -39,7 +39,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--spacing-xs) var(--spacing-sm);
+  padding: var(--spacing-8) var(--spacing-12);
   z-index: 10;
   flex-shrink: 0;
   background: transparent;
@@ -51,7 +51,7 @@
 .toolbarRight {
   display: flex;
   align-items: center;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
 }
 
 .toolbarLeft {
@@ -119,16 +119,16 @@
   width: 54px;
   text-align: center;
   font-variant-numeric: tabular-nums;
-  padding: var(--spacing-2xs) 0;
+  padding: var(--spacing-4) 0;
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
 }
 
 .toolbarDivider {
   width: 1px;
   height: 18px;
   background: var(--border-color-light);
-  margin: 0 var(--spacing-2xs);
+  margin: 0 var(--spacing-4);
   flex-shrink: 0;
 }
 
@@ -140,7 +140,7 @@
   max-width: 320px;
   overflow: hidden;
   white-space: nowrap;
-  padding-right: var(--spacing-2xs);
+  padding-right: var(--spacing-4);
 }
 
 .viewerTitleMain {
@@ -151,7 +151,7 @@
 }
 
 .viewerTitleSep {
-  margin: 0 var(--spacing-xs);
+  margin: 0 var(--spacing-8);
   color: var(--text-primary);
   font-weight: 300;
   flex-shrink: 0;
@@ -171,11 +171,11 @@
   color: var(--text-secondary);
   letter-spacing: 0.06em;
   font-variant-numeric: tabular-nums;
-  padding: 0 var(--spacing-xs);
+  padding: 0 var(--spacing-8);
 }
 
 .counterSep {
-  margin: 0 var(--spacing-3xs);
+  margin: 0 var(--spacing-2);
   opacity: 0.5;
 }
 
@@ -202,20 +202,20 @@
 
 .navZonePrev {
   justify-content: flex-start;
-  padding-left: var(--spacing-2xl);
+  padding-left: var(--spacing-32);
 }
 
 .navZoneNext {
   justify-content: flex-end;
-  padding-right: var(--spacing-2xl);
+  padding-right: var(--spacing-32);
 }
 
 .navBtn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: var(--control-h-2xl);
-  height: var(--control-h-2xl);
+  width: var(--control-height-2xl);
+  height: var(--control-height-2xl);
   padding: 0;
   border: var(--border-default);
   border-radius: var(--radius-circle);
@@ -264,13 +264,13 @@
   justify-content: center;
   min-height: 0;
   /* 메인 이미지 좌우 여백 — 사이드바/화면 가장자리에 붙지 않게 */
-  padding-inline: var(--spacing-xl);
+  padding-inline: var(--spacing-24);
   touch-action: none;
 }
 
 /* 단일 이미지(하단 썸네일 strip 없음) — strip 높이만큼 하단 여백을 줘서 멀티 이미지와 위치/여백 통일 */
 .noThumbs .imageArea {
-  padding-bottom: var(--spacing-5xl);
+  padding-bottom: var(--spacing-96);
 }
 
 .imageWrap {
@@ -316,9 +316,9 @@
   position: absolute;
   top: 100%;
   right: 0;
-  margin-top: var(--spacing-xs);
-  padding: var(--spacing-sm) 0;
-  border-radius: var(--radius-2xl);
+  margin-top: var(--spacing-8);
+  padding: var(--spacing-12) 0;
+  border-radius: var(--radius-24);
   background: var(--bg-primary);
   border: var(--border-light);
   box-shadow: 0 8px 24px oklch(0.00% 0.0000 0.00 / 0.25);
@@ -333,7 +333,7 @@
   font-size: var(--font-size-body);
   font-weight: 600;
   color: var(--text-primary);
-  padding: 0 var(--spacing-md) var(--spacing-xs);
+  padding: 0 var(--spacing-16) var(--spacing-8);
   margin: 0;
 }
 
@@ -350,14 +350,14 @@
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  padding: var(--spacing-xs) var(--spacing-md) var(--spacing-2xs);
+  padding: var(--spacing-8) var(--spacing-16) var(--spacing-4);
 }
 
 .shortcutsItem {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--row-p-md);
+  padding: var(--row-padding-md);
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-body);
   color: var(--text-secondary);
@@ -372,11 +372,11 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: var(--control-h-2xs);
-  height: var(--control-h-2xs);
-  padding: 0 var(--spacing-xs);
+  min-width: var(--control-height-2xs);
+  height: var(--control-height-2xs);
+  padding: 0 var(--spacing-8);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--bg-tertiary);
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-hint);
@@ -387,7 +387,7 @@
 .shortcutsDivider {
   height: 1px;
   background: var(--border-color-light);
-  margin: var(--spacing-2xs) var(--spacing-md);
+  margin: var(--spacing-4) var(--spacing-16);
 }
 
 /* ==========================================================================
@@ -397,9 +397,9 @@
   position: absolute;
   top: 100%;
   right: 0;
-  margin-top: var(--spacing-2xs);
-  padding: var(--spacing-xs) var(--spacing-sm);
-  border-radius: var(--radius-2xl);
+  margin-top: var(--spacing-4);
+  padding: var(--spacing-8) var(--spacing-12);
+  border-radius: var(--radius-24);
   background: var(--bg-primary);
   border: var(--border-light);
   box-shadow: 0 8px 24px oklch(0.00% 0.0000 0.00 / 0.25);
@@ -426,9 +426,9 @@
   position: absolute;
   top: 100%;
   left: 0;
-  margin-top: var(--spacing-xs);
-  padding: var(--spacing-sm) var(--spacing-lg);
-  border-radius: var(--radius-2xl);
+  margin-top: var(--spacing-8);
+  padding: var(--spacing-12) var(--spacing-20);
+  border-radius: var(--radius-24);
   background: var(--bg-primary);
   border: var(--border-light);
   box-shadow: 0 8px 24px oklch(0.00% 0.0000 0.00 / 0.25);
@@ -444,20 +444,20 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--text-muted);
-  margin-bottom: var(--spacing-sm);
+  margin-bottom: var(--spacing-12);
 }
 
 .infoList {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   margin: 0;
 }
 
 .infoRow {
   display: flex;
   align-items: baseline;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
 }
 
 .infoKey {
@@ -480,7 +480,7 @@
 .autoplaySection {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 .autoplayLabel {
@@ -495,17 +495,17 @@
 .intervalTrack {
   position: relative;
   display: flex;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--bg-tertiary);
   border: var(--border-light);
-  padding: var(--spacing-3xs);
+  padding: var(--spacing-2);
 }
 
 .intervalIndicator {
   position: absolute;
   top: 2px;
   bottom: 2px;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--bg-accent-solid);
   box-shadow: 0 2px 8px var(--color-accent-alpha-30);
   pointer-events: none;
@@ -519,9 +519,9 @@
   align-items: center;
   justify-content: center;
   height: 24px;
-  padding: 0 var(--spacing-xs);
+  padding: 0 var(--spacing-8);
   border: none;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-label);
@@ -538,7 +538,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 .loopLabel {
@@ -575,7 +575,7 @@
 }
 
 .fullscreen .navArrows {
-  padding: var(--row-p-sm);
+  padding: var(--row-padding-sm);
 }
 
 /* Fullscreen: forced light-on-dark (escapes theme tokens) */
@@ -606,8 +606,8 @@
 }
 
 .loaderSpinner {
-  width: var(--control-h-xs);
-  height: var(--control-h-xs);
+  width: var(--control-height-xs);
+  height: var(--control-height-xs);
   border: var(--border-light-2);
   border-top-color: var(--text-muted);
   border-radius: var(--radius-circle);
@@ -712,8 +712,8 @@
 .thumbListInner {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
-  padding: var(--spacing-3xl) 0 var(--spacing-xs);
+  gap: var(--spacing-2);
+  padding: var(--spacing-48) 0 var(--spacing-8);
   overflow-y: auto;
   height: 100%;
   scrollbar-width: thin;
@@ -761,7 +761,7 @@
   font-size: var(--font-size-hint);
   color: var(--text-primary);
   font-variant-numeric: tabular-nums;
-  padding: var(--spacing-3xs) var(--spacing-xs);
+  padding: var(--spacing-2) var(--spacing-8);
 }
 
 /* Shift content when list is open */
@@ -825,10 +825,10 @@
 
 .galleryLabel {
   position: absolute;
-  left: var(--spacing-2xs);
-  bottom: var(--spacing-2xs);
-  padding: var(--spacing-3xs) var(--spacing-xs);
-  border-radius: var(--radius-capsule);
+  left: var(--spacing-4);
+  bottom: var(--spacing-4);
+  padding: var(--spacing-2) var(--spacing-8);
+  border-radius: var(--radius-full);
   background: var(--bg-inverse);
   color: var(--text-inverse);
   font-family: var(--font-space-grotesk), sans-serif;
@@ -842,7 +842,7 @@
 .toolbarCollapsible {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
 }
 
 .moreMenuWrap {
@@ -857,9 +857,9 @@
   position: absolute;
   top: 100%;
   right: 0;
-  margin-top: var(--spacing-2xs);
-  padding: var(--spacing-2xs) 0;
-  border-radius: var(--radius-2xl);
+  margin-top: var(--spacing-4);
+  padding: var(--spacing-4) 0;
+  border-radius: var(--radius-24);
   background: var(--bg-primary);
   border: var(--border-light);
   box-shadow: 0 8px 24px oklch(0.00% 0.0000 0.00 / 0.18);
@@ -870,9 +870,9 @@
 .moreMenuItem {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   width: 100%;
-  padding: var(--row-p-md);
+  padding: var(--row-padding-md);
   border: none;
   background: transparent;
   font-family: var(--font-space-grotesk), sans-serif;
@@ -895,14 +895,14 @@
 .moreMenuDivider {
   height: 1px;
   background: var(--border-color-light);
-  margin: var(--spacing-2xs) 0;
+  margin: var(--spacing-4) 0;
 }
 
 .moreMenuSection {
-  padding: var(--spacing-xs) var(--spacing-sm);
+  padding: var(--spacing-8) var(--spacing-12);
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 /* ==========================================================================
@@ -922,7 +922,7 @@
   }
 
   .toolbar {
-    padding: var(--spacing-2xs) var(--spacing-xs);
+    padding: var(--spacing-4) var(--spacing-8);
   }
 
   .actionBtn {
@@ -933,12 +933,12 @@
   .zoomLevel,
   .zoomInput {
     font-size: var(--font-size-hint);
-    width: var(--control-h-2xl);
+    width: var(--control-height-2xl);
   }
 
   .toolbarDivider {
     height: 14px;
-    margin: 0 var(--spacing-3xs);
+    margin: 0 var(--spacing-2);
   }
 
   .imageWrap {
@@ -955,13 +955,13 @@
 
   .stripNavBtn {
     display: flex;
-    width: var(--control-h-xs);
-    height: var(--control-h-xs);
+    width: var(--control-height-xs);
+    height: var(--control-height-xs);
   }
 
   .navBtn {
-    width: var(--control-h-xl);
-    height: var(--control-h-xl);
+    width: var(--control-height-xl);
+    height: var(--control-height-xl);
   }
 
   /* Thumbnails mobile */
@@ -984,7 +984,7 @@
   }
 
   .thumbListInner {
-    padding-top: var(--spacing-3xl);
+    padding-top: var(--spacing-48);
     padding-left: 0;
     padding-right: 0;
   }
@@ -997,7 +997,7 @@
   /* Autoplay popover mobile */
   .autoplayPopover {
     min-width: 140px;
-    padding: var(--spacing-xs) var(--spacing-sm);
+    padding: var(--spacing-8) var(--spacing-12);
   }
 
   .autoplayLabel {
@@ -1005,13 +1005,13 @@
   }
 
   .intervalTrack {
-    padding: var(--spacing-3xs);
+    padding: var(--spacing-2);
   }
 
   .intervalBtn {
-    height: var(--control-h-2xs);
+    height: var(--control-height-2xs);
     font-size: var(--font-size-hint);
-    padding: 0 var(--spacing-2xs);
+    padding: 0 var(--spacing-4);
   }
 
   .loopLabel {
@@ -1022,16 +1022,16 @@
 
   .shortcutsTitle {
     font-size: var(--font-size-label);
-    padding: 0 var(--spacing-sm) var(--spacing-xs);
+    padding: 0 var(--spacing-12) var(--spacing-8);
   }
 
   .shortcutsSection {
     font-size: var(--font-size-hint);
-    padding: var(--spacing-2xs) var(--spacing-sm) var(--spacing-3xs);
+    padding: var(--spacing-4) var(--spacing-12) var(--spacing-2);
   }
 
   .shortcutsItem {
-    padding: var(--row-p-sm);
+    padding: var(--row-padding-sm);
     font-size: var(--font-size-label);
   }
 
@@ -1039,11 +1039,11 @@
     min-width: 20px;
     height: 20px;
     font-size: var(--font-size-hint);
-    padding: 0 var(--spacing-2xs);
+    padding: 0 var(--spacing-4);
   }
 
   .shortcutsDivider {
-    margin: var(--spacing-3xs) var(--spacing-sm);
+    margin: var(--spacing-2) var(--spacing-12);
   }
 }
 

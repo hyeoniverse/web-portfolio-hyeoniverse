@@ -23,8 +23,8 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-xs);
+  gap: var(--spacing-12);
+  padding: var(--spacing-8);
 }
 
 /* 서식 툴바 — display: contents 로 자기 박스를 없애 그룹들을 .editorHeader 의 flex 흐름에 직접 편입.
@@ -40,7 +40,7 @@
   position: relative;
   display: flex;
   align-items: center;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
 }
 
 /* 그룹 라벨 — 읽으라는 게 아니라 버튼 묶음의 경계를 세우는 용도라 가장 약한 위계로.
@@ -48,7 +48,7 @@
    uppercase + letter-spacing 은 치트시트 제목(.helpTitle)과 같은 "구획 라벨" 결. */
 .toolbarGroupLabel {
   flex-shrink: 0;
-  margin-right: var(--spacing-2xs);
+  margin-right: var(--spacing-4);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-hint);
   font-weight: var(--font-weight-medium);
@@ -75,7 +75,7 @@
    한 덩어리 균일 그리드로 흘린다 — 그룹이 통째로 넘쳐 가로로 삐져나오는 일도 없다. */
 @container cmt-editor (max-width: 600px) {
   .editorHeader {
-    gap: var(--spacing-xs);
+    gap: var(--spacing-8);
   }
   .toolbarGroup {
     display: contents;
@@ -87,13 +87,13 @@
 
 /* 마크다운 치트시트 popover */
 .helpPopover {
-  padding: var(--spacing-md);
+  padding: var(--spacing-16);
 }
 
 .helpPanel {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   min-width: 220px;
 }
 
@@ -117,7 +117,7 @@
 /* 표 헤더 — bold + 배경 band 로 본문 행과 확실히 갈라놓는다.
    구분선만으론 아래 행들의 구분선과 굵기가 같아 헤더가 그냥 첫 행처럼 읽혔다. */
 .helpTable th {
-  padding: var(--cell-p-sm);
+  padding: var(--cell-padding-sm);
   background: var(--bg-tertiary);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
@@ -129,7 +129,7 @@
 /* 셀 — 세로 가운데 대신 위 정렬. 코드 블록/표처럼 3줄짜리 문법 옆의 한 줄 설명이
    가운데로 뜨면 어느 문법에 대한 설명인지 눈으로 잇기 어렵다. */
 .helpTable td {
-  padding: var(--cell-p-sm);
+  padding: var(--cell-padding-sm);
   border-bottom: var(--border-light);
   vertical-align: top;
 }
@@ -137,7 +137,7 @@
 /* 두 열 사이 간격 — 열 사이 세로선이 없으니 여백이 그 역할을 한다 */
 .helpTable th:first-child,
 .helpTable td:first-child {
-  padding-right: var(--spacing-lg);
+  padding-right: var(--spacing-20);
 }
 
 /* 마지막 행 아래 규칙 제거 → 표 아래쪽도 트임 (본문 표와 동일) */
@@ -159,16 +159,16 @@
      캡슐은 코드블록·표 같은 멀티라인 문법에서 늘어져 어색해서, 좌우로 트인
      "코드 예시 박스" 결(작은 라운드 + 옅은 배경)로 통일한다. */
   margin: 0;
-  padding: var(--spacing-3xs) var(--spacing-sm);
+  padding: var(--spacing-2) var(--spacing-12);
   border: none;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--bg-tertiary);
 }
 
 /* 두 줄 이상인 문법 — 캡슐이면 줄 수만큼 반원이 커져 상자가 알약처럼 부푼다 */
 .helpCodeMulti {
   /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 여러 줄 코드 예시 상자. 2xl(24px)도 두세 줄 높이에서는 반원에 가까워 작은 모서리로 둔다 */
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-8);
 }
 
 .helpDesc {
@@ -184,7 +184,7 @@
    `.editable:focus` (0,1,1) 를 확실히 override (CSS Module 간 동일 specificity 순서 의존 회피).
    기존 CommentForm 의 `.form .textarea` 와 동일 특정도 — 루트 `.editor` 가 `.form` 자리를 대신한다. */
 .editor .textarea {
-  border: var(--border-width-thin) solid transparent;
+  border: var(--border-width-1) solid transparent;
   border-radius: 0;
   background: transparent;
 }
@@ -196,14 +196,14 @@
 }
 
 /* Preview — giscus `.gsc-comment-box-preview { border-bottom: 0; padding: 14px }` 미러:
-   보더/radius 없이 textarea 와 동일 패딩(--textarea-p) → Write↔Preview 전환 시 글 시작 위치가 안 틀어짐.
+   보더/radius 없이 textarea 와 동일 패딩(--textarea-padding) → Write↔Preview 전환 시 글 시작 위치가 안 틀어짐.
    보더는 textarea 와 같은 투명 1px 로 남겨 전환 시 1px 만큼도 안 흔들리게.
    높이는 CommentEditor 가 작성창 실측값을 inline height 로 물려준다 (min-height 는 그 전 폴백).
    overflow-y: auto — 렌더된 마크다운이 그 높이를 넘으면 상자를 늘리지 말고 안에서 스크롤. */
 .previewArea {
   min-height: 84px;
-  padding: var(--textarea-p);
-  border: var(--border-width-thin) solid transparent;
+  padding: var(--textarea-padding);
+  border: var(--border-width-1) solid transparent;
   border-radius: 0;
   overflow-y: auto;
 }
@@ -219,18 +219,18 @@
 .postPickerPanel {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   width: 300px;
   max-width: 88vw;
-  padding: var(--spacing-2xs);
+  padding: var(--spacing-4);
 }
 
 /* 검색 행 — 좌측 돋보기 + Input + 로딩 스피너 */
 .postPickerSearch {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
-  padding: 0 var(--spacing-2xs);
+  gap: var(--spacing-4);
+  padding: 0 var(--spacing-4);
   color: var(--text-tertiary);
 }
 
@@ -267,10 +267,10 @@
 .postPickerRow {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   width: 100%;
-  padding: var(--row-p-sm);
-  border-radius: var(--radius-capsule);
+  padding: var(--row-padding-sm);
+  border-radius: var(--radius-full);
   color: var(--text-primary);
   text-align: left;
   cursor: pointer;
@@ -289,7 +289,7 @@
   justify-content: center;
   width: 22px;
   height: 22px;
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   background: var(--bg-secondary);
   color: var(--text-tertiary);
   font-size: var(--font-size-body);
@@ -307,8 +307,8 @@
 /* 카테고리 태그 — 약한 위계 */
 .postPickerCat {
   flex-shrink: 0;
-  padding: var(--spacing-3xs) var(--spacing-xs);
-  border-radius: var(--radius-capsule);
+  padding: var(--spacing-2) var(--spacing-8);
+  border-radius: var(--radius-full);
   background: var(--bg-tertiary);
   color: var(--text-secondary);
   font-family: var(--font-space-grotesk);
@@ -317,7 +317,7 @@
 }
 
 .postPickerEmpty {
-  padding: var(--spacing-sm);
+  padding: var(--spacing-12);
   color: var(--text-tertiary);
   font-size: var(--font-size-body);
   text-align: center;

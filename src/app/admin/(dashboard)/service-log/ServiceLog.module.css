@@ -2,19 +2,19 @@
 .titleRow {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 .headerActions {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 .page {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-20);
 }
 
 .hint {
@@ -42,7 +42,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--spacing-xs) var(--spacing-sm);
+  gap: var(--spacing-8) var(--spacing-12);
 }
 
 .count {
@@ -64,7 +64,7 @@
   --_col-provider: 150px;
   display: grid;
   grid-template-columns: var(--_col-time) var(--_col-provider) max-content minmax(240px, 1fr);
-  column-gap: var(--spacing-sm);
+  column-gap: var(--spacing-12);
   min-width: 720px;
   margin: 0;
   padding: 0;
@@ -81,7 +81,7 @@
   display: grid;
   grid-template-columns: subgrid;
   align-items: center;
-  padding: var(--spacing-xs) var(--spacing-sm);
+  padding: var(--spacing-8) var(--spacing-12);
   border: none;
   border-bottom: var(--border-light);
   background: transparent;
@@ -109,7 +109,7 @@
 }
 
 .pin2 {
-  left: calc(var(--_col-time) + var(--spacing-sm));
+  left: calc(var(--_col-time) + var(--spacing-12));
 }
 
 .time {
@@ -129,8 +129,8 @@
 /* 결과 — 성공(초록)·실패(강조색). 빨강은 쓰지 않는다 */
 .status {
   justify-self: start;
-  padding: var(--badge-p-md);
-  border-radius: var(--radius-capsule);
+  padding: var(--badge-padding-md);
+  border-radius: var(--radius-full);
   background: var(--bg-accent-light);
   color: var(--text-accent);
   font-weight: 600;
@@ -163,9 +163,9 @@
   grid-column: 1 / -1;
   display: grid;
   grid-template-columns: max-content minmax(0, 1fr);
-  gap: var(--spacing-2xs) var(--spacing-md);
+  gap: var(--spacing-4) var(--spacing-16);
   margin: 0;
-  padding: var(--spacing-sm) var(--spacing-md) var(--spacing-md);
+  padding: var(--spacing-12) var(--spacing-16) var(--spacing-16);
   border-bottom: var(--border-light);
   background: var(--bg-secondary);
   font-size: var(--font-size-label);
@@ -179,7 +179,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   margin: 0;
   min-width: 0;
   color: var(--text-primary);
@@ -203,8 +203,8 @@
 /* ?demo — 예시 기록으로 보고 있다는 알림 */
 .demo {
   margin: 0;
-  padding: var(--spacing-xs) var(--spacing-sm);
-  border-radius: var(--radius-capsule);
+  padding: var(--spacing-8) var(--spacing-12);
+  border-radius: var(--radius-full);
   background: var(--bg-accent-light);
   color: var(--text-accent);
   font-size: var(--font-size-label);
@@ -218,17 +218,17 @@
 .skeleton {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-20);
 }
 
 
 .skeletonCapsule.skeletonCapsule {
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
 }
 
 /* 메일 기록 — 어떤 메일인지 */
 .purpose {
-  margin-right: var(--spacing-xs);
+  margin-right: var(--spacing-8);
   color: var(--text-secondary);
 }
 
@@ -236,7 +236,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 
@@ -244,7 +244,7 @@
 .split {
   display: grid;
   grid-template-columns: 260px minmax(0, 1fr);
-  gap: var(--spacing-2xl);
+  gap: var(--spacing-32);
   align-items: start;
 }
 
@@ -252,12 +252,12 @@
    스크롤해도 따라온다. 누르는 줄 = 거르기 */
 .rail {
   position: sticky;
-  top: calc(var(--header-height, 64px) + var(--spacing-md));
+  top: calc(var(--header-height, 64px) + var(--spacing-16));
   display: flex;
   flex-direction: column;
-  padding: var(--spacing-sm);
+  padding: var(--spacing-12);
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   background: var(--bg-primary);
 }
 
@@ -266,10 +266,10 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   width: 100%;
-  padding: var(--spacing-sm);
-  border-radius: var(--radius-2xl);
+  padding: var(--spacing-12);
+  border-radius: var(--radius-24);
   background: transparent;
   text-align: left;
   transition: background var(--duration-base) ease, color var(--duration-base) ease;
@@ -296,12 +296,12 @@
 .railTotalNums {
   display: flex;
   align-items: baseline;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 .railTotalNum {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-3xl);
+  font-size: var(--font-size-32);
   font-weight: 600;
   line-height: 1.1;
   color: var(--text-primary);
@@ -323,9 +323,9 @@
 .railGroup {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
-  margin-top: var(--spacing-xs);
-  padding-top: var(--spacing-xs);
+  gap: var(--spacing-2);
+  margin-top: var(--spacing-8);
+  padding-top: var(--spacing-8);
   border-top: var(--border-light);
 }
 
@@ -335,11 +335,11 @@
   display: grid;
   grid-template-columns: 6px minmax(0, 1fr) 28px 24px;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   width: 100%;
   min-height: 30px;
-  padding: 0 var(--spacing-sm);
-  border-radius: var(--radius-capsule);
+  padding: 0 var(--spacing-12);
+  border-radius: var(--radius-full);
   background: transparent;
   font-size: var(--font-size-label);
   color: var(--text-secondary);
@@ -429,8 +429,8 @@
 /* 실패 수 — 강조색 알약 */
 .railFail {
   min-width: 20px;
-  padding: 0 var(--spacing-2xs);
-  border-radius: var(--radius-capsule);
+  padding: 0 var(--spacing-4);
+  border-radius: var(--radius-full);
   background: var(--bg-accent-light);
   color: var(--text-accent);
   font-weight: 600;
@@ -442,7 +442,7 @@
 .main {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   min-width: 0;
 }
 
@@ -458,29 +458,29 @@
 @media (max-width: 900px) {
   .split {
     grid-template-columns: minmax(0, 1fr);
-    gap: var(--spacing-md);
+    gap: var(--spacing-16);
   }
 
   .rail {
     position: static;
     flex-direction: row;
     align-items: center;
-    gap: var(--spacing-2xs);
+    gap: var(--spacing-4);
     overflow-x: auto;
   }
 
   .railHeader {
     flex-shrink: 0;
-    padding: 0 var(--spacing-2xs);
+    padding: 0 var(--spacing-4);
   }
 
 
   .railGroup {
     flex-direction: row;
-    gap: var(--spacing-2xs);
+    gap: var(--spacing-4);
     margin-top: 0;
     padding-top: 0;
-    padding-left: var(--spacing-xs);
+    padding-left: var(--spacing-8);
     border-top: none;
     border-left: var(--border-light);
   }
@@ -497,7 +497,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 var(--spacing-2xs) var(--spacing-xs) var(--spacing-sm);
+  padding: 0 var(--spacing-4) var(--spacing-8) var(--spacing-12);
   font-size: var(--font-size-label);
   font-weight: 600;
   color: var(--text-tertiary);
@@ -512,8 +512,8 @@
 .legendBody {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
-  padding: var(--spacing-md);
+  gap: var(--spacing-16);
+  padding: var(--spacing-16);
   font-size: var(--font-size-label);
   line-height: 1.5;
   color: var(--text-secondary);
@@ -529,7 +529,7 @@
 .legendSection {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 .legendHeading {
@@ -549,9 +549,9 @@
 .legendCaptions {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 28px 24px;
-  gap: var(--spacing-xs);
-  padding: 0 var(--spacing-sm);
-  margin-top: calc(-1 * var(--spacing-3xs));
+  gap: var(--spacing-8);
+  padding: 0 var(--spacing-12);
+  margin-top: calc(-1 * var(--spacing-2));
   font-size: var(--font-size-hint);
   color: var(--text-tertiary);
 }
@@ -572,7 +572,7 @@
 .legendStates {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--spacing-sm) var(--spacing-md);
+  gap: var(--spacing-12) var(--spacing-16);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -581,13 +581,13 @@
 .legendStates li {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
 }
 
 .legendStateName {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   font-weight: 600;
   color: var(--text-primary);
 }
@@ -600,9 +600,9 @@
 .legendNote {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   margin: 0;
-  padding-top: var(--spacing-xs);
+  padding-top: var(--spacing-8);
   border-top: var(--border-light);
   font-size: var(--font-size-hint);
   color: var(--text-tertiary);
@@ -610,16 +610,16 @@
 
 /* 한 줄 읽기 · 점 색 사이 구분선 */
 .legendSection + .legendSection {
-  padding-top: var(--spacing-md);
+  padding-top: var(--spacing-16);
   border-top: var(--border-light);
 }
 
 .hintList {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   margin: 0;
-  padding-left: var(--spacing-lg);
+  padding-left: var(--spacing-20);
   font-size: var(--font-size-label);
   line-height: 1.6;
   color: var(--text-tertiary);

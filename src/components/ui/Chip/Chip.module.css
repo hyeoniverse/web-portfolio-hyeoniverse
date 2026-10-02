@@ -3,7 +3,7 @@
   position: relative;
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   color: var(--text-secondary);
@@ -12,14 +12,14 @@
 
 /* capsule — bg + border + 캡슐 radius */
 .capsule {
-  padding: var(--spacing-2xs) var(--spacing-sm);
+  padding: var(--spacing-4) var(--spacing-12);
   background: var(--bg-secondary);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
 }
 
 /* bare — text-only (TagNotesEditor 패턴) */
 .bare {
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   font-weight: 600;
   color: var(--text-secondary);
 }
@@ -78,7 +78,7 @@
 .label {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 /* truncate — 한 줄 유지 + 공간 부족 시 … (부모 flex 에서 chip 이 줄어들 수 있게 min-width:0) */
@@ -99,7 +99,7 @@
 .labelBtn {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   border: none;
   background: transparent;
   padding: 0;
@@ -118,7 +118,7 @@
 .labelLink {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   color: inherit;
   text-decoration: none;
   transition: color 0.15s ease;
@@ -132,7 +132,7 @@
 .labelStatic {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 /* count 배지 — capsule 안 우측 (TagPill 패턴) */

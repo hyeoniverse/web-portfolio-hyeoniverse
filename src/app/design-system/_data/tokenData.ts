@@ -27,40 +27,48 @@ export const semanticColors = [
 
 // ─── Spacing Data ───
 export const spacingScale = [
-  { name: "--spacing-zero", value: "0" },
-  { name: "--spacing-2xs", value: "0.25rem" },
-  { name: "--spacing-xs", value: "0.5rem" },
-  { name: "--spacing-sm", value: "0.75rem" },
-  { name: "--spacing-md", value: "1rem" },
-  { name: "--spacing-lg", value: "1.25rem" },
-  { name: "--spacing-xl", value: "1.5rem" },
-  { name: "--spacing-2xl", value: "2rem" },
-  { name: "--spacing-3xl", value: "3rem" },
-  { name: "--spacing-4xl", value: "4rem" },
-  { name: "--spacing-5xl", value: "6rem" },
-  { name: "--spacing-6xl", value: "8rem" },
+  { name: "--spacing-0", value: "0" },
+  { name: "--spacing-1", value: "1px" },
+  { name: "--spacing-2", value: "0.125rem" },
+  { name: "--spacing-4", value: "0.25rem" },
+  { name: "--spacing-8", value: "0.5rem" },
+  { name: "--spacing-12", value: "0.75rem" },
+  { name: "--spacing-16", value: "1rem" },
+  { name: "--spacing-20", value: "1.25rem" },
+  { name: "--spacing-24", value: "1.5rem" },
+  { name: "--spacing-32", value: "2rem" },
+  { name: "--spacing-40", value: "2.5rem" },
+  { name: "--spacing-48", value: "3rem" },
+  { name: "--spacing-64", value: "4rem" },
+  { name: "--spacing-80", value: "5rem" },
+  { name: "--spacing-96", value: "6rem" },
+  { name: "--spacing-112", value: "7rem" },
+  { name: "--spacing-128", value: "8rem" },
 ];
 
 // ─── Radius Data ───
 export const radiusScale = [
-  /* 고르는 것은 셋뿐 — 나머지는 "각진 것 자체가 의미"인 자리(체크박스 등) 전용. R6 */
-  { name: "capsule", var: "--radius-capsule", value: "9999px", note: "알약·칩·행 하이라이트" },
-  { name: "circle", var: "--radius-circle", value: "50%", note: "정원" },
-  { name: "2xl", var: "--radius-2xl", value: "24px", note: "면 있는 것" },
-  { name: "md", var: "--radius-md", value: "8px", note: "예외 전용" },
-  { name: "sm", var: "--radius-sm", value: "6px", note: "예외 전용" },
-  { name: "xs", var: "--radius-xs", value: "4px", note: "예외 전용" },
-  { name: "2xs", var: "--radius-2xs", value: "2px", note: "예외 전용" },
+  /* 눈금 — 이름이 px 값이다(docs/design-system.md 2-3-2). 지금 컴포넌트가 고르는 것은 full · circle · 24,
+     나머지는 "각진 것 자체가 의미"인 자리(체크박스 등) 전용. 역할 토큰으로 옮기는 중(3.5-1) */
+  { name: "full", var: "--radius-full", value: "9999px", note: "알약·칩·행 하이라이트" },
+  { name: "circle", var: "--radius-circle", value: "50%", note: "정원 — full 로 옮기는 중" },
+  { name: "24", var: "--radius-24", value: "24px", note: "면 있는 것" },
+  { name: "16", var: "--radius-16", value: "16px", note: "동심원 안쪽" },
+  { name: "12", var: "--radius-12", value: "12px", note: "동심원 안쪽" },
+  { name: "8", var: "--radius-8", value: "8px", note: "예외 전용" },
+  { name: "6", var: "--radius-6", value: "6px", note: "예외 전용" },
+  { name: "4", var: "--radius-4", value: "4px", note: "예외 전용" },
+  { name: "2", var: "--radius-2", value: "2px", note: "예외 전용" },
 ];
 
 // ─── Grid Templates Data ───
 // 등분 컬럼 토큰. minmax(0,1fr) 로 자식이 트랙을 밀어 grid blowout 나는 것 방지 (overflow-safe)
 export const gridColsScale = [
-  { name: "--grid-cols-2", cols: 2 },
-  { name: "--grid-cols-3", cols: 3 },
-  { name: "--grid-cols-4", cols: 4 },
-  { name: "--grid-cols-5", cols: 5 },
-  { name: "--grid-cols-7", cols: 7 },
+  { name: "--grid-columns-2", cols: 2 },
+  { name: "--grid-columns-3", cols: 3 },
+  { name: "--grid-columns-4", cols: 4 },
+  { name: "--grid-columns-5", cols: 5 },
+  { name: "--grid-columns-7", cols: 7 },
 ];
 
 // ─── Shadow Data ───
@@ -93,14 +101,14 @@ export const easings = [
 
 // ─── Z-index Data ───
 export const zScale = [
-  { name: "--z-below", value: "-1", label: "Background" },
-  { name: "--z-content", value: "10", label: "Page Content" },
-  { name: "--z-nav", value: "100", label: "Navigation" },
-  { name: "--z-float", value: "200", label: "Floating UI" },
-  { name: "--z-dropdown", value: "500", label: "Dropdown / Popover" },
-  { name: "--z-tooltip", value: "700", label: "Tooltip" },
-  { name: "--z-overlay", value: "9000", label: "Overlay / Drawer" },
-  { name: "--z-top", value: "10000", label: "Cursor / Transition" },
+  { name: "--z-index-below", value: "-1", label: "Background" },
+  { name: "--z-index-content", value: "10", label: "Page Content" },
+  { name: "--z-index-nav", value: "100", label: "Navigation" },
+  { name: "--z-index-float", value: "200", label: "Floating UI" },
+  { name: "--z-index-dropdown", value: "500", label: "Dropdown / Popover" },
+  { name: "--z-index-tooltip", value: "700", label: "Tooltip" },
+  { name: "--z-index-overlay", value: "9000", label: "Overlay / Drawer" },
+  { name: "--z-index-top", value: "10000", label: "Cursor / Transition" },
 ];
 
 // ─── Typography Data ───

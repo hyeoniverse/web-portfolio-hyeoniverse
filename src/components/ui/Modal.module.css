@@ -6,7 +6,7 @@
 .subButtons {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
 }
 
 @media (max-width: 768px) {
@@ -24,8 +24,8 @@
   display: none;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-md) 0;
-  min-height: var(--control-h-2xl);
+  padding: var(--spacing-16) 0;
+  min-height: var(--control-height-2xl);
   touch-action: none;
   -webkit-user-select: none;
   user-select: none;
@@ -43,7 +43,7 @@
 .sheetHandleBar {
   width: 40px;
   height: 5px;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--text-muted);
 }
 
@@ -57,13 +57,13 @@
   justify-content: space-between;
   /* 우측 컨트롤(X·subButtons)이 헤더 flow 에 합류하므로 고정 56px 예약 불필요 — 좌우 동일 lg.
      상단 여백은 md 로 줄여 title·버튼이 (수직 중앙 정렬 유지한 채) 조금 더 위에 오게. */
-  padding: var(--modal-p-md);
+  padding: var(--modal-padding-md);
 }
 
 /* 제목 없이 X 만 있는 머리줄 — 자리만 비워 두면 되므로 여백을 줄인다(제목 줄과 같은 여백을
    주면 본문이 저 아래에서 시작한다) */
 .modalHeaderBare {
-  padding: var(--spacing-sm) var(--spacing-sm) 0;
+  padding: var(--spacing-12) var(--spacing-12) 0;
 }
 
 /* 그 아래 본문은 바로 이어진다 */
@@ -73,7 +73,7 @@
 
 .headerContent {
   display: flex;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   align-items: center;
   min-width: 0;
 }
@@ -86,7 +86,7 @@
 .headerActions {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   flex-shrink: 0;
 }
 
@@ -95,7 +95,7 @@
 .rightCluster {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   flex-shrink: 0;
 }
 
@@ -115,7 +115,7 @@
 .modalScroll {
   flex: 1;
   min-height: 0;
-  padding-top: var(--spacing-md);
+  padding-top: var(--spacing-16);
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
@@ -124,7 +124,7 @@
 
 @media (max-width: 768px) {
   .modalScroll {
-    padding-bottom: var(--spacing-xl);
+    padding-bottom: var(--spacing-24);
     min-height: 20vh;
   }
 }
@@ -134,7 +134,7 @@
    ========================================================================== */
 
 .modalBody {
-  padding: var(--modal-p-md);
+  padding: var(--modal-padding-md);
 }
 
 /* ==========================================================================
@@ -145,9 +145,9 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   /* 좌우를 md 로 줄여 버튼↔모달 우측 여백을 하단 여백(padding-bottom md)과 같게 */
-  padding: var(--modal-p-md);
+  padding: var(--modal-padding-md);
   flex-shrink: 0;
 }
 

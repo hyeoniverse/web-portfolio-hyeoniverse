@@ -101,11 +101,11 @@ h5,
 h6 {
   margin: 0;
   padding: 0;
-  line-height: var(--heading-lh);
+  line-height: var(--heading-line-height);
   /* 제목(h1~h6) 굵기 — 본문보다 한 단계 위(regular→medium). 전역 단일 소스. */
   font-weight: var(--font-weight-medium);
 }
-h1 { font-size: var(--font-size-2xl); }
+h1 { font-size: var(--font-size-24); }
 h2 { font-size: var(--font-size-title-lg); }
 h3 { font-size: var(--font-size-title-md); }
 h4 { font-size: var(--font-size-title-sm); }
@@ -128,14 +128,14 @@ h6 { font-size: var(--font-size-label); }
    h2 는 28 로 올려 섹션 제목과 h3(20) 사이를 벌리고, h4 는 본문 크기에 굵기로만 구분한다(GitHub 과 같은 방식). */
 /* 본문 안 링크(#제목)로 이동할 때 상단 메뉴에 가리지 않게 */
 .prose-content :is(h1, h2, h3, h4) {
-  scroll-margin-top: calc(var(--spacing-4xl) + var(--spacing-xl));
+  scroll-margin-top: calc(var(--spacing-64) + var(--spacing-24));
 }
 
-.prose-content h1 { font-size: var(--font-size-3xl); font-weight: var(--font-weight-bold); }
-.prose-content h2 { font-size: var(--font-size-2xl-plus); font-weight: var(--font-weight-bold); }
-.prose-content h3 { font-size: var(--font-size-xl); font-weight: var(--font-weight-semibold); }
-.prose-content h4 { font-size: var(--font-size-md); font-weight: var(--font-weight-semibold); }
-.prose-content h5 { font-size: var(--font-size-md); }
+.prose-content h1 { font-size: var(--font-size-32); font-weight: var(--font-weight-bold); }
+.prose-content h2 { font-size: var(--font-size-28); font-weight: var(--font-weight-bold); }
+.prose-content h3 { font-size: var(--font-size-20); font-weight: var(--font-weight-semibold); }
+.prose-content h4 { font-size: var(--font-size-16); font-weight: var(--font-weight-semibold); }
+.prose-content h5 { font-size: var(--font-size-16); }
 .prose-content h6 { font-size: var(--font-size-body); }
 
 /* 편집기·글·작업물 본문(미리보기·상세)의 굵은 글씨는 강조색(전역 strong)이 아니라 편집기의 글자색을 따른다(#1118).
@@ -162,12 +162,12 @@ code {
   box-decoration-break: slice;
   font-family: var(--font-mono);
   font-size: 0.85em;
-  padding: var(--spacing-3xs) var(--spacing-xs);
+  padding: var(--spacing-2) var(--spacing-8);
   /* 텍스트는 accent(레드/핑크), 배경은 깔끔한 중립 — hue·명도 둘 다 대비돼 가독성 확보(Notion 레드 결).
      하이라이트된 인라인 코드는 토큰 색이 이 color 를 덮으므로, 이 accent 는 비하이라이트 코드에만 보인다. */
   color: var(--text-accent);
   background: var(--bg-secondary);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   text-transform: none;
 }
 
@@ -214,16 +214,16 @@ body {
 }
 
 kbd {
-  padding: var(--spacing-3xs) var(--spacing-xs);
-  margin: 0 var(--spacing-3xs);
+  padding: var(--spacing-2) var(--spacing-8);
+  margin: 0 var(--spacing-2);
   font-family: var(--font-mono);
   font-size: 0.8em;
   line-height: inherit;
   color: var(--text-primary);
   background: linear-gradient(to bottom, var(--bg-primary), var(--bg-secondary));
   border: var(--border-default);
-  border-bottom-width: var(--border-width-thick);
-  border-radius: var(--radius-capsule);
+  border-bottom-width: var(--border-width-2);
+  border-radius: var(--radius-full);
   vertical-align: baseline;
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
@@ -255,13 +255,13 @@ kbd {
 
 /* 리더뷰 토글(enhanceToggles) — 첫 줄이 제목 단추, 닫혀 있으면 나머지를 숨긴다. 편집기 안(.slate-*)은 편집기가 그린다 */
 .prose-content [data-toggle] {
-  margin: var(--spacing-lg) 0;
+  margin: var(--spacing-20) 0;
 }
 
 .prose-content [data-toggle] > [data-toggle-head] {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   margin: 0;
   cursor: pointer;
   user-select: none;
@@ -285,5 +285,5 @@ kbd {
 }
 
 .prose-content [data-toggle][data-open] > [data-toggle-head] {
-  margin-bottom: var(--spacing-sm);
+  margin-bottom: var(--spacing-12);
 }

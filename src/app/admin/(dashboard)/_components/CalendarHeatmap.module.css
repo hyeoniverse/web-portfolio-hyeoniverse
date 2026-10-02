@@ -10,8 +10,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-xs) 0 var(--spacing-md);
+  gap: var(--spacing-12);
+  padding: var(--spacing-8) 0 var(--spacing-16);
   border-bottom: var(--border-light);
 }
 
@@ -29,7 +29,7 @@
    explicit border 두면 stats 섹션 안에 hairline 이 많이 쌓여 bottom 쪽이 시각적으로 무거워짐. */
 .calendarDowRow {
   display: grid;
-  grid-template-columns: var(--grid-cols-7);
+  grid-template-columns: var(--grid-columns-7);
 }
 
 .calendarDow {
@@ -39,17 +39,17 @@
   text-align: center;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  padding: var(--spacing-xs) 0;
+  padding: var(--spacing-8) 0;
 }
 
 /* Calendar grid — gap+bg trick 으로 cell 사이 1px hairline. 상/하 경계도 동일하게 bg+padding 으로
    처리 (border 와 gap 의 rendering 차이 통일 — subpixel 차이로 다르게 보이는 문제 방지) */
 .calendarGrid {
   composes: panelGrid from "../components/Panel.module.css";
-  grid-template-columns: var(--grid-cols-7);
-  gap: var(--spacing-4xs);
+  grid-template-columns: var(--grid-columns-7);
+  gap: var(--spacing-1);
   background: var(--border-color-light);
-  padding-block: var(--spacing-4xs);
+  padding-block: var(--spacing-1);
 }
 
 .calendarCell {
@@ -66,7 +66,7 @@
   border: none;
   border-radius: 0;
   cursor: pointer;
-  padding: var(--spacing-xs);
+  padding: var(--spacing-8);
   transition: filter 0.12s ease;
   font-family: var(--font-space-grotesk);
   /* button element 의 browser default appearance 리셋 */
@@ -118,7 +118,7 @@
 /* 조회수 — 셀 중앙, 크게 */
 .calendarCellViews {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-16);
   font-weight: 600;
   color: var(--text-primary);
   font-variant-numeric: tabular-nums;
@@ -138,23 +138,23 @@
 .calendarLegend {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   align-self: flex-end;
   font-family: var(--font-mono);
   font-size: var(--font-size-hint);
   color: var(--text-muted);
-  padding: var(--spacing-xs) var(--spacing-md);
+  padding: var(--spacing-8) var(--spacing-16);
 }
 
 .calendarLegendCell {
   width: 12px;
   height: 12px;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   /* 0 단계 cell 이 bg-primary 라 section bg 와 같아져 안 보이는 문제 방지용 hairline */
   border: var(--border-light);
   box-sizing: border-box;
 }
 
 .calendarLegendLabel {
-  margin: 0 var(--spacing-3xs);
+  margin: 0 var(--spacing-2);
 }

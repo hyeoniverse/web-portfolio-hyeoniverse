@@ -2,9 +2,9 @@
 .badge {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-xs);
-  padding: var(--badge-p-md);
-  border-radius: var(--radius-capsule);
+  gap: var(--spacing-8);
+  padding: var(--badge-padding-md);
+  border-radius: var(--radius-full);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   font-weight: 600;

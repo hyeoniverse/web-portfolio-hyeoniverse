@@ -7,7 +7,7 @@
   flex-shrink: 0;
   background: transparent;
   border: none;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   color: var(--text-tertiary);
   cursor: pointer;
   transition:
@@ -21,29 +21,29 @@
 }
 
 .xs {
-  width: var(--control-h-2xs);     /* 20 */
-  height: var(--control-h-2xs);
+  width: var(--control-height-2xs);     /* 20 */
+  height: var(--control-height-2xs);
   --close-size: 10px;
   --close-weight: 1px;
 }
 
 .sm {
-  width: var(--control-h-xs);     /* 24 */
-  height: var(--control-h-xs);
+  width: var(--control-height-xs);     /* 24 */
+  height: var(--control-height-xs);
   --close-size: 12px;
   --close-weight: 1px;
 }
 
 .md {
-  width: var(--control-h-md);    /* 32 */
-  height: var(--control-h-md);
+  width: var(--control-height-md);    /* 32 */
+  height: var(--control-height-md);
   --close-size: 14px;
   --close-weight: 1.5px;
 }
 
 .lg {
-  width: var(--control-h-xl);     /* 38 */
-  height: var(--control-h-xl);
+  width: var(--control-height-xl);     /* 38 */
+  height: var(--control-height-xl);
   --close-size: 16px;
   --close-weight: 1.5px;
 }

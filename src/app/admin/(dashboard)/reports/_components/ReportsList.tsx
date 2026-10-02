@@ -25,8 +25,8 @@ function ReportsSkeleton() {
       {Array.from({ length: 5 }).map((_, i) => (
         <li key={i} className={styles.item}>
           <div className={styles.skelHeader}>
-            <SkeletonLine width={160} height="var(--skeleton-h-line-sm)" />
-            <SkeletonLine width={60} height="var(--skeleton-h-line-sm)" />
+            <SkeletonLine width={160} height="var(--skeleton-height-line-sm)" />
+            <SkeletonLine width={60} height="var(--skeleton-height-line-sm)" />
           </div>
           <div className={styles.skelNick}>
             <SkeletonLine width={100} />

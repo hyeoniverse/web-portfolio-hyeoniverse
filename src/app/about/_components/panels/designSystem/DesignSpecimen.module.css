@@ -3,7 +3,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding-bottom: calc(var(--spacing-2xl) + 3.5rem);
+  padding-bottom: calc(var(--spacing-32) + 3.5rem);
 }
 
 .board {
@@ -19,7 +19,7 @@
 .cell {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
   min-width: 0;
   min-height: 0;
   padding: clamp(0.9rem, 2vh, 1.4rem) clamp(1rem, 1.6vw, 1.6rem);
@@ -48,13 +48,13 @@
   display: grid;
   flex: 1;
   grid-template-columns: repeat(4, 1fr);
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 .swatch {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   min-height: 0;
 }
 
@@ -62,7 +62,7 @@
   flex: 1;
   min-height: 2rem;
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
 }
 
 /* 서체 */
@@ -70,14 +70,14 @@
   display: grid;
   flex: 1;
   grid-template-columns: repeat(4, 1fr);
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   align-items: end;
 }
 
 .font {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
 }
 
 .fontSample {
@@ -95,35 +95,35 @@
 .spaces {
   display: flex;
   flex: 1;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   align-items: flex-end;
 }
 
 .space {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   align-items: center;
 }
 
 .spaceBar {
   width: 10px;
   background: var(--text-accent);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
 }
 
 /* 모서리 */
 .radii {
   display: flex;
   flex: 1;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
   align-items: center;
 }
 
 .radius {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   align-items: center;
 }
 
@@ -137,13 +137,13 @@
 .easings {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
 }
 
 .easing {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
 }
 
 .track {
@@ -180,7 +180,7 @@
   display: grid;
   flex: 1;
   grid-template-columns: repeat(4, 1fr);
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
   align-content: center;
   color: var(--text-primary);
 }
@@ -188,8 +188,8 @@
 /* 낮은 화면 — 두 줄 격자가 넘치지 않게 견본을 줄인다 */
 @media (max-height: 860px) {
   .cell {
-    gap: var(--spacing-xs);
-    padding: var(--spacing-sm) var(--spacing-md);
+    gap: var(--spacing-8);
+    padding: var(--spacing-12) var(--spacing-16);
     overflow: hidden;
   }
 
@@ -206,7 +206,7 @@
   }
 
   .easings {
-    gap: var(--spacing-xs);
+    gap: var(--spacing-8);
   }
 
   .radiusBox {

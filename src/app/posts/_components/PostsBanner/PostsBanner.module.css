@@ -22,8 +22,8 @@
    1. Fullwidth — wraps existing Carousel
    ========================================================================== */
 .fullwidth {
-  width: calc(100% + var(--page-px) * 2);
-  margin-left: calc(-1 * var(--page-px));
+  width: calc(100% + var(--spacing-page-inline) * 2);
+  margin-left: calc(-1 * var(--spacing-page-inline));
   /* 배너(카드) 비율을 화면 크기와 무관하게 고정한다. 예전에는 뷰포트 높이가 56vh(세로 뷰포트),
      폭은 전체(가로 뷰포트)라 두 축이 따로 놀아, 창을 세로로만 줄여도 비율이 달라졌다.
      높이를 폭에서 뽑으면(Banner 의 aspectRatio) 세로 리사이즈에 비율이 변하지 않는다.
@@ -42,7 +42,7 @@
   --_split-h: clamp(280px, 44vh, 480px);
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
 }
 
 .splitSlide {
@@ -51,7 +51,7 @@
   height: var(--_split-h);
   width: 100%;
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   overflow: hidden;
 }
 
@@ -101,14 +101,14 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: var(--spacing-2xl) var(--spacing-3xl);
+  padding: var(--spacing-32) var(--spacing-48);
   background: var(--bg-primary);
 }
 
 .splitContentInner {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
 }
 
 .splitCategory {
@@ -136,7 +136,7 @@
 }
 
 .splitExcerpt {
-  margin-top: var(--spacing-xs);
+  margin-top: var(--spacing-8);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
@@ -149,14 +149,14 @@
 
 .splitControls {
   display: flex;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   align-items: center;
   justify-content: center;
 }
 
 .splitDots {
   display: flex;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   align-items: center;
 }
 
@@ -164,8 +164,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--control-h-xs);
-  height: var(--control-h-xs);
+  width: var(--control-height-xs);
+  height: var(--control-height-xs);
   padding: 0;
   border: none;
   border-radius: var(--radius-circle);
@@ -182,8 +182,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: var(--control-h-xs);
-  height: var(--control-h-xs);
+  width: var(--control-height-xs);
+  height: var(--control-height-xs);
   padding: 0;
   border: none;
   border-radius: var(--radius-circle);
@@ -203,7 +203,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-20);
 }
 
 .cardsTrack {
@@ -220,7 +220,7 @@
   width: 70%;
   height: 100%;
   margin-left: -35%;
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   overflow: hidden;
 }
 
@@ -266,7 +266,7 @@
   bottom: 0;
   left: 0;
   right: 0;
-  padding: var(--card-p-lg);
+  padding: var(--card-padding-lg);
   z-index: 1;
 }
 
@@ -280,7 +280,7 @@
 }
 
 .cardTitle {
-  margin-top: var(--spacing-xs);
+  margin-top: var(--spacing-8);
   font-family: var(--font-instrument);
   font-size: clamp(1rem, 2vw, 1.75rem);
   font-weight: var(--font-weight-regular);
@@ -291,7 +291,7 @@
 }
 
 .cardExcerpt {
-  margin-top: var(--spacing-xs);
+  margin-top: var(--spacing-8);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   color: var(--text-white);
@@ -312,7 +312,7 @@
 .ticker {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
   min-height: 72px;
   border-top: var(--border-light);
   border-bottom: var(--border-light);
@@ -346,7 +346,7 @@
 .tickerLink {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
   text-decoration: none;
   min-width: 0;
 }
@@ -422,7 +422,7 @@
 
   .splitContent {
     flex: none;
-    padding: var(--spacing-lg);
+    padding: var(--spacing-20);
   }
 
   .splitExcerpt {

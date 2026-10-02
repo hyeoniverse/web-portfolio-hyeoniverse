@@ -1,11 +1,11 @@
 .body {
   /* 모달 머리줄·발치와 같은 좌우 여백 */
-  padding: 0 var(--spacing-lg) var(--spacing-lg);
+  padding: 0 var(--spacing-20) var(--spacing-20);
 }
 
 /* 창을 여는 사람이 먼저 읽는 문장이라 본문 크기로 — 보조 설명 크기(12px)로 두면 눈에 안 들어온다 */
 .hint {
-  margin: 0 0 var(--spacing-md);
+  margin: 0 0 var(--spacing-16);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-body);
   color: var(--text-secondary);
@@ -13,7 +13,7 @@
 }
 
 .empty {
-  margin: var(--spacing-lg) 0;
+  margin: var(--spacing-20) 0;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
@@ -24,9 +24,9 @@
   display: inline-flex;
   align-items: center;
   /* 아래 줄들과 같은 자리에서 시작하도록 — 줄에 좌우 여백이 있어 체크박스가 들여쓰기 돼 있다 */
-  padding: 0 var(--spacing-sm);
-  gap: var(--spacing-sm);
-  margin-bottom: var(--spacing-xs);
+  padding: 0 var(--spacing-12);
+  gap: var(--spacing-12);
+  margin-bottom: var(--spacing-8);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   color: var(--text-secondary);
@@ -37,7 +37,7 @@
 .list {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
   max-height: 340px;
   overflow-y: auto;
 }
@@ -46,15 +46,15 @@
 .group {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
 }
 
 .groupHead {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   margin: 0;
-  padding: 0 var(--spacing-sm);
+  padding: 0 var(--spacing-12);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-hint);
   font-weight: 600;
@@ -67,8 +67,8 @@
 
 /* 조직 표시 — 이름만으로는 내 계정과 구별되지 않는다 */
 .groupKind {
-  padding: 0 var(--spacing-xs);
-  border-radius: var(--radius-capsule);
+  padding: 0 var(--spacing-8);
+  border-radius: var(--radius-full);
   background: var(--bg-tertiary);
   font-size: var(--font-size-micro);
   font-weight: 500;
@@ -85,7 +85,7 @@
 .rows {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -94,9 +94,9 @@
 .row {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-xs) var(--spacing-sm);
-  border-radius: var(--radius-capsule);
+  gap: var(--spacing-12);
+  padding: var(--spacing-8) var(--spacing-12);
+  border-radius: var(--radius-full);
   cursor: pointer;
 }
 
@@ -124,8 +124,8 @@
 /* 이미 들여 둔 저장소 — 고르면 내용을 덮어쓴다는 뜻이라 눈에 띄게 */
 .badge {
   flex-shrink: 0;
-  padding: 0 var(--spacing-xs);
-  border-radius: var(--radius-capsule);
+  padding: 0 var(--spacing-8);
+  border-radius: var(--radius-full);
   background: var(--bg-tertiary);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-hint);

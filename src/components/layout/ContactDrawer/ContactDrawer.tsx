@@ -234,7 +234,7 @@ export default function ContactDrawer({
     if (badge) {
       badge.style.visibility = isOpen ? "visible" : "hidden";
       badge.style.opacity = isOpen ? "1" : "0";
-      badge.style.zIndex = isOpen ? "var(--z-top)" : "";
+      badge.style.zIndex = isOpen ? "var(--z-index-top)" : "";
       badge.style.transition = "visibility 0.3s, opacity 0.3s";
     }
 

@@ -110,7 +110,7 @@ export default function BreakpointGuard({
         style={{
           position: "fixed",
           inset: 0,
-          zIndex: "var(--z-top)",
+          zIndex: "var(--z-index-top)",
           background: "var(--bg-primary)",
           opacity: overlayPhase === "solid" ? 1 : 0,
           transition:

@@ -22,7 +22,7 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: calc(var(--header-height) + var(--spacing-xl)) var(--spacing-2xl) var(--spacing-2xl);
+  padding: calc(var(--header-height) + var(--spacing-24)) var(--spacing-32) var(--spacing-32);
   background: var(--bg-primary);
   color: var(--text-primary);
   overflow: hidden;
@@ -57,7 +57,7 @@
   z-index: 1;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   max-width: 800px;
 }
 
@@ -153,8 +153,8 @@
 
 .projectYear {
   position: absolute;
-  top: var(--spacing-lg);
-  right: var(--spacing-lg);
+  top: var(--spacing-20);
+  right: var(--spacing-20);
   z-index: 2;
   font-family: var(--font-mono);
   font-size: var(--font-size-label);
@@ -177,7 +177,7 @@
   left: 0;
   right: 0;
   z-index: 2;
-  padding: var(--spacing-xl);
+  padding: var(--spacing-24);
   color: var(--text-white);
   pointer-events: none;
   mix-blend-mode: difference;
@@ -207,7 +207,7 @@
 }
 
 .projectNumber.projectExtraOn {
-  margin-bottom: var(--spacing-2xs);
+  margin-bottom: var(--spacing-4);
 }
 
 /* 폰트 크기 — clamp(min, vw 비례, max) 로 viewport 따라 scale.
@@ -218,7 +218,7 @@
   font-weight: var(--font-weight-light);
   letter-spacing: -0.02em;
   line-height: var(--line-height-tight);
-  margin: 0 0 var(--spacing-2xs) 0;
+  margin: 0 0 var(--spacing-4) 0;
   transition: font-size 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -245,23 +245,23 @@
 }
 
 .projectDesc.projectExtraOn {
-  margin-top: var(--spacing-sm);
+  margin-top: var(--spacing-12);
 }
 
 .projectTech {
   display: flex;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   flex-wrap: wrap;
 }
 
 .projectTech.projectExtraOn {
-  margin-top: var(--spacing-sm);
+  margin-top: var(--spacing-12);
 }
 
 .projectTech span {
-  padding: var(--spacing-3xs) var(--spacing-xs);
+  padding: var(--spacing-2) var(--spacing-8);
   border: var(--border-ghost);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   font-family: var(--font-mono);
   font-size: var(--font-size-hint);
 }

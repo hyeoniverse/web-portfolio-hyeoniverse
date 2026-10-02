@@ -5,14 +5,14 @@
    여기서만 정의하고 양쪽이 이 클래스를 쓴다 — 한쪽만 바뀌어 어긋나는 일을 막는다.
 
    공통 Button 을 못 쓰는 이유: size 가 md 32 / lg 36 / xl 40 뿐이라 이 47px 규격이 없다.
-   (--button-p-lg 는 "hero CTA" 용으로 정의돼 있는데 정작 Button 의 어떤 size 도 안 쓴다) */
+   (--button-padding-lg 는 "hero CTA" 용으로 정의돼 있는데 정작 Button 의 어떤 size 도 안 쓴다) */
 .btn {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--button-p-lg);
+  gap: var(--spacing-12);
+  padding: var(--button-padding-lg);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-body);

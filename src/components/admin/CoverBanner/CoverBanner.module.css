@@ -4,15 +4,15 @@
   position: relative;
   /* 커버가 container 최상단(전역 nav 바로 아래)에 위치 → 별도 offset 불필요 */
   /* 이모지가 배너 하단에 겹치므로 아래쪽 여유 공간 확보 */
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: var(--spacing-20);
 }
 
 /* ── 커버 배너 ── */
 .banner {
   position: relative;
   /* 좌우 페이지 패딩을 벗어나 에디터 폭을 꽉 채움 */
-  margin-left: calc(-1 * var(--page-px));
-  margin-right: calc(-1 * var(--page-px));
+  margin-left: calc(-1 * var(--spacing-page-inline));
+  margin-right: calc(-1 * var(--spacing-page-inline));
   /* detail 페이지 hero 와 동일한 비율 */
   height: 35vh;
   min-height: 240px;
@@ -40,9 +40,9 @@
 .controls {
   position: absolute;
   /* 전역 nav(높이 --header-height)와 안 겹치게 그 아래로 */
-  top: calc(var(--header-height) + var(--spacing-sm));
-  /* 페이지·nav 우측 여백(--page-px)과 동일하게 — 배너가 page-px 만큼 넘쳐있으므로 그만큼 안쪽으로 */
-  right: var(--page-px);
+  top: calc(var(--header-height) + var(--spacing-12));
+  /* 페이지·nav 우측 여백(--spacing-page-inline)과 동일하게 — 배너가 page-px 만큼 넘쳐있으므로 그만큼 안쪽으로 */
+  right: var(--spacing-page-inline);
   display: flex;
   gap: 0;
   opacity: 0;
@@ -80,11 +80,11 @@
 /* 상단 중앙 안내 힌트 — difference blend 로 어떤 배경 위에서도 가독성 */
 .repositionHint {
   position: absolute;
-  top: calc(var(--header-height) + var(--spacing-sm));
+  top: calc(var(--header-height) + var(--spacing-12));
   left: 50%;
   transform: translateX(-50%);
-  padding: var(--spacing-3xs) var(--spacing-sm);
-  border-radius: var(--radius-capsule);
+  padding: var(--spacing-2) var(--spacing-12);
+  border-radius: var(--radius-full);
   background: transparent;
   mix-blend-mode: difference;
   color: var(--color-white-alpha-100);
@@ -99,8 +99,8 @@
 .menu {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-sm);
+  gap: var(--spacing-8);
+  padding: var(--spacing-12);
   min-width: 240px;
 }
 
@@ -122,7 +122,7 @@
 .menuDivider {
   height: 1px;
   background: var(--border-color-light);
-  margin: var(--spacing-2xs) 0;
+  margin: var(--spacing-4) 0;
 }
 
 /* ── 페이지 이모지 ── */
@@ -130,7 +130,7 @@
   position: relative;
   /* 배너에 절반 겹치도록 위로 끌어올림 (이모지 박스 80px의 절반) */
   margin-top: -40px;
-  margin-left: var(--spacing-md);
+  margin-left: var(--spacing-16);
   height: 40px;
   display: flex;
   align-items: flex-end;
@@ -138,7 +138,7 @@
 
 /* 커버가 없을 때는 겹칠 배너가 없으니 끌어올리지 않음 */
 .emojiRowNoCover {
-  margin-top: var(--spacing-2xs);
+  margin-top: var(--spacing-4);
   height: auto;
 }
 
@@ -146,7 +146,7 @@
   position: relative;
   /* picker 는 sticky topBar 위엔 뜨되(emojiAnchor 가 DOM 상 topBar 뒤라 동일 z 에서 위에 그려짐)
      전역 nav(로고·네비게이션)는 덮지 않게 nav 바로 아래 레이어(nav-1 = topBar 와 동일). */
-  z-index: calc(var(--z-nav) - 1);
+  z-index: calc(var(--z-index-nav) - 1);
 }
 
 .emojiBtn {
@@ -156,7 +156,7 @@
   /* 이모지(56px) 주변 여백 확보 — 버튼 크기를 키워서(이모지 크기는 유지) */
   width: 80px;
   height: 80px;
-  padding: var(--spacing-3xs);
+  padding: var(--spacing-2);
   /* hover 시 border-color 만 입히도록 자리 미리 확보(border-box → 시프트 없음) */
   border: 1px solid transparent;
   border-radius: var(--radius-circle);

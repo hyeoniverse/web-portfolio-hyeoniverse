@@ -3,20 +3,20 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-sm);
-  margin-top: var(--spacing-md);
+  gap: var(--spacing-12);
+  margin-top: var(--spacing-16);
 }
 
 .pagination {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 .pageBtn {
-  width: var(--control-h-md);
-  height: var(--control-h-md);
+  width: var(--control-height-md);
+  height: var(--control-height-md);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -31,17 +31,17 @@
 
 /* size=sm — 컴팩트한 list 안에서 사용 */
 .paginationWrapSm .pageBtn {
-  width: var(--control-h-sm);
-  height: var(--control-h-sm);
+  width: var(--control-height-sm);
+  height: var(--control-height-sm);
   font-size: var(--font-size-label);
 }
 
 .paginationWrapSm .pagination {
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 .paginationWrapSm .jumpInput {
-  height: var(--control-h-sm);
+  height: var(--control-height-sm);
 }
 
 .pagination .pageBtn:hover:not(:disabled) {
@@ -69,14 +69,14 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-body);
   color: var(--text-tertiary);
-  padding: 0 var(--spacing-2xs);
+  padding: 0 var(--spacing-4);
 }
 
 /* Jump-to input — "Go to [n] / N" */
 .jumpRow {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
@@ -91,10 +91,10 @@
 .jumpInput {
   width: 56px;
   /* 페이지 원 단추(control-h-md)와 같은 눈금 — padding 만으로는 31px 로 어긋난다 */
-  height: var(--control-h-md);
-  padding: var(--field-p-sm);
+  height: var(--control-height-md);
+  padding: var(--field-padding-sm);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   font-family: var(--font-mono);
   font-size: var(--font-size-label);

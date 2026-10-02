@@ -4,7 +4,7 @@
 }
 
 .main {
-  padding: var(--spacing-6xl) 8vw var(--spacing-5xl);
+  padding: var(--spacing-128) 8vw var(--spacing-96);
 }
 
 /* SSR FOUC 방지 — hydration 전까지 콘텐츠 숨김 */
@@ -14,7 +14,7 @@
 
 .container {
   margin: 0 auto;
-  max-width: var(--page-max-width);
+  max-width: var(--width-page-max);
 }
 
 /* ─── TOC Sidebar ─── */
@@ -23,7 +23,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: var(--spacing-2xl-plus);
+  margin-bottom: var(--spacing-40);
 }
 
 .backLink.backLink {
@@ -39,7 +39,7 @@
 }
 
 .title {
-  margin-bottom: var(--spacing-xs);
+  margin-bottom: var(--spacing-8);
   font-family: var(--font-instrument), serif;
   font-size: clamp(2.5rem, 5vw, 4rem);
   font-weight: var(--font-weight-regular);
@@ -47,7 +47,7 @@
 }
 
 .subtitle {
-  margin-bottom: var(--spacing-5xl);
+  margin-bottom: var(--spacing-96);
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-title-sm);
   color: var(--text-tertiary);
@@ -58,15 +58,15 @@
 .presetBar {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   flex-wrap: wrap;
-  margin-bottom: var(--spacing-3xl);
+  margin-bottom: var(--spacing-48);
 }
 
 .presetSwatch {
   position: relative;
-  width: var(--control-h-xs);
-  height: var(--control-h-xs);
+  width: var(--control-height-xs);
+  height: var(--control-height-xs);
   border-radius: var(--radius-circle);
   border: 2px solid transparent;
   background: transparent;
@@ -101,8 +101,8 @@
   font-size: var(--font-size-hint);
   color: var(--text-secondary);
   background: var(--bg-primary);
-  padding: var(--spacing-3xs) var(--spacing-xs);
-  border-radius: var(--radius-capsule);
+  padding: var(--spacing-2) var(--spacing-8);
+  border-radius: var(--radius-full);
   white-space: nowrap;
   opacity: 0;
   pointer-events: none;
@@ -115,15 +115,15 @@
 
 /* Section */
 .section {
-  margin-bottom: var(--spacing-3xl);
+  margin-bottom: var(--spacing-48);
 }
 
 .sectionTitleRow {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: var(--spacing-md);
-  padding-bottom: var(--spacing-xs);
+  margin-bottom: var(--spacing-16);
+  padding-bottom: var(--spacing-8);
   border-bottom: var(--border-strong);
 }
 
@@ -134,8 +134,8 @@
 }
 
 .sectionTitle {
-  margin-bottom: var(--spacing-md);
-  padding-bottom: var(--spacing-xs);
+  margin-bottom: var(--spacing-16);
+  padding-bottom: var(--spacing-8);
   border-bottom: var(--border-strong);
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-title-lg);
@@ -144,8 +144,8 @@
 }
 
 .sectionSub {
-  margin-top: var(--spacing-2xl);
-  margin-bottom: var(--spacing-sm);
+  margin-top: var(--spacing-32);
+  margin-bottom: var(--spacing-12);
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-body);
   font-weight: var(--font-weight-medium);
@@ -162,14 +162,14 @@
 .colorGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 .colorSwatch {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 .colorBox {
@@ -193,35 +193,35 @@
 /* Brand color row */
 .brandRow {
   display: flex;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   flex-wrap: wrap;
-  margin-bottom: var(--spacing-xl);
+  margin-bottom: var(--spacing-24);
 }
 
 .brandSwatch {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 .brandBox {
   width: 100px;
   height: 64px;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
 }
 
 /* Typography showcase */
 .typoRow {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-20);
 }
 
 .typoItem {
   display: flex;
   align-items: baseline;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
 }
 
 .typoLabel {
@@ -237,19 +237,19 @@
 .spacingRow {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 .spacingItem {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 .spacingBar {
   height: 20px;
   background: var(--bg-accent);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   border: var(--border-accent);
   transition: background var(--duration-base) var(--ease-material);
 }
@@ -276,32 +276,32 @@
 .gridDemoList {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
 }
 
 .gridDemoItem {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 .gridDemoRow {
   display: grid;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 /* Radius showcase */
 .radiusGrid {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
 }
 
 .radiusItem {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 .radiusBox {
@@ -322,21 +322,21 @@
 .shadowGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: var(--spacing-xl);
+  gap: var(--spacing-24);
 }
 
 .shadowItem {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 .shadowBox {
   width: 100%;
   height: 80px;
   background: var(--bg-primary);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
 }
 
 .shadowLabel {
@@ -349,32 +349,32 @@
 .motionGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
 }
 
 .motionItem {
-  padding: var(--row-p-lg);
-  border-radius: var(--radius-2xl);
+  padding: var(--row-padding-lg);
+  border-radius: var(--radius-24);
 }
 
 .motionName {
   font-family: var(--font-mono), monospace;
   font-size: var(--font-size-label);
   color: var(--text-primary);
-  margin-bottom: var(--spacing-2xs);
+  margin-bottom: var(--spacing-4);
 }
 
 .motionValue {
   font-family: var(--font-mono), monospace;
   font-size: var(--font-size-label);
   color: var(--text-muted);
-  margin-bottom: var(--spacing-sm);
+  margin-bottom: var(--spacing-12);
 }
 
 .motionBar {
   height: 4px;
   background: var(--bg-accent-solid);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   transform-origin: left;
   transform: scaleX(0);
 }
@@ -419,9 +419,9 @@
   left: 0;
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-xs) var(--spacing-md);
-  border-radius: var(--radius-2xl);
+  gap: var(--spacing-12);
+  padding: var(--spacing-8) var(--spacing-16);
+  border-radius: var(--radius-24);
   font-family: var(--font-mono), monospace;
   font-size: var(--font-size-label);
   color: var(--text-primary);
@@ -432,16 +432,16 @@
 .componentRow {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   align-items: center;
 }
 
 .componentGroup {
-  margin-bottom: var(--spacing-2xl);
+  margin-bottom: var(--spacing-32);
 }
 
 .componentGroupTitle {
-  margin-bottom: var(--spacing-sm);
+  margin-bottom: var(--spacing-12);
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-body);
   font-weight: var(--font-weight-semibold);
@@ -451,7 +451,7 @@
 /* 컴포넌트 안 변형 소제목 (한 컴포넌트를 Variants/Sizes/States 등으로 나눌 때).
    컴포넌트명(.componentGroupTitle)보다 작고 옅게 — 하위임을 드러낸다. */
 .componentSubLabel {
-  margin: var(--spacing-xl) 0 var(--spacing-sm);
+  margin: var(--spacing-24) 0 var(--spacing-12);
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-label);
   font-weight: var(--font-weight-medium);
@@ -460,13 +460,13 @@
 }
 /* 제목 바로 다음 첫 소제목은 간격을 좁혀 컴포넌트에 붙인다 */
 .componentGroupTitle + .componentSubLabel {
-  margin-top: var(--spacing-xs);
+  margin-top: var(--spacing-8);
 }
 
 /* 컴포넌트 설명 — 위치(제목/소제목 바로 아래), 크기(sm), 색(tertiary) 통일.
    기존에 흩어져 있던 sectionSub 블록 + 인라인 span 설명을 이 하나로 통일. */
 .componentDesc {
-  margin: 0 0 var(--spacing-md) 0;
+  margin: 0 0 var(--spacing-16) 0;
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-body);
   font-weight: var(--font-weight-regular);
@@ -481,8 +481,8 @@
 .componentCategory {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
-  margin: var(--spacing-5xl) 0 var(--spacing-xl);
+  gap: var(--spacing-16);
+  margin: var(--spacing-96) 0 var(--spacing-24);
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-label);
   font-weight: var(--font-weight-semibold);
@@ -491,7 +491,7 @@
   color: var(--text-accent);
 }
 .componentCategory:first-of-type {
-  margin-top: var(--spacing-xl);
+  margin-top: var(--spacing-24);
 }
 .componentCategory::after {
   content: "";
@@ -504,19 +504,19 @@
 .semanticGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 .semanticItem {
   display: flex;
   align-items: stretch;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   border: var(--border-light);
   overflow: hidden;
 }
 
 .semanticDot {
-  width: var(--control-h-xs);
+  width: var(--control-height-xs);
   flex-shrink: 0;
   border-right: var(--border-light);
 }
@@ -525,9 +525,9 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   min-width: 0;
-  padding: var(--spacing-xs) var(--spacing-sm) var(--spacing-xs) var(--spacing-xs);
+  padding: var(--spacing-8) var(--spacing-12) var(--spacing-8) var(--spacing-8);
 }
 
 .semanticName {
@@ -551,20 +551,20 @@
 /* Alpha showcase */
 .alphaRow {
   display: flex;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   align-items: flex-end;
-  margin-bottom: var(--spacing-sm);
+  margin-bottom: var(--spacing-12);
 }
 
 .alphaBar {
   flex: 1;
   border: var(--border-light);
-  border-radius: var(--radius-capsule) var(--radius-capsule) 0 0;
+  border-radius: var(--radius-full) var(--radius-full) 0 0;
   min-width: 0;
 }
 
 .alphaLabel {
-  margin-top: var(--spacing-xs);
+  margin-top: var(--spacing-8);
   font-family: var(--font-mono), monospace;
   font-size: var(--font-size-hint);
   color: var(--text-muted);
@@ -575,7 +575,7 @@
 .modalDemo {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   align-items: center;
 }
 
@@ -583,8 +583,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-md);
-  padding: var(--spacing-lg) var(--spacing-2xl) var(--spacing-2xl);
+  gap: var(--spacing-16);
+  padding: var(--spacing-20) var(--spacing-32) var(--spacing-32);
   text-align: center;
 }
 
@@ -593,12 +593,12 @@
    desc 와 간격이 과했음 → 리셋 후 커스텀 dot + desc 와 정렬.
    margin-top 음수는 desc 의 margin-bottom(3xl)과 상쇄돼 실제 간격 = lg. */
 .modalChangeList {
-  margin: calc(var(--spacing-lg) - var(--spacing-3xl)) 0 0;
+  margin: calc(var(--spacing-20) - var(--spacing-48)) 0 0;
   padding: 0;
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-body);
   color: var(--text-secondary);
@@ -607,7 +607,7 @@
 
 .modalChangeList li {
   position: relative;
-  padding-left: var(--spacing-md);
+  padding-left: var(--spacing-16);
 }
 
 /* 커스텀 dot — desc 왼쪽선에 맞춰 살짝 안쪽, 텍스트는 md 들여쓰기(hanging indent) */
@@ -630,8 +630,8 @@
 /* TypeWriter demo */
 .typewriterDemo {
   position: relative;
-  padding: var(--spacing-2xl);
-  border-radius: var(--radius-2xl);
+  padding: var(--spacing-32);
+  border-radius: var(--radius-24);
   text-align: center;
 }
 
@@ -640,8 +640,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: var(--control-h-xs);
-  height: var(--control-h-xs);
+  width: var(--control-height-xs);
+  height: var(--control-height-xs);
   border: var(--border-neutral-light);
   border-radius: var(--radius-circle);
   background: var(--bg-tertiary);
@@ -661,8 +661,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: var(--control-h-xs);
-  height: var(--control-h-xs);
+  width: var(--control-height-xs);
+  height: var(--control-height-xs);
   border: var(--border-light);
   border-radius: var(--radius-circle);
   background: var(--bg-tertiary);
@@ -678,7 +678,7 @@
 .spinValue {
   min-width: 5ch;
   font-family: var(--font-mono), monospace;
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-18);
   color: var(--text-primary);
   text-align: center;
 }
@@ -691,7 +691,7 @@
 .collapsibleBody {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   font-size: var(--font-size-body);
   color: var(--text-secondary);
   line-height: var(--line-height-relaxed);
@@ -707,12 +707,12 @@
   isolation: isolate;
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
   align-items: flex-start;
-  padding: var(--spacing-sm) var(--spacing-lg);
+  padding: var(--spacing-12) var(--spacing-20);
   /* 팝오버가 아래로 열려 배경 위에 겹쳐 보이도록 높이 확보 */
   min-height: 200px;
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   background: var(--bg-secondary);
 }
 
@@ -729,7 +729,7 @@
 }
 
 .popoverNote {
-  padding: var(--spacing-xs) var(--spacing-md);
+  padding: var(--spacing-8) var(--spacing-16);
   font-size: var(--font-size-label);
   color: var(--text-secondary);
 }
@@ -738,14 +738,14 @@
 .sliderRow {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-20);
   max-width: 400px;
 }
 
 .sliderItem {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 .sliderLabel {
@@ -757,7 +757,7 @@
 /* Logo showcase */
 .logoRow {
   display: flex;
-  gap: var(--spacing-2xl);
+  gap: var(--spacing-32);
   align-items: center;
 }
 
@@ -765,7 +765,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 .logoLabel {
@@ -777,11 +777,11 @@
 /* Tooltip demo text */
 .tooltipDemoText {
   font-family: var(--font-instrument);
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-18);
   font-style: italic;
   color: var(--text-primary);
-  padding: var(--spacing-xs) var(--spacing-md);
-  border-radius: var(--radius-capsule);
+  padding: var(--spacing-8) var(--spacing-16);
+  border-radius: var(--radius-full);
 }
 
 /* Banner Layouts showcase */
@@ -789,8 +789,8 @@
 .bannerLayoutItem {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
-  margin-bottom: var(--spacing-2xl);
+  gap: var(--spacing-8);
+  margin-bottom: var(--spacing-32);
 }
 
 .bannerLayoutItem:last-child {
@@ -805,7 +805,7 @@
 
 .bannerPreviewBox {
   position: relative;
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
 }
 
 .bannerPreviewBox a {
@@ -821,12 +821,12 @@
 
 @media (max-width: 768px) {
   .main {
-    padding: 6.25rem 6vw var(--spacing-5xl);
+    padding: 6.25rem 6vw var(--spacing-96);
   }
 
   .typoItem {
     flex-direction: column;
-    gap: var(--spacing-2xs);
+    gap: var(--spacing-4);
   }
 
   .typoLabel {
@@ -862,7 +862,7 @@
 .editorPlaceholder {
   height: 400px;
   background: var(--bg-secondary);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
 }
 
 /* ── Principles Section ── */
@@ -871,8 +871,8 @@
 .pRow {
   display: flex;
   align-items: flex-start;
-  gap: var(--spacing-lg);
-  padding: var(--spacing-lg) 0;
+  gap: var(--spacing-20);
+  padding: var(--spacing-20) 0;
   border-bottom: var(--border-light);
 }
 
@@ -896,8 +896,8 @@
 .pRowText {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
-  padding-top: var(--spacing-2xs);
+  gap: var(--spacing-8);
+  padding-top: var(--spacing-4);
 }
 
 .pRowTitle {
@@ -916,14 +916,14 @@
 }
 
 @media (max-width: 600px) {
-  .pRow { flex-direction: column; gap: var(--spacing-sm); }
+  .pRow { flex-direction: column; gap: var(--spacing-12); }
 }
 
 /* Token files — 파일 트리 */
 .pFileTree {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
 }
 
 .pFileRoot {
@@ -936,17 +936,17 @@
   font-size: var(--font-size-body);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
-  padding-bottom: var(--spacing-xs);
+  padding-bottom: var(--spacing-8);
   border-bottom: var(--border-strong);
-  margin-bottom: var(--spacing-3xs);
+  margin-bottom: var(--spacing-2);
   opacity: 0.8;
 }
 
 .pFileItem {
   display: flex;
   align-items: baseline;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-2xs) 0 var(--spacing-2xs) var(--spacing-xl);
+  gap: var(--spacing-12);
+  padding: var(--spacing-4) 0 var(--spacing-4) var(--spacing-24);
   position: relative;
 }
 

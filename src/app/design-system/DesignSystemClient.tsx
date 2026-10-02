@@ -194,9 +194,9 @@ export default function DesignSystemClient() {
                     <rect x="92" y="26" width="28" height="28" rx="13" fill="color-mix(in srgb, var(--color-info) 25%, transparent)" />
                     <text x="106" y="44" textAnchor="middle" fontSize="7" fontWeight="600" fill="var(--color-info)">CMP</text>
                     {/* Codes */}
-                    <text x="14" y="64" textAnchor="middle" fontSize="5" fill="var(--text-muted)">--size-sm</text>
+                    <text x="14" y="64" textAnchor="middle" fontSize="5" fill="var(--text-muted)">--size-32</text>
                     <text x="60" y="64" textAnchor="middle" fontSize="5" fill="var(--text-muted)">--text-primary</text>
-                    <text x="106" y="64" textAnchor="middle" fontSize="5" fill="var(--text-muted)">--control-h-xs</text>
+                    <text x="106" y="64" textAnchor="middle" fontSize="5" fill="var(--text-muted)">--control-height-xs</text>
                   </svg>
                 ),
               },
@@ -278,11 +278,12 @@ export default function DesignSystemClient() {
                   { file: "_color.css", desc: language === "ko" ? "브랜드·중립·알파" : "brand, neutral, alpha" },
                   { file: "_typography.css", desc: language === "ko" ? "폰트·크기·굵기" : "font, size, weight" },
                   { file: "_spacing.css", desc: "--spacing-*" },
-                  { file: "_radius.css", desc: "xs → capsule → circle" },
+                  { file: "_radius.css", desc: "2 → 24 · full · circle" },
                   { file: "_shadow.css", desc: "xs → 2xl" },
                   { file: "_motion.css", desc: "duration, easing, delay" },
                   { file: "_z-index.css", desc: language === "ko" ? "레이어 순서" : "layer order" },
-                  { file: "_sizing.css", desc: language === "ko" ? "컴포넌트 크기" : "component sizes" },
+                  { file: "_size.css", desc: language === "ko" ? "아이콘·사각형 크기 · 등분 grid" : "icon & box sizes · equal grids" },
+                  { file: "_border.css", desc: language === "ko" ? "테두리 두께" : "border width" },
                   { file: "_index.css", desc: "barrel" },
                 ].map((f) => (
                   <div key={f.file} className={styles.pFileItem}>
@@ -296,6 +297,10 @@ export default function DesignSystemClient() {
                 <div className={styles.pFileItem}>
                   <code className={styles.pFileName}>_semantic.css</code>
                   <span className={styles.pFileDesc}>{language === "ko" ? "용도별 의미 매핑" : "purpose-based mapping"}</span>
+                </div>
+                <div className={styles.pFileItem}>
+                  <code className={styles.pFileName}>_component.css</code>
+                  <span className={styles.pFileDesc}>{language === "ko" ? "컨트롤 높이·컴포넌트 여백" : "control heights, component padding"}</span>
                 </div>
               </div>
             </motion.div>
@@ -445,7 +450,7 @@ export default function DesignSystemClient() {
             <motion.div className={styles.radiusGrid} initial="hidden" {...vpGroup(nd())} variants={innerStaggerFast}>
               {radiusScale.map((r, i) => {
                 const h = 64;
-                const w = r.name === "capsule" ? 160 : r.name === "circle" ? 64 : Math.min(96, Math.max(64, parseInt(r.value, 10) * 3));
+                const w = r.name === "full" ? 160 : r.name === "circle" ? 64 : Math.min(96, Math.max(64, parseInt(r.value, 10) * 3));
                 return (
                   <motion.div key={r.name} className={styles.radiusItem} variants={staggerItemX} {...scrollChildX(i, radiusScale.length)}>
                     <div className={styles.radiusBox} style={{ borderRadius: `var(${r.var})`, width: w, height: h }} />
@@ -462,10 +467,10 @@ export default function DesignSystemClient() {
             <motion.div className={styles.gridDemoList} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
               {gridColsScale.map((g, i) => (
                 <motion.div key={g.name} className={styles.gridDemoItem} variants={staggerItem} {...scrollChildY(i)}>
-                  <span className={styles.spacingLabel}>{g.name.replace("--grid-cols-", "")} cols · repeat({g.cols}, minmax(0, 1fr))</span>
+                  <span className={styles.spacingLabel}>{g.name.replace("--grid-columns-", "")} cols · repeat({g.cols}, minmax(0, 1fr))</span>
                   <div className={styles.gridDemoRow} style={{ gridTemplateColumns: `var(${g.name})` }}>
                     {Array.from({ length: g.cols }).map((_, c) => (
-                      <div key={c} style={{ height: "1.75rem", background: "var(--bg-accent-solid)", borderRadius: "var(--radius-capsule)" }} />
+                      <div key={c} style={{ height: "1.75rem", background: "var(--bg-accent-solid)", borderRadius: "var(--radius-full)" }} />
                     ))}
                   </div>
                 </motion.div>
@@ -541,11 +546,11 @@ export default function DesignSystemClient() {
             <SectionHeader title="3D (Three.js)" />
 
             {/* ── Coffee Cup ── */}
-            <motion.div initial="hidden" {...vp(nd())} variants={staggerItem} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-3xl)", marginTop: "var(--spacing-2xl)" }}>
-              <div style={{ flex: "0 0 50%", aspectRatio: "1", maxHeight: 360, borderRadius: "var(--radius-2xl)", overflow: "hidden" }}>
+            <motion.div initial="hidden" {...vp(nd())} variants={staggerItem} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-48)", marginTop: "var(--spacing-32)" }}>
+              <div style={{ flex: "0 0 50%", aspectRatio: "1", maxHeight: 360, borderRadius: "var(--radius-24)", overflow: "hidden" }}>
                 <CoffeeCanvas />
               </div>
-              <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "var(--spacing-sm)" }}>
+              <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "var(--spacing-12)" }}>
                 <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.25em", color: "var(--text-muted)", textTransform: "uppercase" }}>CTA Section</span>
                 <h3 id="threejs-coffee" style={{ fontSize: 24, fontFamily: "var(--font-instrument)", fontWeight: 400, margin: 0 }}>Coffee Cup</h3>
                 <p style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.7, margin: 0 }}>
@@ -553,27 +558,27 @@ export default function DesignSystemClient() {
                     ? "컵과 소서는 LatheGeometry, 손잡이는 TorusGeometry, 액면은 CylinderGeometry 로 만듭니다. Canvas 2D 로 parametric heart curve 와 80-band cream↔coffee wave, blur 엽맥 라떼아트 텍스처를 생성해 MeshPhysicalMaterial 에 매핑합니다. 마우스를 따라 lerp 로 부드럽게 회전합니다."
                     : "LatheGeometry cup/saucer profiles, TorusGeometry handle, CylinderGeometry liquid. Canvas 2D parametric heart curve + 80-band cream↔coffee wave + blur vein latte art texture mapped to MeshPhysicalMaterial. Mouse-tracked lerp rotation."}
                 </p>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: "var(--spacing-xs)" }}>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: "var(--spacing-8)" }}>
                   {["LatheGeometry", "MeshPhysicalMaterial", "clearcoat", "CanvasTexture", "Environment IBL"].map((t) => (
-                    <span key={t} style={{ fontSize: 10, padding: "3px 10px", borderRadius: "var(--radius-capsule)", border: "var(--border-light)", color: "var(--text-tertiary)", fontFamily: "var(--font-mono)" }}>{t}</span>
+                    <span key={t} style={{ fontSize: 10, padding: "3px 10px", borderRadius: "var(--radius-full)", border: "var(--border-light)", color: "var(--text-tertiary)", fontFamily: "var(--font-mono)" }}>{t}</span>
                   ))}
                 </div>
               </div>
             </motion.div>
 
             {/* ── Divider ── */}
-            <div style={{ height: 1, background: "var(--border-color-light)", margin: "var(--spacing-3xl) 0" }} />
+            <div style={{ height: 1, background: "var(--border-color-light)", margin: "var(--spacing-48) 0" }} />
 
             {/* ── Scroll Torus ── */}
-            <motion.div initial="hidden" {...vp(nd())} variants={staggerItem} style={{ display: "flex", flexDirection: "row-reverse", alignItems: "center", gap: "var(--spacing-3xl)" }}>
-              <div style={{ flex: "0 0 50%", aspectRatio: "1", maxHeight: 360, borderRadius: "var(--radius-2xl)", overflow: "hidden" }}>
+            <motion.div initial="hidden" {...vp(nd())} variants={staggerItem} style={{ display: "flex", flexDirection: "row-reverse", alignItems: "center", gap: "var(--spacing-48)" }}>
+              <div style={{ flex: "0 0 50%", aspectRatio: "1", maxHeight: 360, borderRadius: "var(--radius-24)", overflow: "hidden" }}>
                 <Canvas camera={{ position: [0, 0, 3], fov: 40 }} gl={{ alpha: true }} style={{ background: "transparent" }}>
                   <ambientLight intensity={0.6} />
                   <directionalLight position={[5, 5, 5]} intensity={1} />
                   <SpinningTorus />
                 </Canvas>
               </div>
-              <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "var(--spacing-sm)" }}>
+              <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "var(--spacing-12)" }}>
                 <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.25em", color: "var(--text-muted)", textTransform: "uppercase" }}>Hero Section</span>
                 <h3 id="threejs-torus" style={{ fontSize: 24, fontFamily: "var(--font-instrument)", fontWeight: 400, margin: 0 }}>Scroll Torus</h3>
                 <p style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.7, margin: 0 }}>
@@ -581,27 +586,27 @@ export default function DesignSystemClient() {
                     ? "누적 스크롤을 따라 리사주 곡선(X·Y·Z 주파수 차이) 경로를 끝없이 순환하는 메탈릭 토러스입니다. 테마에 따라 색상과 emissive 가 바뀌고, 커서가 가까우면 자석처럼 끌리고 멀면 반발하는 물리 인터랙션이 동작합니다."
                     : "Metallic torus orbiting endlessly along Lissajous curve (X·Y·Z frequency offset) driven by cumulative scroll. Theme-specific color/emissive switching, cursor proximity magnet attraction + far-range repulsion physics."}
                 </p>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: "var(--spacing-xs)" }}>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: "var(--spacing-8)" }}>
                   {["TorusGeometry", "MeshStandardMaterial", "Lissajous path", "scroll-driven", "pointer repulsion"].map((t) => (
-                    <span key={t} style={{ fontSize: 10, padding: "3px 10px", borderRadius: "var(--radius-capsule)", border: "var(--border-light)", color: "var(--text-tertiary)", fontFamily: "var(--font-mono)" }}>{t}</span>
+                    <span key={t} style={{ fontSize: 10, padding: "3px 10px", borderRadius: "var(--radius-full)", border: "var(--border-light)", color: "var(--text-tertiary)", fontFamily: "var(--font-mono)" }}>{t}</span>
                   ))}
                 </div>
               </div>
             </motion.div>
 
             {/* ── Divider ── */}
-            <div style={{ height: 1, background: "var(--border-color-light)", margin: "var(--spacing-3xl) 0" }} />
+            <div style={{ height: 1, background: "var(--border-color-light)", margin: "var(--spacing-48) 0" }} />
 
             {/* ── Bunny Character ── */}
-            <motion.div initial="hidden" {...vp(nd())} variants={staggerItem} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-3xl)" }}>
-              <div style={{ flex: "0 0 50%", aspectRatio: "1", maxHeight: 360, borderRadius: "var(--radius-2xl)", overflow: "hidden" }}>
+            <motion.div initial="hidden" {...vp(nd())} variants={staggerItem} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-48)" }}>
+              <div style={{ flex: "0 0 50%", aspectRatio: "1", maxHeight: 360, borderRadius: "var(--radius-24)", overflow: "hidden" }}>
                 <Canvas camera={{ position: [0, 0, 5], fov: 45 }} gl={{ alpha: true }} style={{ background: "transparent" }}>
                   <ambientLight intensity={0.6} />
                   <directionalLight position={[3, 5, 4]} intensity={0.8} />
                   <BunnyPreviewScene expression="normal" />
                 </Canvas>
               </div>
-              <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "var(--spacing-sm)" }}>
+              <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "var(--spacing-12)" }}>
                 <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.25em", color: "var(--text-muted)", textTransform: "uppercase" }}>Profile Section</span>
                 <h3 id="threejs-bunny" style={{ fontSize: 24, fontFamily: "var(--font-instrument)", fontWeight: 400, margin: 0 }}>Bunny Character</h3>
                 <p style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.7, margin: 0 }}>
@@ -609,9 +614,9 @@ export default function DesignSystemClient() {
                     ? "몸·귀·팔·발은 LatheGeometry, 머리·눈·꼬리는 SphereGeometry, 찡그린 눈은 CapsuleGeometry 로 조합한 마스코트입니다. 자동으로 눈을 깜빡이고, 클릭하면 놀람·기쁨 표정으로 전환됩니다. RAF 물리 기반으로 벽에 부딪혀 튕기며 이동하고, 충돌 시 사운드가 재생됩니다."
                     : "LatheGeometry (body/ears/arms/feet) + SphereGeometry (head/eyes/tail) + CapsuleGeometry (squint eyes) mascot. Auto-blink + click expression toggle (surprise/happy). RAF physics wall-bounce movement, collision sounds."}
                 </p>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: "var(--spacing-xs)" }}>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: "var(--spacing-8)" }}>
                   {["LatheGeometry", "SphereGeometry", "CapsuleGeometry", "expressions", "useFrame", "physics"].map((t) => (
-                    <span key={t} style={{ fontSize: 10, padding: "3px 10px", borderRadius: "var(--radius-capsule)", border: "var(--border-light)", color: "var(--text-tertiary)", fontFamily: "var(--font-mono)" }}>{t}</span>
+                    <span key={t} style={{ fontSize: 10, padding: "3px 10px", borderRadius: "var(--radius-full)", border: "var(--border-light)", color: "var(--text-tertiary)", fontFamily: "var(--font-mono)" }}>{t}</span>
                   ))}
                 </div>
               </div>

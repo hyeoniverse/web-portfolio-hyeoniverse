@@ -1,15 +1,15 @@
 /* ── 이모지 조합 창 — 위 줄(단계·검색), 가운데 격자(스크롤), 모달 아래 단에 고른 조합(미리보기·이름·추가) ──
-   공용 모달은 본문에 좌우 여백을 주지 않는다. 위 줄은 모달 머리·아래 단과 같은 좌우 여백(--modal-p-md)을
+   공용 모달은 본문에 좌우 여백을 주지 않는다. 위 줄은 모달 머리·아래 단과 같은 좌우 여백(--modal-padding-md)을
    두고, 격자는 커버 고르기 창처럼 모달 가장자리까지 붙인다(칸 사이만 1px 선). */
 .wrap {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   min-height: 0;
 }
 
 .pad {
-  padding: var(--modal-p-md);
+  padding: var(--modal-padding-md);
 }
 
 /* 식 줄 — [첫] + [두 번째] = [결과]. 세 칸은 같은 크기, 붙은 격자처럼 모서리 없는 1px 상자.
@@ -18,7 +18,7 @@
   --slot: 64px;
   display: flex;
   align-items: center;
-  padding: 0 var(--spacing-lg);
+  padding: 0 var(--spacing-20);
 }
 
 .slot {
@@ -67,18 +67,18 @@
 
 .op {
   flex: none;
-  width: var(--spacing-2xl);
+  width: var(--spacing-32);
   color: var(--text-tertiary);
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-18);
   text-align: center;
 }
 
 .bar {
-  padding: 0 var(--spacing-lg);
+  padding: 0 var(--spacing-20);
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--spacing-xs) var(--spacing-md);
+  gap: var(--spacing-8) var(--spacing-16);
 }
 
 .step {
@@ -92,7 +92,7 @@
 
 .count::before {
   content: "·";
-  margin: 0 var(--spacing-2xs);
+  margin: 0 var(--spacing-4);
 }
 
 
@@ -121,9 +121,9 @@
   z-index: 1;
   display: flex;
   align-items: baseline;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   margin: 0;
-  padding: var(--spacing-xs) var(--spacing-lg);
+  padding: var(--spacing-8) var(--spacing-20);
   border-bottom: var(--border-light);
   background: var(--bg-primary);
   color: var(--text-secondary);
@@ -164,7 +164,7 @@
 }
 
 .char {
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-20);
   line-height: 1;
 }
 
@@ -175,7 +175,7 @@
   flex: 1;
   min-width: 0;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 .nameLabel {

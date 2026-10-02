@@ -4,23 +4,23 @@
 
 .container {
   border: var(--border-default);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   overflow: hidden;
-  margin-bottom: var(--spacing-2xl);
+  margin-bottom: var(--spacing-32);
 }
 
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--spacing-sm) var(--spacing-xl);
+  padding: var(--spacing-12) var(--spacing-24);
   user-select: none;
   background: transparent;
   border: none;
   width: 100%;
   text-align: left;
   color: inherit;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 .header:hover {
@@ -30,7 +30,7 @@
 .headerLeft {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   min-width: 0;
 }
 
@@ -67,7 +67,7 @@
 }
 
 .bodyInner {
-  padding: 0 var(--spacing-lg) var(--spacing-lg);
+  padding: 0 var(--spacing-20) var(--spacing-20);
 }
 
 .text {
@@ -80,8 +80,8 @@
 .generating {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-xs) 0;
+  gap: var(--spacing-8);
+  padding: var(--spacing-8) 0;
   font-size: var(--font-size-body);
   color: var(--text-tertiary);
 }

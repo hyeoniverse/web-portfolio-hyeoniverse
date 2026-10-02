@@ -1,9 +1,9 @@
 /* ── Scroll Buttons ── */
 .btn {
   position: fixed;
-  z-index: var(--z-float);
-  width: var(--control-h-xl);
-  height: var(--control-h-xl);
+  z-index: var(--z-index-float);
+  width: var(--control-height-xl);
+  height: var(--control-height-xl);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -17,16 +17,16 @@
 }
 
 .btnTop {
-  right: var(--spacing-xl);
-  bottom: calc(var(--spacing-3xl) + 36px - 1px);
-  border-radius: var(--radius-capsule) var(--radius-capsule) 0 0;
+  right: var(--spacing-24);
+  bottom: calc(var(--spacing-48) + 36px - 1px);
+  border-radius: var(--radius-full) var(--radius-full) 0 0;
   border-bottom-color: transparent;
 }
 
 .btnBottom {
-  right: var(--spacing-xl);
-  bottom: var(--spacing-3xl);
-  border-radius: 0 0 var(--radius-capsule) var(--radius-capsule);
+  right: var(--spacing-24);
+  bottom: var(--spacing-48);
+  border-radius: 0 0 var(--radius-full) var(--radius-full);
 }
 
 .visible {

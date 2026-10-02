@@ -2,16 +2,16 @@
 .chips {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 .chip {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   max-width: 100%;
-  padding: var(--spacing-3xs) var(--spacing-sm) var(--spacing-3xs) var(--spacing-3xs);
+  padding: var(--spacing-2) var(--spacing-12) var(--spacing-2) var(--spacing-2);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   text-decoration: none;
   color: var(--text-secondary);
@@ -49,8 +49,8 @@
 }
 .cat {
   flex-shrink: 0;
-  padding: 0 var(--spacing-2xs);
-  border-radius: var(--radius-capsule);
+  padding: 0 var(--spacing-4);
+  border-radius: var(--radius-full);
   background: var(--bg-tertiary);
   font-size: var(--font-size-hint);
   color: var(--text-tertiary);
@@ -66,10 +66,10 @@
   align-items: center;
   /* chip 과 같은 높이 고정 — chip 은 thumb(1.5rem)+세로padding(3xs*2)+border(2px)=30px.
      min-height 만 두면 혼자 줄바꿈될 때 24px 로 줄어 chip 과 크기가 달라 보임. */
-  min-height: calc(1.5rem + var(--spacing-3xs) * 2 + 2px);
-  padding: var(--spacing-3xs) var(--spacing-sm);
+  min-height: calc(1.5rem + var(--spacing-2) * 2 + 2px);
+  padding: var(--spacing-2) var(--spacing-12);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--bg-tertiary);
   color: var(--text-tertiary);
   font-family: var(--font-space-grotesk), sans-serif;
@@ -87,11 +87,11 @@
 /* hover 미리보기 카드 — admin 리스트 프리뷰와 동일 톤 */
 .preview {
   position: fixed;
-  z-index: var(--z-tooltip);
+  z-index: var(--z-index-tooltip);
   width: 16rem;
   overflow: hidden;
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   background: var(--bg-primary);
   box-shadow: var(--shadow-lg);
   pointer-events: none;
@@ -105,8 +105,8 @@
 .previewBody {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
-  padding: var(--spacing-sm) var(--spacing-md);
+  gap: var(--spacing-2);
+  padding: var(--spacing-12) var(--spacing-16);
 }
 .previewTitle {
   margin: 0;
@@ -129,9 +129,9 @@
 }
 .previewCat {
   align-self: flex-start;
-  margin-top: var(--spacing-3xs);
-  padding: var(--spacing-4xs) var(--spacing-xs);
-  border-radius: var(--radius-capsule);
+  margin-top: var(--spacing-2);
+  padding: var(--spacing-1) var(--spacing-8);
+  border-radius: var(--radius-full);
   background: var(--bg-tertiary);
   font-size: var(--font-size-hint);
   color: var(--text-tertiary);

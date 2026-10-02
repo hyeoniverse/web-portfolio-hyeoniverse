@@ -21,8 +21,6 @@
   --ease-in-out: cubic-bezier(0.25, 0.1, 0.25, 1);
 
   /* Delay */
-  --delay-none: 0s;
   --delay-short: 0.1s;
   --delay-base: 0.2s;
-  --delay-long: 0.35s;
 }

@@ -3,16 +3,16 @@
 .seriesList {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 .seriesCardHead {
   display: flex;
   align-items: flex-start;
-  gap: var(--spacing-md);
-  padding: var(--card-p-md);
+  gap: var(--spacing-16);
+  padding: var(--card-padding-md);
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   background: transparent;
   width: 100%;
   text-align: left;
@@ -28,12 +28,12 @@
 }
 
 .seriesCard {
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   position: relative;
   /* 선택 체크박스 + grip 핸들 + 카드 본체(head + collapse) 가로 배치.
      마지막 열은 minmax(0, 1fr) — 1fr 의 기본 min-width:auto 는 content 따라 grow → 긴 타이틀이 truncate 안됨. */
   display: grid;
-  grid-template-columns: max-content var(--spacing-xl) minmax(0, 1fr);
+  grid-template-columns: max-content var(--spacing-24) minmax(0, 1fr);
   align-items: stretch;
 }
 /* head 와 collapse 는 grid 의 우측 컬럼(3)에 위치 — 둘 다 같은 컬럼이라 자연스럽게 세로 stack */
@@ -53,7 +53,7 @@
   cursor: move;
   user-select: none;
   /* head padding 의 top 값에 맞춰 grip 이 카드 head 첫 줄과 정렬 */
-  padding-top: var(--spacing-sm);
+  padding-top: var(--spacing-12);
   align-self: stretch;
   min-height: 56px;
 }
@@ -142,9 +142,9 @@
 .seriesCardBadgeOff.seriesCardBadgeOff.seriesCardBadgeOff {
   border: 1px solid;
   background-clip: padding-box;
-  height: var(--control-h-xs);
+  height: var(--control-height-xs);
   box-sizing: border-box;
-  padding: 0 var(--spacing-md);
+  padding: 0 var(--spacing-16);
 }
 
 .seriesCardBadgeOn.seriesCardBadgeOn.seriesCardBadgeOn {
@@ -187,7 +187,7 @@
 }
 
 .seriesCardHeadExpanded {
-  border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+  border-radius: var(--radius-24) var(--radius-24) 0 0;
   /* 펼칠 때: 모서리 먼저 각지게(0.25s), delay 없음 */
   transition:
     border-radius 0.25s ease,
@@ -203,19 +203,19 @@
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding-right: var(--spacing-2xs);
+  padding-right: var(--spacing-4);
   user-select: none;
 }
 /* 눈높이를 맞추는 윗여백은 체크박스(label) 자신이 갖는다 — 바깥 span 이 가지면 그 띠가 죽은 영역이 된다 */
 .seriesCheckAlign {
-  padding-top: var(--spacing-sm);
+  padding-top: var(--spacing-12);
 }
 /* 목록 전체 선택 — 필터 줄 맨 앞, 버튼들과 같은 높이 */
 .seriesSelectAll {
   display: flex;
   align-items: center;
-  height: var(--control-h-md);
-  padding-left: var(--spacing-3xs);
+  height: var(--control-height-md);
+  padding-left: var(--spacing-2);
 }
 
 .seriesCardInfo {
@@ -226,7 +226,7 @@
 .seriesCardNameRow {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   min-width: 0;
 }
 
@@ -249,16 +249,16 @@
 .seriesCardMeta {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
-  margin-top: var(--spacing-sm);
+  margin-top: var(--spacing-12);
 }
 
 .seriesBadgeCat {
-  padding: var(--badge-p-md);
-  border-radius: var(--radius-capsule);
+  padding: var(--badge-padding-md);
+  border-radius: var(--radius-full);
   font-size: var(--font-size-hint);
   background: var(--bg-secondary);
   color: var(--text-secondary);
@@ -268,7 +268,7 @@
   flex-shrink: 0;
   /* parent align-items: flex-start. chevron(14px) 의 center 를 button(xs=24px) 의 center 와 정렬:
      margin-top = (24 - 14) / 2 = 5px. */
-  margin-top: calc((var(--control-h-xs) - 14px) / 2);
+  margin-top: calc((var(--control-height-xs) - 14px) / 2);
   color: var(--text-tertiary);
   transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -305,5 +305,5 @@
   width: 1px;
   height: 1.25em;
   background: var(--border-color-light);
-  margin: 0 var(--spacing-2xs);
+  margin: 0 var(--spacing-4);
 }

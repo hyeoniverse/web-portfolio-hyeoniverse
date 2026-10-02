@@ -9,7 +9,7 @@
 }
 
 .rootOpen {
-  z-index: var(--z-dropdown);
+  z-index: var(--z-index-dropdown);
 }
 
 .rootDisabled {
@@ -35,12 +35,12 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-sm);
-  height: var(--control-h-md);
+  gap: var(--spacing-12);
+  height: var(--control-height-md);
   box-sizing: border-box;
-  padding: 0 var(--spacing-sm) 0 var(--spacing-md);
+  padding: 0 var(--spacing-12) 0 var(--spacing-16);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-body);
@@ -74,8 +74,8 @@
 
 /* size="sm" — 28px. ColorPicker 같은 좁은 popover 등 compact 컨텍스트 */
 .trigger.triggerSm {
-  height: var(--control-h-sm);
-  padding: 0 var(--spacing-md);
+  height: var(--control-height-sm);
+  padding: 0 var(--spacing-16);
   font-size: var(--font-size-label);
 }
 
@@ -125,7 +125,7 @@
 /* combobox 전용 — input 안에 자리 안 잡히니까 절대 위치로 우측 padding 안쪽에 배치 */
 .arrowCombobox {
   position: absolute;
-  right: var(--spacing-sm);
+  right: var(--spacing-12);
   top: 50%;
   transform: translateY(-50%);
   pointer-events: none;
@@ -137,7 +137,7 @@
 
 /* combobox input — 오른쪽 padding 늘려서 지우개 + chevron 자리 확보 (긴 텍스트가 겹치지 않게) */
 .triggerCombobox {
-  padding-right: calc(var(--spacing-sm) + 38px);
+  padding-right: calc(var(--spacing-12) + 38px);
 }
 /* width="full" 일 때 input 이 root 폭을 채워야 chevron(절대배치, root 우측)이 input 안쪽에 위치 */
 .rootFull .triggerCombobox {
@@ -146,7 +146,7 @@
 /* 지우개 — chevron 왼쪽 */
 .comboClear {
   position: absolute;
-  right: calc(var(--spacing-sm) + 18px);
+  right: calc(var(--spacing-12) + 18px);
   top: 50%;
   transform: translateY(-50%);
   display: inline-flex;
@@ -175,18 +175,18 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   /* 글래스 패널 — Popover/Toast/DatePicker 와 동일 표면 (--bg-glass-panel + --blur-glass).
      (모달 위 dropdown 은 .selectAboveModal 로 완전 불투명) */
   background: var(--bg-glass-panel);
   backdrop-filter: var(--blur-glass);
-  z-index: var(--z-dropdown);
+  z-index: var(--z-index-dropdown);
   box-shadow: 0 8px 32px oklch(0% 0 0 / 0.25);
   display: flex;
   flex-direction: column;
   /* 항목 사이 약간의 틈 — hover 캡슐끼리 붙어 보이지 않게 */
-  gap: var(--spacing-2xs);
-  padding: var(--spacing-xs);
+  gap: var(--spacing-4);
+  padding: var(--spacing-8);
   transform-origin: top center;
   opacity: 0;
   transform: scaleY(0.9) translateY(-4px);
@@ -232,7 +232,7 @@
 .bubbleScroll {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   max-height: 280px;
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -256,9 +256,9 @@
 }
 
 .option {
-  padding: var(--row-p-sm);
+  padding: var(--row-padding-sm);
   border: none;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
@@ -290,7 +290,7 @@
 .optionContent {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   min-width: 0;
   width: 100%;
 }
@@ -326,7 +326,7 @@
 /* trailing — 라벨 오른쪽, 자동 spacing (margin-left auto + 좌측 spacing 추가로 시각적 gap) */
 .optionTrailing {
   margin-left: auto;
-  padding-left: var(--spacing-md);
+  padding-left: var(--spacing-16);
   display: inline-flex;
   align-items: center;
   flex-shrink: 0;
@@ -344,7 +344,7 @@
 
 /* combobox 필터 결과 0개일 때 안내 */
 .optionEmpty {
-  padding: var(--row-p-sm);
+  padding: var(--row-padding-sm);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
@@ -355,24 +355,24 @@
 .optionGroup {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 /* 옵션 사이 구분선 (divider 옵션 위) */
 .optionDivider {
   height: 1px;
-  margin: var(--spacing-3xs) 0;
+  margin: var(--spacing-2) 0;
   background: var(--border-color-light);
   flex-shrink: 0;
 }
 
 .optionGroup + .optionGroup {
-  margin-top: var(--spacing-2xs);
-  padding-top: var(--spacing-2xs);
+  margin-top: var(--spacing-4);
+  padding-top: var(--spacing-4);
   border-top: var(--border-light);
 }
 
 .optionGroupLabel {
-  padding: var(--row-p-sm);
+  padding: var(--row-padding-sm);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-micro);
   font-weight: 600;
@@ -389,7 +389,7 @@
   text-align: center;
   font-size: 1.6em;
   line-height: 0;
-  margin-right: var(--spacing-2xs);
+  margin-right: var(--spacing-4);
   color: var(--text-accent);
 }
 
@@ -404,9 +404,9 @@
   display: flex;
   align-items: stretch;
   width: 100%;
-  height: var(--control-h-md);
+  height: var(--control-height-md);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   transition: border-color 0.15s ease;
 }
@@ -421,7 +421,7 @@
 }
 
 .splitSm {
-  height: var(--control-h-sm);
+  height: var(--control-height-sm);
 }
 
 .splitDisabled {
@@ -433,13 +433,13 @@
 .splitSelect {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   flex: none;
   max-width: 45%;
-  padding: 0 var(--spacing-sm) 0 var(--spacing-md);
+  padding: 0 var(--spacing-12) 0 var(--spacing-16);
   text-align: left;
   border: none;
-  border-radius: var(--radius-capsule) 0 0 var(--radius-capsule);
+  border-radius: var(--radius-full) 0 0 var(--radius-full);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-body);
@@ -467,9 +467,9 @@
 .splitInput {
   flex: 1;
   min-width: 0;
-  padding: 0 var(--spacing-md) 0 var(--spacing-sm);
+  padding: 0 var(--spacing-16) 0 var(--spacing-12);
   border: none;
-  border-radius: 0 var(--radius-capsule) var(--radius-capsule) 0;
+  border-radius: 0 var(--radius-full) var(--radius-full) 0;
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-body);
@@ -490,7 +490,7 @@
   justify-content: center;
   width: 20px;
   height: 20px;
-  margin-right: var(--spacing-sm);
+  margin-right: var(--spacing-12);
   padding: 0;
   border: none;
   border-radius: var(--radius-circle);

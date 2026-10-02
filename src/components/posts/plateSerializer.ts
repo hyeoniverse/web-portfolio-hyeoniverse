@@ -289,20 +289,20 @@ function serializeNode(node: SlateNode): string {
         colDiv ? ` data-column-divider="${esc(colDiv)}"` : "",
         colScroll ? "" : ` data-column-scroll="false"`,
       ].join("");
-      // 에디터와 동일: 열 사이 항상 8px(=--spacing-xs), 구분선은 열 pseudo(.prose [data-column]::after)가 gap 중앙에 그림.
+      // 에디터와 동일: 열 사이 항상 8px(=--spacing-8), 구분선은 열 pseudo(.prose [data-column]::after)가 gap 중앙에 그림.
       // 배경/패딩/라디우스는 그룹이 아니라 열 개별(콘텐츠 폭·줄바꿈이 에디터와 일치). 그룹은 --_col-bg / --_col-divider 변수만 지정.
       const colBgVal = colBg === "transparent" ? "transparent" : (colBg || COLUMN_BG_FALLBACK);
       // 에디터(elements.tsx)와 동일: 미지정=기본 subtle 선(--border-color-light), transparent=선 없음, 그 외=지정색. 항상 출력.
       const dividerColor = colDiv === "transparent" ? "transparent" : (colDiv || "var(--border-color-light)");
       const divVar = `;--_col-divider:${dividerColor}`;
-      const colBox = `flex:1;min-width:40px;background:var(--_col-bg,${COLUMN_BG_FALLBACK});padding:var(--spacing-sm);border-radius:var(--radius-2xl)`;
+      const colBox = `flex:1;min-width:40px;background:var(--_col-bg,${COLUMN_BG_FALLBACK});padding:var(--spacing-12);border-radius:var(--radius-24)`;
       // text leaf 방어
       const groupChildren = (el.children || []).map((child) => {
         if (isText(child)) return `<div data-column style="${colBox}"><p>${serializeLeaf(child as SlateText)}</p></div>`;
         return serializeNode(child);
       }).join("");
       // 스크롤 ON: px 열 고정 → 넘치면 가로 스크롤. OFF: px 열 shrink(--_col-shrink:1) → 화면 폭에 맞춤.
-      return `<div ${attrs} style="display:flex;gap:var(--spacing-xs);margin:16px 0;overflow-x:${colScroll ? "auto" : "hidden"};--_col-shrink:${colScroll ? 0 : 1};--_col-bg:${colBgVal}${divVar}">${groupChildren}</div>`;
+      return `<div ${attrs} style="display:flex;gap:var(--spacing-8);margin:16px 0;overflow-x:${colScroll ? "auto" : "hidden"};--_col-shrink:${colScroll ? 0 : 1};--_col-bg:${colBgVal}${divVar}">${groupChildren}</div>`;
     }
     case "column": {
       const colW = el.width as string | undefined;
@@ -313,7 +313,7 @@ function serializeNode(node: SlateNode): string {
         return serializeNode(child);
       }).join("");
       // 배경/패딩/라디우스는 열 개별(에디터 ColumnElement 와 동일 → 콘텐츠 폭·줄바꿈 일치). --_col-bg 는 그룹이 지정.
-      const colBox = `background:var(--_col-bg,${COLUMN_BG_FALLBACK});padding:var(--spacing-sm);border-radius:var(--radius-2xl);min-width:40px`;
+      const colBox = `background:var(--_col-bg,${COLUMN_BG_FALLBACK});padding:var(--spacing-12);border-radius:var(--radius-24);min-width:40px`;
       // px 지정: 정확한 px 고정(grow/shrink 0) → 합 초과 시 가로 스크롤. 없으면 유동 % fill.
       // data-width(%) 도 함께 실어 재편집 시 @platejs/layout normalizer 가 합 100 을 보게 함(무한 normalize 루프 방지).
       if (typeof colPx === "number" && colPx > 0) {
@@ -596,26 +596,26 @@ function serializeNode(node: SlateNode): string {
           + `${fSize < 1024 * 1024 ? (fSize / 1024).toFixed(1) + " KB" : (fSize / (1024 * 1024)).toFixed(1) + " MB"}</div>`
         : "";
       const audioHtml = isAudio
-        ? `<audio src="${fileUrl}" controls preload="metadata" style="width:100%;margin-top:6px;border-radius:var(--radius-2xl)"></audio>`
+        ? `<audio src="${fileUrl}" controls preload="metadata" style="width:100%;margin-top:6px;border-radius:var(--radius-24)"></audio>`
         : "";
       let previewHtml = "";
       if (isPdf) {
         previewHtml = `<details style="margin-top:6px"><summary style="cursor:pointer;font-size:12px;color:var(--text-secondary);font-family:var(--font-space-grotesk);margin-bottom:6px">Preview</summary>`
-          + `<iframe src="${fileUrl}" title="${fName}" style="width:100%;height:500px;border:1px solid var(--border-color-light);border-radius:var(--radius-2xl)"></iframe></details>`;
+          + `<iframe src="${fileUrl}" title="${fName}" style="width:100%;height:500px;border:1px solid var(--border-color-light);border-radius:var(--radius-24)"></iframe></details>`;
       } else if (isOffice) {
         const viewerUrl = officeViewerUrl(fileUrl);
         previewHtml = `<details style="margin-top:6px"><summary style="cursor:pointer;font-size:12px;color:var(--text-secondary);font-family:var(--font-space-grotesk);margin-bottom:6px">Preview</summary>`
-          + `<iframe src="${viewerUrl}" title="${fName}" style="width:100%;height:500px;border:1px solid var(--border-color-light);border-radius:var(--radius-2xl)"></iframe></details>`;
+          + `<iframe src="${viewerUrl}" title="${fName}" style="width:100%;height:500px;border:1px solid var(--border-color-light);border-radius:var(--radius-24)"></iframe></details>`;
       } else if (isText) {
         previewHtml = `<details style="margin-top:6px" data-text-preview="${fileUrl}"><summary style="cursor:pointer;font-size:12px;color:var(--text-secondary);font-family:var(--font-space-grotesk);margin-bottom:6px">Preview</summary>`
-          + `<pre style="padding:12px 16px;border:1px solid var(--border-color-light);border-radius:var(--radius-2xl);background:var(--bg-secondary);font-size:12px;color:var(--text-secondary);overflow:auto;max-height:400px;white-space:pre-wrap;word-break:break-all;font-family:var(--font-mono)">Loading...</pre></details>`;
+          + `<pre style="padding:12px 16px;border:1px solid var(--border-color-light);border-radius:var(--radius-24);background:var(--bg-secondary);font-size:12px;color:var(--text-secondary);overflow:auto;max-height:400px;white-space:pre-wrap;word-break:break-all;font-family:var(--font-mono)">Loading...</pre></details>`;
       }
       const maxW = hasPreview ? "640px" : "480px";
       return [
         `<div data-file-embed data-url="${fileUrl}" data-filename="${fName}"${fSize ? ` data-filesize="${fSize}"` : ""}`,
-        ` style="max-width:${maxW};margin:var(--spacing-sm) 0">`,
+        ` style="max-width:${maxW};margin:var(--spacing-12) 0">`,
         `<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;`,
-        `border-radius:var(--radius-capsule,999px);border:1px solid var(--border-color-light);background:var(--bg-secondary)">`,
+        `border-radius:var(--radius-full,999px);border:1px solid var(--border-color-light);background:var(--bg-secondary)">`,
         `<div style="width:32px;height:32px;border-radius:50%;background:var(--color-neutral-alpha-5);`,
         `display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--text-secondary)">${iconSvg}</div>`,
         `<div style="flex:1;min-width:0">`,
@@ -640,7 +640,7 @@ function serializeNode(node: SlateNode): string {
         : "";
       return [
         `<div data-audio-embed data-url="${audioUrl}" data-title="${audioTitle}"`,
-        ` style="max-width:480px;margin:var(--spacing-sm) 0">`,
+        ` style="max-width:480px;margin:var(--spacing-12) 0">`,
         `${titleHtml}`,
         `<audio src="${audioUrl}" controls preload="metadata" style="width:100%"></audio>`,
         `</div>`,

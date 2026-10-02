@@ -3,17 +3,17 @@
 .titleRow {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 .badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: var(--control-h-2xs);
-  height: var(--control-h-2xs);
-  padding: 0 var(--spacing-xs);
-  border-radius: var(--radius-capsule);
+  min-width: var(--control-height-2xs);
+  height: var(--control-height-2xs);
+  padding: 0 var(--spacing-8);
+  border-radius: var(--radius-full);
   background: var(--bg-accent-solid);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
@@ -28,20 +28,20 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: var(--spacing-sm);
+  margin-bottom: var(--spacing-12);
 }
 .skelNick {
-  margin-bottom: var(--spacing-2xs);
+  margin-bottom: var(--spacing-4);
 }
 .skelBody {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
-  margin-bottom: var(--spacing-md);
+  gap: var(--spacing-4);
+  margin-bottom: var(--spacing-16);
 }
 .skelActions {
   display: flex;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 .list {
@@ -57,8 +57,8 @@
 .item {
   display: flex;
   align-items: flex-start;
-  gap: var(--spacing-md);
-  padding: var(--row-p-lg);
+  gap: var(--spacing-16);
+  padding: var(--row-padding-lg);
   border-bottom: var(--border-light);
 }
 
@@ -75,8 +75,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-sm);
-  margin-bottom: var(--spacing-xs);
+  gap: var(--spacing-12);
+  margin-bottom: var(--spacing-8);
 }
 
 .itemType {
@@ -102,17 +102,17 @@
 .commentNick {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-body);
   font-weight: 500;
   color: var(--text-secondary);
-  margin-bottom: var(--spacing-3xs);
+  margin-bottom: var(--spacing-2);
 }
 
 .deletedBadge {
-  padding: var(--badge-p-md);
-  border-radius: var(--radius-capsule);
+  padding: var(--badge-padding-md);
+  border-radius: var(--radius-full);
   background: var(--bg-secondary);
   font-size: var(--font-size-hint);
   font-weight: 400;
@@ -132,8 +132,8 @@
 .reason {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
-  margin: var(--spacing-xs) 0 0 0;
+  gap: var(--spacing-4);
+  margin: var(--spacing-8) 0 0 0;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   color: var(--text-secondary);
@@ -149,26 +149,26 @@
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   flex-shrink: 0;
-  width: calc(var(--control-h-sm) * 4 + var(--spacing-3xs) * 3);
+  width: calc(var(--control-height-sm) * 4 + var(--spacing-2) * 3);
 }
 .itemActionBtns {
   display: flex;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
 }
 
 /* Notifications 페이지의 "신고" 탭에서 사용되는 내부 status 필터 행 */
 .reportsFilterRow {
-  margin-bottom: var(--spacing-md);
+  margin-bottom: var(--spacing-16);
 }
 
 
 /* 필터 칩의 건수 — 어디에 몇 건 밀려 있는지 목록을 열지 않고 안다 */
 .tabCount {
-  margin-left: var(--spacing-2xs);
-  padding: 0 var(--spacing-2xs);
-  border-radius: var(--radius-capsule);
+  margin-left: var(--spacing-4);
+  padding: 0 var(--spacing-4);
+  border-radius: var(--radius-full);
   background: color-mix(in oklch, currentColor 15%, transparent);
   font-family: var(--font-mono);
   font-size: var(--font-size-hint);

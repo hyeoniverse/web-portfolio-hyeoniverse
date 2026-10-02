@@ -3,7 +3,7 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
 }
 
 .btn {
@@ -11,9 +11,9 @@
   align-items: center;
   justify-content: center;
   min-width: 24px;
-  padding: var(--spacing-3xs) var(--spacing-2xs);
+  padding: var(--spacing-2) var(--spacing-4);
   border: none;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);

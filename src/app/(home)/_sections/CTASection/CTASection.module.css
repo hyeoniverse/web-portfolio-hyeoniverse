@@ -4,8 +4,8 @@
 
 .cta {
   position: relative;
-  padding-top: var(--spacing-6xl);
-  padding-bottom: var(--spacing-6xl);
+  padding-top: var(--spacing-128);
+  padding-bottom: var(--spacing-128);
   overflow: hidden;
 }
 
@@ -45,7 +45,7 @@
 }
 
 .label {
-  margin-bottom: var(--spacing-2xl);
+  margin-bottom: var(--spacing-32);
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-body);
   color: var(--text-accent-alt);
@@ -59,7 +59,7 @@
 .title {
   display: flex;
   flex-direction: column;
-  margin-bottom: var(--spacing-4xl);
+  margin-bottom: var(--spacing-64);
 }
 
 .titleLine {
@@ -78,7 +78,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-xl);
+  gap: var(--spacing-24);
   flex-wrap: wrap;
 }
 
@@ -89,7 +89,7 @@
 .magneticInner {
   display: inline-block;
   position: relative;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
 }
 
 /* 버튼 hover 시 유리창 효과: 뒷 커피 canvas가 blur로 보인다.
@@ -107,7 +107,7 @@
 }
 
 .cta .magneticInner:hover::before {
-  backdrop-filter: var(--blur-sm) saturate(120%);
+  backdrop-filter: var(--blur-4) saturate(120%);
 }
 
 /* CTA 버튼 — 거대한 타이틀에 맞춰 size xl(40px)보다 크게. 폰트는 역할 토큰 상한(body)이라
@@ -118,9 +118,9 @@
 .ctaBtn.ctaBtn,
 .resumeBtn.resumeBtn {
   height: 80px;
-  padding: 0 var(--spacing-4xl);
-  font-size: var(--font-size-lg);
-  gap: var(--spacing-md);
+  padding: 0 var(--spacing-64);
+  font-size: var(--font-size-18);
+  gap: var(--spacing-16);
 }
 
 /* 공통 outline 단추는 hover·누름 때 반전색(다크에서는 흰색)으로 채운다. 그 규칙과 우선순위가 같으면
@@ -178,8 +178,8 @@
 /* Button Indicator Dot */
 .buttonIndicator {
   position: relative;
-  width: var(--size-5xs);
-  height: var(--size-5xs);
+  width: var(--size-8);
+  height: var(--size-8);
   background: var(--bg-accent-solid-light);
   border-radius: var(--radius-circle);
   transition: transform var(--duration-base) ease;
@@ -213,8 +213,8 @@
 .socialRow {
   display: flex;
   justify-content: center;
-  gap: var(--spacing-lg);
-  margin-top: var(--spacing-3xl);
+  gap: var(--spacing-20);
+  margin-top: var(--spacing-48);
 }
 
 .socialLink {
@@ -250,9 +250,9 @@
   display: flex;
   justify-content: space-between;
   position: absolute;
-  right: var(--page-px);
-  bottom: var(--spacing-4xl);
-  left: var(--page-px);
+  right: var(--spacing-page-inline);
+  bottom: var(--spacing-64);
+  left: var(--spacing-page-inline);
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-label);
   color: var(--text-accent-alt);
@@ -264,14 +264,14 @@
    --------------------------------------------------------------------------- */
 @media (max-width: 768px) {
   .footer {
-    bottom: var(--spacing-2xl);
+    bottom: var(--spacing-32);
   }
 
   /* 모바일: 큰 CTA 버튼(데스크톱 height 80px·font lg)을 화면에 맞게 줄인다 */
   .ctaBtn.ctaBtn,
   .resumeBtn.resumeBtn {
     height: 52px;
-    padding: 0 var(--spacing-2xl);
+    padding: 0 var(--spacing-32);
     font-size: var(--font-size-body);
   }
 }
@@ -283,6 +283,6 @@
 
   .buttonGroup {
     flex-direction: column;
-    gap: var(--spacing-lg);
+    gap: var(--spacing-20);
   }
 }

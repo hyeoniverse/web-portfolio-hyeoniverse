@@ -1,7 +1,7 @@
 .wrap {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 /* 라벨·설명은 왼쪽, 스위치는 오른쪽 끝. 설명이 길어도 스위치는 첫 줄에 붙어 있는다. */
@@ -9,13 +9,13 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
 }
 
 .switchLabel {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   min-width: 0;
 }
 
@@ -26,7 +26,7 @@
   display: inline-flex;
   flex-direction: row;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 /* 크기·색은 .fieldHint 가 정한다 */
@@ -37,7 +37,7 @@
 .loginRow {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 .loginRow > :first-child {
@@ -49,7 +49,7 @@
 .login {
   display: inline-flex;
   align-items: center;
-  min-height: var(--control-h-sm);
+  min-height: var(--control-height-sm);
   font-family: var(--font-mono);
   font-size: var(--font-size-body);
   color: var(--text-primary);
@@ -61,14 +61,14 @@
 .group {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 .groupHead {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 /* 크기·굵기·색은 .sectionSubTitle 이 정한다 — 여기는 배치만 (.switchTitle 주석) */
@@ -77,8 +77,8 @@
 }
 
 .groupCount {
-  padding: 0 var(--spacing-2xs);
-  border-radius: var(--radius-capsule);
+  padding: 0 var(--spacing-4);
+  border-radius: var(--radius-full);
   background: var(--bg-secondary);
   font-family: var(--font-mono);
   font-size: var(--font-size-label);
@@ -102,7 +102,7 @@
 .headTools {
   display: flex;
   flex: 0 1 auto;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   align-items: center;
   margin-left: auto;
 }
@@ -121,8 +121,8 @@
   align-items: center;
   overflow: hidden;
   /* md(32) — 옆의 SearchCapsule(기본 md)과 같은 줄이라 높이를 맞춘다 */
-  width: var(--control-h-md);
-  height: var(--control-h-md);
+  width: var(--control-height-md);
+  height: var(--control-height-md);
   border: var(--border-default);
   border-radius: var(--radius-circle);
   background: transparent;
@@ -142,7 +142,7 @@
 
 .orgAddOpen {
   width: 10rem;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   color: var(--text-primary);
   cursor: text;
 }
@@ -155,11 +155,11 @@
    펼친 뒤에도 + 가 가운데에 온전히 남는다 */
 .orgAddIcon {
   display: flex;
-  flex: 0 0 var(--control-h-sm);
+  flex: 0 0 var(--control-height-sm);
   align-items: center;
   justify-content: center;
-  width: var(--control-h-sm);
-  height: var(--control-h-sm);
+  width: var(--control-height-sm);
+  height: var(--control-height-sm);
 }
 
 /* 닫힌 동안에는 폭이 0 이라 아이콘만 남는다 */
@@ -178,7 +178,7 @@
 .orgAddOpen .orgAddInput {
   flex: 1;
   width: auto;
-  padding-right: var(--spacing-xs);
+  padding-right: var(--spacing-8);
 }
 
 /* 상한 밖이라 화면에 안 나오는 항목 */
@@ -188,8 +188,8 @@
 
 .pickedOverNote {
   flex: 0 0 auto;
-  padding: var(--badge-p-sm);
-  border-radius: var(--radius-capsule);
+  padding: var(--badge-padding-sm);
+  border-radius: var(--radius-full);
   background: var(--bg-secondary);
   font-size: var(--font-size-micro);
   color: var(--text-tertiary);
@@ -205,7 +205,7 @@
 .picked {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -216,8 +216,8 @@
 .pickedItem {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
-  padding: var(--row-p-md);
+  gap: var(--spacing-4);
+  padding: var(--row-padding-md);
 }
 
 .picked .pickedItem {
@@ -232,7 +232,7 @@
 .pickedDragging {
   z-index: 1;
   position: relative;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--bg-secondary);
   box-shadow: var(--shadow-md);
 }
@@ -259,7 +259,7 @@
 .pickedActions {
   display: flex;
   align-items: center;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
 }
 
 /* 소유 계정 칩 — 조직마다 목록을 따로 두면 조직 수만큼 화면이 길어진다. 칩은 줄바꿈으로 쌓이지만
@@ -267,7 +267,7 @@
 .owners {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   align-items: center;
 }
 
@@ -275,10 +275,10 @@
 .list {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   margin: 0;
   /* 위아래 여백 — 없으면 첫·마지막 줄이 구분선에 딱 붙는다 */
-  padding: var(--spacing-sm) 0;
+  padding: var(--spacing-12) 0;
   list-style: none;
   /* 상자로 두르지 않는다 — 위아래 선만으로 스크롤 구간을 표시한다 */
   border-top: var(--border-light);
@@ -298,8 +298,8 @@
   /* 행 전체를 가운데 정렬하면 설명이 긴 항목에서 체크박스가 한참 아래로 내려간다 —
      위로 붙이되, 첫 줄(제목)과 높이를 맞춰 그 줄의 중심에 오게 한다. */
   align-items: flex-start;
-  gap: var(--spacing-xs);
-  padding: var(--row-p-md);
+  gap: var(--spacing-8);
+  padding: var(--row-padding-md);
 }
 
 .item > :first-child {
@@ -318,7 +318,7 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   border: none;
   background: none;
   text-align: start;
@@ -345,7 +345,7 @@
 .itemMeta {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
 }
@@ -353,7 +353,7 @@
 .itemStars {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
 }
 
 .error {
@@ -378,8 +378,8 @@
 
 /* 조직 이름 뱃지 — 묶음 머리글의 "조직" 뒤에 붙는다 */
 .ownerTag {
-  padding: 0 var(--spacing-2xs);
-  border-radius: var(--radius-capsule);
+  padding: 0 var(--spacing-4);
+  border-radius: var(--radius-full);
   background: var(--bg-tertiary);
   font-family: var(--font-mono);
   font-size: var(--font-size-label);

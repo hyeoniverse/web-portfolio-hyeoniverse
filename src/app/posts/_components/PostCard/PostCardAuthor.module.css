@@ -4,7 +4,7 @@
 .metaAuthor {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   min-width: 0;
   color: var(--text-secondary);
 }

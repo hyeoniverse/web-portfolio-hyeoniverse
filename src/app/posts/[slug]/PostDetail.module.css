@@ -5,7 +5,7 @@
 /* ── Loading / Not found ── */
 .loadingState {
   text-align: center;
-  padding: var(--spacing-6xl) 0;
+  padding: var(--spacing-128) 0;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-body);
   color: var(--text-tertiary);

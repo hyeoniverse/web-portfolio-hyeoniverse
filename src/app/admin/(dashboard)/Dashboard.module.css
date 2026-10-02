@@ -1,8 +1,8 @@
 /* ── Dashboard layout — 표/리스트 기반: 카드 chrome 제거, 양 옆 트인 edge-to-edge 섹션 ── */
 .container {
-  max-width: var(--page-max-width);
+  max-width: var(--width-page-max);
   margin: 0 auto;
-  padding: var(--spacing-6xl) var(--page-px) var(--spacing-3xl);
+  padding: var(--spacing-128) var(--spacing-page-inline) var(--spacing-48);
   display: flex;
   flex-direction: column;
   gap: 0;
@@ -12,16 +12,16 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-md);
-  padding: 0 0 var(--spacing-md) 0;
+  gap: var(--spacing-16);
+  padding: 0 0 var(--spacing-16) 0;
 }
 
 .title {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   font-family: var(--font-instrument);
-  font-size: var(--font-size-3xl);
+  font-size: var(--font-size-32);
   font-weight: var(--font-weight-regular);
   color: var(--text-primary);
   margin: 0;
@@ -68,9 +68,9 @@
 .panelHeader {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  padding-top: var(--spacing-xs);
-  padding-bottom: var(--spacing-xs);
+  gap: var(--spacing-12);
+  padding-top: var(--spacing-8);
+  padding-bottom: var(--spacing-8);
 }
 
 .panelHeader > :nth-child(2) {
@@ -122,7 +122,7 @@
   height: auto;
   /* 정수 line-height — height:auto 라 라벨 줄높이(소수점)가 그대로 섹션 높이로 누적된다 */
   line-height: 22px;
-  padding: var(--spacing-md) var(--spacing-md);
+  padding: var(--spacing-16) var(--spacing-16);
   color: var(--text-primary);
   letter-spacing: normal;
   transition: background-color 0.15s ease;
@@ -153,8 +153,8 @@
   color: var(--bg-primary);
   font-size: var(--font-size-hint);
   font-weight: 700;
-  padding: var(--badge-p-md);
-  border-radius: var(--radius-capsule);
+  padding: var(--badge-padding-md);
+  border-radius: var(--radius-full);
   min-width: 18px;
   text-align: center;
 }
@@ -164,7 +164,7 @@
 .heroLeft {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   min-width: 0;
 }
 
@@ -182,7 +182,7 @@
 .heroValueRow {
   display: inline-flex;
   align-items: baseline;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
   flex-wrap: wrap;
 }
 
@@ -252,7 +252,7 @@
   composes: item from "./components/Panel.module.css";
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   border: none;
   border-radius: 0;
   background: var(--bg-primary);
@@ -269,7 +269,7 @@
 /* composes 한 Panel .item 의 padding(xs / 0) 과 같은 (0,1,0) 이라 번들 순서에 따라 카드 여백이
    그쪽으로 뒤집혔다. 클래스를 두 번 적어 (0,2,0). */
 .statCard.statCard {
-  padding: var(--spacing-lg) var(--spacing-md);
+  padding: var(--spacing-20) var(--spacing-16);
 }
 
 a.statCard {
@@ -297,7 +297,7 @@ a.statCard:hover .statValue {
 
 .statValue {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xl);
+  font-size: var(--font-size-24);
   font-weight: 700;
   color: var(--text-primary);
   line-height: 1;
@@ -320,7 +320,7 @@ a.statCard:hover .statValue {
   width: 100%;
   height: 6px;
   background: var(--bg-secondary);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   overflow: hidden;
 }
 
@@ -329,7 +329,7 @@ a.statCard:hover .statValue {
   inset: 0 auto 0 0;
   height: 100%;
   background: var(--color-accent);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -359,7 +359,7 @@ a.statCard:hover .statValue {
    깔리면 border (alpha-30) 와 합성돼 alpha 0.51 로 진해짐. padding-box 로 border 영역 제외. */
 .twoCol {
   composes: panelGrid from "./components/Panel.module.css";
-  /* --grid-cols-2 는 repeat() 표기라 확장값(0fr 1fr)과 보간이 안 돼 transition 이 즉시
+  /* --grid-columns-2 는 repeat() 표기라 확장값(0fr 1fr)과 보간이 안 돼 transition 이 즉시
      점프했다 — 양쪽을 같은 minmax 구조로 풀어 써야 grid-template-columns 가 animate 된다 */
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   background-clip: padding-box;
@@ -396,16 +396,16 @@ a.statCard:hover .statValue {
   /* composes 한 Panel .panelGrid 의 gap: 0 과 같은 (0,1,0) 이라 번들 순서에 따라 hairline 용
      column-gap 이 0 으로 뒤집혀 셀 사이 구분선이 사라졌다. 클래스를 두 번 적어 (0,2,0). */
   .twoCol.twoCol {
-    column-gap: var(--spacing-4xs);
+    column-gap: var(--spacing-1);
   }
   .twoCol > .panelCell {
     background: var(--bg-primary);
   }
   .twoCol > :nth-child(odd) {
-    --_item-inline-end: var(--spacing-md);
+    --_item-inline-end: var(--spacing-16);
   }
   .twoCol > :nth-child(even) {
-    --_item-inline-start: var(--spacing-md);
+    --_item-inline-start: var(--spacing-16);
   }
 }
 
@@ -467,7 +467,7 @@ a.statCard:hover .statValue {
 .listItemLink {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   text-decoration: none;
   color: inherit;
   width: 100%;
@@ -496,7 +496,7 @@ a.statCard:hover .statValue {
   display: inline-flex;
   align-items: center;
   justify-content: flex-end;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   flex-shrink: 0;
   min-width: 72px;
   font-family: var(--font-space-grotesk);
@@ -513,9 +513,9 @@ a.statCard:hover .statValue {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-2xs);
-  padding: var(--spacing-4xs) var(--spacing-xs);
-  border-radius: var(--radius-capsule);
+  gap: var(--spacing-4);
+  padding: var(--spacing-1) var(--spacing-8);
+  border-radius: var(--radius-full);
   font-size: var(--font-size-hint);
   font-weight: 600;
   letter-spacing: 0.02em;
@@ -562,7 +562,7 @@ a.statCard:hover .statValue {
 .serviceItem {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 .statusDot {
@@ -637,9 +637,9 @@ a.statCard:hover .statValue {
 .trendBadge {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-3xs);
-  padding: var(--badge-p-sm);
-  border-radius: var(--radius-capsule);
+  gap: var(--spacing-2);
+  padding: var(--badge-padding-sm);
+  border-radius: var(--radius-full);
   font-family: var(--font-mono);
   font-size: var(--font-size-hint);
   font-weight: 600;
@@ -659,9 +659,9 @@ a.statCard:hover .statValue {
 
 /* Hero 옆에 붙는 큰 사이즈 변형 — padding/font-size up + 지연 등장 */
 .trendBadgeLg {
-  padding: var(--badge-p-md);
+  padding: var(--badge-padding-md);
   font-size: var(--font-size-label);
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   animation: trendBadgeIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) 0.6s both;
 }
 
@@ -702,7 +702,7 @@ a.statCard:hover .statValue {
 
 .donutCenterValue {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-18);
   font-weight: 700;
   fill: var(--text-primary);
 }
@@ -719,12 +719,12 @@ a.statCard:hover .statValue {
 .tagPill {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-xs);
-  padding: var(--badge-p-lg);
+  gap: var(--spacing-8);
+  padding: var(--badge-padding-lg);
   /* gap 대체 — 모든 pill 동일 spacing. 마지막 줄 아래 튀어나옴은 container 의 negative margin 으로 상쇄 */
-  margin-right: var(--spacing-2xs);
-  margin-bottom: var(--spacing-2xs);
-  border-radius: var(--radius-capsule);
+  margin-right: var(--spacing-4);
+  margin-bottom: var(--spacing-4);
+  border-radius: var(--radius-full);
   background: var(--bg-tertiary);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
@@ -757,13 +757,13 @@ a.statCard:hover .statValue {
   position: relative;
   display: inline-flex;
   align-items: center;
-  margin-left: var(--spacing-2xs);
+  margin-left: var(--spacing-4);
 }
 
 .badgePulse {
   position: absolute;
   inset: 0;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--text-accent);
   opacity: 0.6;
   animation: badgePulse 1.6s ease-out infinite;
@@ -787,7 +787,7 @@ a.statCard:hover .statValue {
 
 /* tag cloud Item — pill 들의 margin-bottom 이 wrap 시 마지막 줄 아래로 튀어나오는 거 상쇄 */
 .tagsItem {
-  margin-bottom: calc(-1 * var(--spacing-2xs));
+  margin-bottom: calc(-1 * var(--spacing-4));
 }
 
 @keyframes dayDetailFadeIn {
@@ -809,7 +809,7 @@ a.statCard:hover .statValue {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   font-family: var(--font-mono);
   font-size: var(--font-size-hint);
   color: var(--text-tertiary);
@@ -830,7 +830,7 @@ a.statCard:hover .statValue {
   color: var(--text-accent);
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 .commentAuthorAdmin::before {
@@ -868,7 +868,7 @@ a.commentBody:hover {
 .commentSource {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-hint);
   color: var(--text-tertiary);
@@ -888,7 +888,7 @@ a.commentSource:hover {
 .reportReason {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-hint);
   color: var(--text-accent);
@@ -904,9 +904,9 @@ a.commentSource:hover {
   justify-content: center;
   min-width: 1.4em;
   height: 1.4em;
-  padding: 0 var(--spacing-3xs);
-  margin-left: var(--spacing-xs);
-  border-radius: var(--radius-capsule);
+  padding: 0 var(--spacing-2);
+  margin-left: var(--spacing-8);
+  border-radius: var(--radius-full);
   background: var(--text-accent);
   color: var(--bg-primary);
   font-size: var(--font-size-hint);
@@ -918,7 +918,7 @@ a.commentSource:hover {
 .popularCat {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   color: var(--text-secondary);
   font-weight: 600;
   text-transform: uppercase;
@@ -936,7 +936,7 @@ a.commentSource:hover {
 
 .popularCat::after {
   content: "·";
-  margin: 0 var(--spacing-2xs);
+  margin: 0 var(--spacing-4);
   color: var(--text-muted);
   font-weight: 400;
 }
@@ -949,14 +949,14 @@ a.commentSource:hover {
 .popularStats {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   flex-shrink: 0;
 }
 
 .popularStat {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   font-family: var(--font-mono);
   font-size: var(--font-size-hint);
   color: var(--text-tertiary);
@@ -991,7 +991,7 @@ a.commentSource:hover {
 .referrerSource {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   color: var(--text-primary);
@@ -1010,7 +1010,7 @@ a.commentSource:hover {
 .referrerMeta {
   display: inline-flex;
   align-items: baseline;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   font-family: var(--font-mono);
   font-size: var(--font-size-hint);
   font-variant-numeric: tabular-nums;
@@ -1027,7 +1027,7 @@ a.commentSource:hover {
 
 .referrerCount::before {
   content: "·";
-  margin-right: var(--spacing-2xs);
+  margin-right: var(--spacing-4);
   color: var(--text-muted);
 }
 
@@ -1037,14 +1037,14 @@ a.commentSource:hover {
 .trafficSummary {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-sm) var(--spacing-2xl);
-  padding: var(--spacing-xs) 0;
+  gap: var(--spacing-12) var(--spacing-32);
+  padding: var(--spacing-8) 0;
 }
 
 .trafficStat {
   display: inline-flex;
   align-items: baseline;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 .trafficStatLabel {
@@ -1059,9 +1059,9 @@ a.commentSource:hover {
 .trafficStatValue {
   display: inline-flex;
   align-items: baseline;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   font-family: var(--font-mono);
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-16);
   font-weight: 700;
   color: var(--text-primary);
   font-variant-numeric: tabular-nums;
@@ -1096,8 +1096,8 @@ a.commentSource:hover {
 .serviceBar {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-md) var(--spacing-sm);
+  gap: var(--spacing-12);
+  padding: var(--spacing-16) var(--spacing-12);
   /* 아래 선은 다음 섹션 머리의 선이 맡는다 — 둘 다 그으면 두 겹 */
   border-top: var(--border-light);
   color: var(--text-secondary);

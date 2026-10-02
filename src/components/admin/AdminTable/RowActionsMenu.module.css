@@ -3,8 +3,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: var(--control-h-xs);
-  height: var(--control-h-xs);
+  width: var(--control-height-xs);
+  height: var(--control-height-xs);
   border: none;
   border-radius: var(--radius-circle);
   background: transparent;
@@ -41,8 +41,8 @@
 .moveBody {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-sm);
+  gap: var(--spacing-12);
+  padding: var(--spacing-12);
 }
 
 .meta {
@@ -58,7 +58,7 @@
 
 .quickRow {
   display: flex;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 .quickBtn {
@@ -66,11 +66,11 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-2xs);
-  height: var(--size-sm);
-  padding: 0 var(--spacing-sm);
+  gap: var(--spacing-4);
+  height: var(--size-32);
+  padding: 0 var(--spacing-12);
   border: var(--border-default);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
@@ -85,16 +85,16 @@
 
 .posRow {
   display: flex;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 .posInput {
   flex: 1;
   min-width: 0;
-  height: var(--size-sm);
-  padding: 0 var(--spacing-md);
+  height: var(--size-32);
+  padding: 0 var(--spacing-16);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-body);

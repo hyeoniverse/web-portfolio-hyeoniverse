@@ -1,0 +1,37 @@
+/* ==========================================================================
+  Size Tokens — 원시 눈금 (docs/design-system.md 3.4)
+
+  아이콘 · 아바타 · 썸네일처럼 컨트롤이 아닌 사각형에 쓴다. 이름은 px 값이다(2-3-2).
+  40 까지는 4px, 80 까지는 8px, 그 위는 16px 간격. 쓰는 곳이 없어도 단계는 빠짐없이 둔다(2-4).
+  컨트롤 높이는 여기서 정하지 않는다 — 컴포넌트 토큰 `--control-height-*`(globals/_component.css).
+  ========================================================================== */
+
+:root {
+  --size-4: 4px;
+  --size-8: 8px;
+  --size-12: 12px;
+  --size-16: 16px;
+  --size-20: 20px;
+  --size-24: 24px;
+  --size-28: 28px;
+  --size-32: 32px;
+  --size-36: 36px;
+  /* 눈금 밖 — 옛 컨트롤 높이가 남은 값. 쓰는 곳을 40 으로 옮긴 뒤 지운다(이행 8단계) */
+  --size-38: 38px;
+  --size-40: 40px;
+  --size-48: 48px;
+  --size-56: 56px;
+  --size-64: 64px;
+  --size-72: 72px;
+  --size-80: 80px;
+  --size-96: 96px;
+  --size-112: 112px;
+  --size-128: 128px;
+
+  /* 등분 grid — minmax(0,1fr) 로 자식이 트랙을 밀어 넘치는 것(grid blowout)을 막는다. 맨 1fr 보다 안전하다 */
+  --grid-columns-2: repeat(2, minmax(0, 1fr));
+  --grid-columns-3: repeat(3, minmax(0, 1fr));
+  --grid-columns-4: repeat(4, minmax(0, 1fr));
+  --grid-columns-5: repeat(5, minmax(0, 1fr));
+  --grid-columns-7: repeat(7, minmax(0, 1fr));
+}

@@ -4,11 +4,11 @@
 .translateBanner {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-sm) var(--spacing-md);
+  gap: var(--spacing-12);
+  padding: var(--spacing-12) var(--spacing-16);
   border-left: 2px solid var(--text-muted);
   background: transparent;
-  margin-bottom: var(--spacing-xl);
+  margin-bottom: var(--spacing-24);
 }
 
 .translateIcon {

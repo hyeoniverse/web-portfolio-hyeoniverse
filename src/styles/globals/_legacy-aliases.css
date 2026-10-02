@@ -1,0 +1,79 @@
+/* ==========================================================================
+  저장된 글을 위한 옛 토큰 이름 (docs/design-system.md 2-3-6)
+
+  2026-10-02 원시 눈금의 이름을 크기 이름(`--spacing-sm`)에서 px 값(`--spacing-12`)으로 바꿨다.
+  그런데 에디터가 저장한 글 HTML 은 토큰 이름을 인라인 style 에 직접 담는다
+  (plateSerializer — 열 그룹 `gap:var(--spacing-xs)`, 파일 블록 `border-radius:var(--radius-2xl)` 등).
+  DB 에 이미 저장된 글이 깨지지 않게 옛 이름을 새 토큰으로 이어 둔다.
+
+  - **코드에서 쓰지 않는다.** 새 코드가 옛 이름을 쓰면 감시 테스트(styleRatchet · legacy-token-alias)가 실패한다.
+  - 지우는 때: DB 의 글을 새 이름으로 옮긴 뒤(content 동기화 스크립트로 일괄 치환).
+  ========================================================================== */
+
+:root {
+  /* spacing */
+  --spacing-zero: var(--spacing-0);
+  --spacing-4xs: var(--spacing-1);
+  --spacing-3xs: var(--spacing-2);
+  --spacing-2xs: var(--spacing-4);
+  --spacing-xs: var(--spacing-8);
+  --spacing-sm: var(--spacing-12);
+  --spacing-md: var(--spacing-16);
+  --spacing-lg: var(--spacing-20);
+  --spacing-xl: var(--spacing-24);
+  --spacing-2xl: var(--spacing-32);
+  --spacing-2xl-plus: var(--spacing-40);
+  --spacing-3xl: var(--spacing-48);
+  --spacing-4xl: var(--spacing-64);
+  --spacing-4xl-plus: var(--spacing-80);
+  --spacing-5xl: var(--spacing-96);
+  --spacing-5xl-plus: var(--spacing-112);
+  --spacing-6xl: var(--spacing-128);
+  /* radius */
+  --radius-2xs: var(--radius-2);
+  --radius-xs: var(--radius-4);
+  --radius-sm: var(--radius-6);
+  --radius-md: var(--radius-8);
+  --radius-lg: var(--radius-12);
+  --radius-xl: var(--radius-16);
+  --radius-2xl: var(--radius-24);
+  --radius-capsule: var(--radius-full);
+  /* font-size */
+  --font-size-3xs: var(--font-size-11);
+  --font-size-2xs: var(--font-size-12);
+  --font-size-xs: var(--font-size-13);
+  --font-size-sm: var(--font-size-14);
+  --font-size-md: var(--font-size-16);
+  --font-size-lg: var(--font-size-18);
+  --font-size-xl: var(--font-size-20);
+  --font-size-2xl: var(--font-size-24);
+  --font-size-2xl-plus: var(--font-size-28);
+  --font-size-3xl: var(--font-size-32);
+  --font-size-4xl: var(--font-size-40);
+  --font-size-5xl: var(--font-size-48);
+  --font-size-6xl: var(--font-size-64);
+  /* size */
+  --size-6xs: var(--size-4);
+  --size-5xs: var(--size-8);
+  --size-4xs: var(--size-12);
+  --size-3xs: var(--size-16);
+  --size-2xs: var(--size-20);
+  --size-xs: var(--size-24);
+  --size-sm: var(--size-32);
+  --size-md: var(--size-38);
+  --size-xl: var(--size-56);
+  --size-2xl: var(--size-64);
+  --size-3xl: var(--size-72);
+  --size-4xl: var(--size-80);
+  --size-5xl: var(--size-96);
+  --size-6xl: var(--size-112);
+  /* blur */
+  --blur-xs: var(--blur-2);
+  --blur-sm: var(--blur-4);
+  --blur-md: var(--blur-8);
+  --blur-lg: var(--blur-12);
+  --blur-xl: var(--blur-16);
+  --blur-2xl: var(--blur-24);
+  --blur-3xl: var(--blur-40);
+  --blur-4xl: var(--blur-60);
+}

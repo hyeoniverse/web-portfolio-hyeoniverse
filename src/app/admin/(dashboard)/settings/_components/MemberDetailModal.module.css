@@ -3,13 +3,13 @@
 .memberDetail {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
-  padding: 0 var(--spacing-lg) var(--spacing-lg);
+  gap: var(--spacing-16);
+  padding: 0 var(--spacing-20) var(--spacing-20);
 }
 .memberDetailHead {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
 }
 .memberDetailAvatar {
   flex-shrink: 0;
@@ -23,7 +23,7 @@
   align-items: center;
   justify-content: center;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-20);
   font-weight: var(--font-weight-semibold);
   color: var(--text-secondary);
 }
@@ -35,14 +35,14 @@
 .memberDetailHeadInfo {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   min-width: 0;
 }
 .memberDetailNameRow {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 .memberDetailName {
   font-family: var(--font-space-grotesk);
@@ -57,12 +57,12 @@
 .memberDetailMeta {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 .memberDetailMetaRow {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   font-size: var(--font-size-body);
   color: var(--text-secondary);
 }
@@ -89,7 +89,7 @@
 .memberDetailLinks {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 /* GitHub 사용자명 — 이름 옆에 붙는 보조 식별자라 이름보다 약하게 둔다 */
 .memberDetailHandle {

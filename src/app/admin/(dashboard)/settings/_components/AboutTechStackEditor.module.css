@@ -6,13 +6,13 @@
 .techGroups {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: var(--spacing-md) var(--spacing-xl);
+  gap: var(--spacing-16) var(--spacing-24);
   align-items: start;
 }
 .techGroup {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   min-width: 0;
 }
 .techGroupLabel {
@@ -22,17 +22,17 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--text-tertiary);
-  padding-bottom: var(--spacing-2xs);
+  padding-bottom: var(--spacing-4);
   border-bottom: var(--border-light);
 }
 /* 그룹 내 chip 들 — wrap. min-height 로 빈 그룹도 drop 영역 확보 */
 .techChips {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   align-items: center;
   min-width: 0;
-  min-height: var(--control-h-sm);
+  min-height: var(--control-height-sm);
 }
 /* 빈 그룹 placeholder — "여기로 드래그" */
 .techGroupEmpty {
@@ -51,17 +51,17 @@
   outline: var(--border-accent);
   outline-style: dashed;
   outline-offset: 3px;
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   background: var(--bg-accent-light);
 }
 /* 드래그 중 따라다니는 칩 오버레이 */
 .techDragOverlay {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
-  padding: var(--spacing-2xs) var(--spacing-sm) var(--spacing-2xs) var(--spacing-2xs);
+  gap: var(--spacing-4);
+  padding: var(--spacing-4) var(--spacing-12) var(--spacing-4) var(--spacing-4);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--bg-secondary);
   box-shadow: var(--shadow-md);
   font-family: var(--font-space-grotesk);
@@ -98,16 +98,16 @@
 /* + 추가 — 공통 Button(ghost) 사용 (외곽선 없음) */
 .techAddRow {
   grid-column: 1 / -1;
-  padding-top: var(--spacing-xs);
+  padding-top: var(--spacing-8);
 }
 /* ── 추가 / 편집 popover 내부 ── */
 .techPanel {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   width: min(340px, 86vw);
   /* dropdown 자체엔 padding 이 없어 content 가 padding 을 가짐 */
-  padding: var(--spacing-md);
+  padding: var(--spacing-16);
 }
 .techPanelTitle {
   font-family: var(--font-space-grotesk);
@@ -119,7 +119,7 @@
 }
 /* preset 스크롤 영역 — 좌우 트임(full-bleed) + 높이 제한(내부 스크롤). Lenis 는 dropdown 의 data-lenis-prevent 로 무시됨 */
 .techPresetScroll {
-  margin: 0 calc(-1 * var(--spacing-md));
+  margin: 0 calc(-1 * var(--spacing-16));
   max-height: 200px;
   overflow-y: auto;
   overflow-x: hidden;
@@ -133,9 +133,9 @@
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   width: 100%;
-  padding: var(--row-p-md);
+  padding: var(--row-padding-md);
   border: none;
   border-bottom: var(--border-light);
   background: transparent;
@@ -165,12 +165,12 @@
 .techCustomFooter {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   position: sticky;
   bottom: 0;
-  margin: var(--spacing-xs) calc(-1 * var(--spacing-md))
-    calc(-1 * var(--spacing-md));
-  padding: var(--spacing-sm) var(--spacing-md) var(--spacing-md);
+  margin: var(--spacing-8) calc(-1 * var(--spacing-16))
+    calc(-1 * var(--spacing-16));
+  padding: var(--spacing-12) var(--spacing-16) var(--spacing-16);
   background: var(--bg-primary);
   border-top: var(--border-light);
 }
@@ -178,7 +178,7 @@
 .techIconRow {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 .techIconCircleWrap {
   position: relative;

@@ -2,8 +2,8 @@
 .gallery {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-lg);
-  padding: var(--spacing-2xl) 0;
+  gap: var(--spacing-20);
+  padding: var(--spacing-32) 0;
 }
 
 .stage {
@@ -28,7 +28,7 @@
 
 .stage:focus-visible {
   outline: var(--border-accent);
-  outline-offset: var(--spacing-xs);
+  outline-offset: var(--spacing-8);
 }
 
 .slide {
@@ -61,7 +61,7 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   /* 레터박스 바탕 — 그림이 판을 다 못 채울 때 드러난다. 밝은 화면에서도 검정으로 둔다
      (바탕이 테마 따라 바뀌면 같은 그림이 화면마다 다른 테두리를 쓴 것처럼 보인다) */
   background: var(--bg-black);
@@ -87,9 +87,9 @@
 .controls {
   display: flex;
   align-items: center;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   width: min(100%, 520px);
-  height: var(--spacing-lg);
+  height: var(--spacing-20);
   margin: 0 auto;
   cursor: grab;
   touch-action: none;
@@ -112,7 +112,7 @@
   max-width: none;
   /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 24px(2xl)은 160x90 썸네일에
      비해 모서리가 너무 깎여 그림이 잘려 보인다. 작은 미리보기 판이라 md 로 줄인다 */
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-8);
   overflow: hidden;
 }
 
@@ -123,7 +123,7 @@
   aspect-ratio: 16 / 9;
   overflow: hidden;
   /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 감싼 말풍선과 같은 곡률 */
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-8);
   background: var(--bg-black);
 }
 
@@ -135,7 +135,7 @@
 .seg {
   width: 100%;
   height: 2px;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--text-tertiary);
   opacity: 0.28;
   transition:
@@ -200,7 +200,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   width: 100%;
   height: 100%;
   color: var(--text-white);
@@ -221,7 +221,7 @@
   display: grid;
   grid-template-columns: 1fr minmax(0, 520px) 1fr;
   align-items: center;
-  column-gap: var(--spacing-sm);
+  column-gap: var(--spacing-12);
 }
 
 .controlBar .controls {
@@ -289,12 +289,12 @@
    무대의 장들(z 100 이하) 위, 소리 막힘 덮개(200) 아래 */
 .caption {
   position: absolute;
-  bottom: var(--spacing-lg);
+  bottom: var(--spacing-20);
   left: 50%;
   z-index: 150;
   max-width: min(72%, 760px);
   margin: 0;
-  padding: var(--spacing-xs) var(--spacing-md);
+  padding: var(--spacing-8) var(--spacing-16);
   /* 모서리를 둥글리지 않는다 — 영상 자막처럼 각진 판 */
   border-radius: 0;
   background: oklch(0% 0 0 / 0.72);
@@ -322,11 +322,11 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   height: 100%;
   aspect-ratio: 16 / 9;
   max-width: 82%;
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   background: oklch(0% 0 0 / 0.5);
   cursor: default;
   transform: translate(-50%, -50%);
@@ -357,7 +357,7 @@
 
 .coverPlay:focus-visible {
   outline: var(--border-white);
-  outline-offset: var(--spacing-2xs);
+  outline-offset: var(--spacing-4);
 }
 
 /* 삼각형은 무게중심이 왼쪽에 쏠려 보여 조금 오른쪽으로 민다 */
@@ -372,13 +372,13 @@
 }
 
 .coverSkip {
-  margin-top: var(--spacing-xs);
+  margin-top: var(--spacing-8);
 }
 
 @media (max-width: 768px) {
   .cover {
     max-width: 88%;
-    gap: var(--spacing-xs);
+    gap: var(--spacing-8);
   }
 
   .coverPlay {

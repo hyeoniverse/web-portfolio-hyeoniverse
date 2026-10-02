@@ -1,13 +1,13 @@
 /* 에디터 단축키 도움말 모달. PostEditor.module.css 에서 분리 (#675). */
 .helpTabs {
   display: flex;
-  gap: var(--spacing-2xs);
-  margin: 0 var(--spacing-lg) var(--spacing-lg);
+  gap: var(--spacing-4);
+  margin: 0 var(--spacing-20) var(--spacing-20);
   border-bottom: var(--border-light);
 }
 
 .helpTab {
-  padding: var(--spacing-xs) var(--spacing-md);
+  padding: var(--spacing-8) var(--spacing-16);
   margin-bottom: -1px;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-body);
@@ -46,9 +46,9 @@
 
 .helpGrid {
   display: grid;
-  grid-template-columns: var(--grid-cols-2);
-  gap: var(--spacing-xl) var(--spacing-2xl);
-  padding: 0 var(--spacing-lg) var(--spacing-2xl);
+  grid-template-columns: var(--grid-columns-2);
+  gap: var(--spacing-24) var(--spacing-32);
+  padding: 0 var(--spacing-20) var(--spacing-32);
 }
 
 .helpSection {}
@@ -60,8 +60,8 @@
 
 .helpSectionWide .helpRows {
   display: grid;
-  grid-template-columns: var(--grid-cols-2);
-  gap: var(--spacing-sm) var(--spacing-2xl);
+  grid-template-columns: var(--grid-columns-2);
+  gap: var(--spacing-12) var(--spacing-32);
 }
 
 .helpSectionTitle {
@@ -71,23 +71,23 @@
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  margin-bottom: var(--spacing-sm);
-  padding-bottom: var(--spacing-2xs);
+  margin-bottom: var(--spacing-12);
+  padding-bottom: var(--spacing-4);
   border-bottom: var(--border-light);
 }
 
 .helpRows {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 .helpRow {
   display: flex;
   flex-wrap: wrap; /* 공간 부족 시 키를 라벨 아래 줄로 내림 */
   align-items: baseline;
-  column-gap: var(--spacing-md);
-  row-gap: var(--spacing-3xs);
+  column-gap: var(--spacing-16);
+  row-gap: var(--spacing-2);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-body);
   color: var(--text-primary);
@@ -103,7 +103,7 @@
   align-items: center;
   flex-wrap: wrap; /* 폭 부족 시 badge 줄바꿈 허용 */
   justify-content: flex-end;
-  gap: var(--spacing-4xs);
+  gap: var(--spacing-1);
 }
 
 .helpKeyPlus {
@@ -115,7 +115,7 @@
 .helpArrowGroup {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-4xs);
+  gap: var(--spacing-1);
 }
 
 /* 방향키 badge — mono 폰트에서 ←→ 가 ↑↓ 보다 작게 나오는 문제 회피(sans + 균일 정사각 박스) */
@@ -124,7 +124,7 @@
   align-items: center;
   justify-content: center;
   min-width: 1.5em;
-  padding-inline: var(--spacing-4xs);
+  padding-inline: var(--spacing-1);
   font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
@@ -135,8 +135,8 @@
   color: var(--text-primary);
   background: var(--bg-tertiary);
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
-  padding: var(--badge-p-md);
+  border-radius: var(--radius-24);
+  padding: var(--badge-padding-md);
   white-space: nowrap;
 }
 

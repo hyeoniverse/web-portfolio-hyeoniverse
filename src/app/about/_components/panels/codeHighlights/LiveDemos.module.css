@@ -2,7 +2,7 @@
 .demo {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   width: 100%;
   max-width: 22rem;
   margin: 0;
@@ -52,16 +52,16 @@
 .chips {
   display: flex;
   justify-content: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 .chip {
-  padding: var(--spacing-3xs) var(--spacing-sm);
+  padding: var(--spacing-2) var(--spacing-12);
   font-family: var(--font-mono);
   font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
 }
 
 .chipOn {
@@ -122,14 +122,14 @@
 .lanes {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 .lane {
   display: grid;
   grid-template-columns: 4.5rem minmax(0, 1fr);
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 .laneName {
@@ -140,7 +140,7 @@
 
 .laneTrack {
   position: relative;
-  height: var(--spacing-md);
+  height: var(--spacing-16);
   border-bottom: var(--border-light);
 }
 
@@ -148,8 +148,8 @@
 .laneDotHermite {
   position: absolute;
   top: 50%;
-  width: var(--spacing-sm);
-  height: var(--spacing-sm);
+  width: var(--spacing-12);
+  height: var(--spacing-12);
   border-radius: var(--radius-circle);
   translate: -50% -50%;
 }
@@ -166,9 +166,9 @@
 .varsCard {
   display: flex;
   align-items: flex-start;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
   overflow: hidden;
-  padding: var(--spacing-md);
+  padding: var(--spacing-16);
   border: var(--border-light);
   min-height: 6.5rem;
 }
@@ -185,7 +185,7 @@
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   font-size: var(--font-size-label);
   color: var(--text-primary);
 }
@@ -193,11 +193,11 @@
 .varsLines {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 .varsLines i {
-  height: var(--spacing-2xs);
+  height: var(--spacing-4);
   background: color-mix(in srgb, var(--text-tertiary) 45%, transparent);
 }
 
@@ -212,7 +212,7 @@
 .varsBars {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -222,7 +222,7 @@
   display: grid;
   grid-template-columns: 5.5rem minmax(0, 1fr) 2.5rem;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 .varsBars code {
@@ -241,7 +241,7 @@
 
 .varsTrack {
   overflow: hidden;
-  height: var(--spacing-xs);
+  height: var(--spacing-8);
   background: color-mix(in srgb, var(--text-tertiary) 18%, transparent);
 }
 
@@ -263,8 +263,8 @@
 .lenisPage {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-md);
+  gap: var(--spacing-12);
+  padding: var(--spacing-16);
   transition: transform 0.25s var(--ease-out-expo);
 }
 
@@ -276,7 +276,7 @@
 
 .lenisSection {
   overflow: hidden;
-  padding: var(--spacing-xs) 0;
+  padding: var(--spacing-8) 0;
   border-block: var(--border-light);
 }
 
@@ -286,7 +286,7 @@
 
 .lenisTrack {
   display: flex;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   transition: transform 0.25s var(--ease-out-expo);
 }
 
@@ -306,7 +306,7 @@
 .lenisCount {
   display: flex;
   justify-content: center;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-20);
   margin: 0;
   font-family: var(--font-mono);
   font-size: var(--font-size-label);

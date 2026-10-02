@@ -2,9 +2,9 @@
 .header {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
-  padding-bottom: var(--spacing-xs);
-  margin-bottom: var(--spacing-md);
+  gap: var(--spacing-4);
+  padding-bottom: var(--spacing-8);
+  margin-bottom: var(--spacing-16);
   border-bottom: var(--border-strong);
 }
 
@@ -12,7 +12,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
   min-width: 0;
 }
 
@@ -29,7 +29,7 @@
 .actions {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   flex-shrink: 0;
 }
 

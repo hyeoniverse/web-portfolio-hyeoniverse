@@ -4,8 +4,8 @@
 .seriesDeleteModal {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
-  padding: 0 var(--spacing-xl) var(--spacing-xl);
+  gap: var(--spacing-16);
+  padding: 0 var(--spacing-24) var(--spacing-24);
 }
 
 .seriesDeleteHint {
@@ -18,7 +18,7 @@
 .seriesDeleteCheck {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   color: var(--text-secondary);

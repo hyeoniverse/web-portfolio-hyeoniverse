@@ -137,7 +137,7 @@ export default function PickersSelectsDemos() {
               : "combobox — an input trigger. Filter by label + searchTerms (Korean alias), add free text with Enter/comma, plus a clear button, arrow-key nav, and grouped options with icons.")}
           </p>
           <div className={styles.sliderRow}>
-            <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-xs)" }}>
+            <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-8)" }}>
               <Tooltip content="combobox — filter + free-text add">
                 <Select
                   combobox
@@ -157,7 +157,7 @@ export default function PickersSelectsDemos() {
                 />
               </Tooltip>
               {comboTags.length > 0 && (
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--spacing-2xs)" }}>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--spacing-4)" }}>
                   {comboTags.map((tag, i) => (
                     <Chip key={tag} variant="capsule" onRemove={() => setComboTags((p) => p.filter((_, j) => j !== i))}>{tag}</Chip>
                   ))}
@@ -172,7 +172,7 @@ export default function PickersSelectsDemos() {
               : "Pick one value from presets or type your own. Choosing **Custom value** at the top of the left select clears the input and moves the caret there; picking a preset fills it. The list isn't filtered by the input, and when the typed value equals a preset the left side points to it. The left side is sized to the longest option, and an eraser appears while the input has a value. Used for member job titles, team profile links and tech-stack categories.")}
           </p>
           <div className={styles.sliderRow}>
-            <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-xs)", minWidth: 320 }}>
+            <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-8)", minWidth: 320 }}>
               <Select
                 combobox="split"
                 width="full"
@@ -193,7 +193,7 @@ export default function PickersSelectsDemos() {
               : "With `editable`, **double-clicking** the trigger swaps it for a text input, so you can type a value that isn't in the dropdown (the editor toolbar's font-size / line-height inputs work this way). A single click still opens the dropdown — the first click is delayed 250ms to tell the two apart. `editableInputProps` sets `maxLength`, `placeholder`, and `sanitize` (normalize on commit — digits only, digits-and-dot only, etc.). Commit on blur or Enter, cancel on Escape; a non-preset value is kept visible by prepending the current value as a temporary option. An empty `value` starts in input mode (PeriodPicker's year / month / day fields do this).")}
           </p>
           <div className={styles.sliderRow}>
-            <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(0, 2)} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-2xs)" }}>
+            <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(0, 2)} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-4)" }}>
               <span className={styles.sliderLabel}>Font size — {selectFontSize}px · 더블클릭해 직접 입력</span>
               <Tooltip content="editable · sanitize(숫자만) · maxLength 3">
                 <Select
@@ -212,7 +212,7 @@ export default function PickersSelectsDemos() {
                 />
               </Tooltip>
             </motion.div>
-            <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(1, 2)} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-2xs)" }}>
+            <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(1, 2)} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-4)" }}>
               <span className={styles.sliderLabel}>Line height — {selectLineHeight} · 더블클릭해 직접 입력</span>
               <Tooltip content="editable · sanitize(숫자·점) · maxLength 4">
                 <Select
@@ -240,7 +240,7 @@ export default function PickersSelectsDemos() {
           ko={"render-prop trigger 와 portal popover 로 이뤄집니다. trigger 를 호출부가 직접 그리기 때문에 스와치·버튼·칩 등 무엇이든 될 수 있습니다. **모바일(≤768px)에서는 dropdown 대신 bottom sheet 으로 바뀝니다.** 색을 고르려면 두 손가락만 한 면적이 필요한데, 작은 화면의 popover 로는 그만한 공간이 나오지 않기 때문입니다. `inline` 모드는 이미 제자리에 펼쳐진 형태라 sheet 전환에서 제외됩니다."}
           en={"A render-prop trigger with a portal popover — the caller draws the trigger, so it can be a swatch, a button, or a chip. **On mobile (≤768px) it becomes a bottom sheet instead of a dropdown** — picking a color needs roughly two fingers' worth of area, which a popover on a small screen can't give. `inline` mode is already expanded in place, so it opts out of the sheet."}
         >
-          <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-md)", flexWrap: "wrap" }}>
+          <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-16)", flexWrap: "wrap" }}>
             <Tooltip content="render-prop trigger + portal popover">
               <ColorPicker value={pickerColor} onChange={(c) => setPickerColor(c.hex)}>
                 {({ toggle }) => (
@@ -266,16 +266,16 @@ export default function PickersSelectsDemos() {
 
         {/* DatePicker */}
         <DemoGroup title="DatePicker">
-          <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-md)" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "var(--spacing-sm)" }}>
+          <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-16)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "var(--spacing-12)" }}>
               <span style={{ fontSize: "var(--font-size-label)", color: "var(--text-tertiary)" }}>Format</span>
-              <div style={{ display: "flex", border: "var(--border-light)", borderRadius: "var(--radius-capsule)", overflow: "hidden" }}>
+              <div style={{ display: "flex", border: "var(--border-light)", borderRadius: "var(--radius-full)", overflow: "hidden" }}>
                 {(["year", "yearMonth", "date"] as const).map((f, i, arr) => (
                   <Pressable
                     key={f}
                     onClick={() => setDpFormat(f)}
                     style={{
-                      padding: "var(--spacing-2xs) var(--spacing-sm)",
+                      padding: "var(--spacing-4) var(--spacing-12)",
                       border: "none",
                       borderRight: i < arr.length - 1 ? "var(--border-light)" : "none",
                       borderRadius: 0,
@@ -290,14 +290,14 @@ export default function PickersSelectsDemos() {
                   </Pressable>
                 ))}
               </div>
-              <span style={{ fontSize: "var(--font-size-label)", color: "var(--text-primary)", marginLeft: "var(--spacing-xs)", fontFamily: "var(--font-space-grotesk)", fontWeight: 600 }}>
+              <span style={{ fontSize: "var(--font-size-label)", color: "var(--text-primary)", marginLeft: "var(--spacing-8)", fontFamily: "var(--font-space-grotesk)", fontWeight: 600 }}>
                 {dpFormat === "year" ? dpDate.year : dpFormat === "yearMonth" ? `${dpDate.year}.${dpDate.month}` : `${dpDate.year}.${dpDate.month}.${dpDate.day}`}
               </span>
             </div>
-            <div style={{ display: "flex", gap: "var(--spacing-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
+            <div style={{ display: "flex", gap: "var(--spacing-20)", flexWrap: "wrap", alignItems: "flex-start" }}>
               <div style={{ minWidth: 230 }}>
-                <div style={{ display: "inline-block", fontSize: "var(--font-size-label)", color: "var(--text-tertiary)", marginBottom: "var(--spacing-xs)", padding: "var(--spacing-2xs) var(--spacing-sm)", border: "var(--border-light)", borderRadius: "var(--radius-capsule)" }}>Spinner</div>
-                <div style={{ border: "var(--border-light)", borderRadius: "var(--radius-2xl)", overflow: "hidden" }}>
+                <div style={{ display: "inline-block", fontSize: "var(--font-size-label)", color: "var(--text-tertiary)", marginBottom: "var(--spacing-8)", padding: "var(--spacing-4) var(--spacing-12)", border: "var(--border-light)", borderRadius: "var(--radius-full)" }}>Spinner</div>
+                <div style={{ border: "var(--border-light)", borderRadius: "var(--radius-24)", overflow: "hidden" }}>
                   <DatePicker
                     year={dpDate.year}
                     month={dpDate.month}
@@ -310,8 +310,8 @@ export default function PickersSelectsDemos() {
                 </div>
               </div>
               <div style={{ minWidth: 230 }}>
-                <div style={{ display: "inline-block", fontSize: "var(--font-size-label)", color: "var(--text-tertiary)", marginBottom: "var(--spacing-xs)", padding: "var(--spacing-2xs) var(--spacing-sm)", border: "var(--border-light)", borderRadius: "var(--radius-capsule)" }}>Calendar</div>
-                <div style={{ border: "var(--border-light)", borderRadius: "var(--radius-2xl)", overflow: "hidden" }}>
+                <div style={{ display: "inline-block", fontSize: "var(--font-size-label)", color: "var(--text-tertiary)", marginBottom: "var(--spacing-8)", padding: "var(--spacing-4) var(--spacing-12)", border: "var(--border-light)", borderRadius: "var(--radius-full)" }}>Calendar</div>
+                <div style={{ border: "var(--border-light)", borderRadius: "var(--radius-24)", overflow: "hidden" }}>
                   <DatePicker
                     year={dpDate.year}
                     month={dpDate.month}
@@ -329,7 +329,7 @@ export default function PickersSelectsDemos() {
 
         {/* PeriodPicker */}
         <DemoGroup title="PeriodPicker">
-          <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-md)", maxWidth: 760 }}>
+          <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-16)", maxWidth: 760 }}>
             <PeriodPicker value={period} onChange={setPeriod} />
           </motion.div>
         </DemoGroup>
@@ -340,14 +340,14 @@ export default function PickersSelectsDemos() {
           ko={"시·분을 고릅니다. 24시간·12시간(오전/오후) 표기를 바꿀 수 있고, minuteStep 으로 분 간격을 정합니다. DateTimePicker 는 날짜 달력과 시간 선택을 한 칸에 묶은 것으로, 예약 발행·캘린더 일정에 씁니다."}
           en={"Pick hours and minutes — switch between 24-hour and 12-hour (AM/PM), with minuteStep for the minute interval. DateTimePicker combines the date calendar and time picker in one field (scheduled publishing, calendar events)."}
         >
-          <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-start", gap: "var(--spacing-xl)" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-xs)" }}>
+          <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-start", gap: "var(--spacing-24)" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-8)" }}>
               <span className={styles.sliderLabel}>TimePicker — {dsTime.hour}:{dsTime.minute}</span>
-              <div style={{ border: "var(--border-light)", borderRadius: "var(--radius-2xl)", overflow: "hidden" }}>
+              <div style={{ border: "var(--border-light)", borderRadius: "var(--radius-24)", overflow: "hidden" }}>
                 <TimePicker hour={dsTime.hour} minute={dsTime.minute} minuteStep={5} onSelect={(hour, minute) => setDsTime({ hour, minute })} />
               </div>
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-xs)", minWidth: 280 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-8)", minWidth: 280 }}>
               <span className={styles.sliderLabel}>DateTimePicker</span>
               <DateTimePicker value={dsDateTime} onChange={setDsDateTime} />
             </div>
@@ -360,7 +360,7 @@ export default function PickersSelectsDemos() {
           ko={"이모지·아이콘·커스텀 이미지를 선택합니다. 탭 전환과 검색, 셔플, 최근 사용 목록을 제공합니다."}
           en={"Pick an emoji, icon, or custom image — tabbed, with search, shuffle, and recents."}
         >
-          <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ position: "relative", display: "flex", alignItems: "center", gap: "var(--spacing-md)" }}>
+          <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ position: "relative", display: "flex", alignItems: "center", gap: "var(--spacing-16)" }}>
             <Tooltip content="open EmojiPicker">
               <Button variant="outline" onClick={() => setDsEmojiOpen((v) => !v)}>
                 {language === "ko" ? "선택하기" : "Pick"}
@@ -382,18 +382,18 @@ export default function PickersSelectsDemos() {
           ko={"폰트를 고르는 드롭다운입니다. 각 항목이 그 폰트 그대로 렌더되기 때문에, 고르기 전에 실제 생김새를 미리 볼 수 있습니다. 폰트를 `groups` 로 묶어 넘기면 그룹마다 라벨(예: 영문·고정폭)이 붙고, 그룹이 하나뿐일 때는 `group: \"\"` 로 그 라벨만 숨길 수 있습니다. 어떤 항목에 `googleName` 을 지정해 두면 그 폰트를 고르는 순간 컴포넌트가 해당 Google Font 를 알아서 불러오므로, 호출부에서 따로 로드하지 않아도 됩니다. `preferEn` 을 켜면 한글 그룹이 목록 맨 뒤로 밀려서 영문 UI 를 우선하는 자리에 맞출 수 있습니다."}
           en={"A dropdown for picking a font. Each option is rendered in the very font it represents, so you can see how it actually looks before you choose. Group the options with `groups` to give each set a label (e.g. Latin, Mono); when there's only one group, pass `group: \"\"` to hide that label. Give an option a `googleName` and the component loads that Google Font automatically the moment it's chosen — the caller never has to load it. Turn on `preferEn` to push Korean groups to the end of the list for English-first surfaces."}
         >
-          <div style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-md)", maxWidth: "560px", marginTop: "var(--spacing-xl)" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-16)", maxWidth: "560px", marginTop: "var(--spacing-24)" }}>
             {/* 선택한 폰트 미리보기 — 맨 위, 프레임 없이 텍스트만 (폭 제한으로 넘침 방지) */}
             <motion.div
               variants={staggerItemX}
               {...scrollChildX(0, 2)}
               style={{
                 fontFamily: fontDemo,
-                fontSize: "var(--font-size-2xl)",
+                fontSize: "var(--font-size-24)",
                 color: "var(--text-primary)",
                 lineHeight: 1.3,
                 /* 2줄 높이로 고정 — 폰트를 바꿔 줄바꿈돼도 높이가 안 변해 레이아웃이 안 흔들림 */
-                height: "calc(var(--font-size-2xl) * 1.3 * 2)",
+                height: "calc(var(--font-size-24) * 1.3 * 2)",
                 overflow: "hidden",
                 display: "flex",
                 alignItems: "center",

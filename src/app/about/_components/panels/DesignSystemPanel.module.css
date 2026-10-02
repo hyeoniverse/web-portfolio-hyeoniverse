@@ -183,7 +183,7 @@
   font-family: var(--font-mono);
   font-size: clamp(0.85rem, 1.15vw, 1.3rem);
   color: var(--text-white-muted);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   letter-spacing: 0.05em;
 }
 
@@ -245,7 +245,7 @@
   width: 100%;
   height: clamp(42px, min(7vh, 3.8vw), 68px);
   background: var(--bg-glass-subtle);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
 }
 
 .dcSpringBall {
@@ -298,7 +298,7 @@
 .dcSpacingBar {
   height: clamp(12px, min(1.8vh, 1vw), 22px);
   background: var(--bg-glass);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
 }
 
 /* Compound selector (0,2,0) */
@@ -330,7 +330,7 @@
   position: relative;
   min-width: 0;
   background: var(--bg-glass);
-  border-radius: var(--radius-capsule) var(--radius-capsule) 0 0;
+  border-radius: var(--radius-full) var(--radius-full) 0 0;
 }
 
 /* Compound selector (0,2,0) */
@@ -391,7 +391,7 @@
   align-items: center;
   padding: clamp(10px, min(1.1vh, 0.6vw), 18px) clamp(16px, 1.3vw, 26px);
   border: var(--border-ghost);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
 }
 
 /* Compound selector (0,2,0) */
@@ -424,7 +424,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--button-p-xs);
+  padding: var(--button-padding-xs);
   border: none;
   background: transparent;
   color: var(--text-white);
@@ -460,7 +460,7 @@
 
 @media (max-width: 1024px), (max-height: 700px) {
   .dcPanel {
-    padding: 0 var(--page-px);
+    padding: 0 var(--spacing-page-inline);
     /* dcMobileBg 가 image fill 로 panel 영역을 덮지만, subpixel 경계에서
        light 테마의 bg-primary(크림색) 가 1px 흰선처럼 비치는 케이스가 있음.
        panel 자체에 dark bg 를 깔아 어떤 케이스에서도 어두운 색이 비치도록 보강. */
@@ -479,8 +479,8 @@
     /* 위쪽 여백 추가 (-150 → -200) — 직전 panel 과의 경계에서 image 가
        1px 만큼 짧게 그려져 흰선이 보이는 현상 차단 */
     top: -200px;
-    left: calc(-1 * var(--page-px));
-    right: calc(-1 * var(--page-px));
+    left: calc(-1 * var(--spacing-page-inline));
+    right: calc(-1 * var(--spacing-page-inline));
     bottom: 0;
     z-index: 0;
     overflow: hidden;
@@ -517,11 +517,11 @@
 
   .dcTitleRow.dcTitleRow.dcTitleRow {
     padding-top: 0;
-    margin-bottom: var(--spacing-sm);
+    margin-bottom: var(--spacing-12);
   }
 
   .dcTitleRow h3 {
-    margin-top: var(--spacing-md);
+    margin-top: var(--spacing-16);
     margin-bottom: 0;
   }
 
@@ -565,27 +565,27 @@
     flex: none;
     position: relative;
     min-height: auto;
-    margin-top: var(--spacing-md);
+    margin-top: var(--spacing-16);
   }
 
   .dcCardTitle {
-    margin-bottom: var(--spacing-3xs);
+    margin-bottom: var(--spacing-2);
     font-size: clamp(var(--font-size-micro), 2vw, 0.85rem);
     letter-spacing: 0.25em;
   }
 
   .dcCardSubtitle {
-    margin-bottom: var(--spacing-2xs);
+    margin-bottom: var(--spacing-4);
     font-size: clamp(1.2rem, 4vw, 1.8rem);
   }
 
   .dcCardDesc {
-    margin-bottom: var(--spacing-sm);
+    margin-bottom: var(--spacing-12);
     font-size: clamp(var(--font-size-micro), 2.2vw, 0.9rem);
   }
 
   .dcDemo {
-    margin-top: var(--spacing-sm);
+    margin-top: var(--spacing-12);
   }
 
   .dcSpecimen {
@@ -598,7 +598,7 @@
   }
 
   .dcToggleBtn {
-    padding: var(--button-p-sm);
+    padding: var(--button-padding-sm);
     font-size: clamp(var(--font-size-micro), 2vw, 0.85rem);
   }
 
@@ -708,5 +708,5 @@
 
 /* 데스크톱 견본표 패널 — 제목 줄부터 위에서 채운다 */
 .dcSpecimenPanel {
-  padding-top: calc(var(--header-height) + var(--spacing-md));
+  padding-top: calc(var(--header-height) + var(--spacing-16));
 }
