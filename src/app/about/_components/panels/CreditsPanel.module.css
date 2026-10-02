@@ -37,7 +37,7 @@
 
 .creditsTitle {
   margin: 0;
-  font-family: var(--font-instrument);
+  font-family: var(--font-family-display);
   font-size: clamp(3rem, min(7vw, 12vh), 7rem);
   font-style: italic;
   font-weight: var(--font-weight-regular);

@@ -40,7 +40,7 @@
 
 .title {
   margin-bottom: var(--spacing-8);
-  font-family: var(--font-instrument), serif;
+  font-family: var(--font-family-display);
   font-size: clamp(2.5rem, 5vw, 4rem);
   font-weight: var(--font-weight-regular);
   letter-spacing: -0.02em;
@@ -776,7 +776,7 @@
 
 /* Tooltip demo text */
 .tooltipDemoText {
-  font-family: var(--font-instrument);
+  font-family: var(--font-family-heading);
   font-size: var(--font-size-18);
   font-style: italic;
   color: var(--text-primary);
@@ -901,9 +901,9 @@
 }
 
 .pRowTitle {
-  font-family: var(--font-instrument);
+  font-family: var(--font-family-heading);
   font-size: var(--font-size-title-md);
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
   margin: 0;
 }

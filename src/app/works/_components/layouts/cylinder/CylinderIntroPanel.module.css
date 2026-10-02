@@ -171,7 +171,7 @@
 
 .introTitle {
   margin: 0;
-  font-family: var(--font-instrument), serif;
+  font-family: var(--font-family-display);
   /* 세 가지를 같이 보고 가장 작은 값을 쓴다.
      ① 판 너비(--panel-w) — 판은 창이 넓어도 멀어지면 작아진다. 창 너비(vw)로 잡으면 그때 넘친다.
      ② 제목 길이(--title-units) — 판이 넉넉해도 제목이 길면 넘친다. 판 너비를 글자 폭으로 나눠

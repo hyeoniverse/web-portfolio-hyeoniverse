@@ -822,7 +822,7 @@ textarea.edit {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-4);
-  font-family: var(--font-instrument);
+  font-family: var(--font-family-display);
   font-size: var(--font-size-34);
   font-weight: 400;
   color: var(--text-accent);
@@ -861,7 +861,7 @@ textarea.edit {
   min-width: 0;
 }
 .procTitle {
-  font-family: var(--font-instrument);
+  font-family: var(--font-family-display);
   font-size: var(--font-size-22);
   font-style: italic;
   color: var(--text-primary);

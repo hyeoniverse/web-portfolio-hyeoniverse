@@ -61,7 +61,7 @@
 
 .title {
   margin: 0;
-  font-family: var(--font-instrument);
+  font-family: var(--font-family-display);
   font-size: clamp(2rem, 1.4rem + 2.4vw, 3rem);
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-tight);
@@ -168,7 +168,7 @@
 }
 
 .epTitle {
-  font-family: var(--font-instrument);
+  font-family: var(--font-family-display);
   font-size: var(--font-size-title-md);
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-tight);

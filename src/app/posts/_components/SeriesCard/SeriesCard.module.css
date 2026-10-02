@@ -186,7 +186,7 @@
 }
 
 .typoTitle {
-  font-family: var(--font-instrument);
+  font-family: var(--font-family-display);
   font-size: 22px;
   font-weight: var(--font-weight-medium);
   line-height: 1.05;
@@ -235,7 +235,7 @@
 
 /* overlay 안의 title/meta 는 부모(.overlay) 에서 color: var(--text-white) inherit */
 .title {
-  font-family: var(--font-instrument);
+  font-family: var(--font-family-display);
   font-size: var(--font-size-title-sm);
   font-weight: var(--font-weight-medium);
   color: inherit;

@@ -641,7 +641,7 @@
     mix-blend-mode: normal;
     will-change: auto;
     text-shadow: 0 2px 10px oklch(0.00% 0.0000 0.00 / 0.6);
-    font-family: var(--font-instrument), serif;
+    font-family: var(--font-family-display);
     font-weight: var(--font-weight-light);
     font-size: var(--font-size-64) !important;
     line-height: 1;
@@ -723,7 +723,7 @@
   .cardOverlay > .metaSubtitle { order: 2; }
 
   .project .metaTitle {
-    font-family: var(--font-instrument), serif;
+    font-family: var(--font-family-display);
     font-size: var(--fluid-font-size-4xl);
     font-weight: var(--font-weight-medium);
     letter-spacing: -0.03em;

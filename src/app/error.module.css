@@ -40,7 +40,7 @@
 }
 
 .iconText {
-  font-family: var(--font-instrument), serif;
+  font-family: var(--font-family-display);
   font-size: 3rem;
   font-weight: 400;
   line-height: 1;
@@ -50,7 +50,7 @@
 /* Typography */
 .title {
   margin: 0 0 var(--spacing-16) 0;
-  font-family: var(--font-instrument), serif;
+  font-family: var(--font-family-display);
   font-size: var(--fluid-font-size-3xl);
   font-weight: 400;
   color: var(--text-primary);

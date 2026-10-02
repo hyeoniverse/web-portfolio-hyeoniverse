@@ -6,7 +6,7 @@ import Pressable from "@/components/ui/Pressable";
 
 const fonts = [
   { label: "Inter", family: "var(--font-inter)" },
-  { label: "Instrument", family: "var(--font-instrument)" },
+  { label: "Instrument", family: "var(--font-family-display)" },
   { label: "JetBrains", family: "var(--font-mono)" },
   { label: "Grotesk", family: "var(--font-family-body)" },
 ];

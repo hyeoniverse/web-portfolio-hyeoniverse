@@ -258,13 +258,15 @@
   /* ── 글꼴 역할 (docs/design-system.md 3.2) ──────────────────────
    * 본문·UI 는 Pretendard 하나 — 한글이 주 언어라 한글·영문이 한 글꼴이면 높이·굵기가 맞는다.
    * 사이트 설정의 본문 글꼴이 이 값을 덮는다(ThemeProvider). 제목은 같은 글꼴을 굵게 쓴다.
-   * 세리프(--font-instrument)는 일부러 고른 장식 글자(히어로 등)만 — 설정의 제목 글꼴이 덮는다.
-   * 장식 · 코드 역할과 UI 글자 묶음(body · label · caption)은 컴포넌트가 옮겨 올 때(이행 7단계 뒷부분) 더한다. */
+   * 세리프는 장식 글자(--font-family-display)에만 — 관리 화면 · 도구의 제목은 본문 글꼴 600 이다.
+   * 코드 역할과 UI 글자 묶음(body · label · caption)은 컴포넌트가 옮겨 올 때(이행 7단계 뒷부분) 더한다. */
   --font-family-body:
     "Pretendard Variable", -apple-system, BlinkMacSystemFont, system-ui,
     "Segoe UI", Roboto, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
     "Noto Color Emoji";
   --font-family-heading: var(--font-family-body);
+  /* 장식 글자(히어로 · 공개 글 · 시리즈 · 작업물 제목) — 영문은 세리프, 한글은 Pretendard(D26). 설정의 제목 글꼴이 덮는다 */
+  --font-family-display: var(--font-instrument);
 
   /* ── 글자 묶음 — `font: var(--font-heading-md)` 로 쓴다(3.2-1) ─────
    * 굵기 · 크기/줄간격 · 글꼴. 한 값만 바꿀 때는 뒤에 덧쓴다. tabular-nums 같은 설정은 font 뒤에 적는다.
