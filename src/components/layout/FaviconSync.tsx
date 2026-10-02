@@ -33,18 +33,29 @@ export default function FaviconSync({ version }: { version: string }) {
 
     const applyFavicon = (saved: string = readSaved()) => {
       const variant = mq.matches ? "dark" : "light";
-      const href = `/api/favicon?variant=${variant}&v=${version}${saved ? `-${saved}` : ""}`;
-      /* 서버 HTML 의 PNG 링크(metadata.icons — 사파리용)는 Next 가 관리하므로 건드리지 않고, 내가 넣은 것만 바꾼다.
-         나중에 붙은 링크를 쓰는 브라우저(크롬 · 파이어폭스)는 이 SVG 를 쓴다 */
+      const v = `${version}${saved ? `-${saved}` : ""}`;
+      /* 서버 HTML 의 아이콘 링크(metadata.icons — PNG · apple)도 같은 버전으로 맞춘다. 크롬은 아이콘 링크 여럿 중에서
+         크기를 보고 고르므로, 이것들이 예전 주소로 남아 있으면 저장 뒤에도 예전 아이콘을 고를 수 있다.
+         지우지 않고 주소만 바꾼다(Next 가 관리하는 요소다) */
+      document.head
+        .querySelectorAll<HTMLLinkElement>('link[rel="icon"]:not([data-favicon-sync]), link[rel="shortcut icon"], link[rel="apple-touch-icon"]')
+        .forEach((l) => {
+          const u = new URL(l.href, location.href);
+          if (u.searchParams.get("v") === v) return;
+          u.searchParams.set("v", v);
+          l.href = u.pathname + u.search;
+        });
+      /* 크롬 · 파이어폭스가 쓰는 SVG. 맨 뒤에 다시 붙여 같은 조건이면 이것이 고르게 한다 */
       let link = document.head.querySelector<HTMLLinkElement>("link[data-favicon-sync]");
       if (!link) {
         link = document.createElement("link");
         link.rel = "icon";
         link.type = "image/svg+xml";
+        link.sizes.value = "any";
         link.dataset.faviconSync = "";
-        document.head.appendChild(link);
       }
-      link.href = href;
+      link.href = `/api/favicon?variant=${variant}&v=${v}`;
+      document.head.appendChild(link);
     };
 
     /** 설정을 저장했다 — 새 주소로 갈아탄다. 저장소에 못 적더라도 이번 적용은 새 값으로 간다 */
