@@ -8,6 +8,8 @@
  *  2. 이미지 — 로고가 덮는 구역의 밝기(lib/imageTone). 재는 동안은 모른다(null)
  *  3. 불투명한 배경색 — 그 색의 밝기
  * 영상 · 캔버스처럼 잴 수 없는 것을 만나면 모른다(null) — 그때는 테마를 따른다.
+ * 잠깐 덮었다 걷히는 막(로딩 화면 · 페이지 전환)은 `data-nav-tone-skip` 으로 건너뛴다 — 막을 재면 막이 걷힌 뒤에도
+ * 그 밝기가 남는다(라이트 테마 첫 화면에서 검은 로딩 막을 재서 흰 로고가 남았다).
  */
 import { parse, wcagLuminance } from "culori";
 import { measureImageTone } from "@/lib/imageTone";
@@ -88,7 +90,7 @@ export function backdropToneUnder(logo: Rect, skip: Element, onMeasured: () => v
   const x = logo.left + logo.width / 2;
   const y = logo.top + logo.height / 2;
   for (const el of document.elementsFromPoint(x, y)) {
-    if (skip.contains(el)) continue;
+    if (skip.contains(el) || el.closest("[data-nav-tone-skip]")) continue;
     const declared = (el.closest("[data-nav-tone]") as HTMLElement | null)?.dataset.navTone;
     if (declared === "dark" || declared === "light") return declared;
     if (el instanceof HTMLImageElement) {

@@ -22,6 +22,7 @@ export default function PageTransitionOverlay() {
       {isTransitioning && circleData && (
         <motion.div
           className={styles.overlay}
+          data-nav-tone-skip
           initial={{
             top: circleData.centerY - circleData.size / 2,
             left: circleData.centerX - circleData.size / 2,

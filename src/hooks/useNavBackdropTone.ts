@@ -4,10 +4,16 @@ import { useEffect, useState, type RefObject } from "react";
 import { backdropToneUnder, type Tone } from "@/lib/navBackdrop";
 
 /**
- * nav 로고 바로 밑 배경의 밝기(lib/navBackdrop) — 스크롤 · 화면 크기 · 경로가 바뀔 때마다 다시 잰다.
+ * nav 로고 바로 밑 배경의 밝기(lib/navBackdrop) — 스크롤 · 화면 크기 · 경로가 바뀔 때, 그리고 덮개(로딩 · 페이지 전환)가
+ * 걷힐 때(covered 가 바뀔 때) 다시 잰다.
  * 모르면 null(테마를 따른다). enabled 가 false 면 재지 않는다(글자 로고는 blend 로 충분하다).
  */
-export function useNavBackdropTone(logoRef: RefObject<HTMLElement | null>, enabled: boolean, pathname: string): Tone | null {
+export function useNavBackdropTone(
+  logoRef: RefObject<HTMLElement | null>,
+  enabled: boolean,
+  pathname: string,
+  covered: boolean,
+): Tone | null {
   const [tone, setTone] = useState<Tone | null>(null);
 
   useEffect(() => {
@@ -35,7 +41,7 @@ export function useNavBackdropTone(logoRef: RefObject<HTMLElement | null>, enabl
       window.removeEventListener("scroll", schedule);
       window.removeEventListener("resize", schedule);
     };
-  }, [logoRef, enabled, pathname]);
+  }, [logoRef, enabled, pathname, covered]);
 
   return enabled ? tone : null;
 }
