@@ -84,7 +84,7 @@ disabled 제각각). 동작만 `Pressable` 로 떼었다. `react/button-has-type
 | 컨트롤 높이 | 20/24/28/32/36/38/46 | 20 … 40, 4px 간격 · 떠 있는 단추 분리 | 간격이 고르지 않았고 Button `xl` 은 토큰과 다른 40px 를 썼다 |
 | 누르는 크기 | "최소 크기 유지" | 24×24(WCAG 2.2 2.5.8) | 눈금에 20px 컨트롤이 있었다 |
 | 반응형 | 큰 화면 기준 `max-width` | 작은 화면 기준 · 범위 문법 · 컴포넌트는 container query | 현행 관례 |
-| `-webkit-backdrop-filter` | "크롬 파서가 꼬여서" 금지 | 지원 범위에서 불필요해서 안 씀 | 이 접두어는 사파리용이었다. 이유가 틀렸다 |
+| `-webkit-backdrop-filter` | "크롬 파서가 꼬여서" 금지 | 빌드가 표준 선언을 지워서 금지 → D17 | 크롬은 모르는 접두어를 무시할 뿐이다. 이유가 틀렸다 |
 
 ### D12. 컨트롤 높이 눈금 정리 (예정)
 
@@ -120,3 +120,17 @@ D6 은 "고르는 건 capsule·circle·2xl 셋"을 눈금 이름으로 정하고
 달고 눈금을 직접 써야 했으며, "안쪽 = 바깥 − 여백" 권장은 정작 그 사이 값을 쓰지 못했다.
 "셋만"은 눈금 규칙이 아니라 역할 규칙이었다. 글자 크기처럼 눈금은 빠짐없이 두고(`lg`·`xl` 을 되살린다), 컴포넌트는
 역할 토큰 넷(`control`·`surface`·`round`·`mark`)만 쓴다. 지금 눈금 이름을 직접 쓴 1176곳은 이름만 바꾸면 되고 보이는 건 그대로다.
+
+### D17. 2026-10-02 — `-webkit-backdrop-filter` 를 쓰지 않는 진짜 이유
+
+접두어를 붙였을 때 크롬에서 블러가 사라지는 일이 두 번 있었다(5월 토스트·홈 CTA, `bc9af356` 에서 일괄 제거).
+이전 문서는 "크롬 파서가 꼬인다"고 적었지만, 크롬은 모르는 접두어 선언을 무시할 뿐이다. 원인은 빌드다.
+Next(Turbopack)가 쓰는 Lightning CSS(1.33)는 `backdrop-filter` 와 `-webkit-backdrop-filter` 를 같은 속성으로 보고
+**뒤에 적힌 하나만 남긴다.**
+
+| 원래 CSS | 빌드 결과 |
+|---|---|
+| `backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px)` | `-webkit-backdrop-filter: blur(16px)` 만 — 크롬은 블러 없음 |
+| `-webkit-backdrop-filter: …; backdrop-filter: …` | `backdrop-filter` 만 — 정상 |
+
+지원 범위(Safari 18+)는 접두어 없이 되므로 붙일 이유도 없다. stylelint `property-disallowed-list` 로 막는다.

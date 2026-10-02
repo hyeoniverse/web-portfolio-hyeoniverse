@@ -331,7 +331,7 @@ MUI `ButtonBase`, React Aria `useButton` 과 같은 분리다. 생김새를 `But
 | Tailwind·유틸리티 클래스 | 두 방식이 섞이면 같은 레이아웃이 두 모양으로 갈린다 | 강제(의존성 없음) |
 | 런타임 CSS-in-JS | RSC 와 안 맞고 런타임 비용 | 강제(의존성 없음) |
 | 디자인 토큰의 `var()` 대체값 | 없는 토큰을 가린다 | 강제 |
-| `-webkit-backdrop-filter` | 지원 범위(Safari 18+)에서 접두어 없이 된다. 붙일 이유가 없다 | 권장 |
+| `-webkit-backdrop-filter` | 빌드(Lightning CSS)가 접두어·표준을 같은 속성으로 보고 **뒤에 적힌 하나만 남긴다.** 흔한 순서(표준 → 접두어)로 쓰면 접두어만 남아 크롬에서 블러가 사라진다. 지원 범위(Safari 18+)는 접두어 없이 되므로 필요도 없다 | 강제 |
 | `id` 선택자로 재사용 레이아웃 | 특이도가 튀고 재사용이 안 된다 | 권장 |
 
 ## 9. 지금 막고 있는 것(lint)
@@ -343,6 +343,7 @@ MUI `ButtonBase`, React Aria `useButton` 과 같은 분리다. 생김새를 `But
 | 사이 단계 모서리 토큰(`md` 등) · `50%` · `9999px` | stylelint + eslint |
 | 여백·간격의 px/rem 숫자 | stylelint |
 | 디자인 토큰의 `var()` 대체값 | stylelint |
+| `-webkit-backdrop-filter` | stylelint |
 | 토큰 표와 CSS 의 차이 | `tokenDoc.test.ts` |
 
 "목표" 규칙은 옮기는 동안 개수가 늘지 않게 막는 테스트를 두고(§11), 다 옮긴 뒤 stylelint 규칙으로 바꾼다.
