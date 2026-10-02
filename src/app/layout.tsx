@@ -110,7 +110,9 @@ const playfair = Playfair_Display({
   subsets: ["latin"],
   weight: ["400", "700"],
   variable: "--font-playfair-latin",
-  display: "optional",
+  /* swap — 장식 제목(About "Behind the Scenes" · 프로필 히어로)이 이 글꼴이어야 한다. optional 이면 첫 방문에
+     늦게 온 글꼴을 버리고 대체 글꼴로 남아, 세리프가 아닌 글꼴로 보일 수 있었다(D26). 미리 받지는 않는다 */
+  display: "swap",
   preload: false,
 });
 const jetbrains = JetBrains_Mono({
