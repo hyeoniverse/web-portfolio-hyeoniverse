@@ -32,7 +32,7 @@
 /* 별가루 — 갓 핀 것(--_age 0)은 accent, 멀어질수록(1) 가라앉는다.
    컴포넌트가 매 프레임 --_age 를 넣는다. */
 .spark {
-  fill: color-mix(in oklch, var(--color-accent), var(--border-color-default) calc(var(--_age, 1) * 100%));
+  fill: color-mix(in oklch, var(--text-accent), var(--border-color-default) calc(var(--_age, 1) * 100%));
   opacity: 0;
 }
 
@@ -47,7 +47,7 @@
 }
 
 .trainLamp {
-  fill: var(--color-accent);
+  fill: var(--text-accent);
 }
 
 /* 연기 — 캔버스. color 는 알갱이 얼룩을 구울 때 읽는 색이라 여기서 정한다.

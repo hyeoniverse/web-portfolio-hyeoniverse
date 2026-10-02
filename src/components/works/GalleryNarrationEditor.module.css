@@ -38,7 +38,7 @@
   width: var(--control-height-2xs);
   height: var(--control-height-2xs);
   border-radius: var(--radius-circle);
-  background: oklch(0% 0 0 / 0.6);
+  background: color-mix(in oklch, var(--bg-black) 60%, transparent);
   color: var(--text-white);
   pointer-events: none;
 }
@@ -49,7 +49,7 @@
 
 .badgeMark[data-stale] {
   box-shadow: 0 0 0 2px var(--text-accent);
-  background: oklch(0% 0 0 / 0.6);
+  background: color-mix(in oklch, var(--bg-black) 60%, transparent);
 }
 
 /* ── 작업대 — 왼쪽 칸(슬라이드), 오른쪽 칸(대본), 그 아래 두 칸을 가로지르는 조작 막대.
@@ -313,7 +313,7 @@
   position: absolute;
   inset: 0 auto 0 0;
   width: calc(var(--level, 0) * 100%);
-  background: var(--color-accent);
+  background: var(--bg-accent-solid);
   transition: width 0.08s linear;
 }
 

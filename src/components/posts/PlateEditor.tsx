@@ -3149,7 +3149,7 @@ function PlateEditorBody({
               style={{
                 position: "fixed",
                 width: 3,
-                background: "var(--color-accent)",
+                background: "var(--bg-accent-solid)",
                 borderRadius: 1,
                 pointerEvents: "none",
                 zIndex: "var(--z-index-top)",

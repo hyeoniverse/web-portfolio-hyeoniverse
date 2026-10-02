@@ -185,7 +185,7 @@
 }
 
 .ghCompareOption.ghCompareOptionOn {
-  border-color: var(--color-accent);
+  border-color: var(--border-color-accent-strong);
   color: var(--text-primary);
 }
 

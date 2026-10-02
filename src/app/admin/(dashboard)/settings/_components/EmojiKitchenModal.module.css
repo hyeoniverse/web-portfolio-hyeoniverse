@@ -44,8 +44,8 @@
 
 .slot[data-active],
 .slot[data-active]:hover {
-  border-color: var(--color-accent);
-  box-shadow: inset 0 0 0 1px var(--color-accent);
+  border-color: var(--border-color-accent-strong);
+  box-shadow: inset 0 0 0 1px var(--border-color-accent-strong);
 }
 
 /* 이모지 글자와 섞은 그림이 칸 안에서 같은 크기로 보이게 — 글자는 칸의 절반, 그림은 칸의 64% */

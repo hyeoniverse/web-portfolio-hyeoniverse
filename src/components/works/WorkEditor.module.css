@@ -719,10 +719,10 @@
   isolation: isolate;
   background: linear-gradient(
     to bottom,
-    oklch(0% 0 0 / 0.62) 0%,
-    oklch(0% 0 0 / 0.2) 40%,
-    oklch(0% 0 0 / 0.2) 60%,
-    oklch(0% 0 0 / 0.66) 100%
+    color-mix(in oklch, var(--bg-black) 62%, transparent) 0%,
+    color-mix(in oklch, var(--bg-black) 20%, transparent) 40%,
+    color-mix(in oklch, var(--bg-black) 20%, transparent) 60%,
+    color-mix(in oklch, var(--bg-black) 66%, transparent) 100%
   );
 }
 
@@ -950,7 +950,7 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: oklch(0% 0 0 / 0.3);
+  background: color-mix(in oklch, var(--bg-black) 30%, transparent);
   border-radius: var(--radius-circle);
   pointer-events: none;
 }

@@ -54,7 +54,7 @@
   background: transparent;
 }
 .dotOn {
-  background: var(--color-accent);
+  background: var(--bg-accent-solid);
 }
 
 /* 태블릿·모바일 — 위에 가로 탭바(≈45px)까지 있으니 그 아래로 더 내린다 */

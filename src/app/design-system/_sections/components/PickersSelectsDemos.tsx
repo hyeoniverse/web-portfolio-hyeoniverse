@@ -250,7 +250,7 @@ export default function PickersSelectsDemos() {
                       width: 32,
                       height: 32,
                       padding: 0,
-                      border: "1px solid var(--color-neutral-300)",
+                      border: "1px solid var(--border-color-solid)",
                       borderRadius: "var(--radius-circle)",
                       background: pickerColor,
                       cursor: "pointer",

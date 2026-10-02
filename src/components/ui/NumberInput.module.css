@@ -18,9 +18,9 @@
 }
 
 /* 값 위치 게이지 — 숫자 색으로 낮음/중간/높음 (바 없이 은은하게) */
-.zoneLow { color: var(--color-info); }
-.zoneMid { color: var(--color-success); }
-.zoneHigh { color: var(--color-warning); }
+.zoneLow { color: var(--text-info); }
+.zoneMid { color: var(--text-success); }
+.zoneHigh { color: var(--text-warning); }
 .root.focused {
   border-color: var(--border-color-strong);
 }

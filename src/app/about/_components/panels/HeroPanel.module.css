@@ -36,12 +36,12 @@
   background:
     radial-gradient(
       circle at 78% 22%,
-      color-mix(in oklab, var(--_hero-overlay-color, var(--color-accent)) calc(var(--_hero-overlay-strength, 0.5) * 100%), transparent) 0%,
+      color-mix(in oklab, var(--_hero-overlay-color, var(--bg-accent-solid)) calc(var(--_hero-overlay-strength, 0.5) * 100%), transparent) 0%,
       transparent 60%
     ),
     radial-gradient(
       circle at 15% 85%,
-      color-mix(in oklab, var(--_hero-overlay-color, var(--color-accent)) calc(var(--_hero-overlay-strength, 0.5) * 40%), transparent) 0%,
+      color-mix(in oklab, var(--_hero-overlay-color, var(--bg-accent-solid)) calc(var(--_hero-overlay-strength, 0.5) * 40%), transparent) 0%,
       transparent 55%
     );
   pointer-events: none;
@@ -50,16 +50,16 @@
 
 /* video 모드 — accent 강조 부분만 brighter accent 로 교체. 일반 텍스트는 panel 토큰 색 유지. */
 .heroMediaMode .label {
-  color: var(--color-accent-light);
-  border-color: var(--color-accent-light);
+  color: var(--bg-accent-solid-light);
+  border-color: var(--bg-accent-solid-light);
 }
 
 .heroMediaMode :global(h2[class*="title"]) :global([class*="accent"]) {
-  color: var(--color-accent-light);
+  color: var(--bg-accent-solid-light);
 }
 
 .heroMediaMode .heroAccentLine {
-  background: var(--_hero-accent-color, var(--color-accent-light));
+  background: var(--_hero-accent-color, var(--bg-accent-solid-light));
 }
 
 /* video 모드에선 ::after 의 우상단 accent glow 숨김 — overlay 가 같은 영역 담당하므로 중복 제거 */
@@ -97,7 +97,7 @@
 }
 /* 미디어(이미지/동영상) 배경일 때만 흰색 + mix-blend difference — 배경 밝기에 따라 자동 inverted */
 .heroMediaMode .heroSubtitle {
-  color: var(--_hero-subtitle-color, var(--color-white-alpha-100));
+  color: var(--_hero-subtitle-color, var(--text-white));
   mix-blend-mode: difference;
 }
 
@@ -148,7 +148,7 @@
   height: clamp(200px, 30vw, 500px);
   background: radial-gradient(
     circle,
-    var(--color-accent-alpha-10) 0%,
+    color-mix(in oklch, var(--bg-accent-solid) 10%, transparent) 0%,
     transparent 70%
   );
   pointer-events: none;

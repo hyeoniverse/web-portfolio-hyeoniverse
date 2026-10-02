@@ -41,7 +41,7 @@
   position: fixed;
   inset: 0;
   z-index: var(--z-index-overlay);
-  background: oklch(0.00% 0.0000 0.00 / 0.25);
+  background: color-mix(in oklch, var(--bg-black) 25%, transparent);
   backdrop-filter: blur(10px);
   pointer-events: none;
 }
@@ -88,8 +88,8 @@
   cursor: crosshair;
   /* 두 개의 그라데이션 겹침 — 가로:white→hueColor, 세로:transparent→black */
   background:
-    linear-gradient(to top, oklch(0.00% 0.0000 0.00), transparent),
-    linear-gradient(to right, oklch(100.00% 0.0000 0.00), var(--_hue-color, oklch(62.80% 0.2577 29.23)));
+    linear-gradient(to top, var(--bg-black), transparent),
+    linear-gradient(to right, var(--bg-white), var(--_hue-color, var(--picker-hue-default)));
   touch-action: none;
 }
 
@@ -98,7 +98,7 @@
   width: 14px;
   height: 14px;
   border-radius: var(--radius-circle);
-  border: 2px solid #fff;
+  border: 2px solid var(--border-color-white);
   box-shadow: 0 0 0 1px oklch(0.00% 0.0000 0.00 / 0.4), 0 1px 2px oklch(0.00% 0.0000 0.00 / 0.4);
   transform: translate(-50%, -50%);
   pointer-events: none;
@@ -138,14 +138,7 @@
   position: absolute;
   inset: 4%;
   border-radius: var(--radius-circle);
-  background: conic-gradient(from -90deg,
-    hsl(0, 100%, 50%) 0%,
-    hsl(60, 100%, 50%) 16.67%,
-    hsl(120, 100%, 50%) 33.33%,
-    hsl(180, 100%, 50%) 50%,
-    hsl(240, 100%, 50%) 66.67%,
-    hsl(300, 100%, 50%) 83.33%,
-    hsl(360, 100%, 50%) 100%);
+  background: conic-gradient(from -90deg, var(--picker-hue-stops-hsl));
   /* 안쪽 hole — closest-side 명시. default farthest-corner 면 % 가 element 의 대각선 기준이라
    * ring 두께가 너무 얇게 계산됨. closest-side 면 element radius (size/2) 의 65% = inner radius. */
   mask: radial-gradient(circle closest-side, transparent 65%, black 66%);
@@ -160,11 +153,11 @@
   width: 14px;
   height: 14px;
   border-radius: var(--radius-circle);
-  border: 2px solid #fff;
+  border: 2px solid var(--border-color-white);
   box-shadow: 0 0 0 1px oklch(0.00% 0.0000 0.00 / 0.4), 0 1px 2px oklch(0.00% 0.0000 0.00 / 0.4);
   transform: translate(-50%, -50%);
   pointer-events: none;
-  background: var(--_hue-color, oklch(62.80% 0.2577 29.23));
+  background: var(--_hue-color, var(--picker-hue-default));
   z-index: 2;
 }
 
@@ -179,8 +172,8 @@
   cursor: crosshair;
   touch-action: none;
   background:
-    linear-gradient(to top, oklch(0.00% 0.0000 0.00), transparent),
-    linear-gradient(to right, oklch(100.00% 0.0000 0.00), var(--_hue-color, oklch(62.80% 0.2577 29.23)));
+    linear-gradient(to top, var(--bg-black), transparent),
+    linear-gradient(to right, var(--bg-white), var(--_hue-color, var(--picker-hue-default)));
 }
 
 /* ── 2D pad 공통 — 좌상단을 popover 외곽까지 flush ── */
@@ -199,8 +192,8 @@
      가장 전통적 picker UI. 우상단 = pure hue, 좌상단 = white, 하단 전체 = black */
 .svPad {
   background:
-    linear-gradient(to top, oklch(0.00% 0.0000 0.00), transparent),
-    linear-gradient(to right, oklch(100.00% 0.0000 0.00), var(--_hue-color, oklch(70.00% 0.2000 30.00)));
+    linear-gradient(to top, var(--bg-black), transparent),
+    linear-gradient(to right, var(--bg-white), var(--_hue-color, var(--picker-oklch-hue-default)));
 }
 
 /* ── SL pad (HSL) — x=Saturation, y=Lightness (역방향)
@@ -208,12 +201,12 @@
 .slPad {
   background:
     linear-gradient(to bottom,
-      oklch(100.00% 0.0000 0.00) 0%,
+      var(--bg-white) 0%,
       transparent 50%,
-      oklch(0.00% 0.0000 0.00) 100%),
+      var(--bg-black) 100%),
     linear-gradient(to right,
-      oklch(50.00% 0.0000 0.00),
-      var(--_hue-color, oklch(70.00% 0.2000 30.00)));
+      var(--picker-gray),
+      var(--_hue-color, var(--picker-oklch-hue-default)));
 }
 
 /* ── LC pad (OKLCH) — canvas 가 sRGB gamut 안의 OKLCH 영역만 dome 모양으로 그림
@@ -301,7 +294,7 @@
   width: 14px;
   height: 14px;
   border-radius: var(--radius-circle);
-  border: 2px solid #fff;
+  border: 2px solid var(--border-color-white);
   box-shadow: 0 0 0 1px oklch(0.00% 0.0000 0.00 / 0.4), 0 1px 2px oklch(0.00% 0.0000 0.00 / 0.4);
   transform: translate(-50%, -50%);
   pointer-events: none;
@@ -316,16 +309,7 @@
   margin: var(--spacing-4) 0;
   border-radius: var(--radius-full);
   cursor: ew-resize;
-  background: linear-gradient(
-    to right,
-    oklch(62.80% 0.2577 29.23) 0%,
-    oklch(96.80% 0.2110 109.77) 17%,
-    oklch(86.64% 0.2948 142.50) 33%,
-    oklch(90.54% 0.1546 194.77) 50%,
-    oklch(45.20% 0.3132 264.05) 67%,
-    oklch(70.17% 0.3225 328.36) 83%,
-    oklch(62.80% 0.2577 29.23) 100%
-  );
+  background: linear-gradient(to right, var(--picker-hue-stops-oklch));
   touch-action: none;
 }
 
@@ -335,11 +319,11 @@
   width: 14px;
   height: 14px;
   border-radius: var(--radius-circle);
-  border: 2px solid #fff;
+  border: 2px solid var(--border-color-white);
   box-shadow: 0 0 0 1px oklch(0.00% 0.0000 0.00 / 0.4), 0 1px 2px oklch(0.00% 0.0000 0.00 / 0.4);
   transform: translate(-50%, -50%);
   pointer-events: none;
-  background: var(--_hue-color, oklch(62.80% 0.2577 29.23));
+  background: var(--_hue-color, var(--picker-hue-default));
 }
 
 /* ── Inputs row ── */
@@ -366,12 +350,12 @@
   height: var(--control-height-xs);
   border-radius: var(--radius-circle);
   /* solid 테두리 — 반투명(border-light)이면 색이 가장자리에서 배경과 섞여 덜 찬 것처럼 보임 */
-  border: 1px solid var(--color-neutral-300);
+  border: 1px solid var(--border-color-solid);
   /* 색 레이어(위) + 격자(아래) — 반투명 색의 투명도가 비쳐 보이게.
      격자는 테마 무관 고정 뉴트럴이어야 "투명"으로 읽힘 (presets.ts CHECKER_BG 와 동일 패턴). */
   background-image:
     linear-gradient(var(--_preview-color, transparent), var(--_preview-color, transparent)),
-    repeating-conic-gradient(#ccc 0% 25%, #fff 0% 50%);
+    repeating-conic-gradient(var(--picker-checker) 0% 25%, var(--bg-white) 0% 50%);
   background-size: auto, 6px 6px;
   background-position: 0 0;
   /* 격자 레이어(2번째)만 타일링 — 기본이 no-repeat 라 명시 안 하면 한 칸만 찍힘 */
@@ -384,7 +368,7 @@
      격자는 테마 무관 고정 뉴트럴이어야 "투명"으로 읽힘 (presets.ts CHECKER_BG 와 동일 패턴). */
   background-image:
     linear-gradient(var(--_preview-color, transparent), var(--_preview-color, transparent)),
-    repeating-conic-gradient(#ccc 0% 25%, #fff 0% 50%);
+    repeating-conic-gradient(var(--picker-checker) 0% 25%, var(--bg-white) 0% 50%);
   background-size: auto, 6px 6px;
   background-position: 0 0;
   /* 격자 레이어(2번째)만 타일링 — 기본이 no-repeat 라 명시 안 하면 한 칸만 찍힘 */
@@ -411,7 +395,7 @@
   /* 투명→불투명 그라디언트(위) + 격자(아래). presets.ts CHECKER_BG 와 동일 패턴. */
   background-image:
     linear-gradient(to right, transparent, var(--_alpha-color, transparent)),
-    repeating-conic-gradient(#ccc 0% 25%, #fff 0% 50%);
+    repeating-conic-gradient(var(--picker-checker) 0% 25%, var(--bg-white) 0% 50%);
   background-size: auto, 6px 6px;
   background-position: 0 0;
   /* 격자 레이어(2번째)만 타일링 — 기본이 no-repeat 라 명시 안 하면 한 칸만 찍힘 */

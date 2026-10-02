@@ -83,8 +83,8 @@
   box-shadow: inset 0 0 0 1px var(--border-color-default);
 }
 .edit:focus {
-  background: var(--color-accent-alpha-10);
-  box-shadow: inset 0 0 0 1px var(--color-accent);
+  background: color-mix(in oklch, var(--bg-accent-solid) 10%, transparent);
+  box-shadow: inset 0 0 0 1px var(--border-color-accent-strong);
 }
 /* 한 줄 값이지만 접어서 보여 주는 칸(EditableText wrap). 패널 클래스가 제목을 한 줄로 두고
    말줄임표로 자르는 경우(Key Features 카드 제목)가 있어 그보다 높게 (0,2,0) 로 푼다.
@@ -313,7 +313,7 @@ textarea.edit {
   outline: none;
 }
 .chipEdit:focus {
-  border-color: var(--color-accent);
+  border-color: var(--border-color-accent-strong);
 }
 .stripHint {
   margin: 0;
@@ -416,7 +416,7 @@ textarea.edit {
   background: transparent;
 }
 .psDotOn {
-  background: var(--color-accent);
+  background: var(--bg-accent-solid);
 }
 .chip {
   display: inline-flex;
@@ -431,7 +431,7 @@ textarea.edit {
   cursor: pointer;
 }
 .chipOn {
-  border-color: var(--color-accent);
+  border-color: var(--border-color-accent-strong);
   color: var(--text-primary);
 }
 .chipOff {
@@ -445,7 +445,7 @@ textarea.edit {
   background: var(--text-tertiary);
 }
 .chipOn .chipDot {
-  background: var(--color-accent);
+  background: var(--bg-accent-solid);
 }
 
 /* ── 결과형 편집 블록 (Overview/Features/Process/Security) ── */
@@ -489,7 +489,7 @@ textarea.edit {
   box-sizing: border-box;
   width: 8em;
   padding: var(--spacing-4) var(--spacing-12);
-  border: 1px solid var(--color-accent);
+  border: 1px solid var(--border-color-accent-strong);
   border-radius: var(--radius-full);
   background: var(--bg-primary);
   color: var(--text-primary);
@@ -508,12 +508,12 @@ textarea.edit {
   vertical-align: middle;
 }
 .chipAdd:hover {
-  border-color: var(--color-accent);
+  border-color: var(--border-color-accent-strong);
   color: var(--text-accent);
 }
 .chipAddOpen,
 .chipAddOpen:hover {
-  border-color: var(--color-accent);
+  border-color: var(--border-color-accent-strong);
   background: var(--bg-primary);
   color: var(--text-primary);
 }
@@ -666,8 +666,8 @@ textarea.edit {
   box-shadow: inset 0 0 0 1px var(--border-color-default);
 }
 .secIconBtn:focus {
-  background: var(--color-accent-alpha-10);
-  box-shadow: inset 0 0 0 1px var(--color-accent);
+  background: color-mix(in oklch, var(--bg-accent-solid) 10%, transparent);
+  box-shadow: inset 0 0 0 1px var(--border-color-accent-strong);
 }
 
 /* Security 아이콘 피커 (Popover) */
@@ -706,7 +706,7 @@ textarea.edit {
 }
 .iconPickOn {
   color: var(--text-accent);
-  border-color: var(--color-accent);
+  border-color: var(--border-color-accent-strong);
 }
 
 /* Features — 실제 DynamicFrameLayout 흉내: 동적 fr 그리드(hover 확장) + hover reveal + blur */
@@ -945,7 +945,7 @@ textarea.edit {
 .dsBg {
   position: absolute;
   inset: 0;
-  background: var(--color-neutral-900);
+  background: var(--bg-inverse);
 }
 .dsBg img {
   width: 100%;
@@ -1351,7 +1351,7 @@ textarea.edit {
 
 /* 채워진 데모 위로 파일을 끌어다 놓는 중 */
 .demoDropOver {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid var(--border-color-accent-strong);
   outline-offset: -2px;
 }
 
@@ -1467,7 +1467,7 @@ textarea.edit {
 }
 /* 파일을 끌어다 놓는 중 — outline 이라 레이아웃이 밀리지 않는다 */
 .erdImportOver {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid var(--border-color-accent-strong);
   outline-offset: var(--spacing-8);
   border-radius: var(--radius-24);
 }
@@ -1503,7 +1503,7 @@ textarea.edit {
 }
 .erdDrop:focus-visible,
 .erdDrop:focus {
-  border-color: var(--color-accent);
+  border-color: var(--border-color-accent-strong);
   color: var(--text-secondary);
 }
 .erdActions {

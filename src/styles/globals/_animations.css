@@ -94,20 +94,20 @@
 @keyframes pulse {
   0% {
     box-shadow:
-      0 0 8px var(--color-success-alpha-60),
-      0 0 12px var(--color-success-alpha-40);
+      0 0 8px color-mix(in oklch, var(--text-success) 60%, transparent),
+      0 0 12px color-mix(in oklch, var(--text-success) 40%, transparent);
     opacity: 1;
   }
   50% {
     box-shadow:
-      0 0 14px var(--color-success-alpha-40),
+      0 0 14px color-mix(in oklch, var(--text-success) 40%, transparent),
       0 0 20px oklch(72.27% 0.1920 149.58 / 0.2);
     opacity: 0.5;
   }
   100% {
     box-shadow:
-      0 0 8px var(--color-success-alpha-60),
-      0 0 12px var(--color-success-alpha-40);
+      0 0 8px color-mix(in oklch, var(--text-success) 60%, transparent),
+      0 0 12px color-mix(in oklch, var(--text-success) 40%, transparent);
     opacity: 1;
   }
 }

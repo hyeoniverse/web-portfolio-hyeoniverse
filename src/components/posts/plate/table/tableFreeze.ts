@@ -14,7 +14,7 @@ export type FreezeState = { rows: number; cols: number; colLefts: number[] };
 
 export const TableFreezeCtx = React.createContext<FreezeState>({ rows: 0, cols: 0, colLefts: [] });
 
-export const TBL_STICKY_LINE = "var(--color-accent-alpha-50)"; // stuck 구분선 색 — 옅은 accent
+export const TBL_STICKY_LINE = "color-mix(in oklch, var(--bg-accent-solid) 50%, transparent)"; // stuck 구분선 색 — 옅은 accent
 // 열 고정 최대 비율 — 고정 열 합이 표시 너비의 이 비율을 넘으면 왼쪽 고정 열부터 sticky 해제(스크롤 영역 확보)
 export const FREEZE_MAX_RATIO = 0.6;
 // colLefts 비고정 sentinel — 실제 offset(음수 negative sticky 포함)과 구분하려고 큰 값 사용

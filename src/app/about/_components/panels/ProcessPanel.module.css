@@ -539,7 +539,7 @@
 
   .processConnectorDotActive {
     border-color: var(--text-accent);
-    box-shadow: 0 0 8px var(--color-accent-alpha-50);
+    box-shadow: 0 0 8px color-mix(in oklch, var(--bg-accent-solid) 50%, transparent);
     background: var(--text-accent);
     opacity: 1;
     transform: scale(1.4);

@@ -166,7 +166,7 @@
 .panelHeader.tone-low {
   background: linear-gradient(
     90deg,
-    color-mix(in srgb, var(--color-accent) 8%, transparent) 0%,
+    color-mix(in srgb, var(--bg-accent-solid) 8%, transparent) 0%,
     transparent 70%
   );
 }

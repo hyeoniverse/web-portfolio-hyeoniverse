@@ -77,7 +77,7 @@
 
 .logoColorPresetBtnActive.logoColorPresetBtnActive {
   border-color: var(--text-accent);
-  box-shadow: 0 0 0 1px var(--color-accent);
+  box-shadow: 0 0 0 1px var(--border-color-accent-strong);
 }
 
 .logoColorPresetHalf {
@@ -116,7 +116,7 @@
 
 .logoColorPresetRemove:hover {
   color: var(--text-accent);
-  border-color: var(--color-accent);
+  border-color: var(--border-color-accent-strong);
 }
 /* + 점선 버튼 — preset 그리드 끝에 추가 (canAddPreset 일 때만 노출) */
 .logoColorPresetAddBtn {

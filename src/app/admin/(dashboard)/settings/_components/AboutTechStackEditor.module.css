@@ -75,7 +75,7 @@
   width: 20px;
   height: 20px;
   border-radius: var(--radius-circle);
-  background: var(--color-neutral-50);
+  background: var(--bg-primary);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -188,7 +188,7 @@
   width: 40px;
   height: 40px;
   border-radius: var(--radius-circle);
-  background: var(--color-neutral-50);
+  background: var(--bg-primary);
   border: var(--border-strong);
   border-style: dashed;
   display: inline-flex;

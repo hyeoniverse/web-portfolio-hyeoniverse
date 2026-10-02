@@ -844,7 +844,7 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
           )}
         </div>
 
-      {error && <p className={shared.sectionHint} style={{ color: "var(--color-accent)" }}>{error}</p>}
+      {error && <p className={shared.sectionHint} style={{ color: "var(--text-accent)" }}>{error}</p>}
 
       {/* standalone 모드는 상단 header 에 cancel/create 가 있어 하단 버튼 중복 방지로 숨김
          단, 외부 shell 이 헤더를 대체할 때(hideStandaloneHeader)는 하단 버튼을 다시 표시

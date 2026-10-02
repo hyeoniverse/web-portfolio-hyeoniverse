@@ -7,7 +7,10 @@ import { contrastRatio } from "@/utils/contrast";
  * =============================================================================
  * ThemeProvider(실제 사이트)와 디자인 시스템 페이지의 프리셋 미리보기가 같은 규칙을 쓴다.
  *
- * 강조색 자체(--color-accent)는 고른 그대로 둔다 — 버튼·배지·하이라이트의 색감이 테마의 얼굴이라서.
+ * 팔레트(--color-*)는 테마와 상관없이 고정이라 건드리지 않고, 역할 토큰(--bg-* · --text-* …)을 덮어쓴다
+ * (docs/design-system.md 2-5-1). 반투명 역할은 color-mix() 로 이 역할들에서 만들어지므로 따로 넣지 않는다.
+ *
+ * 강조색 자체(--bg-accent-solid)는 고른 그대로 둔다 — 버튼·배지·하이라이트의 색감이 테마의 얼굴이라서.
  * 대신 글자로 쓰이는 두 값만 대비를 보장한다 (WCAG AA 4.5).
  * - 강조 글자(--text-accent): 파스텔 강조색은 밝은 배경에서, 진한 강조색은 어두운 배경에서 묻힌다.
  *   색상·채도는 그대로 두고 OKLCH 명도만 배경 반대쪽으로 옮겨 대비를 맞춘다.
@@ -18,17 +21,12 @@ import { contrastRatio } from "@/utils/contrast";
 /** 글자 최소 대비 — WCAG AA 본문 */
 export const MIN_TEXT_CONTRAST = 4.5;
 
-const ACCENT_ALPHAS = [1, 5, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 95, 100];
-const ACCENT_LIGHT_ALPHAS = [40, 60, 70, 90];
-
-const NEUTRAL_STOPS = [0, 50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950, 999] as const;
 /** bg(0) → text(1) 보간 비율. 500 은 다크, 600 은 라이트의 --text-muted 라 대비를 보장한다 */
 const MID_BLENDS: [number, number][] = [
   [100, 0.05], [200, 0.12], [300, 0.22], [400, 0.33],
   [500, 0.46], [600, 0.65], [700, 0.80], [800, 0.92],
 ];
 const MUTED_STOPS = new Set([500, 600]);
-const NEUTRAL_ALPHA_STEPS = [1, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 100];
 
 const WHITE: Rgb = [255, 255, 255];
 const BLACK: Rgb = [0, 0, 0];
@@ -112,76 +110,51 @@ export function textOnAccent(
   return (contrastRatio("#ffffff", accentHex) ?? 0) >= (contrastRatio("#000000", accentHex) ?? 0) ? "#ffffff" : "#000000";
 }
 
-/** accent 관련 CSS 변수를 모두 세팅 (alpha, dark, light 포함) */
+/** 강조색 역할 — 면 · 한 단계 진한 면 · 밝은 면. 반투명 강조(--bg-accent 등)와 강조 테두리는 이걸 따라온다 */
+const ACCENT_ROLES = ["--bg-accent-solid", "--bg-accent-solid-hover", "--bg-accent-solid-light"] as const;
+
 export function applyAccentAll(root: HTMLElement, hex: string) {
   const rgb = hexToRgb(hex);
   if (!rgb) return;
   const [r, g, b] = rgb;
-
-  root.style.setProperty("--color-accent", hex);
-
-  for (const a of ACCENT_ALPHAS) {
-    root.style.setProperty(`--color-accent-alpha-${a}`, `rgba(${r}, ${g}, ${b}, ${a / 100})`);
-  }
-
-  // darker variant (~20% darker)
-  root.style.setProperty(
-    "--color-accent-dark",
-    `rgb(${Math.round(r * 0.78)}, ${Math.round(g * 0.78)}, ${Math.round(b * 0.78)})`,
-  );
-
-  // lighter variant (~40% toward white)
+  root.style.setProperty("--bg-accent-solid", hex);
+  // 한 단계 진한 면(~20% 어둡게)
+  root.style.setProperty("--bg-accent-solid-hover", `rgb(${Math.round(r * 0.78)}, ${Math.round(g * 0.78)}, ${Math.round(b * 0.78)})`);
+  // 밝은 면(흰색 쪽으로 40%)
   const [lr, lg, lb] = lerpRgb(rgb, WHITE, 0.4);
-  root.style.setProperty("--color-accent-light", `rgb(${lr}, ${lg}, ${lb})`);
-  for (const a of ACCENT_LIGHT_ALPHAS) {
-    root.style.setProperty(`--color-accent-light-alpha-${a}`, `rgba(${lr}, ${lg}, ${lb}, ${a / 100})`);
-  }
+  root.style.setProperty("--bg-accent-solid-light", `rgb(${lr}, ${lg}, ${lb})`);
 }
 
 export function removeAccentAll(root: HTMLElement) {
-  root.style.removeProperty("--color-accent");
-  root.style.removeProperty("--color-accent-dark");
-  root.style.removeProperty("--color-accent-light");
-  for (const a of ACCENT_ALPHAS) root.style.removeProperty(`--color-accent-alpha-${a}`);
-  for (const a of ACCENT_LIGHT_ALPHAS) root.style.removeProperty(`--color-accent-light-alpha-${a}`);
+  for (const k of ACCENT_ROLES) root.style.removeProperty(k);
 }
 
-/** neutral scale + neutral/inverse alpha 를 bg·text 로부터 생성해 주입 */
-export function applyNeutralScale(root: HTMLElement, bgHex: string, textHex: string) {
+/** 무채색 역할 — 지금 테마의 배경 · 글자색에서 만든 단계(neutralScale)를 역할에 넣는다.
+ *  --bg-primary · --text-primary 는 고른 색 그대로라 ThemeProvider 가 따로 넣는다. */
+function neutralRoles(mode: "light" | "dark"): [string, number][] {
+  return [
+    ["--text-secondary", 800], ["--text-tertiary", 700], ["--text-muted", mode === "light" ? 600 : 500],
+    ["--bg-secondary", 100], ["--bg-inverse", 950], ["--bg-inverse-light", 700],
+  ];
+}
+
+export function applyNeutralScale(root: HTMLElement, bgHex: string, textHex: string, mode: "light" | "dark") {
   const scale = neutralScale(bgHex, textHex);
-  const bg = hexToRgb(bgHex);
-  const text = hexToRgb(textHex);
-  if (!scale || !bg || !text) return;
-
-  for (const n of NEUTRAL_STOPS) root.style.setProperty(`--color-neutral-${n}`, scale[n]);
-
-  for (const a of NEUTRAL_ALPHA_STEPS) {
-    // neutral-alpha: text 컬러 기반, inverse-alpha: bg 컬러 기반
-    root.style.setProperty(`--color-neutral-alpha-${a}`, `rgba(${text[0]}, ${text[1]}, ${text[2]}, ${a / 100})`);
-    root.style.setProperty(`--color-inverse-alpha-${a}`, `rgba(${bg[0]}, ${bg[1]}, ${bg[2]}, ${a / 100})`);
-  }
+  if (!scale) return;
+  for (const [role, step] of neutralRoles(mode)) root.style.setProperty(role, scale[step]);
+  // 테두리 · 옅은 면의 바탕(반투명 틴트) — 고른 글자색
+  root.style.setProperty("--text-contrast", textHex);
 }
 
 export function removeNeutralScale(root: HTMLElement) {
-  for (const n of NEUTRAL_STOPS) root.style.removeProperty(`--color-neutral-${n}`);
-  for (const a of NEUTRAL_ALPHA_STEPS) {
-    root.style.removeProperty(`--color-neutral-alpha-${a}`);
-    root.style.removeProperty(`--color-inverse-alpha-${a}`);
-  }
+  for (const [role] of neutralRoles("light")) root.style.removeProperty(role);
+  root.style.removeProperty("--text-contrast");
 }
 
 /** presetHelpers 가 스냅샷·복원할 변수 이름 전부 */
 export function themeVarKeys(): string[] {
-  const keys = [
-    "--color-accent", "--color-accent-dark", "--color-accent-light",
-    "--text-accent", "--text-accent-alt", "--text-on-accent", "--bg-primary", "--text-primary",
+  return [
+    ...ACCENT_ROLES, ...neutralRoles("light").map(([role]) => role),
+    "--text-accent", "--text-accent-alt", "--text-on-accent", "--bg-primary", "--text-primary", "--text-contrast",
   ];
-  for (const a of ACCENT_ALPHAS) keys.push(`--color-accent-alpha-${a}`);
-  for (const a of ACCENT_LIGHT_ALPHAS) keys.push(`--color-accent-light-alpha-${a}`);
-  for (const n of NEUTRAL_STOPS) keys.push(`--color-neutral-${n}`);
-  for (const a of NEUTRAL_ALPHA_STEPS) {
-    keys.push(`--color-neutral-alpha-${a}`);
-    keys.push(`--color-inverse-alpha-${a}`);
-  }
-  return keys;
 }

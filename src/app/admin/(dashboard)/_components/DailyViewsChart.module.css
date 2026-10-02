@@ -248,7 +248,7 @@
 .selectedLine {
   position: absolute;
   width: 0;
-  border-left: 1.5px solid var(--color-accent);
+  border-left: 1.5px solid var(--border-color-accent-strong);
   pointer-events: none;
   transform-origin: bottom;
   animation: selectedLineIn 0.2s ease;

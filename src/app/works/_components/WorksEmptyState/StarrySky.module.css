@@ -7,15 +7,15 @@
   pointer-events: none;
 
   /* 이 하늘은 어두운 테마에서만 쓰인다 — 밝은 테마의 빈 화면은 꽃잎이 내려온다(PetalDrift).
-     색은 여기서만 정한다(테마 토큰에는 하늘색이 없다).
+     색은 globals/_component.css 의 --works-sky-* 에 있다.
      푸른색으로 채우지 않는다 — 밤하늘의 파랑은 도시의 빛이고, 천장 아래에서 보는 하늘은
      자줏빛이 도는 회백색이다. 은하수도 파란 띠가 아니라 먼지처럼 옅은 상아색에 가깝다. */
-  --sky-band-core: rgb(226 214 226 / 20%);
-  --sky-band-mid: rgb(186 172 198 / 9%);
-  --sky-band-edge: rgb(186 172 198 / 0%);
-  --sky-core: rgb(246 238 232 / 26%);
-  --sky-star: rgb(255 252 247);
-  --sky-line: rgb(214 202 226 / 45%);
+  --sky-band-core: var(--works-sky-band-core);
+  --sky-band-mid: var(--works-sky-band-mid);
+  --sky-band-edge: var(--works-sky-band-edge);
+  --sky-core: var(--works-sky-core);
+  --sky-star: var(--works-sky-star);
+  --sky-line: var(--works-sky-line);
 
 }
 
@@ -127,8 +127,8 @@
   opacity: 0.85;
   pointer-events: none;
 
-  --sky-star: rgb(255 252 247);
-  --sky-line: rgb(214 202 226 / 45%);
+  --sky-star: var(--works-sky-star);
+  --sky-line: var(--works-sky-line);
 
   transform: translate(calc(var(--pointer-x, 0) * 26px), calc(var(--pointer-y, 0) * 26px));
   transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);

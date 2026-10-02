@@ -78,7 +78,7 @@
   outline: none;
 }
 .inspectInput:focus {
-  box-shadow: inset 0 0 0 1px var(--color-accent);
+  box-shadow: inset 0 0 0 1px var(--border-color-accent-strong);
 }
 
 /* 타입 범례 — 모양만으로 구분이 안 되는 start/end 를 색으로 */

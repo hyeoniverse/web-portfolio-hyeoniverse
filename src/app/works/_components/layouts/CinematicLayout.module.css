@@ -53,8 +53,8 @@
   z-index: 1;
   background: linear-gradient(
     to right,
-    var(--color-gray-alpha-80) 0%,
-    var(--color-gray-alpha-30) 40%,
+    color-mix(in oklch, var(--bg-black) 80%, transparent) 0%,
+    color-mix(in oklch, var(--bg-black) 30%, transparent) 40%,
     transparent 70%
   );
 }
@@ -81,7 +81,7 @@
   line-height: 0.8;
   letter-spacing: -0.06em;
   color: transparent;
-  -webkit-text-stroke: 1px var(--color-white-alpha-30);
+  -webkit-text-stroke: 1px color-mix(in oklch, var(--text-white) 30%, transparent);
   margin-bottom: var(--spacing-20);
 }
 
@@ -128,7 +128,7 @@
   opacity: 0.75;
   margin: 0 0 var(--spacing-20) 0;
   padding: var(--spacing-12) var(--spacing-16);
-  background: var(--color-gray-alpha-30);
+  background: color-mix(in oklch, var(--bg-black) 30%, transparent);
   border-radius: var(--radius-24);
   backdrop-filter: blur(4px);
 }
@@ -160,7 +160,7 @@
   line-height: 0.8;
   letter-spacing: -0.06em;
   color: transparent;
-  -webkit-text-stroke: 1px var(--color-white-alpha-10);
+  -webkit-text-stroke: 1px color-mix(in oklch, var(--text-white) 10%, transparent);
   pointer-events: none;
   will-change: transform;
 }
@@ -173,7 +173,7 @@
   right: 0;
   height: 2px;
   z-index: 5;
-  background: var(--color-white-alpha-10);
+  background: var(--bg-glass);
 }
 
 .progressBar {

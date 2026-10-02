@@ -163,7 +163,7 @@
 
 /* Face SVG area — bunny silhouette */
 .exprFace {
-  --_bunny-bg: var(--color-neutral-100);
+  --_bunny-bg: var(--bg-secondary);
   --_bunny-line: var(--text-primary);
 
   /* 외곽선 — 머리와 귀를 각각 border 로 두르면 귀가 머리에 묻히는 지점에 이음선이 보인다.

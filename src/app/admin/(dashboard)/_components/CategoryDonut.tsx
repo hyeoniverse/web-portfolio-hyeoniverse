@@ -61,12 +61,12 @@ function CategoryDonut({
 
   const total = data.reduce((s, d) => s + d.views, 0);
   const palette = [
-    "var(--color-accent)",
-    "var(--color-accent-dark)",
-    "var(--color-accent-light)",
-    "var(--color-accent-alpha-70)",
-    "var(--color-accent-alpha-50)",
-    "var(--color-accent-alpha-30)",
+    "var(--bg-accent-solid)",
+    "var(--bg-accent-solid-hover)",
+    "var(--bg-accent-solid-light)",
+    "color-mix(in oklch, var(--bg-accent-solid) 70%, transparent)",
+    "color-mix(in oklch, var(--bg-accent-solid) 50%, transparent)",
+    "color-mix(in oklch, var(--bg-accent-solid) 30%, transparent)",
   ];
 
   const cx = 70,

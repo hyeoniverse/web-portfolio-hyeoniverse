@@ -91,6 +91,24 @@ function regex(kinds: Kind[], re: RegExp): Metric["count"] {
   };
 }
 
+/** 컴포넌트 CSS 선언 값 안의 색 리터럴 — 마스크(`mask-image` 등)는 빼고 센다. 마스크는 알파만 쓰므로 그 안의 색은 색이 아니다 */
+function colorLiteral(re: RegExp): Metric["count"] {
+  const g = new RegExp(re.source, re.flags.includes("g") ? re.flags : re.flags + "g");
+  return (src) => {
+    const out: Counts = {};
+    for (const [file, { kind, text }] of src.files) {
+      if (!kind.has("componentCss")) continue;
+      let n = 0;
+      for (const m of text.matchAll(/(?<![\w-])(-?[a-z][\w-]*|--[\w-]+)\s*:([^;{}]*)/g)) {
+        if (/^(-webkit-)?mask/.test(m[1])) continue;
+        n += m[2].match(g)?.length ?? 0;
+      }
+      if (n) out[file] = n;
+    }
+    return out;
+  };
+}
+
 /** 선택자에 `disabled` 가 들어간 규칙 안의 opacity 선언 */
 function disabledOpacity(src: Sources): Counts {
   const out: Counts = {};
@@ -123,8 +141,6 @@ function darkPrimitives(prefix: RegExp): Metric["count"] {
 
 /** 눈금 단계 — 쓰는 곳이 없어도 남긴다(2-4). 이 이름이 아닌 토큰은 안 쓰면 지운다 */
 const SCALE = /^--(?:spacing|size|radius|font-size|fluid-font-size|line-height|font-weight|blur|border-width)-|^--color-[a-z]+-\d+$/;
-/** 투명도 단계 — JS(themeColors · /design-system)가 이름을 만들어 쓰므로 단계별 사용을 셀 수 없다. 3.1-3 에서 통째로 없앤다 */
-const ALPHA = /^--color-[a-z-]+-alpha-\d+$/;
 
 /** 정의됐는데 아무도 부르지 않는 토큰 중 눈금 단계가 아닌 것(2-4) — 정의한 파일별로 */
 function unusedTokens(src: Sources): Counts {
@@ -138,7 +154,7 @@ function unusedTokens(src: Sources): Counts {
   const used = new Set([...usage.matchAll(/--(?!_)[\w-]+/g)].map((m) => m[0]));
   const out: Counts = {};
   for (const [name, file] of defs) {
-    if (SCALE.test(name) || ALPHA.test(name) || used.has(name)) continue;
+    if (SCALE.test(name) || used.has(name)) continue;
     out[file] = (out[file] ?? 0) + 1;
   }
   return out;
@@ -191,8 +207,8 @@ export const METRICS: Metric[] = [
   { id: "theme-prefers-color-scheme", rule: "2-5-4", what: "CSS Module 의 `prefers-color-scheme` 미디어 쿼리", count: regex(MODULE, /prefers-color-scheme/) },
   /* 3.1 색 */
   { id: "color-palette", rule: "2-2 · 3.1-2", what: "컴포넌트가 팔레트(`--color-*`)를 바로 부른 곳", count: regex(CSS_AND_CODE, /var\(--color-[\w-]+\)/) },
-  { id: "color-hex", rule: "3.1-2", what: "컴포넌트 CSS 선언 값 안의 hex 색", count: regex(CSS, /:[^;{}]*?#[0-9a-fA-F]{3,8}\b/) },
-  { id: "color-function", rule: "3.1-2", what: "컴포넌트 CSS 의 색 함수(`rgb()` · `hsl()` · `oklch()` 등)", count: regex(CSS, /\b(?:rgba?|hsla?|oklch|oklab|lab|lch)\(/) },
+  { id: "color-hex", rule: "3.1-2", what: "컴포넌트 CSS 선언 값 안의 hex 색", count: colorLiteral(/#[0-9a-fA-F]{3,8}\b/) },
+  { id: "color-function", rule: "3.1-2", what: "컴포넌트 CSS 의 색 함수(`rgb()` · `hsl()` · `oklch()` 등)", count: colorLiteral(/\b(?:rgba?|hsla?|oklch|oklab|lab|lch)\(/) },
   { id: "color-local-var", rule: "3.1-2", what: "지역 변수(`--_x`)에 넣은 색 값", count: regex(CSS, /--_[\w-]+:\s*(?:#[0-9a-fA-F]{3,8}|(?:rgba?|hsla?|oklch)\()/) },
   { id: "color-alpha-token", rule: "3.1-3", what: "투명도 단계 토큰(`--color-*-alpha-*`)을 부른 곳", count: regex(CSS_AND_CODE, /var\(--color-[a-z-]+-alpha(?:-\d+)?\)/) },
   /* 3.2 글자 */

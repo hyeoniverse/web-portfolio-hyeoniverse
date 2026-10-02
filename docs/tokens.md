@@ -6,127 +6,122 @@
 
 ## `src/styles/tokens/_color.css`
 
-토큰 117개
+토큰 112개
 
-| 토큰 | 값 | 다크 |
-|---|---|---|
-| `--color-accent` | `oklch(55.20% 0.2249 4.81)` | `oklch(69.42% 0.2264 354.05)` |
-| `--color-accent-dark` | `oklch(46.13% 0.1859 3.15)` | `oklch(62.91% 0.2180 356.45)` |
-| `--color-accent-light` | `oklch(69.31% 0.2206 357.47)` | `oklch(76.26% 0.1700 349.46)` |
-| `--color-neutral-0` | `oklch(100.00% 0.0000 0.00)` | `oklch(0.00% 0.0000 0.00)` |
-| `--color-neutral-50` | `oklch(97.30% 0.0082 91.48)` | `oklch(21.81% 0.0041 84.59)` |
-| `--color-neutral-100` | `oklch(94.52% 0.0081 98.88)` | `oklch(25.65% 0.0040 84.58)` |
-| `--color-neutral-200` | `oklch(90.25% 0.0095 100.00)` | `oklch(33.28% 0.0054 91.54)` |
-| `--color-neutral-300` | `oklch(83.44% 0.0110 100.86)` | `oklch(42.66% 0.0098 99.08)` |
-| `--color-neutral-400` | `oklch(75.89% 0.0113 100.88)` | `oklch(52.77% 0.0095 91.56)` |
-| `--color-neutral-500` | `oklch(67.27% 0.0104 93.62)` | `oklch(67.27% 0.0104 93.62)` |
-| `--color-neutral-600` | `oklch(52.77% 0.0095 91.56)` | `oklch(75.89% 0.0113 100.88)` |
-| `--color-neutral-700` | `oklch(42.66% 0.0098 99.08)` | `oklch(83.44% 0.0110 100.86)` |
-| `--color-neutral-800` | `oklch(33.28% 0.0054 91.54)` | `oklch(90.25% 0.0095 100.00)` |
-| `--color-neutral-900` | `oklch(25.65% 0.0040 84.58)` | `oklch(94.52% 0.0081 98.88)` |
-| `--color-neutral-950` | `oklch(21.81% 0.0041 84.59)` | `oklch(97.30% 0.0082 91.48)` |
-| `--color-neutral-999` | `oklch(0.00% 0.0000 0.00)` | `oklch(100.00% 0.0000 0.00)` |
-| `--color-scheme-light-bg` | `oklch(97.30% 0.0082 91.48)` |  |
-| `--color-scheme-dark-bg` | `oklch(21.81% 0.0041 84.59)` |  |
-| `--color-cursor-trail` | `oklch(62.31% 0.1880 259.81)` | `oklch(71.37% 0.1434 254.62)` |
-| `--color-success` | `oklch(62.71% 0.1699 149.21)` | `oklch(80.03% 0.1821 151.71)` |
-| `--color-success-alpha` | `oklch(72.27% 0.1920 149.58 / 0.6)` | `oklch(72.27% 0.1920 149.58 / 0.3)` |
-| `--color-success-alpha-40` | `oklch(62.71% 0.1699 149.21 / 0.4)` | `oklch(80.03% 0.1821 151.71 / 0.4)` |
-| `--color-success-alpha-60` | `oklch(62.71% 0.1699 149.21 / 0.6)` | `oklch(80.03% 0.1821 151.71 / 0.6)` |
-| `--color-success-soft` | `oklch(62.71% 0.1699 149.21 / 0.12)` | `oklch(80.03% 0.1821 151.71 / 0.18)` |
-| `--color-warning` | `oklch(72% 0.15 75)` | `oklch(78% 0.15 76)` |
-| `--color-warning-alpha-40` | `oklch(72% 0.15 75 / 0.4)` | `oklch(78% 0.15 76 / 0.4)` |
-| `--color-warning-soft` | `oklch(72% 0.15 75 / 0.12)` | `oklch(78% 0.15 76 / 0.18)` |
-| `--color-info` | `oklch(54.61% 0.2152 262.88)` | `oklch(71.37% 0.1434 254.62)` |
-| `--color-info-soft` | `oklch(54.61% 0.2152 262.88 / 0.12)` | `oklch(71.37% 0.1434 254.62 / 0.18)` |
-| `--color-error` | `oklch(57.71% 0.2152 27.33)` | `oklch(71.06% 0.1661 22.22)` |
-| `--color-error-alpha` | `oklch(57.71% 0.2152 27.33 / 0.15)` | `oklch(71.06% 0.1661 22.22 / 0.2)` |
-| `--color-error-soft` | `oklch(57.71% 0.2152 27.33 / 0.12)` | `oklch(71.06% 0.1661 22.22 / 0.18)` |
-| `--color-success-strong` | `oklch(50.07% 0.1699 149.21)` | `var(--color-success)` |
-| `--color-warning-strong` | `oklch(52.95% 0.15 75)` | `var(--color-warning)` |
-| `--color-info-strong` | `oklch(53.63% 0.2152 262.88)` | `var(--color-info)` |
-| `--color-error-strong` | `oklch(55.10% 0.2152 27.33)` | `var(--color-error)` |
-| `--color-label-red` | `oklch(57.71% 0.2152 27.33)` |  |
-| `--color-label-orange` | `oklch(66% 0.18 55)` |  |
-| `--color-label-yellow` | `oklch(79% 0.15 90)` |  |
-| `--color-label-green` | `oklch(62.71% 0.1699 149.21)` |  |
-| `--color-label-blue` | `oklch(54.61% 0.2152 262.88)` |  |
-| `--color-label-indigo` | `oklch(49% 0.19 279)` |  |
-| `--color-label-violet` | `oklch(55% 0.2 320)` |  |
-| `--color-accent-alpha-1` | `oklch(55.96% 0.2249 4.81 / 0.015)` | `oklch(69.42% 0.2264 354.05 / 0.015)` |
-| `--color-accent-alpha-5` | `oklch(55.96% 0.2249 4.81 / 0.05)` | `oklch(69.42% 0.2264 354.05 / 0.05)` |
-| `--color-accent-alpha-10` | `oklch(55.96% 0.2249 4.81 / 0.1)` | `oklch(69.42% 0.2264 354.05 / 0.1)` |
-| `--color-accent-alpha-15` | `oklch(55.96% 0.2249 4.81 / 0.15)` | `oklch(69.42% 0.2264 354.05 / 0.15)` |
-| `--color-accent-alpha-20` | `oklch(55.96% 0.2249 4.81 / 0.2)` | `oklch(69.42% 0.2264 354.05 / 0.2)` |
-| `--color-accent-alpha-30` | `oklch(55.96% 0.2249 4.81 / 0.3)` | `oklch(69.42% 0.2264 354.05 / 0.3)` |
-| `--color-accent-alpha-50` | `oklch(55.96% 0.2249 4.81 / 0.5)` | `oklch(69.42% 0.2264 354.05 / 0.5)` |
-| `--color-accent-alpha-70` | `oklch(55.96% 0.2249 4.81 / 0.7)` | `oklch(69.42% 0.2264 354.05 / 0.7)` |
-| `--color-accent-alpha-80` | `oklch(55.96% 0.2249 4.81 / 0.8)` | `oklch(69.42% 0.2264 354.05 / 0.8)` |
-| `--color-accent-alpha-90` | `oklch(55.96% 0.2249 4.81 / 0.9)` | `oklch(69.42% 0.2264 354.05 / 0.9)` |
-| `--color-accent-alpha-95` | `oklch(55.96% 0.2249 4.81 / 0.95)` | `oklch(69.42% 0.2264 354.05 / 0.95)` |
-| `--color-accent-alpha-100` | `oklch(55.96% 0.2249 4.81)` | `oklch(69.42% 0.2264 354.05)` |
-| `--color-accent-light-alpha-40` | `oklch(69.31% 0.2206 357.47 / 0.4)` | `oklch(76.26% 0.1700 349.46 / 0.4)` |
-| `--color-accent-light-alpha-60` | `oklch(69.31% 0.2206 357.47 / 0.6)` | `oklch(76.26% 0.1700 349.46 / 0.6)` |
-| `--color-accent-light-alpha-70` | `oklch(69.31% 0.2206 357.47 / 0.7)` | `oklch(76.26% 0.1700 349.46 / 0.7)` |
-| `--color-accent-light-alpha-90` | `oklch(69.31% 0.2206 357.47 / 0.9)` | `oklch(76.26% 0.1700 349.46 / 0.9)` |
-| `--color-neutral-alpha-1` | `oklch(21.81% 0.0041 84.59 / 0.015)` | `oklch(97.30% 0.0082 91.48 / 0.015)` |
-| `--color-neutral-alpha-5` | `oklch(21.81% 0.0041 84.59 / 0.05)` | `oklch(97.30% 0.0082 91.48 / 0.05)` |
-| `--color-neutral-alpha-10` | `oklch(21.81% 0.0041 84.59 / 0.1)` | `oklch(97.30% 0.0082 91.48 / 0.1)` |
-| `--color-neutral-alpha-20` | `oklch(21.81% 0.0041 84.59 / 0.2)` | `oklch(97.30% 0.0082 91.48 / 0.2)` |
-| `--color-neutral-alpha-30` | `oklch(21.81% 0.0041 84.59 / 0.3)` | `oklch(97.30% 0.0082 91.48 / 0.3)` |
-| `--color-neutral-alpha-40` | `oklch(21.81% 0.0041 84.59 / 0.4)` | `oklch(97.30% 0.0082 91.48 / 0.4)` |
-| `--color-neutral-alpha-50` | `oklch(21.81% 0.0041 84.59 / 0.5)` | `oklch(97.30% 0.0082 91.48 / 0.5)` |
-| `--color-neutral-alpha-60` | `oklch(21.81% 0.0041 84.59 / 0.6)` | `oklch(97.30% 0.0082 91.48 / 0.6)` |
-| `--color-neutral-alpha-70` | `oklch(21.81% 0.0041 84.59 / 0.7)` | `oklch(97.30% 0.0082 91.48 / 0.7)` |
-| `--color-neutral-alpha-80` | `oklch(21.81% 0.0041 84.59 / 0.8)` | `oklch(97.30% 0.0082 91.48 / 0.8)` |
-| `--color-neutral-alpha-90` | `oklch(21.81% 0.0041 84.59 / 0.9)` | `oklch(97.30% 0.0082 91.48 / 0.9)` |
-| `--color-neutral-alpha-95` | `oklch(21.81% 0.0041 84.59 / 0.95)` | `oklch(97.30% 0.0082 91.48 / 0.95)` |
-| `--color-neutral-alpha-100` | `oklch(21.81% 0.0041 84.59)` | `oklch(97.30% 0.0082 91.48)` |
-| `--color-inverse-alpha-1` | `oklch(97.30% 0.0082 91.48 / 0.015)` | `oklch(21.81% 0.0041 84.59 / 0.015)` |
-| `--color-inverse-alpha-5` | `oklch(97.30% 0.0082 91.48 / 0.05)` | `oklch(21.81% 0.0041 84.59 / 0.05)` |
-| `--color-inverse-alpha-10` | `oklch(97.30% 0.0082 91.48 / 0.1)` | `oklch(21.81% 0.0041 84.59 / 0.1)` |
-| `--color-inverse-alpha-20` | `oklch(97.30% 0.0082 91.48 / 0.2)` | `oklch(21.81% 0.0041 84.59 / 0.2)` |
-| `--color-inverse-alpha-30` | `oklch(97.30% 0.0082 91.48 / 0.3)` | `oklch(21.81% 0.0041 84.59 / 0.3)` |
-| `--color-inverse-alpha-40` | `oklch(97.30% 0.0082 91.48 / 0.4)` | `oklch(21.81% 0.0041 84.59 / 0.4)` |
-| `--color-inverse-alpha-50` | `oklch(97.30% 0.0082 91.48 / 0.5)` | `oklch(21.81% 0.0041 84.59 / 0.5)` |
-| `--color-inverse-alpha-60` | `oklch(97.30% 0.0082 91.48 / 0.6)` | `oklch(21.81% 0.0041 84.59 / 0.6)` |
-| `--color-inverse-alpha-70` | `oklch(97.30% 0.0082 91.48 / 0.7)` | `oklch(21.81% 0.0041 84.59 / 0.7)` |
-| `--color-inverse-alpha-80` | `oklch(97.30% 0.0082 91.48 / 0.8)` | `oklch(21.81% 0.0041 84.59 / 0.8)` |
-| `--color-inverse-alpha-90` | `oklch(97.30% 0.0082 91.48 / 0.9)` | `oklch(21.81% 0.0041 84.59 / 0.9)` |
-| `--color-inverse-alpha-95` | `oklch(97.30% 0.0082 91.48 / 0.95)` | `oklch(21.81% 0.0041 84.59 / 0.95)` |
-| `--color-inverse-alpha-100` | `oklch(97.30% 0.0082 91.48)` | `oklch(21.81% 0.0041 84.59)` |
-| `--color-gray-alpha-1` | `oklch(0.00% 0.0000 0.00 / 0.015)` |  |
-| `--color-gray-alpha-5` | `oklch(0.00% 0.0000 0.00 / 0.05)` |  |
-| `--color-gray-alpha-10` | `oklch(0.00% 0.0000 0.00 / 0.1)` |  |
-| `--color-gray-alpha-20` | `oklch(0.00% 0.0000 0.00 / 0.2)` |  |
-| `--color-gray-alpha-25` | `oklch(0.00% 0.0000 0.00 / 0.25)` |  |
-| `--color-gray-alpha-30` | `oklch(0.00% 0.0000 0.00 / 0.3)` |  |
-| `--color-gray-alpha-40` | `oklch(0.00% 0.0000 0.00 / 0.4)` |  |
-| `--color-gray-alpha-50` | `oklch(0.00% 0.0000 0.00 / 0.5)` |  |
-| `--color-gray-alpha-60` | `oklch(0.00% 0.0000 0.00 / 0.6)` |  |
-| `--color-gray-alpha-70` | `oklch(0.00% 0.0000 0.00 / 0.7)` |  |
-| `--color-gray-alpha-80` | `oklch(0.00% 0.0000 0.00 / 0.8)` |  |
-| `--color-gray-alpha-90` | `oklch(0.00% 0.0000 0.00 / 0.9)` |  |
-| `--color-gray-alpha-95` | `oklch(0.00% 0.0000 0.00 / 0.95)` |  |
-| `--color-gray-alpha-100` | `oklch(0.00% 0.0000 0.00)` |  |
-| `--color-white-alpha-1` | `oklch(100.00% 0.0000 0.00 / 0.015)` |  |
-| `--color-white-alpha-5` | `oklch(100.00% 0.0000 0.00 / 0.05)` |  |
-| `--color-white-alpha-10` | `oklch(100.00% 0.0000 0.00 / 0.1)` |  |
-| `--color-white-alpha-20` | `oklch(100.00% 0.0000 0.00 / 0.2)` |  |
-| `--color-white-alpha-30` | `oklch(100.00% 0.0000 0.00 / 0.3)` |  |
-| `--color-white-alpha-40` | `oklch(100.00% 0.0000 0.00 / 0.4)` |  |
-| `--color-white-alpha-50` | `oklch(100.00% 0.0000 0.00 / 0.5)` |  |
-| `--color-white-alpha-60` | `oklch(100.00% 0.0000 0.00 / 0.6)` |  |
-| `--color-white-alpha-70` | `oklch(100.00% 0.0000 0.00 / 0.7)` |  |
-| `--color-white-alpha-80` | `oklch(100.00% 0.0000 0.00 / 0.8)` |  |
-| `--color-white-alpha-90` | `oklch(100.00% 0.0000 0.00 / 0.9)` |  |
-| `--color-white-alpha-95` | `oklch(100.00% 0.0000 0.00 / 0.95)` |  |
-| `--color-white-alpha-100` | `oklch(100.00% 0.0000 0.00)` |  |
-| `--gradient-accent` | `linear-gradient(135deg, var(--color-accent-light), var(--color-accent-dark))` |  |
-| `--gradient-accent-soft` | `linear-gradient(135deg, var(--color-accent-light), var(--color-accent))` |  |
-| `--gradient-neutral` | `linear-gradient(135deg, var(--color-neutral-300), var(--color-neutral-700))` |  |
-| `--color-accent-alpha-40` | — | `oklch(69.42% 0.2264 354.05 / 0.4)` |
-| `--color-accent-alpha-60` | — | `oklch(69.42% 0.2264 354.05 / 0.6)` |
+| 토큰 | 값 |
+|---|---|
+| `--color-white` | `oklch(100% 0 0)` |
+| `--color-black` | `oklch(0% 0 0)` |
+| `--color-neutral-50` | `oklch(97.30% 0.0082 91.48)` |
+| `--color-neutral-100` | `oklch(94.52% 0.0081 98.88)` |
+| `--color-neutral-200` | `oklch(90.25% 0.0095 100.00)` |
+| `--color-neutral-300` | `oklch(83.44% 0.0110 100.86)` |
+| `--color-neutral-400` | `oklch(75.89% 0.0113 100.88)` |
+| `--color-neutral-500` | `oklch(67.27% 0.0104 93.62)` |
+| `--color-neutral-600` | `oklch(52.77% 0.0095 91.56)` |
+| `--color-neutral-700` | `oklch(42.66% 0.0098 99.08)` |
+| `--color-neutral-800` | `oklch(33.28% 0.0054 91.54)` |
+| `--color-neutral-900` | `oklch(25.65% 0.0040 84.58)` |
+| `--color-neutral-950` | `oklch(21.81% 0.0041 84.59)` |
+| `--color-accent-50` | `oklch(97.50% 0.0145 349.46)` |
+| `--color-accent-100` | `oklch(94.73% 0.0312 349.46)` |
+| `--color-accent-200` | `oklch(90.11% 0.0612 349.46)` |
+| `--color-accent-300` | `oklch(83.65% 0.1080 349.46)` |
+| `--color-accent-400` | `oklch(76.26% 0.1700 349.46)` |
+| `--color-accent-500` | `oklch(69.42% 0.2264 354.05)` |
+| `--color-accent-600` | `oklch(62.91% 0.2180 356.45)` |
+| `--color-accent-700` | `oklch(55.20% 0.2249 4.81)` |
+| `--color-accent-800` | `oklch(46.13% 0.1859 3.15)` |
+| `--color-accent-900` | `oklch(38.86% 0.1566 3.15)` |
+| `--color-accent-950` | `oklch(29.00% 0.1168 3.15)` |
+| `--color-red-50` | `oklch(97.50% 0.0121 22.22)` |
+| `--color-red-100` | `oklch(94.05% 0.0298 22.22)` |
+| `--color-red-200` | `oklch(88.30% 0.0617 22.22)` |
+| `--color-red-300` | `oklch(80.26% 0.1126 22.22)` |
+| `--color-red-400` | `oklch(71.06% 0.1661 22.22)` |
+| `--color-red-500` | `oklch(64.39% 0.2152 24.78)` |
+| `--color-red-600` | `oklch(57.71% 0.2152 27.33)` |
+| `--color-red-700` | `oklch(51.12% 0.2066 27.33)` |
+| `--color-red-800` | `oklch(44.53% 0.1816 27.33)` |
+| `--color-red-900` | `oklch(37.94% 0.1548 27.33)` |
+| `--color-red-950` | `oklch(29.00% 0.1183 27.33)` |
+| `--color-orange-50` | `oklch(97.50% 0.0144 55.00)` |
+| `--color-orange-100` | `oklch(94.40% 0.0330 55.00)` |
+| `--color-orange-200` | `oklch(89.24% 0.0661 55.00)` |
+| `--color-orange-300` | `oklch(82.01% 0.1173 55.00)` |
+| `--color-orange-400` | `oklch(73.75% 0.1584 55.00)` |
+| `--color-orange-500` | `oklch(66.00% 0.1800 55.00)` |
+| `--color-orange-600` | `oklch(58.70% 0.1453 55.00)` |
+| `--color-orange-700` | `oklch(51.88% 0.1284 55.00)` |
+| `--color-orange-800` | `oklch(45.07% 0.1116 55.00)` |
+| `--color-orange-900` | `oklch(38.25% 0.0947 55.00)` |
+| `--color-orange-950` | `oklch(29.00% 0.0718 55.00)` |
+| `--color-amber-50` | `oklch(97.50% 0.0150 76.00)` |
+| `--color-amber-100` | `oklch(93.60% 0.0330 76.00)` |
+| `--color-amber-200` | `oklch(87.10% 0.0630 76.00)` |
+| `--color-amber-300` | `oklch(78.00% 0.1500 76.00)` |
+| `--color-amber-400` | `oklch(72.00% 0.1500 75.00)` |
+| `--color-amber-500` | `oklch(65.51% 0.1382 75.00)` |
+| `--color-amber-600` | `oklch(59.01% 0.1245 75.00)` |
+| `--color-amber-700` | `oklch(52.95% 0.1500 75.00)` |
+| `--color-amber-800` | `oklch(45.82% 0.0966 75.00)` |
+| `--color-amber-900` | `oklch(38.68% 0.0816 75.00)` |
+| `--color-amber-950` | `oklch(29.00% 0.0612 75.00)` |
+| `--color-yellow-50` | `oklch(97.50% 0.0150 90.00)` |
+| `--color-yellow-100` | `oklch(93.80% 0.0330 90.00)` |
+| `--color-yellow-200` | `oklch(87.63% 0.0630 90.00)` |
+| `--color-yellow-300` | `oklch(79.00% 0.1500 90.00)` |
+| `--color-yellow-400` | `oklch(71.52% 0.1320 90.00)` |
+| `--color-yellow-500` | `oklch(64.51% 0.1318 90.00)` |
+| `--color-yellow-600` | `oklch(57.50% 0.1175 90.00)` |
+| `--color-yellow-700` | `oklch(50.96% 0.1041 90.00)` |
+| `--color-yellow-800` | `oklch(44.42% 0.0908 90.00)` |
+| `--color-yellow-900` | `oklch(37.88% 0.0774 90.00)` |
+| `--color-yellow-950` | `oklch(29.00% 0.0592 90.00)` |
+| `--color-green-50` | `oklch(97.50% 0.0182 151.71)` |
+| `--color-green-100` | `oklch(94.01% 0.0401 151.71)` |
+| `--color-green-200` | `oklch(88.18% 0.0765 151.71)` |
+| `--color-green-300` | `oklch(80.03% 0.1821 151.71)` |
+| `--color-green-400` | `oklch(74.01% 0.1602 150.84)` |
+| `--color-green-500` | `oklch(68.36% 0.1821 150.03)` |
+| `--color-green-600` | `oklch(62.71% 0.1699 149.21)` |
+| `--color-green-700` | `oklch(50.07% 0.1699 149.21)` |
+| `--color-green-800` | `oklch(43.79% 0.1229 149.21)` |
+| `--color-green-900` | `oklch(37.52% 0.1053 149.21)` |
+| `--color-green-950` | `oklch(29.00% 0.0814 149.21)` |
+| `--color-blue-50` | `oklch(97.50% 0.0120 254.62)` |
+| `--color-blue-100` | `oklch(94.09% 0.0287 254.62)` |
+| `--color-blue-200` | `oklch(88.41% 0.0575 254.62)` |
+| `--color-blue-300` | `oklch(80.46% 0.1001 254.62)` |
+| `--color-blue-400` | `oklch(71.37% 0.1434 254.62)` |
+| `--color-blue-500` | `oklch(66.84% 0.1774 257.22)` |
+| `--color-blue-600` | `oklch(62.31% 0.1880 259.81)` |
+| `--color-blue-700` | `oklch(54.61% 0.2152 262.88)` |
+| `--color-blue-800` | `oklch(46.98% 0.1851 262.88)` |
+| `--color-blue-900` | `oklch(39.35% 0.1549 262.88)` |
+| `--color-blue-950` | `oklch(29.00% 0.1205 262.88)` |
+| `--color-indigo-50` | `oklch(97.50% 0.0119 279.00)` |
+| `--color-indigo-100` | `oklch(94.27% 0.0276 279.00)` |
+| `--color-indigo-200` | `oklch(88.88% 0.0548 279.00)` |
+| `--color-indigo-300` | `oklch(81.33% 0.0948 279.00)` |
+| `--color-indigo-400` | `oklch(72.71% 0.1436 279.00)` |
+| `--color-indigo-500` | `oklch(64.63% 0.1900 279.00)` |
+| `--color-indigo-600` | `oklch(56.54% 0.1900 279.00)` |
+| `--color-indigo-700` | `oklch(49.00% 0.1900 279.00)` |
+| `--color-indigo-800` | `oklch(43.04% 0.1634 279.00)` |
+| `--color-indigo-900` | `oklch(37.09% 0.1368 279.00)` |
+| `--color-indigo-950` | `oklch(29.00% 0.1064 279.00)` |
+| `--color-violet-50` | `oklch(97.50% 0.0190 320.00)` |
+| `--color-violet-100` | `oklch(94.67% 0.0411 320.00)` |
+| `--color-violet-200` | `oklch(89.94% 0.0792 320.00)` |
+| `--color-violet-300` | `oklch(83.33% 0.1320 320.00)` |
+| `--color-violet-400` | `oklch(75.78% 0.1760 320.00)` |
+| `--color-violet-500` | `oklch(68.69% 0.2000 320.00)` |
+| `--color-violet-600` | `oklch(61.61% 0.2000 320.00)` |
+| `--color-violet-700` | `oklch(55.00% 0.2000 320.00)` |
+| `--color-violet-800` | `oklch(47.26% 0.1720 320.00)` |
+| `--color-violet-900` | `oklch(39.51% 0.1440 320.00)` |
+| `--color-violet-950` | `oklch(29.00% 0.1120 320.00)` |
 
 ## `src/styles/tokens/_spacing.css`
 
@@ -340,77 +335,87 @@
 
 ## `src/styles/globals/_semantic.css`
 
-토큰 109개
+토큰 119개
 
 | 토큰 | 값 | 다크 | 조건부 |
 |---|---|---|---|
 | `--filter-mono-logo` | `none` | `invert(1)` |  |
-| `--text-white` | `var(--color-white-alpha-100)` |  |  |
-| `--text-white-muted` | `var(--color-white-alpha-50)` |  |  |
-| `--text-black` | `var(--color-gray-alpha-100)` |  |  |
-| `--text-primary` | `var(--color-neutral-900)` |  |  |
-| `--text-secondary` | `var(--color-neutral-800)` |  |  |
-| `--text-tertiary` | `var(--color-neutral-700)` |  |  |
+| `--text-white` | `var(--color-white)` |  |  |
+| `--text-white-muted` | `color-mix(in oklch, var(--color-white) 50%, transparent)` |  |  |
+| `--text-black` | `var(--color-black)` |  |  |
+| `--text-contrast` | `light-dark(var(--color-neutral-950), var(--color-neutral-50))` |  |  |
+| `--text-primary` | `light-dark(var(--color-neutral-900), var(--color-neutral-100))` |  |  |
+| `--text-secondary` | `light-dark(var(--color-neutral-800), var(--color-neutral-200))` |  |  |
+| `--text-tertiary` | `light-dark(var(--color-neutral-700), var(--color-neutral-300))` |  |  |
 | `--text-muted` | `light-dark(var(--color-neutral-600), var(--color-neutral-500))` |  |  |
-| `--text-inverse` | `var(--color-neutral-0)` |  |  |
-| `--text-success` | `var(--color-success)` |  |  |
-| `--text-warning` | `var(--color-warning)` |  |  |
-| `--text-info` | `var(--color-info)` |  |  |
-| `--text-error` | `var(--color-error)` |  |  |
-| `--text-success-strong` | `var(--color-success-strong)` |  |  |
-| `--text-warning-strong` | `var(--color-warning-strong)` |  |  |
-| `--text-info-strong` | `var(--color-info-strong)` |  |  |
-| `--text-error-strong` | `var(--color-error-strong)` |  |  |
-| `--text-accent` | `var(--color-accent)` |  |  |
-| `--text-accent-alt` | `var(--color-accent)` |  |  |
+| `--text-inverse` | `light-dark(var(--color-white), var(--color-black))` |  |  |
+| `--text-success` | `light-dark(var(--color-green-600), var(--color-green-300))` |  |  |
+| `--text-warning` | `light-dark(var(--color-amber-400), var(--color-amber-300))` |  |  |
+| `--text-info` | `light-dark(var(--color-blue-700), var(--color-blue-400))` |  |  |
+| `--text-error` | `light-dark(var(--color-red-600), var(--color-red-400))` |  |  |
+| `--text-success-strong` | `light-dark(var(--color-green-700), var(--color-green-300))` |  |  |
+| `--text-warning-strong` | `light-dark(var(--color-amber-700), var(--color-amber-300))` |  |  |
+| `--text-info-strong` | `light-dark(var(--color-blue-700), var(--color-blue-400))` |  |  |
+| `--text-error-strong` | `light-dark(var(--color-red-700), var(--color-red-400))` |  |  |
+| `--text-accent` | `light-dark(var(--color-accent-700), var(--color-accent-500))` |  |  |
+| `--text-accent-alt` | `var(--text-accent)` |  |  |
 | `--text-on-accent` | `light-dark(var(--text-white), var(--text-black))` |  |  |
-| `--bg-white` | `var(--color-white-alpha-100)` |  |  |
-| `--bg-black` | `var(--color-gray-alpha-100)` |  |  |
-| `--bg-primary` | `var(--color-neutral-50)` |  |  |
-| `--bg-secondary` | `var(--color-neutral-100)` |  |  |
-| `--bg-secondary-alt` | `var(--color-neutral-alpha-20)` |  |  |
-| `--bg-tertiary` | `light-dark(var(--color-neutral-alpha-5), var(--color-inverse-alpha-5))` |  |  |
-| `--bg-tertiary-alt` | `var(--color-neutral-alpha-10)` |  |  |
-| `--bg-inverse` | `var(--color-neutral-950)` |  |  |
-| `--bg-inverse-light` | `var(--color-neutral-700)` |  |  |
-| `--bg-scheme-light` | `var(--color-scheme-light-bg)` |  |  |
-| `--bg-scheme-dark` | `var(--color-scheme-dark-bg)` |  |  |
+| `--bg-white` | `var(--color-white)` |  |  |
+| `--bg-black` | `var(--color-black)` |  |  |
+| `--bg-primary` | `light-dark(var(--color-neutral-50), var(--color-neutral-950))` |  |  |
+| `--bg-secondary` | `light-dark(var(--color-neutral-100), var(--color-neutral-900))` |  |  |
+| `--bg-secondary-alt` | `color-mix(in oklch, var(--text-contrast) 20%, transparent)` |  |  |
+| `--bg-tertiary` | `light-dark(color-mix(in oklch, var(--text-contrast) 5%, transparent), color-mix(in oklch, var(--bg-primary) 5%, transparent))` |  |  |
+| `--bg-tertiary-alt` | `color-mix(in oklch, var(--text-contrast) 10%, transparent)` |  |  |
+| `--bg-dialog` | `light-dark(var(--color-white), var(--color-black))` |  |  |
+| `--bg-inverse` | `light-dark(var(--color-neutral-950), var(--color-neutral-50))` |  |  |
+| `--bg-inverse-light` | `light-dark(var(--color-neutral-700), var(--color-neutral-300))` |  |  |
+| `--bg-scheme-light` | `var(--color-neutral-50)` |  |  |
+| `--bg-scheme-dark` | `var(--color-neutral-950)` |  |  |
 | `--bg-glass-panel` | `color-mix(in srgb, var(--bg-primary) 24%, transparent)` |  |  |
 | `--blur-glass` | `var(--blur-12) saturate(1.4)` |  |  |
-| `--bg-accent-subtle` | `var(--color-accent-alpha-5)` |  |  |
-| `--bg-accent-light` | `var(--color-accent-alpha-10)` |  |  |
-| `--bg-accent` | `var(--color-accent-alpha-20)` |  |  |
-| `--bg-accent-solid` | `var(--color-accent)` |  |  |
-| `--bg-accent-solid-light` | `var(--color-accent-light)` |  |  |
-| `--bg-success` | `var(--color-success-alpha)` |  |  |
-| `--bg-success-soft` | `var(--color-success-soft)` |  |  |
-| `--bg-success-solid` | `var(--color-success)` |  |  |
-| `--bg-warning-soft` | `var(--color-warning-soft)` |  |  |
-| `--bg-warning-solid` | `var(--color-warning)` |  |  |
-| `--bg-info-soft` | `var(--color-info-soft)` |  |  |
-| `--bg-error` | `var(--color-error-alpha)` |  |  |
-| `--bg-error-soft` | `var(--color-error-soft)` |  |  |
-| `--bg-accent-strong` | `var(--color-accent-alpha-30)` |  |  |
-| `--bg-highlight` | `light-dark(var(--color-accent-alpha-15), var(--color-accent-alpha-30))` |  |  |
-| `--bg-highlight-strong` | `light-dark(var(--color-accent-alpha-30), var(--color-accent-alpha-50))` |  |  |
-| `--bg-surface` | `light-dark(var(--color-gray-alpha-5), var(--color-white-alpha-5))` |  |  |
-| `--bg-glass-subtle` | `var(--color-white-alpha-5)` |  |  |
-| `--bg-glass` | `var(--color-white-alpha-10)` |  |  |
-| `--bg-glass-strong` | `var(--color-white-alpha-30)` |  |  |
-| `--bg-overlay` | `var(--color-gray-alpha-50)` |  |  |
-| `--bg-gradient-accent-vertical` | `linear-gradient( 180deg, var(--color-accent-alpha-20) 0%, var(--color-accent-alpha-80) 100% )` |  |  |
-| `--border-color-strong` | `var(--color-neutral-alpha-100)` |  |  |
-| `--border-color-default` | `var(--color-neutral-alpha-50)` |  |  |
-| `--border-color-light` | `var(--color-neutral-alpha-30)` |  |  |
-| `--border-color-white` | `var(--color-white-alpha-100)` |  |  |
-| `--border-color-accent-light` | `var(--color-accent-alpha-20)` |  |  |
-| `--border-color-accent` | `var(--color-accent-alpha-30)` |  |  |
-| `--border-color-accent-strong` | `var(--color-accent)` |  |  |
-| `--border-color-ghost-light` | `var(--color-white-alpha-10)` |  |  |
-| `--border-color-ghost` | `var(--color-white-alpha-20)` |  |  |
-| `--border-color-white-muted` | `var(--color-white-alpha-50)` |  |  |
-| `--border-color-success` | `var(--color-success)` |  |  |
-| `--border-color-neutral-light` | `var(--color-neutral-alpha-20)` |  |  |
+| `--bg-accent-subtle` | `color-mix(in oklch, var(--bg-accent-solid) 5%, transparent)` |  |  |
+| `--bg-accent-light` | `color-mix(in oklch, var(--bg-accent-solid) 10%, transparent)` |  |  |
+| `--bg-accent` | `color-mix(in oklch, var(--bg-accent-solid) 20%, transparent)` |  |  |
+| `--bg-accent-solid` | `light-dark(var(--color-accent-700), var(--color-accent-500))` |  |  |
+| `--bg-accent-solid-hover` | `light-dark(var(--color-accent-800), var(--color-accent-600))` |  |  |
+| `--bg-accent-solid-light` | `light-dark(var(--color-accent-500), var(--color-accent-400))` |  |  |
+| `--bg-success` | `light-dark(color-mix(in oklch, var(--color-green-400) 60%, transparent), color-mix(in oklch, var(--color-green-400) 30%, transparent))` |  |  |
+| `--bg-success-soft` | `light-dark(color-mix(in oklch, var(--text-success) 12%, transparent), color-mix(in oklch, var(--text-success) 18%, transparent))` |  |  |
+| `--bg-success-solid` | `var(--text-success)` |  |  |
+| `--bg-warning-soft` | `light-dark(color-mix(in oklch, var(--text-warning) 12%, transparent), color-mix(in oklch, var(--text-warning) 18%, transparent))` |  |  |
+| `--bg-warning-solid` | `var(--text-warning)` |  |  |
+| `--bg-info-soft` | `light-dark(color-mix(in oklch, var(--text-info) 12%, transparent), color-mix(in oklch, var(--text-info) 18%, transparent))` |  |  |
+| `--bg-info-solid` | `var(--text-info)` |  |  |
+| `--bg-error` | `light-dark(color-mix(in oklch, var(--text-error) 15%, transparent), color-mix(in oklch, var(--text-error) 20%, transparent))` |  |  |
+| `--bg-error-soft` | `light-dark(color-mix(in oklch, var(--text-error) 12%, transparent), color-mix(in oklch, var(--text-error) 18%, transparent))` |  |  |
+| `--bg-error-solid` | `var(--text-error)` |  |  |
+| `--bg-accent-strong` | `color-mix(in oklch, var(--bg-accent-solid) 30%, transparent)` |  |  |
+| `--bg-highlight` | `light-dark(color-mix(in oklch, var(--bg-accent-solid) 15%, transparent), color-mix(in oklch, var(--bg-accent-solid) 30%, transparent))` |  |  |
+| `--bg-highlight-strong` | `light-dark(color-mix(in oklch, var(--bg-accent-solid) 30%, transparent), color-mix(in oklch, var(--bg-accent-solid) 50%, transparent))` |  |  |
+| `--bg-surface` | `light-dark(color-mix(in oklch, var(--color-black) 5%, transparent), color-mix(in oklch, var(--color-white) 5%, transparent))` |  |  |
+| `--bg-glass-subtle` | `color-mix(in oklch, var(--color-white) 5%, transparent)` |  |  |
+| `--bg-glass` | `color-mix(in oklch, var(--color-white) 10%, transparent)` |  |  |
+| `--bg-glass-strong` | `color-mix(in oklch, var(--color-white) 30%, transparent)` |  |  |
+| `--bg-overlay` | `color-mix(in oklch, var(--color-black) 50%, transparent)` |  |  |
+| `--gradient-accent` | `linear-gradient(135deg, var(--bg-accent-solid-light), var(--bg-accent-solid-hover))` |  |  |
+| `--gradient-accent-soft` | `linear-gradient(135deg, var(--bg-accent-solid-light), var(--bg-accent-solid))` |  |  |
+| `--gradient-neutral` | `linear-gradient(135deg, light-dark(var(--color-neutral-300), var(--color-neutral-700)), light-dark(var(--color-neutral-700), var(--color-neutral-300)))` |  |  |
+| `--bg-gradient-accent-vertical` | `linear-gradient( 180deg, color-mix(in oklch, var(--bg-accent-solid) 20%, transparent) 0%, color-mix(in oklch, var(--bg-accent-solid) 80%, transparent) 100% )` |  |  |
+| `--border-color-strong` | `var(--text-contrast)` |  |  |
+| `--border-color-default` | `color-mix(in oklch, var(--text-contrast) 50%, transparent)` |  |  |
+| `--border-color-light` | `color-mix(in oklch, var(--text-contrast) 30%, transparent)` |  |  |
+| `--border-color-solid` | `light-dark(var(--color-neutral-300), var(--color-neutral-700))` |  |  |
+| `--border-color-white` | `var(--color-white)` |  |  |
+| `--border-color-accent-light` | `color-mix(in oklch, var(--bg-accent-solid) 20%, transparent)` |  |  |
+| `--border-color-accent` | `color-mix(in oklch, var(--bg-accent-solid) 30%, transparent)` |  |  |
+| `--border-color-accent-strong` | `var(--bg-accent-solid)` |  |  |
+| `--border-color-ghost-light` | `color-mix(in oklch, var(--color-white) 10%, transparent)` |  |  |
+| `--border-color-ghost` | `color-mix(in oklch, var(--color-white) 20%, transparent)` |  |  |
+| `--border-color-white-muted` | `color-mix(in oklch, var(--color-white) 50%, transparent)` |  |  |
+| `--border-color-success` | `var(--text-success)` |  |  |
+| `--border-color-error` | `var(--text-error)` |  |  |
+| `--border-color-neutral-light` | `color-mix(in oklch, var(--text-contrast) 20%, transparent)` |  |  |
 | `--border-light` | `1px solid var(--border-color-light)` |  |  |
 | `--border-light-2` | `2px solid var(--border-color-light)` |  |  |
 | `--border-default` | `1px solid var(--border-color-default)` |  |  |
@@ -456,7 +461,7 @@
 
 ## `src/styles/globals/_component.css`
 
-토큰 60개
+토큰 118개
 
 | 토큰 | 값 |
 |---|---|
@@ -520,10 +525,68 @@
 | `--code-syntax-regexp` | `light-dark(oklch(55.00% 0.1557 263.15), oklch(70.53% 0.1170 245.09))` |
 | `--code-syntax-deletion` | `light-dark(oklch(60.05% 0.1983 26.06), oklch(65.39% 0.1926 25.14))` |
 | `--code-syntax-addition` | `light-dark(oklch(61.22% 0.1023 199.06), oklch(83.44% 0.1534 127.38))` |
+| `--calendar-label-red` | `var(--color-red-600)` |
+| `--calendar-label-orange` | `var(--color-orange-500)` |
+| `--calendar-label-yellow` | `var(--color-yellow-300)` |
+| `--calendar-label-green` | `var(--color-green-600)` |
+| `--calendar-label-blue` | `var(--color-blue-700)` |
+| `--calendar-label-indigo` | `var(--color-indigo-700)` |
+| `--calendar-label-violet` | `var(--color-violet-700)` |
+| `--cursor-trail-color` | `light-dark(var(--color-blue-600), var(--color-blue-400))` |
+| `--night-sky-star` | `light-dark(var(--color-neutral-700), var(--text-primary))` |
+| `--night-sky-streak-tail` | `light-dark(var(--color-neutral-700), transparent)` |
+| `--night-sky-cloud` | `light-dark(var(--color-neutral-400), color-mix(in oklch, var(--color-white) 90%, transparent))` |
+| `--night-sky-moon-edge` | `light-dark(var(--color-neutral-300), var(--color-neutral-700))` |
+| `--editor-text-red` | `var(--color-red-500)` |
+| `--editor-text-orange` | `var(--color-orange-500)` |
+| `--editor-text-green` | `var(--color-green-500)` |
+| `--editor-text-blue` | `var(--color-blue-500)` |
+| `--editor-text-purple` | `var(--color-violet-500)` |
+| `--editor-highlight-red` | `var(--color-red-200)` |
+| `--editor-highlight-orange` | `var(--color-orange-200)` |
+| `--editor-highlight-green` | `var(--color-green-200)` |
+| `--editor-highlight-blue` | `var(--color-blue-200)` |
+| `--editor-highlight-purple` | `var(--color-violet-200)` |
+| `--code-window-dot-red` | `#ff5f56` |
+| `--code-window-dot-red-edge` | `#e0443e` |
+| `--code-window-dot-yellow` | `#ffbd2e` |
+| `--code-window-dot-yellow-edge` | `#dea123` |
+| `--code-window-dot-green` | `#27c93f` |
+| `--code-window-dot-green-edge` | `#1aab29` |
+| `--http-method-get` | `var(--color-green-600)` |
+| `--http-method-post` | `var(--color-blue-600)` |
+| `--http-method-patch` | `oklch(76.86% 0.1647 70.08)` |
+| `--http-method-put` | `oklch(60% 0.15 300)` |
+| `--works-day-1` | `rgb(255 251 246)` |
+| `--works-day-2` | `rgb(250 240 234)` |
+| `--works-day-3` | `rgb(240 231 228)` |
+| `--works-dome-1` | `rgb(20 18 32)` |
+| `--works-dome-2` | `rgb(10 9 18)` |
+| `--works-dome-3` | `rgb(5 4 9)` |
+| `--works-dome-nebula-plum` | `rgb(52 30 62 / 55%)` |
+| `--works-dome-nebula-blue` | `rgb(24 40 62 / 50%)` |
+| `--works-petal-cool` | `rgb(247 200 214)` |
+| `--works-petal-warm` | `rgb(250 216 188)` |
+| `--works-sky-band-core` | `rgb(226 214 226 / 20%)` |
+| `--works-sky-band-mid` | `rgb(186 172 198 / 9%)` |
+| `--works-sky-band-edge` | `rgb(186 172 198 / 0%)` |
+| `--works-sky-core` | `rgb(246 238 232 / 26%)` |
+| `--works-sky-star` | `rgb(255 252 247)` |
+| `--works-sky-line` | `rgb(214 202 226 / 45%)` |
+| `--works-intro-petal` | `rgb(244 168 190 / 85%)` |
+| `--works-cylinder-stage` | `light-dark(oklch(97.34% 0.0169 76.11), var(--color-black))` |
+| `--nav-menu-bg` | `oklch(21.71% 0.0096 97.8)` |
+| `--about-design-panel-bg` | `oklch(14.48% 0 0)` |
+| `--picker-hue-default` | `oklch(62.8% 0.2577 29.23)` |
+| `--picker-oklch-hue-default` | `oklch(70% 0.2 30)` |
+| `--picker-gray` | `oklch(50% 0 0)` |
+| `--picker-checker` | `#ccc` |
+| `--picker-hue-stops-hsl` | `hsl(0, 100%, 50%) 0%, hsl(60, 100%, 50%) 16.67%, hsl(120, 100%, 50%) 33.33%, hsl(180, 100%, 50%) 50%, hsl(240, 100%, 50%) 66.67%, hsl(300, 100%, 50%) 83.33%, hsl(360, 100%, 50%) 100%` |
+| `--picker-hue-stops-oklch` | `oklch(62.8% 0.2577 29.23) 0%, oklch(96.8% 0.211 109.77) 17%, oklch(86.64% 0.2948 142.5) 33%, oklch(90.54% 0.1546 194.77) 50%, oklch(45.2% 0.3132 264.05) 67%, oklch(70.17% 0.3225 328.36) 83%, oklch(62.8% 0.2577 29.23) 100%` |
 
 ## `src/styles/globals/_legacy-aliases.css`
 
-토큰 60개
+토큰 76개
 
 | 토큰 | 값 |
 |---|---|
@@ -587,3 +650,49 @@
 | `--blur-2xl` | `var(--blur-24)` |
 | `--blur-3xl` | `var(--blur-40)` |
 | `--blur-4xl` | `var(--blur-60)` |
+| `--color-accent` | `var(--bg-accent-solid)` |
+| `--color-success` | `var(--text-success)` |
+| `--color-info` | `var(--text-info)` |
+| `--color-error` | `var(--text-error)` |
+| `--color-success-soft` | `var(--bg-success-soft)` |
+| `--color-info-soft` | `var(--bg-info-soft)` |
+| `--color-warning-soft` | `var(--bg-warning-soft)` |
+| `--color-error-soft` | `var(--bg-error-soft)` |
+| `--color-neutral-alpha-5` | `color-mix(in oklch, var(--text-contrast) 5%, transparent)` |
+| `--color-label-red` | `var(--calendar-label-red)` |
+| `--color-label-orange` | `var(--calendar-label-orange)` |
+| `--color-label-yellow` | `var(--calendar-label-yellow)` |
+| `--color-label-green` | `var(--calendar-label-green)` |
+| `--color-label-blue` | `var(--calendar-label-blue)` |
+| `--color-label-indigo` | `var(--calendar-label-indigo)` |
+| `--color-label-violet` | `var(--calendar-label-violet)` |
+
+## 대비
+
+역할 토큰 쌍의 WCAG 2 대비. 글자 4.5:1(1.4.3), 컨트롤 경계 · 그래픽 3:1(1.4.11). 반투명 색은 `--bg-primary` 위에 얹은 색으로 잰다.
+사이트 설정의 테마 색을 바꾸면 값이 달라진다 — 그때는 설정 화면의 대비 점검표가 잰다.
+
+| 글자 · 앞 | 배경 | 무엇 | 기준 | 라이트 | 다크 |
+|---|---|---|---|---|---|
+| `--text-primary` | `--bg-primary` | 본문 | 4.5 | 14.53 | 14.83 |
+| `--text-secondary` | `--bg-primary` | 보조 글 | 4.5 | 11.18 | 13.01 |
+| `--text-tertiary` | `--bg-primary` | 셋째 글 | 4.5 | 7.60 | 10.46 |
+| `--text-muted` | `--bg-primary` | 흐린 글 | 4.5 | 4.93 | 5.87 |
+| `--text-muted` | `--bg-secondary` | 흐린 글(둘째 면) | 4.5 | 4.54 | 5.30 |
+| `--text-accent` | `--bg-primary` | 강조 글 · 링크 | 4.5 | 5.00 | 5.68 |
+| `--text-on-accent` | `--bg-accent-solid` | 강조 면 위 글 | 4.5 | 5.41 | 6.86 |
+| `--text-inverse` | `--bg-inverse` | 뒤집힌 면 위 글 | 4.5 | 17.39 | 19.43 |
+| `--text-success-strong` | `--bg-primary` | 성공 글 | 4.5 | 4.97 | 9.98 |
+| `--text-warning-strong` | `--bg-primary` | 경고 글 | 4.5 | 5.01 | 8.51 |
+| `--text-info-strong` | `--bg-primary` | 정보 글 | 4.5 | 4.78 | 6.84 |
+| `--text-error-strong` | `--bg-primary` | 오류 글 | 4.5 | 5.89 | 6.29 |
+| `--text-success-strong` | `--bg-success-soft` | 성공 배지 | 4.5 | 4.38 ✗ | 6.79 |
+| `--text-warning-strong` | `--bg-warning-soft` | 경고 배지 | 4.5 | 4.53 | 5.93 |
+| `--text-info-strong` | `--bg-info-soft` | 정보 배지 | 4.5 | 4.06 ✗ | 5.05 |
+| `--text-error-strong` | `--bg-error-soft` | 오류 배지 | 4.5 | 4.92 | 4.74 |
+| `--text-success` | `--bg-primary` | 성공 점 · 막대(글자 아님) | 3 | 3.05 | 9.98 |
+| `--text-warning` | `--bg-primary` | 경고 점 · 막대(글자 아님) | 3 | 2.35 ✗ | 8.51 |
+| `--text-error` | `--bg-primary` | 오류 점 · 막대(글자 아님) | 3 | 4.47 | 6.29 |
+| `--border-color-strong` | `--bg-primary` | 컨트롤 경계(진한 테두리) | 3 | 16.09 | 16.09 |
+| `--border-color-default` | `--bg-primary` | 컨트롤 경계(기본 테두리) | 3 | 3.28 | 4.90 |
+| `--bg-accent-solid` | `--bg-primary` | 강조 면 · 포커스 | 3 | 5.00 | 5.68 |

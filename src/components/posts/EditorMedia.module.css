@@ -32,7 +32,7 @@
   height: 8px;
   width: 100%;
   /* 트랙 — 회색 대신 accent 옅은 톤 */
-  background: var(--color-accent-alpha-15);
+  background: color-mix(in oklch, var(--bg-accent-solid) 15%, transparent);
   border-radius: var(--radius-full);
   overflow: hidden;
 }
@@ -42,7 +42,7 @@
   position: relative;
   height: 100%;
   min-width: 8px;
-  background: var(--color-accent);
+  background: var(--bg-accent-solid);
   border-radius: var(--radius-full);
   overflow: hidden;
   transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
@@ -52,7 +52,7 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, transparent, var(--color-white-alpha-30), transparent);
+  background: linear-gradient(90deg, transparent, var(--bg-glass-strong), transparent);
   animation: mediaUploadSheen 1.7s ease-in-out infinite;
 }
 
@@ -69,7 +69,7 @@
   height: 100%;
   width: 100%;
   border-radius: var(--radius-full);
-  background: var(--color-accent-alpha-20);
+  background: var(--bg-accent);
   overflow: hidden;
 }
 
@@ -80,7 +80,7 @@
   bottom: 0;
   width: 40%;
   border-radius: var(--radius-full);
-  background: linear-gradient(90deg, transparent, var(--color-accent), transparent);
+  background: linear-gradient(90deg, transparent, var(--bg-accent-solid), transparent);
   animation: mediaUploadSweep 1.5s cubic-bezier(0.65, 0, 0.35, 1) infinite;
 }
 

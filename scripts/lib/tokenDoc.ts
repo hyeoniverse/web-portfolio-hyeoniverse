@@ -10,6 +10,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { converter, formatHex, parse, wcagContrast, type Color } from "culori";
 
 export const TOKEN_SOURCES = [
   "src/styles/tokens/_color.css",
@@ -71,6 +72,120 @@ const cell = (s: string) => `\`${s.replace(/`/g, "'").replace(/\|/g, "\\|")}\``;
 /* 다크 테마 자리 — [data-theme="dark"] 를 담은 선택자 */
 const isDark = (ctx: string) => /data-theme=["']?dark/.test(ctx);
 
+/* ── 대비 표(명세 3.1-4) — 역할 토큰 쌍(글자 × 배경)을 두 테마에서 잰다 ── */
+
+/** 대비를 잴 쌍 — [글자, 배경, 기준, 무엇] */
+const CONTRAST_PAIRS: [string, string, number, string][] = [
+  ["--text-primary", "--bg-primary", 4.5, "본문"],
+  ["--text-secondary", "--bg-primary", 4.5, "보조 글"],
+  ["--text-tertiary", "--bg-primary", 4.5, "셋째 글"],
+  ["--text-muted", "--bg-primary", 4.5, "흐린 글"],
+  ["--text-muted", "--bg-secondary", 4.5, "흐린 글(둘째 면)"],
+  ["--text-accent", "--bg-primary", 4.5, "강조 글 · 링크"],
+  ["--text-on-accent", "--bg-accent-solid", 4.5, "강조 면 위 글"],
+  ["--text-inverse", "--bg-inverse", 4.5, "뒤집힌 면 위 글"],
+  ["--text-success-strong", "--bg-primary", 4.5, "성공 글"],
+  ["--text-warning-strong", "--bg-primary", 4.5, "경고 글"],
+  ["--text-info-strong", "--bg-primary", 4.5, "정보 글"],
+  ["--text-error-strong", "--bg-primary", 4.5, "오류 글"],
+  ["--text-success-strong", "--bg-success-soft", 4.5, "성공 배지"],
+  ["--text-warning-strong", "--bg-warning-soft", 4.5, "경고 배지"],
+  ["--text-info-strong", "--bg-info-soft", 4.5, "정보 배지"],
+  ["--text-error-strong", "--bg-error-soft", 4.5, "오류 배지"],
+  ["--text-success", "--bg-primary", 3, "성공 점 · 막대(글자 아님)"],
+  ["--text-warning", "--bg-primary", 3, "경고 점 · 막대(글자 아님)"],
+  ["--text-error", "--bg-primary", 3, "오류 점 · 막대(글자 아님)"],
+  ["--border-color-strong", "--bg-primary", 3, "컨트롤 경계(진한 테두리)"],
+  ["--border-color-default", "--bg-primary", 3, "컨트롤 경계(기본 테두리)"],
+  ["--bg-accent-solid", "--bg-primary", 3, "강조 면 · 포커스"],
+];
+
+const toRgb = converter("rgb");
+
+/** 괄호 짝을 맞춰 함수 인자를 나눈다 */
+function args(s: string): string[] {
+  const out: string[] = [];
+  let depth = 0, cur = "";
+  for (const ch of s) {
+    if (ch === "(") depth++;
+    if (ch === ")") depth--;
+    if (ch === "," && depth === 0) { out.push(cur.trim()); cur = ""; } else cur += ch;
+  }
+  out.push(cur.trim());
+  return out;
+}
+
+/** 첫 함수 호출 `name(` 의 인자 범위 */
+function callAt(s: string, name: string): { start: number; end: number; inner: string } | null {
+  const i = s.indexOf(`${name}(`);
+  if (i < 0) return null;
+  let depth = 0;
+  for (let j = i + name.length; j < s.length; j++) {
+    if (s[j] === "(") depth++;
+    if (s[j] === ")" && --depth === 0) return { start: i, end: j + 1, inner: s.slice(i + name.length + 1, j) };
+  }
+  return null;
+}
+
+/** 토큰 값을 한 테마에서 실제 색으로 푼다 — var() 를 펴고, light-dark() 를 고르고, color-mix(… transparent) 를 투명도로 */
+function resolveColor(expr: string, mode: "light" | "dark", defs: Map<string, string>, depth = 0): Color | undefined {
+  if (depth > 20) return undefined;
+  let s = expr.trim();
+  for (let c; (c = callAt(s, "var")); ) {
+    const [name] = args(c.inner);
+    const v = defs.get(name);
+    if (v === undefined) return undefined;
+    s = s.slice(0, c.start) + v + s.slice(c.end);
+  }
+  for (let c; (c = callAt(s, "light-dark")); ) {
+    const [l, d] = args(c.inner);
+    s = s.slice(0, c.start) + (mode === "light" ? l : d) + s.slice(c.end);
+  }
+  const mix = callAt(s, "color-mix");
+  if (mix) {
+    const [, a, b] = args(mix.inner);
+    const m = /^(.*)\s+([\d.]+)%$/.exec(a);
+    if (!m || b !== "transparent") return undefined;
+    const base = resolveColor(m[1], mode, defs, depth + 1);
+    return base && { ...base, alpha: (base.alpha ?? 1) * (Number(m[2]) / 100) };
+  }
+  return parse(s);
+}
+
+/** 반투명 글자 · 배경은 아래 면(--bg-primary)에 얹은 색으로 잰다 */
+function over(c: Color, under: Color): Color {
+  const a = c.alpha ?? 1, f = toRgb(c)!, u = toRgb(under)!;
+  return { mode: "rgb", r: f.r * a + u.r * (1 - a), g: f.g * a + u.g * (1 - a), b: f.b * a + u.b * (1 - a) };
+}
+
+function contrastSection(root: string): string[] {
+  const defs = new Map<string, string>();
+  for (const rel of TOKEN_SOURCES) for (const d of parseTokens(fs.readFileSync(path.join(root, rel), "utf8"))) if (!d.context && !defs.has(d.name)) defs.set(d.name, d.value);
+  const lines = [
+    "## 대비",
+    "",
+    "역할 토큰 쌍의 WCAG 2 대비. 글자 4.5:1(1.4.3), 컨트롤 경계 · 그래픽 3:1(1.4.11). 반투명 색은 `--bg-primary` 위에 얹은 색으로 잰다.",
+    "사이트 설정의 테마 색을 바꾸면 값이 달라진다 — 그때는 설정 화면의 대비 점검표가 잰다.",
+    "",
+    "| 글자 · 앞 | 배경 | 무엇 | 기준 | 라이트 | 다크 |",
+    "|---|---|---|---|---|---|",
+  ];
+  for (const [fg, bg, min, what] of CONTRAST_PAIRS) {
+    const cellFor = (mode: "light" | "dark") => {
+      const page = resolveColor("var(--bg-primary)", mode, defs);
+      const b = resolveColor(`var(${bg})`, mode, defs);
+      const f = resolveColor(`var(${fg})`, mode, defs);
+      if (!page || !b || !f) return "?";
+      const back = over(b, page);
+      const r = wcagContrast(formatHex(over(f, back)), formatHex(back));
+      return `${r.toFixed(2)}${r >= min ? "" : " ✗"}`;
+    };
+    lines.push(`| ${cell(fg)} | ${cell(bg)} | ${what} | ${min} | ${cellFor("light")} | ${cellFor("dark")} |`);
+  }
+  lines.push("");
+  return lines;
+}
+
 /** docs/tokens.md 내용 */
 export function buildTokenDoc(root: string): string {
   const lines: string[] = [
@@ -106,5 +221,6 @@ export function buildTokenDoc(root: string): string {
     }
     lines.push("");
   }
+  lines.push(...contrastSection(root));
   return lines.join("\n");
 }

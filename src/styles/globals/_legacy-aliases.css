@@ -76,4 +76,23 @@
   --blur-2xl: var(--blur-24);
   --blur-3xl: var(--blur-40);
   --blur-4xl: var(--blur-60);
+
+  /* 색 — 2026-10 팔레트를 테마와 상관없이 고정하면서(이행 6단계) 테마마다 값이 바뀌던 옛 팔레트 이름을 지웠다.
+     에디터가 글에 저장하는 이름(콜아웃 바탕 · 파일 블록 아이콘 바탕 · 캘린더 상태색 · 링크 강조)만 역할로 잇는다. */
+  --color-accent: var(--bg-accent-solid);
+  --color-success: var(--text-success);
+  --color-info: var(--text-info);
+  --color-error: var(--text-error);
+  --color-success-soft: var(--bg-success-soft);
+  --color-info-soft: var(--bg-info-soft);
+  --color-warning-soft: var(--bg-warning-soft);
+  --color-error-soft: var(--bg-error-soft);
+  --color-neutral-alpha-5: color-mix(in oklch, var(--text-contrast) 5%, transparent);
+  --color-label-red: var(--calendar-label-red);
+  --color-label-orange: var(--calendar-label-orange);
+  --color-label-yellow: var(--calendar-label-yellow);
+  --color-label-green: var(--calendar-label-green);
+  --color-label-blue: var(--calendar-label-blue);
+  --color-label-indigo: var(--calendar-label-indigo);
+  --color-label-violet: var(--calendar-label-violet);
 }

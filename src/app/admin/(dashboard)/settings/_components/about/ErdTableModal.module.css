@@ -35,7 +35,7 @@
   outline: none;
 }
 .nameInput:focus {
-  border-color: var(--color-accent);
+  border-color: var(--border-color-accent-strong);
 }
 
 /* ── 컬럼 표 ── */
@@ -103,7 +103,7 @@
   outline: none;
 }
 .cell:focus {
-  box-shadow: inset 0 0 0 1px var(--color-accent);
+  box-shadow: inset 0 0 0 1px var(--border-color-accent-strong);
 }
 .pk {
   display: inline-flex;
@@ -252,7 +252,7 @@
   border-color: var(--border-color-light);
 }
 .typeSelect input:focus {
-  border-color: var(--color-accent);
+  border-color: var(--border-color-accent-strong);
 }
 /* combobox 지우개 제거 — 타입은 늘 값이 있는 칸이라 비울 일이 없다.
    화살표 옆에 x 가 하나 더 붙으면 무슨 버튼인지 읽히지도 않는다. */
@@ -280,11 +280,11 @@
 .invalid,
 .selectInvalid input,
 .selectInvalid button {
-  border-color: var(--color-accent);
+  border-color: var(--border-color-accent-strong);
 }
 .invalid:focus,
 .selectInvalid input:focus {
-  border-color: var(--color-accent);
+  border-color: var(--border-color-accent-strong);
 }
 
 /* 무엇이 빠졌는지 저장 버튼 근처에서 읽히게 */

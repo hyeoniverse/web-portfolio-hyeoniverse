@@ -314,5 +314,5 @@
 }
 
 .lenisBad {
-  color: var(--color-error);
+  color: var(--text-error);
 }

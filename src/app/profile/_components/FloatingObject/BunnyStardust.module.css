@@ -12,6 +12,6 @@
 }
 
 .grain {
-  fill: var(--color-accent);
+  fill: var(--text-accent);
   opacity: 0;
 }

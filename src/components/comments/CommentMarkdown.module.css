@@ -38,7 +38,7 @@
 .commentMarkdown del,
 .commentMarkdown s {
   text-decoration-line: line-through;
-  text-decoration-color: var(--color-accent);
+  text-decoration-color: var(--text-accent);
   text-decoration-thickness: 2px;
 }
 
@@ -233,7 +233,7 @@
   /* 텍스트 시작점을 리스트(padding-left xl)와 정렬 — bar+padding(md) 만큼 빼서 들여쓴다 */
   margin-left: calc(var(--spacing-24) - var(--spacing-16));
   padding-left: var(--spacing-16);
-  border-left: 2px solid var(--color-accent);
+  border-left: 2px solid var(--border-color-accent-strong);
   color: var(--text-secondary);
 }
 
@@ -329,23 +329,23 @@
 }
 
 .commentMarkdown .markdown-alert-note {
-  --_alert-color: var(--color-info);
+  --_alert-color: var(--text-info);
 }
 
 .commentMarkdown .markdown-alert-tip {
-  --_alert-color: var(--color-success);
+  --_alert-color: var(--text-success);
 }
 
 .commentMarkdown .markdown-alert-important {
-  --_alert-color: var(--color-accent);
+  --_alert-color: var(--bg-accent-solid);
 }
 
 .commentMarkdown .markdown-alert-warning {
-  --_alert-color: var(--color-warning);
+  --_alert-color: var(--text-warning);
 }
 
 .commentMarkdown .markdown-alert-caution {
-  --_alert-color: var(--color-error);
+  --_alert-color: var(--text-error);
 }
 
 /* ── GitHub 각주(Footnotes) — 본문 [^1] 참조 + 하단 목록 ── */
