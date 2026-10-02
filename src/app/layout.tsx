@@ -37,11 +37,16 @@ import { SYMBOL_FONT_FAMILY, SYMBOL_FONT_UNICODE_RANGE } from "@/config/symbolFo
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
+/** 탭 아이콘 주소에 붙일 버전 — 아이콘은 브랜드 설정으로 그리니(/api/favicon) 그 값이 바뀔 때만 바뀐다.
+ *  주소가 바뀌어야 브라우저가 들고 있던 예전 아이콘(캐시 1시간 · 사파리는 더 오래)을 버리고 새로 받는다 */
+function faviconVersion(brand: unknown): string {
+  return createHash("sha1").update(JSON.stringify(brand ?? {})).digest("hex").slice(0, 8);
+}
+
 export async function generateMetadata(): Promise<Metadata> {
   const cfg = await getSiteConfig();
   const siteName = cfg.metadata.title || "Hyeoniverse";
-  /* 탭 아이콘 주소에 붙일 버전 — 아이콘은 브랜드 설정으로 그리니(/api/favicon) 그 값이 바뀔 때만 바뀐다 */
-  const iconV = createHash("sha1").update(JSON.stringify(cfg.brand ?? {})).digest("hex").slice(0, 8);
+  const iconV = faviconVersion(cfg.brand);
   return {
     title: {
       default: siteName,
@@ -169,7 +174,7 @@ export default async function RootLayout({
       <body>
         <SiteConfigProvider initialConfig={toSiteWideConfig(config)} publicKeys={publicKeys}>
           <ThemeProvider>
-            <FaviconSync />
+            <FaviconSync version={faviconVersion(config.brand)} />
             <LanguageProvider>
               <RecaptchaProvider>
                 <LenisProvider>
