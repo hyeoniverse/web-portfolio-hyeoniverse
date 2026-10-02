@@ -35,12 +35,17 @@ export default function FaviconSync() {
     const applyFavicon = (version: string = readVersion()) => {
       const variant = mq.matches ? "dark" : "light";
       const href = `/api/favicon?variant=${variant}${version ? `&v=${version}` : ""}`;
-      document.querySelectorAll('link[rel="icon"]').forEach((l) => l.remove());
-      const link = document.createElement("link");
-      link.rel = "icon";
-      link.type = "image/svg+xml";
+      /* 서버 HTML 의 PNG 링크(metadata.icons — 사파리용)는 Next 가 관리하므로 건드리지 않고, 내가 넣은 것만 바꾼다.
+         나중에 붙은 링크를 쓰는 브라우저(크롬 · 파이어폭스)는 이 SVG 를 쓴다 */
+      let link = document.head.querySelector<HTMLLinkElement>("link[data-favicon-sync]");
+      if (!link) {
+        link = document.createElement("link");
+        link.rel = "icon";
+        link.type = "image/svg+xml";
+        link.dataset.faviconSync = "";
+        document.head.appendChild(link);
+      }
       link.href = href;
-      document.head.appendChild(link);
     };
 
     /** 설정을 저장했다 — 새 주소로 갈아탄다. 저장소에 못 적더라도 이번 적용은 새 값으로 간다 */

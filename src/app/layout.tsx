@@ -64,7 +64,14 @@ export async function generateMetadata(): Promise<Metadata> {
       index: true,
       follow: true,
     },
-    // icons 는 FaviconSync (client) 가 브라우저 prefers-color-scheme 에 맞춰 동적 교체 — metadata 에선 미설정
+    /* 서버 HTML 의 탭 아이콘 — 사파리가 쓰는 것. 사파리는 페이지가 뜬 뒤 JS 로 넣은 아이콘을 따르지 않고 SVG 를 못 그리는
+       버전도 있어, 처음부터 PNG 를 걸어 둔다. 다른 브라우저는 FaviconSync(client)가 그 위에 SVG 를 얹어 바꾼다 */
+    icons: {
+      icon: [
+        { url: "/api/favicon?variant=light&format=png", type: "image/png", sizes: "64x64", media: "(prefers-color-scheme: light)" },
+        { url: "/api/favicon?variant=dark&format=png", type: "image/png", sizes: "64x64", media: "(prefers-color-scheme: dark)" },
+      ],
+    },
   };
 }
 
@@ -144,7 +151,7 @@ export default async function RootLayout({
       suppressHydrationWarning
       className={`${inter.variable} ${playfair.variable} ${jetbrains.variable} ${spaceGrotesk.variable} ${instrumentSerif.variable} ${notoSerifKr.variable}`}
     >
-      {/* favicon — FaviconSync(client) 가 브라우저 prefers-color-scheme 에 맞춰 /api/favicon 을 건다 */}
+      {/* favicon — 서버 HTML 에는 PNG(metadata.icons), 그 위에 FaviconSync(client)가 prefers-color-scheme 에 맞춰 SVG 를 건다 */}
 
       {/* 로고 기호 글꼴 — 브랜드 글꼴에 ✦ 같은 기호가 없어 탭 아이콘과 로고가 서로 다른 모양이던 것을
           같은 글꼴로 맞춘다(#1048). unicode-range 에 걸리는 기호를 실제로 쓸 때만 내려받는다 */}
