@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import ProgressiveImage from "@/components/ui/ProgressiveImage";
 import { measureImageTone } from "@/lib/imageTone";
 import { isVideoUrl } from "@/lib/isVideoUrl";
-import { useNavBackdropStore } from "@/stores/navBackdropStore";
 import styles from "./DetailLayout.module.css";
 
 /* nav 로고가 앉는 커버 구역(비율) — 왼쪽 위. 그 위에 깔린 검은 막(heroOverlay 위쪽 25% → 0)의 평균만큼 어둡게 본다 */
@@ -24,47 +23,21 @@ export interface DetailHeroProps {
 
 /** 상세 페이지 맨 위의 커버. DetailLayout 이 그리거나, 상세 경로의 레이아웃이 셸에서 그린다(DetailShell) */
 export default function DetailHero({ image, alt = "", position = 50, zoom = 1, onError }: DetailHeroProps) {
-  const heroRef = useRef<HTMLDivElement>(null);
-  const setHeroTone = useNavBackdropStore((s) => s.setHeroTone);
-  const setOverHero = useNavBackdropStore((s) => s.setOverHero);
-
-  /* nav 로고 뒤 배경 알리기 — 이 커버 윗부분이 어두운지 재고(stores/navBackdropStore), 스크롤하며 커버가
-     아직 로고 밑에 있는지 알린다. 업로드 이미지 로고가 어두운 커버 위에서 묻히지 않게 nav 가 변형을 고른다 */
+  /* nav 로고 밑 밝기 — 이 커버 윗부분이 어두운지 검은 막까지 셈해 재고 data-nav-tone 으로 적어 둔다.
+     nav 는 로고 밑 요소를 직접 재는데(lib/navBackdrop), 이 커버는 그 위에 막이 깔려 있어 스스로 잰 값이 더 맞다 */
+  const [tone, setTone] = useState<"dark" | "light" | null>(null);
   useEffect(() => {
     let alive = true;
-    setHeroTone(null);
     if (!isVideoUrl(image)) {
-      void measureImageTone(image, LOGO_REGION, LOGO_REGION_DIM).then((tone) => { if (alive) setHeroTone(tone); });
+      void measureImageTone(image, LOGO_REGION, LOGO_REGION_DIM).then((t) => { if (alive) setTone(t); });
     }
-    return () => { alive = false; setHeroTone(null); };
-  }, [image, setHeroTone]);
-
-  useEffect(() => {
-    let frame = 0;
-    const update = () => {
-      frame = 0;
-      const el = heroRef.current;
-      if (!el) return;
-      /* 로고 한가운데 높이(nav 높이의 절반)가 아직 커버 안인가 */
-      const header = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--header-height")) || 64;
-      setOverHero(el.getBoundingClientRect().bottom > header / 2);
-    };
-    const onScroll = () => { if (!frame) frame = requestAnimationFrame(update); };
-    update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    return () => {
-      if (frame) cancelAnimationFrame(frame);
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-      setOverHero(false);
-    };
-  }, [setOverHero]);
+    return () => { alive = false; };
+  }, [image]);
 
   return (
     <motion.div
-      ref={heroRef}
       className={styles.hero}
+      data-nav-tone={tone ?? undefined}
       /* 서버 HTML 부터 보이게 둔다(#911). opacity 0 에서 시작하면 커버가 하이드레이션 뒤 페이드가 끝날 때까지 안 보여,
          이미 받아 둔 이미지를 느린 회선에서 몇 초씩 감추고 LCP 도 그만큼 늦었다. 카드에서 넘어오는 전환은 원래 1 에서
          시작했다. ProgressiveImage 의 priority 처리와 같은 이유다 */
