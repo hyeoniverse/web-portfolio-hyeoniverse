@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import type React from "react";
+import { createHash } from "node:crypto";
 import "@/styles/layers.css"; // 층 순서 선언 — 반드시 첫 CSS import(docs/design-system.md 4-2)
 import "@/styles/global.css";
 /* 한글 본문·UI 폰트 — 라틴 웹폰트들엔 한글 글리프가 없어 OS 기본 글꼴(맥 애플고딕/윈도우 맑은고딕)로
@@ -39,6 +40,8 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 export async function generateMetadata(): Promise<Metadata> {
   const cfg = await getSiteConfig();
   const siteName = cfg.metadata.title || "Hyeoniverse";
+  /* 탭 아이콘 주소에 붙일 버전 — 아이콘은 브랜드 설정으로 그리니(/api/favicon) 그 값이 바뀔 때만 바뀐다 */
+  const iconV = createHash("sha1").update(JSON.stringify(cfg.brand ?? {})).digest("hex").slice(0, 8);
   return {
     title: {
       default: siteName,
@@ -65,15 +68,16 @@ export async function generateMetadata(): Promise<Metadata> {
       follow: true,
     },
     /* 서버 HTML 의 탭 아이콘 — 사파리가 쓰는 것. 사파리는 페이지가 뜬 뒤 JS 로 넣은 아이콘을 따르지 않고 SVG 를 못 그리는
-       버전도 있어, 처음부터 PNG 를 걸어 둔다. 다른 브라우저는 FaviconSync(client)가 그 위에 SVG 를 얹어 바꾼다 */
+       버전도 있어, 처음부터 PNG 를 걸어 둔다. 다른 브라우저는 FaviconSync(client)가 그 위에 SVG 를 얹어 바꾼다.
+       사파리는 받은 아이콘을 주소별로 오래 붙잡아 두므로, 브랜드 설정이 바뀌면 v 가 바뀌어 새 주소로 다시 받게 한다 */
     icons: {
       icon: [
-        { url: "/api/favicon?variant=light&format=png", type: "image/png", sizes: "64x64", media: "(prefers-color-scheme: light)" },
-        { url: "/api/favicon?variant=dark&format=png", type: "image/png", sizes: "64x64", media: "(prefers-color-scheme: dark)" },
+        { url: `/api/favicon?variant=light&format=png&v=${iconV}`, type: "image/png", sizes: "64x64", media: "(prefers-color-scheme: light)" },
+        { url: `/api/favicon?variant=dark&format=png&v=${iconV}`, type: "image/png", sizes: "64x64", media: "(prefers-color-scheme: dark)" },
       ],
       /* media 를 안 따르는 브라우저용 — 라이트 아이콘(/favicon.ico · /apple-touch-icon.png 은 next.config 에서 /api/favicon 으로) */
-      shortcut: "/favicon.ico",
-      apple: { url: "/apple-touch-icon.png", sizes: "180x180" },
+      shortcut: `/favicon.ico?v=${iconV}`,
+      apple: { url: `/apple-touch-icon.png?v=${iconV}`, sizes: "180x180" },
     },
   };
 }
