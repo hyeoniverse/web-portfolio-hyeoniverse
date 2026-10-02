@@ -42,7 +42,7 @@
    * 424 + 55 곳에서 쓰이고 있었다. 관리 화면 전체가 읽기 힘든 원인이었다.
    * 그래서 아래 세 칸을 끌어올렸다 — 10→12, 8→11, 12→13.
    *
-   *   3xs 11px  →  --font-size-micro   없애는 중 — 새로 쓰지 않는다(docs/design-system.md 3.3-2)
+   *   3xs 11px  →  --font-size-micro   없애는 중 — 새로 쓰지 않는다(docs/design-system.md 3.2-2)
    *   2xs 12px  →  --font-size-hint    **가장 작은 글자.** 힌트·뱃지·메타·카운터
    *   xs  13px  →  --font-size-label   필드 라벨·버튼
    *   sm  14px  →  --font-size-body    본문·입력값·목록 항목

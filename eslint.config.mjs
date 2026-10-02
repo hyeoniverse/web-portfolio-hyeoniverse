@@ -11,7 +11,7 @@ const eslintConfig = [
   ...typescript,
   {
     rules: {
-      // 글자 크기·모서리 눈금 이름 금지 (docs/design-system.md 3.3-1 · 3.5-1).
+      // 글자 크기·모서리 눈금 이름 금지 (docs/design-system.md 3.2-2 · 3.5-1).
       // stylelint 가 .css 를 막지만 인라인 style·직렬화 문자열은 못 본다 — 여기서 같은 규칙을 건다.
       /* <button> 은 type 을 반드시 적는다. HTML 기본값이 submit 이라, 폼 안에서
          type 을 빠뜨린 버튼은 클릭 시 폼을 제출한다. */
