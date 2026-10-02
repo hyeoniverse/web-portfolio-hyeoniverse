@@ -374,8 +374,8 @@ export function EquationElement(props: PlateElementProps) {
     <PlateElement {...props} as="div"
       style={{
         ...props.style, position: "relative", textAlign: "center",
-        background: "var(--bg-tertiary)", borderRadius: "var(--radius-2xl)",
-        padding: "var(--spacing-sm) var(--spacing-md)",
+        background: "var(--bg-tertiary)", borderRadius: "var(--radius-24)",
+        padding: "var(--spacing-12) var(--spacing-16)",
       }}
       className="math-element-wrap"
     >
@@ -482,8 +482,8 @@ export function InlineEquationElement(props: PlateElementProps) {
       style={{
         ...props.style, position: "relative", background: "var(--bg-tertiary)",
         ...(editing
-          ? { display: "block", padding: "var(--spacing-sm) var(--spacing-md)", borderRadius: "var(--radius-2xl)" }
-          : { display: "inline-flex", alignItems: "center", verticalAlign: "middle", padding: "4px 10px", minWidth: 60, minHeight: 32, borderRadius: "var(--radius-sm, 4px)" }),
+          ? { display: "block", padding: "var(--spacing-12) var(--spacing-16)", borderRadius: "var(--radius-24)" }
+          : { display: "inline-flex", alignItems: "center", verticalAlign: "middle", padding: "4px 10px", minWidth: 60, minHeight: 32, borderRadius: "var(--radius-6, 4px)" }),
       }}
       className="math-element-wrap"
     >

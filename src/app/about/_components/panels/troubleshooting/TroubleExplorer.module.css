@@ -18,8 +18,8 @@
   flex: none;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-xs) var(--spacing-md);
+  gap: var(--spacing-8);
+  padding: var(--spacing-8) var(--spacing-16);
   min-height: var(--_ide-top-row-h);
   box-sizing: border-box;
   font-family: var(--font-mono);
@@ -31,7 +31,7 @@
   border-bottom: 1px solid
     color-mix(in srgb, var(--text-secondary) 12%, transparent);
   white-space: nowrap;
-  --_ide-top-row-h: calc(var(--font-size-label) * 1.6 + var(--spacing-xs) * 2);
+  --_ide-top-row-h: calc(var(--font-size-label) * 1.6 + var(--spacing-8) * 2);
 }
 
 /* Filter 버튼 + dropdown menu */
@@ -51,7 +51,7 @@
   background: transparent;
   color: var(--text-tertiary);
   cursor: pointer;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   transition:
     background-color 0.15s ease,
     color 0.15s ease;
@@ -74,11 +74,11 @@
   display: flex;
   flex-direction: column;
   min-width: 140px;
-  padding: var(--spacing-xs);
+  padding: var(--spacing-8);
   /* 투명 + backdrop blur */
   backdrop-filter: blur(8px);
   border: 1px solid color-mix(in srgb, var(--text-secondary) 18%, transparent);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   box-shadow: 0 4px 16px oklch(0.00% 0.0000 0.00 / 0.18);
   font-family: var(--_font-grotesk);
   font-size: var(--font-size-label);
@@ -90,12 +90,12 @@
 .ideExplorerFilterMenuItem {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
-  padding: var(--row-p-sm);
+  gap: var(--spacing-4);
+  padding: var(--row-padding-sm);
   border: none;
   background: transparent;
   /* hover bg = capsule */
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   font: inherit;
   color: inherit;
   text-align: left;
@@ -125,7 +125,7 @@
   flex: 1 1 0;
   overflow-y: auto;
   scrollbar-width: none;
-  padding-bottom: var(--spacing-xl);
+  padding-bottom: var(--spacing-24);
 }
 
 .troubleListScroll::-webkit-scrollbar {
@@ -138,9 +138,9 @@
 .troubleListItem {
   display: flex;
   flex: none;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   align-items: center;
-  padding: var(--row-p-md);
+  padding: var(--row-padding-md);
   font-size: var(--font-size-label);
   border: none;
   cursor: pointer;
@@ -154,7 +154,7 @@
 .ideExplorerFileTooltip {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   max-width: 280px;
 }
 
@@ -177,9 +177,9 @@
 .ideExplorerFileTooltipDifficulty {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
-  margin-top: var(--spacing-xs);
-  padding-top: var(--spacing-xs);
+  gap: var(--spacing-4);
+  margin-top: var(--spacing-8);
+  padding-top: var(--spacing-8);
   border-top: 1px solid color-mix(in srgb, currentColor 18%, transparent);
 }
 
@@ -283,7 +283,7 @@
 .troubleListBadges {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   margin-left: auto;
   flex-shrink: 0;
 }
@@ -301,10 +301,10 @@
 .troubleSectionLabel {
   display: flex;
   flex: none;
-  padding: var(--spacing-xs) var(--spacing-sm);
+  padding: var(--spacing-8) var(--spacing-12);
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   font-family: var(--font-mono);
   font-size: var(--font-size-label);
   font-weight: var(--font-weight-semibold);
@@ -327,7 +327,7 @@
 .troubleSectionFolder {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 .ideExplorerChevron {
@@ -344,17 +344,17 @@
 .ideExplorerFolderIcon {
   flex: none;
   color: var(--text-accent);
-  margin-right: var(--spacing-3xs);
+  margin-right: var(--spacing-2);
 }
 
 /* 첫 섹션 위 추가 padding 제거 */
 .troubleListScroll > .troubleSectionLabel:first-child {
-  padding-top: var(--spacing-sm);
+  padding-top: var(--spacing-12);
 }
 
 /* 같은 섹션의 모든 item 들은 그룹 indent — 헤더 아래 묶여 있는 느낌 */
 .troubleListItemGrouped {
-  padding-left: var(--spacing-md);
+  padding-left: var(--spacing-16);
 }
 
 /* 섹션 항목 개수 — 헤더 우측에 작게 */
@@ -364,8 +364,8 @@
   justify-content: center;
   min-width: 20px;
   height: 18px;
-  padding: 0 var(--spacing-xs);
-  border-radius: var(--radius-capsule);
+  padding: 0 var(--spacing-8);
+  border-radius: var(--radius-full);
   background: var(--bg-tertiary);
   color: var(--text-secondary);
   font-family: var(--font-space-grotesk);

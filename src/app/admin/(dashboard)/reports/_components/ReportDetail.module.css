@@ -2,14 +2,14 @@
 .body {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-lg);
-  padding: var(--spacing-md) var(--spacing-lg);
+  gap: var(--spacing-20);
+  padding: var(--spacing-16) var(--spacing-20);
 }
 
 .head {
   display: flex;
   align-items: flex-start;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 .icon {
@@ -17,8 +17,8 @@
   align-items: center;
   justify-content: center;
   flex: 0 0 auto;
-  width: var(--size-md);
-  height: var(--size-md);
+  width: var(--size-38);
+  height: var(--size-38);
   border-radius: var(--radius-circle);
   background: var(--bg-warning-soft);
   color: var(--text-warning-strong);
@@ -27,7 +27,7 @@
 .headText {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   min-width: 0;
 }
 
@@ -40,7 +40,7 @@
 .title {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   flex-wrap: wrap;
   margin: 0;
   font-family: var(--font-space-grotesk);
@@ -51,8 +51,8 @@
 }
 
 .deletedBadge {
-  padding: var(--badge-p-md);
-  border-radius: var(--radius-capsule);
+  padding: var(--badge-padding-md);
+  border-radius: var(--radius-full);
   background: var(--bg-secondary);
   font-size: var(--font-size-hint);
   font-weight: var(--font-weight-regular);
@@ -64,7 +64,7 @@
 .comment {
   position: relative;
   margin: 0;
-  padding-left: var(--spacing-xl);
+  padding-left: var(--spacing-24);
   font-size: var(--font-size-body);
   line-height: 1.6;
   color: var(--text-secondary);
@@ -78,7 +78,7 @@
   top: -0.15em;
   left: 0;
   font-family: var(--font-serif);
-  font-size: var(--font-size-3xl);
+  font-size: var(--font-size-32);
   line-height: 1;
   color: var(--text-tertiary);
   pointer-events: none;
@@ -87,14 +87,14 @@
 .meta {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   margin: 0;
 }
 
 .metaRow {
   display: grid;
   grid-template-columns: minmax(0, 7rem) minmax(0, 1fr);
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   font-size: var(--font-size-label);
 }
 
@@ -111,8 +111,8 @@
 .statusChip {
   display: inline-flex;
   align-items: center;
-  padding: var(--badge-p-md);
-  border-radius: var(--radius-capsule);
+  padding: var(--badge-padding-md);
+  border-radius: var(--radius-full);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-hint);
   font-weight: var(--font-weight-semibold);

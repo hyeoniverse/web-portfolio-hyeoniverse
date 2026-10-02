@@ -2,7 +2,7 @@
 .busyOverlay {
   position: absolute;
   inset: 0;
-  z-index: var(--z-nav);
+  z-index: var(--z-index-nav);
   background: var(--bg-overlay);
   display: flex;
   align-items: center;
@@ -25,7 +25,7 @@
 
 /* ── Series Section ── */
 .seriesSection {
-  margin-bottom: var(--spacing-2xl);
+  margin-bottom: var(--spacing-32);
 }
 
 .seriesRowLink {
@@ -33,37 +33,37 @@
   min-width: 0;
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
-  padding: var(--row-p-sm);
+  gap: var(--spacing-16);
+  padding: var(--row-padding-sm);
   text-decoration: none;
   color: inherit;
 }
 
 .seriesRowCat {
-  padding: var(--row-p-sm);
+  padding: var(--row-padding-sm);
   background: var(--bg-tertiary);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   font-size: var(--font-size-hint);
 }
 
 /* 배경·글꼴·hover 는 Button(link)이 준다. 여기서는 자리만 잡는다. */
 .seriesNewBtn {
-  margin-top: var(--spacing-xs);
+  margin-top: var(--spacing-8);
 }
 
 @media (max-width: 768px) {
   .seriesRowLink {
     flex-direction: column;
     align-items: flex-start;
-    gap: var(--spacing-2xs);
+    gap: var(--spacing-4);
   }
 }
 
 /* ── Trash Section ── */
 .trashSection {
-  margin-top: var(--spacing-2xl);
+  margin-top: var(--spacing-32);
   border-top: var(--border-light);
-  padding-top: var(--spacing-md);
+  padding-top: var(--spacing-16);
 }
 
 
@@ -74,7 +74,7 @@
 
 /* ── Upload Guide Modal ── */
 .uploadGuide {
-  padding: 0 var(--spacing-xl) var(--spacing-xl) var(--spacing-2xl);
+  padding: 0 var(--spacing-24) var(--spacing-24) var(--spacing-32);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-body);
   color: var(--text-secondary);
@@ -82,36 +82,36 @@
 }
 
 .uploadGuide ul {
-  margin: 0 0 var(--spacing-xs) 0;
-  padding-left: var(--spacing-lg);
+  margin: 0 0 var(--spacing-8) 0;
+  padding-left: var(--spacing-20);
   list-style: disc;
 }
 
 .uploadGuide li {
-  margin-bottom: var(--spacing-3xs);
+  margin-bottom: var(--spacing-2);
 }
 
 .uploadGuide h4 {
   font-size: var(--font-size-body);
   font-weight: 600;
   color: var(--text-primary);
-  margin: var(--spacing-md) 0 var(--spacing-xs);
+  margin: var(--spacing-16) 0 var(--spacing-8);
 }
 
 .uploadGuide p {
-  margin: 0 0 var(--spacing-xs) 0;
+  margin: 0 0 var(--spacing-8) 0;
 }
 
 .uploadGuide table {
   width: 100%;
   border-collapse: collapse;
   font-size: var(--font-size-label);
-  margin: var(--spacing-xs) 0;
+  margin: var(--spacing-8) 0;
 }
 
 .uploadGuide th,
 .uploadGuide td {
-  padding: var(--cell-p-sm);
+  padding: var(--cell-padding-sm);
   border-bottom: var(--border-light);
   text-align: left;
 }
@@ -123,10 +123,10 @@
 
 .uploadGuide pre {
   background: var(--bg-tertiary);
-  border-radius: var(--radius-2xl);
-  padding: var(--spacing-sm);
+  border-radius: var(--radius-24);
+  padding: var(--spacing-12);
   overflow-x: auto;
-  margin: var(--spacing-xs) 0;
+  margin: var(--spacing-8) 0;
 }
 
 .uploadGuide code {
@@ -145,8 +145,8 @@
 .seriesDeleteModal {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
-  padding: 0 var(--spacing-xl) var(--spacing-xl);
+  gap: var(--spacing-16);
+  padding: 0 var(--spacing-24) var(--spacing-24);
 }
 
 .seriesDeleteHint {
@@ -159,7 +159,7 @@
 .seriesDeleteCheck {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   color: var(--text-secondary);
@@ -168,5 +168,5 @@
 .seriesDeleteActions {
   display: flex;
   justify-content: flex-end;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }

@@ -5,7 +5,7 @@
 .field {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   min-width: 0;
 }
 
@@ -13,7 +13,7 @@
 .labelRow {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   justify-content: space-between;
 }
 
@@ -21,7 +21,7 @@
 .inlineActions {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 /* 클래스를 두 번 적어 (0,2,0) 으로 올린다 — Button 의 variant 규칙과 특이도가 같으면
@@ -31,9 +31,9 @@
 .inlineBtn.inlineBtn {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   border: none;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-weight: 500;
@@ -60,7 +60,7 @@
 .previewRow {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   flex-wrap: wrap;
 }
 
@@ -81,10 +81,10 @@
   display: inline-flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--spacing-2xs);
-  padding: var(--spacing-2xs) var(--spacing-xs);
+  gap: var(--spacing-4);
+  padding: var(--spacing-4) var(--spacing-8);
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   max-width: 100%;
   min-width: 0;
 }
@@ -105,7 +105,7 @@
   padding: 0;
   border: none;
   background: transparent;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   cursor: pointer;
   flex-shrink: 0;
   transition: background 0.15s ease, color 0.15s ease;
@@ -128,7 +128,7 @@
   color: var(--text-tertiary);
   background: var(--bg-primary);
   border-radius: var(--radius-circle);
-  padding: var(--spacing-4xs);
+  padding: var(--spacing-1);
   transition: color 0.15s ease;
 }
 
@@ -164,7 +164,7 @@
   height: 100%;
   aspect-ratio: 16 / 9;
   object-fit: cover;
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   border: var(--border-light);
 }
 
@@ -182,13 +182,13 @@
 /* Upload + Choose 버튼 row */
 .actions {
   display: flex;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   flex-wrap: wrap;
 }
 
 /* 버튼 안 아이콘 + 텍스트 가로 정렬 */
 .actions > button {
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 /* 버튼 안 텍스트 swap 애니메이션 wrapper */
@@ -212,13 +212,13 @@
 
 /* URL paste input (옵션) */
 .urlInput {
-  margin-top: var(--spacing-xs);
+  margin-top: var(--spacing-8);
   width: 100%;
 }
 
 /* 보조 hint */
 .hint {
-  margin-top: var(--spacing-xs);
+  margin-top: var(--spacing-8);
   font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   font-family: var(--font-space-grotesk);

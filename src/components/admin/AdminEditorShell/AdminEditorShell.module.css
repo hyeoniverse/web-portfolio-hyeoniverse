@@ -1,9 +1,9 @@
 /* ── Shared Admin Editor Shell ── */
 .container {
-  max-width: var(--page-max-width);
+  max-width: var(--width-page-max);
   margin: 0 auto;
   /* 커버(coverSlot)가 nav 바로 아래 최상단에 오므로 상단 패딩은 0 — 커버가 nav 와 자연스럽게 flush */
-  padding: 0 var(--page-px) var(--spacing-3xl);
+  padding: 0 var(--spacing-page-inline) var(--spacing-48);
 }
 
 /* ── Top Bar ──
@@ -15,12 +15,12 @@
   /* 전역 Navigation(고정, top:0, 높이 --header-height) 바로 아래에 붙음 */
   top: var(--header-height);
   /* nav 보다 한 단계 아래 — frost 가 nav 뒤로 깔리고 nav 가 그 위에 보이도록 */
-  z-index: calc(var(--z-nav) - 1);
+  z-index: calc(var(--z-index-nav) - 1);
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
-  /* 좌우 패딩은 .container 가 이미 --page-px 로 줌 → 세로만 */
-  padding: var(--spacing-md) 0;
+  gap: var(--spacing-12);
+  /* 좌우 패딩은 .container 가 이미 --spacing-page-inline 로 줌 → 세로만 */
+  padding: var(--spacing-16) 0;
   /* 아래로 스크롤 시 접힘(translateY), 위로 스크롤 시 펼침 */
   transition: transform var(--duration-base) ease;
   will-change: transform;
@@ -34,8 +34,8 @@
   content: "";
   position: absolute;
   top: calc(-1 * var(--header-height));
-  left: calc(-1 * var(--page-px));
-  right: calc(-1 * var(--page-px));
+  left: calc(-1 * var(--spacing-page-inline));
+  right: calc(-1 * var(--spacing-page-inline));
   bottom: 0;
   z-index: -1;
   background: var(--bg-glass);
@@ -87,7 +87,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
   /* 좁은 viewport 에서 겹침 방지 — wrap 으로 자동 줄바꿈 */
   flex-wrap: wrap;
 }
@@ -97,7 +97,7 @@
   display: inline-flex;
   align-items: center;
   flex-wrap: nowrap;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 /* 발행 상태 chip 은 공통 <StatusBadge> 컴포넌트로 이관됨 */
@@ -107,7 +107,7 @@
   display: inline-flex;
   align-items: center;
   flex-wrap: nowrap;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 .topBarRow:last-child {
@@ -116,7 +116,7 @@
 
 .topBarActions {
   display: flex;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   align-items: center;
   /* flex:1 로 row 의 우측 영역 차지 → 안쪽 .actionGroup 의 space-between 가 작동.
    * (모바일에선 .navGroup width:100% 가 wrap 트리거 → .topBarActions 다음 줄로 떨어짐) */
@@ -131,12 +131,12 @@
   background: var(--border-color-light);
 }
 
-/* ── Action Buttons — 다른 form control 들과 동일한 height (--size-sm = 32px) 로 통일.
+/* ── Action Buttons — 다른 form control 들과 동일한 height (--size-32 = 32px) 로 통일.
    Button 컴포넌트의 size-sm(36px) override 위해 specificity 높임. */
 .saveBtn.saveBtn,
 .publishBtn.publishBtn {
   height: 28px;
-  padding: 0 var(--spacing-md);
+  padding: 0 var(--spacing-16);
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.02em;
@@ -146,7 +146,7 @@
 .splitPublish {
   display: inline-flex;
   align-items: stretch;
-  gap: var(--spacing-4xs);
+  gap: var(--spacing-1);
 }
 
 .splitPublish .publishMainBtn.publishMainBtn {
@@ -154,7 +154,7 @@
   border-bottom-right-radius: 0;
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 .splitPublish .publishChevronBtn.publishChevronBtn {
@@ -171,7 +171,7 @@
 
 /* ── Schedule popover content ── */
 .scheduleDropdown {
-  padding: var(--spacing-md);
+  padding: var(--spacing-16);
   min-width: 280px;
   max-width: 320px;
 }
@@ -190,7 +190,7 @@
 .scheduleMenu {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   /* white + difference — 강한 blur 위에서 배경에 따라 자동 반전돼 가독성 확보 */
   mix-blend-mode: difference;
 }
@@ -198,7 +198,7 @@
 .scheduleMenuHeader {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   font-weight: 600;
@@ -218,13 +218,13 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-2xs);
-  margin-top: var(--spacing-2xs);
-  padding: var(--spacing-2xs) var(--spacing-sm);
+  gap: var(--spacing-4);
+  margin-top: var(--spacing-4);
+  padding: var(--spacing-4) var(--spacing-12);
   height: 24px;
   background: transparent;
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   font-size: var(--font-size-hint);
   color: var(--text-secondary);
   cursor: pointer;
@@ -242,7 +242,7 @@
 .actionGroup {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
   /* 안쪽 두 subgroup (Ai / Edit) 사이 자동 spread — 좌(번역/요약) / 우(되돌리기/저장 기록/삭제) */
   justify-content: space-between;
   flex: 1;
@@ -252,7 +252,7 @@
 .actionGroupEdit {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 /* AI 번역/요약 생성 중 — 버튼 아이콘 spinner */
@@ -313,9 +313,9 @@
 .topBarPinned .successBanner {
   top: auto;
   bottom: 0;
-  transform: translateY(calc(100% - var(--spacing-sm)));
-  padding: var(--spacing-3xs) var(--spacing-sm);
-  border-radius: var(--radius-capsule);
+  transform: translateY(calc(100% - var(--spacing-12)));
+  padding: var(--spacing-2) var(--spacing-12);
+  border-radius: var(--radius-full);
   background: var(--bg-glass);
   backdrop-filter: blur(12px);
 }
@@ -338,7 +338,7 @@
 }
 
 .revisionEmpty {
-  padding: var(--spacing-xl);
+  padding: var(--spacing-24);
   text-align: center;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
@@ -354,7 +354,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: var(--spacing-12) var(--spacing-16);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   font-weight: 600;
@@ -390,7 +390,7 @@
 .revisionSelectActions {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 /* 취소·삭제 — 선택(.revisionSelectToggle) 버튼과 동일한 solid 색 처리로 통일 (mix-blend 은 popover
@@ -447,8 +447,8 @@
 .revisionItem {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
-  padding: var(--row-p-md);
+  gap: var(--spacing-8);
+  padding: var(--row-padding-md);
   border-bottom: var(--border-light);
 }
 
@@ -487,7 +487,7 @@
 .revisionDetailActions {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 /* Detail header icon button — Restore / Delete 통일 */
@@ -498,7 +498,7 @@
   border: none;
   background: transparent;
   color: var(--text-tertiary);
-  padding: var(--spacing-3xs);
+  padding: var(--spacing-2);
   cursor: pointer;
 }
 
@@ -513,7 +513,7 @@
   border: none;
   background: transparent;
   color: var(--text-tertiary);
-  padding: var(--spacing-3xs);
+  padding: var(--spacing-2);
 }
 
 .revisionItem .revisionItemDelete {
@@ -556,8 +556,8 @@
 .revisionDetailSkeleton {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-sm);
+  gap: var(--spacing-8);
+  padding: var(--spacing-12);
 }
 
 /* 2-row 구조 — Row 1 만 sticky.
@@ -571,9 +571,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   min-width: 0;
-  padding: var(--row-p-md);
+  padding: var(--row-padding-md);
   border-bottom: var(--border-light);
 }
 
@@ -590,14 +590,14 @@
 .revisionDetailHeaderLeft {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   min-width: 0;
 }
 
 .revisionBackBtn {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -618,11 +618,11 @@
 /* Title + 부제목 + 설명 — label | value grid (meta groups 와 동일 패턴 + 위계 클래스 유지) */
 .revisionDetailMeta {
   margin: 0;
-  padding: var(--spacing-md);
+  padding: var(--spacing-16);
   list-style: none;
   display: grid;
   grid-template-columns: minmax(40px, 56px) 1fr;
-  gap: var(--spacing-xs) var(--spacing-md);
+  gap: var(--spacing-8) var(--spacing-16);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-hint);
   line-height: 1.45;
@@ -648,7 +648,7 @@
 }
 
 .revisionDetailContent {
-  padding: var(--spacing-md);
+  padding: var(--spacing-16);
   border-top: var(--border-light);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-body);
@@ -663,10 +663,10 @@
 .revisionCurrentBadge {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
-  padding: var(--badge-p-md);
+  gap: var(--spacing-4);
+  padding: var(--badge-padding-md);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: color-mix(in oklch, var(--text-success) 8%, transparent);
   color: var(--text-success);
   font-family: var(--font-space-grotesk);
@@ -686,11 +686,11 @@
 
 /* ── Revision Meta — 그룹 + form-like list (label | value) ── */
 .revisionMetaSection {
-  padding: var(--spacing-md);
+  padding: var(--spacing-16);
   border-top: var(--border-light);
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-hint);
   line-height: 1.45;
@@ -699,19 +699,19 @@
 /* secondary — content 아래 보조 정보 (시각적으로 약화, gap 더 줄임) */
 .revisionMetaSecondary {
   opacity: 0.85;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 /* 그룹 — heading + list */
 .revisionMetaGroup {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 /* 첫 group 외 위쪽 구분선 — 시각적 위계 */
 .revisionMetaGroup + .revisionMetaGroup {
-  padding-top: var(--spacing-md);
+  padding-top: var(--spacing-16);
   border-top: var(--border-light);
 }
 
@@ -721,7 +721,7 @@
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  margin-bottom: var(--spacing-2xs);
+  margin-bottom: var(--spacing-4);
 }
 
 /* List — bullet 제거, grid 2-col 로 form 식 정렬 */
@@ -731,7 +731,7 @@
   list-style: none;
   display: grid;
   grid-template-columns: minmax(40px, 56px) 1fr;
-  gap: var(--spacing-xs) var(--spacing-md);
+  gap: var(--spacing-8) var(--spacing-16);
 }
 
 /* item 두 cell 의 묶음 — display: contents 로 grid 흐름에 자연스럽게 */
@@ -742,8 +742,8 @@
 /* separated rows — val cell 위쪽에만 실선 (key cell 은 정렬만 맞춤, border 없음).
    item 이 display:contents 라 cell 단위 (nth-child) 로 분리 적용. */
 .revisionMetaListSeparated .revisionMetaItem:not(:first-child) > * {
-  padding-top: var(--spacing-sm);
-  margin-top: var(--spacing-2xs);
+  padding-top: var(--spacing-12);
+  margin-top: var(--spacing-4);
 }
 
 .revisionMetaListSeparated
@@ -762,7 +762,7 @@
   font-size: var(--font-size-label);
   font-weight: 600;
   color: var(--text-primary);
-  padding-top: var(--spacing-2xs);
+  padding-top: var(--spacing-4);
   letter-spacing: 0;
   text-transform: none;
 }
@@ -776,7 +776,7 @@
   grid-column: 1 / -1;
   border-top: var(--border-light);
   border-top-style: dashed;
-  margin: var(--spacing-2xs) 0;
+  margin: var(--spacing-4) 0;
 }
 
 .revisionMetaKey {
@@ -785,7 +785,7 @@
   letter-spacing: 0.02em;
   text-transform: uppercase;
   word-break: break-word;
-  padding-top: var(--spacing-3xs);
+  padding-top: var(--spacing-2);
   align-self: start;
 }
 
@@ -796,14 +796,14 @@
   white-space: pre-line;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 /* 이미지 URL 값일 때 작은 thumbnail — 클릭 시 새 탭으로 원본 확인 */
 .revisionMetaImgLink {
   display: inline-block;
   line-height: 0;
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   overflow: hidden;
   transition: opacity 0.15s;
 }
@@ -818,7 +818,7 @@
   height: 96px;
   object-fit: cover;
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   background: var(--bg-tertiary);
 }
 
@@ -842,47 +842,47 @@
 /* multi-line 값 — ul 로 구분감, 각 줄 li */
 .revisionMetaValList {
   margin: 0;
-  padding-left: var(--spacing-md);
+  padding-left: var(--spacing-16);
   list-style: disc;
   color: var(--text-secondary);
   word-break: break-word;
   align-self: start;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
 }
 
 .revisionMetaValList li {
-  padding-left: var(--spacing-3xs);
+  padding-left: var(--spacing-2);
 }
 
 /* 한 단계 nested — 들여쓰기 + 더 작은 bullet (circle) 로 위계 구분 */
 .revisionMetaValSubList {
-  margin: var(--spacing-3xs) 0 0;
-  padding-left: var(--spacing-md);
+  margin: var(--spacing-2) 0 0;
+  padding-left: var(--spacing-16);
   list-style: circle;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
 }
 
 .revisionMetaValSubList li {
-  padding-left: var(--spacing-3xs);
+  padding-left: var(--spacing-2);
 }
 
 /* ── Diff ── */
 .diffDel {
   background: var(--bg-accent-light);
   color: var(--text-accent);
-  border-radius: var(--radius-capsule);
-  padding-inline: var(--spacing-3xs);
+  border-radius: var(--radius-full);
+  padding-inline: var(--spacing-2);
 }
 
 .diffAdd {
   background: var(--bg-success);
   color: var(--text-success);
-  border-radius: var(--radius-capsule);
-  padding-inline: var(--spacing-3xs);
+  border-radius: var(--radius-full);
+  padding-inline: var(--spacing-2);
 }
 
 .diffPrefix {
@@ -898,8 +898,8 @@
 .diffAddInline {
   background: var(--bg-success);
   color: var(--text-success);
-  border-radius: var(--radius-capsule);
-  padding: 0 var(--spacing-3xs);
+  border-radius: var(--radius-full);
+  padding: 0 var(--spacing-2);
 }
 
 .diffDelInline {
@@ -912,8 +912,8 @@
     var(--text-accent) 60%,
     transparent
   );
-  border-radius: var(--radius-capsule);
-  padding: 0 var(--spacing-3xs);
+  border-radius: var(--radius-full);
+  padding: 0 var(--spacing-2);
 }
 
 /* ── Shared form elements ── */
@@ -924,7 +924,7 @@
   border-bottom: var(--border-light);
   background: transparent;
   font-family: var(--font-instrument);
-  font-size: var(--font-size-3xl);
+  font-size: var(--font-size-32);
   font-weight: var(--font-weight-regular);
   color: var(--text-primary);
   outline: none;
@@ -948,13 +948,13 @@
 
 .fieldLabelError::after {
   content: "•";
-  margin-left: var(--spacing-2xs);
+  margin-left: var(--spacing-4);
 }
 
 /* 필수 입력 표시 — 라벨 끝에 accent dot. error 가 아닐 때도 부착 (error 가 같은 dot 으로 색만 강조) */
 .fieldLabelRequired::after {
   content: "•";
-  margin-left: var(--spacing-2xs);
+  margin-left: var(--spacing-4);
   color: var(--text-accent);
 }
 
@@ -973,7 +973,7 @@
      280px 미만 → 1 col, 280~560 → 2 col, 560+ → 3+ col.
      min-width: 0 가 minmax 의 첫 값으로 들어가 contents 따른 overflow 방지 */
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: var(--spacing-xl);
+  gap: var(--spacing-24);
   align-items: start;
   min-width: 0;
 }
@@ -982,22 +982,22 @@
 .row input {
   height: 28px;
   box-sizing: border-box;
-  padding: 0 var(--spacing-md);
+  padding: 0 var(--spacing-16);
   line-height: 1;
 }
 
 .field {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   min-width: 0;
 }
 
 .fieldLabel {
-  /* 옆에 버튼(--size-2xs = 20px) 이 있든 없든 헤더 라인 높이를 일관 유지 */
+  /* 옆에 버튼(--size-20 = 20px) 이 있든 없든 헤더 라인 높이를 일관 유지 */
   display: inline-flex;
   align-items: center;
-  min-height: var(--size-2xs);
+  min-height: var(--size-20);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   font-weight: 600;
@@ -1011,8 +1011,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-md);
-  min-height: var(--size-2xs);
+  gap: var(--spacing-16);
+  min-height: var(--size-20);
 }
 
 .fieldLabelRow .fieldLabel {
@@ -1030,11 +1030,11 @@
 
 .fieldInput {
   width: 100%;
-  /* Select 등 컨트롤(--control-h-md)과 높이 통일 — padding 만으론 ~27px 라 Select(32px)보다 낮았음 */
-  min-height: var(--control-h-md);
-  padding: var(--input-p);
+  /* Select 등 컨트롤(--control-height-md)과 높이 통일 — padding 만으론 ~27px 라 Select(32px)보다 낮았음 */
+  min-height: var(--control-height-md);
+  padding: var(--input-padding);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-body);
@@ -1081,8 +1081,8 @@
 .tags {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-xs);
-  margin-top: var(--spacing-sm);
+  gap: var(--spacing-8);
+  margin-top: var(--spacing-12);
   max-height: 64px;
   overflow: hidden;
   position: relative;
@@ -1095,10 +1095,10 @@
 .tagMore {
   display: inline-flex;
   align-items: center;
-  padding: var(--badge-p-md);
+  padding: var(--badge-padding-md);
   background: var(--bg-secondary);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   color: var(--text-secondary);
@@ -1111,7 +1111,7 @@
     max-width: 0;
     padding: 0;
     opacity: 0;
-    margin-right: calc(-1 * var(--spacing-xs));
+    margin-right: calc(-1 * var(--spacing-8));
   }
 }
 
@@ -1135,12 +1135,12 @@
 .tag {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   height: 28px;
   box-sizing: border-box;
-  padding: 0 var(--spacing-xs);
+  padding: 0 var(--spacing-8);
   background: var(--bg-tertiary);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   color: var(--text-secondary);
@@ -1150,7 +1150,7 @@
   border: none;
   background: transparent;
   color: var(--text-secondary);
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-16);
   padding: 0;
   line-height: 1;
   display: inline-flex;
@@ -1177,9 +1177,9 @@
   align-items: center;
   justify-content: center;
   min-height: 28px;
-  padding: 0 var(--spacing-md);
+  padding: 0 var(--spacing-16);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-body);
@@ -1211,7 +1211,7 @@
 .retranslateItem {
   display: block;
   width: 100%;
-  padding: var(--row-p-md);
+  padding: var(--row-padding-md);
   border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -1233,7 +1233,7 @@
 .bottomBar {
   display: flex;
   justify-content: flex-end;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
 }
 
 /* bottomBar 안 button height 도 topBar 와 동일 — 페이지 전체에서 control height 일관 */
@@ -1262,17 +1262,17 @@
 /* ── Tablet (max-width: 1024px) — gap/spacing 소폭 축소, divider 유지 ── */
 @media (max-width: 1024px) {
   .topBar {
-    gap: var(--spacing-xs);
-    margin-bottom: var(--spacing-lg);
-    padding-bottom: var(--spacing-lg);
+    gap: var(--spacing-8);
+    margin-bottom: var(--spacing-20);
+    padding-bottom: var(--spacing-20);
   }
 
   .topBarRow {
-    gap: var(--spacing-sm);
+    gap: var(--spacing-12);
   }
 
   .topBarActions {
-    gap: var(--spacing-xs);
+    gap: var(--spacing-8);
   }
 }
 
@@ -1283,13 +1283,13 @@
   }
 
   .titleInput {
-    font-size: var(--font-size-2xl);
+    font-size: var(--font-size-24);
   }
 
   .topBar {
-    gap: var(--spacing-xs);
-    margin-bottom: var(--spacing-md);
-    padding-bottom: var(--spacing-md);
+    gap: var(--spacing-8);
+    margin-bottom: var(--spacing-16);
+    padding-bottom: var(--spacing-16);
   }
 
   .actionsDivider {
@@ -1300,7 +1300,7 @@
    * wrap 되어 다음 줄로 떨어져도 topBarActions 는 항상 row 끝에 stick (margin-left: auto).
    * 각 group 내부도 wrap 으로 좁아질 때 자연 stack */
   .topBarRow:first-child {
-    gap: var(--spacing-xs);
+    gap: var(--spacing-8);
   }
 
   /* navGroup 이 row 의 전폭 차지 → 안쪽 LanguageToggle 의 margin-left:auto 가 우측 push.
@@ -1313,13 +1313,13 @@
   .topBarActions {
     flex-wrap: nowrap;
     min-width: 0;
-    gap: var(--spacing-2xs);
+    gap: var(--spacing-4);
     margin-left: auto;
   }
 
   /* 2줄: 저장/발행 — 우측 정렬 + 버튼 width fit (content 만큼만) */
   .topBarRow:last-child {
-    gap: var(--spacing-xs);
+    gap: var(--spacing-8);
     justify-content: flex-end;
   }
 
@@ -1331,7 +1331,7 @@
   /* Bottom bar — 우측 정렬 + width fit */
   .bottomBar {
     justify-content: flex-end;
-    gap: var(--spacing-xs);
+    gap: var(--spacing-8);
     flex-wrap: wrap;
   }
 

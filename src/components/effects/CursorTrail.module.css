@@ -4,7 +4,7 @@
   position: fixed;
   top: 0;
   left: 0;
-  z-index: var(--z-cursor); /* 항상 최상단 */
+  z-index: var(--z-index-cursor); /* 항상 최상단 */
   font-size: var(--font-size-label);
   font-weight: var(--font-weight-bold);
   opacity: 0;
@@ -76,7 +76,7 @@
 .big .cursorInner {
   width: var(--cursor-big-width);
   height: var(--cursor-big-width);
-  backdrop-filter: var(--blur-sm);
+  backdrop-filter: var(--blur-4);
 }
 .big .cursorText {
   font-size: var(--font-size-label);
@@ -94,7 +94,7 @@
 .grab .cursorInner {
   width: var(--cursor-big-width);
   height: var(--cursor-big-width);
-  backdrop-filter: var(--blur-sm);
+  backdrop-filter: var(--blur-4);
 }
 .grab .cursorText {
   font-size: var(--font-size-label);
@@ -111,7 +111,7 @@
 .dragging .cursorInner {
   width: calc(var(--cursor-big-width) * 0.85);
   height: calc(var(--cursor-big-width) * 0.85);
-  backdrop-filter: var(--blur-sm);
+  backdrop-filter: var(--blur-4);
 }
 .dragging .cursorText {
   font-size: var(--font-size-label);
@@ -137,7 +137,7 @@
 .prev .cursorInner {
   width: var(--cursor-big-width);
   height: var(--cursor-big-width);
-  backdrop-filter: var(--blur-sm);
+  backdrop-filter: var(--blur-4);
 }
 .next .cursorText,
 .prev .cursorText {
@@ -156,7 +156,7 @@
 .zoom .cursorInner {
   width: var(--cursor-big-width);
   height: var(--cursor-big-width);
-  backdrop-filter: var(--blur-sm);
+  backdrop-filter: var(--blur-4);
 }
 .zoom .cursorText {
   font-size: var(--font-size-label);
@@ -180,7 +180,7 @@
 .stop .cursorInner {
   width: var(--cursor-big-width);
   height: var(--cursor-big-width);
-  backdrop-filter: var(--blur-sm);
+  backdrop-filter: var(--blur-4);
 }
 .stop .cursorText {
   font-size: var(--font-size-label);
@@ -212,7 +212,7 @@
 .text .cursorInner {
   width: var(--cursor-text-width);
   height: var(--cursor-text-height);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   backdrop-filter: none;
 }
 .text .cursorText {
@@ -253,7 +253,7 @@
   position: absolute;
   inset: unset;
   background: var(--_color);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   opacity: 1;
   filter: none;
 }

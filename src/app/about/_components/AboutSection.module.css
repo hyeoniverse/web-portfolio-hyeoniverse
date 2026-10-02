@@ -3,8 +3,8 @@
    ========================================================================== */
 .section {
   /* ── Layout ── */
-  --_panel-py: var(--panel-py);
-  --_panel-px: var(--page-px);
+  --_panel-py: var(--spacing-panel-block);
+  --_panel-px: var(--spacing-page-inline);
 
   /* ── Font families ── */
   --_font-display: var(--font-display);
@@ -23,10 +23,10 @@
   --_lh-code: var(--line-height-normal);
 
   /* ── Spacing (complement global --spacing-*) ── */
-  --_space-section: var(--space-section);
-  --_space-block: var(--space-block);
-  --_space-divide: var(--space-divide);
-  --_space-line: var(--space-line);
+  --_space-section: var(--spacing-section);
+  --_space-block: var(--spacing-block);
+  --_space-divide: var(--spacing-divide);
+  --_space-line: var(--spacing-line);
 
   /* ── Letter spacing ── */
   --_ls-title: var(--letter-spacing-tight);
@@ -87,7 +87,7 @@
    ========================================================================== */
 @media (max-width: 1024px), (max-height: 700px) {
   .section {
-    padding-top: var(--spacing-5xl);
+    padding-top: var(--spacing-96);
     overflow: visible;
     height: auto;
     min-height: 100vh;

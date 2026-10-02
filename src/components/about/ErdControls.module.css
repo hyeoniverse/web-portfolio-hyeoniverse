@@ -2,11 +2,11 @@
 
 .controls {
   display: flex;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   align-items: center;
-  padding: var(--spacing-2xs) var(--spacing-xs);
+  padding: var(--spacing-4) var(--spacing-8);
   border: var(--border-default);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--bg-primary);
 }
 
@@ -14,8 +14,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: var(--control-h-xs);
-  height: var(--control-h-xs);
+  width: var(--control-height-xs);
+  height: var(--control-height-xs);
   border: var(--border-default);
   border-radius: var(--radius-circle);
   background: transparent;
@@ -31,7 +31,7 @@
 }
 
 .level {
-  min-width: var(--control-h-xl);
+  min-width: var(--control-height-xl);
   color: var(--text-muted);
   font-family: var(--font-mono);
   font-size: var(--font-size-hint);

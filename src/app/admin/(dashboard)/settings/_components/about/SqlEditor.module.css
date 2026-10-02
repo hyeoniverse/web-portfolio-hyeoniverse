@@ -5,7 +5,7 @@
   /* 실제 편집기처럼 넉넉하게 — 스키마는 길다 */
   height: 20rem;
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   /* 회색 배경을 쓰지 않는다 — 본문과 같은 바탕 위에서 코드만 도드라지게 */
   background: var(--bg-primary);
   overflow: hidden;
@@ -49,7 +49,7 @@
    inset box-shadow 라 border 와 달리 글자를 밀지 않고, 줄 번호도 같이 진해진다. */
 .editor :global(.cm-activeLine) {
   background: transparent;
-  box-shadow: inset var(--border-width-thick) 0 0 var(--border-color-accent);
+  box-shadow: inset var(--border-width-2) 0 0 var(--border-color-accent);
 }
 .editor :global(.cm-activeLineGutter) {
   background: transparent;
@@ -65,17 +65,17 @@
 /* 진단 밑줄 — CodeMirror 기본은 물결 이미지를 깔아 테마를 안 탄다 */
 .editor :global(.cm-lintRange-error) {
   background: none;
-  border-bottom: var(--border-width-thick) dotted var(--text-error);
+  border-bottom: var(--border-width-2) dotted var(--text-error);
 }
 .editor :global(.cm-lintRange-warning) {
   background: none;
-  border-bottom: var(--border-width-thick) dotted var(--text-warning);
+  border-bottom: var(--border-width-2) dotted var(--text-warning);
 }
 /* 진단 말풍선 · 자동완성 목록 · 찾기 패널 — 편집기 밖 UI 라 토큰을 따로 물려야 한다 */
 .editor :global(.cm-tooltip),
 .editor :global(.cm-panels) {
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   background: var(--bg-surface);
   color: var(--text-primary);
   font-family: var(--font-sans);
@@ -84,11 +84,11 @@
   overflow: hidden;
 }
 .editor :global(.cm-tooltip-autocomplete > ul > li) {
-  padding: var(--spacing-3xs) var(--spacing-sm);
+  padding: var(--spacing-2) var(--spacing-12);
   font-family: var(--font-mono), monospace;
 }
 .editor :global(.cm-tooltip-autocomplete > ul > li[aria-selected]) {
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--bg-accent-subtle);
   color: var(--text-accent);
 }
@@ -98,16 +98,16 @@
 }
 .editor :global(.cm-diagnostic) {
   border-left-color: var(--border-color-accent);
-  padding: var(--spacing-3xs) var(--spacing-sm);
+  padding: var(--spacing-2) var(--spacing-12);
 }
 .editor :global(.cm-panels) {
-  padding: var(--spacing-3xs) var(--spacing-xs);
+  padding: var(--spacing-2) var(--spacing-8);
 }
 .editor :global(.cm-panel.cm-search input),
 .editor :global(.cm-panel.cm-search button) {
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  padding: var(--button-p-xs);
+  border-radius: var(--radius-full);
+  padding: var(--button-padding-xs);
   background: var(--bg-primary);
   color: var(--text-primary);
   font-family: inherit;

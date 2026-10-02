@@ -281,9 +281,9 @@
 .date-mention {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-3xs);
-  padding: var(--spacing-4xs) var(--spacing-xs);
-  border-radius: var(--radius-capsule);
+  gap: var(--spacing-2);
+  padding: var(--spacing-1) var(--spacing-8);
+  border-radius: var(--radius-full);
   background: var(--bg-tertiary);
   color: var(--text-secondary);
   font-size: 0.9em;
@@ -299,8 +299,8 @@
 /* 게시물 링크 pill (리더) — 에디터는 PostLink.module.css 의 .pill 사용 */
 .post-link {
   display: inline;
-  padding: var(--spacing-4xs) var(--spacing-3xs);
-  border-radius: var(--radius-capsule);
+  padding: var(--spacing-1) var(--spacing-2);
+  border-radius: var(--radius-full);
   color: var(--text-accent);
   text-decoration: underline;
   text-decoration-color: var(--color-accent-alpha-50);
@@ -338,7 +338,7 @@
    오버레이(.code-resize-cursor)는 wrap 의 형제로 이 안에 들어가 grip 위에 얹힌다(댓글창 Textarea 구조). */
 .code-block-outer {
   position: relative;
-  margin: var(--spacing-lg) 0;
+  margin: var(--spacing-20) 0;
 }
 .code-block-outer > .code-block-wrap.has-code-bar {
   margin: 0;
@@ -377,10 +377,10 @@ code .token.italic {
   position: absolute;
   top: 0;
   left: 0;
-  /* 일반 블록 placeholder(Space Grotesk / --font-size-md / --text-muted, italic 없음)와 통일 — 코드는 mono·14px라 달랐음 */
+  /* 일반 블록 placeholder(Space Grotesk / --font-size-16 / --text-muted, italic 없음)와 통일 — 코드는 mono·14px라 달랐음 */
   color: var(--text-muted);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-16);
   pointer-events: none;
   user-select: none;
 }
@@ -400,7 +400,7 @@ code .token.italic {
      긴 코드(30줄 초과)만 .is-collapsed 로 접어 두고 아래 "펼치기"로 연다. */
   height: auto;
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   overflow: hidden;
   resize: vertical;
   background: var(--bg-glass-panel);
@@ -431,13 +431,13 @@ code .token.italic {
   display: flex;
   flex-direction: column;
   max-height: 16rem;
-  padding: var(--spacing-md);
-  margin: var(--spacing-md) 0;
+  padding: var(--spacing-16);
+  margin: var(--spacing-16) 0;
   /* 에디터 코드블록 — 솔리드 면이 제일 무거웠다. 리더뷰 창과 같은 유리 면 + 선으로 가볍게. */
   background: var(--bg-glass-panel);
   backdrop-filter: var(--blur-glass);
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   overflow: hidden;
   resize: vertical;
 }
@@ -449,7 +449,7 @@ code .token.italic {
   flex: 1 1 auto;
   min-height: 0;
   margin: 0;
-  padding: var(--spacing-md);
+  padding: var(--spacing-16);
   background: transparent;
   border: none;
   border-radius: 0;
@@ -457,11 +457,11 @@ code .token.italic {
 }
 /* 바 없는 리더뷰 코드블록(드묾) — 단독 프레임 유지 */
 .code-block-wrap:not(.has-code-bar) pre {
-  margin: var(--spacing-md) 0;
+  margin: var(--spacing-16) 0;
   background: var(--bg-glass-panel);
   backdrop-filter: var(--blur-glass);
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
 }
 
 .code-block-wrap pre code,
@@ -491,13 +491,13 @@ code .token.italic {
 .code-block-bar {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   margin: 0;
   /* macOS 창 헤더 — 신호등이 여유롭게 앉는 높이(약 38px)와 좌우 여백. 세로 중앙 정렬.
      본문(유리 면)보다 한 톤 어둡게(gray-alpha, 테마 무관) + 하단 hairline 으로 헤더임을 드러낸다. */
   position: relative;
   min-height: 42px;
-  padding: 0 var(--spacing-md);
+  padding: 0 var(--spacing-16);
   /* glass 헤더 — 반투명 유리 면 + blur. border 없이 톤차로만 본문과 구분. */
   background: var(--bg-glass-panel);
   backdrop-filter: var(--blur-glass);
@@ -551,7 +551,7 @@ code .token.italic {
   display: inline-flex;
   align-items: center;
   background: var(--bg-primary);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
 }
 /* 각 버튼 = 볼록한 3D 버튼(위 하이라이트 + 아래 그림자). seam 은 first/last 맞닿는 옆면 inset 그림자.
    --btn-lift = hover 시 버튼을 띄우는 바깥 그림자(기본은 없음). */
@@ -563,17 +563,17 @@ code .token.italic {
   box-shadow: var(--btn-raise), var(--btn-lift);
 }
 .code-block-controls > :first-child {
-  border-radius: var(--radius-capsule) 0 0 var(--radius-capsule);
+  border-radius: var(--radius-full) 0 0 var(--radius-full);
   box-shadow: var(--btn-raise), inset -2px 0 2px -2px var(--btn-seam), var(--btn-lift);
 }
 .code-block-controls > :last-child {
-  border-radius: 0 var(--radius-capsule) var(--radius-capsule) 0;
+  border-radius: 0 var(--radius-full) var(--radius-full) 0;
   box-shadow: var(--btn-raise), inset 2px 0 2px -2px var(--btn-seam), var(--btn-lift);
 }
 /* 버튼이 하나뿐일 때(줄바꿈 토글 없이 복사만 있는 경우) — first/last 규칙이 둘 다 걸려
    한쪽만 둥근 반쪽 캡슐이 된다. 맞닿는 버튼이 없으므로 네 모서리를 모두 굴리고 seam 도 뺀다. */
 .code-block-controls > :only-child {
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   box-shadow: var(--btn-raise), var(--btn-lift);
 }
 [data-theme="dark"] .code-block-controls > * {
@@ -600,7 +600,7 @@ code .token.italic {
   height: var(--_bar-ctl-h);
   padding: 0 var(--_bar-ctl-px);
   background: var(--bg-primary);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   box-shadow: var(--shadow-xs);            /* 컨트롤 pill 과 같은 그림자 톤 */
   color: var(--text-primary);
   font-family: var(--font-mono);
@@ -617,7 +617,7 @@ code .token.italic {
 .code-block-wrap .code-copy-btn {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   height: var(--_bar-ctl-h);
   padding: 0 var(--_bar-ctl-px);
   border: none;
@@ -660,7 +660,7 @@ code .token.italic {
   position: relative;
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   height: var(--_bar-ctl-h);
   padding: 0 var(--_bar-ctl-px);
   border: none;
@@ -783,9 +783,9 @@ span.math-element-wrap .math-katex-content {
   position: relative;
   display: inline-flex;
   align-items: center;
-  padding: var(--spacing-2xs) var(--spacing-sm);
+  padding: var(--spacing-4) var(--spacing-12);
   border: none;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--bg-inverse);
   color: var(--text-inverse);
   font-family: var(--font-space-grotesk);
@@ -861,7 +861,7 @@ span.math-element-wrap .math-katex-content {
 
 /* ── reader 비주얼 다이어그램 (data-diagram → SVG, 위치 보존 읽기전용) ── */
 .reader-diagram {
-  margin: var(--spacing-xl) 0;
+  margin: var(--spacing-24) 0;
   display: flex;
   justify-content: center;
   color: var(--text-tertiary); /* 화살표 currentColor */
@@ -906,9 +906,9 @@ span.math-element-wrap .math-katex-content {
 
 /* ── reader 코드 플레이그라운드 — 미리보기(iframe) + 코드 탭 ── */
 .reader-playground {
-  margin: var(--spacing-xl) 0;
+  margin: var(--spacing-24) 0;
   border: 1px solid var(--border-color-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   overflow: hidden;
   background: var(--bg-primary);
 }
@@ -934,15 +934,15 @@ span.math-element-wrap .math-katex-content {
 .reader-playground-bar {
   display: flex;
   align-items: center;
-  gap: var(--spacing-3xs);
-  padding: var(--spacing-2xs);
+  gap: var(--spacing-2);
+  padding: var(--spacing-4);
   border-bottom: 1px solid var(--border-color-light);
   background: var(--bg-secondary);
 }
 .reader-playground-tab {
-  padding: var(--spacing-3xs) var(--spacing-md);
+  padding: var(--spacing-2) var(--spacing-16);
   border: none;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-secondary);
   font-family: var(--font-space-grotesk);
@@ -970,7 +970,7 @@ span.math-element-wrap .math-katex-content {
   margin: 0;
   height: 26rem;
   overflow: auto;
-  padding: var(--spacing-md);
+  padding: var(--spacing-16);
   background: var(--bg-secondary);
   color: var(--text-primary);
   font-family: var(--font-mono);
@@ -981,7 +981,7 @@ span.math-element-wrap .math-katex-content {
 .reader-playground-console {
   max-height: 8rem;
   overflow: auto;
-  padding: var(--spacing-2xs) var(--spacing-md);
+  padding: var(--spacing-4) var(--spacing-16);
   border-top: 1px solid var(--border-color-light);
   background: var(--bg-secondary);
   font-family: var(--font-mono);
@@ -992,7 +992,7 @@ span.math-element-wrap .math-katex-content {
 .reader-playground-log {
   white-space: pre-wrap;
   word-break: break-word;
-  padding: var(--spacing-4xs) 0;
+  padding: var(--spacing-1) 0;
 }
 .reader-playground-log-error { color: var(--text-accent); }
 .reader-playground-log-warn { color: var(--text-warning); }
@@ -1017,10 +1017,10 @@ span.math-element-wrap .math-katex-content {
 .code-block-outer > .code-expand-btn {
   display: flex;
   align-items: center;
-  margin: var(--spacing-xs) auto 0;
-  padding: var(--spacing-2xs) var(--spacing-md);
+  margin: var(--spacing-8) auto 0;
+  padding: var(--spacing-4) var(--spacing-16);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);

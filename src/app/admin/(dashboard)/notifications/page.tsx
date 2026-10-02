@@ -453,9 +453,9 @@ export default function NotificationsPage() {
             <div key={i} className={styles.item}>
               <SkeletonCircle className={styles.icon} size={36} />
               <div className={styles.skelBody}>
-                <SkeletonLine width="40%" height="var(--skeleton-h-line-lg)" />
+                <SkeletonLine width="40%" height="var(--skeleton-height-line-lg)" />
                 <SkeletonLine width="85%" />
-                <SkeletonLine width="20%" height="var(--skeleton-h-line-sm)" />
+                <SkeletonLine width="20%" height="var(--skeleton-height-line-sm)" />
               </div>
             </div>
           ))}

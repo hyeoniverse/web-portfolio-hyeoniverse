@@ -42,14 +42,12 @@
   --bg-white: var(--color-white-alpha-100);
   --bg-black: var(--color-gray-alpha-100);
   --bg-primary: var(--color-neutral-50);
-  --bg-primary-alt: var(--color-neutral-alpha-95);
   --bg-secondary: var(--color-neutral-100);
   --bg-secondary-alt: var(--color-neutral-alpha-20);
   --bg-tertiary: var(--color-neutral-alpha-5);
   --bg-tertiary-alt: var(--color-neutral-alpha-10);
   --bg-inverse: var(--color-neutral-950);
   --bg-inverse-light: var(--color-neutral-700);
-  --bg-inverse-alt: var(--color-inverse-alpha-30);
   /* 테마 고정 — 사이트 라이트/다크 테마의 실제 배경. inverse 와 달리 화면 테마 따라 안 뒤집힌다 */
   --bg-scheme-light: var(--color-scheme-light-bg);
   --bg-scheme-dark: var(--color-scheme-dark-bg);
@@ -63,7 +61,7 @@
         그쪽은 "요소 위에 흰색을 덧씌우는 오버레이", 이건 "페이지 배경이 비쳐 보이는 패널 면".
         이름이 겹치면 같은 :root 안에서 뒤 선언이 이겨 조용히 덮어쓰므로 -panel 로 구분. */
   --bg-glass-panel: color-mix(in srgb, var(--bg-primary) 24%, transparent);
-  --blur-glass: var(--blur-lg) saturate(1.4);
+  --blur-glass: var(--blur-12) saturate(1.4);
 
   /* Accent */
   --bg-accent-subtle: var(--color-accent-alpha-5);
@@ -71,19 +69,14 @@
   --bg-accent: var(--color-accent-alpha-20);
   --bg-accent-solid: var(--color-accent);
   --bg-accent-solid-light: var(--color-accent-light);
-  --bg-accent-solid-dark: var(--color-accent-dark);
   --bg-success: var(--color-success-alpha);
   --bg-success-soft: var(--color-success-soft);
   --bg-success-solid: var(--color-success);
-  --bg-warning: var(--color-warning-alpha);
   --bg-warning-soft: var(--color-warning-soft);
   --bg-warning-solid: var(--color-warning);
-  --bg-info: var(--color-info-alpha);
   --bg-info-soft: var(--color-info-soft);
-  --bg-info-solid: var(--color-info);
   --bg-error: var(--color-error-alpha);
   --bg-error-soft: var(--color-error-soft);
-  --bg-error-solid: var(--color-error);
 
   --bg-accent-strong: var(--color-accent-alpha-30);
 
@@ -95,58 +88,12 @@
   --bg-overlay: var(--color-gray-alpha-50);
 
   /* Gradients - Neutral */
-  --bg-gradient-horizontal-light-to-dark: linear-gradient(
-    90deg,
-    var(--color-neutral-400) 0%,
-    var(--color-neutral-700) 100%
-  );
-  --bg-gradient-horizontal-dark-to-light: linear-gradient(
-    90deg,
-    var(--color-neutral-700) 0%,
-    var(--color-neutral-400) 100%
-  );
-  --bg-gradient-vertical-light-to-dark: linear-gradient(
-    180deg,
-    var(--color-neutral-400) 0%,
-    var(--color-neutral-700) 100%
-  );
-  --bg-gradient-vertical-dark-to-light: linear-gradient(
-    180deg,
-    var(--color-neutral-700) 0%,
-    var(--color-neutral-400) 100%
-  );
-  --bg-gradient-diagonal-light-to-dark: linear-gradient(
-    135deg,
-    var(--color-neutral-300) 0%,
-    var(--color-neutral-800) 100%
-  );
-  --bg-gradient-diagonal-dark-to-light: linear-gradient(
-    135deg,
-    var(--color-neutral-800) 0%,
-    var(--color-neutral-300) 100%
-  );
 
   /* Gradients - Accent Fade */
-  --bg-gradient-accent-fade: linear-gradient(
-    to right,
-    transparent,
-    var(--border-color-accent-strong),
-    transparent
-  );
 
   /* Gradients - Accent Secondary */
-  --bg-gradient-accent-horizontal: linear-gradient(
-    90deg,
-    var(--color-accent-alpha-20) 0%,
-    var(--color-accent-alpha-80) 100%
-  );
   --bg-gradient-accent-vertical: linear-gradient(
     180deg,
-    var(--color-accent-alpha-20) 0%,
-    var(--color-accent-alpha-80) 100%
-  );
-  --bg-gradient-accent-diagonal: linear-gradient(
-    135deg,
     var(--color-accent-alpha-20) 0%,
     var(--color-accent-alpha-80) 100%
   );
@@ -161,7 +108,6 @@
   --border-color-default: var(--color-neutral-alpha-50);
   --border-color-light: var(--color-neutral-alpha-30);
   --border-color-white: var(--color-white-alpha-100);
-  --border-color-black: var(--color-gray-alpha-100);
   --border-color-accent-light: var(--color-accent-alpha-20);
   --border-color-accent: var(--color-accent-alpha-30);
   --border-color-accent-strong: var(--color-accent);
@@ -171,18 +117,10 @@
   --border-color-success: var(--color-success);
   --border-color-neutral-light: var(--color-neutral-alpha-20);
 
-  /* Border width */
   /* 테두리 토큰은 세 종류다. **종류를 이름 앞에 둬서** 무엇인지 바로 읽히게 한다.
-   *   --border-width-*  두께만        border-width 에
+   *   --border-width-*  두께만        border-width 에 (원시 눈금 — tokens/_border.css)
    *   --border-color-*  색만          border-color 에
-   *   --border-*        1px solid 색  border 축약에
-   * 예전에는 색이 `--border-default-color`, 축약이 `--border-default` 로 접두사가 같아
-   * 이름만 보고 어느 쪽인지 알 수 없었다. border 에 색을 넣으면 조용히 안 먹는다. */
-  --border-width-thin: 1px;
-  --border-width-default: 1.5px;
-  --border-width-thick: 2px;
-  --border-width-thicker: 3px;
-  --border-width-thickest: 4px;
+   *   --border-*        1px solid 색  border 축약에 */
 
   /* Neutral borders */
   --border-light: 1px solid var(--border-color-light);
@@ -191,7 +129,6 @@
   --border-strong: 1px solid var(--border-color-strong);
   --border-strong-2: 2px solid var(--border-color-strong);
   --border-white: 1px solid var(--border-color-white);
-  --border-inverse: 1px solid var(--border-color-white);
   --border-neutral-light: 1px solid var(--border-color-neutral-light);
 
   /* Accent borders (light → default → strong) */
@@ -216,17 +153,17 @@
    Page Layout — shared horizontal padding + max-width
    -------------------------------------------------------------------------- */
 :root {
-  --page-px: 8vw;
-  --page-max-width: 100%;
+  --spacing-page-inline: 8vw;
+  --width-page-max: 100%;
 }
 @media (max-width: 768px) {
   :root {
-    --page-px: 5vw;
+    --spacing-page-inline: 5vw;
   }
 }
 @media (max-width: 480px) {
   :root {
-    --page-px: 4vw;
+    --spacing-page-inline: 4vw;
   }
 }
 
@@ -236,12 +173,12 @@
    -------------------------------------------------------------------------- */
 :root {
   /* Panel Padding */
-  --panel-py: clamp(1rem, min(4.5vh, 2.5vw), 4.5rem);
+  --spacing-panel-block: clamp(1rem, min(4.5vh, 2.5vw), 4.5rem);
 
   /* Typography Scale */
 
   /* ── 글자 크기 — 역할로 고른다 ───────────────────────────────
-   * 눈금(`--font-size-sm` 같은 단계)과 같은 접두사를 쓴다. 속성이 이름에 있어야
+   * 눈금(`--font-size-14` 같은 단계)과 같은 접두사를 쓴다. 속성이 이름에 있어야
    * 무엇을 정하는 토큰인지 오해가 없고, R3 「종류 → 역할」 에도 맞는다
    * (`--border-color-strong` 과 같은 모양). `fs` 같은 축약은 쓰지 않는다.
    *
@@ -262,19 +199,19 @@
   --font-size-prose-caption: clamp(0.75rem, min(0.65vw, 1.45vh), 1rem);
 
   /* 크롬 — 고정. 관리 화면·공통 컴포넌트 */
-  --font-size-body: var(--font-size-sm); /* 14px — 본문·입력값·목록 항목 */
-  --font-size-label: var(--font-size-xs); /* 13px — 필드 라벨·버튼 */
-  --font-size-hint: var(--font-size-2xs); /* 12px — 보조 설명·메타·뱃지·카운터. 가장 작은 글자 */
-  --font-size-micro: var(--font-size-3xs); /* 11px — 없애는 중. 새로 쓰지 않는다(쓰는 곳은 hint 로 옮긴다) */
+  --font-size-body: var(--font-size-14); /* 14px — 본문·입력값·목록 항목 */
+  --font-size-label: var(--font-size-13); /* 13px — 필드 라벨·버튼 */
+  --font-size-hint: var(--font-size-12); /* 12px — 보조 설명·메타·뱃지·카운터. 가장 작은 글자 */
+  --font-size-micro: var(--font-size-11); /* 11px — 없애는 중. 새로 쓰지 않는다(쓰는 곳은 hint 로 옮긴다) */
 
   /* 16·18·20px — 이 구간만 이름이 필요하다. 같은 16px 을 카드 제목도 쓰고 긴 글 본문도
      써서 어느 쪽인지 이름이 말해 주지 않았다. 24px 부터는 전부 제목·디스플레이라
      단계 이름(2xl·3xl…)이 곧 역할이라 그대로 둔다. */
-  --font-size-title-sm: var(--font-size-md); /* 16px — 카드·패널 제목 */
-  --font-size-title-md: var(--font-size-lg); /* 18px — 섹션 제목 */
-  --font-size-title-lg: var(--font-size-xl); /* 20px — 화면 안 가장 큰 제목 */
-  --font-size-body-lg: var(--font-size-md); /* 16px — 긴 글 본문 (기본 14px 보다 큰 지면) */
-  --font-size-body-xl: var(--font-size-lg); /* 18px — 리드 문단·인용 */
+  --font-size-title-sm: var(--font-size-16); /* 16px — 카드·패널 제목 */
+  --font-size-title-md: var(--font-size-18); /* 18px — 섹션 제목 */
+  --font-size-title-lg: var(--font-size-20); /* 20px — 화면 안 가장 큰 제목 */
+  --font-size-body-lg: var(--font-size-16); /* 16px — 긴 글 본문 (기본 14px 보다 큰 지면) */
+  --font-size-body-xl: var(--font-size-18); /* 18px — 리드 문단·인용 */
 
   /* 글자가 아니라 도형 — 구분자 `·` 글리프의 크기다. 읽는 값이 아니라 하한 밖에 있고,
      단계가 아니라 역할이라 눈금(_typography.css)이 아닌 여기 둔다. */
@@ -284,11 +221,11 @@
   /* Line Heights */
 
   /* 제목(h1~h6) 공통 줄간격 — 전역 heading base 단일 소스. 조정은 여기 한 줄. */
-  --heading-lh: var(--line-height-tight);
+  --heading-line-height: var(--line-height-tight);
 
   /* 콘텐츠(글) 블록 "사이" 간격 — 태그 무관(h·p·blockquote) 통일. 블록 "내부"(line-height)와 대비.
      .prose-content CSS·에디터 문단 인라인·드롭라인 offset 이 모두 이 토큰 참조. 조정은 여기 한 줄. */
-  --prose-block-gap: var(--spacing-md);
+  --prose-block-gap: var(--spacing-16);
 
   /* Spacing */
 
@@ -297,87 +234,14 @@
    * 다른 화면이 같은 리듬을 쓸 때 이름이 걸림돌이 됐다.
    * 간격에는 아직 역할 층이 없다(--spacing-* 를 4,100여 곳이 직접 부른다).
    * 이 넷이 그 층의 시작점이다 — 값이 아니라 자리로 고르는 이름. */
-  --space-section: clamp(1rem, min(3.5vh, 2vw), 3.5rem);
-  --space-block: clamp(0.75rem, min(3vh, 1.5vw), 2.5rem);
-  --space-divide: calc(var(--space-block) * 2);
-  --space-line: calc(var(--space-block) / 2);
+  --spacing-section: clamp(1rem, min(3.5vh, 2vw), 3.5rem);
+  --spacing-block: clamp(0.75rem, min(3vh, 1.5vw), 2.5rem);
+  --spacing-divide: calc(var(--spacing-block) * 2);
+  --spacing-line: calc(var(--spacing-block) / 2);
 
   /* Details */
 }
 
-/* ==========================================================================
-   Layer 3: Component Tokens
-   컴포넌트 타입을 이름에 박은 토큰 (일관성 레일). component CSS 는 raw 가 아닌
-   이 토큰을 사용 — 버튼/인풋 등 정책을 독립적으로 조정 가능하고 다른 사이즈
-   고르는 실수 방지. 더 깊은 변형은 module 내 --_* (Layer 4 Context) 로.
-   ========================================================================== */
-:root {
-  /* Control padding — capsule 모양 컨트롤의 사이즈는 padding 으로 결정.
-     원 / 사각 아이콘 버튼은 padding 으로 못 잡으므로 아래 --control-h-* 로 높이를 직접 준다. */
-  --button-p-xs: var(--spacing-3xs) var(--spacing-sm); /* 2 12 → 약 20px */
-  --button-p-sm: var(--spacing-2xs) var(--spacing-md); /* 4 16 → 약 26px (일반 button) */
-  --button-p-md: var(--spacing-xs) var(--spacing-lg); /* 8 20 → 약 36px (primary CTA) */
-  --button-p-lg: var(--spacing-sm) var(--spacing-xl); /* 12 24 → 약 44px (hero CTA) */
-
-  /* 뱃지·칩·태그 — 글자 크기가 곧 등급이다. 높이를 직접 정하는 뱃지(--control-h-* 를 쓰는 것)는
-     세로 padding 이 필요 없으므로 여기 해당하지 않는다.
-     이 셋을 만든 이유: 같은 성격의 뱃지 118곳이 29가지 여백을 쓰고 있었다. */
-  --badge-p-sm: var(--spacing-4xs) var(--spacing-2xs); /* 1 4  — --font-size-micro(11px) */
-  --badge-p-md: var(--spacing-3xs) var(--spacing-xs); /* 2 8  — --font-size-hint(12px). 기본 */
-  --badge-p-lg: var(--spacing-2xs) var(--spacing-sm); /* 4 12 — --font-size-label(13px) */
-
-  /* 목록 행 — 세로 여백이 곧 밀도다. 부모가 좌우 여백을 주는 행(가로 0)은 여기 해당하지
-     않는다. 그건 세로 값 하나만 적는다.
-     이 셋을 만든 이유: 같은 성격의 행 117곳이 33가지 여백을 쓰고 있었다. */
-  --row-p-sm: var(--spacing-2xs) var(--spacing-sm); /* 4 12 — 조밀한 목록 */
-  --row-p-md: var(--spacing-xs) var(--spacing-sm); /* 8 12 — 기본 */
-  --row-p-lg: var(--spacing-sm) var(--spacing-md); /* 12 16 — 넉넉한 카드형 행 */
-
-  /* 모달·시트 — 겉면과 머리/본문/바닥이 같은 여백을 쓴다. */
-  --modal-p-sm: var(--spacing-xs) var(--spacing-sm); /* 8 12 — 인라인 폼·작은 시트 */
-  --modal-p-md: var(--spacing-md) var(--spacing-lg); /* 16 20 — 기본 */
-  --modal-p-lg: var(--spacing-xl) var(--spacing-xl); /* 24 24 — 확인 대화상자처럼 큰 것 */
-
-  /* 카드 */
-  --card-p-sm: var(--spacing-2xs) var(--spacing-sm); /* 4 12 — 카드 머리·꼬리 */
-  --card-p-md: var(--spacing-md) var(--spacing-md); /* 16 16 — 기본 */
-  --card-p-lg: var(--spacing-xl) var(--spacing-2xl); /* 24 32 — 매거진형 큰 카드 */
-
-  --input-p: var(--spacing-2xs) var(--spacing-md); /* 4 16 → 약 26px — input / select 기본 */
-
-  /* 컴포넌트를 안 쓰고 직접 만든 입력 필드 — 위 --input-p 와 달리 높이를 여백이 정한다. */
-  --field-p-sm: var(--spacing-2xs) var(--spacing-xs); /* 4 8 */
-  --field-p-md: var(--spacing-2xs) var(--spacing-sm); /* 4 12 */
-  --field-p-lg: var(--spacing-xs) var(--spacing-sm); /* 8 12 */
-
-  /* 표 셀 — 글 안의 표와 관리 화면의 표 두 덩어리로 갈린다. */
-  --cell-p-sm: var(--spacing-2xs) var(--spacing-xs); /* 4 8 — 글 안·도움말처럼 조밀한 표 */
-  --cell-p-md: var(--spacing-xs) var(--spacing-sm); /* 8 12 — 기본 */
-  --textarea-p: var(--spacing-sm) var(--spacing-md); /* 12 16 — 여러 줄이라 세로 여유 더 */
-  /* 컨트롤 높이 — 버튼·인풋·셀렉트·칩이 공유하는 **유일한** 높이 눈금.
-   *
-   * 예전에는 세 가지가 같은 걸 서로 다르게 말했다.
-   *   --control-h-*  24/28/32/36  ← 공통 Button·Input 이 실제로 쓰던 값
-   *   --button-h-*   20/24/38/46  ← 다른 컴포넌트 154곳이 쓰던 값
-   *   _sizing.css 주석의 "계층"  24/32/38/46
-   * 그래서 같은 size="md" 가 자리에 따라 32px 이기도 38px 이기도 했다.
-   *
-   * 공통 컴포넌트가 실제로 쓰던 값을 남기고 나머지 단계를 흡수했다 — 렌더는 그대로다.
-   * 2xs·xl·2xl 은 흡수 과정에서 들어온 단계라 xs~lg 와 간격이 고르지 않다. */
-  --control-h-2xs: 20px;
-  --control-h-xs: 24px;
-  --control-h-sm: 28px;
-  --control-h-md: 32px;
-  --control-h-lg: 36px;
-  --control-h-xl: 38px;
-  --control-h-2xl: 46px;
-
-  /* Skeleton 라인/필 높이 — 텍스트 한 줄·캡슐 컨트롤 흉내. raw px 하드코딩 방지 */
-  --skeleton-h-line: var(--font-size-body); /* 14px — 텍스트 한 줄 */
-  --skeleton-h-line-sm: var(--font-size-label); /* 13px — 작은 메타 텍스트 */
-  --skeleton-h-line-lg: var(--font-size-lg); /* 18px — 헤더 텍스트 */
-  --skeleton-h-pill: var(--control-h-xs); /* 24 — 태그/뱃지 */
-}
 
 /* --------------------------------------------------------------------------
    Dark Theme — Semantic Overrides
@@ -388,7 +252,6 @@
   --bg-primary: var(--color-neutral-50);
   --bg-surface: var(--color-white-alpha-5);
   --bg-tertiary: var(--color-inverse-alpha-5);
-  --border-inverse: 1px solid var(--border-color-black);
 }
 
 /* --------------------------------------------------------------------------
@@ -396,6 +259,6 @@
    -------------------------------------------------------------------------- */
 @media (max-width: 480px) {
   :root {
-    --panel-py: var(--m-lg);
+    --spacing-panel-block: var(--m-lg);
   }
 }

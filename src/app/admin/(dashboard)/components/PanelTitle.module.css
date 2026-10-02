@@ -7,8 +7,8 @@
   font-weight: 600;
   color: var(--text-tertiary);
   margin: 0;
-  padding-top: var(--spacing-sm);
-  padding-bottom: var(--spacing-sm);
+  padding-top: var(--spacing-12);
+  padding-bottom: var(--spacing-12);
   border-bottom: var(--border-light);
   padding-inline-start: var(--_item-inline-start, 0);
   padding-inline-end: var(--_item-inline-end, 0);
@@ -25,6 +25,6 @@
 
 /* framed — 아래 padding + border-bottom 으로 self-contained header (opt-in) */
 .framed {
-  padding-bottom: var(--spacing-sm);
+  padding-bottom: var(--spacing-12);
   border-bottom: var(--border-light);
 }

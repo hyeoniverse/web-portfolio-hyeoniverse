@@ -22,7 +22,7 @@
    Content
    --------------------------------------------------------------------------- */
 .content {
-  max-width: var(--width-md);
+  max-width: 720px; /* 인트로 본문 줄 길이 — 이 화면에서만 쓰는 값 */
   margin: 0 auto;
   padding: 10vh 0;
 }
@@ -31,7 +31,7 @@
    Text Block
    --------------------------------------------------------------------------- */
 .textBlock {
-  margin-bottom: var(--spacing-2xl);
+  margin-bottom: var(--spacing-32);
 }
 
 .textBlock:last-child {
@@ -48,7 +48,7 @@
 }
 
 .caption {
-  margin-top: var(--spacing-md);
+  margin-top: var(--spacing-16);
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-body);
   font-weight: var(--font-weight-regular);
@@ -82,7 +82,7 @@
 
 @media (max-width: 480px) {
   .text {
-    font-size: var(--font-size-lg);
+    font-size: var(--font-size-18);
   }
 
   .caption {

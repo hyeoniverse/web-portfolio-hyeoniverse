@@ -20,7 +20,9 @@ type Kind = "componentCss" | "moduleCss" | "globalCss" | "code" | "tokenCss" | "
 
 /** 토큰을 **정의하는** 파일 — 여기 쓰는 값·이름은 규칙 위반이 아니다 */
 const TOKEN_FILES = /^src\/styles\/tokens\//;
-const SEMANTIC_FILE = "src/styles/globals/_semantic.css";
+/** 역할 · 컴포넌트 토큰과 옛 이름 별칭을 정의하는 파일 */
+const DEFINITION_FILES = new Set(["src/styles/globals/_semantic.css", "src/styles/globals/_component.css", "src/styles/globals/_legacy-aliases.css"]);
+const ALIAS_FILE = "src/styles/globals/_legacy-aliases.css";
 
 function walk(dir: string, out: string[] = []): string[] {
   for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -47,7 +49,7 @@ export function readSources(root: string): Sources {
     const kind = new Set<Kind>();
     if (rel.endsWith(".css")) {
       if (TOKEN_FILES.test(rel)) kind.add("tokenCss");
-      else if (rel === SEMANTIC_FILE) kind.add("semanticCss");
+      else if (DEFINITION_FILES.has(rel)) kind.add("semanticCss");
       else {
         kind.add("componentCss");
         kind.add(rel.endsWith(".module.css") ? "moduleCss" : "globalCss");
@@ -121,12 +123,14 @@ function darkPrimitives(prefix: RegExp): Metric["count"] {
 
 /** 눈금 단계 — 쓰는 곳이 없어도 남긴다(2-4). 이 이름이 아닌 토큰은 안 쓰면 지운다 */
 const SCALE = /^--(?:spacing|size|radius|font-size|fluid-font-size|line-height|font-weight|blur|border-width)-|^--color-[a-z]+-\d+$/;
+/** 투명도 단계 — JS(themeColors · /design-system)가 이름을 만들어 쓰므로 단계별 사용을 셀 수 없다. 3.1-3 에서 통째로 없앤다 */
+const ALPHA = /^--color-[a-z-]+-alpha-\d+$/;
 
 /** 정의됐는데 아무도 부르지 않는 토큰 중 눈금 단계가 아닌 것(2-4) — 정의한 파일별로 */
 function unusedTokens(src: Sources): Counts {
   const defs = new Map<string, string>(); // 토큰 → 정의한 파일
   for (const [file, { kind, text }] of src.files) {
-    if (!kind.has("tokenCss") && !kind.has("semanticCss")) continue;
+    if ((!kind.has("tokenCss") && !kind.has("semanticCss")) || file === ALIAS_FILE) continue;
     for (const m of text.matchAll(/(?<![\w-])(--(?!_)[\w-]+)\s*:/g)) if (!defs.has(m[1])) defs.set(m[1], file);
   }
   /* 쓰임 = 정의가 아닌 자리에 이름이 나오는 것. 정의(`--x:`)를 지운 뒤 찾는다 */
@@ -134,7 +138,7 @@ function unusedTokens(src: Sources): Counts {
   const used = new Set([...usage.matchAll(/--(?!_)[\w-]+/g)].map((m) => m[0]));
   const out: Counts = {};
   for (const [name, file] of defs) {
-    if (SCALE.test(name) || used.has(name)) continue;
+    if (SCALE.test(name) || ALPHA.test(name) || used.has(name)) continue;
     out[file] = (out[file] ?? 0) + 1;
   }
   return out;
@@ -174,15 +178,9 @@ const CSS_AND_CODE: Kind[] = ["componentCss", "code"];
 
 /** 명세 순서대로 */
 export const METRICS: Metric[] = [
-  /* 2-3 이름 */
-  { id: "name-spacing", rule: "2-3", what: "간격 토큰을 크기 이름으로 부른 곳(`--spacing-md` 등 → `--spacing-16`)", count: regex(CSS_AND_CODE, /var\(--spacing-(?:zero|[2-4]xs|xs|sm|md|lg|xl|[2-6]xl|[245]xl-plus)\)/) },
-  { id: "name-radius", rule: "2-3 · 3.5-1", what: "모서리 눈금 이름(`--radius-xs … 2xl` · `-circle` · `-capsule`)", count: regex(CSS_AND_CODE, /var\(--radius-(?:2xs|xs|sm|md|lg|xl|2xl|circle|capsule)\)/) },
-  { id: "name-control-h", rule: "2-3", what: "`--control-h-*`(→ `--control-height-*`)", count: regex(CSS_AND_CODE, /var\(--control-h-[\w]+\)/) },
-  { id: "name-padding-abbr", rule: "2-3", what: "`-p` 로 줄인 여백 토큰(`--button-p-*` · `--input-p` 등)", count: regex(CSS_AND_CODE, /var\(--(?:button|row|badge|modal|card|field|cell)-p(?:-[a-z]+)?\)|var\(--(?:input|textarea)-p\)/) },
-  { id: "name-size", rule: "2-3", what: "크기 토큰을 크기 이름으로 부른 곳(`--size-xs` 등)", count: regex(CSS_AND_CODE, /var\(--size-(?:[2-6]xs|xs|sm|md|lg|xl|[2-6]xl)\)/) },
-  { id: "name-font-size-scale", rule: "2-3 · 3.2-1", what: "글자 크기 눈금 이름(`--font-size-sm` · `-2xl` 등)", count: regex(CSS_AND_CODE, /var\(--font-size-(?:3xs|2xs|xs|sm|md|lg|xl|2xl|2xl-plus|3xl|4xl|5xl|6xl)\)/) },
-  { id: "name-z", rule: "2-3", what: "`--z-*`(→ `--z-index-*`)", count: regex(CSS_AND_CODE, /var\(--z-[a-z]+\)/) },
-  { id: "name-grid-cols", rule: "2-3", what: "`--grid-cols-*`(→ `--grid-columns-*`)", count: regex(CSS_AND_CODE, /var\(--grid-cols-\d+\)/) },
+  /* 2-3 이름 — 옛 이름은 정의가 없어 쓰면 cssTokens.test 가, 별칭이 남은 눈금 이름은 stylelint · eslint 가 막는다 */
+  { id: "radius-not-role", rule: "3.5-1", what: "모서리를 역할 토큰이 아니라 눈금(`--radius-24` · `-full` · `-circle` 등)으로 쓴 곳", count: regex(CSS_AND_CODE, /var\(--radius-(?:\d+|full|circle)\)/) },
+  { id: "font-size-scale", rule: "3.2-1", what: "글자 크기 눈금(`--font-size-16` 등)을 바로 쓴 곳", count: regex(CSS_AND_CODE, /var\(--font-size-\d+\)/) },
   /* 2-4 */
   { id: "unused-tokens", rule: "2-4", what: "정의만 있고 아무도 부르지 않는 토큰(눈금 단계 제외)", count: unusedTokens },
   /* 2-5 테마 */
@@ -212,8 +210,8 @@ export const METRICS: Metric[] = [
   /* 3.3 간격 */
   { id: "space-mobile-only", rule: "3.3-3", what: "480px 이하에서만 정의되는 `--m-*`", count: regex(CSS_AND_CODE, /var\(--m-(?:sm|md|lg)\)/) },
   /* 3.4 크기 */
-  { id: "control-vertical-padding", rule: "3.4-2", what: "세로 여백을 담은 컨트롤 여백 토큰(`--button-p-*` · `--input-p` · `--field-p-*`)", count: regex(CSS_AND_CODE, /var\(--(?:button-p-[a-z]+|input-p|field-p-[a-z]+)\)/) },
-  { id: "control-20px", rule: "3.4-4", what: "20px 컨트롤 높이 `--control-h-2xs`", count: regex(CSS_AND_CODE, /var\(--control-h-2xs\)/) },
+  { id: "control-vertical-padding", rule: "3.4-2", what: "세로 여백을 담은 컨트롤 여백 토큰(`--button-padding-*` · `--input-padding` · `--field-padding-*`)", count: regex(CSS_AND_CODE, /var\(--(?:button-padding-[a-z]+|input-padding|field-padding-[a-z]+)\)/) },
+  { id: "control-20px", rule: "3.4-4", what: "20px 컨트롤 높이 `--control-height-2xs`", count: regex(CSS_AND_CODE, /var\(--control-height-2xs\)/) },
   /* 3.5 · 3.6 · 3.7 · 3.8 */
   { id: "radius-number", rule: "3.5-1", what: "모서리를 px · rem 숫자로 쓴 선언", count: regex(CSS, /border(?:-[a-z]+)*-radius:\s*[^;]*\b[1-9][\d.]*(?:px|rem)/) },
   { id: "border-width-number", rule: "3.6-1", what: "테두리 두께를 px 숫자로 쓴 선언", count: regex(CSS, /border(?:-(?:top|right|bottom|left|inline|block)(?:-(?:start|end))?)?(?:-width)?:\s*[\d.]+px/) },

@@ -281,7 +281,7 @@ export default function Tooltip({
               `translate(-50%, ${pos.side === "top" ? "-100%" : "0"})`,
             /* z-tooltip 토큰 (700) — drawer/modal 같은 overlay (8000+) 아래에 위치하도록.
                drawer 가 열려있을 때 tooltip 이 그 위로 튀어나오지 않게 하기 위함. */
-            zIndex: "var(--z-tooltip)",
+            zIndex: "var(--z-index-tooltip)",
             // interactive: 콘텐츠(링크 등) hover/클릭 가능. 아니면 통과시켜 아래 요소 방해 안 함.
             pointerEvents: interactive ? "auto" : "none",
           }}

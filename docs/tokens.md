@@ -6,7 +6,7 @@
 
 ## `src/styles/tokens/_color.css`
 
-토큰 119개
+토큰 117개
 
 | 토큰 | 값 | 다크 |
 |---|---|---|
@@ -35,11 +35,9 @@
 | `--color-success-alpha-60` | `oklch(62.71% 0.1699 149.21 / 0.6)` | `oklch(80.03% 0.1821 151.71 / 0.6)` |
 | `--color-success-soft` | `oklch(62.71% 0.1699 149.21 / 0.12)` | `oklch(80.03% 0.1821 151.71 / 0.18)` |
 | `--color-warning` | `oklch(72% 0.15 75)` | `oklch(78% 0.15 76)` |
-| `--color-warning-alpha` | `oklch(72% 0.15 75 / 0.6)` | `oklch(78% 0.15 76 / 0.5)` |
 | `--color-warning-alpha-40` | `oklch(72% 0.15 75 / 0.4)` | `oklch(78% 0.15 76 / 0.4)` |
 | `--color-warning-soft` | `oklch(72% 0.15 75 / 0.12)` | `oklch(78% 0.15 76 / 0.18)` |
 | `--color-info` | `oklch(54.61% 0.2152 262.88)` | `oklch(71.37% 0.1434 254.62)` |
-| `--color-info-alpha` | `oklch(54.61% 0.2152 262.88 / 0.6)` | `oklch(71.37% 0.1434 254.62 / 0.5)` |
 | `--color-info-soft` | `oklch(54.61% 0.2152 262.88 / 0.12)` | `oklch(71.37% 0.1434 254.62 / 0.18)` |
 | `--color-error` | `oklch(57.71% 0.2152 27.33)` | `oklch(71.06% 0.1661 22.22)` |
 | `--color-error-alpha` | `oklch(57.71% 0.2152 27.33 / 0.15)` | `oklch(71.06% 0.1661 22.22 / 0.2)` |
@@ -132,27 +130,30 @@
 
 ## `src/styles/tokens/_spacing.css`
 
-토큰 17개
+토큰 20개
 
-| 토큰 | 값 |
-|---|---|
-| `--spacing-zero` | `0` |
-| `--spacing-4xs` | `1px` |
-| `--spacing-3xs` | `0.125rem` |
-| `--spacing-2xs` | `0.25rem` |
-| `--spacing-xs` | `0.5rem` |
-| `--spacing-sm` | `0.75rem` |
-| `--spacing-md` | `1rem` |
-| `--spacing-lg` | `1.25rem` |
-| `--spacing-xl` | `1.5rem` |
-| `--spacing-2xl` | `2rem` |
-| `--spacing-2xl-plus` | `2.5rem` |
-| `--spacing-3xl` | `3rem` |
-| `--spacing-4xl` | `4rem` |
-| `--spacing-4xl-plus` | `5rem` |
-| `--spacing-5xl` | `6rem` |
-| `--spacing-5xl-plus` | `7rem` |
-| `--spacing-6xl` | `8rem` |
+| 토큰 | 값 | 조건부 |
+|---|---|---|
+| `--spacing-0` | `0` |  |
+| `--spacing-1` | `1px` |  |
+| `--spacing-2` | `0.125rem` |  |
+| `--spacing-4` | `0.25rem` |  |
+| `--spacing-8` | `0.5rem` |  |
+| `--spacing-12` | `0.75rem` |  |
+| `--spacing-16` | `1rem` |  |
+| `--spacing-20` | `1.25rem` |  |
+| `--spacing-24` | `1.5rem` |  |
+| `--spacing-32` | `2rem` |  |
+| `--spacing-40` | `2.5rem` |  |
+| `--spacing-48` | `3rem` |  |
+| `--spacing-64` | `4rem` |  |
+| `--spacing-80` | `5rem` |  |
+| `--spacing-96` | `6rem` |  |
+| `--spacing-112` | `7rem` |  |
+| `--spacing-128` | `8rem` |  |
+| `--m-sm` | — | `@media (max-width: 480px): 2.1vw` |
+| `--m-md` | — | `@media (max-width: 480px): 4.2vw` |
+| `--m-lg` | — | `@media (max-width: 480px): 5vw` |
 
 ## `src/styles/tokens/_typography.css`
 
@@ -168,19 +169,19 @@
 | `--font-instrument` | `var(--font-instrument-latin), var(--font-noto-serif-kr), serif` |
 | `--font-display` | `var(--font-playfair)` |
 | `--font-grotesk` | `var(--font-space-grotesk), sans-serif` |
-| `--font-size-3xs` | `0.6875rem` |
-| `--font-size-2xs` | `0.75rem` |
-| `--font-size-xs` | `0.8125rem` |
-| `--font-size-sm` | `0.875rem` |
-| `--font-size-md` | `1rem` |
-| `--font-size-lg` | `1.125rem` |
-| `--font-size-xl` | `1.25rem` |
-| `--font-size-2xl` | `1.5rem` |
-| `--font-size-2xl-plus` | `1.75rem` |
-| `--font-size-3xl` | `2rem` |
-| `--font-size-4xl` | `2.5rem` |
-| `--font-size-5xl` | `3rem` |
-| `--font-size-6xl` | `4rem` |
+| `--font-size-11` | `0.6875rem` |
+| `--font-size-12` | `0.75rem` |
+| `--font-size-13` | `0.8125rem` |
+| `--font-size-14` | `0.875rem` |
+| `--font-size-16` | `1rem` |
+| `--font-size-18` | `1.125rem` |
+| `--font-size-20` | `1.25rem` |
+| `--font-size-24` | `1.5rem` |
+| `--font-size-28` | `1.75rem` |
+| `--font-size-32` | `2rem` |
+| `--font-size-40` | `2.5rem` |
+| `--font-size-48` | `3rem` |
+| `--font-size-64` | `4rem` |
 | `--fluid-font-size-2xs` | `clamp(0.75rem, 0.6rem + 0.15vw, 0.75rem)` |
 | `--fluid-font-size-xs` | `clamp(0.75rem, 0.7rem + 0.2vw, 0.9rem)` |
 | `--fluid-font-size-sm` | `clamp(0.75rem, 0.83rem + 0.25vw, 1rem)` |
@@ -213,64 +214,47 @@
 | `--font-weight-black` | `900` |
 | `--letter-spacing-tight` | `-0.03em` |
 
-## `src/styles/tokens/_sizing.css`
+## `src/styles/tokens/_size.css`
 
-토큰 52개
+토큰 24개
 
-| 토큰 | 값 | 조건부 |
-|---|---|---|
-| `--pc` | `1025px` |  |
-| `--tablet` | `768px` |  |
-| `--mobile` | `378px` |  |
-| `--width-6xs` | `180px` |  |
-| `--width-5xs` | `240px` |  |
-| `--width-4xs` | `280px` |  |
-| `--width-3xs` | `320px` |  |
-| `--width-2xs` | `360px` |  |
-| `--width-xs` | `480px` |  |
-| `--width-sm` | `540px` |  |
-| `--width-md` | `720px` |  |
-| `--width-lg` | `960px` |  |
-| `--width-xl` | `1140px` |  |
-| `--width-2xl` | `1320px` |  |
-| `--width-3xl` | `1600px` |  |
-| `--width-4xl` | `1920px` |  |
-| `--width-5xl` | `2160px` |  |
-| `--width-6xl` | `2400px` |  |
-| `--width-full` | `100%` |  |
-| `--grid-cols-2` | `repeat(2, minmax(0, 1fr))` |  |
-| `--grid-cols-3` | `repeat(3, minmax(0, 1fr))` |  |
-| `--grid-cols-4` | `repeat(4, minmax(0, 1fr))` |  |
-| `--grid-cols-5` | `repeat(5, minmax(0, 1fr))` |  |
-| `--grid-cols-7` | `repeat(7, minmax(0, 1fr))` |  |
-| `--cursor-width` | `20px` |  |
-| `--cursor-big-width` | `60px` |  |
-| `--cursor-text-width` | `3px` |  |
-| `--cursor-text-height` | `24px` |  |
-| `--action-button-width` | `48px` |  |
-| `--side-nav-width` | `210px` |  |
-| `--active-side-nav-width` | `0px` |  |
-| `--header-height` | `64px` |  |
-| `--footer-height` | `100px` |  |
-| `--scroll-indicator-width` | `36px` |  |
-| `--size-6xs` | `4px` |  |
-| `--size-5xs` | `8px` |  |
-| `--size-4xs` | `12px` |  |
-| `--size-3xs` | `16px` |  |
-| `--size-2xs` | `20px` |  |
-| `--size-xs` | `24px` |  |
-| `--size-sm` | `32px` |  |
-| `--size-md` | `38px` |  |
-| `--size-lg` | `46px` |  |
-| `--size-xl` | `56px` |  |
-| `--size-2xl` | `64px` |  |
-| `--size-3xl` | `72px` |  |
-| `--size-4xl` | `80px` |  |
-| `--size-5xl` | `96px` |  |
-| `--size-6xl` | `112px` |  |
-| `--m-sm` | — | `@media (max-width: 480px): 2.1vw` |
-| `--m-md` | — | `@media (max-width: 480px): 4.2vw` |
-| `--m-lg` | — | `@media (max-width: 480px): 5vw` |
+| 토큰 | 값 |
+|---|---|
+| `--size-4` | `4px` |
+| `--size-8` | `8px` |
+| `--size-12` | `12px` |
+| `--size-16` | `16px` |
+| `--size-20` | `20px` |
+| `--size-24` | `24px` |
+| `--size-28` | `28px` |
+| `--size-32` | `32px` |
+| `--size-36` | `36px` |
+| `--size-38` | `38px` |
+| `--size-40` | `40px` |
+| `--size-48` | `48px` |
+| `--size-56` | `56px` |
+| `--size-64` | `64px` |
+| `--size-72` | `72px` |
+| `--size-80` | `80px` |
+| `--size-96` | `96px` |
+| `--size-112` | `112px` |
+| `--size-128` | `128px` |
+| `--grid-columns-2` | `repeat(2, minmax(0, 1fr))` |
+| `--grid-columns-3` | `repeat(3, minmax(0, 1fr))` |
+| `--grid-columns-4` | `repeat(4, minmax(0, 1fr))` |
+| `--grid-columns-5` | `repeat(5, minmax(0, 1fr))` |
+| `--grid-columns-7` | `repeat(7, minmax(0, 1fr))` |
+
+## `src/styles/tokens/_border.css`
+
+토큰 4개
+
+| 토큰 | 값 |
+|---|---|
+| `--border-width-1` | `1px` |
+| `--border-width-2` | `2px` |
+| `--border-width-3` | `3px` |
+| `--border-width-4` | `4px` |
 
 ## `src/styles/tokens/_radius.css`
 
@@ -278,19 +262,19 @@
 
 | 토큰 | 값 |
 |---|---|
-| `--radius-2xs` | `2px` |
-| `--radius-xs` | `4px` |
-| `--radius-sm` | `6px` |
-| `--radius-md` | `8px` |
-| `--radius-lg` | `12px` |
-| `--radius-xl` | `16px` |
-| `--radius-2xl` | `24px` |
+| `--radius-2` | `2px` |
+| `--radius-4` | `4px` |
+| `--radius-6` | `6px` |
+| `--radius-8` | `8px` |
+| `--radius-12` | `12px` |
+| `--radius-16` | `16px` |
+| `--radius-24` | `24px` |
 | `--radius-circle` | `50%` |
-| `--radius-capsule` | `9999px` |
+| `--radius-full` | `9999px` |
 
 ## `src/styles/tokens/_shadow.css`
 
-토큰 20개
+토큰 19개
 
 | 토큰 | 값 | 다크 |
 |---|---|---|
@@ -301,23 +285,22 @@
 | `--shadow-xl` | `0 20px 40px oklch(0.00% 0.0000 0.00 / 0.14), 0 8px 16px oklch(0.00% 0.0000 0.00 / 0.08)` | `0 20px 40px oklch(0.00% 0.0000 0.00 / 0.45), 0 8px 16px oklch(0.00% 0.0000 0.00 / 0.35)` |
 | `--shadow-2xl` | `0 28px 56px oklch(0.00% 0.0000 0.00 / 0.28)` |  |
 | `--shadow-inner` | `inset 0 2px 4px oklch(0.00% 0.0000 0.00 / 0.06)` | `inset 0 2px 6px oklch(0.00% 0.0000 0.00 / 0.3)` |
-| `--shadow-glow` | `0 0 20px oklch(100.00% 0.0000 0.00 / 0.3)` | `0 0 30px oklch(100.00% 0.0000 0.00 / 0.15)` |
 | `--shadow-text-xs` | `0 1px 2px oklch(0.00% 0.0000 0.00 / 0.15)` |  |
 | `--shadow-text-sm` | `0 1px 2px oklch(0.00% 0.0000 0.00 / 0.5)` |  |
 | `--shadow-text-md` | `0 1px 4px oklch(0.00% 0.0000 0.00 / 0.5)` |  |
 | `--shadow-text-strong` | `0 1px 3px oklch(0.00% 0.0000 0.00 / 0.4)` |  |
-| `--blur-xs` | `blur(2px)` |  |
-| `--blur-sm` | `blur(4px)` |  |
-| `--blur-md` | `blur(8px)` |  |
-| `--blur-lg` | `blur(12px)` |  |
-| `--blur-xl` | `blur(16px)` |  |
-| `--blur-2xl` | `blur(24px)` |  |
-| `--blur-3xl` | `blur(40px)` |  |
-| `--blur-4xl` | `blur(60px)` |  |
+| `--blur-2` | `blur(2px)` |  |
+| `--blur-4` | `blur(4px)` |  |
+| `--blur-8` | `blur(8px)` |  |
+| `--blur-12` | `blur(12px)` |  |
+| `--blur-16` | `blur(16px)` |  |
+| `--blur-24` | `blur(24px)` |  |
+| `--blur-40` | `blur(40px)` |  |
+| `--blur-60` | `blur(60px)` |  |
 
 ## `src/styles/tokens/_motion.css`
 
-토큰 15개
+토큰 13개
 
 | 토큰 | 값 |
 |---|---|
@@ -332,10 +315,8 @@
 | `--ease-material` | `cubic-bezier(0.4, 0, 0.2, 1)` |
 | `--ease-out-expo` | `cubic-bezier(0.16, 1, 0.3, 1)` |
 | `--ease-in-out` | `cubic-bezier(0.25, 0.1, 0.25, 1)` |
-| `--delay-none` | `0s` |
 | `--delay-short` | `0.1s` |
 | `--delay-base` | `0.2s` |
-| `--delay-long` | `0.35s` |
 
 ## `src/styles/tokens/_z-index.css`
 
@@ -343,23 +324,23 @@
 
 | 토큰 | 값 |
 |---|---|
-| `--z-below` | `-1` |
-| `--z-content` | `10` |
-| `--z-nav` | `100` |
-| `--z-float` | `200` |
-| `--z-dropdown` | `500` |
-| `--z-popover` | `600` |
-| `--z-tooltip` | `700` |
-| `--z-modal` | `8000` |
-| `--z-overlay` | `9000` |
-| `--z-fullscreen` | `9500` |
-| `--z-loading` | `9800` |
-| `--z-top` | `10000` |
-| `--z-cursor` | `10100` |
+| `--z-index-below` | `-1` |
+| `--z-index-content` | `10` |
+| `--z-index-nav` | `100` |
+| `--z-index-float` | `200` |
+| `--z-index-dropdown` | `500` |
+| `--z-index-popover` | `600` |
+| `--z-index-tooltip` | `700` |
+| `--z-index-modal` | `8000` |
+| `--z-index-overlay` | `9000` |
+| `--z-index-fullscreen` | `9500` |
+| `--z-index-loading` | `9800` |
+| `--z-index-top` | `10000` |
+| `--z-index-cursor` | `10100` |
 
 ## `src/styles/globals/_semantic.css`
 
-토큰 163개
+토큰 106개
 
 | 토큰 | 값 | 다크 | 조건부 |
 |---|---|---|---|
@@ -385,57 +366,40 @@
 | `--bg-white` | `var(--color-white-alpha-100)` |  |  |
 | `--bg-black` | `var(--color-gray-alpha-100)` |  |  |
 | `--bg-primary` | `var(--color-neutral-50)` | `var(--color-neutral-50)` |  |
-| `--bg-primary-alt` | `var(--color-neutral-alpha-95)` |  |  |
 | `--bg-secondary` | `var(--color-neutral-100)` |  |  |
 | `--bg-secondary-alt` | `var(--color-neutral-alpha-20)` |  |  |
 | `--bg-tertiary` | `var(--color-neutral-alpha-5)` | `var(--color-inverse-alpha-5)` |  |
 | `--bg-tertiary-alt` | `var(--color-neutral-alpha-10)` |  |  |
 | `--bg-inverse` | `var(--color-neutral-950)` |  |  |
 | `--bg-inverse-light` | `var(--color-neutral-700)` |  |  |
-| `--bg-inverse-alt` | `var(--color-inverse-alpha-30)` |  |  |
 | `--bg-scheme-light` | `var(--color-scheme-light-bg)` |  |  |
 | `--bg-scheme-dark` | `var(--color-scheme-dark-bg)` |  |  |
 | `--bg-glass-panel` | `color-mix(in srgb, var(--bg-primary) 24%, transparent)` |  |  |
-| `--blur-glass` | `var(--blur-lg) saturate(1.4)` |  |  |
+| `--blur-glass` | `var(--blur-12) saturate(1.4)` |  |  |
 | `--bg-accent-subtle` | `var(--color-accent-alpha-5)` |  |  |
 | `--bg-accent-light` | `var(--color-accent-alpha-10)` |  |  |
 | `--bg-accent` | `var(--color-accent-alpha-20)` |  |  |
 | `--bg-accent-solid` | `var(--color-accent)` |  |  |
 | `--bg-accent-solid-light` | `var(--color-accent-light)` |  |  |
-| `--bg-accent-solid-dark` | `var(--color-accent-dark)` |  |  |
 | `--bg-success` | `var(--color-success-alpha)` |  |  |
 | `--bg-success-soft` | `var(--color-success-soft)` |  |  |
 | `--bg-success-solid` | `var(--color-success)` |  |  |
-| `--bg-warning` | `var(--color-warning-alpha)` |  |  |
 | `--bg-warning-soft` | `var(--color-warning-soft)` |  |  |
 | `--bg-warning-solid` | `var(--color-warning)` |  |  |
-| `--bg-info` | `var(--color-info-alpha)` |  |  |
 | `--bg-info-soft` | `var(--color-info-soft)` |  |  |
-| `--bg-info-solid` | `var(--color-info)` |  |  |
 | `--bg-error` | `var(--color-error-alpha)` |  |  |
 | `--bg-error-soft` | `var(--color-error-soft)` |  |  |
-| `--bg-error-solid` | `var(--color-error)` |  |  |
 | `--bg-accent-strong` | `var(--color-accent-alpha-30)` |  |  |
 | `--bg-surface` | `var(--color-gray-alpha-5)` | `var(--color-white-alpha-5)` |  |
 | `--bg-glass-subtle` | `var(--color-white-alpha-5)` |  |  |
 | `--bg-glass` | `var(--color-white-alpha-10)` |  |  |
 | `--bg-glass-strong` | `var(--color-white-alpha-30)` |  |  |
 | `--bg-overlay` | `var(--color-gray-alpha-50)` |  |  |
-| `--bg-gradient-horizontal-light-to-dark` | `linear-gradient( 90deg, var(--color-neutral-400) 0%, var(--color-neutral-700) 100% )` |  |  |
-| `--bg-gradient-horizontal-dark-to-light` | `linear-gradient( 90deg, var(--color-neutral-700) 0%, var(--color-neutral-400) 100% )` |  |  |
-| `--bg-gradient-vertical-light-to-dark` | `linear-gradient( 180deg, var(--color-neutral-400) 0%, var(--color-neutral-700) 100% )` |  |  |
-| `--bg-gradient-vertical-dark-to-light` | `linear-gradient( 180deg, var(--color-neutral-700) 0%, var(--color-neutral-400) 100% )` |  |  |
-| `--bg-gradient-diagonal-light-to-dark` | `linear-gradient( 135deg, var(--color-neutral-300) 0%, var(--color-neutral-800) 100% )` |  |  |
-| `--bg-gradient-diagonal-dark-to-light` | `linear-gradient( 135deg, var(--color-neutral-800) 0%, var(--color-neutral-300) 100% )` |  |  |
-| `--bg-gradient-accent-fade` | `linear-gradient( to right, transparent, var(--border-color-accent-strong), transparent )` |  |  |
-| `--bg-gradient-accent-horizontal` | `linear-gradient( 90deg, var(--color-accent-alpha-20) 0%, var(--color-accent-alpha-80) 100% )` |  |  |
 | `--bg-gradient-accent-vertical` | `linear-gradient( 180deg, var(--color-accent-alpha-20) 0%, var(--color-accent-alpha-80) 100% )` |  |  |
-| `--bg-gradient-accent-diagonal` | `linear-gradient( 135deg, var(--color-accent-alpha-20) 0%, var(--color-accent-alpha-80) 100% )` |  |  |
 | `--border-color-strong` | `var(--color-neutral-alpha-100)` |  |  |
 | `--border-color-default` | `var(--color-neutral-alpha-50)` |  |  |
 | `--border-color-light` | `var(--color-neutral-alpha-30)` |  |  |
 | `--border-color-white` | `var(--color-white-alpha-100)` |  |  |
-| `--border-color-black` | `var(--color-gray-alpha-100)` |  |  |
 | `--border-color-accent-light` | `var(--color-accent-alpha-20)` |  |  |
 | `--border-color-accent` | `var(--color-accent-alpha-30)` |  |  |
 | `--border-color-accent-strong` | `var(--color-accent)` |  |  |
@@ -444,18 +408,12 @@
 | `--border-color-white-muted` | `var(--color-white-alpha-50)` |  |  |
 | `--border-color-success` | `var(--color-success)` |  |  |
 | `--border-color-neutral-light` | `var(--color-neutral-alpha-20)` |  |  |
-| `--border-width-thin` | `1px` |  |  |
-| `--border-width-default` | `1.5px` |  |  |
-| `--border-width-thick` | `2px` |  |  |
-| `--border-width-thicker` | `3px` |  |  |
-| `--border-width-thickest` | `4px` |  |  |
 | `--border-light` | `1px solid var(--border-color-light)` |  |  |
 | `--border-light-2` | `2px solid var(--border-color-light)` |  |  |
 | `--border-default` | `1px solid var(--border-color-default)` |  |  |
 | `--border-strong` | `1px solid var(--border-color-strong)` |  |  |
 | `--border-strong-2` | `2px solid var(--border-color-strong)` |  |  |
 | `--border-white` | `1px solid var(--border-color-white)` |  |  |
-| `--border-inverse` | `1px solid var(--border-color-white)` | `1px solid var(--border-color-black)` |  |
 | `--border-neutral-light` | `1px solid var(--border-color-neutral-light)` |  |  |
 | `--border-accent-light` | `1px solid var(--border-color-accent-light)` |  |  |
 | `--border-accent` | `1px solid var(--border-color-accent)` |  |  |
@@ -466,9 +424,9 @@
 | `--border-ghost` | `1px solid var(--border-color-ghost)` |  |  |
 | `--border-white-muted` | `1px solid var(--border-color-white-muted)` |  |  |
 | `--border-success` | `1px solid var(--border-color-success)` |  |  |
-| `--page-px` | `8vw` |  | `@media (max-width: 768px): 5vw`<br>`@media (max-width: 480px): 4vw` |
-| `--page-max-width` | `100%` |  |  |
-| `--panel-py` | `clamp(1rem, min(4.5vh, 2.5vw), 4.5rem)` |  | `@media (max-width: 480px): var(--m-lg)` |
+| `--spacing-page-inline` | `8vw` |  | `@media (max-width: 768px): 5vw`<br>`@media (max-width: 480px): 4vw` |
+| `--width-page-max` | `100%` |  |  |
+| `--spacing-panel-block` | `clamp(1rem, min(4.5vh, 2.5vw), 4.5rem)` |  | `@media (max-width: 480px): var(--m-lg)` |
 | `--font-size-hero` | `clamp(2rem, min(9vw, 18vh), 10rem)` |  |  |
 | `--font-size-lead` | `clamp(2rem, min(4vw, 12vh), 6rem)` |  |  |
 | `--font-size-subhead` | `clamp(1rem, min(2vw, 3vh), 3.5rem)` |  |  |
@@ -476,53 +434,135 @@
 | `--font-size-prose-label` | `clamp(0.75rem, min(1vw, 1.75vh), 1.25rem)` |  |  |
 | `--font-size-prose-small` | `clamp(0.75rem, min(0.85vw, 1.55vh), 1.15rem)` |  |  |
 | `--font-size-prose-caption` | `clamp(0.75rem, min(0.65vw, 1.45vh), 1rem)` |  |  |
-| `--font-size-body` | `var(--font-size-sm)` |  |  |
-| `--font-size-label` | `var(--font-size-xs)` |  |  |
-| `--font-size-hint` | `var(--font-size-2xs)` |  |  |
-| `--font-size-micro` | `var(--font-size-3xs)` |  |  |
-| `--font-size-title-sm` | `var(--font-size-md)` |  |  |
-| `--font-size-title-md` | `var(--font-size-lg)` |  |  |
-| `--font-size-title-lg` | `var(--font-size-xl)` |  |  |
-| `--font-size-body-lg` | `var(--font-size-md)` |  |  |
-| `--font-size-body-xl` | `var(--font-size-lg)` |  |  |
+| `--font-size-body` | `var(--font-size-14)` |  |  |
+| `--font-size-label` | `var(--font-size-13)` |  |  |
+| `--font-size-hint` | `var(--font-size-12)` |  |  |
+| `--font-size-micro` | `var(--font-size-11)` |  |  |
+| `--font-size-title-sm` | `var(--font-size-16)` |  |  |
+| `--font-size-title-md` | `var(--font-size-18)` |  |  |
+| `--font-size-title-lg` | `var(--font-size-20)` |  |  |
+| `--font-size-body-lg` | `var(--font-size-16)` |  |  |
+| `--font-size-body-xl` | `var(--font-size-18)` |  |  |
 | `--font-size-dot` | `5px` |  |  |
-| `--heading-lh` | `var(--line-height-tight)` |  |  |
-| `--prose-block-gap` | `var(--spacing-md)` |  |  |
-| `--space-section` | `clamp(1rem, min(3.5vh, 2vw), 3.5rem)` |  |  |
-| `--space-block` | `clamp(0.75rem, min(3vh, 1.5vw), 2.5rem)` |  |  |
-| `--space-divide` | `calc(var(--space-block) * 2)` |  |  |
-| `--space-line` | `calc(var(--space-block) / 2)` |  |  |
-| `--button-p-xs` | `var(--spacing-3xs) var(--spacing-sm)` |  |  |
-| `--button-p-sm` | `var(--spacing-2xs) var(--spacing-md)` |  |  |
-| `--button-p-md` | `var(--spacing-xs) var(--spacing-lg)` |  |  |
-| `--button-p-lg` | `var(--spacing-sm) var(--spacing-xl)` |  |  |
-| `--badge-p-sm` | `var(--spacing-4xs) var(--spacing-2xs)` |  |  |
-| `--badge-p-md` | `var(--spacing-3xs) var(--spacing-xs)` |  |  |
-| `--badge-p-lg` | `var(--spacing-2xs) var(--spacing-sm)` |  |  |
-| `--row-p-sm` | `var(--spacing-2xs) var(--spacing-sm)` |  |  |
-| `--row-p-md` | `var(--spacing-xs) var(--spacing-sm)` |  |  |
-| `--row-p-lg` | `var(--spacing-sm) var(--spacing-md)` |  |  |
-| `--modal-p-sm` | `var(--spacing-xs) var(--spacing-sm)` |  |  |
-| `--modal-p-md` | `var(--spacing-md) var(--spacing-lg)` |  |  |
-| `--modal-p-lg` | `var(--spacing-xl) var(--spacing-xl)` |  |  |
-| `--card-p-sm` | `var(--spacing-2xs) var(--spacing-sm)` |  |  |
-| `--card-p-md` | `var(--spacing-md) var(--spacing-md)` |  |  |
-| `--card-p-lg` | `var(--spacing-xl) var(--spacing-2xl)` |  |  |
-| `--input-p` | `var(--spacing-2xs) var(--spacing-md)` |  |  |
-| `--field-p-sm` | `var(--spacing-2xs) var(--spacing-xs)` |  |  |
-| `--field-p-md` | `var(--spacing-2xs) var(--spacing-sm)` |  |  |
-| `--field-p-lg` | `var(--spacing-xs) var(--spacing-sm)` |  |  |
-| `--cell-p-sm` | `var(--spacing-2xs) var(--spacing-xs)` |  |  |
-| `--cell-p-md` | `var(--spacing-xs) var(--spacing-sm)` |  |  |
-| `--textarea-p` | `var(--spacing-sm) var(--spacing-md)` |  |  |
-| `--control-h-2xs` | `20px` |  |  |
-| `--control-h-xs` | `24px` |  |  |
-| `--control-h-sm` | `28px` |  |  |
-| `--control-h-md` | `32px` |  |  |
-| `--control-h-lg` | `36px` |  |  |
-| `--control-h-xl` | `38px` |  |  |
-| `--control-h-2xl` | `46px` |  |  |
-| `--skeleton-h-line` | `var(--font-size-body)` |  |  |
-| `--skeleton-h-line-sm` | `var(--font-size-label)` |  |  |
-| `--skeleton-h-line-lg` | `var(--font-size-lg)` |  |  |
-| `--skeleton-h-pill` | `var(--control-h-xs)` |  |  |
+| `--heading-line-height` | `var(--line-height-tight)` |  |  |
+| `--prose-block-gap` | `var(--spacing-16)` |  |  |
+| `--spacing-section` | `clamp(1rem, min(3.5vh, 2vw), 3.5rem)` |  |  |
+| `--spacing-block` | `clamp(0.75rem, min(3vh, 1.5vw), 2.5rem)` |  |  |
+| `--spacing-divide` | `calc(var(--spacing-block) * 2)` |  |  |
+| `--spacing-line` | `calc(var(--spacing-block) / 2)` |  |  |
+
+## `src/styles/globals/_component.css`
+
+토큰 42개
+
+| 토큰 | 값 |
+|---|---|
+| `--header-height` | `64px` |
+| `--footer-height` | `100px` |
+| `--action-button-width` | `48px` |
+| `--active-side-nav-width` | `0px` |
+| `--cursor-width` | `20px` |
+| `--cursor-big-width` | `60px` |
+| `--cursor-text-width` | `3px` |
+| `--cursor-text-height` | `24px` |
+| `--button-padding-xs` | `var(--spacing-2) var(--spacing-12)` |
+| `--button-padding-sm` | `var(--spacing-4) var(--spacing-16)` |
+| `--button-padding-md` | `var(--spacing-8) var(--spacing-20)` |
+| `--button-padding-lg` | `var(--spacing-12) var(--spacing-24)` |
+| `--badge-padding-sm` | `var(--spacing-1) var(--spacing-4)` |
+| `--badge-padding-md` | `var(--spacing-2) var(--spacing-8)` |
+| `--badge-padding-lg` | `var(--spacing-4) var(--spacing-12)` |
+| `--row-padding-sm` | `var(--spacing-4) var(--spacing-12)` |
+| `--row-padding-md` | `var(--spacing-8) var(--spacing-12)` |
+| `--row-padding-lg` | `var(--spacing-12) var(--spacing-16)` |
+| `--modal-padding-sm` | `var(--spacing-8) var(--spacing-12)` |
+| `--modal-padding-md` | `var(--spacing-16) var(--spacing-20)` |
+| `--modal-padding-lg` | `var(--spacing-24) var(--spacing-24)` |
+| `--card-padding-sm` | `var(--spacing-4) var(--spacing-12)` |
+| `--card-padding-md` | `var(--spacing-16) var(--spacing-16)` |
+| `--card-padding-lg` | `var(--spacing-24) var(--spacing-32)` |
+| `--input-padding` | `var(--spacing-4) var(--spacing-16)` |
+| `--field-padding-sm` | `var(--spacing-4) var(--spacing-8)` |
+| `--field-padding-md` | `var(--spacing-4) var(--spacing-12)` |
+| `--field-padding-lg` | `var(--spacing-8) var(--spacing-12)` |
+| `--cell-padding-sm` | `var(--spacing-4) var(--spacing-8)` |
+| `--cell-padding-md` | `var(--spacing-8) var(--spacing-12)` |
+| `--textarea-padding` | `var(--spacing-12) var(--spacing-16)` |
+| `--control-height-2xs` | `20px` |
+| `--control-height-xs` | `24px` |
+| `--control-height-sm` | `28px` |
+| `--control-height-md` | `32px` |
+| `--control-height-lg` | `36px` |
+| `--control-height-xl` | `38px` |
+| `--control-height-2xl` | `46px` |
+| `--skeleton-height-line` | `var(--font-size-body)` |
+| `--skeleton-height-line-sm` | `var(--font-size-label)` |
+| `--skeleton-height-line-lg` | `var(--font-size-18)` |
+| `--skeleton-height-pill` | `var(--control-height-xs)` |
+
+## `src/styles/globals/_legacy-aliases.css`
+
+토큰 60개
+
+| 토큰 | 값 |
+|---|---|
+| `--spacing-zero` | `var(--spacing-0)` |
+| `--spacing-4xs` | `var(--spacing-1)` |
+| `--spacing-3xs` | `var(--spacing-2)` |
+| `--spacing-2xs` | `var(--spacing-4)` |
+| `--spacing-xs` | `var(--spacing-8)` |
+| `--spacing-sm` | `var(--spacing-12)` |
+| `--spacing-md` | `var(--spacing-16)` |
+| `--spacing-lg` | `var(--spacing-20)` |
+| `--spacing-xl` | `var(--spacing-24)` |
+| `--spacing-2xl` | `var(--spacing-32)` |
+| `--spacing-2xl-plus` | `var(--spacing-40)` |
+| `--spacing-3xl` | `var(--spacing-48)` |
+| `--spacing-4xl` | `var(--spacing-64)` |
+| `--spacing-4xl-plus` | `var(--spacing-80)` |
+| `--spacing-5xl` | `var(--spacing-96)` |
+| `--spacing-5xl-plus` | `var(--spacing-112)` |
+| `--spacing-6xl` | `var(--spacing-128)` |
+| `--radius-2xs` | `var(--radius-2)` |
+| `--radius-xs` | `var(--radius-4)` |
+| `--radius-sm` | `var(--radius-6)` |
+| `--radius-md` | `var(--radius-8)` |
+| `--radius-lg` | `var(--radius-12)` |
+| `--radius-xl` | `var(--radius-16)` |
+| `--radius-2xl` | `var(--radius-24)` |
+| `--radius-capsule` | `var(--radius-full)` |
+| `--font-size-3xs` | `var(--font-size-11)` |
+| `--font-size-2xs` | `var(--font-size-12)` |
+| `--font-size-xs` | `var(--font-size-13)` |
+| `--font-size-sm` | `var(--font-size-14)` |
+| `--font-size-md` | `var(--font-size-16)` |
+| `--font-size-lg` | `var(--font-size-18)` |
+| `--font-size-xl` | `var(--font-size-20)` |
+| `--font-size-2xl` | `var(--font-size-24)` |
+| `--font-size-2xl-plus` | `var(--font-size-28)` |
+| `--font-size-3xl` | `var(--font-size-32)` |
+| `--font-size-4xl` | `var(--font-size-40)` |
+| `--font-size-5xl` | `var(--font-size-48)` |
+| `--font-size-6xl` | `var(--font-size-64)` |
+| `--size-6xs` | `var(--size-4)` |
+| `--size-5xs` | `var(--size-8)` |
+| `--size-4xs` | `var(--size-12)` |
+| `--size-3xs` | `var(--size-16)` |
+| `--size-2xs` | `var(--size-20)` |
+| `--size-xs` | `var(--size-24)` |
+| `--size-sm` | `var(--size-32)` |
+| `--size-md` | `var(--size-38)` |
+| `--size-xl` | `var(--size-56)` |
+| `--size-2xl` | `var(--size-64)` |
+| `--size-3xl` | `var(--size-72)` |
+| `--size-4xl` | `var(--size-80)` |
+| `--size-5xl` | `var(--size-96)` |
+| `--size-6xl` | `var(--size-112)` |
+| `--blur-xs` | `var(--blur-2)` |
+| `--blur-sm` | `var(--blur-4)` |
+| `--blur-md` | `var(--blur-8)` |
+| `--blur-lg` | `var(--blur-12)` |
+| `--blur-xl` | `var(--blur-16)` |
+| `--blur-2xl` | `var(--blur-24)` |
+| `--blur-3xl` | `var(--blur-40)` |
+| `--blur-4xl` | `var(--blur-60)` |

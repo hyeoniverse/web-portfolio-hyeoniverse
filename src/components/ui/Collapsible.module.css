@@ -21,14 +21,14 @@
   right: 0;
   bottom: 0;
   left: 0;
-  height: var(--spacing-3xl);
+  height: var(--spacing-48);
   background: linear-gradient(to bottom, transparent, var(--bg-primary));
   pointer-events: none;
 }
 
 /* 왼쪽 정렬 — 본문 글 시작선과 같은 축. 가운데로 두면 접힌 글과 관계없는 컨트롤처럼 뜬다. */
 .toggle {
-  margin-top: var(--spacing-2xs);
+  margin-top: var(--spacing-4);
 }
 
 /* compound (0,2,0) — 전역 theme transition(html[data-theme-ready] *, (0,1,1))이 shorthand 라

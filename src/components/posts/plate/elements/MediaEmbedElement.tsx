@@ -365,7 +365,7 @@ export function MediaEmbedElement(props: PlateElementProps) {
               draggable={false}
             />
             {resizeSize && (
-              <div style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%,-50%)", padding: "3px 8px", background: "var(--bg-overlay)", color: "#fff", borderRadius: "var(--radius-capsule)", fontSize: 13, fontWeight: 600, fontFamily: "var(--font-mono)", pointerEvents: "none", zIndex: 3 }}>
+              <div style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%,-50%)", padding: "3px 8px", background: "var(--bg-overlay)", color: "#fff", borderRadius: "var(--radius-full)", fontSize: 13, fontWeight: 600, fontFamily: "var(--font-mono)", pointerEvents: "none", zIndex: 3 }}>
                 {resizeSize.w}×{resizeSize.h}px
               </div>
             )}
@@ -378,7 +378,7 @@ export function MediaEmbedElement(props: PlateElementProps) {
                 {/* 시각 핸들 */}
                 <div style={{ ...handleStyle, width: 6, height: 32, right: -4, top: "50%", transform: "translateY(-50%)" }} />
                 <div style={{ ...handleStyle, width: 32, height: 6, bottom: -4, left: "50%", transform: "translateX(-50%)" }} />
-                <div style={{ ...handleStyle, width: 10, height: 10, borderRadius: "var(--radius-capsule)", right: -5, bottom: -5 }} />
+                <div style={{ ...handleStyle, width: 10, height: 10, borderRadius: "var(--radius-full)", right: -5, bottom: -5 }} />
               </>
             )}
           </div>

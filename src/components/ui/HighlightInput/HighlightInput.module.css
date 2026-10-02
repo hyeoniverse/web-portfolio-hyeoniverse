@@ -4,7 +4,7 @@
 .wrapper {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   width: 100%;
   min-width: 0;
 }
@@ -14,10 +14,10 @@
   align-items: center;
   width: 100%;
   min-width: 0;
-  height: var(--control-h-md);
+  height: var(--control-height-md);
   box-sizing: border-box;
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   /* (0,2,0) — 전역 theme transition override 위해 fieldWrap.wrapper 등으로 specificity 보강 가능 */
   transition: border-color var(--duration-base) ease;
@@ -29,19 +29,19 @@
 
 /* ── size 변형 (Input 위임 시 pass-through) — height + input line-height 동반 조정 ── */
 .fieldWrapSm {
-  height: var(--control-h-sm);
+  height: var(--control-height-sm);
 }
 
 .fieldWrapXs {
-  height: var(--control-h-xs);
+  height: var(--control-height-xs);
 }
 
 .fieldWrapSm .input {
-  line-height: var(--control-h-sm);
+  line-height: var(--control-height-sm);
 }
 
 .fieldWrapXs .input {
-  line-height: var(--control-h-xs);
+  line-height: var(--control-height-xs);
   font-size: var(--font-size-label);
 }
 
@@ -61,7 +61,7 @@
   box-sizing: border-box;
   /* padding 0 — gap 은 margin 으로 (scroll 영역 밖이라 항상 유지됨) */
   padding: 0;
-  margin: 0 var(--spacing-2xs) 0 var(--spacing-md);
+  margin: 0 var(--spacing-4) 0 var(--spacing-16);
   border: none;
   background: transparent;
   font-family: var(--font-space-grotesk), sans-serif;
@@ -70,7 +70,7 @@
   outline: none;
   /* line-height = 높이 → 단일 라인 vertical center. flex 중앙정렬은 빈 contentEditable 에서 line box 가
      없어 caret 이 위로 치우침 → line-height 방식으로 빈 상태에서도 caret 중앙 유지 */
-  line-height: var(--control-h-md);
+  line-height: var(--control-height-md);
   white-space: nowrap;
   overflow-x: auto;
   overflow-y: hidden;
@@ -98,9 +98,9 @@
   align-items: center;
   justify-content: center;
   height: 18px;
-  margin-left: var(--spacing-xs);
-  padding: 0 var(--spacing-2xs);
-  border-radius: var(--radius-capsule);
+  margin-left: var(--spacing-8);
+  padding: 0 var(--spacing-4);
+  border-radius: var(--radius-full);
   background: var(--bg-tertiary);
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-micro);
@@ -114,7 +114,7 @@
 
 /* inlineLabel 다음에 오는 input — badge 와 text 사이 margin (scroll 영역 밖이라 항상 유지) */
 .hasInlineLabel .input {
-  margin-left: var(--spacing-sm);
+  margin-left: var(--spacing-12);
 }
 
 /* 초과 글자 highlight — accent 배경색 (22% opacity), text 색 상속. native <mark> default 무효화.
@@ -122,7 +122,7 @@
 .over {
   background: color-mix(in oklch, var(--text-accent) 22%, transparent);
   color: inherit;
-  padding: var(--spacing-3xs) var(--spacing-2xs);
+  padding: var(--spacing-2) var(--spacing-4);
   border-radius: 3px;
   -webkit-text-fill-color: inherit;
   box-decoration-break: clone;
@@ -137,7 +137,7 @@
   justify-content: center;
   width: 20px;
   height: 20px;
-  margin-right: var(--spacing-2xs);
+  margin-right: var(--spacing-4);
   padding: 0;
   border: none;
   border-radius: var(--radius-circle);
@@ -159,7 +159,7 @@
   display: inline-flex;
   align-items: center;
   height: 100%;
-  margin-right: var(--spacing-sm);
+  margin-right: var(--spacing-12);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-micro);
   color: var(--text-tertiary);

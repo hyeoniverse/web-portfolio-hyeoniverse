@@ -11,15 +11,15 @@
 
 .flipContainer {
   overflow: hidden;
-  padding: var(--spacing-xl) 0;
+  padding: var(--spacing-24) 0;
 }
 
 .flipCard {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-md);
-  padding: var(--spacing-sm) 0;
+  gap: var(--spacing-16);
+  padding: var(--spacing-12) 0;
   opacity: 0;
   transform: translateY(30px) scale(0.85);
   filter: blur(8px);
@@ -50,7 +50,7 @@
 .flipText {
   margin: 0;
   font-family: var(--font-mono);
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-18);
   font-weight: var(--font-weight-medium);
   color: var(--text-accent);
   letter-spacing: 0.02em;
@@ -105,12 +105,12 @@
    ※ 거터 오프셋(--_gutter-w + --_gutter-gap)은 CommentSection `.listHeaderSlot` 의
      padding-left 와 반드시 같아야 한다 (전체선택 체크박스 ↔ 각 댓글 체크박스 세로 정렬). */
 .comment {
-  --_gutter-w: var(--size-xs);
-  --_gutter-gap: var(--spacing-sm);
+  --_gutter-w: var(--size-24);
+  --_gutter-gap: var(--spacing-12);
   display: grid;
   grid-template-columns: var(--_gutter-w) 1fr;
   column-gap: var(--_gutter-gap);
-  padding: var(--spacing-lg) 0;
+  padding: var(--spacing-20) 0;
 }
 
 /* 선택 모드 — 체크박스를 아바타 거터보다 "앞" 열에 둔다.
@@ -133,7 +133,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 /* 스레드 줄 — 거터 한가운데. width 0 + 좌측 보더로 두께를 내서
@@ -150,7 +150,7 @@
 .body {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   min-width: 0;
 }
 
@@ -167,7 +167,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
   min-height: var(--_gutter-w);
 }
 
@@ -176,7 +176,7 @@
   display: flex;
   flex-shrink: 0;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 .deletedPlaceholder {
@@ -194,7 +194,7 @@
 .commentHeader {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   flex-wrap: wrap;
   min-height: var(--_gutter-w);
 }
@@ -206,7 +206,7 @@
 .headerMeta {
   display: flex;
   align-items: baseline;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   flex-wrap: wrap;
   min-width: 0;
 }
@@ -220,7 +220,7 @@
   flex-shrink: 0;
   width: var(--_gutter-w);
   height: var(--_gutter-w);
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-18);
   line-height: 1;
 }
 
@@ -239,8 +239,8 @@
 }
 
 .adminBadge {
-  padding: var(--badge-p-md);
-  border-radius: var(--radius-capsule);
+  padding: var(--badge-padding-md);
+  border-radius: var(--radius-full);
   background: var(--bg-accent);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-hint);
@@ -264,14 +264,14 @@
 /* 번역 결과 — 본문과 떨어뜨려 별개 블록임을 드러냄.
    height 0↔auto 애니메이션 중이라 margin 은 밖(여기)에 둬야 접힐 때 같이 사라진다. */
 .translatedContent {
-  margin-top: var(--spacing-lg);
+  margin-top: var(--spacing-20);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-body);
   color: var(--text-tertiary);
   line-height: var(--line-height-relaxed);
   white-space: pre-wrap;
   font-style: italic;
-  padding-left: var(--spacing-sm);
+  padding-left: var(--spacing-12);
   border-left: var(--border-light-2);
   overflow: hidden;
 }
@@ -280,8 +280,8 @@
 .translatedLabel {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-3xs);
-  margin-bottom: var(--spacing-2xs);
+  gap: var(--spacing-2);
+  margin-bottom: var(--spacing-4);
   font-size: var(--font-size-title-sm);
   font-style: normal;
   font-weight: var(--font-weight-medium);
@@ -294,7 +294,7 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 /* 칩끼리 간격 — bar gap 과 분리 */
@@ -302,7 +302,7 @@
   display: inline-flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 /* 반응 칩 — capsule + light 보더. 높이는 추가 버튼과 통일(28px).
@@ -310,12 +310,12 @@
 .reactionChip {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   flex-shrink: 0;
-  height: var(--control-h-sm);
-  padding: 0 var(--spacing-2xs);
+  height: var(--control-height-sm);
+  padding: 0 var(--spacing-4);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
@@ -370,8 +370,8 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: var(--control-h-sm);
-  height: var(--control-h-sm);
+  width: var(--control-height-sm);
+  height: var(--control-height-sm);
   padding: 0;
   border: var(--border-light);
   border-radius: var(--radius-circle);
@@ -386,24 +386,24 @@
 }
 
 .reactionPopover {
-  padding: var(--spacing-2xs);
+  padding: var(--spacing-4);
 }
 
 .reactionPicker {
   display: flex;
-  gap: var(--spacing-4xs);
+  gap: var(--spacing-1);
 }
 
 .reactionPickerBtn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--size-sm);
-  height: var(--size-sm);
+  width: var(--size-32);
+  height: var(--size-32);
   border: none;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-16);
   line-height: 1;
 }
 
@@ -423,8 +423,8 @@
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: var(--spacing-md);
-  margin-top: var(--spacing-sm);
+  gap: var(--spacing-16);
+  margin-top: var(--spacing-12);
 }
 
 .commentActions {
@@ -443,7 +443,7 @@
   display: flex;
   flex-direction: column;
   gap: 0;
-  margin-top: var(--spacing-sm);
+  margin-top: var(--spacing-12);
 }
 
 /* 엘보 커넥터 ├─ — 부모 거터의 세로 레일에서 가로로 뻗어 각 답글의 아바타에 연결.
@@ -453,7 +453,7 @@
    - .replies 는 부모 body 컬럼 안이라, 부모 레일은 여기 기준 왼쪽으로
      (거터갭 + 거터폭/2) 만큼 떨어져 있다 → left 가 그 값의 음수.
    - 가로 길이는 거기서 답글 거터의 왼쪽 끝(x=0)까지 → 같은 값.
-   - 세로 위치는 답글 아바타의 중심 = 답글 상단 패딩(--spacing-lg) + 거터폭/2.
+   - 세로 위치는 답글 아바타의 중심 = 답글 상단 패딩(--spacing-20) + 거터폭/2.
    답글도 자기 --_gutter-* 를 갖고 있어 값이 동일하게 해석된다. */
 .replies > * {
   position: relative;
@@ -464,7 +464,7 @@
   position: absolute;
   left: calc(-1 * (var(--_gutter-gap) + var(--_gutter-w) / 2));
   width: calc(var(--_gutter-gap) + var(--_gutter-w) / 2);
-  top: calc(var(--spacing-lg) + var(--_gutter-w) / 2);
+  top: calc(var(--spacing-20) + var(--_gutter-w) / 2);
   border-top: var(--border-light-2);
   pointer-events: none;
 }
@@ -475,7 +475,7 @@
    답글 폼의 박스는 보더 없이 열린 형태 — `.replies` 와 마찬가지로 부모 거터의 스레드 줄이 옆을 지난다.
    overflow: hidden 은 framer-motion height 애니메이션용 — 유지. */
 .replyForm {
-  margin-top: var(--spacing-sm);
+  margin-top: var(--spacing-12);
   overflow: hidden;
 }
 
@@ -483,8 +483,8 @@
 .deleteModal {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
-  margin-top: var(--spacing-xs);
+  gap: var(--spacing-8);
+  margin-top: var(--spacing-8);
   overflow: hidden;
 }
 
@@ -497,7 +497,7 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 /* 비밀번호 입력(공통 Input) 래퍼 — 폭만 고정. 시각 스타일은 Input size="sm" 이 담당.
@@ -524,7 +524,7 @@
 .editArea {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   overflow: hidden;
 }
 
@@ -535,7 +535,7 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 /* 수정 저장/취소는 공통 Button (primary / outline, size="sm") 이 담당 —

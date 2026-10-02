@@ -79,7 +79,7 @@ html[data-theme="dark"] .heroBgDark {
 .label {
   display: inline-block;
   margin-bottom: var(--_space-block);
-  padding: var(--spacing-xs) var(--spacing-xl);
+  padding: var(--spacing-8) var(--spacing-24);
   border: var(--border-accent);
   width: fit-content;
   font-size: var(--font-size-prose-label);
@@ -175,9 +175,9 @@ html[data-theme="dark"] .heroBgDark {
   display: block;
   width: 0;
   height: 2px;
-  margin-top: var(--spacing-lg);
+  margin-top: var(--spacing-20);
   background: var(--_hero-accent-color, var(--bg-accent-solid));
-  border-radius: var(--spacing-4xs);
+  border-radius: var(--spacing-1);
   opacity: 0;
 }
 
@@ -231,8 +231,8 @@ html[data-theme="dark"] .heroBgDark {
   .heroPoster {
     align-items: center;
     justify-content: center;
-    gap: var(--spacing-lg);
-    padding: var(--header-height) 0 calc(var(--spacing-2xl) + 4.5rem);
+    gap: var(--spacing-20);
+    padding: var(--header-height) 0 calc(var(--spacing-32) + 4.5rem);
     text-align: center;
   }
 
@@ -261,16 +261,16 @@ html[data-theme="dark"] .heroBgDark {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     width: min(100%, 64rem);
-    margin-top: var(--spacing-lg);
+    margin-top: var(--spacing-20);
     border-top: var(--border-default);
   }
 
   .heroTocItem {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-3xs);
+    gap: var(--spacing-2);
     align-items: flex-start;
-    padding: var(--spacing-sm) var(--spacing-md);
+    padding: var(--spacing-12) var(--spacing-16);
     text-align: left;
     border-left: var(--border-light);
   }

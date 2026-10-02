@@ -238,12 +238,12 @@ export default function CommentsModerationPage() {
         <div className={styles.list} aria-busy="true">
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className={styles.row}>
-              <Skeleton width={16} height={16} borderRadius="var(--radius-capsule)" />
+              <Skeleton width={16} height={16} borderRadius="var(--radius-full)" />
               <SkeletonPill width={48} height={20} />
               <SkeletonLine width={80} />
               <SkeletonLine width={`${85 - (i % 3) * 8}%`} />
-              <SkeletonLine width={120} height="var(--skeleton-h-line-sm)" />
-              <SkeletonLine width={80} height="var(--skeleton-h-line-sm)" />
+              <SkeletonLine width={120} height="var(--skeleton-height-line-sm)" />
+              <SkeletonLine width={80} height="var(--skeleton-height-line-sm)" />
               <span />
             </div>
           ))}

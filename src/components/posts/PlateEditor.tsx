@@ -2324,7 +2324,7 @@ function PlateEditorBody({
             {findReplace && (
               <div className={styles.floatingBarRow}>
                 {/* 찾기 행 좌측 chevron 폭만큼 정렬용 spacer */}
-                <span aria-hidden style={{ width: "var(--control-h-sm)", flexShrink: 0 }} />
+                <span aria-hidden style={{ width: "var(--control-height-sm)", flexShrink: 0 }} />
                 {/* 바꾸기 필드 — 입력 + 대소문자 유지(AB) 토글 */}
                 <div className={styles.findField} style={{ width: 236 }}>
                   <input
@@ -2717,7 +2717,7 @@ function PlateEditorBody({
                 <>
                   {/* cleanupMenu — 열 바의 정리·초기화와 같은 규격.
                       blockToolsMenu(220px 고정 + 라벨 padding 2px)를 쓰면 짧은 항목 2개에 비해 과하게 넓고,
-                      헤더 라벨이 MenuItem(좌측 --spacing-sm)과 좌측 정렬이 어긋난 채 위 모서리에 붙는다. */}
+                      헤더 라벨이 MenuItem(좌측 --spacing-12)과 좌측 정렬이 어긋난 채 위 모서리에 붙는다. */}
                   <Popover openOnHover placement="bottom-end" offset={8} menu contentClassName={styles.cleanupMenu}
                     trigger={<TBtn square tooltip={L2("정리 · 초기화", "Clean up")}><Sparkles size={15} strokeWidth={1.75} /></TBtn>}>
                     {({ close }: { close: () => void }) => (
@@ -3134,7 +3134,7 @@ function PlateEditorBody({
               style={{
                 minHeight: 300, width: "100%",
                 fontFamily: "var(--font-mono)", fontSize: "13px", lineHeight: 1.6,
-                padding: "var(--spacing-sm)", outline: "none",
+                padding: "var(--spacing-12)", outline: "none",
                 resize: "vertical", background: "var(--bg-primary)", color: "var(--text-primary)",
                 whiteSpace: "pre-wrap", wordBreak: "break-all",
               }}
@@ -3152,7 +3152,7 @@ function PlateEditorBody({
                 background: "var(--color-accent)",
                 borderRadius: 1,
                 pointerEvents: "none",
-                zIndex: "var(--z-top)",
+                zIndex: "var(--z-index-top)",
                 opacity: 0,
                 transition: "opacity 0.1s",
               }}

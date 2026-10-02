@@ -1,7 +1,7 @@
 .container {
-  max-width: var(--page-max-width);
+  max-width: var(--width-page-max);
   margin: 0 auto;
-  padding: var(--spacing-6xl) var(--page-px) var(--spacing-3xl);
+  padding: var(--spacing-128) var(--spacing-page-inline) var(--spacing-48);
 }
 
 /* ── Hero — container padding-top 으로 위 spacing 충분, 자체 padding-top 없음 ── */
@@ -9,17 +9,17 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: var(--spacing-sm);
-  padding-bottom: var(--spacing-2xl);
+  gap: var(--spacing-12);
+  padding-bottom: var(--spacing-32);
   border-bottom: var(--border-light);
-  margin-bottom: var(--spacing-2xl);
+  margin-bottom: var(--spacing-32);
 }
 
 /* 검색창 — toolbar 안 오른쪽 끝으로 push */
 
 .heroTitle {
   font-family: var(--font-instrument);
-  font-size: var(--font-size-5xl);
+  font-size: var(--font-size-48);
   font-weight: var(--font-weight-regular);
   color: var(--text-primary);
   margin: 0;
@@ -53,7 +53,7 @@
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: var(--spacing-lg);
+  gap: var(--spacing-20);
   transition: opacity 0.18s ease;
 }
 
@@ -63,5 +63,5 @@
 /* 공통 Pagination 의 .paginationWrap(margin-top: md) 을 덮는다 — 같은 (0,1,0) 이면 번들 순서가
    승자를 정하므로 클래스를 두 번 적어 (0,2,0). */
 .pagination.pagination {
-  margin-top: var(--spacing-2xl);
+  margin-top: var(--spacing-32);
 }

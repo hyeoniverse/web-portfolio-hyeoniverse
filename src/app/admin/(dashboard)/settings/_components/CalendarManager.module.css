@@ -2,7 +2,7 @@
 .wrap {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
 }
 
 /* 목록 — 상자 대신 가는 선으로 나눈 줄. 예전엔 줄마다 큰 둥근 상자라 네 개만 있어도 화면이 찼고
@@ -10,7 +10,7 @@
 /* 화면 너비에 따라 1~3열 — 한 칸은 300px 이상, 열은 셋까지(넓은 화면에서 한 줄이 너무 길어지지 않게) */
 .list,
 .trashBody {
-  --cal-gap: var(--spacing-lg);
+  --cal-gap: var(--spacing-20);
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(max(300px, calc((100% - 2 * var(--cal-gap)) / 3)), 1fr));
   column-gap: var(--cal-gap);
@@ -25,9 +25,9 @@
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  column-gap: var(--spacing-sm);
-  row-gap: var(--spacing-4xs);
-  padding: var(--spacing-xs) var(--spacing-2xs);
+  column-gap: var(--spacing-12);
+  row-gap: var(--spacing-1);
+  padding: var(--spacing-8) var(--spacing-4);
   border-bottom: var(--border-light);
   transition: background-color 0.15s ease;
 }
@@ -50,7 +50,7 @@
   overflow: hidden;
   border: var(--border-light);
   /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 40px 상자에 2xl 이면 원이 돼 뜯는 달력으로 안 읽힌다 */
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-6);
   background: var(--bg-primary);
   text-align: center;
   font-variant-numeric: tabular-nums;
@@ -71,11 +71,11 @@
   color: var(--text-primary);
 }
 
-.rowMain { display: flex; flex-direction: column; gap: var(--spacing-4xs); min-width: 0; cursor: pointer; }
+.rowMain { display: flex; flex-direction: column; gap: var(--spacing-1); min-width: 0; cursor: pointer; }
 .rowMain:hover .rowTitle { color: var(--text-accent); }
 /* 좁은 칸에서는 제목을 자르지 않고 메타를 다음 줄로 */
-.rowLine { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: var(--spacing-xs); min-width: 0; }
-.previewWrap { padding: var(--spacing-md); }
+.rowLine { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: var(--spacing-8); min-width: 0; }
+.previewWrap { padding: var(--spacing-16); }
 .rowTitle {
   flex-shrink: 1;
   min-width: 0;
@@ -105,7 +105,7 @@
   text-underline-offset: 3px;
 }
 .usageNone { color: var(--text-muted); text-decoration: none; }
-.usageList { display: flex; flex-direction: column; gap: var(--spacing-3xs); }
+.usageList { display: flex; flex-direction: column; gap: var(--spacing-2); }
 .usageLink { color: inherit; text-decoration: none; }
 .usageLink:hover { text-decoration: underline; }
 
@@ -114,12 +114,12 @@
   grid-row: 1 / span 2;
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-4xs);
+  gap: var(--spacing-1);
   color: var(--text-tertiary);
 }
 
 /* 인라인 rename */
-.renameForm { display: flex; align-items: center; gap: var(--spacing-2xs); flex: 1; min-width: 0; }
+.renameForm { display: flex; align-items: center; gap: var(--spacing-4); flex: 1; min-width: 0; }
 .renameInput {
   flex: 1;
   min-width: 0;
@@ -128,13 +128,13 @@
 @keyframes calMgrSpin { to { transform: rotate(360deg); } }
 
 /* ── 휴지통 (soft delete · 30일 후 자동 영구삭제) ── */
-.trashSection { margin-top: var(--spacing-xs); }
+.trashSection { margin-top: var(--spacing-8); }
 .trashHead {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   width: 100%;
-  padding: var(--spacing-xs) var(--spacing-2xs);
+  padding: var(--spacing-8) var(--spacing-4);
   border: none;
   border-radius: 0;
   background: transparent;
@@ -146,8 +146,8 @@
 .trashTitle { font-size: var(--font-size-label); font-weight: 500; }
 .trashCount {
   min-width: 18px;
-  padding: 0 var(--spacing-3xs);
-  border-radius: var(--radius-capsule);
+  padding: 0 var(--spacing-2);
+  border-radius: var(--radius-full);
   background: var(--bg-tertiary);
   color: var(--text-tertiary);
   font-size: var(--font-size-hint);

@@ -21,11 +21,11 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   position: sticky;
-  top: calc(var(--spacing-2xl) * 2 + var(--font-size-3xl));
+  top: calc(var(--spacing-32) * 2 + var(--font-size-32));
   z-index: 51;
-  padding-bottom: var(--spacing-md);
+  padding-bottom: var(--spacing-16);
   background: transparent;
   transform: translateY(0);
   opacity: 1;
@@ -43,7 +43,7 @@
   content: "";
   position: absolute;
   /* 위로 stickyTop 만큼 확장 → nav 영역 포함 */
-  top: calc(-1 * (var(--spacing-2xl) * 2 + var(--font-size-3xl)));
+  top: calc(-1 * (var(--spacing-32) * 2 + var(--font-size-32)));
   /* viewport 좌우 끝까지 */
   left: calc(50% - 50vw);
   right: calc(50% - 50vw);
@@ -74,7 +74,7 @@
 .heroBadge {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   font-weight: 600;
@@ -93,7 +93,7 @@
 .toolbar {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   flex: 1;
   min-width: 0;
 }
@@ -103,13 +103,13 @@
 .toolbarLeft {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 /* SegmentedControl 의 기본 height (font-xs + padding-2xs/md) 가 search/select 보다 큼 →
    filter bar size 와 통일 (font-2xs + box-sm) */
 .toolbarLeft button {
-  padding: var(--button-p-xs);
+  padding: var(--button-padding-xs);
   font-size: var(--font-size-hint);
 }
 
@@ -125,7 +125,7 @@
 .searchPerPageGroup {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   margin-left: auto;
   min-width: 0;
 }
@@ -134,7 +134,7 @@
 .perPageGroup {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 .perPageIcon {
   flex-shrink: 0;
@@ -144,6 +144,6 @@
   flex: 0 0 auto;
 }
 .perPageSelect > button {
-  padding: 0 var(--spacing-sm);
+  padding: 0 var(--spacing-12);
   font-size: var(--font-size-hint);
 }

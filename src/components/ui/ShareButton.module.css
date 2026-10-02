@@ -10,9 +10,9 @@
 .compact {
   display: inline-flex;
   align-items: center;
-  padding: var(--button-p-sm);
+  padding: var(--button-padding-sm);
   border: var(--border-strong);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-label);
@@ -48,7 +48,7 @@
   white-space: nowrap;
 }
 
-/* compact 는 좁으니 아이콘↔라벨도 좁게. action 은 껍데기의 gap(--spacing-sm)을 그대로 쓴다. */
+/* compact 는 좁으니 아이콘↔라벨도 좁게. action 은 껍데기의 gap(--spacing-12)을 그대로 쓴다. */
 .compact .label {
-  margin-left: var(--spacing-xs);
+  margin-left: var(--spacing-8);
 }

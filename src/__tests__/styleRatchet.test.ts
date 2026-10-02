@@ -18,11 +18,11 @@ describe("styleRatchet", () => {
         fs.mkdirSync(path.dirname(path.join(tmp, rel)), { recursive: true });
         fs.writeFileSync(path.join(tmp, rel), text);
       };
-      w("src/a.module.css", "/* var(--spacing-md) */ .a { padding: var(--spacing-md); transition: opacity 0.3s; }\n.b:disabled { opacity: 0.5; }");
-      w("src/styles/tokens/_spacing.css", ":root { --spacing-md: 1rem; } .x { padding: var(--spacing-md); }");
+      w("src/a.module.css", "/* var(--radius-24) */ .a { border-radius: var(--radius-24); transition: opacity 0.3s; }\n.b:disabled { opacity: 0.5; }");
+      w("src/styles/tokens/_radius.css", ":root { --radius-24: 24px; } .x { border-radius: var(--radius-24); }");
       w("src/b.tsx", 'export const A = () => <button type="button" />;\nconst html = "<button>x</button>";');
       const m = measure(tmp);
-      expect(m["name-spacing"]).toEqual({ "src/a.module.css": 1 });
+      expect(m["radius-not-role"]).toEqual({ "src/a.module.css": 1 });
       expect(m["motion-duration-literal"]).toEqual({ "src/a.module.css": 1 });
       expect(m["opacity-disabled"]).toEqual({ "src/a.module.css": 1 });
       expect(m["component-raw-button"]).toEqual({ "src/b.tsx": 1 });

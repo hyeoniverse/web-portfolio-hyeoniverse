@@ -59,7 +59,7 @@
 }
 
 .excerpt {
-  margin-top: var(--spacing-2xs);
+  margin-top: var(--spacing-4);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   color: var(--text-white);
@@ -74,9 +74,9 @@
 .meta {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   max-width: 640px;
-  padding-bottom: var(--spacing-xs);
+  padding-bottom: var(--spacing-8);
 }
 
 .slideIndex {
@@ -111,8 +111,8 @@
   right: 0;
   display: flex;
   align-items: flex-end;
-  gap: var(--spacing-xl);
-  padding: var(--spacing-3xl) var(--spacing-4xl);
+  gap: var(--spacing-24);
+  padding: var(--spacing-48) var(--spacing-64);
   z-index: 1;
 }
 
@@ -136,16 +136,16 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: var(--spacing-3xl) var(--spacing-4xl);
+  padding: var(--spacing-48) var(--spacing-64);
   z-index: 1;
 }
 
 .categoryBadge {
   display: inline-block;
-  margin-bottom: var(--spacing-sm);
-  padding: var(--spacing-2xs) var(--spacing-md);
+  margin-bottom: var(--spacing-12);
+  padding: var(--spacing-4) var(--spacing-16);
   border: var(--border-ghost);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-hint);
   font-weight: var(--font-weight-medium);
@@ -173,7 +173,7 @@
 .divider {
   width: 40px;
   height: 1px;
-  margin-top: var(--spacing-md);
+  margin-top: var(--spacing-16);
   background: var(--bg-glass-strong);
 }
 
@@ -196,12 +196,12 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: var(--spacing-3xl);
+  padding: var(--spacing-48);
   z-index: 1;
 }
 
 .categoryCinematic {
-  margin-bottom: var(--spacing-md);
+  margin-bottom: var(--spacing-16);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   font-weight: var(--font-weight-medium);
@@ -227,7 +227,7 @@
 }
 
 .excerptCinematic {
-  margin-top: var(--spacing-lg);
+  margin-top: var(--spacing-20);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-body);
   color: var(--text-white);
@@ -248,8 +248,8 @@
 
 .contentMagazine {
   position: absolute;
-  bottom: var(--spacing-2xl);
-  left: var(--spacing-2xl);
+  bottom: var(--spacing-32);
+  left: var(--spacing-32);
   z-index: 1;
   max-width: 400px;
 }
@@ -257,12 +257,12 @@
 .magazineCard {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
-  padding: var(--card-p-lg);
+  gap: var(--spacing-8);
+  padding: var(--card-padding-lg);
   background: var(--bg-overlay);
   backdrop-filter: blur(16px);
   border: var(--border-ghost-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
 }
 
 /* Compound selector (0,2,0) — backdrop-filter transition */
@@ -273,7 +273,7 @@
 .badgeRow {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 .badgeSep {
@@ -292,7 +292,7 @@
 }
 
 .readMore {
-  margin-top: var(--spacing-xs);
+  margin-top: var(--spacing-8);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   font-weight: var(--font-weight-medium);
@@ -307,7 +307,7 @@
 @media (max-width: 768px) {
   /* Editorial */
   .contentEditorial {
-    padding: var(--spacing-xl) var(--spacing-lg) var(--spacing-4xl);
+    padding: var(--spacing-24) var(--spacing-20) var(--spacing-64);
   }
 
   .slideIndex {
@@ -320,7 +320,7 @@
 
   /* Minimal */
   .contentMinimal {
-    padding: var(--spacing-xl) var(--spacing-lg) var(--spacing-4xl);
+    padding: var(--spacing-24) var(--spacing-20) var(--spacing-64);
   }
 
   .titleMinimal {
@@ -338,9 +338,9 @@
 
   /* Magazine */
   .contentMagazine {
-    bottom: var(--spacing-3xl);
-    left: var(--spacing-lg);
-    right: var(--spacing-lg);
+    bottom: var(--spacing-48);
+    left: var(--spacing-20);
+    right: var(--spacing-20);
     max-width: none;
   }
 }

@@ -11,13 +11,13 @@
   align-items: center;
   text-align: center;
   /* 줄 사이도 판 높이를 따른다 — 판이 얕으면 여백부터 줄여야 글자가 들어간다 */
-  gap: clamp(var(--spacing-2xs), calc(var(--panel-h, 320px) * 0.05), var(--spacing-md));
+  gap: clamp(var(--spacing-4), calc(var(--panel-h, 320px) * 0.05), var(--spacing-16));
   /* 판이 화면에 실제로 차지하는 너비(--panel-w)를 무대가 매 프레임 넣어 준다.
      그 값을 넘지 않아야 글자가 판 밖으로 나가지 않는다 */
   max-width: min(520px, var(--panel-w, 520px));
   /* 내용 기준 폭 — left: 50% 요소는 그냥 두면 화면 절반 폭 안에서 줄을 바꾼다 */
   width: max-content;
-  padding: 0 var(--spacing-xl);
+  padding: 0 var(--spacing-24);
   transition: opacity 0.3s ease;
 }
 
@@ -101,7 +101,7 @@
 .introRule {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 .introRuleLine {
@@ -166,7 +166,7 @@
 
 .introScroll {
   /* 얕은 판에서는 이 여백부터 줄인다 — 안내 한 줄을 위해 제목을 더 줄일 수는 없다 */
-  margin-top: clamp(var(--spacing-2xs), calc(var(--panel-h, 320px) * 0.06), var(--spacing-xl));
+  margin-top: clamp(var(--spacing-4), calc(var(--panel-h, 320px) * 0.06), var(--spacing-24));
   font-family: var(--font-mono);
   font-size: clamp(var(--font-size-micro), calc(var(--panel-h, 320px) * 0.05), var(--font-size-hint));
   letter-spacing: 0.2em;

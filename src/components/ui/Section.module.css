@@ -4,8 +4,8 @@
 
 .section {
   position: relative;
-  padding-left: var(--page-px);
-  padding-right: var(--page-px);
+  padding-left: var(--spacing-page-inline);
+  padding-right: var(--spacing-page-inline);
 }
 
 .fullHeight {

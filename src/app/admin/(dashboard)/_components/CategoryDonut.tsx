@@ -102,7 +102,7 @@ function CategoryDonut({
     <Panel
       variant="grid"
       cols="auto 1fr"
-      style={{ columnGap: "var(--spacing-md)", alignItems: "stretch" }}
+      style={{ columnGap: "var(--spacing-16)", alignItems: "stretch" }}
     >
       <svg
         viewBox="0 0 140 140"

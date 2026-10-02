@@ -4,7 +4,7 @@
   height: 100%;
   position: relative;
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   overflow: hidden;
 }
 
@@ -19,15 +19,15 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  row-gap: var(--spacing-2xs);
-  column-gap: var(--spacing-3xs);
-  padding: var(--spacing-xs);
+  row-gap: var(--spacing-4);
+  column-gap: var(--spacing-2);
+  padding: var(--spacing-8);
   border: none;
   border-radius: 0;
   background: var(--bg-tertiary);
   overflow: visible;
   position: relative;
-  z-index: var(--z-dropdown);
+  z-index: var(--z-index-dropdown);
 }
 
 .toolbarBtn {
@@ -37,9 +37,9 @@
   justify-content: center;
   height: 28px;
   min-width: 28px;
-  padding: 0 var(--spacing-sm);
+  padding: 0 var(--spacing-12);
   border: none;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   font-family: var(--font-mono);
   font-size: var(--font-size-body);
@@ -63,7 +63,7 @@
 .toolbarBtnActive {
   background: var(--text-primary);
   color: var(--bg-primary);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
 }
 
 .toolbar .toolbarBtnActive:hover {
@@ -75,7 +75,7 @@
   width: 1px;
   height: 14px;
   align-self: center;
-  margin: 0 var(--spacing-2xs);
+  margin: 0 var(--spacing-4);
   background: var(--border-color-light);
   flex-shrink: 0;
 }
@@ -98,7 +98,7 @@
 .tableMenu {
   display: flex;
   flex-direction: column;
-  padding: var(--spacing-2xs);
+  padding: var(--spacing-4);
   width: max-content;
   max-width: min(92vw, 480px);
   background: var(--bg-primary);
@@ -112,8 +112,8 @@
   border-radius: 0;
   overflow: visible;
   flex-wrap: wrap;
-  gap: var(--spacing-3xs);
-  padding: var(--spacing-2xs) var(--spacing-3xs);
+  gap: var(--spacing-2);
+  padding: var(--spacing-4) var(--spacing-2);
 }
 .tableMenu .tableGroup + .tableGroup {
   border-top: 1px solid var(--border-color-light);
@@ -121,8 +121,8 @@
 /* popover 버튼 — 세그먼트(사각형 radius:0 + border-left 구분선) 무효화 → 기본 캡슐 버튼으로 통일 */
 .tableMenu .tableGroup .toolbarBtn {
   border-left: none;
-  border-radius: var(--radius-capsule);
-  padding: 0 var(--spacing-sm);
+  border-radius: var(--radius-full);
+  padding: 0 var(--spacing-12);
 }
 .tableMenu .tableGroup .toolbarBtn.toolbarBtnSquare {
   padding: 0;
@@ -137,7 +137,7 @@
 .tblBarLabel {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   white-space: nowrap;
 }
 /* popover row 안 우측 정렬용 스페이서 */
@@ -167,17 +167,17 @@
 .slashMenu {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-4xs);
+  gap: var(--spacing-1);
   min-width: 200px;
   max-height: 320px;
   overflow-y: auto;
-  padding: var(--spacing-xs);
+  padding: var(--spacing-8);
   background: var(--bg-glass-strong);
   backdrop-filter: blur(8px);
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   box-shadow: 0 8px 24px oklch(0% 0 0 / 0.18);
-  z-index: var(--z-dropdown);
+  z-index: var(--z-index-dropdown);
 }
 
 /* ── 게시물 링크 메뉴 ([[) ── */
@@ -190,7 +190,7 @@
 .postLinkList {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-4xs);
+  gap: var(--spacing-1);
   max-height: 300px;
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -213,16 +213,16 @@
 .postLinkSearch {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
-  padding: var(--spacing-2xs) var(--spacing-sm);
-  margin-bottom: var(--spacing-3xs);
+  gap: var(--spacing-4);
+  padding: var(--spacing-4) var(--spacing-12);
+  margin-bottom: var(--spacing-2);
   border-bottom: var(--border-light);
   color: var(--text-tertiary);
 }
 .postLinkSearchVal { flex: 1; min-width: 0; color: var(--text-primary); font-size: var(--font-size-body); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .postLinkSearchPh { flex: 1; color: var(--text-tertiary); font-size: var(--font-size-body); }
 .postLinkSectionLabel {
-  padding: var(--spacing-2xs) var(--spacing-sm) var(--spacing-3xs);
+  padding: var(--spacing-4) var(--spacing-12) var(--spacing-2);
   font-size: var(--font-size-hint);
   font-weight: 600;
   color: var(--text-tertiary);
@@ -235,7 +235,7 @@
   max-width: 300px;
   max-height: 360px;
   overflow-y: auto;
-  z-index: calc(var(--z-dropdown) + 1);
+  z-index: calc(var(--z-index-dropdown) + 1);
 }
 .postLinkTitle {
   flex: 1;
@@ -246,14 +246,14 @@
 }
 .postLinkCatTag {
   flex-shrink: 0;
-  padding: var(--badge-p-sm);
-  border-radius: var(--radius-capsule);
+  padding: var(--badge-padding-sm);
+  border-radius: var(--radius-full);
   background: var(--bg-secondary);
   color: var(--text-tertiary);
   font-size: var(--font-size-micro);
 }
 .postLinkEmpty {
-  padding: var(--spacing-sm) var(--spacing-sm);
+  padding: var(--spacing-12) var(--spacing-12);
   font-size: var(--font-size-hint);
   color: var(--text-muted);
   text-align: center;
@@ -264,13 +264,13 @@
 .slashGroup {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-4xs);
+  gap: var(--spacing-1);
 }
 .slashGroup + .slashGroup {
-  margin-top: var(--spacing-2xs);
+  margin-top: var(--spacing-4);
 }
 .slashGroupLabel {
-  padding: var(--spacing-2xs) var(--spacing-sm) var(--spacing-3xs);
+  padding: var(--spacing-4) var(--spacing-12) var(--spacing-2);
   font-size: var(--font-size-hint);
   font-weight: 600;
   letter-spacing: 0.04em;
@@ -281,14 +281,14 @@
 .slashItem {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   width: 100%;
-  padding: var(--spacing-3xs) var(--spacing-sm);
+  padding: var(--spacing-2) var(--spacing-12);
   height: 36px;
   border: none;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-16);
   color: var(--text-primary);
   text-align: left;
   cursor: pointer;
@@ -326,7 +326,7 @@
   content: "";
   position: absolute;
   background: var(--bg-accent-subtle);
-  border-radius: var(--radius-2xl); /* 블록 컨테이너 radius(md)와 일치 */
+  border-radius: var(--radius-24); /* 블록 컨테이너 radius(md)와 일치 */
   z-index: -1;
   pointer-events: none;
 }
@@ -411,7 +411,7 @@
 }
 
 .emojiNative {
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-16);
   line-height: 1;
   width: 22px;
   text-align: center;
@@ -426,7 +426,7 @@
 /* @ 날짜 멘션 메뉴 — 항목 우측 날짜 힌트 */
 .dateMentionHint {
   margin-left: auto;
-  padding-left: var(--spacing-sm);
+  padding-left: var(--spacing-12);
   color: var(--text-tertiary);
   font-size: var(--font-size-hint);
   font-variant-numeric: tabular-nums;
@@ -438,7 +438,7 @@
 .toc {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-4xs);
+  gap: var(--spacing-1);
   margin: var(--prose-block-gap) 0;
 }
 .tocEmpty {
@@ -450,7 +450,7 @@
 .tocItem {
   border: none;
   background: transparent;
-  padding: var(--spacing-2xs) 0;
+  padding: var(--spacing-4) 0;
   font-size: var(--font-size-body);
   color: var(--text-accent);
   text-decoration: underline;
@@ -465,9 +465,9 @@
   text-decoration-thickness: 2px;
 }
 
-.tocItem[data-depth="2"] { padding-left: var(--spacing-md); }
-.tocItem[data-depth="3"] { padding-left: var(--spacing-xl); }
-.tocItem[data-depth="4"] { padding-left: var(--spacing-2xl); }
+.tocItem[data-depth="2"] { padding-left: var(--spacing-16); }
+.tocItem[data-depth="3"] { padding-left: var(--spacing-24); }
+.tocItem[data-depth="4"] { padding-left: var(--spacing-32); }
 
 /* ── Select wrapper: custom chevron via ::after ── */
 .selectWrap {
@@ -494,9 +494,9 @@
 /* ── 공통 캡슐 드롭다운 스타일 ── */
 .fontSelect {
   height: 24px;
-  padding: 0 var(--spacing-xl) 0 var(--spacing-sm);
+  padding: 0 var(--spacing-24) 0 var(--spacing-12);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background-color: transparent;
   background-image: none;
   -webkit-appearance: none;
@@ -522,12 +522,12 @@
   flex: 0 0 auto;
   width: auto;
   overflow: visible;
-  z-index: var(--z-dropdown);
+  z-index: var(--z-index-dropdown);
 }
 
 /* trigger — 높이/화살표는 공통 Select(size="sm") 그대로 사용. 폰트명 표시용 width·색만 지정. */
 .fontPickerSelect button {
-  padding: 0 var(--spacing-sm) 0 var(--spacing-md);
+  padding: 0 var(--spacing-12) 0 var(--spacing-16);
   color: var(--text-secondary);
   width: 120px;
 }
@@ -544,7 +544,7 @@
   gap: 0;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-body);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   max-height: none;
   overflow: visible;
   interpolate-size: allow-keywords;
@@ -563,7 +563,7 @@
   align-items: center;
   height: 24px;
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   overflow: hidden;
   flex-shrink: 0;
 }
@@ -574,7 +574,7 @@
   font-family: var(--font-mono);
   font-size: var(--font-size-hint);
   color: var(--text-primary);
-  padding: 0 var(--spacing-2xs) 0 var(--spacing-xs);
+  padding: 0 var(--spacing-4) 0 var(--spacing-8);
   user-select: none;
   line-height: 1;
 }
@@ -582,7 +582,7 @@
 .tableGroup .toolbarBtn {
   border-radius: 0;
   border-left: var(--border-light);
-  padding: var(--button-p-sm);
+  padding: var(--button-padding-sm);
 }
 
 .tableGroup > :first-child .toolbarBtn,
@@ -628,18 +628,18 @@
   align-items: stretch;
   max-width: 90vw;
   border: 1px solid var(--border-color-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   /* 테마 표면색(bg-primary) 기반 반투명 — 흰색 틴트(bg-glass-strong)는 다크모드/밝은 배경 위에서
      밝은 글자가 묻혀 안 보였음. 85% 불투명 + blur 로 대비 보장하면서 프로스티드 글래스 유지. */
   background: color-mix(in srgb, var(--bg-primary) 85%, transparent);
   backdrop-filter: blur(8px) saturate(1.4);
   box-shadow: 0 4px 16px oklch(0% 0 0 / 0.12);
   overflow: hidden;
-  z-index: var(--z-dropdown);
+  z-index: var(--z-index-dropdown);
 }
 /* 가로 한 줄(이미지·선택 등) — pill 룩 */
 .floatingBarFrameInline {
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
 }
 /* 드래그 핸들 — 항상 좌측 세로 스트립 (잡고 끌면 바 이동) */
 .floatingBarHandle {
@@ -668,8 +668,8 @@
   flex-direction: row;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--spacing-2xs);
-  padding: var(--spacing-2xs) var(--spacing-xs);
+  gap: var(--spacing-4);
+  padding: var(--spacing-4) var(--spacing-8);
 }
 
 /* stack(세로) FloatingBar 안의 한 줄 — Find/Replace 처럼 여러 행이 필요한 바 */
@@ -677,8 +677,8 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--spacing-2xs);
-  padding: var(--row-p-sm);
+  gap: var(--spacing-4);
+  padding: var(--row-padding-sm);
 }
 .floatingBarRow + .floatingBarRow {
   padding-top: 0;
@@ -688,19 +688,19 @@
    수식·코드·포맷)의 버튼·캡슐·입력·셀렉트를 한 높이 control-h-sm(28)로. 공통 Select/Input/Segmented 는
    size="sm"=28, 링크 pill·codeLangTrigger 도 28 — 어느 바든 한 줄 안에서 높이가 안 어긋나게. ── */
 .floatingBar .toolbarBtn {
-  height: var(--control-h-sm);
-  min-width: var(--control-h-sm);
+  height: var(--control-height-sm);
+  min-width: var(--control-height-sm);
 }
 .floatingBar .toolbarBtn.toolbarBtnSquare,
 .floatingBar .tableGroup .toolbarBtn.toolbarBtnSquare {
-  width: var(--control-h-sm);
+  width: var(--control-height-sm);
 }
 .floatingBar .tableGroup,
 .floatingBar .findField {
-  height: var(--control-h-sm);
+  height: var(--control-height-sm);
 }
 .floatingBar .fontSelect {
-  height: var(--control-h-sm);
+  height: var(--control-height-sm);
 }
 
 /* ── 열블록 색상 popover (BG / Line) 개선판 ── */
@@ -710,8 +710,8 @@
 .colorMenu {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-sm);
+  gap: var(--spacing-8);
+  padding: var(--spacing-12);
   width: 264px;
 }
 /* 떠 있는 툴바의 글자색·배경색 — 프리셋 7개와 최근 색 8칸이 한 줄에 들어가는 너비(#1117) */
@@ -725,7 +725,7 @@
 }
 .toolbarBtn.colorSplitCaret {
   min-width: 16px;
-  padding: 0 var(--spacing-3xs);
+  padding: 0 var(--spacing-2);
   color: var(--text-muted);
 }
 /* group label — 그룹(섹션) 위쪽에 배치, 작은 폰트 + uppercase + muted */
@@ -734,13 +734,13 @@
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   font-size: var(--font-size-hint);
   font-weight: var(--font-weight-medium);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--text-muted);
-  padding: 0 var(--spacing-3xs);
+  padding: 0 var(--spacing-2);
 }
 
 /* label 라인 오른쪽 끝의 수치(열 레이아웃의 총 너비 등).
@@ -762,20 +762,20 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 /* 라벨 + 토글 버튼을 한 줄에 (예: 줄무늬 on/off) */
 .colorMenuHeadRow {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 .colorMenuFooter {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 /* 빈 최근색 슬롯 — 아직 채워지지 않은 자리 표시(비클릭) */
 .swatchEmpty {
@@ -796,7 +796,7 @@
   align-self: stretch;
   min-height: 18px;
   background: var(--border-color-light);
-  margin: 0 var(--spacing-4xs);
+  margin: 0 var(--spacing-1);
 }
 .swatch {
   position: relative;
@@ -829,7 +829,7 @@
   align-items: stretch;
   height: 20px;
   padding: 0;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   border: var(--border-light);
   overflow: hidden;
   cursor: pointer;
@@ -860,12 +860,12 @@
 .colorMenuDivider {
   height: 1px;
   background: var(--border-color-light);
-  margin: var(--spacing-2xs) 0;
+  margin: var(--spacing-4) 0;
 }
 .colorMenuMiniLabel {
   font-size: var(--font-size-hint);
   color: var(--text-muted);
-  margin-right: var(--spacing-3xs);
+  margin-right: var(--spacing-2);
   align-self: center;
 }
 /* 열 레이아웃 통합 popover (개수 + 비율) */
@@ -880,32 +880,32 @@
 .colLayoutMenu {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-sm);
+  gap: var(--spacing-8);
+  padding: var(--spacing-12);
   min-width: 14rem;
 }
 .colLayoutRow {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 /* 열별 너비 입력 목록 (%/px) — 세로 스택 */
 .colWidthList {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   max-height: 220px;
   overflow-y: auto;
   /* 스크롤바 공간을 항상 예약 → 스크롤 생겨도 행이 그만큼 잘리지 않게 */
   scrollbar-gutter: stable;
   /* overflow 스크롤 컨테이너라 세로 패딩 없으면 첫/끝 행 NumberInput 포커스 링이 잘림 */
-  padding-block: var(--spacing-2xs);
+  padding-block: var(--spacing-4);
 }
 .colWidthRow {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 .colWidthIdx {
   width: 16px;
@@ -924,7 +924,7 @@
 .linkActions {
   display: flex;
   align-items: center;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   margin-left: auto;
   flex-shrink: 0;
 }
@@ -935,7 +935,7 @@
   width: 1px;
   height: 16px;
   background: var(--border-color-light);
-  margin: 0 var(--spacing-2xs) 0 var(--spacing-3xs);
+  margin: 0 var(--spacing-4) 0 var(--spacing-2);
 }
 /* 주 액션(적용) 강조 — accent */
 .linkActions .linkApplyBtn {
@@ -952,9 +952,9 @@
 .linkTextPill {
   display: flex;
   align-items: center;
-  height: var(--control-h-sm);
+  height: var(--control-height-sm);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   overflow: hidden;
   flex-shrink: 0;
 }
@@ -979,7 +979,7 @@
   font-family: var(--font-mono);
   font-size: var(--font-size-label);
   color: var(--text-primary);
-  padding: 0 var(--spacing-xs);
+  padding: 0 var(--spacing-8);
   outline: none;
 }
 .linkPillInput::placeholder {
@@ -989,7 +989,7 @@
   display: flex;
   align-items: center;
   height: 100%;
-  padding: 0 var(--spacing-2xs) 0 var(--spacing-xs);
+  padding: 0 var(--spacing-4) 0 var(--spacing-8);
   border-right: var(--border-light);
   font-family: var(--font-mono);
   font-size: var(--font-size-hint);
@@ -1013,12 +1013,12 @@
   border: var(--border-light);
   padding: 0;
   align-self: center;
-  margin: 0 var(--spacing-2xs);
+  margin: 0 var(--spacing-4);
   flex-shrink: 0;
 }
 
 .presetDotInline:last-child {
-  margin-right: var(--spacing-2xs);
+  margin-right: var(--spacing-4);
 }
 
 .floatingBar .presetDotInline:hover {
@@ -1038,7 +1038,7 @@
   font-family: var(--font-mono);
   font-size: var(--font-size-label);
   color: var(--text-primary);
-  padding: var(--field-p-sm);
+  padding: var(--field-padding-sm);
   width: 120px;
   outline: none;
   /* 내용에 맞춰 높이 자동 — 입력 길이만큼만 공간 차지(미리 큰 공간 확보 X) */
@@ -1052,22 +1052,22 @@
 /* ── Cell border popover ── */
 /* 공통 Popover(.dropdown)의 content class — 위치/배경/테두리/그림자는 .dropdown 이 담당, 여기선 레이아웃만 */
 .borderPopover {
-  padding: var(--spacing-md);
+  padding: var(--spacing-16);
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 .borderPopTopRow {
   display: flex;
   align-items: flex-start;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
 }
 
 .borderPopRightStack {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   flex: 1;
   min-width: 0;
 }
@@ -1076,14 +1076,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-xs);
-  min-height: var(--control-h-2xs);
+  gap: var(--spacing-8);
+  min-height: var(--control-height-2xs);
 }
 
 .borderClearBtn {
-  padding: var(--button-p-xs);
+  padding: var(--button-padding-xs);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-hint);
@@ -1102,7 +1102,7 @@
 .borderMixedLabel {
   display: inline-flex;
   align-items: center;
-  padding: 0 var(--spacing-xs);
+  padding: 0 var(--spacing-8);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-hint);
   color: var(--text-tertiary);
@@ -1112,7 +1112,7 @@
 .borderPopSection {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 .borderPopLabel {
@@ -1127,10 +1127,10 @@
 .borderGrid {
   display: grid;
   grid-template-columns: repeat(3, 28px);
-  gap: var(--spacing-3xs);
-  padding: var(--spacing-3xs);
+  gap: var(--spacing-2);
+  padding: var(--spacing-2);
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   justify-content: start;
 }
 
@@ -1138,10 +1138,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: var(--control-h-xs);
-  height: var(--control-h-xs);
+  width: var(--control-height-xs);
+  height: var(--control-height-xs);
   border: 1px solid transparent;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-primary);
   padding: 0;
@@ -1180,12 +1180,12 @@
   display: inline-flex;
   width: fit-content;
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   overflow: hidden;
 }
 
 .borderWidthBtn {
-  padding: 0 var(--spacing-sm);
+  padding: 0 var(--spacing-12);
   height: 24px;
   border: none;
   border-left: var(--border-light);
@@ -1218,9 +1218,9 @@
   position: relative;
   display: flex;
   align-items: center;
-  gap: var(--spacing-3xs);
-  padding: var(--spacing-3xs) var(--spacing-2xs);
-  border-radius: var(--radius-capsule);
+  gap: var(--spacing-2);
+  padding: var(--spacing-2) var(--spacing-4);
+  border-radius: var(--radius-full);
 }
 
 .toolbar .colorGroup:hover,
@@ -1231,7 +1231,7 @@
 .colorIndicator {
   width: 12px;
   height: 3px;
-  border-radius: var(--spacing-4xs);
+  border-radius: var(--spacing-1);
 }
 
 .colorInput {
@@ -1268,8 +1268,8 @@
 .colorSection {
   display: flex;
   align-items: center;
-  gap: var(--spacing-3xs);
-  padding: 0 var(--spacing-3xs);
+  gap: var(--spacing-2);
+  padding: 0 var(--spacing-2);
 }
 
 /* 최근 색 줄 앞의 시계 — 프리셋과 같은 점이 이어져도 어디부터 최근 색인지 보이게(#1117) */
@@ -1325,9 +1325,9 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   /* 좌우 여백 — 본문(2xl-plus)만큼 들이면 줄 양끝이 너무 비어 보여, 그보다 좁게 둔다 */
-  padding: var(--spacing-2xs) var(--spacing-md);
+  padding: var(--spacing-4) var(--spacing-16);
   border: none;
   border-top: var(--border-light);
   border-radius: 0;
@@ -1340,7 +1340,7 @@
 /* 상태 줄의 공백 포함 체크박스 — 줄 왼쪽 끝(수치는 오른쪽 그대로), 수치와 같은 크기로 */
 .statusBarCheck {
   margin-right: auto;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   font-family: var(--font-mono);
   font-size: var(--font-size-hint);
   color: var(--text-secondary);
@@ -1355,13 +1355,13 @@
 /* ── 공식 @platejs/dnd 블록 드래그 (BlockDraggable aboveNodes) ── */
 .blockDraggable {
   position: relative;
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
 }
 /* 핸들 popover 열림 — 대상 블록 강조. 배경은 [data-block-selected] 와 동일한 subtle ::before 로 통합(위 참조). */
 /* 드래그 중인 원본 블록 — 배경 강조 + ghost(반투명) */
 .blockDragging {
   background: var(--color-accent-alpha-15);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   opacity: 0.45;
 }
 /* 좌측 gutter — hover 시 핸들 노출 */
@@ -1370,8 +1370,8 @@
   top: 0;
   /* 요소 왼쪽 — [+][이동핸들] 두 버튼, 좌측 패딩 안. 오른쪽 끝을 콘텐츠에서 살짝 띄움.
      float 이미지 옆 블록은 --float-edge 만큼 오른쪽으로(이미지 옆 텍스트 시작에 맞춤) */
-  left: calc(-1 * var(--spacing-4xl) + var(--float-edge, 0px) + var(--block-indent, 0px));
-  width: calc(var(--spacing-4xl) - var(--spacing-xs));
+  left: calc(-1 * var(--spacing-64) + var(--float-edge, 0px) + var(--block-indent, 0px));
+  width: calc(var(--spacing-64) - var(--spacing-8));
   height: 100%;
   display: flex;
   /* [+][이동핸들] 을 가로로 나란히. 접근성 24×24 터치 타깃(WCAG 2.5.8) 두 개가 들어가도록 좌측 패딩을
@@ -1379,8 +1379,8 @@
   flex-direction: row;
   align-items: flex-start;
   justify-content: flex-end;
-  gap: var(--spacing-4xs);
-  padding-top: calc((var(--font-size-md) * var(--line-height-relaxed) - 24px) / 2);
+  gap: var(--spacing-1);
+  padding-top: calc((var(--font-size-16) * var(--line-height-relaxed) - 24px) / 2);
   opacity: 0;
   user-select: none;
   /* float 이미지 옆 블록은 거터가 이미지 위에 겹친다 — 이미지 오버레이(z 6) 위로 올려야
@@ -1404,10 +1404,10 @@
 }
 /* 헤더 라벨 — 항목과 좌측 정렬(sm) + 위아래 여백으로 붙지 않게 */
 .cleanupMenu .groupLabel {
-  padding: var(--spacing-xs) var(--spacing-sm) var(--spacing-2xs);
+  padding: var(--spacing-8) var(--spacing-12) var(--spacing-4);
 }
 .blockToolsLabel {
-  padding: var(--spacing-2xs) var(--spacing-xs) var(--spacing-3xs);
+  padding: var(--spacing-4) var(--spacing-8) var(--spacing-2);
   font-size: var(--font-size-hint);
   font-weight: 600;
   letter-spacing: 0.04em;
@@ -1416,8 +1416,8 @@
 }
 .blockToolsTurn {
   display: flex;
-  gap: var(--spacing-3xs);
-  padding: 0 var(--spacing-3xs) var(--spacing-3xs);
+  gap: var(--spacing-2);
+  padding: 0 var(--spacing-2) var(--spacing-2);
 }
 .blockToolsTurnBtn {
   display: inline-flex;
@@ -1426,7 +1426,7 @@
   width: 30px;
   height: 30px;
   border: none;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-secondary);
   cursor: pointer;
@@ -1443,8 +1443,8 @@
 }
 .blockToolsSwatches {
   display: flex;
-  gap: var(--spacing-2xs);
-  padding: 0 var(--spacing-xs) var(--spacing-3xs);
+  gap: var(--spacing-4);
+  padding: 0 var(--spacing-8) var(--spacing-2);
 }
 .blockToolsSwatch {
   display: inline-flex;
@@ -1452,7 +1452,7 @@
   justify-content: center;
   width: 22px;
   height: 22px;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   cursor: pointer;
   font-size: var(--font-size-hint);
   color: var(--text-muted);
@@ -1494,7 +1494,7 @@
   height: 24px;
   padding: 0;
   border: none;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-tertiary);
   cursor: pointer;
@@ -1528,7 +1528,7 @@
   /* 불투명 배경 — backdrop-filter blur 는 고정 헤더가 transform 될 때 매 프레임 백드롭 재샘플링(버벅임)이라 제거 */
   background: var(--bg-secondary);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.12s ease, background-color 0.12s ease, color 0.12s ease, border-color 0.12s ease;
@@ -1605,8 +1605,8 @@
 .tblScroll {
   overflow-x: auto;
   overflow-y: hidden;
-  padding-right: var(--spacing-2xl-plus); /* 열추가 버튼(옆 28px + gap) 자리 — 부족하면 버튼이 삐져나가 가로 스크롤 생김 */
-  padding-bottom: var(--spacing-md); /* 가로 스크롤바를 표 아래로 충분히 내림 */
+  padding-right: var(--spacing-40); /* 열추가 버튼(옆 28px + gap) 자리 — 부족하면 버튼이 삐져나가 가로 스크롤 생김 */
+  padding-bottom: var(--spacing-16); /* 가로 스크롤바를 표 아래로 충분히 내림 */
   scrollbar-width: thin;
   scrollbar-color: var(--border-color-strong) transparent;
 }
@@ -1630,7 +1630,7 @@
 .tblScroll::-webkit-scrollbar-thumb:hover,
 .tblScroll::-webkit-scrollbar-thumb:active {
   background-color: var(--border-color-strong);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   border: 3px solid transparent;
   background-clip: padding-box;
 }
@@ -1638,8 +1638,8 @@
 /* ── 열그룹 전체 이동 grip — 왼쪽 gutter(블록 핸들과 같은 x), 첫 블록 핸들보다 위로 ── */
 .blockGroupHandleWrap {
   position: absolute;
-  /* 그룹 element 의 위쪽 margin(--spacing-md) 만큼 내려 컬럼 top 에 맞춘 뒤, 첫 블록 핸들 바로 위로. */
-  top: var(--spacing-md);
+  /* 그룹 element 의 위쪽 margin(--spacing-16) 만큼 내려 컬럼 top 에 맞춘 뒤, 첫 블록 핸들 바로 위로. */
+  top: var(--spacing-16);
   left: -22px; /* 안쪽 블록 드래그 핸들과 같은 x 대역 */
   transform: translateY(calc(-100% + 4px)); /* 컬럼 top 살짝 겹쳐 hover 유지 + 첫 블록 핸들 바로 위 */
   z-index: 8;
@@ -1656,9 +1656,9 @@
   align-items: center;
   justify-content: center;
   height: 18px;
-  padding: 0 var(--spacing-2xs);
+  padding: 0 var(--spacing-4);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--bg-glass-strong);
   backdrop-filter: blur(6px);
   color: var(--text-muted);
@@ -1680,7 +1680,7 @@
   height: 24px;
   padding: 0;
   border: none;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-tertiary);
   cursor: grab;
@@ -1701,7 +1701,7 @@
   right: 0;
   height: 2px;
   background: var(--bg-accent-solid);
-  border-radius: var(--spacing-4xs);
+  border-radius: var(--spacing-1);
   pointer-events: none;
   z-index: 10;
 }
@@ -1722,7 +1722,7 @@
   height: calc(var(--group-active-h) - 4px);
   width: 3px;
   background: var(--bg-accent-solid);
-  border-radius: var(--spacing-4xs);
+  border-radius: var(--spacing-1);
   pointer-events: none;
   z-index: 10;
 }
@@ -1739,7 +1739,7 @@
   position: fixed;
   top: 0;
   left: 0;
-  z-index: var(--z-tooltip);
+  z-index: var(--z-index-tooltip);
   max-width: 32rem;
   max-height: 16rem;
   overflow: hidden;
@@ -1750,8 +1750,8 @@
    (클론은 .editorContent 밖이라 블록별 ::before 배경이 안 그려짐 → 컨테이너 배경으로 통합) */
 .blockDragLayerGroup {
   background: var(--bg-accent-subtle);
-  border-radius: var(--radius-2xl);
-  padding: var(--spacing-3xs) var(--spacing-xs);
+  border-radius: var(--radius-24);
+  padding: var(--spacing-2) var(--spacing-8);
 }
 /* 열블록 ghost — 컬럼은 불투명 배경이라 컨테이너 배경이 안 보임 → accent 오버레이를 컬럼 위(z-index)에 얹는다.
    단 컬럼그룹은 ghost 폭보다 넓어 그룹 기준 ::after 는 오른쪽에서 하드클립됨 → "보이는 ghost 영역"(컨테이너)
@@ -1761,7 +1761,7 @@
   position: absolute;
   inset: 0 0 0 40px;
   z-index: 5;
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   background: var(--color-accent-alpha-10);
   pointer-events: none;
 }
@@ -1789,19 +1789,19 @@
   /* 좁은 화면에서는 64px 여백이 본문을 너무 좁힌다 — 예전 폭으로 되돌리고 [+][핸들]도 세로로 쌓는다.
      .editorContent 본 규칙이 이 미디어쿼리보다 파일 뒤에 있어 같은 특이도로는 진다 → 클래스를 두 번 적어 이긴다 */
   .editorContent.editorContent {
-    padding: var(--spacing-md) var(--spacing-2xl-plus);
+    padding: var(--spacing-16) var(--spacing-40);
   }
 
   .blockDragGutter {
-    left: calc(-1 * var(--spacing-2xl-plus) + var(--float-edge, 0px) + var(--block-indent, 0px));
-    width: var(--spacing-2xl);
+    left: calc(-1 * var(--spacing-40) + var(--float-edge, 0px) + var(--block-indent, 0px));
+    width: var(--spacing-32);
     flex-direction: column;
     align-items: flex-end;
   }
 
   .toolbar {
-    gap: var(--spacing-4xs);
-    padding: var(--spacing-2xs);
+    gap: var(--spacing-1);
+    padding: var(--spacing-4);
   }
 }
 
@@ -1819,7 +1819,7 @@
   --prose-block-gap: 20px;
   /* 좌우 동일 패딩 — 좌측 [+][드래그] gutter 가 패딩 영역 안에 들어가므로 텍스트 여백이 좌우 대칭.
      가로로 나란한 두 버튼(24+24)이 들어가야 해서 64px. 좁은 화면은 아래 미디어쿼리에서 되돌린다 */
-  padding: var(--spacing-md) var(--spacing-4xl);
+  padding: var(--spacing-16) var(--spacing-64);
   outline: none;
   min-height: 400px;
   font-family: var(--font-space-grotesk);
@@ -1865,7 +1865,7 @@
 }
 .editorContent::-webkit-scrollbar-thumb {
   background: var(--border-color-strong);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
 }
 .editorContent::-webkit-scrollbar-thumb:hover {
   background: var(--text-muted);
@@ -1876,7 +1876,7 @@
 /* 표 바로 뒤 빈 paragraph 여백 축소 */
 .editorContent [data-table-wrap] + p {
   margin-top: 0;
-  margin-bottom: var(--spacing-2xs);
+  margin-bottom: var(--spacing-4);
 }
 
 /* Slate가 <tr>/<tbody> 안에 삽입하는 text span과 paragraph div 숨김 */
@@ -1908,8 +1908,8 @@
 
 .editorContent blockquote {
   border-left: 4px solid var(--text-accent);
-  padding: var(--spacing-2xs) 0 var(--spacing-2xs) var(--spacing-lg);
-  margin: var(--spacing-lg) 0;
+  padding: var(--spacing-4) 0 var(--spacing-4) var(--spacing-20);
+  margin: var(--spacing-20) 0;
   color: var(--text-secondary);
 }
 
@@ -1918,7 +1918,7 @@
   padding-left: 0 !important;
   /* 마커를 콘텐츠 좌측(대칭 여백)에 맞춤 — 음수 마진 제거(핸들 영역 침범 방지) */
   margin-left: 0 !important;
-  margin-bottom: var(--spacing-sm);
+  margin-bottom: var(--spacing-12);
   list-style-position: inside;
 }
 .editorContent ul {
@@ -1928,7 +1928,7 @@
   list-style-type: decimal;
 }
 .editorContent li {
-  margin-bottom: var(--spacing-2xs);
+  margin-bottom: var(--spacing-4);
 }
 
 .editorContent ul li::marker {
@@ -1937,11 +1937,11 @@
 
 .editorContent li:has(> input[type="checkbox"]) {
   list-style: none;
-  margin-left: calc(-1 * var(--spacing-md));
+  margin-left: calc(-1 * var(--spacing-16));
 }
 
 .editorContent li > input[type="checkbox"] {
-  margin-right: var(--spacing-2xs);
+  margin-right: var(--spacing-4);
 }
 /* 체크리스트(todo) — 체크박스가 마커 역할이므로 리스트 번호를 없앤다.
    ListPlugin 이 todo 항목을 ol 로 감싸는데(list-style-type:todo 는 존재하지 않는 counter-style
@@ -1952,7 +1952,7 @@
 }
 /* Plate indent list (div with listStyleType) */
 .editorContent :global([data-slate-node="element"][style*="list-style-type"]) {
-  margin-bottom: var(--spacing-2xs);
+  margin-bottom: var(--spacing-4);
   display: list-item;
   /* float 이미지 옆으로 감기면(outside 마커가 이미지 위로 빠져 어긋남) 깨지므로
      리스트는 float 을 감지 않고 이미지 아래에서 시작. 일반(플로트 없는) 리스트엔 영향 없음 */
@@ -1962,7 +1962,7 @@
 .editorContent hr {
   border: none;
   border-top: var(--border-light);
-  margin: var(--spacing-lg) 0;
+  margin: var(--spacing-20) 0;
 }
 
 .editorContent a {
@@ -1970,7 +1970,7 @@
 }
 /* 형광펜은 모서리를 둥글리지 않는다 — 상세·미리보기(.prose-content)와 같은 모양(#1118) */
 .editorContent mark {
-  padding: 0 var(--spacing-3xs);
+  padding: 0 var(--spacing-2);
 }
 .editorContent u {
   text-decoration: underline;
@@ -1997,7 +1997,7 @@
   border-left: var(--border-light);
   border-right: none;
   border-bottom: none;
-  padding: var(--cell-p-sm);
+  padding: var(--cell-padding-sm);
   vertical-align: top;
   min-width: 60px;
   position: relative;
@@ -2019,8 +2019,8 @@
 
 .editorContent iframe {
   max-width: 100%;
-  border-radius: var(--radius-2xl);
-  margin: var(--spacing-md) 0;
+  border-radius: var(--radius-24);
+  margin: var(--spacing-16) 0;
 }
 
 
@@ -2040,11 +2040,11 @@
 .findField {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-3xs);
-  height: var(--control-h-sm);
-  padding-right: var(--spacing-3xs);
+  gap: var(--spacing-2);
+  height: var(--control-height-sm);
+  padding-right: var(--spacing-2);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   overflow: hidden;
   flex-shrink: 0;
 }
@@ -2056,7 +2056,7 @@
   flex: 1;
   min-width: 60px;
   height: 100%;
-  padding: 0 var(--spacing-xs);
+  padding: 0 var(--spacing-8);
   border: none;
   background: transparent;
   font-family: var(--font-mono);
@@ -2070,11 +2070,11 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--control-h-xs);
-  height: var(--control-h-xs);
+  width: var(--control-height-xs);
+  height: var(--control-height-xs);
   padding: 0;
   border: none;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-muted);
   cursor: pointer;
@@ -2094,7 +2094,7 @@
   font-family: var(--font-mono);
   font-size: var(--font-size-hint);
   color: var(--text-muted);
-  padding: 0 var(--spacing-2xs);
+  padding: 0 var(--spacing-4);
   flex-shrink: 0;
   min-width: 3rem;
   text-align: center;
@@ -2106,12 +2106,12 @@
   content: "";
   position: absolute;
   /* 좌측 40px 는 핸들 공간(padding-left)이라 hover 배경에서 제외 — 컬럼 영역에만 맞춤 */
-  top: calc(-1 * var(--spacing-2xs));
-  right: calc(-1 * var(--spacing-2xs));
-  bottom: calc(-1 * var(--spacing-2xs));
-  left: calc(40px - var(--spacing-2xs));
+  top: calc(-1 * var(--spacing-4));
+  right: calc(-1 * var(--spacing-4));
+  bottom: calc(-1 * var(--spacing-4));
+  left: calc(40px - var(--spacing-4));
   z-index: -1;
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   background: var(--bg-tertiary);
   opacity: 0;
   transition: opacity 0.15s ease;
@@ -2162,7 +2162,7 @@
   left: -12px;
   right: 0;
   z-index: 2;
-  border-radius: var(--radius-2xl); /* 블록 컨테이너 radius(md)와 일치 */
+  border-radius: var(--radius-24); /* 블록 컨테이너 radius(md)와 일치 */
   background: var(--bg-accent-subtle);
   pointer-events: none;
 }
@@ -2177,7 +2177,7 @@
   top: var(--tbl-t);
   width: var(--tbl-w);
   height: var(--tbl-h);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
 }
 
 .colElement::after {
@@ -2185,7 +2185,7 @@
   position: absolute;
   top: 0;
   bottom: 0;
-  right: calc(-1 * var(--spacing-xs) / 2);
+  right: calc(-1 * var(--spacing-8) / 2);
   width: 1px;
   background: var(--_col-divider, transparent);
   pointer-events: none;
@@ -2243,8 +2243,8 @@
 .footnoteContent {
   display: flex;
   align-items: flex-start;
-  gap: var(--spacing-2xs);
-  padding: var(--spacing-3xs) 0;
+  gap: var(--spacing-4);
+  padding: var(--spacing-2) 0;
   margin: 0;
   background: transparent;
   position: relative;
@@ -2253,8 +2253,8 @@
 /* 첫 각주: 상단 구분선 + 제목 + 넓은 여백 */
 .footnoteContent:not(.footnoteContent + .footnoteContent) {
   border-top: var(--border-light);
-  margin-top: var(--spacing-3xl);
-  padding-top: var(--spacing-md);
+  margin-top: var(--spacing-48);
+  padding-top: var(--spacing-16);
   flex-wrap: wrap;
 }
 
@@ -2263,7 +2263,7 @@
   content: "Footnotes";
   display: block;
   font-family: var(--font-instrument);
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-18);
   font-weight: var(--font-weight-regular);
   color: var(--text-primary);
   margin-bottom: 0;
@@ -2272,7 +2272,7 @@
 .footnoteContent + .footnoteContent {
   border-top: none;
   margin-top: 0;
-  padding-top: var(--spacing-3xs);
+  padding-top: var(--spacing-2);
 }
 
 .footnoteContentId {

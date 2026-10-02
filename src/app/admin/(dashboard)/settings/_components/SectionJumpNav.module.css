@@ -7,9 +7,9 @@
   top: 50%;
   transform: translateY(-50%);
   /* 플로팅 자(ruler) — 콘텐츠 위, 글로벌 nav 아래 (Settings 패널 z 사다리와 동일 오프셋) */
-  z-index: calc(var(--z-nav) - 1);
+  z-index: calc(var(--z-index-nav) - 1);
   /* 투명 패딩 = hover trigger 영역 확대 (화면 우측 가장자리·상하 여백까지 다가오면 펼침) */
-  padding: var(--spacing-2xl) var(--spacing-md);
+  padding: var(--spacing-32) var(--spacing-16);
 }
 
 .jumpNav {
@@ -17,15 +17,15 @@
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 /* 각 섹션 = tick(가로 선) + 라벨. active 일수록 tick 이 길고 accent — 자(ruler) 눈금 느낌 */
 .item {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-4xs) 0;
+  gap: var(--spacing-8);
+  padding: var(--spacing-1) 0;
   border: none;
   background: transparent;
   cursor: pointer;
@@ -100,7 +100,7 @@
   content: "";
   position: absolute;
   top: 50%;
-  left: calc(-1 * var(--spacing-2xs));
+  left: calc(-1 * var(--spacing-4));
   width: 4px;
   height: 4px;
   border-radius: var(--radius-circle);

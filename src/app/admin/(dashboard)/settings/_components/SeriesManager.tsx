@@ -446,13 +446,13 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
       {loading ? (
         <>
           {[0, 1, 2].map((i) => (
-            <div key={i} className={styles.seriesItem} style={{ padding: "var(--spacing-sm) var(--spacing-md)" }}>
+            <div key={i} className={styles.seriesItem} style={{ padding: "var(--spacing-12) var(--spacing-16)" }}>
               <SkeletonLine width="60%" height={14} />
             </div>
           ))}
         </>
       ) : seriesList.length === 0 ? (
-        <p className={shared.sectionHint} style={{ padding: "var(--spacing-md)", textAlign: "center" }}>
+        <p className={shared.sectionHint} style={{ padding: "var(--spacing-16)", textAlign: "center" }}>
           {debouncedSearch
             ? t("admin.posts.searchNoResult")
             : t("admin.posts.seriesEmpty")}

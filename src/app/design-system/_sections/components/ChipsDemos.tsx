@@ -31,7 +31,7 @@ export default function ChipsDemos() {
         {/* Chip */}
         <DemoGroup title="Chip">
           <div className={styles.componentSubLabel}>draggable capsule</div>
-          <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexWrap: "wrap", gap: "var(--spacing-xs)" }}>
+          <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexWrap: "wrap", gap: "var(--spacing-8)" }}>
             {dragTags.map((tag, i) => {
               const { dragging, dropSide, ...handlers } = tagItemProps(i);
               return (
@@ -55,7 +55,7 @@ export default function ChipsDemos() {
               ? "variant 는 capsule 또는 bare 를 고르고, leftIcon·active(편집 중)·onClick(button) 을 지원합니다. 핸들 위에 커서를 올리면 data-cursor 로 \"Drag\" 커서가 나타납니다."
               : "variant capsule|bare · leftIcon · active(editing) · onClick(button) · grip shows a \"Drag\" cursor via data-cursor.")}
           </p>
-          <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexWrap: "wrap", gap: "var(--spacing-xs)", alignItems: "center" }}>
+          <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexWrap: "wrap", gap: "var(--spacing-8)", alignItems: "center" }}>
             <Tooltip content="variant: capsule + leftIcon">
               <Chip variant="capsule" leftIcon={<Hash size={11} />}>react</Chip>
             </Tooltip>
@@ -78,7 +78,7 @@ export default function ChipsDemos() {
               ? "`variant=\"capsule\"` 에 `leftIcon` 으로 색 dot 을 넣어 상태를 구분합니다. 에디터 상단 바의 발행 상태 표시가 이 패턴입니다 — 발행됨은 success, 예약 발행은 warning, 미발행은 muted 색 dot 입니다. dot 은 7px 원이고 색만 semantic 토큰으로 바뀝니다."
               : "A colored dot via `leftIcon` on a `variant=\"capsule\"` chip marks the state. The editor top bar's publish indicator uses this — published is success, scheduled is warning, draft is a muted dot. The dot is a 7px circle; only its color swaps via semantic tokens.")}
           </p>
-          <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexWrap: "wrap", gap: "var(--spacing-xs)", alignItems: "center" }}>
+          <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexWrap: "wrap", gap: "var(--spacing-8)", alignItems: "center" }}>
             {([
               { label: language === "ko" ? "발행됨" : "Published", color: "var(--bg-success-solid)" },
               { label: language === "ko" ? "예약 발행" : "Scheduled", color: "var(--bg-warning-solid)" },

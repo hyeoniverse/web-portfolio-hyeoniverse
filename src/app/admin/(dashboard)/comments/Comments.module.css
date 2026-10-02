@@ -1,24 +1,24 @@
 /* admin/settings, AdminListShell 와 동일 베이스 */
 .container {
-  max-width: var(--page-max-width);
+  max-width: var(--width-page-max);
   margin: 0 auto;
-  padding: var(--spacing-6xl) var(--page-px) var(--spacing-3xl);
+  padding: var(--spacing-128) var(--spacing-page-inline) var(--spacing-48);
 }
 
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-2xl);
+  gap: var(--spacing-16);
+  margin-bottom: var(--spacing-32);
 }
 
 .title {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   font-family: var(--font-instrument);
-  font-size: var(--font-size-3xl);
+  font-size: var(--font-size-32);
   font-weight: var(--font-weight-regular);
   color: var(--text-primary);
   margin: 0;
@@ -28,14 +28,14 @@
 /* ── Filters ── */
 .filters {
   display: flex;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   flex-wrap: wrap;
-  margin-bottom: var(--spacing-md);
+  margin-bottom: var(--spacing-16);
 }
 
 .searchForm {
   display: flex;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   flex: 1;
   min-width: 200px;
 }
@@ -43,9 +43,9 @@
 .searchInput {
   flex: 1;
   min-width: 0;
-  padding: var(--field-p-lg);
+  padding: var(--field-padding-lg);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-body);
@@ -61,11 +61,11 @@
 .bulkBar {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-xs) var(--spacing-md);
+  gap: var(--spacing-12);
+  padding: var(--spacing-8) var(--spacing-16);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  margin-bottom: var(--spacing-md);
+  border-radius: var(--radius-full);
+  margin-bottom: var(--spacing-16);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   color: var(--text-secondary);
@@ -77,7 +77,7 @@
   border: none;
   color: var(--text-tertiary);
   cursor: pointer;
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-16);
 }
 
 /* ── Table ── */
@@ -85,9 +85,9 @@
 .row {
   display: grid;
   grid-template-columns: 28px 60px 140px 1fr 200px 140px 36px;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   align-items: center;
-  padding: var(--row-p-md);
+  padding: var(--row-padding-md);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
 }
@@ -127,8 +127,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: var(--badge-p-md);
-  border-radius: var(--radius-capsule);
+  padding: var(--badge-padding-md);
+  border-radius: var(--radius-full);
   font-size: var(--font-size-hint);
   font-weight: 600;
   width: fit-content;
@@ -147,7 +147,7 @@
 .author {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   color: var(--text-primary);
   font-size: var(--font-size-body);
   overflow: hidden;
@@ -158,8 +158,8 @@
 .adminBadge {
   font-size: var(--font-size-hint);
   font-weight: 700;
-  padding: var(--badge-p-md);
-  border-radius: var(--radius-capsule);
+  padding: var(--badge-padding-md);
+  border-radius: var(--radius-full);
   background: var(--text-primary);
   color: var(--bg-primary);
 }
@@ -207,8 +207,8 @@
 }
 
 .deleteBtn {
-  width: var(--control-h-xs);
-  height: var(--control-h-xs);
+  width: var(--control-height-xs);
+  height: var(--control-height-xs);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -216,7 +216,7 @@
   background: transparent;
   color: var(--text-tertiary);
   cursor: pointer;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
 }
 
 .deleteBtn:hover {
@@ -226,8 +226,8 @@
 
 /* 복구 버튼 — 삭제(tombstone) 행에만. deleteBtn 과 같은 결, hover 는 accent */
 .restoreBtn {
-  width: var(--control-h-xs);
-  height: var(--control-h-xs);
+  width: var(--control-height-xs);
+  height: var(--control-height-xs);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -235,7 +235,7 @@
   background: transparent;
   color: var(--text-tertiary);
   cursor: pointer;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
 }
 
 .restoreBtn:hover {
@@ -246,7 +246,7 @@
 /* 삭제 행의 보존 원문 미리보기 — 복구 판단용. note 아래 옅게 */
 .deletedContent {
   display: block;
-  margin-top: var(--spacing-3xs);
+  margin-top: var(--spacing-2);
   color: var(--text-tertiary);
   opacity: 0.7;
 }
@@ -258,8 +258,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-md);
-  margin-top: var(--spacing-xl);
+  gap: var(--spacing-16);
+  margin-top: var(--spacing-24);
 }
 
 .pageInfo {
@@ -279,7 +279,7 @@
       "check meta delete"
       ".     content content"
       ".     target  date";
-    gap: var(--spacing-2xs) var(--spacing-sm);
+    gap: var(--spacing-4) var(--spacing-12);
   }
 
   .colCheck { grid-area: check; }

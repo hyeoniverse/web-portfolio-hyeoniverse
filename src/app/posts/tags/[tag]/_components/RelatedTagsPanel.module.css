@@ -6,14 +6,14 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 /* 첫 줄 — "관련 태그" label + 다중 선택 toggle */
 .relatedHeader {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 /* 다중 선택 Button — outline variant 의 border-strong 을 border-light 로.
@@ -24,8 +24,8 @@
 
 /* 관련 태그 헤더 트리거 — 공통 Button(ghost)로 교체. 기존 label 톤(uppercase·tertiary) 유지 + chevron 회전 */
 .relatedToggle.relatedToggle {
-  gap: var(--spacing-3xs);
-  padding-inline: var(--spacing-2xs);
+  gap: var(--spacing-2);
+  padding-inline: var(--spacing-4);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   font-weight: 600;
@@ -51,8 +51,8 @@
 .allTagsInner {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-2xs);
-  padding-top: var(--spacing-sm);
+  gap: var(--spacing-4);
+  padding-top: var(--spacing-12);
   border-top: var(--border-light);
   max-height: 40vh;
   overflow-y: auto;
@@ -66,16 +66,16 @@
 .relatedTags {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 /* relatedPill — selectMode off: Link (페이지 이동) / on: button (필터 토글) — 같은 외형 */
 .relatedPill {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
-  padding: var(--badge-p-lg);
-  border-radius: var(--radius-capsule);
+  gap: var(--spacing-4);
+  padding: var(--badge-padding-lg);
+  border-radius: var(--radius-full);
   background: var(--bg-tertiary);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
@@ -93,8 +93,8 @@
 .relatedPillSelectable {
   border: var(--border-default);
   background: transparent;
-  padding-block: calc(var(--spacing-2xs) - 1px);
-  padding-inline: calc(var(--spacing-sm) - 1px);
+  padding-block: calc(var(--spacing-4) - 1px);
+  padding-inline: calc(var(--spacing-12) - 1px);
 }
 
 /* selectable hover — accent 대신 border·텍스트를 검정으로 강조 (배경 없음) */
@@ -126,7 +126,7 @@
 .relatedLabelTooltip {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   max-width: 280px;
 }
 

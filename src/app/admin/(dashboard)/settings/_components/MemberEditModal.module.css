@@ -9,7 +9,7 @@
 .authorCardHead {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 /* 아바타 = 이미지 업로드 trigger (클릭 시 파일 선택). 우상단 + 배지로 버튼임을 표시 */
 .authorAvatarUpload {
@@ -41,7 +41,7 @@
 .authorAvatarInitial {
   font-family: var(--font-space-grotesk);
   font-weight: var(--font-weight-semibold);
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-18);
   color: var(--text-tertiary);
 }
 /* 아바타 + 모서리 배지를 함께 잡는 자리 */
@@ -84,8 +84,8 @@
 /* 삭제 버튼 — 카드 상단(start)에 붙임 (아바타가 커서 center 면 중앙에 뜸) */
 .authorCardFields {
   display: grid;
-  gap: var(--spacing-sm);
-  grid-template-columns: var(--grid-cols-2);
+  gap: var(--spacing-12);
+  grid-template-columns: var(--grid-columns-2);
 }
 /* 두 열을 모두 차지하는 필드 자리 — 여러 줄 입력처럼 폭이 필요한 항목용 */
 .authorCardFieldWide {
@@ -94,34 +94,34 @@
 .authorLinksEditor {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 .authorInviteRow {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 /* 가입된 멤버의 로그인 상태 줄 (역할·provider·최근 로그인) */
 .authorMemberStatus {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 /* 멤버 편집 모달 내부 레이아웃 — 좌우/하단 패딩(모달 header 좌측 정렬), 버튼은 모달 footer 슬롯 사용 */
 .memberModal {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
-  padding: 0 var(--spacing-lg) var(--spacing-lg);
+  gap: var(--spacing-16);
+  padding: 0 var(--spacing-20) var(--spacing-20);
 }
 
 /* 프로필 글 언어 — 안내 한 줄과 KO/EN 전환 */
 .profileActions {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 /* 입력 언어 스위치는 오른쪽 끝 — GitHub 단추가 없을 때도 같은 자리 */
@@ -133,17 +133,17 @@
 .ghCompare {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-md);
+  gap: var(--spacing-8);
+  padding: var(--spacing-16);
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
 }
 
 .ghCompareHead,
 .ghCompareRow {
   display: grid;
   grid-template-columns: 7rem minmax(0, 1fr) minmax(0, 1fr);
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   align-items: start;
 }
 
@@ -154,7 +154,7 @@
 
 /* 열 제목을 아래 선택 칸의 글자 시작점에 맞춘다 */
 .ghCompareHead > span {
-  padding-inline: var(--spacing-xs);
+  padding-inline: var(--spacing-8);
 }
 
 .ghCompareHead > span:first-child {
@@ -162,7 +162,7 @@
 }
 
 .ghCompareLabel {
-  padding-top: var(--spacing-2xs);
+  padding-top: var(--spacing-4);
   font-size: var(--font-size-label);
   color: var(--text-secondary);
 }
@@ -170,11 +170,11 @@
 .ghCompareOption {
   display: flex;
   align-items: flex-start;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   min-width: 0;
-  padding: var(--spacing-2xs) var(--spacing-xs);
+  padding: var(--spacing-4) var(--spacing-8);
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   font-size: var(--font-size-label);
   color: var(--text-secondary);
   text-align: left;
@@ -203,17 +203,17 @@
 .ghCompareActions {
   display: flex;
   justify-content: flex-end;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 /* 라벨 옆 입력 언어 배지 — 칸 안에 배지를 둘 수 없는 컨트롤(combobox)용. SettingsFormFields 의 배지와 같은 모양 */
 .labelLangBadge {
   display: inline-flex;
   align-items: center;
-  margin-left: var(--spacing-2xs);
-  padding: 0 var(--spacing-2xs);
+  margin-left: var(--spacing-4);
+  padding: 0 var(--spacing-4);
   height: 16px;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--bg-tertiary);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-micro);

@@ -1,0 +1,86 @@
+/* ==========================================================================
+  Component Tokens — 컴포넌트 토큰 (docs/design-system.md 2-1)
+
+  특정 컴포넌트 묶음(컨트롤 · 카드 · 모달 · 골격 등)에만 쓰는 역할 토큰. 역할 토큰과 원시 눈금을 가리킨다.
+  한 컴포넌트만 쓰는 값은 여기 두지 않고 그 모듈의 지역 변수(--_x)로 둔다(2-4).
+  ========================================================================== */
+
+:root {
+  /* 페이지 골격 */
+  --header-height: 64px;
+  --footer-height: 100px;
+  --action-button-width: 48px;
+  --active-side-nav-width: 0px;
+
+  /* 커스텀 커서 */
+  --cursor-width: 20px;
+  --cursor-big-width: 60px;
+  --cursor-text-width: 3px;
+  --cursor-text-height: 24px;
+
+  /* Control padding — capsule 모양 컨트롤의 사이즈는 padding 으로 결정.
+     원 / 사각 아이콘 버튼은 padding 으로 못 잡으므로 아래 --control-height-* 로 높이를 직접 준다. */
+  --button-padding-xs: var(--spacing-2) var(--spacing-12); /* 2 12 → 약 20px */
+  --button-padding-sm: var(--spacing-4) var(--spacing-16); /* 4 16 → 약 26px (일반 button) */
+  --button-padding-md: var(--spacing-8) var(--spacing-20); /* 8 20 → 약 36px (primary CTA) */
+  --button-padding-lg: var(--spacing-12) var(--spacing-24); /* 12 24 → 약 44px (hero CTA) */
+
+  /* 뱃지·칩·태그 — 글자 크기가 곧 등급이다. 높이를 직접 정하는 뱃지(--control-height-* 를 쓰는 것)는
+     세로 padding 이 필요 없으므로 여기 해당하지 않는다.
+     이 셋을 만든 이유: 같은 성격의 뱃지 118곳이 29가지 여백을 쓰고 있었다. */
+  --badge-padding-sm: var(--spacing-1) var(--spacing-4); /* 1 4  — --font-size-micro(11px) */
+  --badge-padding-md: var(--spacing-2) var(--spacing-8); /* 2 8  — --font-size-hint(12px). 기본 */
+  --badge-padding-lg: var(--spacing-4) var(--spacing-12); /* 4 12 — --font-size-label(13px) */
+
+  /* 목록 행 — 세로 여백이 곧 밀도다. 부모가 좌우 여백을 주는 행(가로 0)은 여기 해당하지
+     않는다. 그건 세로 값 하나만 적는다.
+     이 셋을 만든 이유: 같은 성격의 행 117곳이 33가지 여백을 쓰고 있었다. */
+  --row-padding-sm: var(--spacing-4) var(--spacing-12); /* 4 12 — 조밀한 목록 */
+  --row-padding-md: var(--spacing-8) var(--spacing-12); /* 8 12 — 기본 */
+  --row-padding-lg: var(--spacing-12) var(--spacing-16); /* 12 16 — 넉넉한 카드형 행 */
+
+  /* 모달·시트 — 겉면과 머리/본문/바닥이 같은 여백을 쓴다. */
+  --modal-padding-sm: var(--spacing-8) var(--spacing-12); /* 8 12 — 인라인 폼·작은 시트 */
+  --modal-padding-md: var(--spacing-16) var(--spacing-20); /* 16 20 — 기본 */
+  --modal-padding-lg: var(--spacing-24) var(--spacing-24); /* 24 24 — 확인 대화상자처럼 큰 것 */
+
+  /* 카드 */
+  --card-padding-sm: var(--spacing-4) var(--spacing-12); /* 4 12 — 카드 머리·꼬리 */
+  --card-padding-md: var(--spacing-16) var(--spacing-16); /* 16 16 — 기본 */
+  --card-padding-lg: var(--spacing-24) var(--spacing-32); /* 24 32 — 매거진형 큰 카드 */
+
+  --input-padding: var(--spacing-4) var(--spacing-16); /* 4 16 → 약 26px — input / select 기본 */
+
+  /* 컴포넌트를 안 쓰고 직접 만든 입력 필드 — 위 --input-padding 와 달리 높이를 여백이 정한다. */
+  --field-padding-sm: var(--spacing-4) var(--spacing-8); /* 4 8 */
+  --field-padding-md: var(--spacing-4) var(--spacing-12); /* 4 12 */
+  --field-padding-lg: var(--spacing-8) var(--spacing-12); /* 8 12 */
+
+  /* 표 셀 — 글 안의 표와 관리 화면의 표 두 덩어리로 갈린다. */
+  --cell-padding-sm: var(--spacing-4) var(--spacing-8); /* 4 8 — 글 안·도움말처럼 조밀한 표 */
+  --cell-padding-md: var(--spacing-8) var(--spacing-12); /* 8 12 — 기본 */
+  --textarea-padding: var(--spacing-12) var(--spacing-16); /* 12 16 — 여러 줄이라 세로 여유 더 */
+  /* 컨트롤 높이 — 버튼·인풋·셀렉트·칩이 공유하는 **유일한** 높이 눈금.
+   *
+   * 예전에는 세 가지가 같은 걸 서로 다르게 말했다.
+   *   --control-h-*  24/28/32/36  ← 공통 Button·Input 이 실제로 쓰던 값
+   *   --button-h-*   20/24/38/46  ← 다른 컴포넌트 154곳이 쓰던 값
+   *   _sizing.css 주석의 "계층"  24/32/38/46
+   * 그래서 같은 size="md" 가 자리에 따라 32px 이기도 38px 이기도 했다.
+   *
+   * 공통 컴포넌트가 실제로 쓰던 값을 남기고 나머지 단계를 흡수했다 — 렌더는 그대로다.
+   * 2xs·xl·2xl 은 흡수 과정에서 들어온 단계라 xs~lg 와 간격이 고르지 않다. */
+  --control-height-2xs: 20px;
+  --control-height-xs: 24px;
+  --control-height-sm: 28px;
+  --control-height-md: 32px;
+  --control-height-lg: 36px;
+  --control-height-xl: 38px;
+  --control-height-2xl: 46px;
+
+  /* Skeleton 라인/필 높이 — 텍스트 한 줄·캡슐 컨트롤 흉내. raw px 하드코딩 방지 */
+  --skeleton-height-line: var(--font-size-body); /* 14px — 텍스트 한 줄 */
+  --skeleton-height-line-sm: var(--font-size-label); /* 13px — 작은 메타 텍스트 */
+  --skeleton-height-line-lg: var(--font-size-18); /* 18px — 헤더 텍스트 */
+  --skeleton-height-pill: var(--control-height-xs); /* 24 — 태그/뱃지 */
+}

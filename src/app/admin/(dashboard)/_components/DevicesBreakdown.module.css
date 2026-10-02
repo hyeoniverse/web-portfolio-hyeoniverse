@@ -9,7 +9,7 @@
 .devicesWrap {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
   flex-wrap: wrap;
 }
 
@@ -27,7 +27,7 @@
    하이라이트가 뜨면 다음 행 위에 빈 띠로 드러난다. 8(gap)+8(pad) 리듬을 12+12 로 보존.
    List .item 의 padding-block(0,1,0)과 동점이라 클래스를 두 번 적어 (0,2,0)(#632) */
 .deviceLegendItem.deviceLegendItem {
-  padding-block: var(--spacing-sm);
+  padding-block: var(--spacing-12);
 }
 
 /* hover·선택 배경은 안쪽 버튼이 아니라 행(ListItem) 전체에 — 버튼에 주면 item 의
@@ -41,12 +41,12 @@
   display: grid;
   grid-template-columns: 10px auto 1fr auto auto;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   width: 100%;
-  padding: var(--button-p-xs);
+  padding: var(--button-padding-xs);
   border: none;
   background: transparent;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   text-align: left;
   font: inherit;
   color: inherit;
@@ -99,20 +99,20 @@ button.deviceLegendBtn {
 .deviceTabs {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-3xs);
-  padding: var(--spacing-2xs);
+  gap: var(--spacing-2);
+  padding: var(--spacing-4);
   /* 패널 제목 divider·아래 도넛·왼쪽 패널 경계에 붙어 있어 숨 쉴 틈이 없었다 */
-  margin: var(--spacing-2xs) 0 var(--spacing-sm) var(--spacing-xs);
-  border-radius: var(--radius-capsule);
+  margin: var(--spacing-4) 0 var(--spacing-12) var(--spacing-8);
+  border-radius: var(--radius-full);
   background: var(--bg-secondary);
   align-self: flex-start;
 }
 
 .deviceTab {
-  padding: var(--spacing-2xs) var(--spacing-sm);
+  padding: var(--spacing-4) var(--spacing-12);
   border: none;
   background: transparent;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-hint);
   font-weight: 600;
@@ -151,8 +151,8 @@ button.deviceLegendBtn {
 
 /* ── Devices drill-down — 표 기반 디자인에 맞춰 카드 chrome 제거, 위쪽 hairline ── */
 .deviceDrill {
-  margin-top: var(--spacing-md);
-  padding-top: var(--spacing-md);
+  margin-top: var(--spacing-16);
+  padding-top: var(--spacing-16);
   border-top: var(--border-light);
   animation: deviceDrillIn 0.28s ease both;
 }
@@ -172,7 +172,7 @@ button.deviceLegendBtn {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: var(--spacing-sm);
+  margin-bottom: var(--spacing-12);
 }
 
 .deviceDrillTitle {
@@ -192,14 +192,14 @@ button.deviceLegendBtn {
 
 .deviceDrillList {
   composes: list from "../components/List.module.css";
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 .deviceDrillRow {
   display: grid;
   grid-template-columns: minmax(80px, 1.2fr) minmax(80px, 2fr) auto auto;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   opacity: 0;
@@ -238,6 +238,6 @@ button.deviceLegendBtn {
   font-variant-numeric: tabular-nums;
   color: var(--text-accent);
   font-weight: 700;
-  min-width: var(--control-h-xs);
+  min-width: var(--control-height-xs);
   text-align: right;
 }

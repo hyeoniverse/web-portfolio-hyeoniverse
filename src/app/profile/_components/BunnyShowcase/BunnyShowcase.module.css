@@ -4,7 +4,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: var(--spacing-2xl);
+  gap: var(--spacing-32);
   width: 100%;
   height: 100%;
 }
@@ -42,7 +42,7 @@
 
 .nameLabel {
   display: block;
-  margin-bottom: var(--spacing-xs);
+  margin-bottom: var(--spacing-8);
   font-family: var(--font-mono);
   font-size: var(--font-size-hint);
   font-weight: 500;
@@ -52,7 +52,7 @@
 }
 
 .name {
-  margin: 0 0 var(--spacing-xs) 0;
+  margin: 0 0 var(--spacing-8) 0;
   font-family: var(--font-instrument), serif;
   font-size: clamp(2rem, min(4vw, 6vh), 3.5rem);
   font-weight: 400;
@@ -62,7 +62,7 @@
 
 .subtitle {
   display: block;
-  margin-bottom: var(--spacing-2xl);
+  margin-bottom: var(--spacing-32);
   font-family: var(--font-mono);
   font-size: 0.85rem;
   color: var(--text-tertiary);
@@ -72,8 +72,8 @@
 .storyBlock {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
-  padding-top: var(--spacing-xl);
+  gap: var(--spacing-16);
+  padding-top: var(--spacing-24);
   border-top: 1px solid var(--border-default);
 }
 
@@ -89,17 +89,17 @@
 /* ── Expression Cards ── */
 .exprBar {
   display: flex;
-  gap: var(--spacing-sm);
-  margin-top: var(--spacing-2xl);
+  gap: var(--spacing-12);
+  margin-top: var(--spacing-32);
 }
 
 .exprCard {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   flex: 1;
-  padding: var(--card-p-sm);
+  padding: var(--card-padding-sm);
   border: none;
   background: transparent;
   text-align: center;
@@ -181,7 +181,7 @@
   width: 40px;
   height: 28px;
   /* 귀가 위로 뻗으므로 얼굴을 조금 내려 별 안에 담는다 */
-  margin-top: var(--spacing-lg);
+  margin-top: var(--spacing-20);
   color: var(--text-primary);
   background: var(--_bunny-bg);
   border-radius: var(--radius-circle);
@@ -239,7 +239,7 @@
 @media (max-width: 768px) {
   .layout {
     flex-direction: column;
-    gap: var(--spacing-xl);
+    gap: var(--spacing-24);
   }
 
   .preview {
@@ -253,16 +253,16 @@
 
 @media (max-width: 480px) {
   .exprCard {
-    padding: var(--spacing-sm) var(--spacing-xs);
+    padding: var(--spacing-12) var(--spacing-8);
   }
 
   .exprFace {
-    width: var(--control-h-2xl);
-    height: var(--control-h-xs);
+    width: var(--control-height-2xl);
+    height: var(--control-height-xs);
   }
 
   .exprFace svg {
-    width: var(--control-h-xl);
+    width: var(--control-height-xl);
     height: 24px;
   }
 }

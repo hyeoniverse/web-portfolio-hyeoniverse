@@ -4,7 +4,7 @@
 .timelineCard {
   display: flex;
   flex-direction: column;
-  padding: var(--spacing-lg) 0;
+  padding: var(--spacing-20) 0;
   background: transparent;
   height: auto;
   cursor: pointer;
@@ -26,8 +26,8 @@
   display: flex;
   align-items: center;
   justify-content: var(--tl-justify, flex-start);
-  gap: var(--spacing-2xs);
-  margin-bottom: var(--spacing-xs);
+  gap: var(--spacing-4);
+  margin-bottom: var(--spacing-8);
   font-family: var(--font-mono);
   font-size: var(--font-size-hint);
   letter-spacing: 0.06em;
@@ -43,7 +43,7 @@
 }
 /* KO 날짜의 한자 단위(年·月·日) — 사이드바(TimelineIndex)의 한자와 같은 결로 작게·연하게 */
 .timelineDateUnit {
-  margin-left: var(--spacing-4xs);
+  margin-left: var(--spacing-1);
   font-size: 0.82em;
   font-weight: var(--font-weight-regular);
   opacity: 0.55;
@@ -97,16 +97,16 @@
 /* 반대편 hover 프리뷰 — 지그재그의 빈 반대쪽 절반을 채움. 정렬/방향은 gridItem 이 준 CSS 변수 상속 */
 .timelinePreview {
   position: absolute;
-  top: var(--spacing-xl);
+  top: var(--spacing-24);
   left: var(--tl-preview-left, auto);
   right: var(--tl-preview-right, auto);
   width: 100%;
   box-sizing: border-box;
-  padding: 0 var(--spacing-lg);
+  padding: 0 var(--spacing-20);
   display: flex;
   flex-direction: var(--tl-preview-dir, row);
   align-items: flex-start;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
   text-align: var(--tl-preview-align, left);
   opacity: 0;
   transform: translateX(var(--tl-preview-x, 0));
@@ -160,8 +160,8 @@
   display: flex;
   align-items: center;
   justify-content: var(--tl-justify, flex-start);
-  gap: var(--spacing-sm);
-  margin-top: var(--spacing-sm);
+  gap: var(--spacing-12);
+  margin-top: var(--spacing-12);
   font-family: var(--font-mono);
   font-size: var(--font-size-hint);
   letter-spacing: 0.03em;
@@ -179,12 +179,12 @@
     position: static;
     width: auto;
     padding: 0;
-    margin-top: var(--spacing-sm);
+    margin-top: var(--spacing-12);
     opacity: 1;
     transform: none;
     flex-direction: row;
     text-align: left;
-    gap: var(--spacing-sm);
+    gap: var(--spacing-12);
   }
   .timelinePreviewThumb {
     width: 60px;
@@ -204,5 +204,5 @@
 .timelineStat.timelineStat {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }

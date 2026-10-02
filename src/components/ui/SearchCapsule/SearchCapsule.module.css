@@ -4,14 +4,14 @@
   position: relative;
   display: flex;
   align-items: center;
-  height: var(--control-h-md);
+  height: var(--control-height-md);
   border: var(--border-default);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
 }
 
 .capsuleSm {
-  height: var(--control-h-sm);
+  height: var(--control-height-sm);
 }
 
 .capsule:focus-within {
@@ -21,13 +21,13 @@
 /* ── collapsible (circle → capsule morph) ──
    접힘: width=height 원형, 아이콘만 정중앙. 펼침: width 는 인라인 style(expandedWidth). */
 .collapsible {
-  width: var(--control-h-md);
+  width: var(--control-height-md);
   overflow: hidden;
   cursor: pointer;
   color: var(--text-secondary);
   transition: width 0.25s ease, border-radius 0.25s ease, border-color 0.25s ease, color 0.25s ease;
 }
-.collapsible.capsuleSm { width: var(--control-h-sm); }
+.collapsible.capsuleSm { width: var(--control-height-sm); }
 .collapsible:hover { color: var(--text-primary); border-color: var(--text-primary); }
 .collapsibleOpen { cursor: text; color: var(--text-primary); }
 /* 접힘 상태 — 아이콘 정중앙, 나머지(select/input/clear) 숨김 */
@@ -63,14 +63,14 @@
   border-radius: 0 !important;
   /* 옵션 trigger ↔ input 구분선 — 주변 컨트롤 border 와 light 로 통일 */
   border-right: var(--border-light) !important;
-  padding: var(--input-p) !important;
+  padding: var(--input-padding) !important;
   font-size: var(--font-size-label);
   background: transparent !important;
 }
 
 .icon {
   flex-shrink: 0;
-  margin-left: var(--spacing-xs);
+  margin-left: var(--spacing-8);
   color: var(--text-tertiary);
   pointer-events: none;
 }
@@ -78,9 +78,9 @@
 .input {
   flex: 1;
   min-width: 80px;
-  padding: var(--input-p);
+  padding: var(--input-padding);
   /* 돋보기 아이콘과의 간격 — 기본 input padding 보다 더 좁게 */
-  padding-left: var(--spacing-2xs);
+  padding-left: var(--spacing-4);
   border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -101,7 +101,7 @@
   justify-content: center;
   width: 20px;
   height: 20px;
-  margin-right: var(--spacing-2xs);
+  margin-right: var(--spacing-4);
   padding: 0;
   border: none;
   border-radius: var(--radius-circle);
@@ -138,9 +138,9 @@
   right: 0;
   z-index: 50;
   /* radius-xl(16px) 에 맞춰 패딩 축소 */
-  padding: var(--spacing-2xs);
+  padding: var(--spacing-4);
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   /* 글래스 표면 — Select 드롭다운 / Popover 와 동일 (--bg-glass + --blur-glass) */
   background: var(--bg-glass-panel);
   backdrop-filter: var(--blur-glass);
@@ -159,14 +159,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-3xs) var(--spacing-xs);
+  gap: var(--spacing-8);
+  padding: var(--spacing-2) var(--spacing-8);
 }
 
 .historyHeaderLabel {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-micro);
   color: var(--text-tertiary);
@@ -195,7 +195,7 @@
 .historyList {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-4xs);
+  gap: var(--spacing-1);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -210,7 +210,7 @@
   display: flex;
   align-items: center;
   min-width: 0;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   transition: background var(--duration-base) ease;
 }
 
@@ -221,7 +221,7 @@
 .historyText {
   flex: 1;
   min-width: 0;
-  padding: var(--spacing-2xs) var(--spacing-xs);
+  padding: var(--spacing-4) var(--spacing-8);
   border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -239,7 +239,7 @@
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;
-  margin-right: var(--spacing-2xs);
+  margin-right: var(--spacing-4);
   opacity: 0;
   transition: opacity var(--duration-base) ease;
 }
@@ -265,7 +265,7 @@
   justify-content: center;
   width: 20px;
   height: 20px;
-  margin-right: var(--spacing-2xs);
+  margin-right: var(--spacing-4);
   padding: 0;
   border: none;
   border-radius: var(--radius-circle);
@@ -295,16 +295,16 @@
 .searchHelpPopover {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
   width: 360px;
   max-width: calc(100vw - 32px);
-  padding: var(--spacing-md) var(--spacing-xs);
+  padding: var(--spacing-16) var(--spacing-8);
 }
 
 .helpSection {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 /* 매칭 강도 section 의 label + 토글 한 줄 배치 */
@@ -312,11 +312,11 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 .helpSectionLabel {
-  padding: 0 var(--spacing-xs);
+  padding: 0 var(--spacing-8);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   font-weight: var(--font-weight-semibold);
@@ -329,12 +329,12 @@
 .helpList {
   display: grid;
   grid-template-columns: max-content 1fr;
-  column-gap: var(--spacing-sm);
+  column-gap: var(--spacing-12);
   row-gap: 0;
   align-items: baseline;
   margin: 0;
   /* 좌우 inset + 위아래 padding — 마지막 row 의 descender 가 잘리지 않도록 buffer 확보 */
-  padding: var(--spacing-2xs) var(--spacing-xs);
+  padding: var(--spacing-4) var(--spacing-8);
   list-style: none;
 }
 
@@ -344,12 +344,12 @@
 
 /* badge 자체는 sides 모두 border 가 그대로 (캡슐 모양 유지). padding 만 추가. */
 .helpKey {
-  padding-block: var(--spacing-2xs);
+  padding-block: var(--spacing-4);
 }
 
 /* divider 는 desc 컬럼에만 — badge 의 capsule 외곽선을 깨지 않으면서 row 분리감만 표현 */
 .helpDesc {
-  padding-block: var(--spacing-xs);
+  padding-block: var(--spacing-8);
   border-bottom: var(--border-light);
 }
 
@@ -363,9 +363,9 @@
 .helpKey {
   flex-shrink: 0;
   min-width: 60px;
-  padding: var(--spacing-3xs) var(--spacing-xs);
+  padding: var(--spacing-2) var(--spacing-8);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--bg-secondary);
   font-family: var(--font-mono);
   font-size: var(--font-size-hint);
@@ -382,7 +382,7 @@
 }
 
 .helpFootnote {
-  margin: var(--spacing-3xs) var(--spacing-xs) 0;
+  margin: var(--spacing-2) var(--spacing-8) 0;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-micro);
   color: var(--text-tertiary);
@@ -390,8 +390,8 @@
 }
 
 .helpFootnote code {
-  padding: var(--spacing-4xs) var(--spacing-2xs);
-  border-radius: var(--radius-capsule);
+  padding: var(--spacing-1) var(--spacing-4);
+  border-radius: var(--radius-full);
   background: var(--bg-secondary);
   font-family: var(--font-mono);
 }
@@ -399,15 +399,15 @@
 /* prefix / regex 모드 선택 — 캡슐 토글 */
 .helpModeToggle {
   display: inline-flex;
-  margin-right: var(--spacing-xs);
+  margin-right: var(--spacing-8);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   overflow: hidden;
   width: fit-content;
 }
 
 .helpModeBtn {
-  padding: var(--button-p-xs);
+  padding: var(--button-padding-xs);
   border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);

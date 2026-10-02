@@ -7,18 +7,18 @@
 
 .overviewHighlights {
   display: flex;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   flex-wrap: wrap;
 }
 
 .overviewTag {
-  padding: var(--spacing-xs) var(--spacing-md);
+  padding: var(--spacing-8) var(--spacing-16);
   border: var(--border-default);
   font-size: var(--font-size-prose-label);
   font-weight: var(--font-weight-medium);
   color: var(--text-secondary);
   letter-spacing: 0.05em;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
 }
 
 .overviewStat {
@@ -49,7 +49,7 @@
 .overviewLayout {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xl);
+  gap: var(--spacing-32);
   flex: 1;
   min-height: 0;
 }
@@ -57,20 +57,20 @@
 .overviewTop {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-20);
   min-width: 0;
 }
 
 .overviewStats {
   display: grid;
-  grid-template-columns: var(--grid-cols-2);
-  gap: 0 var(--spacing-3xl);
+  grid-template-columns: var(--grid-columns-2);
+  gap: 0 var(--spacing-48);
   border-top: var(--_line-primary);
 }
 
 @media (max-width: 1024px), (max-height: 700px) {
   .overviewLayout {
-    gap: var(--spacing-xl);
+    gap: var(--spacing-24);
   }
 }
 
@@ -114,7 +114,7 @@
   .overviewPanel .overviewStat {
     grid-column: 2;
     align-items: baseline;
-    padding: clamp(var(--spacing-2xs), 1vh, var(--spacing-sm)) 0;
+    padding: clamp(var(--spacing-4), 1vh, var(--spacing-12)) 0;
     border-bottom: var(--_line-secondary);
   }
 
@@ -142,7 +142,7 @@
     flex-direction: column;
     align-items: flex-start;
     align-self: center;
-    gap: var(--spacing-md);
+    gap: var(--spacing-16);
     padding: 0;
     border-bottom: none;
   }
@@ -158,7 +158,7 @@
 
   .overviewPanel .overviewStat:first-child .statLabel {
     order: 2;
-    padding-left: var(--spacing-md);
+    padding-left: var(--spacing-16);
     border-left: var(--border-default);
     font-size: var(--font-size-label);
     color: var(--text-secondary);
@@ -173,9 +173,9 @@
     grid-row: 3;
     grid-column: 2;
     align-self: start;
-    gap: var(--spacing-sm);
-    margin-top: clamp(var(--spacing-sm), 2.5vh, var(--spacing-xl));
-    padding-left: var(--spacing-md);
+    gap: var(--spacing-12);
+    margin-top: clamp(var(--spacing-12), 2.5vh, var(--spacing-24));
+    padding-left: var(--spacing-16);
     border-left: var(--border-default);
   }
 
@@ -186,7 +186,7 @@
   }
 
   .overviewPanel .overviewHighlights {
-    gap: var(--spacing-3xs) var(--spacing-sm);
+    gap: var(--spacing-2) var(--spacing-12);
   }
 
   .overviewPanel .overviewTag {

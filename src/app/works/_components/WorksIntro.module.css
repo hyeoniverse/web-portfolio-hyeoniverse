@@ -5,7 +5,7 @@
   --_intro-text-max: 340px;
 
   display: flex;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
   align-items: flex-end;
   flex-direction: column;
   justify-content: center;
@@ -49,7 +49,7 @@
 
 .introTagline {
   font-family: var(--font-instrument), serif;
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-20);
   font-style: italic;
   font-weight: var(--font-weight-regular);
   letter-spacing: 0.02em;
@@ -86,27 +86,27 @@
 
 .introStats {
   display: flex;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-20);
   align-items: center;
   align-self: stretch;
   justify-content: flex-end;
   margin-left: calc(-1 * var(--_intro-pad));
   margin-right: calc(-1 * var(--_intro-pad));
-  padding: var(--spacing-md) var(--_intro-pad);
+  padding: var(--spacing-16) var(--_intro-pad);
   border-top: var(--border-strong);
   border-bottom: var(--border-strong);
 }
 
 .introStat {
   display: flex;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   flex-direction: column;
   text-align: right;
 }
 
 .introStatNumber {
   font-family: var(--font-instrument), serif;
-  font-size: var(--font-size-4xl);
+  font-size: var(--font-size-40);
   font-weight: var(--font-weight-light);
   line-height: 1;
   letter-spacing: -0.04em;
@@ -122,8 +122,8 @@
 
 .introStatDivider {
   align-self: stretch;
-  margin-top: calc(-1 * var(--spacing-md));
-  margin-bottom: calc(-1 * var(--spacing-md));
+  margin-top: calc(-1 * var(--spacing-16));
+  margin-bottom: calc(-1 * var(--spacing-16));
   width: 1px;
   background: var(--border-color-strong);
 }
@@ -132,7 +132,7 @@
   align-self: stretch;
   margin-left: calc(-1 * var(--_intro-pad));
   margin-right: calc(-1 * var(--_intro-pad));
-  padding: 0 var(--_intro-pad) var(--spacing-sm);
+  padding: 0 var(--_intro-pad) var(--spacing-12);
   border-bottom: var(--border-strong);
   font-size: var(--font-size-body);
   font-weight: var(--font-weight-medium);
@@ -164,13 +164,13 @@
     align-items: flex-start;
     padding-top: 0;
     /* 모바일 — intro 와 첫 프로젝트 사이 시각적 호흡 확보 */
-    padding-bottom: var(--spacing-4xl);
+    padding-bottom: var(--spacing-64);
     text-align: left;
     border-right: none;
   }
 
   .introTitle {
-    font-size: var(--font-size-6xl);
+    font-size: var(--font-size-64);
     line-height: 0.95;
   }
 
@@ -197,7 +197,7 @@
   }
 
   .introStatNumber {
-    font-size: var(--font-size-5xl);
+    font-size: var(--font-size-48);
   }
 
   .introScope {
@@ -216,7 +216,7 @@
   }
 
   .introTitle {
-    font-size: var(--font-size-5xl);
+    font-size: var(--font-size-48);
   }
 
   .introDesc {
@@ -228,7 +228,7 @@
   }
 
   .introStatNumber {
-    font-size: var(--font-size-4xl);
+    font-size: var(--font-size-40);
   }
 
   .introQuote {

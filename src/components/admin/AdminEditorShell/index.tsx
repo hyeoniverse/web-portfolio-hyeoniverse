@@ -1044,7 +1044,7 @@ export default function AdminEditorShell({
         {/* ── 둘째 줄: 저장 그룹 ── */}
         <div className={styles.topBarRow}>
           {/* 발행 상태 chip — 둘째 줄 왼쪽 끝 (저장 그룹은 오른쪽) */}
-          <div style={{ marginRight: "auto", display: "flex", alignItems: "center", gap: "var(--spacing-sm)" }}>
+          <div style={{ marginRight: "auto", display: "flex", alignItems: "center", gap: "var(--spacing-12)" }}>
             <StatusBadge
               variant={published ? "published" : hasSchedule ? "scheduled" : "draft"}
               /* 목록의 칩처럼 눌러서 발행/미발행을 바꾼다(#1116). 예약 대기 칩은 누르지 않는다 — 누르면 예약을 건너뛰고 바로 발행된다 */

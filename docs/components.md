@@ -504,7 +504,7 @@ export const usePortalContainer = () => useContext(PortalContainerContext);
 캡슐형 검색 입력. 정렬·태그 캡슐 버튼과 톤 / 높이를 통일해 한 줄에 같이 놓을 수 있음.
 
 - **`searchType` prop optional** — 지정 시 좌측에 type select(예: 제목 / 본문) 노출, 미지정 시 단순 입력 캡슐
-- **높이 `var(--control-h-md)`** (Layer 3 Component 토큰, 32px) — Select / 일반 input 과 동일 높이
+- **높이 `var(--control-height-md)`** (Layer 3 Component 토큰, 32px) — Select / 일반 input 과 동일 높이
 - 내부 Select 컴포넌트가 동일 토큰을 쓰므로 별도 override 없이 자연스럽게 정렬됨
 
 ```tsx

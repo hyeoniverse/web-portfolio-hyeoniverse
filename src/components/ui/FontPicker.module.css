@@ -6,7 +6,7 @@
   align-items: center;
   height: 32px;
   flex-shrink: 0;
-  padding: 0 var(--spacing-md);
+  padding: 0 var(--spacing-16);
 }
 
 .search {
@@ -35,17 +35,17 @@
 /* 실제 content wrapper — 상하 spacing-sm (12px), 좌우 spacing-xs (8px).
    gap(md) 은 그룹 사이 간격 — 그룹 내 항목 간격(2xs)보다 크게 줘 구분감 확보. */
 .listInner {
-  padding: var(--spacing-sm) var(--spacing-xs);
+  padding: var(--spacing-12) var(--spacing-8);
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
 }
 
 /* 그룹 div 도 flex column + gap — items 가 같은 간격 유지 */
 .listInner > div {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 /* 현재 그룹 헤더 — 목록(.list) 위 고정 영역(검색 hint 처럼 non-scroll).
@@ -53,8 +53,8 @@
 .stickyGroup {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-xs) var(--spacing-sm) var(--spacing-2xs);
+  gap: var(--spacing-12);
+  padding: var(--spacing-8) var(--spacing-12) var(--spacing-4);
   font-size: var(--font-size-label);
   font-weight: 600;
   color: var(--text-muted);
@@ -70,9 +70,9 @@
 }
 
 .item {
-  padding: var(--row-p-sm);
+  padding: var(--row-padding-sm);
   margin: 0;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   font-size: var(--font-size-body);
   white-space: nowrap;
   overflow: hidden;
@@ -81,7 +81,7 @@
   color: var(--text-primary);
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 /* check 아이콘 — active 일 때만 렌더, label 오른쪽에 위치 (선택 안 된 item 앞에 빈공간 없음) */
@@ -101,8 +101,8 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-micro);
   line-height: 1;
-  padding: var(--row-p-sm);
-  border-radius: var(--radius-capsule);
+  padding: var(--row-padding-sm);
+  border-radius: var(--radius-full);
   background: var(--bg-tertiary);
   color: var(--text-tertiary);
 }
@@ -124,7 +124,7 @@
 }
 
 .hint {
-  padding: var(--spacing-3xs) var(--spacing-sm);
+  padding: var(--spacing-2) var(--spacing-12);
   font-size: var(--font-size-hint);
   color: var(--text-muted);
 }
@@ -136,7 +136,7 @@
 .footerLink {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   font-size: var(--font-size-label);
   color: var(--text-muted);
   text-decoration: none;
@@ -149,7 +149,7 @@
 /* 목록에 없는 폰트 안내 — 검색창 바로 아래 (검색창과 살짝 띄움) */
 .searchHint {
   margin: 0;
-  padding: var(--spacing-xs) var(--spacing-sm) var(--spacing-2xs);
+  padding: var(--spacing-8) var(--spacing-12) var(--spacing-4);
   color: var(--text-tertiary);
   font-size: var(--font-size-hint);
   line-height: 1.4;

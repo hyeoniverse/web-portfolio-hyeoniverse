@@ -57,7 +57,7 @@
   height: var(--erd-head-h);
   display: flex;
   align-items: center;
-  padding: 0 var(--spacing-xs);
+  padding: 0 var(--spacing-8);
   border-bottom: 1px solid var(--border-color-light);
   background: var(--bg-tertiary);
   color: var(--text-primary);
@@ -85,8 +85,8 @@
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  padding: var(--spacing-4xs) var(--spacing-xs);
-  border-radius: var(--radius-capsule);
+  padding: var(--spacing-1) var(--spacing-8);
+  border-radius: var(--radius-full);
   background: var(--bg-accent-subtle);
   color: var(--text-accent);
   font-size: var(--font-size-micro);
@@ -98,8 +98,8 @@
 /* 컬럼 표기 — Chen 의 이중 타원(다중값) / 점선 타원(파생)에 해당 */
 .kindMulti,
 .kindDerived {
-  padding: 0 var(--spacing-2xs);
-  border-radius: var(--radius-capsule);
+  padding: 0 var(--spacing-4);
+  border-radius: var(--radius-full);
   font-size: var(--font-size-micro);
   font-weight: var(--font-weight-bold);
   white-space: nowrap;
@@ -122,9 +122,9 @@
   grid-auto-flow: column;
   grid-template-columns: 24px minmax(0, 1fr);
   grid-auto-columns: auto;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   align-items: center;
-  padding: 0 var(--spacing-sm);
+  padding: 0 var(--spacing-12);
   font-family: var(--font-mono);
   font-size: 13px;
   line-height: 1;
@@ -169,8 +169,8 @@
 /* UNIQUE / 인덱스 — 배지는 작게, 인덱스는 더 옅게 (제약이 아니라 조회 경로다) */
 .flag,
 .flagSoft {
-  border-radius: var(--radius-capsule);
-  padding: var(--spacing-4xs) var(--spacing-2xs);
+  border-radius: var(--radius-full);
+  padding: var(--spacing-1) var(--spacing-4);
   font-size: var(--font-size-micro);
   font-weight: var(--font-weight-bold);
   letter-spacing: 0.02em;
@@ -194,8 +194,8 @@
 .kindView {
   flex: none;
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  padding: var(--spacing-4xs) var(--spacing-xs);
+  border-radius: var(--radius-full);
+  padding: var(--spacing-1) var(--spacing-8);
   color: var(--text-info-strong);
   font-size: var(--font-size-micro);
   font-weight: var(--font-weight-bold);

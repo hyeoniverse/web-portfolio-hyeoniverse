@@ -8,8 +8,8 @@
 .socialItem {
   display: flex;
   align-items: flex-start;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-sm) 0;
+  gap: var(--spacing-12);
+  padding: var(--spacing-12) 0;
   transition: background-color 0.2s ease;
 }
 
@@ -20,7 +20,7 @@
 .socialItemDragging {
   background: var(--bg-secondary);
   /* 드래그 중 항목 — 섹션 제목 위로 들려 보이되 탭바/nav 아래 (패널 z 사다리 참조) */
-  z-index: calc(var(--z-nav) - 2);
+  z-index: calc(var(--z-index-nav) - 2);
 }
 
 .socialDragHandle {
@@ -62,7 +62,7 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 .socialIconClickable {
@@ -131,7 +131,7 @@
   width: 12px;
   height: 1.5px;
   background: currentColor;
-  border-radius: var(--spacing-4xs);
+  border-radius: var(--spacing-1);
   transition: transform 0.25s ease;
   transform: rotate(0deg);
 }

@@ -2,8 +2,8 @@
 .body {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
-  padding: var(--spacing-xs) var(--spacing-md);
+  gap: var(--spacing-16);
+  padding: var(--spacing-8) var(--spacing-16);
 }
 
 .desc {

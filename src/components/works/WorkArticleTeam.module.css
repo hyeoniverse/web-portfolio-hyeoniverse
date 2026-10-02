@@ -18,8 +18,8 @@
 
 /* HorizontalCarousel 안 children layout — 카드 rotate + hover shadow 안 잘리도록 padding */
 .polaroidCarousel {
-  gap: var(--spacing-lg);
-  padding: var(--spacing-md) var(--spacing-2xl) var(--spacing-2xl);
+  gap: var(--spacing-20);
+  padding: var(--spacing-16) var(--spacing-32) var(--spacing-32);
   perspective: 1200px;
 }
 
@@ -60,7 +60,7 @@
   inset: 0;
   display: flex;
   flex-direction: column;
-  padding: var(--spacing-sm) var(--spacing-sm) var(--spacing-md);
+  padding: var(--spacing-12) var(--spacing-12) var(--spacing-16);
   background: var(--bg-primary);
   border: 1px solid var(--border-color-light);
   box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.18);
@@ -84,7 +84,7 @@
 /* back 은 180도 회전 상태 (정상 보기엔 뒤로 가려져 있음) */
 .polaroidBack {
   transform: rotateY(180deg);
-  padding: var(--spacing-md);
+  padding: var(--spacing-16);
   overflow-y: auto;
 }
 
@@ -97,20 +97,20 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: var(--spacing-md);
+  margin-bottom: var(--spacing-16);
   flex-shrink: 0;
 }
 
 .polaroidAvatarImg { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-.polaroidAvatarInitial { font-family: var(--font-instrument), serif; font-size: var(--font-size-4xl); color: var(--text-tertiary); }
+.polaroidAvatarInitial { font-family: var(--font-instrument), serif; font-size: var(--font-size-40); color: var(--text-tertiary); }
 
 .polaroidCaption {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-2xs);
-  padding: 0 var(--spacing-2xs);
+  gap: var(--spacing-4);
+  padding: 0 var(--spacing-4);
   text-align: center;
   flex: 1;
   justify-content: center;
@@ -135,14 +135,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-sm);
-  padding-bottom: var(--spacing-sm);
-  margin-bottom: var(--spacing-sm);
+  gap: var(--spacing-12);
+  padding-bottom: var(--spacing-12);
+  margin-bottom: var(--spacing-12);
   border-bottom: var(--border-light);
 }
 
 .polaroidBackBio {
-  margin: 0 0 var(--spacing-sm);
+  margin: 0 0 var(--spacing-12);
   font-size: var(--font-size-label);
   line-height: 1.55;
   color: var(--text-secondary);
@@ -160,20 +160,20 @@
 .polaroidBackLinks {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   flex-shrink: 0;
 }
 
 .polaroidBackContribs {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 .polaroidBackContribGroup {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
 }
 
 .polaroidBackContribRole {
@@ -190,7 +190,7 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   font-size: var(--font-size-label);
   color: var(--text-secondary);
   line-height: 1.55;
@@ -198,7 +198,7 @@
 
 .polaroidBackContribList li {
   position: relative;
-  padding-left: var(--spacing-sm);
+  padding-left: var(--spacing-12);
 }
 
 .polaroidBackContribList li::before {
@@ -215,16 +215,16 @@
 /* ── Team Credits — likeWrapper 처럼 content 흐름 안 단순 배치 (full width = content width) */
 .teamCreditsSection {
   width: 100%;
-  padding-top: var(--spacing-2xl);
-  margin-top: var(--spacing-md);
+  padding-top: var(--spacing-32);
+  margin-top: var(--spacing-16);
   border-top: var(--border-light);
 }
 
 .teamCreditsHeader {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  margin-bottom: var(--spacing-lg);
+  gap: var(--spacing-12);
+  margin-bottom: var(--spacing-20);
 }
 
 .teamCreditsLabel {

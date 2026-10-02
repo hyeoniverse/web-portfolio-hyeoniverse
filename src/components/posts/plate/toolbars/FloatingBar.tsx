@@ -184,11 +184,11 @@ export default function FloatingBar({
     return vOverlap && hOverlap ? Math.max(toolbarBottom, findRect.bottom) : toolbarBottom;
   })();
   const floatStyle: React.CSSProperties = pinned
-    ? { position: "fixed", top: pinned.top, left: pinned.left, zIndex: "var(--z-dropdown)" }
+    ? { position: "fixed", top: pinned.top, left: pinned.left, zIndex: "var(--z-index-dropdown)" }
     : {
         ...style,
         top: typeof style.top === "number" ? Math.max(style.top, clampBottom + 8) : style.top,
-        zIndex: "var(--z-dropdown)",
+        zIndex: "var(--z-index-dropdown)",
       };
 
   const node = (

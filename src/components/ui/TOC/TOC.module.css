@@ -4,13 +4,13 @@
 
 .toc {
   --toc-trail: color-mix(in srgb, var(--text-accent) 42%, transparent);
-  --toc-list-x: calc(var(--spacing-xl) + var(--spacing-2xs));
+  --toc-list-x: calc(var(--spacing-24) + var(--spacing-4));
 
   position: relative;
   isolation: isolate;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-20);
   font-family: var(--font-space-grotesk), sans-serif;
 }
 
@@ -21,7 +21,7 @@
   left: 2vw;
   width: 150px;
   transform: translateY(-50%);
-  z-index: var(--z-float);
+  z-index: var(--z-index-float);
 }
 
 /* 왼쪽 고정(디자인 시스템 등) — 본문 옆 좁은 여백에 들어가도록 진행 링·시간·배경 번호는 뺀다 */
@@ -40,13 +40,13 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 .headTitle {
   font-family: var(--font-instrument);
   font-style: italic;
-  font-size: var(--font-size-2xl-plus);
+  font-size: var(--font-size-28);
   line-height: 1;
   color: var(--text-primary);
 }
@@ -58,7 +58,7 @@
 
 .headTime {
   display: block;
-  margin-top: var(--spacing-2xs);
+  margin-top: var(--spacing-4);
   font-family: var(--font-space-grotesk), sans-serif;
   font-style: normal;
   font-size: var(--font-size-hint);
@@ -285,7 +285,7 @@
 .list {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   margin: 0;
   padding: 0 0 0 var(--toc-list-x);
   list-style: none;
@@ -294,8 +294,8 @@
 .chT {
   display: flex;
   align-items: baseline;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-3xs) 0;
+  gap: var(--spacing-8);
+  padding: var(--spacing-2) 0;
   font-size: var(--font-size-label);
   line-height: 20px;
   color: var(--text-tertiary);
@@ -376,7 +376,7 @@
   display: grid;
   grid-template-rows: 0fr;
   opacity: 0;
-  padding-left: calc(var(--spacing-md) + var(--spacing-2xs));
+  padding-left: calc(var(--spacing-16) + var(--spacing-4));
   transition:
     grid-template-rows 0.45s cubic-bezier(0.2, 0.8, 0.2, 1),
     opacity var(--duration-base) ease;
@@ -404,7 +404,7 @@
 }
 
 .subDeep {
-  padding-left: var(--spacing-sm);
+  padding-left: var(--spacing-12);
 }
 
 .sub.past {
@@ -423,7 +423,7 @@
 .sub:focus-visible {
   outline: 2px solid var(--text-accent);
   outline-offset: 2px;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
 }
 
 @media (prefers-reduced-motion: reduce) {

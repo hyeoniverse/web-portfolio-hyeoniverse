@@ -674,13 +674,13 @@ export function CodeBlockElement(props: PlateElementProps) {
       onBlurCapture={() => setUiFocused(false)}>
       {/* 언어 선택 — 일반 코드블록(다이어그램은 mermaid 고정이라 대신 뷰 토글). */}
       {!isDiagram && (
-        <span onMouseDown={(e) => e.stopPropagation()} style={{ display: "inline-flex", marginRight: "var(--spacing-3xs)" }}>
+        <span onMouseDown={(e) => e.stopPropagation()} style={{ display: "inline-flex", marginRight: "var(--spacing-2)" }}>
           <CodeLangPicker value={lang ?? "plaintext"} onChange={setLang} language={language} />
         </span>
       )}
       {/* 다이어그램 뷰 토글(코드/다이어그램/스플릿) — 다이어그램 블록에서만. */}
       {isDiagram && (
-        <span onMouseDown={(e) => e.stopPropagation()} style={{ display: "inline-flex", marginRight: "var(--spacing-3xs)" }}>
+        <span onMouseDown={(e) => e.stopPropagation()} style={{ display: "inline-flex", marginRight: "var(--spacing-2)" }}>
           <SegmentedControl<"code" | "diagram" | "split">
             items={[
               { value: "code", label: language === "ko" ? "코드" : "Code" },

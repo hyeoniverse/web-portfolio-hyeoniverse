@@ -1,15 +1,15 @@
 .giscus {
   width: 100%;
   /* 게시물 반응(위젯 최상단)이 위 콘텐츠와 붙지 않게 넉넉한 상단 여백 */
-  margin-top: var(--spacing-3xl);
+  margin-top: var(--spacing-48);
 }
 
 .notice {
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-body);
   color: var(--text-secondary);
-  padding: var(--spacing-xs) var(--spacing-md);
+  padding: var(--spacing-8) var(--spacing-16);
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   background: var(--bg-secondary);
 }

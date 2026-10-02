@@ -3,7 +3,7 @@
 .priorityList {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 .priorityList :is(input, .priorityItem) {
@@ -13,19 +13,19 @@
 .priorityRow {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 .priorityItem {
   width: 280px;
   max-width: 100%;
   min-width: 0;
-  height: var(--control-h-md);
+  height: var(--control-height-md);
   box-sizing: border-box;
   display: flex;
   align-items: center;
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   overflow: hidden;
   user-select: none;
@@ -37,7 +37,7 @@
 }
 
 .priorityBadge {
-  width: var(--control-h-md);
+  width: var(--control-height-md);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -54,9 +54,9 @@
 .priorityLabel {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   flex: 1;
-  padding: var(--spacing-xs) var(--spacing-sm);
+  padding: var(--spacing-8) var(--spacing-12);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   color: var(--text-primary);
@@ -72,7 +72,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: var(--control-h-md);
+  height: var(--control-height-md);
   padding: 0;
   color: var(--text-muted);
   flex-shrink: 0;

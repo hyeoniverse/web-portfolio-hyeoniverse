@@ -22,15 +22,15 @@ export default function PostDetailLoading() {
             </div>
           </div>
           <SkeletonLine width="80%" height={48} />
-          <div style={{ height: "var(--spacing-md)" }} />
+          <div style={{ height: "var(--spacing-16)" }} />
           <SkeletonLine width="100%" height={18} />
-          <div style={{ height: "var(--spacing-xs)" }} />
+          <div style={{ height: "var(--spacing-8)" }} />
           <SkeletonLine width="60%" height={18} />
-          <div style={{ height: "var(--spacing-md)" }} />
-          <div style={{ display: "flex", gap: "var(--spacing-xs)" }}>
-            <Skeleton width={60} height={24} borderRadius="var(--radius-capsule)" />
-            <Skeleton width={80} height={24} borderRadius="var(--radius-capsule)" />
-            <Skeleton width={50} height={24} borderRadius="var(--radius-capsule)" />
+          <div style={{ height: "var(--spacing-16)" }} />
+          <div style={{ display: "flex", gap: "var(--spacing-8)" }}>
+            <Skeleton width={60} height={24} borderRadius="var(--radius-full)" />
+            <Skeleton width={80} height={24} borderRadius="var(--radius-full)" />
+            <Skeleton width={50} height={24} borderRadius="var(--radius-full)" />
           </div>
           <div className={header.headerDivider} />
         </div>
@@ -38,13 +38,13 @@ export default function PostDetailLoading() {
 
       <div className={layoutStyles.contentRow}>
         <div className={layoutStyles.content}>
-          <div style={{ display: "flex", flexDirection: "column" as const, gap: "var(--spacing-md)" }}>
+          <div style={{ display: "flex", flexDirection: "column" as const, gap: "var(--spacing-16)" }}>
             <SkeletonLine width="100%" height={14} />
             <SkeletonLine width="95%" height={14} />
             <SkeletonLine width="88%" height={14} />
             <SkeletonLine width="100%" height={14} />
             <SkeletonLine width="70%" height={14} />
-            <div style={{ height: "var(--spacing-lg)" }} />
+            <div style={{ height: "var(--spacing-20)" }} />
             <SkeletonLine width="40%" height={24} />
             <SkeletonLine width="100%" height={14} />
             <SkeletonLine width="92%" height={14} />

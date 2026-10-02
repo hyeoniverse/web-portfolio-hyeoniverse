@@ -34,24 +34,32 @@ const eslintConfig = [
       "no-restricted-syntax": [
         "error",
         {
-          selector: String.raw`Literal[value=/var\(--font-size-(3xs|2xs|xs|sm)\)/]`,
+          selector: String.raw`Literal[value=/var\(--font-size-(11|12|13|14)\)/]`,
           message:
             "글자 크기는 눈금이 아니라 역할로 고릅니다 — --font-size-body(14) / -label(13) / -hint(12, 가장 작은 글자).",
         },
         {
-          selector: String.raw`TemplateElement[value.raw=/var\(--font-size-(3xs|2xs|xs|sm)\)/]`,
+          selector: String.raw`TemplateElement[value.raw=/var\(--font-size-(11|12|13|14)\)/]`,
           message:
             "글자 크기는 눈금이 아니라 역할로 고릅니다 — --font-size-body(14) / -label(13) / -hint(12, 가장 작은 글자).",
         },
         {
-          selector: String.raw`Literal[value=/var\(--radius-(2xs|xs|sm|md|lg|xl|3xl|4xl|5xl|6xl)\)/]`,
+          selector: String.raw`Literal[value=/var\(--radius-(2|4|6|8|12|16)\)/]`,
           message:
-            "모서리는 지금 --radius-capsule / --radius-circle / --radius-2xl 만 직접 씁니다 (알약·칩·행 하이라이트=capsule, 정원=circle, 면 있는 것=2xl). 역할 토큰으로 옮기는 중 — docs/design-system.md 3.5.",
+            "모서리는 지금 --radius-full / --radius-circle / --radius-24 만 직접 씁니다 (알약·칩·행 하이라이트=full, 정원=circle, 면 있는 것=24). 역할 토큰으로 옮기는 중 — docs/design-system.md 3.5.",
         },
         {
-          selector: String.raw`TemplateElement[value.raw=/var\(--radius-(2xs|xs|sm|md|lg|xl|3xl|4xl|5xl|6xl)\)/]`,
+          selector: String.raw`TemplateElement[value.raw=/var\(--radius-(2|4|6|8|12|16)\)/]`,
           message:
-            "모서리는 지금 --radius-capsule / --radius-circle / --radius-2xl 만 직접 씁니다 (알약·칩·행 하이라이트=capsule, 정원=circle, 면 있는 것=2xl). 역할 토큰으로 옮기는 중 — docs/design-system.md 3.5.",
+            "모서리는 지금 --radius-full / --radius-circle / --radius-24 만 직접 씁니다 (알약·칩·행 하이라이트=full, 정원=circle, 면 있는 것=24). 역할 토큰으로 옮기는 중 — docs/design-system.md 3.5.",
+        },
+        {
+          selector: String.raw`Literal[value=/var\(--(?:spacing|radius|font-size|size|blur)-(?:zero|[2-6]xs|xs|sm|md|lg|xl|[2-6]xl|[245]xl-plus|capsule)\)/]`,
+          message: "옛 토큰 이름은 저장된 글을 위한 별칭이라 코드에서 쓰지 않습니다 — --spacing-16 · --radius-24 · --font-size-14 처럼 px 값 이름을 씁니다(docs/design-system.md 2-3-6).",
+        },
+        {
+          selector: String.raw`TemplateElement[value.raw=/var\(--(?:spacing|radius|font-size|size|blur)-(?:zero|[2-6]xs|xs|sm|md|lg|xl|[2-6]xl|[245]xl-plus|capsule)\)/]`,
+          message: "옛 토큰 이름은 저장된 글을 위한 별칭이라 코드에서 쓰지 않습니다 — --spacing-16 · --radius-24 · --font-size-14 처럼 px 값 이름을 씁니다(docs/design-system.md 2-3-6).",
         },
       ],
       "@typescript-eslint/no-unused-vars": [

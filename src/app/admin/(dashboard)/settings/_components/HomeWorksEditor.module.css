@@ -5,13 +5,13 @@
 /* 계정 줄 — 아이콘과 이름 사이 간격. 물려 쓰는 .login 은 inline-flex 인데 gap 이 없어
    둘 사이의 공백 글자가 접힌다(프로필 쪽에는 아이콘이 없어 드러나지 않던 자리다). */
 .loginName {
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 .picked {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -22,10 +22,10 @@
 .card {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
-  padding: var(--row-p-md);
+  gap: var(--spacing-12);
+  padding: var(--row-padding-md);
   border: 1px solid transparent;
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
 }
 
 .picked .card {
@@ -37,7 +37,7 @@
 }
 
 .card:has(.cardBody) {
-  padding: var(--card-p-md);
+  padding: var(--card-padding-md);
   border-color: var(--border-color-default);
   background: var(--bg-secondary);
 }
@@ -47,7 +47,7 @@
   display: flex;
   flex: 1;
   min-width: 0;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   align-items: center;
   color: var(--text-tertiary);
 }
@@ -128,7 +128,7 @@
 
 .cardHead {
   display: flex;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   align-items: center;
 }
 
@@ -153,11 +153,11 @@
    줄과 판을 가르는 선은 어디부터가 편집인지 알리는 것이다. */
 .cardBody {
   display: grid;
-  gap: var(--spacing-md) var(--spacing-lg);
+  gap: var(--spacing-16) var(--spacing-20);
   grid-template-columns: auto minmax(0, 1fr);
   align-items: start;
-  padding-top: var(--spacing-sm);
-  margin-top: var(--spacing-3xs);
+  padding-top: var(--spacing-12);
+  margin-top: var(--spacing-2);
   border-top: var(--border-light);
 }
 
@@ -171,7 +171,7 @@
 /* 제목 두 벌은 표지 옆 한 줄을 둘로 나눠 쓴다. 좁은 화면에서는 한 칸으로 떨어진다 */
 .titles {
   display: grid;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   grid-template-columns: 1fr 1fr;
 }
 
@@ -193,14 +193,14 @@
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   align-items: flex-start;
   width: 96px;
 }
 
 .coverLabel {
   display: flex;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   align-items: center;
   font-size: var(--font-size-micro);
   color: var(--text-tertiary);
@@ -285,8 +285,8 @@
    번들 순서에 맡기면 dev 와 배포에서 이기는 쪽이 갈린다 */
 .coverClear.coverClear {
   position: absolute;
-  top: var(--spacing-3xs);
-  right: var(--spacing-3xs);
+  top: var(--spacing-2);
+  right: var(--spacing-2);
   border: var(--border-light);
   border-radius: var(--radius-circle);
   background: var(--bg-primary);
@@ -303,18 +303,18 @@
    단추 수와 크기가 늘 같아서 이 줄의 높이·너비는 상태에 따라 변하지 않는다 */
 .coverTools {
   display: flex;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   align-items: center;
   justify-content: center;
   width: 100%;
-  margin-top: var(--spacing-2xs);
+  margin-top: var(--spacing-4);
 }
 
 /* 자동으로 뽑힌 칸이라는 표식 — 직접 고른 칸과 섞여 있지 않지만, 순서를 못 바꾸는 이유를 말해 준다 */
 .autoTag {
   flex-shrink: 0;
-  padding: 0 var(--spacing-2xs);
-  border-radius: var(--radius-capsule);
+  padding: 0 var(--spacing-4);
+  border-radius: var(--radius-full);
   background: var(--bg-tertiary);
   font-size: var(--font-size-micro);
   color: var(--text-secondary);
@@ -323,7 +323,7 @@
 /* 카드 묶음의 안내는 두 줄까지 가고 바로 아래 카드가 붙어 답답했다 — 이 자리에만 여백을 준다.
    공용 .groupHint 를 건드리면 같은 클래스를 쓰는 다른 묶음까지 벌어진다 */
 .cardsHint {
-  margin-bottom: var(--spacing-xs);
+  margin-bottom: var(--spacing-8);
   line-height: var(--line-height-snug);
 }
 
@@ -334,7 +334,7 @@
 .excluded {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -352,9 +352,9 @@
 .pickerOverlay {
   display: flex;
   position: fixed;
-  z-index: var(--z-overlay);
+  z-index: var(--z-index-overlay);
   inset: 0;
-  padding: var(--modal-p-lg);
+  padding: var(--modal-padding-lg);
   align-items: center;
   justify-content: center;
   background: transparent;
@@ -369,7 +369,7 @@
   width: min(56rem, 100%);
   max-height: 90vh;
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   background: var(--color-neutral-0);
 }
 

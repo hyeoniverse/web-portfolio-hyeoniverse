@@ -3,17 +3,17 @@
 /* ── Filter Bar (sticky, below fixed Nav) ──
    같은 행 컨트롤들의 통일 높이는 .page 의 --filter-row-h (28px) 로 cascade. */
 .filterBar {
-  max-width: var(--page-max-width);
-  margin: 0 auto var(--spacing-2xl);
+  max-width: var(--width-page-max);
+  margin: 0 auto var(--spacing-32);
   position: sticky;
-  top: calc(var(--spacing-2xl) * 2 + var(--font-size-3xl));
+  top: calc(var(--spacing-32) * 2 + var(--font-size-32));
   z-index: 51;
   /* 콘텐츠와 border-bottom (divider) 사이 breathing — 이전엔 .btn 의 border-bottom 2px 가 암묵적 여백
      역할했는데 제거 후 콘텐츠가 divider 에 딱 붙음. */
-  padding: 0 0 var(--spacing-sm) 0;
+  padding: 0 0 var(--spacing-12) 0;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   border-bottom: var(--border-light);
   transform: translateY(0);
   opacity: 1;
@@ -62,14 +62,14 @@
      모든 항목 min-height: var(--filter-row-h) 라 single-row 일 땐 center 와 시각적 동일. */
   align-items: flex-start;
   justify-content: space-between;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
 }
 
 /* 검색 전용 윗줄 — 우상단 정렬. 검색창↔도움말 간격 (다른 페이지도 이 값 참고) */
 .filterBarSearchRow {
   display: flex;
   justify-content: flex-end;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 /* filter bar 의 SearchCapsule 도 다른 컨트롤과 통일 높이로 */
@@ -83,13 +83,13 @@
   align-self: flex-start;
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   /* .btn / .moreBtn 과 동일 행 수직 중심 정렬 */
   min-height: var(--filter-row-h);
-  padding: 0 var(--spacing-sm);
+  padding: 0 var(--spacing-12);
   border: var(--border-default);
   cursor: pointer;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-hint);
@@ -135,12 +135,12 @@
     flex-wrap: wrap;
     /* multi-row 시 첫 row 기준 정렬 — 데스크탑과 동일 패턴 */
     align-items: flex-start;
-    gap: var(--spacing-sm);
+    gap: var(--spacing-12);
   }
 }
 
 @media (max-width: 480px) {
   .filterBar {
-    top: calc(var(--spacing-md) * 2 + var(--font-size-3xl));
+    top: calc(var(--spacing-16) * 2 + var(--font-size-32));
   }
 }

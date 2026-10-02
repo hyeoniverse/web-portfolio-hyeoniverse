@@ -2,15 +2,15 @@
    공유 클래스(section·fields·message 등)는 Settings 에 남아 shared 로 import  */
 /* ── Devices list — 보안 section, admin_known_devices 표시 ── */
 .devicesWrap {
-  margin-top: var(--spacing-md);
-  margin-bottom: var(--spacing-md);
+  margin-top: var(--spacing-16);
+  margin-bottom: var(--spacing-16);
 }
 
 .devicesHeader {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
-  margin-bottom: var(--spacing-xs);
+  gap: var(--spacing-8);
+  margin-bottom: var(--spacing-8);
 }
 
 .devicesTitle {
@@ -23,8 +23,8 @@
 }
 
 .devicesCount {
-  padding: 0 var(--spacing-xs);
-  border-radius: var(--radius-capsule);
+  padding: 0 var(--spacing-8);
+  border-radius: var(--radius-full);
   background: var(--bg-tertiary);
   font-family: var(--font-mono);
   font-size: var(--font-size-hint);
@@ -44,8 +44,8 @@
 .deviceRow {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-sm) 0;
+  gap: var(--spacing-12);
+  padding: var(--spacing-12) 0;
   border-bottom: var(--border-light);
 }
 
@@ -75,7 +75,7 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-body);
   font-weight: var(--font-weight-medium);
@@ -85,9 +85,9 @@
 .deviceCurrentBadge {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-3xs);
-  padding: var(--badge-p-md);
-  border-radius: var(--radius-capsule);
+  gap: var(--spacing-2);
+  padding: var(--badge-padding-md);
+  border-radius: var(--radius-full);
   background: var(--bg-accent-light);
   font-size: var(--font-size-hint);
   font-weight: var(--font-weight-semibold);
@@ -97,8 +97,8 @@
 }
 
 .devicePendingBadge {
-  padding: var(--badge-p-md);
-  border-radius: var(--radius-capsule);
+  padding: var(--badge-padding-md);
+  border-radius: var(--radius-full);
   background: var(--bg-secondary);
   font-size: var(--font-size-hint);
   font-weight: var(--font-weight-medium);
@@ -109,8 +109,8 @@
 
 .deviceMeta {
   display: flex;
-  gap: var(--spacing-sm);
-  margin-top: var(--spacing-3xs);
+  gap: var(--spacing-12);
+  margin-top: var(--spacing-2);
   font-family: var(--font-mono);
   font-size: var(--font-size-hint);
   color: var(--text-tertiary);
@@ -155,7 +155,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: var(--z-modal);
+  z-index: var(--z-index-modal);
 }
 
 .confirmDialog {
@@ -164,18 +164,18 @@
   max-width: 380px;
   background: var(--bg-primary);
   border: var(--border-default);
-  border-radius: var(--radius-2xl);
-  padding: var(--modal-p-lg);
+  border-radius: var(--radius-24);
+  padding: var(--modal-padding-lg);
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
   box-shadow: var(--shadow-xl);
 }
 /* position 만 — size/style 은 CloseButton md 가 책임 */
 .confirmClose {
   position: absolute;
-  top: var(--spacing-sm);
-  right: var(--spacing-sm);
+  top: var(--spacing-12);
+  right: var(--spacing-12);
 }
 
 .confirmTitle {
@@ -197,25 +197,25 @@
 .confirmActions {
   display: flex;
   justify-content: flex-end;
-  gap: var(--spacing-sm);
-  margin-top: var(--spacing-xs);
+  gap: var(--spacing-12);
+  margin-top: var(--spacing-8);
 }
 /* ── Pending Email Banner ── */
 .pendingEmailBanner {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-md);
-  padding: var(--spacing-sm) var(--spacing-md);
+  gap: var(--spacing-16);
+  padding: var(--spacing-12) var(--spacing-16);
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
-  margin-bottom: var(--spacing-md);
+  border-radius: var(--radius-24);
+  margin-bottom: var(--spacing-16);
 }
 
 .pendingEmailInfo {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   min-width: 0;
 }
 
@@ -226,7 +226,7 @@
 
 .pendingEmailExpiry {
   color: var(--text-accent);
-  margin-left: var(--spacing-xs);
+  margin-left: var(--spacing-8);
 }
 
 .pendingEmailValue {
@@ -242,7 +242,7 @@
 
 .pendingEmailActions {
   display: flex;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   flex-shrink: 0;
 }
 
@@ -251,7 +251,7 @@
   display: flex;
   flex: 1;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   flex-wrap: wrap;
 }
 
@@ -261,8 +261,8 @@
 
 /* 로그인한 계정이 본인임을 표시 — 목록에서 남의 계정과 섞이지 않도록 */
 .meChip {
-  padding: var(--badge-p-md);
-  border-radius: var(--radius-capsule);
+  padding: var(--badge-padding-md);
+  border-radius: var(--radius-full);
   background: var(--bg-accent-light);
   color: var(--text-accent);
   font-size: var(--font-size-hint);

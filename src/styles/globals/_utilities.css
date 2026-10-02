@@ -81,7 +81,7 @@
     var(--color-gray-alpha-10) 100% /* 우하단 약간 어두움 */
   );
   transition: all var(--duration-base) ease;
-  backdrop-filter: var(--blur-xl) saturate(150%);
+  backdrop-filter: var(--blur-16) saturate(150%);
 }
 
 .glass:hover,
@@ -131,7 +131,7 @@
 }
 
 .highlighted-text {
-  padding: var(--spacing-2xs) var(--spacing-xs);
+  padding: var(--spacing-4) var(--spacing-8);
   background: linear-gradient(
     120deg,
     transparent 0%,
@@ -151,7 +151,7 @@
 }
 
 .highlighted-text-light {
-  padding: var(--spacing-2xs) var(--spacing-xs);
+  padding: var(--spacing-4) var(--spacing-8);
   background: linear-gradient(
     120deg,
     transparent 0%,
@@ -162,7 +162,7 @@
 }
 
 .highlighted-text-accent {
-  padding: var(--spacing-2xs) var(--spacing-xs);
+  padding: var(--spacing-4) var(--spacing-8);
   background: linear-gradient(
     120deg,
     transparent 0%,

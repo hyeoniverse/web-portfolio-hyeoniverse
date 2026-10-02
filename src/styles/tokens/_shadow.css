@@ -13,7 +13,6 @@
 
   /* Special Shadows */
   --shadow-inner: inset 0 2px 4px oklch(0.00% 0.0000 0.00 / 0.06);
-  --shadow-glow: 0 0 20px oklch(100.00% 0.0000 0.00 / 0.3);
 
   /* Text legibility shadow — 이미지 위 텍스트 가독성용. text-shadow 전용. */
   --shadow-text-xs: 0 1px 2px oklch(0.00% 0.0000 0.00 / 0.15);   /* 약한 contrast — 명도 차이가 거의 없는 배경 */
@@ -22,14 +21,14 @@
   --shadow-text-strong: 0 1px 3px oklch(0.00% 0.0000 0.00 / 0.4); /* 어두운 배경의 흰 텍스트 강조 */
 
   /* Blur Effects */
-  --blur-xs: blur(2px);
-  --blur-sm: blur(4px);
-  --blur-md: blur(8px);
-  --blur-lg: blur(12px);
-  --blur-xl: blur(16px);
-  --blur-2xl: blur(24px);
-  --blur-3xl: blur(40px);
-  --blur-4xl: blur(60px);
+  --blur-2: blur(2px);
+  --blur-4: blur(4px);
+  --blur-8: blur(8px);
+  --blur-12: blur(12px);
+  --blur-16: blur(16px);
+  --blur-24: blur(24px);
+  --blur-40: blur(40px);
+  --blur-60: blur(60px);
 }
 
 /* ==========================================================================
@@ -42,6 +41,5 @@
   --shadow-md: 0 4px 12px oklch(0.00% 0.0000 0.00 / 0.45), 0 2px 4px oklch(0.00% 0.0000 0.00 / 0.35);
   --shadow-lg: 0 10px 24px oklch(0.00% 0.0000 0.00 / 0.45), 0 4px 8px oklch(0.00% 0.0000 0.00 / 0.35);
   --shadow-xl: 0 20px 40px oklch(0.00% 0.0000 0.00 / 0.45), 0 8px 16px oklch(0.00% 0.0000 0.00 / 0.35);
-  --shadow-glow: 0 0 30px oklch(100.00% 0.0000 0.00 / 0.15);
   --shadow-inner: inset 0 2px 6px oklch(0.00% 0.0000 0.00 / 0.3);
 }

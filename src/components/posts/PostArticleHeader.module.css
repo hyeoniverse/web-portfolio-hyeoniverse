@@ -2,29 +2,29 @@
 
 /* ── Article header ── */
 .articleHeader {
-  margin-bottom: var(--spacing-2xl);
+  margin-bottom: var(--spacing-32);
 }
 
 .metaRow {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-lg);
+  gap: var(--spacing-16);
+  margin-bottom: var(--spacing-20);
 }
 
 .tagsShareRow {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
 }
 
 .meta {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   color: var(--text-secondary);
@@ -48,7 +48,7 @@
   color: var(--text-primary);
   line-height: var(--line-height-tight);
   letter-spacing: -0.02em;
-  margin-bottom: var(--spacing-md);
+  margin-bottom: var(--spacing-16);
 }
 
 .excerpt {
@@ -56,22 +56,22 @@
   font-size: var(--font-size-body-xl);
   color: var(--text-secondary);
   line-height: var(--line-height-relaxed);
-  margin-bottom: var(--spacing-md);
+  margin-bottom: var(--spacing-16);
 }
 
 /* ── 작성자: 헤더 간결 칩 (태그 아래, 클릭 시 하단 상세로 이동) ── */
 .authorsCompact {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-xs);
-  margin-top: var(--spacing-sm);
+  gap: var(--spacing-8);
+  margin-top: var(--spacing-12);
 }
 .authorChip {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-2xs) var(--spacing-md) var(--spacing-2xs) var(--spacing-2xs);
-  border-radius: var(--radius-capsule);
+  gap: var(--spacing-12);
+  padding: var(--spacing-4) var(--spacing-16) var(--spacing-4) var(--spacing-4);
+  border-radius: var(--radius-full);
   text-decoration: none;
   color: inherit;
   cursor: pointer;
@@ -98,7 +98,7 @@
   color: var(--text-secondary);
   font-family: var(--font-space-grotesk);
   font-weight: var(--font-weight-semibold);
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-16);
 }
 .authorChip:hover .authorChipAvatarFallback {
   background: var(--bg-tertiary);
@@ -122,7 +122,7 @@
 .tags {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 .tag {
@@ -153,13 +153,13 @@
 }
 .tagHash {
   opacity: 0.5;
-  margin-right: var(--spacing-4xs);
+  margin-right: var(--spacing-1);
 }
 
 .headerDivider {
   height: 1px;
   background: var(--border-color-light);
-  margin-top: var(--spacing-2xl);
+  margin-top: var(--spacing-32);
 }
 
 @media (max-width: 768px) {

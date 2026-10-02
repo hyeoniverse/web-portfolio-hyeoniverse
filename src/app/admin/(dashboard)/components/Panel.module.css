@@ -32,7 +32,7 @@
   line-height: 22px;
   color: var(--text-secondary);
   margin: 0;
-  padding-block: var(--spacing-sm);
+  padding-block: var(--spacing-12);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -80,7 +80,7 @@
    background-clip: padding-box — 이 bg(alpha-30)가 section divider 의 border-top(alpha-30)
    영역까지 깔려 합성(→alpha 0.51 로 진해짐)되는 것 방지. gap 영역엔 그대로 노출. */
 .gridHairlines {
-  gap: var(--spacing-4xs);
+  gap: var(--spacing-1);
   background-color: var(--border-color-light);
   background-clip: padding-box;
 }
@@ -93,17 +93,17 @@
   composes: gridHairlines;
 }
 .insetItems > :nth-child(odd) {
-  --_item-inline-end: var(--spacing-md);
+  --_item-inline-end: var(--spacing-16);
 }
 .insetItems > :nth-child(even) {
-  --_item-inline-start: var(--spacing-md);
+  --_item-inline-start: var(--spacing-16);
 }
 
 /* ── Item — direct child of .panel. block default + inline children 자연 wrap.
    구체 layout (flex/grid) 이 필요한 Item 은 자체 className 으로 display override.
    horizontal padding 은 cascade var (외부에서 --_item-inline-start/end 설정 가능). */
 .item {
-  padding-block: var(--spacing-xs);
+  padding-block: var(--spacing-8);
   padding-inline-start: var(--_item-inline-start, 0);
   padding-inline-end: var(--_item-inline-end, 0);
   min-width: 0;

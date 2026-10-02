@@ -14,7 +14,7 @@
 .header {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xl);
+  gap: var(--spacing-32);
 }
 
 .label {
@@ -59,8 +59,8 @@
 .itemContent {
   display: grid;
   align-items: center;
-  gap: var(--spacing-2xl);
-  padding: var(--spacing-2xl) 0;
+  gap: var(--spacing-32);
+  padding: var(--spacing-32) 0;
   grid-template-columns: 80px 1fr 1fr 40px;
   transition: opacity 0.3s ease;
 }
@@ -120,8 +120,8 @@
 
 @media (max-width: 768px) {
   .itemContent {
-    gap: var(--spacing-md);
-    padding: var(--spacing-xl) 0;
+    gap: var(--spacing-16);
+    padding: var(--spacing-24) 0;
     grid-template-columns: 1fr 30px;
   }
 

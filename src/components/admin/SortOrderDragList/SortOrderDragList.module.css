@@ -5,7 +5,7 @@
 .wrap {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 /* 헤더 — fieldLabel 과 위치/Jump 컨트롤이 같은 라인 */
@@ -13,20 +13,20 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
 }
 
 /* 컨트롤 그룹 — 위치 input + 맨앞/맨뒤 jump */
 .controls {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 .pos {
   display: inline-flex;
   align-items: baseline;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   font-family: var(--font-mono);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
@@ -34,13 +34,13 @@
 }
 
 .posInput {
-  width: var(--control-h-2xl);
-  /* 맨앞/맨뒤 button group(.jumps) 과 같은 높이 — 컴팩트 (--size-2xs = 20px) */
-  height: var(--size-2xs);
+  width: var(--control-height-2xl);
+  /* 맨앞/맨뒤 button group(.jumps) 과 같은 높이 — 컴팩트 (--size-20 = 20px) */
+  height: var(--size-20);
   box-sizing: border-box;
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  padding: 0 var(--spacing-xs);
+  border-radius: var(--radius-full);
+  padding: 0 var(--spacing-8);
   background: transparent;
   font-family: inherit;
   font-size: var(--font-size-label);
@@ -71,14 +71,14 @@
 .jumps {
   display: inline-flex;
   align-items: stretch;
-  height: var(--size-2xs);
+  height: var(--size-20);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   overflow: hidden;
 }
 
 .jumpBtn {
-  padding: 0 var(--spacing-sm);
+  padding: 0 var(--spacing-12);
   border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -117,8 +117,8 @@
   position: relative;
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
-  padding: var(--row-p-md);
+  gap: var(--spacing-4);
+  padding: var(--row-padding-md);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
@@ -201,7 +201,7 @@
   min-width: 0;
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -210,8 +210,8 @@
 .currentTag {
   display: inline-flex;
   align-items: center;
-  padding: var(--badge-p-md);
-  border-radius: var(--radius-capsule);
+  padding: var(--badge-padding-md);
+  border-radius: var(--radius-full);
   background: var(--text-accent);
   color: var(--bg-primary);
   font-size: var(--font-size-micro);
@@ -223,20 +223,20 @@
    .paginationWrap(margin-top: md, gap: sm) 과 같은 (0,1,0) 이면 번들 순서가 승자를 정한다 —
    클래스를 두 번 적어 (0,2,0). 전엔 margin-top 만 !important 로 버티고 gap 은 순서에 맡겨져 있었다. */
 .pagination.pagination {
-  padding-top: var(--spacing-xs);
+  padding-top: var(--spacing-8);
   margin-top: 0;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 /* inner pagination row (페이지 버튼 묶음) — 버튼 간 간격도 컴팩트 */
 .pagination [class*="pagination"] {
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 /* Pagination 의 button 클래스가 hashed 라 attribute selector 로 매칭. width/height 만 override */
 .pagination [class*="pageBtn"] {
-  width: var(--control-h-2xs);
-  height: var(--control-h-2xs);
+  width: var(--control-height-2xs);
+  height: var(--control-height-2xs);
   font-size: var(--font-size-hint);
 }
 

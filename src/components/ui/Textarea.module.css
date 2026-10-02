@@ -13,9 +13,9 @@
 
 .textarea {
   width: 100%;
-  padding: var(--textarea-p);
+  padding: var(--textarea-padding);
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   background: transparent;
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-body);
@@ -63,7 +63,7 @@
 }
 
 .sm {
-  padding: var(--textarea-p);
+  padding: var(--textarea-padding);
   border-color: var(--border-color-light);
   font-size: var(--font-size-body);
 }
@@ -92,13 +92,13 @@
    2.8 + 14 = 16.8 로 24 안에 넉넉히 들어온다. */
 .bottomRow {
   position: absolute;
-  bottom: var(--spacing-xs);
-  right: var(--spacing-xs);
+  bottom: var(--spacing-8);
+  right: var(--spacing-8);
   z-index: 3;
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   /* glass chip — 뒤 텍스트 위에서도 읽히도록 반투명 배경 + blur.
      좌우를 4px 로 좁힌다. 12px 이면 chip 을 테두리에 붙여도 정작 눈에 보이는 건 그 안의
      카운터라 훨씬 안쪽에 놓이는데, Input 쪽에서 보이는 건 지우개 글리프다.
@@ -107,8 +107,8 @@
      위아래는 그보다 2px 더 좁다. chip 안에서 카운터는 지우개 버튼(20px) 줄에 맞춰 세로
      가운데로 놓이는데, 카운터 줄상자가 17.6px 이라 그 차이만큼 잉크가 위로 밀린다.
      좌우와 위아래를 같은 값으로 두면 아래쪽 여백만 그만큼 넓어 보인다. */
-  padding: var(--spacing-3xs) var(--spacing-2xs);
-  border-radius: var(--radius-capsule);
+  padding: var(--spacing-2) var(--spacing-4);
+  border-radius: var(--radius-full);
   background: var(--bg-glass-panel);
   backdrop-filter: var(--blur-glass);
   /* 텍스트 선택·리사이즈는 통과시키고 버튼만 클릭 */
@@ -173,14 +173,14 @@
    칸은 배지 자리만큼 오른쪽 여백을 비워 둬 포커스가 없을 때도 글과 겹치지 않는다 */
 .inlineLabel {
   position: absolute;
-  top: var(--spacing-xs);
-  right: var(--spacing-sm);
+  top: var(--spacing-8);
+  right: var(--spacing-12);
   z-index: 1;
   display: inline-flex;
   align-items: center;
   height: 18px;
-  padding: 0 var(--spacing-2xs);
-  border-radius: var(--radius-capsule);
+  padding: 0 var(--spacing-4);
+  border-radius: var(--radius-full);
   background: var(--bg-tertiary);
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-micro);
@@ -198,7 +198,7 @@
 }
 
 .wrapper .editableWrapWithBadge > .textarea {
-  padding-right: calc(var(--spacing-sm) + 32px);
+  padding-right: calc(var(--spacing-12) + 32px);
 }
 
 /* ── Editable (contenteditable div, maxHint 모드) ── */
@@ -217,7 +217,7 @@
   overflow-y: auto;
   overflow-x: hidden;
   /* 안쪽 우하단 오버레이(지우개+카운터)에 텍스트가 겹치지 않도록 하단 여백 확보 */
-  padding-bottom: var(--spacing-xl);
+  padding-bottom: var(--spacing-24);
 }
 
 /* ── Native resize 핸들 위 투명 overlay ──
@@ -314,7 +314,7 @@
   border: none;
   border-bottom: var(--border-strong);
   border-radius: 0;
-  padding: var(--textarea-p);
+  padding: var(--textarea-padding);
   padding-left: 0;
   resize: none;
   min-height: auto;

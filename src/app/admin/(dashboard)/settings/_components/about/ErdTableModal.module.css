@@ -1,10 +1,10 @@
 .body {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xl);
+  gap: var(--spacing-24);
   /* 모달 컨테이너는 여백을 안 주므로 본문이 직접 잡는다.
      좌우와 상하를 같은 리듬으로 — box-lg 는 12/20 이라 세로가 좁게 보인다 */
-  padding: var(--spacing-lg) var(--spacing-xl) var(--spacing-xl);
+  padding: var(--spacing-20) var(--spacing-24) var(--spacing-24);
   /* 컬럼 표가 6열이라 46rem 에서는 이름 칸이 잘린다 */
   width: min(58rem, 92vw);
   box-sizing: border-box;
@@ -12,7 +12,7 @@
 .field {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 .label {
   color: var(--text-tertiary);
@@ -22,16 +22,16 @@
   text-transform: uppercase;
 }
 .nameInput {
-  height: var(--control-h-md);
-  padding: 0 var(--spacing-md);
+  height: var(--control-height-md);
+  padding: 0 var(--spacing-16);
   border: var(--border-light);
 
   /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 편집 폼의 입력 칸(R6 예외). AboutStudio .edit 주석 참고 */
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-6);
   background: transparent;
   color: var(--text-primary);
   font-family: var(--font-mono);
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-16);
   outline: none;
 }
 .nameInput:focus {
@@ -57,7 +57,7 @@
   position: sticky;
   top: 0;
   z-index: 1;
-  padding: var(--cell-p-md);
+  padding: var(--cell-padding-md);
   /* border-collapse: collapse 는 sticky th 의 border 를 셀에서 분리해 같이 안 따라온다
      → box-shadow 로 그린다. 스크롤해도 헤더 아래 선이 유지된다.
      색은 행 구분선(--border-color-light)과 동일하게 — 헤더만 진하면 튄다. */
@@ -72,7 +72,7 @@
   text-transform: uppercase;
 }
 .table td {
-  padding: 0 var(--spacing-2xs);
+  padding: 0 var(--spacing-4);
   border-bottom: var(--border-light);
 }
 /* 컬럼마다 tbody 가 하나라(끌기 단위) 표 전체의 마지막 행만 선을 뗀다 */
@@ -92,14 +92,14 @@
 /* 셀 입력 — 캡슐 대신 셀 자체가 입력칸. 표 결을 깨지 않는다 */
 .cell {
   width: 100%;
-  height: var(--control-h-md);
-  padding: 0 var(--spacing-sm);
+  height: var(--control-height-md);
+  padding: 0 var(--spacing-12);
   border: 0;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-primary);
   font-family: var(--font-mono);
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-16);
   outline: none;
 }
 .cell:focus {
@@ -149,16 +149,16 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 /* 방향별 그룹 — 라벨이 화살표의 의미를 대신한다 */
 .relGroup {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 .relGroup + .relGroup {
-  margin-top: var(--spacing-sm);
+  margin-top: var(--spacing-12);
 }
 .relLabel {
   color: var(--text-tertiary);
@@ -189,7 +189,7 @@ html[data-theme="dark"] .relGroup .rel {
 /* 화살표는 늘 "참조하는 컬럼 → 참조되는 컬럼" 방향 */
 .relArrow {
   flex: none;
-  margin-inline: var(--spacing-3xs);
+  margin-inline: var(--spacing-2);
   color: var(--text-muted);
   vertical-align: middle;
 }
@@ -198,19 +198,19 @@ html[data-theme="dark"] .relGroup .rel {
 .footerSlot {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   width: 100%;
   min-width: 0;
 }
 .footer {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   justify-content: space-between;
 }
 .footerRight {
   display: inline-flex;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 /* 다중 선택 — .table th (0,1,1) 가 .thPick (0,1,0) 을 이겨 padding 이 안 먹는다.
@@ -235,7 +235,7 @@ html[data-theme="dark"] .relGroup .rel {
 .colActions {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 /* 표 안 Select — 셀처럼 보이게. width="full" 로 폭은 Select 가 맞추고,
@@ -243,7 +243,7 @@ html[data-theme="dark"] .relGroup .rel {
 .typeSelect input,
 .typeSelect button,
 .fkSelect button {
-  height: var(--control-h-md);
+  height: var(--control-height-md);
   border-color: transparent;
   background: transparent;
   font-family: var(--font-mono);
@@ -273,7 +273,7 @@ html[data-theme="dark"] .relGroup .rel {
 }
 
 .req {
-  margin-left: var(--spacing-3xs);
+  margin-left: var(--spacing-2);
   color: var(--text-accent);
   font-weight: var(--font-weight-bold);
 }
@@ -294,7 +294,7 @@ html[data-theme="dark"] .relGroup .rel {
 .hint {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   color: var(--text-accent);
   font-size: var(--font-size-body);
   line-height: var(--line-height-normal);
@@ -346,7 +346,7 @@ html[data-theme="dark"] .relGroup .rel {
   vertical-align: middle;
 }
 .tdPk > * + * {
-  margin-left: var(--spacing-3xs);
+  margin-left: var(--spacing-2);
 }
 /* 잠긴 토글(PK 라서 항상 NOT NULL)은 켜져 있음을 보여주되 누를 수 없음을 알린다 */
 .pk:disabled {
@@ -358,8 +358,8 @@ html[data-theme="dark"] .relGroup .rel {
   align-items: center;
   justify-content: center;
   border: 0;
-  border-radius: var(--radius-capsule);
-  padding: var(--spacing-3xs);
+  border-radius: var(--radius-full);
+  padding: var(--spacing-2);
   background: none;
   color: var(--text-muted);
   transition: transform var(--duration-fast) var(--ease-material);
@@ -372,18 +372,18 @@ html[data-theme="dark"] .relGroup .rel {
 
 /* 상세 행 — 열로 두면 이름 칸이 잘려서 아래로 뺀다 */
 .detailRow td {
-  padding: 0 var(--spacing-sm) var(--spacing-2xs) var(--spacing-5xl);
+  padding: 0 var(--spacing-12) var(--spacing-4) var(--spacing-96);
 }
 .detail {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-2xs) var(--spacing-sm);
+  gap: var(--spacing-4) var(--spacing-12);
   align-items: center;
 }
 .detailField {
   display: flex;
   flex: 1 1 12rem;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   align-items: center;
   min-width: 0;
 }
@@ -393,8 +393,8 @@ html[data-theme="dark"] .relGroup .rel {
   font-size: var(--font-size-label);
 }
 .detailFlag {
-  border-radius: var(--radius-capsule);
-  padding: var(--spacing-3xs) var(--spacing-xs);
+  border-radius: var(--radius-full);
+  padding: var(--spacing-2) var(--spacing-8);
   background: var(--bg-tertiary);
   color: var(--text-muted);
   font-family: var(--font-mono);

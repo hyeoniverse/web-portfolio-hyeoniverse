@@ -1,10 +1,10 @@
 .trigger {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-3xs);
-  padding: var(--spacing-3xs) var(--spacing-sm);
+  gap: var(--spacing-2);
+  padding: var(--spacing-2) var(--spacing-12);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
@@ -26,8 +26,8 @@
 .panel {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xl);
-  padding: var(--spacing-lg);
+  gap: var(--spacing-24);
+  padding: var(--spacing-20);
   font-family: var(--font-space-grotesk);
 }
 
@@ -35,7 +35,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
 }
 
 .title {
@@ -47,7 +47,7 @@
 .sec {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 .secTitle {
@@ -80,16 +80,16 @@
 .steps {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   margin: 0;
-  padding-left: var(--spacing-lg);
+  padding-left: var(--spacing-20);
   list-style: decimal;
 }
 .steps li {
   font-size: var(--font-size-body);
   line-height: 1.65;
   color: var(--text-secondary);
-  padding-left: var(--spacing-2xs);
+  padding-left: var(--spacing-4);
 }
 .steps li b {
   color: var(--text-primary);
@@ -99,7 +99,7 @@
 .link {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   flex-shrink: 0;
   white-space: nowrap;
   font-size: var(--font-size-body);
@@ -115,7 +115,7 @@
 .inlineLink {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   color: var(--text-accent);
   text-decoration: none;
   white-space: nowrap;
@@ -127,10 +127,10 @@
 /* kbd — 버튼·메뉴·코드 토큰 칩 */
 .kbd {
   display: inline-block;
-  padding: var(--spacing-4xs) var(--spacing-2xs);
+  padding: var(--spacing-1) var(--spacing-4);
   border: var(--border-light);
   border-bottom-width: 2px;
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   background: var(--bg-secondary);
   font-family: var(--font-mono);
   font-size: var(--font-size-label);
@@ -141,8 +141,8 @@
 
 /* 핵심 단어 highlight */
 .hl {
-  padding: 0 var(--spacing-3xs);
-  border-radius: var(--radius-2xl);
+  padding: 0 var(--spacing-2);
+  border-radius: var(--radius-24);
   background: var(--bg-accent-light);
   color: var(--text-accent);
   font-weight: var(--font-weight-semibold);

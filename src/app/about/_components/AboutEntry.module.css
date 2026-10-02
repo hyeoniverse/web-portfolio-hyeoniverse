@@ -6,7 +6,7 @@
 
 /* 공통 라벨/배지 */
 .entryLabel {
-  padding: var(--spacing-2xs) var(--spacing-sm);
+  padding: var(--spacing-4) var(--spacing-12);
   border: var(--border-default);
   width: fit-content;
   font-size: var(--font-size-prose-label);
@@ -14,7 +14,7 @@
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.15em;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
 }
 
 .entryLabelAccent {
@@ -37,9 +37,9 @@
 /* 공통 상세 헤더 (번호 + 제목) */
 .detailHeader {
   display: flex;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-20);
   align-items: baseline;
-  margin-bottom: var(--spacing-xl);
+  margin-bottom: var(--spacing-24);
   font-size: var(--font-size-subhead);
 }
 
@@ -56,8 +56,8 @@
   .entryBlock {
     position: relative;
     z-index: 1;
-    gap: var(--spacing-xs);
-    margin-bottom: var(--spacing-md);
+    gap: var(--spacing-8);
+    margin-bottom: var(--spacing-16);
   }
 
   .entryBlock:last-child {
@@ -65,13 +65,13 @@
   }
 
   .entryLabel {
-    padding: var(--spacing-3xs) var(--spacing-sm);
+    padding: var(--spacing-2) var(--spacing-12);
     font-size: clamp(var(--font-size-micro), 1.8vw, 0.7rem);
   }
 
   .detailHeader {
-    gap: var(--spacing-sm);
-    margin-bottom: var(--spacing-md);
+    gap: var(--spacing-12);
+    margin-bottom: var(--spacing-16);
     flex-wrap: wrap;
     align-items: center;
   }

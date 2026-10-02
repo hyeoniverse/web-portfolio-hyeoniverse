@@ -15,12 +15,15 @@ export const TOKEN_SOURCES = [
   "src/styles/tokens/_color.css",
   "src/styles/tokens/_spacing.css",
   "src/styles/tokens/_typography.css",
-  "src/styles/tokens/_sizing.css",
+  "src/styles/tokens/_size.css",
+  "src/styles/tokens/_border.css",
   "src/styles/tokens/_radius.css",
   "src/styles/tokens/_shadow.css",
   "src/styles/tokens/_motion.css",
   "src/styles/tokens/_z-index.css",
   "src/styles/globals/_semantic.css",
+  "src/styles/globals/_component.css",
+  "src/styles/globals/_legacy-aliases.css",
 ];
 
 interface Decl {

@@ -160,7 +160,7 @@ export function ImageElement(props: PlateElementProps) {
   const handleStyle: React.CSSProperties = {
     position: "absolute",
     background: "var(--color-accent, #3b82f6)",
-    borderRadius: "var(--radius-capsule)",
+    borderRadius: "var(--radius-full)",
     zIndex: 2,
   };
 
@@ -189,7 +189,7 @@ export function ImageElement(props: PlateElementProps) {
     bottom: showCaption ? badgeHeight + 10 : 4,
     padding: "2px 10px",
     background: "var(--bg-overlay)", color: "#fff",
-    borderRadius: "var(--radius-capsule)", fontSize: 11,
+    borderRadius: "var(--radius-full)", fontSize: 11,
     fontFamily: "var(--font-space-grotesk)", lineHeight: 1.4,
     height: badgeHeight, display: "flex", alignItems: "center",
     pointerEvents: "none", whiteSpace: "nowrap", zIndex: 4,
@@ -231,7 +231,7 @@ export function ImageElement(props: PlateElementProps) {
         if (imgEl) {
           ghost = document.createElement("div");
           const w = Math.min(imgEl.getBoundingClientRect().width || 120, 160);
-          ghost.style.cssText = `position:fixed;left:0;top:0;width:${w}px;pointer-events:none;z-index:var(--z-top);opacity:0.7;border-radius:6px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.35);will-change:transform;`;
+          ghost.style.cssText = `position:fixed;left:0;top:0;width:${w}px;pointer-events:none;z-index:var(--z-index-top);opacity:0.7;border-radius:6px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.35);will-change:transform;`;
           const clone = imgEl.cloneNode(true) as HTMLImageElement;
           clone.style.cssText = "width:100%;height:auto;display:block;";
           ghost.appendChild(clone);
@@ -383,7 +383,7 @@ export function ImageElement(props: PlateElementProps) {
                     <span data-cursor="resizeDiag" onPointerDown={onPointerDown("corner")} style={{ position: "absolute", right: -7, bottom: -7, width: 14, height: 14, cursor: "nwse-resize", zIndex: 5 }} />
                     <span style={{ ...handleStyle, width: 6, height: 32, position: "absolute", right: -4, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }} />
                     <span style={{ ...handleStyle, width: 32, height: 6, position: "absolute", bottom: -4, left: "50%", transform: "translateX(-50%)", pointerEvents: "none" }} />
-                    <span style={{ ...handleStyle, width: 10, height: 10, borderRadius: "var(--radius-capsule)", position: "absolute", right: -5, bottom: -5, pointerEvents: "none" }} />
+                    <span style={{ ...handleStyle, width: 10, height: 10, borderRadius: "var(--radius-full)", position: "absolute", right: -5, bottom: -5, pointerEvents: "none" }} />
                   </>
                 )}
               </span>
@@ -459,7 +459,7 @@ export function ImageElement(props: PlateElementProps) {
                   {/* 시각적 핸들 */}
                   <div style={{ ...handleStyle, width: 6, height: 32, position: "absolute", right: -4, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }} />
                   <div style={{ ...handleStyle, width: 32, height: 6, position: "absolute", bottom: -4, left: "50%", transform: "translateX(-50%)", pointerEvents: "none" }} />
-                  <div style={{ ...handleStyle, width: 10, height: 10, borderRadius: "var(--radius-capsule)", position: "absolute", right: -5, bottom: -5, pointerEvents: "none" }} />
+                  <div style={{ ...handleStyle, width: 10, height: 10, borderRadius: "var(--radius-full)", position: "absolute", right: -5, bottom: -5, pointerEvents: "none" }} />
                 </>
               )}
               {/* 이동 핸들 — block/float 은 이미지 grab 드래그가 없으므로 별도 핸들 제공.

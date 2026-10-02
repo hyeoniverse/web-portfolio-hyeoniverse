@@ -1,28 +1,28 @@
 /* 트래픽 전용 페이지 셸(#1161) — admin/notifications 등 다른 관리 화면과 동일 베이스 */
 
 .trafficContainer {
-  max-width: var(--page-max-width);
+  max-width: var(--width-page-max);
   margin: 0 auto;
-  padding: var(--spacing-6xl) var(--page-px) var(--spacing-3xl);
+  padding: var(--spacing-128) var(--spacing-page-inline) var(--spacing-48);
 }
 
 .trafficHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-2xl);
+  gap: var(--spacing-16);
+  margin-bottom: var(--spacing-32);
 }
 
 .trafficTitle {
   font-family: var(--font-instrument);
-  font-size: var(--font-size-3xl);
+  font-size: var(--font-size-32);
   font-weight: var(--font-weight-regular);
   color: var(--text-primary);
   margin: 0;
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 .trafficTitleIcon {
@@ -32,8 +32,8 @@
 .trafficSkeleton {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
-  padding: var(--spacing-xl) 0;
+  gap: var(--spacing-16);
+  padding: var(--spacing-24) 0;
 }
 
 /* UTM 패널 제목 — 도움말 ? 버튼(absolute)의 기준 박스 */
@@ -70,7 +70,7 @@
 .ipAnalysis {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
 }
 
 /* 지금 접속한 IP + 내 IP 등록 */
@@ -79,7 +79,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 .ipCurrentLabel {

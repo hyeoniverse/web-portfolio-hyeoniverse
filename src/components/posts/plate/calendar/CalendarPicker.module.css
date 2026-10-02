@@ -3,14 +3,14 @@
 .pickerModal {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
-  padding: var(--modal-p-lg);
+  gap: var(--spacing-16);
+  padding: var(--modal-padding-lg);
 }
 
 .pickerActions {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 .pickerNew {
@@ -18,11 +18,11 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-2xs);
-  height: var(--control-h-md);
-  padding: 0 var(--spacing-md);
+  gap: var(--spacing-4);
+  height: var(--control-height-md);
+  padding: 0 var(--spacing-16);
   border: 1px dashed var(--border-color-strong);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-secondary);
   font-size: var(--font-size-body);
@@ -35,11 +35,11 @@
 .pickerManage {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
-  height: var(--control-h-md);
-  padding: 0 var(--spacing-md);
+  gap: var(--spacing-4);
+  height: var(--control-height-md);
+  padding: 0 var(--spacing-16);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-secondary);
   font-size: var(--font-size-body);
@@ -52,13 +52,13 @@
 .pickerList {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   max-height: 340px;
   overflow-y: auto;
 }
 
 .pickerEmpty {
-  padding: var(--spacing-lg);
+  padding: var(--spacing-20);
   text-align: center;
   color: var(--text-tertiary);
   font-size: var(--font-size-body);
@@ -68,10 +68,10 @@
   position: relative;
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--row-p-sm);
+  gap: var(--spacing-12);
+  padding: var(--row-padding-sm);
   border: 1px solid transparent;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-primary);
   text-align: left;
@@ -96,7 +96,7 @@
   justify-content: center;
   width: 44px;
   height: 44px;
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   background: var(--bg-tertiary);
   color: var(--text-secondary);
   line-height: 1.05;
@@ -112,7 +112,7 @@
 .pickerItemOn .pickerItemMon,
 .pickerItemOn .pickerItemYear { color: var(--text-white); }
 
-.pickerItemMain { display: flex; flex-direction: column; gap: var(--spacing-3xs); min-width: 0; flex: 1; }
+.pickerItemMain { display: flex; flex-direction: column; gap: var(--spacing-2); min-width: 0; flex: 1; }
 
 .pickerItemTitle { font-size: var(--font-size-body); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
@@ -125,7 +125,7 @@
 /* 삭제 버튼 — absolute 로 우측에 겹침(레이아웃 미점유) → 체크 아이콘 옆 유령 여백 제거. hover 시 페이드인 */
 .pickerItemDel {
   position: absolute;
-  right: var(--spacing-2xs);
+  right: var(--spacing-4);
   top: 50%;
   transform: translateY(-50%);
   display: inline-flex;
@@ -153,7 +153,7 @@
 .pickerItemDel:hover { color: var(--text-accent); background: var(--bg-accent); }
 
 /* 인라인 삭제 확인 */
-.pickerConfirm { flex-shrink: 0; display: inline-flex; align-items: center; gap: var(--spacing-2xs); }
+.pickerConfirm { flex-shrink: 0; display: inline-flex; align-items: center; gap: var(--spacing-4); }
 
 .pickerConfirmText { font-size: var(--font-size-hint); color: var(--text-secondary); }
 
@@ -162,10 +162,10 @@
   align-items: center;
   justify-content: center;
   min-width: 46px;
-  height: var(--control-h-sm);
-  padding: 0 var(--spacing-sm);
+  height: var(--control-height-sm);
+  padding: 0 var(--spacing-12);
   border: none;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: var(--color-accent);
   color: var(--text-on-accent);
   font-size: var(--font-size-hint);
@@ -177,10 +177,10 @@
 .pickerConfirmNo {
   display: inline-flex;
   align-items: center;
-  height: var(--control-h-sm);
-  padding: 0 var(--spacing-xs);
+  height: var(--control-height-sm);
+  padding: 0 var(--spacing-8);
   border: none;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-tertiary);
   font-size: var(--font-size-hint);
@@ -196,19 +196,19 @@
 
 /* ── 불러오기 모달 휴지통 섹션 (접힘) — 복구는 명시적 버튼으로만 ── */
 .pickerTrash {
-  margin-top: var(--spacing-2xs);
-  padding-top: var(--spacing-2xs);
+  margin-top: var(--spacing-4);
+  padding-top: var(--spacing-4);
   border-top: var(--border-light);
 }
 
 .pickerTrashHead {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   width: 100%;
-  padding: var(--spacing-2xs) var(--spacing-sm);
+  padding: var(--spacing-4) var(--spacing-12);
   border: none;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-tertiary);
   font-size: var(--font-size-label);
@@ -219,8 +219,8 @@
 
 .pickerTrashCount {
   min-width: 18px;
-  padding: 0 var(--spacing-2xs);
-  border-radius: var(--radius-capsule);
+  padding: 0 var(--spacing-4);
+  border-radius: var(--radius-full);
   background: var(--bg-tertiary);
   font-size: var(--font-size-micro);
   font-weight: 600;
@@ -237,16 +237,16 @@
 .pickerTrashBody {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-4xs);
-  margin-top: var(--spacing-3xs);
+  gap: var(--spacing-1);
+  margin-top: var(--spacing-2);
 }
 
 .pickerTrashItem {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--row-p-sm);
-  border-radius: var(--radius-2xl);
+  gap: var(--spacing-12);
+  padding: var(--row-padding-sm);
+  border-radius: var(--radius-24);
 }
 
 .pickerTrashItem:hover { background: var(--bg-secondary); }
@@ -257,13 +257,13 @@
 .pickerTrashSoon { color: var(--text-error-strong); font-weight: 600; }
 
 /* ── 연결된 작업 모달 — 넘버링 스테퍼 타임라인 ── */
-.chainFlow { display: flex; flex-direction: column; padding: var(--spacing-md) var(--spacing-md) var(--spacing-lg); }
+.chainFlow { display: flex; flex-direction: column; padding: var(--spacing-16) var(--spacing-16) var(--spacing-20); }
 
 .chainStep {
   position: relative;
-  display: flex; align-items: stretch; gap: var(--spacing-md);
+  display: flex; align-items: stretch; gap: var(--spacing-16);
   width: 100%; text-align: left;
-  padding: 0 var(--spacing-2xs) 0 0;
+  padding: 0 var(--spacing-4) 0 0;
   border: none; background: transparent; cursor: pointer;
 }
 
@@ -303,11 +303,11 @@
 .chainStep:hover .chainStepNode { transform: translate(-50%, -50%) scale(1.15); box-shadow: 0 0 0 4px color-mix(in srgb, var(--_c) 18%, transparent); }
 
 /* 컨텐츠 — 배경 없이. 노드 간 간격은 body padding-bottom 으로 줘서 레일이 그 구간까지 덮어 선이 연속되게 */
-.chainStepBody { display: flex; flex-direction: column; gap: var(--spacing-3xs); min-width: 0; flex: 1; padding-top: var(--spacing-2xs); padding-bottom: var(--spacing-xl); }
+.chainStepBody { display: flex; flex-direction: column; gap: var(--spacing-2); min-width: 0; flex: 1; padding-top: var(--spacing-4); padding-bottom: var(--spacing-24); }
 
 .chainStep:last-child .chainStepBody { padding-bottom: 0; }
 
-.chainStepTitleRow { display: flex; align-items: center; gap: var(--spacing-2xs); min-width: 0; }
+.chainStepTitleRow { display: flex; align-items: center; gap: var(--spacing-4); min-width: 0; }
 
 .chainStepTitle {
   font-size: var(--font-size-body); font-weight: 600; color: var(--text-primary);
@@ -323,12 +323,12 @@
 
 .chainChip {
   flex-shrink: 0;
-  display: inline-flex; align-items: center; gap: var(--spacing-4xs);
+  display: inline-flex; align-items: center; gap: var(--spacing-1);
   font-size: var(--font-size-hint); font-weight: 500; color: var(--text-secondary); white-space: nowrap;
 }
 
-.chainStepMeta { display: flex; align-items: center; flex-wrap: wrap; gap: var(--spacing-3xs) var(--spacing-md); font-size: var(--font-size-hint); color: var(--text-tertiary); font-variant-numeric: tabular-nums; }
+.chainStepMeta { display: flex; align-items: center; flex-wrap: wrap; gap: var(--spacing-2) var(--spacing-16); font-size: var(--font-size-hint); color: var(--text-tertiary); font-variant-numeric: tabular-nums; }
 
-.chainMetaItem { display: inline-flex; align-items: center; gap: var(--spacing-3xs); }
+.chainMetaItem { display: inline-flex; align-items: center; gap: var(--spacing-2); }
 
 .chainLabelDot { width: 6px; height: 6px; border-radius: var(--radius-circle); }

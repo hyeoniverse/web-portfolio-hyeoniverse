@@ -1,8 +1,8 @@
 .message {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
-  padding: var(--spacing-2xs) var(--spacing-md);
-  border-radius: var(--radius-capsule);
+  padding: var(--spacing-4) var(--spacing-16);
+  border-radius: var(--radius-full);
 }
 
 .messageSuccess {
@@ -32,8 +32,8 @@
 }
 
 /* ──────────────────────────────────────────────────────────────────────────
-   패널 z-index 사다리 — 전부 글로벌 nav(--z-nav) "아래". 하드코딩 정수 대신
-   --z-nav 기준 오프셋으로 상대 순서를 명시한다(탭바가 이미 쓰던 방식으로 통일).
+   패널 z-index 사다리 — 전부 글로벌 nav(--z-index-nav) "아래". 하드코딩 정수 대신
+   --z-index-nav 기준 오프셋으로 상대 순서를 명시한다(탭바가 이미 쓰던 방식으로 통일).
 
      content(auto) < 섹션 제목 sticky(-3) < 드래그 항목(-2) < 탭바·자(ruler)(-1) < nav
 
@@ -46,13 +46,13 @@
 /* 섹션을 grid(1fr auto)로 — 헤더의 제목/액션이 각각 섹션 직속 sticky 요소라야
    섹션 높이만큼 함께 붙는다(둘 다 sticky, 제목만 difference). 나머지 자식은 전폭 span. */
 .section {
-  padding-bottom: var(--spacing-2xl);
-  margin-bottom: var(--spacing-2xl);
+  padding-bottom: var(--spacing-32);
+  margin-bottom: var(--spacing-32);
   border-bottom: var(--border-light);
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  column-gap: var(--spacing-md);
-  row-gap: var(--spacing-md);
+  column-gap: var(--spacing-16);
+  row-gap: var(--spacing-16);
   align-items: center;
   /* 2열로 나란히 놓인 섹션(태그·카테고리 등)은 부모 grid 가 둘을 같은 높이로 stretch 하는데,
      기본 align-content(stretch) 는 그 남는 높이를 각 행에 분배해 헤더·hint·툴바를 아래로 밀어
@@ -106,7 +106,7 @@
 
 .fieldGroupLabel {
   display: block;
-  margin-bottom: var(--spacing-3xs);
+  margin-bottom: var(--spacing-2);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-hint);
   font-weight: var(--font-weight-medium);
@@ -118,7 +118,7 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--spacing-2xs) var(--spacing-md);
+  gap: var(--spacing-4) var(--spacing-16);
   margin: 0;
 }
 
@@ -144,7 +144,7 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   /* 부모(섹션) 폭을 확정으로 채운다 — 없으면 flex-start 로 shrink 돼 자식 fieldRow 의
      width:100% 가 '좁아진 .fields 기준'이 되어 input 이 값 길이만큼 쪼그라든다. */
   width: 100%;
@@ -154,8 +154,8 @@
    minmax(0, 1fr) — 자식 (긴 input value) 따라 column grow 방지. */
 .fieldPair {
   display: grid;
-  grid-template-columns: var(--grid-cols-2);
-  gap: var(--spacing-xs) var(--spacing-md);
+  grid-template-columns: var(--grid-columns-2);
+  gap: var(--spacing-8) var(--spacing-16);
   /* .fields(align-items:flex-start) 안에서 grid 가 content 폭으로 shrink 되는 것 방지 —
      없으면 en/ko 필드가 값 길이만큼 좁아지고 우측이 크게 빈다. */
   width: 100%;
@@ -177,7 +177,7 @@
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   /* .fields(align-items:flex-start) 부모 안에서도 열 폭을 채우도록 — 없으면 input 이
      내용 길이만큼 줄어 필드마다 폭이 제각각이 된다. */
   width: 100%;
@@ -187,7 +187,7 @@
 
 .fieldCounter {
   position: absolute;
-  right: var(--spacing-sm);
+  right: var(--spacing-12);
   top: 50%;
   translate: 0 -50%;
   font-family: var(--font-space-grotesk);
@@ -212,7 +212,7 @@
 
 .fieldRowInline .fieldLabel {
   position: absolute;
-  left: var(--spacing-sm);
+  left: var(--spacing-12);
   top: 50%;
   translate: 0 -50%;
   width: auto;
@@ -223,7 +223,7 @@
 .fieldLabel {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   width: auto;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
@@ -236,14 +236,14 @@
 .colorField {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   flex: 1;
   min-width: 0;
 }
 
 .colorPicker {
-  width: var(--control-h-xs);
-  height: var(--control-h-xs);
+  width: var(--control-height-xs);
+  height: var(--control-height-xs);
   padding: 0;
   border: var(--border-light);
   border-radius: var(--radius-circle);
@@ -252,7 +252,7 @@
 }
 
 .colorPicker::-webkit-color-swatch-wrapper {
-  padding: var(--spacing-3xs);
+  padding: var(--spacing-2);
 }
 
 .colorPicker::-webkit-color-swatch {
@@ -271,25 +271,25 @@
 .presetGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 /* 통합된 Theme Colors — 프리셋(빠른 선택) 그리드와 개별 색상 입력 사이 구분선.
    .fields 가 .presetGrid 바로 뒤에 올 때만(= 통합 섹션) 적용된다. */
 .presetGrid + .fields {
-  margin-top: var(--spacing-xl);
-  padding-top: var(--spacing-xl);
+  margin-top: var(--spacing-24);
+  padding-top: var(--spacing-24);
   border-top: var(--border-light);
 }
 
 .presetCard {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   height: 52px;
-  padding: 0 var(--spacing-md) 0 0;
+  padding: 0 var(--spacing-16) 0 0;
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   overflow: hidden;
 }
@@ -320,13 +320,13 @@
    모양·hover 는 CloseButton 몫이고 여기선 자리만 잡는다. 세로 가운데는 transform 대신 margin 으로 —
    누를 때 줄어드는 효과(transform)와 겹치지 않게 */
 .presetCardWrap:has(.presetCardRemove) > .presetCard {
-  padding-right: calc(var(--control-h-xs) + var(--spacing-sm));
+  padding-right: calc(var(--control-height-xs) + var(--spacing-12));
 }
 
 .presetCardRemove {
   position: absolute;
   top: 0;
-  right: var(--spacing-xs);
+  right: var(--spacing-8);
   bottom: 0;
   margin-block: auto;
 }
@@ -346,9 +346,9 @@
 
 .logoColorPresetBtn {
   display: flex;
-  width: var(--control-h-xl);
+  width: var(--control-height-xl);
   height: 20px;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   border: var(--border-light);
   overflow: hidden;
   padding: 0;
@@ -367,7 +367,7 @@
 .faviconImageBgField {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 .faviconImageBgField .colorField {
   flex: 0 0 auto;
@@ -383,7 +383,7 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   flex: 1;
   min-width: 0;
 }
@@ -400,26 +400,26 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
-  margin-bottom: var(--spacing-md);
+  margin-bottom: var(--spacing-16);
   margin-top: 0;
   line-height: var(--line-height-snug);
 }
 
 .sectionTitle + .sectionHint,
 .sectionTitle + .sectionHintList {
-  margin-top: var(--spacing-2xs);
+  margin-top: var(--spacing-4);
 }
 
 .sectionHintList {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
-  margin-bottom: var(--spacing-md);
+  margin-bottom: var(--spacing-16);
   margin-top: 0;
-  padding-left: var(--spacing-lg);
+  padding-left: var(--spacing-20);
   list-style: disc;
 }
 
@@ -434,7 +434,7 @@
 .fieldLabelText {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 /* 필수 입력 표시 dot.
@@ -447,7 +447,7 @@
   vertical-align: middle;
   width: 4px;
   height: 4px;
-  margin-inline-start: var(--spacing-3xs);
+  margin-inline-start: var(--spacing-2);
   border-radius: var(--radius-circle);
   background: var(--bg-accent-solid);
   flex: 0 0 auto;
@@ -489,7 +489,7 @@
 /* ── Profile Sections (embedded in Content tab) ── */
 
 .profileAddBtn {
-  margin-top: var(--spacing-md);
+  margin-top: var(--spacing-16);
 }
 
 .section .profileAddBtn:hover {
@@ -505,7 +505,7 @@
   font-family: var(--font-mono);
   color: var(--text-white);
   mix-blend-mode: difference;
-  margin-right: var(--spacing-3xs);
+  margin-right: var(--spacing-2);
   font-variant-numeric: tabular-nums;
 }
 
@@ -516,7 +516,7 @@
   width: 210px;
   aspect-ratio: 16 / 9;
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   overflow: hidden;
 }
 
@@ -529,7 +529,7 @@
 .publishToggle {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
 }
 
 .publishLabel {
@@ -557,9 +557,9 @@
    grid-template-rows 로 두 행(버튼/에디터)을 0fr↔1fr 로 swap 하면서
    border-radius 도 capsule↔2xl 로 transition */
 .newSeriesShell {
-  margin-top: var(--spacing-md);
+  margin-top: var(--spacing-16);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   display: grid;
   /* row1: 제목(항상 auto), row2: 에디터(0fr↔1fr) */
@@ -574,7 +574,7 @@
 
 .newSeriesShellOpen {
   grid-template-rows: auto 1fr;
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   /* 열림 방향: radius 먼저(0~0.25s) → height (0.25s~0.60s) */
   transition:
     grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1) 0.25s,
@@ -620,7 +620,7 @@
   align-items: center;
   justify-content: center;
   width: 100%;
-  padding: var(--spacing-xs) var(--spacing-md);
+  padding: var(--spacing-8) var(--spacing-16);
   border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -644,7 +644,7 @@
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
   text-align: left;
-  padding: var(--spacing-md);
+  padding: var(--spacing-16);
   cursor: default;
   /* 열림 방향 — radius 끝난 뒤(0.25s) body 와 함께 morph (bounce 방지) */
   transition:
@@ -664,7 +664,7 @@
   align-items: center;
   justify-content: center;
   max-width: 14px;
-  margin-right: var(--spacing-2xs);
+  margin-right: var(--spacing-4);
   opacity: 1;
   overflow: hidden;
   white-space: nowrap;
@@ -691,8 +691,8 @@
 .newSeriesShellActions {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
-  padding-right: var(--spacing-md);
+  gap: var(--spacing-8);
+  padding-right: var(--spacing-16);
   white-space: nowrap;
   overflow: hidden;
   min-width: 0;
@@ -703,7 +703,7 @@
 
 /* shell actions 안의 발행 토글 — 라벨↔토글 간격 좁게 */
 .newSeriesShellActions .publishToggle {
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 .newSeriesShellOpen .newSeriesShellActions {
@@ -756,7 +756,7 @@
   padding: 0;
   gap: 0;
   font-family: var(--font-space-grotesk);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   max-height: none;
   overflow: visible;
   interpolate-size: allow-keywords;
@@ -785,8 +785,8 @@
   /* 입력 minmax 로 최소너비 보장 · 액션 고정폭(항상 예약) → 입력 너비·버튼 위치 일정 */
   grid-template-columns: minmax(7rem, 1fr) 3.75rem;
   align-items: center;
-  column-gap: var(--spacing-sm);
-  row-gap: var(--spacing-2xs);
+  column-gap: var(--spacing-12);
+  row-gap: var(--spacing-4);
   /* .fieldRow base (flex column) override */
   flex-direction: row;
 }
@@ -799,7 +799,7 @@
 .envFieldRow .fieldLabel {
   flex-direction: row;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   flex-wrap: wrap;
   min-width: 0;
 }
@@ -811,7 +811,7 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 /* 필터 버튼 안 활성 개수 배지 — primary 버튼 위에 밝은 pill + 중립 숫자 (accent 미사용) */
@@ -821,8 +821,8 @@
   justify-content: center;
   min-width: 15px;
   height: 15px;
-  padding: 0 var(--spacing-2xs);
-  border-radius: var(--radius-capsule);
+  padding: 0 var(--spacing-4);
+  border-radius: var(--radius-full);
   background: var(--bg-primary);
   color: var(--text-primary);
   font-size: var(--font-size-hint);
@@ -842,7 +842,7 @@
 .tagDescFilterGroup {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 .tagDescFilterGroupLabel {
@@ -851,7 +851,7 @@
   font-weight: 500;
   color: var(--text-tertiary);
   letter-spacing: 0.02em;
-  margin-right: var(--spacing-2xs);
+  margin-right: var(--spacing-4);
 }
 
 /* filter row + drawer 안 button 폰트 — size-sm(28px) 의 default font-size-sm 보다 작게 (xs).
@@ -862,7 +862,7 @@
 }
 
 .tagDescFilterGroup + .tagDescFilterGroup {
-  padding-left: var(--spacing-sm);
+  padding-left: var(--spacing-12);
   border-left: var(--border-light);
 }
 
@@ -891,20 +891,20 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--spacing-sm);
-  margin-top: var(--spacing-xs);
+  gap: var(--spacing-12);
+  margin-top: var(--spacing-8);
 }
 
 /* letter (철자) drawer — 공통 LetterFilter 컴포넌트가 자체 스타일 보유. 본 클래스는 외부 margin 만 */
 .tagDescLetterDrawer {
-  margin-top: var(--spacing-xs);
+  margin-top: var(--spacing-8);
 }
 
 /* chip 영역 + count 묶음 — count 는 chip block 끝에 중앙 정렬 */
 .tagDescChipsBlock {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
 }
 
 /* toolbar 내 count — SegmentedControl 오른쪽, search (margin-left:auto) 앞 자연 배치. */
@@ -916,7 +916,7 @@
 }
 
 .tagDescEmpty {
-  padding: var(--spacing-2xl) 0;
+  padding: var(--spacing-32) 0;
   text-align: center;
   color: var(--text-tertiary);
   font-family: var(--font-space-grotesk);
@@ -932,7 +932,7 @@
 
 /* 칩 라벨 옆 사용 카운트 (n) */
 .tagCountBadge {
-  margin-left: var(--spacing-2xs);
+  margin-left: var(--spacing-4);
   font-family: var(--font-mono);
   font-size: var(--font-size-hint);
   color: var(--text-tertiary);
@@ -980,7 +980,7 @@
 .tagRelatedItem {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-body);
   color: var(--text-primary);
@@ -1006,7 +1006,7 @@ a.tagRelatedItem:hover {
 .tagRelatedMeta {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   flex-shrink: 0;
   font-family: var(--font-mono);
   font-size: var(--font-size-hint);
@@ -1015,8 +1015,8 @@ a.tagRelatedItem:hover {
 }
 
 .tagRelatedMetaDraft {
-  padding: var(--badge-p-sm);
-  border-radius: var(--radius-capsule);
+  padding: var(--badge-padding-sm);
+  border-radius: var(--radius-full);
   background: var(--bg-tertiary-alt);
   color: var(--text-tertiary);
   font-size: var(--font-size-hint);
@@ -1027,8 +1027,8 @@ a.tagRelatedItem:hover {
 /* section fields 내부 grid utility — 2-col / 3-col */
 .fieldsGrid2 {
   display: grid;
-  gap: var(--spacing-md);
-  grid-template-columns: var(--grid-cols-2);
+  gap: var(--spacing-16);
+  grid-template-columns: var(--grid-columns-2);
 }
 
 @media (max-width: 768px) {
@@ -1041,7 +1041,7 @@ a.tagRelatedItem:hover {
 .worksCatEditor {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-20);
   width: 100%;
 }
 
@@ -1049,7 +1049,7 @@ a.tagRelatedItem:hover {
 .worksCatChipLabel {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 .worksCatChipSep {
@@ -1092,7 +1092,7 @@ a.tagRelatedItem:hover {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-label);
   font-weight: 500;
@@ -1104,7 +1104,7 @@ a.tagRelatedItem:hover {
 .worksCatAddActions {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 /* form row — 라벨 좌측 고정 너비 + 입력 우측 stretch.
@@ -1114,14 +1114,14 @@ a.tagRelatedItem:hover {
   display: grid;
   grid-template-columns: 80px 1fr;
   align-items: center;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
 }
 
 /* 입력 열에 칸과 그 아래 안내를 함께 쌓을 때 */
 .worksCatAddRowField {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2);
   align-items: flex-start;
   min-width: 0;
 }
@@ -1137,7 +1137,7 @@ a.tagRelatedItem:hover {
 @media (max-width: 768px) {
   .worksCatAddRow {
     grid-template-columns: 1fr;
-    gap: var(--spacing-2xs);
+    gap: var(--spacing-4);
   }
 }
 
@@ -1145,8 +1145,8 @@ a.tagRelatedItem:hover {
 .authorInvite {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
-  margin-top: var(--spacing-sm);
+  gap: var(--spacing-4);
+  margin-top: var(--spacing-12);
 }
 /* 상태 메시지 — 행 아래. 성공/실패 모두 accent 로 강조 */
 .authorInviteErr {
@@ -1166,14 +1166,14 @@ a.tagRelatedItem:hover {
 .addPopoverForm {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
-  padding: var(--spacing-md);
+  gap: var(--spacing-16);
+  padding: var(--spacing-16);
   min-width: 24rem;
   max-width: 90vw;
 }
 /* 편집 헤더(제목+삭제/취소/저장) 아래 필드와의 구분선 — 액션 영역과 입력 영역 분리 */
 .addPopoverForm > .worksCatAddLabel {
-  padding-bottom: var(--spacing-sm);
+  padding-bottom: var(--spacing-12);
   border-bottom: var(--border-light);
 }
 /* 팝오버 안에서는 라벨을 상단 정렬 — ko/en 인풋이 세로로 쌓일 때 라벨이 가운데 뜨지 않게 */
@@ -1181,5 +1181,5 @@ a.tagRelatedItem:hover {
   align-items: start;
 }
 .addPopoverForm .worksCatAddRowLabel {
-  padding-top: var(--spacing-2xs); /* 첫 인풋 텍스트 라인에 맞춰 살짝 내림 */
+  padding-top: var(--spacing-4); /* 첫 인풋 텍스트 라인에 맞춰 살짝 내림 */
 }

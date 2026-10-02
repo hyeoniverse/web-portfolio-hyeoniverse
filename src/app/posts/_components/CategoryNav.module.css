@@ -28,7 +28,7 @@
   /* row-gap: expanded 시 wrap 된 row 들 사이 breathing. column-gap 은 0 (버튼 자체 padding 으로 충분).
      collapsed (single-row) 일 땐 row-gap 이 효과 없으므로 항상 켜둬도 안전. */
   column-gap: 0;
-  row-gap: var(--spacing-xs);
+  row-gap: var(--spacing-8);
   overflow: hidden;
 }
 
@@ -48,9 +48,9 @@
   position: relative;
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   min-height: var(--filter-row-h);
-  padding: 0 var(--spacing-md);
+  padding: 0 var(--spacing-16);
   border: none;
   border-radius: 0;
   background: transparent;
@@ -78,12 +78,12 @@
 .nav .btn::after {
   content: "";
   position: absolute;
-  left: var(--spacing-md);
-  right: var(--spacing-md);
+  left: var(--spacing-16);
+  right: var(--spacing-16);
   bottom: 3px;
   height: 2px;
   background: var(--text-white);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   transform: scaleX(0);
   transform-origin: center;
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -99,18 +99,18 @@
 .moreBtn {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   min-height: var(--filter-row-h);
-  padding: 0 var(--spacing-sm);
+  padding: 0 var(--spacing-12);
   border: var(--border-default);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   white-space: nowrap;
   flex-shrink: 0;
-  margin-left: var(--spacing-xs);
+  margin-left: var(--spacing-8);
 }
 
 /* compound (0,2,0) — .moreBtnOpen 보다 specificity 낮아 hover state 가 open state 를 안 덮음 */
@@ -134,7 +134,7 @@
 
 @media (max-width: 768px) {
   .btn {
-    padding: var(--button-p-md);
+    padding: var(--button-padding-md);
     font-size: var(--font-size-label);
   }
 }
@@ -149,9 +149,9 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   /* 대분류 탭 텍스트와 시작선 맞춤 + 상위 행과 여백 확보(상단 넉넉히) */
-  padding: var(--row-p-lg);
+  padding: var(--row-padding-lg);
 }
 
 /* 소분류 칩 — difference 하에선 solid 배경이 어색하므로 흰색 텍스트 + opacity 로 구분 */
@@ -159,9 +159,9 @@
   position: relative;
   display: inline-flex;
   align-items: center;
-  padding: var(--button-p-xs);
+  padding: var(--button-padding-xs);
   border: none;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
@@ -180,12 +180,12 @@
 .childRow .childBtn::after {
   content: "";
   position: absolute;
-  left: var(--spacing-sm);
-  right: var(--spacing-sm);
+  left: var(--spacing-12);
+  right: var(--spacing-12);
   bottom: 0;
   height: 2px;
   background: var(--text-white);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-full);
   transform: scaleX(0);
   transform-origin: center;
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);

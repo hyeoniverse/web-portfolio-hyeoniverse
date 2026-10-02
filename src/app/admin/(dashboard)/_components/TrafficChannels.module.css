@@ -11,7 +11,7 @@
   display: grid;
   grid-template-columns: 180px 1fr auto;
   align-items: center;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
   width: 100%;
   text-align: left;
 }
@@ -45,25 +45,25 @@
 }
 
 .channelHostsInner {
-  padding: var(--spacing-2xs) 0 var(--spacing-sm);
+  padding: var(--spacing-4) 0 var(--spacing-12);
 }
 
 .channelHostRow {
   display: grid;
   /* 들여쓰기(padding-left lg)만큼 첫 칸을 줄여 바 시작점을 채널 행과 맞춘다 */
-  grid-template-columns: calc(180px - var(--spacing-lg)) 1fr auto;
+  grid-template-columns: calc(180px - var(--spacing-20)) 1fr auto;
   align-items: center;
-  gap: var(--spacing-md);
-  padding-block: var(--spacing-3xs);
+  gap: var(--spacing-16);
+  padding-block: var(--spacing-2);
   /* 채널 행(ListItem .item)이 소비하는 칸 방향 들여쓰기를 똑같이 받아야
      오른쪽 숫자 끝이 상위 항목과 맞는다 — 안 받으면 그만큼 오른쪽으로 튀어나온다 */
-  padding-inline-start: calc(var(--_item-inline-start, 0px) + var(--spacing-lg));
+  padding-inline-start: calc(var(--_item-inline-start, 0px) + var(--spacing-20));
   padding-inline-end: var(--_item-inline-end, 0px);
 }
 
 /* 호스트 행엔 체브런이 없다 — 채널 행의 숫자 열과 끝을 맞추기 위한 보정 */
 .channelHostRow > span:last-child {
-  padding-right: calc(12px + var(--spacing-2xs));
+  padding-right: calc(12px + var(--spacing-4));
 }
 
 .channelHostName {

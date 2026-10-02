@@ -1,5 +1,5 @@
 .title {
-  margin-bottom: var(--space-divide);
+  margin-bottom: var(--spacing-divide);
   font-family: var(--font-display);
   font-size: var(--font-size-hero);
   line-height: var(--line-height-dense);

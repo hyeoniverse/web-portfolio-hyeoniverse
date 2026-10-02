@@ -1023,7 +1023,7 @@ export default function PostEditor({ post }: PostEditorProps) {
       {/* title + slug + 예약 발행 — 컴팩트 그룹 (gap 작게) */}
       <div className={styles.titleGroup}>
         <div className={es.field} data-seo="title" data-required="title">
-          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: "var(--spacing-xs)" }}>
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: "var(--spacing-8)" }}>
             <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${titleFieldError ? ` ${es.fieldLabelError}` : ""}`}>{te("title")}</label>
             <span style={{ fontSize: "var(--font-size-hint)", fontVariantNumeric: "tabular-nums", color: metaForm[titleKey].length >= POST_TITLE_MAX ? "var(--text-accent)" : "var(--text-muted)" }}>
               {metaForm[titleKey].length}/{POST_TITLE_MAX}
@@ -1042,7 +1042,7 @@ export default function PostEditor({ post }: PostEditorProps) {
 
         <div className={es.row}>
           <div className={es.field} style={{ gridColumn: "1 / -1" }} data-seo="slug" data-required="slug">
-            <div style={{ display: "flex", alignItems: "baseline", gap: "var(--spacing-xs)" }}>
+            <div style={{ display: "flex", alignItems: "baseline", gap: "var(--spacing-8)" }}>
               <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${showErrors && (!metaForm.slug.trim() || validateSlug(metaForm.slug)) ? ` ${es.fieldLabelError}` : ""}`}>{te("slug")}</label>
               {metaForm.slug.trim() && validateSlug(metaForm.slug) && (
                 <span className={styles.slugHint}>{te(`slugError.${validateSlug(metaForm.slug)}`)}</span>
@@ -1094,7 +1094,7 @@ export default function PostEditor({ post }: PostEditorProps) {
                       value={metaForm.category}
                       onChange={(e) => updateField("category", e.target.value)}
                       placeholder={te("category")}
-                      style={{ marginTop: "var(--spacing-xs)" }}
+                      style={{ marginTop: "var(--spacing-8)" }}
                       autoFocus
                     />
                   )}
@@ -1426,7 +1426,7 @@ export default function PostEditor({ post }: PostEditorProps) {
         style={{
           position: "fixed",
           inset: 0,
-          zIndex: "var(--z-top)",
+          zIndex: "var(--z-index-top)",
           background: "transparent",
           cursor: "wait",
         }}

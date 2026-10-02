@@ -7,7 +7,7 @@
   min-height: 0;
   justify-content: space-between;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
   border-bottom: var(--border-light);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
@@ -17,14 +17,14 @@
 /* composes 한 Panel .item 과 ListItem 이 붙이는 List .item 둘 다 padding-block: xs 를 같은
    (0,1,0) 으로 정해서, 번들 순서에 따라 이 2xs 가 뒤집혔다. 클래스를 두 번 적어 (0,2,0). */
 .donutLegendItem.donutLegendItem {
-  padding: var(--spacing-2xs) 0;
+  padding: var(--spacing-4) 0;
 }
 
 /* 왼쪽 그룹 — 컬러 swatch + 카테고리 이름 */
 .donutLegendLeft {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   min-width: 0;
 }
 
@@ -48,7 +48,7 @@
 .donutLegendMeta {
   display: inline-flex;
   align-items: baseline;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   font-family: var(--font-mono);
   font-size: var(--font-size-hint);
   font-variant-numeric: tabular-nums;

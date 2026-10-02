@@ -1,11 +1,11 @@
 .section {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xl);
-  padding-top: var(--spacing-2xl);
+  gap: var(--spacing-24);
+  padding-top: var(--spacing-32);
 }
 
-/* 옆의 정렬 pill(SortControl, --control-h-sm)과 수직 중심을 맞춘다.
+/* 옆의 정렬 pill(SortControl, --control-height-sm)과 수직 중심을 맞춘다.
    · margin: 0 — h2 의 UA 기본 margin(0.83em ≈ 15px). sanitize.css 는 h2 를 안 건드리고
      Tailwind preflight 도 제거돼 있어 그대로 살아있었다. .section 의 gap 이 이미 간격을
      담당하므로 중복이고, 행 높이만 부풀렸다.
@@ -14,7 +14,7 @@
      (.count 도 line-height 를 상속받아 line box 가 28px 로 유지된다) */
 .heading {
   margin: 0;
-  line-height: var(--control-h-sm);
+  line-height: var(--control-height-sm);
   font-family: var(--font-instrument);
   font-size: var(--font-size-title-md);
   font-weight: var(--font-weight-regular);
@@ -26,12 +26,12 @@
   font-size: var(--font-size-body);
   color: var(--text-tertiary);
   font-weight: var(--font-weight-regular);
-  margin-left: var(--spacing-xs);
+  margin-left: var(--spacing-8);
 }
 
 /* 보기 영역(댓글 리스트) — 좌우 트임: 좌우 border/radius 없이 위아래 끝에만 hairline.
    giscus `.gsc-timeline { border-top/bottom: 1px solid --color-border-muted }` 미러. */
-/* gap 없음 — 세로 리듬은 각 `.comment` 의 대칭 패딩(--spacing-lg)이 담당하고,
+/* gap 없음 — 세로 리듬은 각 `.comment` 의 대칭 패딩(--spacing-20)이 담당하고,
    구분은 아래 `.list > * + *` 의 선이 한다. gap 을 주면 선 위쪽만 여백이 커져(gap+패딩 vs 패딩)
    선이 아래 댓글에 붙어 보인다. giscus `.gsc-timeline > .gsc-comment { padding: 22px 0 }` 와 동일 구조. */
 .list {
@@ -69,20 +69,20 @@
         내용 x=0 은 그대로라 각 댓글 체크박스와의 세로 정렬도 유지된다.
      ※ 이 음수 마진 때문에 슬롯 박스가 `.list` 왼쪽으로 삐져나간다 →
        구분선은 여기 두면 안 되고, 안쪽 `.listHeader`(x=0 에서 시작)가 가져야 한다. */
-  margin-left: calc(-1 * var(--spacing-sm));
-  padding-left: var(--spacing-sm);
+  margin-left: calc(-1 * var(--spacing-12));
+  padding-left: var(--spacing-12);
 }
 
-/* min-height — 일괄삭제 버튼(--control-h-sm)이 전체선택 체크박스(16px)보다 커서,
+/* min-height — 일괄삭제 버튼(--control-height-sm)이 전체선택 체크박스(16px)보다 커서,
    선택 개수가 0↔1 로 바뀌며 버튼이 붙었다 떨어질 때마다 헤더 높이가 튀었다.
    가장 큰 내용물의 높이를 미리 확보해 버튼 유무와 무관하게 높이를 고정.
    (전역 box-sizing: border-box 라 min-height 에 상하 패딩이 포함됨) */
 .listHeader {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
-  padding: var(--spacing-xs) 0;
-  min-height: calc(var(--control-h-sm) + var(--spacing-xs) * 2);
+  gap: var(--spacing-16);
+  padding: var(--spacing-8) 0;
+  min-height: calc(var(--control-height-sm) + var(--spacing-8) * 2);
   /* 구분선은 슬롯이 아니라 여기 — 슬롯은 outline 여유용 음수 마진 때문에 `.list` 밖으로 나가 있다.
      이 요소는 x=0 에서 시작해 리스트 폭과 정확히 맞고, 슬롯 안이라 접힐 때 같이 사라진다. */
   border-bottom: var(--border-light);
@@ -96,20 +96,20 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-body);
   color: var(--text-secondary);
-  margin-bottom: var(--spacing-md);
+  margin-bottom: var(--spacing-16);
 }
 
 .headingRow {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-md);
+  gap: var(--spacing-16);
 }
 
 .headingLeft {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-12);
 }
 
 /* 정렬 Select + 역순 토글을 한 덩어리로 */
@@ -121,7 +121,7 @@
 .headingRight {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-8);
   margin-left: auto;
 }
 

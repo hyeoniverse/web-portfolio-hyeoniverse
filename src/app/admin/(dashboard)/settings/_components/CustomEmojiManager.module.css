@@ -3,7 +3,7 @@
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, 56px);
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
 }
 
 .tile {
@@ -13,7 +13,7 @@
   justify-content: center;
   width: 56px;
   height: 56px;
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-24);
   transition: background-color 0.15s ease;
 }
 
@@ -31,8 +31,8 @@
 /* 지우기 — 칸 모서리. 평소엔 숨겼다가 올리면 보인다. 마우스가 없는 화면(터치)은 늘 보인다 */
 .remove {
   position: absolute;
-  top: calc(-1 * var(--spacing-3xs));
-  right: calc(-1 * var(--spacing-3xs));
+  top: calc(-1 * var(--spacing-2));
+  right: calc(-1 * var(--spacing-2));
   border: var(--border-light);
   background: var(--bg-primary);
   opacity: 0;

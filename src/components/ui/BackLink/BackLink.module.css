@@ -1,7 +1,7 @@
 .link {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-4);
   flex-shrink: 0;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-body);
