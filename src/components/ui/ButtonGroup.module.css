@@ -1,3 +1,5 @@
+/* 공용 컴포넌트 — components 층(docs/design-system.md 4-4). 쓰는 쪽이 className 으로 넘긴 클래스가 번들 순서 · 특이도와 상관없이 이긴다 */
+@layer components {
 /* ==========================================================================
    ButtonGroup — 캡슐형 버튼 그룹 (마지막 filled, 나머지 outline)
    ========================================================================== */
@@ -118,4 +120,5 @@
   height: var(--control-height-md);
   padding: 0;
   transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
 }

@@ -1,17 +1,32 @@
-/* Reset stack — sanitize.css (normalize 의 후속, opinionated defaults) 단독 사용. */
-@import "sanitize.css";
+/* 전역 CSS 진입점 — 각 파일을 층에 넣는다(docs/design-system.md 4-1). 층 순서는 layers.css 가 정한다.
+   층 밖에 두는 것은 테마 전환 규칙 하나뿐이다(_theme-transition.css 의 주석). */
 
-@import "./tokens/_index.css";
-@import "./globals/_animations.css";
-@import "./globals/_semantic.css";
-@import "./globals/_component.css";
-@import "./globals/_legacy-aliases.css";
-@import "./globals/_base.css";
-@import "./globals/_utilities.css";
-@import "./globals/_layout.css";
-@import "./globals/_sheet.css";
-@import "./globals/_scroll.css";
-@import "./globals/_hljs.css";
-@import "./globals/_tabs.css";
-@import "./globals/_poll.css";
-@import "./globals/_overrides.css";
+/* 브라우저 기본값 정리 — sanitize.css(normalize 의 후속) */
+@import "sanitize.css" layer(reset);
+
+/* 토큰 — 원시 · 역할 · 컴포넌트 · 저장된 글을 위한 옛 이름 */
+@import "./tokens/_index.css" layer(tokens);
+@import "./globals/_semantic.css" layer(tokens);
+@import "./globals/_component.css" layer(tokens);
+@import "./globals/_legacy-aliases.css" layer(tokens);
+
+/* 요소 기본 · 페이지 골격 · 스크롤 · @keyframes */
+@import "./globals/_animations.css" layer(base);
+@import "./globals/_base.css" layer(base);
+@import "./globals/_layout.css" layer(base);
+@import "./globals/_scroll.css" layer(base);
+
+/* 에디터 · 본문 블록의 전역 클래스 */
+@import "./globals/_sheet.css" layer(components);
+@import "./globals/_hljs.css" layer(components);
+@import "./globals/_tabs.css" layer(components);
+@import "./globals/_poll.css" layer(components);
+
+/* 전역 클래스(.sr-only 등) */
+@import "./globals/_utilities.css" layer(utilities);
+
+/* 서드파티 덮어쓰기 */
+@import "./globals/_overrides.css" layer(vendor);
+
+/* 층 밖 */
+@import "./globals/_theme-transition.css";

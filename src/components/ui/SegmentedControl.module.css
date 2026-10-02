@@ -1,3 +1,5 @@
+/* 공용 컴포넌트 — components 층(docs/design-system.md 4-4). 쓰는 쪽이 className 으로 넘긴 클래스가 번들 순서 · 특이도와 상관없이 이긴다 */
+@layer components {
 /* posts main sort / series sort 와 동일 — capsule wrapper, border default.
    border 대신 inset box-shadow 로 처리 → layout 에 영향 안 줘서 전체 높이 = btn 높이 + padding 으로 명확히 제어됨.
    padding 2px 로 안쪽 버튼과 group 테두리 사이 시각적 호흡 확보. */
@@ -149,4 +151,5 @@
 .dirIcon {
   flex-shrink: 0;
   transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+}
 }

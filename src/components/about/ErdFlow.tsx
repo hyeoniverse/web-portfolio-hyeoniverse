@@ -14,7 +14,7 @@ import {
   ReactFlowProvider,
   type Node, type Edge, type NodeProps, type Viewport,
 } from "@xyflow/react";
-import "@xyflow/react/dist/style.css";
+import "@/styles/vendor/xyflow.css";
 import {
   layoutErd, ERD_COL_W, ERD_HEADER_HEIGHT, ERD_ROW_HEIGHT, ERD_PADDING_Y,
 } from "@/data/about/erdLayout";

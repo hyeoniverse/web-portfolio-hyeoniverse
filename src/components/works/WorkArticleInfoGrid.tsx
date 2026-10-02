@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import "katex/dist/katex.min.css";
+import "@/styles/vendor/katex.css";
 import RelatedChips from "@/components/ui/RelatedChips/RelatedChips";
 import AISummary from "@/components/ui/AISummary";
 import T from "@/components/ui/T";

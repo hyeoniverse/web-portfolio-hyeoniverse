@@ -72,7 +72,7 @@ marked.use(
 });
 
 // KaTeX CSS (이미 글로벌에 포함되어 있지 않으면 여기서 import)
-import "katex/dist/katex.min.css";
+import "@/styles/vendor/katex.css";
 
 interface MarkdownRendererProps {
   content: string;

@@ -517,19 +517,26 @@ Primer(24 · 28 · 32 · 40 · 48)처럼 24 에서 시작한다 — 가장 작�
 | `base` | 요소 기본 스타일 · 페이지 골격 · `@keyframes` · 스크롤(`_base` · `_layout` · `_animations` · `_scroll`) |
 | `components` | 공용 컴포넌트(`src/components/ui`)의 CSS Module · 에디터 · 본문 블록의 전역 클래스(`_hljs` · `_poll` · `_tabs` · `_sheet`) |
 | `utilities` | `.sr-only` 같은 전역 클래스(`_utilities`) |
-| (층 밖) | 페이지 · 기능 컴포넌트의 CSS Module |
+| (층 밖) | 페이지 · 기능 컴포넌트의 CSS Module · 테마 전환 규칙(`_theme-transition.css`, 아래) |
 
 - 뒤 층이 앞 층을 이기고, **층 밖은 모든 층을 이긴다** — 특이도와 상관없다.
-- `!important` 는 반대로 앞 층이 이긴다. 그래서 층 안에서는 쓰지 않는다.
-- — **목표**(`@layer` 0곳)
+- `!important` 는 반대로 앞 층이 이긴다. 층 안의 `!important` 는 인라인 style 이나 모든 커서처럼 **반드시 이겨야 하는**
+  자리에만 쓴다(지금 전역 CSS 의 28곳이 그렇다).
+- 테마 전환 규칙(`html[data-theme-transitioning] *`)은 층 밖에 둔다. 층에 넣으면 컴포넌트의 transition 에 져서 전환 중 색이
+  끊겨 바뀌는 요소가 생긴다. 3.9-6(View Transitions)에서 지운다.
+- 층 배정은 `src/styles/global.css` 의 `@import … layer(…)` 가 정한다. — **강제**(감시 테스트: 층에 안 들어간 공용 컴포넌트 0)
 
-**4-2. 층 순서 선언은 루트 `layout.tsx` 의 `<head>` 맨 앞에 인라인 `<style>` 로 둔다.**
-```tsx
-<style>{"@layer reset, vendor, tokens, base, components, utilities;"}</style>
+**4-2. 층 순서 선언은 그 한 줄만 담은 `src/styles/layers.css` 에 두고, 루트 `layout.tsx` 에서 가장 먼저 import 한다.**
+```css
+@layer reset, vendor, tokens, base, components, utilities;
 ```
-- 층 순서는 각 층 이름이 **처음 나온 순서**로 정해진다.
-- Turbopack 은 CSS 파일 안에서 `@import` 로 가져온 내용을 그 파일의 다른 내용보다 앞에 놓는다.
-  그래서 순서 선언을 CSS 파일 안에 두면 가져온 층이 먼저 나와 순서가 뒤집힌다(2026-10-02 개발 서버에서 확인).
+- 층 순서는 각 층 이름이 **처음 나온 순서**로 정해진다. 그래서 이 선언이 모든 CSS 보다 먼저 나와야 한다.
+- 레이아웃이 import 한 CSS 는 import 순서대로 첫 묶음(root 청크)에 들어간다. 이 파일을 첫 import 로 두면 선언이 맨 앞에 온다
+  (2026-10-02 개발 서버에서 root 청크 첫 줄 확인).
+- 선언을 `global.css` 안에 두지 않는다. Turbopack 은 `@import` 로 가져온 내용을 그 파일의 다른 내용보다 앞에 놓아,
+  가져온 층이 선언보다 먼저 나온다. 그래서 `@import` 가 없는 파일로 따로 둔다.
+- 루트 레이아웃의 인라인 `<style>` 은 쓰지 않는다. React 19 가 `<style precedence>` 를 Next 의 스타일시트와 어떤 순서로
+  `<head>` 에 넣을지 보장하지 않는다(Next 는 CSS 파일마다 precedence 그룹을 따로 만든다).
 
 **4-3. 서드파티 CSS 는 JS 에서 바로 import 하지 않고, 층을 단 CSS 파일을 거친다.**
 ```css
@@ -538,7 +545,7 @@ Primer(24 · 28 · 32 · 40 · 48)처럼 24 에서 시작한다 — 가장 작�
 ```
 - JS 에서 바로 import 한 CSS 는 층 밖이라 모든 전역 규칙과 `vendor` 층의 덮어쓰기를 이긴다.
 - Turbopack 이 이 형태를 `@layer vendor { … }` 로 감싸는 것을 확인했다(2026-10-02, 개발 서버).
-- — **목표**(JS 에서 바로 import 하는 곳 13)
+- 지금 래퍼: `src/styles/vendor/katex.css` · `xyflow.css` · `pretendard.css`. — JS 에서 바로 import 하는 곳 0(감시 테스트)
 
 **4-4. 공용 컴포넌트의 CSS Module 은 `@layer components { … }` 로 감싼다.**
 ```css
@@ -549,9 +556,11 @@ Primer(24 · 28 · 32 · 40 · 48)처럼 24 에서 시작한다 — 가장 작�
 ```
 - 쓰는 쪽이 `className` 으로 넘긴 클래스는 층 밖이라, **번들 순서와 특이도에 상관없이** 공용 컴포넌트의 스타일을 이긴다.
 - 확인한 것(2026-10-02, 개발 서버): 쓰는 쪽 CSS 가 번들 앞에 오고 공용 쪽 특이도가 (0,3,0)이어도 쓰는 쪽이 이겼다.
-- 그래서 `.x.x` 로 특이도를 올리거나 `:where()` 로 낮추거나 `!important` 를 붙이는 편법이 필요 없다.
+- 그래서 공용 컴포넌트를 덮으려고 `.x.x` 로 특이도를 올리거나 `!important` 를 붙이는 편법이 필요 없다.
 - 두 모듈의 단일 클래스가 겨룰 때 승자가 번들 순서라서 개발 서버와 배포가 다르게 보이던 문제(#632)도 이 경우에는 사라진다.
-- — **목표**(`!important` 327 · 55파일 중 우선순위 싸움용)
+- 공용 컴포넌트 63개를 모두 감쌌다 — **강제**(감시 테스트).
+- **4-4-1. 남은 편법을 걷어 낸다.** 이미 있는 `.x.x`(198)와 `!important`(327) 중 공용 컴포넌트를 덮으려던 것은 이제 필요 없다.
+  다만 페이지 모듈끼리 겨루는 곳(#632)에서는 아직 필요해서 하나씩 확인해야 한다. 그 파일을 고칠 때 함께 걷어 낸다. — **목표**(198 · 327)
 
 **4-5. 다른 파일의 클래스를 `composes` 로 가져오지 않는다.** 가져온 클래스의 순서가 번들 순서에 따라 바뀐다(#632).
 필요하면 공용 컴포넌트로 뽑는다(1-3). 같은 파일 안 `composes` 는 한 단계까지만 — Turbopack 이 두 단계째를 붙이지 않는다.
@@ -640,7 +649,8 @@ MUI `ButtonBase` 와 `Button`, React Aria `useButton` 과 같은 분리다. 생�
 
 ```
 src/styles/
-├── global.css            진입점 — 아래 파일 import (층 순서 선언은 layout.tsx, 4-2)
+├── layers.css            층 순서 선언 한 줄 — layout.tsx 의 첫 CSS import(4-2)
+├── global.css            진입점 — 아래 파일을 층에 넣어 import(4-1)
 ├── tokens/               원시 — _color _spacing _size _radius _typography _border _shadow _motion _z-index
 ├── vendor/               서드파티 CSS 를 층에 넣는 얇은 파일(4-3)
 └── globals/
@@ -653,11 +663,11 @@ src/styles/
     ├── _utilities.css    전역 클래스(.sr-only 등)
     ├── _scroll.css       스무스 스크롤
     ├── _hljs.css _poll.css _tabs.css _sheet.css   에디터 · 본문 블록(전역 클래스)
-    └── _overrides.css    서드파티 덮어쓰기
+    ├── _overrides.css    서드파티 덮어쓰기
+    └── _theme-transition.css  테마 전환 규칙 — 층 밖(4-1)
 docs/tokens.md            토큰 값 — 자동 생성(npm run tokens:doc)
 ```
 
-지금과 다른 점: `vendor/` 가 없다(이행 4단계).
 토큰과 공용 컴포넌트는 `/design-system` 화면에서 직접 볼 수 있다.
 
 ---
@@ -671,7 +681,7 @@ docs/tokens.md            토큰 값 — 자동 생성(npm run tokens:doc)
 | 1 | 이 명세 | — | — | 없음 |
 | 2 | 감시 테스트 — "목표" 숫자를 같은 기준으로 세고, 늘면 실패 — **완료** | 0-1 | — | 없음 |
 | 3 | 이름 체계: 원시 눈금 숫자 이름 · 줄인 단어 풀어 쓰기 · 안 쓰는 토큰 삭제 · 역할/컴포넌트 파일 분리 · 레이아웃 치수 정리 · lint 이름 갱신 · 저장된 글 별칭 — **완료** | 2-3 · 2-4 · 3.4 · 3.6-2 | — | 없음(계산값 비교로 확인) |
-| 4 | 층: 순서 선언 · 서드파티 CSS · 공용 컴포넌트 `components` 층 · 우선순위 편법 제거 · 다른 파일 `composes` | 4-1–4-5 | 13 + 13 · `!important` 327 중 해당분 | 없어야 함(화면별 확인) |
+| 4 | 층: 순서 선언 · 서드파티 CSS · 공용 컴포넌트 `components` 층 — **완료**. 남은 편법(`.x.x` · `!important`)과 다른 파일 `composes` 는 그 파일을 고칠 때(4-4-1 · 4-5) | 4-1–4-5 | 198 + 327 + 13 | 없음(계산값 비교로 확인) |
 | 5 | 테마: 팔레트 고정 · `light-dark()` · `color-scheme` · 컴포넌트의 테마 분기 제거 · View Transitions | 2-5 · 3.9-6 | 87 + 23 + 140 + 2 | 다크의 스크롤바 · 폼, 테마 전환 모습 |
 | 6 | 색: 색상별 팔레트 단계 · 컴포넌트는 역할 색만 · 반투명은 `color-mix()` · 대비 표 자동 생성 | 3.1 | 459 + 155 + 269 | 팔레트 값(미리보기) |
 | 7 | 글자: 역할 묶음 도입 · 11px 없애기 · 숫자 · 유동 크기 · 루트 크기 · 줄간격 | 3.2 | 선언 2229 · 100 + 63 + 160 + 1 + 21 + 47 | 11px → 12px, 역할마다 줄간격 · 굵기 통일(미리보기) |

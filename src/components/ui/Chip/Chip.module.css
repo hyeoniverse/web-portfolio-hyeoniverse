@@ -1,3 +1,5 @@
+/* 공용 컴포넌트 — components 층(docs/design-system.md 4-4). 쓰는 쪽이 className 으로 넘긴 클래스가 번들 순서 · 특이도와 상관없이 이긴다 */
+@layer components {
 /* ── 공통 chip — variant capsule / bare. label + optional handle + count + remove × ── */
 .chip {
   position: relative;
@@ -182,4 +184,5 @@
   text-decoration-color: var(--text-accent);
   text-decoration-thickness: 1.5px;
   color: var(--text-accent);
+}
 }
