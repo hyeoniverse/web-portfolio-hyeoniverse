@@ -1,5 +1,6 @@
 import { createElement, type ReactNode, type SVGProps } from "react";
 import { SYMBOL_FONT_FAMILY } from "@/config/symbolFont.generated";
+import { contrastRatio } from "@/utils/contrast";
 
 /* =============================================================================
  * Favicon SVG — 공유 렌더 로직
@@ -179,6 +180,9 @@ export interface FaviconRenderInput {
 
 export interface FaviconRender {
   shape: FaviconShape;
+  /** 모양이 있다(none 이 아님) — 배경 rect 의 기하. 업로드 이미지는 배경색이 없어도 이 모양대로 자른다 */
+  hasShape: boolean;
+  /** 배경을 칠한다 — 모양이 있고 배경색도 있을 때. 배경색을 비우면 투명이다 */
   hasBg: boolean;
   radius: number;
   /** 배경 rect 지오메트리 (viewBox 0~32) — 종횡비에 따라 캔버스 안에서 정사각/타원/직사각. 콘텐츠는 중심 고정.
@@ -207,7 +211,10 @@ export interface FaviconRender {
 /** favicon 한 variant 렌더에 필요한 모든 값 계산 (route.ts / 미리보기 공용) */
 export function resolveFavicon(input: FaviconRenderInput, variant: "light" | "dark"): FaviconRender {
   const shape = input.shape ?? "circle";
-  const hasBg = shape !== "none";
+  const hasShape = shape !== "none";
+  /* 배경색을 비우면 투명 — 예전에는 빈 값이면 preset 색이 자동으로 들어가, 배경을 없애려면 모양을 none 으로 해야 했다 */
+  const bgColor = ((variant === "light" ? input.faviconBgLight : input.faviconBgDark) || "").trim();
+  const hasBg = hasShape && !!bgColor;
   const shapeRadius = shape === "circle" ? 16 : shape === "square" ? 4 : 0;
   const radius = resolveFaviconRadius(input.faviconRadius, shapeRadius);
   // 종횡비(w/h) → 캔버스(32) 안에서 배경 rect 크기. 콘텐츠는 중심 고정, 배경만 정사각/타원/직사각으로.
@@ -222,13 +229,11 @@ export function resolveFavicon(input: FaviconRenderInput, variant: "light" | "da
   const borderWidth = hasBg && Number.isFinite(borderRaw) ? Math.max(0, Math.min(8, borderRaw)) : 0;
   const contentScale = borderWidth > 0 ? 32 / (32 + borderWidth) : 1;
   const { presetLight, presetDark } = input;
-  const faviconBgLight = input.faviconBgLight || presetDark;
-  const faviconBgDark = input.faviconBgDark || presetLight;
-  const bgColor = variant === "light" ? faviconBgLight : faviconBgDark;
-  // 기존 fg 계산 — shape=none 이면 반전, 아니면 preset 그대로
-  const computedFg = shape === "none"
-    ? (variant === "light" ? presetDark : presetLight)
-    : (variant === "light" ? presetLight : presetDark);
+  /* 기본 글자색 — 배경이 없으면 탭 바탕(라이트=밝음 · 다크=어두움)과 대비되는 로고색, 배경이 있으면 두 로고색 중
+     배경과 대비가 큰 쪽. 예전에는 배경이 빈 값이면 preset 색이 자동으로 깔려 글자색도 그에 맞춰 정해져 있었다 */
+  const tabFg = variant === "light" ? presetLight : presetDark;
+  const otherFg = variant === "light" ? presetDark : presetLight;
+  const computedFg = hasBg && (contrastRatio(otherFg, bgColor) ?? 0) > (contrastRatio(tabFg, bgColor) ?? 0) ? otherFg : tabFg;
   const override = variant === "light" ? input.faviconColor : input.faviconColorDark;
   const fgColor = override || computedFg;
   // 테두리색 — 미지정이면 글자색으로 폴백(두께만 정해도 보이게). 두께 0 이면 빈 값.
@@ -244,7 +249,7 @@ export function resolveFavicon(input: FaviconRenderInput, variant: "light" | "da
   const logoText = firstGrapheme(input.logoText);
   const textShadow = resolveFaviconShadow(input.faviconTextShadow);
   const bgShadow = hasBg ? resolveFaviconShadow(input.faviconBgShadow) : null;
-  return { shape, hasBg, radius, bgX, bgY, bgW, bgH, borderWidth, borderColor, contentScale, bgColor, fgColor, fontFamily, fontWeight, fontSize, logoText, transform, textShadow, bgShadow };
+  return { shape, hasShape, hasBg, radius, bgX, bgY, bgW, bgH, borderWidth, borderColor, contentScale, bgColor, fgColor, fontFamily, fontWeight, fontSize, logoText, transform, textShadow, bgShadow };
 }
 
 /** 배경+테두리를 캔버스(0~32) 중심 기준 scale 배 축소하는 SVG group transform. scale≥1 이면 "". */

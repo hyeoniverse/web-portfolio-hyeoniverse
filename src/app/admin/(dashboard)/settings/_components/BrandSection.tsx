@@ -192,7 +192,7 @@ function ImageFaviconPreviewSvg({ src, tint, bg, render, imgShadow, imgBgShadow,
   const imgOff = (32 - imgSize) / 2;
   return (
     <svg className={styles.faviconPreview} viewBox="0 0 32 32" width="48" height="48" aria-hidden style={{ overflow: "visible" }}>
-      {(tint || imgShadow || (bg && imgBgShadow) || render.hasBg) && (
+      {(tint || imgShadow || (bg && imgBgShadow) || render.hasShape) && (
         <defs>
           {tint && (
             <filter id={tintId} x="0" y="0" width="100%" height="100%">
@@ -203,7 +203,7 @@ function ImageFaviconPreviewSvg({ src, tint, bg, render, imgShadow, imgBgShadow,
           {imgShadow && <FaviconFilter resolved={imgShadow} id={shadowId} />}
           {bg && imgBgShadow && <FaviconFilter resolved={imgBgShadow} id={bgShadowId} />}
           {/* 이미지도 모양·모서리대로 클리핑 — 슬라이더가 배경 없이도 보이고, 모서리 밖 삐져나옴 방지 */}
-          {render.hasBg && (
+          {render.hasShape && (
             <clipPath id={clipId}>
               <rect x={render.bgX} y={render.bgY} width={render.bgW} height={render.bgH} rx={render.radius} ry={render.radius} />
             </clipPath>
@@ -211,7 +211,7 @@ function ImageFaviconPreviewSvg({ src, tint, bg, render, imgShadow, imgBgShadow,
         </defs>
       )}
       <g transform={faviconContentTransform(render.contentScale) || undefined}>
-        {bg && render.hasBg && (
+        {bg && render.hasShape && (
           <rect
             x={render.bgX}
             y={render.bgY}
@@ -226,7 +226,7 @@ function ImageFaviconPreviewSvg({ src, tint, bg, render, imgShadow, imgBgShadow,
           />
         )}
         <g filter={imgShadow ? `url(#${shadowId})` : undefined}>
-          <g clipPath={render.hasBg ? `url(#${clipId})` : undefined}>
+          <g clipPath={render.hasShape ? `url(#${clipId})` : undefined}>
             <image href={src} x={imgOff} y={imgOff} width={imgSize} height={imgSize} preserveAspectRatio="xMidYMid meet" filter={tint ? `url(#${tintId})` : undefined} />
           </g>
         </g>
@@ -257,7 +257,7 @@ function FaviconPreviewSvg({ render, textShadowId, bgShadowId }: {
         </defs>
       )}
       <g transform={faviconContentTransform(render.contentScale) || undefined}>
-        {render.hasBg && (
+        {render.hasShape && (
           <rect
             x={render.bgX}
             y={render.bgY}
@@ -369,7 +369,7 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
           background: variant === "light" ? config.theme.lightBg : config.theme.darkBg,
           /* 받침 타일 모서리가 모양·모서리 슬라이더를 그대로 따라간다 — 배경색이 없어도
              슬라이더 반응이 눈에 보이게 (radius 16/32 = 50% = 원) */
-          borderRadius: render.hasBg ? `${(render.radius / 32) * 100}%` : undefined,
+          borderRadius: render.hasShape ? `${(render.radius / 32) * 100}%` : undefined,
         }}
       >
         <ImageFaviconPreviewSvg src={src} tint={tint} bg={bg} render={render} imgShadow={imgShadow} imgBgShadow={imgBgShadow} variant={variant} scale={imgScale} />
@@ -1034,10 +1034,11 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
                 <FieldRow label={t("admin.settings.faviconBg")}>
                   <ColorDuoRow
                     t={t}
-                    placeholder={t("admin.settings.faviconBgPlaceholder")}
+                    placeholder={t("admin.settings.faviconImageBgPlaceholder")}
                     light={{ picker: config.brand.faviconBgLight || config.brand.logoColorDark || "#f5f5f0", input: config.brand.faviconBgLight, onChange: (v) => update("brand", "faviconBgLight", v) }}
                     dark={{ picker: config.brand.faviconBgDark || config.brand.logoColor || "#0a0a0a", input: config.brand.faviconBgDark, onChange: (v) => update("brand", "faviconBgDark", v) }}
                     tools
+                    checkerWhenEmpty
                   />
                 </FieldRow>
                 {/* 배경 테두리 — 두께(px) + variant 색. 두께 0 이면 미표시 */}
