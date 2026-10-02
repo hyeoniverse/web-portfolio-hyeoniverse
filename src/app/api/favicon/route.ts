@@ -176,7 +176,7 @@ export async function GET(request: Request) {
       const imgOff = (32 - imgSize) / 2;
       let imageEl = `<image href="${dataUri}" x="${imgOff}" y="${imgOff}" width="${imgSize}" height="${imgSize}" preserveAspectRatio="xMidYMid meet"${logoTint ? ` filter="url(#${tintId})"` : ""} />`;
       // 이미지도 모양·모서리대로 클리핑 — 배경 모서리 밖으로 삐져나오지 않게 (미리보기와 동일)
-      if (imgRender.hasBg) {
+      if (imgRender.hasShape) {
         defsParts.push(`<clipPath id="favicon-img-clip-${variant}"><rect x="${imgRender.bgX}" y="${imgRender.bgY}" width="${imgRender.bgW}" height="${imgRender.bgH}" rx="${imgRender.radius}" ry="${imgRender.radius}" /></clipPath>`);
         imageEl = `<g clip-path="url(#favicon-img-clip-${variant})">${imageEl}</g>`;
       }
@@ -196,7 +196,7 @@ export async function GET(request: Request) {
   const imgBgRectAttrs = `x="${imgRender.bgX}" y="${imgRender.bgY}" width="${imgRender.bgW}" height="${imgRender.bgH}" rx="${imgRender.radius}" ry="${imgRender.radius}"`;
   const imgBorderAttrs = imgRender.borderWidth > 0 ? ` stroke="${esc(imgRender.borderColor)}" stroke-width="${imgRender.borderWidth}"` : "";
   let imgBgRect = "";
-  if (hasImage && imgBg && imgRender.hasBg) {
+  if (hasImage && imgRender.hasBg) {
     if (imgBgShadow) defsParts.push(faviconFilterString(imgBgShadow, imgBgShadowId));
     imgBgRect = `<rect ${imgBgRectAttrs} fill="${esc(imgBg)}"${imgBorderAttrs}${imgBgShadow ? ` filter="url(#${imgBgShadowId})"` : ""} />`;
   }
