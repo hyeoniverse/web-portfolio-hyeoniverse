@@ -11,7 +11,7 @@
 }
 
 .emptyTitle {
-  font-family: var(--font-family-body);
+  font-family: var(--font-family-heading);
   font-size: var(--font-size-title-sm);
   color: var(--text-secondary);
 }

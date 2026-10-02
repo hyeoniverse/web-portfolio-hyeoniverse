@@ -264,18 +264,18 @@
     "Pretendard Variable", -apple-system, BlinkMacSystemFont, system-ui,
     "Segoe UI", Roboto, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
     "Noto Color Emoji";
-  --font-family-heading: var(--font-family-body);
-  /* 장식 글자(히어로 · 공개 글 · 시리즈 · 작업물 제목) — 영문은 세리프, 한글은 Pretendard(D26). 설정의 제목 글꼴이 덮는다 */
+  --font-family-heading: var(--font-family-display);
+  /* 장식 글자(히어로 · 공개 글 · 시리즈 · 작업물 제목) — 영문 · 한글 모두 세리프(D27). 설정의 제목 글꼴이 덮는다 */
   --font-family-display: var(--font-instrument);
 
   /* ── 글자 묶음 — `font: var(--font-heading-md)` 로 쓴다(3.2-1) ─────
    * 굵기 · 크기/줄간격 · 글꼴. 한 값만 바꿀 때는 뒤에 덧쓴다. tabular-nums 같은 설정은 font 뒤에 적는다.
    * 제목 단계는 Apple 기준(34 · 28 · 22 · 20 · 18) — 본문 16 과 가장 작은 제목 18 이 구분된다. */
-  --font-heading-xl: var(--font-weight-semibold) var(--font-size-34) / var(--line-height-tight) var(--font-family-heading);
-  --font-heading-lg: var(--font-weight-semibold) var(--font-size-28) / var(--line-height-tight) var(--font-family-heading);
-  --font-heading-md: var(--font-weight-semibold) var(--font-size-22) / var(--line-height-tight) var(--font-family-heading);
-  --font-heading-sm: var(--font-weight-semibold) var(--font-size-20) / var(--line-height-tight) var(--font-family-heading);
-  --font-heading-xs: var(--font-weight-semibold) var(--font-size-18) / var(--line-height-tight) var(--font-family-heading);
+  --font-heading-xl: var(--font-weight-regular) var(--font-size-34) / var(--line-height-tight) var(--font-family-heading);
+  --font-heading-lg: var(--font-weight-regular) var(--font-size-28) / var(--line-height-tight) var(--font-family-heading);
+  --font-heading-md: var(--font-weight-regular) var(--font-size-22) / var(--line-height-tight) var(--font-family-heading);
+  --font-heading-sm: var(--font-weight-regular) var(--font-size-20) / var(--line-height-tight) var(--font-family-heading);
+  --font-heading-xs: var(--font-weight-regular) var(--font-size-18) / var(--line-height-tight) var(--font-family-heading);
   --font-body-lg: var(--font-weight-regular) var(--font-size-16) / var(--line-height-normal) var(--font-family-body);
 
   /* Line Heights */
