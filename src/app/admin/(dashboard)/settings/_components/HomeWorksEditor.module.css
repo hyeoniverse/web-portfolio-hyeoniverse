@@ -230,7 +230,7 @@
 }
 
 .coverBox:hover {
-  border-color: var(--color-accent);
+  border-color: var(--border-color-accent-strong);
 }
 
 /* 위치 조정 중 — 누르는 상자가 아니라 끄는 상자다. touch-action 을 끄지 않으면
@@ -239,7 +239,7 @@
    그림 자체의 draggable 은 JSX 에서 끈다(네이티브 드래그가 시작되면 포인터 이벤트가 끊긴다) */
 .coverBoxMoving {
   border-style: solid;
-  border-color: var(--color-accent);
+  border-color: var(--border-color-accent-strong);
   cursor: grab;
   touch-action: none;
   user-select: none;
@@ -370,7 +370,7 @@
   max-height: 90vh;
   border: var(--border-light);
   border-radius: var(--radius-24);
-  background: var(--color-neutral-0);
+  background: var(--bg-dialog);
 }
 
 .pickerPanel > * {

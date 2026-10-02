@@ -221,7 +221,7 @@
   padding: 0;
   border: var(--border-default);
   border-radius: var(--radius-circle);
-  background: var(--color-white-alpha-10);
+  background: var(--bg-glass);
   backdrop-filter: blur(8px);
   color: var(--text-primary);
   opacity: 0;
@@ -509,7 +509,7 @@
   bottom: 2px;
   border-radius: var(--radius-full);
   background: var(--bg-accent-solid);
-  box-shadow: 0 2px 8px var(--color-accent-alpha-30);
+  box-shadow: 0 2px 8px color-mix(in oklch, var(--bg-accent-solid) 30%, transparent);
   pointer-events: none;
 }
 
@@ -746,7 +746,7 @@
 }
 
 .thumbListItemActive .thumbListImg {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid var(--border-color-accent-strong);
   outline-offset: -2px;
 }
 
@@ -814,7 +814,7 @@
 
 .galleryItemActive {
   opacity: 1;
-  outline-color: var(--color-accent);
+  outline-color: var(--border-color-accent-strong);
 }
 
 .galleryImg {

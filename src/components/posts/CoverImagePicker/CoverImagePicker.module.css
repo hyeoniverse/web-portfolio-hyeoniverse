@@ -55,7 +55,7 @@
   width: 100vw;
   max-height: 90vh;
   margin: 0;
-  background: var(--color-neutral-0);
+  background: var(--bg-dialog);
   border: none;
   border-top: var(--border-light);
   border-radius: var(--radius-24) var(--radius-24) 0 0;

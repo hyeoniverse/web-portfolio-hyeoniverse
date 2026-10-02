@@ -37,9 +37,9 @@
      아래쪽 구간을 더 진하게 깔고 위로 가며 사라지게 한다. */
   background: linear-gradient(
     to top,
-    var(--color-gray-alpha-70) 0%,
-    var(--color-gray-alpha-70) 45%,
-    var(--color-gray-alpha-40) 75%,
+    color-mix(in oklch, var(--bg-black) 70%, transparent) 0%,
+    color-mix(in oklch, var(--bg-black) 70%, transparent) 45%,
+    color-mix(in oklch, var(--bg-black) 40%, transparent) 75%,
     transparent 100%
   );
 }
@@ -49,7 +49,7 @@
   font-size: calc(var(--font-size-subhead) * 0.85);
   font-weight: var(--font-weight-semibold);
   color: var(--text-white);
-  text-shadow: 0 1px 4px var(--color-gray-alpha-50);
+  text-shadow: 0 1px 4px color-mix(in oklch, var(--text-black) 50%, transparent);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -67,7 +67,7 @@
   font-size: calc(var(--font-size-prose) * 0.9);
   line-height: var(--_lh-reading);
   color: var(--text-white);
-  text-shadow: 0 1px 3px var(--color-gray-alpha-40);
+  text-shadow: 0 1px 3px color-mix(in oklch, var(--text-black) 40%, transparent);
 }
 
 .featureDfTech {
@@ -76,7 +76,7 @@
   color: var(--text-white-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  text-shadow: 0 1px 3px var(--color-gray-alpha-40);
+  text-shadow: 0 1px 3px color-mix(in oklch, var(--text-black) 40%, transparent);
 }
 
 /* Mobile fallback grid (hidden on desktop) */

@@ -234,11 +234,11 @@
 
 /* Hero 안의 sparkline 은 accent 톤으로 (다른 statCard sparkline 은 info 톤 유지) */
 .heroSparkWrap > svg > path:first-child {
-  fill: var(--color-accent-alpha-15);
+  fill: color-mix(in oklch, var(--bg-accent-solid) 15%, transparent);
 }
 
 .heroSparkWrap > svg > path:last-child {
-  stroke: var(--color-accent);
+  stroke: var(--text-accent);
   stroke-width: 1.75;
 }
 
@@ -328,7 +328,7 @@ a.statCard:hover .statValue {
   position: absolute;
   inset: 0 auto 0 0;
   height: 100%;
-  background: var(--color-accent);
+  background: var(--bg-accent-solid);
   border-radius: var(--radius-full);
   transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -339,15 +339,15 @@ a.statCard:hover .statValue {
 
 /* Fill 변형 */
 .barFillSoft {
-  background: var(--color-accent-alpha-50);
+  background: color-mix(in oklch, var(--bg-accent-solid) 50%, transparent);
 }
 
 /* 진한 쪽이 막대 끝(오른쪽) — 채워진 만큼의 "도달점"이 강조되게 */
 .barFillGradient {
   background: linear-gradient(
     90deg,
-    var(--color-accent-light),
-    var(--color-accent)
+    var(--bg-accent-solid-light),
+    var(--bg-accent-solid)
   );
 }
 
@@ -1004,7 +1004,7 @@ a.commentSource:hover {
 
 /* referrerRow hover 시 fill 강조 — bar atom 위에 작용 */
 .referrerRow:hover .barFill {
-  background: var(--color-accent-alpha-70);
+  background: color-mix(in oklch, var(--bg-accent-solid) 70%, transparent);
 }
 
 .referrerMeta {

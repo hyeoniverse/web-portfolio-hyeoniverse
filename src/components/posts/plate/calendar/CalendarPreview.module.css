@@ -107,7 +107,7 @@
   gap: var(--spacing-2);
   margin-left: var(--spacing-4);
   padding: var(--badge-padding-md);
-  background: var(--color-accent-alpha-10);
+  background: color-mix(in oklch, var(--bg-accent-solid) 10%, transparent);
   color: var(--text-accent);
   border-radius: var(--radius-full);
   font-size: var(--font-size-hint);

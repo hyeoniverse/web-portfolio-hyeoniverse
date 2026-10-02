@@ -313,11 +313,11 @@
   color: var(--text-secondary);
 }
 
-.dbMethodGET { --_method: oklch(62.71% 0.1699 149.21); }
-.dbMethodPOST { --_method: oklch(62.31% 0.1880 259.81); }
-.dbMethodPATCH { --_method: oklch(76.86% 0.1647 70.08); }
-.dbMethodPUT { --_method: oklch(60% 0.15 300); }
-.dbMethodDELETE { --_method: var(--color-error); }
+.dbMethodGET { --_method: var(--http-method-get); }
+.dbMethodPOST { --_method: var(--http-method-post); }
+.dbMethodPATCH { --_method: var(--http-method-patch); }
+.dbMethodPUT { --_method: var(--http-method-put); }
+.dbMethodDELETE { --_method: var(--text-error); }
 
 .dbMethodGET,
 .dbMethodPOST,
@@ -459,11 +459,11 @@
 
 /* 메서드 색 — 배지(.dbMethod*)와 같은 색 */
 .apiStage {
-  --_get: oklch(62.71% 0.1699 149.21);
-  --_post: oklch(62.31% 0.1880 259.81);
-  --_patch: oklch(76.86% 0.1647 70.08);
-  --_put: oklch(60% 0.15 300);
-  --_delete: var(--color-error);
+  --_get: var(--http-method-get);
+  --_post: var(--http-method-post);
+  --_patch: var(--http-method-patch);
+  --_put: var(--http-method-put);
+  --_delete: var(--text-error);
 }
 
 .apiStage [data-method="GET"] { --_c: var(--_get); }

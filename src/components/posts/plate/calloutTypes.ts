@@ -11,11 +11,11 @@ export interface CalloutTypeDef {
 }
 
 export const CALLOUT_TYPES: CalloutTypeDef[] = [
-  { type: "note", icon: "ℹ️", bg: "var(--color-info-soft)" },
-  { type: "tip", icon: "💡", bg: "var(--color-success-soft)" },
-  { type: "important", icon: "❗", bg: "color-mix(in srgb, var(--color-accent) 12%, transparent)" },
-  { type: "warning", icon: "⚠️", bg: "var(--color-warning-soft)" },
-  { type: "caution", icon: "🛑", bg: "var(--color-error-soft)" },
+  { type: "note", icon: "ℹ️", bg: "var(--bg-info-soft)" },
+  { type: "tip", icon: "💡", bg: "var(--bg-success-soft)" },
+  { type: "important", icon: "❗", bg: "color-mix(in srgb, var(--bg-accent-solid) 12%, transparent)" },
+  { type: "warning", icon: "⚠️", bg: "var(--bg-warning-soft)" },
+  { type: "caution", icon: "🛑", bg: "var(--bg-error-soft)" },
 ];
 
 export const CALLOUT_BY_TYPE = Object.fromEntries(

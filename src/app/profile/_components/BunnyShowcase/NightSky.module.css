@@ -67,7 +67,7 @@
   height: 100%;
   border-radius: var(--radius-circle);
   /* 밝은 테마에서는 흰 별이 배경에 묻힌다 — 어둡게 뒤집는다 */
-  background: light-dark(var(--color-neutral-700), var(--text-primary));
+  background: var(--night-sky-star);
   opacity: 0.35;
   animation-name: twinkle;
   animation-iteration-count: infinite;
@@ -88,12 +88,12 @@
   border-radius: var(--radius-circle);
   background: radial-gradient(
     circle at 32% 30%,
-    var(--color-white-alpha-100) 0%,
-    var(--color-neutral-100) 55%,
-    var(--color-neutral-300) 100%
+    var(--bg-white) 0%,
+    var(--bg-secondary) 55%,
+    var(--night-sky-moon-edge) 100%
   );
   /* 달에 바싹 붙는 흰 테. 넓게 퍼지는 분홍 무리는 .moonGlow 가 따로 그린다. */
-  box-shadow: 0 0 40px 8px var(--color-white-alpha-30);
+  box-shadow: 0 0 40px 8px color-mix(in oklch, var(--border-color-white) 30%, transparent);
   animation: moonFloat 14s ease-in-out infinite;
 }
 
@@ -110,7 +110,7 @@
   height: 300%;
   translate: -50% -50%;
   border-radius: var(--radius-circle);
-  background: radial-gradient(closest-side, var(--color-accent-alpha-10) 0%, transparent 100%);
+  background: radial-gradient(closest-side, var(--bg-accent-light) 0%, transparent 100%);
   animation: moonFloat 14s ease-in-out infinite;
   pointer-events: none;
 }
@@ -119,7 +119,7 @@
 .crater {
   position: absolute;
   border-radius: var(--radius-circle);
-  background: var(--color-neutral-300);
+  background: var(--night-sky-moon-edge);
   opacity: 0.45;
 }
 
@@ -157,7 +157,7 @@
  */
 .cloud {
   /* 몸통 덩어리 색 — 다크는 밝은 흰빛, 라이트는 중간 회색(밝은 배경에 흰 구름이 묻히지 않게). */
-  --_cloud-blob: light-dark(var(--color-neutral-400), var(--color-white-alpha-90));
+  --_cloud-blob: var(--night-sky-cloud);
 
   position: absolute;
   /* 세 덩어리가 가장자리에서 투명으로 옅어진다 — 마스크 옆 봉우리가 solid 로 안 차서
@@ -242,7 +242,7 @@
   width: 180px;
   height: 1px;
   /* 라이트에서는 꼬리 없이 진한 단색 선 — 흰 빛줄기가 밝은 배경에 묻히지 않게 */
-  background: linear-gradient(90deg, light-dark(var(--color-neutral-700), transparent), light-dark(var(--color-neutral-700), var(--text-primary)));
+  background: linear-gradient(90deg, var(--night-sky-streak-tail), var(--night-sky-star));
   opacity: 0;
   animation-name: shoot;
   animation-timing-function: cubic-bezier(0.3, 0, 0.2, 1);

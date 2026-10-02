@@ -8,7 +8,7 @@
   min-height: 100vh;
   /* 항상 어두운 fallback — 지정된 bg 영상(introVideoUrl)이 없거나 깨져도 좌측 흰 텍스트 대비 확보.
      영상이 정상 로드되면 그 위(opacity 0.85)로 덮여 거의 영향 없음. (테마 무관 black) */
-  background: var(--color-gray-alpha-100);
+  background: var(--bg-black);
 }
 
 /* 전체 화면 video 배경 — 좌측: 선명, 우측: backdrop-filter blur 로 흐림 */
@@ -50,7 +50,7 @@
   line-height: 0.8;
   letter-spacing: -0.06em;
   color: transparent;
-  -webkit-text-stroke: 1px var(--color-white-alpha-40);
+  -webkit-text-stroke: 1px color-mix(in oklch, var(--text-white) 40%, transparent);
   margin-bottom: var(--spacing-24);
   transition: all 0.5s ease;
 }
@@ -105,7 +105,7 @@
 
 .tech span {
   padding: var(--spacing-2) var(--spacing-12);
-  border: 1px solid var(--color-white-alpha-30);
+  border: 1px solid color-mix(in oklch, var(--border-color-white) 30%, transparent);
   border-radius: var(--radius-full);
   font-family: var(--font-mono);
   font-size: var(--font-size-label);
@@ -268,7 +268,7 @@
   overflow: hidden;
   cursor: pointer;
   /* 이미지 없거나 깨져도 뒤 블러 영상이 비치지 않게 어두운 fallback (정상 이미지가 덮음) */
-  background: var(--color-gray-alpha-100);
+  background: var(--bg-black);
 }
 
 /* 우측 카드 우하단 다크 vignette — year 텍스트 backdrop. radial 로 자연스럽게 fade */
@@ -278,8 +278,8 @@
   inset: 0;
   background: radial-gradient(
     ellipse 60% 50% at 100% 100%,
-    oklch(0% 0 0 / 0.55) 0%,
-    oklch(0% 0 0 / 0.2) 50%,
+    color-mix(in oklch, var(--bg-black) 55%, transparent) 0%,
+    color-mix(in oklch, var(--bg-black) 20%, transparent) 50%,
     transparent 80%
   );
   z-index: 0;
@@ -321,11 +321,11 @@
   /* 중앙 제목 대비 — 밝은 이미지·gradient fallback 위에서도 읽히게 radial 스크림 + text-shadow */
   background: radial-gradient(
     ellipse 78% 52% at 50% 50%,
-    var(--color-gray-alpha-50) 0%,
-    var(--color-gray-alpha-25) 46%,
+    var(--bg-overlay) 0%,
+    color-mix(in oklch, var(--bg-black) 25%, transparent) 46%,
     transparent 72%
   );
-  text-shadow: 0 2px 24px var(--color-gray-alpha-60);
+  text-shadow: 0 2px 24px color-mix(in oklch, var(--text-black) 60%, transparent);
 }
 
 /* 제목 글자 — 두 줄까지 쓰고, 길수록 작아지고, 그래도 안 들어가면 둘째 줄에서 자른다.
@@ -360,7 +360,7 @@
   font-weight: 200;
   line-height: 0.9;
   color: transparent;
-  -webkit-text-stroke: 1px var(--color-white-alpha-40);
+  -webkit-text-stroke: 1px color-mix(in oklch, var(--text-white) 40%, transparent);
 }
 
 /* ── Mobile meta overlay (hidden on desktop) ── */
@@ -435,9 +435,9 @@
     z-index: 1;
     background: linear-gradient(
       to top,
-      var(--color-gray-alpha-80) 0%,
+      color-mix(in oklch, var(--bg-black) 80%, transparent) 0%,
       transparent 50%,
-      var(--color-gray-alpha-40) 100%
+      color-mix(in oklch, var(--bg-black) 40%, transparent) 100%
     );
     pointer-events: none;
   }
@@ -453,7 +453,7 @@
     z-index: 2;
     padding: var(--spacing-32);
     color: var(--text-white);
-    text-shadow: 0 1px 6px var(--color-gray-alpha-50);
+    text-shadow: 0 1px 6px color-mix(in oklch, var(--text-black) 50%, transparent);
   }
 
   .imageMetaNumber {

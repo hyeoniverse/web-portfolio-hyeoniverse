@@ -103,4 +103,87 @@
   --code-syntax-regexp: light-dark(oklch(55.00% 0.1557 263.15), oklch(70.53% 0.1170 245.09));
   --code-syntax-deletion: light-dark(oklch(60.05% 0.1983 26.06), oklch(65.39% 0.1926 25.14));
   --code-syntax-addition: light-dark(oklch(61.22% 0.1023 199.06), oklch(83.44% 0.1534 127.38));
+
+  /* 캘린더 라벨 — 테마와 상관없이 같은 색(글자는 늘 흰색 위). 이벤트에는 키(red …)가 저장된다 */
+  --calendar-label-red: var(--color-red-600);
+  --calendar-label-orange: var(--color-orange-500);
+  --calendar-label-yellow: var(--color-yellow-300);
+  --calendar-label-green: var(--color-green-600);
+  --calendar-label-blue: var(--color-blue-700);
+  --calendar-label-indigo: var(--color-indigo-700);
+  --calendar-label-violet: var(--color-violet-700);
+
+  /* 커서 꼬리 */
+  --cursor-trail-color: light-dark(var(--color-blue-600), var(--color-blue-400));
+
+  /* 밤하늘 장식(profile) — 다크는 흰 별 · 흰 구름, 라이트는 배경에 묻히지 않게 회색으로 뒤집는다 */
+  --night-sky-star: light-dark(var(--color-neutral-700), var(--text-primary));
+  --night-sky-streak-tail: light-dark(var(--color-neutral-700), transparent);
+  --night-sky-cloud: light-dark(var(--color-neutral-400), color-mix(in oklch, var(--color-white) 90%, transparent));
+  --night-sky-moon-edge: light-dark(var(--color-neutral-300), var(--color-neutral-700));
+
+  /* 에디터 글자색 · 형광펜 — 글에 이름이 저장된다(blockStyleData.ts). 테마와 상관없이 같은 색 */
+  --editor-text-red: var(--color-red-500);
+  --editor-text-orange: var(--color-orange-500);
+  --editor-text-green: var(--color-green-500);
+  --editor-text-blue: var(--color-blue-500);
+  --editor-text-purple: var(--color-violet-500);
+  --editor-highlight-red: var(--color-red-200);
+  --editor-highlight-orange: var(--color-orange-200);
+  --editor-highlight-green: var(--color-green-200);
+  --editor-highlight-blue: var(--color-blue-200);
+  --editor-highlight-purple: var(--color-violet-200);
+
+  /* ── 그림 색 — 팔레트 밖의 일러스트 · 장식 색. 테마를 따르는 UI 색이 아니라 그림의 일부라 값을 그대로 둔다 ── */
+
+  /* 코드 블록 창 머리의 신호등 점(macOS 창 단추 색) — 리더 _hljs.css · 에디터 EditorCode 가 같이 쓴다 */
+  --code-window-dot-red: #ff5f56;
+  --code-window-dot-red-edge: #e0443e;
+  --code-window-dot-yellow: #ffbd2e;
+  --code-window-dot-yellow-edge: #dea123;
+  --code-window-dot-green: #27c93f;
+  --code-window-dot-green-edge: #1aab29;
+
+  /* About 백엔드 패널의 HTTP 메서드 색 */
+  --http-method-get: var(--color-green-600);
+  --http-method-post: var(--color-blue-600);
+  --http-method-patch: oklch(76.86% 0.1647 70.08);
+  --http-method-put: oklch(60% 0.15 300);
+
+  /* Works 빈 화면 — 밝은 테마는 이른 봄 종이색과 꽃잎, 어두운 테마는 플라네타리움 돔과 은하수 */
+  --works-day-1: rgb(255 251 246);
+  --works-day-2: rgb(250 240 234);
+  --works-day-3: rgb(240 231 228);
+  --works-dome-1: rgb(20 18 32);
+  --works-dome-2: rgb(10 9 18);
+  --works-dome-3: rgb(5 4 9);
+  --works-dome-nebula-plum: rgb(52 30 62 / 55%);
+  --works-dome-nebula-blue: rgb(24 40 62 / 50%);
+  --works-petal-cool: rgb(247 200 214);
+  --works-petal-warm: rgb(250 216 188);
+  --works-sky-band-core: rgb(226 214 226 / 20%);
+  --works-sky-band-mid: rgb(186 172 198 / 9%);
+  --works-sky-band-edge: rgb(186 172 198 / 0%);
+  --works-sky-core: rgb(246 238 232 / 26%);
+  --works-sky-star: rgb(255 252 247);
+  --works-sky-line: rgb(214 202 226 / 45%);
+  --works-intro-petal: rgb(244 168 190 / 85%); /* 원통 배치 인트로의 꽃잎(밝은 테마) */
+  --works-cylinder-stage: light-dark(oklch(97.34% 0.0169 76.11), var(--color-black)); /* 3D 원통 뒤 무대 — 다크는 순수 검정 */
+
+  /* 늘 어두운 면 */
+  --nav-menu-bg: oklch(21.71% 0.0096 97.8); /* 모바일 메뉴 드로어 */
+  --about-design-panel-bg: oklch(14.48% 0 0); /* About 디자인 시스템 패널의 모바일 배경 */
+
+  /* 컬러 피커가 그리는 색 공간 — 고를 수 있는 색 자체라 팔레트와 상관없다 */
+  --picker-hue-default: oklch(62.8% 0.2577 29.23);
+  --picker-oklch-hue-default: oklch(70% 0.2 30);
+  --picker-gray: oklch(50% 0 0);
+  --picker-checker: #ccc; /* 투명도 체크무늬 */
+  --picker-hue-stops-hsl:
+    hsl(0, 100%, 50%) 0%, hsl(60, 100%, 50%) 16.67%, hsl(120, 100%, 50%) 33.33%, hsl(180, 100%, 50%) 50%,
+    hsl(240, 100%, 50%) 66.67%, hsl(300, 100%, 50%) 83.33%, hsl(360, 100%, 50%) 100%;
+  --picker-hue-stops-oklch:
+    oklch(62.8% 0.2577 29.23) 0%, oklch(96.8% 0.211 109.77) 17%, oklch(86.64% 0.2948 142.5) 33%,
+    oklch(90.54% 0.1546 194.77) 50%, oklch(45.2% 0.3132 264.05) 67%, oklch(70.17% 0.3225 328.36) 83%,
+    oklch(62.8% 0.2577 29.23) 100%;
 }

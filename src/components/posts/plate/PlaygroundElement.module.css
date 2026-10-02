@@ -10,7 +10,7 @@
   width: 100%;
   min-height: 0;
   border: none;
-  background: #fff;
+  background: var(--bg-white);
   /* 전역 .editorContent iframe(margin·radius) 무효화 */
   margin: 0 !important;
   border-radius: 0 !important;

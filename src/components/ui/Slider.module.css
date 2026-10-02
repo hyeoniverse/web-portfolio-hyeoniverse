@@ -46,10 +46,10 @@
 }
 
 .root .thumb:hover {
-  box-shadow: 0 0 0 4px var(--color-neutral-alpha-10);
+  box-shadow: 0 0 0 4px color-mix(in oklch, var(--text-contrast) 10%, transparent);
 }
 
 .root .thumb:focus-visible {
-  box-shadow: 0 0 0 4px var(--color-neutral-alpha-20);
+  box-shadow: 0 0 0 4px color-mix(in oklch, var(--text-contrast) 20%, transparent);
 }
 }

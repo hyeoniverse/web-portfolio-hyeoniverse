@@ -122,7 +122,7 @@ export function FileElement(props: PlateElementProps) {
           }}>
             <div style={{
               width: 32, height: 32, borderRadius: "50%",
-              background: "var(--color-neutral-alpha-5)",
+              background: "color-mix(in oklch, var(--text-contrast) 5%, transparent)",
               display: "flex", alignItems: "center", justifyContent: "center",
               flexShrink: 0, color: "var(--text-secondary)",
             }}>

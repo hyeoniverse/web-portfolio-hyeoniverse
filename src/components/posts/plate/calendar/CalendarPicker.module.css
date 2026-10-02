@@ -30,7 +30,7 @@
   transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
 }
 
-.pickerNew:hover { color: var(--text-accent); border-color: var(--color-accent); background: var(--bg-accent); }
+.pickerNew:hover { color: var(--text-accent); border-color: var(--border-color-accent-strong); background: var(--bg-accent); }
 
 .pickerManage {
   display: inline-flex;
@@ -81,7 +81,7 @@
 
 .pickerItem:hover { background: var(--bg-secondary); }
 
-.pickerItemOn { background: var(--bg-accent); border-color: var(--color-accent); }
+.pickerItemOn { background: var(--bg-accent); border-color: var(--border-color-accent-strong); }
 
 .pickerItemOn:hover { background: var(--bg-accent); }
 
@@ -107,7 +107,7 @@
 .pickerItemYear { font-size: var(--font-size-micro); color: var(--text-tertiary); font-variant-numeric: tabular-nums; }
 
 /* 선택된 행 — 뱃지를 accent 로 채워 tint 위 회색 뱃지가 탁해지는 문제 해결 */
-.pickerItemOn .pickerItemDate { background: var(--color-accent); color: var(--text-on-accent); }
+.pickerItemOn .pickerItemDate { background: var(--bg-accent-solid); color: var(--text-on-accent); }
 
 .pickerItemOn .pickerItemMon,
 .pickerItemOn .pickerItemYear { color: var(--text-white); }
@@ -165,7 +165,7 @@
   padding: 0 var(--spacing-12);
   border: none;
   border-radius: var(--radius-full);
-  background: var(--color-accent);
+  background: var(--bg-accent-solid);
   color: var(--text-on-accent);
   font-size: var(--font-size-hint);
   cursor: pointer;

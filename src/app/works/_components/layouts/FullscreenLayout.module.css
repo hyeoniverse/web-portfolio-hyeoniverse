@@ -37,7 +37,7 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle, transparent 20%, var(--color-gray-alpha-50) 100%);
+  background: radial-gradient(circle, transparent 20%, var(--bg-overlay) 100%);
   z-index: 1;
   pointer-events: none;
 }
@@ -136,8 +136,8 @@
   width: 6px;
   height: 6px;
   border-radius: var(--radius-circle);
-  background: var(--color-accent);
-  box-shadow: 0 0 12px var(--color-accent);
+  background: var(--bg-accent-solid);
+  box-shadow: 0 0 12px var(--border-color-accent-strong);
   animation: introDotPulse 2.4s ease-in-out infinite;
 }
 
@@ -320,7 +320,7 @@
 }
 
 .section:hover .title {
-  text-shadow: 0 0 60px var(--color-white-alpha-20);
+  text-shadow: 0 0 60px color-mix(in oklch, var(--text-white) 20%, transparent);
 }
 
 /* ── Subtitle ── */
@@ -383,7 +383,7 @@
   line-height: 0.8;
   letter-spacing: -0.06em;
   color: transparent;
-  -webkit-text-stroke: 1px var(--color-white-alpha-5);
+  -webkit-text-stroke: 1px color-mix(in oklch, var(--text-white) 5%, transparent);
   pointer-events: none;
 }
 

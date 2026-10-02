@@ -73,9 +73,9 @@ function CalendarHeatmap({
   // 최고 단계도 원색 대신 80% — 원색 전면 칠은 달력에서 혼자 너무 쨍하다.
   const LEVEL_COLORS = [
     "var(--bg-primary)",
-    "color-mix(in srgb, var(--color-accent) 22%, var(--bg-primary))",
-    "color-mix(in srgb, var(--color-accent) 50%, var(--bg-primary))",
-    "color-mix(in srgb, var(--color-accent) 80%, var(--bg-primary))",
+    "color-mix(in srgb, var(--bg-accent-solid) 22%, var(--bg-primary))",
+    "color-mix(in srgb, var(--bg-accent-solid) 50%, var(--bg-primary))",
+    "color-mix(in srgb, var(--bg-accent-solid) 80%, var(--bg-primary))",
   ] as const;
 
   /* 오늘 표시용 — 데이터가 KST 날짜 문자열이므로 오늘도 KST 로 만든다 */

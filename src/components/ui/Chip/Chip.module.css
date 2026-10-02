@@ -39,7 +39,7 @@
   top: 0;
   bottom: 0;
   width: 2px;
-  background: var(--color-accent);
+  background: var(--bg-accent-solid);
   border-radius: 1px;
   pointer-events: none;
 }
@@ -149,14 +149,14 @@
 .capsule.active {
   background: var(--bg-tertiary);
   color: var(--text-primary);
-  outline: 1px solid var(--color-accent);
+  outline: 1px solid var(--border-color-accent-strong);
   outline-offset: -1px;
 }
 
 .bare.active {
   color: var(--text-accent) !important;
   text-decoration: underline;
-  text-decoration-color: var(--color-accent);
+  text-decoration-color: var(--text-accent);
   text-underline-offset: 3px;
 }
 

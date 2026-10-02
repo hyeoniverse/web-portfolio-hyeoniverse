@@ -42,7 +42,7 @@
   box-shadow: var(--shadow-md);
 }
 .nodeOn {
-  border-color: var(--color-accent);
+  border-color: var(--border-color-accent-strong);
   box-shadow: 0 0 0 3px var(--bg-accent-subtle), var(--shadow-md);
 }
 .nodeRel {
@@ -261,7 +261,7 @@
   stroke-width: 1.4;
 }
 .edgeOn :global(.react-flow__edge-path) {
-  stroke: var(--color-accent);
+  stroke: var(--text-accent);
   stroke-width: 2.2;
 }
 .edgeDim {

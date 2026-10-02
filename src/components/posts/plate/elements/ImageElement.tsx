@@ -159,7 +159,7 @@ export function ImageElement(props: PlateElementProps) {
 
   const handleStyle: React.CSSProperties = {
     position: "absolute",
-    background: "var(--color-accent, #3b82f6)",
+    background: "var(--bg-accent-solid)",
     borderRadius: "var(--radius-full)",
     zIndex: 2,
   };
@@ -363,7 +363,7 @@ export function ImageElement(props: PlateElementProps) {
                     aspectRatio: lockAspect && imgWidth > 0 && imgHeight > 0 ? `${imgWidth} / ${imgHeight}` : undefined,
                     maxWidth: "100%",
                     display: "block",
-                    outline: isActive && !isDragging ? "2px solid var(--color-accent, #3b82f6)" : undefined,
+                    outline: isActive && !isDragging ? "2px solid var(--border-color-accent-strong)" : undefined,
                     filter: imgFilter || undefined,
                     cursor: "grab",
                   }}
@@ -436,7 +436,7 @@ export function ImageElement(props: PlateElementProps) {
                     aspectRatio: lockAspect && imgWidth > 0 && imgHeight > 0 ? `${imgWidth} / ${imgHeight}` : undefined,
                     maxWidth: "100%",
                     display: "block",
-                    outline: isActive && !isDragging ? "2px solid var(--color-accent, #3b82f6)" : undefined,
+                    outline: isActive && !isDragging ? "2px solid var(--border-color-accent-strong)" : undefined,
                     filter: imgFilter || undefined,
                     cursor: "grab",
                   }}

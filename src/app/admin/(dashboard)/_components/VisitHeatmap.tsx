@@ -15,10 +15,10 @@ import Tooltip from "@/components/ui/Tooltip";
    최고 단계도 원색 대신 86% — 원색 전면 칠은 달력 히트맵과 같은 이유로 피한다 */
 const LEVEL_COLORS = [
   "color-mix(in srgb, var(--text-primary) 5%, var(--bg-primary))",
-  "color-mix(in srgb, var(--color-accent) 20%, var(--bg-primary))",
-  "color-mix(in srgb, var(--color-accent) 42%, var(--bg-primary))",
-  "color-mix(in srgb, var(--color-accent) 64%, var(--bg-primary))",
-  "color-mix(in srgb, var(--color-accent) 86%, var(--bg-primary))",
+  "color-mix(in srgb, var(--bg-accent-solid) 20%, var(--bg-primary))",
+  "color-mix(in srgb, var(--bg-accent-solid) 42%, var(--bg-primary))",
+  "color-mix(in srgb, var(--bg-accent-solid) 64%, var(--bg-primary))",
+  "color-mix(in srgb, var(--bg-accent-solid) 86%, var(--bg-primary))",
 ] as const;
 
 function levelFor(count: number, max: number): 0 | 1 | 2 | 3 | 4 {

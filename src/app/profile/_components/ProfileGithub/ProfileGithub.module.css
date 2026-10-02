@@ -3,11 +3,11 @@
 .section {
   /* 언어 막대 색 — accent 를 기준으로 투명도만 낮춰 계단을 만든다.
      언어마다 브랜드 색을 쓰면 팔레트가 사이트와 따로 논다. */
-  --_lang-0: var(--color-accent);
-  --_lang-1: var(--color-accent-alpha-70);
-  --_lang-2: var(--color-accent-alpha-50);
-  --_lang-3: var(--color-accent-alpha-30);
-  --_lang-4: var(--color-accent-alpha-10);
+  --_lang-0: var(--bg-accent-solid);
+  --_lang-1: color-mix(in oklch, var(--bg-accent-solid) 70%, transparent);
+  --_lang-2: color-mix(in oklch, var(--bg-accent-solid) 50%, transparent);
+  --_lang-3: color-mix(in oklch, var(--bg-accent-solid) 30%, transparent);
+  --_lang-4: color-mix(in oklch, var(--bg-accent-solid) 10%, transparent);
 
   display: flex;
   flex-direction: column;
@@ -185,7 +185,7 @@
   background: linear-gradient(
     100deg,
     transparent 40%,
-    var(--color-white-alpha-50) 50%,
+    color-mix(in oklch, var(--bg-white) 50%, transparent) 50%,
     transparent 60%
   );
   transform: translateX(-100%);
@@ -330,10 +330,10 @@
   to   { opacity: 1; transform: scale(1); }
 }
 
-.grassDay[data-level="1"] { background: var(--color-accent-alpha-30); }
-.grassDay[data-level="2"] { background: var(--color-accent-alpha-50); }
-.grassDay[data-level="3"] { background: var(--color-accent-alpha-70); }
-.grassDay[data-level="4"] { background: var(--color-accent); }
+.grassDay[data-level="1"] { background: var(--bg-accent-strong); }
+.grassDay[data-level="2"] { background: color-mix(in oklch, var(--bg-accent-solid) 50%, transparent); }
+.grassDay[data-level="3"] { background: color-mix(in oklch, var(--bg-accent-solid) 70%, transparent); }
+.grassDay[data-level="4"] { background: var(--bg-accent-solid); }
 
 /* ── 연도별 활동 (잔디 대체) ── */
 .activity {
@@ -358,7 +358,7 @@
   width: 100%;
   min-height: 2px;
   border-radius: var(--radius-24) var(--radius-24) 0 0;
-  background: var(--color-accent-alpha-50);
+  background: color-mix(in oklch, var(--bg-accent-solid) 50%, transparent);
   transform: scaleY(0);
   transform-origin: bottom center;
 }
@@ -372,7 +372,7 @@
 }
 
 .activityCol:hover .activityBar {
-  background: var(--color-accent);
+  background: var(--bg-accent-solid);
 }
 
 @keyframes barGrow {
@@ -435,7 +435,7 @@
 
 .repo::after {
   height: 2px;
-  background: var(--color-accent);
+  background: var(--bg-accent-solid);
   transform: scaleX(0);
 }
 
@@ -600,7 +600,7 @@
 /* 언어는 이름, 그 옆은 숫자다 — 점을 붙여 성격이 다르다는 걸 표시한다(GitHub 관습) */
 .repoLang {
   /* 컴포넌트가 언어 순위에 맞는 슬롯을 인라인으로 덮어쓴다. 목록에 없는 언어는 이 값. */
-  --_dot: var(--color-accent);
+  --_dot: var(--bg-accent-solid);
 
   gap: var(--spacing-4);
   color: var(--text-secondary);

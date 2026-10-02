@@ -335,7 +335,7 @@ export function ImagePanel({
               title={isDetached ? t("editor.mediaReinsertHint") : fileName}
               style={{
                 opacity: isDragging ? 0.4 : 1,
-                outline: isOver ? "2px solid var(--color-accent)" : undefined,
+                outline: isOver ? "2px solid var(--border-color-accent-strong)" : undefined,
                 outlineOffset: isOver ? -2 : undefined,
               }}
             >

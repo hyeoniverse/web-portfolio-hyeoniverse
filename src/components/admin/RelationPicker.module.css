@@ -24,7 +24,7 @@
 }
 
 .inputArea.inputAreaOpen {
-  border-color: var(--color-accent);
+  border-color: var(--border-color-accent-strong);
 }
 
 /* 테두리까지 합쳐 다른 입력칸(--control-height-md)과 같은 높이 */

@@ -43,10 +43,10 @@ const renderFindLeaf = (props: import("platejs").RenderLeafProps) => {
   if (leaf.findHighlight) {
     const isCurrent = leaf.findCurrent;
     return <span {...attributes} style={{
-      backgroundColor: isCurrent ? "var(--color-info, #3b82f6)" : "var(--color-neutral-alpha-10)",
+      backgroundColor: isCurrent ? "var(--bg-info-solid)" : "var(--bg-tertiary-alt)",
       borderRadius: 2,
       color: isCurrent ? "#fff" : undefined,
-      outline: isCurrent ? undefined : "1px solid var(--color-neutral-alpha-20)",
+      outline: isCurrent ? undefined : "1px solid color-mix(in oklch, var(--text-contrast) 20%, transparent)",
     }}>{children}</span>;
   }
   return <span {...attributes}>{children}</span>;

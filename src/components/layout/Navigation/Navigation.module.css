@@ -777,7 +777,7 @@
   will-change: clip-path;
   /* 드로어 배경 — backdrop 뿐 아니라 sticky 헤더/푸터도 같은 색을 깔아야
      스크롤되는 링크가 그 뒤로 비쳐 보이지 않는다. 그래서 상위로 올렸다. */
-  --_menu-bg: oklch(21.71% 0.0096 97.80);
+  --_menu-bg: var(--nav-menu-bg);
 }
 
 .menuClipOpen.menuClipOpen {
@@ -923,12 +923,12 @@
    Mid: accent-light (밝은 핑크)
    Front: accent (선명한 hot pink) */
 .menuFooterEmailFillBack {
-  color: var(--color-accent-light);
+  color: var(--bg-accent-solid-light);
   filter: brightness(1.25) hue-rotate(20deg);
   text-shadow: 0 -1px 2px oklch(100.00% 0.0000 0.00 / 0.6);
 }
 .menuFooterEmailFillMid {
-  color: var(--color-accent-light);
+  color: var(--bg-accent-solid-light);
   filter: brightness(1.05);
 }
 .menuFooterEmailFillFront {
@@ -1035,7 +1035,7 @@
   font-family: var(--font-instrument), serif;
   font-style: italic;
   font-weight: var(--font-weight-regular);
-  -webkit-text-stroke: 1px var(--color-white-alpha-100);
+  -webkit-text-stroke: 1px var(--text-white);
   color: transparent;
 }
 

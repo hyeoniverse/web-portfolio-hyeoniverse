@@ -85,7 +85,7 @@ function UserFlowPanel({
             <div className={styles.ufFlowLegend}>
               <div className={styles.ufLegendItem}>
                 <svg width="28" height="16" viewBox="0 0 28 16">
-                  <rect x="1" y="1" width="26" height="14" rx="7" fill="none" stroke="var(--color-accent)" strokeWidth="1.5" />
+                  <rect x="1" y="1" width="26" height="14" rx="7" fill="none" stroke="var(--text-accent)" strokeWidth="1.5" />
                 </svg>
                 <span><T k="aboutPage.userFlow.startEnd" /></span>
               </div>
@@ -97,7 +97,7 @@ function UserFlowPanel({
               </div>
               <div className={styles.ufLegendItem}>
                 <svg width="22" height="16" viewBox="0 0 22 16">
-                  <polygon points="11,0 22,8 11,16 0,8" fill="none" stroke="var(--color-accent)" strokeWidth="1.5" />
+                  <polygon points="11,0 22,8 11,16 0,8" fill="none" stroke="var(--text-accent)" strokeWidth="1.5" />
                 </svg>
                 <span><T k="aboutPage.userFlow.decision" /></span>
               </div>

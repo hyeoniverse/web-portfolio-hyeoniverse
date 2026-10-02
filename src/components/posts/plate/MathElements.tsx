@@ -225,7 +225,7 @@ function MathFloatingEdit({
         <div style={{ display: "flex", alignItems: "center", gap: 4, marginBottom: 4 }}>
           {texError ? (
             <span style={{
-              fontSize: 11, fontFamily: "var(--font-mono)", color: "var(--color-error, #e05252)",
+              fontSize: 11, fontFamily: "var(--font-mono)", color: "var(--text-error)",
               lineHeight: 1.3, overflow: "hidden", textOverflow: "ellipsis",
               whiteSpace: "nowrap", flex: 1, minWidth: 0,
             }}>

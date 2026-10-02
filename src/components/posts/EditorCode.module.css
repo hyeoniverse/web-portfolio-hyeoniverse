@@ -333,9 +333,9 @@
   width: 52px;
   height: 12px;
   background:
-    radial-gradient(circle at 6px 6px, #ff5f56 0 5px, #e0443e 5px 6px, transparent 6px),
-    radial-gradient(circle at 26px 6px, #ffbd2e 0 5px, #dea123 5px 6px, transparent 6px),
-    radial-gradient(circle at 46px 6px, #27c93f 0 5px, #1aab29 5px 6px, transparent 6px);
+    radial-gradient(circle at 6px 6px, var(--code-window-dot-red) 0 5px, var(--code-window-dot-red-edge) 5px 6px, transparent 6px),
+    radial-gradient(circle at 26px 6px, var(--code-window-dot-yellow) 0 5px, var(--code-window-dot-yellow-edge) 5px 6px, transparent 6px),
+    radial-gradient(circle at 46px 6px, var(--code-window-dot-green) 0 5px, var(--code-window-dot-green-edge) 5px 6px, transparent 6px);
 }
 
 /* 언어 피커 — 헤더 정중앙(리더 언어 라벨 위치). 편집뷰라 클릭하면 드롭다운(인터랙티브). */

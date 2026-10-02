@@ -53,8 +53,8 @@
 /* error — accent 테두리 강조. compound(.input.error)로 :focus 보다 우선 */
 .input.error,
 .input.error:focus {
-  border-color: var(--color-accent);
-  box-shadow: 0 0 0 3px var(--color-accent-alpha-10);
+  border-color: var(--border-color-accent-strong);
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--bg-accent-solid) 10%, transparent);
 }
 
 .input:disabled {

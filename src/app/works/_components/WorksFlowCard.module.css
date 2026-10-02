@@ -149,7 +149,7 @@
 }
 
 .card:hover .cardBorder {
-  border: 1px solid oklch(100.00% 0.0000 0.00 / 0.15);
+  border: 1px solid color-mix(in oklch, var(--border-color-white) 15%, transparent);
   box-shadow: 0 0 30px oklch(100.00% 0.0000 0.00 / 0.05), inset 0 0 30px oklch(100.00% 0.0000 0.00 / 0.02);
 }
 
@@ -429,7 +429,7 @@
   top: 0;
   left: 20px;
   right: auto;
-  -webkit-text-stroke: 1px var(--color-white-alpha-30);
+  -webkit-text-stroke: 1px color-mix(in oklch, var(--text-white) 30%, transparent);
   mix-blend-mode: normal;
 }
 
@@ -683,7 +683,7 @@
     left: 0;
     right: 0;
     height: 40%;
-    background: linear-gradient(to bottom, oklch(0.00% 0.0000 0.00 / 0.65), transparent);
+    background: linear-gradient(to bottom, color-mix(in oklch, var(--bg-black) 65%, transparent), transparent);
     z-index: 1;
     pointer-events: none;
     border-radius: inherit;
@@ -696,7 +696,7 @@
     left: 0;
     right: 0;
     height: 65%;
-    background: linear-gradient(to top, oklch(0.00% 0.0000 0.00 / 0.85), oklch(0.00% 0.0000 0.00 / 0.35) 40%, transparent);
+    background: linear-gradient(to top, color-mix(in oklch, var(--bg-black) 85%, transparent), color-mix(in oklch, var(--bg-black) 35%, transparent) 40%, transparent);
     z-index: 1;
     pointer-events: none;
     border-radius: inherit;
