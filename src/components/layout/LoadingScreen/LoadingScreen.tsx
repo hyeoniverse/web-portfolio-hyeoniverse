@@ -27,6 +27,7 @@ export default function LoadingScreen() {
     <div
       className={styles.loadingScreen}
       style={{ opacity: isLoading ? 1 : 0 }}
+      data-nav-tone-skip
     >
       <div className={styles.backdrop} />
     </div>

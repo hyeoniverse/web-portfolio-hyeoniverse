@@ -149,7 +149,8 @@ export default function Navigation() {
      어느 화면이든 로고 밑을 직접 재므로 화면마다 밝기를 알릴 필요가 없다 */
   const logoBarRef = useRef<HTMLAnchorElement>(null);
   const hasAnyImageLogo = !useSystemLogo && !!(logoOnBg(logos.short, "light").url || logoOnBg(logos.short, "dark").url);
-  const backdropTone = useNavBackdropTone(logoBarRef, hasAnyImageLogo, pathname);
+  const { isLoading, isTransitioning } = useLoadingScreen();
+  const backdropTone = useNavBackdropTone(logoBarRef, hasAnyImageLogo, pathname, isLoading || isTransitioning);
   const logoBg: "dark" | "light" = backdropTone ?? (isDark ? "dark" : "light");
   const shortPick = logoOnBg(logos.short, logoBg);
   const shortLogoUrl = useSystemLogo ? "" : shortPick.url;
@@ -206,7 +207,6 @@ export default function Navigation() {
   const renderLogoImg = (src: string, w: number, altText: string, tintColor: string, invert: boolean, bg: "light" | "dark") => (
     <ThemedLogoImage src={src} bg={bg} width={w} alt={altText} tint={tintColor} invert={invert} classNames={logoImgClasses} />
   );
-  const { isLoading, isTransitioning } = useLoadingScreen();
   const { isMuted, toggleMute } = useSoundStore();
   const { openForm } = useContactStore();
   const { stop: lenisStop, start: lenisStart } = useLenis();
