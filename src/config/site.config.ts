@@ -69,8 +69,8 @@ export const siteConfig = {
     faviconRadius: "", // 배경 모서리 반경 override (0~16, viewBox 0~32 기준). 빈 값 = shape 기본값(circle=16/square=4)
     faviconBgRatio: "1", // 배경 종횡비 w/h (0.5~2). 1=정사각, >1=가로 길쭉(타원/직사각), <1=세로 길쭉. 콘텐츠는 중심 고정
     faviconWeight: "light" as "light" | "regular" | "bold", // favicon 텍스트 weight (default 가장 얇은 light)
-    faviconBgLight: "", // 라이트 favicon 배경색 (빈 값 = preset.dark 자동 사용)
-    faviconBgDark: "", // 다크 favicon 배경색 (빈 값 = preset.light 자동 사용)
+    faviconBgLight: "", // 라이트 favicon 배경색 (빈 값 = 투명)
+    faviconBgDark: "", // 다크 favicon 배경색 (빈 값 = 투명)
     faviconBorderWidth: "0", // 배경 테두리 두께 (px, viewBox 0~32 기준). 0 = 없음
     faviconBorderColorLight: "", // 라이트 favicon 테두리색 (빈 값 = 없음)
     faviconBorderColorDark: "", // 다크 favicon 테두리색 (빈 값 = 없음)
