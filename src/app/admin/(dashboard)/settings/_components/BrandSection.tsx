@@ -170,6 +170,15 @@ function ColorDuoRow({ t, placeholder, light, dark, tools = false, checkerWhenEm
   );
 }
 
+/** 배경을 칠하지 않을 때 favicon 크기를 점선으로 보인다 — 모양이 있으면 그 모양, none 이면 캔버스(32×32) 전체.
+ *  미리보기 전용(탭 아이콘에는 없다). 받침이 라이트·다크 어느 쪽이어도 보이게 중간 회색 */
+function FaviconSizeGuide({ render }: { render: ReturnType<typeof resolveFavicon> }) {
+  const box = render.hasShape
+    ? { x: render.bgX, y: render.bgY, width: render.bgW, height: render.bgH, rx: render.radius, ry: render.radius }
+    : { x: 0, y: 0, width: 32, height: 32 };
+  return <rect {...box} fill="none" stroke="#888" strokeOpacity={0.7} strokeWidth={0.75} strokeDasharray="2 1.5" />;
+}
+
 /** 업로드 favicon 미리보기 SVG — /api/favicon 의 이미지 분기와 같은 구성:
  *  배경 rect(faviconImageBg*) + 이미지(+리컬러 tint) + 그림자(faviconImageShadow/BgShadow).
  *  브라우저 탭과 달리 DOM 안 SVG 는 외부 <image href> 를 로드하므로 data URI 없이 그린다. */
@@ -211,6 +220,7 @@ function ImageFaviconPreviewSvg({ src, tint, bg, render, imgShadow, imgBgShadow,
         </defs>
       )}
       <g transform={faviconContentTransform(render.contentScale) || undefined}>
+        {!(bg && render.hasShape) && <FaviconSizeGuide render={render} />}
         {bg && render.hasShape && (
           <rect
             x={render.bgX}
@@ -257,7 +267,8 @@ function FaviconPreviewSvg({ render, textShadowId, bgShadowId }: {
         </defs>
       )}
       <g transform={faviconContentTransform(render.contentScale) || undefined}>
-        {render.hasShape && (
+        {!render.hasBg && <FaviconSizeGuide render={render} />}
+        {render.hasBg && (
           <rect
             x={render.bgX}
             y={render.bgY}
@@ -367,9 +378,6 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
         className={styles.faviconImagePreviewBackdrop}
         style={{
           background: variant === "light" ? config.theme.lightBg : config.theme.darkBg,
-          /* 받침 타일 모서리가 모양·모서리 슬라이더를 그대로 따라간다 — 배경색이 없어도
-             슬라이더 반응이 눈에 보이게 (radius 16/32 = 50% = 원) */
-          borderRadius: render.hasShape ? `${(render.radius / 32) * 100}%` : undefined,
         }}
       >
         <ImageFaviconPreviewSvg src={src} tint={tint} bg={bg} render={render} imgShadow={imgShadow} imgBgShadow={imgBgShadow} variant={variant} scale={imgScale} />
@@ -867,7 +875,7 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
                       {/* 테마 바탕 위에 올린다 — 배경이 투명하면 실제로 이 색 위에 보인다(이미지 favicon 미리보기와 같은 받침) */}
                       <span
                         className={styles.faviconImagePreviewBackdrop}
-                        style={{ background: themeBg, borderRadius: render.hasShape ? `${(render.radius / 32) * 100}%` : undefined }}
+                        style={{ background: themeBg }}
                       >
                         <FaviconPreviewSvg render={render} textShadowId={textShadowId} bgShadowId={bgShadowId} />
                       </span>
