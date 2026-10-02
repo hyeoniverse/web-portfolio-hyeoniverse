@@ -15,7 +15,7 @@
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --font-serif:
     "Playfair Display", Georgia, Cambria, "Times New Roman", Times,
-    var(--font-noto-serif-kr), serif;
+    var(--font-serif-kr), serif;
   /* default mono — next/font 가 self-host 한 JetBrains Mono 를 var(--font-jetbrains) 로 주입.
      user 가 설정에서 다른 mono 폰트 고르면 ThemeProvider 가 이 --font-mono 를 override. */
   --font-mono:
@@ -27,11 +27,11 @@
      변수들을 html inline 으로 덮으므로(:root 토큰보다 우선) 순서 함정(#632) 없이 공존한다.
      세리프 글꼴의 한글은 명조(Noto Serif KR)다 — 장식 제목은 영문 · 한글 모두 세리프(3.2, D27).
      웹폰트가 늦거나 실패하면 영문은 Georgia · Times 로(명조에도 영문이 있지만 모양이 다르다) */
-  --font-playfair: var(--font-playfair-latin), Georgia, "Times New Roman", var(--font-noto-serif-kr), serif;
+  --font-playfair: var(--font-playfair-latin), Georgia, "Times New Roman", var(--font-serif-kr), serif;
   --font-space-grotesk:
     var(--font-space-grotesk-latin), "Pretendard Variable", sans-serif;
   --font-instrument:
-    var(--font-instrument-latin), Georgia, "Times New Roman", var(--font-noto-serif-kr), serif;
+    var(--font-instrument-latin), Georgia, "Times New Roman", var(--font-serif-kr), serif;
 
   /* Font Aliases (layout.tsx CSS variables) */
   --font-display: var(--font-playfair);
