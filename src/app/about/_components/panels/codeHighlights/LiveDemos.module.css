@@ -34,7 +34,7 @@
   justify-content: center;
   position: absolute;
   inset: 0;
-  font-family: var(--font-instrument);
+  font-family: var(--font-family-display);
   font-size: clamp(1.1rem, 1.6vw, 1.5rem);
   font-style: italic;
 }
@@ -174,7 +174,7 @@
 }
 
 .varsIndex {
-  font-family: var(--font-instrument);
+  font-family: var(--font-family-display);
   font-size: 2.25rem;
   font-style: italic;
   line-height: 0.9;
@@ -297,7 +297,7 @@
   flex: none;
   width: 4.5rem;
   height: 3.5rem;
-  font-family: var(--font-instrument);
+  font-family: var(--font-family-display);
   font-style: italic;
   color: var(--text-inverse);
   background: var(--text-accent);

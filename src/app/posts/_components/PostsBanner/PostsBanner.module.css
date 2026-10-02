@@ -126,7 +126,7 @@
 }
 
 .splitTitle {
-  font-family: var(--font-instrument);
+  font-family: var(--font-family-display);
   font-size: clamp(1.25rem, 2vw, 2rem);
   font-weight: var(--font-weight-regular);
   font-style: italic;
@@ -281,7 +281,7 @@
 
 .cardTitle {
   margin-top: var(--spacing-8);
-  font-family: var(--font-instrument);
+  font-family: var(--font-family-display);
   font-size: clamp(1rem, 2vw, 1.75rem);
   font-weight: var(--font-weight-regular);
   font-style: italic;
@@ -392,7 +392,7 @@
 }
 
 .tickerTitle {
-  font-family: var(--font-instrument);
+  font-family: var(--font-family-display);
   font-size: var(--font-size-title-sm);
   font-weight: var(--font-weight-regular);
   font-style: italic;

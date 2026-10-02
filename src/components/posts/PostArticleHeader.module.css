@@ -42,7 +42,7 @@
 }
 
 .articleTitle {
-  font-family: var(--font-instrument);
+  font-family: var(--font-family-display);
   font-size: clamp(2rem, 6vw, 3rem);
   font-weight: var(--font-weight-regular);
   color: var(--text-primary);

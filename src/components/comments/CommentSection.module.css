@@ -15,9 +15,9 @@
 .heading {
   margin: 0;
   line-height: var(--control-height-sm);
-  font-family: var(--font-instrument);
+  font-family: var(--font-family-heading);
   font-size: var(--font-size-title-md);
-  font-weight: var(--font-weight-regular);
+  font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
 }
 

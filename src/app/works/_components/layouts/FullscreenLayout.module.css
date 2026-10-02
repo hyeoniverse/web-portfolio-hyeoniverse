@@ -149,7 +149,7 @@
 /* 타이틀 — scroll-driven morph (letter-spacing + opacity + translate).
    variable axis 없어도 충분히 dramatic */
 .introTitle {
-  font-family: var(--font-instrument), serif;
+  font-family: var(--font-family-display);
   font-size: clamp(3rem, 11vw, 11rem);
   font-weight: var(--font-weight-light);
   line-height: 0.92;
@@ -175,7 +175,7 @@
 }
 
 .introTagline {
-  font-family: var(--font-instrument), serif;
+  font-family: var(--font-family-display);
   font-style: italic;
   font-size: clamp(1rem, 2vw, 1.4rem);
   color: var(--text-primary);
@@ -309,7 +309,7 @@
 
 /* ── Title ── */
 .title {
-  font-family: var(--font-instrument), serif;
+  font-family: var(--font-family-display);
   font-size: clamp(2.5rem, 8vw, 8rem);
   font-weight: var(--font-weight-light);
   line-height: 0.95;
@@ -377,7 +377,7 @@
   position: absolute;
   right: 5vw;
   bottom: 8vh;
-  font-family: var(--font-instrument), serif;
+  font-family: var(--font-family-display);
   font-size: clamp(5rem, 15vw, 18rem);
   font-weight: 200;
   line-height: 0.8;

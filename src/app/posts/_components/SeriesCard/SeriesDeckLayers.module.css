@@ -88,7 +88,7 @@
 /* 제목 2줄 고정 — line-height × 2 로 높이 항상 일정 */
 .deckLayerTitle {
   display: -webkit-box;
-  font-family: var(--font-instrument);
+  font-family: var(--font-family-display);
   font-size: var(--font-size-body);
   font-weight: var(--font-weight-medium);
   color: var(--text-primary);

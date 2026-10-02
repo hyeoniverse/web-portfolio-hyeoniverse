@@ -519,7 +519,7 @@
    평소엔 물러나 있다가 가리키면 또렷해진다. */
 .repoIndex {
   flex-shrink: 0;
-  font-family: var(--font-instrument);
+  font-family: var(--font-family-display);
   font-size: var(--font-size-title-lg);
   font-style: italic;
   font-weight: var(--font-weight-regular);

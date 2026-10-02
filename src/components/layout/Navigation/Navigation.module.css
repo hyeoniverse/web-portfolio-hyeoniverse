@@ -111,7 +111,7 @@
 }
 
 .logo {
-  font-family: var(--font-instrument), serif;
+  font-family: var(--font-family-display);
   font-size: var(--font-size-32);
   font-weight: var(--font-weight-regular);
   color: var(--text-white);
@@ -822,7 +822,7 @@
 }
 
 .menuLogo {
-  font-family: var(--font-instrument), serif;
+  font-family: var(--font-family-display);
   font-size: var(--font-size-28);
   font-weight: var(--font-weight-regular);
   color: var(--text-white);
@@ -1032,7 +1032,7 @@
 }
 
 .menuLinkActive {
-  font-family: var(--font-instrument), serif;
+  font-family: var(--font-family-display);
   font-style: italic;
   font-weight: var(--font-weight-regular);
   -webkit-text-stroke: 1px var(--text-white);
@@ -1068,7 +1068,7 @@
 .menuSubLinkActive {
   opacity: 1;
   font-style: italic;
-  font-family: var(--font-instrument), serif;
+  font-family: var(--font-family-display);
 }
 
 /* 페이지가 아닌 자리 — 문의(관리 화면에서는 로그아웃)와 관리 화면이 한 층이다.

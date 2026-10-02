@@ -85,7 +85,7 @@
 /* ── Title ── */
 .title {
   margin-bottom: var(--spacing-24);
-  font-family: var(--font-instrument), serif;
+  font-family: var(--font-family-display);
   font-size: clamp(3rem, 8vw, 5.5rem);
   font-weight: var(--font-weight-regular);
   line-height: 1.05;

@@ -23,7 +23,7 @@
 }
 
 .procDetailNum {
-  font-family: var(--font-instrument);
+  font-family: var(--font-family-display);
   font-size: clamp(4rem, min(7vw, 15vh), 8rem);
   font-style: italic;
   line-height: 0.8;
@@ -56,7 +56,7 @@
 
 .procDetailStats dd {
   margin: 0;
-  font-family: var(--font-instrument);
+  font-family: var(--font-family-display);
   font-size: clamp(1.5rem, min(2.2vw, 3.6vh), 2.25rem);
   line-height: 1;
   color: var(--text-primary);
@@ -211,7 +211,7 @@
 }
 
 .procMetricValue {
-  font-family: var(--font-instrument);
+  font-family: var(--font-family-display);
   font-size: clamp(2rem, min(3.4vw, 6.5vh), 3.75rem);
   font-style: italic;
   line-height: 1;
@@ -375,7 +375,7 @@
 }
 
 .procGanttNum {
-  font-family: var(--font-instrument);
+  font-family: var(--font-family-display);
   font-size: clamp(1.1rem, min(1.6vw, 2.8vh), 1.6rem);
   font-style: italic;
   line-height: 1;
@@ -608,7 +608,7 @@
   }
 
   .processStepContentTitle {
-    font-family: var(--font-instrument);
+    font-family: var(--font-family-display);
     font-size: var(--font-size-subhead);
     font-style: italic;
     font-weight: var(--font-weight-regular);

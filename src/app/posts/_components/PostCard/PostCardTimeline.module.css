@@ -78,7 +78,7 @@
 .timelineTitle {
   margin: 0;
   min-width: 0;
-  font-family: var(--font-instrument);
+  font-family: var(--font-family-display);
   font-size: clamp(1.375rem, 1.05rem + 1.25vw, 1.85rem);
   font-weight: var(--font-weight-regular);
   line-height: 1.16;

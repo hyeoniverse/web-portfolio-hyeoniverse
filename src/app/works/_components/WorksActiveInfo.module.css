@@ -20,7 +20,7 @@
 }
 
 .activeNumber {
-  font-family: var(--font-instrument), serif;
+  font-family: var(--font-family-display);
   font-size: var(--font-size-body);
   font-weight: var(--font-weight-regular);
   letter-spacing: 0.2em;
@@ -30,7 +30,7 @@
 
 .activeTitle {
   margin: 0;
-  font-family: var(--font-instrument), serif;
+  font-family: var(--font-family-display);
   /* 제목이 길 때만 작아진다 — 두 줄까지 쓸 수 있으므로 자리 너비의 두 줄분(×4, 로마자 한 글자를
      0.5em 로 본다)을 글자 수로 나눠 한 줄에 들어갈 크기를 구하고, 원래 크기를 넘지 않게 한다.
      짧은 제목은 이 값이 원래 크기보다 커서 아무것도 달라지지 않는다.

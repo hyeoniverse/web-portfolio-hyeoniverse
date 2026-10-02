@@ -46,7 +46,7 @@
 }
 
 .headTitle {
-  font-family: var(--font-instrument);
+  font-family: var(--font-family-display);
   font-style: italic;
   font-size: var(--font-size-28);
   line-height: 1;
@@ -101,7 +101,7 @@
   inset: 0;
   display: grid;
   place-items: center;
-  font-family: var(--font-instrument);
+  font-family: var(--font-family-display);
   font-style: italic;
   font-weight: var(--font-weight-regular);
   font-size: var(--font-size-body);
@@ -125,7 +125,7 @@
 
 .markReel div {
   height: 128px;
-  font-family: var(--font-instrument);
+  font-family: var(--font-family-display);
   font-style: italic;
   font-size: 150px;
   line-height: 128px;
@@ -308,7 +308,7 @@
 .n {
   flex: none;
   width: 18px;
-  font-family: var(--font-instrument);
+  font-family: var(--font-family-display);
   font-style: italic;
   font-size: var(--font-size-body);
   color: var(--text-muted);
@@ -356,7 +356,7 @@
 
 /* 지금 장 — 배경 없이, 별 옆(휘어진 꼭짓점)에서 제목만 세리프로 */
 .ch.on .tx {
-  font-family: var(--font-instrument);
+  font-family: var(--font-family-display);
   font-size: var(--font-size-body);
   font-weight: var(--font-weight-semibold);
 }

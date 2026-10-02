@@ -157,11 +157,11 @@
 | 토큰 | 값 |
 |---|---|
 | `--font-sans` | `"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Pretendard Variable", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"` |
-| `--font-serif` | `"Playfair Display", Georgia, Cambria, "Times New Roman", Times, var(--font-noto-serif-kr), serif` |
+| `--font-serif` | `"Playfair Display", Georgia, Cambria, "Times New Roman", Times, "Pretendard Variable", serif` |
 | `--font-mono` | `var(--font-jetbrains), SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", "Pretendard Variable", monospace` |
-| `--font-playfair` | `var(--font-playfair-latin), var(--font-noto-serif-kr), serif` |
+| `--font-playfair` | `var(--font-playfair-latin), Georgia, "Times New Roman", "Pretendard Variable", serif` |
 | `--font-space-grotesk` | `var(--font-space-grotesk-latin), "Pretendard Variable", sans-serif` |
-| `--font-instrument` | `var(--font-instrument-latin), var(--font-noto-serif-kr), serif` |
+| `--font-instrument` | `var(--font-instrument-latin), Georgia, "Times New Roman", "Pretendard Variable", serif` |
 | `--font-display` | `var(--font-playfair)` |
 | `--font-grotesk` | `var(--font-space-grotesk), sans-serif` |
 | `--font-size-12` | `0.75rem` |
@@ -335,7 +335,7 @@
 
 ## `src/styles/globals/_semantic.css`
 
-토큰 126개
+토큰 127개
 
 | 토큰 | 값 | 다크 | 조건부 |
 |---|---|---|---|
@@ -453,6 +453,7 @@
 | `--font-size-dot` | `5px` |  |  |
 | `--font-family-body` | `"Pretendard Variable", -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji"` |  |  |
 | `--font-family-heading` | `var(--font-family-body)` |  |  |
+| `--font-family-display` | `var(--font-instrument)` |  |  |
 | `--font-heading-xl` | `var(--font-weight-semibold) var(--font-size-34) / var(--line-height-tight) var(--font-family-heading)` |  |  |
 | `--font-heading-lg` | `var(--font-weight-semibold) var(--font-size-28) / var(--line-height-tight) var(--font-family-heading)` |  |  |
 | `--font-heading-md` | `var(--font-weight-semibold) var(--font-size-22) / var(--line-height-tight) var(--font-family-heading)` |  |  |

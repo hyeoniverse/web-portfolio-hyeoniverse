@@ -71,7 +71,7 @@
   display: flex;
   gap: var(--spacing-8);
   flex-direction: column;
-  font-family: var(--font-instrument), serif;
+  font-family: var(--font-family-display);
   font-size: var(--fluid-font-size-6xl);
   font-weight: var(--font-weight-regular);
 }

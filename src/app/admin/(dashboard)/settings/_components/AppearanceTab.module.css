@@ -537,7 +537,7 @@
   overflow: hidden;
 }
 .fullLogoPreviewText {
-  font-family: var(--font-instrument), serif;
+  font-family: var(--font-family-display);
   font-size: var(--font-size-22);
   line-height: var(--line-height-fit);
   white-space: nowrap;

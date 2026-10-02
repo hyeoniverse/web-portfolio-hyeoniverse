@@ -8,7 +8,7 @@
 
 .techDomainTitle {
   margin: 0 0 var(--spacing-12);
-  font-family: var(--font-instrument);
+  font-family: var(--font-family-display);
   font-size: clamp(1.5rem, min(2.2vw, 3.8vh), 2.25rem);
   font-style: italic;
   font-weight: var(--font-weight-regular);

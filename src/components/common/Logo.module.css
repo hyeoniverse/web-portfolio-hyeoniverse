@@ -1,5 +1,5 @@
 .logo {
-  font-family: var(--font-instrument), serif;
+  font-family: var(--font-family-display);
   font-size: var(--font-size-32);
   font-weight: var(--font-weight-regular);
   letter-spacing: -0.02em;

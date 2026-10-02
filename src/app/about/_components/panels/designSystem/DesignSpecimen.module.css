@@ -29,7 +29,7 @@
 
 .cellTitle {
   margin: 0;
-  font-family: var(--font-instrument);
+  font-family: var(--font-family-display);
   font-size: clamp(1.4rem, 2vw, 2rem);
   font-style: italic;
   font-weight: var(--font-weight-regular);

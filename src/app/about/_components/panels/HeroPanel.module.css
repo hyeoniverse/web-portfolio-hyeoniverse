@@ -126,7 +126,7 @@
   position: absolute;
   right: -4%;
   bottom: 5%;
-  font-family: var(--_hero-watermark-font-family, var(--font-instrument));
+  font-family: var(--_hero-watermark-font-family, var(--font-family-display));
   font-size: var(--_hero-watermark-font-size, clamp(6rem, min(18vw, 24vh), 16rem));
   font-style: italic;
   font-weight: var(--_hero-watermark-font-weight, var(--font-weight-regular));
@@ -292,7 +292,7 @@
   }
 
   .heroTocTitle {
-    font-family: var(--font-instrument);
+    font-family: var(--font-family-display);
     font-size: clamp(1.25rem, 1.7vw, 1.75rem);
     font-style: italic;
     line-height: 1.1;
