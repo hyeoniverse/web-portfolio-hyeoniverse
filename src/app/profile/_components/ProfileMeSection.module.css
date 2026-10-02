@@ -263,8 +263,8 @@
   display: flex;
   align-items: center;
   gap: 0.5em;
-  filter: drop-shadow(0 1px 3px var(--color-gray-alpha-80))
-    drop-shadow(0 0 6px var(--color-gray-alpha-50));
+  filter: drop-shadow(0 1px 3px color-mix(in oklch, var(--text-black) 80%, transparent))
+    drop-shadow(0 0 6px color-mix(in oklch, var(--text-black) 50%, transparent));
 }
 
 .bgInfoLabel {
@@ -595,7 +595,7 @@
   min-height: 3rem;
   background: linear-gradient(
     180deg,
-    var(--color-accent) 0%,
+    var(--bg-accent-solid) 0%,
     var(--border-default) 100%
   );
   opacity: 0.4;

@@ -48,7 +48,7 @@
   transition: box-shadow var(--duration-fast) var(--ease-material), border-color var(--duration-fast) var(--ease-material);
 }
 .entityClickable:hover {
-  border-color: var(--color-accent);
+  border-color: var(--border-color-accent-strong);
   box-shadow: var(--shadow-md);
 }
 
@@ -110,7 +110,7 @@
   position: absolute;
   inset: 0;
   background: var(--bg-accent-subtle);
-  border: 1.4px solid var(--color-accent);
+  border: 1.4px solid var(--border-color-accent-strong);
   /* 마름모 = 네 꼭짓점 */
   clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
 }

@@ -3,26 +3,30 @@ import type { LocalizedText } from "@/types/common";
 import type { Post } from "@/types/post";
 
 // ─── Color Data ───
+/* 강조 역할 — 사이트 설정(프리셋)이 덮어쓰는 것은 팔레트가 아니라 이 역할들이라 프리셋을 누르면 같이 바뀐다 */
 export const brandColors = [
-  { name: "accent", var: "--color-accent" },
-  { name: "accent-dark", var: "--color-accent-dark" },
-  { name: "accent-light", var: "--color-accent-light" },
+  { name: "accent", var: "--bg-accent-solid" },
+  { name: "accent-hover", var: "--bg-accent-solid-hover" },
+  { name: "accent-light", var: "--bg-accent-solid-light" },
 ];
 
-export const neutralScale = [0, 50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950, 999];
+/* 팔레트 — 테마와 상관없이 값이 하나다(tokens/_color.css). 역할이 light-dark() 로 단계를 고른다 */
+export const paletteHues = ["neutral", "accent", "red", "orange", "amber", "yellow", "green", "blue", "indigo", "violet"] as const;
+export const paletteSteps = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
 
+/* 반투명 — 투명도 단계 토큰 없이 color-mix() 로 만든다(3.1-3) */
 export const alphaSteps = [5, 10, 15, 20, 30, 50, 70, 80, 90, 95, 100];
 
 export const semanticColors = [
-  { name: "--text-primary", ref: "neutral-900" },
-  { name: "--text-secondary", ref: "neutral-800" },
-  { name: "--text-tertiary", ref: "neutral-600" },
-  { name: "--text-muted", ref: "neutral-500" },
-  { name: "--text-accent", ref: "accent" },
-  { name: "--text-inverse", ref: "neutral-50" },
-  { name: "--bg-primary", ref: "neutral-50" },
-  { name: "--bg-inverse", ref: "neutral-950" },
-  { name: "--bg-accent-solid", ref: "accent" },
+  { name: "--text-primary", ref: "neutral-900 · 100" },
+  { name: "--text-secondary", ref: "neutral-800 · 200" },
+  { name: "--text-tertiary", ref: "neutral-700 · 300" },
+  { name: "--text-muted", ref: "neutral-600 · 500" },
+  { name: "--text-accent", ref: "accent-700 · 500" },
+  { name: "--text-inverse", ref: "white · black" },
+  { name: "--bg-primary", ref: "neutral-50 · 950" },
+  { name: "--bg-inverse", ref: "neutral-950 · 50" },
+  { name: "--bg-accent-solid", ref: "accent-700 · 500" },
 ];
 
 // ─── Spacing Data ───
@@ -132,7 +136,7 @@ export const tocSections: { id: string; label: string; subs?: { id: string; labe
     ],
   },
   { id: "colors", label: "Colors" },
-  { id: "alpha", label: "Alpha" },
+  { id: "alpha", label: "Translucency" },
   { id: "semantic", label: "Semantic" },
   { id: "typography", label: "Typography" },
   { id: "spacing", label: "Spacing" },

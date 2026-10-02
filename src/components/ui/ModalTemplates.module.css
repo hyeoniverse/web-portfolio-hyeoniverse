@@ -55,8 +55,8 @@
 /* dangerBtn — confirm 모달의 위험 액션 (삭제 등) 스타일.
    .actions 컨테이너는 Modal 공통 footer slot 으로 마이그레이션되어 제거됨. */
 .dangerBtn {
-  --_bg: var(--color-accent) !important;
-  --_border: var(--color-accent) !important;
+  --_bg: var(--bg-accent-solid) !important;
+  --_border: var(--bg-accent-solid) !important;
   --_color: var(--text-white) !important;
 }
 

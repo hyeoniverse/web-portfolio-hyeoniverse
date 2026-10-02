@@ -16,8 +16,8 @@
   gap: var(--spacing-2);
   max-width: 180px;
   padding: var(--spacing-8) var(--spacing-12);
-  background: var(--color-white-alpha-10);
-  border: 1px solid var(--color-white-alpha-20);
+  background: var(--bg-glass);
+  border: 1px solid var(--border-color-ghost);
   border-radius: var(--radius-24);
   backdrop-filter: blur(8px);
   opacity: 0.7;
@@ -30,7 +30,7 @@
 
 .floatingBubble:hover {
   opacity: 1;
-  border-color: var(--color-white-alpha-30);
+  border-color: color-mix(in oklch, var(--border-color-white) 30%, transparent);
 }
 
 .bubbleNick {

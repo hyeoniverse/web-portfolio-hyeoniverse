@@ -540,12 +540,12 @@ function DailyViewsChart({
                 <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
                   <stop
                     offset="0%"
-                    stopColor="var(--color-accent)"
+                    stopColor="var(--bg-accent-solid)"
                     stopOpacity="0.35"
                   />
                   <stop
                     offset="100%"
-                    stopColor="var(--color-accent)"
+                    stopColor="var(--bg-accent-solid)"
                     stopOpacity="0"
                   />
                 </linearGradient>
@@ -554,7 +554,7 @@ function DailyViewsChart({
               <path
                 d={linePath}
                 fill="none"
-                stroke="var(--color-accent)"
+                stroke="var(--text-accent)"
                 strokeWidth="1.5"
                 vectorEffect="non-scaling-stroke"
               />

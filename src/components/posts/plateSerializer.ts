@@ -616,7 +616,7 @@ function serializeNode(node: SlateNode): string {
         ` style="max-width:${maxW};margin:var(--spacing-12) 0">`,
         `<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;`,
         `border-radius:var(--radius-full,999px);border:1px solid var(--border-color-light);background:var(--bg-secondary)">`,
-        `<div style="width:32px;height:32px;border-radius:50%;background:var(--color-neutral-alpha-5);`,
+        `<div style="width:32px;height:32px;border-radius:50%;background:color-mix(in oklch, var(--text-contrast) 5%, transparent);`,
         `display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--text-secondary)">${iconSvg}</div>`,
         `<div style="flex:1;min-width:0">`,
         `<div style="font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${fName}</div>`,

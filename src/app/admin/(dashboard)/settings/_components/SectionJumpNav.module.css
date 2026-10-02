@@ -104,7 +104,7 @@
   width: 4px;
   height: 4px;
   border-radius: var(--radius-circle);
-  background: var(--color-accent);
+  background: var(--bg-accent-solid);
   transform: translateY(-50%);
 }
 .itemActive .label {

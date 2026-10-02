@@ -22,7 +22,7 @@ import {
   createSequence, makeVp, makeVpGroup, makeScrollChildX, makeScrollChildY,
 } from "./_data/animations";
 import {
-  brandColors, neutralScale, alphaSteps, semanticColors,
+  brandColors, paletteHues, paletteSteps, alphaSteps, semanticColors,
   typoVariants, typoColors, spacingScale, radiusScale, gridColsScale,
   shadowScale, durations, easings, zScale, tocSections,
 } from "./_data/tokenData";
@@ -181,18 +181,18 @@ export default function DesignSystemClient() {
                 icon: (
                   <svg viewBox="0 0 160 80" fill="none" className={styles.pIcon}>
                     {/* Raw */}
-                    <rect x="0" y="28" width="28" height="24" rx="12" fill="var(--color-neutral-alpha-10)" />
+                    <rect x="0" y="28" width="28" height="24" rx="12" fill="color-mix(in oklch, var(--text-contrast) 10%, transparent)" />
                     <text x="14" y="44" textAnchor="middle" fontSize="8" fontWeight="600" fill="var(--text-primary)">RAW</text>
                     <line x1="30" y1="40" x2="38" y2="40" stroke="var(--text-primary)" strokeWidth="1.5" opacity="0.4" />
                     <polygon points="38,37 44,40 38,43" fill="var(--text-primary)" opacity="0.4" />
                     {/* Semantic */}
-                    <rect x="46" y="24" width="28" height="32" rx="14" fill="color-mix(in srgb, var(--color-accent) 25%, transparent)" />
+                    <rect x="46" y="24" width="28" height="32" rx="14" fill="color-mix(in srgb, var(--text-accent) 25%, transparent)" />
                     <text x="60" y="44" textAnchor="middle" fontSize="7" fontWeight="600" fill="var(--text-accent)">SEM</text>
                     <line x1="76" y1="40" x2="84" y2="40" stroke="var(--text-primary)" strokeWidth="1.5" opacity="0.4" />
                     <polygon points="84,37 90,40 84,43" fill="var(--text-primary)" opacity="0.4" />
                     {/* Component */}
-                    <rect x="92" y="26" width="28" height="28" rx="13" fill="color-mix(in srgb, var(--color-info) 25%, transparent)" />
-                    <text x="106" y="44" textAnchor="middle" fontSize="7" fontWeight="600" fill="var(--color-info)">CMP</text>
+                    <rect x="92" y="26" width="28" height="28" rx="13" fill="color-mix(in srgb, var(--text-info) 25%, transparent)" />
+                    <text x="106" y="44" textAnchor="middle" fontSize="7" fontWeight="600" fill="var(--text-info)">CMP</text>
                     {/* Codes */}
                     <text x="14" y="64" textAnchor="middle" fontSize="5" fill="var(--text-muted)">--size-32</text>
                     <text x="60" y="64" textAnchor="middle" fontSize="5" fill="var(--text-muted)">--text-primary</text>
@@ -208,14 +208,14 @@ export default function DesignSystemClient() {
                   : "Change one token and every reference updates. No scattered hex values across the codebase.",
                 icon: (
                   <svg viewBox="0 0 80 80" fill="none" className={styles.pIcon}>
-                    <circle cx="40" cy="24" r="12" fill="var(--color-accent)" opacity="0.3" />
-                    <circle cx="40" cy="24" r="6" fill="var(--color-accent)" />
+                    <circle cx="40" cy="24" r="12" fill="var(--text-accent)" opacity="0.3" />
+                    <circle cx="40" cy="24" r="6" fill="var(--text-accent)" />
                     <line x1="40" y1="36" x2="20" y2="60" stroke="var(--text-primary)" strokeWidth="1.5" opacity="0.3" />
                     <line x1="40" y1="36" x2="40" y2="64" stroke="var(--text-primary)" strokeWidth="1.5" opacity="0.3" />
                     <line x1="40" y1="36" x2="60" y2="60" stroke="var(--text-primary)" strokeWidth="1.5" opacity="0.3" />
-                    <circle cx="20" cy="62" r="5" fill="var(--color-neutral-alpha-20)" />
-                    <circle cx="40" cy="66" r="5" fill="var(--color-neutral-alpha-20)" />
-                    <circle cx="60" cy="62" r="5" fill="var(--color-neutral-alpha-20)" />
+                    <circle cx="20" cy="62" r="5" fill="color-mix(in oklch, var(--text-contrast) 20%, transparent)" />
+                    <circle cx="40" cy="66" r="5" fill="color-mix(in oklch, var(--text-contrast) 20%, transparent)" />
+                    <circle cx="60" cy="62" r="5" fill="color-mix(in oklch, var(--text-contrast) 20%, transparent)" />
                   </svg>
                 ),
               },
@@ -229,8 +229,8 @@ export default function DesignSystemClient() {
                   <svg viewBox="0 0 80 80" fill="none" className={styles.pIcon}>
                     <rect x="4" y="12" width="34" height="56" rx="6" fill="var(--bg-primary)" stroke="var(--text-primary)" strokeWidth="1.5" opacity="0.8" />
                     <rect x="42" y="12" width="34" height="56" rx="6" fill="var(--text-primary)" stroke="var(--text-primary)" strokeWidth="1.5" opacity="0.8" />
-                    <circle cx="21" cy="36" r="8" fill="var(--color-accent)" opacity="0.6" />
-                    <circle cx="59" cy="36" r="8" fill="var(--color-accent)" opacity="0.6" />
+                    <circle cx="21" cy="36" r="8" fill="var(--text-accent)" opacity="0.6" />
+                    <circle cx="59" cy="36" r="8" fill="var(--text-accent)" opacity="0.6" />
                     <rect x="12" y="50" width="18" height="3" rx="1.5" fill="var(--text-primary)" opacity="0.3" />
                     <rect x="12" y="56" width="12" height="3" rx="1.5" fill="var(--text-primary)" opacity="0.15" />
                     <rect x="50" y="50" width="18" height="3" rx="1.5" fill="var(--bg-primary)" opacity="0.3" />
@@ -247,15 +247,15 @@ export default function DesignSystemClient() {
                 icon: (
                   <svg viewBox="0 0 80 80" fill="none" className={styles.pIcon}>
                     {/* Shield with lock — protected values */}
-                    <path d="M40 8L12 22v20c0 16.6 12 30.4 28 34 16-3.6 28-17.4 28-34V22L40 8z" fill="var(--color-neutral-alpha-10)" stroke="var(--text-primary)" strokeWidth="1.5" opacity="0.6" />
+                    <path d="M40 8L12 22v20c0 16.6 12 30.4 28 34 16-3.6 28-17.4 28-34V22L40 8z" fill="color-mix(in oklch, var(--text-contrast) 10%, transparent)" stroke="var(--text-primary)" strokeWidth="1.5" opacity="0.6" />
                     {/* Inner token symbol */}
-                    <circle cx="40" cy="38" r="10" fill="var(--color-accent)" opacity="0.3" />
-                    <text x="40" y="42" textAnchor="middle" fontSize="11" fontWeight="700" fill="var(--color-accent)">T</text>
+                    <circle cx="40" cy="38" r="10" fill="var(--text-accent)" opacity="0.3" />
+                    <text x="40" y="42" textAnchor="middle" fontSize="11" fontWeight="700" fill="var(--text-accent)">T</text>
                     {/* Blocked raw values — small crossed circles */}
-                    <circle cx="20" cy="58" r="4" fill="var(--color-error)" opacity="0.2" />
-                    <line x1="17.2" y1="55.2" x2="22.8" y2="60.8" stroke="var(--color-error)" strokeWidth="1.2" opacity="0.6" />
-                    <circle cx="60" cy="58" r="4" fill="var(--color-error)" opacity="0.2" />
-                    <line x1="57.2" y1="55.2" x2="62.8" y2="60.8" stroke="var(--color-error)" strokeWidth="1.2" opacity="0.6" />
+                    <circle cx="20" cy="58" r="4" fill="var(--text-error)" opacity="0.2" />
+                    <line x1="17.2" y1="55.2" x2="22.8" y2="60.8" stroke="var(--text-error)" strokeWidth="1.2" opacity="0.6" />
+                    <circle cx="60" cy="58" r="4" fill="var(--text-error)" opacity="0.2" />
+                    <line x1="57.2" y1="55.2" x2="62.8" y2="60.8" stroke="var(--text-error)" strokeWidth="1.2" opacity="0.6" />
                   </svg>
                 ),
               },
@@ -275,7 +275,7 @@ export default function DesignSystemClient() {
               <div className={styles.pFileRoot}>
                 <span className={styles.pFileFolder}>src/styles/tokens/</span>
                 {[
-                  { file: "_color.css", desc: language === "ko" ? "브랜드·중립·알파" : "brand, neutral, alpha" },
+                  { file: "_color.css", desc: language === "ko" ? "팔레트 — 색상마다 50 … 950" : "palette — 50 … 950 per hue" },
                   { file: "_typography.css", desc: language === "ko" ? "폰트·크기·굵기" : "font, size, weight" },
                   { file: "_spacing.css", desc: "--spacing-*" },
                   { file: "_radius.css", desc: "2 → 24 · full · circle" },
@@ -334,34 +334,38 @@ export default function DesignSystemClient() {
                 </motion.div>
               ))}
             </motion.div>
-            <motion.p className={styles.sectionSub} initial="hidden" {...vp(nd())} variants={staggerItem}>Neutral Scale</motion.p>
-            <motion.div className={styles.colorGrid} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-              {neutralScale.map((n, i) => (
-                <motion.div key={n} className={styles.colorSwatch} variants={staggerItemX} {...scrollChildX(i, neutralScale.length)}>
-                  <div className={`${styles.colorBox} ${styles.colorBoxBordered}`} style={{ background: `var(--color-neutral-${n})` }} />
-                  <span className={styles.colorLabel}>{n}</span>
+            {paletteHues.map((hue) => (
+              <div key={hue}>
+                <motion.p className={styles.sectionSub} initial="hidden" {...vp(nd())} variants={staggerItem}>{hue}</motion.p>
+                <motion.div className={styles.colorGrid} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+                  {paletteSteps.map((n, i) => (
+                    <motion.div key={n} className={styles.colorSwatch} variants={staggerItemX} {...scrollChildX(i, paletteSteps.length)}>
+                      <div className={`${styles.colorBox} ${styles.colorBoxBordered}`} style={{ background: `var(--color-${hue}-${n})` }} />
+                      <span className={styles.colorLabel}>{n}</span>
+                    </motion.div>
+                  ))}
                 </motion.div>
-              ))}
-            </motion.div>
+              </div>
+            ))}
           </section>
 
-          {/* ─── Alpha Variants ─── */}
+          {/* ─── Translucency ─── */}
           <section id="alpha" ref={setSectionRef("alpha")} className={styles.section}>
-            <SectionHeader title="Alpha Variants" />
-            <motion.p className={styles.sectionSub} initial="hidden" {...vp(nd())} variants={staggerItem}>Accent Alpha</motion.p>
+            <SectionHeader title="Translucency" />
+            <motion.p className={styles.sectionSub} initial="hidden" {...vp(nd())} variants={staggerItem}>Accent · color-mix()</motion.p>
             <motion.div className={styles.alphaRow} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
               {alphaSteps.map((a, i) => (
                 <motion.div key={a} style={{ flex: 1, textAlign: "center" }} variants={staggerItemX} {...scrollChildX(i, alphaSteps.length)}>
-                  <div className={styles.alphaBar} style={{ background: `var(--color-accent-alpha-${a})`, height: `${8 + a * 0.4}px` }} />
+                  <div className={styles.alphaBar} style={{ background: `color-mix(in oklch, var(--bg-accent-solid) ${a}%, transparent)`, height: `${8 + a * 0.4}px` }} />
                   <div className={styles.alphaLabel}>{a}%</div>
                 </motion.div>
               ))}
             </motion.div>
-            <motion.p className={styles.sectionSub} initial="hidden" {...vp(nd())} variants={staggerItem}>Neutral Alpha</motion.p>
+            <motion.p className={styles.sectionSub} initial="hidden" {...vp(nd())} variants={staggerItem}>Neutral · color-mix()</motion.p>
             <motion.div className={styles.alphaRow} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
               {alphaSteps.map((a, i) => (
                 <motion.div key={a} style={{ flex: 1, textAlign: "center" }} variants={staggerItemX} {...scrollChildX(i, alphaSteps.length)}>
-                  <div className={styles.alphaBar} style={{ background: `var(--color-neutral-alpha-${a})`, height: `${8 + a * 0.4}px` }} />
+                  <div className={styles.alphaBar} style={{ background: `color-mix(in oklch, var(--text-contrast) ${a}%, transparent)`, height: `${8 + a * 0.4}px` }} />
                   <div className={styles.alphaLabel}>{a}%</div>
                 </motion.div>
               ))}

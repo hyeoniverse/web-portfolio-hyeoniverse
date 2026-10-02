@@ -41,7 +41,7 @@ interface ThemeContextType extends ThemeControls {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-/** 기본 강조색의 다크 모드 값 — tokens/_color.css 의 다크 --color-accent 와 같은 색 */
+/** 기본 강조색의 다크 모드 값 — tokens/_color.css 의 --color-accent-500(다크의 --bg-accent-solid)과 같은 색 */
 const DEFAULT_DARK_ACCENT = "#ff4da6";
 
 // siteConfig 기본값 — 변경이 없으면 CSS 토큰 유지 (오버라이드 안 함)
@@ -175,7 +175,7 @@ function applyThemeColors(
   theme: ResolvedTheme,
   colors: typeof DEFAULTS,
 ) {
-  // accent — 기본값과 다를 때만 오버라이드 (alpha, dark, light 전부).
+  // accent — 기본값과 다를 때만 강조 역할을 덮어쓴다(면 · 진한 면 · 밝은 면, 반투명은 따라온다).
   // 강조색은 고른 그대로 쓰고, 글자로 쓰이는 --text-accent 만 현재 배경 위에서 읽히게 맞춘다
   if (colors.accentColor && colors.accentColor !== DEFAULTS.accentColor) {
     applyAccentAll(root, colors.accentColor);
@@ -185,12 +185,12 @@ function applyThemeColors(
     removeTextAccent(root);
   }
 
-  // 배경/텍스트 + neutral scale — 테마별 분기
+  // 배경/텍스트 + 무채색 역할 — 테마별 분기
   if (theme === "light") {
     setOrRemove(root, "--bg-primary", colors.lightBg, DEFAULTS.lightBg);
     setOrRemove(root, "--text-primary", colors.lightText, DEFAULTS.lightText);
     if (colors.lightBg !== DEFAULTS.lightBg || colors.lightText !== DEFAULTS.lightText) {
-      applyNeutralScale(root, colors.lightBg, colors.lightText);
+      applyNeutralScale(root, colors.lightBg, colors.lightText, "light");
     } else {
       removeNeutralScale(root);
     }
@@ -198,7 +198,7 @@ function applyThemeColors(
     setOrRemove(root, "--bg-primary", colors.darkBg, DEFAULTS.darkBg);
     setOrRemove(root, "--text-primary", colors.darkText, DEFAULTS.darkText);
     if (colors.darkBg !== DEFAULTS.darkBg || colors.darkText !== DEFAULTS.darkText) {
-      applyNeutralScale(root, colors.darkBg, colors.darkText);
+      applyNeutralScale(root, colors.darkBg, colors.darkText, "dark");
     } else {
       removeNeutralScale(root);
     }

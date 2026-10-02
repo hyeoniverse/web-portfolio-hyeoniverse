@@ -51,7 +51,7 @@
   border: none;
   cursor: pointer;
   background: transparent;
-  color: var(--color-error);
+  color: var(--text-error);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-hint);
   font-weight: 500;
@@ -171,7 +171,7 @@
   padding: 0;
   border: 1.5px solid var(--bg-primary);
   border-radius: var(--radius-circle);
-  background: var(--color-error);
+  background: var(--bg-error-solid);
   color: var(--text-white);
   font-size: var(--font-size-hint);
   line-height: 1;
@@ -284,7 +284,7 @@
 }
 .uploadError {
   font-size: var(--font-size-hint);
-  color: var(--color-error);
+  color: var(--text-error);
   text-align: center;
 }
 }

@@ -6,28 +6,28 @@
 .empty {
   /* 스크롤(휠·끌기)이 얼마나 진행됐는지 0~1 — 자바스크립트가 이 값만 고쳐 쓴다 */
   /* 꽃잎 색 — 분홍과 살구 사이를 꽃잎마다 --tone 으로 섞는다 */
-  --petal-cool: rgb(247 200 214);
-  --petal-warm: rgb(250 216 188);
+  --petal-cool: var(--works-petal-cool);
+  --petal-warm: var(--works-petal-warm);
 
   /* 밝은 테마는 한 겹, 어두운 테마는 플라네타리움 돔(성운 두 겹 + 돔) — 겹 모양이 달라 테마마다 안 쓰는 겹을
      투명하게 둔다. 어두운 돔은 자줏빛이 도는 검정에 성운 기운을 두 군데 얹는다.
      푸른색 하나로 채우면 밤하늘이 아니라 수영장처럼 보인다 */
   background:
-    radial-gradient(100% 70% at 22% 12%, light-dark(transparent, rgb(52 30 62 / 55%)) 0%, transparent 60%),
-    radial-gradient(90% 70% at 78% 78%, light-dark(transparent, rgb(24 40 62 / 50%)) 0%, transparent 62%),
+    radial-gradient(100% 70% at 22% 12%, light-dark(transparent, var(--works-dome-nebula-plum)) 0%, transparent 60%),
+    radial-gradient(90% 70% at 78% 78%, light-dark(transparent, var(--works-dome-nebula-blue)) 0%, transparent 62%),
     radial-gradient(
       130% 100% at 50% 0%,
-      light-dark(rgb(255 251 246), transparent) 0%,
-      light-dark(rgb(250 240 234), transparent) 52%,
-      light-dark(rgb(240 231 228), transparent) 100%
+      light-dark(var(--works-day-1), transparent) 0%,
+      light-dark(var(--works-day-2), transparent) 52%,
+      light-dark(var(--works-day-3), transparent) 100%
     ),
     radial-gradient(
       130% 100% at 50% 4%,
-      light-dark(transparent, rgb(20 18 32)) 0%,
-      light-dark(transparent, rgb(10 9 18)) 58%,
-      light-dark(transparent, rgb(5 4 9)) 100%
+      light-dark(transparent, var(--works-dome-1)) 0%,
+      light-dark(transparent, var(--works-dome-2)) 58%,
+      light-dark(transparent, var(--works-dome-3)) 100%
     ),
-    light-dark(var(--bg-primary), rgb(5 4 9));
+    light-dark(var(--bg-primary), var(--works-dome-3));
 
   display: flex;
   position: relative;

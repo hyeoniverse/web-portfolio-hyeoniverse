@@ -46,13 +46,13 @@ nav#side-navigation::after {
   backdrop-filter: var(--blur-12);
   mask-image: linear-gradient(
     to right,
-    var(--color-neutral-alpha-95) 0%,
-    var(--color-neutral-alpha-10) 100%
+    color-mix(in oklch, var(--text-contrast) 95%, transparent) 0%,
+    color-mix(in oklch, var(--text-contrast) 10%, transparent) 100%
   );
   -webkit-mask-image: linear-gradient(
     to right,
-    var(--color-neutral-alpha-95) 0%,
-    var(--color-neutral-alpha-1) 100%
+    color-mix(in oklch, var(--text-contrast) 95%, transparent) 0%,
+    color-mix(in oklch, var(--text-contrast) 1%, transparent) 100%
   );
 }
 
@@ -161,7 +161,7 @@ nav#side-navigation::after {
   max-width: 2400px; /* 아주 넓은 화면에서 골격이 퍼지지 않게 — 이 파일에서만 쓰는 값 */
   max-height: 90vh;
   overflow: hidden;
-  background: var(--color-neutral-0);
+  background: var(--bg-dialog);
   border: var(--border-light);
   border-radius: var(--radius-24);
 }

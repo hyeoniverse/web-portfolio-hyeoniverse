@@ -29,6 +29,6 @@ export function applyPresetColors(
   const textHex = dark ? preset.darkText : preset.lightText;
   root.style.setProperty("--bg-primary", bgHex);
   root.style.setProperty("--text-primary", textHex);
-  applyNeutralScale(root, bgHex, textHex);
+  applyNeutralScale(root, bgHex, textHex, currentTheme);
   root.style.setProperty("--text-on-accent", textOnAccent(preset, currentTheme, preset.accentColor));
 }

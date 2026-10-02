@@ -29,7 +29,7 @@
   max-height: 85vh;
   display: flex;
   flex-direction: column;
-  background: var(--color-neutral-0);
+  background: var(--bg-dialog);
   border-top: var(--border-light);
   border-radius: var(--radius-24) var(--radius-24) 0 0;
   overflow-y: auto;

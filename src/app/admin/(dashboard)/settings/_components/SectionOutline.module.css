@@ -34,7 +34,7 @@
   height: 6px;
   flex-shrink: 0;
   border-radius: var(--radius-circle);
-  background: var(--color-accent);
+  background: var(--bg-accent-solid);
 }
 
 .item:hover {

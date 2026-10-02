@@ -1,5 +1,5 @@
 .cursor {
-  --_color: var(--color-cursor-trail);
+  --_color: var(--cursor-trail-color);
 
   position: fixed;
   top: 0;

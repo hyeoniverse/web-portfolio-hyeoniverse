@@ -109,7 +109,7 @@ function CellSelectionOverlay({ edges, allSides }: {
 }) {
   if (!edges && !allSides) return null;
   const w = 2;
-  const c = "var(--color-accent)";
+  const c = "var(--border-color-accent-strong)";
   const show = allSides
     ? { top: true, bottom: true, left: true, right: true }
     : edges;

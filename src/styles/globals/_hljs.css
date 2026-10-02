@@ -171,13 +171,13 @@
   border-radius: var(--radius-full);
   color: var(--text-accent);
   text-decoration: underline;
-  text-decoration-color: var(--color-accent-alpha-50);
+  text-decoration-color: color-mix(in oklch, var(--text-accent) 50%, transparent);
   text-underline-offset: 2px;
   transition: background-color 0.15s ease, text-decoration-color 0.15s ease;
 }
 .post-link:hover {
   background: var(--bg-accent);
-  text-decoration-color: var(--color-accent);
+  text-decoration-color: var(--text-accent);
 }
 /* 게시물 개별 아이콘 (이모지/이미지) — 다른 링크와 구분 */
 .post-link-icon {
@@ -381,9 +381,9 @@ code .token.italic {
      각 점: 채움색 5px → **같은 색 계열의 살짝 진한 림**(6px) → 투명. 검정 링이 아니라 동일계열
      림이라야 진짜 macOS 처럼 채도가 살고 밝은/어두운 배경 양쪽에서 또렷하다. */
   background:
-    radial-gradient(circle at 6px 6px, #ff5f56 0 5px, #e0443e 5px 6px, transparent 6px),
-    radial-gradient(circle at 26px 6px, #ffbd2e 0 5px, #dea123 5px 6px, transparent 6px),
-    radial-gradient(circle at 46px 6px, #27c93f 0 5px, #1aab29 5px 6px, transparent 6px);
+    radial-gradient(circle at 6px 6px, var(--code-window-dot-red) 0 5px, var(--code-window-dot-red-edge) 5px 6px, transparent 6px),
+    radial-gradient(circle at 26px 6px, var(--code-window-dot-yellow) 0 5px, var(--code-window-dot-yellow-edge) 5px 6px, transparent 6px),
+    radial-gradient(circle at 46px 6px, var(--code-window-dot-green) 0 5px, var(--code-window-dot-green-edge) 5px 6px, transparent 6px);
 }
 
 /* 플레이그라운드 블록 헤더도 같은 macOS 창버튼(신호등). 코드블록과 동일 규격 —
@@ -394,9 +394,9 @@ code .token.italic {
   width: 52px;
   height: 12px;
   background:
-    radial-gradient(circle at 6px 6px, #ff5f56 0 5px, #e0443e 5px 6px, transparent 6px),
-    radial-gradient(circle at 26px 6px, #ffbd2e 0 5px, #dea123 5px 6px, transparent 6px),
-    radial-gradient(circle at 46px 6px, #27c93f 0 5px, #1aab29 5px 6px, transparent 6px);
+    radial-gradient(circle at 6px 6px, var(--code-window-dot-red) 0 5px, var(--code-window-dot-red-edge) 5px 6px, transparent 6px),
+    radial-gradient(circle at 26px 6px, var(--code-window-dot-yellow) 0 5px, var(--code-window-dot-yellow-edge) 5px 6px, transparent 6px),
+    radial-gradient(circle at 46px 6px, var(--code-window-dot-green) 0 5px, var(--code-window-dot-green-edge) 5px 6px, transparent 6px);
 }
 
 /* macOS 창 제목처럼 언어 라벨을 헤더 정중앙에 절대배치 — 신호등(좌)·컨트롤(우) 폭과 무관하게
@@ -832,7 +832,7 @@ span.math-element-wrap .math-katex-content {
   margin: 0;
   border: none;
   border-radius: 0;
-  background: #fff;
+  background: var(--bg-white);
 }
 .reader-playground-code {
   margin: 0;

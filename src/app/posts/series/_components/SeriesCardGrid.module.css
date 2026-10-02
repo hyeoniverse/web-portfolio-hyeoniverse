@@ -34,8 +34,8 @@
   padding: var(--spacing-20) var(--spacing-16) var(--spacing-16);
   background: linear-gradient(
     to top,
-    oklch(0.00% 0.0000 0.00 / 0.78) 0%,
-    oklch(0.00% 0.0000 0.00 / 0.32) 38%,
+    color-mix(in oklch, var(--bg-black) 78%, transparent) 0%,
+    color-mix(in oklch, var(--bg-black) 32%, transparent) 38%,
     transparent 68%
   );
   color: var(--text-white);

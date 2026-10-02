@@ -1,6 +1,7 @@
 /* ==========================================================================
-   Layer 2: Semantic Design Tokens
-   References Layer 1 raw tokens from _tokens.css
+   역할 토큰 (docs/design-system.md 2-1 · 2-5 · 3.1)
+   팔레트(tokens/_color.css)를 가리킨다. 색은 light-dark() 로 라이트 · 다크 단계를 고르고,
+   반투명은 color-mix() 로 만든다. 사이트 설정의 테마 색은 ThemeProvider 가 이 역할들을 덮어쓴다(themeColors.ts).
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
@@ -26,29 +27,31 @@
    Text Colors
    -------------------------------------------------------------------------- */
 :root {
-  --text-white: var(--color-white-alpha-100);
+  --text-white: var(--color-white);
   /* 항상 dark 한 surface 위 dimmed 흰 텍스트 (--border-color-white-muted 와 pair) */
-  --text-white-muted: var(--color-white-alpha-50);
-  --text-black: var(--color-gray-alpha-100);
-  --text-primary: var(--color-neutral-900);
-  --text-secondary: var(--color-neutral-800);
-  --text-tertiary: var(--color-neutral-700);
+  --text-white-muted: color-mix(in oklch, var(--color-white) 50%, transparent);
+  --text-black: var(--color-black);
+  /* 배경과 대비가 가장 큰 글자색 — 반투명 틴트(테두리 · 옅은 면)의 바탕. --text-primary 보다 한 단계 끝에 있다 */
+  --text-contrast: light-dark(var(--color-neutral-950), var(--color-neutral-50));
+  --text-primary: light-dark(var(--color-neutral-900), var(--color-neutral-100));
+  --text-secondary: light-dark(var(--color-neutral-800), var(--color-neutral-200));
+  --text-tertiary: light-dark(var(--color-neutral-700), var(--color-neutral-300));
   /* 라이트에서 neutral-500 은 배경 대비가 2.74 라 글자로 못 쓴다. 한 단계 진한 600(4.93)으로 둔다.
      다크는 같은 500 이 5.87 이라 500 을 쓴다. */
   --text-muted: light-dark(var(--color-neutral-600), var(--color-neutral-500));
-  --text-inverse: var(--color-neutral-0);
-  --text-success: var(--color-success);
-  --text-warning: var(--color-warning);
-  --text-info: var(--color-info);
-  --text-error: var(--color-error);
+  --text-inverse: light-dark(var(--color-white), var(--color-black));
+  --text-success: light-dark(var(--color-green-600), var(--color-green-300));
+  --text-warning: light-dark(var(--color-amber-400), var(--color-amber-300));
+  --text-info: light-dark(var(--color-blue-700), var(--color-blue-400));
+  --text-error: light-dark(var(--color-red-600), var(--color-red-400));
   /* 상태색을 배경 위 텍스트로 쓸 때 — 기본값은 라이트에서 AA 미달(warning 2.35·success 3.05)이라
      한 단계 진한 -strong 을 쓴다. dot/bar 배경 용도는 기본값(--text-success 등)을 그대로 둔다. */
-  --text-success-strong: var(--color-success-strong);
-  --text-warning-strong: var(--color-warning-strong);
-  --text-info-strong: var(--color-info-strong);
-  --text-error-strong: var(--color-error-strong);
-  --text-accent: var(--color-accent);
-  --text-accent-alt: var(--color-accent);
+  --text-success-strong: light-dark(var(--color-green-700), var(--color-green-300));
+  --text-warning-strong: light-dark(var(--color-amber-700), var(--color-amber-300));
+  --text-info-strong: light-dark(var(--color-blue-700), var(--color-blue-400));
+  --text-error-strong: light-dark(var(--color-red-700), var(--color-red-400));
+  --text-accent: light-dark(var(--color-accent-700), var(--color-accent-500));
+  --text-accent-alt: var(--text-accent);
   /* accent 면 위에 얹는 글자. accent 는 테마마다 밝기가 뒤집혀서 글자색도 같이 뒤집어야 대비가 선다.
      라이트의 #d40063 위에는 흰 글자(5.28), 다크의 #ff4da6 위에는 검은 글자(6.86). */
   --text-on-accent: light-dark(var(--text-white), var(--text-black));
@@ -58,18 +61,20 @@
    Background Colors
    -------------------------------------------------------------------------- */
 :root {
-  --bg-white: var(--color-white-alpha-100);
-  --bg-black: var(--color-gray-alpha-100);
-  --bg-primary: var(--color-neutral-50);
-  --bg-secondary: var(--color-neutral-100);
-  --bg-secondary-alt: var(--color-neutral-alpha-20);
-  --bg-tertiary: light-dark(var(--color-neutral-alpha-5), var(--color-inverse-alpha-5));
-  --bg-tertiary-alt: var(--color-neutral-alpha-10);
-  --bg-inverse: var(--color-neutral-950);
-  --bg-inverse-light: var(--color-neutral-700);
+  --bg-white: var(--color-white);
+  --bg-black: var(--color-black);
+  --bg-primary: light-dark(var(--color-neutral-50), var(--color-neutral-950));
+  --bg-secondary: light-dark(var(--color-neutral-100), var(--color-neutral-900));
+  --bg-secondary-alt: color-mix(in oklch, var(--text-contrast) 20%, transparent);
+  --bg-tertiary: light-dark(color-mix(in oklch, var(--text-contrast) 5%, transparent), color-mix(in oklch, var(--bg-primary) 5%, transparent));
+  --bg-tertiary-alt: color-mix(in oklch, var(--text-contrast) 10%, transparent);
+  /* 대화상자 · 시트 면 — 라이트 흰색, 다크 검정. 페이지(--bg-primary)와 겹쳐도 경계가 서게 */
+  --bg-dialog: light-dark(var(--color-white), var(--color-black));
+  --bg-inverse: light-dark(var(--color-neutral-950), var(--color-neutral-50));
+  --bg-inverse-light: light-dark(var(--color-neutral-700), var(--color-neutral-300));
   /* 테마 고정 — 사이트 라이트/다크 테마의 실제 배경. inverse 와 달리 화면 테마 따라 안 뒤집힌다 */
-  --bg-scheme-light: var(--color-scheme-light-bg);
-  --bg-scheme-dark: var(--color-scheme-dark-bg);
+  --bg-scheme-light: var(--color-neutral-50);
+  --bg-scheme-dark: var(--color-neutral-950);
 
   /* 글래스 "패널" 표면 — dropdown / popover / toast 처럼 뒤를 비추며 떠 있는 면.
      Select · SearchCapsule · Popover · Toast · DatePicker 가 `반투명 bg + blur + saturate` 라는
@@ -83,42 +88,49 @@
   --blur-glass: var(--blur-12) saturate(1.4);
 
   /* Accent */
-  --bg-accent-subtle: var(--color-accent-alpha-5);
-  --bg-accent-light: var(--color-accent-alpha-10);
-  --bg-accent: var(--color-accent-alpha-20);
-  --bg-accent-solid: var(--color-accent);
-  --bg-accent-solid-light: var(--color-accent-light);
-  --bg-success: var(--color-success-alpha);
-  --bg-success-soft: var(--color-success-soft);
-  --bg-success-solid: var(--color-success);
-  --bg-warning-soft: var(--color-warning-soft);
-  --bg-warning-solid: var(--color-warning);
-  --bg-info-soft: var(--color-info-soft);
-  --bg-error: var(--color-error-alpha);
-  --bg-error-soft: var(--color-error-soft);
+  --bg-accent-subtle: color-mix(in oklch, var(--bg-accent-solid) 5%, transparent);
+  --bg-accent-light: color-mix(in oklch, var(--bg-accent-solid) 10%, transparent);
+  --bg-accent: color-mix(in oklch, var(--bg-accent-solid) 20%, transparent);
+  --bg-accent-solid: light-dark(var(--color-accent-700), var(--color-accent-500));
+  --bg-accent-solid-hover: light-dark(var(--color-accent-800), var(--color-accent-600)); /* 한 단계 진한 강조 면 — 누를 때 · 차트 둘째 색 */
+  --bg-accent-solid-light: light-dark(var(--color-accent-500), var(--color-accent-400));
+  --bg-success: light-dark(color-mix(in oklch, var(--color-green-400) 60%, transparent), color-mix(in oklch, var(--color-green-400) 30%, transparent));
+  --bg-success-soft: light-dark(color-mix(in oklch, var(--text-success) 12%, transparent), color-mix(in oklch, var(--text-success) 18%, transparent));
+  --bg-success-solid: var(--text-success);
+  --bg-warning-soft: light-dark(color-mix(in oklch, var(--text-warning) 12%, transparent), color-mix(in oklch, var(--text-warning) 18%, transparent));
+  --bg-warning-solid: var(--text-warning);
+  --bg-info-soft: light-dark(color-mix(in oklch, var(--text-info) 12%, transparent), color-mix(in oklch, var(--text-info) 18%, transparent));
+  --bg-info-solid: var(--text-info);
+  --bg-error: light-dark(color-mix(in oklch, var(--text-error) 15%, transparent), color-mix(in oklch, var(--text-error) 20%, transparent));
+  --bg-error-soft: light-dark(color-mix(in oklch, var(--text-error) 12%, transparent), color-mix(in oklch, var(--text-error) 18%, transparent));
+  --bg-error-solid: var(--text-error);
 
-  --bg-accent-strong: var(--color-accent-alpha-30);
+  --bg-accent-strong: color-mix(in oklch, var(--bg-accent-solid) 30%, transparent);
 
   /* 글 속 강조(.highlighted-text) 형광펜 — 다크에서는 배경이 어두워 두 배 진해야 같은 세기로 보인다 */
-  --bg-highlight: light-dark(var(--color-accent-alpha-15), var(--color-accent-alpha-30));
-  --bg-highlight-strong: light-dark(var(--color-accent-alpha-30), var(--color-accent-alpha-50));
+  --bg-highlight: light-dark(color-mix(in oklch, var(--bg-accent-solid) 15%, transparent), color-mix(in oklch, var(--bg-accent-solid) 30%, transparent));
+  --bg-highlight-strong: light-dark(color-mix(in oklch, var(--bg-accent-solid) 30%, transparent), color-mix(in oklch, var(--bg-accent-solid) 50%, transparent));
 
   /* Surface & Glass */
-  --bg-surface: light-dark(var(--color-gray-alpha-5), var(--color-white-alpha-5));
-  --bg-glass-subtle: var(--color-white-alpha-5);
-  --bg-glass: var(--color-white-alpha-10);
-  --bg-glass-strong: var(--color-white-alpha-30);
-  --bg-overlay: var(--color-gray-alpha-50);
+  --bg-surface: light-dark(color-mix(in oklch, var(--color-black) 5%, transparent), color-mix(in oklch, var(--color-white) 5%, transparent));
+  --bg-glass-subtle: color-mix(in oklch, var(--color-white) 5%, transparent);
+  --bg-glass: color-mix(in oklch, var(--color-white) 10%, transparent);
+  --bg-glass-strong: color-mix(in oklch, var(--color-white) 30%, transparent);
+  --bg-overlay: color-mix(in oklch, var(--color-black) 50%, transparent);
 
-  /* Gradients - Neutral */
+  /* Gradients */
+  --gradient-accent: linear-gradient(135deg, var(--bg-accent-solid-light), var(--bg-accent-solid-hover));
+  --gradient-accent-soft: linear-gradient(135deg, var(--bg-accent-solid-light), var(--bg-accent-solid));
+  --gradient-neutral: linear-gradient(135deg, light-dark(var(--color-neutral-300), var(--color-neutral-700)), light-dark(var(--color-neutral-700), var(--color-neutral-300)));
+
 
   /* Gradients - Accent Fade */
 
   /* Gradients - Accent Secondary */
   --bg-gradient-accent-vertical: linear-gradient(
     180deg,
-    var(--color-accent-alpha-20) 0%,
-    var(--color-accent-alpha-80) 100%
+    color-mix(in oklch, var(--bg-accent-solid) 20%, transparent) 0%,
+    color-mix(in oklch, var(--bg-accent-solid) 80%, transparent) 100%
   );
 }
 
@@ -127,18 +139,21 @@
    -------------------------------------------------------------------------- */
 :root {
   /* Border colors */
-  --border-color-strong: var(--color-neutral-alpha-100);
-  --border-color-default: var(--color-neutral-alpha-50);
-  --border-color-light: var(--color-neutral-alpha-30);
-  --border-color-white: var(--color-white-alpha-100);
-  --border-color-accent-light: var(--color-accent-alpha-20);
-  --border-color-accent: var(--color-accent-alpha-30);
-  --border-color-accent-strong: var(--color-accent);
-  --border-color-ghost-light: var(--color-white-alpha-10);
-  --border-color-ghost: var(--color-white-alpha-20);
-  --border-color-white-muted: var(--color-white-alpha-50);
-  --border-color-success: var(--color-success);
-  --border-color-neutral-light: var(--color-neutral-alpha-20);
+  --border-color-strong: var(--text-contrast);
+  --border-color-default: color-mix(in oklch, var(--text-contrast) 50%, transparent);
+  --border-color-light: color-mix(in oklch, var(--text-contrast) 30%, transparent);
+  /* 불투명 테두리 — 색 견본처럼 테두리가 반투명이면 안에 든 색과 섞여 보이는 곳 */
+  --border-color-solid: light-dark(var(--color-neutral-300), var(--color-neutral-700));
+  --border-color-white: var(--color-white);
+  --border-color-accent-light: color-mix(in oklch, var(--bg-accent-solid) 20%, transparent);
+  --border-color-accent: color-mix(in oklch, var(--bg-accent-solid) 30%, transparent);
+  --border-color-accent-strong: var(--bg-accent-solid);
+  --border-color-ghost-light: color-mix(in oklch, var(--color-white) 10%, transparent);
+  --border-color-ghost: color-mix(in oklch, var(--color-white) 20%, transparent);
+  --border-color-white-muted: color-mix(in oklch, var(--color-white) 50%, transparent);
+  --border-color-success: var(--text-success);
+  --border-color-error: var(--text-error);
+  --border-color-neutral-light: color-mix(in oklch, var(--text-contrast) 20%, transparent);
 
   /* 테두리 토큰은 세 종류다. **종류를 이름 앞에 둬서** 무엇인지 바로 읽히게 한다.
    *   --border-width-*  두께만        border-width 에 (원시 눈금 — tokens/_border.css)

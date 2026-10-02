@@ -96,10 +96,18 @@ export default function ContentTab({
   const [themeBg, setThemeBg] = useState<{ primary: string; secondary: string; accent: string }>({ primary: "#ffffff", secondary: "#f5f5f5", accent: "#d01046" });
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const cs = getComputedStyle(document.documentElement);
-    const primary = cs.getPropertyValue("--bg-primary").trim() || "#ffffff";
-    const secondary = cs.getPropertyValue("--bg-secondary").trim() || "#f5f5f5";
-    const accent = cs.getPropertyValue("--color-accent").trim() || "#d01046";
+    /* 역할 토큰은 light-dark() 를 담고 있어 사용자 속성을 그대로 읽으면 풀리지 않은 식이 나온다 —
+       요소에 색으로 입혀 지금 테마에서 풀린 값을 읽는다 */
+    const probe = document.createElement("span");
+    document.body.append(probe);
+    const resolve = (token: string, fallback: string) => {
+      probe.style.color = `var(${token})`;
+      return getComputedStyle(probe).color || fallback;
+    };
+    const primary = resolve("--bg-primary", "#ffffff");
+    const secondary = resolve("--bg-secondary", "#f5f5f5");
+    const accent = resolve("--bg-accent-solid", "#d01046");
+    probe.remove();
     setThemeBg({ primary, secondary, accent });
   }, [theme]);
 

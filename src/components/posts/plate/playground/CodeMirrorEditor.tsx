@@ -26,16 +26,16 @@ const theme = EditorView.theme({
   ".cm-content": { caretColor: "var(--text-accent)", padding: "8px 0" },
   ".cm-cursor, .cm-dropCursor": { borderLeftColor: "var(--text-accent)" },
   ".cm-selectionBackground, .cm-content ::selection": {
-    backgroundColor: "var(--color-accent-alpha-20)",
+    backgroundColor: "var(--bg-accent)",
   },
   "&.cm-focused .cm-selectionBackground": {
-    backgroundColor: "var(--color-accent-alpha-30)",
+    backgroundColor: "var(--bg-accent-strong)",
   },
   ".cm-gutters": { backgroundColor: "transparent", color: "var(--text-muted)", border: "none" },
   // 반투명이어야 한다 — 솔리드면 select-all 시 커서가 놓인 마지막(활성) 줄에서 활성줄 배경이
   // 그 아래 그려지는 선택 레이어(.cm-selectionBackground)를 덮어 "마지막 줄만 하이라이트 안 됨"으로 보인다.
   // 아주 옅게(alpha-5) — 현재 줄 표시는 은은하게만.
-  ".cm-activeLine": { backgroundColor: "var(--color-neutral-alpha-5)" },
+  ".cm-activeLine": { backgroundColor: "color-mix(in oklch, var(--text-contrast) 5%, transparent)" },
   ".cm-activeLineGutter": { backgroundColor: "transparent", color: "var(--text-secondary)" },
   ".cm-matchingBracket, &.cm-focused .cm-matchingBracket": {
     backgroundColor: "var(--bg-accent-subtle)", outline: "1px solid var(--border-color-default)",

@@ -94,7 +94,7 @@ export default function OverlaysPopoversDemos() {
                   icon={<Star size={16} />}
                   onClick={() => handleOpenModal("Feature Highlight", (
                     <div className={styles.modalContentCenter}>
-                      <Zap size={48} color="var(--color-accent)" />
+                      <Zap size={48} color="var(--text-accent)" />
                       <Typography variant="h4">Design Tokens</Typography>
                       <Typography variant="body2" color="secondary">A 4-tier token system: raw → semantic → component → context.</Typography>
                     </div>

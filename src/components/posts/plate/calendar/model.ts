@@ -12,9 +12,9 @@ export type EventLabel = {
 export type EventStatusKey = "todo" | "doing" | "done" | "hold";
 export const EVENT_STATUSES: { key: EventStatusKey; name: [string, string]; color: string }[] = [
   { key: "todo", name: ["예정", "To-do"], color: "var(--text-tertiary)" },
-  { key: "doing", name: ["진행 중", "In progress"], color: "var(--color-info)" },
-  { key: "done", name: ["완료", "Done"], color: "var(--color-success)" },
-  { key: "hold", name: ["중단", "On hold"], color: "var(--color-error)" },
+  { key: "doing", name: ["진행 중", "In progress"], color: "var(--text-info)" },
+  { key: "done", name: ["완료", "Done"], color: "var(--text-success)" },
+  { key: "hold", name: ["중단", "On hold"], color: "var(--text-error)" },
 ];
 export function statusOf(key?: string) {
   return key ? EVENT_STATUSES.find((s) => s.key === key) : undefined;
@@ -27,8 +27,8 @@ export function statusName(key: string | undefined, language: string): string {
 /** 이벤트 중요도 */
 export type EventPriorityKey = "high" | "normal" | "low";
 export const EVENT_PRIORITIES: { key: EventPriorityKey; name: [string, string]; color: string }[] = [
-  { key: "high", name: ["높음", "High"], color: "var(--color-error)" },
-  { key: "normal", name: ["보통", "Normal"], color: "var(--color-info)" },
+  { key: "high", name: ["높음", "High"], color: "var(--text-error)" },
+  { key: "normal", name: ["보통", "Normal"], color: "var(--text-info)" },
   { key: "low", name: ["낮음", "Low"], color: "var(--text-tertiary)" },
 ];
 export function priorityOf(key?: string) {
@@ -487,22 +487,22 @@ export function enforceDepOrder(events: CalEvent[], dir: "forward" | "backward")
 
 /** 이벤트 색상 팔레트 (토큰 참조) */
 export const EVENT_COLORS: { key: string; var: string }[] = [
-  { key: "red", var: "var(--color-label-red)" },
-  { key: "orange", var: "var(--color-label-orange)" },
-  { key: "yellow", var: "var(--color-label-yellow)" },
-  { key: "green", var: "var(--color-label-green)" },
-  { key: "blue", var: "var(--color-label-blue)" },
-  { key: "indigo", var: "var(--color-label-indigo)" },
-  { key: "violet", var: "var(--color-label-violet)" },
+  { key: "red", var: "var(--calendar-label-red)" },
+  { key: "orange", var: "var(--calendar-label-orange)" },
+  { key: "yellow", var: "var(--calendar-label-yellow)" },
+  { key: "green", var: "var(--calendar-label-green)" },
+  { key: "blue", var: "var(--calendar-label-blue)" },
+  { key: "indigo", var: "var(--calendar-label-indigo)" },
+  { key: "violet", var: "var(--calendar-label-violet)" },
 ];
 /** 구버전 색 키 → 현재 토큰 (기존 이벤트 호환) */
 const LEGACY_COLOR_ALIAS: Record<string, string> = {
-  accent: "var(--color-accent)",
-  amber: "var(--color-label-yellow)",
-  info: "var(--color-label-blue)",
-  success: "var(--color-label-green)",
-  warning: "var(--color-label-yellow)",
-  error: "var(--color-label-red)",
+  accent: "var(--bg-accent-solid)",
+  amber: "var(--calendar-label-yellow)",
+  info: "var(--calendar-label-blue)",
+  success: "var(--calendar-label-green)",
+  warning: "var(--calendar-label-yellow)",
+  error: "var(--calendar-label-red)",
 };
 /** 리치 메모(HTML) → 미리보기용 순수 텍스트 */
 export function stripHtml(html?: string): string {

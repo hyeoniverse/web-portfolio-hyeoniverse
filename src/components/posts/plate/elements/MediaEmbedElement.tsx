@@ -326,7 +326,7 @@ export function MediaEmbedElement(props: PlateElementProps) {
 
   if (isVideo) {
     const isFloat = vidLayout.startsWith("float-");
-    const handleStyle: React.CSSProperties = { position: "absolute", background: "var(--color-accent)", borderRadius: 3, zIndex: 4, pointerEvents: "none" };
+    const handleStyle: React.CSSProperties = { position: "absolute", background: "var(--bg-accent-solid)", borderRadius: 3, zIndex: 4, pointerEvents: "none" };
     return (
       <PlateElement {...props} ref={videoElRef} as="figure" style={{
         ...props.style,
@@ -360,7 +360,7 @@ export function MediaEmbedElement(props: PlateElementProps) {
                 maxWidth: "100%",
                 display: "block",
                 borderRadius: 8,
-                outline: isActive ? "2px solid var(--color-accent)" : undefined,
+                outline: isActive ? "2px solid var(--border-color-accent-strong)" : undefined,
               }}
               draggable={false}
             />
@@ -419,20 +419,20 @@ export function MediaEmbedElement(props: PlateElementProps) {
                   aspectRatio: embed.aspect || "16/9",
                   border: "none",
                   borderRadius: 8,
-                  outline: iframeActive ? "2px solid var(--color-accent, #3b82f6)" : undefined,
+                  outline: iframeActive ? "2px solid var(--border-color-accent-strong)" : undefined,
                 }}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
               />
               {iframeActive && !isTouch && (
-                <div onPointerDown={onIframeResizeDown} data-no-drag style={{ position: "absolute", right: -5, bottom: -5, width: 10, height: 10, background: "var(--color-accent, #3b82f6)", borderRadius: 3, zIndex: 2 }} />
+                <div onPointerDown={onIframeResizeDown} data-no-drag style={{ position: "absolute", right: -5, bottom: -5, width: 10, height: 10, background: "var(--bg-accent-solid)", borderRadius: 3, zIndex: 2 }} />
               )}
             </>
           ) : embed?.type === "script" ? (
             <ScriptEmbed platform={embed.platform} href={embed.href} />
           ) : (
             <a href={url} target="_blank" rel="noopener noreferrer"
-              style={{ display: "block", padding: "12px 16px", background: "var(--bg-secondary)", borderRadius: 8, color: "var(--color-accent)", wordBreak: "break-all" }}
+              style={{ display: "block", padding: "12px 16px", background: "var(--bg-secondary)", borderRadius: 8, color: "var(--text-accent)", wordBreak: "break-all" }}
             >
               {url}
             </a>

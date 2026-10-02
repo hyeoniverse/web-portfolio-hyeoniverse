@@ -18,7 +18,7 @@ export function LinkElement(props: PlateElementProps<TLinkElement>) {
         {...props}
         as="a"
         style={{
-          color: "var(--color-accent)",
+          color: "var(--text-accent)",
           textDecoration: "underline",
           textUnderlineOffset: 2,
           cursor: "pointer",

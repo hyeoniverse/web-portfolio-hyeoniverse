@@ -181,7 +181,7 @@
   width: 18px;
   height: 18px;
   margin: -9px 0 0 -9px;
-  border: 2px solid var(--color-white-alpha-100);
+  border: 2px solid var(--border-color-white);
   border-radius: var(--radius-circle);
   box-shadow: var(--shadow-sm);
   pointer-events: none;
@@ -228,7 +228,7 @@
 }
 
 .wheelLines line {
-  stroke: var(--color-white-alpha-100);
+  stroke: var(--text-white);
   stroke-width: 0.8;
   stroke-linecap: round;
 }

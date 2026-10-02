@@ -91,7 +91,7 @@ export function HrElement(props: PlateElementProps) {
   return (
     <BlockDropZone path={elPath}>
       <PlateElement {...props} style={{ margin: "var(--prose-block-gap) 0", ...props.style }}>
-        <hr contentEditable={false} style={{ border: "none", borderTop: "1px solid var(--border-color-light)", margin: 0, borderRadius: 1, outline: selected && focused ? "2px solid var(--color-accent)" : "none", outlineOffset: 4 }} />
+        <hr contentEditable={false} style={{ border: "none", borderTop: "1px solid var(--border-color-light)", margin: 0, borderRadius: 1, outline: selected && focused ? "2px solid var(--border-color-accent-strong)" : "none", outlineOffset: 4 }} />
         <BlockTailClickZone path={elPath} />
         {props.children}
       </PlateElement>

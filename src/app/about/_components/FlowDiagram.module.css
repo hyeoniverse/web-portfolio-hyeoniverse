@@ -22,7 +22,7 @@
 
 /* ── Terminal (Start / End) ── */
 .terminal {
-  fill: var(--color-accent);
+  fill: var(--text-accent);
   stroke: none;
 }
 
@@ -50,7 +50,7 @@
 /* ── Decision Diamond ── */
 .diamond {
   fill: var(--bg-primary);
-  stroke: var(--color-accent);
+  stroke: var(--text-accent);
   stroke-width: 1.5;
 }
 
@@ -58,7 +58,7 @@
   font-family: var(--font-mono);
   font-size: var(--font-size-label);
   font-weight: 600;
-  fill: var(--color-accent);
+  fill: var(--text-accent);
 }
 
 /* ── Edges ── */
@@ -78,7 +78,7 @@
   font-family: var(--font-mono);
   font-size: var(--font-size-hint);
   font-weight: 600;
-  fill: var(--color-accent);
+  fill: var(--text-accent);
   opacity: 0;
   animation: fdNodeIn 0.3s ease-out both;
 }

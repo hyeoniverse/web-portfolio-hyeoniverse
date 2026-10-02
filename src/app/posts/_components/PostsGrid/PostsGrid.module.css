@@ -247,7 +247,7 @@
     width: 2px;
     transform-origin: top;
     transform: translateX(-1px) scaleY(0);
-    background: linear-gradient(to bottom, var(--color-accent), color-mix(in srgb, var(--color-accent) 55%, transparent));
+    background: linear-gradient(to bottom, var(--bg-accent-solid), color-mix(in srgb, var(--bg-accent-solid) 55%, transparent));
     border-radius: var(--radius-full);
     animation: tlAxisProgress linear both;
     animation-timeline: scroll(root block);
@@ -357,8 +357,8 @@
 .gridItemTlRight::after { left: 6px; }
 /* hover — dot accent */
 .gridTimeline .gridItem:hover::before {
-  background: var(--color-accent);
-  box-shadow: 0 0 0 2px var(--color-accent), 0 0 0 6px color-mix(in srgb, var(--color-accent) 18%, transparent);
+  background: var(--bg-accent-solid);
+  box-shadow: 0 0 0 2px var(--border-color-accent-strong), 0 0 0 6px color-mix(in srgb, var(--border-color-accent-strong) 18%, transparent);
 }
 
 /* 모바일 — 단일 컬럼(축 왼쪽)으로 collapse */

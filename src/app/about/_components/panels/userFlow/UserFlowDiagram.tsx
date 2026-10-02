@@ -178,7 +178,7 @@ function UserFlowDiagram({ flow, language, seqKey, frame }: {
                           if (!line.includes("♥")) return line;
                           return line.split(/(♥)/).map((part, i) =>
                             part === "♥" ? (
-                              <tspan key={i} fill="var(--color-accent)">
+                              <tspan key={i} fill="var(--text-accent)">
                                 ♥
                               </tspan>
                             ) : (

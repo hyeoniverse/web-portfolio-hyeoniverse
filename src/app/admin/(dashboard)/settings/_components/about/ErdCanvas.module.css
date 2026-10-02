@@ -288,11 +288,11 @@
   fill: none;
 }
 .linkOn .linkLine {
-  stroke: var(--color-accent);
+  stroke: var(--text-accent);
   stroke-width: 2.5;
 }
 .linkOn .linkSymbol {
-  stroke: var(--color-accent);
+  stroke: var(--text-accent);
   stroke-width: 2.5;
 }
 
