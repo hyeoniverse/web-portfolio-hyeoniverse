@@ -94,7 +94,7 @@ export function CalloutElement(props: PlateElementProps) {
         {hasIcon && (
           <span ref={iconRef} contentEditable={false} style={{
             position: "absolute", left: 12, top: "calc(var(--spacing-16) + 2px)", zIndex: 1,
-            fontSize: 20, lineHeight: 1, cursor: "pointer", userSelect: "none",
+            fontSize: "var(--font-size-20)", lineHeight: 1, cursor: "pointer", userSelect: "none",
           }} onMouseDown={(e) => e.preventDefault()} onClick={() => setShowIconPicker(!showIconPicker)} data-clickable="true">
             <EmojiIcon value={icon} />
           </span>

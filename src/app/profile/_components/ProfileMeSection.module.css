@@ -473,14 +473,14 @@
 
 .statNumber {
   font-family: var(--font-family-display);
-  font-size: 2.5rem;
+  font-size: var(--font-size-40);
   font-weight: 400;
   color: var(--text-primary);
 }
 
 .statLabel {
   font-family: var(--font-mono);
-  font-size: 0.75rem;
+  font-size: var(--font-size-hint);
   font-weight: 400;
   color: var(--text-tertiary);
   text-transform: uppercase;
@@ -837,7 +837,7 @@
 .credentialHeading {
   margin: 0 0 var(--spacing-24) 0;
   font-family: var(--font-family-display);
-  font-size: 1.25rem;
+  font-size: var(--font-size-20);
   font-weight: 400;
   color: var(--text-primary);
 }
@@ -864,7 +864,7 @@
   flex-shrink: 0;
   padding-top: var(--spacing-2);
   font-family: var(--font-mono);
-  font-size: 0.75rem;
+  font-size: var(--font-size-hint);
   font-weight: 400;
   color: var(--text-accent);
   letter-spacing: 0.05em;

@@ -112,7 +112,7 @@
 .name {
   fill: var(--sky-star);
   font-family: var(--font-family-body);
-  font-size: 13px;
+  font-size: var(--font-size-label);
   letter-spacing: 0.18em;
   opacity: 0.5;
 }

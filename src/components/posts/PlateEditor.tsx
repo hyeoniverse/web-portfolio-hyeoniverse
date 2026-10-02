@@ -3133,7 +3133,7 @@ function PlateEditorBody({
               }}
               style={{
                 minHeight: 300, width: "100%",
-                fontFamily: "var(--font-mono)", fontSize: "13px", lineHeight: 1.6,
+                fontFamily: "var(--font-mono)", fontSize: "var(--font-size-label)", lineHeight: 1.6,
                 padding: "var(--spacing-12)", outline: "none",
                 resize: "vertical", background: "var(--bg-primary)", color: "var(--text-primary)",
                 whiteSpace: "pre-wrap", wordBreak: "break-all",
