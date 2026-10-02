@@ -230,7 +230,7 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
           />
           <FontSelect
             label={t("admin.settings.bodyFont")}
-            value={config.typography?.bodyFont ?? "Space Grotesk"}
+            value={config.typography?.bodyFont ?? "Pretendard"}
             onChange={(v) => update("typography", "bodyFont", v)}
           />
           <FontSelect

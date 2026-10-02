@@ -15,7 +15,7 @@
   padding: 0 var(--spacing-8);
   border-radius: var(--radius-full);
   background: var(--bg-accent-solid);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   font-weight: 600;
   color: var(--text-on-accent);
@@ -84,7 +84,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
   text-transform: uppercase;
@@ -94,7 +94,7 @@
 .itemDate {
   flex-shrink: 0;
   white-space: nowrap;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
 }
@@ -103,7 +103,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-8);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   font-weight: 500;
   color: var(--text-secondary);
@@ -121,7 +121,7 @@
 
 .commentBody {
   margin: 0;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   color: var(--text-primary);
   white-space: pre-wrap;
@@ -134,7 +134,7 @@
   align-items: center;
   gap: var(--spacing-4);
   margin: var(--spacing-8) 0 0 0;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-secondary);
 }

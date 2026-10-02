@@ -133,7 +133,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-12);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
 }
@@ -152,9 +152,9 @@
 
 .activeSeriesMetaDesc {
   margin: 0;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
-  line-height: var(--line-height-relaxed);
+  line-height: var(--line-height-normal);
   color: var(--text-secondary);
   /* 가독성 한계 — 너무 긴 줄 방지 */
   max-width: 70ch;
@@ -221,7 +221,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   color: var(--text-tertiary);
   font-style: italic;

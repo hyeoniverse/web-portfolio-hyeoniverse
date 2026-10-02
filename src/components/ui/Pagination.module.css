@@ -25,7 +25,7 @@
   border: var(--border-light);
   border-radius: var(--radius-circle);
   background: transparent;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
   transition: transform 0.15s ease, border-color 0.15s ease, color 0.15s ease;
@@ -68,7 +68,7 @@
 }
 
 .ellipsis {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   color: var(--text-tertiary);
   padding: 0 var(--spacing-4);
@@ -79,7 +79,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-4);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
 }

@@ -27,8 +27,8 @@
 
 /* large emphasized number — dayDetail 의 main value */
 .dayDetailNumber {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-32);
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-34);
   font-weight: 700;
   color: var(--text-accent);
   line-height: 1;
@@ -37,7 +37,7 @@
 }
 
 .dayDetailUnit {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
   text-transform: uppercase;
@@ -59,7 +59,7 @@
 }
 
 .dayDetailLabel {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-secondary);
 }
@@ -71,7 +71,7 @@
 
 /* ── Range position — min~max 안에서 선택된 값의 위치 시각화 ── */
 .rangePosLabel {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   text-transform: uppercase;

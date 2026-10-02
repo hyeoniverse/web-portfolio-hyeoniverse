@@ -2,7 +2,7 @@
 
 /* ── Prose body ── */
 .prose {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body-lg);
   line-height: var(--line-height-normal);
   color: var(--text-primary);

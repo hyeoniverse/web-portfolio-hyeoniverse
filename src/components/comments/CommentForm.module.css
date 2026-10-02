@@ -61,7 +61,7 @@
   align-items: center;
   gap: var(--spacing-8);
   flex-shrink: 0;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
 }
@@ -85,7 +85,7 @@
   padding: var(--badge-padding-lg);
   border-radius: var(--radius-full);
   background: var(--bg-accent);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   font-weight: 500;
   color: var(--text-accent);
@@ -194,7 +194,7 @@
   right: calc(100% + var(--spacing-8));
   transform: translateY(-50%);
   white-space: nowrap;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-primary);
   font-weight: var(--font-weight-medium);
@@ -270,7 +270,7 @@
   width: 0;
   border: none;
   background: transparent;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-primary);
   outline: none;
@@ -401,7 +401,7 @@
   position: absolute;
   top: calc(100% + var(--spacing-2));
   right: var(--spacing-16);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-hint);
   color: var(--text-accent);
   white-space: nowrap;
@@ -409,7 +409,7 @@
 
 .formHint {
   margin-right: auto;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-accent);
 }

@@ -26,8 +26,7 @@ body {
   flex-direction: column;
   min-height: 100vh;
   background: var(--bg-primary);
-  font-family: var(--font-sans);
-  line-height: var(--line-height-normal);
+  font: var(--font-body-lg);
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
 }
@@ -44,8 +43,8 @@ body > main {
 }
 
 
+/* 루트 글자 크기는 정하지 않는다 — 브라우저의 "기본 글자 크기" 설정을 따라 rem 이 함께 커지게(3.2-5) */
 html {
-  font-size: 16px; /* Base size for rem calculations */
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -97,13 +96,14 @@ h6 {
   margin: 0;
   padding: 0;
   line-height: var(--heading-line-height);
-  /* 제목(h1~h6) 굵기 — 본문보다 한 단계 위(regular→medium). 전역 단일 소스. */
-  font-weight: var(--font-weight-medium);
+  /* 제목(h1~h6) 굵기 — 제목은 본문 글꼴을 굵게(600) 쓴다(3.2). 전역 단일 소스. */
+  font-weight: var(--font-weight-semibold);
 }
-h1 { font-size: var(--font-size-24); }
-h2 { font-size: var(--font-size-title-lg); }
-h3 { font-size: var(--font-size-title-md); }
-h4 { font-size: var(--font-size-title-sm); }
+/* 화면 UI 제목 — 글자 묶음(Apple 기준 22 · 20 · 18). 예전 24 는 22, 16 은 18 로 */
+h1 { font: var(--font-heading-md); }
+h2 { font: var(--font-heading-sm); }
+h3,
+h4 { font: var(--font-heading-xs); }
 h5 { font-size: var(--font-size-body); }
 h6 { font-size: var(--font-size-label); }
 
@@ -126,10 +126,18 @@ h6 { font-size: var(--font-size-label); }
   scroll-margin-top: calc(var(--spacing-64) + var(--spacing-24));
 }
 
-.prose-content h1 { font-size: var(--font-size-32); font-weight: var(--font-weight-bold); }
-.prose-content h2 { font-size: var(--font-size-28); font-weight: var(--font-weight-bold); }
-.prose-content h3 { font-size: var(--font-size-20); font-weight: var(--font-weight-semibold); }
-.prose-content h4 { font-size: var(--font-size-16); font-weight: var(--font-weight-semibold); }
+/* Apple 기준 단계(34 · 28 · 22 · 18) — h4 는 본문(16)보다 한 단계 크게 */
+.prose-content h1 { font: var(--font-heading-xl); font-weight: var(--font-weight-bold); }
+.prose-content h2 { font: var(--font-heading-lg); font-weight: var(--font-weight-bold); }
+.prose-content h3 { font: var(--font-heading-md); }
+.prose-content h4 { font: var(--font-heading-xs); }
+/* 제목 묶음은 크기 · 줄간격 · 굵기만 쓰고 글꼴은 둘레를 따른다 — 장식 글꼴 문맥 안의 제목, 글마다 고른 본문 글꼴이
+   묶음의 본문 글꼴로 바뀌지 않게. 위 두 규칙(전역 · 본문) 뒤에 둬야 이긴다 */
+h1,
+h2,
+h3,
+h4,
+.prose-content :is(h1, h2, h3, h4) { font-family: inherit; }
 .prose-content h5 { font-size: var(--font-size-16); }
 .prose-content h6 { font-size: var(--font-size-body); }
 
@@ -201,9 +209,8 @@ body {
   width: 100%;
   max-width: 100vw;
   background: var(--bg-primary);
-  /* 한글 OS별 지정(맑은 고딕/애플고딕)은 --font-sans 안의 Pretendard 로 대체됐다(#1158).
-     --font-sans 가 generic 까지 포함하므로 뒤에 다른 폰트를 더 달면 도달 불가 죽은 코드가 된다 */
-  font-family: var(--font-sans);
+  /* 본문 글꼴 역할 — 한글·영문 모두 Pretendard(3.2). 사이트 설정의 본문 글꼴이 덮는다 */
+  font-family: var(--font-family-body);
   color: var(--text-primary);
   /* 위 첫 번째 body 룰의 flex 설정 유지 — 여기선 font/overflow 만 보강 */
 }

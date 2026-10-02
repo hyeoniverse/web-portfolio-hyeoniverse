@@ -48,7 +48,7 @@
 
 .subtitle {
   margin-bottom: var(--spacing-96);
-  font-family: var(--font-space-grotesk), sans-serif;
+  font-family: var(--font-family-body);
   font-size: var(--font-size-title-sm);
   color: var(--text-tertiary);
   line-height: 1.6;
@@ -137,7 +137,7 @@
   margin-bottom: var(--spacing-16);
   padding-bottom: var(--spacing-8);
   border-bottom: var(--border-strong);
-  font-family: var(--font-space-grotesk), sans-serif;
+  font-family: var(--font-family-body);
   font-size: var(--font-size-title-lg);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
@@ -146,7 +146,7 @@
 .sectionSub {
   margin-top: var(--spacing-32);
   margin-bottom: var(--spacing-12);
-  font-family: var(--font-space-grotesk), sans-serif;
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   font-weight: var(--font-weight-medium);
   color: var(--text-tertiary);
@@ -442,7 +442,7 @@
 
 .componentGroupTitle {
   margin-bottom: var(--spacing-12);
-  font-family: var(--font-space-grotesk), sans-serif;
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
@@ -452,7 +452,7 @@
    컴포넌트명(.componentGroupTitle)보다 작고 옅게 — 하위임을 드러낸다. */
 .componentSubLabel {
   margin: var(--spacing-24) 0 var(--spacing-12);
-  font-family: var(--font-space-grotesk), sans-serif;
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   font-weight: var(--font-weight-medium);
   letter-spacing: 0.04em;
@@ -467,7 +467,7 @@
    기존에 흩어져 있던 sectionSub 블록 + 인라인 span 설명을 이 하나로 통일. */
 .componentDesc {
   margin: 0 0 var(--spacing-16) 0;
-  font-family: var(--font-space-grotesk), sans-serif;
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-normal);
@@ -483,7 +483,7 @@
   align-items: center;
   gap: var(--spacing-16);
   margin: var(--spacing-96) 0 var(--spacing-24);
-  font-family: var(--font-space-grotesk), sans-serif;
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   font-weight: var(--font-weight-semibold);
   letter-spacing: 0.14em;
@@ -599,7 +599,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-12);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   color: var(--text-secondary);
   line-height: 1.5;
@@ -694,7 +694,7 @@
   gap: var(--spacing-12);
   font-size: var(--font-size-body);
   color: var(--text-secondary);
-  line-height: var(--line-height-relaxed);
+  line-height: var(--line-height-normal);
 }
 
 .collapsibleBody p {
@@ -910,7 +910,7 @@
 
 .pRowDesc {
   font-size: var(--font-size-body-lg);
-  line-height: var(--line-height-relaxed);
+  line-height: var(--line-height-normal);
   color: var(--text-secondary);
   margin: 0;
 }

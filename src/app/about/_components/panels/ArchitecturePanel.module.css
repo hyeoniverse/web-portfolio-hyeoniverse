@@ -264,7 +264,7 @@
 .archTmLabel {
   overflow: hidden;
   font-family: var(--font-mono), monospace;
-  font-size: clamp(var(--font-size-micro), 0.7vw, 13px);
+  font-size: clamp(var(--font-size-hint), 0.7vw, 13px);
   font-weight: var(--font-weight-medium);
   color: var(--text-secondary);
   white-space: nowrap;
@@ -402,7 +402,7 @@
 
   .archDesc {
     text-align: left;
-    font-size: clamp(var(--font-size-micro), 2.2vw, 0.82rem);
+    font-size: clamp(var(--font-size-hint), 2.2vw, 0.82rem);
     color: var(--text-tertiary);
     padding-left: 0;
     line-height: 1.5;

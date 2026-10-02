@@ -28,7 +28,7 @@
      섞일 상대가 없어 흰 획이 밝은 바탕에 그대로 얹혀 보이지 않는다. 트랙 쪽에 깔아 봐도
      상대가 되지 않아(Chrome 은 층의 바탕을 범위 밖으로 친다) 칸에 깐다 */
   background: var(--bg-primary);
-  font-family: var(--font-space-grotesk), sans-serif;
+  font-family: var(--font-family-body);
   pointer-events: none;
 }
 
@@ -286,7 +286,7 @@
   position: relative;
   z-index: var(--_meta-z);
   max-width: var(--_desc-max-width);
-  font-size: var(--font-size-24);
+  font-size: var(--font-size-22);
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-loose);
   color: var(--text-primary);
@@ -731,7 +731,7 @@
   }
 
   .project .metaSubtitle {
-    font-family: var(--font-space-grotesk), sans-serif;
+    font-family: var(--font-family-body);
     font-size: var(--font-size-title-lg);
     font-weight: var(--font-weight-regular);
     letter-spacing: 0.01em;
@@ -794,7 +794,7 @@
     max-width: none;
     font-size: var(--font-size-20);
     font-weight: var(--font-weight-regular);
-    line-height: var(--line-height-relaxed);
+    line-height: var(--line-height-normal);
     text-align: left;
     color: var(--text-secondary);
   }

@@ -133,7 +133,7 @@ function EditorSection({ language, setSectionRef }: EditorSectionProps) {
         >
           <span
             style={{
-              fontFamily: "var(--font-space-grotesk)",
+              fontFamily: "var(--font-family-body)",
               fontSize: "var(--font-size-label)",
               fontWeight: 600,
               letterSpacing: "0.04em",

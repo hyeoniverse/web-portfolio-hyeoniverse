@@ -23,7 +23,7 @@
 .groupTitle {
   align-self: end;
   margin: 0 0 var(--spacing-8);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   font-weight: 600;
   color: var(--text-tertiary);
@@ -65,7 +65,7 @@
 }
 
 .name {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   font-weight: 600;
   color: var(--text-primary);

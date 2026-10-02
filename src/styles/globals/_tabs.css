@@ -35,7 +35,7 @@
   border: none;
   border-bottom: 2px solid transparent;
   background: transparent;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   line-height: var(--line-height-normal);
   color: var(--text-tertiary);
@@ -124,7 +124,7 @@
   border: none;
   border-radius: var(--radius-full);
   background: transparent;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   color: var(--text-secondary);
   cursor: pointer;

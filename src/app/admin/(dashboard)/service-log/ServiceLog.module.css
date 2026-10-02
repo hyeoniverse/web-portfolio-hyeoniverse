@@ -300,8 +300,8 @@
 }
 
 .railTotalNum {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-32);
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-34);
   font-weight: 600;
   line-height: 1.1;
   color: var(--text-primary);
@@ -448,7 +448,7 @@
 
 /* 오른쪽 머리 — 지금 보는 범위 · 결과 거르기 · 건수 */
 .scope {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   font-weight: 600;
   color: var(--text-primary);

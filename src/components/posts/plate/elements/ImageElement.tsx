@@ -190,7 +190,7 @@ export function ImageElement(props: PlateElementProps) {
     padding: "2px 10px",
     background: "var(--bg-overlay)", color: "#fff",
     borderRadius: "var(--radius-full)", fontSize: 11,
-    fontFamily: "var(--font-space-grotesk)", lineHeight: 1.4,
+    fontFamily: "var(--font-family-body)", lineHeight: 1.4,
     height: badgeHeight, display: "flex", alignItems: "center",
     pointerEvents: "none", whiteSpace: "nowrap", zIndex: 4,
     maxWidth: "calc(100% - 8px)", overflow: "hidden", textOverflow: "ellipsis",

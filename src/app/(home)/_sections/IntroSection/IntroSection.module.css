@@ -39,17 +39,17 @@
 }
 
 .text {
-  font-family: var(--font-space-grotesk), sans-serif;
+  font-family: var(--font-family-body);
   font-size: var(--fluid-font-size-3xl);
   font-weight: var(--font-weight-light);
-  line-height: var(--line-height-relaxed);
+  line-height: var(--line-height-normal);
   color: var(--text-primary);
   text-align: center;
 }
 
 .caption {
   margin-top: var(--spacing-16);
-  font-family: var(--font-space-grotesk), sans-serif;
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-normal);

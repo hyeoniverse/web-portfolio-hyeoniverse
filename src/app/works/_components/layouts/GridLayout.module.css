@@ -94,7 +94,7 @@
   opacity: 0.6;
   margin: 0;
   max-width: 540px;
-  line-height: var(--line-height-relaxed);
+  line-height: var(--line-height-normal);
 }
 
 .introMeta {
@@ -240,7 +240,7 @@
 .projectDesc {
   font-size: clamp(0.8rem, 0.95vw, 1rem);
   opacity: 0.75;
-  line-height: var(--line-height-relaxed);
+  line-height: var(--line-height-normal);
   margin: 0;
 }
 

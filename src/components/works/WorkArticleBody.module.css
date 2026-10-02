@@ -8,7 +8,7 @@
    게시물 본문(.prose)·에디터(.editorContent)·댓글(.commentMarkdown)과 같은 규칙으로 통일.
    코드블록(pre/code) 프레임·스크롤도 globals/_hljs.css 의 .code-block-wrap 규칙으로 공통화. */
 .sectionProse {
-  font-family: var(--font-space-grotesk), sans-serif;
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body-lg);
   line-height: var(--line-height-normal);
   color: var(--text-secondary);
@@ -303,7 +303,7 @@
 
 .sectionProse [data-callout] {
   padding: var(--spacing-20) var(--spacing-24) !important;
-  line-height: var(--line-height-relaxed);
+  line-height: var(--line-height-normal);
 }
 
 /* 열 카드 안쪽 여백 */

@@ -59,7 +59,7 @@
 
 .description {
   margin: 0 0 var(--spacing-24) 0;
-  font-family: var(--font-space-grotesk), sans-serif;
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body-lg);
   line-height: 1.6;
   color: var(--text-primary);
@@ -87,7 +87,7 @@
   padding: var(--button-padding-lg);
   border: var(--border-strong);
   background: var(--text-primary);
-  font-family: var(--font-space-grotesk), sans-serif;
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   font-weight: 500;
   color: var(--bg-primary);
@@ -109,7 +109,7 @@
   padding: var(--button-padding-lg);
   border: var(--border-strong);
   background: transparent;
-  font-family: var(--font-space-grotesk), sans-serif;
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   font-weight: 500;
   color: var(--text-primary);

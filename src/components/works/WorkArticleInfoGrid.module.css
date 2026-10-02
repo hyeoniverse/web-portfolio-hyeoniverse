@@ -21,7 +21,7 @@
 }
 
 .infoLabel {
-  font-family: var(--font-space-grotesk), sans-serif;
+  font-family: var(--font-family-body);
   font-size: var(--font-size-hint);
   text-transform: uppercase;
   letter-spacing: 0.12em;
@@ -29,7 +29,7 @@
 }
 
 .infoValue {
-  font-family: var(--font-space-grotesk), sans-serif;
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   line-height: 1.6;
   color: var(--text-primary);
@@ -97,7 +97,7 @@
   display: flex;
   align-items: flex-start;
   gap: var(--spacing-12);
-  font-family: var(--font-space-grotesk), sans-serif;
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   line-height: 1.6;
   color: var(--text-secondary);
@@ -135,7 +135,7 @@
 }
 
 .teamContribsRoleLabel {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   font-weight: 600;
   color: var(--text-secondary);

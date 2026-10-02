@@ -10,7 +10,7 @@
 }
 
 .tagDeleteConfirmDesc {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   color: var(--text-primary);
   line-height: var(--line-height-normal);
@@ -39,7 +39,7 @@
   border: var(--border-light);
   border-radius: var(--radius-full);
   background: var(--bg-primary);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-secondary);
   cursor: pointer;

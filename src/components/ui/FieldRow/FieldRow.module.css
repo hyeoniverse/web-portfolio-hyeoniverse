@@ -23,7 +23,7 @@
 
 .fieldLabel {
   width: auto;
-  font-family: var(--font-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   font-weight: 500;
   display: flex;

@@ -9,7 +9,7 @@
   align-items: center;
   gap: var(--spacing-12);
   border-bottom: var(--border-light);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   transition: background-color 0.15s ease;
   cursor: default;

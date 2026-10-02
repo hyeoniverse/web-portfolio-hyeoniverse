@@ -197,7 +197,7 @@ export default function WorkPreviewPage() {
         alignItems: "center",
         justifyContent: "center",
         minHeight: "100vh",
-        fontFamily: "var(--font-space-grotesk)",
+        fontFamily: "var(--font-family-body)",
         color: "var(--text-tertiary)",
       }}>
         미리보기 데이터가 없습니다. 에디터에서 Preview 버튼을 눌러주세요.

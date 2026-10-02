@@ -10,7 +10,7 @@
 }
 
 .title {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   font-weight: var(--font-weight-semibold);
   color: var(--text-secondary);
@@ -30,7 +30,7 @@
 
 .empty {
   padding: var(--spacing-16) 0;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
 }
@@ -85,7 +85,7 @@
 }
 
 .avatarInitial {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   font-weight: var(--font-weight-semibold);
   color: var(--text-secondary);
@@ -105,7 +105,7 @@
 }
 
 .name {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   font-weight: var(--font-weight-medium);
   color: var(--text-primary);
@@ -198,7 +198,7 @@
   padding: var(--spacing-1) var(--spacing-8);
   border-radius: var(--radius-full);
   background: var(--bg-success-soft);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-hint);
   font-weight: var(--font-weight-semibold);
   text-transform: uppercase;
@@ -231,7 +231,7 @@
 .more {
   display: inline-block;
   margin-top: var(--spacing-12);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   font-weight: var(--font-weight-medium);
   color: var(--text-accent);

@@ -9,8 +9,8 @@
   padding: var(--spacing-2) var(--spacing-12);
   border-radius: var(--radius-full);
   background: var(--bg-accent-solid);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-micro);
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-hint);
   font-weight: var(--font-weight-bold);
   color: var(--text-on-accent);
   text-transform: uppercase;
@@ -25,8 +25,8 @@
   padding: var(--spacing-2) var(--spacing-4);
   border: var(--border-light);
   border-radius: var(--radius-full);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-micro);
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-hint);
   font-weight: var(--font-weight-medium);
   font-style: italic;
   color: var(--text-tertiary);

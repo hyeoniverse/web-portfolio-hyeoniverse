@@ -14,7 +14,7 @@
 }
 
 .devicesTitle {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   font-weight: var(--font-weight-semibold);
   color: var(--text-secondary);
@@ -76,7 +76,7 @@
   align-items: center;
   flex-wrap: wrap;
   gap: var(--spacing-4);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   font-weight: var(--font-weight-medium);
   color: var(--text-primary);
@@ -143,7 +143,7 @@
 }
 .fieldValue {
   flex: 1;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   color: var(--text-secondary);
 }
@@ -179,7 +179,7 @@
 }
 
 .confirmTitle {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-title-sm);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
@@ -187,7 +187,7 @@
 }
 
 .confirmDesc {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-secondary);
   margin: 0;

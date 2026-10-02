@@ -570,7 +570,7 @@
 
   .dcCardTitle {
     margin-bottom: var(--spacing-2);
-    font-size: clamp(var(--font-size-micro), 2vw, 0.85rem);
+    font-size: clamp(var(--font-size-hint), 2vw, 0.85rem);
     letter-spacing: 0.25em;
   }
 
@@ -581,7 +581,7 @@
 
   .dcCardDesc {
     margin-bottom: var(--spacing-12);
-    font-size: clamp(var(--font-size-micro), 2.2vw, 0.9rem);
+    font-size: clamp(var(--font-size-hint), 2.2vw, 0.9rem);
   }
 
   .dcDemo {
@@ -599,7 +599,7 @@
 
   .dcToggleBtn {
     padding: var(--button-padding-sm);
-    font-size: clamp(var(--font-size-micro), 2vw, 0.85rem);
+    font-size: clamp(var(--font-size-hint), 2vw, 0.85rem);
   }
 
   .dcThemeToggle {
@@ -614,7 +614,7 @@
   .dcSwatch {
     width: clamp(36px, 10vw, 52px);
     height: clamp(36px, 10vw, 52px);
-    font-size: clamp(var(--font-size-micro), 1.5vw, 0.7rem);
+    font-size: clamp(var(--font-size-hint), 1.5vw, 0.7rem);
   }
 
   .dcSpringTrack {
@@ -629,7 +629,7 @@
   .dcMotionLabels {
     gap: clamp(6px, 2vw, 12px);
     margin-top: clamp(8px, 2.5vw, 14px);
-    font-size: clamp(var(--font-size-micro), 2vw, 0.8rem);
+    font-size: clamp(var(--font-size-hint), 2vw, 0.8rem);
   }
 
   .dcSpacingList {
@@ -638,7 +638,7 @@
 
   .dcSpacingLabel {
     width: clamp(30px, 8vw, 44px);
-    font-size: clamp(var(--font-size-micro), 1.8vw, 0.7rem);
+    font-size: clamp(var(--font-size-hint), 1.8vw, 0.7rem);
   }
 
   .dcSpacingBar {
@@ -646,7 +646,7 @@
   }
 
   .dcSpacingPx {
-    font-size: clamp(var(--font-size-micro), 1.8vw, 0.7rem);
+    font-size: clamp(var(--font-size-hint), 1.8vw, 0.7rem);
   }
 
   .dcBreakpoints {
@@ -655,11 +655,11 @@
   }
 
   .dcBpName {
-    font-size: clamp(var(--font-size-micro), 1.8vw, 0.7rem);
+    font-size: clamp(var(--font-size-hint), 1.8vw, 0.7rem);
   }
 
   .dcBpLabel {
-    font-size: clamp(var(--font-size-micro), 1.5vw, 0.65rem);
+    font-size: clamp(var(--font-size-hint), 1.5vw, 0.65rem);
   }
 
   .dcIconGrid {
@@ -677,7 +677,7 @@
   }
 
   .dcIconCellLabel {
-    font-size: clamp(var(--font-size-micro), 1.8vw, 0.7rem);
+    font-size: clamp(var(--font-size-hint), 1.8vw, 0.7rem);
   }
 }
 

@@ -124,7 +124,7 @@ export function InlineCaption({ caption, onCommit, onEditingChange, autoEdit, ov
         fontSize: overlayMode ? 11 : "var(--font-size-body)",
         lineHeight: 1.5,
         padding: overlayMode ? "0" : "var(--spacing-4) var(--spacing-2) 0",
-        fontFamily: "var(--font-space-grotesk)",
+        fontFamily: "var(--font-family-body)",
         color: overlayMode
           ? (editing ? "#fff" : "rgba(255,255,255,0.9)")
           : (caption || editing ? "var(--text-tertiary)" : "var(--text-muted)"),

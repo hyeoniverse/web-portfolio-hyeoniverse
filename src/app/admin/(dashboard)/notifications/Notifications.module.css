@@ -8,7 +8,7 @@
 .loading {
   padding: var(--spacing-64);
   text-align: center;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   color: var(--text-tertiary);
 }
 
@@ -22,7 +22,7 @@
 
 .title {
   font-family: var(--font-instrument);
-  font-size: var(--font-size-32);
+  font-size: var(--font-size-34);
   font-weight: var(--font-weight-regular);
   color: var(--text-primary);
   margin: 0;
@@ -55,7 +55,7 @@
   padding: 0 var(--spacing-8);
   border-radius: var(--radius-full);
   background: var(--bg-accent-solid);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   font-weight: 600;
   color: var(--text-on-accent);
@@ -157,14 +157,14 @@
 }
 
 .itemTitle {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   font-weight: var(--font-weight-medium);
   color: var(--text-primary);
 }
 
 .itemMessage {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-secondary);
   margin-top: var(--spacing-2);
@@ -184,13 +184,13 @@
 }
 
 .itemDate {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
 }
 
 .itemLink {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-primary);
   text-decoration: none;
@@ -305,7 +305,7 @@
   gap: var(--spacing-4);
   padding: var(--spacing-12) var(--spacing-16);
   border-bottom: var(--border-light);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-hint);
   font-weight: var(--font-weight-semibold);
   letter-spacing: 0.05em;

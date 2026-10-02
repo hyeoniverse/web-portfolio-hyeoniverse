@@ -30,7 +30,7 @@
   backdrop-filter: var(--blur-glass);
   color: var(--text-primary);
   border: var(--border-light);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   font-weight: 500;
   box-shadow: var(--shadow-md);

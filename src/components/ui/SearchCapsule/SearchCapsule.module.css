@@ -85,7 +85,7 @@
   padding-left: var(--spacing-4);
   border: none;
   background: transparent;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-primary);
   outline: none;
@@ -169,8 +169,8 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-2);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-micro);
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -181,8 +181,8 @@
   padding: 0;
   border: none;
   background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-micro);
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -226,7 +226,7 @@
   padding: var(--spacing-4) var(--spacing-8);
   border: none;
   background: transparent;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-primary);
   text-align: left;
@@ -319,7 +319,7 @@
 
 .helpSectionLabel {
   padding: 0 var(--spacing-8);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   font-weight: var(--font-weight-semibold);
   color: var(--text-secondary);
@@ -377,7 +377,7 @@
 
 .helpDesc {
   flex: 1;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   line-height: 1.5;
   color: var(--text-secondary);
@@ -385,8 +385,8 @@
 
 .helpFootnote {
   margin: var(--spacing-2) var(--spacing-8) 0;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-micro);
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   line-height: 1.5;
 }
@@ -412,7 +412,7 @@
   padding: var(--button-padding-xs);
   border: none;
   background: transparent;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   cursor: pointer;

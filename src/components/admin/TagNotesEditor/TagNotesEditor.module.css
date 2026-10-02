@@ -19,7 +19,7 @@
   justify-content: center;
   padding: var(--badge-padding-sm);
   font-family: var(--font-mono);
-  font-size: var(--font-size-micro);
+  font-size: var(--font-size-hint);
   font-weight: 600;
   color: var(--text-tertiary);
   background: var(--bg-tertiary-alt);
@@ -101,7 +101,7 @@
   border: var(--border-light);
   border-radius: var(--radius-full);
   background: transparent;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-hint);
   color: var(--text-secondary);
   cursor: pointer;
@@ -266,7 +266,7 @@
   border: var(--border-light);
   border-radius: var(--radius-full);
   background: transparent;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-hint);
   color: var(--text-secondary);
   cursor: pointer;
@@ -313,7 +313,7 @@
 }
 
 .readonlyText {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   color: var(--text-primary);
   line-height: 1.4;
@@ -372,7 +372,7 @@
   border: var(--border-light);
   border-radius: var(--radius-full);
   background: transparent;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-hint);
   color: var(--text-secondary);
   cursor: pointer;
@@ -402,7 +402,7 @@
   gap: var(--spacing-4);
   padding: 0 var(--spacing-8);
   background: transparent;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-hint);
   color: var(--text-secondary);
   cursor: pointer;
@@ -440,7 +440,7 @@
   background: var(--bg-tertiary);
   color: var(--text-secondary);
   border-radius: var(--radius-full);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-hint);
   font-weight: 600;
   letter-spacing: 0.05em;
@@ -453,7 +453,7 @@
   border: none;
   outline: none;
   background: transparent;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   color: var(--text-primary);
   padding: 0;

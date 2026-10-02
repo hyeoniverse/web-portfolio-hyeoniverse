@@ -282,7 +282,7 @@ export default function PickersSelectsDemos() {
                       background: dpFormat === f ? "var(--text-primary)" : "transparent",
                       color: dpFormat === f ? "var(--bg-primary)" : "var(--text-secondary)",
                       fontSize: "var(--font-size-label)",
-                      fontFamily: "var(--font-space-grotesk)",
+                      fontFamily: "var(--font-family-body)",
                       cursor: "pointer",
                     }}
                   >
@@ -290,7 +290,7 @@ export default function PickersSelectsDemos() {
                   </Pressable>
                 ))}
               </div>
-              <span style={{ fontSize: "var(--font-size-label)", color: "var(--text-primary)", marginLeft: "var(--spacing-8)", fontFamily: "var(--font-space-grotesk)", fontWeight: 600 }}>
+              <span style={{ fontSize: "var(--font-size-label)", color: "var(--text-primary)", marginLeft: "var(--spacing-8)", fontFamily: "var(--font-family-body)", fontWeight: 600 }}>
                 {dpFormat === "year" ? dpDate.year : dpFormat === "yearMonth" ? `${dpDate.year}.${dpDate.month}` : `${dpDate.year}.${dpDate.month}.${dpDate.day}`}
               </span>
             </div>

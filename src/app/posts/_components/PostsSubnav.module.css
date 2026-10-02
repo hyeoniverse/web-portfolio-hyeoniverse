@@ -11,7 +11,7 @@
 .item {
   padding: var(--row-padding-sm);
   border-radius: var(--radius-full);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   font-weight: var(--font-weight-medium);
   color: var(--text-tertiary);
