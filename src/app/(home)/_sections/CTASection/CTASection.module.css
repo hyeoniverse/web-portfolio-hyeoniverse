@@ -92,8 +92,26 @@
   border-radius: var(--radius-full);
 }
 
-/* 마우스를 올렸을 때 단추 뒤를 흐리던 유리창 효과(backdrop-filter)는 뺐다. Safari 는 흐림이 생기고
-   사라질 때마다 화면을 나누는 층을 다시 짜는데, 그때마다 아래 difference 반전이 됐다 안 됐다 했다 */
+/* 버튼 hover 시 유리창 효과: 뒷 커피 canvas가 blur로 보인다.
+   이 효과를 감싸는 층에 직접 걸면 그 층이 섞이는 범위를 가둬, 안의 글자가 반전되지 않고 흰색
+   그대로 남는다. 그래서 유리창은 단추 뒤에 따로 깔린 판이 맡는다 — 단추는 이 판의 자식이 아니므로
+   글자는 계속 페이지 바탕과 섞인다.
+   흐림은 평소에도 0 으로 걸어 두고 hover 때 양만 늘린다. Safari 는 backdrop-filter 가 없다가 생기고
+   사라질 때마다 화면을 나누는 층을 다시 짜는데, 그때마다 아래 difference 반전이 됐다 안 됐다 했다.
+   늘 걸려 있으면 층 구성이 바뀌지 않는다 */
+.cta .magneticInner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  backdrop-filter: blur(0) saturate(100%);
+  transition: backdrop-filter var(--duration-base) ease;
+}
+
+.cta .magneticInner:hover::before {
+  backdrop-filter: var(--blur-4) saturate(120%);
+}
 
 /* CTA 버튼 — 거대한 타이틀에 맞춰 size xl(40px)보다 크게. 폰트는 역할 토큰 상한(body)이라
    높이·가로 패딩으로 키운다.
