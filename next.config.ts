@@ -98,6 +98,16 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "opengraph.githubassets.com" },
     ],
   },
+  /* 브라우저가 링크 없이 바로 찾는 아이콘 주소 — 사파리는 HTML 의 아이콘을 못 쓰면 /favicon.ico 를, 즐겨찾기 ·
+     홈 화면은 /apple-touch-icon.png 를 찾는다. 없으면 사이트 이름 첫 글자(H)를 대신 그린다.
+     설정에서 만든 아이콘(/api/favicon/[file])을 그대로 내준다 */
+  async rewrites() {
+    return [
+      { source: "/favicon.ico", destination: "/api/favicon/ico" },
+      { source: "/apple-touch-icon.png", destination: "/api/favicon/apple" },
+      { source: "/apple-touch-icon-precomposed.png", destination: "/api/favicon/apple" },
+    ];
+  },
 };
 
 export default withBundleAnalyzer(nextConfig);
