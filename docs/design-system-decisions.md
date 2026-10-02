@@ -75,12 +75,12 @@ disabled 제각각). 동작만 `Pressable` 로 떼었다. `react/button-has-type
 |---|---|---|---|
 | 문서 형태 | 규칙·이유·이력·값이 한 파일 | 명세 · 결정 기록 · 토큰 표(자동 생성) | 손으로 옮긴 값이 어긋났다(모션 시간 문서 250/400/600ms, 실제 300/500/800ms) |
 | 규칙 상태 | 전부 "금지" | 강제 / 목표(남은 수) / 권장 | lint 는 색 다섯 속성의 hex 만 봤고 z-index·모션·숫자 모서리는 막지 않았다 |
-| 테마 | Raw 팔레트를 다크에서 뒤집음 | Raw 는 고정, Semantic 이 `light-dark()` 로 바꿈 · `color-scheme` | 팔레트 이름이 테마마다 다른 색을 뜻했다. `color-scheme` 이 없어 다크에서도 스크롤바·폼이 밝았다 |
+| 테마 | Raw 팔레트를 다크에서 뒤집음 | Raw 는 고정, Semantic 이 `light-dark()` 로 바꿈 · `color-scheme` → **D18 로 바뀜**(뒤집기 유지 · `color-scheme` 만) | 팔레트 이름이 테마마다 다른 색을 뜻했다. `color-scheme` 이 없어 다크에서도 스크롤바·폼이 밝았다 |
 | 반투명 | 투명도별 토큰 82개 | `color-mix()` | `color-mix()` 도 159곳이 이미 써서 방식이 둘이었다 |
 | 유동 글자 | 가운데 값이 vw 뿐 | 가운데에 rem 섞기 | 화면 단위뿐이면 브라우저 확대에 안 커진다(WCAG 1.4.4) |
-| 테마 전환 | 전역 `*` transition | View Transitions | 전역 transition 이 컴포넌트 transition 을 덮어 특이도 보정·`!important` 가 퍼졌다 |
+| 테마 전환 | 전역 `*` transition | View Transitions | 전역 transition 이 컴포넌트 transition 을 덮어 특이도 보정·`!important` 가 퍼졌다. (그 규칙은 2026-09-26 에 이미 전환 350ms 동안만 걸리게 바뀌어 있었다 — D19) |
 | 우선순위 | 특이도 올리기(`.x.x`, `!important`) | `@layer` 로 전역을 층에, 모듈은 층 밖 | 문서는 `@layer` 를 "적극 사용"이라 했지만 0곳이었다 |
-| 겹침 | z-index 토큰 + 포털 | `<dialog>`·Popover API(top layer) | 지원 범위(Safari 18+)에서 쓸 수 있고 z-index 경쟁이 없다 |
+| 겹침 | z-index 토큰 + 포털 | `<dialog>`·Popover API(top layer) | z-index 경쟁이 없다. (근거의 "Safari 18+"는 틀렸다 — 실제 범위는 Safari 26.5+, D19) |
 | 컨트롤 높이 | 20/24/28/32/36/38/46 | 20 … 40, 4px 간격 · 떠 있는 단추 분리 | 간격이 고르지 않았고 Button `xl` 은 토큰과 다른 40px 를 썼다 |
 | 누르는 크기 | "최소 크기 유지" | 24×24(WCAG 2.2 2.5.8) | 눈금에 20px 컨트롤이 있었다 |
 | 반응형 | 큰 화면 기준 `max-width` | 작은 화면 기준 · 범위 문법 · 컴포넌트는 container query | 현행 관례 |
@@ -119,7 +119,7 @@ D6 은 "고르는 건 capsule·circle·2xl 셋"을 눈금 이름으로 정하고
 그러자 눈금이 2·4·6·8 다음 24 로 건너뛰어 2-6(눈금은 미리 전부)과 어긋났고, 각진 것이 의미인 자리 19곳은 규칙 위반 주석을
 달고 눈금을 직접 써야 했으며, "안쪽 = 바깥 − 여백" 권장은 정작 그 사이 값을 쓰지 못했다.
 "셋만"은 눈금 규칙이 아니라 역할 규칙이었다. 글자 크기처럼 눈금은 빠짐없이 두고(`lg`·`xl` 을 되살린다), 컴포넌트는
-역할 토큰 넷(`control`·`surface`·`round`·`mark`)만 쓴다. 지금 눈금 이름을 직접 쓴 1176곳은 이름만 바꾸면 되고 보이는 건 그대로다.
+역할 토큰 넷(`control`·`surface`·`round`·`mark`)만 쓴다(`lg`·`xl` 은 D19 때 실제로 되살렸다 — 그 전까지 문서 표에만 있었다). 지금 눈금 이름을 직접 쓴 1176곳은 이름만 바꾸면 되고 보이는 건 그대로다.
 
 ### D17. 2026-10-02 — `-webkit-backdrop-filter` 를 쓰지 않는 진짜 이유
 
@@ -133,4 +133,54 @@ Next(Turbopack)가 쓰는 Lightning CSS(1.33)는 `backdrop-filter` 와 `-webkit-
 | `backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px)` | `-webkit-backdrop-filter: blur(16px)` 만 — 크롬은 블러 없음 |
 | `-webkit-backdrop-filter: …; backdrop-filter: …` | `backdrop-filter` 만 — 정상 |
 
-지원 범위(Safari 18+)는 접두어 없이 되므로 붙일 이유도 없다. stylelint `property-disallowed-list` 로 막는다.
+지원 범위(Safari 26.5+, 표준은 18 부터)는 접두어 없이 되므로 붙일 이유도 없다. stylelint `property-disallowed-list` 로 막는다.
+
+### D18. 2026-10-02 — Raw 팔레트를 테마마다 뒤집는 방식을 유지한다 (D11 의 테마 결정을 바꿈)
+
+D11 은 "Raw 팔레트는 테마와 무관해야 하고, 뒤집으면 이름이 거짓말을 한다"며 Raw 80개를 고정하고 Semantic 을
+`light-dark()` 로 바꾸기로 했다. 업계 자료로 다시 보니 이건 두 방식 중 하나일 뿐이다.
+
+| 방식 | 쓰는 곳 | 팔레트 이름의 뜻 |
+|---|---|---|
+| 팔레트 고정, 역할이 테마마다 다른 단계를 가리킴 | Material 3(ref 는 어디서나 같은 값) · Tailwind | 밝기 |
+| 팔레트를 테마마다 뒤집음, 역할은 테마를 모름 | GitHub Primer(`base/color/light`·`dark` 가 따로 — `neutral-0` 이 라이트에서 흰색, 다크에서 검은색) · Radix(`gray1` 은 두 테마 모두 "앱 바탕") | 바탕 → 글자 쪽 순서 |
+
+이 저장소는 이미 뒤에 것이다(`--color-neutral-0` 이 라이트 흰색, 다크 검은색). 이름이 거짓말을 하는 게 아니라 숫자의
+뜻이 밝기가 아니라 순서였고, 명세가 그걸 적지 않았을 뿐이다. 앞의 방식으로 바꾸면 Raw 80개와 Semantic 전부를
+다시 짜야 하는데 보이는 변화가 없다. D11 이 내세운 실제 이득(다크에서 스크롤바·폼이 어둡게)은 `color-scheme` 하나로
+얻는다 — 그건 팔레트 방식과 무관하다. 그래서 뒤집기는 유지하고 이행 5단계는 `color-scheme` 만 남긴다.
+그림자(`--shadow-*`)가 다크에서 더 진해지는 것도 같은 방식이다.
+
+### D19. 2026-10-02 — 업계 자료로 명세를 다시 감사함
+
+D11 로 다시 쓴 명세를 사용자가 읽으며 찾은 문제(D13–D17)가 이어졌다. 규칙 하나하나를 (1) 이 저장소의 실제 CSS·설정,
+(2) 업계 자료 — DTCG 규격 2025.10, Primer primitives 원본, Material 3, Radix, Tailwind v4, WCAG 2.2, web.dev Baseline —
+에 대 봤다. 고친 것:
+
+| | 명세가 적었던 것 | 실제 | 고친 규칙 |
+|---|---|---|---|
+| 지원 브라우저 | Safari 18 이상 | browserslist 가 Safari 26.5/26.6 으로 풀린다. iOS Safari 는 목록에 없다 | 1 — 범위를 실제대로. 새 기능은 Baseline 시점으로 고른다(1-1) |
+| anchor positioning | "Safari 18 이 못 해서" 안 씀 | Safari 26 · Firefox 147(2026-01)로 범위 안이다. 다만 Baseline 된 지 1년이 안 됐고 없으면 위치가 깨진다 | 1-1 — 이유를 바꿈 |
+| Popover API | (근거 없이) 기본으로 씀 | Baseline 은 2024-04 가 아니라 2025-01-27(iOS 바깥 클릭 닫힘이 18.3 에서야 고쳐짐) | 1-1 — 날짜 |
+| 조합 토큰 | 만들지 않는다, 예외는 테두리 하나 | DTCG 는 테두리·그림자·글자·전환을 묶음 타입으로 정의한다. Primer 도 글자 역할을 `font` 단축 묶음으로 둔다 | 2-7 — 금지는 "역할 없는 편의 조합"만 |
+| 이름 축약 | `--ui-fs-sm`(축약) ✗ 인데 ✓ 예시가 `--control-h-md` | 둘이 모순 | 2-5 — 허용 축약 넷(h·w·p·lh)을 적음, `--float-btn` → `--float-button` |
+| 반 단계 | "새로 만들지 않는다" | 이미 넷 있다(`-plus`) — 간격 16단계에 크기 이름이 모자라서 | 2-6 — 있는 것을 적고, 이름 범위 상한(6xl)은 지움(`--fluid-font-size-10xl` 이 있다) |
+| Raw 를 부르는 축 | 간격·그림자·모션·z-index | 크기·줄간격·굵기·블러도 역할 층이 없고, z-index 는 이름이 이미 역할 | 2-2 |
+| 간격 역할 | 범용 간격 역할을 만들지 않는다 | `--space-section/block/divide/line` 이 있다 | 2-4 — 지면 리듬 예외로 적음 |
+| 모서리 눈금 | `lg` 12 · `xl` 16 이 있는 것처럼 표에 적음 | CSS 에 없었다 | `_radius.css` 에 추가 · 역할 토큰은 "이행 11단계에서 추가"로 |
+| 모션 | 시간 5개 · 곡선 3개 | `moderate`(350) · `slowest` · `delay-*` · `ease-in-out` 이 더 있다. `moderate` 는 `base`(300)와 50ms 차이, `ease-in-out` 은 실제로 CSS `ease` 곡선 | 3.7 표 · 3.7-3 |
+| 움직임 줄이기 | 시간을 0 에 가깝게 | 0 이면 `transitionend` 가 안 온다. 투명도 전환은 남겨도 된다 | 3.7-2 — `0.01ms` |
+| 테마 전환 | `html[data-theme-ready] *` 가 항상 transition 을 덮는다 | 2026-09-26(`041790cf`)에 `data-theme-transitioning` 으로 바뀌어 전환 350ms 동안만 걸린다. 남은 건 옛 우회 코드다 | 3.7-4 |
+| 자간 | 토큰을 두지 않는다 | `--letter-spacing-tight` 가 있다(3곳) | 3.3-8 |
+| 줄간격 | 단위 없는 숫자만 | `normal` 1.6 과 `relaxed` 1.65 — 0.05 차이 | 3.3-7 (D15 와 같은 판단) |
+| 유동 글자 | 가운데에 rem 만 섞으면 된다 · 정의 11 | rem 은 필요조건. 최대 ≤ 최소 × 2.5 여야 200% 확대가 보장된다(Smashing, 2023). 명세 예시가 5배였다. 정의는 7 | 3.3-5 |
+| 투명도 | `opacity` 토큰을 두지 않는다 | 비활성 47곳이 12가지 값 — 2-4 가 말하는 "함께 바뀌어야 하는 역할" | 3.6-1 `--opacity-disabled` |
+| 컨트롤 높이 | `--control-h-*` 로만 | 버튼·입력 여백 토큰이 세로 여백까지 정해 높이를 두 군데서 만든다(주석 "약 26px") | 3.4-3 — 컨트롤 여백은 좌우만 |
+| 누르는 크기 | 24×24 | WCAG 2.5.8 에는 간격 예외가 있다. 손가락 입력은 44(Apple · Primer `minTarget.coarse`) | 3.4-4 |
+| 크기 눈금 | `--size-*` 4 … 112 | `md` 38 · `lg` 46 이 옛 컨트롤 높이라 고르지 않다. 떠 있는 단추 38·46 도 눈금 밖 | 3.4 — 40·48 로 |
+| top layer | 모달·팝오버를 top layer 로 | 커스텀 커서·로딩·페이지 전환이 z-index 10000 대로 모달 위에 있어야 하는데, top layer 는 z-index 를 이긴다 | 3.8-1 · 3.8-2 — 그것들도 top layer 로 |
+| `@layer` | 순서 선언을 `global.css` 맨 위에 | Turbopack 이 `@import` 한 CSS 를 순서 선언보다 앞에 놓는다(개발 서버에서 확인). 서드파티 CSS 13곳은 JS 에서 바로 import 해 층 밖이다 | 4-2 · 4-3 |
+| 미디어 쿼리 | 기준 셋, JS 는 `--mobile/--tablet/--pc` 를 읽음 | 640 이 19곳 더 있다. `--mobile` 등은 아무도 안 읽는다 | 3.9-2 |
+| 인라인 style | 금지 — 강제(eslint) | eslint 는 문자열 속 글자 크기·모서리 눈금 이름만 본다. `style={{…}}` 946곳, 대부분 동적 값 | §5 — 동적 값만, 권장 |
+| 상태 스타일 | `.isActive` 같은 상태 클래스 | 접근성 속성(`aria-expanded` 등)으로 고르면 읽히는 상태와 보이는 상태가 어긋나지 않는다(Radix·React Aria) | §6 |
+| lint 메시지 | "모서리는 셋만(R6)" · "micro(11)" | 없어진 규칙 번호와 결정 | `.stylelintrc.json` · `eslint.config.mjs` |

@@ -11,7 +11,7 @@ const eslintConfig = [
   ...typescript,
   {
     rules: {
-      // 모서리는 capsule / circle / 2xl 셋만 (docs/design-system.md R6).
+      // 글자 크기·모서리 눈금 이름 금지 (docs/design-system.md 3.3-1 · 3.5-1).
       // stylelint 가 .css 를 막지만 인라인 style·직렬화 문자열은 못 본다 — 여기서 같은 규칙을 건다.
       /* <button> 은 type 을 반드시 적는다. HTML 기본값이 submit 이라, 폼 안에서
          type 을 빠뜨린 버튼은 클릭 시 폼을 제출한다. */
@@ -36,22 +36,22 @@ const eslintConfig = [
         {
           selector: String.raw`Literal[value=/var\(--font-size-(3xs|2xs|xs|sm)\)/]`,
           message:
-            "글자 크기는 눈금이 아니라 역할로 고릅니다 — --font-size-body(14) / -label(13) / -hint(12) / -micro(11).",
+            "글자 크기는 눈금이 아니라 역할로 고릅니다 — --font-size-body(14) / -label(13) / -hint(12, 가장 작은 글자).",
         },
         {
           selector: String.raw`TemplateElement[value.raw=/var\(--font-size-(3xs|2xs|xs|sm)\)/]`,
           message:
-            "글자 크기는 눈금이 아니라 역할로 고릅니다 — --font-size-body(14) / -label(13) / -hint(12) / -micro(11).",
+            "글자 크기는 눈금이 아니라 역할로 고릅니다 — --font-size-body(14) / -label(13) / -hint(12, 가장 작은 글자).",
         },
         {
           selector: String.raw`Literal[value=/var\(--radius-(2xs|xs|sm|md|lg|xl|3xl|4xl|5xl|6xl)\)/]`,
           message:
-            "모서리는 --radius-capsule / --radius-circle / --radius-2xl 셋만 씁니다 (알약·칩·행 하이라이트=capsule, 정원=circle, 면 있는 것=2xl).",
+            "모서리는 지금 --radius-capsule / --radius-circle / --radius-2xl 만 직접 씁니다 (알약·칩·행 하이라이트=capsule, 정원=circle, 면 있는 것=2xl). 역할 토큰으로 옮기는 중 — docs/design-system.md 3.5.",
         },
         {
           selector: String.raw`TemplateElement[value.raw=/var\(--radius-(2xs|xs|sm|md|lg|xl|3xl|4xl|5xl|6xl)\)/]`,
           message:
-            "모서리는 --radius-capsule / --radius-circle / --radius-2xl 셋만 씁니다 (알약·칩·행 하이라이트=capsule, 정원=circle, 면 있는 것=2xl).",
+            "모서리는 지금 --radius-capsule / --radius-circle / --radius-2xl 만 직접 씁니다 (알약·칩·행 하이라이트=capsule, 정원=circle, 면 있는 것=2xl). 역할 토큰으로 옮기는 중 — docs/design-system.md 3.5.",
         },
       ],
       "@typescript-eslint/no-unused-vars": [
