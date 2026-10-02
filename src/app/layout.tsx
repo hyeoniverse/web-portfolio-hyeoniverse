@@ -11,7 +11,7 @@ import {
   Playfair_Display,
   JetBrains_Mono,
   Space_Grotesk,
-  Noto_Serif_KR,
+  Nanum_Myeongjo,
   Instrument_Serif,
 } from "next/font/google";
 // 나머지 25개 옵션 폰트는 ThemeProvider의 loadGoogleFont()으로 동적 로드
@@ -142,12 +142,12 @@ const instrumentSerif = Instrument_Serif({
   variable: "--font-instrument-latin",
   display: "swap",
 });
-/* 장식 제목(--font-family-display)의 한글 — 영문 세리프와 짝을 맞춘 명조(D27).
+/* 제목 · 장식 글자(--font-family-display)의 한글 — 나눔명조(D27). 영문 세리프와 짝을 맞춘다.
    한글 폰트는 슬라이스가 많아 preload 하지 않는다(unicode-range 로 필요한 조각만 요청됨) */
-const notoSerifKr = Noto_Serif_KR({
+const serifKr = Nanum_Myeongjo({
   subsets: ["latin"],
   weight: ["400", "700"],
-  variable: "--font-noto-serif-kr",
+  variable: "--font-serif-kr",
   display: "swap",
   preload: false,
 });
@@ -163,7 +163,7 @@ export default async function RootLayout({
     <html
       lang="ko"
       suppressHydrationWarning
-      className={`${inter.variable} ${playfair.variable} ${jetbrains.variable} ${spaceGrotesk.variable} ${instrumentSerif.variable} ${notoSerifKr.variable}`}
+      className={`${inter.variable} ${playfair.variable} ${jetbrains.variable} ${spaceGrotesk.variable} ${instrumentSerif.variable} ${serifKr.variable}`}
     >
       {/* favicon — 서버 HTML 에는 PNG(metadata.icons), 그 위에 FaviconSync(client)가 prefers-color-scheme 에 맞춰 SVG 를 건다 */}
 

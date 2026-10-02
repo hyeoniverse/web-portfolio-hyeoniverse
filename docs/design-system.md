@@ -279,7 +279,7 @@ src/styles/tokens/*.css          src/styles/globals/_semantic.css      src/style
 **역할 토큰 — 글꼴.** `--font-family-body` · `-heading` · `-display` 가 있다(D25 · D26 · D27).
 - **본문 · UI 글자는 Pretendard 하나**다(라벨 · 버튼 · 메뉴 · 입력 · 설명, 글 · 작업물 본문). 한글이 주 언어라 한글과 영문이
   한 글꼴이어야 높이 · 굵기가 맞는다. 예전에는 페이지 기본이 Inter(맥에서는 한글이 시스템 글꼴), 라벨 · 버튼이 Space Grotesk 로 섞여 있었다.
-- **제목은 세리프다 — 영문 Instrument Serif, 한글 명조(Noto Serif KR), 보통 굵기**(D27). 관리 화면의 페이지 · 모달 · 섹션 제목도 같다.
+- **제목은 세리프다 — 영문 Instrument Serif, 한글 나눔명조, 보통 굵기**(D27). 관리 화면의 페이지 · 모달 · 섹션 제목도 같다.
   `--font-family-heading` 은 `--font-family-display` 를 가리킨다. Instrument Serif 는 400 하나뿐이라 굵게 쓰지 않는다.
   - 예외 — 글 · 작업물 **본문 안의** 제목(h1~h4)은 본문 글꼴을 굵게 쓴다. 표 열 이름 · 목록 항목 · 라벨 크기(14px 이하)의 "제목"은 UI 글자다.
 - `--font-family-display` 는 히어로 · 큰 숫자 · 공개 글 · 시리즈 · 작업물 제목 같은 장식 글자다. 제목과 같은 세리프다.

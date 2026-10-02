@@ -69,11 +69,11 @@ const HEADING_FONTS: Record<string, string> = {
   "Nanum Myeongjo": '"Nanum Myeongjo", serif',
   "Gowun Batang": '"Gowun Batang", serif',
   "Hahmlet": '"Hahmlet", serif',
-  "Playfair Display": '"Playfair Display", var(--font-noto-serif-kr), serif',
-  "Cormorant Garamond": '"Cormorant Garamond", var(--font-noto-serif-kr), serif',
-  "Lora": '"Lora", var(--font-noto-serif-kr), serif',
-  "EB Garamond": '"EB Garamond", var(--font-noto-serif-kr), serif',
-  "Merriweather": '"Merriweather", var(--font-noto-serif-kr), serif',
+  "Playfair Display": '"Playfair Display", var(--font-serif-kr), serif',
+  "Cormorant Garamond": '"Cormorant Garamond", var(--font-serif-kr), serif',
+  "Lora": '"Lora", var(--font-serif-kr), serif',
+  "EB Garamond": '"EB Garamond", var(--font-serif-kr), serif',
+  "Merriweather": '"Merriweather", var(--font-serif-kr), serif',
 };
 
 /* 본문 글꼴 — `--font-family-body` 를 덮는다. 기본(Pretendard)은 CSS 토큰 그대로라 빈 값이다(docs/design-system.md 3.2) */
@@ -234,7 +234,7 @@ function applyFontOverrides(
   /* fallback 에도 한글 웹폰트 포함(#1158) — 커스텀(Google 동적 로드) 폰트가 라틴 전용이어도
      한글이 OS 글꼴로 떨어지지 않게 */
   /* 제목 글꼴 설정 = 장식 글자(--font-family-display). 라틴 세리프를 고르면 한글은 명조(D27) */
-  applyFont(root, "--font-family-display", typography.headingFont, HEADING_FONTS, "var(--font-noto-serif-kr), serif", customSet);
+  applyFont(root, "--font-family-display", typography.headingFont, HEADING_FONTS, "var(--font-serif-kr), serif", customSet);
   applyFont(root, "--font-family-body", typography.bodyFont, BODY_FONTS, '"Pretendard Variable", sans-serif', customSet);
   applyFont(root, "--font-mono", typography.monoFont, MONO_FONTS, '"Pretendard Variable", monospace', customSet);
 }
