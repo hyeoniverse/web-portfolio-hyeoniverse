@@ -169,7 +169,7 @@
   border-radius: 0;
   background: var(--bg-accent-subtle);
   color: var(--text-accent);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-hint);
   white-space: nowrap;
 }
@@ -186,7 +186,7 @@
   align-items: center;
   flex-shrink: 0;
   color: var(--text-tertiary);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-hint);
   font-variant-numeric: tabular-nums;
 }

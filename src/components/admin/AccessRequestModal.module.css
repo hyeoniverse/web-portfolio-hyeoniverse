@@ -28,7 +28,7 @@
 
 .resultTitle {
   margin: 0;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-title-md);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);

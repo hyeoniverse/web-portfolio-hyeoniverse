@@ -129,7 +129,7 @@
   overflow: hidden;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
-  font-family: var(--font-space-grotesk), sans-serif;
+  font-family: var(--font-family-body);
   font-size: clamp(var(--font-size-hint), 1.1vw, var(--font-size-body));
   font-weight: var(--font-weight-medium);
   line-height: var(--line-height-tight);
@@ -192,8 +192,8 @@
 }
 
 .overlayCategory {
-  font-family: var(--font-space-grotesk), sans-serif;
-  font-size: clamp(var(--font-size-micro), 1vw, var(--font-size-body));
+  font-family: var(--font-family-body);
+  font-size: clamp(var(--font-size-hint), 1vw, var(--font-size-body));
   font-weight: var(--font-weight-medium);
   color: var(--text-white);
   text-transform: uppercase;

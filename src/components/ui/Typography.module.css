@@ -27,13 +27,13 @@
 }
 
 .h4 {
-  font-size: var(--font-size-32);
+  font-size: var(--font-size-34);
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-tight);
 }
 
 .h5 {
-  font-size: var(--font-size-24);
+  font-size: var(--font-size-22);
   font-weight: var(--font-weight-medium);
 }
 
@@ -140,11 +140,11 @@
   }
 
   .h2 {
-    font-size: var(--font-size-32);
+    font-size: var(--font-size-34);
   }
 
   .h3 {
-    font-size: var(--font-size-24);
+    font-size: var(--font-size-22);
   }
 
   .h4 {

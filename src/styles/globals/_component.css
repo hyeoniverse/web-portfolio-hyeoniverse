@@ -28,7 +28,7 @@
   /* 뱃지·칩·태그 — 글자 크기가 곧 등급이다. 높이를 직접 정하는 뱃지(--control-height-* 를 쓰는 것)는
      세로 padding 이 필요 없으므로 여기 해당하지 않는다.
      이 셋을 만든 이유: 같은 성격의 뱃지 118곳이 29가지 여백을 쓰고 있었다. */
-  --badge-padding-sm: var(--spacing-1) var(--spacing-4); /* 1 4  — --font-size-micro(11px) */
+  --badge-padding-sm: var(--spacing-1) var(--spacing-4); /* 1 4  — 작은 뱃지(12px) */
   --badge-padding-md: var(--spacing-2) var(--spacing-8); /* 2 8  — --font-size-hint(12px). 기본 */
   --badge-padding-lg: var(--spacing-4) var(--spacing-12); /* 4 12 — --font-size-label(13px) */
 

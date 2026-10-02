@@ -36,25 +36,27 @@
   --font-grotesk: var(--font-space-grotesk), sans-serif;
 
   /* 글자 크기 눈금 — 이름이 px 값이다(docs/design-system.md 2-3-2).
-   * **글자는 12px 밑으로 내려가지 않는다(3.2-2).** 11 은 없애는 중이다 — 쓰는 곳을 12 로 옮긴 뒤 지운다.
+   * **글자는 12px 밑으로 내려가지 않는다(3.2-2).** 11 은 없앴다(쓰던 곳은 12 로).
    * 예전 스케일은 10px · 8px 단계가 라벨·힌트·뱃지에 424 + 55 곳 쓰였다. 관리 화면 전체가 읽기 힘든 원인이어서
    * 10→12, 8→11, 12→13 으로 끌어올렸다.
    *
-   * **컴포넌트 CSS 는 눈금을 쓰지 않고 역할을 쓴다** — 지금은 14px 이하만 역할이 있다
-   * (11 --font-size-micro · 12 --font-size-hint · 13 --font-size-label · 14 --font-size-body, _semantic.css).
+   * **컴포넌트 CSS 는 눈금을 쓰지 않고 역할을 쓴다** — 글자 묶음(--font-heading-* · --font-body 등)과
+   * 크기 역할(12 --font-size-hint · 13 --font-size-label · 14 --font-size-body, _semantic.css).
+   * 제목 단계는 Apple 기준이다 — 34 · 28 · 22 · 20 · 18(3.2).
    * stylelint 와 eslint 가 11~14 눈금 사용을 막는다. 16 이상도 글자 묶음 역할로 옮기는 중이다(3.2-1).
    *
    * 장식용 5px 은 `--font-size-dot` 으로 `_semantic.css` 에 있다 — 단계가 아니라 역할이다. */
-  --font-size-11: 0.6875rem;
   --font-size-12: 0.75rem;
   --font-size-13: 0.8125rem;
   --font-size-14: 0.875rem;
   --font-size-16: 1rem;
   --font-size-18: 1.125rem;
   --font-size-20: 1.25rem;
+  --font-size-22: 1.375rem;
   --font-size-24: 1.5rem;
   --font-size-28: 1.75rem;
   --font-size-32: 2rem;
+  --font-size-34: 2.125rem;
   --font-size-40: 2.5rem;
   --font-size-48: 3rem;
   --font-size-64: 4rem;
@@ -86,7 +88,6 @@
   --line-height-tight: 1.25;
   --line-height-snug: 1.35;
   --line-height-normal: 1.6;
-  --line-height-relaxed: 1.65;
   --line-height-loose: 1.8;
 
   /* Font Weights */

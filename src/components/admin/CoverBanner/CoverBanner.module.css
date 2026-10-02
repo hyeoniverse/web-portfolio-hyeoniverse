@@ -87,7 +87,7 @@
   background: transparent;
   mix-blend-mode: difference;
   color: var(--text-white);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   font-weight: 600;
   pointer-events: none;

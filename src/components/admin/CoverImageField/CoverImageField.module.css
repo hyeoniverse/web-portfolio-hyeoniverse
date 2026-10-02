@@ -35,7 +35,7 @@
   border: none;
   border-radius: var(--radius-full);
   background: transparent;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-weight: 500;
   color: var(--text-secondary);
   cursor: pointer;
@@ -221,5 +221,5 @@
   margin-top: var(--spacing-8);
   font-size: var(--font-size-hint);
   color: var(--text-tertiary);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
 }

@@ -419,7 +419,7 @@ export const siteConfig = {
   // ---------------------------------------------------------------------------
   typography: {
     headingFont: "Instrument Serif", // Display/Heading 폰트
-    bodyFont: "Space Grotesk", // Body/UI 폰트
+    bodyFont: "Pretendard", // 본문·UI 글꼴 — 제목도 이 글꼴을 굵게 쓴다(docs/design-system.md 3.2)
     monoFont: "JetBrains Mono", // Monospace 폰트
     // 업로드한 커스텀 폰트 (Supabase Storage) — public/fonts 빌드 스캔 폰트와 합쳐
     // FontPicker(제목·본문·코드·로고·에디터) 와 @font-face 렌더에 노출

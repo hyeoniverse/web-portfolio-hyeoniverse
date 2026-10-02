@@ -5,7 +5,7 @@
 }
 
 .notice {
-  font-family: var(--font-space-grotesk), sans-serif;
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   color: var(--text-secondary);
   padding: var(--spacing-8) var(--spacing-16);

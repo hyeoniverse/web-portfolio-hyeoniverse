@@ -24,7 +24,7 @@
 
 .lastUpdated {
   margin: 0;
-  font-family: var(--font-space-grotesk), sans-serif;
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   color: var(--text-tertiary);
 }
@@ -42,7 +42,7 @@
 
 .section h2 {
   margin-bottom: var(--spacing-16);
-  font-family: var(--font-space-grotesk), sans-serif;
+  font-family: var(--font-family-body);
   font-size: var(--font-size-title-lg);
   font-weight: var(--font-weight-medium);
   color: var(--text-primary);
@@ -50,7 +50,7 @@
 
 .section p {
   margin-bottom: var(--spacing-16);
-  font-family: var(--font-space-grotesk), sans-serif;
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body-lg);
   line-height: 1.8;
   color: var(--text-secondary);
@@ -64,7 +64,7 @@
 
 .section li {
   margin-bottom: var(--spacing-12);
-  font-family: var(--font-space-grotesk), sans-serif;
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body-lg);
   line-height: 1.8;
   color: var(--text-secondary);

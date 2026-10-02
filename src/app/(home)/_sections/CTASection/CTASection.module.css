@@ -46,7 +46,7 @@
 
 .label {
   margin-bottom: var(--spacing-32);
-  font-family: var(--font-space-grotesk), sans-serif;
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   color: var(--text-accent-alt);
   text-transform: uppercase;
@@ -253,7 +253,7 @@
   right: var(--spacing-page-inline);
   bottom: var(--spacing-64);
   left: var(--spacing-page-inline);
-  font-family: var(--font-space-grotesk), sans-serif;
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-accent-alt);
   letter-spacing: 0.05em;

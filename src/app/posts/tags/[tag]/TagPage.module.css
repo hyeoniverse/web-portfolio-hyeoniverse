@@ -27,7 +27,7 @@
 }
 
 .heroDescription {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body-lg);
   color: var(--text-secondary);
   margin: 0;
@@ -36,7 +36,7 @@
 }
 
 .heroMeta {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   color: var(--text-secondary);
   margin: 0;

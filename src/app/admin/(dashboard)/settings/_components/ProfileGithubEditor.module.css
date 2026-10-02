@@ -190,7 +190,7 @@
   padding: var(--badge-padding-sm);
   border-radius: var(--radius-full);
   background: var(--bg-secondary);
-  font-size: var(--font-size-micro);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   white-space: nowrap;
 }

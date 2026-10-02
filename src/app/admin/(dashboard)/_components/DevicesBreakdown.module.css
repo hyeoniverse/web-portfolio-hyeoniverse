@@ -19,7 +19,7 @@
   min-width: 140px;
 }
 .deviceLegendItem {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
 }
 
@@ -113,7 +113,7 @@ button.deviceLegendBtn {
   border: none;
   background: transparent;
   border-radius: var(--radius-full);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-hint);
   font-weight: 600;
   color: var(--text-tertiary);
@@ -176,7 +176,7 @@ button.deviceLegendBtn {
 }
 
 .deviceDrillTitle {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-hint);
   font-weight: 600;
   letter-spacing: 0.04em;
@@ -200,7 +200,7 @@ button.deviceLegendBtn {
   grid-template-columns: minmax(80px, 1.2fr) minmax(80px, 2fr) auto auto;
   align-items: center;
   gap: var(--spacing-12);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   opacity: 0;
   animation: deviceDrillRowIn 0.3s ease both;

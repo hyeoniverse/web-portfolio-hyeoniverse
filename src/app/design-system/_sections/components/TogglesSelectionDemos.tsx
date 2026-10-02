@@ -109,19 +109,19 @@ export default function TogglesSelectionDemos() {
           <div className={styles.componentRow}>
             <motion.div variants={staggerItemX} {...scrollChildX(0, 4)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-8)" }}>
               <Switch size="sm" checked={switchOn} onCheckedChange={setSwitchOn} />
-              <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-label)", color: "var(--text-secondary)" }}>Default (sm)</span>
+              <span style={{ fontFamily: "var(--font-family-body)", fontSize: "var(--font-size-label)", color: "var(--text-secondary)" }}>Default (sm)</span>
             </motion.div>
             <motion.div variants={staggerItemX} {...scrollChildX(1, 4)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-8)" }}>
               <Switch size="sm" checked={switchAccent} onCheckedChange={setSwitchAccent} variant="accent" />
-              <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-label)", color: "var(--text-secondary)" }}>Accent</span>
+              <span style={{ fontFamily: "var(--font-family-body)", fontSize: "var(--font-size-label)", color: "var(--text-secondary)" }}>Accent</span>
             </motion.div>
             <motion.div variants={staggerItemX} {...scrollChildX(2, 4)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-8)" }}>
               <Switch size="sm" disabled />
-              <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-label)", color: "var(--text-secondary)" }}>Disabled</span>
+              <span style={{ fontFamily: "var(--font-family-body)", fontSize: "var(--font-size-label)", color: "var(--text-secondary)" }}>Disabled</span>
             </motion.div>
             <motion.div variants={staggerItemX} {...scrollChildX(3, 4)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-8)" }}>
               <Switch size="sm" disabled defaultChecked />
-              <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-label)", color: "var(--text-secondary)" }}>Disabled On</span>
+              <span style={{ fontFamily: "var(--font-family-body)", fontSize: "var(--font-size-label)", color: "var(--text-secondary)" }}>Disabled On</span>
             </motion.div>
           </div>
           {/* label(옆 form-row 라벨) vs showStateText(토글 안 ON/OFF 텍스트) */}
@@ -131,7 +131,7 @@ export default function TogglesSelectionDemos() {
             </motion.div>
             <motion.div variants={staggerItemX} {...scrollChildX(1, 2)} style={{ display: "inline-flex", alignItems: "center", gap: "var(--spacing-8)" }}>
               <Switch size="md" showStateText checked={switchStateText} onCheckedChange={setSwitchStateText} />
-              <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-label)", color: "var(--text-secondary)" }}>showStateText (ON/OFF)</span>
+              <span style={{ fontFamily: "var(--font-family-body)", fontSize: "var(--font-size-label)", color: "var(--text-secondary)" }}>showStateText (ON/OFF)</span>
             </motion.div>
           </div>
         </DemoGroup>
@@ -141,11 +141,11 @@ export default function TogglesSelectionDemos() {
           <div className={styles.componentRow}>
             <motion.div variants={staggerItemX} {...scrollChildX(0, 2)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-12)" }}>
               <LanguageToggle lang={langMd} onLangChange={setLangMd} />
-              <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-label)", color: "var(--text-secondary)" }}>Default (md, 28px)</span>
+              <span style={{ fontFamily: "var(--font-family-body)", fontSize: "var(--font-size-label)", color: "var(--text-secondary)" }}>Default (md, 28px)</span>
             </motion.div>
             <motion.div variants={staggerItemX} {...scrollChildX(1, 2)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-12)" }}>
               <LanguageToggle lang={langSm} onLangChange={setLangSm} size="sm" />
-              <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-label)", color: "var(--text-secondary)" }}>size=&quot;sm&quot; (22px)</span>
+              <span style={{ fontFamily: "var(--font-family-body)", fontSize: "var(--font-size-label)", color: "var(--text-secondary)" }}>size=&quot;sm&quot; (22px)</span>
             </motion.div>
           </div>
         </DemoGroup>

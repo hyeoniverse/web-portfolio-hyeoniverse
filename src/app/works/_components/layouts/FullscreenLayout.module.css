@@ -181,7 +181,7 @@
   color: var(--text-primary);
   opacity: 0.6;
   max-width: 540px;
-  line-height: var(--line-height-relaxed);
+  line-height: var(--line-height-normal);
   margin: 0;
 }
 
@@ -330,7 +330,7 @@
   color: var(--text-white);
   opacity: 0.45;
   max-width: 450px;
-  line-height: var(--line-height-relaxed);
+  line-height: var(--line-height-normal);
 }
 
 /* ── CTA circle ── */

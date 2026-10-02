@@ -32,7 +32,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-8);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   font-weight: 600;
   color: var(--text-secondary);
@@ -47,7 +47,7 @@
 /* 그룹별 set/total — 라벨 옆 작은 mono 카운터. 모두 set 이면 accent 색 ✓ */
 .envGroupCount {
   font-family: var(--font-mono);
-  font-size: var(--font-size-micro);
+  font-size: var(--font-size-hint);
   font-weight: 500;
   color: var(--text-tertiary);
   text-transform: none;
@@ -112,7 +112,7 @@
 }
 
 .envStatusCount {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   color: var(--text-secondary);
 }
@@ -220,7 +220,7 @@
 }
 
 .envPasteHint {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
   margin: 0;
@@ -319,7 +319,7 @@
 
 .envHintMobile {
   display: none;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-muted);
   margin-top: var(--spacing-4);
@@ -365,7 +365,7 @@
 }
 
 .envMsg {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-success-strong);
 }

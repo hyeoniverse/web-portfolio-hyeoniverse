@@ -118,7 +118,7 @@
 }
 .ln { font-size: 20px; line-height: 1; color: var(--text-accent); }
 .xmark { font-size: 20px; line-height: 1; color: var(--text-error); }
-.lb { font-family: var(--font-mono); font-size: var(--font-size-micro); letter-spacing: 0.02em; text-align: center; }
+.lb { font-family: var(--font-mono); font-size: var(--font-size-hint); letter-spacing: 0.02em; text-align: center; }
 
 /* 서버 구름 + 리비전 스택 */
 .cloud {
@@ -158,7 +158,7 @@
 .ch {
   padding: var(--cell-padding-md);
   font-family: var(--font-mono);
-  font-size: var(--font-size-micro);
+  font-size: var(--font-size-hint);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--text-tertiary);
@@ -312,7 +312,7 @@
   border-radius: var(--radius-24);
 }
 .zrow.canvas { background: var(--bg-tertiary); color: var(--text-primary); font-family: var(--font-mono); }
-.reach { text-align: center; font-family: var(--font-mono); font-size: var(--font-size-micro); line-height: 1.5; }
+.reach { text-align: center; font-family: var(--font-mono); font-size: var(--font-size-hint); line-height: 1.5; }
 .reach.cut { color: var(--text-error); }
 .reach.thru { color: var(--text-success); }
 .layerFoot { display: flex; justify-content: center; }

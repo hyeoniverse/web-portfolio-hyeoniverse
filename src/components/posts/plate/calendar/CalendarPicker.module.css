@@ -104,7 +104,7 @@
 
 .pickerItemMon { font-size: var(--font-size-label); font-weight: 600; }
 
-.pickerItemYear { font-size: var(--font-size-micro); color: var(--text-tertiary); font-variant-numeric: tabular-nums; }
+.pickerItemYear { font-size: var(--font-size-hint); color: var(--text-tertiary); font-variant-numeric: tabular-nums; }
 
 /* 선택된 행 — 뱃지를 accent 로 채워 tint 위 회색 뱃지가 탁해지는 문제 해결 */
 .pickerItemOn .pickerItemDate { background: var(--bg-accent-solid); color: var(--text-on-accent); }
@@ -221,7 +221,7 @@
   padding: 0 var(--spacing-4);
   border-radius: var(--radius-full);
   background: var(--bg-tertiary);
-  font-size: var(--font-size-micro);
+  font-size: var(--font-size-hint);
   font-weight: 600;
   text-align: center;
 }

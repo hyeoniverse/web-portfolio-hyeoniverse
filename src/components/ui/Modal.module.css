@@ -103,7 +103,7 @@
 
 .modalTitle {
   margin: 0;
-  font-family: var(--font-grotesk), sans-serif;
+  font-family: var(--font-family-body);
   font-size: var(--font-size-title-md);
   font-weight: var(--font-weight-medium);
   color: var(--text-primary);

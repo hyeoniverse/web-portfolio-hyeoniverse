@@ -8,7 +8,7 @@ const fonts = [
   { label: "Inter", family: "var(--font-inter)" },
   { label: "Instrument", family: "var(--font-instrument)" },
   { label: "JetBrains", family: "var(--font-mono)" },
-  { label: "Grotesk", family: "var(--font-space-grotesk)" },
+  { label: "Grotesk", family: "var(--font-family-body)" },
 ];
 
 export default function TypographyDemo() {

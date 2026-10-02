@@ -53,7 +53,7 @@
   border: none;
   border-radius: 0;
   background: transparent;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   /* difference 블렌드 — 흰색이라야 배경 위에서 깔끔히 반전. 비활성도 충분히 진하게(구분은 밑줄/굵기로) */
   color: var(--text-white);
@@ -103,7 +103,7 @@
   border: var(--border-default);
   border-radius: var(--radius-full);
   background: transparent;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   white-space: nowrap;
@@ -161,7 +161,7 @@
   border: none;
   border-radius: var(--radius-full);
   background: transparent;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-white);
   opacity: 0.72;

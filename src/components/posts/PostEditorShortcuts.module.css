@@ -9,7 +9,7 @@
 .helpTab {
   padding: var(--spacing-8) var(--spacing-16);
   margin-bottom: -1px;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   font-weight: 600;
   color: var(--text-tertiary);
@@ -88,7 +88,7 @@
   align-items: baseline;
   column-gap: var(--spacing-16);
   row-gap: var(--spacing-2);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   color: var(--text-primary);
 }

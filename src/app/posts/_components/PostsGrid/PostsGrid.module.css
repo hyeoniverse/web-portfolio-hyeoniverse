@@ -271,7 +271,7 @@
   padding: var(--spacing-4) var(--spacing-16);
   border: var(--border-light);
   border-radius: var(--radius-full);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   font-weight: 600;
   letter-spacing: 0.02em;

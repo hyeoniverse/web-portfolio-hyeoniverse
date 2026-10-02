@@ -16,7 +16,7 @@
 }
 
 .calendarMonth {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   font-weight: 600;
   color: var(--text-primary);
@@ -68,7 +68,7 @@
   cursor: pointer;
   padding: var(--spacing-8);
   transition: filter 0.12s ease;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   /* button element 의 browser default appearance 리셋 */
   appearance: none;
   outline: none;
@@ -117,7 +117,7 @@
 
 /* 조회수 — 셀 중앙, 크게 */
 .calendarCellViews {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-16);
   font-weight: 600;
   color: var(--text-primary);

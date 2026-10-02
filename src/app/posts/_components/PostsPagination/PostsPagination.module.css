@@ -24,7 +24,7 @@
   border: var(--border-default);
   border-radius: var(--radius-circle);
   background: transparent;
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-secondary);
 }
@@ -52,7 +52,7 @@
 }
 
 .ellipsis {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
   padding: 0 var(--spacing-4);

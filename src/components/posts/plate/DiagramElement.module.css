@@ -151,7 +151,7 @@
   border: 1.5px solid var(--border-color-strong);
   border-radius: 6px; /* 사각 (capsule 아님) */
   color: var(--text-primary);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   text-align: center;
 }
@@ -299,7 +299,7 @@
   padding: 0;
   margin: 0;
   color: var(--text-primary);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   text-align: center;
 }
@@ -327,7 +327,7 @@
   margin-top: var(--spacing-4);
 }
 .diagramFormLabel {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-label);
   font-weight: 600;
   letter-spacing: 0.04em;
@@ -344,7 +344,7 @@
   border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-secondary);
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-hint);
   cursor: pointer;
   transition: color 0.12s ease, border-color 0.12s ease;
