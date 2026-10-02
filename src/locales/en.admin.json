@@ -654,6 +654,8 @@
       "faviconThemeHint": "Switches automatically with the browser's dark/light mode. The favicon works independently of the site theme.",
       "faviconGroupGlyph": "Glyph & shape",
       "faviconGroupColor": "Colors (background · border · text)",
+      "faviconGroupImageShape": "Size & shape",
+      "faviconGroupImageColor": "Colors (background · border)",
       "logoFullPart": "Full logo",
       "logoFullPartHint": "loading screen",
       "loadingAnimation": "Loading animation",
