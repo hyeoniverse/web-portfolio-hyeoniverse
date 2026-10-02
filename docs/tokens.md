@@ -157,11 +157,11 @@
 | 토큰 | 값 |
 |---|---|
 | `--font-sans` | `"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Pretendard Variable", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"` |
-| `--font-serif` | `"Playfair Display", Georgia, Cambria, "Times New Roman", Times, var(--font-noto-serif-kr), serif` |
+| `--font-serif` | `"Playfair Display", Georgia, Cambria, "Times New Roman", Times, var(--font-serif-kr), serif` |
 | `--font-mono` | `var(--font-jetbrains), SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", "Pretendard Variable", monospace` |
-| `--font-playfair` | `var(--font-playfair-latin), Georgia, "Times New Roman", var(--font-noto-serif-kr), serif` |
+| `--font-playfair` | `var(--font-playfair-latin), Georgia, "Times New Roman", var(--font-serif-kr), serif` |
 | `--font-space-grotesk` | `var(--font-space-grotesk-latin), "Pretendard Variable", sans-serif` |
-| `--font-instrument` | `var(--font-instrument-latin), Georgia, "Times New Roman", var(--font-noto-serif-kr), serif` |
+| `--font-instrument` | `var(--font-instrument-latin), Georgia, "Times New Roman", var(--font-serif-kr), serif` |
 | `--font-display` | `var(--font-playfair)` |
 | `--font-grotesk` | `var(--font-space-grotesk), sans-serif` |
 | `--font-size-12` | `0.75rem` |
