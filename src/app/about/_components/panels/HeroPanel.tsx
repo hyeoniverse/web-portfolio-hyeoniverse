@@ -14,6 +14,27 @@ import local from "./HeroPanel.module.css";
 const shared = { ...frame, ...shell };
 const styles = { ...shared, ...local };
 
+
+/* 패널 배경(색/그라디언트) — 라이트/다크를 따로 고른다. 두 테마 값을 light-dark() 로 묶어 한 값으로 내려준다
+   (docs/design-system.md 2-5-4 — CSS 가 테마로 갈라 쓰지 않는다). 한 테마만 정했으면 다른 테마는 패널 기본
+   바탕(--bg-primary)이다. 단색은 같은 색 두 점짜리 그라디언트로 바꿔 두 테마의 모양을 맞춘다. */
+type HeroBgFields = {
+  heroBgColor?: string; heroBgColor_dark?: string;
+  heroBgGradientFrom?: string; heroBgGradientTo?: string;
+  heroBgGradientFrom_dark?: string; heroBgGradientTo_dark?: string;
+  heroBgGradientAngle?: number;
+};
+function panelBackground(a: HeroBgFields): string {
+  const stops = (from?: string, to?: string, solid?: string): [string, string] | null =>
+    from && to ? [from, to] : solid ? [solid, solid] : null;
+  const light = stops(a.heroBgGradientFrom, a.heroBgGradientTo, a.heroBgColor);
+  const dark = stops(a.heroBgGradientFrom_dark, a.heroBgGradientTo_dark, a.heroBgColor_dark);
+  if (!light && !dark) return "";
+  const base: [string, string] = ["var(--bg-primary)", "var(--bg-primary)"];
+  const [l, d] = [light ?? base, dark ?? base];
+  return `linear-gradient(${a.heroBgGradientAngle ?? 135}deg, light-dark(${l[0]}, ${d[0]}), light-dark(${l[1]}, ${d[1]}))`;
+}
+
 export default function HeroPanel({ goToPanel }: { goToPanel?: (key: string) => void }) {
   const { isLoading } = useLoadingScreen();
   const about = useAboutConfig();
@@ -74,16 +95,9 @@ export default function HeroPanel({ goToPanel }: { goToPanel?: (key: string) => 
   const videoUrl = isVideo ? mediaUrl : undefined;
   const imageUrl = !isVideo && mediaUrl ? mediaUrl : undefined;
 
-  /* panelBg (색/그라디언트) 는 라이트/다크 테마별로 따로 — CSS 변수로 내려주고 data-theme 로 선택.
-     각 테마 값이 있을 때만 marker 클래스를 붙여, 미설정 테마는 패널 기본 표면색 유지. */
-  const angle = a.heroBgGradientAngle ?? 135;
-  const gradientOf = (from?: string, to?: string) => (from && to ? `linear-gradient(${angle}deg, ${from}, ${to})` : "");
-  const bgLight = gradientOf(a.heroBgGradientFrom, a.heroBgGradientTo) || a.heroBgColor || "";
-  const bgDark = gradientOf(a.heroBgGradientFrom_dark, a.heroBgGradientTo_dark) || a.heroBgColor_dark || "";
-
   const panelStyle: React.CSSProperties = {};
-  if (bgLight) (panelStyle as Record<string, string>)["--_hero-bg-light"] = bgLight;
-  if (bgDark) (panelStyle as Record<string, string>)["--_hero-bg-dark"] = bgDark;
+  const heroBg = panelBackground(a);
+  if (heroBg) (panelStyle as Record<string, string>)["--_hero-bg"] = heroBg;
   /* 각 요소 (line1 / line2 / subtitle / watermark) 별 CSS 변수 — 비어있으면 미적용 (기본 typography 사용). */
   const setVar = (key: string, v: string | undefined) => { if (v) (panelStyle as Record<string, string>)[key] = v; };
   setVar("--_hero-line1-color", a.heroLine1Color);
@@ -117,7 +131,7 @@ export default function HeroPanel({ goToPanel }: { goToPanel?: (key: string) => 
   }
 
   return (
-    <div className={[styles.panel, styles.heroPanelBg, bgLight && styles.heroBgLight, bgDark && styles.heroBgDark, (videoUrl || imageUrl) && styles.heroMediaMode, !isLoading && styles.heroReady].filter(Boolean).join(" ")} style={panelStyle} suppressHydrationWarning>
+    <div className={[styles.panel, styles.heroPanelBg, heroBg && styles.heroBgCustom, (videoUrl || imageUrl) && styles.heroMediaMode, !isLoading && styles.heroReady].filter(Boolean).join(" ")} style={panelStyle} suppressHydrationWarning>
       {videoUrl && (
         <video
           className={styles.heroBgMedia}

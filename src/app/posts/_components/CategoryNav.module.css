@@ -32,7 +32,6 @@
   overflow: hidden;
 }
 
-/* Compound selector (0,2,0) to beat global theme transition (0,1,1) */
 .wrapper .nav {
   transition: max-height 0.35s var(--ease-material);
 }
@@ -73,8 +72,7 @@
   opacity: 1;
   font-weight: var(--font-weight-medium);
 }
-/* 밑줄 — 항상 렌더하고 scaleX(0→1) 로 grow-in/out 애니. 전역 theme transition 이 transform 미포함이라
-   compound (0,2,1) 로 transform transition 을 직접 지정(전역 규칙보다 우선). */
+/* 밑줄 — 항상 렌더하고 scaleX(0→1) 로 grow-in/out 애니. */
 .nav .btn::after {
   content: "";
   position: absolute;

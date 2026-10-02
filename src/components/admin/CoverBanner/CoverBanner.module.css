@@ -47,7 +47,6 @@
   gap: 0;
   opacity: 0;
   pointer-events: none;
-  /* 전역 theme transition(opacity 미포함)을 덮기 위해 compound selector 사용 (0,2,0) */
 }
 
 .wrap .controls {
@@ -166,8 +165,7 @@
   line-height: 1;
 }
 
-/* 커버 위에서 hover 시 — 투명 + frost blur (뒤 커버가 blur 되며 비침).
-   compound (0,2,0) 로 전역 theme transition(backdrop-filter 미포함) 덮어쓰기 */
+/* 커버 위에서 hover 시 — 투명 + frost blur (뒤 커버가 blur 되며 비침). */
 .emojiBtn.emojiBtnOverlay {
   /* blur(0) 을 기본값으로 둬야 hover/active 해제 시 none 으로 뚝 끊기지 않고 0↔8px 보간됨 */
   backdrop-filter: blur(0);

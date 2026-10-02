@@ -4,8 +4,8 @@
    ========================================================================== */
 .wrap {
   --_border-accent-mid: 1px solid var(--color-accent-alpha-50);
-  /* 무대 바탕 — 위아래 그라데이션도 이 색으로 흐린다 */
-  --_bg: oklch(97.34% 0.0169 76.11);
+  /* 무대 바탕 — 위아래 그라데이션도 이 색으로 흐린다. 다크는 순수 검정이어야 3D 오브젝트가 떠 보인다 */
+  --_bg: light-dark(oklch(97.34% 0.0169 76.11), var(--color-gray-alpha-100));
 
   position: fixed;
   inset: 0;
@@ -17,15 +17,9 @@
   touch-action: pinch-zoom;
 }
 
-[data-theme="dark"] .wrap {
-  /* 3D 실린더 뒤 배경 — 다크에서 순수 검정이어야 오브젝트가 떠 보인다. */
-  --_bg: var(--color-gray-alpha-100);
-}
-
 /* 배경을 비우는 변형 — 작업물이 하나도 없을 때 이 배치는 인트로 칸만 그리고, 뒤에 깔린 은하수가
-   보여야 한다. 테마별 규칙([data-theme] .wrap)과 특이도를 맞추려 클래스를 두 번 적고,
-   그 규칙들보다 뒤에 둔다 */
-.wrapBare.wrapBare {
+   보여야 한다. .wrap 보다 뒤에 둔다 */
+.wrapBare {
   background-color: transparent;
 }
 

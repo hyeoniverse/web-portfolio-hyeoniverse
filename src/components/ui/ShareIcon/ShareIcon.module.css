@@ -18,8 +18,6 @@
 
 .node {
   fill: currentColor;
-  /* compound (0,2,0) — 전역 theme transition(html[data-theme-ready] *, (0,1,1))이 shorthand 라
-     여기 transform transition 을 통째로 덮어쓴다. 이걸 이기려면 이 특정도가 필요. */
   transform-box: fill-box;
   transform-origin: center;
 }

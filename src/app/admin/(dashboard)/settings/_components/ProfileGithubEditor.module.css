@@ -130,7 +130,6 @@
   cursor: pointer;
 }
 
-/* 전역 테마 transition 이 shorthand 로 덮으므로 같은 클래스를 두 번 적어 (0,2,0) 으로 이긴다 */
 .orgAdd.orgAdd {
   transition: width 0.25s ease, border-radius 0.25s ease, border-color 0.25s ease, color 0.25s ease;
 }

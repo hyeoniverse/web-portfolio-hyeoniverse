@@ -142,7 +142,6 @@
   opacity: 0;
 }
 
-/* (0,2,0) — 전역 theme transition shorthand(opacity 미포함) override */
 .pickerItem .pickerItemDel { transition: opacity 0.15s ease, color 0.15s ease, background-color 0.15s ease; }
 
 .pickerItem:hover .pickerItemDel, .pickerItemDel:focus-visible { opacity: 1; }
@@ -229,7 +228,6 @@
 
 .pickerTrashChev { margin-left: auto; color: var(--text-tertiary); }
 
-/* compound(0,2,0) — 글로벌 theme transition 이 transform 을 안 덮게 */
 .pickerTrash .pickerTrashChev { transition: transform var(--duration-base) ease; }
 
 .pickerTrashChevOpen { transform: rotate(180deg); }

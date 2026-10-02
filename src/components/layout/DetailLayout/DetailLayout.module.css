@@ -95,7 +95,6 @@
   pointer-events: none;
 }
 
-/* Compound selector — beats global theme transition */
 .page .backBtn svg {
   transition: transform var(--duration-base) var(--ease-material);
 }
@@ -228,7 +227,6 @@
   flex-shrink: 0;
 }
 
-/* Compound selector — beats global theme transition */
 .footerNav .footerLink {
   transition: color var(--duration-base) var(--ease-material);
 }

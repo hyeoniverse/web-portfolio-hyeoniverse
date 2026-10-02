@@ -39,7 +39,6 @@
   line-break: anywhere;
 }
 
-/* (0,2,0) — 전역 theme transition 오버라이드 */
 .wrapper .textarea {
   transition: border-color var(--duration-base) ease;
 }

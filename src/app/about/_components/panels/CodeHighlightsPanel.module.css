@@ -14,7 +14,6 @@
   opacity: 0;
 }
 
-/* Compound selector (0,2,0) to beat global html[data-theme-transitioning] * (0,1,1) */
 .codeSingleView .codeSinglePane {
   transition: opacity var(--duration-moderate) ease;
 }
@@ -104,7 +103,6 @@
   color: var(--text-secondary);
 }
 
-/* Compound selector (0,2,0) to beat global theme transition (0,1,1) */
 .codeScrollWrap .codePageNav {
   transition: opacity var(--duration-base) ease;
 }
@@ -245,7 +243,6 @@
   border-radius: var(--radius-circle);
 }
 
-/* Compound selector (0,2,0) to beat global html[data-theme-transitioning] * (0,1,1) */
 .codeItemMobile .codeMobileToggle {
   transition: transform var(--duration-slow) var(--_ease-bounce);
 }
@@ -261,7 +258,6 @@
   opacity: 0;
 }
 
-/* Compound selector (0,2,0) to beat global html[data-theme-transitioning] * (0,1,1) */
 .codeItemMobile .codeMobileBody {
   transition:
     max-height var(--duration-slow) var(--_ease-material),

@@ -23,7 +23,6 @@
   overflow: hidden;
 }
 
-/* compound (0,2,0) — 전역 theme transition 이 shorthand 라 이걸로 덮지 않으면 색 전환이 통째로 교체된다 */
 .btn.btn {
   transition:
     border-color var(--duration-base) ease,

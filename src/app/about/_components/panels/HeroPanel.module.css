@@ -7,13 +7,10 @@
   z-index: 1;
 }
 
-/* hero 패널 커스텀 배경(색/그라디언트) — 라이트/다크 각각. marker 클래스가 붙은 테마에만 적용,
-   미설정 테마는 패널 기본 표면색 유지. data-theme 로 전환돼 JS 없이 테마 반응. */
-html[data-theme="light"] .heroBgLight {
-  background: var(--_hero-bg-light);
-}
-html[data-theme="dark"] .heroBgDark {
-  background: var(--_hero-bg-dark);
+/* hero 패널 커스텀 배경(색/그라디언트) — 두 테마 값을 light-dark() 로 묶은 한 값(HeroPanel.tsx panelBackground).
+   패널 틀(AboutPanel.module.css .panel)의 바탕을 이겨야 해서 이 파일의 두 클래스를 겹쳐 쓴다. */
+.heroPanelBg.heroBgCustom {
+  background: var(--_hero-bg);
 }
 
 /* admin 에서 heroBackground 로 미디어 URL (이미지/동영상) 지정 시 panel 위 full cover 로 렌더.

@@ -89,8 +89,8 @@
   object-fit: contain;
 }
 
-:global([data-theme="dark"]) .techIconDarkBrand {
-  filter: invert(1);
+.techIconDarkBrand {
+  filter: var(--filter-mono-logo);
 }
 
 .techName {

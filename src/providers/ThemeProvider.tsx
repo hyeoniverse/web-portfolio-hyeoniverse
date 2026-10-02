@@ -18,6 +18,7 @@ import {
   useMemo,
   useSyncExternalStore,
 } from "react";
+import { flushSync } from "react-dom";
 import { useSiteConfig } from "./SiteConfigProvider";
 import { loadGoogleFont } from "@/lib/loadGoogleFont";
 import { LOCAL_FONTS } from "@/config/localFonts.generated";
@@ -112,16 +113,27 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     return () => { listeners.delete(onChange); };
   }, []);
   const getTheme = useCallback(() => themeRef.current, []);
-  const setTheme = useCallback((next: ResolvedTheme) => {
+  const commitTheme = useCallback((next: ResolvedTheme) => {
     if (themeRef.current === next) return;
     themeRef.current = next;
     listenersRef.current.forEach((notify) => notify());
   }, []);
+  /* 사용자가 바꿀 때는 화면을 View Transition 으로 한 번에 바꾼다(docs/design-system.md 3.9-6). 콜백 안에서 렌더와
+     아래 효과(data-theme · 색 덮어쓰기)까지 끝내야 새 화면이 찍힌다 — flushSync 가 동기 렌더의 효과까지 비운다.
+     지원하지 않거나 움직임 줄이기 설정이면 바로 바꾼다 */
+  const setTheme = useCallback((next: ResolvedTheme) => {
+    if (themeRef.current === next) return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!document.startViewTransition || reduce) {
+      commitTheme(next);
+      return;
+    }
+    document.startViewTransition(() => flushSync(() => commitTheme(next)));
+  }, [commitTheme]);
   const toggleTheme = useCallback(() => {
     setTheme(themeRef.current === "dark" ? "light" : "dark");
   }, [setTheme]);
   const theme = useSyncExternalStore(subscribe, getTheme, getServerTheme);
-  const isFirstThemeRef = useRef(true);
 
   // localStorage 또는 시스템 설정에서 테마 초기화. 화면 테마(data-theme)는 여기서 바로 칠하고, 색·글꼴 덮어쓰기는 아래 효과가
   // 이어서 한다. 아래 효과보다 먼저 선언해 같은 커밋에서 먼저 돈다
@@ -131,8 +143,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       ? stored
       : window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
     document.documentElement.setAttribute("data-theme", initial);
-    setTheme(initial);
-  }, [setTheme]);
+    commitTheme(initial);
+  }, [commitTheme]);
 
   // 문서에 테마 적용
   useEffect(() => {
@@ -140,30 +152,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     if (theme !== themeRef.current) return;
 
     const root = document.documentElement;
-
-    if (isFirstThemeRef.current) {
-      // 초기 로드: transition 없이 즉시 적용
-      isFirstThemeRef.current = false;
-      root.setAttribute("data-theme", theme);
-      localStorage.setItem("theme", theme);
-      applyThemeColors(root, theme, siteConfig.theme);
-      applyFontOverrides(root, siteConfig.typography);
-      return;
-    }
-
-    // 테마 전환: transition을 일시적으로 활성화 (350ms)
-    root.setAttribute("data-theme-transitioning", "");
-    void root.offsetHeight; // reflow 강제 → transition 등록 보장
     root.setAttribute("data-theme", theme);
     localStorage.setItem("theme", theme);
     applyThemeColors(root, theme, siteConfig.theme);
     applyFontOverrides(root, siteConfig.typography);
-
-    const timer = setTimeout(() => {
-      root.removeAttribute("data-theme-transitioning");
-    }, 350);
-
-    return () => clearTimeout(timer);
   }, [theme, siteConfig.theme, siteConfig.typography]);
 
   // 한 번 만든 값을 끝까지 쓴다 — 테마가 바뀌어도 context 값은 그대로다

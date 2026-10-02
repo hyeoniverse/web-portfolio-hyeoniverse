@@ -8,8 +8,7 @@
   z-index: var(--z-index-loading); /* 드로어(--z-index-overlay)보다 위 — 로딩 중엔 드로어를 덮어야 함 */
   pointer-events: auto;
   will-change: opacity;
-  /* (0,1,0) → 글로벌 theme transition (0,1,1)에 덮임 → !important로 opacity 보호 */
-  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .backdrop {
@@ -20,6 +19,6 @@
 
 @media (max-width: 768px) {
   .loadingScreen {
-    transition: opacity 0.3s ease !important;
+    transition: opacity 0.3s ease;
   }
 }

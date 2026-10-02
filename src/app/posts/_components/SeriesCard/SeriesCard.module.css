@@ -163,8 +163,7 @@
   transform: scale(1.05);
 }
 
-/* active — 살짝 기울이는 tilt 효과 (책 표지가 비스듬히 꽂힌 듯). compound (0,2,0) 로
-   글로벌 theme transition 이김. transform 은 글로벌 규칙에 없으므로 안전. */
+/* active — 살짝 기울이는 tilt 효과 (책 표지가 비스듬히 꽂힌 듯). */
 .card.active .thumb {
   transform: rotate(-2.5deg);
   transition: transform 0.35s var(--ease-material);

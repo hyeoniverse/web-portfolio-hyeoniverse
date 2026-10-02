@@ -97,7 +97,7 @@
   color: var(--text-secondary);
 }
 
-/* 본문의 **강조** — 형광펜 대신 진한 글씨로만. 전역 [data-theme="dark"] .highlighted-text (0,2,0) 를 이기도록 (0,3,0) */
+/* 본문의 **강조** — 형광펜 대신 진한 글씨로만. 전역 .highlighted-text(utilities 층)를 덮는다 */
 .procDetailDesc.procDetailDesc :global(.highlighted-text) {
   padding: 0;
   background: none;

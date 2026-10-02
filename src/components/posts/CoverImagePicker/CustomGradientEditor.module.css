@@ -255,7 +255,6 @@
   cursor: pointer;
   opacity: 0;
   pointer-events: none;
-  /* compound (0,2,0) — global theme transition 의 background-color 0.3s override */
 }
 
 .stopHandle .stopHandleRemove {

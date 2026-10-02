@@ -333,7 +333,6 @@
 }
 
 /* 애니메이션 활성 시만 — 무한루프 점프 시 제거 */
-/* Compound selector (0,2,0) — global theme transition 우회 */
 .tickerTrack .tickerReelAnimated {
   transition: transform 0.4s var(--ease-material);
 }
