@@ -5,8 +5,7 @@ import { useEffect, useRef } from "react";
 /**
  * GitHub 패널의 등장 연출 — 언제 시작할지와 숫자 카운트업.
  *
- * 연출은 React 상태로 돌리지 않는다. 막대·잔디는 CSS animation 이 맡고(전역 테마 transition
- * 규칙이 shorthand 라 transition 은 덮어써진다), 이 훅은 "시작해라" 는 신호를 DOM 속성으로
+ * 연출은 React 상태로 돌리지 않는다. 막대·잔디는 CSS animation 이 맡고, 이 훅은 "시작해라" 는 신호를 DOM 속성으로
  * 찍고 숫자는 textContent 로 직접 쓴다. 프레임마다 setState 하면 그 사이 컴포넌트 전체가
  * 매번 다시 렌더된다 — 눈에 보이는 건 숫자 한 칸뿐인데.
  */

@@ -467,7 +467,7 @@
   );
 }
 
-/* 전역 theme transition(background-color 0.3s) 을 빠른 스크롤 피드백 속도로 덮어씀 — 컴파운드 선택자(0,2,0)로 (0,1,1) 글로벌 규칙 이김 */
+/* 빠른 스크롤 피드백 — background-color 를 짧게 바꾼다 */
 .spinnerColWrap .spinnerCol {
   transition: background-color 0.15s ease;
 }
@@ -501,7 +501,7 @@
   border-radius: var(--radius-full);
 }
 
-/* 복합 선택자 — 전역 theme transition 을 이김. opacity/transform 도 부드럽게 */
+/* opacity/transform 도 부드럽게 */
 .spinnerCol .spinnerItem {
   transition:
     color 0.18s ease,
@@ -559,7 +559,6 @@
   border-radius: var(--radius-full);
 }
 
-/* 복합 선택자 — 전역 theme transition 이김 */
 .spinnerCol .spinnerHighlight {
   transition:
     background 0.18s ease,

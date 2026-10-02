@@ -51,7 +51,7 @@
 }
 
 /* hover 들여쓰기 — padding-left 증가로 좌측 콘텐츠만 밀림(우측 정렬 year 는 고정),
-   열린 공간에 좌측 화살표가 나타남. compound (0,2,0) 로 전역 transition rule 이김.
+   열린 공간에 좌측 화살표가 나타남.
    OUT(un-hover): 화살표가 먼저 사라진 뒤 title 이 되돌아오도록 delay. */
 .worksTable .workRow {
   transition: padding var(--duration-base) var(--ease-out-expo) var(--duration-fast);
@@ -85,7 +85,7 @@
   /* 오른쪽 끝에서 시작 → hover 시 왼쪽으로 펼쳐짐 */
   clip-path: inset(0 0 0 100%);
 }
-/* transition — compound (0,2,0) 로 전역 transition rule(0,1,1) 이김. 접힘/펼침 더 천천히. */
+/* 접힘/펼침 더 천천히. */
 .workRow .workRowBg {
   transition: opacity var(--duration-moderate) var(--ease-material);
 }

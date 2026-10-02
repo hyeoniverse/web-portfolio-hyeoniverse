@@ -26,7 +26,6 @@
   border-radius: var(--radius-full);
 }
 
-/* compound (0,2,0) to beat global theme transition (0,1,1) */
 .root .line {
   transition: transform var(--duration-base) var(--ease-material),
               opacity var(--duration-base) var(--ease-material);

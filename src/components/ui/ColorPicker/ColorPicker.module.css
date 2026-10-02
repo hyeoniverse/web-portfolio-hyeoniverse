@@ -105,8 +105,7 @@
   background: var(--_thumb-color, transparent);
 }
 
-/* ── Pad/thumb 의 background/border 등 immediate update (글로벌 theme transition 0.3s 차단)
- *    drag 중 thumb 색·hue 색이 0.3s 보간되어 "움찔"거리지 않도록 compound (0,2,0) override */
+/* ── Pad/thumb 의 background/border 등은 즉시 반영 — drag 중 thumb 색·hue 색이 보간되어 "움찔"거리지 않게 */
 :is(.popover, .sheet) .svThumb,
 :is(.popover, .sheet) .hueThumb,
 :is(.popover, .sheet) .hsvHueThumb,

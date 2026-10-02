@@ -9,7 +9,6 @@
   display: inline;
 }
 
-/* Compound selector (0,2,0) to beat global html[data-theme-transitioning] * (0,1,1) */
 .container .char {
   transition: color 0.01s step-end;
 }

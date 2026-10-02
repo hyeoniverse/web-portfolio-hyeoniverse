@@ -206,9 +206,7 @@
 /* 조각이 한 칸씩 쌓인다. 앞 조각이 자기 폭을 다 채우면 뒤 조각이 이어받아 밀고 들어온다.
    scaleX 로 하면 각자 제자리에서 부풀 뿐이라 "쌓이는" 느낌이 안 난다 — 폭을 실제로 늘려야
    뒤 조각들이 밀려나며 줄이 서는 게 보인다. 조각이 다섯 개뿐이라 레이아웃 비용은 무시할 만하다.
-   duration/delay 는 길이에 비례해 컴포넌트가 인라인으로 넣는다(채우는 속도를 일정하게).
-   transition 이 아니라 animation 인 이유는 전역 테마 transition 규칙(shorthand)이
-   컴포넌트 transition 을 통째로 덮어쓰기 때문이다. */
+   duration/delay 는 길이에 비례해 컴포넌트가 인라인으로 넣는다(채우는 속도를 일정하게). */
 .section[data-in="true"] .langSlice {
   animation-name: langStack;
   animation-timing-function: linear;

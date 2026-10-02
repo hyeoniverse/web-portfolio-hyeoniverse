@@ -24,7 +24,6 @@
   overflow: hidden;
 }
 
-/* compound selector to beat global theme transition */
 .compact.compact {
   transition:
     background var(--duration-base) var(--ease-material),

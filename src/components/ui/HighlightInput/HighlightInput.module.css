@@ -21,7 +21,6 @@
   border: var(--border-light);
   border-radius: var(--radius-full);
   background: transparent;
-  /* (0,2,0) — 전역 theme transition override 위해 fieldWrap.wrapper 등으로 specificity 보강 가능 */
   transition: border-color var(--duration-base) ease;
 }
 

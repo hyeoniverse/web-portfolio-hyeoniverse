@@ -198,7 +198,6 @@
   border-radius: var(--radius-24);
 }
 
-/* compound selector → beats global theme transition (0,1,1) */
 .windowsContainer .osWindowExpanded {
   transition:
     left 0.4s cubic-bezier(0.22, 1, 0.36, 1),
@@ -974,7 +973,6 @@
     will-change: auto;
   }
 
-  /* compound selector (0,2,0) → global theme transition (0,1,1) 보다 높은 specificity */
   .track .animate {
     transition:
       opacity var(--duration-slower) ease,

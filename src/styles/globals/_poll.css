@@ -654,7 +654,6 @@ body.poll-grabbing * {
   flex-shrink: 0;
   overflow: visible; /* hover pop(확대·shadow) 잘림 방지 */
 }
-/* stroke-width/transform 는 전역 transition 룰(0,1,1)에 없어 compound 선택자로 specificity 확보 */
 .poll-pie .poll-pie-seg {
   cursor: pointer;
   transform-box: fill-box;

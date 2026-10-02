@@ -330,30 +330,10 @@
   "theme-dark-primitive-color": {
     "src/styles/tokens/_color.css": 78
   },
-  "theme-dark-primitive-shadow": {
-    "src/styles/tokens/_shadow.css": 6
-  },
-  "theme-branch-module": {
-    "src/app/about/_components/panels/HeroPanel.module.css": 2,
-    "src/app/about/_components/panels/TechStackPanel.module.css": 1,
-    "src/app/admin/(dashboard)/settings/_components/about/ErdTableModal.module.css": 1,
-    "src/app/profile/_components/BunnyShowcase/NightSky.module.css": 3,
-    "src/app/works/_components/layouts/cylinder/CylinderIntroPanel.module.css": 10,
-    "src/app/works/_components/layouts/CylinderLayout.module.css": 1,
-    "src/app/works/_components/WorksEmptyState/WorksEmptyState.module.css": 2,
-    "src/components/effects/TypeWriter.module.css": 1,
-    "src/components/posts/EditorCode.module.css": 2
-  },
-  "theme-branch-global": {
-    "src/styles/globals/_base.css": 1,
-    "src/styles/globals/_hljs.css": 132,
-    "src/styles/globals/_theme-transition.css": 3,
-    "src/styles/globals/_utilities.css": 4
-  },
-  "theme-prefers-color-scheme": {
-    "src/app/works/_components/layouts/cylinder/CylinderIntroPanel.module.css": 1,
-    "src/app/works/_components/WorksEmptyState/WorksEmptyState.module.css": 1
-  },
+  "theme-dark-primitive-shadow": {},
+  "theme-branch-module": {},
+  "theme-branch-global": {},
+  "theme-prefers-color-scheme": {},
   "color-palette": {
     "src/app/(home)/_sections/WorksSection/WorksSection.module.css": 3,
     "src/app/about/_components/FlowDiagram.module.css": 4,
@@ -403,7 +383,7 @@
     "src/app/posts/_components/TimelineIndex.module.css": 2,
     "src/app/posts/[slug]/_components/SeriesPanel/SeriesPanel.module.css": 1,
     "src/app/profile/_components/BunnyShowcase/BunnyShowcase.module.css": 1,
-    "src/app/profile/_components/BunnyShowcase/NightSky.module.css": 9,
+    "src/app/profile/_components/BunnyShowcase/NightSky.module.css": 11,
     "src/app/profile/_components/FloatingObject/BunnyHearts.module.css": 1,
     "src/app/profile/_components/FloatingObject/BunnyStardust.module.css": 1,
     "src/app/profile/_components/ProfileGithub/ProfileGithub.module.css": 14,
@@ -411,7 +391,7 @@
     "src/app/profile/_components/ScrollDrawScene/ScrollDrawScene.module.css": 2,
     "src/app/works/_components/layouts/CinematicLayout.module.css": 6,
     "src/app/works/_components/layouts/cylinder/CylinderCommentBubbles.module.css": 3,
-    "src/app/works/_components/layouts/cylinder/CylinderIntroPanel.module.css": 3,
+    "src/app/works/_components/layouts/cylinder/CylinderIntroPanel.module.css": 5,
     "src/app/works/_components/layouts/CylinderLayout.module.css": 2,
     "src/app/works/_components/layouts/FullscreenLayout.module.css": 5,
     "src/app/works/_components/layouts/GridLayout.module.css": 3,
@@ -468,7 +448,7 @@
     "src/styles/globals/_layout.css": 5,
     "src/styles/globals/_scroll.css": 2,
     "src/styles/globals/_sheet.css": 1,
-    "src/styles/globals/_utilities.css": 26
+    "src/styles/globals/_utilities.css": 3
   },
   "color-hex": {
     "src/app/admin/(dashboard)/settings/_components/about/AboutStudio.module.css": 1,
@@ -497,11 +477,11 @@
     "src/app/posts/_components/PostsFilterBar/TagFilterPanel.module.css": 4,
     "src/app/posts/_components/SeriesSection/SeriesSection.module.css": 4,
     "src/app/posts/series/_components/SeriesCardGrid.module.css": 2,
-    "src/app/works/_components/layouts/cylinder/CylinderIntroPanel.module.css": 2,
+    "src/app/works/_components/layouts/cylinder/CylinderIntroPanel.module.css": 1,
     "src/app/works/_components/layouts/CylinderLayout.module.css": 2,
     "src/app/works/_components/layouts/SplitLayout.module.css": 2,
     "src/app/works/_components/WorksEmptyState/StarrySky.module.css": 8,
-    "src/app/works/_components/WorksEmptyState/WorksEmptyState.module.css": 23,
+    "src/app/works/_components/WorksEmptyState/WorksEmptyState.module.css": 13,
     "src/app/works/_components/WorksFlowCard.module.css": 9,
     "src/components/admin/CoverBanner/CoverBanner.module.css": 1,
     "src/components/admin/RelationPicker.module.css": 1,
@@ -524,14 +504,12 @@
     "src/components/works/WorkGallery.module.css": 3,
     "src/styles/globals/_animations.css": 1,
     "src/styles/globals/_base.css": 1,
-    "src/styles/globals/_hljs.css": 46,
+    "src/styles/globals/_hljs.css": 10,
     "src/styles/globals/_poll.css": 1,
-    "src/styles/globals/_tabs.css": 1,
-    "src/styles/globals/_utilities.css": 4
+    "src/styles/globals/_tabs.css": 1
   },
   "color-local-var": {
     "src/app/about/_components/panels/BackendPanel.module.css": 8,
-    "src/app/works/_components/layouts/CylinderLayout.module.css": 1,
     "src/components/layout/Navigation/Navigation.module.css": 1
   },
   "color-alpha-token": {
@@ -584,7 +562,7 @@
     "src/styles/globals/_hljs.css": 1,
     "src/styles/globals/_layout.css": 4,
     "src/styles/globals/_scroll.css": 1,
-    "src/styles/globals/_utilities.css": 26
+    "src/styles/globals/_utilities.css": 3
   },
   "type-font-size-decl": {
     "src/app/(home)/_sections/CTASection/CTASection.module.css": 6,
@@ -1936,8 +1914,7 @@
     "src/styles/globals/_animations.css": 3,
     "src/styles/globals/_base.css": 1,
     "src/styles/globals/_hljs.css": 2,
-    "src/styles/globals/_tabs.css": 1,
-    "src/styles/globals/_utilities.css": 4
+    "src/styles/globals/_tabs.css": 1
   },
   "shadow-size-name": {
     "src/app/admin/(dashboard)/_components/DevicesBreakdown.module.css": 1,
@@ -2216,13 +2193,9 @@
   "motion-transition-all": {
     "src/app/works/_components/layouts/SplitLayout.module.css": 8,
     "src/components/effects/CursorTrail.module.css": 1,
-    "src/components/layout/ContactDrawer/ContactDrawer.module.css": 8,
-    "src/styles/globals/_utilities.css": 1
+    "src/components/layout/ContactDrawer/ContactDrawer.module.css": 8
   },
-  "motion-transition-important": {
-    "src/components/layout/Footer.module.css": 4,
-    "src/components/layout/LoadingScreen/LoadingScreen.module.css": 2
-  },
+  "motion-transition-important": {},
   "layer-portal-files": {
     "src/app/about/_components/panels/designSystem/useTabActionsPortal.tsx": 1,
     "src/app/about/_components/panels/troubleshooting/DiagramFullscreenViewer.tsx": 1,
@@ -2514,8 +2487,6 @@
     "src/components/admin/TagNotesEditor/TagNotesEditor.module.css": 7,
     "src/components/effects/ScrollTorus/ScrollTorus.module.css": 1,
     "src/components/layout/ContactDrawer/ContactDrawer.module.css": 2,
-    "src/components/layout/Footer.module.css": 4,
-    "src/components/layout/LoadingScreen/LoadingScreen.module.css": 2,
     "src/components/layout/Navigation/Navigation.module.css": 1,
     "src/components/posts/plate/calendar/Calendar.module.css": 15,
     "src/components/posts/plate/DiagramElement.module.css": 7,
@@ -2588,7 +2559,7 @@
     "src/app/posts/tags/[tag]/TagPage.module.css": 1,
     "src/app/privacy/Privacy.module.css": 1,
     "src/app/profile/_components/FloatingObject/FloatingObject.module.css": 1,
-    "src/app/works/_components/layouts/CylinderLayout.module.css": 2,
+    "src/app/works/_components/layouts/CylinderLayout.module.css": 1,
     "src/app/works/_components/WorksSection.module.css": 1,
     "src/components/admin/AdminEditorShell/AdminEditorShell.module.css": 8,
     "src/components/admin/AdminTable/AdminTable.module.css": 2,

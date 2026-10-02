@@ -69,7 +69,7 @@
   border-top: var(--border-light);
 }
 
-/* layout gap 변화 부드럽게 — (0,2,0) compound 로 global theme transition shorthand 이기기 */
+/* layout gap 변화 부드럽게 */
 .container .layout {
   transition: gap 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }

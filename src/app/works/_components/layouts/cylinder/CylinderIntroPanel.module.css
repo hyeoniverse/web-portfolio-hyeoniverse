@@ -32,21 +32,59 @@
   position: absolute;
   width: var(--dot, 2px);
   height: var(--dot, 2px);
-  border-radius: var(--radius-circle);
-  background: var(--text-white);
   opacity: 0;
-  animation: introStarTwinkle 3s ease-in-out infinite;
+  animation: introStarFade 3s ease-in-out infinite;
 }
 
-@keyframes introStarTwinkle {
+/* 어두운 판에서는 흰 점, 밝은 판(봄날 — 꽃잎이 날린다)에서는 한쪽이 뾰족한 타원을 눕힌 꽃잎.
+   모양이 달라서 둘 다 그려 두고 테마에 맞지 않는 쪽을 투명하게 둔다. 각자 제 가운데를 축으로 깜빡인다. */
+.introStar::before,
+.introStar::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  /* 길이·곡선·지연은 별(.introStar)의 깜빡임과 맞춘다 */
+  animation-name: introStarPulse;
+  animation-duration: inherit;
+  animation-timing-function: inherit;
+  animation-iteration-count: inherit;
+  animation-delay: inherit;
+}
+
+.introStar::before {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-circle);
+  background: light-dark(transparent, var(--text-white));
+}
+
+.introStar::after {
+  width: calc(var(--dot, 2px) * 2.8);
+  height: calc(var(--dot, 2px) * 1.9);
+  border-radius: 62% 38% 58% 42% / 58% 52% 48% 42%;
+  background: light-dark(rgb(244 168 190 / 85%), transparent);
+  rotate: 24deg;
+}
+
+@keyframes introStarFade {
   0%,
   100% {
     opacity: 0.1;
-    transform: scale(0.8);
   }
 
   50% {
     opacity: 0.6;
+  }
+}
+
+@keyframes introStarPulse {
+  0%,
+  100% {
+    transform: scale(0.8);
+  }
+
+  50% {
     transform: scale(1.2);
   }
 }
@@ -127,7 +165,7 @@
   font-weight: var(--font-weight-semibold);
   letter-spacing: 0.35em;
   text-transform: uppercase;
-  color: var(--text-white);
+  color: light-dark(var(--color-neutral-900), var(--text-white)); /* 밝은 판(봄날)에서는 흰 글자가 사라진다 */
   opacity: 0.5;
 }
 
@@ -153,12 +191,12 @@
   font-weight: var(--font-weight-light);
   line-height: var(--line-height-tight);
   letter-spacing: -0.03em;
-  color: var(--text-white);
+  color: light-dark(var(--color-neutral-900), var(--text-white));
 }
 
 .introTagline {
   font-size: clamp(var(--font-size-hint), calc(var(--panel-h, 320px) * 0.08), var(--font-size-body-xl));
-  color: var(--text-white);
+  color: light-dark(var(--color-neutral-900), var(--text-white));
   max-width: min(480px, var(--panel-w, 480px));
   line-height: var(--line-height-relaxed);
   opacity: 0.7;
@@ -170,7 +208,7 @@
   font-family: var(--font-mono);
   font-size: clamp(var(--font-size-micro), calc(var(--panel-h, 320px) * 0.05), var(--font-size-hint));
   letter-spacing: 0.2em;
-  color: var(--text-white);
+  color: light-dark(var(--color-neutral-900), var(--text-white));
   animation: introScrollBounce 2.5s ease-in-out infinite;
 }
 
@@ -185,43 +223,4 @@
     transform: translateY(8px);
     opacity: 1;
   }
-}
-
-
-
-/* ── 밝은 테마: 꽃 판 위의 글자·장식 ──
-   판 그림이 봄날(따뜻한 종이색 + 꽃잎)로 바뀌므로, 그 위에 얹히는 것도 같이 바뀌어야 한다.
-   흰 글자는 밝은 판에서 사라지고, 흰 점은 꽃잎이 날리는 판과 어긋난다.
-   이 파일의 기본값은 어두운 판(흰 글자)이라 밝은 쪽을 덮어쓴다 — 다크 규칙과 같은 짝 모양이다. */
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) .introLabel,
-  :root:not([data-theme="dark"]) .introTitle,
-  :root:not([data-theme="dark"]) .introTagline,
-  :root:not([data-theme="dark"]) .introScroll {
-    color: var(--color-neutral-900);
-  }
-
-  /* 별 12개는 꽃잎이 된다 — 둥근 점 대신 한쪽이 뾰족한 타원을 눕힌다 */
-  :root:not([data-theme="dark"]) .introStar {
-    width: calc(var(--dot, 2px) * 2.8);
-    height: calc(var(--dot, 2px) * 1.9);
-    border-radius: 62% 38% 58% 42% / 58% 52% 48% 42%;
-    background: rgb(244 168 190 / 85%);
-    rotate: 24deg;
-  }
-}
-
-:root[data-theme="light"] .introLabel,
-:root[data-theme="light"] .introTitle,
-:root[data-theme="light"] .introTagline,
-:root[data-theme="light"] .introScroll {
-  color: var(--color-neutral-900);
-}
-
-:root[data-theme="light"] .introStar {
-  width: calc(var(--dot, 2px) * 2.8);
-  height: calc(var(--dot, 2px) * 1.9);
-  border-radius: 62% 38% 58% 42% / 58% 52% 48% 42%;
-  background: rgb(244 168 190 / 85%);
-  rotate: 24deg;
 }

@@ -203,7 +203,6 @@
   opacity: 1;
 }
 
-/* Compound selector (0,2,0) to beat global html[data-theme-transitioning] * (0,1,1) */
 .troubleList .troubleListItem {
   transition:
     border-color var(--duration-base) ease,
