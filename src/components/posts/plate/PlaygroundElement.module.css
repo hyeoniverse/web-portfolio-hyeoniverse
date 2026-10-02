@@ -204,9 +204,9 @@
 }
 .pgPickerTitle {
   color: var(--text-secondary);
-  font-family: var(--font-family-body);
+  font-family: var(--font-family-heading);
   font-size: var(--font-size-title-sm);
-  font-weight: 600;
+  font-weight: var(--font-weight-regular);
 }
 .pgPickerGrid {
   display: flex;

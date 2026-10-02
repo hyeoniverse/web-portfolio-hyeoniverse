@@ -67,9 +67,9 @@
 .sheetTitle {
   margin: 0;
   padding: 0 var(--spacing-4);
-  font-family: var(--font-family-body);
+  font-family: var(--font-family-heading);
   font-size: var(--font-size-title-md);
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-regular);
   color: var(--text-primary);
   letter-spacing: -0.01em;
   flex-shrink: 0;
