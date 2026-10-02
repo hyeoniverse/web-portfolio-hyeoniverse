@@ -1,3 +1,5 @@
+/* 공용 컴포넌트 — components 층(docs/design-system.md 4-4). 쓰는 쪽이 className 으로 넘긴 클래스가 번들 순서 · 특이도와 상관없이 이긴다 */
+@layer components {
 /* ── Shared Checkbox ── */
 .wrapper {
   /* 숨긴 input 이 이 안에 머물도록 기준을 잡는다 — 기준이 없으면 그 절대 위치가 바깥의 어떤
@@ -102,4 +104,5 @@
 .input:focus-visible ~ .box {
   outline: 2px solid var(--text-accent);
   outline-offset: 2px;
+}
 }

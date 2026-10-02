@@ -2,7 +2,7 @@
 
 import { useMemo, useRef, type ReactNode } from "react";
 import Link from "next/link";
-import "katex/dist/katex.min.css";
+import "@/styles/vendor/katex.css";
 import { Pencil, ExternalLink, SocialBrandIcon } from "@/components/icons";
 import { GithubIcon } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";

@@ -1,3 +1,5 @@
+/* 공용 컴포넌트 — components 층(docs/design-system.md 4-4). 쓰는 쪽이 className 으로 넘긴 클래스가 번들 순서 · 특이도와 상관없이 이긴다 */
+@layer components {
 /* 이 버튼은 두 자리에 놓이고, 각 자리의 이웃에 맞춰 규격이 다르다 (variant 로 가른다).
 
    compact — 상세 헤더 메타 줄. 옆의 LanguageToggle(height 28 + --border-strong + xs)에 맞춘다.
@@ -51,4 +53,5 @@
 /* compact 는 좁으니 아이콘↔라벨도 좁게. action 은 껍데기의 gap(--spacing-12)을 그대로 쓴다. */
 .compact .label {
   margin-left: var(--spacing-8);
+}
 }

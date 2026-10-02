@@ -1,3 +1,5 @@
+/* 공용 컴포넌트 — components 층(docs/design-system.md 4-4). 쓰는 쪽이 className 으로 넘긴 클래스가 번들 순서 · 특이도와 상관없이 이긴다 */
+@layer components {
 /* 정렬 pill — 필드 Select + 역순 버튼을 하나의 캡슐로 결합.
    달력 블록(Calendar.module.css)에 있던 규격을 그대로 옮긴 단일 소스다.
    예전엔 달력은 pill, 댓글은 그냥 gap 배치라 같은 기능이 서로 다르게 보였다. */
@@ -25,4 +27,5 @@
 .group .dir {
   border-left: var(--border-light) !important;
   padding-inline: var(--spacing-12);
+}
 }

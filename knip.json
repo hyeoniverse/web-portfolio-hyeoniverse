@@ -12,7 +12,8 @@
     "src/**/*.{ts,tsx}"
   ],
   "ignoreDependencies": [
-    "sanitize.css"
+    "sanitize.css",
+    "pretendard"
   ],
   "ignore": [
     "src/types/**",

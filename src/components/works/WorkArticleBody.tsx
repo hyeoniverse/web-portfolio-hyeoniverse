@@ -2,7 +2,7 @@
 
 import { useMemo, useRef } from "react";
 import { motion } from "framer-motion";
-import "katex/dist/katex.min.css";
+import "@/styles/vendor/katex.css";
 import { useRichtextEnhance } from "@/hooks/useRichtextEnhance";
 import { processRichtextHtml } from "@/utils/processRichtextHtml";
 import { useLanguage } from "@/providers/LanguageProvider";

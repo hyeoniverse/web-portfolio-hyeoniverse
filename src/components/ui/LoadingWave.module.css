@@ -1,3 +1,5 @@
+/* 공용 컴포넌트 — components 층(docs/design-system.md 4-4). 쓰는 쪽이 className 으로 넘긴 클래스가 번들 순서 · 특이도와 상관없이 이긴다 */
+@layer components {
 /* Wave loading — 텍스트 글자가 순차적으로 위로 bob.
    각 글자마다 50ms delay 로 wave 효과. 텍스트 자체가 indicator 라 width 보존됨 (button 크기 변형 X). */
 .wave {
@@ -19,4 +21,5 @@
 
 @media (prefers-reduced-motion: reduce) {
   .waveChar { animation: none; }
+}
 }

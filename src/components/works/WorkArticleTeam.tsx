@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Users, Link2, Mail } from "@/components/icons";
-import "katex/dist/katex.min.css";
+import "@/styles/vendor/katex.css";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import type { Author } from "@/types/author";
 import { OWNER_AUTHOR_ID } from "@/utils/resolvePostAuthors";

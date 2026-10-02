@@ -9,7 +9,7 @@ import type { Post } from "@/types/post";
 import DetailLayout from "@/components/layout/DetailLayout";
 import { PostArticleHeader, PostArticleBody, PostArticleAuthors } from "@/components/posts/PostArticleView";
 import { extractHeadings } from "@/utils/headingUtils";
-import "katex/dist/katex.min.css";
+import "@/styles/vendor/katex.css";
 import AISummary from "@/components/ui/AISummary";
 import RecommendedToast from "./_components/RecommendedToast";
 import RecommendedSection from "./_components/RecommendedSection";

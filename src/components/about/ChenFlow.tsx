@@ -13,7 +13,7 @@ import {
   type Node, type Edge,
 } from "@xyflow/react";
 import { CHEN_NODE_TYPES, chenHandles } from "./chenNodes";
-import "@xyflow/react/dist/style.css";
+import "@/styles/vendor/xyflow.css";
 import {
   buildChenModel, layoutChen, ENTITY_W, ENTITY_H, ATTR_RX, ATTR_RY, DIAMOND_R,
 } from "@/data/about/erdConceptual";

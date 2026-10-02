@@ -1,3 +1,5 @@
+/* 공용 컴포넌트 — components 층(docs/design-system.md 4-4). 쓰는 쪽이 className 으로 넘긴 클래스가 번들 순서 · 특이도와 상관없이 이긴다 */
+@layer components {
 /* 상세 페이지 하단 액션 버튼 껍데기 — 좋아요 · 공유가 공유하는 단일 소스.
 
    값은 기존 좋아요 버튼(DetailLayout `.likeBtn`) 기준이다. 두 버튼이 나란히 놓이는데
@@ -37,4 +39,5 @@
 .active {
   border-color: var(--text-accent);
   color: var(--text-accent);
+}
 }
