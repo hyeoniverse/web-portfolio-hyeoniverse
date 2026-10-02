@@ -99,6 +99,12 @@
   max-width: 240px;
   flex-shrink: 1;
 }
+/* 정사각 자산(숏로고) — 폭을 높이에 맞춘다 */
+.logoPreviewSquare {
+  min-width: 0;
+  aspect-ratio: 1;
+  flex-shrink: 0;
+}
 /* 로고 리컬러 — 숨긴 img 가 원본 비율의 크기를 잡고, 그 형태를 마스크로 고른 색 채움 (모노 로고용).
    100% 채움이면 원본 미리보기와 크기가 달라져 색만 바꿔도 로고가 커져 보였다 */
 .logoPreviewTint {
