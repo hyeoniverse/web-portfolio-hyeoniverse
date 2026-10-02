@@ -74,15 +74,15 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     /* 서버 HTML 의 탭 아이콘 — 사파리가 쓰는 것. 사파리는 페이지가 뜬 뒤 JS 로 넣은 아이콘을 따르지 않고 SVG 를 못 그리는
        버전도 있어, 처음부터 PNG 를 걸어 둔다. 다른 브라우저는 FaviconSync(client)가 그 위에 SVG 를 얹어 바꾼다.
-       사파리는 받은 아이콘을 주소별로 오래 붙잡아 두므로, 브랜드 설정이 바뀌면 v 가 바뀌어 새 주소로 다시 받게 한다 */
+       사파리는 받은 아이콘을 오래 붙잡아 두므로, 브랜드 설정이 바뀌면 경로 안의 버전이 바뀌어 새 주소로 다시 받게 한다(api/favicon/v) */
     icons: {
       icon: [
-        { url: `/api/favicon?variant=light&format=png&v=${iconV}`, type: "image/png", sizes: "64x64", media: "(prefers-color-scheme: light)" },
-        { url: `/api/favicon?variant=dark&format=png&v=${iconV}`, type: "image/png", sizes: "64x64", media: "(prefers-color-scheme: dark)" },
+        { url: `/api/favicon/v/${iconV}/light.png`, type: "image/png", sizes: "64x64", media: "(prefers-color-scheme: light)" },
+        { url: `/api/favicon/v/${iconV}/dark.png`, type: "image/png", sizes: "64x64", media: "(prefers-color-scheme: dark)" },
       ],
-      /* media 를 안 따르는 브라우저용 — 라이트 아이콘(/favicon.ico · /apple-touch-icon.png 은 next.config 에서 /api/favicon 으로) */
-      shortcut: `/favicon.ico?v=${iconV}`,
-      apple: { url: `/apple-touch-icon.png?v=${iconV}`, sizes: "180x180" },
+      /* media 를 안 따르는 브라우저용 — 라이트 아이콘. 링크 없이 찾는 /favicon.ico · /apple-touch-icon.png 은 next.config 에서 */
+      shortcut: `/api/favicon/v/${iconV}/light.png`,
+      apple: { url: `/api/favicon/v/${iconV}/apple.png`, sizes: "180x180" },
     },
   };
 }

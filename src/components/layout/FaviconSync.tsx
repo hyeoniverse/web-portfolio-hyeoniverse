@@ -7,8 +7,8 @@ import { useEffect } from "react";
  *  (site theme 를 따르면, 라이트 브라우저에서 사이트만 다크로 토글했을 때 탭 배경과 안 맞아 안 보임)
  *
  *  <link media> · SVG @media 는 cross-browser 신뢰가 낮아, 지금처럼 JS 로 직접 스왑한다.
- *    prefers dark  → /api/favicon?variant=dark
- *    prefers light → /api/favicon?variant=light */
+ *    prefers dark  → /api/favicon/v/<버전>/dark.svg
+ *    prefers light → /api/favicon/v/<버전>/light.svg */
 /** 설정 저장 후 이 이벤트를 dispatch 하면 favicon 을 즉시 다시 불러온다 (새로고침 없이 최신 반영). */
 export const FAVICON_REFRESH_EVENT = "favicon:refresh";
 
@@ -40,10 +40,9 @@ export default function FaviconSync({ version }: { version: string }) {
       document.head
         .querySelectorAll<HTMLLinkElement>('link[rel="icon"]:not([data-favicon-sync]), link[rel="shortcut icon"], link[rel="apple-touch-icon"]')
         .forEach((l) => {
-          const u = new URL(l.href, location.href);
-          if (u.searchParams.get("v") === v) return;
-          u.searchParams.set("v", v);
-          l.href = u.pathname + u.search;
+          const href = l.getAttribute("href") ?? "";
+          const next = href.replace(/^\/api\/favicon\/v\/[^/]+\//, `/api/favicon/v/${v}/`);
+          if (next !== href) l.setAttribute("href", next);
         });
       /* 크롬 · 파이어폭스가 쓰는 SVG. 맨 뒤에 다시 붙여 같은 조건이면 이것이 고르게 한다 */
       let link = document.head.querySelector<HTMLLinkElement>("link[data-favicon-sync]");
@@ -54,7 +53,7 @@ export default function FaviconSync({ version }: { version: string }) {
         link.sizes.value = "any";
         link.dataset.faviconSync = "";
       }
-      link.href = `/api/favicon?variant=${variant}&v=${v}`;
+      link.href = `/api/favicon/v/${v}/${variant}.svg`;
       document.head.appendChild(link);
     };
 
