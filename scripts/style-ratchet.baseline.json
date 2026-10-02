@@ -55,7 +55,7 @@
     "src/app/admin/(dashboard)/settings/_components/AboutTechStackEditor.module.css": 6,
     "src/app/admin/(dashboard)/settings/_components/AccountTab.module.css": 8,
     "src/app/admin/(dashboard)/settings/_components/AiHealthPanel.module.css": 5,
-    "src/app/admin/(dashboard)/settings/_components/AppearanceTab.module.css": 13,
+    "src/app/admin/(dashboard)/settings/_components/AppearanceTab.module.css": 12,
     "src/app/admin/(dashboard)/settings/_components/CalendarManager.module.css": 2,
     "src/app/admin/(dashboard)/settings/_components/CompressVideoModal.module.css": 2,
     "src/app/admin/(dashboard)/settings/_components/ContentTab.module.css": 2,

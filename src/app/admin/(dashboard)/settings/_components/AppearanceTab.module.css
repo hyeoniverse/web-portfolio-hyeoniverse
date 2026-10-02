@@ -306,7 +306,6 @@
   justify-content: center;
   padding: var(--spacing-4);
   border: var(--border-light);
-  border-radius: var(--radius-24);
 }
 
 /* 색 입력 캡슐 — 배치만 여기서(행 폭 채움). 모양 규칙(민짜 input·정사각 세그먼트·포커스)은
