@@ -220,7 +220,12 @@ export async function GET(request: Request) {
      자주 바뀔 일이 아니다.
      설정을 저장하면 FaviconSync 가 새 `v` 를 붙여 주소 자체를 바꾸므로, 캐시를 오래 잡아도
      바뀐 것이 바로 반영된다 — 캐시를 비우는 대신 다른 주소를 부르는 방식이다. */
-  const headers = { "Cache-Control": "public, max-age=3600, stale-while-revalidate=86400" };
+  /* 로고 이미지를 못 받아 글자로 대신 그렸으면 알린다 — 버전 주소(v/[ver]/[file])는 이 응답을 오래 캐시하지 않는다.
+     잠깐의 실패가 그 버전 내내 남지 않게 */
+  const headers: Record<string, string> = {
+    "Cache-Control": "public, max-age=3600, stale-while-revalidate=86400",
+    ...(logoUrl && !hasImage ? { "X-Favicon-Fallback": "1" } : {}),
+  };
 
   /* ?format=png — 사파리용. 사파리는 SVG 탭 아이콘을 못 그리는 버전이 있고, 페이지가 뜬 뒤 JS 로 바꾼 아이콘도
      따르지 않는다. 그래서 서버 HTML 에 PNG 를 걸어 둔다(layout metadata). 레티나 탭(16px@2x · 32px@2x)에

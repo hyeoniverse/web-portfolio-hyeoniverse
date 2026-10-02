@@ -480,8 +480,8 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
               {/* 파트별 "기본 로고 사용" 버튼은 섹션 머리의 기본값 버튼과 중복이라 없앴다 */}
             </div>
             <div className={styles.brandDrops}>
-              <UploadField kind="logo" tint={config.brand.logoShortColor} onTintChange={(c) => update("brand", "logoShortColor", c)} defaultTint={config.brand.logoColor || config.theme.lightText} recolorLabel={t("admin.settings.logoRecolor")} originalLabel={t("admin.settings.logoOriginal")} previewBg="light" label={t("admin.settings.faviconVariantLight")} url={config.brand.logoShortUrl} uploadLabel={t("admin.settings.uploadLogo")} removeLabel={t("admin.settings.removeLogo")} onUploaded={(url) => update("brand", "logoShortUrl", url)} onRemove={() => update("brand", "logoShortUrl", "")} />
-              <UploadField kind="logo" tint={config.brand.logoShortColorDark} onTintChange={(c) => update("brand", "logoShortColorDark", c)} defaultTint={config.brand.logoColorDark || config.theme.darkText} recolorLabel={t("admin.settings.logoRecolor")} originalLabel={t("admin.settings.logoOriginal")} previewBg="dark" label={t("admin.settings.faviconVariantDark")} url={config.brand.logoShortDarkUrl} uploadLabel={t("admin.settings.uploadLogo")} removeLabel={t("admin.settings.removeLogo")} onUploaded={(url) => update("brand", "logoShortDarkUrl", url)} onRemove={() => update("brand", "logoShortDarkUrl", "")} />
+              <UploadField kind="logo" tint={config.brand.logoShortColor} onTintChange={(c) => update("brand", "logoShortColor", c)} defaultTint={config.brand.logoColor || config.theme.lightText} recolorLabel={t("admin.settings.logoRecolor")} originalLabel={t("admin.settings.logoOriginal")} previewSquare previewBg="light" label={t("admin.settings.faviconVariantLight")} url={config.brand.logoShortUrl} uploadLabel={t("admin.settings.uploadLogo")} removeLabel={t("admin.settings.removeLogo")} onUploaded={(url) => update("brand", "logoShortUrl", url)} onRemove={() => update("brand", "logoShortUrl", "")} />
+              <UploadField kind="logo" tint={config.brand.logoShortColorDark} onTintChange={(c) => update("brand", "logoShortColorDark", c)} defaultTint={config.brand.logoColorDark || config.theme.darkText} recolorLabel={t("admin.settings.logoRecolor")} originalLabel={t("admin.settings.logoOriginal")} previewSquare previewBg="dark" label={t("admin.settings.faviconVariantDark")} url={config.brand.logoShortDarkUrl} uploadLabel={t("admin.settings.uploadLogo")} removeLabel={t("admin.settings.removeLogo")} onUploaded={(url) => update("brand", "logoShortDarkUrl", url)} onRemove={() => update("brand", "logoShortDarkUrl", "")} />
             </div>
           </div>
 
@@ -710,115 +710,6 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
               </FieldRow>
               </div>
             </div>
-          </div>
-
-          {/* 풀로고(메인) — 긴 텍스트 + 로고 색상 + 효과. 이미지 없을 때 로딩/네비 로고 */}
-          <div className={styles.brandPart}>
-            <div className={styles.brandPartHead}>
-              <h4 className={styles.brandPartTitle}>
-                {t("admin.settings.logoFullPart")}
-                <span className={styles.brandPartTitleHint}>{t("admin.settings.logoFullPartHint")}</span>
-                <FieldHelp content={t("admin.settings.wcagHelp")} />
-              </h4>
-            </div>
-            {/* 풀로고 미리보기 — 텍스트 로고를 폰트·색·장평 적용해 라이트/다크 배경에서 확인 */}
-            <div className={styles.fullLogoPreview}>
-              {(["light", "dark"] as const).map((variant) => {
-                const bg = variant === "light" ? config.theme.lightBg : config.theme.darkBg;
-                const color = variant === "light" ? (config.brand.logoColor || config.theme.lightText) : (config.brand.logoColorDark || config.theme.darkText);
-                const stretch = parseFloat(config.brand.logoFontStretch || "1") || 1;
-                const ratio = contrastRatio(color, bg);
-                const level = ratio != null ? contrastLevel(ratio) : null;
-                return (
-                  <div key={variant} className={styles.fullLogoPreviewCell}>
-                    <div className={styles.fullLogoPreviewBox} style={{ background: bg }}>
-                      <span className={styles.fullLogoPreviewText} style={{ fontFamily: config.brand.logoFont || undefined, color, transform: `scaleX(${stretch})` }}>
-                        {config.brand.logoFullText || "LOGO"}
-                      </span>
-                    </div>
-                    <span className={styles.fullLogoPreviewMeta}>
-                      <span className={styles.fullLogoPreviewCap}>{variant}</span>
-                      {ratio != null && level != null && (
-                        <span className={styles.faviconContrast}>
-                          <span className={styles.faviconContrastRatio}>{ratio.toFixed(2)}:1</span>
-                          <span className={`${styles.faviconContrastBadge} ${level === "fail" ? styles.faviconContrastFail : styles.faviconContrastPass}`} title={t(`admin.settings.faviconContrast_${level}`)}>
-                            {t(`admin.settings.faviconContrast_${level}`)}
-                          </span>
-                        </span>
-                      )}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-            <div className={styles.faviconForm}>
-              <FieldRow label={t("admin.settings.logoFullText")}>
-                <div className={styles.brandTextInputWrap}>
-                  <HighlightInput value={config.brand.logoFullText} onChange={(v) => update("brand", "logoFullText", v)} maxHint={20} maxLength={20} />
-                </div>
-              </FieldRow>
-              {/* 로고 색상 — 프리셋 + Light/Dark override (풀로고·텍스트 로고 색) */}
-              <FieldRow label={t("admin.settings.logoColorPresets")}>
-            <div className={styles.logoColorPresets}>
-              {presets.map((p, i) => (
-                <div key={`${p.name}-${i}`} className={styles.logoColorPresetWrap}>
-                  <Pressable
-                    title={p.name}
-                    className={`${shared.logoColorPresetBtn} ${
-                      config.brand.logoColor === p.light && config.brand.logoColorDark === p.dark
-                        ? styles.logoColorPresetBtnActive : ""
-                    }`}
-                    onClick={() => {
-                      update("brand", "logoColor", p.light);
-                      update("brand", "logoColorDark", p.dark);
-                    }}
-                  >
-                    <span className={styles.logoColorPresetHalf} style={{ background: p.light || "#1a1a1a" }} />
-                    <span className={styles.logoColorPresetHalf} style={{ background: p.dark || "#f5f5f0" }} />
-                  </Pressable>
-                  {presets.length > 1 && (
-                    <Pressable
-                      className={styles.logoColorPresetRemove}
-                      onClick={() => removePreset(i)}
-                      aria-label={fillTemplate(t("admin.settings.removeNamedPreset"), { name: p.name })}
-                      title={t("admin.settings.removeThemePreset")}
-                    >
-                      <X size={10} strokeWidth={2.5} />
-                    </Pressable>
-                  )}
-                </div>
-              ))}
-              {canAddPreset && (
-                <Pressable
-                  className={styles.logoColorPresetAddBtn}
-                  onClick={() => setAddingPresetName(true)}
-                  title={t("admin.settings.savePreset")}
-                  aria-label={t("admin.settings.savePreset")}
-                >
-                  <Plus size={14} strokeWidth={2} />
-                </Pressable>
-              )}
-            </div>
-          </FieldRow>
-              <FieldRow label={t("admin.settings.logoColorLabel")}>
-                <ColorDuoRow
-                  t={t}
-                  placeholder={t("admin.settings.logoColorPlaceholder")}
-                  light={{ picker: config.brand.logoColor || "#000000", input: config.brand.logoColor || "#000000", onChange: (v) => update("brand", "logoColor", v) }}
-                  dark={{ picker: config.brand.logoColorDark || "#ffffff", input: config.brand.logoColorDark || "#ffffff", onChange: (v) => update("brand", "logoColorDark", v) }}
-                />
-              </FieldRow>
-            </div>
-          {/* 프리셋 이름 입력 row — .fields 바깥 */}
-          <PresetNameAddRow
-            open={addingPresetName}
-            value={newPresetName}
-            onChange={setNewPresetName}
-            problem={presetNameProblem(newPresetName, [], presets)}
-            onCancel={() => { setAddingPresetName(false); setNewPresetName(""); }}
-            onSave={addCurrentAsPreset}
-            t={t}
-          />
           </div>
 
           {/* 그림자 파트는 없앴다 — favicon 그림자는 위 FAVICON 파트 안(업로드 탭과 동일 구조),
@@ -1101,6 +992,115 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
               t={t}
             />
           </div>
+          {/* 풀로고(메인) — 긴 텍스트 + 로고 색상 + 효과. 이미지 없을 때 로딩/네비 로고 */}
+          <div className={styles.brandPart}>
+            <div className={styles.brandPartHead}>
+              <h4 className={styles.brandPartTitle}>
+                {t("admin.settings.logoFullPart")}
+                <span className={styles.brandPartTitleHint}>{t("admin.settings.logoFullPartHint")}</span>
+                <FieldHelp content={t("admin.settings.wcagHelp")} />
+              </h4>
+            </div>
+            {/* 풀로고 미리보기 — 텍스트 로고를 폰트·색·장평 적용해 라이트/다크 배경에서 확인 */}
+            <div className={styles.fullLogoPreview}>
+              {(["light", "dark"] as const).map((variant) => {
+                const bg = variant === "light" ? config.theme.lightBg : config.theme.darkBg;
+                const color = variant === "light" ? (config.brand.logoColor || config.theme.lightText) : (config.brand.logoColorDark || config.theme.darkText);
+                const stretch = parseFloat(config.brand.logoFontStretch || "1") || 1;
+                const ratio = contrastRatio(color, bg);
+                const level = ratio != null ? contrastLevel(ratio) : null;
+                return (
+                  <div key={variant} className={styles.fullLogoPreviewCell}>
+                    <div className={styles.fullLogoPreviewBox} style={{ background: bg }}>
+                      <span className={styles.fullLogoPreviewText} style={{ fontFamily: config.brand.logoFont || undefined, color, transform: `scaleX(${stretch})` }}>
+                        {config.brand.logoFullText || "LOGO"}
+                      </span>
+                    </div>
+                    <span className={styles.fullLogoPreviewMeta}>
+                      <span className={styles.fullLogoPreviewCap}>{variant}</span>
+                      {ratio != null && level != null && (
+                        <span className={styles.faviconContrast}>
+                          <span className={styles.faviconContrastRatio}>{ratio.toFixed(2)}:1</span>
+                          <span className={`${styles.faviconContrastBadge} ${level === "fail" ? styles.faviconContrastFail : styles.faviconContrastPass}`} title={t(`admin.settings.faviconContrast_${level}`)}>
+                            {t(`admin.settings.faviconContrast_${level}`)}
+                          </span>
+                        </span>
+                      )}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+            <div className={styles.faviconForm}>
+              <FieldRow label={t("admin.settings.logoFullText")}>
+                <div className={styles.brandTextInputWrap}>
+                  <HighlightInput value={config.brand.logoFullText} onChange={(v) => update("brand", "logoFullText", v)} maxHint={20} maxLength={20} />
+                </div>
+              </FieldRow>
+              {/* 로고 색상 — 프리셋 + Light/Dark override (풀로고·텍스트 로고 색) */}
+              <FieldRow label={t("admin.settings.logoColorPresets")}>
+            <div className={styles.logoColorPresets}>
+              {presets.map((p, i) => (
+                <div key={`${p.name}-${i}`} className={styles.logoColorPresetWrap}>
+                  <Pressable
+                    title={p.name}
+                    className={`${shared.logoColorPresetBtn} ${
+                      config.brand.logoColor === p.light && config.brand.logoColorDark === p.dark
+                        ? styles.logoColorPresetBtnActive : ""
+                    }`}
+                    onClick={() => {
+                      update("brand", "logoColor", p.light);
+                      update("brand", "logoColorDark", p.dark);
+                    }}
+                  >
+                    <span className={styles.logoColorPresetHalf} style={{ background: p.light || "#1a1a1a" }} />
+                    <span className={styles.logoColorPresetHalf} style={{ background: p.dark || "#f5f5f0" }} />
+                  </Pressable>
+                  {presets.length > 1 && (
+                    <Pressable
+                      className={styles.logoColorPresetRemove}
+                      onClick={() => removePreset(i)}
+                      aria-label={fillTemplate(t("admin.settings.removeNamedPreset"), { name: p.name })}
+                      title={t("admin.settings.removeThemePreset")}
+                    >
+                      <X size={10} strokeWidth={2.5} />
+                    </Pressable>
+                  )}
+                </div>
+              ))}
+              {canAddPreset && (
+                <Pressable
+                  className={styles.logoColorPresetAddBtn}
+                  onClick={() => setAddingPresetName(true)}
+                  title={t("admin.settings.savePreset")}
+                  aria-label={t("admin.settings.savePreset")}
+                >
+                  <Plus size={14} strokeWidth={2} />
+                </Pressable>
+              )}
+            </div>
+          </FieldRow>
+              <FieldRow label={t("admin.settings.logoColorLabel")}>
+                <ColorDuoRow
+                  t={t}
+                  placeholder={t("admin.settings.logoColorPlaceholder")}
+                  light={{ picker: config.brand.logoColor || "#000000", input: config.brand.logoColor || "#000000", onChange: (v) => update("brand", "logoColor", v) }}
+                  dark={{ picker: config.brand.logoColorDark || "#ffffff", input: config.brand.logoColorDark || "#ffffff", onChange: (v) => update("brand", "logoColorDark", v) }}
+                />
+              </FieldRow>
+            </div>
+          {/* 프리셋 이름 입력 row — .fields 바깥 */}
+          <PresetNameAddRow
+            open={addingPresetName}
+            value={newPresetName}
+            onChange={setNewPresetName}
+            problem={presetNameProblem(newPresetName, [], presets)}
+            onCancel={() => { setAddingPresetName(false); setNewPresetName(""); }}
+            onSave={addCurrentAsPreset}
+            t={t}
+          />
+          </div>
+
         </motion.div>
         )}
         </AnimatePresence>

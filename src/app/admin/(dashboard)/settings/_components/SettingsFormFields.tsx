@@ -264,11 +264,13 @@ interface UploadFieldProps {
   originalLabel?: string;
   /** 미리보기 받침 — 로고가 실제로 쓰일 사이트 테마의 배경을 화면 테마와 무관하게 깐다 */
   previewBg?: "light" | "dark";
+  /** 미리보기 틀을 정사각형으로 — 숏로고(favicon · 네비 마크)처럼 정사각 자산 */
+  previewSquare?: boolean;
   /** 기본 미리보기 대신 그릴 노드 — favicon 필드는 실제 탭 아이콘 렌더를 하나로 통일해 보여준다 */
   previewNode?: React.ReactNode;
 }
 
-export function UploadField({ kind, label, url, uploadLabel, removeLabel, onUploaded, onRemove, hint, tint, onTintChange, defaultTint, recolorLabel, originalLabel, previewBg, previewNode }: UploadFieldProps) {
+export function UploadField({ kind, label, url, uploadLabel, removeLabel, onUploaded, onRemove, hint, tint, onTintChange, defaultTint, recolorLabel, originalLabel, previewBg, previewSquare, previewNode }: UploadFieldProps) {
   const { folder, accept, preview, icon, fallbackName } = UPLOAD_PRESETS[kind];
   const { t } = useLanguage();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -345,7 +347,7 @@ export function UploadField({ kind, label, url, uploadLabel, removeLabel, onUplo
             <>
               <div className={styles.logoPreviewRow}>
                 {previewNode ?? (
-                <div className={`${styles.logoPreview}${previewBg === "dark" ? ` ${styles.logoPreviewOnDark}` : ""}${previewBg === "light" ? ` ${styles.logoPreviewOnLight}` : ""}`}>
+                <div className={`${styles.logoPreview}${previewSquare ? ` ${styles.logoPreviewSquare}` : ""}${previewBg === "dark" ? ` ${styles.logoPreviewOnDark}` : ""}${previewBg === "light" ? ` ${styles.logoPreviewOnLight}` : ""}`}>
                   {tint ? (
                     /* 숨긴 img 로 원본 비율의 폭을 잡고 그 형태를 mask 로 tint 색 채움 —
                        span 100% 채움 방식은 원본과 크기가 달라져 색만 바꿔도 로고가 커졌다 */
