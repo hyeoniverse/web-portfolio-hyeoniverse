@@ -274,7 +274,7 @@
 
 ## `src/styles/tokens/_radius.css`
 
-토큰 7개
+토큰 9개
 
 | 토큰 | 값 |
 |---|---|
@@ -282,6 +282,8 @@
 | `--radius-xs` | `4px` |
 | `--radius-sm` | `6px` |
 | `--radius-md` | `8px` |
+| `--radius-lg` | `12px` |
+| `--radius-xl` | `16px` |
 | `--radius-2xl` | `24px` |
 | `--radius-circle` | `50%` |
 | `--radius-capsule` | `9999px` |
