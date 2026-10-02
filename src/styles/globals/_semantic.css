@@ -264,8 +264,8 @@
   /* 크롬 — 고정. 관리 화면·공통 컴포넌트 */
   --font-size-body: var(--font-size-sm); /* 14px — 본문·입력값·목록 항목 */
   --font-size-label: var(--font-size-xs); /* 13px — 필드 라벨·버튼 */
-  --font-size-hint: var(--font-size-2xs); /* 12px — 보조 설명·메타·뱃지. 문장의 하한 */
-  --font-size-micro: var(--font-size-3xs); /* 11px — 짧은 라벨(숫자·카운터·요일). 문장에는 쓰지 않는다 */
+  --font-size-hint: var(--font-size-2xs); /* 12px — 보조 설명·메타·뱃지·카운터. 가장 작은 글자 */
+  --font-size-micro: var(--font-size-3xs); /* 11px — 없애는 중. 새로 쓰지 않는다(쓰는 곳은 hint 로 옮긴다) */
 
   /* 16·18·20px — 이 구간만 이름이 필요하다. 같은 16px 을 카드 제목도 쓰고 긴 글 본문도
      써서 어느 쪽인지 이름이 말해 주지 않았다. 24px 부터는 전부 제목·디스플레이라
