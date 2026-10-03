@@ -58,7 +58,8 @@
 /* 선택한 낱말과 같은 것들 — 배경 대신 밑줄로 짚는다 */
 .editor :global(.cm-selectionMatch) {
   background: transparent;
-  box-shadow: inset 0 -1px 0 var(--border-color-accent);
+  text-decoration: underline;
+  text-decoration-color: var(--border-color-accent);
 }
 
 /* 진단 밑줄 — CodeMirror 기본은 물결 이미지를 깔아 테마를 안 탄다 */
@@ -78,7 +79,7 @@
   background: var(--bg-surface);
   color: var(--text-primary);
   font: var(--font-body-sm);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-floating);
   overflow: hidden;
 }
 .editor :global(.cm-tooltip-autocomplete > ul > li) {

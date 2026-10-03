@@ -128,7 +128,7 @@ button.deviceLegendBtn {
 .deviceTabActive {
   background: var(--bg-primary);
   color: var(--text-primary);
-  box-shadow: var(--shadow-xs);
+  box-shadow: var(--shadow-raised);
 }
 
 /* devicesWrap 에 탭 변경 시 fade-in (key 변경으로 remount) */

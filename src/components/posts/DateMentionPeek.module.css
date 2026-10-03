@@ -5,5 +5,5 @@
   border: var(--border-light);
   border-radius: var(--radius-surface);
   background: var(--bg-primary);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-floating);
 }

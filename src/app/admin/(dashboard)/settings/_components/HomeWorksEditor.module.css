@@ -122,7 +122,7 @@
 .cardDragging {
   z-index: 1;
   position: relative;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-floating);
   opacity: 0.9;
 }
 
@@ -290,7 +290,7 @@
   border: var(--border-light);
   border-radius: var(--radius-control);
   background: var(--bg-primary);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-raised);
   color: var(--text-primary);
 }
 

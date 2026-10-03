@@ -420,7 +420,7 @@
   border: none;
   border-radius: var(--radius-control);
   background: var(--bg-primary);
-  box-shadow: var(--shadow-xs);
+  box-shadow: var(--shadow-raised);
   color: var(--text-secondary);
   font: var(--font-code-sm);
 }

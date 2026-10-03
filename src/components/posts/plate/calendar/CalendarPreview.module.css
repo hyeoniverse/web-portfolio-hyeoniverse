@@ -169,7 +169,7 @@
   border: var(--border-light);
   border-radius: var(--radius-surface);
   background: var(--bg-primary);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-overlay);
   pointer-events: auto;
 }
 
@@ -200,7 +200,7 @@
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-.previewThumb:hover { transform: scale(1.05); box-shadow: var(--shadow-md); }
+.previewThumb:hover { transform: scale(1.05); box-shadow: var(--shadow-floating); }
 
 .previewZoom {
   position: fixed;
@@ -209,7 +209,7 @@
   max-height: 320px;
   border-radius: var(--radius-surface);
   border: var(--border-light);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-overlay);
   background: var(--bg-primary);
   object-fit: contain;
   pointer-events: none;

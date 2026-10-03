@@ -163,7 +163,7 @@
 }
 
 .seriesCardHeadCover .seriesCardName {
-  text-shadow: var(--shadow-text-strong);
+  text-shadow: var(--text-shadow-subtle);
 }
 
 .seriesCardHeadCover .seriesCardMeta {

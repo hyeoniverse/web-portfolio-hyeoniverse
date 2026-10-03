@@ -246,21 +246,17 @@
 
 ## `src/styles/tokens/_shadow.css`
 
-토큰 19개
+토큰 15개
 
 | 토큰 | 값 |
 |---|---|
-| `--shadow-xs` | `0 1px 3px light-dark(oklch(0.00% 0.0000 0.00 / 0.1), oklch(0.00% 0.0000 0.00 / 0.4)), 0 1px 2px light-dark(oklch(0.00% 0.0000 0.00 / 0.06), oklch(0.00% 0.0000 0.00 / 0.3))` |
-| `--shadow-sm` | `0 2px 6px light-dark(oklch(0.00% 0.0000 0.00 / 0.12), oklch(0.00% 0.0000 0.00 / 0.45)), 0 1px 3px light-dark(oklch(0.00% 0.0000 0.00 / 0.08), oklch(0.00% 0.0000 0.00 / 0.35))` |
-| `--shadow-md` | `0 4px 12px light-dark(oklch(0.00% 0.0000 0.00 / 0.12), oklch(0.00% 0.0000 0.00 / 0.45)), 0 2px 4px light-dark(oklch(0.00% 0.0000 0.00 / 0.08), oklch(0.00% 0.0000 0.00 / 0.35))` |
-| `--shadow-lg` | `0 10px 24px light-dark(oklch(0.00% 0.0000 0.00 / 0.12), oklch(0.00% 0.0000 0.00 / 0.45)), 0 4px 8px light-dark(oklch(0.00% 0.0000 0.00 / 0.08), oklch(0.00% 0.0000 0.00 / 0.35))` |
-| `--shadow-xl` | `0 20px 40px light-dark(oklch(0.00% 0.0000 0.00 / 0.14), oklch(0.00% 0.0000 0.00 / 0.45)), 0 8px 16px light-dark(oklch(0.00% 0.0000 0.00 / 0.08), oklch(0.00% 0.0000 0.00 / 0.35))` |
-| `--shadow-2xl` | `0 28px 56px oklch(0.00% 0.0000 0.00 / 0.28)` |
-| `--shadow-inner` | `inset 0 2px 4px light-dark(oklch(0.00% 0.0000 0.00 / 0.06), transparent), inset 0 2px 6px light-dark(transparent, oklch(0.00% 0.0000 0.00 / 0.3))` |
-| `--shadow-text-xs` | `0 1px 2px oklch(0.00% 0.0000 0.00 / 0.15)` |
-| `--shadow-text-sm` | `0 1px 2px oklch(0.00% 0.0000 0.00 / 0.5)` |
-| `--shadow-text-md` | `0 1px 4px oklch(0.00% 0.0000 0.00 / 0.5)` |
-| `--shadow-text-strong` | `0 1px 3px oklch(0.00% 0.0000 0.00 / 0.4)` |
+| `--shadow-raised` | `0 2px 6px light-dark(oklch(0.00% 0.0000 0.00 / 0.12), oklch(0.00% 0.0000 0.00 / 0.45)), 0 1px 3px light-dark(oklch(0.00% 0.0000 0.00 / 0.08), oklch(0.00% 0.0000 0.00 / 0.35))` |
+| `--shadow-floating` | `0 4px 12px light-dark(oklch(0.00% 0.0000 0.00 / 0.12), oklch(0.00% 0.0000 0.00 / 0.45)), 0 2px 4px light-dark(oklch(0.00% 0.0000 0.00 / 0.08), oklch(0.00% 0.0000 0.00 / 0.35))` |
+| `--shadow-overlay` | `0 10px 24px light-dark(oklch(0.00% 0.0000 0.00 / 0.12), oklch(0.00% 0.0000 0.00 / 0.45)), 0 4px 8px light-dark(oklch(0.00% 0.0000 0.00 / 0.08), oklch(0.00% 0.0000 0.00 / 0.35))` |
+| `--shadow-inset` | `inset 0 2px 4px light-dark(oklch(0.00% 0.0000 0.00 / 0.06), transparent), inset 0 2px 6px light-dark(transparent, oklch(0.00% 0.0000 0.00 / 0.3))` |
+| `--shadow-glow` | `0 0 12px color-mix(in oklch, var(--bg-accent-solid) 40%, transparent)` |
+| `--text-shadow-subtle` | `0 1px 3px color-mix(in oklch, var(--text-black) 40%, transparent)` |
+| `--text-shadow-strong` | `0 2px 8px color-mix(in oklch, var(--text-black) 60%, transparent)` |
 | `--blur-2` | `blur(2px)` |
 | `--blur-4` | `blur(4px)` |
 | `--blur-8` | `blur(8px)` |

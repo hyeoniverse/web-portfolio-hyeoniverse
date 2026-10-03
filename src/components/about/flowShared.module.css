@@ -9,7 +9,7 @@
   border: var(--border-light);
   border-radius: var(--radius-control);
   background: var(--bg-primary);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-floating);
 }
 
 /* 기본 스타일(사각 버튼 + 하단 border)을 덮는다 */

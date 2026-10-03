@@ -65,7 +65,7 @@
   /* 레터박스 바탕 — 그림이 판을 다 못 채울 때 드러난다. 밝은 화면에서도 검정으로 둔다
      (바탕이 테마 따라 바뀌면 같은 그림이 화면마다 다른 테두리를 쓴 것처럼 보인다) */
   background: var(--bg-black);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-overlay);
 }
 /* 가운데에서 멀수록 어둡게 — 앞뒤 관계를 색으로도 알린다 */
 .slideButton::after {
@@ -345,7 +345,7 @@
   border-radius: var(--radius-full);
   background: var(--bg-white);
   color: var(--text-black);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-overlay);
   transition: transform var(--duration-base) var(--ease-material);
 }
 

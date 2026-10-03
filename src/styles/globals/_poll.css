@@ -208,7 +208,7 @@ body.poll-grabbing * {
   background: var(--bg-primary);
   border: 1px solid var(--border-color-light);
   border-radius: var(--radius-surface);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-overlay);
   opacity: 0.85;
   pointer-events: none;
   font-size: var(--font-size-body-md);

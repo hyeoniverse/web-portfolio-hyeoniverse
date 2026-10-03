@@ -174,7 +174,7 @@
   backdrop-filter: blur(8px);
   border: var(--border-light);
   border-radius: var(--radius-surface);
-  box-shadow: 0 8px 24px oklch(0% 0 0 / 0.18);
+  box-shadow: var(--shadow-overlay);
   z-index: var(--z-index-dropdown);
 }
 
@@ -631,7 +631,7 @@
      밝은 글자가 묻혀 안 보였음. 85% 불투명 + blur 로 대비 보장하면서 프로스티드 글래스 유지. */
   background: color-mix(in srgb, var(--bg-primary) 85%, transparent);
   backdrop-filter: blur(8px) saturate(1.4);
-  box-shadow: 0 4px 16px oklch(0% 0 0 / 0.12);
+  box-shadow: var(--shadow-floating);
   overflow: hidden;
   z-index: var(--z-index-dropdown);
 }

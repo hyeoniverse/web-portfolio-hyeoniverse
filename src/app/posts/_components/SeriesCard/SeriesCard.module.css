@@ -194,7 +194,7 @@
   -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  text-shadow: var(--shadow-text-xs);
+  text-shadow: var(--text-shadow-subtle);
 }
 
 /* 타이포 cover 일 때 hover overlay 는 띄우지 않음 (이미 정보가 다 보임) */
@@ -242,7 +242,7 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
   letter-spacing: -0.005em;
-  text-shadow: var(--shadow-text-md);
+  text-shadow: var(--text-shadow-strong);
 }
 
 .meta {
@@ -252,5 +252,5 @@
   opacity: 0.85;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  text-shadow: var(--shadow-text-sm);
+  text-shadow: var(--text-shadow-subtle);
 }

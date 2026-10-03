@@ -150,7 +150,7 @@
 
 .card:hover .cardBorder {
   border: var(--border-width-1) solid color-mix(in oklch, var(--border-color-white) 15%, transparent);
-  box-shadow: 0 0 30px oklch(100.00% 0.0000 0.00 / 0.05), inset 0 0 30px oklch(100.00% 0.0000 0.00 / 0.02);
+  box-shadow: 0 0 30px color-mix(in oklch, var(--text-white) 5%, transparent), inset 0 0 30px color-mix(in oklch, var(--text-white) 2%, transparent);
 }
 
 .cardActive {
@@ -637,7 +637,7 @@
     color: var(--text-white) !important;
     mix-blend-mode: normal;
     will-change: auto;
-    text-shadow: 0 2px 10px oklch(0.00% 0.0000 0.00 / 0.6);
+    text-shadow: var(--text-shadow-strong);
     font-family: var(--font-family-heading);
     font-weight: var(--font-weight-light);
     font-size: var(--font-size-64) !important;
@@ -711,7 +711,7 @@
     z-index: 2;
     color: var(--text-white);
     pointer-events: none;
-    text-shadow: 0 2px 8px oklch(0.00% 0.0000 0.00 / 0.65);
+    text-shadow: var(--text-shadow-strong);
   }
 
   /* year(작은 라벨) → title(크게) → subtitle 순으로 시각 정렬 */
@@ -752,7 +752,7 @@
     text-transform: uppercase;
     color: var(--text-white) !important;
     opacity: 0.85 !important;
-    text-shadow: 0 1px 6px oklch(0.00% 0.0000 0.00 / 0.6);
+    text-shadow: var(--text-shadow-strong);
     mix-blend-mode: normal;
   }
 

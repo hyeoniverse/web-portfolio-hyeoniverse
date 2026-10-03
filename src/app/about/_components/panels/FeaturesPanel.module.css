@@ -49,7 +49,7 @@
   font-size: calc(var(--font-size-display-sm) * 0.85);
   font-weight: var(--font-weight-semibold);
   color: var(--text-white);
-  text-shadow: 0 1px 4px color-mix(in oklch, var(--text-black) 50%, transparent);
+  text-shadow: var(--text-shadow-subtle);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -67,7 +67,7 @@
   font-size: calc(var(--font-size-prose-lg) * 0.9);
   line-height: var(--_lh-reading);
   color: var(--text-white);
-  text-shadow: 0 1px 3px color-mix(in oklch, var(--text-black) 40%, transparent);
+  text-shadow: var(--text-shadow-subtle);
 }
 
 .featureDfTech {
@@ -76,7 +76,7 @@
   color: var(--text-white-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  text-shadow: 0 1px 3px color-mix(in oklch, var(--text-black) 40%, transparent);
+  text-shadow: var(--text-shadow-subtle);
 }
 
 /* Mobile fallback grid (hidden on desktop) */

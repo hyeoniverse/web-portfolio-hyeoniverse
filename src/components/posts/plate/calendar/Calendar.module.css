@@ -480,8 +480,8 @@
 /* 기간 이벤트가 여러 줄로 나뉜 경우 한 세그먼트 hover 시 이어진 모든 세그먼트에 동일 효과 */
 .chipHover { background: color-mix(in srgb, var(--_chip) 28%, var(--bg-primary)); }
 /* hover 한 이벤트의 연결 체인 강조 (월/주/일 공통) — accent 링 + 부드러운 글로우 */
-.chipChainHi { outline: var(--border-width-2) solid var(--border-color-accent-strong); outline-offset: 0; box-shadow: 0 2px 10px color-mix(in srgb, var(--border-color-accent-strong) 26%, transparent); z-index: 3; }
-.agendaChainHi { outline: var(--border-width-2) solid var(--border-color-accent-strong); outline-offset: 0; box-shadow: 0 2px 10px color-mix(in srgb, var(--border-color-accent-strong) 26%, transparent); z-index: 3; }
+.chipChainHi { outline: var(--border-width-2) solid var(--border-color-accent-strong); outline-offset: 0; box-shadow: var(--shadow-glow); z-index: 3; }
+.agendaChainHi { outline: var(--border-width-2) solid var(--border-color-accent-strong); outline-offset: 0; box-shadow: var(--shadow-glow); z-index: 3; }
 .chip[draggable="true"] { cursor: grab; }
 .chip[draggable="true"]:active { cursor: grabbing; }
 .chipDone .chipLabel { text-decoration: line-through; opacity: 0.6; }
@@ -525,7 +525,7 @@
   border: var(--border-light);
   border-radius: var(--radius-surface);
   background: var(--bg-primary);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-overlay);
 }
 .dayPopHead {
   padding: 0 var(--spacing-2);
@@ -730,7 +730,7 @@
 .scopeDialogText { font: var(--font-body-md); line-height: 1.5; color: var(--text-secondary); }
 .scopeDialogFooter { display: flex; justify-content: flex-end; gap: var(--spacing-4); margin-top: var(--spacing-4); }
 /* 선택된 일 이벤트 강조 */
-.dayEventSelected { outline: var(--border-width-2) solid var(--border-color-accent-strong); outline-offset: 0; box-shadow: var(--shadow-md); z-index: 4; }
+.dayEventSelected { outline: var(--border-width-2) solid var(--border-color-accent-strong); outline-offset: 0; box-shadow: var(--shadow-floating); z-index: 4; }
 /* 경계 당김 인디케이터 — 시간축 끝에서 계속 스크롤할 때만 나타나고, 다 차오르면(--_p=1) 넘어감 */
 .pullHint {
   position: absolute; left: 0; right: 0; z-index: 4;
@@ -748,7 +748,7 @@
   border-radius: var(--radius-full);
   display: grid; place-items: center;
   background: conic-gradient(var(--bg-accent-solid) calc(var(--_p) * 1turn), var(--border-color-light) 0);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-raised);
   opacity: calc(0.5 + 0.5 * var(--_p));
   transition: opacity 0.1s ease;
 }
@@ -974,15 +974,15 @@
   gap: var(--spacing-1);
   padding: var(--spacing-4) var(--spacing-8);
   border: none;
+  border-left: var(--border-width-3) solid var(--_c);
   border-radius: 0;
   background: color-mix(in srgb, var(--_c) 16%, var(--bg-primary));
-  box-shadow: inset 3px 0 0 0 var(--_c);
   overflow: hidden;
   cursor: pointer;
   text-align: left;
   transition: background-color 0.12s ease, box-shadow 0.12s ease;
 }
-.dayEvent:hover { background: color-mix(in srgb, var(--_c) 26%, var(--bg-primary)); box-shadow: inset 3px 0 0 0 var(--_c), var(--shadow-sm); }
+.dayEvent:hover { background: color-mix(in srgb, var(--_c) 26%, var(--bg-primary)); box-shadow: var(--shadow-raised); }
 /* 제목 + 상태 아이콘(반복/연결) 한 줄 — 제목만 truncate, 아이콘은 항상 노출 */
 .dayEventHead { display: flex; align-items: center; gap: var(--spacing-4); min-width: 0; }
 .dayEventIcon { flex-shrink: 0; color: color-mix(in srgb, var(--_c) 55%, var(--text-tertiary)); }
@@ -1002,7 +1002,7 @@
 .dayNowDot { position: absolute; left: -4px; top: 50%; width: 8px; height: 8px; border-radius: var(--radius-full); background: var(--bg-accent-solid); transform: translateY(-50%); }
 /* 드래그: 블록 이동/리사이즈 + 빈 슬롯 생성 프리뷰 */
 .dayEventDraggable { cursor: grab; }
-.dayEventDragging { z-index: 6; box-shadow: 0 4px 14px oklch(0% 0 0 / 0.2); opacity: 0.95; cursor: grabbing; overflow: visible; }
+.dayEventDragging { z-index: 6; box-shadow: var(--shadow-floating); opacity: 0.95; cursor: grabbing; overflow: visible; }
 /* 드래그 중 현재 위치 시간 배지 — 시작 엣지는 블록 위, 종료 엣지는 블록 아래 */
 .dayEventDragTime {
   position: absolute;
@@ -1018,7 +1018,7 @@
   white-space: nowrap;
   z-index: 7;
   pointer-events: none;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-raised);
 }
 .dayEventDragTimeBottom { bottom: auto; top: calc(100% + 3px); }
 .dayEventResize { position: absolute; left: 0; right: 0; bottom: 0; height: 11px; cursor: ns-resize; z-index: 3; }
@@ -1681,7 +1681,7 @@
   background: color-mix(in srgb, var(--_c) 22%, transparent);
   pointer-events: none;
   overflow: hidden;
-  box-shadow: 0 6px 16px oklch(0% 0 0 / 0.18);
+  box-shadow: var(--shadow-floating);
 }
 /* 행 재정렬 삽입 위치 가로선 */
 .tlDropRow {
@@ -1740,7 +1740,7 @@
 .tlBarLinkHi {
   outline: var(--border-width-2) solid var(--border-color-accent-strong);
   outline-offset: 0;
-  box-shadow: 0 4px 16px color-mix(in srgb, var(--border-color-accent-strong) 26%, transparent);
+  box-shadow: var(--shadow-glow);
   z-index: 4;
 }
 .tlDepTemp {

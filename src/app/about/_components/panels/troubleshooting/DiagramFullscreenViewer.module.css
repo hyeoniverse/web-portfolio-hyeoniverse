@@ -71,7 +71,7 @@
   background: var(--bg-secondary);
   border: var(--border-width-1) solid color-mix(in srgb, var(--text-secondary) 15%, transparent);
   border-radius: var(--radius-control);
-  box-shadow: 0 8px 24px oklch(0.00% 0.0000 0.00 / 0.15);
+  box-shadow: var(--shadow-overlay);
 }
 
 .diagramViewerZoomLabel {

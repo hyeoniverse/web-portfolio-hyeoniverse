@@ -76,7 +76,7 @@
   backdrop-filter: blur(8px);
   border: var(--border-width-1) solid color-mix(in srgb, var(--text-secondary) 18%, transparent);
   border-radius: var(--radius-surface);
-  box-shadow: 0 4px 16px oklch(0.00% 0.0000 0.00 / 0.18);
+  box-shadow: var(--shadow-floating);
   font-family: var(--_font-grotesk);
   font-size: var(--font-size-body-sm);
   text-transform: none;

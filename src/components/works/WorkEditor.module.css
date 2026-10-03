@@ -612,9 +612,7 @@
 }
 
 .galleryItemMain::after {
-  box-shadow:
-    inset 0 2px 0 var(--text-accent),
-    inset 0 -2px 0 var(--text-accent);
+  border-block: var(--border-width-2) solid var(--text-accent);
 }
 
 .galleryItem:last-child {

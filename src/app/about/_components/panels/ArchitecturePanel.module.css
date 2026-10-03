@@ -168,7 +168,7 @@
 .archMap .archNodeActive {
   border-color: var(--text-accent);
   border-width: var(--border-width-2);
-  box-shadow: 0 0 16px color-mix(in oklch, var(--bg-accent-solid) 15%, transparent);
+  box-shadow: var(--shadow-glow);
 }
 
 .archMap .archNodeOnPath {

@@ -512,3 +512,15 @@ Material `@material/web` 2.5, Primer primitives. 숫자는 같은 날 다시 셌
 - **예외.** 삼각형 꼼수 3곳(투명 테두리 두 변 + 색 한 변)은 도형이라 숫자 그대로. 자동 완성 배경을 덮는 `-webkit-box-shadow … 1000px inset` 1곳은 브라우저 꼼수.
 - **보이는 변화.** 1.5px → 2px(0.5px 굵어짐) 몇 곳. `outline` 은 둥근 모서리를 따라가므로 모양은 같고, 고대비 모드에서는 이제 링이 보인다. 안쪽 링을 `border` 로 바꾼 21곳은 `border-box` 라 크기가 같다.
 - **감시.** ratchet `border-width-number` 222 → 3, `shadow-literal` 은 링을 덜어낸 만큼 줄었다.
+
+### D40. 2026-10-03 — 그림자는 눈금 없이 높이 역할 넷 + 강조 빛 하나
+
+- **왜.** 크기 이름 `--shadow-xs … 2xl`(6단계)을 62곳이 썼고 60곳은 값을 직접 썼다. "md 냐 lg 냐"는 고를 근거가 없어 같은 팝오버가 md 와 lg 로 갈렸다(3.7-1).
+  Atlassian · Material 처럼 "무엇 위에 떠 있나"로 고르면 답이 하나다.
+- **정한 것.** 눈금을 없애고 역할만 둔다 — `--shadow-raised`(옛 sm 값: 카드 hover · 떠 있는 단추), `--shadow-floating`(옛 md: 메뉴 · 팝오버 · 툴팁), `--shadow-overlay`(옛 lg: 모달 · 드로어 · 뷰어), `--shadow-inset`(옛 inner).
+  옮긴 규칙: xs · sm → raised, md → floating, lg · xl · 2xl → overlay. 직접 쓴 검은 그림자는 퍼짐으로 — 4px 이하 raised, 12 ~ 20px floating, 24px 이상 overlay.
+  강조색 번짐(선택한 날 · 현재 노드 · 활성 태그)은 높이가 아니라 `--shadow-glow` 하나(12px, 강조색 40%). 글자 그림자는 `--text-shadow-subtle`(퍼짐 ≤ 4px) · `-strong` 둘로, 옛 `--shadow-text-*` 넷은 지웠다.
+- **같이.** 한쪽 선을 `inset` 그림자로 그린 8곳(일정 왼쪽 띠 · 로그 왼쪽 띠 · 탭 밑줄 · 갤러리 위아래 띠 …)은 3.6-4 대로 `border-left` · `border-bottom` · `border-block` 으로, 편집기의 같은 낱말 밑줄은 `text-decoration` 으로.
+  그림자 안의 `oklch()` · `rgba()` 검정 · 흰색은 역할색 `color-mix` 로(3.1-2, `color-function` 71 → 31).
+- **예외.** 3D 단추 이음새(`--btn-seam`, 지역 변수) · 자동 완성 배경 덮기 · `border-collapse` 표의 sticky 머리 밑줄 · 위로 뜨는 색인 시트(역할 그림자는 아래로만 진다) · 달 · 작업 카드의 흰 빛 · 플레이그라운드 시작 코드와 편집기 견본 HTML(사용자 내용).
+- **보이는 변화.** xl 을 쓰던 확인 대화상자 · 시리즈 미리보기 2곳은 overlay(lg 값)로 조금 얕아진다. 직접 쓴 값과 역할 값의 퍼짐 · 진하기 차이는 몇 px · 몇 % 안이다. 강조 빛은 6 ~ 16px 가 12px 하나로. 왼쪽 띠를 border 로 바꾼 곳은 글자가 띠 두께(2 ~ 3px)만큼 밀린다.

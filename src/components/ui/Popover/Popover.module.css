@@ -15,7 +15,7 @@
   background: var(--bg-primary);
   border: var(--border-light);
   border-radius: var(--radius-surface);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-floating);
   overflow: hidden;
 }
 

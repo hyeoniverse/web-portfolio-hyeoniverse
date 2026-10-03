@@ -469,7 +469,7 @@ code .token.italic {
   padding: 0 var(--_bar-ctl-px);
   background: var(--bg-primary);
   border-radius: var(--radius-full);
-  box-shadow: var(--shadow-xs);            /* 컨트롤 pill 과 같은 그림자 톤 */
+  box-shadow: var(--shadow-raised);            /* 컨트롤 pill 과 같은 그림자 톤 */
   color: var(--text-primary);
   font-family: var(--font-family-code);
   font-size: var(--_bar-ctl-fs);
