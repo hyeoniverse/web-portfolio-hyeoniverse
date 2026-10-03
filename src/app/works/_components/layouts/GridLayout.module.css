@@ -62,8 +62,7 @@
 }
 
 .introLabel {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   letter-spacing: 0.35em;
   text-transform: uppercase;
   opacity: 0.55;
@@ -103,8 +102,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   letter-spacing: 0.2em;
   text-transform: uppercase;
   opacity: 0.5;
@@ -156,8 +154,7 @@
   top: var(--spacing-20);
   right: var(--spacing-20);
   z-index: 2;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-code-sm);
   color: var(--text-white);
   opacity: 0;
   letter-spacing: 0.1em;
@@ -201,8 +198,7 @@
 }
 
 .projectNumber {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-code-sm);
   letter-spacing: 0.3em;
 }
 

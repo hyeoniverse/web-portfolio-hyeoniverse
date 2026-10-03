@@ -81,8 +81,7 @@
   border: var(--border-default);
   border-radius: var(--radius-full);
   background: var(--bg-primary);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   color: var(--text-primary);
   text-decoration: none;
   backdrop-filter: blur(10px);
@@ -215,8 +214,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-8);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   color: var(--text-tertiary);
   text-decoration: none;
   white-space: nowrap;

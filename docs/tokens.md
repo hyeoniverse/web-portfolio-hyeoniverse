@@ -320,7 +320,7 @@
 
 ## `src/styles/globals/_semantic.css`
 
-토큰 137개
+토큰 138개
 
 | 토큰 | 값 | 다크 | 조건부 |
 |---|---|---|---|
@@ -448,6 +448,7 @@
 | `--font-heading-md` | `var(--font-weight-regular) var(--font-size-heading-md) / var(--line-height-125) var(--font-family-heading)` |  |  |
 | `--font-heading-lg` | `var(--font-weight-regular) var(--font-size-heading-lg) / var(--line-height-125) var(--font-family-heading)` |  |  |
 | `--font-heading-xl` | `var(--font-weight-regular) var(--font-size-heading-xl) / var(--line-height-125) var(--font-family-heading)` |  |  |
+| `--font-body-xl` | `var(--font-weight-regular) var(--font-size-body-xl) / var(--line-height-160) var(--font-family-body)` |  |  |
 | `--font-body-lg` | `var(--font-weight-regular) var(--font-size-body-lg) / var(--line-height-160) var(--font-family-body)` |  |  |
 | `--font-body-md` | `var(--font-weight-regular) var(--font-size-body-md) / var(--line-height-160) var(--font-family-body)` |  |  |
 | `--font-body-sm` | `var(--font-weight-regular) var(--font-size-body-sm) / var(--line-height-160) var(--font-family-body)` |  |  |
