@@ -1816,10 +1816,7 @@
     "src/app/admin/(dashboard)/_components/DevicesBreakdown.module.css": 2,
     "src/app/admin/(dashboard)/Dashboard.module.css": 7
   },
-  "component-raw-button": {
-    "src/app/admin/(dashboard)/settings/_components/ThemeSuggest.tsx": 3,
-    "src/app/design-system/_sections/components/FeedbackDisplayDemos.tsx": 2
-  },
+  "component-raw-button": {},
   "a11y-outline-none": {
     "src/app/about/_components/panels/DesignSystemPanel.module.css": 1,
     "src/app/admin/(dashboard)/_components/CalendarHeatmap.module.css": 1,

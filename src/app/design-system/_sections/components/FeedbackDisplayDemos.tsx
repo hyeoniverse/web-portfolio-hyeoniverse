@@ -231,12 +231,12 @@ export default function FeedbackDisplayDemos() {
               <div className="code-block-bar" style={{ position: "relative" }}>
                 <span className="code-lang-label">css</span>
                 <div className="code-block-controls">
-                  <button className="code-copy-btn" type="button" tabIndex={-1} aria-hidden>
+                  <Pressable className="code-copy-btn" tabIndex={-1} aria-hidden soundDisabled noTapScale>
                     <span className="code-copy-labels"><span className="code-copy-default">Copy</span></span>
-                  </button>
-                  <button className="code-wrap-toggle" type="button" tabIndex={-1} aria-hidden>
+                  </Pressable>
+                  <Pressable className="code-wrap-toggle" tabIndex={-1} aria-hidden soundDisabled noTapScale>
                     <span className="code-wrap-label-default">↔ Scroll</span>
-                  </button>
+                  </Pressable>
                 </div>
               </div>
             </div>
