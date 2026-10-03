@@ -435,13 +435,13 @@
 | `--spacing-page-inline` | `8vw` |  | `@media (max-width: 768px): 5vw`<br>`@media (max-width: 480px): 4vw` |
 | `--width-page-max` | `100%` |  |  |
 | `--spacing-panel-block` | `clamp(1rem, min(4.5vh, 2.5vw), 4.5rem)` |  | `@media (max-width: 480px): var(--m-lg)` |
-| `--font-size-hero` | `clamp(2rem, min(9vw, 18vh), 10rem)` |  |  |
-| `--font-size-lead` | `clamp(2rem, min(4vw, 12vh), 6rem)` |  |  |
-| `--font-size-subhead` | `clamp(1rem, min(2vw, 3vh), 3.5rem)` |  |  |
-| `--font-size-prose` | `clamp(0.75rem, min(1.5vw, 2.5vh), 1.5rem)` |  |  |
-| `--font-size-prose-label` | `clamp(0.75rem, min(1vw, 1.75vh), 1.25rem)` |  |  |
-| `--font-size-prose-small` | `clamp(0.75rem, min(0.85vw, 1.55vh), 1.15rem)` |  |  |
-| `--font-size-prose-caption` | `clamp(0.75rem, min(0.65vw, 1.45vh), 1rem)` |  |  |
+| `--font-size-hero` | `clamp(2.5rem, 1.5rem + 5vw, 6.25rem)` |  |  |
+| `--font-size-lead` | `clamp(2rem, 1rem + 3vw, 5rem)` |  |  |
+| `--font-size-subhead` | `clamp(1rem, 0.5rem + 1.4vw, 2.5rem)` |  |  |
+| `--font-size-prose` | `clamp(0.75rem, 0.25rem + 1.2vw, 1.5rem)` |  |  |
+| `--font-size-prose-label` | `clamp(0.75rem, 0.25rem + 0.73vw, 1.25rem)` |  |  |
+| `--font-size-prose-small` | `clamp(0.75rem, 0.25rem + 0.58vw, 1.15rem)` |  |  |
+| `--font-size-prose-caption` | `clamp(0.75rem, 0.25rem + 0.45vw, 1rem)` |  |  |
 | `--font-size-body` | `var(--font-size-14)` |  |  |
 | `--font-size-label` | `var(--font-size-13)` |  |  |
 | `--font-size-hint` | `var(--font-size-12)` |  |  |
