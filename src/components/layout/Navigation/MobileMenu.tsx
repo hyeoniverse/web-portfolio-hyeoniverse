@@ -85,7 +85,8 @@ export default function MobileMenu({
       <div className={styles.menuDrawer} data-lenis-prevent>
         {/* Header: 풀로고 가운데 */}
         <div className={styles.menuHeader} onClick={onClose}>
-          <Logo variant="full" as="link" className={styles.menuLogo} />
+          {/* 드로어는 테마와 상관없이 늘 어둡다(--nav-menu-bg) — 테마로 고르면 라이트 테마에서 어두운 잉크 로고가 묻힌다 */}
+          <Logo variant="full" as="link" className={styles.menuLogo} bg="dark" />
         </div>
 
         <nav aria-label={language === "ko" ? "모바일 메뉴" : "Mobile menu"} className={styles.menuNav}>
