@@ -90,7 +90,7 @@
   border: var(--border-width-2) solid var(--bg-primary);
   outline: var(--border-width-1) solid var(--border-color-light);
   outline-offset: 0;
-  box-shadow: 0 1px 4px oklch(0% 0 0 / 0.15);
+  box-shadow: var(--shadow-raised);
   pointer-events: none;
 }
 
@@ -294,7 +294,7 @@
   height: 18px;
   border-radius: var(--radius-mark);
   border: var(--border-width-2) solid var(--bg-primary);
-  box-shadow: 0 1px 3px oklch(0% 0 0 / 0.2);
+  box-shadow: var(--shadow-raised);
 }
 
 /* drag grip — swatch 가운데 가로 두 줄 (옅은 흰색 + 옅은 검정 outline 으로 어떤 색 위에서도 보이게) */

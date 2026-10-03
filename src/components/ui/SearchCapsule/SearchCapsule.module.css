@@ -149,7 +149,7 @@
   /* 글래스 표면 — Select 드롭다운 / Popover 와 동일 (--bg-glass + --blur-glass) */
   background: var(--bg-glass-panel);
   backdrop-filter: var(--blur-glass);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-floating);
   /* 자식 항목 overflow ellipsis 가 한 줄 안에서 잘 처리되도록 */
   min-width: 0;
 }

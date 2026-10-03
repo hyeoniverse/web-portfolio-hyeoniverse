@@ -32,7 +32,7 @@
   border: var(--border-light);
   font: var(--font-body-md);
   font-weight: 500;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-floating);
   pointer-events: auto;
   cursor: pointer;
   max-width: min(90vw, 480px);

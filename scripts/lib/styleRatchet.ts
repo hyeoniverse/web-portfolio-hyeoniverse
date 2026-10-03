@@ -232,7 +232,7 @@ export const METRICS: Metric[] = [
   { id: "radius-number", rule: "3.5-1", what: "모서리를 px · rem 숫자로 쓴 선언", count: regex(CSS, /border(?:-[a-z]+)*-radius:\s*[^;]*\b[1-9][\d.]*(?:px|rem)/) },
   { id: "border-width-number", rule: "3.6-1", what: "테두리 두께를 px 숫자로 쓴 선언", count: regex(CSS, /border(?:-(?:top|right|bottom|left|inline|block)(?:-(?:start|end))?)?(?:-width)?:\s*[\d.]+px/) },
   { id: "shadow-literal", rule: "3.7-1", what: "그림자 값을 직접 쓴 `box-shadow`", count: regex(CSS, /box-shadow:\s*(?!none|var|inherit|initial|unset)[^;]*\d+px/) },
-  { id: "shadow-size-name", rule: "3.7-1", what: "그림자 크기 이름(`--shadow-xs … 2xl` 등)", count: regex(CSS_AND_CODE, /var\(--shadow-[\w-]+\)/) },
+  { id: "shadow-size-name", rule: "3.7-1", what: "그림자 크기 이름(`--shadow-xs … 2xl` 등)", count: regex(CSS_AND_CODE, /var\(--shadow-(?:xs|sm|md|lg|xl|2xl|inner|text-[\w-]+)\)/) },
   { id: "opacity-disabled", rule: "3.8-1", what: "비활성 선택자 안의 `opacity` 숫자", count: disabledOpacity },
   /* 3.9 모션 */
   { id: "motion-duration-literal", rule: "3.9-1", what: "시간을 숫자로 쓴 `transition` · `animation` 선언", count: regex(CSS, /(?:transition|animation)(?:-duration|-delay)?:[^;]*\b\d*\.?\d+m?s\b/) },

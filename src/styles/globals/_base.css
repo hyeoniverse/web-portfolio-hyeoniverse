@@ -197,7 +197,7 @@ pre code {
   margin-right: 0.4em;
   vertical-align: -0.1em;
   border-radius: var(--radius-full);
-  box-shadow: inset 0 0 0 1px oklch(50% 0 0 / 0.4);
+  border: var(--border-width-1) solid color-mix(in oklch, var(--text-primary) 40%, transparent);
 }
 
 body {

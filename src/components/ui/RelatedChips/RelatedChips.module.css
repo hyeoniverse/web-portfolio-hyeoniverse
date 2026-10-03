@@ -94,7 +94,7 @@
   border: var(--border-light);
   border-radius: var(--radius-surface);
   background: var(--bg-primary);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-overlay);
   pointer-events: none;
 }
 .previewImg {

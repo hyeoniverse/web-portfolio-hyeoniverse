@@ -293,7 +293,7 @@ textarea.edit {
 }
 .chipDragging {
   opacity: 0.9;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-floating);
 }
 /* hero/credits — 순서 고정(드래그 불가), 클릭 토글은 유지 */
 .chipLocked {

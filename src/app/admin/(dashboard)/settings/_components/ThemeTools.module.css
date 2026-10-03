@@ -182,7 +182,7 @@
   margin: -9px 0 0 -9px;
   border: var(--border-width-2) solid var(--border-color-white);
   border-radius: var(--radius-full);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-raised);
   pointer-events: none;
 }
 

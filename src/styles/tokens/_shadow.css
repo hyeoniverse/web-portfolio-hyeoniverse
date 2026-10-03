@@ -1,28 +1,24 @@
 /* ==========================================================================
   Shadow & Effects Tokens
 
-  그림자 색은 테마마다 진하기가 달라서 light-dark() 로 고른다(다크에서 더 진해야 보인다 —
-  docs/design-system.md 2-5-1 · 3.7). 다크에서 퍼짐이 다른 --shadow-inner 는 두 층을 겹치고
-  테마마다 한 층을 투명하게 둔다.
+  그림자는 눈금(xs … 2xl) 없이 높이 역할만 둔다(docs/design-system.md 3.7-1, D40).
+  색은 테마마다 진하기가 달라서 light-dark() 로 고른다(다크에서 더 진해야 보인다 — 2-5-1).
+  다크에서 퍼짐이 다른 --shadow-inset 은 두 층을 겹치고 테마마다 한 층을 투명하게 둔다.
   ========================================================================== */
 
 :root {
-  /* Elevation Shadows */
-  --shadow-xs: 0 1px 3px light-dark(oklch(0.00% 0.0000 0.00 / 0.1), oklch(0.00% 0.0000 0.00 / 0.4)), 0 1px 2px light-dark(oklch(0.00% 0.0000 0.00 / 0.06), oklch(0.00% 0.0000 0.00 / 0.3));
-  --shadow-sm: 0 2px 6px light-dark(oklch(0.00% 0.0000 0.00 / 0.12), oklch(0.00% 0.0000 0.00 / 0.45)), 0 1px 3px light-dark(oklch(0.00% 0.0000 0.00 / 0.08), oklch(0.00% 0.0000 0.00 / 0.35));
-  --shadow-md: 0 4px 12px light-dark(oklch(0.00% 0.0000 0.00 / 0.12), oklch(0.00% 0.0000 0.00 / 0.45)), 0 2px 4px light-dark(oklch(0.00% 0.0000 0.00 / 0.08), oklch(0.00% 0.0000 0.00 / 0.35));
-  --shadow-lg: 0 10px 24px light-dark(oklch(0.00% 0.0000 0.00 / 0.12), oklch(0.00% 0.0000 0.00 / 0.45)), 0 4px 8px light-dark(oklch(0.00% 0.0000 0.00 / 0.08), oklch(0.00% 0.0000 0.00 / 0.35));
-  --shadow-xl: 0 20px 40px light-dark(oklch(0.00% 0.0000 0.00 / 0.14), oklch(0.00% 0.0000 0.00 / 0.45)), 0 8px 16px light-dark(oklch(0.00% 0.0000 0.00 / 0.08), oklch(0.00% 0.0000 0.00 / 0.35));
-  --shadow-2xl: 0 28px 56px oklch(0.00% 0.0000 0.00 / 0.28);
+  /* 높이 역할 */
+  --shadow-raised: 0 2px 6px light-dark(oklch(0.00% 0.0000 0.00 / 0.12), oklch(0.00% 0.0000 0.00 / 0.45)), 0 1px 3px light-dark(oklch(0.00% 0.0000 0.00 / 0.08), oklch(0.00% 0.0000 0.00 / 0.35)); /* 페이지 위에 살짝 뜬 것 — 카드 hover · 떠 있는 단추 */
+  --shadow-floating: 0 4px 12px light-dark(oklch(0.00% 0.0000 0.00 / 0.12), oklch(0.00% 0.0000 0.00 / 0.45)), 0 2px 4px light-dark(oklch(0.00% 0.0000 0.00 / 0.08), oklch(0.00% 0.0000 0.00 / 0.35)); /* 내용 위에 뜬 것 — 메뉴 · 팝오버 · 툴팁 */
+  --shadow-overlay: 0 10px 24px light-dark(oklch(0.00% 0.0000 0.00 / 0.12), oklch(0.00% 0.0000 0.00 / 0.45)), 0 4px 8px light-dark(oklch(0.00% 0.0000 0.00 / 0.08), oklch(0.00% 0.0000 0.00 / 0.35)); /* 화면을 덮는 것 — 모달 · 드로어 · 뷰어 */
+  --shadow-inset: inset 0 2px 4px light-dark(oklch(0.00% 0.0000 0.00 / 0.06), transparent), inset 0 2px 6px light-dark(transparent, oklch(0.00% 0.0000 0.00 / 0.3)); /* 안으로 들어간 것 */
 
-  /* Special Shadows */
-  --shadow-inner: inset 0 2px 4px light-dark(oklch(0.00% 0.0000 0.00 / 0.06), transparent), inset 0 2px 6px light-dark(transparent, oklch(0.00% 0.0000 0.00 / 0.3));
+  /* 강조 빛 — 높이가 아니라 강조색 번짐(선택 · 현재 · 활성). 하나뿐이다 */
+  --shadow-glow: 0 0 12px color-mix(in oklch, var(--bg-accent-solid) 40%, transparent);
 
-  /* Text legibility shadow — 이미지 위 텍스트 가독성용. text-shadow 전용. */
-  --shadow-text-xs: 0 1px 2px oklch(0.00% 0.0000 0.00 / 0.15);   /* 약한 contrast — 명도 차이가 거의 없는 배경 */
-  --shadow-text-sm: 0 1px 2px oklch(0.00% 0.0000 0.00 / 0.5);    /* 보통 — 이미지 위 텍스트 */
-  --shadow-text-md: 0 1px 4px oklch(0.00% 0.0000 0.00 / 0.5);    /* 강한 — 큰 제목 */
-  --shadow-text-strong: 0 1px 3px oklch(0.00% 0.0000 0.00 / 0.4); /* 어두운 배경의 흰 텍스트 강조 */
+  /* 글자 그림자 — 이미지 위 글자 가독성. text-shadow 전용 */
+  --text-shadow-subtle: 0 1px 3px color-mix(in oklch, var(--text-black) 40%, transparent); /* 명도 차이가 적은 배경 · 작은 글자 */
+  --text-shadow-strong: 0 2px 8px color-mix(in oklch, var(--text-black) 60%, transparent); /* 사진 위 큰 제목 */
 
   /* Blur Effects */
   --blur-2: blur(2px);

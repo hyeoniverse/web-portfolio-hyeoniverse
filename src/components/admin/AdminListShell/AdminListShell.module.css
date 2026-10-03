@@ -140,7 +140,7 @@
   background: var(--bg-primary);
   border: var(--border-light);
   border-radius: var(--radius-surface);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-overlay);
   overflow: hidden;
   pointer-events: none;
   /* 커서 쪽 모서리에서 커진다(usePreviewTooltip 가 transform-origin 을 커서 쪽으로 바꾼다) */
