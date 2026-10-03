@@ -11,15 +11,17 @@ interface LogoProps {
   variant?: "short" | "full";
   as?: "link" | "span";
   className?: string;
+  /** 로고가 놓일 배경. 테마와 상관없이 늘 어두운 면(모바일 메뉴 드로어 등) 위라면 지정한다 — 없으면 테마를 따른다 */
+  bg?: "light" | "dark";
 }
 
-export default function Logo({ variant = "short", as = "link", className }: LogoProps) {
+export default function Logo({ variant = "short", as = "link", className, bg }: LogoProps) {
   const siteConfig = useSiteConfig();
   const { theme } = useTheme();
   const SHORT = siteConfig.brand.logoText || "H";
   const FULL = siteConfig.brand.logoFullText || siteConfig.loading.displayName;
 
-  const isDark = theme === "dark";
+  const isDark = (bg ?? theme) === "dark";
   // 숏/풀 중 한쪽만 커스텀 업로드면 그 업로드본을 양쪽에 쓴다 (lib/brandLogos).
   // logoMode=system 이면 이미지 대신 텍스트로 그린다.
   const logos = resolveBrandLogos(siteConfig.brand);
