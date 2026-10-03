@@ -167,10 +167,8 @@
   color: var(--text-tertiary);
 }
 
-.epTitle {
-  font-family: var(--font-family-heading);
-  font-size: var(--font-size-heading-xs);
-  font-weight: var(--font-weight-regular);
+.epTitle {  font: var(--font-heading-xs);
+
   line-height: var(--line-height-125);
   letter-spacing: -0.01em;
   color: var(--text-primary);

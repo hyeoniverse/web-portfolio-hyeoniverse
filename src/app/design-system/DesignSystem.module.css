@@ -97,8 +97,7 @@
   bottom: calc(100% + 6px);
   left: 50%;
   transform: translateX(-50%);
-  font-family: var(--font-family-code), monospace;
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   color: var(--text-secondary);
   background: var(--bg-primary);
   padding: var(--spacing-2) var(--spacing-8);
@@ -137,9 +136,7 @@
   margin-bottom: var(--spacing-16);
   padding-bottom: var(--spacing-8);
   border-bottom: var(--border-strong);
-  font-family: var(--font-family-heading);
-  font-size: var(--font-size-heading-sm);
-  font-weight: var(--font-weight-regular);
+  font: var(--font-heading-sm);
   color: var(--text-primary);
 }
 
@@ -182,8 +179,7 @@
 }
 
 .colorLabel {
-  font-family: var(--font-family-code), monospace;
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   color: var(--text-tertiary);
   text-align: center;
   word-break: break-all;
@@ -226,8 +222,7 @@
 .typoLabel {
   flex-shrink: 0;
   width: 80px;
-  font-family: var(--font-family-code), monospace;
-  font-size: var(--font-size-body-sm);
+  font: var(--font-code-sm);
   color: var(--text-muted);
   text-align: right;
 }
@@ -260,14 +255,12 @@
 .spacingLabel {
   flex-shrink: 0;
   width: 100px;
-  font-family: var(--font-family-code), monospace;
-  font-size: var(--font-size-body-sm);
+  font: var(--font-code-sm);
   color: var(--text-tertiary);
 }
 
 .spacingValue {
-  font-family: var(--font-family-code), monospace;
-  font-size: var(--font-size-body-sm);
+  font: var(--font-code-sm);
   color: var(--text-muted);
 }
 
@@ -311,8 +304,7 @@
 }
 
 .radiusLabel {
-  font-family: var(--font-family-code), monospace;
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   color: var(--text-tertiary);
   text-align: center;
 }
@@ -339,8 +331,7 @@
 }
 
 .shadowLabel {
-  font-family: var(--font-family-code), monospace;
-  font-size: var(--font-size-body-sm);
+  font: var(--font-code-sm);
   color: var(--text-tertiary);
 }
 
@@ -357,15 +348,13 @@
 }
 
 .motionName {
-  font-family: var(--font-family-code), monospace;
-  font-size: var(--font-size-body-sm);
+  font: var(--font-code-sm);
   color: var(--text-primary);
   margin-bottom: var(--spacing-4);
 }
 
 .motionValue {
-  font-family: var(--font-family-code), monospace;
-  font-size: var(--font-size-body-sm);
+  font: var(--font-code-sm);
   color: var(--text-muted);
   margin-bottom: var(--spacing-12);
 }
@@ -421,8 +410,7 @@
   gap: var(--spacing-12);
   padding: var(--spacing-8) var(--spacing-16);
   border-radius: var(--radius-24);
-  font-family: var(--font-family-code), monospace;
-  font-size: var(--font-size-body-sm);
+  font: var(--font-code-sm);
   color: var(--text-primary);
   background: var(--bg-primary);
 }
@@ -526,8 +514,7 @@
 }
 
 .semanticName {
-  font-family: var(--font-family-code), monospace;
-  font-size: var(--font-size-body-sm);
+  font: var(--font-code-sm);
   color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
@@ -535,8 +522,7 @@
 }
 
 .semanticRef {
-  font-family: var(--font-family-code), monospace;
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   color: var(--text-muted);
   white-space: nowrap;
   overflow: hidden;
@@ -560,8 +546,7 @@
 
 .alphaLabel {
   margin-top: var(--spacing-8);
-  font-family: var(--font-family-code), monospace;
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   color: var(--text-muted);
   text-align: center;
 }
@@ -744,8 +729,7 @@
 }
 
 .sliderLabel {
-  font-family: var(--font-family-code), monospace;
-  font-size: var(--font-size-body-sm);
+  font: var(--font-code-sm);
   color: var(--text-tertiary);
 }
 
@@ -764,8 +748,7 @@
 }
 
 .logoLabel {
-  font-family: var(--font-family-code), monospace;
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   color: var(--text-muted);
 }
 
@@ -793,8 +776,7 @@
 }
 
 .bannerPreviewLabel {
-  font-family: var(--font-family-code), monospace;
-  font-size: var(--font-size-body-sm);
+  font: var(--font-code-sm);
   color: var(--text-tertiary);
 }
 
@@ -896,8 +878,7 @@
 }
 
 .pRowTitle {
-  font-family: var(--font-family-heading);
-  font-size: var(--font-size-heading-xs);
+  font: var(--font-heading-xs);
   color: var(--text-primary);
   margin: 0;
 }

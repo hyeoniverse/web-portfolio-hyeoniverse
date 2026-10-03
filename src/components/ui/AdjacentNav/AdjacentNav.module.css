@@ -113,10 +113,8 @@
   transform: translateX(3px);
 }
 
-.title {
-  font-family: var(--font-family-heading);
-  font-size: var(--font-size-heading-xs);
-  font-weight: var(--font-weight-regular);
+.title {  font: var(--font-heading-xs);
+
   color: var(--text-primary);
   line-height: var(--line-height-125);
   /* 1줄 표시라도 항상 2줄 만큼 height — 카드 사이 layout 안정. 긴 title 은 2줄 clamp + ellipsis */

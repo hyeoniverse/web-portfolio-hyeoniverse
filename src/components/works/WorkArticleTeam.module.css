@@ -117,8 +117,7 @@
 }
 
 .polaroidName {
-  font-family: var(--font-family-heading);
-  font-size: var(--font-size-heading-xs);
+  font: var(--font-heading-xs);
   color: var(--text-primary);
   line-height: 1.2;
 }
@@ -150,8 +149,7 @@
 }
 
 .polaroidBackName {
-  font-family: var(--font-family-heading);
-  font-size: var(--font-size-heading-xs);
+  font: var(--font-heading-xs);
   color: var(--text-primary);
   line-height: 1.2;
   min-width: 0;

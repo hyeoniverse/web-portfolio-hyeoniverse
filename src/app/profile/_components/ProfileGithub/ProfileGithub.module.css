@@ -519,10 +519,8 @@
    평소엔 물러나 있다가 가리키면 또렷해진다. */
 .repoIndex {
   flex-shrink: 0;
-  font-family: var(--font-family-heading);
-  font-size: var(--font-size-heading-sm);
+  font: var(--font-heading-sm);
   font-style: italic;
-  font-weight: var(--font-weight-regular);
   line-height: 1;
   color: var(--text-accent);
   opacity: 0.45;

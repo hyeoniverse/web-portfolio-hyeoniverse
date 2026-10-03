@@ -121,10 +121,8 @@
 
 .activeSeriesMetaTitle {
   margin: 0;
-  font-family: var(--font-family-heading);
+  font: var(--font-heading-sm);
   /* 2xl → xl 로 축소 — filter bar 컨텍스트 내에서 적절한 크기 */
-  font-size: var(--font-size-heading-sm);
-  font-weight: var(--font-weight-regular);
   color: var(--text-primary);
   line-height: var(--line-height-125);
 }
