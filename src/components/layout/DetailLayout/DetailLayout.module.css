@@ -77,7 +77,8 @@
   top: calc(var(--spacing-32) + var(--spacing-48));
   left: var(--spacing-page-inline);
   z-index: var(--z-index-nav);
-  padding: var(--button-padding-lg);
+  height: var(--control-height-xl);
+  padding: 0 var(--control-padding-inline-xl);
   border: var(--border-default);
   border-radius: var(--radius-full);
   background: var(--bg-primary);
@@ -262,7 +263,10 @@
   .backBtn {
     top: calc(var(--spacing-32) + var(--spacing-48));
     left: var(--spacing-page-inline);
-    padding: var(--button-padding-sm);
+    display: inline-flex;
+    align-items: center;
+    height: var(--control-height-sm);
+    padding: 0 var(--control-padding-inline-sm);
     font-size: var(--font-size-body-sm);
     gap: var(--spacing-8);
     transition: opacity 0.3s, transform 0.3s, padding 0.3s, font-size 0.3s, gap 0.3s, top 0.3s, left 0.3s;

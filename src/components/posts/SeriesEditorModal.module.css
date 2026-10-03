@@ -74,7 +74,8 @@
 .input,
 .select {
   width: 100%;
-  padding: var(--field-padding-lg);
+  height: var(--control-height-md);
+  padding: 0 var(--spacing-12);
   border: var(--border-light);
   border-radius: var(--radius-full);
   background: transparent;
@@ -155,7 +156,10 @@
 }
 
 .uploadBtn {
-  padding: var(--button-padding-md);
+  display: inline-flex;
+  align-items: center;
+  height: var(--control-height-lg);
+  padding: 0 var(--control-padding-inline-lg);
   border: var(--border-light);
   border-radius: var(--radius-full);
   background: transparent;
@@ -189,7 +193,10 @@
 }
 
 .cancelBtn {
-  padding: var(--button-padding-lg);
+  display: inline-flex;
+  align-items: center;
+  height: var(--control-height-xl);
+  padding: 0 var(--control-padding-inline-xl);
   border: var(--border-light);
   border-radius: var(--radius-full);
   background: transparent;
@@ -204,7 +211,10 @@
 }
 
 .saveBtn {
-  padding: var(--button-padding-lg);
+  display: inline-flex;
+  align-items: center;
+  height: var(--control-height-xl);
+  padding: 0 var(--control-padding-inline-xl);
   border: var(--border-strong);
   border-radius: var(--radius-full);
   background: var(--text-primary);

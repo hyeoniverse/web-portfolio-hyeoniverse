@@ -115,7 +115,10 @@
 }
 
 .addPostHeader button[class] {
-  padding: var(--button-padding-xs);
+  display: inline-flex;
+  align-items: center;
+  height: var(--control-height-xs);
+  padding: 0 var(--control-padding-inline-xs);
   font: var(--font-body-xs);
   line-height: var(--line-height-100);
 }

@@ -217,7 +217,10 @@
 
 .actionBtn {
   flex-shrink: 0;
-  padding: var(--button-padding-sm);
+  display: inline-flex;
+  align-items: center;
+  height: var(--control-height-sm);
+  padding: 0 var(--control-padding-inline-sm);
   border: var(--border-strong);
   border-radius: var(--radius-full);
   background: transparent;
@@ -234,7 +237,10 @@
 
 .dangerBtn {
   flex-shrink: 0;
-  padding: var(--button-padding-sm);
+  display: inline-flex;
+  align-items: center;
+  height: var(--control-height-sm);
+  padding: 0 var(--control-padding-inline-sm);
   border: var(--border-accent-strong);
   border-radius: var(--radius-full);
   background: transparent;

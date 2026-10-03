@@ -106,7 +106,10 @@
 /* SegmentedControl 의 기본 height (font-xs + padding-2xs/md) 가 search/select 보다 큼 →
    filter bar size 와 통일 (font-2xs + box-sm) */
 .toolbarLeft button {
-  padding: var(--button-padding-xs);
+  display: inline-flex;
+  align-items: center;
+  height: var(--control-height-xs);
+  padding: 0 var(--control-padding-inline-xs);
   font-size: var(--font-size-body-xs);
 }
 

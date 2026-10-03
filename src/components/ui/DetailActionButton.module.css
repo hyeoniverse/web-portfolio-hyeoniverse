@@ -6,13 +6,14 @@
    예전엔 각자 CSS 에 따로 적혀 있어서 share 만 작고(28px vs 47px) 진했다(border-strong).
    여기서만 정의하고 양쪽이 이 클래스를 쓴다 — 한쪽만 바뀌어 어긋나는 일을 막는다.
 
-   공통 Button 을 못 쓰는 이유: size 가 md 32 / lg 36 / xl 40 뿐이라 이 47px 규격이 없다.
-   (--button-padding-lg 는 "hero CTA" 용으로 정의돼 있는데 정작 Button 의 어떤 size 도 안 쓴다) */
+   높이는 컨트롤 눈금의 xl 40(3.4-2, D37) — 예전의 47px 는 세로 여백이 만든 값이라 눈금에 없었다.
+   공통 Button 을 안 쓰는 이유: 아이콘 + 두 줄 글자 배치가 Button 의 slot 과 다르다. */
 .btn {
   display: flex;
   align-items: center;
   gap: var(--spacing-12);
-  padding: var(--button-padding-lg);
+  height: var(--control-height-xl);
+  padding: 0 var(--control-padding-inline-xl);
   border: var(--border-light);
   border-radius: var(--radius-full);
   background: transparent;

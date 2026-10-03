@@ -65,7 +65,10 @@
   border-radius: 0 !important;
   /* 옵션 trigger ↔ input 구분선 — 주변 컨트롤 border 와 light 로 통일 */
   border-right: var(--border-light) !important;
-  padding: var(--input-padding) !important;
+  display: inline-flex;
+  align-items: center;
+  height: var(--control-height-md);
+  padding: 0 var(--control-padding-inline-sm) !important;
   font: var(--font-body-sm);
   background: transparent !important;
 }
@@ -80,7 +83,8 @@
 .input {
   flex: 1;
   min-width: 80px;
-  padding: var(--input-padding);
+  height: var(--control-height-md);
+  padding: 0 var(--control-padding-inline-sm);
   /* 돋보기 아이콘과의 간격 — 기본 input padding 보다 더 좁게 */
   padding-left: var(--spacing-4);
   border: none;
@@ -401,7 +405,10 @@
 }
 
 .helpModeBtn {
-  padding: var(--button-padding-xs);
+  display: inline-flex;
+  align-items: center;
+  height: var(--control-height-xs);
+  padding: 0 var(--control-padding-inline-xs);
   border: none;
   background: transparent;
   font: var(--font-body-xs);

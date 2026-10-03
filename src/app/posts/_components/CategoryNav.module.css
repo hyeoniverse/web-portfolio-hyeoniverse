@@ -130,7 +130,10 @@
 
 @media (max-width: 768px) {
   .btn {
-    padding: var(--button-padding-md);
+    display: inline-flex;
+    align-items: center;
+    height: var(--control-height-lg);
+    padding: 0 var(--control-padding-inline-lg);
     font-size: var(--font-size-body-sm);
   }
 }
@@ -155,7 +158,8 @@
   position: relative;
   display: inline-flex;
   align-items: center;
-  padding: var(--button-padding-xs);
+  height: var(--control-height-xs);
+  padding: 0 var(--control-padding-inline-xs);
   border: none;
   border-radius: var(--radius-full);
   background: transparent;

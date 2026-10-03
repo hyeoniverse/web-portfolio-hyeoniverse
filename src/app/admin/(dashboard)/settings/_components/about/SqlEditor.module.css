@@ -105,7 +105,10 @@
 .editor :global(.cm-panel.cm-search button) {
   border: var(--border-light);
   border-radius: var(--radius-full);
-  padding: var(--button-padding-xs);
+  display: inline-flex;
+  align-items: center;
+  height: var(--control-height-xs);
+  padding: 0 var(--control-padding-inline-xs);
   background: var(--bg-primary);
   color: var(--text-primary);
   font-family: inherit;
