@@ -270,6 +270,8 @@
   --font-family-heading: var(--font-family-display);
   /* 장식 글자(히어로 · 공개 글 · 시리즈 · 작업물 제목) — 영문 · 한글 모두 세리프(D27). 설정의 제목 글꼴이 덮는다 */
   --font-family-display: var(--font-instrument);
+  /* 상단 네비게이션 · 메뉴 · 알림 팝업 — Space Grotesk(한글은 Pretendard). 사이트의 얼굴이라 본문과 따로 둔다(D29) */
+  --font-family-nav: var(--font-space-grotesk);
 
   /* ── 글자 묶음 — `font: var(--font-heading-md)` 로 쓴다(3.2-1) ─────
    * 굵기 · 크기/줄간격 · 글꼴. 한 값만 바꿀 때는 뒤에 덧쓴다. tabular-nums 같은 설정은 font 뒤에 적는다.

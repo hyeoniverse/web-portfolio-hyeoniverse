@@ -389,3 +389,11 @@ Material `@material/web` 2.5, Primer primitives. 숫자는 같은 날 다시 셌
 - **1440px 화면에서 예전 크기에 맞췄다.** lead · subhead · prose 는 1~2px 안에서 같다. hero 는 최대가 최소의 5배였어서
   규칙 안에 넣으면 큰 화면에서 130px → 96px 로 작아지고, 모바일에서는 35px → 44px 로 커진다. 미리보기로 보고 정했다.
 - **화면 높이 맞춤은 뺐다.** 예전엔 `vh` 로 낮은 화면(1440×700 등)에서 글자를 줄였다. 이제 높이와 상관없이 폭만 따른다.
+
+### D29. 2026-10-03 — 네비게이션 글꼴은 Space Grotesk 로 되돌린다(D25 일부 번복)
+
+- **화면에서 보고 바꿨다.** D25 에서 UI 글자를 모두 Pretendard 로 모으면서 상단 네비게이션도 Pretendard 가 됐다.
+  지금 · Space Grotesk(7-1 전) · 세리프 · JetBrains Mono 를 나란히 놓고 비교해 Space Grotesk 를 골랐다.
+- **역할 토큰 `--font-family-nav` 를 둔다.** 상단 링크 · 하위 메뉴 · 모바일 메뉴 · 알림 팝업 · 관리자 배지까지
+  `Navigation.module.css` 에서 본문 글꼴을 쓰던 16곳이 7-1 전에 모두 Space Grotesk 였다 — 그대로 되돌렸다.
+  한글은 스택 뒤의 Pretendard 가 받는다. 사이트 설정의 본문 글꼴은 네비게이션에 닿지 않는다.

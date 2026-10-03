@@ -283,6 +283,7 @@ src/styles/tokens/*.css          src/styles/globals/_semantic.css      src/style
   `--font-family-heading` 은 `--font-family-display` 를 가리킨다. Instrument Serif 는 400 하나뿐이라 굵게 쓰지 않는다.
   - 예외 — 글 · 작업물 **본문 안의** 제목(h1~h4)은 본문 글꼴을 굵게 쓴다. 표 열 이름 · 목록 항목 · 라벨 크기(14px 이하)의 "제목"은 UI 글자다.
 - `--font-family-display` 는 히어로 · 큰 숫자 · 공개 글 · 시리즈 · 작업물 제목 같은 장식 글자다. 제목과 같은 세리프다.
+- `--font-family-nav` 는 상단 네비게이션 · 메뉴 · 알림 팝업 글자다. Space Grotesk(한글은 Pretendard)다(D29).
 - 사이트 설정의 본문 글꼴이 `--font-family-body`, 제목 글꼴이 `--font-family-display` 를 덮는다.
 - 코드(`-code`) 역할은 컴포넌트가 옮겨 올 때 더한다.
 
