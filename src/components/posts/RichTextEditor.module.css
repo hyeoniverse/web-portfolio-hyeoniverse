@@ -41,8 +41,7 @@
   border: none;
   border-radius: var(--radius-full);
   background: transparent;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-md);
+  font: var(--font-code-md);
   font-weight: 500;
   color: var(--text-primary);
   line-height: 1;

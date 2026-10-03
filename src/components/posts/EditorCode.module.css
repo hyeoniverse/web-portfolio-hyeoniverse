@@ -175,8 +175,7 @@
   border: none;
   background: transparent;
   border-radius: var(--radius-circle); /* indicator 원형 */
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   font-weight: 600;
   line-height: 1;
   color: var(--text-tertiary);
@@ -223,8 +222,7 @@
   height: 18px;
   flex-shrink: 0;
   border-radius: var(--radius-circle);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   font-weight: 700;
   line-height: 1;
   letter-spacing: -0.02em;

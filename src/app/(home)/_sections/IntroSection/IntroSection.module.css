@@ -49,9 +49,7 @@
 
 .caption {
   margin-top: var(--spacing-16);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
-  font-weight: var(--font-weight-regular);
+  font: var(--font-body-md);
   line-height: var(--line-height-160);
   color: var(--text-tertiary);
   text-align: center;

@@ -440,8 +440,7 @@
   background: var(--bg-overlay);
   backdrop-filter: blur(8px);
   border: var(--border-ghost-light);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   font-weight: var(--font-weight-medium);
   color: var(--text-white);
   text-transform: uppercase;
@@ -462,8 +461,7 @@
   background: var(--bg-overlay);
   backdrop-filter: blur(8px);
   border: var(--border-ghost-light);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   font-weight: var(--font-weight-medium);
   color: var(--text-white);
   text-transform: uppercase;

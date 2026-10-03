@@ -12,8 +12,7 @@
   padding: var(--spacing-2) var(--spacing-12);
   border-radius: var(--radius-full);
   background: var(--bg-accent-solid);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   font-weight: var(--font-weight-bold);
   color: var(--text-on-accent);
   text-transform: uppercase;

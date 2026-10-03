@@ -505,8 +505,7 @@
    머리말로 되돌린다 — 큰 글자가 둘이면 어느 쪽이 제목인지 알 수 없다. */
 .sectionKicker {
   margin: 0 0 var(--spacing-32);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-code-sm);
   font-weight: 500;
   line-height: normal;
   color: var(--text-tertiary);
@@ -625,8 +624,7 @@
 
 .expDesc {
   margin: 0;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-md);
+  font: var(--font-code-md);
   font-weight: 300;
   line-height: 1.75;
   color: var(--text-secondary);
@@ -675,8 +673,7 @@
 
 .skillPanelDesc {
   margin: 0;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-md);
+  font: var(--font-code-md);
   font-weight: 300;
   line-height: 1.8;
   color: var(--text-tertiary);
@@ -707,8 +704,7 @@
 
 .skillPanelItemDesc {
   margin: 0;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-code-sm);
   font-weight: 300;
   line-height: 1.75;
   color: var(--text-secondary);
@@ -761,8 +757,7 @@
 
 .philosophyBody {
   margin: 0;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-md);
+  font: var(--font-code-md);
   font-weight: 300;
   line-height: 1.8;
   color: var(--text-secondary);
@@ -815,8 +810,7 @@
 
 .approachBody {
   margin: 0;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-md);
+  font: var(--font-code-md);
   font-weight: 300;
   line-height: 1.8;
   color: var(--text-secondary);
@@ -885,9 +879,8 @@
 }
 
 /* 수상 내용 — 기관 이름 아래 한 줄. 이름·기관보다 약하게 둔다 */
-.credentialNote {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+.credentialNote {  font: var(--font-body-sm);
+
   font-weight: 300;
   line-height: var(--line-height-160);
   color: var(--text-muted);
