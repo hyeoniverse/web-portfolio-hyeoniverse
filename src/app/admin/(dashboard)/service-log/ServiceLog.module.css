@@ -19,14 +19,14 @@
 
 .hint {
   margin: 0;
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   line-height: 1.6;
   color: var(--text-tertiary);
 }
 
 .empty {
   margin: 0;
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-tertiary);
 }
 
@@ -47,7 +47,7 @@
 
 .count {
   margin-left: auto;
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-tertiary);
   font-variant-numeric: tabular-nums;
 }
@@ -85,7 +85,7 @@
   border: none;
   border-bottom: var(--border-light);
   background: transparent;
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   text-align: left;
   cursor: pointer;
 }
@@ -154,8 +154,8 @@
 }
 
 .detail code {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
 }
 
 /* 펼친 상세 — 항목 이름 · 값 두 열 */
@@ -168,7 +168,7 @@
   padding: var(--spacing-12) var(--spacing-16) var(--spacing-16);
   border-bottom: var(--border-light);
   background: var(--bg-secondary);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
 }
 
 .rowMore dt {
@@ -186,15 +186,15 @@
 }
 
 .rowMore code {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
 }
 
 .rowMessage {
   margin: 0;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   color: var(--text-accent);
@@ -207,7 +207,7 @@
   border-radius: var(--radius-full);
   background: var(--bg-accent-light);
   color: var(--text-accent);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   font-weight: 600;
   align-self: flex-start;
 }
@@ -280,7 +280,7 @@
 }
 
 .railTotalLabel {
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   font-weight: 600;
   color: var(--text-tertiary);
 }
@@ -309,7 +309,7 @@
 }
 
 .railTotalFail {
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   font-weight: 600;
   color: var(--text-accent);
 }
@@ -341,7 +341,7 @@
   padding: 0 var(--spacing-12);
   border-radius: var(--radius-full);
   background: transparent;
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-secondary);
   text-align: left;
   transition: background var(--duration-base) ease, color var(--duration-base) ease;
@@ -367,7 +367,7 @@
 .railHead {
   grid-template-columns: minmax(0, 1fr) 28px 24px;
   min-height: 28px;
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   font-weight: 600;
   color: var(--text-tertiary);
   letter-spacing: 0.06em;
@@ -449,7 +449,7 @@
 /* 오른쪽 머리 — 지금 보는 범위 · 결과 거르기 · 건수 */
 .scope {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   font-weight: 600;
   color: var(--text-primary);
 }
@@ -498,7 +498,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 var(--spacing-4) var(--spacing-8) var(--spacing-12);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   font-weight: 600;
   color: var(--text-tertiary);
 }
@@ -514,14 +514,14 @@
   flex-direction: column;
   gap: var(--spacing-16);
   padding: var(--spacing-16);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   line-height: 1.5;
   color: var(--text-secondary);
 }
 
 .legendTitle {
   margin: 0;
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   font-weight: 600;
   color: var(--text-primary);
 }
@@ -533,7 +533,7 @@
 }
 
 .legendHeading {
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   font-weight: 600;
   color: var(--text-tertiary);
   letter-spacing: 0.04em;
@@ -552,7 +552,7 @@
   gap: var(--spacing-8);
   padding: 0 var(--spacing-12);
   margin-top: calc(-1 * var(--spacing-2));
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
 }
 
@@ -563,7 +563,7 @@
 
 .legendText2 {
   margin: 0;
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   line-height: 1.6;
   color: var(--text-secondary);
 }
@@ -593,7 +593,7 @@
 }
 
 .legendStateDesc {
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
 }
 
@@ -604,7 +604,7 @@
   margin: 0;
   padding-top: var(--spacing-8);
   border-top: var(--border-light);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
 }
 
@@ -620,7 +620,7 @@
   gap: var(--spacing-2);
   margin: 0;
   padding-left: var(--spacing-20);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   line-height: 1.6;
   color: var(--text-tertiary);
   list-style: disc;

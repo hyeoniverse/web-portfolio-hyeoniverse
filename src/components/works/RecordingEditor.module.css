@@ -43,7 +43,7 @@
   border: var(--border-light);
   background: var(--bg-secondary);
   color: var(--text-tertiary);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   font-variant-numeric: tabular-nums;
   cursor: grab;
   touch-action: none;
@@ -111,7 +111,7 @@
   height: 20px;
   background: var(--bg-accent-solid);
   color: var(--text-inverse);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   font-variant-numeric: tabular-nums;
 }
 
@@ -215,7 +215,7 @@
   align-items: baseline;
   gap: var(--spacing-8);
   min-width: 0;
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
 }
 
 .title {
@@ -232,7 +232,7 @@
 .hint {
   overflow: hidden;
   color: var(--text-tertiary);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   white-space: nowrap;
   text-overflow: ellipsis;
 }

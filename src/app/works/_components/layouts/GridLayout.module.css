@@ -62,15 +62,15 @@
 }
 
 .introLabel {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   letter-spacing: 0.35em;
   text-transform: uppercase;
   opacity: 0.55;
 }
 
 .introTitle {
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   /* 다른 줄에 마우스를 올리면 이 줄이 3/4로 줄어든다(300px → 225px). 위쪽 네비 자리는 그대로
      비워야 하므로, 남는 높이(칸 높이 - 위아래 여백)에 맞춰 글자를 줄인다 */
   font-size: clamp(1.75rem, min(6vw, calc(100cqh * 0.5)), 5rem);
@@ -88,13 +88,13 @@
 }
 
 .introTagline {
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-style: italic;
   font-size: clamp(0.9rem, 0.789rem + 0.46vw, 1.2rem);
   opacity: 0.6;
   margin: 0;
   max-width: 540px;
-  line-height: var(--line-height-normal);
+  line-height: var(--line-height-160);
 }
 
 .introMeta {
@@ -103,8 +103,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   letter-spacing: 0.2em;
   text-transform: uppercase;
   opacity: 0.5;
@@ -156,8 +156,8 @@
   top: var(--spacing-20);
   right: var(--spacing-20);
   z-index: 2;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-sm);
   color: var(--text-white);
   opacity: 0;
   letter-spacing: 0.1em;
@@ -201,8 +201,8 @@
 }
 
 .projectNumber {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-sm);
   letter-spacing: 0.3em;
 }
 
@@ -213,11 +213,11 @@
 /* 폰트 크기 — clamp(min, vw 비례, max) 로 viewport 따라 scale.
    default 보다 hover 크기를 조금 더 크게 (max 값을 더 높임). */
 .projectTitle {
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: clamp(1.1rem, 1.041rem + 0.24vw, 1.35rem);
   font-weight: var(--font-weight-light);
   letter-spacing: -0.02em;
-  line-height: var(--line-height-tight);
+  line-height: var(--line-height-125);
   margin: 0 0 var(--spacing-4) 0;
   transition: font-size 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -240,7 +240,7 @@
 .projectDesc {
   font-size: clamp(0.8rem, 0.78rem + 0.08vw, 0.9rem);
   opacity: 0.75;
-  line-height: var(--line-height-normal);
+  line-height: var(--line-height-160);
   margin: 0;
 }
 
@@ -262,6 +262,6 @@
   padding: var(--spacing-2) var(--spacing-8);
   border: var(--border-ghost);
   border-radius: var(--radius-full);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
 }

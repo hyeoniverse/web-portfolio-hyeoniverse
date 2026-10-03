@@ -124,8 +124,8 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-4);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   letter-spacing: 0.35em;
   text-transform: uppercase;
   color: var(--text-primary);
@@ -149,7 +149,7 @@
 /* 타이틀 — scroll-driven morph (letter-spacing + opacity + translate).
    variable axis 없어도 충분히 dramatic */
 .introTitle {
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: clamp(4.4rem, 0.437rem + 10.51vw, 11rem);
   font-weight: var(--font-weight-light);
   line-height: 0.92;
@@ -175,13 +175,13 @@
 }
 
 .introTagline {
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-style: italic;
   font-size: clamp(1rem, 0.851rem + 0.61vw, 1.4rem);
   color: var(--text-primary);
   opacity: 0.6;
   max-width: 540px;
-  line-height: var(--line-height-normal);
+  line-height: var(--line-height-160);
   margin: 0;
 }
 
@@ -191,8 +191,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-2);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   color: var(--text-primary);
   z-index: 1;
   pointer-events: none;
@@ -206,14 +206,14 @@
 .hudBR { bottom: var(--spacing-24); right: var(--spacing-24); align-items: flex-end; text-align: right; }
 
 .hudKey {
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   letter-spacing: 0.25em;
   opacity: 0.4;
   text-transform: uppercase;
 }
 
 .hudVal {
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   font-weight: var(--font-weight-medium);
   letter-spacing: 0.04em;
   opacity: 0.8;
@@ -221,7 +221,7 @@
 }
 
 .hudMeta {
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   letter-spacing: 0.1em;
   opacity: 0.4;
   font-variant-numeric: tabular-nums;
@@ -245,9 +245,9 @@
   .hudBL { display: none; }
   .hudTL { top: var(--spacing-64); left: var(--spacing-16); }
   .hudBR { bottom: var(--spacing-16); right: var(--spacing-16); }
-  .hudKey { font-size: var(--font-size-hint); }
+  .hudKey { font-size: var(--font-size-body-xs); }
   .hudVal,
-  .hudMeta { font-size: var(--font-size-hint); }
+  .hudMeta { font-size: var(--font-size-body-xs); }
 }
 
 /* ── Inner content ── */
@@ -298,8 +298,8 @@
 
 /* ── Category ── */
 .category {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   font-weight: var(--font-weight-semibold);
   letter-spacing: 0.35em;
   text-transform: uppercase;
@@ -309,7 +309,7 @@
 
 /* ── Title ── */
 .title {
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: clamp(3.2rem, 0.754rem + 7.16vw, 8rem);
   font-weight: var(--font-weight-light);
   line-height: 0.95;
@@ -325,12 +325,12 @@
 
 /* ── Subtitle ── */
 .subtitle {
-  font-size: var(--font-size-title-sm);
+  font-size: var(--font-size-heading-xs);
   font-weight: var(--font-weight-regular);
   color: var(--text-white);
   opacity: 0.45;
   max-width: 450px;
-  line-height: var(--line-height-normal);
+  line-height: var(--line-height-160);
 }
 
 /* ── CTA circle ── */
@@ -377,7 +377,7 @@
   position: absolute;
   right: 5vw;
   bottom: 8vh;
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: clamp(9.65rem, 0.25rem + 14.72vw, 17.9rem);
   font-weight: 200;
   line-height: 0.8;
@@ -392,8 +392,8 @@
   position: absolute;
   left: 5vw;
   bottom: 8vh;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-sm);
   letter-spacing: 0.2em;
   color: var(--text-white);
   opacity: 0.2;
@@ -410,8 +410,8 @@
 }
 
 .tech span {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-sm);
   letter-spacing: 0.06em;
   color: var(--text-white);
   opacity: 0.45;
@@ -424,8 +424,8 @@
   top: 50%;
   transform: translateY(-50%);
   z-index: 5;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   color: var(--text-white);
   opacity: 0.2;
   letter-spacing: 0.15em;
@@ -446,8 +446,8 @@
   gap: var(--spacing-4);
   color: var(--text-white);
   opacity: 0.15;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   letter-spacing: 0.2em;
   pointer-events: none;
   animation: scrollBounce 2.5s ease-in-out infinite;
@@ -474,7 +474,7 @@
   .bgImageActive { opacity: 0.5; }
 
   .inner { padding: 0 var(--spacing-20); gap: var(--spacing-16); }
-  .subtitle { font-size: var(--font-size-body); }
+  .subtitle { font-size: var(--font-size-body-md); }
   .number { display: none; }
   .tech { display: none; }
   .counter { display: none; }

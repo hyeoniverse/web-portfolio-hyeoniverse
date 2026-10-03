@@ -46,7 +46,7 @@
 
 .featureDfTitle {
   margin: 0;
-  font-size: calc(var(--font-size-subhead) * 0.85);
+  font-size: calc(var(--font-size-display-sm) * 0.85);
   font-weight: var(--font-weight-semibold);
   color: var(--text-white);
   text-shadow: 0 1px 4px color-mix(in oklch, var(--text-black) 50%, transparent);
@@ -64,7 +64,7 @@
 
 .featureDfDesc {
   margin: 0;
-  font-size: calc(var(--font-size-prose) * 0.9);
+  font-size: calc(var(--font-size-prose-lg) * 0.9);
   line-height: var(--_lh-reading);
   color: var(--text-white);
   text-shadow: 0 1px 3px color-mix(in oklch, var(--text-black) 40%, transparent);
@@ -72,7 +72,7 @@
 
 .featureDfTech {
   margin: 0;
-  font-size: var(--font-size-prose-label);
+  font-size: var(--font-size-prose-md);
   color: var(--text-white-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -103,7 +103,7 @@
   position: relative;
   z-index: 1;
   background: var(--bg-primary);
-  font-size: var(--font-size-prose-small);
+  font-size: var(--font-size-prose-sm);
   font-weight: var(--font-weight-semibold);
   transition:
     color var(--duration-moderate) ease,
@@ -148,7 +148,7 @@
 
 .featureFolderDesc {
   margin: 0;
-  font-size: var(--font-size-subhead);
+  font-size: var(--font-size-display-sm);
   line-height: var(--_lh-body);
   color: var(--text-secondary);
   transition: color var(--duration-moderate) ease;
@@ -156,7 +156,7 @@
 
 .featureFolderTech {
   margin: 0;
-  font-size: var(--font-size-prose-label);
+  font-size: var(--font-size-prose-md);
   font-weight: var(--font-weight-regular);
   color: var(--text-tertiary);
   text-transform: uppercase;
@@ -200,7 +200,7 @@
     padding: var(--spacing-8) var(--spacing-20);
     position: relative;
     z-index: 1;
-    font-size: var(--font-size-subhead);
+    font-size: var(--font-size-display-sm);
     border-radius: var(--radius-24) var(--radius-24) 0 0;
   }
 
@@ -268,7 +268,7 @@
     margin: 0 0 var(--spacing-20);
     padding-left: var(--spacing-12);
     border-left: var(--_line-primary);
-    font-size: var(--font-size-label);
+    font-size: var(--font-size-body-sm);
     color: var(--text-primary);
   }
 

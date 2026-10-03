@@ -75,7 +75,7 @@
 }
 
 .metaNumber {
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: var(--fluid-font-size-8xl);
   font-weight: 200;
   line-height: 0.8;
@@ -86,8 +86,8 @@
 }
 
 .metaCategory {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   letter-spacing: 0.35em;
   text-transform: uppercase;
   opacity: 0.5;
@@ -95,7 +95,7 @@
 }
 
 .metaTitle {
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   /* 제목이 길 때만 작아진다 — 두 줄까지 쓸 수 있으므로 자리 너비의 두 줄분(×4, 로마자 한 글자를
      0.5em 로 본다)을 글자 수로 나눠 한 줄에 들어갈 크기를 구하고, 원래 크기를 넘지 않게 한다.
      아래로는 2.5rem 에서 멈추고, 그 크기로도 두 줄에 안 들어가면 둘째 줄에서 자른다.
@@ -109,7 +109,7 @@
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   font-weight: var(--font-weight-light);
-  line-height: var(--line-height-tight);
+  line-height: var(--line-height-125);
   letter-spacing: -0.03em;
   margin: 0 0 var(--spacing-12) 0;
 }
@@ -118,13 +118,13 @@
   font-size: var(--font-size-18);
   font-weight: var(--font-weight-regular);
   opacity: 0.65;
-  line-height: var(--line-height-normal);
+  line-height: var(--line-height-160);
   margin: 0 0 var(--spacing-24) 0;
 }
 
 .metaDesc {
-  font-size: var(--font-size-body);
-  line-height: var(--line-height-normal);
+  font-size: var(--font-size-body-md);
+  line-height: var(--line-height-160);
   opacity: 0.75;
   margin: 0 0 var(--spacing-20) 0;
   padding: var(--spacing-12) var(--spacing-16);
@@ -143,8 +143,8 @@
   padding: var(--spacing-2) var(--spacing-12);
   border: var(--border-ghost);
   border-radius: var(--radius-full);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   letter-spacing: 0.06em;
 }
 
@@ -154,7 +154,7 @@
   right: 6vw;
   bottom: 10vh;
   z-index: 2;
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: clamp(9.65rem, 0.25rem + 14.72vw, 250px);
   font-weight: 200;
   line-height: 0.8;
@@ -188,8 +188,8 @@
   left: 8vw;
   bottom: var(--spacing-32);
   z-index: 5;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-sm);
   color: var(--text-white);
   opacity: 0.4;
   letter-spacing: 0.15em;

@@ -37,8 +37,8 @@
   background: var(--bg-primary);
   box-shadow: var(--shadow-sm);
   color: var(--text-primary);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-body);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-md);
   font-weight: var(--font-weight-bold);
 }
 
@@ -65,8 +65,8 @@
   border-radius: var(--radius-circle);
   background: var(--bg-primary);
   color: var(--text-secondary);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   text-align: center;
 }
 .attrLabel {
@@ -118,7 +118,7 @@
   position: relative;
   color: var(--text-accent);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   font-weight: var(--font-weight-medium);
   white-space: nowrap;
 }
@@ -130,8 +130,8 @@
 }
 .edge :global(.react-flow__edge-text) {
   fill: var(--text-tertiary);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   font-weight: var(--font-weight-bold);
   paint-order: stroke;
   stroke: var(--bg-secondary);

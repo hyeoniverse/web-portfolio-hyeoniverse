@@ -26,7 +26,7 @@
 .peekTitle {
   flex: 1;
   min-width: 0;
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   font-weight: 600;
   color: var(--text-primary);
   overflow: hidden;
@@ -75,7 +75,7 @@
 
 .vdTitle {
   margin: 0;
-  font-size: var(--font-size-title-md);
+  font-size: var(--font-size-heading-xs);
   font-weight: 700;
   color: var(--text-primary);
   word-break: break-word;
@@ -87,7 +87,7 @@
   align-items: center;
   flex-wrap: wrap;
   gap: var(--spacing-4);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   color: var(--text-secondary);
 }
 
@@ -110,32 +110,32 @@
   background: color-mix(in oklch, var(--bg-accent-solid) 10%, transparent);
   color: var(--text-accent);
   border-radius: var(--radius-full);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 
 .vdLabel {
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   font-weight: 600;
   color: var(--text-tertiary);
 }
 
 .vdEmpty {
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   color: var(--text-muted);
   font-style: italic;
 }
 
 .vdDesc {
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   color: var(--text-primary);
   white-space: pre-wrap;
   line-height: 1.6;
   word-break: break-word;
 }
 
-.vdDesc :is(h1, h2, h3) { font-size: var(--font-size-title-sm); font-weight: 700; margin: 0.4em 0 0.2em; }
+.vdDesc :is(h1, h2, h3) { font-size: var(--font-size-heading-xs); font-weight: 700; margin: 0.4em 0 0.2em; }
 
 .vdDesc ul, .vdDesc ol { margin: 0.2em 0; padding-left: 1.4em; }
 
@@ -151,7 +151,7 @@
   align-items: center;
   gap: var(--spacing-1);
   flex-shrink: 0;
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
 }
 
@@ -230,14 +230,14 @@
 }
 
 .previewTitle {
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   font-weight: 600;
   color: var(--text-primary);
   word-break: break-word;
 }
 
 .previewDate {
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   color: var(--text-secondary);
 }
 
@@ -251,7 +251,7 @@
   border-radius: var(--radius-full);
   background: color-mix(in srgb, var(--_sc) 14%, var(--bg-primary));
   color: var(--text-secondary);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
 }
 
 .previewStatusDot {
@@ -262,7 +262,7 @@
 }
 
 .previewDesc {
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
   white-space: pre-wrap;
   word-break: break-word;
@@ -280,7 +280,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-2);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   color: var(--text-secondary);
 }
 
@@ -296,5 +296,5 @@
   border-radius: var(--radius-full);
   background: var(--bg-tertiary);
   color: var(--text-tertiary);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
 }

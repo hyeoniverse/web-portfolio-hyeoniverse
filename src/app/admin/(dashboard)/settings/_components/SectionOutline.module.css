@@ -16,7 +16,7 @@
   width: 100%;
   padding: var(--spacing-2) var(--spacing-12);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   line-height: 1.5;
   color: var(--text-tertiary);
   text-align: left;

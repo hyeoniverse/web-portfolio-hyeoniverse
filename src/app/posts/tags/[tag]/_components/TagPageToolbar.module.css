@@ -74,7 +74,7 @@
   align-items: center;
   gap: var(--spacing-4);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -108,7 +108,7 @@
    filter bar size 와 통일 (font-2xs + box-sm) */
 .toolbarLeft button {
   padding: var(--button-padding-xs);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
 }
 
 /* 정렬/검색창 border 를 페이징 select(--border-light) 등 주변 컨트롤과 light 로 통일 */
@@ -143,5 +143,5 @@
 }
 .perPageSelect > button {
   padding: 0 var(--spacing-12);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
 }

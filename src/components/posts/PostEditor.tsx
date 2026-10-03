@@ -1025,7 +1025,7 @@ export default function PostEditor({ post }: PostEditorProps) {
         <div className={es.field} data-seo="title" data-required="title">
           <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: "var(--spacing-8)" }}>
             <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${titleFieldError ? ` ${es.fieldLabelError}` : ""}`}>{te("title")}</label>
-            <span style={{ fontSize: "var(--font-size-hint)", fontVariantNumeric: "tabular-nums", color: metaForm[titleKey].length >= POST_TITLE_MAX ? "var(--text-accent)" : "var(--text-muted)" }}>
+            <span style={{ fontSize: "var(--font-size-body-xs)", fontVariantNumeric: "tabular-nums", color: metaForm[titleKey].length >= POST_TITLE_MAX ? "var(--text-accent)" : "var(--text-muted)" }}>
               {metaForm[titleKey].length}/{POST_TITLE_MAX}
             </span>
           </div>

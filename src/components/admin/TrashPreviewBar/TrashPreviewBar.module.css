@@ -15,6 +15,6 @@
 }
 
 .notice {
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-tertiary);
 }

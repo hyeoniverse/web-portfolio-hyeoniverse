@@ -12,7 +12,7 @@
 }
 .authorsFooterHeading {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   font-weight: var(--font-weight-semibold);
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -58,16 +58,16 @@
 }
 .authorFooterName {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-title-md);
+  font-size: var(--font-size-heading-xs);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
 }
 .authorFooterRole {
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   color: var(--text-tertiary);
 }
 .authorFooterBio {
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   color: var(--text-secondary);
   line-height: 1.6;
 }
@@ -106,6 +106,6 @@
     height: 48px;
   }
   .authorFooterName {
-    font-size: var(--font-size-title-sm);
+    font-size: var(--font-size-heading-xs);
   }
 }

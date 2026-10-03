@@ -30,8 +30,8 @@
 .editor :global(.cm-content),
 .editor :global(.cm-line),
 .editor :global(.cm-gutters) {
-  font-family: var(--font-mono), monospace;
-  font-size: var(--font-size-prose);
+  font-family: var(--font-family-code), monospace;
+  font-size: var(--font-size-prose-lg);
   line-height: var(--_lh-code);
 }
 .editor :global(.cm-gutters) {

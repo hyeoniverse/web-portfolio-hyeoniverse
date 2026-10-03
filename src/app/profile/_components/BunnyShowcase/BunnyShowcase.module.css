@@ -43,8 +43,8 @@
 .nameLabel {
   display: block;
   margin-bottom: var(--spacing-8);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   font-weight: 500;
   color: var(--text-accent);
   text-transform: uppercase;
@@ -53,7 +53,7 @@
 
 .name {
   margin: 0 0 var(--spacing-8) 0;
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: clamp(2rem, 1.489rem + 2.1vw, 3.5rem);
   font-weight: 400;
   line-height: 1.1;
@@ -63,8 +63,8 @@
 .subtitle {
   display: block;
   margin-bottom: var(--spacing-32);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-body);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-md);
   color: var(--text-tertiary);
   font-style: italic;
 }
@@ -79,8 +79,8 @@
 
 .storyText {
   margin: 0;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-body);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-md);
   font-weight: 300;
   line-height: 1.8;
   color: var(--text-secondary);
@@ -211,8 +211,8 @@
 
 /* Label */
 .exprLabel {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-sm);
   font-weight: var(--font-weight-medium);
   color: var(--text-primary);
 }
@@ -229,8 +229,8 @@
 
 /* Description */
 .exprDesc {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   line-height: 1.5;
   color: var(--text-tertiary);
 }

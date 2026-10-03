@@ -152,7 +152,7 @@
   border-radius: 6px; /* 사각 (capsule 아님) */
   color: var(--text-primary);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   text-align: center;
 }
 .dnode[data-selected] {
@@ -300,7 +300,7 @@
   margin: 0;
   color: var(--text-primary);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   text-align: center;
 }
 .dhandle {
@@ -328,7 +328,7 @@
 }
 .diagramFormLabel {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -345,7 +345,7 @@
   background: transparent;
   color: var(--text-secondary);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   cursor: pointer;
   transition: color 0.12s ease, border-color 0.12s ease;
 }
@@ -409,7 +409,7 @@
   padding: var(--spacing-20);
   text-align: center;
   color: var(--text-muted);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
 }
 
 /* React Flow 캔버스 — 높이 고정(세로 리사이즈) */
@@ -466,6 +466,6 @@
   padding: var(--spacing-20);
   text-align: center;
   color: var(--text-muted);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   pointer-events: none;
 }

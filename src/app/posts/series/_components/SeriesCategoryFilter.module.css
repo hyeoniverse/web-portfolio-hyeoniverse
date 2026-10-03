@@ -11,7 +11,7 @@
 /* 색을 고정하지 않고 버튼에서 물려받는다 — 선택되면 버튼 글자색이 반전되는데,
    여기서 색을 박아 두면 카운트만 안 따라간다. */
 .categoryCount {
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   color: inherit;
   opacity: 0.6;
   font-variant-numeric: tabular-nums;

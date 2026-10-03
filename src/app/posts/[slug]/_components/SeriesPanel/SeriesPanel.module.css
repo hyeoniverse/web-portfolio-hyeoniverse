@@ -25,7 +25,7 @@
 
 .seriesLabel {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   font-weight: var(--font-weight-semibold);
   color: var(--text-accent);
   text-transform: uppercase;
@@ -35,8 +35,8 @@
 
 .seriesTitle {
   flex: 1;
-  font-family: var(--font-family-display);
-  font-size: var(--font-size-title-sm);
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-heading-xs);
   font-weight: var(--font-weight-regular);
   color: var(--text-primary);
   overflow: hidden;
@@ -46,7 +46,7 @@
 
 .seriesCount {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-tertiary);
   flex-shrink: 0;
 }
@@ -90,7 +90,7 @@
   align-items: center;
   padding: var(--spacing-8) 0;
   font-family: var(--font-family-body);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   overflow: hidden;
 }
 
@@ -152,8 +152,8 @@
 }
 
 .seriesNum {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-sm);
   color: var(--text-muted);
   flex-shrink: 0;
   margin-right: var(--spacing-8);
@@ -179,7 +179,7 @@
   align-items: center;
   gap: var(--spacing-8);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-tertiary);
   text-decoration: none;
   flex: 1;

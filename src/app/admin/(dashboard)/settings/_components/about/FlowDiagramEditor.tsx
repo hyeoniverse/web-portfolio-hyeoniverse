@@ -222,7 +222,7 @@ export default function FlowDiagramEditor({ flow, onChange, lang }: {
                       fill="var(--bg-primary)" stroke={on ? "var(--text-accent)" : "var(--border-color-light)"} />
                     <text x={mx} y={my} textAnchor="middle" dominantBaseline="central"
                       fontSize={10} fill={on ? "var(--text-accent)" : "var(--text-tertiary)"}
-                      fontFamily="var(--font-mono)">{edge.label}</text>
+                      fontFamily="var(--font-family-code)">{edge.label}</text>
                   </g>
                 )}
               </g>
@@ -254,13 +254,13 @@ export default function FlowDiagramEditor({ flow, onChange, lang }: {
                       width={label.length * 6 + 10} height={15} rx={7}
                       fill="var(--bg-primary)" stroke="transparent" />
                     <text x={x} y={y + h / 2 + 10} textAnchor="middle" dominantBaseline="central"
-                      fontSize={10} fill="var(--text-primary)" fontFamily="var(--font-mono)">
+                      fontSize={10} fill="var(--text-primary)" fontFamily="var(--font-family-code)">
                       {fitLabel(label, 180, 10)}
                     </text>
                   </>
                 ) : (
                   <text x={x} y={y} textAnchor="middle" dominantBaseline="central"
-                    fontSize={11} fill="var(--text-primary)" fontFamily="var(--font-mono)">
+                    fontSize={11} fill="var(--text-primary)" fontFamily="var(--font-family-code)">
                     {fitLabel(label, w - 12, 11)}
                   </text>
                 )}

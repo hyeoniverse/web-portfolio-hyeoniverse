@@ -182,7 +182,7 @@ export default React.memo(function MainToolbar({
       <TBtn active={hasMark("strikethrough")} onClick={() => editor.tf.toggleMark("strikethrough")} style={{ textDecoration: "line-through" }} tooltip={t("editor.strikethrough")}>S</TBtn>
       <TBtn active={hasMark("code")} onClick={() => editor.tf.toggleMark("code")} tooltip={`${t("editor.inlineCode")}\n${kb("⌘E")}`}>{"<>"}</TBtn>
       <TBtn active={hasMark("kbd")} onClick={() => editor.tf.toggleMark("kbd")} tooltip="Kbd">
-        <span style={{ fontSize: "var(--font-size-hint)", padding: "1px 3px", border: "var(--border-light)", borderRadius: 3 }}>⌘</span>
+        <span style={{ fontSize: "var(--font-size-body-xs)", padding: "1px 3px", border: "var(--border-light)", borderRadius: 3 }}>⌘</span>
       </TBtn>
       <div className={styles.divider} />
 
@@ -201,7 +201,7 @@ export default React.memo(function MainToolbar({
           tooltip={t("editor.textColor")}
         >
           <span style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1 }}>
-            <span style={{ fontWeight: 700, fontSize: "var(--font-size-hint)" }}>A</span>
+            <span style={{ fontWeight: 700, fontSize: "var(--font-size-body-xs)" }}>A</span>
             <span style={{ width: 12, height: 3, borderRadius: "var(--radius-full)", background: currentColor || "var(--text-primary)", boxShadow: "inset 0 0 0 0.5px var(--text-muted)" }} />
           </span>
         </TBtn>
@@ -211,7 +211,7 @@ export default React.memo(function MainToolbar({
           tooltip={t("editor.bgColor")}
         >
           <span style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1 }}>
-            <span style={{ fontWeight: 700, fontSize: "var(--font-size-hint)" }}>BG</span>
+            <span style={{ fontWeight: 700, fontSize: "var(--font-size-body-xs)" }}>BG</span>
             <span style={{
               width: 12, height: 3, borderRadius: "var(--radius-full)",
               background: currentBgColor || "repeating-conic-gradient(#ccc 0% 25%, #fff 0% 50%) 0 0 / 4px 4px",

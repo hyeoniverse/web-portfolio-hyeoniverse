@@ -142,7 +142,7 @@ const instrumentSerif = Instrument_Serif({
   variable: "--font-instrument-latin",
   display: "swap",
 });
-/* 제목 · 장식 글자(--font-family-display)의 한글 — 나눔명조(D27). 영문 세리프와 짝을 맞춘다.
+/* 제목 · 장식 글자(--font-family-heading)의 한글 — 나눔명조(D27). 영문 세리프와 짝을 맞춘다.
    한글 폰트는 슬라이스가 많아 preload 하지 않는다(unicode-range 로 필요한 조각만 요청됨) */
 const serifKr = Nanum_Myeongjo({
   subsets: ["latin"],

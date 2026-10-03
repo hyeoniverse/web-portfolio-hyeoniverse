@@ -177,15 +177,15 @@ export default function FeedbackDisplayDemos() {
           <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-32)", cursor: "pointer", color: iconLiked ? "var(--text-accent)" : "var(--text-secondary)" }} onClick={toggleIcon}>
             <span style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
               <HeartIcon liked={iconLiked} busy={iconBusy} size={14} />
-              <span style={{ fontSize: "var(--font-size-label)", color: "var(--text-tertiary)" }}>size 14</span>
+              <span style={{ fontSize: "var(--font-size-body-sm)", color: "var(--text-tertiary)" }}>size 14</span>
             </span>
             <span style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
               <HeartIcon liked={iconLiked} busy={iconBusy} size={20} />
-              <span style={{ fontSize: "var(--font-size-label)", color: "var(--text-tertiary)" }}>size 20</span>
+              <span style={{ fontSize: "var(--font-size-body-sm)", color: "var(--text-tertiary)" }}>size 20</span>
             </span>
             <span style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
               <HeartIcon liked={iconLiked} busy={iconBusy} size={32} />
-              <span style={{ fontSize: "var(--font-size-label)", color: "var(--text-tertiary)" }}>size 32</span>
+              <span style={{ fontSize: "var(--font-size-body-sm)", color: "var(--text-tertiary)" }}>size 32</span>
             </span>
           </motion.div>
         </DemoGroup>
@@ -200,7 +200,7 @@ export default function FeedbackDisplayDemos() {
             <motion.div variants={staggerItemX} {...scrollChildX(0, 2)}>
               <HighlightedText text={language === "ko" ? "검색어가 들어간 문장입니다" : "A sentence containing the search term"} query={language === "ko" ? "검색어" : "search"} />
             </motion.div>
-            <motion.div variants={staggerItemX} {...scrollChildX(1, 2)} style={{ color: "var(--text-muted)", fontSize: "var(--font-size-label)" }}>
+            <motion.div variants={staggerItemX} {...scrollChildX(1, 2)} style={{ color: "var(--text-muted)", fontSize: "var(--font-size-body-sm)" }}>
               {language === "ko" ? "query 없음 → 평문" : "no query → plain text"}: <HighlightedText text={language === "ko" ? "강조 없음" : "no highlight"} query="" />
             </motion.div>
           </div>

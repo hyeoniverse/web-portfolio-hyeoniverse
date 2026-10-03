@@ -225,7 +225,7 @@ function MathFloatingEdit({
         <div style={{ display: "flex", alignItems: "center", gap: 4, marginBottom: 4 }}>
           {texError ? (
             <span style={{
-              fontSize: "var(--font-size-hint)", fontFamily: "var(--font-mono)", color: "var(--text-error)",
+              fontSize: "var(--font-size-body-xs)", fontFamily: "var(--font-family-code)", color: "var(--text-error)",
               lineHeight: 1.3, overflow: "hidden", textOverflow: "ellipsis",
               whiteSpace: "nowrap", flex: 1, minWidth: 0,
             }}>
@@ -384,7 +384,7 @@ export function EquationElement(props: PlateElementProps) {
         style={{ display: editing ? "none" : "flex", cursor: "pointer", minHeight: 40, alignItems: "center", justifyContent: "center", position: "relative" }}
       >
         <div ref={katexRef} />
-        {!tex && <span style={{ color: "var(--text-tertiary)", fontSize: "var(--font-size-body)", fontStyle: "italic" }}>{t("editor.mathEmptyBlock")}</span>}
+        {!tex && <span style={{ color: "var(--text-tertiary)", fontSize: "var(--font-size-body-md)", fontStyle: "italic" }}>{t("editor.mathEmptyBlock")}</span>}
       </div>
       {editing && (
         // 팝업 대신 블록 안에서 인라인 split (입력 | 미리보기)
@@ -492,7 +492,7 @@ export function InlineEquationElement(props: PlateElementProps) {
         style={{ display: editing ? "none" : "inline-flex", cursor: "pointer", minHeight: 24, alignItems: "center" }}
       >
         <span ref={katexRef} />
-        {!tex && <span style={{ color: "var(--text-tertiary)", fontSize: "var(--font-size-label)", fontStyle: "italic" }}>{t("editor.mathEmptyInline")}</span>}
+        {!tex && <span style={{ color: "var(--text-tertiary)", fontSize: "var(--font-size-body-sm)", fontStyle: "italic" }}>{t("editor.mathEmptyInline")}</span>}
       </span>
       {/* 팝업 대신 블록과 동일한 인라인 split 에디터 */}
       {editing && <MathFloatingEdit inline anchorRef={wrapRef} inputRef={inputRef} draft={draft} onUpdate={updateDraft} onConfirm={confirmEdit} onCancel={cancelEdit} onDelete={deleteNode} onToggle={toggleMode} />}

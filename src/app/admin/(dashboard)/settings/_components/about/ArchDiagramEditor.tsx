@@ -144,7 +144,7 @@ export default function ArchDiagramEditor({ value, onChange }: {
                   <path d={ic.path} fill="none" stroke="#fff" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" transform="scale(0.65)" />
                 </g>
                 <text x={node.x + node.h + 2} y={node.y + node.h / 2 + 1} dominantBaseline="central"
-                  fill="var(--text-primary)" fontSize={10} fontFamily="var(--font-mono)" fontWeight={500}>{node.label}</text>
+                  fill="var(--text-primary)" fontSize={10} fontFamily="var(--font-family-code)" fontWeight={500}>{node.label}</text>
               </g>
             );
           })}

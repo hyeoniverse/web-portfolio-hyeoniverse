@@ -154,7 +154,7 @@
     width: auto;
     border-bottom: 2px solid transparent;
     padding: var(--row-padding-lg);
-    font-size: var(--font-size-label);
+    font-size: var(--font-size-body-sm);
     text-align: center;
   }
 
@@ -193,12 +193,12 @@
   padding: 0 var(--spacing-2);
   border-radius: var(--radius-full);
   background: color-mix(in srgb, currentColor 22%, transparent);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   font-variant-numeric: tabular-nums;
 }
 .conflictDesc {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-tertiary);
   margin-bottom: var(--spacing-16);
 }
@@ -210,7 +210,7 @@
   border-radius: var(--radius-full);
   color: var(--text-primary);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   padding: var(--spacing-8) var(--spacing-12);
   font-weight: var(--font-weight-medium);
 }
@@ -227,7 +227,7 @@
   align-items: center;
   gap: var(--spacing-12);
   padding: var(--spacing-8) 0;
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   border-bottom: var(--border-light);
   border-radius: 0;
 }
@@ -242,19 +242,19 @@
   gap: var(--spacing-12);
   padding: var(--spacing-8) 0;
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-tertiary);
 }
 
 .conflictSelectAllLabel {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-primary);
 }
 
 .conflictPath {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-sm);
   color: var(--text-primary);
   font-weight: var(--font-weight-medium);
   min-width: 160px;
@@ -271,7 +271,7 @@
 .conflictValueDB,
 .conflictValueCode {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-tertiary);
   white-space: nowrap;
   overflow: hidden;
@@ -329,7 +329,7 @@
   border-radius: 0;
   background: transparent;
   font-family: var(--font-family-body);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   font-weight: 500;
   color: var(--text-secondary);
   text-align: left;
@@ -446,7 +446,7 @@
     border-bottom: 2px solid transparent;
     background: transparent;
     font-family: var(--font-family-body);
-    font-size: var(--font-size-label);
+    font-size: var(--font-size-body-sm);
     font-weight: var(--font-weight-medium);
     color: var(--text-secondary);
     white-space: nowrap;

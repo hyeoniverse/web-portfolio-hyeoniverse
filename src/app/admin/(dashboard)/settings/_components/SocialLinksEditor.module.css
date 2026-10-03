@@ -99,7 +99,7 @@
 }
 
 .socialIconSpinner {
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   color: var(--text-muted);
 }
 

@@ -22,11 +22,11 @@
 }
 
 .sm {
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
 }
 
 .xs {
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
 }
 
 .pad-xl {

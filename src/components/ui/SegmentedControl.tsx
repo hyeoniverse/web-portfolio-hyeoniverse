@@ -80,7 +80,7 @@ export default function SegmentedControl<T extends string, S extends string = st
            (Button 컴포넌트는 sm/md 가 font-size-sm 이라 커 보임 → xs, 단 size xs 는 2xs) */
         style={{
           "--nested-btn-h": `calc(var(--control-height-${size}) - 8px)`,
-          "--nested-label-fs": size === "xs" ? "var(--font-size-hint)" : "var(--font-size-label)",
+          "--nested-label-fs": size === "xs" ? "var(--font-size-body-xs)" : "var(--font-size-body-sm)",
         } as CSSProperties}
       >
         {onBack && (

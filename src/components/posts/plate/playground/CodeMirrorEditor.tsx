@@ -22,7 +22,7 @@ const languageExt = (lang: CmLang) =>
 const theme = EditorView.theme({
   "&": { color: "var(--text-primary)", backgroundColor: "transparent", height: "100%" },
   "&.cm-focused": { outline: "none" },
-  ".cm-scroller": { fontFamily: "var(--font-mono), monospace", fontSize: "var(--pg-cm-font, 13px)", lineHeight: "1.65" },
+  ".cm-scroller": { fontFamily: "var(--font-family-code), monospace", fontSize: "var(--pg-cm-font, 13px)", lineHeight: "1.65" },
   ".cm-content": { caretColor: "var(--text-accent)", padding: "8px 0" },
   ".cm-cursor, .cm-dropCursor": { borderLeftColor: "var(--text-accent)" },
   ".cm-selectionBackground, .cm-content ::selection": {

@@ -15,7 +15,7 @@
 
 .recommendedLabel {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   font-weight: var(--font-weight-medium);
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -82,9 +82,9 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-tertiary);
-  line-height: var(--line-height-normal);
+  line-height: var(--line-height-160);
   /* 1줄 content 라도 항상 2줄 만큼 차지 → layout 안정 */
   min-height: 2lh;
 }
@@ -93,11 +93,11 @@
 .recommendedItemTitle {
   grid-area: title;
   min-width: 0;
-  font-family: var(--font-family-display);
-  font-size: var(--font-size-title-sm);
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-heading-xs);
   font-weight: var(--font-weight-regular);
   color: var(--text-primary);
-  line-height: var(--line-height-tight);
+  line-height: var(--line-height-125);
   display: -webkit-box;
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
@@ -123,7 +123,7 @@
   grid-area: category;
   align-self: center;
   font-family: var(--font-family-body);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -144,7 +144,7 @@
   -webkit-appearance: none;
   background: transparent;
   font-family: var(--font-family-body);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
   white-space: nowrap;
 }

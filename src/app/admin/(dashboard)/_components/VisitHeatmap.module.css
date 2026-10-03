@@ -26,8 +26,8 @@
 }
 
 .heatmapDow {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
   line-height: calc(24 / 12);
 }
@@ -56,8 +56,8 @@
 .heatmapHourLabel {
   display: flex;
   justify-content: center;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   color: var(--text-muted);
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
@@ -66,8 +66,8 @@
 
 /* 오전/오후 캡션 — 12시간제일 때 앞·뒤 12칸 아래 */
 .heatmapMeridiem {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
 }
 
@@ -76,8 +76,8 @@
   align-items: center;
   gap: var(--spacing-4);
   align-self: flex-end;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   color: var(--text-muted);
 }
 

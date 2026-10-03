@@ -365,7 +365,7 @@ export function MediaEmbedElement(props: PlateElementProps) {
               draggable={false}
             />
             {resizeSize && (
-              <div style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%,-50%)", padding: "3px 8px", background: "var(--bg-overlay)", color: "#fff", borderRadius: "var(--radius-full)", fontSize: "var(--font-size-label)", fontWeight: 600, fontFamily: "var(--font-mono)", pointerEvents: "none", zIndex: 3 }}>
+              <div style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%,-50%)", padding: "3px 8px", background: "var(--bg-overlay)", color: "#fff", borderRadius: "var(--radius-full)", fontSize: "var(--font-size-body-sm)", fontWeight: 600, fontFamily: "var(--font-family-code)", pointerEvents: "none", zIndex: 3 }}>
                 {resizeSize.w}×{resizeSize.h}px
               </div>
             )}

@@ -88,7 +88,7 @@
 
 .adminBadge {
   font-family: var(--font-family-nav);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -111,7 +111,7 @@
 }
 
 .logo {
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: var(--font-size-32);
   font-weight: var(--font-weight-regular);
   color: var(--text-white);
@@ -295,7 +295,7 @@
 .navLink {
   position: relative;
   font-family: var(--font-family-nav);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   font-weight: var(--font-weight-regular);
   color: var(--text-white);
   letter-spacing: 0.05em;
@@ -389,7 +389,7 @@
 .subNavDropdownItem {
   position: relative;
   font-family: var(--font-family-nav);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   font-weight: var(--font-weight-regular);
   letter-spacing: 0.01em;
   color: var(--text-white);
@@ -498,8 +498,8 @@
   border-radius: var(--radius-full);
   background: var(--text-primary);
   color: var(--bg-primary);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-sm);
   font-weight: 500;
   letter-spacing: 0.02em;
   white-space: nowrap;
@@ -590,7 +590,7 @@
 .langText {
   display: inline-block;
   font-family: var(--font-family-nav);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   font-weight: var(--font-weight-regular);
   letter-spacing: 0.03em;
   transition: transform var(--duration-base) ease;
@@ -822,7 +822,7 @@
 }
 
 .menuLogo {
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: var(--font-size-28);
   font-weight: var(--font-weight-regular);
   color: var(--text-white);
@@ -843,7 +843,7 @@
 
 .menuFooterLabel {
   font-family: var(--font-family-nav);
-  font-size: var(--font-size-title-sm);
+  font-size: var(--font-size-heading-xs);
   font-style: italic;
   color: var(--text-white-muted);
 }
@@ -1032,7 +1032,7 @@
 }
 
 .menuLinkActive {
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-style: italic;
   font-weight: var(--font-weight-regular);
   -webkit-text-stroke: 1px var(--text-white);
@@ -1068,7 +1068,7 @@
 .menuSubLinkActive {
   opacity: 1;
   font-style: italic;
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
 }
 
 /* 페이지가 아닌 자리 — 문의(관리 화면에서는 로그아웃)와 관리 화면이 한 층이다.
@@ -1287,7 +1287,7 @@
   align-items: center;
   gap: var(--spacing-4);
   font-family: var(--font-family-nav);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -1310,7 +1310,7 @@
 
 .notifDropdownTitle {
   font-family: var(--font-family-nav);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -1327,8 +1327,8 @@
   border-radius: var(--radius-full);
   background: var(--text-accent);
   color: var(--bg-primary);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
@@ -1337,7 +1337,7 @@
   padding: var(--spacing-24) var(--spacing-16);
   text-align: center;
   font-family: var(--font-family-nav);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-tertiary);
 }
 
@@ -1361,7 +1361,7 @@
   border-top: var(--border-light);
   background: transparent;
   font-family: var(--font-family-nav);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -1420,8 +1420,8 @@
 }
 
 .notifDropdownItemTime {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
@@ -1429,7 +1429,7 @@
 
 .notifDropdownItemTitle {
   font-family: var(--font-family-nav);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   font-weight: 700;
   letter-spacing: 0.02em;
   color: var(--text-primary);
@@ -1440,7 +1440,7 @@
 
 .notifDropdownItemMessage {
   font-family: var(--font-family-nav);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
@@ -1452,7 +1452,7 @@
 .adminEmail {
   max-width: 180px;
   font-family: var(--font-family-nav);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-accent);
   letter-spacing: 0.02em;
   white-space: nowrap;
@@ -1625,7 +1625,7 @@
   }
 
   .langText {
-    font-size: var(--font-size-label);
+    font-size: var(--font-size-body-sm);
   }
 
   .menuDots {
@@ -1649,7 +1649,7 @@
   background: var(--bg-warning-soft);
   color: var(--text-warning-strong);
   font-family: var(--font-family-nav);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   font-weight: var(--font-weight-semibold);
   line-height: 1;
   white-space: nowrap;

@@ -24,7 +24,7 @@
   align-self: end;
   margin: 0 0 var(--spacing-8);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   font-weight: 600;
   color: var(--text-tertiary);
   letter-spacing: 0.05em;
@@ -66,13 +66,13 @@
 
 .name {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   font-weight: 600;
   color: var(--text-primary);
 }
 
 .features {
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-tertiary);
 }
 
@@ -80,7 +80,7 @@
 .status {
   padding: var(--badge-padding-md);
   border-radius: var(--radius-full);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   font-weight: 600;
   line-height: 1;
   white-space: nowrap;
@@ -125,7 +125,7 @@
 
 .fix {
   margin: 0;
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   line-height: 1.6;
   color: var(--text-secondary);
 }
@@ -151,7 +151,7 @@
   align-items: center;
   gap: var(--spacing-4);
   margin: 0;
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
   font-variant-numeric: tabular-nums;
 }
@@ -165,7 +165,7 @@
 .messageStatus {
   padding: 0 var(--spacing-4);
   border-radius: var(--radius-full);
-  font-family: var(--font-mono);
+  font-family: var(--font-family-code);
   font-weight: 600;
   background: var(--bg-tertiary);
   color: var(--text-secondary);
@@ -193,7 +193,7 @@
 
 .messageText {
   margin: 0;
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   line-height: 1.6;
   color: var(--text-secondary);
   overflow-wrap: anywhere;
@@ -212,7 +212,7 @@
   padding: 0;
   border: none;
   background: transparent;
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
   cursor: pointer;
   transition: color var(--duration-base) ease;
@@ -236,8 +236,8 @@
   padding: var(--spacing-8) 0;
   border-top: var(--border-light);
   border-bottom: var(--border-light);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   line-height: 1.6;
   color: var(--text-secondary);
   white-space: pre-wrap;
@@ -255,14 +255,14 @@
 }
 
 .usageText {
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-secondary);
   font-variant-numeric: tabular-nums;
 }
 
 .usageNote {
   grid-column: 1 / -1;
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
 }
 
@@ -297,7 +297,7 @@
 
 .empty {
   margin: var(--spacing-12) 0 0;
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-tertiary);
 }
 

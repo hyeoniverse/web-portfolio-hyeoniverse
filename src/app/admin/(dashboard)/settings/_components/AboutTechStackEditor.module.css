@@ -17,7 +17,7 @@
 }
 .techGroupLabel {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -37,7 +37,7 @@
 /* 빈 그룹 placeholder — "여기로 드래그" */
 .techGroupEmpty {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   color: var(--text-muted);
   font-style: italic;
 }
@@ -65,7 +65,7 @@
   background: var(--bg-secondary);
   box-shadow: var(--shadow-md);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   font-weight: 500;
   color: var(--text-primary);
   cursor: grabbing;
@@ -90,7 +90,7 @@
 /* 아이콘 없을 때 이니셜 */
 .techIconInitial {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   font-weight: 700;
   color: var(--text-tertiary);
 }
@@ -111,7 +111,7 @@
 }
 .techPanelTitle {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -150,14 +150,14 @@
   background: var(--bg-tertiary);
 }
 .techPresetRowName {
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .techPresetRowCat {
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
   white-space: nowrap;
 }
@@ -250,7 +250,7 @@
 }
 /* 직접 추가 — 중복 이름 힌트 */
 .techAddDupHint {
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   color: var(--text-accent);
   margin: 0;
 }

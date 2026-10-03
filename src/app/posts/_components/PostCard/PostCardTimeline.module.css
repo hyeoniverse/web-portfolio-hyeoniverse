@@ -28,8 +28,8 @@
   justify-content: var(--tl-justify, flex-start);
   gap: var(--spacing-4);
   margin-bottom: var(--spacing-8);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--text-tertiary);
@@ -78,7 +78,7 @@
 .timelineTitle {
   margin: 0;
   min-width: 0;
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: clamp(1.375rem, 1.05rem + 1.25vw, 1.85rem);
   font-weight: var(--font-weight-regular);
   line-height: 1.16;
@@ -147,9 +147,9 @@
   margin: 0;
   min-width: 0;
   font-family: var(--font-family-body);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   color: var(--text-secondary);
-  line-height: var(--line-height-normal);
+  line-height: var(--line-height-160);
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
@@ -162,8 +162,8 @@
   justify-content: var(--tl-justify, flex-start);
   gap: var(--spacing-12);
   margin-top: var(--spacing-12);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   letter-spacing: 0.03em;
   color: var(--text-tertiary);
   font-variant-numeric: tabular-nums;

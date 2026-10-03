@@ -46,8 +46,8 @@
   border-radius: var(--radius-full);
   background: color-mix(in srgb, var(--bg-primary) 80%, transparent);
   backdrop-filter: blur(4px);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   color: var(--text-muted);
   letter-spacing: 0.04em;
 }

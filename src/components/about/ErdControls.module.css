@@ -20,8 +20,8 @@
   border-radius: var(--radius-circle);
   background: transparent;
   color: var(--text-secondary);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-body);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-md);
   cursor: pointer;
   transition: background-color 0.2s ease, color 0.2s ease;
 }
@@ -33,7 +33,7 @@
 .level {
   min-width: var(--control-height-xl);
   color: var(--text-muted);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   text-align: center;
 }

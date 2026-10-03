@@ -21,7 +21,7 @@
 .title {
   margin: 0;
   min-width: 0;
-  font-size: var(--font-size-title-lg);
+  font-size: var(--font-size-heading-sm);
   font-weight: var(--font-weight-semibold);
   line-height: 1.2;
   color: var(--text-primary);
@@ -37,7 +37,7 @@
 
 .sub {
   margin: 0;
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   line-height: 1.5;
   color: var(--text-secondary);
 }

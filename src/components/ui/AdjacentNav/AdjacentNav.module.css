@@ -87,8 +87,8 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-8);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   font-weight: var(--font-weight-medium);
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -98,7 +98,7 @@
 
 .arrow {
   display: inline-block;
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   line-height: 1;
 }
 
@@ -115,11 +115,11 @@
 }
 
 .title {
-  font-family: var(--font-family-display);
-  font-size: var(--font-size-title-sm);
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-heading-xs);
   font-weight: var(--font-weight-regular);
   color: var(--text-primary);
-  line-height: var(--line-height-tight);
+  line-height: var(--line-height-125);
   /* 1줄 표시라도 항상 2줄 만큼 height — 카드 사이 layout 안정. 긴 title 은 2줄 clamp + ellipsis */
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -182,7 +182,7 @@
   }
 
   .title {
-    font-size: var(--font-size-body);
+    font-size: var(--font-size-body-md);
     color: var(--text-white);
     -webkit-line-clamp: 2;
   }

@@ -11,7 +11,7 @@
   background: var(--bg-secondary);
   color: var(--text-secondary);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   cursor: pointer;
   transition: background-color 0.12s ease, color 0.12s ease, border-color 0.12s ease;
 }
@@ -55,7 +55,7 @@
   background: transparent;
   border-radius: var(--radius-full);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-primary);
   text-align: left;
   cursor: pointer;
@@ -70,7 +70,7 @@
 .codeMenuTrailing {
   margin-left: auto;
   color: var(--text-tertiary);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
 }
 
 .codeMenuSearch {
@@ -90,7 +90,7 @@
   background: transparent;
   outline: none;
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-primary);
 }
 
@@ -175,8 +175,8 @@
   border: none;
   background: transparent;
   border-radius: var(--radius-circle); /* indicator 원형 */
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   font-weight: 600;
   line-height: 1;
   color: var(--text-tertiary);
@@ -198,7 +198,7 @@
 /* 검색 결과 정확도순 hint */
 .codeMenuHint {
   padding: var(--spacing-2) var(--spacing-12);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   font-style: italic;
   color: var(--text-muted);
 }
@@ -209,7 +209,7 @@
 
 .codeMenuEmpty {
   padding: var(--spacing-12);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-tertiary);
   text-align: center;
 }
@@ -223,8 +223,8 @@
   height: 18px;
   flex-shrink: 0;
   border-radius: var(--radius-circle);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   font-weight: 700;
   line-height: 1;
   letter-spacing: -0.02em;
@@ -254,7 +254,7 @@
   position: sticky;
   top: 0;
   padding: var(--spacing-4) var(--spacing-12) var(--spacing-2);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   font-weight: var(--font-weight-medium);
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -366,8 +366,8 @@
   border: none;
   background: transparent;
   color: var(--text-tertiary);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-sm);
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease;
 }
@@ -428,8 +428,8 @@
   background: var(--bg-primary);
   box-shadow: var(--shadow-xs);
   color: var(--text-secondary);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-sm);
 }
 
 .codeBarLang .codeLangTrigger:hover {

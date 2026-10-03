@@ -18,7 +18,7 @@
 /* 검색창 — toolbar 안 오른쪽 끝으로 push */
 
 .heroTitle {
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: var(--font-size-48);
   font-weight: var(--font-weight-regular);
   color: var(--text-primary);
@@ -37,7 +37,7 @@
 
 .heroMeta {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   color: var(--text-secondary);
   margin: 0;
 }

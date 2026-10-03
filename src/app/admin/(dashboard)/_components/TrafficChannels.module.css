@@ -67,8 +67,8 @@
 }
 
 .channelHostName {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   color: var(--text-secondary);
   white-space: nowrap;
   overflow: hidden;

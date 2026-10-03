@@ -409,3 +409,19 @@ Material `@material/web` 2.5, Primer primitives. 숫자는 같은 날 다시 셌
 - **예외 3곳.** Works 원통 레이아웃 제목 2곳과 그리드 인트로 제목은 화면이 아니라 패널 · 컨테이너 크기(`--panel-w` · `cqh`)를 따른다 —
   화면 확대 문제와 상관없어 그대로 둔다.
 - **함께 고친 것.** Works 빈 화면 제목이 없는 토큰(`--font-size-title-xs`)을 써서 선언 전체가 무시되던 것을 16 ~ 18px 로 고쳤다.
+
+### D31. 2026-10-03 — 글자 토큰을 세 층 · 층마다 이름 규칙 하나로 다시 짠다
+
+- **왜.** 같은 층 안에서 이름 짓는 방식이 넷이었다 — 쓰임새(`hint` · `label`), 단계(`body-lg`), 제목(`title-sm · md`),
+  섞임(`prose-small`). 같은 값에 이름이 둘(`title-sm` = `title-md` = 18), 거의 같은 이름에 다른 글꼴(`--font-display` 는 Playfair,
+  `--font-family-display` 는 Instrument)도 있었다. 코드 글꼴은 역할 이름이 없어 1층 `--font-mono` 를 477곳이 직접 불렀다.
+- **새 규칙.** 1층 `--{속성}-{값}`, 2층 `--font-{속성}-{역할}-{단계}`, 3층 묶음 `--font-{역할}-{단계}`.
+  역할 = display · heading · body · code(+ 지면 prose), 단계 = xs ~ xl. 줄간격도 이름이 값이다(`--line-height-125`).
+- **바꾼 이름.** hint · label · body → `body-xs · sm · md`, title-sm · md · lg → `heading-xs · xs · sm`, hero · lead · subhead →
+  `display-lg · md · sm`, prose · -label · -small · -caption → `prose-lg · md · sm · xs`, `--font-family-display` → `-heading`(같은 값이라 합침),
+  `--font-mono` → `--font-family-code`, Playfair 자리 → `--font-family-accent`. 줄간격 dense ~ loose → `090 · 100 · 125 · 135 · 160 · 180`.
+  2,700여 곳을 기계적으로 바꿨고 값은 하나도 바뀌지 않았다.
+- **지운 것.** 안 쓰던 `--font-sans` · `--font-grotesk` · `--font-weight-extrabold` · `--fluid-font-size-*` 9단계, 별칭 `--font-display` · `--font-serif`.
+  저장된 글 HTML 이 쓰는 `--font-mono` 는 별칭으로 남겼다.
+- **묶음은 쓰일 때 더한다.** 전체 세트(display 3 · heading 5 · body 5 · code 4)를 문서에 정해 두고, 안 쓰는 토큰을 두지 않는 규칙(2-4)대로
+  컴포넌트를 옮길 때 하나씩 정의한다.

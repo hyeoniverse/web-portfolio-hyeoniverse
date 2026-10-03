@@ -608,7 +608,7 @@ function serializeNode(node: SlateNode): string {
           + `<iframe src="${viewerUrl}" title="${fName}" style="width:100%;height:500px;border:1px solid var(--border-color-light);border-radius:var(--radius-24)"></iframe></details>`;
       } else if (isText) {
         previewHtml = `<details style="margin-top:6px" data-text-preview="${fileUrl}"><summary style="cursor:pointer;font-size:12px;color:var(--text-secondary);font-family:var(--font-family-body);margin-bottom:6px">Preview</summary>`
-          + `<pre style="padding:12px 16px;border:1px solid var(--border-color-light);border-radius:var(--radius-24);background:var(--bg-secondary);font-size:12px;color:var(--text-secondary);overflow:auto;max-height:400px;white-space:pre-wrap;word-break:break-all;font-family:var(--font-mono)">Loading...</pre></details>`;
+          + `<pre style="padding:12px 16px;border:1px solid var(--border-color-light);border-radius:var(--radius-24);background:var(--bg-secondary);font-size:12px;color:var(--text-secondary);overflow:auto;max-height:400px;white-space:pre-wrap;word-break:break-all;font-family:var(--font-family-code)">Loading...</pre></details>`;
       }
       const maxW = hasPreview ? "640px" : "480px";
       return [

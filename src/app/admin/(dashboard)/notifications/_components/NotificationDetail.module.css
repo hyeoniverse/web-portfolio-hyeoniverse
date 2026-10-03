@@ -31,14 +31,14 @@
 }
 
 .type {
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-tertiary);
 }
 
 .title {
   margin: 0;
   font-family: var(--font-family-heading);
-  font-size: var(--font-size-title-sm);
+  font-size: var(--font-size-heading-xs);
   font-weight: var(--font-weight-regular);
   color: var(--text-primary);
   overflow-wrap: anywhere;
@@ -52,7 +52,7 @@
   position: relative;
   margin: 0;
   padding-left: var(--spacing-24);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   line-height: 1.6;
   color: var(--text-secondary);
   white-space: pre-line;
@@ -64,7 +64,7 @@
   position: absolute;
   top: -0.15em;
   left: 0;
-  font-family: var(--font-serif);
+  font-family: var(--font-family-accent);
   font-size: var(--font-size-34);
   line-height: 1;
   color: var(--text-tertiary);
@@ -82,7 +82,7 @@
   display: grid;
   grid-template-columns: minmax(0, 7rem) minmax(0, 1fr);
   gap: var(--spacing-12);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
 }
 
 .metaRow dt {
@@ -97,14 +97,14 @@
 
 /* id 처럼 기계가 만든 값은 등폭으로 — 자릿수 비교가 쉬워진다 */
 .metaValue {
-  font-family: var(--font-mono);
+  font-family: var(--font-family-code);
 }
 
 /* 처리 실패 사유 — 모달이 화면을 덮고 있어 페이지 상단 메시지는 보이지 않는다 */
 .error {
   margin: var(--spacing-12) 0 0 0;
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-error-strong);
-  line-height: var(--line-height-snug);
+  line-height: var(--line-height-135);
 }

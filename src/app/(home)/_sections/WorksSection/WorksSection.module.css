@@ -42,7 +42,7 @@
 }
 
 .titleText {
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: clamp(4.5rem, 0.25rem + 6.72vw, 8.25rem);
   font-weight: var(--font-weight-regular);
   line-height: 0.95;
@@ -130,9 +130,9 @@
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
   font-family: var(--font-family-body);
-  font-size: clamp(var(--font-size-hint), 0.704rem + 0.19vw, var(--font-size-body));
+  font-size: clamp(var(--font-size-body-xs), 0.704rem + 0.19vw, var(--font-size-body-md));
   font-weight: var(--font-weight-medium);
-  line-height: var(--line-height-tight);
+  line-height: var(--line-height-125);
   /* 배경이 테마가 아니라 언어 색을 따르므로 테마에 맞춰 뒤집히는 색을 쓰면 안 된다 —
      밝기를 보고 고른 값이 --repo-ink 로 들어온다 */
   color: var(--repo-ink, color-mix(in oklch, var(--text-white) 95%, transparent));
@@ -183,17 +183,17 @@
 /* 글자는 흰색 — 섞는 일은 위의 .textOverlay 가 맡는다. 표지 그림이 어떤 색이든 뒤집힌 색으로
    나와 늘 읽힌다. 테마를 따라 뒤집히는 색(--text-inverse)을 쓰면 밝은 표지 위에서 글자가 사라졌다. */
 .overlayTitle {
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: clamp(15px, 0.821rem + 0.48vw, var(--font-size-20));
   font-weight: var(--font-weight-regular);
   color: var(--text-white);
-  line-height: var(--line-height-tight);
+  line-height: var(--line-height-125);
   letter-spacing: -0.01em;
 }
 
 .overlayCategory {
   font-family: var(--font-family-body);
-  font-size: clamp(var(--font-size-hint), 0.704rem + 0.19vw, var(--font-size-body));
+  font-size: clamp(var(--font-size-body-xs), 0.704rem + 0.19vw, var(--font-size-body-md));
   font-weight: var(--font-weight-medium);
   color: var(--text-white);
   text-transform: uppercase;

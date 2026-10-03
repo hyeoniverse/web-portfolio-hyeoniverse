@@ -16,8 +16,8 @@
 .count {
   margin-left: auto;
   color: var(--text-tertiary);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-sm);
 }
 
 /* 그리드 — 카드는 한 줄 요약만. 편집은 모달에서 하므로 높이가 일정하다 */
@@ -99,8 +99,8 @@
 .cardName {
   overflow: hidden;
   color: var(--text-primary);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-body);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-md);
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -118,13 +118,13 @@
   grid-template-columns: 1.4rem minmax(0, 1fr) minmax(0, auto);
   gap: var(--spacing-4);
   align-items: baseline;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   line-height: 1.7;
 }
 .colKey {
   color: transparent;
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   font-weight: var(--font-weight-bold);
   letter-spacing: 0.02em;
 }
@@ -170,7 +170,7 @@
   background: var(--bg-accent-subtle);
   color: var(--text-accent);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   white-space: nowrap;
 }
 /* 선택된 카드는 바탕이 이미 강조색이라 배지가 묻힌다 — 바탕을 비워 글자로만 읽히게 */
@@ -187,7 +187,7 @@
   flex-shrink: 0;
   color: var(--text-tertiary);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   font-variant-numeric: tabular-nums;
 }
 /* 나머지 컬럼 수는 맨 오른쪽으로 — 미리보기가 잘렸다는 신호다 */
@@ -214,7 +214,7 @@
 .emptyTitle {
   margin: 0;
   color: var(--text-secondary);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   font-weight: var(--font-weight-medium);
 }
 
@@ -222,7 +222,7 @@
   margin: 0 0 var(--spacing-4) 0;
   max-width: 42ch;
   color: var(--text-tertiary);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   line-height: 1.6;
 }
 
@@ -248,7 +248,7 @@
   border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-tertiary);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   cursor: pointer;
 }
 .viewBtn:hover {
@@ -305,26 +305,26 @@
 }
 .nodeName {
   fill: var(--text-primary);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-body);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-md);
   font-weight: var(--font-weight-bold);
 }
 .col {
   fill: var(--text-secondary);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-sm);
 }
 .colType {
   fill: var(--text-muted);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
 }
 
 /* PK / FK 뱃지 — ERD 에서 컬럼 이름만큼 중요한 정보 */
 .keyPk,
 .keyFk {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   font-weight: var(--font-weight-bold);
 }
 .keyPk {
@@ -352,7 +352,7 @@
   border-radius: 0;
   background: var(--bg-warning-soft);
   color: var(--text-warning-strong);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   white-space: nowrap;
 }
 
@@ -362,5 +362,5 @@
   gap: var(--spacing-4);
   align-items: center;
   color: var(--text-warning-strong);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
 }

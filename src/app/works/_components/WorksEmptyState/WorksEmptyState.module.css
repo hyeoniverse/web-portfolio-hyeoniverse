@@ -90,12 +90,12 @@
 /* 인트로 패널이 이미 제목을 크게 말하고 있어서, 비어 있다는 말은 그 아래에서 한 단계 작게 */
 .title {
   color: var(--text-primary);
-  font-family: var(--font-family-display);
-  font-size: clamp(var(--font-size-16), 0.875rem + 0.3vw, var(--font-size-title-sm));
+  font-family: var(--font-family-heading);
+  font-size: clamp(var(--font-size-16), 0.875rem + 0.3vw, var(--font-size-heading-xs));
 }
 
 .sub {
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   color: var(--text-tertiary);
 }
 
@@ -118,7 +118,7 @@
   align-items: center;
   margin-top: var(--spacing-12);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-accent);
   text-decoration: none;
 }

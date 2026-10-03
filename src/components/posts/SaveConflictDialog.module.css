@@ -6,7 +6,7 @@
   padding: 0 var(--spacing-20) var(--spacing-20);
 }
 .text {
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   color: var(--text-secondary);
   line-height: 1.55;
 }

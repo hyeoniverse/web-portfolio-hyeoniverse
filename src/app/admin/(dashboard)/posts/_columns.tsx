@@ -209,7 +209,7 @@ export function createSeriesColumns(
         onReorder ? (
           <EditableRowNumber value={s.sort_order} min={1} max={rowMax} onSave={(n) => onReorder(s, n)} />
         ) : (
-          <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--font-size-label)", color: "var(--text-tertiary)" }}>{index + 1}</span>
+          <span style={{ fontFamily: "var(--font-family-code)", fontSize: "var(--font-size-body-sm)", color: "var(--text-tertiary)" }}>{index + 1}</span>
         ),
       skeletonWidth: "20px",
     },

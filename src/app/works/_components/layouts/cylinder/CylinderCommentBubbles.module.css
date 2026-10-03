@@ -34,8 +34,8 @@
 }
 
 .bubbleNick {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   font-weight: var(--font-weight-bold);
   color: var(--text-white);
   opacity: 0.6;
@@ -43,7 +43,7 @@
 
 .bubbleText {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   color: var(--text-white);
   line-height: 1.4;
   word-break: break-word;

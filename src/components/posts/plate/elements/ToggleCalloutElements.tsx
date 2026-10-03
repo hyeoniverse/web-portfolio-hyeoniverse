@@ -34,9 +34,9 @@ export function ToggleElement(props: PlateElementProps) {
   const children = (el.children as any[]) || [];
   const firstType = children[0]?.type || "p";
   const headingStyles: Record<string, React.CSSProperties> = {
-    h1: { fontSize: "var(--font-size-22)", fontFamily: "var(--font-family-display)", fontWeight: "var(--font-weight-regular)" as string },
-    h2: { fontSize: "var(--font-size-18)", fontFamily: "var(--font-family-display)", fontWeight: "var(--font-weight-regular)" as string },
-    h3: { fontSize: "var(--font-size-16)", fontFamily: "var(--font-family-display)", fontWeight: "var(--font-weight-regular)" as string },
+    h1: { fontSize: "var(--font-size-22)", fontFamily: "var(--font-family-heading)", fontWeight: "var(--font-weight-regular)" as string },
+    h2: { fontSize: "var(--font-size-18)", fontFamily: "var(--font-family-heading)", fontWeight: "var(--font-weight-regular)" as string },
+    h3: { fontSize: "var(--font-size-16)", fontFamily: "var(--font-family-heading)", fontWeight: "var(--font-weight-regular)" as string },
   };
   const titleStyle: React.CSSProperties = headingStyles[firstType] || {};
 

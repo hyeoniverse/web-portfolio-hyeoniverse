@@ -218,7 +218,7 @@ export default function ArchDiagram() {
               dominantBaseline="central"
               fill="var(--text-primary)"
               fontSize={10}
-              fontFamily="var(--font-mono)"
+              fontFamily="var(--font-family-code)"
               fontWeight={500}
             >
               {node.label}
@@ -234,7 +234,7 @@ export default function ArchDiagram() {
         const minX = Math.min(...groupNodes.map((n) => n.x)) - 4;
         const minY = Math.min(...groupNodes.map((n) => n.y)) - 14;
         return (
-          <text key={key} x={minX} y={minY} fill={color} fontSize={8} fontFamily="var(--font-mono)" fontWeight={600} letterSpacing={1.2} opacity={0.5}>
+          <text key={key} x={minX} y={minY} fill={color} fontSize={8} fontFamily="var(--font-family-code)" fontWeight={600} letterSpacing={1.2} opacity={0.5}>
             {ARCH_GROUP_LABELS[key]}
           </text>
         );

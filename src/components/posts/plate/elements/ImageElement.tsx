@@ -189,7 +189,7 @@ export function ImageElement(props: PlateElementProps) {
     bottom: showCaption ? badgeHeight + 10 : 4,
     padding: "2px 10px",
     background: "var(--bg-overlay)", color: "#fff",
-    borderRadius: "var(--radius-full)", fontSize: "var(--font-size-hint)",
+    borderRadius: "var(--radius-full)", fontSize: "var(--font-size-body-xs)",
     fontFamily: "var(--font-family-body)", lineHeight: 1.4,
     height: badgeHeight, display: "flex", alignItems: "center",
     pointerEvents: "none", whiteSpace: "nowrap", zIndex: 4,
@@ -371,7 +371,7 @@ export function ImageElement(props: PlateElementProps) {
                 />
                 {/* Resize live size */}
                 {resizeSize && !isDragging && (
-                  <span style={{ ...infoStyle, left: "50%", bottom: "auto", top: "50%", transform: "translate(-50%, -50%)", fontSize: "var(--font-size-label)", fontWeight: 600 }}>
+                  <span style={{ ...infoStyle, left: "50%", bottom: "auto", top: "50%", transform: "translate(-50%, -50%)", fontSize: "var(--font-size-body-sm)", fontWeight: 600 }}>
                     {resizeSize.w}×{resizeSize.h}px
                   </span>
                 )}
@@ -445,7 +445,7 @@ export function ImageElement(props: PlateElementProps) {
               </Tooltip>
               {/* Resize live size */}
               {resizeSize && !isDragging && (
-                <div style={{ ...infoStyle, left: "50%", bottom: "auto", top: "50%", transform: "translate(-50%, -50%)", fontSize: "var(--font-size-label)", fontWeight: 600 }}>
+                <div style={{ ...infoStyle, left: "50%", bottom: "auto", top: "50%", transform: "translate(-50%, -50%)", fontSize: "var(--font-size-body-sm)", fontWeight: 600 }}>
                   {resizeSize.w}×{resizeSize.h}px
                 </div>
               )}

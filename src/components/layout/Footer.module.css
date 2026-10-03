@@ -24,8 +24,8 @@
   flex-direction: column;
   margin: 0 auto;
   max-width: var(--width-page-max);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-sm);
 }
 
 /* Center: Links + Privacy */
@@ -185,14 +185,14 @@
 }
 
 .visitLabel {
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
 
 .visitCount {
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-secondary);
   letter-spacing: 0.02em;
   font-variant-numeric: tabular-nums;
@@ -221,7 +221,7 @@
   color: var(--text-tertiary);
   text-align: right;
   letter-spacing: 0.05em;
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
 }
 
 .musicCredit a {

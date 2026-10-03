@@ -35,7 +35,7 @@
   --_font-size-lg: 1.125vw;
   --_font-size-md: 1.1vw;
   --_font-size-sm: 0.85vw;
-  --_line-height: var(--line-height-normal);
+  --_line-height: var(--line-height-160);
 }
 
 /* ---------------------------------------------------------------------------
@@ -305,7 +305,7 @@
   bottom: var(--_gap-lg);
   left: 50%;
   z-index: 3;
-  font-family: var(--font-mono);
+  font-family: var(--font-family-code);
   font-size: var(--_font-size-sm);
   color: var(--text-accent);
   white-space: nowrap;
@@ -468,7 +468,7 @@
 
 .successLabel {
   /* margin-bottom: var(--_gap-lg); */
-  font-family: var(--font-mono);
+  font-family: var(--font-family-code);
   font-size: var(--_font-size-sm);
   color: var(--text-tertiary);
   text-align: center;
@@ -483,7 +483,7 @@
 
 .successFrom {
   display: block;
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: var(--_font-size-title);
   font-weight: var(--font-weight-regular);
   color: var(--text-black);
@@ -492,7 +492,7 @@
 
 .successEmail {
   display: block;
-  font-family: var(--font-mono);
+  font-family: var(--font-family-code);
   font-size: var(--_font-size-sm);
   color: var(--text-tertiary);
 }
@@ -530,7 +530,7 @@
 .successMessageLabel {
   flex-shrink: 0;
   margin-top: var(--_gap-md);
-  font-family: var(--font-mono);
+  font-family: var(--font-family-code);
   font-size: calc(var(--_font-size-sm) * 0.85);
   color: var(--text-tertiary);
   text-transform: uppercase;
@@ -557,7 +557,7 @@
   margin-bottom: var(--_gap-lg);
   padding: var(--_padding);
   border: 1px dashed var(--text-tertiary);
-  font-family: var(--font-mono);
+  font-family: var(--font-family-code);
   font-size: var(--_font-size-sm);
   color: var(--text-tertiary);
   border-radius: var(--radius-full);
@@ -890,7 +890,7 @@
   }
 
   .emailHeaderLogo {
-    font-family: var(--font-family-display);
+    font-family: var(--font-family-heading);
     font-size: var(--font-size-28);
     font-weight: var(--font-weight-regular);
     color: var(--text-black);

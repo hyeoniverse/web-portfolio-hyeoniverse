@@ -22,7 +22,7 @@
   margin: 0;
   padding: 0;
   color: var(--text-white);
-  line-height: var(--line-height-fit);
+  line-height: var(--line-height-100);
 }
 
 /* 액션(버튼/링크) — 우측 열, 제목과 같이 sticky. blend 밖이라 정상 색.

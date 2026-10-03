@@ -1,6 +1,6 @@
 .message {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   padding: var(--spacing-4) var(--spacing-16);
   border-radius: var(--radius-full);
 }
@@ -83,7 +83,7 @@
 
 .sectionTitle {
   font-family: var(--font-family-heading);
-  font-size: var(--font-size-title-sm);
+  font-size: var(--font-size-heading-xs);
   font-weight: var(--font-weight-regular);
   color: var(--text-primary);
   margin: 0;
@@ -96,7 +96,7 @@
    h3 기본 크기(1.17em 굵게)라 위의 섹션 제목(16px)보다 커 보였다. */
 .sectionSubTitle {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
   margin: 0;
@@ -107,7 +107,7 @@
   display: block;
   margin-bottom: var(--spacing-2);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   font-weight: var(--font-weight-medium);
   color: var(--text-tertiary);
   letter-spacing: 0.02em;
@@ -191,7 +191,7 @@
   translate: 0 -50%;
   font-family: var(--font-family-body);
   /* counter 는 작게 — input text 보다 한 단계 down */
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.02em;
@@ -224,7 +224,7 @@
   gap: var(--spacing-2);
   width: auto;
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   font-weight: 500;
   color: var(--text-tertiary);
   letter-spacing: 0.02em;
@@ -331,7 +331,7 @@
 
 .presetName {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-tertiary);
   letter-spacing: 0.02em;
   white-space: nowrap;
@@ -396,11 +396,11 @@
 /* ── Section hint ── */
 .sectionHint {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-tertiary);
   margin-bottom: var(--spacing-16);
   margin-top: 0;
-  line-height: var(--line-height-snug);
+  line-height: var(--line-height-135);
 }
 
 .sectionTitle + .sectionHint,
@@ -413,7 +413,7 @@
   flex-direction: column;
   gap: var(--spacing-2);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-tertiary);
   margin-bottom: var(--spacing-16);
   margin-top: 0;
@@ -423,7 +423,7 @@
 
 .fieldHint {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-tertiary);
   margin: 0;
 }
@@ -466,9 +466,9 @@
   border-radius: 0;
   background: transparent;
   color: var(--text-tertiary);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   padding: 0;
-  line-height: var(--line-height-fit);
+  line-height: var(--line-height-100);
 }
 
 .priorityBtn + .priorityBtn {
@@ -500,7 +500,7 @@
 /* seriesCardName 안 정렬 순서 prefix (#1_) — mix-blend-mode: difference + white 로
    어두운 cover 배경에서도 자동 반전되어 가독성 유지. 내부 EditableRowNumber 도 함께 효과. */
 .seriesCardOrderPrefix {
-  font-family: var(--font-mono);
+  font-family: var(--font-family-code);
   color: var(--text-white);
   mix-blend-mode: difference;
   margin-right: var(--spacing-2);
@@ -532,7 +532,7 @@
 
 .publishLabel {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-secondary);
   min-width: 3em;
   display: inline-block;
@@ -622,9 +622,9 @@
   border: none;
   background: transparent;
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   font-weight: var(--font-weight-regular);
-  line-height: var(--line-height-fit);
+  line-height: var(--line-height-100);
   color: var(--text-tertiary);
   text-align: center;
   cursor: pointer;
@@ -638,7 +638,7 @@
 
 .newSeriesShellOpen .newSeriesShellTitle {
   justify-content: flex-start;
-  font-size: var(--font-size-title-sm);
+  font-size: var(--font-size-heading-xs);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
   text-align: left;
@@ -823,9 +823,9 @@
   border-radius: var(--radius-full);
   background: var(--bg-primary);
   color: var(--text-primary);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   font-weight: 700;
-  line-height: var(--line-height-fit);
+  line-height: var(--line-height-100);
   font-variant-numeric: tabular-nums;
 }
 /* 필터 버튼 chevron — 펼침 시 회전. */
@@ -844,7 +844,7 @@
 
 .tagDescFilterGroupLabel {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   font-weight: 500;
   color: var(--text-tertiary);
   letter-spacing: 0.02em;
@@ -855,7 +855,7 @@
    다른 toolbar control (SegmentedControl btn 등) 과 통일. */
 .tagDescFilterRow button,
 .tagDescFilterDrawer button {
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
 }
 
 .tagDescFilterGroup + .tagDescFilterGroup {
@@ -906,8 +906,8 @@
 
 /* toolbar 내 count — SegmentedControl 오른쪽, search (margin-left:auto) 앞 자연 배치. */
 .tagDescCount {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
   font-variant-numeric: tabular-nums;
 }
@@ -917,7 +917,7 @@
   text-align: center;
   color: var(--text-tertiary);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
 }
 
 /* Pagination 컴포넌트의 .paginationWrap 이 margin-top: spacing-md 를 default 로 둠.
@@ -930,8 +930,8 @@
 /* 칩 라벨 옆 사용 카운트 (n) */
 .tagCountBadge {
   margin-left: var(--spacing-4);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
   font-variant-numeric: tabular-nums;
 }
@@ -968,7 +968,7 @@
 .tagRelatedEmpty {
   justify-content: center;
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-tertiary);
 }
 
@@ -979,7 +979,7 @@
   align-items: center;
   gap: var(--spacing-16);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   color: var(--text-primary);
   text-decoration: none;
   transition:
@@ -1005,8 +1005,8 @@ a.tagRelatedItem:hover {
   align-items: center;
   gap: var(--spacing-12);
   flex-shrink: 0;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
   font-variant-numeric: tabular-nums;
 }
@@ -1016,7 +1016,7 @@ a.tagRelatedItem:hover {
   border-radius: var(--radius-full);
   background: var(--bg-tertiary-alt);
   color: var(--text-tertiary);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -1091,7 +1091,7 @@ a.tagRelatedItem:hover {
   justify-content: space-between;
   gap: var(--spacing-12);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   font-weight: 500;
   color: var(--text-tertiary);
   letter-spacing: 0.02em;
@@ -1125,7 +1125,7 @@ a.tagRelatedItem:hover {
 
 .worksCatAddRowLabel {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   font-weight: 500;
   color: var(--text-tertiary);
   letter-spacing: 0.02em;
@@ -1148,7 +1148,7 @@ a.tagRelatedItem:hover {
 /* 상태 메시지 — 행 아래. 성공/실패 모두 accent 로 강조 */
 .authorInviteErr {
   color: var(--text-accent);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
 }
 /* 라벨 아래 설명 — secondary */
 .authorInvite .fieldHint {
