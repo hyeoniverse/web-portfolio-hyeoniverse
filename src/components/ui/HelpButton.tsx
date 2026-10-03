@@ -12,13 +12,13 @@ import Button from "./Button";
    크기를 못 바꾸면 그 자리들이 통일 대상에서 아예 빠져버린다.
    나머지 props (onClick, aria-label, title, className, tabIndex 등) 는 그대로 Button 에 전달 —
    Popover / Tooltip 이 trigger 에 핸들러·ref 를 주입하는 케이스가 깨지지 않도록. */
-type HelpButtonSize = "2xs" | "xs" | "sm" | "md" | "lg" | "xl";
+type HelpButtonSize = "xs" | "sm" | "md" | "lg" | "xl";
 
 type HelpButtonProps = Omit<
   React.ButtonHTMLAttributes<HTMLButtonElement>,
   "children"
 > & {
-  /** 기본 "md"(32px). 조작 막대 등 낮은 줄은 "sm"(28px), 폼 라벨 옆처럼 좁은 자리는 "2xs"(20px) / "xs"(24px) */
+  /** 기본 "md"(32px). 조작 막대 등 낮은 줄은 "sm"(28px), 폼 라벨 옆처럼 좁은 자리는 "xs"(24px) */
   size?: HelpButtonSize;
   /** 표시 글리프 — 도움말 "?"(기본) 또는 정보 "i". 둘 다 circle 규격 공유 */
   symbol?: "?" | "i";

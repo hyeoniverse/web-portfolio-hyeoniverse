@@ -190,7 +190,7 @@
 
 ## `src/styles/tokens/_size.css`
 
-토큰 24개
+토큰 23개
 
 | 토큰 | 값 |
 |---|---|
@@ -203,7 +203,6 @@
 | `--size-28` | `28px` |
 | `--size-32` | `32px` |
 | `--size-36` | `36px` |
-| `--size-38` | `38px` |
 | `--size-40` | `40px` |
 | `--size-48` | `48px` |
 | `--size-56` | `56px` |
@@ -508,13 +507,13 @@
 | `--cell-padding-sm` | `var(--spacing-4) var(--spacing-8)` |
 | `--cell-padding-md` | `var(--spacing-8) var(--spacing-12)` |
 | `--textarea-padding` | `var(--spacing-12) var(--spacing-16)` |
-| `--control-height-2xs` | `20px` |
 | `--control-height-xs` | `24px` |
 | `--control-height-sm` | `28px` |
 | `--control-height-md` | `32px` |
 | `--control-height-lg` | `36px` |
-| `--control-height-xl` | `38px` |
-| `--control-height-2xl` | `46px` |
+| `--control-height-xl` | `40px` |
+| `--badge-height` | `20px` |
+| `--float-button-size-md` | `48px` |
 | `--skeleton-height-line` | `var(--font-size-body-md)` |
 | `--skeleton-height-line-sm` | `var(--font-size-body-sm)` |
 | `--skeleton-height-line-lg` | `var(--font-size-18)` |
@@ -598,7 +597,7 @@
 
 ## `src/styles/globals/_legacy-aliases.css`
 
-토큰 77개
+토큰 76개
 
 | 토큰 | 값 |
 |---|---|
@@ -648,7 +647,6 @@
 | `--size-2xs` | `var(--size-20)` |
 | `--size-xs` | `var(--size-24)` |
 | `--size-sm` | `var(--size-32)` |
-| `--size-md` | `var(--size-38)` |
 | `--size-xl` | `var(--size-56)` |
 | `--size-2xl` | `var(--size-64)` |
 | `--size-3xl` | `var(--size-72)` |

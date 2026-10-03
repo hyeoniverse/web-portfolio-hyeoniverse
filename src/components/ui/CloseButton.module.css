@@ -23,16 +23,16 @@
 }
 
 .xs {
-  width: var(--control-height-2xs);     /* 20 */
-  height: var(--control-height-2xs);
-  --close-size: 10px;
+  width: var(--control-height-xs);     /* 24 */
+  height: var(--control-height-xs);
+  --close-size: 12px;
   --close-weight: 1px;
 }
 
 .sm {
-  width: var(--control-height-xs);     /* 24 */
-  height: var(--control-height-xs);
-  --close-size: 12px;
+  width: var(--control-height-sm);     /* 28 */
+  height: var(--control-height-sm);
+  --close-size: 14px;
   --close-weight: 1px;
 }
 
@@ -44,8 +44,8 @@
 }
 
 .lg {
-  width: var(--control-height-xl);     /* 38 */
-  height: var(--control-height-xl);
+  width: var(--control-height-lg);     /* 36 */
+  height: var(--control-height-lg);
   --close-size: 16px;
   --close-weight: 1.5px;
 }

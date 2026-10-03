@@ -58,7 +58,7 @@ export default function RelatedTagsPanel({
         >
           <Button
             variant="ghost"
-            size="2xs"
+            size="xs"
             className={styles.relatedToggle}
             active={showAllTags}
             onClick={() => setShowAllTags((v) => !v)}
@@ -77,7 +77,7 @@ export default function RelatedTagsPanel({
         </Tooltip>
         <Button
           variant="outline"
-          size="2xs"
+          size="xs"
           active={selectMode}
           className={styles.selectModeBtn}
           onClick={onToggleSelectMode}

@@ -252,7 +252,7 @@
   }
 
   .exprFace {
-    width: var(--control-height-2xl);
+    width: var(--float-button-size-md);
     height: var(--control-height-xs);
   }
 

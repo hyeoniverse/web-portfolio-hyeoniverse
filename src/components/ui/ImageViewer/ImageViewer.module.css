@@ -213,8 +213,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: var(--control-height-2xl);
-  height: var(--control-height-2xl);
+  width: var(--float-button-size-md);
+  height: var(--float-button-size-md);
   padding: 0;
   border: var(--border-default);
   border-radius: var(--radius-circle);
@@ -368,8 +368,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: var(--control-height-2xs);
-  height: var(--control-height-2xs);
+  min-width: var(--badge-height);
+  height: var(--badge-height);
   padding: 0 var(--spacing-8);
   border: var(--border-light);
   border-radius: var(--radius-full);
@@ -922,7 +922,7 @@
   .zoomLevel,
   .zoomInput {
     font-size: var(--font-size-body-xs);
-    width: var(--control-height-2xl);
+    width: var(--float-button-size-md);
   }
 
   .toolbarDivider {
@@ -998,7 +998,7 @@
   }
 
   .intervalBtn {
-    height: var(--control-height-2xs);
+    height: var(--control-height-xs);
     font-size: var(--font-size-body-xs);
     padding: 0 var(--spacing-4);
   }

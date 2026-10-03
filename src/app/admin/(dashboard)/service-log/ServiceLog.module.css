@@ -425,14 +425,16 @@
 
 /* 실패 수 — 강조색 알약 */
 .railFail {
-  min-width: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--badge-height);
+  height: var(--badge-height);
   padding: 0 var(--spacing-4);
   border-radius: var(--radius-full);
   background: var(--bg-accent-light);
   color: var(--text-accent);
   font-weight: 600;
-  line-height: 20px;
-  text-align: center;
   font-variant-numeric: tabular-nums;
 }
 

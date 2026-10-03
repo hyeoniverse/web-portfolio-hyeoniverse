@@ -679,7 +679,7 @@ function SortableList<T>({
         customActions={
           <>
             {items.length > 0 && (
-              <Button variant="outline" size="2xs" onClick={toggleAll}>
+              <Button variant="outline" size="xs" onClick={toggleAll}>
                 <T k={allOpen ? "admin.settings.profile.collapseAll" : "admin.settings.profile.expandAll"} />
               </Button>
             )}
@@ -699,7 +699,7 @@ function SortableList<T>({
                       <Pressable className={styles.skillDragHandle} {...listeners} aria-label="Drag to reorder">
                         <GripVertical fill="currentColor" />
                       </Pressable>
-                      <Button type="button" variant="ghost" shape="square" size="2xs" className={styles.skillExpandBtn} onClick={() => toggleOne(i)} aria-label={isOpen ? "Collapse" : "Expand"}>
+                      <Button type="button" variant="ghost" shape="square" size="xs" className={styles.skillExpandBtn} onClick={() => toggleOne(i)} aria-label={isOpen ? "Collapse" : "Expand"}>
                         <ChevronRight style={{ transform: isOpen ? "rotate(90deg)" : "rotate(0deg)" }} />
                       </Button>
                       {renderHeader(item, i)}

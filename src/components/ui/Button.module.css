@@ -54,14 +54,8 @@
 
 /* ---------------------------------------------------------------------------
    Sizes — capsule. 4-pt grid, height 명시 (controls 정렬 안정성).
-   --control-height-* token 사용 (--control-height-xs:24 / sm:28 / md:32 / lg:36)
+   --control-height-* token 사용 (xs:24 / sm:28 / md:32 / lg:36 / xl:40)
    --------------------------------------------------------------------------- */
-.size-2xs {
-  height: 20px;
-  box-sizing: border-box;
-  padding: 0 var(--spacing-12);
-  font-size: var(--font-size-body-xs);
-}
 
 .size-xs {
   height: var(--control-height-xs);
@@ -93,7 +87,7 @@
 }
 
 .size-xl {
-  height: 40px;
+  height: var(--control-height-xl);
   box-sizing: border-box;
   padding: 0 var(--spacing-24);
   font-size: var(--font-size-body-md);
@@ -127,13 +121,6 @@
 }
 
 /* circle / square — height = width. capsule .size-* 의 height (control-h-*) 와 동일하게 매핑 */
-.shape-circle.size-2xs,
-.shape-square.size-2xs {
-  width: var(--control-height-2xs);
-  height: var(--control-height-2xs);
-  min-width: var(--control-height-2xs);
-}
-
 .shape-circle.size-xs,
 .shape-square.size-xs {
   width: var(--control-height-xs);
@@ -164,9 +151,9 @@
 
 .shape-circle.size-xl,
 .shape-square.size-xl {
-  width: 40px;
-  height: 40px;
-  min-width: 40px;
+  width: var(--control-height-xl);
+  height: var(--control-height-xl);
+  min-width: var(--control-height-xl);
 }
 
 /* ---------------------------------------------------------------------------

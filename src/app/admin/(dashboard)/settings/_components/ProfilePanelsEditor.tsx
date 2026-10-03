@@ -130,7 +130,7 @@ export default function ProfilePanelsEditor({
           </span>
           <Button
             variant="outline"
-            size="2xs"
+            size="xs"
             icon={<Plus size={12} strokeWidth={2} />}
             disabled={bunny.stories.length >= MAX_STORIES}
             title={
@@ -208,7 +208,7 @@ export default function ProfilePanelsEditor({
                   </span>
                   <Button
                     variant="outline"
-                    size="2xs"
+                    size="xs"
                     icon={<Plus size={12} strokeWidth={2} />}
                     onClick={() =>
                       setBlocks(

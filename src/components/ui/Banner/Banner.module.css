@@ -92,8 +92,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: var(--control-height-2xl);
-  height: var(--control-height-2xl);
+  width: var(--float-button-size-md);
+  height: var(--float-button-size-md);
   border: var(--border-white);
   border-radius: var(--radius-circle);
   background: var(--bg-glass);

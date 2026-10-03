@@ -33,7 +33,7 @@
 }
 
 .posInput {
-  width: var(--control-height-2xl);
+  width: var(--size-48);
   /* 맨앞/맨뒤 button group(.jumps) 과 같은 높이 — 컴팩트 (--size-20 = 20px) */
   height: var(--size-20);
   box-sizing: border-box;
@@ -232,8 +232,8 @@
 
 /* Pagination 의 button 클래스가 hashed 라 attribute selector 로 매칭. width/height 만 override */
 .pagination [class*="pageBtn"] {
-  width: var(--control-height-2xs);
-  height: var(--control-height-2xs);
+  width: var(--control-height-xs);
+  height: var(--control-height-xs);
   font: var(--font-body-xs);
 }
 
