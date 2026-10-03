@@ -130,7 +130,7 @@
   overflow: hidden;
   overscroll-behavior: contain;
   scrollbar-width: none;
-  border-right: 1px solid transparent;
+  border-right: var(--border-width-1) solid transparent;
   scroll-behavior: smooth;
   /* 위아래 페이드 마스크 — 룰렛 가장자리 */
   -webkit-mask-image: linear-gradient(to bottom, transparent, #000 30%, #000 70%, transparent);
@@ -228,7 +228,7 @@
 .codeLangIconPlain {
   background: var(--bg-tertiary);
   color: var(--text-secondary);
-  border: 1px solid var(--border-color-light);
+  border: var(--border-light);
 }
 
 .codeLangName {

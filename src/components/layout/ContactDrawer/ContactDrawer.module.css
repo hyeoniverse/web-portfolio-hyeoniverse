@@ -556,7 +556,7 @@
   flex-shrink: 0;
   margin-bottom: var(--_gap-lg);
   padding: var(--_padding);
-  border: 1px dashed var(--text-tertiary);
+  border: var(--border-width-1) dashed var(--text-tertiary);
   font-family: var(--font-family-code);
   font-size: var(--_font-size-sm);
   color: var(--text-tertiary);
@@ -768,7 +768,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1.25px solid var(--text-black);
+  border: var(--border-width-1) solid var(--text-black);
   width: var(--_size-social-btn);
   height: var(--_size-social-btn);
   background: var(--text-black);

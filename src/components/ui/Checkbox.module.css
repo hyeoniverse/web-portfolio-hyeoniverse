@@ -22,7 +22,7 @@
   flex-shrink: 0;
   width: 16px;
   height: 16px;
-  border: 1.5px solid var(--border-color-default);
+  border: var(--border-width-2) solid var(--border-color-default);
   background: transparent;
 }
 

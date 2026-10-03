@@ -48,7 +48,8 @@
 }
 
 .badgeMark[data-stale] {
-  box-shadow: 0 0 0 2px var(--text-accent);
+  outline: var(--border-width-2) solid var(--text-accent);
+  outline-offset: 0;
   background: color-mix(in oklch, var(--bg-black) 60%, transparent);
 }
 
@@ -479,7 +480,7 @@
   gap: var(--spacing-8);
   margin-top: var(--spacing-4);
   padding: var(--spacing-12) var(--spacing-16) var(--spacing-4);
-  border-top: 1px solid var(--border-color-light);
+  border-top: var(--border-light);
   color: var(--text-tertiary);
 }
 

@@ -46,10 +46,12 @@
 }
 
 .root .thumb:hover {
-  box-shadow: 0 0 0 4px color-mix(in oklch, var(--text-contrast) 10%, transparent);
+  outline: var(--border-width-4) solid color-mix(in oklch, var(--text-contrast) 10%, transparent);
+  outline-offset: 0;
 }
 
 .root .thumb:focus-visible {
-  box-shadow: 0 0 0 4px color-mix(in oklch, var(--text-contrast) 20%, transparent);
+  outline: var(--border-width-4) solid color-mix(in oklch, var(--text-contrast) 20%, transparent);
+  outline-offset: 0;
 }
 }

@@ -53,6 +53,6 @@
 .divider {
   height: 0;
   margin: var(--spacing-4) var(--spacing-12);
-  border-top: 1px solid var(--border-color-light);
+  border-top: var(--border-light);
 }
 }

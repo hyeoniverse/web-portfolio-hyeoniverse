@@ -24,7 +24,7 @@
   flex-direction: column;
   gap: var(--spacing-12);
   padding: var(--row-padding-md);
-  border: 1px solid transparent;
+  border: var(--border-width-1) solid transparent;
   border-radius: var(--radius-surface);
 }
 
@@ -81,7 +81,8 @@
   height: 40px;
   border-radius: var(--radius-full);
   background: var(--bg-tertiary);
-  box-shadow: 0 0 0 1px var(--border-color-light);
+  outline: var(--border-width-1) solid var(--border-color-light);
+  outline-offset: 0;
 }
 
 /* 표지가 없는 원에 들어가는 머리글자 — 언어 색 위에서 읽히는 색은 부르는 쪽이 정해 준다 */
@@ -223,7 +224,7 @@
   width: 96px;
   height: 96px;
   overflow: hidden;
-  border: 1px dashed var(--border-color-default);
+  border: var(--border-width-1) dashed var(--border-color-default);
   border-radius: var(--radius-full);
   background: var(--bg-tertiary);
 }

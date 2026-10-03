@@ -12,7 +12,7 @@
 /* sub-section 시각적 중첩 — section h2 아래 h3 그룹을 들여쓰기 + 좌측 라인 */
 .subSection {
   padding-left: var(--spacing-16);
-  border-left: 2px solid var(--border-color-light);
+  border-left: var(--border-light-2);
   margin-bottom: var(--spacing-24);
 }
 

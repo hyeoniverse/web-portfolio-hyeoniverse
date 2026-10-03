@@ -32,7 +32,7 @@
   justify-content: center;
   width: 168px;
   height: 52px;
-  border: 1.6px solid var(--text-primary);
+  border: var(--border-width-1) solid var(--text-primary);
   border-radius: var(--radius-mark);
   background: var(--bg-primary);
   box-shadow: var(--shadow-sm);
@@ -59,7 +59,7 @@
   width: 116px;
   height: 46px;
   padding: 0 var(--spacing-8);
-  border: 1px solid var(--border-color-strong);
+  border: var(--border-strong);
   /* Chen 표기의 속성은 타원 — 캡슐(알약)이 아니라 진짜 ellipse */
   border-radius: var(--radius-control);
   background: var(--bg-primary);
@@ -78,7 +78,7 @@
 .attrMulti .attrInner {
   position: absolute;
   inset: 4px;
-  border: 1px solid var(--border-color-strong);
+  border: var(--border-strong);
   border-radius: var(--radius-control);
 }
 
@@ -108,7 +108,7 @@
   position: absolute;
   inset: 0;
   background: var(--bg-accent-subtle);
-  border: 1.4px solid var(--border-color-accent-strong);
+  border: var(--border-width-1) solid var(--border-color-accent-strong);
   /* 마름모 = 네 꼭짓점 */
   clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
 }

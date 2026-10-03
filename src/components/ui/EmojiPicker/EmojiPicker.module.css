@@ -5,7 +5,7 @@
 .picker {
   width: 340px;
   background: var(--bg-primary);
-  border: 1px solid var(--border-color-light);
+  border: var(--border-light);
   border-radius: var(--radius-surface);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   display: flex;
@@ -26,7 +26,7 @@
 .tabHeader {
   display: flex;
   align-items: center;
-  border-bottom: 1px solid var(--border-color-light);
+  border-bottom: var(--border-light);
   padding: 0 var(--spacing-12);
   flex-shrink: 0;
   position: relative;
@@ -39,7 +39,7 @@
   color: var(--text-muted);
   font: var(--font-body-sm);
   font-weight: 500;
-  border-bottom: 2px solid transparent;
+  border-bottom: var(--border-width-2) solid transparent;
   margin-bottom: -1px;
   transition: color 0.15s;
 }
@@ -81,7 +81,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-8);
-  border: 1px solid var(--border-color-light);
+  border: var(--border-light);
   border-radius: var(--radius-control);
   padding: var(--spacing-4) var(--spacing-12);
 }
@@ -107,7 +107,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--border-color-light);
+  border: var(--border-light);
   border-radius: var(--radius-full);
   background: transparent;
   cursor: pointer;
@@ -168,7 +168,7 @@
   align-items: center;
   justify-content: center;
   padding: 0;
-  border: 1.5px solid var(--bg-primary);
+  border: var(--border-width-2) solid var(--bg-primary);
   border-radius: var(--radius-full);
   background: var(--bg-error-solid);
   color: var(--text-white);
@@ -187,14 +187,14 @@
   justify-content: center;
   gap: var(--spacing-2);
   padding: var(--spacing-4) var(--spacing-12);
-  border-top: 1px solid var(--border-color-light);
+  border-top: var(--border-light);
   flex-shrink: 0;
 }
 .catBarScroll {
   display: flex;
   align-items: center;
   padding: 0 var(--spacing-8);
-  border-top: 1px solid var(--border-color-light);
+  border-top: var(--border-light);
   flex-shrink: 0;
 }
 .catScrollInner {
@@ -254,7 +254,7 @@
 .dropzone {
   width: 100%;
   padding: var(--spacing-32) var(--spacing-16);
-  border: 1.5px dashed var(--border-color-light);
+  border: var(--border-width-2) dashed var(--border-color-light);
   border-radius: var(--radius-surface);
   background: var(--bg-tertiary);
   cursor: pointer;

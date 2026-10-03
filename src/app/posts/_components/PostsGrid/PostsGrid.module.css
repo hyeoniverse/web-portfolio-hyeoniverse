@@ -335,7 +335,8 @@
   height: 11px;
   border-radius: var(--radius-full);
   background: var(--bg-primary);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--text-primary) 42%, transparent);
+  outline: var(--border-width-2) solid color-mix(in srgb, var(--text-primary) 42%, transparent);
+  outline-offset: 0;
   z-index: 3;
   transition:
     background var(--duration-fast) var(--ease-material),
@@ -357,7 +358,8 @@
 /* hover — dot accent */
 .gridTimeline .gridItem:hover::before {
   background: var(--bg-accent-solid);
-  box-shadow: 0 0 0 2px var(--border-color-accent-strong), 0 0 0 6px color-mix(in srgb, var(--border-color-accent-strong) 18%, transparent);
+  outline: var(--border-width-4) solid color-mix(in srgb, var(--border-color-accent-strong) 18%, transparent);
+  outline-offset: var(--border-width-2);
 }
 
 /* 모바일 — 단일 컬럼(축 왼쪽)으로 collapse */

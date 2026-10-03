@@ -180,7 +180,7 @@
   width: 18px;
   height: 18px;
   margin: -9px 0 0 -9px;
-  border: 2px solid var(--border-color-white);
+  border: var(--border-width-2) solid var(--border-color-white);
   border-radius: var(--radius-full);
   box-shadow: var(--shadow-sm);
   pointer-events: none;
@@ -190,7 +190,7 @@
   width: 24px;
   height: 24px;
   margin: -12px 0 0 -12px;
-  border-width: 3px;
+  border-width: var(--border-width-3);
 }
 
 .resetBtn {

@@ -272,7 +272,7 @@
   gap: var(--spacing-12);
   min-height: 96px;
   padding: var(--spacing-16) var(--spacing-20);
-  border: 1px solid var(--border-color-strong);
+  border: var(--border-strong);
   border-radius: var(--radius-surface);
   background: var(--bg-secondary);
   color: var(--text-secondary);
@@ -385,12 +385,12 @@
   min-height: 104px;
   overflow: hidden;
 }
-.week + .week { border-top: 1px solid var(--border-color-light); }
+.week + .week { border-top: var(--border-light); }
 .cell {
   min-height: 104px;
   padding: var(--spacing-2);
   background: var(--bg-primary);
-  border-right: 1px solid var(--border-color-light);
+  border-right: var(--border-light);
   min-width: 0;
   overflow: hidden;
 }
@@ -432,13 +432,13 @@
 /* 사이드바 focus → 이벤트 chip 펄스 강조 (타임라인 tlBarHighlight 와 동일 컨셉, tint 아님) */
 .chipHi { animation: monthChipHl 1.5s ease-in-out infinite; z-index: 5; }
 @keyframes monthChipHl {
-  0%, 100% { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--_chip) 32%, transparent), 0 0 0 0 color-mix(in srgb, var(--_chip) 0%, transparent); }
-  50% { box-shadow: inset 0 0 0 2px var(--_chip), 0 0 0 4px color-mix(in srgb, var(--_chip) 45%, transparent); }
+  0%, 100% { outline: var(--border-width-1) solid color-mix(in srgb, var(--_chip) 32%, transparent); outline-offset: calc(-1 * var(--border-width-1)); }
+  50% { outline: var(--border-width-2) solid color-mix(in srgb, var(--_chip) 45%, transparent); outline-offset: var(--border-width-2); }
 }
 /* 드래그 중 드롭 대상 셀 — 옅은 accent + inset 링 */
 .cellDrop {
   background: color-mix(in srgb, var(--bg-accent-solid) 12%, var(--bg-primary));
-  box-shadow: inset 0 0 0 2px var(--border-color-accent-strong);
+  border: var(--border-width-2) solid var(--border-color-accent-strong);
 }
 
 .dayNum {
@@ -480,8 +480,8 @@
 /* 기간 이벤트가 여러 줄로 나뉜 경우 한 세그먼트 hover 시 이어진 모든 세그먼트에 동일 효과 */
 .chipHover { background: color-mix(in srgb, var(--_chip) 28%, var(--bg-primary)); }
 /* hover 한 이벤트의 연결 체인 강조 (월/주/일 공통) — accent 링 + 부드러운 글로우 */
-.chipChainHi { box-shadow: 0 0 0 1.5px var(--border-color-accent-strong), 0 2px 10px color-mix(in srgb, var(--border-color-accent-strong) 26%, transparent); z-index: 3; }
-.agendaChainHi { box-shadow: 0 0 0 1.5px var(--border-color-accent-strong), 0 2px 10px color-mix(in srgb, var(--border-color-accent-strong) 26%, transparent); z-index: 3; }
+.chipChainHi { outline: var(--border-width-2) solid var(--border-color-accent-strong); outline-offset: 0; box-shadow: 0 2px 10px color-mix(in srgb, var(--border-color-accent-strong) 26%, transparent); z-index: 3; }
+.agendaChainHi { outline: var(--border-width-2) solid var(--border-color-accent-strong); outline-offset: 0; box-shadow: 0 2px 10px color-mix(in srgb, var(--border-color-accent-strong) 26%, transparent); z-index: 3; }
 .chip[draggable="true"] { cursor: grab; }
 .chip[draggable="true"]:active { cursor: grabbing; }
 .chipDone .chipLabel { text-decoration: line-through; opacity: 0.6; }
@@ -694,12 +694,12 @@
 .dayPanelEmptyText { font: var(--font-body-sm); line-height: 1.5; color: var(--text-tertiary); }
 /* 헤더 — 색 점 + 제목 한 줄 (dot 과 제목 사이 넉넉히) */
 .dayPanelHead { display: flex; align-items: center; gap: var(--spacing-12); }
-.dayPanelDot { flex-shrink: 0; width: 11px; height: 11px; border-radius: var(--radius-full); background: var(--_c); box-shadow: 0 0 0 3px color-mix(in srgb, var(--_c) 20%, transparent); }
+.dayPanelDot { flex-shrink: 0; width: 11px; height: 11px; border-radius: var(--radius-full); background: var(--_c); outline: var(--border-width-3) solid color-mix(in srgb, var(--_c) 20%, transparent); outline-offset: 0; }
 .dayPanelTitle {
   flex: 1; min-width: 0; border: none; background: transparent;
   padding: 0;
   font: var(--font-heading-sm); line-height: 1.2; letter-spacing: -0.01em; color: var(--text-primary);
-  border-bottom: 1px solid transparent;
+  border-bottom: var(--border-width-1) solid transparent;
   transition: border-color 0.15s ease;
 }
 .dayPanelTitle::placeholder { color: var(--text-muted); font-weight: 500; }
@@ -730,7 +730,7 @@
 .scopeDialogText { font: var(--font-body-md); line-height: 1.5; color: var(--text-secondary); }
 .scopeDialogFooter { display: flex; justify-content: flex-end; gap: var(--spacing-4); margin-top: var(--spacing-4); }
 /* 선택된 일 이벤트 강조 */
-.dayEventSelected { box-shadow: 0 0 0 2px var(--border-color-accent-strong), var(--shadow-md); z-index: 4; }
+.dayEventSelected { outline: var(--border-width-2) solid var(--border-color-accent-strong); outline-offset: 0; box-shadow: var(--shadow-md); z-index: 4; }
 /* 경계 당김 인디케이터 — 시간축 끝에서 계속 스크롤할 때만 나타나고, 다 차오르면(--_p=1) 넘어감 */
 .pullHint {
   position: absolute; left: 0; right: 0; z-index: 4;
@@ -780,7 +780,7 @@
   height: 100%;
 }
 /* 박스 대신 컬럼 사이 얇은 구분선만 (바깥 컨테이너 테두리와 겹치지 않음) */
-.agendaCol + .agendaCol { border-left: 1px solid var(--border-color-light); }
+.agendaCol + .agendaCol { border-left: var(--border-light); }
 
 /* 오늘 — 컬럼 배경 틴트 없이 요일/날짜 accent 텍스트로만 강조 */
 /* 헤더 — 숫자(왼쪽) + 요일(가운데). 클릭 → 상세 모달 */
@@ -953,7 +953,7 @@
   left: var(--_axis);
   right: 0;
   height: 0;
-  border-top: 1px solid var(--border-color-light);
+  border-top: var(--border-light);
 }
 .dayHourLabel {
   position: absolute;
@@ -1045,7 +1045,7 @@
   z-index: 4;
   border-radius: var(--radius-surface);
   background: color-mix(in srgb, var(--bg-accent-solid) 16%, var(--bg-primary));
-  border: 1px dashed var(--border-color-accent-strong);
+  border: var(--border-width-1) dashed var(--border-color-accent-strong);
   pointer-events: none;
 }
 
@@ -1131,7 +1131,7 @@
   /* 툴팁 글자색(text-inverse) 기반 — 전역 kbd{color:text-primary} 를 덮어써 툴팁(inverse 배경)에서 보이게 */
   color: var(--text-inverse);
   background: color-mix(in srgb, var(--text-inverse) 16%, transparent);
-  border: 1px solid color-mix(in srgb, var(--text-inverse) 30%, transparent);
+  border: var(--border-width-1) solid color-mix(in srgb, var(--text-inverse) 30%, transparent);
   font-family: var(--font-family-body);
   font-size: 0.9em;
   text-align: center;
@@ -1172,7 +1172,8 @@
 .relNavChip { cursor: pointer; transition: background-color 0.12s ease, transform 0.12s ease, box-shadow 0.12s ease; }
 .relNavChip:hover {
   background: color-mix(in srgb, var(--bg-accent-solid) 14%, var(--bg-secondary));
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--border-color-accent-strong) 45%, transparent);
+  outline: var(--border-width-1) solid color-mix(in srgb, var(--border-color-accent-strong) 45%, transparent);
+  outline-offset: calc(-1 * var(--border-width-1));
   color: var(--text-accent);
   transform: translateY(-1px);
 }
@@ -1292,7 +1293,8 @@
 /* 선택 시 — 배경 유지, accent 외곽선 굵게(inset, 외부 glow 없음) */
 .labelChipOn {
   border-color: var(--border-color-accent-strong);
-  box-shadow: inset 0 0 0 1px var(--border-color-accent-strong);
+  outline: var(--border-width-1) solid var(--border-color-accent-strong);
+  outline-offset: calc(-1 * var(--border-width-1));
   color: var(--text-primary);
 }
 .labelChipSelect {
@@ -1332,7 +1334,7 @@
   gap: var(--spacing-2);
   height: var(--control-height-sm);
   padding: 0 var(--spacing-16);
-  border: 1px dashed var(--border-color-strong);
+  border: var(--border-width-1) dashed var(--border-color-strong);
   border-radius: var(--radius-control);
   background: transparent;
   color: var(--text-secondary);
@@ -1394,7 +1396,7 @@
   width: 22px;
   height: 22px;
   border-radius: var(--radius-full);
-  border: 2px solid transparent;
+  border: var(--border-width-2) solid transparent;
   background: var(--_sw);
   cursor: pointer;
   transition: transform 0.12s ease;
@@ -1402,7 +1404,8 @@
 .swatch:hover { transform: scale(1.12); }
 .swatchOn {
   border-color: var(--bg-primary);
-  box-shadow: 0 0 0 2px var(--_sw);
+  outline: var(--border-width-2) solid var(--_sw);
+  outline-offset: 0;
 }
 /* 커스텀 색 추가 — 점선 원 + 가운데 + */
 .swatchAdd {
@@ -1413,7 +1416,7 @@
   width: 22px;
   height: 22px;
   border-radius: var(--radius-full);
-  border: 1px dashed var(--border-color-light);
+  border: var(--border-width-1) dashed var(--border-color-light);
   background: transparent;
   color: var(--text-tertiary);
   cursor: pointer;
@@ -1569,7 +1572,7 @@
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-control);
-  border: 1.5px dashed var(--border-color-strong);
+  border: var(--border-width-2) dashed var(--border-color-strong);
   background: var(--bg-secondary);
   color: var(--text-tertiary);
   pointer-events: none;
@@ -1614,7 +1617,8 @@
   border-radius: var(--radius-control);
   /* 배경은 bg-primary 로 통일, 색상은 왼쪽 스트라이프에만 */
   background: var(--bg-primary);
-  box-shadow: inset 0 0 0 1px var(--border-color-light);
+  outline: var(--border-width-1) solid var(--border-color-light);
+  outline-offset: calc(-1 * var(--border-width-1));
   color: var(--text-primary);
   cursor: pointer;
   /* 공간 부족하면 제목을 바 밖으로 넘쳐 표시(clip 안 함) */
@@ -1623,7 +1627,8 @@
 }
 .tlBar:hover {
   background: var(--bg-secondary);
-  box-shadow: inset 0 0 0 1px var(--border-color-strong);
+  outline: var(--border-width-1) solid var(--border-color-strong);
+  outline-offset: calc(-1 * var(--border-width-1));
 }
 /* 양끝 리사이즈 핸들 — 시작/종료일(기간) 조절 */
 .tlBarHandle {
@@ -1659,7 +1664,7 @@
   stroke-linecap: round;
 }
 .tlBar:hover .tlBarGrip { opacity: 1; }
-.tlBarResizing { box-shadow: inset 0 0 0 2px var(--_c); }
+.tlBarResizing { border: var(--border-width-2) solid var(--_c); }
 .tlBarDraggable { cursor: grab; }
 /* 이동 중 원본 바 — 제자리에서 흐리게(출발점 표시) */
 .tlBarMoveSrc { opacity: 0.32; cursor: grabbing; }
@@ -1672,7 +1677,7 @@
   gap: var(--spacing-4);
   padding: 0 var(--spacing-8);
   border-radius: var(--radius-control);
-  border: 1.5px dashed var(--_c);
+  border: var(--border-width-2) dashed var(--_c);
   background: color-mix(in srgb, var(--_c) 22%, transparent);
   pointer-events: none;
   overflow: hidden;
@@ -1733,7 +1738,9 @@
 .tlDepPathHi { stroke: var(--text-accent); stroke-width: 1.6; }
 /* 선 클릭으로 강조된 선행·후속 바 — 얇은 accent 링 + 부드러운 accent 글로우 */
 .tlBarLinkHi {
-  box-shadow: 0 0 0 1.5px var(--border-color-accent-strong), 0 4px 16px color-mix(in srgb, var(--border-color-accent-strong) 26%, transparent);
+  outline: var(--border-width-2) solid var(--border-color-accent-strong);
+  outline-offset: 0;
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--border-color-accent-strong) 26%, transparent);
   z-index: 4;
 }
 .tlDepTemp {
@@ -1751,7 +1758,7 @@
   height: 11px;
   border-radius: var(--radius-full);
   background: var(--bg-primary);
-  border: 2px solid var(--_c);
+  border: var(--border-width-2) solid var(--_c);
   cursor: crosshair;
   opacity: 0;
   z-index: 4;
@@ -1801,7 +1808,7 @@
 .tlBarPortConn:hover { transform: translateY(-50%) scale(1.55); } /* 색은 .tlBarPort:hover 의 포트색(--_c) 사용 */
 .tlBarPortConn:hover .tlBarPortX { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); }
 /* 링크 드래그 중 놓을 수 있는 대상 바 강조 */
-.tlBarLinkTarget { box-shadow: inset 0 0 0 2px var(--border-color-accent-strong); }
+.tlBarLinkTarget { border: var(--border-width-2) solid var(--border-color-accent-strong); }
 .tlBarDone { opacity: 0.65; }
 .tlBarDone .tlBarTitle { text-decoration: line-through; }
 /* 간트 바 — 제목 앞 라벨색 dot(왼쪽 라인 대체) */
@@ -1842,13 +1849,13 @@
 /* 이동 대상 이벤트 강조 — 다음 인터랙션 전까지 반복 펄스 */
 .tlBarHighlight { animation: tlHl 1.5s ease-in-out infinite; z-index: 3; }
 @keyframes tlHl {
-  0%, 100% { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--_c) 32%, transparent), 0 0 0 0 color-mix(in srgb, var(--_c) 0%, transparent); }
-  50% { box-shadow: inset 0 0 0 2px var(--_c), 0 0 0 5px color-mix(in srgb, var(--_c) 45%, transparent); }
+  0%, 100% { outline: var(--border-width-1) solid color-mix(in srgb, var(--_c) 32%, transparent); outline-offset: calc(-1 * var(--border-width-1)); }
+  50% { outline: var(--border-width-3) solid color-mix(in srgb, var(--_c) 45%, transparent); outline-offset: var(--border-width-2); }
 }
 /* 이동 대상 날짜 강조 — 반복 펄스 */
 .tlDayHi .tlDayNum { animation: tlDayHl 1.5s ease-in-out infinite; }
 @keyframes tlDayHl {
-  0%, 100% { background: transparent; box-shadow: 0 0 0 0 color-mix(in srgb, var(--border-color-accent-strong) 0%, transparent); color: var(--text-secondary); }
-  50% { background: color-mix(in srgb, var(--bg-accent-solid) 22%, var(--bg-primary)); box-shadow: 0 0 0 4px color-mix(in srgb, var(--border-color-accent-strong) 35%, transparent); color: var(--text-primary); }
+  0%, 100% { background: transparent; outline: 0 solid color-mix(in srgb, var(--border-color-accent-strong) 0%, transparent); outline-offset: 0; color: var(--text-secondary); }
+  50% { background: color-mix(in srgb, var(--bg-accent-solid) 22%, var(--bg-primary)); outline: var(--border-width-4) solid color-mix(in srgb, var(--border-color-accent-strong) 35%, transparent); outline-offset: 0; color: var(--text-primary); }
 }
 /* 제목 왼쪽 라벨색 dot */

@@ -111,9 +111,10 @@
   height: 12px;
   border-radius: var(--radius-full);
   background: var(--bg-accent-solid);
-  border: 2px solid var(--bg-primary);
+  border: var(--border-width-2) solid var(--bg-primary);
   transform: translate(-50%, -50%);
-  box-shadow: 0 0 0 1px var(--border-color-accent);
+  outline: var(--border-width-1) solid var(--border-color-accent);
+  outline-offset: 0;
   animation: rangeMarker 0.6s cubic-bezier(0.4, 0, 0.2, 1) 280ms both;
 }
 

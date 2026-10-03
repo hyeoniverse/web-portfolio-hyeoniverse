@@ -367,8 +367,8 @@
 .magQuote {
   margin: 0 0 var(--spacing-40);
   padding: var(--spacing-24) 0;
-  border-top: 1px solid var(--border-default);
-  border-bottom: 1px solid var(--border-default);
+  border-top: var(--border-width-1) solid var(--border-default);
+  border-bottom: var(--border-width-1) solid var(--border-default);
   font-family: var(--font-family-heading);
   font-size: clamp(1.25rem, 1.064rem + 0.76vw, 1.75rem);
   font-style: italic;
@@ -383,7 +383,7 @@
   grid-template-columns: var(--grid-columns-2);
   gap: var(--spacing-32);
   padding-top: var(--spacing-24);
-  border-top: 1px solid var(--border-default);
+  border-top: var(--border-width-1) solid var(--border-default);
 }
 
 .magAbout {
@@ -454,7 +454,7 @@
   gap: var(--spacing-48);
   margin-top: var(--spacing-32);
   padding-top: var(--spacing-32);
-  border-top: 1px solid var(--border-default);
+  border-top: var(--border-width-1) solid var(--border-default);
 }
 
 .stat {
@@ -674,11 +674,11 @@
 
 .skillPanelItem {
   padding: var(--spacing-24) 0;
-  border-bottom: 1px solid var(--border-default);
+  border-bottom: var(--border-width-1) solid var(--border-default);
 }
 
 .skillPanelItem:first-child {
-  border-top: 1px solid var(--border-default);
+  border-top: var(--border-width-1) solid var(--border-default);
 }
 
 .skillPanelItemName {
@@ -708,12 +708,12 @@
   gap: var(--spacing-48);
   align-items: baseline;
   padding: clamp(1.5rem, 3vh, 2.5rem) 0;
-  border-bottom: 1px solid var(--border-default);
+  border-bottom: var(--border-width-1) solid var(--border-default);
   grid-template-columns: 1fr 1.4fr;
 }
 
 .philosophyRow:first-child {
-  border-top: 1px solid var(--border-default);
+  border-top: var(--border-width-1) solid var(--border-default);
 }
 
 .philosophyLeft {
@@ -761,12 +761,12 @@
   gap: var(--spacing-48);
   align-items: baseline;
   padding: clamp(1.5rem, 3vh, 2.5rem) 0;
-  border-bottom: 1px solid var(--border-default);
+  border-bottom: var(--border-width-1) solid var(--border-default);
   grid-template-columns: 1fr 1.4fr;
 }
 
 .approachRow:first-child {
-  border-top: 1px solid var(--border-default);
+  border-top: var(--border-width-1) solid var(--border-default);
 }
 
 .approachLeft {
@@ -832,11 +832,11 @@
   gap: var(--spacing-24);
   align-items: flex-start;
   padding: var(--spacing-20) 0;
-  border-bottom: 1px solid var(--border-default);
+  border-bottom: var(--border-width-1) solid var(--border-default);
 }
 
 .credentialItem:first-child {
-  border-top: 1px solid var(--border-default);
+  border-top: var(--border-width-1) solid var(--border-default);
 }
 
 .credentialYear {

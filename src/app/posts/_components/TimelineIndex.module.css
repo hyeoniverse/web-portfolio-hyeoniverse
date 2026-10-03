@@ -106,7 +106,8 @@
   border-radius: var(--radius-full);
   background: var(--bg-accent-solid);
   transform: translate(-50%, -50%);
-  box-shadow: 0 0 0 3px color-mix(in oklch, var(--border-color-accent-strong) 20%, transparent);
+  outline: var(--border-width-3) solid color-mix(in oklch, var(--border-color-accent-strong) 20%, transparent);
+  outline-offset: 0;
 }
 
 .timelineIndexMm {

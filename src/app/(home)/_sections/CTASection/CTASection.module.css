@@ -171,7 +171,7 @@
   content: "";
   position: absolute;
   inset: 0;
-  border: 1px solid var(--text-white);
+  border: var(--border-width-1) solid var(--text-white);
   border-radius: inherit;
   mix-blend-mode: difference;
   pointer-events: none;

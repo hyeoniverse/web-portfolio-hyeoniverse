@@ -76,7 +76,8 @@
 
 .logoColorPresetBtnActive.logoColorPresetBtnActive {
   border-color: var(--text-accent);
-  box-shadow: 0 0 0 1px var(--border-color-accent-strong);
+  outline: var(--border-width-1) solid var(--border-color-accent-strong);
+  outline-offset: 0;
 }
 
 .logoColorPresetHalf {
@@ -98,7 +99,7 @@
   width: 16px;
   height: 16px;
   padding: 0;
-  border: 1px solid var(--border-color-strong);
+  border: var(--border-strong);
   border-radius: var(--radius-full);
   background: var(--bg-primary);
   color: var(--text-tertiary);
@@ -395,7 +396,7 @@
   padding: var(--spacing-8) 0;
   margin-bottom: -1px;
   border: none;
-  border-bottom: 2px solid transparent;
+  border-bottom: var(--border-width-2) solid transparent;
   background: transparent;
   font: var(--font-body-md);
   font-weight: 500;
@@ -716,8 +717,9 @@
   height: 16px;
   border-radius: var(--radius-full);
   background: var(--bg-accent-solid);
-  border: 3px solid var(--bg-secondary);
-  box-shadow: 0 0 0 4px color-mix(in oklch, var(--text-accent) 20%, transparent);
+  border: var(--border-width-3) solid var(--bg-secondary);
+  outline: var(--border-width-4) solid color-mix(in oklch, var(--text-accent) 20%, transparent);
+  outline-offset: 0;
   transform: translate(-50%, -50%);
   cursor: grab;
 }

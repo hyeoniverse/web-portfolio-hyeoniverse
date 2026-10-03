@@ -14,7 +14,7 @@
   color: var(--text-tertiary);
   background: none;
   border: none;
-  border-bottom: 2px solid transparent;
+  border-bottom: var(--border-width-2) solid transparent;
   cursor: pointer;
   transition: color 0.15s ease, border-color 0.15s ease;
 }

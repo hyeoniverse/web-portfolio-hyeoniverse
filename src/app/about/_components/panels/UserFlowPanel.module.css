@@ -44,7 +44,7 @@
   height: 40px;
   border-radius: var(--radius-full);
   background: var(--bg-accent-light);
-  border: 1.5px solid var(--border-color-accent-strong);
+  border: var(--border-width-2) solid var(--border-color-accent-strong);
   color: var(--text-accent);
   flex-shrink: 0;
 }

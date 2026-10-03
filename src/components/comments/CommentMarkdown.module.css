@@ -161,7 +161,7 @@
   margin-left: calc(-1em - var(--spacing-4));
   margin-right: var(--spacing-4);
   vertical-align: -0.1em;
-  border: 1.5px solid var(--text-accent);
+  border: var(--border-width-2) solid var(--text-accent);
   /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 체크리스트 체크박스 — 네모가 곧 의미 */
   border-radius: var(--radius-mark);
   background: transparent;
@@ -231,7 +231,7 @@
   /* 텍스트 시작점을 리스트(padding-left xl)와 정렬 — bar+padding(md) 만큼 빼서 들여쓴다 */
   margin-left: calc(var(--spacing-24) - var(--spacing-16));
   padding-left: var(--spacing-16);
-  border-left: 2px solid var(--border-color-accent-strong);
+  border-left: var(--border-width-2) solid var(--border-color-accent-strong);
   color: var(--text-secondary);
 }
 
@@ -303,7 +303,7 @@
 .commentMarkdown .markdown-alert {
   margin: var(--spacing-8) 0;
   padding: var(--spacing-8) var(--spacing-12);
-  border-left: 3px solid var(--_alert-color);
+  border-left: var(--border-width-3) solid var(--_alert-color);
   border-radius: var(--radius-surface);
   background: color-mix(in srgb, var(--_alert-color) 10%, transparent);
   color: var(--text-secondary);

@@ -250,7 +250,7 @@
   gap: var(--spacing-4);
   height: var(--control-height-lg);
   padding: 0 var(--control-padding-inline-lg);
-  border: 1px solid var(--border-color-light);
+  border: var(--border-light);
   border-radius: var(--radius-control);
   background: transparent;
   color: var(--text-secondary);
@@ -297,7 +297,7 @@
   background: var(--bg-secondary);
 }
 .nodeSel > .nodeLabel {
-  box-shadow: inset 0 0 0 1px var(--border-color-accent-strong);
+  border: var(--border-width-1) solid var(--border-color-accent-strong);
 }
 /* 폴더/파일 아이콘 — 폴더는 accent, 파일은 tertiary, 빈 노드는 흐리게 */
 .nodeIcon {
@@ -387,7 +387,7 @@
   gap: var(--spacing-4);
   margin-left: var(--spacing-12);
   padding-left: var(--spacing-16);
-  border-left: 1px solid var(--border-color-light);
+  border-left: var(--border-light);
 }
 /* master-detail — 기본은 트리만(단일 열). 노드 선택 시에만 우측 편집 패널이 펼쳐짐(고정 빈 필드 없음). */
 .treeLayout {
@@ -409,7 +409,7 @@
   flex-direction: column;
   gap: var(--spacing-12);
   padding: var(--spacing-4) 0 var(--spacing-8) var(--spacing-16);
-  border-left: 2px solid var(--border-color-accent-strong);
+  border-left: var(--border-width-2) solid var(--border-color-accent-strong);
 }
 .editPaneHead {
   display: flex;

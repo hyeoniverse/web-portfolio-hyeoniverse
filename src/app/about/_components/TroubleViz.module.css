@@ -40,7 +40,7 @@
   min-width: 120px;
   text-align: center;
   padding: var(--spacing-12) var(--spacing-16);
-  border: 1px solid color-mix(in srgb, var(--text-secondary) 18%, transparent);
+  border: var(--border-width-1) solid color-mix(in srgb, var(--text-secondary) 18%, transparent);
   border-radius: var(--radius-surface);
 }
 
@@ -121,7 +121,7 @@
   flex: 0 0 auto;
   min-width: 160px;
   padding: var(--spacing-12) var(--spacing-16);
-  border: 1px solid var(--text-accent);
+  border: var(--border-width-1) solid var(--text-accent);
   border-radius: var(--radius-surface);
 }
 .hd {
@@ -136,7 +136,7 @@
   justify-content: space-between;
   gap: var(--spacing-16);
   padding: var(--spacing-4) var(--spacing-8);
-  border: 1px solid color-mix(in srgb, var(--text-secondary) 12%, transparent);
+  border: var(--border-width-1) solid color-mix(in srgb, var(--text-secondary) 12%, transparent);
   border-radius: var(--radius-control);
   font: var(--font-meta-xs);
   color: var(--text-secondary);
@@ -147,7 +147,7 @@
 .cmp {
   display: grid;
   grid-template-columns: 1fr auto auto;
-  border-top: 1px solid color-mix(in srgb, var(--text-secondary) 14%, transparent);
+  border-top: var(--border-width-1) solid color-mix(in srgb, var(--text-secondary) 14%, transparent);
 }
 .ch {
   padding: var(--cell-padding-md);
@@ -163,7 +163,7 @@
   padding: var(--cell-padding-md);
   font: var(--font-meta-md);
   color: var(--text-secondary);
-  border-top: 1px solid color-mix(in srgb, var(--text-secondary) 10%, transparent);
+  border-top: var(--border-width-1) solid color-mix(in srgb, var(--text-secondary) 10%, transparent);
 }
 .num { justify-content: flex-end; font-family: var(--font-family-code); font-variant-numeric: tabular-nums; color: var(--text-tertiary); }
 .win { background: var(--bg-success-soft); color: var(--text-success); font-weight: var(--font-weight-semibold); }
@@ -176,7 +176,7 @@
   flex-direction: column;
   gap: var(--spacing-4);
   padding: var(--spacing-8) 0 var(--spacing-8) var(--spacing-16);
-  border-left: 3px solid var(--text-accent);
+  border-left: var(--border-width-3) solid var(--text-accent);
 }
 .noteT { display: flex; align-items: center; gap: var(--spacing-8); font: var(--font-code-md); font-weight: var(--font-weight-semibold); color: var(--text-primary); }
 .noteP { font: var(--font-meta-md); line-height: 1.6; color: var(--text-secondary); }
@@ -189,7 +189,7 @@
   min-width: 140px;
   max-width: 280px;
   padding: var(--spacing-12) var(--spacing-16);
-  border: 1px solid color-mix(in srgb, var(--text-secondary) 18%, transparent);
+  border: var(--border-width-1) solid color-mix(in srgb, var(--text-secondary) 18%, transparent);
   border-radius: var(--radius-surface);
   font: var(--font-meta-md);
   color: var(--text-secondary);
@@ -220,7 +220,7 @@
   gap: var(--spacing-8);
   flex: 0 0 auto;
   padding: var(--spacing-8) var(--spacing-12);
-  border: 1px solid color-mix(in srgb, var(--text-secondary) 18%, transparent);
+  border: var(--border-width-1) solid color-mix(in srgb, var(--text-secondary) 18%, transparent);
   border-radius: var(--radius-surface);
   font: var(--font-meta-md);
   color: var(--text-secondary);
@@ -277,7 +277,7 @@
   height: 20px;
   border-radius: var(--radius-full);
   background: var(--bg-primary);
-  border: 1px solid color-mix(in srgb, var(--text-secondary) 24%, transparent);
+  border: var(--border-width-1) solid color-mix(in srgb, var(--text-secondary) 24%, transparent);
   font: var(--font-code-xs);
   font-weight: var(--font-weight-semibold);
   line-height: 1;
@@ -293,14 +293,14 @@
 .layerHd.cut { color: var(--text-error); }
 .layerHd.thru { color: var(--text-success); }
 .layerBox { display: flex; flex-direction: column; gap: var(--spacing-4); padding: var(--spacing-8); border-radius: var(--radius-surface); }
-.layerBox.cut { border: 1px dashed var(--border-color-error); }
-.layerBox.thru { border: 1px solid color-mix(in srgb, var(--border-color-success) 45%, transparent); }
+.layerBox.cut { border: var(--border-width-1) dashed var(--border-color-error); }
+.layerBox.thru { border: var(--border-width-1) solid color-mix(in srgb, var(--border-color-success) 45%, transparent); }
 .zrow {
   padding: var(--row-padding-md);
   text-align: center;
   font: var(--font-meta-xs);
   color: var(--text-secondary);
-  border: 1px solid color-mix(in srgb, var(--text-secondary) 16%, transparent);
+  border: var(--border-width-1) solid color-mix(in srgb, var(--text-secondary) 16%, transparent);
   border-radius: var(--radius-surface);
 }
 .zrow.canvas { background: var(--bg-tertiary); color: var(--text-primary); font-family: var(--font-family-code); }
