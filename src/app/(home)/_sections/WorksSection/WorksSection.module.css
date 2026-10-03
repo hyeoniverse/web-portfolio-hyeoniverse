@@ -43,7 +43,7 @@
 
 .titleText {
   font-family: var(--font-family-display);
-  font-size: clamp(2rem, 7vw, var(--fluid-font-size-6xl));
+  font-size: clamp(4.5rem, 0.25rem + 6.72vw, 8.25rem);
   font-weight: var(--font-weight-regular);
   line-height: 0.95;
   color: var(--text-accent-alt);
@@ -130,7 +130,7 @@
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
   font-family: var(--font-family-body);
-  font-size: clamp(var(--font-size-hint), 1.1vw, var(--font-size-body));
+  font-size: clamp(var(--font-size-hint), 0.704rem + 0.19vw, var(--font-size-body));
   font-weight: var(--font-weight-medium);
   line-height: var(--line-height-tight);
   /* 배경이 테마가 아니라 언어 색을 따르므로 테마에 맞춰 뒤집히는 색을 쓰면 안 된다 —
@@ -184,7 +184,7 @@
    나와 늘 읽힌다. 테마를 따라 뒤집히는 색(--text-inverse)을 쓰면 밝은 표지 위에서 글자가 사라졌다. */
 .overlayTitle {
   font-family: var(--font-family-display);
-  font-size: clamp(15px, 1.6vw, var(--font-size-20));
+  font-size: clamp(15px, 0.821rem + 0.48vw, var(--font-size-20));
   font-weight: var(--font-weight-regular);
   color: var(--text-white);
   line-height: var(--line-height-tight);
@@ -193,7 +193,7 @@
 
 .overlayCategory {
   font-family: var(--font-family-body);
-  font-size: clamp(var(--font-size-hint), 1vw, var(--font-size-body));
+  font-size: clamp(var(--font-size-hint), 0.704rem + 0.19vw, var(--font-size-body));
   font-weight: var(--font-weight-medium);
   color: var(--text-white);
   text-transform: uppercase;
@@ -248,7 +248,7 @@
   }
 
   .titleText {
-    font-size: clamp(2rem, 7vw, 4rem);
+    font-size: clamp(2rem, 0.77rem + 5.05vw, 4rem);
   }
 }
 
@@ -267,7 +267,7 @@
   }
 
   .titleText {
-    font-size: clamp(1.8rem, 10vw, 3rem);
+    font-size: clamp(2.35rem, 1.857rem + 2.38vw, 3rem);
   }
 
   .circle {

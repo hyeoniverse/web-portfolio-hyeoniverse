@@ -42,7 +42,7 @@
   flex-shrink: 0;
   margin: 0 0 var(--spacing-24) 0;
   font-family: var(--font-family-display);
-  font-size: clamp(1.5rem, min(6vw, 9vh), 6rem);
+  font-size: clamp(3.85rem, 0.834rem + 4.7vw, 6rem);
   font-style: italic;
   line-height: var(--_lh-title);
   letter-spacing: var(--_ls-title);
@@ -51,7 +51,7 @@
 .panelTitle {
   margin: var(--header-height) 0 var(--_space-section);
   font-family: var(--font-family-display);
-  font-size: clamp(1.5rem, min(8vw, 12vh), 7.5rem);
+  font-size: clamp(5.15rem, 1.111rem + 6.27vw, 7.5rem);
   font-style: italic;
   line-height: var(--_lh-title);
   color: var(--text-accent);
@@ -127,12 +127,12 @@
   .panelTitle {
     margin-top: var(--spacing-64);
     margin-bottom: var(--_space-section);
-    font-size: clamp(2.5rem, 8vw, 4rem);
+    font-size: clamp(2.5rem, 1.577rem + 3.79vw, 4rem);
   }
 
   .panelTitleCompact {
     margin-bottom: var(--_space-block);
-    font-size: clamp(2rem, 7vw, 3.5rem);
+    font-size: clamp(2rem, 1.077rem + 3.79vw, 3.5rem);
   }
 
   .mobilePinViewport {
@@ -183,7 +183,7 @@
     top: 50%;
     left: 50%;
     z-index: 0;
-    font-size: clamp(8rem, 30vw, 16rem);
+    font-size: clamp(8rem, 3.079rem + 20.19vw, 16rem);
     line-height: 1;
     color: var(--text-accent);
     white-space: nowrap;
@@ -203,7 +203,7 @@
   }
 
   .panelTitleCompact {
-    font-size: clamp(1.8rem, 6vw, 2.5rem);
+    font-size: clamp(1.8rem, 1.078rem + 2.96vw, 2.5rem);
   }
 }
 

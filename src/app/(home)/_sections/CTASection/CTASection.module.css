@@ -297,7 +297,7 @@
 
 @media (max-width: 480px) {
   .titleLine {
-    font-size: clamp(2rem, 10vw, 3.5rem);
+    font-size: clamp(2.1rem, 0.25rem + 9.17vw, 3rem);
   }
 
   .buttonGroup {

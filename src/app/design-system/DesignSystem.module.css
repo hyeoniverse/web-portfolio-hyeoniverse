@@ -41,7 +41,7 @@
 .title {
   margin-bottom: var(--spacing-8);
   font-family: var(--font-family-display);
-  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-size: clamp(2.5rem, 1.943rem + 2.29vw, 4rem);
   font-weight: var(--font-weight-regular);
   letter-spacing: -0.02em;
 }

@@ -56,7 +56,7 @@
 
 .activeSubtitle {
   margin: 0;
-  font-size: clamp(14px, 1.5vw, 20px);
+  font-size: clamp(14px, 0.736rem + 0.57vw, 20px);
   font-weight: var(--font-weight-regular);
   color: inherit;
   letter-spacing: 0.02em;

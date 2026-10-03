@@ -384,39 +384,39 @@
   .dbTitle {
     position: relative;
     z-index: 1;
-    font-size: clamp(1rem, 3.5vw, 1.4rem);
+    font-size: clamp(1rem, 0.754rem + 1.01vw, 1.4rem);
   }
 
   .dbKindBadge {
-    font-size: clamp(var(--font-size-hint), 1.8vw, 0.7rem);
+    font-size: var(--font-size-hint);
   }
 
   /* dbEntry mobile → shared .entryBlock mobile */
   /* dbLabel mobile → shared .entryLabel mobile */
 
   .dbEntry p {
-    font-size: clamp(0.8rem, 2.5vw, 0.95rem);
+    font-size: clamp(0.8rem, 0.708rem + 0.38vw, 0.95rem);
     line-height: var(--line-height-normal);
   }
 
   .dbSchema {
-    font-size: clamp(var(--font-size-hint), 2.2vw, 0.85rem);
+    font-size: clamp(var(--font-size-hint), 0.688rem + 0.25vw, 0.85rem);
   }
 
   .dbSchemaHeader {
     grid-template-columns: 1fr 0.5fr 1fr;
     padding: var(--spacing-12) 0;
-    font-size: clamp(var(--font-size-hint), 1.8vw, 0.7rem);
+    font-size: var(--font-size-hint);
   }
 
   .dbSchemaRow {
     grid-template-columns: 1fr 0.5fr 1fr;
     padding: var(--spacing-12) 0;
-    font-size: clamp(var(--font-size-hint), 2.2vw, 0.85rem);
+    font-size: clamp(var(--font-size-hint), 0.688rem + 0.25vw, 0.85rem);
   }
 
   .dbEndpointList {
-    font-size: clamp(var(--font-size-hint), 2.2vw, 0.85rem);
+    font-size: clamp(var(--font-size-hint), 0.688rem + 0.25vw, 0.85rem);
   }
 
   .dbEndpoint {
@@ -426,24 +426,24 @@
   }
 
   .dbMethodBadge {
-    font-size: clamp(var(--font-size-hint), 1.6vw, 0.65rem);
+    font-size: var(--font-size-hint);
     padding: var(--spacing-2) var(--spacing-8);
     min-width: 2.5rem;
   }
 
   .dbEndpointPath {
-    font-size: clamp(var(--font-size-hint), 2.2vw, 0.85rem);
+    font-size: clamp(var(--font-size-hint), 0.688rem + 0.25vw, 0.85rem);
     word-break: break-all;
   }
 
   .dbEndpointDesc {
     grid-column: 1 / -1;
-    font-size: clamp(0.75rem, 2.3vw, 0.9rem);
+    font-size: clamp(0.75rem, 0.658rem + 0.38vw, 0.9rem);
     color: var(--text-tertiary);
   }
 
   .dbQuery {
-    font-size: clamp(var(--font-size-hint), 2vw, 0.8rem);
+    font-size: clamp(var(--font-size-hint), 0.719rem + 0.13vw, 0.8rem);
   }
 }
 
@@ -497,7 +497,7 @@
 
 .apiTotal b {
   font-family: var(--font-family-display);
-  font-size: clamp(3.5rem, min(6vw, 11vh), 6.5rem);
+  font-size: clamp(3.5rem, 2.794rem + 2.9vw, 6.25rem);
   font-style: italic;
   font-weight: var(--font-weight-regular);
   line-height: 0.85;
@@ -519,7 +519,7 @@
 .apiTotalsMeta dd {
   margin: 0;
   font-family: var(--font-family-display);
-  font-size: clamp(1.5rem, min(2.2vw, 3.6vh), 2.25rem);
+  font-size: clamp(1.5rem, 1.322rem + 0.73vw, 2.2rem);
   line-height: 1;
 }
 
@@ -672,7 +672,7 @@
 
 .apiDetailNum {
   font-family: var(--font-family-display);
-  font-size: clamp(4rem, min(7vw, 13vh), 7.5rem);
+  font-size: clamp(4rem, 3.146rem + 3.5vw, 7.35rem);
   font-style: italic;
   line-height: 0.8;
   color: var(--text-accent);
@@ -680,7 +680,7 @@
 
 .apiDetailName {
   margin: 0;
-  font-size: clamp(1.5rem, min(2.4vw, 4vh), 2.25rem);
+  font-size: clamp(1.5rem, 1.255rem + 1.01vw, 2.25rem);
   font-weight: var(--font-weight-medium);
   line-height: var(--line-height-snug);
 }
@@ -831,7 +831,7 @@
   }
 
   .apiTotal b {
-    font-size: clamp(3rem, 9vh, 4.5rem);
+    font-size: 4.5rem;
   }
 }
 

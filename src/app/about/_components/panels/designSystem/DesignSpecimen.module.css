@@ -30,7 +30,7 @@
 .cellTitle {
   margin: 0;
   font-family: var(--font-family-display);
-  font-size: clamp(1.4rem, 2vw, 2rem);
+  font-size: clamp(1.4rem, 1.251rem + 0.61vw, 2rem);
   font-style: italic;
   font-weight: var(--font-weight-regular);
   line-height: 1;
@@ -81,7 +81,7 @@
 }
 
 .fontSample {
-  font-size: clamp(2.5rem, min(4.5vw, 8vh), 4.5rem);
+  font-size: clamp(2.5rem, 1.924rem + 2.36vw, 4.5rem);
   line-height: 1;
   color: var(--text-primary);
 }

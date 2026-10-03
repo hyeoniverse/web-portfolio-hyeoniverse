@@ -264,7 +264,7 @@
 .archTmLabel {
   overflow: hidden;
   font-family: var(--font-mono), monospace;
-  font-size: clamp(var(--font-size-hint), 0.7vw, 13px);
+  font-size: var(--font-size-hint);
   font-weight: var(--font-weight-medium);
   color: var(--text-secondary);
   white-space: nowrap;
@@ -312,7 +312,7 @@
   /* 아래에서 위로 읽히게 세운다 */
   .archPanel .archTitle {
     margin: 0;
-    font-size: clamp(3.5rem, min(7vw, 11vh), 7.5rem);
+    font-size: clamp(4.5rem, 0.278rem + 6.57vw, 7.5rem);
     line-height: 1;
     writing-mode: vertical-rl;
     rotate: 180deg;
@@ -375,7 +375,7 @@
   }
 
   .archItem:not(.archIndent1):not(.archIndent2) .archPath {
-    font-size: clamp(0.95rem, 3vw, 1.15rem);
+    font-size: clamp(0.95rem, 0.827rem + 0.5vw, 1.15rem);
     font-weight: var(--font-weight-semibold);
     color: var(--text-accent);
   }
@@ -391,7 +391,7 @@
   }
 
   .archPath {
-    font-size: clamp(0.8rem, 2.5vw, 0.95rem);
+    font-size: clamp(0.8rem, 0.708rem + 0.38vw, 0.95rem);
     padding-left: 0;
   }
 
@@ -402,7 +402,7 @@
 
   .archDesc {
     text-align: left;
-    font-size: clamp(var(--font-size-hint), 2.2vw, 0.82rem);
+    font-size: clamp(var(--font-size-hint), 0.707rem + 0.18vw, 0.82rem);
     color: var(--text-tertiary);
     padding-left: 0;
     line-height: 1.5;

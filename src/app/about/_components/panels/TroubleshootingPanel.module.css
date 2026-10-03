@@ -604,7 +604,7 @@
 
   .troubleContent > .troublePinTitleRow h3 {
     margin: 0;
-    font-size: clamp(2.5rem, min(4.5vw, 7vh), 4.5rem);
+    font-size: clamp(2.9rem, 0.278rem + 4.07vw, 4.5rem);
   }
 
   /* IDE 창이 남은 높이를 끝까지 채운다 */

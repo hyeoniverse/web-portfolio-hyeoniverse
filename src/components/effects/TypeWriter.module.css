@@ -1,7 +1,7 @@
 .typewriter {
   display: inline-block;
   width: fit-content;
-  font-size: clamp(2.5rem, 7.5vw, 5rem);
+  font-size: clamp(2.5rem, 1.571rem + 3.81vw, 5rem);
   font-weight: var(--font-weight-black);
   line-height: var(--line-height-normal);
   color: var(--text-primary);

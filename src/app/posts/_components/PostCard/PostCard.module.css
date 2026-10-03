@@ -344,7 +344,7 @@
 }
 
 .featured .title {
-  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  font-size: clamp(1.95rem, 1.111rem + 1.27vw, 2.25rem);
   min-height: unset;
   -webkit-line-clamp: 3;
 }
@@ -488,7 +488,7 @@
   }
 
   .featured .title {
-    font-size: clamp(1.25rem, 4vw, 1.75rem);
+    font-size: clamp(1.25rem, 0.942rem + 1.26vw, 1.75rem);
   }
 }
 

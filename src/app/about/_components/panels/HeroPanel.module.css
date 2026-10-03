@@ -293,7 +293,7 @@
 
   .heroTocTitle {
     font-family: var(--font-family-display);
-    font-size: clamp(1.25rem, 1.7vw, 1.75rem);
+    font-size: clamp(1.25rem, 0.558rem + 1.08vw, 1.75rem);
     font-style: italic;
     line-height: 1.1;
     color: var(--text-primary);
@@ -317,7 +317,7 @@
   .heroWatermark {
     right: -3%;
     bottom: 8%;
-    font-size: clamp(3rem, 12vw, 6rem);
+    font-size: clamp(3rem, 1.155rem + 7.57vw, 6rem);
   }
 
   .heroSubtitle {

@@ -121,7 +121,7 @@
   .overviewPanel .statValue {
     order: 2;
     font-family: var(--_museum-serif);
-    font-size: clamp(1.75rem, min(2.8vw, 4.6vh), 3rem);
+    font-size: clamp(1.8rem, 0.25rem + 2.52vw, 3rem);
     font-weight: var(--font-weight-regular);
     line-height: 1;
     color: var(--text-accent);
@@ -149,7 +149,7 @@
 
   .overviewPanel .overviewStat:first-child .statValue {
     order: 1;
-    font-size: clamp(7rem, min(15vw, 26vh), 17rem);
+    font-size: clamp(9.65rem, 0.25rem + 14.72vw, 17rem);
     font-style: italic;
     font-variant-numeric: lining-nums;
     line-height: 0.85;

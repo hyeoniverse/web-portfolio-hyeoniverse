@@ -852,7 +852,7 @@
   position: relative;
   display: inline-block;
   font-family: var(--font-family-nav);
-  font-size: clamp(14px, 6vw, var(--font-size-32));
+  font-size: clamp(1.45rem, 1.263rem + 0.82vw, var(--font-size-32));
   color: var(--text-white);
   text-decoration: underline;
   text-underline-offset: 6px;
@@ -1022,7 +1022,7 @@
   /* 폭만 보면 창이 넓어질 때 글자가 두 배로 커져(8vw) 목록이 창보다 길어지고, 아래쪽 항목이
      바닥에 붙은 푸터 뒤로 숨는다. 모바일 폭에서 열어 둔 채 창을 넓히면 실제로 그렇게 됐다.
      높이도 같이 보게 해서 창이 넓어도 목록이 창 안에 남는다 */
-  font-size: clamp(36px, min(8vw, 5vh), 72px);
+  font-size: clamp(36px, 2.041rem + 0.86vw, 3.05rem);
   font-weight: var(--font-weight-bold);
   color: var(--text-white);
   letter-spacing: -0.02em;
@@ -1050,7 +1050,7 @@
 
 .menuSubLink {
   font-family: var(--font-family-nav);
-  font-size: clamp(18px, 4.5vw, 28px);
+  font-size: clamp(18px, 0.893rem + 0.95vw, 28px);
   font-weight: var(--font-weight-medium);
   color: var(--text-white);
   opacity: 0.55;

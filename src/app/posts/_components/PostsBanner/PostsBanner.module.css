@@ -127,7 +127,7 @@
 
 .splitTitle {
   font-family: var(--font-family-display);
-  font-size: clamp(1.25rem, 2vw, 2rem);
+  font-size: clamp(1.25rem, 1.046rem + 0.84vw, 2rem);
   font-weight: var(--font-weight-regular);
   font-style: italic;
   color: var(--text-primary);
@@ -282,7 +282,7 @@
 .cardTitle {
   margin-top: var(--spacing-8);
   font-family: var(--font-family-display);
-  font-size: clamp(1rem, 2vw, 1.75rem);
+  font-size: clamp(1rem, 0.721rem + 1.14vw, 1.75rem);
   font-weight: var(--font-weight-regular);
   font-style: italic;
   color: var(--text-white);
