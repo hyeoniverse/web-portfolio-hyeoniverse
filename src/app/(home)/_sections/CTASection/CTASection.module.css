@@ -86,21 +86,6 @@
   display: inline-block;
 }
 
-/* 마우스를 따라 움직이는 단추끼리 겹칠 수 있다. 그대로면 나중에 적힌 이력서 단추가 늘 위에 그려져,
-   Get in touch 를 그 위로 가져가도 이력서 단추 테두리가 흐림 판 위에 남아 흐려지지 않는다.
-   z-index 로 올리면 단추가 따로 된 층으로 묶여 글자 · 테두리 반전(difference)이 깨진다. 그래서
-   그리는 순서만 바꾼다 — flex 항목은 order 순서대로 그려지므로 Get in touch 를 뒤로 보내고,
-   row-reverse 로 화면 위치는 그대로 둔다. 두 단추가 한 줄에 들어가는 너비에서만 건다 */
-@media (min-width: 769px) {
-  .buttonGroup:has(> .buttonWrapper:first-child .magneticInner:hover) {
-    flex-direction: row-reverse;
-  }
-
-  .buttonGroup:has(> .buttonWrapper:first-child .magneticInner:hover) > .buttonWrapper:first-child {
-    order: 1;
-  }
-}
-
 .magneticInner {
   display: inline-block;
   position: relative;
@@ -191,6 +176,25 @@
      그대로 남는다(흰 단추처럼 보인다). 섞이는 요소 자신을 층으로 올리면 Safari 가 층끼리 합칠 때
      섞어서 페이지·잔과 제대로 반전된다. Chrome 은 원래도 그렇게 섞으므로 달라지지 않는다 */
   transform: translateZ(0);
+}
+
+/* 마우스를 따라 움직이는 단추끼리 겹칠 수 있다. 나중에 적힌 이력서 단추는 늘 Get in touch 위에 그려져서,
+   Get in touch 를 그 위로 가져가도 흐림 판(뒤를 비춰 흐림)이 이력서 단추를 흐리지 못한다. 그리는 순서를
+   바꾸는 방법(z-index · flex order · 문서 순서)은 반전을 깨거나 Safari 가 따르지 않거나 Chrome 에서 흐림
+   범위가 어긋났다. 그래서 한 단추에 마우스를 올린 동안 다른 단추는 글자 · 테두리 · 점 자체를 흐린다.
+   단추 전체에 filter 를 걸면 그 단추가 따로 된 층으로 묶여 안의 반전이 깨지므로, 섞이는 요소에 각각 건다 */
+.cta .ctaBtn.ctaBtn::before,
+.cta .resumeBtn.resumeBtn::before,
+.cta .ctaBtn.ctaBtn > span,
+.cta .resumeBtn.resumeBtn > span {
+  transition: filter var(--duration-base) ease;
+}
+
+@media (hover: hover) {
+  .buttonGroup:has(.magneticInner:hover) .magneticInner:not(:hover) :is(.ctaBtn, .resumeBtn)::before,
+  .buttonGroup:has(.magneticInner:hover) .magneticInner:not(:hover) :is(.ctaBtn, .resumeBtn) > span {
+    filter: var(--blur-4);
+  }
 }
 
 /* Button Indicator Dot */
