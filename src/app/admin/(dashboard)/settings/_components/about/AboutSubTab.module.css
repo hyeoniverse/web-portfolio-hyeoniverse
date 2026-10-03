@@ -36,7 +36,7 @@
 }
 .cardTitle {
   margin: 0;
-  font: var(--font-heading-xs);
+  font: var(--font-body-xl);
   font-weight: 600;
   letter-spacing: -0.01em;
 }
