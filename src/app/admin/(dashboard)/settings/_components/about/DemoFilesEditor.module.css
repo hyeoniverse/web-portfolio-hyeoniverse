@@ -75,7 +75,7 @@
   height: 16px;
   padding: 0;
   border: 0;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-tertiary);
   opacity: 0;

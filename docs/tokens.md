@@ -231,7 +231,7 @@
 
 ## `src/styles/tokens/_radius.css`
 
-토큰 9개
+토큰 8개
 
 | 토큰 | 값 |
 |---|---|
@@ -242,7 +242,6 @@
 | `--radius-12` | `12px` |
 | `--radius-16` | `16px` |
 | `--radius-24` | `24px` |
-| `--radius-circle` | `50%` |
 | `--radius-full` | `9999px` |
 
 ## `src/styles/tokens/_shadow.css`
@@ -313,7 +312,7 @@
 
 ## `src/styles/globals/_semantic.css`
 
-토큰 152개
+토큰 155개
 
 | 토큰 | 값 | 다크 | 조건부 |
 |---|---|---|---|
@@ -418,6 +417,9 @@
 | `--font-family-code` | `var(--font-jetbrains-mono)` |  |  |
 | `--font-family-nav` | `var(--font-space-grotesk)` |  |  |
 | `--font-family-accent` | `var(--font-playfair)` |  |  |
+| `--radius-control` | `var(--radius-full)` |  |  |
+| `--radius-surface` | `var(--radius-24)` |  |  |
+| `--radius-mark` | `var(--radius-4)` |  |  |
 | `--font-size-body-xs` | `var(--font-size-12)` |  |  |
 | `--font-size-body-sm` | `var(--font-size-13)` |  |  |
 | `--font-size-body-md` | `var(--font-size-14)` |  |  |
@@ -621,7 +623,7 @@
 | `--radius-md` | `var(--radius-8)` |
 | `--radius-lg` | `var(--radius-12)` |
 | `--radius-xl` | `var(--radius-16)` |
-| `--radius-2xl` | `var(--radius-24)` |
+| `--radius-2xl` | `var(--radius-surface)` |
 | `--radius-capsule` | `var(--radius-full)` |
 | `--font-mono` | `var(--font-family-code)` |
 | `--font-size-3xs` | `var(--font-size-12)` |

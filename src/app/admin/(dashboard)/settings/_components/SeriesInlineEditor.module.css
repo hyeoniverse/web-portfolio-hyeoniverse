@@ -4,7 +4,7 @@
 .seriesCardBody {
   border: var(--border-light);
   border-top: none;
-  border-radius: 0 0 var(--radius-24) var(--radius-24);
+  border-radius: 0 0 var(--radius-surface) var(--radius-surface);
   padding: var(--card-padding-md);
   display: flex;
   flex-direction: column;
@@ -13,7 +13,7 @@
 /* 새 시리즈 생성 시 — head 가 없어 단독으로 렌더, 상단 border + 풀 radius 필요 */
 .seriesCardBodyStandalone {
   border-top: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
 }
 /* shell 내부에서 사용될 때 — 자체 border / radius 없이 padding+layout 만 */
 .seriesCardBodyBare {
@@ -203,7 +203,7 @@
   width: var(--control-height-xs);
   padding: var(--spacing-1) var(--spacing-2);
   border: var(--border-default);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   font: var(--font-code-xs);
   color: var(--text-primary);
@@ -237,7 +237,7 @@
   align-items: center;
   justify-content: center;
   border: var(--border-light);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: transparent;
   font: var(--font-body-xs);
   color: var(--text-tertiary);

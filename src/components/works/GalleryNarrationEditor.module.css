@@ -37,7 +37,7 @@
   place-items: center;
   width: var(--badge-height);
   height: var(--badge-height);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: color-mix(in oklch, var(--bg-black) 60%, transparent);
   color: var(--text-white);
   pointer-events: none;
@@ -276,7 +276,7 @@
 .recordDot {
   width: 8px;
   height: 8px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: currentcolor;
 }
 
@@ -304,7 +304,7 @@
   min-width: 40px;
   height: 6px;
   overflow: hidden;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-tertiary-alt);
 }
 
@@ -413,7 +413,7 @@
   width: 100%;
   padding: var(--spacing-12) var(--spacing-16);
   border: none;
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   background: transparent;
   color: var(--text-primary);
   text-align: left;
@@ -441,7 +441,7 @@
   justify-content: center;
   width: 32px;
   height: 32px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--bg-secondary);
   color: var(--text-secondary);
 }
@@ -594,7 +594,7 @@
   align-items: center;
   gap: var(--spacing-8);
   padding: var(--spacing-4) var(--spacing-8);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
 }
 
 .historyItem[data-current] {
@@ -695,7 +695,7 @@
 
 .helpCode {
   padding: 0 0.3em;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-tertiary);
   font-family: var(--font-family-code);
   font-size: 0.95em;
@@ -718,7 +718,7 @@
 .voiceChip {
   flex-shrink: 0;
   padding: 0 var(--spacing-8);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   /* 글자색을 옅게 깐 바탕 — 라이트·다크 어디서나 둘레와 구분된다(bg-tertiary 는 다크에서 배경과 같았다) */
   background: color-mix(in srgb, var(--text-primary) 9%, transparent);
   color: var(--text-secondary);

@@ -23,7 +23,7 @@
   width: var(--close-size, 14px);
   height: var(--close-weight, 1.5px);
   background: currentColor;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
 }
 
 .root .line {

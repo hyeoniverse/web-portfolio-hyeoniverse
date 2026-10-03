@@ -158,7 +158,7 @@
     opacity var(--duration-base) ease,
     transform var(--duration-fast) ease;
   translate: -50% -50%;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
 }
 
 .archMap .archNodeBox:hover {

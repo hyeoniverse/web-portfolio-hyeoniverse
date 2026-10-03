@@ -12,7 +12,7 @@
      Select 등 인접 컨트롤과 톤이 어긋나지 않는다. */
   background: transparent;
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   color: var(--text-primary);
   overflow: hidden;
 }

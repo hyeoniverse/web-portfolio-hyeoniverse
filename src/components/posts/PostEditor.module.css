@@ -8,7 +8,7 @@
   gap: var(--spacing-4);
   margin-bottom: var(--spacing-16);
   padding: var(--spacing-8) var(--spacing-16);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   background: color-mix(in srgb, var(--text-warning) 12%, var(--bg-primary));
   color: var(--text-warning-strong);
   font: var(--font-body-md);
@@ -37,7 +37,7 @@
 .excerptInput {
   padding: var(--spacing-8) var(--spacing-12);
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   background: transparent;
   font: var(--font-body-md);
   color: var(--text-primary);
@@ -67,7 +67,7 @@
   height: var(--size-24);
   padding: 0 var(--spacing-12);
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   font: var(--font-body-xs);
   color: var(--text-secondary);
@@ -101,7 +101,7 @@
   gap: var(--spacing-4);
   padding: var(--badge-padding-lg);
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   font: var(--font-body-sm);
   color: var(--text-secondary);
@@ -127,7 +127,7 @@
 .authorChipAvatar {
   width: 22px;
   height: 22px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   object-fit: cover;
   flex-shrink: 0;
   display: inline-flex;
@@ -147,7 +147,7 @@
   display: flex;
   flex-direction: column;
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
 }
 
 .optionalToggle {
@@ -185,7 +185,7 @@
   display: block;
   height: 16px;
   background: var(--bg-tertiary);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
 }
 
 .seriesOrderSkeletonRow:nth-child(1) { width: 70%; }
@@ -224,7 +224,7 @@
   width: fit-content;
   max-width: 100%;
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   overflow: hidden;
   /* 아래 태그 설명(TagNotesEditor)과 간격 확보 */
   margin-bottom: var(--spacing-16);
@@ -320,7 +320,7 @@
   gap: var(--spacing-2);
   padding: var(--row-padding-lg);
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   background: transparent;
   text-align: left;
   font-family: var(--font-family-body);
@@ -379,7 +379,7 @@
   flex-direction: column;
   height: 100%;
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   overflow: hidden;
 }
 
@@ -400,13 +400,13 @@
 
 .editorSkeletonBar {
   height: 14px;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-tertiary);
   animation: editorBarPulse 1.2s ease-in-out infinite;
 }
 
 .editorSkeletonToolbar .editorSkeletonBar {
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-secondary);
 }
 
@@ -459,7 +459,7 @@
   height: var(--control-height-sm);
   padding: 0 var(--control-padding-inline-sm);
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   font: var(--font-body-sm);
   color: var(--text-primary);
@@ -475,7 +475,7 @@
   width: var(--control-height-xs);
   height: var(--control-height-xs);
   flex-shrink: 0;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   border: var(--border-light);
   background: transparent;
   font: var(--font-code-sm);

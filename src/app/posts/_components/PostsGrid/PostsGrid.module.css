@@ -333,7 +333,7 @@
   top: calc(var(--spacing-20) + 6px);
   width: 11px;
   height: 11px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--bg-primary);
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--text-primary) 42%, transparent);
   z-index: 3;

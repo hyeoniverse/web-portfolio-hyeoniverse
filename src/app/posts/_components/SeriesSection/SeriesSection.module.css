@@ -87,7 +87,7 @@
   justify-content: center;
   width: 32px;
   height: 32px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-white);
   mix-blend-mode: difference;
@@ -138,7 +138,7 @@
 .activeSeriesMetaCategory {
   /* filter bar 의 다른 capsule (tagToggleBtn / moreBtn) 과 동일 패턴 */
   padding: var(--spacing-2) var(--spacing-8);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   border: var(--border-light);
   color: var(--text-secondary);
 }

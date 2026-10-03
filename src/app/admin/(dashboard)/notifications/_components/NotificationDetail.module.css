@@ -18,7 +18,7 @@
   flex: 0 0 auto;
   width: var(--size-40);
   height: var(--size-40);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--bg-secondary);
   color: var(--text-secondary);
 }

@@ -19,7 +19,7 @@
 
 .count {
   padding: 0 var(--spacing-8);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-tertiary);
   font: var(--font-code-xs);
   font-variant-numeric: tabular-nums;
@@ -66,7 +66,7 @@
   flex-shrink: 0;
   width: 34px;
   height: 34px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   overflow: hidden;
   border: var(--border-light);
   background: var(--bg-secondary);
@@ -141,7 +141,7 @@
   align-items: center;
   gap: var(--spacing-4);
   padding: var(--spacing-1) var(--spacing-8);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   font: var(--font-body-xs);
   font-weight: var(--font-weight-semibold);
   text-transform: uppercase;
@@ -189,7 +189,7 @@
   align-items: center;
   gap: var(--spacing-4);
   padding: var(--spacing-1) var(--spacing-8);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-success-soft);
   font: var(--font-body-xs);
   font-weight: var(--font-weight-semibold);
@@ -216,7 +216,7 @@
 .rowClickable:focus-visible {
   outline: 2px solid var(--border-color-strong);
   outline-offset: 2px;
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
 }
 
 /* ── Footer "more" link ── */
@@ -240,7 +240,7 @@
   align-items: center;
   gap: var(--spacing-4);
   padding: var(--badge-padding-md);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-accent-light);
   color: var(--text-accent);
   font: var(--font-body-xs);

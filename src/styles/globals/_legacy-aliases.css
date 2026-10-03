@@ -36,7 +36,7 @@
   --radius-md: var(--radius-8);
   --radius-lg: var(--radius-12);
   --radius-xl: var(--radius-16);
-  --radius-2xl: var(--radius-24);
+  --radius-2xl: var(--radius-surface);
   --radius-capsule: var(--radius-full);
   /* font-family — 저장된 글 HTML 의 첨부 미리보기가 코드 글꼴을 이 이름으로 담는다(plateSerializer) */
   --font-mono: var(--font-family-code);

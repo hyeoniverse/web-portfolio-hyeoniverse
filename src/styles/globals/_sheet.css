@@ -31,7 +31,7 @@
   flex-direction: column;
   background: var(--bg-dialog);
   border-top: var(--border-light);
-  border-radius: var(--radius-24) var(--radius-24) 0 0;
+  border-radius: var(--radius-surface) var(--radius-surface) 0 0;
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;

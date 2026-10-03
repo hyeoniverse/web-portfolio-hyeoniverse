@@ -9,7 +9,7 @@
   flex-shrink: 0;
   background: transparent;
   border: none;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   color: var(--text-tertiary);
   cursor: pointer;
   transition:

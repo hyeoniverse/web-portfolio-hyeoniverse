@@ -64,7 +64,7 @@
 /* 조직 표시 — 이름만으로는 내 계정과 구별되지 않는다 */
 .groupKind {
   padding: 0 var(--spacing-8);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-tertiary);
   font: var(--font-body-xs);
   font-weight: 500;
@@ -92,7 +92,7 @@
   align-items: center;
   gap: var(--spacing-12);
   padding: var(--spacing-8) var(--spacing-12);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   cursor: pointer;
 }
 
@@ -119,7 +119,7 @@
 .badge {
   flex-shrink: 0;
   padding: 0 var(--spacing-8);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-tertiary);
   font: var(--font-body-xs);
   color: var(--text-secondary);

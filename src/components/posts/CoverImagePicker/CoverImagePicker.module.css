@@ -2,7 +2,7 @@
 .picker {
   margin-top: var(--spacing-16);
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   overflow: hidden;
   /* 펼칠 때 — clip-path 로 위→아래 reveal + max-height 로 아래 layout 도 함께 push down */
   animation: coverPickerExpand 0.55s cubic-bezier(0.22, 1, 0.36, 1);
@@ -58,7 +58,7 @@
   background: var(--bg-dialog);
   border: none;
   border-top: var(--border-light);
-  border-radius: var(--radius-24) var(--radius-24) 0 0;
+  border-radius: var(--radius-surface) var(--radius-surface) 0 0;
   /* 인라인 expand 애니메이션 disable — framer-motion 이 slide 처리 */
   animation: none;
   display: flex;
@@ -103,7 +103,7 @@
 .tabs {
   display: flex;
   border: var(--border-default);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   overflow: hidden;
 }
 
@@ -139,7 +139,7 @@
   gap: var(--spacing-4);
   padding: var(--spacing-4) var(--spacing-16);
   border: var(--border-default);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   font: var(--font-body-sm);
   font-weight: 500;
@@ -308,7 +308,7 @@
 
 .presetSectionCount {
   padding: var(--spacing-1) var(--spacing-8);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-secondary);
   font: var(--font-code-xs);
   color: var(--text-secondary);
@@ -339,7 +339,7 @@
   justify-content: center;
   width: 20px;
   height: 20px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--bg-accent-solid);
   color: var(--text-on-accent);
   z-index: 2;
@@ -395,7 +395,7 @@
   justify-content: center;
   width: 18px;
   height: 18px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--bg-overlay);
   color: var(--text-inverse);
   pointer-events: none;
@@ -443,7 +443,7 @@
   gap: 0;
   margin: var(--spacing-12) var(--spacing-16) 0;
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   overflow: hidden;
 }
 
@@ -537,7 +537,7 @@
 .styleChip {
   padding: var(--badge-padding-lg);
   border: var(--border-default);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   font: var(--font-body-sm);
   color: var(--text-tertiary);
@@ -661,7 +661,7 @@
   justify-content: center;
   width: 18px;
   height: 18px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--text-accent);
   color: var(--bg-primary);
   pointer-events: none;
@@ -679,7 +679,7 @@
   gap: var(--spacing-4);
   max-width: calc(100% - 8px);
   padding: var(--badge-padding-md);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-overlay);
   font: var(--font-body-xs);
   color: var(--text-inverse);
@@ -729,7 +729,7 @@
   min-width: 0;
   padding: 0;
   border: none;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--bg-overlay);
   color: var(--text-inverse);
 }
@@ -763,7 +763,7 @@
   min-width: 16px;
   height: 14px;
   padding: 0 var(--spacing-4);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-tertiary);
   font: var(--font-code-xs);
   font-variant-numeric: tabular-nums;
@@ -799,7 +799,7 @@
 .suggestionChip {
   padding: var(--badge-padding-lg);
   border: var(--border-default);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   font: var(--font-body-sm);
   color: var(--text-secondary);
@@ -917,7 +917,7 @@
   flex: none;
   padding: var(--spacing-4) var(--spacing-12);
   border: 1px solid var(--border-color-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   font: var(--font-body-sm);
   color: var(--text-secondary);

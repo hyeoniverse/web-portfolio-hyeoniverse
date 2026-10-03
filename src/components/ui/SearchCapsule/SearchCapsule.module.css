@@ -8,7 +8,7 @@
   align-items: center;
   height: var(--control-height-md);
   border: var(--border-default);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
 }
 
@@ -62,7 +62,7 @@
 
 .selectWrap button {
   border: none !important;
-  border-radius: 0 !important;
+  border-radius: 0!important;
   /* 옵션 trigger ↔ input 구분선 — 주변 컨트롤 border 와 light 로 통일 */
   border-right: var(--border-light) !important;
   display: inline-flex;
@@ -109,7 +109,7 @@
   margin-right: var(--spacing-4);
   padding: 0;
   border: none;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-tertiary);
   cursor: pointer;
@@ -145,7 +145,7 @@
   /* radius-xl(16px) 에 맞춰 패딩 축소 */
   padding: var(--spacing-4);
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   /* 글래스 표면 — Select 드롭다운 / Popover 와 동일 (--bg-glass + --blur-glass) */
   background: var(--bg-glass-panel);
   backdrop-filter: var(--blur-glass);
@@ -213,7 +213,7 @@
   display: flex;
   align-items: center;
   min-width: 0;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   transition: background var(--duration-base) ease;
 }
 
@@ -270,7 +270,7 @@
   margin-right: var(--spacing-4);
   padding: 0;
   border: none;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-tertiary);
   cursor: pointer;
@@ -366,7 +366,7 @@
   min-width: 60px;
   padding: var(--spacing-2) var(--spacing-8);
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-secondary);
   font: var(--font-code-xs);
   color: var(--text-primary);
@@ -389,7 +389,7 @@
 
 .helpFootnote code {
   padding: var(--spacing-1) var(--spacing-4);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-secondary);
   font-family: var(--font-family-code);
 }
@@ -399,7 +399,7 @@
   display: inline-flex;
   margin-right: var(--spacing-8);
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   overflow: hidden;
   width: fit-content;
 }

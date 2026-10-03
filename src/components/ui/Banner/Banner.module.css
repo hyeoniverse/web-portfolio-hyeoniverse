@@ -70,7 +70,7 @@
   width: 80%;
   height: 100%;
   transform-style: preserve-3d;
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   overflow: hidden;
 }
 
@@ -95,7 +95,7 @@
   width: var(--float-button-size-md);
   height: var(--float-button-size-md);
   border: var(--border-white);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--bg-glass);
   backdrop-filter: blur(8px);
   color: var(--text-white);

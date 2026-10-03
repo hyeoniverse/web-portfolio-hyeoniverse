@@ -25,7 +25,7 @@
   gap: var(--spacing-12);
   padding: var(--row-padding-md);
   border: 1px solid transparent;
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
 }
 
 .picked .card {
@@ -79,7 +79,7 @@
   overflow: hidden;
   width: 40px;
   height: 40px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--bg-tertiary);
   box-shadow: 0 0 0 1px var(--border-color-light);
 }
@@ -224,7 +224,7 @@
   height: 96px;
   overflow: hidden;
   border: 1px dashed var(--border-color-default);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--bg-tertiary);
 }
 
@@ -287,7 +287,7 @@
   top: var(--spacing-2);
   right: var(--spacing-2);
   border: var(--border-light);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-control);
   background: var(--bg-primary);
   box-shadow: var(--shadow-sm);
   color: var(--text-primary);
@@ -313,7 +313,7 @@
 .autoTag {
   flex-shrink: 0;
   padding: 0 var(--spacing-4);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-tertiary);
   font: var(--font-body-xs);
   color: var(--text-secondary);
@@ -368,7 +368,7 @@
   width: min(56rem, 100%);
   max-height: 90vh;
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   background: var(--bg-dialog);
 }
 

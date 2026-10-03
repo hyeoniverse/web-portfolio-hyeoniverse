@@ -110,7 +110,7 @@ export function CalloutElement(props: PlateElementProps) {
         <PlateElement {...props} style={{
           ...props.style,
           padding: hasIcon ? "var(--spacing-16) var(--spacing-16) var(--spacing-16) 44px" : "var(--spacing-16)",
-          borderRadius: "var(--radius-24)", background: bg,
+          borderRadius: "var(--radius-surface)", background: bg,
           border: (bg === "var(--bg-primary)" || bg === "transparent") ? "1px solid var(--border-color-light)" : "1px solid transparent",
         }}>
           {props.children}

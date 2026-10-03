@@ -23,7 +23,7 @@
 
 .devicesCount {
   padding: 0 var(--spacing-8);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-tertiary);
   font: var(--font-code-xs);
   font-variant-numeric: tabular-nums;
@@ -54,7 +54,7 @@
   justify-content: center;
   width: 32px;
   height: 32px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   border: var(--border-light);
   color: var(--text-secondary);
 }
@@ -84,7 +84,7 @@
   align-items: center;
   gap: var(--spacing-2);
   padding: var(--badge-padding-md);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-accent-light);
   font: var(--font-body-xs);
   font-weight: var(--font-weight-semibold);
@@ -95,7 +95,7 @@
 
 .devicePendingBadge {
   padding: var(--badge-padding-md);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-secondary);
   font: var(--font-body-xs);
   font-weight: var(--font-weight-medium);
@@ -120,7 +120,7 @@
   width: 28px;
   height: 28px;
   border: none;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-tertiary);
   cursor: pointer;
@@ -159,7 +159,7 @@
   max-width: 380px;
   background: var(--bg-primary);
   border: var(--border-default);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   padding: var(--modal-padding-lg);
   display: flex;
   flex-direction: column;
@@ -199,7 +199,7 @@
   gap: var(--spacing-16);
   padding: var(--spacing-12) var(--spacing-16);
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   margin-bottom: var(--spacing-16);
 }
 
@@ -253,7 +253,7 @@
 /* 로그인한 계정이 본인임을 표시 — 목록에서 남의 계정과 섞이지 않도록 */
 .meChip {
   padding: var(--badge-padding-md);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-accent-light);
   color: var(--text-accent);
   font: var(--font-body-xs);

@@ -152,7 +152,7 @@
     transparent 70%
   );
   pointer-events: none;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   filter: blur(60px);
   animation: heroGlow 8s ease-in-out infinite alternate;
 }

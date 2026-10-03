@@ -18,7 +18,7 @@
   height: var(--control-height-md);
   padding-right: var(--spacing-2);
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   transition: border-color var(--duration-base) ease;
 }
 
@@ -71,7 +71,7 @@
   gap: var(--spacing-12);
   padding: var(--spacing-16);
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
 }
 
 .note {
@@ -136,7 +136,7 @@
 }
 
 .skeletonChip.skeletonChip {
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
 }
 
 /* 고치는 줄 — 입력칸 둘이 추가 막대와 같은 열에 선다 */
@@ -154,7 +154,7 @@
   gap: var(--spacing-8);
   min-width: 0;
   padding: var(--spacing-8) 0;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   text-align: left;
   cursor: text;
 }
@@ -175,7 +175,7 @@
   max-width: 100%;
   overflow: hidden;
   padding: var(--spacing-2) var(--spacing-8);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-tertiary);
   font: var(--font-code-sm);
   color: var(--text-primary);

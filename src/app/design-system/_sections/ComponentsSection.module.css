@@ -12,7 +12,7 @@
   line-height: 1.6;
 }
 .modalChangeList code {
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   padding: var(--spacing-1) var(--spacing-8);
   background: var(--bg-tertiary);
   color: var(--text-primary);

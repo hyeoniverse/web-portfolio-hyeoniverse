@@ -16,7 +16,7 @@
   aspect-ratio: 16 / 9;
   padding: 0;
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   background: var(--bg-tertiary);
   cursor: pointer;
   overflow: hidden;
@@ -44,7 +44,7 @@
   justify-content: center;
   width: 28px;
   height: 28px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--bg-overlay);
   color: var(--text-inverse);
   opacity: 0.85;

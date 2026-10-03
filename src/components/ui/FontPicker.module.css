@@ -74,7 +74,7 @@
 .item {
   padding: var(--row-padding-sm);
   margin: 0;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   font: var(--font-body-md);
   white-space: nowrap;
   overflow: hidden;
@@ -103,7 +103,7 @@
   font: var(--font-body-xs);
   line-height: 1;
   padding: var(--row-padding-sm);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-tertiary);
   color: var(--text-tertiary);
 }

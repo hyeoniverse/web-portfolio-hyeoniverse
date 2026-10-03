@@ -22,7 +22,7 @@
   height: var(--control-height-md);
   padding: 0 var(--spacing-16);
   border: 1px dashed var(--border-color-strong);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   color: var(--text-secondary);
   font: var(--font-body-md);
@@ -39,7 +39,7 @@
   height: var(--control-height-md);
   padding: 0 var(--spacing-16);
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   color: var(--text-secondary);
   font: var(--font-body-md);
@@ -71,7 +71,7 @@
   gap: var(--spacing-12);
   padding: var(--row-padding-sm);
   border: 1px solid transparent;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   color: var(--text-primary);
   text-align: left;
@@ -96,7 +96,7 @@
   justify-content: center;
   width: 44px;
   height: 44px;
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   background: var(--bg-tertiary);
   color: var(--text-secondary);
   line-height: 1.05;
@@ -135,7 +135,7 @@
   height: 28px;
   padding: 0;
   border: none;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--bg-secondary);
   color: var(--text-tertiary);
   cursor: pointer;
@@ -164,7 +164,7 @@
   height: var(--control-height-sm);
   padding: 0 var(--spacing-12);
   border: none;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-accent-solid);
   color: var(--text-on-accent);
   font: var(--font-body-xs);
@@ -179,7 +179,7 @@
   height: var(--control-height-sm);
   padding: 0 var(--spacing-8);
   border: none;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   color: var(--text-tertiary);
   font: var(--font-body-xs);
@@ -207,7 +207,7 @@
   width: 100%;
   padding: var(--spacing-4) var(--spacing-12);
   border: none;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   color: var(--text-tertiary);
   font: var(--font-body-sm);
@@ -219,7 +219,7 @@
 .pickerTrashCount {
   min-width: 18px;
   padding: 0 var(--spacing-4);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-tertiary);
   font: var(--font-body-xs);
   font-weight: 600;
@@ -244,7 +244,7 @@
   align-items: center;
   gap: var(--spacing-12);
   padding: var(--row-padding-sm);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
 }
 
 .pickerTrashItem:hover { background: var(--bg-secondary); }
@@ -272,7 +272,7 @@
   content: "";
   position: absolute;
   left: 13px; transform: translateX(-50%);
-  top: 0; bottom: 0; width: 2px; border-radius: 2px;
+  top: 0; bottom: 0; width: 2px; border-radius: var(--radius-full);
   background: var(--border-color-light);
 }
 
@@ -287,7 +287,7 @@
 .chainStepNode {
   position: absolute;
   left: 13px; top: 13px; transform: translate(-50%, -50%);
-  width: 15px; height: 15px; border-radius: var(--radius-circle);
+  width: 15px; height: 15px; border-radius: var(--radius-full);
   display: inline-flex; align-items: center; justify-content: center;
   background: var(--bg-primary);
   border: 2.5px solid var(--_c);
@@ -329,4 +329,4 @@
 
 .chainMetaItem { display: inline-flex; align-items: center; gap: var(--spacing-2); }
 
-.chainLabelDot { width: 6px; height: 6px; border-radius: var(--radius-circle); }
+.chainLabelDot { width: 6px; height: 6px; border-radius: var(--radius-full); }

@@ -12,7 +12,7 @@
   max-width: min(90vw, var(--_max-w, 360px));
   min-width: 0;
   padding: var(--spacing-4) var(--spacing-8);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-inverse);
   color: var(--text-inverse);
   font: var(--font-body-sm);
@@ -30,7 +30,7 @@
 /* 3줄 이상 — 둥근 사각형. 반원 끝이 없으니 가로 padding 도 세로와 비슷하게 */
 .bubble[data-tall="true"] {
   padding: var(--spacing-12) var(--spacing-16);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
 }
 
 .arrow {

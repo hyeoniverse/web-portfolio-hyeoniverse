@@ -41,7 +41,7 @@
   text-align: center;
   padding: var(--spacing-12) var(--spacing-16);
   border: 1px solid color-mix(in srgb, var(--text-secondary) 18%, transparent);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
 }
 
 .ic {
@@ -69,7 +69,7 @@
   gap: var(--spacing-8);
   margin-top: var(--spacing-8);
   padding: var(--badge-padding-lg);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   font: var(--font-code-xs);
   font-weight: var(--font-weight-semibold);
   vertical-align: middle;
@@ -79,7 +79,7 @@
 .dot {
   width: 7px;
   height: 7px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   flex: 0 0 auto;
 }
 
@@ -96,7 +96,7 @@
 .codePill {
   display: inline-block;
   padding: var(--badge-padding-lg);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-tertiary);
   color: var(--text-primary);
   font: var(--font-meta-xs);
@@ -122,7 +122,7 @@
   min-width: 160px;
   padding: var(--spacing-12) var(--spacing-16);
   border: 1px solid var(--text-accent);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
 }
 .hd {
   font: var(--font-code-xs);
@@ -137,7 +137,7 @@
   gap: var(--spacing-16);
   padding: var(--spacing-4) var(--spacing-8);
   border: 1px solid color-mix(in srgb, var(--text-secondary) 12%, transparent);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   font: var(--font-meta-xs);
   color: var(--text-secondary);
 }
@@ -190,7 +190,7 @@
   max-width: 280px;
   padding: var(--spacing-12) var(--spacing-16);
   border: 1px solid color-mix(in srgb, var(--text-secondary) 18%, transparent);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   font: var(--font-meta-md);
   color: var(--text-secondary);
 }
@@ -204,8 +204,8 @@
 .bars { display: flex; flex-direction: column; gap: var(--spacing-12); }
 .barRow { display: flex; align-items: center; gap: var(--spacing-12); }
 .barLabel { flex: 0 0 auto; width: 84px; font: var(--font-meta-xs); color: var(--text-secondary); }
-.track { position: relative; flex: 1 1 auto; height: 16px; border-radius: var(--radius-full); background: var(--bg-tertiary); overflow: hidden; min-width: 80px; }
-.seg { position: absolute; top: 0; bottom: 0; left: 0; border-radius: var(--radius-full); }
+.track { position: relative; flex: 1 1 auto; height: 16px; border-radius: var(--radius-control); background: var(--bg-tertiary); overflow: hidden; min-width: 80px; }
+.seg { position: absolute; top: 0; bottom: 0; left: 0; border-radius: var(--radius-control); }
 .segBad { background: var(--bg-error-solid); }
 .segOk { background: var(--bg-success-solid); }
 .barVal { flex: 0 0 auto; width: 52px; text-align: right; font: var(--font-meta-xs); font-variant-numeric: tabular-nums; color: var(--text-secondary); }
@@ -221,7 +221,7 @@
   flex: 0 0 auto;
   padding: var(--spacing-8) var(--spacing-12);
   border: 1px solid color-mix(in srgb, var(--text-secondary) 18%, transparent);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   font: var(--font-meta-md);
   color: var(--text-secondary);
 }
@@ -275,7 +275,7 @@
   justify-content: center;
   width: 20px;
   height: 20px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--bg-primary);
   border: 1px solid color-mix(in srgb, var(--text-secondary) 24%, transparent);
   font: var(--font-code-xs);
@@ -292,7 +292,7 @@
 .layerHd { text-align: center; font: var(--font-code-xs); font-weight: var(--font-weight-semibold); }
 .layerHd.cut { color: var(--text-error); }
 .layerHd.thru { color: var(--text-success); }
-.layerBox { display: flex; flex-direction: column; gap: var(--spacing-4); padding: var(--spacing-8); border-radius: var(--radius-24); }
+.layerBox { display: flex; flex-direction: column; gap: var(--spacing-4); padding: var(--spacing-8); border-radius: var(--radius-surface); }
 .layerBox.cut { border: 1px dashed var(--border-color-error); }
 .layerBox.thru { border: 1px solid color-mix(in srgb, var(--border-color-success) 45%, transparent); }
 .zrow {
@@ -301,7 +301,7 @@
   font: var(--font-meta-xs);
   color: var(--text-secondary);
   border: 1px solid color-mix(in srgb, var(--text-secondary) 16%, transparent);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
 }
 .zrow.canvas { background: var(--bg-tertiary); color: var(--text-primary); font-family: var(--font-family-code); }
 .reach { text-align: center; font: var(--font-meta-xs); line-height: 1.5; }

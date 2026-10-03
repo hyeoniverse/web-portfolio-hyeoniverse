@@ -4,7 +4,7 @@
   height: 100%;
   position: relative;
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   overflow: hidden;
 }
 
@@ -39,7 +39,7 @@
   min-width: 28px;
   padding: 0 var(--spacing-12);
   border: none;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   font: var(--font-code-md);
   font-weight: 500;
@@ -62,7 +62,7 @@
 .toolbarBtnActive {
   background: var(--text-primary);
   color: var(--bg-primary);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
 }
 
 .toolbar .toolbarBtnActive:hover {
@@ -120,7 +120,7 @@
 /* popover 버튼 — 세그먼트(사각형 radius:0 + border-left 구분선) 무효화 → 기본 캡슐 버튼으로 통일 */
 .tableMenu .tableGroup .toolbarBtn {
   border-left: none;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   padding: 0 var(--spacing-12);
 }
 .tableMenu .tableGroup .toolbarBtn.toolbarBtnSquare {
@@ -173,7 +173,7 @@
   background: var(--bg-glass-strong);
   backdrop-filter: blur(8px);
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   box-shadow: 0 8px 24px oklch(0% 0 0 / 0.18);
   z-index: var(--z-index-dropdown);
 }
@@ -200,7 +200,7 @@
   flex-shrink: 0;
   width: 26px;
   height: 26px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   overflow: hidden;
   background: var(--bg-secondary);
   color: var(--text-secondary);
@@ -245,7 +245,7 @@
 .postLinkCatTag {
   flex-shrink: 0;
   padding: var(--badge-padding-sm);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-secondary);
   color: var(--text-tertiary);
   font: var(--font-body-xs);
@@ -284,7 +284,7 @@
   padding: var(--spacing-2) var(--spacing-12);
   height: 36px;
   border: none;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   font: var(--font-body-lg);
   color: var(--text-primary);
@@ -324,7 +324,7 @@
   content: "";
   position: absolute;
   background: var(--bg-accent-subtle);
-  border-radius: var(--radius-24); /* 블록 컨테이너 radius(md)와 일치 */
+  border-radius: var(--radius-surface); /* 블록 컨테이너 radius(md)와 일치 */
   z-index: -1;
   pointer-events: none;
 }
@@ -494,7 +494,7 @@
   height: 24px;
   padding: 0 var(--spacing-24) 0 var(--spacing-12);
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background-color: transparent;
   background-image: none;
   -webkit-appearance: none;
@@ -540,7 +540,7 @@
   padding: 0;
   gap: 0;
   font: var(--font-body-md);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   max-height: none;
   overflow: visible;
   interpolate-size: allow-keywords;
@@ -559,7 +559,7 @@
   align-items: center;
   height: 24px;
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   overflow: hidden;
   flex-shrink: 0;
 }
@@ -626,7 +626,7 @@
   align-items: stretch;
   max-width: 90vw;
   border: 1px solid var(--border-color-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   /* 테마 표면색(bg-primary) 기반 반투명 — 흰색 틴트(bg-glass-strong)는 다크모드/밝은 배경 위에서
      밝은 글자가 묻혀 안 보였음. 85% 불투명 + blur 로 대비 보장하면서 프로스티드 글래스 유지. */
   background: color-mix(in srgb, var(--bg-primary) 85%, transparent);
@@ -637,7 +637,7 @@
 }
 /* 가로 한 줄(이미지·선택 등) — pill 룩 */
 .floatingBarFrameInline {
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
 }
 /* 드래그 핸들 — 항상 좌측 세로 스트립 (잡고 끌면 바 이동) */
 .floatingBarHandle {
@@ -800,7 +800,7 @@
   position: relative;
   width: 20px;
   height: 20px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   border: var(--border-light);
   padding: 0;
   flex-shrink: 0;
@@ -827,7 +827,7 @@
   align-items: stretch;
   height: 20px;
   padding: 0;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   border: var(--border-light);
   overflow: hidden;
   cursor: pointer;
@@ -952,7 +952,7 @@
   align-items: center;
   height: var(--control-height-sm);
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   overflow: hidden;
   flex-shrink: 0;
 }
@@ -1005,7 +1005,7 @@
 .presetDotInline {
   width: 12px;
   height: 12px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   border: var(--border-light);
   padding: 0;
   align-self: center;
@@ -1082,7 +1082,7 @@
   height: var(--control-height-xs);
   padding: 0 var(--control-padding-inline-xs);
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   font: var(--font-body-xs);
   color: var(--text-secondary);
@@ -1126,7 +1126,7 @@
   gap: var(--spacing-2);
   padding: var(--spacing-2);
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   justify-content: start;
 }
 
@@ -1176,7 +1176,7 @@
   display: inline-flex;
   width: fit-content;
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   overflow: hidden;
 }
 
@@ -1215,7 +1215,7 @@
   align-items: center;
   gap: var(--spacing-2);
   padding: var(--spacing-2) var(--spacing-4);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
 }
 
 .toolbar .colorGroup:hover,
@@ -1242,7 +1242,7 @@
 .presetDot {
   width: 14px;
   height: 14px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   border: var(--border-light);
   padding: 0;
 }
@@ -1277,7 +1277,7 @@
 .presetDotClear {
   width: 14px;
   height: 14px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   border: var(--border-light);
   background: transparent;
   padding: 0;
@@ -1348,13 +1348,13 @@
 /* ── 공식 @platejs/dnd 블록 드래그 (BlockDraggable aboveNodes) ── */
 .blockDraggable {
   position: relative;
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
 }
 /* 핸들 popover 열림 — 대상 블록 강조. 배경은 [data-block-selected] 와 동일한 subtle ::before 로 통합(위 참조). */
 /* 드래그 중인 원본 블록 — 배경 강조 + ghost(반투명) */
 .blockDragging {
   background: color-mix(in oklch, var(--bg-accent-solid) 15%, transparent);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   opacity: 0.45;
 }
 /* 좌측 gutter — hover 시 핸들 노출 */
@@ -1427,7 +1427,7 @@
 .blockToolsTurnBtn:hover {
   background: var(--bg-tertiary);
   color: var(--text-primary);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-control);
 }
 /* 현재 적용된 옵션 (이미지 정렬·토글 상태 등) */
 .blockToolsTurnBtnActive {
@@ -1521,7 +1521,7 @@
   /* 불투명 배경 — backdrop-filter blur 는 고정 헤더가 transform 될 때 매 프레임 백드롭 재샘플링(버벅임)이라 제거 */
   background: var(--bg-secondary);
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.12s ease, background-color 0.12s ease, color 0.12s ease, border-color 0.12s ease;
@@ -1743,7 +1743,7 @@
    (클론은 .editorContent 밖이라 블록별 ::before 배경이 안 그려짐 → 컨테이너 배경으로 통합) */
 .blockDragLayerGroup {
   background: var(--bg-accent-subtle);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   padding: var(--spacing-2) var(--spacing-8);
 }
 /* 열블록 ghost — 컬럼은 불투명 배경이라 컨테이너 배경이 안 보임 → accent 오버레이를 컬럼 위(z-index)에 얹는다.
@@ -1754,7 +1754,7 @@
   position: absolute;
   inset: 0 0 0 40px;
   z-index: 5;
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   background: color-mix(in oklch, var(--bg-accent-solid) 10%, transparent);
   pointer-events: none;
 }
@@ -2010,7 +2010,7 @@
 
 .editorContent iframe {
   max-width: 100%;
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   margin: var(--spacing-16) 0;
 }
 
@@ -2035,7 +2035,7 @@
   height: var(--control-height-sm);
   padding-right: var(--spacing-2);
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   overflow: hidden;
   flex-shrink: 0;
 }
@@ -2100,7 +2100,7 @@
   bottom: calc(-1 * var(--spacing-4));
   left: calc(40px - var(--spacing-4));
   z-index: -1;
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   background: var(--bg-tertiary);
   opacity: 0;
   transition: opacity 0.15s ease;
@@ -2151,7 +2151,7 @@
   left: -12px;
   right: 0;
   z-index: 2;
-  border-radius: var(--radius-24); /* 블록 컨테이너 radius(md)와 일치 */
+  border-radius: var(--radius-surface); /* 블록 컨테이너 radius(md)와 일치 */
   background: var(--bg-accent-subtle);
   pointer-events: none;
 }
@@ -2166,7 +2166,7 @@
   top: var(--tbl-t);
   width: var(--tbl-w);
   height: var(--tbl-h);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
 }
 
 .colElement::after {

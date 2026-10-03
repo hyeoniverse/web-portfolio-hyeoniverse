@@ -61,7 +61,7 @@
   flex: 1;
   min-height: 2rem;
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
 }
 
 /* 서체 */
@@ -108,7 +108,7 @@
 .spaceBar {
   width: 10px;
   background: var(--text-accent);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
 }
 
 /* 모서리 */
@@ -158,7 +158,7 @@
   width: 12px;
   height: 12px;
   background: var(--text-accent);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   animation: slide 1.8s infinite alternate;
 }
 

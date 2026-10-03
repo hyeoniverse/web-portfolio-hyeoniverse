@@ -67,7 +67,7 @@
   position: relative;
   width: var(--control-height-xs);
   height: var(--control-height-xs);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   border: 2px solid transparent;
   background: transparent;
   padding: 0;
@@ -81,7 +81,7 @@
 .presetSwatchInner {
   width: 100%;
   height: 100%;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
 }
 
 .presetSwatchActive {
@@ -101,7 +101,7 @@
   color: var(--text-secondary);
   background: var(--bg-primary);
   padding: var(--spacing-2) var(--spacing-8);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   white-space: nowrap;
   opacity: 0;
   pointer-events: none;
@@ -171,7 +171,7 @@
 .colorBox {
   width: 100%;
   aspect-ratio: 1;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
 }
 
 .colorBoxBordered {
@@ -203,7 +203,7 @@
 .brandBox {
   width: 100px;
   height: 64px;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
 }
 
 /* Typography showcase */
@@ -243,7 +243,7 @@
 .spacingBar {
   height: 20px;
   background: var(--bg-accent);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   border: var(--border-accent);
   transition: background var(--duration-base) var(--ease-material);
 }
@@ -327,7 +327,7 @@
   width: 100%;
   height: 80px;
   background: var(--bg-primary);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
 }
 
 .shadowLabel {
@@ -344,7 +344,7 @@
 
 .motionItem {
   padding: var(--row-padding-lg);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
 }
 
 .motionName {
@@ -409,7 +409,7 @@
   align-items: center;
   gap: var(--spacing-12);
   padding: var(--spacing-8) var(--spacing-16);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   font: var(--font-code-sm);
   color: var(--text-primary);
   background: var(--bg-primary);
@@ -492,7 +492,7 @@
 .semanticItem {
   display: flex;
   align-items: stretch;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   border: var(--border-light);
   overflow: hidden;
 }
@@ -539,7 +539,7 @@
 .alphaBar {
   flex: 1;
   border: var(--border-light);
-  border-radius: var(--radius-full) var(--radius-full) 0 0;
+  border-radius: var(--radius-control) var(--radius-control) 0 0;
   min-width: 0;
 }
 
@@ -596,7 +596,7 @@
   top: 0.62em;
   width: 4px;
   height: 4px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--text-tertiary);
 }
 
@@ -609,7 +609,7 @@
 .typewriterDemo {
   position: relative;
   padding: var(--spacing-32);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   text-align: center;
 }
 
@@ -621,7 +621,7 @@
   width: var(--control-height-xs);
   height: var(--control-height-xs);
   border: var(--border-neutral-light);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--bg-tertiary);
   color: var(--text-tertiary);
   transition: background var(--duration-fast) ease, border-color var(--duration-fast) ease, color var(--duration-fast) ease;
@@ -642,7 +642,7 @@
   width: var(--control-height-xs);
   height: var(--control-height-xs);
   border: var(--border-light);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--bg-tertiary);
   color: var(--text-secondary);
   transition: background var(--duration-fast) ease, color var(--duration-fast) ease;
@@ -688,7 +688,7 @@
   padding: var(--spacing-12) var(--spacing-20);
   /* 팝오버가 아래로 열려 배경 위에 겹쳐 보이도록 높이 확보 */
   min-height: 200px;
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   background: var(--bg-secondary);
 }
 
@@ -754,7 +754,7 @@
   font-style: italic;
   color: var(--text-primary);
   padding: var(--spacing-8) var(--spacing-16);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
 }
 
 /* Banner Layouts showcase */
@@ -777,7 +777,7 @@
 
 .bannerPreviewBox {
   position: relative;
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
 }
 
 .bannerPreviewBox a {
@@ -834,7 +834,7 @@
 .editorPlaceholder {
   height: 400px;
   background: var(--bg-secondary);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
 }
 
 /* ── Principles Section ── */

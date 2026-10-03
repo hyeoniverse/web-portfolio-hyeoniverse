@@ -4,7 +4,7 @@
   gap: var(--spacing-2);
   padding: var(--spacing-2) var(--spacing-12);
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   font: var(--font-body-sm);
   color: var(--text-secondary);
@@ -129,7 +129,7 @@
   padding: var(--spacing-1) var(--spacing-4);
   border: var(--border-light);
   border-bottom-width: 2px;
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   background: var(--bg-secondary);
   font: var(--font-code-sm);
   color: var(--text-primary);
@@ -139,7 +139,7 @@
 /* 핵심 단어 highlight */
 .hl {
   padding: 0 var(--spacing-2);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   background: var(--bg-accent-light);
   color: var(--text-accent);
   font-weight: var(--font-weight-semibold);

@@ -54,7 +54,7 @@
   padding: var(--spacing-2) var(--spacing-4) var(--spacing-2)
     var(--spacing-12);
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-primary);
   font: var(--font-body-sm);
   color: var(--text-secondary);
@@ -70,7 +70,7 @@
   height: 18px;
   padding: 0;
   border: none;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-tertiary);
   cursor: pointer;

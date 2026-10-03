@@ -31,7 +31,7 @@
   height: var(--control-height-lg);
   padding: 0 var(--control-padding-inline-lg);
   border: var(--border-success);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-success-solid);
   font: var(--font-body-md);
   font-weight: 500;
@@ -111,7 +111,7 @@
 .filterReset {
   padding: var(--spacing-4) var(--spacing-12);
   border: none;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   font: var(--font-body-sm);
   color: var(--text-tertiary);
@@ -139,7 +139,7 @@
   width: 280px;
   background: var(--bg-primary);
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   box-shadow: var(--shadow-lg);
   overflow: hidden;
   pointer-events: none;
@@ -255,7 +255,7 @@
 .previewTag {
   padding: var(--badge-padding-md);
   background: var(--bg-tertiary);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   font: var(--font-body-xs);
   color: var(--text-tertiary);
 }

@@ -77,7 +77,7 @@
   height: var(--control-height-md);
   padding: 0 var(--spacing-4) 0 var(--spacing-12);
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   /* 배경은 페이지와 같게 — 주변 캡슐(버튼·Select)이 전부 아웃라인이라 채운 회색만 혼자 탁해 보인다 */
   background: transparent;
 }
@@ -113,7 +113,7 @@
 .mediaFormatList .addFormatChip {
   border-style: dashed;
   background: transparent;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   color: var(--text-tertiary);
 }
 

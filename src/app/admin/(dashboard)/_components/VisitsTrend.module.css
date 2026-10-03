@@ -30,7 +30,7 @@
   transform: translate(-50%, -50%);
   width: 6px;
   height: 6px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--bg-accent-solid);
   border: var(--spacing-2) solid var(--bg-primary);
   box-sizing: content-box;

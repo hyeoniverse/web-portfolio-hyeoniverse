@@ -13,7 +13,7 @@
   border: var(--border-strong);
   position: relative;
   background: var(--bg-glass-subtle);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   user-select: none;
 }
 
@@ -45,7 +45,7 @@
   font: var(--font-body-sm);
   font-weight: var(--font-weight-medium);
   letter-spacing: 0.05em;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
 }
 
 /* sm size — 작은 폼/패널용 컴팩트 변형 */

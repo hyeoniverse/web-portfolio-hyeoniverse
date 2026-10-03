@@ -95,7 +95,7 @@
   bottom: var(--_space-line);
   z-index: 2;
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   backdrop-filter: blur(14px) saturate(1.4);
   font-family: var(--font-family-code);
@@ -233,7 +233,7 @@
   width: clamp(24px, 2vw, 32px);
   height: clamp(24px, 2vw, 32px);
   font: var(--font-display-sm);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
 }
 
 .codeItemMobile .codeMobileToggle {
@@ -332,7 +332,7 @@
   font: var(--font-prose-sm);
   color: var(--text-secondary);
   pointer-events: none;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
 }
 
 /* ── Demo 5: ClipPath Direction Reveal ── */
@@ -354,7 +354,7 @@
   flex-shrink: 0;
   width: 40px;
   height: 30px;
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
 }
 
 @keyframes demoMarquee {

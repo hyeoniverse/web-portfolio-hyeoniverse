@@ -332,7 +332,7 @@
   padding: var(--spacing-16);
   margin: var(--spacing-24) 0;
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   background: var(--bg-secondary);
 }
 
@@ -373,7 +373,7 @@
   margin: var(--spacing-20) 0;
   padding: var(--spacing-8) var(--spacing-16);
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   background: var(--bg-secondary);
   overflow-x: auto;
 }
@@ -391,7 +391,7 @@
   margin: var(--spacing-20) 0;
   padding: var(--spacing-8) var(--spacing-16);
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   background: var(--bg-secondary);
 }
 

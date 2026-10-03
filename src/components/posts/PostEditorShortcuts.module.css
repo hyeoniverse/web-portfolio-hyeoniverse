@@ -131,7 +131,7 @@
   color: var(--text-primary);
   background: var(--bg-tertiary);
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   padding: var(--badge-padding-md);
   white-space: nowrap;
 }

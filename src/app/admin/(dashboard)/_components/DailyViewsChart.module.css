@@ -199,7 +199,7 @@
   transform: translate(-50%, -50%);
   width: 6px;
   height: 6px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--bg-accent-solid);
   opacity: 0;
   transition:
@@ -338,7 +338,7 @@
   /* areaDays height (button-h-md) 에 맞춰 — 날짜 + dow 두 줄 텍스트 다 덮음 */
   width: var(--control-height-xl);
   height: var(--control-height-xl);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--bg-tertiary);
   transform: translate(-50%, -50%);
   transition:

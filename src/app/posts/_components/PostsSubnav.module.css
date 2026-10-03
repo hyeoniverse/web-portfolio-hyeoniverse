@@ -10,7 +10,7 @@
 
 .item {
   padding: var(--row-padding-sm);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   font: var(--font-body-md);
   font-weight: var(--font-weight-medium);
   color: var(--text-tertiary);

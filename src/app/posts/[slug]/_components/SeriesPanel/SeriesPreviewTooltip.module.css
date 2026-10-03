@@ -7,7 +7,7 @@
   width: 240px;
   background: var(--bg-primary);
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   box-shadow: var(--shadow-xl);
   overflow: hidden;
   pointer-events: none;
@@ -71,7 +71,7 @@
 .seriesPreviewTag {
   padding: var(--badge-padding-md);
   background: var(--bg-tertiary);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   font: var(--font-body-xs);
   color: var(--text-tertiary);
 }

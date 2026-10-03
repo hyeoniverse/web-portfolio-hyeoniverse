@@ -107,7 +107,7 @@
   height: var(--control-height-xs);
   padding: 0 var(--spacing-12);
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   font: var(--font-body-xs);
   color: var(--text-secondary);
   letter-spacing: 0.04em;
@@ -164,7 +164,7 @@
   width: 3px;
   height: 3px;
   background: var(--text-muted);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
 }
 
 @media (max-width: 1024px) {

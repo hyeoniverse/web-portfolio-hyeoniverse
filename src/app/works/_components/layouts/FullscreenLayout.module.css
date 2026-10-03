@@ -134,7 +134,7 @@
 .introLabelDot {
   width: 6px;
   height: 6px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--bg-accent-solid);
   box-shadow: 0 0 12px var(--border-color-accent-strong);
   animation: introDotPulse 2.4s ease-in-out infinite;
@@ -335,7 +335,7 @@
   position: relative;
   width: 52px;
   height: 52px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   border: var(--border-ghost);
   display: flex;
   align-items: center;
@@ -346,7 +346,7 @@
 .ctaBg {
   position: absolute;
   inset: 0;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-control);
   background: var(--bg-white);
   transform: scale(0);
   transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);

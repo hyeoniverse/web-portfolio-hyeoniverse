@@ -28,7 +28,7 @@
 .ideStatusDot {
   width: 6px;
   height: 6px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--bg-primary);
   opacity: 0.7;
 }
@@ -50,7 +50,7 @@
   height: 1.8em;
   padding: 0;
   border: none;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   color: inherit;
   cursor: pointer;
@@ -82,7 +82,7 @@
   font-size: inherit;
   font-weight: var(--font-weight-semibold);
   cursor: pointer;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   transition: background-color 0.15s ease;
 }
 
@@ -110,7 +110,7 @@
   padding: var(--spacing-8) var(--spacing-12);
   background: var(--text-primary);
   color: var(--bg-primary);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   font: var(--font-meta-sm);
   white-space: nowrap;
   pointer-events: none;

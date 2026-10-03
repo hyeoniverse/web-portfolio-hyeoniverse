@@ -15,7 +15,7 @@
   --_gap-lg: 1.6vw;
 
   /* Sizes */
-  --_radius-card: var(--radius-24);
+  --_radius-card: var(--radius-surface);
   --_size-close-btn: 3vw;
   --_size-close-icon: 1.5vw;
   --_size-copy-icon: 1.25vw;
@@ -94,7 +94,7 @@
   background: var(--bg-white);
   color: var(--text-black);
   transition: all var(--duration-base) ease;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
 }
 
 /* CloseIcon size override */
@@ -152,7 +152,7 @@
   font-size: var(--_font-size-md);
   color: var(--text-black);
   transition: border-color var(--duration-base) ease;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
 }
 
 .input::placeholder {
@@ -184,7 +184,7 @@
   color: var(--text-black);
   text-align: center;
   transition: all var(--duration-slow) var(--ease-material);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   transform: scale(1);
 }
 
@@ -229,7 +229,7 @@
   color: var(--text-black);
   animation: fileCancelAppear var(--duration-slow) var(--ease-bounce) forwards;
   transition: all 0.4s var(--ease-material);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   opacity: 0;
   transform: scale(0.8) rotate(-90deg);
 }
@@ -311,7 +311,7 @@
   white-space: nowrap;
   transition: all 0.4s var(--ease-bounce);
   pointer-events: none;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   opacity: 0;
   transform: translateX(-50%) translateY(10px);
 }
@@ -354,7 +354,7 @@
   height: var(--_size-checkbox);
   transition: all var(--duration-fast) ease;
   /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 동의 체크박스 — 네모가 곧 의미 */
-  border-radius: var(--radius-4);
+  border-radius: var(--radius-mark);
   appearance: none;
   -webkit-appearance: none;
 }
@@ -402,7 +402,7 @@
   color: var(--bg-white);
   letter-spacing: 0.01em;
   transition: all var(--duration-base) ease;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
 }
 
 .submitBtn:hover {
@@ -505,7 +505,7 @@
   font-weight: var(--font-weight-medium);
   color: var(--text-secondary);
   text-align: center;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
 }
 
 .successDivider {
@@ -560,7 +560,7 @@
   font-family: var(--font-family-code);
   font-size: var(--_font-size-sm);
   color: var(--text-tertiary);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
 }
 
 .successAttachment svg {
@@ -585,7 +585,7 @@
   color: var(--text-black);
   letter-spacing: 0.02em;
   transition: all var(--duration-base) ease;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
 }
 
 .successBtn:hover {
@@ -647,7 +647,7 @@
   color: var(--text-black);
   letter-spacing: -0.075em;
   transition: border var(--duration-fast) ease;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
 }
 
 .emailAddress:hover {
@@ -724,7 +724,7 @@
   overflow: hidden;
   height: var(--_size-profile-image);
   background: var(--text-secondary);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   aspect-ratio: 1/1;
 }
 
@@ -777,7 +777,7 @@
      예전에는 svg fill 만 줘서 글리프가 본문 글자색을 따라갔고, 밝은 테마에서 검은 원 위의 검은 글리프가 됐다 */
   color: var(--bg-white);
   transition: all var(--duration-base) ease;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
 }
 
 .socialIcon:hover {
@@ -831,7 +831,7 @@
     --_gap-sm: clamp(5px, 1vw, 8px);
     --_gap-md: clamp(10px, 1.8vw, 14px);
     --_gap-lg: clamp(16px, 3.1vw, 24px);
-    --_radius-card: var(--radius-24);
+    --_radius-card: var(--radius-surface);
     --_size-close-btn: clamp(36px, 6.25vw, 48px);
     --_size-close-icon: clamp(16px, 2.9vw, 22px);
     --_size-copy-icon: clamp(14px, 2.6vw, 20px);
@@ -904,7 +904,7 @@
     border: none;
     background: var(--text-black);
     color: var(--bg-white);
-    border-radius: var(--radius-circle);
+    border-radius: var(--radius-full);
   }
 
   .emailHeaderClose {

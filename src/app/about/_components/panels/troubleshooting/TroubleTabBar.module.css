@@ -67,7 +67,7 @@
 .ideTabDot {
   width: 6px;
   height: 6px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--text-accent);
   opacity: 0.5;
 }

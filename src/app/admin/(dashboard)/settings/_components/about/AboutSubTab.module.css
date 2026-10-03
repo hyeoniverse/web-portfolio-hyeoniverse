@@ -13,7 +13,7 @@
 /* ── 카드 ── */
 .card {
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   overflow: hidden;
   background: transparent;
 }
@@ -30,7 +30,7 @@
   width: 28px;
   height: 28px;
   flex-shrink: 0;
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   background: var(--bg-accent-subtle);
   color: var(--text-accent);
 }
@@ -63,7 +63,7 @@
   height: var(--control-height-xs);
   padding: 0 var(--control-padding-inline-xs);
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   color: var(--text-secondary);
   font: var(--font-body-sm);
@@ -152,7 +152,7 @@
   flex-shrink: 0;
   overflow: hidden;
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
 }
 .mediaThumb img,
 .mediaThumb video {
@@ -194,7 +194,7 @@
   height: var(--control-height-xs);
   padding: 0 var(--control-padding-inline-xs);
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   color: var(--text-secondary);
   font: var(--font-body-sm);
@@ -219,7 +219,7 @@
   padding: var(--row-padding-lg);
   padding-right: var(--spacing-48);
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
 }
 .itemRemove {
   position: absolute;
@@ -251,7 +251,7 @@
   height: var(--control-height-lg);
   padding: 0 var(--control-padding-inline-lg);
   border: 1px solid var(--border-color-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   color: var(--text-secondary);
   font: var(--font-body-md);
@@ -286,7 +286,7 @@
   gap: var(--spacing-8);
   padding: var(--spacing-4) var(--spacing-12);
   border: 0;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   color: var(--text-primary);
   font: var(--font-body-md);
@@ -374,7 +374,7 @@
   flex-shrink: 0;
   min-width: 18px;
   padding: 0 var(--spacing-4);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-secondary);
   font: var(--font-code-xs);
   line-height: 1.6;
@@ -480,7 +480,7 @@
   flex-shrink: 0;
   overflow: hidden;
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   color: var(--text-secondary);
   font: var(--font-code-sm);
   font-weight: 600;
@@ -507,7 +507,7 @@
   flex-shrink: 0;
   padding: 0;
   border: 0;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-tertiary);
   cursor: pointer;
@@ -524,7 +524,7 @@
   flex-shrink: 0;
   overflow: hidden;
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
 }
 .fieldMediaThumb img,
 .fieldMediaThumb video {

@@ -31,7 +31,7 @@
   width: var(--erd-col-w);
   padding-bottom: var(--erd-pad-y);
   border: 1px solid var(--border-color-light);
-  border-radius: 10px;
+  border-radius: var(--radius-surface);
   background: var(--bg-primary);
   box-shadow: var(--shadow-sm);
   overflow: hidden;
@@ -85,7 +85,7 @@
   white-space: nowrap;
   text-overflow: ellipsis;
   padding: var(--spacing-1) var(--spacing-8);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-accent-subtle);
   color: var(--text-accent);
   font: var(--font-body-xs);
@@ -98,7 +98,7 @@
 .kindMulti,
 .kindDerived {
   padding: 0 var(--spacing-4);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   font: var(--font-body-xs);
   font-weight: var(--font-weight-bold);
   white-space: nowrap;
@@ -167,7 +167,7 @@
 /* UNIQUE / 인덱스 — 배지는 작게, 인덱스는 더 옅게 (제약이 아니라 조회 경로다) */
 .flag,
 .flagSoft {
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   padding: var(--spacing-1) var(--spacing-4);
   font: var(--font-body-xs);
   font-weight: var(--font-weight-bold);
@@ -192,7 +192,7 @@
 .kindView {
   flex: none;
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   padding: var(--spacing-1) var(--spacing-8);
   color: var(--text-info-strong);
   font: var(--font-body-xs);
@@ -216,7 +216,7 @@
 .wrapConnectable .handle {
   width: 9px;
   height: 9px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--bg-accent-solid);
   pointer-events: auto;
   cursor: crosshair;

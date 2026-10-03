@@ -8,7 +8,7 @@
   z-index: var(--z-index-float);
   width: 300px;
   border: var(--border-default);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   background: var(--bg-primary);
   overflow: hidden;
 }

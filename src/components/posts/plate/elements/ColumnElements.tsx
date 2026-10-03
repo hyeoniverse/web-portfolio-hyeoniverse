@@ -297,7 +297,7 @@ export function ColumnElement(props: PlateElementProps) {
       ...props.style,
       ...(px != null ? { flex: `0 var(--_col-shrink, 0) ${px}px` } : { flex: `${weight} 1 0` }),
       minWidth: COLUMN_MIN_PX,
-      borderRadius: "var(--radius-24)",
+      borderRadius: "var(--radius-surface)",
       background: `var(--_col-bg, ${COLUMN_DEFAULT_BG})`,
       padding: "var(--spacing-12)",
     }}>

@@ -13,7 +13,7 @@
   border: var(--border-strong);
   position: absolute;
   pointer-events: none;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-control);
 }
 
 /* Primary oval group — 스크롤에 따라 위아래 등간격 펼침 */
@@ -141,7 +141,7 @@
   width: 8px;
   height: 8px;
   background: var(--text-accent-alt);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
 }
 
 .pulseDot::before {

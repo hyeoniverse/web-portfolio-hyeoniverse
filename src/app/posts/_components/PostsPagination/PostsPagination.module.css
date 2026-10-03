@@ -22,7 +22,7 @@
   align-items: center;
   justify-content: center;
   border: var(--border-default);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: transparent;
   font: var(--font-body-sm);
   color: var(--text-secondary);

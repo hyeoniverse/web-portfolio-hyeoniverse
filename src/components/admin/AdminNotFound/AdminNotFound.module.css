@@ -27,7 +27,7 @@
   height: var(--control-height-xl);
   padding: 0 var(--control-padding-inline-xl);
   border: var(--border-strong);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   font: var(--font-body-md);
   color: var(--text-primary);
   text-decoration: none;

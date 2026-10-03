@@ -15,7 +15,7 @@
 .capsule {
   padding: var(--spacing-4) var(--spacing-12);
   background: var(--bg-secondary);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
 }
 
 /* bare — text-only (TagNotesEditor 패턴) */
@@ -39,7 +39,7 @@
   bottom: 0;
   width: 2px;
   background: var(--bg-accent-solid);
-  border-radius: 1px;
+  border-radius: var(--radius-full);
   pointer-events: none;
 }
 

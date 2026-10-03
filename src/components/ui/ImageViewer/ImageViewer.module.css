@@ -96,7 +96,7 @@
   height: 34px;
   padding: 0;
   border: none;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-secondary);
   transition: background 0.12s, color 0.12s;
@@ -122,7 +122,7 @@
   font-variant-numeric: tabular-nums;
   padding: var(--spacing-4) 0;
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
 }
 
 .toolbarDivider {
@@ -217,7 +217,7 @@
   height: var(--float-button-size-md);
   padding: 0;
   border: var(--border-default);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--bg-glass);
   backdrop-filter: blur(8px);
   color: var(--text-primary);
@@ -317,7 +317,7 @@
   right: 0;
   margin-top: var(--spacing-8);
   padding: var(--spacing-12) 0;
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   background: var(--bg-primary);
   border: var(--border-light);
   box-shadow: 0 8px 24px oklch(0.00% 0.0000 0.00 / 0.25);
@@ -372,7 +372,7 @@
   height: var(--badge-height);
   padding: 0 var(--spacing-8);
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-tertiary);
   font: var(--font-body-xs);
   font-weight: 500;
@@ -394,7 +394,7 @@
   right: 0;
   margin-top: var(--spacing-4);
   padding: var(--spacing-8) var(--spacing-12);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   background: var(--bg-primary);
   border: var(--border-light);
   box-shadow: 0 8px 24px oklch(0.00% 0.0000 0.00 / 0.25);
@@ -423,7 +423,7 @@
   left: 0;
   margin-top: var(--spacing-8);
   padding: var(--spacing-12) var(--spacing-20);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   background: var(--bg-primary);
   border: var(--border-light);
   box-shadow: 0 8px 24px oklch(0.00% 0.0000 0.00 / 0.25);
@@ -489,7 +489,7 @@
 .intervalTrack {
   position: relative;
   display: flex;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-tertiary);
   border: var(--border-light);
   padding: var(--spacing-2);
@@ -515,7 +515,7 @@
   height: 24px;
   padding: 0 var(--spacing-8);
   border: none;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   font: var(--font-body-sm);
   font-variant-numeric: tabular-nums;
@@ -602,7 +602,7 @@
   height: var(--control-height-xs);
   border: var(--border-light-2);
   border-top-color: var(--text-muted);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   animation: viewer-spin 0.65s linear infinite;
 }
 
@@ -819,7 +819,7 @@
   left: var(--spacing-4);
   bottom: var(--spacing-4);
   padding: var(--spacing-2) var(--spacing-8);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-inverse);
   color: var(--text-inverse);
   font: var(--font-body-xs);
@@ -849,7 +849,7 @@
   right: 0;
   margin-top: var(--spacing-4);
   padding: var(--spacing-4) 0;
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   background: var(--bg-primary);
   border: var(--border-light);
   box-shadow: 0 8px 24px oklch(0.00% 0.0000 0.00 / 0.18);

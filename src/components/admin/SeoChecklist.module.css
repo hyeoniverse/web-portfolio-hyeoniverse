@@ -112,7 +112,7 @@
   width: var(--size);
   height: var(--size);
   aspect-ratio: 1 / 1;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: conic-gradient(
     currentColor calc(var(--p) * 1%),
     var(--bg-tertiary) 0
@@ -246,7 +246,7 @@
   justify-content: center;
   width: 20px;
   height: 20px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   flex-shrink: 0;
 }
 
@@ -263,7 +263,7 @@
 .iconDot {
   width: 6px;
   height: 6px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: currentColor;
   opacity: 0.6;
 }
@@ -342,7 +342,7 @@
   align-items: center;
   gap: var(--spacing-4);
   padding: var(--row-padding-sm);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   border: var(--border-light);
   font: var(--font-body-xs);
   color: var(--text-secondary);

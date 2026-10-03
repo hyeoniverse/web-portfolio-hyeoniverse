@@ -141,7 +141,7 @@
   position: relative;
   width: calc(100vw - 3rem);
   height: calc(100vh - var(--header-height) - 1.5rem - 0.75rem);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
 }
 
 .windowsContainer {
@@ -194,7 +194,7 @@
   overflow: hidden;
   position: absolute;
   color: var(--text-primary);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
 }
 
 .windowsContainer .osWindowExpanded {
@@ -274,7 +274,7 @@
   color: var(--text-white);
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
 }
 
 .bgInfoValue {
@@ -323,7 +323,7 @@
   position: relative;
   aspect-ratio: 4 / 5;
   overflow: hidden;
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
 }
 
 .magFeatureInfo {
@@ -575,7 +575,7 @@
   width: 10px;
   height: 10px;
   background: var(--bg-primary);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
 }
 
 .expLine {

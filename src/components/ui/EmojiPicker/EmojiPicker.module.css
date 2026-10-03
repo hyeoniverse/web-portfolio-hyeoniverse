@@ -6,7 +6,7 @@
   width: 340px;
   background: var(--bg-primary);
   border: 1px solid var(--border-color-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
@@ -63,7 +63,7 @@
   bottom: 0;
   height: 2px;
   background: var(--text-primary);
-  border-radius: 1px;
+  border-radius: var(--radius-full);
   opacity: 0;
   transition: left 0.2s ease-out, width 0.2s ease-out, opacity 0.15s;
 }
@@ -82,7 +82,7 @@
   align-items: center;
   gap: var(--spacing-8);
   border: 1px solid var(--border-color-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   padding: var(--spacing-4) var(--spacing-12);
 }
 .searchInput {
@@ -108,7 +108,7 @@
   align-items: center;
   justify-content: center;
   border: 1px solid var(--border-color-light);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: transparent;
   cursor: pointer;
   color: var(--text-muted);
@@ -145,7 +145,7 @@
   justify-content: center;
   border: none;
   cursor: pointer;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: transparent;
   padding: 0;
 }
@@ -169,7 +169,7 @@
   justify-content: center;
   padding: 0;
   border: 1.5px solid var(--bg-primary);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--bg-error-solid);
   color: var(--text-white);
   font: var(--font-body-xs);
@@ -215,7 +215,7 @@
   font: var(--font-body-md);
   border: none;
   cursor: pointer;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: transparent;
   padding: 0;
   flex-shrink: 0;
@@ -255,7 +255,7 @@
   width: 100%;
   padding: var(--spacing-32) var(--spacing-16);
   border: 1.5px dashed var(--border-color-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   background: var(--bg-tertiary);
   cursor: pointer;
   display: flex;

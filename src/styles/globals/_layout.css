@@ -163,7 +163,7 @@ nav#side-navigation::after {
   overflow: hidden;
   background: var(--bg-dialog);
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
 }
 
 /* ==========================================================================
@@ -196,7 +196,7 @@ nav#side-navigation::after {
     max-width: none !important;
     min-height: 0;
     max-height: 85vh;
-    border-radius: var(--radius-24) var(--radius-24) 0 0;
+    border-radius: var(--radius-surface) var(--radius-surface) 0 0;
     translate: 0 var(--sheet-y, 0px);
     transition:
       min-height 0.35s cubic-bezier(0.16, 1, 0.3, 1),

@@ -251,7 +251,7 @@ export default function PickersSelectsDemos() {
                       height: 32,
                       padding: 0,
                       border: "1px solid var(--border-color-solid)",
-                      borderRadius: "var(--radius-circle)",
+                      borderRadius: "var(--radius-full)",
                       background: pickerColor,
                       cursor: "pointer",
                     }}
@@ -297,7 +297,7 @@ export default function PickersSelectsDemos() {
             <div style={{ display: "flex", gap: "var(--spacing-20)", flexWrap: "wrap", alignItems: "flex-start" }}>
               <div style={{ minWidth: 230 }}>
                 <div style={{ display: "inline-block", fontSize: "var(--font-size-body-sm)", color: "var(--text-tertiary)", marginBottom: "var(--spacing-8)", padding: "var(--spacing-4) var(--spacing-12)", border: "var(--border-light)", borderRadius: "var(--radius-full)" }}>Spinner</div>
-                <div style={{ border: "var(--border-light)", borderRadius: "var(--radius-24)", overflow: "hidden" }}>
+                <div style={{ border: "var(--border-light)", borderRadius: "var(--radius-surface)", overflow: "hidden" }}>
                   <DatePicker
                     year={dpDate.year}
                     month={dpDate.month}
@@ -311,7 +311,7 @@ export default function PickersSelectsDemos() {
               </div>
               <div style={{ minWidth: 230 }}>
                 <div style={{ display: "inline-block", fontSize: "var(--font-size-body-sm)", color: "var(--text-tertiary)", marginBottom: "var(--spacing-8)", padding: "var(--spacing-4) var(--spacing-12)", border: "var(--border-light)", borderRadius: "var(--radius-full)" }}>Calendar</div>
-                <div style={{ border: "var(--border-light)", borderRadius: "var(--radius-24)", overflow: "hidden" }}>
+                <div style={{ border: "var(--border-light)", borderRadius: "var(--radius-surface)", overflow: "hidden" }}>
                   <DatePicker
                     year={dpDate.year}
                     month={dpDate.month}
@@ -343,7 +343,7 @@ export default function PickersSelectsDemos() {
           <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-start", gap: "var(--spacing-24)" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-8)" }}>
               <span className={styles.sliderLabel}>TimePicker — {dsTime.hour}:{dsTime.minute}</span>
-              <div style={{ border: "var(--border-light)", borderRadius: "var(--radius-24)", overflow: "hidden" }}>
+              <div style={{ border: "var(--border-light)", borderRadius: "var(--radius-surface)", overflow: "hidden" }}>
                 <TimePicker hour={dsTime.hour} minute={dsTime.minute} minuteStep={5} onSelect={(hour, minute) => setDsTime({ hour, minute })} />
               </div>
             </div>

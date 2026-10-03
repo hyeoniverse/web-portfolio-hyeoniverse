@@ -16,7 +16,7 @@
   width: var(--size-56);
   height: var(--size-56);
   margin-bottom: var(--spacing-4);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--bg-accent-light);
   color: var(--text-accent);
 }

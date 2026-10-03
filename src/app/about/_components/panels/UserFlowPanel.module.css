@@ -42,7 +42,7 @@
   justify-content: center;
   width: 40px;
   height: 40px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--bg-accent-light);
   border: 1.5px solid var(--border-color-accent-strong);
   color: var(--text-accent);
@@ -195,7 +195,7 @@
 .ufMobileFlowGroup {
   padding: var(--spacing-16);
   border: var(--border-default);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
 }
 
 .ufMobileFlowActive {
@@ -252,7 +252,7 @@
 .ufMobileDot {
   width: 8px;
   height: 8px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--text-tertiary);
   flex-shrink: 0;
 }

@@ -5,7 +5,7 @@
   /* 실제 편집기처럼 넉넉하게 — 스키마는 길다 */
   height: 20rem;
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   /* 회색 배경을 쓰지 않는다 — 본문과 같은 바탕 위에서 코드만 도드라지게 */
   background: var(--bg-primary);
   overflow: hidden;
@@ -74,7 +74,7 @@
 .editor :global(.cm-tooltip),
 .editor :global(.cm-panels) {
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   background: var(--bg-surface);
   color: var(--text-primary);
   font: var(--font-body-sm);
@@ -86,7 +86,7 @@
   font-family: var(--font-family-code), monospace;
 }
 .editor :global(.cm-tooltip-autocomplete > ul > li[aria-selected]) {
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-accent-subtle);
   color: var(--text-accent);
 }
@@ -104,7 +104,7 @@
 .editor :global(.cm-panel.cm-search input),
 .editor :global(.cm-panel.cm-search button) {
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   display: inline-flex;
   align-items: center;
   height: var(--control-height-xs);

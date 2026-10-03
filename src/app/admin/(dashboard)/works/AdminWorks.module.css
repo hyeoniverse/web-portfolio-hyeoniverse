@@ -23,6 +23,6 @@
 .uploadGuide table { width: 100%; border-collapse: collapse; font: var(--font-body-sm); margin: var(--spacing-8) 0; }
 .uploadGuide th, .uploadGuide td { padding: var(--cell-padding-sm); border-bottom: var(--border-light); text-align: left; }
 .uploadGuide th { color: var(--text-primary); font-weight: 600; }
-.uploadGuide pre { background: var(--bg-tertiary); border-radius: var(--radius-24); padding: var(--spacing-12); overflow-x: auto; margin: var(--spacing-8) 0; }
+.uploadGuide pre { background: var(--bg-tertiary); border-radius: var(--radius-surface); padding: var(--spacing-12); overflow-x: auto; margin: var(--spacing-8) 0; }
 .uploadGuide code { font: var(--font-code-sm); color: var(--text-primary); }
 .uploadGuideNote { font: var(--font-body-sm); font-style: italic; color: var(--text-muted); }

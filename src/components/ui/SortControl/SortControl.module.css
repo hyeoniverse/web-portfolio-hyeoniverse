@@ -8,7 +8,7 @@
   align-items: stretch;
   height: var(--control-height-sm);
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   /* 배경 없음 — 다른 컨트롤처럼 투명. 캡슐 끝단까지 테두리가 온전히 보이도록 내부 컨트롤을 clip */
   overflow: hidden;
 }
@@ -17,7 +17,7 @@
 .group button {
   height: 100%;
   border: none !important;
-  border-radius: 0 !important;
+  border-radius: 0!important;
   background: transparent !important;
   /* ghost Button 의 backdrop-filter blur 가 뒤(pill border 포함)를 frost 처리해 테두리를 덮던 문제 차단 */
   backdrop-filter: none !important;

@@ -1,7 +1,7 @@
 .message {
   font: var(--font-body-sm);
   padding: var(--spacing-4) var(--spacing-16);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
 }
 
 .messageSuccess {
@@ -237,7 +237,7 @@
   height: var(--control-height-xs);
   padding: 0;
   border: var(--border-light);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: transparent;
   flex-shrink: 0;
 }
@@ -248,7 +248,7 @@
 
 .colorPicker::-webkit-color-swatch {
   border: none;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
 }
 
 /* ColorField / 로고 색상 hex Input — flex 1 로 ColorPicker 옆에서 stretch.
@@ -280,7 +280,7 @@
   height: 52px;
   padding: 0 var(--spacing-16) 0 0;
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   overflow: hidden;
 }
@@ -435,7 +435,7 @@
   width: 4px;
   height: 4px;
   margin-inline-start: var(--spacing-2);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--bg-accent-solid);
   flex: 0 0 auto;
   font-size: 0;
@@ -503,7 +503,7 @@
   width: 210px;
   aspect-ratio: 16 / 9;
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   overflow: hidden;
 }
 
@@ -545,7 +545,7 @@
 .newSeriesShell {
   margin-top: var(--spacing-16);
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   display: grid;
   /* row1: 제목(항상 auto), row2: 에디터(0fr↔1fr) */
@@ -560,7 +560,7 @@
 
 .newSeriesShellOpen {
   grid-template-rows: auto 1fr;
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   /* 열림 방향: radius 먼저(0~0.25s) → height (0.25s~0.60s) */
   transition:
     grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1) 0.25s,
@@ -740,7 +740,7 @@
   padding: 0;
   gap: 0;
   font-family: var(--font-family-body);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   max-height: none;
   overflow: visible;
   interpolate-size: allow-keywords;
@@ -806,7 +806,7 @@
   min-width: 15px;
   height: 15px;
   padding: 0 var(--spacing-4);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-primary);
   color: var(--text-primary);
   font: var(--font-body-xs);
@@ -992,7 +992,7 @@ a.tagRelatedItem:hover {
 
 .tagRelatedMetaDraft {
   padding: var(--badge-padding-sm);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-tertiary-alt);
   color: var(--text-tertiary);
   font: var(--font-body-xs);

@@ -142,7 +142,7 @@
   margin-bottom: var(--spacing-12);
   padding: var(--spacing-4) var(--spacing-16);
   border: var(--border-ghost);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   font: var(--font-body-xs);
   font-weight: var(--font-weight-medium);
   color: var(--text-white);
@@ -255,7 +255,7 @@
   background: var(--bg-overlay);
   backdrop-filter: blur(16px);
   border: var(--border-ghost-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
 }
 
 /* Compound selector (0,2,0) — backdrop-filter transition */

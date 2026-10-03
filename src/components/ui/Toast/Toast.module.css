@@ -24,7 +24,7 @@
   padding: var(--spacing-8) var(--spacing-16);
   /* 한 줄이면 높이의 절반보다 커서 캡슐과 같게 그려지고, 문구가 길어 줄이 바뀌면 둥근 사각형이 된다.
      캡슐(9999px)로 두면 여러 줄일 때 양 끝이 크게 부풀어 문구를 가린다(#868) */
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   /* 글래스 패널 — Select/Popover/DatePicker 와 동일 표면 */
   background: var(--bg-glass-panel);
   backdrop-filter: var(--blur-glass);
@@ -75,7 +75,7 @@
   height: 1lh;
   padding: 0 var(--spacing-8);
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   color: var(--text-secondary);
   cursor: pointer;

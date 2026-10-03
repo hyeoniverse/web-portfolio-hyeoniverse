@@ -46,7 +46,7 @@
   overflow: visible;
   clip-path: none;
   white-space: normal;
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   background: var(--bg-glass-panel);
   backdrop-filter: var(--blur-glass);
   transform: translateY(-50%);
@@ -64,7 +64,7 @@
 .workListLink {
   display: block;
   padding: var(--spacing-4) var(--spacing-12);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   font: var(--font-body-md);
   color: var(--text-secondary);
 }
@@ -252,7 +252,7 @@
   position: relative;
   width: 44px;
   height: 44px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: color-mix(in oklab, var(--bg-black) 82%, transparent);
   display: flex;
   align-items: center;
@@ -270,7 +270,7 @@
 .ctaInline .ctaBg {
   position: absolute;
   inset: 0;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-control);
   background: var(--text-white);
   transform: scale(0);
   transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
@@ -424,7 +424,7 @@
   inset: 1.5px 0;
   border: 1px solid currentColor;
   /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 13×10 짜리 네모라 2xl 이면 알약이 된다. 레퍼런스의 2px 모서리 */
-  border-radius: var(--radius-2);
+  border-radius: var(--radius-mark);
   opacity: 0.2;
   transition: opacity 0.25s linear;
 }
@@ -443,7 +443,7 @@
   height: var(--_frame-h);
   border: 1px solid currentColor;
   /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 25×23 짜리 틀이라 2xl 이면 동그라미가 된다 */
-  border-radius: var(--radius-4);
+  border-radius: var(--radius-mark);
   opacity: calc(0.75 * var(--fade, 1));
   transform: translateY(calc(var(--pos, 0) * var(--_pitch) + (var(--_pitch) - var(--_frame-h)) / 2));
   pointer-events: none;

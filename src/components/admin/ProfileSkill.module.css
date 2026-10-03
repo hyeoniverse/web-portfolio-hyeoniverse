@@ -181,7 +181,7 @@
   flex-shrink: 0;
   align-self: flex-start;
   border: none;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-control);
   background: transparent;
   color: var(--text-tertiary);
   transition: background-color 0.2s ease;

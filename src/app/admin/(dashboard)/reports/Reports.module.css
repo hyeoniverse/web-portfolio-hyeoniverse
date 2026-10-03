@@ -13,7 +13,7 @@
   min-width: var(--badge-height);
   height: var(--badge-height);
   padding: 0 var(--spacing-8);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-accent-solid);
   font: var(--font-body-sm);
   font-weight: 600;
@@ -108,7 +108,7 @@
 
 .deletedBadge {
   padding: var(--badge-padding-md);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-secondary);
   font: var(--font-body-xs);
   font-weight: 400;
@@ -162,7 +162,7 @@
 .tabCount {
   margin-left: var(--spacing-4);
   padding: 0 var(--spacing-4);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: color-mix(in oklch, currentColor 15%, transparent);
   font: var(--font-code-xs);
   font-variant-numeric: tabular-nums;

@@ -15,7 +15,7 @@
   height: var(--control-height-xl);
   padding: 0 var(--control-padding-inline-xl);
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   font: var(--font-body-md);
   color: var(--text-tertiary);

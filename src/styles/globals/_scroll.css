@@ -60,7 +60,7 @@ html.lenis body {
   width: 200px;
   height: 2px;
   background: var(--bg-glass);
-  border-radius: 1px;
+  border-radius: var(--radius-full);
   z-index: var(--z-index-nav);
   opacity: 0;
   transition: opacity var(--duration-base) ease;
@@ -73,7 +73,7 @@ html.lenis body {
 .horizontal-progress-bar {
   height: 100%;
   background: var(--bg-accent-solid);
-  border-radius: 1px;
+  border-radius: var(--radius-full);
   transform-origin: left;
   will-change: transform;
 }

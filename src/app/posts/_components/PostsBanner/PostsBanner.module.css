@@ -6,7 +6,7 @@
 .splitDot {
   width: 8px;
   height: 8px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   border: var(--border-default);
   background: transparent;
   padding: 0;
@@ -51,7 +51,7 @@
   height: var(--_split-h);
   width: 100%;
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   overflow: hidden;
 }
 
@@ -165,7 +165,7 @@
   height: var(--control-height-xs);
   padding: 0;
   border: none;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-tertiary);
   cursor: pointer;
@@ -183,7 +183,7 @@
   height: var(--control-height-xs);
   padding: 0;
   border: none;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-tertiary);
   cursor: pointer;
@@ -217,7 +217,7 @@
   width: 70%;
   height: 100%;
   margin-left: -35%;
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   overflow: hidden;
 }
 

@@ -95,7 +95,7 @@ function EditorSkeleton() {
         {/* Excerpt */}
         <div className={es.field}>
           <SkeletonLine width={50} height={10} />
-          <Skeleton height={60} borderRadius="var(--radius-24)" />
+          <Skeleton height={60} borderRadius="var(--radius-surface)" />
         </div>
 
         {/* Tags + Cover row */}
@@ -120,7 +120,7 @@ function EditorSkeleton() {
           <SkeletonLine width={60} height={14} />
           <Skeleton width={160} height={30} borderRadius="var(--radius-full)" />
         </div>
-        <Skeleton height={400} borderRadius="var(--radius-24)" />
+        <Skeleton height={400} borderRadius="var(--radius-surface)" />
       </div>
     </div>
   );

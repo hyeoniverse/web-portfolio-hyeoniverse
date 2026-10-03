@@ -41,7 +41,7 @@
   gap: var(--spacing-4);
   flex-shrink: 0;
   padding: var(--spacing-2) var(--spacing-4);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   backdrop-filter: blur(24px) saturate(1.6);
 }
 /* 바뀐 섹션 점 — About 패널 머리(.psDot)와 같은 모양. 안 바뀌면 자리만 차지해 버튼이 흔들리지 않는다 */
@@ -50,7 +50,7 @@
   height: 6px;
   flex-shrink: 0;
   margin-right: var(--spacing-2);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: transparent;
 }
 .dotOn {

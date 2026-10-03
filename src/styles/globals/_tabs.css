@@ -4,7 +4,7 @@
   margin: var(--prose-block-gap) 0; /* 일반 블록(p margin-bottom)과 같은 간격 → tint 켜져도 블록 사이 gap 통일 */
   padding: var(--spacing-12) var(--spacing-20);
   border: 1px solid var(--border-color-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
 }
 
 /* 헤더 + 팝업 anchor 영역 (팝업이 여기 기준 absolute → 스크롤 따라 움직이고 editor overflow 에 잘림) */
@@ -100,7 +100,7 @@
   min-width: 12rem;
   background: var(--bg-primary);
   border: 1px solid var(--border-color-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   box-shadow: 0 4px 20px rgb(0 0 0 / 0.15);
 }
 

@@ -1,4 +1,4 @@
-/* 댓글 작성 폼 = 입력 박스 — giscus `.gsc-comment-box { border-radius: 24px; overflow: hidden }` 미러.
+/* 댓글 작성 폼 = 입력 박스 — giscus `.gsc-comment-box { border-radius: var(--radius-surface); overflow: hidden }` 미러.
    보더 + 2xl 만이고 채움은 없음(페이지 배경과 동일하게 보임).
    padding 0 — 내부 요소가 각자 좌우 여백을 가져야 footer 구분선이 박스 폭 전체를 가로지른다
    (giscus `.gsc-comment-box-bottom { margin: 0 }`). 내부는 각지게 두고 박스가 통째로 clip.
@@ -13,7 +13,7 @@
   min-width: 0;
   padding: 0;
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   background: transparent;
   overflow: hidden;
 }
@@ -82,7 +82,7 @@
 
 .adminBadge {
   padding: var(--badge-padding-lg);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-accent);
   font: var(--font-body-sm);
   font-weight: 500;
@@ -142,7 +142,7 @@
   width: var(--control-height-sm);
   height: var(--control-height-sm);
   border: var(--border-default);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-muted);
   overflow: hidden;
@@ -158,7 +158,7 @@
 
 .notifyCapsuleOpen {
   width: 240px;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   color: var(--text-primary);
 }
 
@@ -169,7 +169,7 @@
 /* Confirmed: 캡슐이 수정 버튼 크기 원형, 아이콘+이메일은 왼쪽에 absolute */
 .notifyCapsuleConfirmed {
   width: var(--control-height-sm);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-control);
   border-color: var(--border-color-strong);
   overflow: visible;
 }

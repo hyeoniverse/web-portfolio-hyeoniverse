@@ -13,7 +13,7 @@
   background: var(--bg-white);
   /* 전역 .editorContent iframe(margin·radius) 무효화 */
   margin: 0 !important;
-  border-radius: 0 !important;
+  border-radius: 0!important;
 }
 /* 러너 미리보기 배율 — transform:scale + 역보정 크기. iframe 은 zoom 이 콘텐츠에 잘 안 먹어
    박스만 줄던(=확대인데 작아짐) 문제가 있어 transform 으로. top-left 기준으로 스케일하고
@@ -54,7 +54,7 @@
 .rnChip {
   padding: var(--spacing-2) var(--spacing-4);
   border: none;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   color: var(--text-tertiary);
   font: var(--font-code-sm);
@@ -75,7 +75,7 @@
   height: 24px;
   padding: 0 var(--spacing-4);
   border: 1px solid var(--border-color-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   outline: none;
   background: var(--bg-primary);
   color: var(--text-primary);
@@ -133,7 +133,7 @@
   display: flex;
   flex-direction: column;
   border: 1px solid var(--border-color-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   overflow: hidden;
   /* 코드블록 wrap 과 동일한 유리 프레임 — 반투명 + blur. blur 는 클리핑 요소(여기)에만 걸어야
      radius 클립을 벗어나지 않는다(자식 바에 걸면 모서리로 삐짐). 바들은 tint 만 얹는다. */
@@ -180,7 +180,7 @@
   gap: var(--spacing-2);
   padding: var(--spacing-4) var(--spacing-16);
   background: var(--bg-primary);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   box-shadow: var(--shadow-sm);
   color: var(--text-primary);
   font: var(--font-body-md);
@@ -217,7 +217,7 @@
   /* 여러 줄 카드형 고르기 — 한 줄 컨트롤이 아니라 여백이 높이를 정한다 */
   padding: var(--spacing-8) var(--spacing-20);
   border: 1px solid var(--border-color-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   background: var(--bg-primary);
   cursor: pointer;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
@@ -322,7 +322,7 @@
   gap: var(--spacing-2);
   padding: var(--spacing-4);
   background: var(--bg-primary);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   box-shadow: var(--shadow-xs);
 }
 /* pill 맨 앞 정적 아이콘 — 그 pill 이 무엇을 대상으로 하는지 표시(미리보기/전체 UI 등) */
@@ -417,7 +417,7 @@
   flex: 0 0 2px;
   align-self: stretch;
   margin: var(--spacing-4) 0;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-control);
   background: var(--text-accent);
 }
 .spTabName {
@@ -432,7 +432,7 @@
   width: 16px;
   height: 16px;
   border: none;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-muted);
   cursor: pointer;
@@ -506,7 +506,7 @@
   width: 20px;
   height: 20px;
   border: none;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-muted);
   cursor: pointer;
@@ -557,7 +557,7 @@
   height: 28px;
   padding: 0 var(--spacing-4);
   border: 1px solid var(--border-color-default);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   outline: none;
   background: var(--bg-primary);
   color: var(--text-primary);
@@ -587,7 +587,7 @@
   width: 28px;
   height: 28px;
   border: none;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-tertiary);
   cursor: pointer;
@@ -663,7 +663,7 @@
   gap: var(--spacing-2);
   padding: var(--spacing-4);
   background: var(--bg-primary);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   box-shadow: var(--shadow-sm);
   /* 미리보기 영역에 hover 했을 때만 표시 */
   opacity: 0;
@@ -700,7 +700,7 @@
 .spPreviewCol :global(.sp-preview-container),
 .spPreviewCol :global(.sp-preview) {
   margin: 0 !important;
-  border-radius: 0 !important;
+  border-radius: 0!important;
 }
 /* 미리보기 확대/축소 — 배율 != 1(data-zoomed) 일 때만 iframe 크기 재정의.
    기본 상태에선 Sandpack 네이티브 sizing 을 그대로 둬 번들러 프리뷰 렌더에 간섭 안 함.

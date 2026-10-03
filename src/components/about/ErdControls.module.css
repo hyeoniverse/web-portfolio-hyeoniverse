@@ -6,7 +6,7 @@
   align-items: center;
   padding: var(--spacing-4) var(--spacing-8);
   border: var(--border-default);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-primary);
 }
 
@@ -17,7 +17,7 @@
   width: var(--control-height-xs);
   height: var(--control-height-xs);
   border: var(--border-default);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-secondary);
   font: var(--font-code-md);

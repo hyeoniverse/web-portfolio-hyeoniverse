@@ -94,7 +94,7 @@
   text-transform: uppercase;
   color: var(--text-white);
   border: var(--border-white);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   padding: var(--badge-padding-md);
   opacity: 0.6;
 }
@@ -460,7 +460,7 @@
   width: var(--size-32);
   height: var(--size-32);
   flex-shrink: 0;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   color: var(--text-white);
   transition: opacity var(--duration-base) ease;
 }
@@ -493,7 +493,7 @@
   top: calc(100% + 10px);
   right: 0;
   padding: var(--spacing-8) var(--spacing-12);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--text-primary);
   color: var(--bg-primary);
   font: var(--font-code-sm);
@@ -1210,7 +1210,7 @@
   right: 9px;
   width: 7px;
   height: 7px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--text-accent);
   /* 미세한 pulse — 시선 끌되 과하지 않게 */
   animation: notifDotPulse 1.8s ease-in-out infinite;
@@ -1234,7 +1234,7 @@
   max-width: calc(100vw - 32px);
   background: var(--bg-primary);
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   box-shadow: 0 12px 32px oklch(0.00% 0.0000 0.00 / 0.15);
   z-index: var(--z-index-dropdown);
   /* overflow visible 로 ::before pointer 가 box 밖으로 나갈 수 있게 */
@@ -1318,7 +1318,7 @@
   min-width: 18px;
   height: 18px;
   padding: 0 var(--spacing-4);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--text-accent);
   color: var(--bg-primary);
   font: var(--font-code-xs);
@@ -1400,7 +1400,7 @@
   transform: translateY(-50%);
   width: 5px;
   height: 5px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--text-accent);
 }
 
@@ -1636,7 +1636,7 @@
   flex-shrink: 0;
   margin-left: auto;
   padding: var(--row-padding-sm);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   /* accent 는 읽지 않음 dot 이 이미 쓴다 — 결정이 필요한 항목은 다른 색이라야 구분된다 */
   background: var(--bg-warning-soft);
   color: var(--text-warning-strong);

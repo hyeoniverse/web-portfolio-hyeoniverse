@@ -100,7 +100,7 @@
   min-height: var(--filter-row-h);
   padding: 0 var(--spacing-12);
   border: var(--border-default);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   font: var(--font-body-xs);
   color: var(--text-tertiary);
@@ -161,7 +161,7 @@
   height: var(--control-height-xs);
   padding: 0 var(--control-padding-inline-xs);
   border: none;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   font: var(--font-body-sm);
   color: var(--text-white);

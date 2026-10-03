@@ -23,7 +23,7 @@
   font-variant-numeric: tabular-nums;
   color: var(--text-tertiary);
   background: var(--bg-tertiary-alt);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
 }
 
 /* drop indicator — section absolute. top + left + width 는 JS 가 계산 (dragging chip cell 너비만큼) */
@@ -31,7 +31,7 @@
   position: absolute;
   height: 2px;
   background: var(--text-accent);
-  border-radius: 1px;
+  border-radius: var(--radius-full);
   pointer-events: none;
   z-index: 2;
   transform: translateY(-50%);
@@ -98,7 +98,7 @@
   width: fit-content;
   padding: 0 var(--spacing-8);
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   font: var(--font-body-xs);
   color: var(--text-secondary);
@@ -225,7 +225,7 @@
   right: 0;
   height: 2px;
   background: var(--text-accent);
-  border-radius: 1px;
+  border-radius: var(--radius-full);
   pointer-events: none;
   z-index: 1;
 }
@@ -262,7 +262,7 @@
   height: 20px;
   padding: 0 var(--spacing-8);
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   font: var(--font-body-xs);
   color: var(--text-secondary);
@@ -353,7 +353,7 @@
   display: inline-flex;
   align-items: stretch;
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   overflow: hidden;
   height: 20px;
 }
@@ -366,7 +366,7 @@
   height: 20px;
   padding: 0 var(--spacing-8);
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   font: var(--font-body-xs);
   color: var(--text-secondary);
@@ -382,7 +382,7 @@
 /* 자식 버튼 — 개별 border 제거, 인접 셀 사이만 left border */
 .capsuleGroup > * {
   border: none !important;
-  border-radius: 0 !important;
+  border-radius: 0!important;
   height: 100% !important;
 }
 
@@ -416,7 +416,7 @@
   padding-left: var(--spacing-4);
   padding-right: 0;
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   box-sizing: border-box;
 }
@@ -433,7 +433,7 @@
   padding: 0 var(--spacing-8);
   background: var(--bg-tertiary);
   color: var(--text-secondary);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   font: var(--font-body-xs);
   font-weight: 600;
   letter-spacing: 0.05em;

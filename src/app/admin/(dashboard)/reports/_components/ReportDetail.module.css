@@ -19,7 +19,7 @@
   flex: 0 0 auto;
   width: var(--size-40);
   height: var(--size-40);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--bg-warning-soft);
   color: var(--text-warning-strong);
 }
@@ -50,7 +50,7 @@
 
 .deletedBadge {
   padding: var(--badge-padding-md);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-secondary);
   font: var(--font-body-xs);
   color: var(--text-tertiary);
@@ -109,7 +109,7 @@
   display: inline-flex;
   align-items: center;
   padding: var(--badge-padding-md);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   font: var(--font-body-xs);
   font-weight: var(--font-weight-semibold);
   line-height: 1;
