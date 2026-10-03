@@ -550,8 +550,7 @@
   margin: 0;
   padding: 0;
   list-style: none;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-meta-xs);
   color: var(--text-secondary);
 }
 
@@ -634,8 +633,7 @@
 }
 
 .apiTileCount {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-meta-xs);
   text-align: right;
 }
 
@@ -687,8 +685,7 @@
 
 .apiDetailMeta {
   margin: var(--spacing-4) 0 0;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-meta-sm);
   color: var(--text-tertiary);
 }
 
@@ -800,8 +797,7 @@
 .apiMore {
   align-self: flex-start;
   padding: var(--spacing-4) var(--spacing-12);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-meta-xs);
   color: var(--text-accent);
   border: var(--border-accent);
   border-radius: var(--radius-full);

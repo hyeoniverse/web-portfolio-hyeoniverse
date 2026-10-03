@@ -62,8 +62,7 @@
 .subtitle {
   display: block;
   margin-bottom: var(--spacing-32);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-md);
+  font: var(--font-meta-md);
   color: var(--text-tertiary);
   font-style: italic;
 }
@@ -225,9 +224,8 @@
 }
 
 /* Description */
-.exprDesc {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+.exprDesc {  font: var(--font-meta-xs);
+
   line-height: 1.5;
   color: var(--text-tertiary);
 }

@@ -94,8 +94,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-8);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-meta-sm);
 }
 
 .ufLegendItem svg {
