@@ -22,9 +22,8 @@
   display: contents;
 }
 
-.formatLabel {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+.formatLabel {  font: var(--font-body-sm);
+
   font-weight: 500;
   color: var(--text-tertiary);
   white-space: nowrap;
@@ -42,8 +41,7 @@
   padding: var(--button-padding-xs);
   border: none;
   background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-secondary);
   white-space: nowrap;
 }
@@ -92,8 +90,7 @@
   /* 시작·종료 라벨 폭을 같게 — 줄이 바뀌어도 두 줄의 입력칸·시간 라벨이 같은 자리에서 시작한다 */
   width: 3em;
   flex-shrink: 0;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   font-weight: 500;
   color: var(--text-tertiary);
   min-width: var(--control-height-xs);
@@ -141,8 +138,7 @@
   border: var(--border-light);
   border-radius: var(--radius-full);
   background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   color: var(--text-primary);
   text-align: center;
   outline: none;
@@ -158,8 +154,7 @@
   border: 1px solid transparent;
   border-radius: var(--radius-full);
   background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   color: var(--text-primary);
   text-align: left;
   outline: none;
@@ -188,8 +183,7 @@
   align-items: center;
   height: var(--control-height-md);
   margin-right: var(--spacing-2);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   font-weight: 500;
   color: var(--text-tertiary);
 }
@@ -209,9 +203,8 @@
   align-items: center;
   justify-content: center;
   height: var(--control-height-md);
+  font: var(--font-body-md);
   line-height: 1;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
   color: var(--text-tertiary);
 }
 
@@ -229,8 +222,7 @@
   border: var(--border-light);
   border-radius: var(--radius-full);
   background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   color: var(--text-primary);
   white-space: nowrap;
   justify-content: center;
@@ -243,8 +235,7 @@
   border: var(--border-light);
   border-radius: var(--radius-full);
   background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   color: var(--text-primary);
   text-align: center;
   outline: none;
@@ -296,8 +287,7 @@
   padding: var(--row-padding-sm);
   border: none;
   background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-secondary);
   text-align: center;
   white-space: nowrap;
@@ -318,17 +308,15 @@
   flex-basis: 100%;
 }
 
-.previewLabel {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+.previewLabel {  font: var(--font-body-sm);
+
   font-weight: 500;
   color: var(--text-tertiary);
   white-space: nowrap;
 }
 
 .previewText {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   color: var(--text-primary);
   font-weight: 500;
 }
@@ -491,8 +479,7 @@
   justify-content: center;
   /* slim — height/font 작게. 너비는 약간 여유 있게 유지 */
   min-width: 56px;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   font-variant-numeric: tabular-nums;
   color: var(--text-secondary);
   padding: var(--row-padding-sm);
@@ -581,8 +568,7 @@
 .spinnerLabel {
   display: block;
   text-align: center;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   color: var(--text-tertiary);
   letter-spacing: 0.04em;
   margin-bottom: var(--spacing-4);
@@ -615,8 +601,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   font-weight: 600;
   color: var(--text-primary);
   padding: 0 var(--spacing-2);
@@ -641,8 +626,7 @@
   appearance: none;
   border: none;
   background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   color: var(--text-tertiary);
   padding: var(--button-padding-xs);
   border-radius: var(--radius-full);
@@ -692,8 +676,7 @@
 .calNav span {
   /* 화살표 button 과 사이 간격 확보 */
   padding: 0 var(--spacing-16);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   font-weight: 600;
   color: var(--text-primary);
 }
@@ -705,8 +688,7 @@
   padding: 0 var(--spacing-12);
   border: none;
   border-radius: var(--radius-full);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   font-weight: 600;
   color: var(--text-primary);
 }
@@ -734,8 +716,7 @@
   border: none;
   border-radius: var(--radius-full);
   background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   font-weight: 600;
   color: var(--text-accent);
   cursor: pointer;
@@ -770,8 +751,7 @@
   border: none;
   border-radius: var(--radius-full);
   background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-secondary);
   text-align: center;
 }
@@ -801,8 +781,7 @@
 }
 
 .calWeekday {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   color: var(--text-tertiary);
   text-align: center;
   padding-bottom: var(--spacing-4);
@@ -818,8 +797,7 @@
   border: none;
   border-radius: var(--radius-full);
   background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-secondary);
   margin: 0 auto;
 }

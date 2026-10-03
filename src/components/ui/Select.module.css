@@ -44,8 +44,7 @@
   border: var(--border-light);
   border-radius: var(--radius-full);
   background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   color: var(--text-primary);
   text-align: left;
 }
@@ -261,8 +260,7 @@
   border: none;
   border-radius: var(--radius-full);
   background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   /* 투명 글래스라 difference 블렌딩 면이 약해 텍스트가 연해짐 → solid text-primary(테마 적응, 진함) */
   color: var(--text-primary);
   text-align: left;
@@ -346,8 +344,7 @@
 /* combobox 필터 결과 0개일 때 안내 */
 .optionEmpty {
   padding: var(--row-padding-sm);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-tertiary);
   text-align: center;
 }
@@ -374,8 +371,7 @@
 
 .optionGroupLabel {
   padding: var(--row-padding-sm);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -442,8 +438,7 @@
   border: none;
   border-radius: var(--radius-full) 0 0 var(--radius-full);
   background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   color: var(--text-secondary);
   cursor: pointer;
 }
@@ -472,8 +467,7 @@
   border: none;
   border-radius: 0 var(--radius-full) var(--radius-full) 0;
   background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   color: var(--text-primary);
   outline: none;
 }
