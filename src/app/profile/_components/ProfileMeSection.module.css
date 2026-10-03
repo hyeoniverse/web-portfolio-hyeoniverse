@@ -365,7 +365,7 @@
 
 .magInfoValue {
   font-family: var(--font-mono);
-  font-size: 0.9rem;
+  font-size: var(--font-size-body);
   font-weight: 500;
   color: var(--text-primary);
 }
@@ -451,7 +451,7 @@
 .bioText {
   margin: 0 0 var(--spacing-20) 0;
   font-family: var(--font-mono);
-  font-size: 0.95rem;
+  font-size: var(--font-size-16);
   font-weight: 300;
   line-height: 1.8;
   color: var(--text-secondary);
@@ -506,7 +506,7 @@
 .sectionKicker {
   margin: 0 0 var(--spacing-32);
   font-family: var(--font-mono);
-  font-size: 0.8rem;
+  font-size: var(--font-size-label);
   font-weight: 500;
   line-height: normal;
   color: var(--text-tertiary);
@@ -543,7 +543,7 @@
 .expGroupLabel {
   margin: 0 0 var(--spacing-16);
   font-family: var(--font-mono);
-  font-size: 0.8rem;
+  font-size: var(--font-size-label);
   font-weight: 500;
   color: var(--text-tertiary);
   text-transform: uppercase;
@@ -608,7 +608,7 @@
 .expRole {
   margin: 0 0 var(--spacing-4) 0;
   font-family: var(--font-mono);
-  font-size: 1.1rem;
+  font-size: var(--font-size-18);
   font-weight: 600;
   color: var(--text-primary);
 }
@@ -617,7 +617,7 @@
   display: block;
   margin-bottom: var(--spacing-12);
   font-family: var(--font-mono);
-  font-size: 0.8rem;
+  font-size: var(--font-size-label);
   font-weight: 400;
   color: var(--text-accent);
   letter-spacing: 0.05em;
@@ -626,7 +626,7 @@
 .expDesc {
   margin: 0;
   font-family: var(--font-mono);
-  font-size: 0.85rem;
+  font-size: var(--font-size-body);
   font-weight: 300;
   line-height: 1.75;
   color: var(--text-secondary);
@@ -676,7 +676,7 @@
 .skillPanelDesc {
   margin: 0;
   font-family: var(--font-mono);
-  font-size: 0.85rem;
+  font-size: var(--font-size-body);
   font-weight: 300;
   line-height: 1.8;
   color: var(--text-tertiary);
@@ -700,7 +700,7 @@
 .skillPanelItemName {
   margin: 0 0 var(--spacing-8) 0;
   font-family: var(--font-mono);
-  font-size: 0.95rem;
+  font-size: var(--font-size-16);
   font-weight: 500;
   color: var(--text-primary);
 }
@@ -708,7 +708,7 @@
 .skillPanelItemDesc {
   margin: 0;
   font-family: var(--font-mono);
-  font-size: 0.82rem;
+  font-size: var(--font-size-label);
   font-weight: 300;
   line-height: 1.75;
   color: var(--text-secondary);
@@ -762,7 +762,7 @@
 .philosophyBody {
   margin: 0;
   font-family: var(--font-mono);
-  font-size: 0.88rem;
+  font-size: var(--font-size-body);
   font-weight: 300;
   line-height: 1.8;
   color: var(--text-secondary);
@@ -816,7 +816,7 @@
 .approachBody {
   margin: 0;
   font-family: var(--font-mono);
-  font-size: 0.88rem;
+  font-size: var(--font-size-body);
   font-weight: 300;
   line-height: 1.8;
   color: var(--text-secondary);
@@ -879,7 +879,7 @@
 .credentialName {
   margin: 0;
   font-family: var(--font-mono);
-  font-size: 0.95rem;
+  font-size: var(--font-size-16);
   font-weight: 500;
   color: var(--text-primary);
 }
@@ -887,7 +887,7 @@
 /* 수상 내용 — 기관 이름 아래 한 줄. 이름·기관보다 약하게 둔다 */
 .credentialNote {
   font-family: var(--font-family-body);
-  font-size: 0.8rem;
+  font-size: var(--font-size-label);
   font-weight: 300;
   line-height: var(--line-height-normal);
   color: var(--text-muted);
@@ -895,7 +895,7 @@
 
 .credentialOrg {
   font-family: var(--font-mono);
-  font-size: 0.8rem;
+  font-size: var(--font-size-label);
   font-weight: 300;
   color: var(--text-tertiary);
 }
@@ -1065,7 +1065,7 @@
   }
 
   .expPeriod {
-    font-size: 0.85rem;
+    font-size: var(--font-size-body);
   }
 
   .skillPanelLayout {

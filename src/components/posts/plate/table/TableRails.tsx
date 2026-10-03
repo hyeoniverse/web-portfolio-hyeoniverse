@@ -168,7 +168,7 @@ const addBtnBase: React.CSSProperties = {
   transition: "opacity 0.15s",
   zIndex: 4,
   padding: 0,
-  fontSize: 19,
+  fontSize: "var(--font-size-20)",
   lineHeight: 1,
   fontWeight: 400,
 };

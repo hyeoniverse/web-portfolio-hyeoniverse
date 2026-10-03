@@ -555,7 +555,7 @@ export default function DesignSystemClient() {
                 <CoffeeCanvas />
               </div>
               <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "var(--spacing-12)" }}>
-                <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.25em", color: "var(--text-muted)", textTransform: "uppercase" }}>CTA Section</span>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--font-size-hint)", letterSpacing: "0.25em", color: "var(--text-muted)", textTransform: "uppercase" }}>CTA Section</span>
                 <h3 id="threejs-coffee" style={{ fontSize: "var(--font-size-24)", fontFamily: "var(--font-family-heading)", fontWeight: 400, margin: 0 }}>Coffee Cup</h3>
                 <p style={{ fontSize: "var(--font-size-label)", color: "var(--text-secondary)", lineHeight: 1.7, margin: 0 }}>
                   {language === "ko"
@@ -564,7 +564,7 @@ export default function DesignSystemClient() {
                 </p>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: "var(--spacing-8)" }}>
                   {["LatheGeometry", "MeshPhysicalMaterial", "clearcoat", "CanvasTexture", "Environment IBL"].map((t) => (
-                    <span key={t} style={{ fontSize: 10, padding: "3px 10px", borderRadius: "var(--radius-full)", border: "var(--border-light)", color: "var(--text-tertiary)", fontFamily: "var(--font-mono)" }}>{t}</span>
+                    <span key={t} style={{ fontSize: "var(--font-size-hint)", padding: "3px 10px", borderRadius: "var(--radius-full)", border: "var(--border-light)", color: "var(--text-tertiary)", fontFamily: "var(--font-mono)" }}>{t}</span>
                   ))}
                 </div>
               </div>
@@ -583,7 +583,7 @@ export default function DesignSystemClient() {
                 </Canvas>
               </div>
               <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "var(--spacing-12)" }}>
-                <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.25em", color: "var(--text-muted)", textTransform: "uppercase" }}>Hero Section</span>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--font-size-hint)", letterSpacing: "0.25em", color: "var(--text-muted)", textTransform: "uppercase" }}>Hero Section</span>
                 <h3 id="threejs-torus" style={{ fontSize: "var(--font-size-24)", fontFamily: "var(--font-family-heading)", fontWeight: 400, margin: 0 }}>Scroll Torus</h3>
                 <p style={{ fontSize: "var(--font-size-label)", color: "var(--text-secondary)", lineHeight: 1.7, margin: 0 }}>
                   {language === "ko"
@@ -592,7 +592,7 @@ export default function DesignSystemClient() {
                 </p>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: "var(--spacing-8)" }}>
                   {["TorusGeometry", "MeshStandardMaterial", "Lissajous path", "scroll-driven", "pointer repulsion"].map((t) => (
-                    <span key={t} style={{ fontSize: 10, padding: "3px 10px", borderRadius: "var(--radius-full)", border: "var(--border-light)", color: "var(--text-tertiary)", fontFamily: "var(--font-mono)" }}>{t}</span>
+                    <span key={t} style={{ fontSize: "var(--font-size-hint)", padding: "3px 10px", borderRadius: "var(--radius-full)", border: "var(--border-light)", color: "var(--text-tertiary)", fontFamily: "var(--font-mono)" }}>{t}</span>
                   ))}
                 </div>
               </div>
@@ -611,7 +611,7 @@ export default function DesignSystemClient() {
                 </Canvas>
               </div>
               <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "var(--spacing-12)" }}>
-                <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.25em", color: "var(--text-muted)", textTransform: "uppercase" }}>Profile Section</span>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--font-size-hint)", letterSpacing: "0.25em", color: "var(--text-muted)", textTransform: "uppercase" }}>Profile Section</span>
                 <h3 id="threejs-bunny" style={{ fontSize: "var(--font-size-24)", fontFamily: "var(--font-family-heading)", fontWeight: 400, margin: 0 }}>Bunny Character</h3>
                 <p style={{ fontSize: "var(--font-size-label)", color: "var(--text-secondary)", lineHeight: 1.7, margin: 0 }}>
                   {language === "ko"
@@ -620,7 +620,7 @@ export default function DesignSystemClient() {
                 </p>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: "var(--spacing-8)" }}>
                   {["LatheGeometry", "SphereGeometry", "CapsuleGeometry", "expressions", "useFrame", "physics"].map((t) => (
-                    <span key={t} style={{ fontSize: 10, padding: "3px 10px", borderRadius: "var(--radius-full)", border: "var(--border-light)", color: "var(--text-tertiary)", fontFamily: "var(--font-mono)" }}>{t}</span>
+                    <span key={t} style={{ fontSize: "var(--font-size-hint)", padding: "3px 10px", borderRadius: "var(--radius-full)", border: "var(--border-light)", color: "var(--text-tertiary)", fontFamily: "var(--font-mono)" }}>{t}</span>
                   ))}
                 </div>
               </div>

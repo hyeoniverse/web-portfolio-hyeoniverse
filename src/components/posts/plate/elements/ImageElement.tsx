@@ -189,7 +189,7 @@ export function ImageElement(props: PlateElementProps) {
     bottom: showCaption ? badgeHeight + 10 : 4,
     padding: "2px 10px",
     background: "var(--bg-overlay)", color: "#fff",
-    borderRadius: "var(--radius-full)", fontSize: 11,
+    borderRadius: "var(--radius-full)", fontSize: "var(--font-size-hint)",
     fontFamily: "var(--font-family-body)", lineHeight: 1.4,
     height: badgeHeight, display: "flex", alignItems: "center",
     pointerEvents: "none", whiteSpace: "nowrap", zIndex: 4,
