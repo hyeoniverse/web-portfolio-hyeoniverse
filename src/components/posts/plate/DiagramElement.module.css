@@ -3,7 +3,7 @@
   margin: var(--spacing-20) 0;
 }
 .diagramInner {
-  border: 1px solid var(--border-color-light);
+  border: var(--border-light);
   border-radius: var(--radius-surface);
   overflow: hidden;
   background: var(--bg-primary);
@@ -37,14 +37,14 @@
   border-radius: var(--radius-control);
   overflow: hidden;
   box-shadow: var(--shadow-md);
-  border: 1px solid var(--border-color-light);
+  border: var(--border-light);
 }
 .diagramCanvas :global(.react-flow__controls-button) {
   width: 26px;
   height: 26px;
   background: var(--bg-primary);
   border: none;
-  border-bottom: 1px solid var(--border-color-light);
+  border-bottom: var(--border-light);
   color: var(--text-secondary);
 }
 .diagramCanvas :global(.react-flow__controls-button:last-child) {
@@ -66,7 +66,7 @@
   flex-wrap: wrap; /* 도형이 많아 좁은 폭에선 줄바꿈 */
   gap: var(--spacing-2);
   padding: var(--spacing-4);
-  border-bottom: 1px solid var(--border-color-light);
+  border-bottom: var(--border-light);
 }
 .diagramToolbarDiv {
   width: 1px;
@@ -106,7 +106,7 @@
   display: block;
   width: 16px;
   height: 0;
-  border-top: 2px solid currentColor;
+  border-top: var(--border-width-2) solid currentColor;
 }
 /* 색상 팔레트 */
 .diagramColors {
@@ -118,7 +118,7 @@
 .diagramColorBtn {
   width: 16px;
   height: 16px;
-  border: 1px solid var(--border-color-light);
+  border: var(--border-light);
   border-radius: var(--radius-full);
   cursor: pointer;
   padding: 0;
@@ -148,7 +148,7 @@
   padding: var(--spacing-4) var(--spacing-12);
   /* 색은 --dnode-bg(노드별 인라인 변수) → 없으면 bg-primary. 캔버스(bg-secondary)와 구분됨 */
   background: var(--dnode-bg, var(--bg-primary));
-  border: 1.5px solid var(--border-color-strong);
+  border: var(--border-strong-2);
   border-radius: var(--radius-mark); /* 사각 (capsule 아님) */
   color: var(--text-primary);
   font: var(--font-body-md);
@@ -156,7 +156,8 @@
 }
 .dnode[data-selected] {
   border-color: var(--text-accent);
-  box-shadow: 0 0 0 2px var(--bg-accent-subtle);
+  outline: var(--border-width-2) solid var(--bg-accent-subtle);
+  outline-offset: 0;
 }
 /* 둥근 계열 — CSS 로 크리스프하게 (SVG stretch 코너 왜곡 방지) */
 .dnode_round { border-radius: var(--radius-surface); }
@@ -204,21 +205,22 @@
 }
 /* 선택 외곽선은 accent 대신 회색~검정 계열(중립) */
 .dnode_text[data-selected] {
-  box-shadow: 0 0 0 1.5px var(--border-color-strong);
+  outline: var(--border-width-2) solid var(--border-color-strong);
+  outline-offset: 0;
   border-radius: var(--radius-mark);
 }
 
 /* NodeResizer — 리사이즈 프레임/핸들을 중립 색으로 */
 .dresizeLine {
   border-color: var(--border-color-strong) !important;
-  border-width: 1px !important;
+  border-width: var(--border-width-1) !important;
 }
 .dresizeHandle {
   width: 8px !important;
   height: 8px !important;
   border-radius: var(--radius-mark)!important;
   background: var(--bg-primary) !important;
-  border: 1.5px solid var(--text-secondary) !important;
+  border: var(--border-width-2) solid var(--text-secondary) !important;
 }
 /* 툴바 텍스트 그룹 큐(A 아이콘) */
 .diagramTextCue {
@@ -305,7 +307,7 @@
   width: 10px;
   height: 10px;
   background: var(--bg-primary);
-  border: 2px solid var(--text-accent);
+  border: var(--border-width-2) solid var(--text-accent);
   z-index: 3;
 }
 
@@ -337,7 +339,7 @@
   gap: var(--spacing-2);
   height: var(--control-height-xs);
   padding: 0 var(--spacing-12);
-  border: 1px solid var(--border-color-light);
+  border: var(--border-light);
   border-radius: var(--radius-control);
   background: transparent;
   color: var(--text-secondary);
@@ -366,7 +368,7 @@
   flex-direction: column;
   gap: var(--spacing-4);
   padding: var(--spacing-4);
-  border: 1px solid var(--border-color-light);
+  border: var(--border-light);
   border-radius: var(--radius-surface);
 }
 .diagramFormArrow {

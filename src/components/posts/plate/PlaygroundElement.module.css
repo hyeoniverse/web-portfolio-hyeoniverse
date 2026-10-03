@@ -34,7 +34,7 @@
   /* 배경은 에디터 현재 줄(.cm-activeLine = neutral-alpha-5 = --bg-tertiary)과 동일 톤.
      코드(위)와 구분은 위쪽 경계선 + 안쪽 그림자(파인 느낌)로. */
   background: var(--bg-tertiary);
-  border-top: 1px solid var(--border-color-default);
+  border-top: var(--border-default);
   box-shadow: var(--shadow-inner);
 }
 /* 필터바 — 레벨 칩 + 텍스트 필터 + 지우기 (브라우저 devtools 콘솔 상단바 식) */
@@ -44,7 +44,7 @@
   gap: var(--spacing-4);
   flex-shrink: 0;
   padding: var(--spacing-2) var(--spacing-4);
-  border-bottom: 1px solid var(--border-color-light);
+  border-bottom: var(--border-light);
 }
 .rnFilterChips {
   display: inline-flex;
@@ -74,7 +74,7 @@
   min-width: 0;
   height: 24px;
   padding: 0 var(--spacing-4);
-  border: 1px solid var(--border-color-light);
+  border: var(--border-light);
   border-radius: var(--radius-control);
   outline: none;
   background: var(--bg-primary);
@@ -106,7 +106,7 @@
   white-space: pre-wrap;
   word-break: break-word;
   /* devtools 처럼 항목마다 옅은 구분선 */
-  border-bottom: 1px solid var(--border-color-light);
+  border-bottom: var(--border-light);
 }
 /* 기본 로그 = 터미널 출력 프롬프트 마커 */
 .rnLog::before {
@@ -132,7 +132,7 @@
 .pgInner {
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--border-color-light);
+  border: var(--border-light);
   border-radius: var(--radius-surface);
   overflow: hidden;
   /* 코드블록 wrap 과 동일한 유리 프레임 — 반투명 + blur. blur 는 클리핑 요소(여기)에만 걸어야
@@ -216,7 +216,7 @@
   min-width: 150px;
   /* 여러 줄 카드형 고르기 — 한 줄 컨트롤이 아니라 여백이 높이를 정한다 */
   padding: var(--spacing-8) var(--spacing-20);
-  border: 1px solid var(--border-color-light);
+  border: var(--border-light);
   border-radius: var(--radius-surface);
   background: var(--bg-primary);
   cursor: pointer;
@@ -260,7 +260,7 @@
   height: 8px;
   flex-shrink: 0;
   cursor: row-resize;
-  border-top: 1px solid var(--border-color-light);
+  border-top: var(--border-light);
   background: var(--bg-glass-panel);
 }
 .pgResize::before {
@@ -301,7 +301,7 @@
   flex-shrink: 0;
   min-height: 40px;
   padding: var(--spacing-8) var(--spacing-12);
-  border-bottom: 1px solid var(--border-color-light);
+  border-bottom: var(--border-light);
   background: var(--bg-glass-panel);
 }
 /* 리더뷰에서는 상단바 좌우 여백을 더 넉넉히 */
@@ -379,7 +379,7 @@
   flex-shrink: 0;
   overflow-x: auto;
   overflow-y: hidden;
-  border-bottom: 1px solid var(--border-color-light);
+  border-bottom: var(--border-light);
   background: var(--bg-glass-panel);
   scrollbar-width: none;
 }
@@ -393,7 +393,7 @@
   flex-shrink: 0;
   min-height: 34px;
   padding: var(--spacing-4) var(--spacing-12);
-  border-right: 1px solid var(--border-color-light);
+  border-right: var(--border-light);
   color: var(--text-tertiary);
   font: var(--font-code-md);
   white-space: nowrap;
@@ -531,7 +531,7 @@
   width: 184px;
   flex-shrink: 0;
   min-height: 0;
-  border-right: 1px solid var(--border-color-light);
+  border-right: var(--border-light);
 }
 .spExplorerBar {
   display: flex;
@@ -539,7 +539,7 @@
   justify-content: space-between;
   min-height: 34px;
   padding: 0 var(--spacing-12);
-  border-bottom: 1px solid var(--border-color-light);
+  border-bottom: var(--border-light);
   color: var(--text-secondary);
   font: var(--font-body-sm);
   font-weight: 600;
@@ -556,7 +556,7 @@
   min-width: 0;
   height: 28px;
   padding: 0 var(--spacing-4);
-  border: 1px solid var(--border-color-default);
+  border: var(--border-default);
   border-radius: var(--radius-surface);
   outline: none;
   background: var(--bg-primary);
@@ -568,7 +568,8 @@
 }
 .spTreeInput:focus {
   border-color: var(--text-accent);
-  box-shadow: 0 0 0 3px var(--bg-accent-subtle);
+  outline: var(--border-width-3) solid var(--bg-accent-subtle);
+  outline-offset: 0;
 }
 /* 생성/이름변경 입력이 든 행은 좀 더 높게 — input 이 안 눌려 보이게 */
 .spTreeRow:has(.spTreeInput) {
@@ -578,7 +579,8 @@
 /* DnD 드롭 대상 폴더 하이라이트 */
 .spTreeRow[data-drop] {
   background: var(--bg-accent-subtle);
-  box-shadow: inset 0 0 0 1px var(--text-accent);
+  outline: var(--border-width-1) solid var(--text-accent);
+  outline-offset: calc(-1 * var(--border-width-1));
 }
 .spIconBtn {
   display: inline-flex;

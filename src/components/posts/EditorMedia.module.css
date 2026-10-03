@@ -257,7 +257,7 @@
   height: 14px;
   /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 이미지 다중선택 체크박스 — 네모가 곧 의미 */
   border-radius: var(--radius-mark);
-  border: 1.5px solid var(--text-tertiary);
+  border: var(--border-width-2) solid var(--text-tertiary);
   background: var(--bg-primary);
   color: var(--bg-primary);
   transition:

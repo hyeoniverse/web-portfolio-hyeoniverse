@@ -82,7 +82,7 @@
   height: 44px;
   border-radius: var(--radius-full);
   flex-shrink: 0;
-  box-shadow: inset 0 0 0 1px var(--border-color-light);
+  border: var(--border-width-1) solid var(--border-color-light);
 }
 .authorChipAvatar {
   object-fit: cover;

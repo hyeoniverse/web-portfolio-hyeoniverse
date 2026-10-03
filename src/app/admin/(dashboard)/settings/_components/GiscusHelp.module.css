@@ -128,7 +128,7 @@
   display: inline-block;
   padding: var(--spacing-1) var(--spacing-4);
   border: var(--border-light);
-  border-bottom-width: 2px;
+  border-bottom-width: var(--border-width-2);
   border-radius: var(--radius-surface);
   background: var(--bg-secondary);
   font: var(--font-code-sm);

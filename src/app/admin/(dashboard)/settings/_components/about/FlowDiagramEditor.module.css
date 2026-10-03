@@ -78,7 +78,8 @@
   outline: none;
 }
 .inspectInput:focus {
-  box-shadow: inset 0 0 0 1px var(--border-color-accent-strong);
+  outline: var(--border-width-1) solid var(--border-color-accent-strong);
+  outline-offset: calc(-1 * var(--border-width-1));
 }
 
 /* 타입 범례 — 모양만으로 구분이 안 되는 start/end 를 색으로 */

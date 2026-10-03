@@ -149,7 +149,7 @@
 }
 
 .card:hover .cardBorder {
-  border: 1px solid color-mix(in oklch, var(--border-color-white) 15%, transparent);
+  border: var(--border-width-1) solid color-mix(in oklch, var(--border-color-white) 15%, transparent);
   box-shadow: 0 0 30px oklch(100.00% 0.0000 0.00 / 0.05), inset 0 0 30px oklch(100.00% 0.0000 0.00 / 0.02);
 }
 
@@ -254,7 +254,7 @@
 
 .metaTech span {
   padding: var(--spacing-8) var(--spacing-16);
-  border: 1px solid var(--text-accent-alt);
+  border: var(--border-width-1) solid var(--text-accent-alt);
   font: var(--font-code-md);
   letter-spacing: 0.1em;
   border-radius: var(--radius-control);
@@ -769,7 +769,7 @@
     font: var(--font-code-sm);
     font-weight: var(--font-weight-medium);
     letter-spacing: 0.08em;
-    border: 1px solid var(--text-accent-alt);
+    border: var(--border-width-1) solid var(--text-accent-alt);
     color: var(--text-accent-alt);
     border-radius: var(--radius-control);
   }

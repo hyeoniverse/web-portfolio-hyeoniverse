@@ -3,7 +3,7 @@
 /* ── Series navigation ── */
 .seriesBox {
   margin-bottom: var(--spacing-32);
-  border-left: 3px solid var(--border-color-accent-strong);
+  border-left: var(--border-width-3) solid var(--border-color-accent-strong);
   padding-left: var(--spacing-20);
 }
 

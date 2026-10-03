@@ -66,7 +66,8 @@
 .pillSelected {
   background: var(--bg-accent);
   color: var(--text-accent);
-  box-shadow: 0 0 0 2px color-mix(in oklch, var(--bg-accent-solid) 50%, transparent);
+  outline: var(--border-width-2) solid color-mix(in oklch, var(--bg-accent-solid) 50%, transparent);
+  outline-offset: 0;
 }
 
 /* ── 팝오버 메뉴 ── */

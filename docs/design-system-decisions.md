@@ -499,3 +499,14 @@ Material `@material/web` 2.5, Primer primitives. 숫자는 같은 날 다시 셌
   숫자는 가는 막대(1 ~ 2px) → `full`, 작은 사각(2 ~ 6px) → `mark`, 10 ~ 24px → `surface`. 폴더 탭의 `0 20px 20px 20px` 같은 네 값은 각 값을 역할로.
 - **보이는 변화.** 작은 눈금을 쓰던 17곳과 숫자 24곳이 4 또는 24 로 — 8 → 24(색 피커 사각 · 갤러리 미리보기 · 댓글 코드), 6 → 4(사각 버튼 · About 편집 입력), 10 · 14 → 24(ERD · 다이어그램 둥근 노드). 유기적 블롭 3곳은 그대로.
 - **감시.** `radius-not-role` 은 이제 눈금 · `circle` 만 센다 — 원의 `--radius-full` 은 규칙이 허용한 쓰임이다. stylelint 는 눈금 2 ~ 24 · `circle` 직접 사용을 막는다.
+
+### D39. 2026-10-03 — 테두리는 두께 눈금 · 묶음으로, `box-shadow` 로 흉내 낸 테두리는 `border` · `outline` 으로
+
+- **왜.** 컴포넌트 222곳이 두께를 숫자(1 · 1.5 · 2 · 3px …)로 썼고, 92곳은 `box-shadow: inset 0 0 0 1px …` · `0 0 0 2px …` 로 테두리 · 포커스 링을 흉내 냈다.
+  그림자 링은 Windows 고대비에서 지워지고(6-1), 두께 눈금 · 색 역할을 거치지 않아 lint 가 못 본다. "왜 진짜 border 를 안 썼나" — `box-sizing: content-box` 시절 크기가 변하는 걸 피한 흔적인데, 지금은 전역 `border-box` 라 이유가 없다.
+- **정한 것.** 두께 숫자 → 눈금 `--border-width-1 ~ 4`(1 · 1.25 · 1.4 · 1.6 → 1, 1.5 · 2.5 → 2, 5 · 6 → 4). 눈금 + 색 역할이 묶음과 같으면 묶음(`--border-light` · `-default` · `-strong` 등)으로.
+  그림자 링은 성격으로 가른다 — 상태 선택자(`:hover` · `:focus-visible` · `[data-…]` · `.selected` …)나 키프레임 안이면 `outline` + `outline-offset`(안쪽 `inset` 링은 음수 offset), 정적인 안쪽 1px 선이고 다른 테두리가 없으면 진짜 `border`.
+  틈 + 색 링 두 겹(`0 0 0 2px 바탕, 0 0 0 4px 색`)은 `outline: 2px 색` + `outline-offset: 2px`. 같은 선언의 진짜 그림자(`0 4px 16px …`)는 `box-shadow` 에 남긴다.
+- **예외.** 삼각형 꼼수 3곳(투명 테두리 두 변 + 색 한 변)은 도형이라 숫자 그대로. 자동 완성 배경을 덮는 `-webkit-box-shadow … 1000px inset` 1곳은 브라우저 꼼수.
+- **보이는 변화.** 1.5px → 2px(0.5px 굵어짐) 몇 곳. `outline` 은 둥근 모서리를 따라가므로 모양은 같고, 고대비 모드에서는 이제 링이 보인다. 안쪽 링을 `border` 로 바꾼 21곳은 `border-box` 라 크기가 같다.
+- **감시.** ratchet `border-width-number` 222 → 3, `shadow-literal` 은 링을 덜어낸 만큼 줄었다.

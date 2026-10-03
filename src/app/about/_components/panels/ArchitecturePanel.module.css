@@ -149,7 +149,7 @@
   align-items: center;
   justify-content: center;
   padding: clamp(0.2rem, 0.3vh, 0.3rem) clamp(0.5rem, 0.6vw, 0.8rem);
-  border: 1.5px solid var(--border-default);
+  border: var(--border-width-2) solid var(--border-default);
   position: absolute;
   background: transparent;
   transition:
@@ -167,7 +167,7 @@
 
 .archMap .archNodeActive {
   border-color: var(--text-accent);
-  border-width: 2px;
+  border-width: var(--border-width-2);
   box-shadow: 0 0 16px color-mix(in oklch, var(--bg-accent-solid) 15%, transparent);
 }
 
@@ -185,7 +185,7 @@
 
 .archMap .archNodeRoot {
   padding: clamp(0.35rem, 0.6vh, 0.6rem) clamp(1rem, 1.2vw, 1.6rem);
-  border-width: 2px;
+  border-width: var(--border-width-2);
   border-color: var(--text-accent);
 }
 
@@ -282,7 +282,7 @@
   padding: clamp(0.5rem, 0.8vh, 0.75rem) clamp(0.75rem, 1vw, 1.1rem);
   background: var(--bg-secondary);
   border: var(--border-default);
-  border-left: 3px solid var(--text-accent);
+  border-left: var(--border-width-3) solid var(--text-accent);
   font: var(--font-prose-sm);
   color: var(--text-primary);
   pointer-events: none;

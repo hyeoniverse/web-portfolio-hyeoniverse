@@ -566,7 +566,8 @@ a.statCard:hover .statValue {
 
 .dotOk {
   background: var(--text-success);
-  box-shadow: 0 0 0 2px var(--bg-success-soft);
+  outline: var(--border-width-2) solid var(--bg-success-soft);
+  outline-offset: 0;
   position: relative;
 }
 

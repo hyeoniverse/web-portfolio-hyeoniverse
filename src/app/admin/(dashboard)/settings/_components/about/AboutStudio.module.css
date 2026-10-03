@@ -68,8 +68,8 @@
    한 줄 입력 높이(26px)에선 사실상 알약이다. */
 .edit.edit {
   border: 0;
-  box-shadow: inset 0 0 0 1px var(--border-color-light);
-
+  outline: var(--border-width-1) solid var(--border-color-light);
+  outline-offset: calc(-1 * var(--border-width-1));
   /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 위 주석 */
   border-radius: var(--radius-mark);
 }
@@ -80,11 +80,13 @@
 }
 
 .edit:hover {
-  box-shadow: inset 0 0 0 1px var(--border-color-default);
+  outline: var(--border-width-1) solid var(--border-color-default);
+  outline-offset: calc(-1 * var(--border-width-1));
 }
 .edit:focus {
   background: color-mix(in oklch, var(--bg-accent-solid) 10%, transparent);
-  box-shadow: inset 0 0 0 1px var(--border-color-accent-strong);
+  outline: var(--border-width-1) solid var(--border-color-accent-strong);
+  outline-offset: calc(-1 * var(--border-width-1));
 }
 /* 한 줄 값이지만 접어서 보여 주는 칸(EditableText wrap). 패널 클래스가 제목을 한 줄로 두고
    말줄임표로 자르는 경우(Key Features 카드 제목)가 있어 그보다 높게 (0,2,0) 로 푼다.
@@ -485,7 +487,7 @@ textarea.edit {
   box-sizing: border-box;
   width: 8em;
   padding: var(--spacing-4) var(--spacing-12);
-  border: 1px solid var(--border-color-accent-strong);
+  border: var(--border-width-1) solid var(--border-color-accent-strong);
   border-radius: var(--radius-control);
   background: var(--bg-primary);
   color: var(--text-primary);
@@ -498,7 +500,7 @@ textarea.edit {
   display: inline-flex;
   align-items: center;
   box-sizing: border-box;
-  border: 1px solid var(--border-color-light);
+  border: var(--border-light);
   border-radius: var(--radius-control);
   color: var(--text-tertiary);
   vertical-align: middle;
@@ -655,15 +657,17 @@ textarea.edit {
 
   /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 편집 폼의 입력 칸과 같은 모서리(R6 예외). .edit 주석 참고 */
   border-radius: var(--radius-mark);
-  box-shadow: inset 0 0 0 1px var(--border-color-light);
+  border: var(--border-width-1) solid var(--border-color-light);
   transition: box-shadow 0.15s ease, background 0.15s ease;
 }
 .secIconBtn:hover {
-  box-shadow: inset 0 0 0 1px var(--border-color-default);
+  outline: var(--border-width-1) solid var(--border-color-default);
+  outline-offset: calc(-1 * var(--border-width-1));
 }
 .secIconBtn:focus {
   background: color-mix(in oklch, var(--bg-accent-solid) 10%, transparent);
-  box-shadow: inset 0 0 0 1px var(--border-color-accent-strong);
+  outline: var(--border-width-1) solid var(--border-color-accent-strong);
+  outline-offset: calc(-1 * var(--border-width-1));
 }
 
 /* Security 아이콘 피커 (Popover) */
@@ -761,7 +765,7 @@ textarea.edit {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--border-color-light);
+  border: var(--border-light);
   background: transparent;
   color: var(--text-tertiary);
   cursor: pointer;
@@ -1144,7 +1148,7 @@ textarea.edit {
   align-items: center;
   justify-content: center;
   gap: var(--spacing-16);
-  border: 1px solid var(--border-color-light);
+  border: var(--border-light);
   color: var(--text-tertiary);
 }
 /* 파일을 끌어다 놓는 중 */
@@ -1179,7 +1183,7 @@ textarea.edit {
   width: var(--control-height-sm);
   height: var(--control-height-sm);
   padding: 0;
-  border: 1px solid var(--border-color-light);
+  border: var(--border-light);
   border-radius: var(--radius-full);
   background-image:
     linear-gradient(45deg, var(--border-color-light) 25%, transparent 25%),
@@ -1481,7 +1485,7 @@ textarea.edit {
      높이가 다르면 줄이 어긋나 보인다. 폭은 flex:1 로 남는 자리를 채운다. */
   height: var(--control-height-md);
   padding: 0 var(--spacing-12);
-  border: 1px solid var(--border-color-light);
+  border: var(--border-light);
   border-radius: var(--radius-surface);
   color: var(--text-tertiary);
   font: var(--font-body-md);

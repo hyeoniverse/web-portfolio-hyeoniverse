@@ -916,7 +916,7 @@
   gap: var(--spacing-4);
   flex: none;
   padding: var(--spacing-4) var(--spacing-12);
-  border: 1px solid var(--border-color-light);
+  border: var(--border-light);
   border-radius: var(--radius-control);
   background: transparent;
   font: var(--font-body-sm);

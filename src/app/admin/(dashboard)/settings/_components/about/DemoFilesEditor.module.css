@@ -104,7 +104,7 @@
   height: var(--control-height-xs);
   border: 0;
   border-right: var(--border-light);
-  border-bottom: 2px solid var(--border-color-accent-strong);
+  border-bottom: var(--border-width-2) solid var(--border-color-accent-strong);
   background: var(--bg-primary);
   color: var(--text-primary);
   font: var(--font-code-sm);

@@ -584,7 +584,7 @@
   display: grid;
   grid-template-columns: 1fr 0fr;
   align-items: center;
-  border-bottom: 1px solid transparent;
+  border-bottom: var(--border-width-1) solid transparent;
   /* 닫힘 방향 — body 가 먼저 닫히고(0.35s) 그 뒤에 column 축소 */
   transition:
     grid-template-columns 0.3s cubic-bezier(0.4, 0, 0.2, 1) 0.35s,
