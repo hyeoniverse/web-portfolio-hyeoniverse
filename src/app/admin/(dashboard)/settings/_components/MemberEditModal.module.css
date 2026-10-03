@@ -64,7 +64,7 @@
   border-radius: var(--radius-full);
   background: var(--bg-accent-solid);
   color: var(--text-on-accent);
-  border: 2px solid var(--bg-primary);
+  border: var(--border-width-2) solid var(--bg-primary);
 }
 
 /* 제거는 되돌리기 쉬운 조작이지만 성격이 다르다 — 색으로 구분한다 */

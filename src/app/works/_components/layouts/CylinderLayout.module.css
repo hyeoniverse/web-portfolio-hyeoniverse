@@ -3,7 +3,7 @@
    생김새는 andreasantonsson.dev 를 따른다 — 분류·큰 세리프 제목·둥근 화살표, 위아래 그라데이션
    ========================================================================== */
 .wrap {
-  --_border-accent-mid: 1px solid color-mix(in oklch, var(--bg-accent-solid) 50%, transparent);
+  --_border-accent-mid: var(--border-width-1) solid color-mix(in oklch, var(--bg-accent-solid) 50%, transparent);
   /* 무대 바탕 — 위아래 그라데이션도 이 색으로 흐린다. 다크는 순수 검정이어야 3D 오브젝트가 떠 보인다 */
   --_bg: var(--works-cylinder-stage);
 
@@ -422,7 +422,7 @@
   content: "";
   position: absolute;
   inset: 1.5px 0;
-  border: 1px solid currentColor;
+  border: var(--border-width-1) solid currentColor;
   /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 13×10 짜리 네모라 2xl 이면 알약이 된다. 레퍼런스의 2px 모서리 */
   border-radius: var(--radius-mark);
   opacity: 0.2;
@@ -441,7 +441,7 @@
   left: calc((var(--_item-w) - var(--_frame-w)) / 2);
   width: var(--_frame-w);
   height: var(--_frame-h);
-  border: 1px solid currentColor;
+  border: var(--border-width-1) solid currentColor;
   /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 25×23 짜리 틀이라 2xl 이면 동그라미가 된다 */
   border-radius: var(--radius-mark);
   opacity: calc(0.75 * var(--fade, 1));

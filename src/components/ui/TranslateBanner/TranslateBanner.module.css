@@ -8,7 +8,7 @@
   align-items: center;
   gap: var(--spacing-12);
   padding: var(--spacing-12) var(--spacing-16);
-  border-left: 2px solid var(--text-muted);
+  border-left: var(--border-width-2) solid var(--text-muted);
   background: transparent;
   margin-bottom: var(--spacing-24);
 }

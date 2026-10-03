@@ -150,7 +150,7 @@
     white-space: nowrap;
     flex-shrink: 0;
     width: auto;
-    border-bottom: 2px solid transparent;
+    border-bottom: var(--border-width-2) solid transparent;
     padding: var(--row-padding-lg);
     font-size: var(--font-size-body-sm);
     text-align: center;
@@ -271,7 +271,7 @@
   flex: 1;
   min-width: 0;
   padding: 0;
-  border: 1px solid transparent;
+  border: var(--border-width-1) solid transparent;
   background: transparent;
 }
 
@@ -434,7 +434,7 @@
     flex-shrink: 0;
     padding: var(--row-padding-md);
     border: none;
-    border-bottom: 2px solid transparent;
+    border-bottom: var(--border-width-2) solid transparent;
     background: transparent;
     font: var(--font-body-sm);
     font-weight: var(--font-weight-medium);

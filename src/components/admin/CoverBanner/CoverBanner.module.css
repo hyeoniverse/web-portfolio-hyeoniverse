@@ -25,7 +25,7 @@
 
 /* 비어있을 때 — 낮은 채도의 점선 영역 */
 .bannerEmpty {
-  border: 1px dashed var(--border-color-light);
+  border: var(--border-width-1) dashed var(--border-color-light);
   background: var(--bg-tertiary);
 }
 
@@ -156,7 +156,7 @@
   height: 80px;
   padding: var(--spacing-2);
   /* hover 시 border-color 만 입히도록 자리 미리 확보(border-box → 시프트 없음) */
-  border: 1px solid transparent;
+  border: var(--border-width-1) solid transparent;
   border-radius: var(--radius-full);
   /* 선택된 이모지는 배경 없음(투명). 페이지색 backing 은 placeholder(.addEmojiBtn)만 */
   background: transparent;

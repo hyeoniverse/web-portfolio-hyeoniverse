@@ -52,7 +52,8 @@
 .input.error,
 .input.error:focus {
   border-color: var(--border-color-accent-strong);
-  box-shadow: 0 0 0 3px color-mix(in oklch, var(--bg-accent-solid) 10%, transparent);
+  outline: var(--border-width-3) solid color-mix(in oklch, var(--bg-accent-solid) 10%, transparent);
+  outline-offset: 0;
 }
 
 .input:disabled {

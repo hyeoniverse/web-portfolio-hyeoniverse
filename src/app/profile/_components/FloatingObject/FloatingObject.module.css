@@ -44,7 +44,7 @@
   white-space: nowrap;
   height: var(--bubble-h);
   padding: var(--bubble-py) var(--bubble-px);
-  border: 1px solid transparent;
+  border: var(--border-width-1) solid transparent;
   font-size: var(--bubble-fs);
   line-height: var(--bubble-lh);
   pointer-events: none;

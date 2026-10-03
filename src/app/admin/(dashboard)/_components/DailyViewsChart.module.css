@@ -207,7 +207,7 @@
     width 0.15s ease,
     height 0.15s ease,
     background-color 0.15s ease;
-  border: 2px solid var(--bg-primary);
+  border: var(--border-width-2) solid var(--bg-primary);
   box-sizing: content-box;
   pointer-events: none;
 }
@@ -245,7 +245,7 @@
 .selectedLine {
   position: absolute;
   width: 0;
-  border-left: 1.5px solid var(--border-color-accent-strong);
+  border-left: var(--border-width-2) solid var(--border-color-accent-strong);
   pointer-events: none;
   transform-origin: bottom;
   animation: selectedLineIn 0.2s ease;

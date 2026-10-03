@@ -65,7 +65,7 @@
 /* 시리즈 SegmentedControl — 기본 border-default 대신 light 로 (영역 약화).
    SegmentedControl 의 .group 이 box-shadow inset 로 border line 처리하므로 동일 방식으로 override. */
 .seriesSegmented.seriesSegmented {
-  box-shadow: inset 0 0 0 1px var(--border-color-light);
+  border: var(--border-width-1) solid var(--border-color-light);
 }
 
 /* SegmentedControl 안 button 만 컴팩트 padding — circle shuffleBtn 은 제외 (가로 padding 이 들어가면 원형 깨짐) */

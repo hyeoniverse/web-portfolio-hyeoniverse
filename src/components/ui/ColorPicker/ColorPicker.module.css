@@ -96,8 +96,10 @@
   width: 14px;
   height: 14px;
   border-radius: var(--radius-full);
-  border: 2px solid var(--border-color-white);
-  box-shadow: 0 0 0 1px oklch(0.00% 0.0000 0.00 / 0.4), 0 1px 2px oklch(0.00% 0.0000 0.00 / 0.4);
+  border: var(--border-width-2) solid var(--border-color-white);
+  outline: var(--border-width-1) solid oklch(0.00% 0.0000 0.00 / 0.4);
+  outline-offset: 0;
+  box-shadow: 0 1px 2px oklch(0.00% 0.0000 0.00 / 0.4);
   transform: translate(-50%, -50%);
   pointer-events: none;
   background: var(--_thumb-color, transparent);
@@ -151,8 +153,10 @@
   width: 14px;
   height: 14px;
   border-radius: var(--radius-full);
-  border: 2px solid var(--border-color-white);
-  box-shadow: 0 0 0 1px oklch(0.00% 0.0000 0.00 / 0.4), 0 1px 2px oklch(0.00% 0.0000 0.00 / 0.4);
+  border: var(--border-width-2) solid var(--border-color-white);
+  outline: var(--border-width-1) solid oklch(0.00% 0.0000 0.00 / 0.4);
+  outline-offset: 0;
+  box-shadow: 0 1px 2px oklch(0.00% 0.0000 0.00 / 0.4);
   transform: translate(-50%, -50%);
   pointer-events: none;
   background: var(--_hue-color, var(--picker-hue-default));
@@ -291,8 +295,10 @@
   width: 14px;
   height: 14px;
   border-radius: var(--radius-full);
-  border: 2px solid var(--border-color-white);
-  box-shadow: 0 0 0 1px oklch(0.00% 0.0000 0.00 / 0.4), 0 1px 2px oklch(0.00% 0.0000 0.00 / 0.4);
+  border: var(--border-width-2) solid var(--border-color-white);
+  outline: var(--border-width-1) solid oklch(0.00% 0.0000 0.00 / 0.4);
+  outline-offset: 0;
+  box-shadow: 0 1px 2px oklch(0.00% 0.0000 0.00 / 0.4);
   transform: translate(-50%, -50%);
   pointer-events: none;
   background: var(--_thumb-color, transparent);
@@ -316,8 +322,10 @@
   width: 14px;
   height: 14px;
   border-radius: var(--radius-full);
-  border: 2px solid var(--border-color-white);
-  box-shadow: 0 0 0 1px oklch(0.00% 0.0000 0.00 / 0.4), 0 1px 2px oklch(0.00% 0.0000 0.00 / 0.4);
+  border: var(--border-width-2) solid var(--border-color-white);
+  outline: var(--border-width-1) solid oklch(0.00% 0.0000 0.00 / 0.4);
+  outline-offset: 0;
+  box-shadow: 0 1px 2px oklch(0.00% 0.0000 0.00 / 0.4);
   transform: translate(-50%, -50%);
   pointer-events: none;
   background: var(--_hue-color, var(--picker-hue-default));
@@ -347,7 +355,7 @@
   height: var(--control-height-xs);
   border-radius: var(--radius-full);
   /* solid 테두리 — 반투명(border-light)이면 색이 가장자리에서 배경과 섞여 덜 찬 것처럼 보임 */
-  border: 1px solid var(--border-color-solid);
+  border: var(--border-width-1) solid var(--border-color-solid);
   /* 색 레이어(위) + 격자(아래) — 반투명 색의 투명도가 비쳐 보이게.
      격자는 테마 무관 고정 뉴트럴이어야 "투명"으로 읽힘 (presets.ts CHECKER_BG 와 동일 패턴). */
   background-image:

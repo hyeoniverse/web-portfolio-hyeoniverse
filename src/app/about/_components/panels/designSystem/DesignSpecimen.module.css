@@ -129,7 +129,7 @@
 .radiusBox {
   width: clamp(3rem, 5vw, 4.5rem);
   height: clamp(3rem, 5vw, 4.5rem);
-  border: 2px solid var(--text-accent);
+  border: var(--border-width-2) solid var(--text-accent);
 }
 
 /* 움직임 — 점이 같은 시간 동안 이징만 달리 오간다 */

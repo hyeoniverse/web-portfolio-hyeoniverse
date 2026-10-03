@@ -152,7 +152,7 @@
 }
 .envSourceDot[data-source="none"] {
   background: transparent;
-  border: 1.5px solid var(--text-accent);
+  border: var(--border-width-2) solid var(--text-accent);
 }
 
 .envFieldLabelText {
@@ -160,7 +160,7 @@
 }
 /* 누락 row 강조 — left accent 보더 + 들여쓰기 */
 .envFieldRowMissing {
-  border-left: 2px solid var(--text-accent);
+  border-left: var(--border-width-2) solid var(--text-accent);
   padding-left: var(--spacing-12);
   margin-left: calc(var(--spacing-12) * -1 - var(--spacing-2));
 }

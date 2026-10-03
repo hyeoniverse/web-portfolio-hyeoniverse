@@ -39,7 +39,8 @@
 /* hover — 어둡게 덮지 않고 accent 링으로 짚는다 (brightness 는 빈 칸에서 회색 얼룩처럼 보였다).
    링이 이웃 칸에 안 가리게 z 올림. 범례 칸(행 밖)엔 적용 안 됨 */
 .heatmapRow .heatmapCell:hover {
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--border-color-accent-strong) 55%, transparent);
+  outline: var(--border-width-2) solid color-mix(in srgb, var(--border-color-accent-strong) 55%, transparent);
+  outline-offset: 0;
   position: relative;
   z-index: 1;
 }

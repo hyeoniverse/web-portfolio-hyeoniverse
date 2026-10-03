@@ -141,7 +141,7 @@
   padding: 0 var(--spacing-4);
 }
 .compactHotBadge.compactHotBadge {
-  border: 1px solid transparent; /* lang 의 1px border 와 box 폭/높이 계산 동일하게 */
+  border: var(--border-width-1) solid transparent; /* lang 의 1px border 와 box 폭/높이 계산 동일하게 */
 }
 .compactHotBadge svg {
   width: 11px;

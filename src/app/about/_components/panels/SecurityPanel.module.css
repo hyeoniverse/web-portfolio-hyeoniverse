@@ -136,7 +136,7 @@
     align-items: baseline;
     position: relative;
     padding-bottom: var(--spacing-12);
-    border-bottom: 2px solid var(--text-accent);
+    border-bottom: var(--border-width-2) solid var(--text-accent);
   }
 
   .flowStage:not(:last-child) .flowNode::after {

@@ -22,7 +22,7 @@
 
 /* 정렬/검색창 border 를 페이징 select(--border-light) 등 주변 컨트롤과 light 로 통일 */
 .sortControl.sortControl {
-  box-shadow: inset 0 0 0 1px var(--border-color-light);
+  border: var(--border-width-1) solid var(--border-color-light);
 }
 
 /* 좁은 화면: perPage+검색 묶음(searchTools)을 한 줄 전체로 내리고 안에서 wrap →

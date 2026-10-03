@@ -19,7 +19,8 @@
 }
 
 .root:focus-visible {
-  box-shadow: 0 0 0 3px color-mix(in oklch, var(--text-contrast) 20%, transparent);
+  outline: var(--border-width-3) solid color-mix(in oklch, var(--text-contrast) 20%, transparent);
+  outline-offset: 0;
 }
 
 .root[data-state="checked"] {

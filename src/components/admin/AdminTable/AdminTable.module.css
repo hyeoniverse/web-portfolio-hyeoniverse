@@ -311,7 +311,7 @@
   padding: 0 var(--spacing-2);
   white-space: nowrap;
   overflow: hidden;
-  border: 1px solid transparent;
+  border: var(--border-width-1) solid transparent;
   border-bottom-color: var(--text-white);
   border-bottom-style: dashed;
   border-radius: 0;

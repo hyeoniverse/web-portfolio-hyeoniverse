@@ -320,7 +320,8 @@
 .item.itemPending .icon {
   background: var(--bg-warning-soft);
   color: var(--text-warning-strong);
-  box-shadow: 0 0 0 1px var(--text-warning);
+  outline: var(--border-width-1) solid var(--text-warning);
+  outline-offset: 0;
 }
 
 .item.itemPending .itemTitle {

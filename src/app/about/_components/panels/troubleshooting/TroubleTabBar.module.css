@@ -10,8 +10,7 @@
   overflow-y: hidden;
   scrollbar-width: none;
   background: var(--bg-secondary);
-  border-bottom: 1px solid
-    color-mix(in srgb, var(--text-secondary) 12%, transparent);
+  border-bottom: var(--border-width-1) solid color-mix(in srgb, var(--text-secondary) 12%, transparent);
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-x: contain;
   touch-action: pan-x;
@@ -38,8 +37,7 @@
   align-items: center;
   padding: var(--spacing-8) var(--spacing-16);
   border: none;
-  border-right: 1px solid
-    color-mix(in srgb, var(--text-secondary) 12%, transparent);
+  border-right: var(--border-width-1) solid color-mix(in srgb, var(--text-secondary) 12%, transparent);
   background: transparent;
   font-family: inherit;
   font-size: var(--font-size-body-sm);

@@ -140,7 +140,7 @@
   width: 16px;
   height: 16px;
   padding: 0;
-  border: 1px solid var(--border-color-light);
+  border: var(--border-light);
   border-radius: var(--radius-full);
   cursor: pointer;
   transition: transform 0.15s ease;

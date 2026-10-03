@@ -68,7 +68,7 @@
   width: var(--control-height-xs);
   height: var(--control-height-xs);
   border-radius: var(--radius-full);
-  border: 2px solid transparent;
+  border: var(--border-width-2) solid transparent;
   background: transparent;
   padding: 0;
   transition: border-color var(--duration-fast) ease, transform var(--duration-fast) ease;

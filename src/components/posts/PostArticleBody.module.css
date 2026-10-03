@@ -97,7 +97,7 @@
 }
 
 .prose blockquote {
-  border-left: 4px solid var(--text-accent);
+  border-left: var(--border-width-4) solid var(--text-accent);
   padding: var(--spacing-4) 0 var(--spacing-4) var(--spacing-24);
   margin: var(--spacing-24) 0;
   color: var(--text-secondary);

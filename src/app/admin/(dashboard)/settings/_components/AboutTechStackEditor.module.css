@@ -217,7 +217,7 @@
 .techIconSpinner {
   width: 14px;
   height: 14px;
-  border: 2px solid var(--border-color-strong);
+  border: var(--border-strong-2);
   border-top-color: var(--text-accent);
   border-radius: var(--radius-full);
   animation: techSpin 0.7s linear infinite;

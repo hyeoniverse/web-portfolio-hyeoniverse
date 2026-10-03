@@ -62,7 +62,7 @@
   flex-direction: column;
   padding: var(--spacing-12) var(--spacing-12) var(--spacing-16);
   background: var(--bg-primary);
-  border: 1px solid var(--border-color-light);
+  border: var(--border-light);
   box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.18);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;

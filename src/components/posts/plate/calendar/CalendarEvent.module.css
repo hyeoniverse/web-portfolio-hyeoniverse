@@ -75,9 +75,9 @@
 .evItemDot { flex-shrink: 0; width: 10px; height: 10px; border-radius: var(--radius-full); background: var(--_c); position: relative; }
 
 /* 상태를 채움 정도로 — 예정=빈원 / 진행=반채움 / 완료=체크 / 중단=채움 (색은 라벨색 --_c) */
-.evItemDotTodo { background: transparent; box-shadow: inset 0 0 0 1.5px var(--_c); }
+.evItemDotTodo { background: transparent; border: var(--border-width-2) solid var(--_c); }
 
-.evItemDotDoing { background: transparent; box-shadow: inset 0 0 0 1.5px var(--_c); overflow: hidden; }
+.evItemDotDoing { background: transparent; border: var(--border-width-2) solid var(--_c); overflow: hidden; }
 
 .evItemDotDoing::before { content: ""; position: absolute; inset: 0; background: var(--_c); clip-path: inset(0 50% 0 0); }
 
@@ -232,8 +232,10 @@
 .evChainNode {
   position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
   width: 9px; height: 9px; border-radius: var(--radius-full);
-  background: var(--bg-primary); border: 2px solid var(--_c);
-  box-shadow: 0 0 0 2px var(--bg-primary); z-index: 1;
+  background: var(--bg-primary); border: var(--border-width-2) solid var(--_c);
+  outline: var(--border-width-2) solid var(--bg-primary);
+  outline-offset: 0;
+  z-index: 1;
 }
 
 .evChainRowDone .evChainNode { background: var(--_c); }
@@ -241,7 +243,7 @@
 /* 현재(펼친 기준) 이벤트 강조 */
 .evChainRowCurrent > .evItem { background: color-mix(in srgb, var(--_c) 12%, var(--bg-primary)); }
 
-.evChainRowCurrent .evChainNode { box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 4px color-mix(in srgb, var(--_c) 25%, transparent); }
+.evChainRowCurrent .evChainNode { outline: var(--border-width-2) solid color-mix(in srgb, var(--_c) 25%, transparent); outline-offset: var(--border-width-2); }
 
 .recurScopeBar {
   display: flex; align-items: center; gap: var(--spacing-12);

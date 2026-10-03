@@ -140,7 +140,7 @@
    공통 컴포넌트의 .badge.published(클래스 둘)를 이겨야 해서 클래스를 셋 겹친다. */
 .seriesCardBadgeOn.seriesCardBadgeOn.seriesCardBadgeOn,
 .seriesCardBadgeOff.seriesCardBadgeOff.seriesCardBadgeOff {
-  border: 1px solid;
+  border: var(--border-width-1) solid;
   background-clip: padding-box;
   height: var(--control-height-xs);
   box-sizing: border-box;

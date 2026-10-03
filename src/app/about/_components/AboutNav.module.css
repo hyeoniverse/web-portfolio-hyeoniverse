@@ -18,7 +18,7 @@
   align-items: center;
   justify-content: center;
   padding: clamp(0.2rem, 0.3vh, 0.35rem) clamp(0.3rem, 0.4vw, 0.5rem);
-  border: 1px solid transparent;
+  border: var(--border-width-1) solid transparent;
   background: transparent;
   font: var(--font-prose-md);
   color: var(--text-white);
@@ -442,7 +442,7 @@
   position: relative;
   padding: var(--spacing-12) 0;
   border: none;
-  border-bottom: 2px solid transparent;
+  border-bottom: var(--border-width-2) solid transparent;
   background: transparent;
   font: var(--font-prose-sm);
   font-weight: var(--font-weight-medium);

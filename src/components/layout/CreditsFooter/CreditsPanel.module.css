@@ -23,6 +23,6 @@
     height: auto;
     min-height: 50vh;
     padding: var(--spacing-48) var(--spacing-24) var(--spacing-32);
-    border-top: 1px solid var(--border-strong);
+    border-top: var(--border-width-1) solid var(--border-strong);
   }
 }
