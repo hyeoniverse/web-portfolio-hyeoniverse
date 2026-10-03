@@ -141,7 +141,7 @@ function ColorSplitButton({ kind }: { kind: keyof typeof COLOR_KIND }) {
     <span className={styles.colorSplit}>
       <TBtn tooltip={last ? t(cfg.apply) : t(cfg.menu)} aria-label={last ? t(cfg.apply) : t(cfg.menu)} onClick={applyLast}>
         <span style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1 }}>
-          <span style={{ fontWeight: 700, fontSize: 11 }}>{kind === "text" ? "A" : "BG"}</span>
+          <span style={{ fontWeight: 700, fontSize: "var(--font-size-hint)" }}>{kind === "text" ? "A" : "BG"}</span>
           {bar(last, kind === "text" ? "var(--text-primary)" : CHECKER_BG)}
         </span>
       </TBtn>

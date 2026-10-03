@@ -130,7 +130,7 @@ export function FileElement(props: PlateElementProps) {
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: "var(--font-size-label)", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{fileName}</div>
-              {sizeLabel && <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 1 }}>{sizeLabel}</div>}
+              {sizeLabel && <div style={{ fontSize: "var(--font-size-hint)", color: "var(--text-muted)", marginTop: 1 }}>{sizeLabel}</div>}
             </div>
             {hasPreview && (
               <Tooltip content={previewOpen ? "Close preview" : "Preview"} placement="top">
