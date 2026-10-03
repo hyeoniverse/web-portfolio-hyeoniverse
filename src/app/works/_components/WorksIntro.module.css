@@ -48,10 +48,8 @@
 }
 
 .introTagline {
-  font-family: var(--font-family-heading);
-  font-size: var(--font-size-20);
+  font: var(--font-heading-sm);
   font-style: italic;
-  font-weight: var(--font-weight-regular);
   letter-spacing: 0.02em;
   /* 0.6 은 라이트에서 대비 4.13. 0.7 이면 4.65. */
   opacity: 0.7;
@@ -105,10 +103,10 @@
 }
 
 .introStatNumber {
+  /* 큰 숫자 — 전시 md(아래가 32). sm 은 폰에서 16 까지 줄어 숫자가 사라진다(D34) */
+  font: var(--font-display-md);
   font-family: var(--font-family-heading);
-  font-size: var(--font-size-40);
   font-weight: var(--font-weight-light);
-  line-height: 1;
   letter-spacing: -0.04em;
 }
 
@@ -168,7 +166,8 @@
   }
 
   .introTitle {
-    font-size: var(--font-size-64);
+    /* 바탕의 --fluid-font-size-6xl 은 폰에서 105px 라 전시 단계로 누른다(D34) */
+    font-size: var(--font-size-display-lg);
     line-height: 0.95;
   }
 
@@ -194,10 +193,6 @@
     text-align: left;
   }
 
-  .introStatNumber {
-    font-size: var(--font-size-48);
-  }
-
   .introScope {
     text-align: left;
   }
@@ -214,7 +209,7 @@
   }
 
   .introTitle {
-    font-size: var(--font-size-48);
+    font-size: var(--font-size-display-md);
   }
 
   .introDesc {
@@ -223,10 +218,6 @@
 
   .introDetail {
     font-size: var(--font-size-body-md);
-  }
-
-  .introStatNumber {
-    font-size: var(--font-size-40);
   }
 
   .introQuote {

@@ -20,7 +20,7 @@
   padding: clamp(0.2rem, 0.3vh, 0.35rem) clamp(0.3rem, 0.4vw, 0.5rem);
   border: 1px solid transparent;
   background: transparent;
-  font-size: var(--font-size-prose-md);
+  font: var(--font-prose-md);
   color: var(--text-white);
   border-radius: var(--radius-full);
 }
@@ -444,8 +444,7 @@
   border: none;
   border-bottom: 2px solid transparent;
   background: transparent;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-prose-sm);
+  font: var(--font-prose-sm);
   font-weight: var(--font-weight-medium);
   color: var(--text-white);
   /* mix-blend-mode: difference 환경에서 색 직접 변경하면 이상해짐 →
@@ -509,8 +508,7 @@
     gap: var(--spacing-12);
     margin-left: auto;
     pointer-events: auto;
-    font-family: var(--font-family-code);
-    font-size: var(--font-size-prose-sm);
+    font: var(--font-prose-sm);
     color: var(--text-white-muted);
   }
 

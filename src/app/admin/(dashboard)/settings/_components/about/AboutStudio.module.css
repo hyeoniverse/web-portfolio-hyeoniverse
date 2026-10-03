@@ -540,8 +540,8 @@ textarea.edit {
   border: var(--border-default);
   background: transparent;
   color: var(--text-secondary);
+  font: var(--font-prose-md);
   font-family: inherit;
-  font-size: var(--font-size-prose-md);
   font-weight: var(--font-weight-medium);
   letter-spacing: 0.05em;
 }
@@ -592,7 +592,7 @@ textarea.edit {
   border-bottom: var(--_line-secondary);
   background: transparent;
   color: var(--text-secondary);
-  font-size: var(--font-size-18);
+  font: var(--font-body-xl);
   cursor: pointer;
 }
 .addStatCell:hover {
@@ -621,7 +621,7 @@ textarea.edit {
   border-bottom: var(--_line-secondary);
   background: transparent;
   color: var(--text-secondary);
-  font-size: var(--font-size-18);
+  font: var(--font-body-xl);
   cursor: pointer;
 }
 .addSecCell:hover {
@@ -692,7 +692,7 @@ textarea.edit {
   border-radius: var(--radius-24);
   background: transparent;
   color: var(--text-secondary);
-  font-size: var(--font-size-18);
+  font: var(--font-body-xl);
   cursor: pointer;
 }
 .iconPickBtn:hover {
@@ -817,8 +817,7 @@ textarea.edit {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-4);
-  font-family: var(--font-family-heading);
-  font-size: var(--font-size-34);
+  font: var(--font-heading-xl);
   font-weight: 400;
   color: var(--text-accent);
   opacity: 0.55;
@@ -856,13 +855,12 @@ textarea.edit {
   min-width: 0;
 }
 .procTitle {
-  font-family: var(--font-family-heading);
-  font-size: var(--font-size-22);
+  font: var(--font-heading-md);
   font-style: italic;
   color: var(--text-primary);
 }
 .procDesc {
-  font-size: var(--font-size-20);
+  font: var(--font-heading-sm);
   line-height: 1.6;
   color: var(--text-secondary);
 }
@@ -879,7 +877,7 @@ textarea.edit {
 /* Process 제목 아래 ** 강조 문법 안내 — hint 색은 accent */
 .procHint {
   margin: var(--spacing-4) 0 var(--spacing-24);
-  font-size: var(--font-size-18);
+  font: var(--font-body-xl);
   color: var(--text-accent);
 }
 /* Process 타임라인(dot rail) — 스튜디오 프리뷰만 확대. double-class 로 실제 proc 클래스보다 우선. */
@@ -909,7 +907,7 @@ textarea.edit {
   border-bottom: var(--border-light);
   background: transparent;
   color: var(--text-secondary);
-  font-size: var(--font-size-18);
+  font: var(--font-body-xl);
   cursor: pointer;
 }
 .addStepBtn:hover {
@@ -1389,7 +1387,7 @@ textarea.edit {
 }
 .bkNote {
   color: var(--text-tertiary);
-  font-size: var(--font-size-prose-sm);
+  font: var(--font-prose-sm);
 }
 /* 엔드포인트/컬럼 한 줄.
    레이아웃은 같이 달리는 패널 클래스(.dbEndpoint/.dbSchemaRow 의 grid)가 정한다. 예전엔 여기서

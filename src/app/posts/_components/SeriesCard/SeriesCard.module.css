@@ -185,8 +185,7 @@
 }
 
 .typoTitle {
-  font-family: var(--font-family-heading);
-  font-size: var(--font-size-22);
+  font: var(--font-heading-md);
   font-weight: var(--font-weight-medium);
   line-height: 1.05;
   color: inherit;

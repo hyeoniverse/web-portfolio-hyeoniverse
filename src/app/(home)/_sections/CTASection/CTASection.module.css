@@ -137,7 +137,7 @@
 .resumeBtn.resumeBtn {
   height: 80px;
   padding: 0 var(--spacing-64);
-  font-size: var(--font-size-18);
+  font-size: var(--font-size-body-xl);
   gap: var(--spacing-16);
 }
 

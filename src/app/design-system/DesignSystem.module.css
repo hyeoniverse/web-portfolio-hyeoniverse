@@ -655,8 +655,7 @@
 
 .spinValue {
   min-width: 5ch;
-  font-family: var(--font-family-code), monospace;
-  font-size: var(--font-size-18);
+  font: var(--font-code-xl);
   color: var(--text-primary);
   text-align: center;
 }
@@ -751,8 +750,7 @@
 
 /* Tooltip demo text */
 .tooltipDemoText {
-  font-family: var(--font-family-heading);
-  font-size: var(--font-size-18);
+  font: var(--font-heading-xs);
   font-style: italic;
   color: var(--text-primary);
   padding: var(--spacing-8) var(--spacing-16);

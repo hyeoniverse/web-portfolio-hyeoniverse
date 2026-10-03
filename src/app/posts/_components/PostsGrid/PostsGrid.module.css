@@ -465,10 +465,6 @@
     gap: var(--spacing-12);
   }
 
-  .seriesStepNumber {
-    font-size: var(--font-size-24);
-  }
-
   .seriesStepBody > * {
     grid-template-columns: 100px 1fr !important;
     gap: var(--spacing-12);

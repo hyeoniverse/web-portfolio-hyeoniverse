@@ -62,9 +62,7 @@
   align-items: center;
   gap: var(--spacing-12);
   margin: 0;
-  font-family: var(--font-family-heading);
-  font-size: var(--font-size-22);
-  font-weight: var(--font-weight-regular);
+  font: var(--font-heading-md);
   color: var(--text-primary);
 }
 
@@ -117,8 +115,8 @@
 
 .statValue {
   margin: 0;
+  font: var(--font-display-sm);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-24);
   font-variant-numeric: tabular-nums;
   color: var(--text-primary);
 }
@@ -160,7 +158,7 @@
 /* 단위는 숫자보다 작게 — 올라가는 숫자에 시선이 가야 한다 */
 .statSuffix {
   margin-left: var(--spacing-1);
-  font-size: var(--font-size-16);
+  font: var(--font-code-lg);
   color: var(--text-tertiary);
 }
 
@@ -649,10 +647,6 @@
 
   .stats {
     gap: var(--spacing-12) var(--spacing-32);
-  }
-
-  .statValue {
-    font-size: var(--font-size-20);
   }
 
   .activity {

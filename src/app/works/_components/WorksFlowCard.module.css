@@ -283,7 +283,7 @@
   position: relative;
   z-index: var(--_meta-z);
   max-width: var(--_desc-max-width);
-  font-size: var(--font-size-22);
+  font-size: var(--font-size-heading-md);
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-180);
   color: var(--text-primary);
@@ -787,7 +787,7 @@
   .project[data-layout] .metaDesc {
     margin-top: 0;
     max-width: none;
-    font-size: var(--font-size-20);
+    font-size: var(--font-size-heading-sm);
     font-weight: var(--font-weight-regular);
     line-height: var(--line-height-160);
     text-align: left;
@@ -833,7 +833,7 @@
   }
 
   .project[data-layout] .metaNumber {
-    font-size: var(--font-size-48) !important;
+    font-size: var(--font-size-display-md) !important;
   }
 
   .project[data-layout] .metaCategory {
@@ -905,7 +905,7 @@
   .project[data-layout] .metaNumber {
     position: relative !important;
     margin: 0 !important;
-    font-size: var(--font-size-40);
+    font-size: var(--font-size-display-sm);
     opacity: 0.4 !important;
   }
 
@@ -916,7 +916,7 @@
     right: auto !important;
     bottom: auto !important;
     left: auto !important;
-    font-size: var(--font-size-20);
+    font-size: var(--font-size-heading-sm);
     -webkit-text-stroke: 1px var(--text-primary);
     color: transparent;
     opacity: 0.5 !important;

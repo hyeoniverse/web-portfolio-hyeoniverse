@@ -74,8 +74,7 @@
 }
 
 .troubleComparisonLabel {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-prose-md);
+  font: var(--font-prose-md);
   font-weight: var(--font-weight-semibold);
   color: var(--text-tertiary);
   letter-spacing: 0.05em;
@@ -84,8 +83,7 @@
 .troubleTable {
   width: 100%;
   border-collapse: collapse;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-prose-md);
+  font: var(--font-prose-md);
 }
 
 .troubleTable th {
@@ -128,8 +126,7 @@
 }
 
 .troubleDiagramTitle {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-prose-md);
+  font: var(--font-prose-md);
   font-weight: var(--font-weight-semibold);
   color: var(--text-tertiary);
   letter-spacing: 0.05em;

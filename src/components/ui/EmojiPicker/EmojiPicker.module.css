@@ -146,7 +146,7 @@
   background: transparent;
   padding: 0;
 }
-.emojiCell { font-size: var(--font-size-20); }
+.emojiCell { font: var(--font-heading-sm); }
 .iconCell { color: var(--text-primary); }
 .cell:hover { background: var(--bg-tertiary); }
 

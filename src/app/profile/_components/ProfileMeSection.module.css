@@ -96,7 +96,7 @@
   padding: var(--spacing-8) var(--spacing-24);
   border: var(--border-accent);
   width: fit-content;
-  font-size: var(--font-size-prose-md);
+  font: var(--font-prose-md);
   font-weight: var(--font-weight-regular);
   color: var(--text-accent);
   text-transform: uppercase;
@@ -105,15 +105,14 @@
 
 .heroTitle {
   margin-bottom: var(--_space-divide);
-  font-family: var(--_font-display);
-  font-size: var(--font-size-display-lg);
+  font: var(--font-display-lg);
   line-height: var(--_lh-title);
   letter-spacing: var(--_ls-title);
 }
 
 .heroSubtitle {
   margin: 0;
-  font-size: var(--font-size-display-sm);
+  font: var(--font-display-sm);
   line-height: var(--line-height-180);
   color: var(--text-secondary);
 }
@@ -229,7 +228,7 @@
 }
 
 .osWindowClose {
-  font-size: var(--font-size-20);
+  font: var(--font-heading-sm);
   line-height: 1;
   color: inherit;
 }
@@ -444,8 +443,7 @@
 
 .bioText {
   margin: 0 0 var(--spacing-20) 0;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-16);
+  font: var(--font-code-lg);
   font-weight: 300;
   line-height: 1.8;
   color: var(--text-secondary);
@@ -466,9 +464,9 @@
 }
 
 .statNumber {
+  /* 큰 숫자 — 전시 md(아래가 32). sm 은 폰에서 16 까지 줄어 숫자가 사라진다(D34) */
+  font: var(--font-display-md);
   font-family: var(--font-family-heading);
-  font-size: var(--font-size-40);
-  font-weight: 400;
   color: var(--text-primary);
 }
 
@@ -598,8 +596,7 @@
 
 .expRole {
   margin: 0 0 var(--spacing-4) 0;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-18);
+  font: var(--font-code-xl);
   font-weight: 600;
   color: var(--text-primary);
 }
@@ -686,8 +683,7 @@
 
 .skillPanelItemName {
   margin: 0 0 var(--spacing-8) 0;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-16);
+  font: var(--font-code-lg);
   font-weight: 500;
   color: var(--text-primary);
 }
@@ -820,8 +816,7 @@
 
 .credentialHeading {
   margin: 0 0 var(--spacing-24) 0;
-  font-family: var(--font-family-heading);
-  font-size: var(--font-size-20);
+  font: var(--font-heading-sm);
   font-weight: 400;
   color: var(--text-primary);
 }
@@ -861,8 +856,7 @@
 
 .credentialName {
   margin: 0;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-16);
+  font: var(--font-code-lg);
   font-weight: 500;
   color: var(--text-primary);
 }

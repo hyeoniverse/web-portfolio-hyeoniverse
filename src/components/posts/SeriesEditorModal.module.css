@@ -38,9 +38,9 @@
 .closeBtn {
   border: none;
   background: transparent;
-  font-size: var(--font-size-22);
-  color: var(--text-secondary);
+  font: var(--font-heading-md);
   line-height: 1;
+  color: var(--text-secondary);
   padding: 0;
 }
 
@@ -326,10 +326,10 @@
   flex-shrink: 0;
   border: none;
   background: transparent;
-  font-size: var(--font-size-16);
+  font: var(--font-body-lg);
+  line-height: 1;
   color: var(--text-secondary);
   padding: 0;
-  line-height: 1;
   width: 20px;
   height: 20px;
   display: flex;

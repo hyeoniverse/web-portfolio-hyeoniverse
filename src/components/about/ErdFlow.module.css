@@ -61,8 +61,7 @@
   border-bottom: 1px solid var(--border-color-light);
   background: var(--bg-tertiary);
   color: var(--text-primary);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-16);
+  font: var(--font-code-lg);
   font-weight: var(--font-weight-bold);
   letter-spacing: -0.01em;
 }

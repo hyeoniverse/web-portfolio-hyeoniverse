@@ -239,11 +239,8 @@
 
 /* ── Title ── */
 .title {
-  font-family: var(--font-family-heading);
-  font-size: var(--font-size-28);
-  font-weight: var(--font-weight-regular);
+  font: var(--font-heading-lg);
   color: var(--text-primary);
-  line-height: var(--line-height-125);
   min-height: calc(var(--font-size-28) * var(--line-height-125) * 2);
   /* 한글 단어 보존 + 영문 긴 단어 break (line-clamp 시 ellipsis 정확히 표시되게) */
   word-break: break-word;
@@ -367,7 +364,6 @@
 }
 
 .compact .title {
-  font-size: var(--font-size-heading-xs);
   min-height: 0;
   -webkit-line-clamp: 1;
   white-space: nowrap;
@@ -492,7 +488,6 @@
 
   /* 모바일 — title 축소, excerpt 는 meta(xs) 와 동일 크기 */
   .title {
-    font-size: var(--font-size-heading-xs);
     min-height: calc(var(--font-size-16) * var(--line-height-125) * 2);
   }
 
@@ -526,7 +521,6 @@
   }
 
   .featured .title {
-    font-size: var(--font-size-heading-xs);
     -webkit-line-clamp: 2;
   }
 

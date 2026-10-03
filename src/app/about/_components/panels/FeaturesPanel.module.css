@@ -72,7 +72,7 @@
 
 .featureDfTech {
   margin: 0;
-  font-size: var(--font-size-prose-md);
+  font: var(--font-prose-md);
   color: var(--text-white-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -103,7 +103,7 @@
   position: relative;
   z-index: 1;
   background: var(--bg-primary);
-  font-size: var(--font-size-prose-sm);
+  font: var(--font-prose-sm);
   font-weight: var(--font-weight-semibold);
   transition:
     color var(--duration-moderate) ease,
@@ -148,7 +148,7 @@
 
 .featureFolderDesc {
   margin: 0;
-  font-size: var(--font-size-display-sm);
+  font: var(--font-display-sm);
   line-height: var(--_lh-body);
   color: var(--text-secondary);
   transition: color var(--duration-moderate) ease;
@@ -156,7 +156,7 @@
 
 .featureFolderTech {
   margin: 0;
-  font-size: var(--font-size-prose-md);
+  font: var(--font-prose-md);
   font-weight: var(--font-weight-regular);
   color: var(--text-tertiary);
   text-transform: uppercase;

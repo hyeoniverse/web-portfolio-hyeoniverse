@@ -69,7 +69,7 @@
   flex: none;
   width: var(--spacing-32);
   color: var(--text-tertiary);
-  font-size: var(--font-size-18);
+  font: var(--font-body-xl);
   text-align: center;
 }
 
@@ -164,7 +164,7 @@
 }
 
 .char {
-  font-size: var(--font-size-20);
+  font: var(--font-heading-sm);
   line-height: 1;
 }
 

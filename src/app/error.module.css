@@ -40,10 +40,8 @@
 }
 
 .iconText {
+  font: var(--font-display-md);
   font-family: var(--font-family-heading);
-  font-size: var(--font-size-48);
-  font-weight: 400;
-  line-height: 1;
   color: var(--text-primary);
 }
 
@@ -154,10 +152,6 @@
   .icon {
     width: 60px;
     height: 60px;
-  }
-
-  .iconText {
-    font-size: var(--font-size-32);
   }
 
   .actions {

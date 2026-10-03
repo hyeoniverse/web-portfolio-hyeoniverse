@@ -39,9 +39,8 @@
   justify-content: center;
 }
 .authorAvatarInitial {
-  font-family: var(--font-family-body);
+  font: var(--font-body-xl);
   font-weight: var(--font-weight-semibold);
-  font-size: var(--font-size-18);
   color: var(--text-tertiary);
 }
 /* 아바타 + 모서리 배지를 함께 잡는 자리 */

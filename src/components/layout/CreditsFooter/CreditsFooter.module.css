@@ -8,7 +8,8 @@
 
 .text {
   margin: 0;
-  font-size: var(--font-size-20);
+  /* 문장이라 본문 역할 — 가장 큰 본문 단계(18)로. 전에는 20 */
+  font: var(--font-body-xl);
   color: var(--text-tertiary);
 }
 

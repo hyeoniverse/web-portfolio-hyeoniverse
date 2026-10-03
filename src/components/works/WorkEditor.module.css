@@ -1162,8 +1162,7 @@
 }
 
 .memberAvatarInitial {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-16);
+  font: var(--font-body-lg);
   font-weight: 600;
   color: var(--text-secondary);
 }

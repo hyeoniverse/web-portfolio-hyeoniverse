@@ -114,12 +114,11 @@
 
 /* 조회수 — 셀 중앙, 크게 */
 .calendarCellViews {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-16);
+  font: var(--font-body-lg);
   font-weight: 600;
-  color: var(--text-primary);
   font-variant-numeric: tabular-nums;
   line-height: 1;
+  color: var(--text-primary);
 }
 
 /* 모바일에선 조회수 폰트 작게 + 셀 높이 축소 */

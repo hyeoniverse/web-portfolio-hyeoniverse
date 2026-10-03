@@ -20,8 +20,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-12);
-  font-family: var(--font-family-heading);
-  font-size: var(--font-size-34);
+  font: var(--font-heading-xl);
   color: var(--text-primary);
   margin: 0;
 }
@@ -290,11 +289,11 @@ a.statCard:hover .statValue {
 }
 
 .statValue {
+  font: var(--font-heading-md);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-22);
   font-weight: 700;
-  color: var(--text-primary);
   line-height: 1;
+  color: var(--text-primary);
   transition: color 0.2s ease;
 }
 
@@ -689,8 +688,7 @@ a.statCard:hover .statValue {
 }
 
 .donutCenterValue {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-18);
+  font: var(--font-body-xl);
   font-weight: 700;
   fill: var(--text-primary);
 }
@@ -1036,12 +1034,11 @@ a.commentSource:hover {
   display: inline-flex;
   align-items: baseline;
   gap: var(--spacing-4);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-16);
+  font: var(--font-code-lg);
   font-weight: 700;
-  color: var(--text-primary);
   font-variant-numeric: tabular-nums;
   line-height: calc(20 / 16);
+  color: var(--text-primary);
 }
 
 .trafficStatSub {

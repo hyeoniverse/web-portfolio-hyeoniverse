@@ -178,20 +178,19 @@
 }
 
 .panelScoreNum {
-  font-size: var(--font-size-34);
-  font-weight: var(--font-weight-regular);
-  color: var(--text-primary);
+  font: var(--font-heading-xl);
   line-height: 1;
+  color: var(--text-primary);
 }
 
 .panelScoreSepBig {
-  font-size: var(--font-size-20);
+  font: var(--font-heading-sm);
   color: var(--text-muted);
   margin: 0 var(--spacing-2);
 }
 
 .panelScoreTotalBig {
-  font-size: var(--font-size-20);
+  font: var(--font-heading-sm);
   color: var(--text-tertiary);
 }
 

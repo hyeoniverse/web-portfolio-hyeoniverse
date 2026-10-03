@@ -317,7 +317,7 @@
 
 .sectionProse blockquote {
   margin: var(--spacing-32) 0;
-  font-size: var(--font-size-18);
+  font: var(--font-body-xl);
   line-height: 1.7;
   color: var(--text-primary);
 }

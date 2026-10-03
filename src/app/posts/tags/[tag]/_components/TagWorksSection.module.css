@@ -100,12 +100,10 @@
 .workRowTitle {
   flex: 0 1 auto;
   min-width: 0;
-  font-family: var(--font-family-heading);
-  font-size: var(--font-size-34);
-  font-weight: var(--font-weight-regular);
+  font: var(--font-heading-xl);
+  line-height: 1.1;
   color: var(--text-primary);
   letter-spacing: -0.01em;
-  line-height: 1.1;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -129,14 +127,13 @@
   flex: 0 0 auto;
   margin-left: auto;
   margin-right: var(--spacing-16);
-  font-family: var(--font-family-heading);
-  font-size: var(--font-size-20);
+  font: var(--font-heading-sm);
   font-style: italic;
   font-weight: var(--font-weight-light);
+  font-variant-numeric: tabular-nums;
   /* white + difference — 뒤 이미지/배경과 반전 blend 되어 항상 대비 확보 */
   color: var(--text-white);
   mix-blend-mode: difference;
-  font-variant-numeric: tabular-nums;
   letter-spacing: -0.01em;
 }
 /* 화살표 — 좌측 absolute. hover 들여쓰기로 열린 공간에 나타남 */
@@ -170,7 +167,7 @@
     display: none;
   }
   .workRowTitle {
-    font-size: var(--font-size-22);
+    font-size: var(--font-size-heading-md);
     white-space: normal;
   }
 }
