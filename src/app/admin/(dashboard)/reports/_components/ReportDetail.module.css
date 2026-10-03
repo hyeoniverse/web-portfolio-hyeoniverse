@@ -74,8 +74,8 @@
   position: absolute;
   top: -0.15em;
   left: 0;
+  font: var(--font-heading-xl);
   font-family: var(--font-family-accent);
-  font-size: var(--font-size-34);
   line-height: 1;
   color: var(--text-tertiary);
   pointer-events: none;

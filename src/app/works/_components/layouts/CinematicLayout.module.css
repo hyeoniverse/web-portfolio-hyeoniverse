@@ -114,7 +114,7 @@
 }
 
 .metaSub {
-  font-size: var(--font-size-18);
+  font-size: var(--font-size-body-xl);
   font-weight: var(--font-weight-regular);
   opacity: 0.65;
   line-height: var(--line-height-160);
@@ -207,7 +207,7 @@
   }
 
   .metaSub {
-    font-size: var(--font-size-16);
+    font-size: var(--font-size-body-lg);
   }
 
   .metaDesc {

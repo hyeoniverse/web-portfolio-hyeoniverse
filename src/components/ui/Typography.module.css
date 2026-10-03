@@ -7,33 +7,32 @@
 
 /* Variants */
 .h1 {
-  font-size: var(--font-size-64);
+  font: var(--font-display-lg);
   font-weight: var(--font-weight-bold);
   line-height: var(--line-height-125);
   letter-spacing: -0.025em;
 }
 
 .h2 {
-  font-size: var(--font-size-48);
+  font: var(--font-display-md);
   font-weight: var(--font-weight-bold);
   line-height: var(--line-height-125);
   letter-spacing: -0.025em;
 }
 
 .h3 {
-  font-size: var(--font-size-40);
+  font: var(--font-display-sm);
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-125);
 }
 
 .h4 {
-  font-size: var(--font-size-34);
+  font: var(--font-heading-xl);
   font-weight: var(--font-weight-semibold);
-  line-height: var(--line-height-125);
 }
 
 .h5 {
-  font-size: var(--font-size-22);
+  font: var(--font-heading-md);
   font-weight: var(--font-weight-medium);
 }
 
@@ -132,17 +131,6 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-  .h1 {
-    font-size: var(--font-size-40);
-  }
-
-  .h2 {
-    font-size: var(--font-size-34);
-  }
-
-  .h3 {
-    font-size: var(--font-size-22);
-  }
 
   .h4 {
     font-size: var(--font-size-heading-sm);

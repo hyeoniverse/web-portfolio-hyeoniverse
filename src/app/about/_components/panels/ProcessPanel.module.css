@@ -91,8 +91,7 @@
   margin: 0;
   word-break: keep-all;
   max-width: 62ch;
-  font-size: var(--font-size-prose-lg);
-  line-height: var(--_lh-reading);
+  font: var(--font-prose-lg);
   color: var(--text-secondary);
 }
 
@@ -595,19 +594,15 @@
   }
 
   .processStepNum {
-    font-family: var(--_font-display);
-    font-size: var(--font-size-display-lg);
-    font-weight: var(--font-weight-regular);
-    line-height: var(--line-height-100);
+    font: var(--font-display-lg);
     color: var(--text-accent);
     opacity: 0.12;
   }
 
   .processStepContentTitle {
+    font: var(--font-display-sm);
     font-family: var(--font-family-heading);
-    font-size: var(--font-size-display-sm);
     font-style: italic;
-    font-weight: var(--font-weight-regular);
     line-height: var(--line-height-135);
     letter-spacing: var(--_ls-title);
     min-height: 2.7em;

@@ -93,9 +93,8 @@
   justify-content: center;
   background: var(--bg-secondary);
   color: var(--text-secondary);
-  font-family: var(--font-family-body);
+  font: var(--font-body-lg);
   font-weight: var(--font-weight-semibold);
-  font-size: var(--font-size-16);
 }
 .authorChip:hover .authorChipAvatarFallback {
   background: var(--bg-tertiary);

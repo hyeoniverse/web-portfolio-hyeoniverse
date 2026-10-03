@@ -49,8 +49,7 @@
 
 .flipText {
   margin: 0;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-18);
+  font: var(--font-code-xl);
   font-weight: var(--font-weight-medium);
   color: var(--text-accent);
   letter-spacing: 0.02em;
@@ -219,7 +218,7 @@
   flex-shrink: 0;
   width: var(--_gutter-w);
   height: var(--_gutter-w);
-  font-size: var(--font-size-18);
+  font: var(--font-body-xl);
   line-height: 1;
 }
 
@@ -395,7 +394,7 @@
   border: none;
   border-radius: var(--radius-full);
   background: transparent;
-  font-size: var(--font-size-16);
+  font: var(--font-body-lg);
   line-height: 1;
 }
 

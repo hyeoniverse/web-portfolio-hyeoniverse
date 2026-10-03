@@ -20,7 +20,6 @@
   --_lh-reading: var(--line-height-160);
   --_lh-body: var(--line-height-160);
   --_lh-prose: var(--line-height-180);
-  --_lh-code: var(--line-height-160);
 
   /* ── Spacing (complement global --spacing-*) ── */
   --_space-section: var(--spacing-section);

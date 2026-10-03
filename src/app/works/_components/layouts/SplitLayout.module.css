@@ -458,11 +458,9 @@
   }
 
   .imageMetaTitle {
-    font-family: var(--font-family-heading);
-    font-size: var(--font-size-34);
+    font: var(--font-heading-xl);
     font-weight: var(--font-weight-light);
     letter-spacing: -0.02em;
-    line-height: var(--line-height-125);
     margin: 0;
   }
 
@@ -493,7 +491,7 @@
   }
 
   .imageYear {
-    font-size: var(--font-size-18);
+    font-size: var(--font-size-body-xl);
     -webkit-text-stroke: 0;
     color: var(--text-white);
     opacity: 0.4;
@@ -510,6 +508,6 @@
   }
 
   .imageMetaTitle {
-    font-size: var(--font-size-22);
+    font-size: var(--font-size-heading-md);
   }
 }

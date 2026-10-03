@@ -39,9 +39,8 @@
   justify-content: center;
   background: var(--bg-secondary);
   color: var(--text-secondary);
-  font-family: var(--font-family-body);
+  font: var(--font-body-xl);
   font-weight: var(--font-weight-semibold);
-  font-size: var(--font-size-18);
 }
 .authorFooterBody {
   display: flex;

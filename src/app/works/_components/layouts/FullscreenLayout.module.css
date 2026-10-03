@@ -359,7 +359,7 @@
 .ctaArrow {
   position: relative;
   z-index: 1;
-  font-size: var(--font-size-16);
+  font: var(--font-body-lg);
   color: var(--text-white);
   transition: color 0.3s ease, transform 0.3s ease;
 }

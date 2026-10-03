@@ -78,9 +78,7 @@
 
 .comingSoonTitle {
   margin: 0;
-  font-family: var(--font-family-heading);
-  font-size: var(--font-size-22);
-  font-weight: var(--font-weight-regular);
+  font: var(--font-heading-md);
   color: var(--text-primary);
   letter-spacing: 0.02em;
 }

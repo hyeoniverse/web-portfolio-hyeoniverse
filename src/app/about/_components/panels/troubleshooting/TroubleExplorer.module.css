@@ -257,8 +257,8 @@
 .troubleListTitle {
   overflow: hidden;
   min-width: 0;
+  font: var(--font-prose-md);
   font-family: var(--_font-grotesk);
-  font-size: var(--font-size-prose-md);
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-135);
   color: var(--text-secondary);

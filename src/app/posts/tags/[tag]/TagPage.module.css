@@ -18,12 +18,10 @@
 /* 검색창 — toolbar 안 오른쪽 끝으로 push */
 
 .heroTitle {
+  font: var(--font-display-md);
   font-family: var(--font-family-heading);
-  font-size: var(--font-size-48);
-  font-weight: var(--font-weight-regular);
   color: var(--text-primary);
   margin: 0;
-  line-height: 1;
 }
 
 .heroDescription {

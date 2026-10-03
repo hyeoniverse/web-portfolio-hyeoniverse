@@ -48,12 +48,11 @@
 }
 
 .dailyChartTotal {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-16);
+  font: var(--font-code-lg);
   font-weight: 700;
-  color: var(--text-primary);
   font-variant-numeric: tabular-nums;
   line-height: 1;
+  color: var(--text-primary);
 }
 
 /* ── 날짜 범위 선택기 — 시작일 / 종료일 trigger + DatePickerPopover ── */

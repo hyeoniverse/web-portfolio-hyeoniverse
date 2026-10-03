@@ -430,9 +430,8 @@
 }
 /* 경로 입력 — mono, 조금 더 큰 글자 */
 .pathInput input {
-  font-family: var(--font-family-code);
+  font: var(--font-code-lg);
   font-weight: 600;
-  font-size: var(--font-size-16);
 }
 /* 설명 EN/KO — 좁은 편집 패널이라 세로 스택 */
 /* 툴바 — [이동·들여쓰기] [추가] … [삭제] */

@@ -46,9 +46,8 @@
 }
 
 .headTitle {
-  font-family: var(--font-family-heading);
+  font: var(--font-heading-lg);
   font-style: italic;
-  font-size: var(--font-size-28);
   line-height: 1;
   color: var(--text-primary);
 }

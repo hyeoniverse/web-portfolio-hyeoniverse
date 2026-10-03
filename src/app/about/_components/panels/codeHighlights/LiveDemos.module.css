@@ -170,8 +170,7 @@
 }
 
 .varsIndex {
-  font-family: var(--font-family-heading);
-  font-size: var(--font-size-34);
+  font: var(--font-heading-xl);
   font-style: italic;
   line-height: 0.9;
   color: var(--text-accent);

@@ -442,3 +442,21 @@ Material `@material/web` 2.5, Primer primitives. 숫자는 같은 날 다시 셌
 - **정한 것.** 코드의 통일이 먼저다. 역할 크기 토큰을 쓰는 규칙은 크기 역할로 묶음을 고르고(`body` · `code` · `heading`),
   규칙에 직접 적힌 값 중 묶음과 다른 것만 뒤에 덧쓴다. 물려받던 값은 묶음 값으로 바뀌어도 된다. 어색해진 화면은 보이는 대로 고친다.
 - **예외.** 크기만 바꾸는 변형 규칙은 `font-size` 만 덧쓴다(3.2-1). About · Profile 패널은 컨테이너가 코드 글꼴 Light 라서 그 안의 글자는 `meta` 묶음을 쓴다(D32).
+
+### D34. 2026-10-03 — 전시(display) · 지면(prose) 묶음을 더하고, 눈금을 바로 쓴 규칙은 크기로 역할을 고른다
+
+- **왜.** 7-3 의 큰 이행(#1274) 뒤에 남은 것은 크기 눈금 `--font-size-N` 을 바로 쓴 규칙과 화면 비례 크기(`display` · `prose`)를 쓰는 규칙이었다.
+  둘 다 묶음이 없어서 `font-size` · `font-family` · `font-weight` 를 따로 적고 있었다(3.2-1 위반).
+- **전시 묶음.** `--font-display-sm · md · lg` = 400 · 화면 비례 / 1.0 · **accent(Playfair)**. 문서는 heading / 1.25 로 적어 두었지만,
+  실제로 display 크기를 쓰던 다섯 곳(About · Profile 히어로 · 큰 숫자)이 모두 Playfair 에 줄간격 0.9 ~ 1.0 이었다. 쓰임을 따른다.
+  고정 큰 크기(24 · 32 · 40 · 48 · 64)도 전시로 옮겼다 — 64 → lg, 48 → md, 40 · 32 · 24 → sm. 순서를 지키되 유동이 되므로 화면이 바뀐다(D28 · 3.2-4).
+  단 통계 숫자 40(Profile · Works 소개)은 md 로 — sm 은 폰에서 16 까지 줄어 숫자가 사라진다.
+  기본 규칙이 유동 크기(전시 묶음 · `clamp()` · `--fluid-font-size-*`)면 `@media` 의 크기 단계는 지운다 — 유동 크기가 그 일을 한다.
+  예외는 Works 소개 제목: 바탕의 `--fluid-font-size-6xl` 이 폰에서 105px 라 `@media` 의 전시 단계를 남겼다.
+- **지면 묶음.** `--font-prose-xs ~ lg` = 300 · 화면 비례 / 1.6 · **code**. 지면 크기를 쓰는 55곳 중 53곳이 About · Profile 패널 안이라 코드 글꼴 Light 로 보이고 있었다.
+  크기만 유동인 `meta` 다. 본문 글꼴이 필요한 곳은 뒤에 `font-family: var(--_font-grotesk)` 를 덧쓴다.
+- **눈금을 바로 쓴 규칙.** 글꼴이 적혀 있으면 그 역할로, 없으면 크기로 고른다 — 16 · 18 은 `body`(About · Profile 안은 `code`), 20 · 22 · 34 는 `heading`.
+  변형 규칙(`@media` · 상태 · 겹친 클래스)은 묶음을 쓰지 않고 눈금을 역할 크기 토큰(`--font-size-heading-md` 등)으로만 바꾼다(3.2-1).
+- **남긴 것.** 로고 32(`Logo` · `Navigation`, 글자 역할이 아니다) · WorksFlowCard 의 `!important` 64 한 곳.
+- **보이는 변화.** Typography h1 ~ h3 · Works 소개 제목 · 태그 페이지 hero · 오류 아이콘 글자가 유동 크기 · Playfair 로. About 의 display-sm 을 물려받던 소제목 다섯 곳이 Playfair 로.
+  크레딧 푸터 문장은 20 → 18(본문 xl). 글리프 아이콘(×, ✓) 몇 곳이 제목 글꼴로. 어색한 곳은 보이는 대로 고친다(D33).

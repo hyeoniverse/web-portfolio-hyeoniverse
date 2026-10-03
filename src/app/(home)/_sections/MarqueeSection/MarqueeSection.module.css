@@ -64,9 +64,6 @@
    Responsive
    --------------------------------------------------------------------------- */
 @media (max-width: 480px) {
-  .text {
-    font-size: var(--font-size-40);
-  }
 
   .oval {
     width: 10vw;

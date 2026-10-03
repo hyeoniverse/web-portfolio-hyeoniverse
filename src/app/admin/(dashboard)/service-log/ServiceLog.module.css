@@ -297,12 +297,12 @@
 }
 
 .railTotalNum {
+  font: var(--font-heading-xl);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-34);
   font-weight: 600;
   line-height: 1.1;
-  color: var(--text-primary);
   font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
 }
 
 .railTotalFail {

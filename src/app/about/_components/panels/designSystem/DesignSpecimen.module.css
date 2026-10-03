@@ -192,16 +192,8 @@
     overflow: hidden;
   }
 
-  .cellTitle {
-    font-size: var(--font-size-20);
-  }
-
   .chip {
     min-height: 1.1rem;
-  }
-
-  .fontSample {
-    font-size: var(--font-size-34);
   }
 
   .easings {

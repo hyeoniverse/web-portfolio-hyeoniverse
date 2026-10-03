@@ -1,7 +1,6 @@
 .title {
   margin-bottom: var(--spacing-divide);
-  font-family: var(--font-family-accent);
-  font-size: var(--font-size-display-lg);
+  font: var(--font-display-lg);
   line-height: var(--line-height-090);
   letter-spacing: var(--letter-spacing-tight);
   perspective: 600px;

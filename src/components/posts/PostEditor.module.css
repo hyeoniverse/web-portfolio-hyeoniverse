@@ -263,10 +263,9 @@
   border-left: var(--border-light);
   border-radius: 0;
   background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-16);
-  color: var(--text-secondary);
+  font: var(--font-body-lg);
   line-height: 1;
+  color: var(--text-secondary);
   display: inline-flex;
   align-items: center;
   justify-content: center;

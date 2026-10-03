@@ -17,8 +17,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-12);
-  font-family: var(--font-family-heading);
-  font-size: var(--font-size-34);
+  font: var(--font-heading-xl);
   color: var(--text-primary);
   margin: 0;
 }
@@ -74,7 +73,7 @@
   border: none;
   color: var(--text-tertiary);
   cursor: pointer;
-  font-size: var(--font-size-16);
+  font: var(--font-body-lg);
 }
 
 /* ── Table ── */

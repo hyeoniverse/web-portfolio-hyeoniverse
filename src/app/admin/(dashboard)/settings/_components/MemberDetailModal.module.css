@@ -22,8 +22,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  font: var(--font-heading-sm);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-20);
   font-weight: var(--font-weight-semibold);
   color: var(--text-secondary);
 }

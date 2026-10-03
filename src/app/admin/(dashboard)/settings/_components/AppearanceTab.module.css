@@ -530,8 +530,7 @@
   overflow: hidden;
 }
 .fullLogoPreviewText {
-  font-family: var(--font-family-heading);
-  font-size: var(--font-size-22);
+  font: var(--font-heading-md);
   line-height: var(--line-height-100);
   white-space: nowrap;
   letter-spacing: -0.02em;
@@ -872,7 +871,7 @@
 .customFontPreview {
   flex: 1;
   min-width: 0;
-  font-size: var(--font-size-18);
+  font: var(--font-body-xl);
   color: var(--text-primary);
   overflow: hidden;
   text-overflow: ellipsis;

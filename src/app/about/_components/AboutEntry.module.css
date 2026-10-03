@@ -9,7 +9,7 @@
   padding: var(--spacing-4) var(--spacing-12);
   border: var(--border-default);
   width: fit-content;
-  font-size: var(--font-size-prose-md);
+  font: var(--font-prose-md);
   font-weight: var(--font-weight-semibold);
   color: var(--text-tertiary);
   text-transform: uppercase;
@@ -40,7 +40,7 @@
   gap: var(--spacing-20);
   align-items: baseline;
   margin-bottom: var(--spacing-24);
-  font-size: var(--font-size-display-sm);
+  font: var(--font-display-sm);
 }
 
 .detailNumber {

@@ -80,7 +80,7 @@
 
 @media (max-width: 480px) {
   .text {
-    font-size: var(--font-size-18);
+    font-size: var(--font-size-body-xl);
   }
 
   .caption {
