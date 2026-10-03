@@ -11,7 +11,7 @@ interface LogoProps {
   variant?: "short" | "full";
   as?: "link" | "span";
   className?: string;
-  /** 로고가 놓일 배경. 테마와 상관없이 늘 어두운 면(모바일 메뉴 드로어 등) 위라면 지정한다 — 없으면 테마를 따른다 */
+  /** 로고가 놓일 배경의 밝기. 테마와 다른 면(모바일 메뉴 드로어 등) 위라면 잰 값을 넘긴다 — 없으면 테마를 따른다 */
   bg?: "light" | "dark";
 }
 

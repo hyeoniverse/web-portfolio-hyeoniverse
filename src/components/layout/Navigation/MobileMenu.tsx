@@ -1,12 +1,13 @@
 "use client";
 
-import { Fragment, useState, type RefObject } from "react";
+import { Fragment, useCallback, useState, type RefObject } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import Logo from "@/components/common/Logo";
 import styles from "./Navigation.module.css";
 import Pressable from "@/components/ui/Pressable";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { colorTone, type Tone } from "@/lib/navBackdrop";
 
 interface MenuChild {
   key: string;
@@ -55,6 +56,15 @@ export default function MobileMenu({
   // 이메일 hover phase — CSS animation 제거 후 transition 으로 복귀가 브라우저별로 안 통해서
   // JS 로 phase 관리: idle → rising (hover) → sinking (hover-off) → idle (sink animation 종료)
   const [emailPhase, setEmailPhase] = useState<"idle" | "rising" | "sinking">("idle");
+  /* 풀로고 변형은 테마가 아니라 드로어 배경의 실제 밝기로 고른다 — 상단 nav 로고가 밑 배경을 재는 것과 같은
+     계산(lib/navBackdrop 의 colorTone)이다. 드로어 배경(--nav-menu-bg)은 테마와 상관없이 어두워서, 테마로 고르면
+     라이트 테마에서 어두운 잉크 로고가 묻혔다. 배경색을 바꿔도 따라간다. 재기 전(첫 그림)은 테마를 따른다 */
+  const [drawerTone, setDrawerTone] = useState<Tone | null>(null);
+  const measureDrawerTone = useCallback((el: HTMLDivElement | null) => {
+    if (!el) return;
+    const tone = colorTone(getComputedStyle(el).backgroundColor);
+    setDrawerTone((prev) => (prev === tone ? prev : tone));
+  }, []);
 
   if (!menuMounted || !showMenu) return null;
 
@@ -78,6 +88,7 @@ export default function MobileMenu({
       className={`${styles.menuClipWrapper} ${menuClipOpen ? styles.menuClipOpen : ""}`}
     >
       <div
+        ref={measureDrawerTone}
         className={styles.menuBackdrop}
         onClick={onClose}
       />
@@ -85,8 +96,7 @@ export default function MobileMenu({
       <div className={styles.menuDrawer} data-lenis-prevent>
         {/* Header: 풀로고 가운데 */}
         <div className={styles.menuHeader} onClick={onClose}>
-          {/* 드로어는 테마와 상관없이 늘 어둡다(--nav-menu-bg) — 테마로 고르면 라이트 테마에서 어두운 잉크 로고가 묻힌다 */}
-          <Logo variant="full" as="link" className={styles.menuLogo} bg="dark" />
+          <Logo variant="full" as="link" className={styles.menuLogo} bg={drawerTone ?? undefined} />
         </div>
 
         <nav aria-label={language === "ko" ? "모바일 메뉴" : "Mobile menu"} className={styles.menuNav}>
