@@ -169,7 +169,7 @@
   /* blur(0) 을 기본값으로 둬야 hover/active 해제 시 none 으로 뚝 끊기지 않고 0↔8px 보간됨 */
   backdrop-filter: blur(0);
   /* 커버 이미지 위에서 이모지 글리프 가독성 확보 */
-  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
+  text-shadow: var(--text-shadow-strong);
   transition:
     background var(--duration-base) ease,
     backdrop-filter var(--duration-base) ease,

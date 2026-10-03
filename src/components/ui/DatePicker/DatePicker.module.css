@@ -277,7 +277,7 @@
   /* 글래스 패널 — Select/Popover/Toast 와 동일 표면 */
   background: var(--bg-glass-panel);
   backdrop-filter: var(--blur-glass);
-  box-shadow: 0 8px 24px oklch(0% 0 0 / 0.15);
+  box-shadow: var(--shadow-overlay);
   scrollbar-width: none;
   -ms-overflow-style: none;
 }

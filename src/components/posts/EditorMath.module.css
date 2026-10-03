@@ -28,7 +28,7 @@
   background: var(--bg-secondary);
   border: var(--border-light);
   border-radius: var(--radius-surface);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-overlay);
 }
 
 /* 블록 수식 split — 입력 | 미리보기 나란히 */

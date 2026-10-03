@@ -368,7 +368,7 @@
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
   /* 두 쪽 사이 가는 구분선 — 채운 색 위의 옅은 줄 */
-  box-shadow: inset 1px 0 0 color-mix(in srgb, var(--text-inverse) 28%, transparent);
+  border-left: var(--border-width-1) solid color-mix(in srgb, var(--text-inverse) 28%, transparent);
 }
 
 .generateSplit .generateToggle.generateToggle:hover:not(:disabled),

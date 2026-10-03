@@ -170,11 +170,11 @@
   background: transparent;
   /* 그림자가 검정 기반이라 어두운 배경 위에서는 chip 형태가 사라진다 → 다크에서만 옅은 테두리로 윤곽을 살린다 */
   border-color: light-dark(transparent, var(--border-color-light));
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-floating);
 }
 .relGroup .rel:hover {
   background: transparent;
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-overlay);
 }
 .relCol {
   color: var(--text-secondary);
@@ -320,7 +320,7 @@
 .colDragging {
   position: relative;
   background: var(--bg-primary);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-floating);
 }
 
 /* 제약 칸 — PK·필수·고유 토글 세 개가 들어간다 (폭은 위 열 정의에서 함께 잡는다).

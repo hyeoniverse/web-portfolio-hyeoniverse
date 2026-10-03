@@ -8,7 +8,7 @@
   background: var(--bg-primary);
   border: var(--border-light);
   border-radius: var(--radius-surface);
-  box-shadow: var(--shadow-xl);
+  box-shadow: var(--shadow-overlay);
   overflow: hidden;
   pointer-events: none;
   animation: seriesPreviewIn 0.15s ease;
