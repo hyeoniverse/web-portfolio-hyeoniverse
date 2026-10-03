@@ -71,9 +71,8 @@
 }
 
 .itemTitle {
+  font: var(--font-display-sm);
   font-family: var(--font-family-heading);
-  font-size: var(--fluid-font-size-3xl);
-  font-weight: var(--font-weight-regular);
   color: var(--text-secondary);
   letter-spacing: -0.02em;
 }

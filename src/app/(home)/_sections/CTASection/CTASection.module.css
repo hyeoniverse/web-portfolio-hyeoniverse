@@ -62,9 +62,8 @@
 }
 
 .titleLine {
+  font: var(--font-display-lg);
   font-family: var(--font-family-heading);
-  font-size: var(--fluid-font-size-5xl);
-  font-weight: var(--font-weight-regular);
   line-height: 1.125;
   color: var(--text-primary);
   letter-spacing: -0.03em;

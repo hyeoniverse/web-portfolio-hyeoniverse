@@ -452,7 +452,6 @@ Material `@material/web` 2.5, Primer primitives. 숫자는 같은 날 다시 셌
   고정 큰 크기(24 · 32 · 40 · 48 · 64)도 전시로 옮겼다 — 64 → lg, 48 → md, 40 · 32 · 24 → sm. 순서를 지키되 유동이 되므로 화면이 바뀐다(D28 · 3.2-4).
   단 통계 숫자 40(Profile · Works 소개)은 md 로 — sm 은 폰에서 16 까지 줄어 숫자가 사라진다.
   기본 규칙이 유동 크기(전시 묶음 · `clamp()` · `--fluid-font-size-*`)면 `@media` 의 크기 단계는 지운다 — 유동 크기가 그 일을 한다.
-  예외는 Works 소개 제목: 바탕의 `--fluid-font-size-6xl` 이 폰에서 105px 라 `@media` 의 전시 단계를 남겼다.
 - **지면 묶음.** `--font-prose-xs ~ lg` = 300 · 화면 비례 / 1.6 · **code**. 지면 크기를 쓰는 55곳 중 53곳이 About · Profile 패널 안이라 코드 글꼴 Light 로 보이고 있었다.
   크기만 유동인 `meta` 다. 본문 글꼴이 필요한 곳은 뒤에 `font-family: var(--_font-grotesk)` 를 덧쓴다.
 - **눈금을 바로 쓴 규칙.** 글꼴이 적혀 있으면 그 역할로, 없으면 크기로 고른다 — 16 · 18 은 `body`(About · Profile 안은 `code`), 20 · 22 · 34 는 `heading`.
@@ -460,3 +459,13 @@ Material `@material/web` 2.5, Primer primitives. 숫자는 같은 날 다시 셌
 - **남긴 것.** 로고 32(`Logo` · `Navigation`, 글자 역할이 아니다) · WorksFlowCard 의 `!important` 64 한 곳.
 - **보이는 변화.** Typography h1 ~ h3 · Works 소개 제목 · 태그 페이지 hero · 오류 아이콘 글자가 유동 크기 · Playfair 로. About 의 display-sm 을 물려받던 소제목 다섯 곳이 Playfair 로.
   크레딧 푸터 문장은 20 → 18(본문 xl). 글리프 아이콘(×, ✓) 몇 곳이 제목 글꼴로. 어색한 곳은 보이는 대로 고친다(D33).
+
+### D35. 2026-10-03 — 1층 `--fluid-font-size-*` 를 없애고 전시 묶음 `xl` 을 더한다
+
+- **왜.** `--fluid-font-size-3xl ~ 8xl` 6개를 홈 히어로 · CTA · Works 제목 · 큰 번호 38곳이 바로 썼다. 1층 토큰을 컴포넌트가 직접 쓰는 유일한 예외였고,
+  가운데 값(`6rem + 2.5vw`)이 커서 폰에서 거의 줄지 않았다 — 히어로가 390px 에서 106px. 전시 묶음(D34)은 폰에서 제대로 줄어든다(sm 16 · md 32 · lg 44).
+- **정한 것.** 7xl · 8xl 자리에 `--font-size-display-xl`(`clamp(4rem, 2.5rem + 7vw, 12.5rem)`, 폰 67 → 데스크톱 141)과 묶음 `--font-display-xl` 을 더한다.
+  3xl → sm, 4xl → md, 5xl · 6xl → lg, 7xl · 8xl → xl. 기본 규칙은 묶음으로, 변형 규칙 · 커스텀 속성 · `min()` 안은 2층 크기 토큰으로. fluid 토큰 6개는 지운다.
+- **`display-sm` 의 아래를 16 → 24 로.** 오류 · 로그인 · 인트로 제목(옛 3xl)이 폰에서 16px 가 돼 본문과 같아졌다. 전시가 본문 크기까지 줄면 전시가 아니다.
+- **보이는 변화.** 데스크톱은 조금 작아진다(히어로 132 → 96, Works 시네마틱 제목 194 → 141). 폰은 크게 작아진다(히어로 106 → 44). 어색한 곳은 보이는 대로 고친다(D33).
+- **같이 정리한 것.** About 패널의 `@media`(높이) px · rem 크기 단계 6곳 — 바탕이 유동 크기라 지웠다(D34). 3.2-3 은 완료, 남은 4곳은 도형이다.

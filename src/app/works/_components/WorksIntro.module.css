@@ -40,8 +40,8 @@
 
 .introTitle {
   margin: 0;
+  font: var(--font-display-lg);
   font-family: var(--font-family-heading);
-  font-size: var(--fluid-font-size-6xl);
   font-weight: var(--font-weight-light);
   line-height: 0.9;
   letter-spacing: -0.04em;
@@ -166,8 +166,6 @@
   }
 
   .introTitle {
-    /* 바탕의 --fluid-font-size-6xl 은 폰에서 105px 라 전시 단계로 누른다(D34) */
-    font-size: var(--font-size-display-lg);
     line-height: 0.95;
   }
 
@@ -206,10 +204,6 @@
 @media (max-width: 480px) {
   .intro {
     --_intro-pad: var(--m-sm);
-  }
-
-  .introTitle {
-    font-size: var(--font-size-display-md);
   }
 
   .introDesc {

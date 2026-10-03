@@ -819,9 +819,6 @@
     display: none;
   }
 
-  .apiTotal b {
-    font-size: 4.5rem;
-  }
 }
 
 @media (min-width: 1025px) and (min-height: 701px) {

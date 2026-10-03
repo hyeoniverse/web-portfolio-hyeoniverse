@@ -79,7 +79,7 @@ export function useLogoMeasure(
       /* 이미지·배지 로고 — 로딩 글자 크기를 임시 요소로 재 비율을 구하고, 제자리에서 화면
          한가운데까지의 거리를 잰다. */
       const tempEl = document.createElement("span");
-      tempEl.style.cssText = "font-size:var(--fluid-font-size-6xl);position:absolute;visibility:hidden;";
+      tempEl.style.cssText = "font-size:var(--font-size-display-lg);position:absolute;visibility:hidden;";
       tempEl.textContent = "H";
       document.body.appendChild(tempEl);
       const loadingFontSize = parseFloat(getComputedStyle(tempEl).fontSize);

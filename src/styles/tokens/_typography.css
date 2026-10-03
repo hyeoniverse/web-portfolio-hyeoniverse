@@ -44,15 +44,6 @@
   --font-size-48: 3rem;
   --font-size-64: 4rem;
 
-  /* 화면 비례 크기 — 쓰는 6단계만 남겼다(안 쓰던 9단계는 지움). 컴포넌트 이행(7-3 묶음) 때
-   * 2층 --font-size-display-* 로 옮긴다. 하한 12px(3.2-2) */
-  --fluid-font-size-3xl: clamp(0.75rem, 1.8rem + 1vw, 2.5rem);
-  --fluid-font-size-4xl: clamp(0.75rem, 3rem + 1.5vw, 5rem);
-  --fluid-font-size-5xl: clamp(0.75rem, 4.5rem + 2vw, 8rem);
-  --fluid-font-size-6xl: clamp(0.75rem, 6rem + 2.5vw, 10rem);
-  --fluid-font-size-7xl: clamp(0.75rem, 7.5rem + 3vw, 12rem);
-  --fluid-font-size-8xl: clamp(0.75rem, 9rem + 3.5vw, 14rem);
-
   /* 줄간격 — 이름이 값이다(1.25 → 125). 제목은 125, 본문 · UI 는 160 */
   --line-height-090: 0.9;
   --line-height-100: 1;

@@ -39,8 +39,8 @@
 }
 
 .text {
+  font: var(--font-display-sm);
   font-family: var(--font-family-body);
-  font-size: var(--fluid-font-size-3xl);
   font-weight: var(--font-weight-light);
   line-height: var(--line-height-160);
   color: var(--text-primary);

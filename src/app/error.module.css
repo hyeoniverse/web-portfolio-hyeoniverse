@@ -48,9 +48,8 @@
 /* Typography */
 .title {
   margin: 0 0 var(--spacing-16) 0;
+  font: var(--font-display-sm);
   font-family: var(--font-family-heading);
-  font-size: var(--fluid-font-size-3xl);
-  font-weight: 400;
   color: var(--text-primary);
   letter-spacing: -0.02em;
 }
