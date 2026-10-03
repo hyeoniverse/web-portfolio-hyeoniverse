@@ -32,7 +32,7 @@ const LINE_HEIGHT_DEMO_PRESETS = [1.4, 1.6, 1.8, 2.0];
 /** Pickers & Selects — 공용 컴포넌트 시연. 이 묶음에서만 쓰는 시연용 상태를 스스로 들고 있다. */
 export default function PickersSelectsDemos() {
   const { language, scrollChildX } = useDemo();
-  const [fontDemo, setFontDemo] = useState("var(--font-family-display)");
+  const [fontDemo, setFontDemo] = useState("var(--font-family-heading)");
   const [selectValue, setSelectValue] = useState("option1");
   const [selectCompact, setSelectCompact] = useState("option1");
   const [selectEmpty, setSelectEmpty] = useState("");
@@ -260,7 +260,7 @@ export default function PickersSelectsDemos() {
                 )}
               </ColorPicker>
             </Tooltip>
-            <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--font-size-body)", color: "var(--text-secondary)" }}>{pickerColor}</span>
+            <span style={{ fontFamily: "var(--font-family-code)", fontSize: "var(--font-size-body-md)", color: "var(--text-secondary)" }}>{pickerColor}</span>
           </motion.div>
         </DemoGroup>
 
@@ -268,7 +268,7 @@ export default function PickersSelectsDemos() {
         <DemoGroup title="DatePicker">
           <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-16)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "var(--spacing-12)" }}>
-              <span style={{ fontSize: "var(--font-size-label)", color: "var(--text-tertiary)" }}>Format</span>
+              <span style={{ fontSize: "var(--font-size-body-sm)", color: "var(--text-tertiary)" }}>Format</span>
               <div style={{ display: "flex", border: "var(--border-light)", borderRadius: "var(--radius-full)", overflow: "hidden" }}>
                 {(["year", "yearMonth", "date"] as const).map((f, i, arr) => (
                   <Pressable
@@ -281,7 +281,7 @@ export default function PickersSelectsDemos() {
                       borderRadius: 0,
                       background: dpFormat === f ? "var(--text-primary)" : "transparent",
                       color: dpFormat === f ? "var(--bg-primary)" : "var(--text-secondary)",
-                      fontSize: "var(--font-size-label)",
+                      fontSize: "var(--font-size-body-sm)",
                       fontFamily: "var(--font-family-body)",
                       cursor: "pointer",
                     }}
@@ -290,13 +290,13 @@ export default function PickersSelectsDemos() {
                   </Pressable>
                 ))}
               </div>
-              <span style={{ fontSize: "var(--font-size-label)", color: "var(--text-primary)", marginLeft: "var(--spacing-8)", fontFamily: "var(--font-family-body)", fontWeight: 600 }}>
+              <span style={{ fontSize: "var(--font-size-body-sm)", color: "var(--text-primary)", marginLeft: "var(--spacing-8)", fontFamily: "var(--font-family-body)", fontWeight: 600 }}>
                 {dpFormat === "year" ? dpDate.year : dpFormat === "yearMonth" ? `${dpDate.year}.${dpDate.month}` : `${dpDate.year}.${dpDate.month}.${dpDate.day}`}
               </span>
             </div>
             <div style={{ display: "flex", gap: "var(--spacing-20)", flexWrap: "wrap", alignItems: "flex-start" }}>
               <div style={{ minWidth: 230 }}>
-                <div style={{ display: "inline-block", fontSize: "var(--font-size-label)", color: "var(--text-tertiary)", marginBottom: "var(--spacing-8)", padding: "var(--spacing-4) var(--spacing-12)", border: "var(--border-light)", borderRadius: "var(--radius-full)" }}>Spinner</div>
+                <div style={{ display: "inline-block", fontSize: "var(--font-size-body-sm)", color: "var(--text-tertiary)", marginBottom: "var(--spacing-8)", padding: "var(--spacing-4) var(--spacing-12)", border: "var(--border-light)", borderRadius: "var(--radius-full)" }}>Spinner</div>
                 <div style={{ border: "var(--border-light)", borderRadius: "var(--radius-24)", overflow: "hidden" }}>
                   <DatePicker
                     year={dpDate.year}
@@ -310,7 +310,7 @@ export default function PickersSelectsDemos() {
                 </div>
               </div>
               <div style={{ minWidth: 230 }}>
-                <div style={{ display: "inline-block", fontSize: "var(--font-size-label)", color: "var(--text-tertiary)", marginBottom: "var(--spacing-8)", padding: "var(--spacing-4) var(--spacing-12)", border: "var(--border-light)", borderRadius: "var(--radius-full)" }}>Calendar</div>
+                <div style={{ display: "inline-block", fontSize: "var(--font-size-body-sm)", color: "var(--text-tertiary)", marginBottom: "var(--spacing-8)", padding: "var(--spacing-4) var(--spacing-12)", border: "var(--border-light)", borderRadius: "var(--radius-full)" }}>Calendar</div>
                 <div style={{ border: "var(--border-light)", borderRadius: "var(--radius-24)", overflow: "hidden" }}>
                   <DatePicker
                     year={dpDate.year}

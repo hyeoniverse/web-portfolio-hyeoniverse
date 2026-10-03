@@ -53,7 +53,7 @@
   padding: var(--spacing-4) var(--spacing-8);
   background: var(--bg-overlay);
   color: var(--text-inverse);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
 }
 
 .title {
@@ -123,7 +123,7 @@
   /* 아래 띠에 가리지 않게 조금 올린다 */
   margin-bottom: var(--spacing-24);
   color: var(--text-tertiary);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   font-weight: 600;
   letter-spacing: 0.04em;
 }

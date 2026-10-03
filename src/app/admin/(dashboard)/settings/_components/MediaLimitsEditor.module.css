@@ -50,15 +50,15 @@
   gap: var(--spacing-8);
   color: var(--text-tertiary);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
 .mediaCategoryCount {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
   font-variant-numeric: tabular-nums;
 }
@@ -95,7 +95,7 @@
 
 .formatChipName {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-secondary);
   white-space: nowrap;
 }
@@ -107,8 +107,8 @@
   padding: 0 var(--spacing-2);
   height: auto;
   min-height: 0;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   color: var(--text-primary);
 }
 
@@ -141,14 +141,14 @@
 }
 
 .storageMaxUnit {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-sm);
   color: var(--text-tertiary);
 }
 
 .storageMaxHint {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   color: var(--text-accent);
   margin: 0;
 }
@@ -162,7 +162,7 @@
 
 .customMimeLabel {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   font-weight: 600;
   letter-spacing: 0.06em;
   color: var(--text-tertiary);
@@ -184,7 +184,7 @@
 
 .customMimeError {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   color: var(--text-accent);
   margin: 0;
 }

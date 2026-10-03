@@ -8,7 +8,7 @@
 
 .techDomainTitle {
   margin: 0 0 var(--spacing-12);
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: clamp(1.5rem, 1.322rem + 0.73vw, 2.2rem);
   font-style: italic;
   font-weight: var(--font-weight-regular);
@@ -62,8 +62,8 @@
 .techCategory {
   display: block;
   margin-bottom: var(--spacing-4);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-sm);
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -97,7 +97,7 @@
   min-width: 0;
   font-size: clamp(0.95rem, 0.935rem + 0.06vw, 1rem);
   font-weight: var(--font-weight-medium);
-  line-height: var(--line-height-snug);
+  line-height: var(--line-height-135);
   color: var(--text-primary);
 }
 

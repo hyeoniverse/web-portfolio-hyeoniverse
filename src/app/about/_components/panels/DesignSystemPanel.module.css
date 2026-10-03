@@ -128,7 +128,7 @@
 .dcCardSubtitle {
   flex-shrink: 0;
   margin: 0 0 clamp(6px, min(1vh, 0.55vw), 18px);
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: clamp(2.9rem, 0.25rem + 4.22vw, 4.8rem);
   font-weight: var(--font-weight-light);
   color: var(--text-white);
@@ -180,7 +180,7 @@
   padding: clamp(10px, min(1.2vh, 0.7vw), 16px) clamp(18px, 1.6vw, 32px);
   border: var(--border-ghost-light);
   background: transparent;
-  font-family: var(--font-mono);
+  font-family: var(--font-family-code);
   font-size: clamp(0.85rem, 0.393rem + 0.71vw, 1.25rem);
   color: var(--text-white-muted);
   border-radius: var(--radius-full);
@@ -289,7 +289,7 @@
 .dcSpacingLabel {
   flex-shrink: 0;
   width: clamp(44px, 4.5vw, 70px);
-  font-family: var(--font-mono);
+  font-family: var(--font-family-code);
   font-size: clamp(0.85rem, 0.615rem + 0.37vw, 1.05rem);
   color: var(--text-white-muted);
   text-align: right;
@@ -312,7 +312,7 @@
 
 .dcSpacingPx {
   flex-shrink: 0;
-  font-family: var(--font-mono);
+  font-family: var(--font-family-code);
   font-size: clamp(0.85rem, 0.615rem + 0.37vw, 1.05rem);
   color: var(--text-white-muted);
 }
@@ -350,7 +350,7 @@
   position: absolute;
   bottom: clamp(-20px, max(-2.2vh, -1.2vw), -28px);
   left: 50%;
-  font-family: var(--font-mono);
+  font-family: var(--font-family-code);
   font-size: clamp(0.75rem, 0.491rem + 0.4vw, 1rem);
   color: var(--text-white-muted);
   white-space: nowrap;
@@ -371,7 +371,7 @@
   position: absolute;
   top: clamp(4px, min(0.6vh, 0.35vw), 10px);
   left: 50%;
-  font-family: var(--font-mono);
+  font-family: var(--font-family-code);
   font-size: clamp(0.85rem, 0.615rem + 0.37vw, 1.05rem);
   font-weight: var(--font-weight-medium);
   color: var(--text-white-muted);
@@ -413,7 +413,7 @@
 }
 
 .dcIconCellLabel {
-  font-family: var(--font-mono);
+  font-family: var(--font-family-code);
   font-size: clamp(0.85rem, 0.615rem + 0.37vw, 1.05rem);
   color: var(--text-white);
   opacity: 0.6;
@@ -437,8 +437,8 @@
 }
 
 .tabNavCounter {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   color: var(--text-white-muted);
   white-space: nowrap;
 }
@@ -570,7 +570,7 @@
 
   .dcCardTitle {
     margin-bottom: var(--spacing-2);
-    font-size: clamp(var(--font-size-hint), 0.688rem + 0.25vw, 0.85rem);
+    font-size: clamp(var(--font-size-body-xs), 0.688rem + 0.25vw, 0.85rem);
     letter-spacing: 0.25em;
   }
 
@@ -581,7 +581,7 @@
 
   .dcCardDesc {
     margin-bottom: var(--spacing-12);
-    font-size: clamp(var(--font-size-hint), 0.658rem + 0.38vw, 0.9rem);
+    font-size: clamp(var(--font-size-body-xs), 0.658rem + 0.38vw, 0.9rem);
   }
 
   .dcDemo {
@@ -599,7 +599,7 @@
 
   .dcToggleBtn {
     padding: var(--button-padding-sm);
-    font-size: clamp(var(--font-size-hint), 0.688rem + 0.25vw, 0.85rem);
+    font-size: clamp(var(--font-size-body-xs), 0.688rem + 0.25vw, 0.85rem);
   }
 
   .dcThemeToggle {
@@ -614,7 +614,7 @@
   .dcSwatch {
     width: clamp(36px, 10vw, 52px);
     height: clamp(36px, 10vw, 52px);
-    font-size: var(--font-size-hint);
+    font-size: var(--font-size-body-xs);
   }
 
   .dcSpringTrack {
@@ -629,7 +629,7 @@
   .dcMotionLabels {
     gap: clamp(6px, 2vw, 12px);
     margin-top: clamp(8px, 2.5vw, 14px);
-    font-size: clamp(var(--font-size-hint), 0.719rem + 0.13vw, 0.8rem);
+    font-size: clamp(var(--font-size-body-xs), 0.719rem + 0.13vw, 0.8rem);
   }
 
   .dcSpacingList {
@@ -638,7 +638,7 @@
 
   .dcSpacingLabel {
     width: clamp(30px, 8vw, 44px);
-    font-size: var(--font-size-hint);
+    font-size: var(--font-size-body-xs);
   }
 
   .dcSpacingBar {
@@ -646,7 +646,7 @@
   }
 
   .dcSpacingPx {
-    font-size: var(--font-size-hint);
+    font-size: var(--font-size-body-xs);
   }
 
   .dcBreakpoints {
@@ -655,11 +655,11 @@
   }
 
   .dcBpName {
-    font-size: var(--font-size-hint);
+    font-size: var(--font-size-body-xs);
   }
 
   .dcBpLabel {
-    font-size: var(--font-size-hint);
+    font-size: var(--font-size-body-xs);
   }
 
   .dcIconGrid {
@@ -677,7 +677,7 @@
   }
 
   .dcIconCellLabel {
-    font-size: var(--font-size-hint);
+    font-size: var(--font-size-body-xs);
   }
 }
 

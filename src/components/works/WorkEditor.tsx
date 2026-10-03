@@ -1255,7 +1255,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         <div style={{ display: "flex", alignItems: "baseline", gap: "var(--spacing-8)" }}>
           <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${showErrors && (!form.slug.trim() || validateSlug(form.slug)) ? ` ${es.fieldLabelError}` : ""}`}>{tw("slug")}</label>
           {form.slug.trim() && validateSlug(form.slug) && (
-            <span style={{ fontSize: "var(--font-size-label)", color: "var(--text-accent)" }}>{tw(`slugError.${validateSlug(form.slug)}`) || validateSlug(form.slug)}</span>
+            <span style={{ fontSize: "var(--font-size-body-sm)", color: "var(--text-accent)" }}>{tw(`slugError.${validateSlug(form.slug)}`) || validateSlug(form.slug)}</span>
           )}
         </div>
         <input

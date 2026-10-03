@@ -14,7 +14,7 @@
   padding: 0;
   border: none;
   background: transparent;
-  font-family: var(--font-mono);
+  font-family: var(--font-family-code);
   font-size: inherit;
   color: var(--text-primary);
   text-decoration: underline;
@@ -33,7 +33,7 @@
 .providerWarn {
   grid-column: 1 / -1;
   margin: 0;
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   line-height: 1.5;
   color: var(--text-accent);
 }
@@ -42,7 +42,7 @@
 .providerBadge {
   padding: var(--badge-padding-md);
   border-radius: var(--radius-full);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   font-weight: 600;
   line-height: 1;
   white-space: nowrap;
@@ -107,7 +107,7 @@
   align-items: center;
   gap: var(--spacing-12);
   margin-top: calc(-1 * var(--spacing-4));
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
 }
 
 /* 불러오기 결과 — 실패는 강조색(빨강은 쓰지 않는다), 성공은 초록 */
@@ -181,8 +181,8 @@
   flex-shrink: 0;
   max-width: 45%;
   overflow: hidden;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-sm);
   color: var(--text-tertiary);
   text-overflow: ellipsis;
   white-space: nowrap;

@@ -79,7 +79,7 @@
   padding: var(--spacing-8) var(--spacing-24);
   border: var(--border-accent);
   width: fit-content;
-  font-size: var(--font-size-prose-label);
+  font-size: var(--font-size-prose-md);
   font-weight: var(--font-weight-regular);
   color: var(--text-accent);
   text-transform: uppercase;
@@ -88,10 +88,10 @@
 
 .heroSubtitle {
   margin: 0;
-  font-size: var(--_hero-subtitle-font-size, var(--font-size-subhead));
+  font-size: var(--_hero-subtitle-font-size, var(--font-size-display-sm));
   font-weight: var(--_hero-subtitle-font-weight, inherit);
   font-family: var(--_hero-subtitle-font-family, inherit);
-  line-height: var(--line-height-loose);
+  line-height: var(--line-height-180);
   /* 기본: 테마 대비색 (밝은 배경에서도 읽힘). admin heroSubtitleColor override 시 그 색 적용. */
   color: var(--_hero-subtitle-color, var(--text-secondary));
 }
@@ -126,7 +126,7 @@
   position: absolute;
   right: -4%;
   bottom: 5%;
-  font-family: var(--_hero-watermark-font-family, var(--font-family-display));
+  font-family: var(--_hero-watermark-font-family, var(--font-family-heading));
   font-size: var(--_hero-watermark-font-size, clamp(6rem, min(18vw, 24vh), 16rem));
   font-style: italic;
   font-weight: var(--_hero-watermark-font-weight, var(--font-weight-regular));
@@ -246,7 +246,7 @@
   .heroPoster > .heroSubtitle {
     max-width: 46ch;
     word-break: keep-all;
-    font-size: var(--_hero-subtitle-font-size, var(--font-size-body));
+    font-size: var(--_hero-subtitle-font-size, var(--font-size-body-md));
   }
 
   .heroPoster > .heroAccentLine,
@@ -286,13 +286,13 @@
   }
 
   .heroTocNum {
-    font-family: var(--font-mono);
-    font-size: var(--font-size-hint);
+    font-family: var(--font-family-code);
+    font-size: var(--font-size-body-xs);
     color: var(--text-accent);
   }
 
   .heroTocTitle {
-    font-family: var(--font-family-display);
+    font-family: var(--font-family-heading);
     font-size: clamp(1.25rem, 0.558rem + 1.08vw, 1.75rem);
     font-style: italic;
     line-height: 1.1;
@@ -304,7 +304,7 @@
   }
 
   .heroTocSummary {
-    font-size: var(--font-size-label);
+    font-size: var(--font-size-body-sm);
     color: var(--text-tertiary);
   }
 }

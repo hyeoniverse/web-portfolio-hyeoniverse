@@ -15,7 +15,7 @@
 /* Title */
 .title {
   margin-bottom: var(--spacing-16);
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: clamp(2.5rem, 1.943rem + 2.29vw, 4rem);
   font-weight: var(--font-weight-regular);
   color: var(--text-primary);
@@ -25,7 +25,7 @@
 .lastUpdated {
   margin: 0;
   font-family: var(--font-family-body);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   color: var(--text-tertiary);
 }
 
@@ -43,7 +43,7 @@
 .section h2 {
   margin-bottom: var(--spacing-16);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-title-lg);
+  font-size: var(--font-size-heading-sm);
   font-weight: var(--font-weight-medium);
   color: var(--text-primary);
 }
@@ -90,11 +90,11 @@
   }
 
   .section h2 {
-    font-size: var(--font-size-title-md);
+    font-size: var(--font-size-heading-xs);
   }
 
   .section p,
   .section li {
-    font-size: var(--font-size-body);
+    font-size: var(--font-size-body-md);
   }
 }

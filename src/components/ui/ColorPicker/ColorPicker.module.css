@@ -68,7 +68,7 @@
   margin: 0;
   padding: 0 var(--spacing-4);
   font-family: var(--font-family-heading);
-  font-size: var(--font-size-title-md);
+  font-size: var(--font-size-heading-xs);
   font-weight: var(--font-weight-regular);
   color: var(--text-primary);
   letter-spacing: -0.01em;
@@ -248,8 +248,8 @@
 .oklchChLabel {
   flex-shrink: 0;
   width: 12px;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
   text-transform: uppercase;
   text-align: center;
@@ -411,7 +411,7 @@
 
 .alphaUnit {
   flex-shrink: 0;
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
 }
 
@@ -429,7 +429,7 @@
 
 /* ── 공통 Input 컴포넌트 override — ColorPicker 안 좁은 input 전용 ── */
 .pickerInput input {
-  font-family: var(--font-mono);
+  font-family: var(--font-family-code);
   text-transform: uppercase;
 }
 
@@ -467,7 +467,7 @@
    trigger button 에 xs 사이즈 강제. (0,2,1) — Select 모듈의 .trigger.triggerSm (0,2,0) 이김. */
 .formatSelect button[class*="trigger"] {
   height: var(--control-height-xs);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   padding: 0 var(--spacing-12);
 }
 

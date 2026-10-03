@@ -23,7 +23,7 @@
 }
 
 .procDetailNum {
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: clamp(4rem, 3.146rem + 3.5vw, 7.35rem);
   font-style: italic;
   line-height: 0.8;
@@ -50,13 +50,13 @@
 }
 
 .procDetailStats dt {
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-tertiary);
 }
 
 .procDetailStats dd {
   margin: 0;
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: clamp(1.5rem, 1.322rem + 0.73vw, 2.2rem);
   line-height: 1;
   color: var(--text-primary);
@@ -72,8 +72,8 @@
 
 .procDetailPeriod {
   margin: 0;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-sm);
   color: var(--text-tertiary);
   letter-spacing: 0.04em;
 }
@@ -83,7 +83,7 @@
   word-break: keep-all;
   font-size: clamp(1.75rem, 1.397rem + 1.45vw, 3rem);
   font-weight: var(--font-weight-medium);
-  line-height: var(--line-height-snug);
+  line-height: var(--line-height-135);
   color: var(--text-primary);
 }
 
@@ -92,7 +92,7 @@
   margin: 0;
   word-break: keep-all;
   max-width: 62ch;
-  font-size: var(--font-size-prose);
+  font-size: var(--font-size-prose-lg);
   line-height: var(--_lh-reading);
   color: var(--text-secondary);
 }
@@ -125,7 +125,7 @@
   }
 
   .procDetailDesc {
-    font-size: var(--font-size-body);
+    font-size: var(--font-size-body-md);
   }
 
   .procDetailStats dd {
@@ -158,11 +158,11 @@
   }
 
   .procGanttNum {
-    font-size: var(--font-size-body);
+    font-size: var(--font-size-body-md);
   }
 
   .procGanttTitle {
-    font-size: var(--font-size-label);
+    font-size: var(--font-size-body-sm);
   }
 
 }
@@ -197,8 +197,8 @@
 .procFacts figcaption {
   order: -1;
   word-break: keep-all;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
   letter-spacing: 0.02em;
 }
@@ -211,7 +211,7 @@
 }
 
 .procMetricValue {
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: clamp(2rem, 1.606rem + 1.62vw, 3.55rem);
   font-style: italic;
   line-height: 1;
@@ -221,7 +221,7 @@
 }
 
 .procMetricLabel {
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-secondary);
 }
 
@@ -285,7 +285,7 @@
   margin: 0;
   padding: 0;
   list-style: none;
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   color: var(--text-secondary);
 }
 
@@ -305,7 +305,7 @@
 
 .procMixLegend b {
   margin-left: auto;
-  font-family: var(--font-mono);
+  font-family: var(--font-family-code);
   font-weight: var(--font-weight-regular);
   color: var(--text-tertiary);
 }
@@ -327,8 +327,8 @@
   height: var(--spacing-24);
   margin-left: calc(var(--_num-w) + var(--_title-w) + var(--_col-gap) * 2);
   border-bottom: var(--border-light);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
 }
 
@@ -375,7 +375,7 @@
 }
 
 .procGanttNum {
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: clamp(1.1rem, 0.974rem + 0.52vw, 1.6rem);
   font-style: italic;
   line-height: 1;
@@ -383,7 +383,7 @@
 
 .procGanttTitle {
   overflow: hidden;
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -437,8 +437,8 @@
 
 .procSummary {
   margin: var(--spacing-12) 0 0;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
   letter-spacing: 0.04em;
 }
@@ -600,33 +600,33 @@
 
   .processStepNum {
     font-family: var(--_font-display);
-    font-size: var(--font-size-hero);
+    font-size: var(--font-size-display-lg);
     font-weight: var(--font-weight-regular);
-    line-height: var(--line-height-fit);
+    line-height: var(--line-height-100);
     color: var(--text-accent);
     opacity: 0.12;
   }
 
   .processStepContentTitle {
-    font-family: var(--font-family-display);
-    font-size: var(--font-size-subhead);
+    font-family: var(--font-family-heading);
+    font-size: var(--font-size-display-sm);
     font-style: italic;
     font-weight: var(--font-weight-regular);
-    line-height: var(--line-height-snug);
+    line-height: var(--line-height-135);
     letter-spacing: var(--_ls-title);
     min-height: 2.7em;
   }
 
   .processStepPeriod {
     margin: 0 0 var(--spacing-12);
-    font-family: var(--font-mono);
-    font-size: var(--font-size-hint);
+    font-family: var(--font-family-code);
+    font-size: var(--font-size-body-xs);
     color: var(--text-tertiary);
   }
 
   .processStepContentDesc {
     margin: 0;
-    font-size: var(--font-size-prose);
+    font-size: var(--font-size-prose-lg);
     line-height: var(--_lh-reading);
     color: var(--text-secondary);
     min-height: 8.25em;
@@ -639,12 +639,12 @@
 
   .processStepTitle {
     margin-bottom: var(--_space-line);
-    font-size: var(--font-size-subhead);
+    font-size: var(--font-size-display-sm);
   }
 
   .processStepDesc {
     max-width: none;
-    font-size: var(--font-size-prose);
+    font-size: var(--font-size-prose-lg);
   }
 }
 

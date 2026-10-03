@@ -9,9 +9,9 @@
 }
 
 .caption {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
-  line-height: var(--line-height-snug);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
+  line-height: var(--line-height-135);
   color: var(--text-tertiary);
   text-align: center;
 }
@@ -34,7 +34,7 @@
   justify-content: center;
   position: absolute;
   inset: 0;
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: clamp(1.1rem, 0.974rem + 0.52vw, 1.5rem);
   font-style: italic;
 }
@@ -57,8 +57,8 @@
 
 .chip {
   padding: var(--spacing-2) var(--spacing-12);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
   border: var(--border-light);
   border-radius: var(--radius-full);
@@ -114,8 +114,8 @@
 }
 
 .plotLabel {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   fill: var(--text-tertiary);
 }
 
@@ -133,8 +133,8 @@
 }
 
 .laneName {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   color: var(--text-secondary);
 }
 
@@ -174,7 +174,7 @@
 }
 
 .varsIndex {
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: var(--font-size-34);
   font-style: italic;
   line-height: 0.9;
@@ -186,7 +186,7 @@
   flex: 1;
   flex-direction: column;
   gap: var(--spacing-8);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-primary);
 }
 
@@ -226,14 +226,14 @@
 }
 
 .varsBars code {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   color: var(--text-secondary);
 }
 
 .varsBars b {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   font-weight: var(--font-weight-regular);
   color: var(--text-tertiary);
   text-align: right;
@@ -297,7 +297,7 @@
   flex: none;
   width: 4.5rem;
   height: 3.5rem;
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-style: italic;
   color: var(--text-inverse);
   background: var(--text-accent);
@@ -308,8 +308,8 @@
   justify-content: center;
   gap: var(--spacing-20);
   margin: 0;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-sm);
   color: var(--text-secondary);
 }
 

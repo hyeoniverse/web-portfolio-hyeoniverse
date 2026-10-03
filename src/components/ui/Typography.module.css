@@ -2,34 +2,34 @@
 @layer components {
 .typography {
   margin: 0;
-  line-height: var(--line-height-normal);
+  line-height: var(--line-height-160);
 }
 
 /* Variants */
 .h1 {
   font-size: var(--font-size-64);
   font-weight: var(--font-weight-bold);
-  line-height: var(--line-height-tight);
+  line-height: var(--line-height-125);
   letter-spacing: -0.025em;
 }
 
 .h2 {
   font-size: var(--font-size-48);
   font-weight: var(--font-weight-bold);
-  line-height: var(--line-height-tight);
+  line-height: var(--line-height-125);
   letter-spacing: -0.025em;
 }
 
 .h3 {
   font-size: var(--font-size-40);
   font-weight: var(--font-weight-semibold);
-  line-height: var(--line-height-tight);
+  line-height: var(--line-height-125);
 }
 
 .h4 {
   font-size: var(--font-size-34);
   font-weight: var(--font-weight-semibold);
-  line-height: var(--line-height-tight);
+  line-height: var(--line-height-125);
 }
 
 .h5 {
@@ -38,7 +38,7 @@
 }
 
 .h6 {
-  font-size: var(--font-size-title-lg);
+  font-size: var(--font-size-heading-sm);
   font-weight: var(--font-weight-medium);
 }
 
@@ -48,20 +48,20 @@
 }
 
 .body2 {
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   font-weight: var(--font-weight-regular);
 }
 
 .caption {
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   font-weight: var(--font-weight-regular);
-  line-height: var(--line-height-tight);
+  line-height: var(--line-height-125);
 }
 
 .overline {
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   font-weight: var(--font-weight-semibold);
-  line-height: var(--line-height-tight);
+  line-height: var(--line-height-125);
   text-transform: uppercase;
   letter-spacing: 0.1em;
 }
@@ -148,7 +148,7 @@
   }
 
   .h4 {
-    font-size: var(--font-size-title-lg);
+    font-size: var(--font-size-heading-sm);
   }
 }
 }

@@ -36,12 +36,12 @@ const eslintConfig = [
         {
           selector: String.raw`Literal[value=/var\(--font-size-(11|12|13|14)\)/]`,
           message:
-            "글자 크기는 눈금이 아니라 역할로 고릅니다 — --font-size-body(14) / -label(13) / -hint(12, 가장 작은 글자).",
+            "글자 크기는 눈금이 아니라 역할로 고릅니다 — --font-size-body-md(14) / -body-sm(13) / -body-xs(12, 가장 작은 글자). 컴포넌트는 묶음 --font-body-* 를 쓴다(3.2-1).",
         },
         {
           selector: String.raw`TemplateElement[value.raw=/var\(--font-size-(11|12|13|14)\)/]`,
           message:
-            "글자 크기는 눈금이 아니라 역할로 고릅니다 — --font-size-body(14) / -label(13) / -hint(12, 가장 작은 글자).",
+            "글자 크기는 눈금이 아니라 역할로 고릅니다 — --font-size-body-md(14) / -body-sm(13) / -body-xs(12, 가장 작은 글자). 컴포넌트는 묶음 --font-body-* 를 쓴다(3.2-1).",
         },
         {
           selector: String.raw`Literal[value=/var\(--radius-(2|4|6|8|12|16)\)/]`,

@@ -19,7 +19,7 @@
 
 .label {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   font-weight: var(--font-weight-medium);
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -67,13 +67,13 @@
 
 .itemNumber {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-accent-alt);
   letter-spacing: 0.1em;
 }
 
 .itemTitle {
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: var(--fluid-font-size-3xl);
   font-weight: var(--font-weight-regular);
   color: var(--text-secondary);
@@ -86,7 +86,7 @@
 
 .itemDescription {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   color: var(--text-accent-alt);
 }
 

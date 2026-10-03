@@ -47,8 +47,8 @@ const SP_THEME: SandpackTheme = {
     string: "var(--text-success)",
   },
   font: {
-    body: "var(--font-mono), monospace",
-    mono: "var(--font-mono), monospace",
+    body: "var(--font-family-code), monospace",
+    mono: "var(--font-family-code), monospace",
     size: "14px",
     lineHeight: "1.7",
   },

@@ -9,12 +9,12 @@
   --_panel-px: var(--spacing-page-inline);
 
   /* ── Font families ── */
-  --_font-display: var(--font-display);
+  --_font-display: var(--font-family-accent);
 
   /* ── Font sizes ── */
 
   /* ── Line heights ── */
-  --_lh-title: var(--line-height-dense);
+  --_lh-title: var(--line-height-090);
 
   /* ── Spacing ── */
   --_space-block: var(--spacing-block);
@@ -48,7 +48,7 @@
   position: relative;
   width: 100vw;
   height: 100vh;
-  font-family: var(--font-mono);
+  font-family: var(--font-family-code);
   font-weight: var(--font-weight-light);
   color: var(--text-primary);
   box-sizing: border-box;
@@ -68,7 +68,7 @@
   position: absolute;
   right: var(--_panel-px);
   bottom: 8%;
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: clamp(9rem, 3.334rem + 8.8vw, 12rem);
   font-style: italic;
   font-weight: 400;
@@ -96,7 +96,7 @@
   padding: var(--spacing-8) var(--spacing-24);
   border: var(--border-accent);
   width: fit-content;
-  font-size: var(--font-size-prose-label);
+  font-size: var(--font-size-prose-md);
   font-weight: var(--font-weight-regular);
   color: var(--text-accent);
   text-transform: uppercase;
@@ -106,15 +106,15 @@
 .heroTitle {
   margin-bottom: var(--_space-divide);
   font-family: var(--_font-display);
-  font-size: var(--font-size-hero);
+  font-size: var(--font-size-display-lg);
   line-height: var(--_lh-title);
   letter-spacing: var(--_ls-title);
 }
 
 .heroSubtitle {
   margin: 0;
-  font-size: var(--font-size-subhead);
-  line-height: var(--line-height-loose);
+  font-size: var(--font-size-display-sm);
+  line-height: var(--line-height-180);
   color: var(--text-secondary);
 }
 
@@ -122,7 +122,7 @@
   position: absolute;
   right: -4%;
   bottom: 5%;
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: clamp(11.55rem, 6.669rem + 7.59vw, 15.8rem);
   font-style: italic;
   font-weight: var(--font-weight-regular);
@@ -221,8 +221,8 @@
 }
 
 .osWindowTitle {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-body);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-md);
   font-weight: 400;
   color: var(--text-primary);
   color: inherit;
@@ -272,8 +272,8 @@
   padding: 0.2em 0.7em;
   border: var(--border-white-muted);
   width: fit-content;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-sm);
   color: var(--text-white);
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -281,8 +281,8 @@
 }
 
 .bgInfoValue {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-body);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-md);
   color: var(--text-white);
   white-space: nowrap;
 }
@@ -299,7 +299,7 @@
 
 .magHeadline {
   margin: 0 0 var(--spacing-8) 0;
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: clamp(3.05rem, 2.303rem + 3.55vw, 5.5rem);
   font-weight: 400;
   line-height: 0.9;
@@ -339,7 +339,7 @@
 
 .magName {
   margin: 0 0 var(--spacing-20) 0;
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: clamp(1.5rem, 1.221rem + 1.14vw, 2.25rem);
   font-weight: 400;
   line-height: 1.1;
@@ -355,8 +355,8 @@
 }
 
 .magInfoLabel {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   font-weight: 500;
   color: var(--text-tertiary);
   text-transform: uppercase;
@@ -364,8 +364,8 @@
 }
 
 .magInfoValue {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-body);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-md);
   font-weight: 500;
   color: var(--text-primary);
 }
@@ -375,7 +375,7 @@
   padding: var(--spacing-24) 0;
   border-top: 1px solid var(--border-default);
   border-bottom: 1px solid var(--border-default);
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: clamp(1.25rem, 1.064rem + 0.76vw, 1.75rem);
   font-style: italic;
   font-weight: 400;
@@ -406,8 +406,8 @@
 
 .magNotesTag {
   margin-bottom: var(--spacing-12);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   font-weight: 500;
   color: var(--text-accent);
   text-transform: uppercase;
@@ -441,7 +441,7 @@
 
 .bioHighlight {
   margin: 0 0 var(--spacing-24) 0;
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: clamp(1.5rem, 1.249rem + 0.83vw, 2rem);
   font-weight: 400;
   line-height: 1.4;
@@ -450,7 +450,7 @@
 
 .bioText {
   margin: 0 0 var(--spacing-20) 0;
-  font-family: var(--font-mono);
+  font-family: var(--font-family-code);
   font-size: var(--font-size-16);
   font-weight: 300;
   line-height: 1.8;
@@ -472,15 +472,15 @@
 }
 
 .statNumber {
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: var(--font-size-40);
   font-weight: 400;
   color: var(--text-primary);
 }
 
 .statLabel {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   font-weight: 400;
   color: var(--text-tertiary);
   text-transform: uppercase;
@@ -493,7 +493,7 @@
    Instrument Serif 로 키워 패널의 주인공으로 세운다. */
 .sectionSubtitle {
   margin: 0 0 clamp(2rem, 5vh, 3.5rem);
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: clamp(2.25rem, 1.414rem + 3.43vw, 4.5rem);
   font-weight: 400;
   line-height: 1;
@@ -505,8 +505,8 @@
    머리말로 되돌린다 — 큰 글자가 둘이면 어느 쪽이 제목인지 알 수 없다. */
 .sectionKicker {
   margin: 0 0 var(--spacing-32);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-sm);
   font-weight: 500;
   line-height: normal;
   color: var(--text-tertiary);
@@ -542,8 +542,8 @@
 
 .expGroupLabel {
   margin: 0 0 var(--spacing-16);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-sm);
   font-weight: 500;
   color: var(--text-tertiary);
   text-transform: uppercase;
@@ -565,7 +565,7 @@
 
 .expPeriod {
   padding-top: 0.15em;
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: clamp(1rem, 0.534rem + 0.97vw, 1.5rem);
   font-weight: 400;
   line-height: 1.3;
@@ -607,7 +607,7 @@
 
 .expRole {
   margin: 0 0 var(--spacing-4) 0;
-  font-family: var(--font-mono);
+  font-family: var(--font-family-code);
   font-size: var(--font-size-18);
   font-weight: 600;
   color: var(--text-primary);
@@ -616,8 +616,8 @@
 .expCompany {
   display: block;
   margin-bottom: var(--spacing-12);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-sm);
   font-weight: 400;
   color: var(--text-accent);
   letter-spacing: 0.05em;
@@ -625,8 +625,8 @@
 
 .expDesc {
   margin: 0;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-body);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-md);
   font-weight: 300;
   line-height: 1.75;
   color: var(--text-secondary);
@@ -648,8 +648,8 @@
 .skillPanelNumber {
   display: block;
   margin-bottom: var(--spacing-20);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   font-weight: 400;
   color: var(--text-accent);
   letter-spacing: 0.1em;
@@ -657,7 +657,7 @@
 
 .skillPanelCategory {
   margin: 0 0 var(--spacing-20) 0;
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: clamp(1.75rem, 1.471rem + 1.14vw, 2.5rem);
   font-weight: 400;
   line-height: 1.2;
@@ -675,8 +675,8 @@
 
 .skillPanelDesc {
   margin: 0;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-body);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-md);
   font-weight: 300;
   line-height: 1.8;
   color: var(--text-tertiary);
@@ -699,7 +699,7 @@
 
 .skillPanelItemName {
   margin: 0 0 var(--spacing-8) 0;
-  font-family: var(--font-mono);
+  font-family: var(--font-family-code);
   font-size: var(--font-size-16);
   font-weight: 500;
   color: var(--text-primary);
@@ -707,8 +707,8 @@
 
 .skillPanelItemDesc {
   margin: 0;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-sm);
   font-weight: 300;
   line-height: 1.75;
   color: var(--text-secondary);
@@ -741,7 +741,7 @@
 }
 
 .philosophyIndex {
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: clamp(2rem, 1.489rem + 2.1vw, 3.5rem);
   font-weight: 400;
   line-height: 1;
@@ -751,7 +751,7 @@
 
 .philosophyHeadline {
   margin: 0;
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: clamp(1.5rem, 1.129rem + 1.52vw, 2.5rem);
   font-weight: 400;
   line-height: 1.15;
@@ -761,8 +761,8 @@
 
 .philosophyBody {
   margin: 0;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-body);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-md);
   font-weight: 300;
   line-height: 1.8;
   color: var(--text-secondary);
@@ -795,7 +795,7 @@
 }
 
 .approachNum {
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: clamp(2rem, 1.489rem + 2.1vw, 3.5rem);
   font-weight: 400;
   line-height: 1;
@@ -805,7 +805,7 @@
 
 .approachName {
   margin: 0;
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: clamp(1.5rem, 1.129rem + 1.52vw, 2.5rem);
   font-weight: 400;
   line-height: 1.15;
@@ -815,8 +815,8 @@
 
 .approachBody {
   margin: 0;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-body);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-md);
   font-weight: 300;
   line-height: 1.8;
   color: var(--text-secondary);
@@ -836,7 +836,7 @@
 
 .credentialHeading {
   margin: 0 0 var(--spacing-24) 0;
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: var(--font-size-20);
   font-weight: 400;
   color: var(--text-primary);
@@ -863,8 +863,8 @@
 .credentialYear {
   flex-shrink: 0;
   padding-top: var(--spacing-2);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   font-weight: 400;
   color: var(--text-accent);
   letter-spacing: 0.05em;
@@ -878,7 +878,7 @@
 
 .credentialName {
   margin: 0;
-  font-family: var(--font-mono);
+  font-family: var(--font-family-code);
   font-size: var(--font-size-16);
   font-weight: 500;
   color: var(--text-primary);
@@ -887,15 +887,15 @@
 /* 수상 내용 — 기관 이름 아래 한 줄. 이름·기관보다 약하게 둔다 */
 .credentialNote {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   font-weight: 300;
-  line-height: var(--line-height-normal);
+  line-height: var(--line-height-160);
   color: var(--text-muted);
 }
 
 .credentialOrg {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-sm);
   font-weight: 300;
   color: var(--text-tertiary);
 }
@@ -1065,7 +1065,7 @@
   }
 
   .expPeriod {
-    font-size: var(--font-size-body);
+    font-size: var(--font-size-body-md);
   }
 
   .skillPanelLayout {

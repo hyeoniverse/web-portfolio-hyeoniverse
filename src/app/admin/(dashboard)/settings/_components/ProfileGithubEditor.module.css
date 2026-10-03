@@ -31,7 +31,7 @@
 
 /* 크기·색은 .fieldHint 가 정한다 */
 .switchHint {
-  line-height: var(--line-height-snug);
+  line-height: var(--line-height-135);
 }
 
 .loginRow {
@@ -50,8 +50,8 @@
   display: inline-flex;
   align-items: center;
   min-height: var(--control-height-sm);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-body);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-md);
   color: var(--text-primary);
   overflow-wrap: anywhere;
 }
@@ -80,8 +80,8 @@
   padding: 0 var(--spacing-4);
   border-radius: var(--radius-full);
   background: var(--bg-secondary);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-sm);
   font-variant-numeric: tabular-nums;
   color: var(--text-tertiary);
 }
@@ -168,8 +168,8 @@
   padding: 0;
   border: none;
   background: transparent;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-sm);
   color: var(--text-primary);
   outline: none;
 }
@@ -190,7 +190,7 @@
   padding: var(--badge-padding-sm);
   border-radius: var(--radius-full);
   background: var(--bg-secondary);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
   white-space: nowrap;
 }
@@ -240,8 +240,8 @@
 .pickedOrder {
   flex: 0 0 auto;
   min-width: 1.25rem;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-sm);
   font-variant-numeric: tabular-nums;
   color: var(--text-tertiary);
 }
@@ -249,8 +249,8 @@
 .pickedName {
   flex: 1;
   min-width: 0;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-body);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-md);
   color: var(--text-primary);
   overflow-wrap: anywhere;
 }
@@ -328,14 +328,14 @@
   display: flex;
   align-items: center;
   min-height: var(--_line);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-body);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-md);
   color: var(--text-primary);
   overflow-wrap: anywhere;
 }
 
 .itemDesc {
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   line-height: 1.5;
   color: var(--text-secondary);
   overflow-wrap: anywhere;
@@ -345,7 +345,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-12);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-tertiary);
 }
 
@@ -357,7 +357,7 @@
 
 .error {
   margin: 0;
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-error-strong);
 }
 
@@ -380,7 +380,7 @@
   padding: 0 var(--spacing-4);
   border-radius: var(--radius-full);
   background: var(--bg-tertiary);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-sm);
   color: var(--text-secondary);
 }

@@ -7,7 +7,7 @@
   justify-content: center;
   gap: var(--spacing-16);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   color: var(--text-tertiary);
   text-align: center;
   padding: var(--spacing-64) var(--spacing-16);
@@ -34,7 +34,7 @@
   align-items: center;
   gap: var(--spacing-12);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-secondary);
   /* full-bleed 유리(양옆 뷰포트 끝까지) — margin 으로 빼고 padding 으로 콘텐츠는 본문 폭 유지. */
   margin-inline: calc(-1 * var(--spacing-page-inline));
@@ -81,7 +81,7 @@
   border: none;
   background: transparent;
   color: var(--text-muted);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
 }
 
 /* ── Table ── */
@@ -92,7 +92,7 @@
   padding: var(--spacing-12) 0;
   border-bottom: var(--border-light);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   font-weight: 500;
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -104,7 +104,7 @@
 /* 헤더 셀 통일 — 컬럼별 className(colTitle/colMeta 등)을 무효화 위해 specificity 높임 (0,2,0) */
 .tableHeader.tableHeader > * {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   font-weight: 500;
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -133,7 +133,7 @@
 /* Title column — accent on row hover */
 .colTitle {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   color: var(--text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -170,13 +170,13 @@
 /* ── Meta columns ── */
 .colMeta {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-tertiary);
 }
 
 .colMono {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-sm);
   color: var(--text-tertiary);
 }
 
@@ -229,7 +229,7 @@
   justify-content: center;
   background: var(--bg-tertiary);
   color: var(--text-muted);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
 }
 
 /* 상태 배지(발행/미발행/예약)는 공통 <StatusBadge> 컴포넌트로 이관됨 */
@@ -320,8 +320,8 @@
   border-bottom-style: dashed;
   border-radius: 0;
   background: transparent;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-sm);
   font-weight: 600;
   color: var(--text-white);
   /* mix-blend-mode: difference + white — 어두운 배경엔 white, 밝은 배경엔 dark 로 자동 반전 */
@@ -358,8 +358,8 @@
   border: var(--border-default);
   border-radius: 0;
   background: var(--bg-primary);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-sm);
   font-weight: 600;
   color: var(--text-primary);
   text-align: center;

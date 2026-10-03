@@ -19,10 +19,10 @@ const COLORS = [
 ];
 
 const FONTS = [
-  { name: "Instrument Serif", role: { ko: "제목", en: "Display" }, token: "--font-family-display", italic: true },
-  { name: "Inter", role: { ko: "UI", en: "UI" }, token: "--font-sans" },
-  { name: "Space Grotesk", role: { ko: "보조", en: "Support" }, token: "--font-grotesk" },
-  { name: "JetBrains Mono", role: { ko: "코드", en: "Code" }, token: "--font-mono" },
+  { name: "Instrument Serif", role: { ko: "제목", en: "Display" }, token: "--font-family-heading", italic: true },
+  { name: "Pretendard", role: { ko: "본문 · UI", en: "Body · UI" }, token: "--font-family-body" },
+  { name: "Space Grotesk", role: { ko: "네비게이션", en: "Navigation" }, token: "--font-family-nav" },
+  { name: "JetBrains Mono", role: { ko: "코드", en: "Code" }, token: "--font-family-code" },
 ];
 
 const SPACING = ["2", "4", "8", "12", "16", "20", "24", "32", "48"];

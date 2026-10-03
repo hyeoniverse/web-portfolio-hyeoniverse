@@ -55,7 +55,7 @@
   border-radius: var(--radius-full);
   background: var(--bg-accent-solid);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   font-weight: 600;
   color: var(--text-on-accent);
 }
@@ -69,13 +69,13 @@
 /* 빈 상태 컨테이너(장식 원 포함)는 공통 <EmptyState circle>. 아래 제목/힌트는 그 안에 스택. */
 
 .emptyTitle {
-  font-size: var(--font-size-title-sm);
+  font-size: var(--font-size-heading-xs);
   color: var(--text-primary);
   font-weight: var(--font-weight-medium);
 }
 
 .emptyHint {
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-tertiary);
 }
 
@@ -157,14 +157,14 @@
 
 .itemTitle {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   font-weight: var(--font-weight-medium);
   color: var(--text-primary);
 }
 
 .itemMessage {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-secondary);
   margin-top: var(--spacing-2);
   white-space: pre-wrap;
@@ -184,13 +184,13 @@
 
 .itemDate {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-tertiary);
 }
 
 .itemLink {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-primary);
   text-decoration: none;
   transition: color 0.15s ease;
@@ -241,8 +241,8 @@
   padding: 0 var(--spacing-4);
   border-radius: var(--radius-full);
   background: color-mix(in oklch, currentColor 15%, transparent);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   font-variant-numeric: tabular-nums;
   color: currentColor;
 }
@@ -257,8 +257,8 @@
 }
 
 .loadMoreCount {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   font-variant-numeric: tabular-nums;
   color: var(--text-tertiary);
 }
@@ -305,7 +305,7 @@
   padding: var(--spacing-12) var(--spacing-16);
   border-bottom: var(--border-light);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   font-weight: var(--font-weight-semibold);
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -320,7 +320,7 @@
   padding: 0 var(--spacing-4);
   border-radius: var(--radius-full);
   background: color-mix(in oklch, currentColor 15%, transparent);
-  font-family: var(--font-mono);
+  font-family: var(--font-family-code);
   font-variant-numeric: tabular-nums;
 }
 

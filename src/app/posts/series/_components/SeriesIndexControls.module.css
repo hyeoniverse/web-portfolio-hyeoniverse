@@ -17,7 +17,7 @@
   flex: 0 0 auto;
 }.perPageSelect > button {
   padding: 0 var(--spacing-12);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
 }
 
 /* 정렬/검색창 border 를 페이징 select(--border-light) 등 주변 컨트롤과 light 로 통일 */

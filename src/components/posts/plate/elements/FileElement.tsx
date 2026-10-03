@@ -62,9 +62,9 @@ function FilePreviewContent({ url, fileName, isPdf, isOffice, isText }: {
       <pre style={{
         margin: 0, padding: "12px 16px",
         borderRadius: "var(--radius-24)", background: "var(--bg-primary)",
-        fontSize: "var(--font-size-hint)", color: "var(--text-secondary)", overflow: "auto",
+        fontSize: "var(--font-size-body-xs)", color: "var(--text-secondary)", overflow: "auto",
         maxHeight: 400, whiteSpace: "pre-wrap", wordBreak: "break-all",
-        fontFamily: "var(--font-mono)",
+        fontFamily: "var(--font-family-code)",
       }}>
         {textContent === null ? "Loading..." : textContent}
       </pre>
@@ -129,8 +129,8 @@ export function FileElement(props: PlateElementProps) {
               {fileIcon}
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: "var(--font-size-label)", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{fileName}</div>
-              {sizeLabel && <div style={{ fontSize: "var(--font-size-hint)", color: "var(--text-muted)", marginTop: 1 }}>{sizeLabel}</div>}
+              <div style={{ fontSize: "var(--font-size-body-sm)", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{fileName}</div>
+              {sizeLabel && <div style={{ fontSize: "var(--font-size-body-xs)", color: "var(--text-muted)", marginTop: 1 }}>{sizeLabel}</div>}
             </div>
             {hasPreview && (
               <Tooltip content={previewOpen ? "Close preview" : "Preview"} placement="top">

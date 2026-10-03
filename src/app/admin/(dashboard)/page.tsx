@@ -1008,7 +1008,7 @@ export default function AdminDashboard() {
         <Item
           style={{
             fontFamily: "var(--font-family-body)",
-            fontSize: "var(--font-size-hint)",
+            fontSize: "var(--font-size-body-xs)",
             color: "var(--text-tertiary)",
           }}
         >

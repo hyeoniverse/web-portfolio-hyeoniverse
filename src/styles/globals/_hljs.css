@@ -275,7 +275,7 @@ code .token.italic {
   backdrop-filter: var(--blur-glass);
   /* 라벨·버튼이 공유하는 규격 — 에디터 코드블록(.codeBarCtrl: 26px/xs/9~10px)과 크기까지 통일 */
   --_bar-ctl-h: 26px;
-  --_bar-ctl-fs: var(--font-size-label);
+  --_bar-ctl-fs: var(--font-size-body-sm);
   --_bar-ctl-px: 10px;
 }
 
@@ -344,7 +344,7 @@ code .token.italic {
   border: none;
   color: inherit;
   border-radius: 0;
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   line-height: 1.7;
   /* 인라인 코드(.prose code)의 box-shadow + box-decoration-break:clone 이 새면
      여러 줄로 쪼개질 때 "줄마다 그림자"가 생긴다 → 블록 코드에선 제거 */
@@ -471,7 +471,7 @@ code .token.italic {
   border-radius: var(--radius-full);
   box-shadow: var(--shadow-xs);            /* 컨트롤 pill 과 같은 그림자 톤 */
   color: var(--text-primary);
-  font-family: var(--font-mono);
+  font-family: var(--font-family-code);
   font-size: var(--_bar-ctl-fs);
   font-weight: var(--font-weight-medium);
   line-height: 1;
@@ -491,7 +491,7 @@ code .token.italic {
   border: none;
   background: transparent;
   color: var(--text-tertiary);
-  font-family: var(--font-mono);
+  font-family: var(--font-family-code);
   font-size: var(--_bar-ctl-fs);
   line-height: 1;
   white-space: nowrap;
@@ -534,7 +534,7 @@ code .token.italic {
   border: none;
   background: transparent;
   color: var(--text-tertiary);
-  font-family: var(--font-mono);
+  font-family: var(--font-family-code);
   font-size: var(--_bar-ctl-fs);
   line-height: 1;
   white-space: nowrap;
@@ -657,7 +657,7 @@ span.math-element-wrap .math-katex-content {
   background: var(--bg-inverse);
   color: var(--text-inverse);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   font-weight: 600;
   line-height: 1;
   white-space: nowrap;
@@ -754,7 +754,7 @@ span.math-element-wrap .math-katex-content {
 .reader-diagram-label {
   fill: var(--text-primary);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
 }
 .reader-diagram-edge {
   stroke: var(--border-color-strong);
@@ -763,7 +763,7 @@ span.math-element-wrap .math-katex-content {
 .reader-diagram-edge-label {
   fill: var(--text-tertiary);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
 }
 
 /* Sandpack 미리보기 iframe — 전역 .editorContent iframe(margin·radius) 규칙 무효화 */
@@ -814,7 +814,7 @@ span.math-element-wrap .math-katex-content {
   background: transparent;
   color: var(--text-secondary);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   cursor: pointer;
   transition: color 0.12s ease, background 0.12s ease;
 }
@@ -841,8 +841,8 @@ span.math-element-wrap .math-katex-content {
   padding: var(--spacing-16);
   background: var(--bg-secondary);
   color: var(--text-primary);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-body);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-md);
   line-height: 1.6;
   white-space: pre;
 }
@@ -852,8 +852,8 @@ span.math-element-wrap .math-katex-content {
   padding: var(--spacing-4) var(--spacing-16);
   border-top: 1px solid var(--border-color-light);
   background: var(--bg-secondary);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   line-height: 1.6;
   color: var(--text-secondary);
 }
@@ -891,7 +891,7 @@ span.math-element-wrap .math-katex-content {
   border-radius: var(--radius-full);
   background: transparent;
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-secondary);
   cursor: pointer;
 }

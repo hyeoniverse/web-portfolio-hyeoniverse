@@ -121,7 +121,7 @@ export function InlineCaption({ caption, onCommit, onEditingChange, autoEdit, ov
         resize: "none",
         overflow: "hidden",
         textAlign: "center",
-        fontSize: overlayMode ? 11 : "var(--font-size-body)",
+        fontSize: overlayMode ? 11 : "var(--font-size-body-md)",
         lineHeight: 1.5,
         padding: overlayMode ? "0" : "var(--spacing-4) var(--spacing-2) 0",
         fontFamily: "var(--font-family-body)",

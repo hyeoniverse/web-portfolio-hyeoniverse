@@ -642,7 +642,7 @@ export default React.memo(function TableToolbar({
             <div className={styles.colorMenuFooter}>
               <span className={styles.colorMenuMiniLabel}>{language === "ko" ? "굵게" : "Bold"}</span>
               <Tooltip content={language === "ko" ? "헤더 굵게" : "Bold header"} placement="top" delay={150}>
-                <Pressable noTapScale className={`${styles.swatch} ${styles.swatchRandom} ${headerBold ? styles.swatchActive : ""}`} onClick={() => setHeaderStyle({ headerBold: headerBold ? false : null })}><span style={{ fontWeight: 700, fontSize: "var(--font-size-hint)" }}>B</span></Pressable>
+                <Pressable noTapScale className={`${styles.swatch} ${styles.swatchRandom} ${headerBold ? styles.swatchActive : ""}`} onClick={() => setHeaderStyle({ headerBold: headerBold ? false : null })}><span style={{ fontWeight: 700, fontSize: "var(--font-size-body-xs)" }}>B</span></Pressable>
               </Tooltip>
             </div>
           </div>

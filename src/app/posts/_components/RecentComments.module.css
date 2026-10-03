@@ -7,7 +7,7 @@
   align-items: center;
   gap: var(--spacing-8);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   font-weight: var(--font-weight-medium);
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -65,7 +65,7 @@
   align-items: center;
   gap: var(--spacing-4);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   font-weight: var(--font-weight-medium);
   color: var(--text-primary);
 }
@@ -74,20 +74,20 @@
   padding: var(--badge-padding-sm);
   border-radius: var(--radius-full);
   background: var(--bg-accent-solid);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   font-weight: 500;
   color: var(--text-on-accent);
 }
 
 .time {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
 }
 
 .content {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   color: var(--text-secondary);
   line-height: 1.5;
   display: -webkit-box;
@@ -98,7 +98,7 @@
 
 .postTitle {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
 }
 
@@ -108,7 +108,7 @@
 
 .empty {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   color: var(--text-tertiary);
   padding: var(--spacing-12) 0;
   font-style: italic;

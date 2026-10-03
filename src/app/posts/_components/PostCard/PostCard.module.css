@@ -174,8 +174,8 @@
 
 .placeholderTitle {
   margin: 0;
-  font-family: var(--font-serif);
-  font-size: var(--font-size-title-lg);
+  font-family: var(--font-family-accent);
+  font-size: var(--font-size-heading-sm);
   font-weight: 600;
   line-height: 1.25;
   word-break: break-word;
@@ -191,7 +191,7 @@
 .placeholderExcerpt {
   margin: 0;
   font-family: var(--font-family-body);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   line-height: 1.5;
   opacity: 0.9;
   word-break: break-word;
@@ -232,7 +232,7 @@
   border-radius: var(--radius-full);
   background: transparent;
   font-family: var(--font-family-body);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   font-weight: var(--font-weight-medium);
   color: var(--text-accent);
   text-transform: uppercase;
@@ -241,12 +241,12 @@
 
 /* ── Title ── */
 .title {
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: var(--font-size-28);
   font-weight: var(--font-weight-regular);
   color: var(--text-primary);
-  line-height: var(--line-height-tight);
-  min-height: calc(var(--font-size-28) * var(--line-height-tight) * 2);
+  line-height: var(--line-height-125);
+  min-height: calc(var(--font-size-28) * var(--line-height-125) * 2);
   /* 한글 단어 보존 + 영문 긴 단어 break (line-clamp 시 ellipsis 정확히 표시되게) */
   word-break: break-word;
   overflow-wrap: anywhere;
@@ -265,10 +265,10 @@
 .excerpt {
   font-family: var(--font-family-body);
   /* meta 와 동일한 크기로 통일 */
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-secondary);
-  line-height: var(--line-height-normal);
-  min-height: calc(var(--font-size-label) * var(--line-height-normal) * 2);
+  line-height: var(--line-height-160);
+  min-height: calc(var(--font-size-body-sm) * var(--line-height-160) * 2);
   word-break: break-word;
   overflow-wrap: anywhere;
   display: -webkit-box;
@@ -285,7 +285,7 @@
   align-items: center;
   gap: var(--spacing-8);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-tertiary);
   margin-top: auto;
   padding-top: var(--spacing-8);
@@ -304,7 +304,7 @@
 .metaGroup:not(:last-child)::after {
   content: "";
   display: inline-block;
-  height: var(--font-size-body);
+  height: var(--font-size-body-md);
   margin-left: var(--spacing-8);
   border-left: var(--border-default);
 }
@@ -372,7 +372,7 @@
 }
 
 .compact .title {
-  font-size: var(--font-size-title-sm);
+  font-size: var(--font-size-heading-xs);
   min-height: 0;
   -webkit-line-clamp: 1;
   white-space: nowrap;
@@ -441,7 +441,7 @@
   backdrop-filter: blur(8px);
   border: var(--border-ghost-light);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   font-weight: var(--font-weight-medium);
   color: var(--text-white);
   text-transform: uppercase;
@@ -463,7 +463,7 @@
   backdrop-filter: blur(8px);
   border: var(--border-ghost-light);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   font-weight: var(--font-weight-medium);
   color: var(--text-white);
   text-transform: uppercase;
@@ -499,13 +499,13 @@
 
   /* 모바일 — title 축소, excerpt 는 meta(xs) 와 동일 크기 */
   .title {
-    font-size: var(--font-size-title-sm);
-    min-height: calc(var(--font-size-16) * var(--line-height-tight) * 2);
+    font-size: var(--font-size-heading-xs);
+    min-height: calc(var(--font-size-16) * var(--line-height-125) * 2);
   }
 
   .excerpt {
-    font-size: var(--font-size-label);
-    min-height: calc(var(--font-size-label) * var(--line-height-normal) * 2);
+    font-size: var(--font-size-body-sm);
+    min-height: calc(var(--font-size-body-sm) * var(--line-height-160) * 2);
   }
 
   /* 모바일 — 모든 bento variant(banner/square/portrait/compact) 의 이미지 비율 통일 (16:10) */
@@ -533,7 +533,7 @@
   }
 
   .featured .title {
-    font-size: var(--font-size-title-sm);
+    font-size: var(--font-size-heading-xs);
     -webkit-line-clamp: 2;
   }
 
@@ -567,7 +567,7 @@
   border-radius: var(--radius-full);
   background: var(--bg-tertiary);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   color: var(--text-secondary);
   text-decoration: none;
   transition: background-color 0.15s ease, color 0.15s ease;
@@ -589,7 +589,7 @@
   border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-tertiary);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   line-height: 1;
   cursor: pointer;
   transition: background-color 0.15s ease, color 0.15s ease;

@@ -17,7 +17,7 @@
 
 .title {
   font-family: var(--font-family-heading);
-  font-size: var(--font-size-title-md);
+  font-size: var(--font-size-heading-xs);
   color: var(--text-secondary);
 }
 
@@ -28,7 +28,7 @@
   padding: var(--button-padding-lg);
   border: var(--border-strong);
   border-radius: var(--radius-full);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   color: var(--text-primary);
   text-decoration: none;
   transition: background-color var(--duration-base), color var(--duration-base);
@@ -42,7 +42,7 @@
 /* 서버가 돌려준 사유 — 제목만으로는 왜 막혔는지 알 수 없다 */
 .description {
   max-width: 42ch;
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   line-height: 1.6;
   color: var(--text-tertiary);
 }

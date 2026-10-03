@@ -74,7 +74,7 @@
 .mathFloatingPreviewEmpty {
   color: var(--text-muted);
   font-style: italic;
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
 }
 
 .mathFloatingInput {
@@ -84,7 +84,7 @@
   border-radius: var(--radius-full);
   background: var(--bg-primary);
   color: var(--text-primary);
-  font-family: var(--font-mono), monospace;
+  font-family: var(--font-family-code), monospace;
   font-size: var(--font-size-16);
   line-height: 1.8;
   box-sizing: border-box;
@@ -114,8 +114,8 @@
 .mathCapsuleCancel,
 .mathCapsuleConfirm {
   border: none;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-sm);
   font-weight: 500;
   padding: var(--modal-padding-sm);
   line-height: 1;

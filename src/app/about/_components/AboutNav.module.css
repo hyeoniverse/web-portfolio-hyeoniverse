@@ -20,7 +20,7 @@
   padding: clamp(0.2rem, 0.3vh, 0.35rem) clamp(0.3rem, 0.4vw, 0.5rem);
   border: 1px solid transparent;
   background: transparent;
-  font-size: var(--font-size-prose-label);
+  font-size: var(--font-size-prose-md);
   color: var(--text-white);
   border-radius: var(--radius-full);
 }
@@ -102,7 +102,7 @@
 .dotItem .dotText {
   max-width: 0;
   overflow: hidden;
-  font-family: var(--font-mono);
+  font-family: var(--font-family-code);
   font-size: 0;
   line-height: clamp(0.55rem, 0.6vw, 0.75rem);
   font-weight: var(--font-weight-medium);
@@ -130,7 +130,7 @@
   flex: 1;
   min-width: 0;
   max-width: none;
-  font-size: var(--font-size-prose-caption);
+  font-size: var(--font-size-prose-xs);
   opacity: 1;
 }
 
@@ -168,8 +168,8 @@
 }
 
 .floorRoom {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--text-tertiary);
@@ -185,7 +185,7 @@
 }
 
 .floorCurrent b {
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: clamp(1.4rem, 1.285rem + 0.47vw, 1.9rem);
   font-style: italic;
   font-weight: var(--font-weight-regular);
@@ -196,8 +196,8 @@
 
 .floorCurrent small {
   white-space: nowrap;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
   font-variant-numeric: tabular-nums;
 }
@@ -220,8 +220,8 @@
 }
 
 .floorGroupTitle {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   letter-spacing: 0.02em;
   text-transform: uppercase;
   color: var(--text-tertiary);
@@ -308,8 +308,8 @@
   bottom: calc(100% + var(--spacing-8));
   left: 50%;
   padding: var(--spacing-2) var(--spacing-8);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   white-space: nowrap;
   color: var(--text-inverse);
   background: var(--bg-inverse);
@@ -355,21 +355,21 @@
   flex: 1;
   min-width: 0;
   overflow: hidden;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-sm);
   text-overflow: ellipsis;
 }
 
 .floorStepHint {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--text-tertiary);
 }
 
 .floorStepArrow {
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
 }
 
 /* 다음 — NEXT 는 칸 왼쪽, 이름과 화살표는 칸 오른쪽 끝에 붙는다 */
@@ -386,7 +386,7 @@
 }
 
 .floorStepNext .floorStepName {
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: clamp(1.15rem, 1.076rem + 0.3vw, 1.45rem);
   font-style: italic;
   color: var(--text-accent);
@@ -450,8 +450,8 @@
   border: none;
   border-bottom: 2px solid transparent;
   background: transparent;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-prose-small);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-prose-sm);
   font-weight: var(--font-weight-medium);
   color: var(--text-white);
   /* mix-blend-mode: difference 환경에서 색 직접 변경하면 이상해짐 →
@@ -515,8 +515,8 @@
     gap: var(--spacing-12);
     margin-left: auto;
     pointer-events: auto;
-    font-family: var(--font-mono);
-    font-size: var(--font-size-prose-small);
+    font-family: var(--font-family-code);
+    font-size: var(--font-size-prose-sm);
     color: var(--text-white-muted);
   }
 

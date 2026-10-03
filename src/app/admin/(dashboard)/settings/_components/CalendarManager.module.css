@@ -56,7 +56,7 @@
   font-variant-numeric: tabular-nums;
 }
 .tearYear {
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   line-height: calc(16 / 12);
   background: var(--bg-tertiary);
   color: var(--text-tertiary);
@@ -66,7 +66,7 @@
   align-items: center;
   justify-content: center;
   min-height: 22px;
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   font-weight: 600;
   color: var(--text-primary);
 }
@@ -79,7 +79,7 @@
 .rowTitle {
   flex-shrink: 1;
   min-width: 0;
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   font-weight: 500;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -89,7 +89,7 @@
 .rowTitleMuted { color: var(--text-tertiary); font-weight: 400; }
 .rowMeta {
   flex-shrink: 0;
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
   white-space: nowrap;
 }
@@ -98,7 +98,7 @@
 .usage {
   grid-column: 2;
   justify-self: start;
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   color: var(--text-secondary);
   cursor: default;
   text-decoration: underline var(--border-color-strong);
@@ -143,18 +143,18 @@
   transition: color 0.15s ease;
 }
 .trashHead:hover { color: var(--text-primary); }
-.trashTitle { font-size: var(--font-size-label); font-weight: 500; }
+.trashTitle { font-size: var(--font-size-body-sm); font-weight: 500; }
 .trashCount {
   min-width: 18px;
   padding: 0 var(--spacing-2);
   border-radius: var(--radius-full);
   background: var(--bg-tertiary);
   color: var(--text-tertiary);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   text-align: center;
   font-variant-numeric: tabular-nums;
 }
-.trashHint { font-size: var(--font-size-hint); color: var(--text-muted); }
+.trashHint { font-size: var(--font-size-body-xs); color: var(--text-muted); }
 .trashChev { margin-left: auto; color: var(--text-tertiary); }
 .trashChevOpen { transform: rotate(180deg); }
 .trashHead .trashChev { transition: transform 0.2s ease; }

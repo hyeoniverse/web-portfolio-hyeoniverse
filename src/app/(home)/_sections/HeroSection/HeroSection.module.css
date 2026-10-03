@@ -71,7 +71,7 @@
   display: flex;
   gap: var(--spacing-8);
   flex-direction: column;
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: var(--fluid-font-size-6xl);
   font-weight: var(--font-weight-regular);
 }
@@ -89,7 +89,7 @@
   font-family: inherit;
   font-size: inherit;
   font-weight: inherit;
-  line-height: var(--line-height-fit);
+  line-height: var(--line-height-100);
   color: var(--text-primary);
   letter-spacing: -0.03em;
 }
@@ -99,7 +99,7 @@
   font-size: inherit;
   font-style: italic;
   font-weight: inherit;
-  line-height: var(--line-height-fit);
+  line-height: var(--line-height-100);
   color: var(--text-accent-alt);
   transition:
     color var(--duration-base) ease,
@@ -121,7 +121,7 @@
   align-items: center;
   margin-top: var(--spacing-64);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   color: var(--text-secondary);
   letter-spacing: 0.02em;
 }
@@ -188,7 +188,7 @@
 
 .scrollText {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.1em;

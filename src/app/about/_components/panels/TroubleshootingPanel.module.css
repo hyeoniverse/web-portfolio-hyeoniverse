@@ -13,7 +13,7 @@
   padding: var(--badge-padding-md);
   border-radius: var(--radius-full);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   font-weight: var(--font-weight-medium);
   letter-spacing: 0;
   white-space: nowrap;
@@ -31,7 +31,7 @@
   padding: var(--badge-padding-lg);
   border-radius: var(--radius-full);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   font-weight: 500;
   letter-spacing: 0;
   white-space: nowrap;
@@ -76,8 +76,8 @@
 }
 
 .troubleComparisonLabel {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-prose-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-prose-md);
   font-weight: var(--font-weight-semibold);
   color: var(--text-tertiary);
   letter-spacing: 0.05em;
@@ -86,8 +86,8 @@
 .troubleTable {
   width: 100%;
   border-collapse: collapse;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-prose-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-prose-md);
 }
 
 .troubleTable th {
@@ -103,7 +103,7 @@
   padding: var(--cell-padding-md);
   color: var(--text-secondary);
   border-bottom: var(--_line-secondary);
-  line-height: var(--line-height-snug);
+  line-height: var(--line-height-135);
   vertical-align: top;
 }
 
@@ -130,8 +130,8 @@
 }
 
 .troubleDiagramTitle {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-prose-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-prose-md);
   font-weight: var(--font-weight-semibold);
   color: var(--text-tertiary);
   letter-spacing: 0.05em;
@@ -164,7 +164,7 @@
   border: 1px solid color-mix(in srgb, var(--text-secondary) 20%, transparent);
   border-radius: var(--radius-24);
   overflow: hidden;
-  font-family: var(--font-mono);
+  font-family: var(--font-family-code);
   /* margin-bottom 은 mobile 만 — PC 에선 troubleSplit gap 이 처리 */
 }
 
@@ -175,12 +175,12 @@
   gap: var(--spacing-4);
   align-items: center;
   padding: var(--spacing-8) var(--spacing-16);
-  min-height: calc(var(--font-size-label) * 1.6 + var(--spacing-8) * 2);
+  min-height: calc(var(--font-size-body-sm) * 1.6 + var(--spacing-8) * 2);
   box-sizing: border-box;
   background: var(--bg-secondary);
   border-bottom: 1px solid
     color-mix(in srgb, var(--text-secondary) 12%, transparent);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-tertiary);
   overflow-x: auto;
   scrollbar-width: none;
@@ -249,7 +249,7 @@
   text-align: right;
   color: var(--text-tertiary);
   opacity: 0.5;
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   user-select: none;
   line-height: inherit;
   padding-top: 0.1em;
@@ -339,8 +339,8 @@
   background: var(--bg-secondary);
   border: 1px solid color-mix(in srgb, var(--text-secondary) 15%, transparent);
   border-radius: var(--radius-full);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-sm);
   font-weight: var(--font-weight-medium);
   color: var(--text-tertiary);
   cursor: pointer;
@@ -416,8 +416,8 @@
 }
 
 .troubleImageCaption {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
   text-align: center;
   font-style: italic;
@@ -444,15 +444,15 @@
 }
 
 .troubleImagePlaceholderTitle {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-sm);
   font-weight: var(--font-weight-semibold);
   color: var(--text-secondary);
 }
 
 .troubleImagePlaceholderAlt {
   font-family: var(--_font-grotesk);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
   max-width: 300px;
   line-height: 1.4;
@@ -473,7 +473,7 @@
   color: var(--text-primary);
   font-weight: var(--font-weight-semibold);
   font-size: calc(clamp(1.05rem, 4vw, 1.3rem) * var(--ide-font-scale, 1));
-  line-height: var(--line-height-snug);
+  line-height: var(--line-height-135);
 }
 
 .ideHeading {

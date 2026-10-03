@@ -12,12 +12,12 @@
   border-radius: var(--radius-full);
   background: transparent;
   font-family: var(--font-family-body);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   color: var(--text-tertiary);
   text-decoration: none;
   width: 280px;
   max-width: 100%;
-  line-height: var(--line-height-fit);
+  line-height: var(--line-height-100);
   overflow: hidden;
   white-space: nowrap;
   flex-shrink: 1;
@@ -43,7 +43,7 @@
 
 .fieldLabelHint {
   font-weight: 400;
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
 }
 
@@ -149,7 +149,7 @@
 /* 스와치만 있으면 뭔지 알 수 없다 — 라벨을 붙인다 */
 .logoTintLabel {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
   white-space: nowrap;
 }
@@ -210,7 +210,7 @@
   border: none;
   background: transparent;
   font-family: var(--font-family-body);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
   cursor: pointer;
   text-decoration: underline;
@@ -291,8 +291,8 @@
 .serviceItemNum {
   display: inline-flex;
   align-items: center;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-body);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-md);
   color: var(--text-tertiary);
   min-width: 24px;
   height: var(--control-height-xs);
@@ -302,7 +302,7 @@
   display: inline-block;
   height: 1em;
   overflow: hidden;
-  line-height: var(--line-height-fit);
+  line-height: var(--line-height-100);
 }
 
 .slotReel {
@@ -314,7 +314,7 @@
 .slotChar {
   display: block;
   height: 1em;
-  line-height: var(--line-height-fit);
+  line-height: var(--line-height-100);
 }
 
 .serviceItemFields {

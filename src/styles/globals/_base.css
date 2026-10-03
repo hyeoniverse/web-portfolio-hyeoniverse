@@ -104,8 +104,8 @@ h1 { font: var(--font-heading-md); }
 h2 { font: var(--font-heading-sm); }
 h3,
 h4 { font: var(--font-heading-xs); }
-h5 { font-size: var(--font-size-body); }
-h6 { font-size: var(--font-size-label); }
+h5 { font-size: var(--font-size-body-md); }
+h6 { font-size: var(--font-size-body-sm); }
 
 /* 블록 사이 간격 통일 — .prose-content 안 모든 문단 블록(h1~h6·p·blockquote)이 태그 무관 같은 gap.
    블록 "사이"는 띄우고, 블록 "내부"(line-height)는 컨테이너에서 tight 하게. 에디터·게시글·work 공통 한 곳.
@@ -136,7 +136,7 @@ h6 { font-size: var(--font-size-label); }
 .prose-content :is(h1, h2, h3, h4) { font-family: inherit; }
 .prose-content :is(h3, h4) { font-weight: var(--font-weight-semibold); }
 .prose-content h5 { font-size: var(--font-size-16); }
-.prose-content h6 { font-size: var(--font-size-body); }
+.prose-content h6 { font-size: var(--font-size-body-md); }
 
 /* 편집기·글·작업물 본문(미리보기·상세)의 굵은 글씨는 강조색(전역 strong)이 아니라 편집기의 글자색을 따른다(#1118).
    글자색을 지정하지 않았으면 둘레 글자색이다. 본문 글자색이 편집기와 다른 곳(작업물 본문은 secondary)은
@@ -160,7 +160,7 @@ code {
   display: inline;
   -webkit-box-decoration-break: slice;
   box-decoration-break: slice;
-  font-family: var(--font-mono);
+  font-family: var(--font-family-code);
   font-size: 0.85em;
   padding: var(--spacing-2) var(--spacing-8);
   /* 텍스트는 accent(레드/핑크), 배경은 깔끔한 중립 — hue·명도 둘 다 대비돼 가독성 확보(Notion 레드 결).
@@ -215,7 +215,7 @@ body {
 kbd {
   padding: var(--spacing-2) var(--spacing-8);
   margin: 0 var(--spacing-2);
-  font-family: var(--font-mono);
+  font-family: var(--font-family-code);
   font-size: 0.8em;
   line-height: inherit;
   color: var(--text-primary);
@@ -264,7 +264,7 @@ kbd {
 
 .prose-content [data-toggle] > [data-toggle-head]::before {
   flex: none;
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-tertiary);
   transition: rotate var(--duration-fast) ease;
   content: "▶";

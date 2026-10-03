@@ -28,8 +28,8 @@
 
 .creditsEyebrow {
   margin: 0;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-sm);
   color: var(--text-tertiary);
   letter-spacing: 0.3em;
   text-transform: uppercase;
@@ -37,7 +37,7 @@
 
 .creditsTitle {
   margin: 0;
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: clamp(3rem, 1.774rem + 5.03vw, 7rem);
   font-style: italic;
   font-weight: var(--font-weight-regular);
@@ -61,8 +61,8 @@
 }
 
 .creditsList dt {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
   letter-spacing: 0.12em;
   text-align: right;
@@ -72,7 +72,7 @@
 .creditsList dd {
   margin: 0;
   word-break: keep-all;
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   line-height: var(--_lh-reading);
   color: var(--text-primary);
   text-align: left;

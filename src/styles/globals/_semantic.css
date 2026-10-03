@@ -213,80 +213,72 @@
   /* Panel Padding */
   --spacing-panel-block: clamp(1rem, min(4.5vh, 2.5vw), 4.5rem);
 
-  /* Typography Scale */
-
-  /* ── 글자 크기 — 역할로 고른다 ───────────────────────────────
-   * 눈금(`--font-size-14` 같은 단계)과 같은 접두사를 쓴다. 속성이 이름에 있어야
-   * 무엇을 정하는 토큰인지 오해가 없고, R3 「종류 → 역할」 에도 맞는다
-   * (`--border-color-strong` 과 같은 모양). `fs` 같은 축약은 쓰지 않는다.
-   *
-   * 컴포넌트 CSS 는 여기 역할 이름만 쓴다. 단계 이름은 이 파일 안에서만 참조한다.
-   *
-   * 두 갈래인 이유 — 지면 글자는 뷰포트를 따라 커져야 하고(About 본문은 1600px 화면에서
-   * 24px), 크롬 글자는 그렇게 흔들리면 안 된다.
-   *
+  /* ── 글자 토큰 — 세 층, 층마다 이름 규칙 하나(docs/design-system.md 3.2) ─────────
+   * 1층 원재료  --{속성}-{값}                 _typography.css  --font-size-13 · --line-height-160 · --font-instrument
+   * 2층 역할    --font-{속성}-{역할}-{단계}   여기             --font-size-body-sm · --font-family-code
+   * 3층 묶음    --font-{역할}-{단계}          여기             --font-body-sm  ← 컴포넌트는 이것을 쓴다
+   * 역할 = display · heading · body · code (+ 지면 prose), 단계 = xs · sm · md · lg · xl.
+   * 설정의 본문 · 제목 · 코드 글꼴은 2층 --font-family-* 를 덮고(ThemeProvider), 3층은 그대로 따라간다.
    * 전부 12px 하한 위에 있다(3.2-2). */
 
-  /* 지면 — 뷰포트를 따라 늘고 준다 (About 같은 편집 화면)
-     가운데 값에 rem 을 섞어 브라우저 글자 크기 · 확대를 따르고, 최대를 최소의 2.5배 이하로 둔다(3.2-4).
-     예전엔 min(vw, vh) 로 화면 높이에도 맞췄지만, 화면 단위뿐이라 확대해도 글자가 커지지 않았다.
-     값은 1440px 화면에서 예전과 비슷하게 맞췄다 — hero 만 130px → 96px 로 작아진다(D28) */
-  --font-size-hero: clamp(2.5rem, 1.5rem + 5vw, 6.25rem);
-  --font-size-lead: clamp(2rem, 1rem + 3vw, 5rem);
-  --font-size-subhead: clamp(1rem, 0.5rem + 1.4vw, 2.5rem);
-  --font-size-prose: clamp(0.75rem, 0.25rem + 1.2vw, 1.5rem);
-  --font-size-prose-label: clamp(0.75rem, 0.25rem + 0.73vw, 1.25rem);
-  --font-size-prose-small: clamp(0.75rem, 0.25rem + 0.58vw, 1.15rem);
-  --font-size-prose-caption: clamp(0.75rem, 0.25rem + 0.45vw, 1rem);
-
-  /* 크롬 — 고정. 관리 화면·공통 컴포넌트 */
-  --font-size-body: var(--font-size-14); /* 14px — 본문·입력값·목록 항목 */
-  --font-size-label: var(--font-size-13); /* 13px — 필드 라벨·버튼 */
-  --font-size-hint: var(--font-size-12); /* 12px — 보조 설명·메타·뱃지·카운터. 가장 작은 글자 */
-
-  /* 16·18·20px — 이 구간만 이름이 필요하다. 같은 16px 을 카드 제목도 쓰고 긴 글 본문도
-     써서 어느 쪽인지 이름이 말해 주지 않았다. 24px 부터는 전부 제목·디스플레이라
-     단계 이름(2xl·3xl…)이 곧 역할이라 그대로 둔다. */
-  --font-size-title-sm: var(--font-size-18); /* 18px — 카드·패널 제목. 본문(16)과 구분되게 18(Apple 기준 단계, 3.2) */
-  --font-size-title-md: var(--font-size-18); /* 18px — 섹션 제목 */
-  --font-size-title-lg: var(--font-size-20); /* 20px — 화면 안 가장 큰 제목 */
-  --font-size-body-lg: var(--font-size-16); /* 16px — 긴 글 본문 (기본 14px 보다 큰 지면) */
-  --font-size-body-xl: var(--font-size-18); /* 18px — 리드 문단·인용 */
-
-  /* 글자가 아니라 도형 — 구분자 `·` 글리프의 크기다. 읽는 값이 아니라 하한 밖에 있고,
-     단계가 아니라 역할이라 눈금(_typography.css)이 아닌 여기 둔다. */
-  /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 구분자 점 글리프, 읽는 글자가 아니다 */
-  --font-size-dot: 5px;
-
-  /* ── 글꼴 역할 (docs/design-system.md 3.2) ──────────────────────
-   * 본문·UI 는 Pretendard 하나 — 한글이 주 언어라 한글·영문이 한 글꼴이면 높이·굵기가 맞는다.
-   * 사이트 설정의 본문 글꼴이 이 값을 덮는다(ThemeProvider). 제목은 같은 글꼴을 굵게 쓴다.
-   * 세리프는 장식 글자(--font-family-display)에만 — 관리 화면 · 도구의 제목은 본문 글꼴 600 이다.
-   * 코드 역할과 UI 글자 묶음(body · label · caption)은 컴포넌트가 옮겨 올 때(이행 7단계 뒷부분) 더한다. */
+  /* ── 2층 · 글꼴 역할 ── */
+  /* 본문 · UI — Pretendard. 한글이 주 언어라 한글 · 영문이 한 글꼴이면 높이 · 굵기가 맞는다 */
   --font-family-body:
     "Pretendard Variable", -apple-system, BlinkMacSystemFont, system-ui,
     "Segoe UI", Roboto, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
     "Noto Color Emoji";
-  --font-family-heading: var(--font-family-display);
-  /* 장식 글자(히어로 · 공개 글 · 시리즈 · 작업물 제목) — 영문 · 한글 모두 세리프(D27). 설정의 제목 글꼴이 덮는다 */
-  --font-family-display: var(--font-instrument);
-  /* 상단 네비게이션 · 메뉴 · 알림 팝업 — Space Grotesk(한글은 Pretendard). 사이트의 얼굴이라 본문과 따로 둔다(D29) */
+  /* 제목 · 장식 글자 — Instrument Serif + 나눔명조(D27) */
+  --font-family-heading: var(--font-instrument);
+  /* 숫자 · 메타 · 배지 · 코드 — JetBrains Mono */
+  --font-family-code: var(--font-jetbrains-mono);
+  /* 상단 네비게이션 · 메뉴 · 알림 팝업 — Space Grotesk(한글은 Pretendard, D29) */
   --font-family-nav: var(--font-space-grotesk);
+  /* 일부 히어로 · 상세 제목의 Playfair Display — 제목 글꼴 설정과 상관없이 고정이다 */
+  --font-family-accent: var(--font-playfair);
 
-  /* ── 글자 묶음 — `font: var(--font-heading-md)` 로 쓴다(3.2-1) ─────
-   * 굵기 · 크기/줄간격 · 글꼴. 한 값만 바꿀 때는 뒤에 덧쓴다. tabular-nums 같은 설정은 font 뒤에 적는다.
-   * 제목 단계는 Apple 기준(34 · 28 · 22 · 20 · 18) — 본문 16 과 가장 작은 제목 18 이 구분된다. */
-  --font-heading-xl: var(--font-weight-regular) var(--font-size-34) / var(--line-height-tight) var(--font-family-heading);
-  --font-heading-lg: var(--font-weight-regular) var(--font-size-28) / var(--line-height-tight) var(--font-family-heading);
-  --font-heading-md: var(--font-weight-regular) var(--font-size-22) / var(--line-height-tight) var(--font-family-heading);
-  --font-heading-sm: var(--font-weight-regular) var(--font-size-20) / var(--line-height-tight) var(--font-family-heading);
-  --font-heading-xs: var(--font-weight-regular) var(--font-size-18) / var(--line-height-tight) var(--font-family-heading);
-  --font-body-lg: var(--font-weight-regular) var(--font-size-16) / var(--line-height-normal) var(--font-family-body);
+  /* ── 2층 · 크기 역할 ── */
+  /* UI · 본문 — 고정 */
+  --font-size-body-xs: var(--font-size-12); /* 보조 설명 · 메타 · 배지 · 카운터. 가장 작은 글자 */
+  --font-size-body-sm: var(--font-size-13); /* 필드 라벨 · 버튼 */
+  --font-size-body-md: var(--font-size-14); /* UI 본문 · 입력값 · 목록 항목 */
+  --font-size-body-lg: var(--font-size-16); /* 긴 글 본문 */
+  --font-size-body-xl: var(--font-size-18); /* 리드 문단 · 인용 */
+  /* 제목 — Apple 기준 단계(34 · 28 · 22 · 20 · 18). 가장 작은 제목도 본문 16 과 구분되게 18 */
+  --font-size-heading-xs: var(--font-size-18);
+  --font-size-heading-sm: var(--font-size-20);
+  --font-size-heading-md: var(--font-size-22);
+  --font-size-heading-lg: var(--font-size-28);
+  --font-size-heading-xl: var(--font-size-34);
+  /* 지면 — 화면 폭을 따라 늘고 준다(About · 히어로). 가운데 값에 rem 을 섞어 확대를 따르고,
+     최대를 최소의 2.5배 이하로 둔다(3.2-4, D28) */
+  --font-size-display-sm: clamp(1rem, 0.5rem + 1.4vw, 2.5rem);
+  --font-size-display-md: clamp(2rem, 1rem + 3vw, 5rem);
+  --font-size-display-lg: clamp(2.5rem, 1.5rem + 5vw, 6.25rem);
+  --font-size-prose-xs: clamp(0.75rem, 0.25rem + 0.45vw, 1rem);
+  --font-size-prose-sm: clamp(0.75rem, 0.25rem + 0.58vw, 1.15rem);
+  --font-size-prose-md: clamp(0.75rem, 0.25rem + 0.73vw, 1.25rem);
+  --font-size-prose-lg: clamp(0.75rem, 0.25rem + 1.2vw, 1.5rem);
+
+  /* 글자가 아니라 도형 — 구분자 `·` 글리프의 크기다. 읽는 값이 아니라 하한 밖에 있다 */
+  /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 구분자 점 글리프, 읽는 글자가 아니다 */
+  --font-size-dot: 5px;
+
+  /* ── 3층 · 글자 묶음 — `font: var(--font-body-sm)` 로 쓴다(3.2-1) ─────
+   * 굵기 · 크기/줄간격 · 글꼴. 한 값만 다르면 뒤에 덧쓴다. tabular-nums 같은 설정은 font 뒤에 적는다.
+   * 제목은 줄간격 125, 본문 · UI · 코드는 160(지금 body 에서 물려받는 값과 같다).
+   * 전체 세트(3.2): display-sm · md · lg / heading-xs ~ xl / body-xs ~ xl / code-xs ~ lg.
+   * 안 쓰는 토큰은 두지 않으므로(2-4), 컴포넌트가 처음 쓸 때 위 이름 · 같은 모양으로 더한다. */
+  --font-heading-xs: var(--font-weight-regular) var(--font-size-heading-xs) / var(--line-height-125) var(--font-family-heading);
+  --font-heading-sm: var(--font-weight-regular) var(--font-size-heading-sm) / var(--line-height-125) var(--font-family-heading);
+  --font-heading-md: var(--font-weight-regular) var(--font-size-heading-md) / var(--line-height-125) var(--font-family-heading);
+  --font-heading-lg: var(--font-weight-regular) var(--font-size-heading-lg) / var(--line-height-125) var(--font-family-heading);
+  --font-heading-xl: var(--font-weight-regular) var(--font-size-heading-xl) / var(--line-height-125) var(--font-family-heading);
+  --font-body-lg: var(--font-weight-regular) var(--font-size-body-lg) / var(--line-height-160) var(--font-family-body);
 
   /* Line Heights */
 
   /* 제목(h1~h6) 공통 줄간격 — 전역 heading base 단일 소스. 조정은 여기 한 줄. */
-  --heading-line-height: var(--line-height-tight);
+  --heading-line-height: var(--line-height-125);
 
   /* 콘텐츠(글) 블록 "사이" 간격 — 태그 무관(h·p·blockquote) 통일. 블록 "내부"(line-height)와 대비.
      .prose-content CSS·에디터 문단 인라인·드롭라인 offset 이 모두 이 토큰 참조. 조정은 여기 한 줄. */

@@ -160,8 +160,8 @@
 /* 라벨·한 줄·안내도 판 높이를 따른다. 제목만 줄이면 나머지가 그대로라 얕은 판에서는 여전히 넘친다.
    글자 크기의 하한은 읽을 수 있는 선(11~12px)이다 */
 .introLabel {
-  font-family: var(--font-mono);
-  font-size: clamp(var(--font-size-hint), calc(var(--panel-h, 320px) * 0.055), var(--font-size-label));
+  font-family: var(--font-family-code);
+  font-size: clamp(var(--font-size-body-xs), calc(var(--panel-h, 320px) * 0.055), var(--font-size-body-sm));
   font-weight: var(--font-weight-semibold);
   letter-spacing: 0.35em;
   text-transform: uppercase;
@@ -171,7 +171,7 @@
 
 .introTitle {
   margin: 0;
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   /* 세 가지를 같이 보고 가장 작은 값을 쓴다.
      ① 판 너비(--panel-w) — 판은 창이 넓어도 멀어지면 작아진다. 창 너비(vw)로 잡으면 그때 넘친다.
      ② 제목 길이(--title-units) — 판이 넉넉해도 제목이 길면 넘친다. 판 너비를 글자 폭으로 나눠
@@ -189,24 +189,24 @@
   );
   overflow-wrap: anywhere;
   font-weight: var(--font-weight-light);
-  line-height: var(--line-height-tight);
+  line-height: var(--line-height-125);
   letter-spacing: -0.03em;
   color: light-dark(var(--text-primary), var(--text-white));
 }
 
 .introTagline {
-  font-size: clamp(var(--font-size-hint), calc(var(--panel-h, 320px) * 0.08), var(--font-size-body-xl));
+  font-size: clamp(var(--font-size-body-xs), calc(var(--panel-h, 320px) * 0.08), var(--font-size-body-xl));
   color: light-dark(var(--text-primary), var(--text-white));
   max-width: min(480px, var(--panel-w, 480px));
-  line-height: var(--line-height-normal);
+  line-height: var(--line-height-160);
   opacity: 0.7;
 }
 
 .introScroll {
   /* 얕은 판에서는 이 여백부터 줄인다 — 안내 한 줄을 위해 제목을 더 줄일 수는 없다 */
   margin-top: clamp(var(--spacing-4), calc(var(--panel-h, 320px) * 0.06), var(--spacing-24));
-  font-family: var(--font-mono);
-  font-size: clamp(var(--font-size-hint), calc(var(--panel-h, 320px) * 0.05), var(--font-size-hint));
+  font-family: var(--font-family-code);
+  font-size: clamp(var(--font-size-body-xs), calc(var(--panel-h, 320px) * 0.05), var(--font-size-body-xs));
   letter-spacing: 0.2em;
   color: light-dark(var(--text-primary), var(--text-white));
   animation: introScrollBounce 2.5s ease-in-out infinite;

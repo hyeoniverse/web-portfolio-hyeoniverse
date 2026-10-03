@@ -29,8 +29,8 @@
      세로 padding 이 필요 없으므로 여기 해당하지 않는다.
      이 셋을 만든 이유: 같은 성격의 뱃지 118곳이 29가지 여백을 쓰고 있었다. */
   --badge-padding-sm: var(--spacing-1) var(--spacing-4); /* 1 4  — 작은 뱃지(12px) */
-  --badge-padding-md: var(--spacing-2) var(--spacing-8); /* 2 8  — --font-size-hint(12px). 기본 */
-  --badge-padding-lg: var(--spacing-4) var(--spacing-12); /* 4 12 — --font-size-label(13px) */
+  --badge-padding-md: var(--spacing-2) var(--spacing-8); /* 2 8  — --font-size-body-xs(12px). 기본 */
+  --badge-padding-lg: var(--spacing-4) var(--spacing-12); /* 4 12 — --font-size-body-sm(13px) */
 
   /* 목록 행 — 세로 여백이 곧 밀도다. 부모가 좌우 여백을 주는 행(가로 0)은 여기 해당하지
      않는다. 그건 세로 값 하나만 적는다.
@@ -79,8 +79,8 @@
   --control-height-2xl: 46px;
 
   /* Skeleton 라인/필 높이 — 텍스트 한 줄·캡슐 컨트롤 흉내. raw px 하드코딩 방지 */
-  --skeleton-height-line: var(--font-size-body); /* 14px — 텍스트 한 줄 */
-  --skeleton-height-line-sm: var(--font-size-label); /* 13px — 작은 메타 텍스트 */
+  --skeleton-height-line: var(--font-size-body-md); /* 14px — 텍스트 한 줄 */
+  --skeleton-height-line-sm: var(--font-size-body-sm); /* 13px — 작은 메타 텍스트 */
   --skeleton-height-line-lg: var(--font-size-18); /* 18px — 헤더 텍스트 */
   --skeleton-height-pill: var(--control-height-xs); /* 24 — 태그/뱃지 */
 

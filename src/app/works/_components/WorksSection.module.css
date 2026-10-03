@@ -163,7 +163,7 @@
   position: relative;
   width: 60vw;
   height: 100%;
-  font-family: var(--font-mono);
+  font-family: var(--font-family-code);
   font-weight: var(--font-weight-light);
   color: var(--text-primary);
   text-align: center;

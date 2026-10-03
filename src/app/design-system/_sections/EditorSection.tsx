@@ -134,7 +134,7 @@ function EditorSection({ language, setSectionRef }: EditorSectionProps) {
           <span
             style={{
               fontFamily: "var(--font-family-body)",
-              fontSize: "var(--font-size-label)",
+              fontSize: "var(--font-size-body-sm)",
               fontWeight: 600,
               letterSpacing: "0.04em",
               textTransform: "uppercase",
@@ -150,7 +150,7 @@ function EditorSection({ language, setSectionRef }: EditorSectionProps) {
               display: "flex",
               flexDirection: "column",
               gap: "var(--spacing-4)",
-              fontSize: "var(--font-size-body)",
+              fontSize: "var(--font-size-body-md)",
               color: "var(--text-secondary)",
               lineHeight: 1.6,
             }}

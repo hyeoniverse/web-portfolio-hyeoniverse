@@ -49,7 +49,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: clamp(2.5rem, 1.943rem + 2.29vw, 4rem);
   color: var(--text-tertiary);
 }
@@ -72,7 +72,7 @@
   align-items: center;
   gap: var(--spacing-8);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -80,12 +80,12 @@
 
 .cardTitle {
   /* /posts 본문 카드·history 와 동일한 editorial instrument serif 로 통일 */
-  font-family: var(--font-family-display);
-  font-size: var(--font-size-title-md);
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-heading-xs);
   font-weight: var(--font-weight-regular);
   letter-spacing: -0.01em;
   color: var(--text-primary);
-  line-height: var(--line-height-tight);
+  line-height: var(--line-height-125);
   transition: color var(--duration-fast) var(--ease-material);
 }
 .card:hover .cardTitle {

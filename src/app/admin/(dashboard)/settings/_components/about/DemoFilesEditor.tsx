@@ -45,7 +45,7 @@ const SP_EDITOR_THEME: SandpackTheme = {
   },
   font: {
     body: "var(--font-family-body)",
-    mono: "var(--font-mono), monospace",
+    mono: "var(--font-family-code), monospace",
     size: "13px",
     lineHeight: "1.6",
   },

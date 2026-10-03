@@ -18,7 +18,7 @@
   padding: 0 var(--spacing-20) var(--spacing-16);
   border-bottom: var(--border-light);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-tertiary);
   line-height: 1.5;
   margin: 0;
@@ -30,7 +30,7 @@
   background: var(--bg-accent-light);
   color: var(--text-accent);
   border-radius: var(--radius-full);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   font-weight: 500;
   margin-right: var(--spacing-4);
 }
@@ -45,7 +45,7 @@
 .bulkLabel {
   display: block;
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   font-weight: 500;
   color: var(--text-secondary);
   margin-bottom: var(--spacing-4);
@@ -75,7 +75,7 @@
 
 .newCatFormLabel {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   font-weight: 500;
   color: var(--text-tertiary);
   letter-spacing: 0.02em;
@@ -141,7 +141,7 @@
   align-items: center;
   gap: var(--spacing-4);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   font-weight: 600;
   color: var(--text-primary);
   min-width: 0;
@@ -152,7 +152,7 @@
 
 .postCount {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
   flex-shrink: 0;
 }
@@ -182,7 +182,7 @@
   flex: 1;
   min-width: 0;
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-secondary);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -192,7 +192,7 @@
 .warningText {
   margin: var(--spacing-4) 0 0 0;
   font-family: var(--font-family-body);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   color: var(--text-accent);
 }
 
@@ -208,6 +208,6 @@
   padding: var(--spacing-24) var(--spacing-20);
   text-align: center;
   font-family: var(--font-family-body);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   color: var(--text-tertiary);
 }

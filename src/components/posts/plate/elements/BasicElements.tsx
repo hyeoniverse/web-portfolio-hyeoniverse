@@ -71,7 +71,7 @@ export function AudioElement(props: PlateElementProps) {
           {title && (
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, paddingLeft: 18, color: "var(--text-secondary)" }}>
               <Music size={16} />
-              <span style={{ fontSize: "var(--font-size-label)", fontWeight: 500 }}>{title}</span>
+              <span style={{ fontSize: "var(--font-size-body-sm)", fontWeight: 500 }}>{title}</span>
             </div>
           )}
           <audio src={url} controls preload="metadata" style={{ width: "100%" }} />

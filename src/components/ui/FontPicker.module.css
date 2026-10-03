@@ -19,7 +19,7 @@
   width: 100%;
   border: none;
   outline: none;
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   font-family: inherit;
   background: transparent;
   color: var(--text-primary);
@@ -57,7 +57,7 @@
   align-items: center;
   gap: var(--spacing-12);
   padding: var(--spacing-8) var(--spacing-12) var(--spacing-4);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   font-weight: 600;
   color: var(--text-muted);
   flex-shrink: 0;
@@ -75,7 +75,7 @@
   padding: var(--row-padding-sm);
   margin: 0;
   border-radius: var(--radius-full);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -101,7 +101,7 @@
 .itemKr {
   flex-shrink: 0;
   font-family: var(--font-family-body);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   line-height: 1;
   padding: var(--row-padding-sm);
   border-radius: var(--radius-full);
@@ -127,7 +127,7 @@
 
 .hint {
   padding: var(--spacing-2) var(--spacing-12);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   color: var(--text-muted);
 }
 
@@ -139,7 +139,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-4);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-muted);
   text-decoration: none;
 }
@@ -153,7 +153,7 @@
   margin: 0;
   padding: var(--spacing-8) var(--spacing-12) var(--spacing-4);
   color: var(--text-tertiary);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   line-height: 1.4;
 }
 }

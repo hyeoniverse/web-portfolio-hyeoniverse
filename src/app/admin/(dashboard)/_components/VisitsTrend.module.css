@@ -52,8 +52,8 @@
   position: absolute;
   top: 0;
   transform: translateX(-50%);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
@@ -61,7 +61,7 @@
 
 .trendCaption {
   align-self: flex-end;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   color: var(--text-muted);
 }

@@ -44,9 +44,9 @@ const SP_THEME: SandpackTheme = {
     string: "var(--text-success)",
   },
   font: {
-    body: "var(--font-mono), monospace",
-    mono: "var(--font-mono), monospace",
-    /* 실제 크기는 CSS 에서 패널 토큰(--font-size-prose)으로 덮는다 */
+    body: "var(--font-family-code), monospace",
+    mono: "var(--font-family-code), monospace",
+    /* 실제 크기는 CSS 에서 패널 토큰(--font-size-prose-lg)으로 덮는다 */
     size: "16px",
     lineHeight: "1.5",
   },

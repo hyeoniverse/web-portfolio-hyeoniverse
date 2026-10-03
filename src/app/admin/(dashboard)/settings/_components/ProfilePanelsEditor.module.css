@@ -20,8 +20,8 @@
 
 /* 몇 개 중 몇 개를 썼는지 — 추가 버튼이 언제 잠기는지 미리 보인다 */
 .listCount {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   font-weight: var(--font-weight-regular);
   letter-spacing: 0;
   font-variant-numeric: tabular-nums;
@@ -58,8 +58,8 @@
   align-items: center;
   justify-content: center;
   min-width: 1.25rem;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   font-variant-numeric: tabular-nums;
   color: var(--text-tertiary);
 }
@@ -140,7 +140,7 @@
 /* 항목 이름표 — 크기·색은 .fieldLabel 이 정하고, 등폭과 좌측 정렬만 얹는다 */
 .lineLabel input {
   padding-left: 0;
-  font-family: var(--font-mono);
+  font-family: var(--font-family-code);
   font-size: inherit;
   font-weight: inherit;
   color: inherit;

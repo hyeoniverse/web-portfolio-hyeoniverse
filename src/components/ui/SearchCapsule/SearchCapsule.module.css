@@ -66,7 +66,7 @@
   /* 옵션 trigger ↔ input 구분선 — 주변 컨트롤 border 와 light 로 통일 */
   border-right: var(--border-light) !important;
   padding: var(--input-padding) !important;
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   background: transparent !important;
 }
 
@@ -86,7 +86,7 @@
   border: none;
   background: transparent;
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-primary);
   outline: none;
 }
@@ -170,7 +170,7 @@
   align-items: center;
   gap: var(--spacing-2);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -182,7 +182,7 @@
   border: none;
   background: transparent;
   font-family: var(--font-family-body);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -227,7 +227,7 @@
   border: none;
   background: transparent;
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-primary);
   text-align: left;
   cursor: pointer;
@@ -320,7 +320,7 @@
 .helpSectionLabel {
   padding: 0 var(--spacing-8);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   font-weight: var(--font-weight-semibold);
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -369,8 +369,8 @@
   border: var(--border-light);
   border-radius: var(--radius-full);
   background: var(--bg-secondary);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   color: var(--text-primary);
   text-align: center;
 }
@@ -378,7 +378,7 @@
 .helpDesc {
   flex: 1;
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   line-height: 1.5;
   color: var(--text-secondary);
 }
@@ -386,7 +386,7 @@
 .helpFootnote {
   margin: var(--spacing-2) var(--spacing-8) 0;
   font-family: var(--font-family-body);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
   line-height: 1.5;
 }
@@ -395,7 +395,7 @@
   padding: var(--spacing-1) var(--spacing-4);
   border-radius: var(--radius-full);
   background: var(--bg-secondary);
-  font-family: var(--font-mono);
+  font-family: var(--font-family-code);
 }
 
 /* prefix / regex 모드 선택 — 캡슐 토글 */
@@ -413,7 +413,7 @@
   border: none;
   background: transparent;
   font-family: var(--font-family-body);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
   cursor: pointer;
   transition:

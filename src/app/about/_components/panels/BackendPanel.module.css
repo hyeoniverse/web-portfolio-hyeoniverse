@@ -36,8 +36,8 @@
   padding: var(--spacing-8) var(--spacing-16);
   border-top: var(--_line-secondary);
   background: var(--bg-primary);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-prose-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-prose-md);
   color: var(--text-primary);
 }
 
@@ -106,7 +106,7 @@
 .dbNumber {
   flex-shrink: 0;
   font-family: var(--_font-display);
-  font-size: var(--font-size-prose);
+  font-size: var(--font-size-prose-lg);
   font-weight: var(--font-weight-regular);
   color: var(--text-tertiary);
 }
@@ -127,8 +127,8 @@
 }
 
 .dbListTitle {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-prose);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-prose-lg);
   font-weight: var(--font-weight-semibold);
   color: var(--text-secondary);
 }
@@ -139,8 +139,8 @@
 
 .dbListDesc {
   font-family: var(--_font-grotesk);
-  font-size: var(--font-size-prose-small);
-  line-height: var(--line-height-snug);
+  font-size: var(--font-size-prose-sm);
+  line-height: var(--line-height-135);
   color: var(--text-tertiary);
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -176,10 +176,10 @@
 
 .dbTitle {
   margin: 0;
-  font-family: var(--font-mono);
+  font-family: var(--font-family-code);
   font-size: inherit;
   font-weight: var(--font-weight-semibold);
-  line-height: var(--line-height-snug);
+  line-height: var(--line-height-135);
 }
 
 /* entryBlock / entryLabel / entryLabelAccent / entryLabelInsight → shared (AboutSection.module.css) */
@@ -188,7 +188,7 @@
 .dbEntry p {
   margin: 0;
   font-family: var(--_font-grotesk);
-  font-size: var(--font-size-prose);
+  font-size: var(--font-size-prose-lg);
   line-height: var(--_lh-body);
   color: var(--text-secondary);
 }
@@ -198,7 +198,7 @@
   display: flex;
   flex-direction: column;
   border-top: var(--_line-primary);
-  font-size: var(--font-size-prose-small);
+  font-size: var(--font-size-prose-sm);
 }
 
 .dbSchemaHeader {
@@ -208,7 +208,7 @@
   padding: clamp(0.6rem, 1vh, 1rem) 0;
   border-bottom: var(--_line-primary);
   font-weight: var(--font-weight-semibold);
-  font-size: var(--font-size-prose-caption);
+  font-size: var(--font-size-prose-xs);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--text-secondary);
@@ -220,27 +220,27 @@
   gap: var(--spacing-12);
   padding: clamp(0.6rem, 1vh, 1rem) 0;
   border-bottom: var(--_line-secondary);
-  line-height: var(--line-height-normal);
+  line-height: var(--line-height-160);
 }
 
 .dbColName {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-2);
-  font-family: var(--font-mono);
+  font-family: var(--font-family-code);
   font-weight: var(--font-weight-medium);
   color: var(--text-primary);
 }
 
 .dbColConstraint {
-  font-size: var(--font-size-prose-caption);
+  font-size: var(--font-size-prose-xs);
   font-weight: var(--font-weight-regular);
   color: var(--text-tertiary);
   opacity: 0.8;
 }
 
 .dbColType {
-  font-family: var(--font-mono);
+  font-family: var(--font-family-code);
   color: var(--text-accent);
 }
 
@@ -259,8 +259,8 @@
   flex-shrink: 0;
   padding: var(--spacing-2) var(--spacing-8);
   border-radius: var(--radius-full);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-prose-caption);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-prose-xs);
   font-weight: var(--font-weight-semibold);
   letter-spacing: 0.08em;
   line-height: 1.6;
@@ -286,7 +286,7 @@
   display: flex;
   flex-direction: column;
   border-top: var(--_line-primary);
-  font-size: var(--font-size-prose-small);
+  font-size: var(--font-size-prose-sm);
 }
 
 .dbEndpoint {
@@ -302,8 +302,8 @@
   flex-shrink: 0;
   padding: var(--spacing-2) var(--spacing-8);
   border-radius: var(--radius-full);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-prose-caption);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-prose-xs);
   font-weight: var(--font-weight-bold);
   letter-spacing: 0.05em;
   line-height: 1.6;
@@ -330,7 +330,7 @@
 }
 
 .dbEndpointPath {
-  font-family: var(--font-mono);
+  font-family: var(--font-family-code);
   font-weight: var(--font-weight-medium);
   color: var(--text-primary);
   word-break: break-all;
@@ -388,7 +388,7 @@
   }
 
   .dbKindBadge {
-    font-size: var(--font-size-hint);
+    font-size: var(--font-size-body-xs);
   }
 
   /* dbEntry mobile → shared .entryBlock mobile */
@@ -396,27 +396,27 @@
 
   .dbEntry p {
     font-size: clamp(0.8rem, 0.708rem + 0.38vw, 0.95rem);
-    line-height: var(--line-height-normal);
+    line-height: var(--line-height-160);
   }
 
   .dbSchema {
-    font-size: clamp(var(--font-size-hint), 0.688rem + 0.25vw, 0.85rem);
+    font-size: clamp(var(--font-size-body-xs), 0.688rem + 0.25vw, 0.85rem);
   }
 
   .dbSchemaHeader {
     grid-template-columns: 1fr 0.5fr 1fr;
     padding: var(--spacing-12) 0;
-    font-size: var(--font-size-hint);
+    font-size: var(--font-size-body-xs);
   }
 
   .dbSchemaRow {
     grid-template-columns: 1fr 0.5fr 1fr;
     padding: var(--spacing-12) 0;
-    font-size: clamp(var(--font-size-hint), 0.688rem + 0.25vw, 0.85rem);
+    font-size: clamp(var(--font-size-body-xs), 0.688rem + 0.25vw, 0.85rem);
   }
 
   .dbEndpointList {
-    font-size: clamp(var(--font-size-hint), 0.688rem + 0.25vw, 0.85rem);
+    font-size: clamp(var(--font-size-body-xs), 0.688rem + 0.25vw, 0.85rem);
   }
 
   .dbEndpoint {
@@ -426,13 +426,13 @@
   }
 
   .dbMethodBadge {
-    font-size: var(--font-size-hint);
+    font-size: var(--font-size-body-xs);
     padding: var(--spacing-2) var(--spacing-8);
     min-width: 2.5rem;
   }
 
   .dbEndpointPath {
-    font-size: clamp(var(--font-size-hint), 0.688rem + 0.25vw, 0.85rem);
+    font-size: clamp(var(--font-size-body-xs), 0.688rem + 0.25vw, 0.85rem);
     word-break: break-all;
   }
 
@@ -443,7 +443,7 @@
   }
 
   .dbQuery {
-    font-size: clamp(var(--font-size-hint), 0.719rem + 0.13vw, 0.8rem);
+    font-size: clamp(var(--font-size-body-xs), 0.719rem + 0.13vw, 0.8rem);
   }
 }
 
@@ -496,7 +496,7 @@
 }
 
 .apiTotal b {
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: clamp(3.5rem, 2.794rem + 2.9vw, 6.25rem);
   font-style: italic;
   font-weight: var(--font-weight-regular);
@@ -506,7 +506,7 @@
 
 .apiTotal span,
 .apiTotalsMeta dt {
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-tertiary);
 }
 
@@ -518,7 +518,7 @@
 
 .apiTotalsMeta dd {
   margin: 0;
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: clamp(1.5rem, 1.322rem + 0.73vw, 2.2rem);
   line-height: 1;
 }
@@ -550,8 +550,8 @@
   margin: 0;
   padding: 0;
   list-style: none;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   color: var(--text-secondary);
 }
 
@@ -614,14 +614,14 @@
 }
 
 .apiTileNum {
-  font-family: var(--font-family-display);
-  font-size: var(--font-size-body);
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-body-md);
   font-style: italic;
 }
 
 .apiTileName {
   overflow: hidden;
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -634,8 +634,8 @@
 }
 
 .apiTileCount {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   text-align: right;
 }
 
@@ -671,7 +671,7 @@
 }
 
 .apiDetailNum {
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: clamp(4rem, 3.146rem + 3.5vw, 7.35rem);
   font-style: italic;
   line-height: 0.8;
@@ -682,13 +682,13 @@
   margin: 0;
   font-size: clamp(1.5rem, 1.255rem + 1.01vw, 2.25rem);
   font-weight: var(--font-weight-medium);
-  line-height: var(--line-height-snug);
+  line-height: var(--line-height-135);
 }
 
 .apiDetailMeta {
   margin: var(--spacing-4) 0 0;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-sm);
   color: var(--text-tertiary);
 }
 
@@ -696,7 +696,7 @@
   margin: 0;
   word-break: keep-all;
   max-width: 64ch;
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   line-height: var(--_lh-reading);
   color: var(--text-secondary);
 }
@@ -711,8 +711,8 @@
 }
 
 .apiDetailNote > span {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   color: var(--text-accent);
   letter-spacing: 0.04em;
 }
@@ -722,7 +722,7 @@
   overflow: hidden;
   margin: 0;
   word-break: keep-all;
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   line-height: var(--_lh-reading);
   color: var(--text-secondary);
   -webkit-line-clamp: 4;
@@ -770,8 +770,8 @@
 
 .apiEndpoints code {
   overflow: hidden;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-sm);
   white-space: nowrap;
   text-overflow: ellipsis;
   color: var(--text-primary);
@@ -779,7 +779,7 @@
 
 .apiEndpoints li > span:last-child {
   overflow: hidden;
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   white-space: nowrap;
   text-overflow: ellipsis;
   color: var(--text-tertiary);
@@ -800,8 +800,8 @@
 .apiMore {
   align-self: flex-start;
   padding: var(--spacing-4) var(--spacing-12);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   color: var(--text-accent);
   border: var(--border-accent);
   border-radius: var(--radius-full);

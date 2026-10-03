@@ -47,7 +47,7 @@
 .label {
   margin-bottom: var(--spacing-32);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   color: var(--text-accent-alt);
   text-transform: uppercase;
   letter-spacing: 0.15em;
@@ -63,10 +63,10 @@
 }
 
 .titleLine {
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: var(--fluid-font-size-5xl);
   font-weight: var(--font-weight-regular);
-  line-height: var(--line-height-compact);
+  line-height: 1.125;
   color: var(--text-primary);
   letter-spacing: -0.03em;
 }
@@ -273,7 +273,7 @@
   bottom: var(--spacing-64);
   left: var(--spacing-page-inline);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-accent-alt);
   letter-spacing: 0.05em;
 }
@@ -291,7 +291,7 @@
   .resumeBtn.resumeBtn {
     height: 52px;
     padding: 0 var(--spacing-32);
-    font-size: var(--font-size-body);
+    font-size: var(--font-size-body-md);
   }
 }
 

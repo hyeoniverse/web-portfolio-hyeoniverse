@@ -17,7 +17,7 @@
   background: transparent;
   text-decoration: none;
   color: var(--text-secondary);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   transition:
     background var(--duration-base) var(--ease-material),
     border-color var(--duration-base) var(--ease-material),
@@ -54,7 +54,7 @@
   padding: 0 var(--spacing-4);
   border-radius: var(--radius-full);
   background: var(--bg-tertiary);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
 }
 .chip:hover .cat {
@@ -75,7 +75,7 @@
   background: var(--bg-tertiary);
   color: var(--text-tertiary);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   cursor: pointer;
   transition:
     background var(--duration-base) var(--ease-material),
@@ -112,7 +112,7 @@
 }
 .previewTitle {
   margin: 0;
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
   overflow: hidden;
@@ -122,7 +122,7 @@
 }
 .previewDesc {
   margin: 0;
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-tertiary);
   overflow: hidden;
   display: -webkit-box;
@@ -135,7 +135,7 @@
   padding: var(--spacing-1) var(--spacing-8);
   border-radius: var(--radius-full);
   background: var(--bg-tertiary);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
 }
 }

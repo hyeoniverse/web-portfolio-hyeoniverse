@@ -27,7 +27,7 @@
 }
 .barHint {
   margin: 0;
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-tertiary);
 }
 
@@ -122,8 +122,8 @@ textarea.edit {
 /* 툴바 좌측 요소 라벨 (Line 1 / Watermark 등) */
 .ttLabel {
   padding-right: var(--spacing-4);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   white-space: nowrap;
@@ -187,7 +187,7 @@ textarea.edit {
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-12);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-secondary);
 }
 
@@ -211,8 +211,8 @@ textarea.edit {
   min-width: 0;
 }
 .bgThemeLabel {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -241,15 +241,15 @@ textarea.edit {
   border-radius: var(--radius-circle);
 }
 .swatchLabel {
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-secondary);
   white-space: nowrap;
 }
 .swatchVal {
   margin-left: auto;
   overflow: hidden;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -272,8 +272,8 @@ textarea.edit {
   gap: var(--spacing-12);
 }
 .stripTitle {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-sm);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-tertiary);
@@ -317,7 +317,7 @@ textarea.edit {
 }
 .stripHint {
   margin: 0;
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
 }
 
@@ -325,8 +325,8 @@ textarea.edit {
 .mediaName {
   min-width: 0;
   overflow: hidden;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -393,7 +393,7 @@ textarea.edit {
 /* 마지막으로 파일에서 가져온 시각. 저장 버튼 왼쪽에 조용히 붙는다. */
 .psSyncNote {
   margin-left: auto;
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-tertiary);
   white-space: nowrap;
 }
@@ -401,7 +401,7 @@ textarea.edit {
 .psLabel {
   white-space: nowrap;
   font-family: var(--font-family-body);
-  font-size: var(--font-size-title-sm);
+  font-size: var(--font-size-heading-xs);
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -427,7 +427,7 @@ textarea.edit {
   border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-secondary);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   cursor: pointer;
 }
 .chipOn {
@@ -546,7 +546,7 @@ textarea.edit {
   background: transparent;
   color: var(--text-secondary);
   font-family: inherit;
-  font-size: var(--font-size-prose-label);
+  font-size: var(--font-size-prose-md);
   font-weight: var(--font-weight-medium);
   letter-spacing: 0.05em;
 }
@@ -585,13 +585,13 @@ textarea.edit {
 }
 
 /* Overview 지표 추가 — stat 셀 하나 크기의 버튼(Key Features add 셀처럼).
-   overviewStats 그리드의 다음 셀을 차지하고, 높이는 stat 행(--font-size-lead 리드 + 상하 패딩)과 동일. */
+   overviewStats 그리드의 다음 셀을 차지하고, 높이는 stat 행(--font-size-display-md 리드 + 상하 패딩)과 동일. */
 .addStatCell {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: var(--spacing-4);
-  min-height: calc(var(--font-size-lead) * var(--_lh-title) + 2 * clamp(0.6rem, 1vh, 1rem));
+  min-height: calc(var(--font-size-display-md) * var(--_lh-title) + 2 * clamp(0.6rem, 1vh, 1rem));
   padding: 0;
   /* overviewStat 과 동일한 border-bottom line 모델 — flush, radius/여백 없음, 겹침 없이 1px */
   border-bottom: var(--_line-secondary);
@@ -822,7 +822,7 @@ textarea.edit {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-4);
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: var(--font-size-34);
   font-weight: 400;
   color: var(--text-accent);
@@ -861,7 +861,7 @@ textarea.edit {
   min-width: 0;
 }
 .procTitle {
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: var(--font-size-22);
   font-style: italic;
   color: var(--text-primary);
@@ -878,8 +878,8 @@ textarea.edit {
   gap: var(--spacing-8) var(--spacing-16);
   align-items: baseline;
   margin-top: var(--spacing-12);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-sm);
   color: var(--text-tertiary);
 }
 /* Process 제목 아래 ** 강조 문법 안내 — hint 색은 accent */
@@ -901,7 +901,7 @@ textarea.edit {
   height: 20px;
 }
 .procNodeLabel.procNodeLabel {
-  font-size: var(--font-size-title-sm);
+  font-size: var(--font-size-heading-xs);
 }
 /* 단계 추가 — 리스트 폭 전체 flush 버튼(radius/여백 없음). 위 procRow 의 border-bottom 이 구분선. */
 .addStepBtn {
@@ -984,7 +984,7 @@ textarea.edit {
   font-family: var(--_font-grotesk);
   font-size: inherit;
   font-weight: var(--font-weight-semibold);
-  line-height: var(--line-height-snug);
+  line-height: var(--line-height-135);
 }
 .chBody.chBody {
   height: 380px;
@@ -1070,8 +1070,8 @@ textarea.edit {
   border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-tertiary);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-sm);
   cursor: pointer;
 }
 .stageDot:hover {
@@ -1100,7 +1100,7 @@ textarea.edit {
   overflow: hidden;
   margin-left: var(--spacing-4);
   color: var(--text-secondary);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -1116,7 +1116,7 @@ textarea.edit {
 .listLimit {
   margin: var(--spacing-12) 0 0;
   color: var(--text-accent);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
 }
 .stageAdd .listLimit {
   margin: 0;
@@ -1124,7 +1124,7 @@ textarea.edit {
 
 .demoUploadErr {
   color: var(--text-accent);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   white-space: nowrap;
 }
 
@@ -1133,7 +1133,7 @@ textarea.edit {
   width: 40rem;
   max-width: 84vw;
   color: var(--text-tertiary);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
 }
 
 /* 데모 칸 기준 위치 — 실제 .codeDemo 는 static 이라 스튜디오에서만 relative.
@@ -1164,7 +1164,7 @@ textarea.edit {
   transform: scale(var(--tool-scale));
 }
 .demoEmptyLabel {
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
 }
 .demoEmptyActions {
   display: flex;
@@ -1175,7 +1175,7 @@ textarea.edit {
   padding: 0;
   background: transparent;
   color: var(--text-accent);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   text-decoration: underline;
   cursor: pointer;
 }
@@ -1207,8 +1207,8 @@ textarea.edit {
   align-items: flex-start;
   margin: 0;
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
-  line-height: var(--line-height-snug);
+  font-size: var(--font-size-body-sm);
+  line-height: var(--line-height-135);
   color: var(--text-tertiary);
 }
 .creditsNotice svg {
@@ -1221,8 +1221,8 @@ textarea.edit {
 }
 /* 문구 영역 기본 타이포 — 인라인 noteStyle 이 이 위에 얹힌다 */
 .creditsNoteWrap {
-  font-size: var(--font-size-body);
-  line-height: var(--line-height-normal);
+  font-size: var(--font-size-body-md);
+  line-height: var(--line-height-160);
 }
 .creditsPreview {
   display: flex;
@@ -1236,7 +1236,7 @@ textarea.edit {
   /* 실제 About 패널은 배경이 투명(패널 바탕이 그대로 비침) — 회색 칠하면 실제와 달라진다 */
   background: transparent;
   /* 폰트도 실제와 동일하게. About 패널(.section)이 mono 를 걸어서 크레딧도 mono 로 렌더된다 */
-  font-family: var(--font-mono);
+  font-family: var(--font-family-code);
 }
 /* 고정 문구 — 편집 대상이 아님을 커서로 드러낸다 */
 .creditsLocked {
@@ -1315,7 +1315,7 @@ textarea.edit {
 }
 .creditsAdd .chipAddBtn,
 .creditsAdd .chipAddInput {
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
 }
 
 /* floating bar 안 컨트롤 — 배경/높이를 서로 맞춘다.
@@ -1362,7 +1362,7 @@ textarea.edit {
   translate: -50% 0;
   z-index: 4;
   color: var(--text-accent);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   transform: scale(var(--tool-scale));
 }
 
@@ -1398,7 +1398,7 @@ textarea.edit {
 }
 .bkNote {
   color: var(--text-tertiary);
-  font-size: var(--font-size-prose-small);
+  font-size: var(--font-size-prose-sm);
 }
 /* 엔드포인트/컬럼 한 줄.
    레이아웃은 같이 달리는 패널 클래스(.dbEndpoint/.dbSchemaRow 의 grid)가 정한다. 예전엔 여기서
@@ -1419,7 +1419,7 @@ textarea.edit {
 .bkMethod {
   width: calc(7ch + 2 * var(--spacing-4));
   color: var(--text-accent);
-  font-family: var(--font-mono);
+  font-family: var(--font-family-code);
   text-transform: uppercase;
 }
 
@@ -1477,8 +1477,8 @@ textarea.edit {
 .erdHint {
   margin: 0;
   color: var(--text-tertiary);
-  font-size: var(--font-size-body);
-  line-height: var(--line-height-normal);
+  font-size: var(--font-size-body-md);
+  line-height: var(--line-height-160);
 }
 /* 드롭 존 겸 붙여넣기 대상 — 포커스를 받아야 paste 이벤트가 온다 */
 .erdDrop {
@@ -1494,7 +1494,7 @@ textarea.edit {
   border: 1px solid var(--border-color-light);
   border-radius: var(--radius-24);
   color: var(--text-tertiary);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   cursor: text;
   outline: none;
 }
@@ -1515,11 +1515,11 @@ textarea.edit {
 .erdResult {
   margin-left: auto;
   color: var(--text-success-strong);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
 }
 .erdErr {
   color: var(--text-accent);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
 }
 
 /* ERD 그리드 — 폭에 맞춰 흐르므로 가로 스크롤이 없다. 세로만 제한. */
@@ -1553,7 +1553,7 @@ textarea.edit {
 }
 .tsText {
   color: var(--text-secondary);
-  line-height: var(--line-height-normal);
+  line-height: var(--line-height-160);
 }
 .tsTags {
   display: flex;
@@ -1562,13 +1562,13 @@ textarea.edit {
   gap: var(--spacing-4);
 }
 .tsTag {
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
 }
 .tsMeta {
   margin: 0;
   color: var(--text-tertiary);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-body);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-md);
 }
 
 /* SQL 가져오기 — 파일 출처 · 파싱 미리보기 · 교체 경고. 결정하는 자리(버튼) 바로 위에 둔다.
@@ -1578,7 +1578,7 @@ textarea.edit {
   gap: var(--spacing-8);
   align-items: center;
   flex-wrap: wrap;
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
 }
 .erdMeta:empty {
   display: none;
@@ -1592,8 +1592,8 @@ textarea.edit {
   border-radius: var(--radius-full);
   background: var(--bg-secondary);
   color: var(--text-secondary);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1615,7 +1615,7 @@ textarea.edit {
   border-radius: var(--radius-full);
   background: var(--bg-warning-soft);
   color: var(--text-warning-strong);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
 }
 
 /* 파일 선택 — 열림/닫힘 두 상태에서 늘 액션 행의 오른쪽 끝.
@@ -1632,7 +1632,7 @@ textarea.edit {
   margin: var(--spacing-12) 0 0 0;
   padding: 0;
   list-style: none;
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
 }
 .planList li {
   display: flex;
@@ -1645,8 +1645,8 @@ textarea.edit {
 }
 .planNames {
   color: var(--text-tertiary);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   word-break: break-all;
 }
 /* 전 → 후 비교 — 스키마가 길면 스스로 스크롤한다 */
@@ -1663,8 +1663,8 @@ textarea.edit {
   gap: var(--spacing-4);
   align-items: center;
   flex-wrap: wrap;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
 }
 .planDiffRow code {
   color: var(--text-primary);

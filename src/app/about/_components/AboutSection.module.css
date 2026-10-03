@@ -7,20 +7,20 @@
   --_panel-px: var(--spacing-page-inline);
 
   /* ── Font families ── */
-  --_font-display: var(--font-display);
+  --_font-display: var(--font-family-accent);
   --_font-grotesk: var(--font-family-body);
   /* 전시실 배치에서 큰 수치·전시실 이름(세리프)과 명판(본문 글꼴)에 쓰는 글꼴 — 사이트 글꼴 그대로 */
-  --_museum-serif: var(--font-family-display);
+  --_museum-serif: var(--font-family-heading);
   --_museum-sans: inherit;
 
   /* ── Font sizes (complement global --font-size-*) ── */
 
   /* ── Line heights (complement global --line-height-*) ── */
-  --_lh-title: var(--line-height-dense);
-  --_lh-reading: var(--line-height-normal);
-  --_lh-body: var(--line-height-normal);
-  --_lh-prose: var(--line-height-loose);
-  --_lh-code: var(--line-height-normal);
+  --_lh-title: var(--line-height-090);
+  --_lh-reading: var(--line-height-160);
+  --_lh-body: var(--line-height-160);
+  --_lh-prose: var(--line-height-180);
+  --_lh-code: var(--line-height-160);
 
   /* ── Spacing (complement global --spacing-*) ── */
   --_space-section: var(--spacing-section);

@@ -56,8 +56,8 @@
 }
 
 .ufFlowTitle {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-prose);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-prose-lg);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
   text-transform: uppercase;
@@ -67,7 +67,7 @@
 
 .ufFlowPersona {
   font-family: var(--_font-grotesk);
-  font-size: var(--font-size-prose-small);
+  font-size: var(--font-size-prose-sm);
   color: var(--text-secondary);
   line-height: 1.4;
 }
@@ -76,7 +76,7 @@
   margin: 0;
   flex: 1;
   font-family: var(--_font-grotesk);
-  font-size: var(--font-size-prose);
+  font-size: var(--font-size-prose-lg);
   color: var(--text-secondary);
   line-height: 1.7;
 }
@@ -94,8 +94,8 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-8);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-sm);
 }
 
 .ufLegendItem svg {
@@ -128,8 +128,8 @@
 
 /* 자간을 벌리면 영문 대문자 라벨(GET IN TOUCH 등)이 알약 밖으로 넘쳤다 */
 .ufTerminalText {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-sm);
   font-weight: 600;
   fill: var(--bg-primary);
   text-transform: uppercase;
@@ -145,7 +145,7 @@
 
 .ufActionText {
   font-family: var(--_font-grotesk);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   font-weight: 500;
   fill: var(--text-primary);
 }
@@ -158,8 +158,8 @@
 }
 
 .ufDiamondText {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-sm);
   font-weight: 600;
   fill: var(--text-accent);
 }
@@ -184,8 +184,8 @@
 }
 
 .ufEdgeLabel {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   font-weight: 600;
   fill: var(--text-accent);
   opacity: 0;
@@ -219,8 +219,8 @@
 }
 
 .ufMobileFlowTitle {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-prose-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-prose-md);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
   text-transform: uppercase;
@@ -229,15 +229,15 @@
 
 .ufMobileFlowCount {
   margin-left: auto;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-prose-caption);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-prose-xs);
   color: var(--text-tertiary);
 }
 
 .ufMobileFlowDesc {
   margin: var(--spacing-12) 0 0 0;
   font-family: var(--_font-grotesk);
-  font-size: var(--font-size-prose-caption);
+  font-size: var(--font-size-prose-xs);
   color: var(--text-secondary);
   line-height: 1.5;
 }
@@ -288,7 +288,7 @@
 
 .ufMobileNodeLabel {
   font-family: var(--_font-grotesk);
-  font-size: var(--font-size-prose-small);
+  font-size: var(--font-size-prose-sm);
   color: var(--text-primary);
 }
 

@@ -54,7 +54,7 @@
   border-radius: 0;
   background: transparent;
   font-family: var(--font-family-body);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   /* difference 블렌드 — 흰색이라야 배경 위에서 깔끔히 반전. 비활성도 충분히 진하게(구분은 밑줄/굵기로) */
   color: var(--text-white);
   opacity: 0.78;
@@ -104,7 +104,7 @@
   border-radius: var(--radius-full);
   background: transparent;
   font-family: var(--font-family-body);
-  font-size: var(--font-size-hint);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
   white-space: nowrap;
   flex-shrink: 0;
@@ -133,7 +133,7 @@
 @media (max-width: 768px) {
   .btn {
     padding: var(--button-padding-md);
-    font-size: var(--font-size-label);
+    font-size: var(--font-size-body-sm);
   }
 }
 
@@ -162,7 +162,7 @@
   border-radius: var(--radius-full);
   background: transparent;
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-white);
   opacity: 0.72;
   white-space: nowrap;

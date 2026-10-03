@@ -5,7 +5,7 @@
   top: 0;
   left: 0;
   z-index: var(--z-index-cursor); /* 항상 최상단 */
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   font-weight: var(--font-weight-bold);
   opacity: 0;
   transition: opacity var(--duration-base) ease;
@@ -79,7 +79,7 @@
   backdrop-filter: var(--blur-4);
 }
 .big .cursorText {
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   font-weight: var(--font-weight-bold);
   opacity: 1;
 }
@@ -97,7 +97,7 @@
   backdrop-filter: var(--blur-4);
 }
 .grab .cursorText {
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   font-weight: var(--font-weight-bold);
   opacity: 1;
 }
@@ -114,7 +114,7 @@
   backdrop-filter: var(--blur-4);
 }
 .dragging .cursorText {
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   font-weight: var(--font-weight-bold);
   opacity: 1;
 }
@@ -141,7 +141,7 @@
 }
 .next .cursorText,
 .prev .cursorText {
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   font-weight: var(--font-weight-bold);
   opacity: 1;
 }
@@ -159,7 +159,7 @@
   backdrop-filter: var(--blur-4);
 }
 .zoom .cursorText {
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   font-weight: var(--font-weight-bold);
   opacity: 1;
 }
@@ -183,7 +183,7 @@
   backdrop-filter: var(--blur-4);
 }
 .stop .cursorText {
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   font-weight: var(--font-weight-bold);
   opacity: 1;
 }

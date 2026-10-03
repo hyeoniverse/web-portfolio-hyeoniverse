@@ -121,12 +121,12 @@
 
 .activeSeriesMetaTitle {
   margin: 0;
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   /* 2xl → xl 로 축소 — filter bar 컨텍스트 내에서 적절한 크기 */
-  font-size: var(--font-size-title-lg);
+  font-size: var(--font-size-heading-sm);
   font-weight: var(--font-weight-regular);
   color: var(--text-primary);
-  line-height: var(--line-height-tight);
+  line-height: var(--line-height-125);
 }
 
 .activeSeriesMetaInfo {
@@ -134,7 +134,7 @@
   align-items: center;
   gap: var(--spacing-12);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-tertiary);
 }
 
@@ -153,8 +153,8 @@
 .activeSeriesMetaDesc {
   margin: 0;
   font-family: var(--font-family-body);
-  font-size: var(--font-size-body);
-  line-height: var(--line-height-normal);
+  font-size: var(--font-size-body-md);
+  line-height: var(--line-height-160);
   color: var(--text-secondary);
   /* 가독성 한계 — 너무 긴 줄 방지 */
   max-width: 70ch;
@@ -222,7 +222,7 @@
   align-items: center;
   justify-content: center;
   font-family: var(--font-family-body);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   color: var(--text-tertiary);
   font-style: italic;
   pointer-events: none;

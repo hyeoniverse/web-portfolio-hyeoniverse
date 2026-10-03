@@ -499,7 +499,7 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
             disabled={editingHasChildren}
           />
           {editingHasChildren && (
-            <span style={{ fontSize: "var(--font-size-hint)", color: "var(--text-tertiary)", fontFamily: "var(--font-family-body)" }}>
+            <span style={{ fontSize: "var(--font-size-body-xs)", color: "var(--text-tertiary)", fontFamily: "var(--font-family-body)" }}>
               {t("admin.settings.categoryEditor.parentLocked")}
             </span>
           )}

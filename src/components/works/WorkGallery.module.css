@@ -208,8 +208,8 @@
 }
 
 .docKind {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-sm);
   font-weight: var(--font-weight-semibold);
   letter-spacing: 0.08em;
 }
@@ -240,8 +240,8 @@
 
 .counter {
   justify-self: start;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-label);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-sm);
   font-variant-numeric: tabular-nums;
   color: var(--text-tertiary);
   white-space: nowrap;
@@ -299,7 +299,7 @@
   border-radius: 0;
   background: color-mix(in oklch, var(--bg-black) 72%, transparent);
   color: var(--text-white);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   line-height: 1.5;
   text-align: center;
   word-break: keep-all;
@@ -366,7 +366,7 @@
 }
 
 .coverLabel {
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   font-weight: var(--font-weight-semibold);
   color: var(--text-white);
 }

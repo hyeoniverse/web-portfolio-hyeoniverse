@@ -29,7 +29,7 @@
 
 .cellTitle {
   margin: 0;
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: clamp(1.4rem, 1.251rem + 0.61vw, 2rem);
   font-style: italic;
   font-weight: var(--font-weight-regular);
@@ -38,8 +38,8 @@
 }
 
 .tokenName {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
 }
 
@@ -87,7 +87,7 @@
 }
 
 .fontName {
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-primary);
 }
 

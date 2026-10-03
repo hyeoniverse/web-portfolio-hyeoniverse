@@ -117,7 +117,7 @@ function TagResetConfirmBody({ inUse, tagCounts, tagPosts, affectedCount, onConf
       <p className={styles.tagDeleteConfirmDesc}>
         <BoldMarks text={fillTemplate(t("admin.settings.tagEditor.resetConfirm"), { n: inUse.length, m: affectedCount })} />
         <br />
-        <span style={{ fontSize: "var(--font-size-label)", color: "var(--text-tertiary)" }}>
+        <span style={{ fontSize: "var(--font-size-body-sm)", color: "var(--text-tertiary)" }}>
           {t("admin.settings.tagEditor.resetNote")}
         </span>
       </p>
@@ -365,7 +365,7 @@ export default function TagDescriptionsEditor({ value, onChange, pendingDeletes,
         <p className={styles.tagDeleteConfirmDesc}>
           <BoldMarks text={fillTemplate(t("admin.settings.tagEditor.deleteConfirm"), { n: inUse.length })} />
           <br />
-          <span style={{ fontSize: "var(--font-size-label)", color: "var(--text-tertiary)" }}>
+          <span style={{ fontSize: "var(--font-size-body-sm)", color: "var(--text-tertiary)" }}>
             {t("admin.settings.tagEditor.deleteNote")}
           </span>
         </p>

@@ -14,7 +14,7 @@
 
 .hint {
   margin: calc(var(--spacing-8) * -1) 0 0;
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-tertiary);
 }
 
@@ -52,7 +52,7 @@
 }
 
 .headCount {
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-tertiary);
   font-variant-numeric: tabular-nums;
 }

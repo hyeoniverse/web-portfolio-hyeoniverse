@@ -11,7 +11,7 @@
   height: 100vh;
   padding: 0;
   box-sizing: border-box;
-  font-family: var(--font-mono);
+  font-family: var(--font-family-code);
   font-weight: var(--font-weight-light);
   color: var(--text-primary);
   text-align: center;

@@ -9,6 +9,6 @@
 .desc {
   margin: 0;
   font-family: var(--font-family-body);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-md);
   color: var(--text-secondary);
 }

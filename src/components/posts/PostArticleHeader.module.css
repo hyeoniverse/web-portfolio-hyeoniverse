@@ -26,7 +26,7 @@
   align-items: center;
   gap: var(--spacing-12);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-secondary);
 }
 
@@ -42,11 +42,11 @@
 }
 
 .articleTitle {
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-heading);
   font-size: clamp(2.9rem, 2.751rem + 0.28vw, 3rem);
   font-weight: var(--font-weight-regular);
   color: var(--text-primary);
-  line-height: var(--line-height-tight);
+  line-height: var(--line-height-125);
   letter-spacing: -0.02em;
   margin-bottom: var(--spacing-16);
 }
@@ -55,7 +55,7 @@
   font-family: var(--font-family-body);
   font-size: var(--font-size-body-xl);
   color: var(--text-secondary);
-  line-height: var(--line-height-normal);
+  line-height: var(--line-height-160);
   margin-bottom: var(--spacing-16);
 }
 
@@ -110,12 +110,12 @@
 }
 .authorChipName {
   font-family: var(--font-family-body);
-  font-size: var(--font-size-title-sm);
+  font-size: var(--font-size-heading-xs);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
 }
 .authorChipRole {
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-tertiary);
 }
 
@@ -130,7 +130,7 @@
   display: inline-flex;
   align-items: center;
   font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body-sm);
   color: var(--text-tertiary);
   text-decoration: none;
 }
