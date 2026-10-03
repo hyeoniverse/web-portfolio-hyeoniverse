@@ -454,7 +454,7 @@ export default function CalendarEventModal({
       <div className={`${styles.section} ${styles.sectionFull}`}>
         <div className={styles.sectionLabelRow}>
           <span className={styles.sectionLabel}>{t("날짜", "Date")}<span className={styles.reqDot} aria-hidden /></span>
-          <Button size="2xs" variant="subtle" className={endDate != null ? styles.rangeToggleOn : undefined} onClick={() => setEndDate((prev) => (prev ? null : date))}>
+          <Button size="xs" variant="subtle" className={endDate != null ? styles.rangeToggleOn : undefined} onClick={() => setEndDate((prev) => (prev ? null : date))}>
             {t("기간", "Range")}
           </Button>
         </div>
@@ -501,7 +501,7 @@ export default function CalendarEventModal({
         <div className={styles.sectionLabelRow}>
           <span className={styles.sectionLabel}>{t("시간", "Time")}</span>
           {time && (
-            <Button size="2xs" variant="subtle" onClick={() => { setTime(null); setEndTime(null); setStartTimeOpen(false); setEndTimeOpen(false); }}>{t("제거", "Clear")}</Button>
+            <Button size="xs" variant="subtle" onClick={() => { setTime(null); setEndTime(null); setStartTimeOpen(false); setEndTimeOpen(false); }}>{t("제거", "Clear")}</Button>
           )}
         </div>
         {!time ? (

@@ -116,8 +116,8 @@
   background: var(--bg-primary); /* 셀 불투명 → grid gap(1px)이 hairline 으로 노출 */
   justify-content: flex-start;
   height: auto;
-  /* 정수 line-height — height:auto 라 라벨 줄높이(소수점)가 그대로 섹션 높이로 누적된다 */
-  line-height: 22px;
+  /* 정수 줄높이(22) — height:auto 라 라벨 줄높이(소수점)가 그대로 섹션 높이로 누적된다. 글자 14 기준의 비율로 적는다(3.2-6) */
+  line-height: calc(22 / 14);
   padding: var(--spacing-16) var(--spacing-16);
   color: var(--text-primary);
   letter-spacing: normal;

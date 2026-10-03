@@ -60,23 +60,22 @@
   --cell-padding-sm: var(--spacing-4) var(--spacing-8); /* 4 8 — 글 안·도움말처럼 조밀한 표 */
   --cell-padding-md: var(--spacing-8) var(--spacing-12); /* 8 12 — 기본 */
   --textarea-padding: var(--spacing-12) var(--spacing-16); /* 12 16 — 여러 줄이라 세로 여유 더 */
-  /* 컨트롤 높이 — 버튼·인풋·셀렉트·칩이 공유하는 **유일한** 높이 눈금.
-   *
-   * 예전에는 세 가지가 같은 걸 서로 다르게 말했다.
-   *   --control-h-*  24/28/32/36  ← 공통 Button·Input 이 실제로 쓰던 값
-   *   --button-h-*   20/24/38/46  ← 다른 컴포넌트 154곳이 쓰던 값
-   *   _sizing.css 주석의 "계층"  24/32/38/46
-   * 그래서 같은 size="md" 가 자리에 따라 32px 이기도 38px 이기도 했다.
-   *
-   * 공통 컴포넌트가 실제로 쓰던 값을 남기고 나머지 단계를 흡수했다 — 렌더는 그대로다.
-   * 2xs·xl·2xl 은 흡수 과정에서 들어온 단계라 xs~lg 와 간격이 고르지 않다. */
-  --control-height-2xs: 20px;
+  /* 컨트롤 높이 — 버튼 · 인풋 · 셀렉트 · 칩 · 탭이 공유하는 **유일한** 높이 눈금(3.4-1).
+   * Primer 처럼 24 에서 시작하고 4px 씩 — 가장 작은 단계가 누르는 크기 하한(3.4-4)과 같다.
+   * 예전의 2xs 20 · xl 38 · 2xl 46 은 흡수 과정에서 들어온 단계라 지웠다(D36):
+   *   20 은 누르는 것이면 xs, 뱃지면 --badge-height · 38 은 xl 40 · 46 은 떠 있는 단추 --float-button-size-md. */
   --control-height-xs: 24px;
   --control-height-sm: 28px;
   --control-height-md: 32px;
   --control-height-lg: 36px;
-  --control-height-xl: 38px;
-  --control-height-2xl: 46px;
+  --control-height-xl: 40px;
+
+  /* 뱃지 — 누르지 않는 작은 것. 컨트롤이 아니라 24 하한(3.4-4) 밖이다 */
+  --badge-height: 20px;
+
+  /* 떠 있는 단추 — 이미지 뷰어 · 배너 넘김처럼 화면 위에 떠 있는 원형 단추.
+     한 줄에 나란히 놓이지 않으므로 컨트롤 높이 대신 이 토큰을 쓴다(3.4) */
+  --float-button-size-md: 48px; /* -sm 40 은 쓰는 곳이 생길 때 더한다(2-4) */
 
   /* Skeleton 라인/필 높이 — 텍스트 한 줄·캡슐 컨트롤 흉내. raw px 하드코딩 방지 */
   --skeleton-height-line: var(--font-size-body-md); /* 14px — 텍스트 한 줄 */

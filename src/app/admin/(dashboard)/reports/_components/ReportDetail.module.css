@@ -17,8 +17,8 @@
   align-items: center;
   justify-content: center;
   flex: 0 0 auto;
-  width: var(--size-38);
-  height: var(--size-38);
+  width: var(--size-40);
+  height: var(--size-40);
   border-radius: var(--radius-circle);
   background: var(--bg-warning-soft);
   color: var(--text-warning-strong);

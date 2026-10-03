@@ -154,7 +154,7 @@ export function CodeHighlightsBlock({ value, onChange, lang, t, title }: {
                         )}
                       </ColorPicker>
                       {it.demoBg && (
-                        <Button variant="subtle" shape="circle" size="2xs" onClick={() => set({ demoBg: undefined })}
+                        <Button variant="subtle" shape="circle" size="xs" onClick={() => set({ demoBg: undefined })}
                           aria-label={L("배경색 지우기", "Clear background")}>
                           <X size={11} />
                         </Button>
@@ -270,7 +270,7 @@ function DemoMediaUpload({ url, onChange }: {
       </Button>
       {name && <span className={css.mediaName}>{name}</span>}
       {url && (
-        <Button variant="subtle" shape="circle" size="2xs" onClick={() => onChange("")} aria-label={L("미디어 삭제", "Remove media")}>
+        <Button variant="subtle" shape="circle" size="xs" onClick={() => onChange("")} aria-label={L("미디어 삭제", "Remove media")}>
           <X size={11} />
         </Button>
       )}

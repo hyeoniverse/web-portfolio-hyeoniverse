@@ -101,8 +101,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--control-height-2xs);
-  height: var(--control-height-2xs);
+  width: var(--control-height-xs);
+  height: var(--control-height-xs);
   padding: 0;
   border: none;
   border-radius: var(--radius-circle);

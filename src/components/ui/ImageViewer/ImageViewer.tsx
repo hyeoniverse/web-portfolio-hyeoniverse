@@ -536,7 +536,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
               >
                 <Tooltip content="Image info" placement="bottom">
                   <HelpButton
-                    size="2xs"
+                    size="xs"
                     symbol="i"
                     className={styles.ctrlBtn}
                     aria-label="Image info"
@@ -601,7 +601,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
                 >
                   <Tooltip content="Shortcuts  ?" placement="bottom">
                     <HelpButton
-                      size="2xs"
+                      size="xs"
                       className={styles.ctrlBtn}
                       aria-label="Shortcuts"
                       aria-expanded={showShortcuts}

@@ -629,7 +629,7 @@ export default function EnvVarFields({
     <>
       <Button
         variant="outline"
-        size="2xs"
+        size="xs"
         disabled={dbOverrideKeys.length === 0}
         onClick={handleResetAllToEnv}
         title={t("admin.settings.envResetAllTooltip")}
@@ -638,7 +638,7 @@ export default function EnvVarFields({
       </Button>
       <Button
         variant="outline"
-        size="2xs"
+        size="xs"
         disabled={!hasEdits}
         loading={saving}
         loadingVariant="wave"

@@ -205,7 +205,7 @@
   position: relative;
   flex: 1;
   /* 약간 컴팩트한 높이 */
-  height: var(--control-height-2xs);
+  height: var(--size-20);
   border-radius: var(--radius-full);
   border: var(--border-light);
   cursor: copy;
@@ -323,8 +323,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--control-height-2xs);
-  height: var(--control-height-2xs);
+  width: var(--control-height-xs);
+  height: var(--control-height-xs);
   flex-shrink: 0;
   padding: 0;
   border: var(--border-light);

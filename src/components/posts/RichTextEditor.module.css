@@ -1069,7 +1069,7 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-8);
-  min-height: var(--control-height-2xs);
+  min-height: var(--size-20);
 }
 
 .borderClearBtn {

@@ -35,8 +35,8 @@
 .badgeMark {
   display: inline-grid;
   place-items: center;
-  width: var(--control-height-2xs);
-  height: var(--control-height-2xs);
+  width: var(--badge-height);
+  height: var(--badge-height);
   border-radius: var(--radius-circle);
   background: color-mix(in oklch, var(--bg-black) 60%, transparent);
   color: var(--text-white);

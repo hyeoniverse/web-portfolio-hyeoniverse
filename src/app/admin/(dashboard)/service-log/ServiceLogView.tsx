@@ -201,7 +201,7 @@ export default function ServiceLogView() {
               {/* 목록 머리 — 점·숫자·알약이 무엇인지 i 로 */}
               <div className={styles.railHeader}>
                 <span>{th("logColProvider")}</span>
-                <Popover placement="bottom-start" responsive={false} maxHeight={false} contentClassName={styles.legend} trigger={<HelpButton symbol="i" size="2xs" aria-label={th("logLegendTitle")} title={th("logLegendTitle")} soundDisabled />}>
+                <Popover placement="bottom-start" responsive={false} maxHeight={false} contentClassName={styles.legend} trigger={<HelpButton symbol="i" size="xs" aria-label={th("logLegendTitle")} title={th("logLegendTitle")} soundDisabled />}>
                   <div className={styles.legendBody}>
                     <p className={styles.legendTitle}>{th("logLegendTitle")}</p>
 

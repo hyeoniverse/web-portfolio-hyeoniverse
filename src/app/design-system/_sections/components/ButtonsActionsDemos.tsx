@@ -43,12 +43,11 @@ export default function ButtonsActionsDemos() {
           </div>
           <div className={styles.componentSubLabel}>Sizes</div>
           <div className={styles.componentRow}>
-            <motion.div variants={staggerItemX} {...scrollChildX(0, 6)}><Tooltip content="size: 2xs"><Button variant="outline" size="2xs">2XS</Button></Tooltip></motion.div>
-            <motion.div variants={staggerItemX} {...scrollChildX(1, 6)}><Tooltip content="size: xs"><Button variant="outline" size="xs">XS</Button></Tooltip></motion.div>
-            <motion.div variants={staggerItemX} {...scrollChildX(2, 6)}><Tooltip content="size: sm"><Button variant="outline" size="sm">Small</Button></Tooltip></motion.div>
-            <motion.div variants={staggerItemX} {...scrollChildX(3, 6)}><Tooltip content="size: md"><Button variant="outline" size="md">Medium</Button></Tooltip></motion.div>
-            <motion.div variants={staggerItemX} {...scrollChildX(4, 6)}><Tooltip content="size: lg"><Button variant="outline" size="lg">Large</Button></Tooltip></motion.div>
-            <motion.div variants={staggerItemX} {...scrollChildX(5, 6)}><Tooltip content="size: xl"><Button variant="outline" size="xl">XL</Button></Tooltip></motion.div>
+            <motion.div variants={staggerItemX} {...scrollChildX(0, 5)}><Tooltip content="size: xs"><Button variant="outline" size="xs">XS</Button></Tooltip></motion.div>
+            <motion.div variants={staggerItemX} {...scrollChildX(1, 5)}><Tooltip content="size: sm"><Button variant="outline" size="sm">Small</Button></Tooltip></motion.div>
+            <motion.div variants={staggerItemX} {...scrollChildX(2, 5)}><Tooltip content="size: md"><Button variant="outline" size="md">Medium</Button></Tooltip></motion.div>
+            <motion.div variants={staggerItemX} {...scrollChildX(3, 5)}><Tooltip content="size: lg"><Button variant="outline" size="lg">Large</Button></Tooltip></motion.div>
+            <motion.div variants={staggerItemX} {...scrollChildX(4, 5)}><Tooltip content="size: xl"><Button variant="outline" size="xl">XL</Button></Tooltip></motion.div>
           </div>
           <div className={styles.componentSubLabel}>Shapes</div>
           <div className={styles.componentRow}>
@@ -116,7 +115,7 @@ export default function ButtonsActionsDemos() {
           en={"The help `?` button — a fixed Button subtle/circle wrapper. variant/shape/children are locked for consistency; only size is open (2xs next to a form label, sm in a section header). All other props pass through to Button, so it works directly as a Popover/Tooltip trigger."}
         >
           <div className={styles.componentRow}>
-            {(["2xs", "xs", "sm", "md", "lg", "xl"] as const).map((s, i, arr) => (
+            {(["xs", "sm", "md", "lg", "xl"] as const).map((s, i, arr) => (
               <motion.div key={s} variants={staggerItemX} {...scrollChildX(i, arr.length + 1)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--spacing-4)" }}>
                 <HelpButton size={s} aria-label={`help ${s}`} />
                 <span style={{ fontFamily: "var(--font-family-code)", fontSize: "var(--font-size-body-xs)", color: "var(--text-muted)" }}>{s}</span>

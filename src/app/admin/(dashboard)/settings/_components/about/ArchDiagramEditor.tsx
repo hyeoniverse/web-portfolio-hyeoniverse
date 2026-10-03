@@ -155,7 +155,7 @@ export default function ArchDiagramEditor({ value, onChange }: {
         <div className={css.panel}>
           <div className={css.panelHead}>
             <span className={css.panelTitle}>{L("노드", "Node")} · {sel.id}</span>
-            <Button variant="outline" size="2xs" onClick={() => setSelNode(null)} aria-label={L("닫기", "Close")}><X size={13} /></Button>
+            <Button variant="outline" size="xs" onClick={() => setSelNode(null)} aria-label={L("닫기", "Close")}><X size={13} /></Button>
           </div>
           <div className={css.row}>
             <div className={css.field}><span className={css.fieldLabel}>{L("라벨", "Label")}</span>
@@ -179,7 +179,7 @@ export default function ArchDiagramEditor({ value, onChange }: {
         <div className={css.panel}>
           <div className={css.panelHead}>
             <span className={css.panelTitle}>{L("엣지", "Edge")} · {edges[selEdge].from} → {edges[selEdge].to}</span>
-            <Button variant="outline" size="2xs" onClick={() => setSelEdge(null)} aria-label={L("닫기", "Close")}><X size={13} /></Button>
+            <Button variant="outline" size="xs" onClick={() => setSelEdge(null)} aria-label={L("닫기", "Close")}><X size={13} /></Button>
           </div>
           <div className={css.panelActions}>
             <Button variant="outline" size="sm" active={!!edges[selEdge].dashed}
