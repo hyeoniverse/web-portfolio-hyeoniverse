@@ -42,7 +42,8 @@
   align-items: center;
   gap: var(--spacing-4);
   width: 100%;
-  padding: var(--button-padding-xs);
+  height: var(--control-height-xs);
+  padding: 0 var(--control-padding-inline-xs);
   border: none;
   background: transparent;
   border-radius: var(--radius-full);

@@ -26,7 +26,10 @@
 
 .saveBtn {
   min-width: 110px;
-  padding: var(--button-padding-md);
+  display: inline-flex;
+  align-items: center;
+  height: var(--control-height-lg);
+  padding: 0 var(--control-padding-inline-lg);
   border: var(--border-success);
   border-radius: var(--radius-full);
   background: var(--bg-success-solid);
@@ -82,7 +85,10 @@
 }
 
 .filterItem button {
-  padding: var(--button-padding-sm);
+  display: inline-flex;
+  align-items: center;
+  height: var(--control-height-sm);
+  padding: 0 var(--control-padding-inline-sm);
   font-size: var(--font-size-body-sm);
   border-color: var(--border-color-default);
 }
@@ -94,7 +100,10 @@
 }
 
 .filterPageSize button {
-  padding: var(--button-padding-sm);
+  display: inline-flex;
+  align-items: center;
+  height: var(--control-height-sm);
+  padding: 0 var(--control-padding-inline-sm);
   font-size: var(--font-size-body-sm);
   border-color: var(--border-color-default);
 }
@@ -272,7 +281,10 @@
 
   .saveBtn {
     font-size: var(--font-size-body-sm);
-    padding: var(--button-padding-md);
+    display: inline-flex;
+    align-items: center;
+    height: var(--control-height-lg);
+    padding: 0 var(--control-padding-inline-lg);
   }
 
   .previewTooltip {

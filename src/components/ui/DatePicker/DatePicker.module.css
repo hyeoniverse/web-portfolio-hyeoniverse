@@ -38,7 +38,10 @@
 }
 
 .formatBtn {
-  padding: var(--button-padding-xs);
+  display: inline-flex;
+  align-items: center;
+  height: var(--control-height-xs);
+  padding: 0 var(--control-padding-inline-xs);
   border: none;
   background: transparent;
   font: var(--font-body-sm);
@@ -134,7 +137,8 @@
 
 .yearInput {
   width: 60px;
-  padding: var(--field-padding-sm);
+  height: var(--control-height-sm);
+  padding: 0 var(--spacing-8);
   border: var(--border-light);
   border-radius: var(--radius-full);
   background: transparent;
@@ -231,7 +235,8 @@
 /* 더블클릭 시 자유 입력 input — dropdown trigger 와 같은 visual */
 .partInput {
   width: 48px;
-  padding: var(--field-padding-sm);
+  height: var(--control-height-sm);
+  padding: 0 var(--spacing-8);
   border: var(--border-light);
   border-radius: var(--radius-full);
   background: transparent;
@@ -628,7 +633,10 @@
   background: transparent;
   font: var(--font-body-xs);
   color: var(--text-tertiary);
-  padding: var(--button-padding-xs);
+  display: inline-flex;
+  align-items: center;
+  height: var(--control-height-xs);
+  padding: 0 var(--control-padding-inline-xs);
   border-radius: var(--radius-full);
   cursor: pointer;
   letter-spacing: 0.04em;

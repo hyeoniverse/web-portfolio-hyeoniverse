@@ -454,7 +454,10 @@
 }
 
 .templateBtn {
-  padding: var(--button-padding-sm);
+  display: inline-flex;
+  align-items: center;
+  height: var(--control-height-sm);
+  padding: 0 var(--control-padding-inline-sm);
   border: var(--border-light);
   border-radius: var(--radius-full);
   background: transparent;

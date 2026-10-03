@@ -478,3 +478,14 @@ Material `@material/web` 2.5, Primer primitives. 숫자는 같은 날 다시 셌
   Button · HelpButton 의 `size="2xs"` 는 없애고 `xs` 로. CloseButton 은 표대로 한 칸 당겼다(xs 24 · sm 28 · md 32 · lg 36).
 - **같이.** `--size-38` 과 별칭 `--size-md` 를 지웠다(아바타 38 → 40). px 줄간격 2곳 — 20px 뱃지는 `--badge-height` 높이 + flex 가운데로, 관리자 셀 22px 는 `calc(22 / 14)` 비율로(3.2-6).
 - **보이는 변화.** 아이콘 버튼 38 → 40, 떠 있는 단추 46 → 48, 작은 버튼 · 닫기 단추 20 → 24, 닫기 sm 24 → 28. 모두 2 ~ 4px.
+
+### D37. 2026-10-03 — 컨트롤 높이는 세로 여백이 아니라 높이로 만든다
+
+- **왜.** `--button-padding-*` · `--input-padding` · `--field-padding-*` 는 세로 여백을 담은 토큰이라, 같은 `sm` 이 글꼴 · 줄간격에 따라 26px 도 28px 도 됐다(3.4-2).
+  Button 같은 공용 컴포넌트는 이미 높이 + 좌우 여백으로 만드는데, 직접 만든 버튼 · 입력 57곳만 여백 방식이었다.
+- **정한 것.** 높이 단계와 짝인 좌우 여백 토큰 `--control-padding-inline-xs ~ xl`(16 · 16 · 20 · 20 · 24)을 두고,
+  57곳을 `height: var(--control-height-*)` + `padding: 0 var(--control-padding-inline-*)` + `align-items: center` 로 바꿨다. 세로 여백 토큰 8개는 지웠다.
+  옛 여백 → 단계: xs(2 12 ≈ 20) → xs 24, sm(4 16 ≈ 26) → sm 28, md(8 20 ≈ 36) → lg 36, lg(12 24 ≈ 44) → xl 40, 입력 기본(4 16) → md 32,
+  직접 만든 입력 sm · md → sm 28, lg → md 32(좌우는 그대로 8 · 12). 글자가 큰 입력(수식 · 달력 이름)은 md 32.
+- **예외.** 여러 줄 카드형 고르기(Playground 선택)와 여러 줄 입력(About 편집 textarea)은 한 줄 컨트롤이 아니라 여백이 높이를 정한다 — 간격 토큰 · `--textarea-padding` 으로.
+- **보이는 변화.** 작은 버튼 20 → 24(좌우 12 → 16), 일반 버튼 26 → 28, 큰 버튼 44 → 40. 모두 눈금의 가장 가까운 단계다.

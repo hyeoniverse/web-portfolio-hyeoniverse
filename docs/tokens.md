@@ -472,7 +472,7 @@
 
 ## `src/styles/globals/_component.css`
 
-토큰 118개
+토큰 115개
 
 | 토큰 | 값 |
 |---|---|
@@ -484,10 +484,6 @@
 | `--cursor-big-width` | `60px` |
 | `--cursor-text-width` | `3px` |
 | `--cursor-text-height` | `24px` |
-| `--button-padding-xs` | `var(--spacing-2) var(--spacing-12)` |
-| `--button-padding-sm` | `var(--spacing-4) var(--spacing-16)` |
-| `--button-padding-md` | `var(--spacing-8) var(--spacing-20)` |
-| `--button-padding-lg` | `var(--spacing-12) var(--spacing-24)` |
 | `--badge-padding-sm` | `var(--spacing-1) var(--spacing-4)` |
 | `--badge-padding-md` | `var(--spacing-2) var(--spacing-8)` |
 | `--badge-padding-lg` | `var(--spacing-4) var(--spacing-12)` |
@@ -500,10 +496,6 @@
 | `--card-padding-sm` | `var(--spacing-4) var(--spacing-12)` |
 | `--card-padding-md` | `var(--spacing-16) var(--spacing-16)` |
 | `--card-padding-lg` | `var(--spacing-24) var(--spacing-32)` |
-| `--input-padding` | `var(--spacing-4) var(--spacing-16)` |
-| `--field-padding-sm` | `var(--spacing-4) var(--spacing-8)` |
-| `--field-padding-md` | `var(--spacing-4) var(--spacing-12)` |
-| `--field-padding-lg` | `var(--spacing-8) var(--spacing-12)` |
 | `--cell-padding-sm` | `var(--spacing-4) var(--spacing-8)` |
 | `--cell-padding-md` | `var(--spacing-8) var(--spacing-12)` |
 | `--textarea-padding` | `var(--spacing-12) var(--spacing-16)` |
@@ -512,6 +504,11 @@
 | `--control-height-md` | `32px` |
 | `--control-height-lg` | `36px` |
 | `--control-height-xl` | `40px` |
+| `--control-padding-inline-xs` | `var(--spacing-16)` |
+| `--control-padding-inline-sm` | `var(--spacing-16)` |
+| `--control-padding-inline-md` | `var(--spacing-20)` |
+| `--control-padding-inline-lg` | `var(--spacing-20)` |
+| `--control-padding-inline-xl` | `var(--spacing-24)` |
 | `--badge-height` | `20px` |
 | `--float-button-size-md` | `48px` |
 | `--skeleton-height-line` | `var(--font-size-body-md)` |
