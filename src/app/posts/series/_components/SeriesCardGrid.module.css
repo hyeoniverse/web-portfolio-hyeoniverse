@@ -41,10 +41,8 @@
   pointer-events: none;
 }
 
-.overlayTitle {
-  font-family: var(--font-family-heading);
-  font-size: var(--font-size-heading-xs);
-  font-weight: var(--font-weight-regular);
+.overlayTitle {  font: var(--font-heading-xs);
+
   letter-spacing: -0.01em;
   line-height: var(--line-height-125);
   color: var(--text-white);

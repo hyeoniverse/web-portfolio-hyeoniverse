@@ -234,9 +234,8 @@
 }
 
 /* overlay 안의 title/meta 는 부모(.overlay) 에서 color: var(--text-white) inherit */
-.title {
-  font-family: var(--font-family-heading);
-  font-size: var(--font-size-heading-xs);
+.title {  font: var(--font-heading-xs);
+
   font-weight: var(--font-weight-medium);
   color: inherit;
   line-height: 1.2;
