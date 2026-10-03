@@ -79,18 +79,16 @@
 /* "데이터 없음" 텍스트 — List 의 item 과 동일 vertical dimension. border 는 없음 (단독 child) */
 .muted {
   composes: item from "./components/List.module.css";
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
-  /* 정수 line-height — .sectionTitle 과 같은 divider 번짐 방지 */
+  font: var(--font-body-sm);
   line-height: calc(20 / 13);
+  /* 정수 line-height — .sectionTitle 과 같은 divider 번짐 방지 */
   color: var(--text-tertiary);
   margin: 0;
   border-bottom: none;
 }
 
 .error {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   color: var(--text-accent);
   margin: 0;
 }
@@ -150,7 +148,7 @@
 .badge {
   background: var(--text-accent);
   color: var(--bg-primary);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   font-weight: 700;
   padding: var(--badge-padding-md);
   border-radius: var(--radius-full);
@@ -168,11 +166,10 @@
 }
 
 .heroLabel {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   font-weight: 600;
-  /* 정수 line-height — .statLabel 과 같은 divider 번짐 방지 */
   line-height: calc(20 / 13);
+  /* 정수 line-height — .statLabel 과 같은 divider 번짐 방지 */
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--text-tertiary);
@@ -214,10 +211,9 @@
 }
 
 .heroMeta {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
-  color: var(--text-tertiary);
+  font: var(--font-body-sm);
   font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
 }
 
 .heroSparkWrap {
@@ -284,11 +280,10 @@ a.statCard:hover .statValue {
 }
 
 .statLabel {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
+  line-height: calc(20 / 13);
   /* 정수 line-height — 상속(1.6)이면 13px×1.6=20.8px 로 셀 높이가 소수점에 걸리고,
      그 아래 섹션 divider(1px)가 픽셀 사이에 앉아 안티앨리어싱으로 번져 굵어 보인다 */
-  line-height: calc(20 / 13);
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -304,10 +299,9 @@ a.statCard:hover .statValue {
 }
 
 .statMeta {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
-  /* 정수 line-height — .statLabel 과 같은 divider 번짐 방지 */
+  font: var(--font-body-xs);
   line-height: calc(19 / 12);
+  /* 정수 line-height — .statLabel 과 같은 divider 번짐 방지 */
   color: var(--text-tertiary);
 }
 
@@ -475,8 +469,7 @@ a.statCard:hover .statValue {
 
 .itemTitle {
   flex: 1;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   color: var(--text-primary);
   text-decoration: none;
   overflow: hidden;
@@ -498,11 +491,10 @@ a.statCard:hover .statValue {
   gap: var(--spacing-4);
   flex-shrink: 0;
   min-width: 72px;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
+  font-variant-numeric: tabular-nums;
   color: var(--text-tertiary);
   white-space: nowrap;
-  font-variant-numeric: tabular-nums;
 }
 
 /* Status pill: 발행=success(녹색), 초안=warning(앰버)
@@ -515,7 +507,7 @@ a.statCard:hover .statValue {
   gap: var(--spacing-4);
   padding: var(--spacing-1) var(--spacing-8);
   border-radius: var(--radius-full);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   font-weight: 600;
   letter-spacing: 0.02em;
   flex-shrink: 0;
@@ -613,8 +605,7 @@ a.statCard:hover .statValue {
 .serviceName {
   flex: 1;
   min-width: 0;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-code-sm);
   color: var(--text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -622,8 +613,7 @@ a.statCard:hover .statValue {
 }
 
 .serviceStatus {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -639,8 +629,7 @@ a.statCard:hover .statValue {
   gap: var(--spacing-2);
   padding: var(--badge-padding-sm);
   border-radius: var(--radius-full);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
@@ -659,7 +648,7 @@ a.statCard:hover .statValue {
 /* Hero 옆에 붙는 큰 사이즈 변형 — padding/font-size up + 지연 등장 */
 .trendBadgeLg {
   padding: var(--badge-padding-md);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   gap: var(--spacing-4);
   animation: trendBadgeIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) 0.6s both;
 }
@@ -707,8 +696,7 @@ a.statCard:hover .statValue {
 }
 
 .donutCenterLabel {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   fill: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -725,8 +713,7 @@ a.statCard:hover .statValue {
   margin-bottom: var(--spacing-4);
   border-radius: var(--radius-full);
   background: var(--bg-tertiary);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-secondary);
   transition:
     background-color 0.15s ease,
@@ -740,11 +727,10 @@ a.statCard:hover .statValue {
 }
 
 .tagPillCount {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   font-weight: 700;
-  color: var(--text-muted);
   font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
 }
 
 .tagPill:hover .tagPillCount {
@@ -809,17 +795,15 @@ a.statCard:hover .statValue {
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-8);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
-  color: var(--text-tertiary);
+  font: var(--font-code-xs);
   line-height: calc(16 / 12);
+  color: var(--text-tertiary);
   min-height: 16px;
 }
 
 .popularRank,
 .commentAuthor {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   font-weight: 700;
   color: var(--text-secondary);
 }
@@ -844,12 +828,11 @@ a.statCard:hover .statValue {
 /* L2: 본문 (제목 / 댓글 내용) — 동일한 line-height (픽셀 고정) */
 .popularTitle,
 .commentBody {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
+  line-height: calc(20 / 14);
   color: var(--text-primary);
   text-decoration: none;
   margin: 0;
-  line-height: calc(20 / 14);
   min-height: 20px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -868,10 +851,9 @@ a.commentBody:hover {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-4);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
-  color: var(--text-tertiary);
+  font: var(--font-body-xs);
   line-height: calc(16 / 12);
+  color: var(--text-tertiary);
   min-height: 16px;
   text-decoration: none;
   white-space: nowrap;
@@ -888,10 +870,9 @@ a.commentSource:hover {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-2);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
-  color: var(--text-accent);
+  font: var(--font-body-xs);
   line-height: calc(16 / 12);
+  color: var(--text-accent);
   margin: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -908,7 +889,7 @@ a.commentSource:hover {
   border-radius: var(--radius-full);
   background: var(--text-accent);
   color: var(--bg-primary);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
@@ -956,10 +937,9 @@ a.commentSource:hover {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-4);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
-  color: var(--text-tertiary);
+  font: var(--font-code-xs);
   font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
 }
 
 /* ── Day detail — 그날 인기 게시물 섹션 (우측 컬럼, 가로 막대 차트) ── */
@@ -991,8 +971,7 @@ a.commentSource:hover {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-8);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-primary);
   white-space: nowrap;
 }
@@ -1010,8 +989,7 @@ a.commentSource:hover {
   display: inline-flex;
   align-items: baseline;
   gap: var(--spacing-4);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   font-variant-numeric: tabular-nums;
 }
 
@@ -1047,8 +1025,7 @@ a.commentSource:hover {
 }
 
 .trafficStatLabel {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -1068,7 +1045,7 @@ a.commentSource:hover {
 }
 
 .trafficStatSub {
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   font-weight: 600;
   color: var(--text-tertiary);
 }
@@ -1084,8 +1061,7 @@ a.commentSource:hover {
 
 /* UTM 행의 medium·campaign 부연 */
 .utmDetail {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   color: var(--text-muted);
 }
 
@@ -1100,7 +1076,7 @@ a.commentSource:hover {
   /* 아래 선은 다음 섹션 머리의 선이 맡는다 — 둘 다 그으면 두 겹 */
   border-top: var(--border-light);
   color: var(--text-secondary);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   text-decoration: none;
   transition: color var(--duration-base) ease;
 }

@@ -151,8 +151,7 @@
 }
 
 .paletteLoading {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   color: var(--text-tertiary);
 }
 
@@ -219,7 +218,6 @@
 /* 보조 hint */
 .hint {
   margin-top: var(--spacing-8);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   color: var(--text-tertiary);
-  font-family: var(--font-family-body);
 }

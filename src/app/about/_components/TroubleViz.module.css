@@ -51,15 +51,14 @@
 
 .nm {
   margin-top: var(--spacing-8);
+  font: var(--font-code-md);
   font-weight: var(--font-weight-semibold);
-  font-size: var(--font-size-body-md);
   color: var(--text-primary);
 }
 
 .sub {
   margin-top: var(--spacing-2);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-meta-xs);
   color: var(--text-tertiary);
 }
 
@@ -71,8 +70,7 @@
   margin-top: var(--spacing-8);
   padding: var(--badge-padding-lg);
   border-radius: var(--radius-full);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   font-weight: var(--font-weight-semibold);
   vertical-align: middle;
   white-space: nowrap;
@@ -101,8 +99,7 @@
   border-radius: var(--radius-full);
   background: var(--bg-tertiary);
   color: var(--text-primary);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-meta-xs);
   white-space: nowrap;
 }
 
@@ -117,7 +114,7 @@
 }
 .ln { font-size: var(--font-size-20); line-height: 1; color: var(--text-accent); }
 .xmark { font-size: var(--font-size-20); line-height: 1; color: var(--text-error); }
-.lb { font-family: var(--font-family-code); font-size: var(--font-size-body-xs); letter-spacing: 0.02em; text-align: center; }
+.lb { font: var(--font-meta-xs); letter-spacing: 0.02em; text-align: center; }
 
 /* 서버 구름 + 리비전 스택 */
 .cloud {
@@ -128,8 +125,7 @@
   border-radius: var(--radius-24);
 }
 .hd {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   font-weight: var(--font-weight-bold);
   color: var(--text-accent);
   letter-spacing: 0.04em;
@@ -142,8 +138,7 @@
   padding: var(--spacing-4) var(--spacing-8);
   border: 1px solid color-mix(in srgb, var(--text-secondary) 12%, transparent);
   border-radius: var(--radius-full);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-meta-xs);
   color: var(--text-secondary);
 }
 .rev.top { border-color: var(--border-color-success); color: var(--text-success); font-weight: var(--font-weight-semibold); }
@@ -156,8 +151,7 @@
 }
 .ch {
   padding: var(--cell-padding-md);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-meta-xs);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--text-tertiary);
@@ -167,13 +161,13 @@
   align-items: center;
   gap: var(--spacing-8);
   padding: var(--cell-padding-md);
-  font-size: var(--font-size-body-md);
+  font: var(--font-meta-md);
   color: var(--text-secondary);
   border-top: 1px solid color-mix(in srgb, var(--text-secondary) 10%, transparent);
 }
 .num { justify-content: flex-end; font-family: var(--font-family-code); font-variant-numeric: tabular-nums; color: var(--text-tertiary); }
 .win { background: var(--bg-success-soft); color: var(--text-success); font-weight: var(--font-weight-semibold); }
-.badge { font-family: var(--font-family-code); font-size: var(--font-size-body-xs); font-weight: var(--font-weight-bold); color: var(--text-success); }
+.badge { font: var(--font-code-xs); font-weight: var(--font-weight-bold); color: var(--text-success); }
 .dim { color: var(--text-tertiary); }
 
 /* 안내 노트 — 좌측 선만 */
@@ -184,8 +178,8 @@
   padding: var(--spacing-8) 0 var(--spacing-8) var(--spacing-16);
   border-left: 3px solid var(--text-accent);
 }
-.noteT { display: flex; align-items: center; gap: var(--spacing-8); font-weight: var(--font-weight-semibold); color: var(--text-primary); font-size: var(--font-size-body-md); }
-.noteP { font-size: var(--font-size-body-md); color: var(--text-secondary); line-height: 1.6; }
+.noteT { display: flex; align-items: center; gap: var(--spacing-8); font: var(--font-code-md); font-weight: var(--font-weight-semibold); color: var(--text-primary); }
+.noteP { font: var(--font-meta-md); line-height: 1.6; color: var(--text-secondary); }
 
 /* 결정/가드 박스 — 선만 */
 .guard { display: flex; flex-direction: column; gap: var(--spacing-12); }
@@ -197,7 +191,7 @@
   padding: var(--spacing-12) var(--spacing-16);
   border: 1px solid color-mix(in srgb, var(--text-secondary) 18%, transparent);
   border-radius: var(--radius-24);
-  font-size: var(--font-size-body-md);
+  font: var(--font-meta-md);
   color: var(--text-secondary);
 }
 .boxQ { font-weight: var(--font-weight-semibold); color: var(--text-primary); font-family: var(--font-family-code); }
@@ -209,12 +203,12 @@
 /* 타임라인 바 — 성능(로드 타이밍) 비교 */
 .bars { display: flex; flex-direction: column; gap: var(--spacing-12); }
 .barRow { display: flex; align-items: center; gap: var(--spacing-12); }
-.barLabel { flex: 0 0 auto; width: 84px; font-family: var(--font-family-code); font-size: var(--font-size-body-xs); color: var(--text-secondary); }
+.barLabel { flex: 0 0 auto; width: 84px; font: var(--font-meta-xs); color: var(--text-secondary); }
 .track { position: relative; flex: 1 1 auto; height: 16px; border-radius: var(--radius-full); background: var(--bg-tertiary); overflow: hidden; min-width: 80px; }
 .seg { position: absolute; top: 0; bottom: 0; left: 0; border-radius: var(--radius-full); }
 .segBad { background: var(--bg-error-solid); }
 .segOk { background: var(--bg-success-solid); }
-.barVal { flex: 0 0 auto; width: 52px; text-align: right; font-family: var(--font-family-code); font-variant-numeric: tabular-nums; font-size: var(--font-size-body-xs); color: var(--text-secondary); }
+.barVal { flex: 0 0 auto; width: 52px; text-align: right; font: var(--font-meta-xs); font-variant-numeric: tabular-nums; color: var(--text-secondary); }
 
 /* 파이프라인 스텝 (serialize → deserialize 등) */
 .steps { display: flex; align-items: center; gap: var(--spacing-12); flex-wrap: wrap; }
@@ -228,7 +222,7 @@
   padding: var(--spacing-8) var(--spacing-12);
   border: 1px solid color-mix(in srgb, var(--text-secondary) 18%, transparent);
   border-radius: var(--radius-24);
-  font-size: var(--font-size-body-md);
+  font: var(--font-meta-md);
   color: var(--text-secondary);
 }
 
@@ -236,7 +230,7 @@
 .step .chip {
   margin-top: 0;
 }
-.stepMono { font-family: var(--font-family-code); font-size: var(--font-size-body-xs); }
+.stepMono { font: var(--font-meta-xs); }
 
 /* 순서 있는 단계 행 — 노드 높이를 맞추고 상단에 번호 배지를 얹는다.
    .step 필은 내용 길이에 따라 폭·높이가 제각각이라 순서 표현에 안 맞는다.
@@ -295,7 +289,7 @@
    박스 밖(커피 canvas)을 못 본다. 통합되면 canvas 가 같은 박스 안이라 정상 샘플. */
 .layers { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-20); }
 .layerCol { display: flex; flex-direction: column; gap: var(--spacing-8); }
-.layerHd { text-align: center; font-family: var(--font-family-code); font-size: var(--font-size-body-xs); font-weight: var(--font-weight-semibold); }
+.layerHd { text-align: center; font: var(--font-code-xs); font-weight: var(--font-weight-semibold); }
 .layerHd.cut { color: var(--text-error); }
 .layerHd.thru { color: var(--text-success); }
 .layerBox { display: flex; flex-direction: column; gap: var(--spacing-4); padding: var(--spacing-8); border-radius: var(--radius-24); }
@@ -304,13 +298,13 @@
 .zrow {
   padding: var(--row-padding-md);
   text-align: center;
-  font-size: var(--font-size-body-xs);
+  font: var(--font-meta-xs);
   color: var(--text-secondary);
   border: 1px solid color-mix(in srgb, var(--text-secondary) 16%, transparent);
   border-radius: var(--radius-24);
 }
 .zrow.canvas { background: var(--bg-tertiary); color: var(--text-primary); font-family: var(--font-family-code); }
-.reach { text-align: center; font-family: var(--font-family-code); font-size: var(--font-size-body-xs); line-height: 1.5; }
+.reach { text-align: center; font: var(--font-meta-xs); line-height: 1.5; }
 .reach.cut { color: var(--text-error); }
 .reach.thru { color: var(--text-success); }
 .layerFoot { display: flex; justify-content: center; }

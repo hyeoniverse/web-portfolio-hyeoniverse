@@ -46,10 +46,9 @@
 }
 
 .topContentRank {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
-  color: var(--text-tertiary);
+  font: var(--font-code-xs);
   font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
   flex-shrink: 0;
 }
 
@@ -82,18 +81,17 @@
 }
 
 .ipCurrentLabel {
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-tertiary);
 }
 
 .ipCurrentState {
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-accent);
 }
 
 .ipMasked {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-code-sm);
   color: var(--text-primary);
 }
 
@@ -110,7 +108,7 @@
 }
 
 .ipDates {
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   color: var(--text-tertiary);
   white-space: nowrap;
 }

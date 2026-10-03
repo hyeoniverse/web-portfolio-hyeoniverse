@@ -184,17 +184,17 @@
 }
 
 .visitLabel {
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
 
 .visitCount {
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
+  font-variant-numeric: tabular-nums;
   color: var(--text-secondary);
   letter-spacing: 0.02em;
-  font-variant-numeric: tabular-nums;
 }
 
 .visitDot {
@@ -219,8 +219,8 @@
 .musicCredit {
   color: var(--text-tertiary);
   text-align: right;
+  font: var(--font-code-xs);
   letter-spacing: 0.05em;
-  font-size: var(--font-size-body-xs);
 }
 
 .musicCredit a {

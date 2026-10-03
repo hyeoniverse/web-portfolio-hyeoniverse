@@ -20,5 +20,5 @@
   /* sortGroup / shuffleBtn 과 동일 통일 높이 */
   min-height: var(--filter-row-h);
   padding: 0 var(--spacing-12);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
 }

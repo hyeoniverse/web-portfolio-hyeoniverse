@@ -534,8 +534,7 @@
 
 .expGroupLabel {
   margin: 0 0 var(--spacing-16);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-code-sm);
   font-weight: 500;
   color: var(--text-tertiary);
   text-transform: uppercase;

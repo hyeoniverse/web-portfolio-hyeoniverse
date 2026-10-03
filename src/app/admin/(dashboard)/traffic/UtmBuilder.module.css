@@ -86,8 +86,7 @@
 
 /* Input 의 라벨과 같은 톤 — Select 엔 라벨 슬롯이 없어 직접 단다 */
 .fieldLabel {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   color: var(--text-secondary);
   letter-spacing: 0.03em;
 }
@@ -106,8 +105,7 @@
 .builderUrl {
   flex: 1;
   min-width: 0;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   color: var(--text-secondary);
   background: var(--bg-secondary);
   border-radius: var(--radius-full);
@@ -161,15 +159,14 @@
 
 .helpTitle {
   margin: 0;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   font-weight: 600;
   color: var(--text-primary);
 }
 
 .helpText {
   margin: 0;
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   line-height: 1.6;
   color: var(--text-secondary);
 }
@@ -182,7 +179,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-2);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   line-height: 1.6;
   color: var(--text-secondary);
 }
@@ -195,8 +192,7 @@
 
 .helpParams code {
   flex-shrink: 0;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   color: var(--text-primary);
 }
 
@@ -206,14 +202,13 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-2);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   line-height: 1.6;
   color: var(--text-secondary);
 }
 
 .helpExample {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   color: var(--text-accent);
   background: var(--bg-secondary);
   border-radius: var(--radius-full);

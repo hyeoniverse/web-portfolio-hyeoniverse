@@ -50,7 +50,7 @@
 }
 
 .procDetailStats dt {
-  font-size: var(--font-size-body-sm);
+  font: var(--font-meta-sm);
   color: var(--text-tertiary);
 }
 
@@ -196,8 +196,7 @@
 .procFacts figcaption {
   order: -1;
   word-break: keep-all;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-meta-xs);
   color: var(--text-tertiary);
   letter-spacing: 0.02em;
 }
@@ -220,7 +219,7 @@
 }
 
 .procMetricLabel {
-  font-size: var(--font-size-body-sm);
+  font: var(--font-meta-sm);
   color: var(--text-secondary);
 }
 
@@ -284,7 +283,7 @@
   margin: 0;
   padding: 0;
   list-style: none;
-  font-size: var(--font-size-body-xs);
+  font: var(--font-meta-xs);
   color: var(--text-secondary);
 }
 

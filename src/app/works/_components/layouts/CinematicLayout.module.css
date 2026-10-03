@@ -86,8 +86,7 @@
 }
 
 .metaCategory {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   letter-spacing: 0.35em;
   text-transform: uppercase;
   opacity: 0.5;
@@ -123,8 +122,7 @@
 }
 
 .metaDesc {
-  font-size: var(--font-size-body-md);
-  line-height: var(--line-height-160);
+  font: var(--font-body-md);
   opacity: 0.75;
   margin: 0 0 var(--spacing-20) 0;
   padding: var(--spacing-12) var(--spacing-16);
@@ -143,8 +141,7 @@
   padding: var(--spacing-2) var(--spacing-12);
   border: var(--border-ghost);
   border-radius: var(--radius-full);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   letter-spacing: 0.06em;
 }
 
@@ -188,8 +185,7 @@
   left: 8vw;
   bottom: var(--spacing-32);
   z-index: 5;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-code-sm);
   color: var(--text-white);
   opacity: 0.4;
   letter-spacing: 0.15em;

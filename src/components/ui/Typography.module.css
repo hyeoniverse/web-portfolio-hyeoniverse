@@ -38,28 +38,25 @@
 }
 
 .h6 {
-  font-size: var(--font-size-heading-sm);
+  font: var(--font-heading-sm);
   font-weight: var(--font-weight-medium);
 }
 
 .body1 {
-  font-size: var(--font-size-body-lg);
-  font-weight: var(--font-weight-regular);
+  font: var(--font-body-lg);
 }
 
 .body2 {
-  font-size: var(--font-size-body-md);
-  font-weight: var(--font-weight-regular);
+  font: var(--font-body-md);
 }
 
 .caption {
-  font-size: var(--font-size-body-sm);
-  font-weight: var(--font-weight-regular);
+  font: var(--font-body-sm);
   line-height: var(--line-height-125);
 }
 
 .overline {
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-125);
   text-transform: uppercase;

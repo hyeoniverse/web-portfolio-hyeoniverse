@@ -73,8 +73,8 @@
 
 .mathFloatingPreviewEmpty {
   color: var(--text-muted);
+  font: var(--font-body-md);
   font-style: italic;
-  font-size: var(--font-size-body-md);
 }
 
 .mathFloatingInput {

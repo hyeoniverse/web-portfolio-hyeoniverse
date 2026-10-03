@@ -3,7 +3,7 @@
 .textLink {
   position: relative;
   display: inline;
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-tertiary);
   text-decoration: none;
 }

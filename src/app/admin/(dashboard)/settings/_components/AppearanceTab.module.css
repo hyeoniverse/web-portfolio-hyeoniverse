@@ -17,10 +17,9 @@
 }
 /* DS 액션은 이제 blend 밖(정상 색) — 테마 적응 토큰 그대로 쓴다. */
 .dsHint {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
-  color: var(--text-tertiary);
+  font: var(--font-body-sm);
   line-height: var(--line-height-135);
+  color: var(--text-tertiary);
 }
 /* 세로 구분선 — hint 와 링크 사이 */
 .dsDivider {
@@ -158,7 +157,7 @@
 }
 
 .presetAddLabel {
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-tertiary);
 }
 
@@ -180,7 +179,7 @@
 /* 저장 못 하는 이유 — 입력칸 error 테두리와 같은 강조색. 빨강(error)은 아껴 쓴다 */
 .presetAddProblem {
   margin: 0;
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   color: var(--text-accent);
 }
 
@@ -231,8 +230,7 @@
 .faviconPanelTitle {
   margin: 0;
   padding-bottom: var(--spacing-4);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   font-weight: 600;
   color: var(--text-secondary);
   letter-spacing: 0.04em;
@@ -256,7 +254,7 @@
 }
 /* 그림자 대상 라벨 — favicon / nav·로딩 을 구분. single 모드 내부 라벨과 같은 톤. */
 .faviconShadowSubLabel {
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   font-weight: 600;
   color: var(--text-primary);
 }
@@ -275,8 +273,7 @@
 }
 
 .faviconPreviewLabel {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -353,8 +350,7 @@
   background: var(--bg-secondary);
 }
 .faviconColorCaption {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -401,8 +397,7 @@
   border: none;
   border-bottom: 2px solid transparent;
   background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   font-weight: 500;
   color: var(--text-tertiary);
   cursor: pointer;
@@ -419,10 +414,9 @@
 /* 그룹 탭 아래 활성 그룹 설명 */
 .brandTabHint {
   margin: 0;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
-  color: var(--text-tertiary);
+  font: var(--font-body-sm);
   line-height: var(--line-height-135);
+  color: var(--text-tertiary);
 }
 /* 파트 사이 구분선 — 그룹 안에서 Favicon/풀로고 구획 (그룹 구분선보다 약하게) */
 .brandPart + .brandPart {
@@ -468,8 +462,7 @@
   align-items: center;
   flex-wrap: wrap;
   gap: var(--spacing-8);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   font-weight: 700;
   color: var(--text-primary);
   text-transform: uppercase;
@@ -477,7 +470,7 @@
 }
 /* 파트 힌트 — 제목보다 한 단계 작게 (예전엔 힌트가 제목보다 커서 위계가 뒤집혔다) */
 .brandPartTitleHint {
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   font-weight: 400;
   color: var(--text-tertiary);
   text-transform: none;
@@ -503,7 +496,7 @@
 
 /* 로고 효과 라벨 — 소구획 레벨(파트 제목보다 작게. 예전 body 14 는 제목을 눌렀다) */
 .logoEffectsLabel {
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   font-weight: 600;
   color: var(--text-secondary);
 }
@@ -545,8 +538,7 @@
   transform-origin: center;
 }
 .fullLogoPreviewCap {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -581,8 +573,7 @@
   align-items: center;
   gap: var(--spacing-12);
   margin: 0;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   font-weight: 600;
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -597,10 +588,9 @@
 }
 .faviconImageOptionsHint {
   margin: 0 0 var(--spacing-4) 0;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
-  color: var(--text-tertiary);
+  font: var(--font-body-sm);
   line-height: var(--line-height-135);
+  color: var(--text-tertiary);
 }
 .faviconImageBgRow {
   display: flex;
@@ -609,8 +599,7 @@
   gap: var(--spacing-8) var(--spacing-20);
 }
 .faviconImageBgLabel {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   font-weight: 500;
   color: var(--text-secondary);
   min-width: 3rem;
@@ -621,8 +610,7 @@
   gap: var(--spacing-12) var(--spacing-20);
 }
 .faviconImageBgCap {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -655,7 +643,7 @@
 
 /* single 모드 — 세그먼트 대신 그림자 대상 라벨 하나만 */
 .faviconShadowSingleLabel {
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   font-weight: 600;
   color: var(--text-primary);
 }
@@ -741,10 +729,9 @@
 /* 드래그 안내 문구 */
 .shadowDragHint {
   margin-top: auto;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
-  color: var(--text-tertiary);
+  font: var(--font-body-xs);
   line-height: var(--line-height-135);
+  color: var(--text-tertiary);
 }
 /* 흰 원 — 그림자(box-shadow)가 적용되는 미리보기 대상. flat + 그림자로 떠 보이게 */
 .shadowPreviewCircle {
@@ -776,10 +763,9 @@
   flex-shrink: 0;
   min-width: 3ch;
   text-align: right;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
-  color: var(--text-tertiary);
+  font: var(--font-body-xs);
   font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
 }
 /* ── Favicon 대비율 / WCAG 배지 (미리보기 셀 하단) ── */
 .faviconContrast {
@@ -787,8 +773,7 @@
   align-items: center;
   justify-content: center;
   gap: var(--spacing-2);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   line-height: var(--line-height-100);
   white-space: nowrap;
   max-width: 100%;
@@ -824,8 +809,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-8);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-tertiary);
   cursor: pointer;
 }
@@ -857,10 +841,9 @@
   gap: var(--spacing-8) var(--spacing-16);
 }
 .customFontsHint {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
-  color: var(--text-tertiary);
+  font: var(--font-body-xs);
   line-height: var(--line-height-135);
+  color: var(--text-tertiary);
 }
 .customFontsList {
   display: flex;
@@ -880,8 +863,7 @@
 .customFontName {
   flex: 0 0 auto;
   min-width: 8rem;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-secondary);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -901,8 +883,7 @@
   padding: var(--badge-padding-sm);
   border-radius: var(--radius-full);
   background: var(--bg-secondary);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   color: var(--text-tertiary);
 }
 .customFontRemove {

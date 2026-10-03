@@ -32,8 +32,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-8);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   font-weight: 600;
   color: var(--text-secondary);
   letter-spacing: 0.02em;
@@ -46,13 +45,12 @@
 }
 /* 그룹별 set/total — 라벨 옆 작은 mono 카운터. 모두 set 이면 accent 색 ✓ */
 .envGroupCount {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   font-weight: 500;
+  font-variant-numeric: tabular-nums;
   color: var(--text-tertiary);
   text-transform: none;
   letter-spacing: 0;
-  font-variant-numeric: tabular-nums;
 }
 
 .envGroupCount[data-ok] {
@@ -112,8 +110,7 @@
 }
 
 .envStatusCount {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   color: var(--text-secondary);
 }
 
@@ -127,10 +124,9 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-2);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
-  color: var(--text-tertiary);
+  font: var(--font-code-xs);
   font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
 }
 
 .envStatusChip[data-warn] {
@@ -220,8 +216,7 @@
 }
 
 .envPasteHint {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-tertiary);
   margin: 0;
 }
@@ -233,8 +228,7 @@
   border: var(--border-light);
   border-radius: var(--radius-24);
   background: transparent;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-code-sm);
   color: var(--text-primary);
   outline: none;
   resize: vertical;
@@ -319,11 +313,10 @@
 
 .envHintMobile {
   display: none;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
+  line-height: var(--line-height-135);
   color: var(--text-muted);
   margin-top: var(--spacing-4);
-  line-height: var(--line-height-135);
 }
 
 @media (hover: none) and (pointer: coarse) {
@@ -335,7 +328,7 @@
 .envSourceBadge {
   padding: var(--badge-padding-md);
   border-radius: var(--radius-full);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   font-weight: 500;
   background: var(--bg-tertiary);
   color: var(--text-tertiary);
@@ -365,7 +358,6 @@
 }
 
 .envMsg {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-success-strong);
 }

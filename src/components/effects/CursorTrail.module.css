@@ -5,7 +5,7 @@
   top: 0;
   left: 0;
   z-index: var(--z-index-cursor); /* 항상 최상단 */
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   font-weight: var(--font-weight-bold);
   opacity: 0;
   transition: opacity var(--duration-base) ease;

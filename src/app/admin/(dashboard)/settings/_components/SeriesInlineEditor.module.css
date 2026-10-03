@@ -36,7 +36,7 @@
 
 .seriesStandaloneTitle {
   margin: 0;
-  font-size: var(--font-size-heading-xs);
+  font: var(--font-heading-xs);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
 }
@@ -116,7 +116,7 @@
 
 .addPostHeader button[class] {
   padding: var(--button-padding-xs);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   line-height: var(--line-height-100);
 }
 
@@ -124,8 +124,7 @@
   flex: 1;
   border: none;
   background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-primary);
   outline: none;
   padding: var(--spacing-4) 0;
@@ -139,7 +138,7 @@
   border: none;
   background: transparent;
   color: var(--text-muted);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
 }
 
 .addPostList {
@@ -160,8 +159,7 @@
   background: transparent;
   text-align: left;
   user-select: none;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-secondary);
 }
 
@@ -179,8 +177,7 @@
 
 .addPostNum {
   flex-shrink: 0;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   color: var(--text-muted);
   min-width: var(--control-height-xs);
 }
@@ -205,8 +202,7 @@
   border: var(--border-default);
   border-radius: var(--radius-full);
   background: transparent;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   color: var(--text-primary);
   text-align: center;
   outline: none;
@@ -240,8 +236,7 @@
   border: var(--border-light);
   border-radius: var(--radius-circle);
   background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   color: var(--text-tertiary);
 }
 
@@ -381,17 +376,15 @@
 }
 
 .seriesPostOrderNum {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
-  color: var(--text-tertiary);
+  font: var(--font-code-xs);
   line-height: var(--line-height-100);
+  color: var(--text-tertiary);
 }
 
 .seriesPostTitle {
   flex: 1;
   min-width: 0;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-primary);
   overflow: hidden;
   text-overflow: ellipsis;

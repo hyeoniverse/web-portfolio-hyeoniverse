@@ -34,8 +34,7 @@
   display: flex;
   align-items: baseline;
   gap: var(--spacing-12);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-meta-xs);
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--text-tertiary);
@@ -81,7 +80,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-4);
-  font-size: var(--font-size-body-md);
+  font: var(--font-meta-md);
   color: var(--text-tertiary);
   text-decoration: none;
 }
@@ -112,7 +111,7 @@
 }
 
 .statLabel {
-  font-size: var(--font-size-body-sm);
+  font: var(--font-meta-sm);
   color: var(--text-tertiary);
 }
 
@@ -240,7 +239,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-4);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-meta-sm);
   color: var(--text-secondary);
   cursor: default;
 }
@@ -381,8 +380,7 @@
 }
 
 .activityYear {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-meta-xs);
   font-variant-numeric: tabular-nums;
   color: var(--text-tertiary);
 }
@@ -508,8 +506,8 @@
   align-items: center;
   gap: var(--spacing-4);
   min-width: 0;
+  font: var(--font-heading-xs);
   font-family: var(--font-family-code);
-  font-size: var(--font-size-heading-xs);
   font-weight: var(--font-weight-semibold);
   letter-spacing: -0.02em;
   color: var(--text-primary);
@@ -568,7 +566,7 @@
   line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  font-size: var(--font-size-body-md);
+  font: var(--font-meta-md);
   line-height: 1.6;
   color: var(--text-secondary);
 }
@@ -580,8 +578,7 @@
   gap: var(--spacing-12);
   margin-top: auto;
   padding-top: var(--spacing-16);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -632,8 +629,7 @@
   padding: var(--spacing-2) var(--spacing-8);
   border: var(--border-light);
   border-radius: var(--radius-full);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-meta-xs);
   color: var(--text-tertiary);
 }
 

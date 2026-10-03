@@ -20,8 +20,7 @@
 /* display 는 TextLink 의 .external 이 inline-flex 로 처리 (아이콘과 한 줄 정렬). 여기선 override 안 함. */
 .designSystemLink {
   margin-top: var(--spacing-20);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-tertiary);
   text-decoration: none;
   letter-spacing: 0.05em;
@@ -72,7 +71,7 @@
 /* 저작자 표시 아래 덧붙이는 한 줄 — 표시 문구보다 약하게 */
 .note {
   margin: var(--spacing-8) 0 0 0;
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   color: var(--text-tertiary);
   opacity: 0.75;
 }

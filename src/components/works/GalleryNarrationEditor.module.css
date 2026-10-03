@@ -8,7 +8,7 @@
   min-width: 0;
   height: 1.5em;
   overflow: hidden;
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   line-height: 1.5;
   color: var(--text-tertiary);
   text-overflow: ellipsis;
@@ -127,7 +127,7 @@
 .lyricLine {
   display: block;
   padding: var(--spacing-2) var(--spacing-8);
-  font-size: var(--font-size-body-lg);
+  font: var(--font-body-lg);
   line-height: 1.6;
   color: var(--text-muted);
   text-align: left;
@@ -198,8 +198,7 @@
 
 .paneIndex {
   min-width: 4em;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-code-sm);
   font-variant-numeric: tabular-nums;
   color: var(--text-secondary);
   text-align: center;
@@ -247,7 +246,7 @@
 
 .seekTime {
   flex-shrink: 0;
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   font-variant-numeric: tabular-nums;
   color: var(--text-tertiary);
 }
@@ -267,7 +266,7 @@
   align-items: center;
   gap: var(--spacing-4);
   color: var(--text-tertiary);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
 }
 
 .recordState[data-live] {
@@ -460,28 +459,27 @@
 }
 
 .generateItemTitle {
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   font-weight: 600;
   line-height: 1.3;
 }
 
 .generateItemMeta {
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   line-height: 1.35;
-  color: var(--text-tertiary);
   font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
 }
 
 /* 지금 목소리 — 구분선 아래 한 줄. 무엇으로 만들지 누르기 전에 보이게 */
 .generateMenuVoice {
-  font-family: var(--font-family-body);
+  font: var(--font-body-xs);
   display: flex;
   align-items: center;
   gap: var(--spacing-8);
   margin-top: var(--spacing-4);
   padding: var(--spacing-12) var(--spacing-16) var(--spacing-4);
   border-top: 1px solid var(--border-color-light);
-  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
 }
 
@@ -525,7 +523,7 @@
 /* 여러 장 만들기 창의 설명 */
 .manyDesc {
   margin: 0;
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   line-height: 1.6;
   color: var(--text-secondary);
 }
@@ -540,7 +538,7 @@
 
 .pasteHint {
   margin: 0;
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   line-height: 1.6;
   color: var(--text-tertiary);
 }
@@ -553,7 +551,7 @@
 
 .pasteSummary {
   margin: 0;
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-secondary);
 }
 
@@ -611,13 +609,13 @@
 }
 
 .historyVoice {
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-primary);
 }
 
 .historyMeta {
   overflow: hidden;
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   color: var(--text-tertiary);
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -626,7 +624,7 @@
 .historyCurrent {
   flex-shrink: 0;
   padding: 0 var(--spacing-12);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-accent);
 }
 
@@ -640,7 +638,7 @@
 /* 글자 수 — 길면 몇 번에 나눠 만드는지도(나눈 만큼 TTS 요청을 쓴다) */
 .paneCount {
   flex-shrink: 0;
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   font-variant-numeric: tabular-nums;
   color: var(--text-tertiary);
   white-space: nowrap;
@@ -679,7 +677,7 @@
 
 .helpTitle {
   margin: 0;
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   font-weight: 600;
   color: var(--text-primary);
 }
@@ -690,7 +688,7 @@
   gap: var(--spacing-4);
   margin: 0;
   padding-left: 1.2em;
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   line-height: 1.6;
   color: var(--text-secondary);
 }
@@ -724,7 +722,7 @@
   /* 글자색을 옅게 깐 바탕 — 라이트·다크 어디서나 둘레와 구분된다(bg-tertiary 는 다크에서 배경과 같았다) */
   background: color-mix(in srgb, var(--text-primary) 9%, transparent);
   color: var(--text-secondary);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   line-height: 1.6;
 }
 
@@ -747,6 +745,6 @@
 .voiceDetail {
   margin-left: auto;
   color: var(--text-tertiary);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   white-space: nowrap;
 }

@@ -26,8 +26,7 @@
 .relatedToggle.relatedToggle {
   gap: var(--spacing-2);
   padding-inline: var(--spacing-4);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -59,7 +58,7 @@
 }
 
 .allTagsEmpty {
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-tertiary);
 }
 
@@ -77,8 +76,7 @@
   padding: var(--badge-padding-lg);
   border-radius: var(--radius-full);
   background: var(--bg-tertiary);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-secondary);
   text-decoration: none;
   transition: background-color 0.15s ease, color 0.15s ease;
@@ -116,8 +114,7 @@
 }
 
 .relatedPillCount {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   opacity: 0.7;
 }
 
@@ -131,8 +128,7 @@
 }
 
 .relatedLabelTooltipMain {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -140,7 +136,6 @@
 }
 
 .relatedLabelTooltipDesc {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   line-height: var(--line-height-135);
 }

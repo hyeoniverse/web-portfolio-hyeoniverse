@@ -27,17 +27,15 @@
 }
 
 .heroDescription {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-lg);
+  font: var(--font-body-lg);
+  line-height: 1.6;
   color: var(--text-secondary);
   margin: 0;
   max-width: 60ch;
-  line-height: 1.6;
 }
 
 .heroMeta {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   color: var(--text-secondary);
   margin: 0;
 }

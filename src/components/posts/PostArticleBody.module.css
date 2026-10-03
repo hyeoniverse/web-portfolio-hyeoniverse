@@ -2,9 +2,7 @@
 
 /* ── Prose body ── */
 .prose {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-lg);
-  line-height: var(--line-height-160);
+  font: var(--font-body-lg);
   color: var(--text-primary);
 }
 
@@ -92,7 +90,7 @@
 }
 
 .prose figcaption {
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-tertiary);
   text-align: center;
   margin-top: var(--spacing-12);
@@ -141,7 +139,7 @@
   width: 100%;
   border-collapse: collapse;
   margin: var(--spacing-24) 0;
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   border: var(--border-light);
   table-layout: fixed;
 }
@@ -226,9 +224,9 @@
 }
 
 .prose th {
+  font: var(--font-body-sm);
   font-weight: var(--font-weight-medium);
   color: var(--text-secondary);
-  font-size: var(--font-size-body-sm);
   text-transform: uppercase;
   background: var(--bg-tertiary-alt);
   letter-spacing: 0.05em;
@@ -237,9 +235,8 @@
 /* ── Footnote (RichText) ── */
 .prose sup[data-footnote-ref] {
   color: var(--text-accent);
+  font: var(--font-code-sm);
   font-weight: var(--font-weight-bold);
-  font-size: var(--font-size-body-sm);
-  font-family: var(--font-family-code);
   text-decoration: none;
 }
 
@@ -252,7 +249,7 @@
 
 
 .prose div[data-footnote-content] {
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   color: var(--text-secondary);
   margin: var(--spacing-4) 0;
   border-top: var(--border-default);
@@ -282,9 +279,8 @@
   overflow: visible;
   clip: auto;
   white-space: normal;
+  font: var(--font-body-xl);
   font-family: var(--font-family-heading);
-  font-size: var(--font-size-body-xl);
-  font-weight: var(--font-weight-regular);
   color: var(--text-primary);
   margin: 0 0 var(--spacing-12) 0;
 }
@@ -402,7 +398,7 @@
 .prose :global(.reader-toc) a {
   color: var(--text-secondary);
   text-decoration: none;
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
 }
 
 .prose :global(.reader-toc) a:hover { color: var(--text-accent); }

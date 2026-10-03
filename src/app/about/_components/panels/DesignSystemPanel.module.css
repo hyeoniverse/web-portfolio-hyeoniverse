@@ -437,8 +437,7 @@
 }
 
 .tabNavCounter {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-meta-xs);
   color: var(--text-white-muted);
   white-space: nowrap;
 }

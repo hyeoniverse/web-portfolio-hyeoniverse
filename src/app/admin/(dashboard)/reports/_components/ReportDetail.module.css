@@ -32,7 +32,7 @@
 }
 
 .type {
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-tertiary);
   overflow-wrap: anywhere;
 }
@@ -43,9 +43,7 @@
   gap: var(--spacing-8);
   flex-wrap: wrap;
   margin: 0;
-  font-family: var(--font-family-heading);
-  font-size: var(--font-size-heading-xs);
-  font-weight: var(--font-weight-regular);
+  font: var(--font-heading-xs);
   color: var(--text-primary);
   overflow-wrap: anywhere;
 }
@@ -54,8 +52,7 @@
   padding: var(--badge-padding-md);
   border-radius: var(--radius-full);
   background: var(--bg-secondary);
-  font-size: var(--font-size-body-xs);
-  font-weight: var(--font-weight-regular);
+  font: var(--font-body-xs);
   color: var(--text-tertiary);
 }
 
@@ -95,7 +92,7 @@
   display: grid;
   grid-template-columns: minmax(0, 7rem) minmax(0, 1fr);
   gap: var(--spacing-12);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
 }
 
 .metaRow dt {
@@ -113,8 +110,7 @@
   align-items: center;
   padding: var(--badge-padding-md);
   border-radius: var(--radius-full);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   font-weight: var(--font-weight-semibold);
   line-height: 1;
 }

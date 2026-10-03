@@ -103,9 +103,7 @@
 
 .modalTitle {
   margin: 0;
-  font-family: var(--font-family-heading);
-  font-size: var(--font-size-heading-xs);
-  font-weight: var(--font-weight-regular);
+  font: var(--font-heading-xs);
   color: var(--text-primary);
   letter-spacing: -0.01em;
 }

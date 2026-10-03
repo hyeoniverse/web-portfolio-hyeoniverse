@@ -223,8 +223,7 @@
 .metaCategory {
   top: 40px;
   right: 0;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-md);
+  font: var(--font-code-md);
   letter-spacing: 0.35em;
   writing-mode: vertical-rl;
 }
@@ -256,8 +255,7 @@
 .metaTech span {
   padding: var(--spacing-8) var(--spacing-16);
   border: 1px solid var(--text-accent-alt);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-md);
+  font: var(--font-code-md);
   letter-spacing: 0.1em;
   border-radius: var(--radius-full);
 }
@@ -265,8 +263,7 @@
 .metaRole {
   top: 50%;
   left: 0;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-md);
+  font: var(--font-code-md);
   letter-spacing: 0.3em;
   white-space: nowrap;
   transform: translateY(-50%) rotate(-90deg);
@@ -731,9 +728,8 @@
   }
 
   .project .metaSubtitle {
+    font: var(--font-heading-sm);
     font-family: var(--font-family-body);
-    font-size: var(--font-size-heading-sm);
-    font-weight: var(--font-weight-regular);
     letter-spacing: 0.01em;
     opacity: 0.9;
     margin-top: var(--spacing-4);
@@ -770,8 +766,7 @@
 
   .project[data-layout] .metaTech span {
     padding: var(--spacing-4) var(--spacing-16);
-    font-family: var(--font-family-code);
-    font-size: var(--font-size-body-sm);
+    font: var(--font-code-sm);
     font-weight: var(--font-weight-medium);
     letter-spacing: 0.08em;
     border: 1px solid var(--text-accent-alt);

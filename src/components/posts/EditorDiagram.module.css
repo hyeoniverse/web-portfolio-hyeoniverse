@@ -40,8 +40,7 @@
   border-radius: var(--radius-full);
   background: var(--bg-primary);
   color: var(--text-secondary);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   white-space: nowrap;
   cursor: pointer;
   transition: color 0.15s ease, border-color 0.15s ease;
@@ -63,8 +62,7 @@
   border: var(--border-light);
   border-radius: var(--radius-24);
   overflow-x: auto;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-md);
+  font: var(--font-code-md);
   line-height: 1.6;
 }
 
@@ -159,7 +157,7 @@
 
 .mermaidHelpIntro {
   margin: 0;
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   line-height: 1.6;
   color: var(--text-secondary);
 }
@@ -184,8 +182,8 @@
 }
 
 .mermaidHelpLabel {
+  font: var(--font-heading-xs);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-heading-xs);
   font-weight: 600;
   letter-spacing: -0.01em;
   color: var(--text-primary);
@@ -203,8 +201,7 @@
   border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-secondary);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   cursor: pointer;
   transition: color 0.12s ease, border-color 0.12s ease;
 }
@@ -217,7 +214,7 @@
 /* 기본 문법 설명 */
 .mermaidHelpBasicsIntro {
   margin: 0;
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   line-height: 1.6;
   color: var(--text-secondary);
 }
@@ -247,7 +244,7 @@
   align-items: baseline;
   padding: var(--spacing-12) var(--spacing-2);
   border-bottom: var(--border-light);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
 }
 
 .mermaidHelpRule code {
@@ -255,8 +252,7 @@
   padding: var(--spacing-2) var(--spacing-4);
   border-radius: var(--radius-full);
   background: var(--bg-tertiary);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-code-sm);
   color: var(--text-primary);
   white-space: nowrap;
 }
@@ -286,8 +282,7 @@
   border: var(--border-light);
   border-radius: var(--radius-24);
   background: var(--bg-tertiary);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-md);
+  font: var(--font-code-md);
   line-height: 1.6;
   color: var(--text-secondary);
   white-space: pre;
@@ -437,7 +432,7 @@
 .mermaidHelpZoomVal {
   min-width: 38px;
   text-align: center;
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   font-variant-numeric: tabular-nums;
   color: var(--text-tertiary);
 }
@@ -467,8 +462,7 @@
   padding: var(--spacing-2) var(--spacing-16);
   border-radius: var(--radius-full);
   background: var(--bg-secondary);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   font-weight: 600;
   letter-spacing: -0.01em;
   color: var(--text-secondary);
@@ -524,7 +518,7 @@
   align-items: center;
   align-self: flex-start;
   gap: var(--spacing-2);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   font-weight: 500;
   color: var(--text-accent);
   text-decoration: none;
@@ -542,8 +536,7 @@
 }
 
 .mermaidError {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   color: var(--text-tertiary);
   white-space: pre-wrap;
 }

@@ -86,8 +86,7 @@
 
 /* 표지가 없는 원에 들어가는 머리글자 — 언어 색 위에서 읽히는 색은 부르는 쪽이 정해 준다 */
 .thumbLetter {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-code-sm);
   font-weight: var(--font-weight-medium);
   color: inherit;
 }
@@ -112,7 +111,7 @@
 .cardSummary {
   overflow: hidden;
   max-width: 100%;
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-tertiary);
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -135,7 +134,7 @@
 .cardName {
   overflow: hidden;
   max-width: 100%;
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   font-weight: var(--font-weight-medium);
   color: var(--text-primary);
   text-overflow: ellipsis;
@@ -202,7 +201,7 @@
   display: flex;
   gap: var(--spacing-2);
   align-items: center;
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   color: var(--text-tertiary);
 }
 
@@ -276,7 +275,7 @@
 }
 
 .coverHint {
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   color: var(--text-tertiary);
 }
 
@@ -316,7 +315,7 @@
   padding: 0 var(--spacing-4);
   border-radius: var(--radius-full);
   background: var(--bg-tertiary);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   color: var(--text-secondary);
 }
 

@@ -31,8 +31,7 @@
   border: var(--border-success);
   border-radius: var(--radius-full);
   background: var(--bg-success-solid);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   font-weight: 500;
   color: var(--text-white);
   letter-spacing: 0.02em;
@@ -106,8 +105,7 @@
   border: none;
   border-radius: var(--radius-full);
   background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-tertiary);
 }
 
@@ -219,8 +217,7 @@
 }
 
 .previewTitle {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   font-weight: 600;
   color: var(--text-primary);
   margin-bottom: var(--spacing-4);
@@ -231,10 +228,9 @@
 }
 
 .previewExcerpt {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
-  color: var(--text-tertiary);
+  font: var(--font-body-sm);
   line-height: 1.4;
+  color: var(--text-tertiary);
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
@@ -252,8 +248,7 @@
   padding: var(--badge-padding-md);
   background: var(--bg-tertiary);
   border-radius: var(--radius-full);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   color: var(--text-tertiary);
 }
 

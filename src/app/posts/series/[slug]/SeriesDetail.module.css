@@ -12,8 +12,7 @@
   align-items: center;
   gap: var(--spacing-4);
   margin-bottom: var(--spacing-24);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-tertiary);
   text-decoration: none;
   transition: color var(--duration-fast) var(--ease-material);
@@ -51,8 +50,7 @@
 }
 
 .eyebrow {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   font-weight: var(--font-weight-semibold);
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -72,19 +70,16 @@
 .description {
   margin: 0;
   max-width: 60ch;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
-  line-height: var(--line-height-160);
+  font: var(--font-body-md);
   color: var(--text-secondary);
 }
 
 .meta {
   margin: 0;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
+  font-variant-numeric: tabular-nums;
   letter-spacing: 0.03em;
   color: var(--text-tertiary);
-  font-variant-numeric: tabular-nums;
 }
 
 /* 연재 순서 목록 — 각 편(에피소드) 행: 순번 · 썸네일 · 카테고리 · 제목 · 발췌 · 메타 */
@@ -106,12 +101,11 @@
   flex-shrink: 0;
   width: 2ch;
   padding-top: var(--spacing-20);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-md);
-  color: var(--text-tertiary);
+  font: var(--font-code-md);
   font-variant-numeric: tabular-nums;
-  text-align: right;
   line-height: 1.2;
+  color: var(--text-tertiary);
+  text-align: right;
 }
 
 .epLink {
@@ -160,8 +154,7 @@
 }
 
 .epCat {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--text-tertiary);
@@ -183,9 +176,7 @@
 }
 
 .epExcerpt {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
-  line-height: var(--line-height-160);
+  font: var(--font-body-sm);
   color: var(--text-tertiary);
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -199,10 +190,9 @@
   flex-wrap: wrap;
   gap: var(--spacing-4);
   margin-top: var(--spacing-2);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
-  color: var(--text-tertiary);
+  font: var(--font-code-xs);
   font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
 }
 .epSep {
   opacity: 0.5;
@@ -214,8 +204,7 @@
 .empty {
   margin: var(--spacing-48) 0;
   text-align: center;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-tertiary);
 }
 

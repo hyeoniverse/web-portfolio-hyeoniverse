@@ -10,21 +10,21 @@
 
 .mediaUploadName {
   margin: 0;
-  font-size: var(--font-size-body-md);
-  color: var(--text-primary);
+  font: var(--font-body-md);
   font-weight: 600;
+  color: var(--text-primary);
   word-break: break-all;
 }
 
 .mediaUploadStage {
   margin: 0;
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   color: var(--text-secondary);
 }
 
 .mediaUploadHint {
   margin: 0;
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-muted);
 }
 
@@ -115,8 +115,7 @@
 }
 
 .imagePanelLabel {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   font-weight: 600;
   color: var(--text-muted);
   text-transform: uppercase;
@@ -186,7 +185,7 @@
 }
 
 .imagePanelEmpty {
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-muted);
   padding: var(--spacing-8) 0;
 }
@@ -216,8 +215,7 @@
 }
 
 .imagePanelDividerLabel {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   font-weight: 600;
   color: var(--text-muted);
   text-transform: uppercase;
@@ -274,8 +272,7 @@
 }
 
 .imagePanelName {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   color: var(--text-tertiary);
   width: 100%;
   text-align: center;
@@ -300,9 +297,9 @@
 }
 
 .imagePanelInfoText {
-  font-size: var(--font-size-body-sm);
-  color: var(--text-tertiary);
+  font: var(--font-body-sm);
   line-height: 1.3;
+  color: var(--text-tertiary);
 }
 
 /* 이미지 이동 핸들 — CSS :hover 로 표시(자손 hover 시에도 조상 :hover 유지되어 깜빡임 없음) */
@@ -363,7 +360,7 @@
 }
 
 .imgConfirmMsg {
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-primary);
   text-align: center;
 }

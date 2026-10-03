@@ -31,8 +31,7 @@
 }
 
 .modalTitle {
-  font-family: var(--font-family-heading);
-  font-size: var(--font-size-heading-sm);
+  font: var(--font-heading-sm);
   color: var(--text-primary);
 }
 
@@ -66,8 +65,7 @@
 }
 
 .label {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   font-weight: 500;
   color: var(--text-tertiary);
   letter-spacing: 0.02em;
@@ -80,8 +78,7 @@
   border: var(--border-light);
   border-radius: var(--radius-full);
   background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   color: var(--text-primary);
   outline: none;
 }
@@ -92,8 +89,7 @@
   border: var(--border-light);
   border-radius: var(--radius-24);
   background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   color: var(--text-primary);
   outline: none;
   resize: vertical;
@@ -126,8 +122,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-12);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   color: var(--text-secondary);
   padding: var(--spacing-8) 0;
 }
@@ -151,8 +146,7 @@
 .coverRemove {
   border: none;
   background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-accent);
 }
 
@@ -165,8 +159,7 @@
   border: var(--border-light);
   border-radius: var(--radius-full);
   background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-tertiary);
   align-self: flex-start;
 }
@@ -182,8 +175,7 @@
 
 .error {
   padding: 0 var(--spacing-24);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-accent);
 }
 
@@ -201,8 +193,7 @@
   border: var(--border-light);
   border-radius: var(--radius-full);
   background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   font-weight: 500;
   color: var(--text-tertiary);
 }
@@ -217,8 +208,7 @@
   border: var(--border-strong);
   border-radius: var(--radius-full);
   background: var(--text-primary);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   font-weight: 500;
   color: var(--bg-primary);
 }
@@ -243,8 +233,7 @@
 }
 
 .postsEmpty {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-tertiary);
   padding: var(--spacing-12) 0;
 }
@@ -296,17 +285,15 @@
 }
 
 .orderNum {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
-  color: var(--text-tertiary);
+  font: var(--font-code-xs);
   line-height: 1;
+  color: var(--text-tertiary);
 }
 
 .postTitle {
   flex: 1;
   min-width: 0;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -315,8 +302,7 @@
 
 .postStatus {
   flex-shrink: 0;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   font-weight: 500;
   width: 16px;
   height: 16px;

@@ -59,9 +59,7 @@
 .compactTitle {
   flex: 1; /* 남는 공간 채워 마커 우측 정렬. lang 클립은 lead 의 padding-right 버퍼로 방지. */
   min-width: 0;
-  font-family: var(--font-family-heading);
-  font-size: var(--font-size-heading-xs);
-  font-weight: var(--font-weight-regular);
+  font: var(--font-heading-xs);
   color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
@@ -70,8 +68,7 @@
 /* 카테고리 — 스타일 없는 순수 텍스트라 튀어서, 메타 톤에 맞춘 은은한 uppercase 라벨로 */
 .compactCat {
   flex-shrink: 0;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   font-weight: var(--font-weight-medium);
   color: var(--text-tertiary);
   text-transform: uppercase;
@@ -97,11 +94,10 @@
   align-items: center;
   gap: var(--spacing-4);
   flex-shrink: 0;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
+  font-variant-numeric: tabular-nums;
   color: var(--text-tertiary);
   white-space: nowrap;
-  font-variant-numeric: tabular-nums;
 }
 .compactDate {
   display: inline-block;
@@ -130,10 +126,9 @@
 .compactStatsMobile {
   align-items: center;
   gap: var(--spacing-4);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
-  color: var(--text-tertiary);
+  font: var(--font-body-sm);
   font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
 }
 
 /* hot/lang 칩 크기 정확히 통일. 원인: hotBadge 는 Flame(12px>텍스트줄) 로 높이가 크고

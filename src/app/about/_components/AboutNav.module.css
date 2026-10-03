@@ -195,10 +195,9 @@
 
 .floorCurrent small {
   white-space: nowrap;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
-  color: var(--text-tertiary);
+  font: var(--font-code-xs);
   font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
 }
 
 /* 레일 — 구간 폭은 담긴 패널 수에 비례(flex-grow 를 인라인으로 준다) */
@@ -364,7 +363,7 @@
 }
 
 .floorStepArrow {
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
 }
 
 /* 다음 — NEXT 는 칸 왼쪽, 이름과 화살표는 칸 오른쪽 끝에 붙는다 */
