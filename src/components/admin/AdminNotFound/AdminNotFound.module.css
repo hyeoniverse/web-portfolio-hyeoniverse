@@ -24,7 +24,8 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-4);
-  padding: var(--button-padding-lg);
+  height: var(--control-height-xl);
+  padding: 0 var(--control-padding-inline-xl);
   border: var(--border-strong);
   border-radius: var(--radius-full);
   font: var(--font-body-md);

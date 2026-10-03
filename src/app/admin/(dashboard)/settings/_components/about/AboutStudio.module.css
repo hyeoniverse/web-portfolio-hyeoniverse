@@ -103,7 +103,7 @@ input.edit {
 
 /* 여러 줄은 여백만 다르다 — 모서리는 한 줄과 같이 간다(위 .edit 주석). */
 textarea.edit {
-  padding: var(--field-padding-md);
+  padding: var(--textarea-padding);
   /* 내용만큼 늘어나되 한 화면을 넘지 않는다. 안 막으면 Design Decisions 의 본문 하나가
      4,000px 짜리 입력이 되어, 다음 항목으로 가려면 화면 몇 개를 굴려야 했다.
      넘치는 만큼은 입력 안에서 스크롤한다. */
@@ -222,7 +222,8 @@ textarea.edit {
   gap: var(--spacing-12);
   width: 100%;
   min-width: 0;
-  padding: var(--field-padding-md);
+  height: var(--control-height-sm);
+  padding: 0 var(--spacing-12);
   border: var(--border-light);
   border-radius: var(--radius-full);
   background: transparent;
@@ -903,7 +904,8 @@ textarea.edit {
   gap: var(--spacing-4);
   width: 100%;
   margin-top: calc(-1 * var(--spacing-20));
-  padding: var(--button-padding-lg);
+  height: var(--control-height-xl);
+  padding: 0 var(--control-padding-inline-xl);
   border-bottom: var(--border-light);
   background: transparent;
   color: var(--text-secondary);

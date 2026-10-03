@@ -1014,7 +1014,8 @@
   width: 100%;
   /* Select 등 컨트롤(--control-height-md)과 높이 통일 — padding 만으론 ~27px 라 Select(32px)보다 낮았음 */
   min-height: var(--control-height-md);
-  padding: var(--input-padding);
+  height: var(--control-height-md);
+  padding: 0 var(--control-padding-inline-sm);
   border: var(--border-light);
   border-radius: var(--radius-full);
   background: transparent;

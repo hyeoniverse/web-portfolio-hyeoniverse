@@ -79,7 +79,10 @@
 }
 
 .primaryButton {
-  padding: var(--button-padding-lg);
+  display: inline-flex;
+  align-items: center;
+  height: var(--control-height-xl);
+  padding: 0 var(--control-padding-inline-xl);
   border: var(--border-strong);
   background: var(--text-primary);
   font: var(--font-body-md);
@@ -100,7 +103,10 @@
 }
 
 .secondaryButton {
-  padding: var(--button-padding-lg);
+  display: inline-flex;
+  align-items: center;
+  height: var(--control-height-xl);
+  padding: 0 var(--control-padding-inline-xl);
   border: var(--border-strong);
   background: transparent;
   font: var(--font-body-md);

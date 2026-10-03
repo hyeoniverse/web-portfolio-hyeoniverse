@@ -46,7 +46,10 @@
 .tab.active { color: var(--text-primary); }
 .removeBtn {
   margin-left: auto;
-  padding: var(--button-padding-xs);
+  display: inline-flex;
+  align-items: center;
+  height: var(--control-height-xs);
+  padding: 0 var(--control-padding-inline-xs);
   border: none;
   cursor: pointer;
   background: transparent;

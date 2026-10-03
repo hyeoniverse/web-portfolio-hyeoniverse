@@ -424,7 +424,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--button-padding-xs);
+  height: var(--control-height-xs);
+  padding: 0 var(--control-padding-inline-xs);
   border: none;
   background: transparent;
   color: var(--text-white);
@@ -597,7 +598,10 @@
   }
 
   .dcToggleBtn {
-    padding: var(--button-padding-sm);
+    display: inline-flex;
+    align-items: center;
+    height: var(--control-height-sm);
+    padding: 0 var(--control-padding-inline-sm);
     font-size: clamp(var(--font-size-body-xs), 0.688rem + 0.25vw, 0.85rem);
   }
 

@@ -577,7 +577,10 @@
 .tableGroup .toolbarBtn {
   border-radius: 0;
   border-left: var(--border-light);
-  padding: var(--button-padding-sm);
+  display: inline-flex;
+  align-items: center;
+  height: var(--control-height-sm);
+  padding: 0 var(--control-padding-inline-sm);
 }
 
 .tableGroup > :first-child .toolbarBtn,
@@ -1030,7 +1033,8 @@
   background: transparent;
   font: var(--font-code-sm);
   color: var(--text-primary);
-  padding: var(--field-padding-sm);
+  height: var(--control-height-sm);
+  padding: 0 var(--spacing-8);
   width: 120px;
   outline: none;
   /* 내용에 맞춰 높이 자동 — 입력 길이만큼만 공간 차지(미리 큰 공간 확보 X) */
@@ -1073,7 +1077,10 @@
 }
 
 .borderClearBtn {
-  padding: var(--button-padding-xs);
+  display: inline-flex;
+  align-items: center;
+  height: var(--control-height-xs);
+  padding: 0 var(--control-padding-inline-xs);
   border: var(--border-light);
   border-radius: var(--radius-full);
   background: transparent;

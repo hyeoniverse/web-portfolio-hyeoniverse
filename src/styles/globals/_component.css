@@ -18,13 +18,6 @@
   --cursor-text-width: 3px;
   --cursor-text-height: 24px;
 
-  /* Control padding — capsule 모양 컨트롤의 사이즈는 padding 으로 결정.
-     원 / 사각 아이콘 버튼은 padding 으로 못 잡으므로 아래 --control-height-* 로 높이를 직접 준다. */
-  --button-padding-xs: var(--spacing-2) var(--spacing-12); /* 2 12 → 약 20px */
-  --button-padding-sm: var(--spacing-4) var(--spacing-16); /* 4 16 → 약 26px (일반 button) */
-  --button-padding-md: var(--spacing-8) var(--spacing-20); /* 8 20 → 약 36px (primary CTA) */
-  --button-padding-lg: var(--spacing-12) var(--spacing-24); /* 12 24 → 약 44px (hero CTA) */
-
   /* 뱃지·칩·태그 — 글자 크기가 곧 등급이다. 높이를 직접 정하는 뱃지(--control-height-* 를 쓰는 것)는
      세로 padding 이 필요 없으므로 여기 해당하지 않는다.
      이 셋을 만든 이유: 같은 성격의 뱃지 118곳이 29가지 여백을 쓰고 있었다. */
@@ -49,12 +42,6 @@
   --card-padding-md: var(--spacing-16) var(--spacing-16); /* 16 16 — 기본 */
   --card-padding-lg: var(--spacing-24) var(--spacing-32); /* 24 32 — 매거진형 큰 카드 */
 
-  --input-padding: var(--spacing-4) var(--spacing-16); /* 4 16 → 약 26px — input / select 기본 */
-
-  /* 컴포넌트를 안 쓰고 직접 만든 입력 필드 — 위 --input-padding 와 달리 높이를 여백이 정한다. */
-  --field-padding-sm: var(--spacing-4) var(--spacing-8); /* 4 8 */
-  --field-padding-md: var(--spacing-4) var(--spacing-12); /* 4 12 */
-  --field-padding-lg: var(--spacing-8) var(--spacing-12); /* 8 12 */
 
   /* 표 셀 — 글 안의 표와 관리 화면의 표 두 덩어리로 갈린다. */
   --cell-padding-sm: var(--spacing-4) var(--spacing-8); /* 4 8 — 글 안·도움말처럼 조밀한 표 */
@@ -69,6 +56,13 @@
   --control-height-md: 32px;
   --control-height-lg: 36px;
   --control-height-xl: 40px;
+
+  /* 컨트롤 좌우 여백 — 높이 단계와 짝이다(3.4 표). 세로 여백은 없다: 높이 + 좌우 여백 + align-items: center 가 컨트롤을 만든다(3.4-2) */
+  --control-padding-inline-xs: var(--spacing-16);
+  --control-padding-inline-sm: var(--spacing-16);
+  --control-padding-inline-md: var(--spacing-20);
+  --control-padding-inline-lg: var(--spacing-20);
+  --control-padding-inline-xl: var(--spacing-24);
 
   /* 뱃지 — 누르지 않는 작은 것. 컨트롤이 아니라 24 하한(3.4-4) 밖이다 */
   --badge-height: 20px;

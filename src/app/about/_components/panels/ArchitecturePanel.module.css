@@ -67,7 +67,10 @@
 }
 
 .archMap .archModeBtn {
-  padding: var(--button-padding-md);
+  display: inline-flex;
+  align-items: center;
+  height: var(--control-height-lg);
+  padding: 0 var(--control-padding-inline-lg);
   background: transparent;
   font: var(--font-prose-md);
   color: var(--text-tertiary);

@@ -146,7 +146,8 @@
   border: none;
   border-bottom: var(--border-strong);
   border-radius: 0;
-  padding: var(--input-padding);
+  height: var(--control-height-md);
+  padding: 0 var(--control-padding-inline-sm);
   padding-left: 0;
 }
 

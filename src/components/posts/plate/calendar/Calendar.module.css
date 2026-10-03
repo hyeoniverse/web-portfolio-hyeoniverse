@@ -131,7 +131,8 @@
   width: 180px;
   max-width: 100%;
   min-width: 0;
-  padding: var(--field-padding-md);
+  height: var(--control-height-md);
+  padding: 0 var(--spacing-12);
   border: none;
   border-radius: var(--radius-full);
   background: transparent;
