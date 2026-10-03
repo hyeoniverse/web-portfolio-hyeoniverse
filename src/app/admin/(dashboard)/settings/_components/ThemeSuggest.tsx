@@ -4,6 +4,7 @@ import { useMemo, useRef, useState, type DragEvent, type KeyboardEvent, type Poi
 import { converter, formatHex } from "culori";
 import { useLanguage } from "@/providers/LanguageProvider";
 import SegmentedControl from "@/components/ui/SegmentedControl";
+import Pressable from "@/components/ui/Pressable";
 import { showToast } from "@/stores/toastStore";
 import type { ThemeColors } from "@/lib/themeAudit";
 import { HARMONY_RULES, extractColors, harmonyHues, harmonyPalette, harmonyThemes, themesFromColors, withHue, type ExtractedColor, type HarmonyRule } from "@/lib/themeGenerate";
@@ -23,7 +24,7 @@ const SAMPLE = 96;
 
 function ThemeCard({ theme, name, desc, onApply }: { theme: ThemeColors; name: string; desc?: string; onApply: (t: ThemeColors) => void }) {
   return (
-    <button type="button" className={styles.card} onClick={() => onApply(theme)} aria-label={name}>
+    <Pressable className={styles.card} onClick={() => onApply(theme)} aria-label={name}>
       <span className={styles.swatches} aria-hidden>
         <span style={{ background: theme.darkBg }} />
         <span style={{ background: theme.darkText }} />
@@ -36,7 +37,7 @@ function ThemeCard({ theme, name, desc, onApply }: { theme: ThemeColors; name: s
         <VerdictChip theme={theme} />
       </span>
       {desc && <span className={styles.cardDesc}>{desc}</span>}
-    </button>
+    </Pressable>
   );
 }
 
@@ -190,9 +191,9 @@ export default function ThemeSuggest({ accent, onApply }: { accent: string; onAp
             </span>
             <span className={styles.wheelHint}>{k("wheelHint")}</span>
             {base !== accent && (
-              <button type="button" className={styles.resetBtn} onClick={() => setBase(accent)}>
+              <Pressable className={styles.resetBtn} onClick={() => setBase(accent)}>
                 {k("resetBase")}
-              </button>
+              </Pressable>
             )}
           </div>
           <div className={styles.cards}>
@@ -205,8 +206,7 @@ export default function ThemeSuggest({ accent, onApply }: { accent: string; onAp
       ) : (
         <div className={styles.suggestBody}>
           <div className={styles.imageCol}>
-            <button
-              type="button"
+            <Pressable
               className={`${styles.drop} ${dragging ? styles.dropActive : ""}`}
               onClick={() => fileRef.current?.click()}
               onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
@@ -215,7 +215,7 @@ export default function ThemeSuggest({ accent, onApply }: { accent: string; onAp
             >
               {/* eslint-disable-next-line @next/next/no-img-element -- 로컬 blob 미리보기라 최적화 대상이 아니다 */}
               {image ? <img src={image.url} alt="" /> : k("imagePick")}
-            </button>
+            </Pressable>
             <input ref={fileRef} type="file" accept="image/*" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) void readImage(f); e.target.value = ""; }} />
             {image && (
               <span className={styles.palette} aria-hidden>
