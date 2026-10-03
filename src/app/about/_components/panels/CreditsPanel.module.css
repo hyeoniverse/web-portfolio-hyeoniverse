@@ -28,8 +28,7 @@
 
 .creditsEyebrow {
   margin: 0;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-meta-sm);
   color: var(--text-tertiary);
   letter-spacing: 0.3em;
   text-transform: uppercase;

@@ -265,8 +265,8 @@
 
   /* ── 3층 · 글자 묶음 — `font: var(--font-body-sm)` 로 쓴다(3.2-1) ─────
    * 굵기 · 크기/줄간격 · 글꼴. 한 값만 다르면 뒤에 덧쓴다. tabular-nums 같은 설정은 font 뒤에 적는다.
-   * 제목은 줄간격 125, 본문 · UI · 코드는 160(지금 body 에서 물려받는 값과 같다).
-   * 전체 세트(3.2): display-sm · md · lg / heading-xs ~ xl / body-xs ~ xl / code-xs ~ lg.
+   * 제목은 줄간격 125, 본문 · UI · 코드 · 메타는 160(지금 body 에서 물려받는 값과 같다).
+   * 전체 세트(3.2): display-sm · md · lg / heading-xs ~ xl / body-xs ~ xl / code-xs ~ lg / meta-xs ~ md.
    * 안 쓰는 토큰은 두지 않으므로(2-4), 컴포넌트가 처음 쓸 때 위 이름 · 같은 모양으로 더한다. */
   --font-heading-xs: var(--font-weight-regular) var(--font-size-heading-xs) / var(--line-height-125) var(--font-family-heading);
   --font-heading-sm: var(--font-weight-regular) var(--font-size-heading-sm) / var(--line-height-125) var(--font-family-heading);
@@ -281,6 +281,10 @@
   --font-code-md: var(--font-weight-regular) var(--font-size-body-md) / var(--line-height-160) var(--font-family-code);
   --font-code-sm: var(--font-weight-regular) var(--font-size-body-sm) / var(--line-height-160) var(--font-family-code);
   --font-code-xs: var(--font-weight-regular) var(--font-size-body-xs) / var(--line-height-160) var(--font-family-code);
+  /* 메타 — About · Profile 의 라벨 · 분류 · 날짜 · 수치. 코드 글꼴을 Light 로 쓴다 */
+  --font-meta-md: var(--font-weight-light) var(--font-size-body-md) / var(--line-height-160) var(--font-family-code);
+  --font-meta-sm: var(--font-weight-light) var(--font-size-body-sm) / var(--line-height-160) var(--font-family-code);
+  --font-meta-xs: var(--font-weight-light) var(--font-size-body-xs) / var(--line-height-160) var(--font-family-code);
 
   /* Line Heights */
 

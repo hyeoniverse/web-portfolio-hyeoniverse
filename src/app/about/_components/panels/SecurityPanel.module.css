@@ -153,8 +153,7 @@
   }
 
   .flowStep {
-    font-family: var(--font-family-code);
-    font-size: var(--font-size-body-sm);
+    font: var(--font-meta-sm);
     color: var(--text-accent);
   }
 
@@ -241,8 +240,7 @@
   }
 
   .flowScope {
-    font-family: var(--font-family-code);
-    font-size: var(--font-size-body-xs);
+    font: var(--font-meta-xs);
     color: var(--text-tertiary);
   }
 }

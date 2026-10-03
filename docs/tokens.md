@@ -320,7 +320,7 @@
 
 ## `src/styles/globals/_semantic.css`
 
-토큰 138개
+토큰 141개
 
 | 토큰 | 값 | 다크 | 조건부 |
 |---|---|---|---|
@@ -456,6 +456,9 @@
 | `--font-code-md` | `var(--font-weight-regular) var(--font-size-body-md) / var(--line-height-160) var(--font-family-code)` |  |  |
 | `--font-code-sm` | `var(--font-weight-regular) var(--font-size-body-sm) / var(--line-height-160) var(--font-family-code)` |  |  |
 | `--font-code-xs` | `var(--font-weight-regular) var(--font-size-body-xs) / var(--line-height-160) var(--font-family-code)` |  |  |
+| `--font-meta-md` | `var(--font-weight-light) var(--font-size-body-md) / var(--line-height-160) var(--font-family-code)` |  |  |
+| `--font-meta-sm` | `var(--font-weight-light) var(--font-size-body-sm) / var(--line-height-160) var(--font-family-code)` |  |  |
+| `--font-meta-xs` | `var(--font-weight-light) var(--font-size-body-xs) / var(--line-height-160) var(--font-family-code)` |  |  |
 | `--heading-line-height` | `var(--line-height-125)` |  |  |
 | `--prose-block-gap` | `var(--spacing-16)` |  |  |
 | `--spacing-section` | `clamp(1rem, min(3.5vh, 2vw), 3.5rem)` |  |  |

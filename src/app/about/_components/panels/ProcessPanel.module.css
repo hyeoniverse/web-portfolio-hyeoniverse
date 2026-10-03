@@ -72,8 +72,7 @@
 
 .procDetailPeriod {
   margin: 0;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-meta-sm);
   color: var(--text-tertiary);
   letter-spacing: 0.04em;
 }
@@ -327,8 +326,7 @@
   height: var(--spacing-24);
   margin-left: calc(var(--_num-w) + var(--_title-w) + var(--_col-gap) * 2);
   border-bottom: var(--border-light);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-meta-xs);
   color: var(--text-tertiary);
 }
 
@@ -437,8 +435,7 @@
 
 .procSummary {
   margin: var(--spacing-12) 0 0;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-meta-xs);
   color: var(--text-tertiary);
   letter-spacing: 0.04em;
 }

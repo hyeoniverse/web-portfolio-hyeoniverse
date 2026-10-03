@@ -572,8 +572,7 @@
   }
 
   .codeIndexLang {
-    font-family: var(--font-family-code);
-    font-size: var(--font-size-body-xs);
+    font: var(--font-meta-xs);
     text-transform: uppercase;
     color: var(--text-tertiary);
   }

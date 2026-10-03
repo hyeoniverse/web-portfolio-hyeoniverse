@@ -62,8 +62,7 @@
 .techCategory {
   display: block;
   margin-bottom: var(--spacing-4);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-meta-sm);
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.05em;

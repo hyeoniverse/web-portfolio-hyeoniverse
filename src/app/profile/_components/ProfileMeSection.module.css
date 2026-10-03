@@ -271,8 +271,7 @@
   padding: 0.2em 0.7em;
   border: var(--border-white-muted);
   width: fit-content;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-meta-sm);
   color: var(--text-white);
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -280,8 +279,7 @@
 }
 
 .bgInfoValue {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-md);
+  font: var(--font-meta-md);
   color: var(--text-white);
   white-space: nowrap;
 }
