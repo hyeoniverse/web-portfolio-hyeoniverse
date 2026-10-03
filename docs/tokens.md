@@ -152,7 +152,7 @@
 
 ## `src/styles/tokens/_typography.css`
 
-토큰 37개
+토큰 31개
 
 | 토큰 | 값 |
 |---|---|
@@ -174,12 +174,6 @@
 | `--font-size-40` | `2.5rem` |
 | `--font-size-48` | `3rem` |
 | `--font-size-64` | `4rem` |
-| `--fluid-font-size-3xl` | `clamp(0.75rem, 1.8rem + 1vw, 2.5rem)` |
-| `--fluid-font-size-4xl` | `clamp(0.75rem, 3rem + 1.5vw, 5rem)` |
-| `--fluid-font-size-5xl` | `clamp(0.75rem, 4.5rem + 2vw, 8rem)` |
-| `--fluid-font-size-6xl` | `clamp(0.75rem, 6rem + 2.5vw, 10rem)` |
-| `--fluid-font-size-7xl` | `clamp(0.75rem, 7.5rem + 3vw, 12rem)` |
-| `--fluid-font-size-8xl` | `clamp(0.75rem, 9rem + 3.5vw, 14rem)` |
 | `--line-height-090` | `0.9` |
 | `--line-height-100` | `1` |
 | `--line-height-125` | `1.25` |
@@ -320,7 +314,7 @@
 
 ## `src/styles/globals/_semantic.css`
 
-토큰 150개
+토큰 152개
 
 | 토큰 | 값 | 다크 | 조건부 |
 |---|---|---|---|
@@ -435,14 +429,16 @@
 | `--font-size-heading-md` | `var(--font-size-22)` |  |  |
 | `--font-size-heading-lg` | `var(--font-size-28)` |  |  |
 | `--font-size-heading-xl` | `var(--font-size-34)` |  |  |
-| `--font-size-display-sm` | `clamp(1rem, 0.5rem + 1.4vw, 2.5rem)` |  |  |
+| `--font-size-display-sm` | `clamp(1.5rem, 0.5rem + 1.4vw, 2.5rem)` |  |  |
 | `--font-size-display-md` | `clamp(2rem, 1rem + 3vw, 5rem)` |  |  |
 | `--font-size-display-lg` | `clamp(2.5rem, 1.5rem + 5vw, 6.25rem)` |  |  |
+| `--font-size-display-xl` | `clamp(4rem, 2.5rem + 7vw, 12.5rem)` |  |  |
 | `--font-size-prose-xs` | `clamp(0.75rem, 0.25rem + 0.45vw, 1rem)` |  |  |
 | `--font-size-prose-sm` | `clamp(0.75rem, 0.25rem + 0.58vw, 1.15rem)` |  |  |
 | `--font-size-prose-md` | `clamp(0.75rem, 0.25rem + 0.73vw, 1.25rem)` |  |  |
 | `--font-size-prose-lg` | `clamp(0.75rem, 0.25rem + 1.2vw, 1.5rem)` |  |  |
 | `--font-size-dot` | `5px` |  |  |
+| `--font-display-xl` | `var(--font-weight-regular) var(--font-size-display-xl) / var(--line-height-100) var(--font-family-accent)` |  |  |
 | `--font-display-lg` | `var(--font-weight-regular) var(--font-size-display-lg) / var(--line-height-100) var(--font-family-accent)` |  |  |
 | `--font-display-md` | `var(--font-weight-regular) var(--font-size-display-md) / var(--line-height-100) var(--font-family-accent)` |  |  |
 | `--font-display-sm` | `var(--font-weight-regular) var(--font-size-display-sm) / var(--line-height-100) var(--font-family-accent)` |  |  |

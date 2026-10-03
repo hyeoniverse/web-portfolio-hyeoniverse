@@ -143,7 +143,7 @@
    transform 의 행렬을 그대로 읽어 framer 로 넘겨준다. !important 는 framer 가 마운트 때 인라인으로
    쓰는 장평 transform 을 이기기 위해서다. */
 .logoCssLoading {
-  --logo-k: tan(atan2(min(var(--fluid-font-size-6xl), calc(86vw / (var(--logo-chars, 8) * 0.55))), 1em));
+  --logo-k: tan(atan2(min(var(--font-size-display-lg), calc(86vw / (var(--logo-chars, 8) * 0.55))), 1em));
   transform-origin: left center;
   transform:
     translate(

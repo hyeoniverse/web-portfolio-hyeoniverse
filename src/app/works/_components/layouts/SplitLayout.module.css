@@ -44,8 +44,8 @@
 
 /* 좌측 텍스트 — 모두 white 톤 통일 (opacity 로 위계). 강조색 없음. */
 .number {
+  font: var(--font-display-xl);
   font-family: var(--font-family-heading);
-  font-size: var(--fluid-font-size-8xl);
   font-weight: 200;
   line-height: 0.8;
   letter-spacing: -0.06em;
@@ -66,8 +66,8 @@
 }
 
 .title {
+  font: var(--font-display-lg);
   font-family: var(--font-family-heading);
-  font-size: var(--fluid-font-size-5xl);
   font-weight: var(--font-weight-light);
   line-height: var(--line-height-125);
   letter-spacing: -0.03em;
@@ -197,8 +197,8 @@
   position: relative;
   z-index: 1;
   margin: 0;
+  font: var(--font-display-sm);
   font-family: var(--font-family-heading);
-  font-size: var(--fluid-font-size-3xl);
   font-style: italic;
   font-weight: var(--font-weight-light);
   line-height: var(--line-height-160);
@@ -335,7 +335,7 @@
      더 줄이면 표제 구실을 못 한다 */
   font-size: max(
     3rem,
-    min(var(--fluid-font-size-6xl), calc(var(--title-box, 600px) * 4 / var(--title-units, 14)))
+    min(var(--font-size-display-lg), calc(var(--title-box, 600px) * 4 / var(--title-units, 14)))
   );
 }
 
@@ -350,8 +350,8 @@
 }
 
 .imageYear {
+  font: var(--font-display-lg);
   font-family: var(--font-family-heading);
-  font-size: var(--fluid-font-size-6xl);
   font-weight: 200;
   line-height: 0.9;
   color: transparent;

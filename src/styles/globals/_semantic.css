@@ -251,9 +251,10 @@
   --font-size-heading-xl: var(--font-size-34);
   /* 지면 — 화면 폭을 따라 늘고 준다(About · 히어로). 가운데 값에 rem 을 섞어 확대를 따르고,
      최대를 최소의 2.5배 이하로 둔다(3.2-4, D28) */
-  --font-size-display-sm: clamp(1rem, 0.5rem + 1.4vw, 2.5rem);
+  --font-size-display-sm: clamp(1.5rem, 0.5rem + 1.4vw, 2.5rem); /* 아래 24 — 16 이면 폰에서 본문과 같아져 전시가 아니다(D35) */
   --font-size-display-md: clamp(2rem, 1rem + 3vw, 5rem);
   --font-size-display-lg: clamp(2.5rem, 1.5rem + 5vw, 6.25rem);
+  --font-size-display-xl: clamp(4rem, 2.5rem + 7vw, 12.5rem); /* 홈 히어로 · Works 레이아웃 제목 · 큰 번호. 옛 --fluid-font-size-7xl · 8xl 자리 */
   --font-size-prose-xs: clamp(0.75rem, 0.25rem + 0.45vw, 1rem);
   --font-size-prose-sm: clamp(0.75rem, 0.25rem + 0.58vw, 1.15rem);
   --font-size-prose-md: clamp(0.75rem, 0.25rem + 0.73vw, 1.25rem);
@@ -266,9 +267,10 @@
   /* ── 3층 · 글자 묶음 — `font: var(--font-body-sm)` 로 쓴다(3.2-1) ─────
    * 굵기 · 크기/줄간격 · 글꼴. 한 값만 다르면 뒤에 덧쓴다. tabular-nums 같은 설정은 font 뒤에 적는다.
    * 제목은 줄간격 125, 전시(display)는 100, 본문 · UI · 코드 · 메타 · 지면은 160(지금 body 에서 물려받는 값과 같다).
-   * 전체 세트(3.2): display-sm ~ lg / heading-xs ~ xl / body-xs ~ xl / code-xs ~ xl / meta-xs ~ md / prose-xs ~ lg.
+   * 전체 세트(3.2): display-sm ~ xl / heading-xs ~ xl / body-xs ~ xl / code-xs ~ xl / meta-xs ~ md / prose-xs ~ lg.
    * 안 쓰는 토큰은 두지 않으므로(2-4), 컴포넌트가 처음 쓸 때 위 이름 · 같은 모양으로 더한다. */
   /* 전시 — 히어로 · 큰 숫자 · 페이지 제목. 화면 폭을 따라 늘고 줄며(D28), 글꼴은 제목 설정과 상관없이 Playfair(D34) */
+  --font-display-xl: var(--font-weight-regular) var(--font-size-display-xl) / var(--line-height-100) var(--font-family-accent);
   --font-display-lg: var(--font-weight-regular) var(--font-size-display-lg) / var(--line-height-100) var(--font-family-accent);
   --font-display-md: var(--font-weight-regular) var(--font-size-display-md) / var(--line-height-100) var(--font-family-accent);
   --font-display-sm: var(--font-weight-regular) var(--font-size-display-sm) / var(--line-height-100) var(--font-family-accent);

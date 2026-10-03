@@ -75,8 +75,8 @@
 }
 
 .metaNumber {
+  font: var(--font-display-xl);
   font-family: var(--font-family-heading);
-  font-size: var(--fluid-font-size-8xl);
   font-weight: 200;
   line-height: 0.8;
   letter-spacing: -0.06em;
@@ -101,7 +101,7 @@
      전에는 줄 수 제한이 없어 긴 제목이 여섯 줄까지 늘어나 판 밖으로 흘렀다 */
   font-size: max(
     2.5rem,
-    min(var(--fluid-font-size-5xl), calc(var(--title-box, 500px) * 4 / var(--title-units, 14)))
+    min(var(--font-size-display-lg), calc(var(--title-box, 500px) * 4 / var(--title-units, 14)))
   );
   display: -webkit-box;
   overflow: hidden;
@@ -199,11 +199,11 @@
   }
 
   .metaNumber {
-    font-size: var(--fluid-font-size-5xl);
+    font-size: var(--font-size-display-lg);
   }
 
   .metaTitle {
-    font-size: var(--fluid-font-size-3xl);
+    font-size: var(--font-size-display-sm);
   }
 
   .metaSub {

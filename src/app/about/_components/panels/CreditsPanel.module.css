@@ -103,10 +103,6 @@
     display: none;
   }
 
-  .creditsTitle {
-    font-size: 4.5rem;
-  }
-
   .creditsList {
     gap: var(--spacing-4);
   }

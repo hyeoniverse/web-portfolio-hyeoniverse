@@ -33,9 +33,8 @@
   align-items: center;
   gap: var(--spacing-48);
   padding-right: var(--spacing-48);
+  font: var(--font-display-md);
   font-family: var(--font-family-heading);
-  font-size: var(--fluid-font-size-4xl);
-  font-weight: var(--font-weight-regular);
   color: var(--text-accent-alt);
   letter-spacing: -0.02em;
 }
