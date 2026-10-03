@@ -396,8 +396,7 @@ textarea.edit {
 
 .psLabel {
   white-space: nowrap;
-  font: var(--font-heading-xs);
-  font-family: var(--font-family-body);
+  font: var(--font-body-xl);
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;

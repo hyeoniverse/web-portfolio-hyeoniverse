@@ -50,7 +50,7 @@
 }
 
 .secTitle {
-  font: var(--font-heading-xs);
+  font: var(--font-body-xl);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
 }

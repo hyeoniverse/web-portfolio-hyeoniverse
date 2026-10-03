@@ -73,7 +73,7 @@
 }
 
 .conflictDiffTitle {
-  font: var(--font-heading-sm);
+  font: var(--font-body-xl);
   color: var(--text-primary);
   overflow: hidden;
   text-overflow: ellipsis;

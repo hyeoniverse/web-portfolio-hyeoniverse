@@ -81,7 +81,8 @@
    ───────────────────────────────────────────────────────────────────────── */
 
 .sectionTitle {
-  font: var(--font-heading-xs);
+  /* 설정 구획의 이름표 — 글의 제목이 아니라 UI 라벨이라 본문 글꼴(D27 범위) */
+  font: var(--font-body-xl);
   color: var(--text-primary);
   margin: 0;
   text-transform: uppercase;
