@@ -496,7 +496,7 @@
     width: 10px;
     height: 10px;
     background: var(--bg-primary);
-    border-radius: var(--radius-circle);
+    border-radius: var(--radius-full);
     opacity: 0.35;
   }
 

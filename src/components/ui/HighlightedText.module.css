@@ -2,7 +2,7 @@
 @layer components {
 .mark {
   padding: 0 var(--spacing-2);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-accent);
   color: inherit;
   font-weight: inherit;

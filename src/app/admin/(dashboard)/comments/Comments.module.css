@@ -44,7 +44,7 @@
   height: var(--control-height-md);
   padding: 0 var(--spacing-12);
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   font: var(--font-body-md);
   color: var(--text-primary);
@@ -62,7 +62,7 @@
   gap: var(--spacing-12);
   padding: var(--spacing-8) var(--spacing-16);
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   margin-bottom: var(--spacing-16);
   font: var(--font-body-sm);
   color: var(--text-secondary);
@@ -124,7 +124,7 @@
   align-items: center;
   justify-content: center;
   padding: var(--badge-padding-md);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   font: var(--font-body-xs);
   font-weight: 600;
   width: fit-content;
@@ -155,7 +155,7 @@
   font: var(--font-body-xs);
   font-weight: 700;
   padding: var(--badge-padding-md);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--text-primary);
   color: var(--bg-primary);
 }

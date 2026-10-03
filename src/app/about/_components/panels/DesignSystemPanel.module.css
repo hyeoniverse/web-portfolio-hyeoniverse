@@ -183,7 +183,7 @@
   font-family: var(--font-family-code);
   font-size: clamp(0.85rem, 0.393rem + 0.71vw, 1.25rem);
   color: var(--text-white-muted);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   letter-spacing: 0.05em;
 }
 
@@ -230,7 +230,7 @@
   width: clamp(56px, min(10vh, 5.5vw), 100px);
   height: clamp(56px, min(10vh, 5.5vw), 100px);
   font-size: clamp(0.8rem, 0.442rem + 0.56vw, 1.1rem);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
 }
 
 /* Compound selector (0,2,0) */
@@ -245,7 +245,7 @@
   width: 100%;
   height: clamp(42px, min(7vh, 3.8vw), 68px);
   background: var(--bg-glass-subtle);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
 }
 
 .dcSpringBall {
@@ -255,7 +255,7 @@
   width: clamp(30px, min(4.8vh, 2.6vw), 52px);
   height: clamp(30px, min(4.8vh, 2.6vw), 52px);
   background: var(--text-accent);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   translate: 0 -50%;
   will-change: left;
 }
@@ -298,7 +298,7 @@
 .dcSpacingBar {
   height: clamp(12px, min(1.8vh, 1vw), 22px);
   background: var(--bg-glass);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
 }
 
 /* Compound selector (0,2,0) */
@@ -330,7 +330,7 @@
   position: relative;
   min-width: 0;
   background: var(--bg-glass);
-  border-radius: var(--radius-full) var(--radius-full) 0 0;
+  border-radius: var(--radius-control) var(--radius-control) 0 0;
 }
 
 /* Compound selector (0,2,0) */

@@ -150,7 +150,7 @@
   font: var(--font-body-xs);
   font-weight: 700;
   padding: var(--badge-padding-md);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   min-width: 18px;
   text-align: center;
 }
@@ -312,7 +312,7 @@ a.statCard:hover .statValue {
   width: 100%;
   height: 6px;
   background: var(--bg-secondary);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   overflow: hidden;
 }
 
@@ -321,7 +321,7 @@ a.statCard:hover .statValue {
   inset: 0 auto 0 0;
   height: 100%;
   background: var(--bg-accent-solid);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -505,7 +505,7 @@ a.statCard:hover .statValue {
   justify-content: center;
   gap: var(--spacing-4);
   padding: var(--spacing-1) var(--spacing-8);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   font: var(--font-body-xs);
   font-weight: 600;
   letter-spacing: 0.02em;
@@ -518,7 +518,7 @@ a.statCard:hover .statValue {
   display: block;
   width: 6px;
   height: 6px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   flex-shrink: 0;
 }
 
@@ -560,7 +560,7 @@ a.statCard:hover .statValue {
   display: inline-block;
   width: 8px;
   height: 8px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   flex-shrink: 0;
 }
 
@@ -575,7 +575,7 @@ a.statCard:hover .statValue {
   content: "";
   position: absolute;
   inset: 0;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--text-success);
   animation: dotOkPulse 1.8s ease-out infinite;
   pointer-events: none;
@@ -627,7 +627,7 @@ a.statCard:hover .statValue {
   align-items: center;
   gap: var(--spacing-2);
   padding: var(--badge-padding-sm);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   font: var(--font-code-xs);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
@@ -709,7 +709,7 @@ a.statCard:hover .statValue {
   /* gap 대체 — 모든 pill 동일 spacing. 마지막 줄 아래 튀어나옴은 container 의 negative margin 으로 상쇄 */
   margin-right: var(--spacing-4);
   margin-bottom: var(--spacing-4);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-tertiary);
   font: var(--font-body-sm);
   color: var(--text-secondary);
@@ -819,7 +819,7 @@ a.statCard:hover .statValue {
   display: inline-block;
   width: 5px;
   height: 5px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--bg-accent-solid);
 }
 
@@ -884,7 +884,7 @@ a.commentSource:hover {
   height: 1.4em;
   padding: 0 var(--spacing-2);
   margin-left: var(--spacing-8);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--text-accent);
   color: var(--bg-primary);
   font: var(--font-body-xs);
@@ -908,7 +908,7 @@ a.commentSource:hover {
   display: inline-block;
   width: 5px;
   height: 5px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--bg-accent-solid);
 }
 

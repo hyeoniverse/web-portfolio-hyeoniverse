@@ -15,7 +15,7 @@
   flex-shrink: 0;
   width: 64px;
   height: 64px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   overflow: hidden;
   border: var(--border-light);
   background: var(--bg-secondary);

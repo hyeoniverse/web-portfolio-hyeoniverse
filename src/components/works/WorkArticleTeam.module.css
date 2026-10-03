@@ -6,7 +6,7 @@
   justify-content: center;
   width: 24px;
   height: 24px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   color: var(--text-tertiary);
   transition: color 0.18s ease, background 0.18s ease;
 }
@@ -207,7 +207,7 @@
   width: 3px;
   height: 3px;
   background: var(--text-muted);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
 }
 
 /* ── Team Credits — likeWrapper 처럼 content 흐름 안 단순 배치 (full width = content width) */

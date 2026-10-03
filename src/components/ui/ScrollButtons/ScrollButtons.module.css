@@ -21,14 +21,14 @@
 .btnTop {
   right: var(--spacing-24);
   bottom: calc(var(--spacing-48) + 36px - 1px);
-  border-radius: var(--radius-full) var(--radius-full) 0 0;
+  border-radius: var(--radius-control) var(--radius-control) 0 0;
   border-bottom-color: transparent;
 }
 
 .btnBottom {
   right: var(--spacing-24);
   bottom: var(--spacing-48);
-  border-radius: 0 0 var(--radius-full) var(--radius-full);
+  border-radius: 0 0 var(--radius-control) var(--radius-control);
 }
 
 .visible {

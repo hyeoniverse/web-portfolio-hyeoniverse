@@ -7,7 +7,7 @@
   height: var(--control-height-sm);
   padding: 0 var(--spacing-8) 0 var(--spacing-4);
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-secondary);
   color: var(--text-secondary);
   font: var(--font-body-xs);
@@ -52,7 +52,7 @@
   padding: var(--row-padding-sm);
   border: none;
   background: transparent;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   font: var(--font-body-sm);
   color: var(--text-primary);
   text-align: left;
@@ -171,7 +171,7 @@
   flex-shrink: 0;
   border: none;
   background: transparent;
-  border-radius: var(--radius-circle); /* indicator 원형 */
+  border-radius: var(--radius-full); /* indicator 원형 */
   font: var(--font-code-xs);
   font-weight: 600;
   line-height: 1;
@@ -218,7 +218,7 @@
   width: 18px;
   height: 18px;
   flex-shrink: 0;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   font: var(--font-code-xs);
   font-weight: 700;
   line-height: 1;
@@ -273,7 +273,7 @@
   position: relative;
   /* 높이 제한 없음 — 쓰는 중에는 코드 전체가 보여야 한다(읽기 화면과 같이, 손잡이로 줄일 수는 있다) */
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   overflow: hidden;
   /* 창 전체가 세로 리사이즈 — resize 는 창이 가진다(자기 radius 는 자기 그립을 안 자르므로 그립이 보인다).
      오버레이(.codeResizeHandle)는 창의 **형제**(.codeShell 안)라 창의 네이티브 resizer 위에 얹혀 시스템 커서를 가린다. */
@@ -349,7 +349,7 @@
   align-items: center;
   margin-left: auto;
   background: var(--bg-primary);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
 }
 
 .codeBarCtrl {
@@ -379,12 +379,12 @@
 }
 
 .codeBarCtrl:first-child {
-  border-radius: var(--radius-full) 0 0 var(--radius-full);
+  border-radius: var(--radius-control) 0 0 var(--radius-control);
   box-shadow: var(--btn-raise), inset -2px 0 2px -2px var(--btn-seam), var(--btn-lift);
 }
 
 .codeBarCtrl:last-child {
-  border-radius: 0 var(--radius-full) var(--radius-full) 0;
+  border-radius: 0 var(--radius-control) var(--radius-control) 0;
   box-shadow: var(--btn-raise), inset 2px 0 2px -2px var(--btn-seam), var(--btn-lift);
 }
 
@@ -418,7 +418,7 @@
   /* 좌측 padding = 아이콘(18px) 세로 여백 (26-18)/2 = 4px → 아이콘이 pill 왼쪽 반원과 동심원(곡률 일치)·상하좌우 4px 균등 */
   padding: 0 var(--spacing-12) 0 var(--spacing-4);
   border: none;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-primary);
   box-shadow: var(--shadow-xs);
   color: var(--text-secondary);

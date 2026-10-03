@@ -37,7 +37,7 @@
     width: 9px;
     height: 9px;
     background: var(--text-accent);
-    border-radius: var(--radius-circle);
+    border-radius: var(--radius-full);
     animation: blink 1.2s steps(1) infinite;
   }
 

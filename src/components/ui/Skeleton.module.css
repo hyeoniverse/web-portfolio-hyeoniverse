@@ -17,19 +17,19 @@
 }
 
 .line {
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
 }
 
 .circle {
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   flex-shrink: 0;
 }
 
 .pill {
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
 }
 
 .block {
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
 }
 }

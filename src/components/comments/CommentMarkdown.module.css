@@ -49,7 +49,7 @@
 
 .commentMarkdown mark {
   padding: 0 var(--spacing-2);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
 }
 
 .commentMarkdown a {
@@ -163,7 +163,7 @@
   vertical-align: -0.1em;
   border: 1.5px solid var(--text-accent);
   /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 체크리스트 체크박스 — 네모가 곧 의미 */
-  border-radius: var(--radius-4);
+  border-radius: var(--radius-mark);
   background: transparent;
   cursor: default;
   position: relative;
@@ -213,7 +213,7 @@
   padding: var(--spacing-8) var(--spacing-16);
   background: var(--bg-tertiary);
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   overflow-x: auto;
 }
 
@@ -252,7 +252,7 @@
   width: auto;
   height: auto;
   margin: var(--spacing-8) 0;
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   cursor: zoom-in;
 }
 
@@ -304,7 +304,7 @@
   margin: var(--spacing-8) 0;
   padding: var(--spacing-8) var(--spacing-12);
   border-left: 3px solid var(--_alert-color);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   background: color-mix(in srgb, var(--_alert-color) 10%, transparent);
   color: var(--text-secondary);
 }

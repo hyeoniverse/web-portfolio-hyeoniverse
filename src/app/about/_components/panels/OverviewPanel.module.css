@@ -18,7 +18,7 @@
   font-weight: var(--font-weight-medium);
   color: var(--text-secondary);
   letter-spacing: 0.05em;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
 }
 
 .overviewStat {

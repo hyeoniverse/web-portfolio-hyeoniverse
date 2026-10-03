@@ -127,7 +127,7 @@
   margin: 0 0 var(--spacing-20) 0;
   padding: var(--spacing-12) var(--spacing-16);
   background: color-mix(in oklch, var(--bg-black) 30%, transparent);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   backdrop-filter: blur(4px);
 }
 
@@ -140,7 +140,7 @@
 .metaTech span {
   padding: var(--spacing-2) var(--spacing-12);
   border: var(--border-ghost);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   font: var(--font-code-xs);
   letter-spacing: 0.06em;
 }

@@ -25,7 +25,7 @@
   display: flex;
   align-items: center;
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   overflow: hidden;
   user-select: none;

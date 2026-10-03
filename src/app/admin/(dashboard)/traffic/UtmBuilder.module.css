@@ -40,7 +40,7 @@
   align-items: stretch;
   height: var(--control-height-md);
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   overflow: hidden;
   transition: border-color var(--duration-base) ease;
 }
@@ -108,7 +108,7 @@
   font: var(--font-code-xs);
   color: var(--text-secondary);
   background: var(--bg-secondary);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   padding: var(--spacing-8) var(--spacing-16);
   white-space: nowrap;
   overflow: hidden;
@@ -211,7 +211,7 @@
   font: var(--font-code-xs);
   color: var(--text-accent);
   background: var(--bg-secondary);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   padding: var(--spacing-2) var(--spacing-12);
   align-self: flex-start;
 }

@@ -42,7 +42,7 @@
   box-sizing: border-box;
   padding: 0 var(--spacing-12) 0 var(--spacing-16);
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   font: var(--font-body-md);
   color: var(--text-primary);
@@ -157,7 +157,7 @@
   height: 16px;
   padding: 0;
   border: none;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-tertiary);
   cursor: pointer;
@@ -176,7 +176,7 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   /* 글래스 패널 — Popover/Toast/DatePicker 와 동일 표면 (--bg-glass-panel + --blur-glass).
      (모달 위 dropdown 은 .selectAboveModal 로 완전 불투명) */
   background: var(--bg-glass-panel);
@@ -258,7 +258,7 @@
 .option {
   padding: var(--row-padding-sm);
   border: none;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   font: var(--font-body-sm);
   /* 투명 글래스라 difference 블렌딩 면이 약해 텍스트가 연해짐 → solid text-primary(테마 적응, 진함) */
@@ -403,7 +403,7 @@
   width: 100%;
   height: var(--control-height-md);
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   transition: border-color 0.15s ease;
 }
@@ -436,7 +436,7 @@
   padding: 0 var(--spacing-12) 0 var(--spacing-16);
   text-align: left;
   border: none;
-  border-radius: var(--radius-full) 0 0 var(--radius-full);
+  border-radius: var(--radius-control) 0 0 var(--radius-control);
   background: transparent;
   font: var(--font-body-md);
   color: var(--text-secondary);
@@ -465,7 +465,7 @@
   min-width: 0;
   padding: 0 var(--spacing-16) 0 var(--spacing-12);
   border: none;
-  border-radius: 0 var(--radius-full) var(--radius-full) 0;
+  border-radius: 0 var(--radius-control) var(--radius-control) 0;
   background: transparent;
   font: var(--font-body-md);
   color: var(--text-primary);
@@ -488,7 +488,7 @@
   margin-right: var(--spacing-12);
   padding: 0;
   border: none;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-tertiary);
   cursor: pointer;

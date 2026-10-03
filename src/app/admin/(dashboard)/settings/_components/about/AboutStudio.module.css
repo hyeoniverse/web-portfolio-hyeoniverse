@@ -71,7 +71,7 @@
   box-shadow: inset 0 0 0 1px var(--border-color-light);
 
   /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 위 주석 */
-  border-radius: var(--radius-6);
+  border-radius: var(--radius-mark);
 }
 
 .edit::placeholder {
@@ -115,7 +115,7 @@ textarea.edit {
   position: relative;
   overflow: hidden;
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
 }
 
 /* ── 타입 툴바 — stage 밖 도킹 바 안에 렌더 (overflow 로 안 잘림) ── */
@@ -134,7 +134,7 @@ textarea.edit {
   padding: 0;
   flex-shrink: 0;
   border: var(--border-light);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   cursor: pointer;
 }
 /* Hero 액센트 밑줄 클릭 영역 — 얇은 선이라 hit 영역을 넉넉히 (선 위치는 그대로) */
@@ -165,7 +165,7 @@ textarea.edit {
   width: min(360px, 62vw);
   padding: var(--spacing-16);
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   background: var(--bg-primary);
 }
 /* Popover 안 배경 편집 패널 — 폭 제한 + 넘치면 스크롤 → 사이드바 침범 방지 */
@@ -178,7 +178,7 @@ textarea.edit {
   padding: var(--spacing-16);
   overflow: auto;
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   background: var(--bg-primary);
 }
 .bgSliderRow {
@@ -195,7 +195,7 @@ textarea.edit {
   width: 100%;
   height: 68px;
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
 }
 /* 배경 색·그라디언트 라이트/다크 2열 편집 */
 .bgThemeRow {
@@ -237,7 +237,7 @@ textarea.edit {
   height: 24px;
   flex-shrink: 0;
   border: var(--border-light);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
 }
 .swatchLabel {
   font: var(--font-body-sm);
@@ -408,7 +408,7 @@ textarea.edit {
   height: 6px;
   flex-shrink: 0;
   margin-right: auto;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: transparent;
 }
 .psDotOn {
@@ -420,7 +420,7 @@ textarea.edit {
   gap: var(--spacing-4);
   padding: var(--badge-padding-lg);
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   color: var(--text-secondary);
   font: var(--font-body-sm);
@@ -437,7 +437,7 @@ textarea.edit {
 .chipDot {
   width: 6px;
   height: 6px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--text-tertiary);
 }
 .chipOn .chipDot {
@@ -462,7 +462,7 @@ textarea.edit {
   overflow-x: auto;
   overscroll-behavior-x: contain;
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
 }
 
 .panelStage::-webkit-scrollbar {
@@ -486,7 +486,7 @@ textarea.edit {
   width: 8em;
   padding: var(--spacing-4) var(--spacing-12);
   border: 1px solid var(--border-color-accent-strong);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-primary);
   color: var(--text-primary);
   font: inherit;
@@ -499,7 +499,7 @@ textarea.edit {
   align-items: center;
   box-sizing: border-box;
   border: 1px solid var(--border-color-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   color: var(--text-tertiary);
   vertical-align: middle;
 }
@@ -654,7 +654,7 @@ textarea.edit {
   padding: 0;
 
   /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 편집 폼의 입력 칸과 같은 모서리(R6 예외). .edit 주석 참고 */
-  border-radius: var(--radius-6);
+  border-radius: var(--radius-mark);
   box-shadow: inset 0 0 0 1px var(--border-color-light);
   transition: box-shadow 0.15s ease, background 0.15s ease;
 }
@@ -690,7 +690,7 @@ textarea.edit {
   height: 44px;
   padding: 0;
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   background: transparent;
   color: var(--text-secondary);
   font: var(--font-body-xl);
@@ -919,7 +919,7 @@ textarea.edit {
 .rcardMedia {
   position: relative;
   overflow: hidden;
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   aspect-ratio: 16 / 9;
   border: var(--border-light);
 }
@@ -934,7 +934,7 @@ textarea.edit {
   position: absolute;
   inset: 0;
   overflow: hidden;
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
 }
 .dsBg {
   position: absolute;
@@ -1180,7 +1180,7 @@ textarea.edit {
   height: var(--control-height-sm);
   padding: 0;
   border: 1px solid var(--border-color-light);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background-image:
     linear-gradient(45deg, var(--border-color-light) 25%, transparent 25%),
     linear-gradient(-45deg, var(--border-color-light) 25%, transparent 25%),
@@ -1223,7 +1223,7 @@ textarea.edit {
   width: 100%;
   padding: var(--spacing-16) 0;
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   /* 실제 About 패널은 배경이 투명(패널 바탕이 그대로 비침) — 회색 칠하면 실제와 달라진다 */
   background: transparent;
   /* 폰트도 실제와 동일하게. About 패널(.section)이 mono 를 걸어서 크레딧도 mono 로 렌더된다 */
@@ -1275,7 +1275,7 @@ textarea.edit {
   padding: 0.1em 0.6em;
   box-sizing: border-box;
   min-height: 1.7em;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-tertiary);
   color: var(--text-secondary);
   cursor: not-allowed;
@@ -1460,7 +1460,7 @@ textarea.edit {
 .erdImportOver {
   outline: 2px solid var(--border-color-accent-strong);
   outline-offset: var(--spacing-8);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
 }
 .hiddenFile {
   display: none;
@@ -1482,7 +1482,7 @@ textarea.edit {
   height: var(--control-height-md);
   padding: 0 var(--spacing-12);
   border: 1px solid var(--border-color-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   color: var(--text-tertiary);
   font: var(--font-body-md);
   cursor: text;
@@ -1578,7 +1578,7 @@ textarea.edit {
   align-items: center;
   max-width: 18rem;
   padding: var(--spacing-1) var(--spacing-4);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-secondary);
   color: var(--text-secondary);
   font: var(--font-code-xs);
@@ -1600,7 +1600,7 @@ textarea.edit {
   display: inline-flex;
   align-items: center;
   padding: var(--spacing-1) var(--spacing-4);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-warning-soft);
   color: var(--text-warning-strong);
   font: var(--font-body-xs);

@@ -195,7 +195,7 @@ const CSS_AND_CODE: Kind[] = ["componentCss", "code"];
 /** 명세 순서대로 */
 export const METRICS: Metric[] = [
   /* 2-3 이름 — 옛 이름은 정의가 없어 쓰면 cssTokens.test 가, 별칭이 남은 눈금 이름은 stylelint · eslint 가 막는다 */
-  { id: "radius-not-role", rule: "3.5-1", what: "모서리를 역할 토큰이 아니라 눈금(`--radius-24` · `-full` · `-circle` 등)으로 쓴 곳", count: regex(CSS_AND_CODE, /var\(--radius-(?:\d+|full|circle)\)/) },
+  { id: "radius-not-role", rule: "3.5-1", what: "모서리를 역할 토큰이 아니라 눈금(`--radius-24` · `-circle` 등)으로 쓴 곳 — 원 · 가는 막대의 `--radius-full` 은 허용(3.5-1)", count: regex(CSS_AND_CODE, /var\(--radius-(?:\d+|circle)\)/) },
   { id: "font-size-scale", rule: "3.2-1", what: "글자 크기 눈금(`--font-size-16` 등)을 바로 쓴 곳", count: regex(CSS_AND_CODE, /var\(--font-size-\d+\)/) },
   /* 2-4 */
   { id: "unused-tokens", rule: "2-4", what: "정의만 있고 아무도 부르지 않는 토큰(눈금 단계 제외)", count: unusedTokens },

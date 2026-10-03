@@ -11,7 +11,7 @@
   align-self: flex-start;
   justify-self: start;
   padding: var(--spacing-2);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   box-shadow: inset 0 0 0 1px var(--border-color-default);
 }
 

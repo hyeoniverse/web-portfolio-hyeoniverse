@@ -43,7 +43,7 @@
   content: "";
   width: 10px;
   height: 1.5px;
-  border-radius: 1px;
+  border-radius: var(--radius-full);
   background: var(--text-tertiary);
   transition: width var(--duration-base) ease, background var(--duration-base) ease;
 }
@@ -102,7 +102,7 @@
   left: calc(-1 * var(--spacing-4));
   width: 4px;
   height: 4px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--bg-accent-solid);
   transform: translateY(-50%);
 }

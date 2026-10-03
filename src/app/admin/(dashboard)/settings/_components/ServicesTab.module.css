@@ -41,7 +41,7 @@
 /* fallback 순서의 공급자 상태 — 키 없음(흐림)·꺼짐(강조색)·실패 중(노랑) */
 .providerBadge {
   padding: var(--badge-padding-md);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   font: var(--font-body-sm);
   font-weight: 600;
   line-height: 1;

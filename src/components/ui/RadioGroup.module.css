@@ -33,7 +33,7 @@
   width: 16px;
   height: 16px;
   border: 1.5px solid var(--border-color-default);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: transparent;
   transition: border-color var(--duration-base) ease, background var(--duration-base) ease;
 }
@@ -52,7 +52,7 @@
   content: "";
   position: absolute;
   inset: 3px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--bg-inverse);
 }
 

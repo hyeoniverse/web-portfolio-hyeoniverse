@@ -12,7 +12,7 @@
   padding: var(--spacing-12) 0;
   background: var(--bg-primary);
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   box-shadow: 0 8px 24px oklch(0.00% 0.0000 0.00 / 0.15);
   display: flex;
   flex-direction: column;
@@ -81,7 +81,7 @@
   margin: calc(var(--spacing-12) * -1) calc(var(--spacing-12) * -1) 0;
   height: 140px;
   /* 위쪽 두 모서리만 popover 의 radius-2xl 과 매칭, 아래는 평면 */
-  border-radius: var(--radius-24) var(--radius-24) 0 0;
+  border-radius: var(--radius-surface) var(--radius-surface) 0 0;
   overflow: hidden;
   cursor: crosshair;
   /* 두 개의 그라데이션 겹침 — 가로:white→hueColor, 세로:transparent→black */
@@ -95,7 +95,7 @@
   position: absolute;
   width: 14px;
   height: 14px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   border: 2px solid var(--border-color-white);
   box-shadow: 0 0 0 1px oklch(0.00% 0.0000 0.00 / 0.4), 0 1px 2px oklch(0.00% 0.0000 0.00 / 0.4);
   transform: translate(-50%, -50%);
@@ -127,7 +127,7 @@
   aspect-ratio: 1 / 1;
   margin: 0 auto;
   /* 살짝 padding 으로 ring 이 popover 바깥에 안 닿게 */
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   background: transparent;
 }
 
@@ -135,7 +135,7 @@
 .hsvRing {
   position: absolute;
   inset: 4%;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: conic-gradient(from -90deg, var(--picker-hue-stops-hsl));
   /* 안쪽 hole — closest-side 명시. default farthest-corner 면 % 가 element 의 대각선 기준이라
    * ring 두께가 너무 얇게 계산됨. closest-side 면 element radius (size/2) 의 65% = inner radius. */
@@ -150,7 +150,7 @@
   position: absolute;
   width: 14px;
   height: 14px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   border: 2px solid var(--border-color-white);
   box-shadow: 0 0 0 1px oklch(0.00% 0.0000 0.00 / 0.4), 0 1px 2px oklch(0.00% 0.0000 0.00 / 0.4);
   transform: translate(-50%, -50%);
@@ -165,7 +165,7 @@
   position: absolute;
   inset: 32%;
   /* stylelint-disable-next-line declaration-property-value-disallowed-list -- SV 사각형 — 모서리에 순색이 있어 둥글리면 못 고른다 */
-  border-radius: var(--radius-8);
+  border-radius: var(--radius-surface);
   overflow: hidden;
   cursor: crosshair;
   touch-action: none;
@@ -180,7 +180,7 @@
   width: calc(100% + var(--spacing-12) * 2);
   margin: calc(var(--spacing-12) * -1) calc(var(--spacing-12) * -1) 0;
   height: 140px;
-  border-radius: var(--radius-24) var(--radius-24) 0 0;
+  border-radius: var(--radius-surface) var(--radius-surface) 0 0;
   overflow: hidden;
   cursor: crosshair;
   touch-action: none;
@@ -279,7 +279,7 @@
   width: 100%;
   height: 12px;
   margin: var(--spacing-4) 0;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   cursor: ew-resize;
   touch-action: none;
   /* background 은 inline style 로 동적 gradient — L, C, H 값 따라 매번 다름 */
@@ -290,7 +290,7 @@
   top: 50%;
   width: 14px;
   height: 14px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   border: 2px solid var(--border-color-white);
   box-shadow: 0 0 0 1px oklch(0.00% 0.0000 0.00 / 0.4), 0 1px 2px oklch(0.00% 0.0000 0.00 / 0.4);
   transform: translate(-50%, -50%);
@@ -304,7 +304,7 @@
   width: 100%;
   height: 12px;
   margin: var(--spacing-4) 0;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   cursor: ew-resize;
   background: linear-gradient(to right, var(--picker-hue-stops-oklch));
   touch-action: none;
@@ -315,7 +315,7 @@
   top: 50%;
   width: 14px;
   height: 14px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   border: 2px solid var(--border-color-white);
   box-shadow: 0 0 0 1px oklch(0.00% 0.0000 0.00 / 0.4), 0 1px 2px oklch(0.00% 0.0000 0.00 / 0.4);
   transform: translate(-50%, -50%);
@@ -345,7 +345,7 @@
   flex-shrink: 0;
   width: var(--control-height-xs);
   height: var(--control-height-xs);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   /* solid 테두리 — 반투명(border-light)이면 색이 가장자리에서 배경과 섞여 덜 찬 것처럼 보임 */
   border: 1px solid var(--border-color-solid);
   /* 색 레이어(위) + 격자(아래) — 반투명 색의 투명도가 비쳐 보이게.
@@ -386,7 +386,7 @@
   min-width: 0;
   height: 12px;
   margin: var(--spacing-4) 0;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   cursor: ew-resize;
   touch-action: none;
   /* 투명→불투명 그라디언트(위) + 격자(아래). presets.ts CHECKER_BG 와 동일 패턴. */
@@ -478,7 +478,7 @@
   height: var(--control-height-xs);
   padding: 0;
   border: none;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-tertiary);
   cursor: help;

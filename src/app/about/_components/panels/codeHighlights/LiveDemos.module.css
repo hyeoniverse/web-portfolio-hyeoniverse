@@ -59,7 +59,7 @@
   font: var(--font-meta-xs);
   color: var(--text-tertiary);
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
 }
 
 .chipOn {
@@ -146,7 +146,7 @@
   top: 50%;
   width: var(--spacing-12);
   height: var(--spacing-12);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   translate: -50% -50%;
 }
 

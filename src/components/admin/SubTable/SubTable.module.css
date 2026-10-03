@@ -222,7 +222,7 @@
   height: var(--control-height-sm);
   padding: 0 var(--control-padding-inline-sm);
   border: var(--border-strong);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   font: var(--font-body-sm);
   color: var(--text-primary);
@@ -242,7 +242,7 @@
   height: var(--control-height-sm);
   padding: 0 var(--control-padding-inline-sm);
   border: var(--border-accent-strong);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   font: var(--font-body-sm);
   color: var(--text-accent);
@@ -261,7 +261,7 @@
   height: var(--control-height-xs);
   flex-shrink: 0;
   border: none;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-secondary);
   cursor: pointer;

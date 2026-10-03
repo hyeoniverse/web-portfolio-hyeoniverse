@@ -61,7 +61,7 @@
   width: 100%;
   height: 100%;
   padding: 1vw;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   overflow: hidden;
   contain: layout style paint;
 }
@@ -87,7 +87,7 @@
   position: relative;
   width: 100%;
   height: 100%;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   overflow: hidden;
 }
 

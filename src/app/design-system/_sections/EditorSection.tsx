@@ -125,7 +125,7 @@ function EditorSection({ language, setSectionRef }: EditorSectionProps) {
             marginBottom: 24,
             padding: "var(--spacing-16) var(--spacing-20)",
             border: "var(--border-light)",
-            borderRadius: "var(--radius-24)",
+            borderRadius: "var(--radius-surface)",
             display: "flex",
             flexDirection: "column",
             gap: "var(--spacing-8)",

@@ -43,7 +43,7 @@
   height: var(--control-height-sm);
   padding: 0;
   border: none;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-tertiary);
   cursor: pointer;
@@ -109,7 +109,7 @@
   padding: var(--badge-padding-md);
   background: color-mix(in oklch, var(--bg-accent-solid) 10%, transparent);
   color: var(--text-accent);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   font: var(--font-body-xs);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
@@ -139,7 +139,7 @@
 
 .vdDesc ul, .vdDesc ol { margin: 0.2em 0; padding-left: 1.4em; }
 
-.vdDesc img { max-width: 100%; border-radius: var(--radius-24); margin: var(--spacing-4) 0; }
+.vdDesc img { max-width: 100%; border-radius: var(--radius-surface); margin: var(--spacing-4) 0; }
 
 .vdDesc a { color: var(--text-accent); text-decoration: underline; }
 
@@ -167,7 +167,7 @@
   gap: var(--spacing-4);
   padding: var(--spacing-16);
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   background: var(--bg-primary);
   box-shadow: var(--shadow-lg);
   pointer-events: auto;
@@ -193,7 +193,7 @@
 .previewThumb {
   width: 48px;
   height: 48px;
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   object-fit: cover;
   border: var(--border-light);
   cursor: zoom-in;
@@ -207,7 +207,7 @@
   z-index: var(--z-index-top);
   max-width: 320px;
   max-height: 320px;
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   border: var(--border-light);
   box-shadow: var(--shadow-lg);
   background: var(--bg-primary);
@@ -248,7 +248,7 @@
   align-items: center;
   gap: var(--spacing-2);
   padding: var(--spacing-1) var(--spacing-12);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: color-mix(in srgb, var(--_sc) 14%, var(--bg-primary));
   color: var(--text-secondary);
   font: var(--font-body-xs);
@@ -257,7 +257,7 @@
 .previewStatusDot {
   width: 7px;
   height: 7px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--_sc);
 }
 
@@ -287,13 +287,13 @@
 .previewLabelDot {
   width: 7px;
   height: 7px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--_c);
 }
 
 .previewTag {
   padding: 0 var(--spacing-2);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-tertiary);
   color: var(--text-tertiary);
   font: var(--font-body-xs);

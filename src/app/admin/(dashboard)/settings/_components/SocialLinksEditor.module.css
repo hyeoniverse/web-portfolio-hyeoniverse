@@ -68,7 +68,7 @@
 .socialIconClickable {
   position: relative;
   border: var(--border-light);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   transition: border-color 0.2s ease;
 }
 
@@ -85,7 +85,7 @@
   justify-content: center;
   width: 15px;
   height: 15px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--bg-accent-solid);
   color: var(--text-on-accent);
   border: 1.5px solid var(--bg-primary);
@@ -95,7 +95,7 @@
   width: 20px;
   height: 20px;
   object-fit: contain;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
 }
 
 .socialIconSpinner {
@@ -111,7 +111,7 @@
   align-items: center;
   justify-content: center;
   border: none;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-tertiary);
   flex-shrink: 0;

@@ -11,7 +11,7 @@
   align-items: center;
   justify-content: flex-end;
   padding: var(--badge-padding-md);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   font: var(--font-body-sm);
   font-weight: var(--font-weight-medium);
   letter-spacing: 0;
@@ -28,7 +28,7 @@
   align-items: center;
   justify-content: center;
   padding: var(--badge-padding-lg);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   font: var(--font-body-xs);
   font-weight: 500;
   letter-spacing: 0;
@@ -157,7 +157,7 @@
   min-height: 0;
   background: var(--bg-tertiary);
   border: 1px solid color-mix(in srgb, var(--text-secondary) 20%, transparent);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   overflow: hidden;
   font-family: var(--font-family-code);
   /* margin-bottom 은 mobile 만 — PC 에선 troubleSplit gap 이 처리 */
@@ -315,7 +315,7 @@
 
 .troubleDiagramFrame {
   border: 1px solid color-mix(in srgb, var(--text-secondary) 12%, transparent);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   overflow: hidden;
   padding: var(--spacing-12);
   background: var(--bg-secondary);
@@ -333,7 +333,7 @@
   padding: var(--spacing-4) var(--spacing-12);
   background: var(--bg-secondary);
   border: 1px solid color-mix(in srgb, var(--text-secondary) 15%, transparent);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   font: var(--font-code-sm);
   font-weight: var(--font-weight-medium);
   color: var(--text-tertiary);
@@ -386,7 +386,7 @@
   width: 100%;
   padding: 0;
   border: 1px solid color-mix(in srgb, var(--text-secondary) 12%, transparent);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   background: var(--bg-secondary);
   overflow: hidden;
   cursor: zoom-in;
@@ -425,7 +425,7 @@
   gap: var(--spacing-8);
   padding: var(--spacing-32) var(--spacing-16);
   border: 1.5px dashed color-mix(in srgb, var(--text-tertiary) 35%, transparent);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   background: color-mix(in srgb, var(--text-secondary) 4%, transparent);
   color: var(--text-tertiary);
   text-align: center;

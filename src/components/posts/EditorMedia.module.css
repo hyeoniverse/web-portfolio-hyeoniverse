@@ -33,7 +33,7 @@
   width: 100%;
   /* 트랙 — 회색 대신 accent 옅은 톤 */
   background: color-mix(in oklch, var(--bg-accent-solid) 15%, transparent);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   overflow: hidden;
 }
 
@@ -43,7 +43,7 @@
   height: 100%;
   min-width: 8px;
   background: var(--bg-accent-solid);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   overflow: hidden;
   transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -79,7 +79,7 @@
   top: 0;
   bottom: 0;
   width: 40%;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: linear-gradient(90deg, transparent, var(--bg-accent-solid), transparent);
   animation: mediaUploadSweep 1.5s cubic-bezier(0.65, 0, 0.35, 1) infinite;
 }
@@ -95,7 +95,7 @@
   display: flex;
   flex-direction: column;
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   overflow: hidden;
   transition: border-color 0.15s ease;
 }
@@ -177,7 +177,7 @@
   right: -4px;
   width: 18px;
   height: 18px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   border: none;
   background: var(--bg-overlay);
   color: var(--text-inverse);
@@ -256,7 +256,7 @@
   width: 14px;
   height: 14px;
   /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 이미지 다중선택 체크박스 — 네모가 곧 의미 */
-  border-radius: var(--radius-2);
+  border-radius: var(--radius-mark);
   border: 1.5px solid var(--text-tertiary);
   background: var(--bg-primary);
   color: var(--bg-primary);

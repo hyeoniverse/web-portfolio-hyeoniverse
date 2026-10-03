@@ -16,7 +16,7 @@
   width: 100%;
   padding: var(--textarea-padding);
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   background: transparent;
   font: var(--font-body-md);
   line-height: 1.5;
@@ -107,7 +107,7 @@
      가운데로 놓이는데, 카운터 줄상자가 17.6px 이라 그 차이만큼 잉크가 위로 밀린다.
      좌우와 위아래를 같은 값으로 두면 아래쪽 여백만 그만큼 넓어 보인다. */
   padding: var(--spacing-2) var(--spacing-4);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-glass-panel);
   backdrop-filter: var(--blur-glass);
   /* 텍스트 선택·리사이즈는 통과시키고 버튼만 클릭 */
@@ -135,7 +135,7 @@
   height: 20px;
   padding: 0;
   border: none;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-tertiary);
   cursor: pointer;
@@ -179,7 +179,7 @@
   align-items: center;
   height: 18px;
   padding: 0 var(--spacing-4);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-tertiary);
   font: var(--font-body-xs);
   font-weight: 600;
@@ -280,7 +280,7 @@
 .over {
   background: color-mix(in oklch, var(--text-accent) 22%, transparent);
   color: inherit;
-  border-radius: 2px;
+  border-radius: var(--radius-mark);
   /* native browser <mark> default (yellow bg, black text) 무효화 */
   -webkit-text-fill-color: inherit;
 }

@@ -6,7 +6,7 @@
 
 .container {
   border: var(--border-default);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   overflow: hidden;
   margin-bottom: var(--spacing-32);
 }

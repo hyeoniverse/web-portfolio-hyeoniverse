@@ -31,7 +31,7 @@
   height: var(--cursor-width);
   background: var(--_color);
   transition: all var(--duration-base) var(--ease-material);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   filter: hue-rotate(-90deg);
 }
 
@@ -40,7 +40,7 @@
   z-index: -1;
   content: "";
   inset: -30px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-control);
   background: var(--_color);
   filter: blur(40px);
   opacity: 0.5;
@@ -212,7 +212,7 @@
 .text .cursorInner {
   width: var(--cursor-text-width);
   height: var(--cursor-text-height);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   backdrop-filter: none;
 }
 .text .cursorText {
@@ -253,7 +253,7 @@
   position: absolute;
   inset: unset;
   background: var(--_color);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   opacity: 1;
   filter: none;
 }

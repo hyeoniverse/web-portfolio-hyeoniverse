@@ -45,7 +45,7 @@
   justify-content: center;
   width: 48px;
   height: 48px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--bg-accent-light);
   color: var(--text-accent);
   animation: thanksPop var(--duration-slow) var(--ease-bounce) both;

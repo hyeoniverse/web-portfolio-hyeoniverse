@@ -223,7 +223,7 @@
   height: 24px;
   background: transparent;
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   font: var(--font-body-xs);
   color: var(--text-secondary);
   cursor: pointer;
@@ -313,7 +313,7 @@
   bottom: 0;
   transform: translateY(calc(100% - var(--spacing-12)));
   padding: var(--spacing-2) var(--spacing-12);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-glass);
   backdrop-filter: blur(12px);
 }
@@ -654,7 +654,7 @@
   gap: var(--spacing-4);
   padding: var(--badge-padding-md);
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: color-mix(in oklch, var(--text-success) 8%, transparent);
   color: var(--text-success);
   font: var(--font-body-xs);
@@ -666,7 +666,7 @@
 .revisionCurrentDot {
   width: 5px;
   height: 5px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--text-success);
   flex-shrink: 0;
 }
@@ -789,7 +789,7 @@
 .revisionMetaImgLink {
   display: inline-block;
   line-height: 0;
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   overflow: hidden;
   transition: opacity 0.15s;
 }
@@ -804,7 +804,7 @@
   height: 96px;
   object-fit: cover;
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   background: var(--bg-tertiary);
 }
 
@@ -860,14 +860,14 @@
 .diffDel {
   background: var(--bg-accent-light);
   color: var(--text-accent);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   padding-inline: var(--spacing-2);
 }
 
 .diffAdd {
   background: var(--bg-success);
   color: var(--text-success);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   padding-inline: var(--spacing-2);
 }
 
@@ -884,7 +884,7 @@
 .diffAddInline {
   background: var(--bg-success);
   color: var(--text-success);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   padding: 0 var(--spacing-2);
 }
 
@@ -898,7 +898,7 @@
     var(--text-accent) 60%,
     transparent
   );
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   padding: 0 var(--spacing-2);
 }
 
@@ -1017,7 +1017,7 @@
   height: var(--control-height-md);
   padding: 0 var(--control-padding-inline-sm);
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   font: var(--font-body-md);
   color: var(--text-primary);
@@ -1043,7 +1043,7 @@
   height: 24px;
   padding: 0;
   border: var(--border-light);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-tertiary);
   cursor: pointer;
@@ -1080,7 +1080,7 @@
   padding: var(--badge-padding-md);
   background: var(--bg-secondary);
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   font: var(--font-body-sm);
   color: var(--text-secondary);
 }
@@ -1121,7 +1121,7 @@
   box-sizing: border-box;
   padding: 0 var(--spacing-8);
   background: var(--bg-tertiary);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   font: var(--font-body-sm);
   color: var(--text-secondary);
 }
@@ -1159,7 +1159,7 @@
   min-height: 28px;
   padding: 0 var(--spacing-16);
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   font: var(--font-body-md);
   color: var(--text-secondary);
