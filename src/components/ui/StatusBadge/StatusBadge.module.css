@@ -6,7 +6,7 @@
   align-items: center;
   gap: var(--spacing-8);
   padding: var(--badge-padding-md);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   font: var(--font-body-sm);
   font-weight: 600;
   white-space: nowrap;
@@ -16,7 +16,7 @@
   display: block;
   width: 6px;
   height: 6px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   flex-shrink: 0;
 }
 

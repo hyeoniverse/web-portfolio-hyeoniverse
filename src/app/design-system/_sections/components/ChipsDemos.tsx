@@ -87,7 +87,7 @@ export default function ChipsDemos() {
               <Chip
                 key={s.label}
                 variant="capsule"
-                leftIcon={<span style={{ display: "inline-block", width: 7, height: 7, borderRadius: "var(--radius-circle)", background: s.color }} aria-hidden />}
+                leftIcon={<span style={{ display: "inline-block", width: 7, height: 7, borderRadius: "var(--radius-full)", background: s.color }} aria-hidden />}
               >
                 {s.label}
               </Chip>

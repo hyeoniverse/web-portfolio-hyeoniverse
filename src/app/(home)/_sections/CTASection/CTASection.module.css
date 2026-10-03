@@ -87,7 +87,7 @@
 .magneticInner {
   display: inline-block;
   position: relative;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
 }
 
 /* 마우스를 따라 움직이는 단추끼리 겹칠 수 있다. 그대로면 나중에 적힌 이력서 단추가 늘 위에 그려져,
@@ -198,7 +198,7 @@
   width: var(--size-8);
   height: var(--size-8);
   background: var(--bg-accent-solid-light);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   transition: transform var(--duration-base) ease;
 }
 
@@ -241,7 +241,7 @@
   align-items: center;
   justify-content: center;
   border: var(--border-strong);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   color: var(--text-primary);
   transition:
     background-color var(--duration-base) ease,

@@ -237,7 +237,7 @@
 
 .adminBadge {
   padding: var(--badge-padding-md);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-accent);
   font: var(--font-body-xs);
   font-weight: 500;
@@ -307,7 +307,7 @@
   height: var(--control-height-sm);
   padding: 0 var(--spacing-4);
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   font: var(--font-body-sm);
   line-height: 1;
@@ -335,7 +335,7 @@
   aspect-ratio: 1;
   padding: 0;
   border: none;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: transparent;
   font: var(--font-body-md);
   line-height: 1;
@@ -365,7 +365,7 @@
   height: var(--control-height-sm);
   padding: 0;
   border: var(--border-light);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-tertiary);
   line-height: 1;

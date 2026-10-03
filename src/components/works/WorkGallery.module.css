@@ -61,7 +61,7 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   /* 레터박스 바탕 — 그림이 판을 다 못 채울 때 드러난다. 밝은 화면에서도 검정으로 둔다
      (바탕이 테마 따라 바뀌면 같은 그림이 화면마다 다른 테두리를 쓴 것처럼 보인다) */
   background: var(--bg-black);
@@ -112,7 +112,7 @@
   max-width: none;
   /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 24px(2xl)은 160x90 썸네일에
      비해 모서리가 너무 깎여 그림이 잘려 보인다. 작은 미리보기 판이라 md 로 줄인다 */
-  border-radius: var(--radius-8);
+  border-radius: var(--radius-surface);
   overflow: hidden;
 }
 
@@ -123,7 +123,7 @@
   aspect-ratio: 16 / 9;
   overflow: hidden;
   /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 감싼 말풍선과 같은 곡률 */
-  border-radius: var(--radius-8);
+  border-radius: var(--radius-surface);
   background: var(--bg-black);
 }
 
@@ -324,7 +324,7 @@
   height: 100%;
   aspect-ratio: 16 / 9;
   max-width: 82%;
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   background: color-mix(in oklch, var(--bg-black) 50%, transparent);
   cursor: default;
   transform: translate(-50%, -50%);
@@ -342,7 +342,7 @@
   place-items: center;
   width: 80px;
   aspect-ratio: 1;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--bg-white);
   color: var(--text-black);
   box-shadow: var(--shadow-lg);

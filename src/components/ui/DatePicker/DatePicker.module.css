@@ -33,7 +33,7 @@
   display: flex;
   width: fit-content;
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   overflow: hidden;
 }
 
@@ -140,7 +140,7 @@
   height: var(--control-height-sm);
   padding: 0 var(--spacing-8);
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   font: var(--font-body-md);
   color: var(--text-primary);
@@ -156,7 +156,7 @@
 .pickerText {
   padding: var(--spacing-4) var(--spacing-8);
   border: 1px solid transparent;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   font: var(--font-body-md);
   color: var(--text-primary);
@@ -198,7 +198,7 @@
   width: 3px;
   height: 3px;
   margin-inline: var(--spacing-2);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--text-tertiary);
 }
 
@@ -224,7 +224,7 @@
   min-width: 48px;
   padding: var(--spacing-4) var(--spacing-8);
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   font: var(--font-body-md);
   color: var(--text-primary);
@@ -238,7 +238,7 @@
   height: var(--control-height-sm);
   padding: 0 var(--spacing-8);
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   font: var(--font-body-md);
   color: var(--text-primary);
@@ -273,7 +273,7 @@
   max-height: 180px;
   overflow-y: auto;
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   /* 글래스 패널 — Select/Popover/Toast 와 동일 표면 */
   background: var(--bg-glass-panel);
   backdrop-filter: var(--blur-glass);
@@ -341,7 +341,7 @@
   width: var(--control-height-md);
   height: var(--control-height-md);
   border: var(--border-light);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-tertiary);
 }
@@ -424,7 +424,7 @@
 .popoverChrome {
   width: max-content;
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   /* 글래스 패널 — Select/Popover/Toast 와 동일 표면 (overflow:hidden 으로 2xl 곡률에 맞춰 클립) */
   background: var(--bg-glass-panel);
   backdrop-filter: var(--blur-glass);
@@ -442,7 +442,7 @@
 .spinnerCol {
   position: relative;
   overflow: hidden;
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   /* 위/아래 가장자리 페이드 — 가운데 활성 항목에 시선 집중 */
   -webkit-mask-image: linear-gradient(
     to bottom,
@@ -622,7 +622,7 @@
 .timeFormatToggle {
   display: inline-flex;
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   padding: var(--spacing-2);
   background: transparent;
 }
@@ -637,7 +637,7 @@
   align-items: center;
   height: var(--control-height-xs);
   padding: 0 var(--control-padding-inline-xs);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   cursor: pointer;
   letter-spacing: 0.04em;
 }
@@ -670,7 +670,7 @@
   padding: 0;
   border: var(--border-light);
   /* icon-only 라 정확한 원형 */
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-secondary);
   cursor: pointer;
@@ -695,7 +695,7 @@
   flex: 1;
   padding: 0 var(--spacing-12);
   border: none;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   font: var(--font-body-md);
   font-weight: 600;
   color: var(--text-primary);
@@ -722,7 +722,7 @@
 .calTodayBtn {
   padding: var(--spacing-2) var(--spacing-16);
   border: none;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   font: var(--font-body-sm);
   font-weight: 600;
@@ -757,7 +757,7 @@
 .calCell {
   padding: var(--spacing-4);
   border: none;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   font: var(--font-body-sm);
   color: var(--text-secondary);

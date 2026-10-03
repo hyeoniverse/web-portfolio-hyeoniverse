@@ -98,7 +98,7 @@
    Shapes
    --------------------------------------------------------------------------- */
 .shape-capsule {
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
 }
 
 /* circle/square — 항상 정사각. flex 컨테이너 안에서 가로로 찌그러지는 것 방지:
@@ -106,7 +106,7 @@
  *   - flex-grow: 0 (늘어남도 금지)
  *   - min-width: width (flex item 의 min-content 가 0 이 되어 줄어드는 케이스 방지) */
 .shape-circle {
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   padding: 0;
   aspect-ratio: 1;
   flex: 0 0 auto;
@@ -114,7 +114,7 @@
 
 .shape-square {
   /* stylelint-disable-next-line declaration-property-value-disallowed-list -- shape=square 는 capsule 을 벗어나려고 있는 변형이라 각져야 한다 */
-  border-radius: var(--radius-6);
+  border-radius: var(--radius-mark);
   padding: 0;
   aspect-ratio: 1;
   flex: 0 0 auto;

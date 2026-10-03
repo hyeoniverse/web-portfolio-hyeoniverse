@@ -51,7 +51,7 @@
   min-width: var(--badge-height);
   height: var(--badge-height);
   padding: 0 var(--spacing-8);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-accent-solid);
   font: var(--font-body-sm);
   font-weight: 600;
@@ -112,7 +112,7 @@
   flex-shrink: 0;
   width: var(--control-height-xl);
   height: var(--control-height-xl);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -197,7 +197,7 @@
 .dot {
   width: 8px;
   height: 8px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--bg-accent-solid);
   flex-shrink: 0;
   margin-top: var(--spacing-8);
@@ -233,7 +233,7 @@
 .tabCount {
   margin-left: var(--spacing-4);
   padding: 0 var(--spacing-4);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: color-mix(in oklch, currentColor 15%, transparent);
   font: var(--font-code-xs);
   font-variant-numeric: tabular-nums;
@@ -309,7 +309,7 @@
 
 .groupCount {
   padding: 0 var(--spacing-4);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: color-mix(in oklch, currentColor 15%, transparent);
   font-family: var(--font-family-code);
   font-variant-numeric: tabular-nums;

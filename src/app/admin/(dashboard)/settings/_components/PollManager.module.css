@@ -65,7 +65,7 @@
 .bar {
   height: 6px;
   overflow: hidden;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-tertiary);
 }
 

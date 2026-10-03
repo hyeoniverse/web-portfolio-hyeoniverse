@@ -105,7 +105,7 @@
 .tech span {
   padding: var(--spacing-2) var(--spacing-12);
   border: 1px solid color-mix(in oklch, var(--border-color-white) 30%, transparent);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   font: var(--font-code-sm);
   color: var(--text-white);
   opacity: 0.85;
@@ -378,7 +378,7 @@
 .dot {
   width: 6px;
   height: 6px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   border: var(--border-strong);
   background: transparent;
   cursor: pointer;
@@ -480,7 +480,7 @@
   .imageMetaTech span {
     padding: var(--spacing-2) var(--spacing-8);
     border: var(--border-ghost);
-    border-radius: var(--radius-full);
+    border-radius: var(--radius-control);
     font: var(--font-code-xs);
   }
 

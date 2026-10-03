@@ -189,7 +189,7 @@
   height: 1.5em;
   margin-left: var(--spacing-4);
   padding: 0 var(--spacing-2);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: color-mix(in srgb, currentColor 22%, transparent);
   font: var(--font-body-xs);
   font-variant-numeric: tabular-nums;
@@ -204,7 +204,7 @@
   width: 100%;
   background: none;
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   color: var(--text-primary);
   font: var(--font-body-sm);
   font-weight: var(--font-weight-medium);
@@ -299,7 +299,7 @@
 .navConflictBadge {
   width: 6px;
   height: 6px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--bg-accent-solid);
   flex-shrink: 0;
 }

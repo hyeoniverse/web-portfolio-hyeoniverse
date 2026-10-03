@@ -92,7 +92,7 @@
   top: 50%;
   width: 4px;
   height: 4px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--border-color-strong);
   transform: translate(-50%, -50%);
   transition: background var(--duration-fast) var(--ease-material), transform var(--duration-fast) var(--ease-material);
@@ -103,7 +103,7 @@
   top: 50%;
   width: 8px;
   height: 8px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--bg-accent-solid);
   transform: translate(-50%, -50%);
   box-shadow: 0 0 0 3px color-mix(in oklch, var(--border-color-accent-strong) 20%, transparent);

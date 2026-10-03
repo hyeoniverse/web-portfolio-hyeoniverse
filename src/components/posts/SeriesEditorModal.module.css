@@ -12,7 +12,7 @@
 .modal {
   background: var(--bg-primary);
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   width: 100%;
   max-width: 560px;
   max-height: 85vh;
@@ -77,7 +77,7 @@
   height: var(--control-height-md);
   padding: 0 var(--spacing-12);
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   font: var(--font-body-md);
   color: var(--text-primary);
@@ -88,7 +88,7 @@
   width: 100%;
   padding: var(--spacing-8) var(--spacing-12);
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   background: transparent;
   font: var(--font-body-md);
   color: var(--text-primary);
@@ -140,7 +140,7 @@
 }
 
 .coverThumb {
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   object-fit: cover;
 }
 
@@ -161,7 +161,7 @@
   height: var(--control-height-lg);
   padding: 0 var(--control-padding-inline-lg);
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   font: var(--font-body-sm);
   color: var(--text-tertiary);
@@ -198,7 +198,7 @@
   height: var(--control-height-xl);
   padding: 0 var(--control-padding-inline-xl);
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   font: var(--font-body-md);
   font-weight: 500;
@@ -216,7 +216,7 @@
   height: var(--control-height-xl);
   padding: 0 var(--control-padding-inline-xl);
   border: var(--border-strong);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--text-primary);
   font: var(--font-body-md);
   font-weight: 500;
@@ -259,7 +259,7 @@
   align-items: center;
   gap: var(--spacing-12);
   padding: var(--row-padding-md);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
 }
 
 .postItem:hover {
@@ -319,7 +319,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
 }
 
 .postPublished {
@@ -345,7 +345,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
 }
 
 .postRemoveBtn:hover {

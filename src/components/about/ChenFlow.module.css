@@ -33,7 +33,7 @@
   width: 168px;
   height: 52px;
   border: 1.6px solid var(--text-primary);
-  border-radius: 4px;
+  border-radius: var(--radius-mark);
   background: var(--bg-primary);
   box-shadow: var(--shadow-sm);
   color: var(--text-primary);
@@ -61,7 +61,7 @@
   padding: 0 var(--spacing-8);
   border: 1px solid var(--border-color-strong);
   /* Chen 표기의 속성은 타원 — 캡슐(알약)이 아니라 진짜 ellipse */
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-control);
   background: var(--bg-primary);
   color: var(--text-secondary);
   font: var(--font-code-xs);
@@ -79,7 +79,7 @@
   position: absolute;
   inset: 4px;
   border: 1px solid var(--border-color-strong);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-control);
 }
 
 /* 파생 속성 — 점선 타원 (원본에서 계산되는 캐시 값) */

@@ -192,7 +192,7 @@
 .post-link-icon video {
   width: 1.1em;
   height: 1.1em;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   object-fit: cover;
   vertical-align: middle;
 }
@@ -268,7 +268,7 @@ code .token.italic {
      긴 코드(30줄 초과)만 .is-collapsed 로 접어 두고 아래 "펼치기"로 연다. */
   height: auto;
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   overflow: hidden;
   resize: vertical;
   background: var(--bg-glass-panel);
@@ -305,7 +305,7 @@ code .token.italic {
   background: var(--bg-glass-panel);
   backdrop-filter: var(--blur-glass);
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   overflow: hidden;
   resize: vertical;
 }
@@ -329,7 +329,7 @@ code .token.italic {
   background: var(--bg-glass-panel);
   backdrop-filter: var(--blur-glass);
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
 }
 
 .code-block-wrap pre code,
@@ -776,7 +776,7 @@ span.math-element-wrap .math-katex-content {
 .reader-playground {
   margin: var(--spacing-24) 0;
   border: 1px solid var(--border-color-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   overflow: hidden;
   background: var(--bg-primary);
 }

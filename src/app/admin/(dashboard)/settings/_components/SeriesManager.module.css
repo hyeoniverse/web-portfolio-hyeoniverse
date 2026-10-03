@@ -12,7 +12,7 @@
   gap: var(--spacing-16);
   padding: var(--card-padding-md);
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   background: transparent;
   width: 100%;
   text-align: left;
@@ -28,7 +28,7 @@
 }
 
 .seriesCard {
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   position: relative;
   /* 선택 체크박스 + grip 핸들 + 카드 본체(head + collapse) 가로 배치.
      마지막 열은 minmax(0, 1fr) — 1fr 의 기본 min-width:auto 는 content 따라 grow → 긴 타이틀이 truncate 안됨. */
@@ -79,7 +79,7 @@
   right: 0;
   height: 2px;
   background: var(--bg-accent-solid);
-  border-radius: 1px;
+  border-radius: var(--radius-full);
   z-index: 3;
   pointer-events: none;
 }
@@ -187,7 +187,7 @@
 }
 
 .seriesCardHeadExpanded {
-  border-radius: var(--radius-24) var(--radius-24) 0 0;
+  border-radius: var(--radius-surface) var(--radius-surface) 0 0;
   /* 펼칠 때: 모서리 먼저 각지게(0.25s), delay 없음 */
   transition:
     border-radius 0.25s ease,
@@ -256,7 +256,7 @@
 
 .seriesBadgeCat {
   padding: var(--badge-padding-md);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   font: var(--font-body-xs);
   background: var(--bg-secondary);
   color: var(--text-secondary);

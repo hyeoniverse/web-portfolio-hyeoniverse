@@ -21,7 +21,7 @@
   font-variant-numeric: tabular-nums;
   color: var(--text-tertiary);
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   padding: var(--spacing-1) var(--spacing-12);
 }
 /* 프로젝트 목록 — 간격 없이 border 로만 구분하는 라인 테이블. 큰 타이포 제목. */

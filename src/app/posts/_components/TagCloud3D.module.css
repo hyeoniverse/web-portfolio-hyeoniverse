@@ -96,7 +96,7 @@
   gap: var(--spacing-4);
   padding: var(--badge-padding-lg);
   border: none;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-tertiary);
   font: var(--font-body-sm);
   color: var(--text-secondary);

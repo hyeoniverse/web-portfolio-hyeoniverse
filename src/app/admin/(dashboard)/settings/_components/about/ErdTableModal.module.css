@@ -26,7 +26,7 @@
   border: var(--border-light);
 
   /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 편집 폼의 입력 칸(R6 예외). AboutStudio .edit 주석 참고 */
-  border-radius: var(--radius-6);
+  border-radius: var(--radius-mark);
   background: transparent;
   color: var(--text-primary);
   font: var(--font-code-lg);
@@ -92,7 +92,7 @@
   height: var(--control-height-md);
   padding: 0 var(--spacing-12);
   border: 0;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   color: var(--text-primary);
   font: var(--font-code-lg);
@@ -111,7 +111,7 @@
   height: 26px;
   padding: 0;
   border: 0;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--text-muted);
   cursor: pointer;
@@ -348,7 +348,7 @@
   align-items: center;
   justify-content: center;
   border: 0;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   padding: var(--spacing-2);
   background: none;
   color: var(--text-muted);
@@ -383,7 +383,7 @@
   font: var(--font-body-sm);
 }
 .detailFlag {
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   padding: var(--spacing-2) var(--spacing-8);
   background: var(--bg-tertiary);
   color: var(--text-muted);

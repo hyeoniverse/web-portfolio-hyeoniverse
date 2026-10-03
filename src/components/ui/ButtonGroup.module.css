@@ -7,7 +7,7 @@
 .group {
   display: inline-flex;
   flex-shrink: 0;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   overflow: hidden;
   border: var(--border-strong);
 }
@@ -15,7 +15,7 @@
 /* 자식 Button 개별 border/radius 제거 */
 .group > * {
   border: none !important;
-  border-radius: 0 !important;
+  border-radius: 0!important;
 }
 
 /* 인접 버튼 사이 구분선 */

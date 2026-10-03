@@ -8,7 +8,7 @@
   width: 100%;
   padding: var(--row-padding-md);
   border: none;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   font: var(--font-body-sm);
   color: var(--text-primary);

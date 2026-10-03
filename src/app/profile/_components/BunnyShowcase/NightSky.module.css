@@ -65,7 +65,7 @@
   display: block;
   width: 100%;
   height: 100%;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   /* 밝은 테마에서는 흰 별이 배경에 묻힌다 — 어둡게 뒤집는다 */
   background: var(--night-sky-star);
   opacity: 0.35;
@@ -85,7 +85,7 @@
   display: block;
   width: 100%;
   height: 100%;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: radial-gradient(
     circle at 32% 30%,
     var(--bg-white) 0%,
@@ -109,7 +109,7 @@
   width: 300%;
   height: 300%;
   translate: -50% -50%;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: radial-gradient(closest-side, var(--bg-accent-light) 0%, transparent 100%);
   animation: moonFloat 14s ease-in-out infinite;
   pointer-events: none;
@@ -118,7 +118,7 @@
 /* 크레이터 — 달을 원이 아니라 표면으로 보이게 하는 최소한의 장치 */
 .crater {
   position: absolute;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-control);
   background: var(--night-sky-moon-edge);
   opacity: 0.45;
 }

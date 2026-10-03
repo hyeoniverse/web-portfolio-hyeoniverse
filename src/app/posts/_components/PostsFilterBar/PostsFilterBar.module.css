@@ -88,7 +88,7 @@
   padding: 0 var(--spacing-12);
   border: var(--border-default);
   cursor: pointer;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   font: var(--font-body-xs);
   color: var(--text-primary);

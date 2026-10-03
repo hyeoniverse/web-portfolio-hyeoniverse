@@ -49,7 +49,7 @@
   outline: var(--border-accent);
   outline-style: dashed;
   outline-offset: 3px;
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   background: var(--bg-accent-light);
 }
 /* 드래그 중 따라다니는 칩 오버레이 */
@@ -59,7 +59,7 @@
   gap: var(--spacing-4);
   padding: var(--spacing-4) var(--spacing-12) var(--spacing-4) var(--spacing-4);
   border: var(--border-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-secondary);
   box-shadow: var(--shadow-md);
   font: var(--font-body-md);
@@ -71,7 +71,7 @@
 .techIconTile {
   width: 20px;
   height: 20px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--bg-primary);
   display: inline-flex;
   align-items: center;
@@ -182,7 +182,7 @@
 .techIconCircleBtn {
   width: 40px;
   height: 40px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--bg-primary);
   border: var(--border-strong);
   border-style: dashed;
@@ -219,7 +219,7 @@
   height: 14px;
   border: 2px solid var(--border-color-strong);
   border-top-color: var(--text-accent);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   animation: techSpin 0.7s linear infinite;
 }
 /* × 제거 — circle 우상단 */
@@ -229,7 +229,7 @@
   right: -4px;
   width: 16px;
   height: 16px;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   border: var(--border-light);
   background: var(--bg-primary);
   color: var(--text-secondary);

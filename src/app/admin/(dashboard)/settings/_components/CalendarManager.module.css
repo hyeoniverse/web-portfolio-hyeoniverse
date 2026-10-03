@@ -50,7 +50,7 @@
   overflow: hidden;
   border: var(--border-light);
   /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 40px 상자에 2xl 이면 원이 돼 뜯는 달력으로 안 읽힌다 */
-  border-radius: var(--radius-6);
+  border-radius: var(--radius-mark);
   background: var(--bg-primary);
   text-align: center;
   font-variant-numeric: tabular-nums;
@@ -147,7 +147,7 @@
 .trashCount {
   min-width: 18px;
   padding: 0 var(--spacing-2);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: var(--bg-tertiary);
   color: var(--text-tertiary);
   font: var(--font-body-xs);

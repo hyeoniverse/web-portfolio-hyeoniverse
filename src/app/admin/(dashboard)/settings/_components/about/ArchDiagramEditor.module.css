@@ -22,7 +22,7 @@
   aspect-ratio: 1000 / 560;
   overflow: hidden;
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   background:
     radial-gradient(var(--border-color-light) 0.6px, transparent 0.6px) 0 0 / 22px 22px;
 }
@@ -50,7 +50,7 @@
   gap: var(--spacing-12);
   padding: var(--spacing-16);
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
 }
 .panelHead {
   display: flex;
@@ -92,7 +92,7 @@
   gap: var(--spacing-4);
   padding: var(--spacing-8) var(--spacing-16);
   border: 1px solid var(--border-color-light);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: transparent;
   color: var(--text-secondary);
   font: var(--font-body-md);

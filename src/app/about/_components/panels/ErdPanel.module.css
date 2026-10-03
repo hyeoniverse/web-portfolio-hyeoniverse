@@ -43,7 +43,7 @@
 
 .erdHint span {
   padding: var(--spacing-8) var(--spacing-12);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   background: color-mix(in srgb, var(--bg-primary) 80%, transparent);
   backdrop-filter: blur(4px);
   font: var(--font-meta-xs);

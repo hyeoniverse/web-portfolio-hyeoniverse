@@ -551,7 +551,7 @@ export default function DesignSystemClient() {
 
             {/* ── Coffee Cup ── */}
             <motion.div initial="hidden" {...vp(nd())} variants={staggerItem} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-48)", marginTop: "var(--spacing-32)" }}>
-              <div style={{ flex: "0 0 50%", aspectRatio: "1", maxHeight: 360, borderRadius: "var(--radius-24)", overflow: "hidden" }}>
+              <div style={{ flex: "0 0 50%", aspectRatio: "1", maxHeight: 360, borderRadius: "var(--radius-surface)", overflow: "hidden" }}>
                 <CoffeeCanvas />
               </div>
               <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "var(--spacing-12)" }}>
@@ -575,7 +575,7 @@ export default function DesignSystemClient() {
 
             {/* ── Scroll Torus ── */}
             <motion.div initial="hidden" {...vp(nd())} variants={staggerItem} style={{ display: "flex", flexDirection: "row-reverse", alignItems: "center", gap: "var(--spacing-48)" }}>
-              <div style={{ flex: "0 0 50%", aspectRatio: "1", maxHeight: 360, borderRadius: "var(--radius-24)", overflow: "hidden" }}>
+              <div style={{ flex: "0 0 50%", aspectRatio: "1", maxHeight: 360, borderRadius: "var(--radius-surface)", overflow: "hidden" }}>
                 <Canvas camera={{ position: [0, 0, 3], fov: 40 }} gl={{ alpha: true }} style={{ background: "transparent" }}>
                   <ambientLight intensity={0.6} />
                   <directionalLight position={[5, 5, 5]} intensity={1} />
@@ -603,7 +603,7 @@ export default function DesignSystemClient() {
 
             {/* ── Bunny Character ── */}
             <motion.div initial="hidden" {...vp(nd())} variants={staggerItem} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-48)" }}>
-              <div style={{ flex: "0 0 50%", aspectRatio: "1", maxHeight: 360, borderRadius: "var(--radius-24)", overflow: "hidden" }}>
+              <div style={{ flex: "0 0 50%", aspectRatio: "1", maxHeight: 360, borderRadius: "var(--radius-surface)", overflow: "hidden" }}>
                 <Canvas camera={{ position: [0, 0, 5], fov: 45 }} gl={{ alpha: true }} style={{ background: "transparent" }}>
                   <ambientLight intensity={0.6} />
                   <directionalLight position={[3, 5, 4]} intensity={0.8} />

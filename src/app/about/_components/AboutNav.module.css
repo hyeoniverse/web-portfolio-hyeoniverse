@@ -266,7 +266,7 @@
   width: 10px;
   height: 10px;
   background: var(--text-accent);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   scale: 0;
   translate: -50% -50%;
   content: "";
@@ -309,7 +309,7 @@
   white-space: nowrap;
   color: var(--text-inverse);
   background: var(--bg-inverse);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   opacity: 0;
   pointer-events: none;
   translate: -50% 4px;

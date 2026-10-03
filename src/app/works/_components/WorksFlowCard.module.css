@@ -2,7 +2,7 @@
 .project {
   --_meta-z: 50;
   --_meta-accent: var(--text-accent-alt);
-  --_card-radius: var(--radius-24);
+  --_card-radius: var(--radius-surface);
   --_card-w: 520px;
   --_card-h: 340px;
   --_number-size: var(--font-size-display-lg);
@@ -257,7 +257,7 @@
   border: 1px solid var(--text-accent-alt);
   font: var(--font-code-md);
   letter-spacing: 0.1em;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
 }
 
 .metaRole {
@@ -771,7 +771,7 @@
     letter-spacing: 0.08em;
     border: 1px solid var(--text-accent-alt);
     color: var(--text-accent-alt);
-    border-radius: var(--radius-full);
+    border-radius: var(--radius-control);
   }
 
   .project[data-layout] .metaRole {
@@ -859,7 +859,7 @@
   .project {
     --_card-w: 45%;
     --_card-h: auto;
-    --_card-radius: var(--radius-24);
+    --_card-radius: var(--radius-surface);
 
     display: flex !important;
     flex-direction: row !important;

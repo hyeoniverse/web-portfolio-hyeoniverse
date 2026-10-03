@@ -14,7 +14,7 @@
      (예전엔 각 호출부가 blur+투명 글래스를 제각각 override 해서 제멋대로였다 → variant 로 흡수) */
   background: var(--bg-primary);
   border: var(--border-light);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-surface);
   box-shadow: var(--shadow-md);
   overflow: hidden;
 }

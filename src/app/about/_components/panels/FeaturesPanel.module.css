@@ -108,7 +108,7 @@
   transition:
     color var(--duration-moderate) ease,
     border-color var(--duration-moderate) ease;
-  border-radius: var(--radius-24) var(--radius-24) 0 0;
+  border-radius: var(--radius-surface) var(--radius-surface) 0 0;
 }
 
 .featureFolderTab::after {
@@ -141,7 +141,7 @@
   transition:
     border-color var(--duration-moderate) ease,
     box-shadow var(--duration-moderate) ease;
-  border-radius: 0 20px 20px 20px;
+  border-radius: 0 var(--radius-surface) var(--radius-surface) var(--radius-surface);
   transform: translateY(1px);
 }
 
@@ -201,7 +201,7 @@
     position: relative;
     z-index: 1;
     font-size: var(--font-size-display-sm);
-    border-radius: var(--radius-24) var(--radius-24) 0 0;
+    border-radius: var(--radius-surface) var(--radius-surface) 0 0;
   }
 
   .featureFolderWrap .featureFolderTab::after {
@@ -223,7 +223,7 @@
     overflow: hidden;
     min-height: 0;
     background: var(--bg-primary);
-    border-radius: 0 22px 22px 22px;
+    border-radius: 0 var(--radius-surface) var(--radius-surface) var(--radius-surface);
   }
 }
 

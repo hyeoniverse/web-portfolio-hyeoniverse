@@ -6,7 +6,7 @@
   display: inline-flex;
   align-items: center;
   flex-shrink: 0;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
   border: var(--border-neutral-light);
   background: var(--bg-tertiary-alt);
   outline: none;
@@ -34,7 +34,7 @@
 
 .thumb {
   display: block;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-full);
   background: var(--bg-primary);
   pointer-events: none;
 }

@@ -14,7 +14,7 @@
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.15em;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-control);
 }
 
 .entryLabelAccent {
