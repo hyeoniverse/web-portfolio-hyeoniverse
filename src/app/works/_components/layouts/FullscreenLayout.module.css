@@ -406,8 +406,7 @@
 }
 
 .tech span {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-code-sm);
   letter-spacing: 0.06em;
   color: var(--text-white);
   opacity: 0.45;

@@ -6,8 +6,7 @@
   border: var(--border-light);
   border-radius: var(--radius-full);
   background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-secondary);
   cursor: pointer;
   white-space: nowrap;
@@ -39,7 +38,7 @@
 }
 
 .title {
-  font-size: var(--font-size-heading-xs);
+  font: var(--font-heading-xs);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
 }
@@ -51,28 +50,28 @@
 }
 
 .secTitle {
-  font-size: var(--font-size-heading-xs);
+  font: var(--font-heading-xs);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
 }
 
 /* 방법 A/B 소제목 — 섹션 제목보다 한 단계 작게 */
 .subTitle {
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
 }
 
 /* 상단 안내문 */
 .intro {
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   line-height: 1.65;
   color: var(--text-secondary);
 }
 
 /* 하단 커스텀 CSS 주의 */
 .caution {
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   line-height: 1.6;
   color: var(--text-tertiary);
 }
@@ -86,7 +85,7 @@
   list-style: decimal;
 }
 .steps li {
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   line-height: 1.65;
   color: var(--text-secondary);
   padding-left: var(--spacing-4);
@@ -102,7 +101,7 @@
   gap: var(--spacing-2);
   flex-shrink: 0;
   white-space: nowrap;
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   font-weight: var(--font-weight-medium);
   color: var(--text-accent);
   text-decoration: none;
@@ -132,11 +131,9 @@
   border-bottom-width: 2px;
   border-radius: var(--radius-24);
   background: var(--bg-secondary);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-code-sm);
   color: var(--text-primary);
   white-space: nowrap;
-  line-height: var(--line-height-160);
 }
 
 /* 핵심 단어 highlight */

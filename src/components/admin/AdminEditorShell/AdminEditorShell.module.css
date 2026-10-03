@@ -199,8 +199,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-4);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -209,9 +208,9 @@
 
 .scheduleMenuHint {
   margin: 0;
-  font-size: var(--font-size-body-xs);
-  color: var(--text-tertiary);
+  font: var(--font-body-xs);
   line-height: 1.5;
+  color: var(--text-tertiary);
 }
 
 .scheduleClearBtn {
@@ -225,7 +224,7 @@
   background: transparent;
   border: var(--border-light);
   border-radius: var(--radius-full);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   color: var(--text-secondary);
   cursor: pointer;
   transition:
@@ -285,8 +284,7 @@
   top: 0;
   right: 0;
   transform: translateY(calc(-100% - 2px));
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   line-height: 1.4;
   white-space: nowrap;
   max-width: 100%;
@@ -332,16 +330,15 @@
 .revisionBadge {
   min-width: 1.5ch;
   text-align: center;
+  font: var(--font-body-xs);
   font-variant-numeric: tabular-nums;
   font-weight: 600;
-  font-size: var(--font-size-body-xs);
 }
 
 .revisionEmpty {
   padding: var(--spacing-24);
   text-align: center;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-primary);
 }
 
@@ -355,8 +352,7 @@
   align-items: center;
   justify-content: space-between;
   padding: var(--spacing-12) var(--spacing-16);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   font-weight: 600;
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -367,8 +363,7 @@
 .revisionSelectToggle {
   border: none;
   background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   font-weight: 500;
   color: var(--text-secondary);
   text-transform: none;
@@ -398,8 +393,7 @@
 .revisionDeleteSelectedBtn {
   border: none;
   background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   font-weight: 600;
   color: var(--text-secondary);
   padding: 0;
@@ -415,8 +409,7 @@
 .revisionSelectCancel {
   border: none;
   background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   font-weight: 500;
   color: var(--text-secondary);
   padding: 0;
@@ -461,16 +454,14 @@
 }
 
 .revisionTime {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
-  color: var(--text-tertiary);
+  font: var(--font-body-sm);
   font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
   flex-shrink: 0;
 }
 
 .revisionTitle {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -600,8 +591,7 @@
   gap: var(--spacing-4);
   border: none;
   background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   font-weight: 600;
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -623,37 +613,35 @@
   display: grid;
   grid-template-columns: minmax(40px, 56px) 1fr;
   gap: var(--spacing-8) var(--spacing-16);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   line-height: 1.45;
 }
 
 .revisionDetailTitle {
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   font-weight: 600;
-  color: var(--text-primary);
   line-height: 1.3;
+  color: var(--text-primary);
 }
 
 .revisionDetailSubtitle {
-  font-size: var(--font-size-body-sm);
-  color: var(--text-secondary);
+  font: var(--font-body-sm);
   line-height: 1.4;
+  color: var(--text-secondary);
 }
 
 .revisionDetailExcerpt {
-  font-size: var(--font-size-body-xs);
-  color: var(--text-tertiary);
+  font: var(--font-body-xs);
   line-height: 1.5;
+  color: var(--text-tertiary);
 }
 
 .revisionDetailContent {
   padding: var(--spacing-16);
   border-top: var(--border-light);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
-  color: var(--text-secondary);
+  font: var(--font-body-md);
   line-height: 1.6;
+  color: var(--text-secondary);
   white-space: pre-wrap;
   word-break: break-word;
 }
@@ -669,8 +657,7 @@
   border-radius: var(--radius-full);
   background: color-mix(in oklch, var(--text-success) 8%, transparent);
   color: var(--text-success);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   letter-spacing: 0.02em;
   text-transform: uppercase;
   white-space: nowrap;
@@ -691,8 +678,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-16);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   line-height: 1.45;
 }
 
@@ -717,7 +703,7 @@
 
 .revisionMetaGroupLabel {
   color: var(--text-secondary);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -759,7 +745,7 @@
 
 .revisionMetaSubHeader {
   grid-column: 1 / -1;
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   font-weight: 600;
   color: var(--text-primary);
   padding-top: var(--spacing-4);
@@ -781,7 +767,7 @@
 
 .revisionMetaKey {
   color: var(--text-tertiary);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   letter-spacing: 0.02em;
   text-transform: uppercase;
   word-break: break-word;
@@ -998,8 +984,7 @@
   display: inline-flex;
   align-items: center;
   min-height: var(--size-20);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   font-weight: 600;
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -1020,12 +1005,11 @@
 }
 
 .fieldHint {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
+  font-weight: 400;
   color: var(--text-tertiary);
   letter-spacing: 0;
   text-transform: none;
-  font-weight: 400;
 }
 
 .fieldInput {
@@ -1036,8 +1020,7 @@
   border: var(--border-light);
   border-radius: var(--radius-full);
   background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   color: var(--text-primary);
   outline: none;
   box-sizing: border-box;
@@ -1099,8 +1082,7 @@
   background: var(--bg-secondary);
   border: var(--border-light);
   border-radius: var(--radius-full);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-secondary);
 }
 
@@ -1141,8 +1123,7 @@
   padding: 0 var(--spacing-8);
   background: var(--bg-tertiary);
   border-radius: var(--radius-full);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-secondary);
 }
 
@@ -1181,8 +1162,7 @@
   border: var(--border-light);
   border-radius: var(--radius-full);
   background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   color: var(--text-secondary);
   cursor: pointer;
 }
@@ -1214,8 +1194,7 @@
   padding: var(--row-padding-md);
   border: none;
   background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-primary);
   text-align: left;
 }

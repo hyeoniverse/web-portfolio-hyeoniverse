@@ -73,9 +73,7 @@
 }
 
 .conflictDiffTitle {
-  font-family: var(--font-family-heading);
-  font-size: var(--font-size-heading-sm);
-  font-weight: var(--font-weight-regular);
+  font: var(--font-heading-sm);
   color: var(--text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -85,8 +83,7 @@
 .conflictDiffPre {
   margin: 0;
   padding: var(--spacing-16);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-code-sm);
   line-height: 1.7;
   color: var(--text-primary);
   background: var(--bg-tertiary);
@@ -161,7 +158,7 @@
   padding: 0;
   border: none;
   border-radius: var(--radius-circle);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   line-height: var(--line-height-100);
 }
 

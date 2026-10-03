@@ -14,9 +14,7 @@
    280px 미만 → 1 col, 280~560 → 2 col, 560+ → 3+ col */
 
 .sectionTitle {
-  font-family: var(--font-family-heading);
-  font-size: var(--font-size-heading-xs);
-  font-weight: var(--font-weight-regular);
+  font: var(--font-heading-xs);
   color: var(--text-primary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -41,12 +39,11 @@
 }
 
 .sectionTitleHint {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
+  font-weight: 400;
   color: var(--text-tertiary);
   letter-spacing: 0;
   text-transform: none;
-  font-weight: 400;
 }
 
 .sectionTitleError {
@@ -72,8 +69,7 @@
   border: var(--border-light);
   border-radius: var(--radius-24);
   background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   color: var(--text-primary);
   outline: none;
   /* 높이 조절 손잡이는 공통 Textarea 가 그린다 — 여기서 resize 를 또 주면 손잡이가 두 개 겹친다 */
@@ -159,8 +155,7 @@
   border: var(--border-default);
   border-radius: var(--radius-full);
   background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-secondary);
 }
 
@@ -190,9 +185,7 @@
 }
 
 .extraHeadTitle {
-  font-family: var(--font-family-heading);
-  font-size: var(--font-size-heading-xs);
-  font-weight: var(--font-weight-regular);
+  font: var(--font-heading-xs);
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--text-primary);
@@ -202,7 +195,7 @@
   flex: 1;
   min-width: 0;
   overflow: hidden;
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   font-variant-numeric: tabular-nums;
   color: var(--text-tertiary);
   white-space: nowrap;
@@ -304,7 +297,7 @@
 
 .extraHint {
   margin: 0;
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   line-height: 1.55;
   color: var(--text-tertiary);
 }
@@ -395,8 +388,7 @@
 }
 
 .templateModalDesc {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   color: var(--text-secondary);
   margin: 0 0 var(--spacing-16) 0;
 }
@@ -425,13 +417,13 @@
 }
 
 .templateItemLabel {
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   font-weight: 600;
   color: var(--text-primary);
 }
 
 .templateItemDesc {
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-tertiary);
 }
 
@@ -456,8 +448,7 @@
   padding: 0 var(--spacing-8);
   border-radius: var(--radius-full);
   background: var(--bg-secondary);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   font-weight: 600;
   letter-spacing: 0.04em;
   color: var(--text-tertiary);
@@ -667,8 +658,7 @@
 }
 
 .galleryDocKind {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-code-sm);
   font-weight: var(--font-weight-semibold);
   letter-spacing: 0.08em;
 }
@@ -693,8 +683,7 @@
   border-radius: var(--radius-full);
   background: var(--text-accent);
   color: var(--text-inverse);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   font-weight: 600;
   letter-spacing: 0.02em;
   pointer-events: none;
@@ -750,8 +739,7 @@
 
 /* 그림 위 글씨 — 단추(variant-difference)와 같은 방식으로 배경을 뒤집어 읽는다 */
 .galleryMetaIndex {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   font-weight: 600;
   letter-spacing: 0.04em;
   color: var(--text-white);
@@ -760,8 +748,7 @@
 }
 
 .galleryMetaName {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   color: var(--text-white);
   mix-blend-mode: difference;
   overflow: hidden;
@@ -828,8 +815,7 @@
   align-items: center;
   gap: var(--spacing-4);
   color: var(--text-secondary);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
 }
 
 /* PDF 를 쪽마다 그리는 동안의 진행 표시 — 라벨 줄 오른쪽 */
@@ -838,8 +824,7 @@
   align-items: center;
   gap: var(--spacing-8);
   color: var(--text-secondary);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
 }
 
 .galleryProgressTrack {
@@ -879,8 +864,7 @@
   border-radius: var(--radius-24);
   background: transparent;
   color: var(--text-tertiary);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   cursor: pointer;
   transition:
     color 0.15s ease,
@@ -895,8 +879,7 @@
 /* ── Team Members ── */
 /* form / list 위의 작은 sub label — section 안 sub-section 구분용 */
 .memberSubLabel {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   font-weight: 600;
   color: var(--text-tertiary);
   letter-spacing: 0.05em;
@@ -928,7 +911,7 @@
 /* 아직 팀원이 없을 때 — 자리를 비우지 않고 비었다고 알린다 */
 .memberListEmpty {
   margin: 0;
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   line-height: 1.6;
   color: var(--text-tertiary);
 }
@@ -1106,7 +1089,7 @@
 .memberLinkMenuHint {
   margin: 0;
   padding: var(--spacing-4) var(--spacing-12) var(--spacing-8);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   line-height: 1.5;
   color: var(--text-tertiary);
 }
@@ -1220,10 +1203,9 @@
   margin: 0;
   background: var(--bg-accent-subtle);
   border-radius: var(--radius-full);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
-  color: var(--text-primary);
+  font: var(--font-body-sm);
   line-height: 1.3;
+  color: var(--text-primary);
   width: auto;
   min-width: 80px;
   max-width: 100%;
@@ -1237,31 +1219,29 @@
 
 /* Instagram-style: name 강조 (md, weight 600) */
 .memberItemName {
+  font: var(--font-heading-xs);
   font-family: var(--font-family-body);
-  font-size: var(--font-size-heading-xs);
   font-weight: 600;
-  color: var(--text-primary);
   line-height: 1.3;
+  color: var(--text-primary);
 }
 
 /* role — subtitle 같은 톤 (작고 muted) */
 .memberItemRole {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
-  color: var(--text-tertiary);
+  font: var(--font-body-sm);
   line-height: 1.3;
+  color: var(--text-tertiary);
 }
 
 .memberItemUrl {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
+  line-height: 1.3;
   color: var(--text-tertiary);
   text-decoration: none;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   max-width: 200px;
-  line-height: 1.3;
 }
 
 /* 사진 첨부 버튼 — 28px 로 input/+ 버튼 라인 맞춤. (0,2,0) 으로 Button base 보다 우선 */
@@ -1307,10 +1287,9 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-1);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
-  color: var(--text-primary);
+  font: var(--font-body-sm);
   line-height: 1.5;
+  color: var(--text-primary);
 }
 
 /* close 버튼 — actions wrapper 안. align 은 wrapper 가 담당 */
@@ -1409,8 +1388,7 @@
 }
 
 .memberLinkLabel {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   font-weight: 600;
   color: var(--text-tertiary);
   letter-spacing: 0.05em;
@@ -1428,7 +1406,7 @@
   height: 16px;
   border-radius: var(--radius-circle);
   object-fit: cover;
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
 }
 
 /* 다른 팀원이 이미 쓰고 있는 계정 — 눌러도 되지만 왜 안 되는지 먼저 보이게 */
@@ -1438,10 +1416,9 @@
 
 .memberLinkHint {
   margin: 0;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
-  color: var(--text-accent);
+  font: var(--font-body-xs);
   line-height: var(--line-height-135);
+  color: var(--text-accent);
 }
 
 /* 이름 + 연결 배지 한 줄 — 위의 .memberInfo > span(0,1,1) 이 display:block 으로 덮어 gap 이 먹지 않았다.

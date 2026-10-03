@@ -67,9 +67,7 @@
 .sheetTitle {
   margin: 0;
   padding: 0 var(--spacing-4);
-  font-family: var(--font-family-heading);
-  font-size: var(--font-size-heading-xs);
-  font-weight: var(--font-weight-regular);
+  font: var(--font-heading-xs);
   color: var(--text-primary);
   letter-spacing: -0.01em;
   flex-shrink: 0;
@@ -410,7 +408,7 @@
 
 .alphaUnit {
   flex-shrink: 0;
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   color: var(--text-tertiary);
 }
 
@@ -466,7 +464,7 @@
    trigger button 에 xs 사이즈 강제. (0,2,1) — Select 모듈의 .trigger.triggerSm (0,2,0) 이김. */
 .formatSelect button[class*="trigger"] {
   height: var(--control-height-xs);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   padding: 0 var(--spacing-12);
 }
 

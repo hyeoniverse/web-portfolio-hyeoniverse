@@ -62,7 +62,7 @@
 
 .slotHint {
   color: var(--text-muted);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
 }
 
 .op {
@@ -83,7 +83,7 @@
 
 .step {
   color: var(--text-tertiary);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
 }
 
 .count {
@@ -127,7 +127,7 @@
   border-bottom: var(--border-light);
   background: var(--bg-primary);
   color: var(--text-secondary);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   font-weight: 600;
 }
 
@@ -181,7 +181,7 @@
 .nameLabel {
   flex-shrink: 0;
   color: var(--text-secondary);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   white-space: nowrap;
 }
 

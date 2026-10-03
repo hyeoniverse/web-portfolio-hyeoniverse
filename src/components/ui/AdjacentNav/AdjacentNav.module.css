@@ -97,7 +97,7 @@
 
 .arrow {
   display: inline-block;
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   line-height: 1;
 }
 

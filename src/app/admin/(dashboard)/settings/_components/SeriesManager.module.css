@@ -233,8 +233,7 @@
 .seriesCardName {
   flex: 1;
   min-width: 0;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   font-weight: 600;
   /* 배경을 뒤집어 읽는다 — 밝은 배경에선 검게, 어두운 배경·커버 위에선 희게.
      순번(#N_)이 쓰는 방식과 같다. 커버 카드는 .seriesCardInfo 가 쌓임 맥락이라 흰색 그대로. */
@@ -250,8 +249,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-8);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-tertiary);
   margin-top: var(--spacing-12);
 }
@@ -259,7 +257,7 @@
 .seriesBadgeCat {
   padding: var(--badge-padding-md);
   border-radius: var(--radius-full);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   background: var(--bg-secondary);
   color: var(--text-secondary);
 }

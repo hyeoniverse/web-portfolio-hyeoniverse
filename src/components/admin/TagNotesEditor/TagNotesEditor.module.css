@@ -18,13 +18,12 @@
   align-items: center;
   justify-content: center;
   padding: var(--badge-padding-sm);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
   color: var(--text-tertiary);
   background: var(--bg-tertiary-alt);
   border-radius: var(--radius-full);
-  font-variant-numeric: tabular-nums;
 }
 
 /* drop indicator — section absolute. top + left + width 는 JS 가 계산 (dragging chip cell 너비만큼) */
@@ -101,8 +100,7 @@
   border: var(--border-light);
   border-radius: var(--radius-full);
   background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   color: var(--text-secondary);
   cursor: pointer;
   box-sizing: border-box;
@@ -266,8 +264,7 @@
   border: var(--border-light);
   border-radius: var(--radius-full);
   background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   color: var(--text-secondary);
   cursor: pointer;
   box-sizing: border-box;
@@ -313,10 +310,9 @@
 }
 
 .readonlyText {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
-  color: var(--text-primary);
+  font: var(--font-body-md);
   line-height: 1.4;
+  color: var(--text-primary);
   word-break: break-word;
 }
 
@@ -372,8 +368,7 @@
   border: var(--border-light);
   border-radius: var(--radius-full);
   background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   color: var(--text-secondary);
   cursor: pointer;
   box-sizing: border-box;
@@ -402,8 +397,7 @@
   gap: var(--spacing-4);
   padding: 0 var(--spacing-8);
   background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   color: var(--text-secondary);
   cursor: pointer;
   box-sizing: border-box;
@@ -440,8 +434,7 @@
   background: var(--bg-tertiary);
   color: var(--text-secondary);
   border-radius: var(--radius-full);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   font-weight: 600;
   letter-spacing: 0.05em;
   flex-shrink: 0;
@@ -453,8 +446,7 @@
   border: none;
   outline: none;
   background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   color: var(--text-primary);
   padding: 0;
   margin: 0;

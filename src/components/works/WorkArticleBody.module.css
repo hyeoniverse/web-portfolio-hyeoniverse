@@ -82,7 +82,7 @@
 }
 
 .sectionProse figcaption {
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-tertiary);
   text-align: center;
   margin-top: var(--spacing-12);
@@ -127,7 +127,7 @@
 .sectionProse :global(.reader-toc) a {
   color: var(--text-secondary);
   text-decoration: none;
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
 }
 
 .sectionProse :global(.reader-toc) a:hover { color: var(--text-accent); }
@@ -182,7 +182,7 @@
   margin: var(--spacing-24) 0;
   border-collapse: collapse;
   border: var(--border-light);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
 }
 
 .sectionProse table th,
@@ -194,7 +194,7 @@
 }
 
 .sectionProse table th {
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   font-weight: var(--font-weight-medium);
   color: var(--text-secondary);
   letter-spacing: 0.05em;

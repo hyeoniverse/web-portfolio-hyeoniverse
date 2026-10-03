@@ -50,8 +50,7 @@
   background: var(--bg-tertiary);
   color: var(--text-secondary);
   border-radius: var(--radius-full);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   font-weight: 600;
   letter-spacing: 0.05em;
   flex-shrink: 0;
@@ -63,8 +62,7 @@
   border: none;
   outline: none;
   background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   color: var(--text-primary);
   padding-inline: 0 !important;
   padding-block: 0;

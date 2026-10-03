@@ -10,8 +10,7 @@
   padding: var(--spacing-8) 0;
   border: none;
   background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   font-weight: 500;
   color: var(--text-tertiary);
   letter-spacing: 0.02em;
@@ -32,8 +31,7 @@
 
 .hint {
   margin-left: auto;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-muted);
 }
 
@@ -72,8 +70,7 @@
   align-items: center;
   gap: var(--spacing-12);
   padding: 0;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-secondary);
   border-top: var(--border-light);
   border-bottom: var(--border-light);
@@ -96,7 +93,7 @@
   border: none;
   background: transparent;
   color: var(--text-muted);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
 }
 
 /* ── Table header — AdminTable 과 동일한 padding/border 패턴으로 통일 ── */
@@ -105,8 +102,7 @@
   gap: var(--spacing-8);
   padding: var(--spacing-12) 0;
   border-bottom: var(--border-light);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   font-weight: 500;
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -117,8 +113,7 @@
 
 /* 헤더 셀 통일 — 컬럼별 className(colTitle/colMeta 등)을 무효화 위해 specificity 높임 (0,2,0) */
 .tableHeader.tableHeader > * {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   font-weight: 500;
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -197,12 +192,11 @@
   justify-content: center;
   background: var(--bg-tertiary);
   color: var(--text-muted);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
 }
 
 .colTitle {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   color: var(--text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -211,8 +205,7 @@
 }
 
 .colMeta {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-tertiary);
 }
 
@@ -228,8 +221,7 @@
   border: var(--border-strong);
   border-radius: var(--radius-full);
   background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-primary);
   text-decoration: none;
   transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
@@ -246,8 +238,7 @@
   border: var(--border-accent-strong);
   border-radius: var(--radius-full);
   background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-accent);
 }
 
@@ -286,7 +277,7 @@
 }
 
 .colDaysSub {
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   color: var(--text-muted);
 }
 
@@ -299,8 +290,7 @@
 /* ── Empty state ── */
 .empty {
   padding: var(--spacing-16) 0;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-muted);
 }
 

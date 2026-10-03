@@ -2,10 +2,8 @@
    본문은 md(16px) — 닉네임/날짜/액션 등 메타는 sm(14px) 로 남겨 위계를 만든다.
    내부 heading 들은 em 기반이라 이 값에 비례해 같이 커진다. */
 .commentMarkdown {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-lg);
+  font: var(--font-body-lg);
   color: var(--text-primary);
-  line-height: var(--line-height-160);
   overflow-wrap: anywhere;
   word-break: break-word;
 }
@@ -270,7 +268,7 @@
   border: none;
   border-collapse: collapse;
   overflow-x: auto;
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
 }
 
 /* 행 배경 없음 — giscus `table tr { background: transparent; border-top: 0 }` */
@@ -359,7 +357,7 @@
   margin-top: var(--spacing-20);
   padding-top: var(--spacing-12);
   border-top: var(--border-light);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-secondary);
 }
 

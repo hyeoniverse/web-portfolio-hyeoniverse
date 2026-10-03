@@ -112,8 +112,7 @@
 }
 
 .plotLabel {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-meta-xs);
   fill: var(--text-tertiary);
 }
 
@@ -183,7 +182,7 @@
   flex: 1;
   flex-direction: column;
   gap: var(--spacing-8);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-meta-sm);
   color: var(--text-primary);
 }
 
@@ -223,15 +222,12 @@
 }
 
 .varsBars code {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-meta-xs);
   color: var(--text-secondary);
 }
 
 .varsBars b {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
-  font-weight: var(--font-weight-regular);
+  font: var(--font-code-xs);
   color: var(--text-tertiary);
   text-align: right;
 }

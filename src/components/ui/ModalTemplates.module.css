@@ -32,7 +32,7 @@
 
 .body .input input {
   width: 100%;
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
 }
 
 .body .input input {
@@ -80,7 +80,7 @@
 /* 목록에 다 담지 못한 나머지 — 항목이 아니라 각주로 읽히게 한 칸 띄우고 약하게 */
 .itemListMore {
   margin-top: var(--spacing-4);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-tertiary);
 }
 

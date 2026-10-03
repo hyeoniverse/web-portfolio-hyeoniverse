@@ -14,7 +14,7 @@
 .hint {
   margin: 0;
   color: var(--text-tertiary);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
 }
 .canvasWrap {
   border: var(--border-light);
@@ -57,8 +57,7 @@
 .inspectTitle {
   flex-shrink: 0;
   color: var(--text-tertiary);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-code-sm);
 }
 .inspectField {
   flex-shrink: 0;
@@ -93,8 +92,7 @@
   gap: var(--spacing-4);
   align-items: center;
   color: var(--text-tertiary);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
 }
 .legendDot {
   width: 8px;

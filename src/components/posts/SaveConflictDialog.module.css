@@ -6,9 +6,9 @@
   padding: 0 var(--spacing-20) var(--spacing-20);
 }
 .text {
-  font-size: var(--font-size-body-md);
-  color: var(--text-secondary);
+  font: var(--font-body-md);
   line-height: 1.55;
+  color: var(--text-secondary);
 }
 .actions {
   display: flex;

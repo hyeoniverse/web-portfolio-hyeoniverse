@@ -19,8 +19,8 @@
 }
 
 .hint {
+  font: var(--font-body-xs);
   font-weight: 400;
-  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
 }
 

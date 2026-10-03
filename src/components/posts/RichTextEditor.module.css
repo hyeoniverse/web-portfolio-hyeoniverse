@@ -157,8 +157,7 @@
   align-items: center;
   justify-content: center;
   min-width: 18px;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   color: var(--text-secondary);
 }
 
@@ -218,11 +217,11 @@
   border-bottom: var(--border-light);
   color: var(--text-tertiary);
 }
-.postLinkSearchVal { flex: 1; min-width: 0; color: var(--text-primary); font-size: var(--font-size-body-md); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.postLinkSearchPh { flex: 1; color: var(--text-tertiary); font-size: var(--font-size-body-md); }
+.postLinkSearchVal { flex: 1; min-width: 0; color: var(--text-primary); font: var(--font-body-md); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.postLinkSearchPh { flex: 1; color: var(--text-tertiary); font: var(--font-body-md); }
 .postLinkSectionLabel {
   padding: var(--spacing-4) var(--spacing-12) var(--spacing-2);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   font-weight: 600;
   color: var(--text-tertiary);
 }
@@ -249,11 +248,11 @@
   border-radius: var(--radius-full);
   background: var(--bg-secondary);
   color: var(--text-tertiary);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
 }
 .postLinkEmpty {
   padding: var(--spacing-12) var(--spacing-12);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   color: var(--text-muted);
   text-align: center;
 }
@@ -270,7 +269,7 @@
 }
 .slashGroupLabel {
   padding: var(--spacing-4) var(--spacing-12) var(--spacing-2);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -427,7 +426,7 @@
   margin-left: auto;
   padding-left: var(--spacing-12);
   color: var(--text-tertiary);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
@@ -441,7 +440,7 @@
   margin: var(--prose-block-gap) 0;
 }
 .tocEmpty {
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   color: var(--text-tertiary);
 }
 
@@ -450,7 +449,7 @@
   border: none;
   background: transparent;
   padding: var(--spacing-4) 0;
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   color: var(--text-accent);
   text-decoration: underline;
   text-underline-offset: 2px;
@@ -500,8 +499,7 @@
   background-image: none;
   -webkit-appearance: none;
   appearance: none;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   color: var(--text-secondary);
   outline: none;
   max-width: 140px;
@@ -541,8 +539,7 @@
   width: 280px;
   padding: 0;
   gap: 0;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   border-radius: var(--radius-24);
   max-height: none;
   overflow: visible;
@@ -570,12 +567,11 @@
 .tableGroupLabel {
   display: flex;
   align-items: center;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
+  line-height: 1;
   color: var(--text-primary);
   padding: 0 var(--spacing-4) 0 var(--spacing-8);
   user-select: none;
-  line-height: 1;
 }
 
 .tableGroup .toolbarBtn {
@@ -734,7 +730,7 @@
   align-items: baseline;
   justify-content: space-between;
   gap: var(--spacing-12);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   font-weight: var(--font-weight-medium);
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -752,7 +748,7 @@
 }
 /* field label — 필드(컨트롤) 왼쪽에 나란히 배치, 큰 폰트 + 진한 색 */
 .fieldLabel {
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   font-weight: var(--font-weight-medium);
   color: var(--text-primary);
   white-space: nowrap;
@@ -862,7 +858,7 @@
   margin: var(--spacing-4) 0;
 }
 .colorMenuMiniLabel {
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   color: var(--text-muted);
   margin-right: var(--spacing-2);
   align-self: center;
@@ -910,7 +906,7 @@
   width: 16px;
   flex-shrink: 0;
   text-align: center;
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   font-variant-numeric: tabular-nums;
   color: var(--text-muted);
 }
@@ -975,8 +971,7 @@
   height: 100%;
   border: none;
   background: transparent;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-code-sm);
   color: var(--text-primary);
   padding: 0 var(--spacing-8);
   outline: none;
@@ -990,8 +985,7 @@
   height: 100%;
   padding: 0 var(--spacing-4) 0 var(--spacing-8);
   border-right: var(--border-light);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   color: var(--text-tertiary);
   white-space: nowrap;
 }
@@ -1034,8 +1028,7 @@
   border-left: var(--border-light);
   border-radius: 0;
   background: transparent;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-code-sm);
   color: var(--text-primary);
   padding: var(--field-padding-sm);
   width: 120px;
@@ -1084,8 +1077,7 @@
   border: var(--border-light);
   border-radius: var(--radius-full);
   background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   color: var(--text-secondary);
   cursor: pointer;
   transition:
@@ -1102,10 +1094,9 @@
   display: inline-flex;
   align-items: center;
   padding: 0 var(--spacing-8);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
-  color: var(--text-tertiary);
+  font: var(--font-body-xs);
   font-style: italic;
+  color: var(--text-tertiary);
 }
 
 .borderPopSection {
@@ -1115,8 +1106,7 @@
 }
 
 .borderPopLabel {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   font-weight: 600;
   color: var(--text-tertiary);
   text-transform: uppercase;
@@ -1189,8 +1179,7 @@
   border: none;
   border-left: var(--border-light);
   background: transparent;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   color: var(--text-secondary);
   transition: background 0.1s;
 }
@@ -1285,7 +1274,7 @@
   border: var(--border-light);
   background: transparent;
   padding: 0;
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   line-height: 1;
   color: var(--text-tertiary);
   display: flex;
@@ -1331,8 +1320,7 @@
   border-top: var(--border-light);
   border-radius: 0;
   background: var(--bg-tertiary);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   /* 글자·단어 수 — bg-tertiary 위에서 muted(neutral-600)는 WCAG AA(4.5:1) 미달이라 secondary 로 */
   color: var(--text-secondary);
 }
@@ -1340,8 +1328,7 @@
 .statusBarCheck {
   margin-right: auto;
   gap: var(--spacing-4);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   color: var(--text-secondary);
 }
 /* 고른 글자 수 — 선택 바로 아래에 뜨는 표시. 말풍선 생김새는 공통 Tooltip 의 .bubble 이 맡고,
@@ -1407,7 +1394,7 @@
 }
 .blockToolsLabel {
   padding: var(--spacing-4) var(--spacing-8) var(--spacing-2);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -1453,7 +1440,7 @@
   height: 22px;
   border-radius: var(--radius-full);
   cursor: pointer;
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   color: var(--text-muted);
 }
 .blockToolsSwatch:hover {
@@ -1821,9 +1808,7 @@
   padding: var(--spacing-16) var(--spacing-64);
   outline: none;
   min-height: 400px;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-lg);
-  line-height: var(--line-height-160);
+  font: var(--font-body-lg);
   color: var(--text-primary);
   font-synthesis: style;
   flex: 1;
@@ -1987,7 +1972,7 @@
   border-collapse: separate;
   border-spacing: 0;
   margin: 0;
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   table-layout: fixed;
 }
 .editorContent table th,
@@ -2058,8 +2043,7 @@
   padding: 0 var(--spacing-8);
   border: none;
   background: transparent;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-code-sm);
   color: var(--text-primary);
   outline: none;
 }
@@ -2090,8 +2074,7 @@
 }
 
 .findCount {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   color: var(--text-muted);
   padding: 0 var(--spacing-4);
   flex-shrink: 0;
@@ -2215,9 +2198,8 @@
 /* 참조: accent 위첨자 */
 .footnoteRef {
   color: var(--text-accent);
+  font: var(--font-code-sm);
   font-weight: var(--font-weight-bold);
-  font-size: var(--font-size-body-sm);
-  font-family: var(--font-family-code);
   user-select: none;
   text-decoration: none;
 }
@@ -2289,9 +2271,8 @@
 .footnoteContentBody {
   flex: 1;
   min-width: 0;
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   color: var(--text-secondary);
-  line-height: var(--line-height-160);
 }
 
 /* 삭제 버튼: 우상단, 호버 시만 */

@@ -27,7 +27,7 @@
 
 .translateErrorMsg {
   flex-shrink: 0;
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-error-strong);
   margin: 0;
 }

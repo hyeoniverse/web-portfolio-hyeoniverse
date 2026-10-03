@@ -21,8 +21,7 @@
 }
 
 .diagramViewerTitle {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-md);
+  font: var(--font-code-md);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
   letter-spacing: 0.04em;
@@ -79,11 +78,10 @@
 .diagramViewerZoomLabel {
   min-width: 4em;
   text-align: center;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   font-weight: var(--font-weight-semibold);
-  color: var(--text-secondary);
   font-variant-numeric: tabular-nums;
+  color: var(--text-secondary);
 }
 
 .diagramViewerIconBtn {

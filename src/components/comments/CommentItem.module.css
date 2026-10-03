@@ -182,10 +182,9 @@
 .deletedPlaceholder {
   margin: 0;
   min-width: 0;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
-  color: var(--text-tertiary);
+  font: var(--font-body-md);
   font-style: italic;
+  color: var(--text-tertiary);
 }
 
 /* 헤더 = [선택 체크박스] [메타(닉네임·배지·날짜·수정됨)].
@@ -232,8 +231,7 @@
 }
 
 .nickname {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   font-weight: var(--font-weight-medium);
   color: var(--text-primary);
 }
@@ -242,35 +240,30 @@
   padding: var(--badge-padding-md);
   border-radius: var(--radius-full);
   background: var(--bg-accent);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   font-weight: 500;
   color: var(--text-accent);
 }
 
 .date {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-secondary);
 }
 
 .editedBadge {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
-  color: var(--text-tertiary);
+  font: var(--font-body-sm);
   font-style: italic;
+  color: var(--text-tertiary);
 }
 
 /* 번역 결과 — 본문과 떨어뜨려 별개 블록임을 드러냄.
    height 0↔auto 애니메이션 중이라 margin 은 밖(여기)에 둬야 접힐 때 같이 사라진다. */
 .translatedContent {
   margin-top: var(--spacing-20);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
-  color: var(--text-tertiary);
-  line-height: var(--line-height-160);
-  white-space: pre-wrap;
+  font: var(--font-body-md);
   font-style: italic;
+  color: var(--text-tertiary);
+  white-space: pre-wrap;
   padding-left: var(--spacing-12);
   border-left: var(--border-light-2);
   overflow: hidden;
@@ -282,7 +275,7 @@
   align-items: center;
   gap: var(--spacing-2);
   margin-bottom: var(--spacing-4);
-  font-size: var(--font-size-heading-xs);
+  font: var(--font-heading-xs);
   font-style: normal;
   font-weight: var(--font-weight-medium);
   color: var(--text-secondary);
@@ -317,10 +310,9 @@
   border: var(--border-light);
   border-radius: var(--radius-full);
   background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
-  color: var(--text-secondary);
+  font: var(--font-body-sm);
   line-height: 1;
+  color: var(--text-secondary);
 }
 
 /* hover — 보더가 칩으로 옮겨왔으므로 strong 도 칩에 */
@@ -346,7 +338,7 @@
   border: none;
   border-radius: var(--radius-circle);
   background: transparent;
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   line-height: 1;
 }
 
@@ -360,7 +352,7 @@
   height: 100%;
   aspect-ratio: 1;
   padding: 0;
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   font-variant-numeric: tabular-nums;
 }
 
@@ -515,8 +507,7 @@
 
 .deleteError {
   text-align: right;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-accent);
 }
 
@@ -543,7 +534,6 @@
 
 .editError {
   text-align: right;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-accent);
 }

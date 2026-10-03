@@ -52,16 +52,14 @@
   position: absolute;
   top: 0;
   transform: translateX(-50%);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
-  color: var(--text-tertiary);
+  font: var(--font-code-xs);
   font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
   white-space: nowrap;
 }
 
 .trendCaption {
   align-self: flex-end;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   color: var(--text-muted);
 }

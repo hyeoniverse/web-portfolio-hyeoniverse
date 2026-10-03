@@ -60,8 +60,7 @@
 }
 
 .creditsList dt {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-meta-xs);
   color: var(--text-tertiary);
   letter-spacing: 0.12em;
   text-align: right;
@@ -71,7 +70,7 @@
 .creditsList dd {
   margin: 0;
   word-break: keep-all;
-  font-size: var(--font-size-body-md);
+  font: var(--font-meta-md);
   line-height: var(--_lh-reading);
   color: var(--text-primary);
   text-align: left;

@@ -21,8 +21,7 @@
 }
 
 .sheetSectionLabel {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   font-weight: var(--font-weight-medium);
   color: var(--text-tertiary);
   text-transform: uppercase;

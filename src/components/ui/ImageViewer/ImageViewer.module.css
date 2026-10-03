@@ -158,9 +158,9 @@
 }
 
 .viewerTitleFile {
+  font: var(--font-body-sm);
   font-weight: 400;
   color: var(--text-primary);
-  font-size: var(--font-size-body-sm);
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -434,7 +434,7 @@
 }
 
 .infoTitle {
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   font-weight: var(--font-weight-semibold);
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -458,7 +458,7 @@
 .infoKey {
   flex-shrink: 0;
   width: 62px;
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-tertiary);
 }
 
@@ -466,9 +466,9 @@
   margin: 0;
   flex: 1;
   min-width: 0;
-  font-size: var(--font-size-body-sm);
-  color: var(--text-primary);
+  font: var(--font-body-sm);
   font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
   word-break: break-all;
 }
 

@@ -56,8 +56,7 @@
 }
 
 .category {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-code-sm);
   letter-spacing: 0.35em;
   text-transform: uppercase;
   color: var(--text-white);
@@ -78,19 +77,19 @@
 }
 
 .subtitle {
-  font-size: var(--font-size-heading-sm);
+  font: var(--font-heading-sm);
+  line-height: var(--line-height-160);
   color: var(--text-white);
   opacity: 0.8;
-  line-height: var(--line-height-160);
   margin: 0 0 var(--spacing-24) 0;
   transition: all 0.5s ease;
 }
 
 .desc {
-  font-size: var(--font-size-body-lg);
+  font: var(--font-body-lg);
+  line-height: var(--line-height-180);
   color: var(--text-white);
   opacity: 0.65;
-  line-height: var(--line-height-180);
   margin: 0 0 var(--spacing-20) 0;
   transition: all 0.5s ease;
 }
@@ -107,16 +106,14 @@
   padding: var(--spacing-2) var(--spacing-12);
   border: 1px solid color-mix(in oklch, var(--border-color-white) 30%, transparent);
   border-radius: var(--radius-full);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-code-sm);
   color: var(--text-white);
   opacity: 0.85;
   letter-spacing: 0.06em;
 }
 
 .role {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-code-sm);
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--text-white);
@@ -126,8 +123,7 @@
 
 .counter {
   margin-top: var(--spacing-48);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-md);
+  font: var(--font-code-md);
   color: var(--text-white);
   opacity: 0.55;
   letter-spacing: 0.15em;
@@ -213,7 +209,7 @@
 .introDetail {
   position: relative;
   z-index: 1;
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   line-height: var(--line-height-180);
   color: var(--text-white);
   opacity: 0.65;
@@ -230,8 +226,7 @@
   flex-direction: column;
   align-items: center;
   gap: var(--spacing-12);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   letter-spacing: 0.3em;
   text-transform: uppercase;
   color: var(--text-white);
@@ -457,8 +452,7 @@
   }
 
   .imageMetaNumber {
-    font-family: var(--font-family-code);
-    font-size: var(--font-size-body-xs);
+    font: var(--font-code-xs);
     letter-spacing: 0.3em;
     opacity: 0.5;
   }
@@ -489,8 +483,7 @@
     padding: var(--spacing-2) var(--spacing-8);
     border: var(--border-ghost);
     border-radius: var(--radius-full);
-    font-family: var(--font-family-code);
-    font-size: var(--font-size-body-xs);
+    font: var(--font-code-xs);
   }
 
   .imageOverlay {

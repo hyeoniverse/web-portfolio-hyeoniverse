@@ -20,9 +20,8 @@
 }
 
 .activeNumber {
+  font: var(--font-body-md);
   font-family: var(--font-family-heading);
-  font-size: var(--font-size-body-md);
-  font-weight: var(--font-weight-regular);
   letter-spacing: 0.2em;
   color: var(--text-tertiary);
   text-transform: uppercase;

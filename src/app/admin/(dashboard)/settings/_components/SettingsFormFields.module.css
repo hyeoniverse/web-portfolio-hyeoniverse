@@ -11,13 +11,12 @@
   border: var(--border-light);
   border-radius: var(--radius-full);
   background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
+  line-height: var(--line-height-100);
   color: var(--text-tertiary);
   text-decoration: none;
   width: 280px;
   max-width: 100%;
-  line-height: var(--line-height-100);
   overflow: hidden;
   white-space: nowrap;
   flex-shrink: 1;
@@ -42,8 +41,8 @@
 }
 
 .fieldLabelHint {
+  font: var(--font-body-xs);
   font-weight: 400;
-  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
 }
 
@@ -148,8 +147,7 @@
 
 /* 스와치만 있으면 뭔지 알 수 없다 — 라벨을 붙인다 */
 .logoTintLabel {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   color: var(--text-tertiary);
   white-space: nowrap;
 }
@@ -209,8 +207,7 @@
   padding: 0;
   border: none;
   background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   color: var(--text-tertiary);
   cursor: pointer;
   text-decoration: underline;
@@ -291,8 +288,7 @@
 .serviceItemNum {
   display: inline-flex;
   align-items: center;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-md);
+  font: var(--font-code-md);
   color: var(--text-tertiary);
   min-width: 24px;
   height: var(--control-height-xs);

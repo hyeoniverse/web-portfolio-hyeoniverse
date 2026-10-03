@@ -95,7 +95,7 @@
   background: none;
   cursor: pointer;
   color: var(--text-muted);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   padding: 0;
 }
 .shuffleBtn {
@@ -169,7 +169,7 @@
   border-radius: var(--radius-circle);
   background: var(--bg-error-solid);
   color: var(--text-white);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   line-height: 1;
   cursor: pointer;
   z-index: 1;
@@ -209,7 +209,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   border: none;
   cursor: pointer;
   border-radius: var(--radius-circle);
@@ -236,7 +236,7 @@
   cursor: pointer;
   color: var(--text-muted);
   flex-shrink: 0;
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
 }
 .scrollBtn:hover { color: var(--text-primary); }
 
@@ -272,13 +272,13 @@
 }
 .dropzone:disabled { opacity: 0.5; cursor: wait; }
 .uploadHint {
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
+  line-height: 1.4;
   color: var(--text-muted);
   text-align: center;
-  line-height: 1.4;
 }
 .uploadError {
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   color: var(--text-error);
   text-align: center;
 }

@@ -50,8 +50,7 @@
   display: inline-flex;
   align-items: center;
   min-height: var(--control-height-sm);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-md);
+  font: var(--font-code-md);
   color: var(--text-primary);
   overflow-wrap: anywhere;
 }
@@ -80,8 +79,7 @@
   padding: 0 var(--spacing-4);
   border-radius: var(--radius-full);
   background: var(--bg-secondary);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-code-sm);
   font-variant-numeric: tabular-nums;
   color: var(--text-tertiary);
 }
@@ -168,8 +166,7 @@
   padding: 0;
   border: none;
   background: transparent;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-code-sm);
   color: var(--text-primary);
   outline: none;
 }
@@ -190,7 +187,7 @@
   padding: var(--badge-padding-sm);
   border-radius: var(--radius-full);
   background: var(--bg-secondary);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   color: var(--text-tertiary);
   white-space: nowrap;
 }
@@ -240,8 +237,7 @@
 .pickedOrder {
   flex: 0 0 auto;
   min-width: 1.25rem;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-code-sm);
   font-variant-numeric: tabular-nums;
   color: var(--text-tertiary);
 }
@@ -249,8 +245,7 @@
 .pickedName {
   flex: 1;
   min-width: 0;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-md);
+  font: var(--font-code-md);
   color: var(--text-primary);
   overflow-wrap: anywhere;
 }
@@ -328,14 +323,13 @@
   display: flex;
   align-items: center;
   min-height: var(--_line);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-md);
+  font: var(--font-code-md);
   color: var(--text-primary);
   overflow-wrap: anywhere;
 }
 
 .itemDesc {
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   line-height: 1.5;
   color: var(--text-secondary);
   overflow-wrap: anywhere;
@@ -345,7 +339,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-12);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-tertiary);
 }
 
@@ -357,7 +351,7 @@
 
 .error {
   margin: 0;
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-error-strong);
 }
 
@@ -380,7 +374,6 @@
   padding: 0 var(--spacing-4);
   border-radius: var(--radius-full);
   background: var(--bg-tertiary);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-code-sm);
   color: var(--text-secondary);
 }

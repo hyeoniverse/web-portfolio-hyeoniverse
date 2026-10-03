@@ -613,14 +613,14 @@
 }
 
 .apiTileNum {
+  font: var(--font-body-md);
   font-family: var(--font-family-heading);
-  font-size: var(--font-size-body-md);
   font-style: italic;
 }
 
 .apiTileName {
   overflow: hidden;
-  font-size: var(--font-size-body-sm);
+  font: var(--font-meta-sm);
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -693,7 +693,7 @@
   margin: 0;
   word-break: keep-all;
   max-width: 64ch;
-  font-size: var(--font-size-body-md);
+  font: var(--font-meta-md);
   line-height: var(--_lh-reading);
   color: var(--text-secondary);
 }
@@ -708,8 +708,7 @@
 }
 
 .apiDetailNote > span {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-meta-xs);
   color: var(--text-accent);
   letter-spacing: 0.04em;
 }
@@ -767,8 +766,7 @@
 
 .apiEndpoints code {
   overflow: hidden;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-meta-sm);
   white-space: nowrap;
   text-overflow: ellipsis;
   color: var(--text-primary);

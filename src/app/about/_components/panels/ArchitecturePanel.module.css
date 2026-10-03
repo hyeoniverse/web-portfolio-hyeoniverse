@@ -263,8 +263,7 @@
 
 .archTmLabel {
   overflow: hidden;
-  font-family: var(--font-family-code), monospace;
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   font-weight: var(--font-weight-medium);
   color: var(--text-secondary);
   white-space: nowrap;

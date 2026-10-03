@@ -31,7 +31,7 @@
 }
 
 .introLabel {
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   font-weight: var(--font-weight-semibold);
   color: var(--text-accent-alt);
   text-transform: uppercase;
@@ -113,7 +113,7 @@
 }
 
 .introStatLabel {
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   font-weight: var(--font-weight-medium);
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -134,7 +134,7 @@
   margin-right: calc(-1 * var(--_intro-pad));
   padding: 0 var(--_intro-pad) var(--spacing-12);
   border-bottom: var(--border-strong);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   font-weight: var(--font-weight-medium);
   color: var(--text-accent-alt);
   letter-spacing: 0.1em;
@@ -143,11 +143,9 @@
 .introQuote {
   margin: 0;
   min-height: 3.3em; /* 2 lines × 1.65 line-height */
+  font: var(--font-body-lg);
   font-family: var(--font-family-heading);
-  font-size: var(--font-size-body-lg);
   font-style: italic;
-  font-weight: var(--font-weight-regular);
-  line-height: var(--line-height-160);
   color: var(--text-secondary);
   /* 0.6 은 라이트에서 대비 3.51. 0.75 면 4.72. */
   opacity: 0.75;

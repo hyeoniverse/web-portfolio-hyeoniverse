@@ -40,8 +40,8 @@
 
 /* label 아래 보조 설명 (작은 글씨) */
 .fieldLabelHint {
+  font: var(--font-body-xs);
   font-weight: 400;
-  font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
 }
 

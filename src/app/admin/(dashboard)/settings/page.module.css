@@ -193,12 +193,11 @@
   padding: 0 var(--spacing-2);
   border-radius: var(--radius-full);
   background: color-mix(in srgb, currentColor 22%, transparent);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   font-variant-numeric: tabular-nums;
 }
 .conflictDesc {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-tertiary);
   margin-bottom: var(--spacing-16);
 }
@@ -209,10 +208,9 @@
   border: var(--border-light);
   border-radius: var(--radius-full);
   color: var(--text-primary);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
-  padding: var(--spacing-8) var(--spacing-12);
+  font: var(--font-body-sm);
   font-weight: var(--font-weight-medium);
+  padding: var(--spacing-8) var(--spacing-12);
 }
 /* 양옆이 트인 flat list — 좌우 border 없음, 위/각 row 아래에만 border.
    notifications 페이지의 list 와 같은 패턴. */
@@ -227,7 +225,7 @@
   align-items: center;
   gap: var(--spacing-12);
   padding: var(--spacing-8) 0;
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   border-bottom: var(--border-light);
   border-radius: 0;
 }
@@ -241,22 +239,19 @@
   align-items: center;
   gap: var(--spacing-12);
   padding: var(--spacing-8) 0;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-tertiary);
 }
 
 .conflictSelectAllLabel {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-primary);
 }
 
 .conflictPath {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-sm);
-  color: var(--text-primary);
+  font: var(--font-code-sm);
   font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
   min-width: 160px;
   flex-shrink: 0;
 }
@@ -270,8 +265,7 @@
 
 .conflictValueDB,
 .conflictValueCode {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-tertiary);
   white-space: nowrap;
   overflow: hidden;
@@ -328,8 +322,7 @@
   border-bottom: var(--border-light);
   border-radius: 0;
   background: transparent;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   font-weight: 500;
   color: var(--text-secondary);
   text-align: left;
@@ -445,8 +438,7 @@
     border: none;
     border-bottom: 2px solid transparent;
     background: transparent;
-    font-family: var(--font-family-body);
-    font-size: var(--font-size-body-sm);
+    font: var(--font-body-sm);
     font-weight: var(--font-weight-medium);
     color: var(--text-secondary);
     white-space: nowrap;

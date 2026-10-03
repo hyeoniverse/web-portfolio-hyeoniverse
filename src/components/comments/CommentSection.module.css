@@ -20,10 +20,8 @@
 }
 
 .count {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   color: var(--text-tertiary);
-  font-weight: var(--font-weight-regular);
   margin-left: var(--spacing-8);
 }
 

@@ -15,9 +15,8 @@
 }
 
 .caption {
-  font-size: var(--font-size-body-lg);
+  font: var(--font-body-lg);
   font-weight: var(--font-weight-light);
-  line-height: var(--line-height-160);
   color: var(--text-tertiary);
   opacity: 0;
   transition: opacity var(--duration-base) ease;

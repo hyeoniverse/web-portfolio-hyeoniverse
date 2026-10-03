@@ -97,8 +97,7 @@
 }
 
 .helpTitle {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   font-weight: var(--font-weight-semibold);
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -118,8 +117,7 @@
 .helpTable th {
   padding: var(--cell-padding-sm);
   background: var(--bg-tertiary);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
   white-space: nowrap;
@@ -148,8 +146,7 @@
    white-space: pre — 코드 블록/표는 줄바꿈이 있어야 문법이 성립한다(펜스, | --- | 구분행). */
 .helpCode {
   display: block;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-code-sm);
   line-height: 1.6;
   color: var(--text-primary);
   white-space: pre;
@@ -171,8 +168,7 @@
 }
 
 .helpDesc {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   color: var(--text-secondary);
 }
 
@@ -208,10 +204,9 @@
 }
 
 .previewEmpty {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
-  color: var(--text-tertiary);
+  font: var(--font-body-md);
   font-style: italic;
+  color: var(--text-tertiary);
 }
 
 /* ── 게시물 링크 피커 (CommentPostLinkPicker) ── */
@@ -291,14 +286,14 @@
   border-radius: var(--radius-24);
   background: var(--bg-secondary);
   color: var(--text-tertiary);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
 }
 
 .postPickerTitle {
   flex: 1;
   min-width: 0;
   overflow: hidden;
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -310,14 +305,13 @@
   border-radius: var(--radius-full);
   background: var(--bg-tertiary);
   color: var(--text-secondary);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   white-space: nowrap;
 }
 
 .postPickerEmpty {
   padding: var(--spacing-12);
   color: var(--text-tertiary);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   text-align: center;
 }

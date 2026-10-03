@@ -271,12 +271,11 @@
   padding: var(--spacing-4) var(--spacing-16);
   border: var(--border-light);
   border-radius: var(--radius-full);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
   letter-spacing: 0.02em;
   color: var(--text-secondary);
-  font-variant-numeric: tabular-nums;
 }
 
 /* 카드 — 좌/우 반폭 교차. (margin 은 side 클래스가 좌우 배치하므로 여기서 설정하지 않음 —
