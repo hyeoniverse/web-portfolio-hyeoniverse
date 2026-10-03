@@ -38,7 +38,7 @@
 .creditsTitle {
   margin: 0;
   font-family: var(--font-family-display);
-  font-size: clamp(3rem, min(7vw, 12vh), 7rem);
+  font-size: clamp(3rem, 1.774rem + 5.03vw, 7rem);
   font-style: italic;
   font-weight: var(--font-weight-regular);
   line-height: 1;
@@ -80,7 +80,7 @@
 
 /* 서명 — 한 화면 가까이를 혼자 쓰므로 크게 */
 .creditsSign p {
-  font-size: clamp(1.1rem, min(1.8vw, 3vh), 1.75rem);
+  font-size: clamp(1.1rem, 0.907rem + 0.79vw, 1.75rem);
 }
 
 /* 들어오는 동안 자막이 아래에서 스크롤만큼 올라온다(--flow-in, useHorizontalScroll) */
@@ -106,7 +106,7 @@
   }
 
   .creditsTitle {
-    font-size: clamp(2.5rem, 9vh, 4.5rem);
+    font-size: 4.5rem;
   }
 
   .creditsList {

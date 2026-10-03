@@ -160,7 +160,7 @@
 
   .flowName {
     font-family: var(--font-family-display);
-    font-size: clamp(2rem, min(3.4vw, 6vh), 3.5rem);
+    font-size: clamp(2.2rem, 0.25rem + 3.12vw, 3.5rem);
     font-style: italic;
     line-height: 1;
     color: var(--text-primary);

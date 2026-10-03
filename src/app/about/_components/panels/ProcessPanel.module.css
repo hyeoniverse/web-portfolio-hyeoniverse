@@ -24,7 +24,7 @@
 
 .procDetailNum {
   font-family: var(--font-family-display);
-  font-size: clamp(4rem, min(7vw, 15vh), 8rem);
+  font-size: clamp(4rem, 3.146rem + 3.5vw, 7.35rem);
   font-style: italic;
   line-height: 0.8;
   color: var(--text-accent);
@@ -57,7 +57,7 @@
 .procDetailStats dd {
   margin: 0;
   font-family: var(--font-family-display);
-  font-size: clamp(1.5rem, min(2.2vw, 3.6vh), 2.25rem);
+  font-size: clamp(1.5rem, 1.322rem + 0.73vw, 2.2rem);
   line-height: 1;
   color: var(--text-primary);
 }
@@ -81,7 +81,7 @@
 .procDetailTitle {
   margin: 0;
   word-break: keep-all;
-  font-size: clamp(1.75rem, min(3vw, 5vh), 3rem);
+  font-size: clamp(1.75rem, 1.397rem + 1.45vw, 3rem);
   font-weight: var(--font-weight-medium);
   line-height: var(--line-height-snug);
   color: var(--text-primary);
@@ -112,7 +112,7 @@
   }
 
   .procDetailNum {
-    font-size: clamp(3.5rem, 11vh, 5.5rem);
+    font-size: 5.5rem;
   }
 
   .procDetailMain {
@@ -121,7 +121,7 @@
   }
 
   .procDetailTitle {
-    font-size: clamp(1.4rem, 3.6vh, 2rem);
+    font-size: 2rem;
   }
 
   .procDetailDesc {
@@ -129,7 +129,7 @@
   }
 
   .procDetailStats dd {
-    font-size: clamp(1.25rem, 3vh, 1.5rem);
+    font-size: 1.5rem;
   }
 
   .procSide {
@@ -154,7 +154,7 @@
   }
 
   .procMetricValue {
-    font-size: clamp(1.75rem, 5vh, 2.5rem);
+    font-size: 2.5rem;
   }
 
   .procGanttNum {
@@ -212,7 +212,7 @@
 
 .procMetricValue {
   font-family: var(--font-family-display);
-  font-size: clamp(2rem, min(3.4vw, 6.5vh), 3.75rem);
+  font-size: clamp(2rem, 1.606rem + 1.62vw, 3.55rem);
   font-style: italic;
   line-height: 1;
   color: var(--text-accent);
@@ -376,7 +376,7 @@
 
 .procGanttNum {
   font-family: var(--font-family-display);
-  font-size: clamp(1.1rem, min(1.6vw, 2.8vh), 1.6rem);
+  font-size: clamp(1.1rem, 0.974rem + 0.52vw, 1.6rem);
   font-style: italic;
   line-height: 1;
 }
@@ -566,7 +566,7 @@
     overflow: hidden;
     min-width: 0;
     font-family: var(--_font-grotesk);
-    font-size: clamp(0.75rem, 2.2vw, 0.9rem);
+    font-size: clamp(0.75rem, 0.658rem + 0.38vw, 0.9rem);
     color: var(--text-tertiary);
     white-space: nowrap;
     text-overflow: ellipsis;

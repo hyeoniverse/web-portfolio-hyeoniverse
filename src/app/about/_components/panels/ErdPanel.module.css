@@ -102,7 +102,7 @@
 
   .erdTitleOverlay h3 {
     margin: 0;
-    font-size: clamp(2.5rem, min(4.5vw, 7vh), 4.5rem);
+    font-size: clamp(2.9rem, 0.278rem + 4.07vw, 4.5rem);
   }
 
   .erdPanel .erdZoomViewport {

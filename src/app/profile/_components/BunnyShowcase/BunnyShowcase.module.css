@@ -54,7 +54,7 @@
 .name {
   margin: 0 0 var(--spacing-8) 0;
   font-family: var(--font-family-display);
-  font-size: clamp(2rem, min(4vw, 6vh), 3.5rem);
+  font-size: clamp(2rem, 1.489rem + 2.1vw, 3.5rem);
   font-weight: 400;
   line-height: 1.1;
   color: var(--text-primary);

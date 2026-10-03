@@ -86,7 +86,7 @@
 .title {
   margin-bottom: var(--spacing-24);
   font-family: var(--font-family-display);
-  font-size: clamp(3rem, 8vw, 5.5rem);
+  font-size: clamp(5.15rem, 4.199rem + 1.45vw, 5.5rem);
   font-weight: var(--font-weight-regular);
   line-height: 1.05;
   letter-spacing: -0.03em;
@@ -108,7 +108,7 @@
 /* ── Tablet ── */
 @media (max-width: 1024px) {
   .title {
-    font-size: clamp(2.4rem, 6vw, 4rem);
+    font-size: clamp(2.4rem, 1.514rem + 3.63vw, 3.85rem);
   }
 }
 
@@ -119,7 +119,7 @@
   }
 
   .title {
-    font-size: clamp(2rem, 8vw, 3rem);
+    font-size: clamp(2rem, 0.968rem + 4.23vw, 3rem);
   }
 
   .description {

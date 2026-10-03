@@ -35,7 +35,7 @@
   position: absolute;
   inset: 0;
   font-family: var(--font-family-display);
-  font-size: clamp(1.1rem, 1.6vw, 1.5rem);
+  font-size: clamp(1.1rem, 0.974rem + 0.52vw, 1.5rem);
   font-style: italic;
 }
 

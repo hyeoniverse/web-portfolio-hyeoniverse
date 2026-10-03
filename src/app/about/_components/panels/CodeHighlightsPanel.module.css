@@ -501,7 +501,7 @@
 
   .codeContent > .codePinTitleRow h3 {
     margin: 0;
-    font-size: clamp(2.75rem, min(4.2vw, 7.5vh), 4.75rem);
+    font-size: clamp(2.75rem, 0.25rem + 3.92vw, 4.75rem);
   }
 
   /* 점 이동 표시는 목록이 대신한다 */
@@ -588,7 +588,7 @@
   }
 
   .codeContent .codeSingleMeta h4 {
-    font-size: clamp(1.4rem, min(2vw, 3.4vh), 2rem);
+    font-size: clamp(1.4rem, 0.412rem + 1.54vw, 2rem);
   }
 
   .codeContent .codeSingleDesc {
@@ -603,7 +603,7 @@
 
   /* 코드 — 줄이 칸 폭 안에 들어오도록 글자를 줄인다 */
   .codeContent .codeBlock code {
-    font-size: clamp(0.8rem, min(0.95vw, 1.6vh), 0.95rem);
+    font-size: clamp(0.8rem, 0.664rem + 0.21vw, 0.95rem);
     line-height: 1.7;
   }
 

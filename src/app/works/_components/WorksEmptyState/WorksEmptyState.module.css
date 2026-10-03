@@ -91,7 +91,7 @@
 .title {
   color: var(--text-primary);
   font-family: var(--font-family-display);
-  font-size: clamp(var(--font-size-title-xs), 2.4vw, var(--font-size-title-sm));
+  font-size: clamp(var(--font-size-16), 0.875rem + 0.3vw, var(--font-size-title-sm));
 }
 
 .sub {

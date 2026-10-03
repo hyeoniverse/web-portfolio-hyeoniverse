@@ -150,7 +150,7 @@
    variable axis 없어도 충분히 dramatic */
 .introTitle {
   font-family: var(--font-family-display);
-  font-size: clamp(3rem, 11vw, 11rem);
+  font-size: clamp(4.4rem, 0.437rem + 10.51vw, 11rem);
   font-weight: var(--font-weight-light);
   line-height: 0.92;
   letter-spacing: -0.03em;
@@ -177,7 +177,7 @@
 .introTagline {
   font-family: var(--font-family-display);
   font-style: italic;
-  font-size: clamp(1rem, 2vw, 1.4rem);
+  font-size: clamp(1rem, 0.851rem + 0.61vw, 1.4rem);
   color: var(--text-primary);
   opacity: 0.6;
   max-width: 540px;
@@ -310,7 +310,7 @@
 /* ── Title ── */
 .title {
   font-family: var(--font-family-display);
-  font-size: clamp(2.5rem, 8vw, 8rem);
+  font-size: clamp(3.2rem, 0.754rem + 7.16vw, 8rem);
   font-weight: var(--font-weight-light);
   line-height: 0.95;
   letter-spacing: -0.04em;
@@ -378,7 +378,7 @@
   right: 5vw;
   bottom: 8vh;
   font-family: var(--font-family-display);
-  font-size: clamp(5rem, 15vw, 18rem);
+  font-size: clamp(9.65rem, 0.25rem + 14.72vw, 17.9rem);
   font-weight: 200;
   line-height: 0.8;
   letter-spacing: -0.06em;
@@ -461,7 +461,7 @@
 /* ── Responsive ── */
 @media (max-width: 1024px) {
   .number {
-    font-size: clamp(3rem, 12vw, 8rem);
+    font-size: clamp(3.1rem, 0.25rem + 11.61vw, 7.7rem);
   }
 
   .counter { right: var(--spacing-20); }
