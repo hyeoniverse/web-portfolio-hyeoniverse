@@ -87,7 +87,7 @@
 
 
 .adminBadge {
-  font-family: var(--font-family-body);
+  font-family: var(--font-family-nav);
   font-size: var(--font-size-hint);
   font-weight: 600;
   letter-spacing: 0.08em;
@@ -294,7 +294,7 @@
 
 .navLink {
   position: relative;
-  font-family: var(--font-family-body);
+  font-family: var(--font-family-nav);
   font-size: var(--font-size-body);
   font-weight: var(--font-weight-regular);
   color: var(--text-white);
@@ -388,7 +388,7 @@
 
 .subNavDropdownItem {
   position: relative;
-  font-family: var(--font-family-body);
+  font-family: var(--font-family-nav);
   font-size: var(--font-size-body);
   font-weight: var(--font-weight-regular);
   letter-spacing: 0.01em;
@@ -589,7 +589,7 @@
 
 .langText {
   display: inline-block;
-  font-family: var(--font-family-body);
+  font-family: var(--font-family-nav);
   font-size: var(--font-size-label);
   font-weight: var(--font-weight-regular);
   letter-spacing: 0.03em;
@@ -842,7 +842,7 @@
 }
 
 .menuFooterLabel {
-  font-family: var(--font-family-body);
+  font-family: var(--font-family-nav);
   font-size: var(--font-size-title-sm);
   font-style: italic;
   color: var(--text-white-muted);
@@ -851,7 +851,7 @@
 .menuFooterEmail {
   position: relative;
   display: inline-block;
-  font-family: var(--font-family-body);
+  font-family: var(--font-family-nav);
   font-size: clamp(14px, 6vw, var(--font-size-32));
   color: var(--text-white);
   text-decoration: underline;
@@ -1018,7 +1018,7 @@
 }
 
 .menuLink {
-  font-family: var(--font-family-body);
+  font-family: var(--font-family-nav);
   /* 폭만 보면 창이 넓어질 때 글자가 두 배로 커져(8vw) 목록이 창보다 길어지고, 아래쪽 항목이
      바닥에 붙은 푸터 뒤로 숨는다. 모바일 폭에서 열어 둔 채 창을 넓히면 실제로 그렇게 됐다.
      높이도 같이 보게 해서 창이 넓어도 목록이 창 안에 남는다 */
@@ -1049,7 +1049,7 @@
 }
 
 .menuSubLink {
-  font-family: var(--font-family-body);
+  font-family: var(--font-family-nav);
   font-size: clamp(18px, 4.5vw, 28px);
   font-weight: var(--font-weight-medium);
   color: var(--text-white);
@@ -1286,7 +1286,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-4);
-  font-family: var(--font-family-body);
+  font-family: var(--font-family-nav);
   font-size: var(--font-size-hint);
   font-weight: 600;
   text-transform: uppercase;
@@ -1309,7 +1309,7 @@
 }
 
 .notifDropdownTitle {
-  font-family: var(--font-family-body);
+  font-family: var(--font-family-nav);
   font-size: var(--font-size-label);
   font-weight: 600;
   text-transform: uppercase;
@@ -1336,7 +1336,7 @@
 .notifDropdownEmpty {
   padding: var(--spacing-24) var(--spacing-16);
   text-align: center;
-  font-family: var(--font-family-body);
+  font-family: var(--font-family-nav);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
 }
@@ -1360,7 +1360,7 @@
   border: none;
   border-top: var(--border-light);
   background: transparent;
-  font-family: var(--font-family-body);
+  font-family: var(--font-family-nav);
   font-size: var(--font-size-hint);
   font-weight: 600;
   text-transform: uppercase;
@@ -1428,7 +1428,7 @@
 }
 
 .notifDropdownItemTitle {
-  font-family: var(--font-family-body);
+  font-family: var(--font-family-nav);
   font-size: var(--font-size-label);
   font-weight: 700;
   letter-spacing: 0.02em;
@@ -1439,7 +1439,7 @@
 }
 
 .notifDropdownItemMessage {
-  font-family: var(--font-family-body);
+  font-family: var(--font-family-nav);
   font-size: var(--font-size-label);
   color: var(--text-primary);
   white-space: nowrap;
@@ -1451,7 +1451,7 @@
 /* Admin email */
 .adminEmail {
   max-width: 180px;
-  font-family: var(--font-family-body);
+  font-family: var(--font-family-nav);
   font-size: var(--font-size-label);
   color: var(--text-accent);
   letter-spacing: 0.02em;
@@ -1648,7 +1648,7 @@
   /* accent 는 읽지 않음 dot 이 이미 쓴다 — 결정이 필요한 항목은 다른 색이라야 구분된다 */
   background: var(--bg-warning-soft);
   color: var(--text-warning-strong);
-  font-family: var(--font-family-body);
+  font-family: var(--font-family-nav);
   font-size: var(--font-size-hint);
   font-weight: var(--font-weight-semibold);
   line-height: 1;
