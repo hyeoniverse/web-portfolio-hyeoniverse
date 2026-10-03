@@ -101,7 +101,7 @@
   50% {
     box-shadow:
       0 0 14px color-mix(in oklch, var(--text-success) 40%, transparent),
-      0 0 20px oklch(72.27% 0.1920 149.58 / 0.2);
+      0 0 20px color-mix(in oklch, var(--text-success) 20%, transparent);
     opacity: 0.5;
   }
   100% {

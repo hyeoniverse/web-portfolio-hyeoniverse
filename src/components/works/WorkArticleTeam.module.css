@@ -63,14 +63,14 @@
   padding: var(--spacing-12) var(--spacing-12) var(--spacing-16);
   background: var(--bg-primary);
   border: var(--border-light);
-  box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.18);
+  box-shadow: var(--shadow-raised);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }
 
 .polaroidCardShowBack .polaroidFront,
 .polaroidCardShowBack .polaroidBack {
-  box-shadow: 0 10px 24px -8px rgba(0, 0, 0, 0.22);
+  box-shadow: var(--shadow-floating);
 }
 
 /* 앞면은 흐름 안에 둔다 — 3:4 는 최소 크기라 역할이 길면 카드가 아래로 늘어난다(글자가 카드 밖으로 넘치지 않게).

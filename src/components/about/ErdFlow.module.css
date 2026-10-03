@@ -33,23 +33,23 @@
   border: var(--border-light);
   border-radius: var(--radius-surface);
   background: var(--bg-primary);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-raised);
   overflow: hidden;
   cursor: pointer;
   transition: box-shadow 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
 }
 .node:hover {
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-floating);
 }
 .nodeOn {
   border-color: var(--border-color-accent-strong);
   outline: var(--border-width-3) solid var(--bg-accent-subtle);
   outline-offset: 0;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-floating);
 }
 .nodeRel {
   border-color: var(--border-color-accent);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-floating);
 }
 .nodeDim {
   opacity: 0.25;

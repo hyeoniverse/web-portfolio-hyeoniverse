@@ -76,14 +76,7 @@ export const gridColsScale = [
 ];
 
 // ─── Shadow Data ───
-export const shadowScale = [
-  "--shadow-xs",
-  "--shadow-sm",
-  "--shadow-md",
-  "--shadow-lg",
-  "--shadow-xl",
-  "--shadow-2xl",
-];
+export const shadowScale = ["--shadow-raised", "--shadow-floating", "--shadow-overlay", "--shadow-inset", "--shadow-glow"];
 
 // ─── Motion Data ───
 export const durations = [

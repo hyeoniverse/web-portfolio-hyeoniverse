@@ -36,7 +36,7 @@
 .diagramCanvas :global(.react-flow__controls) {
   border-radius: var(--radius-control);
   overflow: hidden;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-floating);
   border: var(--border-light);
 }
 .diagramCanvas :global(.react-flow__controls-button) {

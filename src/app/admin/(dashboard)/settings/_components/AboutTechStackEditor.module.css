@@ -61,7 +61,7 @@
   border: var(--border-light);
   border-radius: var(--radius-control);
   background: var(--bg-secondary);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-floating);
   font: var(--font-body-md);
   font-weight: 500;
   color: var(--text-primary);

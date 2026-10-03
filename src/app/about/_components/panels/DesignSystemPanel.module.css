@@ -122,7 +122,7 @@
   opacity: 0.6;
   text-transform: uppercase;
   letter-spacing: 0.3em;
-  text-shadow: 0 1px 8px color-mix(in oklch, var(--text-black) 50%, transparent);
+  text-shadow: var(--text-shadow-strong);
 }
 
 .dcCardSubtitle {
@@ -135,7 +135,7 @@
   letter-spacing: -0.02em;
   text-align: left;
   word-break: keep-all;
-  text-shadow: 0 2px 12px color-mix(in oklch, var(--text-black) 50%, transparent);
+  text-shadow: var(--text-shadow-strong);
 }
 
 .dcCardDesc {
@@ -147,7 +147,7 @@
   color: var(--text-white);
   opacity: 0.6;
   letter-spacing: 0.01em;
-  text-shadow: 0 1px 8px color-mix(in oklch, var(--text-black) 50%, transparent);
+  text-shadow: var(--text-shadow-strong);
 }
 
 .dcDemo {

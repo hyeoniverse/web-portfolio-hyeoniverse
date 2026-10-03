@@ -13,7 +13,7 @@
   background: var(--bg-primary);
   border: var(--border-light);
   border-radius: var(--radius-surface);
-  box-shadow: 0 8px 24px oklch(0.00% 0.0000 0.00 / 0.15);
+  box-shadow: var(--shadow-overlay);
   display: flex;
   flex-direction: column;
   gap: var(--spacing-8);
@@ -99,7 +99,7 @@
   border: var(--border-width-2) solid var(--border-color-white);
   outline: var(--border-width-1) solid oklch(0.00% 0.0000 0.00 / 0.4);
   outline-offset: 0;
-  box-shadow: 0 1px 2px oklch(0.00% 0.0000 0.00 / 0.4);
+  box-shadow: var(--shadow-raised);
   transform: translate(-50%, -50%);
   pointer-events: none;
   background: var(--_thumb-color, transparent);
@@ -156,7 +156,7 @@
   border: var(--border-width-2) solid var(--border-color-white);
   outline: var(--border-width-1) solid oklch(0.00% 0.0000 0.00 / 0.4);
   outline-offset: 0;
-  box-shadow: 0 1px 2px oklch(0.00% 0.0000 0.00 / 0.4);
+  box-shadow: var(--shadow-raised);
   transform: translate(-50%, -50%);
   pointer-events: none;
   background: var(--_hue-color, var(--picker-hue-default));
@@ -298,7 +298,7 @@
   border: var(--border-width-2) solid var(--border-color-white);
   outline: var(--border-width-1) solid oklch(0.00% 0.0000 0.00 / 0.4);
   outline-offset: 0;
-  box-shadow: 0 1px 2px oklch(0.00% 0.0000 0.00 / 0.4);
+  box-shadow: var(--shadow-raised);
   transform: translate(-50%, -50%);
   pointer-events: none;
   background: var(--_thumb-color, transparent);
@@ -325,7 +325,7 @@
   border: var(--border-width-2) solid var(--border-color-white);
   outline: var(--border-width-1) solid oklch(0.00% 0.0000 0.00 / 0.4);
   outline-offset: 0;
-  box-shadow: 0 1px 2px oklch(0.00% 0.0000 0.00 / 0.4);
+  box-shadow: var(--shadow-raised);
   transform: translate(-50%, -50%);
   pointer-events: none;
   background: var(--_hue-color, var(--picker-hue-default));

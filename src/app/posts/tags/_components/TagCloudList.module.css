@@ -10,9 +10,7 @@
 .tagItemRelated.tagItemRelated {
   position: relative;
   z-index: 1;
-  box-shadow:
-    0 0 6px color-mix(in srgb, var(--text-accent) 60%, transparent),
-    0 0 14px color-mix(in srgb, var(--text-accent) 30%, transparent);
+  box-shadow: var(--shadow-glow);
   transition: box-shadow 0.18s ease;
 }
 

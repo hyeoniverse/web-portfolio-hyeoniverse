@@ -35,7 +35,7 @@
      코드(위)와 구분은 위쪽 경계선 + 안쪽 그림자(파인 느낌)로. */
   background: var(--bg-tertiary);
   border-top: var(--border-default);
-  box-shadow: var(--shadow-inner);
+  box-shadow: var(--shadow-inset);
 }
 /* 필터바 — 레벨 칩 + 텍스트 필터 + 지우기 (브라우저 devtools 콘솔 상단바 식) */
 .rnConsoleBar {
@@ -118,13 +118,13 @@
 .rnLog[data-level="warn"] {
   color: var(--text-warning);
   background: var(--bg-warning-soft);
-  box-shadow: inset 2px 0 0 var(--text-warning);
+  border-left: var(--border-width-2) solid var(--text-warning);
 }
 .rnLog[data-level="warn"]::before { content: "⚠"; color: var(--text-warning); }
 .rnLog[data-level="error"] {
   color: var(--text-error);
   background: var(--bg-error-soft);
-  box-shadow: inset 2px 0 0 var(--text-error);
+  border-left: var(--border-width-2) solid var(--text-error);
 }
 .rnLog[data-level="error"]::before { content: "✕"; color: var(--text-error); }
 .rnLog[data-level="info"] { color: var(--text-info); }
@@ -181,7 +181,7 @@
   padding: var(--spacing-4) var(--spacing-16);
   background: var(--bg-primary);
   border-radius: var(--radius-control);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-raised);
   color: var(--text-primary);
   font: var(--font-body-md);
   font-weight: 600;
@@ -224,7 +224,7 @@
 }
 .pgPickerBtn:hover {
   border-color: var(--text-accent);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-raised);
 }
 .pgPickerLabel {
   color: var(--text-primary);
@@ -323,7 +323,7 @@
   padding: var(--spacing-4);
   background: var(--bg-primary);
   border-radius: var(--radius-control);
-  box-shadow: var(--shadow-xs);
+  box-shadow: var(--shadow-raised);
 }
 /* pill 맨 앞 정적 아이콘 — 그 pill 이 무엇을 대상으로 하는지 표시(미리보기/전체 UI 등) */
 .spGroupLead {
@@ -403,7 +403,7 @@
 .spTab[data-active] {
   color: var(--text-primary);
   background: var(--bg-primary);
-  box-shadow: inset 0 -2px 0 var(--text-accent);
+  border-bottom: var(--border-width-2) solid var(--text-accent);
 }
 .spTab:hover {
   color: var(--text-primary);
@@ -666,7 +666,7 @@
   padding: var(--spacing-4);
   background: var(--bg-primary);
   border-radius: var(--radius-control);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-raised);
   /* 미리보기 영역에 hover 했을 때만 표시 */
   opacity: 0;
   pointer-events: none;
