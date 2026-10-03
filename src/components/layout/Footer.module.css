@@ -24,8 +24,7 @@
   flex-direction: column;
   margin: 0 auto;
   max-width: var(--width-page-max);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-code-sm);
 }
 
 /* Center: Links + Privacy */

@@ -43,8 +43,7 @@
 .nameLabel {
   display: block;
   margin-bottom: var(--spacing-8);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   font-weight: 500;
   color: var(--text-accent);
   text-transform: uppercase;
@@ -209,9 +208,8 @@
 }
 
 /* Label */
-.exprLabel {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-sm);
+.exprLabel {  font: var(--font-code-sm);
+
   font-weight: var(--font-weight-medium);
   color: var(--text-primary);
 }

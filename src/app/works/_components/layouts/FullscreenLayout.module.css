@@ -124,8 +124,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-4);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   letter-spacing: 0.35em;
   text-transform: uppercase;
   color: var(--text-primary);
@@ -191,8 +190,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-2);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   color: var(--text-primary);
   z-index: 1;
   pointer-events: none;
@@ -297,9 +295,8 @@
 .visible .tech { transform: translateX(-50%) translateY(0); }
 
 /* ── Category ── */
-.category {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+.category {  font: var(--font-code-xs);
+
   font-weight: var(--font-weight-semibold);
   letter-spacing: 0.35em;
   text-transform: uppercase;
@@ -392,8 +389,7 @@
   position: absolute;
   left: 5vw;
   bottom: 8vh;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-code-sm);
   letter-spacing: 0.2em;
   color: var(--text-white);
   opacity: 0.2;
@@ -424,8 +420,7 @@
   top: 50%;
   transform: translateY(-50%);
   z-index: 5;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   color: var(--text-white);
   opacity: 0.2;
   letter-spacing: 0.15em;
@@ -446,8 +441,7 @@
   gap: var(--spacing-4);
   color: var(--text-white);
   opacity: 0.15;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   letter-spacing: 0.2em;
   pointer-events: none;
   animation: scrollBounce 2.5s ease-in-out infinite;

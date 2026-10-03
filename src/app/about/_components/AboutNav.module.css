@@ -168,8 +168,7 @@
 }
 
 .floorRoom {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--text-tertiary);
@@ -220,8 +219,7 @@
 }
 
 .floorGroupTitle {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   letter-spacing: 0.02em;
   text-transform: uppercase;
   color: var(--text-tertiary);
@@ -308,8 +306,7 @@
   bottom: calc(100% + var(--spacing-8));
   left: 50%;
   padding: var(--spacing-2) var(--spacing-8);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   white-space: nowrap;
   color: var(--text-inverse);
   background: var(--bg-inverse);
@@ -355,14 +352,12 @@
   flex: 1;
   min-width: 0;
   overflow: hidden;
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-code-sm);
   text-overflow: ellipsis;
 }
 
 .floorStepHint {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--text-tertiary);

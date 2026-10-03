@@ -24,8 +24,7 @@
 
 .lastUpdated {
   margin: 0;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   color: var(--text-tertiary);
 }
 

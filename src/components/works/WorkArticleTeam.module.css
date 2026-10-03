@@ -227,9 +227,8 @@
   margin-bottom: var(--spacing-20);
 }
 
-.teamCreditsLabel {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+.teamCreditsLabel {  font: var(--font-body-sm);
+
   font-weight: var(--font-weight-medium);
   color: var(--text-secondary);
   text-transform: uppercase;

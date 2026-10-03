@@ -220,9 +220,8 @@
   touch-action: none;
 }
 
-.osWindowTitle {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-md);
+.osWindowTitle {  font: var(--font-code-md);
+
   font-weight: 400;
   color: var(--text-primary);
   color: inherit;
@@ -354,18 +353,16 @@
   padding: var(--spacing-8) 0;
 }
 
-.magInfoLabel {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+.magInfoLabel {  font: var(--font-code-xs);
+
   font-weight: 500;
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.1em;
 }
 
-.magInfoValue {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-md);
+.magInfoValue {  font: var(--font-code-md);
+
   font-weight: 500;
   color: var(--text-primary);
 }
@@ -406,8 +403,7 @@
 
 .magNotesTag {
   margin-bottom: var(--spacing-12);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   font-weight: 500;
   color: var(--text-accent);
   text-transform: uppercase;
@@ -478,9 +474,8 @@
   color: var(--text-primary);
 }
 
-.statLabel {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+.statLabel {  font: var(--font-code-xs);
+
   font-weight: 400;
   color: var(--text-tertiary);
   text-transform: uppercase;
@@ -615,8 +610,7 @@
 .expCompany {
   display: block;
   margin-bottom: var(--spacing-12);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-code-sm);
   font-weight: 400;
   color: var(--text-accent);
   letter-spacing: 0.05em;
@@ -646,8 +640,7 @@
 .skillPanelNumber {
   display: block;
   margin-bottom: var(--spacing-20);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   font-weight: 400;
   color: var(--text-accent);
   letter-spacing: 0.1em;
@@ -857,8 +850,7 @@
 .credentialYear {
   flex-shrink: 0;
   padding-top: var(--spacing-2);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-code-xs);
   font-weight: 400;
   color: var(--text-accent);
   letter-spacing: 0.05em;
@@ -886,9 +878,8 @@
   color: var(--text-muted);
 }
 
-.credentialOrg {
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-sm);
+.credentialOrg {  font: var(--font-code-sm);
+
   font-weight: 300;
   color: var(--text-tertiary);
 }

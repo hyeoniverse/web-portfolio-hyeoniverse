@@ -49,8 +49,7 @@
 .toolbarGroupLabel {
   flex-shrink: 0;
   margin-right: var(--spacing-4);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   font-weight: var(--font-weight-medium);
   color: var(--text-secondary);
   text-transform: uppercase;

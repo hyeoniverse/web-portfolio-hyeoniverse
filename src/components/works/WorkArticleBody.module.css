@@ -7,9 +7,8 @@
 /* 인라인 코드 전용 스타일 없음 — 전역 `code`(globals/_base.css)를 그대로 쓴다.
    게시물 본문(.prose)·에디터(.editorContent)·댓글(.commentMarkdown)과 같은 규칙으로 통일.
    코드블록(pre/code) 프레임·스크롤도 globals/_hljs.css 의 .code-block-wrap 규칙으로 공통화. */
-.sectionProse {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-lg);
+.sectionProse {  font: var(--font-body-lg);
+
   line-height: var(--line-height-160);
   color: var(--text-secondary);
   /* 굵은 글씨는 편집기 기본색(primary) — 본문이 secondary 라 물려받으면 흐려진다. 글자색을 지정한 굵은 글씨는

@@ -36,9 +36,8 @@
   background: var(--border-color-light);
 }
 
-.projectNumber {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+.projectNumber {  font: var(--font-body-sm);
+
   font-variant-numeric: tabular-nums;
   color: var(--text-muted);
   letter-spacing: 0.05em;
@@ -51,8 +50,7 @@
   height: var(--control-height-xs);
   padding: 0 var(--spacing-16);
   border: var(--border-default);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   text-transform: uppercase;
   letter-spacing: 0.12em;
   border-radius: var(--radius-full);
@@ -95,8 +93,7 @@
 /* ── Description ── */
 .description {
   margin-bottom: var(--spacing-20);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xl);
+  font: var(--font-body-xl);
   line-height: 1.7;
   color: var(--text-secondary);
 }

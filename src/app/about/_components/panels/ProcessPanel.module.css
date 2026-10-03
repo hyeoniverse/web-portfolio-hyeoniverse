@@ -619,8 +619,7 @@
 
   .processStepPeriod {
     margin: 0 0 var(--spacing-12);
-    font-family: var(--font-family-code);
-    font-size: var(--font-size-body-xs);
+    font: var(--font-code-xs);
     color: var(--text-tertiary);
   }
 

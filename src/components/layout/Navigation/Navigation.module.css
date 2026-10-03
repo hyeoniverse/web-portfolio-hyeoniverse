@@ -498,8 +498,7 @@
   border-radius: var(--radius-full);
   background: var(--text-primary);
   color: var(--bg-primary);
-  font-family: var(--font-family-code);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-code-sm);
   font-weight: 500;
   letter-spacing: 0.02em;
   white-space: nowrap;

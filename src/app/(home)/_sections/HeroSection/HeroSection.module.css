@@ -120,8 +120,7 @@
   gap: var(--spacing-32);
   align-items: center;
   margin-top: var(--spacing-64);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   color: var(--text-secondary);
   letter-spacing: 0.02em;
 }
@@ -187,8 +186,7 @@
 }
 
 .scrollText {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-sm);
+  font: var(--font-body-sm);
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.1em;

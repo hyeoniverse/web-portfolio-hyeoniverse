@@ -21,16 +21,14 @@
 }
 
 .infoLabel {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-xs);
+  font: var(--font-body-xs);
   text-transform: uppercase;
   letter-spacing: 0.12em;
   color: var(--text-muted);
 }
 
-.infoValue {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+.infoValue {  font: var(--font-body-md);
+
   line-height: 1.6;
   color: var(--text-primary);
 }

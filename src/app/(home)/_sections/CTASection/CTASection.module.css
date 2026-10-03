@@ -46,8 +46,7 @@
 
 .label {
   margin-bottom: var(--spacing-32);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
+  font: var(--font-body-md);
   color: var(--text-accent-alt);
   text-transform: uppercase;
   letter-spacing: 0.15em;
