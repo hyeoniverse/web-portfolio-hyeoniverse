@@ -1339,9 +1339,7 @@
     "src/components/ui/Switch.module.css": 2,
     "src/components/ui/TOC/TOC.module.css": 1
   },
-  "type-fluid-token": {
-    "src/styles/globals/_semantic.css": 7
-  },
+  "type-fluid-token": {},
   "type-fluid-direct": {
     "src/app/(home)/_sections/CTASection/CTASection.module.css": 1,
     "src/app/(home)/_sections/WorksSection/WorksSection.module.css": 6,
