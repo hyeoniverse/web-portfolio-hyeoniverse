@@ -865,7 +865,7 @@
     "src/app/admin/(dashboard)/notifications/Notifications.module.css": 2,
     "src/app/admin/(dashboard)/reports/_components/ReportDetail.module.css": 1,
     "src/app/admin/(dashboard)/service-log/ServiceLog.module.css": 1,
-    "src/app/admin/(dashboard)/settings/_components/about/AboutStudio.module.css": 10,
+    "src/app/admin/(dashboard)/settings/_components/about/AboutStudio.module.css": 9,
     "src/app/admin/(dashboard)/settings/_components/about/AboutSubTab.module.css": 1,
     "src/app/admin/(dashboard)/settings/_components/about/ErdTableModal.module.css": 1,
     "src/app/admin/(dashboard)/settings/_components/about/SqlEditor.module.css": 2,

@@ -302,7 +302,7 @@ src/styles/tokens/*.css          src/styles/globals/_semantic.css      src/style
 | `--font-size-prose-xs · sm · md · lg` | 화면 비례 12 ~ 24 | About 같은 지면 본문 |
 
 - **본문 · UI 는 Pretendard 하나**다. 한글이 주 언어라 한글과 영문이 한 글꼴이어야 높이 · 굵기가 맞는다.
-- **제목은 세리프다 — 영문 Instrument Serif, 한글 나눔명조, 보통 굵기**(D27). 관리 화면의 페이지 · 모달 · 섹션 제목도 같다.
+- **제목은 세리프다 — 영문 Instrument Serif, 한글 나눔명조, 보통 굵기**(D27). 관리 화면은 페이지 · 모달 제목만 같고, 구획(섹션) 이름은 UI 라벨이라 Pretendard 다(D27 범위 조정, 2026-10-03).
   Instrument Serif 는 400 하나뿐이라 굵게 쓰지 않는다.
   - 예외 — 글 · 작업물 **본문 안의** 제목(h1~h4)은 본문 글꼴을 굵게 쓴다. 표 열 이름 · 목록 항목 · 라벨 크기(14px 이하)의 "제목"은 UI 글자다.
 - 사이트 설정의 본문 · 제목 · 코드 글꼴이 `--font-family-body` · `-heading` · `-code` 를 덮는다. 3층 묶음은 그대로 따라간다.
