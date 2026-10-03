@@ -467,9 +467,7 @@
    기존에 흩어져 있던 sectionSub 블록 + 인라인 span 설명을 이 하나로 통일. */
 .componentDesc {
   margin: 0 0 var(--spacing-16) 0;
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-body-md);
-  font-weight: var(--font-weight-regular);
+  font: var(--font-body-md);
   line-height: var(--line-height-160);
   color: var(--text-tertiary);
 }
