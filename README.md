@@ -84,7 +84,7 @@ Plate.js 로 만든 편집기입니다. 위 툴바는 작용 범위별로 묶여
 
 ### 관리자 · CMS
 
-> 아래 그림은 `npx tsx scripts/screenshots-cms.ts` 로 찍습니다(로그인 세션 필요 — [scripts/SCREENSHOTS.md](./scripts/SCREENSHOTS.md)). 연속 동작(재생 · 미리 듣기 · 녹음 편집 · PPTX 변환 · 번역)은 `.gif` 영상으로도 남겨 두었고, 그림 아래 **▶ 영상** 링크로 엽니다.
+> 아래 그림은 `npx tsx scripts/screenshots-cms.ts` 로 찍습니다(로그인 세션 필요 — [scripts/SCREENSHOTS.md](./scripts/SCREENSHOTS.md)). 연속 동작(재생 · 미리 듣기 · 녹음 편집 · PPTX 변환 · 번역)은 핵심 구간만 잘라 `.gif` 로 본문에 넣었습니다(원본 `.webm` 은 같은 폴더).
 
 #### 발표 갤러리와 음성
 
@@ -92,7 +92,9 @@ Plate.js 로 만든 편집기입니다. 위 툴바는 작용 범위별로 묶여
 
 <img src="public/images/screenshots/cms/01-gallery-captions-light.png" alt="작업물 상세 — 갤러리 재생 중, 자막 켜짐" width="100%" />
 
-<sub>▶ 영상: [음성 · 자막과 함께 다음 장으로 넘어가는 모습](public/images/screenshots/cms/01-gallery-playing-light.gif)</sub>
+<img src="public/images/screenshots/cms/01-gallery-playing-light.gif" alt="음성에 맞춰 자막이 바뀌는 모습" width="100%" />
+
+<sub>▶ 재생 중 — 음성에 맞춰 자막이 바뀌고 진행 막대가 채워집니다</sub>
 
 관리자 작업물 편집기의 **갤러리 음성 편집기**는 작업대(왼쪽 슬라이드 · 오른쪽 대본)와 아래 썸네일 줄로 되어 있습니다. 썸네일을 누르면 그 장이 작업대에 올라오고, 음성이 있는 장은 스피커, 대본만 있는 장은 글줄 표시가 붙습니다. 조작 막대에는 장 이동, 음성 이력, 녹음하기, 녹음 올리기, 음성 지우기, 대본 한꺼번에 넣기, 대본 번역, 읽기 사전이 있고, 오른쪽 끝에서 목소리(공급자 · 성별 · 톤)를 고른 뒤 **음성 만들기**를 누릅니다. 긴 대본은 600자 안팎으로 잘라 만든 뒤 하나로 합치고, 고른 공급자가 실패하면 설정의 대체 순서(Fish Audio → Google Cloud TTS → Edge)대로 같은 성별 목소리로 넘어갑니다. 미리 들을 때는 대본이 **가사처럼** 글자 단위로 채워지고, 낱말을 누르면 그 자리로 건너뜁니다.
 
@@ -100,7 +102,9 @@ Plate.js 로 만든 편집기입니다. 위 툴바는 작용 범위별로 묶여
 |:---:|:---:|
 | <img src="public/images/screenshots/cms/02-narration-editor-light.png" alt="갤러리 음성 편집기" width="100%" /> | <img src="public/images/screenshots/cms/03-narration-preview-light.png" alt="미리 듣기 — 대본 강조" width="100%" /> |
 
-<sub>▶ 영상: [미리 듣기 — 재생을 따라 대본이 채워지는 모습](public/images/screenshots/cms/03-narration-preview-light.gif)</sub>
+<img src="public/images/screenshots/cms/03-narration-preview-light.gif" alt="미리 듣기 — 재생을 따라 대본이 채워지는 모습" width="100%" />
+
+<sub>▶ 미리 듣기 — 재생을 따라 대본이 가사처럼 채워집니다</sub>
 
 **읽기 사전**은 `?all=true → 올 트루 조건` 처럼 대본 표기와 읽을 말을 짝지어 둡니다. 음성을 만들 때만 가장 긴 표기부터 바꿔 읽고, 자막은 원래 표기를 그대로 둡니다. 한국어 · 영어 대본에 사전이 따로 있고, 대본 안의 `[표기|읽을 말]` 이 사전보다 먼저입니다. 여러 줄을 `표기 = 읽을 말` 꼴로 붙여 넣어 한 번에 넣을 수도 있습니다.
 
@@ -110,7 +114,9 @@ Plate.js 로 만든 편집기입니다. 위 툴바는 작용 범위별로 묶여
 |:---:|:---:|
 | <img src="public/images/screenshots/cms/04-lexicon-light.png" alt="읽기 사전" width="100%" /> | <img src="public/images/screenshots/cms/05-recording-editor-light.png" alt="녹음 파형 편집기" width="100%" /> |
 
-<sub>▶ 영상: [녹음 → 구간 선택 → 나누기까지](public/images/screenshots/cms/05-recording-split-light.gif)</sub>
+<img src="public/images/screenshots/cms/05-recording-split-light.gif" alt="녹음 → 구간 선택 → 나누기까지" width="100%" />
+
+<sub>▶ 녹음 → 파형에서 구간 선택 → 나누기</sub>
 
 **PPTX 를 갤러리에 끌어 놓으면** 브라우저 안에서 장마다 그림(JPEG, 최대 1600px)으로 그려 올리고, 각 장의 **발표자 노트는 그 장의 대본**으로 들어갑니다. 갤러리 제목 줄에 "파일 이름 — n/N쪽 그리는 중" 진행이 보이고, 끝나면 썸네일마다 대본 표시가 붙습니다. PDF 도 같은 길로 들어옵니다.
 
@@ -118,7 +124,9 @@ Plate.js 로 만든 편집기입니다. 위 툴바는 작용 범위별로 묶여
 |:---:|:---:|
 | <img src="public/images/screenshots/cms/06-pptx-progress-light.png" alt="PPTX 변환 진행" width="100%" /> | <img src="public/images/screenshots/cms/07-pptx-thumbnails-light.png" alt="변환이 끝난 갤러리 썸네일" width="100%" /> |
 
-<sub>▶ 영상: [PPTX 를 떨어뜨린 뒤 장마다 그려져 들어오는 모습](public/images/screenshots/cms/06-pptx-import-light.gif)</sub>
+<img src="public/images/screenshots/cms/06-pptx-import-light.gif" alt="PPTX 를 떨어뜨린 뒤 장마다 그려져 들어오는 모습" width="100%" />
+
+<sub>▶ PPTX 를 떨어뜨리면 장마다 그려져 썸네일로 들어옵니다</sub>
 
 #### 자동 번역과 AI 요약
 
@@ -128,7 +136,9 @@ Plate.js 로 만든 편집기입니다. 위 툴바는 작용 범위별로 묶여
 |:---:|:---:|
 | <img src="public/images/screenshots/cms/08-translate-editor-light.png" alt="편집기 자동 번역" width="100%" /> | <img src="public/images/screenshots/cms/09-settings-services-light.png" alt="설정 서비스 탭" width="100%" /> |
 
-<sub>▶ 영상: ["번역 중…" 띠가 뜨고 영어 칸이 채워지는 모습](public/images/screenshots/cms/08-translate-editor-light.gif)</sub>
+<img src="public/images/screenshots/cms/08-translate-editor-light.gif" alt="번역 중 띠가 뜨고 영어 칸이 채워지는 모습" width="100%" />
+
+<sub>▶ EN 으로 바꾸고 재번역 › 전체 — "번역 중…" 띠가 뜬 뒤 영어 칸이 채워집니다</sub>
 
 공개 화면에서는 보는 언어의 본문이 없으면 **번역 배너**가 뜨고, 단추 하나로 그 자리에서 AI 번역을 받아 봅니다(글 · 작업물 상세 공통). 상세 위쪽의 **AI 요약** 상자는 발행할 때 만든 한국어 · 영어 요약을 보는 언어로 펼쳐 보여 주고, 접을 수 있습니다.
 

@@ -348,7 +348,7 @@ npx playwright uninstall
 
 ## CMS 캡처 — `scripts/screenshots-cms.ts`
 
-README "관리자 · CMS" 절의 그림은 로그인 세션이 필요하고 화면 안에서 단추를 눌러 상태를 만든 뒤 찍어야 해서 별도 스크립트로 둡니다. 연속 동작(갤러리 재생 · 미리 듣기 · 녹음 편집 · PPTX 변환 · 자동 번역)은 `.webm` 으로 녹화하고, ffmpeg 가 있으면 README 가 링크하는 `.gif`(10fps · 1120px)도 만듭니다.
+README "관리자 · CMS" 절의 그림은 로그인 세션이 필요하고 화면 안에서 단추를 눌러 상태를 만든 뒤 찍어야 해서 별도 스크립트로 둡니다. 연속 동작(갤러리 재생 · 미리 듣기 · 녹음 편집 · PPTX 변환 · 자동 번역)은 `.webm` 으로 녹화하고, ffmpeg 가 있으면 README 본문에 들어가는 `.gif` 도 만듭니다(장면마다 정한 핵심 구간만, 10fps · 960px → 1.1~1.5MB).
 
 ```bash
 # 1. .env.local 에 E2E_ADMIN_EMAIL / E2E_ADMIN_PASSWORD (e2e/auth.setup.ts 주석)
@@ -409,4 +409,4 @@ cms/16-seo-checklist-light.png
 - 페이지로 들어가는 코드(`addInitScript`)는 **문자열로** 넘깁니다. 함수로 넘기면 tsx(esbuild) 가 함수 안의 `const f = () => {}` 를 `__name()` 헬퍼로 감싸는데, 직렬화돼 들어간 쪽엔 그 헬퍼가 없어 스크립트가 통째로 죽습니다(14 번이 기본색으로만 찍히던 원인).
 - 사이트의 커스텀 커서(CursorTrail)는 마지막 마우스 자리에 분홍 점으로 남고, "BGM을 켤 수 있어요" 말풍선은 로드 2초 뒤 5초간 뜹니다 — 둘 다 스타일로 숨깁니다.
 - `scrollIntoViewIfNeeded` 는 가운데 정렬이라 긴 카드가 잘립니다 — 요소 위쪽을 고정 네비 아래로 보내는 `scrollTopTo` 를 씁니다.
-- webm → gif 를 기본 옵션으로 돌리면 전체가 노랗게 뜹니다 — `palettegen` / `paletteuse` 2단계로 변환합니다.
+- webm → gif 를 기본 옵션으로 돌리면 전체가 노랗게 뜹니다 — `palettegen` / `paletteuse` 2단계로 변환합니다. 구간은 `recorded(..., { gif: { start, duration } })` 에 적습니다(앞머리의 로딩 화면 · 스크롤은 뺀다). GitHub README 는 저장소의 `.webm`/`.mp4` 를 `<video>` 로 재생하지 않으므로 본문 재생은 gif 뿐입니다.

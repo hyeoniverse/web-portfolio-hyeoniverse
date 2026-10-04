@@ -148,15 +148,19 @@ async function shot(page: Page, name: string) {
   console.log(`  ✓ ${basename(file)}`);
 }
 
+/** gif 로 남길 구간(초) — 앞머리의 로딩 화면 · 스크롤은 빼고 동작만. README 본문에 바로 넣으므로 짧고 가볍게 */
+type GifCut = { start: number; duration?: number };
+
 /** webm → gif. 기본 256색 변환은 전체가 노랗게 뜬다 — 영상에서 팔레트를 먼저 뽑아 쓴다 */
-function webmToGif(src: string, gif: string) {
-  /* 10fps · 1120px · 디더 없음 — 17초짜리가 4MB 안팎. 디더를 켜면 1.3배, 1280px 12fps 면 1.6배 */
-  const filter = "fps=10,scale=1120:-1:flags=lanczos,split[s0][s1];[s0]palettegen=stats_mode=diff[p];[s1][p]paletteuse=dither=none:diff_mode=rectangle";
-  execSync(`ffmpeg -y -loglevel error -i "${src}" -vf "${filter}" "${gif}"`);
+function webmToGif(src: string, gif: string, cut?: GifCut) {
+  /* 10fps · 960px · 디더 없음 — 10초짜리가 1.5~2MB. 디더를 켜면 1.3배, 1120px 면 1.4배 */
+  const filter = "fps=10,scale=960:-1:flags=lanczos,split[s0][s1];[s0]palettegen=stats_mode=diff[p];[s1][p]paletteuse=dither=none:diff_mode=rectangle";
+  const range = cut ? `-ss ${cut.start}${cut.duration ? ` -t ${cut.duration}` : ""} ` : "";
+  execSync(`ffmpeg -y -loglevel error ${range}-i "${src}" -vf "${filter}" "${gif}"`);
 }
 
 /** 영상이 필요한 흐름 — 전용 컨텍스트에서 돌리고 끝나면 파일 이름을 바꾼다 */
-async function recorded(browser: Browser, name: string, fn: (page: Page) => Promise<void>, opts: { admin?: boolean } = {}) {
+async function recorded(browser: Browser, name: string, fn: (page: Page) => Promise<void>, opts: { admin?: boolean; gif?: GifCut } = {}) {
   const ctx = await newContext(browser, { video: VIDEO ? name : undefined, admin: opts.admin });
   const page = await ctx.newPage();
   try {
@@ -171,7 +175,7 @@ async function recorded(browser: Browser, name: string, fn: (page: Page) => Prom
       console.log(`  ▶ ${basename(dst)}`);
       if (HAS_FFMPEG) {
         const gif = dst.replace(/\.webm$/, ".gif");
-        webmToGif(dst, gif);
+        webmToGif(dst, gif, opts.gif);
         console.log(`  ▶ ${basename(gif)}`);
       }
     }
@@ -245,8 +249,8 @@ const SCENES: Scene[] = [
         await page.locator('p[class*="caption"]').first().waitFor({ timeout: 15_000 }).catch(() => {});
         await wait(2500);
         await shot(page, "01-gallery-captions");
-        await wait(9000); // 영상: 한두 장 넘어가는 동안
-      }, { admin: false }),
+        await wait(9000); // 영상: 자막이 몇 번 바뀌는 동안
+      }, { admin: false, gif: { start: 5, duration: 11 } }),
   },
   {
     n: 2,
@@ -272,7 +276,7 @@ const SCENES: Scene[] = [
         await wait(5500); // 몇 어절은 채워진 뒤에
         await shot(page, "03-narration-preview");
         await wait(5000);
-      }),
+      }, { gif: { start: 6.5 } }),
   },
   {
     n: 4,
@@ -320,7 +324,7 @@ const SCENES: Scene[] = [
         await wait(1500);
         /* 올리지 않고 닫는다 — "취소" 는 다른 데도 있어 녹음 편집기 안의 것만 */
         await page.locator('[class*="RecordingEditor-module"]').getByRole("button", { name: "취소" }).first().click();
-      }),
+      }, { gif: { start: 6, duration: 8.5 } }),
   },
   {
     n: 6,
@@ -360,7 +364,7 @@ const SCENES: Scene[] = [
         await page.getByPlaceholder("읽을 대본").first().waitFor({ timeout: 15_000 }).catch(() => {});
         await frameGalleryBench(page);
         await shot(page, "07-pptx-thumbnails");
-      }),
+      }, { gif: { start: 2.5 } }),
   },
   {
     n: 8,
@@ -388,7 +392,7 @@ const SCENES: Scene[] = [
         await wait(900);
         await shot(page, "08-translate-editor");
         await wait(1500);
-      }),
+      }, { gif: { start: 5.5, duration: 10 } }),
   },
   {
     n: 9,

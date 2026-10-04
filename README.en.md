@@ -84,7 +84,7 @@ Tokens and components are inspected live at `/design-system`.
 
 ### Admin · CMS
 
-> These images come from `npx tsx scripts/screenshots-cms.ts` (needs a logged-in session — see [scripts/SCREENSHOTS.md](./scripts/SCREENSHOTS.md)). Continuous actions (playback · preview · recording · PPTX conversion · translation) are also recorded as `.gif`, linked under each figure as **▶ Video**.
+> These images come from `npx tsx scripts/screenshots-cms.ts` (needs a logged-in session — see [scripts/SCREENSHOTS.md](./scripts/SCREENSHOTS.md)). Continuous actions (playback · preview · recording · PPTX conversion · translation) are embedded as short `.gif` clips of the key moment (the original `.webm` files sit in the same folder).
 
 #### Narrated gallery
 
@@ -92,7 +92,9 @@ Each slide of a work's gallery can carry **narration and captions**. Playback pr
 
 <img src="public/images/screenshots/cms/01-gallery-captions-light.png" alt="Work detail — gallery playing with captions" width="100%" />
 
-<sub>▶ Video: [the gallery advancing with voice and captions](public/images/screenshots/cms/01-gallery-playing-light.gif)</sub>
+<img src="public/images/screenshots/cms/01-gallery-playing-light.gif" alt="captions following the narration" width="100%" />
+
+<sub>▶ Playing — captions follow the narration and the progress bar fills</sub>
 
 In the admin work editor, the **gallery narration editor** is a bench (slide on the left, script on the right) with a thumbnail strip below. Clicking a thumbnail puts that slide on the bench; slides with audio show a speaker badge and slides with only a script show a text badge. The toolbar offers slide navigation, audio history, record, upload a recording, remove audio, paste all scripts, translate scripts and the lexicon; on the right you pick a voice (provider · gender · tone) and press **Generate**. Long scripts are chunked at about 600 characters and merged; if the chosen provider fails, the server moves down the fallback order from Settings (Fish Audio → Google Cloud TTS → Edge) with a voice of the same gender. During preview the script fills in **like lyrics**, character by character, and clicking a word seeks to it.
 
@@ -100,7 +102,9 @@ In the admin work editor, the **gallery narration editor** is a bench (slide on 
 |:---:|:---:|
 | <img src="public/images/screenshots/cms/02-narration-editor-light.png" alt="Gallery narration editor" width="100%" /> | <img src="public/images/screenshots/cms/03-narration-preview-light.png" alt="Preview with highlighted script" width="100%" /> |
 
-<sub>▶ Video: [preview — the script filling in as it plays](public/images/screenshots/cms/03-narration-preview-light.gif)</sub>
+<img src="public/images/screenshots/cms/03-narration-preview-light.gif" alt="preview — the script filling in as it plays" width="100%" />
+
+<sub>▶ Preview — the script fills in like lyrics as it plays</sub>
 
 The **pronunciation lexicon** pairs script text with what should be spoken, e.g. `?all=true → "all true condition"`. It applies only when generating audio, longest match first; captions keep the original text. Korean and English scripts have separate dictionaries, and an inline `[text|reading]` in the script wins over the lexicon. Several entries can be pasted at once as `text = reading` lines.
 
@@ -110,7 +114,9 @@ The **recording editor** records from the microphone, then lets you click the wa
 |:---:|:---:|
 | <img src="public/images/screenshots/cms/04-lexicon-light.png" alt="Pronunciation lexicon" width="100%" /> | <img src="public/images/screenshots/cms/05-recording-editor-light.png" alt="Recording waveform editor" width="100%" /> |
 
-<sub>▶ Video: [record → select a range → split](public/images/screenshots/cms/05-recording-split-light.gif)</sub>
+<img src="public/images/screenshots/cms/05-recording-split-light.gif" alt="record → select a range → split" width="100%" />
+
+<sub>▶ Record → select a range on the waveform → split</sub>
 
 **Drop a PPTX onto the gallery** and each slide is rendered in the browser to a JPEG (max 1600px) and uploaded; each slide's **speaker notes become its script**. The gallery header shows "file — rendering n/N" while it runs, and afterwards every thumbnail carries a script badge. PDFs go through the same path.
 
@@ -118,7 +124,9 @@ The **recording editor** records from the microphone, then lets you click the wa
 |:---:|:---:|
 | <img src="public/images/screenshots/cms/06-pptx-progress-light.png" alt="PPTX conversion progress" width="100%" /> | <img src="public/images/screenshots/cms/07-pptx-thumbnails-light.png" alt="Gallery thumbnails after conversion" width="100%" /> |
 
-<sub>▶ Video: [dropping a PPTX and watching slides render in](public/images/screenshots/cms/06-pptx-import-light.gif)</sub>
+<img src="public/images/screenshots/cms/06-pptx-import-light.gif" alt="dropping a PPTX and watching slides render in" width="100%" />
+
+<sub>▶ Drop a PPTX and the slides render into thumbnails</sub>
 
 #### Auto-translation and AI summary
 
@@ -128,7 +136,9 @@ Flip the editor's KO/EN switch to **EN** and, when the source has content and ev
 |:---:|:---:|
 | <img src="public/images/screenshots/cms/08-translate-editor-light.png" alt="Editor auto-translation" width="100%" /> | <img src="public/images/screenshots/cms/09-settings-services-light.png" alt="Settings services tab" width="100%" /> |
 
-<sub>▶ Video: [the "Translating…" banner, then English fields filling in](public/images/screenshots/cms/08-translate-editor-light.gif)</sub>
+<img src="public/images/screenshots/cms/08-translate-editor-light.gif" alt="Translating banner, then English fields filling in" width="100%" />
+
+<sub>▶ Switch to EN and Retranslate › All — the "Translating…" banner, then English fields fill in</sub>
 
 On the public site, a **translation banner** appears when the viewed language has no body, and one button fetches an AI translation in place (posts and works alike). The **AI summary** box above the detail shows the Korean/English summary generated at publish time in the viewed language and can be collapsed.
 
