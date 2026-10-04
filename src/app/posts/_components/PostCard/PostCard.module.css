@@ -100,7 +100,7 @@
 /* 이미지/배경 레이어만 scale 대상 — placeholder 안 텍스트는 정적 */
 .card .image,
 .card .placeholderBg {
-  transition: transform var(--duration-slow) var(--ease-material);
+  transition: transform var(--duration-slow) var(--ease-standard);
   will-change: transform;
 }
 

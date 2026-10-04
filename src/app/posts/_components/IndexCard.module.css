@@ -26,7 +26,7 @@
   background: var(--bg-tertiary);
   overflow: hidden;
   /* card hover 시 살짝 떠오름 */
-  transition: transform 0.35s var(--ease-material), box-shadow 0.35s ease;
+  transition: transform 0.35s var(--ease-standard), box-shadow 0.35s ease;
 }
 
 .card:hover .cover {
@@ -36,7 +36,7 @@
 
 .coverImg {
   object-fit: cover;
-  transition: transform 0.5s var(--ease-material);
+  transition: transform 0.5s var(--ease-standard);
 }
 
 .card:hover .coverImg {
@@ -83,7 +83,7 @@
   letter-spacing: -0.01em;
   color: var(--text-primary);
   line-height: var(--line-height-125);
-  transition: color var(--duration-fast) var(--ease-material);
+  transition: color var(--duration-fast) var(--ease-standard);
 }
 .card:hover .cardTitle {
   color: var(--text-accent);

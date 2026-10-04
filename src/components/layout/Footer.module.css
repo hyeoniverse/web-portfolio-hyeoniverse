@@ -61,8 +61,8 @@
   background: none;
   pointer-events: none;
   transition:
-    left var(--duration-moderate) var(--ease-material),
-    width var(--duration-moderate) var(--ease-material),
+    left var(--duration-base) var(--ease-standard),
+    width var(--duration-base) var(--ease-standard),
     opacity var(--duration-base) ease;
 }
 

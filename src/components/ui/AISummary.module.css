@@ -57,7 +57,7 @@
   color: var(--text-tertiary);
   width: 14px;
   height: 14px;
-  transition: transform var(--duration-fast) var(--ease-in-out);
+  transition: transform var(--duration-fast) var(--ease-standard);
 }
 
 .chevronOpen {

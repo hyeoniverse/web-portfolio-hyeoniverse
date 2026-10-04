@@ -287,8 +287,8 @@
   margin-inline-start: var(--_logo-reserve, 0px);
   clip-path: inset(0 -20px 0 -20px);
   transition:
-    clip-path var(--duration-moderate) var(--ease-material),
-    visibility var(--duration-moderate),
+    clip-path var(--duration-base) var(--ease-standard),
+    visibility var(--duration-base),
     opacity 0.4s ease;
 }
 
@@ -313,8 +313,8 @@
 
 .navCenter .navIndicator {
   transition:
-    left var(--duration-moderate) var(--ease-material),
-    width var(--duration-moderate) var(--ease-material),
+    left var(--duration-base) var(--ease-standard),
+    width var(--duration-base) var(--ease-standard),
     opacity var(--duration-base) ease;
 }
 
@@ -396,8 +396,8 @@
   text-decoration: none;
   white-space: nowrap;
   transition:
-    opacity var(--duration-fast) var(--ease-material),
-    transform var(--duration-moderate) var(--ease-bounce);
+    opacity var(--duration-fast) var(--ease-standard),
+    transform var(--duration-base) var(--ease-spring);
 }
 
 .subNavDropdownItem:hover {
@@ -501,7 +501,7 @@
   letter-spacing: 0.02em;
   white-space: nowrap;
   pointer-events: auto;
-  animation: soundTipIn 0.4s var(--ease-material) both;
+  animation: soundTipIn 0.4s var(--ease-standard) both;
   z-index: var(--z-index-tooltip);
 }
 
@@ -532,7 +532,7 @@
 }
 
 .soundIconWrapper.clicking {
-  animation: popSound var(--duration-base) var(--ease-bounce);
+  animation: popSound var(--duration-base) var(--ease-spring);
 }
 
 @keyframes popSound {
@@ -555,7 +555,7 @@
 /* Unmuted (default): waves visible, X hidden */
 .soundIcon .waveOuter {
   opacity: 1;
-  transition: opacity var(--duration-base) ease var(--duration-moderate);
+  transition: opacity var(--duration-base) ease var(--duration-base);
 }
 
 .soundIcon .waveInner {
@@ -581,7 +581,7 @@
 
 .soundIconMuted .xLine {
   opacity: 1;
-  transition: opacity var(--duration-base) ease var(--duration-moderate);
+  transition: opacity var(--duration-base) ease var(--duration-base);
 }
 
 .langText {
@@ -597,7 +597,7 @@
 }
 
 .langText.clicking {
-  animation: popLang var(--duration-base) var(--ease-bounce);
+  animation: popLang var(--duration-base) var(--ease-spring);
 }
 
 @keyframes flipLang {
@@ -640,7 +640,7 @@
 }
 
 .themeIconWrapper.clicking {
-  animation: popTheme var(--duration-base) var(--ease-bounce);
+  animation: popTheme var(--duration-base) var(--ease-spring);
 }
 
 @keyframes popTheme {
@@ -684,8 +684,8 @@
   position: absolute;
   right: 0;
   transition:
-    opacity var(--duration-moderate) var(--ease-material),
-    visibility var(--duration-moderate);
+    opacity var(--duration-base) var(--ease-standard),
+    visibility var(--duration-base);
 }
 
 /* SVG 9 dot grid — 크기는 viewBox 비율 그대로 유지. width 만 조절하면 전체 스케일. */
@@ -706,55 +706,55 @@
 /* Nav 햄버거: 메뉴 열릴 때 전체 중앙 모임 → X 형태로 퍼짐 */
 /* 코너: 중앙으로 모였다가 → 제자리(X 대각선) */
 .menuDotsOpen .menuDot:nth-child(1) {
-  animation: dotToX_TL 0.6s var(--ease-material) forwards;
+  animation: dotToX_TL 0.6s var(--ease-standard) forwards;
 }
 .menuDotsOpen .menuDot:nth-child(3) {
-  animation: dotToX_TR 0.6s var(--ease-material) forwards;
+  animation: dotToX_TR 0.6s var(--ease-standard) forwards;
 }
 .menuDotsOpen .menuDot:nth-child(7) {
-  animation: dotToX_BL 0.6s var(--ease-material) forwards;
+  animation: dotToX_BL 0.6s var(--ease-standard) forwards;
 }
 .menuDotsOpen .menuDot:nth-child(9) {
-  animation: dotToX_BR 0.6s var(--ease-material) forwards;
+  animation: dotToX_BR 0.6s var(--ease-standard) forwards;
 }
 /* 가장자리: 중앙으로 모였다가 → fade out */
 .menuDotsOpen .menuDot:nth-child(2) {
-  animation: dotToX_T 0.6s var(--ease-material) forwards;
+  animation: dotToX_T 0.6s var(--ease-standard) forwards;
 }
 .menuDotsOpen .menuDot:nth-child(4) {
-  animation: dotToX_L 0.6s var(--ease-material) forwards;
+  animation: dotToX_L 0.6s var(--ease-standard) forwards;
 }
 .menuDotsOpen .menuDot:nth-child(6) {
-  animation: dotToX_R 0.6s var(--ease-material) forwards;
+  animation: dotToX_R 0.6s var(--ease-standard) forwards;
 }
 .menuDotsOpen .menuDot:nth-child(8) {
-  animation: dotToX_B 0.6s var(--ease-material) forwards;
+  animation: dotToX_B 0.6s var(--ease-standard) forwards;
 }
 
 /* Nav 햄버거: 메뉴 닫힐 때 모임→펼침 애니메이션 */
 .menuDotsClosing .menuDot:nth-child(1) {
-  animation: closeTL 0.8s var(--ease-material) both;
+  animation: closeTL 0.8s var(--ease-standard) both;
 }
 .menuDotsClosing .menuDot:nth-child(3) {
-  animation: closeTR 0.8s var(--ease-material) both;
+  animation: closeTR 0.8s var(--ease-standard) both;
 }
 .menuDotsClosing .menuDot:nth-child(7) {
-  animation: closeBL 0.8s var(--ease-material) both;
+  animation: closeBL 0.8s var(--ease-standard) both;
 }
 .menuDotsClosing .menuDot:nth-child(9) {
-  animation: closeBR 0.8s var(--ease-material) both;
+  animation: closeBR 0.8s var(--ease-standard) both;
 }
 .menuDotsClosing .menuDot:nth-child(2) {
-  animation: closeEdge 0.8s var(--ease-material) both;
+  animation: closeEdge 0.8s var(--ease-standard) both;
 }
 .menuDotsClosing .menuDot:nth-child(4) {
-  animation: closeEdge 0.8s var(--ease-material) both;
+  animation: closeEdge 0.8s var(--ease-standard) both;
 }
 .menuDotsClosing .menuDot:nth-child(6) {
-  animation: closeEdge 0.8s var(--ease-material) both;
+  animation: closeEdge 0.8s var(--ease-standard) both;
 }
 .menuDotsClosing .menuDot:nth-child(8) {
-  animation: closeEdge 0.8s var(--ease-material) both;
+  animation: closeEdge 0.8s var(--ease-standard) both;
 }
 
 /* ==========================================================================
@@ -1182,12 +1182,12 @@
 }
 
 .notifBtn :global(svg) {
-  transition: transform var(--duration-base) var(--ease-material);
+  transition: transform var(--duration-base) var(--ease-standard);
   transform-origin: 50% 25%;
 }
 
 .notifBtn:hover :global(svg) {
-  animation: bellShake 0.6s var(--ease-material);
+  animation: bellShake 0.6s var(--ease-standard);
 }
 
 @keyframes bellShake {
@@ -1294,7 +1294,7 @@
 }
 
 .notifDropdownViewAllArrow {
-  transition: transform 0.2s var(--ease-material);
+  transition: transform 0.2s var(--ease-standard);
 }
 
 .notifDropdownViewAll:hover .notifDropdownViewAllArrow {
@@ -1449,8 +1449,8 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  transition: max-width var(--duration-moderate) var(--ease-material),
-              opacity var(--duration-moderate) var(--ease-material);
+  transition: max-width var(--duration-base) var(--ease-standard),
+              opacity var(--duration-base) var(--ease-standard);
 }
 
 /* Logout 버튼 — contactBtn과 동일하게 mix-blend-mode: difference 환경.

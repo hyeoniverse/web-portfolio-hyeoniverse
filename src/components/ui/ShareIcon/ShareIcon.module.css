@@ -24,7 +24,7 @@
 
 .icon .node {
   transition:
-    transform var(--duration-base) var(--ease-bounce),
+    transform var(--duration-base) var(--ease-spring),
     opacity var(--duration-base) ease;
 }
 
@@ -65,11 +65,11 @@
 
 /* ── copied — 도착 노드 2개가 바깥으로 튀어나가며 사라진다 (하트의 burst 와 짝) ── */
 .icon[data-state="copied"] .nodeUp {
-  animation: shareSendUp 0.5s var(--ease-out-expo) both;
+  animation: shareSendUp 0.5s var(--ease-enter) both;
 }
 
 .icon[data-state="copied"] .nodeDown {
-  animation: shareSendDown 0.5s var(--ease-out-expo) both;
+  animation: shareSendDown 0.5s var(--ease-enter) both;
 }
 
 .icon[data-state="copied"] .link {
@@ -109,7 +109,7 @@
 
 /* 출발 노드는 남아서 살짝 커졌다 돌아온다 — "떠났다" 는 잔상 */
 .icon[data-state="copied"] .node:not(.nodeUp):not(.nodeDown) {
-  animation: shareOriginPulse 0.5s var(--ease-bounce) both;
+  animation: shareOriginPulse 0.5s var(--ease-spring) both;
 }
 
 @keyframes shareOriginPulse {

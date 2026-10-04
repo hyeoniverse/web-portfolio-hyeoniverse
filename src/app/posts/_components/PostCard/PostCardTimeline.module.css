@@ -87,7 +87,7 @@
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  transition: color var(--duration-moderate) var(--ease-material);
+  transition: color var(--duration-base) var(--ease-standard);
 }
 .timelineCard:hover .timelineTitle {
   color: var(--text-accent);
@@ -111,8 +111,8 @@
   transform: translateX(var(--tl-preview-x, 0));
   pointer-events: none;
   transition:
-    opacity var(--duration-moderate) var(--ease-material),
-    transform var(--duration-moderate) var(--ease-material);
+    opacity var(--duration-base) var(--ease-standard),
+    transform var(--duration-base) var(--ease-standard);
 }
 .timelineCard:hover .timelinePreview {
   opacity: 1;

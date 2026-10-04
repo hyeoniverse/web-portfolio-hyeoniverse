@@ -20,7 +20,7 @@
   height: 100%;
   pointer-events: none;
   /* hover 시 backdrop-filter 활성 — isHovered prop 으로 .featureDfOverlayHovered 토글 */
-  transition: backdrop-filter var(--duration-moderate) ease;
+  transition: backdrop-filter var(--duration-base) ease;
 }
 
 /* hover 시 frame 뒤 이미지/비디오 blur — backdrop-filter 로 overlay 뒤 미디어만 blur */
@@ -106,8 +106,8 @@
   font: var(--font-prose-sm);
   font-weight: var(--font-weight-semibold);
   transition:
-    color var(--duration-moderate) ease,
-    border-color var(--duration-moderate) ease;
+    color var(--duration-base) ease,
+    border-color var(--duration-base) ease;
   border-radius: var(--radius-surface) var(--radius-surface) 0 0;
 }
 
@@ -139,8 +139,8 @@
   min-height: clamp(150px, 23vh, 240px);
   background: var(--bg-primary);
   transition:
-    border-color var(--duration-moderate) ease,
-    box-shadow var(--duration-moderate) ease;
+    border-color var(--duration-base) ease,
+    box-shadow var(--duration-base) ease;
   border-radius: 0 var(--radius-surface) var(--radius-surface) var(--radius-surface);
   transform: translateY(1px);
 }
@@ -151,7 +151,7 @@
   font: var(--font-display-sm);
   line-height: var(--_lh-body);
   color: var(--text-secondary);
-  transition: color var(--duration-moderate) ease;
+  transition: color var(--duration-base) ease;
 }
 
 .featureFolderTech {
@@ -161,7 +161,7 @@
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  transition: color var(--duration-moderate) ease;
+  transition: color var(--duration-base) ease;
 }
 
 @media (max-width: 1024px), (max-height: 700px) {

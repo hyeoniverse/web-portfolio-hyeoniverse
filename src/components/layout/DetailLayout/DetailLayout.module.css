@@ -96,7 +96,7 @@
 }
 
 .page .backBtn svg {
-  transition: transform var(--duration-base) var(--ease-material);
+  transition: transform var(--duration-base) var(--ease-standard);
 }
 
 .page .backBtn:hover {
@@ -172,7 +172,7 @@
    캡슐 hover(accent 보더/글자)는 ui/DetailActionButton 이 공유하므로 여기선 아이콘 모션만.
    share 쪽은 ShareIcon 이 자체 모션(노드 벌어짐)을 가지므로 이 scale 을 공유하지 않는다. */
 .likeWrapper button svg {
-  transition: transform var(--duration-base) var(--ease-material);
+  transition: transform var(--duration-base) var(--ease-standard);
 }
 
 .likeWrapper button:hover:not(:disabled) svg {
@@ -227,11 +227,11 @@
 }
 
 .footerNav .footerLink {
-  transition: color var(--duration-base) var(--ease-material);
+  transition: color var(--duration-base) var(--ease-standard);
 }
 
 .footerNav .footerArrow {
-  transition: transform var(--duration-base) var(--ease-material);
+  transition: transform var(--duration-base) var(--ease-standard);
 }
 
 .footerNav .footerLink:hover {

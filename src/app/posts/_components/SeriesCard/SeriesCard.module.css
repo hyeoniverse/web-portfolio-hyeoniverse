@@ -165,7 +165,7 @@
 /* active — 살짝 기울이는 tilt 효과 (책 표지가 비스듬히 꽂힌 듯). */
 .card.active .thumb {
   transform: rotate(-2.5deg);
-  transition: transform 0.35s var(--ease-material);
+  transition: transform 0.35s var(--ease-standard);
 }
 
 /* ── 타이포그래픽 cover (cover 도 thumbs 도 없는 마지막 fallback) ──

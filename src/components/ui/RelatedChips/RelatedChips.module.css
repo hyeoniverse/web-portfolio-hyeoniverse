@@ -19,9 +19,9 @@
   color: var(--text-secondary);
   font: var(--font-body-md);
   transition:
-    background var(--duration-base) var(--ease-material),
-    border-color var(--duration-base) var(--ease-material),
-    color var(--duration-base) var(--ease-material);
+    background var(--duration-base) var(--ease-standard),
+    border-color var(--duration-base) var(--ease-standard),
+    color var(--duration-base) var(--ease-standard);
 }
 .chip:hover {
   background: var(--bg-tertiary);
@@ -77,8 +77,8 @@
   font: var(--font-body-sm);
   cursor: pointer;
   transition:
-    background var(--duration-base) var(--ease-material),
-    color var(--duration-base) var(--ease-material);
+    background var(--duration-base) var(--ease-standard),
+    color var(--duration-base) var(--ease-standard);
 }
 .more:hover {
   background: var(--bg-inverse);

@@ -274,11 +274,11 @@
 
 /* Compound selector (0,2,0) */
 .floorTicks .floorTick::before {
-  transition: background-color var(--duration-slow) var(--ease-material);
+  transition: background-color var(--duration-slow) var(--ease-standard);
 }
 
 .floorTicks .floorTick::after {
-  transition: scale var(--duration-base) var(--ease-bounce);
+  transition: scale var(--duration-base) var(--ease-spring);
 }
 
 .floorTick[data-state]::before {
@@ -401,11 +401,11 @@
 
 /* Compound selector (0,2,0) */
 .floorSteps .floorStep::after {
-  transition: transform var(--duration-base) var(--ease-material);
+  transition: transform var(--duration-base) var(--ease-standard);
 }
 
 .floorSteps .floorStepArrow {
-  transition: translate var(--duration-base) var(--ease-material);
+  transition: translate var(--duration-base) var(--ease-standard);
 }
 
 .floorStep:not(:disabled):hover::after {

@@ -48,7 +48,7 @@
   border-radius: var(--radius-full);
   background: var(--bg-accent-light);
   color: var(--text-accent);
-  animation: thanksPop var(--duration-slow) var(--ease-bounce) both;
+  animation: thanksPop var(--duration-slow) var(--ease-spring) both;
 }
 
 @keyframes thanksPop {

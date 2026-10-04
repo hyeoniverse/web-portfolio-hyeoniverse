@@ -83,17 +83,15 @@ export const durations = [
   { name: "--duration-instant", value: "0.1s" },
   { name: "--duration-fast", value: "0.15s" },
   { name: "--duration-base", value: "0.3s" },
-  { name: "--duration-moderate", value: "0.35s" },
   { name: "--duration-slow", value: "0.5s" },
   { name: "--duration-slower", value: "0.8s" },
-  { name: "--duration-slowest", value: "1.5s" },
 ];
 
 export const easings = [
-  { name: "--ease-bounce", value: "cubic-bezier(0.34, 1.56, 0.64, 1)" },
-  { name: "--ease-material", value: "cubic-bezier(0.4, 0, 0.2, 1)" },
-  { name: "--ease-out-expo", value: "cubic-bezier(0.16, 1, 0.3, 1)" },
-  { name: "--ease-in-out", value: "cubic-bezier(0.25, 0.1, 0.25, 1)" },
+  { name: "--ease-standard", value: "cubic-bezier(0.4, 0, 0.2, 1)" },
+  { name: "--ease-enter", value: "cubic-bezier(0.16, 1, 0.3, 1)" },
+  { name: "--ease-exit", value: "cubic-bezier(0.4, 0, 1, 1)" },
+  { name: "--ease-spring", value: "cubic-bezier(0.34, 1.56, 0.64, 1)" },
 ];
 
 // ─── Z-index Data ───

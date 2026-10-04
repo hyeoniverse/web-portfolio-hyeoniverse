@@ -132,7 +132,7 @@
 /* hover 시 아이콘 살짝 우측 이동 + accent 색 변환 (compound 0,2,1 — Button 의 transition 보다 우선) */
 .quickActions .actionBtn :global(svg) {
   transition:
-    transform 0.25s var(--ease-material),
+    transform 0.25s var(--ease-standard),
     color 0.2s ease;
 }
 
@@ -254,7 +254,7 @@
   color: inherit;
   transition:
     background-color 0.2s ease,
-    transform 0.25s var(--ease-material);
+    transform 0.25s var(--ease-standard);
   position: relative;
   /* Tooltip wrapper 의 grid cell stretch 높이 까지 채워서 hover bg 가 cell 전체 덮도록 */
   height: 100%;
@@ -356,7 +356,7 @@ a.statCard:hover .statValue {
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   background-clip: padding-box;
   /* grid-template-columns transition: 기기 분석 확장 시 부드럽게 */
-  transition: grid-template-columns 0.4s var(--ease-material);
+  transition: grid-template-columns 0.4s var(--ease-standard);
   /* 진입 모션 — .section 과 동일한 stagger fade-in */
   animation: dashSectionIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
@@ -429,7 +429,7 @@ a.statCard:hover .statValue {
   min-width: 0;
   pointer-events: none;
   border-left: none !important;
-  transition: padding 0.4s var(--ease-material);
+  transition: padding 0.4s var(--ease-standard);
 }
 
 /* 셀이 아니라 내용물만 페이드 — 셀 opacity 를 내리면 불투명 배경까지 빠지면서

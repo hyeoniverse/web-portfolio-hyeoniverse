@@ -257,7 +257,7 @@
   flex-direction: column;
   gap: var(--spacing-12);
   padding: var(--spacing-16);
-  transition: transform 0.25s var(--ease-out-expo);
+  transition: transform 0.25s var(--ease-enter);
 }
 
 .lenisBlock {
@@ -279,7 +279,7 @@
 .lenisTrack {
   display: flex;
   gap: var(--spacing-8);
-  transition: transform 0.25s var(--ease-out-expo);
+  transition: transform 0.25s var(--ease-enter);
 }
 
 .lenisTrack span {
