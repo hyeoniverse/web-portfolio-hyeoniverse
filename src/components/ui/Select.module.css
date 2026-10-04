@@ -181,7 +181,7 @@
      (모달 위 dropdown 은 .selectAboveModal 로 완전 불투명) */
   background: var(--bg-glass-panel);
   backdrop-filter: var(--blur-glass);
-  z-index: var(--z-index-dropdown);
+  /* top layer 에 뜬다(3.10-1) — z-index 없음 */
   box-shadow: var(--shadow-overlay);
   display: flex;
   flex-direction: column;

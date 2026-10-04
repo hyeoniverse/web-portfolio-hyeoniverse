@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
+import { useKeepOnTopRef } from "@/hooks/useTopLayer";
 import { ZoomInIcon } from "@/components/icons";
 import clsx from "clsx";
 import { useIsMobile } from "@/hooks/useIsMobile";
@@ -73,6 +74,8 @@ export default function CursorTrail() {
   const innerSizeRef = useRef({ w: 20, h: 20 });
   /* 전체화면 요소가 바뀌면 다시 그린다(그 안으로 옮겨 그리려고) */
   const fsHost = useSyncExternalStore(subscribeFullscreen, fullscreenHost, noHost);
+  /* 늘 맨 위(3.10-1) — 모달 · 팝오버가 뜰 때마다 다시 띄워 그 위로 올린다 */
+  const topCursorRef = useKeepOnTopRef<HTMLDivElement>(3, cursorRef);
 
   useEffect(() => {
     if (isTouch) return;
@@ -393,7 +396,7 @@ export default function CursorTrail() {
 
   const cursor = (
     <div
-      ref={cursorRef}
+      ref={topCursorRef}
       className={clsx(
         styles.cursor,
         isVisible ? styles.visible : styles.hidden,

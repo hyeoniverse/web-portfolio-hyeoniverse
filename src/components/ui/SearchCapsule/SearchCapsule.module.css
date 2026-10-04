@@ -141,7 +141,7 @@
   top: 100%;
   left: 0;
   right: 0;
-  z-index: 50;
+  /* top layer 에 뜬다(3.10-1) — z-index 없음 */
   /* radius-xl(16px) 에 맞춰 패딩 축소 */
   padding: var(--spacing-4);
   border: var(--border-light);

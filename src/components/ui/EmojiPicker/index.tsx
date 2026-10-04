@@ -19,6 +19,7 @@ import { EmojiIcon } from "./EmojiIcon";
 import styles from "./EmojiPicker.module.css";
 import Pressable from "@/components/ui/Pressable";
 import { usePortalContainer } from "@/components/ui/portalContainer";
+import { usePopoverRef } from "@/hooks/useTopLayer";
 
 export { EmojiIcon } from "./EmojiIcon";
 
@@ -45,6 +46,8 @@ export default function EmojiPicker({ open, onClose, onSelect, currentValue, onI
   /* 모달 안에서 열렸으면 모달이 자기 portal layer 를 여기로 내려 준다. 밖이면 null. */
   const portalContainer = usePortalContainer();
   const ref = useRef<HTMLDivElement>(null);
+  /* portal 모드는 top layer(3.10-1) — 붙는 순간 띄우고 ref 에도 넣는다 */
+  const topRef = usePopoverRef<HTMLDivElement>(ref);
   // portal 모드 위치 (getAnchorRect 지정 시) — 열림/스크롤/리사이즈마다 갱신
   const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
   useEffect(() => {
@@ -392,7 +395,8 @@ export default function EmojiPicker({ open, onClose, onSelect, currentValue, onI
 
   const node = (
     <div
-      ref={ref}
+      ref={getAnchorRect ? topRef : ref}
+      popover={getAnchorRect ? "manual" : undefined}
       contentEditable={false}
       className={`${styles.picker} ${getAnchorRect ? styles.fixed : styles.absolute}`}
       style={getAnchorRect ? { left: pos?.left ?? -9999, top: pos?.top ?? -9999 } : undefined}

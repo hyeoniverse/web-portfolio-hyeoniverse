@@ -12,6 +12,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useSoundManager } from "@/hooks/useSoundManager";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { showModal } from "@/lib/topLayer";
 
 /** Modal footer slot — modal body 가 createPortal 로 footer 영역에 렌더하기 위한 ref.
  *  body 와 footer 가 같은 React tree 안에 있어 state 공유 가능. */
@@ -19,13 +20,6 @@ export const ModalFooterContext = createContext<HTMLDivElement | null>(null);
 
 const SWIPE_THRESHOLD = 30;
 const DISMISS_THRESHOLD = 100;
-
-/* 포커스 트랩·초기 포커스가 대상으로 삼는 요소들 */
-const FOCUSABLE = [
-  "a[href]", "button:not([disabled])", "input:not([disabled])",
-  "select:not([disabled])", "textarea:not([disabled])",
-  "[tabindex]:not([tabindex=\"-1\"])",
-].join(",");
 
 export default function Modal() {
   const { t } = useLanguage();
@@ -83,6 +77,17 @@ export default function Modal() {
     }
     return setter;
   }, []);
+  /* 모달별 <dialog> — 붙는 순간 showModal() 로 top layer 에 올린다(3.10-1). 같은 id 면 같은 함수를 돌려줘야
+     React 가 cleanup/mount 를 되풀이하지 않는다(footerEls 와 같은 이유) */
+  const dialogRefSettersRef = useRef<Map<string, (el: HTMLDialogElement | null) => void>>(new Map());
+  const getDialogRefSetter = useCallback((id: string) => {
+    let setter = dialogRefSettersRef.current.get(id);
+    if (!setter) {
+      setter = (el) => { if (el) showModal(el); };
+      dialogRefSettersRef.current.set(id, setter);
+    }
+    return setter;
+  }, []);
   const startYRef = useRef(0);
   const swipingRef = useRef(false);
   const draggingRef = useRef(false);
@@ -125,63 +130,9 @@ export default function Modal() {
     setSheetExpanded(false);
   }, [modals, start]);
 
-  // ── 포커스 관리 ──
-  // 열기 직전 포커스를 기억했다가 모두 닫히면 그리로 되돌린다. 스택 중간(2→1)은
-  // 아래 초기-포커스 effect 가 새 top 으로 옮기므로 여기선 완전히 닫힐 때만 복원한다.
-  const restoreFocusRef = useRef<HTMLElement | null>(null);
-  useEffect(() => {
-    if (modals.length > 0) {
-      if (!restoreFocusRef.current) {
-        restoreFocusRef.current = document.activeElement as HTMLElement | null;
-      }
-    } else if (restoreFocusRef.current) {
-      restoreFocusRef.current.focus?.();
-      restoreFocusRef.current = null;
-    }
-  }, [modals.length]);
-
-  // top 모달이 바뀌면(열림·스택 변화) 그 안으로 포커스를 넣는다. 이미 안에 있으면 두고,
-  // 애니메이션으로 갓 마운트된 뒤라야 잡히므로 rAF 로 한 박자 미룬다.
-  const topId = modals.length > 0 ? modals[modals.length - 1].id : null;
-  useEffect(() => {
-    if (!topId) return;
-    const raf = requestAnimationFrame(() => {
-      const el = modalElRef.current;
-      if (!el || el.contains(document.activeElement)) return;
-      const first = el.querySelector<HTMLElement>(FOCUSABLE);
-      (first ?? el).focus();
-    });
-    return () => cancelAnimationFrame(raf);
-  }, [topId]);
-
-  useEffect(() => {
-    if (modals.length === 0) return;
-    const onKey = (e: KeyboardEvent) => {
-      // 안쪽 컨트롤(CodeMirror·완성 목록 등)이 이미 처리한 키는 건드리지 않는다
-      if (e.defaultPrevented) return;
-      if (e.key === "Escape") {
-        const top = modals[modals.length - 1];
-        if (top) handleClose(top.id);
-        return;
-      }
-      // Tab 을 top 모달 안에 가둔다 — 경계에서 순환, 밖에 있으면 안으로 끌어온다
-      if (e.key === "Tab") {
-        const el = modalElRef.current;
-        if (!el) return;
-        const nodes = Array.from(el.querySelectorAll<HTMLElement>(FOCUSABLE))
-          .filter((n) => n.offsetParent !== null || n === document.activeElement);
-        if (nodes.length === 0) { e.preventDefault(); el.focus(); return; }
-        const first = nodes[0];
-        const last = nodes[nodes.length - 1];
-        const active = document.activeElement;
-        if (!el.contains(active)) { e.preventDefault(); first.focus(); }
-        else if (e.shiftKey && active === first) { e.preventDefault(); last.focus(); }
-        else if (!e.shiftKey && active === last) { e.preventDefault(); first.focus(); }
-      }
-    };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [modals, handleClose]);
+  /* 포커스 가둠 · 열기 전 자리로 되돌리기 · 초기 포커스 · Esc 는 <dialog>(showModal) 가 한다(3.10-1).
+     Esc 는 아래 onCancel 로 받아 스토어를 닫는다 — 안쪽 컨트롤(CodeMirror · 완성 목록)이 keydown 을
+     preventDefault 하면 브라우저가 닫기 요청을 내지 않아 전과 같이 그쪽이 먼저다. */
 
   // expandedRef를 state와 동기화 (드래그 콜백에서 최신 값 참조)
   useEffect(() => { expandedRef.current = sheetExpanded; }, [sheetExpanded]);
@@ -191,6 +142,9 @@ export default function Modal() {
     const currentIds = new Set(modals.map((m) => m.id));
     for (const id of footerRefSettersRef.current.keys()) {
       if (!currentIds.has(id)) footerRefSettersRef.current.delete(id);
+    }
+    for (const id of dialogRefSettersRef.current.keys()) {
+      if (!currentIds.has(id)) dialogRefSettersRef.current.delete(id);
     }
   }, [modals]);
 
@@ -319,8 +273,17 @@ export default function Modal() {
   return createPortal(
     <AnimatePresence onExitComplete={handleExitComplete}>
       {modals.map(({ id, header, content, style, closeButton, subButtons }) => (
-        <motion.div
+        <dialog
           key={id}
+          ref={getDialogRefSetter(id)}
+          className="ui-dialog"
+          aria-labelledby={header?.title ? `modal-title-${id}` : undefined}
+          /* Esc — 브라우저의 닫기 요청을 막고 스토어로 닫는다(퇴장 애니메이션 · 소리 · 스크롤 복원이 거기 있다) */
+          onCancel={(e) => { e.preventDefault(); handleClose(id); }}
+          /* 다른 길로 닫혔다면(브라우저 · 확장) 스토어도 맞춘다 */
+          onClose={() => { if (useModalStore.getState().modals.some((m) => m.id === id)) closeModal(id); }}
+        >
+        <motion.div
           id="modal-root"
           initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
           animate={{ opacity: 1, backdropFilter: "blur(10px)" }}
@@ -339,9 +302,6 @@ export default function Modal() {
           <motion.div
             ref={modalElRef}
             id="modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby={header?.title ? `modal-title-${id}` : undefined}
             /* 안에 초점 대상이 없을 때 포커스를 받는 폴백 */
             tabIndex={-1}
             data-rounded={id === "project-detail" ? "true" : undefined}
@@ -412,6 +372,7 @@ export default function Modal() {
               패널(#modal)의 transform 영향을 안 받도록 형제로 배치, backdrop(#modal-root, fixed inset:0)이 containing block. */}
           <div ref={getContainerRefSetter(id)} className={styles.portalLayer} aria-hidden />
         </motion.div>
+        </dialog>
       ))}
     </AnimatePresence>,
     document.body

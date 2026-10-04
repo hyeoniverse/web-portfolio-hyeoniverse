@@ -552,6 +552,15 @@ Material `@material/web` 2.5, Primer primitives. 숫자는 같은 날 다시 셌
 - **감시.** ratchet `motion-duration-literal` 은 지속 시간 자리(겹의 첫 시간값 · `-duration`)만 세고 지연은 세지 않는다 — 744 → 1(자동 완성 `5000s`). `motion-ease-literal` 추가 — 0.
 - **보이는 변화.** 0.2s → 0.15s(85곳) · 0.4s → 0.3s(33곳) · 0.6s → 0.5s(44곳)가 가장 많이 바뀐 값이다. `ease` → Material 표준 곡선은 모양이 비슷해 체감이 작다. 움직임 줄이기를 켠 사람에게는 이제 거의 모든 전환이 즉시 바뀐다.
 
+### D45. 2026-10-04 — 화면 위에 뜨는 것은 top layer 로: 모달은 `<dialog>`, 떠 있는 것은 `popover="manual"`
+
+- **왜.** 떠 있는 것 53파일이 `createPortal` + z-index 토큰 아홉 단계(dropdown 500 … cursor 10100)로 층을 겨뤘고, 모달 안의 셀렉트가 모달 뒤로 숨는 걸 막으려고 모달마다 "portal layer" 를 두는 우회가 있었다(3.10-1).
+- **정한 것.** 브라우저의 top layer 를 쓴다 — z-index 와 상관없이 맨 위고, 나중에 연 것이 위다. 공용 Modal 은 모달마다 `<dialog class="ui-dialog">` 로 감싸 붙는 순간 `showModal()`: 포커스 가둠 · 열기 전 자리로 되돌리기 · 초기 포커스 · Esc · 뒤 화면 inert 를 브라우저가 맡아 손으로 만든 Tab 가둠 · Esc · 포커스 복원 코드를 지웠다(Esc 는 `cancel` 을 막고 스토어로 닫아 퇴장 애니메이션 · 소리 · 스크롤 복원을 지킨다. 안쪽 컨트롤이 keydown 을 막으면 전처럼 그쪽이 먼저다). 떠 있는 것(Popover 드롭다운 · 시트 · 스크림, Tooltip, Select 목록, DatePicker · TimePicker · EmojiPicker · ColorPicker 의 portal 틀, SearchCapsule 최근 검색)은 `popover="manual"` + 붙는 순간 `showPopover()`(`usePopoverRef`). 자리는 전처럼 JS 가 잡는다.
+  늘 맨 위여야 하는 커서(3) · 로딩 화면(2) · 페이지 전환(1)은 `keepOnTop` 에 우선순위로 등록해 두고, 무엇이든 새로 뜰 때마다 닫았다 다시 열어 맨 위로 올린다 — 같은 틱이라 깜빡이지 않는다. 커서의 `mix-blend-mode: difference` 는 top layer 에서도 섞인다 — 실제 커서 CSS 로 Chromium 141 에서 페이지 · 팝오버 · 모달 위를 비교해 페이지 때와 같은 색을 확인했다. 단 섞임은 top layer 요소 **자신**에 걸어야 한다: 자식에 걸면 그 요소(투명) 안에서만 섞여 맨 색이 나온다. 한때 커서를 페이지에 두고 모달 안으로 portal 했는데(Safari 미리보기에서 색이 이상했다), 그러면 팝오버(top layer) 아래로 들어가 되돌렸다. Safari 에서 색이 다시 이상하면 `backdrop-filter: invert()` 로 바꾸는 길이 남아 있다. 로딩 화면의 `popover` 속성은 올라온 뒤 JS 가 붙인다: 서버 HTML 에 있으면 hydration 전까지 보이지 않는다.
+  UA 기본값(가운데 정렬 · 테두리 · 캔버스 색 · `::backdrop`)은 `globals/_top-layer.css` 가 비운다.
+- **같이.** 모달이 열려 있는 동안 그 밖의 것은 inert 다 — top layer 에 떠도 모달 DOM 밖이면 눌리지 않는다(Chromium 에서 확인). 그래서 모달 안의 팝오버 · 셀렉트 · 툴팁을 모달 안으로 portal 하는 `PortalContainerContext` 는 남긴다. 쌓임이 아니라 inert 때문이다.
+- **남은 것(12-2).** ImageViewer · Toast · 문의 서랍 · 모바일 메뉴 · 편집기 메뉴(슬래시 · 이모지 · 날짜 · 링크 · 떠 있는 바) · 관리자 모달 등 `createPortal` 40파일. 전부 옮긴 뒤 남은 z-index 토큰(`dropdown` · `tooltip` · `modal` · `overlay` · `fullscreen` · `loading` · `top` · `cursor`)을 지운다(3.10-2). `--z-index-popover` 는 쓰는 곳이 Popover 뿐이라 이번에 지웠다. 그때까지 로딩 · 커서의 z-index 는 hydration 전과 top layer 를 모르는 브라우저용으로 둔다.
+- **보이는 변화.** 없다. 모달의 Esc · Tab 순환이 브라우저 기본으로 바뀌어 미세하게 다를 수 있다(포커스가 모달 밖으로 나가지 않는 것은 같다).
 ### D46. 2026-10-04 — 역할 이름은 Material 식으로: 글의 제목은 `headline`, 틀의 제목은 `title`(Pretendard 600)
 
 - **왜.** 모달 제목을 세리프에서 빼려다 보니 둘 자리가 없었다. 제목 묶음(`--font-heading-*`)은 세리프 400 뿐이고, 본문 묶음(`--font-body-xl`)은 400 이라 얇다.

@@ -5,8 +5,7 @@
    popover 형태로 trigger 옆에 portal 렌더
    ────────────────────────────────────────────────────────────────── */
 .popover {
-  position: fixed;
-  z-index: var(--z-index-dropdown);
+  position: fixed; /* top layer 에 뜬다(3.10-1) — z-index 없음 */
   width: 260px;
   /* 좌우 패딩은 .controls 래퍼가 전담 — pad/hueSlider 는 full-bleed, 컨트롤 행만 inset */
   padding: var(--spacing-12) 0;
@@ -40,7 +39,6 @@
 .sheetBackdrop {
   position: fixed;
   inset: 0;
-  z-index: var(--z-index-overlay);
   background: color-mix(in oklch, var(--bg-black) 25%, transparent);
   backdrop-filter: blur(10px);
   pointer-events: none;
