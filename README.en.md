@@ -84,51 +84,59 @@ Tokens and components are inspected live at `/design-system`.
 
 ### Admin · CMS
 
-> These images come from `npx tsx scripts/screenshots-cms.ts` (needs a logged-in session — see [scripts/SCREENSHOTS.md](./scripts/SCREENSHOTS.md)). Continuous actions are also saved as `.webm` (and `.gif` when ffmpeg is installed) under the same names.
+> These images come from `npx tsx scripts/screenshots-cms.ts` (needs a logged-in session — see [scripts/SCREENSHOTS.md](./scripts/SCREENSHOTS.md)). Continuous actions (playback · preview · recording · PPTX conversion · translation) are also recorded as `.gif`, linked under each figure as **▶ Video**.
 
 #### Narrated gallery
 
-Each slide of a work's gallery can carry **narration and captions**. Playback prefers a prepared audio file (TTS or a recording), falls back to reading the script with browser speech, and otherwise waits four seconds before advancing. Captions are cut from the script by character ratio to follow the audio. If the browser blocks sound, the gallery first asks "with voice / without voice".
+Each slide of a work's gallery can carry **narration and captions**. Playback prefers a prepared audio file (TTS or a recording), falls back to reading the script with browser speech, and otherwise waits four seconds before advancing. Captions are cut from the script by character ratio to follow the audio, and the progress bar below fills one segment per slide. If the browser blocks sound, the gallery first asks "with voice / without voice".
 
 <img src="public/images/screenshots/cms/01-gallery-captions-light.png" alt="Work detail — gallery playing with captions" width="100%" />
 
-In the admin work editor, the **gallery narration editor** takes a script per slide, a voice, and generates audio. Long scripts are chunked at about 600 characters and merged; if the chosen provider fails, the server moves down the fallback order from Settings (Fish Audio → Google Cloud TTS → Edge) with a voice of the same gender. During preview the script fills in **like lyrics**, character by character, and clicking a word seeks to it.
+<sub>▶ Video: [the gallery advancing with voice and captions](public/images/screenshots/cms/01-gallery-playing-light.gif)</sub>
+
+In the admin work editor, the **gallery narration editor** is a bench (slide on the left, script on the right) with a thumbnail strip below. Clicking a thumbnail puts that slide on the bench; slides with audio show a speaker badge and slides with only a script show a text badge. The toolbar offers slide navigation, audio history, record, upload a recording, remove audio, paste all scripts, translate scripts and the lexicon; on the right you pick a voice (provider · gender · tone) and press **Generate**. Long scripts are chunked at about 600 characters and merged; if the chosen provider fails, the server moves down the fallback order from Settings (Fish Audio → Google Cloud TTS → Edge) with a voice of the same gender. During preview the script fills in **like lyrics**, character by character, and clicking a word seeks to it.
 
 | Script · voice · generate | Preview — lyric highlight |
 |:---:|:---:|
 | <img src="public/images/screenshots/cms/02-narration-editor-light.png" alt="Gallery narration editor" width="100%" /> | <img src="public/images/screenshots/cms/03-narration-preview-light.png" alt="Preview with highlighted script" width="100%" /> |
 
-The **pronunciation lexicon** pairs script text with what should be spoken, e.g. `?all=true → "all true condition"`. It applies only when generating audio, longest match first; captions keep the original text. Korean and English scripts have separate dictionaries, and an inline `[text|reading]` in the script wins over the lexicon.
+<sub>▶ Video: [preview — the script filling in as it plays](public/images/screenshots/cms/03-narration-preview-light.gif)</sub>
 
-The **recording editor** records from the microphone, then lets you drag a range on the waveform and split, cut, paste, or trim silence to shape clips. Clips can be reordered by dragging and pasted into another slide. Finishing uploads a WAV as that slide's audio (up to six minutes).
+The **pronunciation lexicon** pairs script text with what should be spoken, e.g. `?all=true → "all true condition"`. It applies only when generating audio, longest match first; captions keep the original text. Korean and English scripts have separate dictionaries, and an inline `[text|reading]` in the script wins over the lexicon. Several entries can be pasted at once as `text = reading` lines.
+
+The **recording editor** records from the microphone, then lets you click the waveform to place the cursor or drag a range, and split, cut, copy, paste, delete, keep-only, or trim silence to shape clips (with undo/redo). Clips can be reordered by dragging and pasted into another slide. Finishing uploads a WAV as that slide's audio (up to six minutes).
 
 | Lexicon | Recording editor — range selected, clips split |
 |:---:|:---:|
 | <img src="public/images/screenshots/cms/04-lexicon-light.png" alt="Pronunciation lexicon" width="100%" /> | <img src="public/images/screenshots/cms/05-recording-editor-light.png" alt="Recording waveform editor" width="100%" /> |
 
-**Drop a PPTX onto the gallery** and each slide is rendered in the browser to a JPEG (max 1600px) and uploaded; each slide's **speaker notes become its script**. PDFs go through the same path.
+<sub>▶ Video: [record → select a range → split](public/images/screenshots/cms/05-recording-split-light.gif)</sub>
+
+**Drop a PPTX onto the gallery** and each slide is rendered in the browser to a JPEG (max 1600px) and uploaded; each slide's **speaker notes become its script**. The gallery header shows "file — rendering n/N" while it runs, and afterwards every thumbnail carries a script badge. PDFs go through the same path.
 
 | Converting — "rendering n/N" | Done — a slide whose notes became the script |
 |:---:|:---:|
 | <img src="public/images/screenshots/cms/06-pptx-progress-light.png" alt="PPTX conversion progress" width="100%" /> | <img src="public/images/screenshots/cms/07-pptx-thumbnails-light.png" alt="Gallery thumbnails after conversion" width="100%" /> |
 
+<sub>▶ Video: [dropping a PPTX and watching slides render in](public/images/screenshots/cms/06-pptx-import-light.gif)</sub>
+
 #### Auto-translation and AI summary
 
-Flip the editor's KO/EN switch to **EN** and, when the source has content and every target field is empty, title, excerpt, body and gallery scripts are filled in one pass. The result arrives under a "machine-translated, please review" banner and any field can be retranslated. **Settings › Services** sets, per feature (translation · summary · TTS · AI cover), a primary provider and an ordered fallback list; a provider that keeps failing is paused by the health panel.
+Flip the editor's KO/EN switch to **EN** and, when the source has content and every English field is empty, title, subtitle, description, body and gallery scripts are filled in one pass. If some English fields are already filled, the **Retranslate** button next to the switch lets you pick a scope (all · subtitle · description · body · gallery scripts). Translations land in the form only and persist when you save. **Settings › Services** sets, per feature (translation · AI summary · TTS · AI cover), a primary provider and an ordered fallback list; a provider that keeps failing for the same reason is paused by the health panel (the "failing · off" badges below).
 
-| Editor — EN filled by translation | Settings › Services — providers and fallback order |
+| Editor — English fields filled via Retranslate › All | Settings › Services — providers and fallback order |
 |:---:|:---:|
 | <img src="public/images/screenshots/cms/08-translate-editor-light.png" alt="Editor auto-translation" width="100%" /> | <img src="public/images/screenshots/cms/09-settings-services-light.png" alt="Settings services tab" width="100%" /> |
 
-On the public site, a **translation banner** appears when the viewed language has no body, and one button fetches an AI translation in place. The **AI summary** box above a post shows the summary generated at publish time and can be collapsed.
+<sub>▶ Video: [the "Translating…" banner, then English fields filling in](public/images/screenshots/cms/08-translate-editor-light.gif)</sub>
 
-| Translation banner | AI summary |
-|:---:|:---:|
-| <img src="public/images/screenshots/cms/10-translate-banner-light.png" alt="Translation banner" width="100%" /> | <img src="public/images/screenshots/cms/11-ai-summary-light.png" alt="AI summary box" width="100%" /> |
+On the public site, a **translation banner** appears when the viewed language has no body, and one button fetches an AI translation in place (posts and works alike). The **AI summary** box above the detail shows the Korean/English summary generated at publish time in the viewed language and can be collapsed.
+
+<img src="public/images/screenshots/cms/10-translate-banner-light.png" alt="Translation banner — a work without an English body, viewed in EN" width="100%" />
 
 #### Theme
 
-**Settings › Appearance › Theme colors** sets five colors: the accent plus light/dark background and text. The 17 presets (Default · Ruby · Meadow · Coral · Azure · Sand · Harvest · Honey · Forest · Rosewood · Dusk · Arctic · Baltic · Sorbet · Twilight · Tropica · Petal) keep their accents at least ΔE 20 apart, and picking one updates the **WCAG contrast report** for body text, muted text, accent links and button text in both modes. When the accent is used as text, the site shifts only its lightness to reach 4.5:1.
+**Settings › Appearance › Theme colors** sets five colors: the accent plus light/dark background and text. The 18 presets (Default · Ruby · Meadow · Coral · Azure · Sand · Harvest · Honey · Forest · Rosewood · Dusk · Arctic · Baltic · Sorbet · Twilight · Tropica · Petal · Slate) keep their accents at least ΔE 20 apart, and the current five colors can be saved as your own preset with **+**. Picking colors updates the **WCAG contrast report** for body text, muted text, accent links, accent graphics and button text in both modes, plus the link↔body color difference. When the accent is used as text, the site shifts only its lightness to reach 4.5:1, shown in the table as "auto-corrected".
 
 | Presets | Contrast report |
 |:---:|:---:|
@@ -148,9 +156,9 @@ The same home page under three presets.
 
 #### Linking posts and works · SEO check
 
-Works link related posts and series; posts link related projects, all through a searchable picker with drag-sortable chips that show up in the public detail header. The **SEO check** pill at the editor's bottom right counts six items (title · slug · excerpt of 30+ chars · cover · category · tags); clicking an item scrolls to that field and flashes it.
+Works link related posts and series; posts link related projects, all through a searchable picker that lists number, thumbnail and year and marks unpublished items as Draft. Chosen chips are drag-sortable and show up in the public detail header. The **SEO check** pill at the editor's bottom right counts six items (title · slug · excerpt of 30+ chars · cover · category · tags) as "5/6"; opening it separates what still needs work from what is done, and clicking an item scrolls to that field and flashes it.
 
-| Relation picker | SEO check |
+| Relation picker — post editor | SEO check |
 |:---:|:---:|
 | <img src="public/images/screenshots/cms/15-relation-picker-light.png" alt="Relation picker" width="100%" /> | <img src="public/images/screenshots/cms/16-seo-checklist-light.png" alt="SEO checklist panel" width="100%" /> |
 

@@ -348,41 +348,45 @@ npx playwright uninstall
 
 ## CMS 캡처 — `scripts/screenshots-cms.ts`
 
-README "관리자 · CMS" 절의 그림은 로그인 세션이 필요하고 화면 안에서 단추를 눌러 상태를 만든 뒤 찍어야 해서 별도 스크립트로 둡니다. 연속 동작(갤러리 재생 · 미리 듣기 · 녹음 편집 · PPTX 변환 · 자동 번역)은 같은 이름의 `.webm`(ffmpeg 가 있으면 `.gif`)으로도 남습니다.
+README "관리자 · CMS" 절의 그림은 로그인 세션이 필요하고 화면 안에서 단추를 눌러 상태를 만든 뒤 찍어야 해서 별도 스크립트로 둡니다. 연속 동작(갤러리 재생 · 미리 듣기 · 녹음 편집 · PPTX 변환 · 자동 번역)은 `.webm` 으로 녹화하고, ffmpeg 가 있으면 README 가 링크하는 `.gif`(10fps · 1120px)도 만듭니다.
 
 ```bash
 # 1. .env.local 에 E2E_ADMIN_EMAIL / E2E_ADMIN_PASSWORD (e2e/auth.setup.ts 주석)
-# 2. 빌드 산출물로 서버를 띄운다 — dev 서버는 HMR 오버레이가 찍힌다
-npm run build && npm run start
+# 2. 빌드 산출물로 서버를 띄운다 — dev 서버는 HMR 오버레이가 찍힌다.
+#    3000 에 dev 서버가 떠 있으면 다른 포트로 띄우고 --base 로 넘긴다
+npm run build && npx next start -p 3100
 # 3. 로그인 세션 저장 (최초 1회 기기 승인 필요)
 npx playwright test --project=setup
 # 4. 캡처
-npx tsx scripts/screenshots-cms.ts \
+npx tsx scripts/screenshots-cms.ts --base=http://localhost:3100 \
   --work=<갤러리·대본·음성이 있는 작업물 id> --work-slug=<그 작업물 slug> \
-  --post=<AI 요약이 있는 글 slug> --post-untranslated=<영어 본문이 없는 글 slug> \
-  --draft-work=<PPTX 를 떨어뜨려도 되는 초안 작업물 id> --pptx=<발표자 노트가 있는 .pptx>
+  --draft-work=<번역·PPTX 들이기를 해 볼 초안 작업물 id> \
+  --pptx=scripts/fixtures/hyeoniverse-intro.pptx
 ```
 
 | 옵션 | 뜻 |
 |---|---|
-| `--only=1,3,14` | 번호로 고른 장면만 |
+| `--only=1,3,14` | 번호로 고른 장면만(실패하면 끝에 다시 돌릴 번호를 알려 준다) |
 | `--theme=dark` | 다크로 (기본 light) |
 | `--presets=Forest,Twilight,Arctic` | 14번 홈에 입힐 프리셋 |
+| `--sample-image=<png>` | 13번 "이미지에서" 에 올릴 그림(기본 `screenshots/pc/editor-color-light.png` — 색이 여럿이어야 후보가 여럿 나온다) |
+| `--post=<slug>` · `--post-untranslated=<slug>` | 11 · 10 을 글 상세로 찍을 때. 없으면 `--work-slug` 작업물로 찍는다 |
+| `--summary-file=<json>` | 11 — 작업물에 저장된 요약이 없을 때 `{ "summary_ko", "summary_en" }` 을 미리보기 폼에만 넣는다 |
 | `--no-video` | 영상 생략 |
 | `--base` · `--out` | 서버 주소 · 출력 폴더(기본 `public/images/screenshots/cms`) |
 
 출력 파일(`-light` 자리에 테마 이름):
 
 ```
-cms/01-gallery-captions-light.png      + 01-gallery-playing-light.webm
+cms/01-gallery-captions-light.png      + 01-gallery-playing-light.webm / .gif
 cms/02-narration-editor-light.png
-cms/03-narration-preview-light.png     + 03-narration-preview-light.webm
+cms/03-narration-preview-light.png     + 03-narration-preview-light.webm / .gif
 cms/04-lexicon-light.png
-cms/05-recording-editor-light.png      + 05-recording-split-light.webm
-cms/06-pptx-progress-light.png         + 06-pptx-import-light.webm
+cms/05-recording-editor-light.png      + 05-recording-split-light.webm / .gif
+cms/06-pptx-progress-light.png         + 06-pptx-import-light.webm / .gif
 cms/07-pptx-thumbnails-light.png
-cms/08-translate-editor-light.png      + 08-translate-editor-light.webm
-cms/09-settings-services-light.png     + 09-settings-services-full-light.png
+cms/08-translate-editor-light.png      + 08-translate-editor-light.webm / .gif
+cms/09-settings-services-light.png
 cms/10-translate-banner-light.png
 cms/11-ai-summary-light.png
 cms/12-theme-presets-light.png · 12-theme-contrast-light.png
@@ -392,7 +396,17 @@ cms/15-relation-picker-light.png
 cms/16-seo-checklist-light.png
 ```
 
-주의:
-- 저장 단추는 어디서도 누르지 않습니다. 다만 **6 · 7(PPTX)은 `--draft-work` 의 갤러리에 그림을 실제로 올립니다** — 버려도 되는 초안을 쓰세요. 2 · 3 은 이미 만든 음성을 재생만 하고(3 은 그 장에 음성이 있어야 합니다), 8 은 번역 API 를 부르되 저장하지 않습니다.
+서버에는 아무것도 쓰지 않습니다:
+- 저장 단추는 어디서도 누르지 않고, 편집기 자동저장(`POST /api/revisions` · 떠날 때 `sendBeacon`)은 막아 둡니다 — 캡처하려고 폼을 건드린 것이 다음 편집 때 "복원할까요" 로 나오지 않게.
+- **6 · 7(PPTX)의 업로드는 브라우저 안에서 가로채 `data:` 주소로 돌려줍니다** — Storage 에 올라가지 않습니다. 변환과 발표자 노트 → 대본 매핑은 전부 클라이언트 일이라 화면은 실제와 같습니다. `scripts/fixtures/hyeoniverse-intro.pptx` 는 사이트 스크린샷으로 만든 6장짜리 덱(장마다 발표자 노트)입니다.
+- 2 · 3 은 이미 만든 음성을 재생만 하고(3 은 그 장에 음성이 있어야 합니다), 8 은 번역 API 를 부르되 폼에만 넣습니다. 8 은 KO/EN 전환으로 번역이 돌지 않으면(영어 칸이 하나라도 차 있으면) 같은 코드를 부르는 "재번역 › 전체" 로 돕니다.
 - 5(녹음)는 Chromium 의 가짜 마이크로 녹음하고 끝에 "취소"를 눌러 올리지 않습니다.
+- 11 은 `--post` 가 없으면 `--work` 작업물의 관리자 미리보기(저장 전 폼을 `sessionStorage` 로 받는 화면)를 씁니다. 요약은 발행 때 서버가 만들어 DB 에 쓰므로, 저장된 요약이 없는 작업물은 `--summary-file` 로 넣어야 상자가 보입니다.
 - 14(홈 프리셋)는 설정을 바꾸지 않고, ThemeProvider 가 테마 색을 CSS 변수로 옮기는 규칙(`src/lib/themeColors.ts`)을 그대로 써서 홈에 입힌 뒤 찍습니다.
+- 15 는 글 편집기(새 글)의 "관련 프로젝트" 선택기를 찍습니다 — 작업물 쪽 "관련 글" 과 같은 RelationPicker 인데, 글이 하나도 없는 사이트에서도 목록이 채워집니다.
+
+함정:
+- 페이지로 들어가는 코드(`addInitScript`)는 **문자열로** 넘깁니다. 함수로 넘기면 tsx(esbuild) 가 함수 안의 `const f = () => {}` 를 `__name()` 헬퍼로 감싸는데, 직렬화돼 들어간 쪽엔 그 헬퍼가 없어 스크립트가 통째로 죽습니다(14 번이 기본색으로만 찍히던 원인).
+- 사이트의 커스텀 커서(CursorTrail)는 마지막 마우스 자리에 분홍 점으로 남고, "BGM을 켤 수 있어요" 말풍선은 로드 2초 뒤 5초간 뜹니다 — 둘 다 스타일로 숨깁니다.
+- `scrollIntoViewIfNeeded` 는 가운데 정렬이라 긴 카드가 잘립니다 — 요소 위쪽을 고정 네비 아래로 보내는 `scrollTopTo` 를 씁니다.
+- webm → gif 를 기본 옵션으로 돌리면 전체가 노랗게 뜹니다 — `palettegen` / `paletteuse` 2단계로 변환합니다.
