@@ -20,6 +20,8 @@
      끌어서 돌리는 입력은 이 상자가 대신 받는다. */
   cursor: grab;
   touch-action: none;
+  /* 상자 자체도 선택 대상이 아니다 */
+  user-select: none;
 }
 
 .dock[data-dragging="true"] {
