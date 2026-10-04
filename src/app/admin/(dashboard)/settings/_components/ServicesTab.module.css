@@ -283,12 +283,6 @@
   gap: var(--spacing-8);
 }
 
-.featureControlLabel {
-  font: var(--font-body-sm);
-  color: var(--text-secondary);
-  white-space: nowrap;
-}
-
 @media (max-width: 768px) {
   .featureRow {
     grid-template-columns: minmax(0, 1fr);
