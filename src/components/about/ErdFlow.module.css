@@ -222,7 +222,7 @@
   background: var(--bg-accent-solid);
   pointer-events: auto;
   cursor: crosshair;
-  transition: opacity var(--duration-fast) var(--ease-material);
+  transition: opacity var(--duration-fast) var(--ease-standard);
 }
 .wrapConnectable .row:hover .handle {
   opacity: 0.9;

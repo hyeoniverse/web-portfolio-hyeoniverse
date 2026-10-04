@@ -245,7 +245,7 @@
   background: var(--bg-accent);
   border-radius: var(--radius-control);
   border: var(--border-accent);
-  transition: background var(--duration-base) var(--ease-material);
+  transition: background var(--duration-base) var(--ease-standard);
 }
 
 .spacingBar:hover {
@@ -374,7 +374,7 @@
 /* 터치 전용: hover 불가 환경에서 순차 자동 재생 */
 @media (hover: none) {
   .motionBar {
-    animation: motionBarLoop 2.5s var(--ease-material) infinite;
+    animation: motionBarLoop 2.5s var(--ease-standard) infinite;
   }
 
   .motionItem:nth-child(2) .motionBar { animation-delay: 0.15s; }

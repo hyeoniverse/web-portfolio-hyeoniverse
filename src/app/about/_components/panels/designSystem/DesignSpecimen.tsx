@@ -27,7 +27,7 @@ const FONTS = [
 
 const SPACING = ["2", "4", "8", "12", "16", "20", "24", "32", "48"];
 const RADII = ["24", "full", "circle"];
-const EASINGS = ["ease-material", "ease-bounce", "ease-out-expo"];
+const EASINGS = ["ease-standard", "ease-spring", "ease-enter"];
 const ICONS = [Bell, Bookmark, Calendar, ArrowUpRight, Asterisk, BookOpen, Archive, Bug];
 
 const LABEL = {

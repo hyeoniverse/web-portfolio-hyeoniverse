@@ -17,7 +17,7 @@
   flex-shrink: 0;
   opacity: 0.5;
   transition:
-    transform 0.2s var(--ease-material),
+    transform 0.2s var(--ease-standard),
     opacity 0.2s ease,
     color 0.2s ease;
 }

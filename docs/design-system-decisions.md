@@ -532,3 +532,11 @@ Material `@material/web` 2.5, Primer primitives. 숫자는 같은 날 다시 셌
 - **정한 것.** 2층 역할 `--opacity-disabled: 0.5`(가장 많이 쓰던 값). 비활성 선택자 안의 숫자 44곳을 전부 이 역할로. 공용 컴포넌트(Button 0.45 · Checkbox · Radio · DatePicker 0.4 · Input · Textarea · Switch · Slider 0.5 …)도 같이 맞췄다.
 - **예외.** 활성 상태의 hover 규칙(`:hover:not(:disabled)`)은 비활성이 아니다 — ratchet 도 `:not()` 안의 disabled 는 세지 않는다. 만드는 중인 단추를 흐리게 하지 않는 `opacity: 1` 과 꺼진 커서의 장식을 숨기는 `0` 은 투명도 역할이 아니라 그대로.
 - **보이는 변화.** 0.25 ~ 0.4 로 아주 흐리던 비활성 단추(소개 패널 쪽 번호 · 탭 · 체크박스 · 날짜 고르기)는 0.5 로 조금 또렷해지고, 0.6 ~ 0.7 이던 것(문의 보내기 · 저장 · 상태 뱃지)은 조금 더 흐려진다.
+
+### D42. 2026-10-04 — 모션 곡선은 자리 이름으로, 토큰은 다섯 시간 · 네 곡선, 움직임 줄이기는 토큰에서 한 번에
+
+- **왜.** 곡선 이름이 출처(`material` · `out-expo`)와 모양(`bounce`)으로 섞여 있어 "들어오는 것엔 무엇을 쓰나"를 이름이 말해 주지 않았다. `--duration-moderate`(350ms)는 `base`(300ms)와 50ms 차이라 고를 기준이 없고, `--ease-in-out` 은 이름과 달리 CSS `ease` 곡선이었다. 움직임 줄이기 설정은 모듈마다 따로 처리해 빠진 곳이 많았다(3.9).
+- **정한 것.** 곡선은 쓰는 자리로 — `--ease-standard`(자리 안에서 바뀜) · `--ease-enter`(들어옴) · `--ease-exit`(나감, 새로) · `--ease-spring`(탄성). 시간은 `instant · fast · base · slow · slower` 다섯. `moderate` → `base`(31곳), `slowest` 와 `delay-*` 는 한 자리의 장식이라 그 모듈의 지역 변수로(알림 깜빡임 · GitHub 패널 광택 · 스크롤 시차). `_motion.css` 의 `prefers-reduced-motion` 블록이 다섯 시간 토큰을 `0.01ms` 로 바꿔, 토큰을 쓰는 전환 · 애니메이션을 한 번에 멈춘다(0 이면 `transitionend` 가 오지 않는다).
+- **같이.** `transition: all` 17곳(3.9-5) — 문의 서랍 8곳과 커서 1곳은 실제로 바뀌는 속성(배경 · 글자색 · transform · 크기)만 적고, Split 레이아웃의 글 7곳은 framer-motion 이 부모를 움직여 자식에서 바뀌는 속성이 없어 전환을 지웠다. 디자인 시스템 페이지 · About 패널의 견본도 새 이름으로.
+- **감시.** stylelint 가 옛 이름(`material` · `out-expo` · `bounce` · `in-out` · `moderate` · `slowest` · `delay-*`)을 막는다. ratchet `motion-cleanup` 39 → 0, `motion-transition-all` 17 → 0.
+- **보이는 변화.** 350ms 전환이 300ms 로. 움직임 줄이기를 켠 사람에게는 토큰을 쓰는 전환이 모두 즉시 바뀐다(숫자를 직접 쓴 744곳은 10-2 에서 토큰으로 옮기면 같이 들어온다).

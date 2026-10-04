@@ -544,7 +544,7 @@
   max-height: none;
   overflow: visible;
   interpolate-size: allow-keywords;
-  transition: height var(--duration-moderate) var(--ease-material), opacity 0.18s ease, transform 0.18s ease;
+  transition: height var(--duration-base) var(--ease-standard), opacity 0.18s ease, transform 0.18s ease;
 }
 
 /* ── Font picker dropdown ── */
@@ -808,7 +808,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: transform var(--duration-fast) var(--ease-material), box-shadow var(--duration-fast) var(--ease-material);
+  transition: transform var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard);
 }
 .swatch:hover {
   transform: scale(1.12);
@@ -836,7 +836,7 @@
   cursor: pointer;
   background: var(--bg-secondary);
   flex-shrink: 0;
-  transition: box-shadow var(--duration-fast) var(--ease-material);
+  transition: box-shadow var(--duration-fast) var(--ease-standard);
 }
 .pickerCapsuleIcon {
   display: inline-flex;

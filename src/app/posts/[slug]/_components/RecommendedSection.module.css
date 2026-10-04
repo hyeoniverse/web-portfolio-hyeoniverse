@@ -106,7 +106,7 @@
 /* hover image scale — placeholder 도 같이 */
 .recommendedSection .recommendedItem .recommendedItemImg,
 .recommendedSection .recommendedItem .recommendedItemPlaceholder {
-  transition: transform var(--duration-base) var(--ease-material);
+  transition: transform var(--duration-base) var(--ease-standard);
 }
 
 .recommendedSection .recommendedItem:hover .recommendedItemImg,
@@ -148,7 +148,7 @@
 
 .recommendedMoreChevron {
   flex-shrink: 0;
-  transition: transform var(--duration-base) var(--ease-material);
+  transition: transform var(--duration-base) var(--ease-standard);
 }
 
 .recommendedMoreChevronOpen {

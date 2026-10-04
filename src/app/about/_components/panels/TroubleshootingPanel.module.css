@@ -347,7 +347,7 @@
 .ideDiagramHintIcon {
   width: 1em;
   height: 1em;
-  transition: transform 0.3s var(--ease-material);
+  transition: transform 0.3s var(--ease-standard);
 }
 
 .ideDiagramHint:hover {
@@ -609,7 +609,7 @@
   /* 항목이 바뀌면(휠로 다음 항목) 줄이 위에서부터 차례로 나타난다. 이 패널은 가로 진행도가 아니라 편집기
      휠로 항목을 넘기므로(useTroubleWheelNav) 항목 흐름 값(--item-in)에 묶지 않는다 */
   .ideEditorContent > * {
-    animation: ideLineIn var(--duration-slow) var(--ease-out-expo) both;
+    animation: ideLineIn var(--duration-slow) var(--ease-enter) both;
   }
 
   .ideEditorContent > :nth-child(2) { animation-delay: 70ms; }

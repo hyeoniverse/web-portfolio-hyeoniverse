@@ -13,7 +13,7 @@
 
 .heartIcon {
   flex-shrink: 0;
-  transition: transform var(--duration-base) var(--ease-material);
+  transition: transform var(--duration-base) var(--ease-standard);
 }
 
 /* ── 3 layer wave fill — d 자체를 keyframes 로 변화. cubic bezier 곡선으로 부드러운 wave ── */

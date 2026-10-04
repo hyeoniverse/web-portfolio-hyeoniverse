@@ -799,7 +799,7 @@
     "src/app/works/_components/layouts/CylinderLayout.module.css": 12,
     "src/app/works/_components/layouts/FullscreenLayout.module.css": 17,
     "src/app/works/_components/layouts/GridLayout.module.css": 6,
-    "src/app/works/_components/layouts/SplitLayout.module.css": 10,
+    "src/app/works/_components/layouts/SplitLayout.module.css": 3,
     "src/app/works/_components/WorksEmptyState/PetalDrift.module.css": 2,
     "src/app/works/_components/WorksEmptyState/StarrySky.module.css": 13,
     "src/app/works/_components/WorksEmptyState/WorksEmptyState.module.css": 1,
@@ -883,28 +883,8 @@
     "src/styles/globals/_scroll.css": 4,
     "src/styles/globals/_tabs.css": 3
   },
-  "motion-cleanup": {
-    "src/app/about/_components/panels/CodeHighlightsPanel.module.css": 1,
-    "src/app/about/_components/panels/FeaturesPanel.module.css": 7,
-    "src/app/about/_components/panels/ProcessPanel.module.css": 2,
-    "src/app/admin/(dashboard)/notifications/Notifications.module.css": 4,
-    "src/app/admin/(dashboard)/settings/Settings.module.css": 1,
-    "src/app/posts/_components/PostCard/PostCardTimeline.module.css": 3,
-    "src/app/posts/tags/[tag]/_components/TagWorksSection.module.css": 1,
-    "src/app/profile/_components/ProfileGithub/ProfileGithub.module.css": 1,
-    "src/components/layout/Footer.module.css": 2,
-    "src/components/layout/Navigation/Navigation.module.css": 11,
-    "src/components/posts/RichTextEditor.module.css": 1,
-    "src/components/ui/AISummary.module.css": 1,
-    "src/components/ui/FontPicker.module.css": 1,
-    "src/styles/globals/_layout.css": 1,
-    "src/styles/globals/_scroll.css": 2
-  },
-  "motion-transition-all": {
-    "src/app/works/_components/layouts/SplitLayout.module.css": 8,
-    "src/components/effects/CursorTrail.module.css": 1,
-    "src/components/layout/ContactDrawer/ContactDrawer.module.css": 8
-  },
+  "motion-cleanup": {},
+  "motion-transition-all": {},
   "motion-transition-important": {},
   "layer-portal-files": {
     "src/app/about/_components/panels/designSystem/useTabActionsPortal.tsx": 1,

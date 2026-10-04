@@ -17,7 +17,7 @@
 
 .link .arrow {
   flex-shrink: 0;
-  transition: transform var(--duration-base) var(--ease-material);
+  transition: transform var(--duration-base) var(--ease-standard);
 }
 
 .link:hover .arrow {

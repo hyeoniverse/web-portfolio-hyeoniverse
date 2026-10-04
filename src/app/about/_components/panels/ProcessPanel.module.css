@@ -476,8 +476,8 @@
   /* Compound selector (0,2,0) for transition */
   .processStepList .processStepRow {
     transition:
-      height 0.45s var(--ease-material),
-      opacity var(--duration-moderate) ease;
+      height 0.45s var(--ease-standard),
+      opacity var(--duration-base) ease;
   }
 
   /* ── Left: continuous connector line + dot ── */
@@ -564,7 +564,7 @@
 
   /* Compound selector (0,2,0) for transition */
   .processStepRow .processStepContent {
-    transition: opacity var(--duration-moderate) ease;
+    transition: opacity var(--duration-base) ease;
   }
 
   .processStepHeader {

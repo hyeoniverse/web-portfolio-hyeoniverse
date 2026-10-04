@@ -746,7 +746,7 @@
   overflow: visible;
   interpolate-size: allow-keywords;
   transition:
-    height var(--duration-moderate) var(--ease-material),
+    height var(--duration-base) var(--ease-standard),
     opacity 0.18s ease,
     transform 0.18s ease;
 }
@@ -817,7 +817,7 @@
 }
 /* 필터 버튼 chevron — 펼침 시 회전. */
 .tagDescFilterRow .filterBtnChevron {
-  transition: transform 0.2s var(--ease-material);
+  transition: transform 0.2s var(--ease-standard);
 }
 .filterBtnChevronOpen {
   transform: rotate(180deg);

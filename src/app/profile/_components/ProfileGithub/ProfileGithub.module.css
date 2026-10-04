@@ -123,7 +123,7 @@
 
 /* 숫자가 다 올라간 뒤 한 번 튕긴다 — 카운트업만으로는 끝나는 지점이 밋밋하다. */
 .section[data-in="true"] .statValue {
-  animation: statPop var(--duration-slower) var(--ease-bounce) both;
+  animation: statPop var(--duration-slower) var(--ease-spring) both;
   animation-delay: 0.85s;
 }
 
@@ -186,7 +186,8 @@
     transparent 60%
   );
   transform: translateX(-100%);
-  animation: langSheen var(--duration-slowest) var(--ease-out-expo) var(--_sheen-delay, 1.3s) both;
+  --_sheen-duration: 1.5s; /* 한 자리의 장식(3.9-2) */
+  animation: langSheen var(--_sheen-duration) var(--ease-enter) var(--_sheen-delay, 1.3s) both;
   pointer-events: none;
 }
 
@@ -247,7 +248,7 @@
 }
 
 .section[data-in="true"] .lang {
-  animation: langLegendIn var(--duration-slow) var(--ease-out-expo) both;
+  animation: langLegendIn var(--duration-slow) var(--ease-enter) both;
 }
 
 @keyframes langLegendIn {
@@ -317,7 +318,7 @@
    backwards 면 시작을 기다리는 동안만 첫 프레임을 쓰고, 끝나면 손을 뗀다. 끝난 뒤의 모습은
    여기서 따로 적어 둔다. */
 .section[data-in="true"] .grassDay {
-  animation: grassIn var(--duration-slow) var(--ease-bounce) backwards;
+  animation: grassIn var(--duration-slow) var(--ease-spring) backwards;
   opacity: 1;
   transform: none;
 }
@@ -361,7 +362,7 @@
 }
 
 .section[data-in="true"] .activityBar {
-  animation: barGrow var(--duration-slower) var(--ease-out-expo) both;
+  animation: barGrow var(--duration-slower) var(--ease-enter) both;
 }
 
 .activity .activityBar {
@@ -438,7 +439,7 @@
 /* transform·opacity 는 전역 테마 전환 규칙(_base.css)의 목록에 없다. 그 규칙이 shorthand 라
    컴포넌트 transition 을 통째로 덮으므로, 클래스를 겹쳐 (0,2,0) 으로 다시 적는다. */
 .repos .repo::after {
-  transition: transform var(--duration-base) var(--ease-out-expo);
+  transition: transform var(--duration-base) var(--ease-enter);
 }
 
 .repo:hover::after {
@@ -447,7 +448,7 @@
 
 /* 링크는 눌리는 게 아니라 나가는 것이다 — 살짝 오른쪽으로 밀어 방향을 준다. */
 .repos .repo {
-  transition: transform var(--duration-base) var(--ease-out-expo);
+  transition: transform var(--duration-base) var(--ease-enter);
 }
 
 .repo:hover {
@@ -459,7 +460,7 @@
    transform 은 이 애니메이션만 건드리므로 붙잡아 둬도 부딪히는 규칙이 없다
    (hover 로 훑는 accent 선은 별도 ::after 다). */
 .section[data-in="true"] .repo::before {
-  animation: repoRule var(--duration-slow) var(--ease-out-expo) forwards;
+  animation: repoRule var(--duration-slow) var(--ease-enter) forwards;
 }
 
 .repos li:nth-child(1) .repo::before { animation-delay: 0ms; }

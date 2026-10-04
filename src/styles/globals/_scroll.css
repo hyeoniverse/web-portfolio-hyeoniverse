@@ -116,8 +116,8 @@ html.lenis body {
   opacity: 0;
   transform: translateY(60px);
   transition:
-    opacity var(--duration-slower) var(--ease-out-expo),
-    transform var(--duration-slower) var(--ease-out-expo);
+    opacity var(--duration-slower) var(--ease-enter),
+    transform var(--duration-slower) var(--ease-enter);
 }
 
 .reveal.is-visible {
@@ -127,24 +127,25 @@ html.lenis body {
 
 /* Stagger children */
 .reveal-stagger > * {
+  --_stagger-step: 0.1s; /* 자식마다 더해지는 시차 — 한 자리의 장식(3.9-2) */
   opacity: 0;
   transform: translateY(40px);
   transition:
-    opacity 0.6s var(--ease-out-expo),
-    transform 0.6s var(--ease-out-expo);
+    opacity 0.6s var(--ease-enter),
+    transform 0.6s var(--ease-enter);
 }
 
 .reveal-stagger.is-visible > *:nth-child(1) {
   transition-delay: 0s;
 }
 .reveal-stagger.is-visible > *:nth-child(2) {
-  transition-delay: var(--delay-short);
+  transition-delay: var(--_stagger-step);
 }
 .reveal-stagger.is-visible > *:nth-child(3) {
-  transition-delay: var(--delay-base);
+  transition-delay: calc(2 * var(--_stagger-step));
 }
 .reveal-stagger.is-visible > *:nth-child(4) {
-  transition-delay: var(--duration-base);
+  transition-delay: calc(3 * var(--_stagger-step));
 }
 .reveal-stagger.is-visible > *:nth-child(5) {
   transition-delay: 0.4s;
@@ -163,7 +164,7 @@ html.lenis body {
   clip-path: inset(0 50% 0 50%);
   opacity: 0;
   transition:
-    clip-path 1.2s var(--ease-out-expo),
+    clip-path 1.2s var(--ease-enter),
     opacity 0.6s ease;
 }
 
@@ -178,7 +179,7 @@ html.lenis body {
   transform: scale(0.85);
   transition:
     opacity var(--duration-slower) ease,
-    transform var(--duration-slower) var(--ease-out-expo);
+    transform var(--duration-slower) var(--ease-enter);
 }
 
 .scale-reveal.is-visible {

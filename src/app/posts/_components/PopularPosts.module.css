@@ -75,7 +75,7 @@
 }
 
 .section .item {
-  transition: transform var(--duration-base) var(--ease-material);
+  transition: transform var(--duration-base) var(--ease-standard);
 }
 
 .section .item:hover {

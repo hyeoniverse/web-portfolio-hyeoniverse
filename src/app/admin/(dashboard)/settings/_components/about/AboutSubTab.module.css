@@ -493,7 +493,7 @@
 .lrowChevron {
   flex-shrink: 0;
   color: var(--text-tertiary);
-  transition: transform 0.18s var(--ease-material);
+  transition: transform 0.18s var(--ease-standard);
 }
 .lrowOpen .lrowChevron {
   transform: rotate(180deg);

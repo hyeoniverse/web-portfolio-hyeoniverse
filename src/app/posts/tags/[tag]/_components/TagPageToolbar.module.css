@@ -7,7 +7,7 @@
 
 /* hover — 화살표 왼쪽으로 슬라이드(뒤로가기 방향). */
 .backBtn.backBtn svg {
-  transition: transform var(--duration-fast) var(--ease-material);
+  transition: transform var(--duration-fast) var(--ease-standard);
 }
 .backBtn:hover svg {
   transform: translateX(-3px);

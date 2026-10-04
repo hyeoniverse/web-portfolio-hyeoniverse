@@ -25,7 +25,7 @@
 
 /* Compound selector (0,2,0) — smooth strip slide */
 .dcCardStack .dcCardStrip {
-  transition: transform var(--duration-slower) var(--ease-material);
+  transition: transform var(--duration-slower) var(--ease-standard);
   will-change: transform;
 }
 
@@ -46,7 +46,7 @@
 
 /* Compound selector (0,2,0) — slide-out background transition */
 .dcModeStack .dcCardBg {
-  transition: transform var(--duration-slower) var(--ease-material);
+  transition: transform var(--duration-slower) var(--ease-standard);
   will-change: transform;
 }
 
@@ -496,7 +496,7 @@
   .dcMobileBg .dcMobileBgItem {
     transition:
       opacity var(--duration-slow) ease,
-      transform var(--duration-slower) var(--ease-material);
+      transform var(--duration-slower) var(--ease-standard);
     will-change: transform;
   }
 

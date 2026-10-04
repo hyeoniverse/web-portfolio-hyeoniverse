@@ -306,7 +306,7 @@
   justify-content: center;
   color: var(--text-muted);
   cursor: grab;
-  transition: color var(--duration-fast) var(--ease-material);
+  transition: color var(--duration-fast) var(--ease-standard);
 }
 .grip:hover {
   color: var(--text-secondary);
@@ -353,7 +353,7 @@
   padding: var(--spacing-2);
   background: none;
   color: var(--text-muted);
-  transition: transform var(--duration-fast) var(--ease-material);
+  transition: transform var(--duration-fast) var(--ease-standard);
 }
 .table tbody tr:hover .more { color: var(--text-secondary); }
 .moreOn {

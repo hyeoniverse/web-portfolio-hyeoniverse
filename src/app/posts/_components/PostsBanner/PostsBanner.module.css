@@ -79,7 +79,7 @@
 }
 
 .splitImageSlide .splitImg {
-  transition: transform 0.6s var(--ease-material);
+  transition: transform 0.6s var(--ease-standard);
 }
 
 .splitSlide:hover .splitImg {
@@ -234,7 +234,7 @@
 }
 
 .cardLink.cardLink {
-  transition: transform 0.6s var(--ease-material);
+  transition: transform 0.6s var(--ease-standard);
 }
 
 .cardCenter:hover .cardLink {
@@ -328,7 +328,7 @@
 
 /* 애니메이션 활성 시만 — 무한루프 점프 시 제거 */
 .tickerTrack .tickerReelAnimated {
-  transition: transform 0.4s var(--ease-material);
+  transition: transform 0.4s var(--ease-standard);
 }
 
 .tickerInner {
@@ -358,7 +358,7 @@
 }
 
 .tickerThumb.tickerThumb .tickerThumbImg {
-  transition: transform 0.4s var(--ease-material);
+  transition: transform 0.4s var(--ease-standard);
 }
 
 .tickerLink:hover .tickerThumbImg {

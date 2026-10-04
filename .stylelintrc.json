@@ -50,6 +50,7 @@
           "/var\\(\\s*--(color|spacing|font|fluid-font|size|radius|shadow|blur|z|duration|ease|delay|text|bg|border|button|control|input|textarea|row|badge|modal|card|field|cell|grid|width|prose|heading|skeleton|editorial)-[a-z0-9-]*\\s*,/",
           "/var\\(\\s*--radius-(2|4|6|8|12|16|24|circle)\\s*\\)/",
           "/var\\(\\s*--shadow-(xs|sm|md|lg|xl|2xl|inner|text-[a-z-]+)\\s*\\)/",
+          "/var\\(\\s*--(ease-(material|out-expo|bounce|in-out)|duration-(moderate|slowest)|delay-[a-z]+)\\s*\\)/",
           "/var\\(\\s*--(?:spacing|radius|font-size|size|blur)-(?:zero|[2-6]xs|xs|sm|md|lg|xl|[2-6]xl|[245]xl-plus|capsule)\\s*\\)/"
         ],
         "border-radius": [

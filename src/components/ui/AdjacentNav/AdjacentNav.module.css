@@ -62,7 +62,7 @@
 
 .card .thumbImg,
 .card .placeholder {
-  transition: transform var(--duration-base) var(--ease-material);
+  transition: transform var(--duration-base) var(--ease-standard);
 }
 
 .card:hover .thumbImg,
@@ -102,7 +102,7 @@
 }
 
 .card .arrow {
-  transition: transform var(--duration-base) var(--ease-material);
+  transition: transform var(--duration-base) var(--ease-standard);
 }
 
 .card:hover .arrow {
@@ -126,7 +126,7 @@
 }
 
 .nav .title {
-  transition: color var(--duration-base) var(--ease-material);
+  transition: color var(--duration-base) var(--ease-standard);
 }
 
 .nav .card:hover .title {

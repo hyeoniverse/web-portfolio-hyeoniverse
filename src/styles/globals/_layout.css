@@ -73,7 +73,7 @@ nav#side-navigation::after {
 .section#projects,
 .section#blog {
   padding-left: var(--active-side-nav-width);
-  transition: padding-left var(--duration-moderate) var(--ease-material);
+  transition: padding-left var(--duration-base) var(--ease-standard);
 }
 
 .section#contact {

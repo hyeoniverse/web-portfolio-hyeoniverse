@@ -505,7 +505,7 @@ export default function DesignSystemClient() {
                   <motion.div key={d.name} className={styles.motionItem} variants={staggerItemX} {...scrollChildX(i, durations.length)}>
                     <div className={styles.motionName}>{d.name.replace("--duration-", "")}</div>
                     <div className={styles.motionValue}>{d.value}</div>
-                    <div className={styles.motionBar} style={{ transition: `transform var(${d.name}) var(--ease-material)` }} />
+                    <div className={styles.motionBar} style={{ transition: `transform var(${d.name}) var(--ease-standard)` }} />
                   </motion.div>
                 ))}
               </div>

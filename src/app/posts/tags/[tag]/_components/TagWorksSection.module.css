@@ -52,11 +52,11 @@
    열린 공간에 좌측 화살표가 나타남.
    OUT(un-hover): 화살표가 먼저 사라진 뒤 title 이 되돌아오도록 delay. */
 .worksTable .workRow {
-  transition: padding var(--duration-base) var(--ease-out-expo) var(--duration-fast);
+  transition: padding var(--duration-base) var(--ease-enter) var(--duration-fast);
 }
 /* IN(hover): 즉시 들여쓰기 (delay 없음, 0,2,1 로 위 규칙 이김) */
 .worksTable .workRow:hover {
-  transition: padding var(--duration-base) var(--ease-out-expo);
+  transition: padding var(--duration-base) var(--ease-enter);
 }
 .workRow:hover {
   padding-left: var(--spacing-32);
@@ -85,10 +85,10 @@
 }
 /* 접힘/펼침 더 천천히. */
 .workRow .workRowBg {
-  transition: opacity var(--duration-moderate) var(--ease-material);
+  transition: opacity var(--duration-base) var(--ease-standard);
 }
 .workRow .workRowBgImg {
-  transition: clip-path var(--duration-slower) var(--ease-out-expo);
+  transition: clip-path var(--duration-slower) var(--ease-enter);
 }
 .workRow:hover .workRowBg {
   opacity: 1;
@@ -109,7 +109,7 @@
   text-overflow: ellipsis;
 }
 .workRow .workRowTitle {
-  transition: color var(--duration-fast) var(--ease-material);
+  transition: color var(--duration-fast) var(--ease-standard);
 }
 .workRow:hover .workRowTitle {
   color: var(--text-accent);
@@ -150,16 +150,16 @@
    compound (0,2,0) 로 전역 rule(0,1,1) 이김. */
 .workRow .workRowArrow {
   transition:
-    opacity var(--duration-fast) var(--ease-material),
-    transform var(--duration-fast) var(--ease-material);
+    opacity var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard);
 }
 /* IN(hover): title 들여쓰기 뒤 나타나도록 delay (0,2,1 로 위 규칙 이김) */
 .workRow:hover .workRowArrow {
   opacity: 1;
   transform: translate(0, -50%);
   transition:
-    opacity var(--duration-base) var(--ease-material) var(--duration-fast),
-    transform var(--duration-base) var(--ease-out-expo) var(--duration-fast);
+    opacity var(--duration-base) var(--ease-standard) var(--duration-fast),
+    transform var(--duration-base) var(--ease-enter) var(--duration-fast);
 }
 
 @media (max-width: 640px) {

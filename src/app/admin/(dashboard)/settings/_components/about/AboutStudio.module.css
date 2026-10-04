@@ -1443,7 +1443,7 @@ textarea.edit {
   grid-template-rows: 0fr;
 }
 .erdImport .erdCollapse {
-  transition: grid-template-rows var(--duration-base) var(--ease-material);
+  transition: grid-template-rows var(--duration-base) var(--ease-standard);
 }
 .erdCollapseOpen {
   grid-template-rows: 1fr;

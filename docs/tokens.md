@@ -269,23 +269,19 @@
 
 ## `src/styles/tokens/_motion.css`
 
-토큰 13개
+토큰 9개
 
-| 토큰 | 값 |
-|---|---|
-| `--duration-instant` | `0.1s` |
-| `--duration-fast` | `0.15s` |
-| `--duration-base` | `0.3s` |
-| `--duration-moderate` | `0.35s` |
-| `--duration-slow` | `0.5s` |
-| `--duration-slower` | `0.8s` |
-| `--duration-slowest` | `1.5s` |
-| `--ease-bounce` | `cubic-bezier(0.34, 1.56, 0.64, 1)` |
-| `--ease-material` | `cubic-bezier(0.4, 0, 0.2, 1)` |
-| `--ease-out-expo` | `cubic-bezier(0.16, 1, 0.3, 1)` |
-| `--ease-in-out` | `cubic-bezier(0.25, 0.1, 0.25, 1)` |
-| `--delay-short` | `0.1s` |
-| `--delay-base` | `0.2s` |
+| 토큰 | 값 | 조건부 |
+|---|---|---|
+| `--duration-instant` | `0.1s` | `@media (prefers-reduced-motion: reduce): 0.01ms` |
+| `--duration-fast` | `0.15s` | `@media (prefers-reduced-motion: reduce): 0.01ms` |
+| `--duration-base` | `0.3s` | `@media (prefers-reduced-motion: reduce): 0.01ms` |
+| `--duration-slow` | `0.5s` | `@media (prefers-reduced-motion: reduce): 0.01ms` |
+| `--duration-slower` | `0.8s` | `@media (prefers-reduced-motion: reduce): 0.01ms` |
+| `--ease-standard` | `cubic-bezier(0.4, 0, 0.2, 1)` |  |
+| `--ease-enter` | `cubic-bezier(0.16, 1, 0.3, 1)` |  |
+| `--ease-exit` | `cubic-bezier(0.4, 0, 1, 1)` |  |
+| `--ease-spring` | `cubic-bezier(0.34, 1.56, 0.64, 1)` |  |
 
 ## `src/styles/tokens/_z-index.css`
 

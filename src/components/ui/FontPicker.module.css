@@ -31,7 +31,7 @@
    overflow-y auto — content 가 320 cap 보다 크면 스크롤. */
 .list {
   overflow-y: auto;
-  transition: height var(--duration-moderate) var(--ease-material);
+  transition: height var(--duration-base) var(--ease-standard);
 }
 
 /* 실제 content wrapper — 상하 spacing-sm (12px), 좌우 spacing-xs (8px).

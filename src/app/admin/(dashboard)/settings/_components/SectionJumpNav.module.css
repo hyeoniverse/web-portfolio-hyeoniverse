@@ -60,7 +60,7 @@
   transform: translateX(6px);
   transition:
     opacity var(--duration-slow) ease,
-    transform var(--duration-slow) var(--ease-out-expo),
+    transform var(--duration-slow) var(--ease-enter),
     color var(--duration-base) ease;
 }
 

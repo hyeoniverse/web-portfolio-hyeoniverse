@@ -35,8 +35,8 @@
   --_line-secondary: var(--border-default);
 
   /* ── Easing ── */
-  --_ease-bounce: var(--ease-bounce);
-  --_ease-material: var(--ease-material);
+  --_ease-spring: var(--ease-spring);
+  --_ease-standard: var(--ease-standard);
   overflow: hidden;
   background: var(--bg-primary);
 }

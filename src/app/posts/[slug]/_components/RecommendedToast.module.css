@@ -66,7 +66,7 @@
 
 .toastClose .toastCloseLine {
   transition:
-    transform var(--duration-base) var(--ease-material),
+    transform var(--duration-base) var(--ease-standard),
     background var(--duration-base) ease;
 }
 
@@ -133,7 +133,7 @@
 /* hover image scale — placeholder 도 같이 */
 .toast .toastItem .toastThumbImg,
 .toast .toastItem .toastThumbPlaceholder {
-  transition: transform var(--duration-base) var(--ease-material);
+  transition: transform var(--duration-base) var(--ease-standard);
 }
 
 .toast .toastItem:hover .toastThumbImg,

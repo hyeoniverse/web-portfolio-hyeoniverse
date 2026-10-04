@@ -30,7 +30,7 @@
   width: var(--cursor-width);
   height: var(--cursor-width);
   background: var(--_color);
-  transition: all var(--duration-base) var(--ease-material);
+  transition: width var(--duration-base) var(--ease-standard), height var(--duration-base) var(--ease-standard), transform var(--duration-base) var(--ease-standard), background-color var(--duration-base) var(--ease-standard), backdrop-filter var(--duration-base) var(--ease-standard);
   border-radius: var(--radius-full);
   filter: hue-rotate(-90deg);
 }
@@ -45,7 +45,7 @@
   filter: blur(40px);
   opacity: 0.5;
   transition:
-    inset var(--duration-slower) var(--ease-material),
+    inset var(--duration-slower) var(--ease-standard),
     filter var(--duration-slower) ease,
     opacity var(--duration-slower) ease;
   transform: translateZ(0);

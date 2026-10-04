@@ -200,8 +200,8 @@
 .toggleLabel {
   grid-area: 1 / 1;
   transition:
-    opacity 0.18s var(--ease-material),
-    transform 0.18s var(--ease-material);
+    opacity 0.18s var(--ease-standard),
+    transform 0.18s var(--ease-standard);
 }
 
 .toggleLabel[data-shown="false"] {
