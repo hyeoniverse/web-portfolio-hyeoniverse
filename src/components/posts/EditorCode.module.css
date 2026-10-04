@@ -366,7 +366,7 @@
   transition: background 0.15s ease, color 0.15s ease;
 }
 
-/* 각 버튼 = 볼록한 3D 버튼(위 하이라이트 + 아래 그림자). seam 은 first/last 옆면 inset 그림자.
+/* 각 버튼 = 볼록한 3D 버튼(위 하이라이트 + 아래 그림자). seam 은 맞닿는 쪽 1px 선.
    --btn-lift = hover 시 버튼을 띄우는 바깥 그림자(기본 없음). 리더(_hljs.css)와 동일. */
 .codeBarCtrl {
   --btn-raise:
@@ -380,12 +380,15 @@
 
 .codeBarCtrl:first-child {
   border-radius: var(--radius-control) 0 0 var(--radius-control);
-  box-shadow: var(--btn-raise), inset -2px 0 2px -2px var(--btn-seam), var(--btn-lift);
 }
 
 .codeBarCtrl:last-child {
   border-radius: 0 var(--radius-control) var(--radius-control) 0;
-  box-shadow: var(--btn-raise), inset 2px 0 2px -2px var(--btn-seam), var(--btn-lift);
+}
+
+/* 맞닿는 단추 사이 이음새 — 그림자가 아니라 선(3.6-4). 리더(_hljs.css)와 동일 */
+.codeBarCtrl:not(:last-child) {
+  border-right: var(--border-width-1) solid var(--btn-seam);
 }
 
 /* transform·box-shadow transition — hover lift 가 양방향 부드럽게.
