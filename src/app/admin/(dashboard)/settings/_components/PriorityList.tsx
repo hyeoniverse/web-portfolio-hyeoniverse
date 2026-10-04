@@ -24,16 +24,17 @@ interface PriorityListProps<T extends string> {
   primaryLabel?: string;
   /** 항목 줄 끝에 넣을 부가 칸(예: 그 공급자가 부를 모델 이름) */
   extraOf?: (value: T) => React.ReactNode;
-  /** 자동 전환이 꺼져 있다 — 1번 뒤 항목을 흐리게(순서는 남겨 둔다) */
-  dimRest?: boolean;
+  /** 자동 전환이 꺼져 있다 — 1번(기본)만 보인다. 순서는 그대로 남아 켜면 돌아온다 */
+  onlyPrimary?: boolean;
 }
 
-export function PriorityList<T extends string>({ primary, priority, excluded, options, onChange, onExcludedChange, badgeOf, includePrimary, primaryLabel, extraOf, dimRest }: PriorityListProps<T>) {
+export function PriorityList<T extends string>({ primary, priority, excluded, options, onChange, onExcludedChange, badgeOf, includePrimary, primaryLabel, extraOf, onlyPrimary }: PriorityListProps<T>) {
   const nonPrimary = options.filter((o) => o.value !== primary);
   const rest = priority.length
     ? [...priority.filter((p) => p !== primary), ...nonPrimary.map((o) => o.value).filter((v) => !priority.includes(v))]
     : nonPrimary.map((o) => o.value);
-  const ordered = includePrimary ? [primary, ...rest] : rest;
+  const full = includePrimary ? [primary, ...rest] : rest;
+  const ordered = includePrimary && onlyPrimary ? full.slice(0, 1) : full;
 
   const dragIdx = useRef<number | null>(null);
   const [overIdx, setOverIdx] = useState<number | null>(null);
@@ -41,7 +42,7 @@ export function PriorityList<T extends string>({ primary, priority, excluded, op
   const touchStartY = useRef(0);
 
   const move = (idx: number, dir: -1 | 1) => {
-    const next = [...ordered];
+    const next = [...full];
     const target = idx + dir;
     if (target < 0 || target >= next.length) return;
     [next[idx], next[target]] = [next[target], next[idx]];
@@ -50,7 +51,7 @@ export function PriorityList<T extends string>({ primary, priority, excluded, op
 
   // 항목을 from → to 로 이동(splice). desktop drop / touch end 공용.
   const reorder = (from: number, to: number) => {
-    const next = [...ordered];
+    const next = [...full];
     const [moved] = next.splice(from, 1);
     next.splice(to, 0, moved);
     onChange(next);
@@ -102,7 +103,7 @@ export function PriorityList<T extends string>({ primary, priority, excluded, op
         const isPrimary = includePrimary && idx === 0;
         const isEnabled = isPrimary || !excluded.includes(val);
         return (
-          <div key={val} className={styles.priorityRow} data-dim={dimRest && !isPrimary ? "" : undefined}>
+          <div key={val} className={styles.priorityRow}>
             {/* 1번(기본 공급자)은 뺄 수 없다 — 칸 자리만 둔다 */}
             {isPrimary ? <span className={styles.priorityNoCheck} aria-hidden /> : (
               <Checkbox
@@ -144,7 +145,7 @@ export function PriorityList<T extends string>({ primary, priority, excluded, op
                 {badgeOf?.(val)}
               </span>
               {extraOf?.(val)}
-              <div className={styles.priorityBtns}>
+              {ordered.length > 1 && <div className={styles.priorityBtns}>
                 <Pressable
                   className={shared.priorityBtn}
                   disabled={idx === 0}
@@ -153,11 +154,11 @@ export function PriorityList<T extends string>({ primary, priority, excluded, op
                 ><ChevronUp size={12} strokeWidth={2.5} /></Pressable>
                 <Pressable
                   className={shared.priorityBtn}
-                  disabled={idx === ordered.length - 1}
+                  disabled={idx === full.length - 1}
                   onClick={() => move(idx, 1)}
                   aria-label="Move down"
                 ><ChevronDown size={12} strokeWidth={2.5} /></Pressable>
-              </div>
+              </div>}
             </div>
           </div>
         );

@@ -911,6 +911,7 @@
       "translationEnabled": "번역 기능 활성화",
       "aiSummaryEnabled": "AI 요약 기능 활성화",
       "translationProvider": "제공자",
+      "providerPrimary": "기본",
       "fallbackEnabled": "실패 시 자동 전환",
       "designSystem": "Design System",
       "fontHint": "프리셋에서 선택하거나, 직접 입력란에 Google Fonts 이름을 입력하세요. (예: Roboto, Nanum Gothic)",

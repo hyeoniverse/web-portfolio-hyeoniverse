@@ -325,7 +325,8 @@ function ProviderFallbackBlock<P extends string>({
       </div>
       <div className={styles.featureBody}>
         {hintLines.length > 0 && <HintLines lines={hintLines} className={styles.featureHints} />}
-        {/* 공급자 순서 하나 — 맨 위가 기본 공급자, 그 아래가 실패 시 넘어갈 순서. 끌어 올리면 기본이 바뀐다 */}
+        {/* 공급자 순서 하나 — 맨 위가 기본 공급자, 그 아래가 실패 시 넘어갈 순서. 끌어 올리면 기본이 바뀐다.
+            자동 전환이 꺼져 있으면 기본만 보인다(자리 절약) */}
         <div className={styles.featureControls}>
           <Switch
             size="sm"
@@ -347,7 +348,8 @@ function ProviderFallbackBlock<P extends string>({
         </div>
         <PriorityList<P>
           includePrimary
-          dimRest={!fallbackEnabled}
+          primaryLabel={t("admin.settings.providerPrimary")}
+          onlyPrimary={!fallbackEnabled}
           primary={provider}
           priority={value?.fallback?.priority ?? []}
           excluded={value?.fallback?.excluded ?? []}
