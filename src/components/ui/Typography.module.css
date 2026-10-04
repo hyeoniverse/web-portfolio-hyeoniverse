@@ -27,17 +27,17 @@
 }
 
 .h4 {
-  font: var(--font-heading-xl);
+  font: var(--font-headline-xl);
   font-weight: var(--font-weight-semibold);
 }
 
 .h5 {
-  font: var(--font-heading-md);
+  font: var(--font-headline-md);
   font-weight: var(--font-weight-medium);
 }
 
 .h6 {
-  font: var(--font-heading-sm);
+  font: var(--font-headline-sm);
   font-weight: var(--font-weight-medium);
 }
 
@@ -133,7 +133,7 @@
 @media (max-width: 768px) {
 
   .h4 {
-    font-size: var(--font-size-heading-sm);
+    font-size: var(--font-size-headline-sm);
   }
 }
 }

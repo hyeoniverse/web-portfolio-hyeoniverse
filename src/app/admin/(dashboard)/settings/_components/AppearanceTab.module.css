@@ -531,7 +531,7 @@
   overflow: hidden;
 }
 .fullLogoPreviewText {
-  font: var(--font-heading-md);
+  font: var(--font-headline-md);
   line-height: var(--line-height-100);
   white-space: nowrap;
   letter-spacing: -0.02em;

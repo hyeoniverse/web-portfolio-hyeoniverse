@@ -40,7 +40,7 @@
 
 .title {
   margin-bottom: var(--spacing-8);
-  font-family: var(--font-family-heading);
+  font-family: var(--font-family-headline);
   font-size: clamp(2.5rem, 1.943rem + 2.29vw, 4rem);
   font-weight: var(--font-weight-regular);
   letter-spacing: -0.02em;
@@ -48,9 +48,7 @@
 
 .subtitle {
   margin-bottom: var(--spacing-96);
-  font: var(--font-heading-xs);
-  font-family: var(--font-family-body);
-  line-height: 1.6;
+  font: var(--font-body-xl); /* 리드 문단 — 전엔 제목 묶음에 글꼴 · 줄간격을 덧써 같은 값을 만들고 있었다 */
   color: var(--text-tertiary);
 }
 
@@ -136,7 +134,7 @@
   margin-bottom: var(--spacing-16);
   padding-bottom: var(--spacing-8);
   border-bottom: var(--border-strong);
-  font: var(--font-heading-sm);
+  font: var(--font-headline-sm);
   color: var(--text-primary);
 }
 
@@ -751,7 +749,7 @@
 
 /* Tooltip demo text */
 .tooltipDemoText {
-  font: var(--font-heading-xs);
+  font: var(--font-headline-xs);
   font-style: italic;
   color: var(--text-primary);
   padding: var(--spacing-8) var(--spacing-16);
@@ -874,7 +872,7 @@
 }
 
 .pRowTitle {
-  font: var(--font-heading-xs);
+  font: var(--font-headline-xs);
   color: var(--text-primary);
   margin: 0;
 }

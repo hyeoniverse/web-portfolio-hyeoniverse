@@ -113,7 +113,7 @@
   transform: translateX(3px);
 }
 
-.title {  font: var(--font-heading-xs);
+.title {  font: var(--font-headline-xs);
 
   color: var(--text-primary);
   line-height: var(--line-height-125);

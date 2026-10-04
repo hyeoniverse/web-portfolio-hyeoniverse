@@ -297,7 +297,7 @@
 }
 
 .railTotalNum {
-  font: var(--font-heading-xl);
+  font: var(--font-headline-xl);
   font-family: var(--font-family-body);
   font-weight: 600;
   line-height: 1.1;

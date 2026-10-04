@@ -13,7 +13,7 @@
 }
 
 .title {
-  font: var(--font-heading-xl);
+  font: var(--font-headline-xl);
   color: var(--text-primary);
 }
 
@@ -272,7 +272,7 @@
   }
 
   .title {
-    font-size: var(--font-size-heading-md);
+    font-size: var(--font-size-headline-md);
   }
 
   .headerActions {

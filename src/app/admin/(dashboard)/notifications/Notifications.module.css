@@ -21,7 +21,7 @@
 }
 
 .title {
-  font: var(--font-heading-xl);
+  font: var(--font-headline-xl);
   color: var(--text-primary);
   margin: 0;
   display: flex;
@@ -68,7 +68,7 @@
 /* 빈 상태 컨테이너(장식 원 포함)는 공통 <EmptyState circle>. 아래 제목/힌트는 그 안에 스택. */
 
 .emptyTitle {
-  font: var(--font-heading-xs);
+  font: var(--font-headline-xs);
   font-weight: var(--font-weight-medium);
   color: var(--text-primary);
 }

@@ -910,7 +910,7 @@
   border: none;
   border-bottom: var(--border-light);
   background: transparent;
-  font: var(--font-heading-xl);
+  font: var(--font-headline-xl);
   color: var(--text-primary);
   outline: none;
 }
@@ -1262,7 +1262,7 @@
   }
 
   .titleInput {
-    font-size: var(--font-size-heading-md);
+    font-size: var(--font-size-headline-md);
   }
 
   .topBar {

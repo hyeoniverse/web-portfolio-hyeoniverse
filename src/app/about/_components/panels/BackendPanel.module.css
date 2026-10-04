@@ -491,7 +491,7 @@
 }
 
 .apiTotal b {
-  font-family: var(--font-family-heading);
+  font-family: var(--font-family-headline);
   font-size: clamp(3.5rem, 2.794rem + 2.9vw, 6.25rem);
   font-style: italic;
   font-weight: var(--font-weight-regular);
@@ -513,7 +513,7 @@
 
 .apiTotalsMeta dd {
   margin: 0;
-  font-family: var(--font-family-heading);
+  font-family: var(--font-family-headline);
   font-size: clamp(1.5rem, 1.322rem + 0.73vw, 2.2rem);
   line-height: 1;
 }
@@ -609,7 +609,7 @@
 
 .apiTileNum {
   font: var(--font-body-md);
-  font-family: var(--font-family-heading);
+  font-family: var(--font-family-headline);
   font-style: italic;
 }
 
@@ -664,7 +664,7 @@
 }
 
 .apiDetailNum {
-  font-family: var(--font-family-heading);
+  font-family: var(--font-family-headline);
   font-size: clamp(4rem, 3.146rem + 3.5vw, 7.35rem);
   font-style: italic;
   line-height: 0.8;

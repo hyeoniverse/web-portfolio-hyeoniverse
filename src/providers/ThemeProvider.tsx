@@ -233,8 +233,8 @@ function applyFontOverrides(
 
   /* fallback 에도 한글 웹폰트 포함(#1158) — 커스텀(Google 동적 로드) 폰트가 라틴 전용이어도
      한글이 OS 글꼴로 떨어지지 않게 */
-  /* 제목 글꼴 설정 = 장식 글자(--font-family-heading). 라틴 세리프를 고르면 한글은 명조(D27) */
-  applyFont(root, "--font-family-heading", typography.headingFont, HEADING_FONTS, "var(--font-serif-kr), serif", customSet);
+  /* 제목 글꼴 설정 = 장식 글자(--font-family-headline). 라틴 세리프를 고르면 한글은 명조(D27) */
+  applyFont(root, "--font-family-headline", typography.headingFont, HEADING_FONTS, "var(--font-serif-kr), serif", customSet);
   applyFont(root, "--font-family-body", typography.bodyFont, BODY_FONTS, '"Pretendard Variable", sans-serif', customSet);
   applyFont(root, "--font-family-code", typography.monoFont, MONO_FONTS, '"Pretendard Variable", monospace', customSet);
 }

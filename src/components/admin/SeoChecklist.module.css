@@ -173,24 +173,24 @@
 .panelScoreBig {
   display: inline-flex;
   align-items: baseline;
-  font-family: var(--font-family-heading);
+  font-family: var(--font-family-headline);
   letter-spacing: -0.02em;
 }
 
 .panelScoreNum {
-  font: var(--font-heading-xl);
+  font: var(--font-headline-xl);
   line-height: 1;
   color: var(--text-primary);
 }
 
 .panelScoreSepBig {
-  font: var(--font-heading-sm);
+  font: var(--font-headline-sm);
   color: var(--text-muted);
   margin: 0 var(--spacing-2);
 }
 
 .panelScoreTotalBig {
-  font: var(--font-heading-sm);
+  font: var(--font-headline-sm);
   color: var(--text-tertiary);
 }
 

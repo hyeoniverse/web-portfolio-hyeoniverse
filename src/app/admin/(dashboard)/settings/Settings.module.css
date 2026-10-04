@@ -81,8 +81,8 @@
    ───────────────────────────────────────────────────────────────────────── */
 
 .sectionTitle {
-  /* 설정 구획의 이름표 — 글의 제목이 아니라 UI 라벨이라 본문 글꼴(D27 범위) */
-  font: var(--font-body-xl);
+  /* 설정 구획의 이름표 — 틀의 제목(D46) */
+  font: var(--font-title-sm);
   color: var(--text-primary);
   margin: 0;
   text-transform: uppercase;
@@ -625,7 +625,7 @@
 
 .newSeriesShellOpen .newSeriesShellTitle {
   justify-content: flex-start;
-  font-size: var(--font-size-heading-xs);
+  font-size: var(--font-size-headline-xs);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
   text-align: left;

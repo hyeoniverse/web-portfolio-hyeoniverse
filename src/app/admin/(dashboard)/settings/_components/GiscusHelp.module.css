@@ -38,7 +38,7 @@
 }
 
 .title {
-  font: var(--font-heading-xs);
+  font: var(--font-headline-xs);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
 }
@@ -50,8 +50,7 @@
 }
 
 .secTitle {
-  font: var(--font-body-xl);
-  font-weight: var(--font-weight-semibold);
+  font: var(--font-title-sm);
   color: var(--text-primary);
 }
 

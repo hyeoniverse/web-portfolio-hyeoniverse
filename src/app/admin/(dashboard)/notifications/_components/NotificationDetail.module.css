@@ -37,7 +37,7 @@
 
 .title {
   margin: 0;
-  font: var(--font-heading-xs);
+  font: var(--font-headline-xs);
   color: var(--text-primary);
   overflow-wrap: anywhere;
 }
@@ -62,7 +62,7 @@
   position: absolute;
   top: -0.15em;
   left: 0;
-  font: var(--font-heading-xl);
+  font: var(--font-headline-xl);
   font-family: var(--font-family-accent);
   line-height: 1;
   color: var(--text-tertiary);
