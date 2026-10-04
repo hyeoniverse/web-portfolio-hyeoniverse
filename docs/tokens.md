@@ -285,7 +285,7 @@
 
 ## `src/styles/tokens/_z-index.css`
 
-토큰 13개
+토큰 12개
 
 | 토큰 | 값 |
 |---|---|
@@ -294,7 +294,6 @@
 | `--z-index-nav` | `100` |
 | `--z-index-float` | `200` |
 | `--z-index-dropdown` | `500` |
-| `--z-index-popover` | `600` |
 | `--z-index-tooltip` | `700` |
 | `--z-index-modal` | `8000` |
 | `--z-index-overlay` | `9000` |

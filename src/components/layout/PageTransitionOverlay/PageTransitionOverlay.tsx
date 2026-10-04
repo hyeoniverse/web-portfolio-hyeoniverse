@@ -1,5 +1,7 @@
 "use client";
 
+import { useKeepOnTopRef } from "@/hooks/useTopLayer";
+
 import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePageTransition } from "@/stores/pageTransition";
@@ -17,10 +19,14 @@ export default function PageTransitionOverlay() {
     }
   }, [isTransitioning, endTransition]);
 
+  /* 늘 맨 위(3.10-1) — 모달 · 팝오버 위로 */
+  const topRef = useKeepOnTopRef<HTMLDivElement>(1);
+
   return (
     <AnimatePresence>
       {isTransitioning && circleData && (
         <motion.div
+          ref={topRef}
           className={styles.overlay}
           data-nav-tone-skip
           initial={{

@@ -13,6 +13,7 @@
 @import "./globals/_animations.css" layer(base);
 @import "./globals/_base.css" layer(base);
 @import "./globals/_layout.css" layer(base);
+@import "./globals/_top-layer.css" layer(base);
 @import "./globals/_scroll.css" layer(base);
 
 /* 에디터 · 본문 블록의 전역 클래스 */

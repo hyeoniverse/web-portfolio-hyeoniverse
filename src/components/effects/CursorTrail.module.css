@@ -4,7 +4,7 @@
   position: fixed;
   top: 0;
   left: 0;
-  z-index: var(--z-index-cursor); /* 항상 최상단 */
+  z-index: var(--z-index-cursor); /* top layer 에 올리기 전 · 올리지 못하는 브라우저용 */
   font: var(--font-body-sm);
   font-weight: var(--font-weight-bold);
   opacity: 0;

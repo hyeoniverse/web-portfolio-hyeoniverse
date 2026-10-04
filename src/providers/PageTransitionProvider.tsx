@@ -11,6 +11,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useRoutePathname } from "@/hooks/useRoutePathname";
 import MediaThumb from "@/components/ui/MediaThumb";
+import { useKeepOnTopRef } from "@/hooks/useTopLayer";
 
 /* ── Types ── */
 interface MorphTransitionState {
@@ -169,6 +170,9 @@ function TransitionOverlay({
   const elRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const backdropRef = useRef<HTMLDivElement>(null);
+  /* 늘 맨 위(3.10-1) — 모달 · 팝오버 위로. 틀 1, 그 위에 그림 블록 1 */
+  const topBackdropRef = useKeepOnTopRef<HTMLDivElement>(1, backdropRef);
+  const topElRef = useKeepOnTopRef<HTMLDivElement>(1, elRef);
   const { phase, rect, image, color, href, fromPath } = state;
   /* 이 컴포넌트는 전환하는 동안만 떠 있다 — 경로 구독도 여기서만 한다.
      라우터가 새 트리를 커밋할 때 이 값이 바뀌고, 그게 곧 "넘어갔다"는 신호다. */
@@ -296,22 +300,20 @@ function TransitionOverlay({
   return (
     <>
     <div
-      ref={backdropRef}
+      ref={topBackdropRef}
       style={{
         position: "fixed",
         inset: 0,
-        zIndex: "var(--z-index-top)",
         background: "var(--bg-primary)",
         opacity: 1,
         pointerEvents: "none",
       }}
     />
     <div
-      ref={elRef}
+      ref={topElRef}
       style={{
         position: "fixed",
         overflow: "hidden",
-        zIndex: "var(--z-index-top)",
         pointerEvents: "none",
         top: rect.top,
         left: rect.left,

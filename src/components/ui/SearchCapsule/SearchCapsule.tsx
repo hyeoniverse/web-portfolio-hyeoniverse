@@ -7,6 +7,7 @@ import { createPortal } from "react-dom";
 import { useRoutePathname } from "@/hooks/useRoutePathname";
 import { AppRouterContext } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { motion, AnimatePresence } from "framer-motion";
+import { usePopoverRef } from "@/hooks/useTopLayer";
 import { Search, Eraser, History, HelpCircle } from "@/components/icons";
 import Select from "@/components/ui/Select";
 import CloseButton from "@/components/ui/CloseButton";
@@ -143,6 +144,8 @@ export default function SearchCapsule({
      setState 매 프레임 호출 시 React commit 1프레임 lag → search 입력과 dropdown 사이 bounce 발생. */
   const [dropdownRect, setDropdownRect] = useState<{ top: number; left: number; width: number } | null>(null);
   const historyDropdownRef = useRef<HTMLDivElement>(null);
+  /* 목록은 top layer(3.10-1) */
+  const topHistoryRef = usePopoverRef<HTMLDivElement>(historyDropdownRef);
   useEffect(() => {
     if (!focused) { setDropdownRect(null); return; }
     const measure = () => {
@@ -297,7 +300,8 @@ export default function SearchCapsule({
       <AnimatePresence>
         {showHistory && dropdownRect && (
           <motion.div
-            ref={historyDropdownRef}
+            ref={topHistoryRef}
+            popover="manual"
             className={`${styles.historyDropdown} ${focused ? styles.capsuleFocused : ""}`}
             initial={{ opacity: 0, y: -6, scaleY: 0.92 }}
             animate={{ opacity: 1, y: 0, scaleY: 1 }}

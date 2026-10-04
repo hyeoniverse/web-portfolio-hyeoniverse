@@ -10,6 +10,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { usePortalContainer } from "./portalContainer";
+import { usePopoverRef } from "@/hooks/useTopLayer";
 import styles from "./Tooltip.module.css";
 
 interface TooltipProps {
@@ -61,6 +62,8 @@ export default function Tooltip({
 
   const triggerRef = useRef<HTMLSpanElement>(null);
   const bubbleRef = useRef<HTMLDivElement>(null);
+  /* 말풍선 틀은 top layer(3.10-1) — 모달 · 드로어 어느 위에서도 z-index 없이 맨 위에 뜬다 */
+  const frameRef = usePopoverRef<HTMLDivElement>();
   const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const measure = useCallback(() => {
@@ -269,6 +272,8 @@ export default function Tooltip({
 
       {visible && createPortal(
         <div
+          ref={frameRef}
+          popover="manual"
           onMouseEnter={interactive ? cancelHide : undefined}
           onMouseLeave={interactive ? scheduleHide : undefined}
           style={{
@@ -279,9 +284,6 @@ export default function Tooltip({
               pos.side === "left" ? "translate(-100%, -50%)" :
               pos.side === "right" ? "translate(0, -50%)" :
               `translate(-50%, ${pos.side === "top" ? "-100%" : "0"})`,
-            /* z-tooltip 토큰 (700) — drawer/modal 같은 overlay (8000+) 아래에 위치하도록.
-               drawer 가 열려있을 때 tooltip 이 그 위로 튀어나오지 않게 하기 위함. */
-            zIndex: "var(--z-index-tooltip)",
             // interactive: 콘텐츠(링크 등) hover/클릭 가능. 아니면 통과시켜 아래 요소 방해 안 함.
             pointerEvents: interactive ? "auto" : "none",
           }}

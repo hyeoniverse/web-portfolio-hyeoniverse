@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { cn } from "@/utils/cn";
 import { usePortalContainer } from "../portalContainer";
+import { usePopoverRef } from "@/hooks/useTopLayer";
 import styles from "./Popover.module.css";
 
 // "bubble" = Select 식 오른쪽 말풍선(solid 패널 + trigger 를 가리키는 꼬리, trigger 세로 중심 정렬).
@@ -148,6 +149,10 @@ export default function Popover({
     contentRef.current = node;
     if (externalContentRef) (externalContentRef as { current: HTMLDivElement | null }).current = node;
   };
+  /* 드롭다운 · 시트 · 시트 스크림은 top layer(3.10-1) — 붙는 순간 띄운다. 자리 계산(useLayoutEffect)보다 먼저라
+     display:none 인 채로 재는 일이 없다 */
+  const topContentRef = usePopoverRef<HTMLDivElement>(setContentRef);
+  const topBackdropRef = usePopoverRef<HTMLDivElement>();
   const mounted = useHasMounted();
   const { isTouch, isMobile } = useIsMobile();
   // responsive 시 터치 디바이스뿐 아니라 좁은 뷰포트(모바일 모드)에서도 bottom sheet 로 전환
@@ -304,6 +309,8 @@ export default function Popover({
             useSheet ? (
               <>
                 <motion.div
+                  ref={topBackdropRef}
+                  popover="manual"
                   className="ui-sheet-backdrop"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -312,7 +319,8 @@ export default function Popover({
                   onClick={close}
                 />
                 <motion.div
-                  ref={setContentRef}
+                  ref={topContentRef}
+                  popover="manual"
                   className={cn("ui-sheet", contentClassName)}
                   /* Lenis 가 wheel/touch 를 가로채 내부 스크롤이 막히는 것 방지 */
                   data-lenis-prevent
@@ -338,7 +346,8 @@ export default function Popover({
               </>
             ) : (
               <motion.div
-                ref={setContentRef}
+                ref={topContentRef}
+                popover="manual"
                 className={cn(
                   styles.dropdown,
                   variant === "glass" && styles.dropdownGlass,

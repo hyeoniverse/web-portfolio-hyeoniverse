@@ -801,7 +801,6 @@
     "src/components/ui/EmojiPicker/EmojiPicker.module.css": 1,
     "src/components/ui/ImageViewer/ImageViewer.module.css": 9,
     "src/components/ui/Modal.module.css": 1,
-    "src/components/ui/SearchCapsule/SearchCapsule.module.css": 1,
     "src/components/ui/Textarea.module.css": 1,
     "src/components/ui/Toast/Toast.module.css": 1,
     "src/components/works/WorkGallery.module.css": 2,

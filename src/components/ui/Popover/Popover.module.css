@@ -7,9 +7,7 @@
 
 /* ── Dropdown (desktop) ── */
 .dropdown {
-  position: fixed;
-  /* 팝오버는 자신을 띄운 컨테이너(모달·드로어·전체화면 에디터) 위로 뜨는 게 정석 → --z-index-popover */
-  z-index: var(--z-index-popover);
+  position: fixed; /* top layer 에 뜬다(3.10-1) — z-index 없이 모달 · 드로어 위 */
   /* variant="solid" 의 배경 = 기본값. glass/difference 는 아래에서 덮어쓴다.
      (예전엔 각 호출부가 blur+투명 글래스를 제각각 override 해서 제멋대로였다 → variant 로 흡수) */
   background: var(--bg-primary);
