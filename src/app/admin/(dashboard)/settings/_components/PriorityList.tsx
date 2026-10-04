@@ -34,7 +34,9 @@ export function PriorityList<T extends string>({ primary, priority, excluded, op
     ? [...priority.filter((p) => p !== primary), ...nonPrimary.map((o) => o.value).filter((v) => !priority.includes(v))]
     : nonPrimary.map((o) => o.value);
   const full = includePrimary ? [primary, ...rest] : rest;
-  const ordered = includePrimary && onlyPrimary ? full.slice(0, 1) : full;
+  /* 자동 전환이 꺼져 있어도 뒤 항목은 그려 두고 접는다(높이 0) — 켜고 끌 때 펼쳐지고 접히는 움직임이 보인다 */
+  const ordered = full;
+  const collapsed = !!includePrimary && !!onlyPrimary;
 
   const dragIdx = useRef<number | null>(null);
   const [overIdx, setOverIdx] = useState<number | null>(null);
@@ -96,28 +98,26 @@ export function PriorityList<T extends string>({ primary, priority, excluded, op
     setOverIdx(null);
   };
 
-  return (
-    <div className={styles.priorityList} ref={listRef}>
-      {ordered.map((val, idx) => {
+  const renderRow = (val: T, idx: number) => {
         const label = options.find((o) => o.value === val)?.label ?? val;
         const isPrimary = includePrimary && idx === 0;
         const isEnabled = isPrimary || !excluded.includes(val);
         return (
           <div key={val} className={styles.priorityRow}>
-            {/* 1번(기본 공급자)은 뺄 수 없다 — 칸 자리만 둔다 */}
-            {isPrimary ? <span className={styles.priorityNoCheck} aria-hidden /> : (
-              <Checkbox
-                shape="square"
-                checked={isEnabled}
-                onChange={(checked) => {
-                  onExcludedChange(
-                    checked
-                      ? excluded.filter((e) => e !== val)
-                      : [...excluded, val]
-                  );
-                }}
-              />
-            )}
+            {/* 1번(기본 공급자)은 뺄 수 없다 — 체크된 채 잠근다 */}
+            <Checkbox
+              shape="square"
+              checked={isEnabled}
+              disabled={isPrimary}
+              onChange={(checked) => {
+                if (isPrimary) return;
+                onExcludedChange(
+                  checked
+                    ? excluded.filter((e) => e !== val)
+                    : [...excluded, val]
+                );
+              }}
+            />
             {/* 드래그 핸들 — priorityItem 바깥, checkbox 와 item 사이. drag 핸들러도 여기로 이동 */}
             <span
               className={styles.priorityGrip}
@@ -145,7 +145,7 @@ export function PriorityList<T extends string>({ primary, priority, excluded, op
                 {badgeOf?.(val)}
               </span>
               {extraOf?.(val)}
-              {ordered.length > 1 && <div className={styles.priorityBtns}>
+              {!collapsed && <div className={styles.priorityBtns}>
                 <Pressable
                   className={shared.priorityBtn}
                   disabled={idx === 0}
@@ -162,7 +162,20 @@ export function PriorityList<T extends string>({ primary, priority, excluded, op
             </div>
           </div>
         );
-      })}
+  };
+
+  return (
+    <div className={styles.priorityList} ref={listRef}>
+      {includePrimary ? (
+        <>
+          {renderRow(ordered[0], 0)}
+          <div className={styles.priorityRest} data-open={collapsed ? undefined : ""} aria-hidden={collapsed || undefined}>
+            <div className={styles.priorityRestInner} inert={collapsed || undefined}>
+              {ordered.slice(1).map((val, i) => renderRow(val, i + 1))}
+            </div>
+          </div>
+        </>
+      ) : ordered.map(renderRow)}
     </div>
   );
 }
