@@ -40,6 +40,8 @@ export function PriorityList<T extends string>({ primary, priority, excluded, op
 
   const dragIdx = useRef<number | null>(null);
   const [overIdx, setOverIdx] = useState<number | null>(null);
+  /* 끌고 있는 줄 — 제자리는 반투명(고스트), 끌림 이미지는 줄 전체 */
+  const [draggingIdx, setDraggingIdx] = useState<number | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const touchStartY = useRef(0);
 
@@ -60,7 +62,16 @@ export function PriorityList<T extends string>({ primary, priority, excluded, op
   };
 
   /* ── HTML5 drag (desktop) ── */
-  const handleDragStart = (idx: number) => { dragIdx.current = idx; };
+  const handleDragStart = (e: React.DragEvent, idx: number) => {
+    dragIdx.current = idx;
+    setDraggingIdx(idx);
+    const row = (e.currentTarget as HTMLElement).closest(`.${styles.priorityRow}`) as HTMLElement | null;
+    if (row) {
+      const rect = row.getBoundingClientRect();
+      e.dataTransfer.setDragImage(row, e.clientX - rect.left, e.clientY - rect.top);
+    }
+    e.dataTransfer.effectAllowed = "move";
+  };
   const handleDragOver = (e: React.DragEvent, idx: number) => { e.preventDefault(); setOverIdx(idx); };
   const handleDrop = (idx: number) => {
     const from = dragIdx.current;
@@ -68,12 +79,14 @@ export function PriorityList<T extends string>({ primary, priority, excluded, op
     reorder(from, idx);
     dragIdx.current = null;
     setOverIdx(null);
+    setDraggingIdx(null);
   };
-  const handleDragEnd = () => { dragIdx.current = null; setOverIdx(null); };
+  const handleDragEnd = () => { dragIdx.current = null; setOverIdx(null); setDraggingIdx(null); };
 
   /* ── Touch drag (mobile) ── */
   const handleTouchStart = (e: React.TouchEvent, idx: number) => {
     dragIdx.current = idx;
+    setDraggingIdx(idx);
     touchStartY.current = e.touches[0].clientY;
   };
 
@@ -96,6 +109,7 @@ export function PriorityList<T extends string>({ primary, priority, excluded, op
     }
     dragIdx.current = null;
     setOverIdx(null);
+    setDraggingIdx(null);
   };
 
   const renderRow = (val: T, idx: number) => {
@@ -103,7 +117,22 @@ export function PriorityList<T extends string>({ primary, priority, excluded, op
         const isPrimary = includePrimary && idx === 0;
         const isEnabled = isPrimary || !excluded.includes(val);
         return (
-          <div key={val} className={styles.priorityRow}>
+          <div key={val} className={styles.priorityRow} data-dragging={draggingIdx === idx ? "" : undefined}>
+            {/* 드래그 핸들 — 맨 앞. 모든 줄에서 끈다(기본 줄을 내리면 기본이 바뀐다) */}
+            <span
+              className={styles.priorityGrip}
+              data-draggable
+              draggable
+              onDragStart={(e) => handleDragStart(e, idx)}
+              onDragOver={(e) => handleDragOver(e, idx)}
+              onDrop={() => handleDrop(idx)}
+              onDragEnd={handleDragEnd}
+              onTouchStart={(e) => handleTouchStart(e, idx)}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+            >
+              <GripDotsIcon />
+            </span>
             {/* 1번(기본 공급자)은 뺄 수 없다 — 체크된 채 잠근다 */}
             <Checkbox
               shape="square"
@@ -118,21 +147,6 @@ export function PriorityList<T extends string>({ primary, priority, excluded, op
                 );
               }}
             />
-            {/* 드래그 핸들 — priorityItem 바깥, checkbox 와 item 사이. drag 핸들러도 여기로 이동 */}
-            <span
-              className={styles.priorityGrip}
-              data-draggable
-              draggable
-              onDragStart={() => handleDragStart(idx)}
-              onDragOver={(e) => handleDragOver(e, idx)}
-              onDrop={() => handleDrop(idx)}
-              onDragEnd={handleDragEnd}
-              onTouchStart={(e) => handleTouchStart(e, idx)}
-              onTouchMove={handleTouchMove}
-              onTouchEnd={handleTouchEnd}
-            >
-              <GripDotsIcon />
-            </span>
             <div
               className={`${styles.priorityItem}${overIdx === idx ? ` ${styles.priorityItemOver}` : ""}`}
               onDragOver={(e) => handleDragOver(e, idx)}
@@ -141,8 +155,6 @@ export function PriorityList<T extends string>({ primary, priority, excluded, op
               <span className={styles.priorityBadge}>{idx + 1}</span>
               <span className={`${styles.priorityLabel} ${isEnabled ? "" : styles.priorityLabelDisabled}`}>
                 {label}
-                {isPrimary && primaryLabel && <span className={styles.priorityPrimary}>{primaryLabel}</span>}
-                {badgeOf?.(val)}
               </span>
               {extraOf?.(val)}
               {!collapsed && <div className={styles.priorityBtns}>
@@ -160,6 +172,13 @@ export function PriorityList<T extends string>({ primary, priority, excluded, op
                 ><ChevronDown size={12} strokeWidth={2.5} /></Pressable>
               </div>}
             </div>
+            {/* 상자 밖 오른쪽 — "기본", 상태(꺼짐 · 키 없음 · 실패 중) */}
+            {(isPrimary && primaryLabel) || badgeOf?.(val) ? (
+              <span className={styles.priorityAside}>
+                {isPrimary && primaryLabel && <span className={styles.priorityPrimary}>{primaryLabel}</span>}
+                {badgeOf?.(val)}
+              </span>
+            ) : null}
           </div>
         );
   };
