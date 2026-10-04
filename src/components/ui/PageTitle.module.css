@@ -5,7 +5,7 @@
   align-items: center;
   gap: var(--spacing-16);
   margin: 0;
-  font-family: var(--font-family-heading);
+  font-family: var(--font-family-headline);
   font-size: clamp(3rem, 2.257rem + 3.05vw, 5rem);
   font-weight: var(--font-weight-light);
   font-style: italic;

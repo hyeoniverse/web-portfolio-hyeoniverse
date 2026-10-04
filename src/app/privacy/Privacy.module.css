@@ -15,7 +15,7 @@
 /* Title */
 .title {
   margin-bottom: var(--spacing-16);
-  font-family: var(--font-family-heading);
+  font-family: var(--font-family-headline);
   font-size: clamp(2.5rem, 1.943rem + 2.29vw, 4rem);
   font-weight: var(--font-weight-regular);
   color: var(--text-primary);
@@ -41,7 +41,7 @@
 
 .section h2 {
   margin-bottom: var(--spacing-16);
-  font: var(--font-heading-sm);
+  font: var(--font-headline-sm);
   font-family: var(--font-family-body);
   font-weight: var(--font-weight-medium);
   color: var(--text-primary);
@@ -87,7 +87,7 @@
   }
 
   .section h2 {
-    font-size: var(--font-size-heading-xs);
+    font-size: var(--font-size-headline-xs);
   }
 
   .section p,

@@ -36,8 +36,7 @@
 }
 .cardTitle {
   margin: 0;
-  font: var(--font-body-xl);
-  font-weight: 600;
+  font: var(--font-title-sm);
   letter-spacing: -0.01em;
 }
 /* SectionHeader 를 헤더 우측 폭 전체로 늘려 spacer(margin-left:auto)가 버튼을 끝으로 밀게 함.

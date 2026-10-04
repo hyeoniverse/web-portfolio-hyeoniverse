@@ -32,7 +32,7 @@ const LINE_HEIGHT_DEMO_PRESETS = [1.4, 1.6, 1.8, 2.0];
 /** Pickers & Selects — 공용 컴포넌트 시연. 이 묶음에서만 쓰는 시연용 상태를 스스로 들고 있다. */
 export default function PickersSelectsDemos() {
   const { language, scrollChildX } = useDemo();
-  const [fontDemo, setFontDemo] = useState("var(--font-family-heading)");
+  const [fontDemo, setFontDemo] = useState("var(--font-family-headline)");
   const [selectValue, setSelectValue] = useState("option1");
   const [selectCompact, setSelectCompact] = useState("option1");
   const [selectEmpty, setSelectEmpty] = useState("");

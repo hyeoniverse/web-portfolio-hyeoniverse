@@ -22,7 +22,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font: var(--font-heading-sm);
+  font: var(--font-headline-sm);
   font-family: var(--font-family-body);
   font-weight: var(--font-weight-semibold);
   color: var(--text-secondary);
@@ -45,9 +45,7 @@
   gap: var(--spacing-8);
 }
 .memberDetailName {
-  font: var(--font-heading-xs);
-  font-family: var(--font-family-body);
-  font-weight: var(--font-weight-semibold);
+  font: var(--font-title-sm);
   color: var(--text-primary);
 }
 .memberDetailRole {

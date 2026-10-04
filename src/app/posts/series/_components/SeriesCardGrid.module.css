@@ -41,7 +41,7 @@
   pointer-events: none;
 }
 
-.overlayTitle {  font: var(--font-heading-xs);
+.overlayTitle {  font: var(--font-headline-xs);
 
   letter-spacing: -0.01em;
   line-height: var(--line-height-125);
@@ -87,7 +87,7 @@
 .cardDesc::before {
   content: "\201C";
   margin-right: 0.04em;
-  font-family: var(--font-family-heading);
+  font-family: var(--font-family-headline);
   font-weight: var(--font-weight-medium);
   font-size: 4.2em;
   line-height: 0;

@@ -556,7 +556,7 @@ export default function DesignSystemClient() {
               </div>
               <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "var(--spacing-12)" }}>
                 <span style={{ fontFamily: "var(--font-family-code)", fontSize: "var(--font-size-body-xs)", letterSpacing: "0.25em", color: "var(--text-muted)", textTransform: "uppercase" }}>CTA Section</span>
-                <h3 id="threejs-coffee" style={{ fontSize: "var(--font-size-24)", fontFamily: "var(--font-family-heading)", fontWeight: 400, margin: 0 }}>Coffee Cup</h3>
+                <h3 id="threejs-coffee" style={{ fontSize: "var(--font-size-24)", fontFamily: "var(--font-family-headline)", fontWeight: 400, margin: 0 }}>Coffee Cup</h3>
                 <p style={{ fontSize: "var(--font-size-body-sm)", color: "var(--text-secondary)", lineHeight: 1.7, margin: 0 }}>
                   {language === "ko"
                     ? "컵과 소서는 LatheGeometry, 손잡이는 TorusGeometry, 액면은 CylinderGeometry 로 만듭니다. Canvas 2D 로 parametric heart curve 와 80-band cream↔coffee wave, blur 엽맥 라떼아트 텍스처를 생성해 MeshPhysicalMaterial 에 매핑합니다. 마우스를 따라 lerp 로 부드럽게 회전합니다."
@@ -584,7 +584,7 @@ export default function DesignSystemClient() {
               </div>
               <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "var(--spacing-12)" }}>
                 <span style={{ fontFamily: "var(--font-family-code)", fontSize: "var(--font-size-body-xs)", letterSpacing: "0.25em", color: "var(--text-muted)", textTransform: "uppercase" }}>Hero Section</span>
-                <h3 id="threejs-torus" style={{ fontSize: "var(--font-size-24)", fontFamily: "var(--font-family-heading)", fontWeight: 400, margin: 0 }}>Scroll Torus</h3>
+                <h3 id="threejs-torus" style={{ fontSize: "var(--font-size-24)", fontFamily: "var(--font-family-headline)", fontWeight: 400, margin: 0 }}>Scroll Torus</h3>
                 <p style={{ fontSize: "var(--font-size-body-sm)", color: "var(--text-secondary)", lineHeight: 1.7, margin: 0 }}>
                   {language === "ko"
                     ? "누적 스크롤을 따라 리사주 곡선(X·Y·Z 주파수 차이) 경로를 끝없이 순환하는 메탈릭 토러스입니다. 테마에 따라 색상과 emissive 가 바뀌고, 커서가 가까우면 자석처럼 끌리고 멀면 반발하는 물리 인터랙션이 동작합니다."
@@ -612,7 +612,7 @@ export default function DesignSystemClient() {
               </div>
               <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "var(--spacing-12)" }}>
                 <span style={{ fontFamily: "var(--font-family-code)", fontSize: "var(--font-size-body-xs)", letterSpacing: "0.25em", color: "var(--text-muted)", textTransform: "uppercase" }}>Profile Section</span>
-                <h3 id="threejs-bunny" style={{ fontSize: "var(--font-size-24)", fontFamily: "var(--font-family-heading)", fontWeight: 400, margin: 0 }}>Bunny Character</h3>
+                <h3 id="threejs-bunny" style={{ fontSize: "var(--font-size-24)", fontFamily: "var(--font-family-headline)", fontWeight: 400, margin: 0 }}>Bunny Character</h3>
                 <p style={{ fontSize: "var(--font-size-body-sm)", color: "var(--text-secondary)", lineHeight: 1.7, margin: 0 }}>
                   {language === "ko"
                     ? "몸·귀·팔·발은 LatheGeometry, 머리·눈·꼬리는 SphereGeometry, 찡그린 눈은 CapsuleGeometry 로 조합한 마스코트입니다. 자동으로 눈을 깜빡이고, 클릭하면 놀람·기쁨 표정으로 전환됩니다. RAF 물리 기반으로 벽에 부딪혀 튕기며 이동하고, 충돌 시 사운드가 재생됩니다."

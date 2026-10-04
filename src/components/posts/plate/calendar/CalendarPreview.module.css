@@ -75,7 +75,7 @@
 
 .vdTitle {
   margin: 0;
-  font: var(--font-heading-xs);
+  font: var(--font-headline-xs);
   font-weight: 700;
   line-height: 1.35;
   color: var(--text-primary);
@@ -135,7 +135,7 @@
   word-break: break-word;
 }
 
-.vdDesc :is(h1, h2, h3) { font-size: var(--font-size-heading-xs); font-weight: 700; margin: 0.4em 0 0.2em; }
+.vdDesc :is(h1, h2, h3) { font-size: var(--font-size-headline-xs); font-weight: 700; margin: 0.4em 0 0.2em; }
 
 .vdDesc ul, .vdDesc ol { margin: 0.2em 0; padding-left: 1.4em; }
 

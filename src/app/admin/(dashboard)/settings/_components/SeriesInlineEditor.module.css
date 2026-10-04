@@ -36,8 +36,7 @@
 
 .seriesStandaloneTitle {
   margin: 0;
-  font: var(--font-body-xl);
-  font-weight: var(--font-weight-semibold);
+  font: var(--font-title-sm);
   color: var(--text-primary);
 }
 

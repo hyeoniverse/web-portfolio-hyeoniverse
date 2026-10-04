@@ -275,7 +275,7 @@
   align-items: center;
   gap: var(--spacing-2);
   margin-bottom: var(--spacing-4);
-  font: var(--font-heading-xs);
+  font: var(--font-headline-xs);
   font-style: normal;
   font-weight: var(--font-weight-medium);
   color: var(--text-secondary);

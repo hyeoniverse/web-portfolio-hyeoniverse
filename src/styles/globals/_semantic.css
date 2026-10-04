@@ -217,7 +217,8 @@
    * 1층 원재료  --{속성}-{값}                 _typography.css  --font-size-13 · --line-height-160 · --font-instrument
    * 2층 역할    --font-{속성}-{역할}-{단계}   여기             --font-size-body-sm · --font-family-code
    * 3층 묶음    --font-{역할}-{단계}          여기             --font-body-sm  ← 컴포넌트는 이것을 쓴다
-   * 역할 = display · heading · body · code (+ 지면 prose), 단계 = xs · sm · md · lg · xl.
+   * 역할 = display · headline(글의 제목) · title(틀의 제목) · body · code · meta (+ 지면 prose), 단계 = xs · sm · md · lg · xl.
+   * headline 과 title 은 Material 3 의 구분 — 글 · 작업물의 제목은 세리프 400, 모달 · 구획 · 카드 머리 · 이름은 Pretendard 600(D46).
    * 설정의 본문 · 제목 · 코드 글꼴은 2층 --font-family-* 를 덮고(ThemeProvider), 3층은 그대로 따라간다.
    * 전부 12px 하한 위에 있다(3.2-2). */
 
@@ -227,8 +228,8 @@
     "Pretendard Variable", -apple-system, BlinkMacSystemFont, system-ui,
     "Segoe UI", Roboto, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
     "Noto Color Emoji";
-  /* 제목 · 장식 글자 — Instrument Serif + 나눔명조(D27) */
-  --font-family-heading: var(--font-instrument);
+  /* 글의 제목 · 장식 글자 — Instrument Serif + 나눔명조(D27). 틀의 제목(title)은 본문 글꼴이다(D46) */
+  --font-family-headline: var(--font-instrument);
   /* 숫자 · 메타 · 배지 · 코드 — JetBrains Mono */
   --font-family-code: var(--font-jetbrains-mono);
   /* 상단 네비게이션 · 메뉴 · 알림 팝업 — Space Grotesk(한글은 Pretendard, D29) */
@@ -255,11 +256,14 @@
   --font-size-body-lg: var(--font-size-16); /* 긴 글 본문 */
   --font-size-body-xl: var(--font-size-18); /* 리드 문단 · 인용 */
   /* 제목 — Apple 기준 단계(34 · 28 · 22 · 20 · 18). 가장 작은 제목도 본문 16 과 구분되게 18 */
-  --font-size-heading-xs: var(--font-size-18);
-  --font-size-heading-sm: var(--font-size-20);
-  --font-size-heading-md: var(--font-size-22);
-  --font-size-heading-lg: var(--font-size-28);
-  --font-size-heading-xl: var(--font-size-34);
+  --font-size-headline-xs: var(--font-size-18);
+  --font-size-headline-sm: var(--font-size-20);
+  --font-size-headline-md: var(--font-size-22);
+  --font-size-headline-lg: var(--font-size-28);
+  --font-size-headline-xl: var(--font-size-34);
+  /* 틀의 제목(title) — 모달 · 설정 구획 · 카드 머리 · 이름. 글의 제목과 같은 눈금에서 작은 두 단계만 쓴다(D46) */
+  --font-size-title-sm: var(--font-size-18);
+  --font-size-title-md: var(--font-size-20);
   /* 지면 — 화면 폭을 따라 늘고 준다(About · 히어로). 가운데 값에 rem 을 섞어 확대를 따르고,
      최대를 최소의 2.5배 이하로 둔다(3.2-4, D28) */
   --font-size-display-sm: clamp(1.5rem, 0.5rem + 1.4vw, 2.5rem); /* 아래 24 — 16 이면 폰에서 본문과 같아져 전시가 아니다(D35) */
@@ -278,18 +282,21 @@
   /* ── 3층 · 글자 묶음 — `font: var(--font-body-sm)` 로 쓴다(3.2-1) ─────
    * 굵기 · 크기/줄간격 · 글꼴. 한 값만 다르면 뒤에 덧쓴다. tabular-nums 같은 설정은 font 뒤에 적는다.
    * 제목은 줄간격 125, 전시(display)는 100, 본문 · UI · 코드 · 메타 · 지면은 160(지금 body 에서 물려받는 값과 같다).
-   * 전체 세트(3.2): display-sm ~ xl / heading-xs ~ xl / body-xs ~ xl / code-xs ~ xl / meta-xs ~ md / prose-xs ~ lg.
+   * 전체 세트(3.2): display-sm ~ xl / headline-xs ~ xl / title-sm ~ md / body-xs ~ xl / code-xs ~ xl / meta-xs ~ md / prose-xs ~ lg.
    * 안 쓰는 토큰은 두지 않으므로(2-4), 컴포넌트가 처음 쓸 때 위 이름 · 같은 모양으로 더한다. */
   /* 전시 — 히어로 · 큰 숫자 · 페이지 제목. 화면 폭을 따라 늘고 줄며(D28), 글꼴은 제목 설정과 상관없이 Playfair(D34) */
   --font-display-xl: var(--font-weight-regular) var(--font-size-display-xl) / var(--line-height-100) var(--font-family-accent);
   --font-display-lg: var(--font-weight-regular) var(--font-size-display-lg) / var(--line-height-100) var(--font-family-accent);
   --font-display-md: var(--font-weight-regular) var(--font-size-display-md) / var(--line-height-100) var(--font-family-accent);
   --font-display-sm: var(--font-weight-regular) var(--font-size-display-sm) / var(--line-height-100) var(--font-family-accent);
-  --font-heading-xs: var(--font-weight-regular) var(--font-size-heading-xs) / var(--line-height-125) var(--font-family-heading);
-  --font-heading-sm: var(--font-weight-regular) var(--font-size-heading-sm) / var(--line-height-125) var(--font-family-heading);
-  --font-heading-md: var(--font-weight-regular) var(--font-size-heading-md) / var(--line-height-125) var(--font-family-heading);
-  --font-heading-lg: var(--font-weight-regular) var(--font-size-heading-lg) / var(--line-height-125) var(--font-family-heading);
-  --font-heading-xl: var(--font-weight-regular) var(--font-size-heading-xl) / var(--line-height-125) var(--font-family-heading);
+  --font-headline-xs: var(--font-weight-regular) var(--font-size-headline-xs) / var(--line-height-125) var(--font-family-headline);
+  --font-headline-sm: var(--font-weight-regular) var(--font-size-headline-sm) / var(--line-height-125) var(--font-family-headline);
+  --font-headline-md: var(--font-weight-regular) var(--font-size-headline-md) / var(--line-height-125) var(--font-family-headline);
+  --font-headline-lg: var(--font-weight-regular) var(--font-size-headline-lg) / var(--line-height-125) var(--font-family-headline);
+  --font-headline-xl: var(--font-weight-regular) var(--font-size-headline-xl) / var(--line-height-125) var(--font-family-headline);
+  /* 틀의 제목 — Pretendard 600, 줄간격은 제목과 같은 125(D46) */
+  --font-title-sm: var(--font-weight-semibold) var(--font-size-title-sm) / var(--line-height-125) var(--font-family-body);
+  --font-title-md: var(--font-weight-semibold) var(--font-size-title-md) / var(--line-height-125) var(--font-family-body);
   --font-body-xl: var(--font-weight-regular) var(--font-size-body-xl) / var(--line-height-160) var(--font-family-body);
   --font-body-lg: var(--font-weight-regular) var(--font-size-body-lg) / var(--line-height-160) var(--font-family-body);
   --font-body-md: var(--font-weight-regular) var(--font-size-body-md) / var(--line-height-160) var(--font-family-body);

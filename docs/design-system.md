@@ -275,8 +275,10 @@ src/styles/tokens/*.css          src/styles/globals/_semantic.css      src/style
 | 2층 역할 | `--font-{속성}-{역할}-{단계}` | `--font-size-body-sm` · `--font-family-code` | 3층 묶음 · 사이트 설정 |
 | 3층 묶음 | `--font-{역할}-{단계}` | `--font-body-sm` · `--font-code-xs` | 컴포넌트 |
 
-역할은 **display · heading · body · code · meta · prose**, 단계는 **xs · sm · md · lg · xl** 이다.
+역할은 **display · headline · title · body · code · meta · prose**, 단계는 **xs · sm · md · lg · xl** 이다.
 "코드 글꼴로 작게" → `--font-code-sm` 처럼 이름만 보고 고른다.
+역할 이름은 Material 3 의 type scale(display · headline · title · body · label)을 따른다 — **headline 은 글의 제목, title 은 틀의 제목**이다(D46).
+글 · 작업물의 제목(h1~h4, 시리즈 · 작업물 이름)은 headline, 모달 · 설정 구획 · 카드 머리 · 사람 이름처럼 UI 틀에 붙는 이름은 title.
 
 **1층 · 원재료** (`tokens/_typography.css`)
 
@@ -292,18 +294,19 @@ src/styles/tokens/*.css          src/styles/globals/_semantic.css      src/style
 | 토큰 | 값 | 쓰는 자리 |
 |---|---|---|
 | `--font-family-body` | Pretendard | 본문 · UI 전체(라벨 · 버튼 · 메뉴 · 입력 · 설명, 글 · 작업물 본문) |
-| `--font-family-heading` | Instrument Serif + 나눔명조 | 제목 · 장식 글자(히어로 · 공개 글 · 시리즈 · 작업물 제목) |
+| `--font-family-headline` | Instrument Serif + 나눔명조 | 글의 제목 · 장식 글자(히어로 · 공개 글 · 시리즈 · 작업물 제목). 틀의 제목(title)은 body 다 |
 | `--font-family-code` | JetBrains Mono | 숫자 · 메타 · 배지 · 코드 |
 | `--font-family-nav` | Space Grotesk | 상단 네비게이션 · 메뉴 · 알림 팝업(D29) |
 | `--font-family-accent` | Playfair Display | 일부 히어로 · 상세 제목. 제목 글꼴 설정과 상관없이 고정 |
 | `--font-size-body-xs · sm · md · lg · xl` | 12 · 13 · 14 · 16 · 18 | UI · 본문. **12 가 가장 작은 글자**다 |
-| `--font-size-heading-xs · sm · md · lg · xl` | 18 · 20 · 22 · 28 · 34 | 제목 |
+| `--font-size-headline-xs · sm · md · lg · xl` | 18 · 20 · 22 · 28 · 34 | 글의 제목 |
+| `--font-size-title-sm · md` | 18 · 20 | 틀의 제목 — 같은 눈금의 작은 두 단계만 |
 | `--font-size-display-sm · md · lg · xl` | 화면 비례(3.2-4) — 폰 24 · 32 · 44 · 67 → 데스크톱 28 · 59 · 96 · 141 | 히어로 · 대표 숫자 · 페이지 제목 |
 | `--font-size-prose-xs · sm · md · lg` | 화면 비례 12 ~ 24 | About 같은 지면 본문 |
 
 - **본문 · UI 는 Pretendard 하나**다. 한글이 주 언어라 한글과 영문이 한 글꼴이어야 높이 · 굵기가 맞는다.
-- **제목은 세리프다 — 영문 Instrument Serif, 한글 나눔명조, 보통 굵기**(D27). 관리 화면은 페이지 · 모달 제목만 같고, 구획(섹션) 이름은 UI 라벨이라 Pretendard 다(D27 범위 조정, 2026-10-03).
-  Instrument Serif 는 400 하나뿐이라 굵게 쓰지 않는다.
+- **글의 제목(headline)은 세리프다 — 영문 Instrument Serif, 한글 나눔명조, 보통 굵기**(D27). Instrument Serif 는 400 하나뿐이라 굵게 쓰지 않는다.
+- **틀의 제목(title)은 Pretendard 600 이다**(D46) — 모달 · 설정 구획 · 카드 머리 · 패널 이름 · 사람 이름. 관리 화면의 페이지 제목과 상세 보기의 내용 제목(알림 · 신고 제목)은 글의 제목이라 headline.
   - 예외 — 글 · 작업물 **본문 안의** 제목(h1~h4)은 본문 글꼴을 굵게 쓴다. 표 열 이름 · 목록 항목 · 라벨 크기(14px 이하)의 "제목"은 UI 글자다.
 - 사이트 설정의 본문 · 제목 · 코드 글꼴이 `--font-family-body` · `-heading` · `-code` 를 덮는다. 3층 묶음은 그대로 따라간다.
 - 저장된 글 HTML 이 쓰는 옛 이름(`--font-mono` · `--font-size-xs` 등)은 `_legacy-aliases.css` 에 이어 둔다(2-3-6).
@@ -315,11 +318,13 @@ Carbon(type token)이 모두 이렇게 한다.
 | 묶음 | 굵기 · 크기 / 줄간격 · 글꼴 | 쓰는 자리 |
 |---|---|---|
 | `--font-display-xl · lg · md · sm` | 400 · 화면 비례 / 1.0 · accent | 히어로 · 대표 숫자 · 페이지 제목(Typography h1 ~ h3). 글꼴은 제목 설정과 상관없이 Playfair(D34) |
-| `--font-heading-xl` | 400 · 34 / 1.25 · heading | 페이지 제목 · 글 h1 |
-| `--font-heading-lg` | 400 · 28 / 1.25 · heading | 섹션 제목 · 글 h2 |
-| `--font-heading-md` | 400 · 22 / 1.25 · heading | 패널 · 모달 제목 · 글 h3 |
-| `--font-heading-sm` | 400 · 20 / 1.25 · heading | 하위 제목 |
-| `--font-heading-xs` | 400 · 18 / 1.25 · heading | 카드 · 목록 제목 · 글 h4 |
+| `--font-headline-xl` | 400 · 34 / 1.25 · headline | 페이지 제목 · 글 h1 |
+| `--font-headline-lg` | 400 · 28 / 1.25 · headline | 섹션 제목 · 글 h2 |
+| `--font-headline-md` | 400 · 22 / 1.25 · headline | 글 h3 · 상세 보기의 내용 제목 |
+| `--font-headline-sm` | 400 · 20 / 1.25 · headline | 하위 제목 |
+| `--font-headline-xs` | 400 · 18 / 1.25 · headline | 카드 · 목록의 글 제목 · 글 h4 |
+| `--font-title-md` | 600 · 20 / 1.25 · body | 큰 모달(시리즈 편집)의 제목 |
+| `--font-title-sm` | 600 · 18 / 1.25 · body | 모달 · 설정 구획 · 카드 머리 · 패널 이름 · 사람 이름 |
 | `--font-body-xl` | 400 · 18 / 1.6 · body | 리드 문단 · 인용 |
 | `--font-body-lg` | 400 · 16 / 1.6 · body | 긴 글 본문 |
 | `--font-body-md` | 400 · 14 / 1.6 · body | UI 본문 · 입력값 · 목록 |
@@ -330,19 +335,20 @@ Carbon(type token)이 모두 이렇게 한다.
 | `--font-prose-lg · md · sm · xs` | 300 · 화면 비례 12 ~ 24 / 1.6 · code | About · Profile 패널의 화면 비례 글자 — 크기만 유동인 메타(D34) |
 
 - 안 쓰는 토큰은 두지 않는다(2-4). 표의 묶음은 컴포넌트가 처음 쓸 때 같은 이름 · 같은 모양으로 `_semantic.css` 에 더한다.
-  지금은 전체 세트가 다 정의돼 있다 — `--font-display-sm ~ xl` · `--font-heading-xs ~ xl` · `--font-body-xs ~ xl` · `--font-code-xs ~ xl` · `--font-meta-xs ~ md` · `--font-prose-xs ~ lg`.
+  지금은 전체 세트가 다 정의돼 있다 — `--font-display-sm ~ xl` · `--font-headline-xs ~ xl` · `--font-title-sm ~ md` · `--font-body-xs ~ xl` · `--font-code-xs ~ xl` · `--font-meta-xs ~ md` · `--font-prose-xs ~ lg`.
 - 네비게이션은 `--font-body-*` 뒤에 `font-family: var(--font-family-nav)` 를 덧쓴다(한 파일뿐이라 묶음을 따로 두지 않는다).
 - 제목 단계는 Apple(Large Title 34 · Title 1 28 · Title 2 22 · Title 3 20)을 따른다. 가장 작은 제목은 본문 16 과 구분되게 18 이다
   (Apple Headline 17 은 본문 17 기준이다). 예전 24 는 22, 32 는 34, 제목으로 쓰던 16 은 18 로 옮겼다.
-- 제목은 보통 굵기 · 줄간격 1.25, 본문 · UI · 코드 · 메타는 줄간격 1.6(D25 · D27). 메타만 Light(300)이다(D32).
+- 글의 제목은 보통 굵기, 틀의 제목은 600, 둘 다 줄간격 1.25. 본문 · UI · 코드 · 메타는 줄간격 1.6(D25 · D27 · D46). 메타만 Light(300)이다(D32).
 - 로고 글자는 글자 역할이 아니다. `Logo` 컴포넌트가 정한다.
 
 **규칙**
 
 - **3.2-1. 컴포넌트는 글자를 역할 묶음으로 쓴다.**
   ```css
-  .title { font: var(--font-heading-sm); }
-  .title { font: var(--font-heading-sm); font-weight: var(--font-weight-semibold); } /* 한 값만 바꿀 때는 뒤에 덧쓴다 */
+  .postTitle { font: var(--font-headline-sm); }   /* 글의 제목 — 세리프 */
+  .modalTitle { font: var(--font-title-sm); }     /* 틀의 제목 — Pretendard 600. 제목 묶음에 글꼴 · 굵기를 덧쓰지 않는다 */
+  .meta { font: var(--font-body-sm); font-variant-numeric: tabular-nums; } /* 한 값만 바꿀 때는 뒤에 덧쓴다 */
   ```
   - 크기·줄간격·굵기·글꼴을 따로 고르지 않는다. 따로 고르면 같은 "카드 제목"이 자리마다 다른 조합이 된다.
     지금 `h1` 은 세 크기다 — 전역 24 · 글 본문 32 · `Typography` 64.
@@ -761,7 +767,7 @@ docs/tokens.md            토큰 값 — 자동 생성(npm run tokens:doc)
 | 4 | 층: 순서 선언 · 서드파티 CSS · 공용 컴포넌트 `components` 층 — **완료**. 남은 편법(`.x.x` · `!important`)과 다른 파일 `composes` 는 그 파일을 고칠 때(4-4-1 · 4-5) | 4-1–4-5 | 197 + 321 + 13 | 없음(계산값 비교로 확인) |
 | 5 | 테마: `light-dark()` · `color-scheme` · 컴포넌트의 테마 분기 제거 · View Transitions — **완료**. 팔레트 고정은 6단계로 옮겼다(2-5-1, D23) | 2-5 · 3.9-6 | — | 다크의 스크롤바 · 폼, 테마 전환 모습 |
 | 6 | 색: 색상별 팔레트 단계 · 컴포넌트는 역할 색만 · 팔레트 고정 · 반투명은 `color-mix()` · 대비 표 자동 생성 — **완료**. 대비 미달 3곳은 따로 정한다(3.1-4) | 3.1 · 2-5-1 | — | 라이트 오류 글 한 단계 진하게, 강조 반투명 · 밝은 강조 ΔL 1 미만 |
-| 7 | 글자: 7-1 글꼴 역할(Pretendard) · 제목 단계(Apple 기준) · 묶음 도입 · 11px 없애기 · 루트 크기 · `relaxed` — **완료**. 7-2 세리프 제목 정리 — **완료**(D26 → D27 로 바꿈: 제목은 모두 세리프) · 7-3 숫자 크기(눈금과 같은 값 55곳 → 토큰) · px 줄간격(19곳 → 비율) — **완료**. 지면 글자 7토큰을 rem 섞은 값으로(D28) — **완료**. 눈금에 없는 숫자 크기 37곳 → 가장 가까운 단계(스위치 ON/OFF · 장식 숫자 · 별 기호 4곳은 그래픽이라 예외) — **완료**. 컴포넌트에 직접 쓴 유동 크기 148곳 → rem 섞은 값(D30, 예외 3곳) — **완료**. 글자 토큰 세 층 · 이름 규칙 정리(D31) — **완료**. 컴포넌트를 묶음으로 — 역할 크기 토큰을 쓰던 규칙 1,500여 곳(D33) · 눈금을 바로 쓴 규칙 · 지면 크기 규칙 170여 곳(D34) · 1층 `--fluid-font-size-*` 38곳 → 전시 묶음(D35, fluid 토큰 삭제) **완료**. 남은 것: 로고 2곳 · `!important` 1곳(글자 역할이 아니거나 예외) | 3.2 | 선언 2220 · 62 + 160 + 21 | 7-1: 글꼴 Pretendard, 11px → 12px, 제목 크기 |
+| 7 | 글자: 7-1 글꼴 역할(Pretendard) · 제목 단계(Apple 기준) · 묶음 도입 · 11px 없애기 · 루트 크기 · `relaxed` — **완료**. 7-2 세리프 제목 정리 — **완료**(D26 → D27 로 바꿈: 제목은 모두 세리프) · 7-3 숫자 크기(눈금과 같은 값 55곳 → 토큰) · px 줄간격(19곳 → 비율) — **완료**. 지면 글자 7토큰을 rem 섞은 값으로(D28) — **완료**. 눈금에 없는 숫자 크기 37곳 → 가장 가까운 단계(스위치 ON/OFF · 장식 숫자 · 별 기호 4곳은 그래픽이라 예외) — **완료**. 컴포넌트에 직접 쓴 유동 크기 148곳 → rem 섞은 값(D30, 예외 3곳) — **완료**. 글자 토큰 세 층 · 이름 규칙 정리(D31) — **완료**. 컴포넌트를 묶음으로 — 역할 크기 토큰을 쓰던 규칙 1,500여 곳(D33) · 눈금을 바로 쓴 규칙 · 지면 크기 규칙 170여 곳(D34) · 1층 `--fluid-font-size-*` 38곳 → 전시 묶음(D35, fluid 토큰 삭제) **완료**. 7-4 역할 이름을 Material 식으로(heading → headline) · 틀의 제목 `title` 역할(Pretendard 600) — **완료**(D46). 남은 것: `label` 역할 — 묶음 뒤에 굵기를 덧쓰는 451곳(500 · 600 이 대부분)을 흡수 — **목표**. 로고 2곳 · `!important` 1곳(글자 역할이 아니거나 예외) | 3.2 | 선언 2220 · 62 + 160 + 21 | 7-1: 글꼴 Pretendard, 11px → 12px, 제목 크기 |
 | 8 | 컨트롤 · 크기: 8-1 높이 눈금 24 … 40 · 24px 타깃 · `size` 이름 · 떠 있는 단추 · `--size-38` · px 줄간격 2곳 — **완료**(D36). 8-2 세로 여백으로 만든 높이 57곳 → 높이 + 좌우 여백 — **완료**(D37). 8-3 맨 `<button>` 5곳 → `Pressable` — **완료**. 8단계 끝 | 3.4 · 5-1 | 307 + 57 + 27 + 5 | 1–4px |
 | 9 | 모서리 · 테두리 · 그림자(안의 색 71 포함) · 투명도: 9-1 모서리 역할 3개 · `circle` 삭제 · 눈금 1,182 + 숫자 27 → 역할 — **완료**(D38). 9-2 테두리 숫자 두께 222 → 눈금 · 묶음, 테두리 흉내 `box-shadow` 92 → `border` · `outline` — **완료**(D39). 9-3 그림자 값 60 + 크기 이름 62 → 역할 — **완료**(D40). 9-4 비활성 투명도 44 → `--opacity-disabled` 0.5 — **완료**(D41). 9단계 끝 | 3.5 – 3.8 · 3.1-2 | 1182 + 27 · 222 · 143 + 62 + 71 · 49 | 비활성 투명도 통일, 그림자(미리보기) |
 | 10 | 모션: 10-1 곡선 이름(자리로) · 토큰 정리 39 · 움직임 줄이기 · `transition: all` 17 — **완료**(D42). 10-2 지속 시간 880 · 곡선 1,055 → 토큰, 반복 · 긴 애니메이션 103 → 지역 변수 — **완료**(D43). 10단계 끝 | 3.9 | 744 + 39 + 17 | 350 → 300ms, 0.2 → 0.15s · 0.4 → 0.3s |

@@ -117,7 +117,7 @@
   min-width: 0;
   padding: var(--spacing-12) var(--spacing-20);
   font: var(--font-body-md);
-  font-family: var(--font-family-heading);
+  font-family: var(--font-family-headline);
   line-height: var(--line-height-125);
   color: var(--text-primary);
   display: -webkit-box;

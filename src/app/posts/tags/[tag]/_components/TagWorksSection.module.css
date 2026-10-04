@@ -11,7 +11,7 @@
   align-items: center;
   gap: var(--spacing-12);
   margin: 0 0 var(--spacing-24) 0;
-  font: var(--font-heading-xs);
+  font: var(--font-headline-xs);
   letter-spacing: -0.01em;
   color: var(--text-primary);
 }
@@ -100,7 +100,7 @@
 .workRowTitle {
   flex: 0 1 auto;
   min-width: 0;
-  font: var(--font-heading-xl);
+  font: var(--font-headline-xl);
   line-height: 1.1;
   color: var(--text-primary);
   letter-spacing: -0.01em;
@@ -127,7 +127,7 @@
   flex: 0 0 auto;
   margin-left: auto;
   margin-right: var(--spacing-16);
-  font: var(--font-heading-sm);
+  font: var(--font-headline-sm);
   font-style: italic;
   font-weight: var(--font-weight-light);
   font-variant-numeric: tabular-nums;
@@ -167,7 +167,7 @@
     display: none;
   }
   .workRowTitle {
-    font-size: var(--font-size-heading-md);
+    font-size: var(--font-size-headline-md);
     white-space: normal;
   }
 }

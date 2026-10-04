@@ -165,7 +165,7 @@
 }
 
 .char {
-  font: var(--font-heading-sm);
+  font: var(--font-headline-sm);
   line-height: 1;
 }
 

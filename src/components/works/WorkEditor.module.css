@@ -14,7 +14,7 @@
    280px 미만 → 1 col, 280~560 → 2 col, 560+ → 3+ col */
 
 .sectionTitle {
-  font: var(--font-heading-xs);
+  font: var(--font-headline-xs);
   color: var(--text-primary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -188,7 +188,7 @@
 }
 
 .extraHeadTitle {
-  font: var(--font-heading-xs);
+  font: var(--font-headline-xs);
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--text-primary);
@@ -1214,9 +1214,7 @@
 
 /* Instagram-style: name 강조 (md, weight 600) */
 .memberItemName {
-  font: var(--font-heading-xs);
-  font-family: var(--font-family-body);
-  font-weight: 600;
+  font: var(--font-title-sm);
   line-height: 1.3;
   color: var(--text-primary);
 }

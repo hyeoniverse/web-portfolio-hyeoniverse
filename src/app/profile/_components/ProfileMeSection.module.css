@@ -68,7 +68,7 @@
   position: absolute;
   right: var(--_panel-px);
   bottom: 8%;
-  font-family: var(--font-family-heading);
+  font-family: var(--font-family-headline);
   font-size: clamp(9rem, 3.334rem + 8.8vw, 12rem);
   font-style: italic;
   font-weight: 400;
@@ -121,7 +121,7 @@
   position: absolute;
   right: -4%;
   bottom: 5%;
-  font-family: var(--font-family-heading);
+  font-family: var(--font-family-headline);
   font-size: clamp(11.55rem, 6.669rem + 7.59vw, 15.8rem);
   font-style: italic;
   font-weight: var(--font-weight-regular);
@@ -228,7 +228,7 @@
 }
 
 .osWindowClose {
-  font: var(--font-heading-sm);
+  font: var(--font-headline-sm);
   line-height: 1;
   color: inherit;
 }
@@ -295,7 +295,7 @@
 
 .magHeadline {
   margin: 0 0 var(--spacing-8) 0;
-  font-family: var(--font-family-heading);
+  font-family: var(--font-family-headline);
   font-size: clamp(3.05rem, 2.303rem + 3.55vw, 5.5rem);
   font-weight: 400;
   line-height: 0.9;
@@ -335,7 +335,7 @@
 
 .magName {
   margin: 0 0 var(--spacing-20) 0;
-  font-family: var(--font-family-heading);
+  font-family: var(--font-family-headline);
   font-size: clamp(1.5rem, 1.221rem + 1.14vw, 2.25rem);
   font-weight: 400;
   line-height: 1.1;
@@ -369,7 +369,7 @@
   padding: var(--spacing-24) 0;
   border-top: var(--border-width-1) solid var(--border-default);
   border-bottom: var(--border-width-1) solid var(--border-default);
-  font-family: var(--font-family-heading);
+  font-family: var(--font-family-headline);
   font-size: clamp(1.25rem, 1.064rem + 0.76vw, 1.75rem);
   font-style: italic;
   font-weight: 400;
@@ -434,7 +434,7 @@
 
 .bioHighlight {
   margin: 0 0 var(--spacing-24) 0;
-  font-family: var(--font-family-heading);
+  font-family: var(--font-family-headline);
   font-size: clamp(1.5rem, 1.249rem + 0.83vw, 2rem);
   font-weight: 400;
   line-height: 1.4;
@@ -466,7 +466,7 @@
 .statNumber {
   /* 큰 숫자 — 전시 md(아래가 32). sm 은 폰에서 16 까지 줄어 숫자가 사라진다(D34) */
   font: var(--font-display-md);
-  font-family: var(--font-family-heading);
+  font-family: var(--font-family-headline);
   color: var(--text-primary);
 }
 
@@ -484,7 +484,7 @@
    Instrument Serif 로 키워 패널의 주인공으로 세운다. */
 .sectionSubtitle {
   margin: 0 0 clamp(2rem, 5vh, 3.5rem);
-  font-family: var(--font-family-heading);
+  font-family: var(--font-family-headline);
   font-size: clamp(2.25rem, 1.414rem + 3.43vw, 4.5rem);
   font-weight: 400;
   line-height: 1;
@@ -554,7 +554,7 @@
 
 .expPeriod {
   padding-top: 0.15em;
-  font-family: var(--font-family-heading);
+  font-family: var(--font-family-headline);
   font-size: clamp(1rem, 0.534rem + 0.97vw, 1.5rem);
   font-weight: 400;
   line-height: 1.3;
@@ -642,7 +642,7 @@
 
 .skillPanelCategory {
   margin: 0 0 var(--spacing-20) 0;
-  font-family: var(--font-family-heading);
+  font-family: var(--font-family-headline);
   font-size: clamp(1.75rem, 1.471rem + 1.14vw, 2.5rem);
   font-weight: 400;
   line-height: 1.2;
@@ -723,7 +723,7 @@
 }
 
 .philosophyIndex {
-  font-family: var(--font-family-heading);
+  font-family: var(--font-family-headline);
   font-size: clamp(2rem, 1.489rem + 2.1vw, 3.5rem);
   font-weight: 400;
   line-height: 1;
@@ -733,7 +733,7 @@
 
 .philosophyHeadline {
   margin: 0;
-  font-family: var(--font-family-heading);
+  font-family: var(--font-family-headline);
   font-size: clamp(1.5rem, 1.129rem + 1.52vw, 2.5rem);
   font-weight: 400;
   line-height: 1.15;
@@ -776,7 +776,7 @@
 }
 
 .approachNum {
-  font-family: var(--font-family-heading);
+  font-family: var(--font-family-headline);
   font-size: clamp(2rem, 1.489rem + 2.1vw, 3.5rem);
   font-weight: 400;
   line-height: 1;
@@ -786,7 +786,7 @@
 
 .approachName {
   margin: 0;
-  font-family: var(--font-family-heading);
+  font-family: var(--font-family-headline);
   font-size: clamp(1.5rem, 1.129rem + 1.52vw, 2.5rem);
   font-weight: 400;
   line-height: 1.15;
@@ -816,7 +816,7 @@
 
 .credentialHeading {
   margin: 0 0 var(--spacing-24) 0;
-  font: var(--font-heading-sm);
+  font: var(--font-headline-sm);
   font-weight: 400;
   color: var(--text-primary);
 }

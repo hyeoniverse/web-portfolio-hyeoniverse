@@ -103,7 +103,7 @@
 
 .polaroidAvatarImg { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-.polaroidAvatarInitial { font: var(--font-display-sm); font-family: var(--font-family-heading); color: var(--text-tertiary); }
+.polaroidAvatarInitial { font: var(--font-display-sm); font-family: var(--font-family-headline); color: var(--text-tertiary); }
 
 .polaroidCaption {
   display: flex;
@@ -117,7 +117,7 @@
 }
 
 .polaroidName {
-  font: var(--font-heading-xs);
+  font: var(--font-headline-xs);
   color: var(--text-primary);
   line-height: 1.2;
 }
@@ -149,7 +149,7 @@
 }
 
 .polaroidBackName {
-  font: var(--font-heading-xs);
+  font: var(--font-headline-xs);
   color: var(--text-primary);
   line-height: 1.2;
   min-width: 0;

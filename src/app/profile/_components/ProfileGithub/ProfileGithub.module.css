@@ -62,7 +62,7 @@
   align-items: center;
   gap: var(--spacing-12);
   margin: 0;
-  font: var(--font-heading-md);
+  font: var(--font-headline-md);
   color: var(--text-primary);
 }
 
@@ -505,7 +505,7 @@
   align-items: center;
   gap: var(--spacing-4);
   min-width: 0;
-  font: var(--font-heading-xs);
+  font: var(--font-headline-xs);
   font-family: var(--font-family-code);
   font-weight: var(--font-weight-semibold);
   letter-spacing: -0.02em;
@@ -516,7 +516,7 @@
    평소엔 물러나 있다가 가리키면 또렷해진다. */
 .repoIndex {
   flex-shrink: 0;
-  font: var(--font-heading-sm);
+  font: var(--font-headline-sm);
   font-style: italic;
   line-height: 1;
   color: var(--text-accent);

@@ -174,7 +174,7 @@
 
 .placeholderTitle {
   margin: 0;
-  font: var(--font-heading-sm);
+  font: var(--font-headline-sm);
   font-family: var(--font-family-accent);
   font-weight: 600;
   line-height: 1.25;
@@ -239,7 +239,7 @@
 
 /* ── Title ── */
 .title {
-  font: var(--font-heading-lg);
+  font: var(--font-headline-lg);
   color: var(--text-primary);
   min-height: calc(var(--font-size-28) * var(--line-height-125) * 2);
   /* 한글 단어 보존 + 영문 긴 단어 break (line-clamp 시 ellipsis 정확히 표시되게) */

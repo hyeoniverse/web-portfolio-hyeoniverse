@@ -83,7 +83,7 @@
 /* ── Title ── */
 .title {
   margin-bottom: var(--spacing-24);
-  font-family: var(--font-family-heading);
+  font-family: var(--font-family-headline);
   font-size: clamp(5.15rem, 4.199rem + 1.45vw, 5.5rem);
   font-weight: var(--font-weight-regular);
   line-height: 1.05;

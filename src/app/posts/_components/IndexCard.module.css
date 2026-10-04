@@ -49,7 +49,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-family-heading);
+  font-family: var(--font-family-headline);
   font-size: clamp(2.5rem, 1.943rem + 2.29vw, 4rem);
   color: var(--text-tertiary);
 }
@@ -79,7 +79,7 @@
 
 .cardTitle {
   /* /posts 본문 카드·history 와 동일한 editorial instrument serif 로 통일 */
-  font: var(--font-heading-xs);
+  font: var(--font-headline-xs);
   letter-spacing: -0.01em;
   color: var(--text-primary);
   line-height: var(--line-height-125);

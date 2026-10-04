@@ -16,7 +16,7 @@
 
 .title {
   font: var(--font-display-sm);
-  font-family: var(--font-family-heading);
+  font-family: var(--font-family-headline);
   color: var(--text-primary);
   letter-spacing: -0.02em;
   text-align: center;

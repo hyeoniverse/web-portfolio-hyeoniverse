@@ -98,7 +98,7 @@
 
 .modalTitle {
   margin: 0;
-  font: var(--font-heading-xs);
+  font: var(--font-title-sm); /* 틀의 제목 — 글의 제목(headline)이 아니다(D46) */
   color: var(--text-primary);
   letter-spacing: -0.01em;
 }

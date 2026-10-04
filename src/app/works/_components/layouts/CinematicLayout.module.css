@@ -76,7 +76,7 @@
 
 .metaNumber {
   font: var(--font-display-xl);
-  font-family: var(--font-family-heading);
+  font-family: var(--font-family-headline);
   font-weight: 200;
   line-height: 0.8;
   letter-spacing: -0.06em;
@@ -94,7 +94,7 @@
 }
 
 .metaTitle {
-  font-family: var(--font-family-heading);
+  font-family: var(--font-family-headline);
   /* 제목이 길 때만 작아진다 — 두 줄까지 쓸 수 있으므로 자리 너비의 두 줄분(×4, 로마자 한 글자를
      0.5em 로 본다)을 글자 수로 나눠 한 줄에 들어갈 크기를 구하고, 원래 크기를 넘지 않게 한다.
      아래로는 2.5rem 에서 멈추고, 그 크기로도 두 줄에 안 들어가면 둘째 줄에서 자른다.
@@ -151,7 +151,7 @@
   right: 6vw;
   bottom: 10vh;
   z-index: 2;
-  font-family: var(--font-family-heading);
+  font-family: var(--font-family-headline);
   font-size: clamp(9.65rem, 0.25rem + 14.72vw, 250px);
   font-weight: 200;
   line-height: 0.8;
