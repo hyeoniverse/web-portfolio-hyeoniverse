@@ -2,11 +2,9 @@
 
 import { useRef, useState } from "react";
 import type { SelectOption } from "@/types";
-import { ChevronUp, ChevronDown, GripDotsIcon } from "@/components/icons";
+import { GripDotsIcon } from "@/components/icons";
 import Checkbox from "@/components/ui/Checkbox";
 import styles from "./PriorityList.module.css";
-import shared from "../Settings.module.css";
-import Pressable from "@/components/ui/Pressable";
 
 interface PriorityListProps<T extends string> {
   primary: T;
@@ -42,14 +40,6 @@ export function PriorityList<T extends string>({ primary, priority, excluded, op
   const [draggingIdx, setDraggingIdx] = useState<number | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const touchStartY = useRef(0);
-
-  const move = (idx: number, dir: -1 | 1) => {
-    const next = [...full];
-    const target = idx + dir;
-    if (target < 0 || target >= next.length) return;
-    [next[idx], next[target]] = [next[target], next[idx]];
-    onChange(next);
-  };
 
   // 항목을 from → to 로 이동(splice). desktop drop / touch end 공용.
   const reorder = (from: number, to: number) => {
@@ -157,20 +147,6 @@ export function PriorityList<T extends string>({ primary, priority, excluded, op
                   <span className={`${styles.priorityLabel} ${isEnabled ? "" : styles.priorityLabelDisabled}`}>{label}</span>
                 );
               })()}
-              {!collapsed && <div className={styles.priorityBtns}>
-                <Pressable
-                  className={shared.priorityBtn}
-                  disabled={idx === 0}
-                  onClick={() => move(idx, -1)}
-                  aria-label="Move up"
-                ><ChevronUp size={12} strokeWidth={2.5} /></Pressable>
-                <Pressable
-                  className={shared.priorityBtn}
-                  disabled={idx === full.length - 1}
-                  onClick={() => move(idx, 1)}
-                  aria-label="Move down"
-                ><ChevronDown size={12} strokeWidth={2.5} /></Pressable>
-              </div>}
             </div>
             {/* 상자 밖 오른쪽 — 상태(꺼짐 · 키 없음 · 실패 중). 1번이 기본이라는 건 따로 적지 않는다 */}
             {badgeOf?.(val) ? <span className={styles.priorityAside}>{badgeOf(val)}</span> : null}

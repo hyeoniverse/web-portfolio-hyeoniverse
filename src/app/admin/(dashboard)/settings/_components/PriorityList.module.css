@@ -87,12 +87,6 @@
   cursor: grabbing;
 }
 
-.priorityBtns {
-  display: flex;
-  flex-shrink: 0;
-  align-self: stretch;
-  border-left: var(--border-light);
-}
 
 /* 1번 뒤 항목 — 자동 전환이 꺼지면 높이 0 으로 접힌다(grid 0fr→1fr 로 움직임) */
 .priorityRest {

@@ -444,36 +444,6 @@
   overflow: hidden;
 }
 
-/* ── Fallback Priority List ── */
-
-.priorityBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  aspect-ratio: 1;
-  border: none;
-  border-radius: 0;
-  background: transparent;
-  color: var(--text-tertiary);
-  font: var(--font-body-sm);
-  line-height: var(--line-height-100);
-  padding: 0;
-}
-
-.priorityBtn + .priorityBtn {
-  border-left: var(--border-light);
-}
-
-.priorityBtn:disabled {
-  opacity: var(--opacity-disabled);
-}
-
-.fields .priorityBtn:not(:disabled):hover {
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
-}
-
 /* ── Profile Sections (embedded in Content tab) ── */
 
 .profileAddBtn {
