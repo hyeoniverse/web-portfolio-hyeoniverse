@@ -650,7 +650,6 @@
   align-items: center;
   gap: var(--spacing-4);
   font: var(--font-body-sm);
-  font-weight: 600;
   color: var(--text-primary);
   transition: color var(--duration-base) var(--ease-standard);
 }

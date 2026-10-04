@@ -139,10 +139,9 @@ export function ProviderHealthInline({ provider: p, health, open, onToggle }: { 
         <UsageLine provider={p} usage={u} deepl={p === "deepl" ? data.deepl : null} />
       </span>
       <span className={styles.actions}>
+        {/* 다시 켜기(꺼짐 · 강조) · 기록 지우기(실패 중) — 글 없이 아이콘, 뜻은 title 로 */}
         {(off || failing) && (
-          <Button variant={off ? "primary" : "outline"} size="sm" shape="capsule" onClick={() => void reset()} loading={resetting} soundDisabled icon={<RotateCcw size={14} strokeWidth={2} />}>
-            {th(off ? "reenable" : "clear")}
-          </Button>
+          <Button variant={off ? "primary" : "ghost"} size="sm" shape="circle" onClick={() => void reset()} loading={resetting} aria-label={th(off ? "reenable" : "clear")} title={th(off ? "reenable" : "clear")} soundDisabled icon={<RotateCcw size={14} strokeWidth={2} />} />
         )}
         {/* 호출 기록은 따로 둔 페이지(/admin/service-log) — 그 공급자로 걸러 연다 */}
         <Button variant="ghost" size="sm" shape="circle" href={`/admin/service-log?provider=${p}`} aria-label={th("logOpenOne")} title={th("logOpenOne")} soundDisabled icon={<History size={14} strokeWidth={2} />} />

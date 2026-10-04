@@ -65,7 +65,6 @@
   width: calc(22rem + 50px);
   white-space: nowrap;
   font: var(--font-body-sm);
-  font-weight: 600;
   color: var(--text-primary);
 }
 
@@ -238,6 +237,11 @@
   border-bottom: var(--border-light);
 }
 
+/* 마지막 묶음 아래는 섹션의 선이 맡는다 — 선이 겹쳐 두 줄로 보이지 않게 */
+.featureRow:last-child {
+  border-bottom: none;
+}
+
 .featureSide {
   display: flex;
   flex-wrap: wrap;
@@ -262,7 +266,7 @@
 }
 
 /* 설명 — 섹션 설명과 같은 글꼴, 아래 여백은 없앤다(격자 간격이 맡는다) */
-.featureHints.featureHints {
+.featureBody .featureHints {
   margin-bottom: 0;
 }
 
@@ -280,12 +284,6 @@
   gap: var(--spacing-8);
 }
 
-@media (max-width: 768px) {
-  .featureRow {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
 /* 순서 줄 상자 안의 모델 고르기 — 공급자 이름 자리에, 화살표 앞까지 */
 .modelSelect {
   display: flex;
@@ -294,8 +292,8 @@
   min-width: 0;
 }
 
-/* 트리거는 글과 › 만 — 바깥 상자(.priorityItem)가 테두리를 맡는다. 같은 (0,1,0) 끼리 번들 순서에 흔들리지 않게 겹친다 */
-.modelTrigger.modelTrigger {
+/* 트리거는 글과 › 만 — 바깥 상자(.priorityItem)가 테두리를 맡는다. Select 의 .trigger(0,1,0)를 번들 순서와 상관없이 이기도록 부모를 붙인다 */
+.modelSelect .modelTrigger {
   width: 100%;
   height: 100%;
   /* 왼쪽은 이름 칸(.priorityLabel)과 같은 여백 — 모델이 있는 줄과 없는 줄의 글 시작점이 같다 */
@@ -316,7 +314,7 @@
 
 /* 전체 스위치가 꺼져 있으면 흐리게 — 체크는 남겨 두어 켤 때 그대로 돌아온다 */
 .notifyGroups[data-disabled] {
-  opacity: 0.55;
+  opacity: var(--opacity-disabled);
 }
 
 .notifyGroup {
@@ -328,7 +326,6 @@
 
 .notifyGroupTitle {
   font: var(--font-body-sm);
-  font-weight: 600;
   color: var(--text-tertiary);
   letter-spacing: 0.05em;
   text-transform: uppercase;
