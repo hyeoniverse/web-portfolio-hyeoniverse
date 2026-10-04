@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { Trash2, RotateCcw } from "@/components/icons";
+import { Trash2, RotateCcw, MessageSquare } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useStaticPageScroll } from "@/hooks/useStaticPageScroll";
 import { useModalStore } from "@/stores/modalStore";
@@ -174,7 +174,10 @@ export default function CommentsModerationPage() {
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <h1 className={styles.title}><T k="admin.comments.title" /></h1>
+        <h1 className={styles.title}>
+          <MessageSquare size={26} strokeWidth={1.6} aria-hidden className={styles.titleIcon} />
+          <T k="admin.comments.title" />
+        </h1>
       </header>
 
       {/* ── Filters ── */}

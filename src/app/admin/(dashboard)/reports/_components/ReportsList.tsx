@@ -255,12 +255,12 @@ export default function ReportsList({
     );
   }
 
-  // 독립 페이지 — 공통 AdminListShell(posts/works 와 같은 제목 헤더 + Lenis 진입). Flag+배지는 title, 필터는 headerExtra.
+  // 독립 페이지 — 공통 AdminListShell(posts/works 와 같은 제목 헤더 + Lenis 진입). 아이콘은 shell 의 icon, 배지는 title, 필터는 headerExtra.
   return (
     <AdminListShell
+      icon={<Flag size={26} strokeWidth={1.6} />}
       title={
         <span className={styles.titleRow}>
-          <Flag size={20} strokeWidth={1.6} aria-hidden />
           <T k="admin.reports.title" />
           {pendingCount > 0 && <span className={styles.badge}>{pendingCount}</span>}
         </span>

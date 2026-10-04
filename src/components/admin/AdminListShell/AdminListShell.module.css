@@ -24,6 +24,19 @@
   flex-shrink: 0;
 }
 
+/* 제목 앞 아이콘 — 대시보드 · 설정 · 알림 페이지의 titleIcon 과 같은 자리 · 색 */
+.titleWithIcon {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+}
+
+.titleIcon {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--text-secondary);
+}
+
 .saveBtn {
   min-width: 110px;
   display: inline-flex;

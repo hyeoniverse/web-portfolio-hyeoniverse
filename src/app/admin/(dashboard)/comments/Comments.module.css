@@ -22,6 +22,10 @@
   margin: 0;
 }
 
+.titleIcon {
+  color: var(--text-secondary);
+}
+
 
 /* ── Filters ── */
 .filters {

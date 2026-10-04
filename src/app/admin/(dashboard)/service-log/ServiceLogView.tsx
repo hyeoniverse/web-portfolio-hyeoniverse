@@ -152,12 +152,8 @@ export default function ServiceLogView() {
 
   return (
     <AdminListShell
-      title={
-        <span className={styles.titleRow}>
-          <History size={20} strokeWidth={1.6} aria-hidden />
-          {th("logTitle")}
-        </span>
-      }
+      icon={<History size={26} strokeWidth={1.6} />}
+      title={th("logTitle")}
       headerExtra={
         <span className={styles.headerActions}>
           <Button variant="ghost" size="sm" shape="capsule" href="/admin/settings?tab=services" soundDisabled icon={<Settings size={14} strokeWidth={1.8} />}>

@@ -7,7 +7,7 @@ import type { GithubImportResponse } from "@/types";
 import { QUERY_PARAM } from "@/constants";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SearchHighlightProvider } from "@/providers/SearchHighlightProvider";
-import { Upload, Plus, Download } from "@/components/icons";
+import { Upload, Plus, Download, FileText } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import Button from "@/components/ui/Button";
@@ -450,6 +450,7 @@ export default function PostsClient({ initialPosts, initialTotalPages, initialPe
     <div style={{ position: "relative" }}>
     {busy && <div className={styles.busyOverlay}><span className={styles.busySpinner} /></div>}
     <AdminListShell
+      icon={<FileText size={26} strokeWidth={1.6} />}
       title={`${t("admin.posts.title")} (${totalCount})`}
       newHref="/admin/posts/new"
       newLabel={t("admin.posts.newPost")}
