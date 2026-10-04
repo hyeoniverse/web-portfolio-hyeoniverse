@@ -7,7 +7,7 @@
    표(AiHealthPanel)는 서비스 호출 기록 페이지가 그리고, 설정 › 서비스는 같은 조각(ProviderHealthInline · Detail)을
    기능별 순서 줄에 붙여 쓴다 — 표를 따로 두지 않는다. */
 import { useState } from "react";
-import { ChevronDown, ChevronRight, Copy, Eraser, ExternalLink, History, Power } from "@/components/icons";
+import { ChevronDown, ChevronRight, Copy, ExternalLink, History, ListX, Power } from "@/components/icons";
 
 import { useLanguage } from "@/providers/LanguageProvider";
 import Button from "@/components/ui/Button";
@@ -139,9 +139,9 @@ export function ProviderHealthInline({ provider: p, health, open, onToggle }: { 
         <UsageLine provider={p} usage={u} deepl={p === "deepl" ? data.deepl : null} />
       </span>
       <span className={styles.actions}>
-        {/* 다시 켜기(꺼짐 · 강조 · ⏻) · 기록 지우기(실패 중 · 지우개) — 글 없이 아이콘, 뜻은 title 로 */}
+        {/* 다시 켜기(꺼짐 · 강조 · ⏻) · 기록 지우기(실패 중 · 목록 ×) — 글 없이 아이콘, 뜻은 title 로 */}
         {off && <Button variant="primary" size="sm" shape="circle" onClick={() => void reset()} loading={resetting} aria-label={th("reenable")} title={th("reenable")} soundDisabled icon={<Power size={14} strokeWidth={2} />} />}
-        {failing && <Button variant="ghost" size="sm" shape="circle" onClick={() => void reset()} loading={resetting} aria-label={th("clear")} title={th("clear")} soundDisabled icon={<Eraser size={14} strokeWidth={2} />} />}
+        {failing && <Button variant="ghost" size="sm" shape="circle" onClick={() => void reset()} loading={resetting} aria-label={th("clear")} title={th("clear")} soundDisabled icon={<ListX size={14} strokeWidth={2} />} />}
         {/* 호출 기록은 따로 둔 페이지(/admin/service-log) — 그 공급자로 걸러 연다 */}
         <Button variant="ghost" size="sm" shape="circle" href={`/admin/service-log?provider=${p}`} aria-label={th("logOpenOne")} title={th("logOpenOne")} soundDisabled icon={<History size={14} strokeWidth={2} />} />
         {info.console && (
