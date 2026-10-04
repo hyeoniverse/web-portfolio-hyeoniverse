@@ -181,6 +181,9 @@ export default function BunnyShowcasePanel({ animateClass, bunny }: Props) {
     lastPointer.current = { x: e.clientX, y: e.clientY };
     e.currentTarget.setPointerCapture(e.pointerId);
     e.currentTarget.dataset.dragging = "true";
+    /* 누르는 순간의 기본 동작(글자 선택 시작)을 막는다 — 안 막으면 몽이를 끌 때 옆 소개 글이
+       같이 드래그돼 파랗게 선택된다. 포인터 캡처는 그대로라 끌기에는 영향이 없다 */
+    e.preventDefault();
   }, []);
 
   const onPointerMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
