@@ -41,14 +41,14 @@
 .introTitle {
   margin: 0;
   font: var(--font-display-lg);
-  font-family: var(--font-family-heading);
+  font-family: var(--font-family-headline);
   font-weight: var(--font-weight-light);
   line-height: 0.9;
   letter-spacing: -0.04em;
 }
 
 .introTagline {
-  font: var(--font-heading-sm);
+  font: var(--font-headline-sm);
   font-style: italic;
   letter-spacing: 0.02em;
   /* 0.6 은 라이트에서 대비 4.13. 0.7 이면 4.65. */
@@ -105,7 +105,7 @@
 .introStatNumber {
   /* 큰 숫자 — 전시 md(아래가 32). sm 은 폰에서 16 까지 줄어 숫자가 사라진다(D34) */
   font: var(--font-display-md);
-  font-family: var(--font-family-heading);
+  font-family: var(--font-family-headline);
   font-weight: var(--font-weight-light);
   letter-spacing: -0.04em;
 }
@@ -142,7 +142,7 @@
   margin: 0;
   min-height: 3.3em; /* 2 lines × 1.65 line-height */
   font: var(--font-body-lg);
-  font-family: var(--font-family-heading);
+  font-family: var(--font-family-headline);
   font-style: italic;
   color: var(--text-secondary);
   /* 0.6 은 라이트에서 대비 3.51. 0.75 면 4.72. */

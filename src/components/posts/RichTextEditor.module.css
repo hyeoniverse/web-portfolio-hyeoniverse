@@ -2248,7 +2248,7 @@
   width: 100%;
   content: "Footnotes";
   display: block;
-  font: var(--font-heading-xs);
+  font: var(--font-headline-xs);
   color: var(--text-primary);
   margin-bottom: 0;
 }

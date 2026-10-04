@@ -21,7 +21,7 @@
 .title {
   margin: 0;
   min-width: 0;
-  font: var(--font-heading-sm);
+  font: var(--font-headline-sm);
   font-weight: var(--font-weight-semibold);
   line-height: 1.2;
   color: var(--text-primary);

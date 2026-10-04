@@ -20,7 +20,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-12);
-  font: var(--font-heading-xl);
+  font: var(--font-headline-xl);
   color: var(--text-primary);
   margin: 0;
 }
@@ -289,7 +289,7 @@ a.statCard:hover .statValue {
 }
 
 .statValue {
-  font: var(--font-heading-md);
+  font: var(--font-headline-md);
   font-family: var(--font-family-body);
   font-weight: 700;
   line-height: 1;
@@ -1101,4 +1101,15 @@ a.commentSource:hover {
 
 .serviceBarArrow {
   margin-left: auto;
+}
+
+/* 새로고침 중 아이콘 회전 — 알림 페이지와 같다 */
+.refreshSpinning {
+  --_refreshSpin-duration: 0.9s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
+  animation: refreshSpin var(--_refreshSpin-duration) linear infinite;
+}
+
+@keyframes refreshSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }

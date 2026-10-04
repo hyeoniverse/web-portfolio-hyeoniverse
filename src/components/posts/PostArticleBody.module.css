@@ -280,7 +280,7 @@
   clip: auto;
   white-space: normal;
   font: var(--font-body-xl);
-  font-family: var(--font-family-heading);
+  font-family: var(--font-family-headline);
   color: var(--text-primary);
   margin: 0 0 var(--spacing-12) 0;
 }

@@ -9,6 +9,7 @@ export const revalidate = 60;
 export async function generateMetadata(): Promise<Metadata> {
   const cfg = await getSiteConfig();
   return {
+    title: "Home", // 다른 페이지처럼 "HYEONIVERSE | Home" 으로 — 비우면 루트의 default 만 떠서 사이트 이름뿐이다
     description: cfg.metadata.description,
     openGraph: {
       title: cfg.metadata.title,

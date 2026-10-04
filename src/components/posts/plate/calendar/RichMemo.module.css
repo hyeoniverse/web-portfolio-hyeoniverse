@@ -51,7 +51,7 @@
   color: var(--text-tertiary);
   pointer-events: none;
 }
-.editable :is(h1, h2, h3) { font-size: var(--font-size-heading-xs); font-weight: 700; margin: 0.4em 0 0.2em; }
+.editable :is(h1, h2, h3) { font-size: var(--font-size-headline-xs); font-weight: 700; margin: 0.4em 0 0.2em; }
 .editable ul, .editable ol { margin: 0.2em 0; padding-left: 1.4em; }
 .editable img { max-width: 100%; border-radius: var(--radius-surface); margin: var(--spacing-4) 0; }
 .editable a { color: var(--text-accent); text-decoration: underline; }

@@ -41,7 +41,7 @@
 .panelTitleCompact {
   flex-shrink: 0;
   margin: 0 0 var(--spacing-24) 0;
-  font-family: var(--font-family-heading);
+  font-family: var(--font-family-headline);
   font-size: clamp(3.85rem, 0.834rem + 4.7vw, 6rem);
   font-style: italic;
   line-height: var(--_lh-title);
@@ -50,7 +50,7 @@
 
 .panelTitle {
   margin: var(--header-height) 0 var(--_space-section);
-  font-family: var(--font-family-heading);
+  font-family: var(--font-family-headline);
   font-size: clamp(5.15rem, 1.111rem + 6.27vw, 7.5rem);
   font-style: italic;
   line-height: var(--_lh-title);

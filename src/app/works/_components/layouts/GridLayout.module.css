@@ -69,7 +69,7 @@
 }
 
 .introTitle {
-  font-family: var(--font-family-heading);
+  font-family: var(--font-family-headline);
   /* 다른 줄에 마우스를 올리면 이 줄이 3/4로 줄어든다(300px → 225px). 위쪽 네비 자리는 그대로
      비워야 하므로, 남는 높이(칸 높이 - 위아래 여백)에 맞춰 글자를 줄인다 */
   font-size: clamp(1.75rem, min(6vw, calc(100cqh * 0.5)), 5rem);
@@ -87,7 +87,7 @@
 }
 
 .introTagline {
-  font-family: var(--font-family-heading);
+  font-family: var(--font-family-headline);
   font-style: italic;
   font-size: clamp(0.9rem, 0.789rem + 0.46vw, 1.2rem);
   opacity: 0.6;
@@ -209,7 +209,7 @@
 /* 폰트 크기 — clamp(min, vw 비례, max) 로 viewport 따라 scale.
    default 보다 hover 크기를 조금 더 크게 (max 값을 더 높임). */
 .projectTitle {
-  font-family: var(--font-family-heading);
+  font-family: var(--font-family-headline);
   font-size: clamp(1.1rem, 1.041rem + 0.24vw, 1.35rem);
   font-weight: var(--font-weight-light);
   letter-spacing: -0.02em;

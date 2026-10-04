@@ -15,7 +15,7 @@
 }
 
 .trafficTitle {
-  font: var(--font-heading-xl);
+  font: var(--font-headline-xl);
   color: var(--text-primary);
   margin: 0;
   display: flex;

@@ -25,6 +25,7 @@ import {
   UserRound,
   History,
   ChevronRight,
+  RefreshCw,
 } from "@/components/icons";
 import { useStaticPageScroll } from "@/hooks/useStaticPageScroll";
 import { useLanguage} from "@/providers/LanguageProvider";
@@ -196,17 +197,15 @@ export default function AdminDashboard() {
           placement="bottom"
           delay={200}
         >
+          {/* 알림 페이지의 새로고침과 같은 꼴 — outline md · 아이콘 13 · 불러오는 동안 아이콘이 돈다 */}
           <Button
-            variant="subtle"
-            size="xs"
+            variant="outline"
+            size="md"
             onClick={fetchData}
             disabled={loading}
+            icon={<RefreshCw size={13} strokeWidth={1.8} className={loading ? styles.refreshSpinning : undefined} />}
           >
-            {loading ? (
-              <T k="admin.dashboard.loading" />
-            ) : (
-              <T k="admin.dashboard.refresh" />
-            )}
+            <T k="admin.dashboard.refresh" />
           </Button>
         </Tooltip>
       </header>

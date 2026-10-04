@@ -41,7 +41,7 @@
 }
 
 .articleTitle {
-  font-family: var(--font-family-heading);
+  font-family: var(--font-family-headline);
   font-size: clamp(2.9rem, 2.751rem + 0.28vw, 3rem);
   font-weight: var(--font-weight-regular);
   color: var(--text-primary);
@@ -105,9 +105,7 @@
   line-height: 1.3;
 }
 .authorChipName {
-  font: var(--font-heading-xs);
-  font-family: var(--font-family-body);
-  font-weight: var(--font-weight-semibold);
+  font: var(--font-title-sm);
   color: var(--text-primary);
 }
 .authorChipRole {

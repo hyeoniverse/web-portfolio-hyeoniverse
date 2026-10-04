@@ -30,14 +30,14 @@
 }
 
 .modalTitle {
-  font: var(--font-heading-sm);
+  font: var(--font-title-md); /* 틀의 제목(D46) */
   color: var(--text-primary);
 }
 
 .closeBtn {
   border: none;
   background: transparent;
-  font: var(--font-heading-md);
+  font: var(--font-headline-md);
   line-height: 1;
   color: var(--text-secondary);
   padding: 0;

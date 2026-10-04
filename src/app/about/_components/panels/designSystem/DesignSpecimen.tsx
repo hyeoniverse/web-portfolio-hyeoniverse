@@ -19,7 +19,7 @@ const COLORS = [
 ];
 
 const FONTS = [
-  { name: "Instrument Serif", role: { ko: "제목", en: "Display" }, token: "--font-family-heading", italic: true },
+  { name: "Instrument Serif", role: { ko: "글 제목", en: "Headline" }, token: "--font-family-headline", italic: true },
   { name: "Pretendard", role: { ko: "본문 · UI", en: "Body · UI" }, token: "--font-family-body" },
   { name: "Space Grotesk", role: { ko: "네비게이션", en: "Navigation" }, token: "--font-family-nav" },
   { name: "JetBrains Mono", role: { ko: "코드", en: "Code" }, token: "--font-family-code" },

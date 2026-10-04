@@ -482,7 +482,7 @@
 
 .successFrom {
   display: block;
-  font-family: var(--font-family-heading);
+  font-family: var(--font-family-headline);
   font-size: var(--_font-size-title);
   font-weight: var(--font-weight-regular);
   color: var(--text-black);
@@ -889,7 +889,7 @@
   }
 
   .emailHeaderLogo {
-    font: var(--font-heading-lg);
+    font: var(--font-headline-lg);
     color: var(--text-black);
     letter-spacing: -0.02em;
   }

@@ -8,7 +8,7 @@
 }
 
 .dayDetailDate {
-  font: var(--font-heading-xs);
+  font: var(--font-headline-xs);
   color: var(--text-primary);
 }
 
@@ -24,7 +24,7 @@
 
 /* large emphasized number — dayDetail 의 main value */
 .dayDetailNumber {
-  font: var(--font-heading-xl);
+  font: var(--font-headline-xl);
   font-family: var(--font-family-body);
   font-weight: 700;
   line-height: 1;
