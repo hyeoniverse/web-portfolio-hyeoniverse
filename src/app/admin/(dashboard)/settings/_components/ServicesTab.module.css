@@ -231,29 +231,22 @@
   border-top: var(--border-light);
 }
 
+/* 기능 한 줄 — 왼쪽 16rem(이름 · 켜기 · 기록) | 오른쪽(설명 · 조작 · 순서) */
 .featureRow {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-8);
-  min-width: 0;
-  padding: var(--spacing-8) 0;
+  display: grid;
+  grid-template-columns: 16rem minmax(0, 1fr);
+  gap: var(--spacing-8) var(--spacing-16);
+  align-items: start;
+  padding: var(--spacing-12) 0;
   border-bottom: var(--border-light);
 }
 
-/* 한 줄 — 이름 칸은 공급자 표의 이름 칸과 같은 폭에서 시작해 세로로 맞는다 */
-.featureMain {
+.featureSide {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-end;
-  gap: var(--spacing-8) var(--spacing-16);
-}
-
-.featureTitleCell {
-  display: inline-flex;
   align-items: center;
   gap: var(--spacing-8);
-  flex: 0 0 16rem;
-  align-self: center;
+  min-height: var(--control-height-sm);
 }
 
 .featureTitle {
@@ -263,34 +256,46 @@
   color: var(--text-primary);
 }
 
-.featureProvider {
-  width: 16rem;
+.featureBody {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-8);
+  min-width: 0;
 }
 
-.featureLog {
-  margin-left: auto;
-  align-self: center;
-}
-
-.featureHint {
-  max-width: 28rem;
-  padding: var(--spacing-12);
-}
-
-.featureHint :global(ul),
-.featureHint :global(p) {
+/* 설명 — 섹션 설명과 같은 글꼴, 아래 여백은 없앤다(격자 간격이 맡는다) */
+.featureHints.featureHints {
   margin-bottom: 0;
 }
 
-.featureOrder,
-.featureExtra {
-  padding-left: calc(16rem + var(--spacing-16));
+/* 조작 한 줄 — 공급자 셀렉트와 자동 전환 스위치가 같은 높이에 */
+.featureControls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-8) var(--spacing-24);
+}
+
+.featureControl {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-8);
+}
+
+.featureControlLabel {
+  font: var(--font-body-sm);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.featureSelect {
+  width: 16rem;
 }
 
 @media (max-width: 768px) {
-  .featureOrder,
-  .featureExtra {
-    padding-left: 0;
+  .featureRow {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
