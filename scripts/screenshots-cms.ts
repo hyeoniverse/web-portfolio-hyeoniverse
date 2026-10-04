@@ -161,8 +161,25 @@ async function open(page: Page, path: string, settleMs = 1500) {
 
 async function shot(page: Page, name: string) {
   const file = join(OUT, `${name}-${THEME}.png`);
+  await maskIps(page);
   await page.screenshot({ path: file });
   console.log(`  ✓ ${basename(file)}`);
+}
+
+/** 그림에 남을 IPv4 를 `a.b.x.x` 로 — 등록 기기 · 알림 · 로그에 방문자 · 내 IP 가 그대로 찍힌다(저장소는 공개). 트래픽 화면이 쓰는 표기와 같다 */
+async function maskIps(page: Page) {
+  await page
+    .evaluate(() => {
+      const re = /\b(\d{1,3})\.(\d{1,3})\.\d{1,3}\.\d{1,3}\b/g;
+      const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+      let node: Node | null;
+      while ((node = walker.nextNode())) {
+        const text = node.nodeValue ?? "";
+        if (re.test(text)) node.nodeValue = text.replace(re, "$1.$2.x.x");
+        re.lastIndex = 0;
+      }
+    })
+    .catch(() => {});
 }
 
 /** gif 로 남길 구간(초) — 앞머리의 로딩 화면 · 스크롤은 빼고 동작만. README 본문에 바로 넣으므로 짧고 가볍게 */
