@@ -549,3 +549,13 @@ Material `@material/web` 2.5, Primer primitives. 숫자는 같은 날 다시 셌
   반복하거나 1초를 넘는 애니메이션 103곳(스피너 · 마퀴 · 광택 · 숨 쉬기 · 긴 등장)은 눈금에 맞지 않는 한 자리의 장식이라 그 규칙의 지역 변수 `--_<키프레임>-duration` 으로 — 움직임 줄이기는 그 모듈이 따로 처리한다(3.9-3 · 3.9-4 는 11단계).
 - **감시.** ratchet `motion-duration-literal` 은 지속 시간 자리(겹의 첫 시간값 · `-duration`)만 세고 지연은 세지 않는다 — 744 → 1(자동 완성 `5000s`). `motion-ease-literal` 추가 — 0.
 - **보이는 변화.** 0.2s → 0.15s(85곳) · 0.4s → 0.3s(33곳) · 0.6s → 0.5s(44곳)가 가장 많이 바뀐 값이다. `ease` → Material 표준 곡선은 모양이 비슷해 체감이 작다. 움직임 줄이기를 켠 사람에게는 이제 거의 모든 전환이 즉시 바뀐다.
+
+### D44. 2026-10-04 — 저절로 움직이는 것은 메뉴의 단추 하나로 멈춘다, 토큰 `--motion-play` 로
+
+- **왜.** 마퀴 · 별 하늘 · 꽃잎 · 달 · 배경 영상처럼 5초 넘게 저절로 움직이는 것이 80곳 가까운데 멈출 길이 hover 몇 곳뿐이었다(WCAG 2.2.2, 3.9-4). 움직임 줄이기(D42)도 시간 토큰을 쓰는 전환만 멈추고, 지역 변수로 둔 반복 애니메이션(D43)은 계속 돌았다.
+- **정한 것.** 메뉴의 소리 · 테마 단추 옆에 멈춤 단추 하나. 상태는 `motionStore`(zustand, localStorage `motion-paused`, storage 이벤트로 탭 간 공유) → `useMotionPause` 가 `<html data-motion="paused|running">` 를 쓴다 → `_motion.css` 가 토큰 `--motion-play` 를 `paused` · `running` 으로. 저장값이 없으면 `prefers-reduced-motion` 을 초기값으로 삼고, hydration 전에도 CSS 의 같은 미디어 쿼리가 `paused` 를 준다.
+  장식 반복 애니메이션 58곳은 `animation` 뒤에 `animation-play-state: var(--motion-play)` 한 줄 — 단축 속성이 play-state 를 되돌리니 반드시 뒤에. 멈추면 그 자리에서 선다(0% 로 돌아가지 않는다). 저절로 반복 재생되는 영상 8곳(작업물 Fullscreen · Split · Grid 소개 영상, About 영웅 · 코드 데모, 격자 프레임, 게시물 링크 아이콘, About 스튜디오 미리보기)은 `<LoopVideo>` 로 — 멈추면 `autoplay` 를 끄고 `pause()`, 아직 불러오지 않은 영상이 뒤늦게 시작하지 않게 마운트 때부터 `autoplay` 를 주지 않는다.
+- **예외(멈추지 않는 것).** 움직임이 곧 정보인 것 — 스피너 10 · 진행 띠 · 불러오는 중 광택(Skeleton · ProgressiveImage) · LoadingDots · LoadingWave · 올리는 중 광택 · 녹음 점 · 내레이션 파형 · 저장 중 띠. 다음 조작까지만 깜빡이는 안내 — SEO 항목 · 알림에서 넘어온 항목 · 달력 하이라이트(멈추면 0% 인 평소 모습으로 서서 안내가 사라진다). 글자 커서 깜빡임 3. hover 하는 동안만 움직이는 메뉴 이메일 물결(`forwards` 상승과 한 선언이라 같이 멈추면 차오르지 않는다). 사용자가 켠 것(갤러리 자동 넘김 · hover 재생 썸네일)도 아니다.
+- **감시.** 토큰 문서(`tokens.md`)에 `--motion-play` 와 세 분기. 새 반복 애니메이션은 3.9-1 의 지역 변수와 함께 이 줄을 둔다.
+- **보이는 변화.** 메뉴에 단추 하나가 늘었다(소리 · 테마와 같은 꾸밈, 멈추면 ▶). 움직임 줄이기를 켠 사람에게는 이제 장식 반복(마퀴 · 별 · 꽃잎 · 맥박 점)과 배경 영상이 처음부터 서 있다 — 전에는 돌았다. 0% 가 투명한 장식(별똥별 · 스크롤 힌트)은 그 사람에게 보이지 않는다.
+- **다음(11-2).** JS 로 도는 것 — 작업물 자동 넘김 `useAutoSlide` · 원통 `useCylinderStage` · 타자 효과 `TypeWriter` · 토끼 표정 · 태그 구름 · 움직이는 제목 · framer `repeat: Infinity`(Hero · Bridge) · Cinematic · 불꽃 — 이 스토어를 구독해 멈춘다.

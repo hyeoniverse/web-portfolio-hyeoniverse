@@ -43,6 +43,7 @@
   left: 50%;
   transform: translate(-50%, -50%);
   animation: comingSoonPulse var(--_comingSoonPulse-duration) var(--ease-standard) infinite;
+  animation-play-state: var(--motion-play);
 }
 
 @keyframes comingSoonPulse {
@@ -56,6 +57,7 @@
   right: 6px;
   opacity: 0.7;
   animation: comingSoonFloat var(--_comingSoonFloat-duration) var(--ease-standard) infinite;
+  animation-play-state: var(--motion-play);
 }
 
 @keyframes comingSoonFloat {
@@ -69,6 +71,7 @@
   left: 6px;
   opacity: 0.55;
   animation: comingSoonFloat var(--_comingSoonFloat-duration) var(--ease-standard) infinite 0.6s;
+  animation-play-state: var(--motion-play);
 }
 
 @media (prefers-reduced-motion: reduce) {

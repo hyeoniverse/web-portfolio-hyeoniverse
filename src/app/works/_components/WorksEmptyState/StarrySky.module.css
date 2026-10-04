@@ -26,6 +26,7 @@
   --_breathe-duration: 24s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   transform: translate(calc(var(--pointer-x) * 6px), calc(var(--pointer-y) * 6px));
   animation: breathe var(--_breathe-duration) var(--ease-standard) infinite;
+  animation-play-state: var(--motion-play);
   transform-box: fill-box;
   transform-origin: center;
 }
@@ -38,6 +39,7 @@
   --_drift-duration: 90s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   transform: translate(calc(var(--pointer-x) * 14px), calc(var(--pointer-y) * 14px));
   animation: drift var(--_drift-duration) linear infinite;
+  animation-play-state: var(--motion-play);
   transform-box: view-box;
   transform-origin: 50% 50%;
 }
@@ -78,6 +80,7 @@
 .twinkle {
   --_twinkle-duration: 2.4s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   animation: twinkle var(--_twinkle-duration) var(--ease-standard) infinite;
+  animation-play-state: var(--motion-play);
   transform-box: fill-box;
   transform-origin: center;
 }
@@ -139,6 +142,7 @@
 .constellation .line {
   --_traceLine-duration: 9s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   animation: traceLine var(--_traceLine-duration) var(--ease-standard) infinite;
+  animation-play-state: var(--motion-play);
 }
 
 .constellation:nth-of-type(2) .line {
@@ -163,6 +167,7 @@
 .constellation .node {
   --_twinkle-duration: 5.5s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   animation: twinkle var(--_twinkle-duration) var(--ease-standard) infinite;
+  animation-play-state: var(--motion-play);
   transform-box: fill-box;
   transform-origin: center;
 }
@@ -179,11 +184,13 @@
 .meteorA line {
   --_meteorA-duration: 11s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   animation: meteorA var(--_meteorA-duration) linear infinite;
+  animation-play-state: var(--motion-play);
 }
 
 .meteorB line {
   --_meteorB-duration: 17s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   animation: meteorB var(--_meteorB-duration) 5s linear infinite;
+  animation-play-state: var(--motion-play);
 }
 
 @keyframes meteorA {
@@ -250,11 +257,13 @@
   .constellation .node {
     --_twinkleSoft-duration: 5s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
     animation: twinkleSoft var(--_twinkleSoft-duration) var(--ease-standard) infinite;
+    animation-play-state: var(--motion-play);
   }
 
   .constellation .line {
     --_traceLine-duration: 12s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
     animation: traceLine var(--_traceLine-duration) var(--ease-standard) infinite;
+    animation-play-state: var(--motion-play);
   }
 }
 
