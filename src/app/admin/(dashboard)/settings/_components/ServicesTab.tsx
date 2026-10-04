@@ -17,14 +17,14 @@ import type { SelectOption } from "@/types";
 import Field, { FieldHelp } from "./SettingsFormFields";
 import EnvVarFields from "./EnvVarFields";
 import LexiconManager from "./LexiconManager";
-import AiHealthPanel from "./AiHealthPanel";
+import { ProviderHealthDetail, ProviderHealthInline } from "./AiHealthPanel";
 import ServiceLogLink from "./ServiceLogLink";
 import { ENV_SECTION_ID, HintLines, envKeyLine } from "./EnvKeyHint";
 import { CONTACT_KEYS } from "@/lib/contactSend";
 import { AI_PROVIDER_INFO, FATAL_LIMIT, TRANSIENT_LIMIT } from "@/lib/ai/providers";
 import { NOTIFY_EMAIL_DEFAULT, NOTIFY_EMAIL_GROUPS } from "@/lib/notificationTypes";
 import { DEFAULT_AI_MODELS, HF_LATEST, type AiModelProvider } from "@/lib/ai/models";
-import { useAiHealth, type ProviderState } from "./useAiHealth";
+import { useAiHealth } from "./useAiHealth";
 import type { AiProvider } from "@/lib/ai/providers";
 import SectionHeader from "./SectionHeader";
 import GiscusHelp from "./GiscusHelp";
@@ -317,7 +317,7 @@ type ProviderFallback<P extends string> = {
  * onChange 는 setConfig 처럼 updater(prev)→next 를 받아 최신 슬라이스 기준으로 갱신한다.
  */
 function ProviderFallbackBlock<P extends string>({
-  t, title, options, defaultProvider, value, onChange, children, stateOf, hint, keyOf, extraHints, logProviders, innerOf,
+  t, title, options, defaultProvider, value, onChange, children, hint, keyOf, extraHints, logProviders, innerOf, health, providerOf,
 }: {
   t: TFunction;
   title: string;
@@ -326,8 +326,10 @@ function ProviderFallbackBlock<P extends string>({
   value: ProviderFallback<P> | undefined;
   onChange: (updater: (prev: ProviderFallback<P> | undefined) => ProviderFallback<P>) => void;
   children?: React.ReactNode;
-  /** 공급자 상태(설정 › 서비스의 AI 상태) — 키 없음·꺼짐·실패 중이면 고르는 자리에서 보인다 */
-  stateOf?: (p: P) => ProviderState | null;
+  /** 공급자 상태 · 사용량(useAiHealth) — 순서 줄 오른쪽에 상태 조각으로, 줄 아래 상세로 보인다 */
+  health: ReturnType<typeof useAiHealth>;
+  /** 이 기능의 공급자 값 → lib/ai/providers 의 공급자 이름(번역 google → google_translate 등) */
+  providerOf: (p: P) => AiProvider;
   /** 제목 아래 한 줄 설명 */
   hint?: string;
   /** 공급자 → 그 공급자가 쓰는 키 이름(없으면 키가 필요 없는 공급자) — "필요한 키" 바로가기에 쓴다 */
@@ -341,11 +343,10 @@ function ProviderFallbackBlock<P extends string>({
 }) {
   const provider = value?.provider ?? defaultProvider;
   const fallbackEnabled = value?.fallback?.enabled ?? false;
-  const stateText = (p: P) => {
-    const st = stateOf?.(p);
-    return st && st !== "ok" ? t(`admin.aiHealth.badge.${st}`) : "";
-  };
-  const primaryState = stateOf?.(provider);
+  const stateOf = (p: P) => health.stateOf(providerOf(p));
+  /* 줄마다 상세(원인 전문 · 사용량 막대)를 펼쳤는지 */
+  const [openDetail, setOpenDetail] = useState<Partial<Record<P, boolean>>>({});
+  const primaryState = stateOf(provider);
   /* fallback 을 켜 두었는데 실제로 시도할 공급자가 없다(모두 제외했거나 키 없음·꺼짐) */
   const usableFallbacksAll = (value?.fallback?.priority ?? options.map((o) => o.value))
     .filter((p) => p !== provider && !(value?.fallback?.excluded ?? []).includes(p));
@@ -404,10 +405,8 @@ function ProviderFallbackBlock<P extends string>({
           priority={value?.fallback?.priority ?? []}
           excluded={value?.fallback?.excluded ?? []}
           options={options}
-          badgeOf={(p) => {
-            const st = stateOf?.(p);
-            return st && st !== "ok" ? <span className={styles.providerBadge} data-state={st}>{stateText(p)}</span> : null;
-          }}
+          badgeOf={(p) => <ProviderHealthInline provider={providerOf(p)} health={health} open={openDetail[p] ?? false} onToggle={() => setOpenDetail((o) => ({ ...o, [p]: !o[p] }))} />}
+          detailOf={(p) => <ProviderHealthDetail provider={providerOf(p)} health={health} open={openDetail[p] ?? false} />}
           innerOf={innerOf}
           onChange={(order) => onChange((prev) => ({
             ...prev,
@@ -449,7 +448,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
       />
     );
   };
-  const stateFor = (map: (p: string) => AiProvider) => (p: string) => aiHealth.stateOf(map(p));
+  const [stockOpen, setStockOpen] = useState<Partial<Record<"unsplash" | "pexels", boolean>>>({});
 
   const giscus = config.comments?.giscus ?? { repo: "", repoId: "", category: "", categoryId: "", mapping: "pathname", reactionsEnabled: true, inputPosition: "bottom", strict: false, emitMetadata: false, lazyLoading: true, themeLight: "", themeDark: "" };
   /* comments.giscus 는 2단계 중첩이라 update("comments","giscus", 전체객체) 로 갱신 */
@@ -888,10 +887,9 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
         <MediaLimitsEditor config={config} setConfig={setConfig} t={t} />
       </section>
 
-      {/* ── AI · 외부 서비스 — 한 섹션.
-          위: 공급자 표(상태 · 이번 달 사용량 · 글 공급자의 모델 칸 · 다시 켜기 · 기록 · 콘솔). 상태 · 다시 켜기는 자체 API 로
-          바로 반영되고(탭 저장과 상관없음), 모델 칸은 설정값이라 섹션 저장으로 남는다.
-          아래: 기능마다(커버 · 요약 · 번역 · TTS) 켜기 · 기본 공급자 · 실패 시 자동 전환 · 순서. 저장 단추 하나가 다섯 경로를 맡는다 */}
+      {/* ── AI · 외부 서비스 — 한 섹션. 기능마다(커버 · 요약 · 번역 · TTS) 켜기 · 공급자 순서(1번이 기본) · 실패 시 자동 전환.
+          순서 줄의 상자 안은 모델, 상자 오른쪽은 그 공급자의 상태 · 이번 달 사용량 · 다시 켜기 · 기록 · 콘솔(AiHealthPanel 조각).
+          상태 · 다시 켜기는 자체 API 로 바로 반영되고(탭 저장과 상관없음), 모델 · 순서는 섹션 저장으로 남는다 */}
       <section className={`${shared.section} ${shared.sectionWide}`}>
         <SectionHeader
           title={t("admin.settings.aiServices")}
@@ -900,9 +898,6 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
           {...sh}
         />
         <HintLines lines={[fillTemplate(t("admin.aiHealth.hint"), { fatal: FATAL_LIMIT, transient: TRANSIENT_LIMIT }), t("admin.settings.aiModelsHint")]} />
-        <AiHealthPanel health={aiHealth} />
-
-        <h3 className={styles.featuresTitle}>{t("admin.settings.aiFeatures")}</h3>
         <div className={styles.features}>
           {/* AI Cover */}
           <ProviderFallbackBlock<AICoverProvider>
@@ -917,8 +912,19 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
             extraHints={[t("admin.settings.autoCoverHint"), envKeyLine(["UNSPLASH_ACCESS_KEY", "PEXELS_API_KEY"], t, { any: true })]}
             logProviders={["nanobanana", "huggingface", "unsplash", "pexels"]}
             keyOf={(p) => AI_PROVIDER_INFO[p as keyof typeof AI_PROVIDER_INFO]?.key}
-            stateOf={stateFor((p) => p as AiProvider)}
+            health={aiHealth}
+            providerOf={(p) => p as AiProvider}
           >
+            {/* 자동 커버가 찾는 사진 공급자 — 순서는 없고 상태만 */}
+            <div className={styles.stockRows}>
+              {(["unsplash", "pexels"] as const).map((p) => (
+                <div key={p} className={styles.stockRow}>
+                  <span className={styles.stockName}>{AI_PROVIDER_INFO[p].label}</span>
+                  <ProviderHealthInline provider={p} health={aiHealth} open={stockOpen[p] ?? false} onToggle={() => setStockOpen((o) => ({ ...o, [p]: !o[p] }))} />
+                  <ProviderHealthDetail provider={p} health={aiHealth} open={stockOpen[p] ?? false} />
+                </div>
+              ))}
+            </div>
             {/* 자동 cover (Unsplash/Pexels 키워드 기반) — 기존 발행 글 일괄 적용 */}
             <AutoCoverMigrator t={t} />
           </ProviderFallbackBlock>
@@ -934,7 +940,8 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
             onChange={(u) => setConfig((prev) => ({ ...prev, aiSummary: u(prev.aiSummary as ProviderFallback<AISummaryProvider>) as typeof prev.aiSummary }))}
             logProviders={["gemini", "openai", "claude"]}
             keyOf={(p) => AI_PROVIDER_INFO[p as keyof typeof AI_PROVIDER_INFO]?.key}
-            stateOf={stateFor((p) => p as AiProvider)}
+            health={aiHealth}
+            providerOf={(p) => p as AiProvider}
           />
 
           {/* Translation */}
@@ -948,7 +955,8 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
             onChange={(u) => setConfig((prev) => ({ ...prev, translation: u(prev.translation as ProviderFallback<TranslationProvider>) as typeof prev.translation }))}
             logProviders={["deepl", "google_translate", "gemini", "claude"]}
             keyOf={(p) => AI_PROVIDER_INFO[p === "google" ? "google_translate" : (p as "deepl")]?.key}
-            stateOf={stateFor((p) => (p === "google" ? "google_translate" : p) as AiProvider)}
+            health={aiHealth}
+            providerOf={(p) => (p === "google" ? "google_translate" : p) as AiProvider}
           />
 
           {/* 슬라이드 음성 — 편집 화면에서 고른 목소리의 제공자부터, 실패하면 이 순서로 같은 성별의 목소리로 넘어간다.
@@ -963,7 +971,8 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
             onChange={(u) => setConfig((prev) => ({ ...prev, tts: u(prev.tts as ProviderFallback<TtsProviderOption>) as typeof prev.tts }))}
             logProviders={["fish", "google_tts", "edge"]}
             keyOf={(p) => AI_PROVIDER_INFO[p === "google" ? "google_tts" : (p as "fish")]?.key}
-            stateOf={stateFor((p) => (p === "google" ? "google_tts" : p) as AiProvider)}
+            health={aiHealth}
+            providerOf={(p) => (p === "google" ? "google_tts" : p) as AiProvider}
           />
         </div>
       </section>

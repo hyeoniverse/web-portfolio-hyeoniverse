@@ -13,16 +13,26 @@
   width: 100%;
 }
 
+.priorityEntry {
+  display: flex;
+  flex-direction: column;
+}
+
 .priorityRow {
   display: flex;
   align-items: center;
   gap: var(--spacing-8);
 }
 
+/* 줄 아래 상세 — 순서 상자의 시작선(핸들 + 체크 칸 뒤)에 맞춰 들여쓴다 */
+.priorityDetail {
+  padding-left: calc(var(--control-height-md) + var(--control-height-sm) + var(--spacing-16));
+}
+
 .priorityItem {
   /* 줄마다 같은 폭 — 안에 모델 고르기가 있든 이름만 있든 들쭉날쭉하지 않게(안의 셀렉트가 늘려도 안 커진다) */
-  flex: 0 0 26rem;
-  width: 26rem;
+  flex: 0 0 22rem;
+  width: 22rem;
   max-width: 100%;
   min-width: 0;
   height: var(--control-height-md);
@@ -111,15 +121,16 @@
   padding-top: var(--spacing-4);
 }
 
-/* 상자 밖 오른쪽 — "기본" · 상태 */
+/* 상자 밖 오른쪽 — 상태 조각(글 묶음 · 단추 묶음). 한 줄을 지키고 글 묶음만 줄어든다 */
 .priorityAside {
-  display: inline-flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  gap: var(--spacing-8);
+  gap: var(--spacing-12);
+  flex: 1 1 auto;
+  min-width: 0;
   margin-left: var(--spacing-8);
-  white-space: nowrap;
 }
-
 
 /* 끌고 있는 줄의 제자리 — 고스트 */
 .priorityRow[data-dragging] {

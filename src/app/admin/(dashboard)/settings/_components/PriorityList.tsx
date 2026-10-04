@@ -22,9 +22,11 @@ interface PriorityListProps<T extends string> {
   innerOf?: (value: T) => React.ReactNode;
   /** 자동 전환이 꺼져 있다 — 1번(기본)만 보인다. 순서는 그대로 남아 켜면 돌아온다 */
   onlyPrimary?: boolean;
+  /** 줄 아래 펼쳐지는 상세(공급자 상태의 원인 · 사용량) — 접힘은 안에서 처리하고 여기선 자리만 준다 */
+  detailOf?: (value: T) => React.ReactNode;
 }
 
-export function PriorityList<T extends string>({ primary, priority, excluded, options, onChange, onExcludedChange, badgeOf, includePrimary, innerOf, onlyPrimary }: PriorityListProps<T>) {
+export function PriorityList<T extends string>({ primary, priority, excluded, options, onChange, onExcludedChange, badgeOf, includePrimary, innerOf, onlyPrimary, detailOf }: PriorityListProps<T>) {
   const nonPrimary = options.filter((o) => o.value !== primary);
   const rest = priority.length
     ? [...priority.filter((p) => p !== primary), ...nonPrimary.map((o) => o.value).filter((v) => !priority.includes(v))]
@@ -104,8 +106,10 @@ export function PriorityList<T extends string>({ primary, priority, excluded, op
         const label = options.find((o) => o.value === val)?.label ?? val;
         const isPrimary = includePrimary && idx === 0;
         const isEnabled = isPrimary || !excluded.includes(val);
+        const detail = detailOf?.(val);
         return (
-          <div key={val} className={styles.priorityRow} data-dragging={draggingIdx === idx ? "" : undefined}>
+          <div key={val} className={styles.priorityEntry}>
+          <div className={styles.priorityRow} data-dragging={draggingIdx === idx ? "" : undefined}>
             {/* 드래그 핸들 — 맨 앞. 모든 줄에서 끈다(기본 줄을 내리면 기본이 바뀐다) */}
             <span
               className={styles.priorityGrip}
@@ -150,6 +154,8 @@ export function PriorityList<T extends string>({ primary, priority, excluded, op
             </div>
             {/* 상자 밖 오른쪽 — 상태(꺼짐 · 키 없음 · 실패 중). 1번이 기본이라는 건 따로 적지 않는다 */}
             {badgeOf?.(val) ? <span className={styles.priorityAside}>{badgeOf(val)}</span> : null}
+          </div>
+          {detail ? <div className={styles.priorityDetail}>{detail}</div> : null}
           </div>
         );
   };
