@@ -2,9 +2,10 @@ import { getSecret } from "@/lib/getSecret";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 import { filterEnabled, missingKey, networkError, providerErrorFrom, recordFailure, recordOk, toProviderError } from "@/lib/ai/health";
 import type { AiProvider, ProviderFailure } from "@/lib/ai/providers";
+import { aiModel } from "@/lib/ai/models";
 
-const GEMINI_API_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent";
+/* 모델 이름은 설정(lib/ai/models)에서 — 코드에 박아 두면 은퇴할 때마다 고쳐야 한다 */
+const geminiUrl = (model: string) => `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
 const CLAUDE_API_URL = "https://api.anthropic.com/v1/messages";
 
@@ -32,7 +33,7 @@ async function callOpenAI(prompt: string): Promise<SummaryResult> {
   const res = await call("openai", OPENAI_API_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-    body: JSON.stringify({ model: "gpt-4o-mini", messages: [{ role: "user", content: prompt }], temperature: 0.2, response_format: { type: "json_object" } }),
+    body: JSON.stringify({ model: await aiModel("openai"), messages: [{ role: "user", content: prompt }], temperature: 0.2, response_format: { type: "json_object" } }),
   });
   const data = await res.json();
   const parsed: { ko?: string; en?: string } = JSON.parse(data?.choices?.[0]?.message?.content ?? "{}");
@@ -45,7 +46,7 @@ async function callClaude(prompt: string): Promise<SummaryResult> {
   const res = await call("claude", CLAUDE_API_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01" },
-    body: JSON.stringify({ model: "claude-haiku-4-5-20251001", max_tokens: 1024, messages: [{ role: "user", content: prompt }] }),
+    body: JSON.stringify({ model: await aiModel("claude"), max_tokens: 1024, messages: [{ role: "user", content: prompt }] }),
   });
   const data = await res.json();
   const parsed: { ko?: string; en?: string } = JSON.parse(data?.content?.[0]?.text ?? "{}");
@@ -55,7 +56,7 @@ async function callClaude(prompt: string): Promise<SummaryResult> {
 async function callGemini(prompt: string): Promise<SummaryResult> {
   const apiKey = await getSecret("GEMINI_API_KEY");
   if (!apiKey) throw missingKey("gemini", "GEMINI_API_KEY");
-  const res = await call("gemini", `${GEMINI_API_URL}?key=${apiKey}`, {
+  const res = await call("gemini", `${geminiUrl(await aiModel("gemini"))}?key=${apiKey}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature: 0.2, responseMimeType: "application/json" } }),
