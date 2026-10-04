@@ -4,6 +4,7 @@ import { useRef, useMemo, useState } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { useProfileSectionStore } from "@/stores/profileSectionStore";
+import { useMotionStore } from "@/stores/motionStore";
 import TouchHand from "./TouchHand";
 import { BunnyTouchRig, lerpAngle } from "./bunnyTouchRig";
 import { useBunnyBoing } from "./useBunnyBoing";
@@ -125,6 +126,8 @@ export default function FloatingScene({
     : 1.2;
   const mobileYBias = isMobile ? 1.8 : 0;
   const introProgress = useRef(0);
+  /* 멈춤을 뺀 누적 시간 — 회전 · 출렁임의 시계 */
+  const motionTime = useRef(0);
   const INTRO_DUR = 0.8;
 
   useFrame(({ clock }, delta) => {
@@ -219,8 +222,15 @@ export default function FloatingScene({
     v.x *= BUNNY.friction;
     v.y *= BUNNY.friction;
 
-    p.x += v.x * dt;
-    p.y += v.y * dt;
+    /* 움직임 멈춤(3.9-4) — 떠다니기 · 느린 회전 · 출렁임은 저절로 움직이는 것이라 선다(앉기 · 만지기 반응은 그대로).
+       회전 · 출렁임은 시계가 아니라 멈춤을 뺀 누적 시간으로 돌려, 다시 움직일 때 튀지 않는다 */
+    const motionPaused = useMotionStore.getState().isPaused;
+    if (!motionPaused) {
+      p.x += v.x * dt;
+      p.y += v.y * dt;
+      motionTime.current += dt;
+    }
+    const mt = motionTime.current;
 
     const sv = spinVel.current;
 
@@ -287,13 +297,13 @@ export default function FloatingScene({
     so.y += sv.y * dt;
     so.z += sv.z * dt;
 
-    const rx = t * BUNNY.baseRotation.x + so.x;
-    const ry = t * BUNNY.baseRotation.y + so.y;
-    const rz = t * BUNNY.baseRotation.z + so.z;
+    const rx = mt * BUNNY.baseRotation.x + so.x;
+    const ry = mt * BUNNY.baseRotation.y + so.y;
+    const rz = mt * BUNNY.baseRotation.z + so.z;
 
     // Zero-gravity bobbing
-    const bobY = Math.sin(t * BUNNY.bob.freq * Math.PI * 2) * BUNNY.bob.amp;
-    const bobX = Math.cos(t * BUNNY.bob.freq * 0.7 * Math.PI * 2) * BUNNY.bob.amp * 0.5;
+    const bobY = Math.sin(mt * BUNNY.bob.freq * Math.PI * 2) * BUNNY.bob.amp;
+    const bobX = Math.cos(mt * BUNNY.bob.freq * 0.7 * Math.PI * 2) * BUNNY.bob.amp * 0.5;
 
     let outX = p.x + bobX;
     let outY = p.y + bobY;
@@ -335,8 +345,8 @@ export default function FloatingScene({
          고개만 아주 조금 갸웃하고, 끌어서 돌린 만큼을 거기에 더한다.
          끄는 동안에는 갸웃거림을 죽인다 — 손으로 잡은 것이 스스로 움직이면 어긋나 보인다. */
       const idle = drag.dragging ? 0 : 1;
-      outRx = lerpAngle(rx, Math.sin(t * 0.6) * 0.05 * idle + drag.x, k);
-      outRy = lerpAngle(ry, Math.sin(t * 0.45) * 0.12 * idle + drag.y, k);
+      outRx = lerpAngle(rx, Math.sin(mt * 0.6) * 0.05 * idle + drag.x, k);
+      outRy = lerpAngle(ry, Math.sin(mt * 0.45) * 0.12 * idle + drag.y, k);
       outRz = lerpAngle(rz, Math.sin(t * 0.5) * 0.04 * idle, k);
 
       /* 앉아 있는 동안에는 속도를 죽여 둔다 — 안 그러면 떠날 때 튕겨 나간다.
