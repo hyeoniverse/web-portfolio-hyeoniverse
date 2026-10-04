@@ -1,6 +1,7 @@
 .blink {
   --_blink-duration: 2s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   animation: blink var(--_blink-duration) infinite;
+  animation-play-state: var(--motion-play);
 }
 
 @keyframes blink {
@@ -16,6 +17,7 @@
 .bounce-y {
   --_bounce-y-duration: 2s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   animation: bounce-y var(--_bounce-y-duration) infinite;
+  animation-play-state: var(--motion-play);
 }
 
 @keyframes bounce-y {
@@ -37,6 +39,7 @@
 .bounce-x {
   --_bounce-x-duration: 2s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   animation: bounce-x var(--_bounce-x-duration) infinite;
+  animation-play-state: var(--motion-play);
 }
 
 @keyframes bounce-x {
@@ -58,6 +61,7 @@
 .scroll-x {
   --_scroll-x-duration: 2s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   animation: scroll-x var(--_scroll-x-duration) var(--ease-enter) infinite;
+  animation-play-state: var(--motion-play);
 }
 
 @keyframes scroll-x {
@@ -77,6 +81,7 @@
 .scroll-y {
   --_scroll-y-duration: 2s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   animation: scroll-y var(--_scroll-y-duration) var(--ease-enter) infinite;
+  animation-play-state: var(--motion-play);
 }
 
 @keyframes scroll-y {
@@ -96,6 +101,7 @@
 .pulse {
   --_pulse-duration: 2s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   animation: pulse var(--_pulse-duration) infinite;
+  animation-play-state: var(--motion-play);
 }
 @keyframes pulse {
   0% {
@@ -120,9 +126,11 @@
 
 .glitch {
   animation: glitch var(--duration-slower) infinite alternate;
+  animation-play-state: var(--motion-play);
 }
 .glith-on-hover:hover {
   animation: glitch var(--duration-slower) infinite alternate;
+  animation-play-state: var(--motion-play);
   z-index: 30;
 }
 
@@ -168,6 +176,7 @@
 .floating {
   --_floating-duration: 6s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   animation: floating var(--_floating-duration) var(--ease-standard) infinite alternate;
+  animation-play-state: var(--motion-play);
 }
 
 @keyframes floating {
@@ -182,7 +191,7 @@
 .orbit-hover-pause {
   --_orbit-duration: 20s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   animation: orbit var(--_orbit-duration) linear infinite;
-  animation-play-state: running;
+  animation-play-state: var(--motion-play);
 }
 
 .orbit-hover-pause:hover {
@@ -201,6 +210,7 @@
 .marquee {
   --_marquee-duration: 40s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   animation: marquee var(--_marquee-duration) linear infinite;
+  animation-play-state: var(--motion-play);
 }
 
 .marquee:hover {

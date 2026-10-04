@@ -13,6 +13,7 @@
   position: absolute;
   top: -8%;
   animation: fall var(--fall-duration, 20s) linear var(--fall-delay, 0s) infinite;
+  animation-play-state: var(--motion-play);
   will-change: transform;
 }
 

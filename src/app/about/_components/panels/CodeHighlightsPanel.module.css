@@ -345,6 +345,7 @@
   gap: var(--spacing-8);
   width: max-content;
   animation: demoMarquee var(--_demoMarquee-duration) linear infinite;
+  animation-play-state: var(--motion-play);
 }
 
 .codeDemoInner:hover .demoInfiniteTrack {

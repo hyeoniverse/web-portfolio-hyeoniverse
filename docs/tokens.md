@@ -269,7 +269,7 @@
 
 ## `src/styles/tokens/_motion.css`
 
-토큰 9개
+토큰 10개
 
 | 토큰 | 값 | 조건부 |
 |---|---|---|
@@ -282,6 +282,7 @@
 | `--ease-enter` | `cubic-bezier(0.16, 1, 0.3, 1)` |  |
 | `--ease-exit` | `cubic-bezier(0.4, 0, 1, 1)` |  |
 | `--ease-spring` | `cubic-bezier(0.34, 1.56, 0.64, 1)` |  |
+| `--motion-play` | `running` | `@media (prefers-reduced-motion: reduce): paused`<br>`html[data-motion="running"]: running`<br>`html[data-motion="paused"]: paused` |
 
 ## `src/styles/tokens/_z-index.css`
 

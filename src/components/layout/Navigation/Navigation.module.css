@@ -62,6 +62,7 @@
 .logoNavBar:global(.glith-on-hover):hover { z-index: calc(var(--z-index-nav) + 1); }
 .logoNavBar:global(.glith-on-hover):hover .logo {
   animation: glitch var(--duration-slower) infinite alternate;
+  animation-play-state: var(--motion-play);
   z-index: 30;
 }
 
@@ -467,6 +468,7 @@
 
 .actionBtn:hover .langText,
 .actionBtn:hover .themeIconWrapper,
+.actionBtn:hover .motionIconWrapper,
 .actionBtn:hover .soundIconWrapper {
   color: var(--text-accent-alt);
 }
@@ -629,6 +631,19 @@
   align-items: center;
   justify-content: center;
   mix-blend-mode: exclusion;
+}
+
+/* 움직임 멈춤 토글 — 테마 토글과 같은 꾸밈. 아이콘은 사운드 아이콘과 같은 14px */
+.motionIconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  mix-blend-mode: exclusion;
+}
+
+.motionIcon {
+  width: 14px;
+  height: 14px;
 }
 
 .themeIconWrapper:hover {
@@ -1225,6 +1240,7 @@
   background: var(--text-accent);
   /* 미세한 pulse — 시선 끌되 과하지 않게 */
   animation: notifDotPulse var(--_notifDotPulse-duration) var(--ease-standard) infinite;
+  animation-play-state: var(--motion-play);
 }
 
 @keyframes notifDotPulse {

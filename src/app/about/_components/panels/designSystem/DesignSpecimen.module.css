@@ -161,6 +161,7 @@
   background: var(--text-accent);
   border-radius: var(--radius-full);
   animation: slide var(--_slide-duration) infinite alternate;
+  animation-play-state: var(--motion-play);
 }
 
 @keyframes slide {

@@ -18,6 +18,7 @@
   display: flex;
   white-space: nowrap;
   animation: marquee var(--_marquee-duration) linear infinite;
+  animation-play-state: var(--motion-play);
 }
 
 @keyframes marquee {

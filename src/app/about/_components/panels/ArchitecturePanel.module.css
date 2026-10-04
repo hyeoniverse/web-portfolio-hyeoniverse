@@ -123,6 +123,7 @@
   --_archEdgeFlow-duration: 3s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   stroke-dasharray: 4 6;
   animation: archEdgeFlow var(--_archEdgeFlow-duration) linear infinite;
+  animation-play-state: var(--motion-play);
 }
 
 .archSvg .archEdgePathActive {
@@ -132,6 +133,7 @@
   opacity: 0.8;
   stroke-dasharray: 6 4;
   animation: archEdgeFlow var(--_archEdgeFlow-duration) linear infinite;
+  animation-play-state: var(--motion-play);
 }
 
 .archSvg .archEdgeDimmed.archEdgeForce {
