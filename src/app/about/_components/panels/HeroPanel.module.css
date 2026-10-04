@@ -156,7 +156,6 @@
   border-radius: var(--radius-full);
   filter: blur(60px);
   animation: heroGlow var(--_heroGlow-duration) var(--ease-standard) infinite alternate;
-  animation-play-state: var(--motion-play);
 }
 
 @keyframes heroGlow {

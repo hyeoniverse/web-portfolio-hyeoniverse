@@ -8,13 +8,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRoutePathname } from "@/hooks/useRoutePathname";
 import { motion, AnimatePresence, useMotionValue, type TargetAndTransition } from "framer-motion";
-import { Moon, Sun, Bell, ArrowRight, Settings, Pause, Play } from "@/components/icons";
+import { Moon, Sun, Bell, ArrowRight, Settings } from "@/components/icons";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useLoadingScreen } from "@/hooks/useLoadingProgress";
 import { useSoundStore } from "@/stores/soundStore";
-import { useMotionStore } from "@/stores/motionStore";
-import { useMotionPause } from "@/hooks/useMotionPause";
 import { useContactStore } from "@/stores/contactStore";
 import { useLenis } from "@/providers/LenisProvider";
 import { SYMBOL_FONT_FAMILY } from "@/config/symbolFont.generated";
@@ -210,8 +208,6 @@ export default function Navigation() {
     <ThemedLogoImage src={src} bg={bg} width={w} alt={altText} tint={tintColor} invert={invert} classNames={logoImgClasses} />
   );
   const { isMuted, toggleMute } = useSoundStore();
-  const { isPaused: isMotionPaused, togglePaused: toggleMotionPaused } = useMotionStore();
-  useMotionPause();
   const { openForm } = useContactStore();
   const { stop: lenisStop, start: lenisStart } = useLenis();
 
@@ -759,25 +755,6 @@ export default function Navigation() {
             </span>
           )}
         </div>
-
-        {/* 움직임 멈춤 토글(3.9-4, WCAG 2.2.2) — 마퀴 · 반복 애니메이션 · 배경 영상처럼 5초 넘게 저절로
-            움직이는 것을 한 번에 멈춘다. 저장값이 없으면 움직임 줄이기 설정을 따른다(useMotionPause) */}
-        <Tooltip content={language === "ko" ? (isMotionPaused ? "다시 움직이기" : "움직임 멈추기") : (isMotionPaused ? "Resume motion" : "Pause motion")} delay={600} placement="bottom">
-          <Pressable noTapScale
-            className={styles.actionBtn}
-            onClick={toggleMotionPaused}
-            aria-label={language === "ko" ? (isMotionPaused ? "다시 움직이기" : "움직임 멈추기") : (isMotionPaused ? "Resume motion" : "Pause motion")}
-            aria-pressed={isMotionPaused}
-          >
-            <span className={styles.motionIconWrapper}>
-              {isMotionPaused ? (
-                <Play className={styles.motionIcon} strokeWidth={1.5} />
-              ) : (
-                <Pause className={styles.motionIcon} strokeWidth={1.5} />
-              )}
-            </span>
-          </Pressable>
-        </Tooltip>
 
         {/* 테마 토글 */}
         <Tooltip content={language === "ko" ? "테마 전환" : "Toggle theme"} delay={600} placement="bottom">

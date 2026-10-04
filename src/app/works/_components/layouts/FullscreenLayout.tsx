@@ -7,7 +7,6 @@ import { useLenis } from "@/providers/LenisProvider";
 import T from "@/components/ui/T";
 import WorkYear from "@/components/works/WorkYear";
 import TransitionLink from "@/components/ui/TransitionLink";
-import LoopVideo from "@/components/ui/LoopVideo";
 import { workHref, type WorksLayoutProps } from "./shared";
 import styles from "./FullscreenLayout.module.css";
 
@@ -132,7 +131,7 @@ export default function FullscreenLayout({ projects, onProjectClick }: WorksLayo
       >
         {/* (D) Flow video — siteConfig.works.introVideoUrl 또는 /cover/videos/bg-1.mp4 fallback.
              없으면 자동 fade-out (errored 시 안 보임). 100MB 초과면 외부 CDN 사용 권장. */}
-        <LoopVideo
+        <video
           className={styles.flowVideo}
           src={introVideoSrc}
           autoPlay
