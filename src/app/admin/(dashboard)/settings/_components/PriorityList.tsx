@@ -22,7 +22,7 @@ interface PriorityListProps<T extends string> {
   includePrimary?: boolean;
   /** includePrimary 일 때 1번 옆 글 — "기본" */
   primaryLabel?: string;
-  /** 상자 안, 이름 뒤에 넣을 것 — 예: 그 공급자가 부를 모델 셀렉트 */
+  /** 상자 안 이름 자리에 대신 넣을 것 — 예: 모델 콤보박스(모델 이름이 곧 공급자라 이름을 두 번 쓰지 않는다). null 이면 이름 */
   innerOf?: (value: T) => React.ReactNode;
   /** 자동 전환이 꺼져 있다 — 1번(기본)만 보인다. 순서는 그대로 남아 켜면 돌아온다 */
   onlyPrimary?: boolean;
@@ -153,10 +153,12 @@ export function PriorityList<T extends string>({ primary, priority, excluded, op
               onDrop={() => handleDrop(idx)}
             >
               <span className={styles.priorityBadge}>{idx + 1}</span>
-              <span className={`${styles.priorityLabel} ${isEnabled ? "" : styles.priorityLabelDisabled}`}>
-                {label}
-              </span>
-              {innerOf?.(val)}
+              {(() => {
+                const inner = innerOf?.(val);
+                return inner ?? (
+                  <span className={`${styles.priorityLabel} ${isEnabled ? "" : styles.priorityLabelDisabled}`}>{label}</span>
+                );
+              })()}
               {!collapsed && <div className={styles.priorityBtns}>
                 <Pressable
                   className={shared.priorityBtn}

@@ -289,13 +289,13 @@
   }
 }
 
-/* 순서 줄 상자 안의 모델 셀렉트 — 이름 뒤, 화살표 앞 */
+/* 순서 줄 상자 안의 모델 콤보박스 — 공급자 이름 자리에, 화살표 앞까지 */
 .modelSelect {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  margin-left: auto;
-  margin-right: var(--spacing-8);
-  max-width: 16rem;
+  flex: 1 1 auto;
+  min-width: 14rem;
+  margin-right: var(--spacing-4);
 }
 
 /* ── 알림 메일 — 종류 체크를 묶음(댓글 · 보안 · 운영 · 권한)별 열로 ── */

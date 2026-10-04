@@ -17,10 +17,9 @@
 }
 
 .priorityItem {
-  /* 기본 280 — 항목 안에 부가 칸(모델 입력)이 있으면 그만큼 넓어진다 */
-  width: auto;
-  min-width: 280px;
-  max-width: 100%;
+  /* 줄마다 같은 폭 — 안에 모델 콤보박스가 있든 이름만 있든 들쭉날쭉하지 않게 */
+  width: min(100%, 26rem);
+  flex-shrink: 0;
   min-width: 0;
   height: var(--control-height-md);
   box-sizing: border-box;
