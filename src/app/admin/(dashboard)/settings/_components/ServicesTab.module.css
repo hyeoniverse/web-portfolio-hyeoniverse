@@ -289,19 +289,7 @@
   }
 }
 
-/* 순서 목록 아래 "모델" 한 줄 — 공급자마다 이름 · 최신/별칭 · 연필 */
-.modelsLine {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--spacing-8) var(--spacing-20);
-  font: var(--font-body-sm);
-}
-
-.modelsLineLabel {
-  color: var(--text-tertiary);
-}
-
+/* 순서 줄 상자 밖 오른쪽 — 모델 라벨 · 최신/별칭 · 연필 */
 .modelField {
   display: inline-flex;
   align-items: center;
