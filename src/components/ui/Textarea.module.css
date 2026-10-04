@@ -13,6 +13,9 @@
 }
 
 .textarea {
+  /* 기본 inline-block 이면 줄상자 밑에 4~7px 틈이 생겨 감싸는 칸이 더 길어지고, 그 칸 기준으로
+     놓는 지우개 chip 이 테두리에 붙어 보인다 */
+  display: block;
   width: 100%;
   padding: var(--textarea-padding);
   border: var(--border-light);
