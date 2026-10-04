@@ -519,9 +519,9 @@ Material `@material/web` 2.5, Primer primitives. 숫자는 같은 날 다시 셌
   Atlassian · Material 처럼 "무엇 위에 떠 있나"로 고르면 답이 하나다.
 - **정한 것.** 눈금을 없애고 역할만 둔다 — `--shadow-raised`(옛 sm 값: 카드 hover · 떠 있는 단추), `--shadow-floating`(옛 md: 메뉴 · 팝오버 · 툴팁), `--shadow-overlay`(옛 lg: 모달 · 드로어 · 뷰어), `--shadow-inset`(옛 inner).
   옮긴 규칙: xs · sm → raised, md → floating, lg · xl · 2xl → overlay. 직접 쓴 검은 그림자는 퍼짐으로 — 4px 이하 raised, 12 ~ 20px floating, 24px 이상 overlay.
-  강조색 번짐(선택한 날 · 현재 노드 · 활성 태그)은 높이가 아니라 `--shadow-glow` 하나(12px, 강조색 40%). 글자 그림자는 `--text-shadow-subtle`(퍼짐 ≤ 4px) · `-strong` 둘과, 글자 위쪽에 빛을 받는 양각용 `--text-shadow-highlight`(메뉴 이메일 물결) 하나로, 옛 `--shadow-text-*` 넷은 지웠다.
+  강조색 번짐(선택한 날 · 현재 노드 · 활성 태그)은 높이가 아니라 `--shadow-glow` 하나(12px, 강조색 40%). 글자 그림자는 `--text-shadow-subtle`(퍼짐 ≤ 4px) · `-strong` 둘과, 글자 위쪽에 빛을 받는 양각용 `--text-shadow-highlight`(메뉴 이메일 물결) · 어두운 사진 위 제목의 hover 빛 `--text-shadow-glow`(전체화면 작업물)로, 옛 `--shadow-text-*` 넷은 지웠다.
 - **같이.** 한쪽 선을 `inset` 그림자로 그린 8곳(일정 왼쪽 띠 · 로그 왼쪽 띠 · 탭 밑줄 · 갤러리 위아래 띠 …)은 3.6-4 대로 `border-left` · `border-bottom` · `border-block` 으로, 편집기의 같은 낱말 밑줄은 `text-decoration` 으로.
   그림자 안의 `oklch()` · `rgba()` 검정 · 흰색은 역할색 `color-mix` 로(3.1-2, `color-function` 71 → 31).
 - **예외.** 작업 카드 hover 의 흰 빛(강조색 빛이 아니다) · 플레이그라운드 시작 코드(iframe 안이라 사이트 토큰이 닿지 않는 사용자 내용). 메뉴 이메일의 양각 하이라이트는 값은 그대로 두고 역할 `--text-shadow-highlight` 로 올렸다 — 연출을 지키면서 규칙도 지키는 길.
   처음엔 3D 단추 이음새 · 자동 완성 배경 · sticky 표 머리 밑줄 · 위로 뜨는 색인 시트 · 달도 예외였는데 비교해 보고 규칙대로 바꿨다 — 이음새는 맞닿는 쪽 1px 선, 자동 완성은 긴 transition 만 남기고, 표는 `border-collapse: separate; border-spacing: 0` 으로 바꾸면 sticky th 의 `border-bottom` 이 따라온다. 시트는 overlay(아래로 지는 그림자라 바닥 시트에서는 거의 안 보인다), 달은 glow.
-- **보이는 변화.** xl 을 쓰던 확인 대화상자 · 시리즈 미리보기 2곳은 overlay(lg 값)로 조금 얕아진다. 직접 쓴 값과 역할 값의 퍼짐 · 진하기 차이는 몇 px · 몇 % 안이다. 강조 빛은 6 ~ 16px 가 12px 하나로. 왼쪽 띠를 border 로 바꾼 곳은 글자가 띠 두께(2 ~ 3px)만큼 밀린다.
+- **보이는 변화.** 전체화면 작업물 제목의 hover 빛은 값 그대로 역할로 올려 그대로다. xl 을 쓰던 확인 대화상자 · 시리즈 미리보기 2곳은 overlay(lg 값)로 조금 얕아진다. 직접 쓴 값과 역할 값의 퍼짐 · 진하기 차이는 몇 px · 몇 % 안이다. 강조 빛은 6 ~ 16px 가 12px 하나로. 왼쪽 띠를 border 로 바꾼 곳은 글자가 띠 두께(2 ~ 3px)만큼 밀린다.
