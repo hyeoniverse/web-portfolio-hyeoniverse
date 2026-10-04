@@ -92,8 +92,8 @@
     var(--bg-secondary) 55%,
     var(--night-sky-moon-edge) 100%
   );
-  /* 달에 바싹 붙는 흰 테. 넓게 퍼지는 분홍 무리는 .moonGlow 가 따로 그린다. */
-  box-shadow: 0 0 40px 8px color-mix(in oklch, var(--border-color-white) 30%, transparent);
+  /* 달에 바싹 붙는 테 — 강조 빛 역할. 넓게 퍼지는 분홍 무리는 .moonGlow 가 따로 그린다. */
+  box-shadow: var(--shadow-glow);
   animation: moonFloat 14s ease-in-out infinite;
 }
 

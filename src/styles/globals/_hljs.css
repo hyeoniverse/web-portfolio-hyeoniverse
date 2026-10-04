@@ -434,11 +434,13 @@ code .token.italic {
 }
 .code-block-controls > :first-child {
   border-radius: var(--radius-full) 0 0 var(--radius-full);
-  box-shadow: var(--btn-raise), inset -2px 0 2px -2px var(--btn-seam), var(--btn-lift);
 }
 .code-block-controls > :last-child {
   border-radius: 0 var(--radius-full) var(--radius-full) 0;
-  box-shadow: var(--btn-raise), inset 2px 0 2px -2px var(--btn-seam), var(--btn-lift);
+}
+/* 맞닿는 단추 사이 이음새 — 그림자가 아니라 선(3.6-4) */
+.code-block-controls > :not(:last-child) {
+  border-right: var(--border-width-1) solid var(--btn-seam);
 }
 /* 버튼이 하나뿐일 때(줄바꿈 토글 없이 복사만 있는 경우) — first/last 규칙이 둘 다 걸려
    한쪽만 둥근 반쪽 캡슐이 된다. 맞닿는 버튼이 없으므로 네 모서리를 모두 굴리고 seam 도 뺀다. */

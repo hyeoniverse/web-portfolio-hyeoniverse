@@ -699,14 +699,8 @@
     "src/styles/globals/_tabs.css": 4
   },
   "shadow-literal": {
-    "src/app/admin/(dashboard)/settings/_components/about/ErdTableModal.module.css": 1,
-    "src/app/posts/_components/IndexSheet/IndexSheet.module.css": 1,
-    "src/app/profile/_components/BunnyShowcase/NightSky.module.css": 1,
     "src/app/works/_components/WorksFlowCard.module.css": 1,
-    "src/components/layout/ContactDrawer/ContactDrawer.module.css": 1,
-    "src/components/posts/EditorCode.module.css": 2,
-    "src/styles/globals/_animations.css": 3,
-    "src/styles/globals/_hljs.css": 2
+    "src/styles/globals/_animations.css": 3
   },
   "shadow-size-name": {},
   "opacity-disabled": {
@@ -1238,7 +1232,7 @@
     "src/components/admin/RelationPicker.module.css": 2,
     "src/components/admin/TagNotesEditor/TagNotesEditor.module.css": 7,
     "src/components/effects/ScrollTorus/ScrollTorus.module.css": 1,
-    "src/components/layout/ContactDrawer/ContactDrawer.module.css": 2,
+    "src/components/layout/ContactDrawer/ContactDrawer.module.css": 1,
     "src/components/layout/Navigation/Navigation.module.css": 1,
     "src/components/posts/plate/calendar/Calendar.module.css": 15,
     "src/components/posts/plate/DiagramElement.module.css": 7,
@@ -1395,7 +1389,6 @@
     "src/styles/globals/_poll.css": 2
   },
   "a11y-focus-shadow-only": {
-    "src/components/layout/ContactDrawer/ContactDrawer.module.css": 1,
     "src/components/posts/PostEditor.module.css": 1
   }
 }

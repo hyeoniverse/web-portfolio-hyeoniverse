@@ -22,7 +22,7 @@
   padding: var(--spacing-24) var(--spacing-20) calc(var(--spacing-24) + env(safe-area-inset-bottom, 0));
   border-radius: var(--radius-surface) var(--radius-surface) 0 0;
   background: var(--bg-primary);
-  box-shadow: 0 -8px 24px color-mix(in oklch, var(--text-black) 18%, transparent);
+  box-shadow: var(--shadow-overlay);
   overflow-y: auto;
 }
 
