@@ -625,7 +625,7 @@
   list-style: disc;
 }
 
-/* ── 왼쪽 맨 위 — AI·외부 서비스 상태 요약. 누르면 오른쪽이 상태 표로 바뀐다 ── */
+/* ── 왼쪽 맨 위 — AI·외부 서비스 상태 요약. 누르면 오른쪽이 상태 표로 바뀐다. 상자 없이 아래 가는 선으로만 가른다 ── */
 .railHealth {
   display: flex;
   flex-direction: column;
@@ -633,20 +633,16 @@
   gap: var(--spacing-4);
   width: 100%;
   margin-bottom: var(--spacing-8);
-  padding: var(--spacing-12);
-  border: var(--border-light);
-  border-radius: var(--radius-surface);
+  padding: var(--spacing-8) var(--spacing-12) var(--spacing-12);
+  border-bottom: var(--border-light);
+  border-radius: 0;
   background: transparent;
   text-align: left;
-  transition: background var(--duration-base) var(--ease-standard);
+  transition: color var(--duration-base) var(--ease-standard);
 }
 
-.railHealth:hover {
-  background: var(--bg-secondary);
-}
-
-.railHealth[data-active] {
-  border-color: var(--text-accent);
+.railHealth:hover .railHealthLabel {
+  color: var(--text-accent);
 }
 
 .railHealthLabel {
@@ -656,10 +652,15 @@
   font: var(--font-body-sm);
   font-weight: 600;
   color: var(--text-primary);
+  transition: color var(--duration-base) var(--ease-standard);
 }
 
+/* 고르면 이름만 강조색 — 전체 공급자 줄과 같은 표시 */
 .railHealth[data-active] .railHealthLabel {
   color: var(--text-accent);
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
 }
 
 /* 가장 나쁜 상태의 점 + 수 */
