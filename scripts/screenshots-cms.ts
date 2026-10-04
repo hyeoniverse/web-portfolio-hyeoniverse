@@ -89,7 +89,7 @@ async function newContext(browser: Browser, opts: { video?: string; admin?: bool
       /* 그림·영상에서 뺄 것 — 커스텀 커서(마지막 마우스 자리에 남는 분홍 점)와 "BGM을 켤 수 있어요" 말풍선(로드 2초 뒤 5초) */
       document.addEventListener("DOMContentLoaded", () => {
         const style = document.createElement("style");
-        style.textContent = '[class*="CursorTrail-module"][class*="cursor"], [class*="Navigation-module"][class*="soundTip"] { display: none !important; }';
+        style.textContent = '[class*="CursorTrail-module"][class*="cursor"], [class*="Navigation-module"][class*="soundTip"], nextjs-portal { display: none !important; }';
         document.head.appendChild(style);
       });
     },
@@ -524,10 +524,9 @@ const SCENES: Scene[] = [
       const ctx = await newContext(browser);
       const page = await ctx.newPage();
       await open(page, "/admin/settings?tab=services", 2000);
-      /* 절 제목은 숨은 점프 내비에도 같은 글자가 있다 — heading 으로 집는다 */
-      await page.getByRole("heading", { name: "AI 자동 번역" }).first().scrollIntoViewIfNeeded();
-      await page.evaluate(() => window.scrollBy(0, -30));
-      await wait(600);
+      /* 절 제목은 숨은 점프 내비에도 같은 글자가 있다 — heading 으로 집는다.
+         "AI · 외부 서비스" 한 섹션 — 머리 · 설명 · 공급자 표(상태 · 사용량 · 모델)가 한 화면에 */
+      await scrollTopTo(page.getByRole("heading", { name: "AI · 외부 서비스" }).first(), 130);
       await shot(page, "09-settings-services");
       await ctx.close();
     },

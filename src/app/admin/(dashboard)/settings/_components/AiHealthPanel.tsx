@@ -1,9 +1,11 @@
 "use client";
 
-/* ── AI 상태·사용량 (settings > 서비스) ──
+/* ── AI·외부 서비스 상태 (settings > 서비스 · service-log) ──
    공급자마다 이어진 실패와 원인(키 만료·권한·한도…), 꺼졌는지, 이번 달 사용량과 무료 한도를 보인다(lib/ai/health).
    같은 원인으로 여러 번 이어 실패해 꺼진 공급자는 원인을 고친 뒤 여기서 다시 켠다. 키를 바꾸면 저절로 풀린다.
-   탭의 "저장 / 되돌리기"와 상관없이 바로 반영된다. */
+   탭의 "저장 / 되돌리기"와 상관없이 바로 반영된다.
+   머리(제목 · 설명 · 저장)는 부모가 그린다 — 설정 › 서비스의 "AI · 외부 서비스" 섹션, 서비스 호출 기록 페이지의 접는 카드.
+   글 공급자 줄에는 설정 › 서비스가 넘기는 모델 칸(modelOf)이 들어간다. */
 import { useState } from "react";
 import { ChevronDown, Copy, ExternalLink, History, RotateCcw } from "@/components/icons";
 
@@ -26,7 +28,6 @@ import {
   type ProviderUsage,
 } from "@/lib/ai/providers";
 import type { useAiHealth } from "./useAiHealth";
-import settings from "../Settings.module.css";
 import styles from "./AiHealthPanel.module.css";
 
 const DAY = 24 * 60 * 60 * 1000;
@@ -86,14 +87,21 @@ const GROUPS: { id: string; providers: AiProvider[] }[] = [
   { id: "stock", providers: ["unsplash", "pexels"] },
 ];
 
-/** 상태는 서비스 탭이 불러 넘긴다(useAiHealth) — fallback 섹션들도 같은 값으로 공급자 상태를 보인다 */
-export default function AiHealthPanel({ health }: { health: ReturnType<typeof useAiHealth> }) {
+/** 상태는 부모가 불러 넘긴다(useAiHealth) — 서비스 탭의 기능 줄들도 같은 값으로 공급자 상태를 보인다 */
+export default function AiHealthPanel({
+  health,
+  modelOf,
+}: {
+  health: ReturnType<typeof useAiHealth>;
+  /** 공급자 줄에 넣을 모델 칸(글 공급자만) — 설정 › 서비스가 넘긴다. 없으면 칸 없음 */
+  modelOf?: (provider: AiProvider) => React.ReactNode;
+}) {
   const { t, language } = useLanguage();
   const th = (key: string) => t(`admin.aiHealth.${key}`);
   const { data, failed, reload: load, stateOf } = health;
   const [resetting, setResetting] = useState<AiProvider | null>(null);
   /* 호출 기록은 따로 둔 페이지(/admin/service-log) — 공급자 줄에서 가면 그 공급자로 걸러 연다 */
-  const logHref = (provider?: AiProvider) => `/admin/service-log${provider ? `?provider=${provider}` : ""}`;
+  const logHref = (provider: AiProvider) => `/admin/service-log?provider=${provider}`;
 
   const reset = async (provider: AiProvider) => {
     setResetting(provider);
@@ -114,15 +122,7 @@ export default function AiHealthPanel({ health }: { health: ReturnType<typeof us
   const hidden = data ? AI_PROVIDERS.length - shown.length : 0;
 
   return (
-    <section className={`${settings.section} ${settings.sectionWide}`}>
-      <div className={styles.titleRow}>
-        <h2 className={settings.sectionTitle}>{th("title")}</h2>
-        <Button variant="outline" size="sm" shape="capsule" href={logHref()} soundDisabled icon={<History size={14} strokeWidth={2} />}>
-          {th("logOpen")}
-        </Button>
-      </div>
-      <p className={settings.sectionHint}>{fillTemplate(th("hint"), { fatal: FATAL_LIMIT, transient: TRANSIENT_LIMIT })}</p>
-
+    <div className={styles.panel}>
       {data === null ? (
         failed ? <p className={styles.empty}>{th("loadFailed")}</p> : (
           <div className={styles.list} aria-hidden>
@@ -193,6 +193,8 @@ export default function AiHealthPanel({ health }: { health: ReturnType<typeof us
                       )}
 
                       <Usage provider={p} usage={u} deepl={p === "deepl" ? data.deepl : null} now={data.loadedAt} nf={nf} th={th} />
+                      {/* 모델 — 글 공급자(요약 · 번역)만. 모델 은퇴로 404 가 나는 줄에서 바로 고친다 */}
+                      {modelOf?.(p)}
                     </li>
                   );
                 })}
@@ -203,7 +205,7 @@ export default function AiHealthPanel({ health }: { health: ReturnType<typeof us
         </div>
       )}
       {hidden > 0 && <p className={styles.empty}>{fillTemplate(th("hiddenCount"), { n: hidden })}</p>}
-    </section>
+    </div>
   );
 }
 
