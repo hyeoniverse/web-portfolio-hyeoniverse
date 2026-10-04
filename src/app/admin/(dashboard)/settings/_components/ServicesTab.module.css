@@ -45,6 +45,10 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-4);
+  /* 위 순서 줄(AI 생성)과 다른 묶음(사진 검색)이라 선으로 가른다 */
+  margin-top: var(--spacing-4);
+  padding-top: var(--spacing-8);
+  border-top: var(--border-light);
 }
 
 .stockRow {
