@@ -10,7 +10,6 @@ import T from "@/components/ui/T";
 import Tooltip from "@/components/ui/Tooltip";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useLenis } from "@/providers/LenisProvider";
-import { useMotionPaused } from "@/stores/motionStore";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import styles from "./HeroSection.module.css";
 import Pressable from "@/components/ui/Pressable";
@@ -27,8 +26,6 @@ const HeroSection = forwardRef<HTMLElement, HeroSectionProps>(
   ({ floatX, floatY, oval2X, oval2Y, onScrollDown }, ref) => {
     const { language } = useLanguage();
     const { lenis } = useLenis();
-    /* 움직임 멈춤(3.9-4) — 스크롤 안내 줄은 끝없이 흐르는 장식이라 선다 */
-    const motionPaused = useMotionPaused();
     const cfg = useSiteConfig();
     const headline = language === "ko" ? cfg.hero.headline_ko : cfg.hero.headline;
     const headlineAlt = language === "ko" ? cfg.hero.headline : cfg.hero.headline_ko;
@@ -135,12 +132,12 @@ const HeroSection = forwardRef<HTMLElement, HeroSectionProps>(
           <div className={styles.scrollLineWrapper}>
             <motion.div
               className={styles.scrollLine}
-              animate={motionPaused ? { y: "-100%" } : { y: ["-100%", "350%"] }}
-              transition={
-                motionPaused
-                  ? { duration: 0.3 } /* repeat 가 남아 있으면 멈춤 자리로 가는 전환도 되풀이된다 */
-                  : { duration: 3, repeat: Infinity, ease: "easeInOut" }
-              }
+              animate={{ y: ["-100%", "350%"] }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
             />
           </div>
           <span className={styles.scrollText}>
