@@ -600,9 +600,8 @@
   cursor: grabbing;
 }
 
-/* 칸 위에 그리는 표시 겹 — inset box-shadow 는 안에 든 그림 밑에 그려져 가려진다. 그림 위(::after)에 올린다.
-   z 는 대표 배지(3) 아래, 그림 위 */
-.galleryItemMain::after,
+/* 칸 위에 그리는 표시 겹 — 안에 든 그림 위(::after)에 올린다. z 는 대표 배지(3) 아래, 그림 위.
+   대표 그림은 배지(.galleryMainBadge) 하나로만 표시한다 — 위아래 선까지 두면 "지금 열린 장" 표시와 헷갈린다 */
 .galleryItemCurrent::after {
   content: "";
   position: absolute;
@@ -611,17 +610,12 @@
   pointer-events: none;
 }
 
-.galleryItemMain::after {
-  border-block: var(--border-width-2) solid var(--text-accent);
-}
-
 .galleryItem:last-child {
   border-right: none;
 }
 
 /* 위에 열려 있는 장 — 강조색 테두리를 두르고, 그 안쪽으로 옅은 강조색 띠를 한 겹 더. 둘 다 칸 안에 그린다
-   (칸이 overflow: hidden 이라 밖으로 나가는 outline 은 잘려 안 보인다). 대표 그림 표시(위아래 선)와 함께
-   걸려도 테두리가 그 선을 덮는다 */
+   (칸이 overflow: hidden 이라 밖으로 나가는 outline 은 잘려 안 보인다) */
 .galleryItemCurrent::after {
   border: var(--border-width-3) solid var(--text-accent);
   outline: var(--border-width-3) solid var(--bg-accent-light);
