@@ -46,6 +46,7 @@
   align-items: center;
   gap: var(--spacing-4) var(--spacing-12);
   min-height: var(--control-height-sm);
+  cursor: pointer;
 }
 
 .name {

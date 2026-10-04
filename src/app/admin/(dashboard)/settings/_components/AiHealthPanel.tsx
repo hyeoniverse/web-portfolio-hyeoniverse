@@ -151,7 +151,14 @@ export default function AiHealthPanel({ health }: { health: ReturnType<typeof us
                   const isOpen = open[p] ?? false;
                   return (
                     <li key={p} className={styles.row} data-state={state} data-open={isOpen ? "" : undefined}>
-                      <div className={styles.head}>
+                      {/* 줄 어디를 눌러도 펼친다 — 단추 · 링크 · 입력칸은 빼고 */}
+                      <div
+                        className={styles.head}
+                        onClick={(e) => {
+                          if ((e.target as HTMLElement).closest("button, a, input, label")) return;
+                          setOpen((o) => ({ ...o, [p]: !isOpen }));
+                        }}
+                      >
                         <span className={styles.name}>{info.label}</span>
                         <span className={styles.features}>{info.features.map((f) => th(`feature.${f}`)).join(" · ")}</span>
                         <span className={styles.status} data-state={state}>
