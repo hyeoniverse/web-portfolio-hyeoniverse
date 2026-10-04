@@ -1981,6 +1981,7 @@
       "title": "AI & external service status",
       "detailShow": "Details",
       "detailHide": "Hide details",
+      "modelListFailed": "Could not load the model list ({{reason}}). Only the latest alias is available.",
       "modelLatest": "latest",
       "modelEdit": "Change model",
       "modelUseLatest": "Use latest alias",

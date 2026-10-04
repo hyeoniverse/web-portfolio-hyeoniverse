@@ -11,7 +11,7 @@ import type { SiteConfigData } from "@/config/site.config";
 import { Switch } from "@/components/ui/Switch";
 import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
-import Input from "@/components/ui/Input";
+import { SkeletonLine } from "@/components/ui/Skeleton";
 import Popover from "@/components/ui/Popover";
 import { Pencil } from "@/components/icons";
 import SegmentedControl from "@/components/ui/SegmentedControl";
@@ -44,6 +44,50 @@ import { errorText } from "@/lib/apiError";
 import { sendAction } from "@/lib/sendAction";
 import { fillTemplate } from "@/utils/format";
 
+
+/** 모델 고르기 — 그 공급자 키로 지금 부를 수 있는 모델을 받아 셀렉트로. 직접 적지 않는다.
+ *  맨 위 "최신(별칭)" 이 기본(빈 값). 목록을 못 받으면(키 없음 · 거절) 이유를 보이고 "최신" 만 남는다 */
+function ModelPicker({ t, provider, value, onChange, onClose }: {
+  t: TFunction; provider: AiModelProvider; value: string; onChange: (v: string) => void; onClose: () => void;
+}) {
+  const [models, setModels] = useState<string[] | null>(null);
+  const [reason, setReason] = useState<string | null>(null);
+  useEffect(() => {
+    let alive = true;
+    void fetch(`/api/admin/ai-models?provider=${provider}`)
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
+      .then((d: { models?: string[]; reason?: string }) => { if (!alive) return; setModels(d.models ?? []); setReason(d.reason ?? null); })
+      .catch((e: Error) => { if (!alive) return; setModels([]); setReason(e.message); });
+    return () => { alive = false; };
+  }, [provider]);
+  const LATEST = "";
+  const list = models ?? [];
+  /* 적어 둔 값이 목록에 없어도(은퇴한 모델 등) 고른 채로 보이게 넣어 둔다 */
+  const options: SelectOption<string>[] = [
+    { value: LATEST, label: `${t("admin.aiHealth.modelLatest")} · ${DEFAULT_AI_MODELS[provider]}` },
+    ...(value && !list.includes(value) ? [{ value, label: value }] : []),
+    ...list.map((m) => ({ value: m, label: m })),
+  ];
+  return (
+    <div className={styles.modelPopover}>
+      <p className={styles.modelPopoverTitle}>{AI_PROVIDER_INFO[provider].label} · {t("admin.aiHealth.model")}</p>
+      {models === null ? (
+        <SkeletonLine width="100%" />
+      ) : (
+        <Select value={value} options={options} onChange={(v) => onChange(v)} />
+      )}
+      {reason && (
+        <p className={styles.modelPopoverHint}>
+          {reason === "nokey" ? t("admin.aiHealth.stateNoKey") : fillTemplate(t("admin.aiHealth.modelListFailed"), { reason })}
+        </p>
+      )}
+      <p className={styles.modelPopoverHint}>{t("admin.settings.aiModelsHint")}</p>
+      <div className={styles.modelPopoverActions}>
+        <Button variant="primary" size="sm" shape="capsule" onClick={onClose} soundDisabled>{t("common.close")}</Button>
+      </div>
+    </div>
+  );
+}
 
 /* 발행 글 자동 cover 일괄 배정 — 발행됐고 커버가 비어 있는 글에 키워드로 찾은 Unsplash/Pexels 이미지를 넣는다.
    바로 돌리지 않고 확인 창에서 대상 글과 검색 키워드를 먼저 보여 주고, 고른 글에만 적용한다(POST /api/posts/auto-cover). */
@@ -268,7 +312,7 @@ type ProviderFallback<P extends string> = {
  * onChange 는 setConfig 처럼 updater(prev)→next 를 받아 최신 슬라이스 기준으로 갱신한다.
  */
 function ProviderFallbackBlock<P extends string>({
-  t, title, options, defaultProvider, value, onChange, children, stateOf, hint, keyOf, extraHints, logProviders, modelsOf,
+  t, title, options, defaultProvider, value, onChange, children, stateOf, hint, keyOf, extraHints, logProviders, asideOf,
 }: {
   t: TFunction;
   title: string;
@@ -287,8 +331,8 @@ function ProviderFallbackBlock<P extends string>({
   extraHints?: React.ReactNode[];
   /** 이 기능의 호출 기록을 거를 공급자 이름(lib/ai/providers) — 제목 줄의 기록 단추가 쓴다 */
   logProviders?: string[];
-  /** 순서 목록 아래 한 줄 — 요약 · 번역은 글 공급자마다 부를 모델(보기 + 연필) */
-  modelsOf?: (providers: P[]) => React.ReactNode;
+  /** 순서 줄의 상자 밖 오른쪽 — 요약 · 번역은 글 공급자가 부를 모델(보기 + 연필) */
+  asideOf?: (p: P) => React.ReactNode;
 }) {
   const provider = value?.provider ?? defaultProvider;
   const fallbackEnabled = value?.fallback?.enabled ?? false;
@@ -360,6 +404,7 @@ function ProviderFallbackBlock<P extends string>({
             const st = stateOf?.(p);
             return st && st !== "ok" ? <span className={styles.providerBadge} data-state={st}>{stateText(p)}</span> : null;
           }}
+          asideOf={asideOf}
           onChange={(order) => onChange((prev) => ({
             ...prev,
             provider: order[0],
@@ -367,8 +412,6 @@ function ProviderFallbackBlock<P extends string>({
           }))}
           onExcludedChange={(next) => onChange((prev) => ({ ...prev, fallback: { ...prev?.fallback, enabled: prev?.fallback?.enabled ?? false, priority: prev?.fallback?.priority ?? [], excluded: next } }))}
         />
-        {/* 모델 — 순서 목록과 떼어 한 줄로(자동 전환이 꺼져 있으면 기본 공급자 것만) */}
-        {modelsOf?.(fallbackEnabled ? [provider, ...usableFallbacksAll] : [provider])}
         {/* 첫 공급자가 쓸 수 없는 상태면 여기서 바로 알린다 — 모르고 두면 요청마다 실패하고 fallback 으로만 돈다 */}
         {primaryState && primaryState !== "ok" && (
           <p className={styles.providerWarn}>{t(`admin.settings.providerWarn.${primaryState}`)}</p>
@@ -389,16 +432,16 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
   const sh = { config, savedConfig, saveSection, revertSection, resetSection, savingPaths, validationError, titleClassName: shared.sectionTitle };
   /* AI 상태 — 상태 패널과 각 fallback 섹션이 같이 쓴다. 설정 이름 → 상태를 세는 공급자 이름(google 만 기능마다 다르다) */
   const aiHealth = useAiHealth();
-  /* 글 공급자(Gemini · OpenAI · Claude)가 부를 모델 — 요약 · 번역의 순서 목록 항목 안에 둔다(같은 값을 두 곳에서 본다).
-     보기만: 비어 있으면 "최신" 과 그 별칭 이름, 적어 두었으면 그 이름. 바꾸는 건 연필 → 팝오버 */
+  /* 글 공급자(Gemini · OpenAI · Claude)가 부를 모델 — 요약 · 번역의 순서 줄 오른쪽(상자 밖)에 둔다(같은 값을 두 곳에서 본다).
+     보기만: 비어 있으면 "최신" 과 그 별칭 이름, 적어 두었으면 그 이름. 바꾸는 건 연필 → 팝오버의 셀렉트 */
   const modelField = (p: string) => {
     if (!(p in DEFAULT_AI_MODELS)) return null;
     const mp = p as AiModelProvider;
     const custom = (config.aiModels?.[mp] ?? "").trim();
     const setModel = (v: string) => setConfig((prev) => ({ ...prev, aiModels: { ...prev.aiModels, [mp]: v } }));
     return (
-      <span key={mp} className={styles.modelField}>
-        <span className={styles.modelLabel}>{AI_PROVIDER_INFO[mp].label}</span>
+      <span className={styles.modelField}>
+        <span className={styles.modelLabel}>{t("admin.aiHealth.model")}</span>
         {custom ? (
           <code className={styles.modelValue}>{custom}</code>
         ) : (
@@ -414,29 +457,16 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
           trigger={<Button variant="ghost" size="xs" shape="circle" aria-label={t("admin.aiHealth.modelEdit")} title={t("admin.aiHealth.modelEdit")} soundDisabled icon={<Pencil size={12} strokeWidth={2} />} />}
         >
           {({ close }) => (
-            <div className={styles.modelPopover}>
-              <p className={styles.modelPopoverTitle}>{AI_PROVIDER_INFO[mp].label} · {t("admin.aiHealth.model")}</p>
-              <Input size="sm" value={config.aiModels?.[mp] ?? ""} onChange={setModel} placeholder={DEFAULT_AI_MODELS[mp]} clearable={false} autoFocus />
-              <p className={styles.modelPopoverHint}>{t("admin.settings.aiModelsHint")}</p>
-              <div className={styles.modelPopoverActions}>
-                <Button variant="ghost" size="sm" shape="capsule" onClick={() => { setModel(""); close(); }} disabled={!custom} soundDisabled>{t("admin.aiHealth.modelUseLatest")}</Button>
-                <Button variant="primary" size="sm" shape="capsule" onClick={close} soundDisabled>{t("common.close")}</Button>
-              </div>
-            </div>
+            <ModelPicker
+              t={t}
+              provider={mp}
+              value={config.aiModels?.[mp] ?? ""}
+              onChange={setModel}
+              onClose={close}
+            />
           )}
         </Popover>
       </span>
-    );
-  };
-  /* 순서 목록 아래 "모델" 한 줄 — 목록에 든 글 공급자만 */
-  const modelsLine = (providers: string[]) => {
-    const cells = providers.map(modelField).filter(Boolean);
-    if (cells.length === 0) return null;
-    return (
-      <div className={styles.modelsLine}>
-        <span className={styles.modelsLineLabel}>{t("admin.aiHealth.model")}</span>
-        {cells}
-      </div>
     );
   };
   const stateFor = (map: (p: string) => AiProvider) => (p: string) => aiHealth.stateOf(map(p));
@@ -917,7 +947,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
             t={t}
             title={t("admin.settings.aiSummarySettings")}
             options={AI_SUMMARY_OPTIONS}
-            modelsOf={modelsLine}
+            asideOf={modelField}
             defaultProvider="gemini"
             value={config.aiSummary as ProviderFallback<AISummaryProvider>}
             onChange={(u) => setConfig((prev) => ({ ...prev, aiSummary: u(prev.aiSummary as ProviderFallback<AISummaryProvider>) as typeof prev.aiSummary }))}
@@ -931,7 +961,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
             t={t}
             title={t("admin.settings.translationSettings")}
             options={TRANSLATION_OPTIONS}
-            modelsOf={modelsLine}
+            asideOf={modelField}
             defaultProvider="deepl"
             value={config.translation as ProviderFallback<TranslationProvider>}
             onChange={(u) => setConfig((prev) => ({ ...prev, translation: u(prev.translation as ProviderFallback<TranslationProvider>) as typeof prev.translation }))}
