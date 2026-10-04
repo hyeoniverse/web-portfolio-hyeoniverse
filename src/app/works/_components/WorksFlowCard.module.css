@@ -167,12 +167,23 @@
   will-change: transform;
 }
 
+/* 엔진이 확대 · 패럴랙스를 거는 상자 — 흐린 미리보기(LQIP)와 원본이 같이 들어 있어 원본이 늦게 떠도
+   크기 · 자리가 그대로다(원본에만 걸면 1.0 미리보기 → 1.2 원본으로 튄다) */
+.cardMedia {
+  transform-origin: center;
+  will-change: transform;
+}
+
+/* 미리보기(LQIP)는 흐림 가장자리를 숨기려고 1.1 로 키워 두는데, 이 상자는 이미 1.2 로 키운 채
+   카드가 잘라 내므로 가장자리가 보일 일이 없다. 원본과 같은 크기로 두어 뜰 때 튀지 않게 한다 */
+.cardMedia > img[aria-hidden] {
+  transform: none;
+}
+
 .cardImage {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transform-origin: center;
-  will-change: transform;
 }
 
 .cardBorder {
