@@ -29,6 +29,7 @@ import {
 } from "./constants";
 import styles from "./ImageViewer.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { useDialogRef } from "@/hooks/useTopLayer";
 
 type ThumbMode = "hidden" | "strip" | "list" | "gallery";
 
@@ -84,6 +85,8 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
   const { resolveSrc, markBroken: markError, isBroken } = useImageFallbackSet();
 
   const viewerRef = useRef<HTMLDivElement>(null);
+  /* <dialog>.showModal() — top layer, 뒤 화면 inert, 포커스 가둠(3.10-1). 안의 팝오버 · 툴팁은 PortalContainerContext 로 이 안에 그린다 */
+  const dialogRef = useDialogRef();
   // Tooltip/Popover 가 뷰어(z-modal)보다 낮은 z-tooltip 으로 body 에 떠 가려지는 문제 →
   // 뷰어 안에 portal 타깃(아래 tooltipLayer div)을 두고 그 노드를 컨텍스트로 내려, 툴팁이 뷰어 stacking context
   // 안(=콘텐츠 위)에 뜨게 한다. 풀스크린에서도 유지됨. setState 를 콜백 ref 로 바로 넘겨 ref 직접 쓰기 없이 연결.
@@ -479,8 +482,16 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
 
   return createPortal(
     <AnimatePresence>
-      {/* ── Blur overlay (sibling, exits last) ── */}
       {open && (
+        <dialog
+          key="image-viewer"
+          ref={dialogRef}
+          className="ui-dialog"
+          aria-label="Image viewer"
+          /* Esc — 브라우저의 닫기를 막고 우리 순서(전체화면이면 먼저 나가기)로 */
+          onCancel={(e) => { e.preventDefault(); if (isFullscreen) document.exitFullscreen?.(); else handleClose(); }}
+        >
+        {/* ── Blur overlay (sibling, exits last) ── */}
         <motion.div
           key="overlay"
           className={styles.overlayBg}
@@ -489,9 +500,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
           exit={{ opacity: 0 }}
           transition={closing ? { duration: 0.30, delay: 1.30 } : isDragging ? { duration: 0 } : { duration: 0.15 }}
         />
-      )}
-      {/* ── Viewer container ── */}
-      {open && (
+        {/* ── Viewer container ── */}
         <motion.div
           key="viewer"
           ref={viewerRef}
@@ -1075,6 +1084,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
           <div ref={setPortalHost} aria-hidden className={styles.tooltipLayer} />
           </PortalContainerContext.Provider>
         </motion.div>
+        </dialog>
       )}
     </AnimatePresence>,
     document.body,

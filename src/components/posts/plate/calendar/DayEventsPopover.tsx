@@ -7,6 +7,7 @@ import { type CalEvent, type EventLabel, type TimeFormat, eventColorVar, formatC
 import { formatDateValue } from "../dateUtils";
 import styles from "./Calendar.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { usePopoverRef } from "@/hooks/useTopLayer";
 
 export type DayPopState = { date: string; events: CalEvent[]; rect: DOMRect } | null;
 
@@ -23,6 +24,7 @@ export default function DayEventsPopover({
   onHover: (ev: CalEvent | null, rect?: DOMRect) => void;
 }) {
   const ref = React.useRef<HTMLDivElement>(null);
+  const popRef = usePopoverRef<HTMLDivElement>(ref);
 
   React.useEffect(() => {
     if (!state) return;
@@ -55,7 +57,7 @@ export default function DayEventsPopover({
     : { bottom: vh - rect.top + 6, left, width: W };
 
   return createPortal(
-    <div ref={ref} className={styles.dayPop} style={style}>
+    <div ref={popRef} popover="manual" className={styles.dayPop} style={style}>
       <div className={styles.dayPopHead}>{formatDateValue(state.date, null, language)}</div>
       {/* data-lenis-prevent — 이 목록은 max-height 안에서 스스로 스크롤한다.
           없으면 전역 Lenis 가 휠을 가로채 목록 대신 페이지가 움직인다. */}

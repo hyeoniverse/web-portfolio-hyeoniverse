@@ -285,7 +285,7 @@
 
 ## `src/styles/tokens/_z-index.css`
 
-토큰 12개
+토큰 4개
 
 | 토큰 | 값 |
 |---|---|
@@ -293,14 +293,6 @@
 | `--z-index-content` | `10` |
 | `--z-index-nav` | `100` |
 | `--z-index-float` | `200` |
-| `--z-index-dropdown` | `500` |
-| `--z-index-tooltip` | `700` |
-| `--z-index-modal` | `8000` |
-| `--z-index-overlay` | `9000` |
-| `--z-index-fullscreen` | `9500` |
-| `--z-index-loading` | `9800` |
-| `--z-index-top` | `10000` |
-| `--z-index-cursor` | `10100` |
 
 ## `src/styles/globals/_semantic.css`
 

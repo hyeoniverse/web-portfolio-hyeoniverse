@@ -15,6 +15,7 @@ import { normalizePlayground, RUNNER_TEMPLATES, type PlaygroundData } from "./pl
 import { starterFiles } from "./playground/starters";
 import styles from "./PlaygroundElement.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { useDialogRef } from "@/hooks/useTopLayer";
 
 // HTML/CSS/JS = 자체 srcdoc 러너(외부 의존 0), 나머지 = Sandpack (하이브리드)
 const PlaygroundSandpack = React.lazy(() => import("./playground/PlaygroundSandpack"));
@@ -72,6 +73,7 @@ export function PlaygroundElement(props: PlateElementProps) {
   // 전체화면 토글 — body 로 portal 하며 Sandpack 이 리마운트되므로, 최신 files 를
   // data 로 동기화해 유실 방지(onFilesChange 는 dataRef 만 갱신하고 setData 안 함).
   const applyFullscreen = useCallback((next: boolean) => { setData(dataRef.current); setFullscreen(next); }, []);
+  const fsDialogRef = useDialogRef(); /* 전체화면은 <dialog>.showModal() — top layer(3.10-1) */
 
   React.useEffect(() => {
     if (!fullscreen) return;
@@ -146,7 +148,10 @@ export function PlaygroundElement(props: PlateElementProps) {
           {props.children}
         </PlateElement>
       </div>
-      {fullscreen && createPortal(body, document.body)}
+      {fullscreen && createPortal(
+        <dialog ref={fsDialogRef} className="ui-dialog" onCancel={(e) => { e.preventDefault(); applyFullscreen(false); }}>{body}</dialog>,
+        document.body,
+      )}
     </BlockDropZone>
   );
 }

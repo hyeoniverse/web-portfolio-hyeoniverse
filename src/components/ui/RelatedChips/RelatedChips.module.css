@@ -88,7 +88,6 @@
 /* hover 미리보기 카드 — admin 리스트 프리뷰와 동일 톤 */
 .preview {
   position: fixed;
-  z-index: var(--z-index-tooltip);
   width: 16rem;
   overflow: hidden;
   border: var(--border-light);

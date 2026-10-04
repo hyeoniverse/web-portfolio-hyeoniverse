@@ -18,6 +18,7 @@ import ContactSuccessView from "./ContactSuccessView";
 import ContactInfoCards from "./ContactInfoCards";
 import styles from "./ContactDrawer.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { useDialogRef } from "@/hooks/useTopLayer";
 
 interface SubmittedData {
   name: string;
@@ -115,6 +116,8 @@ export default function ContactDrawer({
   const drawerRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
   const [isMobileDrawer, setIsMobileDrawer] = useState(false);
+  /* <dialog>.showModal() — top layer, 뒤 화면 inert(3.10-1) */
+  const dialogRef = useDialogRef();
   const [showDrawer, setShowDrawer] = useState(false);
   const [clipOpen, setClipOpen] = useState(false);
   const { ready: recaptchaReady } = useRecaptcha();
@@ -234,7 +237,6 @@ export default function ContactDrawer({
     if (badge) {
       badge.style.visibility = isOpen ? "visible" : "hidden";
       badge.style.opacity = isOpen ? "1" : "0";
-      badge.style.zIndex = isOpen ? "var(--z-index-top)" : "";
       badge.style.transition = "visibility 0.3s, opacity 0.3s";
     }
 
@@ -262,6 +264,13 @@ export default function ContactDrawer({
     : "inset(0 100% 0 0)";
 
   return createPortal(
+    <dialog
+      ref={dialogRef}
+      className="ui-dialog"
+      aria-label="Contact"
+      /* Esc — 바깥 클릭과 같은 길로 닫는다(퇴장 클립 애니메이션이 거기 있다) */
+      onCancel={(e) => { e.preventDefault(); onClose(); resetForm(); }}
+    >
     <div
       className={styles.clipWrapper}
         data-lenis-prevent
@@ -505,7 +514,8 @@ export default function ContactDrawer({
             />
           </div>
         </div>
-      </div>,
+      </div>
+    </dialog>,
     document.body,
   );
 }

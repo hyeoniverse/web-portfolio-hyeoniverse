@@ -34,7 +34,7 @@ export function useDialogRef(forward?: Ref<HTMLDialogElement>) {
   }, []);
 }
 
-/** 늘 맨 위여야 하는 것(커서 · 로딩 · 페이지 전환)의 콜백 ref — 등록하고, 떨어지면 해제한다 */
+/** 늘 맨 위여야 하는 것(커서 · 페이지 전환 · 토스트)의 콜백 ref — 등록하고, 떨어지면 해제한다 */
 export function useKeepOnTopRef<T extends HTMLElement>(priority: number, forward?: Ref<T>) {
   const forwardRef = useRef(forward);
   useSyncRef(forwardRef, forward);

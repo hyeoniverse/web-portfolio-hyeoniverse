@@ -18,12 +18,14 @@ import diagram from "../../EditorDiagram.module.css";
 import media from "../../EditorMedia.module.css";
 const styles = { ...base, ...code, ...diagram, ...media };
 import Pressable from "@/components/ui/Pressable";
+import { useDialogRef } from "@/hooks/useTopLayer";
 
 /* mermaid 도움말 — 예제 목록과 모달 — elements.tsx 에서 분리 (#680). */
 
 function MermaidExample({ label, code, wide, ko, onCopy }: { label: string; code: string; wide?: boolean; ko: boolean; onCopy: (c: string) => void }) {
   const [zoom, setZoom] = useState(1);
   const [full, setFull] = useState(false);
+  const fsDialogRef = useDialogRef(); /* 전체화면은 <dialog>.showModal() — 모달 안에서 열려도 맨 위 모달이 돼 눌린다(3.10-1) */
   const clamp = (z: number) => Math.min(3, Math.max(0.5, Math.round(z * 10) / 10));
   // 롱프레스로 연속 확대/축소 — 누르면 즉시 1회, 계속 누르면 반복
   const repeat = useRef<{ t1: ReturnType<typeof setTimeout> | null; iv: ReturnType<typeof setInterval> | null }>({ t1: null, iv: null });
@@ -101,6 +103,7 @@ function MermaidExample({ label, code, wide, ko, onCopy }: { label: string; code
         </div>
       </div>
       {full && createPortal(
+        <dialog ref={fsDialogRef} className="ui-dialog" onCancel={(e) => { e.preventDefault(); setFull(false); }}>
         <div className={styles.mermaidHelpFsOverlay}>
           <div className={styles.mermaidHelpFsBar}>
             <span className={styles.mermaidHelpFsTitle}>{label}</span>
@@ -115,7 +118,8 @@ function MermaidExample({ label, code, wide, ko, onCopy }: { label: string; code
               <MermaidPreview code={code} />
             </div>
           </div>
-        </div>,
+        </div>
+        </dialog>,
         document.body,
       )}
     </div>

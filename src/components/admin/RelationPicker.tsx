@@ -10,6 +10,7 @@ import CloseButton from "@/components/ui/CloseButton";
 import MediaThumb from "@/components/ui/MediaThumb";
 import styles from "./RelationPicker.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { usePopoverRef } from "@/hooks/useTopLayer";
 
 interface RelationPickerProps<T> {
   /** 선택 가능한 전체 항목 */
@@ -70,6 +71,7 @@ export default function RelationPicker<T>({
   /* 목록 패널은 포털로 띄운다 — 편집기의 접히는 영역(overflow·clip-path)이 그림자와 아래로 넘친 패널을 잘랐다 */
   const areaRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  const panelPop = usePopoverRef<HTMLDivElement>(panelRef);
   const portalContainer = usePortalContainer();
   const [panelPos, setPanelPos] = useState<{ top: number; left: number; width: number } | null>(null);
   const searchRef = useRef<HTMLInputElement>(null);
@@ -199,7 +201,8 @@ export default function RelationPicker<T>({
       {/* 목록 패널 — 포털(모달 안이면 모달의 포털 자리). 한 번 연 뒤로는 그려 두고 투명도로 여닫는다 */}
       {panelPos && createPortal(
           <div
-            ref={panelRef}
+            ref={panelPop}
+            popover="manual"
             className={`${styles.inputAreaExpand} ${open ? styles.inputAreaExpandOpen : ""}`}
             style={{ top: panelPos.top, left: panelPos.left, width: panelPos.width }}
             role="listbox"

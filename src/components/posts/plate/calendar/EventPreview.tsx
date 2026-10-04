@@ -6,6 +6,7 @@ import { createPortal } from "react-dom";
 import { type CalEvent, type EventLabel, type TimeFormat, eventColorVar, eventTimeLabel, findLabel, statusOf, statusName, priorityOf, priorityName, stripHtml } from "./model";
 import { formatDateValue } from "../dateUtils";
 import styles from "./CalendarPreview.module.css";
+import { usePopoverRef } from "@/hooks/useTopLayer";
 
 export type HoverState = { ev: CalEvent; rect: DOMRect } | null;
 
@@ -28,6 +29,8 @@ export default function EventPreview({ hover, labels, language, timeFormat = "12
   onMouseLeave?: () => void;
 }) {
   const [zoom, setZoom] = React.useState<{ src: string; rect: DOMRect } | null>(null);
+  const popRef = usePopoverRef<HTMLDivElement>();
+  const zoomPopRef = usePopoverRef<HTMLImageElement>();
   // hover 대상이 바뀌면 확대 팝오버 초기화 (render 중 안전한 이전값 비교 패턴)
   const prevId = React.useRef(hover?.ev.id);
   if (hover?.ev.id !== prevId.current) { prevId.current = hover?.ev.id; if (zoom) setZoom(null); }
@@ -63,7 +66,7 @@ export default function EventPreview({ hover, labels, language, timeFormat = "12
 
   return createPortal(
     <>
-      <div className={styles.preview} style={style} onMouseEnter={onMouseEnter} onMouseLeave={() => { setZoom(null); onMouseLeave?.(); }}>
+      <div ref={popRef} popover="manual" className={styles.preview} style={style} onMouseEnter={onMouseEnter} onMouseLeave={() => { setZoom(null); onMouseLeave?.(); }}>
         <div className={styles.previewTop} style={{ ["--_c" as string]: eventColorVar(ev, labels) }}>
           <span className={styles.previewBar} />
           <span className={styles.previewTitle}>{ev.title || (language === "ko" ? "(제목 없음)" : "(Untitled)")}</span>
@@ -105,7 +108,7 @@ export default function EventPreview({ hover, labels, language, timeFormat = "12
       </div>
       {zoom && zoomStyle && (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={zoom.src} alt="" className={styles.previewZoom} style={zoomStyle} />
+        <img ref={zoomPopRef} popover="manual" src={zoom.src} alt="" className={styles.previewZoom} style={zoomStyle} />
       )}
     </>,
     document.body,

@@ -9,6 +9,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import { ModalAlert } from "@/components/ui/ModalTemplates";
 import Pressable from "@/components/ui/Pressable";
 import styles from "./Toast.module.css";
+import { useKeepOnTopRef } from "@/hooks/useTopLayer";
 
 /** 문구 — 2줄까지만 보이고, 넘치면 끝에 "…" 단추. 누르면 토스트를 닫고 모달에 전체를 보인다 */
 function ToastMessage({ message, onOpenFull }: { message: string; onOpenFull: () => void }) {
@@ -67,9 +68,11 @@ export default function ToastContainer() {
   // 하나에 hover 해도 스택 전체를 멈춤 — 다른 토스트가 사라지며 재배치돼 커서가 벗어나는 문제 방지
   const pause = useToastStore((s) => s.pauseAllToasts);
   const resume = useToastStore((s) => s.resumeAllToasts);
+  /* top layer 맨 위에 늘 둔다(0) — 모달 · 팝오버 위, 페이지 전환(1) · 커서(3) 아래(3.10-1) */
+  const containerRef = useKeepOnTopRef<HTMLDivElement>(0);
 
   return (
-    <div className={styles.container} aria-live="polite" aria-atomic="true">
+    <div ref={containerRef} className={styles.container} aria-live="polite" aria-atomic="true">
       <AnimatePresence initial={false}>
         {toasts.map((toast) => {
           const Icon = ICONS[toast.variant];

@@ -24,6 +24,7 @@ import Pressable from "@/components/ui/Pressable";
 import { formatRelativeTime } from "@/utils/relativeTime";
 import { useNow } from "@/hooks/useNow";
 import { errorFromResponse, errorText } from "@/lib/apiError";
+import { useDialogRef } from "@/hooks/useTopLayer";
 
 interface DeviceRow {
   id: string;
@@ -60,6 +61,7 @@ export default function AccountTab({
   hasPassword,
   isOwner,
 }: AccountTabProps) {
+  const confirmDialogRef = useDialogRef(); /* 비밀번호 확인 창 — <dialog>.showModal()(3.10-1) */
   const { t, language } = useLanguage();
   /* 상대시간 기준 시각. 렌더에서 Date.now() 를 부르면 매 렌더 값이 달라진다. */
   const now = useNow();
@@ -433,6 +435,7 @@ export default function AccountTab({
           setAccountMessage("");
         };
         return (
+          <dialog ref={confirmDialogRef} className="ui-dialog" onCancel={(e) => { e.preventDefault(); closeConfirm(); }}>
           <div className={styles.confirmOverlay} onClick={closeConfirm}>
             <div className={styles.confirmDialog} onClick={(e) => e.stopPropagation()}>
               <CloseButton className={styles.confirmClose} size="md" onClick={closeConfirm} ariaLabel={t("admin.settings.cancel")} />
@@ -472,6 +475,7 @@ export default function AccountTab({
               </div>
             </div>
           </div>
+          </dialog>
         );
       })()}
     </>

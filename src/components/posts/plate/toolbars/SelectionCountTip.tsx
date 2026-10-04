@@ -9,6 +9,7 @@ import { fillTemplate } from "@/utils/format";
 import { getSelectionRect } from "./FloatingToolbar";
 import tooltip from "@/components/ui/Tooltip.module.css";
 import styles from "../../RichTextEditor.module.css";
+import { usePopoverRef } from "@/hooks/useTopLayer";
 
 /**
  * 고른 글자 수를 선택 바로 아래에 띄우는 작은 표시.
@@ -66,15 +67,16 @@ export default function SelectionCountTip({ countSpaces, hidden }: { countSpaces
     return () => cancelAnimationFrame(raf);
   }, [open, update]);
 
+  const popRef = usePopoverRef<HTMLDivElement>(refs.setFloating);
   if (!open || typeof document === "undefined") return null;
 
   return createPortal(
     <div
-      // eslint-disable-next-line react-hooks/refs -- floating-ui 가 주는 setter (FloatingBar 와 같은 처리)
-      ref={refs.setFloating}
+      ref={popRef}
+      popover="manual"
       /* 생김새는 공통 Tooltip 의 말풍선 그대로 — 같은 정보를 주는 표시라 모양이 달라 보이면 안 된다 */
       className={`${tooltip.bubble} ${tooltip.bubbleGlass} ${styles.selectionCountTip}`}
-      style={{ ...style, zIndex: "var(--z-index-dropdown)" }}
+      style={style}
     >
       {fillTemplate(t("editor.selectedChars"), { n: count.toLocaleString() })}
       {/* 꼬리는 말풍선이 붙은 반대쪽에 — 아래에 떴으면 위를 가리킨다 */}

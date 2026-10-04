@@ -548,21 +548,21 @@ Primer(24 · 28 · 32 · 40 · 48)처럼 24 에서 시작한다 — 가장 작�
   - top layer 는 z-index 와 상관없이 맨 위다. "모달 안의 셀렉트가 모달 뒤로 숨는" 문제가 구조적으로 생기지 않는다.
   - top layer 는 z-index 를 이긴다. 그래서 모달보다 위에 있어야 하는 것(로딩 화면 · 페이지 전환)도 top layer 에 올리고, 나중에 연 것이 위로 가므로 무엇이 뜰 때마다 다시 연다.
     커스텀 커서도 top layer 다(우선순위 3, 맨 위) — `mix-blend-mode: difference` 는 top layer 요소 자신에 걸면 뒤 화면 · 팝오버 · 모달과 그대로 섞인다(Chromium 확인). 섞임을 top layer 요소의 **자식**에 걸면 그 요소 안에서만 섞여 맨 색이 나온다.
+    **예외 둘 — 로딩 화면 · 모바일 메뉴 서랍은 페이지 층(`--z-index-float`)에 둔다.** nav 의 로고가 로딩 화면 위에서 가운데 → 제자리로 움직이고, 햄버거가 메뉴 서랍 위에서 눌려야 한다. top layer 에 올리면 nav 가 그 아래로 들어간다(nav 를 top layer 에 같이 올리면 로고의 섞임이 깨진다). 그 동안 nav 는 `float + 2`(둘은 `float + 1`).
   - 떠 있는 요소의 위치는 아직 JS 가 잡는다(1-5, anchor positioning 은 아직 안 씀).
-  - 띄우는 쪽은 `src/lib/topLayer.ts` · `hooks/useTopLayer.ts` 를 쓴다 — `usePopoverRef`(붙는 순간 `showPopover`) · `useDialogRef`(`showModal`) · `useKeepOnTopRef`(늘 맨 위: 커서 3 · 로딩 2 · 페이지 전환 1 — 무엇이든 새로 뜰 때마다 닫았다 다시 열어 맨 위로). UA 기본값은 `globals/_top-layer.css` 가 비운다.
+  - 띄우는 쪽은 `src/lib/topLayer.ts` · `hooks/useTopLayer.ts` 를 쓴다 — `usePopoverRef`(붙는 순간 `showPopover`) · `useDialogRef`(`showModal`) · `useKeepOnTopRef`(늘 맨 위: 커서 3 · 페이지 전환 1 · 토스트 0 — 무엇이든 새로 뜰 때마다 닫았다 다시 열어 맨 위로). JS 로 만드는 조각(드래그 고스트 · 캐럿 · 끌기 막)은 `popover="manual"` 을 붙이고 `showPopover` 를 부른다. 제자리에서 전체화면이 되는 블록(다이어그램)은 전체화면 동안만 속성을 붙인다 — 늘 붙여 두면 평소에 `display: none` 이다. UA 기본값은 `globals/_top-layer.css` 가 비운다.
   - 모달이 열려 있으면 그 밖은 inert 다. 모달 안에서 연 팝오버 · 셀렉트 · 툴팁은 `PortalContainerContext` 로 모달 DOM 안에 portal 해야 눌린다 — portal 은 그래서 남는다(쌓임 때문이 아니다).
-  - — **진행 중**(D45). 12-1 완료: 공용 Modal(`<dialog>`) · Popover · Tooltip · Select · DatePicker · TimePicker · EmojiPicker · ColorPicker · SearchCapsule 과 커서 · 로딩 · 페이지 전환. 12-2 남음: ImageViewer · Toast · 문의 서랍 · 모바일 메뉴 · 편집기 메뉴 · 관리자 모달 등 `createPortal` 파일 40, 그 뒤 옛 z-index 토큰 삭제(3.10-2).
-- **3.10-2. 페이지에 붙어 있는 UI 의 층은 `--z-index-*` 로.** top layer 로 옮긴 뒤 남는 것은 넷이다.
+  - — **완료**(D45). 12-1: 공용 Modal(`<dialog>`) · Popover · Tooltip · Select · DatePicker · TimePicker · EmojiPicker · ColorPicker · SearchCapsule 과 커서 · 페이지 전환. 12-2: 모달 · 전체화면(ImageViewer · 문의 서랍 · 플레이그라운드 · mermaid 도움말 · 달력 · 다이어그램 뷰어 · 비밀번호 확인)은 `<dialog>`, 떠 있는 것(편집기 메뉴 6 · 미리보기 6 · 드래그 층 · 고스트 · 알림 드롭다운 · SEO 체크리스트 · 관계 고르기 · 메모 멘션 · 커버 시트 · 토스트 · 전환 막 · 입력 막)은 `popover="manual"`. 옛 z-index 토큰 여덟을 지웠다(3.10-2). 관리자 모달 17곳의 `createPortal` 은 공용 Modal 의 발 자리(`ModalFooterContext`)에 단추를 넣는 것이라 그대로다.
+- **3.10-2. 페이지에 붙어 있는 UI 의 층은 `--z-index-*` 로.** 토큰은 넷뿐이다 — **완료**(12-2).
 
   | 토큰 | 자리 |
   |---|---|
   | `--z-index-below` | 배경(영상 배경 등) |
   | `--z-index-content` | 페이지 콘텐츠 |
   | `--z-index-nav` | 고정 내비게이션 |
-  | `--z-index-float` | 내비 위에 고정된 UI |
+  | `--z-index-float` | 내비 위에 고정된 UI(점 내비 · 크레딧 · 로딩 화면 · 모바일 메뉴 서랍 · 편집기 툴바 · 진행 막대). nav 가 그 위에 있어야 할 때만 `float + 2` |
 
-  지금 있는 `--z-dropdown` · `-popover` · `-tooltip` · `-modal` · `-overlay` · `-fullscreen` · `-loading` · `-top` · `-cursor` 는
-  3.10-1 이 끝나면 지운다.
+  예전의 `--z-dropdown` · `-popover` · `-tooltip` · `-modal` · `-overlay` · `-fullscreen` · `-loading` · `-top` · `-cursor` 아홉 단계는 지웠다 — 그 자리는 전부 top layer 다(3.10-1).
 - **3.10-3. 컴포넌트 안의 겹침은 `isolation: isolate` 로 쌓임 맥락을 만들고 `0 … 3` 만 쓴다.**
   컴포넌트 밖의 층과 겨루지 않게 된다. — **목표**(4 이상 숫자 83 · 39파일)
 
@@ -772,7 +772,7 @@ docs/tokens.md            토큰 값 — 자동 생성(npm run tokens:doc)
 | 9 | 모서리 · 테두리 · 그림자(안의 색 71 포함) · 투명도: 9-1 모서리 역할 3개 · `circle` 삭제 · 눈금 1,182 + 숫자 27 → 역할 — **완료**(D38). 9-2 테두리 숫자 두께 222 → 눈금 · 묶음, 테두리 흉내 `box-shadow` 92 → `border` · `outline` — **완료**(D39). 9-3 그림자 값 60 + 크기 이름 62 → 역할 — **완료**(D40). 9-4 비활성 투명도 44 → `--opacity-disabled` 0.5 — **완료**(D41). 9단계 끝 | 3.5 – 3.8 · 3.1-2 | 1182 + 27 · 222 · 143 + 62 + 71 · 49 | 비활성 투명도 통일, 그림자(미리보기) |
 | 10 | 모션: 10-1 곡선 이름(자리로) · 토큰 정리 39 · 움직임 줄이기 · `transition: all` 17 — **완료**(D42). 10-2 지속 시간 880 · 곡선 1,055 → 토큰, 반복 · 긴 애니메이션 103 → 지역 변수 — **완료**(D43). 10단계 끝 | 3.9 | 744 + 39 + 17 | 350 → 300ms, 0.2 → 0.15s · 0.4 → 0.3s |
 | 11 | 자동으로 움직이는 것 멈추기 | 3.9-4 | (이 단계에서 셈) | 멈춤 단추 |
-| 12 | top layer: 12-1 공용 요소(Modal `<dialog>` · Popover · Tooltip · Select · 피커 4 · 검색 캡슐)와 로딩 · 페이지 전환 — **완료**(D45). 12-2 개별 포털 40파일 · 옛 z-index 토큰 삭제 | 3.10-1 · 3.10-2 | 53 → 40 | 없음(겹침 버그 해소) |
+| 12 | top layer: 12-1 공용 요소(Modal `<dialog>` · Popover · Tooltip · Select · 피커 4 · 검색 캡슐)와 커서 · 페이지 전환 — **완료**(D45). 12-2 개별 포털 25파일(`<dialog>` 7 · `popover` 18) · 옛 z-index 토큰 8 삭제 — **완료**. 로딩 화면 · 모바일 메뉴는 nav 때문에 페이지 층(float)에 남김 | 3.10-1 · 3.10-2 | 53 → 0 (z 토큰 4) | 없음(겹침 버그 해소). 토스트는 모달이 열려 있는 동안 눌리지 않는다(inert) |
 | 13 | 컴포넌트 안 z-index | 3.10-3 | 83 | 없음 |
 | 14 | 반응형: 작은 화면 기본 · 범위 문법 · `dvh` | 3.11 | 206 + 65 | 없어야 함(화면별 확인) |
 | 15 | 포커스 표시 | 6-1 | 69 + 10 | 포커스 링 |

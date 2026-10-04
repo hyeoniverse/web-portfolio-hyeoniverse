@@ -11,6 +11,7 @@ import EmojiPickerPopup, { EmojiIcon } from "@/components/ui/EmojiPicker";
 import { _imageUploadFn } from "./utils";
 import { BlockDropZone, useBlockDrag } from "./BlockDragHandle";
 import Pressable from "@/components/ui/Pressable";
+import { usePopoverRef } from "@/hooks/useTopLayer";
 
 type Popup = { tab: number; mode: "tools" | "emoji" };
 type Pos = { left: number; top: number; up: boolean };
@@ -32,6 +33,7 @@ export function TabsElement(props: PlateElementProps) {
 
   const blockRef = useRef<HTMLDivElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
+  const popupPop = usePopoverRef<HTMLDivElement>(popupRef);
   const anchorRef = useRef<HTMLElement | null>(null);
   const [popup, setPopup] = useState<Popup | null>(null);
   const [pos, setPos] = useState<Pos | null>(null);
@@ -54,18 +56,16 @@ export function TabsElement(props: PlateElementProps) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const labelOf = (p: any, i: number) => (p?.label as string) ?? `Tab ${i + 1}`;
 
-  // 뷰포트 안으로 들어오게 배치(넓은 쪽). block 기준 absolute 좌표 반환.
+  // 뷰포트 안으로 들어오게 배치(넓은 쪽). top layer 에 띄우므로 뷰포트 기준 fixed 좌표 반환.
   const compute = (anchor: HTMLElement, w: number, h: number): Pos => {
-    const block = blockRef.current?.getBoundingClientRect();
     const tab = anchor.getBoundingClientRect();
-    if (!block) return { left: 0, top: 0, up: false };
     const gap = 6;
     const vw = window.innerWidth, vh = window.innerHeight;
     let absL = tab.left;
     if (absL + w > vw - 8) absL = vw - 8 - w;
     absL = Math.max(8, absL);
     const up = tab.bottom + h + gap > vh && tab.top - h - gap > 8;
-    return { left: absL - block.left, top: (up ? tab.top : tab.bottom) - block.top, up };
+    return { left: absL, top: up ? tab.top : tab.bottom, up };
   };
 
   const onTab = (i: number, e: React.MouseEvent) => {
@@ -125,11 +125,12 @@ export function TabsElement(props: PlateElementProps) {
 
             {popup && pos && popup.mode === "tools" && (
               <div
-                ref={popupRef}
+                ref={popupPop}
+                popover="manual"
                 className="tabs-popup"
                 contentEditable={false}
                 onMouseDown={(e) => e.stopPropagation()}
-                style={{ position: "absolute", left: pos.left, top: pos.top, transform: pos.up ? "translateY(calc(-100% - 6px))" : "translateY(6px)" }}
+                style={{ position: "fixed", left: pos.left, top: pos.top, transform: pos.up ? "translateY(calc(-100% - 6px))" : "translateY(6px)" }}
               >
                 <div className="tabs-tools">
                   <div className="tabs-tools-main">

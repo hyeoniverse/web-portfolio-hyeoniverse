@@ -12,6 +12,8 @@ import DatePickerPopover from "@/components/ui/DatePicker/DatePickerPopover";
 import { formatDateValue } from "../dateUtils";
 import styles from "./RichMemo.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { usePopoverRef } from "@/hooks/useTopLayer";
+import { usePortalContainer } from "@/components/ui/portalContainer";
 
 type MentionItem = { id: string; title: string };
 type MentionStage = "type" | "event" | "date";
@@ -198,6 +200,10 @@ export default function RichMemo({ value, onChange, placeholder, language = "ko"
     } finally { setUploading(false); }
   };
 
+  /* 모달 안이면 모달 DOM 안으로(밖은 inert) · top layer 로(3.10-1) */
+  const portalContainer = usePortalContainer();
+  const portalTarget = portalContainer ?? document.body;
+  const menuPop = usePopoverRef<HTMLDivElement>();
   return (
     <div className={styles.memo}>
       <div className={styles.toolbar} onMouseDown={(e) => e.preventDefault()}>
@@ -229,7 +235,7 @@ export default function RichMemo({ value, onChange, placeholder, language = "ko"
       <input ref={fileRef} type="file" accept="image/*" hidden onChange={onPickImage} />
 
       {menu && createPortal(
-        <div className={styles.mentionMenu} style={{ position: "fixed", top: menu.top + 4, left: menu.left }} onMouseDown={(e) => e.preventDefault()}>
+        <div ref={menuPop} popover="manual" className={styles.mentionMenu} style={{ position: "fixed", top: menu.top + 4, left: menu.left }} onMouseDown={(e) => e.preventDefault()}>
           {menu.stage === "type" ? (
             <>
               <Pressable className={styles.mentionItem} onClick={() => setMenu((m) => (m ? { ...m, stage: "date" } : m))}>
@@ -267,7 +273,7 @@ export default function RichMemo({ value, onChange, placeholder, language = "ko"
             <div className={styles.mentionEmpty}>{t("이벤트 없음", "No events")}</div>
           )}
         </div>,
-        document.body,
+        portalTarget,
       )}
     </div>
   );

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { BREAKPOINT } from "@/constants";
+import { usePopoverRef } from "@/hooks/useTopLayer";
 
 /**
  * 너비(1024/768)와 높이(640) 임계값으로
@@ -54,6 +55,7 @@ export default function BreakpointGuard({
   const [overlayPhase, setOverlayPhase] = useState<OverlayPhase>("hidden");
   /** 지금 기준으로 삼는 브레이크포인트. 첫 effect 에서 실제 값을 넣는다. */
   const bpRef = useRef("");
+  const coverPop = usePopoverRef<HTMLDivElement>();
   const busyRef = useRef(false);
 
   useEffect(() => {
@@ -106,11 +108,12 @@ export default function BreakpointGuard({
     <>
       <div key={generation}>{children}</div>
       <div
+        ref={coverPop}
+        popover="manual"
         aria-hidden
         style={{
           position: "fixed",
           inset: 0,
-          zIndex: "var(--z-index-top)",
           background: "var(--bg-primary)",
           opacity: overlayPhase === "solid" ? 1 : 0,
           transition:

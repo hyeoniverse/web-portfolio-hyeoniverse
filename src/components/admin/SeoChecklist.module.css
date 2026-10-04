@@ -5,7 +5,6 @@
   position: fixed;
   bottom: var(--spacing-24);
   right: var(--spacing-24);
-  z-index: var(--z-index-dropdown);
 }
 
 @media (max-width: 768px) {
