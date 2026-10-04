@@ -108,8 +108,3 @@
   background: var(--bg-accent-light);
   color: var(--text-accent);
 }
-
-/* 자동 전환이 꺼져 있을 때 1번 뒤 항목 */
-.priorityRow[data-dim] {
-  opacity: 0.5;
-}
