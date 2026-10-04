@@ -619,11 +619,13 @@
   border-right: none;
 }
 
-/* 위에 열려 있는 장 — 강조색 테두리를 두르고, 바깥으로 옅은 강조색 빛을 한 겹 더. 대표 그림 표시(위아래 선)와
-   함께 걸려도 테두리가 그 선을 덮는다 */
+/* 위에 열려 있는 장 — 강조색 테두리를 두르고, 그 안쪽으로 옅은 강조색 띠를 한 겹 더. 둘 다 칸 안에 그린다
+   (칸이 overflow: hidden 이라 밖으로 나가는 outline 은 잘려 안 보인다). 대표 그림 표시(위아래 선)와 함께
+   걸려도 테두리가 그 선을 덮는다 */
 .galleryItemCurrent::after {
+  border: var(--border-width-3) solid var(--text-accent);
   outline: var(--border-width-3) solid var(--bg-accent-light);
-  outline-offset: var(--border-width-3);
+  outline-offset: calc(-2 * var(--border-width-3));
 }
 
 /* 이 장의 음성 표시 — 오른쪽 아래. 겹(.galleryOverlay)의 파일 이름은 왼쪽 아래라 겹치지 않는다 */
