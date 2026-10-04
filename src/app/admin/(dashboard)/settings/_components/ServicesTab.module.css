@@ -289,21 +289,19 @@
   white-space: nowrap;
 }
 
-.featureSelect {
-  width: 16rem;
-}
-
 @media (max-width: 768px) {
   .featureRow {
     grid-template-columns: minmax(0, 1fr);
   }
 }
 
-/* 공급자 표의 모델 칸(글 공급자만) — 줄 안에 라벨 + 짧은 입력 */
+/* 순서 목록 항목 안의 모델 칸(글 공급자만) — 라벨 + 짧은 입력, 오른쪽 단추 앞 */
 .modelField {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-8);
+  margin-left: auto;
+  padding-right: var(--spacing-8);
 }
 
 .modelLabel {

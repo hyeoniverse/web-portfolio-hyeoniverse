@@ -17,7 +17,9 @@
 }
 
 .priorityItem {
-  width: 280px;
+  /* 기본 280 — 항목 안에 부가 칸(모델 입력)이 있으면 그만큼 넓어진다 */
+  width: auto;
+  min-width: 280px;
   max-width: 100%;
   min-width: 0;
   height: var(--control-height-md);
@@ -87,4 +89,27 @@
   flex-shrink: 0;
   align-self: stretch;
   border-left: var(--border-light);
+}
+
+/* 1번(기본 공급자) — 빼기 칸 자리만 비워 둔다(체크박스 폭과 같게) */
+.priorityNoCheck {
+  display: inline-block;
+  width: var(--control-height-xs);
+  flex-shrink: 0;
+}
+
+/* 1번 옆 "기본" */
+.priorityPrimary {
+  margin-left: var(--spacing-8);
+  padding: var(--badge-padding-md);
+  border-radius: var(--radius-control);
+  font: var(--font-body-xs);
+  font-weight: 600;
+  background: var(--bg-accent-light);
+  color: var(--text-accent);
+}
+
+/* 자동 전환이 꺼져 있을 때 1번 뒤 항목 */
+.priorityRow[data-dim] {
+  opacity: 0.5;
 }
