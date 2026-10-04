@@ -1,6 +1,7 @@
 // 앱 전체 아이콘 단일 경계 — 컴포넌트는 lucide 를 직접 import 하지 않고 여기서만 가져온다.
 // 같은 역할은 한 종류만 노출(예: 편집은 Pencil — SquarePen 미노출)해 불일치를 원천 차단.
 export {
+  Activity,
   AlertCircle,
   AlertTriangle,
   AlignCenter,
