@@ -266,11 +266,10 @@ type ProviderFallback<P extends string> = {
  * onChange 는 setConfig 처럼 updater(prev)→next 를 받아 최신 슬라이스 기준으로 갱신한다.
  */
 function ProviderFallbackBlock<P extends string>({
-  t, title, providerLabelKey, options, defaultProvider, value, onChange, children, stateOf, hint, keyOf, extraHints, logProviders,
+  t, title, options, defaultProvider, value, onChange, children, stateOf, hint, keyOf, extraHints, logProviders, extraOf,
 }: {
   t: TFunction;
   title: string;
-  providerLabelKey: string;
   options: SelectOption<P>[];
   defaultProvider: P;
   value: ProviderFallback<P> | undefined;
@@ -286,6 +285,8 @@ function ProviderFallbackBlock<P extends string>({
   extraHints?: React.ReactNode[];
   /** 이 기능의 호출 기록을 거를 공급자 이름(lib/ai/providers) — 제목 줄의 기록 단추가 쓴다 */
   logProviders?: string[];
+  /** 순서 목록의 항목 줄 끝에 넣을 칸 — 요약 · 번역은 글 공급자의 모델 이름 */
+  extraOf?: (p: P) => React.ReactNode;
 }) {
   const provider = value?.provider ?? defaultProvider;
   const fallbackEnabled = value?.fallback?.enabled ?? false;
@@ -293,11 +294,6 @@ function ProviderFallbackBlock<P extends string>({
     const st = stateOf?.(p);
     return st && st !== "ok" ? t(`admin.aiHealth.badge.${st}`) : "";
   };
-  /* 목록에는 상태를 이름 뒤에 붙여 고를 때 보이게 */
-  const labelled = options.map((o) => {
-    const st = stateText(o.value);
-    return st ? { ...o, label: `${o.label} · ${st}` } : o;
-  });
   const primaryState = stateOf?.(provider);
   /* fallback 을 켜 두었는데 실제로 시도할 공급자가 없다(모두 제외했거나 키 없음·꺼짐) */
   const usableFallbacksAll = (value?.fallback?.priority ?? options.map((o) => o.value))
@@ -329,31 +325,9 @@ function ProviderFallbackBlock<P extends string>({
       </div>
       <div className={styles.featureBody}>
         {hintLines.length > 0 && <HintLines lines={hintLines} className={styles.featureHints} />}
+        {/* 공급자 순서 하나로 — 1번이 기본 공급자, 뒤가 실패 시 넘어갈 순서. 끌어 올리면 기본이 바뀐다 */}
         <div className={styles.featureControls}>
-          <label className={styles.featureControl}>
-            <span className={styles.featureControlLabel}><T k={providerLabelKey} /></span>
-            <Select
-              value={provider}
-              options={labelled}
-              className={styles.featureSelect}
-              onChange={(v) => {
-                const newProvider = v as P;
-                onChange((prev) => {
-                  const oldProvider = prev?.provider ?? defaultProvider;
-                  const oldPriority = prev?.fallback?.priority ?? [];
-                  const newPriority = [
-                    ...oldPriority.filter((p) => p !== newProvider),
-                    ...(oldPriority.includes(oldProvider) ? [] : [oldProvider]),
-                  ].filter((p) => p !== newProvider);
-                  return {
-                    ...prev,
-                    provider: newProvider,
-                    fallback: prev?.fallback ? { ...prev.fallback, priority: newPriority } : prev?.fallback,
-                  };
-                });
-              }}
-            />
-          </label>
+          <span className={styles.featureControlLabel}>{t("admin.settings.providerOrder")}</span>
           <Switch
             size="sm"
             showStateText
@@ -372,26 +346,32 @@ function ProviderFallbackBlock<P extends string>({
             }}
           />
         </div>
+        <PriorityList<P>
+          includePrimary
+          primaryLabel={t("admin.settings.providerPrimary")}
+          dimRest={!fallbackEnabled}
+          primary={provider}
+          priority={value?.fallback?.priority ?? []}
+          excluded={value?.fallback?.excluded ?? []}
+          options={options}
+          badgeOf={(p) => {
+            const st = stateOf?.(p);
+            return st && st !== "ok" ? <span className={styles.providerBadge} data-state={st}>{stateText(p)}</span> : null;
+          }}
+          extraOf={extraOf}
+          onChange={(order) => onChange((prev) => ({
+            ...prev,
+            provider: order[0],
+            fallback: { ...prev?.fallback, enabled: prev?.fallback?.enabled ?? false, priority: order.slice(1), excluded: prev?.fallback?.excluded ?? [] },
+          }))}
+          onExcludedChange={(next) => onChange((prev) => ({ ...prev, fallback: { ...prev?.fallback, enabled: prev?.fallback?.enabled ?? false, priority: prev?.fallback?.priority ?? [], excluded: next } }))}
+        />
         {/* 첫 공급자가 쓸 수 없는 상태면 여기서 바로 알린다 — 모르고 두면 요청마다 실패하고 fallback 으로만 돈다 */}
         {primaryState && primaryState !== "ok" && (
           <p className={styles.providerWarn}>{t(`admin.settings.providerWarn.${primaryState}`)}</p>
         )}
         {fallbackEnabled && usableFallbacks.length === 0 && (
           <p className={styles.providerWarn}>{t("admin.settings.providerWarn.noFallback")}</p>
-        )}
-        {fallbackEnabled && (
-          <PriorityList<P>
-            primary={provider}
-            priority={value?.fallback?.priority ?? []}
-            excluded={value?.fallback?.excluded ?? []}
-            options={options}
-            badgeOf={(p) => {
-              const st = stateOf?.(p);
-              return st && st !== "ok" ? <span className={styles.providerBadge} data-state={st}>{stateText(p)}</span> : null;
-            }}
-            onChange={(next) => onChange((prev) => ({ ...prev, fallback: { ...prev?.fallback, enabled: true, priority: next } }))}
-            onExcludedChange={(next) => onChange((prev) => ({ ...prev, fallback: { ...prev?.fallback, enabled: true, excluded: next } }))}
-          />
         )}
         {children}
       </div>
@@ -406,6 +386,24 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
   const sh = { config, savedConfig, saveSection, revertSection, resetSection, savingPaths, validationError, titleClassName: shared.sectionTitle };
   /* AI 상태 — 상태 패널과 각 fallback 섹션이 같이 쓴다. 설정 이름 → 상태를 세는 공급자 이름(google 만 기능마다 다르다) */
   const aiHealth = useAiHealth();
+  /* 글 공급자(Gemini · OpenAI · Claude)가 부를 모델 — 요약 · 번역의 순서 목록 항목 안에 둔다(같은 값을 두 곳에서 본다) */
+  const modelField = (p: string) => {
+    if (!(p in DEFAULT_AI_MODELS)) return null;
+    const mp = p as AiModelProvider;
+    return (
+      <label className={styles.modelField} onPointerDown={(e) => e.stopPropagation()}>
+        <span className={styles.modelLabel}>{t("admin.aiHealth.model")}</span>
+        <Input
+          size="sm"
+          value={config.aiModels?.[mp] ?? ""}
+          onChange={(v) => setConfig((prev) => ({ ...prev, aiModels: { ...prev.aiModels, [mp]: v } }))}
+          placeholder={DEFAULT_AI_MODELS[mp]}
+          clearable={false}
+          className={styles.modelInput}
+        />
+      </label>
+    );
+  };
   const stateFor = (map: (p: string) => AiProvider) => (p: string) => aiHealth.stateOf(map(p));
 
   const giscus = config.comments?.giscus ?? { repo: "", repoId: "", category: "", categoryId: "", mapping: "pathname", reactionsEnabled: true, inputPosition: "bottom", strict: false, emitMetadata: false, lazyLoading: true, themeLight: "", themeDark: "" };
@@ -857,26 +855,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
           {...sh}
         />
         <HintLines lines={[fillTemplate(t("admin.aiHealth.hint"), { fatal: FATAL_LIMIT, transient: TRANSIENT_LIMIT }), t("admin.settings.aiModelsHint")]} />
-        <AiHealthPanel
-          health={aiHealth}
-          modelOf={(p) => {
-            if (!(p in DEFAULT_AI_MODELS)) return null;
-            const mp = p as AiModelProvider;
-            return (
-              <label className={styles.modelField}>
-                <span className={styles.modelLabel}>{t("admin.aiHealth.model")}</span>
-                <Input
-                  size="sm"
-                  value={config.aiModels?.[mp] ?? ""}
-                  onChange={(v) => setConfig((prev) => ({ ...prev, aiModels: { ...prev.aiModels, [mp]: v } }))}
-                  placeholder={DEFAULT_AI_MODELS[mp]}
-                  clearable={false}
-                  className={styles.modelInput}
-                />
-              </label>
-            );
-          }}
-        />
+        <AiHealthPanel health={aiHealth} />
 
         <h3 className={styles.featuresTitle}>{t("admin.settings.aiFeatures")}</h3>
         <div className={styles.features}>
@@ -884,7 +863,6 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
           <ProviderFallbackBlock<AICoverProvider>
             t={t}
             title={t("admin.settings.aiSettings")}
-            providerLabelKey="admin.settings.aiCoverProvider"
             options={AI_COVER_OPTIONS}
             defaultProvider="nanobanana"
             value={config.aiCover as ProviderFallback<AICoverProvider>}
@@ -903,8 +881,8 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
           <ProviderFallbackBlock<AISummaryProvider>
             t={t}
             title={t("admin.settings.aiSummarySettings")}
-            providerLabelKey="admin.settings.aiSummaryProvider"
             options={AI_SUMMARY_OPTIONS}
+            extraOf={(p) => modelField(p)}
             defaultProvider="gemini"
             value={config.aiSummary as ProviderFallback<AISummaryProvider>}
             onChange={(u) => setConfig((prev) => ({ ...prev, aiSummary: u(prev.aiSummary as ProviderFallback<AISummaryProvider>) as typeof prev.aiSummary }))}
@@ -917,8 +895,8 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
           <ProviderFallbackBlock<TranslationProvider>
             t={t}
             title={t("admin.settings.translationSettings")}
-            providerLabelKey="admin.settings.translationProvider"
             options={TRANSLATION_OPTIONS}
+            extraOf={(p) => modelField(p)}
             defaultProvider="deepl"
             value={config.translation as ProviderFallback<TranslationProvider>}
             onChange={(u) => setConfig((prev) => ({ ...prev, translation: u(prev.translation as ProviderFallback<TranslationProvider>) as typeof prev.translation }))}
@@ -933,7 +911,6 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
             t={t}
             title={t("admin.settings.ttsSettings")}
             hint={t("admin.settings.ttsHint")}
-            providerLabelKey="admin.settings.ttsProvider"
             options={TTS_OPTIONS}
             defaultProvider="fish"
             value={config.tts as ProviderFallback<TtsProviderOption>}
