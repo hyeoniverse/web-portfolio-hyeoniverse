@@ -317,7 +317,7 @@
 }
 
 .section:hover .title {
-  text-shadow: var(--text-shadow-strong);
+  text-shadow: var(--text-shadow-glow);
 }
 
 /* ── Subtitle ── */
