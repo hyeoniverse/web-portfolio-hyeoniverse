@@ -82,6 +82,78 @@ Plate.js 로 만든 편집기입니다. 위 툴바는 작용 범위별로 묶여
 |:---:|:---:|
 | <img src="public/images/screenshots/pc/design-system-light.png" alt="디자인 시스템" width="100%" /> | <img src="public/images/screenshots/mobile/home-dark.png" alt="모바일 홈" width="49%" /> |
 
+### 관리자 · CMS
+
+> 아래 그림은 `npx tsx scripts/screenshots-cms.ts` 로 찍습니다(로그인 세션 필요 — [scripts/SCREENSHOTS.md](./scripts/SCREENSHOTS.md)). 연속 동작은 같은 이름의 `.webm`(ffmpeg 가 있으면 `.gif`)으로도 남습니다.
+
+#### 발표 갤러리와 음성
+
+작업물 상세의 슬라이드 갤러리는 장마다 **음성과 자막**을 붙일 수 있습니다. 음성은 미리 만든 파일(TTS · 녹음)을 먼저 틀고, 없으면 대본을 브라우저 음성으로 읽고, 둘 다 없으면 4초 뒤 넘어갑니다. 자막은 대본에서 글자 비율로 잘라 음성에 맞춰 나옵니다. 브라우저가 소리를 막으면 "음성과 함께 보기 / 음성 없이 보기"를 먼저 묻습니다.
+
+<img src="public/images/screenshots/cms/01-gallery-captions-light.png" alt="작업물 상세 — 갤러리 재생 중, 자막 켜짐" width="100%" />
+
+관리자 작업물 편집기의 **갤러리 음성 편집기**에서 장마다 대본을 쓰고 목소리를 골라 음성을 만듭니다. 긴 대본은 600자 안팎으로 잘라 만든 뒤 하나로 합치고, 고른 공급자가 실패하면 설정의 대체 순서(Fish Audio → Google Cloud TTS → Edge)대로 같은 성별 목소리로 넘어갑니다. 미리 들을 때는 대본이 **가사처럼** 글자 단위로 채워지고, 낱말을 누르면 그 자리로 건너뜁니다.
+
+| 대본 · 목소리 · 음성 만들기 | 미리 듣기 — 가사처럼 강조 |
+|:---:|:---:|
+| <img src="public/images/screenshots/cms/02-narration-editor-light.png" alt="갤러리 음성 편집기" width="100%" /> | <img src="public/images/screenshots/cms/03-narration-preview-light.png" alt="미리 듣기 — 대본 강조" width="100%" /> |
+
+**읽기 사전**은 `?all=true → 올 트루 조건` 처럼 대본 표기와 읽을 말을 짝지어 둡니다. 음성을 만들 때만 가장 긴 표기부터 바꿔 읽고, 자막은 원래 표기를 그대로 둡니다. 한국어 · 영어 대본에 사전이 따로 있고, 대본 안의 `[표기|읽을 말]` 이 사전보다 먼저입니다.
+
+**녹음 파형 편집기**는 마이크로 녹음한 뒤 파형을 끌어 구간을 고르고, 나누기 · 잘라내기 · 붙이기 · 앞뒤 무음 자르기로 클립을 다듭니다. 클립은 끌어서 순서를 바꾸고, 다른 장에 붙일 수도 있습니다. 완료하면 WAV 로 올라가 그 장의 음성이 됩니다(최대 6분).
+
+| 읽기 사전 | 녹음 편집 — 구간 선택, 클립 나누기 |
+|:---:|:---:|
+| <img src="public/images/screenshots/cms/04-lexicon-light.png" alt="읽기 사전" width="100%" /> | <img src="public/images/screenshots/cms/05-recording-editor-light.png" alt="녹음 파형 편집기" width="100%" /> |
+
+**PPTX 를 갤러리에 끌어 놓으면** 브라우저 안에서 장마다 그림(JPEG, 최대 1600px)으로 그려 올리고, 각 장의 **발표자 노트는 그 장의 대본**으로 들어갑니다. PDF 도 같은 길로 들어옵니다.
+
+| 변환 중 — "n/N쪽 그리는 중" | 끝난 뒤 — 노트가 대본으로 들어간 장 |
+|:---:|:---:|
+| <img src="public/images/screenshots/cms/06-pptx-progress-light.png" alt="PPTX 변환 진행" width="100%" /> | <img src="public/images/screenshots/cms/07-pptx-thumbnails-light.png" alt="변환이 끝난 갤러리 썸네일" width="100%" /> |
+
+#### 자동 번역과 AI 요약
+
+편집기 위쪽의 KO/EN 스위치를 **EN 으로 바꾸면** 원문이 있고 대상 칸이 모두 비어 있을 때 제목 · 요약 · 본문 · 갤러리 대본까지 한 번에 채웁니다. 결과는 "자동 번역된 내용입니다. 검토 후 수정하세요." 띠와 함께 들어오고, 필드별로 다시 번역할 수 있습니다. 공급자는 **설정 › 서비스**에서 기능마다(번역 · 요약 · TTS · AI 커버) 기본 공급자와 대체 순서를 정하고, 거듭 실패한 공급자는 상태 패널이 잠시 꺼 둡니다.
+
+| 편집기 — EN 으로 바꿔 번역이 채워짐 | 설정 › 서비스 — 공급자와 대체 순서 |
+|:---:|:---:|
+| <img src="public/images/screenshots/cms/08-translate-editor-light.png" alt="편집기 자동 번역" width="100%" /> | <img src="public/images/screenshots/cms/09-settings-services-light.png" alt="설정 서비스 탭" width="100%" /> |
+
+공개 화면에서는 보는 언어의 본문이 없으면 **번역 배너**가 뜨고, 단추 하나로 그 자리에서 AI 번역을 받아 봅니다. 글 상세 위쪽의 **AI 요약** 상자는 발행할 때 만든 요약을 펼쳐 보여 주고, 접을 수 있습니다.
+
+| 번역 배너 | AI 요약 |
+|:---:|:---:|
+| <img src="public/images/screenshots/cms/10-translate-banner-light.png" alt="번역 배너" width="100%" /> | <img src="public/images/screenshots/cms/11-ai-summary-light.png" alt="AI 요약 상자" width="100%" /> |
+
+#### 테마
+
+**설정 › 외관 › 테마 색상**에서 강조색과 라이트 · 다크의 배경 · 글자색 다섯을 정합니다. 프리셋 17종(Default · Ruby · Meadow · Coral · Azure · Sand · Harvest · Honey · Forest · Rosewood · Dusk · Arctic · Baltic · Sorbet · Twilight · Tropica · Petal)은 강조색끼리 ΔE 20 이상 떨어뜨려 두었고, 고르면 **대비 점검(WCAG)** 표가 라이트 · 다크에서 본문 · 흐린 글자 · 강조 링크 · 버튼 글자의 대비를 바로 셉니다. 강조색이 글자로 쓰일 때는 사이트가 명도만 옮겨 4.5:1 을 맞춥니다.
+
+| 프리셋 목록 | 대비 점검 |
+|:---:|:---:|
+| <img src="public/images/screenshots/cms/12-theme-presets-light.png" alt="테마 프리셋" width="100%" /> | <img src="public/images/screenshots/cms/12-theme-contrast-light.png" alt="대비 점검 표" width="100%" /> |
+
+**색 조합 추천**은 색상환(유사색 · 보색 · 분할 보색 · 삼각 · 단색)으로 뽑거나, 이미지를 올려 그 안의 색 여섯을 뽑아 후보로 만듭니다. 이미지는 브라우저 안에서만 읽고 올리지 않습니다.
+
+| 색상환 추천 | 이미지에서 색 뽑기 |
+|:---:|:---:|
+| <img src="public/images/screenshots/cms/13-theme-wheel-light.png" alt="색상환 추천" width="100%" /> | <img src="public/images/screenshots/cms/13-theme-from-image-light.png" alt="이미지에서 색 뽑기" width="100%" /> |
+
+같은 홈을 프리셋만 바꿔 본 모습입니다.
+
+| Forest | Twilight | Arctic |
+|:---:|:---:|:---:|
+| <img src="public/images/screenshots/cms/14-home-forest-light.png" alt="홈 — Forest" width="100%" /> | <img src="public/images/screenshots/cms/14-home-twilight-light.png" alt="홈 — Twilight" width="100%" /> | <img src="public/images/screenshots/cms/14-home-arctic-light.png" alt="홈 — Arctic" width="100%" /> |
+
+#### 글과 작업물 잇기 · SEO 점검
+
+작업물에는 관련 글 · 시리즈를, 글에는 관련 프로젝트를 검색해 붙입니다. 칩을 끌어 순서를 바꾸고, 공개 상세의 정보 칸에 그대로 나옵니다. 편집기 오른쪽 아래 **SEO 점검** 알약은 제목 · 슬러그 · 요약(30자 이상) · 커버 · 카테고리 · 태그 여섯을 세고, 항목을 누르면 그 칸으로 데려가 깜빡여 줍니다.
+
+| 관련 글 연결 | SEO 점검 |
+|:---:|:---:|
+| <img src="public/images/screenshots/cms/15-relation-picker-light.png" alt="관련 글 고르기" width="100%" /> | <img src="public/images/screenshots/cms/16-seo-checklist-light.png" alt="SEO 점검 패널" width="100%" /> |
+
 ---
 
 ## 한눈에 보기
@@ -91,7 +163,7 @@ Plate.js 로 만든 편집기입니다. 위 툴바는 작용 범위별로 묶여
 | **인터랙션** | 무한 스크롤 루프, 마우스 패럴랙스, StaggerText, Three.js 3D 커피잔, 방향별 Scroll Cascade |
 | **작업물** | 여섯 가지 레이아웃(Flow · Fullscreen · Cinematic · Grid · Split · Cylinder), 상세 페이지 |
 | **글** | SSR + ISR, 시리즈, 배너 슬라이더, 여섯 가지 목록 레이아웃, 게스트 댓글(마크다운 + 이모지 반응) 또는 giscus |
-| **관리자** | Plate.js 편집기(다이어그램 · 코드 플레이그라운드 · 수식 블록, 색 도구, 발행 상태 전환), `.md` 동기화, AI 번역·요약, 리비전 히스토리, 멤버 초대와 역할 |
+| **관리자** | Plate.js 편집기(다이어그램 · 코드 플레이그라운드 · 수식 블록, 색 도구, 발행 상태 전환), `.md` 동기화, AI 번역·요약, 발표 갤러리 음성(TTS · 녹음 · PPTX 발표자 노트), 테마 프리셋 + WCAG 대비 점검, 리비전 히스토리, 멤버 초대와 역할 |
 | **성능** | Lighthouse 98 — LCP 1.9s, 초기 번들 449KB |
 | **보안** | RLS 4단계 권한, CSRF Origin 체크(운영은 fail-closed), 로그인 5회 실패 잠금 + 새 기기 메일 승인 |
 | **디자인 시스템** | 3층 토큰(Raw → Semantic → Component) + 역할 토큰, 전체 색 OKLCH |

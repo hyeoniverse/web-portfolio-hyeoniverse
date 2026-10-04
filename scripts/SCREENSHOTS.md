@@ -345,3 +345,54 @@ Error: page.goto: Timeout 30000ms exceeded
 npx playwright uninstall
 # ~/.cache/ms-playwright/ 디렉토리 제거됨
 ```
+
+## CMS 캡처 — `scripts/screenshots-cms.ts`
+
+README "관리자 · CMS" 절의 그림은 로그인 세션이 필요하고 화면 안에서 단추를 눌러 상태를 만든 뒤 찍어야 해서 별도 스크립트로 둡니다. 연속 동작(갤러리 재생 · 미리 듣기 · 녹음 편집 · PPTX 변환 · 자동 번역)은 같은 이름의 `.webm`(ffmpeg 가 있으면 `.gif`)으로도 남습니다.
+
+```bash
+# 1. .env.local 에 E2E_ADMIN_EMAIL / E2E_ADMIN_PASSWORD (e2e/auth.setup.ts 주석)
+# 2. 빌드 산출물로 서버를 띄운다 — dev 서버는 HMR 오버레이가 찍힌다
+npm run build && npm run start
+# 3. 로그인 세션 저장 (최초 1회 기기 승인 필요)
+npx playwright test --project=setup
+# 4. 캡처
+npx tsx scripts/screenshots-cms.ts \
+  --work=<갤러리·대본·음성이 있는 작업물 id> --work-slug=<그 작업물 slug> \
+  --post=<AI 요약이 있는 글 slug> --post-untranslated=<영어 본문이 없는 글 slug> \
+  --draft-work=<PPTX 를 떨어뜨려도 되는 초안 작업물 id> --pptx=<발표자 노트가 있는 .pptx>
+```
+
+| 옵션 | 뜻 |
+|---|---|
+| `--only=1,3,14` | 번호로 고른 장면만 |
+| `--theme=dark` | 다크로 (기본 light) |
+| `--presets=Forest,Twilight,Arctic` | 14번 홈에 입힐 프리셋 |
+| `--no-video` | 영상 생략 |
+| `--base` · `--out` | 서버 주소 · 출력 폴더(기본 `public/images/screenshots/cms`) |
+
+출력 파일(`-light` 자리에 테마 이름):
+
+```
+cms/01-gallery-captions-light.png      + 01-gallery-playing-light.webm
+cms/02-narration-editor-light.png
+cms/03-narration-preview-light.png     + 03-narration-preview-light.webm
+cms/04-lexicon-light.png
+cms/05-recording-editor-light.png      + 05-recording-split-light.webm
+cms/06-pptx-progress-light.png         + 06-pptx-import-light.webm
+cms/07-pptx-thumbnails-light.png
+cms/08-translate-editor-light.png      + 08-translate-editor-light.webm
+cms/09-settings-services-light.png     + 09-settings-services-full-light.png
+cms/10-translate-banner-light.png
+cms/11-ai-summary-light.png
+cms/12-theme-presets-light.png · 12-theme-contrast-light.png
+cms/13-theme-wheel-light.png · 13-theme-from-image-light.png
+cms/14-home-forest-light.png · 14-home-twilight-light.png · 14-home-arctic-light.png
+cms/15-relation-picker-light.png
+cms/16-seo-checklist-light.png
+```
+
+주의:
+- 저장 단추는 어디서도 누르지 않습니다. 다만 **6 · 7(PPTX)은 `--draft-work` 의 갤러리에 그림을 실제로 올립니다** — 버려도 되는 초안을 쓰세요. 2 · 3 은 이미 만든 음성을 재생만 하고(3 은 그 장에 음성이 있어야 합니다), 8 은 번역 API 를 부르되 저장하지 않습니다.
+- 5(녹음)는 Chromium 의 가짜 마이크로 녹음하고 끝에 "취소"를 눌러 올리지 않습니다.
+- 14(홈 프리셋)는 설정을 바꾸지 않고, ThemeProvider 가 테마 색을 CSS 변수로 옮기는 규칙(`src/lib/themeColors.ts`)을 그대로 써서 홈에 입힌 뒤 찍습니다.
