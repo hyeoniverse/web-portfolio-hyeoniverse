@@ -268,7 +268,7 @@ type ProviderFallback<P extends string> = {
  * onChange 는 setConfig 처럼 updater(prev)→next 를 받아 최신 슬라이스 기준으로 갱신한다.
  */
 function ProviderFallbackBlock<P extends string>({
-  t, title, options, defaultProvider, value, onChange, children, stateOf, hint, keyOf, extraHints, logProviders, extraOf,
+  t, title, options, defaultProvider, value, onChange, children, stateOf, hint, keyOf, extraHints, logProviders, modelsOf,
 }: {
   t: TFunction;
   title: string;
@@ -287,8 +287,8 @@ function ProviderFallbackBlock<P extends string>({
   extraHints?: React.ReactNode[];
   /** 이 기능의 호출 기록을 거를 공급자 이름(lib/ai/providers) — 제목 줄의 기록 단추가 쓴다 */
   logProviders?: string[];
-  /** 순서 목록의 항목 줄 끝에 넣을 칸 — 요약 · 번역은 글 공급자의 모델 이름 */
-  extraOf?: (p: P) => React.ReactNode;
+  /** 순서 목록 아래 한 줄 — 요약 · 번역은 글 공급자마다 부를 모델(보기 + 연필) */
+  modelsOf?: (providers: P[]) => React.ReactNode;
 }) {
   const provider = value?.provider ?? defaultProvider;
   const fallbackEnabled = value?.fallback?.enabled ?? false;
@@ -360,7 +360,6 @@ function ProviderFallbackBlock<P extends string>({
             const st = stateOf?.(p);
             return st && st !== "ok" ? <span className={styles.providerBadge} data-state={st}>{stateText(p)}</span> : null;
           }}
-          extraOf={extraOf}
           onChange={(order) => onChange((prev) => ({
             ...prev,
             provider: order[0],
@@ -368,6 +367,8 @@ function ProviderFallbackBlock<P extends string>({
           }))}
           onExcludedChange={(next) => onChange((prev) => ({ ...prev, fallback: { ...prev?.fallback, enabled: prev?.fallback?.enabled ?? false, priority: prev?.fallback?.priority ?? [], excluded: next } }))}
         />
+        {/* 모델 — 순서 목록과 떼어 한 줄로(자동 전환이 꺼져 있으면 기본 공급자 것만) */}
+        {modelsOf?.(fallbackEnabled ? [provider, ...usableFallbacksAll] : [provider])}
         {/* 첫 공급자가 쓸 수 없는 상태면 여기서 바로 알린다 — 모르고 두면 요청마다 실패하고 fallback 으로만 돈다 */}
         {primaryState && primaryState !== "ok" && (
           <p className={styles.providerWarn}>{t(`admin.settings.providerWarn.${primaryState}`)}</p>
@@ -396,8 +397,8 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
     const custom = (config.aiModels?.[mp] ?? "").trim();
     const setModel = (v: string) => setConfig((prev) => ({ ...prev, aiModels: { ...prev.aiModels, [mp]: v } }));
     return (
-      <span className={styles.modelField} onPointerDown={(e) => e.stopPropagation()}>
-        <span className={styles.modelLabel}>{t("admin.aiHealth.model")}</span>
+      <span key={mp} className={styles.modelField}>
+        <span className={styles.modelLabel}>{AI_PROVIDER_INFO[mp].label}</span>
         {custom ? (
           <code className={styles.modelValue}>{custom}</code>
         ) : (
@@ -425,6 +426,17 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
           )}
         </Popover>
       </span>
+    );
+  };
+  /* 순서 목록 아래 "모델" 한 줄 — 목록에 든 글 공급자만 */
+  const modelsLine = (providers: string[]) => {
+    const cells = providers.map(modelField).filter(Boolean);
+    if (cells.length === 0) return null;
+    return (
+      <div className={styles.modelsLine}>
+        <span className={styles.modelsLineLabel}>{t("admin.aiHealth.model")}</span>
+        {cells}
+      </div>
     );
   };
   const stateFor = (map: (p: string) => AiProvider) => (p: string) => aiHealth.stateOf(map(p));
@@ -905,7 +917,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
             t={t}
             title={t("admin.settings.aiSummarySettings")}
             options={AI_SUMMARY_OPTIONS}
-            extraOf={(p) => modelField(p)}
+            modelsOf={modelsLine}
             defaultProvider="gemini"
             value={config.aiSummary as ProviderFallback<AISummaryProvider>}
             onChange={(u) => setConfig((prev) => ({ ...prev, aiSummary: u(prev.aiSummary as ProviderFallback<AISummaryProvider>) as typeof prev.aiSummary }))}
@@ -919,7 +931,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
             t={t}
             title={t("admin.settings.translationSettings")}
             options={TRANSLATION_OPTIONS}
-            extraOf={(p) => modelField(p)}
+            modelsOf={modelsLine}
             defaultProvider="deepl"
             value={config.translation as ProviderFallback<TranslationProvider>}
             onChange={(u) => setConfig((prev) => ({ ...prev, translation: u(prev.translation as ProviderFallback<TranslationProvider>) as typeof prev.translation }))}
