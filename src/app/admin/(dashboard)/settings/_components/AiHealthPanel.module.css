@@ -32,9 +32,12 @@
 .row {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-8);
   padding: var(--spacing-8) 0;
   border-bottom: var(--border-light);
+}
+
+.detailWrap[data-open] .detail {
+  padding-top: var(--spacing-8);
 }
 
 .head {
@@ -76,12 +79,36 @@
   color: var(--text-accent);
 }
 
+/* 상세 틀 — 접힘(0fr)·펼침(1fr)을 움직임으로 */
+.detailWrap {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition: grid-template-rows var(--duration-base) var(--ease-standard), opacity var(--duration-base) var(--ease-standard);
+}
+
+.detailWrap[data-open] {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
 /* 펼친 상세 — 원인 전문 · 최근 오류 · 사용량 막대와 메모. 이름 칸만큼 들여 쓴다 */
 .detail {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-8);
+  min-height: 0;
+  overflow: hidden;
   padding-left: calc(9rem + var(--spacing-12));
+}
+
+/* 줄 끝 화살표 — 기본은 > , 펼치면 아래로 */
+.detailChev {
+  transition: transform var(--duration-base) var(--ease-standard);
+}
+
+.detailChevOpen {
+  transform: rotate(90deg);
 }
 
 /* 상태 — 정상(초록)·실패 중(노랑)·꺼짐(강조색)·키 없음(흐림). 빨강은 쓰지 않는다 */
