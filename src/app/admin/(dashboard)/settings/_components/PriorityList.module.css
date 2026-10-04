@@ -113,13 +113,26 @@
   padding-top: var(--spacing-4);
 }
 
-/* 1번 옆 "기본" */
-.priorityPrimary {
+/* 상자 밖 오른쪽 — "기본" · 상태 */
+.priorityAside {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-8);
   margin-left: var(--spacing-8);
-  padding: var(--badge-padding-md);
-  border-radius: var(--radius-control);
+  white-space: nowrap;
+}
+
+.priorityPrimary {
   font: var(--font-body-xs);
   font-weight: 600;
-  background: var(--bg-accent-light);
   color: var(--text-accent);
+}
+
+/* 끌고 있는 줄의 제자리 — 고스트 */
+.priorityRow[data-dragging] {
+  opacity: 0.35;
+}
+
+.priorityRow[data-dragging] .priorityItem {
+  border-style: dashed;
 }
