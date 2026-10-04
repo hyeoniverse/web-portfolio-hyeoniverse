@@ -11,9 +11,6 @@ import type { SiteConfigData } from "@/config/site.config";
 import { Switch } from "@/components/ui/Switch";
 import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
-import { SkeletonLine } from "@/components/ui/Skeleton";
-import Popover from "@/components/ui/Popover";
-import { Pencil } from "@/components/icons";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import type { SettingsTabProps } from "../_types";
 import type { SelectOption } from "@/types";
@@ -45,47 +42,41 @@ import { sendAction } from "@/lib/sendAction";
 import { fillTemplate } from "@/utils/format";
 
 
-/** 모델 고르기 — 그 공급자 키로 지금 부를 수 있는 모델을 받아 셀렉트로. 직접 적지 않는다.
- *  맨 위 "최신(별칭)" 이 기본(빈 값). 목록을 못 받으면(키 없음 · 거절) 이유를 보이고 "최신" 만 남는다 */
-function ModelPicker({ t, provider, value, onChange, onClose }: {
-  t: TFunction; provider: AiModelProvider; value: string; onChange: (v: string) => void; onClose: () => void;
-}) {
-  const [models, setModels] = useState<string[] | null>(null);
-  const [reason, setReason] = useState<string | null>(null);
+/* 공급자별 모델 목록 — 한 번 받아 둔다(요약 · 번역 두 줄이 같은 목록을 쓴다) */
+const modelListCache = new Map<AiModelProvider, Promise<{ models: string[]; reason: string | null }>>();
+function loadModelList(provider: AiModelProvider) {
+  let p = modelListCache.get(provider);
+  if (!p) {
+    p = fetch(`/api/admin/ai-models?provider=${provider}`)
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
+      .then((d: { models?: string[]; reason?: string }) => ({ models: d.models ?? [], reason: d.reason ?? null }))
+      .catch((e: Error) => ({ models: [], reason: e.message }));
+    modelListCache.set(provider, p);
+  }
+  return p;
+}
+
+/** 모델 셀렉트 — 순서 줄 상자 안. 그 공급자 키로 지금 부를 수 있는 모델을 받아 고른다(직접 적지 않는다).
+ *  맨 위 "최신 · 별칭" 이 기본(빈 값). 목록을 못 받으면(키 없음 · 거절) 최신만 남고 제목에 이유를 적는다 */
+function ModelSelect({ t, provider, value, onChange }: { t: TFunction; provider: AiModelProvider; value: string; onChange: (v: string) => void }) {
+  const [list, setList] = useState<{ models: string[]; reason: string | null } | null>(null);
   useEffect(() => {
     let alive = true;
-    void fetch(`/api/admin/ai-models?provider=${provider}`)
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
-      .then((d: { models?: string[]; reason?: string }) => { if (!alive) return; setModels(d.models ?? []); setReason(d.reason ?? null); })
-      .catch((e: Error) => { if (!alive) return; setModels([]); setReason(e.message); });
+    void loadModelList(provider).then((d) => { if (alive) setList(d); });
     return () => { alive = false; };
   }, [provider]);
-  const LATEST = "";
-  const list = models ?? [];
-  /* 적어 둔 값이 목록에 없어도(은퇴한 모델 등) 고른 채로 보이게 넣어 둔다 */
+  const models = list?.models ?? [];
   const options: SelectOption<string>[] = [
-    { value: LATEST, label: `${t("admin.aiHealth.modelLatest")} · ${DEFAULT_AI_MODELS[provider]}` },
-    ...(value && !list.includes(value) ? [{ value, label: value }] : []),
-    ...list.map((m) => ({ value: m, label: m })),
+    { value: "", label: `${t("admin.aiHealth.modelLatest")} · ${DEFAULT_AI_MODELS[provider]}` },
+    /* 적어 둔 값이 목록에 없어도(은퇴한 모델 등) 고른 채로 보이게 */
+    ...(value && !models.includes(value) ? [{ value, label: value }] : []),
+    ...models.map((m) => ({ value: m, label: m })),
   ];
+  const reason = list?.reason === "nokey" ? t("admin.aiHealth.stateNoKey") : list?.reason ? fillTemplate(t("admin.aiHealth.modelListFailed"), { reason: list.reason }) : "";
   return (
-    <div className={styles.modelPopover}>
-      <p className={styles.modelPopoverTitle}>{AI_PROVIDER_INFO[provider].label} · {t("admin.aiHealth.model")}</p>
-      {models === null ? (
-        <SkeletonLine width="100%" />
-      ) : (
-        <Select value={value} options={options} onChange={(v) => onChange(v)} />
-      )}
-      {reason && (
-        <p className={styles.modelPopoverHint}>
-          {reason === "nokey" ? t("admin.aiHealth.stateNoKey") : fillTemplate(t("admin.aiHealth.modelListFailed"), { reason })}
-        </p>
-      )}
-      <p className={styles.modelPopoverHint}>{t("admin.settings.aiModelsHint")}</p>
-      <div className={styles.modelPopoverActions}>
-        <Button variant="primary" size="sm" shape="capsule" onClick={onClose} soundDisabled>{t("common.close")}</Button>
-      </div>
-    </div>
+    <span className={styles.modelSelect} title={reason || t("admin.settings.aiModelsHint")} onPointerDown={(e) => e.stopPropagation()}>
+      <Select size="sm" value={value} options={options} onChange={(v) => onChange(v)} />
+    </span>
   );
 }
 
@@ -312,7 +303,7 @@ type ProviderFallback<P extends string> = {
  * onChange 는 setConfig 처럼 updater(prev)→next 를 받아 최신 슬라이스 기준으로 갱신한다.
  */
 function ProviderFallbackBlock<P extends string>({
-  t, title, options, defaultProvider, value, onChange, children, stateOf, hint, keyOf, extraHints, logProviders, asideOf,
+  t, title, options, defaultProvider, value, onChange, children, stateOf, hint, keyOf, extraHints, logProviders, innerOf,
 }: {
   t: TFunction;
   title: string;
@@ -331,8 +322,8 @@ function ProviderFallbackBlock<P extends string>({
   extraHints?: React.ReactNode[];
   /** 이 기능의 호출 기록을 거를 공급자 이름(lib/ai/providers) — 제목 줄의 기록 단추가 쓴다 */
   logProviders?: string[];
-  /** 순서 줄의 상자 밖 오른쪽 — 요약 · 번역은 글 공급자가 부를 모델(보기 + 연필) */
-  asideOf?: (p: P) => React.ReactNode;
+  /** 순서 줄 상자 안 이름 뒤 — 요약 · 번역은 글 공급자가 부를 모델 셀렉트 */
+  innerOf?: (p: P) => React.ReactNode;
 }) {
   const provider = value?.provider ?? defaultProvider;
   const fallbackEnabled = value?.fallback?.enabled ?? false;
@@ -404,7 +395,7 @@ function ProviderFallbackBlock<P extends string>({
             const st = stateOf?.(p);
             return st && st !== "ok" ? <span className={styles.providerBadge} data-state={st}>{stateText(p)}</span> : null;
           }}
-          asideOf={asideOf}
+          innerOf={innerOf}
           onChange={(order) => onChange((prev) => ({
             ...prev,
             provider: order[0],
@@ -432,41 +423,17 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
   const sh = { config, savedConfig, saveSection, revertSection, resetSection, savingPaths, validationError, titleClassName: shared.sectionTitle };
   /* AI 상태 — 상태 패널과 각 fallback 섹션이 같이 쓴다. 설정 이름 → 상태를 세는 공급자 이름(google 만 기능마다 다르다) */
   const aiHealth = useAiHealth();
-  /* 글 공급자(Gemini · OpenAI · Claude)가 부를 모델 — 요약 · 번역의 순서 줄 오른쪽(상자 밖)에 둔다(같은 값을 두 곳에서 본다).
-     보기만: 비어 있으면 "최신" 과 그 별칭 이름, 적어 두었으면 그 이름. 바꾸는 건 연필 → 팝오버의 셀렉트 */
+  /* 글 공급자(Gemini · OpenAI · Claude)가 부를 모델 — 요약 · 번역의 순서 줄 상자 안, 이름 뒤 셀렉트(같은 값을 두 곳에서 본다) */
   const modelField = (p: string) => {
     if (!(p in DEFAULT_AI_MODELS)) return null;
     const mp = p as AiModelProvider;
-    const custom = (config.aiModels?.[mp] ?? "").trim();
-    const setModel = (v: string) => setConfig((prev) => ({ ...prev, aiModels: { ...prev.aiModels, [mp]: v } }));
     return (
-      <span className={styles.modelField}>
-        <span className={styles.modelLabel}>{t("admin.aiHealth.model")}</span>
-        {custom ? (
-          <code className={styles.modelValue}>{custom}</code>
-        ) : (
-          <>
-            <span className={styles.modelLatest}>{t("admin.aiHealth.modelLatest")}</span>
-            <code className={styles.modelValue}>{DEFAULT_AI_MODELS[mp]}</code>
-          </>
-        )}
-        <Popover
-          placement="bottom-end"
-          responsive={false}
-          maxHeight={false}
-          trigger={<Button variant="ghost" size="xs" shape="circle" aria-label={t("admin.aiHealth.modelEdit")} title={t("admin.aiHealth.modelEdit")} soundDisabled icon={<Pencil size={12} strokeWidth={2} />} />}
-        >
-          {({ close }) => (
-            <ModelPicker
-              t={t}
-              provider={mp}
-              value={config.aiModels?.[mp] ?? ""}
-              onChange={setModel}
-              onClose={close}
-            />
-          )}
-        </Popover>
-      </span>
+      <ModelSelect
+        t={t}
+        provider={mp}
+        value={config.aiModels?.[mp] ?? ""}
+        onChange={(v) => setConfig((prev) => ({ ...prev, aiModels: { ...prev.aiModels, [mp]: v } }))}
+      />
     );
   };
   const stateFor = (map: (p: string) => AiProvider) => (p: string) => aiHealth.stateOf(map(p));
@@ -947,7 +914,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
             t={t}
             title={t("admin.settings.aiSummarySettings")}
             options={AI_SUMMARY_OPTIONS}
-            asideOf={modelField}
+            innerOf={modelField}
             defaultProvider="gemini"
             value={config.aiSummary as ProviderFallback<AISummaryProvider>}
             onChange={(u) => setConfig((prev) => ({ ...prev, aiSummary: u(prev.aiSummary as ProviderFallback<AISummaryProvider>) as typeof prev.aiSummary }))}
@@ -961,7 +928,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
             t={t}
             title={t("admin.settings.translationSettings")}
             options={TRANSLATION_OPTIONS}
-            asideOf={modelField}
+            innerOf={modelField}
             defaultProvider="deepl"
             value={config.translation as ProviderFallback<TranslationProvider>}
             onChange={(u) => setConfig((prev) => ({ ...prev, translation: u(prev.translation as ProviderFallback<TranslationProvider>) as typeof prev.translation }))}

@@ -22,13 +22,13 @@ interface PriorityListProps<T extends string> {
   includePrimary?: boolean;
   /** includePrimary 일 때 1번 옆 글 — "기본" */
   primaryLabel?: string;
-  /** 상자 밖 오른쪽("기본" · 상태 뒤)에 넣을 것 — 예: 그 공급자가 부를 모델과 바꾸기 단추 */
-  asideOf?: (value: T) => React.ReactNode;
+  /** 상자 안, 이름 뒤에 넣을 것 — 예: 그 공급자가 부를 모델 셀렉트 */
+  innerOf?: (value: T) => React.ReactNode;
   /** 자동 전환이 꺼져 있다 — 1번(기본)만 보인다. 순서는 그대로 남아 켜면 돌아온다 */
   onlyPrimary?: boolean;
 }
 
-export function PriorityList<T extends string>({ primary, priority, excluded, options, onChange, onExcludedChange, badgeOf, includePrimary, primaryLabel, asideOf, onlyPrimary }: PriorityListProps<T>) {
+export function PriorityList<T extends string>({ primary, priority, excluded, options, onChange, onExcludedChange, badgeOf, includePrimary, primaryLabel, innerOf, onlyPrimary }: PriorityListProps<T>) {
   const nonPrimary = options.filter((o) => o.value !== primary);
   const rest = priority.length
     ? [...priority.filter((p) => p !== primary), ...nonPrimary.map((o) => o.value).filter((v) => !priority.includes(v))]
@@ -156,6 +156,7 @@ export function PriorityList<T extends string>({ primary, priority, excluded, op
               <span className={`${styles.priorityLabel} ${isEnabled ? "" : styles.priorityLabelDisabled}`}>
                 {label}
               </span>
+              {innerOf?.(val)}
               {!collapsed && <div className={styles.priorityBtns}>
                 <Pressable
                   className={shared.priorityBtn}
@@ -172,11 +173,10 @@ export function PriorityList<T extends string>({ primary, priority, excluded, op
               </div>}
             </div>
             {/* 상자 밖 오른쪽 — "기본", 상태(꺼짐 · 키 없음 · 실패 중) */}
-            {(isPrimary && primaryLabel) || badgeOf?.(val) || asideOf?.(val) ? (
+            {(isPrimary && primaryLabel) || badgeOf?.(val) ? (
               <span className={styles.priorityAside}>
                 {isPrimary && primaryLabel && <span className={styles.priorityPrimary}>{primaryLabel}</span>}
                 {badgeOf?.(val)}
-                {asideOf?.(val)}
               </span>
             ) : null}
           </div>
