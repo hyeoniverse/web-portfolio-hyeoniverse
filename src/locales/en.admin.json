@@ -713,7 +713,6 @@
       "aiSummaryProvider": "AI Summary Provider",
       "aiModels": "AI models",
       "aiServices": "AI & external services",
-      "aiFeatures": "Providers and fallback order per feature",
       "aiModelsHint": "Model names used for summaries and translation. Leave empty to use each provider's latest alias. If a provider retires a model and returns 404, change it here.",
       "notifyEmail": {
         "title": "Notification emails",
@@ -1159,8 +1158,8 @@
       "ttsProvider": "Default provider (first voice in the editor)",
       "providerWarn": {
         "nokey": "The default provider has no key. Add the key in Environment variables or turn on auto switch.",
-        "off": "The default provider is turned off after repeated failures. Check the cause in AI & external service status above.",
-        "failing": "The default provider has been failing recently. Check the cause in AI & external service status above.",
+        "off": "The default provider is turned off after repeated failures. Press › at the end of its row to see the cause.",
+        "failing": "The default provider has been failing recently. Press › at the end of its row to see the cause.",
         "noFallback": "Auto switch is on, but there is no provider to switch to (all excluded, without a key, or turned off)."
       },
       "attachmentAutoOff": "Messages with attachments failed several times in a row, so file attachments were turned off automatically. Messages still arrive. Check the cause, then turn it back on.",
