@@ -4,6 +4,7 @@ import { useState, useCallback } from "react";
 import { createPortal } from "react-dom";
 import MediaThumb from "@/components/ui/MediaThumb";
 import styles from "./RelatedChips.module.css";
+import { usePopoverRef } from "@/hooks/useTopLayer";
 
 export type PreviewItem = { title: string; image?: string; category?: string; desc?: string };
 
@@ -28,10 +29,11 @@ export function useHoverPreview() {
   }, []);
 
   const hide = useCallback(() => setPreview(null), []);
+  const popRef = usePopoverRef<HTMLDivElement>();
 
   const node = preview && typeof document !== "undefined"
     ? createPortal(
-        <div className={styles.preview} style={{ top: preview.top, left: preview.left }} aria-hidden>
+        <div ref={popRef} popover="manual" className={styles.preview} style={{ top: preview.top, left: preview.left }} aria-hidden>
           {preview.item.image && (
             <div className={styles.previewImg}>
               <MediaThumb src={preview.item.image} alt="" fill sizes="256px" className={styles.img} />

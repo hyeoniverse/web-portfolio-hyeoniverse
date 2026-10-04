@@ -352,7 +352,6 @@
 .pickerOverlay {
   display: flex;
   position: fixed;
-  z-index: var(--z-index-overlay);
   inset: 0;
   padding: var(--modal-padding-lg);
   align-items: center;

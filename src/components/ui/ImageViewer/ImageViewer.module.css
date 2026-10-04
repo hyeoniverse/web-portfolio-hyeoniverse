@@ -8,7 +8,6 @@
 .overlayBg {
   position: fixed;
   inset: 0;
-  z-index: var(--z-index-modal);
   background: transparent;
   backdrop-filter: blur(32px) saturate(1.4);
   pointer-events: none;
@@ -20,7 +19,6 @@
   --_list-width: 140px;
   position: fixed;
   inset: 0;
-  z-index: var(--z-index-modal);
   display: flex;
   flex-direction: column;
   -webkit-tap-highlight-color: transparent;

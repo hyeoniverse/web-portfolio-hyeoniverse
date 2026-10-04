@@ -80,6 +80,7 @@ import { workSnapshotMeta } from "./workEditor/workSnapshotMeta";
 import { parseYearAsPeriod, serializePeriodAsYear } from "./workEditor/periodFormat";
 import { CodedError, errorFromBody, errorFromResponse, errorText } from "@/lib/apiError";
 import { tryRequest } from "@/lib/sendAction";
+import InputBlocker from "@/components/ui/InputBlocker";
 
 const Editor = dynamic(() => import("@/components/posts/PlateEditor"), {
   ssr: false,
@@ -2465,18 +2466,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     </AdminEditorShell>
     {/* 초안 복원 모달 확인 동안 사용자 인터랙션 차단 */}
     {!revisionsLoaded && (
-      <div
-        style={{
-          position: "fixed",
-          inset: 0,
-          zIndex: "var(--z-index-top)",
-          background: "transparent",
-          cursor: "wait",
-        }}
-        onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
-        onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-        onKeyDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
-      />
+      <InputBlocker />
     )}
     </>
   );

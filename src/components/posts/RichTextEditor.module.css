@@ -27,7 +27,7 @@
   background: var(--bg-tertiary);
   overflow: visible;
   position: relative;
-  z-index: var(--z-index-dropdown);
+  z-index: var(--z-index-float); /* 페이지에 붙은 툴바 — 편집 내용 위(3.10-2) */
 }
 
 .toolbarBtn {
@@ -175,7 +175,6 @@
   border: var(--border-light);
   border-radius: var(--radius-surface);
   box-shadow: var(--shadow-overlay);
-  z-index: var(--z-index-dropdown);
 }
 
 /* ── 게시물 링크 메뉴 ([[) ── */
@@ -233,7 +232,6 @@
   max-width: 300px;
   max-height: 360px;
   overflow-y: auto;
-  z-index: calc(var(--z-index-dropdown) + 1);
 }
 .postLinkTitle {
   flex: 1;
@@ -519,7 +517,7 @@
   flex: 0 0 auto;
   width: auto;
   overflow: visible;
-  z-index: var(--z-index-dropdown);
+  z-index: 1; /* 툴바 안에서만 겨룬다(3.10-3) */
 }
 
 /* trigger — 높이/화살표는 공통 Select(size="sm") 그대로 사용. 폰트명 표시용 width·색만 지정. */
@@ -633,7 +631,6 @@
   backdrop-filter: blur(8px) saturate(1.4);
   box-shadow: var(--shadow-floating);
   overflow: hidden;
-  z-index: var(--z-index-dropdown);
 }
 /* 가로 한 줄(이미지·선택 등) — pill 룩 */
 .floatingBarFrameInline {
@@ -1734,7 +1731,6 @@
   position: fixed;
   top: 0;
   left: 0;
-  z-index: var(--z-index-tooltip);
   max-width: 32rem;
   max-height: 16rem;
   overflow: hidden;

@@ -5,8 +5,6 @@
 .selectAboveModal {
   background: var(--bg-primary) !important;
   backdrop-filter: none !important;
-  /* 모달 안 popover(--z-index-popover:600) 위로 — recur 팝오버 안의 freq select dropdown 이 팝오버에 가리지 않게 */
-  z-index: var(--z-index-tooltip) !important;
 }
 
 /* ── 검색/필터/정렬 툴바 ── (blockBar 인라인 겸 리더 행) */
@@ -230,7 +228,6 @@
   inset: 0;
   /* 모달(#modal-root = --z-index-overlay 9000)보다 아래 — 전체화면 중 열리는 이벤트/날짜/체인 모달이 위에 보이도록.
      (nav 100·페이지 콘텐츠보다는 위라 전체화면 커버는 유지) */
-  z-index: var(--z-index-modal);
   margin: 0;
   padding: var(--spacing-24);
   background: var(--bg-primary);
@@ -517,7 +514,6 @@
 /* +N 클릭 시 그 날 이벤트 전체 목록 팝오버 */
 .dayPop {
   position: fixed;
-  z-index: var(--z-index-top);
   display: flex;
   flex-direction: column;
   gap: var(--spacing-8);

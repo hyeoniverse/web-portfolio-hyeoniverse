@@ -40,7 +40,6 @@
 /* 떠 있는 목록 패널 — 닫혀 있을 때도 그려 두고 투명도·이동으로만 여닫는다 */
 .inputAreaExpand {
   position: fixed;
-  z-index: var(--z-index-dropdown);
   max-height: 320px;
   overflow-y: auto;
   overscroll-behavior: contain;

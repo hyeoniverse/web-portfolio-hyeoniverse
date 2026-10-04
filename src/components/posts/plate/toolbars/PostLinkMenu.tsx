@@ -17,6 +17,7 @@ import { genShortId } from "../dateUtils";
 import { _postLinkTrigger, _postLinkCategory, _postLinkTags, _postLinkExcludeId } from "../utils";
 import styles from "../../RichTextEditor.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { usePopoverRef } from "@/hooks/useTopLayer";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -245,11 +246,12 @@ export default function PostLinkMenu() {
     return () => document.removeEventListener("keydown", onKey, true);
   }, [open, items, activeIdx, run, query]);
 
+  /* top layer(3.10-1) — 붙는 순간 showPopover */
+  const popRef = usePopoverRef<HTMLDivElement>(refs.setFloating);
   if (!open) return null;
 
   return createPortal(
-    // eslint-disable-next-line react-hooks/refs
-    <div ref={refs.setFloating} className={`${styles.slashMenu} ${styles.postLinkMenu}`} style={style} data-lenis-prevent onMouseDown={(e) => e.preventDefault()}>
+    <div ref={popRef} popover="manual" className={`${styles.slashMenu} ${styles.postLinkMenu}`} style={style} data-lenis-prevent onMouseDown={(e) => e.preventDefault()}>
       {/* 검색바 — 에디터에 이어 타이핑한 [[키워드 표시 */}
       <div className={styles.postLinkSearch}>
         <Search size={13} />

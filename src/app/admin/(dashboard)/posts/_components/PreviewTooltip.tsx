@@ -6,6 +6,7 @@ import { adminShellStyles as shell } from "@/components/admin/AdminListShell";
 import { formatPostTitle } from "@/utils/post";
 import type { Post } from "@/types/post";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { usePopoverRef } from "@/hooks/useTopLayer";
 
 /* ── Isolated tooltip to prevent parent re-renders from reaching AdminTable ── */
 export default function PreviewTooltip({
@@ -27,11 +28,15 @@ export default function PreviewTooltip({
   onNavigate: () => void;
 }) {
   const { t } = useLanguage();
+  const backdropPop = usePopoverRef<HTMLDivElement>();
+  const tipPop = usePopoverRef<HTMLDivElement>();
   if (!post) return null;
   return (
     <>
-      <div className={shell.previewBackdrop} onClick={onDismiss} />
+      <div ref={backdropPop} popover="manual" className={shell.previewBackdrop} onClick={onDismiss} />
       <div
+        ref={tipPop}
+        popover="manual"
         className={shell.previewTooltip}
         data-preview-tooltip
         data-state={open ? "open" : "closed"}

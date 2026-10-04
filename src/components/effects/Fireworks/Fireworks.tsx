@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import styles from "./Fireworks.module.css";
+import { usePopoverRef } from "@/hooks/useTopLayer";
 
 interface FireworksProps {
   trigger: boolean;
@@ -59,6 +60,7 @@ function spawnConfetti(cx: number, cy: number, count: number): Confetti[] {
 
 export default function Fireworks({ trigger, onDone, duration = 2800 }: FireworksProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const canvasPop = usePopoverRef<HTMLCanvasElement>(canvasRef);
   const rafRef = useRef<number>(0);
   const onDoneRef = useRef(onDone);
   useEffect(() => { onDoneRef.current = onDone; }, [onDone]);
@@ -135,6 +137,6 @@ export default function Fireworks({ trigger, onDone, duration = 2800 }: Firework
   }, [trigger, duration]);
 
   return (
-    <canvas ref={canvasRef} className={styles.canvas} aria-hidden="true" />
+    <canvas ref={canvasPop} popover="manual" className={styles.canvas} aria-hidden="true" />
   );
 }

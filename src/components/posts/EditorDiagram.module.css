@@ -441,7 +441,6 @@
 .mermaidHelpFsOverlay {
   position: fixed;
   inset: 0;
-  z-index: var(--z-index-fullscreen);
   display: flex;
   flex-direction: column;
   background: var(--bg-primary);

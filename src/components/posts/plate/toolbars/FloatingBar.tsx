@@ -7,6 +7,7 @@ import { useVirtualFloating, offset, flip, shift } from "@platejs/floating";
 import { GripVertical } from "@/components/icons";
 import styles from "../../RichTextEditor.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { usePopoverRef } from "@/hooks/useTopLayer";
 
 /** 전역 Find 바의 현재 화면 rect. Find 바(FloatingBar)가 매 프레임 스스로 측정해 onRect 로 올리고,
  *  PlateEditor 가 이 context 로 다시 내려준다. 컨텍스트 바들은 자기 "자연 위치"가 이 rect 와 2D 로
@@ -70,6 +71,8 @@ export default function FloatingBar({
     placement,
     middleware: [offset(8), flip({ padding: 8 }), shift({ padding: 8 })],
   });
+  /* top layer(3.10-1) — 붙는 순간 showPopover */
+  const popRef = usePopoverRef<HTMLDivElement>(refs.setFloating);
   const [outOfView, setOutOfView] = useState(false);
   // 사용자가 핸들로 옮긴 오프셋 — 앵커 위치 위에 더해짐 (드래그 중 라이브)
   const [drag, setDrag] = useState({ dx: 0, dy: 0 });
@@ -184,17 +187,15 @@ export default function FloatingBar({
     return vOverlap && hOverlap ? Math.max(toolbarBottom, findRect.bottom) : toolbarBottom;
   })();
   const floatStyle: React.CSSProperties = pinned
-    ? { position: "fixed", top: pinned.top, left: pinned.left, zIndex: "var(--z-index-dropdown)" }
+    ? { position: "fixed", top: pinned.top, left: pinned.left }
     : {
         ...style,
         top: typeof style.top === "number" ? Math.max(style.top, clampBottom + 8) : style.top,
-        zIndex: "var(--z-index-dropdown)",
       };
 
   const node = (
     // 바깥: 앵커 위치(스크롤 추적) 또는 고정(pin) 위치 / 프레임: 드래그 오프셋 + glass 외형 / 컨텐츠: 버튼들
-    // eslint-disable-next-line react-hooks/refs
-    <div ref={refs.setFloating} style={floatStyle}>
+    <div ref={popRef} popover="manual" style={floatStyle}>
       <div
         ref={frameRef}
         data-floating-bar

@@ -5,7 +5,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: var(--z-index-overlay);
   padding: var(--spacing-20);
 }
 

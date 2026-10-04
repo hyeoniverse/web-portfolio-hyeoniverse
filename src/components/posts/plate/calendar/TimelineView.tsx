@@ -10,6 +10,7 @@ import EventPreview from "./EventPreview";
 import { useHoverPreview } from "./useHoverPreview";
 import styles from "./Calendar.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { showPopover } from "@/lib/topLayer";
 
 const COL_W = 48;      // 하루 컬럼 폭(px)
 const ROW_H = 40;      // 이벤트 행 높이(px)
@@ -319,8 +320,10 @@ function TimelineViewInner({
     // 드래그 내내 커스텀 커서를 resizeH 로 고정 — 전체화면 오버레이(data-cursor)로 포인터가 바(draggable) 위를 지나도 유지
     const overlay = document.createElement("div");
     overlay.setAttribute("data-cursor", "resizeH");
-    overlay.style.cssText = "position:fixed;inset:0;z-index:2147483000;cursor:ew-resize;";
+    overlay.setAttribute("popover", "manual"); /* top layer(3.10-1) — 무엇보다 위에서 포인터를 받는다 */
+    overlay.style.cssText = "position:fixed;inset:0;cursor:ew-resize;";
     document.body.appendChild(overlay);
+    showPopover(overlay);
     const onUp = () => {
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", onUp);

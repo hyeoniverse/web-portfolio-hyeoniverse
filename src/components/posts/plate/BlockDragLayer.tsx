@@ -9,6 +9,7 @@ import type { TElement } from "platejs";
 import type { ElementDragItemNode } from "@platejs/dnd";
 import { _dndScrollContainer } from "./utils";
 import styles from "../RichTextEditor.module.css";
+import { usePopoverRef } from "@/hooks/useTopLayer";
 
 /**
  * 블록 드래그 커스텀 ghost — 드래그 중인 블록의 **실제 DOM 을 복제**해 커서 옆에 그대로 띄운다.
@@ -18,6 +19,7 @@ import styles from "../RichTextEditor.module.css";
 export function BlockDragLayer() {
   const editor = useEditorRef();
   const ref = React.useRef<HTMLDivElement>(null);
+  const popRef = usePopoverRef<HTMLDivElement>(ref);
   const { item, offset, isDragging } = useDragLayer((monitor) => ({
     item: monitor.getItem() as ElementDragItemNode | null,
     offset: monitor.getClientOffset(),
@@ -107,7 +109,8 @@ export function BlockDragLayer() {
 
   return createPortal(
     <div
-      ref={ref}
+      ref={popRef}
+      popover="manual"
       className={`${styles.blockDragLayer}${isGroup ? ` ${styles.blockDragLayerGroup}` : ""}${isColumn ? ` ${styles.blockDragLayerColumn}` : ""}`}
       style={{ transform: `translate(${offset.x + 12}px, ${offset.y + 8}px)` }}
       aria-hidden

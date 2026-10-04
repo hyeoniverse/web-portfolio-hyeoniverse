@@ -11,7 +11,7 @@
 }
 
 .rootOpen {
-  z-index: var(--z-index-dropdown);
+  z-index: 1; /* 열린 셀렉트의 틀이 이웃 위로 — 목록 자체는 top layer(3.10-1) */
 }
 
 .rootDisabled {

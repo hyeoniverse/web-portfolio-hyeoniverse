@@ -43,6 +43,7 @@ import Button from "@/components/ui/Button";
 import { diagramToMermaid, normalizeDiagram, type DiagramData, type DiagramNode, type DiagramEdge, type DiagramNodeShape, type DiagramArrow, type DiagramLine, type DiagramCurve } from "./diagram/model";
 import styles from "./DiagramElement.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { showPopover, hidePopover } from "@/lib/topLayer";
 
 function genId(): string {
   try { if (typeof crypto !== "undefined" && crypto.randomUUID) return "n" + crypto.randomUUID().slice(0, 8); } catch { /* noop */ }
@@ -238,6 +239,15 @@ export function DiagramElement(props: PlateElementProps) {
   const [selectedEdgeIds, setSelectedEdgeIds] = useState<string[]>([]);
   const [view, setView] = useState<"canvas" | "form">("canvas");
   const [fullscreen, setFullscreen] = useState(false);
+  /* 제자리 전체화면 — 전체화면 동안만 popover 속성을 붙여 top layer 에 띄운다(3.10-1). 늘 붙여 두면 평소에 display: none 이 된다 */
+  const innerRef = useRef<HTMLDivElement>(null);
+  React.useEffect(() => {
+    const el = innerRef.current;
+    if (!fullscreen || !el) return;
+    el.setAttribute("popover", "manual");
+    showPopover(el);
+    return () => { hidePopover(el); el.removeAttribute("popover"); };
+  }, [fullscreen]);
   React.useEffect(() => {
     if (!fullscreen) return;
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") { e.preventDefault(); setFullscreen(false); } };
@@ -430,7 +440,7 @@ export function DiagramElement(props: PlateElementProps) {
     <BlockDropZone path={elPath}>
       <div {...blockDragProps}>
         <PlateElement {...props} className={styles.diagramBlock}>
-          <div contentEditable={false} className={`${styles.diagramInner}${fullscreen ? ` ${styles.diagramFullscreen}` : ""}`} data-selected={selected ? "" : undefined}>
+          <div ref={innerRef} contentEditable={false} className={`${styles.diagramInner}${fullscreen ? ` ${styles.diagramFullscreen}` : ""}`} data-selected={selected ? "" : undefined}>
             <div className={styles.diagramToolbar}>
               <TBtn onMouseDown={(e) => { e.preventDefault(); addNode(); }} tooltip={t("노드 추가", "Add node")} style={{ gap: "var(--spacing-2)" }}>
                 <Plus size={14} />{t("노드", "Node")}

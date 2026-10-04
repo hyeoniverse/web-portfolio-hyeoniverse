@@ -1,6 +1,5 @@
 .peek {
   position: fixed;
-  z-index: var(--z-index-tooltip);
   padding: var(--spacing-4);
   border: var(--border-light);
   border-radius: var(--radius-surface);

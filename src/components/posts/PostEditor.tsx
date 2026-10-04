@@ -100,6 +100,7 @@ import AuthorAvatar from "@/components/ui/AuthorAvatar";
 import { reportAiResponse } from "@/lib/ai/notifyFailures";
 import { CodedError, errorFromBody, errorText } from "@/lib/apiError";
 import { sendAction, sendActions } from "@/lib/sendAction";
+import InputBlocker from "@/components/ui/InputBlocker";
 
 /** Revision detail panel — lang 별 라벨/필드 로컬라이즈 + 해당 lang KO|EN 값만 노출. */
 function postSnapshotMeta(s: PostFormData, seriesList: { id: string; title: string }[], authorNames: Map<string, string>, lang: "ko" | "en"): import("@/components/admin/AdminEditorShell/types").RevisionMetaGroup[] {
@@ -1422,18 +1423,7 @@ export default function PostEditor({ post }: PostEditorProps) {
     </AdminEditorShell>
     {/* 초안 복원 모달 확인 동안 사용자 인터랙션 차단 — 모달이 늦게 떠도 그 사이 편집/이동 못하게 */}
     {!revisionsLoaded && (
-      <div
-        style={{
-          position: "fixed",
-          inset: 0,
-          zIndex: "var(--z-index-top)",
-          background: "transparent",
-          cursor: "wait",
-        }}
-        onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
-        onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-        onKeyDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
-      />
+      <InputBlocker />
     )}
 </>
   );
