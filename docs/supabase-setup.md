@@ -235,8 +235,8 @@ aiCover: {
 
 | Provider | 모델 | 환경변수 | 가격 | 발급 방법 |
 |----------|------|----------|------|-----------|
-| **huggingface** | FLUX.1-schnell | `HUGGINGFACE_API_KEY` | 무료 (rate limit 있음) | [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens) → New token → `Inference Providers` 권한 체크 |
-| **nanobanana** | Gemini 2.5 Flash | `NANOBANANA_API_KEY` | ~$0.02/장 (가입 시 무료 크레딧) | [nanobananaapi.ai/api-key](https://nanobananaapi.ai/api-key) → 회원가입 → API Key 복사 |
+| **huggingface** | 설정 › 서비스에서 고름. 기본 `latest` = Hub 에서 지금 돌릴 수 있는 text-to-image 인기 1위(Inference Providers 자동 라우팅) | `HUGGINGFACE_API_KEY` | 공급자별 과금(월 무료 크레딧) | [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens) → New token → `Inference Providers` 권한 체크 |
+| **nanobanana** | 설정 › 서비스에서 고름. `nanobanana-2`(기본·최신) · `nanobanana-pro` · `nanobanana` | `NANOBANANA_API_KEY` | ~$0.02/장 (가입 시 무료 크레딧) | [nanobananaapi.ai/api-key](https://nanobananaapi.ai/api-key) → 회원가입 → API Key 복사 |
 
 **설정 예시 (.env.local):**
 

@@ -9,8 +9,8 @@ export type TranslationProvider = "gemini" | "google" | "deepl" | "claude";
 export type TtsProviderOption = "fish" | "google" | "edge";
 
 export const AI_COVER_OPTIONS: SelectOption<AICoverProvider>[] = [
-  { value: "nanobanana", label: "NanoBanana (Gemini)" },
-  { value: "huggingface", label: "Hugging Face (FLUX)" },
+  { value: "nanobanana", label: "NanoBanana" },
+  { value: "huggingface", label: "Hugging Face" },
 ];
 export const AI_SUMMARY_OPTIONS: SelectOption<AISummaryProvider>[] = [
   { value: "gemini", label: "Gemini" },

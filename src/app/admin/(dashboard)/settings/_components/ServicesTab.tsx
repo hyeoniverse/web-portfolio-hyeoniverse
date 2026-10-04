@@ -23,7 +23,7 @@ import { ENV_SECTION_ID, HintLines, envKeyLine } from "./EnvKeyHint";
 import { CONTACT_KEYS } from "@/lib/contactSend";
 import { AI_PROVIDER_INFO, FATAL_LIMIT, TRANSIENT_LIMIT } from "@/lib/ai/providers";
 import { NOTIFY_EMAIL_DEFAULT, NOTIFY_EMAIL_GROUPS } from "@/lib/notificationTypes";
-import { DEFAULT_AI_MODELS, type AiModelProvider } from "@/lib/ai/models";
+import { DEFAULT_AI_MODELS, HF_LATEST, type AiModelProvider } from "@/lib/ai/models";
 import { useAiHealth, type ProviderState } from "./useAiHealth";
 import type { AiProvider } from "@/lib/ai/providers";
 import SectionHeader from "./SectionHeader";
@@ -43,14 +43,16 @@ import { fillTemplate } from "@/utils/format";
 
 
 /* 공급자별 모델 목록 — 한 번 받아 둔다(요약 · 번역 두 줄이 같은 목록을 쓴다) */
-const modelListCache = new Map<AiModelProvider, Promise<{ models: string[]; reason: string | null }>>();
+type ModelList = { models: string[]; reason: string | null; resolved: string | null };
+const modelListCache = new Map<AiModelProvider, Promise<ModelList>>();
 function loadModelList(provider: AiModelProvider) {
   let p = modelListCache.get(provider);
   if (!p) {
     p = fetch(`/api/admin/ai-models?provider=${provider}`)
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
-      .then((d: { models?: string[]; reason?: string }) => ({ models: d.models ?? [], reason: d.reason ?? null }))
-      .catch((e: Error) => ({ models: [], reason: e.message }));
+      /* resolved: 별칭이 아니라 센티널("latest")인 공급자(Hugging Face)가 지금 가리키는 실제 모델 */
+      .then((d: { models?: string[]; reason?: string; resolved?: string }) => ({ models: d.models ?? [], reason: d.reason ?? null, resolved: d.resolved ?? null }))
+      .catch((e: Error) => ({ models: [], reason: e.message, resolved: null }));
     modelListCache.set(provider, p);
   }
   return p;
@@ -60,16 +62,18 @@ function loadModelList(provider: AiModelProvider) {
  *  트리거는 테두리 없이 글과 › 만 — 바깥 상자 하나로 보인다. 목록은 그 공급자 키로 지금 부를 수 있는 모델.
  *  빈 값 = 최신 별칭. 목록을 못 받으면(키 없음 · 거절) 최신만 남고 제목에 이유를 적는다 */
 function ModelSelect({ t, provider, value, onChange }: { t: TFunction; provider: AiModelProvider; value: string; onChange: (v: string) => void }) {
-  const [list, setList] = useState<{ models: string[]; reason: string | null } | null>(null);
+  const [list, setList] = useState<ModelList | null>(null);
   useEffect(() => {
     let alive = true;
     void loadModelList(provider).then((d) => { if (alive) setList(d); });
     return () => { alive = false; };
   }, [provider]);
   const latest = DEFAULT_AI_MODELS[provider];
-  const models = (list?.models ?? []).filter((m) => m !== latest);
+  /* "latest" 가 센티널이면 지금 가리키는 모델 이름을 보여 준다(Hugging Face: Hub 인기 1위) */
+  const latestName = latest === HF_LATEST ? (list?.resolved ?? latest) : latest;
+  const models = (list?.models ?? []).filter((m) => m !== latest && m !== list?.resolved);
   const options: SelectOption<string>[] = [
-    { value: latest, label: `${latest} · ${t("admin.aiHealth.modelLatest")}` },
+    { value: latest, label: `${latestName} · ${t("admin.aiHealth.modelLatest")}` },
     /* 적어 둔 값이 목록에 없어도(은퇴한 모델 등) 고른 채로 보이게 */
     ...(value && value !== latest && !models.includes(value) ? [{ value, label: value }] : []),
     ...models.map((m) => ({ value: m, label: m })),
@@ -84,7 +88,7 @@ function ModelSelect({ t, provider, value, onChange }: { t: TFunction; provider:
         value={value || latest}
         onChange={(v) => onChange(v === latest ? "" : v)}
         options={options}
-        renderValue={(o) => (o?.value === latest ? latest : o?.label ?? latest)}
+        renderValue={(o) => (o?.value === latest ? latestName : o?.label ?? latestName)}
       />
     </span>
   );
@@ -906,6 +910,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
             t={t}
             title={t("admin.settings.aiSettings")}
             options={AI_COVER_OPTIONS}
+            innerOf={modelField}
             defaultProvider="nanobanana"
             value={config.aiCover as ProviderFallback<AICoverProvider>}
             onChange={(u) => setConfig((prev) => ({ ...prev, aiCover: u(prev.aiCover as ProviderFallback<AICoverProvider>) as typeof prev.aiCover }))}

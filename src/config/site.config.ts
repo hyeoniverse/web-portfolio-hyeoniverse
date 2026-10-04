@@ -689,10 +689,10 @@ export const siteConfig = {
   // ---------------------------------------------------------------------------
   // provider: "nanobanana" | "huggingface"
   //
-  // NanoBanana (Gemini 2.5 Flash):
+  // NanoBanana (nanobananaapi.ai — 모델은 아래 aiModels.nanobanana):
   //   NANOBANANA_API_KEY=your_api_key  (https://nanobananaapi.ai/api-key)
   //
-  // Hugging Face (FLUX.1-schnell 등):
+  // Hugging Face (Inference Providers — 모델은 아래 aiModels.huggingface):
   //   HUGGINGFACE_API_KEY=your_token  (https://huggingface.co/settings/tokens)
   // ---------------------------------------------------------------------------
   aiCover: {
@@ -738,6 +738,10 @@ export const siteConfig = {
     gemini: "",
     openai: "",
     claude: "",
+    // Hugging Face: 비우면 "latest" = Hub 에서 지금 돌릴 수 있는 text-to-image 인기 1위(매시간 다시 확인)
+    huggingface: "",
+    // NanoBanana: nanobanana-2(최신) · nanobanana-pro · nanobanana(원본). 엔드포인트가 곧 모델
+    nanobanana: "",
   },
 
   // ---------------------------------------------------------------------------
