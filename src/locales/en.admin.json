@@ -1979,6 +1979,8 @@
     },
     "aiHealth": {
       "title": "AI & external service status",
+      "detailShow": "Details",
+      "detailHide": "Hide details",
       "model": "Model",
       "panelOpen": "Expand",
       "panelClose": "Collapse",
