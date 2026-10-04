@@ -246,7 +246,7 @@
 
 ## `src/styles/tokens/_shadow.css`
 
-토큰 15개
+토큰 16개
 
 | 토큰 | 값 |
 |---|---|
@@ -257,6 +257,7 @@
 | `--shadow-glow` | `0 0 12px color-mix(in oklch, var(--bg-accent-solid) 40%, transparent)` |
 | `--text-shadow-subtle` | `0 1px 3px color-mix(in oklch, var(--text-black) 40%, transparent)` |
 | `--text-shadow-strong` | `0 2px 8px color-mix(in oklch, var(--text-black) 60%, transparent)` |
+| `--text-shadow-highlight` | `0 -1px 2px color-mix(in oklch, var(--text-white) 60%, transparent)` |
 | `--blur-2` | `blur(2px)` |
 | `--blur-4` | `blur(4px)` |
 | `--blur-8` | `blur(8px)` |
