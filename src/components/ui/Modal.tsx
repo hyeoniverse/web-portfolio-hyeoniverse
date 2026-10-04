@@ -12,7 +12,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useSoundManager } from "@/hooks/useSoundManager";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useLanguage } from "@/providers/LanguageProvider";
-import { showModal } from "@/lib/topLayer";
+import { registerModalHost, showModal } from "@/lib/topLayer";
 
 /** Modal footer slot — modal body 가 createPortal 로 footer 영역에 렌더하기 위한 ref.
  *  body 와 footer 가 같은 React tree 안에 있어 state 공유 가능. */
@@ -58,10 +58,15 @@ export default function Modal() {
      body 대신 이 layer 로 portal → 모달 stacking context 안에 쌓임(전역 z 불필요). footerEls 와 동일 패턴. */
   const [containerEls, setContainerEls] = useState<Record<string, HTMLDivElement | null>>({});
   const containerRefSettersRef = useRef<Map<string, (el: HTMLDivElement | null) => void>>(new Map());
+  /* 커서처럼 top layer 에 못 올리는 것이 맨 위 모달 안으로 들어올 수 있게 층을 알린다(lib/topLayer) */
+  const unregisterHostRef = useRef<Map<string, () => void>>(new Map());
   const getContainerRefSetter = useCallback((id: string) => {
     let setter = containerRefSettersRef.current.get(id);
     if (!setter) {
       setter = (el) => {
+        unregisterHostRef.current.get(id)?.();
+        unregisterHostRef.current.delete(id);
+        if (el) unregisterHostRef.current.set(id, registerModalHost(el));
         setContainerEls((prev) => {
           if (prev[id] === el) return prev;
           if (el === null) {

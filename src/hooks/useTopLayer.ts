@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useRef, type Ref } from "react";
+import { useSyncRef } from "@/hooks/useSyncRef";
 import { keepOnTop, showModal, showPopover } from "@/lib/topLayer";
 
 function assign<T>(ref: Ref<T> | undefined, value: T | null) {
@@ -16,7 +17,7 @@ function assign<T>(ref: Ref<T> | undefined, value: T | null) {
  */
 export function usePopoverRef<T extends HTMLElement>(forward?: Ref<T>) {
   const forwardRef = useRef(forward);
-  forwardRef.current = forward;
+  useSyncRef(forwardRef, forward);
   return useCallback((el: T | null) => {
     assign(forwardRef.current, el);
     if (el) showPopover(el);
@@ -26,7 +27,7 @@ export function usePopoverRef<T extends HTMLElement>(forward?: Ref<T>) {
 /** `<dialog>` 를 붙는 순간 `showModal()` 하는 콜백 ref */
 export function useDialogRef(forward?: Ref<HTMLDialogElement>) {
   const forwardRef = useRef(forward);
-  forwardRef.current = forward;
+  useSyncRef(forwardRef, forward);
   return useCallback((el: HTMLDialogElement | null) => {
     assign(forwardRef.current, el);
     if (el) showModal(el);
@@ -36,7 +37,7 @@ export function useDialogRef(forward?: Ref<HTMLDialogElement>) {
 /** 늘 맨 위여야 하는 것(커서 · 로딩 · 페이지 전환)의 콜백 ref — 등록하고, 떨어지면 해제한다 */
 export function useKeepOnTopRef<T extends HTMLElement>(priority: number, forward?: Ref<T>) {
   const forwardRef = useRef(forward);
-  forwardRef.current = forward;
+  useSyncRef(forwardRef, forward);
   const release = useRef<(() => void) | null>(null);
   return useCallback(
     (el: T | null) => {
