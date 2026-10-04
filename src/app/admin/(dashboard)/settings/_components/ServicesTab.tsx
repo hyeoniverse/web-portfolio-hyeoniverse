@@ -56,26 +56,43 @@ function loadModelList(provider: AiModelProvider) {
   return p;
 }
 
-/** 모델 셀렉트 — 순서 줄 상자 안. 그 공급자 키로 지금 부를 수 있는 모델을 받아 고른다(직접 적지 않는다).
- *  맨 위 "최신 · 별칭" 이 기본(빈 값). 목록을 못 받으면(키 없음 · 거절) 최신만 남고 제목에 이유를 적는다 */
+/** 모델 콤보박스 — 순서 줄 상자 안, 공급자 이름 자리(모델 이름에 공급자가 들어 있어 이름을 또 쓰지 않는다).
+ *  그 공급자 키로 지금 부를 수 있는 모델 목록에서 고르거나 적어서 거른다. 빈 값 = 최신 별칭.
+ *  목록을 못 받으면(키 없음 · 거절) 최신만 남고 제목에 이유를 적는다 */
 function ModelSelect({ t, provider, value, onChange }: { t: TFunction; provider: AiModelProvider; value: string; onChange: (v: string) => void }) {
   const [list, setList] = useState<{ models: string[]; reason: string | null } | null>(null);
+  const [draft, setDraft] = useState<string | null>(null);
   useEffect(() => {
     let alive = true;
     void loadModelList(provider).then((d) => { if (alive) setList(d); });
     return () => { alive = false; };
   }, [provider]);
-  const models = list?.models ?? [];
+  const latest = DEFAULT_AI_MODELS[provider];
+  const models = (list?.models ?? []).filter((m) => m !== latest);
   const options: SelectOption<string>[] = [
-    { value: "", label: `${t("admin.aiHealth.modelLatest")} · ${DEFAULT_AI_MODELS[provider]}` },
+    { value: latest, label: `${latest} · ${t("admin.aiHealth.modelLatest")}` },
     /* 적어 둔 값이 목록에 없어도(은퇴한 모델 등) 고른 채로 보이게 */
-    ...(value && !models.includes(value) ? [{ value, label: value }] : []),
+    ...(value && value !== latest && !models.includes(value) ? [{ value, label: value }] : []),
     ...models.map((m) => ({ value: m, label: m })),
   ];
+  const current = value || latest;
+  const pick = (v: string) => { setDraft(null); onChange(v === latest ? "" : v); };
   const reason = list?.reason === "nokey" ? t("admin.aiHealth.stateNoKey") : list?.reason ? fillTemplate(t("admin.aiHealth.modelListFailed"), { reason: list.reason }) : "";
   return (
     <span className={styles.modelSelect} title={reason || t("admin.settings.aiModelsHint")} onPointerDown={(e) => e.stopPropagation()}>
-      <Select size="sm" value={value} options={options} onChange={(v) => onChange(v)} />
+      <Select
+        combobox
+        size="sm"
+        width="full"
+        value={current}
+        inputValue={draft ?? current}
+        onInputChange={setDraft}
+        onChange={pick}
+        onAdd={(v) => { if (options.some((o) => o.value === v)) pick(v); else setDraft(null); }}
+        /* 지금 값이 입력칸에 있으니 그걸로 거르면 한 줄만 남는다 — 목록은 늘 전부 */
+        filterByInput={false}
+        options={options}
+      />
     </span>
   );
 }
