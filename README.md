@@ -84,51 +84,59 @@ Plate.js 로 만든 편집기입니다. 위 툴바는 작용 범위별로 묶여
 
 ### 관리자 · CMS
 
-> 아래 그림은 `npx tsx scripts/screenshots-cms.ts` 로 찍습니다(로그인 세션 필요 — [scripts/SCREENSHOTS.md](./scripts/SCREENSHOTS.md)). 연속 동작은 같은 이름의 `.webm`(ffmpeg 가 있으면 `.gif`)으로도 남습니다.
+> 아래 그림은 `npx tsx scripts/screenshots-cms.ts` 로 찍습니다(로그인 세션 필요 — [scripts/SCREENSHOTS.md](./scripts/SCREENSHOTS.md)). 연속 동작(재생 · 미리 듣기 · 녹음 편집 · PPTX 변환 · 번역)은 `.gif` 영상으로도 남겨 두었고, 그림 아래 **▶ 영상** 링크로 엽니다.
 
 #### 발표 갤러리와 음성
 
-작업물 상세의 슬라이드 갤러리는 장마다 **음성과 자막**을 붙일 수 있습니다. 음성은 미리 만든 파일(TTS · 녹음)을 먼저 틀고, 없으면 대본을 브라우저 음성으로 읽고, 둘 다 없으면 4초 뒤 넘어갑니다. 자막은 대본에서 글자 비율로 잘라 음성에 맞춰 나옵니다. 브라우저가 소리를 막으면 "음성과 함께 보기 / 음성 없이 보기"를 먼저 묻습니다.
+작업물 상세의 슬라이드 갤러리는 장마다 **음성과 자막**을 붙일 수 있습니다. 음성은 미리 만든 파일(TTS · 녹음)을 먼저 틀고, 없으면 대본을 브라우저 음성으로 읽고, 둘 다 없으면 4초 뒤 넘어갑니다. 자막은 대본에서 글자 비율로 잘라 음성에 맞춰 나오고, 아래 진행 막대는 장마다 한 칸씩 채워집니다. 브라우저가 소리를 막으면 "음성과 함께 보기 / 음성 없이 보기"를 먼저 묻습니다.
 
 <img src="public/images/screenshots/cms/01-gallery-captions-light.png" alt="작업물 상세 — 갤러리 재생 중, 자막 켜짐" width="100%" />
 
-관리자 작업물 편집기의 **갤러리 음성 편집기**에서 장마다 대본을 쓰고 목소리를 골라 음성을 만듭니다. 긴 대본은 600자 안팎으로 잘라 만든 뒤 하나로 합치고, 고른 공급자가 실패하면 설정의 대체 순서(Fish Audio → Google Cloud TTS → Edge)대로 같은 성별 목소리로 넘어갑니다. 미리 들을 때는 대본이 **가사처럼** 글자 단위로 채워지고, 낱말을 누르면 그 자리로 건너뜁니다.
+<sub>▶ 영상: [음성 · 자막과 함께 다음 장으로 넘어가는 모습](public/images/screenshots/cms/01-gallery-playing-light.gif)</sub>
+
+관리자 작업물 편집기의 **갤러리 음성 편집기**는 작업대(왼쪽 슬라이드 · 오른쪽 대본)와 아래 썸네일 줄로 되어 있습니다. 썸네일을 누르면 그 장이 작업대에 올라오고, 음성이 있는 장은 스피커, 대본만 있는 장은 글줄 표시가 붙습니다. 조작 막대에는 장 이동, 음성 이력, 녹음하기, 녹음 올리기, 음성 지우기, 대본 한꺼번에 넣기, 대본 번역, 읽기 사전이 있고, 오른쪽 끝에서 목소리(공급자 · 성별 · 톤)를 고른 뒤 **음성 만들기**를 누릅니다. 긴 대본은 600자 안팎으로 잘라 만든 뒤 하나로 합치고, 고른 공급자가 실패하면 설정의 대체 순서(Fish Audio → Google Cloud TTS → Edge)대로 같은 성별 목소리로 넘어갑니다. 미리 들을 때는 대본이 **가사처럼** 글자 단위로 채워지고, 낱말을 누르면 그 자리로 건너뜁니다.
 
 | 대본 · 목소리 · 음성 만들기 | 미리 듣기 — 가사처럼 강조 |
 |:---:|:---:|
 | <img src="public/images/screenshots/cms/02-narration-editor-light.png" alt="갤러리 음성 편집기" width="100%" /> | <img src="public/images/screenshots/cms/03-narration-preview-light.png" alt="미리 듣기 — 대본 강조" width="100%" /> |
 
-**읽기 사전**은 `?all=true → 올 트루 조건` 처럼 대본 표기와 읽을 말을 짝지어 둡니다. 음성을 만들 때만 가장 긴 표기부터 바꿔 읽고, 자막은 원래 표기를 그대로 둡니다. 한국어 · 영어 대본에 사전이 따로 있고, 대본 안의 `[표기|읽을 말]` 이 사전보다 먼저입니다.
+<sub>▶ 영상: [미리 듣기 — 재생을 따라 대본이 채워지는 모습](public/images/screenshots/cms/03-narration-preview-light.gif)</sub>
 
-**녹음 파형 편집기**는 마이크로 녹음한 뒤 파형을 끌어 구간을 고르고, 나누기 · 잘라내기 · 붙이기 · 앞뒤 무음 자르기로 클립을 다듭니다. 클립은 끌어서 순서를 바꾸고, 다른 장에 붙일 수도 있습니다. 완료하면 WAV 로 올라가 그 장의 음성이 됩니다(최대 6분).
+**읽기 사전**은 `?all=true → 올 트루 조건` 처럼 대본 표기와 읽을 말을 짝지어 둡니다. 음성을 만들 때만 가장 긴 표기부터 바꿔 읽고, 자막은 원래 표기를 그대로 둡니다. 한국어 · 영어 대본에 사전이 따로 있고, 대본 안의 `[표기|읽을 말]` 이 사전보다 먼저입니다. 여러 줄을 `표기 = 읽을 말` 꼴로 붙여 넣어 한 번에 넣을 수도 있습니다.
+
+**녹음 파형 편집기**는 마이크로 녹음한 뒤 파형을 눌러 커서를 두거나 끌어 구간을 고르고, 나누기 · 잘라내기 · 복사 · 붙여넣기 · 지우기 · 선택만 남기기 · 앞뒤 무음 자르기로 클립을 다듭니다(되돌리기 · 다시 하기 포함). 클립은 끌어서 순서를 바꾸고, 다른 장에 붙일 수도 있습니다. 완료하면 WAV 로 올라가 그 장의 음성이 됩니다(최대 6분).
 
 | 읽기 사전 | 녹음 편집 — 구간 선택, 클립 나누기 |
 |:---:|:---:|
 | <img src="public/images/screenshots/cms/04-lexicon-light.png" alt="읽기 사전" width="100%" /> | <img src="public/images/screenshots/cms/05-recording-editor-light.png" alt="녹음 파형 편집기" width="100%" /> |
 
-**PPTX 를 갤러리에 끌어 놓으면** 브라우저 안에서 장마다 그림(JPEG, 최대 1600px)으로 그려 올리고, 각 장의 **발표자 노트는 그 장의 대본**으로 들어갑니다. PDF 도 같은 길로 들어옵니다.
+<sub>▶ 영상: [녹음 → 구간 선택 → 나누기까지](public/images/screenshots/cms/05-recording-split-light.gif)</sub>
+
+**PPTX 를 갤러리에 끌어 놓으면** 브라우저 안에서 장마다 그림(JPEG, 최대 1600px)으로 그려 올리고, 각 장의 **발표자 노트는 그 장의 대본**으로 들어갑니다. 갤러리 제목 줄에 "파일 이름 — n/N쪽 그리는 중" 진행이 보이고, 끝나면 썸네일마다 대본 표시가 붙습니다. PDF 도 같은 길로 들어옵니다.
 
 | 변환 중 — "n/N쪽 그리는 중" | 끝난 뒤 — 노트가 대본으로 들어간 장 |
 |:---:|:---:|
 | <img src="public/images/screenshots/cms/06-pptx-progress-light.png" alt="PPTX 변환 진행" width="100%" /> | <img src="public/images/screenshots/cms/07-pptx-thumbnails-light.png" alt="변환이 끝난 갤러리 썸네일" width="100%" /> |
 
+<sub>▶ 영상: [PPTX 를 떨어뜨린 뒤 장마다 그려져 들어오는 모습](public/images/screenshots/cms/06-pptx-import-light.gif)</sub>
+
 #### 자동 번역과 AI 요약
 
-편집기 위쪽의 KO/EN 스위치를 **EN 으로 바꾸면** 원문이 있고 대상 칸이 모두 비어 있을 때 제목 · 요약 · 본문 · 갤러리 대본까지 한 번에 채웁니다. 결과는 "자동 번역된 내용입니다. 검토 후 수정하세요." 띠와 함께 들어오고, 필드별로 다시 번역할 수 있습니다. 공급자는 **설정 › 서비스**에서 기능마다(번역 · 요약 · TTS · AI 커버) 기본 공급자와 대체 순서를 정하고, 거듭 실패한 공급자는 상태 패널이 잠시 꺼 둡니다.
+편집기 위쪽의 KO/EN 스위치를 **EN 으로 바꾸면** 원문이 있고 영어 칸이 모두 비어 있을 때 제목 · 부제목 · 설명 · 본문 · 갤러리 대본까지 한 번에 채웁니다. 영어 칸이 일부 차 있으면 스위치 옆 **재번역** 단추에서 범위(전체 · 부제목 · 설명 · 본문 · 갤러리 대본)를 골라 다시 받습니다. 번역은 폼에만 들어오고 저장을 눌러야 남습니다. 공급자는 **설정 › 서비스**에서 기능마다(번역 · AI 요약 · TTS · AI 커버) 기본 공급자와 대체 순서를 정하고, 같은 원인으로 거듭 실패한 공급자는 상태 패널이 잠시 꺼 둡니다(아래 그림의 "실패 중 · 꺼짐" 배지).
 
-| 편집기 — EN 으로 바꿔 번역이 채워짐 | 설정 › 서비스 — 공급자와 대체 순서 |
+| 편집기 — 재번역 › 전체로 영어 칸이 채워진 뒤 | 설정 › 서비스 — 공급자와 대체 순서 |
 |:---:|:---:|
 | <img src="public/images/screenshots/cms/08-translate-editor-light.png" alt="편집기 자동 번역" width="100%" /> | <img src="public/images/screenshots/cms/09-settings-services-light.png" alt="설정 서비스 탭" width="100%" /> |
 
-공개 화면에서는 보는 언어의 본문이 없으면 **번역 배너**가 뜨고, 단추 하나로 그 자리에서 AI 번역을 받아 봅니다. 글 상세 위쪽의 **AI 요약** 상자는 발행할 때 만든 요약을 펼쳐 보여 주고, 접을 수 있습니다.
+<sub>▶ 영상: ["번역 중…" 띠가 뜨고 영어 칸이 채워지는 모습](public/images/screenshots/cms/08-translate-editor-light.gif)</sub>
 
-| 번역 배너 | AI 요약 |
-|:---:|:---:|
-| <img src="public/images/screenshots/cms/10-translate-banner-light.png" alt="번역 배너" width="100%" /> | <img src="public/images/screenshots/cms/11-ai-summary-light.png" alt="AI 요약 상자" width="100%" /> |
+공개 화면에서는 보는 언어의 본문이 없으면 **번역 배너**가 뜨고, 단추 하나로 그 자리에서 AI 번역을 받아 봅니다(글 · 작업물 상세 공통). 상세 위쪽의 **AI 요약** 상자는 발행할 때 만든 한국어 · 영어 요약을 보는 언어로 펼쳐 보여 주고, 접을 수 있습니다.
+
+<img src="public/images/screenshots/cms/10-translate-banner-light.png" alt="번역 배너 — 영어 본문이 없는 작업물을 EN 으로 볼 때" width="100%" />
 
 #### 테마
 
-**설정 › 외관 › 테마 색상**에서 강조색과 라이트 · 다크의 배경 · 글자색 다섯을 정합니다. 프리셋 17종(Default · Ruby · Meadow · Coral · Azure · Sand · Harvest · Honey · Forest · Rosewood · Dusk · Arctic · Baltic · Sorbet · Twilight · Tropica · Petal)은 강조색끼리 ΔE 20 이상 떨어뜨려 두었고, 고르면 **대비 점검(WCAG)** 표가 라이트 · 다크에서 본문 · 흐린 글자 · 강조 링크 · 버튼 글자의 대비를 바로 셉니다. 강조색이 글자로 쓰일 때는 사이트가 명도만 옮겨 4.5:1 을 맞춥니다.
+**설정 › 외관 › 테마 색상**에서 강조색과 라이트 · 다크의 배경 · 글자색 다섯을 정합니다. 프리셋 18종(Default · Ruby · Meadow · Coral · Azure · Sand · Harvest · Honey · Forest · Rosewood · Dusk · Arctic · Baltic · Sorbet · Twilight · Tropica · Petal · Slate)은 강조색끼리 ΔE 20 이상 떨어뜨려 두었고, 지금 고른 다섯 색은 **+** 로 내 프리셋으로 저장해 둘 수 있습니다. 색을 고르면 **대비 점검(WCAG)** 표가 라이트 · 다크에서 본문 · 흐린 글자 · 강조 링크 · 강조색 그래픽 · 버튼 글자의 대비와 링크↔본문 색 차이를 바로 셉니다. 강조색이 글자로 쓰일 때는 사이트가 명도만 옮겨 4.5:1 을 맞추고, 표에는 "자동 보정"으로 표시됩니다.
 
 | 프리셋 목록 | 대비 점검 |
 |:---:|:---:|
@@ -148,11 +156,11 @@ Plate.js 로 만든 편집기입니다. 위 툴바는 작용 범위별로 묶여
 
 #### 글과 작업물 잇기 · SEO 점검
 
-작업물에는 관련 글 · 시리즈를, 글에는 관련 프로젝트를 검색해 붙입니다. 칩을 끌어 순서를 바꾸고, 공개 상세의 정보 칸에 그대로 나옵니다. 편집기 오른쪽 아래 **SEO 점검** 알약은 제목 · 슬러그 · 요약(30자 이상) · 커버 · 카테고리 · 태그 여섯을 세고, 항목을 누르면 그 칸으로 데려가 깜빡여 줍니다.
+작업물에는 관련 글 · 시리즈를, 글에는 관련 프로젝트를 검색해 붙입니다. 목록에는 번호 · 썸네일 · 연도가 함께 보이고 미발행 항목은 Draft 로 표시됩니다. 고른 칩은 끌어 순서를 바꾸고, 공개 상세의 정보 칸에 그대로 나옵니다. 편집기 오른쪽 아래 **SEO 점검** 알약은 제목 · 슬러그 · 요약(30자 이상) · 커버 · 카테고리 · 태그 여섯을 세어 "5/6" 처럼 보여 주고, 펼치면 보완할 항목과 완료한 항목이 나뉘어 나오며 항목을 누르면 그 칸으로 데려가 깜빡여 줍니다.
 
-| 관련 글 연결 | SEO 점검 |
+| 관련 프로젝트 연결 — 글 편집기 | SEO 점검 |
 |:---:|:---:|
-| <img src="public/images/screenshots/cms/15-relation-picker-light.png" alt="관련 글 고르기" width="100%" /> | <img src="public/images/screenshots/cms/16-seo-checklist-light.png" alt="SEO 점검 패널" width="100%" /> |
+| <img src="public/images/screenshots/cms/15-relation-picker-light.png" alt="관련 프로젝트 고르기" width="100%" /> | <img src="public/images/screenshots/cms/16-seo-checklist-light.png" alt="SEO 점검 패널" width="100%" /> |
 
 ---
 
