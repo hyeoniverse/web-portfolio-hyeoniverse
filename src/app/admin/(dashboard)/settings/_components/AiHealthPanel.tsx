@@ -6,7 +6,7 @@
    탭의 "저장 / 되돌리기"와 상관없이 바로 반영된다.
    머리(제목 · 설명 · 저장)는 부모가 그린다 — 설정 › 서비스의 "AI · 외부 서비스" 섹션, 서비스 호출 기록 페이지. */
 import { useState } from "react";
-import { ChevronDown, Copy, ExternalLink, History, RotateCcw } from "@/components/icons";
+import { ChevronDown, ChevronRight, Copy, ExternalLink, History, RotateCcw } from "@/components/icons";
 
 import { useLanguage } from "@/providers/LanguageProvider";
 import Button from "@/components/ui/Button";
@@ -172,12 +172,13 @@ export default function AiHealthPanel({ health }: { health: ReturnType<typeof us
                           {info.console && (
                             <Button variant="ghost" size="sm" shape="circle" href={info.console} external aria-label={th("console")} title={th("console")} soundDisabled icon={<ExternalLink size={14} strokeWidth={2} />} />
                           )}
-                          <Button variant="ghost" size="sm" shape="circle" onClick={() => setOpen((o) => ({ ...o, [p]: !isOpen }))} aria-expanded={isOpen} aria-label={th(isOpen ? "detailHide" : "detailShow")} title={th(isOpen ? "detailHide" : "detailShow")} soundDisabled icon={<ChevronDown size={14} strokeWidth={2} className={`${styles.rawChev} ${isOpen ? styles.rawChevOpen : ""}`} />} />
+                          <Button variant="ghost" size="sm" shape="circle" onClick={() => setOpen((o) => ({ ...o, [p]: !isOpen }))} aria-expanded={isOpen} aria-label={th(isOpen ? "detailHide" : "detailShow")} title={th(isOpen ? "detailHide" : "detailShow")} soundDisabled icon={<ChevronRight size={14} strokeWidth={2} className={`${styles.detailChev} ${isOpen ? styles.detailChevOpen : ""}`} />} />
                         </span>
                       </div>
 
-                      {isOpen && (
-                        <div className={styles.detail}>
+                      {/* 상세 — 접힌 채로 그려 두고 grid 0fr→1fr 로 펼친다 */}
+                      <div className={styles.detailWrap} data-open={isOpen ? "" : undefined} aria-hidden={!isOpen || undefined}>
+                        <div className={styles.detail} inert={!isOpen || undefined}>
                           {/* 원인과 고칠 방법 — 실패가 남아 있을 때만 */}
                           {(off || failing) && kind && (
                             <div className={styles.problem}>
@@ -190,7 +191,7 @@ export default function AiHealthPanel({ health }: { health: ReturnType<typeof us
                           )}
                           <Usage provider={p} usage={u} deepl={p === "deepl" ? data.deepl : null} now={data.loadedAt} nf={nf} th={th} />
                         </div>
-                      )}
+                      </div>
                     </li>
                   );
                 })}
