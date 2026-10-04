@@ -4,14 +4,14 @@
   position: fixed;
   top: 0;
   left: 0;
-  z-index: var(--z-index-cursor); /* 커서는 top layer 에 못 올린다(섞임, 3.10-1 예외) — 페이지 · 모달 portal 층 안에서의 층. 12-2 때 토큰 정리 */
+  z-index: var(--z-index-cursor); /* top layer 에 올라오기 전 · top layer 를 모르는 브라우저용. 12-2 때 토큰 정리 */
   font: var(--font-body-sm);
   font-weight: var(--font-weight-bold);
   opacity: 0;
   transition: opacity var(--duration-base) var(--ease-standard);
   pointer-events: none;
   will-change: transform;
-  mix-blend-mode: difference;
+  mix-blend-mode: difference; /* top layer 요소 자신에 — 자식에 걸면 안에서만 섞여 맨 색이 나온다(3.10-1) */
 }
 
 .visible {

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
-import { getTopModalHost, subscribeModalHost } from "@/lib/topLayer";
+import { useKeepOnTopRef } from "@/hooks/useTopLayer";
 import { ZoomInIcon } from "@/components/icons";
 import clsx from "clsx";
 import { useIsMobile } from "@/hooks/useIsMobile";
@@ -74,10 +74,8 @@ export default function CursorTrail() {
   const innerSizeRef = useRef({ w: 20, h: 20 });
   /* 전체화면 요소가 바뀌면 다시 그린다(그 안으로 옮겨 그리려고) */
   const fsHost = useSyncExternalStore(subscribeFullscreen, fullscreenHost, noHost);
-  /* 커서는 top layer 에 올리지 않는다(3.10-1 예외) — mix-blend-mode: difference 로 뒤 화면과 섞이는데, top layer 는
-     따로 그려져 섞일 것이 없어 맨 색이 그대로 보인다. 대신 모달(<dialog>, top layer)이 열려 있으면 맨 위 모달의
-     portal 층 안으로 옮겨 그린다 — 그 안에서는 스크림 · 패널과 섞이고 모달 위에 보인다(전체화면 fsHost 와 같은 꼴) */
-  const dialogHost = useSyncExternalStore(subscribeModalHost, getTopModalHost, noHost);
+  /* 늘 맨 위(3.10-1) — 모달 · 팝오버가 뜰 때마다 다시 띄워 그 위로 올린다 */
+  const topCursorRef = useKeepOnTopRef<HTMLDivElement>(3, cursorRef);
 
   useEffect(() => {
     if (isTouch) return;
@@ -358,9 +356,9 @@ export default function CursorTrail() {
       document.removeEventListener("drop", onDragEnd, true);
       ro?.disconnect();
     };
-    /* fsHost · dialogHost — 전체화면 · 모달에 들어가고 나올 때 커서 노드가 새로 그려진다(포털이 옮겨 붙는다).
+    /* fsHost — 전체화면에 들어가고 나올 때 커서 노드가 새로 그려진다(포털이 옮겨 붙는다).
        그때 다시 걸지 않으면 이 효과가 붙잡고 있던 옛 노드에만 좌표를 써서 커서가 0,0 에 멈춘다 */
-  }, [isTouch, fsHost, dialogHost]);
+  }, [isTouch, fsHost]);
 
   /* 현재 cursor 상태에 맞는 라벨. 상태가 없으면 빈 문자열. */
   /* 손 모양 커서는 글자를 안 붙인다 — 손 그림 자체가 무엇을 할 수 있는지 말한다. */
@@ -398,7 +396,7 @@ export default function CursorTrail() {
 
   const cursor = (
     <div
-      ref={cursorRef}
+      ref={topCursorRef}
       className={clsx(
         styles.cursor,
         isVisible ? styles.visible : styles.hidden,
@@ -417,7 +415,6 @@ export default function CursorTrail() {
     </div>
   );
 
-  /* 전체화면 · 모달이 열려 있을 때만 그 안으로 — 평소에는 있던 자리에 그대로 그린다 */
-  const host = fsHost ?? dialogHost;
-  return host ? createPortal(cursor, host) : cursor;
+  /* 전체화면일 때만 그 안으로 — 평소에는 있던 자리에 그대로 그린다 */
+  return fsHost ? createPortal(cursor, fsHost) : cursor;
 }

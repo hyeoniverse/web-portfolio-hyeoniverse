@@ -541,11 +541,11 @@ Primer(24 · 28 · 32 · 40 · 48)처럼 24 에서 시작한다 — 가장 작�
   - 팝오버 · 툴팁 · 셀렉트 목록 · 날짜/색/이모지 선택기는 Popover API(`popover` 속성).
   - top layer 는 z-index 와 상관없이 맨 위다. "모달 안의 셀렉트가 모달 뒤로 숨는" 문제가 구조적으로 생기지 않는다.
   - top layer 는 z-index 를 이긴다. 그래서 모달보다 위에 있어야 하는 것(로딩 화면 · 페이지 전환)도 top layer 에 올리고, 나중에 연 것이 위로 가므로 무엇이 뜰 때마다 다시 연다.
-    **커스텀 커서는 예외다** — `mix-blend-mode: difference` 로 뒤 화면과 섞이는데 top layer 는 따로 그려져 섞일 것이 없다. 커서는 페이지에 두고, 모달이 열리면 맨 위 모달의 portal 층 안으로 옮겨 그린다(전체화면과 같은 꼴).
+    커스텀 커서도 top layer 다(우선순위 3, 맨 위) — `mix-blend-mode: difference` 는 top layer 요소 자신에 걸면 뒤 화면 · 팝오버 · 모달과 그대로 섞인다(Chromium 확인). 섞임을 top layer 요소의 **자식**에 걸면 그 요소 안에서만 섞여 맨 색이 나온다.
   - 떠 있는 요소의 위치는 아직 JS 가 잡는다(1-5, anchor positioning 은 아직 안 씀).
-  - 띄우는 쪽은 `src/lib/topLayer.ts` · `hooks/useTopLayer.ts` 를 쓴다 — `usePopoverRef`(붙는 순간 `showPopover`) · `useDialogRef`(`showModal`) · `useKeepOnTopRef`(늘 맨 위: 로딩 2 · 페이지 전환 1 — 무엇이든 새로 뜰 때마다 닫았다 다시 열어 맨 위로). 커서는 섞임 때문에 top layer 에 못 올려 `registerModalHost` 로 맨 위 모달 안에 들어간다. UA 기본값은 `globals/_top-layer.css` 가 비운다.
+  - 띄우는 쪽은 `src/lib/topLayer.ts` · `hooks/useTopLayer.ts` 를 쓴다 — `usePopoverRef`(붙는 순간 `showPopover`) · `useDialogRef`(`showModal`) · `useKeepOnTopRef`(늘 맨 위: 커서 3 · 로딩 2 · 페이지 전환 1 — 무엇이든 새로 뜰 때마다 닫았다 다시 열어 맨 위로). UA 기본값은 `globals/_top-layer.css` 가 비운다.
   - 모달이 열려 있으면 그 밖은 inert 다. 모달 안에서 연 팝오버 · 셀렉트 · 툴팁은 `PortalContainerContext` 로 모달 DOM 안에 portal 해야 눌린다 — portal 은 그래서 남는다(쌓임 때문이 아니다).
-  - — **진행 중**(D45). 12-1 완료: 공용 Modal(`<dialog>`) · Popover · Tooltip · Select · DatePicker · TimePicker · EmojiPicker · ColorPicker · SearchCapsule 과 로딩 · 페이지 전환(커서는 모달 안으로). 12-2 남음: ImageViewer · Toast · 문의 서랍 · 모바일 메뉴 · 편집기 메뉴 · 관리자 모달 등 `createPortal` 파일 40, 그 뒤 옛 z-index 토큰 삭제(3.10-2).
+  - — **진행 중**(D45). 12-1 완료: 공용 Modal(`<dialog>`) · Popover · Tooltip · Select · DatePicker · TimePicker · EmojiPicker · ColorPicker · SearchCapsule 과 커서 · 로딩 · 페이지 전환. 12-2 남음: ImageViewer · Toast · 문의 서랍 · 모바일 메뉴 · 편집기 메뉴 · 관리자 모달 등 `createPortal` 파일 40, 그 뒤 옛 z-index 토큰 삭제(3.10-2).
 - **3.10-2. 페이지에 붙어 있는 UI 의 층은 `--z-index-*` 로.** top layer 로 옮긴 뒤 남는 것은 넷이다.
 
   | 토큰 | 자리 |
