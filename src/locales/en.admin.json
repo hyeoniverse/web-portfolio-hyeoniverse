@@ -912,8 +912,6 @@
       "translationEnabled": "Enable Translation",
       "aiSummaryEnabled": "Enable AI Summary",
       "translationProvider": "Provider",
-      "providerOrder": "Provider order — first is primary, then fallbacks",
-      "providerPrimary": "Primary",
       "fallbackEnabled": "Auto-switch on failure",
       "designSystem": "Design System",
       "fontHint": "Choose from presets or type a Google Fonts name in the input field. (e.g., Roboto, Nanum Gothic)",
