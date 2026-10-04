@@ -1738,7 +1738,7 @@
         "narrationBrowserShort": "대본을 브라우저가 읽음",
         "narrationGenerating": "{{done}}/{{total}}장 만드는 중",
         "narrationFallback": "{{from}} 로 만들지 못해 {{to}} 로 만들었습니다. (원인: {{reason}})",
-        "narrationPasteAll": "대본 한꺼번에 편집",
+        "narrationPasteAll": "대본 편집",
         "narrationPasteHint": "지금 대본이 장 번호 제목(## 01) 아래 들어 있습니다. 고쳐서 적용하거나, 지우고 발표 대본을 통째로 붙여 넣으면 슬라이드별로 나눠 넣습니다. 장 사이는 --- 만 있는 줄, ## 제목 줄, 빈 줄 가운데 하나로 나눠 주세요. 제목마다 번호가 있으면(## 03 요약) 순서와 상관없이 그 번호의 장에 넣고, 없으면 1장부터 차례로 넣습니다. 제목 줄은 대본에 들어가지 않습니다.",
         "narrationPastePlaceholder": "## 01 표지\n안녕하세요, 김정현입니다.\n\n## 02 요약\n이 프로젝트로 보여 드리고 싶은 세 가지는…",
         "narrationPasteEmpty": "넣을 대본이 없습니다.",

@@ -531,11 +531,12 @@
 }
 
 /* 대본 한꺼번에 넣기 창 */
+/* 머리줄(아래 16) + 스크롤 영역(위 16)이 이미 제목과 본문 사이를 띄우므로 본문은 위 여백을 두지 않는다 — ModalTemplates 의 body 와 같은 꼴 */
 .pasteModal {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-12);
-  padding: var(--modal-padding-md);
+  padding: 0 var(--spacing-20) var(--spacing-16);
 }
 
 .pasteHint {
@@ -569,7 +570,7 @@
 
 /* 읽기 사전 창 — 편집기(LexiconEditor)에 모달 안쪽 여백만 준다 */
 .lexiconModal {
-  padding: var(--modal-padding-md);
+  padding: 0 var(--spacing-20) var(--spacing-16);
 }
 
 /* 음성 이력 창 */
@@ -577,7 +578,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-12);
-  padding: var(--modal-padding-md);
+  padding: 0 var(--spacing-20) var(--spacing-16);
 }
 
 .historyList {
@@ -668,7 +669,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-20);
-  padding: var(--modal-padding-md);
+  padding: 0 var(--spacing-20) var(--spacing-16);
 }
 
 .helpSection {
