@@ -368,7 +368,7 @@ npx tsx scripts/screenshots-cms.ts --base=http://localhost:3100 \
 |---|---|
 | `--only=1,3,14` | 번호로 고른 장면만(실패하면 끝에 다시 돌릴 번호를 알려 준다) |
 | `--theme=dark` | 다크로 (기본 light) |
-| `--presets=Forest,Twilight,Arctic` | 14번 홈에 입힐 프리셋 |
+| `--presets=Arctic,Rosewood,Meadow` | 14번 홈에 입힐 프리셋. `--theme` 과 무관하게 라이트 · 다크를 각각 한 장으로 이어 붙인다(표에 세 장을 넣으면 GitHub 이 열 폭을 다르게 잡는다) |
 | `--sample-image=<png>` | 13번 "이미지에서" 에 올릴 그림(기본 `screenshots/pc/editor-color-light.png` — 색이 여럿이어야 후보가 여럿 나온다) |
 | `--post=<slug>` · `--post-untranslated=<slug>` | 11 · 10 을 글 상세로 찍을 때. 없으면 `--work-slug` 작업물로 찍는다 |
 | `--summary-file=<json>` | 11 — 작업물에 저장된 요약이 없을 때 `{ "summary_ko", "summary_en" }` 을 미리보기 폼에만 넣는다 |
@@ -391,7 +391,7 @@ cms/10-translate-banner-light.png
 cms/11-ai-summary-light.png
 cms/12-theme-presets-light.png · 12-theme-contrast-light.png
 cms/13-theme-wheel-light.png · 13-theme-from-image-light.png
-cms/14-home-forest-light.png · 14-home-twilight-light.png · 14-home-arctic-light.png
+cms/14-home-presets-light.png · 14-home-presets-dark.png   (세 프리셋을 옆으로 이어 붙인 한 장, 모드별)
 cms/15-relation-picker-light.png
 cms/16-seo-checklist-light.png
 ```
