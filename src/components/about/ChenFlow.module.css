@@ -61,7 +61,7 @@
   padding: 0 var(--spacing-8);
   border: var(--border-strong);
   /* Chen 표기의 속성은 타원 — 캡슐(알약)이 아니라 진짜 ellipse */
-  border-radius: var(--radius-control);
+  border-radius: 50%;
   background: var(--bg-primary);
   color: var(--text-secondary);
   font: var(--font-code-xs);
@@ -79,7 +79,7 @@
   position: absolute;
   inset: 4px;
   border: var(--border-strong);
-  border-radius: var(--radius-control);
+  border-radius: 50%;
 }
 
 /* 파생 속성 — 점선 타원 (원본에서 계산되는 캐시 값) */

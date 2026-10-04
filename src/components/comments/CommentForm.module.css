@@ -169,7 +169,7 @@
 /* Confirmed: 캡슐이 수정 버튼 크기 원형, 아이콘+이메일은 왼쪽에 absolute */
 .notifyCapsuleConfirmed {
   width: var(--control-height-sm);
-  border-radius: var(--radius-control);
+  border-radius: var(--radius-full);
   border-color: var(--border-color-strong);
   overflow: visible;
 }

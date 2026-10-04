@@ -417,7 +417,7 @@
   flex: 0 0 2px;
   align-self: stretch;
   margin: var(--spacing-4) 0;
-  border-radius: var(--radius-control);
+  border-radius: var(--radius-full);
   background: var(--text-accent);
 }
 .spTabName {

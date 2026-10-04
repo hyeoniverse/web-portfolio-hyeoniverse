@@ -288,7 +288,7 @@
   top: var(--spacing-2);
   right: var(--spacing-2);
   border: var(--border-light);
-  border-radius: var(--radius-control);
+  border-radius: var(--radius-full);
   background: var(--bg-primary);
   box-shadow: var(--shadow-raised);
   color: var(--text-primary);

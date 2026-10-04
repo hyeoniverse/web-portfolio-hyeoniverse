@@ -40,7 +40,7 @@
   z-index: -1;
   content: "";
   inset: -30px;
-  border-radius: var(--radius-control);
+  border-radius: var(--radius-full);
   background: var(--_color);
   filter: blur(40px);
   opacity: 0.5;
