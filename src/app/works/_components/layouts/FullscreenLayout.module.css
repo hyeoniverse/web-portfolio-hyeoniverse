@@ -317,7 +317,7 @@
 }
 
 .section:hover .title {
-  text-shadow: 0 0 60px color-mix(in oklch, var(--text-white) 20%, transparent);
+  text-shadow: var(--text-shadow-strong);
 }
 
 /* ── Subtitle ── */

@@ -164,7 +164,7 @@
 .input:-webkit-autofill:hover,
 .input:-webkit-autofill:focus,
 .input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 1000px var(--bg-white) inset !important;
+  /* 자동 완성 배경색은 아주 긴 transition 으로 바뀌지 않게 둔다(그림자로 덮지 않는다) */
   transition: background-color 5000s ease-in-out 0s;
   -webkit-text-fill-color: var(--text-black) !important;
   caret-color: var(--text-black);

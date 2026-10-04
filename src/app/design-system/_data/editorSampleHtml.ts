@@ -55,7 +55,7 @@ export function Counter({ initialCount = 0 }: { initialCount?: number }) {
 
 .card {
   border-radius: var(--card-radius);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-raised);
   transition: transform 0.2s ease;
 }
 
