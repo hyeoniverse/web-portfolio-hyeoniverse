@@ -20,6 +20,8 @@ interface ProgressiveImageProps {
   priority?: boolean;
   loading?: "eager" | "lazy";
   className?: string;
+  /** 미리보기(LQIP)와 원본을 함께 감싸는 상자의 클래스 — 둘을 한 몸으로 움직여야 할 때(패럴랙스 · 확대) 여기에 건다 */
+  wrapperClassName?: string;
   style?: React.CSSProperties;
   onError?: () => void;
 }
@@ -34,6 +36,7 @@ export default function ProgressiveImage({
   priority,
   loading,
   className,
+  wrapperClassName,
   style,
   onError,
 }: ProgressiveImageProps) {
@@ -70,7 +73,7 @@ export default function ProgressiveImage({
   }
 
   return (
-    <div className={styles.wrapper}>
+    <div className={`${styles.wrapper} ${wrapperClassName ?? ""}`}>
       {/* 플레이스홀더: LQIP 또는 shimmer — video 모드에서는 skip (placeholder 가 video 가림).
           LQIP 도 원본과 같은 때 받는다. loading 이 없으면 서버가 그린 HTML 에서 React 가 이 img 를 <head> 의 preload 로 올려,
           화면 밖 카드의 미리보기가 첫 화면 이미지와 함께 받힌다(#925) */}

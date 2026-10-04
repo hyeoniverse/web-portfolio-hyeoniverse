@@ -15,7 +15,7 @@ import styles from "./WorksFlowCard.module.css";
 export const flowCardClassNames = {
   card: styles.card,
   cardActive: styles.cardActive,
-  cardImage: styles.cardImage,
+  cardMedia: styles.cardMedia,
   cardImageWrap: styles.cardImageWrap,
   project: styles.project,
   metaCategory: styles.metaCategory,
@@ -89,6 +89,7 @@ export default function WorksFlowCard({
                 fill
                 sizes="(max-width: 768px) 100vw, 500px"
                 className={styles.cardImage}
+                wrapperClassName={styles.cardMedia}
                 priority={priority}
               />
             )}
