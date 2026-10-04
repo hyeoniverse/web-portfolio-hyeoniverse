@@ -4,8 +4,10 @@ import { requireAuth } from "@/lib/api/requireAuth";
 import { jsonError, jsonOk, jsonServerError } from "@/lib/api/response";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 import { getSecret } from "@/lib/getSecret";
-import { ProviderError, classifyFailure, filterEnabled, missingKey, providerErrorFrom, recordFailure, recordOk, toProviderError } from "@/lib/ai/health";
+import { ProviderError, classifyFailure, filterEnabled, missingKey, recordFailure, recordOk, toProviderError } from "@/lib/ai/health";
 import type { ProviderFailure } from "@/lib/ai/providers";
+import { hfModel, nanoBananaModel } from "@/lib/ai/models";
+import { InferenceClient, InferenceClientProviderApiError, InferenceClientProviderOutputError } from "@huggingface/inference";
 
 const stylePrompts: Record<string, string> = {
   abstract: "abstract art style, flowing shapes and colors",
@@ -21,26 +23,28 @@ const stylePrompts: Record<string, string> = {
 };
 
 // ── Provider: NanoBanana ──
+// 모델은 엔드포인트가 가른다(설정 › 서비스 › AI 모델): generate(원본) · generate-2(최신) · generate-pro. 결과는 셋 다 record-info 로 받는다.
+const NANOBANANA_ENDPOINT = {
+  nanobanana: { path: "generate", body: { type: "TEXTTOIAMGE", numImages: 1, image_size: "16:9" } },
+  "nanobanana-2": { path: "generate-2", body: { aspectRatio: "16:9", resolution: "2K", outputFormat: "jpg" } },
+  "nanobanana-pro": { path: "generate-pro", body: { aspectRatio: "16:9", resolution: "2K" } },
+} as const;
 
 async function generateWithNanoBanana(fullPrompt: string): Promise<ArrayBuffer> {
   const apiKey = await getSecret("NANOBANANA_API_KEY");
   if (!apiKey) throw missingKey("nanobanana", "NANOBANANA_API_KEY");
+  const ep = NANOBANANA_ENDPOINT[await nanoBananaModel()];
 
   // 1. 생성 요청
   const createRes = await fetch(
-    "https://api.nanobananaapi.ai/api/v1/nanobanana/generate",
+    `https://api.nanobananaapi.ai/api/v1/nanobanana/${ep.path}`,
     {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${apiKey}`,
       },
-      body: JSON.stringify({
-        prompt: fullPrompt,
-        type: "TEXTTOIAMGE",
-        numImages: 1,
-        image_size: "16:9",
-      }),
+      body: JSON.stringify({ prompt: fullPrompt, ...ep.body }),
     }
   );
 
@@ -92,33 +96,31 @@ async function generateWithNanoBanana(fullPrompt: string): Promise<ArrayBuffer> 
 }
 
 // ── Provider: Hugging Face ──
+// hf-inference 하나에 묶지 않는다 — FLUX 류는 이제 fal-ai · nscale 같은 외부 공급자에서만 돌아서, 클라이언트가
+// 모델의 공급자 매핑을 보고 살아 있는 쪽으로 보낸다(provider: "auto"). 모델은 설정(기본 "latest" = Hub 인기 1위).
 
 async function generateWithHuggingFace(fullPrompt: string): Promise<ArrayBuffer> {
   const apiKey = await getSecret("HUGGINGFACE_API_KEY");
   if (!apiKey) throw missingKey("huggingface", "HUGGINGFACE_API_KEY");
 
-  const model = "black-forest-labs/FLUX.1-schnell";
-
-  const res = await fetch(
-    `https://router.huggingface.co/hf-inference/models/${model}`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        inputs: fullPrompt,
-        parameters: { width: 1792, height: 1024 },
-      }),
-      signal: AbortSignal.timeout(60000),
+  const model = await hfModel();
+  const client = new InferenceClient(apiKey);
+  try {
+    const blob = await client.textToImage(
+      { model, provider: "auto", inputs: fullPrompt, parameters: { width: 1792, height: 1024 } },
+      { outputType: "blob", signal: AbortSignal.timeout(60000) },
+    );
+    return blob.arrayBuffer();
+  } catch (e) {
+    /* 공급자 응답(401 키 · 402 크레딧 · 404 모델 없음)은 상태 코드로 원인을 가른다. 본문에 토큰이 되돌아올 수 있어 앞부분만 */
+    if (e instanceof InferenceClientProviderApiError) {
+      const status = e.httpResponse.status;
+      const msg = `${model}: ${String(e.httpResponse.body ?? e.message).slice(0, 200)}`;
+      throw new ProviderError("huggingface", classifyFailure(status, msg), `${status} ${msg}`, status);
     }
-  );
-
-  /* 응답 본문에 토큰이 되돌아올 수 있다 — providerErrorFrom 이 가린 앞부분만 기록에 남긴다 */
-  if (!res.ok) throw await providerErrorFrom("huggingface", res);
-
-  return res.arrayBuffer();
+    if (e instanceof InferenceClientProviderOutputError) throw new Error(`${model}: ${e.message}`);
+    throw e;
+  }
 }
 
 // ── Route Handler ──
