@@ -20,7 +20,6 @@
   --text-shadow-subtle: 0 1px 3px color-mix(in oklch, var(--text-black) 40%, transparent); /* 명도 차이가 적은 배경 · 작은 글자 */
   --text-shadow-strong: 0 2px 8px color-mix(in oklch, var(--text-black) 60%, transparent); /* 사진 위 큰 제목 */
   --text-shadow-highlight: 0 -1px 2px color-mix(in oklch, var(--text-white) 60%, transparent); /* 양각 — 글자 위쪽에 받는 빛(메뉴 이메일 물결) */
-  --text-shadow-glow: 0 0 60px color-mix(in oklch, var(--text-white) 20%, transparent); /* 어두운 사진 위 흰 제목이 hover 에 은은히 빛남(전체화면 작업물) */
 
   /* Blur Effects */
   --blur-2: blur(2px);
