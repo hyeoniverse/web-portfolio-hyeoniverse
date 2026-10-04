@@ -156,6 +156,7 @@ async function open(page: Page, path: string, settleMs = 1500) {
     await page.locator(sel).waitFor({ state: "detached", timeout: 30_000 }).catch(() => {});
   }
   await page.evaluate(() => document.fonts.ready);
+  await maskIps(page); // 영상은 녹화 내내 상단 바가 보인다 — 열자마자 한 번, 찍기 직전에 또 한 번
   await wait(settleMs);
 }
 
@@ -166,17 +167,24 @@ async function shot(page: Page, name: string) {
   console.log(`  ✓ ${basename(file)}`);
 }
 
-/** 그림에 남을 IPv4 를 `a.b.x.x` 로 — 등록 기기 · 알림 · 로그에 방문자 · 내 IP 가 그대로 찍힌다(저장소는 공개). 트래픽 화면이 쓰는 표기와 같다 */
+/** 그림에 남을 개인 정보를 바꾼다(저장소는 공개) — IPv4 는 트래픽 화면과 같은 `a.b.x.x`, 이메일(관리자 상단 바 · 푸터)은 `admin@example.com` */
 async function maskIps(page: Page) {
   await page
     .evaluate(() => {
-      const re = /\b(\d{1,3})\.(\d{1,3})\.\d{1,3}\.\d{1,3}\b/g;
+      const ip = /\b(\d{1,3})\.(\d{1,3})\.\d{1,3}\.\d{1,3}\b/g;
+      const mail = /[\w.+-]+@[\w-]+(?:\.[\w-]+)+/g;
       const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
       let node: Node | null;
       while ((node = walker.nextNode())) {
         const text = node.nodeValue ?? "";
-        if (re.test(text)) node.nodeValue = text.replace(re, "$1.$2.x.x");
-        re.lastIndex = 0;
+        if (ip.test(text) || mail.test(text)) node.nodeValue = text.replace(ip, "$1.$2.x.x").replace(mail, "admin@example.com");
+        ip.lastIndex = 0;
+        mail.lastIndex = 0;
+      }
+      /* 입력칸 값(설정 › 계정의 현재 이메일 등)도 */
+      for (const el of Array.from(document.querySelectorAll<HTMLInputElement>("input"))) {
+        if (mail.test(el.value)) el.value = el.value.replace(mail, "admin@example.com");
+        mail.lastIndex = 0;
       }
     })
     .catch(() => {});
