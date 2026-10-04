@@ -434,7 +434,7 @@
 }
 
 .tabNavBtn:disabled {
-  opacity: 0.25;
+  opacity: var(--opacity-disabled);
 }
 
 .tabNavCounter {

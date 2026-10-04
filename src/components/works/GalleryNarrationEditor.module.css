@@ -431,7 +431,7 @@
 
 .generateItem:disabled {
   cursor: default;
-  opacity: 0.45;
+  opacity: var(--opacity-disabled);
 }
 
 /* 아이콘 칸 — 옅은 사각 바탕 안에 아이콘. 두 줄 글의 첫 줄에 맞춘다 */

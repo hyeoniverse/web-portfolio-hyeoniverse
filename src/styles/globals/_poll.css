@@ -556,7 +556,7 @@ body.poll-grabbing * {
   opacity: 0.85;
 }
 .poll-submit:disabled {
-  opacity: 0.4;
+  opacity: var(--opacity-disabled);
   cursor: default;
 }
 .poll-revote {

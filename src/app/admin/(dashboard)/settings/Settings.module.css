@@ -466,7 +466,7 @@
 }
 
 .priorityBtn:disabled {
-  opacity: 0.3;
+  opacity: var(--opacity-disabled);
 }
 
 .fields .priorityBtn:not(:disabled):hover {

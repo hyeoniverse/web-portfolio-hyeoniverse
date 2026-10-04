@@ -273,7 +273,7 @@
   background: var(--bg-accent-subtle);
   color: var(--text-accent);
 }
-.dropzone:disabled { opacity: 0.5; cursor: wait; }
+.dropzone:disabled { opacity: var(--opacity-disabled); cursor: wait; }
 .uploadHint {
   font: var(--font-body-xs);
   line-height: 1.4;

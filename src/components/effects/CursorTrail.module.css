@@ -197,7 +197,7 @@
 .disabled .cursorInner {
   width: var(--cursor-width);
   height: var(--cursor-width);
-  opacity: 0.3;
+  opacity: var(--opacity-disabled);
 }
 .disabled .cursorText {
   display: none;

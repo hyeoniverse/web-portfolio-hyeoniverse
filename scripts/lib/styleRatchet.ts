@@ -116,7 +116,8 @@ function disabledOpacity(src: Sources): Counts {
     if (!kind.has("componentCss")) continue;
     let n = 0;
     for (const m of text.matchAll(/([^{}]*)\{([^{}]*)\}/g)) {
-      if (m[1].includes("disabled")) n += m[2].match(/(?<![-\w])opacity\s*:/g)?.length ?? 0;
+      // `:not(:disabled)` 는 활성 상태의 규칙이다. 역할(var)은 세지 않고 숫자만 센다
+      if (m[1].replace(/:not\([^)]*\)/g, "").includes("disabled")) n += m[2].match(/(?<![-\w])opacity\s*:\s*(?=[\d.])/g)?.length ?? 0;
     }
     if (n) out[file] = n;
   }
@@ -233,7 +234,7 @@ export const METRICS: Metric[] = [
   { id: "border-width-number", rule: "3.6-1", what: "테두리 두께를 px 숫자로 쓴 선언", count: regex(CSS, /border(?:-(?:top|right|bottom|left|inline|block)(?:-(?:start|end))?)?(?:-width)?:\s*[\d.]+px/) },
   { id: "shadow-literal", rule: "3.7-1", what: "그림자 값을 직접 쓴 `box-shadow`", count: regex(CSS, /box-shadow:\s*(?!none|var|inherit|initial|unset)[^;]*\d+px/) },
   { id: "shadow-size-name", rule: "3.7-1", what: "그림자 크기 이름(`--shadow-xs … 2xl` 등)", count: regex(CSS_AND_CODE, /var\(--shadow-(?:xs|sm|md|lg|xl|2xl|inner|text-[\w-]+)\)/) },
-  { id: "opacity-disabled", rule: "3.8-1", what: "비활성 선택자 안의 `opacity` 숫자", count: disabledOpacity },
+  { id: "opacity-disabled", rule: "3.8-1", what: "비활성 선택자 안의 `opacity` 숫자(역할 `--opacity-disabled` 가 아닌 것)", count: disabledOpacity },
   /* 3.9 모션 */
   { id: "motion-duration-literal", rule: "3.9-1", what: "시간을 숫자로 쓴 `transition` · `animation` 선언", count: regex(CSS, /(?:transition|animation)(?:-duration|-delay)?:[^;]*\b\d*\.?\d+m?s\b/) },
   { id: "motion-cleanup", rule: "3.9-2", what: "없앨 모션 토큰(`moderate` · `slowest` · `delay-*` · `ease-in-out`)", count: regex(CSS_AND_CODE, /var\(--(?:duration-moderate|duration-slowest|delay-[a-z]+|ease-in-out)\)/) },

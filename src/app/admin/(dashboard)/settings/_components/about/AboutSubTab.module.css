@@ -74,7 +74,7 @@
   border-color: var(--text-primary);
 }
 .headBtn:disabled {
-  opacity: 0.4;
+  opacity: var(--opacity-disabled);
   cursor: default;
 }
 .headBtnPrimary {
@@ -206,7 +206,7 @@
   border-color: var(--text-primary);
 }
 .panelEditBtn:disabled {
-  opacity: 0.3;
+  opacity: var(--opacity-disabled);
   cursor: default;
 }
 

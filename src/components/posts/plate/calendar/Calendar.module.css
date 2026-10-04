@@ -1154,7 +1154,7 @@
   transition: color 0.12s ease, background-color 0.12s ease;
 }
 .navBtn:hover:not(:disabled) { color: var(--text-primary); background: var(--bg-secondary); }
-.navBtn:disabled { opacity: 0.35; cursor: default; }
+.navBtn:disabled { opacity: var(--opacity-disabled); cursor: default; }
 
 /* ── 연관 이벤트 (편집 필드) ── */
 .relField { display: flex; flex-direction: column; gap: var(--spacing-2); }

@@ -131,7 +131,7 @@
 }
 
 .mathCapsuleConfirm:disabled {
-  opacity: 0.4;
+  opacity: var(--opacity-disabled);
 }
 
 .mathPreviewError {

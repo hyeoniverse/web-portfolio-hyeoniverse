@@ -57,7 +57,7 @@
 }
 
 .input:disabled {
-  opacity: 0.5;
+  opacity: var(--opacity-disabled);
 }
 
 /* 입력 영역 묶음 — label 을 왼쪽에 둘 때(가로 폼) input+counter 를 하나의 오른쪽 컬럼으로 묶음 */

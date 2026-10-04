@@ -157,7 +157,7 @@
 }
 
 .schemeImageBtn:disabled {
-  opacity: 0.5;
+  opacity: var(--opacity-disabled);
   cursor: not-allowed;
 }
 
@@ -347,7 +347,7 @@
 }
 
 .stopAddBtn:disabled {
-  opacity: 0.4;
+  opacity: var(--opacity-disabled);
   cursor: not-allowed;
 }
 
@@ -481,7 +481,7 @@
 }
 
 .customApplyBtn:disabled {
-  opacity: 0.5;
+  opacity: var(--opacity-disabled);
   cursor: default;
 }
 
