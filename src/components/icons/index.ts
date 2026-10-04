@@ -126,6 +126,7 @@ export {
   Link,
   Link2,
   List,
+  ListX,
   ListChecks,
   ListOrdered,
   ListTodo,
