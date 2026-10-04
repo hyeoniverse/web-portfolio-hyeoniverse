@@ -361,7 +361,7 @@ npx playwright test --project=setup
 npx tsx scripts/screenshots-cms.ts --base=http://localhost:3100 \
   --work=<갤러리·대본·음성이 있는 작업물 id> --work-slug=<그 작업물 slug> \
   --draft-work=<번역·PPTX 들이기를 해 볼 초안 작업물 id> \
-  --pptx=scripts/fixtures/hyeoniverse-intro.pptx
+  --pptx=scripts/fixtures/newpick-intro.pptx
 ```
 
 | 옵션 | 뜻 |
@@ -378,7 +378,7 @@ npx tsx scripts/screenshots-cms.ts --base=http://localhost:3100 \
 출력 파일(`-light` 자리에 테마 이름):
 
 ```
-cms/01-gallery-captions-light.png      + 01-gallery-playing-light.webm / .gif
+cms/01-gallery-captions-light.png      + 01-gallery-playing-light.webm / .gif / .mp4(소리)
 cms/02-narration-editor-light.png
 cms/03-narration-preview-light.png     + 03-narration-preview-light.webm / .gif
 cms/04-lexicon-light.png
@@ -398,9 +398,10 @@ cms/16-seo-checklist-light.png
 
 서버에는 아무것도 쓰지 않습니다:
 - 저장 단추는 어디서도 누르지 않고, 편집기 자동저장(`POST /api/revisions` · 떠날 때 `sendBeacon`)은 막아 둡니다 — 캡처하려고 폼을 건드린 것이 다음 편집 때 "복원할까요" 로 나오지 않게.
-- **6 · 7(PPTX)의 업로드는 브라우저 안에서 가로채 `data:` 주소로 돌려줍니다** — Storage 에 올라가지 않습니다. 변환과 발표자 노트 → 대본 매핑은 전부 클라이언트 일이라 화면은 실제와 같습니다. `scripts/fixtures/hyeoniverse-intro.pptx` 는 사이트 스크린샷으로 만든 6장짜리 덱(장마다 발표자 노트)입니다.
+- **6 · 7(PPTX)의 업로드는 브라우저 안에서 가로채 `data:` 주소로 돌려줍니다** — Storage 에 올라가지 않습니다. 변환과 발표자 노트 → 대본 매핑은 전부 클라이언트 일이라 화면은 실제와 같습니다. `scripts/fixtures/newpick-intro.pptx` 는 `content/works/newpick.md` 의 문장과 그림으로 만든 NewPick 소개 6장(장마다 발표자 노트)입니다 — 떨어뜨리는 `--draft-work` 가 NewPick 이라 내용을 맞췄습니다. 다른 작업물에 떨어뜨릴 거면 그 작업물 내용의 덱을 쓰세요.
 - 2 · 3 은 이미 만든 음성을 재생만 하고(3 은 그 장에 음성이 있어야 합니다), 8 은 번역 API 를 부르되 폼에만 넣습니다. 8 은 KO/EN 전환으로 번역이 돌지 않으면(영어 칸이 하나라도 차 있으면) 같은 코드를 부르는 "재번역 › 전체" 로 돕니다.
 - 5(녹음)는 Chromium 의 가짜 마이크로 녹음하고 끝에 "취소"를 눌러 올리지 않습니다.
+- 1 의 `.mp4` 는 소리가 있습니다. Playwright 녹화에는 소리가 없어, 페이지의 `HTMLMediaElement.play` 를 가로채 갤러리가 튼 TTS 파일 주소와 실제 재생 시작(`playing` 이벤트) 시각을 받아 두고, 그 파일을 내려받아 영상 시각에 맞춰 입힙니다(h264 · aac, 1440px). GitHub README 는 저장소 mp4 를 인라인 재생하지 않으므로 링크로 두되, 파일 페이지에서는 재생됩니다.
 - 11 은 `--post` 가 없으면 `--work` 작업물의 관리자 미리보기(저장 전 폼을 `sessionStorage` 로 받는 화면)를 씁니다. 요약은 발행 때 서버가 만들어 DB 에 쓰므로, 저장된 요약이 없는 작업물은 `--summary-file` 로 넣어야 상자가 보입니다.
 - 14(홈 프리셋)는 설정을 바꾸지 않고, ThemeProvider 가 테마 색을 CSS 변수로 옮기는 규칙(`src/lib/themeColors.ts`)을 그대로 써서 홈에 입힌 뒤 찍습니다.
 - 15 는 글 편집기(새 글)의 "관련 프로젝트" 선택기를 찍습니다 — 작업물 쪽 "관련 글" 과 같은 RelationPicker 인데, 글이 하나도 없는 사이트에서도 목록이 채워집니다.
