@@ -4,8 +4,7 @@
    공급자마다 이어진 실패와 원인(키 만료·권한·한도…), 꺼졌는지, 이번 달 사용량과 무료 한도를 보인다(lib/ai/health).
    같은 원인으로 여러 번 이어 실패해 꺼진 공급자는 원인을 고친 뒤 여기서 다시 켠다. 키를 바꾸면 저절로 풀린다.
    탭의 "저장 / 되돌리기"와 상관없이 바로 반영된다.
-   머리(제목 · 설명 · 저장)는 부모가 그린다 — 설정 › 서비스의 "AI · 외부 서비스" 섹션, 서비스 호출 기록 페이지의 접는 카드.
-   글 공급자 줄에는 설정 › 서비스가 넘기는 모델 칸(modelOf)이 들어간다. */
+   머리(제목 · 설명 · 저장)는 부모가 그린다 — 설정 › 서비스의 "AI · 외부 서비스" 섹션, 서비스 호출 기록 페이지. */
 import { useState } from "react";
 import { ChevronDown, Copy, ExternalLink, History, RotateCcw } from "@/components/icons";
 
@@ -88,14 +87,7 @@ const GROUPS: { id: string; providers: AiProvider[] }[] = [
 ];
 
 /** 상태는 부모가 불러 넘긴다(useAiHealth) — 서비스 탭의 기능 줄들도 같은 값으로 공급자 상태를 보인다 */
-export default function AiHealthPanel({
-  health,
-  modelOf,
-}: {
-  health: ReturnType<typeof useAiHealth>;
-  /** 공급자 줄에 넣을 모델 칸(글 공급자만) — 설정 › 서비스가 넘긴다. 없으면 칸 없음 */
-  modelOf?: (provider: AiProvider) => React.ReactNode;
-}) {
+export default function AiHealthPanel({ health }: { health: ReturnType<typeof useAiHealth> }) {
   const { t, language } = useLanguage();
   const th = (key: string) => t(`admin.aiHealth.${key}`);
   const { data, failed, reload: load, stateOf } = health;
@@ -170,7 +162,6 @@ export default function AiHealthPanel({
                         </span>
                         {(off || failing) && kind && <span className={styles.kind}>{th(`kind.${kind}`)}</span>}
                         <UsageLine provider={p} usage={u} deepl={p === "deepl" ? data.deepl : null} nf={nf} th={th} />
-                        {modelOf?.(p)}
                         <span className={styles.actions}>
                           {(off || failing) && (
                             <Button variant={off ? "primary" : "outline"} size="sm" shape="capsule" onClick={() => void reset(p)} loading={resetting === p} soundDisabled icon={<RotateCcw size={14} strokeWidth={2} />}>
