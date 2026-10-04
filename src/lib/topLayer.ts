@@ -77,3 +77,29 @@ export function keepOnTop(el: HTMLElement, priority: number): () => void {
     rawHide(el);
   };
 }
+
+/* ── 모달 안의 portal 층 — 커서처럼 top layer 에 못 올리는 것이 맨 위 모달 안으로 들어갈 자리 ──
+   Modal 이 층 요소를 붙이고 떼며 알리고, 쓰는 쪽은 useSyncExternalStore 로 맨 위 것을 읽는다 */
+const modalHosts: HTMLElement[] = [];
+const modalHostListeners = new Set<() => void>();
+function notifyModalHosts() {
+  for (const fn of modalHostListeners) fn();
+}
+export function registerModalHost(el: HTMLElement): () => void {
+  modalHosts.push(el);
+  notifyModalHosts();
+  return () => {
+    const i = modalHosts.indexOf(el);
+    if (i >= 0) modalHosts.splice(i, 1);
+    notifyModalHosts();
+  };
+}
+export function subscribeModalHost(fn: () => void): () => void {
+  modalHostListeners.add(fn);
+  return () => { modalHostListeners.delete(fn); };
+}
+/** 맨 위 모달의 portal 층. 모달이 없으면 null */
+export function getTopModalHost(): HTMLElement | null {
+  return modalHosts[modalHosts.length - 1] ?? null;
+}
+
