@@ -12,6 +12,8 @@ import { Switch } from "@/components/ui/Switch";
 import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
 import Input from "@/components/ui/Input";
+import Popover from "@/components/ui/Popover";
+import HelpButton from "@/components/ui/HelpButton";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import type { SettingsTabProps } from "../_types";
 import type { SelectOption } from "@/types";
@@ -304,32 +306,35 @@ function ProviderFallbackBlock<P extends string>({
     .filter((p) => p !== provider && !(value?.fallback?.excluded ?? []).includes(p));
   const usableFallbacks = usableFallbacksAll
     .filter((p) => { const st = stateOf?.(p); return st !== "nokey" && st !== "off"; });
+  const hintLines = [
+    hint,
+    ...(extraHints ?? []),
+    keyOf && (() => {
+      const used = [provider, ...(fallbackEnabled ? usableFallbacksAll : [])];
+      const keys = used.map((p) => keyOf(p)).filter((k): k is string => !!k);
+      const missing = used.filter((p) => stateOf?.(p) === "nokey").map((p) => keyOf(p)).filter((k): k is string => !!k);
+      return envKeyLine(keys, t, { missing });
+    })(),
+  ].filter(Boolean);
   return (
-    <div className={styles.featureCard}>
-      <div className={styles.featureHead}>
-        <h3 className={styles.featureTitle}>{title}</h3>
-        <Switch
-          size="sm"
-          showStateText
-          checked={value?.enabled !== false}
-          onCheckedChange={(v) => onChange((prev) => ({ ...prev, enabled: v }))}
-        />
-        {logProviders?.length ? <span className={styles.featureLog}><ServiceLogLink query={{ category: "ai", provider: logProviders }} /></span> : null}
-      </div>
-      {/* 설명 — 제목 바로 아래. 기능 설명과 필요한 키(기본 공급자와, 자동 전환을 켰으면
-          순서에 든 공급자의 키. 키 없는 것은 강조색)를 한 자리에 두고, 두 줄이면 글머리 목록 */}
-      <HintLines lines={[
-        hint,
-        ...(extraHints ?? []),
-        keyOf && (() => {
-          const used = [provider, ...(fallbackEnabled ? usableFallbacksAll : [])];
-          const keys = used.map((p) => keyOf(p)).filter((k): k is string => !!k);
-          const missing = used.filter((p) => stateOf?.(p) === "nokey").map((p) => keyOf(p)).filter((k): k is string => !!k);
-          return envKeyLine(keys, t, { missing });
-        })(),
-      ]} />
-      <div className={`${shared.fields} ${shared.fieldPair}`}>
-        <FieldRow label={<T k={providerLabelKey} />}>
+    <div className={styles.featureRow}>
+      {/* 한 줄 — 기능 이름 · 켜기 · (설명 ⓘ) · 기본 공급자 · 자동 전환 · 기록. 설명 · 필요한 키는 팝오버로 */}
+      <div className={styles.featureMain}>
+        <span className={styles.featureTitleCell}>
+          <h3 className={styles.featureTitle}>{title}</h3>
+          <Switch
+            size="sm"
+            showStateText
+            checked={value?.enabled !== false}
+            onCheckedChange={(v) => onChange((prev) => ({ ...prev, enabled: v }))}
+          />
+          {hintLines.length > 0 && (
+            <Popover placement="bottom-start" responsive={false} maxHeight={false} trigger={<HelpButton symbol="i" size="xs" aria-label={title} soundDisabled />}>
+              <div className={styles.featureHint}><HintLines lines={hintLines} /></div>
+            </Popover>
+          )}
+        </span>
+        <FieldRow label={<T k={providerLabelKey} />} className={styles.featureProvider}>
           <Select
             value={provider}
             options={labelled}
@@ -368,33 +373,32 @@ function ProviderFallbackBlock<P extends string>({
             }));
           }}
         />
-        {/* 첫 공급자가 쓸 수 없는 상태면 여기서 바로 알린다 — 모르고 두면 요청마다 실패하고 fallback 으로만 돈다 */}
-        {primaryState && primaryState !== "ok" && (
-          <p className={styles.providerWarn}>
-            {t(`admin.settings.providerWarn.${primaryState}`)}
-          </p>
-        )}
-        {fallbackEnabled && usableFallbacks.length === 0 && (
-          <p className={styles.providerWarn}>{t("admin.settings.providerWarn.noFallback")}</p>
-        )}
-        {fallbackEnabled && (
-          <div className={shared.fallbackSection}>
-            <PriorityList<P>
-              primary={provider}
-              priority={value?.fallback?.priority ?? []}
-              excluded={value?.fallback?.excluded ?? []}
-              options={options}
-              badgeOf={(p) => {
-                const st = stateOf?.(p);
-                return st && st !== "ok" ? <span className={styles.providerBadge} data-state={st}>{stateText(p)}</span> : null;
-              }}
-              onChange={(next) => onChange((prev) => ({ ...prev, fallback: { ...prev?.fallback, enabled: true, priority: next } }))}
-              onExcludedChange={(next) => onChange((prev) => ({ ...prev, fallback: { ...prev?.fallback, enabled: true, excluded: next } }))}
-            />
-          </div>
-        )}
-        {children}
+        {logProviders?.length ? <span className={styles.featureLog}><ServiceLogLink query={{ category: "ai", provider: logProviders }} /></span> : null}
       </div>
+      {/* 첫 공급자가 쓸 수 없는 상태면 여기서 바로 알린다 — 모르고 두면 요청마다 실패하고 fallback 으로만 돈다 */}
+      {primaryState && primaryState !== "ok" && (
+        <p className={styles.providerWarn}>{t(`admin.settings.providerWarn.${primaryState}`)}</p>
+      )}
+      {fallbackEnabled && usableFallbacks.length === 0 && (
+        <p className={styles.providerWarn}>{t("admin.settings.providerWarn.noFallback")}</p>
+      )}
+      {fallbackEnabled && (
+        <div className={styles.featureOrder}>
+          <PriorityList<P>
+            primary={provider}
+            priority={value?.fallback?.priority ?? []}
+            excluded={value?.fallback?.excluded ?? []}
+            options={options}
+            badgeOf={(p) => {
+              const st = stateOf?.(p);
+              return st && st !== "ok" ? <span className={styles.providerBadge} data-state={st}>{stateText(p)}</span> : null;
+            }}
+            onChange={(next) => onChange((prev) => ({ ...prev, fallback: { ...prev?.fallback, enabled: true, priority: next } }))}
+            onExcludedChange={(next) => onChange((prev) => ({ ...prev, fallback: { ...prev?.fallback, enabled: true, excluded: next } }))}
+          />
+        </div>
+      )}
+      {children && <div className={styles.featureExtra}>{children}</div>}
     </div>
   );
 }
@@ -871,6 +875,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
                   onChange={(v) => setConfig((prev) => ({ ...prev, aiModels: { ...prev.aiModels, [mp]: v } }))}
                   placeholder={DEFAULT_AI_MODELS[mp]}
                   clearable={false}
+                  className={styles.modelInput}
                 />
               </label>
             );

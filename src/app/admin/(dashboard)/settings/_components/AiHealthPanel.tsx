@@ -100,6 +100,8 @@ export default function AiHealthPanel({
   const th = (key: string) => t(`admin.aiHealth.${key}`);
   const { data, failed, reload: load, stateOf } = health;
   const [resetting, setResetting] = useState<AiProvider | null>(null);
+  /* 줄마다 상세(원인 전문 · 최근 오류 · 한도 메모)를 펼쳤는지 — 기본은 접힘(원인 한마디 · 다시 켜기는 줄에 있다) */
+  const [open, setOpen] = useState<Partial<Record<AiProvider, boolean>>>({});
   /* 호출 기록은 따로 둔 페이지(/admin/service-log) — 공급자 줄에서 가면 그 공급자로 걸러 연다 */
   const logHref = (provider: AiProvider) => `/admin/service-log?provider=${provider}`;
 
@@ -135,12 +137,9 @@ export default function AiHealthPanel({
           </div>
         )
       ) : (
-        /* 그룹마다 한 덩어리 — 폭에 따라 1~3열. 같은 줄의 그룹은 제목과 공급자 줄이 같은 높이에서 시작하게
-           한 격자의 행을 나눠 쓴다(subgrid). 한 그룹이 차지하는 행 수 = 제목 1 + 가장 많은 공급자 수 */
-        <div
-          className={styles.groups}
-          style={{ "--group-rows": 1 + Math.max(...GROUPS.map((g) => g.providers.filter((p) => shown.includes(p)).length)) } as React.CSSProperties}
-        >
+        /* 그룹마다 작은 제목 아래 공급자 한 줄씩 — 이름 · 쓰임 · 상태(원인 한마디) · 이번 달 사용량 · 모델 · 단추.
+           원인 전문 · 최근 오류 · 한도 메모는 줄 끝 화살표로 펼친다 */
+        <div className={styles.groups}>
           {GROUPS.map(({ id, providers }) => {
             const group = providers.filter((p) => shown.includes(p));
             if (group.length === 0) return null;
@@ -157,8 +156,9 @@ export default function AiHealthPanel({
                   const off = state === "off";
                   const failing = !off && (h?.fails ?? 0) > 0;
                   const kind = h?.disabled?.kind ?? h?.kind;
+                  const isOpen = open[p] ?? false;
                   return (
-                    <li key={p} className={styles.row} data-state={state}>
+                    <li key={p} className={styles.row} data-state={state} data-open={isOpen ? "" : undefined}>
                       <div className={styles.head}>
                         <span className={styles.name}>{info.label}</span>
                         <span className={styles.features}>{info.features.map((f) => th(`feature.${f}`)).join(" · ")}</span>
@@ -168,6 +168,9 @@ export default function AiHealthPanel({
                             : state === "nokey" ? th("stateNoKey")
                             : th("stateOk")}
                         </span>
+                        {(off || failing) && kind && <span className={styles.kind}>{th(`kind.${kind}`)}</span>}
+                        <UsageLine provider={p} usage={u} deepl={p === "deepl" ? data.deepl : null} nf={nf} th={th} />
+                        {modelOf?.(p)}
                         <span className={styles.actions}>
                           {(off || failing) && (
                             <Button variant={off ? "primary" : "outline"} size="sm" shape="capsule" onClick={() => void reset(p)} loading={resetting === p} soundDisabled icon={<RotateCcw size={14} strokeWidth={2} />}>
@@ -175,26 +178,28 @@ export default function AiHealthPanel({
                             </Button>
                           )}
                           <Button variant="ghost" size="sm" shape="circle" href={logHref(p)} aria-label={th("logOpenOne")} title={th("logOpenOne")} soundDisabled icon={<History size={14} strokeWidth={2} />} />
-                    {info.console && (
+                          {info.console && (
                             <Button variant="ghost" size="sm" shape="circle" href={info.console} external aria-label={th("console")} title={th("console")} soundDisabled icon={<ExternalLink size={14} strokeWidth={2} />} />
                           )}
+                          <Button variant="ghost" size="sm" shape="circle" onClick={() => setOpen((o) => ({ ...o, [p]: !isOpen }))} aria-expanded={isOpen} aria-label={th(isOpen ? "detailHide" : "detailShow")} title={th(isOpen ? "detailHide" : "detailShow")} soundDisabled icon={<ChevronDown size={14} strokeWidth={2} className={`${styles.rawChev} ${isOpen ? styles.rawChevOpen : ""}`} />} />
                         </span>
                       </div>
 
-                      {/* 원인과 고칠 방법 — 실패가 남아 있을 때만 */}
-                      {(off || failing) && kind && (
-                        <div className={styles.problem}>
-                          <p className={styles.fix}>
-                            <strong>{th(`kind.${kind}`)}</strong> {th(`fix.${kind}`)}
-                            {off && ` ${th(FATAL_KINDS.has(kind) ? "offManual" : kind === "quota" ? "offMonth" : "offHour")}`}
-                          </p>
-                          {h?.message && <ProviderMessage message={h.message} at={when(h.at)} th={th} />}
+                      {isOpen && (
+                        <div className={styles.detail}>
+                          {/* 원인과 고칠 방법 — 실패가 남아 있을 때만 */}
+                          {(off || failing) && kind && (
+                            <div className={styles.problem}>
+                              <p className={styles.fix}>
+                                <strong>{th(`kind.${kind}`)}</strong> {th(`fix.${kind}`)}
+                                {off && ` ${th(FATAL_KINDS.has(kind) ? "offManual" : kind === "quota" ? "offMonth" : "offHour")}`}
+                              </p>
+                              {h?.message && <ProviderMessage message={h.message} at={when(h.at)} th={th} />}
+                            </div>
+                          )}
+                          <Usage provider={p} usage={u} deepl={p === "deepl" ? data.deepl : null} now={data.loadedAt} nf={nf} th={th} />
                         </div>
                       )}
-
-                      <Usage provider={p} usage={u} deepl={p === "deepl" ? data.deepl : null} now={data.loadedAt} nf={nf} th={th} />
-                      {/* 모델 — 글 공급자(요약 · 번역)만. 모델 은퇴로 404 가 나는 줄에서 바로 고친다 */}
-                      {modelOf?.(p)}
                     </li>
                   );
                 })}
@@ -206,6 +211,21 @@ export default function AiHealthPanel({
       )}
       {hidden > 0 && <p className={styles.empty}>{fillTemplate(th("hiddenCount"), { n: hidden })}</p>}
     </div>
+  );
+}
+
+/** 줄 안의 사용량 한마디 — "이번 달 134,268 / 500,000 자 (27%)" 또는 "이번 달 3회". 막대 · 메모는 상세(Usage)에 */
+function UsageLine({ provider, usage, deepl, nf, th }: { provider: AiProvider; usage: ProviderUsage | undefined; deepl: { count: number; limit: number } | null; nf: (n: number) => string; th: (key: string) => string }) {
+  const info = AI_PROVIDER_INFO[provider];
+  const unit = th(`unit.${info.unit}`);
+  const used = deepl ? deepl.count : info.unit === "requests" ? usage?.requests ?? 0 : usage?.units ?? 0;
+  const limit = deepl ? deepl.limit : info.freeMonthly;
+  return (
+    <span className={styles.usageInline} data-high={limit && used / (info.appCap ?? limit) >= 0.8 ? "" : undefined}>
+      {limit
+        ? fillTemplate(th("usageOf"), { used: nf(used), limit: nf(limit), unit, pct: Math.min(999, Math.round((used / limit) * 100)) })
+        : fillTemplate(th("usageCount"), { n: nf(usage?.requests ?? 0) })}
+    </span>
   );
 }
 

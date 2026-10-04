@@ -1,58 +1,40 @@
 /* ── AI 상태·사용량 (settings > 서비스) ── */
 
-/* 그룹 덩어리를 폭에 따라 1~3열로. 한 그룹이 격자의 행 --group-rows 개를 차지하고 그 행을 안에서 나눠 쓴다
-   (subgrid) — 같은 줄에 놓인 그룹끼리 제목과 n번째 공급자 줄이 같은 높이에서 시작한다.
-   공급자가 적은 그룹은 아래 행이 빈다 */
+/* 그룹(번역 · 글 AI · 이미지 생성 · TTS · 이미지 검색)마다 작은 제목 아래 공급자 한 줄씩 — 표처럼 위아래로 쌓는다 */
 .groups {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  column-gap: var(--spacing-32);
-  row-gap: 0;
-  margin-top: var(--spacing-12);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-16);
+  margin-top: var(--spacing-8);
 }
 
 .group {
-  display: grid;
-  grid-row: span var(--group-rows, 4);
-  grid-template-rows: subgrid;
-  align-content: start;
   min-width: 0;
-  margin-bottom: var(--spacing-24);
 }
 
 .groupTitle {
-  align-self: end;
-  margin: 0 0 var(--spacing-8);
-  font: var(--font-body-sm);
+  margin: 0 0 var(--spacing-4);
+  font: var(--font-body-xs);
   font-weight: 600;
   color: var(--text-tertiary);
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
-/* 공급자 줄들도 그룹의 행을 그대로 이어 쓴다 */
 .list {
-  display: grid;
-  grid-row: 2 / -1;
-  grid-template-rows: subgrid;
   margin: 0;
   padding: 0;
   list-style: none;
+  border-top: var(--border-light);
 }
 
-/* 공급자 한 줄 — 머리(이름·기능·상태·단추), 원인, 사용량 */
+/* 공급자 한 줄 — 머리 한 줄(이름 · 쓰임 · 상태 · 원인 · 사용량 · 모델 · 단추), 펼치면 아래에 상세 */
 .row {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-8);
-  padding: var(--spacing-16) 0;
-  border-top: var(--border-light);
-}
-
-.row:last-child {
+  padding: var(--spacing-8) 0;
   border-bottom: var(--border-light);
-  /* 같은 행의 옆 그룹 줄이 더 길어도 밑줄은 제 내용 바로 아래 */
-  align-self: start;
 }
 
 .head {
@@ -64,14 +46,42 @@
 }
 
 .name {
+  flex: 0 0 9rem;
   font: var(--font-body-md);
   font-weight: 600;
   color: var(--text-primary);
 }
 
 .features {
+  flex: 0 0 7rem;
   font: var(--font-body-sm);
   color: var(--text-tertiary);
+}
+
+/* 실패 원인 한마디 — 상태 배지 옆 */
+.kind {
+  font: var(--font-body-sm);
+  font-weight: 600;
+  color: var(--text-accent);
+}
+
+/* 줄 안의 사용량 한마디 */
+.usageInline {
+  font: var(--font-body-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary);
+}
+
+.usageInline[data-high] {
+  color: var(--text-accent);
+}
+
+/* 펼친 상세 — 원인 전문 · 최근 오류 · 사용량 막대와 메모. 이름 칸만큼 들여 쓴다 */
+.detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  padding-left: calc(9rem + var(--spacing-12));
 }
 
 /* 상태 — 정상(초록)·실패 중(노랑)·꺼짐(강조색)·키 없음(흐림). 빨강은 쓰지 않는다 */
@@ -111,13 +121,12 @@
   margin-left: auto;
 }
 
-/* 원인과 고칠 방법 */
-/* 원인·최근 오류 묶음 — 아래 사용량과 가는 선으로 나눈다 */
+/* 원인과 고칠 방법 — 아래 사용량과 가는 선으로 나눈다 */
 .problem {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-8);
-  padding-bottom: var(--spacing-12);
+  padding-bottom: var(--spacing-8);
   border-bottom: var(--border-light);
 }
 
@@ -243,12 +252,12 @@
   overflow-y: auto;
 }
 
-/* 사용량 — 글 한 줄 + 막대(무료 한도를 아는 공급자만) + 한도 출처·기한 */
-/* 열이 좁아 글 · 막대 · 메모를 한 줄씩 쌓는다 */
+/* 상세의 사용량 — 글 한 줄 + 막대(무료 한도를 아는 공급자만) + 한도 출처·기한 */
 .usage {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: var(--spacing-4);
+  max-width: 480px;
 }
 
 .usageText {
@@ -298,6 +307,13 @@
   color: var(--text-tertiary);
 }
 
+
+/* 좁은 화면 — 머리 줄이 두 줄로 접히므로 상세 들여쓰기도 뺀다 */
+@media (max-width: 768px) {
+  .detail {
+    padding-left: 0;
+  }
+}
 
 /* 공급자 표 — 머리(제목 · 설명 · 저장)는 부모가 그린다. 섹션 격자 안에서는 전폭 */
 .panel {

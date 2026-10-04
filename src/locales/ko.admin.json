@@ -1978,6 +1978,8 @@
     },
     "aiHealth": {
       "title": "AI·외부 서비스 상태",
+      "detailShow": "자세히",
+      "detailHide": "접기",
       "model": "모델",
       "panelOpen": "펼치기",
       "panelClose": "접기",
