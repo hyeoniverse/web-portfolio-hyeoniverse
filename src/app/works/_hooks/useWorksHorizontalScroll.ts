@@ -17,7 +17,8 @@ import { INFINITE_SCROLL_SETS, INITIAL_MARGIN } from "@/data/projects";
 /** 엔진이 DOM 을 찾을 때 쓰는 클래스 이름. 카드·인트로 CSS 모듈이 나뉘어 있어 호출부가 넘긴다. */
 export interface WorksScrollClassNames {
   card: string;
-  cardImage: string;
+  /** 카드 안에서 표지(미리보기 + 원본)를 감싼 상자 */
+  cardMedia: string;
   project: string;
   intro: string;
   metaCategory: string;
@@ -65,10 +66,8 @@ export function useWorksHorizontalScroll({
 
     const ctx = gsap.context(() => {
       const cards = gsap.utils.toArray<HTMLElement>(`.${cls.card}`, slider);
-      const cardImages = gsap.utils.toArray<HTMLElement>(
-        `.${cls.cardImage}`,
-        slider,
-      );
+      // 카드마다 제 표지 상자 — 표지 없는 카드는 null 로 두어 색인이 어긋나지 않게 한다
+      const cardMedia = cards.map((card) => card.querySelector<HTMLElement>(`.${cls.cardMedia}`));
       const projectItems = gsap.utils.toArray<HTMLElement>(
         `.${cls.project}`,
         slider,
@@ -125,7 +124,7 @@ export function useWorksHorizontalScroll({
         hoverScale: 1,
         targetHoverScale: 1,
       }));
-      const imageOffsets = cardImages.map(() => ({
+      const imageOffsets = cards.map(() => ({
         x: 0,
         y: 0,
         scale: 1.2,
@@ -279,7 +278,7 @@ export function useWorksHorizontalScroll({
           });
 
           // 이미지 오프셋 (패럴랙스)
-          if (cardImages[i]) {
+          if (cardMedia[i]) {
             imageOffsets[i].targetX =
               cardOffsets[i].targetX * IMAGE_PARALLAX_MULTIPLIER;
             imageOffsets[i].targetY =
@@ -291,7 +290,7 @@ export function useWorksHorizontalScroll({
 
             const imgScale = isHovering ? 1.3 : 1.2;
             imageOffsets[i].scale = (imageOffsets[i].scale || 1.2) + (imgScale - (imageOffsets[i].scale || 1.2)) * 0.06;
-            gsap.set(cardImages[i], {
+            gsap.set(cardMedia[i], {
               x: imageOffset + imageOffsets[i].x,
               y: imageOffsets[i].y,
               scale: imageOffsets[i].scale,
