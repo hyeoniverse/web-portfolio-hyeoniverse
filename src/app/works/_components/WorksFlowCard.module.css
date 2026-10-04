@@ -150,7 +150,7 @@
 
 .card:hover .cardBorder {
   border: var(--border-width-1) solid color-mix(in oklch, var(--border-color-white) 15%, transparent);
-  box-shadow: 0 0 30px color-mix(in oklch, var(--text-white) 5%, transparent), inset 0 0 30px color-mix(in oklch, var(--text-white) 2%, transparent);
+  box-shadow: var(--shadow-glow);
 }
 
 .cardActive {
