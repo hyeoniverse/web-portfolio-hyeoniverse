@@ -3,12 +3,13 @@
 /* ── 서비스 호출 기록 (/admin/service-log) ──
    AI·이미지 검색·TTS, Resend 메일, GitHub API, 예약 작업, 문의 폼 첨부의 성공·실패(lib/serviceLog, service_logs)를
    새것부터 보인다. 위에는 공급자·작업마다의 성공·실패 수와 마지막 실패, 아래에는 기록 줄. 종류·공급자·결과로 거른다.
-   위에 설정 › 서비스와 같은 "AI·외부 서비스 상태" 표(접을 수 있다), 그 아래 기록.
+   왼쪽 목록 맨 위에 "AI·외부 서비스 상태" 요약(실패 중 · 꺼짐 · 키 없음 수)이 있고, 누르면 오른쪽이 설정 › 서비스와 같은
+   상태 표로 바뀐다. 종류 · 공급자를 누르면 다시 기록이다.
    설정 › 서비스의 상태 패널·각 섹션과 대시보드에서 들어온다. 주소로 거른 채 열 수 있다:
    ?category=mail · ?provider=gemini 또는 ?provider=fish,google_tts,edge(여럿) · ?result=fail
    ?demo 를 붙이면 예시 기록으로 화면을 미리 본다(저장하지 않는다). */
-import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
-import { ChevronDown, History, Settings } from "@/components/icons";
+import { useEffect, useMemo, useState } from "react";
+import { Activity, History, Settings } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import AdminListShell from "@/components/admin/AdminListShell";
 import Button from "@/components/ui/Button";
@@ -30,14 +31,6 @@ type Result = "all" | "ok" | "fail";
 type Category = ServiceLogCategory | "all";
 
 const CATEGORY_ORDER: ServiceLogCategory[] = ["ai", "mail", "github", "cron", "contact"];
-const HEALTH_OPEN_KEY = "admin.serviceLog.healthOpen";
-const HEALTH_OPEN_EVENT = "admin:service-log-health-open";
-const readHealthOpen = () => { try { return localStorage.getItem(HEALTH_OPEN_KEY) !== "0"; } catch { return true; } };
-const subscribeHealthOpen = (cb: () => void) => {
-  window.addEventListener(HEALTH_OPEN_EVENT, cb);
-  window.addEventListener("storage", cb);
-  return () => { window.removeEventListener(HEALTH_OPEN_EVENT, cb); window.removeEventListener("storage", cb); };
-};
 
 /* 종류마다 기록을 남기는 공급자·작업 — 아직 기록이 없어도 왼쪽 목록에 0 으로 보인다 */
 const KNOWN_PROVIDERS: Record<ServiceLogCategory, string[]> = {
@@ -64,14 +57,9 @@ export default function ServiceLogView() {
   const [openRow, setOpenRow] = useState<string | null>(null);
   /* 공급자의 지금 상태(정상·실패 중·꺼짐·키 없음) — 설정 › 서비스 상태 패널과 같은 기준. 예시 모드면 예시 상태 */
   const health = useAiHealth();
-  /* 위의 상태 표를 접었는지 — 접은 채로 두면 다음에도 접혀 있다(이 브라우저만). 저장소 값은 서버에 없으니
-     uSES 로 읽는다(서버 스냅샷은 "펼침") — 효과에서 setState 로 되돌리면 한 번 더 그린다 */
-  const healthOpen = useSyncExternalStore(subscribeHealthOpen, readHealthOpen, () => true);
-  const toggleHealth = () => {
-    try { localStorage.setItem(HEALTH_OPEN_KEY, healthOpen ? "0" : "1"); } catch { /* 저장소 없음 — 그대로 둔다 */ }
-    window.dispatchEvent(new Event(HEALTH_OPEN_EVENT));
-  };
-  /* 머리의 한 줄 요약 — 실패 중 · 꺼짐 · 키 없음 수. 전부 정상이면 "모두 정상" */
+  /* 오른쪽에 무엇을 보이는지 — 기록(기본) 또는 상태 표. 왼쪽 목록의 상태 줄을 누르면 표, 종류 · 공급자를 누르면 기록 */
+  const [view, setView] = useState<"log" | "health">("log");
+  /* 왼쪽 상태 줄의 요약 — 실패 중 · 꺼짐 · 키 없음 수. 전부 정상이면 "정상" */
   const healthSummary = useMemo(() => {
     if (!health.data) return null;
     const counts = { failing: 0, off: 0, nokey: 0 };
@@ -151,9 +139,20 @@ export default function ServiceLogView() {
     ? rail.flatMap((g) => g.items).filter((i) => providerSet.has(i.key)).map((i) => labelOf(i.entry)).join(" · ") || provider
     : category !== "all" ? th(`logCategory.${category}`) : th("logAllProviders");
   const pick = (next: { category?: Category; provider?: string }) => {
+    setView("log");
     setCategory(next.category ?? "all");
     setProvider(next.provider ?? "all");
   };
+  const healthSummaryText = healthSummary
+    ? (healthSummary.failing + healthSummary.off + healthSummary.nokey === 0
+      ? th("logState.ok")
+      : ([
+        healthSummary.failing > 0 && `${th("logState.failing")} ${healthSummary.failing}`,
+        healthSummary.off > 0 && `${th("logState.off")} ${healthSummary.off}`,
+        healthSummary.nokey > 0 && `${th("logState.nokey")} ${healthSummary.nokey}`,
+      ].filter(Boolean) as string[]).join(" · "))
+    : null;
+  const healthWorst = !healthSummary ? undefined : healthSummary.off > 0 ? "off" : healthSummary.failing > 0 ? "failing" : healthSummary.nokey > 0 ? "nokey" : "ok";
 
   const clear = async () => {
     if (demo) { setEntries([]); return; }
@@ -202,45 +201,6 @@ export default function ServiceLogView() {
         <ul className={styles.hintList}>
           {th("logHint").split("\n").map((line) => <li key={line}>{line}</li>)}
         </ul>
-
-        {/* AI·외부 서비스 상태 — 설정 › 서비스의 표와 같다(같은 useAiHealth). 예시 모드에서는 예시 상태와 어긋나니 뺀다 */}
-        {!demo && (
-          <section className={styles.health} aria-labelledby="service-log-health">
-            <div className={styles.healthHead}>
-              <h2 id="service-log-health" className={styles.healthTitle}>{th("title")}</h2>
-              {healthSummary && (
-                <span className={styles.healthSummary}>
-                  {healthSummary.failing + healthSummary.off + healthSummary.nokey === 0
-                    ? th("logState.ok")
-                    : ([
-                      healthSummary.failing > 0 && `${th("logState.failing")} ${healthSummary.failing}`,
-                      healthSummary.off > 0 && `${th("logState.off")} ${healthSummary.off}`,
-                      healthSummary.nokey > 0 && `${th("logState.nokey")} ${healthSummary.nokey}`,
-                    ].filter(Boolean) as string[]).join(" · ")}
-                </span>
-              )}
-              <span className={styles.healthToggle}>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  shape="capsule"
-                  onClick={toggleHealth}
-                  aria-expanded={healthOpen}
-                  aria-controls="service-log-health-body"
-                  soundDisabled
-                  icon={<ChevronDown size={14} strokeWidth={2} style={{ transform: healthOpen ? "rotate(180deg)" : undefined, transition: "transform var(--duration-base) var(--ease-standard)" }} />}
-                >
-                  {th(healthOpen ? "panelClose" : "panelOpen")}
-                </Button>
-              </span>
-            </div>
-            {healthOpen && (
-              <div id="service-log-health-body" className={styles.healthBody}>
-                <AiHealthPanel health={health} />
-              </div>
-            )}
-          </section>
-        )}
 
         {entries === null ? (
           failed ? <p className={styles.empty}>{th("logLoadFailed")}</p> : <ServiceLogSkeleton />
@@ -311,8 +271,21 @@ export default function ServiceLogView() {
                   </div>
                 </Popover>
               </div>
+              {/* AI·외부 서비스 상태 — 요약 한 줄, 누르면 오른쪽에 설정 › 서비스와 같은 표. 예시 모드에서는 예시 상태와 어긋나니 뺀다 */}
+              {!demo && (
+                <Pressable className={styles.railHealth} data-active={view === "health" ? "" : undefined} onClick={() => setView("health")} aria-pressed={view === "health"}>
+                  <span className={styles.railHealthLabel}>
+                    <Activity size={13} strokeWidth={2} aria-hidden />
+                    {th("title")}
+                  </span>
+                  <span className={styles.railHealthSummary}>
+                    <span className={styles.railDot} data-state={healthWorst} aria-hidden />
+                    {healthSummaryText ?? "…"}
+                  </span>
+                </Pressable>
+              )}
               {/* 전체 — 큰 숫자로 요약. 누르면 거르기를 푼다 */}
-              <Pressable className={styles.railTotal} data-active={category === "all" && !providerSet ? "" : undefined} onClick={() => pick({})}>
+              <Pressable className={styles.railTotal} data-active={view === "log" && category === "all" && !providerSet ? "" : undefined} onClick={() => pick({})}>
                 <span className={styles.railTotalLabel}>{th("logAllProviders")}</span>
                 <span className={styles.railTotalNums}>
                   <span className={styles.railTotalNum}>{entries.length}</span>
@@ -325,7 +298,7 @@ export default function ServiceLogView() {
                 <div key={g.category} className={styles.railGroup}>
                   <Pressable
                     className={`${styles.railItem} ${styles.railHead}`}
-                    data-active={category === g.category && !providerSet ? "" : undefined}
+                    data-active={view === "log" && category === g.category && !providerSet ? "" : undefined}
                     onClick={() => pick({ category: g.category })}
                   >
                     <span className={styles.railName}>{th(`logCategory.${g.category}`)}</span>
@@ -337,7 +310,7 @@ export default function ServiceLogView() {
                     <Pressable
                       key={i.key}
                       className={`${styles.railItem} ${styles.railSub}`}
-                      data-active={providerSet?.has(i.key) ? "" : undefined}
+                      data-active={view === "log" && providerSet?.has(i.key) ? "" : undefined}
                       onClick={() => pick({ provider: i.key })}
                     >
                       {/* 지금 상태 — AI·외부 공급자만. 켜고 끄는 개념이 없는 종류는 자리만 둔다 */}
@@ -351,6 +324,15 @@ export default function ServiceLogView() {
               ))}
             </nav>
 
+            {view === "health" ? (
+              <div className={styles.main}>
+                <div className={styles.bar}>
+                  <span className={styles.scope}>{th("title")}</span>
+                  <span className={styles.count}>{healthSummaryText}</span>
+                </div>
+                <AiHealthPanel health={health} />
+              </div>
+            ) : (
             <div className={styles.main}>
               <div className={styles.bar}>
                 <span className={styles.scope}>{scopeLabel}</span>
@@ -416,6 +398,7 @@ export default function ServiceLogView() {
                 </div>
               )}
             </div>
+            )}
           </div>
         )}
       </div>

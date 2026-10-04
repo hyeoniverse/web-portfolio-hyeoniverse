@@ -631,43 +631,49 @@
   list-style: disc;
 }
 
-/* ── AI·외부 서비스 상태 — 기록 위에 설정 › 서비스와 같은 표. 머리를 눌러 접는다 ── */
-.health {
+/* ── 왼쪽 맨 위 — AI·외부 서비스 상태 요약. 누르면 오른쪽이 상태 표로 바뀐다 ── */
+.railHealth {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-12);
-  padding: var(--spacing-16);
+  align-items: flex-start;
+  gap: var(--spacing-4);
+  width: 100%;
+  margin-bottom: var(--spacing-8);
+  padding: var(--spacing-12);
   border: var(--border-light);
   border-radius: var(--radius-surface);
+  background: transparent;
+  text-align: left;
+  transition: background var(--duration-base) var(--ease-standard);
 }
 
-.healthHead {
-  display: flex;
-  flex-wrap: wrap;
+.railHealth:hover {
+  background: var(--bg-secondary);
+}
+
+.railHealth[data-active] {
+  border-color: var(--text-accent);
+}
+
+.railHealthLabel {
+  display: inline-flex;
   align-items: center;
-  gap: var(--spacing-8) var(--spacing-12);
-}
-
-.healthTitle {
-  margin: 0;
-  font: var(--font-body-md);
+  gap: var(--spacing-4);
+  font: var(--font-body-sm);
   font-weight: 600;
   color: var(--text-primary);
 }
 
-/* 상태 요약 — 실패 중 · 꺼짐 · 키 없음 수. 모두 정상이면 한 단어 */
-.healthSummary {
+.railHealth[data-active] .railHealthLabel {
+  color: var(--text-accent);
+}
+
+/* 가장 나쁜 상태의 점 + 수 */
+.railHealthSummary {
   display: inline-flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-4);
+  align-items: center;
+  gap: var(--spacing-8);
   font: var(--font-body-sm);
+  font-variant-numeric: tabular-nums;
   color: var(--text-tertiary);
-}
-
-.healthToggle {
-  margin-left: auto;
-}
-
-.healthBody {
-  min-width: 0;
 }
