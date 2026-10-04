@@ -292,7 +292,7 @@
   background: transparent;
   cursor: none;
   touch-action: none;
-  z-index: 4;
+  z-index: 3;
 }
 
 /* 창 안의 pre 는 자기 프레임 벗고 내부를 채운다(리더 .code-block-wrap pre 와 동일 규격) */

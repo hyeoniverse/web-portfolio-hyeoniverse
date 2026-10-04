@@ -7,6 +7,7 @@ import Pressable from "@/components/ui/Pressable";
 import { X, ArrowRight } from "@/components/icons";
 import styles from "./IndexSheet.module.css";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { usePopoverRef } from "@/hooks/useTopLayer";
 
 /* 터치 디바이스 바텀 시트 — 인덱스(시리즈 · 카테고리 · 태그)에서 카드를 탭했을 때 상세 + CTA.
    열림 state · ESC · body 스크롤 잠금은 부모의 useSheet 가 한다. show 가 false 로 바뀌어도 AnimatePresence 가
@@ -29,11 +30,16 @@ export default function IndexSheet({
   children?: ReactNode;
 }) {
   const { t } = useLanguage();
+  /* 시트 두 조각 다 top layer(3.10-1) — 공용 Popover 의 시트와 같은 꼴 */
+  const backdropPop = usePopoverRef<HTMLDivElement>();
+  const sheetPop = usePopoverRef<HTMLDivElement>();
   return (
     <AnimatePresence>
       {show && (
         <>
           <motion.div
+            ref={backdropPop}
+            popover="manual"
             className={styles.sheetBackdrop}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -42,6 +48,8 @@ export default function IndexSheet({
             onClick={onClose}
           />
           <motion.div
+            ref={sheetPop}
+            popover="manual"
             className={styles.sheet}
             initial={{ y: "100%" }}
             animate={{ y: 0 }}

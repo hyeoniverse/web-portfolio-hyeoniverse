@@ -658,7 +658,7 @@
   position: absolute;
   top: var(--spacing-4);
   right: var(--spacing-4);
-  z-index: 4;
+  z-index: 3;
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-2);

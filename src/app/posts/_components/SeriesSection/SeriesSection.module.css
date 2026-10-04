@@ -2,6 +2,7 @@
 
 /* ── Series Section ── */
 .seriesSection {
+  isolation: isolate; /* 안의 z 0 … 3 이 밖과 겨루지 않게(3.10-3) */
   margin-bottom: var(--spacing-32);
 }
 
@@ -51,7 +52,7 @@
   position: absolute;
   top: 0;
   bottom: 0;
-  z-index: 6;
+  z-index: 3;
   display: flex;
   align-items: center;
   width: calc(56px + var(--spacing-16));

@@ -1,6 +1,6 @@
 /* flow 레이아웃의 프로젝트 슬롯 — 카드 + 메타 그룹. data-layout 1~6 변주가 메타 위치를 잡는다. WorksSection.module.css 에서 분리 (#662). */
 .project {
-  --_meta-z: 50;
+  --_meta-z: 3; /* 메타 글은 어느 카드(0 · hover 1 · 활성 2)보다 위(3.10-3) */
   --_meta-accent: var(--text-accent-alt);
   --_card-radius: var(--radius-surface);
   --_card-w: 520px;
@@ -125,7 +125,7 @@
   flex-shrink: 0;
   overflow: visible;
   position: relative;
-  z-index: 1;
+  z-index: 0; /* 쌓임 맥락 — 테두리·번호의 z 는 카드 안에서만 겨룬다(3.10-3) */
   width: var(--_card-w);
   height: calc(var(--_card-h) * var(--_card-h-scale, 1));
   /* 위아래 자리 — 두 축이 정한 깊이만큼 칸 안에서 내려앉는다. 카드 높이를 뺀 나머지 안에서만
@@ -145,7 +145,7 @@
 }
 
 .card:hover {
-  z-index: 5;
+  z-index: 1;
 }
 
 .card:hover .cardBorder {
@@ -154,7 +154,7 @@
 }
 
 .cardActive {
-  z-index: 10 !important;
+  z-index: 2 !important;
 }
 
 /* Card Inner Elements */
@@ -188,7 +188,7 @@
 
 .cardBorder {
   position: absolute;
-  z-index: 20;
+  z-index: 3;
   transition: border-color var(--duration-base) var(--ease-standard);
   pointer-events: none;
   inset: 0;
@@ -209,7 +209,7 @@
 
 .metaNumber {
   opacity: 1 !important;
-  z-index: 10;
+  z-index: 2;
   pointer-events: none;
 }
 

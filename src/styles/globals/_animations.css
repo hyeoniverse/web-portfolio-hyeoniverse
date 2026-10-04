@@ -123,7 +123,7 @@
 }
 .glith-on-hover:hover {
   animation: glitch var(--duration-slower) infinite alternate;
-  z-index: 30;
+  z-index: 1;
 }
 
 @keyframes glitch {

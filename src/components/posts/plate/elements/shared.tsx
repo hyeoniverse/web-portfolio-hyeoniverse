@@ -162,7 +162,7 @@ export function InlineCursorTarget({ side, element }: { side: "before" | "after"
         width: 6,
         height: "100%",
         cursor: "text",
-        zIndex: 5,
+        zIndex: 3,
       }}
     />
   );

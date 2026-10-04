@@ -7,7 +7,7 @@
   margin: 0 auto var(--spacing-32);
   position: sticky;
   top: calc(var(--spacing-32) * 2 + var(--font-size-32));
-  z-index: 51;
+  z-index: 3;
   /* 콘텐츠와 border-bottom (divider) 사이 breathing — 이전엔 .btn 의 border-bottom 2px 가 암묵적 여백
      역할했는데 제거 후 콘텐츠가 divider 에 딱 붙음. */
   padding: 0 0 var(--spacing-12) 0;

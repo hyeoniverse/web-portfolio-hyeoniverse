@@ -1354,7 +1354,7 @@ textarea.edit {
   bottom: var(--spacing-8);
   left: 50%;
   translate: -50% 0;
-  z-index: 4;
+  z-index: 3;
   color: var(--text-accent);
   font: var(--font-body-sm);
   transform: scale(var(--tool-scale));

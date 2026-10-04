@@ -261,6 +261,7 @@ export default function WorkGallery({ images, title, initialIndex = 0, onOpen, n
         onKeyDown={onKeyDown}
         data-dragging={dragging ? "" : undefined}
       >
+        <div className={styles.slides}>
         {images.map((src, i) => {
           const offset = i - position;
           if (Math.abs(offset) > VISIBLE_SIDE + 0.5) return null;
@@ -278,6 +279,7 @@ export default function WorkGallery({ images, title, initialIndex = 0, onOpen, n
                 "--_rot": `${-offset * 26}deg`,
                 "--_scale": `${1 - dist * 0.14}`,
                 "--_dim": `${Math.min(dist * 0.28, 0.72)}`,
+                /* 가까운 장이 앞 — 거리로 정해지는 깊이라 숫자를 쓰고, .slides 가 격리해 밖과 겨루지 않는다 */
                 zIndex: 100 - Math.round(dist * 10),
               } as React.CSSProperties}
               aria-hidden={!active}
@@ -327,6 +329,7 @@ export default function WorkGallery({ images, title, initialIndex = 0, onOpen, n
             </div>
           );
         })}
+        </div>
 
         {/* 자막 — 가운데 장 아래쪽에. 소리를 이미 듣는 화면 읽기 사용자에게 같은 말을 두 번 읽히지 않게 가린다 */}
         {narration.caption && (

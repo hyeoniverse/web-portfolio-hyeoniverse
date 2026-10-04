@@ -50,6 +50,7 @@
 /* ── Architecture Node Map (desktop only) ── */
 
 .archMap {
+  isolation: isolate; /* 안의 z 0 … 3 이 밖과 겨루지 않게(3.10-3) */
   flex: 1;
   overflow: visible;
   position: relative;
@@ -63,7 +64,7 @@
   position: absolute;
   top: 0;
   right: 0;
-  z-index: 5;
+  z-index: 1;
 }
 
 .archMap .archModeBtn {
@@ -279,7 +280,7 @@
 /* ── Shared tooltip ── */
 .archMap .archTooltip {
   position: absolute;
-  z-index: 10;
+  z-index: 3;
   max-width: clamp(200px, 20vw, 340px);
   padding: clamp(0.5rem, 0.8vh, 0.75rem) clamp(0.75rem, 1vw, 1.1rem);
   background: var(--bg-secondary);

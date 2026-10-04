@@ -193,7 +193,7 @@ export function ImageElement(props: PlateElementProps) {
     borderRadius: "var(--radius-full)", fontSize: "var(--font-size-body-xs)",
     fontFamily: "var(--font-family-body)", lineHeight: 1.4,
     height: badgeHeight, display: "flex", alignItems: "center",
-    pointerEvents: "none", whiteSpace: "nowrap", zIndex: 4,
+    pointerEvents: "none", whiteSpace: "nowrap", zIndex: 3,
     maxWidth: "calc(100% - 8px)", overflow: "hidden", textOverflow: "ellipsis",
   };
 
@@ -483,7 +483,7 @@ export function ImageElement(props: PlateElementProps) {
                 float 일 땐 absolute 라 선택 시 박스 높이가 안 변해 옆 텍스트가 재배치되지 않음 */}
             {!isSmall && showCaption && (
               // position:relative + z-index → float 옆 wrapping 텍스트 위로 올려 클릭이 캡션에 떨어지게
-              <div style={{ textAlign: "center", position: "relative", zIndex: 5 }}>
+              <div style={{ textAlign: "center", position: "relative", zIndex: 2 }}>
                 <InlineCaption
                   caption={caption}
                   onCommit={(v) => setAttr({ caption: v || undefined })}

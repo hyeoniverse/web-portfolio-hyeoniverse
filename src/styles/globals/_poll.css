@@ -155,7 +155,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  z-index: 3;
+  z-index: 2;
   pointer-events: auto;
   color: var(--text-muted);
   cursor: grab;
@@ -180,7 +180,7 @@
   height: 2px;
   background: var(--text-accent);
   border-radius: var(--radius-full);
-  z-index: 4;
+  z-index: 3;
   pointer-events: none;
 }
 .poll-drop-line-top {

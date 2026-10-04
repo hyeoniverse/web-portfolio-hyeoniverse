@@ -35,12 +35,7 @@
   inset: 0;
 }
 
-.starLayer { z-index: 1; }
-.moonLayer { z-index: 2; }
-.farCloudLayer { z-index: 3; }
-.streakLayer { z-index: 4; }
-.nearCloudLayer { z-index: 5; }
-.glyphLayer { z-index: 6; }
+/* 층의 앞뒤는 DOM 순서(별 → 달 → 먼 구름 → 유성 → 가까운 구름 → 글리프)가 정한다 — 전부 absolute 라 z-index 없이 뒤에 온 것이 위 */
 
 /* 밀려나는 이동을 맡는 바깥 상자. 안쪽 요소는 자기 애니메이션(깜빡임·부유)을 그대로 쓴다 —
    한 요소에 둘 다 걸면 transform 이 서로를 덮어쓴다. */

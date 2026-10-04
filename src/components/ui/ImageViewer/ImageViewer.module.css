@@ -14,6 +14,7 @@
 }
 
 .viewer {
+  isolation: isolate; /* 안의 z 0 … 3 이 밖과 겨루지 않게(3.10-3) */
   /* 사이드바(list) 폭 — .thumbList 와 밀려나는 .toolbar/.imageArea 가 함께 참조해야 하므로
      공통 부모인 .viewer 에 선언한다(자식에만 선언하면 형제 스코프 밖이라 margin 이 안 먹음). */
   --_list-width: 140px;
@@ -40,7 +41,7 @@
   align-items: center;
   justify-content: space-between;
   padding: var(--spacing-8) var(--spacing-12);
-  z-index: 10;
+  z-index: 3;
   flex-shrink: 0;
   background: transparent;
   border-bottom: none;
@@ -182,7 +183,7 @@
 .navArrows {
   position: absolute;
   inset: 0;
-  z-index: 10;
+  z-index: 3;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -319,7 +320,7 @@
   background: var(--bg-primary);
   border: var(--border-light);
   box-shadow: var(--shadow-overlay);
-  z-index: 20;
+  z-index: 3;
   width: max-content;
   min-width: 240px;
   overflow: hidden;
@@ -396,7 +397,7 @@
   background: var(--bg-primary);
   border: var(--border-light);
   box-shadow: var(--shadow-overlay);
-  z-index: 20;
+  z-index: 3;
   min-width: 160px;
 }
 
@@ -425,7 +426,7 @@
   background: var(--bg-primary);
   border: var(--border-light);
   box-shadow: var(--shadow-overlay);
-  z-index: 20;
+  z-index: 3;
   width: max-content;
   min-width: 220px;
   max-width: 340px;
@@ -592,7 +593,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1;
+  z-index: 0;
 }
 
 .loaderSpinner {
@@ -615,7 +616,7 @@
 .thumbStrip {
   flex-shrink: 0;
   padding: 0;
-  z-index: 5;
+  z-index: 1;
   overflow: hidden;
 }
 
@@ -694,7 +695,7 @@
   left: 0;
   bottom: 0;
   width: var(--_list-width);
-  z-index: 5;
+  z-index: 1;
   background: transparent;
   border-right: var(--border-light);
   overflow: hidden;
@@ -766,7 +767,7 @@
 .galleryOverlay {
   position: absolute;
   inset: 0;
-  z-index: 6;
+  z-index: 2;
   overflow-y: auto;
   padding: 0;
   background: var(--bg-primary);
@@ -852,7 +853,7 @@
   background: var(--bg-primary);
   border: var(--border-light);
   box-shadow: var(--shadow-overlay);
-  z-index: 20;
+  z-index: 3;
   min-width: 180px;
 }
 

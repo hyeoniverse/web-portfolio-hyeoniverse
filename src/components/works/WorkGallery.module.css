@@ -13,9 +13,6 @@
      가로로 긴 판이라야 가운데 장 양옆으로 이웃이 보인다 */
   aspect-ratio: 21 / 9;
   max-height: min(72vh, 760px);
-  /* 원근 — 값이 작을수록 옆 장이 더 눕는다 */
-  perspective: 1400px;
-  perspective-origin: 50% 50%;
   /* 세로는 페이지가 가져가고 가로 끌기만 여기서 받는다 */
   touch-action: pan-y;
   cursor: grab;
@@ -29,6 +26,16 @@
 .stage:focus-visible {
   outline: var(--border-accent);
   outline-offset: var(--spacing-8);
+}
+
+/* 장 더미 — 장의 앞뒤(거리에 따라 인라인 z)는 이 상자 안에서만 겨루고, 자막·덮개는 상자 위에 1·2 로 얹는다(3.10-3) */
+.slides {
+  position: absolute;
+  inset: 0;
+  isolation: isolate;
+  /* 원근 — 값이 작을수록 옆 장이 더 눕는다 */
+  perspective: 1400px;
+  perspective-origin: 50% 50%;
 }
 
 .slide {
@@ -291,7 +298,7 @@
   position: absolute;
   bottom: var(--spacing-20);
   left: 50%;
-  z-index: 150;
+  z-index: 1;
   max-width: min(72%, 760px);
   margin: 0;
   padding: var(--spacing-8) var(--spacing-16);
@@ -317,7 +324,7 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  z-index: 200;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;

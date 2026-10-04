@@ -56,13 +56,13 @@
 
 /* .glith-on-hover 의 글로벌 (0,1,1) :hover 는 logoNavBar 자신에게 text-shadow 를 주지만
    text 가 직접 자식 .logo 안에 있어 시각 효과 없음 → hover 시 자식 .logo 로 glitch 전파 */
-/* glitch 의 전역 .glith-on-hover:hover { z-index:30 } 이 로고를 nav 아래로 떨어뜨려
+/* glitch 의 전역 .glith-on-hover:hover { z-index: 1 } 이 로고를 nav 아래로 떨어뜨려
    hover 시 클릭이 막히던 것 방지 — 로고는 hover 에도 nav 위(z-nav+1) 유지.
    (모듈에서 전역 클래스는 :global 로 매칭해야 해시 안 됨) */
 .logoNavBar:global(.glith-on-hover):hover { z-index: calc(var(--z-index-nav) + 1); }
 .logoNavBar:global(.glith-on-hover):hover .logo {
   animation: glitch var(--duration-slower) infinite alternate;
-  z-index: 30;
+  z-index: 1;
 }
 
 /* logoDifference 토글 off — 부모 전체의 blend 해제 (logo + admin 배지 같이 영향) */
@@ -352,7 +352,7 @@
    .nav 직속 자식, difference blend 상속. 카드 배경 없음: 흰 텍스트가 page backdrop 과 blend. */
 .subNavDropdown {
   position: absolute;
-  z-index: 5;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-4);
@@ -423,7 +423,7 @@
   font-size: var(--font-size-dot);
   color: var(--text-white);
   pointer-events: none;
-  z-index: 6;
+  z-index: 3;
 }
 
 /* Right side actions */
