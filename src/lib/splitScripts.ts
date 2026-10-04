@@ -65,3 +65,18 @@ export function planScripts(sections: ScriptSection[], total: number): {
   const bySlide = new Map(inRange.map((x) => [x.slide, x]));
   return { byNumber, items: [...bySlide.values()].sort((a, b) => a.slide - b.slide), skipped: all.length - inRange.length };
 }
+
+/**
+ * 지금 들어 있는 대본을 "대본 한꺼번에 편집" 상자에 넣을 글로 적는다 — 장마다 `## 01` 제목 아래 대본.
+ * 모든 조각에 번호가 있으니 planScripts 가 번호대로 넣고, 대본이 없는 장은 제목만 남아 비어 있다(나눌 때 빠진다).
+ * splitScriptSections → planScripts 로 되돌리면 같은 장에 같은 대본이 간다.
+ */
+export function serializeScripts(gallery: string[], scriptOf: (url: string) => string | undefined): string {
+  return gallery
+    .map((url, i) => {
+      const script = scriptOf(url)?.trim();
+      return `## ${String(i + 1).padStart(2, "0")}${script ? `\n${script}` : ""}`;
+    })
+    .join("\n\n");
+}
+

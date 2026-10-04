@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
-import { splitScripts } from "@/lib/splitScripts";
+import { planScripts, serializeScripts, splitScriptSections, splitScripts } from "@/lib/splitScripts";
 
 describe("splitScripts", () => {
   it("--- 줄로 나눈다", () => {
@@ -45,3 +45,23 @@ describe("splitScriptSections / planScripts", () => {
     expect(plan.skipped).toBe(1);
   });
 });
+
+describe("serializeScripts", () => {
+  it("지금 대본을 장 번호 제목으로 적고, 되돌리면 같은 장에 같은 대본이 간다", () => {
+    const gallery = ["a", "b", "c"];
+    const scripts: Record<string, string | undefined> = { a: "첫 장입니다.", c: "셋째 장\n두 문단" };
+    const text = serializeScripts(gallery, (url) => scripts[url]);
+    expect(text).toBe("## 01\n첫 장입니다.\n\n## 02\n\n## 03\n셋째 장\n두 문단");
+    const plan = planScripts(splitScriptSections(text), gallery.length);
+    expect(plan.byNumber).toBe(true);
+    expect(plan.items).toEqual([{ slide: 1, text: "첫 장입니다." }, { slide: 3, text: "셋째 장\n두 문단" }]);
+    expect(plan.skipped).toBe(0);
+  });
+
+  it("대본이 하나도 없으면 제목만 남고 넣을 조각은 없다", () => {
+    const text = serializeScripts(["a", "b"], () => undefined);
+    expect(text).toBe("## 01\n\n## 02");
+    expect(planScripts(splitScriptSections(text), 2).items).toEqual([]);
+  });
+});
+
