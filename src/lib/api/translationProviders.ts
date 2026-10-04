@@ -1,6 +1,7 @@
 import { getSecret } from "@/lib/getSecret";
 import { filterEnabled, missingKey, networkError, providerErrorFrom, recordFailure, recordOk, toProviderError } from "@/lib/ai/health";
 import type { AiProvider, ProviderFailure } from "@/lib/ai/providers";
+import { aiModel } from "@/lib/ai/models";
 
 export type Provider = "gemini" | "google" | "deepl" | "claude";
 
@@ -19,8 +20,8 @@ async function call(provider: AiProvider, url: string, init: RequestInit): Promi
   return res;
 }
 
-const GEMINI_API_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent";
+/* 모델 이름은 설정(lib/ai/models)에서 */
+const geminiUrl = (model: string) => `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 /* 무료 키는 끝이 ":fx" 이고 api-free 주소만 받는다. 유료 키는 api 주소 — 주소를 하나로 박아 두면 유료 키가 403 이었다 */
 const deeplApiUrl = (key: string) => (key.endsWith(":fx") ? "https://api-free.deepl.com/v2/translate" : "https://api.deepl.com/v2/translate");
 const CLAUDE_API_URL = "https://api.anthropic.com/v1/messages";
@@ -74,7 +75,7 @@ Rules:
 Input:
 ${JSON.stringify(inputObj, null, 2)}`;
 
-  const res = await call("gemini", `${GEMINI_API_URL}?key=${apiKey}`, {
+  const res = await call("gemini", `${geminiUrl(await aiModel("gemini"))}?key=${apiKey}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -183,7 +184,7 @@ ${JSON.stringify(inputObj, null, 2)}`;
       "anthropic-version": "2023-06-01",
     },
     body: JSON.stringify({
-      model: "claude-haiku-4-5-20251001",
+      model: await aiModel("claude"),
       max_tokens: 4096,
       messages: [{ role: "user", content: prompt }],
     }),

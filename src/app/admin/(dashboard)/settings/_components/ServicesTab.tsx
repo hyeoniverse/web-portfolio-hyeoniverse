@@ -22,6 +22,7 @@ import ServiceLogLink from "./ServiceLogLink";
 import { ENV_SECTION_ID, HintLines, envKeyLine } from "./EnvKeyHint";
 import { CONTACT_KEYS } from "@/lib/contactSend";
 import { AI_PROVIDER_INFO } from "@/lib/ai/providers";
+import { DEFAULT_AI_MODELS, type AiModelProvider } from "@/lib/ai/models";
 import { useAiHealth, type ProviderState } from "./useAiHealth";
 import type { AiProvider } from "@/lib/ai/providers";
 import SectionHeader from "./SectionHeader";
@@ -870,6 +871,24 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
         keyOf={(p) => AI_PROVIDER_INFO[p as keyof typeof AI_PROVIDER_INFO]?.key}
         stateOf={stateFor((p) => p as AiProvider)}
       />
+
+      {/* AI 모델 — 요약 · 번역이 부르는 모델 이름. 비우면 기본 별칭(latest)이라 공급자가 모델을 은퇴시켜도 코드를 안 고친다 */}
+      <section className={shared.section}>
+        <SectionHeader title={t("admin.settings.aiModels")} paths={["aiModels"]} {...sh} />
+        <HintLines lines={[t("admin.settings.aiModelsHint")]} />
+        <div className={shared.fields}>
+          {(["gemini", "openai", "claude"] as AiModelProvider[]).map((p) => (
+            <Field
+              key={p}
+              label={AI_PROVIDER_INFO[p].label}
+              value={config.aiModels?.[p] ?? ""}
+              onChange={(v) => setConfig((prev) => ({ ...prev, aiModels: { ...prev.aiModels, [p]: v } }))}
+              placeholder={DEFAULT_AI_MODELS[p]}
+              maxHint={null}
+            />
+          ))}
+        </div>
+      </section>
 
       {/* Translation */}
       <ProviderFallbackSection<TranslationProvider>
