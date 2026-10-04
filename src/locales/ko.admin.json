@@ -1744,6 +1744,7 @@
         "pdfUploading": "{{done}}/{{total}}장 올리는 중",
         "narrationVoice": "목소리",
         "narrationVoiceFemale": "여성",
+        "narrationVoiceGoogleTier": "설정의 등급",
         "narrationVoiceMale": "남성",
         "narrationStyle": {
           "bright": "밝음",

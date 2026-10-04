@@ -1744,6 +1744,7 @@
         "pdfUploading": "Uploading {{done}} of {{total}}",
         "narrationVoice": "Voice",
         "narrationVoiceFemale": "Female",
+        "narrationVoiceGoogleTier": "tier from settings",
         "narrationVoiceMale": "Male",
         "narrationStyle": {
           "bright": "Bright",

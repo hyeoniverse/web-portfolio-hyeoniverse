@@ -1,5 +1,6 @@
 import { MsEdgeTTS, OUTPUT_FORMAT } from "msedge-tts";
 import { getSecret } from "@/lib/getSecret";
+import { resolveGoogleTts } from "@/lib/ai/models";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { speechLangOf, type SpeechLang } from "@/lib/speech";
 import { isDisabled, missingKey, providerErrorFrom, readHealth, readUsage, recordFailure, recordOk, toProviderError, ProviderError } from "@/lib/ai/health";
@@ -65,7 +66,8 @@ async function googleTts(text: string, { gender }: ParsedVoice, lang: SpeechLang
     headers: { "Content-Type": "application/json", "x-goog-api-key": key },
     body: JSON.stringify({
       input: { text },
-      voice: { languageCode: lang, name: googleVoiceName(gender, lang) },
+      /* 목소리 등급은 설정(기본 latest = 가장 새 등급). 목록을 못 받으면 예전 고정 목소리(Neural2) */
+      voice: { languageCode: lang, name: (await resolveGoogleTts(key))?.voices[gender][lang] ?? googleVoiceName(gender, lang) },
       audioConfig: { audioEncoding: "MP3", sampleRateHertz: 24000 },
     }),
   });

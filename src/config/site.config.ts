@@ -742,6 +742,8 @@ export const siteConfig = {
     huggingface: "",
     // NanoBanana: nanobanana-2(최신) · nanobanana-pro · nanobanana(원본). 엔드포인트가 곧 모델
     nanobanana: "",
+    // Google Cloud TTS: 목소리 등급. 비우면 "latest" = 그 키의 voices 목록에서 가장 새 등급(Chirp3-HD > Neural2 > Wavenet > Standard)
+    google_tts: "",
   },
 
   // ---------------------------------------------------------------------------
