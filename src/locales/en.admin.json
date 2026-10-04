@@ -41,7 +41,6 @@
     },
     "dashboard": {
       "title": "Dashboard",
-      "loading": "Loading...",
       "loadError": "Failed to load data",
       "refresh": "Refresh",
       "quickActions": "Quick Actions",

@@ -10,6 +10,8 @@ export { default as adminShellStyles } from "./AdminListShell.module.css";
 
 interface AdminListShellProps {
   title: ReactNode;
+  /** 제목 앞 아이콘 — 관리 페이지 제목은 모두 아이콘을 붙인다(대시보드 · 설정 · 알림과 같은 26 · 1.6) */
+  icon?: ReactNode;
   /** 새 항목 버튼 — 목록형(posts/works)만. 모더레이션 목록(신고 등)은 headerExtra 로 대체하고 생략. */
   newHref?: string;
   newLabel?: string;
@@ -26,6 +28,7 @@ interface AdminListShellProps {
 
 export default function AdminListShell({
   title,
+  icon,
   newHref,
   newLabel,
   saving = false,
@@ -56,7 +59,10 @@ export default function AdminListShell({
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h1 className={styles.title}>{title}</h1>
+        <h1 className={icon ? `${styles.title} ${styles.titleWithIcon}` : styles.title}>
+          {icon && <span className={styles.titleIcon} aria-hidden>{icon}</span>}
+          {title}
+        </h1>
         <div className={styles.headerActions}>
           {onSave && (
             <Pressable

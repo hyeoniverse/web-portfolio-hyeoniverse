@@ -1,10 +1,4 @@
 /* ── AI·외부 서비스 호출 기록 페이지 ── */
-.titleRow {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-8);
-}
-
 .headerActions {
   display: inline-flex;
   align-items: center;
