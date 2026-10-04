@@ -164,6 +164,7 @@ export {
   Pipette,
   Play,
   Plus,
+  Power,
   Quote,
   Redo2,
   Rewind,
