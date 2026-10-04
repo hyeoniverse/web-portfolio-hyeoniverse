@@ -4,7 +4,7 @@ import { filterEnabled, missingKey, networkError, providerErrorFrom, recordFailu
 import type { AiProvider, ProviderFailure } from "@/lib/ai/providers";
 
 const GEMINI_API_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent";
 const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
 const CLAUDE_API_URL = "https://api.anthropic.com/v1/messages";
 

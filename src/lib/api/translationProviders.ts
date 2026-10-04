@@ -20,7 +20,7 @@ async function call(provider: AiProvider, url: string, init: RequestInit): Promi
 }
 
 const GEMINI_API_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent";
 /* 무료 키는 끝이 ":fx" 이고 api-free 주소만 받는다. 유료 키는 api 주소 — 주소를 하나로 박아 두면 유료 키가 403 이었다 */
 const deeplApiUrl = (key: string) => (key.endsWith(":fx") ? "https://api-free.deepl.com/v2/translate" : "https://api.deepl.com/v2/translate");
 const CLAUDE_API_URL = "https://api.anthropic.com/v1/messages";
