@@ -9,7 +9,7 @@ import Select from "@/components/ui/Select";
 import { Slider } from "@/components/ui/Slider";
 import Checkbox from "@/components/ui/Checkbox";
 import Popover from "@/components/ui/Popover";
-import { AlignLeft, AudioLines, BookOpen, ChevronDown, ExternalLink, File, Images, Languages, ListChecks, FastForward, Rewind, ChevronLeft, ChevronRight, ClipboardPaste, Check, History, Mic, Pause, Play, Sparkles, Square, Trash2, Upload, Volume2 } from "@/components/icons";
+import { AlignLeft, AudioLines, BookOpen, ChevronDown, Download, ExternalLink, File, Images, Languages, ListChecks, FastForward, Rewind, ChevronLeft, ChevronRight, ClipboardPaste, Check, History, Mic, Pause, Play, Sparkles, Square, Trash2, Upload, Volume2 } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { showToast } from "@/stores/toastStore";
@@ -657,13 +657,45 @@ function HistoryButton({ url, note, actions, tw, disabled }: { url: string; note
   );
 }
 
-/** 이력·녹음하기·녹음 올리기·지우기 — 듣기는 재생 막대 줄(PreviewSeek), 만들기는 조작 막대의 GenerateButton 하나로 */
-function NarrationTools({ url, note, actions, tw }: { url: string; note: GalleryNote | undefined; actions: NarrationActions; tw: (key: string) => string }) {
+/** 이 장의 음성 파일을 내려받는다 — 저장소 주소는 다른 출처라 <a download> 가 이름을 못 붙이므로 blob 으로 받아 저장한다.
+ *  이름은 "narration-{장 번호}.{확장자}" (TTS 는 mp3, 녹음은 wav) */
+async function downloadNarration(audio: string, slide: number, tw: (key: string) => string) {
+  try {
+    const res = await fetch(audio);
+    if (!res.ok) throw new Error(String(res.status));
+    const blob = await res.blob();
+    const ext = (blob.type.split("/")[1] || audio.split(".").pop() || "mp3").replace(/[^a-z0-9]/gi, "").replace(/^mpeg$/, "mp3");
+    const href = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = href;
+    a.download = `narration-${slide}.${ext}`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(href);
+  } catch {
+    showToast(tw("narrationDownloadFailed"), "error");
+  }
+}
+
+/** 이력·받기·녹음하기·녹음 올리기·지우기 — 듣기는 재생 막대 줄(PreviewSeek), 만들기는 조작 막대의 GenerateButton 하나로 */
+function NarrationTools({ url, note, slide, actions, tw }: { url: string; note: GalleryNote | undefined; slide: number; actions: NarrationActions; tw: (key: string) => string }) {
   const rowBusy = actions.busy.has(url);
   const locked = rowBusy || !!actions.bulk || !!actions.recording;
   return (
     <span className={styles.toolButtons}>
       <HistoryButton url={url} note={note} actions={actions} tw={tw} disabled={locked} />
+      <Button
+        variant="ghost"
+        size="sm"
+        shape="circle"
+        onClick={() => { if (note?.audio) void downloadNarration(note.audio, slide, tw); }}
+        disabled={locked || !note?.audio}
+        aria-label={tw("narrationDownload")}
+        title={tw("narrationDownload")}
+        soundDisabled
+        icon={<Download size={14} strokeWidth={2} />}
+      />
       <Button
         variant="ghost"
         size="sm"
@@ -1306,7 +1338,7 @@ export function GalleryNarrationPanel({
           </span>
         </span>
         <span className={styles.barActions}>
-          <NarrationTools url={url} note={note} actions={actions} tw={tw} />
+          <NarrationTools url={url} note={note} slide={gallery.indexOf(url) + 1} actions={actions} tw={tw} />
           <span className={styles.barDivider} aria-hidden />
           <PasteScriptsButton gallery={gallery} notes={notes} actions={actions} tw={tw} />
           {translate && <TranslateScriptsButton url={url} index={index} gallery={gallery} notes={notes} translate={translate} lang={actions.lang} tw={tw} disabled={generating} />}

@@ -1825,6 +1825,8 @@
         "narrationRecordLimit": "Recordings are capped at {{n}} minutes, so it stopped. Listen and press Done.",
         "narrationRecordEmpty": "Nothing was recorded.",
         "narrationRemove": "Remove audio",
+        "narrationDownload": "Download audio",
+        "narrationDownloadFailed": "Couldn't download the audio. Please try again.",
         "narrationSourceTts": "TTS",
         "narrationSourceRecorded": "Recording",
         "narrationNotSaved": "TTS audio wasn’t saved because the database has no column for it yet. Apply supabase/migrations/2026_09_21_works_gallery_notes.sql and save again.",

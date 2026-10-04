@@ -1825,6 +1825,8 @@
         "narrationRecordLimit": "녹음은 {{n}}분까지라 중지했어요. 들어 보고 완료해 주세요.",
         "narrationRecordEmpty": "녹음된 소리가 없어요.",
         "narrationRemove": "음성 지우기",
+        "narrationDownload": "음성 받기",
+        "narrationDownloadFailed": "음성 파일을 받지 못했어요. 다시 시도해 주세요.",
         "narrationSourceTts": "TTS",
         "narrationSourceRecorded": "녹음",
         "narrationNotSaved": "TTS 음성은 저장되지 않았습니다. DB 에 음성 칸이 없어서입니다. supabase/migrations/2026_09_21_works_gallery_notes.sql 을 적용한 뒤 다시 저장해 주세요.",
