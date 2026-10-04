@@ -12,8 +12,6 @@ import { Switch } from "@/components/ui/Switch";
 import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
 import Input from "@/components/ui/Input";
-import Popover from "@/components/ui/Popover";
-import HelpButton from "@/components/ui/HelpButton";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import type { SettingsTabProps } from "../_types";
 import type { SelectOption } from "@/types";
@@ -318,72 +316,70 @@ function ProviderFallbackBlock<P extends string>({
   ].filter(Boolean);
   return (
     <div className={styles.featureRow}>
-      {/* 한 줄 — 기능 이름 · 켜기 · (설명 ⓘ) · 기본 공급자 · 자동 전환 · 기록. 설명 · 필요한 키는 팝오버로 */}
-      <div className={styles.featureMain}>
-        <span className={styles.featureTitleCell}>
-          <h3 className={styles.featureTitle}>{title}</h3>
+      {/* 왼쪽 — 기능 이름 · 켜기 · 기록. 오른쪽 — 설명(필요한 키 포함) · 조작 한 줄(기본 공급자 · 자동 전환) · 순서 */}
+      <div className={styles.featureSide}>
+        <h3 className={styles.featureTitle}>{title}</h3>
+        <Switch
+          size="sm"
+          showStateText
+          checked={value?.enabled !== false}
+          onCheckedChange={(v) => onChange((prev) => ({ ...prev, enabled: v }))}
+        />
+        {logProviders?.length ? <ServiceLogLink query={{ category: "ai", provider: logProviders }} /> : null}
+      </div>
+      <div className={styles.featureBody}>
+        {hintLines.length > 0 && <HintLines lines={hintLines} className={styles.featureHints} />}
+        <div className={styles.featureControls}>
+          <label className={styles.featureControl}>
+            <span className={styles.featureControlLabel}><T k={providerLabelKey} /></span>
+            <Select
+              value={provider}
+              options={labelled}
+              className={styles.featureSelect}
+              onChange={(v) => {
+                const newProvider = v as P;
+                onChange((prev) => {
+                  const oldProvider = prev?.provider ?? defaultProvider;
+                  const oldPriority = prev?.fallback?.priority ?? [];
+                  const newPriority = [
+                    ...oldPriority.filter((p) => p !== newProvider),
+                    ...(oldPriority.includes(oldProvider) ? [] : [oldProvider]),
+                  ].filter((p) => p !== newProvider);
+                  return {
+                    ...prev,
+                    provider: newProvider,
+                    fallback: prev?.fallback ? { ...prev.fallback, priority: newPriority } : prev?.fallback,
+                  };
+                });
+              }}
+            />
+          </label>
           <Switch
             size="sm"
             showStateText
-            checked={value?.enabled !== false}
-            onCheckedChange={(v) => onChange((prev) => ({ ...prev, enabled: v }))}
-          />
-          {hintLines.length > 0 && (
-            <Popover placement="bottom-start" responsive={false} maxHeight={false} trigger={<HelpButton symbol="i" size="xs" aria-label={title} soundDisabled />}>
-              <div className={styles.featureHint}><HintLines lines={hintLines} /></div>
-            </Popover>
-          )}
-        </span>
-        <FieldRow label={<T k={providerLabelKey} />} className={styles.featureProvider}>
-          <Select
-            value={provider}
-            options={labelled}
-            onChange={(v) => {
-              const newProvider = v as P;
-              onChange((prev) => {
-                const oldProvider = prev?.provider ?? defaultProvider;
-                const oldPriority = prev?.fallback?.priority ?? [];
-                const newPriority = [
-                  ...oldPriority.filter((p) => p !== newProvider),
-                  ...(oldPriority.includes(oldProvider) ? [] : [oldProvider]),
-                ].filter((p) => p !== newProvider);
-                return {
-                  ...prev,
-                  provider: newProvider,
-                  fallback: prev?.fallback ? { ...prev.fallback, priority: newPriority } : prev?.fallback,
-                };
-              });
+            label={t("admin.settings.fallbackEnabled")}
+            checked={fallbackEnabled}
+            onCheckedChange={(v) => {
+              const defaultPriority = options.filter((o) => o.value !== provider).map((o) => o.value);
+              onChange((prev) => ({
+                ...prev,
+                fallback: {
+                  enabled: v,
+                  priority: prev?.fallback?.priority?.length ? prev.fallback.priority : defaultPriority,
+                  excluded: prev?.fallback?.excluded ?? [],
+                },
+              }));
             }}
           />
-        </FieldRow>
-        <Switch
-          showStateText
-          label={t("admin.settings.fallbackEnabled")}
-          labelPosition="top"
-          checked={fallbackEnabled}
-          onCheckedChange={(v) => {
-            const defaultPriority = options.filter((o) => o.value !== provider).map((o) => o.value);
-            onChange((prev) => ({
-              ...prev,
-              fallback: {
-                enabled: v,
-                priority: prev?.fallback?.priority?.length ? prev.fallback.priority : defaultPriority,
-                excluded: prev?.fallback?.excluded ?? [],
-              },
-            }));
-          }}
-        />
-        {logProviders?.length ? <span className={styles.featureLog}><ServiceLogLink query={{ category: "ai", provider: logProviders }} /></span> : null}
-      </div>
-      {/* 첫 공급자가 쓸 수 없는 상태면 여기서 바로 알린다 — 모르고 두면 요청마다 실패하고 fallback 으로만 돈다 */}
-      {primaryState && primaryState !== "ok" && (
-        <p className={styles.providerWarn}>{t(`admin.settings.providerWarn.${primaryState}`)}</p>
-      )}
-      {fallbackEnabled && usableFallbacks.length === 0 && (
-        <p className={styles.providerWarn}>{t("admin.settings.providerWarn.noFallback")}</p>
-      )}
-      {fallbackEnabled && (
-        <div className={styles.featureOrder}>
+        </div>
+        {/* 첫 공급자가 쓸 수 없는 상태면 여기서 바로 알린다 — 모르고 두면 요청마다 실패하고 fallback 으로만 돈다 */}
+        {primaryState && primaryState !== "ok" && (
+          <p className={styles.providerWarn}>{t(`admin.settings.providerWarn.${primaryState}`)}</p>
+        )}
+        {fallbackEnabled && usableFallbacks.length === 0 && (
+          <p className={styles.providerWarn}>{t("admin.settings.providerWarn.noFallback")}</p>
+        )}
+        {fallbackEnabled && (
           <PriorityList<P>
             primary={provider}
             priority={value?.fallback?.priority ?? []}
@@ -396,9 +392,9 @@ function ProviderFallbackBlock<P extends string>({
             onChange={(next) => onChange((prev) => ({ ...prev, fallback: { ...prev?.fallback, enabled: true, priority: next } }))}
             onExcludedChange={(next) => onChange((prev) => ({ ...prev, fallback: { ...prev?.fallback, enabled: true, excluded: next } }))}
           />
-        </div>
-      )}
-      {children && <div className={styles.featureExtra}>{children}</div>}
+        )}
+        {children}
+      </div>
     </div>
   );
 }
