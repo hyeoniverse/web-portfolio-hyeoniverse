@@ -15,7 +15,7 @@
 }
 
 .codeSingleView .codeSinglePane {
-  transition: opacity var(--duration-moderate) ease;
+  transition: opacity var(--duration-base) ease;
 }
 
 .codeSinglePaneActive {
@@ -237,7 +237,7 @@
 }
 
 .codeItemMobile .codeMobileToggle {
-  transition: transform var(--duration-slow) var(--_ease-bounce);
+  transition: transform var(--duration-slow) var(--_ease-spring);
 }
 
 .codeMobileToggleOpen {
@@ -253,9 +253,9 @@
 
 .codeItemMobile .codeMobileBody {
   transition:
-    max-height var(--duration-slow) var(--_ease-material),
-    opacity 0.4s var(--_ease-material),
-    padding var(--duration-slow) var(--_ease-material);
+    max-height var(--duration-slow) var(--_ease-standard),
+    opacity 0.4s var(--_ease-standard),
+    padding var(--duration-slow) var(--_ease-standard);
 }
 
 .codeMobileBodyOpen {
@@ -531,7 +531,7 @@
 
   /* Compound selector (0,2,0) */
   .codeIndex .codeIndexItem {
-    transition: color var(--duration-base) ease, padding var(--duration-base) var(--ease-material);
+    transition: color var(--duration-base) ease, padding var(--duration-base) var(--ease-standard);
   }
 
   .codeIndexItem:hover {

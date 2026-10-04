@@ -33,7 +33,7 @@
 }
 
 .wrapper .nav {
-  transition: max-height 0.35s var(--ease-material);
+  transition: max-height 0.35s var(--ease-standard);
 }
 
 .navExpanded {

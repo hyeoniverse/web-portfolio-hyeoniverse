@@ -26,9 +26,9 @@
 
 .compact.compact {
   transition:
-    background var(--duration-base) var(--ease-material),
-    border-color var(--duration-base) var(--ease-material),
-    color var(--duration-base) var(--ease-material);
+    background var(--duration-base) var(--ease-standard),
+    border-color var(--duration-base) var(--ease-standard),
+    color var(--duration-base) var(--ease-standard);
 }
 
 .compact:hover {

@@ -258,11 +258,12 @@
 /* 알림 팝업에서 넘어온 항목 — 다음 조작이 있을 때까지 천천히 깜빡인다(해제는 페이지가 한다).
    .item:hover 와 특정도를 맞춰야(.item.itemActive) hover 배경에 밀리지 않는다. */
 .item.itemActive {
-  animation: notifActiveFlash var(--duration-slowest) var(--ease-in-out) infinite;
+  --_flash-duration: 1.5s; /* 한 자리의 장식 — 시간 눈금에 두지 않는다(3.9-2) */
+  animation: notifActiveFlash var(--_flash-duration) var(--ease-standard) infinite;
 }
 
 .item.itemActive .dot {
-  animation: notifActiveDot var(--duration-slowest) var(--ease-in-out) infinite;
+  animation: notifActiveDot var(--_flash-duration) var(--ease-standard) infinite;
 }
 
 @keyframes notifActiveFlash {

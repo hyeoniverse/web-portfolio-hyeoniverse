@@ -628,7 +628,7 @@ code .token.italic {
 }
 
 div.math-element-wrap {
-  animation: mathRevealBlock 0.3s var(--ease-material);
+  animation: mathRevealBlock 0.3s var(--ease-standard);
   overflow: hidden;
 }
 

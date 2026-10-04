@@ -93,7 +93,7 @@
   height: var(--_size-close-btn);
   background: var(--bg-white);
   color: var(--text-black);
-  transition: all var(--duration-base) ease;
+  transition: transform var(--duration-base) ease, background-color var(--duration-base) ease, color var(--duration-base) ease;
   border-radius: var(--radius-full);
 }
 
@@ -183,7 +183,7 @@
   font-size: var(--_font-size-md);
   color: var(--text-black);
   text-align: center;
-  transition: all var(--duration-slow) var(--ease-material);
+  transition: background-color var(--duration-slow) var(--ease-standard), color var(--duration-slow) var(--ease-standard), transform var(--duration-slow) var(--ease-standard);
   border-radius: var(--radius-control);
   transform: scale(1);
 }
@@ -227,8 +227,8 @@
   height: 100%;
   background: transparent;
   color: var(--text-black);
-  animation: fileCancelAppear var(--duration-slow) var(--ease-bounce) forwards;
-  transition: all 0.4s var(--ease-material);
+  animation: fileCancelAppear var(--duration-slow) var(--ease-spring) forwards;
+  transition: opacity 0.4s var(--ease-standard), transform 0.4s var(--ease-standard), background-color 0.4s var(--ease-standard), color 0.4s var(--ease-standard);
   border-radius: var(--radius-full);
   opacity: 0;
   transform: scale(0.8) rotate(-90deg);
@@ -309,7 +309,7 @@
   font-size: var(--_font-size-sm);
   color: var(--text-accent);
   white-space: nowrap;
-  transition: all 0.4s var(--ease-bounce);
+  transition: opacity 0.4s var(--ease-spring), transform 0.4s var(--ease-spring);
   pointer-events: none;
   border-radius: var(--radius-control);
   opacity: 0;
@@ -352,7 +352,7 @@
   position: relative;
   width: var(--_size-checkbox);
   height: var(--_size-checkbox);
-  transition: all var(--duration-fast) ease;
+  transition: background-color var(--duration-fast) ease, border-color var(--duration-fast) ease;
   /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 동의 체크박스 — 네모가 곧 의미 */
   border-radius: var(--radius-mark);
   appearance: none;
@@ -401,7 +401,7 @@
   font-weight: var(--font-weight-medium);
   color: var(--bg-white);
   letter-spacing: 0.01em;
-  transition: all var(--duration-base) ease;
+  transition: background-color var(--duration-base) ease, color var(--duration-base) ease, transform var(--duration-base) ease;
   border-radius: var(--radius-control);
 }
 
@@ -584,7 +584,7 @@
   font-weight: var(--font-weight-medium);
   color: var(--text-black);
   letter-spacing: 0.02em;
-  transition: all var(--duration-base) ease;
+  transition: background-color var(--duration-base) ease, color var(--duration-base) ease;
   border-radius: var(--radius-control);
 }
 
@@ -776,7 +776,7 @@
      fill="currentColor" 를 직접 달고 있어 svg 에 fill 을 줘도 닿지 않는다 — 색은 color 로 준다.
      예전에는 svg fill 만 줘서 글리프가 본문 글자색을 따라갔고, 밝은 테마에서 검은 원 위의 검은 글리프가 됐다 */
   color: var(--bg-white);
-  transition: all var(--duration-base) ease;
+  transition: background-color var(--duration-base) ease, color var(--duration-base) ease, border-color var(--duration-base) ease;
   border-radius: var(--radius-full);
 }
 

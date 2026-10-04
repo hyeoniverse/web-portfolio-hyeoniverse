@@ -216,7 +216,7 @@
 
   /* Compound selector (0,2,0) */
   .flowItem .flowItemDesc {
-    transition: max-height var(--duration-slow) var(--ease-material);
+    transition: max-height var(--duration-slow) var(--ease-standard);
   }
 
   .flowItem:hover .flowItemDesc,

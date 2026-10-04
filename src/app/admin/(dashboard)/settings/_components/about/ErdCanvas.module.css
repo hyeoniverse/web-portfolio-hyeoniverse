@@ -39,9 +39,9 @@
   overflow: hidden;
 }
 .grid .card {
-  transition: border-color var(--duration-fast) var(--ease-material),
-    background-color var(--duration-fast) var(--ease-material),
-    opacity var(--duration-fast) var(--ease-material);
+  transition: border-color var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard),
+    opacity var(--duration-fast) var(--ease-standard);
 }
 /* 카드는 뜨지 않는다 — 배경만 한 단계 올려 눌리는 자리임을 알린다 */
 .card:hover {

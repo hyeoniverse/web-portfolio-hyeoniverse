@@ -17,7 +17,7 @@
 /* fetch 중 — 기존 카드 그대로 두고 dim 만. height 변화 없음 → 완전 고정 레이아웃 */
 .grid.gridLoading {
   opacity: 0.55;
-  transition: opacity var(--duration-base) var(--ease-material);
+  transition: opacity var(--duration-base) var(--ease-standard);
   pointer-events: none;
 }
 
@@ -339,8 +339,8 @@
   outline-offset: 0;
   z-index: 3;
   transition:
-    background var(--duration-fast) var(--ease-material),
-    box-shadow var(--duration-fast) var(--ease-material);
+    background var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard);
 }
 .gridItemTlLeft::before { right: -5.5px; }
 .gridItemTlRight::before { left: -5.5px; }

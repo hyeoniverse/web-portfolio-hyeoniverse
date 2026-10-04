@@ -132,7 +132,7 @@
 /* hover image scale — placeholder 도 동일하게. placeholder 는 translate 유지하면서 scale 추가 */
 .relatedSection .relatedCard .relatedCardImg,
 .relatedSection .relatedCard .relatedCardPlaceholder {
-  transition: transform var(--duration-base) var(--ease-material);
+  transition: transform var(--duration-base) var(--ease-standard);
 }
 
 .relatedSection .relatedCard:hover .relatedCardImg {
