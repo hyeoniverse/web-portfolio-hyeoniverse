@@ -15,6 +15,7 @@ import { useStateFromProp } from "@/hooks/useStateFromProp";
 import { createPortal } from "react-dom";
 import { COPY_FEEDBACK_MS } from "@/constants";
 import { AnimatePresence, motion } from "framer-motion";
+import { usePopoverRef } from "@/hooks/useTopLayer";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useLenis } from "@/providers/LenisProvider";
 import {
@@ -147,6 +148,9 @@ export default function ColorPicker({
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLSpanElement>(null);
   const popRef = useRef<HTMLDivElement>(null);
+  /* portal 팝오버 · 시트 · 스크림은 top layer(3.10-1) */
+  const topPopRef = usePopoverRef<HTMLDivElement>(popRef);
+  const topBackdropRef = usePopoverRef<HTMLDivElement>();
   const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
   /* 모바일 (화면 너비 ≤ 768px) 일 땐 dropdown 대신 bottom sheet 으로 렌더. (inline 모드 제외) */
   const { isMobile } = useIsMobile();
@@ -1110,6 +1114,8 @@ export default function ColorPicker({
           {open && useSheet && (
             <motion.div
               key="cp-backdrop"
+              ref={topBackdropRef}
+              popover="manual"
               className={styles.sheetBackdrop}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -1121,7 +1127,8 @@ export default function ColorPicker({
           {open && (pos || useSheet) && (
             <motion.div
               key="cp-overlay"
-              ref={popRef}
+              ref={topPopRef}
+              popover="manual"
               className={`${useSheet ? `ui-sheet ${styles.sheet}` : styles.popover} ${shaking ? styles.shaking : ""}`}
               style={useSheet ? undefined : { top: pos!.top, left: pos!.left }}
               initial={useSheet ? { y: "100%" } : { opacity: 0, scale: 0.96 }}

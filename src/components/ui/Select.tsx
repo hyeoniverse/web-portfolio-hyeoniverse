@@ -5,6 +5,7 @@ import { useDepsChanged } from "@/hooks/useDepsChanged";
 import { createPortal } from "react-dom";
 import { ChevronRight, Eraser, PenLine, X } from "@/components/icons";
 import { usePortalContainer } from "./portalContainer";
+import { usePopoverRef } from "@/hooks/useTopLayer";
 import styles from "./Select.module.css";
 import Pressable from "@/components/ui/Pressable";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -141,6 +142,8 @@ export default function Select({
   /* combobox input ↔ 목록 연결용. dropdown 은 portal 이라 id 로만 이을 수 있다. */
   const listboxId = useId();
   const dropdownRef = useRef<HTMLDivElement>(null);
+  /* 목록은 top layer(3.10-1) — 붙는 순간 띄우고 dropdownRef 에도 넣는다 */
+  const topDropdownRef = usePopoverRef<HTMLDivElement>(dropdownRef);
   const inputRef = useRef<HTMLInputElement>(null);
   const [dropPos, setDropPos] = useState<{ top: number; left: number; width: number; tailTop?: number }>({ top: 0, left: 0, width: 0 });
   // 선택 항목을 trigger 에 정렬(native select 처럼) + 뷰포트 밖으로 안 나가게 clamp 한 최종 top / maxHeight
@@ -618,7 +621,8 @@ export default function Select({
       )}
       {visible && createPortal(
         <div
-          ref={dropdownRef}
+          ref={topDropdownRef}
+          popover="manual"
           id={listboxId}
           className={`${styles.dropdown} ${showCheck ? styles.dropdownChecked : ""} ${bubble ? `${styles.bubble} ${styles.bubbleRight}` : ""} ${animateOpen ? styles.dropdownOpen : styles.dropdownClose} ${dropdownClassName ?? ""}`}
           style={portalStyle}
