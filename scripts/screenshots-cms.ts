@@ -55,7 +55,8 @@ const POST_UNTRANSLATED = args["post-untranslated"];
 const DRAFT_WORK_ID = args["draft-work"];
 const PPTX = args.pptx;
 const AUTH = resolve("e2e/.auth/admin.json");
-const HOME_PRESETS = (args.presets || "Forest,Twilight,Arctic").split(",");
+/* 14 — 라이트 배경이 하늘·분홍·크림, 다크 배경이 남색·흑분홍·녹흑으로 두 모드 다 갈린다(Forest·Twilight 은 라이트에서 거의 같아 보였고, Azure 는 다크에서 Arctic 과 같은 남색) */
+const HOME_PRESETS = (args.presets || "Arctic,Rosewood,Meadow").split(",");
 /** 11 — 작업물에 저장된 요약이 없을 때 미리보기에 넣을 { summary_ko, summary_en } JSON */
 const SUMMARY_FILE = args["summary-file"];
 
@@ -70,12 +71,13 @@ const HAS_FFMPEG = spawnSync("ffmpeg", ["-version"], { stdio: "ignore" }).status
 const VIEWPORT = { width: 1440, height: 900 };
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-async function newContext(browser: Browser, opts: { video?: string; admin?: boolean } = {}): Promise<BrowserContext> {
+async function newContext(browser: Browser, opts: { video?: string; admin?: boolean; theme?: "light" | "dark" } = {}): Promise<BrowserContext> {
+  const theme = opts.theme ?? THEME;
   const ctx = await browser.newContext({
     viewport: VIEWPORT,
     deviceScaleFactor: 2,
     storageState: opts.admin === false ? undefined : AUTH,
-    colorScheme: THEME,
+    colorScheme: theme,
     permissions: ["microphone"],
     recordVideo: opts.video ? { dir: join(OUT, ".video"), size: VIEWPORT } : undefined,
   });
@@ -91,7 +93,7 @@ async function newContext(browser: Browser, opts: { video?: string; admin?: bool
         document.head.appendChild(style);
       });
     },
-    ["ko", THEME],
+    ["ko", theme],
   );
   /* 음성이 언제 어떤 파일로 시작됐는지 남긴다 — 1번 mp4 에 소리를 입힐 때 영상 시각과 맞추는 기준.
      Playwright 녹화에는 소리가 없다. 문자열로 넘기는 이유는 interceptUploads 와 같다 */
@@ -265,6 +267,35 @@ async function openWorkEditor(page: Page, id: string) {
   await page.locator('[data-gallery-index="0"]').first().click();
   await page.getByPlaceholder("읽을 대본").first().waitFor({ timeout: 15_000 });
   await frameGalleryBench(page);
+}
+
+/** 그림 몇 장을 옆으로 이어 붙이고 이름표를 단 한 장으로 — 브라우저에 HTML 로 그려 찍는다(별도 라이브러리 없이) */
+async function composePanels(ctx: BrowserContext, panels: { name: string; png: Buffer }[], mode: "light" | "dark", file: string) {
+  const W = 960, GAP = 24, LABEL = 44, PAD = 20;
+  const total = panels.length * W + (panels.length - 1) * GAP + PAD * 2;
+  const bg = mode === "dark" ? "#111114" : "#ffffff";
+  const page = await ctx.newPage();
+  await page.setViewportSize({ width: total, height: 10 });
+  const cells = panels
+    .map(
+      (p) =>
+        `<figure><figcaption>${p.name}<span>${mode}</span></figcaption><img src="data:image/png;base64,${p.png.toString("base64")}" /></figure>`,
+    )
+    .join("");
+  await page.setContent(
+    `<!doctype html><html><head><style>
+      html,body{margin:0;background:${bg}}
+      .row{display:flex;gap:${GAP}px;width:${total}px;padding:${PAD}px;box-sizing:border-box;background:${bg}}
+      figure{margin:0;width:${W}px}
+      figcaption{height:${LABEL}px;display:flex;align-items:center;gap:10px;font:600 15px/1 -apple-system,"Helvetica Neue",Arial,sans-serif;color:${mode === "dark" ? "#e8e8e8" : "#1a1a1a"};letter-spacing:.02em}
+      figcaption span{font-weight:400;color:#8a8a8a;text-transform:uppercase;font-size:12px;letter-spacing:.08em}
+      img{display:block;width:${W}px;border-radius:12px;box-shadow:0 1px 0 rgba(0,0,0,.08)}
+    </style></head><body><div class="row">${cells}</div></body></html>`,
+  );
+  const row = page.locator(".row");
+  await row.screenshot({ path: file });
+  console.log(`  ✓ ${basename(file)}`);
+  await page.close();
 }
 
 /** 사이트가 테마 색을 CSS 변수로 옮기는 규칙(ThemeProvider) 그대로 홈에 입힌다 — 저장 없이 미리 본다 */
@@ -586,10 +617,14 @@ const SCENES: Scene[] = [
     n: 14,
     name: "home-presets",
     // 14. 같은 홈을 다른 프리셋으로 — 저장 없이 ThemeProvider 규칙으로 변수만 입힌다
+    //     라이트 · 다크를 각각 한 장으로 — 세 장을 옆으로 이어 붙이고 이름표를 단다. README 표에 세 장을 넣으면
+    //     GitHub 이 열 폭을 내용에 따라 다르게 잡아 한 장만 커 보인다.
     run: async (browser) => {
-      const ctx = await newContext(browser, { admin: false });
+      for (const mode of ["light", "dark"] as const) {
+      const ctx = await newContext(browser, { admin: false, theme: mode });
+      const panels: { name: string; png: Buffer }[] = [];
       for (const preset of HOME_PRESETS) {
-        const vars = presetVars(preset, THEME);
+        const vars = presetVars(preset, mode);
         const page = await ctx.newPage();
         /* init 시점엔 documentElement 가 아직 없다 — DOM 이 생긴 뒤 입히고, ThemeProvider 가 기본값이라며
            변수를 지울 때마다(style 속성 변경) 다시 입힌다. 페이지로 들어가는 코드는 문자열로 — tsx(esbuild) 가
@@ -608,10 +643,12 @@ const SCENES: Scene[] = [
           })();`,
         });
         await open(page, "/", 3500);
-        await shot(page, `14-home-${preset.toLowerCase()}`);
+        panels.push({ name: preset, png: await page.screenshot() });
         await page.close();
       }
+      await composePanels(ctx, panels, mode, join(OUT, `14-home-presets-${mode}.png`));
       await ctx.close();
+      }
     },
   },
   {

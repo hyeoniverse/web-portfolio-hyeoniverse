@@ -158,11 +158,11 @@ On the public site, a **translation banner** appears when the viewed language ha
 |:---:|:---:|
 | <img src="public/images/screenshots/cms/13-theme-wheel-light.png" alt="Color wheel suggestions" width="100%" /> | <img src="public/images/screenshots/cms/13-theme-from-image-light.png" alt="Colors extracted from an image" width="100%" /> |
 
-The same home page under three presets.
+The same home page under three presets — Arctic · Rosewood · Meadow, in light and dark. Only the five colors (background, text, accent) change; the neutral scale in between is derived from them by the site.
 
-| Forest | Twilight | Arctic |
-|:---:|:---:|:---:|
-| <img src="public/images/screenshots/cms/14-home-forest-light.png" alt="Home — Forest" width="100%" /> | <img src="public/images/screenshots/cms/14-home-twilight-light.png" alt="Home — Twilight" width="100%" /> | <img src="public/images/screenshots/cms/14-home-arctic-light.png" alt="Home — Arctic" width="100%" /> |
+<img src="public/images/screenshots/cms/14-home-presets-light.png" alt="Home — Arctic · Rosewood · Meadow (light)" width="100%" />
+
+<img src="public/images/screenshots/cms/14-home-presets-dark.png" alt="Home — Arctic · Rosewood · Meadow (dark)" width="100%" />
 
 #### Linking posts and works · SEO check
 

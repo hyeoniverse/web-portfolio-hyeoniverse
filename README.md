@@ -158,11 +158,11 @@ Plate.js 로 만든 편집기입니다. 위 툴바는 작용 범위별로 묶여
 |:---:|:---:|
 | <img src="public/images/screenshots/cms/13-theme-wheel-light.png" alt="색상환 추천" width="100%" /> | <img src="public/images/screenshots/cms/13-theme-from-image-light.png" alt="이미지에서 색 뽑기" width="100%" /> |
 
-같은 홈을 프리셋만 바꿔 본 모습입니다.
+같은 홈을 프리셋만 바꿔 본 모습입니다 — Arctic · Rosewood · Meadow 를 라이트와 다크로. 배경 · 글자 · 강조색 다섯 값만 바뀌고 나머지 무채색 단계는 그 값에서 사이트가 계산합니다.
 
-| Forest | Twilight | Arctic |
-|:---:|:---:|:---:|
-| <img src="public/images/screenshots/cms/14-home-forest-light.png" alt="홈 — Forest" width="100%" /> | <img src="public/images/screenshots/cms/14-home-twilight-light.png" alt="홈 — Twilight" width="100%" /> | <img src="public/images/screenshots/cms/14-home-arctic-light.png" alt="홈 — Arctic" width="100%" /> |
+<img src="public/images/screenshots/cms/14-home-presets-light.png" alt="홈 — Arctic · Rosewood · Meadow (라이트)" width="100%" />
+
+<img src="public/images/screenshots/cms/14-home-presets-dark.png" alt="홈 — Arctic · Rosewood · Meadow (다크)" width="100%" />
 
 #### 글과 작업물 잇기 · SEO 점검
 
