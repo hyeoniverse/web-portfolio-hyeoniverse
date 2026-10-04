@@ -71,7 +71,6 @@
   opacity: 0.35;
   animation-name: twinkle;
   animation-iteration-count: infinite;
-  animation-play-state: var(--motion-play);
   animation-timing-function: var(--ease-standard);
 }
 
@@ -97,7 +96,6 @@
   /* 달에 바싹 붙는 테 — 강조 빛 역할. 넓게 퍼지는 분홍 무리는 .moonGlow 가 따로 그린다. */
   box-shadow: var(--shadow-glow);
   animation: moonFloat var(--_moonFloat-duration) var(--ease-standard) infinite;
-  animation-play-state: var(--motion-play);
 }
 
 /* 무리 — box-shadow 가 아니라 그라데이션 한 겹이다.
@@ -116,7 +114,6 @@
   border-radius: var(--radius-full);
   background: radial-gradient(closest-side, var(--bg-accent-light) 0%, transparent 100%);
   animation: moonFloat var(--_moonFloat-duration) var(--ease-standard) infinite;
-  animation-play-state: var(--motion-play);
   pointer-events: none;
 }
 
@@ -184,7 +181,6 @@
   animation-name: drift;
   animation-timing-function: linear;
   animation-iteration-count: infinite;
-  animation-play-state: var(--motion-play);
 }
 
 /* 넷이 같은 실루엣이면 같은 구름이 네 번 지나가는 것으로 보인다. 봉우리 자리만 바꿔 둔다. */
@@ -257,7 +253,6 @@
   animation-name: shoot;
   animation-timing-function: var(--ease-standard);
   animation-iteration-count: infinite;
-  animation-play-state: var(--motion-play);
 }
 
 .streak[data-streak="a"] {
@@ -293,7 +288,6 @@
   animation-name: glyphFloat;
   animation-timing-function: var(--ease-standard);
   animation-iteration-count: infinite;
-  animation-play-state: var(--motion-play);
 }
 
 @keyframes glyphFloat {

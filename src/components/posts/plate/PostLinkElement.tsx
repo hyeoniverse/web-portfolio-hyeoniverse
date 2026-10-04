@@ -10,7 +10,6 @@ import { useEditorRef, useSelected, PlateElement, type PlateElementProps } from 
 import { FileText, ExternalLink, Trash2, Replace } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import Popover from "@/components/ui/Popover";
-import LoopVideo from "@/components/ui/LoopVideo";
 import { cachedPostIcon, fetchPostIcon, primePostIcon, isImageIcon, isVideoIcon } from "./postLinkIcon";
 import styles from "./PostLink.module.css";
 import Pressable from "@/components/ui/Pressable";
@@ -26,7 +25,7 @@ function PostLinkIcon({ slug, icon }: { slug: string; icon?: string }) {
     return () => { alive = false; };
   }, [slug, resolved]);
   // 동영상 cover 는 <img> 로 못 띄워 엑박 → <video> 로 (gif 는 이미지라 <img> 로 동작)
-  if (resolved && isVideoIcon(resolved)) return <LoopVideo className={styles.pillIconImg} src={resolved} autoPlay loop muted playsInline aria-hidden />;
+  if (resolved && isVideoIcon(resolved)) return <video className={styles.pillIconImg} src={resolved} autoPlay loop muted playsInline aria-hidden />;
   // eslint-disable-next-line @next/next/no-img-element -- 작은 게시물 아이콘, 최적화 불필요
   if (resolved && isImageIcon(resolved)) return <img className={styles.pillIconImg} src={resolved} alt="" aria-hidden />;
   if (resolved) return <span className={styles.pillIconEmoji} aria-hidden>{resolved}</span>;

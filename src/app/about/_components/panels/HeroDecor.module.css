@@ -40,7 +40,6 @@
     background: var(--text-accent);
     border-radius: var(--radius-full);
     animation: blink var(--_blink-duration) steps(1) infinite;
-    animation-play-state: var(--motion-play);
   }
 
   .timecode {
@@ -58,7 +57,6 @@
     height: auto;
     translate: 0 -95%;
     animation: spin var(--_spin-duration) linear infinite;
-    animation-play-state: var(--motion-play);
   }
 
   .badgeText {

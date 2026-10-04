@@ -8,7 +8,6 @@ import { ABOUT_CHAPTERS } from "@/data/about/chapters";
 import Pressable from "@/components/ui/Pressable";
 import HeroDecor from "./HeroDecor";
 import T from "@/components/ui/T";
-import LoopVideo from "@/components/ui/LoopVideo";
 import frame from "../AboutPanel.module.css";
 import shell from "../AboutSection.module.css";
 import local from "./HeroPanel.module.css";
@@ -134,7 +133,7 @@ export default function HeroPanel({ goToPanel }: { goToPanel?: (key: string) => 
   return (
     <div className={[styles.panel, styles.heroPanelBg, heroBg && styles.heroBgCustom, (videoUrl || imageUrl) && styles.heroMediaMode, !isLoading && styles.heroReady].filter(Boolean).join(" ")} style={panelStyle} suppressHydrationWarning>
       {videoUrl && (
-        <LoopVideo
+        <video
           className={styles.heroBgMedia}
           src={videoUrl}
           autoPlay

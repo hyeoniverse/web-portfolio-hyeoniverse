@@ -326,7 +326,6 @@
 .zoom:not(.clicking) .cursorInner {
   --_pulse-duration: 2s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   animation: pulse var(--_pulse-duration) var(--ease-standard) infinite;
-  animation-play-state: var(--motion-play);
 }
 .clicking .cursorInner {
   animation: clickPulse var(--duration-fast) var(--ease-enter);
