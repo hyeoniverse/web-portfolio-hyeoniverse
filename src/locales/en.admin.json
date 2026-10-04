@@ -711,6 +711,8 @@
       "aiCoverProvider": "AI Cover Provider",
       "aiSummarySettings": "AI Auto Summary",
       "aiSummaryProvider": "AI Summary Provider",
+      "aiModels": "AI models",
+      "aiModelsHint": "Model names used for summaries and translation. Leave empty to use each provider's latest alias. If a provider retires a model and returns 404, change it here.",
       "commentNotifications": "Comment Notifications",
       "commentEmailNotify": "Receive comment email notifications",
       "commentEmailNotifyDesc": "Get an email when a new comment is posted.",

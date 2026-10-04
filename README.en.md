@@ -188,7 +188,7 @@ The **recording editor** records from the microphone, then lets you click the wa
 
 #### Auto-translation and AI summary
 
-Flip the editor's KO/EN switch to **EN** and, when the source has content and every English field is empty, title, subtitle, description, body and gallery scripts are filled in one pass. If some English fields are already filled, the **Retranslate** button next to the switch lets you pick a scope (all · subtitle · description · body · gallery scripts). Translations land in the form only and persist when you save. **Settings › Services** sets, per feature (translation · AI summary · TTS · AI cover), a primary provider and an ordered fallback list; a provider that keeps failing for the same reason is paused by the health panel (the "failing · off" badges below).
+Flip the editor's KO/EN switch to **EN** and, when the source has content and every English field is empty, title, subtitle, description, body and gallery scripts are filled in one pass. If some English fields are already filled, the **Retranslate** button next to the switch lets you pick a scope (all · subtitle · description · body · gallery scripts). Translations land in the form only and persist when you save. **Settings › Services** sets, per feature (translation · AI summary · TTS · AI cover), a primary provider and an ordered fallback list; a provider that keeps failing for the same reason is paused by the health panel (the "failing · off" badges below). The **model name** each provider calls is set in the same tab's AI models fields; leave them empty for the provider's latest alias, so a retired model never requires a code change.
 
 | Editor — English fields filled via Retranslate › All | Settings › Services — providers and fallback order |
 |:---:|:---:|
