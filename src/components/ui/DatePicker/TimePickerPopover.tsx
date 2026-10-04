@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
 import TimePicker from "./TimePicker";
 import { usePortalContainer } from "../portalContainer";
+import { usePopoverRef } from "@/hooks/useTopLayer";
 import styles from "./DatePicker.module.css";
 
 interface TimePickerPopoverProps {
@@ -26,6 +27,8 @@ export default function TimePickerPopover({
   hour, minute, onSelect, onClose, minuteStep, inline = false, portal = false, defaultFormat,
 }: TimePickerPopoverProps) {
   const popoverRef = useRef<HTMLDivElement>(null);
+  /* 포털 틀은 top layer(3.10-1) — 붙는 순간 띄운다. 좌표 측정보다 먼저라 숨은 채로 재지 않는다 */
+  const topPopoverRef = usePopoverRef<HTMLDivElement>(popoverRef);
   const anchorRef = useRef<HTMLSpanElement>(null);
   const portalContainer = usePortalContainer();
   const usePortal = portal && !inline;
@@ -94,7 +97,7 @@ export default function TimePickerPopover({
         <span ref={anchorRef} aria-hidden style={{ display: "none" }} />
         {createPortal(
           // 항상 렌더하되 좌표 잡히기 전엔 visibility:hidden — 측정용 실체가 있어야 flip 을 페인트 전에 끝냄
-          <div ref={popoverRef} className={styles.popoverPortal} style={{ top: coords?.top ?? 0, left: coords?.left ?? 0, visibility: coords ? undefined : "hidden" }}>
+          <div ref={topPopoverRef} popover="manual" className={styles.popoverPortal} style={{ top: coords?.top ?? 0, left: coords?.left ?? 0, visibility: coords ? undefined : "hidden" }}>
             {chrome}
           </div>,
           portalContainer ?? document.body,

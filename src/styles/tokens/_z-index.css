@@ -8,7 +8,6 @@
   --z-index-nav: 100; /* 고정 네비게이션 */
   --z-index-float: 200; /* nav 위 고정 UI (dot nav, credits footer) */
   --z-index-dropdown: 500; /* 드롭다운/셀렉트 (페이지 레벨 — 오버레이 아래). 모달 안에선 PortalContainerContext 로 모달 layer 에 portal 돼 자동으로 위에 뜸 */
-  --z-index-popover: 600; /* 팝오버 (페이지 레벨 — 드롭다운 위, 오버레이 아래). 모달 안이면 layer portal 로 모달 위에 뜸 */
   --z-index-tooltip: 700; /* 툴팁 (팝오버 위, 오버레이 아래). 모달 안이면 layer portal 로 모달 위에 뜸 */
   --z-index-modal: 8000; /* 모달, 이미지 뷰어 */
   --z-index-overlay: 9000; /* 전체화면 오버레이 (drawer) */
