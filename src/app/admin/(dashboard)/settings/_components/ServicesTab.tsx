@@ -56,12 +56,11 @@ function loadModelList(provider: AiModelProvider) {
   return p;
 }
 
-/** 모델 콤보박스 — 순서 줄 상자 안, 공급자 이름 자리(모델 이름에 공급자가 들어 있어 이름을 또 쓰지 않는다).
- *  그 공급자 키로 지금 부를 수 있는 모델 목록에서 고르거나 적어서 거른다. 빈 값 = 최신 별칭.
- *  목록을 못 받으면(키 없음 · 거절) 최신만 남고 제목에 이유를 적는다 */
+/** 모델 고르기 — 순서 줄 상자 안, 공급자 이름 자리(모델 이름에 공급자가 들어 있어 이름을 또 쓰지 않는다).
+ *  트리거는 테두리 없이 글과 › 만 — 바깥 상자 하나로 보인다. 목록은 그 공급자 키로 지금 부를 수 있는 모델.
+ *  빈 값 = 최신 별칭. 목록을 못 받으면(키 없음 · 거절) 최신만 남고 제목에 이유를 적는다 */
 function ModelSelect({ t, provider, value, onChange }: { t: TFunction; provider: AiModelProvider; value: string; onChange: (v: string) => void }) {
   const [list, setList] = useState<{ models: string[]; reason: string | null } | null>(null);
-  const [draft, setDraft] = useState<string | null>(null);
   useEffect(() => {
     let alive = true;
     void loadModelList(provider).then((d) => { if (alive) setList(d); });
@@ -75,23 +74,17 @@ function ModelSelect({ t, provider, value, onChange }: { t: TFunction; provider:
     ...(value && value !== latest && !models.includes(value) ? [{ value, label: value }] : []),
     ...models.map((m) => ({ value: m, label: m })),
   ];
-  const current = value || latest;
-  const pick = (v: string) => { setDraft(null); onChange(v === latest ? "" : v); };
   const reason = list?.reason === "nokey" ? t("admin.aiHealth.stateNoKey") : list?.reason ? fillTemplate(t("admin.aiHealth.modelListFailed"), { reason: list.reason }) : "";
   return (
     <span className={styles.modelSelect} title={reason || t("admin.settings.aiModelsHint")} onPointerDown={(e) => e.stopPropagation()}>
       <Select
-        combobox
         size="sm"
         width="full"
-        value={current}
-        inputValue={draft ?? current}
-        onInputChange={setDraft}
-        onChange={pick}
-        onAdd={(v) => { if (options.some((o) => o.value === v)) pick(v); else setDraft(null); }}
-        /* 지금 값이 입력칸에 있으니 그걸로 거르면 한 줄만 남는다 — 목록은 늘 전부 */
-        filterByInput={false}
+        triggerClassName={styles.modelTrigger}
+        value={value || latest}
+        onChange={(v) => onChange(v === latest ? "" : v)}
         options={options}
+        renderValue={(o) => (o?.value === latest ? latest : o?.label ?? latest)}
       />
     </span>
   );
