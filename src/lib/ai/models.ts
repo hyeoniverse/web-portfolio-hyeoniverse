@@ -6,11 +6,16 @@ import { getSiteConfig } from "@/lib/getSiteConfig";
  *  Hugging Face 에는 별칭이 없어 "latest" 를 우리가 센티널로 두고, 부를 때 Hub 에서
  *  지금 추론이 되는 text-to-image 모델 가운데 인기 1위로 푼다(resolveHfLatest).
  *  NanoBanana(리셀러 nanobananaapi.ai)는 엔드포인트가 곧 모델이다 — generate-2 가 최신. */
-export type AiModelProvider = "gemini" | "openai" | "claude" | "huggingface" | "nanobanana";
+export type AiModelProvider = "gemini" | "openai" | "claude" | "huggingface" | "nanobanana" | "google_tts";
 
 export const HF_LATEST = "latest";
 /** Hub 가 안 응답할 때 쓸 마지막 보루 */
 export const HF_FALLBACK_MODEL = "black-forest-labs/FLUX.1-schnell";
+
+/** Google Cloud TTS 는 모델이 아니라 목소리 등급(Chirp3-HD · Neural2 · Wavenet · Standard …)이 단위다.
+ *  "latest" 는 voices API 에 지금 있는 등급 가운데 가장 새 것(GOOGLE_TTS_TIER_RANK 앞쪽), 성별×언어(ko/en) 네 목소리를 다 갖춘 등급만 */
+export const GOOGLE_TTS_LATEST = "latest";
+export const GOOGLE_TTS_TIER_RANK = ["Chirp3-HD", "Chirp-HD", "Neural2", "Studio", "Wavenet", "Standard"];
 
 export type NanoBananaModel = "nanobanana" | "nanobanana-2" | "nanobanana-pro";
 export const NANOBANANA_MODELS: NanoBananaModel[] = ["nanobanana-2", "nanobanana-pro", "nanobanana"];
@@ -21,6 +26,7 @@ export const DEFAULT_AI_MODELS: Record<AiModelProvider, string> = {
   claude: "claude-haiku-4-5",
   huggingface: HF_LATEST,
   nanobanana: "nanobanana-2",
+  google_tts: GOOGLE_TTS_LATEST,
 };
 
 /** 설정에 적은 모델 이름, 비어 있으면 기본 별칭(HF 는 "latest" 센티널 그대로 — 부르는 쪽이 resolveHfLatest 로 푼다) */
@@ -69,4 +75,63 @@ export async function hfModel(): Promise<string> {
 export async function nanoBananaModel(): Promise<NanoBananaModel> {
   const m = await aiModel("nanobanana");
   return (NANOBANANA_MODELS as string[]).includes(m) ? (m as NanoBananaModel) : "nanobanana-2";
+}
+
+/* ── Google Cloud TTS 등급 ── */
+
+export type GoogleTtsGender = "female" | "male";
+export type GoogleTtsLang = "ko-KR" | "en-US";
+type GoogleVoice = { name: string; languageCodes: string[]; ssmlGender: "FEMALE" | "MALE" | "NEUTRAL" | "SSML_VOICE_GENDER_UNSPECIFIED" };
+
+let googleVoicesCache: { at: number; voices: GoogleVoice[] } | null = null;
+const GOOGLE_VOICES_TTL = 60 * 60 * 1000;
+
+/** 그 키로 쓸 수 있는 목소리 전부(ko-KR · en-US). 한 시간 캐시, 실패하면 빈 배열 */
+export async function listGoogleVoices(key: string): Promise<GoogleVoice[]> {
+  if (googleVoicesCache && Date.now() - googleVoicesCache.at < GOOGLE_VOICES_TTL) return googleVoicesCache.voices;
+  try {
+    const all: GoogleVoice[] = [];
+    for (const lang of ["ko-KR", "en-US"] as const) {
+      const res = await fetch(`https://texttospeech.googleapis.com/v1/voices?languageCode=${lang}`, { headers: { "x-goog-api-key": key }, signal: AbortSignal.timeout(8000) });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = (await res.json()) as { voices?: GoogleVoice[] };
+      all.push(...(data.voices ?? []));
+    }
+    if (all.length) googleVoicesCache = { at: Date.now(), voices: all };
+    return all;
+  } catch {
+    return googleVoicesCache?.voices ?? [];
+  }
+}
+
+/** 목소리 이름에서 등급 — "ko-KR-Chirp3-HD-Aoede" → "Chirp3-HD", "en-US-Neural2-F" → "Neural2" */
+export const googleTierOf = (name: string) => name.replace(/^[a-z]{2}-[A-Z]{2}-/, "").replace(/-[^-]+$/, "");
+
+/** 성별 · 언어마다 그 등급의 첫 목소리 — 네 칸이 다 차는 등급만 쓸 수 있다 */
+export function googleTierVoices(voices: GoogleVoice[], tier: string): Record<GoogleTtsGender, Record<GoogleTtsLang, string>> | null {
+  const pick = (gender: GoogleTtsGender, lang: GoogleTtsLang) =>
+    voices.find((v) => v.languageCodes.includes(lang) && googleTierOf(v.name) === tier && v.ssmlGender === (gender === "female" ? "FEMALE" : "MALE"))?.name;
+  const f = { "ko-KR": pick("female", "ko-KR"), "en-US": pick("female", "en-US") };
+  const m = { "ko-KR": pick("male", "ko-KR"), "en-US": pick("male", "en-US") };
+  if (!f["ko-KR"] || !f["en-US"] || !m["ko-KR"] || !m["en-US"]) return null;
+  return { female: f as Record<GoogleTtsLang, string>, male: m as Record<GoogleTtsLang, string> };
+}
+
+/** 지금 고를 수 있는 등급, 새 것부터. 순위표에 없는 등급은 뒤에 이름순 */
+export function listGoogleTiers(voices: GoogleVoice[]): string[] {
+  const tiers = [...new Set(voices.map((v) => googleTierOf(v.name)))].filter((t) => googleTierVoices(voices, t));
+  const rank = (t: string) => { const i = GOOGLE_TTS_TIER_RANK.indexOf(t); return i === -1 ? GOOGLE_TTS_TIER_RANK.length : i; };
+  return tiers.sort((a, b) => rank(a) - rank(b) || a.localeCompare(b));
+}
+
+/** 설정의 등급("latest" 면 가장 새 등급)과 그 등급의 목소리 네 칸. 목록을 못 받으면 null — 부르는 쪽이 고정 목소리로 */
+export async function resolveGoogleTts(key: string): Promise<{ tier: string; voices: Record<GoogleTtsGender, Record<GoogleTtsLang, string>> } | null> {
+  const want = await aiModel("google_tts");
+  const voices = await listGoogleVoices(key);
+  if (!voices.length) return null;
+  const tiers = listGoogleTiers(voices);
+  const tier = want !== GOOGLE_TTS_LATEST && tiers.includes(want) ? want : tiers[0];
+  if (!tier) return null;
+  const picked = googleTierVoices(voices, tier);
+  return picked ? { tier, voices: picked } : null;
 }

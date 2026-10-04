@@ -1,7 +1,7 @@
 import { requireOwner } from "@/lib/api/requireRole";
 import { jsonError, jsonOk } from "@/lib/api/response";
 import { getSecret } from "@/lib/getSecret";
-import { DEFAULT_AI_MODELS, NANOBANANA_MODELS, listHfImageModels, resolveHfLatest, type AiModelProvider } from "@/lib/ai/models";
+import { DEFAULT_AI_MODELS, NANOBANANA_MODELS, listGoogleTiers, listGoogleVoices, listHfImageModels, resolveHfLatest, type AiModelProvider } from "@/lib/ai/models";
 
 /**
  * GET /api/admin/ai-models?provider=gemini|openai|claude|huggingface|nanobanana — 그 키로 지금 부를 수 있는 모델 목록.
@@ -9,15 +9,16 @@ import { DEFAULT_AI_MODELS, NANOBANANA_MODELS, listHfImageModels, resolveHfLates
  * 글 공급자는 글 생성 모델만 남긴다 — 임베딩 · 음성 · 그림 · 모더레이션은 뺀다. 키가 없거나 공급자가 거절하면 그 이유를 돌려준다.
  * Hugging Face 는 키 없이도 Hub 공개 목록(지금 돌릴 수 있는 text-to-image, 인기순)을 주고 "latest" 가 가리키는 모델을 resolved 로 알린다.
  * NanoBanana 는 목록 API 가 없다 — 엔드포인트 셋이 곧 모델이라 고정 목록.
+ * Google Cloud TTS 는 voices API 의 목소리 등급(Chirp3-HD · Neural2 …)이 모델이다 — 성별×언어 네 칸이 다 있는 등급만, 새 것부터.
  */
 const KEY: Record<AiModelProvider, string> = {
   gemini: "GEMINI_API_KEY", openai: "OPENAI_API_KEY", claude: "ANTHROPIC_API_KEY",
-  huggingface: "HUGGINGFACE_API_KEY", nanobanana: "NANOBANANA_API_KEY",
+  huggingface: "HUGGINGFACE_API_KEY", nanobanana: "NANOBANANA_API_KEY", google_tts: "GOOGLE_TTS_API_KEY",
 };
 
 const NOT_TEXT = /embed|tts|audio|whisper|realtime|image|dall-e|moderation|transcribe|search|computer-use|aqa|imagen|veo|vision-only/i;
 
-async function listModels(provider: Exclude<AiModelProvider, "huggingface" | "nanobanana">, key: string): Promise<string[]> {
+async function listModels(provider: Exclude<AiModelProvider, "huggingface" | "nanobanana" | "google_tts">, key: string): Promise<string[]> {
   if (provider === "gemini") {
     const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?pageSize=200&key=${encodeURIComponent(key)}`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -50,6 +51,10 @@ export async function GET(request: Request) {
   }
   const key = await getSecret(KEY[provider]);
   if (!key) return jsonOk({ provider, models: [], reason: "nokey" });
+  if (provider === "google_tts") {
+    const tiers = listGoogleTiers(await listGoogleVoices(key));
+    return jsonOk({ provider, models: tiers, defaultModel: DEFAULT_AI_MODELS[provider], resolved: tiers[0], reason: tiers.length ? undefined : "failed" });
+  }
   try {
     const models = [...new Set(await listModels(provider, key))].filter((m) => !NOT_TEXT.test(m)).sort();
     return jsonOk({ provider, models, defaultModel: DEFAULT_AI_MODELS[provider] });

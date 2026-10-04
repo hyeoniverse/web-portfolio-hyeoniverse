@@ -87,7 +87,6 @@
 
 .kind {
   font: var(--font-body-sm);
-  font-weight: 600;
   color: var(--text-accent);
 }
 
@@ -370,8 +369,8 @@
 
 
 /* 좁은 화면 — 머리 줄이 두 줄로 접히므로 상세 들여쓰기도 뺀다 */
-@media (max-width: 768px) {
-  .detail {
+@media (width < 768px) {
+  .detailIndent {
     padding-left: 0;
   }
 }

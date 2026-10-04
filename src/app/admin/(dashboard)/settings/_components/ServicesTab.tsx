@@ -23,7 +23,7 @@ import { ENV_SECTION_ID, HintLines, envKeyLine } from "./EnvKeyHint";
 import { CONTACT_KEYS } from "@/lib/contactSend";
 import { AI_PROVIDER_INFO, FATAL_LIMIT, TRANSIENT_LIMIT } from "@/lib/ai/providers";
 import { NOTIFY_EMAIL_DEFAULT, NOTIFY_EMAIL_GROUPS } from "@/lib/notificationTypes";
-import { DEFAULT_AI_MODELS, HF_LATEST, type AiModelProvider } from "@/lib/ai/models";
+import { DEFAULT_AI_MODELS, GOOGLE_TTS_LATEST, HF_LATEST, type AiModelProvider } from "@/lib/ai/models";
 import { useAiHealth } from "./useAiHealth";
 import type { AiProvider } from "@/lib/ai/providers";
 import SectionHeader from "./SectionHeader";
@@ -70,7 +70,7 @@ function ModelSelect({ t, provider, value, onChange }: { t: TFunction; provider:
   }, [provider]);
   const latest = DEFAULT_AI_MODELS[provider];
   /* "latest" 가 센티널이면 지금 가리키는 모델 이름을 보여 준다(Hugging Face: Hub 인기 1위) */
-  const latestName = latest === HF_LATEST ? (list?.resolved ?? latest) : latest;
+  const latestName = latest === HF_LATEST || latest === GOOGLE_TTS_LATEST ? (list?.resolved ?? latest) : latest;
   const models = (list?.models ?? []).filter((m) => m !== latest && m !== list?.resolved);
   const options: SelectOption<string>[] = [
     { value: latest, label: `${latestName} · ${t("admin.aiHealth.modelLatest")}` },
@@ -966,6 +966,8 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
             title={t("admin.settings.ttsSettings")}
             hint={t("admin.settings.ttsHint")}
             options={TTS_OPTIONS}
+            /* Google 은 목소리 등급(Chirp3-HD · Neural2 …)을 고른다 — 성별은 편집 화면, 언어는 대본이 정한다 */
+            innerOf={(p) => (p === "google" ? modelField("google_tts") : null)}
             defaultProvider="fish"
             value={config.tts as ProviderFallback<TtsProviderOption>}
             onChange={(u) => setConfig((prev) => ({ ...prev, tts: u(prev.tts as ProviderFallback<TtsProviderOption>) as typeof prev.tts }))}

@@ -25,7 +25,7 @@ export default function LexiconManager() {
     return () => window.clearTimeout(id);
   }, [scrollTo]);
   return (
-    <section ref={ref} id={LEXICON_SECTION_ID} className={`${settings.section} ${settings.sectionWide} ${styles.section}`}>
+    <section ref={ref} id={LEXICON_SECTION_ID} className={`${settings.section} ${settings.sectionWide}`}>
       <div className={styles.wrap}>
         <h2 className={settings.sectionTitle}>{t("admin.settings.lexicon.title")}</h2>
         <p className={settings.sectionHint}>{t("admin.settings.lexicon.hint")}</p>
