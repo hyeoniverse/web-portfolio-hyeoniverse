@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import styles from "./ScrollDrawScene.module.css";
+import { useMotionPaused } from "@/stores/motionStore";
 
 /** 길 위에 남길 별가루 개수. */
 const SPARK_COUNT = 34;
@@ -78,6 +79,8 @@ export default function ScrollDrawScene({
   infinite: boolean;
   className?: string;
 }) {
+  /* 움직임 멈춤(3.9-4, 움직임 줄이기 포함) — 굴뚝 연기는 저절로 피어오르는 장식이라 멈춘다 */
+  const motionPaused = useMotionPaused();
   const wrapRef = useRef<HTMLDivElement>(null);
   const routeRef = useRef<SVGPathElement>(null);
   const headRef = useRef<SVGGElement>(null);
@@ -229,7 +232,7 @@ export default function ScrollDrawScene({
     if (!canvas || width === 0) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+    if (motionPaused) return;
 
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     canvas.width = Math.round(width * dpr);
@@ -307,7 +310,7 @@ export default function ScrollDrawScene({
     };
     raf = requestAnimationFrame(tick);
     return () => { cancelAnimationFrame(raf); themeWatch.disconnect(); };
-  }, [width]);
+  }, [width, motionPaused]);
 
   return (
     <div ref={wrapRef} className={`${styles.wrap} ${className ?? ""}`} aria-hidden>

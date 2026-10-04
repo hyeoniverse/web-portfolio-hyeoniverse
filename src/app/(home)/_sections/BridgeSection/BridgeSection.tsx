@@ -6,6 +6,7 @@ import Section from "@/components/ui/Section";
 import T from "@/components/ui/T";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useLenis } from "@/providers/LenisProvider";
+import { useMotionPaused } from "@/stores/motionStore";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import styles from "./BridgeSection.module.css";
 import heroStyles from "../HeroSection/HeroSection.module.css";
@@ -27,6 +28,8 @@ export default function BridgeSection({
 }: BridgeSectionProps) {
   const { language } = useLanguage();
   const { lenis } = useLenis();
+    /* 움직임 멈춤(3.9-4) — 스크롤 안내 줄은 끝없이 흐르는 장식이라 선다 */
+    const motionPaused = useMotionPaused();
   const cfg = useSiteConfig();
   const headline = language === "ko" ? cfg.hero.headline_ko : cfg.hero.headline;
 
@@ -113,8 +116,8 @@ export default function BridgeSection({
         <div className={heroStyles.scrollLineWrapper}>
           <motion.div
             className={heroStyles.scrollLine}
-            animate={{ y: ["-100%", "350%"] }}
-            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+            animate={motionPaused ? { y: "-100%" } : { y: ["-100%", "350%"] }}
+            transition={motionPaused ? { duration: 0.3 } : { duration: 3, repeat: Infinity, ease: "easeInOut" }}
           />
         </div>
         <span className={heroStyles.scrollText}>

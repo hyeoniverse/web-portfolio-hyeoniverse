@@ -7,6 +7,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import styles from "./TagCloud3D.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { useMotionStore } from "@/stores/motionStore";
 
 interface TagItem {
   tag: string;
@@ -71,7 +72,8 @@ export default function TagCloud3D({ tags, activeTags, onTagClick, size = 90, as
     const tick = (now: number) => {
       const dt = (now - last) / 16.67;
       last = now;
-      if (!pausedRef.current) {
+      /* hover 중이거나 움직임 멈춤(3.9-4)이면 저절로 도는 것만 멈춘다 — 끌어서 돌리기는 angleRef 를 직접 바꾼다 */
+      if (!pausedRef.current && !useMotionStore.getState().isPaused) {
         angleRef.current.yaw += velRef.current.yaw * dt;
         angleRef.current.pitch += velRef.current.pitch * dt;
       }

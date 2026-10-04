@@ -35,3 +35,6 @@ export const useMotionStore = create<MotionStore>((set, get) => ({
     if (get().isPaused !== paused) set({ isPaused: paused });
   },
 }));
+
+/** 멈춤 상태만 구독한다 — JS 로 도는 것(자동 넘김 · 떠다니기 · 데모 시계)이 3.9-4 를 따를 때 */
+export const useMotionPaused = () => useMotionStore((s) => s.isPaused);

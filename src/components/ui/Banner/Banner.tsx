@@ -13,6 +13,7 @@ import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "@/components/icons";
 import styles from "./Banner.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { useMotionPaused } from "@/stores/motionStore";
 
 export interface BannerProps {
   children: ReactNode;
@@ -56,7 +57,10 @@ export default function Banner({
   const isSingle = count <= 1;
 
   const [current, setCurrent] = useState(0);
-  const [paused, setPaused] = useState(false);
+  const [hoverPaused, setPaused] = useState(false);
+  /* 움직임 멈춤(3.9-4) — 자동 넘김은 저절로 움직이는 것이라 함께 선다 */
+  const motionPaused = useMotionPaused();
+  const paused = hoverPaused || motionPaused;
   const [progressKey, setProgressKey] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
