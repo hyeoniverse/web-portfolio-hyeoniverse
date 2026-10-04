@@ -113,12 +113,14 @@
 }
 
 /* 상태 — 정상(초록)·실패 중(노랑)·꺼짐(강조색)·키 없음(흐림). 빨강은 쓰지 않는다.
-   칸 폭은 가장 긴 배지("실패 n/m")에 맞춰 고정 — 뒤의 원인 · 사용량이 줄마다 같은 자리에서 시작한다 */
-.status {
+   칸(.statusCell) 폭은 가장 긴 배지("실패 n/m")에 맞춰 고정 — 뒤의 원인 · 사용량이 줄마다 같은 자리에서 시작한다.
+   배지 배경은 글자 폭에 맞춘다 */
+.statusCell {
+  flex: 0 0 5.5rem;
   display: inline-flex;
-  justify-content: center;
-  box-sizing: border-box;
-  min-width: 5.5rem;
+}
+
+.status {
   padding: var(--badge-padding-md);
   border-radius: var(--radius-control);
   font: var(--font-body-sm);
