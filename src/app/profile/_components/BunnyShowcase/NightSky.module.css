@@ -120,7 +120,7 @@
 /* 크레이터 — 달을 원이 아니라 표면으로 보이게 하는 최소한의 장치 */
 .crater {
   position: absolute;
-  border-radius: var(--radius-control);
+  border-radius: var(--radius-full);
   background: var(--night-sky-moon-edge);
   opacity: 0.45;
 }

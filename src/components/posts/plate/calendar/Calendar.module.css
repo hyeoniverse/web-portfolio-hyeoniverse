@@ -48,7 +48,7 @@
   min-width: 15px;
   height: 15px;
   padding: 0 var(--spacing-4);
-  border-radius: var(--radius-control);
+  border-radius: var(--radius-full);
   background: var(--bg-accent-solid);
   color: var(--text-on-accent);
   font: var(--font-body-xs);
@@ -817,7 +817,7 @@
   min-width: 20px;
   height: 20px;
   padding: 0 var(--spacing-1);
-  border-radius: var(--radius-control);
+  border-radius: var(--radius-full);
   font: var(--font-body-sm);
   font-weight: 600;
   font-variant-numeric: tabular-nums;

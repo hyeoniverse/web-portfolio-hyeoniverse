@@ -99,7 +99,7 @@
   width: 420px;
   height: 260px;
   transform: translate(-50%, -50%) rotate(-12deg);
-  border-radius: var(--radius-control);
+  border-radius: 50%;
   border: var(--_border-accent-mid);
   pointer-events: none;
   animation: introOvalSpin var(--_introOvalSpin-duration) linear infinite;
@@ -119,7 +119,7 @@
   width: 320px;
   height: 180px;
   transform: translate(-50%, -50%) rotate(8deg);
-  border-radius: var(--radius-control);
+  border-radius: 50%;
   border: var(--border-accent);
   pointer-events: none;
   animation: introOvalSpin var(--_introOvalSpin-duration) linear infinite reverse;

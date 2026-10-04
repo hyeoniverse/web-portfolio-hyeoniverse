@@ -54,7 +54,6 @@
           "/var\\(\\s*--(?:spacing|radius|font-size|size|blur)-(?:zero|[2-6]xs|xs|sm|md|lg|xl|[2-6]xl|[245]xl-plus|capsule)\\s*\\)/"
         ],
         "border-radius": [
-          "/^50%$/",
           "/^9?999px$/"
         ],
         "/^--(font-size|fluid-font-size)-/": [
@@ -70,7 +69,7 @@
         ]
       },
       {
-        "message": "토큰 규칙 위반입니다(docs/design-system.md). ① 글자 크기는 눈금이 아니라 역할로 — --font-size-body-md(14) / -body-sm(13) / -body-xs(12, 가장 작은 글자). 컴포넌트는 묶음 --font-body-* 를 쓴다(3.2-1). 12px 미만은 쓰지 않습니다(--font-size-micro 는 없애는 중). ② 모서리는 역할 토큰 --radius-control(알약) / -surface(면) / -mark(각진 것)으로 — 눈금(--radius-24 등)과 50% 는 쓰지 않는다. 원 · 가는 막대만 --radius-full 을 바로 쓴다(3.5-1 · 3.5-2). ③ 간격은 --spacing-* 로 — 이름이 px 값이다(1·2·4·8·12·16·20·24·32·40·48·64·80·96·112·128). em·vw·vh·%·calc·음수는 의도적 상대값이라 그대로 둡니다. ④ 디자인 토큰에 var() fallback 금지. ⑤ 옛 이름(--spacing-md · --radius-2xl · --font-size-sm 등)은 저장된 글을 위한 별칭이라 코드에서 쓰지 않는다(2-3-6). 예외는 stylelint-disable-next-line 에 이유를 적으세요."
+        "message": "토큰 규칙 위반입니다(docs/design-system.md). ① 글자 크기는 눈금이 아니라 역할로 — --font-size-body-md(14) / -body-sm(13) / -body-xs(12, 가장 작은 글자). 컴포넌트는 묶음 --font-body-* 를 쓴다(3.2-1). 12px 미만은 쓰지 않습니다(--font-size-micro 는 없애는 중). ② 모서리는 역할 토큰 --radius-control(알약) / -surface(면) / -mark(각진 것)으로 — 눈금(--radius-24 등)은 쓰지 않는다. 원 · 가는 막대만 --radius-full 을, 가로세로가 다른 타원만 50% 를 바로 쓴다(3.5-1 · 3.5-2). ③ 간격은 --spacing-* 로 — 이름이 px 값이다(1·2·4·8·12·16·20·24·32·40·48·64·80·96·112·128). em·vw·vh·%·calc·음수는 의도적 상대값이라 그대로 둡니다. ④ 디자인 토큰에 var() fallback 금지. ⑤ 옛 이름(--spacing-md · --radius-2xl · --font-size-sm 등)은 저장된 글을 위한 별칭이라 코드에서 쓰지 않는다(2-3-6). 예외는 stylelint-disable-next-line 에 이유를 적으세요."
       }
     ],
     "property-disallowed-list": [

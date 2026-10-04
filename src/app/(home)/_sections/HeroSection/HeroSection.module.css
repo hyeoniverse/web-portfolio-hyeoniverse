@@ -13,7 +13,7 @@
   border: var(--border-strong);
   position: absolute;
   pointer-events: none;
-  border-radius: var(--radius-control);
+  border-radius: 50%;
 }
 
 /* Primary oval group — 스크롤에 따라 위아래 등간격 펼침 */
