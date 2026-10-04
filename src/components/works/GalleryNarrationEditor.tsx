@@ -19,7 +19,7 @@ import { errorText } from "@/lib/apiError";
 import { sendAction, tryRequest } from "@/lib/sendAction";
 import { isTtsVoice, parseVoice, voiceLabel, voiceParts, voicesFor, type TtsProvider, type TtsVoice, type VoiceLang } from "@/lib/ttsVoices";
 import { chunkScript } from "@/lib/ttsChunks";
-import { planScripts, splitScriptSections } from "@/lib/splitScripts";
+import { planScripts, serializeScripts, splitScriptSections } from "@/lib/splitScripts";
 import { displayScript } from "@/lib/ttsLexicon";
 import { captionCues } from "@/lib/captionCues";
 import LoadingDots from "@/components/ui/LoadingDots";
@@ -844,7 +844,8 @@ const PASTE_MODAL_ID = "narration-paste";
 
 function PasteScriptsDialog({ gallery, notes, actions, tw }: { gallery: string[]; notes: GalleryNotes; actions: NarrationActions; tw: (key: string) => string }) {
   const { closeModal } = useModalStore();
-  const [text, setText] = useState("");
+  /* 지금 대본을 장 번호 제목(## 01)으로 채워 둔다 — 고치거나, 지우고 통째로 붙여 넣는다 */
+  const [text, setText] = useState(() => serializeScripts(gallery, (url) => notes[url]?.script));
   const [overwrite, setOverwrite] = useState(true);
   const plan = useMemo(() => planScripts(splitScriptSections(text), gallery.length), [text, gallery.length]);
   const count = plan.items.length;
