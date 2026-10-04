@@ -67,7 +67,7 @@ export function planScripts(sections: ScriptSection[], total: number): {
 }
 
 /**
- * 지금 들어 있는 대본을 "대본 한꺼번에 편집" 상자에 넣을 글로 적는다 — 장마다 `## 01` 제목 아래 대본.
+ * 지금 들어 있는 대본을 "대본 편집" 상자에 넣을 글로 적는다 — 장마다 `## 01` 제목 아래 대본.
  * 모든 조각에 번호가 있으니 planScripts 가 번호대로 넣고, 대본이 없는 장은 제목만 남아 비어 있다(나눌 때 빠진다).
  * splitScriptSections → planScripts 로 되돌리면 같은 장에 같은 대본이 간다.
  */

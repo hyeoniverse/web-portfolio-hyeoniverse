@@ -1738,7 +1738,7 @@
         "narrationBrowserShort": "Read by the browser",
         "narrationGenerating": "Generating {{done}} of {{total}}",
         "narrationFallback": "Couldn’t use {{from}}, so the audio was made with {{to}}. (Cause: {{reason}})",
-        "narrationPasteAll": "Edit all scripts",
+        "narrationPasteAll": "Edit scripts",
         "narrationPasteHint": "The current scripts are listed under numbered headings (## 01). Edit them and apply, or clear the box and paste a whole presentation script to split it per slide. Separate slides with a line of ---, a ## heading, or a blank line. If every heading has a number (## 03 Summary), each part goes to that slide regardless of order; otherwise parts fill in from slide 1. Heading lines are not included.",
         "narrationPastePlaceholder": "## 01 Cover\nHello, I’m Jeonghyeon Kim.\n\n## 02 Summary\nThree things this project shows…",
         "narrationPasteEmpty": "No script to fill in.",
