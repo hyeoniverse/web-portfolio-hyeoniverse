@@ -12,6 +12,8 @@ import { Switch } from "@/components/ui/Switch";
 import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
 import Input from "@/components/ui/Input";
+import Popover from "@/components/ui/Popover";
+import { Pencil } from "@/components/icons";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import type { SettingsTabProps } from "../_types";
 import type { SelectOption } from "@/types";
@@ -386,22 +388,43 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
   const sh = { config, savedConfig, saveSection, revertSection, resetSection, savingPaths, validationError, titleClassName: shared.sectionTitle };
   /* AI 상태 — 상태 패널과 각 fallback 섹션이 같이 쓴다. 설정 이름 → 상태를 세는 공급자 이름(google 만 기능마다 다르다) */
   const aiHealth = useAiHealth();
-  /* 글 공급자(Gemini · OpenAI · Claude)가 부를 모델 — 요약 · 번역의 순서 목록 항목 안에 둔다(같은 값을 두 곳에서 본다) */
+  /* 글 공급자(Gemini · OpenAI · Claude)가 부를 모델 — 요약 · 번역의 순서 목록 항목 안에 둔다(같은 값을 두 곳에서 본다).
+     보기만: 비어 있으면 "최신" 과 그 별칭 이름, 적어 두었으면 그 이름. 바꾸는 건 연필 → 팝오버 */
   const modelField = (p: string) => {
     if (!(p in DEFAULT_AI_MODELS)) return null;
     const mp = p as AiModelProvider;
+    const custom = (config.aiModels?.[mp] ?? "").trim();
+    const setModel = (v: string) => setConfig((prev) => ({ ...prev, aiModels: { ...prev.aiModels, [mp]: v } }));
     return (
-      <label className={styles.modelField} onPointerDown={(e) => e.stopPropagation()}>
+      <span className={styles.modelField} onPointerDown={(e) => e.stopPropagation()}>
         <span className={styles.modelLabel}>{t("admin.aiHealth.model")}</span>
-        <Input
-          size="sm"
-          value={config.aiModels?.[mp] ?? ""}
-          onChange={(v) => setConfig((prev) => ({ ...prev, aiModels: { ...prev.aiModels, [mp]: v } }))}
-          placeholder={DEFAULT_AI_MODELS[mp]}
-          clearable={false}
-          className={styles.modelInput}
-        />
-      </label>
+        {custom ? (
+          <code className={styles.modelValue}>{custom}</code>
+        ) : (
+          <>
+            <span className={styles.modelLatest}>{t("admin.aiHealth.modelLatest")}</span>
+            <code className={styles.modelValue}>{DEFAULT_AI_MODELS[mp]}</code>
+          </>
+        )}
+        <Popover
+          placement="bottom-end"
+          responsive={false}
+          maxHeight={false}
+          trigger={<Button variant="ghost" size="xs" shape="circle" aria-label={t("admin.aiHealth.modelEdit")} title={t("admin.aiHealth.modelEdit")} soundDisabled icon={<Pencil size={12} strokeWidth={2} />} />}
+        >
+          {({ close }) => (
+            <div className={styles.modelPopover}>
+              <p className={styles.modelPopoverTitle}>{AI_PROVIDER_INFO[mp].label} · {t("admin.aiHealth.model")}</p>
+              <Input size="sm" value={config.aiModels?.[mp] ?? ""} onChange={setModel} placeholder={DEFAULT_AI_MODELS[mp]} clearable={false} autoFocus />
+              <p className={styles.modelPopoverHint}>{t("admin.settings.aiModelsHint")}</p>
+              <div className={styles.modelPopoverActions}>
+                <Button variant="ghost" size="sm" shape="capsule" onClick={() => { setModel(""); close(); }} disabled={!custom} soundDisabled>{t("admin.aiHealth.modelUseLatest")}</Button>
+                <Button variant="primary" size="sm" shape="capsule" onClick={close} soundDisabled>{t("common.close")}</Button>
+              </div>
+            </div>
+          )}
+        </Popover>
+      </span>
     );
   };
   const stateFor = (map: (p: string) => AiProvider) => (p: string) => aiHealth.stateOf(map(p));
