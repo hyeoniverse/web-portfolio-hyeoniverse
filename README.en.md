@@ -84,7 +84,65 @@ Tokens and components are inspected live at `/design-system`.
 
 ### Admin · CMS
 
-> These images come from `npx tsx scripts/screenshots-cms.ts` (needs a logged-in session — see [scripts/SCREENSHOTS.md](./scripts/SCREENSHOTS.md)). Continuous actions (playback · preview · recording · PPTX conversion · translation) are embedded as short `.gif` clips of the key moment (the original `.webm` files sit in the same folder).
+> These images come from `npx tsx scripts/screenshots-cms.ts` (needs a logged-in session — see [scripts/SCREENSHOTS.md](./scripts/SCREENSHOTS.md)); the numbers are that script's scene numbers. Continuous actions (playback · preview · recording · PPTX conversion · translation) are embedded as short `.gif` clips of the key moment (the original `.webm` files sit in the same folder).
+
+#### Dashboard
+
+`/admin` opens on a one-page view of the site. At the top sit **quick actions** (new post · new project · settings · reports · notifications, with pending-report and unread counts as badges) and a **service log** strip (calls and failures in the last 24 hours, providers currently switched off). The **stats** panel counts total views (change vs. the previous 7 days plus a sparkline), published and draft projects and posts, and comments; the donut beside it is the category split by views.
+
+**Daily views** draws any range you pick (up to 90 days) as a curve; click a day in the calendar heatmap below and a panel opens with that day's rank, how it compares to the period average, the same weekday and the day before, and the posts read most that day. Further down come **recent activity** (posts · projects · comments), **reports**, **popular** (views · likes · comments per post, engagement, top tags), a **traffic** summary (sources · devices · 30-day visits · new vs. returning · views per visit) and whether each service key is configured.
+
+| Quick actions · stats | Daily views — click a day for its breakdown |
+|:---:|:---:|
+| <img src="public/images/screenshots/cms/17-dashboard-light.png" alt="Admin dashboard — quick actions and stats" width="100%" /> | <img src="public/images/screenshots/cms/18-dashboard-daily-views-light.png" alt="Daily views, calendar heatmap and the selected day's panel" width="100%" /> |
+
+#### Traffic
+
+A visit is recorded once per IP per day, together with the user agent (device · browser), referrer, landing path, country and `utm_*` values. The signed-in admin, crawlers (bots) and any address marked **my IP** are not counted, and when today's visits exceed three times the 7-day average a **traffic spike** notification is created once a day. A scheduled job anonymises the IPs of older rows.
+
+On `/admin/traffic` the range (7 · 14 · 30 · 90 days) changes the whole page: visit summary (visits · new · returning · views per visit, bots excluded), daily trend, sources, devices, countries, landing pages, top content, a weekday × hour heatmap and UTM campaigns. **IP analysis** lists masked IPs with days visited, first and latest visit, country and device; marking one as my IP stops recording it and drops what it already contributed. **UTM link builder** composes `utm_source/medium/campaign` from source presets (resume · LinkedIn · X · Kakao · email), so links shared through messengers or PDFs, where no referrer survives, still show up as their own channel.
+
+| Summary · trend · sources · devices | IP analysis · UTM link builder |
+|:---:|:---:|
+| <img src="public/images/screenshots/cms/19-traffic-light.png" alt="Traffic — range, summary, daily trend, sources, devices" width="100%" /> | <img src="public/images/screenshots/cms/20-traffic-ip-utm-light.png" alt="Traffic — IP analysis and UTM link builder" width="100%" /> |
+
+#### Managing posts and works
+
+The `/admin/posts` and `/admin/works` lists keep search scope (title+body · title · body), sort, category · series · year filters and page size in a glass bar that stays put while you scroll. Clicking a status chip flips **published ↔ unpublished** in place; dragging across the checkbox column selects several rows for **bulk delete** or **bulk category change**. Published rows get a shortcut to the public page, unpublished rows a **preview** rendered exactly like the published page. Posts support **scheduled publishing** (`pg_cron` publishes on time and sends a notification and an email), pinning and a **series** tab (order · export as a set); works are reordered by drag, by clicking the row number or from the row menu (first · last · position), and a **GitHub repository's README can be imported as a work**.
+
+The **trash** is a soft delete. Ordinary items are purged after 30 days, popular ones (top views · likes) after 90, and every row shows the days left with an **extend (+30 days)** button. Restoring is one click; permanent deletion asks you to retype the title. `.md` files go both ways — **upload** (with frontmatter; new categories are confirmed first) and **export** (all · selected · single · series).
+
+| Posts — filters · status chips · bulk actions | Works — ordering · GitHub import · trash |
+|:---:|:---:|
+| <img src="public/images/screenshots/cms/21-posts-list-light.png" alt="Admin posts list" width="100%" /> | <img src="public/images/screenshots/cms/22-works-list-light.png" alt="Admin works list" width="100%" /> |
+
+#### Notifications · reports · comments · service log
+
+**Notifications** (`/admin/notifications`) have four tabs — all · comments · system · reports — and cover new comments, replies, likes, comment reports, access requests, new-device logins, traffic spikes and system events (login lockout · sign-out everywhere · AI provider failure · mail failure · cron error · settings changed). Items that need action (access requests · new devices) are grouped separately, and the item you arrived from blinks slowly until your next interaction. The **reports** tab filters pending · resolved · dismissed, jumps to the original comment or deletes it in place. **Comments** (`/admin/comments`) gathers post and work comments in one table, filters active · deleted, bulk-deletes and restores deleted comments.
+
+The **service log** (`/admin/service-log`) lists successes and failures of AI (translation · summary · TTS · covers), image search, Resend mail, the GitHub API, scheduled jobs and contact-form attachments, newest first. The top shows per-provider counts and the last failure cause (no key · quota · billing · server error …), the bottom the individual rows, filterable by category · provider · result. The status panel in Settings › Services and the dashboard link in with the filter preset (`?provider=gemini` · `?result=fail`).
+
+| Notifications — four tabs, action-needed group | Service log — per-provider successes and failures |
+|:---:|:---:|
+| <img src="public/images/screenshots/cms/23-notifications-light.png" alt="Notifications page" width="100%" /> | <img src="public/images/screenshots/cms/24-service-log-light.png" alt="Service log" width="100%" /> |
+
+<img src="public/images/screenshots/cms/25-comments-light.png" alt="Comment management — posts and works together" width="100%" />
+
+#### Settings
+
+`/admin/settings` has six tabs — **General** (personal info · brand and logo · SEO · background music), **Content** (home hero · intro · featured works · marquee · footer · social links · banner, pagination, tags · categories, works intro video, plus PROFILE and ABOUT sub-tabs — ABOUT is the About Studio, edited on the real page), **Library** (calendars · polls · custom emojis · cover image history · uploaded files), **Appearance** (design-system preview · theme colours · date-picker style · typography and font upload), **Services** (per-feature provider order · email · comment system and giscus · security · upload formats and size limits · provider status panel · environment variables) and **Account** (auth · email change · password policy, registered devices and **sign out everywhere**, members and roles — owner · admin · author).
+
+You save a whole tab or one section at a time, with revert and code defaults. Values that cannot be empty (site title · name · the five theme colours · member names, repository details when giscus is selected) are enforced in the UI, the API and the database, and when code defaults change a **conflict list** shows the new value per section so you can take it or keep yours.
+
+| Library — calendars · polls · emojis · covers · files | Account — security / sessions, devices, members |
+|:---:|:---:|
+| <img src="public/images/screenshots/cms/26-settings-library-light.png" alt="Settings — Library tab" width="100%" /> | <img src="public/images/screenshots/cms/27-settings-account-light.png" alt="Settings — Account tab" width="100%" /> |
+
+#### Login and security
+
+The owner signs in with email and password; invited members **sign in with GitHub** (OAuth only authenticates — the server checks for the owner email, an existing role or an invitation before letting anyone in). Five failed attempts lock the form for 15 minutes with the remaining tries and a countdown shown. An unknown device is signed out automatically and gets an approval link by email (valid 24 hours), and signing out in one tab signs out every open tab.
+
+<img src="public/images/screenshots/cms/28-login-light.png" alt="Admin login — email · password and GitHub sign-in" width="60%" />
 
 #### Narrated gallery
 
@@ -181,7 +239,7 @@ Works link related posts and series; posts link related projects, all through a 
 | **Interaction** | Infinite scroll loop, mouse parallax, StaggerText, a Three.js coffee cup, direction-aware scroll cascade |
 | **Works** | Six layouts (Flow · Fullscreen · Cinematic · Grid · Split · Cylinder) and detail pages |
 | **Posts** | SSR + ISR, series, banner slider, six list layouts, guest comments (markdown + emoji reactions) or giscus |
-| **Admin** | Plate.js editor (diagram · code playground · math blocks, color tools, publish toggle), `.md` sync, AI translation and summaries, narrated galleries (TTS · recording · PPTX speaker notes), theme presets with WCAG contrast report, revision history, member invites and roles |
+| **Admin** | Dashboard (stats · daily views · popular · reports · service status) · traffic analytics (sources · devices · countries · landing pages · IP · UTM) · notifications · service log, Plate.js editor (diagram · code playground · math blocks, color tools, publish toggle), `.md` sync, AI translation and summaries, narrated galleries (TTS · recording · PPTX speaker notes), theme presets with WCAG contrast report, revision history, member invites and roles |
 | **Performance** | Lighthouse 98 — LCP 1.9s, 449KB initial bundle |
 | **Security** | RLS with four roles, CSRF origin checks (fail-closed in production), five-attempt lockout plus new-device email approval |
 | **Design system** | Three-tier tokens (Raw → Semantic → Component) with role tokens, all colors in OKLCH |
