@@ -31,10 +31,8 @@
 }
 
 .modalTitle {
-  /* 모달 제목은 Pretendard(D27 범위 조정 2026-10-04) */
-  font: var(--font-heading-sm);
-  font-family: var(--font-family-body);
-  font-weight: var(--font-weight-semibold);
+  /* 모달 제목은 Pretendard — 공용 Modal 제목과 같은 묶음(D27 범위 조정 2026-10-04) */
+  font: var(--font-body-xl);
   color: var(--text-primary);
 }
 
