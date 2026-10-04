@@ -4,7 +4,8 @@
    공급자마다 이어진 실패와 원인(키 만료·권한·한도…), 꺼졌는지, 이번 달 사용량과 무료 한도를 보인다(lib/ai/health).
    같은 원인으로 여러 번 이어 실패해 꺼진 공급자는 원인을 고친 뒤 여기서 다시 켠다. 키를 바꾸면 저절로 풀린다.
    탭의 "저장 / 되돌리기"와 상관없이 바로 반영된다.
-   머리(제목 · 설명 · 저장)는 부모가 그린다 — 설정 › 서비스의 "AI · 외부 서비스" 섹션, 서비스 호출 기록 페이지. */
+   표(AiHealthPanel)는 서비스 호출 기록 페이지가 그리고, 설정 › 서비스는 같은 조각(ProviderHealthInline · Detail)을
+   기능별 순서 줄에 붙여 쓴다 — 표를 따로 두지 않는다. */
 import { useState } from "react";
 import { ChevronDown, ChevronRight, Copy, ExternalLink, History, RotateCcw } from "@/components/icons";
 
@@ -86,30 +87,111 @@ const GROUPS: { id: string; providers: AiProvider[] }[] = [
   { id: "stock", providers: ["unsplash", "pexels"] },
 ];
 
-/** 상태는 부모가 불러 넘긴다(useAiHealth) — 서비스 탭의 기능 줄들도 같은 값으로 공급자 상태를 보인다 */
-export default function AiHealthPanel({ health }: { health: ReturnType<typeof useAiHealth> }) {
+type Health = ReturnType<typeof useAiHealth>;
+
+function useFmt() {
   const { t, language } = useLanguage();
   const th = (key: string) => t(`admin.aiHealth.${key}`);
-  const { data, failed, reload: load, stateOf } = health;
-  const [resetting, setResetting] = useState<AiProvider | null>(null);
-  /* 줄마다 상세(원인 전문 · 최근 오류 · 한도 메모)를 펼쳤는지 — 기본은 접힘(원인 한마디 · 다시 켜기는 줄에 있다) */
-  const [open, setOpen] = useState<Partial<Record<AiProvider, boolean>>>({});
-  /* 호출 기록은 따로 둔 페이지(/admin/service-log) — 공급자 줄에서 가면 그 공급자로 걸러 연다 */
-  const logHref = (provider: AiProvider) => `/admin/service-log?provider=${provider}`;
+  const nf = (n: number) => n.toLocaleString(language === "ko" ? "ko-KR" : "en-US");
+  const when = (iso?: string) => (iso ? new Date(iso).toLocaleString(language === "ko" ? "ko-KR" : "en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "");
+  return { t, th, nf, when };
+}
 
-  const reset = async (provider: AiProvider) => {
-    setResetting(provider);
+/** 공급자 한 줄의 상태 조각 — 상태 배지(칸 폭 고정) · 원인 한마디 · 이번 달 사용량 · 단추(다시 켜기 · 기록 · 콘솔 · 펼치기).
+ *  상태 표(AiHealthPanel)와 설정 › 서비스의 기능 줄(순서 상자 오른쪽)이 같은 조각을 쓴다. 상태가 아직 없으면 아무것도 안 그린다 */
+export function ProviderHealthInline({ provider: p, health, open, onToggle }: { provider: AiProvider; health: Health; open: boolean; onToggle: () => void }) {
+  const { t, th } = useFmt();
+  const { data, reload, stateOf } = health;
+  const [resetting, setResetting] = useState(false);
+  if (!data) return null;
+  const info = AI_PROVIDER_INFO[p];
+  const h = data.health[p];
+  const u = data.usage.providers[p];
+  /* 시간이 지나 다시 시도할 차례가 된 차단은 꺼짐이 아니라 실패 중으로 보인다(lib/ai/status) */
+  const state = stateOf(p) ?? "ok";
+  const off = state === "off";
+  const failing = !off && (h?.fails ?? 0) > 0;
+  const kind = h?.disabled?.kind ?? h?.kind;
+  const reset = async () => {
+    setResetting(true);
     const res = await sendAction("/api/admin/ai-health", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ provider }),
+      body: JSON.stringify({ provider: p }),
     }, t, th("resetFailed"));
-    setResetting(null);
-    if (res) await load();
+    setResetting(false);
+    if (res) await reload();
   };
+  return (
+    <>
+      {/* 글 묶음(상태 · 원인 · 사용량)과 단추 묶음 둘 — 좁으면 글 쪽만 말줄임되고 단추는 오른쪽 끝에 남는다 */}
+      <span className={styles.meta}>
+        {/* 칸 폭은 가장 긴 배지에 맞춰 고정, 배지 배경은 글자에 맞게 */}
+        <span className={styles.statusCell}>
+          <span className={styles.status} data-state={state}>
+            {state === "off" ? th("stateOff")
+              : state === "failing" ? fillTemplate(th("stateFailing"), { n: h!.fails, limit: FATAL_KINDS.has(h!.kind!) ? FATAL_LIMIT : TRANSIENT_LIMIT })
+              : state === "nokey" ? th("stateNoKey")
+              : th("stateOk")}
+          </span>
+        </span>
+        {(off || failing) && kind && <span className={styles.kind}>{th(`kind.${kind}`)}</span>}
+        <UsageLine provider={p} usage={u} deepl={p === "deepl" ? data.deepl : null} />
+      </span>
+      <span className={styles.actions}>
+        {(off || failing) && (
+          <Button variant={off ? "primary" : "outline"} size="sm" shape="capsule" onClick={() => void reset()} loading={resetting} soundDisabled icon={<RotateCcw size={14} strokeWidth={2} />}>
+            {th(off ? "reenable" : "clear")}
+          </Button>
+        )}
+        {/* 호출 기록은 따로 둔 페이지(/admin/service-log) — 그 공급자로 걸러 연다 */}
+        <Button variant="ghost" size="sm" shape="circle" href={`/admin/service-log?provider=${p}`} aria-label={th("logOpenOne")} title={th("logOpenOne")} soundDisabled icon={<History size={14} strokeWidth={2} />} />
+        {info.console && (
+          <Button variant="ghost" size="sm" shape="circle" href={info.console} external aria-label={th("console")} title={th("console")} soundDisabled icon={<ExternalLink size={14} strokeWidth={2} />} />
+        )}
+        <Button variant="ghost" size="sm" shape="circle" onClick={onToggle} aria-expanded={open} aria-label={th(open ? "detailHide" : "detailShow")} title={th(open ? "detailHide" : "detailShow")} soundDisabled icon={<ChevronRight size={14} strokeWidth={2} className={`${styles.detailChev} ${open ? styles.detailChevOpen : ""}`} />} />
+      </span>
+    </>
+  );
+}
 
-  const nf = (n: number) => n.toLocaleString(language === "ko" ? "ko-KR" : "en-US");
-  const when = (iso?: string) => (iso ? new Date(iso).toLocaleString(language === "ko" ? "ko-KR" : "en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "");
+/** 공급자 한 줄의 상세 — 원인 전문 · 최근 오류 · 사용량 막대와 한도 메모. 접힌 채로 그려 두고 grid 0fr→1fr 로 펼친다.
+ *  className 은 안쪽 상자(왼쪽 들여쓰기 등) — 표에서는 이름 칸만큼, 기능 줄에서는 순서 상자 시작선에 맞춘다 */
+export function ProviderHealthDetail({ provider: p, health, open, className }: { provider: AiProvider; health: Health; open: boolean; className?: string }) {
+  const { th, when } = useFmt();
+  const { data, stateOf } = health;
+  if (!data) return null;
+  const h = data.health[p];
+  const u = data.usage.providers[p];
+  const state = stateOf(p) ?? "ok";
+  const off = state === "off";
+  const failing = !off && (h?.fails ?? 0) > 0;
+  const kind = h?.disabled?.kind ?? h?.kind;
+  return (
+    <div className={styles.detailWrap} data-open={open ? "" : undefined} aria-hidden={!open || undefined}>
+      <div className={`${styles.detail} ${className ?? ""}`} inert={!open || undefined}>
+        {/* 원인과 고칠 방법 — 실패가 남아 있을 때만 */}
+        {(off || failing) && kind && (
+          <div className={styles.problem}>
+            <p className={styles.fix}>
+              <strong>{th(`kind.${kind}`)}</strong> {th(`fix.${kind}`)}
+              {off && ` ${th(FATAL_KINDS.has(kind) ? "offManual" : kind === "quota" ? "offMonth" : "offHour")}`}
+            </p>
+            {h?.message && <ProviderMessage message={h.message} at={when(h.at)} th={th} />}
+          </div>
+        )}
+        <Usage provider={p} usage={u} deepl={p === "deepl" ? data.deepl : null} now={data.loadedAt} />
+      </div>
+    </div>
+  );
+}
+
+/** 상태는 부모가 불러 넘긴다(useAiHealth) — 서비스 호출 기록 페이지의 상태 보기 */
+export default function AiHealthPanel({ health }: { health: Health }) {
+  const { th } = useFmt();
+  const { data, failed, stateOf } = health;
+  /* 줄마다 상세를 펼쳤는지 — 기본은 접힘(원인 한마디 · 다시 켜기는 줄에 있다) */
+  const [open, setOpen] = useState<Partial<Record<AiProvider, boolean>>>({});
 
   /* 키가 있거나, 기록이 남았거나, 이번 달 쓴 공급자만 — 키도 기록도 없는 것은 한 줄로 센다 */
   const shown = data ? AI_PROVIDERS.filter((p) => data.configured[p] || data.health[p] || data.usage.providers[p]) : [];
@@ -129,8 +211,7 @@ export default function AiHealthPanel({ health }: { health: ReturnType<typeof us
           </div>
         )
       ) : (
-        /* 그룹마다 작은 제목 아래 공급자 한 줄씩 — 이름 · 쓰임 · 상태(원인 한마디) · 이번 달 사용량 · 모델 · 단추.
-           원인 전문 · 최근 오류 · 한도 메모는 줄 끝 화살표로 펼친다 */
+        /* 그룹마다 작은 제목 아래 공급자 한 줄씩 — 이름 · 쓰임 · 상태 조각. 상세는 줄 끝 화살표로 */
         <div className={styles.groups}>
           {GROUPS.map(({ id, providers }) => {
             const group = providers.filter((p) => shown.includes(p));
@@ -141,67 +222,23 @@ export default function AiHealthPanel({ health }: { health: ReturnType<typeof us
                 <ul className={styles.list}>
                 {group.map((p) => {
                   const info = AI_PROVIDER_INFO[p];
-                  const h = data.health[p];
-                  const u = data.usage.providers[p];
-                  /* 시간이 지나 다시 시도할 차례가 된 차단은 꺼짐이 아니라 실패 중으로 보인다(lib/ai/status) */
-                  const state = stateOf(p) ?? "ok";
-                  const off = state === "off";
-                  const failing = !off && (h?.fails ?? 0) > 0;
-                  const kind = h?.disabled?.kind ?? h?.kind;
                   const isOpen = open[p] ?? false;
+                  const toggle = () => setOpen((o) => ({ ...o, [p]: !isOpen }));
                   return (
-                    <li key={p} className={styles.row} data-state={state} data-open={isOpen ? "" : undefined}>
+                    <li key={p} className={styles.row} data-state={stateOf(p) ?? "ok"} data-open={isOpen ? "" : undefined}>
                       {/* 줄 어디를 눌러도 펼친다 — 단추 · 링크 · 입력칸은 빼고 */}
                       <div
                         className={styles.head}
                         onClick={(e) => {
                           if ((e.target as HTMLElement).closest("button, a, input, label")) return;
-                          setOpen((o) => ({ ...o, [p]: !isOpen }));
+                          toggle();
                         }}
                       >
                         <span className={styles.name}>{info.label}</span>
                         <span className={styles.features}>{info.features.map((f) => th(`feature.${f}`)).join(" · ")}</span>
-                        {/* 칸 폭은 가장 긴 배지에 맞춰 고정, 배지 배경은 글자에 맞게 */}
-                        <span className={styles.statusCell}>
-                          <span className={styles.status} data-state={state}>
-                            {state === "off" ? th("stateOff")
-                              : state === "failing" ? fillTemplate(th("stateFailing"), { n: h!.fails, limit: FATAL_KINDS.has(h!.kind!) ? FATAL_LIMIT : TRANSIENT_LIMIT })
-                              : state === "nokey" ? th("stateNoKey")
-                              : th("stateOk")}
-                          </span>
-                        </span>
-                        {(off || failing) && kind && <span className={styles.kind}>{th(`kind.${kind}`)}</span>}
-                        <UsageLine provider={p} usage={u} deepl={p === "deepl" ? data.deepl : null} nf={nf} th={th} />
-                        <span className={styles.actions}>
-                          {(off || failing) && (
-                            <Button variant={off ? "primary" : "outline"} size="sm" shape="capsule" onClick={() => void reset(p)} loading={resetting === p} soundDisabled icon={<RotateCcw size={14} strokeWidth={2} />}>
-                              {th(off ? "reenable" : "clear")}
-                            </Button>
-                          )}
-                          <Button variant="ghost" size="sm" shape="circle" href={logHref(p)} aria-label={th("logOpenOne")} title={th("logOpenOne")} soundDisabled icon={<History size={14} strokeWidth={2} />} />
-                          {info.console && (
-                            <Button variant="ghost" size="sm" shape="circle" href={info.console} external aria-label={th("console")} title={th("console")} soundDisabled icon={<ExternalLink size={14} strokeWidth={2} />} />
-                          )}
-                          <Button variant="ghost" size="sm" shape="circle" onClick={() => setOpen((o) => ({ ...o, [p]: !isOpen }))} aria-expanded={isOpen} aria-label={th(isOpen ? "detailHide" : "detailShow")} title={th(isOpen ? "detailHide" : "detailShow")} soundDisabled icon={<ChevronRight size={14} strokeWidth={2} className={`${styles.detailChev} ${isOpen ? styles.detailChevOpen : ""}`} />} />
-                        </span>
+                        <ProviderHealthInline provider={p} health={health} open={isOpen} onToggle={toggle} />
                       </div>
-
-                      {/* 상세 — 접힌 채로 그려 두고 grid 0fr→1fr 로 펼친다 */}
-                      <div className={styles.detailWrap} data-open={isOpen ? "" : undefined} aria-hidden={!isOpen || undefined}>
-                        <div className={styles.detail} inert={!isOpen || undefined}>
-                          {/* 원인과 고칠 방법 — 실패가 남아 있을 때만 */}
-                          {(off || failing) && kind && (
-                            <div className={styles.problem}>
-                              <p className={styles.fix}>
-                                <strong>{th(`kind.${kind}`)}</strong> {th(`fix.${kind}`)}
-                                {off && ` ${th(FATAL_KINDS.has(kind) ? "offManual" : kind === "quota" ? "offMonth" : "offHour")}`}
-                              </p>
-                              {h?.message && <ProviderMessage message={h.message} at={when(h.at)} th={th} />}
-                            </div>
-                          )}
-                          <Usage provider={p} usage={u} deepl={p === "deepl" ? data.deepl : null} now={data.loadedAt} nf={nf} th={th} />
-                        </div>
-                      </div>
+                      <ProviderHealthDetail provider={p} health={health} open={isOpen} className={styles.detailIndent} />
                     </li>
                   );
                 })}
@@ -217,7 +254,8 @@ export default function AiHealthPanel({ health }: { health: ReturnType<typeof us
 }
 
 /** 줄 안의 사용량 한마디 — "이번 달 134,268 / 500,000 자 (27%)" 또는 "이번 달 3회". 막대 · 메모는 상세(Usage)에 */
-function UsageLine({ provider, usage, deepl, nf, th }: { provider: AiProvider; usage: ProviderUsage | undefined; deepl: { count: number; limit: number } | null; nf: (n: number) => string; th: (key: string) => string }) {
+function UsageLine({ provider, usage, deepl }: { provider: AiProvider; usage: ProviderUsage | undefined; deepl: { count: number; limit: number } | null }) {
+  const { th, nf } = useFmt();
   const info = AI_PROVIDER_INFO[provider];
   const unit = th(`unit.${info.unit}`);
   const used = deepl ? deepl.count : info.unit === "requests" ? usage?.requests ?? 0 : usage?.units ?? 0;
@@ -232,14 +270,13 @@ function UsageLine({ provider, usage, deepl, nf, th }: { provider: AiProvider; u
 }
 
 /** 이번 달 사용량 — 무료 한도를 아는 공급자는 막대로, 모르는 공급자는 횟수만 */
-function Usage({ provider, usage, deepl, now, nf, th }: {
+function Usage({ provider, usage, deepl, now }: {
   provider: AiProvider;
   now: number;
   usage: ProviderUsage | undefined;
   deepl: { count: number; limit: number } | null;
-  nf: (n: number) => string;
-  th: (key: string) => string;
 }) {
+  const { th, nf } = useFmt();
   const info = AI_PROVIDER_INFO[provider];
   const unit = th(`unit.${info.unit}`);
   /* DeepL 은 공급자가 알려 준 실제 값(결제 주기 기준). 나머지는 이 앱이 센 값 */

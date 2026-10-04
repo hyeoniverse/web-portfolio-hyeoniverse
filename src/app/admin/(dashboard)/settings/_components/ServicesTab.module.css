@@ -38,29 +38,35 @@
   color: var(--text-accent);
 }
 
-/* fallback 순서의 공급자 상태 — 키 없음(흐림)·꺼짐(강조색)·실패 중(노랑) */
-.providerBadge {
-  padding: var(--badge-padding-md);
-  border-radius: var(--radius-control);
+
+/* 커버 줄 아래 — 사진 검색 공급자(Unsplash · Pexels)의 상태. 순서가 없어 이름 + 상태 조각만 */
+.stockRows {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.stockRow {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--spacing-12);
+  min-height: var(--control-height-sm);
+}
+
+/* 상세는 줄을 바꿔 전체 폭으로 */
+.stockRow > :last-child {
+  grid-column: 1 / -1;
+}
+
+/* 이름 칸 폭 = 순서 줄의 핸들(14px) + 체크(16px) + 틈 둘(16px) + 상자(22rem) + 여백 차(4px) — 상태 배지가 위 줄과 한 열에 선다 */
+.stockName {
+  width: calc(22rem + 50px);
+  white-space: nowrap;
   font: var(--font-body-sm);
   font-weight: 600;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.providerBadge[data-state="nokey"] {
-  background: var(--bg-tertiary);
-  color: var(--text-tertiary);
-}
-
-.providerBadge[data-state="off"] {
-  background: var(--bg-accent-light);
-  color: var(--text-accent);
-}
-
-.providerBadge[data-state="failing"] {
-  background: var(--bg-warning-soft);
-  color: var(--bg-warning-solid);
+  color: var(--text-primary);
 }
 
 /* 문의 폼 첨부가 저절로 꺼졌을 때 — 스위치 아래 두 칸을 가로질러 문구와 다시 켜기 */
@@ -213,15 +219,6 @@
 
 /* ── AI · 외부 서비스 — 기능별 공급자와 대체 순서(커버 · 요약 · 번역 · TTS) ──
    공급자 표 아래 작은 제목 하나, 그 아래 기능 한 줄씩(표처럼). 설명은 ⓘ 팝오버, 순서는 자동 전환을 켰을 때만 아래 */
-.featuresTitle {
-  grid-column: 1 / -1;
-  margin: var(--spacing-16) 0 0;
-  font: var(--font-body-xs);
-  font-weight: 600;
-  color: var(--text-tertiary);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
 
 .features {
   grid-column: 1 / -1;
@@ -231,12 +228,12 @@
   border-top: var(--border-light);
 }
 
-/* 기능 한 줄 — 왼쪽 16rem(이름 · 켜기 · 기록) | 오른쪽(설명 · 조작 · 순서) */
+/* 기능 한 묶음 — 위 머리(이름 · 켜기 · 기록), 아래 몸(설명 · 조작 · 순서)이 전체 폭을 쓴다.
+   순서 줄 오른쪽에 상태 조각이 붙은 뒤로는 옆에 제목 칸을 둘 폭이 없다 */
 .featureRow {
-  display: grid;
-  grid-template-columns: 16rem minmax(0, 1fr);
-  gap: var(--spacing-8) var(--spacing-16);
-  align-items: start;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
   padding: var(--spacing-12) 0;
   border-bottom: var(--border-light);
 }
@@ -301,7 +298,8 @@
 .modelTrigger.modelTrigger {
   width: 100%;
   height: 100%;
-  padding: 0 var(--spacing-8) 0 var(--spacing-4);
+  /* 왼쪽은 이름 칸(.priorityLabel)과 같은 여백 — 모델이 있는 줄과 없는 줄의 글 시작점이 같다 */
+  padding: 0 var(--spacing-8) 0 var(--spacing-12);
   border: none;
   border-radius: 0;
   background: transparent;

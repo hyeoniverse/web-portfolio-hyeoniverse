@@ -63,6 +63,28 @@
 }
 
 /* 실패 원인 한마디 — 상태 배지 옆 */
+/* 글 묶음 — 상태 배지 · 원인 · 사용량. 표에서는 남는 폭을 채우고, 좁은 곳(순서 줄 옆)에서는 사용량부터 말줄임 */
+.meta {
+  display: inline-flex;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: var(--spacing-12);
+  min-width: 0;
+  white-space: nowrap;
+}
+
+/* 원인은 끝까지 보이고 사용량이 먼저 줄어든다(사용량은 상세에서 다시 보인다) */
+.meta > .kind {
+  flex: 0 0 auto;
+}
+
+.meta > .usageInline {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .kind {
   font: var(--font-body-sm);
   font-weight: 600;
@@ -100,6 +122,10 @@
   gap: var(--spacing-8);
   min-height: 0;
   overflow: hidden;
+}
+
+/* 표에서는 이름 칸만큼 들여쓴다 */
+.detailIndent {
   padding-left: calc(9rem + var(--spacing-12));
 }
 
