@@ -148,7 +148,6 @@
 /* ── Hover Preview Tooltip ── */
 .previewTooltip {
   position: fixed;
-  z-index: var(--z-index-tooltip);
   width: 280px;
   background: var(--bg-primary);
   border: var(--border-light);
@@ -312,7 +311,6 @@
     display: block;
     position: fixed;
     inset: 0;
-    z-index: calc(var(--z-index-tooltip) - 1);
     background: transparent;
     backdrop-filter: blur(8px);
     animation: backdropFadeIn var(--duration-fast) var(--ease-standard);

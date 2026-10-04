@@ -58,7 +58,6 @@
 
 /* @ 멘션 드롭다운 메뉴 */
 .mentionMenu {
-  z-index: calc(var(--z-index-overlay) + 20);
   min-width: 180px;
   max-width: 280px;
   padding: var(--spacing-2);

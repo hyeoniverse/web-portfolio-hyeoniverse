@@ -30,6 +30,7 @@ import media from "../../EditorMedia.module.css";
 const styles = { ...base, ...code, ...diagram, ...media };
 
 import { InlineCaption, InlineCursorTarget } from "./shared";
+import { showPopover, hidePopover } from "@/lib/topLayer";
 
 /* 이미지 요소 — 리사이즈 · 정렬 · 캡션 · 확대 보기 — elements.tsx 에서 분리 (#680). */
 
@@ -231,11 +232,13 @@ export function ImageElement(props: PlateElementProps) {
         if (imgEl) {
           ghost = document.createElement("div");
           const w = Math.min(imgEl.getBoundingClientRect().width || 120, 160);
-          ghost.style.cssText = `position:fixed;left:0;top:0;width:${w}px;pointer-events:none;z-index:var(--z-index-top);opacity:0.7;border-radius:6px;overflow:hidden;box-shadow:var(--shadow-overlay);will-change:transform;`;
+          ghost.setAttribute("popover", "manual"); /* top layer(3.10-1) */
+          ghost.style.cssText = `position:fixed;left:0;top:0;width:${w}px;pointer-events:none;opacity:0.7;border-radius:6px;overflow:hidden;box-shadow:var(--shadow-overlay);will-change:transform;`;
           const clone = imgEl.cloneNode(true) as HTMLImageElement;
           clone.style.cssText = "width:100%;height:auto;display:block;";
           ghost.appendChild(clone);
           document.body.appendChild(ghost);
+          showPopover(ghost);
         }
       }
       if (ghost) ghost.style.transform = `translate(${ev.clientX + 14}px, ${ev.clientY + 14}px)`;
@@ -245,7 +248,8 @@ export function ImageElement(props: PlateElementProps) {
       if (!range) { caret.style.opacity = "0"; return; }
       const rect = range.getClientRects()[0] || range.getBoundingClientRect();
       if (!rect || (rect.width === 0 && rect.height === 0 && rect.x === 0)) { caret.style.opacity = "0"; return; }
-      // position:fixed → 뷰포트 좌표 그대로 사용 (부모 positioning 무관하게 정확히 표시)
+      // position:fixed → 뷰포트 좌표 그대로 사용 (부모 positioning 무관하게 정확히 표시). top layer 에 띄워 둔다
+      showPopover(caret);
       caret.style.opacity = "1";
       caret.style.left = `${rect.left}px`;
       caret.style.top = `${rect.top}px`;
@@ -255,7 +259,7 @@ export function ImageElement(props: PlateElementProps) {
       document.removeEventListener("pointermove", onMove);
       document.removeEventListener("pointerup", onUp);
       const caret = document.getElementById("inline-drag-caret");
-      if (caret) caret.style.opacity = "0";
+      if (caret) { caret.style.opacity = "0"; hidePopover(caret); }
       if (ghost) { ghost.remove(); ghost = null; }
       if (!activated) return;
       _inlineDragPath.current = null;

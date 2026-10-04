@@ -199,7 +199,6 @@ body.poll-grabbing * {
   position: fixed;
   top: 0;
   left: 0;
-  z-index: var(--z-index-tooltip);
   display: flex;
   align-items: center;
   gap: var(--spacing-12);

@@ -51,7 +51,6 @@
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: var(--z-index-overlay);
   width: 100vw;
   max-height: 90vh;
   margin: 0;

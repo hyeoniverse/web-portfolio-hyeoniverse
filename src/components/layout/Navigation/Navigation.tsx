@@ -52,6 +52,7 @@ import { adminEntryHref, canOpenAdminPage, visibleAdminItems } from "@/lib/admin
 import { useLogoMeasure } from "./useLogoMeasure";
 import { useToggleAnimation } from "./useToggleAnimation";
 import { useMobileMenu } from "./useMobileMenu";
+import { usePopoverRef } from "@/hooks/useTopLayer";
 
 // 서브메뉴 항목 링크 — active 항목의 bold/indent 를 접힘 시 순차 애니로 풀려면 motion 링크가 필요.
 const MotionLink = motion.create(Link);
@@ -263,6 +264,8 @@ export default function Navigation() {
     useMobileMenu(pathname, setNotifOpen, lenisStop, lenisStart);
   // ── Nav sliding indicator ──
   const navLinkRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
+  /* 알림 드롭다운 — top layer(3.10-1) */
+  const notifDropdownPop = usePopoverRef<HTMLDivElement>(notifDropdownRef);
   const navCenterRef = useRef<HTMLDivElement>(null);
   const [hoveredNav, setHoveredNav] = useState<string | null>(null);
   // 서브메뉴(드롭다운)에서 hover 중인 항목 — 이게 있으면 ▶ 가 그 항목으로 이동하고 메인 인디케이터는 숨는다
@@ -808,7 +811,8 @@ export default function Navigation() {
           <AnimatePresence>
             {notifOpen && (
               <motion.div
-                ref={notifDropdownRef}
+                ref={notifDropdownPop}
+                popover="manual"
                 key="notif-dropdown"
                 className={styles.notifDropdown}
                 role="dialog"

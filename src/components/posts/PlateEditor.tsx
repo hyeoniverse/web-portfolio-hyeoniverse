@@ -3146,13 +3146,13 @@ function PlateEditorBody({
             {/* 인라인 이미지 드래그 시 드롭 위치 캐럿 */}
             <div
               id="inline-drag-caret"
+              popover="manual" /* top layer — 끌기 시작할 때 ImageElement 가 띄운다(3.10-1) */
               style={{
                 position: "fixed",
                 width: 3,
                 background: "var(--bg-accent-solid)",
                 borderRadius: 1,
                 pointerEvents: "none",
-                zIndex: "var(--z-index-top)",
                 opacity: 0,
                 transition: "opacity 0.1s",
               }}

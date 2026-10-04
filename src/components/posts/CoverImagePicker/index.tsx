@@ -18,6 +18,7 @@ import CloseButton from "@/components/ui/CloseButton";
 import Tooltip from "@/components/ui/Tooltip";
 import styles from "./CoverImagePicker.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { usePopoverRef } from "@/hooks/useTopLayer";
 
 type Tab = "presets" | "project" | "unsplash" | "pexels" | "ai" | "history";
 
@@ -95,6 +96,9 @@ export default function CoverImagePicker({
     },
     [addHistory, onAutoSave, onSelect],
   );
+  /* 모바일 시트 두 조각 다 top layer(3.10-1) — 공용 Popover 의 시트와 같은 꼴 */
+  const sheetBackdropPop = usePopoverRef<HTMLDivElement>();
+  const sheetPop = usePopoverRef<HTMLDivElement>();
 
   const pickerBody = (
     <>
@@ -189,6 +193,8 @@ export default function CoverImagePicker({
           <>
             <motion.div
               key="cover-backdrop"
+              ref={sheetBackdropPop}
+              popover="manual"
               className="ui-sheet-backdrop"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -198,6 +204,8 @@ export default function CoverImagePicker({
             />
             <motion.div
               key="cover-sheet"
+              ref={sheetPop}
+              popover="manual"
               className={`${styles.picker} ${styles.pickerSheet}`}
               initial={{ y: "100%" }}
               animate={{ y: 0 }}

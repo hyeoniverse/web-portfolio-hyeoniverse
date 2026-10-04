@@ -6,13 +6,17 @@ import { SITE_TIME_ZONE } from "@/constants";
 import { ImageIcon } from "@/components/icons";
 import type { SeriesPreview } from "./useSeriesPanel";
 import styles from "./SeriesPreviewTooltip.module.css";
+import { usePopoverRef } from "@/hooks/useTopLayer";
 
 /* 시리즈 목록 항목 hover 미리보기 — position: fixed 툴팁(좌표는 useSeriesPanel 이 계산).
    DetailLayout 안의 transform 컨테이너에 갇히지 않도록 PostDetailClient 가 레이아웃 밖에서 렌더한다. */
 export default function SeriesPreviewTooltip({ preview, viewLang }: { preview: SeriesPreview | null; viewLang: "ko" | "en" }) {
+  const popRef = usePopoverRef<HTMLDivElement>();
   if (!preview) return null;
   return (
     <div
+      ref={popRef}
+      popover="manual"
       className={styles.seriesPreview}
       style={{ top: preview.top, left: preview.left }}
     >

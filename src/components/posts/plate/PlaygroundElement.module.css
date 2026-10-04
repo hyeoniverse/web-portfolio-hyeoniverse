@@ -144,7 +144,6 @@
 .pgFullscreen {
   position: fixed;
   inset: 0;
-  z-index: var(--z-index-fullscreen);
   margin: 0;
   border-radius: 0;
 }
@@ -692,7 +691,6 @@
 .spFullscreen {
   position: fixed;
   inset: 0;
-  z-index: var(--z-index-fullscreen);
   display: flex;
   flex-direction: column;
   background: var(--bg-primary);

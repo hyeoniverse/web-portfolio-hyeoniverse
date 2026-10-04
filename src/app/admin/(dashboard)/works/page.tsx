@@ -52,6 +52,7 @@ import MarkdownUploadGuide from "./_components/MarkdownUploadGuide";
 import Pressable from "@/components/ui/Pressable";
 import WorkYear from "@/components/works/WorkYear";
 import { formatWorkYear } from "@/utils/formatWorkYear";
+import { usePopoverRef } from "@/hooks/useTopLayer";
 
 /** 이 쪽에 보이는 목록 안에서 한 작업물을 newOrder 자리로 옮기고 사이를 한 칸씩 민다(서버와 같은 규칙).
     목록 밖 자리면 그대로 둔다 — 서버 값으로 맞출 때 바뀐다 */
@@ -97,11 +98,15 @@ function PreviewTooltip({
   onNavigate: () => void;
 }) {
   const { t } = useLanguage();
+  const backdropPop = usePopoverRef<HTMLDivElement>();
+  const tipPop = usePopoverRef<HTMLDivElement>();
   if (!work) return null;
   return (
     <>
-      <div className={shell.previewBackdrop} onClick={onDismiss} />
+      <div ref={backdropPop} popover="manual" className={shell.previewBackdrop} onClick={onDismiss} />
       <div
+        ref={tipPop}
+        popover="manual"
         className={shell.previewTooltip}
         data-preview-tooltip
         data-state={open ? "open" : "closed"}

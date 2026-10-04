@@ -161,7 +161,6 @@
 /* ── 이벤트 hover 미리보기 카드 ── */
 .preview {
   position: fixed;
-  z-index: var(--z-index-top);
   display: flex;
   flex-direction: column;
   gap: var(--spacing-4);
@@ -204,7 +203,6 @@
 
 .previewZoom {
   position: fixed;
-  z-index: var(--z-index-top);
   max-width: 320px;
   max-height: 320px;
   border-radius: var(--radius-surface);

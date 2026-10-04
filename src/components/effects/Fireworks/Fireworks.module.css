@@ -1,6 +1,5 @@
 .canvas {
   position: fixed;
   inset: 0;
-  z-index: var(--z-index-top);
   pointer-events: none;
 }

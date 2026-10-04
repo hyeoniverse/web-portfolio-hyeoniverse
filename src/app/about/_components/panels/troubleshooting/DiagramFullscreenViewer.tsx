@@ -9,6 +9,7 @@ import type { TroubleshootingDiagram } from "@/data/about/types";
 import FlowDiagram from "../../FlowDiagram";
 import { getNodeX, getNodeY } from "../../_utils/flowLayout";
 import styles from "./DiagramFullscreenViewer.module.css";
+import { useDialogRef } from "@/hooks/useTopLayer";
 
 /** Flow chart 인터랙티브 풀스크린 viewer — 휠 zoom, 빈 영역 드래그 pan, 노드 드래그로 개별 이동, +/-/리셋/닫기 컨트롤 */
 export default function DiagramFullscreenViewer({
@@ -30,6 +31,8 @@ export default function DiagramFullscreenViewer({
     | { mode: "pan"; startX: number; startY: number; panX: number; panY: number }
     | { mode: "node"; nodeId: string; startX: number; startY: number; nodeX: number; nodeY: number }
   >({ mode: "none" });
+
+  const dialogRef = useDialogRef(); /* <dialog>.showModal() — top layer(3.10-1) */
 
   // ESC 로 닫기 + body 스크롤 잠금 (event 차단 방식, body 위치 변경 X — GSAP/Lenis 영향 없음)
   useEffect(() => {
@@ -130,7 +133,8 @@ export default function DiagramFullscreenViewer({
 
   if (typeof window === "undefined") return null;
   return createPortal(
-    <div className={styles.diagramViewerOverlay} role="dialog" aria-label="Diagram viewer">
+    <dialog ref={dialogRef} className="ui-dialog" aria-label="Diagram viewer" onCancel={(e) => { e.preventDefault(); onClose(); }}>
+    <div className={styles.diagramViewerOverlay}>
       {/* Header — title + close */}
       <div className={styles.diagramViewerHeader}>
         <span className={styles.diagramViewerTitle}>
@@ -195,7 +199,8 @@ export default function DiagramFullscreenViewer({
           <RotateCcw size={16} />
         </Pressable>
       </div>
-    </div>,
+    </div>
+    </dialog>,
     document.body,
   );
 }

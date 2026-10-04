@@ -75,7 +75,7 @@
    덮개가 --z-index-overlay 에서 --z-index-loading 으로 올라간 뒤(59bfe90c, 드로어를 덮으려고) 여기는
    --z-index-overlay + 1 에 남아 있어서, 인트로 로고가 덮개 밑에 그려지고 한 번도 보이지 않았다. */
 .logoNavBarElevated {
-  z-index: calc(var(--z-index-loading) + 1);
+  z-index: calc(var(--z-index-float) + 2); /* 로딩 화면(float + 1) 위 */
 }
 
 
@@ -502,7 +502,7 @@
   white-space: nowrap;
   pointer-events: auto;
   animation: soundTipIn var(--duration-base) var(--ease-standard) both;
-  z-index: var(--z-index-tooltip);
+  z-index: 1;
 }
 
 /* 꼬다리(회전 사각형) — 캡슐 몸통의 둥근 오른쪽 끝(반경 ≈ 높이/2)을 벗어난 평평한 윗면에 얹어야
@@ -764,7 +764,8 @@
 .menuClipWrapper.menuClipWrapper {
   position: fixed;
   inset: 0;
-  z-index: var(--z-index-overlay);
+  /* 페이지 층(3.10-1 예외) — nav 의 햄버거가 이 위에 있어야 해서 top layer 에 올리지 않는다. 점 내비 같은 float 위 */
+  z-index: calc(var(--z-index-float) + 1);
   isolation: isolate;
   clip-path: inset(0 0 100% 0);
   transition: clip-path var(--duration-slower) var(--ease-standard);
@@ -1247,7 +1248,6 @@
   border: var(--border-light);
   border-radius: var(--radius-surface);
   box-shadow: var(--shadow-overlay);
-  z-index: var(--z-index-dropdown);
   /* overflow visible 로 ::before pointer 가 box 밖으로 나갈 수 있게 */
   overflow: visible;
 }
@@ -1482,13 +1482,13 @@
   ========================================================================== */
 
 .navLoading {
-  z-index: calc(var(--z-index-overlay) + 1);
+  z-index: calc(var(--z-index-float) + 2); /* 로딩 화면(float + 1) 위 */
   pointer-events: none;
 }
 
 /* LoadingScreen 페이드아웃 완료까지 z-index 유지 */
 .navElevated {
-  z-index: calc(var(--z-index-overlay) + 1);
+  z-index: calc(var(--z-index-float) + 2);
 }
 
 .navLoading .navCenter,
@@ -1499,7 +1499,7 @@
 
 /* Menu open: nav를 drawer 위로 올리고 햄버거만 표시 */
 .navMenuOpen {
-  z-index: calc(var(--z-index-overlay) + 1);
+  z-index: calc(var(--z-index-float) + 2); /* 메뉴 서랍(float + 1) 위 — 햄버거가 눌려야 한다 */
 }
 
 /* logoNavBar 자식 motion.span (.logo) 의 인라인 visibility:visible 로 visibility 만으론 안 숨겨짐

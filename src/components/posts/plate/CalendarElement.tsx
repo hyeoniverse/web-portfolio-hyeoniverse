@@ -42,6 +42,7 @@ import event from "./calendar/CalendarEvent.module.css";
 import preview from "./calendar/CalendarPreview.module.css";
 const styles = { ...base, ...event, ...preview };
 import Pressable from "@/components/ui/Pressable";
+import { useDialogRef } from "@/hooks/useTopLayer";
 
 /** 캘린더 제목 최대 글자수 — 상단 한 줄에 들어가도록 짧게 제한 */
 const CAL_TITLE_MAX = 40;
@@ -94,6 +95,7 @@ export function CalendarElement(props: PlateElementProps) {
 
   // 전체화면
   const [fullscreen, setFullscreen] = useState(false);
+  const fsDialogRef = useDialogRef(); /* 전체화면은 <dialog>.showModal() — 그 위에 여는 공용 모달은 나중에 열려 더 위(3.10-1) */
   // 이벤트 목록 사이드바 (왼쪽, 기본 닫힘)
   const [sidebarOpen, setSidebarOpen] = useState(false);
   // 전체화면 peek 패널 — 날짜/연결작업 상세를 모달(가림) 대신 우측 인라인 패널로 (전체화면일 때만).
@@ -1043,7 +1045,10 @@ export function CalendarElement(props: PlateElementProps) {
           {props.children}
         </PlateElement>
       </div>
-      {fullscreen && createPortal(body, document.body)}
+      {fullscreen && createPortal(
+        <dialog ref={fsDialogRef} className="ui-dialog" onCancel={(e) => { e.preventDefault(); if (peek) setPeek(null); else setFullscreen(false); }}>{body}</dialog>,
+        document.body,
+      )}
     </BlockDropZone>
   );
 }

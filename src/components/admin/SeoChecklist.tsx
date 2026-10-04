@@ -8,6 +8,7 @@ import { Check, AlertTriangle, ChevronRight, Sparkles } from "@/components/icons
 import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "./SeoChecklist.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { usePopoverRef } from "@/hooks/useTopLayer";
 
 /** 게시물·작품 편집 시 SEO/메타 필드 누락 점검을 위한 floating 위젯.
  *  화면 우하단 fixed pill — 클릭 시 expand panel.
@@ -36,6 +37,7 @@ export default function SeoChecklist({ data, onItemClick, className }: SeoCheckl
   // SSR + 첫 client render 모두 null 을 리턴해 hydration 일치 — mount 후 portal 트리 노출
   const mounted = useHasMounted();
   const wrapRef = useRef<HTMLDivElement | null>(null);
+  const wrapPop = usePopoverRef<HTMLDivElement>(wrapRef);
 
   const checks: { id: SeoCheckId; label: string; ok: boolean; warn?: boolean; hint?: string }[] = [
     {
@@ -109,7 +111,7 @@ export default function SeoChecklist({ data, onItemClick, className }: SeoCheckl
   if (!mounted) return null;
 
   const tree = (
-    <div ref={wrapRef} className={`${styles.wrap} ${className ?? ""}`} aria-label="SEO checklist">
+    <div ref={wrapPop} popover="manual" className={`${styles.wrap} ${className ?? ""}`} aria-label="SEO checklist">
       <motion.div
         layout
         className={`${styles.shell} ${styles[`tone-${tone}`]} ${open ? styles.shellOpen : ""}`}

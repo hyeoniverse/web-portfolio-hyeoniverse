@@ -73,7 +73,7 @@
   left: 0;
   right: 0;
   height: 2px;
-  z-index: 9999;
+  z-index: var(--z-index-float); /* 페이지에 붙은 진행 막대(3.10-2) */
   background: transparent;
   overflow: hidden;
   pointer-events: none;

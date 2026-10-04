@@ -2,7 +2,7 @@
  * top layer(docs/design-system.md 3.10-1) — 화면 위에 뜨는 것은 z-index 가 아니라 브라우저의 top layer 에 올린다.
  *
  * - 모달 · 드로어는 `<dialog>` + `showModal()`, 떠 있는 것(팝오버 · 툴팁 · 셀렉트 목록 · 피커)은 `popover="manual"` + `showPopover()`.
- * - top layer 는 나중에 연 것이 위다. 그래서 늘 맨 위여야 하는 것(커서 · 로딩 화면 · 페이지 전환)은 여기 등록해 두고,
+ * - top layer 는 나중에 연 것이 위다. 그래서 늘 맨 위여야 하는 것(커서 · 페이지 전환 · 토스트)은 여기 등록해 두고,
  *   무엇이든 새로 뜰 때마다 닫았다 다시 열어 맨 위로 올린다(`keepOnTop`). 같은 틱 안이라 깜빡이지 않는다.
  * - 모달이 열려 있는 동안 그 밖의 것은 inert 다 — 모달 안에서 연 팝오버는 모달 DOM 안으로 portal 해야 눌린다
  *   (`PortalContainerContext`). 커서 · 로딩처럼 누를 일이 없는 것은 밖에 있어도 된다.
@@ -63,17 +63,20 @@ export function showModal(dialog: HTMLDialogElement) {
 }
 
 /**
- * 늘 맨 위여야 하는 것을 등록한다(커서 3 · 로딩 2 · 페이지 전환 1). 속성은 여기서 붙인다 —
+ * 늘 맨 위여야 하는 것을 등록한다(커서 3 · 페이지 전환 1 · 토스트 0). 속성은 여기서 붙인다 —
  * 서버 HTML 에 `popover` 가 있으면 hydration 전까지 보이지 않아서(로딩 화면), 올라온 뒤에 붙인다.
  * 돌려주는 함수로 해제한다.
  */
 export function keepOnTop(el: HTMLElement, priority: number): () => void {
-  if (!el.hasAttribute("popover")) el.setAttribute("popover", "manual");
+  const added = !el.hasAttribute("popover");
+  if (added) el.setAttribute("popover", "manual");
   persistent.push({ el, priority });
   raisePersistent();
   return () => {
     const i = persistent.findIndex((p) => p.el === el);
     if (i >= 0) persistent.splice(i, 1);
     rawHide(el);
+    /* 자기가 붙인 속성은 뗀다 — popover 속성이 남으면 닫힌 뒤 요소가 display: none 이다 */
+    if (added) el.removeAttribute("popover");
   };
 }

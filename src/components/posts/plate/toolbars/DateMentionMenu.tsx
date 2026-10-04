@@ -14,6 +14,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import { relativeDateStr, genShortId, _pendingDateMentionOpen } from "../dateUtils";
 import styles from "../../RichTextEditor.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { usePopoverRef } from "@/hooks/useTopLayer";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -132,11 +133,12 @@ export default function DateMentionMenu() {
     return () => document.removeEventListener("keydown", onKey, true);
   }, [open, items, activeIdx, run, query]);
 
+  /* top layer(3.10-1) — 붙는 순간 showPopover */
+  const popRef = usePopoverRef<HTMLDivElement>(refs.setFloating);
   if (!open) return null;
 
   return createPortal(
-    // eslint-disable-next-line react-hooks/refs
-    <div ref={refs.setFloating} className={styles.slashMenu} style={style} onMouseDown={(e) => e.preventDefault()}>
+    <div ref={popRef} popover="manual" className={styles.slashMenu} style={style} onMouseDown={(e) => e.preventDefault()}>
       {items.map((it, i) => (
         <Pressable noTapScale
           key={it.key}

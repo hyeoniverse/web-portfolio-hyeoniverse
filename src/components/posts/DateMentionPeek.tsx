@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState, type RefObject } from "react"
 import { createPortal } from "react-dom";
 import MiniCalendar from "./plate/calendar/MiniCalendar";
 import styles from "./DateMentionPeek.module.css";
+import { usePopoverRef } from "@/hooks/useTopLayer";
 
 const PEEK_W = 236; // 미니 달력 대략 폭 (뷰포트 클램프용)
 
@@ -55,9 +56,12 @@ export default function DateMentionPeek({ containerRef, language }: {
     };
   }, [containerRef, cancelHide, scheduleHide]);
 
+  const popRef = usePopoverRef<HTMLDivElement>();
   if (!peek) return null;
   return createPortal(
     <div
+      ref={popRef}
+      popover="manual"
       className={styles.peek}
       style={{ top: peek.top, left: peek.left }}
       onMouseEnter={cancelHide}

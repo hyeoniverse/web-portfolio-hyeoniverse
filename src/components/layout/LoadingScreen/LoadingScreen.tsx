@@ -1,6 +1,5 @@
 "use client";
 
-import { useKeepOnTopRef } from "@/hooks/useTopLayer";
 
 import { useState, useEffect } from "react";
 import { useRoutePathname } from "@/hooks/useRoutePathname";
@@ -23,14 +22,12 @@ export default function LoadingScreen() {
     }
   }, [isLoading]);
 
-  /* 늘 맨 위(3.10-1). 속성은 올라온 뒤에 붙인다 — 서버 HTML 에 있으면 hydration 전까지 보이지 않는다 */
-  const topRef = useKeepOnTopRef<HTMLDivElement>(2);
+  /* top layer 에 올리지 않는다(3.10-1 예외) — nav 의 로고가 이 위에서 가운데 → 제자리로 움직여야 해서 페이지 층(float)에 두고 nav 를 그 위로 올린다 */
 
   if (!visible || shouldSkipLoading) return null;
 
   return (
     <div
-      ref={topRef}
       className={styles.loadingScreen}
       style={{ opacity: isLoading ? 1 : 0 }}
       data-nav-tone-skip

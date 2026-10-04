@@ -15,6 +15,7 @@ import TBtn from "./TBtn";
 import { buildPollResult, POLL_SORT_LABELS, type PollSortKey } from "../pollResultView";
 import { showToast } from "@/stores/toastStore";
 import Pressable from "@/components/ui/Pressable";
+import { usePopoverRef } from "@/hooks/useTopLayer";
 
 export type PollOption = { optionId: string; label: string };
 
@@ -132,6 +133,7 @@ export function PollElement(props: PlateElementProps) {
   const [uiFocused, setUiFocused] = useState(false);
   const [drag, setDrag] = useState<{ from: number; over: number } | null>(null);
   const ghostRef = useRef<HTMLDivElement>(null);
+  const ghostPop = usePopoverRef<HTMLDivElement>(ghostRef);
 
   // 최신 element 참조 — document(드래그) 핸들러처럼 stale 클로저에서 호출돼도 현재 노드/옵션을 보게.
   const elementRef = useRef(props.element);
@@ -367,7 +369,7 @@ export function PollElement(props: PlateElementProps) {
 
             {/* drag ghost — 흐려진 복제본이 커서를 따라다님 */}
             {drag && (
-              <div ref={ghostRef} className="poll-drag-ghost" aria-hidden>
+              <div ref={ghostPop} popover="manual" className="poll-drag-ghost" aria-hidden>
                 <span className={`poll-option-marker${multiple ? " poll-option-marker-multi" : ""}`}>
                   {multiple && <Check size={12} />}
                 </span>

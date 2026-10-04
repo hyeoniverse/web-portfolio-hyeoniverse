@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import MediaThumb from "@/components/ui/MediaThumb";
 import type { TransitionData } from "../_hooks/useWorkTransition";
 import styles from "./WorkTransitionOverlay.module.css";
+import { usePopoverRef } from "@/hooks/useTopLayer";
 
 /* 카드에서 상세로 넘어갈 때 — 눌린 카드의 rect 에서 시작해 전체 화면으로 펼쳐지는 이미지.
    flow 는 이 확대 연출을 쓰고, 대체 레이아웃 5종은 카드 지오메트리가 제각각이라
@@ -15,15 +16,19 @@ export default function WorkTransitionOverlay({
   data: TransitionData | null;
   plain?: boolean;
 }) {
+  /* top layer(3.10-1) — 페이지 위를 덮는 전환 막 */
+  const plainPop = usePopoverRef<HTMLDivElement>();
+  const fullPop = usePopoverRef<HTMLDivElement>();
   if (plain) {
     return (
       <AnimatePresence>
         {data && (
           <motion.div
+            ref={plainPop}
+            popover="manual"
             style={{
               position: "fixed",
               inset: 0,
-              zIndex: "var(--z-index-top)",
               background: "var(--bg-primary)",
               pointerEvents: "none",
             }}
@@ -40,6 +45,8 @@ export default function WorkTransitionOverlay({
     <AnimatePresence>
       {data && (
         <motion.div
+          ref={fullPop}
+          popover="manual"
           className={styles.transition}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

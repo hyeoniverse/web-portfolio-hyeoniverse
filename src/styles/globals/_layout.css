@@ -141,7 +141,6 @@ nav#side-navigation::after {
   right: 0;
   bottom: 0;
   left: 0;
-  z-index: var(--z-index-overlay);
   background: transparent;
   transition: none;
 }

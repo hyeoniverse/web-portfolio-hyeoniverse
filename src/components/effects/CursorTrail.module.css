@@ -4,7 +4,6 @@
   position: fixed;
   top: 0;
   left: 0;
-  z-index: var(--z-index-cursor); /* top layer 에 올라오기 전 · top layer 를 모르는 브라우저용. 12-2 때 토큰 정리 */
   font: var(--font-body-sm);
   font-weight: var(--font-weight-bold);
   opacity: 0;

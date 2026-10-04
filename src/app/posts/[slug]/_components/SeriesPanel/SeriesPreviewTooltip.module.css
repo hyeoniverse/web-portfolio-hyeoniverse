@@ -3,7 +3,6 @@
 /* ── Series preview tooltip ── */
 .seriesPreview {
   position: fixed;
-  z-index: var(--z-index-tooltip);
   width: 240px;
   background: var(--bg-primary);
   border: var(--border-light);

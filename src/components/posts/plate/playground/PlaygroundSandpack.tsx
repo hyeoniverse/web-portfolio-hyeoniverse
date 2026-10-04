@@ -31,6 +31,7 @@ import Tooltip from "@/components/ui/Tooltip";
 import type { PlaygroundData } from "./model";
 import styles from "../PlaygroundElement.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { useDialogRef } from "@/hooks/useTopLayer";
 
 // 앱 CSS 토큰 기반 테마 — 자동 라이트/다크 + 기본 흰색보다 톤 다운
 const SP_THEME: SandpackTheme = {
@@ -540,6 +541,7 @@ export default function PlaygroundSandpack({ data, onChange, readOnly, height = 
   const [fsInternal, setFsInternal] = useState(false);
   const fs = controlled ? !!fullscreen : fsInternal;
   const toggleFs = controlled ? onToggleFullscreen! : () => setFsInternal((v) => !v);
+  const fsDialogRef = useDialogRef(); /* 리더 전체화면은 <dialog>.showModal() — top layer(3.10-1) */
 
   useEffect(() => {
     if (controlled || !fsInternal) return;
@@ -571,7 +573,12 @@ export default function PlaygroundSandpack({ data, onChange, readOnly, height = 
 
   // 리더(uncontrolled) 자체 전체화면 — body 로 portal 해 stacking context 탈출
   if (!controlled && fsInternal && typeof document !== "undefined") {
-    return createPortal(<div className={styles.spFullscreen}>{content}</div>, document.body);
+    return createPortal(
+      <dialog ref={fsDialogRef} className="ui-dialog" onCancel={(e) => { e.preventDefault(); setFsInternal(false); }}>
+        <div className={styles.spFullscreen}>{content}</div>
+      </dialog>,
+      document.body,
+    );
   }
   return content;
 }

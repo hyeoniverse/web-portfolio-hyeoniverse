@@ -21,11 +21,6 @@
   border-bottom: var(--border-light);
 }
 
-/* 도구/이모지 팝업 컨테이너 — JS 가 left/top/transform 으로 위치 지정 */
-.tabs-popup {
-  z-index: var(--z-index-dropdown);
-}
-
 .tabs-tab {
   display: inline-flex;
   align-items: center;
