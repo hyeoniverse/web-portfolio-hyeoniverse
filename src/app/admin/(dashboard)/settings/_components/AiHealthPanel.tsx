@@ -161,11 +161,14 @@ export default function AiHealthPanel({ health }: { health: ReturnType<typeof us
                       >
                         <span className={styles.name}>{info.label}</span>
                         <span className={styles.features}>{info.features.map((f) => th(`feature.${f}`)).join(" · ")}</span>
-                        <span className={styles.status} data-state={state}>
-                          {state === "off" ? th("stateOff")
-                            : state === "failing" ? fillTemplate(th("stateFailing"), { n: h!.fails, limit: FATAL_KINDS.has(h!.kind!) ? FATAL_LIMIT : TRANSIENT_LIMIT })
-                            : state === "nokey" ? th("stateNoKey")
-                            : th("stateOk")}
+                        {/* 칸 폭은 가장 긴 배지에 맞춰 고정, 배지 배경은 글자에 맞게 */}
+                        <span className={styles.statusCell}>
+                          <span className={styles.status} data-state={state}>
+                            {state === "off" ? th("stateOff")
+                              : state === "failing" ? fillTemplate(th("stateFailing"), { n: h!.fails, limit: FATAL_KINDS.has(h!.kind!) ? FATAL_LIMIT : TRANSIENT_LIMIT })
+                              : state === "nokey" ? th("stateNoKey")
+                              : th("stateOk")}
+                          </span>
                         </span>
                         {(off || failing) && kind && <span className={styles.kind}>{th(`kind.${kind}`)}</span>}
                         <UsageLine provider={p} usage={u} deepl={p === "deepl" ? data.deepl : null} nf={nf} th={th} />
