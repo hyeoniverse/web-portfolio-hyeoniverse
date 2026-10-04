@@ -228,10 +228,11 @@
 }
 
 .introScrollLine {
+  --_introScrollFlow-duration: 1.8s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   width: 1px;
   height: 48px;
   background: linear-gradient(to bottom, var(--text-white), transparent);
-  animation: introScrollFlow 1.8s ease-in-out infinite;
+  animation: introScrollFlow var(--_introScrollFlow-duration) var(--ease-standard) infinite;
   transform-origin: top;
 }
 
@@ -278,7 +279,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.6s ease;
+  transition: transform var(--duration-slow) var(--ease-standard);
 }
 
 .imageCard:hover img {
@@ -375,7 +376,7 @@
   border: var(--border-strong);
   background: transparent;
   cursor: pointer;
-  transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+  transition: background-color var(--duration-base) var(--ease-standard), border-color var(--duration-base) var(--ease-standard), transform var(--duration-base) var(--ease-standard);
   padding: 0;
 }
 

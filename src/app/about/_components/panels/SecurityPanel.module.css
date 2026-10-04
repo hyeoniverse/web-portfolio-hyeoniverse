@@ -183,7 +183,7 @@
 
   /* Compound selector (0,2,0) */
   .flowItems .flowItem {
-    transition: border-color var(--duration-base) ease;
+    transition: border-color var(--duration-base) var(--ease-standard);
   }
 
   .flowItem:hover {

@@ -86,7 +86,7 @@
   color: var(--text-primary);
   text-decoration: none;
   backdrop-filter: blur(10px);
-  transition: opacity 0.3s, transform 0.3s, padding 0.3s, font-size 0.3s, gap 0.3s, top 0.3s, left 0.3s;
+  transition: opacity var(--duration-base), transform var(--duration-base), padding var(--duration-base), font-size var(--duration-base), gap var(--duration-base), top var(--duration-base), left var(--duration-base);
 }
 
 .backBtnHidden {
@@ -181,7 +181,7 @@
 
 .likeWrapper button:active:not(:disabled) svg {
   transform: scale(1.25);
-  transition: transform 0.1s ease;
+  transition: transform var(--duration-instant) var(--ease-standard);
 }
 
 /* 껍데기(캡슐·크기·active accent)는 ui/DetailActionButton 이 공유 — 여기 다시 쓰지 말 것 */
@@ -269,13 +269,13 @@
     padding: 0 var(--control-padding-inline-sm);
     font-size: var(--font-size-body-sm);
     gap: var(--spacing-8);
-    transition: opacity 0.3s, transform 0.3s, padding 0.3s, font-size 0.3s, gap 0.3s, top 0.3s, left 0.3s;
+    transition: opacity var(--duration-base), transform var(--duration-base), padding var(--duration-base), font-size var(--duration-base), gap var(--duration-base), top var(--duration-base), left var(--duration-base);
   }
 
   .backBtn svg {
     width: 16px;
     height: 16px;
-    transition: width 0.3s, height 0.3s;
+    transition: width var(--duration-base), height var(--duration-base);
   }
 
 }

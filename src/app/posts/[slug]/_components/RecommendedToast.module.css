@@ -67,7 +67,7 @@
 .toastClose .toastCloseLine {
   transition:
     transform var(--duration-base) var(--ease-standard),
-    background var(--duration-base) ease;
+    background var(--duration-base) var(--ease-standard);
 }
 
 .toastClose:hover .toastCloseLine {

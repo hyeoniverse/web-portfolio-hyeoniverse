@@ -189,7 +189,7 @@
 .cardBorder {
   position: absolute;
   z-index: 20;
-  transition: border-color 0.3s ease;
+  transition: border-color var(--duration-base) var(--ease-standard);
   pointer-events: none;
   inset: 0;
   border-radius: inherit;

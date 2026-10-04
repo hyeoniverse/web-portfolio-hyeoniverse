@@ -29,12 +29,13 @@
   row-gap: var(--spacing-1);
   padding: var(--spacing-8) var(--spacing-4);
   border-bottom: var(--border-light);
-  transition: background-color 0.15s ease;
+  transition: background-color var(--duration-fast) var(--ease-standard);
 }
 .row:hover { background: var(--bg-secondary); }
 .rowFocus {
+  --_calMgrPulse-duration: 1.6s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   background: var(--bg-accent-light);
-  animation: calMgrPulse 1.6s ease;
+  animation: calMgrPulse var(--_calMgrPulse-duration) var(--ease-standard);
 }
 @keyframes calMgrPulse {
   0%, 100% { outline: 0 solid transparent; outline-offset: 0; }
@@ -84,7 +85,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  transition: color 0.15s ease;
+  transition: color var(--duration-fast) var(--ease-standard);
 }
 .rowTitleMuted { color: var(--text-tertiary); font-weight: 400; }
 .rowMeta {
@@ -124,7 +125,7 @@
   flex: 1;
   min-width: 0;
 }
-.spin { animation: calMgrSpin 0.7s linear infinite; }
+.spin { --_calMgrSpin-duration: 0.7s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */ animation: calMgrSpin var(--_calMgrSpin-duration) linear infinite; }
 @keyframes calMgrSpin { to { transform: rotate(360deg); } }
 
 /* ── 휴지통 (soft delete · 30일 후 자동 영구삭제) ── */
@@ -140,7 +141,7 @@
   background: transparent;
   color: var(--text-tertiary);
   cursor: pointer;
-  transition: color 0.15s ease;
+  transition: color var(--duration-fast) var(--ease-standard);
 }
 .trashHead:hover { color: var(--text-primary); }
 .trashTitle { font: var(--font-body-sm); font-weight: 500; }
@@ -157,7 +158,7 @@
 .trashHint { font: var(--font-body-xs); color: var(--text-muted); }
 .trashChev { margin-left: auto; color: var(--text-tertiary); }
 .trashChevOpen { transform: rotate(180deg); }
-.trashHead .trashChev { transition: transform 0.2s ease; }
+.trashHead .trashChev { transition: transform var(--duration-fast) var(--ease-standard); }
 .trashSoon { color: var(--text-accent); }
 
 /* 휴지통이 비었을 때 문구·불러오는 줄은 칸 하나가 아니라 줄 전체 */

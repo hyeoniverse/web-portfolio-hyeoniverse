@@ -41,7 +41,7 @@
   font-weight: 500;
   border-bottom: var(--border-width-2) solid transparent;
   margin-bottom: -1px;
-  transition: color 0.15s;
+  transition: color var(--duration-fast);
 }
 .tab.active { color: var(--text-primary); }
 .removeBtn {
@@ -65,7 +65,7 @@
   background: var(--text-primary);
   border-radius: var(--radius-full);
   opacity: 0;
-  transition: left 0.2s ease-out, width 0.2s ease-out, opacity 0.15s;
+  transition: left var(--duration-fast) var(--ease-enter), width var(--duration-fast) var(--ease-enter), opacity var(--duration-fast);
 }
 
 /* ── 검색 ── */
@@ -219,7 +219,7 @@
   background: transparent;
   padding: 0;
   flex-shrink: 0;
-  transition: opacity 0.15s ease;
+  transition: opacity var(--duration-fast) var(--ease-standard);
 }
 .catBtnIcon { color: var(--text-muted); }
 .picker .catBtn:not(.inactive):hover { background: var(--bg-tertiary); }
@@ -265,7 +265,7 @@
   gap: var(--spacing-8);
   color: var(--text-secondary);
   font: var(--font-body-sm);
-  transition: border-color 0.15s, background 0.15s, color 0.15s;
+  transition: border-color var(--duration-fast), background var(--duration-fast), color var(--duration-fast);
 }
 .dropzone:hover { border-color: var(--border-color-default); }
 .dropzone.dragOver {

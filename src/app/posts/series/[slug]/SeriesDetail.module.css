@@ -132,7 +132,7 @@
 }
 .epThumbImg {
   object-fit: cover;
-  transition: transform 0.4s var(--ease-standard);
+  transition: transform var(--duration-base) var(--ease-standard);
 }
 .epLink:hover .epThumbImg {
   transform: scale(1.05);

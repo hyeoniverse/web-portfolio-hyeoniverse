@@ -101,8 +101,8 @@
   line-height: var(--line-height-100);
   color: var(--text-accent-alt);
   transition:
-    color var(--duration-base) ease,
-    -webkit-text-stroke var(--duration-base) ease;
+    color var(--duration-base) var(--ease-standard),
+    -webkit-text-stroke var(--duration-base) var(--ease-standard);
 }
 
 .titleAccent:hover {
@@ -145,12 +145,13 @@
 }
 
 .pulseDot::before {
+  --_pulse-duration: 2s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   content: "";
   position: absolute;
   inset: -6px;
   border-radius: inherit;
   background: var(--bg-accent-solid-light);
-  animation: pulse 2s infinite;
+  animation: pulse var(--_pulse-duration) infinite;
   will-change: transform, opacity;
 }
 

@@ -23,8 +23,9 @@
    층마다 포인터를 다르게 따라간다. 먼 것(띠)은 조금, 가까운 것(별자리)은 많이 밀려야 깊이가 생긴다.
    흐름(drift)은 아주 느리게 — 눈에 띄면 배경이 아니라 화면의 주인공이 된다. */
 .band {
+  --_breathe-duration: 24s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   transform: translate(calc(var(--pointer-x) * 6px), calc(var(--pointer-y) * 6px));
-  animation: breathe 24s ease-in-out infinite;
+  animation: breathe var(--_breathe-duration) var(--ease-standard) infinite;
   transform-box: fill-box;
   transform-origin: center;
 }
@@ -34,8 +35,9 @@
    기준점을 못 박아 두는 것이 중요하다 — SVG 그룹의 기본 기준점은 viewBox 의 원점(0,0), 즉 왼쪽
    위 모서리다. 그대로 돌리면 별밭이 화면 밖으로 쓸려 나가 별이 사라지는 시점이 생긴다. */
 .stars {
+  --_drift-duration: 90s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   transform: translate(calc(var(--pointer-x) * 14px), calc(var(--pointer-y) * 14px));
-  animation: drift 90s linear infinite;
+  animation: drift var(--_drift-duration) linear infinite;
   transform-box: view-box;
   transform-origin: 50% 50%;
 }
@@ -53,7 +55,7 @@
 .band,
 .stars,
 .constellation {
-  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform var(--duration-slow) var(--ease-enter);
 }
 
 @keyframes breathe {
@@ -74,7 +76,8 @@
 /* 밝은 별은 숨을 쉰다 — 밝기·크기와 함께 빛무리(drop-shadow)까지 바꿔야 반짝이는 것으로 읽힌다.
    주기를 2.4초로 줄여 가만히 보고 있어도 움직임이 눈에 든다 */
 .twinkle {
-  animation: twinkle 2.4s ease-in-out infinite;
+  --_twinkle-duration: 2.4s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
+  animation: twinkle var(--_twinkle-duration) var(--ease-standard) infinite;
   transform-box: fill-box;
   transform-origin: center;
 }
@@ -130,11 +133,12 @@
   --sky-line: var(--works-sky-line);
 
   transform: translate(calc(var(--pointer-x, 0) * 26px), calc(var(--pointer-y, 0) * 26px));
-  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform var(--duration-slow) var(--ease-enter);
 }
 
 .constellation .line {
-  animation: traceLine 9s ease-in-out infinite;
+  --_traceLine-duration: 9s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
+  animation: traceLine var(--_traceLine-duration) var(--ease-standard) infinite;
 }
 
 .constellation:nth-of-type(2) .line {
@@ -157,7 +161,8 @@
 }
 
 .constellation .node {
-  animation: twinkle 5.5s ease-in-out infinite;
+  --_twinkle-duration: 5.5s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
+  animation: twinkle var(--_twinkle-duration) var(--ease-standard) infinite;
   transform-box: fill-box;
   transform-origin: center;
 }
@@ -172,11 +177,13 @@
 }
 
 .meteorA line {
-  animation: meteorA 11s linear infinite;
+  --_meteorA-duration: 11s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
+  animation: meteorA var(--_meteorA-duration) linear infinite;
 }
 
 .meteorB line {
-  animation: meteorB 17s 5s linear infinite;
+  --_meteorB-duration: 17s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
+  animation: meteorB var(--_meteorB-duration) 5s linear infinite;
 }
 
 @keyframes meteorA {
@@ -241,11 +248,13 @@
 
   .twinkle,
   .constellation .node {
-    animation: twinkleSoft 5s ease-in-out infinite;
+    --_twinkleSoft-duration: 5s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
+    animation: twinkleSoft var(--_twinkleSoft-duration) var(--ease-standard) infinite;
   }
 
   .constellation .line {
-    animation: traceLine 12s ease-in-out infinite;
+    --_traceLine-duration: 12s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
+    animation: traceLine var(--_traceLine-duration) var(--ease-standard) infinite;
   }
 }
 

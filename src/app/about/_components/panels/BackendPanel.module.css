@@ -41,7 +41,7 @@
 }
 
 .dbList .dbPageNav {
-  transition: opacity var(--duration-base) ease;
+  transition: opacity var(--duration-base) var(--ease-standard);
 }
 
 .dbPageBtn {
@@ -80,8 +80,8 @@
 
 .dbList .dbListItem {
   transition:
-    border-color var(--duration-base) ease,
-    padding-left var(--duration-base) ease;
+    border-color var(--duration-base) var(--ease-standard),
+    padding-left var(--duration-base) var(--ease-standard);
 }
 
 .dbListItem:hover {
@@ -111,7 +111,7 @@
 }
 
 .dbList .dbNumber {
-  transition: color var(--duration-base) ease;
+  transition: color var(--duration-base) var(--ease-standard);
 }
 
 .dbListItemActive .dbNumber {
@@ -600,7 +600,7 @@
 
 /* Compound selector (0,2,0) */
 .apiMap .apiTileBtn {
-  transition: color var(--duration-base) ease;
+  transition: color var(--duration-base) var(--ease-standard);
 }
 
 .apiTileBtn:hover {

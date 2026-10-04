@@ -14,11 +14,11 @@
 .sidebarWrap.sidebarUp {
   top: calc(var(--spacing-32) * 2 + var(--font-size-32) + var(--spacing-16));
   max-height: calc(100vh - var(--spacing-32) * 2 - var(--font-size-32) - var(--spacing-16) - var(--spacing-24));
-  transition: top 0.3s ease, max-height 0.3s ease;
+  transition: top var(--duration-base) var(--ease-standard), max-height var(--duration-base) var(--ease-standard);
 }
 
 .sidebarWrap:not(.sidebarUp) {
-  transition: top 0.3s ease, max-height 0.3s ease;
+  transition: top var(--duration-base) var(--ease-standard), max-height var(--duration-base) var(--ease-standard);
 }
 
 .sidebar {
@@ -73,7 +73,7 @@
   border: none;
   background: none;
   color: inherit;
-  transition: color var(--duration-fast) ease;
+  transition: color var(--duration-fast) var(--ease-standard);
 }
 
 .sidebarFadeTop .sidebarScrollBtn {

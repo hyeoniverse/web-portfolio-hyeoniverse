@@ -4,7 +4,7 @@
  * 필수입력 표시(.fieldLabelRequired::after)와 충돌해 가렸으므로 제거함. */
 
 [data-seo] label {
-  transition: color 0.35s ease;
+  transition: color var(--duration-base) var(--ease-standard);
 }
 
 [data-seo] label.seo-flash {

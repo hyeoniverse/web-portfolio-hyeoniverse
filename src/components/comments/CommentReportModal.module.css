@@ -8,7 +8,7 @@
 
 /* 상세 입력 — 사유 카드 아래로 부드럽게 등장 */
 .detail {
-  animation: detailIn var(--duration-base) ease;
+  animation: detailIn var(--duration-base) var(--ease-standard);
 }
 
 @keyframes detailIn {

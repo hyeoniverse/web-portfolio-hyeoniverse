@@ -29,7 +29,7 @@
   backdrop-filter: blur(24px) saturate(1.6);
   pointer-events: none;
   opacity: 0;
-  transition: opacity var(--duration-base) ease;
+  transition: opacity var(--duration-base) var(--ease-standard);
 }
 
 .pinned::before {

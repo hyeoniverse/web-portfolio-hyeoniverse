@@ -130,13 +130,14 @@
 /* 찍는 중임을 알리는 커서. 다 찍으면 사라진다.
    글자 층 안이라 말풍선과 함께 반전된다 — 따로 색을 고르지 않는다. */
 .caret {
+  --_caretBlink-duration: 0.9s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   display: inline-block;
   width: 0.55em;
   height: 1em;
   margin-left: 0.12em;
   background: currentcolor;
   vertical-align: -0.12em;
-  animation: caretBlink 0.9s steps(1, end) infinite;
+  animation: caretBlink var(--_caretBlink-duration) steps(1, end) infinite;
 }
 
 @keyframes caretBlink {

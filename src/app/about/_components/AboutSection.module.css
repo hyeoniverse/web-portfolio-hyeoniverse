@@ -101,8 +101,8 @@
 
   .track .animate {
     transition:
-      opacity var(--duration-slower) ease,
-      transform var(--duration-slower) ease;
+      opacity var(--duration-slower) var(--ease-standard),
+      transform var(--duration-slower) var(--ease-standard);
   }
 
   .animateVisible {

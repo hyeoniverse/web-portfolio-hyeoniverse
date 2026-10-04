@@ -2,7 +2,7 @@
 .flipSlot {
   display: grid;
   grid-template-rows: 0fr;
-  transition: grid-template-rows 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: grid-template-rows var(--duration-slow) var(--ease-enter);
 }
 
 .flipSlotOpen {
@@ -15,6 +15,7 @@
 }
 
 .flipCard {
+  --_celebrateOut-duration: 3.2s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -23,8 +24,7 @@
   opacity: 0;
   transform: translateY(30px) scale(0.85);
   filter: blur(8px);
-  animation: celebrateEnter 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s forwards,
-             celebrateOut 3.2s ease forwards;
+  animation:  celebrateEnter var(--duration-slow) var(--ease-spring) 0.1s forwards, celebrateOut var(--_celebrateOut-duration) var(--ease-standard) forwards;
 }
 
 .flipLine {
@@ -32,7 +32,7 @@
   height: 1px;
   background: var(--bg-accent-solid);
   opacity: 0.4;
-  animation: lineGrow 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.5s forwards;
+  animation: lineGrow var(--duration-slow) var(--ease-enter) 0.5s forwards;
 }
 
 @keyframes celebrateEnter {
@@ -57,8 +57,9 @@
 }
 
 .flipStar {
+  --_sparkle-duration: 1.2s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   display: inline-block;
-  animation: sparkle 1.2s ease-in-out infinite;
+  animation: sparkle var(--_sparkle-duration) var(--ease-standard) infinite;
 }
 
 .flipStar:last-of-type {
@@ -77,7 +78,7 @@
 }
 
 .commentFlipIn {
-  animation: commentRevealIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: commentRevealIn var(--duration-slow) var(--ease-enter) forwards;
 }
 
 @keyframes commentRevealIn {

@@ -37,7 +37,7 @@
   color: var(--text-tertiary);
   white-space: nowrap;
   cursor: pointer;
-  transition: color 0.18s ease;
+  transition: color var(--duration-fast) var(--ease-standard);
 }
 
 /* size sm — group 전체 28 (= 24 btn + 4 padding) */
@@ -149,6 +149,6 @@
 
 .dirIcon {
   flex-shrink: 0;
-  transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform var(--duration-base) var(--ease-standard);
 }
 }

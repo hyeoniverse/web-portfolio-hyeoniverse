@@ -27,8 +27,7 @@
 }
 
 .root .line {
-  transition: transform var(--duration-base) var(--ease-standard),
-              opacity var(--duration-base) var(--ease-standard);
+  transition:  transform var(--duration-base) var(--ease-standard), opacity var(--duration-base) var(--ease-standard);
 }
 
 /* minus 상태 — 두번째 line 숨김 (두 line stacked 으로 인한 subpixel 두꺼움 방지) */

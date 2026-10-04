@@ -138,7 +138,7 @@
   width: 0;
   height: 1px;
   background: var(--text-primary);
-  transition: width 0.3s ease;
+  transition: width var(--duration-base) var(--ease-standard);
 }
 .tag:hover {
   color: var(--text-primary);

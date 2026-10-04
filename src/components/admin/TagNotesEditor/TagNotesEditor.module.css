@@ -44,7 +44,7 @@
   gap: var(--spacing-4);
   padding-left: var(--spacing-4);
   border-left: var(--border-light);
-  transition: opacity 0.15s ease;
+  transition: opacity var(--duration-fast) var(--ease-standard);
 }
 
 /* 드래그 중 — 흐릿 */
@@ -175,7 +175,7 @@
 .itemRow {
   position: relative;
   align-items: flex-start;
-  transition: opacity 0.15s ease;
+  transition: opacity var(--duration-fast) var(--ease-standard);
 }
 
 /* 모든 leading 요소 (체크박스 / bullet / grip) 을 input wrap 28px 와 동일 높이로 →
@@ -472,7 +472,7 @@
 /* quietActions — 설명 추가·편집 버튼은 올리거나 초점이 온 항목에만 */
 .section[data-quiet] .toggleBtn {
   opacity: 0;
-  transition: opacity var(--duration-fast) ease;
+  transition: opacity var(--duration-fast) var(--ease-standard);
 }
 
 .section[data-quiet] .group:hover .toggleBtn,

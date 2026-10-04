@@ -69,7 +69,7 @@
 
 /* layout gap 변화 부드럽게 */
 .container .layout {
-  transition: gap 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: gap var(--duration-base) var(--ease-standard);
 }
 
 .navItem {
@@ -404,7 +404,7 @@
     mask-image: linear-gradient(to bottom, #000 calc(100% - var(--spacing-16)), transparent);
     pointer-events: none;
     opacity: 0;
-    transition: opacity var(--duration-base) ease;
+    transition: opacity var(--duration-base) var(--ease-standard);
   }
   .tabBarPinned::before {
     opacity: 1;

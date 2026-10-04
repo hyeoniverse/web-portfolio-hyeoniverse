@@ -25,7 +25,7 @@
 .icon .node {
   transition:
     transform var(--duration-base) var(--ease-spring),
-    opacity var(--duration-base) ease;
+    opacity var(--duration-base) var(--ease-standard);
 }
 
 .link {
@@ -37,8 +37,8 @@
 
 .icon .link {
   transition:
-    opacity var(--duration-base) ease,
-    stroke-width var(--duration-base) ease;
+    opacity var(--duration-base) var(--ease-standard),
+    stroke-width var(--duration-base) var(--ease-standard);
 }
 
 /* ── hover — 도착 노드가 바깥으로 벌어지고 선이 또렷해진다 ("보낸다" 는 신호) ──
@@ -65,15 +65,15 @@
 
 /* ── copied — 도착 노드 2개가 바깥으로 튀어나가며 사라진다 (하트의 burst 와 짝) ── */
 .icon[data-state="copied"] .nodeUp {
-  animation: shareSendUp 0.5s var(--ease-enter) both;
+  animation: shareSendUp var(--duration-slow) var(--ease-enter) both;
 }
 
 .icon[data-state="copied"] .nodeDown {
-  animation: shareSendDown 0.5s var(--ease-enter) both;
+  animation: shareSendDown var(--duration-slow) var(--ease-enter) both;
 }
 
 .icon[data-state="copied"] .link {
-  animation: shareLinkFade 0.4s ease both;
+  animation: shareLinkFade var(--duration-base) var(--ease-standard) both;
 }
 
 @keyframes shareSendUp {
@@ -109,7 +109,7 @@
 
 /* 출발 노드는 남아서 살짝 커졌다 돌아온다 — "떠났다" 는 잔상 */
 .icon[data-state="copied"] .node:not(.nodeUp):not(.nodeDown) {
-  animation: shareOriginPulse 0.5s var(--ease-spring) both;
+  animation: shareOriginPulse var(--duration-slow) var(--ease-spring) both;
 }
 
 @keyframes shareOriginPulse {

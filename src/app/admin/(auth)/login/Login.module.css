@@ -65,8 +65,9 @@
 }
 
 .waveChar {
+  --_wave-duration: 1.2s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   display: inline-block;
-  animation: wave 1.2s ease-in-out infinite;
+  animation: wave var(--_wave-duration) var(--ease-standard) infinite;
 }
 
 @keyframes wave {

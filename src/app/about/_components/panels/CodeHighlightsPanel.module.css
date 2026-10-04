@@ -15,7 +15,7 @@
 }
 
 .codeSingleView .codeSinglePane {
-  transition: opacity var(--duration-base) ease;
+  transition: opacity var(--duration-base) var(--ease-standard);
 }
 
 .codeSinglePaneActive {
@@ -103,7 +103,7 @@
 }
 
 .codeScrollWrap .codePageNav {
-  transition: opacity var(--duration-base) ease;
+  transition: opacity var(--duration-base) var(--ease-standard);
 }
 
 .codePageCount {
@@ -135,7 +135,7 @@
 
 /* Compound selector (0,2,0) */
 .codePageNav .codePageBtn {
-  transition: color var(--duration-fast) ease, translate var(--duration-fast) ease;
+  transition: color var(--duration-fast) var(--ease-standard), translate var(--duration-fast) var(--ease-standard);
 }
 
 .codePageBtn:hover:not(:disabled) {
@@ -254,7 +254,7 @@
 .codeItemMobile .codeMobileBody {
   transition:
     max-height var(--duration-slow) var(--_ease-standard),
-    opacity 0.4s var(--_ease-standard),
+    opacity var(--duration-base) var(--_ease-standard),
     padding var(--duration-slow) var(--_ease-standard);
 }
 
@@ -340,10 +340,11 @@
 /* ── Demo 6: Infinite Scroll ── */
 /* 12 blocks per set × (40px + 6px gap) = 552px per set */
 .demoInfiniteTrack {
+  --_demoMarquee-duration: 8s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   display: flex;
   gap: var(--spacing-8);
   width: max-content;
-  animation: demoMarquee 8s linear infinite;
+  animation: demoMarquee var(--_demoMarquee-duration) linear infinite;
 }
 
 .codeDemoInner:hover .demoInfiniteTrack {
@@ -531,7 +532,7 @@
 
   /* Compound selector (0,2,0) */
   .codeIndex .codeIndexItem {
-    transition: color var(--duration-base) ease, padding var(--duration-base) var(--ease-standard);
+    transition: color var(--duration-base) var(--ease-standard), padding var(--duration-base) var(--ease-standard);
   }
 
   .codeIndexItem:hover {

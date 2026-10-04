@@ -63,7 +63,7 @@
   transition:
     left var(--duration-base) var(--ease-standard),
     width var(--duration-base) var(--ease-standard),
-    opacity var(--duration-base) ease;
+    opacity var(--duration-base) var(--ease-standard);
 }
 
 /* indicator 화살표 — 좌/우 짝 매칭. BLACK …TRIANGLE + text variation selector (U+FE0E)
@@ -76,7 +76,7 @@
   transform: translateY(-50%) translateX(-3px);
   font-size: var(--font-size-dot);
   color: var(--text-primary);
-  transition: transform var(--duration-base) ease;
+  transition: transform var(--duration-base) var(--ease-standard);
 }
 
 .footerIndicator::after {
@@ -87,7 +87,7 @@
   transform: translateY(-50%) translateX(3px);
   font-size: var(--font-size-dot);
   color: var(--text-primary);
-  transition: transform var(--duration-base) ease;
+  transition: transform var(--duration-base) var(--ease-standard);
 }
 
 .links:hover .footerIndicator::before {
@@ -137,7 +137,7 @@
   font-size: var(--font-size-dot);
   color: currentColor;
   opacity: 0;
-  transition: opacity var(--duration-base) ease, transform var(--duration-base) ease;
+  transition: opacity var(--duration-base) var(--ease-standard), transform var(--duration-base) var(--ease-standard);
 }
 
 .email::before {

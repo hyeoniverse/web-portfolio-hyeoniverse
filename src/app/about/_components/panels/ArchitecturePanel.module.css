@@ -15,7 +15,7 @@
   justify-content: space-between;
   padding: clamp(0.6rem, 1vh, 1rem) 0;
   border-bottom: var(--_line-secondary);
-  transition: border-color var(--duration-base) ease;
+  transition: border-color var(--duration-base) var(--ease-standard);
 }
 
 .archItem:hover {
@@ -26,7 +26,7 @@
   flex-shrink: 0;
   font: var(--font-prose-lg);
   font-weight: var(--font-weight-medium);
-  transition: color var(--duration-base) ease;
+  transition: color var(--duration-base) var(--ease-standard);
 }
 
 .archItem:hover .archPath {
@@ -75,8 +75,8 @@
   font: var(--font-prose-md);
   color: var(--text-tertiary);
   transition:
-    border-color var(--duration-base) ease,
-    color var(--duration-base) ease;
+    border-color var(--duration-base) var(--ease-standard),
+    color var(--duration-base) var(--ease-standard);
 }
 
 .archMap .archModeBtn:hover {
@@ -99,9 +99,9 @@
 
 .archSvg .archEdge {
   transition:
-    stroke var(--duration-base) ease,
-    opacity var(--duration-base) ease,
-    stroke-width var(--duration-base) ease;
+    stroke var(--duration-base) var(--ease-standard),
+    opacity var(--duration-base) var(--ease-standard),
+    stroke-width var(--duration-base) var(--ease-standard);
   fill: none;
   stroke: var(--text-tertiary);
   stroke-width: 0.8;
@@ -120,16 +120,18 @@
 
 /* ── Force mode: edge flow animation ── */
 .archSvg .archEdgeForce {
+  --_archEdgeFlow-duration: 3s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   stroke-dasharray: 4 6;
-  animation: archEdgeFlow 3s linear infinite;
+  animation: archEdgeFlow var(--_archEdgeFlow-duration) linear infinite;
 }
 
 .archSvg .archEdgePathActive {
+  --_archEdgeFlow-duration: 1.2s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   stroke: var(--text-accent);
   stroke-width: 1.8;
   opacity: 0.8;
   stroke-dasharray: 6 4;
-  animation: archEdgeFlow 1.2s linear infinite;
+  animation: archEdgeFlow var(--_archEdgeFlow-duration) linear infinite;
 }
 
 .archSvg .archEdgeDimmed.archEdgeForce {
@@ -153,10 +155,10 @@
   position: absolute;
   background: transparent;
   transition:
-    border-color var(--duration-base) ease,
-    box-shadow var(--duration-base) ease,
-    opacity var(--duration-base) ease,
-    transform var(--duration-fast) ease;
+    border-color var(--duration-base) var(--ease-standard),
+    box-shadow var(--duration-base) var(--ease-standard),
+    opacity var(--duration-base) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard);
   translate: -50% -50%;
   border-radius: var(--radius-control);
 }
@@ -226,9 +228,9 @@
   position: absolute;
   background: transparent;
   transition:
-    background var(--duration-base) ease,
-    outline-color var(--duration-base) ease,
-    opacity var(--duration-base) ease;
+    background var(--duration-base) var(--ease-standard),
+    outline-color var(--duration-base) var(--ease-standard),
+    opacity var(--duration-base) var(--ease-standard);
 }
 
 .archMap .archTmCell:hover {

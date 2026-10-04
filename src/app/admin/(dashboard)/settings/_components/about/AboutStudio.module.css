@@ -52,7 +52,7 @@
   field-sizing: content;
   min-width: 2ch;
   max-width: 100%;
-  transition: box-shadow 0.15s ease, background 0.15s ease;
+  transition: box-shadow var(--duration-fast) var(--ease-standard), background var(--duration-fast) var(--ease-standard);
 }
 :where(.edit):is(input, textarea):is(input, textarea) {
   padding: var(--spacing-2) var(--spacing-4);
@@ -657,7 +657,7 @@ textarea.edit {
   /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 편집 폼의 입력 칸과 같은 모서리(R6 예외). .edit 주석 참고 */
   border-radius: var(--radius-mark);
   border: var(--border-width-1) solid var(--border-color-light);
-  transition: box-shadow 0.15s ease, background 0.15s ease;
+  transition: box-shadow var(--duration-fast) var(--ease-standard), background var(--duration-fast) var(--ease-standard);
 }
 .secIconBtn:hover {
   outline: var(--border-width-1) solid var(--border-color-default);
@@ -715,7 +715,7 @@ textarea.edit {
   flex: 1;
   min-height: clamp(360px, 58vh, 600px);
   margin-top: var(--spacing-24);
-  transition: grid-template-columns 0.4s ease, grid-template-rows 0.4s ease;
+  transition: grid-template-columns var(--duration-base) var(--ease-standard), grid-template-rows var(--duration-base) var(--ease-standard);
 }
 .featCell {
   position: relative;
@@ -723,7 +723,7 @@ textarea.edit {
   min-width: 0;
   min-height: 0;
   background: var(--bg-tertiary);
-  transition: transform 0.4s ease;
+  transition: transform var(--duration-base) var(--ease-standard);
 }
 .featImg {
   position: absolute;
@@ -743,7 +743,7 @@ textarea.edit {
   right: 0;
   bottom: 0;
   pointer-events: auto;
-  transition: backdrop-filter 0.3s ease;
+  transition: backdrop-filter var(--duration-base) var(--ease-standard);
 }
 .featCell:hover .featInfo {
   backdrop-filter: blur(6px);
@@ -753,7 +753,7 @@ textarea.edit {
   max-height: 0;
   overflow: hidden;
   opacity: 0;
-  transition: max-height 0.35s ease, opacity 0.35s ease;
+  transition: max-height var(--duration-base) var(--ease-standard), opacity var(--duration-base) var(--ease-standard);
 }
 .featCell:hover .featDetails,
 .featCell:focus-within .featDetails {
@@ -834,7 +834,7 @@ textarea.edit {
 /* 손잡이 표시는 평소 숨긴다 — 번호가 주인공이고, 줄에 마우스가 오면 끌 수 있음을 알린다 */
 .procGrip {
   opacity: 0;
-  transition: opacity var(--duration-fast) ease;
+  transition: opacity var(--duration-fast) var(--ease-standard);
 }
 .procRow:hover .procGrip,
 .procRow:focus-within .procGrip {

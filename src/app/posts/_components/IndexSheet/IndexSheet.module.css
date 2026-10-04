@@ -83,7 +83,7 @@
   font: var(--font-body-sm);
   font-weight: var(--font-weight-medium);
   text-decoration: none;
-  transition: gap 0.15s ease;
+  transition: gap var(--duration-fast) var(--ease-standard);
 }
 
 .sheetCta:hover {

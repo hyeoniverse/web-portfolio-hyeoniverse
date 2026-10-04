@@ -120,7 +120,7 @@
   border-radius: inherit;
   pointer-events: none;
   backdrop-filter: blur(0) saturate(100%);
-  transition: backdrop-filter var(--duration-base) ease;
+  transition: backdrop-filter var(--duration-base) var(--ease-standard);
 }
 
 .cta .magneticInner:hover::before {
@@ -199,16 +199,17 @@
   height: var(--size-8);
   background: var(--bg-accent-solid-light);
   border-radius: var(--radius-full);
-  transition: transform var(--duration-base) ease;
+  transition: transform var(--duration-base) var(--ease-standard);
 }
 
 .buttonIndicator::after {
+  --_pulse-duration: 2s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   content: "";
   position: absolute;
   inset: -6px;
   border-radius: inherit;
   background: var(--bg-accent-solid-light);
-  animation: pulse 2s infinite;
+  animation: pulse var(--_pulse-duration) infinite;
   will-change: transform, opacity;
 }
 
@@ -244,8 +245,8 @@
   border-radius: var(--radius-full);
   color: var(--text-primary);
   transition:
-    background-color var(--duration-base) ease,
-    color var(--duration-base) ease;
+    background-color var(--duration-base) var(--ease-standard),
+    color var(--duration-base) var(--ease-standard);
 }
 
 .cta .socialLink:hover {

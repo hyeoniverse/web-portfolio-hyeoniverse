@@ -11,7 +11,7 @@
   box-shadow: var(--shadow-overlay);
   overflow: hidden;
   pointer-events: none;
-  animation: seriesPreviewIn 0.15s ease;
+  animation: seriesPreviewIn var(--duration-fast) var(--ease-standard);
 }
 
 @keyframes seriesPreviewIn {

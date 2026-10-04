@@ -100,7 +100,7 @@
   color: var(--text-primary);
   cursor: pointer;
   font-variant-numeric: tabular-nums;
-  transition: border-color 0.15s ease, background 0.15s ease;
+  transition: border-color var(--duration-fast) var(--ease-standard), background var(--duration-fast) var(--ease-standard);
 }
 .poll-period-trigger:hover {
   border-color: var(--text-primary);
@@ -135,7 +135,7 @@
   gap: var(--spacing-12);
   padding: var(--spacing-4);
   border-radius: var(--radius-full);
-  transition: background 0.15s ease;
+  transition: background var(--duration-fast) var(--ease-standard);
 }
 /* 편집 중/hover 인 행만 살짝 강조 — 리스트가 정적으로 붕 뜨지 않게 은은하게 */
 .poll-option-row:hover,
@@ -258,7 +258,7 @@ body.poll-grabbing * {
   color: var(--text-muted);
   cursor: pointer;
   opacity: 0;
-  transition: color 0.15s ease, background 0.15s ease, opacity 0.15s ease;
+  transition: color var(--duration-fast) var(--ease-standard), background var(--duration-fast) var(--ease-standard), opacity var(--duration-fast) var(--ease-standard);
 }
 /* 해당 행에 hover/focus 일 때만 삭제 버튼 노출 — 평소엔 깔끔하게 숨김 */
 .poll-option-row:hover .poll-option-remove,
@@ -278,7 +278,7 @@ body.poll-grabbing * {
   padding: var(--spacing-4);
   border-radius: var(--radius-full);
   color: var(--text-muted);
-  transition: background 0.15s ease;
+  transition: background var(--duration-fast) var(--ease-standard);
 }
 .poll-add-row:hover,
 .poll-add-row:focus-within {
@@ -291,7 +291,7 @@ body.poll-grabbing * {
   border-color: var(--border-color-strong);
   color: var(--text-muted);
   opacity: 0.7;
-  transition: opacity 0.15s ease, color 0.15s ease;
+  transition: opacity var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
 }
 .poll-add-row:hover .poll-add-marker,
 .poll-add-row:focus-within .poll-add-marker {
@@ -346,7 +346,7 @@ body.poll-grabbing * {
   text-align: left;
   cursor: pointer;
   overflow: hidden;
-  transition: background 0.15s ease;
+  transition: background var(--duration-fast) var(--ease-standard);
 }
 .poll-option-btn:hover:not(:disabled) {
   background: var(--bg-tertiary);
@@ -366,7 +366,7 @@ body.poll-grabbing * {
   background: var(--bg-tertiary-alt);
   border-radius: inherit;
   z-index: 0;
-  transition: width 0.4s ease;
+  transition: width var(--duration-base) var(--ease-standard);
 }
 .poll-voted .poll-bar {
   background: var(--bg-accent-subtle);
@@ -383,7 +383,7 @@ body.poll-grabbing * {
   height: 16px;
   border: 1.5px solid var(--border-color-strong);
   border-radius: var(--radius-full);
-  transition: border-color 0.15s ease, background 0.15s ease;
+  transition: border-color var(--duration-fast) var(--ease-standard), background var(--duration-fast) var(--ease-standard);
 }
 .poll-option-btn:hover .poll-marker {
   border-color: var(--text-secondary);
@@ -550,7 +550,7 @@ body.poll-grabbing * {
   font-size: var(--font-size-body-md);
   font-weight: 500;
   cursor: pointer;
-  transition: opacity 0.15s ease;
+  transition: opacity var(--duration-fast) var(--ease-standard);
 }
 .poll-submit:hover:not(:disabled) {
   opacity: 0.85;
@@ -571,7 +571,7 @@ body.poll-grabbing * {
   font-family: var(--font-family-body);
   font-size: var(--font-size-body-sm);
   cursor: pointer;
-  transition: color 0.15s ease, border-color 0.15s ease;
+  transition: color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard);
 }
 .poll-revote:hover:not(:disabled) {
   color: var(--text-primary);
@@ -610,7 +610,7 @@ body.poll-grabbing * {
   font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
   cursor: pointer;
-  transition: color 0.15s ease, background 0.15s ease;
+  transition: color var(--duration-fast) var(--ease-standard), background var(--duration-fast) var(--ease-standard);
 }
 .poll-sort-seg-btn:hover:not(.poll-sort-seg-on) {
   color: var(--text-primary);
@@ -624,7 +624,7 @@ body.poll-grabbing * {
   display: inline-flex;
   font-size: var(--font-size-body-sm);
   line-height: 1;
-  transition: transform 0.15s ease;
+  transition: transform var(--duration-fast) var(--ease-standard);
 }
 .poll-sort-dir-desc {
   transform: rotate(180deg);
@@ -639,7 +639,7 @@ body.poll-grabbing * {
   display: flex;
   align-items: center;
   gap: var(--spacing-20);
-  animation: pollPieIn 0.32s ease both;
+  animation: pollPieIn var(--duration-base) var(--ease-standard) both;
 }
 @keyframes pollPieIn {
   from { opacity: 0; transform: translateY(4px); }
@@ -658,7 +658,7 @@ body.poll-grabbing * {
   cursor: pointer;
   transform-box: fill-box;
   transform-origin: center;
-  transition: stroke-width 0.18s ease, transform 0.18s ease, filter 0.18s ease;
+  transition: stroke-width var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-standard), filter var(--duration-fast) var(--ease-standard);
 }
 /* hover 시 세그먼트 pop — 두께↑ + 바깥으로 살짝 확대(float) + 그림자 */
 .poll-pie .poll-pie-seg-on {
@@ -694,7 +694,7 @@ body.poll-grabbing * {
   padding: var(--spacing-2) var(--spacing-4);
   border-radius: var(--radius-full);
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: background var(--duration-fast) var(--ease-standard);
 }
 .poll-legend-on {
   background: var(--bg-tertiary);
@@ -725,7 +725,7 @@ body.poll-grabbing * {
   display: block;
   height: 100%;
   border-radius: inherit;
-  transition: width 0.4s ease;
+  transition: width var(--duration-base) var(--ease-standard);
 }
 /* 고정 폭·우측 정렬 — "nn% · n표" 길이가 달라도 막대 위치가 흔들리지 않게. 큰 수는 축약(compactNum) + overflow 안전망 */
 .poll-legend-pct {

@@ -38,7 +38,7 @@
 }
 
 .wrapper .textarea {
-  transition: border-color var(--duration-base) ease;
+  transition: border-color var(--duration-base) var(--ease-standard);
 }
 
 .textarea:focus {
@@ -112,7 +112,7 @@
   backdrop-filter: var(--blur-glass);
   /* 텍스트 선택·리사이즈는 통과시키고 버튼만 클릭 */
   pointer-events: none;
-  transition: opacity var(--duration-base) ease;
+  transition: opacity var(--duration-base) var(--ease-standard);
 }
 
 /* 타이핑하는 동안에는 물러난다 — 우하단에 떠 있는 이 chip 이 방금 친 글자를 가린다.
@@ -141,8 +141,8 @@
   cursor: pointer;
   opacity: 0.7;
   transition:
-    opacity var(--duration-base) ease,
-    color var(--duration-base) ease;
+    opacity var(--duration-base) var(--ease-standard),
+    color var(--duration-base) var(--ease-standard);
   z-index: 1;
 }
 
@@ -188,7 +188,7 @@
   text-transform: uppercase;
   user-select: none;
   pointer-events: none;
-  transition: opacity 0.15s ease;
+  transition: opacity var(--duration-fast) var(--ease-standard);
 }
 
 .editableWrapWithBadge:focus-within .inlineLabel {
@@ -256,7 +256,7 @@
     transparent 52%
   );
   opacity: 0.55;
-  transition: opacity var(--duration-base) ease;
+  transition: opacity var(--duration-base) var(--ease-standard);
 }
 
 .resizeOverlay:hover::after {
@@ -293,7 +293,7 @@
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.02em;
   user-select: none;
-  transition: color var(--duration-base) ease;
+  transition: color var(--duration-base) var(--ease-standard);
 }
 
 /* count 숫자만 상태별 색상 — "/ max" 는 항상 tertiary (EditableInput 과 동일 패턴). */

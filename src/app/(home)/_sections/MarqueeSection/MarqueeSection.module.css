@@ -14,9 +14,10 @@
    Track - Scrolling container
    --------------------------------------------------------------------------- */
 .track {
+  --_marquee-duration: 25s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   display: flex;
   white-space: nowrap;
-  animation: marquee 25s linear infinite;
+  animation: marquee var(--_marquee-duration) linear infinite;
 }
 
 @keyframes marquee {

@@ -12,7 +12,7 @@
   white-space: nowrap;
   cursor: pointer;
   vertical-align: baseline;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  transition: background-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
 }
 .pill:hover {
   background: var(--bg-accent);
@@ -59,7 +59,7 @@
   font: var(--font-body-xs);
   white-space: nowrap;
   cursor: pointer;
-  transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+  transition: color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard);
 }
 .timeToggle:hover,
 .removeBtn:hover {

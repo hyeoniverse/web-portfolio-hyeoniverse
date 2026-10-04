@@ -18,9 +18,9 @@
   text-align: left;
   /* 접힐 때: 접기(0.35s) 끝나고 모서리 둥글게(0.25s) */
   transition:
-    border-radius 0.25s ease 0.35s,
-    border-color 0.2s ease,
-    background-size 0.3s ease;
+    border-radius var(--duration-base) var(--ease-standard) 0.35s,
+    border-color var(--duration-fast) var(--ease-standard),
+    background-size var(--duration-base) var(--ease-standard);
 }
 
 .seriesList .seriesCardHead:hover {
@@ -97,10 +97,10 @@
   color: var(--text-primary);
   border: var(--border-default);
   transition:
-    background 0.25s ease,
-    backdrop-filter 0.25s ease,
-    color 0.25s ease,
-    border-color 0.25s ease;
+    background var(--duration-base) var(--ease-standard),
+    backdrop-filter var(--duration-base) var(--ease-standard),
+    color var(--duration-base) var(--ease-standard),
+    border-color var(--duration-base) var(--ease-standard);
 }
 
 .seriesCardDeleteBtn.seriesCardDeleteBtn.seriesCardDeleteBtn:hover {
@@ -118,9 +118,9 @@
   position: relative;
   overflow: hidden;
   transition:
-    background-size 0.3s ease,
-    border-radius 0.25s ease,
-    border-color 0.2s ease;
+    background-size var(--duration-base) var(--ease-standard),
+    border-radius var(--duration-base) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard);
 }
 
 .seriesCardHeadCover:hover {
@@ -190,9 +190,9 @@
   border-radius: var(--radius-surface) var(--radius-surface) 0 0;
   /* 펼칠 때: 모서리 먼저 각지게(0.25s), delay 없음 */
   transition:
-    border-radius 0.25s ease,
-    border-color 0.2s ease,
-    background-size 0.3s ease;
+    border-radius var(--duration-base) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard),
+    background-size var(--duration-base) var(--ease-standard);
 }
 
 /* 일괄 처리 선택 — 맨 왼쪽 컬럼(1), 핸들 앞. 핸들과 같은 padding-top 으로 눈높이를 맞춘다.
@@ -268,7 +268,7 @@
      margin-top = (24 - 14) / 2 = 5px. */
   margin-top: calc((var(--control-height-xs) - 14px) / 2);
   color: var(--text-tertiary);
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform var(--duration-base) var(--ease-standard);
 }
 
 .seriesChevronOpen {
@@ -280,13 +280,13 @@
   grid-template-rows: 0fr;
   overflow: hidden;
   /* 접힐 때: 즉시 접기 시작 (0.35s) */
-  transition: grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: grid-template-rows var(--duration-base) var(--ease-standard);
 }
 
 .seriesCardCollapseOpen {
   grid-template-rows: 1fr;
   /* 펼칠 때: 모서리 전환(0.25s) 완료 후 펼치기 시작 */
-  transition: grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1) 0.25s;
+  transition: grid-template-rows var(--duration-base) var(--ease-standard) 0.25s;
 }
 
 .seriesCardCollapse > * {

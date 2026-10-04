@@ -159,8 +159,8 @@
    흐릿하게 그려 두고 선명해지게 하면 첫 페인트에 워드마크가 다 그려진다. */
 .logoLetter {
   animation:
-    logoLetterRise 0.7s ease-out backwards,
-    logoLetterSharpen 1s ease-out backwards;
+    logoLetterRise var(--duration-slow) var(--ease-enter) backwards,
+    logoLetterSharpen var(--duration-slower) var(--ease-enter) backwards;
   animation-delay:
     calc(0.15s + var(--i) * 0.04s),
     calc(0.2s + var(--i) * 0.05s);
@@ -174,7 +174,7 @@
   animation: none;
   opacity: 0;
   filter: blur(6px);
-  transition: opacity 0.2s ease-out, filter 0.3s ease-out;
+  transition: opacity var(--duration-fast) var(--ease-enter), filter var(--duration-base) var(--ease-enter);
   transition-delay: calc(var(--j) * 0.04s);
 }
 
@@ -190,7 +190,7 @@
   align-items: center;
 }
 .logo .logoCrossShort {
-  transition: opacity 0.4s ease-out, filter 0.4s ease-out;
+  transition: opacity var(--duration-base) var(--ease-enter), filter var(--duration-base) var(--ease-enter);
 }
 .logoCrossShortFloat {
   position: absolute;
@@ -209,7 +209,7 @@
   align-items: center;
 }
 .logo .logoCrossFullOut {
-  transition: opacity 0.3s ease-out, filter 0.3s ease-out;
+  transition: opacity var(--duration-base) var(--ease-enter), filter var(--duration-base) var(--ease-enter);
 }
 .logoCrossFullOut {
   opacity: 0;
@@ -242,7 +242,7 @@
   width: auto;
   object-fit: contain;
   /* 커버 위를 지나며 명암을 뒤집을 때 부드럽게 */
-  transition: filter var(--duration-base) ease;
+  transition: filter var(--duration-base) var(--ease-standard);
 }
 
 /* 이 배경용 변형이 없어 반대쪽 변형을 쓸 때 — 명암만 뒤집고 색상은 hue-rotate 로 되돌린다(lib/brandLogos) */
@@ -289,7 +289,7 @@
   transition:
     clip-path var(--duration-base) var(--ease-standard),
     visibility var(--duration-base),
-    opacity 0.4s ease;
+    opacity var(--duration-base) var(--ease-standard);
 }
 
 .navLink {
@@ -315,7 +315,7 @@
   transition:
     left var(--duration-base) var(--ease-standard),
     width var(--duration-base) var(--ease-standard),
-    opacity var(--duration-base) ease;
+    opacity var(--duration-base) var(--ease-standard);
 }
 
 .navIndicator::before {
@@ -341,7 +341,7 @@
 /* (0,2,1) 로 ::before / ::after transform transition 도 글로벌 이김 */
 .navCenter .navIndicator::before,
 .navCenter .navIndicator::after {
-  transition: transform var(--duration-base) ease;
+  transition: transform var(--duration-base) var(--ease-standard);
 }
 
 .navCenter:hover .navIndicator::before {
@@ -447,7 +447,7 @@
      hit area 는 그대로, 시각적 위치만 페이지 edge 와 정렬.
      logo 는 텍스트라 visual edge = 글자 시작점이 이미 page-px 와 일치 → 좌측은 조정 불필요. */
   margin-right: calc((var(--size-32) - 12px) / -2);
-  transition: opacity 0.4s ease;
+  transition: opacity var(--duration-base) var(--ease-standard);
 }
 
 .actionBtn {
@@ -462,7 +462,7 @@
   flex-shrink: 0;
   border-radius: var(--radius-full);
   color: var(--text-white);
-  transition: opacity var(--duration-base) ease;
+  transition: opacity var(--duration-base) var(--ease-standard);
 }
 
 .actionBtn:hover .langText,
@@ -501,7 +501,7 @@
   letter-spacing: 0.02em;
   white-space: nowrap;
   pointer-events: auto;
-  animation: soundTipIn 0.4s var(--ease-standard) both;
+  animation: soundTipIn var(--duration-base) var(--ease-standard) both;
   z-index: var(--z-index-tooltip);
 }
 
@@ -555,33 +555,33 @@
 /* Unmuted (default): waves visible, X hidden */
 .soundIcon .waveOuter {
   opacity: 1;
-  transition: opacity var(--duration-base) ease var(--duration-base);
+  transition: opacity var(--duration-base) var(--ease-standard) var(--duration-base);
 }
 
 .soundIcon .waveInner {
   opacity: 1;
-  transition: opacity var(--duration-base) ease var(--duration-fast);
+  transition: opacity var(--duration-base) var(--ease-standard) var(--duration-fast);
 }
 
 .soundIcon .xLine {
   opacity: 0;
-  transition: opacity var(--duration-fast) ease;
+  transition: opacity var(--duration-fast) var(--ease-standard);
 }
 
 /* Muted: waves hidden → X visible (staggered) */
 .soundIconMuted .waveOuter {
   opacity: 0;
-  transition: opacity var(--duration-fast) ease;
+  transition: opacity var(--duration-fast) var(--ease-standard);
 }
 
 .soundIconMuted .waveInner {
   opacity: 0;
-  transition: opacity var(--duration-fast) ease var(--duration-fast);
+  transition: opacity var(--duration-fast) var(--ease-standard) var(--duration-fast);
 }
 
 .soundIconMuted .xLine {
   opacity: 1;
-  transition: opacity var(--duration-base) ease var(--duration-base);
+  transition: opacity var(--duration-base) var(--ease-standard) var(--duration-base);
 }
 
 .langText {
@@ -589,11 +589,11 @@
   font: var(--font-body-sm);
   font-family: var(--font-family-nav);
   letter-spacing: 0.03em;
-  transition: transform var(--duration-base) ease;
+  transition: transform var(--duration-base) var(--ease-standard);
 }
 
 .langText.animating {
-  animation: flipLang var(--duration-base) ease-in-out;
+  animation: flipLang var(--duration-base) var(--ease-standard);
 }
 
 .langText.clicking {
@@ -636,7 +636,7 @@
 }
 
 .themeIconWrapper.animating {
-  animation: rotateIcon var(--duration-base) ease-in-out;
+  animation: rotateIcon var(--duration-base) var(--ease-standard);
 }
 
 .themeIconWrapper.clicking {
@@ -706,55 +706,55 @@
 /* Nav 햄버거: 메뉴 열릴 때 전체 중앙 모임 → X 형태로 퍼짐 */
 /* 코너: 중앙으로 모였다가 → 제자리(X 대각선) */
 .menuDotsOpen .menuDot:nth-child(1) {
-  animation: dotToX_TL 0.6s var(--ease-standard) forwards;
+  animation: dotToX_TL var(--duration-slow) var(--ease-standard) forwards;
 }
 .menuDotsOpen .menuDot:nth-child(3) {
-  animation: dotToX_TR 0.6s var(--ease-standard) forwards;
+  animation: dotToX_TR var(--duration-slow) var(--ease-standard) forwards;
 }
 .menuDotsOpen .menuDot:nth-child(7) {
-  animation: dotToX_BL 0.6s var(--ease-standard) forwards;
+  animation: dotToX_BL var(--duration-slow) var(--ease-standard) forwards;
 }
 .menuDotsOpen .menuDot:nth-child(9) {
-  animation: dotToX_BR 0.6s var(--ease-standard) forwards;
+  animation: dotToX_BR var(--duration-slow) var(--ease-standard) forwards;
 }
 /* 가장자리: 중앙으로 모였다가 → fade out */
 .menuDotsOpen .menuDot:nth-child(2) {
-  animation: dotToX_T 0.6s var(--ease-standard) forwards;
+  animation: dotToX_T var(--duration-slow) var(--ease-standard) forwards;
 }
 .menuDotsOpen .menuDot:nth-child(4) {
-  animation: dotToX_L 0.6s var(--ease-standard) forwards;
+  animation: dotToX_L var(--duration-slow) var(--ease-standard) forwards;
 }
 .menuDotsOpen .menuDot:nth-child(6) {
-  animation: dotToX_R 0.6s var(--ease-standard) forwards;
+  animation: dotToX_R var(--duration-slow) var(--ease-standard) forwards;
 }
 .menuDotsOpen .menuDot:nth-child(8) {
-  animation: dotToX_B 0.6s var(--ease-standard) forwards;
+  animation: dotToX_B var(--duration-slow) var(--ease-standard) forwards;
 }
 
 /* Nav 햄버거: 메뉴 닫힐 때 모임→펼침 애니메이션 */
 .menuDotsClosing .menuDot:nth-child(1) {
-  animation: closeTL 0.8s var(--ease-standard) both;
+  animation: closeTL var(--duration-slower) var(--ease-standard) both;
 }
 .menuDotsClosing .menuDot:nth-child(3) {
-  animation: closeTR 0.8s var(--ease-standard) both;
+  animation: closeTR var(--duration-slower) var(--ease-standard) both;
 }
 .menuDotsClosing .menuDot:nth-child(7) {
-  animation: closeBL 0.8s var(--ease-standard) both;
+  animation: closeBL var(--duration-slower) var(--ease-standard) both;
 }
 .menuDotsClosing .menuDot:nth-child(9) {
-  animation: closeBR 0.8s var(--ease-standard) both;
+  animation: closeBR var(--duration-slower) var(--ease-standard) both;
 }
 .menuDotsClosing .menuDot:nth-child(2) {
-  animation: closeEdge 0.8s var(--ease-standard) both;
+  animation: closeEdge var(--duration-slower) var(--ease-standard) both;
 }
 .menuDotsClosing .menuDot:nth-child(4) {
-  animation: closeEdge 0.8s var(--ease-standard) both;
+  animation: closeEdge var(--duration-slower) var(--ease-standard) both;
 }
 .menuDotsClosing .menuDot:nth-child(6) {
-  animation: closeEdge 0.8s var(--ease-standard) both;
+  animation: closeEdge var(--duration-slower) var(--ease-standard) both;
 }
 .menuDotsClosing .menuDot:nth-child(8) {
-  animation: closeEdge 0.8s var(--ease-standard) both;
+  animation: closeEdge var(--duration-slower) var(--ease-standard) both;
 }
 
 /* ==========================================================================
@@ -767,7 +767,7 @@
   z-index: var(--z-index-overlay);
   isolation: isolate;
   clip-path: inset(0 0 100% 0);
-  transition: clip-path 0.8s cubic-bezier(0.4, 0, 0.6, 1);
+  transition: clip-path var(--duration-slower) var(--ease-standard);
   /* iOS Safari 는 합성 레이어가 없으면 clip-path 트랜지션을 스킵(즉시 점프)하는 경우가 있다.
      will-change 로 레이어를 승격해 터치 디바이스에서도 애니가 재생되게 한다. */
   will-change: clip-path;
@@ -778,7 +778,7 @@
 
 .menuClipOpen.menuClipOpen {
   clip-path: inset(0 0 0 0);
-  transition: clip-path 0.9s cubic-bezier(0.25, 0.1, 0.25, 1);
+  transition: clip-path var(--duration-slower) var(--ease-standard);
 }
 
 .menuBackdrop {
@@ -868,7 +868,8 @@
   text-decoration: inherit;
   text-underline-offset: inherit;
   pointer-events: none;
-  transition: clip-path 1.8s cubic-bezier(0.4, 0, 0.2, 1);
+  --_sink-duration: 1.8s; /* 눈금 밖의 긴 전환 — 한 자리의 장식(3.9-1) */
+  transition: clip-path var(--_sink-duration) var(--ease-standard);
 }
 
 /* layer 별 default(가라앉은) clip-path — wave keyframe 과 vertex 수 동일해야 transition smooth */
@@ -885,31 +886,40 @@
 /* hover 시: 자연스럽게 출렁이면서 차오르고 (한 keyframe 안에서 level + phase 가 함께 변함),
    끝에서 phase 만 alternate 로 계속 oscillate. 두 animation 의 시작/끝 phase 가 동일해 끊김 없이 이어짐. */
 .menuFooterEmailRising .menuFooterEmailFillBack {
+  --_emailRiseBack-duration: 2.5s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
+  --_emailWaveBack-duration: 3.6s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   animation:
-    emailRiseBack 2.5s cubic-bezier(0.33, 1, 0.68, 1) forwards,
-    emailWaveBack 3.6s ease-in-out 2.5s infinite alternate;
+    emailRiseBack var(--_emailRiseBack-duration) var(--ease-enter) forwards,
+    emailWaveBack var(--_emailWaveBack-duration) var(--ease-standard) 2.5s infinite alternate;
 }
 .menuFooterEmailRising .menuFooterEmailFillMid {
+  --_emailRiseMid-duration: 2.2s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
+  --_emailWaveMid-duration: 3s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   animation:
-    emailRiseMid 2.2s cubic-bezier(0.33, 1, 0.68, 1) 0.1s forwards,
-    emailWaveMid 3s ease-in-out 2.3s infinite alternate;
+    emailRiseMid var(--_emailRiseMid-duration) var(--ease-enter) 0.1s forwards,
+    emailWaveMid var(--_emailWaveMid-duration) var(--ease-standard) 2.3s infinite alternate;
 }
 .menuFooterEmailRising .menuFooterEmailFillFront {
+  --_emailRiseFront-duration: 2s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
+  --_emailWaveFront-duration: 2.4s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   animation:
-    emailRiseFront 2s cubic-bezier(0.33, 1, 0.68, 1) 0.2s forwards,
-    emailWaveFront 2.4s ease-in-out 2.2s infinite alternate;
+    emailRiseFront var(--_emailRiseFront-duration) var(--ease-enter) 0.2s forwards,
+    emailWaveFront var(--_emailWaveFront-duration) var(--ease-standard) 2.2s infinite alternate;
 }
 
 /* hover-out 시 — 가라앉는 sink animation. wave 의 가운데(rest) 라인에서 시작해 100% 까지 내려옴.
    onAnimationEnd 시 idle 로 복귀해서 두 번째 hover 도 정상 동작. */
 .menuFooterEmailSinking .menuFooterEmailFillBack {
-  animation: emailSinkBack 1.6s cubic-bezier(0.4, 0, 0.6, 1) forwards;
+  --_emailSinkBack-duration: 1.6s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
+  animation: emailSinkBack var(--_emailSinkBack-duration) var(--ease-standard) forwards;
 }
 .menuFooterEmailSinking .menuFooterEmailFillMid {
-  animation: emailSinkMid 1.8s cubic-bezier(0.4, 0, 0.6, 1) 0.05s forwards;
+  --_emailSinkMid-duration: 1.8s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
+  animation: emailSinkMid var(--_emailSinkMid-duration) var(--ease-standard) 0.05s forwards;
 }
 .menuFooterEmailSinking .menuFooterEmailFillFront {
-  animation: emailSinkFront 2s cubic-bezier(0.4, 0, 0.6, 1) 0.1s forwards;
+  --_emailSinkFront-duration: 2s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
+  animation: emailSinkFront var(--_emailSinkFront-duration) var(--ease-standard) 0.1s forwards;
 }
 
 /* 색감 — 어두운 색 없이 세 layer 가 톤 변화로 명확히 구분.
@@ -1187,7 +1197,7 @@
 }
 
 .notifBtn:hover :global(svg) {
-  animation: bellShake 0.6s var(--ease-standard);
+  animation: bellShake var(--duration-slow) var(--ease-standard);
 }
 
 @keyframes bellShake {
@@ -1205,6 +1215,7 @@
 /* 작은 accent dot — 새 알림 있을 때 bell 우상단에 표시 (숫자 없이 미니멀)
    actionBtn 40px + Bell 16px 기준 — bell 아이콘 우상단 코너 (≈28px,12px)에 정렬 */
 .notifDot {
+  --_notifDotPulse-duration: 1.8s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   position: absolute;
   top: 9px;
   right: 9px;
@@ -1213,7 +1224,7 @@
   border-radius: var(--radius-full);
   background: var(--text-accent);
   /* 미세한 pulse — 시선 끌되 과하지 않게 */
-  animation: notifDotPulse 1.8s ease-in-out infinite;
+  animation: notifDotPulse var(--_notifDotPulse-duration) var(--ease-standard) infinite;
 }
 
 @keyframes notifDotPulse {
@@ -1286,7 +1297,7 @@
   letter-spacing: 0.06em;
   color: var(--text-tertiary);
   text-decoration: none;
-  transition: color 0.15s ease;
+  transition: color var(--duration-fast) var(--ease-standard);
 }
 
 .notifDropdownViewAll:hover {
@@ -1294,7 +1305,7 @@
 }
 
 .notifDropdownViewAllArrow {
-  transition: transform 0.2s var(--ease-standard);
+  transition: transform var(--duration-fast) var(--ease-standard);
 }
 
 .notifDropdownViewAll:hover .notifDropdownViewAllArrow {
@@ -1359,7 +1370,7 @@
   letter-spacing: 0.06em;
   color: var(--text-tertiary);
   cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  transition: background-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
 }
 
 .notifDropdownMore:hover {
@@ -1382,7 +1393,7 @@
   padding: var(--row-padding-lg);
   text-decoration: none;
   color: inherit;
-  transition: background-color 0.15s ease;
+  transition: background-color var(--duration-fast) var(--ease-standard);
   position: relative;
 }
 
@@ -1449,8 +1460,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  transition: max-width var(--duration-base) var(--ease-standard),
-              opacity var(--duration-base) var(--ease-standard);
+  transition:  max-width var(--duration-base) var(--ease-standard), opacity var(--duration-base) var(--ease-standard);
 }
 
 /* Logout 버튼 — contactBtn과 동일하게 mix-blend-mode: difference 환경.

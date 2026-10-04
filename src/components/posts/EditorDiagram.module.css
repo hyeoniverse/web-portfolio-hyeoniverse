@@ -43,7 +43,7 @@
   font: var(--font-body-xs);
   white-space: nowrap;
   cursor: pointer;
-  transition: color 0.15s ease, border-color 0.15s ease;
+  transition: color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard);
 }
 
 .readerMermaidCopy:hover {
@@ -124,7 +124,7 @@
   max-height: 50%;
   border-radius: var(--radius-full);
   background: var(--border-color-strong);
-  transition: background-color 0.15s ease, height 0.15s ease;
+  transition: background-color var(--duration-fast) var(--ease-standard), height var(--duration-fast) var(--ease-standard);
 }
 
 .graphSplitHandle:hover .graphSplitHandleBar {
@@ -203,7 +203,7 @@
   color: var(--text-secondary);
   font: var(--font-body-xs);
   cursor: pointer;
-  transition: color 0.12s ease, border-color 0.12s ease;
+  transition: color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard);
 }
 
 .mermaidHelpCopy:hover {
@@ -362,7 +362,7 @@
 /* 확대/축소 래퍼 — transform scale */
 .mermaidHelpZoomInner {
   transform-origin: center top;
-  transition: transform 0.12s ease;
+  transition: transform var(--duration-fast) var(--ease-standard);
   width: 100%;
 }
 
@@ -421,7 +421,7 @@
   background: transparent;
   color: var(--text-secondary);
   cursor: pointer;
-  transition: color 0.12s ease, background 0.12s ease;
+  transition: color var(--duration-fast) var(--ease-standard), background var(--duration-fast) var(--ease-standard);
 }
 
 .mermaidHelpIconBtn:hover {

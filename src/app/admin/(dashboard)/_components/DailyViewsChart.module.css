@@ -176,7 +176,7 @@
   pointer-events: none;
   white-space: nowrap;
   opacity: 0;
-  transition: opacity 0.15s ease;
+  transition: opacity var(--duration-fast) var(--ease-standard);
 }
 
 /* 가장자리 점의 툴팁 — 중앙 정렬이면 컨테이너 밖으로 나가 잘린다. 안쪽으로 붙인다 */
@@ -203,10 +203,10 @@
   background: var(--bg-accent-solid);
   opacity: 0;
   transition:
-    opacity 0.15s ease,
-    width 0.15s ease,
-    height 0.15s ease,
-    background-color 0.15s ease;
+    opacity var(--duration-fast) var(--ease-standard),
+    width var(--duration-fast) var(--ease-standard),
+    height var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard);
   border: var(--border-width-2) solid var(--bg-primary);
   box-sizing: content-box;
   pointer-events: none;
@@ -248,7 +248,7 @@
   border-left: var(--border-width-2) solid var(--border-color-accent-strong);
   pointer-events: none;
   transform-origin: bottom;
-  animation: selectedLineIn 0.2s ease;
+  animation: selectedLineIn var(--duration-fast) var(--ease-standard);
   /* left/top transition 없이 즉시 스냅 — 슬라이드를 주면 점·툴팁은 새 날짜에 즉시 뜨는데
      세로선만 뒤따라와, 점이 선에서 빗겨난 순간이 그대로 보인다 */
 }
@@ -313,7 +313,7 @@
   border: none;
   padding: var(--spacing-4) var(--spacing-2);
   cursor: pointer;
-  transition: color 0.15s ease;
+  transition: color var(--duration-fast) var(--ease-standard);
   z-index: 1; /* indicator 위에 텍스트 */
 }
 
@@ -342,9 +342,9 @@
   background: var(--bg-tertiary);
   transform: translate(-50%, -50%);
   transition:
-    left 0.32s cubic-bezier(0.4, 0, 0.2, 1),
-    background-color 0.18s ease,
-    transform 0.18s ease;
+    left var(--duration-base) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard);
   pointer-events: none;
   z-index: 0;
 }
