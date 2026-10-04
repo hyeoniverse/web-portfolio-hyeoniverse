@@ -3,11 +3,12 @@
 /* ── 서비스 호출 기록 (/admin/service-log) ──
    AI·이미지 검색·TTS, Resend 메일, GitHub API, 예약 작업, 문의 폼 첨부의 성공·실패(lib/serviceLog, service_logs)를
    새것부터 보인다. 위에는 공급자·작업마다의 성공·실패 수와 마지막 실패, 아래에는 기록 줄. 종류·공급자·결과로 거른다.
+   위에 설정 › 서비스와 같은 "AI·외부 서비스 상태" 표(접을 수 있다), 그 아래 기록.
    설정 › 서비스의 상태 패널·각 섹션과 대시보드에서 들어온다. 주소로 거른 채 열 수 있다:
    ?category=mail · ?provider=gemini 또는 ?provider=fish,google_tts,edge(여럿) · ?result=fail
    ?demo 를 붙이면 예시 기록으로 화면을 미리 본다(저장하지 않는다). */
-import { useEffect, useMemo, useState } from "react";
-import { History, Settings } from "@/components/icons";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { ChevronDown, History, Settings } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import AdminListShell from "@/components/admin/AdminListShell";
 import Button from "@/components/ui/Button";
@@ -15,6 +16,7 @@ import Pressable from "@/components/ui/Pressable";
 import HelpButton from "@/components/ui/HelpButton";
 import Popover from "@/components/ui/Popover";
 import { useAiHealth, type ProviderState } from "../settings/_components/useAiHealth";
+import AiHealthPanel from "../settings/_components/AiHealthPanel";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import { SkeletonLine } from "@/components/ui/Skeleton";
 import { sendAction, tryRequest } from "@/lib/sendAction";
@@ -28,6 +30,14 @@ type Result = "all" | "ok" | "fail";
 type Category = ServiceLogCategory | "all";
 
 const CATEGORY_ORDER: ServiceLogCategory[] = ["ai", "mail", "github", "cron", "contact"];
+const HEALTH_OPEN_KEY = "admin.serviceLog.healthOpen";
+const HEALTH_OPEN_EVENT = "admin:service-log-health-open";
+const readHealthOpen = () => { try { return localStorage.getItem(HEALTH_OPEN_KEY) !== "0"; } catch { return true; } };
+const subscribeHealthOpen = (cb: () => void) => {
+  window.addEventListener(HEALTH_OPEN_EVENT, cb);
+  window.addEventListener("storage", cb);
+  return () => { window.removeEventListener(HEALTH_OPEN_EVENT, cb); window.removeEventListener("storage", cb); };
+};
 
 /* 종류마다 기록을 남기는 공급자·작업 — 아직 기록이 없어도 왼쪽 목록에 0 으로 보인다 */
 const KNOWN_PROVIDERS: Record<ServiceLogCategory, string[]> = {
@@ -54,6 +64,23 @@ export default function ServiceLogView() {
   const [openRow, setOpenRow] = useState<string | null>(null);
   /* 공급자의 지금 상태(정상·실패 중·꺼짐·키 없음) — 설정 › 서비스 상태 패널과 같은 기준. 예시 모드면 예시 상태 */
   const health = useAiHealth();
+  /* 위의 상태 표를 접었는지 — 접은 채로 두면 다음에도 접혀 있다(이 브라우저만). 저장소 값은 서버에 없으니
+     uSES 로 읽는다(서버 스냅샷은 "펼침") — 효과에서 setState 로 되돌리면 한 번 더 그린다 */
+  const healthOpen = useSyncExternalStore(subscribeHealthOpen, readHealthOpen, () => true);
+  const toggleHealth = () => {
+    try { localStorage.setItem(HEALTH_OPEN_KEY, healthOpen ? "0" : "1"); } catch { /* 저장소 없음 — 그대로 둔다 */ }
+    window.dispatchEvent(new Event(HEALTH_OPEN_EVENT));
+  };
+  /* 머리의 한 줄 요약 — 실패 중 · 꺼짐 · 키 없음 수. 전부 정상이면 "모두 정상" */
+  const healthSummary = useMemo(() => {
+    if (!health.data) return null;
+    const counts = { failing: 0, off: 0, nokey: 0 };
+    for (const p of AI_PROVIDERS) {
+      const st = health.stateOf(p);
+      if (st === "failing" || st === "off" || st === "nokey") counts[st] += 1;
+    }
+    return counts;
+  }, [health]);
   const stateOf = (e: ProviderRef): ProviderState | null =>
     e.category !== "ai" ? null : demo ? DEMO_STATES[e.provider] ?? "ok" : health.stateOf(e.provider as AiProvider);
 
@@ -176,6 +203,45 @@ export default function ServiceLogView() {
           {th("logHint").split("\n").map((line) => <li key={line}>{line}</li>)}
         </ul>
 
+        {/* AI·외부 서비스 상태 — 설정 › 서비스의 표와 같다(같은 useAiHealth). 예시 모드에서는 예시 상태와 어긋나니 뺀다 */}
+        {!demo && (
+          <section className={styles.health} aria-labelledby="service-log-health">
+            <div className={styles.healthHead}>
+              <h2 id="service-log-health" className={styles.healthTitle}>{th("title")}</h2>
+              {healthSummary && (
+                <span className={styles.healthSummary}>
+                  {healthSummary.failing + healthSummary.off + healthSummary.nokey === 0
+                    ? th("logState.ok")
+                    : ([
+                      healthSummary.failing > 0 && `${th("logState.failing")} ${healthSummary.failing}`,
+                      healthSummary.off > 0 && `${th("logState.off")} ${healthSummary.off}`,
+                      healthSummary.nokey > 0 && `${th("logState.nokey")} ${healthSummary.nokey}`,
+                    ].filter(Boolean) as string[]).join(" · ")}
+                </span>
+              )}
+              <span className={styles.healthToggle}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  shape="capsule"
+                  onClick={toggleHealth}
+                  aria-expanded={healthOpen}
+                  aria-controls="service-log-health-body"
+                  soundDisabled
+                  icon={<ChevronDown size={14} strokeWidth={2} style={{ transform: healthOpen ? "rotate(180deg)" : undefined, transition: "transform var(--duration-base) var(--ease-standard)" }} />}
+                >
+                  {th(healthOpen ? "panelClose" : "panelOpen")}
+                </Button>
+              </span>
+            </div>
+            {healthOpen && (
+              <div id="service-log-health-body" className={styles.healthBody}>
+                <AiHealthPanel health={health} />
+              </div>
+            )}
+          </section>
+        )}
+
         {entries === null ? (
           failed ? <p className={styles.empty}>{th("logLoadFailed")}</p> : <ServiceLogSkeleton />
         ) : entries.length === 0 ? (
@@ -197,7 +263,7 @@ export default function ServiceLogView() {
         ) : (
           /* 왼쪽: 종류별 공급자 목록(누르면 오른쪽 기록이 걸러진다) · 오른쪽: 기록 */
           <div className={styles.split}>
-            <nav className={styles.rail} aria-label={th("logColProvider")}>
+            <nav className={styles.rail} aria-label={th("logColProvider")} data-lenis-prevent-wheel>
               {/* 목록 머리 — 점·숫자·알약이 무엇인지 i 로 */}
               <div className={styles.railHeader}>
                 <span>{th("logColProvider")}</span>

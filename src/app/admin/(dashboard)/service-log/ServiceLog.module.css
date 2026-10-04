@@ -256,6 +256,13 @@
   border: var(--border-light);
   border-radius: var(--radius-surface);
   background: var(--bg-primary);
+  /* 공급자 · 작업이 많아 화면보다 길어진다. 붙어 있는 동안 넘친 아래 항목은 보이지 않으므로
+     화면 높이까지만 두고 안에서 스크롤한다(설정 사이드바와 같은 처리). 휠은 nav 의
+     data-lenis-prevent-wheel 이 Lenis 에서 떼어 놓는다 */
+  max-height: calc(100dvh - var(--header-height, 64px) - var(--spacing-16) * 2);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
 }
 
 /* 전체 — 큰 숫자 요약. hover 는 아래 줄들과 같은 옅은 회색, 고르면 바탕 없이 강조색 글자만 */
@@ -622,4 +629,45 @@
   line-height: 1.6;
   color: var(--text-tertiary);
   list-style: disc;
+}
+
+/* ── AI·외부 서비스 상태 — 기록 위에 설정 › 서비스와 같은 표. 머리를 눌러 접는다 ── */
+.health {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  padding: var(--spacing-16);
+  border: var(--border-light);
+  border-radius: var(--radius-surface);
+}
+
+.healthHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-8) var(--spacing-12);
+}
+
+.healthTitle {
+  margin: 0;
+  font: var(--font-body-md);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* 상태 요약 — 실패 중 · 꺼짐 · 키 없음 수. 모두 정상이면 한 단어 */
+.healthSummary {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-4);
+  font: var(--font-body-sm);
+  color: var(--text-tertiary);
+}
+
+.healthToggle {
+  margin-left: auto;
+}
+
+.healthBody {
+  min-width: 0;
 }

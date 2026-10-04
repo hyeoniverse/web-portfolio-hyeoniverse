@@ -33,3 +33,30 @@ export function isPending(n: { type: string; read: boolean }): boolean {
 
 /** 권한 요청 처리 결과 — metadata.resolved 에 기록된다. */
 export type AccessRequestOutcome = "granted" | "rejected";
+
+/**
+ * 메일로도 받을 알림 종류 — 설정 › 서비스 › 알림 메일의 체크 목록과 lib/adminNotify 가 같이 쓴다.
+ * 묶음은 알림 화면의 갈래(댓글 · 보안 · 운영 · 권한)를 따른다. email_failure 는 메일이 안 가서 생기는 알림이라 뺀다.
+ */
+export const NOTIFY_EMAIL_GROUPS = [
+  { id: "comment", types: ["comment", "reply", "like", "report"] },
+  { id: "security", types: ["device_login", "device_approved", "login_lockout", "signout_all"] },
+  { id: "ops", types: ["ai_failure", "cron_error", "config_changed", "migration_applied"] },
+  { id: "access", types: ["access_request"] },
+] as const;
+
+export type NotifyEmailType = (typeof NOTIFY_EMAIL_GROUPS)[number]["types"][number];
+
+/** 기본 — 사람이 봐야 하는 것만. 좋아요 · 승인 완료 · 로그아웃 · 설정 변경 · AI 실패는 알림 화면에만 쌓인다 */
+export const NOTIFY_EMAIL_DEFAULT: NotifyEmailType[] = [
+  "comment", "reply", "report", "device_login", "login_lockout", "access_request", "cron_error",
+];
+
+/**
+ * 같은 종류 · 같은 제목이면 한 시간에 한 번만 메일로 — 잇따라 생기는 운영 알림(AI 실패 · 설정 변경 · 잠금)용.
+ * 댓글 · 신고 · 권한 요청 · 새 기기처럼 건마다 다른 일은 매번 보낸다.
+ */
+export const NOTIFY_EMAIL_DEDUPED: ReadonlySet<string> = new Set([
+  "like", "device_approved", "login_lockout", "signout_all", "ai_failure", "cron_error", "config_changed", "migration_applied",
+]);
+export const NOTIFY_EMAIL_DEDUPE_MS = 60 * 60 * 1000;
