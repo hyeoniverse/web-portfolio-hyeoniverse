@@ -90,8 +90,8 @@
 /* 인트로 패널이 이미 제목을 크게 말하고 있어서, 비어 있다는 말은 그 아래에서 한 단계 작게 */
 .title {
   color: var(--text-primary);
-  font-family: var(--font-family-heading);
-  font-size: clamp(var(--font-size-16), 0.875rem + 0.3vw, var(--font-size-heading-xs));
+  font-family: var(--font-family-headline);
+  font-size: clamp(var(--font-size-16), 0.875rem + 0.3vw, var(--font-size-headline-xs));
 }
 
 .sub {

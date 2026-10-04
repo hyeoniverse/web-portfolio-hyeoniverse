@@ -184,7 +184,7 @@
 }
 
 .floorCurrent b {
-  font-family: var(--font-family-heading);
+  font-family: var(--font-family-headline);
   font-size: clamp(1.4rem, 1.285rem + 0.47vw, 1.9rem);
   font-style: italic;
   font-weight: var(--font-weight-regular);
@@ -380,7 +380,7 @@
 }
 
 .floorStepNext .floorStepName {
-  font-family: var(--font-family-heading);
+  font-family: var(--font-family-headline);
   font-size: clamp(1.15rem, 1.076rem + 0.3vw, 1.45rem);
   font-style: italic;
   color: var(--text-accent);

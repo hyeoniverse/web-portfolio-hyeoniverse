@@ -157,7 +157,7 @@
   }
 
   .flowName {
-    font-family: var(--font-family-heading);
+    font-family: var(--font-family-headline);
     font-size: clamp(2.2rem, 0.25rem + 3.12vw, 3.5rem);
     font-style: italic;
     line-height: 1;

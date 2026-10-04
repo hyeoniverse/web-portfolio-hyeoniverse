@@ -100,10 +100,10 @@ h6 {
   font-weight: var(--font-weight-regular);
 }
 /* 화면 UI 제목 — 글자 묶음(Apple 기준 22 · 20 · 18). 예전 24 는 22, 16 은 18 로 */
-h1 { font: var(--font-heading-md); }
-h2 { font: var(--font-heading-sm); }
+h1 { font: var(--font-headline-md); }
+h2 { font: var(--font-headline-sm); }
 h3,
-h4 { font: var(--font-heading-xs); }
+h4 { font: var(--font-headline-xs); }
 h5 { font-size: var(--font-size-body-md); }
 h6 { font-size: var(--font-size-body-sm); }
 
@@ -127,10 +127,10 @@ h6 { font-size: var(--font-size-body-sm); }
 }
 
 /* Apple 기준 단계(34 · 28 · 22 · 18) — h4 는 본문(16)보다 한 단계 크게 */
-.prose-content h1 { font: var(--font-heading-xl); font-weight: var(--font-weight-bold); }
-.prose-content h2 { font: var(--font-heading-lg); font-weight: var(--font-weight-bold); }
-.prose-content h3 { font: var(--font-heading-md); }
-.prose-content h4 { font: var(--font-heading-xs); }
+.prose-content h1 { font: var(--font-headline-xl); font-weight: var(--font-weight-bold); }
+.prose-content h2 { font: var(--font-headline-lg); font-weight: var(--font-weight-bold); }
+.prose-content h3 { font: var(--font-headline-md); }
+.prose-content h4 { font: var(--font-headline-xs); }
 /* 글 · 작업물 본문의 제목은 세리프가 아니라 본문 글꼴(글마다 고른 글꼴 · 편집기)을 굵게 쓴다(D27).
    위 규칙 뒤에 둬야 이긴다 */
 .prose-content :is(h1, h2, h3, h4) { font-family: inherit; }

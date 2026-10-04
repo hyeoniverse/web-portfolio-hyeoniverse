@@ -305,7 +305,7 @@
 
 ## `src/styles/globals/_semantic.css`
 
-토큰 156개
+토큰 160개
 
 | 토큰 | 값 | 다크 | 조건부 |
 |---|---|---|---|
@@ -406,7 +406,7 @@
 | `--width-page-max` | `100%` |  |  |
 | `--spacing-panel-block` | `clamp(1rem, min(4.5vh, 2.5vw), 4.5rem)` |  | `@media (max-width: 480px): var(--m-lg)` |
 | `--font-family-body` | `"Pretendard Variable", -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji"` |  |  |
-| `--font-family-heading` | `var(--font-instrument)` |  |  |
+| `--font-family-headline` | `var(--font-instrument)` |  |  |
 | `--font-family-code` | `var(--font-jetbrains-mono)` |  |  |
 | `--font-family-nav` | `var(--font-space-grotesk)` |  |  |
 | `--font-family-accent` | `var(--font-playfair)` |  |  |
@@ -419,11 +419,13 @@
 | `--font-size-body-md` | `var(--font-size-14)` |  |  |
 | `--font-size-body-lg` | `var(--font-size-16)` |  |  |
 | `--font-size-body-xl` | `var(--font-size-18)` |  |  |
-| `--font-size-heading-xs` | `var(--font-size-18)` |  |  |
-| `--font-size-heading-sm` | `var(--font-size-20)` |  |  |
-| `--font-size-heading-md` | `var(--font-size-22)` |  |  |
-| `--font-size-heading-lg` | `var(--font-size-28)` |  |  |
-| `--font-size-heading-xl` | `var(--font-size-34)` |  |  |
+| `--font-size-headline-xs` | `var(--font-size-18)` |  |  |
+| `--font-size-headline-sm` | `var(--font-size-20)` |  |  |
+| `--font-size-headline-md` | `var(--font-size-22)` |  |  |
+| `--font-size-headline-lg` | `var(--font-size-28)` |  |  |
+| `--font-size-headline-xl` | `var(--font-size-34)` |  |  |
+| `--font-size-title-sm` | `var(--font-size-18)` |  |  |
+| `--font-size-title-md` | `var(--font-size-20)` |  |  |
 | `--font-size-display-sm` | `clamp(1.5rem, 0.5rem + 1.4vw, 2.5rem)` |  |  |
 | `--font-size-display-md` | `clamp(2rem, 1rem + 3vw, 5rem)` |  |  |
 | `--font-size-display-lg` | `clamp(2.5rem, 1.5rem + 5vw, 6.25rem)` |  |  |
@@ -437,11 +439,13 @@
 | `--font-display-lg` | `var(--font-weight-regular) var(--font-size-display-lg) / var(--line-height-100) var(--font-family-accent)` |  |  |
 | `--font-display-md` | `var(--font-weight-regular) var(--font-size-display-md) / var(--line-height-100) var(--font-family-accent)` |  |  |
 | `--font-display-sm` | `var(--font-weight-regular) var(--font-size-display-sm) / var(--line-height-100) var(--font-family-accent)` |  |  |
-| `--font-heading-xs` | `var(--font-weight-regular) var(--font-size-heading-xs) / var(--line-height-125) var(--font-family-heading)` |  |  |
-| `--font-heading-sm` | `var(--font-weight-regular) var(--font-size-heading-sm) / var(--line-height-125) var(--font-family-heading)` |  |  |
-| `--font-heading-md` | `var(--font-weight-regular) var(--font-size-heading-md) / var(--line-height-125) var(--font-family-heading)` |  |  |
-| `--font-heading-lg` | `var(--font-weight-regular) var(--font-size-heading-lg) / var(--line-height-125) var(--font-family-heading)` |  |  |
-| `--font-heading-xl` | `var(--font-weight-regular) var(--font-size-heading-xl) / var(--line-height-125) var(--font-family-heading)` |  |  |
+| `--font-headline-xs` | `var(--font-weight-regular) var(--font-size-headline-xs) / var(--line-height-125) var(--font-family-headline)` |  |  |
+| `--font-headline-sm` | `var(--font-weight-regular) var(--font-size-headline-sm) / var(--line-height-125) var(--font-family-headline)` |  |  |
+| `--font-headline-md` | `var(--font-weight-regular) var(--font-size-headline-md) / var(--line-height-125) var(--font-family-headline)` |  |  |
+| `--font-headline-lg` | `var(--font-weight-regular) var(--font-size-headline-lg) / var(--line-height-125) var(--font-family-headline)` |  |  |
+| `--font-headline-xl` | `var(--font-weight-regular) var(--font-size-headline-xl) / var(--line-height-125) var(--font-family-headline)` |  |  |
+| `--font-title-sm` | `var(--font-weight-semibold) var(--font-size-title-sm) / var(--line-height-125) var(--font-family-body)` |  |  |
+| `--font-title-md` | `var(--font-weight-semibold) var(--font-size-title-md) / var(--line-height-125) var(--font-family-body)` |  |  |
 | `--font-body-xl` | `var(--font-weight-regular) var(--font-size-body-xl) / var(--line-height-160) var(--font-family-body)` |  |  |
 | `--font-body-lg` | `var(--font-weight-regular) var(--font-size-body-lg) / var(--line-height-160) var(--font-family-body)` |  |  |
 | `--font-body-md` | `var(--font-weight-regular) var(--font-size-body-md) / var(--line-height-160) var(--font-family-body)` |  |  |

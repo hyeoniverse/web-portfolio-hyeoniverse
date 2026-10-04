@@ -821,7 +821,7 @@ textarea.edit {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-4);
-  font: var(--font-heading-xl);
+  font: var(--font-headline-xl);
   font-weight: 400;
   color: var(--text-accent);
   opacity: 0.55;
@@ -859,12 +859,12 @@ textarea.edit {
   min-width: 0;
 }
 .procTitle {
-  font: var(--font-heading-md);
+  font: var(--font-headline-md);
   font-style: italic;
   color: var(--text-primary);
 }
 .procDesc {
-  font: var(--font-heading-sm);
+  font: var(--font-headline-sm);
   line-height: 1.6;
   color: var(--text-secondary);
 }
@@ -897,7 +897,7 @@ textarea.edit {
   height: 20px;
 }
 .procNodeLabel.procNodeLabel {
-  font-size: var(--font-size-heading-xs);
+  font-size: var(--font-size-headline-xs);
 }
 /* 단계 추가 — 리스트 폭 전체 flush 버튼(radius/여백 없음). 위 procRow 의 border-bottom 이 구분선. */
 .addStepBtn {

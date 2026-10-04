@@ -86,7 +86,7 @@
 .deckLayerTitle {
   display: -webkit-box;
   font: var(--font-body-md);
-  font-family: var(--font-family-heading);
+  font-family: var(--font-family-headline);
   font-weight: var(--font-weight-medium);
   line-height: 1.25;
   color: var(--text-primary);

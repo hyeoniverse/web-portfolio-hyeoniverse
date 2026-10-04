@@ -103,8 +103,7 @@
 
 .modalTitle {
   margin: 0;
-  /* 모달 제목은 세리프가 아니라 Pretendard — 글의 제목이 아니라 대화 상자의 이름이라 설정 구획 이름과 같은 묶음(D27 범위 조정 2026-10-04) */
-  font: var(--font-body-xl);
+  font: var(--font-title-sm); /* 틀의 제목 — 글의 제목(headline)이 아니다(D46) */
   color: var(--text-primary);
   letter-spacing: -0.01em;
 }

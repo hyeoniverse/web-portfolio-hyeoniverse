@@ -20,7 +20,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-12);
-  font: var(--font-heading-xl);
+  font: var(--font-headline-xl);
   color: var(--text-primary);
   margin: 0;
 }
@@ -289,7 +289,7 @@ a.statCard:hover .statValue {
 }
 
 .statValue {
-  font: var(--font-heading-md);
+  font: var(--font-headline-md);
   font-family: var(--font-family-body);
   font-weight: 700;
   line-height: 1;

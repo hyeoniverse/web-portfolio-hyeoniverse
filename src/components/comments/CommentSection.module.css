@@ -14,7 +14,7 @@
      (.count 도 line-height 를 상속받아 line box 가 28px 로 유지된다) */
 .heading {
   margin: 0;
-  font: var(--font-heading-xs);
+  font: var(--font-headline-xs);
   line-height: var(--control-height-sm);
   color: var(--text-primary);
 }

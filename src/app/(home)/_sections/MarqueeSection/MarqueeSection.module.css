@@ -35,7 +35,7 @@
   gap: var(--spacing-48);
   padding-right: var(--spacing-48);
   font: var(--font-display-md);
-  font-family: var(--font-family-heading);
+  font-family: var(--font-family-headline);
   color: var(--text-accent-alt);
   letter-spacing: -0.02em;
 }

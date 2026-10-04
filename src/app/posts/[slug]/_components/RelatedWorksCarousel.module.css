@@ -106,7 +106,7 @@
   letter-spacing: 0.08em;
 }
 
-.relatedCardTitle {  font: var(--font-heading-xs);
+.relatedCardTitle {  font: var(--font-headline-xs);
 
   color: var(--text-primary);
   line-height: var(--line-height-125);

@@ -16,7 +16,7 @@
 }
 
 .title {
-  font: var(--font-heading-xs);
+  font: var(--font-headline-xs);
   color: var(--text-secondary);
 }
 

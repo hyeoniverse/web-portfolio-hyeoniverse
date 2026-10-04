@@ -67,7 +67,7 @@
 .sheetTitle {
   margin: 0;
   padding: 0 var(--spacing-4);
-  font: var(--font-heading-xs);
+  font: var(--font-headline-xs);
   color: var(--text-primary);
   letter-spacing: -0.01em;
   flex-shrink: 0;
