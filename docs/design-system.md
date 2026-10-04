@@ -540,12 +540,12 @@ Primer(24 · 28 · 32 · 40 · 48)처럼 24 에서 시작한다 — 가장 작�
   - 모달 · 드로어는 `<dialog>` + `showModal()`.
   - 팝오버 · 툴팁 · 셀렉트 목록 · 날짜/색/이모지 선택기는 Popover API(`popover` 속성).
   - top layer 는 z-index 와 상관없이 맨 위다. "모달 안의 셀렉트가 모달 뒤로 숨는" 문제가 구조적으로 생기지 않는다.
-  - top layer 는 z-index 를 이긴다. 그래서 모달보다 위에 있어야 하는 것(커스텀 커서 · 로딩 화면 · 페이지 전환)도 top layer 에 올린다.
-    나중에 연 것이 위로 가므로, 커서는 `popover="manual"` 로 두고 모달이 열릴 때마다 다시 연다.
+  - top layer 는 z-index 를 이긴다. 그래서 모달보다 위에 있어야 하는 것(로딩 화면 · 페이지 전환)도 top layer 에 올리고, 나중에 연 것이 위로 가므로 무엇이 뜰 때마다 다시 연다.
+    **커스텀 커서는 예외다** — `mix-blend-mode: difference` 로 뒤 화면과 섞이는데 top layer 는 따로 그려져 섞일 것이 없다. 커서는 페이지에 두고, 모달이 열리면 맨 위 모달의 portal 층 안으로 옮겨 그린다(전체화면과 같은 꼴).
   - 떠 있는 요소의 위치는 아직 JS 가 잡는다(1-5, anchor positioning 은 아직 안 씀).
-  - 띄우는 쪽은 `src/lib/topLayer.ts` · `hooks/useTopLayer.ts` 를 쓴다 — `usePopoverRef`(붙는 순간 `showPopover`) · `useDialogRef`(`showModal`) · `useKeepOnTopRef`(늘 맨 위: 커서 3 · 로딩 2 · 페이지 전환 1 — 무엇이든 새로 뜰 때마다 닫았다 다시 열어 맨 위로). UA 기본값은 `globals/_top-layer.css` 가 비운다.
+  - 띄우는 쪽은 `src/lib/topLayer.ts` · `hooks/useTopLayer.ts` 를 쓴다 — `usePopoverRef`(붙는 순간 `showPopover`) · `useDialogRef`(`showModal`) · `useKeepOnTopRef`(늘 맨 위: 로딩 2 · 페이지 전환 1 — 무엇이든 새로 뜰 때마다 닫았다 다시 열어 맨 위로). 커서는 섞임 때문에 top layer 에 못 올려 `registerModalHost` 로 맨 위 모달 안에 들어간다. UA 기본값은 `globals/_top-layer.css` 가 비운다.
   - 모달이 열려 있으면 그 밖은 inert 다. 모달 안에서 연 팝오버 · 셀렉트 · 툴팁은 `PortalContainerContext` 로 모달 DOM 안에 portal 해야 눌린다 — portal 은 그래서 남는다(쌓임 때문이 아니다).
-  - — **진행 중**(D45). 12-1 완료: 공용 Modal(`<dialog>`) · Popover · Tooltip · Select · DatePicker · TimePicker · EmojiPicker · ColorPicker · SearchCapsule 과 커서 · 로딩 · 페이지 전환. 12-2 남음: ImageViewer · Toast · 문의 서랍 · 모바일 메뉴 · 편집기 메뉴 · 관리자 모달 등 `createPortal` 파일 40, 그 뒤 옛 z-index 토큰 삭제(3.10-2).
+  - — **진행 중**(D45). 12-1 완료: 공용 Modal(`<dialog>`) · Popover · Tooltip · Select · DatePicker · TimePicker · EmojiPicker · ColorPicker · SearchCapsule 과 로딩 · 페이지 전환(커서는 모달 안으로). 12-2 남음: ImageViewer · Toast · 문의 서랍 · 모바일 메뉴 · 편집기 메뉴 · 관리자 모달 등 `createPortal` 파일 40, 그 뒤 옛 z-index 토큰 삭제(3.10-2).
 - **3.10-2. 페이지에 붙어 있는 UI 의 층은 `--z-index-*` 로.** top layer 로 옮긴 뒤 남는 것은 넷이다.
 
   | 토큰 | 자리 |
@@ -766,7 +766,7 @@ docs/tokens.md            토큰 값 — 자동 생성(npm run tokens:doc)
 | 9 | 모서리 · 테두리 · 그림자(안의 색 71 포함) · 투명도: 9-1 모서리 역할 3개 · `circle` 삭제 · 눈금 1,182 + 숫자 27 → 역할 — **완료**(D38). 9-2 테두리 숫자 두께 222 → 눈금 · 묶음, 테두리 흉내 `box-shadow` 92 → `border` · `outline` — **완료**(D39). 9-3 그림자 값 60 + 크기 이름 62 → 역할 — **완료**(D40). 9-4 비활성 투명도 44 → `--opacity-disabled` 0.5 — **완료**(D41). 9단계 끝 | 3.5 – 3.8 · 3.1-2 | 1182 + 27 · 222 · 143 + 62 + 71 · 49 | 비활성 투명도 통일, 그림자(미리보기) |
 | 10 | 모션: 10-1 곡선 이름(자리로) · 토큰 정리 39 · 움직임 줄이기 · `transition: all` 17 — **완료**(D42). 10-2 지속 시간 880 · 곡선 1,055 → 토큰, 반복 · 긴 애니메이션 103 → 지역 변수 — **완료**(D43). 10단계 끝 | 3.9 | 744 + 39 + 17 | 350 → 300ms, 0.2 → 0.15s · 0.4 → 0.3s |
 | 11 | 자동으로 움직이는 것 멈추기 | 3.9-4 | (이 단계에서 셈) | 멈춤 단추 |
-| 12 | top layer: 12-1 공용 요소(Modal `<dialog>` · Popover · Tooltip · Select · 피커 4 · 검색 캡슐)와 커서 · 로딩 · 페이지 전환 — **완료**(D45). 12-2 개별 포털 40파일 · 옛 z-index 토큰 삭제 | 3.10-1 · 3.10-2 | 53 → 40 | 없음(겹침 버그 해소) |
+| 12 | top layer: 12-1 공용 요소(Modal `<dialog>` · Popover · Tooltip · Select · 피커 4 · 검색 캡슐)와 로딩 · 페이지 전환 — **완료**(D45). 12-2 개별 포털 40파일 · 옛 z-index 토큰 삭제 | 3.10-1 · 3.10-2 | 53 → 40 | 없음(겹침 버그 해소) |
 | 13 | 컴포넌트 안 z-index | 3.10-3 | 83 | 없음 |
 | 14 | 반응형: 작은 화면 기본 · 범위 문법 · `dvh` | 3.11 | 206 + 65 | 없어야 함(화면별 확인) |
 | 15 | 포커스 표시 | 6-1 | 69 + 10 | 포커스 링 |
