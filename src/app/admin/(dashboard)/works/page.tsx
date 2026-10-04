@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import MediaThumb from "@/components/admin/MediaThumb";
 import HighlightedText from "@/components/ui/HighlightedText";
 import { SearchHighlightProvider } from "@/providers/SearchHighlightProvider";
-import { ImageIcon, Trash2, Upload, Plus, Download, ExternalLink, GithubIcon } from "@/components/icons";
+import { ImageIcon, Trash2, Upload, Plus, Download, ExternalLink, GithubIcon, Folder } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { getTrashDaysLeft } from "@/utils/trash";
 import { downloadBlob, downloadFiles } from "@/utils/download";
@@ -855,6 +855,7 @@ export default function AdminWorksPage() {
   return (
     <SearchHighlightProvider query={search} mode={syntaxMode}>
     <AdminListShell
+      icon={<Folder size={26} strokeWidth={1.6} />}
       /* 제목 옆 숫자는 거른 결과가 아니라 전체 개수다 — 목록이 몇 쪽이든 같은 값이다 */
       title={`${t("admin.works.title")} (${totalCount})`}
       newHref="/admin/works/new"
