@@ -170,7 +170,7 @@
   content: "";
   position: absolute;
   inset: 34px;
-  border-radius: var(--radius-control);
+  border-radius: var(--radius-full);
   background: var(--bg-primary);
 }
 

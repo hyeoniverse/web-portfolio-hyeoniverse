@@ -1429,7 +1429,7 @@
 .blockToolsTurnBtn:hover {
   background: var(--bg-tertiary);
   color: var(--text-primary);
-  border-radius: var(--radius-control);
+  border-radius: var(--radius-full);
 }
 /* 현재 적용된 옵션 (이미지 정렬·토글 상태 등) */
 .blockToolsTurnBtnActive {
