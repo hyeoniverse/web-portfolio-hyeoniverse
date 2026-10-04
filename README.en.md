@@ -94,7 +94,7 @@ Each slide of a work's gallery can carry **narration and captions**. Playback pr
 
 <img src="public/images/screenshots/cms/01-gallery-playing-light.gif" alt="captions following the narration" width="100%" />
 
-<sub>▶ Playing — captions follow the narration and the progress bar fills</sub>
+<sub>▶ Playing — captions follow the narration and the progress bar fills · 🔊 with sound: [watch the mp4](public/images/screenshots/cms/01-gallery-playing-light.mp4) (27 s, with the TTS audio the gallery actually plays)</sub>
 
 In the admin work editor, the **gallery narration editor** is a bench (slide on the left, script on the right) with a thumbnail strip below. Clicking a thumbnail puts that slide on the bench; slides with audio show a speaker badge and slides with only a script show a text badge. The toolbar offers slide navigation, audio history, record, upload a recording, remove audio, paste all scripts, translate scripts and the lexicon; on the right you pick a voice (provider · gender · tone) and press **Generate**. Long scripts are chunked at about 600 characters and merged; if the chosen provider fails, the server moves down the fallback order from Settings (Fish Audio → Google Cloud TTS → Edge) with a voice of the same gender. During preview the script fills in **like lyrics**, character by character, and clicking a word seeks to it.
 

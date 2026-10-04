@@ -30,9 +30,9 @@
  * 재생만 하고, 8 은 번역 API 를 부르되 폼에만 넣는다. 11 은 --post 가 없으면 작업물의 관리자 미리보기를 쓴다.
  */
 import { chromium, type Browser, type BrowserContext, type Page } from "playwright";
-import { existsSync, mkdirSync, readFileSync, renameSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { execSync, spawnSync } from "node:child_process";
-import { basename, join, resolve } from "node:path";
+import { basename, extname, join, resolve } from "node:path";
 import { THEME_PRESETS } from "../src/app/admin/(dashboard)/settings/_data/settingsConstants";
 import { applyAccentAll, applyNeutralScale, applyTextAccent, textOnAccent } from "../src/lib/themeColors";
 
@@ -93,6 +93,21 @@ async function newContext(browser: Browser, opts: { video?: string; admin?: bool
     },
     ["ko", THEME],
   );
+  /* 음성이 언제 어떤 파일로 시작됐는지 남긴다 — 1번 mp4 에 소리를 입힐 때 영상 시각과 맞추는 기준.
+     Playwright 녹화에는 소리가 없다. 문자열로 넘기는 이유는 interceptUploads 와 같다 */
+  await ctx.addInitScript({
+    content: `(() => {
+      const list = (window.__mediaPlays = []);
+      const orig = HTMLMediaElement.prototype.play;
+      HTMLMediaElement.prototype.play = function () {
+        /* src 속성이 먼저다 — currentSrc 는 소스를 막 바꾼 직후엔 아직 옛 값(무음 blob)이다.
+           시각은 play() 호출이 아니라 실제로 소리가 나기 시작한 playing 이벤트로 — 파일을 받는 동안 0.5~1초 늦는다 */
+        const src = this.src || this.currentSrc;
+        this.addEventListener("playing", () => list.push({ src, at: Date.now(), t: this.currentTime }), { once: true });
+        return orig.apply(this, arguments);
+      };
+    })();`,
+  });
   if (opts.admin !== false) {
     /* 편집기 자동저장(3초 디바운스 POST + 떠날 때 sendBeacon)이 서버 revisions 에 남지 않게 한다 —
        캡처하려고 폼을 건드린 것(번역 · PPTX 들이기)이 다음 편집 때 "복원할까요" 로 튀어나오면 안 된다 */
@@ -160,26 +175,66 @@ function webmToGif(src: string, gif: string, cut?: GifCut) {
 }
 
 /** 영상이 필요한 흐름 — 전용 컨텍스트에서 돌리고 끝나면 파일 이름을 바꾼다 */
-async function recorded(browser: Browser, name: string, fn: (page: Page) => Promise<void>, opts: { admin?: boolean; gif?: GifCut } = {}) {
+type Recorded = { webm: string | null; startedAt: number };
+
+async function recorded(
+  browser: Browser,
+  name: string,
+  fn: (page: Page, meta: { startedAt: number }) => Promise<void>,
+  opts: { admin?: boolean; gif?: GifCut } = {},
+): Promise<Recorded> {
   const ctx = await newContext(browser, { video: VIDEO ? name : undefined, admin: opts.admin });
+  const startedAt = Date.now(); // 녹화는 페이지가 생길 때 시작한다 — 영상 0초의 벽시계
   const page = await ctx.newPage();
+  let webm: string | null = null;
   try {
-    await fn(page);
+    await fn(page, { startedAt });
   } finally {
     const video = page.video();
     await ctx.close();
     if (video) {
       const src = await video.path();
-      const dst = join(OUT, `${name}-${THEME}.webm`);
-      renameSync(src, dst);
-      console.log(`  ▶ ${basename(dst)}`);
+      webm = join(OUT, `${name}-${THEME}.webm`);
+      renameSync(src, webm);
+      console.log(`  ▶ ${basename(webm)}`);
       if (HAS_FFMPEG) {
-        const gif = dst.replace(/\.webm$/, ".gif");
-        webmToGif(dst, gif, opts.gif);
+        const gif = webm.replace(/\.webm$/, ".gif");
+        webmToGif(webm, gif, opts.gif);
         console.log(`  ▶ ${basename(gif)}`);
       }
     }
   }
+  return { webm, startedAt };
+}
+
+/** 페이지가 튼 음성 가운데 첫 TTS(녹음) 파일 — 무음 probe(data:·빈 src)는 뺀다 */
+type MediaPlay = { src: string; at: number; t: number };
+async function firstNarrationPlay(page: Page): Promise<MediaPlay | null> {
+  const plays = await page.evaluate(() => (window as unknown as { __mediaPlays?: MediaPlay[] }).__mediaPlays ?? []);
+  return plays.find((p) => /^https?:/.test(p.src)) ?? null;
+}
+
+/**
+ * 녹화(소리 없음)에 갤러리가 실제로 튼 음성 파일을 입혀 mp4 로 — gif 는 소리를 못 담는다.
+ * 음성 파일 시각 τ 는 영상 시각 (play.at − startedAt)/1000 + (τ − play.t) 에 놓인다.
+ */
+async function muxNarration(webm: string, mp4: string, play: MediaPlay, startedAt: number, cut: GifCut) {
+  const audioFile = join(OUT, ".video", `audio${extname(new URL(play.src).pathname) || ".mp3"}`);
+  mkdirSync(join(OUT, ".video"), { recursive: true });
+  const res = await fetch(play.src);
+  if (!res.ok) throw new Error(`음성을 받지 못했습니다: ${res.status} ${play.src}`);
+  writeFileSync(audioFile, Buffer.from(await res.arrayBuffer()));
+  const audioStartInVideo = (play.at - startedAt) / 1000;
+  const audioAtCut = play.t + (cut.start - audioStartInVideo); // 잘라낸 시작점에 해당하는 음성 파일 시각
+  /* 음성이 잘라낸 시작점보다 늦게 시작하면 앞을 비운다 — -itsoffset 은 오디오에 안 먹어 adelay 로 */
+  const audioIn = audioAtCut >= 0 ? `-ss ${audioAtCut.toFixed(3)} -i "${audioFile}"` : `-i "${audioFile}"`;
+  const delay = audioAtCut < 0 ? `-af "adelay=${Math.round(-audioAtCut * 1000)}:all=1" ` : "";
+  const dur = cut.duration ? `-t ${cut.duration} ` : "";
+  execSync(
+    `ffmpeg -y -loglevel error -ss ${cut.start} ${dur}-i "${webm}" ${audioIn} -map 0:v -map 1:a ` +
+      `-c:v libx264 -pix_fmt yuv420p -crf 22 -r 25 -vf "scale=1440:-2" ${delay}-c:a aac -b:a 128k -shortest -movflags +faststart "${mp4}"`,
+  );
+  console.log(`  ▶ ${basename(mp4)} (소리: ${basename(play.src)} @ ${audioStartInVideo.toFixed(2)}s)`);
 }
 
 function need(value: string | undefined, flag: string) {
@@ -236,8 +291,9 @@ const SCENES: Scene[] = [
     n: 1,
     name: "gallery-captions",
     // 1. 작업물 상세 — 슬라이드 갤러리가 음성과 함께 재생되고 자막이 켜진 화면
-    run: (browser) =>
-      recorded(browser, "01-gallery-playing", async (page) => {
+    run: async (browser) => {
+      let play: MediaPlay | null = null;
+      const rec = await recorded(browser, "01-gallery-playing", async (page) => {
         await open(page, `/works/${need(WORK_SLUG, "work-slug")}`, 2000);
         const stage = page.locator('[aria-roledescription="carousel"]').first();
         await stage.scrollIntoViewIfNeeded();
@@ -249,8 +305,18 @@ const SCENES: Scene[] = [
         await page.locator('p[class*="caption"]').first().waitFor({ timeout: 15_000 }).catch(() => {});
         await wait(2500);
         await shot(page, "01-gallery-captions");
-        await wait(9000); // 영상: 자막이 몇 번 바뀌는 동안
-      }, { admin: false, gif: { start: 5, duration: 11 } }),
+        await wait(26_000); // 영상: 첫 장 음성이 끝나고 다음 장으로 넘어갈 때까지
+        play = await firstNarrationPlay(page);
+      }, { admin: false, gif: { start: 5, duration: 11 } });
+      /* 소리 있는 판 — 음성이 시작되기 조금 전부터 끝까지 */
+      if (rec.webm && HAS_FFMPEG && play) {
+        const p = play as MediaPlay;
+        const start = Math.max(0, (p.at - rec.startedAt) / 1000 - 1);
+        await muxNarration(rec.webm, rec.webm.replace(/\.webm$/, ".mp4"), p, rec.startedAt, { start });
+      } else if (rec.webm && HAS_FFMPEG) {
+        console.warn("  ! 음성 재생을 못 잡아 mp4 는 건너뜁니다");
+      }
+    },
   },
   {
     n: 2,
