@@ -18,10 +18,7 @@ function useLoop(active: boolean, seconds: number, hold = 0.6) {
   const [t, setT] = useState(hold);
   const paused = useMotionPaused();
   useEffect(() => {
-    if (!active || paused) {
-      setT(hold);
-      return;
-    }
+    if (!active || paused) return;
     let raf = 0;
     const start = performance.now();
     const tick = (now: number) => {
@@ -30,8 +27,9 @@ function useLoop(active: boolean, seconds: number, hold = 0.6) {
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [active, paused, seconds, hold]);
-  return t;
+  }, [active, paused, seconds]);
+  /* 서 있을 때는 hold 장면 — 효과 안에서 setState 하지 않고 렌더에서 고른다 */
+  return !active || paused ? hold : t;
 }
 
 /** 손으로 끌면 잠시 자동 재생을 멈춘다 */
