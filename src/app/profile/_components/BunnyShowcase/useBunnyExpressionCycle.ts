@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useProfileSectionStore } from "@/stores/profileSectionStore";
+import { useMotionStore } from "@/stores/motionStore";
 
 const EXPR_CYCLE = ["normal", "surprised", "happy"] as const;
 const CYCLE_INTERVAL = 3000;
@@ -28,6 +29,8 @@ export function useBunnyExpressionCycle(active: boolean) {
          그 손짓에 붙은 반응인데, 3초마다 다음 표정으로 넘어가면 만진 것과 무관해 보인다. */
       const touch = useProfileSectionStore.getState().bunnyTouch;
       if (touch.cheek !== 0 || touch.petting) return;
+      /* 움직임 멈춤(3.9-4) — 저절로 바뀌는 표정도 선다 */
+      if (useMotionStore.getState().isPaused) return;
       /* 매번 지금 값에서 이어간다 — 버튼으로 표정을 바꿔도 그 자리에서 자연스럽게 이어진다. */
       const cur = useProfileSectionStore.getState().bunnyExpression ?? "normal";
       const idx = EXPR_CYCLE.indexOf(cur as (typeof EXPR_CYCLE)[number]);

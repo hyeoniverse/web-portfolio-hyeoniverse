@@ -8,15 +8,20 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import Pressable from "@/components/ui/Pressable";
 import { Slider } from "@/components/ui/Slider";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useMotionPaused } from "@/stores/motionStore";
 import styles from "./LiveDemos.module.css";
 
 type DemoProps = { active: boolean };
 
-/** 0 → 1 을 되풀이하는 시계. 멈춰 있거나 동작 줄이기면 hold 값에 선다 */
+/** 0 → 1 을 되풀이하는 시계. 멈춰 있거나 움직임 멈춤(3.9-4, 움직임 줄이기 포함)이면 hold 값에 선다 */
 function useLoop(active: boolean, seconds: number, hold = 0.6) {
   const [t, setT] = useState(hold);
+  const paused = useMotionPaused();
   useEffect(() => {
-    if (!active || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!active || paused) {
+      setT(hold);
+      return;
+    }
     let raf = 0;
     const start = performance.now();
     const tick = (now: number) => {
@@ -25,7 +30,7 @@ function useLoop(active: boolean, seconds: number, hold = 0.6) {
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [active, seconds]);
+  }, [active, paused, seconds, hold]);
   return t;
 }
 

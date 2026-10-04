@@ -1,11 +1,15 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useMotionPaused } from "@/stores/motionStore";
 
 export function useAutoSlide(length: number, interval = 4000) {
   const [index, setIndex] = useState(0);
   const [direction, setDirection] = useState(1);
-  const [isPaused, setIsPaused] = useState(false);
+  const [userPaused, setUserPaused] = useState<boolean | null>(null);
+  /* 움직임 멈춤(3.9-4)이 기본값이고, 이 배너의 재생 단추가 그보다 앞선다 */
+  const motionPaused = useMotionPaused();
+  const isPaused = userPaused ?? motionPaused;
   const timer = useRef<ReturnType<typeof setInterval>>(undefined);
   const hovered = useRef(false);
 
@@ -27,7 +31,7 @@ export function useAutoSlide(length: number, interval = 4000) {
 
   const pause = useCallback(() => { hovered.current = true; }, []);
   const resume = useCallback(() => { hovered.current = false; }, []);
-  const togglePause = useCallback(() => setIsPaused((v) => !v), []);
+  const togglePause = useCallback(() => setUserPaused(!isPaused), [isPaused]);
 
   useEffect(() => {
     if (length <= 1) return;
