@@ -289,13 +289,23 @@
   }
 }
 
-/* 순서 목록 항목 안의 모델 칸(글 공급자만) — 라벨 + 짧은 입력, 오른쪽 단추 앞 */
+/* 순서 목록 아래 "모델" 한 줄 — 공급자마다 이름 · 최신/별칭 · 연필 */
+.modelsLine {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-8) var(--spacing-20);
+  font: var(--font-body-sm);
+}
+
+.modelsLineLabel {
+  color: var(--text-tertiary);
+}
+
 .modelField {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-8);
-  margin-left: auto;
-  padding-right: var(--spacing-8);
 }
 
 .modelLabel {
