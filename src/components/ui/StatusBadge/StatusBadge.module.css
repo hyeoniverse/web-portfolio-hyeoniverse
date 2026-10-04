@@ -44,7 +44,6 @@
   --_pulse-duration: 1.6s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   background: var(--text-info);
   animation: pulse var(--_pulse-duration) var(--ease-standard) infinite;
-  animation-play-state: var(--motion-play);
 }
 
 /* 클릭 가능(발행 토글 등) — button 으로 렌더될 때 */

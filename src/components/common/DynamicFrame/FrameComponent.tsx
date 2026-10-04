@@ -2,8 +2,6 @@
 import { useEffect, useRef } from "react";
 import Image from "next/image";
 import styles from "./FrameComponent.module.css";
-import LoopVideo from "@/components/ui/LoopVideo";
-import { useMotionStore } from "@/stores/motionStore";
 
 export interface FrameComponentProps {
   video?: string;
@@ -33,13 +31,11 @@ export function FrameComponent({
   isHovered,
 }: FrameComponentProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  // 움직임 멈춤(3.9-4) — 늘 재생하는 모드만 따른다. hover 재생은 사용자가 시킨 것
-  const isMotionPaused = useMotionStore((s) => s.isPaused);
 
   useEffect(() => {
     if (!video) return;
     if (autoplayMode === "all") {
-      if (!isMotionPaused) videoRef.current?.play().catch(() => {});
+      videoRef.current?.play().catch(() => {});
     } else if (autoplayMode === "hover") {
       if (isHovered) {
         videoRef.current?.play().catch(() => {});
@@ -47,7 +43,7 @@ export function FrameComponent({
         videoRef.current?.pause();
       }
     }
-  }, [isHovered, autoplayMode, video, isMotionPaused]);
+  }, [isHovered, autoplayMode, video]);
 
   return (
     <div
@@ -90,7 +86,7 @@ export function FrameComponent({
                 unoptimized
               />
             ) : video ? (
-              <LoopVideo
+              <video
                 className={styles.media}
                 src={video}
                 loop

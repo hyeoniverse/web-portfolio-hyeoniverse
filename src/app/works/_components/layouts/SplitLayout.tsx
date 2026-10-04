@@ -14,7 +14,6 @@ import { workHref, type WorksLayoutProps } from "./shared";
 import { textUnits } from "../../_utils";
 import styles from "./SplitLayout.module.css";
 import Pressable from "@/components/ui/Pressable";
-import LoopVideo from "@/components/ui/LoopVideo";
 
 /* 한 번 굴리면 한 판 — 판이 화면 높이(100vh)라 중간에 멈추면 두 판이 반씩 걸쳐 보인다.
    굴린 양이 이만큼 쌓이면 옆 판으로 옮기고, 한 번 옮긴 뒤에는 그 굴림이 끝날 때까지(손을 떼도
@@ -171,7 +170,7 @@ export default function SplitLayout({ projects, onProjectClick }: WorksLayoutPro
   return (
     <div ref={wrapRef} className={styles.wrap}>
       {/* 전체 배경 — fixed video. 오른쪽 panel 에서만 backdrop blur 로 흐림 */}
-      <LoopVideo
+      <video
         className={styles.bgVideo}
         src={introVideoSrc}
         autoPlay

@@ -139,7 +139,6 @@
   background: var(--bg-accent-solid);
   box-shadow: var(--shadow-glow);
   animation: introDotPulse var(--_introDotPulse-duration) var(--ease-standard) infinite;
-  animation-play-state: var(--motion-play);
 }
 
 @keyframes introDotPulse {
@@ -447,7 +446,6 @@
   letter-spacing: 0.2em;
   pointer-events: none;
   animation: scrollBounce var(--_scrollBounce-duration) var(--ease-standard) infinite;
-  animation-play-state: var(--motion-play);
 }
 
 @keyframes scrollBounce {

@@ -233,7 +233,6 @@
   height: 48px;
   background: linear-gradient(to bottom, var(--text-white), transparent);
   animation: introScrollFlow var(--_introScrollFlow-duration) var(--ease-standard) infinite;
-  animation-play-state: var(--motion-play);
   transform-origin: top;
 }
 

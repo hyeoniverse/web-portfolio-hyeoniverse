@@ -8,7 +8,6 @@
    ───────────────────────────────────────────────────────────── */
 
 import css from "./AboutStudio.module.css";
-import LoopVideo from "@/components/ui/LoopVideo";
 /* 실제 About Hero 와 픽셀 동일하게 렌더하려고 그 CSS 모듈을 그대로 재사용 */
 import hero from "@/app/about/_components/panels/HeroPanel.module.css";
 import kin from "@/components/common/KineticHeroTitle.module.css";
@@ -290,7 +289,7 @@ export default function AboutStudio({ config, setConfig, update, savedConfig, sa
             onClick={(e) => { if (e.target === e.currentTarget) closeBar(); }}
           >
             {media && (isVideo
-              ? <LoopVideo className={hero.heroBgMedia} src={media} autoPlay muted loop playsInline aria-hidden />
+              ? <video className={hero.heroBgMedia} src={media} autoPlay muted loop playsInline aria-hidden />
               // eslint-disable-next-line @next/next/no-img-element
               : <img className={hero.heroBgMedia} src={media} alt="" aria-hidden />)}
             {media && <div className={hero.heroBgOverlay} aria-hidden />}

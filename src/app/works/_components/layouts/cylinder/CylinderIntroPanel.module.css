@@ -35,7 +35,6 @@
   height: var(--dot, 2px);
   opacity: 0;
   animation: introStarFade var(--_introStarFade-duration) var(--ease-standard) infinite;
-  animation-play-state: var(--motion-play);
 }
 
 /* 어두운 판에서는 흰 점, 밝은 판(봄날 — 꽃잎이 날린다)에서는 한쪽이 뾰족한 타원을 눕힌 꽃잎.
@@ -104,7 +103,6 @@
   border: var(--_border-accent-mid);
   pointer-events: none;
   animation: introOvalSpin var(--_introOvalSpin-duration) linear infinite;
-  animation-play-state: var(--motion-play);
 }
 
 @keyframes introOvalSpin {
@@ -125,7 +123,6 @@
   border: var(--border-accent);
   pointer-events: none;
   animation: introOvalSpin var(--_introOvalSpin-duration) linear infinite reverse;
-  animation-play-state: var(--motion-play);
 }
 
 .introOvalInner::after {
@@ -217,7 +214,6 @@
   letter-spacing: 0.2em;
   color: light-dark(var(--text-primary), var(--text-white));
   animation: introScrollBounce var(--_introScrollBounce-duration) var(--ease-standard) infinite;
-  animation-play-state: var(--motion-play);
 }
 
 @keyframes introScrollBounce {

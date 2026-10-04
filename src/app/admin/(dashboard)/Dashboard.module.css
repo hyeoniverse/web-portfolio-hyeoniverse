@@ -580,7 +580,6 @@ a.statCard:hover .statValue {
   border-radius: var(--radius-full);
   background: var(--text-success);
   animation: dotOkPulse var(--_dotOkPulse-duration) var(--ease-enter) infinite;
-  animation-play-state: var(--motion-play);
   pointer-events: none;
 }
 
@@ -754,7 +753,6 @@ a.statCard:hover .statValue {
   background: var(--text-accent);
   opacity: 0.6;
   animation: badgePulse var(--_badgePulse-duration) var(--ease-enter) infinite;
-  animation-play-state: var(--motion-play);
   pointer-events: none;
 }
 

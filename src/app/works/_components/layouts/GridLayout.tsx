@@ -9,7 +9,6 @@ import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import T from "@/components/ui/T";
 import WorkYear from "@/components/works/WorkYear";
 import TransitionLink from "@/components/ui/TransitionLink";
-import LoopVideo from "@/components/ui/LoopVideo";
 import { workHref, type WorksLayoutProps } from "./shared";
 import styles from "./GridLayout.module.css";
 
@@ -97,7 +96,7 @@ export default function GridLayout({ projects, onProjectClick }: WorksLayoutProp
             className={styles.introCell}
             data-clickable="true"
           >
-            <LoopVideo
+            <video
               className={styles.introVideo}
               src={introVideoSrc}
               autoPlay

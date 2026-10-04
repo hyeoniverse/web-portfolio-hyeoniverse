@@ -19,26 +19,6 @@
   --ease-enter: cubic-bezier(0.16, 1, 0.3, 1);     /* 들어오는 것 — 빠르게 시작해 감속 */
   --ease-exit: cubic-bezier(0.4, 0, 1, 1);         /* 나가는 것 — 가속하며 사라짐 */
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1); /* 탄성 */
-
-  /* 저절로 움직이는 것의 재생 상태(3.9-4) — 장식 반복 애니메이션은 `animation-play-state: var(--motion-play)` 로 이 값을 따른다 */
-  --motion-play: running;
-}
-
-/* 움직임 멈추기(3.9-4, WCAG 2.2.2) — 메뉴의 멈춤 단추가 `<html data-motion>` 을 바꾼다(useMotionPause).
-   저장값이 없을 때(hydration 전 · 처음 방문)는 움직임 줄이기 설정을 따른다. 스피너 · 진행 표시 · 불러오는 중 광택처럼
-   움직임이 곧 정보인 것과, 다음 조작까지만 깜빡이는 안내는 이 변수를 쓰지 않아 멈추지 않는다. */
-@media (prefers-reduced-motion: reduce) {
-  :root {
-    --motion-play: paused;
-  }
-}
-
-html[data-motion="running"] {
-  --motion-play: running;
-}
-
-html[data-motion="paused"] {
-  --motion-play: paused;
 }
 
 /* 움직임 줄이기 — 시간 토큰을 쓰는 전환 · 애니메이션을 한 번에 멈춘다(3.9-3).
