@@ -11,6 +11,7 @@ import type { SiteConfigData } from "@/config/site.config";
 import { Switch } from "@/components/ui/Switch";
 import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
+import Input from "@/components/ui/Input";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import type { SettingsTabProps } from "../_types";
 import type { SelectOption } from "@/types";
@@ -21,7 +22,8 @@ import AiHealthPanel from "./AiHealthPanel";
 import ServiceLogLink from "./ServiceLogLink";
 import { ENV_SECTION_ID, HintLines, envKeyLine } from "./EnvKeyHint";
 import { CONTACT_KEYS } from "@/lib/contactSend";
-import { AI_PROVIDER_INFO } from "@/lib/ai/providers";
+import { AI_PROVIDER_INFO, FATAL_LIMIT, TRANSIENT_LIMIT } from "@/lib/ai/providers";
+import { NOTIFY_EMAIL_DEFAULT, NOTIFY_EMAIL_GROUPS } from "@/lib/notificationTypes";
 import { DEFAULT_AI_MODELS, type AiModelProvider } from "@/lib/ai/models";
 import { useAiHealth, type ProviderState } from "./useAiHealth";
 import type { AiProvider } from "@/lib/ai/providers";
@@ -257,35 +259,22 @@ type ProviderFallback<P extends string> = {
   fallback?: { enabled?: boolean; priority?: P[]; excluded?: P[] };
 };
 
-/** SectionHeader 로 그대로 전달하는 저장/타이틀 공통 props(sh 번들) */
-type SectionShared = {
-  config: SiteConfigData;
-  savedConfig: SiteConfigData;
-  saveSection: (paths: string[]) => Promise<unknown>;
-  revertSection?: (paths: string[]) => void;
-  resetSection?: (paths: string[]) => void;
-  savingPaths: string[] | null;
-  titleClassName?: string;
-};
-
 /**
- * provider 선택 + fallback 우선순위 리스트 섹션 — aiCover·aiSummary·translation 이 동일 구조라 하나로.
+ * 기능 하나(커버 · 요약 · 번역 · TTS)의 공급자 선택 + 실패 시 자동 전환 + 우선순위 — "AI · 외부 서비스" 섹션 안의 카드.
+ * 저장 · 되돌리기는 섹션 머리가 다섯 경로를 한 번에 맡으므로 여기엔 머리가 없다(제목 · 켜기 · 기록만).
  * provider 를 바꾸면 이전 provider 를 fallback priority 로 편입(reconcile), fallback 켜면 나머지 provider 로 기본 우선순위 구성.
  * onChange 는 setConfig 처럼 updater(prev)→next 를 받아 최신 슬라이스 기준으로 갱신한다.
  */
-function ProviderFallbackSection<P extends string>({
-  t, sh, title, paths, providerLabelKey, options, defaultProvider, value, onChange, borderless, children, stateOf, hint, keyOf, extraHints, logProviders,
+function ProviderFallbackBlock<P extends string>({
+  t, title, providerLabelKey, options, defaultProvider, value, onChange, children, stateOf, hint, keyOf, extraHints, logProviders,
 }: {
   t: TFunction;
-  sh: SectionShared;
   title: string;
-  paths: string[];
   providerLabelKey: string;
   options: SelectOption<P>[];
   defaultProvider: P;
   value: ProviderFallback<P> | undefined;
   onChange: (updater: (prev: ProviderFallback<P> | undefined) => ProviderFallback<P>) => void;
-  borderless?: boolean;
   children?: React.ReactNode;
   /** 공급자 상태(설정 › 서비스의 AI 상태) — 키 없음·꺼짐·실패 중이면 고르는 자리에서 보인다 */
   stateOf?: (p: P) => ProviderState | null;
@@ -316,22 +305,18 @@ function ProviderFallbackSection<P extends string>({
   const usableFallbacks = usableFallbacksAll
     .filter((p) => { const st = stateOf?.(p); return st !== "nokey" && st !== "off"; });
   return (
-    <section className={shared.section} style={borderless ? { borderBottom: "none" } : undefined}>
-      <SectionHeader
-        title={title}
-        paths={paths}
-        spacerExtra={logProviders?.length ? <ServiceLogLink query={{ category: "ai", provider: logProviders }} /> : undefined}
-        extra={
-          <Switch
-            size="sm"
-            showStateText
-            checked={value?.enabled !== false}
-            onCheckedChange={(v) => onChange((prev) => ({ ...prev, enabled: v }))}
-          />
-        }
-        {...sh}
-      />
-      {/* 설명 — 제목 바로 아래, 다른 섹션과 같은 자리. 섹션 설명과 필요한 키(기본 공급자와, 자동 전환을 켰으면
+    <div className={styles.featureCard}>
+      <div className={styles.featureHead}>
+        <h3 className={styles.featureTitle}>{title}</h3>
+        <Switch
+          size="sm"
+          showStateText
+          checked={value?.enabled !== false}
+          onCheckedChange={(v) => onChange((prev) => ({ ...prev, enabled: v }))}
+        />
+        {logProviders?.length ? <span className={styles.featureLog}><ServiceLogLink query={{ category: "ai", provider: logProviders }} /></span> : null}
+      </div>
+      {/* 설명 — 제목 바로 아래. 기능 설명과 필요한 키(기본 공급자와, 자동 전환을 켰으면
           순서에 든 공급자의 키. 키 없는 것은 강조색)를 한 자리에 두고, 두 줄이면 글머리 목록 */}
       <HintLines lines={[
         hint,
@@ -410,8 +395,7 @@ function ProviderFallbackSection<P extends string>({
         )}
         {children}
       </div>
-
-    </section>
+    </div>
   );
 }
 
@@ -535,12 +519,12 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
         </div>
       </section>
 
-      {/* Comment Notifications */}
+      {/* 알림 메일 — 관리자 알림 가운데 메일로도 받을 종류. 스위치가 전체, 아래 체크가 종류(lib/adminNotify) */}
       <section className={shared.section}>
         <SectionHeader
-          title={t("admin.settings.commentNotifications")}
+          title={t("admin.settings.notifyEmail.title")}
           spacerExtra={<ServiceLogLink query={{ category: "mail" }} />}
-          paths={["commentEmailNotify"]}
+          paths={["commentEmailNotify", "notifyEmailTypes"]}
           extra={
             <Switch
               size="sm"
@@ -552,7 +536,36 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
           {...sh}
         />
         <div className={shared.fields}>
-          <HintLines lines={[t("admin.settings.commentEmailNotifyDesc"), envKeyLine(["RESEND_API_KEY"], t)]} />
+          <HintLines lines={[t("admin.settings.notifyEmail.desc"), t("admin.settings.notifyEmail.dedupe"), envKeyLine(["RESEND_API_KEY"], t)]} />
+          {(() => {
+            const picked = new Set((config.notifyEmailTypes as string[] | undefined) ?? NOTIFY_EMAIL_DEFAULT);
+            const toggle = (type: string, on: boolean) =>
+              setConfig((prev) => {
+                const cur = new Set((prev.notifyEmailTypes as string[] | undefined) ?? NOTIFY_EMAIL_DEFAULT);
+                if (on) cur.add(type); else cur.delete(type);
+                /* 묶음 순서대로 저장 — 같은 선택이면 같은 배열이라 저장 단추가 바뀜을 제대로 센다 */
+                const ordered = NOTIFY_EMAIL_GROUPS.flatMap((g) => g.types.filter((x) => cur.has(x)));
+                return { ...prev, notifyEmailTypes: ordered };
+              });
+            return (
+              <div className={styles.notifyGroups} data-disabled={config.commentEmailNotify ? undefined : ""}>
+                {NOTIFY_EMAIL_GROUPS.map((g) => (
+                  <div key={g.id} className={styles.notifyGroup}>
+                    <span className={styles.notifyGroupTitle}>{t(`admin.settings.notifyEmail.group.${g.id}`)}</span>
+                    {g.types.map((type) => (
+                      <Checkbox
+                        key={type}
+                        checked={picked.has(type)}
+                        onChange={(v) => toggle(type, v)}
+                        disabled={!config.commentEmailNotify}
+                        label={t(`admin.settings.notifyEmail.type.${type}`)}
+                      />
+                    ))}
+                  </div>
+                ))}
+              </div>
+            );
+          })()}
         </div>
       </section>
 
@@ -832,99 +845,104 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
         <MediaLimitsEditor config={config} setConfig={setConfig} t={t} />
       </section>
 
-      {/* AI 상태·사용량 — 공급자별 실패 원인·차단·이번 달 사용량. 자체 API 로 바로 반영된다(탭 저장과 상관없음) */}
-      <AiHealthPanel health={aiHealth} />
+      {/* ── AI · 외부 서비스 — 한 섹션.
+          위: 공급자 표(상태 · 이번 달 사용량 · 글 공급자의 모델 칸 · 다시 켜기 · 기록 · 콘솔). 상태 · 다시 켜기는 자체 API 로
+          바로 반영되고(탭 저장과 상관없음), 모델 칸은 설정값이라 섹션 저장으로 남는다.
+          아래: 기능마다(커버 · 요약 · 번역 · TTS) 켜기 · 기본 공급자 · 실패 시 자동 전환 · 순서. 저장 단추 하나가 다섯 경로를 맡는다 */}
+      <section className={`${shared.section} ${shared.sectionWide}`}>
+        <SectionHeader
+          title={t("admin.settings.aiServices")}
+          paths={["aiCover", "aiSummary", "aiModels", "translation", "tts"]}
+          spacerExtra={<ServiceLogLink query={{ category: "ai" }} />}
+          {...sh}
+        />
+        <HintLines lines={[fillTemplate(t("admin.aiHealth.hint"), { fatal: FATAL_LIMIT, transient: TRANSIENT_LIMIT }), t("admin.settings.aiModelsHint")]} />
+        <AiHealthPanel
+          health={aiHealth}
+          modelOf={(p) => {
+            if (!(p in DEFAULT_AI_MODELS)) return null;
+            const mp = p as AiModelProvider;
+            return (
+              <label className={styles.modelField}>
+                <span className={styles.modelLabel}>{t("admin.aiHealth.model")}</span>
+                <Input
+                  size="sm"
+                  value={config.aiModels?.[mp] ?? ""}
+                  onChange={(v) => setConfig((prev) => ({ ...prev, aiModels: { ...prev.aiModels, [mp]: v } }))}
+                  placeholder={DEFAULT_AI_MODELS[mp]}
+                  clearable={false}
+                />
+              </label>
+            );
+          }}
+        />
 
-      {/* AI Cover */}
-      <ProviderFallbackSection<AICoverProvider>
-        t={t}
-        sh={sh}
-        title={t("admin.settings.aiSettings")}
-        paths={["aiCover"]}
-        providerLabelKey="admin.settings.aiCoverProvider"
-        options={AI_COVER_OPTIONS}
-        defaultProvider="nanobanana"
-        value={config.aiCover as ProviderFallback<AICoverProvider>}
-        onChange={(u) => setConfig((prev) => ({ ...prev, aiCover: u(prev.aiCover as ProviderFallback<AICoverProvider>) as typeof prev.aiCover }))}
-        /* 자동 커버(아래 단추)는 Unsplash → Pexels 순서로 찾는다 — 키는 하나만 있어도 된다 */
-        extraHints={[t("admin.settings.autoCoverHint"), envKeyLine(["UNSPLASH_ACCESS_KEY", "PEXELS_API_KEY"], t, { any: true })]}
-        logProviders={["nanobanana", "huggingface", "unsplash", "pexels"]}
-        keyOf={(p) => AI_PROVIDER_INFO[p as keyof typeof AI_PROVIDER_INFO]?.key}
-        stateOf={stateFor((p) => p as AiProvider)}
-      >
-        {/* 자동 cover (Unsplash/Pexels 키워드 기반) — 기존 발행 글 일괄 적용 */}
-        <AutoCoverMigrator t={t} />
-      </ProviderFallbackSection>
+        <h3 className={styles.featuresTitle}>{t("admin.settings.aiFeatures")}</h3>
+        <div className={styles.features}>
+          {/* AI Cover */}
+          <ProviderFallbackBlock<AICoverProvider>
+            t={t}
+            title={t("admin.settings.aiSettings")}
+            providerLabelKey="admin.settings.aiCoverProvider"
+            options={AI_COVER_OPTIONS}
+            defaultProvider="nanobanana"
+            value={config.aiCover as ProviderFallback<AICoverProvider>}
+            onChange={(u) => setConfig((prev) => ({ ...prev, aiCover: u(prev.aiCover as ProviderFallback<AICoverProvider>) as typeof prev.aiCover }))}
+            /* 자동 커버(아래 단추)는 Unsplash → Pexels 순서로 찾는다 — 키는 하나만 있어도 된다 */
+            extraHints={[t("admin.settings.autoCoverHint"), envKeyLine(["UNSPLASH_ACCESS_KEY", "PEXELS_API_KEY"], t, { any: true })]}
+            logProviders={["nanobanana", "huggingface", "unsplash", "pexels"]}
+            keyOf={(p) => AI_PROVIDER_INFO[p as keyof typeof AI_PROVIDER_INFO]?.key}
+            stateOf={stateFor((p) => p as AiProvider)}
+          >
+            {/* 자동 cover (Unsplash/Pexels 키워드 기반) — 기존 발행 글 일괄 적용 */}
+            <AutoCoverMigrator t={t} />
+          </ProviderFallbackBlock>
 
-      {/* AI Summary */}
-      <ProviderFallbackSection<AISummaryProvider>
-        t={t}
-        sh={sh}
-        title={t("admin.settings.aiSummarySettings")}
-        paths={["aiSummary"]}
-        providerLabelKey="admin.settings.aiSummaryProvider"
-        options={AI_SUMMARY_OPTIONS}
-        defaultProvider="gemini"
-        value={config.aiSummary as ProviderFallback<AISummaryProvider>}
-        onChange={(u) => setConfig((prev) => ({ ...prev, aiSummary: u(prev.aiSummary as ProviderFallback<AISummaryProvider>) as typeof prev.aiSummary }))}
-        logProviders={["gemini", "openai", "claude"]}
-        keyOf={(p) => AI_PROVIDER_INFO[p as keyof typeof AI_PROVIDER_INFO]?.key}
-        stateOf={stateFor((p) => p as AiProvider)}
-      />
+          {/* AI Summary */}
+          <ProviderFallbackBlock<AISummaryProvider>
+            t={t}
+            title={t("admin.settings.aiSummarySettings")}
+            providerLabelKey="admin.settings.aiSummaryProvider"
+            options={AI_SUMMARY_OPTIONS}
+            defaultProvider="gemini"
+            value={config.aiSummary as ProviderFallback<AISummaryProvider>}
+            onChange={(u) => setConfig((prev) => ({ ...prev, aiSummary: u(prev.aiSummary as ProviderFallback<AISummaryProvider>) as typeof prev.aiSummary }))}
+            logProviders={["gemini", "openai", "claude"]}
+            keyOf={(p) => AI_PROVIDER_INFO[p as keyof typeof AI_PROVIDER_INFO]?.key}
+            stateOf={stateFor((p) => p as AiProvider)}
+          />
 
-      {/* AI 모델 — 요약 · 번역이 부르는 모델 이름. 비우면 기본 별칭(latest)이라 공급자가 모델을 은퇴시켜도 코드를 안 고친다 */}
-      <section className={shared.section}>
-        <SectionHeader title={t("admin.settings.aiModels")} paths={["aiModels"]} {...sh} />
-        <HintLines lines={[t("admin.settings.aiModelsHint")]} />
-        <div className={shared.fields}>
-          {(["gemini", "openai", "claude"] as AiModelProvider[]).map((p) => (
-            <Field
-              key={p}
-              label={AI_PROVIDER_INFO[p].label}
-              value={config.aiModels?.[p] ?? ""}
-              onChange={(v) => setConfig((prev) => ({ ...prev, aiModels: { ...prev.aiModels, [p]: v } }))}
-              placeholder={DEFAULT_AI_MODELS[p]}
-              maxHint={null}
-            />
-          ))}
+          {/* Translation */}
+          <ProviderFallbackBlock<TranslationProvider>
+            t={t}
+            title={t("admin.settings.translationSettings")}
+            providerLabelKey="admin.settings.translationProvider"
+            options={TRANSLATION_OPTIONS}
+            defaultProvider="deepl"
+            value={config.translation as ProviderFallback<TranslationProvider>}
+            onChange={(u) => setConfig((prev) => ({ ...prev, translation: u(prev.translation as ProviderFallback<TranslationProvider>) as typeof prev.translation }))}
+            logProviders={["deepl", "google_translate", "gemini", "claude"]}
+            keyOf={(p) => AI_PROVIDER_INFO[p === "google" ? "google_translate" : (p as "deepl")]?.key}
+            stateOf={stateFor((p) => (p === "google" ? "google_translate" : p) as AiProvider)}
+          />
+
+          {/* 슬라이드 음성 — 편집 화면에서 고른 목소리의 제공자부터, 실패하면 이 순서로 같은 성별의 목소리로 넘어간다.
+              기본 제공자는 편집 화면 목소리 목록의 처음 값이다 */}
+          <ProviderFallbackBlock<TtsProviderOption>
+            t={t}
+            title={t("admin.settings.ttsSettings")}
+            hint={t("admin.settings.ttsHint")}
+            providerLabelKey="admin.settings.ttsProvider"
+            options={TTS_OPTIONS}
+            defaultProvider="fish"
+            value={config.tts as ProviderFallback<TtsProviderOption>}
+            onChange={(u) => setConfig((prev) => ({ ...prev, tts: u(prev.tts as ProviderFallback<TtsProviderOption>) as typeof prev.tts }))}
+            logProviders={["fish", "google_tts", "edge"]}
+            keyOf={(p) => AI_PROVIDER_INFO[p === "google" ? "google_tts" : (p as "fish")]?.key}
+            stateOf={stateFor((p) => (p === "google" ? "google_tts" : p) as AiProvider)}
+          />
         </div>
       </section>
-
-      {/* Translation */}
-      <ProviderFallbackSection<TranslationProvider>
-        t={t}
-        sh={sh}
-        title={t("admin.settings.translationSettings")}
-        paths={["translation"]}
-        providerLabelKey="admin.settings.translationProvider"
-        options={TRANSLATION_OPTIONS}
-        defaultProvider="deepl"
-        value={config.translation as ProviderFallback<TranslationProvider>}
-        onChange={(u) => setConfig((prev) => ({ ...prev, translation: u(prev.translation as ProviderFallback<TranslationProvider>) as typeof prev.translation }))}
-        logProviders={["deepl", "google_translate", "gemini", "claude"]}
-        keyOf={(p) => AI_PROVIDER_INFO[p === "google" ? "google_translate" : (p as "deepl")]?.key}
-        stateOf={stateFor((p) => (p === "google" ? "google_translate" : p) as AiProvider)}
-        borderless
-      />
-
-      {/* 슬라이드 음성 — 편집 화면에서 고른 목소리의 제공자부터, 실패하면 이 순서로 같은 성별의 목소리로 넘어간다.
-          기본 제공자는 편집 화면 목소리 목록의 처음 값이다 */}
-      <ProviderFallbackSection<TtsProviderOption>
-        t={t}
-        sh={sh}
-        title={t("admin.settings.ttsSettings")}
-        hint={t("admin.settings.ttsHint")}
-        paths={["tts"]}
-        providerLabelKey="admin.settings.ttsProvider"
-        options={TTS_OPTIONS}
-        defaultProvider="fish"
-        value={config.tts as ProviderFallback<TtsProviderOption>}
-        onChange={(u) => setConfig((prev) => ({ ...prev, tts: u(prev.tts as ProviderFallback<TtsProviderOption>) as typeof prev.tts }))}
-        logProviders={["fish", "google_tts", "edge"]}
-        keyOf={(p) => AI_PROVIDER_INFO[p === "google" ? "google_tts" : (p as "fish")]?.key}
-        stateOf={stateFor((p) => (p === "google" ? "google_tts" : p) as AiProvider)}
-        borderless
-      />
 
       {/* 슬라이드 음성 읽기 사전 — 자체 API 로 바로 저장한다(탭 저장과 상관없음). 편집 화면의 창에서 #tts-lexicon 으로 온다 */}
       <LexiconManager />

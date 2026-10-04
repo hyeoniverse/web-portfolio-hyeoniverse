@@ -299,10 +299,8 @@
 }
 
 
-/* 제목 줄 — 제목과 "기록 보기" */
-.titleRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-12);
+/* 공급자 표 — 머리(제목 · 설명 · 저장)는 부모가 그린다. 섹션 격자 안에서는 전폭 */
+.panel {
+  grid-column: 1 / -1;
+  min-width: 0;
 }

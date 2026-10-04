@@ -13,9 +13,9 @@ export const AI_COVER_OPTIONS: SelectOption<AICoverProvider>[] = [
   { value: "huggingface", label: "Hugging Face (FLUX)" },
 ];
 export const AI_SUMMARY_OPTIONS: SelectOption<AISummaryProvider>[] = [
-  { value: "gemini", label: "Gemini 2.0 Flash" },
-  { value: "openai", label: "OpenAI GPT-4o mini" },
-  { value: "claude", label: "Claude Haiku 4.5" },
+  { value: "gemini", label: "Gemini" },
+  { value: "openai", label: "OpenAI" },
+  { value: "claude", label: "Claude" },
 ];
 export const TTS_OPTIONS: SelectOption<TtsProviderOption>[] = [
   { value: "fish", label: "Fish Audio" },
@@ -23,11 +23,11 @@ export const TTS_OPTIONS: SelectOption<TtsProviderOption>[] = [
   { value: "edge", label: "Edge TTS" },
 ];
 export const TRANSLATION_OPTIONS: SelectOption<TranslationProvider>[] = [
-  { value: "gemini", label: "Gemini 2.0 Flash" },
+  { value: "gemini", label: "Gemini" },
   { value: "google", label: "Google Cloud Translation" },
   /* 무료 키(:fx)와 유료 키 모두 받는다 — 키에 맞는 주소로 보낸다(translationProviders) */
   { value: "deepl", label: "DeepL" },
-  { value: "claude", label: "Claude Haiku 4.5" },
+  { value: "claude", label: "Claude" },
 ];
 
 // ── 업로드 형식 (확장자 기준) — 순수 데이터/로직은 서버·UI 공용 모듈에서 re-export ──

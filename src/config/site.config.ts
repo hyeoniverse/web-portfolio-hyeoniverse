@@ -1008,9 +1008,14 @@ export const siteConfig = {
   },
 
   // ---------------------------------------------------------------------------
-  // 댓글 이메일 알림 수신 여부 (기본: 미수신)
+  // 알림 메일 — 관리자 알림(admin_notifications)을 메일로도 받을지와, 어떤 종류를 받을지.
+  // commentEmailNotify 가 전체 스위치(이름은 댓글 알림 시절 그대로 — 저장된 설정과 맞추려고 둔다).
+  // notifyEmailTypes 는 lib/notificationTypes 의 NOTIFY_EMAIL_GROUPS 가운데 고른 종류. 기본은 "중요한 것만" —
+  // 새 댓글 · 답글 · 신고 · 새 기기 로그인 · 로그인 잠금 · 권한 요청 · 예약 작업 오류. 설정 변경 · AI 실패 · 좋아요처럼
+  // 잇따라 쌓이는 것은 알림 화면에만 남는다. 같은 종류 · 제목의 운영 알림은 한 시간에 한 번만 메일로 보낸다.
   // ---------------------------------------------------------------------------
   commentEmailNotify: false,
+  notifyEmailTypes: ["comment", "reply", "report", "device_login", "login_lockout", "access_request", "cron_error"] as string[],
 
   // ---------------------------------------------------------------------------
   // 댓글 시스템
