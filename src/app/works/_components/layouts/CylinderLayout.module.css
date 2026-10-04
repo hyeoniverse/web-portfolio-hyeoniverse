@@ -7,7 +7,7 @@
   /* 무대 바탕 — 위아래 그라데이션도 이 색으로 흐린다. 다크는 순수 검정이어야 3D 오브젝트가 떠 보인다 */
   --_bg: var(--works-cylinder-stage);
 
-  position: fixed;
+  position: fixed; /* 쌓임 맥락 — 안의 층은 0 캔버스·하트 · 1 그라데이션 · 2 글·단추 · 3 초점 목록·인트로(3.10-3) */
   inset: 0;
   width: 100%;
   height: 100vh;
@@ -38,7 +38,7 @@
 .workList:focus-within {
   top: 50%;
   left: var(--spacing-32);
-  z-index: 7;
+  z-index: 3;
   width: auto;
   height: auto;
   max-width: calc(100vw - var(--spacing-32) * 2);
@@ -85,7 +85,6 @@
 .canvas {
   position: fixed !important;
   inset: 0;
-  z-index: 1;
   opacity: 0;
   transition: opacity var(--duration-slow) var(--ease-standard);
 }
@@ -100,10 +99,7 @@
 }
 
 /* 몽이를 쓰다듬을 때 뜨는 하트 — 몽이(캔버스) 위, 위아래 그라데이션 아래.
-   하트 층의 기본 순서(z 0)를 이겨야 해서 클래스를 두 번 적는다 */
-.hearts.hearts {
-  z-index: 1;
-}
+   캔버스와 같은 층(0)에서 DOM 순서(캔버스 다음)로 위에 온다 */
 
 /* ── 위아래 그라데이션 ──
    판은 위아래로 갈수록 휘며 멀어진다. 그 끝을 바탕색으로 흐려 원통이 화면 밖으로 이어지는 것처럼 보이게 한다.
@@ -113,7 +109,7 @@
   position: fixed;
   left: 0;
   right: 0;
-  z-index: 2;
+  z-index: 1;
   height: 25vh;
   pointer-events: none;
   --_edge: 50%;
@@ -155,7 +151,7 @@
   position: fixed;
   top: 50%;
   left: 50%;
-  z-index: 5;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -178,7 +174,7 @@
   position: fixed;
   top: 50%;
   left: 50%;
-  z-index: 6;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -298,7 +294,7 @@
   position: fixed;
   left: var(--spacing-32);
   bottom: var(--spacing-32);
-  z-index: 5;
+  z-index: 2;
   pointer-events: none;
 }
 
@@ -392,7 +388,7 @@
   position: fixed;
   right: var(--spacing-32);
   bottom: var(--spacing-32);
-  z-index: 5;
+  z-index: 2;
   color: var(--text-primary);
 }
 

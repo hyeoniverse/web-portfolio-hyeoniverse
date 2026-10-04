@@ -1,4 +1,5 @@
 .page {
+  isolation: isolate; /* 안의 z 0 … 3 이 밖과 겨루지 않게(3.10-3) */
   /* 필터 바 / posts·series label 행의 모든 컨트롤 (sort capsule, shuffle, search morph,
      category btn, more btn, tag toggle, segmented control 등) 의 통일 높이.
      자식 어디서나 var(--filter-row-h) 로 참조. */
@@ -45,7 +46,7 @@
 .filterBackdrop {
   position: fixed;
   inset: 0;
-  z-index: 50;
+  z-index: 3;
   background: transparent;
 }
 

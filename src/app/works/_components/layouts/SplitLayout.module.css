@@ -3,6 +3,7 @@
    ========================================================================== */
 
 .wrap {
+  isolation: isolate; /* 안의 z 0 … 3 이 밖과 겨루지 않게(3.10-3) */
   position: relative;
   display: flex;
   min-height: 100vh;
@@ -363,7 +364,7 @@
   right: var(--spacing-20);
   top: 50%;
   transform: translateY(-50%);
-  z-index: 10;
+  z-index: 3;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-12);

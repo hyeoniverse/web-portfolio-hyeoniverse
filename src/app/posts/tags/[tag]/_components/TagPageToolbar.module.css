@@ -23,7 +23,7 @@
   gap: var(--spacing-12);
   position: sticky;
   top: calc(var(--spacing-32) * 2 + var(--font-size-32));
-  z-index: 51;
+  z-index: 3;
   padding-bottom: var(--spacing-16);
   background: transparent;
   transform: translateY(0);

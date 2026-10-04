@@ -3,6 +3,7 @@
    ========================================================================== */
 
 .wrap {
+  isolation: isolate; /* 안의 z 0 … 3 이 밖과 겨루지 않게(3.10-3) */
   position: relative;
   width: 100%;
   height: 100vh;
@@ -169,7 +170,7 @@
   left: 0;
   right: 0;
   height: 2px;
-  z-index: 5;
+  z-index: 3;
   background: var(--bg-glass);
 }
 
@@ -184,7 +185,7 @@
   position: absolute;
   left: 8vw;
   bottom: var(--spacing-32);
-  z-index: 5;
+  z-index: 3;
   font: var(--font-code-sm);
   color: var(--text-white);
   opacity: 0.4;
