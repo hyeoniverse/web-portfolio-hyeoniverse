@@ -244,6 +244,9 @@
   /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 역할이 눈금을 가리키는 자리다 */
   --radius-mark: var(--radius-4);       /* 각진 것이 뜻인 자리 — 체크박스 · 다중선택 마커 · 컬러피커 사각형 · 조각 손잡이 */
 
+  /* ── 2층 · 투명도 역할(3.8-1, D41) — 비활성은 어디서나 같은 만큼 흐리다. 그 밖의 opacity 는 장식이라 토큰이 없다 ── */
+  --opacity-disabled: 0.5;
+
   /* ── 2층 · 크기 역할 ── */
   /* UI · 본문 — 고정 */
   --font-size-body-xs: var(--font-size-12); /* 보조 설명 · 메타 · 배지 · 카운터. 가장 작은 글자 */

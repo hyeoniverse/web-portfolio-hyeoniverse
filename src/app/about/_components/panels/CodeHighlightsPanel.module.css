@@ -151,7 +151,7 @@
 }
 
 .codePageBtn:disabled {
-  opacity: 0.25;
+  opacity: var(--opacity-disabled);
 }
 
 .codePageBtn:disabled:hover {

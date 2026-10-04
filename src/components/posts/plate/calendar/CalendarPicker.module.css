@@ -171,7 +171,7 @@
   cursor: pointer;
 }
 
-.pickerConfirmYes:disabled { opacity: 0.7; cursor: default; }
+.pickerConfirmYes:disabled { opacity: var(--opacity-disabled); cursor: default; }
 
 .pickerConfirmNo {
   display: inline-flex;
