@@ -256,7 +256,7 @@
   color: var(--text-muted);
   text-align: center;
 }
-.postLinkSpin { animation: postLinkSpin 0.8s linear infinite; }
+.postLinkSpin { --_postLinkSpin-duration: 0.8s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */ animation: postLinkSpin var(--_postLinkSpin-duration) linear infinite; }
 @keyframes postLinkSpin { to { transform: rotate(360deg); } }
 
 .slashGroup {
@@ -544,7 +544,7 @@
   max-height: none;
   overflow: visible;
   interpolate-size: allow-keywords;
-  transition: height var(--duration-base) var(--ease-standard), opacity 0.18s ease, transform 0.18s ease;
+  transition: height var(--duration-base) var(--ease-standard), opacity var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-standard);
 }
 
 /* ── Font picker dropdown ── */
@@ -1092,8 +1092,8 @@
   color: var(--text-secondary);
   cursor: pointer;
   transition:
-    background-color 0.12s ease,
-    color 0.12s ease;
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
 }
 
 .borderClearBtn:hover {
@@ -1146,8 +1146,8 @@
   color: var(--text-primary);
   padding: 0;
   transition:
-    background-color 0.12s ease,
-    border-color 0.12s ease;
+    background-color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard);
 }
 
 .borderGridBtn :global(svg) {
@@ -1192,7 +1192,7 @@
   background: transparent;
   font: var(--font-code-xs);
   color: var(--text-secondary);
-  transition: background 0.1s;
+  transition: background var(--duration-instant);
 }
 
 .borderWidthBtn:first-child {
@@ -1526,7 +1526,7 @@
   border-radius: var(--radius-control);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.12s ease, background-color 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+  transition: opacity var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard);
 }
 /* 열 핸들 — 셀 안(첫 행). 위 테두리에 걸쳐 가로 중앙. 가로 스크롤 시 열과 함께 이동. */
 .tblColSelect {
@@ -1639,7 +1639,7 @@
   transform: translateY(calc(-100% + 4px)); /* 컬럼 top 살짝 겹쳐 hover 유지 + 첫 블록 핸들 바로 위 */
   z-index: 8;
   opacity: 0;
-  transition: opacity 0.12s ease;
+  transition: opacity var(--duration-fast) var(--ease-standard);
   pointer-events: none;
 }
 .blockDraggable:hover > .blockGroupHandleWrap {
@@ -1996,7 +1996,7 @@
   position: relative;
   word-break: break-word;
   overflow-wrap: break-word;
-  transition: background-color 0.15s;
+  transition: background-color var(--duration-fast);
 }
 .editorContent table th {
   background: var(--bg-tertiary-alt);
@@ -2105,7 +2105,7 @@
   border-radius: var(--radius-surface);
   background: var(--bg-tertiary);
   opacity: 0;
-  transition: opacity 0.15s ease;
+  transition: opacity var(--duration-fast) var(--ease-standard);
   pointer-events: none;
 }
 [data-col-group]:hover::before,
@@ -2188,7 +2188,7 @@
 
 .colResizeBar {
   opacity: 0;
-  transition: opacity 0.15s;
+  transition: opacity var(--duration-fast);
 }
 
 [data-col-group]:hover .colResizeBar {

@@ -266,7 +266,7 @@ kbd {
   flex: none;
   font-size: var(--font-size-body-sm);
   color: var(--text-tertiary);
-  transition: rotate var(--duration-fast) ease;
+  transition: rotate var(--duration-fast) var(--ease-standard);
   content: "▶";
 }
 

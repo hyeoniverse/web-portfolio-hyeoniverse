@@ -42,7 +42,7 @@
 .item .itemTrailing {
   flex-shrink: 0;
   color: var(--text-tertiary);
-  transition: transform 0.18s var(--ease-standard);
+  transition: transform var(--duration-fast) var(--ease-standard);
 }
 
 .itemTrailingOpen {

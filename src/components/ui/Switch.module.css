@@ -15,7 +15,7 @@
 }
 
 .root .thumb {
-  transition: transform var(--duration-fast) ease, background var(--duration-fast) ease;
+  transition: transform var(--duration-fast) var(--ease-standard), background var(--duration-fast) var(--ease-standard);
 }
 
 .root:focus-visible {
@@ -68,7 +68,7 @@
   margin-top: -8px;
   transform: none;
   left: 1px;
-  transition: left var(--duration-fast) ease, background var(--duration-fast) ease;
+  transition: left var(--duration-fast) var(--ease-standard), background var(--duration-fast) var(--ease-standard);
 }
 
 .sizeSm.withText[data-state="checked"] .thumb {
@@ -90,7 +90,7 @@
   /* translate(-50%, -50%) — text 의 좌우 중심을 left 위치에 맞춤 */
   transform: translate(-50%, -50%);
   pointer-events: none;
-  transition: opacity var(--duration-fast) ease, color var(--duration-fast) ease;
+  transition: opacity var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
   user-select: none;
 }
 
@@ -120,7 +120,7 @@
 .sizeLg.withText { position: relative; padding: 0; }
 .sizeLg.withText .thumb {
   position: absolute; top: 50%; margin-top: -11px; transform: none; left: 3px;
-  transition: left var(--duration-fast) ease, background var(--duration-fast) ease;
+  transition: left var(--duration-fast) var(--ease-standard), background var(--duration-fast) var(--ease-standard);
 }
 .sizeLg.withText[data-state="checked"] .thumb { transform: none; left: 31px; }
 /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 위와 같은 이유 */

@@ -199,10 +199,10 @@
 
 .windowsContainer .osWindowExpanded {
   transition:
-    left 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-    top 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-    width 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-    height 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    left var(--duration-base) var(--ease-enter),
+    top var(--duration-base) var(--ease-enter),
+    width var(--duration-base) var(--ease-enter),
+    height var(--duration-base) var(--ease-enter);
   border-width: 0;
   border-radius: 0;
 }
@@ -950,8 +950,8 @@
 
   .track .animate {
     transition:
-      opacity var(--duration-slower) ease,
-      transform var(--duration-slower) ease;
+      opacity var(--duration-slower) var(--ease-standard),
+      transform var(--duration-slower) var(--ease-standard);
   }
 
   .animateVisible {

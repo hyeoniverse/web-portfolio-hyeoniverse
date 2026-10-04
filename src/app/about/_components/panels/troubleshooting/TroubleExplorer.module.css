@@ -50,8 +50,8 @@
   cursor: pointer;
   border-radius: var(--radius-full);
   transition:
-    background-color 0.15s ease,
-    color 0.15s ease;
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
 }
 
 .ideExplorerFilterBtn:hover {
@@ -98,7 +98,7 @@
   text-align: left;
   cursor: pointer;
   white-space: nowrap;
-  transition: background-color 0.12s ease;
+  transition: background-color var(--duration-fast) var(--ease-standard);
 }
 
 .ideExplorerFilterMenuItem:hover {
@@ -201,8 +201,8 @@
 
 .troubleList .troubleListItem {
   transition:
-    border-color var(--duration-base) ease,
-    padding-left var(--duration-base) ease;
+    border-color var(--duration-base) var(--ease-standard),
+    padding-left var(--duration-base) var(--ease-standard);
 }
 
 .troubleListItem:hover {
@@ -245,7 +245,7 @@
 }
 
 .troubleList .troubleNumber {
-  transition: color var(--duration-base) ease;
+  transition: color var(--duration-base) var(--ease-standard);
 }
 
 .troubleListItemActive .troubleNumber {
@@ -265,7 +265,7 @@
 }
 
 .troubleList .troubleListTitle {
-  transition: color var(--duration-base) ease;
+  transition: color var(--duration-base) var(--ease-standard);
 }
 
 .troubleListItemActive .troubleListTitle {
@@ -326,7 +326,7 @@
 .ideExplorerChevron {
   flex: none;
   color: var(--text-tertiary);
-  transition: transform var(--duration-base) ease;
+  transition: transform var(--duration-base) var(--ease-standard);
 }
 
 /* 폴더 접힘 — chevron 90도 반시계 회전 (▾ → ▸) */

@@ -12,7 +12,7 @@
 
 .shuffleBtn:active {
   transform: rotate(180deg);
-  transition: transform 0.3s ease;
+  transition: transform var(--duration-base) var(--ease-standard);
 }
 
 /* ── Posts Label ── */

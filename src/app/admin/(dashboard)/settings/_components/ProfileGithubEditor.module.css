@@ -129,7 +129,7 @@
 }
 
 .orgAdd.orgAdd {
-  transition: width 0.25s ease, border-radius 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+  transition: width var(--duration-base) var(--ease-standard), border-radius var(--duration-base) var(--ease-standard), border-color var(--duration-base) var(--ease-standard), color var(--duration-base) var(--ease-standard);
 }
 
 .orgAdd:hover {

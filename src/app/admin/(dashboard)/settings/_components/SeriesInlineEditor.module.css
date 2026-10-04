@@ -73,8 +73,8 @@
 
 .seriesPostsSection > .addPostModal {
   transition:
-    grid-template-rows 0.25s ease,
-    margin-top 0.25s ease;
+    grid-template-rows var(--duration-base) var(--ease-standard),
+    margin-top var(--duration-base) var(--ease-standard);
 }
 
 .seriesPostsHeader {

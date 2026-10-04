@@ -32,7 +32,7 @@
   width: 56px;
   pointer-events: none;
   opacity: 1;
-  transition: opacity var(--duration-base) ease;
+  transition: opacity var(--duration-base) var(--ease-standard);
 }
 
 .maskLeft {
@@ -58,7 +58,7 @@
   /* visible button (36px) + 좌우 호흡 */
   width: 60px;
   cursor: pointer;
-  transition: opacity var(--duration-base) ease;
+  transition: opacity var(--duration-base) var(--ease-standard);
 }
 
 .arrowLeft {

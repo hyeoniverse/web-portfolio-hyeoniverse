@@ -27,7 +27,7 @@
   background: transparent;
   font: var(--font-body-sm);
   color: var(--text-tertiary);
-  transition: transform 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  transition: transform var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
 }
 
 /* size=sm — 컴팩트한 list 안에서 사용 */

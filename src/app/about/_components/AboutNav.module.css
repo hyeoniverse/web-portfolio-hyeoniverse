@@ -27,8 +27,8 @@
 
 .dotNavWrap .dotArrow {
   transition:
-    opacity var(--duration-fast) ease,
-    border-color var(--duration-fast) ease;
+    opacity var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard);
 }
 
 .dotArrow:not(:disabled):hover {
@@ -82,8 +82,8 @@
 
 .dotNav .dotItem {
   transition:
-    width var(--duration-base) ease,
-    gap var(--duration-base) ease;
+    width var(--duration-base) var(--ease-standard),
+    gap var(--duration-base) var(--ease-standard);
 }
 
 .dotItem .dotCircle {
@@ -96,7 +96,7 @@
 }
 
 .dotNav .dotCircle {
-  transition: opacity var(--duration-base) ease;
+  transition: opacity var(--duration-base) var(--ease-standard);
 }
 
 .dotItem .dotText {
@@ -113,8 +113,8 @@
 
 .dotNav .dotText {
   transition:
-    font-size var(--duration-base) ease,
-    opacity var(--duration-base) ease;
+    font-size var(--duration-base) var(--ease-standard),
+    opacity var(--duration-base) var(--ease-standard);
 }
 
 .dotItemActive {
@@ -229,7 +229,7 @@
 
 /* Compound selector (0,2,0) */
 .floorGroup .floorGroupTitle {
-  transition: color var(--duration-base) ease;
+  transition: color var(--duration-base) var(--ease-standard);
 }
 
 .floorGroup[data-current] .floorGroupTitle {
@@ -318,8 +318,8 @@
 /* Compound selector (0,2,0) */
 .floorTick .floorTickLabel {
   transition:
-    opacity var(--duration-fast) ease,
-    translate var(--duration-fast) ease;
+    opacity var(--duration-fast) var(--ease-standard),
+    translate var(--duration-fast) var(--ease-standard);
 }
 
 .floorTick[data-hovered] .floorTickLabel {
@@ -455,7 +455,7 @@
 }
 
 .mobileTabBar .mobileTabBtn {
-  transition: opacity var(--duration-base) ease;
+  transition: opacity var(--duration-base) var(--ease-standard);
 }
 
 .mobileTabBar .mobileTabBtn:hover {
@@ -522,14 +522,14 @@
     opacity: 0;
     pointer-events: none;
     transition:
-      transform 0.3s ease,
-      opacity 0.2s ease;
+      transform var(--duration-base) var(--ease-standard),
+      opacity var(--duration-fast) var(--ease-standard);
   }
 
   .mobileTabBar:not(.mobileTabBarHidden) {
     transition:
-      transform 0.3s ease,
-      opacity 0.2s ease;
+      transform var(--duration-base) var(--ease-standard),
+      opacity var(--duration-fast) var(--ease-standard);
   }
 
   .floorNav {

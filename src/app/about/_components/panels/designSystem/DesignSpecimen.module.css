@@ -152,6 +152,7 @@
 }
 
 .dot {
+  --_slide-duration: 1.8s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   position: absolute;
   top: 0;
   left: 0;
@@ -159,7 +160,7 @@
   height: 12px;
   background: var(--text-accent);
   border-radius: var(--radius-full);
-  animation: slide 1.8s infinite alternate;
+  animation: slide var(--_slide-duration) infinite alternate;
 }
 
 @keyframes slide {

@@ -22,7 +22,7 @@
   flex-direction: column;
   align-items: flex-start;
   gap: var(--spacing-12);
-  animation: fadeSlideUp 0.6s cubic-bezier(0.25, 0.1, 0.25, 1) both;
+  animation: fadeSlideUp var(--duration-slow) var(--ease-standard) both;
 }
 
 
@@ -80,13 +80,14 @@
 }
 
 .topProgress::before {
+  --_topProgressSlide-duration: 1.2s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   content: "";
   position: absolute;
   top: 0;
   bottom: 0;
   width: 35%;
   background: var(--text-accent);
-  animation: topProgressSlide 1.2s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+  animation: topProgressSlide var(--_topProgressSlide-duration) var(--ease-standard) infinite;
 }
 
 @keyframes topProgressSlide {

@@ -72,11 +72,11 @@
   font: var(--font-body-xs);
   color: var(--text-secondary);
   text-decoration: none;
-  transition: border-color 0.2s, color 0.2s;
+  transition: border-color var(--duration-fast), color var(--duration-fast);
 }
 
 .manageLink svg {
-  transition: transform 0.2s ease;
+  transition: transform var(--duration-fast) var(--ease-standard);
 }
 
 .manageLink:hover {
@@ -106,7 +106,7 @@
   font: var(--font-body-sm);
   color: var(--text-secondary);
   cursor: pointer;
-  transition: border-color 0.2s, color 0.2s, background 0.2s;
+  transition: border-color var(--duration-fast), color var(--duration-fast), background var(--duration-fast);
 }
 .authorChip:hover {
   border-color: var(--text-tertiary);
@@ -199,7 +199,7 @@
   max-height: 0;
   clip-path: inset(0 0 100% 0);
   padding: var(--row-padding-sm);
-  transition: max-height 0.3s ease, clip-path 0.3s ease;
+  transition: max-height var(--duration-base) var(--ease-standard), clip-path var(--duration-base) var(--ease-standard);
 }
 
 .optionalContentOpen {
@@ -371,7 +371,7 @@
   resize: vertical;
   overflow: hidden;
   opacity: 1;
-  transition: opacity 0.2s ease;
+  transition: opacity var(--duration-fast) var(--ease-standard);
 }
 
 .editorSkeletonFrame {
@@ -399,10 +399,11 @@
 }
 
 .editorSkeletonBar {
+  --_editorBarPulse-duration: 1.2s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   height: 14px;
   border-radius: var(--radius-control);
   background: var(--bg-tertiary);
-  animation: editorBarPulse 1.2s ease-in-out infinite;
+  animation: editorBarPulse var(--_editorBarPulse-duration) var(--ease-standard) infinite;
 }
 
 .editorSkeletonToolbar .editorSkeletonBar {

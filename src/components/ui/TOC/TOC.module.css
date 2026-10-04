@@ -117,7 +117,7 @@
 }
 
 .markReel {
-  transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition: transform var(--duration-slower) var(--ease-enter);
 }
 
 .markReel div {
@@ -209,8 +209,8 @@
   background: var(--bg-primary);
   border: var(--border-width-1) solid var(--border-color-default);
   transition:
-    background var(--duration-base) ease,
-    box-shadow var(--duration-base) ease;
+    background var(--duration-base) var(--ease-standard),
+    box-shadow var(--duration-base) var(--ease-standard);
 }
 
 .node.past::before {
@@ -302,7 +302,7 @@
   line-height: calc(20 / 13);
   color: var(--text-tertiary);
   text-decoration: none;
-  transition: color var(--duration-fast) ease;
+  transition: color var(--duration-fast) var(--ease-standard);
 }
 
 .n {
@@ -312,7 +312,7 @@
   font-family: var(--font-family-heading);
   font-style: italic;
   color: var(--text-muted);
-  transition: color var(--duration-fast) ease;
+  transition: color var(--duration-fast) var(--ease-standard);
 }
 
 .tx {
@@ -337,7 +337,7 @@
   font-size: var(--font-size-body-xs);
   color: var(--text-accent);
   opacity: 0;
-  transition: opacity var(--duration-fast) ease;
+  transition: opacity var(--duration-fast) var(--ease-standard);
 }
 
 .ch.past .chT {
@@ -380,8 +380,8 @@
   opacity: 0;
   padding-left: calc(var(--spacing-16) + var(--spacing-4));
   transition:
-    grid-template-rows 0.45s cubic-bezier(0.2, 0.8, 0.2, 1),
-    opacity var(--duration-base) ease;
+    grid-template-rows var(--duration-slow) var(--ease-enter),
+    opacity var(--duration-base) var(--ease-standard);
 }
 
 .subs > div {
@@ -402,7 +402,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  transition: color var(--duration-fast) ease;
+  transition: color var(--duration-fast) var(--ease-standard);
 }
 
 .subDeep {

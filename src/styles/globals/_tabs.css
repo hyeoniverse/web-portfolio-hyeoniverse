@@ -41,7 +41,7 @@
   color: var(--text-tertiary);
   cursor: pointer;
   white-space: nowrap;
-  transition: color 0.15s ease, border-color 0.15s ease;
+  transition: color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard);
 }
 
 .tabs-tab:hover {
@@ -80,7 +80,7 @@
   line-height: var(--line-height-160);
   color: var(--text-muted);
   cursor: pointer;
-  transition: color 0.15s ease;
+  transition: color var(--duration-fast) var(--ease-standard);
 }
 .tabs-add svg {
   display: inline-block;
@@ -128,7 +128,7 @@
   font-size: var(--font-size-body-md);
   color: var(--text-secondary);
   cursor: pointer;
-  transition: color 0.15s ease, background 0.15s ease;
+  transition: color var(--duration-fast) var(--ease-standard), background var(--duration-fast) var(--ease-standard);
 }
 .tabs-tools-delete:hover {
   color: var(--text-accent);

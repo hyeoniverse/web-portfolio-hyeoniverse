@@ -16,7 +16,7 @@
   padding-bottom: var(--spacing-12);
   border-bottom: var(--border-light);
   text-decoration: none;
-  transition: color 0.15s ease;
+  transition: color var(--duration-fast) var(--ease-standard);
 }
 
 .label:hover {
@@ -27,7 +27,7 @@
 .labelArrow {
   margin-left: auto;
   color: var(--text-tertiary);
-  transition: transform 0.2s ease, color 0.15s ease;
+  transition: transform var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
 }
 
 .label:hover .labelArrow {
@@ -71,7 +71,7 @@
   will-change: transform, opacity;
   transform-origin: center;
   /* tag 안에 따로 transition 주면 rAF transform 과 충돌 — opacity 만 부드럽게 */
-  transition: color 0.15s ease;
+  transition: color var(--duration-fast) var(--ease-standard);
 }
 
 .tag:hover {

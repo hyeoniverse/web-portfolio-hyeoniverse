@@ -54,14 +54,14 @@
 
 button.deviceLegendBtn {
   cursor: pointer;
-  transition: background-color 0.15s ease;
+  transition: background-color var(--duration-fast) var(--ease-standard);
 }
 
 .deviceLegendChevron {
   color: var(--text-tertiary);
   transition:
-    transform 0.2s ease,
-    color 0.15s ease;
+    transform var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
 }
 
 .deviceLegendItem[data-drillable]:hover .deviceLegendChevron {
@@ -117,8 +117,8 @@ button.deviceLegendBtn {
   color: var(--text-tertiary);
   cursor: pointer;
   transition:
-    background-color 0.15s ease,
-    color 0.15s ease;
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
 }
 
 .deviceTab:hover {
@@ -133,7 +133,7 @@ button.deviceLegendBtn {
 
 /* devicesWrap 에 탭 변경 시 fade-in (key 변경으로 remount) */
 .devicesWrap {
-  animation: deviceTabFade 0.25s ease;
+  animation: deviceTabFade var(--duration-base) var(--ease-standard);
 }
 
 @keyframes deviceTabFade {
@@ -152,7 +152,7 @@ button.deviceLegendBtn {
   margin-top: var(--spacing-16);
   padding-top: var(--spacing-16);
   border-top: var(--border-light);
-  animation: deviceDrillIn 0.28s ease both;
+  animation: deviceDrillIn var(--duration-base) var(--ease-standard) both;
 }
 
 @keyframes deviceDrillIn {
@@ -199,7 +199,7 @@ button.deviceLegendBtn {
   gap: var(--spacing-12);
   font: var(--font-body-sm);
   opacity: 0;
-  animation: deviceDrillRowIn 0.3s ease both;
+  animation: deviceDrillRowIn var(--duration-base) var(--ease-standard) both;
 }
 
 @keyframes deviceDrillRowIn {

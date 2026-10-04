@@ -41,7 +41,7 @@
 }
 
 .wrapper .input {
-  transition: border-color var(--duration-base) ease;
+  transition: border-color var(--duration-base) var(--ease-standard);
 }
 
 .input:focus {
@@ -81,7 +81,7 @@
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.02em;
   user-select: none;
-  transition: color var(--duration-base) ease;
+  transition: color var(--duration-base) var(--ease-standard);
 }
 /* count 숫자만 상태별 색 — "/ max" 는 항상 tertiary */
 .counterWarn > span {
@@ -208,7 +208,7 @@
   border: var(--border-light);
   border-radius: var(--radius-control);
   overflow: hidden;
-  transition: border-color var(--duration-base) ease;
+  transition: border-color var(--duration-base) var(--ease-standard);
 }
 
 .fieldWrapGroupedSm {
@@ -248,7 +248,7 @@
   background: transparent;
   color: var(--text-tertiary);
   cursor: pointer;
-  transition: border-color var(--duration-base) ease, color var(--duration-base) ease;
+  transition: border-color var(--duration-base) var(--ease-standard), color var(--duration-base) var(--ease-standard);
 }
 
 .fieldWrapGroupedSm .addBtn { width: var(--control-height-sm); }
@@ -288,7 +288,7 @@
   color: var(--text-tertiary);
   cursor: pointer;
   opacity: 0.7;
-  transition: opacity var(--duration-base) ease, color var(--duration-base) ease;
+  transition: opacity var(--duration-base) var(--ease-standard), color var(--duration-base) var(--ease-standard);
 }
 
 .clearBtn:hover {

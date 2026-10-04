@@ -160,7 +160,7 @@
     inset: 0;
     z-index: 1;
     backdrop-filter: blur(0);
-    transition: backdrop-filter var(--duration-base) ease;
+    transition: backdrop-filter var(--duration-base) var(--ease-standard);
     pointer-events: none;
   }
 

@@ -556,7 +556,7 @@
   font: var(--font-body-xs);
   color: var(--text-secondary);
   text-decoration: none;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  transition: background-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
 }
 
 .tagPill:hover {
@@ -578,7 +578,7 @@
   font: var(--font-body-md);
   line-height: 1;
   cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  transition: background-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
 }
 
 .tagsToggle:hover {

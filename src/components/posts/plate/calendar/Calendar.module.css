@@ -33,7 +33,7 @@
   font: var(--font-body-xs);
   white-space: nowrap;
   cursor: pointer;
-  transition: color 0.15s ease, border-color 0.15s ease;
+  transition: color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard);
 }
 .tbBtn:hover { color: var(--text-primary); border-color: var(--border-color-strong); }
 .tbBtnOn { color: var(--text-accent); border-color: var(--border-color-accent-strong); }
@@ -79,7 +79,7 @@
   color: var(--text-tertiary);
   font: var(--font-body-xs);
   cursor: pointer;
-  transition: color 0.15s ease, border-color 0.15s ease, background-color 0.12s ease;
+  transition: color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard);
 }
 .filterTagOn {
   color: var(--text-primary);
@@ -103,7 +103,7 @@
   color: var(--text-tertiary);
   font: var(--font-body-xs);
   cursor: pointer;
-  transition: color 0.15s ease, border-color 0.15s ease, background-color 0.12s ease;
+  transition: color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard);
 }
 .filterChip:hover { color: var(--text-secondary); }
 .filterChipOn {
@@ -142,7 +142,7 @@
   color: var(--text-primary);
   outline: none;
   text-overflow: ellipsis;
-  transition: background-color 0.15s ease;
+  transition: background-color var(--duration-fast) var(--ease-standard);
 }
 .calNameInput::placeholder {
   color: var(--text-tertiary);
@@ -200,7 +200,7 @@
   background: var(--bg-primary);
   color: var(--text-secondary);
   cursor: pointer;
-  transition: color 0.15s ease, border-color 0.15s ease;
+  transition: color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard);
 }
 .blockBarIconBtn:hover { color: var(--text-primary); border-color: var(--border-color-strong); }
 
@@ -220,7 +220,7 @@
   font: var(--font-body-md);
   text-align: left;
   cursor: pointer;
-  transition: background-color 0.12s ease;
+  transition: background-color var(--duration-fast) var(--ease-standard);
 }
 .exportItem:hover { background: var(--bg-secondary); }
 
@@ -282,7 +282,7 @@
 .calDeletedText { display: flex; flex-direction: column; gap: var(--spacing-2); flex: 1; min-width: 0; }
 .calDeletedText strong { color: var(--text-primary); font: var(--font-body-md); font-weight: 600; }
 .calDeletedText span { color: var(--text-tertiary); font: var(--font-body-xs); line-height: 1.5; }
-.spin { animation: calspin 0.8s linear infinite; }
+.spin { --_calspin-duration: 0.8s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */ animation: calspin var(--_calspin-duration) linear infinite; }
 @keyframes calspin { to { transform: rotate(360deg); } }
 
 /* ── 이벤트 달력 (에디터·리더 공용) ── 마진은 wrapper(blockBar/readerCalendar)가 담당 */
@@ -326,7 +326,7 @@
   font-weight: 600;
   color: var(--text-primary);
   cursor: pointer;
-  transition: background-color 0.15s ease;
+  transition: background-color var(--duration-fast) var(--ease-standard);
 }
 .title:hover { background: var(--bg-secondary); }
 .navBtn {
@@ -340,7 +340,7 @@
   background: var(--bg-primary);
   color: var(--text-secondary);
   cursor: pointer;
-  transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+  transition: color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard);
 }
 .navBtn:hover {
   color: var(--text-primary);
@@ -418,7 +418,7 @@
 .weekBars .moreChip { pointer-events: auto; align-self: center; justify-self: stretch; text-align: left; margin: 0 var(--spacing-2); }
 .editable {
   cursor: pointer;
-  transition: background-color 0.12s ease;
+  transition: background-color var(--duration-fast) var(--ease-standard);
 }
 /* 반투명 틴트는 셀 아래 그리드 라인(회색)이 비쳐 탁해짐 → bg-primary 에 accent 를 섞은 불투명 틴트 */
 /* hover 시 셀 전체가 아니라 날짜 숫자에만 옅은 accent 원 */
@@ -430,7 +430,7 @@
 .outMonth .dayNum { color: var(--text-tertiary); opacity: 0.6; }
 .selected { background: var(--bg-accent); }
 /* 사이드바 focus → 이벤트 chip 펄스 강조 (타임라인 tlBarHighlight 와 동일 컨셉, tint 아님) */
-.chipHi { animation: monthChipHl 1.5s ease-in-out infinite; z-index: 5; }
+.chipHi { --_monthChipHl-duration: 1.5s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */ animation: monthChipHl var(--_monthChipHl-duration) var(--ease-standard) infinite; z-index: 5; }
 @keyframes monthChipHl {
   0%, 100% { outline: var(--border-width-1) solid color-mix(in srgb, var(--_chip) 32%, transparent); outline-offset: calc(-1 * var(--border-width-1)); }
   50% { outline: var(--border-width-2) solid color-mix(in srgb, var(--_chip) 45%, transparent); outline-offset: var(--border-width-2); }
@@ -474,7 +474,7 @@
   text-align: left;
   cursor: pointer;
   min-width: 0;
-  transition: background-color 0.12s ease;
+  transition: background-color var(--duration-fast) var(--ease-standard);
 }
 .chip:hover { background: color-mix(in srgb, var(--_chip) 28%, var(--bg-primary)); }
 /* 기간 이벤트가 여러 줄로 나뉜 경우 한 세그먼트 hover 시 이어진 모든 세그먼트에 동일 효과 */
@@ -507,7 +507,7 @@
   font: var(--font-body-xs);
   color: var(--text-tertiary);
   cursor: pointer;
-  transition: background-color 0.12s ease, color 0.12s ease;
+  transition: background-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
 }
 .moreChip:hover {
   background: var(--bg-secondary);
@@ -607,7 +607,7 @@
   font: var(--font-body-sm);
   font-weight: 600;
   cursor: pointer;
-  transition: color 0.15s ease, border-color 0.15s ease;
+  transition: color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard);
 }
 .agendaHeadAdd:hover { color: var(--text-accent); border-color: var(--border-color-accent-strong); }
 .agendaTitle {
@@ -657,7 +657,7 @@
   font: var(--font-body-xs);
   font-variant-numeric: tabular-nums; color: var(--text-primary);
   cursor: pointer;
-  transition: background-color 0.12s ease, color 0.12s ease;
+  transition: background-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
 }
 .miniCalNum { line-height: 1; }
 .miniCalCount {
@@ -700,7 +700,7 @@
   padding: 0;
   font: var(--font-heading-sm); line-height: 1.2; letter-spacing: -0.01em; color: var(--text-primary);
   border-bottom: var(--border-width-1) solid transparent;
-  transition: border-color 0.15s ease;
+  transition: border-color var(--duration-fast) var(--ease-standard);
 }
 .dayPanelTitle::placeholder { color: var(--text-muted); font-weight: 500; }
 .dayPanelTitle:focus { outline: none; border-bottom-color: var(--border-color-accent-strong); }
@@ -750,7 +750,7 @@
   background: conic-gradient(var(--bg-accent-solid) calc(var(--_p) * 1turn), var(--border-color-light) 0);
   box-shadow: var(--shadow-raised);
   opacity: calc(0.5 + 0.5 * var(--_p));
-  transition: opacity 0.1s ease;
+  transition: opacity var(--duration-instant) var(--ease-standard);
 }
 .pullBottom .pullRing { transform: translateY(calc((1 - var(--_p)) * 6px)) scale(calc(0.86 + 0.14 * var(--_p))); }
 .pullTop .pullRing { transform: translateY(calc((1 - var(--_p)) * -6px)) scale(calc(0.86 + 0.14 * var(--_p))); }
@@ -795,7 +795,7 @@
   border-bottom: var(--border-light);
   background: transparent;
   cursor: pointer;
-  transition: background-color 0.12s ease;
+  transition: background-color var(--duration-fast) var(--ease-standard);
 }
 .agendaColHead:hover { background: color-mix(in srgb, var(--bg-accent-solid) 6%, transparent); }
 /* 요일 — 가운데, 크게 */
@@ -871,7 +871,7 @@
   background: transparent;
   text-align: left;
   cursor: pointer;
-  transition: background-color 0.12s ease;
+  transition: background-color var(--duration-fast) var(--ease-standard);
 }
 .agendaItem:hover { background: color-mix(in srgb, var(--_c) 11%, var(--bg-primary)); }
 .agendaItemDone { opacity: 0.5; }
@@ -892,7 +892,7 @@
   color: var(--text-tertiary);
   font: var(--font-body-xs);
   cursor: pointer;
-  transition: color 0.12s ease, background-color 0.12s ease;
+  transition: color var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard);
 }
 .agendaAdd:hover { color: var(--text-primary); background: var(--bg-secondary); }
 
@@ -922,7 +922,7 @@
   border-radius: var(--radius-control);
   background: color-mix(in srgb, var(--_c) 14%, var(--bg-primary));
   cursor: pointer;
-  transition: background-color 0.12s ease;
+  transition: background-color var(--duration-fast) var(--ease-standard);
 }
 .dayAllDayItem:hover { background: color-mix(in srgb, var(--_c) 24%, var(--bg-primary)); }
 .dayAllDayItem .agendaItemTitle { font-size: var(--font-size-body-sm); }
@@ -937,7 +937,7 @@
   background: transparent;
   color: var(--text-tertiary);
   cursor: pointer;
-  transition: color 0.12s ease, background-color 0.12s ease;
+  transition: color var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard);
 }
 .dayAllDayAdd:hover { color: var(--text-primary); background: var(--bg-secondary); }
 
@@ -980,7 +980,7 @@
   overflow: hidden;
   cursor: pointer;
   text-align: left;
-  transition: background-color 0.12s ease, box-shadow 0.12s ease;
+  transition: background-color var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard);
 }
 .dayEvent:hover { background: color-mix(in srgb, var(--_c) 26%, var(--bg-primary)); box-shadow: var(--shadow-raised); }
 /* 제목 + 상태 아이콘(반복/연결) 한 줄 — 제목만 truncate, 아이콘은 항상 노출 */
@@ -1071,7 +1071,7 @@
   background: transparent;
   text-align: left;
   cursor: pointer;
-  transition: background-color 0.14s ease;
+  transition: background-color var(--duration-fast) var(--ease-standard);
 }
 .dayRow:hover { background: var(--bg-secondary); }
 .dayRowDone { opacity: 0.5; }
@@ -1151,7 +1151,7 @@
   background: transparent;
   color: var(--text-secondary);
   cursor: pointer;
-  transition: color 0.12s ease, background-color 0.12s ease;
+  transition: color var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard);
 }
 .navBtn:hover:not(:disabled) { color: var(--text-primary); background: var(--bg-secondary); }
 .navBtn:disabled { opacity: var(--opacity-disabled); cursor: default; }
@@ -1169,7 +1169,7 @@
 /* 선택된 관계 이벤트 칩 목록 (공통 Chip) — 한 줄 유지·줄바꿈 금지·왼쪽 정렬·넘치면 잘림 */
 .relChips { display: flex; flex-wrap: nowrap; justify-content: flex-start; gap: var(--spacing-2); min-width: 0; overflow: hidden; padding-block: var(--spacing-4); margin-block: -5px; }
 /* 클릭 시 해당 이벤트로 이동 — hover 로 명확히 표시(accent 틴트 + 살짝 올라옴) */
-.relNavChip { cursor: pointer; transition: background-color 0.12s ease, transform 0.12s ease, box-shadow 0.12s ease; }
+.relNavChip { cursor: pointer; transition: background-color var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard); }
 .relNavChip:hover {
   background: color-mix(in srgb, var(--bg-accent-solid) 14%, var(--bg-secondary));
   outline: var(--border-width-1) solid color-mix(in srgb, var(--border-color-accent-strong) 45%, transparent);
@@ -1240,7 +1240,7 @@
   color: var(--text-primary);
   font: var(--font-body-md);
   cursor: pointer;
-  transition: border-color 0.15s ease;
+  transition: border-color var(--duration-fast) var(--ease-standard);
 }
 .dateTrigger:hover { border-color: var(--border-color-strong); }
 .dateTrigger > svg { flex-shrink: 0; }
@@ -1287,7 +1287,7 @@
   color: var(--text-secondary);
   font: var(--font-body-xs);
   overflow: hidden;
-  transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+  transition: border-color var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
 }
 .labelChip:hover { border-color: var(--border-color-strong); color: var(--text-primary); }
 /* 선택 시 — 배경 유지, accent 외곽선 굵게(inset, 외부 glow 없음) */
@@ -1317,7 +1317,7 @@
   background: transparent;
   color: var(--text-tertiary);
   cursor: pointer;
-  transition: color 0.15s ease, background-color 0.12s ease;
+  transition: color var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard);
 }
 .labelChipEdit:hover { color: var(--text-primary); background: var(--bg-secondary); }
 /* 색상 반구 — pill 좌측 캡을 채우는 반원(세로로 꽉 찬 half-capsule), 너비 넓게 */
@@ -1340,7 +1340,7 @@
   color: var(--text-secondary);
   font: var(--font-body-xs);
   cursor: pointer;
-  transition: color 0.15s ease, border-color 0.15s ease;
+  transition: color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard);
 }
 .labelAdd:hover { color: var(--text-accent); border-color: var(--border-color-accent-strong); }
 .labelCreate {
@@ -1376,7 +1376,7 @@
   background: transparent !important;
   color: var(--text-tertiary) !important;
 }
-.suggestChip svg { color: var(--text-tertiary); transition: color 0.15s ease; }
+.suggestChip svg { color: var(--text-tertiary); transition: color var(--duration-fast) var(--ease-standard); }
 .suggestChip:hover {
   border-color: var(--border-color-accent-strong) !important;
   color: var(--text-accent) !important;
@@ -1399,7 +1399,7 @@
   border: var(--border-width-2) solid transparent;
   background: var(--_sw);
   cursor: pointer;
-  transition: transform 0.12s ease;
+  transition: transform var(--duration-fast) var(--ease-standard);
 }
 .swatch:hover { transform: scale(1.12); }
 .swatchOn {
@@ -1420,7 +1420,7 @@
   background: transparent;
   color: var(--text-tertiary);
   cursor: pointer;
-  transition: color 0.12s ease, border-color 0.12s ease;
+  transition: color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard);
 }
 .swatchAdd:hover {
   color: var(--text-accent);
@@ -1439,7 +1439,7 @@
   color: var(--text-secondary);
   font: var(--font-body-md);
   cursor: pointer;
-  transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+  transition: color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard);
 }
 .timeToggle:hover { color: var(--text-primary); border-color: var(--border-color-strong); }
 .timeToggleOn {
@@ -1485,7 +1485,7 @@
   color: var(--text-secondary);
   font: var(--font-body-xs);
   cursor: pointer;
-  transition: color 0.15s ease, border-color 0.15s ease;
+  transition: color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard);
 }
 .tlAdd:hover { color: var(--text-accent); border-color: var(--border-color-accent-strong); }
 /* ── 간트 타임라인 (연속 날짜축 + 이벤트 바 + 오늘 세로선) ── */
@@ -1550,7 +1550,7 @@
   font: var(--font-body-sm);
   font-variant-numeric: tabular-nums;
   color: var(--text-secondary);
-  transition: background-color 0.12s ease, color 0.12s ease;
+  transition: background-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
 }
 .tlDay:hover .tlDayNum { background: color-mix(in srgb, var(--bg-accent-solid) 12%, var(--bg-primary)); color: var(--text-primary); }
 .tlDay.sun .tlDayNum { color: var(--text-accent); }
@@ -1623,7 +1623,7 @@
   cursor: pointer;
   /* 공간 부족하면 제목을 바 밖으로 넘쳐 표시(clip 안 함) */
   overflow: visible;
-  transition: box-shadow 0.12s ease, background-color 0.12s ease;
+  transition: box-shadow var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard);
 }
 .tlBar:hover {
   background: var(--bg-secondary);
@@ -1653,7 +1653,7 @@
   overflow: visible;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.12s ease;
+  transition: opacity var(--duration-fast) var(--ease-standard);
 }
 .tlBarHandleL .tlBarGrip { left: 0; }
 .tlBarHandleR .tlBarGrip { right: 0; }
@@ -1729,7 +1729,7 @@
   fill: none;
   stroke: color-mix(in srgb, var(--text-secondary) 42%, transparent);
   stroke-width: 1.15;
-  transition: stroke 0.18s ease;
+  transition: stroke var(--duration-fast) var(--ease-standard);
 }
 .tlDepArrowHead { fill: color-mix(in srgb, var(--text-secondary) 60%, transparent); }
 /* 화살표 선 클릭 히트영역(투명, 두껍게) + 선택된 연결 강조 */
@@ -1764,7 +1764,7 @@
   z-index: 4;
 }
 .tlBar .tlBarPort {
-  transition: opacity 0.12s ease, background-color 0.14s ease, border-color 0.14s ease, transform 0.22s cubic-bezier(0.34, 1.7, 0.5, 1);
+  transition: opacity var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-spring);
 }
 /* 미연결 포트는 밖으로 빼 stem 갭 확보 / 연결 포트는 바에 붙임(화살표가 연결선, stem·갭 없음) */
 .tlBarPortL { left: -16px; }
@@ -1804,7 +1804,7 @@
   pointer-events: none;
   transform: translate(-50%, -50%) scale(0.3) rotate(-135deg);
 }
-.tlBarPortConn .tlBarPortX { transition: opacity 0.18s ease, transform 0.26s cubic-bezier(0.34, 1.7, 0.5, 1); }
+.tlBarPortConn .tlBarPortX { transition: opacity var(--duration-fast) var(--ease-standard), transform var(--duration-base) var(--ease-spring); }
 .tlBarPortConn:hover { transform: translateY(-50%) scale(1.55); } /* 색은 .tlBarPort:hover 의 포트색(--_c) 사용 */
 .tlBarPortConn:hover .tlBarPortX { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); }
 /* 링크 드래그 중 놓을 수 있는 대상 바 강조 */
@@ -1847,13 +1847,13 @@
 /* ── compact: 이벤트 있는 날만 카드 ── */
 /* 카드 본문 — 클릭 시 간트 위치로 이동 */
 /* 이동 대상 이벤트 강조 — 다음 인터랙션 전까지 반복 펄스 */
-.tlBarHighlight { animation: tlHl 1.5s ease-in-out infinite; z-index: 3; }
+.tlBarHighlight { --_tlHl-duration: 1.5s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */ animation: tlHl var(--_tlHl-duration) var(--ease-standard) infinite; z-index: 3; }
 @keyframes tlHl {
   0%, 100% { outline: var(--border-width-1) solid color-mix(in srgb, var(--_c) 32%, transparent); outline-offset: calc(-1 * var(--border-width-1)); }
   50% { outline: var(--border-width-3) solid color-mix(in srgb, var(--_c) 45%, transparent); outline-offset: var(--border-width-2); }
 }
 /* 이동 대상 날짜 강조 — 반복 펄스 */
-.tlDayHi .tlDayNum { animation: tlDayHl 1.5s ease-in-out infinite; }
+.tlDayHi .tlDayNum { --_tlDayHl-duration: 1.5s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */ animation: tlDayHl var(--_tlDayHl-duration) var(--ease-standard) infinite; }
 @keyframes tlDayHl {
   0%, 100% { background: transparent; outline: 0 solid color-mix(in srgb, var(--border-color-accent-strong) 0%, transparent); outline-offset: 0; color: var(--text-secondary); }
   50% { background: color-mix(in srgb, var(--bg-accent-solid) 22%, var(--bg-primary)); outline: var(--border-width-4) solid color-mix(in srgb, var(--border-color-accent-strong) 35%, transparent); outline-offset: 0; color: var(--text-primary); }

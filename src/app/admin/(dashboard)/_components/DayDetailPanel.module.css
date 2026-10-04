@@ -92,7 +92,7 @@
     var(--bg-accent-solid)
   );
   border-radius: var(--radius-control);
-  animation: rangeFill 0.6s cubic-bezier(0.4, 0, 0.2, 1) 280ms both;
+  animation: rangeFill var(--duration-slow) var(--ease-standard) 280ms both;
 }
 
 @keyframes rangeFill {
@@ -115,7 +115,7 @@
   transform: translate(-50%, -50%);
   outline: var(--border-width-1) solid var(--border-color-accent);
   outline-offset: 0;
-  animation: rangeMarker 0.6s cubic-bezier(0.4, 0, 0.2, 1) 280ms both;
+  animation: rangeMarker var(--duration-slow) var(--ease-standard) 280ms both;
 }
 
 @keyframes rangeMarker {

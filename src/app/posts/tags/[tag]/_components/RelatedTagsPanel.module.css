@@ -34,7 +34,7 @@
 }
 
 .relatedToggleChevron {
-  transition: transform 0.25s var(--ease-standard);
+  transition: transform var(--duration-base) var(--ease-standard);
 }
 
 .relatedToggleChevronOpen {
@@ -79,7 +79,7 @@
   font: var(--font-body-sm);
   color: var(--text-secondary);
   text-decoration: none;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  transition: background-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
 }
 
 .relatedPill:hover {

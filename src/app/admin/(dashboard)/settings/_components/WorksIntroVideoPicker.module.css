@@ -20,7 +20,7 @@
   background: var(--bg-tertiary);
   cursor: pointer;
   overflow: hidden;
-  transition: outline 0.15s ease;
+  transition: outline var(--duration-fast) var(--ease-standard);
 }
 
 .worksIntroPreview:hover {
@@ -48,7 +48,7 @@
   background: var(--bg-overlay);
   color: var(--text-inverse);
   opacity: 0.85;
-  transition: opacity 0.15s ease;
+  transition: opacity var(--duration-fast) var(--ease-standard);
 }
 
 .worksIntroPreview:hover .worksIntroPreviewExpand {

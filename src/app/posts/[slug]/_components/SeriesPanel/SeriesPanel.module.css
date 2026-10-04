@@ -52,7 +52,7 @@
   color: var(--text-tertiary);
   flex-shrink: 0;
   transform: rotate(0deg);
-  transition: transform 0.3s ease-out;
+  transition: transform var(--duration-base) var(--ease-enter);
 }
 
 .seriesChevronOpen {
@@ -63,7 +63,7 @@
   display: grid;
   grid-template-rows: 0fr;
   overflow: clip;
-  transition: grid-template-rows 0.3s ease-out;
+  transition: grid-template-rows var(--duration-base) var(--ease-enter);
 }
 
 .seriesListWrapOpen {
@@ -93,7 +93,7 @@
 .seriesItem > span:last-child {
   color: var(--text-tertiary);
   text-decoration: none;
-  transition: color 0.2s;
+  transition: color var(--duration-fast);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -120,7 +120,7 @@
   width: 0;
   opacity: 0;
   overflow: hidden;
-  transition: width 0.2s ease-out, opacity 0.2s, margin 0.2s;
+  transition: width var(--duration-fast) var(--ease-enter), opacity var(--duration-fast), margin var(--duration-fast);
 }
 
 .seriesIndicatorActive {
@@ -196,7 +196,7 @@
 
 .seriesNavArrow {
   display: block;
-  transition: transform 0.2s ease-out;
+  transition: transform var(--duration-fast) var(--ease-enter);
 }
 
 .seriesNavTitle {

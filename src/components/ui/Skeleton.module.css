@@ -6,6 +6,7 @@
 }
 
 .skeleton {
+  --_shimmer-duration: 1.5s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   background: linear-gradient(
     90deg,
     var(--bg-tertiary) 25%,
@@ -13,7 +14,7 @@
     var(--bg-tertiary) 75%
   );
   background-size: 400px 100%;
-  animation: shimmer 1.5s ease-in-out infinite;
+  animation: shimmer var(--_shimmer-duration) var(--ease-standard) infinite;
 }
 
 .line {
