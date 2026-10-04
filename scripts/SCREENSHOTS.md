@@ -372,6 +372,7 @@ npx tsx scripts/screenshots-cms.ts --base=http://localhost:3100 \
 | `--sample-image=<png>` | 13번 "이미지에서" 에 올릴 그림(기본 `screenshots/pc/editor-color-light.png` — 색이 여럿이어야 후보가 여럿 나온다) |
 | `--post=<slug>` · `--post-untranslated=<slug>` | 11 · 10 을 글 상세로 찍을 때. 없으면 `--work-slug` 작업물로 찍는다 |
 | `--summary-file=<json>` | 11 — 작업물에 저장된 요약이 없을 때 `{ "summary_ko", "summary_en" }` 을 미리보기 폼에만 넣는다 |
+| `--real-log` | 24 서비스 호출 기록을 `?demo` 예시가 아니라 실제 기록으로 |
 | `--no-video` | 영상 생략 |
 | `--base` · `--out` | 서버 주소 · 출력 폴더(기본 `public/images/screenshots/cms`) |
 
@@ -394,7 +395,15 @@ cms/13-theme-wheel-light.png · 13-theme-from-image-light.png
 cms/14-home-presets-light.png · 14-home-presets-dark.png   (세 프리셋을 옆으로 이어 붙인 한 장, 모드별)
 cms/15-relation-picker-light.png
 cms/16-seo-checklist-light.png
+cms/17-dashboard-light.png · 18-dashboard-daily-views-light.png
+cms/19-traffic-light.png · 20-traffic-ip-utm-light.png
+cms/21-posts-list-light.png · 22-works-list-light.png
+cms/23-notifications-light.png · 24-service-log-light.png · 25-comments-light.png
+cms/26-settings-library-light.png · 27-settings-account-light.png
+cms/28-login-light.png
 ```
+
+17 ~ 28 은 운영 화면(대시보드 · 트래픽 · 목록 · 알림 · 기록 · 설정 · 로그인)입니다. 방문 · 글 · 댓글이 쌓인 사이트에서 찍어야 그림이 찹니다. 18 은 달력 히트맵에서 조회가 가장 많은 날을 눌러 분석 패널을 연 채로, 24 는 `?demo` 예시 기록으로(실제 기록은 `--real-log`), 28 은 세션 없이 찍습니다.
 
 서버에는 아무것도 쓰지 않습니다:
 - 저장 단추는 어디서도 누르지 않고, 편집기 자동저장(`POST /api/revisions` · 떠날 때 `sendBeacon`)은 막아 둡니다 — 캡처하려고 폼을 건드린 것이 다음 편집 때 "복원할까요" 로 나오지 않게.

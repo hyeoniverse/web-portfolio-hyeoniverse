@@ -693,6 +693,188 @@ const SCENES: Scene[] = [
       await ctx.close();
     },
   },
+  /* ── 17 ~ 28: 운영 화면 — 대시보드 · 트래픽 · 목록 · 알림 · 기록 · 설정 · 로그인 (README "관리자 · CMS" 앞부분) ──
+     데이터가 쌓인 사이트에서 찍어야 그림이 찬다. 24(서비스 기록)만 ?demo 예시로, 28(로그인)만 세션 없이 찍는다 */
+  {
+    n: 17,
+    name: "dashboard",
+    // 17. 대시보드 — 빠른 작업 · 서비스 띠 · 통계 · 카테고리 도넛
+    run: async (browser) => {
+      const ctx = await newContext(browser);
+      const page = await ctx.newPage();
+      await open(page, "/admin", 2500);
+      await page.getByRole("heading", { name: "통계" }).first().waitFor({ timeout: 30_000 });
+      await wait(1800); // CountUp 숫자 올라가는 1.4초
+      await shot(page, "17-dashboard");
+      await ctx.close();
+    },
+  },
+  {
+    n: 18,
+    name: "dashboard-daily-views",
+    // 18. 대시보드 — 일별 조회수 곡선 + 달력 히트맵, 가장 많이 본 날을 눌러 분석 패널까지
+    run: async (browser) => {
+      const ctx = await newContext(browser);
+      const page = await ctx.newPage();
+      await open(page, "/admin", 2500);
+      const heading = page.getByRole("heading", { name: "일별 조회수" }).first();
+      await heading.waitFor({ timeout: 30_000 });
+      await scrollTopTo(heading, 110);
+      /* 히트맵 셀의 aria-label 은 "YYYY-MM-DD: n views" — 조회가 가장 많은 날을 고른다 */
+      const cells = page.locator('[aria-label$=" views"]');
+      const count = await cells.count();
+      let best = -1;
+      let bestViews = 0;
+      for (let i = 0; i < count; i++) {
+        const label = (await cells.nth(i).getAttribute("aria-label")) ?? "";
+        const views = Number(label.split(": ")[1]?.split(" ")[0] ?? 0);
+        if (views > bestViews) { bestViews = views; best = i; }
+      }
+      if (best >= 0) await cells.nth(best).click().catch(() => {});
+      await wait(900);
+      await shot(page, "18-dashboard-daily-views");
+      await ctx.close();
+    },
+  },
+  {
+    n: 19,
+    name: "traffic",
+    // 19. 트래픽 — 기간 선택 · 방문 요약 · 일별 추이 · 유입 경로 · 기기
+    run: async (browser) => {
+      const ctx = await newContext(browser);
+      const page = await ctx.newPage();
+      await open(page, "/admin/traffic", 2500);
+      await page.getByRole("heading", { name: "일별 방문" }).first().waitFor({ timeout: 30_000 });
+      await wait(800);
+      await shot(page, "19-traffic");
+      await ctx.close();
+    },
+  },
+  {
+    n: 20,
+    name: "traffic-ip-utm",
+    // 20. 트래픽 — IP 분석 · 인기 콘텐츠 · 방문 시간대 · UTM 캠페인 · UTM 링크 만들기
+    run: async (browser) => {
+      const ctx = await newContext(browser);
+      const page = await ctx.newPage();
+      await open(page, "/admin/traffic", 2500);
+      const heading = page.getByRole("heading", { name: "IP 분석" }).first();
+      await heading.waitFor({ timeout: 30_000 });
+      await scrollTopTo(heading, 110);
+      await wait(800);
+      await shot(page, "20-traffic-ip-utm");
+      await ctx.close();
+    },
+  },
+  {
+    n: 21,
+    name: "posts-list",
+    // 21. 글 목록 — 유리 띠의 필터 · 상태 칩 · 행 단추
+    run: async (browser) => {
+      const ctx = await newContext(browser);
+      const page = await ctx.newPage();
+      await open(page, "/admin/posts", 2500);
+      await page.getByRole("table").first().waitFor({ timeout: 30_000 }).catch(() => {});
+      await wait(600);
+      await shot(page, "21-posts-list");
+      await ctx.close();
+    },
+  },
+  {
+    n: 22,
+    name: "works-list",
+    // 22. 작업물 목록 — 순서 열 · GitHub 저장소 절 · 휴지통
+    run: async (browser) => {
+      const ctx = await newContext(browser);
+      const page = await ctx.newPage();
+      await open(page, "/admin/works", 2500);
+      await page.getByRole("table").first().waitFor({ timeout: 30_000 }).catch(() => {});
+      await wait(600);
+      await shot(page, "22-works-list");
+      await ctx.close();
+    },
+  },
+  {
+    n: 23,
+    name: "notifications",
+    // 23. 알림 — 네 탭 · 처리 필요 그룹
+    run: async (browser) => {
+      const ctx = await newContext(browser);
+      const page = await ctx.newPage();
+      await open(page, "/admin/notifications", 2500);
+      await wait(600);
+      await shot(page, "23-notifications");
+      await ctx.close();
+    },
+  },
+  {
+    n: 24,
+    name: "service-log",
+    // 24. 서비스 호출 기록 — ?demo 는 예시 기록으로 화면을 채운다(저장하지 않는다). 실제 기록으로 찍으려면 --real-log
+    run: async (browser) => {
+      const ctx = await newContext(browser);
+      const page = await ctx.newPage();
+      await open(page, args["real-log"] ? "/admin/service-log" : "/admin/service-log?demo", 2500);
+      await wait(600);
+      await shot(page, "24-service-log");
+      await ctx.close();
+    },
+  },
+  {
+    n: 25,
+    name: "comments",
+    // 25. 댓글 관리 — 글 · 작업물 댓글 한 표
+    run: async (browser) => {
+      const ctx = await newContext(browser);
+      const page = await ctx.newPage();
+      await open(page, "/admin/comments", 2500);
+      await wait(600);
+      await shot(page, "25-comments");
+      await ctx.close();
+    },
+  },
+  {
+    n: 26,
+    name: "settings-library",
+    // 26. 설정 › 라이브러리 — 달력 · 투표 · 커스텀 이모지 · 커버 이미지 기록 · 업로드한 파일
+    run: async (browser) => {
+      const ctx = await newContext(browser);
+      const page = await ctx.newPage();
+      await open(page, "/admin/settings?tab=library", 2500);
+      await wait(800);
+      await shot(page, "26-settings-library");
+      await ctx.close();
+    },
+  },
+  {
+    n: 27,
+    name: "settings-account",
+    // 27. 설정 › 계정 — 보안 / 세션(등록된 기기 · 모든 기기 로그아웃)이 머리에 오게
+    run: async (browser) => {
+      const ctx = await newContext(browser);
+      const page = await ctx.newPage();
+      await open(page, "/admin/settings?tab=account", 2500);
+      const heading = page.getByRole("heading", { name: "보안 / 세션" }).first();
+      await heading.waitFor({ timeout: 30_000 }).catch(() => {});
+      await scrollTopTo(heading, 120).catch(() => {});
+      await wait(600);
+      await shot(page, "27-settings-account");
+      await ctx.close();
+    },
+  },
+  {
+    n: 28,
+    name: "login",
+    // 28. 로그인 — 세션 없이. 이메일 · 비밀번호와 GitHub 로그인
+    run: async (browser) => {
+      const ctx = await newContext(browser, { admin: false });
+      const page = await ctx.newPage();
+      await open(page, "/admin/login", 2000);
+      await page.getByRole("button", { name: "GitHub 로 로그인" }).waitFor({ timeout: 30_000 }).catch(() => {});
+      await shot(page, "28-login");
+      await ctx.close();
+    },
+  },
 ];
 
 /* ── 실행 ── */
