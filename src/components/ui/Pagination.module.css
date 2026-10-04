@@ -63,7 +63,7 @@
 .pageBtn:disabled {
   color: var(--text-muted);
   border-color: var(--border-color-light);
-  opacity: 0.4;
+  opacity: var(--opacity-disabled);
 }
 
 .ellipsis {

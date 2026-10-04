@@ -278,7 +278,7 @@
 }
 
 .tagAddBtn:disabled {
-  opacity: 0.5;
+  opacity: var(--opacity-disabled);
 }
 
 /* ── Tag notes (per-tag description) — 태그당 단일 ko/en 쌍 ── */

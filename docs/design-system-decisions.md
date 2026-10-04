@@ -525,3 +525,10 @@ Material `@material/web` 2.5, Primer primitives. 숫자는 같은 날 다시 셌
 - **예외.** 플레이그라운드 시작 코드(iframe 안이라 사이트 토큰이 닿지 않는 사용자 내용)뿐이다. 작업 카드 hover 의 흰 빛(5%)은 비교해 보니 차이가 없어 카드 hover 의 역할인 `--shadow-raised` 로(3.7-1 표). 메뉴 이메일의 양각 하이라이트는 값은 그대로 두고 역할 `--text-shadow-highlight` 로 올렸다 — 연출을 지키면서 규칙도 지키는 길.
   처음엔 3D 단추 이음새 · 자동 완성 배경 · sticky 표 머리 밑줄 · 위로 뜨는 색인 시트 · 달도 예외였는데 비교해 보고 규칙대로 바꿨다 — 이음새는 맞닿는 쪽 1px 선, 자동 완성은 긴 transition 만 남기고, 표는 `border-collapse: separate; border-spacing: 0` 으로 바꾸면 sticky th 의 `border-bottom` 이 따라온다. 시트는 overlay(아래로 지는 그림자라 바닥 시트에서는 거의 안 보인다), 달은 glow.
 - **보이는 변화.** 전체화면 작업물 제목의 hover 흰 빛(20%)은 비교해 보니 차이가 없어 가독성 그림자(`-strong`)로. xl 을 쓰던 확인 대화상자 · 시리즈 미리보기 2곳은 overlay(lg 값)로 조금 얕아진다. 직접 쓴 값과 역할 값의 퍼짐 · 진하기 차이는 몇 px · 몇 % 안이다. 강조 빛은 6 ~ 16px 가 12px 하나로. 왼쪽 띠를 border 로 바꾼 곳은 글자가 띠 두께(2 ~ 3px)만큼 밀린다.
+
+### D41. 2026-10-04 — 비활성 투명도는 `--opacity-disabled` 0.5 하나
+
+- **왜.** 비활성 선택자(`:disabled` · `.disabled` · `[data-disabled]` · `[aria-disabled]`) 안에서 49곳이 0.25 ~ 0.85 열두 값을 썼다. 같은 "눌 수 없음"이 화면마다 다르게 흐렸다(3.8-1).
+- **정한 것.** 2층 역할 `--opacity-disabled: 0.5`(가장 많이 쓰던 값). 비활성 선택자 안의 숫자 44곳을 전부 이 역할로. 공용 컴포넌트(Button 0.45 · Checkbox · Radio · DatePicker 0.4 · Input · Textarea · Switch · Slider 0.5 …)도 같이 맞췄다.
+- **예외.** 활성 상태의 hover 규칙(`:hover:not(:disabled)`)은 비활성이 아니다 — ratchet 도 `:not()` 안의 disabled 는 세지 않는다. 만드는 중인 단추를 흐리게 하지 않는 `opacity: 1` 과 꺼진 커서의 장식을 숨기는 `0` 은 투명도 역할이 아니라 그대로.
+- **보이는 변화.** 0.25 ~ 0.4 로 아주 흐리던 비활성 단추(소개 패널 쪽 번호 · 탭 · 체크박스 · 날짜 고르기)는 0.5 로 조금 또렷해지고, 0.6 ~ 0.7 이던 것(문의 보내기 · 저장 · 상태 뱃지)은 조금 더 흐려진다.

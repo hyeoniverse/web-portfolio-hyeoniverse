@@ -170,7 +170,7 @@
 }
 
 .yearInput:disabled {
-  opacity: 0.4;
+  opacity: var(--opacity-disabled);
 }
 
 /* 날짜 묶음·시각 묶음 — 안에서는 줄을 바꾸지 않는다 */
@@ -255,7 +255,7 @@
 }
 
 .dropdownTrigger:disabled {
-  opacity: 0.4;
+  opacity: var(--opacity-disabled);
 }
 
 .dropdownTrigger svg {
@@ -352,7 +352,7 @@
 }
 
 .pickerBtn:disabled {
-  opacity: 0.4;
+  opacity: var(--opacity-disabled);
 }
 
 /* ── Popover anchor (positioning만) ── trigger 바로 아래 붙도록 gap 0 */
