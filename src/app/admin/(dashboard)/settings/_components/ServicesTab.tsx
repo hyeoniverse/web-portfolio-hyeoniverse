@@ -399,7 +399,6 @@ function ProviderFallbackBlock<P extends string>({
         </div>
         <PriorityList<P>
           includePrimary
-          primaryLabel={t("admin.settings.providerPrimary")}
           onlyPrimary={!fallbackEnabled}
           primary={provider}
           priority={value?.fallback?.priority ?? []}
