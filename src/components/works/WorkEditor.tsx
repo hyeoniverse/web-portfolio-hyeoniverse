@@ -1557,7 +1557,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                     className={[
                       styles.galleryItem,
                       narrationCurrent === i ? styles.galleryItemCurrent : "",
-                      isMain ? styles.galleryItemMain : "",
                       gallerySelected.has(i) ? styles.galleryItemSelected : "",
                       galleryDragIdx === i ? styles.galleryItemDragging : "",
                       galleryOverIdx === i && galleryDragIdx !== null && galleryDragIdx !== i
