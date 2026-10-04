@@ -82,6 +82,78 @@ Tokens and components are inspected live at `/design-system`.
 |:---:|:---:|
 | <img src="public/images/screenshots/pc/design-system-light.png" alt="Design system" width="100%" /> | <img src="public/images/screenshots/mobile/home-dark.png" alt="Mobile home" width="49%" /> |
 
+### Admin · CMS
+
+> These images come from `npx tsx scripts/screenshots-cms.ts` (needs a logged-in session — see [scripts/SCREENSHOTS.md](./scripts/SCREENSHOTS.md)). Continuous actions are also saved as `.webm` (and `.gif` when ffmpeg is installed) under the same names.
+
+#### Narrated gallery
+
+Each slide of a work's gallery can carry **narration and captions**. Playback prefers a prepared audio file (TTS or a recording), falls back to reading the script with browser speech, and otherwise waits four seconds before advancing. Captions are cut from the script by character ratio to follow the audio. If the browser blocks sound, the gallery first asks "with voice / without voice".
+
+<img src="public/images/screenshots/cms/01-gallery-captions-light.png" alt="Work detail — gallery playing with captions" width="100%" />
+
+In the admin work editor, the **gallery narration editor** takes a script per slide, a voice, and generates audio. Long scripts are chunked at about 600 characters and merged; if the chosen provider fails, the server moves down the fallback order from Settings (Fish Audio → Google Cloud TTS → Edge) with a voice of the same gender. During preview the script fills in **like lyrics**, character by character, and clicking a word seeks to it.
+
+| Script · voice · generate | Preview — lyric highlight |
+|:---:|:---:|
+| <img src="public/images/screenshots/cms/02-narration-editor-light.png" alt="Gallery narration editor" width="100%" /> | <img src="public/images/screenshots/cms/03-narration-preview-light.png" alt="Preview with highlighted script" width="100%" /> |
+
+The **pronunciation lexicon** pairs script text with what should be spoken, e.g. `?all=true → "all true condition"`. It applies only when generating audio, longest match first; captions keep the original text. Korean and English scripts have separate dictionaries, and an inline `[text|reading]` in the script wins over the lexicon.
+
+The **recording editor** records from the microphone, then lets you drag a range on the waveform and split, cut, paste, or trim silence to shape clips. Clips can be reordered by dragging and pasted into another slide. Finishing uploads a WAV as that slide's audio (up to six minutes).
+
+| Lexicon | Recording editor — range selected, clips split |
+|:---:|:---:|
+| <img src="public/images/screenshots/cms/04-lexicon-light.png" alt="Pronunciation lexicon" width="100%" /> | <img src="public/images/screenshots/cms/05-recording-editor-light.png" alt="Recording waveform editor" width="100%" /> |
+
+**Drop a PPTX onto the gallery** and each slide is rendered in the browser to a JPEG (max 1600px) and uploaded; each slide's **speaker notes become its script**. PDFs go through the same path.
+
+| Converting — "rendering n/N" | Done — a slide whose notes became the script |
+|:---:|:---:|
+| <img src="public/images/screenshots/cms/06-pptx-progress-light.png" alt="PPTX conversion progress" width="100%" /> | <img src="public/images/screenshots/cms/07-pptx-thumbnails-light.png" alt="Gallery thumbnails after conversion" width="100%" /> |
+
+#### Auto-translation and AI summary
+
+Flip the editor's KO/EN switch to **EN** and, when the source has content and every target field is empty, title, excerpt, body and gallery scripts are filled in one pass. The result arrives under a "machine-translated, please review" banner and any field can be retranslated. **Settings › Services** sets, per feature (translation · summary · TTS · AI cover), a primary provider and an ordered fallback list; a provider that keeps failing is paused by the health panel.
+
+| Editor — EN filled by translation | Settings › Services — providers and fallback order |
+|:---:|:---:|
+| <img src="public/images/screenshots/cms/08-translate-editor-light.png" alt="Editor auto-translation" width="100%" /> | <img src="public/images/screenshots/cms/09-settings-services-light.png" alt="Settings services tab" width="100%" /> |
+
+On the public site, a **translation banner** appears when the viewed language has no body, and one button fetches an AI translation in place. The **AI summary** box above a post shows the summary generated at publish time and can be collapsed.
+
+| Translation banner | AI summary |
+|:---:|:---:|
+| <img src="public/images/screenshots/cms/10-translate-banner-light.png" alt="Translation banner" width="100%" /> | <img src="public/images/screenshots/cms/11-ai-summary-light.png" alt="AI summary box" width="100%" /> |
+
+#### Theme
+
+**Settings › Appearance › Theme colors** sets five colors: the accent plus light/dark background and text. The 17 presets (Default · Ruby · Meadow · Coral · Azure · Sand · Harvest · Honey · Forest · Rosewood · Dusk · Arctic · Baltic · Sorbet · Twilight · Tropica · Petal) keep their accents at least ΔE 20 apart, and picking one updates the **WCAG contrast report** for body text, muted text, accent links and button text in both modes. When the accent is used as text, the site shifts only its lightness to reach 4.5:1.
+
+| Presets | Contrast report |
+|:---:|:---:|
+| <img src="public/images/screenshots/cms/12-theme-presets-light.png" alt="Theme presets" width="100%" /> | <img src="public/images/screenshots/cms/12-theme-contrast-light.png" alt="Contrast report" width="100%" /> |
+
+**Color suggestions** come from the color wheel (analogous · complementary · split · triadic · monochrome) or from an image, whose six dominant colors become candidates. The image is read locally and never uploaded.
+
+| Color wheel | From an image |
+|:---:|:---:|
+| <img src="public/images/screenshots/cms/13-theme-wheel-light.png" alt="Color wheel suggestions" width="100%" /> | <img src="public/images/screenshots/cms/13-theme-from-image-light.png" alt="Colors extracted from an image" width="100%" /> |
+
+The same home page under three presets.
+
+| Forest | Twilight | Arctic |
+|:---:|:---:|:---:|
+| <img src="public/images/screenshots/cms/14-home-forest-light.png" alt="Home — Forest" width="100%" /> | <img src="public/images/screenshots/cms/14-home-twilight-light.png" alt="Home — Twilight" width="100%" /> | <img src="public/images/screenshots/cms/14-home-arctic-light.png" alt="Home — Arctic" width="100%" /> |
+
+#### Linking posts and works · SEO check
+
+Works link related posts and series; posts link related projects, all through a searchable picker with drag-sortable chips that show up in the public detail header. The **SEO check** pill at the editor's bottom right counts six items (title · slug · excerpt of 30+ chars · cover · category · tags); clicking an item scrolls to that field and flashes it.
+
+| Relation picker | SEO check |
+|:---:|:---:|
+| <img src="public/images/screenshots/cms/15-relation-picker-light.png" alt="Relation picker" width="100%" /> | <img src="public/images/screenshots/cms/16-seo-checklist-light.png" alt="SEO checklist panel" width="100%" /> |
+
 ---
 
 ## At a Glance
@@ -91,7 +163,7 @@ Tokens and components are inspected live at `/design-system`.
 | **Interaction** | Infinite scroll loop, mouse parallax, StaggerText, a Three.js coffee cup, direction-aware scroll cascade |
 | **Works** | Six layouts (Flow · Fullscreen · Cinematic · Grid · Split · Cylinder) and detail pages |
 | **Posts** | SSR + ISR, series, banner slider, six list layouts, guest comments (markdown + emoji reactions) or giscus |
-| **Admin** | Plate.js editor (diagram · code playground · math blocks, color tools, publish toggle), `.md` sync, AI translation and summaries, revision history, member invites and roles |
+| **Admin** | Plate.js editor (diagram · code playground · math blocks, color tools, publish toggle), `.md` sync, AI translation and summaries, narrated galleries (TTS · recording · PPTX speaker notes), theme presets with WCAG contrast report, revision history, member invites and roles |
 | **Performance** | Lighthouse 98 — LCP 1.9s, 449KB initial bundle |
 | **Security** | RLS with four roles, CSRF origin checks (fail-closed in production), five-attempt lockout plus new-device email approval |
 | **Design system** | Three-tier tokens (Raw → Semantic → Component) with role tokens, all colors in OKLCH |
