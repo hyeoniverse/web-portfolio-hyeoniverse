@@ -318,7 +318,7 @@
   background: transparent;
   color: var(--text-tertiary);
   cursor: grab;
-  z-index: 6;
+  z-index: 3;
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--duration-fast) var(--ease-standard);

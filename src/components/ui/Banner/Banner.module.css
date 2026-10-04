@@ -2,6 +2,7 @@
 @layer components {
 /* ── Banner Container — 한 슬라이드씩 표시 (autoPlay 가능, dots/arrows) ── */
 .banner {
+  isolation: isolate; /* 안의 z 0 … 3 이 밖과 겨루지 않게(3.10-3) */
   position: relative;
   width: 100%;
 }
@@ -88,7 +89,7 @@
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  z-index: 4;
+  z-index: 2;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -128,7 +129,7 @@
   bottom: var(--spacing-20);
   left: 50%;
   transform: translateX(-50%);
-  z-index: 4;
+  z-index: 2;
   display: flex;
   align-items: center;
   gap: var(--spacing-8);

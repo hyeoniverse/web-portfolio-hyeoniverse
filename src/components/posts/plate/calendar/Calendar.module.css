@@ -426,7 +426,7 @@
 .outMonth .dayNum { color: var(--text-tertiary); opacity: 0.6; }
 .selected { background: var(--bg-accent); }
 /* 사이드바 focus → 이벤트 chip 펄스 강조 (타임라인 tlBarHighlight 와 동일 컨셉, tint 아님) */
-.chipHi { --_monthChipHl-duration: 1.5s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */ animation: monthChipHl var(--_monthChipHl-duration) var(--ease-standard) infinite; z-index: 5; }
+.chipHi { --_monthChipHl-duration: 1.5s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */ animation: monthChipHl var(--_monthChipHl-duration) var(--ease-standard) infinite; z-index: 3; }
 @keyframes monthChipHl {
   0%, 100% { outline: var(--border-width-1) solid color-mix(in srgb, var(--_chip) 32%, transparent); outline-offset: calc(-1 * var(--border-width-1)); }
   50% { outline: var(--border-width-2) solid color-mix(in srgb, var(--_chip) 45%, transparent); outline-offset: var(--border-width-2); }
@@ -476,8 +476,8 @@
 /* 기간 이벤트가 여러 줄로 나뉜 경우 한 세그먼트 hover 시 이어진 모든 세그먼트에 동일 효과 */
 .chipHover { background: color-mix(in srgb, var(--_chip) 28%, var(--bg-primary)); }
 /* hover 한 이벤트의 연결 체인 강조 (월/주/일 공통) — accent 링 + 부드러운 글로우 */
-.chipChainHi { outline: var(--border-width-2) solid var(--border-color-accent-strong); outline-offset: 0; box-shadow: var(--shadow-glow); z-index: 3; }
-.agendaChainHi { outline: var(--border-width-2) solid var(--border-color-accent-strong); outline-offset: 0; box-shadow: var(--shadow-glow); z-index: 3; }
+.chipChainHi { outline: var(--border-width-2) solid var(--border-color-accent-strong); outline-offset: 0; box-shadow: var(--shadow-glow); z-index: 2; }
+.agendaChainHi { outline: var(--border-width-2) solid var(--border-color-accent-strong); outline-offset: 0; box-shadow: var(--shadow-glow); z-index: 1; }
 .chip[draggable="true"] { cursor: grab; }
 .chip[draggable="true"]:active { cursor: grabbing; }
 .chipDone .chipLabel { text-decoration: line-through; opacity: 0.6; }
@@ -613,7 +613,8 @@
   color: var(--text-primary);
 }
 /* 페이지 넘김 슬라이드 clip 래퍼 — 하단 코너 라운드 클립 */
-.agendaViewport { position: relative; overflow: hidden; border-radius: 0 0 var(--radius-surface) var(--radius-surface); }
+.agendaViewport {
+  isolation: isolate; /* 당김 표시(3)·일 격자가 밖과 겨루지 않게(3.10-3) */ position: relative; overflow: hidden; border-radius: 0 0 var(--radius-surface) var(--radius-surface); }
 /* 일 뷰 — 왼쪽 시간축 + 오른쪽(미니 달력 + 상세/편집 패널). 시간축이 오른쪽 컬럼과 같은 전체 높이를 채우도록 definite 높이 + stretch */
 .agendaViewportDay { display: flex; align-items: stretch; height: 480px; }
 .agendaViewportDay .dayGrid { flex: 1; min-width: 0; height: 100%; }
@@ -725,10 +726,10 @@
 .scopeDialogText { font: var(--font-body-md); line-height: 1.5; color: var(--text-secondary); }
 .scopeDialogFooter { display: flex; justify-content: flex-end; gap: var(--spacing-4); margin-top: var(--spacing-4); }
 /* 선택된 일 이벤트 강조 */
-.dayEventSelected { outline: var(--border-width-2) solid var(--border-color-accent-strong); outline-offset: 0; box-shadow: var(--shadow-floating); z-index: 4; }
+.dayEventSelected { outline: var(--border-width-2) solid var(--border-color-accent-strong); outline-offset: 0; box-shadow: var(--shadow-floating); z-index: 2; }
 /* 경계 당김 인디케이터 — 시간축 끝에서 계속 스크롤할 때만 나타나고, 다 차오르면(--_p=1) 넘어감 */
 .pullHint {
-  position: absolute; left: 0; right: 0; z-index: 4;
+  position: absolute; left: 0; right: 0; z-index: 3;
   display: flex; justify-content: center; pointer-events: none;
 }
 /* 일뷰: 상/하(세로 스크롤 페이징) · 주뷰: 좌/우(가로 페이징) */
@@ -937,7 +938,7 @@
 .dayAllDayAdd:hover { color: var(--text-primary); background: var(--bg-secondary); }
 
 .dayGridScroll { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
-.dayGridBody { position: relative; width: 100%; max-width: var(--_col); margin-inline: auto; --_axis: 58px; }
+.dayGridBody { position: relative; isolation: isolate; /* 일정 블록 · 지금 선 · 끌기(0 … 3)가 격자 안에서만 겨룬다(3.10-3) */ width: 100%; max-width: var(--_col); margin-inline: auto; --_axis: 58px; }
 /* 시간축과 이벤트 영역을 가르는 옅은 세로선 — 컬럼을 시각적으로 그라운딩 */
 .dayGridBody::before {
   content: ""; position: absolute; top: 0; bottom: 0;
@@ -993,11 +994,11 @@
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .dayEventTime { font: var(--font-body-xs); font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.3; color: color-mix(in srgb, var(--_c) 60%, var(--text-tertiary)); }
-.dayNowLine { position: absolute; left: var(--_axis); right: 0; height: 2px; background: var(--bg-accent-solid); z-index: 5; pointer-events: none; }
+.dayNowLine { position: absolute; left: var(--_axis); right: 0; height: 2px; background: var(--bg-accent-solid); z-index: 3; pointer-events: none; }
 .dayNowDot { position: absolute; left: -4px; top: 50%; width: 8px; height: 8px; border-radius: var(--radius-full); background: var(--bg-accent-solid); transform: translateY(-50%); }
 /* 드래그: 블록 이동/리사이즈 + 빈 슬롯 생성 프리뷰 */
 .dayEventDraggable { cursor: grab; }
-.dayEventDragging { z-index: 6; box-shadow: var(--shadow-floating); opacity: 0.95; cursor: grabbing; overflow: visible; }
+.dayEventDragging { z-index: 3; box-shadow: var(--shadow-floating); opacity: 0.95; cursor: grabbing; overflow: visible; }
 /* 드래그 중 현재 위치 시간 배지 — 시작 엣지는 블록 위, 종료 엣지는 블록 아래 */
 .dayEventDragTime {
   position: absolute;
@@ -1011,12 +1012,12 @@
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
-  z-index: 7;
+  z-index: 1;
   pointer-events: none;
   box-shadow: var(--shadow-raised);
 }
 .dayEventDragTimeBottom { bottom: auto; top: calc(100% + 3px); }
-.dayEventResize { position: absolute; left: 0; right: 0; bottom: 0; height: 11px; cursor: ns-resize; z-index: 3; }
+.dayEventResize { position: absolute; left: 0; right: 0; bottom: 0; height: 11px; cursor: ns-resize; z-index: 1; }
 /* 상단 핸들 — 시작 시각 조절 */
 .dayEventResizeTop { top: 0; bottom: auto; }
 /* 짧은 블록은 위·아래 핸들이 겹치지 않게 얇게 (가운데 선택 영역 확보) */
@@ -1037,7 +1038,7 @@
   position: absolute;
   left: var(--_axis);
   right: 3px;
-  z-index: 4;
+  z-index: 2;
   border-radius: var(--radius-surface);
   background: color-mix(in srgb, var(--bg-accent-solid) 16%, var(--bg-primary));
   border: var(--border-width-1) dashed var(--border-color-accent-strong);
@@ -1486,7 +1487,7 @@
 /* ── 간트 타임라인 (연속 날짜축 + 이벤트 바 + 오늘 세로선) ── */
 /* 가로(날짜)만 스크롤 — 세로는 내부 스크롤 없이 콘텐츠 높이대로(페이지가 스크롤) */
 .tlGantt { overflow-x: auto; overflow-y: auto; }
-.tlCanvas { position: relative; min-width: 100%; }
+.tlCanvas { position: relative; isolation: isolate; /* 주말 띠 0 · 막대 1 · 고정 행 3 이 밖과 겨루지 않게(3.10-3) */ min-width: 100%; }
 /* 주말(토·일) 세로 밴드 레이어 — 날짜행 아래부터 바닥까지, 콘텐츠 뒤(z0) */
 .tlWeekendLayer {
   position: absolute;
@@ -1562,7 +1563,7 @@
 /* 노션식 hover-to-add — 빈 셀 가상 이벤트 블록 */
 .tlAddGhost {
   position: absolute;
-  z-index: 2;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1631,7 +1632,7 @@
   top: 0;
   bottom: 0;
   width: 9px;
-  z-index: 2;
+  z-index: 1;
   cursor: ew-resize;
 }
 .tlBarHandleL { left: 0; }
@@ -1666,7 +1667,7 @@
 /* 드롭될 위치의 고스트 바 — 반투명 + 점선 테두리, 클릭 불가 */
 .tlBarGhost {
   position: absolute;
-  z-index: 7;
+  z-index: 3;
   display: flex;
   align-items: center;
   gap: var(--spacing-4);
@@ -1685,7 +1686,7 @@
   height: 2px;
   margin-top: -1px;
   background: var(--bg-accent-solid);
-  z-index: 6;
+  z-index: 3;
   pointer-events: none;
 }
 /* 드롭 위치 세로 인디케이터 선 + 날짜 뱃지 */
@@ -1695,7 +1696,7 @@
   bottom: 0;
   width: 2px;
   background: var(--bg-accent-solid);
-  z-index: 7;
+  z-index: 3;
   pointer-events: none;
 }
 .tlDropDate {
@@ -1716,7 +1717,7 @@
 .tlDepLayer {
   position: absolute;
   inset: 0;
-  z-index: 5;
+  z-index: 3;
   pointer-events: none;
   overflow: visible;
 }
@@ -1736,7 +1737,7 @@
   outline: var(--border-width-2) solid var(--border-color-accent-strong);
   outline-offset: 0;
   box-shadow: var(--shadow-glow);
-  z-index: 4;
+  z-index: 2;
 }
 .tlDepTemp {
   fill: none;
@@ -1756,7 +1757,7 @@
   border: var(--border-width-2) solid var(--_c);
   cursor: crosshair;
   opacity: 0;
-  z-index: 4;
+  z-index: 2;
 }
 .tlBar .tlBarPort {
   transition: opacity var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-spring);
@@ -1842,7 +1843,7 @@
 /* ── compact: 이벤트 있는 날만 카드 ── */
 /* 카드 본문 — 클릭 시 간트 위치로 이동 */
 /* 이동 대상 이벤트 강조 — 다음 인터랙션 전까지 반복 펄스 */
-.tlBarHighlight { --_tlHl-duration: 1.5s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */ animation: tlHl var(--_tlHl-duration) var(--ease-standard) infinite; z-index: 3; }
+.tlBarHighlight { --_tlHl-duration: 1.5s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */ animation: tlHl var(--_tlHl-duration) var(--ease-standard) infinite; z-index: 2; }
 @keyframes tlHl {
   0%, 100% { outline: var(--border-width-1) solid color-mix(in srgb, var(--_c) 32%, transparent); outline-offset: calc(-1 * var(--border-width-1)); }
   50% { outline: var(--border-width-3) solid color-mix(in srgb, var(--_c) 45%, transparent); outline-offset: var(--border-width-2); }

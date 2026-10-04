@@ -16,46 +16,6 @@ main > .content {
   overflow-x: hidden;
 }
 
-/* Side Navigation
-   ========================================================================== */
-
-nav#side-navigation {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 30;
-  height: 100vh;
-  contain: layout style paint;
-  will-change: width, opacity;
-  backface-visibility: hidden;
-}
-
-nav#side-navigation::after {
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: -1;
-  width: 100%;
-  height: 100%;
-  background: var(--bg-surface);
-  content: "";
-  pointer-events: none;
-  backdrop-filter: var(--blur-12);
-  mask-image: linear-gradient(
-    to right,
-    color-mix(in oklch, var(--text-contrast) 95%, transparent) 0%,
-    color-mix(in oklch, var(--text-contrast) 10%, transparent) 100%
-  );
-  -webkit-mask-image: linear-gradient(
-    to right,
-    color-mix(in oklch, var(--text-contrast) 95%, transparent) 0%,
-    color-mix(in oklch, var(--text-contrast) 1%, transparent) 100%
-  );
-}
-
 /* Sections
    ========================================================================== */
 

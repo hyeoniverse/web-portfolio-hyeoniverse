@@ -263,7 +263,7 @@
   display: flex;
   justify-content: center;
   margin: var(--spacing-32) 0;
-  z-index: 2;
+  z-index: 1;
 }
 .timelineMarker:first-child { margin-top: var(--spacing-8); }
 .timelineMarkerLabel {
@@ -323,7 +323,7 @@
 }
 /* hover 시 카드를 위로 올려 프리뷰가 이웃 카드에 안 가리게 */
 .gridTimeline .gridItem:hover {
-  z-index: 4;
+  z-index: 2;
 }
 
 /* 엔트리 dot — 중앙 축(카드 안쪽 가장자리), 첫 줄(eyebrow) 높이 */
@@ -337,7 +337,7 @@
   background: var(--bg-primary);
   outline: var(--border-width-2) solid color-mix(in srgb, var(--text-primary) 42%, transparent);
   outline-offset: 0;
-  z-index: 3;
+  z-index: 1;
   transition:
     background var(--duration-fast) var(--ease-standard),
     box-shadow var(--duration-fast) var(--ease-standard);

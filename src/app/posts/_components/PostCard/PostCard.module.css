@@ -1,5 +1,6 @@
 /* ── Standard Card (선 기반 — 하단 border만) ── */
 .card {
+  isolation: isolate; /* 안의 z 0 … 3 이 밖과 겨루지 않게(3.10-3) */
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -24,7 +25,7 @@
 .cardLink {
   position: absolute;
   inset: 0;
-  z-index: 3;
+  z-index: 2;
 }
 .cardLink:focus-visible {
   outline: 2px solid var(--text-accent);
@@ -51,7 +52,7 @@
   position: absolute;
   left: var(--spacing-12);
   bottom: var(--spacing-12);
-  z-index: 2;
+  z-index: 1;
   display: inline-flex;
   line-height: 1;
   filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.45));
@@ -406,7 +407,7 @@
   position: absolute;
   top: var(--spacing-12);
   left: var(--spacing-12);
-  z-index: 2;
+  z-index: 1;
   display: flex;
   /* hot·pinned 나란히(가로) */
   flex-direction: row;
@@ -444,7 +445,7 @@
   position: absolute;
   top: var(--spacing-12);
   right: var(--spacing-12);
-  z-index: 2;
+  z-index: 1;
   display: inline-flex;
   align-items: center;
   padding: var(--spacing-2) var(--spacing-12);
@@ -533,7 +534,7 @@
 .tagsRow {
   /* 태그 링크·펼침 단추는 글 링크(.cardLink) 위에서 따로 눌린다 */
   position: relative;
-  z-index: 4;
+  z-index: 3;
   display: flex;
   flex-wrap: wrap;
   align-items: center;

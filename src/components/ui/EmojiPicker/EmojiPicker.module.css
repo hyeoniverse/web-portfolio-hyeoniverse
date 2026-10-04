@@ -20,7 +20,7 @@
 /* portal 되는 변형. 모달 안에서 열면 모달이 주는 portal layer 로 가므로 그 안에서 위에 뜬다.
    그래서 z 는 페이지 기준으로만 잡으면 된다 — nav 바로 아래. */
 .fixed { position: fixed; } /* top layer 에 뜬다(3.10-1) — z-index 없음 */
-.absolute { position: absolute; top: -4px; left: 40px; z-index: 10; }
+.absolute { position: absolute; top: -4px; left: 40px; z-index: 3; }
 
 /* ── 탭 헤더 ── */
 .tabHeader {
