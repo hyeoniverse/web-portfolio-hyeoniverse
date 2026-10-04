@@ -289,60 +289,13 @@
   }
 }
 
-/* 순서 줄 상자 밖 오른쪽 — 모델 라벨 · 최신/별칭 · 연필 */
-.modelField {
+/* 순서 줄 상자 안의 모델 셀렉트 — 이름 뒤, 화살표 앞 */
+.modelSelect {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-8);
-}
-
-.modelLabel {
-  font: var(--font-body-sm);
-  color: var(--text-tertiary);
-  white-space: nowrap;
-}
-
-.modelLatest {
-  padding: var(--badge-padding-md);
-  border-radius: var(--radius-control);
-  font: var(--font-body-xs);
-  font-weight: 600;
-  background: var(--bg-tertiary);
-  color: var(--text-secondary);
-}
-
-.modelValue {
-  font: var(--font-code-xs);
-  color: var(--text-secondary);
-}
-
-.modelPopover {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-8);
-  width: 20rem;
-  max-width: 100%;
-  padding: var(--spacing-12);
-}
-
-.modelPopoverTitle {
-  margin: 0;
-  font: var(--font-body-sm);
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.modelPopoverHint {
-  margin: 0;
-  font: var(--font-body-xs);
-  line-height: 1.5;
-  color: var(--text-tertiary);
-}
-
-.modelPopoverActions {
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--spacing-8);
+  margin-left: auto;
+  margin-right: var(--spacing-8);
+  max-width: 16rem;
 }
 
 /* ── 알림 메일 — 종류 체크를 묶음(댓글 · 보안 · 운영 · 권한)별 열로 ── */
