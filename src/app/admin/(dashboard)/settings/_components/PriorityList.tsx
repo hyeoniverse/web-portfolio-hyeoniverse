@@ -20,15 +20,13 @@ interface PriorityListProps<T extends string> {
   /** 기본 공급자를 1번으로 목록에 넣는다 — 1번이 곧 기본 공급자, 끌어 올리면 기본이 바뀐다.
    *  onChange 는 기본 공급자를 앞에 둔 전체 순서를 돌려준다(부모가 [0] 을 provider 로). 1번에는 빼기 칸이 없다 */
   includePrimary?: boolean;
-  /** includePrimary 일 때 1번 옆 글 — "기본" */
-  primaryLabel?: string;
   /** 상자 안 이름 자리에 대신 넣을 것 — 예: 모델 콤보박스(모델 이름이 곧 공급자라 이름을 두 번 쓰지 않는다). null 이면 이름 */
   innerOf?: (value: T) => React.ReactNode;
   /** 자동 전환이 꺼져 있다 — 1번(기본)만 보인다. 순서는 그대로 남아 켜면 돌아온다 */
   onlyPrimary?: boolean;
 }
 
-export function PriorityList<T extends string>({ primary, priority, excluded, options, onChange, onExcludedChange, badgeOf, includePrimary, primaryLabel, innerOf, onlyPrimary }: PriorityListProps<T>) {
+export function PriorityList<T extends string>({ primary, priority, excluded, options, onChange, onExcludedChange, badgeOf, includePrimary, innerOf, onlyPrimary }: PriorityListProps<T>) {
   const nonPrimary = options.filter((o) => o.value !== primary);
   const rest = priority.length
     ? [...priority.filter((p) => p !== primary), ...nonPrimary.map((o) => o.value).filter((v) => !priority.includes(v))]
@@ -174,13 +172,8 @@ export function PriorityList<T extends string>({ primary, priority, excluded, op
                 ><ChevronDown size={12} strokeWidth={2.5} /></Pressable>
               </div>}
             </div>
-            {/* 상자 밖 오른쪽 — "기본", 상태(꺼짐 · 키 없음 · 실패 중) */}
-            {(isPrimary && primaryLabel) || badgeOf?.(val) ? (
-              <span className={styles.priorityAside}>
-                {isPrimary && primaryLabel && <span className={styles.priorityPrimary}>{primaryLabel}</span>}
-                {badgeOf?.(val)}
-              </span>
-            ) : null}
+            {/* 상자 밖 오른쪽 — 상태(꺼짐 · 키 없음 · 실패 중). 1번이 기본이라는 건 따로 적지 않는다 */}
+            {badgeOf?.(val) ? <span className={styles.priorityAside}>{badgeOf(val)}</span> : null}
           </div>
         );
   };

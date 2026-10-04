@@ -126,11 +126,6 @@
   white-space: nowrap;
 }
 
-.priorityPrimary {
-  font: var(--font-body-xs);
-  font-weight: 600;
-  color: var(--text-accent);
-}
 
 /* 끌고 있는 줄의 제자리 — 고스트 */
 .priorityRow[data-dragging] {
