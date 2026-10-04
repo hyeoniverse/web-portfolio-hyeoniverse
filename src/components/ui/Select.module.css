@@ -116,7 +116,7 @@
 .arrow {
   flex-shrink: 0;
   color: var(--text-tertiary);
-  transition: transform 0.2s;
+  transition: transform var(--duration-fast);
 }
 
 .arrowOpen {
@@ -196,8 +196,8 @@
 
 .dropdown.dropdown {
   transition:
-    opacity 0.18s ease,
-    transform 0.18s ease;
+    opacity var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard);
 }
 
 .dropdownOpen {
@@ -405,7 +405,7 @@
   border: var(--border-light);
   border-radius: var(--radius-control);
   background: transparent;
-  transition: border-color 0.15s ease;
+  transition: border-color var(--duration-fast) var(--ease-standard);
 }
 
 .split:hover {

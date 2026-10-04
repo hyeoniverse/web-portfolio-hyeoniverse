@@ -50,7 +50,7 @@
      요소 backdrop-filter 는 자식(버튼)은 안 흐리고 뒤로 스크롤되는 행만 흐린다. 배경색 없이 blur 만.
      saturate 는 안 씀 — 뒤 '행'(썸네일·텍스트)의 warm 톤을 증폭해 누리끼리하게 뜬다(필터바는 차가운 글로우 위라 무관). */
   backdrop-filter: blur(24px);
-  animation: bulkBarIn 0.2s ease both;
+  animation: bulkBarIn var(--duration-fast) var(--ease-standard) both;
 }
 
 /* 위/아래 구분선 — frost 는 full-bleed 지만 선은 본문 폭(page-px 인셋). */
@@ -119,7 +119,7 @@
 }
 
 .table .row {
-  transition: background-color 0.2s ease;
+  transition: background-color var(--duration-fast) var(--ease-standard);
 }
 
 .table .row:hover {
@@ -207,7 +207,7 @@
 }
 
 .row .thumbImg {
-  transition: transform 0.2s ease;
+  transition: transform var(--duration-fast) var(--ease-standard);
 }
 
 .row:hover .thumbImg {
@@ -251,7 +251,7 @@
   background: transparent;
   color: var(--text-secondary);
   text-decoration: none;
-  transition: color var(--duration-base) ease;
+  transition: color var(--duration-base) var(--ease-standard);
 }
 
 .viewBtn:hover {
@@ -272,7 +272,7 @@
   color: var(--text-muted);
   cursor: grab;
   opacity: 0;
-  transition: opacity 0.15s ease;
+  transition: opacity var(--duration-fast) var(--ease-standard);
 }
 
 .row:hover .dragHandle,
@@ -321,7 +321,7 @@
   mix-blend-mode: difference;
   text-align: center;
   cursor: pointer;
-  transition: opacity 0.15s ease;
+  transition: opacity var(--duration-fast) var(--ease-standard);
 }
 
 .rowNumText:hover {
@@ -382,7 +382,8 @@
 }
 
 .rowHighlight {
-  animation: rowFlash 2s ease;
+  --_rowFlash-duration: 2s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
+  animation: rowFlash var(--_rowFlash-duration) var(--ease-standard);
 }
 
 

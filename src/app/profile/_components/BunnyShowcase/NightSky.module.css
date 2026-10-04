@@ -71,7 +71,7 @@
   opacity: 0.35;
   animation-name: twinkle;
   animation-iteration-count: infinite;
-  animation-timing-function: ease-in-out;
+  animation-timing-function: var(--ease-standard);
 }
 
 @keyframes twinkle {
@@ -81,6 +81,7 @@
 
 /* ── 달 ─────────────────────────────────────────────────── */
 .moon {
+  --_moonFloat-duration: 14s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   position: relative;
   display: block;
   width: 100%;
@@ -94,7 +95,7 @@
   );
   /* 달에 바싹 붙는 테 — 강조 빛 역할. 넓게 퍼지는 분홍 무리는 .moonGlow 가 따로 그린다. */
   box-shadow: var(--shadow-glow);
-  animation: moonFloat 14s ease-in-out infinite;
+  animation: moonFloat var(--_moonFloat-duration) var(--ease-standard) infinite;
 }
 
 /* 무리 — box-shadow 가 아니라 그라데이션 한 겹이다.
@@ -103,6 +104,7 @@
    그라데이션은 흐림 연산이 없어 그럴 일이 없다.
    달과 같은 박자로 떠야 해서 애니메이션을 같이 건다 — 부모에 걸면 시차 이동과 겹친다. */
 .moonGlow {
+  --_moonFloat-duration: 14s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   position: absolute;
   top: 50%;
   left: 50%;
@@ -111,7 +113,7 @@
   translate: -50% -50%;
   border-radius: var(--radius-full);
   background: radial-gradient(closest-side, var(--bg-accent-light) 0%, transparent 100%);
-  animation: moonFloat 14s ease-in-out infinite;
+  animation: moonFloat var(--_moonFloat-duration) var(--ease-standard) infinite;
   pointer-events: none;
 }
 
@@ -192,41 +194,45 @@
    화면을 오래 봐도 멈춰 있는 얼룩으로만 보였다. 앞뒤 층의 빠르기 차이는 그대로 둔다 —
    먼 것이 느려야 깊이가 생긴다. */
 .cloud[data-cloud="far-a"] {
+  --_anim-duration: 66s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   top: 18%;
   width: 40vw;
   height: 14vh;
   opacity: 0.3;
   filter: blur(9px);
-  animation-duration: 66s;
+  animation-duration: var(--_anim-duration);
 }
 
 .cloud[data-cloud="far-b"] {
+  --_anim-duration: 88s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   top: 58%;
   width: 32vw;
   height: 11vh;
   opacity: 0.24;
   filter: blur(10px);
-  animation-duration: 88s;
+  animation-duration: var(--_anim-duration);
   animation-delay: -33s;
 }
 
 .cloud[data-cloud="near-a"] {
+  --_anim-duration: 42s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   top: 34%;
   width: 26vw;
   height: 10vh;
   opacity: 0.42;
   filter: blur(5px);
-  animation-duration: 42s;
+  animation-duration: var(--_anim-duration);
   animation-delay: -11s;
 }
 
 .cloud[data-cloud="near-b"] {
+  --_anim-duration: 34s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   top: 76%;
   width: 22vw;
   height: 8vh;
   opacity: 0.36;
   filter: blur(4px);
-  animation-duration: 34s;
+  animation-duration: var(--_anim-duration);
   animation-delay: -25s;
 }
 
@@ -245,21 +251,23 @@
   background: linear-gradient(90deg, var(--night-sky-streak-tail), var(--night-sky-star));
   opacity: 0;
   animation-name: shoot;
-  animation-timing-function: cubic-bezier(0.3, 0, 0.2, 1);
+  animation-timing-function: var(--ease-standard);
   animation-iteration-count: infinite;
 }
 
 .streak[data-streak="a"] {
+  --_anim-duration: 17s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   top: 16%;
   left: -12%;
-  animation-duration: 17s;
+  animation-duration: var(--_anim-duration);
   animation-delay: 3s;
 }
 
 .streak[data-streak="b"] {
+  --_anim-duration: 26s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   top: 44%;
   left: -8%;
-  animation-duration: 26s;
+  animation-duration: var(--_anim-duration);
   animation-delay: 11s;
 }
 
@@ -278,7 +286,7 @@
   color: var(--text-tertiary);
   opacity: 0.5;
   animation-name: glyphFloat;
-  animation-timing-function: ease-in-out;
+  animation-timing-function: var(--ease-standard);
   animation-iteration-count: infinite;
 }
 

@@ -18,7 +18,7 @@
 
 .channelChevron {
   color: var(--text-tertiary);
-  transition: transform 0.18s ease;
+  transition: transform var(--duration-fast) var(--ease-standard);
 }
 
 .channelChevronOpen {

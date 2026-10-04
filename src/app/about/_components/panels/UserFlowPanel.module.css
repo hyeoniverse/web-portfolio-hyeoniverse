@@ -26,7 +26,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-20);
-  animation: ufFadeIn 0.5s ease both;
+  animation: ufFadeIn var(--duration-slow) var(--ease-standard) both;
 }
 
 /* Profile card — avatar + name/story */
@@ -115,7 +115,7 @@
 }
 
 .ufNodeGroup {
-  animation: ufNodeIn 0.4s ease-out both;
+  animation: ufNodeIn var(--duration-base) var(--ease-enter) both;
 }
 
 /* ── SVG: Terminal (Start / End) ── */
@@ -176,7 +176,7 @@
   stroke: var(--text-primary);
   stroke-width: 1.2;
   stroke-dasharray: 2000;
-  animation: ufEdgeIn 0.4s ease-out both;
+  animation: ufEdgeIn var(--duration-base) var(--ease-enter) both;
 }
 
 .ufEdgeLabel {
@@ -184,7 +184,7 @@
   font-weight: 600;
   fill: var(--text-accent);
   opacity: 0;
-  animation: ufNodeIn 0.3s ease-out both;
+  animation: ufNodeIn var(--duration-base) var(--ease-enter) both;
 }
 
 /* ── Mobile ── */

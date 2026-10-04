@@ -14,7 +14,7 @@
   width: 56px;
   height: 56px;
   border-radius: var(--radius-surface);
-  transition: background-color 0.15s ease;
+  transition: background-color var(--duration-fast) var(--ease-standard);
 }
 
 .tile:hover,
@@ -36,7 +36,7 @@
   border: var(--border-light);
   background: var(--bg-primary);
   opacity: 0;
-  transition: opacity 0.15s ease;
+  transition: opacity var(--duration-fast) var(--ease-standard);
 }
 
 .tile:hover .remove,

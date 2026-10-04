@@ -173,7 +173,7 @@
   text-decoration: underline;
   text-decoration-color: color-mix(in oklch, var(--text-accent) 50%, transparent);
   text-underline-offset: 2px;
-  transition: background-color 0.15s ease, text-decoration-color 0.15s ease;
+  transition: background-color var(--duration-fast) var(--ease-standard), text-decoration-color var(--duration-fast) var(--ease-standard);
 }
 .post-link:hover {
   background: var(--bg-accent);
@@ -499,7 +499,7 @@ code .token.italic {
   white-space: nowrap;
   cursor: pointer;
   /* transform·box-shadow 도 transition — hover lift 가 양방향 부드럽게 */
-  transition: background 0.15s ease, color 0.15s ease, transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+  transition: background var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-spring), box-shadow var(--duration-fast) var(--ease-standard);
 }
 .code-copy-icon { flex-shrink: 0; }
 /* copy/copied 두 라벨을 grid 로 겹쳐 넓은 쪽이 폭을 잡는다 → 상태 전환에도 너비 불변 */
@@ -542,7 +542,7 @@ code .token.italic {
   white-space: nowrap;
   overflow: hidden;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease, transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+  transition: background var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-spring), box-shadow var(--duration-fast) var(--ease-standard);
 }
 .code-block-wrap .code-wrap-toggle:hover {
   background: var(--bg-tertiary-alt);
@@ -552,7 +552,7 @@ code .token.italic {
 /* ── Desktop: hover slide ── */
 .code-wrap-label-default,
 .code-wrap-label-hover {
-  transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+  transition: transform var(--duration-fast) var(--ease-enter), opacity var(--duration-fast) var(--ease-enter);
 }
 
 .code-wrap-label-default {
@@ -628,7 +628,7 @@ code .token.italic {
 }
 
 div.math-element-wrap {
-  animation: mathRevealBlock 0.3s var(--ease-standard);
+  animation: mathRevealBlock var(--duration-base) var(--ease-standard);
   overflow: hidden;
 }
 
@@ -673,7 +673,7 @@ span.math-element-wrap .math-katex-content {
 [class*="codeWrapToggle"] {
   overflow: hidden;
   white-space: nowrap;
-  transition: transform 0.15s ease-out;
+  transition: transform var(--duration-fast) var(--ease-enter);
 }
 
 .math-mode-toggle:active,
@@ -685,7 +685,7 @@ span.math-element-wrap .math-katex-content {
 .toggle-label-default,
 .toggle-label-hover {
   display: inline-block;
-  transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+  transition: transform var(--duration-fast) var(--ease-enter), opacity var(--duration-fast) var(--ease-enter);
 }
 
 .toggle-label-default {
@@ -818,7 +818,7 @@ span.math-element-wrap .math-katex-content {
   font-family: var(--font-family-body);
   font-size: var(--font-size-body-xs);
   cursor: pointer;
-  transition: color 0.12s ease, background 0.12s ease;
+  transition: color var(--duration-fast) var(--ease-standard), background var(--duration-fast) var(--ease-standard);
 }
 .reader-playground-tab:hover {
   color: var(--text-primary);

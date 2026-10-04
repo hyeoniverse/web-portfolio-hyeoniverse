@@ -20,7 +20,7 @@
   text-decoration: underline;
   text-underline-offset: 2px;
   cursor: pointer;
-  transition: color var(--duration-base) ease;
+  transition: color var(--duration-base) var(--ease-standard);
 }
 
 .envKeyLink:hover {
@@ -204,7 +204,7 @@
   color: var(--text-primary);
   text-decoration: underline;
   text-underline-offset: 2px;
-  transition: color var(--duration-base) ease;
+  transition: color var(--duration-base) var(--ease-standard);
 }
 
 .hintLink:hover {

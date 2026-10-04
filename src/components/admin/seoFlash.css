@@ -11,6 +11,7 @@
 }
 
 .seo-flash {
+  --_seoFlashBlink-duration: 0.9s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   color: var(--text-accent);
-  animation: seoFlashBlink 0.9s ease-in-out infinite;
+  animation: seoFlashBlink var(--_seoFlashBlink-duration) var(--ease-standard) infinite;
 }

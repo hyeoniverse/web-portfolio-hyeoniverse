@@ -46,11 +46,11 @@
   transform: translateY(-100%);
   opacity: 0;
   pointer-events: none;
-  transition: transform 0.3s ease, opacity 0.2s ease;
+  transition: transform var(--duration-base) var(--ease-standard), opacity var(--duration-fast) var(--ease-standard);
 }
 
 .filterBar:not(.filterBarHidden) {
-  transition: transform 0.3s ease, opacity 0.2s ease;
+  transition: transform var(--duration-base) var(--ease-standard), opacity var(--duration-fast) var(--ease-standard);
 }
 
 
@@ -100,7 +100,7 @@
 }
 
 .tagToggleBtn.tagToggleBtn {
-  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  transition: background-color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
 }
 
 .filterBar .tagToggleBtn:hover {

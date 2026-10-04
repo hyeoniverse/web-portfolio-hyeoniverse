@@ -45,7 +45,7 @@
   height: 1.5px;
   border-radius: var(--radius-full);
   background: var(--text-tertiary);
-  transition: width var(--duration-base) ease, background var(--duration-base) ease;
+  transition: width var(--duration-base) var(--ease-standard), background var(--duration-base) var(--ease-standard);
 }
 
 /* 라벨 — 기본은 숨김(tick 만 보임), ruler 근처에 마우스가 오면 나타난다.
@@ -59,9 +59,9 @@
   overflow: hidden;
   transform: translateX(6px);
   transition:
-    opacity var(--duration-slow) ease,
+    opacity var(--duration-slow) var(--ease-standard),
     transform var(--duration-slow) var(--ease-enter),
-    color var(--duration-base) ease;
+    color var(--duration-base) var(--ease-standard);
 }
 
 .jumpNav:hover .label {

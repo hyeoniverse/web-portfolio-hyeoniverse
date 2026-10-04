@@ -65,7 +65,7 @@
   border-radius: 0;
   cursor: pointer;
   padding: var(--spacing-8);
-  transition: filter 0.12s ease;
+  transition: filter var(--duration-fast) var(--ease-standard);
   font-family: var(--font-family-body);
   /* button element 의 browser default appearance 리셋 */
   appearance: none;

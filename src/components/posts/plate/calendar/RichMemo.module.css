@@ -24,13 +24,13 @@
   background: transparent;
   color: var(--text-secondary);
   cursor: pointer;
-  transition: color 0.12s ease, background-color 0.12s ease;
+  transition: color var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard);
 }
 .tbBtn:hover { color: var(--text-primary); background: var(--bg-secondary); }
 .tbBtn:disabled { opacity: var(--opacity-disabled); cursor: default; }
 .tbBtnOn, .tbBtnOn:hover { color: var(--text-accent); background: var(--bg-accent-subtle); }
 .sep { width: 1px; align-self: stretch; margin: var(--spacing-4) var(--spacing-2); background: var(--border-color-light); }
-.spin { animation: rmSpin 0.8s linear infinite; }
+.spin { --_rmSpin-duration: 0.8s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */ animation: rmSpin var(--_rmSpin-duration) linear infinite; }
 @keyframes rmSpin { to { transform: rotate(360deg); } }
 
 .editable {

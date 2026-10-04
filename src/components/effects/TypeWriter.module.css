@@ -19,7 +19,7 @@
   font-weight: var(--font-weight-light);
   color: var(--text-tertiary);
   opacity: 0;
-  transition: opacity var(--duration-base) ease;
+  transition: opacity var(--duration-base) var(--ease-standard);
 }
 
 .captionVisible {

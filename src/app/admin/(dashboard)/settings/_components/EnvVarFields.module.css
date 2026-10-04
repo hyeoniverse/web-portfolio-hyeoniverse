@@ -88,8 +88,8 @@
   color: var(--bg-success-solid);
   cursor: pointer;
   transition:
-    border-color var(--duration-base) ease,
-    background var(--duration-base) ease;
+    border-color var(--duration-base) var(--ease-standard),
+    background var(--duration-base) var(--ease-standard);
 }
 
 .envRowSaveBtn:hover {
@@ -176,8 +176,8 @@
   height: 100%;
   background: var(--bg-success-solid);
   transition:
-    width var(--duration-base) ease,
-    background var(--duration-base) ease;
+    width var(--duration-base) var(--ease-standard),
+    background var(--duration-base) var(--ease-standard);
 }
 /* info icon + warn icon — label 옆 작게 */
 .envMetaIcon,
@@ -186,7 +186,7 @@
   align-items: center;
   color: var(--text-tertiary);
   cursor: help;
-  transition: color var(--duration-base) ease;
+  transition: color var(--duration-base) var(--ease-standard);
 }
 
 .envMetaIcon:hover {
@@ -232,7 +232,7 @@
   color: var(--text-primary);
   outline: none;
   resize: vertical;
-  transition: border-color var(--duration-base) ease;
+  transition: border-color var(--duration-base) var(--ease-standard);
 }
 
 .envPasteTextarea:focus {

@@ -339,15 +339,15 @@
   cursor: pointer;
   z-index: 2;
   transition:
-    color 0.2s ease,
-    font-weight 0.15s ease;
+    color var(--duration-fast) var(--ease-standard),
+    font-weight var(--duration-fast) var(--ease-standard);
 }
 
 /* 아이콘 크기 — 글자 line-height 에 맞춤 (1em). hover 시 scale + rotate 로 벌어지는 느낌 */
 .ideDiagramHintIcon {
   width: 1em;
   height: 1em;
-  transition: transform 0.3s var(--ease-standard);
+  transition: transform var(--duration-base) var(--ease-standard);
 }
 
 .ideDiagramHint:hover {
@@ -389,7 +389,7 @@
   background: var(--bg-secondary);
   overflow: hidden;
   cursor: zoom-in;
-  transition: border-color 0.2s ease;
+  transition: border-color var(--duration-fast) var(--ease-standard);
 }
 
 .troubleImageBtn:hover {
@@ -493,10 +493,11 @@
 
 /* 깜빡이는 커서 */
 .ideCursor {
+  --_ideCursorBlink-duration: 1s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   display: inline-block;
   margin-left: var(--spacing-2);
   color: var(--text-accent);
-  animation: ideCursorBlink 1s steps(2, start) infinite;
+  animation: ideCursorBlink var(--_ideCursorBlink-duration) steps(2, start) infinite;
 }
 
 @keyframes ideCursorBlink {

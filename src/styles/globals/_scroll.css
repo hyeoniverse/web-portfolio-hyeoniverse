@@ -63,7 +63,7 @@ html.lenis body {
   border-radius: var(--radius-full);
   z-index: var(--z-index-nav);
   opacity: 0;
-  transition: opacity var(--duration-base) ease;
+  transition: opacity var(--duration-base) var(--ease-standard);
 }
 
 .horizontal-progress.is-active {
@@ -131,8 +131,8 @@ html.lenis body {
   opacity: 0;
   transform: translateY(40px);
   transition:
-    opacity 0.6s var(--ease-enter),
-    transform 0.6s var(--ease-enter);
+    opacity var(--duration-slow) var(--ease-enter),
+    transform var(--duration-slow) var(--ease-enter);
 }
 
 .reveal-stagger.is-visible > *:nth-child(1) {
@@ -161,11 +161,12 @@ html.lenis body {
 
 /* Cinematic clip reveal */
 .clip-reveal {
+  --_clip-reveal-duration: 1.2s; /* 눈금 밖의 긴 전환 — 한 자리의 장식(3.9-1) */
   clip-path: inset(0 50% 0 50%);
   opacity: 0;
   transition:
-    clip-path 1.2s var(--ease-enter),
-    opacity 0.6s ease;
+    clip-path var(--_clip-reveal-duration) var(--ease-enter),
+    opacity var(--duration-slow) var(--ease-standard);
 }
 
 .clip-reveal.is-visible {
@@ -178,7 +179,7 @@ html.lenis body {
   opacity: 0;
   transform: scale(0.85);
   transition:
-    opacity var(--duration-slower) ease,
+    opacity var(--duration-slower) var(--ease-standard),
     transform var(--duration-slower) var(--ease-enter);
 }
 

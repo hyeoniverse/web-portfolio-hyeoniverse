@@ -41,7 +41,7 @@
 
 /* Compound selector (0,2,0) — smooth overlay crossfade */
 .dcModeStack .dcCardOverlay {
-  transition: opacity var(--duration-slow) ease;
+  transition: opacity var(--duration-slow) var(--ease-standard);
 }
 
 /* Compound selector (0,2,0) — slide-out background transition */
@@ -91,7 +91,7 @@
 
 /* Compound selector (0,2,0) */
 .dcCard .dcCardBg img {
-  transition: filter 0.4s ease;
+  transition: filter var(--duration-base) var(--ease-standard);
 }
 
 .dcCard:hover .dcCardBg img {
@@ -190,9 +190,9 @@
 /* Compound selector (0,2,0) */
 .dcDemo .dcToggleBtn {
   transition:
-    border-color var(--duration-base) ease,
-    color var(--duration-base) ease,
-    background-color var(--duration-base) ease;
+    border-color var(--duration-base) var(--ease-standard),
+    color var(--duration-base) var(--ease-standard),
+    background-color var(--duration-base) var(--ease-standard);
 }
 
 .dcToggleBtnActive {
@@ -235,7 +235,7 @@
 
 /* Compound selector (0,2,0) */
 .dcDemo .dcSwatch {
-  transition: background-color 0.4s ease, color 0.4s ease;
+  transition: background-color var(--duration-base) var(--ease-standard), color var(--duration-base) var(--ease-standard);
 }
 
 
@@ -262,7 +262,7 @@
 
 /* Compound selector (0,2,0) */
 .dcDemo .dcSpringBall {
-  transition: left var(--duration-fast) ease-out;
+  transition: left var(--duration-fast) var(--ease-enter);
 }
 
 .dcMotionLabels {
@@ -303,7 +303,7 @@
 
 /* Compound selector (0,2,0) */
 .dcDemo .dcSpacingBar {
-  transition: background-color var(--duration-base) ease;
+  transition: background-color var(--duration-base) var(--ease-standard);
 }
 
 .dcSpacingRow:hover .dcSpacingBar {
@@ -336,8 +336,8 @@
 /* Compound selector (0,2,0) */
 .dcBreakpoints .dcBpBar {
   transition:
-    background-color var(--duration-base) ease,
-    transform var(--duration-fast) ease;
+    background-color var(--duration-base) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard);
 }
 
 .dcBpBar:hover {
@@ -360,7 +360,7 @@
 
 /* Compound selector (0,2,0) */
 .dcBreakpoints .dcBpLabel {
-  transition: opacity var(--duration-fast) ease;
+  transition: opacity var(--duration-fast) var(--ease-standard);
 }
 
 .dcBpBar:hover .dcBpLabel {
@@ -397,8 +397,8 @@
 /* Compound selector (0,2,0) */
 .dcIconGrid .dcIconCell {
   transition:
-    border-color var(--duration-base) ease,
-    background-color var(--duration-base) ease;
+    border-color var(--duration-base) var(--ease-standard),
+    background-color var(--duration-base) var(--ease-standard);
 }
 
 .dcIconCell:hover {
@@ -495,7 +495,7 @@
   /* Compound selector (0,2,0) — smooth bg crossfade */
   .dcMobileBg .dcMobileBgItem {
     transition:
-      opacity var(--duration-slow) ease,
+      opacity var(--duration-slow) var(--ease-standard),
       transform var(--duration-slower) var(--ease-standard);
     will-change: transform;
   }
@@ -550,7 +550,7 @@
 
   /* Compound selector (0,2,0) — smooth content crossfade */
   .dcMobileContentStack .dcMobileContentCard {
-    transition: opacity var(--duration-slow) ease;
+    transition: opacity var(--duration-slow) var(--ease-standard);
   }
 
   .dcCardTitle,

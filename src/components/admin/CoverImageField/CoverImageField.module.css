@@ -39,7 +39,7 @@
   font-weight: 500;
   color: var(--text-secondary);
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
 }
 
 .field .inlineBtn:hover {
@@ -72,7 +72,7 @@
   border: none;
   background: transparent;
   cursor: pointer;
-  transition: opacity 0.15s ease;
+  transition: opacity var(--duration-fast) var(--ease-standard);
 }
 
 /* 추출된 테마 색상 팔레트 */
@@ -108,7 +108,7 @@
   border-radius: var(--radius-full);
   cursor: pointer;
   flex-shrink: 0;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
 }
 
 .field .paletteCopyAll:hover {
@@ -129,7 +129,7 @@
   background: var(--bg-primary);
   border-radius: var(--radius-full);
   padding: var(--spacing-1);
-  transition: color 0.15s ease;
+  transition: color var(--duration-fast) var(--ease-standard);
 }
 
 .field .paletteCopyAll:hover .paletteCopyAllIcon {
@@ -143,7 +143,7 @@
   border: var(--border-light);
   border-radius: var(--radius-full);
   cursor: pointer;
-  transition: transform 0.15s ease;
+  transition: transform var(--duration-fast) var(--ease-standard);
 }
 
 .palette .paletteSwatch:hover {
@@ -200,8 +200,8 @@
 .toggleLabel {
   grid-area: 1 / 1;
   transition:
-    opacity 0.18s var(--ease-standard),
-    transform 0.18s var(--ease-standard);
+    opacity var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard);
 }
 
 .toggleLabel[data-shown="false"] {

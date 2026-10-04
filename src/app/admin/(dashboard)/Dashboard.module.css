@@ -121,7 +121,7 @@
   padding: var(--spacing-16) var(--spacing-16);
   color: var(--text-primary);
   letter-spacing: normal;
-  transition: background-color 0.15s ease;
+  transition: background-color var(--duration-fast) var(--ease-standard);
 }
 
 .quickActions .actionBtn:hover:not(:disabled) {
@@ -132,8 +132,8 @@
 /* hover 시 아이콘 살짝 우측 이동 + accent 색 변환 (compound 0,2,1 — Button 의 transition 보다 우선) */
 .quickActions .actionBtn :global(svg) {
   transition:
-    transform 0.25s var(--ease-standard),
-    color 0.2s ease;
+    transform var(--duration-base) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
 }
 
 .quickActions .actionBtn:hover:not(:disabled) :global(svg) {
@@ -189,7 +189,7 @@
   line-height: 1;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.03em;
-  animation: heroValuePop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation: heroValuePop var(--duration-slow) var(--ease-spring) both;
 }
 
 @keyframes heroValuePop {
@@ -253,8 +253,8 @@
   text-decoration: none;
   color: inherit;
   transition:
-    background-color 0.2s ease,
-    transform 0.25s var(--ease-standard);
+    background-color var(--duration-fast) var(--ease-standard),
+    transform var(--duration-base) var(--ease-standard);
   position: relative;
   /* Tooltip wrapper 의 grid cell stretch 높이 까지 채워서 hover bg 가 cell 전체 덮도록 */
   height: 100%;
@@ -294,7 +294,7 @@ a.statCard:hover .statValue {
   font-weight: 700;
   line-height: 1;
   color: var(--text-primary);
-  transition: color 0.2s ease;
+  transition: color var(--duration-fast) var(--ease-standard);
 }
 
 .statMeta {
@@ -322,7 +322,7 @@ a.statCard:hover .statValue {
   height: 100%;
   background: var(--bg-accent-solid);
   border-radius: var(--radius-control);
-  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width var(--duration-base) var(--ease-standard);
 }
 
 /* Modifier: slim (4px) — 비율 바 같은 inline 작은 막대 */
@@ -355,10 +355,10 @@ a.statCard:hover .statValue {
      점프했다 — 양쪽을 같은 minmax 구조로 풀어 써야 grid-template-columns 가 animate 된다 */
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   background-clip: padding-box;
-  /* grid-template-columns transition: 기기 분석 확장 시 부드럽게 */
-  transition: grid-template-columns 0.4s var(--ease-standard);
+  /* grid-template-columns transition:  기기 분석 확장 시 부드럽게 */
+ transition: grid-template-columns var(--duration-base) var(--ease-standard);
   /* 진입 모션 — .section 과 동일한 stagger fade-in */
-  animation: dashSectionIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+  animation: dashSectionIn var(--duration-slow) var(--ease-standard) both;
 }
 
 @media (max-width: 768px) {
@@ -429,15 +429,15 @@ a.statCard:hover .statValue {
   min-width: 0;
   pointer-events: none;
   border-left: none !important;
-  transition: padding 0.4s var(--ease-standard);
+  transition: padding var(--duration-base) var(--ease-standard);
 }
 
 /* 셀이 아니라 내용물만 페이드 — 셀 opacity 를 내리면 불투명 배경까지 빠지면서
    격자의 회색 바탕(gap trick 배경)이 접히는 동안 비쳐 보인다 */
 .twoCol > .panelCell > * {
   transition:
-    opacity 0.25s ease,
-    visibility 0.25s ease;
+    opacity var(--duration-base) var(--ease-standard),
+    visibility var(--duration-base) var(--ease-standard);
 }
 
 .panelCollapsed > * {
@@ -573,12 +573,13 @@ a.statCard:hover .statValue {
 
 /* pulse — dot 뒤 ring 이 expand 하면서 fade */
 .dotOk::after {
+  --_dotOkPulse-duration: 1.8s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   content: "";
   position: absolute;
   inset: 0;
   border-radius: var(--radius-full);
   background: var(--text-success);
-  animation: dotOkPulse 1.8s ease-out infinite;
+  animation: dotOkPulse var(--_dotOkPulse-duration) var(--ease-enter) infinite;
   pointer-events: none;
 }
 
@@ -650,7 +651,7 @@ a.statCard:hover .statValue {
   padding: var(--badge-padding-md);
   font: var(--font-body-sm);
   gap: var(--spacing-4);
-  animation: trendBadgeIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) 0.6s both;
+  animation: trendBadgeIn var(--duration-slow) var(--ease-spring) 0.6s both;
 }
 
 @keyframes trendBadgeIn {
@@ -715,8 +716,8 @@ a.statCard:hover .statValue {
   font: var(--font-body-sm);
   color: var(--text-secondary);
   transition:
-    background-color 0.15s ease,
-    color 0.15s ease;
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
   cursor: default;
 }
 
@@ -745,12 +746,13 @@ a.statCard:hover .statValue {
 }
 
 .badgePulse {
+  --_badgePulse-duration: 1.6s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   position: absolute;
   inset: 0;
   border-radius: var(--radius-full);
   background: var(--text-accent);
   opacity: 0.6;
-  animation: badgePulse 1.6s ease-out infinite;
+  animation: badgePulse var(--_badgePulse-duration) var(--ease-enter) infinite;
   pointer-events: none;
 }
 
@@ -836,7 +838,7 @@ a.statCard:hover .statValue {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  transition: color 0.15s ease;
+  transition: color var(--duration-fast) var(--ease-standard);
 }
 
 a.popularTitle:hover,
@@ -946,7 +948,7 @@ a.commentSource:hover {
 /* dayDetailTop / deviceDrill bar 의 fill enter animation — scaleX 0→1 */
 .barFillEnter {
   transform-origin: left center;
-  animation: barFillIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+  animation: barFillIn var(--duration-slow) var(--ease-standard) both;
 }
 
 @keyframes barFillIn {
@@ -1076,7 +1078,7 @@ a.commentSource:hover {
   color: var(--text-secondary);
   font: var(--font-body-sm);
   text-decoration: none;
-  transition: color var(--duration-base) ease;
+  transition: color var(--duration-base) var(--ease-standard);
 }
 
 .serviceBar:hover {

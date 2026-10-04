@@ -10,6 +10,7 @@
 }
 
 .loadingDot {
+  --_dotBounce-duration: 0.9s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   display: inline-block;
   width: 4px;
   height: 4px;
@@ -17,7 +18,7 @@
   background: currentColor;
   /* will-change 로 GPU 가속 */
   will-change: transform, opacity;
-  animation: dotBounce 0.9s cubic-bezier(0.4, 0, 0.2, 1) infinite both;
+  animation: dotBounce var(--_dotBounce-duration) var(--ease-standard) infinite both;
 }
 
 /* 0.15s 간격으로 순차 — 첫 dot 부터 마지막 dot 까지 wave 처럼 위로 튐 */

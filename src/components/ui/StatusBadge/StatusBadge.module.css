@@ -41,8 +41,9 @@
   color: var(--text-info-strong);
 }
 .scheduled::before {
+  --_pulse-duration: 1.6s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   background: var(--text-info);
-  animation: pulse 1.6s ease-in-out infinite;
+  animation: pulse var(--_pulse-duration) var(--ease-standard) infinite;
 }
 
 /* 클릭 가능(발행 토글 등) — button 으로 렌더될 때 */
@@ -50,7 +51,7 @@
   border: none;
   cursor: pointer;
   appearance: none;
-  transition: filter 0.15s ease, transform 0.1s ease;
+  transition: filter var(--duration-fast) var(--ease-standard), transform var(--duration-instant) var(--ease-standard);
 }
 .btn:hover {
   filter: brightness(1.12);

@@ -50,7 +50,7 @@
 }
 
 .wrap .controls {
-  transition: opacity var(--duration-base) ease;
+  transition: opacity var(--duration-base) var(--ease-standard);
 }
 
 .banner:hover .controls,
@@ -171,9 +171,9 @@
   /* 커버 이미지 위에서 이모지 글리프 가독성 확보 */
   text-shadow: var(--text-shadow-strong);
   transition:
-    background var(--duration-base) ease,
-    backdrop-filter var(--duration-base) ease,
-    border-color var(--duration-base) ease;
+    background var(--duration-base) var(--ease-standard),
+    backdrop-filter var(--duration-base) var(--ease-standard),
+    border-color var(--duration-base) var(--ease-standard);
 }
 
 /* picker 열려있을 때(.emojiBtnActive)도 hover 와 동일한 frost 유지 */
@@ -197,10 +197,10 @@
      frost 속성(background/backdrop/border-color)도 여기 함께 명시해야 active→normal 이 부드럽게 전환됨 */
   background: var(--bg-primary);
   transition:
-    color var(--duration-base) ease,
-    background var(--duration-base) ease,
-    backdrop-filter var(--duration-base) ease,
-    border-color var(--duration-base) ease;
+    color var(--duration-base) var(--ease-standard),
+    background var(--duration-base) var(--ease-standard),
+    backdrop-filter var(--duration-base) var(--ease-standard),
+    border-color var(--duration-base) var(--ease-standard);
 }
 
 .emojiBtn.addEmojiBtn:hover {

@@ -141,7 +141,7 @@
   font: var(--font-body-sm);
   color: var(--text-tertiary);
   text-decoration: none;
-  transition: color 0.15s ease, transform 0.15s ease;
+  transition: color var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-standard);
 }
 
 .tagAllLink:hover {

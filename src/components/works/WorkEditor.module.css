@@ -74,7 +74,7 @@
   outline: none;
   /* 높이 조절 손잡이는 공통 Textarea 가 그린다 — 여기서 resize 를 또 주면 손잡이가 두 개 겹친다 */
   min-height: 100px;
-  transition: border-color 0.15s ease;
+  transition: border-color var(--duration-fast) var(--ease-standard);
 }
 
 .section .fieldTextarea:focus {
@@ -97,7 +97,7 @@
   max-width: 100%;
   border: var(--border-light);
   border-radius: var(--radius-control);
-  transition: border-color 0.15s ease;
+  transition: border-color var(--duration-fast) var(--ease-standard);
 }
 
 .techInputRow:focus-within {
@@ -209,7 +209,7 @@
   flex-shrink: 0;
   align-self: center;
   color: var(--text-tertiary);
-  transition: transform var(--duration-base) ease;
+  transition: transform var(--duration-base) var(--ease-standard);
 }
 
 .extraSections[data-open] .extraHeadChevron {
@@ -228,8 +228,8 @@
   max-height: 0;
   clip-path: inset(0 0 100% 0);
   transition:
-    max-height 0.4s ease,
-    clip-path 0.4s ease;
+    max-height var(--duration-base) var(--ease-standard),
+    clip-path var(--duration-base) var(--ease-standard);
 }
 
 .extraSectionsContentOpen {
@@ -483,7 +483,7 @@
 .subtitleInput {
   flex: 1;
   min-height: var(--control-height-md);
-  transition: border-radius 0.2s ease;
+  transition: border-radius var(--duration-fast) var(--ease-standard);
 }
 
 /* 2줄 이상 높이 — role 의 chip 들로 row 가 늘어나면 자동으로 morph */
@@ -561,7 +561,7 @@
   height: 32px;
   border-radius: var(--radius-full);
   background: var(--border-color-strong);
-  transition: background-color 0.15s ease, height 0.15s ease;
+  transition: background-color var(--duration-fast) var(--ease-standard), height var(--duration-fast) var(--ease-standard);
 }
 
 .galleryBenchHandle:hover .galleryBenchHandleBar,
@@ -636,8 +636,8 @@
   /* 그림만 끌리지 않게 — 칸에 걸면 손잡이로 차례를 바꾸는 끌기까지 막힌다 */
   -webkit-user-drag: none;
   transition:
-    filter 0.2s ease,
-    transform 0.3s ease;
+    filter var(--duration-fast) var(--ease-standard),
+    transform var(--duration-base) var(--ease-standard);
 }
 
 /* 문서 칸(옛 .ppt 등) — 그림이 없어 형식 이름과 아이콘만. 읽는 화면에서는 문서 뷰어로 열린다 */
@@ -695,7 +695,7 @@
   justify-content: space-between;
   padding: var(--spacing-8);
   opacity: 0;
-  transition: opacity 0.2s ease;
+  transition: opacity var(--duration-fast) var(--ease-standard);
   pointer-events: none;
   /* 위(단추)·아래(번호·파일 이름)를 어둡게 깔아 그림 색과 상관없이 흰 글씨·단추가 읽히게 한다.
      글씨·단추는 difference 로 뒤를 뒤집는데, 겹을 쌓임 맥락으로 가둬(isolation) 그림이 아니라 이 어두운
@@ -837,7 +837,7 @@
   height: 100%;
   border-radius: var(--radius-control);
   background: var(--text-accent);
-  transition: width 0.2s ease;
+  transition: width var(--duration-fast) var(--ease-standard);
 }
 
 /* 들이는 중 — 갤러리는 손대지 못한다. 쪽이 붙는 사이에 지우거나 옮기면 자리 번호가 어긋난다 */
@@ -863,8 +863,8 @@
   font: var(--font-body-sm);
   cursor: pointer;
   transition:
-    color 0.15s ease,
-    border-color 0.15s ease;
+    color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard);
 }
 
 .galleryAddTile:hover {
@@ -1022,7 +1022,7 @@
   background: transparent;
   color: var(--text-tertiary);
   cursor: pointer;
-  transition: color 0.15s ease, background 0.15s ease;
+  transition: color var(--duration-fast) var(--ease-standard), background var(--duration-fast) var(--ease-standard);
 }
 
 .memberHeaderEditBtn:hover {
@@ -1317,7 +1317,7 @@
 
 .memberContribsChevron {
   color: var(--text-tertiary);
-  transition: transform 0.2s ease;
+  transition: transform var(--duration-fast) var(--ease-standard);
   flex-shrink: 0;
 }
 

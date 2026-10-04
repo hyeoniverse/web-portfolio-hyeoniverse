@@ -83,7 +83,7 @@
   display: flex;
   gap: var(--spacing-2);
   opacity: 0;
-  transition: opacity 0.15s ease;
+  transition: opacity var(--duration-fast) var(--ease-standard);
 }
 
 .item:hover .actions,

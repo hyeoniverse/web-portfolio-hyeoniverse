@@ -10,7 +10,7 @@
   gap: var(--spacing-12);
   border-bottom: var(--border-light);
   font: var(--font-body-sm);
-  transition: background-color 0.15s ease;
+  transition: background-color var(--duration-fast) var(--ease-standard);
   cursor: default;
 }
 /* composes 한 Panel .item 과 ListItem 이 붙이는 List .item 둘 다 padding-block: xs 를 같은
@@ -63,8 +63,8 @@
 /* ── Donut interactive — wedge hover 강조 ── */
 .donutWedge {
   transition:
-    opacity 0.2s ease,
-    transform 0.2s ease;
+    opacity var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard);
   transform-origin: 70px 70px;
   cursor: default;
 }

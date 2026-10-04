@@ -36,7 +36,7 @@
   box-shadow: var(--shadow-raised);
   overflow: hidden;
   cursor: pointer;
-  transition: box-shadow 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+  transition: box-shadow var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard), opacity var(--duration-fast) var(--ease-standard);
 }
 .node:hover {
   box-shadow: var(--shadow-floating);

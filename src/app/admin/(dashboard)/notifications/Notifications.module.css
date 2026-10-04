@@ -35,7 +35,8 @@
 
 /* loading 중 새로고침 아이콘 회전 */
 .refreshSpinning {
-  animation: refreshSpin 0.9s linear infinite;
+  --_refreshSpin-duration: 0.9s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
+  animation: refreshSpin var(--_refreshSpin-duration) linear infinite;
 }
 
 @keyframes refreshSpin {
@@ -187,7 +188,7 @@
   font: var(--font-body-sm);
   color: var(--text-primary);
   text-decoration: none;
-  transition: color 0.15s ease;
+  transition: color var(--duration-fast) var(--ease-standard);
 }
 
 .item:hover .itemLink {

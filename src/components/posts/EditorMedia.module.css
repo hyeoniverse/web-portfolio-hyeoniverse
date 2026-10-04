@@ -45,15 +45,16 @@
   background: var(--bg-accent-solid);
   border-radius: var(--radius-control);
   overflow: hidden;
-  transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width var(--duration-base) var(--ease-standard);
 }
 
 .mediaUploadBarFill::after {
+  --_mediaUploadSheen-duration: 1.7s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   content: "";
   position: absolute;
   inset: 0;
   background: linear-gradient(90deg, transparent, var(--bg-glass-strong), transparent);
-  animation: mediaUploadSheen 1.7s ease-in-out infinite;
+  animation: mediaUploadSheen var(--_mediaUploadSheen-duration) var(--ease-standard) infinite;
 }
 
 @keyframes mediaUploadSheen {
@@ -74,6 +75,7 @@
 }
 
 .mediaUploadBarIndeterminate::before {
+  --_mediaUploadSweep-duration: 1.5s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   content: "";
   position: absolute;
   top: 0;
@@ -81,7 +83,7 @@
   width: 40%;
   border-radius: var(--radius-control);
   background: linear-gradient(90deg, transparent, var(--bg-accent-solid), transparent);
-  animation: mediaUploadSweep 1.5s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+  animation: mediaUploadSweep var(--_mediaUploadSweep-duration) var(--ease-standard) infinite;
 }
 
 @keyframes mediaUploadSweep {
@@ -97,7 +99,7 @@
   border: var(--border-light);
   border-radius: var(--radius-surface);
   overflow: hidden;
-  transition: border-color 0.15s ease;
+  transition: border-color var(--duration-fast) var(--ease-standard);
 }
 
 .imagePanelDragOver {
@@ -162,7 +164,7 @@
   gap: var(--spacing-2);
   /* hover 배경도 각지게 — 안에 든 그림이 각져서 둥근 바탕만 남으면 겉돈다 */
   padding: var(--spacing-2);
-  transition: background-color 0.15s;
+  transition: background-color var(--duration-fast);
 }
 
 .imagePanelItem:hover {
@@ -261,8 +263,8 @@
   background: var(--bg-primary);
   color: var(--bg-primary);
   transition:
-    background-color 0.15s,
-    border-color 0.15s;
+    background-color var(--duration-fast),
+    border-color var(--duration-fast);
 }
 
 .imagePanelCheckboxChecked {
@@ -319,7 +321,7 @@
   z-index: 6;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.12s ease;
+  transition: opacity var(--duration-fast) var(--ease-standard);
 }
 
 .imgMoveHandle:hover {

@@ -10,7 +10,7 @@
 }
 
 .container .char {
-  transition: color 0.01s step-end;
+  transition: color var(--duration-instant) step-end;
 }
 
 /* Hovered state: outline only (transparent fill + stroke) */

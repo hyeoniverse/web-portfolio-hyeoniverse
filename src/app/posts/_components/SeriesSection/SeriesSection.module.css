@@ -9,7 +9,7 @@
 .sectionHeaderTitleLink {
   text-decoration: none;
   color: inherit;
-  transition: color var(--duration-base) ease;
+  transition: color var(--duration-base) var(--ease-standard);
 }
 
 .sectionHeaderTitleLink:hover {
@@ -58,7 +58,7 @@
   border: none;
   background: transparent;
   cursor: pointer;
-  transition: opacity var(--duration-base) ease;
+  transition: opacity var(--duration-base) var(--ease-standard);
 }
 /* 왼쪽 끝이면 prev, 오른쪽 끝이면 next, 스크롤 불가면 둘 다 숨김 (공통 캐러셀과 동일 동작) */
 .seriesRowWrap.atStart .seriesScrollBtnLeft,
@@ -91,7 +91,7 @@
   background: transparent;
   color: var(--text-white);
   mix-blend-mode: difference;
-  transition: background-color var(--duration-base) ease, backdrop-filter var(--duration-base) ease;
+  transition: background-color var(--duration-base) var(--ease-standard), backdrop-filter var(--duration-base) var(--ease-standard);
 }
 
 .seriesScrollBtn:hover .seriesScrollBadge {

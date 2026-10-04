@@ -21,7 +21,7 @@
   position: absolute;
   inset: 0;
   opacity: 0;
-  transition: opacity 0.8s ease;
+  transition: opacity var(--duration-slower) var(--ease-standard);
 }
 
 .bgImage img {
@@ -132,12 +132,13 @@
 }
 
 .introLabelDot {
+  --_introDotPulse-duration: 2.4s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   width: 6px;
   height: 6px;
   border-radius: var(--radius-full);
   background: var(--bg-accent-solid);
   box-shadow: var(--shadow-glow);
-  animation: introDotPulse 2.4s ease-in-out infinite;
+  animation: introDotPulse var(--_introDotPulse-duration) var(--ease-standard) infinite;
 }
 
 @keyframes introDotPulse {
@@ -194,7 +195,7 @@
   color: var(--text-primary);
   z-index: 1;
   pointer-events: none;
-  animation: introHudReveal 0.8s ease both 0.3s;
+  animation: introHudReveal var(--duration-slower) var(--ease-standard) both 0.3s;
 }
 
 /* TL / TR 은 nav (top ~80px) 영역 피해서 충분히 아래로. */
@@ -269,14 +270,14 @@
 .tech {
   opacity: 0;
   transform: translateY(20px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
+  transition: opacity var(--duration-slow) var(--ease-standard), transform var(--duration-slow) var(--ease-standard);
 }
 
 .category { transition-delay: 0.1s; }
-.title { transition-delay: 0.2s; transform: translateY(40px); transition-duration: 0.8s; }
+.title { transition-delay: 0.2s; transform: translateY(40px); transition-duration: var(--duration-slower); }
 .subtitle { transition-delay: 0.4s; }
 .cta { transition-delay: 0.55s; transform: translateY(15px) scale(0.9); }
-.number { transition-delay: 0.15s; transform: translateY(40px); transition-duration: 0.9s; }
+.number { transition-delay: 0.15s; transform: translateY(40px); transition-duration: var(--duration-slower); }
 .year { transition-delay: 0.45s; }
 .tech { transition-delay: 0.6s; }
 
@@ -313,7 +314,7 @@
   letter-spacing: -0.04em;
   color: var(--text-white);
   margin: 0;
-  transition: opacity 0.8s ease, transform 0.8s ease, color 0.4s ease, text-shadow 0.4s ease;
+  transition: opacity var(--duration-slower) var(--ease-standard), transform var(--duration-slower) var(--ease-standard), color var(--duration-base) var(--ease-standard), text-shadow var(--duration-base) var(--ease-standard);
 }
 
 .section:hover .title {
@@ -349,7 +350,7 @@
   border-radius: var(--radius-control);
   background: var(--bg-white);
   transform: scale(0);
-  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform var(--duration-slow) var(--ease-standard);
 }
 
 .section:hover .ctaBg {
@@ -361,7 +362,7 @@
   z-index: 1;
   font: var(--font-body-lg);
   color: var(--text-white);
-  transition: color 0.3s ease, transform 0.3s ease;
+  transition: color var(--duration-base) var(--ease-standard), transform var(--duration-base) var(--ease-standard);
 }
 
 .section:hover .ctaArrow {
@@ -429,6 +430,7 @@
 
 /* ── Scroll hint ── */
 .scrollHint {
+  --_scrollBounce-duration: 2.5s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   position: fixed;
   bottom: var(--spacing-24);
   left: 50%;
@@ -443,7 +445,7 @@
   font: var(--font-code-xs);
   letter-spacing: 0.2em;
   pointer-events: none;
-  animation: scrollBounce 2.5s ease-in-out infinite;
+  animation: scrollBounce var(--_scrollBounce-duration) var(--ease-standard) infinite;
 }
 
 @keyframes scrollBounce {

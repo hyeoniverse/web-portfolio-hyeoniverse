@@ -140,6 +140,7 @@
 
 /* Hero — decorative elements */
 .heroPanelBg::after {
+  --_heroGlow-duration: 8s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   content: "";
   position: absolute;
   top: 15%;
@@ -154,7 +155,7 @@
   pointer-events: none;
   border-radius: var(--radius-full);
   filter: blur(60px);
-  animation: heroGlow 8s ease-in-out infinite alternate;
+  animation: heroGlow var(--_heroGlow-duration) var(--ease-standard) infinite alternate;
 }
 
 @keyframes heroGlow {
@@ -179,7 +180,7 @@
 }
 
 .heroReady .heroAccentLine {
-  animation: heroLineSlide 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.5s both;
+  animation: heroLineSlide var(--duration-slower) var(--ease-enter) 0.5s both;
 }
 
 @keyframes heroLineSlide {
@@ -200,11 +201,11 @@
 }
 
 .heroReady .heroFadeIn1 {
-  animation: heroFadeUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.2s both;
+  animation: heroFadeUp var(--duration-slower) var(--ease-enter) 0.2s both;
 }
 
 .heroReady .heroFadeIn2 {
-  animation: heroFadeUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.6s both;
+  animation: heroFadeUp var(--duration-slower) var(--ease-enter) 0.6s both;
 }
 
 @keyframes heroFadeUp {
@@ -278,7 +279,7 @@
 
   /* Compound selector (0,2,0) */
   .heroToc .heroTocItem {
-    transition: background-color var(--duration-base) ease;
+    transition: background-color var(--duration-base) var(--ease-standard);
   }
 
   .heroTocItem:hover {

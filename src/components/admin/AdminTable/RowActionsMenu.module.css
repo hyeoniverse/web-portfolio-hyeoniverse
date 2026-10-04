@@ -10,7 +10,7 @@
   background: transparent;
   color: var(--text-secondary);
   cursor: pointer;
-  transition: color var(--duration-base) ease;
+  transition: color var(--duration-base) var(--ease-standard);
 }
 
 .trigger:hover,

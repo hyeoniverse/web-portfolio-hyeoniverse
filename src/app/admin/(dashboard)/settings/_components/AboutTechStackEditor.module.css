@@ -136,7 +136,7 @@
   background: transparent;
   cursor: pointer;
   text-align: left;
-  transition: background 0.12s;
+  transition: background var(--duration-fast);
 }
 .techPresetRow:last-child {
   border-bottom: none;
@@ -194,8 +194,8 @@
   cursor: pointer;
   color: var(--text-tertiary);
   transition:
-    border-color 0.15s,
-    color 0.15s;
+    border-color var(--duration-fast),
+    color var(--duration-fast);
 }
 .techIconCircleBtn:hover {
   border-color: var(--border-color-accent);
@@ -215,12 +215,13 @@
   border-color: var(--border-color-light);
 }
 .techIconSpinner {
+  --_techSpin-duration: 0.7s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   width: 14px;
   height: 14px;
   border: var(--border-strong-2);
   border-top-color: var(--text-accent);
   border-radius: var(--radius-full);
-  animation: techSpin 0.7s linear infinite;
+  animation: techSpin var(--_techSpin-duration) linear infinite;
 }
 /* × 제거 — circle 우상단 */
 .techIconClear {
@@ -256,7 +257,7 @@
   border-color: var(--border-color-accent-strong);
 }
 .techNameShake {
-  animation: techNameShake 0.45s ease;
+  animation: techNameShake var(--duration-slow) var(--ease-standard);
 }
 /* 이미 추가된 preset row — 비활성 + 체크 */
 .techPresetRowAdded {

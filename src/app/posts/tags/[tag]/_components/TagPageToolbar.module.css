@@ -57,11 +57,11 @@
   transform: translateY(-100%);
   opacity: 0;
   pointer-events: none;
-  transition: transform 0.3s ease, opacity 0.2s ease;
+  transition: transform var(--duration-base) var(--ease-standard), opacity var(--duration-fast) var(--ease-standard);
 }
 
 .heroTopRow.heroTopRow:not(.heroTopRowHidden) {
-  transition: transform 0.3s ease, opacity 0.2s ease;
+  transition: transform var(--duration-base) var(--ease-standard), opacity var(--duration-fast) var(--ease-standard);
 }
 /* 검색창 + 뒤의 perPage select 를 우측으로 — 검색창이 margin-left:auto 로 그룹을 오른쪽에 밀착 */
 .heroSearch {
@@ -79,7 +79,7 @@
   text-transform: uppercase;
   color: var(--text-tertiary);
   text-decoration: none;
-  transition: color 0.15s ease;
+  transition: color var(--duration-fast) var(--ease-standard);
 }
 
 .heroBadge:hover {

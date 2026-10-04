@@ -59,7 +59,7 @@
   color: var(--text-tertiary);
   font: var(--font-code-sm);
   cursor: pointer;
-  transition: background 0.12s ease, color 0.12s ease;
+  transition: background var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
 }
 .rnChip:hover {
   color: var(--text-primary);
@@ -220,7 +220,7 @@
   border-radius: var(--radius-surface);
   background: var(--bg-primary);
   cursor: pointer;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard);
 }
 .pgPickerBtn:hover {
   border-color: var(--text-accent);
@@ -273,7 +273,7 @@
   transform: translate(-50%, -50%);
   border-radius: var(--radius-full);
   background: var(--border-color-default);
-  transition: background 0.12s ease;
+  transition: background var(--duration-fast) var(--ease-standard);
 }
 .pgResize:hover::before {
   background: var(--text-accent);
@@ -437,7 +437,7 @@
   color: var(--text-muted);
   cursor: pointer;
   opacity: 0;
-  transition: opacity 0.12s ease, background 0.12s ease, color 0.12s ease;
+  transition: opacity var(--duration-fast) var(--ease-standard), background var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
 }
 .spTab:hover .spTabClose,
 .spTab[data-active] .spTabClose {
@@ -468,7 +468,7 @@
   text-align: left;
   white-space: nowrap;
   cursor: pointer;
-  transition: background 0.12s ease, color 0.12s ease;
+  transition: background var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
 }
 .spTreeRow:hover {
   background: var(--bg-tertiary);
@@ -494,7 +494,7 @@
   margin-left: auto;
   padding-left: var(--spacing-4);
   opacity: 0;
-  transition: opacity 0.12s ease;
+  transition: opacity var(--duration-fast) var(--ease-standard);
 }
 .spTreeRow:hover .spTreeActions {
   opacity: 1;
@@ -510,7 +510,7 @@
   background: transparent;
   color: var(--text-muted);
   cursor: pointer;
-  transition: color 0.12s ease, background 0.12s ease;
+  transition: color var(--duration-fast) var(--ease-standard), background var(--duration-fast) var(--ease-standard);
 }
 .spTreeAction:hover {
   color: var(--text-primary);
@@ -593,7 +593,7 @@
   background: transparent;
   color: var(--text-tertiary);
   cursor: pointer;
-  transition: color 0.12s ease, background 0.12s ease;
+  transition: color var(--duration-fast) var(--ease-standard), background var(--duration-fast) var(--ease-standard);
 }
 .spIconBtn:hover {
   color: var(--text-primary);
@@ -618,7 +618,7 @@
   width: 1px;
   transform: translateX(-50%);
   background: var(--border-color-light);
-  transition: background 0.12s ease, width 0.12s ease;
+  transition: background var(--duration-fast) var(--ease-standard), width var(--duration-fast) var(--ease-standard);
 }
 .spSplit:hover::before {
   width: 2px;
@@ -639,7 +639,7 @@
   height: 1px;
   transform: translateY(-50%);
   background: var(--border-color-light);
-  transition: background 0.12s ease, height 0.12s ease;
+  transition: background var(--duration-fast) var(--ease-standard), height var(--duration-fast) var(--ease-standard);
 }
 .spSplitV:hover::before {
   height: 2px;
@@ -670,7 +670,7 @@
   /* 미리보기 영역에 hover 했을 때만 표시 */
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.15s ease;
+  transition: opacity var(--duration-fast) var(--ease-standard);
 }
 .spPreviewCol:hover .rnPreviewZoom {
   opacity: 1;

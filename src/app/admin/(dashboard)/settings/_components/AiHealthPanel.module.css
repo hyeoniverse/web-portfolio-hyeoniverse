@@ -213,7 +213,7 @@
   font: var(--font-body-xs);
   color: var(--text-tertiary);
   cursor: pointer;
-  transition: color var(--duration-base) ease;
+  transition: color var(--duration-base) var(--ease-standard);
 }
 
 .rawToggle:hover {
@@ -221,7 +221,7 @@
 }
 
 .rawChev {
-  transition: transform var(--duration-base) ease;
+  transition: transform var(--duration-base) var(--ease-standard);
 }
 
 .rawChevOpen {

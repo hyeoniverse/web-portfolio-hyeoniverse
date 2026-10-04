@@ -38,10 +38,11 @@
 }
 
 .comingSoonIconA {
+  --_comingSoonPulse-duration: 2.4s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  animation: comingSoonPulse 2.4s var(--ease-standard) infinite;
+  animation: comingSoonPulse var(--_comingSoonPulse-duration) var(--ease-standard) infinite;
 }
 
 @keyframes comingSoonPulse {
@@ -50,10 +51,11 @@
 }
 
 .comingSoonIconB {
+  --_comingSoonFloat-duration: 3.2s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   top: 4px;
   right: 6px;
   opacity: 0.7;
-  animation: comingSoonFloat 3.2s var(--ease-standard) infinite;
+  animation: comingSoonFloat var(--_comingSoonFloat-duration) var(--ease-standard) infinite;
 }
 
 @keyframes comingSoonFloat {
@@ -62,10 +64,11 @@
 }
 
 .comingSoonIconC {
+  --_comingSoonFloat-duration: 2.8s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   bottom: 8px;
   left: 6px;
   opacity: 0.55;
-  animation: comingSoonFloat 2.8s var(--ease-standard) infinite 0.6s;
+  animation: comingSoonFloat var(--_comingSoonFloat-duration) var(--ease-standard) infinite 0.6s;
 }
 
 @media (prefers-reduced-motion: reduce) {

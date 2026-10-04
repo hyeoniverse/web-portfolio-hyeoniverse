@@ -22,7 +22,7 @@
 }
 
 .chevron {
-  transition: transform 0.2s ease;
+  transition: transform var(--duration-fast) var(--ease-standard);
 }
 
 .chevronOpen {
@@ -46,7 +46,7 @@
   display: grid;
   grid-template-rows: 0fr;
   overflow: hidden;
-  transition: grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: grid-template-rows var(--duration-base) var(--ease-standard);
 }
 
 .bodyOpen {
@@ -78,7 +78,7 @@
   opacity: 0;
   overflow: hidden;
   margin-bottom: 0;
-  transition: max-height 0.25s ease, opacity 0.2s ease, padding 0.25s ease, margin 0.25s ease;
+  transition: max-height var(--duration-base) var(--ease-standard), opacity var(--duration-fast) var(--ease-standard), padding var(--duration-base) var(--ease-standard), margin var(--duration-base) var(--ease-standard);
 }
 
 .bulkBarOpen {
@@ -177,7 +177,7 @@
 }
 
 .row .thumbImg {
-  transition: transform 0.2s ease;
+  transition: transform var(--duration-fast) var(--ease-standard);
 }
 
 .row:hover .thumbImg {
@@ -227,7 +227,7 @@
   font: var(--font-body-sm);
   color: var(--text-primary);
   text-decoration: none;
-  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  transition: background-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard);
 }
 
 .actionBtn:hover {
@@ -266,7 +266,7 @@
   color: var(--text-secondary);
   cursor: pointer;
   margin-left: auto;
-  transition: color var(--duration-base) ease;
+  transition: color var(--duration-base) var(--ease-standard);
 }
 
 .exportIconBtn:hover {

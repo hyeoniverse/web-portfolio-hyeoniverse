@@ -238,9 +238,10 @@
 }
 
 .postPickerSpin {
+  --_postPickerSpin-duration: 0.7s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   flex-shrink: 0;
   color: var(--text-tertiary);
-  animation: postPickerSpin 0.7s linear infinite;
+  animation: postPickerSpin var(--_postPickerSpin-duration) linear infinite;
 }
 
 @keyframes postPickerSpin {

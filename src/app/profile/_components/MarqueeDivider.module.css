@@ -34,11 +34,13 @@
 }
 
 .up {
-  animation: scrollUp 30s linear infinite;
+  --_scrollUp-duration: 30s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
+  animation: scrollUp var(--_scrollUp-duration) linear infinite;
 }
 
 .down {
-  animation: scrollDown 30s linear infinite;
+  --_scrollDown-duration: 30s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
+  animation: scrollDown var(--_scrollDown-duration) linear infinite;
 }
 
 @keyframes scrollUp {

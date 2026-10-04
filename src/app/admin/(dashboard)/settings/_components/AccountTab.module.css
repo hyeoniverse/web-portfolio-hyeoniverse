@@ -125,8 +125,8 @@
   color: var(--text-tertiary);
   cursor: pointer;
   transition:
-    color 0.15s ease,
-    background-color 0.15s ease;
+    color var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard);
 }
 
 .deviceRevokeBtn:hover {

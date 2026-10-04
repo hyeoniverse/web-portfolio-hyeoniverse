@@ -40,24 +40,30 @@
 
 /* filling — 차오름 + 출렁임 */
 .heartIcon[data-state="filling"] .heartWaveBack {
-  animation: heartFillBack 1.8s cubic-bezier(0.33, 0.1, 0.4, 1) forwards;
+  --_heartFillBack-duration: 1.8s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
+  animation: heartFillBack var(--_heartFillBack-duration) var(--ease-standard) forwards;
 }
 .heartIcon[data-state="filling"] .heartWaveMid {
-  animation: heartFillMid 1.6s cubic-bezier(0.33, 0.1, 0.4, 1) 0.1s forwards;
+  --_heartFillMid-duration: 1.6s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
+  animation: heartFillMid var(--_heartFillMid-duration) var(--ease-standard) 0.1s forwards;
 }
 .heartIcon[data-state="filling"] .heartWaveFront {
-  animation: heartFillFront 1.5s cubic-bezier(0.33, 0.1, 0.4, 1) 0.2s forwards;
+  --_heartFillFront-duration: 1.5s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
+  animation: heartFillFront var(--_heartFillFront-duration) var(--ease-standard) 0.2s forwards;
 }
 
 /* draining — 가라앉음 (좋아요 취소). 시작점은 fully filled */
 .heartIcon[data-state="draining"] .heartWaveBack {
-  animation: heartDrainBack 1.4s cubic-bezier(0.4, 0, 0.6, 1) forwards;
+  --_heartDrainBack-duration: 1.4s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
+  animation: heartDrainBack var(--_heartDrainBack-duration) var(--ease-standard) forwards;
 }
 .heartIcon[data-state="draining"] .heartWaveMid {
-  animation: heartDrainMid 1.5s cubic-bezier(0.4, 0, 0.6, 1) 0.05s forwards;
+  --_heartDrainMid-duration: 1.5s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
+  animation: heartDrainMid var(--_heartDrainMid-duration) var(--ease-standard) 0.05s forwards;
 }
 .heartIcon[data-state="draining"] .heartWaveFront {
-  animation: heartDrainFront 1.6s cubic-bezier(0.4, 0, 0.6, 1) 0.1s forwards;
+  --_heartDrainFront-duration: 1.6s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
+  animation: heartDrainFront var(--_heartDrainFront-duration) var(--ease-standard) 0.1s forwards;
 }
 
 /* ── 차오름 keyframes — control point 가 step 마다 위로 + peak/valley phase 토글 ──
@@ -123,7 +129,7 @@
   mask-repeat: no-repeat;
   mask-size: contain;
   opacity: 0;
-  animation: burstRise var(--duration, 1400ms) cubic-bezier(0.16, 1, 0.3, 1) var(--delay, 0ms) both;
+  animation: burstRise var(--duration, 1400ms) var(--ease-enter) var(--delay, 0ms) both;
 }
 
 /* 위쪽으로 방울 떠오르기 — 한 방향 곡선 + opacity 부드러운 in/out */

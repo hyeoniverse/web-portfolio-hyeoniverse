@@ -109,6 +109,29 @@ function colorLiteral(re: RegExp): Metric["count"] {
   };
 }
 
+/** transition · animation 에서 지속 시간 자리(겹의 첫 시간값 · `-duration` 속성)에 쓴 숫자. 지연(둘째 시간값 · `-delay`)은 세지 않는다 */
+function motionDurationLiteral(src: Sources): Counts {
+  const out: Counts = {};
+  const splitTop = (s: string) => {
+    const parts: string[] = []; let depth = 0, cur = "";
+    for (const ch of s) { if (ch === "(") depth++; else if (ch === ")") depth--; if (ch === "," && depth === 0) { parts.push(cur); cur = ""; } else cur += ch; }
+    parts.push(cur); return parts;
+  };
+  for (const [file, { kind, text }] of src.files) {
+    if (!kind.has("componentCss")) continue;
+    let n = 0;
+    for (const m of text.matchAll(/(?<![-\w])(transition|animation)(-duration)?\s*:([^;{}]+);/g)) {
+      for (const layer of splitTop(m[3])) {
+        // 겹에서 지속 시간 자리 = 첫 시간값(숫자든 var 든). 숫자이고 0 이 아닐 때만 센다
+        const first = layer.trim().split(/\s+/).find((t) => /^\d*\.?\d+m?s$/.test(t) || /^var\(--(?:duration-|_)/.test(t));
+        if (first && /^\d/.test(first) && parseFloat(first) !== 0) n++;
+      }
+    }
+    if (n) out[file] = n;
+  }
+  return out;
+}
+
 /** 선택자에 `disabled` 가 들어간 규칙 안의 opacity 선언 */
 function disabledOpacity(src: Sources): Counts {
   const out: Counts = {};
@@ -236,7 +259,8 @@ export const METRICS: Metric[] = [
   { id: "shadow-size-name", rule: "3.7-1", what: "그림자 크기 이름(`--shadow-xs … 2xl` 등)", count: regex(CSS_AND_CODE, /var\(--shadow-(?:xs|sm|md|lg|xl|2xl|inner|text-[\w-]+)\)/) },
   { id: "opacity-disabled", rule: "3.8-1", what: "비활성 선택자 안의 `opacity` 숫자(역할 `--opacity-disabled` 가 아닌 것)", count: disabledOpacity },
   /* 3.9 모션 */
-  { id: "motion-duration-literal", rule: "3.9-1", what: "시간을 숫자로 쓴 `transition` · `animation` 선언", count: regex(CSS, /(?:transition|animation)(?:-duration|-delay)?:[^;]*\b\d*\.?\d+m?s\b/) },
+  { id: "motion-duration-literal", rule: "3.9-1", what: "지속 시간을 숫자로 쓴 `transition` · `animation`(지연은 시차 연출이라 세지 않는다)", count: motionDurationLiteral },
+  { id: "motion-ease-literal", rule: "3.9-1", what: "곡선을 이름 · 숫자로 쓴 `transition` · `animation`(`linear` · `steps()` 는 곡선이 아니라 제외)", count: regex(CSS, /(?:transition|animation)(?:-timing-function)?:[^;]*(?:(?<![-\w])ease(?:-in-out|-in|-out)?\b|cubic-bezier\()/) },
   { id: "motion-cleanup", rule: "3.9-2", what: "없앨 모션 토큰(`moderate` · `slowest` · `delay-*` · `ease-in-out`)", count: regex(CSS_AND_CODE, /var\(--(?:duration-moderate|duration-slowest|delay-[a-z]+|ease-in-out)\)/) },
   { id: "motion-transition-all", rule: "3.9-5", what: "`transition: all`", count: regex(CSS, /transition\s*:\s*all\b/) },
   { id: "motion-transition-important", rule: "3.9-6", what: "`!important` 를 붙인 transition", count: regex(CSS, /transition[^;]*!important/) },

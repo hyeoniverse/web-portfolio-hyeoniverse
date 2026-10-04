@@ -62,7 +62,7 @@
 .card {
   position: relative;
   /* 접힘은 overshoot 없는 ease-out — 마진이 음수로 튀어 다음 카드 침범하는 현상 방지 */
-  transition: margin-right 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: margin-right var(--duration-base) var(--ease-standard);
 }
 
 .card::after {
@@ -72,13 +72,13 @@
   left: 100%;
   width: 0;
   height: 100%;
-  transition: width 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width var(--duration-base) var(--ease-standard);
 }
 
 .card.deckOpen {
   margin-right: calc(var(--deck-count, 0) * 176px);
   /* layer 펼침과 같은 timing — JS 가 trigger, transition-delay 0 */
-  transition: margin-right 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: margin-right var(--duration-slow) var(--ease-standard);
 }
 
 /* hit-area 는 보이지 않으므로 펼침 시 즉시 full width 로 snap.
@@ -103,13 +103,13 @@
   outline: 0px solid transparent;
   outline-offset: 2px;
   transition:
-    outline-width 0.18s ease,
-    outline-color 0.18s ease;
+    outline-width var(--duration-fast) var(--ease-standard),
+    outline-color var(--duration-fast) var(--ease-standard);
 }
 
 .image {
   object-fit: cover;
-  transition: transform 0.5s ease;
+  transition: transform var(--duration-slow) var(--ease-standard);
 }
 
 .card:hover .image {
@@ -155,7 +155,7 @@
 
 .tileImage {
   object-fit: cover;
-  transition: transform 0.5s ease;
+  transition: transform var(--duration-slow) var(--ease-standard);
 }
 
 .card:hover .tileImage {
@@ -165,7 +165,7 @@
 /* active — 살짝 기울이는 tilt 효과 (책 표지가 비스듬히 꽂힌 듯). */
 .card.active .thumb {
   transform: rotate(-2.5deg);
-  transition: transform 0.35s var(--ease-standard);
+  transition: transform var(--duration-base) var(--ease-standard);
 }
 
 /* ── 타이포그래픽 cover (cover 도 thumbs 도 없는 마지막 fallback) ──
@@ -222,7 +222,7 @@
   color: var(--text-white);
   backdrop-filter: var(--blur-4);
   opacity: 0;
-  transition: opacity 0.2s ease;
+  transition: opacity var(--duration-fast) var(--ease-standard);
   pointer-events: none;
 }
 

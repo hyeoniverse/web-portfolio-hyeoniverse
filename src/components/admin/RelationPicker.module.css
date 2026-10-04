@@ -16,7 +16,7 @@
   border: var(--border-light);
   border-radius: var(--radius-control);
   background: transparent;
-  transition: border-color 0.15s ease;
+  transition: border-color var(--duration-fast) var(--ease-standard);
 }
 
 .inputArea:hover {
@@ -52,7 +52,7 @@
   transform: translateY(-4px);
   pointer-events: none;
   visibility: hidden;
-  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0s linear 0.15s;
+  transition: opacity var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-standard), visibility 0s linear 0.15s;
 }
 
 .inputAreaExpand.inputAreaExpandOpen {
@@ -60,7 +60,7 @@
   transform: translateY(0);
   pointer-events: auto;
   visibility: visible;
-  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0s;
+  transition: opacity var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-standard), visibility 0s;
 }
 
 /* dropdown 트리거 = 검색창. 닫힘 시 placeholder 안내 + chevron, 열림 시 input + Search 아이콘 */
@@ -112,7 +112,7 @@
   flex-shrink: 0;
   cursor: pointer;
   border-radius: var(--radius-full);
-  transition: transform 0.2s ease, background 0.15s ease, color 0.15s ease;
+  transition: transform var(--duration-fast) var(--ease-standard), background var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
 }
 
 .triggerArrow:hover {
@@ -149,7 +149,7 @@
   color: var(--text-primary);
   max-width: 240px;
   user-select: none;
-  transition: background 0.15s ease, color 0.15s ease, opacity 0.15s ease, transform 0.15s ease;
+  transition: background var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard), opacity var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-standard);
 }
 
 /* X 버튼 hover 시 — \"지워질 것\" 시각 예고: 옅은 accent 배경 + label 취소선 */

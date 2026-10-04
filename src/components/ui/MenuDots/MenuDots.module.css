@@ -23,24 +23,24 @@
 }
 
 /* 열림: 중앙으로 모였다가 → 코너는 제자리(X 대각선), 가장자리는 사라짐 */
-.open .dot:nth-child(1) { animation: dotToX_TL 0.6s var(--ease-standard) forwards; }
-.open .dot:nth-child(3) { animation: dotToX_TR 0.6s var(--ease-standard) forwards; }
-.open .dot:nth-child(7) { animation: dotToX_BL 0.6s var(--ease-standard) forwards; }
-.open .dot:nth-child(9) { animation: dotToX_BR 0.6s var(--ease-standard) forwards; }
-.open .dot:nth-child(2) { animation: dotToX_T 0.6s var(--ease-standard) forwards; }
-.open .dot:nth-child(8) { animation: dotToX_B 0.6s var(--ease-standard) forwards; }
-.open .dot:nth-child(4) { animation: dotToX_L 0.6s var(--ease-standard) forwards; }
-.open .dot:nth-child(6) { animation: dotToX_R 0.6s var(--ease-standard) forwards; }
+.open .dot:nth-child(1) { animation: dotToX_TL var(--duration-slow) var(--ease-standard) forwards; }
+.open .dot:nth-child(3) { animation: dotToX_TR var(--duration-slow) var(--ease-standard) forwards; }
+.open .dot:nth-child(7) { animation: dotToX_BL var(--duration-slow) var(--ease-standard) forwards; }
+.open .dot:nth-child(9) { animation: dotToX_BR var(--duration-slow) var(--ease-standard) forwards; }
+.open .dot:nth-child(2) { animation: dotToX_T var(--duration-slow) var(--ease-standard) forwards; }
+.open .dot:nth-child(8) { animation: dotToX_B var(--duration-slow) var(--ease-standard) forwards; }
+.open .dot:nth-child(4) { animation: dotToX_L var(--duration-slow) var(--ease-standard) forwards; }
+.open .dot:nth-child(6) { animation: dotToX_R var(--duration-slow) var(--ease-standard) forwards; }
 
 /* 닫힘: 모임 → 다시 펼쳐짐 */
-.closing .dot:nth-child(1) { animation: closeTL 0.8s var(--ease-standard) both; }
-.closing .dot:nth-child(3) { animation: closeTR 0.8s var(--ease-standard) both; }
-.closing .dot:nth-child(7) { animation: closeBL 0.8s var(--ease-standard) both; }
-.closing .dot:nth-child(9) { animation: closeBR 0.8s var(--ease-standard) both; }
+.closing .dot:nth-child(1) { animation: closeTL var(--duration-slower) var(--ease-standard) both; }
+.closing .dot:nth-child(3) { animation: closeTR var(--duration-slower) var(--ease-standard) both; }
+.closing .dot:nth-child(7) { animation: closeBL var(--duration-slower) var(--ease-standard) both; }
+.closing .dot:nth-child(9) { animation: closeBR var(--duration-slower) var(--ease-standard) both; }
 .closing .dot:nth-child(2),
 .closing .dot:nth-child(4),
 .closing .dot:nth-child(6),
-.closing .dot:nth-child(8) { animation: closeEdge 0.8s var(--ease-standard) both; }
+.closing .dot:nth-child(8) { animation: closeEdge var(--duration-slower) var(--ease-standard) both; }
 
 @keyframes dotToX_TL {
   0%   { transform: translate(0, 0); }

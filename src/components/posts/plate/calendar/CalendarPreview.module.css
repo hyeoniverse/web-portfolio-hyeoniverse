@@ -197,7 +197,7 @@
   object-fit: cover;
   border: var(--border-light);
   cursor: zoom-in;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: transform var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard);
 }
 
 .previewThumb:hover { transform: scale(1.05); box-shadow: var(--shadow-floating); }

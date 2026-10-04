@@ -34,11 +34,12 @@
   }
 
   .recDot {
+    --_blink-duration: 1.2s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
     width: 9px;
     height: 9px;
     background: var(--text-accent);
     border-radius: var(--radius-full);
-    animation: blink 1.2s steps(1) infinite;
+    animation: blink var(--_blink-duration) steps(1) infinite;
   }
 
   .timecode {
@@ -48,13 +49,14 @@
 
   /* 원형 문구 배지 — 제목 오른쪽 위에서 천천히 돈다 */
   .badge {
+    --_spin-duration: 24s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
     position: absolute;
     top: 50%;
     right: clamp(1rem, 5vw, 6rem);
     width: clamp(8.5rem, min(13vw, 21vh), 13rem);
     height: auto;
     translate: 0 -95%;
-    animation: spin 24s linear infinite;
+    animation: spin var(--_spin-duration) linear infinite;
   }
 
   .badgeText {

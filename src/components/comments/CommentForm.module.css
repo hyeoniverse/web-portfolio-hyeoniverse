@@ -101,7 +101,7 @@
 }
 /* 비번 없이 제출 시 흔들림 */
 .pwShake {
-  animation: pwShake 0.38s ease;
+  animation: pwShake var(--duration-base) var(--ease-standard);
 }
 @keyframes pwShake {
   0%, 100% { transform: translateX(0); }
@@ -149,7 +149,7 @@
 }
 
 .notifyWrap .notifyCapsule {
-  transition: width 0.25s ease, border-radius 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+  transition: width var(--duration-base) var(--ease-standard), border-radius var(--duration-base) var(--ease-standard), border-color var(--duration-base) var(--ease-standard), color var(--duration-base) var(--ease-standard);
 }
 
 .notifyWrap .notifyCapsule:hover {
@@ -196,11 +196,11 @@
   color: var(--text-primary);
   font-weight: var(--font-weight-medium);
   /* 캡슐이 240px → 28px로 줄어든 후(0.25s) 오른쪽에서 오버슈트하며 등장 */
-  animation: notifyLabelIn 0.55s 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation: notifyLabelIn var(--duration-slow) 0.25s var(--ease-spring) both;
 }
 
 .notifyCapsuleConfirmed .notifyConfirmedLabel svg {
-  animation: notifyLabelIconSpin 0.6s 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation: notifyLabelIconSpin var(--duration-slow) 0.3s var(--ease-spring) both;
   transform-origin: center;
 }
 
@@ -273,7 +273,7 @@
   padding: 0;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.2s ease;
+  transition: opacity var(--duration-fast) var(--ease-standard);
 }
 
 .notifyCapsuleOpen .notifyInput {
@@ -300,7 +300,7 @@
   padding: 0;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.2s ease, border-color 0.25s ease;
+  transition: opacity var(--duration-fast) var(--ease-standard), border-color var(--duration-base) var(--ease-standard);
 }
 
 .notifyCapsuleOpen .notifyAction {
@@ -330,7 +330,7 @@
   background: var(--border-color-light);
   flex-shrink: 0;
   opacity: 0;
-  transition: opacity 0.2s ease;
+  transition: opacity var(--duration-fast) var(--ease-standard);
 }
 
 .notifyCapsuleOpen .notifyDivider {
@@ -376,7 +376,7 @@
   background: transparent;
   color: var(--text-tertiary);
   cursor: pointer;
-  transition: color var(--duration-base) ease, transform var(--duration-base) ease;
+  transition: color var(--duration-base) var(--ease-standard), transform var(--duration-base) var(--ease-standard);
 }
 
 .notifyCapsule .notifyClear:hover {

@@ -61,7 +61,7 @@
   gap: var(--spacing-32);
   padding: var(--spacing-32) 0;
   grid-template-columns: 80px 1fr 1fr 40px;
-  transition: opacity 0.3s ease;
+  transition: opacity var(--duration-base) var(--ease-standard);
 }
 
 .itemNumber {
@@ -94,7 +94,7 @@
   height: 20px;
   border: var(--border-default);
   border-radius: var(--radius-control);
-  transition: border-color 0.3s ease;
+  transition: border-color var(--duration-base) var(--ease-standard);
 }
 
 .item:hover .itemOval {

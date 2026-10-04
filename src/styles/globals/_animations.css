@@ -1,5 +1,6 @@
 .blink {
-  animation: blink 2s infinite;
+  --_blink-duration: 2s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
+  animation: blink var(--_blink-duration) infinite;
 }
 
 @keyframes blink {
@@ -13,7 +14,8 @@
 }
 
 .bounce-y {
-  animation: bounce-y 2s infinite;
+  --_bounce-y-duration: 2s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
+  animation: bounce-y var(--_bounce-y-duration) infinite;
 }
 
 @keyframes bounce-y {
@@ -33,7 +35,8 @@
 }
 
 .bounce-x {
-  animation: bounce-x 2s infinite;
+  --_bounce-x-duration: 2s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
+  animation: bounce-x var(--_bounce-x-duration) infinite;
 }
 
 @keyframes bounce-x {
@@ -53,7 +56,8 @@
 }
 
 .scroll-x {
-  animation: scroll-x 2s ease-out infinite;
+  --_scroll-x-duration: 2s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
+  animation: scroll-x var(--_scroll-x-duration) var(--ease-enter) infinite;
 }
 
 @keyframes scroll-x {
@@ -71,7 +75,8 @@
 }
 
 .scroll-y {
-  animation: scroll-y 2s ease-out infinite;
+  --_scroll-y-duration: 2s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
+  animation: scroll-y var(--_scroll-y-duration) var(--ease-enter) infinite;
 }
 
 @keyframes scroll-y {
@@ -89,7 +94,8 @@
 }
 
 .pulse {
-  animation: pulse 2s infinite;
+  --_pulse-duration: 2s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
+  animation: pulse var(--_pulse-duration) infinite;
 }
 @keyframes pulse {
   0% {
@@ -160,7 +166,8 @@
 }
 
 .floating {
-  animation: floating 6s ease-in-out infinite alternate;
+  --_floating-duration: 6s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
+  animation: floating var(--_floating-duration) var(--ease-standard) infinite alternate;
 }
 
 @keyframes floating {
@@ -173,7 +180,8 @@
 }
 
 .orbit-hover-pause {
-  animation: orbit 20s linear infinite;
+  --_orbit-duration: 20s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
+  animation: orbit var(--_orbit-duration) linear infinite;
   animation-play-state: running;
 }
 
@@ -191,7 +199,8 @@
 }
 
 .marquee {
-  animation: marquee 40s linear infinite;
+  --_marquee-duration: 40s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
+  animation: marquee var(--_marquee-duration) linear infinite;
 }
 
 .marquee:hover {

@@ -88,7 +88,7 @@
   font: var(--font-code-lg);
   line-height: 1.8;
   box-sizing: border-box;
-  transition: border-color 0.15s;
+  transition: border-color var(--duration-fast);
 }
 
 .mathFloatingInput:focus-within {

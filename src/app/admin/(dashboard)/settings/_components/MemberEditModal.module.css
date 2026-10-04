@@ -23,7 +23,7 @@
   background: var(--bg-tertiary);
   cursor: pointer;
   overflow: visible;
-  transition: border-color 0.2s;
+  transition: border-color var(--duration-fast);
 }
 .authorAvatarUpload:hover {
   border-color: var(--text-tertiary);

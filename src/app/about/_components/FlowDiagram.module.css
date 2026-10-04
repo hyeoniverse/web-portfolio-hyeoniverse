@@ -17,7 +17,7 @@
 }
 
 .nodeGroup {
-  animation: fdNodeIn 0.35s ease-out both;
+  animation: fdNodeIn var(--duration-base) var(--ease-enter) both;
 }
 
 /* ── Terminal (Start / End) ── */
@@ -68,7 +68,7 @@
   stroke: var(--text-secondary);
   stroke-width: 1.2;
   stroke-dasharray: 2000;
-  animation: fdEdgeIn 0.35s ease-out both;
+  animation: fdEdgeIn var(--duration-base) var(--ease-enter) both;
 }
 
 .edgeLabel {
@@ -76,5 +76,5 @@
   font-weight: 600;
   fill: var(--text-accent);
   opacity: 0;
-  animation: fdNodeIn 0.3s ease-out both;
+  animation: fdNodeIn var(--duration-base) var(--ease-enter) both;
 }

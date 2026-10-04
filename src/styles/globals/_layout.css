@@ -199,11 +199,11 @@ nav#side-navigation::after {
     border-radius: var(--radius-surface) var(--radius-surface) 0 0;
     translate: 0 var(--sheet-y, 0px);
     transition:
-      min-height 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-      max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-      border-radius 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-      border-top-color 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-      translate 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      min-height var(--duration-base) var(--ease-enter),
+      max-height var(--duration-base) var(--ease-enter),
+      border-radius var(--duration-base) var(--ease-enter),
+      border-top-color var(--duration-base) var(--ease-enter),
+      translate var(--duration-base) var(--ease-enter);
   }
 
   #modal-root #modal[data-sheet-expanded="true"] {

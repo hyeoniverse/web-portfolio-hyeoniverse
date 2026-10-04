@@ -92,7 +92,7 @@
 }
 
 .gridItem {
-  animation: cardFadeIn 0.5s cubic-bezier(0.25, 0.1, 0.25, 1) both;
+  animation: cardFadeIn var(--duration-slow) var(--ease-standard) both;
   /* grid-row: span N 은 JS 에서 inline style 로 동적 부여 */
 }
 

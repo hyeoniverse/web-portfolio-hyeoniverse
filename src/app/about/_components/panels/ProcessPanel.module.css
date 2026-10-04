@@ -412,7 +412,7 @@
 
 /* Compound selector (0,2,0) */
 .procGanttRows .procGanttBtn {
-  transition: color var(--duration-base) ease;
+  transition: color var(--duration-base) var(--ease-standard);
 }
 
 .procSummary {
@@ -476,8 +476,8 @@
   /* Compound selector (0,2,0) for transition */
   .processStepList .processStepRow {
     transition:
-      height 0.45s var(--ease-standard),
-      opacity var(--duration-base) ease;
+      height var(--duration-slow) var(--ease-standard),
+      opacity var(--duration-base) var(--ease-standard);
   }
 
   /* ── Left: continuous connector line + dot ── */
@@ -502,11 +502,11 @@
 
   .processStepConnector .processConnectorDot {
     transition:
-      border-color 0.4s ease,
-      background-color 0.4s ease,
-      opacity 0.4s ease,
-      transform 0.4s ease,
-      box-shadow 0.4s ease;
+      border-color var(--duration-base) var(--ease-standard),
+      background-color var(--duration-base) var(--ease-standard),
+      opacity var(--duration-base) var(--ease-standard),
+      transform var(--duration-base) var(--ease-standard),
+      box-shadow var(--duration-base) var(--ease-standard);
   }
 
   .processConnectorDotDone {
@@ -564,7 +564,7 @@
 
   /* Compound selector (0,2,0) for transition */
   .processStepRow .processStepContent {
-    transition: opacity var(--duration-base) ease;
+    transition: opacity var(--duration-base) var(--ease-standard);
   }
 
   .processStepHeader {

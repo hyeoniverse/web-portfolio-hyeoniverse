@@ -102,7 +102,7 @@
 
 /* Compound selector (0,2,0) */
 .techItem .techName {
-  transition: color var(--duration-base) ease;
+  transition: color var(--duration-base) var(--ease-standard);
 }
 
 .techItem:hover .techName {

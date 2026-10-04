@@ -22,7 +22,7 @@
   /* 좌우 패딩은 .container 가 이미 --spacing-page-inline 로 줌 → 세로만 */
   padding: var(--spacing-16) 0;
   /* 아래로 스크롤 시 접힘(translateY), 위로 스크롤 시 펼침 */
-  transition: transform var(--duration-base) ease;
+  transition: transform var(--duration-base) var(--ease-standard);
   will-change: transform;
 }
 
@@ -47,7 +47,7 @@
   /* 핀(nav 에 닿아 고정) 되기 전엔 숨김 — 커버 보일 때 frost 가 커버 위 유리 띠를
      만들지 않도록. 핀 되면 페이드 인(nav blur + 콘텐츠 구분). */
   opacity: 0;
-  transition: opacity var(--duration-base) ease;
+  transition: opacity var(--duration-base) var(--ease-standard);
 }
 
 .topBarPinned::before {
@@ -228,8 +228,8 @@
   color: var(--text-secondary);
   cursor: pointer;
   transition:
-    border-color 0.2s,
-    color 0.2s;
+    border-color var(--duration-fast),
+    color var(--duration-fast);
 }
 
 .scheduleClearBtn:hover {
@@ -256,7 +256,8 @@
 
 /* AI 번역/요약 생성 중 — 버튼 아이콘 spinner */
 .spinIcon {
-  animation: spin 1s linear infinite;
+  --_spin-duration: 1s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
+  animation: spin var(--_spin-duration) linear infinite;
 }
 
 @keyframes spin {
@@ -427,7 +428,7 @@
 }
 
 .revisionListView {
-  animation: revealDown 0.2s ease both;
+  animation: revealDown var(--duration-fast) var(--ease-standard) both;
   overflow-y: auto;
   max-height: 320px;
 }
@@ -510,8 +511,8 @@
 .revisionItem .revisionItemDelete {
   opacity: 0;
   transition:
-    opacity 0.15s,
-    color 0.15s;
+    opacity var(--duration-fast),
+    color var(--duration-fast);
 }
 
 .revisionItem:hover .revisionItemDelete {
@@ -526,7 +527,7 @@
 .revisionDetail {
   display: flex;
   flex-direction: column;
-  animation: revealDown 0.25s ease both;
+  animation: revealDown var(--duration-base) var(--ease-standard) both;
   /* Popover 가 arrow 사용 시 content 를 overflow:visible 로 만들어(=스크롤 X), 상세뷰가 자체
      스크롤 컨테이너를 가져야 함. sticky 헤더(top:0)도 이 컨테이너 기준으로 고정된다. */
   max-height: 70vh;
@@ -791,7 +792,7 @@
   line-height: 0;
   border-radius: var(--radius-surface);
   overflow: hidden;
-  transition: opacity 0.15s;
+  transition: opacity var(--duration-fast);
 }
 
 .revisionMetaImgLink:hover {
@@ -816,8 +817,8 @@
   text-underline-offset: 2px;
   word-break: break-all;
   transition:
-    color 0.15s,
-    text-decoration-color 0.15s;
+    color var(--duration-fast),
+    text-decoration-color var(--duration-fast);
 }
 
 .revisionMetaLink:hover {
@@ -1048,8 +1049,8 @@
   color: var(--text-tertiary);
   cursor: pointer;
   transition:
-    border-color 0.15s ease,
-    color 0.15s ease;
+    border-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
   flex-shrink: 0;
   --close-size: 10px;
 }
@@ -1098,7 +1099,7 @@
 
 /* "더보기" button slide-in during swap */
 .tagMore.tagMoreEntering {
-  animation: tagMoreSlideIn 0.3s ease both;
+  animation: tagMoreSlideIn var(--duration-base) var(--ease-standard) both;
 }
 
 @keyframes tagMoreSlideIn {

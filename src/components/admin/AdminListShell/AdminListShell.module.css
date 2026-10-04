@@ -44,7 +44,7 @@
 }
 
 .headerActions .saveBtn {
-  transition: opacity 0.2s ease, transform 0.2s ease, background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  transition: opacity var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard);
 }
 
 .saveBtnVisible {
@@ -150,12 +150,12 @@
 /* 등장 — 살짝 작고 흐릿하게 시작해 부드럽게 커진다(튕기지 않게). scale 속성만 써서 따라오는 위치(left·top)와
    겹치지 않는다 */
 .previewTooltip[data-state="open"] {
-  animation: tooltipIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: tooltipIn var(--duration-base) var(--ease-enter) both;
 }
 
 /* 퇴장 — 짧게 줄며 흐려진다. 길이는 usePreviewTooltip 의 EXIT_MS 와 같다 */
 .previewTooltip[data-state="closed"] {
-  animation: tooltipOut 0.16s ease forwards;
+  animation: tooltipOut var(--duration-fast) var(--ease-standard) forwards;
 }
 
 @keyframes tooltipIn {
@@ -181,7 +181,7 @@
 
 /* 행을 옮겨 내용만 바뀔 때 — 새 내용이 살짝 번지듯 들어온다 */
 .previewSwap {
-  animation: tooltipSwap 0.22s ease both;
+  animation: tooltipSwap var(--duration-fast) var(--ease-standard) both;
 }
 
 @keyframes tooltipSwap {
@@ -194,7 +194,7 @@
 @media (prefers-reduced-motion: reduce) {
   .previewTooltip[data-state],
   .previewSwap {
-    animation-duration: 0.01s;
+    animation-duration: var(--duration-instant);
   }
 }
 
@@ -302,7 +302,7 @@
     z-index: calc(var(--z-index-tooltip) - 1);
     background: transparent;
     backdrop-filter: blur(8px);
-    animation: backdropFadeIn 0.2s ease;
+    animation: backdropFadeIn var(--duration-fast) var(--ease-standard);
   }
 
   .previewTooltip {
@@ -310,7 +310,7 @@
     left: 50% !important;
     top: 50% !important;
     transform: translate(-50%, -50%);
-    animation: tooltipPopIn 0.2s ease;
+    animation: tooltipPopIn var(--duration-fast) var(--ease-standard);
   }
 }
 

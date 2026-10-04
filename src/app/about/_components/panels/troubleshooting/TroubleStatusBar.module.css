@@ -54,7 +54,7 @@
   background: transparent;
   color: inherit;
   cursor: pointer;
-  transition: background-color 0.15s ease;
+  transition: background-color var(--duration-fast) var(--ease-standard);
 }
 
 .ideStatusActionBtn:hover {
@@ -83,7 +83,7 @@
   font-weight: var(--font-weight-semibold);
   cursor: pointer;
   border-radius: var(--radius-control);
-  transition: background-color 0.15s ease;
+  transition: background-color var(--duration-fast) var(--ease-standard);
 }
 
 .ideStatusFontBtn:hover:not(:disabled) {

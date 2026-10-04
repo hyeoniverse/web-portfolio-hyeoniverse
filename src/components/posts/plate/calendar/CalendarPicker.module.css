@@ -27,7 +27,7 @@
   color: var(--text-secondary);
   font: var(--font-body-md);
   cursor: pointer;
-  transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+  transition: color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard);
 }
 
 .pickerNew:hover { color: var(--text-accent); border-color: var(--border-color-accent-strong); background: var(--bg-accent); }
@@ -44,7 +44,7 @@
   color: var(--text-secondary);
   font: var(--font-body-md);
   cursor: pointer;
-  transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+  transition: color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard);
 }
 
 .pickerManage:hover { color: var(--text-primary); background: var(--bg-secondary); }
@@ -76,7 +76,7 @@
   color: var(--text-primary);
   text-align: left;
   cursor: pointer;
-  transition: border-color 0.15s ease, background-color 0.15s ease;
+  transition: border-color var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard);
 }
 
 .pickerItem:hover { background: var(--bg-secondary); }
@@ -142,7 +142,7 @@
   opacity: 0;
 }
 
-.pickerItem .pickerItemDel { transition: opacity 0.15s ease, color 0.15s ease, background-color 0.15s ease; }
+.pickerItem .pickerItemDel { transition: opacity var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard); }
 
 .pickerItem:hover .pickerItemDel, .pickerItemDel:focus-visible { opacity: 1; }
 
@@ -188,7 +188,7 @@
 
 .pickerConfirmNo:hover { color: var(--text-primary); background: var(--bg-secondary); }
 
-.pickerSpin { animation: calspin 0.7s linear infinite; }
+.pickerSpin { --_calspin-duration: 0.7s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */ animation: calspin var(--_calspin-duration) linear infinite; }
 /* Calendar.module.css 의 .spin 도 같은 이름을 쓴다. CSS 모듈은 애니메이션 이름도 스코프하므로
    모듈이 갈리면 각자 정의를 가져야 한다. */
 @keyframes calspin { to { transform: rotate(360deg); } }
@@ -228,7 +228,7 @@
 
 .pickerTrashChev { margin-left: auto; color: var(--text-tertiary); }
 
-.pickerTrash .pickerTrashChev { transition: transform var(--duration-base) ease; }
+.pickerTrash .pickerTrashChev { transition: transform var(--duration-base) var(--ease-standard); }
 
 .pickerTrashChevOpen { transform: rotate(180deg); }
 
@@ -293,7 +293,7 @@
   border: var(--border-width-2) solid var(--_c);
   color: var(--text-white);
   z-index: 1;
-  transition: transform 0.14s ease, box-shadow 0.14s ease;
+  transition: transform var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard);
 }
 
 .chainStepDone .chainStepNode { background: var(--_c); border-color: var(--_c); }
@@ -310,7 +310,7 @@
 .chainStepTitle {
   font: var(--font-body-md); font-weight: 600; color: var(--text-primary);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; flex: 1;
-  transition: color 0.12s ease;
+  transition: color var(--duration-fast) var(--ease-standard);
 }
 
 .chainStep:hover .chainStepTitle { color: var(--text-accent); }

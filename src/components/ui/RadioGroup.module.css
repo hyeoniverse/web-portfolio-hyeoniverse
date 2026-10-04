@@ -35,7 +35,7 @@
   border: var(--border-width-2) solid var(--border-color-default);
   border-radius: var(--radius-full);
   background: transparent;
-  transition: border-color var(--duration-base) ease, background var(--duration-base) ease;
+  transition: border-color var(--duration-base) var(--ease-standard), background var(--duration-base) var(--ease-standard);
 }
 
 .option:hover:not(.disabled) .dot {
@@ -91,7 +91,7 @@
   gap: var(--spacing-12);
   padding: var(--row-padding-lg);
   border-bottom: var(--border-light);
-  transition: background var(--duration-base) ease;
+  transition: background var(--duration-base) var(--ease-standard);
 }
 
 .groupList .option:last-child {

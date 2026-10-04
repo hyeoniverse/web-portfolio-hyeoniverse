@@ -61,7 +61,7 @@
   display: flex;
   flex-shrink: 0;
   margin-left: auto;
-  transition: transform var(--duration-fast) ease;
+  transition: transform var(--duration-fast) var(--ease-standard);
 }
 
 .cardChevronOpen {

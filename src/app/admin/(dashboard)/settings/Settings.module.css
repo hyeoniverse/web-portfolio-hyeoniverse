@@ -22,7 +22,7 @@
 }
 
 .section .conflictListClip {
-  transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: max-height var(--duration-base) var(--ease-standard);
 }
 
 .conflictListClip.conflictListExpanded {
@@ -195,7 +195,7 @@
 }
 
 .fieldRow .fieldCounter {
-  transition: color var(--duration-base) ease;
+  transition: color var(--duration-base) var(--ease-standard);
 }
 
 .fieldRowInline {
@@ -344,7 +344,7 @@
   overflow: hidden;
   padding: 0;
   background: transparent;
-  transition: border-color 0.15s;
+  transition: border-color var(--duration-fast);
 }
 
 .section .logoColorPresetBtn:hover {
@@ -525,8 +525,8 @@
   color: var(--text-secondary);
   min-width: 3em;
   display: inline-block;
-  transition: opacity 0.2s ease;
-  animation: publishFade 0.25s ease;
+  transition: opacity var(--duration-fast) var(--ease-standard);
+  animation: publishFade var(--duration-base) var(--ease-standard);
 }
 
 @keyframes publishFade {
@@ -554,9 +554,9 @@
   overflow: hidden;
   /* 닫힘 방향 기본: height 먼저(0~0.35s) → radius (0.35s~0.60s) */
   transition:
-    grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1),
-    border-radius 0.25s cubic-bezier(0.4, 0, 0.2, 1) 0.35s,
-    border-color 0.2s;
+    grid-template-rows var(--duration-base) var(--ease-standard),
+    border-radius var(--duration-base) var(--ease-standard) 0.35s,
+    border-color var(--duration-fast);
 }
 
 .newSeriesShellOpen {
@@ -564,9 +564,9 @@
   border-radius: var(--radius-surface);
   /* 열림 방향: radius 먼저(0~0.25s) → height (0.25s~0.60s) */
   transition:
-    grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1) 0.25s,
-    border-radius 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-    border-color 0.2s;
+    grid-template-rows var(--duration-base) var(--ease-standard) 0.25s,
+    border-radius var(--duration-base) var(--ease-standard),
+    border-color var(--duration-fast);
 }
 
 /* 에디터 행만 overflow hidden + min-height 0 (grid trick) — 헤더 행은 그대로 */
@@ -588,8 +588,8 @@
   border-bottom: var(--border-width-1) solid transparent;
   /* 닫힘 방향 — body 가 먼저 닫히고(0.35s) 그 뒤에 column 축소 */
   transition:
-    grid-template-columns 0.3s cubic-bezier(0.4, 0, 0.2, 1) 0.35s,
-    border-bottom-color 0.2s 0.35s;
+    grid-template-columns var(--duration-base) var(--ease-standard) 0.35s,
+    border-bottom-color var(--duration-fast) 0.35s;
 }
 
 .newSeriesShellOpen .newSeriesShellHead {
@@ -597,8 +597,8 @@
   border-bottom-color: var(--border-color-light);
   /* 열림 방향 — radius(0~0.25s) 끝난 뒤 column 확장 시작 */
   transition:
-    grid-template-columns 0.3s cubic-bezier(0.4, 0, 0.2, 1) 0.25s,
-    border-bottom-color 0.2s 0.45s;
+    grid-template-columns var(--duration-base) var(--ease-standard) 0.25s,
+    border-bottom-color var(--duration-fast) 0.45s;
 }
 
 /* 제목 — 버튼 ↔ 헤더 사이에서 styling 만 변하면서 morph */
@@ -617,10 +617,10 @@
   cursor: pointer;
   /* 닫힘 방향 — body 가 닫히고(0.35s) 난 뒤에 텍스트 reset */
   transition:
-    font-size 0.3s cubic-bezier(0.4, 0, 0.2, 1) 0.35s,
-    font-weight 0.3s cubic-bezier(0.4, 0, 0.2, 1) 0.35s,
-    color 0.3s 0.35s,
-    padding 0.3s cubic-bezier(0.4, 0, 0.2, 1) 0.35s;
+    font-size var(--duration-base) var(--ease-standard) 0.35s,
+    font-weight var(--duration-base) var(--ease-standard) 0.35s,
+    color var(--duration-base) 0.35s,
+    padding var(--duration-base) var(--ease-standard) 0.35s;
 }
 
 .newSeriesShellOpen .newSeriesShellTitle {
@@ -633,10 +633,10 @@
   cursor: default;
   /* 열림 방향 — radius 끝난 뒤(0.25s) body 와 함께 morph (bounce 방지) */
   transition:
-    font-size 0.35s cubic-bezier(0.4, 0, 0.2, 1) 0.25s,
-    font-weight 0.35s cubic-bezier(0.4, 0, 0.2, 1) 0.25s,
-    color 0.3s 0.25s,
-    padding 0.35s cubic-bezier(0.4, 0, 0.2, 1) 0.25s;
+    font-size var(--duration-base) var(--ease-standard) 0.25s,
+    font-weight var(--duration-base) var(--ease-standard) 0.25s,
+    color var(--duration-base) 0.25s,
+    padding var(--duration-base) var(--ease-standard) 0.25s;
 }
 
 .newSeriesShellTitle:disabled {
@@ -655,9 +655,9 @@
   white-space: nowrap;
   /* 닫힘 방향 — delay 0.35s */
   transition:
-    max-width 0.25s cubic-bezier(0.4, 0, 0.2, 1) 0.35s,
-    margin-right 0.25s cubic-bezier(0.4, 0, 0.2, 1) 0.35s,
-    opacity 0.18s 0.35s;
+    max-width var(--duration-base) var(--ease-standard) 0.35s,
+    margin-right var(--duration-base) var(--ease-standard) 0.35s,
+    opacity var(--duration-fast) 0.35s;
 }
 
 .newSeriesShellOpen .newSeriesShellPlus {
@@ -666,9 +666,9 @@
   opacity: 0;
   /* 열림 방향 — radius 끝난 뒤(0.25s) title morph 와 함께 사라짐 */
   transition:
-    max-width 0.25s cubic-bezier(0.4, 0, 0.2, 1) 0.25s,
-    margin-right 0.25s cubic-bezier(0.4, 0, 0.2, 1) 0.25s,
-    opacity 0.18s 0.25s;
+    max-width var(--duration-base) var(--ease-standard) 0.25s,
+    margin-right var(--duration-base) var(--ease-standard) 0.25s,
+    opacity var(--duration-fast) 0.25s;
 }
 
 /* actions(토글/취소/만들기) — 닫힘 상태에서는 column 0fr 로 안 보임,
@@ -683,7 +683,7 @@
   min-width: 0;
   opacity: 0;
   /* 닫힘 방향 — body 닫힌 뒤 페이드 아웃 */
-  transition: opacity 0.2s 0.35s;
+  transition: opacity var(--duration-fast) 0.35s;
 }
 
 /* shell actions 안의 발행 토글 — 라벨↔토글 간격 좁게 */
@@ -693,7 +693,7 @@
 
 .newSeriesShellOpen .newSeriesShellActions {
   opacity: 1;
-  transition: opacity 0.2s 0.45s;
+  transition: opacity var(--duration-fast) 0.45s;
 }
 
 .newSeriesShell:not(.newSeriesShellOpen):hover {
@@ -747,8 +747,8 @@
   interpolate-size: allow-keywords;
   transition:
     height var(--duration-base) var(--ease-standard),
-    opacity 0.18s ease,
-    transform 0.18s ease;
+    opacity var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard);
 }
 
 /* ── Env var 필드 행 — .section/.fieldLabel 과 결합하는 경계 규칙 (EnvVarFields 가 shared 로 사용) ── */
@@ -758,7 +758,7 @@
 .section .envFieldHighlight .fieldLabel,
 .envFieldHighlight .fieldLabel {
   color: var(--text-accent);
-  transition: color var(--duration-base) ease;
+  transition: color var(--duration-base) var(--ease-standard);
 }
 
 /* env row — 라벨(+배지) 전체폭 윗줄, 아래 [입력 | 액션] 두 줄 고정.
@@ -817,7 +817,7 @@
 }
 /* 필터 버튼 chevron — 펼침 시 회전. */
 .tagDescFilterRow .filterBtnChevron {
-  transition: transform 0.2s var(--ease-standard);
+  transition: transform var(--duration-fast) var(--ease-standard);
 }
 .filterBtnChevronOpen {
   transform: rotate(180deg);
@@ -964,8 +964,8 @@
   color: var(--text-primary);
   text-decoration: none;
   transition:
-    background 0.15s ease,
-    color 0.15s ease;
+    background var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
   min-width: 0;
 }
 
@@ -1036,7 +1036,7 @@ a.tagRelatedItem:hover {
 
 /* 중복 등 잘못된 입력 시 시각 알림 — 가로 흔들림 */
 .shakeAlert {
-  animation: shakeAlert 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+  animation: shakeAlert var(--duration-slow) var(--ease-enter);
 }
 
 @keyframes shakeAlert {

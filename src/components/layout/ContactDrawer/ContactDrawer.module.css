@@ -93,7 +93,7 @@
   height: var(--_size-close-btn);
   background: var(--bg-white);
   color: var(--text-black);
-  transition: transform var(--duration-base) ease, background-color var(--duration-base) ease, color var(--duration-base) ease;
+  transition: transform var(--duration-base) var(--ease-standard), background-color var(--duration-base) var(--ease-standard), color var(--duration-base) var(--ease-standard);
   border-radius: var(--radius-full);
 }
 
@@ -151,7 +151,7 @@
   font-family: inherit;
   font-size: var(--_font-size-md);
   color: var(--text-black);
-  transition: border-color var(--duration-base) ease;
+  transition: border-color var(--duration-base) var(--ease-standard);
   border-radius: var(--radius-control);
 }
 
@@ -165,7 +165,7 @@
 .input:-webkit-autofill:focus,
 .input:-webkit-autofill:active {
   /* 자동 완성 배경색은 아주 긴 transition 으로 바뀌지 않게 둔다(그림자로 덮지 않는다) */
-  transition: background-color 5000s ease-in-out 0s;
+  transition: background-color 5000s var(--ease-standard) 0s;
   -webkit-text-fill-color: var(--text-black) !important;
   caret-color: var(--text-black);
 }
@@ -228,7 +228,7 @@
   background: transparent;
   color: var(--text-black);
   animation: fileCancelAppear var(--duration-slow) var(--ease-spring) forwards;
-  transition: opacity 0.4s var(--ease-standard), transform 0.4s var(--ease-standard), background-color 0.4s var(--ease-standard), color 0.4s var(--ease-standard);
+  transition: opacity var(--duration-base) var(--ease-standard), transform var(--duration-base) var(--ease-standard), background-color var(--duration-base) var(--ease-standard), color var(--duration-base) var(--ease-standard);
   border-radius: var(--radius-full);
   opacity: 0;
   transform: scale(0.8) rotate(-90deg);
@@ -278,7 +278,7 @@
   font-size: var(--_font-size-md);
   line-height: var(--_line-height);
   color: var(--text-black);
-  transition: border-color var(--duration-base) ease;
+  transition: border-color var(--duration-base) var(--ease-standard);
   resize: none;
   border-radius: var(--_radius-card);
 }
@@ -309,7 +309,7 @@
   font-size: var(--_font-size-sm);
   color: var(--text-accent);
   white-space: nowrap;
-  transition: opacity 0.4s var(--ease-spring), transform 0.4s var(--ease-spring);
+  transition: opacity var(--duration-base) var(--ease-spring), transform var(--duration-base) var(--ease-spring);
   pointer-events: none;
   border-radius: var(--radius-control);
   opacity: 0;
@@ -352,7 +352,7 @@
   position: relative;
   width: var(--_size-checkbox);
   height: var(--_size-checkbox);
-  transition: background-color var(--duration-fast) ease, border-color var(--duration-fast) ease;
+  transition: background-color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard);
   /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 동의 체크박스 — 네모가 곧 의미 */
   border-radius: var(--radius-mark);
   appearance: none;
@@ -377,7 +377,7 @@
 .privacy a {
   color: var(--text-accent);
   text-decoration: underline;
-  transition: opacity var(--duration-fast) ease;
+  transition: opacity var(--duration-fast) var(--ease-standard);
   text-underline-offset: 2px;
 }
 
@@ -401,7 +401,7 @@
   font-weight: var(--font-weight-medium);
   color: var(--bg-white);
   letter-spacing: 0.01em;
-  transition: background-color var(--duration-base) ease, color var(--duration-base) ease, transform var(--duration-base) ease;
+  transition: background-color var(--duration-base) var(--ease-standard), color var(--duration-base) var(--ease-standard), transform var(--duration-base) var(--ease-standard);
   border-radius: var(--radius-control);
 }
 
@@ -436,7 +436,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: opacity var(--duration-base) ease;
+  transition: opacity var(--duration-base) var(--ease-standard);
 }
 
 .submitTextDefault {
@@ -584,7 +584,7 @@
   font-weight: var(--font-weight-medium);
   color: var(--text-black);
   letter-spacing: 0.02em;
-  transition: background-color var(--duration-base) ease, color var(--duration-base) ease;
+  transition: background-color var(--duration-base) var(--ease-standard), color var(--duration-base) var(--ease-standard);
   border-radius: var(--radius-control);
 }
 
@@ -646,7 +646,7 @@
   font-weight: var(--font-weight-regular);
   color: var(--text-black);
   letter-spacing: -0.075em;
-  transition: border var(--duration-fast) ease;
+  transition: border var(--duration-fast) var(--ease-standard);
   border-radius: var(--radius-control);
 }
 
@@ -663,7 +663,7 @@
   display: inline-flex;
   gap: var(--_gap-md);
   align-items: center;
-  transition: opacity var(--duration-fast) ease;
+  transition: opacity var(--duration-fast) var(--ease-standard);
 }
 
 .copyIcon {
@@ -687,7 +687,7 @@
   justify-content: center;
   position: absolute;
   color: var(--text-accent);
-  transition: opacity var(--duration-fast) ease;
+  transition: opacity var(--duration-fast) var(--ease-standard);
   inset: 0;
 }
 
@@ -776,7 +776,7 @@
      fill="currentColor" 를 직접 달고 있어 svg 에 fill 을 줘도 닿지 않는다 — 색은 color 로 준다.
      예전에는 svg fill 만 줘서 글리프가 본문 글자색을 따라갔고, 밝은 테마에서 검은 원 위의 검은 글리프가 됐다 */
   color: var(--bg-white);
-  transition: background-color var(--duration-base) ease, color var(--duration-base) ease, border-color var(--duration-base) ease;
+  transition: background-color var(--duration-base) var(--ease-standard), color var(--duration-base) var(--ease-standard), border-color var(--duration-base) var(--ease-standard);
   border-radius: var(--radius-full);
 }
 

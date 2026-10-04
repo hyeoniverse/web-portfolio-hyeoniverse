@@ -8,7 +8,7 @@
   font: var(--font-body-sm);
   font-weight: var(--font-weight-bold);
   opacity: 0;
-  transition: opacity var(--duration-base) ease;
+  transition: opacity var(--duration-base) var(--ease-standard);
   pointer-events: none;
   will-change: transform;
   mix-blend-mode: difference;
@@ -46,8 +46,8 @@
   opacity: 0.5;
   transition:
     inset var(--duration-slower) var(--ease-standard),
-    filter var(--duration-slower) ease,
-    opacity var(--duration-slower) ease;
+    filter var(--duration-slower) var(--ease-standard),
+    opacity var(--duration-slower) var(--ease-standard);
   transform: translateZ(0);
   will-change: transform, opacity, filter;
 }
@@ -58,7 +58,7 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   white-space: nowrap;
-  transition: opacity var(--duration-base) ease;
+  transition: opacity var(--duration-base) var(--ease-standard);
   pointer-events: none;
   opacity: 0;
   user-select: none;
@@ -324,10 +324,11 @@
 .big:not(.clicking) .cursorInner,
 .grab:not(.dragging) .cursorInner,
 .zoom:not(.clicking) .cursorInner {
-  animation: pulse 2s ease-in-out infinite;
+  --_pulse-duration: 2s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
+  animation: pulse var(--_pulse-duration) var(--ease-standard) infinite;
 }
 .clicking .cursorInner {
-  animation: clickPulse var(--duration-fast) ease-out;
+  animation: clickPulse var(--duration-fast) var(--ease-enter);
 }
 
 @keyframes pulse {

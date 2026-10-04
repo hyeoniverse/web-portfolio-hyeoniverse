@@ -258,7 +258,7 @@
   text-align: left;
   overflow: hidden;
   cursor: pointer;
-  transition: border-color var(--duration-base) ease;
+  transition: border-color var(--duration-base) var(--ease-standard);
 }
 
 .card:hover {

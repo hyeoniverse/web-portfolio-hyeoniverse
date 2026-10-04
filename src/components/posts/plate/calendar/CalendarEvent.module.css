@@ -67,7 +67,7 @@
   padding: var(--row-padding-sm);
   border: none; border-radius: var(--radius-control);
   background: transparent; cursor: pointer;
-  transition: background-color 0.12s ease;
+  transition: background-color var(--duration-fast) var(--ease-standard);
 }
 
 .evItem:hover { background: var(--bg-secondary); }
@@ -190,7 +190,7 @@
   background: transparent; color: var(--text-tertiary);
   font: var(--font-body-xs); font-weight: 700;
   cursor: pointer;
-  transition: background-color 0.12s ease, color 0.12s ease;
+  transition: background-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
 }
 
 .evLinkToggle:hover { background: var(--bg-secondary); color: var(--text-secondary); }
@@ -199,7 +199,7 @@
 
 .evLinkCount { font-variant-numeric: tabular-nums; }
 
-.evLinkToggle .evLinkChevron { transition: transform 0.15s ease; }
+.evLinkToggle .evLinkChevron { transition: transform var(--duration-fast) var(--ease-standard); }
 
 .evLinkChevronOn { transform: rotate(180deg); }
 
@@ -370,7 +370,7 @@
   color: var(--text-secondary);
   font: var(--font-body-sm);
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  transition: background var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard);
 }
 
 .recurWd:hover { border-color: var(--border-color-strong); }

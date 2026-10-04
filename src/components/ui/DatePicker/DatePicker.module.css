@@ -462,7 +462,7 @@
 
 /* 빠른 스크롤 피드백 — background-color 를 짧게 바꾼다 */
 .spinnerColWrap .spinnerCol {
-  transition: background-color 0.15s ease;
+  transition: background-color var(--duration-fast) var(--ease-standard);
 }
 
 .spinnerScroll {
@@ -496,9 +496,9 @@
 /* opacity/transform 도 부드럽게 */
 .spinnerCol .spinnerItem {
   transition:
-    color 0.18s ease,
-    opacity 0.18s ease,
-    transform 0.18s ease;
+    color var(--duration-fast) var(--ease-standard),
+    opacity var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard);
 }
 
 /* ── 중심에서 거리별 시각 강조 — 스크롤 중 지나가는 숫자가 자연스럽게 보이도록 ── */
@@ -553,9 +553,9 @@
 
 .spinnerCol .spinnerHighlight {
   transition:
-    background 0.18s ease,
-    box-shadow 0.18s ease,
-    transform 0.18s ease;
+    background var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard);
 }
 
 /* 스크롤 중에는 outline-only — 지나가는 숫자가 가려지지 않도록 */
@@ -644,8 +644,8 @@
 
 .timeFormatToggle .timeFormatBtn {
   transition:
-    background 0.18s ease,
-    color 0.18s ease;
+    background var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
 }
 
 /* ── Calendar shared ── */
