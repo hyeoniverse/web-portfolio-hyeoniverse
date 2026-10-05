@@ -74,9 +74,10 @@ export default function AISummary({ summaryKo, summaryEn, lang, generating = fal
 
   return (
     <section className={styles.card} aria-label={t("aiSummary.label")}>
-      {/* 머리 — 아이콘 · 이름 · ⓘ(AI 가 만든 요약이라는 설명). 접고 펼치지 않는다 */}
+      {/* 노션 콜아웃처럼 — 왼쪽 아이콘 칸, 오른쪽에 이름 줄과 글. 접고 펼치지 않는다 */}
+      <span className={styles.icon} aria-hidden><Sparkles size={16} strokeWidth={1.75} /></span>
+      <div className={styles.content}>
       <header className={styles.header}>
-        <span className={styles.icon} aria-hidden><Sparkles size={16} strokeWidth={1.75} /></span>
         <h2 className={styles.label}>{t("aiSummary.label")}</h2>
         <Tooltip content={t("aiSummary.about")} placement="top">
           <span className={styles.info} tabIndex={0} aria-label={t("aiSummary.about")}><Info size={14} strokeWidth={1.75} /></span>
@@ -99,6 +100,7 @@ export default function AISummary({ summaryKo, summaryEn, lang, generating = fal
       ) : (
         <SummaryBody summary={summary} />
       )}
+      </div>
     </section>
   );
 }
