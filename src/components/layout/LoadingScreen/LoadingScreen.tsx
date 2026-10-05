@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { useRoutePathname } from "@/hooks/useRoutePathname";
 import styles from "./LoadingScreen.module.css";
 import { useLoadingScreen } from "@/hooks/useLoadingProgress";
+import { usePopoverRef } from "@/hooks/useTopLayer";
 
 const SKIP_LOADING_PAGES = ["/privacy"];
 
@@ -22,12 +23,15 @@ export default function LoadingScreen() {
     }
   }, [isLoading]);
 
-  /* top layer 에 올리지 않는다(3.10-1 예외) — nav 의 로고가 이 위에서 가운데 → 제자리로 움직여야 해서 페이지 층(float)에 두고 nav 를 그 위로 올린다 */
+  /* top layer(popover, 3.10-1). nav 의 로고가 이 위에서 가운데 → 제자리로 움직여야 해서 nav 도 그 동안 top layer 에 올라온다(Navigation.tsx keepOnTop) */
+  const popoverRef = usePopoverRef<HTMLDivElement>();
 
   if (!visible || shouldSkipLoading) return null;
 
   return (
     <div
+      ref={popoverRef}
+      popover="manual"
       className={styles.loadingScreen}
       style={{ opacity: isLoading ? 1 : 0 }}
       data-nav-tone-skip

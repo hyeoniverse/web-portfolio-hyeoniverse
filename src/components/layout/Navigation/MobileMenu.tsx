@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment, useCallback, useState, type RefObject } from "react";
+import { usePopoverRef } from "@/hooks/useTopLayer";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import Logo from "@/components/common/Logo";
@@ -60,6 +61,8 @@ export default function MobileMenu({
      계산(lib/navBackdrop 의 colorTone)이다. 드로어 배경(--nav-menu-bg)은 테마와 상관없이 어두워서, 테마로 고르면
      라이트 테마에서 어두운 잉크 로고가 묻혔다. 배경색을 바꿔도 따라간다. 재기 전(첫 그림)은 테마를 따른다 */
   const [drawerTone, setDrawerTone] = useState<Tone | null>(null);
+  /* 서랍은 top layer — 붙는 순간 띄운다. clipWrapperRef 도 같이 받는다 */
+  const popoverRef = usePopoverRef<HTMLDivElement>(clipWrapperRef);
   const measureDrawerTone = useCallback((el: HTMLDivElement | null) => {
     if (!el) return;
     const tone = colorTone(getComputedStyle(el).backgroundColor);
@@ -84,7 +87,8 @@ export default function MobileMenu({
 
   return createPortal(
     <div
-      ref={clipWrapperRef}
+      ref={popoverRef}
+      popover="manual"
       className={`${styles.menuClipWrapper} ${menuClipOpen ? styles.menuClipOpen : ""}`}
     >
       <div

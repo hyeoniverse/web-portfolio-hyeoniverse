@@ -2,10 +2,10 @@
   LoadingScreen — Backdrop with Swipe Wipe
   ========================================================================== */
 
+/* top layer(popover, 3.10-1) — 전역 [popover] 리셋 뒤에 실리는 모듈이라 inset 은 여기 값이 이긴다(다른 popover 들과 같다) */
 .loadingScreen {
   position: fixed;
   inset: 0;
-  z-index: calc(var(--z-index-float) + 1); /* 페이지 층 — 점 내비 같은 float 위, nav(float + 2)의 로고가 이 위에서 움직인다(3.10-1 예외) */
   pointer-events: auto;
   will-change: opacity;
   transition: opacity var(--duration-base) var(--ease-standard);
