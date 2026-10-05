@@ -37,7 +37,8 @@
       "deletedByAdmin": "(관리자가 삭제함)",
       "deletedBySelf": "(작성자가 삭제함)",
       "restore": "복구",
-      "empty": "댓글이 없습니다"
+      "empty": "댓글이 없습니다",
+      "same": "새 요약이 현재 요약과 같습니다. 본문을 고친 뒤 다시 만들거나 다른 모델을 골라 보세요."
     },
     "dashboard": {
       "title": "대시보드",

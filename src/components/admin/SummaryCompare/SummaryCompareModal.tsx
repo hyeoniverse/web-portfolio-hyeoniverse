@@ -26,12 +26,16 @@ export default function SummaryCompareModal({ current, next, onPick }: {
       <p className={styles.text}>{pair.en || <span className={styles.empty}>{tc("empty")}</span>}</p>
     </section>
   );
+  /* 같은 모델 · 같은 본문이면 결과가 같을 수 있다(발행 때 자동으로 만든 직후 다시 누른 경우) — 고를 게 없음을 말해 준다 */
+  const same = current.ko.trim() === next.ko.trim() && current.en.trim() === next.en.trim();
   return (
     <ModalConfirm desc={tc("desc")} confirmText={tc("useNext")} cancelText={tc("keep")} onConfirm={() => onPick(next)}>
       <div className={styles.grid}>
         {col(tc("current"), current, false)}
+        <span className={styles.divider} aria-hidden />
         {col(tc("next"), next, true)}
       </div>
+      {same && <p className={styles.same}>{tc("same")}</p>}
     </ModalConfirm>
   );
 }

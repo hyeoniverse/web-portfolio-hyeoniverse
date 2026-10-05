@@ -37,7 +37,8 @@
       "deletedByAdmin": "(removed by admin)",
       "deletedBySelf": "(removed by author)",
       "restore": "Restore",
-      "empty": "No comments"
+      "empty": "No comments",
+      "same": "The new summary is identical to the current one. Edit the content or pick another model and try again."
     },
     "dashboard": {
       "title": "Dashboard",

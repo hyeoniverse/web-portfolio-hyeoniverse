@@ -61,7 +61,7 @@ English content (if available):
 ${contentEn}`;
 
   try {
-    const { ko, en, failures } = await generateSummary(promptText, "works/ai-summary");
+    const { ko, en, failures } = await generateSummary(promptText, "works/ai-summary", { temperature: force && !apply ? 0.7 : 0.2 });
     if (apply) {
       await admin.from("works").update({ summary_ko: ko, summary_en: en }).eq("id", id);
       revalidatePublicWorks();
