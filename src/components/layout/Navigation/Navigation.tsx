@@ -440,7 +440,15 @@ export default function Navigation() {
   useEffect(() => {
     const el = navRef.current;
     if (!el || !(navOnTop || showMenu)) return;
-    return keepOnTop(el, -1);
+    const releaseNav = keepOnTop(el, -1);
+    /* 로고는 nav 의 형제(header 는 display: contents)라 따로 올린다 — 로딩 덮개 위에서 가운데 → 제자리로 움직이는
+       것이 이 로고다. nav 만 올리면 덮개 밑에 묻혀 인트로가 보이지 않는다. 서랍 위에서는 보일 일이 없어 로딩 때만 */
+    const logo = logoBarRef.current;
+    const releaseLogo = logo && navOnTop ? keepOnTop(logo, -1) : null;
+    return () => {
+      releaseLogo?.();
+      releaseNav();
+    };
   }, [navOnTop, showMenu]);
 
   const cssLoadingLogo = showLoadingLogo && !hasImageLogo && !useBadgeLogo;
