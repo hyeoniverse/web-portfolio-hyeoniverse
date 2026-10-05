@@ -67,7 +67,7 @@
 /* 구조가 있는 문구 — 첫 줄(무엇이)은 굵게, 둘째 줄은 항목을 · 로 이어 적는다. 두 줄 클램프는 그대로 */
 .messageTitle {
   display: block;
-  font-weight: var(--font-weight-semibold);
+  /* 굵기는 strong 요소의 전역 규칙이 준다(font-weight 를 따로 적지 않는다, 3.2-1). 색만 강조색 → 본문색으로 */
   color: var(--text-primary);
 }
 
