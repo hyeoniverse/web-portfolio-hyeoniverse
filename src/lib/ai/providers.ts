@@ -80,11 +80,13 @@ export const FAILURE_KINDS = [
   "network",
   "bad_request",
   "unknown",
+  /** 사람이 설정 화면에서 직접 껐다 — 실패가 아니라 차단 이유로만 쓴다. 다시 켤 때까지 그대로 */
+  "manual",
 ] as const;
 export type FailureKind = (typeof FAILURE_KINDS)[number];
 
 /** 사람이 고쳐야 하는 원인 — 이 원인으로 FATAL_LIMIT 번 이어 실패하면 그 공급자를 끈다 */
-export const FATAL_KINDS: ReadonlySet<FailureKind> = new Set(["invalid_key", "expired", "forbidden", "quota", "billing"]);
+export const FATAL_KINDS: ReadonlySet<FailureKind> = new Set(["invalid_key", "expired", "forbidden", "quota", "billing", "manual"]);
 export const FATAL_LIMIT = 3;
 /** 저절로 풀릴 수 있는 원인은 더 많이 기다린다 */
 export const TRANSIENT_LIMIT = 5;
