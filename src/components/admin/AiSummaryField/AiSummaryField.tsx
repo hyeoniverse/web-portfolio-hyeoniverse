@@ -40,7 +40,7 @@ export default function AiSummaryField({ value, lang, onRegenerate, busy, disabl
         )}
       </div>
       <div className={styles.box} data-empty={summary ? undefined : ""} lang={lang}>
-        {summary ? <SummaryBody summary={summary} /> : <p className={styles.empty}>{ta(onRegenerate ? "empty" : "emptyUnsaved")}</p>}
+        {summary ? <SummaryBody summary={summary} compact /> : <p className={styles.empty}>{ta(onRegenerate ? "empty" : "emptyUnsaved")}</p>}
       </div>
     </div>
   );

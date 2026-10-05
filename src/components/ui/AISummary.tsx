@@ -24,11 +24,11 @@ interface AISummaryProps {
 }
 
 /** 저장된 요약(JSON 또는 예전 줄글)을 한 줄 요약 + 핵심 항목으로. 예전 줄글은 문단 그대로 */
-export function SummaryBody({ summary }: { summary: DisplaySummary }) {
+export function SummaryBody({ summary, compact }: { summary: DisplaySummary; compact?: boolean }) {
   if (!summary) return null;
   if (summary.kind === "text") return <p className={styles.text}>{summary.text}</p>;
   return (
-    <div className={styles.structured}>
+    <div className={`${styles.structured} ${compact ? styles.compact : ""}`}>
       {summary.tldr && <p className={styles.tldr}>{summary.tldr}</p>}
       {summary.points.length > 0 && (
         <ul className={styles.points}>

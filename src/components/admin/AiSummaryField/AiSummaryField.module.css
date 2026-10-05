@@ -1,4 +1,4 @@
-/* 편집기의 AI 요약 칸 */
+/* 편집기의 AI 요약 칸 — 옆의 입력칸(Textarea)과 같은 테두리 · 둥글기 · 여백, 배경은 없다(쓰는 칸이 아니라 글만 보인다) */
 .head {
   display: flex;
   align-items: center;
@@ -11,17 +11,15 @@
   color: var(--text-tertiary);
 }
 
-/* 읽기 전용 상자 — 입력칸과 같은 테두리 · 둥글기, 배경은 살짝 가라앉혀 "쓰는 칸이 아님"을 보인다 */
 .box {
-  padding: var(--row-padding-lg);
+  padding: var(--spacing-16) var(--spacing-20);
   border: var(--border-light);
   border-radius: var(--radius-surface);
-  background: var(--bg-secondary);
 }
 
+/* 비어 있으면 점선 — 자리만 있고 아직 글이 없다 */
 .box[data-empty] {
   border-style: dashed;
-  background: transparent;
 }
 
 .empty {

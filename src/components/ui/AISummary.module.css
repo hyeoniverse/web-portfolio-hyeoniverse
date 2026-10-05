@@ -108,6 +108,23 @@
   color: var(--text-secondary);
 }
 
+/* 편집기 칸처럼 좁은 자리 — 한 줄 요약도 본문 크기, 핵심은 작게 */
+.compact {
+  gap: var(--spacing-8);
+}
+
+.compact .tldr {
+  font: var(--font-body-md);
+}
+
+.compact .point {
+  font: var(--font-body-sm);
+}
+
+.compact .points {
+  gap: var(--spacing-4);
+}
+
 .point::before {
   content: "";
   position: absolute;
