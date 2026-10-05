@@ -64,9 +64,7 @@ export default function CursorTrail() {
   const cursorTypeRef = useRef<CursorType>("");
   const [isMore, setMore] = useState(false);
 
-  /* 그리는 좌표 — layout viewport 기준(fixed 요소와 같은 기준). hit-test 는 clientX/Y 로 따로 둔다 */
   const mouseRef = useRef({ x: 0, y: 0 });
-  const hitRef = useRef({ x: 0, y: 0 });
   const circleRef = useRef({ x: 0, y: 0 });
   const prevMouseRef = useRef({ x: 0, y: 0 });
   const scaleRef = useRef(0);
@@ -74,9 +72,11 @@ export default function CursorTrail() {
   const rafRef = useRef<number>(0);
   /** cursorInner 실제 렌더 크기 — animate 에서 매 프레임 offsetWidth 읽으면 layout thrash 발생 */
   const innerSizeRef = useRef({ w: 20, h: 20 });
-  /* 핀치 확대 보정 — 브라우저마다 fixed 요소가 붙는 기준(layout/visual viewport)이 달라 식으로는 못 맞춘다(Safari 는
-     clientX 로 놓으면 확대 · 이동한 만큼 밀린다). 그린 뒤 getBoundingClientRect(포인터와 같은 client 좌표계)로 실제
-     자리를 재서 어긋난 만큼(dx·dy)을 다음 프레임에 되먹인다. 확대하지 않았을 때는 0 이라 아무 일도 없다 */
+  /* 핀치 확대 보정 — Chrome 은 clientX · getBoundingClientRect · fixed 가 전부 layout viewport 기준이라 안 어긋나지만,
+     Safari 는 clientX 와 getBoundingClientRect 는 visual viewport 기준이고 fixed 만 layout 기준이라 visual viewport 의
+     오프셋만큼 밀린다. 포인터와 rect 가 같은 좌표계라는 점을 써서, 그린 뒤 rect 로 실제 자리를 재 의도한 중심과의
+     차이(dx·dy)를 다음 프레임에 되먹인다 — Safari 에서는 그 값이 곧 visualViewport.offsetLeft/Top 로 모인다.
+     확대하지 않았을 때는 0 이라 아무 일도 없다 */
   const zoomFixRef = useRef({ dx: 0, dy: 0 });
   /* 전체화면 요소가 바뀌면 다시 그린다(그 안으로 옮겨 그리려고) */
   const fsHost = useSyncExternalStore(subscribeFullscreen, fullscreenHost, noHost);
@@ -260,24 +260,23 @@ export default function CursorTrail() {
     const handleMouseMove = (e: PointerEvent) => {
       // pointermove 가 도착했다는 건 iframe 밖(=parent 영역) 이라는 뜻 → 복구
       setOverIframe(false);
-      /* 커서는 fixed 라 layout viewport 좌표가 필요하다. Chrome 은 clientX 가 그 좌표지만 Safari 는 핀치 확대 때
-         clientX 가 visual viewport 기준이라 확대 · 이동한 만큼 어긋난다. pageX − scrollX 는 두 브라우저 모두
-         layout 기준이라 이걸로 그린다(확대 안 했을 때는 clientX 와 같다). elementsFromPoint 는 clientX 를 받으므로 그대로 */
-      const x = e.pageX - window.scrollX;
-      const y = e.pageY - window.scrollY;
+      /* clientX/Y 그대로 — Safari 는 핀치 확대 때 clientX 와 getBoundingClientRect 가 둘 다 visual viewport 기준이고
+         fixed 요소만 layout 기준이라 어긋나는데, 그 차이는 animate 의 되먹임(zoomFixRef)이 rect 로 재서 메운다.
+         pageX − scrollX 로 바꾸면 Safari 에서는 이미 layout 좌표라 보정이 두 번 들어간다 */
+      const x = e.clientX;
+      const y = e.clientY;
       if (!hasMoved) {
         hasMoved = true;
         circleRef.current = { x, y };
         setIsVisible(true);
       }
       mouseRef.current = { x, y };
-      hitRef.current = { x: e.clientX, y: e.clientY };
 
       // elementsFromPoint 호출을 ~60ms 간격으로 제한
       if (!hitTestTimer) {
         hitTestTimer = window.setTimeout(() => {
           hitTestTimer = 0;
-          runHitTest(hitRef.current.x, hitRef.current.y);
+          runHitTest(mouseRef.current.x, mouseRef.current.y);
         }, 60);
       }
     };
