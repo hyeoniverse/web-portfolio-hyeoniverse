@@ -17,14 +17,21 @@ export const HF_FALLBACK_MODEL = "black-forest-labs/FLUX.1-schnell";
 export const GOOGLE_TTS_LATEST = "latest";
 export const GOOGLE_TTS_TIER_RANK = ["Chirp3-HD", "Chirp-HD", "Neural2", "Studio", "Wavenet", "Standard"];
 
+/** Groq "latest" — 그 키의 모델 목록에서 GROQ_PREFER 순으로 첫 번째. 목록을 못 받으면 보루 */
+export const GROQ_LATEST = "latest";
+export const GROQ_PREFER: RegExp[] = [/^openai\/gpt-oss-120b/, /llama-4.*maverick/i, /^llama-3\.3-70b/, /qwen.*(32b|235b)/i, /^openai\/gpt-oss-20b/, /llama-4.*scout/i, /^llama-3\.1-8b/];
+export const GROQ_FALLBACK_MODEL = "llama-3.1-8b-instant";
+/* 글 요약에 못 쓰는 것 — 음성 · 안전 필터 · 에이전트 · 번역 전용 */
+export const GROQ_NOT_TEXT = /guard|compound|whisper|tts|orpheus|playai|safeguard/i;
+
 export type NanoBananaModel = "nanobanana" | "nanobanana-2" | "nanobanana-pro";
 export const NANOBANANA_MODELS: NanoBananaModel[] = ["nanobanana-2", "nanobanana-pro", "nanobanana"];
 
 export const DEFAULT_AI_MODELS: Record<AiModelProvider, string> = {
   gemini: "gemini-flash-latest",
   openai: "gpt-4o-mini",
-  /* Groq 에는 최신 별칭이 없다 — 무료 등급에서 한국어 요약이 무난한 모델을 기본으로 두고 설정에서 바꾼다 */
-  groq: "llama-3.3-70b-versatile",
+  /* Groq 에는 최신 별칭이 없고 모델이 자주 은퇴한다(llama-3.3-70b-versatile 도 404) — 목록에서 선호 순으로 고른다 */
+  groq: GROQ_LATEST,
   claude: "claude-haiku-4-5",
   huggingface: HF_LATEST,
   nanobanana: "nanobanana-2",
@@ -136,4 +143,38 @@ export async function resolveGoogleTts(key: string): Promise<{ tier: string; voi
   if (!tier) return null;
   const picked = googleTierVoices(voices, tier);
   return picked ? { tier, voices: picked } : null;
+}
+
+/* ── Groq 모델 목록 ── */
+
+let groqListCache: { at: number; models: string[] } | null = null;
+const GROQ_LIST_TTL = 60 * 60 * 1000;
+
+/** 그 키로 지금 부를 수 있는 글 모델. 한 시간 캐시, 실패하면 빈 배열 */
+export async function listGroqModels(key: string): Promise<string[]> {
+  if (groqListCache && Date.now() - groqListCache.at < GROQ_LIST_TTL) return groqListCache.models;
+  try {
+    const res = await fetch("https://api.groq.com/openai/v1/models", { headers: { Authorization: `Bearer ${key}` }, signal: AbortSignal.timeout(8000) });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = (await res.json()) as { data?: { id: string; active?: boolean }[] };
+    const models = (data.data ?? []).filter((m) => m.active !== false).map((m) => m.id).filter((id) => !GROQ_NOT_TEXT.test(id));
+    if (models.length) groqListCache = { at: Date.now(), models };
+    return models;
+  } catch {
+    return groqListCache?.models ?? [];
+  }
+}
+
+/** 선호 순으로 첫 모델 — 선호 목록에 없으면 목록의 첫 번째, 목록이 비면 보루 */
+export function pickGroqLatest(models: string[]): string {
+  for (const re of GROQ_PREFER) {
+    const hit = models.find((m) => re.test(m));
+    if (hit) return hit;
+  }
+  return models[0] ?? GROQ_FALLBACK_MODEL;
+}
+
+export async function groqModel(key: string): Promise<string> {
+  const m = await aiModel("groq");
+  return m === GROQ_LATEST ? pickGroqLatest(await listGroqModels(key)) : m;
 }

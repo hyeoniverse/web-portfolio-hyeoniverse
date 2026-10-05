@@ -24,7 +24,7 @@ import { ENV_SECTION_ID, HintLines, envKeyLine } from "./EnvKeyHint";
 import { CONTACT_KEYS } from "@/lib/contactSend";
 import { AI_PROVIDER_INFO, FATAL_LIMIT, TRANSIENT_LIMIT } from "@/lib/ai/providers";
 import { NOTIFY_EMAIL_DEFAULT, NOTIFY_EMAIL_GROUPS } from "@/lib/notificationTypes";
-import { DEFAULT_AI_MODELS, GOOGLE_TTS_LATEST, HF_LATEST, type AiModelProvider } from "@/lib/ai/models";
+import { DEFAULT_AI_MODELS, GOOGLE_TTS_LATEST, GROQ_LATEST, HF_LATEST, type AiModelProvider } from "@/lib/ai/models";
 import { useAiHealth } from "./useAiHealth";
 import type { AiProvider } from "@/lib/ai/providers";
 import SectionHeader from "./SectionHeader";
@@ -71,7 +71,7 @@ function ModelSelect({ t, provider, value, onChange }: { t: TFunction; provider:
   }, [provider]);
   const latest = DEFAULT_AI_MODELS[provider];
   /* "latest" 가 센티널이면 지금 가리키는 모델 이름을 보여 준다(Hugging Face: Hub 인기 1위) */
-  const latestName = latest === HF_LATEST || latest === GOOGLE_TTS_LATEST ? (list?.resolved ?? latest) : latest;
+  const latestName = latest === HF_LATEST || latest === GOOGLE_TTS_LATEST || latest === GROQ_LATEST ? (list?.resolved ?? latest) : latest;
   const models = (list?.models ?? []).filter((m) => m !== latest && m !== list?.resolved);
   const options: SelectOption<string>[] = [
     { value: latest, label: `${latestName} · ${t("admin.aiHealth.modelLatest")}` },
