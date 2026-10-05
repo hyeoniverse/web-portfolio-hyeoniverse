@@ -344,7 +344,9 @@ function ProviderFallbackBlock<P extends string>({
   /** 순서 줄 상자 안 이름 뒤 — 요약 · 번역은 글 공급자가 부를 모델 셀렉트 */
   innerOf?: (p: P) => React.ReactNode;
 }) {
-  const provider = value?.provider ?? defaultProvider;
+  /* 저장된 기본 공급자가 지금 선택지에 없으면(다른 브랜치에서 저장한 공급자 등) 기본값으로 — 그대로 두면 "키 없음"으로 잘못 읽힌다 */
+  const provider = value?.provider && options.some((o) => o.value === value.provider) ? value.provider : defaultProvider;
+  const unknownSaved = !!value?.provider && value.provider !== provider;
   const fallbackEnabled = value?.fallback?.enabled ?? false;
   const stateOf = (p: P) => health.stateOf(providerOf(p));
   /* 줄마다 상세(원인 전문 · 사용량 막대)를 펼쳤는지 */
@@ -418,6 +420,7 @@ function ProviderFallbackBlock<P extends string>({
           }))}
           onExcludedChange={(next) => onChange((prev) => ({ ...prev, fallback: { ...prev?.fallback, enabled: prev?.fallback?.enabled ?? false, priority: prev?.fallback?.priority ?? [], excluded: next } }))}
         />
+        {unknownSaved && <p className={styles.providerWarn}>{fillTemplate(t("admin.settings.providerWarn.unknown"), { name: String(value?.provider) })}</p>}
         {/* 첫 공급자가 쓸 수 없는 상태면 여기서 바로 알린다 — 모르고 두면 요청마다 실패하고 fallback 으로만 돈다 */}
         {primaryState && primaryState !== "ok" && (
           <p className={styles.providerWarn}>{t(`admin.settings.providerWarn.${primaryState}`)}</p>
