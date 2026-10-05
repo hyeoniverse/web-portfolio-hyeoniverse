@@ -7,7 +7,7 @@
    표(AiHealthPanel)는 서비스 호출 기록 페이지가 그리고, 설정 › 서비스는 같은 조각(ProviderHealthInline · Detail)을
    기능별 순서 줄에 붙여 쓴다 — 표를 따로 두지 않는다. */
 import { useState } from "react";
-import { ChevronDown, ChevronRight, Copy, ExternalLink, History, ListX, Power } from "@/components/icons";
+import { ChevronDown, ChevronRight, Copy, ExternalLink, History, ListX, Power, PowerOff } from "@/components/icons";
 import { useRouter } from "next/navigation";
 import Popover, { MenuItem } from "@/components/ui/Popover";
 
@@ -156,8 +156,10 @@ export function ProviderHealthInline({ provider: p, health, open, onToggle }: { 
         <UsageLine provider={p} usage={u} deepl={p === "deepl" ? data.deepl : null} />
       </span>
       <span className={styles.actions}>
-        {/* 켜기/끄기(⏻ — 꺼짐이면 강조) */}
-        <Tooltip content={th(off ? "reenable" : "disable")}><Button variant={off ? "primary" : "ghost"} size="sm" shape="circle" onClick={() => void toggle()} loading={resetting} aria-label={th(off ? "reenable" : "disable")} aria-pressed={off} soundDisabled icon={<Power size={14} strokeWidth={2} />} /></Tooltip>
+        {/* 켜기/끄기 — 둘 다 ghost. 켜짐은 초록 ⏻(누르면 끈다), 꺼짐은 강조색 사선 ⏻(누르면 켠다) */}
+        <Tooltip content={th(off ? "reenable" : "disable")}>
+          <Button variant="ghost" size="sm" shape="circle" className={off ? styles.powerOff : styles.powerOn} onClick={() => void toggle()} loading={resetting} aria-label={th(off ? "reenable" : "disable")} aria-pressed={!off} soundDisabled icon={off ? <PowerOff size={14} strokeWidth={2.25} /> : <Power size={14} strokeWidth={2.25} />} />
+        </Tooltip>
         {/* 기록 — 메뉴로: 호출 기록 페이지(그 공급자로 걸러) 보기, 실패 중이면 이어진 실패 기록 지우기 */}
         <Popover
           menu

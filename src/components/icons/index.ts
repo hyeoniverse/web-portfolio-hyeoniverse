@@ -166,6 +166,7 @@ export {
   Play,
   Plus,
   Power,
+  PowerOff,
   Quote,
   Redo2,
   Rewind,
