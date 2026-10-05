@@ -71,7 +71,7 @@ English content (if available):
 ${contentEn}`;
 
   try {
-    const { ko, en, failures } = await generateSummary(promptText, "posts/ai-summary");
+    const { ko, en, failures } = await generateSummary(promptText, "posts/ai-summary", { temperature: force && !apply ? 0.7 : 0.2 });
     if (apply) await saveSummary(supabase, id, post.slug, ko, en);
     /* 앞 공급자가 실패해 뒤 공급자로 만들었으면 failures 에 실어 화면이 알린다. 저장하지 않았으면 현재 요약도 같이 */
     return NextResponse.json({ summary_ko: ko, summary_en: en, failures, applied: apply, current: apply ? undefined : { ko: post.summary_ko ?? "", en: post.summary_en ?? "" } });
