@@ -48,8 +48,8 @@
     inset var(--duration-slower) var(--ease-standard),
     filter var(--duration-slower) var(--ease-standard),
     opacity var(--duration-slower) var(--ease-standard);
-  transform: translateZ(0);
-  will-change: transform, opacity, filter;
+  /* translateZ(0) · will-change 를 두지 않는다 — Safari 는 3D 변환 · 승격된 층 안에서 조상의 mix-blend-mode 를
+     못 섞어 커서가 반전 없이 원색으로 보였다. 블러 글로우는 자기 층 없이도 충분히 가볍다 */
 }
 
 .cursorText {
