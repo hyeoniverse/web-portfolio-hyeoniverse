@@ -4,18 +4,19 @@
    AI Summary Component
    ========================================================================== */
 
+/* 상자 테두리 없이 — 위 정보 격자 · 아래 본문과는 여백과 가는 밑줄 하나로만 가른다.
+   테두리 상자는 바로 위 격자의 밑줄에 붙어 선이 두 겹으로 보였다 */
 .container {
-  border: var(--border-default);
-  border-radius: var(--radius-surface);
-  overflow: hidden;
-  margin-bottom: var(--spacing-32);
+  margin: var(--spacing-32) 0 var(--spacing-40);
+  padding-bottom: var(--spacing-24);
+  border-bottom: var(--border-light);
 }
 
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--spacing-12) var(--spacing-24);
+  padding: 0 0 var(--spacing-12);
   user-select: none;
   background: transparent;
   border: none;
@@ -25,8 +26,9 @@
   gap: var(--spacing-12);
 }
 
-.header:hover {
-  background: var(--bg-tertiary);
+.header:hover .label,
+.header:hover .chevron {
+  color: var(--text-primary);
 }
 
 .headerLeft {
@@ -69,7 +71,7 @@
 }
 
 .bodyInner {
-  padding: 0 var(--spacing-20) var(--spacing-20);
+  padding: 0;
 }
 
 .text {
