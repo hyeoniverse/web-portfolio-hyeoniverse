@@ -1977,6 +1977,15 @@
       "AI_SUMMARY_FAILED": "Could not create the AI summary. See the notice and AI status in Settings › Services for each provider's cause.",
       "AI_PROVIDERS_DISABLED": "Every provider is turned off after repeated failures, so no request was sent. Fix the cause in Settings › Services › AI status and turn it back on."
     },
+    "summaryCompare": {
+      "title": "Compare AI summaries",
+      "desc": "This post already has a summary. Choose whether to replace it. Replacing saves immediately.",
+      "current": "Current",
+      "next": "New",
+      "keep": "Keep current",
+      "useNext": "Use new summary",
+      "empty": "(empty)"
+    },
     "aiHealth": {
       "title": "AI & external service status",
       "detailShow": "Details",

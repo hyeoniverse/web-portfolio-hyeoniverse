@@ -101,6 +101,7 @@ import { reportAiResponse } from "@/lib/ai/notifyFailures";
 import { CodedError, errorFromBody, errorText } from "@/lib/apiError";
 import { sendAction, sendActions } from "@/lib/sendAction";
 import InputBlocker from "@/components/ui/InputBlocker";
+import SummaryCompareModal, { type SummaryPair } from "@/components/admin/SummaryCompare/SummaryCompareModal";
 
 /** Revision detail panel — lang 별 라벨/필드 로컬라이즈 + 해당 lang KO|EN 값만 노출. */
 function postSnapshotMeta(s: PostFormData, seriesList: { id: string; title: string }[], authorNames: Map<string, string>, lang: "ko" | "en"): import("@/components/admin/AdminEditorShell/types").RevisionMetaGroup[] {
@@ -933,25 +934,35 @@ export default function PostEditor({ post }: PostEditorProps) {
     if (!id) return;
     setRegeneratingSummary(true);
     try {
+      /* 저장하지 않고 만든다 — 이미 요약이 있으면 현재 것과 나란히 보여 주고 고른 쪽만 저장한다 */
       const res = await fetch(`/api/posts/${id}/ai-summary`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ force: true }),
+        body: JSON.stringify({ force: true, apply: false }),
       });
       /* 공급자마다의 원인(키 만료·한도 등)은 토스트로 — 설정 › 서비스의 AI 상태 패널에도 남는다 */
-      const data = await reportAiResponse(res, t, t("admin.aiHealth.feature.summary"));
+      const data = (await reportAiResponse(res, t, t("admin.aiHealth.feature.summary"))) as { summary_ko?: string; summary_en?: string; current?: SummaryPair } | null;
       if (!res.ok) {
         setError(res.status === 503 ? te("summaryNoKey") : errorText(data, t, te("summaryFailed")));
         return;
       }
-      setStatus(te("generateSummaryDone"));
-      setStatusType("success");
+      const next: SummaryPair = { ko: data?.summary_ko ?? "", en: data?.summary_en ?? "" };
+      const current = data?.current;
+      const save = async (pair: SummaryPair) => {
+        const ok = await sendAction(`/api/posts/${id}/ai-summary`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ summary_ko: pair.ko, summary_en: pair.en }) }, t, te("summaryFailed"));
+        if (ok) { setStatus(te("generateSummaryDone")); setStatusType("success"); }
+      };
+      if (current && (current.ko || current.en)) {
+        openModal(<SummaryCompareModal current={current} next={next} onPick={(p) => void save(p)} />, { header: { title: t("admin.summaryCompare.title") }, width: "min(92vw, 720px)" });
+        return;
+      }
+      await save(next);
     } catch {
       setError(te("summaryFailed"));
     } finally {
       setRegeneratingSummary(false);
     }
-  }, [post?.id, te]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [post?.id, te, t, openModal]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const shellLabels = useMemo(
     () => ({
