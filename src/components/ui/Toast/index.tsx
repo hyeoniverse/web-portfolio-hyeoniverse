@@ -12,22 +12,55 @@ import Pressable from "@/components/ui/Pressable";
 import styles from "./Toast.module.css";
 import { useKeepOnTopRef } from "@/hooks/useTopLayer";
 
-/** 문구 — 2줄까지만 보이고, 넘치면 끝에 "…" 단추. 누르면 토스트를 닫고 모달에 전체를 보인다 */
+/** 줄바꿈 문구의 구조 — 첫 줄은 설명, "· " 로 시작하는 줄은 항목("이름: 사유" 꼴이면 이름을 따로), 그 뒤 줄은 각주.
+ *  토스트(두 줄 안에 설명 + 항목)와 전체 보기 모달(설명 · 목록 · 각주)이 같은 해석을 쓴다 */
+const isItemLine = (l: string) => /^[·•\-]\s/.test(l);
+export function parseMessage(message: string) {
+  const lines = message.split("\n").map((l) => l.trim()).filter(Boolean);
+  const first = lines.length > 1 && !isItemLine(lines[0]) ? lines[0] : "";
+  const rest = first ? lines.slice(1) : lines;
+  const items = rest.filter(isItemLine).map((l) => {
+    const text = l.replace(/^[·•\-]\s/, "");
+    const m = text.match(/^([^:]{1,24}):\s(.+)$/);
+    return m ? { name: m[1], text: m[2] } : { name: "", text };
+  });
+  const notes = rest.filter((l) => !isItemLine(l));
+  return { first, items, notes, structured: items.length > 0 };
+}
+
+/** 문구 — 2줄까지만 보이고, 넘치면 끝에 "…" 단추. 누르면 토스트를 닫고 모달에 전체를 보인다.
+ *  구조가 있는 문구는 첫 줄을 굵게, 항목은 "이름: 사유" 를 · 로 이어 둘째 줄에 — 각주는 모달에서만 */
 function ToastMessage({ message, onOpenFull }: { message: string; onOpenFull: () => void }) {
   const { t } = useLanguage();
   const ref = useRef<HTMLSpanElement>(null);
-  const [overflow, setOverflow] = useState(false);
+  const [clipped, setClipped] = useState(false);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
     /* 줄 수는 폭에 따라 바뀐다 — 크기가 바뀔 때마다 잘렸는지 다시 본다 */
-    const ro = new ResizeObserver(() => setOverflow(el.scrollHeight > el.clientHeight + 1));
+    const ro = new ResizeObserver(() => setClipped(el.scrollHeight > el.clientHeight + 1));
     ro.observe(el);
     return () => ro.disconnect();
   }, [message]);
+  const parsed = parseMessage(message);
+  /* 각주를 토스트에서 뺐으면 잘린 게 없어도 전체 보기 단추를 둔다 */
+  const overflow = clipped || (parsed.structured && parsed.notes.length > 0);
   return (
     <>
-      <span ref={ref} className={styles.message}>{message}</span>
+      <span ref={ref} className={styles.message}>
+        {parsed.structured ? (
+          <>
+            {parsed.first && <strong className={styles.messageTitle}>{parsed.first}</strong>}
+            <span className={styles.messageItems}>
+              {parsed.items.map((it, i) => (
+                <span key={i} className={styles.messageItem}>
+                  {it.name ? <><span className={styles.messageName}>{it.name}</span>: {it.text}</> : it.text}
+                </span>
+              ))}
+            </span>
+          </>
+        ) : message}
+      </span>
       {overflow && (
         <Pressable
           className={styles.more}
@@ -66,23 +99,13 @@ export default function ToastContainer() {
      (AI 실패 사유처럼 "무엇이 / 공급자마다 왜 / 어디서 고치나" 꼴이 pre-line 한 덩어리보다 읽힌다) */
   const openFull = (id: string, message: string) => {
     dismiss(id);
-    const lines = message.split("\n").map((l) => l.trim()).filter(Boolean);
-    const isItem = (l: string) => /^[·•\-]\s/.test(l);
-    const first = lines.length > 1 && !isItem(lines[0]) ? lines[0] : "";
-    const rest = first ? lines.slice(1) : lines;
-    const items = rest.filter(isItem).map((l) => l.replace(/^[·•\-]\s/, ""));
-    const notes = rest.filter((l) => !isItem(l));
-    const structured = items.length > 0;
+    const { first, items, notes, structured } = parseMessage(message);
     openModal(
       <ModalAlert desc={structured ? first : message} confirmText={t("common.toastConfirm")}>
         {structured && (
           <>
             <ul className={tpl.itemList}>
-              {items.map((it, i) => {
-                /* "공급자: 사유" 꼴이면 앞을 굵게 — 어느 공급자의 사유인지 한눈에 */
-                const m = it.match(/^([^:]{1,24}):\s(.+)$/);
-                return <li key={i}>{m ? <><strong>{m[1]}</strong>: {m[2]}</> : it}</li>;
-              })}
+              {items.map((it, i) => <li key={i}>{it.name ? <><strong>{it.name}</strong>: {it.text}</> : it.text}</li>)}
             </ul>
             {notes.map((n, i) => <p key={i} className={tpl.hint}>{n}</p>)}
           </>
