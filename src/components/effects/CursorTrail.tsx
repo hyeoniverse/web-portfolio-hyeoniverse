@@ -297,7 +297,11 @@ export default function CursorTrail() {
       /* visual 을 mouse 정중앙에 맞추기 — cursorInner 의 실제 렌더 크기로 보정 (ResizeObserver 캐시) */
       const halfW = innerSizeRef.current.w / 2;
       const halfH = innerSizeRef.current.h / 2;
-      const translate = `translate(${circleRef.current.x - halfW}px, ${circleRef.current.y - halfH}px)`;
+      /* 트랙패드 핀치 확대 — fixed 요소는 페이지와 같이 커지므로 커서도 2~3배로 부푼다(좌표는 layout viewport 라 자리는 맞다).
+         확대 배율의 역수로 줄여 화면에서 보이는 크기를 늘 같게 둔다. 원점이 가운데라 자리는 그대로다 */
+      const vvScale = window.visualViewport?.scale ?? 1;
+      const zoomFix = vvScale > 1.001 ? ` scale(${1 / vvScale})` : "";
+      const translate = `translate(${circleRef.current.x - halfW}px, ${circleRef.current.y - halfH}px)${zoomFix}`;
 
       /* 속도 */
       const dx = mouseRef.current.x - prevMouseRef.current.x;
