@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { jsonServerError } from "@/lib/api/response";
 import { requirePostAccess, policyBlocked } from "@/lib/api/requirePostAccess";
-import { generateSummary, AiSummaryError } from "@/lib/api/aiSummaryProviders";
+import { generateSummary, buildSummaryPrompt, AiSummaryError } from "@/lib/api/aiSummaryProviders";
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -51,24 +51,7 @@ export async function POST(request: Request, context: RouteContext) {
     return NextResponse.json({ summary_ko: post.summary_ko, summary_en: post.summary_en });
   }
 
-  const contentKo = (post.content || "").slice(0, 3000);
-  const contentEn = (post.content_en || "").slice(0, 3000);
-
-  const promptText = `Summarize the following blog post in 2-3 concise sentences each for Korean and English.
-
-Rules:
-- Return ONLY a JSON object with keys "ko" and "en".
-- Each summary must be 2-3 sentences, capturing the main points.
-- Korean summary must be in natural Korean.
-- English summary must be in natural English.
-- No markdown formatting, headers, or bullet points. Plain text only.
-- Keep each under 200 characters.
-
-Korean content:
-${contentKo}
-
-English content (if available):
-${contentEn}`;
+  const promptText = buildSummaryPrompt("post", { title: post.title, ko: post.content, en: post.content_en });
 
   try {
     const { ko, en, failures } = await generateSummary(promptText, "posts/ai-summary");
