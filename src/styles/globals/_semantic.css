@@ -15,12 +15,15 @@
 
   /* 색이 아닌 값은 light-dark() 가 받지 않아서 여기서 테마마다 정한다(2-5-1) */
   --filter-mono-logo: none; /* 검은 단색 로고(Next.js · Vercel 등) — 다크에서 흰색으로 뒤집는다 */
+  /* 커서 트레일의 Safari 대체 — blend 가 안 먹는 Safari 에서 difference 결과(밝은 배경 = 색의 반전)를 흉내 낸다 */
+  --filter-cursor-fallback: invert(1);
 }
 
 :root[data-theme="dark"] {
   color-scheme: dark;
 
   --filter-mono-logo: invert(1);
+  --filter-cursor-fallback: brightness(1); /* none 은 filter 목록 안에 못 들어간다 */
 }
 
 /* --------------------------------------------------------------------------
