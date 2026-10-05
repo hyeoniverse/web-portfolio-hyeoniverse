@@ -62,6 +62,7 @@ import CoverImagePicker from "@/components/posts/CoverImagePicker";
 import { isVideoUrl } from "@/lib/isVideoUrl";
 import { IMAGE_FALLBACK_SRC } from "@/lib/imageFallback";
 import { useModalStore } from "@/stores/modalStore";
+import SummaryCompareModal, { type SummaryPair } from "@/components/admin/SummaryCompare/SummaryCompareModal";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import { List } from "@/app/admin/(dashboard)/components";
 import { deriveTeamMemberAvatar, getMemberInitial } from "@/utils/teamMemberAvatar";
@@ -79,7 +80,7 @@ import { SubtitleInput } from "./workEditor/SubtitleInput";
 import { workSnapshotMeta } from "./workEditor/workSnapshotMeta";
 import { parseYearAsPeriod, serializePeriodAsYear } from "./workEditor/periodFormat";
 import { CodedError, errorFromBody, errorFromResponse, errorText } from "@/lib/apiError";
-import { tryRequest } from "@/lib/sendAction";
+import { sendAction, tryRequest } from "@/lib/sendAction";
 import InputBlocker from "@/components/ui/InputBlocker";
 
 const Editor = dynamic(() => import("@/components/posts/PlateEditor"), {
@@ -1148,26 +1149,36 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     if (!id) return;
     setRegeneratingSummary(true);
     try {
+      /* 저장하지 않고 만든다 — 이미 요약이 있으면 현재 것과 나란히 보여 주고 고른 쪽만 저장한다 */
       const res = await fetch(`/api/works/${id}/ai-summary`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ force: true }),
+        body: JSON.stringify({ force: true, apply: false }),
       });
       /* 공급자마다의 원인(키 만료·한도 등)은 토스트로 — 설정 › 서비스의 AI 상태 패널에도 남는다 */
-      const data = await reportAiResponse(res, t, t("admin.aiHealth.feature.summary"));
+      const data = (await reportAiResponse(res, t, t("admin.aiHealth.feature.summary"))) as { summary_ko?: string; summary_en?: string; current?: SummaryPair } | null;
       if (!res.ok) {
         /* 서버는 "왜" 를 reason 에 담는다 — error 만 쓰면 "Forbidden" 밖에 안 남아 원인을 알 수 없다. */
         setError(errorText(data, t, tw("saveFailed")));
         return;
       }
-      setStatus(tw("generateSummaryDone"));
-      setStatusType("success");
+      const next: SummaryPair = { ko: data?.summary_ko ?? "", en: data?.summary_en ?? "" };
+      const current = data?.current;
+      const save = async (pair: SummaryPair) => {
+        const ok = await sendAction(`/api/works/${id}/ai-summary`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ summary_ko: pair.ko, summary_en: pair.en }) }, t, tw("saveFailed"));
+        if (ok) { setStatus(tw("generateSummaryDone")); setStatusType("success"); }
+      };
+      if (current && (current.ko || current.en)) {
+        openModal(<SummaryCompareModal current={current} next={next} onPick={(p) => void save(p)} />, { header: { title: t("admin.summaryCompare.title") }, width: "min(92vw, 720px)" });
+        return;
+      }
+      await save(next);
     } catch {
       setError(tw("saveFailed"));
     } finally {
       setRegeneratingSummary(false);
     }
-  }, [work?.id, tw, savedId, t]);
+  }, [work?.id, tw, savedId, t, openModal]);
 
   const shellLabels = useMemo(
     () => ({

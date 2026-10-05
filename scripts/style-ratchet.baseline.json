@@ -213,7 +213,6 @@
     "src/app/admin/(dashboard)/settings/_components/SectionHeader.module.css": 1,
     "src/app/admin/(dashboard)/settings/_components/SectionOutline.module.css": 1,
     "src/app/admin/(dashboard)/settings/_components/SeriesInlineEditor.module.css": 2,
-    "src/app/admin/(dashboard)/settings/_components/ServicesTab.module.css": 1,
     "src/app/admin/(dashboard)/settings/_components/SettingsFormFields.module.css": 3,
     "src/app/admin/(dashboard)/settings/Settings.module.css": 4,
     "src/app/admin/(dashboard)/traffic/UtmBuilder.module.css": 3,

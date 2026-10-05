@@ -148,7 +148,7 @@ export async function filterEnabled<P extends string>(
   for (const p of list) {
     const id = toProvider(p);
     const h = health[id];
-    if (isDisabled(h)) skipped.push({ provider: id, kind: h!.disabled!.kind, disabled: true });
+    if (isDisabled(h)) skipped.push({ provider: id, kind: h!.disabled!.kind, disabled: true, skipped: true });
     else enabled.push(p);
   }
   return { enabled, skipped };
