@@ -17,6 +17,10 @@ html.custom-cursor * {
 
 html {
   height: 100%;
+  /* html 에 배경이 없으면 body 배경이 캔버스로 올라간다. Safari 는 mix-blend-mode(커서 트레일 · 네비게이션의
+     difference)를 캔버스 배경과는 섞지 않아 빈 자리에서 원색이 그대로 보였다. 여기에도 두면 body 배경이 body 에
+     남아 blend 가 그걸 본다. Chrome 은 어느 쪽이든 같다 */
+  background: var(--bg-primary);
 }
 
 body {
