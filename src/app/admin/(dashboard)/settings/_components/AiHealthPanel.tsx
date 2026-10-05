@@ -102,7 +102,11 @@ function useFmt() {
 
 /** 공급자 한 줄의 상태 조각 — 상태 배지(칸 폭 고정) · 원인 한마디 · 이번 달 사용량 · 단추(다시 켜기 · 기록 · 콘솔 · 펼치기).
  *  상태 표(AiHealthPanel)와 설정 › 서비스의 기능 줄(순서 상자 오른쪽)이 같은 조각을 쓴다. 상태가 아직 없으면 아무것도 안 그린다 */
-export function ProviderHealthInline({ provider: p, health, open, onToggle }: { provider: AiProvider; health: Health; open: boolean; onToggle: () => void }) {
+export function ProviderHealthInline({ provider: p, health, open, onToggle, power }: {
+  provider: AiProvider; health: Health; open: boolean; onToggle: () => void;
+  /** 이 기능에서 쓸지(순서 줄) — 없으면(표 · 사진 공급자) 자동으로 꺼진 것을 다시 켜는 ⏻ 만 */
+  power?: { enabled: boolean; locked: boolean; toggle: () => void };
+}) {
   const { t, th } = useFmt();
   const router = useRouter();
   const { data, reload, stateOf } = health;
@@ -117,18 +121,7 @@ export function ProviderHealthInline({ provider: p, health, open, onToggle }: { 
   const off = state === "off";
   const failing = !off && (h?.fails ?? 0) > 0;
   const kind = h?.disabled?.kind ?? h?.kind;
-  /* ⏻ 하나로 켜고 끈다 — 꺼져 있으면 다시 켜기(기록도 지움), 아니면 직접 끄기(실패와 상관없이 요청을 멈춤) */
-  const toggle = async () => {
-    setResetting(true);
-    const res = await sendAction("/api/admin/ai-health", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ provider: p, action: off ? undefined : "disable" }),
-    }, t, th("resetFailed"));
-    setResetting(false);
-    if (res) await reload();
-  };
-  /* 기록 지우기 — 이어진 실패 횟수와 원인을 지운다 */
+  /* 다시 켜기 · 기록 지우기 — 둘 다 그 공급자의 실패 기록을 지운다(꺼짐도 풀린다) */
   const clear = async () => {
     setResetting(true);
     const res = await sendAction("/api/admin/ai-health", {
@@ -156,10 +149,17 @@ export function ProviderHealthInline({ provider: p, health, open, onToggle }: { 
         <UsageLine provider={p} usage={u} deepl={p === "deepl" ? data.deepl : null} />
       </span>
       <span className={styles.actions}>
-        {/* 켜기/끄기 — 둘 다 ghost. 켜짐은 초록 ⏻(누르면 끈다), 꺼짐은 강조색 사선 ⏻(누르면 켠다) */}
-        <Tooltip content={th(off ? "reenable" : "disable")}>
-          <Button variant="ghost" size="sm" shape="circle" className={off ? styles.powerOff : styles.powerOn} onClick={() => void toggle()} loading={resetting} aria-label={th(off ? "reenable" : "disable")} aria-pressed={!off} soundDisabled icon={off ? <PowerOff size={14} strokeWidth={2.25} /> : <Power size={14} strokeWidth={2.25} />} />
-        </Tooltip>
+        {/* ⏻ — 자동으로 꺼졌으면 강조색 사선(누르면 다시 켬). 아니면 이 기능에서 쓸지(초록 = 쓰는 중, 흐림 사선 = 뺌, 1번은 잠금).
+            순서가 없는 곳(표 · 사진 공급자)은 꺼졌을 때만 */}
+        {off ? (
+          <Tooltip content={th("reenable")}><Button variant="ghost" size="sm" shape="circle" className={styles.powerOff} onClick={() => void clear()} loading={resetting} aria-label={th("reenable")} soundDisabled icon={<PowerOff size={14} strokeWidth={2.25} />} /></Tooltip>
+        ) : power ? (
+          <Tooltip content={th(power.locked ? "featureLocked" : power.enabled ? "featureOn" : "featureOff")}>
+            <Button variant="ghost" size="sm" shape="circle" className={power.enabled ? styles.powerOn : styles.powerExcluded} onClick={power.toggle} disabled={power.locked} aria-label={th(power.enabled ? "featureOn" : "featureOff")} aria-pressed={power.enabled} soundDisabled icon={power.enabled ? <Power size={14} strokeWidth={2.25} /> : <PowerOff size={14} strokeWidth={2.25} />} />
+          </Tooltip>
+        ) : (
+          <span className={styles.actionBlank} aria-hidden />
+        )}
         {/* 기록 — 메뉴로: 호출 기록 페이지(그 공급자로 걸러) 보기, 실패 중이면 이어진 실패 기록 지우기 */}
         <Popover
           menu
@@ -175,7 +175,8 @@ export function ProviderHealthInline({ provider: p, health, open, onToggle }: { 
           {({ close }) => (
             <div role="menu">
               <MenuItem icon={<History size={14} strokeWidth={2} />} label={th("logView")} onClick={() => { close(); router.push(`/admin/service-log?provider=${p}`); }} />
-              {failing && <MenuItem icon={<ListX size={14} strokeWidth={2} />} label={th("clear")} onClick={() => { close(); void clear(); }} />}
+              {/* 지울 기록이 없으면 흐리게 — 메뉴에 무엇이 있는지는 늘 보인다 */}
+              <MenuItem icon={<ListX size={14} strokeWidth={2} />} label={th("clear")} disabled={!failing && !off} onClick={() => { close(); void clear(); }} />
             </div>
           )}
         </Popover>
