@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Sparkles, ChevronDown } from "@/components/icons";
+import { Sparkles, ChevronRight } from "@/components/icons";
 import T from "@/components/ui/T";
 import Button from "@/components/ui/Button";
 import LoadingDots from "@/components/ui/LoadingDots";
@@ -73,17 +73,20 @@ export default function AISummary({ summaryKo, summaryEn, lang, generating = fal
 
   return (
     <div className={styles.container}>
+      {/* 머리줄 — 누를 때 커지거나 색이 바뀌지 않는다(글이 움직여 보인다). 화살표만 › ↔ ˅ 로 돈다 */}
       <Pressable
         type="button"
         className={styles.header}
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
+        noTapScale
+        soundDisabled
       >
         <span className={styles.headerLeft}>
           <Sparkles className={styles.icon} size={16} strokeWidth={1.5} />
           <span className={styles.label}><T k="aiSummary.label" /></span>
         </span>
-        <ChevronDown
+        <ChevronRight
           className={`${styles.chevron} ${open ? styles.chevronOpen : ""}`}
           size={16}
           strokeWidth={1.5}

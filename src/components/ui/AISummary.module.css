@@ -26,10 +26,7 @@
   gap: var(--spacing-12);
 }
 
-.header:hover .label,
-.header:hover .chevron {
-  color: var(--text-primary);
-}
+
 
 .headerLeft {
   display: flex;
@@ -62,8 +59,9 @@
   transition: transform var(--duration-fast) var(--ease-standard);
 }
 
+/* 접힘 › · 펼침 ˅ */
 .chevronOpen {
-  transform: rotate(180deg);
+  transform: rotate(90deg);
 }
 
 .body {
