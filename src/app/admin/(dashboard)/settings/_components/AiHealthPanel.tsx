@@ -145,8 +145,11 @@ export function ProviderHealthInline({ provider: p, health, open, onToggle }: { 
         {failing && <Tooltip content={th("clear")}><Button variant="ghost" size="sm" shape="circle" onClick={() => void reset()} loading={resetting} aria-label={th("clear")} soundDisabled icon={<ListX size={14} strokeWidth={2} />} /></Tooltip>}
         {/* 호출 기록은 따로 둔 페이지(/admin/service-log) — 그 공급자로 걸러 연다 */}
         <Tooltip content={th("logOpenOne")}><Button variant="ghost" size="sm" shape="circle" href={`/admin/service-log?provider=${p}`} aria-label={th("logOpenOne")} soundDisabled icon={<History size={14} strokeWidth={2} />} /></Tooltip>
-        {info.console && (
+        {/* 콘솔이 없는 공급자(Edge)는 빈 칸을 둬 기록 · › 가 다른 줄과 같은 자리에 선다 */}
+        {info.console ? (
           <Tooltip content={th("console")}><Button variant="ghost" size="sm" shape="circle" href={info.console} external aria-label={th("console")} soundDisabled icon={<ExternalLink size={14} strokeWidth={2} />} /></Tooltip>
+        ) : (
+          <span className={styles.actionBlank} aria-hidden />
         )}
         <Tooltip content={th(open ? "detailHide" : "detailShow")}>
           <Button variant="ghost" size="sm" shape="circle" onClick={onToggle} aria-expanded={open} aria-label={th(open ? "detailHide" : "detailShow")} soundDisabled icon={<ChevronRight size={14} strokeWidth={2} className={`${styles.detailChev} ${open ? styles.detailChevOpen : ""}`} />} />

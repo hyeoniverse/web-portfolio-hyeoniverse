@@ -181,6 +181,13 @@
   margin-left: auto;
 }
 
+/* 콘솔 단추 자리 비움 — 원형 sm 단추와 같은 폭 */
+.actionBlank {
+  width: var(--control-height-sm);
+  height: var(--control-height-sm);
+  flex: 0 0 auto;
+}
+
 /* 원인과 고칠 방법 — 아래 사용량과 가는 선으로 나눈다 */
 .problem {
   display: flex;
