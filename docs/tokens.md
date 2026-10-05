@@ -304,11 +304,12 @@
 
 ## `src/styles/globals/_semantic.css`
 
-토큰 160개
+토큰 161개
 
 | 토큰 | 값 | 다크 | 조건부 |
 |---|---|---|---|
 | `--filter-mono-logo` | `none` | `invert(1)` |  |
+| `--filter-cursor-fallback` | `invert(1)` | `brightness(1)` |  |
 | `--text-white` | `var(--color-white)` |  |  |
 | `--text-white-muted` | `color-mix(in oklch, var(--color-white) 50%, transparent)` |  |  |
 | `--text-black` | `var(--color-black)` |  |  |
