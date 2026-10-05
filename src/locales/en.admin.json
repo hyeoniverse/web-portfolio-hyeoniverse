@@ -1159,7 +1159,8 @@
         "nokey": "The default provider has no key. Add the key in Environment variables or turn on auto switch.",
         "off": "The default provider is turned off after repeated failures. Press › at the end of its row to see the cause.",
         "failing": "The default provider has been failing recently. Press › at the end of its row to see the cause.",
-        "noFallback": "Auto switch is on, but there is no provider to switch to (all excluded, without a key, or turned off)."
+        "noFallback": "Auto switch is on, but there is no provider to switch to (all excluded, without a key, or turned off).",
+        "unknown": "The saved default provider \"{name}\" is not available in this version. Showing the default; saving will replace it."
       },
       "attachmentAutoOff": "Messages with attachments failed several times in a row, so file attachments were turned off automatically. Messages still arrive. Check the cause, then turn it back on.",
       "attachmentFailing": "Messages with attachments failed {{n}} times in a row recently. At 3, attachments turn off automatically.",
