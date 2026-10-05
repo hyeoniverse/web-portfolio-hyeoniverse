@@ -1,7 +1,7 @@
 import { requireOwner } from "@/lib/api/requireRole";
 import { jsonError, jsonOk } from "@/lib/api/response";
 import { getSecret } from "@/lib/getSecret";
-import { DEFAULT_AI_MODELS, NANOBANANA_MODELS, listGoogleTiers, listGoogleVoices, listHfImageModels, resolveHfLatest, type AiModelProvider } from "@/lib/ai/models";
+import { DEFAULT_AI_MODELS, NANOBANANA_MODELS, listGoogleTiers, listGoogleVoices, listGroqModels, listHfImageModels, pickGroqLatest, resolveHfLatest, type AiModelProvider } from "@/lib/ai/models";
 
 /**
  * GET /api/admin/ai-models?provider=gemini|openai|claude|huggingface|nanobanana — 그 키로 지금 부를 수 있는 모델 목록.
@@ -18,7 +18,7 @@ const KEY: Record<AiModelProvider, string> = {
 
 const NOT_TEXT = /embed|tts|audio|whisper|realtime|image|dall-e|moderation|transcribe|search|computer-use|aqa|imagen|veo|vision-only/i;
 
-async function listModels(provider: Exclude<AiModelProvider, "huggingface" | "nanobanana" | "google_tts">, key: string): Promise<string[]> {
+async function listModels(provider: Exclude<AiModelProvider, "huggingface" | "nanobanana" | "google_tts" | "groq">, key: string): Promise<string[]> {
   if (provider === "gemini") {
     const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?pageSize=200&key=${encodeURIComponent(key)}`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -33,13 +33,7 @@ async function listModels(provider: Exclude<AiModelProvider, "huggingface" | "na
     const data = (await res.json()) as { data?: { id: string }[] };
     return (data.data ?? []).map((m) => m.id).filter((id) => /^(gpt|o\d|chatgpt)/.test(id));
   }
-  if (provider === "groq") {
-    /* OpenAI 호환 목록 — 음성(whisper · tts) · 안전 필터(guard) · 에이전트(compound)는 글 요약에 못 쓴다 */
-    const res = await fetch("https://api.groq.com/openai/v1/models", { headers: { Authorization: `Bearer ${key}` } });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = (await res.json()) as { data?: { id: string; active?: boolean }[] };
-    return (data.data ?? []).filter((m) => m.active !== false).map((m) => m.id).filter((id) => !/guard|compound|whisper|tts|orpheus|playai/i.test(id));
-  }
+
   const res = await fetch("https://api.anthropic.com/v1/models?limit=100", { headers: { "x-api-key": key, "anthropic-version": "2023-06-01" } });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const data = (await res.json()) as { data?: { id: string }[] };
@@ -58,6 +52,10 @@ export async function GET(request: Request) {
   }
   const key = await getSecret(KEY[provider]);
   if (!key) return jsonOk({ provider, models: [], reason: "nokey" });
+  if (provider === "groq") {
+    const models = await listGroqModels(key);
+    return jsonOk({ provider, models, defaultModel: DEFAULT_AI_MODELS[provider], resolved: pickGroqLatest(models), reason: models.length ? undefined : "failed" });
+  }
   if (provider === "google_tts") {
     const tiers = listGoogleTiers(await listGoogleVoices(key));
     return jsonOk({ provider, models: tiers, defaultModel: DEFAULT_AI_MODELS[provider], resolved: tiers[0], reason: tiers.length ? undefined : "failed" });

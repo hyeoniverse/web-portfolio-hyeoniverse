@@ -2,7 +2,7 @@ import { getSecret } from "@/lib/getSecret";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 import { filterEnabled, missingKey, networkError, providerErrorFrom, recordFailure, recordOk, toProviderError } from "@/lib/ai/health";
 import type { AiProvider, ProviderFailure } from "@/lib/ai/providers";
-import { aiModel } from "@/lib/ai/models";
+import { aiModel, groqModel } from "@/lib/ai/models";
 
 /* 모델 이름은 설정(lib/ai/models)에서 — 코드에 박아 두면 은퇴할 때마다 고쳐야 한다 */
 const geminiUrl = (model: string) => `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
@@ -32,10 +32,12 @@ async function call(provider: AiProvider, url: string, init: RequestInit): Promi
 async function callOpenAICompatible(provider: "openai" | "groq", url: string, keyName: string, prompt: string): Promise<SummaryResult> {
   const apiKey = await getSecret(keyName);
   if (!apiKey) throw missingKey(provider, keyName);
+  /* Groq 의 "latest" 는 그 키의 목록에서 고른다(모델 은퇴에 안 깨지게) */
+  const model = provider === "groq" ? await groqModel(apiKey) : await aiModel(provider);
   const res = await call(provider, url, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-    body: JSON.stringify({ model: await aiModel(provider), messages: [{ role: "user", content: prompt }], temperature: 0.2, response_format: { type: "json_object" } }),
+    body: JSON.stringify({ model, messages: [{ role: "user", content: prompt }], temperature: 0.2, response_format: { type: "json_object" } }),
   });
   const data = await res.json();
   const parsed: { ko?: string; en?: string } = JSON.parse(data?.choices?.[0]?.message?.content ?? "{}");
