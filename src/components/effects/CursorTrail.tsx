@@ -74,6 +74,10 @@ export default function CursorTrail() {
   const rafRef = useRef<number>(0);
   /** cursorInner 실제 렌더 크기 — animate 에서 매 프레임 offsetWidth 읽으면 layout thrash 발생 */
   const innerSizeRef = useRef({ w: 20, h: 20 });
+  /* 핀치 확대 보정 — 브라우저마다 fixed 요소가 붙는 기준(layout/visual viewport)이 달라 식으로는 못 맞춘다(Safari 는
+     clientX 로 놓으면 확대 · 이동한 만큼 밀린다). 그린 뒤 getBoundingClientRect(포인터와 같은 client 좌표계)로 실제
+     자리를 재서 어긋난 만큼(dx·dy)을 다음 프레임에 되먹인다. 확대하지 않았을 때는 0 이라 아무 일도 없다 */
+  const zoomFixRef = useRef({ dx: 0, dy: 0 });
   /* 전체화면 요소가 바뀌면 다시 그린다(그 안으로 옮겨 그리려고) */
   const fsHost = useSyncExternalStore(subscribeFullscreen, fullscreenHost, noHost);
   /* 늘 맨 위(3.10-1) — 모달 · 팝오버가 뜰 때마다 다시 띄워 그 위로 올린다 */
@@ -305,11 +309,13 @@ export default function CursorTrail() {
       /* visual 을 mouse 정중앙에 맞추기 — cursorInner 의 실제 렌더 크기로 보정 (ResizeObserver 캐시) */
       const halfW = innerSizeRef.current.w / 2;
       const halfH = innerSizeRef.current.h / 2;
-      /* 트랙패드 핀치 확대 — fixed 요소는 페이지와 같이 커지므로 커서도 2~3배로 부푼다(좌표는 layout viewport 라 자리는 맞다).
-         확대 배율의 역수로 줄여 화면에서 보이는 크기를 늘 같게 둔다. 원점이 가운데라 자리는 그대로다 */
+      /* 트랙패드 핀치 확대 — 화면에서 보이는 크기는 확대 전과 같게(배율 역수), 자리는 지난 프레임에 잰 어긋남만큼 당긴다 */
       const vvScale = window.visualViewport?.scale ?? 1;
-      const zoomFix = vvScale > 1.001 ? ` scale(${1 / vvScale})` : "";
-      const translate = `translate(${circleRef.current.x - halfW}px, ${circleRef.current.y - halfH}px)${zoomFix}`;
+      const zoomed = vvScale > 1.001;
+      if (!zoomed) zoomFixRef.current = { dx: 0, dy: 0 };
+      const zf = zoomFixRef.current;
+      const zoomFix = zoomed ? ` scale(${1 / vvScale})` : "";
+      const translate = `translate(${circleRef.current.x - halfW + zf.dx}px, ${circleRef.current.y - halfH + zf.dy}px)${zoomFix}`;
 
       /* 속도 */
       const dx = mouseRef.current.x - prevMouseRef.current.x;
@@ -333,6 +339,15 @@ export default function CursorTrail() {
           angleRef.current = (Math.atan2(dy, dx) * 180) / Math.PI;
         }
         el.style.transform = `${translate} rotate(${angleRef.current}deg) scale(${1 + scaleRef.current}, ${1 - scaleRef.current})`;
+      }
+
+      /* 확대 중에만 — 방금 그린 자리를 재서 의도한 중심(circle)과의 차이를 다음 프레임 보정값에 더한다.
+         이득 0.5: fixed 층이 client 좌표보다 몇 배 크게 움직이는 브라우저에서도 발산하지 않고 몇 프레임 안에 모인다 */
+      if (zoomed) {
+        const r = el.getBoundingClientRect();
+        const errX = r.left + r.width / 2 - circleRef.current.x;
+        const errY = r.top + r.height / 2 - circleRef.current.y;
+        if (Math.abs(errX) > 0.5 || Math.abs(errY) > 0.5) zoomFixRef.current = { dx: zf.dx - errX * 0.5, dy: zf.dy - errY * 0.5 };
       }
 
       rafRef.current = requestAnimationFrame(animate);
