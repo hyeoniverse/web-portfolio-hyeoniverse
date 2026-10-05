@@ -27,8 +27,10 @@ interface PriorityListProps<T extends string> {
 
 export function PriorityList<T extends string>({ primary, priority, excluded, options, onChange, onExcludedChange, badgeOf, includePrimary, innerOf, onlyPrimary, detailOf }: PriorityListProps<T>) {
   const nonPrimary = options.filter((o) => o.value !== primary);
+  /* 저장된 순서에 지금 선택지에 없는 이름이 있으면(다른 브랜치에서 저장한 공급자 등) 그리지 않는다 */
+  const known = new Set(options.map((o) => o.value));
   const rest = priority.length
-    ? [...priority.filter((p) => p !== primary), ...nonPrimary.map((o) => o.value).filter((v) => !priority.includes(v))]
+    ? [...priority.filter((p) => p !== primary && known.has(p)), ...nonPrimary.map((o) => o.value).filter((v) => !priority.includes(v))]
     : nonPrimary.map((o) => o.value);
   const full = includePrimary ? [primary, ...rest] : rest;
   /* 자동 전환이 꺼져 있어도 뒤 항목은 그려 두고 접는다(높이 0) — 켜고 끌 때 펼쳐지고 접히는 움직임이 보인다 */

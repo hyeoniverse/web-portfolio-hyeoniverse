@@ -37,7 +37,8 @@
       "deletedByAdmin": "(removed by admin)",
       "deletedBySelf": "(removed by author)",
       "restore": "Restore",
-      "empty": "No comments"
+      "empty": "No comments",
+      "same": "The new summary is identical to the current one. Edit the content or pick another model and try again."
     },
     "dashboard": {
       "title": "Dashboard",
@@ -877,6 +878,7 @@
         "HUGGINGFACE_API_KEY": "The Hugging Face inference token. Used to call image generation models such as FLUX.",
         "GEMINI_API_KEY": "The Google Gemini API key. Used for summaries, translation, image generation, and more.",
         "OPENAI_API_KEY": "The OpenAI API key. Used to call OpenAI models for summaries, translation, and more.",
+        "GROQ_API_KEY": "Groq API key. Used for AI summaries with free-tier OpenAI-compatible models (Llama, Qwen).",
         "ANTHROPIC_API_KEY": "The Anthropic Claude API key. Used to call Claude models for summaries, translation, and more.",
         "GOOGLE_TRANSLATE_API_KEY": "The Google Cloud Translation API key. Used to translate post content.",
         "DEEPL_API_KEY": "The DeepL API key (Free or Pro). Used to translate post content.",
@@ -1159,7 +1161,8 @@
         "nokey": "The default provider has no key. Add the key in Environment variables or turn on auto switch.",
         "off": "The default provider is turned off after repeated failures. Press › at the end of its row to see the cause.",
         "failing": "The default provider has been failing recently. Press › at the end of its row to see the cause.",
-        "noFallback": "Auto switch is on, but there is no provider to switch to (all excluded, without a key, or turned off)."
+        "noFallback": "Auto switch is on, but there is no provider to switch to (all excluded, without a key, or turned off).",
+        "unknown": "The saved default provider is \"{{name}}\", but this version has no such provider. Switch to a version that has it, or pick another provider here and save."
       },
       "attachmentAutoOff": "Messages with attachments failed several times in a row, so file attachments were turned off automatically. Messages still arrive. Check the cause, then turn it back on.",
       "attachmentFailing": "Messages with attachments failed {{n}} times in a row recently. At 3, attachments turn off automatically.",
@@ -2086,7 +2089,8 @@
       },
       "note": {
         "unsplash": "50 requests an hour (demo app), 1,000 after approval",
-        "pexels": "200 requests an hour"
+        "pexels": "200 requests an hour",
+        "groq": "Free-tier limits differ per model and change often; check the console"
       },
       "logOpen": "View log",
       "logView": "View log",

@@ -24,7 +24,7 @@ import { ENV_SECTION_ID, HintLines, envKeyLine } from "./EnvKeyHint";
 import { CONTACT_KEYS } from "@/lib/contactSend";
 import { AI_PROVIDER_INFO, FATAL_LIMIT, TRANSIENT_LIMIT } from "@/lib/ai/providers";
 import { NOTIFY_EMAIL_DEFAULT, NOTIFY_EMAIL_GROUPS } from "@/lib/notificationTypes";
-import { DEFAULT_AI_MODELS, GOOGLE_TTS_LATEST, HF_LATEST, type AiModelProvider } from "@/lib/ai/models";
+import { DEFAULT_AI_MODELS, GOOGLE_TTS_LATEST, GROQ_LATEST, HF_LATEST, type AiModelProvider } from "@/lib/ai/models";
 import { useAiHealth } from "./useAiHealth";
 import type { AiProvider } from "@/lib/ai/providers";
 import SectionHeader from "./SectionHeader";
@@ -71,7 +71,7 @@ function ModelSelect({ t, provider, value, onChange }: { t: TFunction; provider:
   }, [provider]);
   const latest = DEFAULT_AI_MODELS[provider];
   /* "latest" 가 센티널이면 지금 가리키는 모델 이름을 보여 준다(Hugging Face: Hub 인기 1위) */
-  const latestName = latest === HF_LATEST || latest === GOOGLE_TTS_LATEST ? (list?.resolved ?? latest) : latest;
+  const latestName = latest === HF_LATEST || latest === GOOGLE_TTS_LATEST || latest === GROQ_LATEST ? (list?.resolved ?? latest) : latest;
   const models = (list?.models ?? []).filter((m) => m !== latest && m !== list?.resolved);
   const options: SelectOption<string>[] = [
     { value: latest, label: `${latestName} · ${t("admin.aiHealth.modelLatest")}` },
@@ -344,7 +344,9 @@ function ProviderFallbackBlock<P extends string>({
   /** 순서 줄 상자 안 이름 뒤 — 요약 · 번역은 글 공급자가 부를 모델 셀렉트 */
   innerOf?: (p: P) => React.ReactNode;
 }) {
-  const provider = value?.provider ?? defaultProvider;
+  /* 저장된 기본 공급자가 지금 선택지에 없으면(다른 브랜치에서 저장한 공급자 등) 기본값으로 — 그대로 두면 "키 없음"으로 잘못 읽힌다 */
+  const provider = value?.provider && options.some((o) => o.value === value.provider) ? value.provider : defaultProvider;
+  const unknownSaved = !!value?.provider && value.provider !== provider;
   const fallbackEnabled = value?.fallback?.enabled ?? false;
   const stateOf = (p: P) => health.stateOf(providerOf(p));
   /* 줄마다 상세(원인 전문 · 사용량 막대)를 펼쳤는지 */
@@ -418,13 +420,16 @@ function ProviderFallbackBlock<P extends string>({
           }))}
           onExcludedChange={(next) => onChange((prev) => ({ ...prev, fallback: { ...prev?.fallback, enabled: prev?.fallback?.enabled ?? false, priority: prev?.fallback?.priority ?? [], excluded: next } }))}
         />
-        {/* 첫 공급자가 쓸 수 없는 상태면 여기서 바로 알린다 — 모르고 두면 요청마다 실패하고 fallback 으로만 돈다 */}
-        {primaryState && primaryState !== "ok" && (
-          <p className={styles.providerWarn}>{t(`admin.settings.providerWarn.${primaryState}`)}</p>
-        )}
-        {fallbackEnabled && usableFallbacks.length === 0 && (
-          <p className={styles.providerWarn}>{t("admin.settings.providerWarn.noFallback")}</p>
-        )}
+        {/* 경고 — 첫 공급자가 쓸 수 없는 상태면 여기서 바로 알린다(모르고 두면 요청마다 실패하고 fallback 으로만 돈다).
+            여럿이면 글머리 목록으로(한 줄씩 붙여 두면 어디서 문장이 갈리는지 안 보인다) */}
+        <HintLines
+          className={styles.providerWarn}
+          lines={[
+            unknownSaved && fillTemplate(t("admin.settings.providerWarn.unknown"), { name: String(value?.provider) }),
+            primaryState && primaryState !== "ok" && t(`admin.settings.providerWarn.${primaryState}`),
+            fallbackEnabled && usableFallbacks.length === 0 && t("admin.settings.providerWarn.noFallback"),
+          ]}
+        />
         {children}
       </div>
     </div>
@@ -942,7 +947,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
             defaultProvider="gemini"
             value={config.aiSummary as ProviderFallback<AISummaryProvider>}
             onChange={(u) => setConfig((prev) => ({ ...prev, aiSummary: u(prev.aiSummary as ProviderFallback<AISummaryProvider>) as typeof prev.aiSummary }))}
-            logProviders={["gemini", "openai", "claude"]}
+            logProviders={["gemini", "openai", "groq", "claude"]}
             keyOf={(p) => AI_PROVIDER_INFO[p as keyof typeof AI_PROVIDER_INFO]?.key}
             health={aiHealth}
             providerOf={(p) => p as AiProvider}

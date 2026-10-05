@@ -2,11 +2,12 @@ import { getSecret } from "@/lib/getSecret";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 import { filterEnabled, missingKey, networkError, providerErrorFrom, recordFailure, recordOk, toProviderError } from "@/lib/ai/health";
 import type { AiProvider, ProviderFailure } from "@/lib/ai/providers";
-import { aiModel } from "@/lib/ai/models";
+import { aiModel, groqModel } from "@/lib/ai/models";
 
 /* 모델 이름은 설정(lib/ai/models)에서 — 코드에 박아 두면 은퇴할 때마다 고쳐야 한다 */
 const geminiUrl = (model: string) => `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
+const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
 const CLAUDE_API_URL = "https://api.anthropic.com/v1/messages";
 
 interface SummaryResult {
@@ -14,7 +15,7 @@ interface SummaryResult {
   en: string;
 }
 
-type SummaryProvider = "gemini" | "openai" | "claude";
+type SummaryProvider = "gemini" | "openai" | "groq" | "claude";
 
 async function call(provider: AiProvider, url: string, init: RequestInit): Promise<Response> {
   let res: Response;
@@ -27,39 +28,44 @@ async function call(provider: AiProvider, url: string, init: RequestInit): Promi
   return res;
 }
 
-async function callOpenAI(prompt: string): Promise<SummaryResult> {
-  const apiKey = await getSecret("OPENAI_API_KEY");
-  if (!apiKey) throw missingKey("openai", "OPENAI_API_KEY");
-  const res = await call("openai", OPENAI_API_URL, {
+/* OpenAI 호환 chat completions — OpenAI 와 Groq 이 같은 꼴(URL · 키만 다르다) */
+async function callOpenAICompatible(provider: "openai" | "groq", url: string, keyName: string, prompt: string, temperature: number): Promise<SummaryResult> {
+  const apiKey = await getSecret(keyName);
+  if (!apiKey) throw missingKey(provider, keyName);
+  /* Groq 의 "latest" 는 그 키의 목록에서 고른다(모델 은퇴에 안 깨지게) */
+  const model = provider === "groq" ? await groqModel(apiKey) : await aiModel(provider);
+  const res = await call(provider, url, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-    body: JSON.stringify({ model: await aiModel("openai"), messages: [{ role: "user", content: prompt }], temperature: 0.2, response_format: { type: "json_object" } }),
+    body: JSON.stringify({ model, messages: [{ role: "user", content: prompt }], temperature, response_format: { type: "json_object" } }),
   });
   const data = await res.json();
   const parsed: { ko?: string; en?: string } = JSON.parse(data?.choices?.[0]?.message?.content ?? "{}");
   return { ko: parsed.ko ?? "", en: parsed.en ?? "" };
 }
+const callOpenAI = (prompt: string, temperature: number) => callOpenAICompatible("openai", OPENAI_API_URL, "OPENAI_API_KEY", prompt, temperature);
+const callGroq = (prompt: string, temperature: number) => callOpenAICompatible("groq", GROQ_API_URL, "GROQ_API_KEY", prompt, temperature);
 
-async function callClaude(prompt: string): Promise<SummaryResult> {
+async function callClaude(prompt: string, temperature: number): Promise<SummaryResult> {
   const apiKey = await getSecret("ANTHROPIC_API_KEY");
   if (!apiKey) throw missingKey("claude", "ANTHROPIC_API_KEY");
   const res = await call("claude", CLAUDE_API_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01" },
-    body: JSON.stringify({ model: await aiModel("claude"), max_tokens: 1024, messages: [{ role: "user", content: prompt }] }),
+    body: JSON.stringify({ model: await aiModel("claude"), max_tokens: 1024, temperature, messages: [{ role: "user", content: prompt }] }),
   });
   const data = await res.json();
   const parsed: { ko?: string; en?: string } = JSON.parse(data?.content?.[0]?.text ?? "{}");
   return { ko: parsed.ko ?? "", en: parsed.en ?? "" };
 }
 
-async function callGemini(prompt: string): Promise<SummaryResult> {
+async function callGemini(prompt: string, temperature: number): Promise<SummaryResult> {
   const apiKey = await getSecret("GEMINI_API_KEY");
   if (!apiKey) throw missingKey("gemini", "GEMINI_API_KEY");
   const res = await call("gemini", `${geminiUrl(await aiModel("gemini"))}?key=${apiKey}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature: 0.2, responseMimeType: "application/json" } }),
+    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature, responseMimeType: "application/json" } }),
   });
   const data = await res.json();
   const parsed: { ko?: string; en?: string } = JSON.parse(data?.candidates?.[0]?.content?.parts?.[0]?.text ?? "{}");
@@ -82,9 +88,14 @@ export async function buildSummaryProviderList(): Promise<SummaryProvider[]> {
 }
 
 /** Provider fallback 순회하며 요약 생성 */
+/**
+ * @param temperature 자동 요약(저장 때)은 0.2 로 안정적으로, 사용자가 "다시 만들기"를 눌렀을 때는 0.7 — 같은 본문에 같은 값이면
+ *   거의 같은 글이 나와 비교할 게 없다
+ */
 export async function generateSummary(
   prompt: string,
   logPrefix: string,
+  { temperature = 0.2 }: { temperature?: number } = {},
 ): Promise<SummaryResult & { failures: ProviderFailure[] }> {
   /* 여러 번 이어 실패해 꺼 둔 공급자는 부르지 않는다(lib/ai/health) */
   const { enabled, skipped } = await filterEnabled(await buildSummaryProviderList(), (p) => p);
@@ -94,9 +105,10 @@ export async function generateSummary(
 
   for (const provider of enabled) {
     try {
-      const result = provider === "openai" ? await callOpenAI(prompt)
-        : provider === "claude" ? await callClaude(prompt)
-        : await callGemini(prompt);
+      const result = provider === "openai" ? await callOpenAI(prompt, temperature)
+        : provider === "groq" ? await callGroq(prompt, temperature)
+        : provider === "claude" ? await callClaude(prompt, temperature)
+        : await callGemini(prompt, temperature);
       await recordOk(provider);
       return { ...result, failures };
     } catch (e) {
