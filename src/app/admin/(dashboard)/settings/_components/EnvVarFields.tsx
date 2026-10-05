@@ -38,6 +38,7 @@ const ENV_VAR_META: Record<string, { docsUrl?: string; prefix?: string }> = {
   HUGGINGFACE_API_KEY: { docsUrl: "https://huggingface.co/settings/tokens", prefix: "hf_" },
   GEMINI_API_KEY: { docsUrl: "https://aistudio.google.com/apikey", prefix: "AIza" },
   OPENAI_API_KEY: { docsUrl: "https://platform.openai.com/api-keys", prefix: "sk-" },
+  GROQ_API_KEY: { docsUrl: "https://console.groq.com/keys", prefix: "gsk_" },
   ANTHROPIC_API_KEY: { docsUrl: "https://console.anthropic.com/settings/keys", prefix: "sk-ant-" },
   GOOGLE_TRANSLATE_API_KEY: { docsUrl: "https://console.cloud.google.com/apis/credentials", prefix: "AIza" },
   DEEPL_API_KEY: { docsUrl: "https://www.deepl.com/account/summary" },
@@ -114,6 +115,7 @@ export default function EnvVarFields({
     google: [{ key: "GOOGLE_TRANSLATE_API_KEY", label: "Google Translate API Key" }],
     deepl: [{ key: "DEEPL_API_KEY", label: "DeepL API Key" }],
     openai: [{ key: "OPENAI_API_KEY", label: "OpenAI API Key" }],
+    groq: [{ key: "GROQ_API_KEY", label: "Groq API Key" }],
     claude: [{ key: "ANTHROPIC_API_KEY", label: "Anthropic API Key" }],
   };
 

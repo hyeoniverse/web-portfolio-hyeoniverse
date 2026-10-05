@@ -12,7 +12,7 @@ import { DEFAULT_AI_MODELS, NANOBANANA_MODELS, listGoogleTiers, listGoogleVoices
  * Google Cloud TTS 는 voices API 의 목소리 등급(Chirp3-HD · Neural2 …)이 모델이다 — 성별×언어 네 칸이 다 있는 등급만, 새 것부터.
  */
 const KEY: Record<AiModelProvider, string> = {
-  gemini: "GEMINI_API_KEY", openai: "OPENAI_API_KEY", claude: "ANTHROPIC_API_KEY",
+  gemini: "GEMINI_API_KEY", openai: "OPENAI_API_KEY", groq: "GROQ_API_KEY", claude: "ANTHROPIC_API_KEY",
   huggingface: "HUGGINGFACE_API_KEY", nanobanana: "NANOBANANA_API_KEY", google_tts: "GOOGLE_TTS_API_KEY",
 };
 
@@ -32,6 +32,13 @@ async function listModels(provider: Exclude<AiModelProvider, "huggingface" | "na
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = (await res.json()) as { data?: { id: string }[] };
     return (data.data ?? []).map((m) => m.id).filter((id) => /^(gpt|o\d|chatgpt)/.test(id));
+  }
+  if (provider === "groq") {
+    /* OpenAI 호환 목록 — 음성(whisper · tts) · 안전 필터(guard) · 에이전트(compound)는 글 요약에 못 쓴다 */
+    const res = await fetch("https://api.groq.com/openai/v1/models", { headers: { Authorization: `Bearer ${key}` } });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = (await res.json()) as { data?: { id: string; active?: boolean }[] };
+    return (data.data ?? []).filter((m) => m.active !== false).map((m) => m.id).filter((id) => !/guard|compound|whisper|tts|orpheus|playai/i.test(id));
   }
   const res = await fetch("https://api.anthropic.com/v1/models?limit=100", { headers: { "x-api-key": key, "anthropic-version": "2023-06-01" } });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);

@@ -942,7 +942,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
             defaultProvider="gemini"
             value={config.aiSummary as ProviderFallback<AISummaryProvider>}
             onChange={(u) => setConfig((prev) => ({ ...prev, aiSummary: u(prev.aiSummary as ProviderFallback<AISummaryProvider>) as typeof prev.aiSummary }))}
-            logProviders={["gemini", "openai", "claude"]}
+            logProviders={["gemini", "openai", "groq", "claude"]}
             keyOf={(p) => AI_PROVIDER_INFO[p as keyof typeof AI_PROVIDER_INFO]?.key}
             health={aiHealth}
             providerOf={(p) => p as AiProvider}
