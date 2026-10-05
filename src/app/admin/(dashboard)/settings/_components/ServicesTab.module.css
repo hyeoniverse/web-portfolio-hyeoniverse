@@ -30,11 +30,13 @@
 
 
 /* 첫 공급자·fallback 순서가 쓸 수 없는 상태일 때의 한 줄 — 두 칸을 가로질러 */
-.providerWarn {
-  grid-column: 1 / -1;
+/* 경고 문구 — 강조색. 기능 줄에서는 설명(HintLines)과 같은 틀이라 하나면 문단, 여럿이면 글머리 목록.
+   .featureBody 를 붙인 건 HintLines 가 같이 주는 공용 클래스(fieldHint 등, 같은 (0,1,0))를 번들 순서와 상관없이 이기려고 */
+.providerWarn,
+.featureBody .providerWarn,
+.featureBody .providerWarn li {
   margin: 0;
   font: var(--font-body-sm);
-  line-height: 1.5;
   color: var(--text-accent);
 }
 

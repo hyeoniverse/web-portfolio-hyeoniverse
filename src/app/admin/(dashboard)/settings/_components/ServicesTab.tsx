@@ -420,14 +420,16 @@ function ProviderFallbackBlock<P extends string>({
           }))}
           onExcludedChange={(next) => onChange((prev) => ({ ...prev, fallback: { ...prev?.fallback, enabled: prev?.fallback?.enabled ?? false, priority: prev?.fallback?.priority ?? [], excluded: next } }))}
         />
-        {unknownSaved && <p className={styles.providerWarn}>{fillTemplate(t("admin.settings.providerWarn.unknown"), { name: String(value?.provider) })}</p>}
-        {/* 첫 공급자가 쓸 수 없는 상태면 여기서 바로 알린다 — 모르고 두면 요청마다 실패하고 fallback 으로만 돈다 */}
-        {primaryState && primaryState !== "ok" && (
-          <p className={styles.providerWarn}>{t(`admin.settings.providerWarn.${primaryState}`)}</p>
-        )}
-        {fallbackEnabled && usableFallbacks.length === 0 && (
-          <p className={styles.providerWarn}>{t("admin.settings.providerWarn.noFallback")}</p>
-        )}
+        {/* 경고 — 첫 공급자가 쓸 수 없는 상태면 여기서 바로 알린다(모르고 두면 요청마다 실패하고 fallback 으로만 돈다).
+            여럿이면 글머리 목록으로(한 줄씩 붙여 두면 어디서 문장이 갈리는지 안 보인다) */}
+        <HintLines
+          className={styles.providerWarn}
+          lines={[
+            unknownSaved && fillTemplate(t("admin.settings.providerWarn.unknown"), { name: String(value?.provider) }),
+            primaryState && primaryState !== "ok" && t(`admin.settings.providerWarn.${primaryState}`),
+            fallbackEnabled && usableFallbacks.length === 0 && t("admin.settings.providerWarn.noFallback"),
+          ]}
+        />
         {children}
       </div>
     </div>
