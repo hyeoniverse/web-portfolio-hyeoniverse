@@ -877,6 +877,7 @@
         "HUGGINGFACE_API_KEY": "Hugging Face 인퍼런스 토큰입니다. FLUX 등 이미지 생성 모델을 호출할 때 사용됩니다.",
         "GEMINI_API_KEY": "Google Gemini API 키입니다. 요약·번역·이미지 생성 등에 사용됩니다.",
         "OPENAI_API_KEY": "OpenAI API 키입니다. 요약·번역 등 OpenAI 모델을 호출할 때 사용됩니다.",
+        "GROQ_API_KEY": "Groq API 키입니다. 무료 등급의 OpenAI 호환 모델(Llama · Qwen 등)로 AI 요약을 할 때 사용됩니다.",
         "ANTHROPIC_API_KEY": "Anthropic Claude API 키입니다. 요약·번역 등 Claude 모델을 호출할 때 사용됩니다.",
         "GOOGLE_TRANSLATE_API_KEY": "Google Cloud Translation API 키입니다. 본문 번역에 사용됩니다.",
         "DEEPL_API_KEY": "DeepL API 키입니다(Free/Pro). 본문 번역에 사용됩니다.",
@@ -2077,7 +2078,8 @@
       },
       "note": {
         "unsplash": "한 시간에 50회(데모 앱), 승인 후 1,000회",
-        "pexels": "한 시간에 200회"
+        "pexels": "한 시간에 200회",
+        "groq": "무료 등급 한도는 모델마다 다르고 자주 바뀝니다. 콘솔에서 확인해 주세요."
       },
       "logOpen": "기록 보기",
       "logView": "기록 보기",

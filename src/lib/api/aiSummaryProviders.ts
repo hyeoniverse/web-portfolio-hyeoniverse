@@ -7,6 +7,7 @@ import { aiModel } from "@/lib/ai/models";
 /* 모델 이름은 설정(lib/ai/models)에서 — 코드에 박아 두면 은퇴할 때마다 고쳐야 한다 */
 const geminiUrl = (model: string) => `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
+const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
 const CLAUDE_API_URL = "https://api.anthropic.com/v1/messages";
 
 interface SummaryResult {
@@ -14,7 +15,7 @@ interface SummaryResult {
   en: string;
 }
 
-type SummaryProvider = "gemini" | "openai" | "claude";
+type SummaryProvider = "gemini" | "openai" | "groq" | "claude";
 
 async function call(provider: AiProvider, url: string, init: RequestInit): Promise<Response> {
   let res: Response;
@@ -27,18 +28,21 @@ async function call(provider: AiProvider, url: string, init: RequestInit): Promi
   return res;
 }
 
-async function callOpenAI(prompt: string): Promise<SummaryResult> {
-  const apiKey = await getSecret("OPENAI_API_KEY");
-  if (!apiKey) throw missingKey("openai", "OPENAI_API_KEY");
-  const res = await call("openai", OPENAI_API_URL, {
+/* OpenAI 호환 chat completions — OpenAI 와 Groq 이 같은 꼴(URL · 키만 다르다) */
+async function callOpenAICompatible(provider: "openai" | "groq", url: string, keyName: string, prompt: string): Promise<SummaryResult> {
+  const apiKey = await getSecret(keyName);
+  if (!apiKey) throw missingKey(provider, keyName);
+  const res = await call(provider, url, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-    body: JSON.stringify({ model: await aiModel("openai"), messages: [{ role: "user", content: prompt }], temperature: 0.2, response_format: { type: "json_object" } }),
+    body: JSON.stringify({ model: await aiModel(provider), messages: [{ role: "user", content: prompt }], temperature: 0.2, response_format: { type: "json_object" } }),
   });
   const data = await res.json();
   const parsed: { ko?: string; en?: string } = JSON.parse(data?.choices?.[0]?.message?.content ?? "{}");
   return { ko: parsed.ko ?? "", en: parsed.en ?? "" };
 }
+const callOpenAI = (prompt: string) => callOpenAICompatible("openai", OPENAI_API_URL, "OPENAI_API_KEY", prompt);
+const callGroq = (prompt: string) => callOpenAICompatible("groq", GROQ_API_URL, "GROQ_API_KEY", prompt);
 
 async function callClaude(prompt: string): Promise<SummaryResult> {
   const apiKey = await getSecret("ANTHROPIC_API_KEY");
@@ -95,6 +99,7 @@ export async function generateSummary(
   for (const provider of enabled) {
     try {
       const result = provider === "openai" ? await callOpenAI(prompt)
+        : provider === "groq" ? await callGroq(prompt)
         : provider === "claude" ? await callClaude(prompt)
         : await callGemini(prompt);
       await recordOk(provider);

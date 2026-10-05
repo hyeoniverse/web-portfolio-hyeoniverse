@@ -10,6 +10,7 @@ const PROVIDER_KEY_MAP: Record<string, string> = {
   gemini: "GEMINI_API_KEY",
   claude: "ANTHROPIC_API_KEY",
   openai: "OPENAI_API_KEY",
+  groq: "GROQ_API_KEY",
   nanobanana: "NANOBANANA_API_KEY",
   huggingface: "HUGGINGFACE_API_KEY",
 };

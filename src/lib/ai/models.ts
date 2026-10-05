@@ -6,7 +6,7 @@ import { getSiteConfig } from "@/lib/getSiteConfig";
  *  Hugging Face 에는 별칭이 없어 "latest" 를 우리가 센티널로 두고, 부를 때 Hub 에서
  *  지금 추론이 되는 text-to-image 모델 가운데 인기 1위로 푼다(resolveHfLatest).
  *  NanoBanana(리셀러 nanobananaapi.ai)는 엔드포인트가 곧 모델이다 — generate-2 가 최신. */
-export type AiModelProvider = "gemini" | "openai" | "claude" | "huggingface" | "nanobanana" | "google_tts";
+export type AiModelProvider = "gemini" | "openai" | "groq" | "claude" | "huggingface" | "nanobanana" | "google_tts";
 
 export const HF_LATEST = "latest";
 /** Hub 가 안 응답할 때 쓸 마지막 보루 */
@@ -23,6 +23,8 @@ export const NANOBANANA_MODELS: NanoBananaModel[] = ["nanobanana-2", "nanobanana
 export const DEFAULT_AI_MODELS: Record<AiModelProvider, string> = {
   gemini: "gemini-flash-latest",
   openai: "gpt-4o-mini",
+  /* Groq 에는 최신 별칭이 없다 — 무료 등급에서 한국어 요약이 무난한 모델을 기본으로 두고 설정에서 바꾼다 */
+  groq: "llama-3.3-70b-versatile",
   claude: "claude-haiku-4-5",
   huggingface: HF_LATEST,
   nanobanana: "nanobanana-2",

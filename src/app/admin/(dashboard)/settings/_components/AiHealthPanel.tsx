@@ -84,7 +84,7 @@ function ProviderMessage({ message, at, th }: { message: string; at: string; th:
 /* 비슷한 공급자끼리 — 글을 다루는 AI(Gemini·OpenAI·Claude)는 번역과 요약을 같은 키로 해서 한데 둔다 */
 const GROUPS: { id: string; providers: AiProvider[] }[] = [
   { id: "translation", providers: ["deepl", "google_translate"] },
-  { id: "text", providers: ["gemini", "openai", "claude"] },
+  { id: "text", providers: ["gemini", "openai", "groq", "claude"] },
   { id: "image", providers: ["nanobanana", "huggingface"] },
   { id: "tts", providers: ["fish", "google_tts", "edge"] },
   { id: "stock", providers: ["unsplash", "pexels"] },

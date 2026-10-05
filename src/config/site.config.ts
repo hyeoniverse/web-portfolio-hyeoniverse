@@ -708,25 +708,26 @@ export const siteConfig = {
   // ---------------------------------------------------------------------------
   // AI 요약 설정
   // ---------------------------------------------------------------------------
-  // provider: "gemini" | "openai" | "claude"
+  // provider: "gemini" | "openai" | "groq" | "claude"
   //
   // Gemini (기본):
   //   GEMINI_API_KEY=your_key  (https://aistudio.google.com/apikey)
   //
   // OpenAI:
   //   OPENAI_API_KEY=your_key  (https://platform.openai.com/api-keys)
+  //   GROQ_API_KEY=your_key    (https://console.groq.com/keys — 무료 등급, OpenAI 호환)
   //
   // Claude:
   //   ANTHROPIC_API_KEY=your_key  (https://console.anthropic.com/settings/keys)
   // ---------------------------------------------------------------------------
   aiSummary: {
     enabled: true,
-    provider: "gemini" as "gemini" | "openai" | "claude",
+    provider: "gemini" as "gemini" | "openai" | "groq" | "claude",
     // 폴백 설정: 기본 제공자 실패 시 순서대로 시도
     fallback: {
       enabled: false,
-      priority: [] as ("gemini" | "openai" | "claude")[],
-      excluded: [] as ("gemini" | "openai" | "claude")[],
+      priority: [] as ("gemini" | "openai" | "groq" | "claude")[],
+      excluded: [] as ("gemini" | "openai" | "groq" | "claude")[],
     },
   },
 
@@ -737,6 +738,7 @@ export const siteConfig = {
   aiModels: {
     gemini: "",
     openai: "",
+    groq: "",
     claude: "",
     // Hugging Face: 비우면 "latest" = Hub 에서 지금 돌릴 수 있는 text-to-image 인기 1위(매시간 다시 확인)
     huggingface: "",

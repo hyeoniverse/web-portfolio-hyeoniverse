@@ -4,7 +4,7 @@ import type { MimeGroupKey } from "@/lib/uploadFormats";
 
 // ── AI 제공자 옵션 ──
 export type AICoverProvider = "nanobanana" | "huggingface";
-export type AISummaryProvider = "gemini" | "openai" | "claude";
+export type AISummaryProvider = "gemini" | "openai" | "groq" | "claude";
 export type TranslationProvider = "gemini" | "google" | "deepl" | "claude";
 export type TtsProviderOption = "fish" | "google" | "edge";
 
@@ -15,6 +15,7 @@ export const AI_COVER_OPTIONS: SelectOption<AICoverProvider>[] = [
 export const AI_SUMMARY_OPTIONS: SelectOption<AISummaryProvider>[] = [
   { value: "gemini", label: "Gemini" },
   { value: "openai", label: "OpenAI" },
+  { value: "groq", label: "Groq" },
   { value: "claude", label: "Claude" },
 ];
 export const TTS_OPTIONS: SelectOption<TtsProviderOption>[] = [

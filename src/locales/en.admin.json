@@ -877,6 +877,7 @@
         "HUGGINGFACE_API_KEY": "The Hugging Face inference token. Used to call image generation models such as FLUX.",
         "GEMINI_API_KEY": "The Google Gemini API key. Used for summaries, translation, image generation, and more.",
         "OPENAI_API_KEY": "The OpenAI API key. Used to call OpenAI models for summaries, translation, and more.",
+        "GROQ_API_KEY": "Groq API key. Used for AI summaries with free-tier OpenAI-compatible models (Llama, Qwen).",
         "ANTHROPIC_API_KEY": "The Anthropic Claude API key. Used to call Claude models for summaries, translation, and more.",
         "GOOGLE_TRANSLATE_API_KEY": "The Google Cloud Translation API key. Used to translate post content.",
         "DEEPL_API_KEY": "The DeepL API key (Free or Pro). Used to translate post content.",
@@ -2077,7 +2078,8 @@
       },
       "note": {
         "unsplash": "50 requests an hour (demo app), 1,000 after approval",
-        "pexels": "200 requests an hour"
+        "pexels": "200 requests an hour",
+        "groq": "Free-tier limits differ per model and change often; check the console"
       },
       "logOpen": "View log",
       "logView": "View log",
