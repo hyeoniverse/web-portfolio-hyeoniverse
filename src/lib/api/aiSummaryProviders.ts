@@ -28,20 +28,49 @@ async function call(provider: AiProvider, url: string, init: RequestInit): Promi
   return res;
 }
 
-/* OpenAI 호환 chat completions — OpenAI 와 Groq 이 같은 꼴(URL · 키만 다르다) */
+/** 모델이 돌려준 글에서 {"ko","en"} 을 꺼낸다 — 코드 울타리 · 앞뒤 설명 · 추론 모델의 군더더기가 붙어 있어도 첫 { 부터 짝 } 까지를 읽는다 */
+export function parseSummaryJson(text: string): SummaryResult {
+  const cleaned = text.replace(/```(?:json)?/gi, "").trim();
+  const start = cleaned.indexOf("{");
+  const end = cleaned.lastIndexOf("}");
+  const slice = start >= 0 && end > start ? cleaned.slice(start, end + 1) : cleaned;
+  let parsed: { ko?: unknown; en?: unknown } = {};
+  try { parsed = JSON.parse(slice); } catch { /* 아래에서 빈 값으로 */ }
+  const pick = (v: unknown) => (typeof v === "string" ? v.trim() : "");
+  const out = { ko: pick(parsed.ko), en: pick(parsed.en) };
+  if (!out.ko && !out.en) throw new Error(`요약 응답을 JSON 으로 읽지 못했습니다: ${cleaned.slice(0, 120)}`);
+  return out;
+}
+
+/* OpenAI 호환 chat completions — OpenAI 와 Groq 이 같은 꼴(URL · 키만 다르다).
+   JSON 모드(response_format)로 먼저 보내고, 공급자가 json_validate_failed(400)로 거절하면(Groq 의 추론 모델이 그렇다)
+   모드 없이 한 번 더 보내 글에서 JSON 을 꺼낸다 */
 async function callOpenAICompatible(provider: "openai" | "groq", url: string, keyName: string, prompt: string): Promise<SummaryResult> {
   const apiKey = await getSecret(keyName);
   if (!apiKey) throw missingKey(provider, keyName);
   /* Groq 의 "latest" 는 그 키의 목록에서 고른다(모델 은퇴에 안 깨지게) */
   const model = provider === "groq" ? await groqModel(apiKey) : await aiModel(provider);
-  const res = await call(provider, url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-    body: JSON.stringify({ model, messages: [{ role: "user", content: prompt }], temperature: 0.2, response_format: { type: "json_object" } }),
-  });
+  const send = async (jsonMode: boolean) => {
+    let res: Response;
+    try {
+      res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+        body: JSON.stringify({ model, messages: [{ role: "user", content: prompt }], temperature: 0.2, ...(jsonMode ? { response_format: { type: "json_object" } } : {}) }),
+      });
+    } catch (e) {
+      throw networkError(provider, e);
+    }
+    return res;
+  };
+  let res = await send(true);
+  if (res.status === 400) {
+    const body = await res.clone().text().catch(() => "");
+    if (/json_validate_failed|response_format/i.test(body)) res = await send(false);
+  }
+  if (!res.ok) throw await providerErrorFrom(provider, res);
   const data = await res.json();
-  const parsed: { ko?: string; en?: string } = JSON.parse(data?.choices?.[0]?.message?.content ?? "{}");
-  return { ko: parsed.ko ?? "", en: parsed.en ?? "" };
+  return parseSummaryJson(String(data?.choices?.[0]?.message?.content ?? ""));
 }
 const callOpenAI = (prompt: string) => callOpenAICompatible("openai", OPENAI_API_URL, "OPENAI_API_KEY", prompt);
 const callGroq = (prompt: string) => callOpenAICompatible("groq", GROQ_API_URL, "GROQ_API_KEY", prompt);
@@ -55,8 +84,7 @@ async function callClaude(prompt: string): Promise<SummaryResult> {
     body: JSON.stringify({ model: await aiModel("claude"), max_tokens: 1024, messages: [{ role: "user", content: prompt }] }),
   });
   const data = await res.json();
-  const parsed: { ko?: string; en?: string } = JSON.parse(data?.content?.[0]?.text ?? "{}");
-  return { ko: parsed.ko ?? "", en: parsed.en ?? "" };
+  return parseSummaryJson(String(data?.content?.[0]?.text ?? ""));
 }
 
 async function callGemini(prompt: string): Promise<SummaryResult> {
@@ -68,8 +96,7 @@ async function callGemini(prompt: string): Promise<SummaryResult> {
     body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature: 0.2, responseMimeType: "application/json" } }),
   });
   const data = await res.json();
-  const parsed: { ko?: string; en?: string } = JSON.parse(data?.candidates?.[0]?.content?.parts?.[0]?.text ?? "{}");
-  return { ko: parsed.ko ?? "", en: parsed.en ?? "" };
+  return parseSummaryJson(String(data?.candidates?.[0]?.content?.parts?.[0]?.text ?? ""));
 }
 
 /** Config 기반 provider 우선순위 리스트 생성 */
