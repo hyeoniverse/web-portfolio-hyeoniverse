@@ -132,6 +132,11 @@
   margin-left: var(--spacing-8);
 }
 
+/* 이 기능에서 뺀 줄 — 상자를 흐리게(순서는 남아 다시 켜면 그대로) */
+.priorityRow[data-off] .priorityItem {
+  opacity: var(--opacity-disabled);
+}
+
 /* 끌고 있는 줄의 제자리 — 고스트 */
 .priorityRow[data-dragging] {
   opacity: 0.35;

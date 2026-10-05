@@ -15,6 +15,8 @@ interface MenuItemProps {
   onClick?: () => void;
   ariaExpanded?: boolean;
   className?: string;
+  /** 지금은 할 수 없는 항목 — 숨기지 않고 흐리게 둬 메뉴에 무엇이 있는지 보이게 */
+  disabled?: boolean;
 }
 
 export function MenuItem({
@@ -25,6 +27,7 @@ export function MenuItem({
   onClick,
   ariaExpanded,
   className,
+  disabled,
 }: MenuItemProps) {
   return (
     <Pressable
@@ -32,6 +35,7 @@ export function MenuItem({
       className={cn(styles.item, active && styles.itemActive, className)}
       onClick={onClick}
       aria-expanded={ariaExpanded}
+      disabled={disabled}
     >
       {icon && <span className={styles.itemIcon}>{icon}</span>}
       <span className={styles.itemLabel}>{label}</span>

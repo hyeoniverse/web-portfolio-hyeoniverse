@@ -408,7 +408,7 @@ function ProviderFallbackBlock<P extends string>({
           priority={value?.fallback?.priority ?? []}
           excluded={value?.fallback?.excluded ?? []}
           options={options}
-          badgeOf={(p) => <ProviderHealthInline provider={providerOf(p)} health={health} open={openDetail[p] ?? false} onToggle={() => setOpenDetail((o) => ({ ...o, [p]: !o[p] }))} />}
+          badgeOf={(p, power) => <ProviderHealthInline provider={providerOf(p)} health={health} power={power} open={openDetail[p] ?? false} onToggle={() => setOpenDetail((o) => ({ ...o, [p]: !o[p] }))} />}
           detailOf={(p) => <ProviderHealthDetail provider={providerOf(p)} health={health} open={openDetail[p] ?? false} />}
           innerOf={innerOf}
           onChange={(order) => onChange((prev) => ({

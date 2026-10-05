@@ -1992,7 +1992,9 @@
       "stateFailing": "Failed {{n}}/{{limit}}",
       "stateOff": "Off",
       "stateNoKey": "No key",
-      "disable": "Turn off",
+      "featureOn": "Used for this feature — press to exclude",
+      "featureOff": "Excluded from this feature — press to use again",
+      "featureLocked": "The default provider can't be excluded. Drag another provider to #1.",
       "reenable": "Turn back on",
       "clear": "Clear record",
       "console": "Check limits & billing",
@@ -2031,8 +2033,7 @@
         "server": "Provider server error",
         "network": "Could not connect",
         "bad_request": "Request rejected",
-        "unknown": "Unknown error",
-        "manual": "Turned off manually"
+        "unknown": "Unknown error"
       },
       "fix": {
         "no_key": "Add the key in Environment variables.",
@@ -2045,8 +2046,7 @@
         "server": "A problem on the provider's side. Try again shortly.",
         "network": "Could not reach the provider. Check the network or the provider's status.",
         "bad_request": "The provider rejected the request or model settings. If it keeps happening, the code needs a look.",
-        "unknown": "Check the response below.",
-        "manual": "Turned off from this screen. Press ⏻ to send requests again."
+        "unknown": "Check the response below."
       },
       "unit": {
         "chars": "chars",

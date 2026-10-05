@@ -187,11 +187,6 @@ export async function recordSuccess(provider: AiProvider): Promise<void> {
   await updateHealth((map) => ({ ...map, [provider]: { ...(map[provider] ?? {}), fails: 0, disabled: undefined, okAt: new Date().toISOString() } }));
 }
 
-/** 설정 화면의 "끄기" — 실패와 상관없이 요청을 멈춘다. 시간이 지나도 풀리지 않고 "다시 켜기"로만 돌아온다 */
-export async function disableProvider(provider: AiProvider): Promise<void> {
-  await updateHealth((map) => ({ ...map, [provider]: { ...(map[provider] ?? { fails: 0 }), disabled: { kind: "manual", at: new Date().toISOString() } } }));
-}
-
 /** 설정 화면의 "다시 켜기"·키 교체 — 기록을 지운다 */
 export async function resetProviders(providers: AiProvider[]): Promise<void> {
   if (providers.length === 0) return;

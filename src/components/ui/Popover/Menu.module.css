@@ -21,6 +21,15 @@
   background: var(--bg-tertiary);
 }
 
+.item:disabled {
+  opacity: var(--opacity-disabled);
+  cursor: default;
+}
+
+.item:disabled:hover {
+  background: transparent;
+}
+
 .itemIcon {
   flex-shrink: 0;
   display: flex;
