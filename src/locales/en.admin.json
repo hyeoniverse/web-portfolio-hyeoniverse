@@ -1992,6 +1992,7 @@
       "stateFailing": "Failed {{n}}/{{limit}}",
       "stateOff": "Off",
       "stateNoKey": "No key",
+      "disable": "Turn off",
       "reenable": "Turn back on",
       "clear": "Clear record",
       "console": "Check limits & billing",
@@ -2030,7 +2031,8 @@
         "server": "Provider server error",
         "network": "Could not connect",
         "bad_request": "Request rejected",
-        "unknown": "Unknown error"
+        "unknown": "Unknown error",
+        "manual": "Turned off manually"
       },
       "fix": {
         "no_key": "Add the key in Environment variables.",
@@ -2043,7 +2045,8 @@
         "server": "A problem on the provider's side. Try again shortly.",
         "network": "Could not reach the provider. Check the network or the provider's status.",
         "bad_request": "The provider rejected the request or model settings. If it keeps happening, the code needs a look.",
-        "unknown": "Check the response below."
+        "unknown": "Check the response below.",
+        "manual": "Turned off from this screen. Press ⏻ to send requests again."
       },
       "unit": {
         "chars": "chars",
@@ -2077,6 +2080,7 @@
         "pexels": "200 requests an hour"
       },
       "logOpen": "View log",
+      "logView": "View log",
       "logOpenOne": "Log for this provider",
       "logTitle": "Service call log",
       "logAllProviders": "All providers",

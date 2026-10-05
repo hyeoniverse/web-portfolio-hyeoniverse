@@ -8,6 +8,8 @@
    기능별 순서 줄에 붙여 쓴다 — 표를 따로 두지 않는다. */
 import { useState } from "react";
 import { ChevronDown, ChevronRight, Copy, ExternalLink, History, ListX, Power } from "@/components/icons";
+import { useRouter } from "next/navigation";
+import Popover, { MenuItem } from "@/components/ui/Popover";
 
 import { useLanguage } from "@/providers/LanguageProvider";
 import Button from "@/components/ui/Button";
@@ -102,8 +104,10 @@ function useFmt() {
  *  상태 표(AiHealthPanel)와 설정 › 서비스의 기능 줄(순서 상자 오른쪽)이 같은 조각을 쓴다. 상태가 아직 없으면 아무것도 안 그린다 */
 export function ProviderHealthInline({ provider: p, health, open, onToggle }: { provider: AiProvider; health: Health; open: boolean; onToggle: () => void }) {
   const { t, th } = useFmt();
+  const router = useRouter();
   const { data, reload, stateOf } = health;
   const [resetting, setResetting] = useState(false);
+  const [logMenu, setLogMenu] = useState(false);
   if (!data) return null;
   const info = AI_PROVIDER_INFO[p];
   const h = data.health[p];
@@ -113,7 +117,19 @@ export function ProviderHealthInline({ provider: p, health, open, onToggle }: { 
   const off = state === "off";
   const failing = !off && (h?.fails ?? 0) > 0;
   const kind = h?.disabled?.kind ?? h?.kind;
-  const reset = async () => {
+  /* ⏻ 하나로 켜고 끈다 — 꺼져 있으면 다시 켜기(기록도 지움), 아니면 직접 끄기(실패와 상관없이 요청을 멈춤) */
+  const toggle = async () => {
+    setResetting(true);
+    const res = await sendAction("/api/admin/ai-health", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ provider: p, action: off ? undefined : "disable" }),
+    }, t, th("resetFailed"));
+    setResetting(false);
+    if (res) await reload();
+  };
+  /* 기록 지우기 — 이어진 실패 횟수와 원인을 지운다 */
+  const clear = async () => {
     setResetting(true);
     const res = await sendAction("/api/admin/ai-health", {
       method: "POST",
@@ -140,11 +156,27 @@ export function ProviderHealthInline({ provider: p, health, open, onToggle }: { 
         <UsageLine provider={p} usage={u} deepl={p === "deepl" ? data.deepl : null} />
       </span>
       <span className={styles.actions}>
-        {/* 다시 켜기(꺼짐 · 강조 · ⏻) · 기록 지우기(실패 중 · 목록 ×) — 글 없이 아이콘, 뜻은 title 로 */}
-        {off && <Tooltip content={th("reenable")}><Button variant="primary" size="sm" shape="circle" onClick={() => void reset()} loading={resetting} aria-label={th("reenable")} soundDisabled icon={<Power size={14} strokeWidth={2} />} /></Tooltip>}
-        {failing && <Tooltip content={th("clear")}><Button variant="ghost" size="sm" shape="circle" onClick={() => void reset()} loading={resetting} aria-label={th("clear")} soundDisabled icon={<ListX size={14} strokeWidth={2} />} /></Tooltip>}
-        {/* 호출 기록은 따로 둔 페이지(/admin/service-log) — 그 공급자로 걸러 연다 */}
-        <Tooltip content={th("logOpenOne")}><Button variant="ghost" size="sm" shape="circle" href={`/admin/service-log?provider=${p}`} aria-label={th("logOpenOne")} soundDisabled icon={<History size={14} strokeWidth={2} />} /></Tooltip>
+        {/* 켜기/끄기(⏻ — 꺼짐이면 강조) */}
+        <Tooltip content={th(off ? "reenable" : "disable")}><Button variant={off ? "primary" : "ghost"} size="sm" shape="circle" onClick={() => void toggle()} loading={resetting} aria-label={th(off ? "reenable" : "disable")} aria-pressed={off} soundDisabled icon={<Power size={14} strokeWidth={2} />} /></Tooltip>
+        {/* 기록 — 메뉴로: 호출 기록 페이지(그 공급자로 걸러) 보기, 실패 중이면 이어진 실패 기록 지우기 */}
+        <Popover
+          menu
+          open={logMenu}
+          onOpenChange={setLogMenu}
+          placement="bottom-end"
+          trigger={
+            <Tooltip content={th("logOpenOne")} disabled={logMenu}>
+              <Button variant="ghost" size="sm" shape="circle" aria-label={th("logOpenOne")} aria-haspopup="menu" aria-expanded={logMenu} soundDisabled icon={<History size={14} strokeWidth={2} />} />
+            </Tooltip>
+          }
+        >
+          {({ close }) => (
+            <div role="menu">
+              <MenuItem icon={<History size={14} strokeWidth={2} />} label={th("logView")} onClick={() => { close(); router.push(`/admin/service-log?provider=${p}`); }} />
+              {failing && <MenuItem icon={<ListX size={14} strokeWidth={2} />} label={th("clear")} onClick={() => { close(); void clear(); }} />}
+            </div>
+          )}
+        </Popover>
         {/* 콘솔이 없는 공급자(Edge)는 빈 칸을 둬 기록 · › 가 다른 줄과 같은 자리에 선다 */}
         {info.console ? (
           <Tooltip content={th("console")}><Button variant="ghost" size="sm" shape="circle" href={info.console} external aria-label={th("console")} soundDisabled icon={<ExternalLink size={14} strokeWidth={2} />} /></Tooltip>
