@@ -15,6 +15,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/Textarea";
 import Button from "@/components/ui/Button";
+import Tooltip from "@/components/ui/Tooltip";
 import Pressable from "@/components/ui/Pressable";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import SegmentedControl from "@/components/ui/SegmentedControl";
@@ -196,8 +197,8 @@ export default function LexiconEditor({ compact = false, initialLang = "ko", foo
                   <ArrowRight size={14} strokeWidth={2} className={styles.arrow} aria-hidden />
                   <Input size="sm" value={editing.to} onChange={(v) => setEditing({ ...editing, to: v.slice(0, LEXICON_TO_MAX) })} onKeyDown={onEditKey} aria-label={tl("to")} clearable={false} className={styles.toField} />
                   <span className={styles.rowActions} data-show="">
-                    <Button variant="ghost" size="sm" shape="circle" onClick={() => void saveEdit()} disabled={!editing.from.trim() || !editing.to.trim() || busy} aria-label={tl("confirm")} title={tl("confirm")} soundDisabled icon={<Check size={14} strokeWidth={2} />} />
-                    <Button variant="ghost" size="sm" shape="circle" onClick={() => setEditing(null)} aria-label={tl("cancel")} title={tl("cancel")} soundDisabled icon={<X size={14} strokeWidth={2} />} />
+                    <Tooltip content={tl("confirm")}><Button variant="ghost" size="sm" shape="circle" onClick={() => void saveEdit()} disabled={!editing.from.trim() || !editing.to.trim() || busy} aria-label={tl("confirm")} soundDisabled icon={<Check size={14} strokeWidth={2} />} /></Tooltip>
+                    <Tooltip content={tl("cancel")}><Button variant="ghost" size="sm" shape="circle" onClick={() => setEditing(null)} aria-label={tl("cancel")} soundDisabled icon={<X size={14} strokeWidth={2} />} /></Tooltip>
                   </span>
                 </>
               ) : (
@@ -208,8 +209,8 @@ export default function LexiconEditor({ compact = false, initialLang = "ko", foo
                     <span className={styles.toText}>{e.to}</span>
                   </Pressable>
                   <span className={styles.rowActions}>
-                    <Button variant="ghost" size="sm" shape="circle" onClick={() => setEditing({ index: e.index, from: e.from, to: e.to })} aria-label={tl("edit")} title={tl("edit")} soundDisabled icon={<Pencil size={14} strokeWidth={2} />} />
-                    <Button variant="ghost" size="sm" shape="circle" onClick={() => void commit(list.filter((_, i) => i !== e.index))} disabled={busy} aria-label={tl("remove")} title={tl("remove")} soundDisabled icon={<Trash2 size={14} strokeWidth={2} />} />
+                    <Tooltip content={tl("edit")}><Button variant="ghost" size="sm" shape="circle" onClick={() => setEditing({ index: e.index, from: e.from, to: e.to })} aria-label={tl("edit")} soundDisabled icon={<Pencil size={14} strokeWidth={2} />} /></Tooltip>
+                    <Tooltip content={tl("remove")}><Button variant="ghost" size="sm" shape="circle" onClick={() => void commit(list.filter((_, i) => i !== e.index))} disabled={busy} aria-label={tl("remove")} soundDisabled icon={<Trash2 size={14} strokeWidth={2} />} /></Tooltip>
                   </span>
                 </>
               )}

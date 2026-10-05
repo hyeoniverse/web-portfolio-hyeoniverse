@@ -11,6 +11,7 @@ import { ChevronDown, ChevronRight, Copy, ExternalLink, History, ListX, Power } 
 
 import { useLanguage } from "@/providers/LanguageProvider";
 import Button from "@/components/ui/Button";
+import Tooltip from "@/components/ui/Tooltip";
 import Pressable from "@/components/ui/Pressable";
 import { showToast } from "@/stores/toastStore";
 import { SkeletonLine } from "@/components/ui/Skeleton";
@@ -50,7 +51,7 @@ function ProviderMessage({ message, at, th }: { message: string; at: string; th:
     <div className={styles.message}>
       <p className={styles.messageHead}>
         <span className={styles.messageAt}>{at}</span>
-        {status && <><span className={styles.messageSep} aria-hidden>·</span><span className={styles.messageStatus} data-class={status[0]} title={th(`statusClass.${status[0]}`)}>{status}</span></>}
+        {status && <><span className={styles.messageSep} aria-hidden>·</span><Tooltip content={th(`statusClass.${status[0]}`)}><span className={styles.messageStatus} data-class={status[0]}>{status}</span></Tooltip></>}
       </p>
       <p className={styles.messageText}>{summary}</p>
       {pretty && (
@@ -140,14 +141,16 @@ export function ProviderHealthInline({ provider: p, health, open, onToggle }: { 
       </span>
       <span className={styles.actions}>
         {/* 다시 켜기(꺼짐 · 강조 · ⏻) · 기록 지우기(실패 중 · 목록 ×) — 글 없이 아이콘, 뜻은 title 로 */}
-        {off && <Button variant="primary" size="sm" shape="circle" onClick={() => void reset()} loading={resetting} aria-label={th("reenable")} title={th("reenable")} soundDisabled icon={<Power size={14} strokeWidth={2} />} />}
-        {failing && <Button variant="ghost" size="sm" shape="circle" onClick={() => void reset()} loading={resetting} aria-label={th("clear")} title={th("clear")} soundDisabled icon={<ListX size={14} strokeWidth={2} />} />}
+        {off && <Tooltip content={th("reenable")}><Button variant="primary" size="sm" shape="circle" onClick={() => void reset()} loading={resetting} aria-label={th("reenable")} soundDisabled icon={<Power size={14} strokeWidth={2} />} /></Tooltip>}
+        {failing && <Tooltip content={th("clear")}><Button variant="ghost" size="sm" shape="circle" onClick={() => void reset()} loading={resetting} aria-label={th("clear")} soundDisabled icon={<ListX size={14} strokeWidth={2} />} /></Tooltip>}
         {/* 호출 기록은 따로 둔 페이지(/admin/service-log) — 그 공급자로 걸러 연다 */}
-        <Button variant="ghost" size="sm" shape="circle" href={`/admin/service-log?provider=${p}`} aria-label={th("logOpenOne")} title={th("logOpenOne")} soundDisabled icon={<History size={14} strokeWidth={2} />} />
+        <Tooltip content={th("logOpenOne")}><Button variant="ghost" size="sm" shape="circle" href={`/admin/service-log?provider=${p}`} aria-label={th("logOpenOne")} soundDisabled icon={<History size={14} strokeWidth={2} />} /></Tooltip>
         {info.console && (
-          <Button variant="ghost" size="sm" shape="circle" href={info.console} external aria-label={th("console")} title={th("console")} soundDisabled icon={<ExternalLink size={14} strokeWidth={2} />} />
+          <Tooltip content={th("console")}><Button variant="ghost" size="sm" shape="circle" href={info.console} external aria-label={th("console")} soundDisabled icon={<ExternalLink size={14} strokeWidth={2} />} /></Tooltip>
         )}
-        <Button variant="ghost" size="sm" shape="circle" onClick={onToggle} aria-expanded={open} aria-label={th(open ? "detailHide" : "detailShow")} title={th(open ? "detailHide" : "detailShow")} soundDisabled icon={<ChevronRight size={14} strokeWidth={2} className={`${styles.detailChev} ${open ? styles.detailChevOpen : ""}`} />} />
+        <Tooltip content={th(open ? "detailHide" : "detailShow")}>
+          <Button variant="ghost" size="sm" shape="circle" onClick={onToggle} aria-expanded={open} aria-label={th(open ? "detailHide" : "detailShow")} soundDisabled icon={<ChevronRight size={14} strokeWidth={2} className={`${styles.detailChev} ${open ? styles.detailChevOpen : ""}`} />} />
+        </Tooltip>
       </span>
     </>
   );

@@ -592,14 +592,15 @@ export default function EnvVarFields({
              비활성 조건: editing / env source / none */}
           {!isReadOnly && (() => {
             const deleteDisabled = isEditing || source === "env" || source === "none";
-            const tooltipContent = source === "env" ? t("admin.settings.envVarEnvHint") : undefined;
+            /* env 에서 온 키는 왜 못 지우는지, 지울 수 있는 키는 무엇을 하는지 */
+            const tooltipContent = source === "env" ? t("admin.settings.envVarEnvHint") : deleteDisabled ? undefined : t("admin.settings.envVarDelete");
             return (
               <Tooltip content={tooltipContent} disabled={!tooltipContent} placement="top">
                 <Pressable
                   className={`${styles.envDeleteBtn}${deleteDisabled ? ` ${styles.envDeleteBtnDisabled}` : ""}`}
                   onClick={deleteDisabled ? undefined : () => handleDelete(key)}
                   disabled={deleteDisabled}
-                  title={deleteDisabled ? undefined : t("admin.settings.envVarDelete")}
+                  aria-label={t("admin.settings.envVarDelete")}
                   aria-disabled={deleteDisabled}
                 >
                   <Trash2 size={14} />
@@ -609,15 +610,16 @@ export default function EnvVarFields({
           })()}
           {/* reveal (눈) 버튼 — read-only 키는 값 확인 불가라 미렌더. 편집 중엔 어차피 비활성이라 숨김 */}
           {!isReadOnly && !isEditing && (
-            <Pressable
-              className={styles.envRevealBtn}
-              onClick={() => handleReveal(key)}
-              disabled={source === "none"}
-              title={isRevealed ? t("admin.settings.envHide") : t("admin.settings.envReveal")}
-              aria-label={isRevealed ? t("admin.settings.envHide") : t("admin.settings.envReveal")}
-            >
-              {isRevealed ? <EyeOff size={16} /> : <Eye size={16} />}
-            </Pressable>
+            <Tooltip content={isRevealed ? t("admin.settings.envHide") : t("admin.settings.envReveal")}>
+              <Pressable
+                className={styles.envRevealBtn}
+                onClick={() => handleReveal(key)}
+                disabled={source === "none"}
+                aria-label={isRevealed ? t("admin.settings.envHide") : t("admin.settings.envReveal")}
+              >
+                {isRevealed ? <EyeOff size={16} /> : <Eye size={16} />}
+              </Pressable>
+            </Tooltip>
           )}
         </div>
       </div>
@@ -627,15 +629,16 @@ export default function EnvVarFields({
   /* SectionHeader 의 customActions 자리로 들어갈 액션 버튼 그룹 — 기본값(env override 해제) + 섹션 저장 */
   const envActions = (
     <>
-      <Button
-        variant="outline"
-        size="xs"
-        disabled={dbOverrideKeys.length === 0}
-        onClick={handleResetAllToEnv}
-        title={t("admin.settings.envResetAllTooltip")}
-      >
-        {t("admin.settings.envResetAll")}
-      </Button>
+      <Tooltip content={t("admin.settings.envResetAllTooltip")}>
+        <Button
+          variant="outline"
+          size="xs"
+          disabled={dbOverrideKeys.length === 0}
+          onClick={handleResetAllToEnv}
+        >
+          {t("admin.settings.envResetAll")}
+        </Button>
+      </Tooltip>
       <Button
         variant="outline"
         size="xs"
