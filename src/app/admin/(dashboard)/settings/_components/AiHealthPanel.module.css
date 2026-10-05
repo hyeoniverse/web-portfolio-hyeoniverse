@@ -181,6 +181,15 @@
   margin-left: auto;
 }
 
+/* ⏻ — 켜짐은 초록, 꺼짐은 강조색 사선(PowerOff). 둘 다 ghost 라 색과 모양으로만 가른다 */
+.powerOn {
+  color: var(--text-success);
+}
+
+.powerOff {
+  color: var(--text-accent);
+}
+
 /* 콘솔 단추 자리 비움 — 원형 sm 단추와 같은 폭 */
 .actionBlank {
   width: var(--control-height-sm);
