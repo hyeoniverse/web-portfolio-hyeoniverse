@@ -10,6 +10,7 @@ import T from "@/components/ui/T";
 import type { SiteConfigData } from "@/config/site.config";
 import { Switch } from "@/components/ui/Switch";
 import Button from "@/components/ui/Button";
+import Tooltip from "@/components/ui/Tooltip";
 import Select from "@/components/ui/Select";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import type { SettingsTabProps } from "../_types";
@@ -80,7 +81,8 @@ function ModelSelect({ t, provider, value, onChange }: { t: TFunction; provider:
   ];
   const reason = list?.reason === "nokey" ? t("admin.aiHealth.stateNoKey") : list?.reason ? fillTemplate(t("admin.aiHealth.modelListFailed"), { reason: list.reason }) : "";
   return (
-    <span className={styles.modelSelect} title={reason || t("admin.settings.aiModelsHint")} onPointerDown={(e) => e.stopPropagation()}>
+    <Tooltip content={reason || t("admin.settings.aiModelsHint")} delay={300} wrapperStyle={{ display: "flex", flex: "1 1 auto", minWidth: 0, alignSelf: "stretch" }}>
+    <span className={styles.modelSelect} onPointerDown={(e) => e.stopPropagation()}>
       <Select
         size="sm"
         width="full"
@@ -91,6 +93,7 @@ function ModelSelect({ t, provider, value, onChange }: { t: TFunction; provider:
         renderValue={(o) => (o?.value === latest ? latestName : o?.label ?? latestName)}
       />
     </span>
+    </Tooltip>
   );
 }
 
@@ -917,6 +920,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
           >
             {/* 자동 커버가 찾는 사진 공급자 — 순서는 없고 상태만 */}
             <div className={styles.stockRows}>
+              <h4 className={styles.stockTitle}>{t("admin.aiHealth.group.stock")}</h4>
               {(["unsplash", "pexels"] as const).map((p) => (
                 <div key={p} className={styles.stockRow}>
                   <span className={styles.stockName}>{AI_PROVIDER_INFO[p].label}</span>
