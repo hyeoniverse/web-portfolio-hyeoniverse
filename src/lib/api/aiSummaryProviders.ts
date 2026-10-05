@@ -10,6 +10,46 @@ const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
 const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
 const CLAUDE_API_URL = "https://api.anthropic.com/v1/messages";
 
+/**
+ * 요약 프롬프트 — 글(posts)과 작업물(works)이 같은 규칙을 쓰고, 공급자마다 같은 문장을 보낸다.
+ * 한국어는 합니다체(존댓말)로 — 사이트의 다른 안내 문구와 같은 말투. 본문이 HTML 이면 태그는 무시하라고 알린다.
+ * 본문은 앞 3,000자만 — 요약에 충분하고 토큰을 아낀다.
+ */
+export function buildSummaryPrompt(kind: "post" | "work", input: { title?: string | null; ko?: string | null; en?: string | null }): string {
+  const what = kind === "post" ? "blog post" : "portfolio project description";
+  const focus = kind === "post"
+    ? "what the post is about, the key insight or approach, and what the reader takes away"
+    : "what the project is, the author's role and approach, and the key outcome";
+  const strip = (s?: string | null) => (s || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 3000);
+  return `You write short summaries for a developer's personal site. Summarize the following ${what}.
+
+Output
+- Return ONLY a JSON object: {"ko": "...", "en": "..."}. No markdown, no code fence, no extra keys.
+
+Korean ("ko")
+- 2-3 sentences, under 200 characters in total.
+- Polite declarative style ending in "-합니다 / -입니다" (합니다체). Never use "-해요", "-한다", or "-했어요".
+- Do not start with "이 글은" or "이 프로젝트는"; state the substance directly.
+- Keep technical terms, product names, and code identifiers in their original form (e.g. React, Supabase, useEffect).
+
+English ("en")
+- 2-3 sentences, under 200 characters in total. Natural, neutral tone; no first person.
+
+Both
+- Cover: ${focus}.
+- Be concrete: prefer specific nouns and outcomes over generic phrases like "various", "effectively", "in-depth".
+- No headers, bullet points, emojis, or quotation marks around the summary.
+- If one language's content is missing, write that summary from the other language's content.
+
+Title: ${(input.title || "").trim() || "(none)"}
+
+Korean content:
+${strip(input.ko) || "(none)"}
+
+English content:
+${strip(input.en) || "(none)"}`;
+}
+
 interface SummaryResult {
   ko: string;
   en: string;
