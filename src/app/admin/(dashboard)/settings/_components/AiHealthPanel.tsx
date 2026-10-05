@@ -9,7 +9,7 @@
 import { useState } from "react";
 import { ChevronDown, ChevronRight, Copy, ExternalLink, History, ListX, Power, PowerOff } from "@/components/icons";
 import { useRouter } from "next/navigation";
-import Popover, { MenuItem } from "@/components/ui/Popover";
+import Popover, { MenuDivider, MenuItem } from "@/components/ui/Popover";
 
 import { useLanguage } from "@/providers/LanguageProvider";
 import Button from "@/components/ui/Button";
@@ -175,6 +175,7 @@ export function ProviderHealthInline({ provider: p, health, open, onToggle, powe
           {({ close }) => (
             <div role="menu">
               <MenuItem icon={<History size={14} strokeWidth={2} />} label={th("logView")} onClick={() => { close(); router.push(`/admin/service-log?provider=${p}`); }} />
+              <MenuDivider />
               {/* 지울 기록이 없으면 흐리게 — 메뉴에 무엇이 있는지는 늘 보인다 */}
               <MenuItem icon={<ListX size={14} strokeWidth={2} />} label={th("clear")} disabled={!failing && !off} onClick={() => { close(); void clear(); }} />
             </div>
