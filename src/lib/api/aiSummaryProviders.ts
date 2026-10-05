@@ -3,6 +3,7 @@ import { getSiteConfig } from "@/lib/getSiteConfig";
 import { filterEnabled, missingKey, networkError, providerErrorFrom, recordFailure, recordOk, toProviderError } from "@/lib/ai/health";
 import type { AiProvider, ProviderFailure } from "@/lib/ai/providers";
 import { aiModel, groqModel } from "@/lib/ai/models";
+import { coerceSummary, extractSkeleton, serializeSummary, type StructuredSummary } from "@/lib/ai/summary";
 
 /* 모델 이름은 설정(lib/ai/models)에서 — 코드에 박아 두면 은퇴할 때마다 고쳐야 한다 */
 const geminiUrl = (model: string) => `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
@@ -20,39 +21,44 @@ export function buildSummaryPrompt(kind: "post" | "work", input: { title?: strin
   const focus = kind === "post"
     ? "what the post is about, the key insight or approach, and what the reader takes away"
     : "what the project is, the author's role and approach, and the key outcome";
-  const strip = (s?: string | null) => (s || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 3000);
-  return `You write short summaries for a developer's personal site. Summarize the following ${what}.
+  /* 긴 글은 뼈대(제목 · 소제목 · 문단 첫 문장 · 글머리 · 마지막 문단)만 — 길이와 상관없이 보내는 양이 같다(lib/ai/summary) */
+  const ko = extractSkeleton(input.ko);
+  const en = extractSkeleton(input.en);
+  return `You write short summaries for a developer's personal site. Summarize the following ${what}. The content below is an outline (headings, first sentences, bullets), not the full text.
 
 Output
-- Return ONLY a JSON object: {"ko": "...", "en": "..."}. No markdown, no code fence, no extra keys.
+- Return ONLY a JSON object with this exact shape, no markdown, no code fence, no extra keys:
+  {"ko": {"tldr": "...", "points": ["...", "..."]}, "en": {"tldr": "...", "points": ["...", "..."]}}
+- "tldr": one sentence that says what this ${kind === "post" ? "post" : "project"} is about, under 90 characters.
+- "points": 2 to 4 items, each one sentence under 70 characters, the most concrete things: approach, numbers, outcomes, decisions.
 
 Korean ("ko")
-- 2-3 sentences, under 200 characters in total.
 - Polite declarative style ending in "-합니다 / -입니다" (합니다체). Never use "-해요", "-한다", or "-했어요".
 - Do not start with "이 글은" or "이 프로젝트는"; state the substance directly.
 - Keep technical terms, product names, and code identifiers in their original form (e.g. React, Supabase, useEffect).
 
 English ("en")
-- 2-3 sentences, under 200 characters in total. Natural, neutral tone; no first person.
+- Natural, neutral tone; no first person.
 
 Both
 - Cover: ${focus}.
-- Be concrete: prefer specific nouns and outcomes over generic phrases like "various", "effectively", "in-depth".
-- No headers, bullet points, emojis, or quotation marks around the summary.
-- If one language's content is missing, write that summary from the other language's content.
+- Be concrete: prefer specific nouns, numbers, and outcomes over generic phrases like "various", "effectively", "in-depth".
+- Do not repeat the tldr inside points. No emojis, no quotation marks, no trailing labels.
+- If one language's content is missing, write that language from the other language's content.
 
 Title: ${(input.title || "").trim() || "(none)"}
 
-Korean content:
-${strip(input.ko) || "(none)"}
+Korean outline:
+${ko || "(none)"}
 
-English content:
-${strip(input.en) || "(none)"}`;
+English outline:
+${en || "(none)"}`;
 }
 
-interface SummaryResult {
-  ko: string;
-  en: string;
+/** 공급자가 만든 요약 — 언어마다 구조(한 줄 + 핵심). 저장은 JSON 문자열로(lib/ai/summary.serializeSummary) */
+export interface SummaryResult {
+  ko: StructuredSummary;
+  en: StructuredSummary;
 }
 
 type SummaryProvider = "gemini" | "openai" | "groq" | "claude";
@@ -76,10 +82,17 @@ export function parseSummaryJson(text: string): SummaryResult {
   const slice = start >= 0 && end > start ? cleaned.slice(start, end + 1) : cleaned;
   let parsed: { ko?: unknown; en?: unknown } = {};
   try { parsed = JSON.parse(slice); } catch { /* 아래에서 빈 값으로 */ }
-  const pick = (v: unknown) => (typeof v === "string" ? v.trim() : "");
-  const out = { ko: pick(parsed.ko), en: pick(parsed.en) };
-  if (!out.ko && !out.en) throw new Error(`요약 응답을 JSON 으로 읽지 못했습니다: ${cleaned.slice(0, 120)}`);
-  return out;
+  /* 새 모양({tldr, points})과 예전 모양(문장) 둘 다 받는다 — 모델이 지시를 덜 따라도 쓸 수 있게 */
+  const ko = coerceSummary(parsed.ko);
+  const en = coerceSummary(parsed.en);
+  if (!ko && !en) throw new Error(`요약 응답을 JSON 으로 읽지 못했습니다: ${cleaned.slice(0, 120)}`);
+  const empty: StructuredSummary = { tldr: "", points: [] };
+  return { ko: ko ?? empty, en: en ?? empty };
+}
+
+/** 저장할 문자열로 — 본문 해시를 함께 넣어 발행 때 안 바뀐 글은 다시 만들지 않게 한다 */
+export function toStored(s: StructuredSummary, hash: string): string {
+  return serializeSummary({ ...s, hash });
 }
 
 /* OpenAI 호환 chat completions — OpenAI 와 Groq 이 같은 꼴(URL · 키만 다르다).

@@ -282,6 +282,8 @@ export default function PostEditor({ post }: PostEditorProps) {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [generatingSummary, setRegeneratingSummary] = useState(false);
+  /* 저장된 AI 요약 — 편집기 칸에 보인다. 다시 만들어 고른 뒤 여기만 바꾸면 된다(폼 값이 아니라 서버가 저장) */
+  const [savedSummary, setSavedSummary] = useState<{ ko: string; en: string }>({ ko: post?.summary_ko ?? "", en: post?.summary_en ?? "" });
   const [status, setStatusRaw] = useState("");
   const [statusType, setStatusType] = useState<"info" | "success">("info");
   const [statusTimestamp, setStatusTimestamp] = useState<number | undefined>(undefined);
@@ -950,7 +952,7 @@ export default function PostEditor({ post }: PostEditorProps) {
       const current = data?.current;
       const save = async (pair: SummaryPair) => {
         const ok = await sendAction(`/api/posts/${id}/ai-summary`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ summary_ko: pair.ko, summary_en: pair.en }) }, t, te("summaryFailed"));
-        if (ok) { setStatus(te("generateSummaryDone")); setStatusType("success"); }
+        if (ok) { setSavedSummary(pair); setStatus(te("generateSummaryDone")); setStatusType("success"); }
       };
       if (current && (current.ko || current.en)) {
         openModal(<SummaryCompareModal current={current} next={next} onPick={(p) => void save(p)} />, { header: { title: t("admin.summaryCompare.title") }, width: "min(92vw, 720px)" });
@@ -1187,6 +1189,14 @@ export default function PostEditor({ post }: PostEditorProps) {
         allTagSuggestions={allTagSuggestions}
         categories={categories}
         excerptKey={excerptKey}
+        aiSummary={{
+          value: editorLang === "ko" ? savedSummary.ko : savedSummary.en,
+          lang: editorLang,
+          onRegenerate: (isEdit || !!savedId.current) && serviceStatus.aiSummary ? handleGenerateSummary : undefined,
+          busy: generatingSummary,
+          disabled: !serviceStatus.loading && !serviceStatus.aiSummary,
+          disabledReason: te("generateSummaryDisabled"),
+        }}
         tag={tag}
         optionalOpen={optionalOpen}
         setOptionalOpen={setOptionalOpen}
@@ -1202,6 +1212,7 @@ export default function PostEditor({ post }: PostEditorProps) {
     allTagSuggestions, allWorks, authorChips, categories, categoryCustomMode, excerptKey, findCat, firstLeafKo,
     handleCoverUpload, handleSeriesCreated, isManagedCat, language, metaForm, optionalOpen, post, queueSeriesOrder,
     seriesList, seriesPosts, seriesPostsLoading, seriesSelectMode, setSeriesPosts, showErrors, tag, tagDescriptions, te, titleFieldError,
+    editorLang, generatingSummary, handleGenerateSummary, isEdit, savedId, savedSummary, serviceStatus.aiSummary, serviceStatus.loading,
     titleKey, updateField,
   ]);
 

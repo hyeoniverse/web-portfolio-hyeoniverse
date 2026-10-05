@@ -341,7 +341,9 @@
   "aiSummary": {
     "label": "AI Summary",
     "generating": "Generating summary...",
-    "generate": "Generate"
+    "generate": "Generate summary",
+    "empty": "No summary yet. Make one and everyone after you will see it.",
+    "failed": "Could not generate the summary. Please try again in a moment."
   },
   "tooltip": {
     "contact": "Opens the contact form",

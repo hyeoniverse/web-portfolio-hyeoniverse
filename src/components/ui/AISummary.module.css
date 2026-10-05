@@ -79,6 +79,60 @@
   color: var(--text-secondary);
 }
 
+/* 구조 요약 — 한 줄 요약은 본문색으로 또렷하게, 핵심은 강조색 점의 글머리 */
+.structured {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+}
+
+.tldr {
+  margin: 0;
+  font: var(--font-body-lg);
+  color: var(--text-primary);
+}
+
+.points {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+}
+
+.point {
+  position: relative;
+  padding-left: var(--spacing-16);
+  font: var(--font-body-md);
+  color: var(--text-secondary);
+}
+
+.point::before {
+  content: "";
+  position: absolute;
+  top: 0.65em;
+  left: 0;
+  width: 5px;
+  height: 5px;
+  border-radius: var(--radius-full);
+  background: var(--text-accent);
+}
+
+/* 요약이 아직 없을 때 — 한 줄 안내와 만들기 단추 */
+.emptyRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-12);
+}
+
+.emptyText {
+  font: var(--font-body-md);
+  color: var(--text-tertiary);
+}
+
 .generating {
   display: flex;
   align-items: center;

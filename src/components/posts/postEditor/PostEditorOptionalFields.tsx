@@ -12,6 +12,7 @@ import CoverImagePicker from "../CoverImagePicker";
 import RelationPicker from "@/components/admin/RelationPicker";
 import SortOrderDragList from "@/components/admin/SortOrderDragList";
 import TagNotesEditor from "@/components/admin/TagNotesEditor";
+import AiSummaryField from "@/components/admin/AiSummaryField/AiSummaryField";
 import type { Post, PostFormData, PostMetaForm, Series } from "@/types/post";
 import type { BilingualCategory } from "@/hooks/useCategories";
 import { adminEditorStyles as es } from "@/components/admin/AdminEditorShell";
@@ -32,6 +33,7 @@ export default function PostEditorOptionalFields({
   allTagSuggestions,
   categories,
   excerptKey,
+  aiSummary,
   tag,
   post,
   series,
@@ -57,6 +59,8 @@ export default function PostEditorOptionalFields({
   categories: BilingualCategory[];
   /** 편집 언어에 따라 excerpt / excerpt_en 중 어느 필드를 쓸지 */
   excerptKey: "excerpt" | "excerpt_en";
+  /** AI 요약 칸 — 저장된 요약과 다시 만들기(설명(excerpt)과 다른 값) */
+  aiSummary: { value: string; lang: "ko" | "en"; onRegenerate?: () => void; busy?: boolean; disabled?: boolean; disabledReason?: string };
   tag: ReturnType<typeof import("@/hooks/useTagInput").useTagInput>;
   post?: Post | null;
   /** 시리즈 목록과 선택한 시리즈의 글 — 부모가 usePostSeries 로 들고 있다 */
@@ -287,6 +291,8 @@ export default function PostEditorOptionalFields({
                     rows={2}
                     maxHint="basic"
                   />
+                  {/* AI 요약 — 설명(excerpt)과 다른 값. 손으로 쓰지 않고 다시 만들기로만 바뀐다 */}
+                  <AiSummaryField {...aiSummary} />
                 </div>
                 <div className={es.field} data-seo="tags">
                   <label className={es.fieldLabel}>{te("tags")}</label>

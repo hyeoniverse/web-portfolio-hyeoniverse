@@ -63,6 +63,7 @@ import { isVideoUrl } from "@/lib/isVideoUrl";
 import { IMAGE_FALLBACK_SRC } from "@/lib/imageFallback";
 import { useModalStore } from "@/stores/modalStore";
 import SummaryCompareModal, { type SummaryPair } from "@/components/admin/SummaryCompare/SummaryCompareModal";
+import AiSummaryField from "@/components/admin/AiSummaryField/AiSummaryField";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import { List } from "@/app/admin/(dashboard)/components";
 import { deriveTeamMemberAvatar, getMemberInitial } from "@/utils/teamMemberAvatar";
@@ -1143,6 +1144,8 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   }, [tw]);
 
   const [generatingSummary, setRegeneratingSummary] = useState(false);
+  /* 저장된 AI 요약 — 편집기 칸에 보인다. 다시 만들어 고른 뒤 여기만 바꾸면 된다 */
+  const [savedSummary, setSavedSummary] = useState<{ ko: string; en: string }>({ ko: work?.summary_ko ?? "", en: work?.summary_en ?? "" });
 
   const handleGenerateSummary = useCallback(async () => {
     const id = savedId.current ?? work?.id;
@@ -1166,7 +1169,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       const current = data?.current;
       const save = async (pair: SummaryPair) => {
         const ok = await sendAction(`/api/works/${id}/ai-summary`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ summary_ko: pair.ko, summary_en: pair.en }) }, t, tw("saveFailed"));
-        if (ok) { setStatus(tw("generateSummaryDone")); setStatusType("success"); }
+        if (ok) { setSavedSummary(pair); setStatus(tw("generateSummaryDone")); setStatusType("success"); }
       };
       if (current && (current.ko || current.en)) {
         openModal(<SummaryCompareModal current={current} next={next} onPick={(p) => void save(p)} />, { header: { title: t("admin.summaryCompare.title") }, width: "min(92vw, 720px)" });
@@ -1397,6 +1400,15 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           rows={3}
           maxHint="basic"
         />
+        {/* AI 요약 — 설명과 다른 값. 손으로 쓰지 않고 다시 만들기로만 바뀐다 */}
+        <AiSummaryField
+          value={editorLang === "ko" ? savedSummary.ko : savedSummary.en}
+          lang={editorLang}
+          onRegenerate={(isEdit || !!savedId.current) && serviceStatus.aiSummary ? handleGenerateSummary : undefined}
+          busy={generatingSummary}
+          disabled={!serviceStatus.loading && !serviceStatus.aiSummary}
+          disabledReason={tw("generateSummaryDisabled")}
+        />
       </div>
     </div>
   ), [
@@ -1404,6 +1416,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     form.nature_en, form.nature_ko, form.slug, form.year,
     natureCustomMode, naturePresets, primaryLang, reqTitle,
     showErrors, subtitleValue, suf, titleKey, titleValue, tw, updateField, worksCategories,
+    savedSummary, isEdit, savedId, serviceStatus.aiSummary, serviceStatus.loading, handleGenerateSummary, generatingSummary,
   ]);
 
   /* Images */

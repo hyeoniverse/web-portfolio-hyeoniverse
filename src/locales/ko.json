@@ -341,7 +341,9 @@
   "aiSummary": {
     "label": "AI 요약",
     "generating": "요약 생성 중...",
-    "generate": "생성"
+    "generate": "AI 요약 만들기",
+    "empty": "아직 요약이 없습니다. 처음 보시는 분이 만들어 두면 다음 사람부터 바로 보입니다.",
+    "failed": "요약을 만들지 못했습니다. 잠시 뒤 다시 눌러 주세요."
   },
   "tooltip": {
     "contact": "연락하기 양식이 열립니다",
