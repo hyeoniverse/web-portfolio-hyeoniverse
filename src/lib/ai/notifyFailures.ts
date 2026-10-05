@@ -39,7 +39,8 @@ export function describeFailures(failures: ProviderFailure[], t: T): string {
  */
 export function notifyAiFailures(body: unknown, t: T, { feature, ok }: { feature: string; ok: boolean }): void {
   const all = failuresOf(body);
-  const shown = ok ? all.filter((f) => f.kind !== "no_key") : all;
+  /* 결과가 났으면 키 없음 · 이미 꺼져 있어 건너뛴 것(꺼질 때 이미 알렸다)은 빼고, 이번에 실제로 실패한 것만 */
+  const shown = ok ? all.filter((f) => f.kind !== "no_key" && !f.skipped) : all;
   if (shown.length === 0) {
     if (!ok) showToast(fillTemplate(t("admin.aiHealth.toastFailedPlain"), { feature }), "error", 6000);
     return;

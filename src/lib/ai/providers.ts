@@ -96,6 +96,8 @@ export interface ProviderFailure {
   kind: FailureKind;
   /** 이번 실패로 이 공급자가 꺼졌다 */
   disabled?: boolean;
+  /** 이미 꺼져 있어 부르지 않고 건너뛰었다(이번에 실패한 게 아니다) — 결과가 났으면 토스트에 올리지 않는다 */
+  skipped?: boolean;
 }
 
 export interface ProviderHealth {
