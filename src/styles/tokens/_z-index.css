@@ -6,7 +6,7 @@
   --z-index-below: -1; /* 배경 레이어 (video bg 등) */
   --z-index-content: 10; /* 페이지 콘텐츠 */
   --z-index-nav: 100; /* 고정 네비게이션 */
-  --z-index-float: 200; /* nav 위 고정 UI (dot nav, credits footer, 로딩 화면, 모바일 메뉴 서랍, 편집기 툴바, 진행 막대) */
-  /* 화면 위에 뜨는 것(모달 · 팝오버 · 툴팁 · 토스트 · 커서 · 페이지 전환)은 z-index 가 아니라 브라우저의 top layer 에 올린다(3.10-1).
+  --z-index-float: 200; /* nav 위 고정 UI (dot nav, credits footer, 편집기 툴바, 진행 막대) */
+  /* 화면 위에 뜨는 것(모달 · 팝오버 · 툴팁 · 토스트 · 커서 · 페이지 전환 · 로딩 덮개 · 모바일 메뉴 서랍)은 z-index 가 아니라 브라우저의 top layer 에 올린다(3.10-1).
      예전의 dropdown 500 … cursor 10100 아홉 단계는 그래서 없다. */
 }

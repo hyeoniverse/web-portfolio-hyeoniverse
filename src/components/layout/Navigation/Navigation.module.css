@@ -70,14 +70,6 @@
   mix-blend-mode: normal;
 }
 
-/* 로딩 중 (또는 elevated z) — LoadingScreen backdrop 위로 올림 */
-/* 로딩 중(과 덮개가 사라지는 동안) 로고를 로딩 덮개 위에 둔다.
-   덮개가 --z-index-overlay 에서 --z-index-loading 으로 올라간 뒤(59bfe90c, 드로어를 덮으려고) 여기는
-   --z-index-overlay + 1 에 남아 있어서, 인트로 로고가 덮개 밑에 그려지고 한 번도 보이지 않았다. */
-.logoNavBarElevated {
-  z-index: calc(var(--z-index-float) + 2); /* 로딩 화면(float + 1) 위 */
-}
-
 
 .adminBadgeFixed {
   pointer-events: auto;
@@ -762,10 +754,9 @@
   ========================================================================== */
 
 .menuClipWrapper.menuClipWrapper {
+  /* top layer(popover) — 열려 있는 동안 nav 가 그 위에 같이 올라가 햄버거가 눌린다(Navigation.tsx keepOnTop) */
   position: fixed;
   inset: 0;
-  /* 페이지 층(3.10-1 예외) — nav 의 햄버거가 이 위에 있어야 해서 top layer 에 올리지 않는다. 점 내비 같은 float 위 */
-  z-index: calc(var(--z-index-float) + 1);
   isolation: isolate;
   clip-path: inset(0 0 100% 0);
   transition: clip-path var(--duration-slower) var(--ease-standard);
@@ -1482,13 +1473,7 @@
   ========================================================================== */
 
 .navLoading {
-  z-index: calc(var(--z-index-float) + 2); /* 로딩 화면(float + 1) 위 */
   pointer-events: none;
-}
-
-/* LoadingScreen 페이드아웃 완료까지 z-index 유지 */
-.navElevated {
-  z-index: calc(var(--z-index-float) + 2);
 }
 
 .navLoading .navCenter,
@@ -1498,9 +1483,7 @@
 }
 
 /* Menu open: nav를 drawer 위로 올리고 햄버거만 표시 */
-.navMenuOpen {
-  z-index: calc(var(--z-index-float) + 2); /* 메뉴 서랍(float + 1) 위 — 햄버거가 눌려야 한다 */
-}
+/* 메뉴가 열린 동안 nav 는 top layer(Navigation.tsx keepOnTop) — 햄버거만 남긴다 */
 
 /* logoNavBar 자식 motion.span (.logo) 의 인라인 visibility:visible 로 visibility 만으론 안 숨겨짐
    → opacity (곱셈 합성) 로 강제 */
