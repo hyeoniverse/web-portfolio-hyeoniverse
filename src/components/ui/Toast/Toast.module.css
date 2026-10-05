@@ -64,6 +64,26 @@
   overflow: hidden;
 }
 
+/* 구조가 있는 문구 — 첫 줄(무엇이)은 굵게, 둘째 줄은 항목을 · 로 이어 적는다. 두 줄 클램프는 그대로 */
+.messageTitle {
+  display: block;
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+}
+
+.messageItems {
+  display: block;
+}
+
+.messageItem + .messageItem::before {
+  content: " · ";
+  color: var(--text-tertiary);
+}
+
+.messageName {
+  color: var(--text-primary);
+}
+
 /* 잘린 문구 전체 보기 — 둘째 줄 끝 높이에 맞춘 작은 캡슐 */
 .more {
   align-self: flex-end;
