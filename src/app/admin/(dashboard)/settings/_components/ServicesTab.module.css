@@ -70,9 +70,9 @@
   grid-column: 1 / -1;
 }
 
-/* 이름 칸 폭 = 순서 줄의 핸들(14px) + 체크(16px) + 틈 둘(16px) + 상자(22rem) + 여백 차(4px) — 상태 배지가 위 줄과 한 열에 선다 */
+/* 이름 칸 폭 = 순서 줄의 상자 끝선(핸들 14 + 틈 8 + 상자 22rem + 상자 뒤 여백 8 − 격자 틈 12 + 오차)에 맞춘다 — 상태 배지가 위 줄과 한 열에 선다(실측) */
 .stockName {
-  width: calc(22rem + 50px);
+  width: calc(22rem + 26px);
   white-space: nowrap;
   font: var(--font-body-sm);
   color: var(--text-primary);
