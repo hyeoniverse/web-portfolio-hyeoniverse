@@ -174,9 +174,13 @@
   color: var(--text-tertiary);
 }
 
+/* 단추 네 칸(⏻ · 기록 · 콘솔 · ›)을 같은 폭의 칸에 — 없는 단추는 빈 칸으로 채워 줄마다 같은 자리 */
 .actions {
-  display: inline-flex;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: var(--control-height-sm);
   align-items: center;
+  justify-items: center;
   gap: var(--spacing-4);
   margin-left: auto;
 }
