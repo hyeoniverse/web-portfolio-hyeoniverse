@@ -4,11 +4,14 @@ import { parseSummaryJson } from "@/lib/api/aiSummaryProviders";
 
 describe("parseSummaryJson", () => {
   it("구조 모양", () => {
-    expect(parseSummaryJson('{"ko":{"tldr":"한 줄입니다.","points":["하나","둘"]},"en":{"tldr":"One line.","points":["a"]}}'))
-      .toEqual({ ko: { tldr: "한 줄입니다.", points: ["하나", "둘"] }, en: { tldr: "One line.", points: ["a"] } });
+    const r = parseSummaryJson('{"ko":{"tldr":"한 줄입니다.","body":"본문.","keywords":["a","b"],"takeaway":"끝."},"en":{"tldr":"One line.","points":["a"]}}');
+    expect(r.ko).toMatchObject({ tldr: "한 줄입니다.", body: "본문.", keywords: ["a", "b"], takeaway: "끝." });
+    expect(r.en).toMatchObject({ tldr: "One line.", points: ["a"] });
   });
   it("예전 문장 모양도 받는다 — tldr 로", () => {
-    expect(parseSummaryJson('{"ko":"요약입니다.","en":"Summary."}')).toEqual({ ko: { tldr: "요약입니다.", points: [] }, en: { tldr: "Summary.", points: [] } });
+    const r = parseSummaryJson('{"ko":"요약입니다.","en":"Summary."}');
+    expect(r.ko.tldr).toBe("요약입니다.");
+    expect(r.en.tldr).toBe("Summary.");
   });
   it("코드 울타리와 설명이 붙어도 읽는다", () => {
     expect(parseSummaryJson('물론입니다.\n```json\n{"ko": {"tldr": "가", "points": []}, "en": {"tldr": "a", "points": []}}\n```\n끝.').ko.tldr).toBe("가");

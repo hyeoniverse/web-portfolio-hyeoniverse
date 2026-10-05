@@ -28,9 +28,12 @@ export function buildSummaryPrompt(kind: "post" | "work", input: { title?: strin
 
 Output
 - Return ONLY a JSON object with this exact shape, no markdown, no code fence, no extra keys:
-  {"ko": {"tldr": "...", "points": ["...", "..."]}, "en": {"tldr": "...", "points": ["...", "..."]}}
-- "tldr": one sentence that says what this ${kind === "post" ? "post" : "project"} is about, under 90 characters.
-- "points": 2 to 4 items, each one sentence under 70 characters, the most concrete things: approach, numbers, outcomes, decisions.
+  {"ko": {"tldr": "...", "body": "...", "note": "...", "keywords": ["..."], "takeaway": "..."}, "en": {...same keys...}}
+- "tldr": a headline-like single line that says what this ${kind === "post" ? "post" : "project"} is about, under 60 characters, no trailing period in English.
+- "body": 2 to 3 sentences, under 220 characters total — what was done, how, and what came out of it (numbers, decisions, outcomes).
+- "note": one sentence, under 90 characters — a limitation, caveat, or precondition the reader should know. Empty string if there is none.
+- "keywords": 3 to 5 short tags (1-3 words each) a reader would search for — technologies, techniques, topics.
+- "takeaway": one closing sentence, under 80 characters — the single biggest result, or who benefits most from reading.
 
 Korean ("ko")
 - Polite declarative style ending in "-합니다 / -입니다" (합니다체). Never use "-해요", "-한다", or "-했어요".
@@ -43,7 +46,7 @@ English ("en")
 Both
 - Cover: ${focus}.
 - Be concrete: prefer specific nouns, numbers, and outcomes over generic phrases like "various", "effectively", "in-depth".
-- Do not repeat the tldr inside points. No emojis, no quotation marks, no trailing labels.
+- Do not repeat the tldr inside body or takeaway. No emojis, no quotation marks, no trailing labels.
 - If one language's content is missing, write that language from the other language's content.
 
 Title: ${(input.title || "").trim() || "(none)"}
@@ -86,7 +89,7 @@ export function parseSummaryJson(text: string): SummaryResult {
   const ko = coerceSummary(parsed.ko);
   const en = coerceSummary(parsed.en);
   if (!ko && !en) throw new Error(`요약 응답을 JSON 으로 읽지 못했습니다: ${cleaned.slice(0, 120)}`);
-  const empty: StructuredSummary = { tldr: "", points: [] };
+  const empty: StructuredSummary = { tldr: "" };
   return { ko: ko ?? empty, en: en ?? empty };
 }
 

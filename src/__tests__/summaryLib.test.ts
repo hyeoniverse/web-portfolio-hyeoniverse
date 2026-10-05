@@ -4,17 +4,20 @@ import { extractSkeleton, parseStoredSummary, serializeSummary, storedSummaryHas
 
 describe("저장 모양", () => {
   it("JSON 은 구조로, 예전 줄글은 문단으로 읽는다", () => {
-    expect(parseStoredSummary('{"tldr":"한 줄","points":["a","b"],"hash":"x"}')).toEqual({ kind: "structured", tldr: "한 줄", points: ["a", "b"] });
+    expect(parseStoredSummary('{"tldr":"한 줄","body":"본문","note":"주의","keywords":["k"],"takeaway":"끝","hash":"x"}'))
+      .toEqual({ kind: "structured", tldr: "한 줄", body: "본문", note: "주의", keywords: ["k"], takeaway: "끝" });
+    /* 첫 구조 형식(points)은 본문으로 이어 붙인다 */
+    expect(parseStoredSummary('{"tldr":"한 줄","points":["a","b"]}')).toMatchObject({ kind: "structured", tldr: "한 줄", body: "a b" });
     expect(parseStoredSummary("그냥 요약 문장입니다.")).toEqual({ kind: "text", text: "그냥 요약 문장입니다." });
     expect(parseStoredSummary("")).toBeNull();
   });
   it("해시는 JSON 에만 있다", () => {
-    const s = serializeSummary({ tldr: "t", points: [], hash: "abcd1234" });
+    const s = serializeSummary({ tldr: "t", hash: "abcd1234" });
     expect(storedSummaryHash(s)).toBe("abcd1234");
     expect(storedSummaryHash("줄글")).toBeUndefined();
   });
   it("같음 판정용 글은 메타를 뺀다", () => {
-    expect(summaryToPlain(parseStoredSummary('{"tldr":"t","points":["p"],"hash":"1"}'))).toBe("t p");
+    expect(summaryToPlain(parseStoredSummary('{"tldr":"t","body":"b","hash":"1"}'))).toBe("t b");
   });
 });
 

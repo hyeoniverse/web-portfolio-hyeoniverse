@@ -6,10 +6,10 @@ import { describe, expect, it } from "vitest";
 import { buildSummaryPrompt } from "@/lib/api/aiSummaryProviders";
 
 describe("buildSummaryPrompt", () => {
-  it("한국어는 합니다체, 출력은 언어마다 tldr · points", () => {
+  it("한국어는 합니다체, 출력은 언어마다 tldr · body · note · keywords · takeaway", () => {
     const p = buildSummaryPrompt("post", { title: "제목", ko: "본문", en: "body" });
     expect(p).toContain("합니다체");
-    expect(p).toContain('{"ko": {"tldr": "...", "points": ["...", "..."]}');
+    expect(p).toContain('{"ko": {"tldr": "...", "body": "...", "note": "...", "keywords": ["..."], "takeaway": "..."}');
     expect(p).toContain("Title: 제목");
   });
 
