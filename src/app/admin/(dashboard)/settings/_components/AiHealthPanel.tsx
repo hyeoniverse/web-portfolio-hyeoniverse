@@ -112,8 +112,9 @@ export function ProviderHealthInline({ provider: p, health, open, onToggle, powe
   const { data, reload, stateOf } = health;
   const [resetting, setResetting] = useState(false);
   const [logMenu, setLogMenu] = useState(false);
-  if (!data) return null;
-  const info = AI_PROVIDER_INFO[p];
+  const info = AI_PROVIDER_INFO[p] as (typeof AI_PROVIDER_INFO)[AiProvider] | undefined;
+  /* 설정에 남은 이름이 이 코드의 공급자 표에 없을 수 있다(다른 브랜치에서 저장한 공급자 등) — 조각을 비운다 */
+  if (!data || !info) return null;
   const h = data.health[p];
   const u = data.usage.providers[p];
   /* 시간이 지나 다시 시도할 차례가 된 차단은 꺼짐이 아니라 실패 중으로 보인다(lib/ai/status) */
@@ -200,7 +201,7 @@ export function ProviderHealthInline({ provider: p, health, open, onToggle, powe
 export function ProviderHealthDetail({ provider: p, health, open, className }: { provider: AiProvider; health: Health; open: boolean; className?: string }) {
   const { th, when } = useFmt();
   const { data, stateOf } = health;
-  if (!data) return null;
+  if (!data || !(p in AI_PROVIDER_INFO)) return null;
   const h = data.health[p];
   const u = data.usage.providers[p];
   const state = stateOf(p) ?? "ok";
