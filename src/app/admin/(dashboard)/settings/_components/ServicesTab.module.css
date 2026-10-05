@@ -51,6 +51,12 @@
   border-top: var(--border-light);
 }
 
+.stockTitle {
+  margin: 0 0 var(--spacing-4);
+  font: var(--font-body-sm);
+  color: var(--text-tertiary);
+}
+
 .stockRow {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;

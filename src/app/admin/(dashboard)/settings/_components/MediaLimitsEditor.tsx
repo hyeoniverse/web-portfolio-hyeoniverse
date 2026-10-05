@@ -15,6 +15,7 @@ import {
   sizeOptionsFor,
 } from "../_data/servicesUploadConfig";
 import { Plus } from "@/components/icons";
+import Tooltip from "@/components/ui/Tooltip";
 import Select from "@/components/ui/Select";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
@@ -68,13 +69,12 @@ export function MediaLimitsEditor({ config, setConfig, t }: {
   }
 
   /* 형식 하나 = 칩 하나("이름 [크기▾] ×") — 행 반복 대신 칩 wrap 으로 압축.
-     기본 형식은 × 가 없는 것으로 구분한다(라벨 반복 제거), 사유는 title 로 남긴다 */
+     기본 형식은 × 가 없는 것으로 구분한다(라벨 반복 제거), 사유는 툴팁으로 남긴다 */
   const renderChip = (ext: string, label: string, isBuiltin: boolean) => (
+    <Tooltip key={ext} content={isBuiltin ? `.${ext} — ${t("admin.settings.builtInCannotDisable")}` : `.${ext}`} delay={300}>
     <span
-      key={ext}
       className={styles.formatChip}
       data-builtin={isBuiltin || undefined}
-      title={isBuiltin ? `.${ext} — ${t("admin.settings.builtInCannotDisable")}` : `.${ext}`}
     >
       <span className={styles.formatChipName}>{label}</span>
       <Select
@@ -87,14 +87,16 @@ export function MediaLimitsEditor({ config, setConfig, t }: {
         triggerClassName={styles.formatChipSelect}
       />
       {!isBuiltin && (
-        <CloseButton
-          size="xs"
-          onClick={() => removeExt(ext)}
-          ariaLabel={t("admin.settings.mediaRemoveFormat")}
-          title={t("admin.settings.mediaRemoveFormat")}
-        />
+        <Tooltip content={t("admin.settings.mediaRemoveFormat")}>
+          <CloseButton
+            size="xs"
+            onClick={() => removeExt(ext)}
+            ariaLabel={t("admin.settings.mediaRemoveFormat")}
+          />
+        </Tooltip>
       )}
     </span>
+    </Tooltip>
   );
 
   /* 카테고리 하나 = 한 행 — 왼쪽 고정 폭 라벨 + 오른쪽 칩 wrap. 세로 나열보다 훨씬 얕다 */

@@ -5,6 +5,7 @@
 import { History } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import Button from "@/components/ui/Button";
+import Tooltip from "@/components/ui/Tooltip";
 
 export default function ServiceLogLink({ query }: { query: Record<string, string | string[]> }) {
   const { t } = useLanguage();
@@ -13,15 +14,16 @@ export default function ServiceLogLink({ query }: { query: Record<string, string
   );
   const label = t("admin.aiHealth.logOpenSection");
   return (
-    <Button
-      variant="ghost"
-      size="sm"
-      shape="circle"
-      href={`/admin/service-log?${params.toString()}`}
-      aria-label={label}
-      title={label}
-      soundDisabled
-      icon={<History size={14} strokeWidth={2} />}
-    />
+    <Tooltip content={label}>
+      <Button
+        variant="ghost"
+        size="sm"
+        shape="circle"
+        href={`/admin/service-log?${params.toString()}`}
+        aria-label={label}
+        soundDisabled
+        icon={<History size={14} strokeWidth={2} />}
+      />
+    </Tooltip>
   );
 }
