@@ -181,9 +181,13 @@
   margin-left: auto;
 }
 
-/* ⏻ — 켜짐은 초록, 꺼짐은 강조색 사선(PowerOff). 둘 다 ghost 라 색과 모양으로만 가른다 */
+/* ⏻ — 쓰는 중은 초록, 이 기능에서 뺀 건 흐린 사선, 자동으로 꺼진 건 강조색 사선. 다 ghost 라 색과 모양으로 가른다 */
 .powerOn {
   color: var(--text-success);
+}
+
+.powerExcluded {
+  color: var(--text-muted);
 }
 
 .powerOff {

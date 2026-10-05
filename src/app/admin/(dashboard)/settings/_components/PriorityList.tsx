@@ -3,7 +3,6 @@
 import { useRef, useState } from "react";
 import type { SelectOption } from "@/types";
 import { GripDotsIcon } from "@/components/icons";
-import Checkbox from "@/components/ui/Checkbox";
 import styles from "./PriorityList.module.css";
 
 interface PriorityListProps<T extends string> {
@@ -13,8 +12,8 @@ interface PriorityListProps<T extends string> {
   options: SelectOption<T>[];
   onChange: (next: T[]) => void;
   onExcludedChange: (next: T[]) => void;
-  /** 항목 옆 작은 표시 — 키 없음·꺼짐처럼 이 순서에 넣어도 쓰이지 않을 공급자를 알린다 */
-  badgeOf?: (value: T) => React.ReactNode;
+  /** 상자 밖 오른쪽 — 상태 조각. 이 기능에서 쓸지(⏻)도 여기서 켜고 끈다: enabled 가 지금 값, toggle 로 바꾼다. 1번(기본)은 locked */
+  badgeOf?: (value: T, power: { enabled: boolean; locked: boolean; toggle: () => void }) => React.ReactNode;
   /** 기본 공급자를 1번으로 목록에 넣는다 — 1번이 곧 기본 공급자, 끌어 올리면 기본이 바뀐다.
    *  onChange 는 기본 공급자를 앞에 둔 전체 순서를 돌려준다(부모가 [0] 을 provider 로). 1번에는 빼기 칸이 없다 */
   includePrimary?: boolean;
@@ -107,9 +106,15 @@ export function PriorityList<T extends string>({ primary, priority, excluded, op
         const isPrimary = includePrimary && idx === 0;
         const isEnabled = isPrimary || !excluded.includes(val);
         const detail = detailOf?.(val);
+        /* 이 기능에서 쓸지 — 1번(기본)은 뺄 수 없다 */
+        const power = {
+          enabled: isEnabled,
+          locked: !!isPrimary,
+          toggle: () => { if (!isPrimary) onExcludedChange(isEnabled ? [...excluded, val] : excluded.filter((e) => e !== val)); },
+        };
         return (
           <div key={val} className={styles.priorityEntry}>
-          <div className={styles.priorityRow} data-dragging={draggingIdx === idx ? "" : undefined}>
+          <div className={styles.priorityRow} data-dragging={draggingIdx === idx ? "" : undefined} data-off={isEnabled ? undefined : ""}>
             {/* 드래그 핸들 — 맨 앞. 모든 줄에서 끈다(기본 줄을 내리면 기본이 바뀐다) */}
             <span
               className={styles.priorityGrip}
@@ -125,20 +130,6 @@ export function PriorityList<T extends string>({ primary, priority, excluded, op
             >
               <GripDotsIcon />
             </span>
-            {/* 1번(기본 공급자)은 뺄 수 없다 — 체크된 채 잠근다 */}
-            <Checkbox
-              shape="square"
-              checked={isEnabled}
-              disabled={isPrimary}
-              onChange={(checked) => {
-                if (isPrimary) return;
-                onExcludedChange(
-                  checked
-                    ? excluded.filter((e) => e !== val)
-                    : [...excluded, val]
-                );
-              }}
-            />
             <div
               className={`${styles.priorityItem}${overIdx === idx ? ` ${styles.priorityItemOver}` : ""}`}
               onDragOver={(e) => handleDragOver(e, idx)}
@@ -153,7 +144,7 @@ export function PriorityList<T extends string>({ primary, priority, excluded, op
               })()}
             </div>
             {/* 상자 밖 오른쪽 — 상태(꺼짐 · 키 없음 · 실패 중). 1번이 기본이라는 건 따로 적지 않는다 */}
-            {badgeOf?.(val) ? <span className={styles.priorityAside}>{badgeOf(val)}</span> : null}
+            {badgeOf ? <span className={styles.priorityAside}>{badgeOf(val, power)}</span> : null}
           </div>
           {detail ? <div className={styles.priorityDetail}>{detail}</div> : null}
           </div>

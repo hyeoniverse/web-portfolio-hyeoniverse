@@ -1,7 +1,7 @@
 import { requireOwner } from "@/lib/api/requireRole";
 import { jsonError, jsonOk } from "@/lib/api/response";
 import { getSecret } from "@/lib/getSecret";
-import { disableProvider, readHealth, readUsage, resetProviders } from "@/lib/ai/health";
+import { readHealth, readUsage, resetProviders } from "@/lib/ai/health";
 import { AI_PROVIDERS, AI_PROVIDER_INFO, type AiProvider } from "@/lib/ai/providers";
 
 /**
@@ -47,14 +47,13 @@ async function deeplUsage(): Promise<{ count: number; limit: number } | null> {
   }
 }
 
-/** POST /api/admin/ai-health { provider, action? } — 기본은 다시 켜기(오류 기록을 지운다), action: "disable" 이면 직접 끈다 */
+/** POST /api/admin/ai-health { provider } — 꺼진 공급자를 다시 켠다(오류 기록을 지운다) */
 export async function POST(request: Request) {
   const { error: authError } = await requireOwner();
   if (authError) return authError;
 
-  const { provider, action } = (await request.json().catch(() => ({}))) as { provider?: string; action?: string };
+  const { provider } = (await request.json().catch(() => ({}))) as { provider?: string };
   if (!provider || !(AI_PROVIDERS as readonly string[]).includes(provider)) return jsonError("Invalid provider", 400);
-  if (action === "disable") await disableProvider(provider as AiProvider);
-  else await resetProviders([provider as AiProvider]);
+  await resetProviders([provider as AiProvider]);
   return jsonOk({ success: true });
 }
