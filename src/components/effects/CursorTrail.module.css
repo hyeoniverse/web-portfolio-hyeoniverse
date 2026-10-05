@@ -10,7 +10,7 @@
   opacity: 0;
   transition: opacity var(--duration-base) var(--ease-standard);
   pointer-events: none;
-  will-change: transform;
+  /* will-change: transform 은 두지 않는다 — Safari 가 승격된 층에서 blend 를 못 섞는다. 매 프레임 transform 을 바꾸면 어차피 합성 층 */
   mix-blend-mode: difference; /* top layer 요소 자신에 — 자식에 걸면 안에서만 섞여 맨 색이 나온다(3.10-1) */
 }
 
