@@ -44,7 +44,8 @@ export const AI_PROVIDER_INFO: Record<AiProvider, {
   note?: string;
 }> = {
   deepl: { label: "DeepL", features: ["translation"], key: "DEEPL_API_KEY", unit: "chars", console: "https://www.deepl.com/your-account/usage" },
-  google_translate: { label: "Google Translate", features: ["translation"], key: "GOOGLE_TRANSLATE_API_KEY", unit: "chars", freeMonthly: 500_000, console: "https://console.cloud.google.com/billing" },
+  /* 무료 한도 50만 자(결제 계정 위에서 적용). Google 은 번역에 일일 할당량을 주지 않아 여기서 45만 자에 스스로 멈춘다(TTS 와 같은 방식) */
+  google_translate: { label: "Google Translate", features: ["translation"], key: "GOOGLE_TRANSLATE_API_KEY", unit: "chars", freeMonthly: 500_000, appCap: 450_000, console: "https://console.cloud.google.com/billing" },
   gemini: { label: "Gemini", features: ["translation", "summary"], key: "GEMINI_API_KEY", unit: "requests", console: "https://aistudio.google.com/rate-limit" },
   openai: { label: "OpenAI", features: ["summary"], key: "OPENAI_API_KEY", unit: "requests", console: "https://platform.openai.com/usage" },
   /* 무료 등급이 넉넉한 OpenAI 호환 API — 요약 대체 공급자. 한도는 모델마다 다르고 자주 바뀌어 수치를 적지 않는다 */

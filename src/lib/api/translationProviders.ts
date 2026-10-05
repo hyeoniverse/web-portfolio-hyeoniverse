@@ -1,6 +1,6 @@
 import { getSecret } from "@/lib/getSecret";
-import { filterEnabled, missingKey, networkError, providerErrorFrom, recordFailure, recordOk, toProviderError } from "@/lib/ai/health";
-import type { AiProvider, ProviderFailure } from "@/lib/ai/providers";
+import { ProviderError, filterEnabled, missingKey, networkError, providerErrorFrom, readUsage, recordFailure, recordOk, toProviderError } from "@/lib/ai/health";
+import { AI_PROVIDER_INFO, type AiProvider, type ProviderFailure } from "@/lib/ai/providers";
 import { aiModel } from "@/lib/ai/models";
 
 export type Provider = "gemini" | "google" | "deepl" | "claude";
@@ -102,6 +102,14 @@ async function translateBatchWithGoogle(
 ): Promise<ProviderBatchResult> {
   const apiKey = await getSecret("GOOGLE_TRANSLATE_API_KEY");
   if (!apiKey) throw missingKey("google_translate", "GOOGLE_TRANSLATE_API_KEY");
+
+  /* 달마다의 앱 상한(무료 50만 자 안) — 닿으면 보내지 않고 한도 초과로 남긴다. 한도 초과는 달이 바뀌면 저절로 풀린다(lib/ai/status) */
+  const cap = AI_PROVIDER_INFO.google_translate.appCap;
+  if (cap) {
+    const used = (await readUsage()).providers.google_translate?.units ?? 0;
+    const chars = items.reduce((n, it) => n + it.text.length, 0);
+    if (used + chars > cap) throw new ProviderError("google_translate", "quota", `이번 달 앱 상한(${cap.toLocaleString()}자)에 닿았습니다`);
+  }
 
   const res = await call("google_translate", `${GOOGLE_TRANSLATE_URL}?key=${apiKey}`, {
     method: "POST",
