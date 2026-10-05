@@ -53,6 +53,7 @@ import { useLogoMeasure } from "./useLogoMeasure";
 import { useToggleAnimation } from "./useToggleAnimation";
 import { useMobileMenu } from "./useMobileMenu";
 import { usePopoverRef } from "@/hooks/useTopLayer";
+import { keepOnTop } from "@/lib/topLayer";
 
 // 서브메뉴 항목 링크 — active 항목의 bold/indent 를 접힘 시 순차 애니로 풀려면 motion 링크가 필요.
 const MotionLink = motion.create(Link);
@@ -260,6 +261,11 @@ export default function Navigation() {
     }
   }, [showLoadingLogo, elevatedZ]);
 
+  /* 로딩 덮개 · 모바일 메뉴 서랍은 top layer 다(3.10-1). 그 위에서 로고가 움직이고 햄버거가 눌려야 하므로 그 동안만
+     nav 도 top layer 에 올린다(토스트 0 · 페이지 전환 1 · 커서 3 보다 아래인 -1). 끝나면 떼서 페이지 층으로 돌아오고
+     mix-blend-mode 도 되살아난다 — 덮개(검정) · 서랍(어두움) 위에서는 difference 가 원색 그대로라 그 동안 blend 가 없어도 같다 */
+  const navRef = useRef<HTMLElement>(null);
+  const navOnTop = showLoadingLogo || elevatedZ;
   const { isMenuOpen, setIsMenuOpen, showMenu, menuClipOpen, menuMounted, clipWrapperRef } =
     useMobileMenu(pathname, setNotifOpen, lenisStop, lenisStart);
   // ── Nav sliding indicator ──
@@ -431,6 +437,12 @@ export default function Navigation() {
   /* 글자 로고는 로딩 상태(화면 한가운데 · 큰 글자)를 CSS 로 그린다. 서버 HTML 부터 보여서
      자바스크립트를 기다리지 않는다. 이미지·배지 로고는 크기 비율을 CSS 로 낼 수 없어 예전처럼
      재고 나서 보인다. */
+  useEffect(() => {
+    const el = navRef.current;
+    if (!el || !(navOnTop || showMenu)) return;
+    return keepOnTop(el, -1);
+  }, [navOnTop, showMenu]);
+
   const cssLoadingLogo = showLoadingLogo && !hasImageLogo && !useBadgeLogo;
   /* 로고 transform 을 framer 에 맡기되 값은 여기서 쥔다. 잰 순간 이 값들을 바로 맞춰 두어야,
      그 뒤 다시 그릴 때 framer 가 옛 값(0)으로 한 프레임 네비게이션 자리를 그리지 않는다. */
@@ -503,7 +515,7 @@ export default function Navigation() {
       ref={logoBarRef}
       href={isAdminPage ? "/admin" : "/"}
       aria-label={useBadgeLogo || !morphIsCharCut ? DISPLAY_NAME : undefined}
-      className={`${styles.logoNavBar} ${logoDifferenceOn ? "" : styles.logoNavBarNoDifference} ${showLoadingLogo || elevatedZ ? styles.logoNavBarElevated : ""} ${siteConfig.brand.logoGlitch ? "glith-on-hover" : ""}`}
+      className={`${styles.logoNavBar} ${logoDifferenceOn ? "" : styles.logoNavBarNoDifference} ${siteConfig.brand.logoGlitch ? "glith-on-hover" : ""}`}
     >
         {(() => {
           // 로고 색상 (테마별 override). 커스텀 미지정(기본)이고 difference 를 끈 상태면
@@ -636,7 +648,7 @@ export default function Navigation() {
       )}
     </Link>
 
-    <nav aria-label={language === "ko" ? "주요 메뉴" : "Main menu"} className={`${styles.nav} ${showLoadingLogo ? styles.navLoading : ""} ${elevatedZ ? styles.navElevated : ""} ${isAdminPage ? styles.navAdmin : ""} ${showMenu ? styles.navMenuOpen : ""}`}>
+    <nav ref={navRef} aria-label={language === "ko" ? "주요 메뉴" : "Main menu"} className={`${styles.nav} ${showLoadingLogo ? styles.navLoading : ""} ${isAdminPage ? styles.navAdmin : ""} ${showMenu ? styles.navMenuOpen : ""}`}>
       <div
         ref={navCenterRef}
         className={styles.navCenter}
