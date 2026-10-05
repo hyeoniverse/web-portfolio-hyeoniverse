@@ -7,6 +7,7 @@ import { useToastStore, type ToastVariant } from "@/stores/toastStore";
 import { useModalStore } from "@/stores/modalStore";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { ModalAlert } from "@/components/ui/ModalTemplates";
+import tpl from "@/components/ui/ModalTemplates.module.css";
 import Pressable from "@/components/ui/Pressable";
 import styles from "./Toast.module.css";
 import { useKeepOnTopRef } from "@/hooks/useTopLayer";
@@ -61,9 +62,34 @@ export default function ToastContainer() {
   const dismiss = useToastStore((s) => s.dismissToast);
   const { t } = useLanguage();
   const openModal = useModalStore((s) => s.openModal);
+  /* 전체 보기 — 줄바꿈 문구를 구조로 그린다: 첫 줄은 설명, "· " 로 시작하는 줄들은 목록, 그 뒤 줄은 각주.
+     (AI 실패 사유처럼 "무엇이 / 공급자마다 왜 / 어디서 고치나" 꼴이 pre-line 한 덩어리보다 읽힌다) */
   const openFull = (id: string, message: string) => {
     dismiss(id);
-    openModal(<ModalAlert desc={message} confirmText={t("common.toastConfirm")} />, { header: { title: t("common.toastFullTitle") }, width: "440px" });
+    const lines = message.split("\n").map((l) => l.trim()).filter(Boolean);
+    const isItem = (l: string) => /^[·•\-]\s/.test(l);
+    const first = lines.length > 1 && !isItem(lines[0]) ? lines[0] : "";
+    const rest = first ? lines.slice(1) : lines;
+    const items = rest.filter(isItem).map((l) => l.replace(/^[·•\-]\s/, ""));
+    const notes = rest.filter((l) => !isItem(l));
+    const structured = items.length > 0;
+    openModal(
+      <ModalAlert desc={structured ? first : message} confirmText={t("common.toastConfirm")}>
+        {structured && (
+          <>
+            <ul className={tpl.itemList}>
+              {items.map((it, i) => {
+                /* "공급자: 사유" 꼴이면 앞을 굵게 — 어느 공급자의 사유인지 한눈에 */
+                const m = it.match(/^([^:]{1,24}):\s(.+)$/);
+                return <li key={i}>{m ? <><strong>{m[1]}</strong>: {m[2]}</> : it}</li>;
+              })}
+            </ul>
+            {notes.map((n, i) => <p key={i} className={tpl.hint}>{n}</p>)}
+          </>
+        )}
+      </ModalAlert>,
+      { header: { title: t("common.toastFullTitle") }, width: "440px" },
+    );
   };
   // 하나에 hover 해도 스택 전체를 멈춤 — 다른 토스트가 사라지며 재배치돼 커서가 벗어나는 문제 방지
   const pause = useToastStore((s) => s.pauseAllToasts);

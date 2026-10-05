@@ -7,9 +7,18 @@
   padding: 0 var(--spacing-20) var(--spacing-32);
 }
 
-/* Alert 도 X 가 제 줄을 갖게 되어(Modal 의 빈 머리줄) 따로 띄울 이유가 없다 */
+/* Alert — 머리줄의 아래 여백이 이미 있어 위를 더 띄우지 않는다. 설명 · 목록 · 각주의 아래 여백은 발(단추 줄)이 맡으니
+   마지막 조각은 여백 없이 끝낸다(설명 한 줄짜리 알림에서 단추 위가 48px 비어 있었다) */
 .alertBody {
-  padding-top: var(--spacing-4);
+  padding-top: 0;
+}
+
+.alertBody > :last-child {
+  margin-bottom: 0;
+}
+
+.alertBody .itemList {
+  margin-bottom: var(--spacing-16);
 }
 
 .desc {
