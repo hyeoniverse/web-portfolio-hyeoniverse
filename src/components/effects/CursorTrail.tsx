@@ -64,7 +64,9 @@ export default function CursorTrail() {
   const cursorTypeRef = useRef<CursorType>("");
   const [isMore, setMore] = useState(false);
 
+  /* 그리는 좌표 — layout viewport 기준(fixed 요소와 같은 기준). hit-test 는 clientX/Y 로 따로 둔다 */
   const mouseRef = useRef({ x: 0, y: 0 });
+  const hitRef = useRef({ x: 0, y: 0 });
   const circleRef = useRef({ x: 0, y: 0 });
   const prevMouseRef = useRef({ x: 0, y: 0 });
   const scaleRef = useRef(0);
@@ -254,18 +256,24 @@ export default function CursorTrail() {
     const handleMouseMove = (e: PointerEvent) => {
       // pointermove 가 도착했다는 건 iframe 밖(=parent 영역) 이라는 뜻 → 복구
       setOverIframe(false);
+      /* 커서는 fixed 라 layout viewport 좌표가 필요하다. Chrome 은 clientX 가 그 좌표지만 Safari 는 핀치 확대 때
+         clientX 가 visual viewport 기준이라 확대 · 이동한 만큼 어긋난다. pageX − scrollX 는 두 브라우저 모두
+         layout 기준이라 이걸로 그린다(확대 안 했을 때는 clientX 와 같다). elementsFromPoint 는 clientX 를 받으므로 그대로 */
+      const x = e.pageX - window.scrollX;
+      const y = e.pageY - window.scrollY;
       if (!hasMoved) {
         hasMoved = true;
-        circleRef.current = { x: e.clientX, y: e.clientY };
+        circleRef.current = { x, y };
         setIsVisible(true);
       }
-      mouseRef.current = { x: e.clientX, y: e.clientY };
+      mouseRef.current = { x, y };
+      hitRef.current = { x: e.clientX, y: e.clientY };
 
       // elementsFromPoint 호출을 ~60ms 간격으로 제한
       if (!hitTestTimer) {
         hitTestTimer = window.setTimeout(() => {
           hitTestTimer = 0;
-          runHitTest(mouseRef.current.x, mouseRef.current.y);
+          runHitTest(hitRef.current.x, hitRef.current.y);
         }, 60);
       }
     };
