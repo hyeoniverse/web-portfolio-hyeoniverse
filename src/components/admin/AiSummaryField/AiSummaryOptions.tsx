@@ -5,7 +5,7 @@
    - 설정 › 서비스의 AI 자동 요약 — 사이트 기본값(발행 때 자동 요약 · 방문자의 첫 생성이 쓴다)
    - 편집기 "다시 만들기" 팝오버(AiSummaryOptions) — 이번 요청만. 처음엔 브라우저에 남은 값, 없으면 사이트 기본값으로 연다 */
 import { useState } from "react";
-import { ChevronRight, Sparkles } from "@/components/icons";
+import { ChevronRight } from "@/components/icons";
 import Pressable from "@/components/ui/Pressable";
 import Button from "@/components/ui/Button";
 import SegmentedControl from "@/components/ui/SegmentedControl";
@@ -89,7 +89,7 @@ export default function AiSummaryOptions({ onSubmit, submitLabel }: { onSubmit: 
       <div className={styles.optActions}>
         {/* 기본값 = 설정 › 서비스의 사이트 기본값 */}
         <Button variant="ghost" size="sm" shape="capsule" onClick={() => setO(siteDefaults)} soundDisabled>{t("admin.aiSummaryField.options.reset")}</Button>
-        <Button variant="primary" size="sm" shape="capsule" icon={<Sparkles size={14} strokeWidth={1.75} />} onClick={() => { saveSummaryOptions(o); onSubmit(o); }} soundDisabled>{submitLabel}</Button>
+        <Button variant="primary" size="sm" shape="capsule" onClick={() => { saveSummaryOptions(o); onSubmit(o); }} soundDisabled>{submitLabel}</Button>
       </div>
     </div>
   );

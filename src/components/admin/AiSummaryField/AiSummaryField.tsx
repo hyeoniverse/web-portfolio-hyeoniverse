@@ -43,7 +43,7 @@ export default function AiSummaryField({ value, lang, onRegenerate, busy, disabl
           <Popover
             open={open}
             onOpenChange={setOpen}
-            placement="bottom-start"
+            placement="bottom-end"
             /* 불투명 — 유리판이면 아래 밝은 미리보기 위에서 글자가 안 읽혔다 */
             variant="solid"
             sheetTitle={ta("options.title")}
