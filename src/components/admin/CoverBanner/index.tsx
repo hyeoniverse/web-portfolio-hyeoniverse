@@ -63,6 +63,8 @@ export default function CoverBanner({
   const { t } = useLanguage();
   const [urlDraft, setUrlDraft] = useState("");
   const [emojiOpen, setEmojiOpen] = useState(false);
+  /* 피커 위치 기준 — 주면 피커가 top layer 로 떠서 아래 편집기 툴바 단추에 가리지 않는다 */
+  const emojiBtnRef = useRef<HTMLButtonElement>(null);
 
   // ── 커버 위치/줌 (드래그 중 로컬 상태, 저장값은 props) ──
   const [position, setPosition] = useState(positionProp); // object-position 세로 % (0~100)
@@ -338,6 +340,7 @@ export default function CoverBanner({
           {/* 단일 버튼 — emoji 유무에 따라 내용만 바뀌도록(엘리먼트 유지) 해서
               active→normal frost transition 이 끊기지 않게 */}
           <Pressable noTapScale
+            ref={emojiBtnRef}
             className={`${styles.emojiBtn}${emoji ? "" : ` ${styles.addEmojiBtn}`}${
               hasCover ? ` ${styles.emojiBtnOverlay}` : ""
             }${emojiOpen ? ` ${styles.emojiBtnActive}` : ""}`}
@@ -356,9 +359,10 @@ export default function CoverBanner({
             )}
           </Pressable>
 
-          {/* EmojiPicker — anchor 기준 absolute 팝업 */}
+          {/* EmojiPicker — 단추 아래 top layer 팝업. 예전의 부모 기준 absolute(z-index 3)는 아래 툴바 단추가 위로 보였다 */}
           <EmojiPicker
             open={emojiOpen}
+            getAnchorRect={() => emojiBtnRef.current?.getBoundingClientRect() ?? null}
             onClose={() => setEmojiOpen(false)}
             onSelect={(val) => onEmojiChange(val || null)}
             currentValue={emoji ?? undefined}
