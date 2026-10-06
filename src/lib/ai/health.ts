@@ -54,6 +54,9 @@ export const missingKey = (provider: AiProvider, key: string) => new ProviderErr
 export function classifyFailure(status: number | undefined, body: string): FailureKind {
   const b = body.toLowerCase();
   if (/expired|renew the api key/.test(b)) return "expired";
+  /* 분당 요청 · 토큰 한도(429) — 본문에 결제 페이지 주소("…/settings/billing")가 함께 와서 아래 billing 에 잘못 걸렸다(Groq).
+     잠깐 뒤 풀리는 종류라 결제 · 한도보다 먼저 가른다 */
+  if (status === 429 && /rate limit|rate_limit|tokens per minute|requests per minute|\(tpm\)|\(rpm\)|try again in/.test(b)) return "rate_limit";
   if (/api_key_invalid|invalid api key|invalid x-api-key|incorrect api key|invalid_api_key|authentication_error|invalid token|invalid credentials|unauthorized/.test(b)) return "invalid_key";
   if (/insufficient_quota|exceeded your current quota|quota exceeded|resource_exhausted|quota/.test(b) && status !== 403) return "quota";
   if (/credit balance|insufficient (credit|balance|funds)|payment required|billing|top up|not enough credits/.test(b)) return "billing";

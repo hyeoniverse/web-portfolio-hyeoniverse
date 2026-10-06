@@ -17,14 +17,19 @@ const CLAUDE_API_URL = "https://api.anthropic.com/v1/messages";
  * 관리자가 편집기에서 고른 값(options)은 말투 · 분량 · 초점 · 키워드 수 · 덧붙임 · 추가 지시로 들어간다.
  * 본문은 뼈대만(lib/ai/summary.extractSkeleton) — 길이와 상관없이 보내는 양이 같다.
  */
+/** 원문 뼈대 상한 — 한국어 3,500자는 대략 2~3천 토큰. 예시 · 규칙까지 합쳐 한 요청이 4K 토큰 안팎에 들게 */
+const OUTLINE_MAX_CHARS = 3500;
+
 export function buildSummaryPrompt(
   kind: "post" | "work",
   input: { title?: string | null; ko?: string | null; en?: string | null },
   opts: SummaryOptions = DEFAULT_SUMMARY_OPTIONS,
 ): string {
   const what = kind === "post" ? "blog post" : "portfolio project description";
-  const ko = extractSkeleton(input.ko);
-  const en = extractSkeleton(input.en);
+  /* 원문은 한 언어만 — 한국어가 있으면 한국어, 없으면 영어. 두 언어를 다 실으면 같은 내용으로 토큰이 두 배가 되고
+     분당 토큰 한도(Groq 무료 8K 등)에 바로 걸렸다. 영어 요약도 이 원문에서 쓴다 */
+  const srcLang = (input.ko || "").trim() ? "Korean" : "English";
+  const outline = extractSkeleton(srcLang === "Korean" ? input.ko : input.en, OUTLINE_MAX_CHARS);
 
   const tone = {
     formal: 'Korean ends sentences in 합니다체 ("-합니다", "-입니다", "-했습니다").',
@@ -54,7 +59,7 @@ export function buildSummaryPrompt(
 
   return `You summarize a ${what} for the author's personal site. The summary appears in a box above the article, like a Notion AI summary: a reader should get the point in five seconds.
 
-The content below is an outline (title, headings, first sentences, bullets), not the full text. Use only facts that appear in it.
+The content below is an outline (title, headings, first sentences, bullets) in ${srcLang}, not the full text. Use only facts that appear in it, and write both "ko" and "en" from it.
 
 ## Fields
 - "tldr": the headline. A noun phrase or short statement under 50 characters that names the subject and the most specific fact (a number, a technology, a result). It is a title, so no sentence ending: write "LCP 9.7초 → 2.7초로 줄인 포트폴리오", not "포트폴리오의 성능을 최적화했습니다".
@@ -74,7 +79,6 @@ The content below is an outline (title, headings, first sentences, bullets), not
 - Plain words. No praise or hype (최적화된, 혁신적인, 강력한, 효과적으로, 지속적으로, 다양한), no exclamation marks, no emojis, no quotation marks.
 - Keep technical terms and code identifiers as written. Numbers stay numbers.
 - English is a natural rewrite of the same content in neutral tone, not a word-for-word translation. Title-like "tldr" without a trailing period.
-- If one language's outline is missing, write that language from the other.
 
 ## Avoid (real outputs that missed the mark)
 - body as a wall of text: "모바일 LCP를 9.7초에서 2.7초로 줄이고 Lighthouse 점수를 50점에서 77점으로 올렸습니다. 편집기 입력 지연을 … 98px→0으로 만들었습니다." → every result jammed into one paragraph. Split into points: {"label":"모바일 성능","text":"LCP 를 **9.7초 → 2.7초** 로 줄였습니다."}, {"label":"편집기 입력","text":"\`useMemo\` 로 입력 지연을 **120ms → 72ms** 로 낮췄습니다."}, …
@@ -93,11 +97,8 @@ ${opts.instruction ? `\n## Extra instruction from the author (follow it unless i
 ## Content
 Title: ${(input.title || "").trim() || "(none)"}
 
-Korean outline:
-${ko || "(none)"}
-
-English outline:
-${en || "(none)"}`;
+Outline (${srcLang}):
+${outline || "(none)"}`;
 }
 
 /** 공급자가 만든 요약 — 언어마다 구조(한 줄 + 핵심). 저장은 JSON 문자열로(lib/ai/summary.serializeSummary) */
@@ -200,6 +201,15 @@ async function callGemini(prompt: string, gen: GenParams): Promise<SummaryResult
   return parseSummaryJson(String(data?.candidates?.[0]?.content?.parts?.[0]?.text ?? ""));
 }
 
+/** "Please try again in 10.7175s" · "retry after 3s" 같은 문장에서 기다릴 초 — 없으면 null */
+export function retryAfterSeconds(message: string): number | null {
+  const m = message.match(/(?:try again in|retry after)\s*([\d.]+)\s*(ms|s)\b/i);
+  if (!m) return null;
+  const n = Number(m[1]);
+  if (!Number.isFinite(n)) return null;
+  return m[2].toLowerCase() === "ms" ? n / 1000 : n;
+}
+
 /** Config 기반 provider 우선순위 리스트 생성 */
 export async function buildSummaryProviderList(): Promise<SummaryProvider[]> {
   const config = await getSiteConfig();
@@ -234,12 +244,26 @@ export async function generateSummary(
   let lastError = skipped.length ? "All providers disabled" : "Unknown error";
   const failed: { provider: string; error: string }[] = [];
 
+  const callOnce = (provider: SummaryProvider) =>
+    provider === "openai" ? callOpenAI(prompt, gen)
+      : provider === "groq" ? callGroq(prompt, gen)
+      : provider === "claude" ? callClaude(prompt, gen)
+      : callGemini(prompt, gen);
+
   for (const provider of enabled) {
     try {
-      const result = provider === "openai" ? await callOpenAI(prompt, gen)
-        : provider === "groq" ? await callGroq(prompt, gen)
-        : provider === "claude" ? await callClaude(prompt, gen)
-        : await callGemini(prompt, gen);
+      let result: SummaryResult;
+      try {
+        result = await callOnce(provider);
+      } catch (e) {
+        /* 분당 한도(429)이고 공급자가 "Xs 뒤 다시" 를 짧게 알려 주면 그만큼 기다렸다 한 번만 더 — 다음 공급자로 넘기기 전에.
+           길면(12초 넘게) 기다리지 않는다(서버 함수 시간 · 사용자가 기다리는 시간) */
+        const err = toProviderError(provider, e);
+        const wait = err.kind === "rate_limit" ? retryAfterSeconds(err.message) : null;
+        if (wait === null || wait > 12) throw e;
+        await new Promise((r) => setTimeout(r, Math.ceil(wait * 1000) + 300));
+        result = await callOnce(provider);
+      }
       await recordOk(provider);
       return { ...result, failures };
     } catch (e) {

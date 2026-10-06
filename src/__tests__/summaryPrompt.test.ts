@@ -26,13 +26,14 @@ describe("buildSummaryPrompt", () => {
     expect(p).toContain("접근성을 강조");
   });
 
-  it("본문은 뼈대로 — 태그를 벗기고 길어도 6,000자 안", () => {
+  it("원문은 한 언어만 — 한국어가 있으면 한국어, 뼈대로 3,500자 안", () => {
     const long = Array.from({ length: 80 }, (_, i) => `<h2>절 ${i}</h2><p>${"첫 문장입니다. ".repeat(3)}${"뒤 문장. ".repeat(40)}</p>`).join("");
-    const p = buildSummaryPrompt("work", { ko: long, en: "" });
-    const body = p.split("Korean outline:\n")[1].split("\n\nEnglish outline:")[0];
+    const p = buildSummaryPrompt("work", { ko: long, en: "<p>English body</p>" });
+    const body = p.split("Outline (Korean):\n")[1];
     expect(body).not.toContain("<h2>");
-    expect(body.length).toBeLessThanOrEqual(6000);
-    expect(p).toContain("English outline:\n(none)");
+    expect(body.length).toBeLessThanOrEqual(3500);
+    expect(p).not.toContain("English body");
+    expect(buildSummaryPrompt("post", { ko: "", en: "<p>Only english</p>" })).toContain("Outline (English):\nOnly english");
   });
 });
 
