@@ -6,7 +6,7 @@ describe("parseSummaryJson", () => {
   it("구조 모양", () => {
     const r = parseSummaryJson('{"ko":{"tldr":"한 줄입니다.","body":"본문.","keywords":["a","b"],"takeaway":"끝."},"en":{"tldr":"One line.","points":["a"]}}');
     expect(r.ko).toMatchObject({ tldr: "한 줄입니다.", body: "본문.", keywords: ["a", "b"], takeaway: "끝." });
-    expect(r.en).toMatchObject({ tldr: "One line.", points: ["a"] });
+    expect(r.en).toMatchObject({ tldr: "One line.", points: [{ label: "", text: "a" }] });
   });
   it("예전 문장 모양도 받는다 — tldr 로", () => {
     const r = parseSummaryJson('{"ko":"요약입니다.","en":"Summary."}');

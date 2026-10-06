@@ -10,7 +10,8 @@ describe("buildSummaryPrompt", () => {
   it("기본은 합니다체 · 출력 키 다섯 · 예시와 피할 예", () => {
     const p = buildSummaryPrompt("post", { title: "제목", ko: "본문", en: "body" });
     expect(p).toContain("합니다체");
-    expect(p).toContain('"tldr": "", "body": "", "note": "", "keywords": [], "takeaway": ""');
+    expect(p).toContain('"points": [{"label": "", "text": ""}]');
+    expect(p).toContain("**double asterisks**");
     expect(p).toContain("## Avoid");
     expect(p).toContain("Title: 제목");
   });
@@ -18,7 +19,7 @@ describe("buildSummaryPrompt", () => {
   it("옵션이 문장으로 들어간다", () => {
     const p = buildSummaryPrompt("work", {}, { ...DEFAULT_SUMMARY_OPTIONS, tone: "friendly", length: "short", focus: "process", keywords: 0, note: false, instruction: "접근성을 강조" });
     expect(p).toContain("해요체");
-    expect(p).toContain("1-2 sentences");
+    expect(p).toContain('"points": 2 to 3 items');
     expect(p).toContain("Lead with how");
     expect(p).toContain('"keywords": always an empty array');
     expect(p).toContain('"note": always ""');

@@ -60,6 +60,53 @@
   color: var(--text-secondary);
 }
 
+/* 핵심 항목 — 강조색 점 · 굵은 머리말 · 한 문장 */
+.points {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.point {
+  position: relative;
+  padding-left: var(--spacing-16);
+  font: var(--font-body-md);
+  color: var(--text-secondary);
+}
+
+.point::before {
+  content: "";
+  position: absolute;
+  top: 0.7em;
+  left: var(--spacing-2);
+  width: 5px;
+  height: 5px;
+  border-radius: var(--radius-full);
+  background: var(--text-accent);
+}
+
+/* 머리말 — strong 이라 굵기는 전역 규칙이 준다. 색만 강조색 → 본문색, 뒤 글과는 한 칸 */
+.pointLabel {
+  margin-right: var(--spacing-8);
+  color: var(--text-primary);
+}
+
+/* 글 안 강조 · 코드 */
+.em {
+  color: var(--text-primary);
+}
+
+.code {
+  padding: 0 var(--spacing-4);
+  border-radius: var(--radius-mark);
+  background: color-mix(in oklch, var(--text-contrast) 8%, transparent);
+  font: var(--font-code-sm);
+  color: var(--text-primary);
+}
+
 /* 덧붙임 — 한계 · 주의. 본문보다 한 단계 흐리게 */
 .note {
   margin: 0;
@@ -112,6 +159,7 @@
 }
 
 .compact .body,
+.compact .point,
 .compact .note,
 .compact .takeaway {
   font: var(--font-body-sm);

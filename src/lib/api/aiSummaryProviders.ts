@@ -32,9 +32,9 @@ export function buildSummaryPrompt(
     plain: 'Korean ends sentences in 평서체 ("-다", "-했다"), like a technical note.',
   }[opts.tone];
   const length = {
-    short: { body: "1-2 sentences, under 120 characters", takeaway: "under 50 characters" },
-    normal: { body: "2-3 sentences, under 200 characters", takeaway: "under 70 characters" },
-    detailed: { body: "3-5 sentences, under 360 characters", takeaway: "under 90 characters" },
+    short: { points: "2 to 3", takeaway: "under 50 characters" },
+    normal: { points: "3 to 4", takeaway: "under 70 characters" },
+    detailed: { points: "4 to 6", takeaway: "under 90 characters" },
   }[opts.length];
   const focus = {
     outcome: "Lead with results: numbers, before → after, what now works that did not.",
@@ -49,8 +49,8 @@ export function buildSummaryPrompt(
     : '"note": always "".';
 
   const example = kind === "post"
-    ? `{"ko":{"tldr":"React 19 useOptimistic 으로 좋아요 지연 없애기","body":"좋아요를 누르면 서버 응답 전에 숫자를 먼저 바꿉니다. 실패하면 이전 값으로 되돌립니다. 체감 지연이 400ms 에서 0 으로 줄었습니다.","note":"서버 액션을 쓰는 프로젝트에서만 그대로 적용됩니다.","keywords":["React 19","useOptimistic","서버 액션","낙관적 업데이트"],"takeaway":"목록 화면의 상호작용을 즉시 반응하게 바꾸는 방법입니다."},"en":{"tldr":"Removing like-button lag with React 19 useOptimistic","body":"The count updates before the server responds. On failure it rolls back. Perceived latency drops from 400ms to zero.","note":"Applies as-is only to projects using server actions.","keywords":["React 19","useOptimistic","Server actions","Optimistic UI"],"takeaway":"A pattern for making list interactions feel instant."}}`
-    : `{"ko":{"tldr":"혼자 만든 사내 일정 공유 앱, 주간 회의 30분 단축","body":"Next.js 와 Supabase 로 팀 일정 보드를 만들었습니다. 설계부터 배포까지 혼자 맡았습니다. 도입 뒤 주간 회의가 60분에서 30분으로 줄었습니다.","note":"","keywords":["Next.js","Supabase","실시간 동기화","사내 도구"],"takeaway":"작은 팀의 반복 회의를 도구로 줄인 사례입니다."},"en":{"tldr":"Solo-built team calendar app that halved weekly meetings","body":"A team schedule board built with Next.js and Supabase. Designed, built, and shipped solo. Weekly meetings went from 60 to 30 minutes.","note":"","keywords":["Next.js","Supabase","Realtime sync","Internal tools"],"takeaway":"How a small tool cut a recurring meeting in half."}}`;
+    ? `{"ko":{"tldr":"React 19 useOptimistic 으로 좋아요 지연 없애기","body":"좋아요 단추를 즉시 반응하게 바꾼 과정입니다.","points":[{"label":"낙관적 업데이트","text":"서버 응답 전에 숫자를 먼저 바꾸고, 실패하면 되돌립니다."},{"label":"구현","text":"\`useOptimistic\` 과 서버 액션 하나로 끝납니다."},{"label":"결과","text":"체감 지연이 **400ms → 0** 으로 줄었습니다."}],"note":"서버 액션을 쓰는 프로젝트에서만 그대로 적용됩니다.","keywords":["React 19","useOptimistic","서버 액션","낙관적 업데이트"],"takeaway":"목록 화면의 상호작용을 즉시 반응하게 바꾸는 방법입니다."},"en":{"tldr":"Removing like-button lag with React 19 useOptimistic","body":"How the like button was made to respond instantly.","points":[{"label":"Optimistic update","text":"The count changes before the server responds and rolls back on failure."},{"label":"Implementation","text":"Just \`useOptimistic\` and one server action."},{"label":"Result","text":"Perceived latency dropped from **400ms to 0**."}],"note":"Applies as-is only to projects using server actions.","keywords":["React 19","useOptimistic","Server actions","Optimistic UI"],"takeaway":"A pattern for making list interactions feel instant."}}`
+    : `{"ko":{"tldr":"혼자 만든 사내 일정 공유 앱","body":"작은 팀의 주간 일정 조율을 도구로 옮겼습니다.","points":[{"label":"역할","text":"설계부터 배포까지 혼자 맡았습니다."},{"label":"구성","text":"Next.js 와 Supabase 실시간 구독으로 보드를 동기화합니다."},{"label":"효과","text":"주간 회의가 **60분 → 30분** 으로 줄었습니다."}],"note":"","keywords":["Next.js","Supabase","실시간 동기화","사내 도구"],"takeaway":"반복 회의를 작은 도구로 줄인 사례입니다."},"en":{"tldr":"A solo-built team calendar app","body":"Moved a small team's weekly scheduling into a tool.","points":[{"label":"Role","text":"Designed, built, and shipped solo."},{"label":"Stack","text":"Next.js with Supabase realtime keeps the board in sync."},{"label":"Impact","text":"Weekly meetings went from **60 to 30 minutes**."}],"note":"","keywords":["Next.js","Supabase","Realtime sync","Internal tools"],"takeaway":"How a small tool cut a recurring meeting in half."}}`;
 
   return `You summarize a ${what} for the author's personal site. The summary appears in a box above the article, like a Notion AI summary: a reader should get the point in five seconds.
 
@@ -58,7 +58,11 @@ The content below is an outline (title, headings, first sentences, bullets), not
 
 ## Fields
 - "tldr": the headline. A noun phrase or short statement under 50 characters that names the subject and the most specific fact (a number, a technology, a result). It is a title, so no sentence ending: write "LCP 9.7초 → 2.7초로 줄인 포트폴리오", not "포트폴리오의 성능을 최적화했습니다".
-- "body": ${length.body}. One fact per sentence. Say what was done, how, and what changed.
+- "body": ONE short lead sentence (under 70 characters) that frames what the points cover. Not a list of facts — the points carry the facts.
+- "points": ${length.points} items, each {"label": "...", "text": "..."}.
+  - "label": a 2-6 word lead-in naming the area, like a bold heading in a Notion bullet ("성능", "편집기 입력", "권한 구조", "Scroll conflicts"). No trailing colon.
+  - "text": one sentence about that area — what changed and the result. Wrap the single most important number or result in **double asterisks** (e.g. "LCP 를 **9.7초 → 2.7초** 로 줄였습니다"). Wrap code identifiers in \`backticks\` (e.g. \`useMemo\`). At most one bold span per item; no other markdown.
+  - Each item covers a different area. Do not cram several results into one item.
 - ${noteRule}
 - ${keywordsRule}
 - "takeaway": one sentence, ${length.takeaway}. What the reader can take from it. Describe the content, not the author: never "개발자는 … 보여줍니다", "능력을 보여줍니다", "역량을 증명합니다".
@@ -73,13 +77,15 @@ The content below is an outline (title, headings, first sentences, bullets), not
 - If one language's outline is missing, write that language from the other.
 
 ## Avoid (real outputs that missed the mark)
+- body as a wall of text: "모바일 LCP를 9.7초에서 2.7초로 줄이고 Lighthouse 점수를 50점에서 77점으로 올렸습니다. 편집기 입력 지연을 … 98px→0으로 만들었습니다." → every result jammed into one paragraph. Split into points: {"label":"모바일 성능","text":"LCP 를 **9.7초 → 2.7초** 로 줄였습니다."}, {"label":"편집기 입력","text":"\`useMemo\` 로 입력 지연을 **120ms → 72ms** 로 낮췄습니다."}, …
+- note "모든 최적화가 좋은 결과를 낸 것은 아니었습니다" → vague. Name what did not work, or return "".
 - tldr "HYEONIVERSE 포트폴리오 사이트, 성능·보안을 최적화했습니다" → a sentence, vague. Better: "LCP 9.7초 → 2.7초, 혼자 운영하는 포트폴리오".
 - note "모든 최적화는 실제 측정 기반으로 반복 적용했습니다" → not a caveat. Return "" instead.
 - takeaway "개발자는 혼자서도 문제를 찾아 고치고 서비스 품질을 지속적으로 향상시킬 수 있음을 보여줍니다" → praises the author, too long.
 
 ## Output
 Return ONLY one JSON object, no markdown, no code fence, exactly these keys:
-{"ko": {"tldr": "", "body": "", "note": "", "keywords": [], "takeaway": ""}, "en": {"tldr": "", "body": "", "note": "", "keywords": [], "takeaway": ""}}
+{"ko": {"tldr": "", "body": "", "points": [{"label": "", "text": ""}], "note": "", "keywords": [], "takeaway": ""}, "en": {...same keys...}}
 
 Example of the shape and voice (a different ${kind === "post" ? "post" : "project"}; do not copy its facts):
 ${example}

@@ -1,13 +1,15 @@
 /** AI 요약 저장 모양 · 뼈대 추출 · 해시(lib/ai/summary) */
 import { describe, expect, it } from "vitest";
-import { extractSkeleton, parseStoredSummary, serializeSummary, storedSummaryHash, summaryHash, summaryToPlain } from "@/lib/ai/summary";
+import { extractSkeleton, parseInline, parseStoredSummary, serializeSummary, storedSummaryHash, summaryHash, summaryToPlain } from "@/lib/ai/summary";
 
 describe("저장 모양", () => {
   it("JSON 은 구조로, 예전 줄글은 문단으로 읽는다", () => {
-    expect(parseStoredSummary('{"tldr":"한 줄","body":"본문","note":"주의","keywords":["k"],"takeaway":"끝","hash":"x"}'))
-      .toEqual({ kind: "structured", tldr: "한 줄", body: "본문", note: "주의", keywords: ["k"], takeaway: "끝" });
-    /* 첫 구조 형식(points)은 본문으로 이어 붙인다 */
-    expect(parseStoredSummary('{"tldr":"한 줄","points":["a","b"]}')).toMatchObject({ kind: "structured", tldr: "한 줄", body: "a b" });
+    expect(parseStoredSummary('{"tldr":"한 줄","body":"본문","points":[{"label":"성능","text":"**빨라짐**"}],"note":"주의","keywords":["k"],"takeaway":"끝","hash":"x"}'))
+      .toEqual({ kind: "structured", tldr: "한 줄", body: "본문", points: [{ label: "성능", text: "**빨라짐**" }], note: "주의", keywords: ["k"], takeaway: "끝" });
+    /* 예전 문자열 항목 — "머리말: 내용" 이면 갈라 두고, 아니면 머리말 없이 */
+    expect(parseStoredSummary('{"tldr":"한 줄","points":["성능: 빨라졌습니다","그냥 문장"]}')).toMatchObject({
+      points: [{ label: "성능", text: "빨라졌습니다" }, { label: "", text: "그냥 문장" }],
+    });
     expect(parseStoredSummary("그냥 요약 문장입니다.")).toEqual({ kind: "text", text: "그냥 요약 문장입니다." });
     expect(parseStoredSummary("")).toBeNull();
   });
@@ -16,8 +18,15 @@ describe("저장 모양", () => {
     expect(storedSummaryHash(s)).toBe("abcd1234");
     expect(storedSummaryHash("줄글")).toBeUndefined();
   });
-  it("같음 판정용 글은 메타를 뺀다", () => {
-    expect(summaryToPlain(parseStoredSummary('{"tldr":"t","body":"b","hash":"1"}'))).toBe("t b");
+  it("같음 판정용 글은 메타 · 꾸밈 기호를 뺀다", () => {
+    expect(summaryToPlain(parseStoredSummary('{"tldr":"t","body":"b","points":[{"label":"L","text":"**x** `y`"}],"hash":"1"}'))).toBe("t b L x y");
+  });
+
+  it("글 안 꾸밈은 **굵게** · `코드` 만 조각으로", () => {
+    expect(parseInline("LCP **9.7초 → 2.7초** 와 `useMemo`")).toEqual([
+      { kind: "text", text: "LCP " }, { kind: "strong", text: "9.7초 → 2.7초" }, { kind: "text", text: " 와 " }, { kind: "code", text: "useMemo" },
+    ]);
+    expect(parseInline("<b>no</b>")).toEqual([{ kind: "text", text: "<b>no</b>" }]);
   });
 });
 

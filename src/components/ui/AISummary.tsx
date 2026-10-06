@@ -5,7 +5,7 @@ import { Sparkles, Info } from "@/components/icons";
 import Button from "@/components/ui/Button";
 import LoadingDots from "@/components/ui/LoadingDots";
 import Tooltip from "@/components/ui/Tooltip";
-import { parseStoredSummary, type DisplaySummary } from "@/lib/ai/summary";
+import { parseInline, parseStoredSummary, type DisplaySummary } from "@/lib/ai/summary";
 import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "./AISummary.module.css";
 
@@ -21,6 +21,18 @@ interface AISummaryProps {
   generateEndpoint?: string;
 }
 
+/** 글 안의 **굵게** · `코드` 를 요소로 — 문자열을 HTML 로 넣지 않는다 */
+function Inline({ text }: { text: string }) {
+  return (
+    <>
+      {parseInline(text).map((p, i) =>
+        p.kind === "strong" ? <strong key={i} className={styles.em}>{p.text}</strong>
+          : p.kind === "code" ? <code key={i} className={styles.code}>{p.text}</code>
+          : <span key={i}>{p.text}</span>)}
+    </>
+  );
+}
+
 /** 저장된 요약을 조각으로 — 제목 한 줄 · 본문 · 덧붙임(흐리게) · 키워드 칩 · 강조 마무리. 예전 줄글은 문단 그대로.
  *  compact 는 편집기 칸처럼 좁은 자리용(글자 한 단계 작게) */
 export function SummaryBody({ summary, compact }: { summary: DisplaySummary; compact?: boolean }) {
@@ -28,15 +40,26 @@ export function SummaryBody({ summary, compact }: { summary: DisplaySummary; com
   if (summary.kind === "text") return <p className={styles.text}>{summary.text}</p>;
   return (
     <div className={`${styles.structured} ${compact ? styles.compact : ""}`}>
-      {summary.tldr && <p className={styles.tldr}>{summary.tldr}</p>}
-      {summary.body && <p className={styles.body}>{summary.body}</p>}
-      {summary.note && <p className={styles.note}>{summary.note}</p>}
+      {summary.tldr && <p className={styles.tldr}><Inline text={summary.tldr} /></p>}
+      {summary.body && <p className={styles.body}><Inline text={summary.body} /></p>}
+      {/* 핵심 항목 — 굵은 머리말 + 한 문장. 줄글 대신 훑어 읽게 */}
+      {summary.points.length > 0 && (
+        <ul className={styles.points}>
+          {summary.points.map((p, i) => (
+            <li key={i} className={styles.point}>
+              {p.label && <strong className={styles.pointLabel}>{p.label}</strong>}
+              <span className={styles.pointText}><Inline text={p.text} /></span>
+            </li>
+          ))}
+        </ul>
+      )}
+      {summary.note && <p className={styles.note}><Inline text={summary.note} /></p>}
       {summary.keywords.length > 0 && (
         <ul className={styles.keywords}>
           {summary.keywords.map((k, i) => <li key={i} className={styles.keyword}>{k}</li>)}
         </ul>
       )}
-      {summary.takeaway && <p className={styles.takeaway}>{summary.takeaway}</p>}
+      {summary.takeaway && <p className={styles.takeaway}><Inline text={summary.takeaway} /></p>}
     </div>
   );
 }
