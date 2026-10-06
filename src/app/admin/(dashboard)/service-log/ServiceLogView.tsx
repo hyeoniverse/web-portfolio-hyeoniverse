@@ -9,13 +9,15 @@
    ?category=mail · ?provider=gemini 또는 ?provider=fish,google_tts,edge(여럿) · ?result=fail
    ?demo 를 붙이면 예시 기록으로 화면을 미리 본다(저장하지 않는다). */
 import { useEffect, useMemo, useState } from "react";
-import { Activity, History, Settings } from "@/components/icons";
+import { Activity, Copy, History, Settings } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import AdminListShell from "@/components/admin/AdminListShell";
 import Button from "@/components/ui/Button";
 import Pressable from "@/components/ui/Pressable";
 import HelpButton from "@/components/ui/HelpButton";
 import Popover from "@/components/ui/Popover";
+import Tooltip from "@/components/ui/Tooltip";
+import { showToast } from "@/stores/toastStore";
 import { useAiHealth, type ProviderState } from "../settings/_components/useAiHealth";
 import AiHealthPanel from "../settings/_components/AiHealthPanel";
 import SegmentedControl from "@/components/ui/SegmentedControl";
@@ -222,7 +224,7 @@ export default function ServiceLogView() {
             <nav className={styles.rail} aria-label={th("logColProvider")} data-lenis-prevent-wheel>
               {/* 목록 머리 — 점·숫자·알약이 무엇인지 i 로 */}
               <div className={styles.railHeader}>
-                <span>{th("logColProvider")}</span>
+                <span className={styles.railHeaderLabel}>{th("logColProvider")}</span>
                 <Popover placement="bottom-start" responsive={false} maxHeight={false} contentClassName={styles.legend} trigger={<HelpButton symbol="i" size="xs" aria-label={th("logLegendTitle")} title={th("logLegendTitle")} soundDisabled />}>
                   <div className={styles.legendBody}>
                     <p className={styles.legendTitle}>{th("logLegendTitle")}</p>
@@ -359,20 +361,24 @@ export default function ServiceLogView() {
                       const isOpen = openRow === key;
                       return (
                         <li key={key}>
-                          <Pressable
+                          {/* 줄 — 눌러 상세를 펼친다. <button> 이 아니라 글을 끌어 고를 수 있다(오류 문장 복사).
+                              글을 고르는 중의 클릭은 펼치기로 치지 않는다. 글자 위는 I 커서, 빈 자리는 누르기 커서 */}
+                          <div
+                            role="button"
+                            tabIndex={0}
                             className={styles.row}
                             data-open={isOpen ? "" : undefined}
                             aria-expanded={isOpen}
-                            onClick={() => setOpenRow(isOpen ? null : key)}
-                            soundDisabled
+                            onClick={() => { if (window.getSelection()?.toString()) return; setOpenRow(isOpen ? null : key); }}
+                            onKeyDown={(ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); setOpenRow(isOpen ? null : key); } }}
                           >
-                            <span className={`${styles.time} ${styles.pin}`}>{when(e.at)}</span>
-                            <span className={`${styles.provider} ${styles.pin} ${styles.pin2}`}>{labelOf(e)}</span>
-                            <span className={styles.status} data-ok={e.ok ? "" : undefined}>
+                            <span className={`${styles.time} ${styles.pin}`} data-cursor="text">{when(e.at)}</span>
+                            <span className={`${styles.provider} ${styles.pin} ${styles.pin2}`} data-cursor="text">{labelOf(e)}</span>
+                            <span className={styles.status} data-ok={e.ok ? "" : undefined} data-cursor="text">
                               {e.ok ? th("logOk") : th(`kind.${e.kind ?? "unknown"}`)}
                             </span>
-                            <span className={styles.detail}>{detailOf(e)}</span>
-                          </Pressable>
+                            <span className={styles.detail} data-cursor="text">{detailOf(e)}</span>
+                          </div>
                           {isOpen && (
                             <dl className={styles.rowMore}>
                               <dt>{th("logDetailTime")}</dt><dd>{new Date(e.at).toLocaleString(locale)}</dd>
@@ -384,7 +390,34 @@ export default function ServiceLogView() {
                               </dd>
                               {e.meta?.purpose && (<><dt>{th("logDetailPurpose")}</dt><dd>{th(`logPurpose.${e.meta.purpose}`)}</dd></>)}
                               {e.units !== undefined && e.units !== null && (<><dt>{th("logDetailUnits")}</dt><dd>{e.units.toLocaleString(locale)}</dd></>)}
-                              {e.message && (<><dt>{th("logDetailMessage")}</dt><dd><pre className={styles.rowMessage}>{e.message}</pre></dd></>)}
+                              {e.message && (
+                                <>
+                                  <dt>{th("logDetailMessage")}</dt>
+                                  <dd className={styles.messageCell}>
+                                    <pre className={styles.rowMessage}>{e.message}</pre>
+                                    {/* 오류 문장 복사 — 공급자 원문 그대로(앞의 상태 코드는 원문에 이미 들어 있다) */}
+                                    <Tooltip content={t("common.codeCopy")}>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        shape="circle"
+                                        className={styles.copyBtn}
+                                        aria-label={t("common.codeCopy")}
+                                        soundDisabled
+                                        icon={<Copy size={14} strokeWidth={2} />}
+                                        onClick={async () => {
+                                          try {
+                                            await navigator.clipboard.writeText(e.message ?? "");
+                                            showToast(t("common.codeCopied"), "success");
+                                          } catch {
+                                            showToast(t("common.copyFailed"), "error");
+                                          }
+                                        }}
+                                      />
+                                    </Tooltip>
+                                  </dd>
+                                </>
+                              )}
                             </dl>
                           )}
                         </li>
