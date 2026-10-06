@@ -26,3 +26,11 @@ describe("pickGroqLatest", () => {
     expect(pickGroqLatest(["openai/gpt-oss-120b", "openai/gpt-oss-20b"])).toBe("openai/gpt-oss-20b");
   });
 });
+
+import { outputTokenCap } from "@/lib/api/aiSummaryProviders";
+describe("outputTokenCap", () => {
+  it("분당 출력 한도 초과 거절에서 다시 보낼 상한", () => {
+    expect(outputTokenCap('{"error":{"message":"Request too large for model `qwen/qwen3.8-27b` in organization `x` service tier `on_demand` on output tokens per minute (OTPM): Limit 1000, Requested 1024."}}')).toBe(900);
+    expect(outputTokenCap("tokens per minute (TPM): Limit 8000, Used 4575, Requested 4854")).toBeNull();
+  });
+});

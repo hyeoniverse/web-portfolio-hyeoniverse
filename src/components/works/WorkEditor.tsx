@@ -82,7 +82,7 @@ import { CategoryMultiPicker, type WorksCategory } from "./workEditor/CategoryPi
 import { SubtitleInput } from "./workEditor/SubtitleInput";
 import { workSnapshotMeta } from "./workEditor/workSnapshotMeta";
 import { parseYearAsPeriod, serializePeriodAsYear } from "./workEditor/periodFormat";
-import { CodedError, errorFromBody, errorFromResponse, errorText } from "@/lib/apiError";
+import { CodedError, errorFromBody, errorFromResponse, errorText, errorTextWithLinks } from "@/lib/apiError";
 import { sendAction, tryRequest } from "@/lib/sendAction";
 import InputBlocker from "@/components/ui/InputBlocker";
 
@@ -1165,7 +1165,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       const data = (await reportAiResponse(res, t, t("admin.aiHealth.feature.summary"))) as { summary_ko?: string; summary_en?: string; current?: SummaryPair } | null;
       if (!res.ok) {
         /* 서버는 "왜" 를 reason 에 담는다 — error 만 쓰면 "Forbidden" 밖에 안 남아 원인을 알 수 없다. */
-        setError(errorText(data, t, tw("saveFailed")));
+        setError(errorTextWithLinks(data, t, tw("saveFailed")));
         return;
       }
       const next: SummaryPair = { ko: data?.summary_ko ?? "", en: data?.summary_en ?? "" };

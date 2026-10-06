@@ -1976,8 +1976,8 @@
       "TRANSLATION_NOT_CONFIGURED": "번역 서비스가 설정되지 않았습니다.",
       "TRANSLATION_FAILED": "번역하지 못했습니다. 잠시 뒤 다시 시도해 주세요.",
       "MEDIA_IN_USE": "쓰는 곳이 {{n}}군데 있어 지울 수 없습니다.",
-      "AI_SUMMARY_FAILED": "AI 요약을 만들지 못했습니다. 공급자별 원인은 알림과 설정 › 서비스의 AI 상태에서 확인해 주세요.",
-      "AI_PROVIDERS_DISABLED": "여러 번 이어 실패해 꺼 둔 공급자뿐이라 요청을 보내지 않았습니다. 설정 › 서비스의 AI 상태에서 원인을 고친 뒤 다시 켜 주세요."
+      "AI_SUMMARY_FAILED": "AI 요약을 만들지 못했습니다. 공급자별 원인은 [알림](/admin/notifications)과 [설정 › 서비스](/admin/settings?tab=services)의 AI 상태에서 확인해 주세요.",
+      "AI_PROVIDERS_DISABLED": "여러 번 이어 실패해 꺼 둔 공급자뿐이라 요청을 보내지 않았습니다. [설정 › 서비스](/admin/settings?tab=services)의 AI 상태에서 원인을 고친 뒤 다시 켜 주세요."
     },
     "aiSummaryField": {
       "options": {

@@ -152,23 +152,34 @@ async function callOpenAICompatible(provider: "openai" | "groq", url: string, ke
   if (!apiKey) throw missingKey(provider, keyName);
   /* Groq 의 "latest" 는 그 키의 목록에서 고른다(모델 은퇴에 안 깨지게) */
   const model = provider === "groq" ? await groqModel(apiKey) : await aiModel(provider);
-  const send = async (jsonMode: boolean) => {
+  let jsonMode = true;
+  let maxTokens = gen.maxTokens;
+  const send = async () => {
     let res: Response;
     try {
       res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-        body: JSON.stringify({ model, messages: [{ role: "user", content: prompt }], temperature: gen.temperature, max_completion_tokens: gen.maxTokens, ...(jsonMode ? { response_format: { type: "json_object" } } : {}) }),
+        body: JSON.stringify({ model, messages: [{ role: "user", content: prompt }], temperature: gen.temperature, max_completion_tokens: maxTokens, ...(jsonMode ? { response_format: { type: "json_object" } } : {}) }),
       });
     } catch (e) {
       throw networkError(provider, e);
     }
     return res;
   };
-  let res = await send(true);
-  if (res.status === 400) {
+  let res = await send();
+  /* 공급자가 거절하면 고쳐서 한 번씩만 더 — ① JSON 모드를 못 따른 모델(json_validate_failed)은 모드 없이,
+     ② 분당 출력 토큰 한도보다 큰 max_completion_tokens 를 요청했으면(Groq 무료 qwen: OTPM 1,000 < 1,024) 한도의 90% 로 */
+  for (let attempt = 0; attempt < 2 && !res.ok; attempt++) {
     const body = await res.clone().text().catch(() => "");
-    if (/json_validate_failed|response_format/i.test(body)) res = await send(false);
+    if (res.status === 400 && jsonMode && /json_validate_failed|response_format/i.test(body)) {
+      jsonMode = false;
+    } else {
+      const cap = outputTokenCap(body);
+      if (cap === null || cap >= maxTokens) break;
+      maxTokens = cap;
+    }
+    res = await send();
   }
   if (!res.ok) throw await providerErrorFrom(provider, res);
   const data = await res.json();
@@ -199,6 +210,15 @@ async function callGemini(prompt: string, gen: GenParams): Promise<SummaryResult
   });
   const data = await res.json();
   return parseSummaryJson(String(data?.candidates?.[0]?.content?.parts?.[0]?.text ?? ""));
+}
+
+/** "output tokens per minute (OTPM): Limit 1000, Requested 1024" — 요청한 출력 토큰이 분당 한도를 넘었다는 거절에서
+ *  다시 보낼 상한(한도의 90%). 그런 거절이 아니면 null */
+export function outputTokenCap(body: string): number | null {
+  const m = body.match(/output tokens[^:]*:\s*Limit\s*(\d+),\s*Requested\s*(\d+)/i);
+  if (!m) return null;
+  const limit = Number(m[1]);
+  return limit > 0 ? Math.max(256, Math.floor(limit * 0.9)) : null;
 }
 
 /** "Please try again in 10.7175s" · "retry after 3s" 같은 문장에서 기다릴 초 — 없으면 null */

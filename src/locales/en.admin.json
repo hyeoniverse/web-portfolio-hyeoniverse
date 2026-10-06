@@ -1976,8 +1976,8 @@
       "TRANSLATION_NOT_CONFIGURED": "The translation service isn’t set up.",
       "TRANSLATION_FAILED": "Translation failed. Try again in a moment.",
       "MEDIA_IN_USE": "This file is used in {{n}} place(s), so it can't be deleted.",
-      "AI_SUMMARY_FAILED": "Could not create the AI summary. See the notice and AI status in Settings › Services for each provider's cause.",
-      "AI_PROVIDERS_DISABLED": "Every provider is turned off after repeated failures, so no request was sent. Fix the cause in Settings › Services › AI status and turn it back on."
+      "AI_SUMMARY_FAILED": "Could not create the AI summary. See [notifications](/admin/notifications) and the AI status in [Settings › Services](/admin/settings?tab=services) for each provider's cause.",
+      "AI_PROVIDERS_DISABLED": "Every provider is turned off after repeated failures, so no request was sent. Fix the cause in the AI status of [Settings › Services](/admin/settings?tab=services) and turn them back on."
     },
     "aiSummaryField": {
       "options": {

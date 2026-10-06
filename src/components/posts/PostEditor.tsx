@@ -98,7 +98,7 @@ interface PostEditorProps {
 import Pressable from "@/components/ui/Pressable";
 import AuthorAvatar from "@/components/ui/AuthorAvatar";
 import { reportAiResponse } from "@/lib/ai/notifyFailures";
-import { CodedError, errorFromBody, errorText } from "@/lib/apiError";
+import { CodedError, errorFromBody, errorText, errorTextWithLinks } from "@/lib/apiError";
 import { sendAction, sendActions } from "@/lib/sendAction";
 import InputBlocker from "@/components/ui/InputBlocker";
 import SummaryCompareModal, { type SummaryPair } from "@/components/admin/SummaryCompare/SummaryCompareModal";
@@ -948,7 +948,7 @@ export default function PostEditor({ post }: PostEditorProps) {
       /* 공급자마다의 원인(키 만료·한도 등)은 토스트로 — 설정 › 서비스의 AI 상태 패널에도 남는다 */
       const data = (await reportAiResponse(res, t, t("admin.aiHealth.feature.summary"))) as { summary_ko?: string; summary_en?: string; current?: SummaryPair } | null;
       if (!res.ok) {
-        setError(res.status === 503 ? te("summaryNoKey") : errorText(data, t, te("summaryFailed")));
+        setError(res.status === 503 ? te("summaryNoKey") : errorTextWithLinks(data, t, te("summaryFailed")));
         return;
       }
       const next: SummaryPair = { ko: data?.summary_ko ?? "", en: data?.summary_en ?? "" };
