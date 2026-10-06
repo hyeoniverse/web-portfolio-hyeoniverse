@@ -149,6 +149,7 @@ export default function PostDetailClient({ post: initialPost, relatedWorks }: Po
         summaryKo={post.summary_ko ?? ""}
         summaryEn={post.summary_en ?? ""}
         lang={viewLang}
+        generateEndpoint={`/api/posts/${post.id}/ai-summary`}
       />
 
       <div className={enteredByTransition ? styles.enterInstant : styles.enterBody}>

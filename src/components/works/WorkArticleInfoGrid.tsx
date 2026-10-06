@@ -187,6 +187,7 @@ export default function WorkArticleInfoGrid({
       <AISummary
         summaryKo={project.summary?.ko ?? ""}
         summaryEn={project.summary?.en ?? ""}
+        generateEndpoint={project.id && project.id !== "preview" ? `/api/works/${project.id}/ai-summary` : undefined}
         lang={viewLang}
       />
     </>

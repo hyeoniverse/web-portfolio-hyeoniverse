@@ -24,6 +24,8 @@ import { ENV_SECTION_ID, HintLines, envKeyLine } from "./EnvKeyHint";
 import { CONTACT_KEYS } from "@/lib/contactSend";
 import { AI_PROVIDER_INFO, FATAL_LIMIT, TRANSIENT_LIMIT } from "@/lib/ai/providers";
 import { NOTIFY_EMAIL_DEFAULT, NOTIFY_EMAIL_GROUPS } from "@/lib/notificationTypes";
+import { SummaryOptionsForm } from "@/components/admin/AiSummaryField/AiSummaryOptions";
+import { sanitizeSummaryOptions } from "@/lib/ai/summary";
 import { DEFAULT_AI_MODELS, GOOGLE_TTS_LATEST, GROQ_LATEST, HF_LATEST, type AiModelProvider } from "@/lib/ai/models";
 import { useAiHealth } from "./useAiHealth";
 import type { AiProvider } from "@/lib/ai/providers";
@@ -951,7 +953,17 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
             keyOf={(p) => AI_PROVIDER_INFO[p as keyof typeof AI_PROVIDER_INFO]?.key}
             health={aiHealth}
             providerOf={(p) => p as AiProvider}
-          />
+          >
+            {/* 요약 기본 옵션 — 발행 때 자동 요약 · 방문자의 첫 생성이 쓰고, 편집기 "다시 만들기" 팝오버도 이 값으로 연다 */}
+            <div className={styles.summaryOptions}>
+              <h4 className={styles.summaryOptionsTitle}>{t("admin.aiSummaryField.options.siteTitle")}</h4>
+              <HintLines lines={[t("admin.aiSummaryField.options.siteHint")]} />
+              <SummaryOptionsForm
+                value={sanitizeSummaryOptions((config.aiSummary as { options?: unknown }).options)}
+                onChange={(next) => setConfig((prev) => ({ ...prev, aiSummary: { ...prev.aiSummary, options: next } as typeof prev.aiSummary }))}
+              />
+            </div>
+          </ProviderFallbackBlock>
 
           {/* Translation */}
           <ProviderFallbackBlock<TranslationProvider>

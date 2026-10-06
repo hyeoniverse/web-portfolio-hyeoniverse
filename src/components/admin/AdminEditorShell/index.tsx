@@ -9,6 +9,7 @@ import { useLenis } from "@/providers/LenisProvider";
 import { useModalStore } from "@/stores/modalStore";
 import Button from "@/components/ui/Button";
 import BackLink from "@/components/ui/BackLink";
+import LinkedText from "@/components/ui/LinkedText";
 import Checkbox from "@/components/ui/Checkbox";
 import Popover, { type PopoverPlacement } from "@/components/ui/Popover";
 import Tooltip from "@/components/ui/Tooltip";
@@ -533,7 +534,8 @@ export default function AdminEditorShell({
         <div className={styles.topBarActions}>
           {(status || error) && (
             <span className={error ? styles.errorBanner : statusType === "success" ? styles.successBanner : styles.statusBanner}>
-              {error || status}{statusTime && <span className={styles.statusTime}> · {statusTime}</span>}
+              {/* 문구 안의 [글](주소) 는 새 탭 링크로 — 실패 안내에서 알림 · 설정으로 바로 간다 */}
+              <LinkedText text={error || status || ""} />{statusTime && <span className={styles.statusTime}> · {statusTime}</span>}
             </span>
           )}
           <div className={styles.actionGroup}>

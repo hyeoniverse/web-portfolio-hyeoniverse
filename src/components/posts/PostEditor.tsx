@@ -98,10 +98,12 @@ interface PostEditorProps {
 import Pressable from "@/components/ui/Pressable";
 import AuthorAvatar from "@/components/ui/AuthorAvatar";
 import { reportAiResponse } from "@/lib/ai/notifyFailures";
-import { CodedError, errorFromBody, errorText } from "@/lib/apiError";
+import { CodedError, errorFromBody, errorText, errorTextWithLinks } from "@/lib/apiError";
 import { sendAction, sendActions } from "@/lib/sendAction";
 import InputBlocker from "@/components/ui/InputBlocker";
 import SummaryCompareModal, { type SummaryPair } from "@/components/admin/SummaryCompare/SummaryCompareModal";
+import { loadSummaryOptions } from "@/components/admin/AiSummaryField/summaryOptionsStore";
+import type { SummaryOptions } from "@/lib/ai/summary";
 
 /** Revision detail panel — lang 별 라벨/필드 로컬라이즈 + 해당 lang KO|EN 값만 노출. */
 function postSnapshotMeta(s: PostFormData, seriesList: { id: string; title: string }[], authorNames: Map<string, string>, lang: "ko" | "en"): import("@/components/admin/AdminEditorShell/types").RevisionMetaGroup[] {
@@ -282,6 +284,8 @@ export default function PostEditor({ post }: PostEditorProps) {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [generatingSummary, setRegeneratingSummary] = useState(false);
+  /* 저장된 AI 요약 — 편집기 칸에 보인다. 다시 만들어 고른 뒤 여기만 바꾸면 된다(폼 값이 아니라 서버가 저장) */
+  const [savedSummary, setSavedSummary] = useState<{ ko: string; en: string }>({ ko: post?.summary_ko ?? "", en: post?.summary_en ?? "" });
   const [status, setStatusRaw] = useState("");
   const [statusType, setStatusType] = useState<"info" | "success">("info");
   const [statusTimestamp, setStatusTimestamp] = useState<number | undefined>(undefined);
@@ -420,6 +424,8 @@ export default function PostEditor({ post }: PostEditorProps) {
 
   /* ── Auto-save ── */
   const savedIdRef = useRef<string | undefined>(post?.id);
+  /* 한 번이라도 저장돼 id 가 생겼는지 — 렌더 중에 ref 를 읽지 않으려고 상태로 따로 든다(AI 요약 칸의 다시 만들기) */
+  const [hasSavedId, setHasSavedId] = useState(!!post?.id);
   useEffect(() => { if (post?.id) savedIdRef.current = post.id; }, [post?.id]);
   const savedId = savedIdRef; // backward-compat — handleSave 가 .current 로 접근
   // 낙관적 동시성 — 로드 시점 version. undefined 면(마이그레이션 전) 버전 체크 생략 → 기존 저장 유지.
@@ -819,7 +825,7 @@ export default function PostEditor({ post }: PostEditorProps) {
         // 저장 성공 — 반환된 version 으로 base 갱신 (연속 저장/이 세션 유지 대비)
         if (typeof data.version === "number") baseVersionRef.current = data.version;
 
-        if (!savedId.current) savedId.current = data.id;
+        if (!savedId.current) { savedId.current = data.id; setHasSavedId(true); }
         // 수동 저장 성공 → 이탈저장(draft) 발동 차단 (발행글이 draft 로 되돌아가는 것 방지).
         finalizedRef.current = true;
 
@@ -929,7 +935,8 @@ export default function PostEditor({ post }: PostEditorProps) {
       setStatusTimestamp,
     });
 
-  const handleGenerateSummary = useCallback(async () => {
+  /* options — 편집기 AI 요약 칸의 팝오버에서 고른 값. 머리 막대의 요약 단추는 지난번 값(브라우저에 남은 것)으로 */
+  const handleGenerateSummary = useCallback(async (options?: SummaryOptions) => {
     const id = savedId.current ?? post?.id;
     if (!id) return;
     setRegeneratingSummary(true);
@@ -938,19 +945,19 @@ export default function PostEditor({ post }: PostEditorProps) {
       const res = await fetch(`/api/posts/${id}/ai-summary`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ force: true, apply: false }),
+        body: JSON.stringify({ force: true, apply: false, options: options ?? loadSummaryOptions() ?? undefined }),
       });
       /* 공급자마다의 원인(키 만료·한도 등)은 토스트로 — 설정 › 서비스의 AI 상태 패널에도 남는다 */
       const data = (await reportAiResponse(res, t, t("admin.aiHealth.feature.summary"))) as { summary_ko?: string; summary_en?: string; current?: SummaryPair } | null;
       if (!res.ok) {
-        setError(res.status === 503 ? te("summaryNoKey") : errorText(data, t, te("summaryFailed")));
+        setError(res.status === 503 ? te("summaryNoKey") : errorTextWithLinks(data, t, te("summaryFailed")));
         return;
       }
       const next: SummaryPair = { ko: data?.summary_ko ?? "", en: data?.summary_en ?? "" };
       const current = data?.current;
       const save = async (pair: SummaryPair) => {
         const ok = await sendAction(`/api/posts/${id}/ai-summary`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ summary_ko: pair.ko, summary_en: pair.en }) }, t, te("summaryFailed"));
-        if (ok) { setStatus(te("generateSummaryDone")); setStatusType("success"); }
+        if (ok) { setSavedSummary(pair); setStatus(te("generateSummaryDone")); setStatusType("success"); }
       };
       if (current && (current.ko || current.en)) {
         openModal(<SummaryCompareModal current={current} next={next} onPick={(p) => void save(p)} />, { header: { title: t("admin.summaryCompare.title") }, width: "min(92vw, 720px)" });
@@ -1187,6 +1194,14 @@ export default function PostEditor({ post }: PostEditorProps) {
         allTagSuggestions={allTagSuggestions}
         categories={categories}
         excerptKey={excerptKey}
+        aiSummary={{
+          value: editorLang === "ko" ? savedSummary.ko : savedSummary.en,
+          lang: editorLang,
+          onRegenerate: (isEdit || hasSavedId) && serviceStatus.aiSummary ? handleGenerateSummary : undefined,
+          busy: generatingSummary,
+          disabled: !serviceStatus.loading && !serviceStatus.aiSummary,
+          disabledReason: te("generateSummaryDisabled"),
+        }}
         tag={tag}
         optionalOpen={optionalOpen}
         setOptionalOpen={setOptionalOpen}
@@ -1199,9 +1214,10 @@ export default function PostEditor({ post }: PostEditorProps) {
       />
     </div>
   ), [
-    allTagSuggestions, allWorks, authorChips, categories, categoryCustomMode, excerptKey, findCat, firstLeafKo,
+    hasSavedId, allTagSuggestions, allWorks, authorChips, categories, categoryCustomMode, excerptKey, findCat, firstLeafKo,
     handleCoverUpload, handleSeriesCreated, isManagedCat, language, metaForm, optionalOpen, post, queueSeriesOrder,
     seriesList, seriesPosts, seriesPostsLoading, seriesSelectMode, setSeriesPosts, showErrors, tag, tagDescriptions, te, titleFieldError,
+    editorLang, generatingSummary, handleGenerateSummary, isEdit, savedSummary, serviceStatus.aiSummary, serviceStatus.loading,
     titleKey, updateField,
   ]);
 
@@ -1376,7 +1392,7 @@ export default function PostEditor({ post }: PostEditorProps) {
       retranslateOptions={retranslateOptions}
       retranslateDisabled={!serviceStatus.loading && !serviceStatus.translation}
       retranslating={translating}
-      onGenerateSummary={isEdit || !!savedId.current ? (serviceStatus.aiSummary ? handleGenerateSummary : undefined) : undefined}
+      onGenerateSummary={isEdit || !!savedId.current ? (serviceStatus.aiSummary ? () => void handleGenerateSummary() : undefined) : undefined}
       aiSummaryDisabled={!serviceStatus.loading && !serviceStatus.aiSummary && (isEdit || !!savedId.current)}
       generatingSummary={generatingSummary}
       getCurrentSnapshot={(lang) => {
