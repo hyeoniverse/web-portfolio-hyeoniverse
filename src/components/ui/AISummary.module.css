@@ -81,7 +81,7 @@
   color: var(--text-tertiary);
 }
 
-/* 키워드 — 노션의 속성 태그처럼 각진 작은 칩. 콜아웃 면 위라 채움은 글자색을 살짝 섞은 것으로(테마 둘 다 보임) */
+/* 키워드 — 캡슐 칩. 콜아웃 면 위라 채움은 글자색을 살짝 섞은 것으로(테마 둘 다 보임) */
 .keywords {
   display: flex;
   flex-wrap: wrap;
@@ -93,7 +93,7 @@
 
 .keyword {
   padding: var(--badge-padding-md);
-  border-radius: var(--radius-mark);
+  border-radius: var(--radius-control);
   background: color-mix(in oklch, var(--text-contrast) 8%, transparent);
   font: var(--font-body-xs);
   color: var(--text-secondary);

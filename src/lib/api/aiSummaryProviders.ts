@@ -24,7 +24,14 @@ export function buildSummaryPrompt(kind: "post" | "work", input: { title?: strin
   /* 긴 글은 뼈대(제목 · 소제목 · 문단 첫 문장 · 글머리 · 마지막 문단)만 — 길이와 상관없이 보내는 양이 같다(lib/ai/summary) */
   const ko = extractSkeleton(input.ko);
   const en = extractSkeleton(input.en);
-  return `You write short summaries for a developer's personal site. Summarize the following ${what}. The content below is an outline (headings, first sentences, bullets), not the full text.
+  return `You write short summaries for a developer's personal site, in the voice of a Notion AI summary: plain, direct, scannable. Summarize the following ${what}. The content below is an outline (headings, first sentences, bullets), not the full text.
+
+Voice (both languages)
+- Lead with the fact. No preamble, no framing ("This post explains…", "이 글에서는…").
+- One idea per sentence. Short sentences; no chained clauses with "and/so/which" or "~하고, ~하며".
+- Plain words. No marketing adjectives (innovative, powerful, seamless, 혁신적인, 강력한, 완벽한), no intensifiers (very, 매우, 정말).
+- Concrete over abstract: name the technology, the number, the decision. Prefer "LCP 9.7s → 2.7s" over "performance improved a lot".
+- Neutral and calm. No exclamation marks, no rhetorical questions, no emojis.
 
 Output
 - Return ONLY a JSON object with this exact shape, no markdown, no code fence, no extra keys:
@@ -37,11 +44,13 @@ Output
 
 Korean ("ko")
 - Polite declarative style ending in "-합니다 / -입니다" (합니다체). Never use "-해요", "-한다", or "-했어요".
+- Keep sentences under 45 characters where possible. Split rather than join.
 - Do not start with "이 글은" or "이 프로젝트는"; state the substance directly.
+- "tldr" reads like a document title: a noun phrase or a short statement, no ending "~입니다" needed (e.g. "LCP 9.7초 → 2.7초, 혼자 운영하는 포트폴리오").
 - Keep technical terms, product names, and code identifiers in their original form (e.g. React, Supabase, useEffect).
 
 English ("en")
-- Natural, neutral tone; no first person.
+- Natural, neutral tone; no first person. Sentence case for "tldr" (title-like, no trailing period).
 
 Both
 - Cover: ${focus}.
