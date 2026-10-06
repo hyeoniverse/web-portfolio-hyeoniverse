@@ -44,4 +44,13 @@ describe("sanitizeSummaryOptions", () => {
     expect(o.instruction).toHaveLength(300);
     expect(sanitizeSummaryOptions(undefined)).toEqual(DEFAULT_SUMMARY_OPTIONS);
   });
+
+  it("temperature 는 0~1 로 자르고 숫자가 아니면 자동, 토큰 · 공급자는 고른 값만", () => {
+    expect(sanitizeSummaryOptions({ temperature: 1.8 }).temperature).toBe(1);
+    expect(sanitizeSummaryOptions({ temperature: -1 }).temperature).toBe(0);
+    expect(sanitizeSummaryOptions({ temperature: "hot" }).temperature).toBeNull();
+    expect(sanitizeSummaryOptions({ maxTokens: 99999 }).maxTokens).toBe(1024);
+    expect(sanitizeSummaryOptions({ provider: "groq" }).provider).toBe("groq");
+    expect(sanitizeSummaryOptions({ provider: "evil" }).provider).toBe("auto");
+  });
 });

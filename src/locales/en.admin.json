@@ -1981,6 +1981,12 @@
     },
     "aiSummaryField": {
       "options": {
+        "provider": "Provider",
+        "providerAuto": "Settings order",
+        "temperature": "Temperature",
+        "temperatureAuto": "Auto",
+        "maxTokens": "Max output tokens",
+        "genHint": "Higher temperature gives more varied wording; lower stays close to the same result. Auto uses 0.7 when regenerating. Picking a provider skips fallback and uses only that one.",
         "title": "Summary options",
         "tone": "Tone",
         "toneFormal": "Formal",

@@ -198,9 +198,15 @@ export interface SummaryOptions {
   note: boolean;
   /** 추가 지시(자유 글, 300자까지) */
   instruction: string;
+  /** temperature 0 ~ 1. null 이면 자동(저장 때 0.2, 다시 만들기 0.7). 1 을 넘기면 Claude 가 거절해 공급자 공통 범위로 둔다 */
+  temperature: number | null;
+  /** 출력 토큰 상한 — JSON 이 잘리면 늘린다 */
+  maxTokens: 512 | 1024 | 2048;
+  /** 이번 요청에 쓸 공급자. auto 면 설정 › 서비스의 순서(자동 전환 포함), 하나를 고르면 그 공급자만 */
+  provider: "auto" | "gemini" | "openai" | "groq" | "claude";
 }
 
-export const DEFAULT_SUMMARY_OPTIONS: SummaryOptions = { tone: "formal", length: "normal", focus: "outcome", keywords: 5, note: true, instruction: "" };
+export const DEFAULT_SUMMARY_OPTIONS: SummaryOptions = { tone: "formal", length: "normal", focus: "outcome", keywords: 5, note: true, instruction: "", temperature: null, maxTokens: 1024, provider: "auto" };
 
 /** 요청 본문의 options 를 믿지 않고 고른 값만 받는다 — 모르는 값은 기본으로, 지시문은 300자로 자른다 */
 export function sanitizeSummaryOptions(v: unknown): SummaryOptions {
@@ -214,5 +220,8 @@ export function sanitizeSummaryOptions(v: unknown): SummaryOptions {
     keywords: pick(o.keywords, [0, 3, 5] as const, d.keywords),
     note: typeof o.note === "boolean" ? o.note : d.note,
     instruction: typeof o.instruction === "string" ? o.instruction.replace(/[\u0000-\u001f]/g, " ").trim().slice(0, 300) : "",
+    temperature: typeof o.temperature === "number" && Number.isFinite(o.temperature) ? Math.round(Math.min(1, Math.max(0, o.temperature)) * 100) / 100 : null,
+    maxTokens: pick(o.maxTokens, [512, 1024, 2048] as const, d.maxTokens),
+    provider: pick(o.provider, ["auto", "gemini", "openai", "groq", "claude"] as const, d.provider),
   };
 }

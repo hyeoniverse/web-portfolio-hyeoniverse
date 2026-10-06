@@ -100,12 +100,17 @@ export async function handleSummaryRequest(request: Request, id: string, t: Summ
     if (!prev || prev === hash) return NextResponse.json({ summary_ko: r.summary_ko, summary_en: r.summary_en, reused: true });
   }
 
+  const opts = sanitizeSummaryOptions(body.options);
   try {
     const { ko, en, failures } = await generateSummary(
-      /* 편집기에서 고른 말투 · 분량 · 초점 · 키워드 · 덧붙임 · 추가 지시 — 받은 값을 그대로 믿지 않고 고른다 */
-      buildSummaryPrompt(t.kind, { title: r.title, ko: r[t.koColumn], en: r.content_en }, sanitizeSummaryOptions(body.options)),
+      /* 편집기에서 고른 말투 · 분량 · 초점 · 키워드 · 덧붙임 · 추가 지시와 생성 값 — 받은 값을 그대로 믿지 않고 고른다 */
+      buildSummaryPrompt(t.kind, { title: r.title, ko: r[t.koColumn], en: r.content_en }, opts),
       t.logPrefix,
-      { temperature: force && !apply ? 0.7 : 0.2 },
+      {
+        temperature: opts.temperature ?? (force && !apply ? 0.7 : 0.2),
+        maxTokens: opts.maxTokens,
+        provider: opts.provider === "auto" ? undefined : opts.provider,
+      },
     );
     const stored = { summary_ko: toStored(ko, hash), summary_en: toStored(en, hash) };
     if (apply) await save(stored.summary_ko, stored.summary_en);
