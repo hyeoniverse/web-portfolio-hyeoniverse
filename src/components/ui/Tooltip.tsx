@@ -63,7 +63,8 @@ export default function Tooltip({
   const triggerRef = useRef<HTMLSpanElement>(null);
   const bubbleRef = useRef<HTMLDivElement>(null);
   /* 말풍선 틀은 top layer(3.10-1) — 모달 · 드로어 어느 위에서도 z-index 없이 맨 위에 뜬다 */
-  const frameRef = usePopoverRef<HTMLDivElement>();
+  const frameElRef = useRef<HTMLDivElement>(null);
+  const frameRef = usePopoverRef<HTMLDivElement>(frameElRef);
   const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const measure = useCallback(() => {
@@ -133,6 +134,8 @@ export default function Tooltip({
     clearTimeout(hideTimerRef.current);
     flippedRef.current = false;
     setVisible(false);
+    setBubbleShiftX(0);
+    setBubbleShiftY(0);
   }, []);
 
   // interactive: 트리거를 벗어나도 잠깐 유지 → 그 사이 gap 건너 툴팁으로 진입해 클릭 가능. 아니면 즉시 hide.
@@ -156,6 +159,34 @@ export default function Tooltip({
     if (!interactive) autoHideRef.current = setTimeout(hide, 2000);
   }, [disabled, visible, show, hide, interactive]);
 
+  /* 떠 있는 동안 — 트리거의 mouseleave 가 오지 않는 경우에도 닫는다. 트리거가 바뀌거나 사라질 때,
+     클릭으로 덮개(모달 · 팝오버)가 트리거 위에 뜰 때, 스크롤로 트리거가 포인터 밑을 벗어날 때는
+     leave 가 오지 않아 툴팁이 남았다. 포인터가 움직일 때 트리거(interactive 면 말풍선 포함) 밖이면 닫고,
+     스크롤 · 창 전환 · Esc 에도 닫는다 */
+  useEffect(() => {
+    if (!visible) return;
+    const inside = (t: EventTarget | null) => {
+      const trigger = triggerRef.current;
+      if (!trigger || !trigger.isConnected || !(t instanceof Node)) return false;
+      return trigger.contains(t) || (!!interactive && !!frameElRef.current?.contains(t));
+    };
+    const onMove = (e: PointerEvent) => {
+      if (e.pointerType === "touch") return;
+      if (!inside(e.target)) scheduleHide();
+    };
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") hide(); };
+    document.addEventListener("pointermove", onMove, { passive: true });
+    window.addEventListener("scroll", hide, { capture: true, passive: true });
+    window.addEventListener("blur", hide);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("pointermove", onMove);
+      window.removeEventListener("scroll", hide, { capture: true });
+      window.removeEventListener("blur", hide);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [visible, interactive, hide, scheduleHide]);
+
   useEffect(() => () => {
     clearTimeout(timerRef.current);
     clearTimeout(autoHideRef.current);
@@ -172,11 +203,8 @@ export default function Tooltip({
    *  useLayoutEffect 는 페인트 전 동기 실행이라 transform 을 잠깐 지웠다 복원해도
    *  시각 깜빡임 없음. */
   useLayoutEffect(() => {
-    if (!visible) {
-      setBubbleShiftX(0); // React 가 동일값이면 자동 skip
-      setBubbleShiftY(0);
-      return;
-    }
+    /* 닫힐 때의 시프트 초기화는 hide() 가 한다 */
+    if (!visible) return;
     const bubble = bubbleRef.current;
     const trigger = triggerRef.current;
     if (!bubble || !trigger) return;
@@ -263,8 +291,12 @@ export default function Tooltip({
       <span
         ref={triggerRef}
         style={{ display: "inline-flex", ...wrapperStyle }}
-        onMouseEnter={show}
-        onMouseLeave={scheduleHide}
+        /* pointer 로 받고 터치는 거른다 — 터치 뒤 따라오는 호환 mouseenter 가 show 를 다시 불러
+           2초 자동 닫힘 타이머를 지워서, 터치로 띄운 툴팁이 남았다 */
+        onPointerEnter={(e) => { if (e.pointerType !== "touch") show(); }}
+        onPointerLeave={(e) => { if (e.pointerType !== "touch") scheduleHide(); }}
+        /* 누르면 닫는다 — 클릭으로 뜨는 메뉴 · 모달과 겹치지 않게(대부분의 툴팁 라이브러리와 같은 동작) */
+        onPointerDown={(e) => { if (e.pointerType !== "touch" && !interactive) hide(); }}
         onTouchStart={handleTouch}
       >
         {children}
