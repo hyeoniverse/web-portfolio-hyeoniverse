@@ -1159,7 +1159,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       const res = await fetch(`/api/works/${id}/ai-summary`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ force: true, apply: false, options: options ?? loadSummaryOptions() }),
+        body: JSON.stringify({ force: true, apply: false, options: options ?? loadSummaryOptions() ?? undefined }),
       });
       /* 공급자마다의 원인(키 만료·한도 등)은 토스트로 — 설정 › 서비스의 AI 상태 패널에도 남는다 */
       const data = (await reportAiResponse(res, t, t("admin.aiHealth.feature.summary"))) as { summary_ko?: string; summary_en?: string; current?: SummaryPair } | null;

@@ -729,6 +729,18 @@ export const siteConfig = {
       priority: [] as ("gemini" | "openai" | "groq" | "claude")[],
       excluded: [] as ("gemini" | "openai" | "groq" | "claude")[],
     },
+    // 요약 기본 옵션 — 발행 때 자동 요약 · 방문자의 첫 생성이 쓰고, 편집기 "다시 만들기" 팝오버도 이 값으로 연다(lib/ai/summary.SummaryOptions)
+    options: {
+      tone: "formal" as "formal" | "friendly" | "plain",
+      length: "normal" as "short" | "normal" | "detailed",
+      focus: "outcome" as "outcome" | "process" | "reader",
+      keywords: 5 as 0 | 3 | 5,
+      note: true,
+      instruction: "",
+      temperature: null as number | null, // null = 자동(저장 때 0.2, 다시 만들기 0.7)
+      maxTokens: 1024 as 512 | 1024 | 2048,
+      provider: "auto" as "auto" | "gemini" | "openai" | "groq" | "claude",
+    },
   },
 
   // ---------------------------------------------------------------------------

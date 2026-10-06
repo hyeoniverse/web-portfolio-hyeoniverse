@@ -1,7 +1,9 @@
 "use client";
 
-/* AI 요약 옵션 — 편집기에서 "다시 만들기" 를 누르면 뜨는 팝오버. 말투 · 분량 · 초점 · 키워드 수 · 덧붙임 · 추가 지시를 고르고 만든다.
-   고른 값은 브라우저에 남아 다음에 그대로 열린다. 방문자의 첫 생성은 늘 기본값이다 */
+/* AI 요약 옵션 — 말투 · 분량 · 초점 · 키워드 수 · 덧붙임 · 생성 값(공급자 · temperature · 토큰) · 추가 지시.
+   SummaryOptionsForm 은 값만 다루는 틀이라 두 곳이 같이 쓴다:
+   - 설정 › 서비스의 AI 자동 요약 — 사이트 기본값(발행 때 자동 요약 · 방문자의 첫 생성이 쓴다)
+   - 편집기 "다시 만들기" 팝오버(AiSummaryOptions) — 이번 요청만. 처음엔 브라우저에 남은 값, 없으면 사이트 기본값으로 연다 */
 import { useState } from "react";
 import { Sparkles } from "@/components/icons";
 import Button from "@/components/ui/Button";
@@ -10,16 +12,16 @@ import Select from "@/components/ui/Select";
 import { Slider } from "@/components/ui/Slider";
 import { Switch } from "@/components/ui/Switch";
 import Textarea from "@/components/ui/Textarea";
-import { DEFAULT_SUMMARY_OPTIONS, type SummaryOptions } from "@/lib/ai/summary";
+import { sanitizeSummaryOptions, type SummaryOptions } from "@/lib/ai/summary";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { loadSummaryOptions, saveSummaryOptions } from "./summaryOptionsStore";
 import styles from "./AiSummaryField.module.css";
 
-export default function AiSummaryOptions({ onSubmit, submitLabel }: { onSubmit: (o: SummaryOptions) => void; submitLabel: string }) {
+export function SummaryOptionsForm({ value: o, onChange }: { value: SummaryOptions; onChange: (next: SummaryOptions) => void }) {
   const { t } = useLanguage();
   const to = (k: string) => t(`admin.aiSummaryField.options.${k}`);
-  const [o, setO] = useState<SummaryOptions>(() => loadSummaryOptions());
-  const set = <K extends keyof SummaryOptions>(k: K, v: SummaryOptions[K]) => setO((prev) => ({ ...prev, [k]: v }));
+  const set = <K extends keyof SummaryOptions>(k: K, v: SummaryOptions[K]) => onChange({ ...o, [k]: v });
   const row = (label: string, control: React.ReactNode) => (
     <div className={styles.optRow}>
       <span className={styles.optLabel}>{label}</span>
@@ -27,7 +29,7 @@ export default function AiSummaryOptions({ onSubmit, submitLabel }: { onSubmit: 
     </div>
   );
   return (
-    <div className={styles.options}>
+    <>
       {row(to("tone"), <SegmentedControl size="sm" value={o.tone} onChange={(v) => set("tone", v)} items={[{ value: "formal", label: to("toneFormal") }, { value: "friendly", label: to("toneFriendly") }, { value: "plain", label: to("tonePlain") }]} />)}
       {row(to("length"), <SegmentedControl size="sm" value={o.length} onChange={(v) => set("length", v)} items={[{ value: "short", label: to("lengthShort") }, { value: "normal", label: to("lengthNormal") }, { value: "detailed", label: to("lengthDetailed") }]} />)}
       {row(to("focus"), <SegmentedControl size="sm" value={o.focus} onChange={(v) => set("focus", v)} items={[{ value: "outcome", label: to("focusOutcome") }, { value: "process", label: to("focusProcess") }, { value: "reader", label: to("focusReader") }]} />)}
@@ -50,8 +52,26 @@ export default function AiSummaryOptions({ onSubmit, submitLabel }: { onSubmit: 
       {row(to("maxTokens"), <SegmentedControl size="sm" value={String(o.maxTokens) as "512" | "1024" | "2048"} onChange={(v) => set("maxTokens", Number(v) as 512 | 1024 | 2048)} items={[{ value: "512", label: "512" }, { value: "1024", label: "1024" }, { value: "2048", label: "2048" }]} />)}
       <p className={styles.optHint}>{to("genHint")}</p>
       <Textarea value={o.instruction} onChange={(v) => set("instruction", v)} placeholder={to("instructionPlaceholder")} rows={2} maxHint={300} />
+    </>
+  );
+}
+
+/** 사이트 기본값 — 설정 › 서비스에서 정한 요약 옵션(없거나 이상하면 코드 기본값) */
+export function useSiteSummaryDefaults(): SummaryOptions {
+  const config = useSiteConfig();
+  return sanitizeSummaryOptions((config?.aiSummary as { options?: unknown } | undefined)?.options);
+}
+
+export default function AiSummaryOptions({ onSubmit, submitLabel }: { onSubmit: (o: SummaryOptions) => void; submitLabel: string }) {
+  const { t } = useLanguage();
+  const siteDefaults = useSiteSummaryDefaults();
+  const [o, setO] = useState<SummaryOptions>(() => loadSummaryOptions() ?? siteDefaults);
+  return (
+    <div className={styles.options}>
+      <SummaryOptionsForm value={o} onChange={setO} />
       <div className={styles.optActions}>
-        <Button variant="ghost" size="sm" shape="capsule" onClick={() => setO(DEFAULT_SUMMARY_OPTIONS)} soundDisabled>{to("reset")}</Button>
+        {/* 기본값 = 설정 › 서비스의 사이트 기본값 */}
+        <Button variant="ghost" size="sm" shape="capsule" onClick={() => setO(siteDefaults)} soundDisabled>{t("admin.aiSummaryField.options.reset")}</Button>
         <Button variant="primary" size="sm" shape="capsule" icon={<Sparkles size={14} strokeWidth={1.75} />} onClick={() => { saveSummaryOptions(o); onSubmit(o); }} soundDisabled>{submitLabel}</Button>
       </div>
     </div>

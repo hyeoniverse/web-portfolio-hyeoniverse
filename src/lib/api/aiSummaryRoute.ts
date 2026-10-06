@@ -3,7 +3,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { requirePostAccess } from "@/lib/api/requirePostAccess";
 import { jsonError } from "@/lib/api/response";
 import { generateSummary, buildSummaryPrompt, toStored, AiSummaryError } from "@/lib/api/aiSummaryProviders";
-import { sanitizeSummaryOptions, storedSummaryHash, summaryHash } from "@/lib/ai/summary";
+import { sanitizeSummaryOptions, storedSummaryHash, summaryHash, type SummaryOptions } from "@/lib/ai/summary";
+import { getSiteConfig } from "@/lib/getSiteConfig";
 
 /**
  * posts · works 의 AI 요약 라우트가 같이 쓰는 처리 — 둘은 표 이름 · 본문 칸 · 캐시 비우기만 다르다.
@@ -40,6 +41,21 @@ function publicRateLimited(ip: string): boolean {
   return false;
 }
 
+/** 사이트 기본 옵션(설정 › 서비스 › AI 자동 요약) — 발행 때 자동 요약 · 방문자 첫 생성 · 옵션 없이 온 편집기 요청이 쓴다 */
+async function siteSummaryDefaults(): Promise<SummaryOptions> {
+  const cfg = await getSiteConfig();
+  return sanitizeSummaryOptions((cfg?.aiSummary as { options?: unknown } | undefined)?.options);
+}
+
+/** 옵션에서 생성 값으로 — temperature 가 자동(null)이면 저장 때 0.2, 다시 만들기 0.7 */
+function genFrom(o: SummaryOptions, regenerate: boolean) {
+  return {
+    temperature: o.temperature ?? (regenerate ? 0.7 : 0.2),
+    maxTokens: o.maxTokens,
+    provider: o.provider === "auto" ? undefined : o.provider,
+  };
+}
+
 export async function handleSummaryRequest(request: Request, id: string, t: SummaryTable): Promise<Response> {
   const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
   const isPublic = body.public === true;
@@ -57,7 +73,9 @@ export async function handleSummaryRequest(request: Request, id: string, t: Summ
     const r = row as unknown as Record<string, string | null>;
     if (r.summary_ko) return NextResponse.json({ summary_ko: r.summary_ko, summary_en: r.summary_en });
     try {
-      const { ko, en } = await generateSummary(buildSummaryPrompt(t.kind, { title: r.title, ko: r[t.koColumn], en: r.content_en }), t.logPrefix);
+      /* 방문자 — 요청의 옵션은 받지 않고 사이트 기본값 그대로 */
+      const site = await siteSummaryDefaults();
+      const { ko, en } = await generateSummary(buildSummaryPrompt(t.kind, { title: r.title, ko: r[t.koColumn], en: r.content_en }, site), t.logPrefix, genFrom(site, false));
       const hash = summaryHash(r[t.koColumn], r.content_en);
       const stored = { summary_ko: toStored(ko, hash), summary_en: toStored(en, hash) };
       /* 비어 있는 행에만 — 그 사이 다른 사람(또는 작성자)이 채웠으면 그쪽을 남긴다 */
@@ -100,17 +118,14 @@ export async function handleSummaryRequest(request: Request, id: string, t: Summ
     if (!prev || prev === hash) return NextResponse.json({ summary_ko: r.summary_ko, summary_en: r.summary_en, reused: true });
   }
 
-  const opts = sanitizeSummaryOptions(body.options);
+  /* 편집기 팝오버에서 온 옵션이 있으면 그것(받은 값을 그대로 믿지 않고 고른다), 없으면(발행 뒤 자동) 사이트 기본값 */
+  const opts = body.options ? sanitizeSummaryOptions(body.options) : await siteSummaryDefaults();
   try {
     const { ko, en, failures } = await generateSummary(
       /* 편집기에서 고른 말투 · 분량 · 초점 · 키워드 · 덧붙임 · 추가 지시와 생성 값 — 받은 값을 그대로 믿지 않고 고른다 */
       buildSummaryPrompt(t.kind, { title: r.title, ko: r[t.koColumn], en: r.content_en }, opts),
       t.logPrefix,
-      {
-        temperature: opts.temperature ?? (force && !apply ? 0.7 : 0.2),
-        maxTokens: opts.maxTokens,
-        provider: opts.provider === "auto" ? undefined : opts.provider,
-      },
+      genFrom(opts, force && !apply),
     );
     const stored = { summary_ko: toStored(ko, hash), summary_en: toStored(en, hash) };
     if (apply) await save(stored.summary_ko, stored.summary_en);

@@ -1981,6 +1981,8 @@
     },
     "aiSummaryField": {
       "options": {
+        "siteTitle": "Default summary options",
+        "siteHint": "Used for summaries generated on publish and by first-time visitors. The editor's regenerate popover also opens with these values.",
         "provider": "Provider",
         "providerAuto": "Settings order",
         "temperature": "Temperature",
