@@ -3,7 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { requirePostAccess } from "@/lib/api/requirePostAccess";
 import { jsonError } from "@/lib/api/response";
 import { generateSummary, buildSummaryPrompt, toStored, AiSummaryError } from "@/lib/api/aiSummaryProviders";
-import { storedSummaryHash, summaryHash } from "@/lib/ai/summary";
+import { sanitizeSummaryOptions, storedSummaryHash, summaryHash } from "@/lib/ai/summary";
 
 /**
  * posts · works 의 AI 요약 라우트가 같이 쓰는 처리 — 둘은 표 이름 · 본문 칸 · 캐시 비우기만 다르다.
@@ -13,6 +13,7 @@ import { storedSummaryHash, summaryHash } from "@/lib/ai/summary";
  *   { force: true }                새로 만들어 저장
  *   { force: true, apply: false }  새로 만들되 저장하지 않고 현재 요약과 함께 돌려준다(편집기의 비교 · 선택)
  *   { summary_ko, summary_en }     만들지 않고 이 값을 저장(비교에서 고른 쪽)
+ *   { …, options }                 편집기의 요약 옵션(말투 · 분량 · 초점 · 키워드 수 · 덧붙임 · 추가 지시). 공개 요청은 무시한다
  *   { public: true }               방문자가 공개 상세에서 "AI 요약 만들기"를 눌렀다 — 로그인 없이, 발행된 글이고
  *                                  요약이 비어 있을 때만 한 번 만든다. 동시에 눌러도 먼저 저장된 것이 남는다
  *
@@ -101,7 +102,8 @@ export async function handleSummaryRequest(request: Request, id: string, t: Summ
 
   try {
     const { ko, en, failures } = await generateSummary(
-      buildSummaryPrompt(t.kind, { title: r.title, ko: r[t.koColumn], en: r.content_en }),
+      /* 편집기에서 고른 말투 · 분량 · 초점 · 키워드 · 덧붙임 · 추가 지시 — 받은 값을 그대로 믿지 않고 고른다 */
+      buildSummaryPrompt(t.kind, { title: r.title, ko: r[t.koColumn], en: r.content_en }, sanitizeSummaryOptions(body.options)),
       t.logPrefix,
       { temperature: force && !apply ? 0.7 : 0.2 },
     );

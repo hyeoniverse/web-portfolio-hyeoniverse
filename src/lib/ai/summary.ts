@@ -181,3 +181,38 @@ export function extractSkeleton(input: string | null | undefined, maxChars = 600
   }
   return out;
 }
+
+/* ── 관리자 옵션 ── */
+
+/** 편집기에서 요약을 다시 만들 때 고르는 값 — 공개(방문자) 생성은 늘 기본값 */
+export interface SummaryOptions {
+  /** 한국어 말투 — 합니다체 · 해요체 · 평서(~다) */
+  tone: "formal" | "friendly" | "plain";
+  /** 분량 */
+  length: "short" | "normal" | "detailed";
+  /** 무엇을 앞세울지 — 결과 · 수치 / 과정 · 결정 / 독자가 얻는 것 */
+  focus: "outcome" | "process" | "reader";
+  /** 키워드 개수(0 이면 키워드 없음) */
+  keywords: 0 | 3 | 5;
+  /** 덧붙임(한계 · 주의) 줄을 둘지 */
+  note: boolean;
+  /** 추가 지시(자유 글, 300자까지) */
+  instruction: string;
+}
+
+export const DEFAULT_SUMMARY_OPTIONS: SummaryOptions = { tone: "formal", length: "normal", focus: "outcome", keywords: 5, note: true, instruction: "" };
+
+/** 요청 본문의 options 를 믿지 않고 고른 값만 받는다 — 모르는 값은 기본으로, 지시문은 300자로 자른다 */
+export function sanitizeSummaryOptions(v: unknown): SummaryOptions {
+  const o = (v && typeof v === "object" ? v : {}) as Record<string, unknown>;
+  const pick = <T extends string | number>(val: unknown, allowed: readonly T[], def: T): T => (allowed.includes(val as T) ? (val as T) : def);
+  const d = DEFAULT_SUMMARY_OPTIONS;
+  return {
+    tone: pick(o.tone, ["formal", "friendly", "plain"] as const, d.tone),
+    length: pick(o.length, ["short", "normal", "detailed"] as const, d.length),
+    focus: pick(o.focus, ["outcome", "process", "reader"] as const, d.focus),
+    keywords: pick(o.keywords, [0, 3, 5] as const, d.keywords),
+    note: typeof o.note === "boolean" ? o.note : d.note,
+    instruction: typeof o.instruction === "string" ? o.instruction.replace(/[\u0000-\u001f]/g, " ").trim().slice(0, 300) : "",
+  };
+}

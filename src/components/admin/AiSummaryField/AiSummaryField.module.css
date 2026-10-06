@@ -28,3 +28,31 @@
   font: var(--font-body-sm);
   color: var(--text-tertiary);
 }
+
+/* 옵션 팝오버 */
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  width: min(420px, 86vw);
+  padding: var(--spacing-16);
+}
+
+.optRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-12);
+}
+
+.optLabel {
+  font: var(--font-body-sm);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.optActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-8);
+}

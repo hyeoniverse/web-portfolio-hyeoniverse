@@ -63,6 +63,8 @@ import { isVideoUrl } from "@/lib/isVideoUrl";
 import { IMAGE_FALLBACK_SRC } from "@/lib/imageFallback";
 import { useModalStore } from "@/stores/modalStore";
 import SummaryCompareModal, { type SummaryPair } from "@/components/admin/SummaryCompare/SummaryCompareModal";
+import { loadSummaryOptions } from "@/components/admin/AiSummaryField/summaryOptionsStore";
+import type { SummaryOptions } from "@/lib/ai/summary";
 import AiSummaryField from "@/components/admin/AiSummaryField/AiSummaryField";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import { List } from "@/app/admin/(dashboard)/components";
@@ -1147,7 +1149,8 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   /* 저장된 AI 요약 — 편집기 칸에 보인다. 다시 만들어 고른 뒤 여기만 바꾸면 된다 */
   const [savedSummary, setSavedSummary] = useState<{ ko: string; en: string }>({ ko: work?.summary_ko ?? "", en: work?.summary_en ?? "" });
 
-  const handleGenerateSummary = useCallback(async () => {
+  /* options — 편집기 AI 요약 칸의 팝오버에서 고른 값. 머리 막대의 요약 단추는 지난번 값(브라우저에 남은 것)으로 */
+  const handleGenerateSummary = useCallback(async (options?: SummaryOptions) => {
     const id = savedId.current ?? work?.id;
     if (!id) return;
     setRegeneratingSummary(true);
@@ -1156,7 +1159,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       const res = await fetch(`/api/works/${id}/ai-summary`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ force: true, apply: false }),
+        body: JSON.stringify({ force: true, apply: false, options: options ?? loadSummaryOptions() }),
       });
       /* 공급자마다의 원인(키 만료·한도 등)은 토스트로 — 설정 › 서비스의 AI 상태 패널에도 남는다 */
       const data = (await reportAiResponse(res, t, t("admin.aiHealth.feature.summary"))) as { summary_ko?: string; summary_en?: string; current?: SummaryPair } | null;
@@ -2304,7 +2307,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       retranslateOptions={retranslateOptions}
       retranslateDisabled={!serviceStatus.loading && !serviceStatus.translation}
       retranslating={translating}
-      onGenerateSummary={isEdit || !!savedId.current ? (serviceStatus.aiSummary ? handleGenerateSummary : undefined) : undefined}
+      onGenerateSummary={isEdit || !!savedId.current ? (serviceStatus.aiSummary ? () => void handleGenerateSummary() : undefined) : undefined}
       aiSummaryDisabled={!serviceStatus.loading && !serviceStatus.aiSummary && (isEdit || !!savedId.current)}
       generatingSummary={generatingSummary}
       getCurrentSnapshot={(lang) => {

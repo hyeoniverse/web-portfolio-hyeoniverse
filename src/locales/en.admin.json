@@ -1980,6 +1980,26 @@
       "AI_PROVIDERS_DISABLED": "Every provider is turned off after repeated failures, so no request was sent. Fix the cause in Settings › Services › AI status and turn it back on."
     },
     "aiSummaryField": {
+      "options": {
+        "title": "Summary options",
+        "tone": "Tone",
+        "toneFormal": "Formal",
+        "toneFriendly": "Friendly",
+        "tonePlain": "Plain",
+        "length": "Length",
+        "lengthShort": "Short",
+        "lengthNormal": "Normal",
+        "lengthDetailed": "Detailed",
+        "focus": "Lead with",
+        "focusOutcome": "Results",
+        "focusProcess": "Process",
+        "focusReader": "Reader",
+        "keywords": "Keywords",
+        "keywordsNone": "None",
+        "note": "Caveat line",
+        "instructionPlaceholder": "Extra instruction (e.g. emphasize the accessibility work)",
+        "reset": "Defaults"
+      },
       "label": "AI summary",
       "generate": "Generate",
       "regenerate": "Regenerate",

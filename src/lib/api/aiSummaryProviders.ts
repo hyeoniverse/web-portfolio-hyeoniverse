@@ -3,7 +3,7 @@ import { getSiteConfig } from "@/lib/getSiteConfig";
 import { filterEnabled, missingKey, networkError, providerErrorFrom, recordFailure, recordOk, toProviderError } from "@/lib/ai/health";
 import type { AiProvider, ProviderFailure } from "@/lib/ai/providers";
 import { aiModel, groqModel } from "@/lib/ai/models";
-import { coerceSummary, extractSkeleton, serializeSummary, type StructuredSummary } from "@/lib/ai/summary";
+import { DEFAULT_SUMMARY_OPTIONS, coerceSummary, extractSkeleton, serializeSummary, type StructuredSummary, type SummaryOptions } from "@/lib/ai/summary";
 
 /* 모델 이름은 설정(lib/ai/models)에서 — 코드에 박아 두면 은퇴할 때마다 고쳐야 한다 */
 const geminiUrl = (model: string) => `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
@@ -12,52 +12,79 @@ const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
 const CLAUDE_API_URL = "https://api.anthropic.com/v1/messages";
 
 /**
- * 요약 프롬프트 — 글(posts)과 작업물(works)이 같은 규칙을 쓰고, 공급자마다 같은 문장을 보낸다.
- * 한국어는 합니다체(존댓말)로 — 사이트의 다른 안내 문구와 같은 말투. 본문이 HTML 이면 태그는 무시하라고 알린다.
- * 본문은 앞 3,000자만 — 요약에 충분하고 토큰을 아낀다.
+ * 요약 프롬프트 — 글(posts)과 작업물(works)이 같은 틀을 쓰고, 네 공급자에 같은 문장이 간다.
+ * 규칙을 길게 늘어놓기보다 좋은 예 하나와 피할 예(실제로 나왔던 문장)를 보여 준다 — 모델은 예시를 가장 잘 따라 한다.
+ * 관리자가 편집기에서 고른 값(options)은 말투 · 분량 · 초점 · 키워드 수 · 덧붙임 · 추가 지시로 들어간다.
+ * 본문은 뼈대만(lib/ai/summary.extractSkeleton) — 길이와 상관없이 보내는 양이 같다.
  */
-export function buildSummaryPrompt(kind: "post" | "work", input: { title?: string | null; ko?: string | null; en?: string | null }): string {
+export function buildSummaryPrompt(
+  kind: "post" | "work",
+  input: { title?: string | null; ko?: string | null; en?: string | null },
+  opts: SummaryOptions = DEFAULT_SUMMARY_OPTIONS,
+): string {
   const what = kind === "post" ? "blog post" : "portfolio project description";
-  const focus = kind === "post"
-    ? "what the post is about, the key insight or approach, and what the reader takes away"
-    : "what the project is, the author's role and approach, and the key outcome";
-  /* 긴 글은 뼈대(제목 · 소제목 · 문단 첫 문장 · 글머리 · 마지막 문단)만 — 길이와 상관없이 보내는 양이 같다(lib/ai/summary) */
   const ko = extractSkeleton(input.ko);
   const en = extractSkeleton(input.en);
-  return `You write short summaries for a developer's personal site, in the voice of a Notion AI summary: plain, direct, scannable. Summarize the following ${what}. The content below is an outline (headings, first sentences, bullets), not the full text.
 
-Voice (both languages)
-- Lead with the fact. No preamble, no framing ("This post explains…", "이 글에서는…").
-- One idea per sentence. Short sentences; no chained clauses with "and/so/which" or "~하고, ~하며".
-- Plain words. No marketing adjectives (innovative, powerful, seamless, 혁신적인, 강력한, 완벽한), no intensifiers (very, 매우, 정말).
-- Concrete over abstract: name the technology, the number, the decision. Prefer "LCP 9.7s → 2.7s" over "performance improved a lot".
-- Neutral and calm. No exclamation marks, no rhetorical questions, no emojis.
+  const tone = {
+    formal: 'Korean ends sentences in 합니다체 ("-합니다", "-입니다", "-했습니다").',
+    friendly: 'Korean ends sentences in 해요체 ("-해요", "-예요", "-했어요"). Warm but not chatty.',
+    plain: 'Korean ends sentences in 평서체 ("-다", "-했다"), like a technical note.',
+  }[opts.tone];
+  const length = {
+    short: { body: "1-2 sentences, under 120 characters", takeaway: "under 50 characters" },
+    normal: { body: "2-3 sentences, under 200 characters", takeaway: "under 70 characters" },
+    detailed: { body: "3-5 sentences, under 360 characters", takeaway: "under 90 characters" },
+  }[opts.length];
+  const focus = {
+    outcome: "Lead with results: numbers, before → after, what now works that did not.",
+    process: "Lead with how: the approach, the key decisions and why they were made, the trade-offs.",
+    reader: "Lead with the reader: what problem this helps them solve and what they can apply themselves.",
+  }[opts.focus];
+  const keywordsRule = opts.keywords === 0
+    ? '"keywords": always an empty array [].'
+    : `"keywords": exactly ${opts.keywords} short tags (1-3 words) a reader would search for. Real technologies, techniques, or topics named in the text. Keep product names as written (Next.js, Supabase).`;
+  const noteRule = opts.note
+    ? '"note": one sentence about a real limitation, precondition, or caveat that the text itself states. If the text states none, return "". Never invent one, never write a generic line like "실제 측정 기반으로 적용했습니다".'
+    : '"note": always "".';
 
-Output
-- Return ONLY a JSON object with this exact shape, no markdown, no code fence, no extra keys:
-  {"ko": {"tldr": "...", "body": "...", "note": "...", "keywords": ["..."], "takeaway": "..."}, "en": {...same keys...}}
-- "tldr": a headline-like single line that says what this ${kind === "post" ? "post" : "project"} is about, under 60 characters, no trailing period in English.
-- "body": 2 to 3 sentences, under 220 characters total — what was done, how, and what came out of it (numbers, decisions, outcomes).
-- "note": one sentence, under 90 characters — a limitation, caveat, or precondition the reader should know. Empty string if there is none.
-- "keywords": 3 to 5 short tags (1-3 words each) a reader would search for — technologies, techniques, topics.
-- "takeaway": one closing sentence, under 80 characters — the single biggest result, or who benefits most from reading.
+  const example = kind === "post"
+    ? `{"ko":{"tldr":"React 19 useOptimistic 으로 좋아요 지연 없애기","body":"좋아요를 누르면 서버 응답 전에 숫자를 먼저 바꿉니다. 실패하면 이전 값으로 되돌립니다. 체감 지연이 400ms 에서 0 으로 줄었습니다.","note":"서버 액션을 쓰는 프로젝트에서만 그대로 적용됩니다.","keywords":["React 19","useOptimistic","서버 액션","낙관적 업데이트"],"takeaway":"목록 화면의 상호작용을 즉시 반응하게 바꾸는 방법입니다."},"en":{"tldr":"Removing like-button lag with React 19 useOptimistic","body":"The count updates before the server responds. On failure it rolls back. Perceived latency drops from 400ms to zero.","note":"Applies as-is only to projects using server actions.","keywords":["React 19","useOptimistic","Server actions","Optimistic UI"],"takeaway":"A pattern for making list interactions feel instant."}}`
+    : `{"ko":{"tldr":"혼자 만든 사내 일정 공유 앱, 주간 회의 30분 단축","body":"Next.js 와 Supabase 로 팀 일정 보드를 만들었습니다. 설계부터 배포까지 혼자 맡았습니다. 도입 뒤 주간 회의가 60분에서 30분으로 줄었습니다.","note":"","keywords":["Next.js","Supabase","실시간 동기화","사내 도구"],"takeaway":"작은 팀의 반복 회의를 도구로 줄인 사례입니다."},"en":{"tldr":"Solo-built team calendar app that halved weekly meetings","body":"A team schedule board built with Next.js and Supabase. Designed, built, and shipped solo. Weekly meetings went from 60 to 30 minutes.","note":"","keywords":["Next.js","Supabase","Realtime sync","Internal tools"],"takeaway":"How a small tool cut a recurring meeting in half."}}`;
 
-Korean ("ko")
-- Polite declarative style ending in "-합니다 / -입니다" (합니다체). Never use "-해요", "-한다", or "-했어요".
-- Keep sentences under 45 characters where possible. Split rather than join.
-- Do not start with "이 글은" or "이 프로젝트는"; state the substance directly.
-- "tldr" reads like a document title: a noun phrase or a short statement, no ending "~입니다" needed (e.g. "LCP 9.7초 → 2.7초, 혼자 운영하는 포트폴리오").
-- Keep technical terms, product names, and code identifiers in their original form (e.g. React, Supabase, useEffect).
+  return `You summarize a ${what} for the author's personal site. The summary appears in a box above the article, like a Notion AI summary: a reader should get the point in five seconds.
 
-English ("en")
-- Natural, neutral tone; no first person. Sentence case for "tldr" (title-like, no trailing period).
+The content below is an outline (title, headings, first sentences, bullets), not the full text. Use only facts that appear in it.
 
-Both
-- Cover: ${focus}.
-- Be concrete: prefer specific nouns, numbers, and outcomes over generic phrases like "various", "effectively", "in-depth".
-- Do not repeat the tldr inside body or takeaway. No emojis, no quotation marks, no trailing labels.
-- If one language's content is missing, write that language from the other language's content.
+## Fields
+- "tldr": the headline. A noun phrase or short statement under 50 characters that names the subject and the most specific fact (a number, a technology, a result). It is a title, so no sentence ending: write "LCP 9.7초 → 2.7초로 줄인 포트폴리오", not "포트폴리오의 성능을 최적화했습니다".
+- "body": ${length.body}. One fact per sentence. Say what was done, how, and what changed.
+- ${noteRule}
+- ${keywordsRule}
+- "takeaway": one sentence, ${length.takeaway}. What the reader can take from it. Describe the content, not the author: never "개발자는 … 보여줍니다", "능력을 보여줍니다", "역량을 증명합니다".
 
+## Style
+- ${tone}
+- ${focus}
+- Short sentences. Split instead of joining with "~하고, ~하며, ~했으며".
+- Plain words. No praise or hype (최적화된, 혁신적인, 강력한, 효과적으로, 지속적으로, 다양한), no exclamation marks, no emojis, no quotation marks.
+- Keep technical terms and code identifiers as written. Numbers stay numbers.
+- English is a natural rewrite of the same content in neutral tone, not a word-for-word translation. Title-like "tldr" without a trailing period.
+- If one language's outline is missing, write that language from the other.
+
+## Avoid (real outputs that missed the mark)
+- tldr "HYEONIVERSE 포트폴리오 사이트, 성능·보안을 최적화했습니다" → a sentence, vague. Better: "LCP 9.7초 → 2.7초, 혼자 운영하는 포트폴리오".
+- note "모든 최적화는 실제 측정 기반으로 반복 적용했습니다" → not a caveat. Return "" instead.
+- takeaway "개발자는 혼자서도 문제를 찾아 고치고 서비스 품질을 지속적으로 향상시킬 수 있음을 보여줍니다" → praises the author, too long.
+
+## Output
+Return ONLY one JSON object, no markdown, no code fence, exactly these keys:
+{"ko": {"tldr": "", "body": "", "note": "", "keywords": [], "takeaway": ""}, "en": {"tldr": "", "body": "", "note": "", "keywords": [], "takeaway": ""}}
+
+Example of the shape and voice (a different ${kind === "post" ? "post" : "project"}; do not copy its facts):
+${example}
+${opts.instruction ? `\n## Extra instruction from the author (follow it unless it conflicts with the output format)\n${opts.instruction}\n` : ""}
+## Content
 Title: ${(input.title || "").trim() || "(none)"}
 
 Korean outline:

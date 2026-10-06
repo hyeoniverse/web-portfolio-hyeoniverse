@@ -102,6 +102,8 @@ import { CodedError, errorFromBody, errorText } from "@/lib/apiError";
 import { sendAction, sendActions } from "@/lib/sendAction";
 import InputBlocker from "@/components/ui/InputBlocker";
 import SummaryCompareModal, { type SummaryPair } from "@/components/admin/SummaryCompare/SummaryCompareModal";
+import { loadSummaryOptions } from "@/components/admin/AiSummaryField/summaryOptionsStore";
+import type { SummaryOptions } from "@/lib/ai/summary";
 
 /** Revision detail panel — lang 별 라벨/필드 로컬라이즈 + 해당 lang KO|EN 값만 노출. */
 function postSnapshotMeta(s: PostFormData, seriesList: { id: string; title: string }[], authorNames: Map<string, string>, lang: "ko" | "en"): import("@/components/admin/AdminEditorShell/types").RevisionMetaGroup[] {
@@ -931,7 +933,8 @@ export default function PostEditor({ post }: PostEditorProps) {
       setStatusTimestamp,
     });
 
-  const handleGenerateSummary = useCallback(async () => {
+  /* options — 편집기 AI 요약 칸의 팝오버에서 고른 값. 머리 막대의 요약 단추는 지난번 값(브라우저에 남은 것)으로 */
+  const handleGenerateSummary = useCallback(async (options?: SummaryOptions) => {
     const id = savedId.current ?? post?.id;
     if (!id) return;
     setRegeneratingSummary(true);
@@ -940,7 +943,7 @@ export default function PostEditor({ post }: PostEditorProps) {
       const res = await fetch(`/api/posts/${id}/ai-summary`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ force: true, apply: false }),
+        body: JSON.stringify({ force: true, apply: false, options: options ?? loadSummaryOptions() }),
       });
       /* 공급자마다의 원인(키 만료·한도 등)은 토스트로 — 설정 › 서비스의 AI 상태 패널에도 남는다 */
       const data = (await reportAiResponse(res, t, t("admin.aiHealth.feature.summary"))) as { summary_ko?: string; summary_en?: string; current?: SummaryPair } | null;
@@ -1387,7 +1390,7 @@ export default function PostEditor({ post }: PostEditorProps) {
       retranslateOptions={retranslateOptions}
       retranslateDisabled={!serviceStatus.loading && !serviceStatus.translation}
       retranslating={translating}
-      onGenerateSummary={isEdit || !!savedId.current ? (serviceStatus.aiSummary ? handleGenerateSummary : undefined) : undefined}
+      onGenerateSummary={isEdit || !!savedId.current ? (serviceStatus.aiSummary ? () => void handleGenerateSummary() : undefined) : undefined}
       aiSummaryDisabled={!serviceStatus.loading && !serviceStatus.aiSummary && (isEdit || !!savedId.current)}
       generatingSummary={generatingSummary}
       getCurrentSnapshot={(lang) => {
