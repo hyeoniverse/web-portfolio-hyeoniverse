@@ -84,9 +84,19 @@
   cursor: pointer;
 }
 
-.row:hover,
-.row[data-open] {
+.row:hover {
   background: var(--bg-secondary);
+}
+
+/* 펼친 줄 — 칙칙한 회색 대신 강조색을 옅게, 왼쪽에 강조색 막대. 아래 상세도 같은 면이라 한 덩어리로 읽힌다 */
+.row[data-open] {
+  background: var(--bg-accent-subtle);
+  box-shadow: inset var(--border-width-2) 0 0 var(--text-accent);
+}
+
+.row:focus-visible {
+  outline: var(--border-width-2) solid var(--text-accent);
+  outline-offset: calc(var(--border-width-2) * -1);
 }
 
 /* 가로로 밀어도 시각·공급자는 왼쪽에 붙어 있다 */
@@ -97,9 +107,13 @@
   background: var(--bg-primary);
 }
 
-.row:hover .pin,
-.row[data-open] .pin {
+.row:hover .pin {
   background: var(--bg-secondary);
+}
+
+/* 고정 열은 아래 내용을 가려야 해서 불투명 — 페이지 배경 위에 같은 강조색 옅은 면을 겹친다 */
+.row[data-open] .pin {
+  background: linear-gradient(var(--bg-accent-subtle), var(--bg-accent-subtle)), var(--bg-primary);
 }
 
 .pin2 {
@@ -160,7 +174,8 @@
   margin: 0;
   padding: var(--spacing-12) var(--spacing-16) var(--spacing-16);
   border-bottom: var(--border-light);
-  background: var(--bg-secondary);
+  background: var(--bg-accent-subtle);
+  box-shadow: inset var(--border-width-2) 0 0 var(--text-accent);
   font: var(--font-body-sm);
 }
 
@@ -184,6 +199,8 @@
 }
 
 .rowMessage {
+  flex: 1 1 auto;
+  min-width: 0;
   margin: 0;
   font: var(--font-code-xs);
   white-space: pre-wrap;
@@ -670,4 +687,165 @@
   font: var(--font-body-sm);
   font-variant-numeric: tabular-nums;
   color: var(--text-tertiary);
+}
+
+/* 메시지 칸 — 원문과 오른쪽 위 복사 단추. .rowMore dd(줄바꿈 허용)보다 이기도록 부모를 붙인다 */
+.rowMore .messageCell {
+  align-items: flex-start;
+  flex-wrap: nowrap;
+}
+
+.copyBtn {
+  flex: 0 0 auto;
+}
+
+/* ── 노트북 — 왼쪽 목록을 줄여 메시지 칸에 자리를 준다 ── */
+@media (900px < width <= 1280px) {
+  .split {
+    grid-template-columns: 220px minmax(0, 1fr);
+    gap: var(--spacing-24);
+  }
+
+  .list {
+    --_col-time: 150px;
+    --_col-provider: 130px;
+  }
+}
+
+/* ── 태블릿 — 위로 올라간 목록을 테두리 상자 없이 칩 한 줄로. 전체도 칩 하나(숫자 한 줄) ── */
+@media (width <= 900px) {
+  .rail {
+    padding: 0 0 var(--spacing-4);
+    border: none;
+    border-radius: 0;
+    max-height: none;
+  }
+
+  /* 이름은 nav 의 aria-label 이 말한다 — 칩 줄에서는 i 만 */
+  .railHeaderLabel {
+    display: none;
+  }
+
+  .railHeader {
+    padding: 0;
+  }
+
+  .railTotal {
+    flex-direction: row;
+    align-items: center;
+    flex-shrink: 0;
+    gap: var(--spacing-8);
+    width: auto;
+    min-height: 30px;
+    padding: 0 var(--spacing-12);
+    border: var(--border-light);
+    border-radius: var(--radius-control);
+    white-space: nowrap;
+  }
+
+  .railTotalNum {
+    font: var(--font-body-sm);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .railTotalNums {
+    gap: var(--spacing-4);
+  }
+
+  .railHealth {
+    flex-direction: row;
+    align-items: center;
+    flex-shrink: 0;
+    gap: var(--spacing-8);
+    width: auto;
+    min-height: 30px;
+    margin: 0;
+    padding: 0 var(--spacing-12);
+    border: var(--border-light);
+    border-radius: var(--radius-control);
+    white-space: nowrap;
+  }
+
+  .railName {
+    white-space: nowrap;
+  }
+
+  .railItem {
+    grid-template-columns: 6px max-content max-content max-content;
+  }
+
+  .railHead {
+    grid-template-columns: max-content max-content max-content;
+  }
+
+  /* 표는 화면 폭 안에 — 가로로 밀지 않고 메시지 칸이 줄어 말줄임 */
+  .list {
+    --_col-time: 140px;
+    --_col-provider: 120px;
+    grid-template-columns: var(--_col-time) var(--_col-provider) max-content minmax(0, 1fr);
+    min-width: 0;
+  }
+}
+
+/* ── 모바일 — 가로로 미는 표 대신 줄마다 카드: 공급자 · 결과 / 시각 / 메시지 ── */
+@media (width <= 640px) {
+  :where(.tableScroll) {
+    overflow-x: visible;
+  }
+
+  .list {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .list > li {
+    display: block;
+  }
+
+  .row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "provider status"
+      "time time"
+      "detail detail";
+    gap: var(--spacing-2) var(--spacing-8);
+    padding: var(--spacing-12);
+  }
+
+  .pin {
+    position: static;
+  }
+
+  .provider {
+    grid-area: provider;
+  }
+
+  .status {
+    grid-area: status;
+    justify-self: end;
+  }
+
+  .time {
+    grid-area: time;
+    font: var(--font-body-xs);
+  }
+
+  .detail {
+    grid-area: detail;
+  }
+
+  .detail:empty {
+    display: none;
+  }
+
+  /* 상세 — 이름 위 · 값 아래 한 열 */
+  .rowMore {
+    grid-template-columns: minmax(0, 1fr);
+    padding: var(--spacing-12);
+  }
+
+  .rowMore dd + dt {
+    margin-top: var(--spacing-8);
+  }
 }
