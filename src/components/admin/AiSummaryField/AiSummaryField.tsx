@@ -1,7 +1,7 @@
 "use client";
 
 /* 편집기의 AI 요약 칸 — 저장된 요약(한 줄 + 핵심)을 보여 주고 다시 만든다. 손으로 고치는 칸이 아니다(요약은 AI 만 쓴다).
-   "설명(excerpt · description)" 과 다른 값이라 라벨에 AI 를 붙이고, 공개 페이지의 요약 상자와 같은 모양으로 그린다 */
+   "설명(excerpt · description)" 과 다른 값이라 라벨에 AI 를 붙이고, 공개 페이지의 요약 절과 똑같이(글자 크기까지) 그린다 — 미리보기가 곧 공개 화면이다 */
 import { Sparkles, RefreshCw } from "@/components/icons";
 import Button from "@/components/ui/Button";
 import Tooltip from "@/components/ui/Tooltip";
@@ -40,7 +40,7 @@ export default function AiSummaryField({ value, lang, onRegenerate, busy, disabl
         )}
       </div>
       <div className={styles.box} data-empty={summary ? undefined : ""} lang={lang}>
-        {summary ? <SummaryBody summary={summary} compact /> : <p className={styles.empty}>{ta(onRegenerate ? "empty" : "emptyUnsaved")}</p>}
+        {summary ? <SummaryBody summary={summary} /> : <p className={styles.empty}>{ta(onRegenerate ? "empty" : "emptyUnsaved")}</p>}
       </div>
     </div>
   );

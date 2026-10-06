@@ -1,4 +1,4 @@
-/* 편집기의 AI 요약 칸 — 옆의 입력칸(Textarea)과 같은 테두리 · 둥글기 · 여백, 배경은 없다(쓰는 칸이 아니라 글만 보인다) */
+/* 편집기의 AI 요약 칸 — 공개 페이지의 요약 절과 같은 모양. 상자 없이 라벨 줄 아래 글, 아랫선 하나로 다음 칸과 가른다 */
 .head {
   display: flex;
   align-items: center;
@@ -8,18 +8,19 @@
 
 .icon {
   margin-right: var(--spacing-4);
-  color: var(--text-tertiary);
+  color: var(--text-accent);
 }
 
 .box {
-  padding: var(--spacing-16) var(--spacing-20);
-  border: var(--border-light);
-  border-radius: var(--radius-surface);
+  padding: var(--spacing-4) 0 var(--spacing-20);
+  border-bottom: var(--border-light);
 }
 
-/* 비어 있으면 점선 — 자리만 있고 아직 글이 없다 */
+/* 비어 있으면 점선 상자 — 자리만 있고 아직 글이 없다 */
 .box[data-empty] {
-  border-style: dashed;
+  padding: var(--spacing-16) var(--spacing-20);
+  border: var(--border-width-1) dashed var(--border-color-light);
+  border-radius: var(--radius-surface);
 }
 
 .empty {
