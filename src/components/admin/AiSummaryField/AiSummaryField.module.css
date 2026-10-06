@@ -1,0 +1,130 @@
+/* 편집기의 AI 요약 칸 — 공개 페이지의 요약 절과 같은 모양. 상자 없이 라벨 줄 아래 글, 아랫선 하나로 다음 칸과 가른다 */
+/* 바로 위 설명 칸과 붙지 않게 — 편집기의 줄 사이 간격(24)만큼 */
+.root {
+  margin: var(--spacing-16) 0 var(--spacing-24);
+}
+
+/* 요약 아래 단추 줄 */
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--spacing-8);
+}
+
+.box {
+  padding: var(--spacing-4) 0;
+}
+
+/* 비어 있으면 점선 상자 — 자리만 있고 아직 글이 없다 */
+.box[data-empty] {
+  padding: var(--spacing-16) var(--spacing-20);
+  border: var(--border-width-1) dashed var(--border-color-light);
+  border-radius: var(--radius-surface);
+}
+
+.empty {
+  margin: 0;
+  font: var(--font-body-sm);
+  color: var(--text-tertiary);
+}
+
+/* 옵션 팝오버 */
+.options {
+  display: flex;
+  flex-direction: column;
+  width: min(480px, 90vw);
+}
+
+.optForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  padding: var(--spacing-16);
+}
+
+/* 줄 — 왼쪽 고정 폭 라벨 · 오른쪽 조작(왼쪽 정렬) */
+.optRow {
+  display: grid;
+  grid-template-columns: 9rem minmax(0, 1fr);
+  align-items: center;
+  gap: var(--spacing-12);
+}
+
+.optLabel {
+  font: var(--font-body-sm);
+  color: var(--text-secondary);
+}
+
+.optControl {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+/* 고급 펼치기 — 글자 단추와 › */
+.optAdvancedToggle {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  gap: var(--spacing-4);
+  padding: 0;
+  border: none;
+  background: transparent;
+  font: var(--font-body-sm);
+  color: var(--text-tertiary);
+}
+
+.optAdvancedToggle:hover {
+  color: var(--text-primary);
+}
+
+.optChev {
+  transition: transform var(--duration-fast) var(--ease-standard);
+}
+
+.optChevOpen {
+  transform: rotate(90deg);
+}
+
+.optAdvanced {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  padding-top: var(--spacing-12);
+  border-top: var(--border-light);
+}
+
+.optTemp {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  min-width: 0;
+}
+
+.optSlider {
+  width: 120px;
+}
+
+.optValue {
+  min-width: 2.5em;
+  font: var(--font-body-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+  text-align: right;
+}
+
+.optHint {
+  margin: 0;
+  font: var(--font-body-xs);
+  color: var(--text-accent);
+}
+
+/* 단추 줄 — 위 내용과 선으로 가른다 */
+.optActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-8);
+  padding: var(--spacing-12) var(--spacing-16);
+  border-top: var(--border-light);
+}

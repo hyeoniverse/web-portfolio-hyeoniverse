@@ -1,89 +1,188 @@
 /* 공용 컴포넌트 — components 층(docs/design-system.md 4-4). 쓰는 쪽이 className 으로 넘긴 클래스가 번들 순서 · 특이도와 상관없이 이긴다 */
 @layer components {
 /* ==========================================================================
-   AI Summary Component
+   AI Summary — 글 · 작업물 상세의 요약 카드
+   머리(아이콘 · 이름 · ⓘ) → 제목 한 줄 → 본문 → 덧붙임(흐리게) → 키워드 칩 → 강조 마무리
    ========================================================================== */
 
-.container {
-  border: var(--border-default);
-  border-radius: var(--radius-surface);
-  overflow: hidden;
-  margin-bottom: var(--spacing-32);
+/* 카드 없이 본문 흐름 안의 절 — 여백과 아랫선 하나로만 가른다(면 · 테두리 상자 없음).
+   윗선은 두지 않는다 — 작업물 상세는 바로 위 정보 격자가 밑줄을 그어 선이 두 겹이 됐다 */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-16);
+  margin: var(--spacing-32) 0 var(--spacing-40);
+  padding-bottom: var(--spacing-32);
+  border-bottom: var(--border-light);
 }
 
 .header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: var(--spacing-12) var(--spacing-24);
-  user-select: none;
-  background: transparent;
-  border: none;
-  width: 100%;
-  text-align: left;
-  color: inherit;
-  gap: var(--spacing-12);
-}
-
-.header:hover {
-  background: var(--bg-tertiary);
-}
-
-.headerLeft {
-  display: flex;
-  align-items: center;
   gap: var(--spacing-8);
-  min-width: 0;
 }
 
 .icon {
-  flex-shrink: 0;
-  color: var(--text-tertiary);
-  width: 14px;
-  height: 14px;
+  display: inline-flex;
+  color: var(--text-accent);
 }
 
+/* 절 이름은 작게 — 아래 제목 줄(tldr)이 가장 또렷해야 한다 */
 .label {
+  margin: 0;
   font: var(--font-body-sm);
-  font-weight: var(--font-weight-medium);
   color: var(--text-tertiary);
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  white-space: nowrap;
 }
 
-.chevron {
-  flex-shrink: 0;
-  color: var(--text-tertiary);
-  width: 14px;
-  height: 14px;
-  transition: transform var(--duration-fast) var(--ease-standard);
+.info {
+  display: inline-flex;
+  color: var(--text-muted);
+  cursor: help;
 }
 
-.chevronOpen {
-  transform: rotate(180deg);
+/* 조각들 */
+.structured {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+}
+
+/* 제목 한 줄 — 카드 안에서 가장 또렷하게 */
+.tldr {
+  margin: 0;
+  font: var(--font-title-sm);
+  color: var(--text-primary);
 }
 
 .body {
-  overflow: hidden;
-}
-
-.bodyInner {
-  padding: 0 var(--spacing-20) var(--spacing-20);
-}
-
-.text {
   margin: 0;
   font: var(--font-body-md);
-  line-height: 1.7;
   color: var(--text-secondary);
 }
 
+/* 핵심 항목 — 강조색 점 · 굵은 머리말 · 한 문장 */
+.points {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.point {
+  position: relative;
+  padding-left: var(--spacing-16);
+  font: var(--font-body-md);
+  color: var(--text-secondary);
+}
+
+.point::before {
+  content: "";
+  position: absolute;
+  top: 0.7em;
+  left: var(--spacing-2);
+  width: 5px;
+  height: 5px;
+  border-radius: var(--radius-full);
+  background: var(--text-accent);
+}
+
+/* 머리말 — strong 이라 굵기는 전역 규칙이 준다. 색만 강조색 → 본문색, 뒤 글과는 한 칸 */
+.pointLabel {
+  margin-right: var(--spacing-8);
+  color: var(--text-primary);
+}
+
+/* 글 안 강조 · 코드 */
+.em {
+  color: var(--text-primary);
+}
+
+.code {
+  padding: 0 var(--spacing-4);
+  border-radius: var(--radius-mark);
+  background: color-mix(in oklch, var(--text-contrast) 8%, transparent);
+  font: var(--font-code-sm);
+  color: var(--text-primary);
+}
+
+/* 덧붙임 — 한계 · 주의. 본문보다 한 단계 흐리게 */
+.note {
+  margin: 0;
+  font: var(--font-body-md);
+  color: var(--text-tertiary);
+}
+
+.keywords {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-8);
+  margin: var(--spacing-4) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.keyword {
+  padding: var(--badge-padding-md);
+  border: var(--border-light);
+  border-radius: var(--radius-control);
+  /* 채움 없이 테두리만 — 페이지 배경 위에서 라이트 · 다크 둘 다 또렷하다 */
+  background: transparent;
+  font: var(--font-body-xs);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+/* 마무리 한 줄 — 강조색 */
+.takeaway {
+  margin: var(--spacing-4) 0 0;
+  font: var(--font-body-md);
+  color: var(--text-accent);
+}
+
+/* 예전 줄글 요약 */
+.text {
+  margin: 0;
+  font: var(--font-body-md);
+  color: var(--text-secondary);
+}
+
+/* 편집기 칸처럼 좁은 자리 — 한 단계씩 작게 */
+.compact {
+  gap: var(--spacing-8);
+}
+
+.compact .tldr {
+  font: var(--font-body-md);
+  color: var(--text-primary);
+}
+
+.compact .body,
+.compact .point,
+.compact .note,
+.compact .takeaway {
+  font: var(--font-body-sm);
+}
+
+/* 만드는 중 · 비어 있을 때 */
 .generating {
   display: flex;
   align-items: center;
   gap: var(--spacing-8);
-  padding: var(--spacing-8) 0;
+  font: var(--font-body-md);
+  color: var(--text-tertiary);
+}
+
+.emptyRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-12);
+}
+
+.emptyText {
   font: var(--font-body-md);
   color: var(--text-tertiary);
 }

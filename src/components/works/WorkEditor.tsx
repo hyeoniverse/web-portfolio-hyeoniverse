@@ -63,6 +63,9 @@ import { isVideoUrl } from "@/lib/isVideoUrl";
 import { IMAGE_FALLBACK_SRC } from "@/lib/imageFallback";
 import { useModalStore } from "@/stores/modalStore";
 import SummaryCompareModal, { type SummaryPair } from "@/components/admin/SummaryCompare/SummaryCompareModal";
+import { loadSummaryOptions } from "@/components/admin/AiSummaryField/summaryOptionsStore";
+import type { SummaryOptions } from "@/lib/ai/summary";
+import AiSummaryField from "@/components/admin/AiSummaryField/AiSummaryField";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import { List } from "@/app/admin/(dashboard)/components";
 import { deriveTeamMemberAvatar, getMemberInitial } from "@/utils/teamMemberAvatar";
@@ -79,7 +82,7 @@ import { CategoryMultiPicker, type WorksCategory } from "./workEditor/CategoryPi
 import { SubtitleInput } from "./workEditor/SubtitleInput";
 import { workSnapshotMeta } from "./workEditor/workSnapshotMeta";
 import { parseYearAsPeriod, serializePeriodAsYear } from "./workEditor/periodFormat";
-import { CodedError, errorFromBody, errorFromResponse, errorText } from "@/lib/apiError";
+import { CodedError, errorFromBody, errorFromResponse, errorText, errorTextWithLinks } from "@/lib/apiError";
 import { sendAction, tryRequest } from "@/lib/sendAction";
 import InputBlocker from "@/components/ui/InputBlocker";
 
@@ -366,6 +369,8 @@ export default function WorkEditor({ work }: WorkEditorProps) {
 
   /* ── Auto-save ── */
   const savedIdRef = useRef<string | undefined>(work?.id);
+  /* 한 번이라도 저장돼 id 가 생겼는지 — 렌더 중에 ref 를 읽지 않으려고 상태로 따로 든다(AI 요약 칸의 다시 만들기) */
+  const [hasSavedId, setHasSavedId] = useState(!!work?.id);
   useEffect(() => { if (work?.id) savedIdRef.current = work.id; }, [work?.id]);
   const savedId = savedIdRef;
 
@@ -1014,7 +1019,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           return;
         }
 
-        if (!savedId.current) savedId.current = data.id;
+        if (!savedId.current) { savedId.current = data.id; setHasSavedId(true); }
         /* DB 에 음성 칸이 아직 없으면 서버가 그 칸만 빼고 저장한다 — 음성을 적어 둔 경우에만 알린다 */
         if (res.headers.get(GALLERY_NOTES_DROPPED_HEADER) && Object.keys(galleryNotes).length > 0) {
           showToast(tw("narrationNotSaved"), "error", 6000);
@@ -1143,8 +1148,11 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   }, [tw]);
 
   const [generatingSummary, setRegeneratingSummary] = useState(false);
+  /* 저장된 AI 요약 — 편집기 칸에 보인다. 다시 만들어 고른 뒤 여기만 바꾸면 된다 */
+  const [savedSummary, setSavedSummary] = useState<{ ko: string; en: string }>({ ko: work?.summary_ko ?? "", en: work?.summary_en ?? "" });
 
-  const handleGenerateSummary = useCallback(async () => {
+  /* options — 편집기 AI 요약 칸의 팝오버에서 고른 값. 머리 막대의 요약 단추는 지난번 값(브라우저에 남은 것)으로 */
+  const handleGenerateSummary = useCallback(async (options?: SummaryOptions) => {
     const id = savedId.current ?? work?.id;
     if (!id) return;
     setRegeneratingSummary(true);
@@ -1153,20 +1161,20 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       const res = await fetch(`/api/works/${id}/ai-summary`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ force: true, apply: false }),
+        body: JSON.stringify({ force: true, apply: false, options: options ?? loadSummaryOptions() ?? undefined }),
       });
       /* 공급자마다의 원인(키 만료·한도 등)은 토스트로 — 설정 › 서비스의 AI 상태 패널에도 남는다 */
       const data = (await reportAiResponse(res, t, t("admin.aiHealth.feature.summary"))) as { summary_ko?: string; summary_en?: string; current?: SummaryPair } | null;
       if (!res.ok) {
         /* 서버는 "왜" 를 reason 에 담는다 — error 만 쓰면 "Forbidden" 밖에 안 남아 원인을 알 수 없다. */
-        setError(errorText(data, t, tw("saveFailed")));
+        setError(errorTextWithLinks(data, t, tw("saveFailed")));
         return;
       }
       const next: SummaryPair = { ko: data?.summary_ko ?? "", en: data?.summary_en ?? "" };
       const current = data?.current;
       const save = async (pair: SummaryPair) => {
         const ok = await sendAction(`/api/works/${id}/ai-summary`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ summary_ko: pair.ko, summary_en: pair.en }) }, t, tw("saveFailed"));
-        if (ok) { setStatus(tw("generateSummaryDone")); setStatusType("success"); }
+        if (ok) { setSavedSummary(pair); setStatus(tw("generateSummaryDone")); setStatusType("success"); }
       };
       if (current && (current.ko || current.en)) {
         openModal(<SummaryCompareModal current={current} next={next} onPick={(p) => void save(p)} />, { header: { title: t("admin.summaryCompare.title") }, width: "min(92vw, 720px)" });
@@ -1397,13 +1405,23 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           rows={3}
           maxHint="basic"
         />
+        {/* AI 요약 — 설명과 다른 값. 손으로 쓰지 않고 다시 만들기로만 바뀐다 */}
+        <AiSummaryField
+          value={editorLang === "ko" ? savedSummary.ko : savedSummary.en}
+          lang={editorLang}
+          onRegenerate={(isEdit || hasSavedId) && serviceStatus.aiSummary ? handleGenerateSummary : undefined}
+          busy={generatingSummary}
+          disabled={!serviceStatus.loading && !serviceStatus.aiSummary}
+          disabledReason={tw("generateSummaryDisabled")}
+        />
       </div>
     </div>
   ), [
-    categoryCustomMode, descriptionValue, editorLang, form.categories_en, form.categories_ko,
+    hasSavedId, categoryCustomMode, descriptionValue, editorLang, form.categories_en, form.categories_ko,
     form.nature_en, form.nature_ko, form.slug, form.year,
     natureCustomMode, naturePresets, primaryLang, reqTitle,
     showErrors, subtitleValue, suf, titleKey, titleValue, tw, updateField, worksCategories,
+    savedSummary, isEdit, serviceStatus.aiSummary, serviceStatus.loading, handleGenerateSummary, generatingSummary,
   ]);
 
   /* Images */
@@ -2291,7 +2309,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       retranslateOptions={retranslateOptions}
       retranslateDisabled={!serviceStatus.loading && !serviceStatus.translation}
       retranslating={translating}
-      onGenerateSummary={isEdit || !!savedId.current ? (serviceStatus.aiSummary ? handleGenerateSummary : undefined) : undefined}
+      onGenerateSummary={isEdit || !!savedId.current ? (serviceStatus.aiSummary ? () => void handleGenerateSummary() : undefined) : undefined}
       aiSummaryDisabled={!serviceStatus.loading && !serviceStatus.aiSummary && (isEdit || !!savedId.current)}
       generatingSummary={generatingSummary}
       getCurrentSnapshot={(lang) => {

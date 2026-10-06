@@ -20,10 +20,11 @@ export const GOOGLE_TTS_TIER_RANK = ["Chirp3-HD", "Chirp-HD", "Neural2", "Studio
 /** Groq "latest" — 그 키의 모델 목록에서 GROQ_PREFER 순으로 첫 번째. 목록을 못 받으면 보루 */
 export const GROQ_LATEST = "latest";
 /* 추론 모델(gpt-oss)은 JSON 모드와 잘 안 맞아(json_validate_failed) 뒤로 — 일반 instruct 모델을 먼저 */
-export const GROQ_PREFER: RegExp[] = [/^llama-3\.3-70b/, /llama-4.*maverick/i, /qwen.*(32b|235b)/i, /llama-4.*scout/i, /^llama-3\.1-8b/, /^openai\/gpt-oss-120b/, /^openai\/gpt-oss-20b/];
+/* qwen 은 이름이 자주 바뀌어(qwen3-32b → qwen3.8-27b) 크기를 보지 않는다. gpt-oss 는 분당 토큰 한도가 낮고(8K) JSON 모드와 잘 안 맞아 맨 뒤 */
+export const GROQ_PREFER: RegExp[] = [/^llama-3\.3-70b/, /llama-4.*maverick/i, /qwen/i, /llama-4.*scout/i, /^llama-3\.1-8b/, /^openai\/gpt-oss-20b/, /^openai\/gpt-oss-120b/];
 export const GROQ_FALLBACK_MODEL = "llama-3.1-8b-instant";
 /* 글 요약에 못 쓰는 것 — 음성 · 안전 필터 · 에이전트 · 번역 전용 */
-export const GROQ_NOT_TEXT = /guard|compound|whisper|tts|orpheus|playai|safeguard/i;
+export const GROQ_NOT_TEXT = /guard|compound|whisper|tts|orpheus|playai|safeguard|allam/i;
 
 export type NanoBananaModel = "nanobanana" | "nanobanana-2" | "nanobanana-pro";
 export const NANOBANANA_MODELS: NanoBananaModel[] = ["nanobanana-2", "nanobanana-pro", "nanobanana"];

@@ -131,7 +131,19 @@ export async function errorFromResponse(res: Response): Promise<CodedError> {
  * 오류를 화면 언어 문구로. `CodedError` 나 실패 응답 본문(`{ error, code, params }`)의 코드가 사전에 있으면
  * 그 문구를, 아니면 `fallback` 을 돌려준다. 서버가 쓴 문장(`error`)은 화면 언어와 다를 수 있어 쓰지 않는다.
  */
+/** 문구 안의 [글](주소) 를 글만 남긴다 — 링크를 그릴 수 없는 자리(토스트 · 입력칸 아래 등) */
+export const stripTextLinks = (s: string) => s.replace(/\[([^\]]+)\]\((\/[^)\s]*)\)/g, "$1");
+
+/** errorText 와 같되 [글](주소) 를 남긴다 — LinkedText 로 그리는 자리(편집기 상태 줄)용 */
+export function errorTextWithLinks(err: unknown, t: TFunction, fallback: string): string {
+  return errorTextRaw(err, t, fallback);
+}
+
 export function errorText(err: unknown, t: TFunction, fallback: string): string {
+  return stripTextLinks(errorTextRaw(err, t, fallback));
+}
+
+function errorTextRaw(err: unknown, t: TFunction, fallback: string): string {
   const src = err && typeof err === "object" ? (err as { code?: unknown; params?: unknown }) : null;
   const code = typeof src?.code === "string" ? src.code : "";
   if (!code) return fallback;
