@@ -9,12 +9,11 @@ const LINK = /\[([^\]]+)\]\((\/[^)\s]*)\)/g;
 export default function LinkedText({ text }: { text: string }) {
   const out: React.ReactNode[] = [];
   let last = 0;
-  let m: RegExpExecArray | null;
-  LINK.lastIndex = 0;
-  while ((m = LINK.exec(text))) {
-    if (m.index > last) out.push(text.slice(last, m.index));
-    out.push(<TextLink key={m.index} href={m[2]} external>{m[1]}</TextLink>);
-    last = m.index + m[0].length;
+  for (const m of text.matchAll(LINK)) {
+    const at = m.index ?? 0;
+    if (at > last) out.push(text.slice(last, at));
+    out.push(<TextLink key={at} href={m[2]} external>{m[1]}</TextLink>);
+    last = at + m[0].length;
   }
   if (last < text.length) out.push(text.slice(last));
   return <>{out}</>;

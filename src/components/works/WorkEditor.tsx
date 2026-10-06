@@ -369,6 +369,8 @@ export default function WorkEditor({ work }: WorkEditorProps) {
 
   /* ── Auto-save ── */
   const savedIdRef = useRef<string | undefined>(work?.id);
+  /* 한 번이라도 저장돼 id 가 생겼는지 — 렌더 중에 ref 를 읽지 않으려고 상태로 따로 든다(AI 요약 칸의 다시 만들기) */
+  const [hasSavedId, setHasSavedId] = useState(!!work?.id);
   useEffect(() => { if (work?.id) savedIdRef.current = work.id; }, [work?.id]);
   const savedId = savedIdRef;
 
@@ -1017,7 +1019,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           return;
         }
 
-        if (!savedId.current) savedId.current = data.id;
+        if (!savedId.current) { savedId.current = data.id; setHasSavedId(true); }
         /* DB 에 음성 칸이 아직 없으면 서버가 그 칸만 빼고 저장한다 — 음성을 적어 둔 경우에만 알린다 */
         if (res.headers.get(GALLERY_NOTES_DROPPED_HEADER) && Object.keys(galleryNotes).length > 0) {
           showToast(tw("narrationNotSaved"), "error", 6000);
@@ -1407,7 +1409,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         <AiSummaryField
           value={editorLang === "ko" ? savedSummary.ko : savedSummary.en}
           lang={editorLang}
-          onRegenerate={(isEdit || !!savedId.current) && serviceStatus.aiSummary ? handleGenerateSummary : undefined}
+          onRegenerate={(isEdit || hasSavedId) && serviceStatus.aiSummary ? handleGenerateSummary : undefined}
           busy={generatingSummary}
           disabled={!serviceStatus.loading && !serviceStatus.aiSummary}
           disabledReason={tw("generateSummaryDisabled")}
@@ -1415,11 +1417,11 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       </div>
     </div>
   ), [
-    categoryCustomMode, descriptionValue, editorLang, form.categories_en, form.categories_ko,
+    hasSavedId, categoryCustomMode, descriptionValue, editorLang, form.categories_en, form.categories_ko,
     form.nature_en, form.nature_ko, form.slug, form.year,
     natureCustomMode, naturePresets, primaryLang, reqTitle,
     showErrors, subtitleValue, suf, titleKey, titleValue, tw, updateField, worksCategories,
-    savedSummary, isEdit, savedId, serviceStatus.aiSummary, serviceStatus.loading, handleGenerateSummary, generatingSummary,
+    savedSummary, isEdit, serviceStatus.aiSummary, serviceStatus.loading, handleGenerateSummary, generatingSummary,
   ]);
 
   /* Images */

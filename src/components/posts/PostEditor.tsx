@@ -424,6 +424,8 @@ export default function PostEditor({ post }: PostEditorProps) {
 
   /* ── Auto-save ── */
   const savedIdRef = useRef<string | undefined>(post?.id);
+  /* 한 번이라도 저장돼 id 가 생겼는지 — 렌더 중에 ref 를 읽지 않으려고 상태로 따로 든다(AI 요약 칸의 다시 만들기) */
+  const [hasSavedId, setHasSavedId] = useState(!!post?.id);
   useEffect(() => { if (post?.id) savedIdRef.current = post.id; }, [post?.id]);
   const savedId = savedIdRef; // backward-compat — handleSave 가 .current 로 접근
   // 낙관적 동시성 — 로드 시점 version. undefined 면(마이그레이션 전) 버전 체크 생략 → 기존 저장 유지.
@@ -823,7 +825,7 @@ export default function PostEditor({ post }: PostEditorProps) {
         // 저장 성공 — 반환된 version 으로 base 갱신 (연속 저장/이 세션 유지 대비)
         if (typeof data.version === "number") baseVersionRef.current = data.version;
 
-        if (!savedId.current) savedId.current = data.id;
+        if (!savedId.current) { savedId.current = data.id; setHasSavedId(true); }
         // 수동 저장 성공 → 이탈저장(draft) 발동 차단 (발행글이 draft 로 되돌아가는 것 방지).
         finalizedRef.current = true;
 
@@ -1195,7 +1197,7 @@ export default function PostEditor({ post }: PostEditorProps) {
         aiSummary={{
           value: editorLang === "ko" ? savedSummary.ko : savedSummary.en,
           lang: editorLang,
-          onRegenerate: (isEdit || !!savedId.current) && serviceStatus.aiSummary ? handleGenerateSummary : undefined,
+          onRegenerate: (isEdit || hasSavedId) && serviceStatus.aiSummary ? handleGenerateSummary : undefined,
           busy: generatingSummary,
           disabled: !serviceStatus.loading && !serviceStatus.aiSummary,
           disabledReason: te("generateSummaryDisabled"),
@@ -1212,10 +1214,10 @@ export default function PostEditor({ post }: PostEditorProps) {
       />
     </div>
   ), [
-    allTagSuggestions, allWorks, authorChips, categories, categoryCustomMode, excerptKey, findCat, firstLeafKo,
+    hasSavedId, allTagSuggestions, allWorks, authorChips, categories, categoryCustomMode, excerptKey, findCat, firstLeafKo,
     handleCoverUpload, handleSeriesCreated, isManagedCat, language, metaForm, optionalOpen, post, queueSeriesOrder,
     seriesList, seriesPosts, seriesPostsLoading, seriesSelectMode, setSeriesPosts, showErrors, tag, tagDescriptions, te, titleFieldError,
-    editorLang, generatingSummary, handleGenerateSummary, isEdit, savedId, savedSummary, serviceStatus.aiSummary, serviceStatus.loading,
+    editorLang, generatingSummary, handleGenerateSummary, isEdit, savedSummary, serviceStatus.aiSummary, serviceStatus.loading,
     titleKey, updateField,
   ]);
 
