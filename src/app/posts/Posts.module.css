@@ -112,7 +112,7 @@
 }
 
 /* ── Responsive ── */
-@media (max-width: 1024px) {
+@media (width <= 1024px) {
   .contentArea {
     grid-template-columns: 1fr;
     gap: var(--spacing-32);

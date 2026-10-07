@@ -230,7 +230,7 @@
   border-color: var(--border-color-light) !important;
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .seriesRow {
     gap: var(--spacing-12);
   }

@@ -28,7 +28,7 @@
 
 /* 480px 이하에서만 정의되는 화면 비례 여백. 그 밖에서는 정의가 없어 쓰면 무효가 된다.
    이름이 뜻 없는 축약이라 페이지 리듬 역할로 옮길 대상이다(docs/design-system.md 3.3-3) */
-@media (max-width: 480px) {
+@media (width <= 480px) {
   :root {
     --m-sm: 2.1vw;
     --m-md: 4.2vw;

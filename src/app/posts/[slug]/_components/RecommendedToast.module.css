@@ -141,7 +141,7 @@
   transform: scale(1.08);
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .toast {
     width: 280px;
   }

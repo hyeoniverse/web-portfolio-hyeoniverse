@@ -267,7 +267,7 @@
   color: var(--text-tertiary);
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .tableHeader {
     display: none;
   }

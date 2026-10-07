@@ -458,7 +458,7 @@
 }
 
 
-@media (max-width: 1024px), (max-height: 700px) {
+@media (width <= 1024px), (height <= 700px) {
   .dcPanel {
     padding: 0 var(--spacing-page-inline);
     /* dcMobileBg 가 image fill 로 panel 영역을 덮지만, subpixel 경계에서
@@ -698,7 +698,7 @@
 
 
 /* ── 데스크톱 전시실 구도: 제목은 오른쪽 위에 오른쪽 정렬, 주제 선택 점은 왼쪽 ── */
-@media (min-width: 1025px) and (min-height: 701px) {
+@media (width > 1024px) and (height > 700px) {
   .dcTitleRight {
     flex-direction: row-reverse;
   }

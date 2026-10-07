@@ -129,7 +129,7 @@
 }
 
 /* 데스크탑(>1024): 좌측 설정 사이드바가 네비 — 숨김 */
-@media (min-width: 1025px) {
+@media (width > 1024px) {
   .jumpWrap {
     display: none;
   }

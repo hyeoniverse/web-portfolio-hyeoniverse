@@ -471,7 +471,7 @@
 }
 
 /* 좁은 화면 — 왼쪽 목록이 위로 올라가 가로로 넘기는 칩 줄이 된다 */
-@media (max-width: 900px) {
+@media (width <= 900px) {
   .split {
     grid-template-columns: minmax(0, 1fr);
     gap: var(--spacing-16);

@@ -71,14 +71,14 @@
 /* ---------------------------------------------------------------------------
    Responsive
    --------------------------------------------------------------------------- */
-@media (max-width: 768px) {
+@media (width <= 768px) {
 
   .content {
     padding: 6vh 0;
   }
 }
 
-@media (max-width: 480px) {
+@media (width <= 480px) {
   .text {
     font-size: var(--font-size-body-xl);
   }

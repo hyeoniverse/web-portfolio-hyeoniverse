@@ -43,7 +43,7 @@ main > .content {
   min-height: unset;
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .section#skills,
   .section#experience,
   .section#projects,
@@ -129,7 +129,7 @@ main > .content {
   Media Queries
   ========================================================================== */
 
-@media (max-width: 1024px) {
+@media (width <= 1024px) {
   #modal {
     width: calc(
       100vw - (var(--action-button-width) + var(--spacing-16) * 2) * 2
@@ -137,7 +137,7 @@ main > .content {
   }
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   nav#side-navigation {
     display: none;
   }

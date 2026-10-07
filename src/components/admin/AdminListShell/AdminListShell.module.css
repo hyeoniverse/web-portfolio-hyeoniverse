@@ -272,7 +272,7 @@
   color: var(--text-tertiary);
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   /* 모바일: 검색창 full width */
   .filterBar .filterSearch {
     width: 100%;
@@ -306,7 +306,7 @@
 }
 
 /* Touch devices at mobile width: centered modal style */
-@media (max-width: 768px) and (hover: none) {
+@media (width <= 768px) and (hover: none) {
   .previewBackdrop {
     display: block;
     position: fixed;

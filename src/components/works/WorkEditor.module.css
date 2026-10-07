@@ -314,7 +314,7 @@
   margin-bottom: 0;
 }
 
-@media (max-width: 900px) {
+@media (width <= 900px) {
   .extraSectionsContent > .section {
     min-height: 0;
     padding-left: 0;
@@ -1100,7 +1100,7 @@
   margin-left: calc(44px + var(--spacing-16));
 }
 
-@media (max-width: 640px) {
+@media (width <= 640px) {
   .memberCardAdd > :not(.memberHeaderRow):not(input) {
     margin-left: 0;
   }
@@ -1367,7 +1367,7 @@
 
 /* 기여 항목 입력 row — input + 추가 버튼. bullet 없음 */
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .row3 {
     grid-template-columns: 1fr;
   }
@@ -1444,7 +1444,7 @@
 }
 
 /* 좁은 화면 — 작업대를 세로로 쌓는다. 고른 장, 대본, 썸네일 줄 순. 높이는 내용만큼 */
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .galleryBench {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: none;

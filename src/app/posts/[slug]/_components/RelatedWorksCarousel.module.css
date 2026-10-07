@@ -144,7 +144,7 @@
 }
 
 /* ── Responsive ── */
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .relatedCard {
     min-width: 300px;
     max-width: 340px;

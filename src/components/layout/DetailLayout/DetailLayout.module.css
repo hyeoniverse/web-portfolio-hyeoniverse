@@ -243,14 +243,14 @@
 }
 
 
-@media (max-width: 1540px) {
+@media (width <= 1540px) {
   .tocSidebar {
     display: none;
   }
 }
 
 /* ── Responsive ── */
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .hero {
     height: 28vh;
     min-height: 180px;

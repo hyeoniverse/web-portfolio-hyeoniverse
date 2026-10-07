@@ -240,7 +240,7 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .hudTR,
   .hudBL { display: none; }
   .hudTL { top: var(--spacing-64); left: var(--spacing-16); }
@@ -455,7 +455,7 @@
 }
 
 /* ── Responsive ── */
-@media (max-width: 1024px) {
+@media (width <= 1024px) {
   .number {
     font-size: clamp(3.1rem, 0.25rem + 11.61vw, 7.7rem);
   }
@@ -463,7 +463,7 @@
   .counter { right: var(--spacing-20); }
 }
 
-@media (max-width: 480px) {
+@media (width <= 480px) {
   .section { height: 80vh; }
 
   .bgImage { opacity: 0; }

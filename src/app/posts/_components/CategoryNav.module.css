@@ -128,7 +128,7 @@
   opacity: 0.85;
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .btn {
     display: inline-flex;
     align-items: center;

@@ -139,7 +139,7 @@
   );
 }
 
-@media (max-aspect-ratio: 1 / 1) {
+@media (aspect-ratio <= 1 / 1) {
   .fade {
     height: 33vh;
     --_edge: 100%;
@@ -446,11 +446,11 @@
 }
 
 /* ── Responsive ── */
-@media (max-width: 1024px) {
+@media (width <= 1024px) {
 }
 
 /* 좁은 화면 — 레퍼런스처럼 가장자리 여백만 줄인다 */
-@media (max-width: 480px) {
+@media (width <= 480px) {
   .indicator {
     right: var(--spacing-20);
     bottom: var(--spacing-20);

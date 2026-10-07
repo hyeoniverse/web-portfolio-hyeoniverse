@@ -7,7 +7,7 @@
   right: var(--spacing-24);
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .wrap {
     bottom: var(--spacing-16);
     right: var(--spacing-16);

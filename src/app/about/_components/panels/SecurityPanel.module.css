@@ -70,13 +70,13 @@
   letter-spacing: 0.06em;
 }
 
-@media (max-width: 1024px), (max-height: 700px) {
+@media (width <= 1024px), (height <= 700px) {
   .secGrid {
     max-width: none;
   }
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .secGrid {
     grid-template-columns: 1fr;
   }
@@ -88,7 +88,7 @@
 
 /* ── 데스크톱 구도: 요청 흐름 — 제목 아래 Browser → Route → API → Database 네 단계가 화살표 줄로 이어지고,
    단계마다 그 자리에서 걸리는 보안 항목이 아래로 달린다. 관리자 미리보기는 .secGrid 를 쓴다 */
-@media (min-width: 1025px) and (min-height: 701px) {
+@media (width > 1024px) and (height > 700px) {
   .securityPanel {
     padding-top: calc(var(--header-height) + var(--spacing-16));
     padding-bottom: calc(var(--spacing-32) + 4rem);
@@ -245,14 +245,14 @@
 }
 
 /* 키 큰 화면 — 설명을 전부 */
-@media (min-width: 1025px) and (min-height: 1000px) {
+@media (width > 1024px) and (height >= 1000px) {
   .flowItemDesc {
     --desc-lines: 14;
   }
 }
 
 /* 낮은 데스크톱 화면 — 설명을 다섯 줄로 접고 범위는 숨긴다 */
-@media (min-width: 1025px) and (min-height: 701px) and (max-height: 860px) {
+@media (width > 1024px) and (700px < height <= 860px) {
   .flowItems {
     gap: var(--spacing-12);
   }
@@ -270,7 +270,7 @@
   }
 }
 
-@media (min-width: 1025px) and (min-height: 701px) and (prefers-reduced-motion: no-preference) {
+@media (width > 1024px) and (height > 700px) and (prefers-reduced-motion: no-preference) {
   /* 흐름 — 요청이 들어오듯 단계가 차례로 따라 들어온다 */
   .flowStage:nth-child(1) { translate: calc(var(--flow-in) * 5vw) 0; }
   .flowStage:nth-child(2) { translate: calc(var(--flow-in) * 12vw) 0; }

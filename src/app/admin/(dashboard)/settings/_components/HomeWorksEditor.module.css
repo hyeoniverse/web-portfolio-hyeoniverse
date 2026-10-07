@@ -162,7 +162,7 @@
 }
 
 /* 좁아지면 한 줄에 하나씩 — 표지 옆에 입력칸 두 개를 더 끼우면 글자가 들어갈 폭이 남지 않는다 */
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .cardBody {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -175,7 +175,7 @@
   grid-template-columns: 1fr 1fr;
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .titles {
     grid-template-columns: 1fr;
   }
