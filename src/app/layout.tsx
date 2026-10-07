@@ -37,7 +37,6 @@ import { SYMBOL_FONT_FAMILY, SYMBOL_FONT_UNICODE_RANGE } from "@/config/symbolFo
 // Vercel Web Analytics(방문 수) · Speed Insights(체감 성능) — 배포 환경에서만 스크립트를 싣는다(로컬은 콘솔 로그만)
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import Script from "next/script";
 
 /** 탭 아이콘 주소에 붙일 버전 — 아이콘은 브랜드 설정으로 그리니(/api/favicon) 그 값이 바뀔 때만 바뀐다.
  *  주소가 바뀌어야 브라우저가 들고 있던 예전 아이콘(캐시 1시간 · 사파리는 더 오래)을 버리고 새로 받는다 */
@@ -199,8 +198,6 @@ export default async function RootLayout({
         </SiteConfigProvider>
         <Analytics />
         <SpeedInsights />
-        {/* MacFolio 휴대폰 화면 안(iframe)에서 열릴 때 맨 위 색을 알려 준다 — 혼자 열면 아무것도 하지 않는다(public/macfolio-bar-color.js) */}
-        <Script src="/macfolio-bar-color.js" strategy="afterInteractive" />
       </body>
     </html>
   );
