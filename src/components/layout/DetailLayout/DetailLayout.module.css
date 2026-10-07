@@ -1,6 +1,6 @@
 /* ── Page wrapper ── */
 .page {
-  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 /* ── Hero ── */
@@ -142,7 +142,7 @@
   align-self: flex-start;
   position: sticky;
   top: calc(var(--spacing-32) + 60px);
-  max-height: calc(100vh - 120px);
+  max-height: calc(100dvh - 120px);
   overflow-y: auto;
 }
 

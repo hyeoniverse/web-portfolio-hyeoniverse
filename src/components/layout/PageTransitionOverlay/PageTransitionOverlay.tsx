@@ -40,7 +40,7 @@ export default function PageTransitionOverlay() {
             top: 0,
             left: 0,
             width: "100vw",
-            height: "100vh",
+            height: "100dvh",
             borderRadius: "0%",
           }}
           transition={{

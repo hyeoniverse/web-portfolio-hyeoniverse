@@ -21,7 +21,7 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            minHeight: "100vh",
+            minHeight: "100dvh",
             padding: "2rem",
             background: "#f8f6f0",
             fontFamily: "system-ui, -apple-system, sans-serif",

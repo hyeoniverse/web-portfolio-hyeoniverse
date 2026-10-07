@@ -14,7 +14,7 @@
   left: calc(-1 * var(--_panel-px) - 1px);
   z-index: 1;
   width: calc(100vw + 2px);
-  height: calc(100vh + 2px);
+  height: calc(100svh + 2px);
 }
 
 /* ── Strip mode: horizontal row, translateX to slide ── */
@@ -510,8 +510,8 @@
   .dcViewport {
     position: relative;
     z-index: 1;
-    height: calc(100vh - 150px);
-    min-height: calc(100vh - 150px);
+    height: calc(100svh - 150px);
+    min-height: calc(100svh - 150px);
     background: transparent;
   }
 

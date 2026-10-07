@@ -18,7 +18,7 @@
   align-items: flex-start;
   flex-shrink: 0;
   flex-direction: column;
-  height: calc(100vh - var(--_safe-top) - var(--_safe-bottom));
+  height: calc(100svh - var(--_safe-top) - var(--_safe-bottom));
   margin-top: var(--_safe-top);
   margin-bottom: var(--_safe-bottom);
   padding: 0 var(--spacing-96);
@@ -133,7 +133,7 @@
   margin-top: max(
     0px,
     calc(
-      (100vh - var(--_safe-top) - var(--_safe-bottom) - var(--_shift-reserve) - var(--_card-h) * var(--_card-h-scale, 1)) *
+      (100svh - var(--_safe-top) - var(--_safe-bottom) - var(--_shift-reserve) - var(--_card-h) * var(--_card-h-scale, 1)) *
         clamp(0, calc(var(--_shift-size, 0) + var(--_shift-layout, 0)), 0.9)
     )
   );
