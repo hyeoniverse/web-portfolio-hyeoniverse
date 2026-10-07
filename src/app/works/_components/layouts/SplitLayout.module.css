@@ -6,7 +6,7 @@
   isolation: isolate; /* 안의 z 0 … 3 이 밖과 겨루지 않게(3.10-3) */
   position: relative;
   display: flex;
-  min-height: 100vh;
+  min-height: 100svh;
   /* 항상 어두운 fallback — 지정된 bg 영상(introVideoUrl)이 없거나 깨져도 좌측 흰 텍스트 대비 확보.
      영상이 정상 로드되면 그 위(opacity 0.85)로 덮여 거의 영향 없음. (테마 무관 black) */
   background: var(--bg-black);
@@ -17,7 +17,7 @@
   position: fixed;
   inset: 0;
   width: 100vw;
-  height: 100vh;
+  height: 100svh;
   object-fit: cover;
   z-index: 0;
   opacity: 0.85;
@@ -29,7 +29,7 @@
   position: sticky;
   top: 0;
   width: 45vw;
-  height: 100vh;
+  height: 100svh;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -128,7 +128,7 @@
   position: sticky;
   top: 0;
   width: 1px;
-  height: 100vh;
+  height: 100svh;
   background: var(--bg-tertiary-alt);
   flex-shrink: 0;
 }
@@ -148,12 +148,12 @@
   position: sticky;
   top: 0;
   width: 100%;
-  height: 100vh;
+  height: 100svh;
   z-index: 0;
   pointer-events: none;
   backdrop-filter: blur(40px) saturate(1.1);
   background: color-mix(in oklch, var(--bg-primary) 12%, transparent);
-  margin-bottom: -100vh;
+  margin-bottom: -100svh;
 }
 
 /* ── Intro card (right panel top) ── */
@@ -165,7 +165,7 @@
   align-items: center;
   text-align: center;
   width: 100%;
-  height: 100vh;
+  height: 100svh;
   padding: 0 8vw;
   gap: var(--spacing-24);
   isolation: isolate;
@@ -254,7 +254,7 @@
   display: block;
   position: relative;
   width: 100%;
-  height: 100vh;
+  height: 100svh;
   overflow: hidden;
   cursor: pointer;
   /* 이미지 없거나 깨져도 뒤 블러 영상이 비치지 않게 어두운 fallback (정상 이미지가 덮음) */

@@ -1,12 +1,12 @@
 /* ==========================================================================
    C. Grid Layout — DynamicFrameLayout 기반 bento
-   100vw × 100vh, gap 0, intro 1 + projects 6 (3×3 grid, intro 가 top row full)
+   100vw × 100svh, gap 0, intro 1 + projects 6 (3×3 grid, intro 가 top row full)
    ========================================================================== */
 
 .wrap {
   position: relative;
   width: 100vw;
-  height: 100vh;
+  height: 100svh;
   background: var(--bg-primary);
   overflow: hidden;
 }

@@ -26,7 +26,7 @@
   overflow: hidden;
   position: relative;
   width: 100%;
-  height: 100vh;
+  height: 100svh;
   background: var(--bg-primary);
 }
 
@@ -47,7 +47,7 @@
   padding: var(--_panel-py) var(--_panel-px);
   position: relative;
   width: 100vw;
-  height: 100vh;
+  height: 100svh;
   font-family: var(--font-family-code);
   font-weight: var(--font-weight-light);
   color: var(--text-primary);
@@ -56,7 +56,7 @@
 
 .breakPanel {
   flex-shrink: 0;
-  height: 100vh;
+  height: 100svh;
 }
 
 .animate {
@@ -140,7 +140,7 @@
   overflow: hidden;
   position: relative;
   width: calc(100vw - 3rem);
-  height: calc(100vh - var(--header-height) - 1.5rem - 0.75rem);
+  height: calc(100svh - var(--header-height) - 1.5rem - 0.75rem);
   border-radius: var(--radius-surface);
 }
 
@@ -505,7 +505,7 @@
 }
 
 /* 패널마다 글 덩어리를 같은 자리에 두면 14번을 지나가도 리듬이 없다.
-   세로 자리는 못 건드린다 — 패널이 100vh 고정이라 위아래로 밀면 넘치는 만큼 잘린다. */
+   세로 자리는 못 건드린다 — 패널이 100svh 고정이라 위아래로 밀면 넘치는 만큼 잘린다. */
 .panelIndent .panelInner {
   padding-left: clamp(0px, 10vw, 200px);
 }
@@ -884,7 +884,7 @@
     padding-top: var(--spacing-96);
     overflow: visible;
     height: auto;
-    min-height: 100vh;
+    min-height: 100svh;
   }
 
   .track {

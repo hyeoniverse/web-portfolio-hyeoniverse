@@ -4,7 +4,7 @@
 
 .pageWrapper {
   overflow-x: clip;
-  min-height: 100vh;
+  min-height: 100dvh;
   background: var(--bg-black);
   justify-content: center;
   align-items: center;

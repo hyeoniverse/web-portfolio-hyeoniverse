@@ -42,7 +42,7 @@ export interface PanelConfig {
 const PanelSkeleton = ({ className }: { className?: string }) => (
   <div
     className={`${styles.panel} ${className ?? styles.panelExtraWide}`}
-    style={{ minHeight: "100vh" }}
+    style={{ minHeight: "100svh" }}
   />
 );
 

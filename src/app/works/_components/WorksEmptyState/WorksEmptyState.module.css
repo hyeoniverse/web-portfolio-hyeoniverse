@@ -34,7 +34,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
+  min-height: 100dvh;
   padding: var(--spacing-128) var(--spacing-24);
   overflow: hidden;
 }
@@ -50,7 +50,7 @@
   top: 0;
   right: 0;
   left: 0;
-  height: min(100vh, 900px);
+  height: min(100dvh, 900px);
   pointer-events: none;
   mask-image: linear-gradient(to bottom, rgb(0 0 0) 55%, rgb(0 0 0 / 0%) 100%);
 }

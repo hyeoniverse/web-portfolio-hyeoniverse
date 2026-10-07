@@ -24,7 +24,7 @@ main > .content {
   flex-direction: column;
   position: relative;
   min-width: 100vw;
-  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 /* Sections with dynamic sidebar padding */
@@ -63,7 +63,7 @@ main > .content {
   padding-bottom: var(--spacing-128);
   position: relative;
   max-width: 2400px; /* 아주 넓은 화면에서 골격이 퍼지지 않게 — 이 파일에서만 쓰는 값 */
-  min-height: 100vh;
+  min-height: 100dvh;
   scroll-snap-type: y mandatory;
 }
 
@@ -76,7 +76,7 @@ main > .content {
   padding: unset;
   width: 100vw;
   max-width: unset;
-  height: calc(100vh - var(--footer-height)) !important;
+  height: calc(100dvh - var(--footer-height)) !important;
   min-height: unset;
 }
 
@@ -166,8 +166,8 @@ main > .content {
   }
 
   #modal-root #modal[data-sheet-expanded="true"] {
-    min-height: 100vh;
-    max-height: 100vh;
+    min-height: 100dvh;
+    max-height: 100dvh;
     border-radius: 0;
     border-top-color: transparent;
   }

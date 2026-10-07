@@ -7,7 +7,7 @@
   align-self: flex-start;
   flex-shrink: 0;
   width: 104px;
-  max-height: calc(100vh - 140px);
+  max-height: calc(100dvh - 140px);
   overflow-y: auto;
   overflow-x: hidden;
   display: flex;

@@ -65,7 +65,7 @@ export default function WorkTransitionOverlay({
               top: 0,
               left: 0,
               width: "100vw",
-              height: "100vh",
+              height: "100dvh",
               borderRadius: 0,
             }}
             transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}

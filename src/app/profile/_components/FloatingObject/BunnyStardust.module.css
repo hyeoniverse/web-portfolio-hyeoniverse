@@ -4,7 +4,7 @@
   position: fixed;
   inset: 0;
   width: 100vw;
-  height: 100vh;
+  height: 100svh;
   /* 몽이(캔버스)보다 뒤 — 별가루가 캐릭터를 덮으면 안 된다. */
   z-index: 0;
   pointer-events: none;
