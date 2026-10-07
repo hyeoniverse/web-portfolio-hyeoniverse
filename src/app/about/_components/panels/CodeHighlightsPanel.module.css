@@ -375,7 +375,7 @@
    Mobile overrides (1024px)
    ========================================================================== */
 
-@media (max-width: 1024px), (max-height: 700px) {
+@media (width <= 1024px), (height <= 700px) {
   /* Title row 통일 — TroubleshootingPanel 의 troublePinTitleRow 와 동일 스펙
      padding-top: nav(80) + tab(40) + spacing-2xl, margin-bottom: spacing-xl, h3 margin: 0 */
   .codePinTitleRow.codePinTitleRow.codePinTitleRow.codePinTitleRow {
@@ -475,7 +475,7 @@
 }
 
 /* ── 데스크톱: 왼쪽에 제목과 예제 목록, 오른쪽에 고른 예제의 설명·데모·코드 ── */
-@media (min-width: 1025px) and (min-height: 701px) {
+@media (width > 1024px) and (height > 700px) {
   .codeContent {
     display: grid;
     grid-template-columns: minmax(16rem, 23vw) minmax(0, 1fr);
@@ -614,7 +614,7 @@
 
 }
 
-@media (min-width: 1025px) and (min-height: 701px) and (prefers-reduced-motion: no-preference) {
+@media (width > 1024px) and (height > 700px) and (prefers-reduced-motion: no-preference) {
   /* 스크롤을 따라 — 예제 구간에 들어서면 제목 → 설명 → 코드 순으로 굴리는 만큼 떠오르고, 구간 끝에서 위로 빠진다
      (--item-in/--item-out, usePinnedScroll) */
   .codeSinglePaneActive .codeSingleMeta h4,
@@ -634,7 +634,7 @@
   }
 }
 
-@media (min-width: 1025px) and (min-height: 701px) and (prefers-reduced-motion: no-preference) {
+@media (width > 1024px) and (height > 700px) and (prefers-reduced-motion: no-preference) {
   /* 구간 내내 — 목록의 지금 예제 밑줄이 스크롤만큼 차오르고, 코드가 위에서부터 써져 내려가며(마스크),
      데모는 코드보다 느리게 위로 흐른다(--item-p, usePinnedScroll) */
   .codeIndexItem {

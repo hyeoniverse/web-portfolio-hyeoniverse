@@ -208,7 +208,7 @@
 /* ---------------------------------------------------------------------------
    Responsive
    --------------------------------------------------------------------------- */
-@media (max-width: 1024px) {
+@media (width <= 1024px) {
   .ovalPrimaryGroup {
     width: 400px;
     height: 200px;
@@ -220,7 +220,7 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .titleRow {
     gap: var(--spacing-12);
   }
@@ -260,7 +260,7 @@
   }
 }
 
-@media (max-width: 480px) {
+@media (width <= 480px) {
   .titleText,
   .titleAccent {
     font-size: var(--font-size-display-md);
@@ -268,7 +268,7 @@
 }
 
 /* Short viewport: horizontal scroll indicator at bottom-right to avoid title overlap */
-@media (max-height: 700px) {
+@media (height <= 700px) {
   .scrollIndicator {
     flex-direction: row;
     align-items: center;

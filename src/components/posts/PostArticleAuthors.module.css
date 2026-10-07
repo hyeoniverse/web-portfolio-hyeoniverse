@@ -89,7 +89,7 @@
   flex-shrink: 0;
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .authorsFooter {
     margin-top: var(--spacing-32);
   }

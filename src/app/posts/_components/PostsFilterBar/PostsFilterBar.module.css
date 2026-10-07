@@ -126,7 +126,7 @@
   border-color: var(--border-color-light) !important;
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   /* mobile 에서도 row 레이아웃 유지 + 폭 부족할 때만 wrap.
      column 으로 강제하면 CategoryNav 가 전체 너비 → Tags 버튼만 있는 row 가 또 따로 노출돼 어색. */
   .filterBarTop {
@@ -137,7 +137,7 @@
   }
 }
 
-@media (max-width: 480px) {
+@media (width <= 480px) {
   .filterBar {
     top: calc(var(--spacing-16) * 2 + var(--font-size-32));
   }

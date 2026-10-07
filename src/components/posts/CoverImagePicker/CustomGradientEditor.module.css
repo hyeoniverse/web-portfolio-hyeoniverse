@@ -485,7 +485,7 @@
   cursor: default;
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   /* CustomGradient — 모바일에선 preview + group 가로 한 row, scheme/stops 풀폭 */
   .customGradient {
     grid-template-columns: auto 1fr;

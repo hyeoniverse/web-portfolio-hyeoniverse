@@ -193,7 +193,7 @@
 }
 
 /* ── Responsive ── */
-@media (max-width: 1024px) {
+@media (width <= 1024px) {
   .meta {
     left: 5vw;
     max-width: 60vw;
@@ -226,7 +226,7 @@
   }
 }
 
-@media (max-width: 480px) {
+@media (width <= 480px) {
   .meta {
     left: var(--spacing-20);
     right: var(--spacing-20);

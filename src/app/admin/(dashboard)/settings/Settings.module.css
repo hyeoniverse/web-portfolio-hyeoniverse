@@ -161,7 +161,7 @@
   grid-column: 1 / -1;
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .fieldPair {
     grid-template-columns: 1fr;
   }
@@ -679,7 +679,7 @@
 
 /* tablet (769~1024px): sideNav 는 아래에서 가로 탭바로 바뀌고, panel 은 전체 폭을
    쓴다. 여기서는 2열 grid 만 1열로 정리한다(좁은 폭에서 잘림 방지). */
-@media (min-width: 769px) and (max-width: 1024px) {
+@media (768px < width <= 1024px) {
   .fieldPair {
     grid-template-columns: 1fr;
   }
@@ -688,7 +688,7 @@
 /* 태블릿·모바일 (≤1024px): 세로 사이드바 대신 상단 가로 스크롤 탭바.
    전체화면 드로어는 설정 섹션을 바꾸는 데 과했다 — 밑줄 탭이 가볍고 익숙하다.
    콘텐츠 하위탭은 아래 .mobileSubNav 가 별도 탭 줄로 보여준다. */
-@media (max-width: 1024px) {
+@media (width <= 1024px) {
 
   /* ── 탭바 래퍼: sticky + frost (edit 페이지 topBar 와 동일) ── */
 }
@@ -981,7 +981,7 @@ a.tagRelatedItem:hover {
   grid-template-columns: var(--grid-columns-2);
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .fieldsGrid2 {
     grid-template-columns: 1fr;
   }
@@ -1082,7 +1082,7 @@ a.tagRelatedItem:hover {
   letter-spacing: 0.02em;
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .worksCatAddRow {
     grid-template-columns: 1fr;
     gap: var(--spacing-4);

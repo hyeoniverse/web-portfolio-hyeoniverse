@@ -11,7 +11,7 @@
   filter: grayscale(0.5) contrast(1.1);
 }
 
-@media (max-width: 1024px), (max-height: 700px) {
+@media (width <= 1024px), (height <= 700px) {
   .visualBreak {
     display: none;
   }

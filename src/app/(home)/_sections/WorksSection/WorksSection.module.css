@@ -227,7 +227,7 @@
 /* ---------------------------------------------------------------------------
    Responsive
    --------------------------------------------------------------------------- */
-@media (max-width: 1024px) {
+@media (width <= 1024px) {
   .works {
     padding-right: 6vw;
     padding-left: 6vw;
@@ -252,7 +252,7 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .works {
     padding: 10vh 5vw;
   }

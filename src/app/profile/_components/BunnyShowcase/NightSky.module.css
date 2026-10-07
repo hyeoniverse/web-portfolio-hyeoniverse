@@ -291,7 +291,7 @@
 }
 
 /* 좁은 화면에서는 장식이 본문을 덮는다 — 수를 줄이고 달도 작게. */
-@media (max-width: 1024px) {
+@media (width <= 1024px) {
   .glyphLayer,
   .nearCloudLayer {
     display: none;

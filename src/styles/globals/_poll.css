@@ -743,7 +743,7 @@ body.poll-grabbing * {
   color: var(--text-accent);
   font-weight: 600;
 }
-@media (max-width: 480px) {
+@media (width <= 480px) {
   .poll-pie-wrap {
     flex-direction: column;
     align-items: stretch;

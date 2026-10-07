@@ -19,7 +19,7 @@
   gap: var(--spacing-16);
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .fieldsGrid3.fieldsGrid3 {
     grid-template-columns: 1fr;
   }
@@ -93,7 +93,7 @@
 .fitSelect > button {
   width: auto;
 }
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .sectionHintInline.sectionHintInline {
     flex-basis: 100%;
     order: 99;

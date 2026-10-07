@@ -11,7 +11,7 @@
   gap: var(--spacing-2);
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   /* 모바일 시트에선 닫기 버튼만 숨김(스와이프로 닫음), 서브 버튼은 유지 */
   .closeButton {
     display: none;
@@ -33,7 +33,7 @@
   user-select: none;
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .sheetHandle {
     display: flex;
   }
@@ -118,7 +118,7 @@
   overscroll-behavior: contain;
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .modalScroll {
     padding-bottom: var(--spacing-24);
     min-height: 20vh;

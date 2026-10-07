@@ -96,7 +96,7 @@
   display: contents;
 }
 
-@media (max-width: 1024px), (max-height: 700px) {
+@media (width <= 1024px), (height <= 700px) {
   .tabContent {
     display: flex;
     flex-direction: column;
@@ -162,7 +162,7 @@
   /* desktop: normal number styling, mobile override below */
 }
 
-@media (max-width: 1024px), (max-height: 700px) {
+@media (width <= 1024px), (height <= 700px) {
   .panelFlush {
     padding-top: 0;
     padding-bottom: 0;
@@ -193,7 +193,7 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .panel,
   .panelWide,
   .panelNarrow,
@@ -207,7 +207,7 @@
   }
 }
 
-@media (max-width: 480px) {
+@media (width <= 480px) {
   .panel,
   .panelWide,
   .panelNarrow,
@@ -220,7 +220,7 @@
 /* 흐름 — 장면 전환 동안 내용이 스크롤을 따라 움직인다(--flow-in 1 → 0 들어옴, --flow-out 0 → 1 나감).
    들어올 때는 제목·본문·나머지가 저마다 다른 거리에서 오른쪽으로부터 따라 들어와 층이 갈리고(--_d 가 클수록 멀리서),
    나갈 때는 왼쪽으로 밀려나며 흐려진다. :where 로 특이도를 0 으로 둬 패널이 자기 흐름 규칙을 쓰면 그쪽이 이긴다 */
-@media (min-width: 1025px) and (min-height: 701px) and (prefers-reduced-motion: no-preference) {
+@media (width > 1024px) and (height > 700px) and (prefers-reduced-motion: no-preference) {
   :where(.panel) > :where(:not(.pinnedContent)),
   :where(.panel) > :where(.pinnedContent) > * {
     --_d: 0;

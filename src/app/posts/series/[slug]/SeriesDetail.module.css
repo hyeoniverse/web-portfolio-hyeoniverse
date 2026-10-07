@@ -208,7 +208,7 @@
   color: var(--text-tertiary);
 }
 
-@media (max-width: 640px) {
+@media (width <= 640px) {
   .hero {
     flex-direction: column;
     gap: var(--spacing-20);

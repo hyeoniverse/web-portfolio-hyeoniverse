@@ -79,7 +79,7 @@
 }
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .header {
     gap: var(--spacing-20);
     align-items: flex-start;

@@ -60,7 +60,7 @@
 
 /* 데스크톱 장면 전환에서는 쉬어 가는 이미지 칸(35vw)을 빼 둔다 — 화면보다 좁아 컷 없이 그냥 밀려 지나가,
    Build Process → Tech Stack 전환 사이 빈틈으로 어두운 이미지 조각이 비쳤다 */
-@media (min-width: 1025px) and (min-height: 701px) {
+@media (width > 1024px) and (height > 700px) {
   .breakPanel {
     display: none;
   }
@@ -84,7 +84,7 @@
 /* ==========================================================================
    Responsive — Shared overrides
    ========================================================================== */
-@media (max-width: 1024px), (max-height: 700px) {
+@media (width <= 1024px), (height <= 700px) {
   .section {
     padding-top: var(--spacing-96);
     overflow: visible;

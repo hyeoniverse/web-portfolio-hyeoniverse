@@ -124,7 +124,7 @@ export default function ContactDrawer({
 
   useEffect(() => {
     setMounted(true);
-    const mql = window.matchMedia("(max-width: 768px)");
+    const mql = window.matchMedia("(width <= 768px)");
     setIsMobileDrawer(mql.matches);
     const handler = (e: MediaQueryListEvent) => setIsMobileDrawer(e.matches);
     mql.addEventListener("change", handler);

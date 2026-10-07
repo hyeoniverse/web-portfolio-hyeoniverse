@@ -293,7 +293,7 @@
 }
 
 /* ── 데스크톱 전시실 구도: 제목은 왼쪽 가장자리에 세로로 세우고, 다이어그램이 나머지 화면 전체를 쓴다 ── */
-@media (min-width: 1025px) and (min-height: 701px) {
+@media (width > 1024px) and (height > 700px) {
   .archPanel {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
@@ -323,7 +323,7 @@
   }
 }
 
-@media (max-width: 1024px), (max-height: 700px) {
+@media (width <= 1024px), (height <= 700px) {
   .archTitle {
     margin-bottom: var(--spacing-20);
   }
@@ -409,7 +409,7 @@
   }
 }
 
-@media (min-width: 1025px) and (min-height: 701px) and (prefers-reduced-motion: no-preference) {
+@media (width > 1024px) and (height > 700px) and (prefers-reduced-motion: no-preference) {
   /* 흐름 — 다이어그램이 멀리서 다가오듯 작게 들어와 커진다 */
   .archPanel .archMap {
     scale: calc(1 - var(--flow-in) * 0.3 + var(--flow-out) * 0.15);

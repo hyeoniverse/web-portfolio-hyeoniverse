@@ -108,7 +108,7 @@
 }
 
 /* 좁은 화면 — 크기·날짜 열을 접는다(이름·쓰는 곳·단추만) */
-@media (max-width: 640px) {
+@media (width <= 640px) {
   .row {
     grid-template-columns: 40px minmax(0, 1fr) 96px;
   }

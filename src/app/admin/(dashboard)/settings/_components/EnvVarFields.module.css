@@ -15,7 +15,7 @@
 }
 
 /* 태블릿 이하는 1열 (열이 전체폭이라 입력이 넓음) */
-@media (max-width: 992px) {
+@media (width <= 992px) {
   .envGroupCols {
     grid-template-columns: 1fr;
   }

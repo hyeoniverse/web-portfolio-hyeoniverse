@@ -219,7 +219,7 @@
   width: 100%;
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .profileGrid {
     grid-template-columns: 1fr;
   }

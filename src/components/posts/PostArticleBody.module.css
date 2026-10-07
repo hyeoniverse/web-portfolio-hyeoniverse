@@ -360,7 +360,7 @@
 .prose :global(.markdown-alert-title) { color: var(--text-accent); }
 .prose :global(.markdown-alert-title) svg { color: var(--text-accent); }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .prose {
     font-size: var(--font-size-body-md);
   }

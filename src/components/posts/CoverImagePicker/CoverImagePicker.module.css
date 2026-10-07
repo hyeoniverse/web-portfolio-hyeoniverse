@@ -840,7 +840,7 @@
   color: var(--text-accent);
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
 
   /* preset / unsplash grid — 모바일에선 3열 (이전엔 2열) */
   .presetGrid {

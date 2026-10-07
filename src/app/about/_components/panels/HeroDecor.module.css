@@ -3,7 +3,7 @@
   display: none;
 }
 
-@media (min-width: 1025px) and (min-height: 701px) {
+@media (width > 1024px) and (height > 700px) {
   .decor {
     display: block;
     position: absolute;

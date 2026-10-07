@@ -3,7 +3,7 @@
 
 /* .section 의 밑선을 지우는 modifier — 같은 (0,1,0) 이면 번들 순서에 따라 밑선이 남는다.
    클래스를 두 번 적어 (0,2,0). 아래 .logoColorPresetBtnActive 도 같다. */
-@media (min-width: 1025px) {
+@media (width > 1024px) {
   .sectionFlushDesktop.sectionFlushDesktop {
     border-bottom: none;
   }
@@ -221,7 +221,7 @@
   min-width: 0;
 }
 /* 두 컬럼 사이 세로 구분선 (넓은 뷰에서만) — 카드 대신 얇은 rule 로 분리 */
-@media (min-width: 901px) {
+@media (width > 900px) {
   .faviconPanel + .faviconPanel {
     padding-left: var(--spacing-32);
     border-left: var(--border-light);
@@ -237,7 +237,7 @@
   letter-spacing: 0.04em;
 }
 
-@media (max-width: 900px) {
+@media (width <= 900px) {
   .faviconPanels {
     grid-template-columns: 1fr;
   }
@@ -560,7 +560,7 @@
   grid-template-columns: var(--grid-columns-2);
 }
 
-@media (max-width: 640px) {
+@media (width <= 640px) {
   .brandDrops {
     grid-template-columns: 1fr;
   }
@@ -675,7 +675,7 @@
   grid-column: 1 / -1;
 }
 
-@media (max-width: 640px) {
+@media (width <= 640px) {
   .faviconShadowBody {
     flex-direction: column;
   }

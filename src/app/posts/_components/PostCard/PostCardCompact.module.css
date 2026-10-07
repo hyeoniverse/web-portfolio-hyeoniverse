@@ -150,7 +150,7 @@
 
 /* 모바일 — desktop grid([lead | meta]) 를 2×2 로 확장. lead 안 카테고리·hot·lang 숨기고 2줄로.
    1줄: 핀·썸네일·제목(col1) | 날짜(col2). 2줄: 카테고리·hot·lang(col1) | 조회·좋아요(col2, 날짜와 같은 열). */
-@media (max-width: 560px) {
+@media (width <= 560px) {
   .compactLead > .compactCat,
   .compactLead > .compactHotSlot,
   .compactLead > .compactLangSlot {

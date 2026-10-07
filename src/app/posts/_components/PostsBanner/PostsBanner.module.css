@@ -397,7 +397,7 @@
 /* ==========================================================================
    Responsive
    ========================================================================== */
-@media (max-width: 768px) {
+@media (width <= 768px) {
   /* Split → stack vertically */
   .splitSlide {
     flex-direction: column;

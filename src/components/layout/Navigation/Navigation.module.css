@@ -1518,7 +1518,7 @@
   Responsive
   ========================================================================== */
 
-@media (max-width: 1280px) {
+@media (width <= 1280px) {
   .navCenter {
     gap: var(--spacing-32);
   }
@@ -1533,13 +1533,13 @@
    콘텐츠가 로고 밑까지 밀려올 때뿐이다(로그인 시 우측 벨·로그아웃까지 붙어
    더 심하다). 그 구간에서만 로고 폭만큼 시작 여백을 줘 비켜나게 한다.
    navCenter 는 768 이하에서 사라지므로 이 예약은 769~1024 구간에만 작동한다. */
-@media (max-width: 1024px) {
+@media (width <= 1024px) {
   .navAdmin {
     --_logo-reserve: var(--size-112);
   }
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   /* navCenter 가 사라지면 .nav 의 space-between 이 단일 자식 (navActions) 을 왼쪽으로 박음 → 로고와 겹침.
      flex-end 로 강제 우측 정렬 — 로고는 fixed 로 좌측 그대로, 가운데 자연 공백, 버튼은 우측 = "로고 [space] 버튼들". */
   .nav {
@@ -1579,7 +1579,7 @@
   }
 }
 
-@media (max-width: 480px) {
+@media (width <= 480px) {
   .nav {
     padding: var(--spacing-16) var(--spacing-page-inline);
   }
