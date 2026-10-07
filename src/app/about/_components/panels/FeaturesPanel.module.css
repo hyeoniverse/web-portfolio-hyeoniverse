@@ -8,7 +8,7 @@
   margin-bottom: var(--spacing-64);
   max-width: calc(100vw - var(--_panel-px) * 2);
   min-height: clamp(200px, 32vh, 320px);
-  max-height: calc(100vh - clamp(180px, 25vh, 260px));
+  max-height: calc(100svh - clamp(180px, 25vh, 260px));
 }
 
 /* Hover overlay on each grid cell */
@@ -172,7 +172,7 @@
   .featureGrid {
     display: block;
     position: relative;
-    height: 100vh;
+    height: 100svh;
   }
 
   .featureGridPinned {
@@ -189,7 +189,7 @@
     flex-shrink: 0;
     flex-direction: column;
     position: relative;
-    height: clamp(250px, calc(100vh - 280px), 550px);
+    height: clamp(250px, calc(100svh - 280px), 550px);
     will-change: transform;
   }
 
@@ -231,7 +231,7 @@
 @media (768px <= width <= 1024px),
   (width > 768px) and (height <= 700px) {
   .featureFolderWrap {
-    height: clamp(220px, calc(100vh - 300px), 400px);
+    height: clamp(220px, calc(100svh - 300px), 400px);
     width: 75%;
     align-self: flex-start;
   }

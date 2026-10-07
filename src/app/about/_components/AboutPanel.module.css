@@ -10,7 +10,7 @@
   padding-bottom: calc(var(--spacing-32) + 2.5rem);
   position: relative;
   width: 100vw;
-  height: 100vh;
+  height: 100svh;
   font-family: var(--font-family-code);
   font-weight: var(--font-weight-light);
   color: var(--text-primary);
@@ -136,8 +136,8 @@
   }
 
   .mobilePinViewport {
-    height: 100vh;
-    min-height: 100vh;
+    height: 100svh;
+    min-height: 100svh;
   }
 
   /* nav(80) + tab(40) + 여백 = 160px — pin 콘텐츠를 헤더+탭 아래로 밀기 */

@@ -196,7 +196,7 @@ export default function WorkPreviewPage() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        minHeight: "100vh",
+        minHeight: "100dvh",
         fontFamily: "var(--font-family-body)",
         color: "var(--text-tertiary)",
       }}>

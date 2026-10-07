@@ -4,7 +4,7 @@
   justify-content: center;
   overflow: hidden;
   width: 120px;
-  height: 100vh;
+  height: 100svh;
   font: var(--font-code-sm);
   font-weight: var(--font-weight-light);
   color: var(--text-primary);
