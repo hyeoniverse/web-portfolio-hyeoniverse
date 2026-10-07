@@ -413,9 +413,14 @@
 }
 .gridFeaturedHero > div > * {
   display: grid !important;
-  grid-template-columns: 1.4fr 1fr !important;
+  grid-template-columns: 1fr !important;
   gap: clamp(var(--spacing-20), 4vw, var(--spacing-32));
   align-items: center;
+}
+@media (width > 768px) {
+  .gridFeaturedHero > div > * {
+    grid-template-columns: 1.4fr 1fr !important;
+  }
 }
 .gridFeaturedHero [class*="imageWrap"] {
   aspect-ratio: 16 / 10 !important;
@@ -431,12 +436,6 @@
 .gridFeaturedHero [class*="placeholderTitle"] {
   font-size: clamp(1.2rem, 0.977rem + 0.91vw, 1.8rem) !important;
   -webkit-line-clamp: 3 !important;
-}
-
-@media (width <= 768px) {
-  .gridFeaturedHero > div > * {
-    grid-template-columns: 1fr !important;
-  }
 }
 
 .gridItem:nth-child(1) { animation-delay: 0s; }

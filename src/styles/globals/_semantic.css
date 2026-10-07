@@ -194,12 +194,12 @@
    Page Layout — shared horizontal padding + max-width
    -------------------------------------------------------------------------- */
 :root {
-  --spacing-page-inline: 8vw;
+  --spacing-page-inline: 5vw;
   --width-page-max: 100%;
 }
-@media (width <= 768px) {
+@media (width > 768px) {
   :root {
-    --spacing-page-inline: 5vw;
+    --spacing-page-inline: 8vw;
   }
 }
 @media (width <= 480px) {
@@ -214,7 +214,7 @@
    -------------------------------------------------------------------------- */
 :root {
   /* Panel Padding */
-  --spacing-panel-block: clamp(1rem, min(4.5vh, 2.5vw), 4.5rem);
+  --spacing-panel-block: var(--m-lg);
 
   /* ── 글자 토큰 — 세 층, 층마다 이름 규칙 하나(docs/design-system.md 3.2) ─────────
    * 1층 원재료  --{속성}-{값}                 _typography.css  --font-size-13 · --line-height-160 · --font-instrument
@@ -343,13 +343,13 @@
 
   /* Details */
 }
+@media (width > 480px) {
+  :root {
+    --spacing-panel-block: clamp(1rem, min(4.5vh, 2.5vw), 4.5rem);
+  }
+}
 
 
 /* --------------------------------------------------------------------------
    Mobile — Editorial Overrides
    -------------------------------------------------------------------------- */
-@media (width <= 480px) {
-  :root {
-    --spacing-panel-block: var(--m-lg);
-  }
-}

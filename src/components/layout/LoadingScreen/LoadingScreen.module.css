@@ -10,15 +10,14 @@
   will-change: opacity;
   transition: opacity var(--duration-base) var(--ease-standard);
 }
+@media (width > 768px) {
+  .loadingScreen {
+    transition: opacity var(--duration-base) var(--ease-standard);
+  }
+}
 
 .backdrop {
   position: absolute;
   inset: 0;
   background: var(--bg-black);
-}
-
-@media (width <= 768px) {
-  .loadingScreen {
-    transition: opacity var(--duration-base) var(--ease-standard);
-  }
 }

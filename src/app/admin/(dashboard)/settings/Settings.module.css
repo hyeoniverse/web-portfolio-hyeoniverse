@@ -149,22 +149,21 @@
    minmax(0, 1fr) — 자식 (긴 input value) 따라 column grow 방지. */
 .fieldPair {
   display: grid;
-  grid-template-columns: var(--grid-columns-2);
+  grid-template-columns: 1fr;
   gap: var(--spacing-8) var(--spacing-16);
   /* .fields(align-items:flex-start) 안에서 grid 가 content 폭으로 shrink 되는 것 방지 —
      없으면 en/ko 필드가 값 길이만큼 좁아지고 우측이 크게 빈다. */
   width: 100%;
 }
+@media (width > 768px) {
+  .fieldPair {
+    grid-template-columns: var(--grid-columns-2);
+  }
+}
 
 .fieldPair > .fieldHint,
 .fieldPair > .fallbackSection {
   grid-column: 1 / -1;
-}
-
-@media (width <= 768px) {
-  .fieldPair {
-    grid-template-columns: 1fr;
-  }
 }
 
 /* ── Field Row (label / input — label 위, input 아래) ── */
@@ -989,12 +988,11 @@ a.tagRelatedItem:hover {
 .fieldsGrid2 {
   display: grid;
   gap: var(--spacing-16);
-  grid-template-columns: var(--grid-columns-2);
+  grid-template-columns: 1fr;
 }
-
-@media (width <= 768px) {
+@media (width > 768px) {
   .fieldsGrid2 {
-    grid-template-columns: 1fr;
+    grid-template-columns: var(--grid-columns-2);
   }
 }
 

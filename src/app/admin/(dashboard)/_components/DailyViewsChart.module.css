@@ -132,12 +132,11 @@
 .chartArea {
   position: relative;
   width: 100%;
-  height: 360px;
+  height: 280px;
 }
-
-@media (width <= 768px) {
+@media (width > 768px) {
   .chartArea {
-    height: 280px;
+    height: 360px;
   }
 }
 

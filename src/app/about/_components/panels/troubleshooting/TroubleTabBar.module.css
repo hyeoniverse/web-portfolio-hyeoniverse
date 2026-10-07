@@ -98,12 +98,11 @@
 
 /* PC: sidebar 가 선택 책임 → tab bar 숨김 */
 .ideTabBar {
-  display: none;
+  display: flex;
 }
-
-@media (width <= 1024px), (height <= 700px) {
-  /* PC default 의 "tab bar 숨김" override */
+@media (width > 1024px) and (height > 700px) {
   .ideTabBar {
-    display: flex;
+    display: none;
   }
 }
+  /* PC default 의 "tab bar 숨김" override */
