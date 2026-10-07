@@ -447,7 +447,7 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
           ))}
         </>
       ) : seriesList.length === 0 ? (
-        <p className={shared.sectionHint} style={{ padding: "var(--spacing-16)", textAlign: "center" }}>
+        <p className={shared.fieldHint} style={{ padding: "var(--spacing-16)", textAlign: "center" }}>
           {debouncedSearch
             ? t("admin.posts.searchNoResult")
             : t("admin.posts.seriesEmpty")}

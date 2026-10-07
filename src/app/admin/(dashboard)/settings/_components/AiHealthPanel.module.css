@@ -229,12 +229,11 @@
 /* 최근 오류 — 시각·상태 코드 한 줄, 공급자 문장, 접힌 원문.
    원문 JSON 을 통째로 먼저 보이면 정작 읽을 문장(error.message)이 괄호·따옴표 사이에 묻혀서,
    문장만 꺼내 평문으로 보이고 원문은 필요할 때 펼친다(ProviderMessage) */
+/* 최근 오류 — 위 원인 문단과 같은 시작선(따로 들이면 문단마다 글자 시작이 달라 보였다). 머리 줄(시각 · 상태 코드)이 구분을 맡는다 */
 .message {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-2);
-  padding-left: var(--spacing-12);
-  border-left: var(--border-light);
 }
 
 .messageHead {
