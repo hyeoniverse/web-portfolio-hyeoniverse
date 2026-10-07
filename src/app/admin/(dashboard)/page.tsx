@@ -200,7 +200,6 @@ export default function AdminDashboard() {
           {/* 알림 페이지의 새로고침과 같은 꼴 — outline md · 아이콘 13 · 불러오는 동안 아이콘이 돈다 */}
           <Button
             variant="outline"
-            size="md"
             onClick={fetchData}
             disabled={loading}
             icon={<RefreshCw size={13} strokeWidth={1.8} className={loading ? styles.refreshSpinning : undefined} />}
@@ -230,7 +229,6 @@ export default function AdminDashboard() {
             <Button
               href="/admin/posts/new"
               variant="ghost"
-              size="md"
               fullWidth
               icon={<Plus size={18} strokeWidth={1.6} />}
               className={styles.actionBtn}
@@ -251,7 +249,6 @@ export default function AdminDashboard() {
             <Button
               href="/admin/works/new"
               variant="ghost"
-              size="md"
               fullWidth
               icon={<Plus size={18} strokeWidth={1.6} />}
               className={styles.actionBtn}
@@ -272,7 +269,6 @@ export default function AdminDashboard() {
             <Button
               href="/admin/settings"
               variant="ghost"
-              size="md"
               fullWidth
               icon={<Settings size={18} strokeWidth={1.6} />}
               className={styles.actionBtn}
@@ -293,7 +289,6 @@ export default function AdminDashboard() {
             <Button
               href="/admin/settings?tab=account"
               variant="ghost"
-              size="md"
               fullWidth
               icon={<UserRound size={18} strokeWidth={1.6} />}
               className={styles.actionBtn}
@@ -314,7 +309,6 @@ export default function AdminDashboard() {
             <Button
               href="/admin/reports"
               variant="ghost"
-              size="md"
               fullWidth
               icon={<Flag size={18} strokeWidth={1.6} />}
               className={styles.actionBtn}
@@ -344,7 +338,6 @@ export default function AdminDashboard() {
             <Button
               href="/admin/notifications"
               variant="ghost"
-              size="md"
               fullWidth
               icon={<Bell size={18} strokeWidth={1.6} />}
               className={styles.actionBtn}

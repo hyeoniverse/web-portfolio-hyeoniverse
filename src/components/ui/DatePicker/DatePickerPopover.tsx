@@ -1,5 +1,6 @@
 "use client";
 
+import { ControlSizeScope } from "@/components/ui/controlSize";
 import { useRef, useEffect, useState, useLayoutEffect } from "react";
 import { createPortal } from "react-dom";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -110,7 +111,7 @@ export default function DatePickerPopover({
         {createPortal(
           // 항상 렌더하되 좌표 잡히기 전엔 visibility:hidden — 측정용 실체가 있어야 flip 을 페인트 전에 끝냄
           <div ref={topPopoverRef} popover="manual" className={styles.popoverPortal} style={{ top: coords?.top ?? 0, left: coords?.left ?? 0, visibility: coords ? undefined : "hidden" }}>
-            {chrome}
+            <ControlSizeScope size={null}>{chrome}</ControlSizeScope>
           </div>,
           portalContainer ?? document.body,
         )}
@@ -123,7 +124,7 @@ export default function DatePickerPopover({
       ref={popoverRef}
       className={`${styles.popover}${inline ? ` ${styles.popoverInline}` : ""}`}
     >
-      {chrome}
+      <ControlSizeScope size={null}>{chrome}</ControlSizeScope>
     </div>
   );
 }

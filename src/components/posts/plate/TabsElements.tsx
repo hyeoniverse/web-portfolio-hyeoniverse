@@ -134,11 +134,11 @@ export function TabsElement(props: PlateElementProps) {
               >
                 <div className="tabs-tools">
                   <div className="tabs-tools-main">
-                    <Button type="button" shape="circle" variant="subtle" size="md" aria-label="icon"
+                    <Button type="button" shape="circle" variant="subtle" aria-label="icon"
                       onMouseDown={(e) => { e.preventDefault(); openEmoji(); }}>
                       {panels[popup.tab]?.icon ? <EmojiIcon value={panels[popup.tab].icon as string} /> : <Smile size={16} />}
                     </Button>
-                    <Input className="tabs-tools-name" spellCheck={false} autoFocus size="md" maxLength={TAB_LABEL_MAX}
+                    <Input className="tabs-tools-name" spellCheck={false} autoFocus maxLength={TAB_LABEL_MAX}
                       value={labelOf(panels[popup.tab], popup.tab)}
                       onChange={(v) => setLabel(popup.tab, v)} />
                   </div>

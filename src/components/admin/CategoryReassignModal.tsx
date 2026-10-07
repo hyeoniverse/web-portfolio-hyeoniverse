@@ -203,7 +203,6 @@ export default function CategoryReassignModal({
                 </label>
                 <Button
                   variant="outline"
-                  size="xs"
                   onClick={handleAddCategory}
                   disabled={!newKo.trim() || !newEn.trim()}
                 >
@@ -215,7 +214,6 @@ export default function CategoryReassignModal({
                 <div className={styles.newCatGroup}>
                   <Input
                     inlineLabel="KO"
-                    size="sm"
                     value={newKo}
                     onChange={setNewKo}
                   />
@@ -223,7 +221,6 @@ export default function CategoryReassignModal({
                 <div className={styles.newCatGroup}>
                   <Input
                     inlineLabel="EN"
-                    size="sm"
                     value={newEn}
                     onChange={setNewEn}
                   />
@@ -234,7 +231,6 @@ export default function CategoryReassignModal({
                 <div className={styles.newCatGroup}>
                   <Input
                     inlineLabel="KO"
-                    size="sm"
                     value={newDescKo}
                     onChange={setNewDescKo}
                   />
@@ -242,7 +238,6 @@ export default function CategoryReassignModal({
                 <div className={styles.newCatGroup}>
                   <Input
                     inlineLabel="EN"
-                    size="sm"
                     value={newDescEn}
                     onChange={setNewDescEn}
                     onKeyDown={(e) => {
@@ -322,13 +317,12 @@ export default function CategoryReassignModal({
         {/* footer — 공통 Modal 의 footer slot 으로 portal. case 별 분기 */}
         {footerEl && createPortal(
           loading ? null : posts.length === 0 ? (
-            <Button variant="primary" size="xs" tone="danger" onClick={() => onConfirm([], addedCategories)}>
+            <Button variant="primary" tone="danger" onClick={() => onConfirm([], addedCategories)}>
               <T k="admin.settings.reassignModal.delete" />
             </Button>
           ) : (
             <Button
               variant="primary"
-              size="xs"
               onClick={handleConfirm}
               disabled={saving || !isValid()}
             >

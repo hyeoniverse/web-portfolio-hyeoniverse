@@ -121,7 +121,7 @@ export default function SeriesPanel({ seriesList, loading, busy, setBusy, onRefr
         open={open}
         onToggle={() => setOpen((v) => !v)}
         headerExtra={
-          <Button href="/admin/settings?tab=content&sub=posts" external variant="link" size="xs" className={styles.seriesNewBtn}>
+          <Button href="/admin/settings?tab=content&sub=posts" external variant="link" className={styles.seriesNewBtn}>
             <T k="admin.posts.newSeries" />
           </Button>
         }

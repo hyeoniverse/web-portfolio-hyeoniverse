@@ -343,21 +343,27 @@
   text-transform: uppercase;
 }
 
-/* AI 자동 요약의 기본 옵션 — 순서 줄 아래, 위 묶음과 선으로 가른다. 편집기 팝오버와 같은 틀(SummaryOptionsForm) */
-.summaryOptions {
+/* AI 자동 요약의 기본 옵션 · 작성 지침 — 순서 줄 아래. 좁으면 위아래 한 열, 넓으면 나란히 두 열 */
+.summaryGrid {
   align-self: stretch;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--spacing-24) var(--spacing-32);
+  align-items: start;
+}
+
+@media (width >= 1280px) {
+  .summaryGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* 한 칸 — 경계는 바깥 하위 칸(SettingsSubPanel)이 맡는다. 편집기 팝오버와 같은 틀(SummaryOptionsForm) */
+.summaryOptions {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-12);
-  max-width: 560px;
-  margin-top: var(--spacing-4);
-  padding-top: var(--spacing-12);
-  border-top: var(--border-light);
-}
-
-/* 작성 지침은 글이 길어 더 넓게 */
-.summaryOptions.summaryGuide {
-  max-width: 760px;
+  min-width: 0;
 }
 
 .summaryOptionsTitle {

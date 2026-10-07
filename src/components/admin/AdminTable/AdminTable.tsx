@@ -339,18 +339,17 @@ export default function AdminTable<T extends { id: string; published: boolean }>
         <span>{fillTemplate(t("admin.common.selectedCount"), { count: selected.size })}</span>
         {onBulkPublish && (
           <>
-            <Button variant="outline" size="xs" onClick={() => handleBulkPublish(true)}>{labels.publishedTooltip}</Button>
-            <Button variant="outline" size="xs" onClick={() => handleBulkPublish(false)}>{labels.unpublishedTooltip}</Button>
+            <Button variant="outline" onClick={() => handleBulkPublish(true)}>{labels.publishedTooltip}</Button>
+            <Button variant="outline" onClick={() => handleBulkPublish(false)}>{labels.unpublishedTooltip}</Button>
           </>
         )}
         {onBulkExport && (
-          <Button variant="outline" size="xs" onClick={() => onBulkExport([...selected])}>{labels.exportItem ?? t("admin.common.exportMd")}</Button>
+          <Button variant="outline" onClick={() => onBulkExport([...selected])}>{labels.exportItem ?? t("admin.common.exportMd")}</Button>
         )}
         {extraBulkActions?.map((a, i) => (
           <Button
             key={i}
             variant="outline"
-            size="xs"
             tone={a.danger ? "danger" : "default"}
             disabled={a.disabled}
             onClick={async () => {
@@ -362,9 +361,9 @@ export default function AdminTable<T extends { id: string; published: boolean }>
           </Button>
         ))}
         {onBulkDelete && (
-          <Button variant="outline" size="xs" tone="danger" onClick={handleBulkDelete}>{labels.delete}</Button>
+          <Button variant="outline" tone="danger" onClick={handleBulkDelete}>{labels.delete}</Button>
         )}
-        <CloseButton onClick={() => setSelected(new Set())} ariaLabel={t("admin.common.clearSelection")} size="sm" className={styles.bulkCancelBtn} />
+        <CloseButton onClick={() => setSelected(new Set())} ariaLabel={t("admin.common.clearSelection")} className={styles.bulkCancelBtn} />
         </div>
       )}
       <div className={styles.table} style={gridStyle}>
@@ -558,7 +557,6 @@ export default function AdminTable<T extends { id: string; published: boolean }>
                   <Button
                     type="button"
                     variant="outline"
-                    size="xs"
                     onClick={(e) => { e.stopPropagation(); onDenied?.(item); }}
                   >
                     {labels.edit}
@@ -567,14 +565,12 @@ export default function AdminTable<T extends { id: string; published: boolean }>
                   <Button
                     href={`${editBasePath}/${item.id}/edit`}
                     variant="outline"
-                    size="xs"
                   >
                     {labels.edit}
                   </Button>
                 )}
                 <Button
                   variant="outline"
-                  size="xs"
                   tone="danger"
                   onClick={(e) => handleDeleteClick(item, e)}
                 >

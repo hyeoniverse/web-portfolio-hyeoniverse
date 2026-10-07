@@ -47,13 +47,12 @@ export default function PostsToolbar({ query, timeline }: { query: PostsQuery; t
           <Select
             value={activeAuthor ?? ""}
             options={[{ value: "", label: language === "ko" ? "작성자 전체" : "All authors" }, ...authors.map((a) => ({ value: a.id, label: a.name }))]}
-            size="sm"
             onChange={(v) => { setActiveAuthor(v || null); setPage(1); }}
           />
         )}
         {/* sort + shuffle 한 묶음 — shuffle 은 sort 의 random 변형 (오른쪽 인접). */}
         <SegmentedControl<"date" | "popular" | "title" | "author", "score" | "views" | "comments" | "likes">
-          size="sm"
+
           variant="subtle"
           className={header.seriesSegmented}
           items={
@@ -98,7 +97,6 @@ export default function PostsToolbar({ query, timeline }: { query: PostsQuery; t
             <Button
               variant={sortBy === "random" ? "primary" : "outline"}
               shape="circle"
-              size="sm"
               icon={<Shuffle size={12} />}
               onClick={shuffle}
               aria-label={t("postsPage.sortRandom")}
@@ -115,7 +113,6 @@ export default function PostsToolbar({ query, timeline }: { query: PostsQuery; t
           <Select
             value={String(perPage)}
             options={perPageOptions(t)}
-            size="sm"
             onChange={(v) => {
               setPerPage(Number(v));
               setPage(1);

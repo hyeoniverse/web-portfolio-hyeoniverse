@@ -73,8 +73,8 @@ export default function ReaderCalendar({ calendarId, data, language }: {
   };
   const todayBtn = (
     <>
-      <Button variant="outline" size="sm" soundDisabled className={styles.ctrlBorderLight} onClick={goToday}>{language === "ko" ? "오늘" : "Today"}</Button>
-      <Switch size="lg" showStateText stateLabels={{ on: "24h", off: "12h" }} checked={timeFormat === "24h"} onCheckedChange={(v) => setTfOverride(v ? "24h" : "12h")} />
+      <Button variant="outline" soundDisabled className={styles.ctrlBorderLight} onClick={goToday}>{language === "ko" ? "오늘" : "Today"}</Button>
+      <Switch showStateText stateLabels={{ on: "24h", off: "12h" }} checked={timeFormat === "24h"} onCheckedChange={(v) => setTfOverride(v ? "24h" : "12h")} />
     </>
   );
   const viewToggle = (
@@ -88,7 +88,6 @@ export default function ReaderCalendar({ calendarId, data, language }: {
       ]}
       value={view}
       onChange={setView}
-      size="sm"
     />
   );
 

@@ -925,6 +925,7 @@
       },
       "lexicon": {
         "title": "Pronunciation dictionary",
+        "summary": "KO {{ko}} · EN {{en}}",
         "search": "Search",
         "hint": "Replaces text in scripts with how it should be read when generating TTS audio. Scripts and captions keep the original, and matches are case-sensitive. Changes save immediately; existing audio changes only when regenerated. To read one spot differently, write [ms|milliseconds] in the script — the audio says \"milliseconds\" while captions show \"ms\". Korean and English scripts have separate dictionaries; only the one for the script language is used.",
         "add": "Add",
@@ -937,14 +938,14 @@
         "empty": "No entries yet. Add text and how to read it above.",
         "from": "Text in script",
         "to": "Read as",
-        "toPlaceholder": "Read as (e.g. all true option)",
-        "toPlaceholderEn": "Read as (e.g. all equals true)",
-        "langKo": "Korean scripts",
-        "langEn": "English scripts",
+        "toPlaceholder": "e.g. all true option",
+        "toPlaceholderEn": "e.g. all equals true",
+        "langKo": "KO",
+        "langEn": "EN",
         "remove": "Remove entry",
         "noMatch": "No entries match the search.",
         "saveFailed": "Couldn’t save the pronunciation dictionary.",
-        "fromPlaceholder": "Text in script (e.g. ?all=true)",
+        "fromPlaceholder": "e.g. ?all=true",
         "update": "Replace",
         "count": "{{n}} entries",
         "confirm": "Confirm",
@@ -1980,6 +1981,7 @@
       "AI_PROVIDERS_DISABLED": "Every provider is turned off after repeated failures, so no request was sent. Fix the cause in the AI status of [Settings › Services](/admin/settings?tab=services) and turn them back on."
     },
     "aiSummaryField": {
+      "panelTitle": "Summary options · Writing guide",
       "options": {
         "siteTitle": "Default summary options",
         "siteHint": "Used for summaries generated on publish and by first-time visitors. The editor's regenerate popover also opens with these values.",
@@ -2029,6 +2031,8 @@
       "empty": "No summary yet. It is generated on publish, or you can generate it now.",
       "emptyUnsaved": "Save the post once to generate a summary.",
       "guide": {
+        "stateCustom": "Custom guide",
+        "stateDefault": "Default guide",
         "title": "Writing guide",
         "hint": "The part of the summary prompt you can edit. Block types and the output format are fixed in code and do not change here. Leave it empty to use the default guide.",
         "reset": "Reset to default",

@@ -100,7 +100,6 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
                     </Pressable>
                     {preset.removable && (
                       <CloseButton
-                        size="sm"
                         className={shared.presetCardRemove}
                         onClick={() => {
                           const next = userPresets.filter((_, i) => i !== idx - THEME_PRESETS.length);

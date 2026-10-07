@@ -456,19 +456,18 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
           <div className={styles.seriesStandaloneActions}>
             <div className={shared.publishToggle}>
               <Switch
-                size="md"
                 checked={form.published}
                 onCheckedChange={(v) => updateField("published", v)}
               />
               <span key={form.published ? "pub" : "draft"} className={shared.publishLabel}>{form.published ? ts("publishedLabel") : ts("draftLabel")}</span>
             </div>
-            <Button variant="outline" size="sm" onClick={handleRevert} disabled={!isDirty || saving} soundDisabled>
+            <Button variant="outline" onClick={handleRevert} disabled={!isDirty || saving} soundDisabled>
               <T k="admin.posts.seriesModal.revert" />
             </Button>
-            <Button variant="outline" size="sm" onClick={onCancel} soundDisabled>
+            <Button variant="outline" onClick={onCancel} soundDisabled>
               <T k="admin.posts.seriesModal.cancel" />
             </Button>
-            <Button variant="primary" size="sm" onClick={handleSave} disabled={saving} loading={saving} soundDisabled>
+            <Button variant="primary" onClick={handleSave} disabled={saving} loading={saving} soundDisabled>
               <T k="admin.posts.seriesModal.create" />
             </Button>
           </div>
@@ -509,7 +508,6 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
           <label className={shared.fieldLabel}><T k="admin.posts.seriesModal.published" /></label>
           <div className={shared.publishToggle}>
             <Switch
-              size="md"
               checked={form.published}
               onCheckedChange={(v) => updateField("published", v)}
             />
@@ -524,19 +522,18 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
             <div className={shared.seriesCoverPreview}>
               <Image src={form.cover_image} alt="" width={288} height={162} className={shared.logoPreviewImage} unoptimized />
             </div>
-            <Button variant="outline" size="md" tone="danger" onClick={() => updateField("cover_image", "")}>
+            <Button variant="outline" tone="danger" onClick={() => updateField("cover_image", "")}>
               <T k="admin.posts.seriesModal.remove" />
             </Button>
           </div>
         ) : (
           <>
             <div style={{ display: "flex", gap: "var(--spacing-8)" }}>
-              <Button variant="outline" size="md" onClick={handleImageUpload} loading={uploading}>
+              <Button variant="outline" onClick={handleImageUpload} loading={uploading}>
                 <T k="admin.posts.seriesModal.uploadCover" />
               </Button>
               <Button
                 variant="outline"
-                size="md"
                 onClick={() => {
                   if (showCoverPicker && !coverPickerClosing) closeCoverPicker();
                   else if (!showCoverPicker) setShowCoverPicker(true);
@@ -563,7 +560,6 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
             <label className={shared.fieldLabel} style={{ flexDirection: "row", gap: "4px", whiteSpace: "nowrap" }}><T k="admin.posts.seriesModal.posts" /> ({posts.length})</label>
             <Button
               variant="ghost"
-              size="xs"
               icon={addPostHint ? undefined : <Plus size={14} strokeWidth={2} />}
               onClick={openAddPost}
             >
@@ -585,7 +581,7 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
                   autoFocus
                 />
                 {addSelected.size > 0 && (
-                  <Button variant="primary" size="xs" onClick={handleAddSelected}>
+                  <Button variant="primary" onClick={handleAddSelected}>
                     {fillTemplate(t("admin.settings.seriesEditor.addSelected"), { n: addSelected.size })}
                   </Button>
                 )}
@@ -852,13 +848,13 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
       {(!isStandalone || hideStandaloneHeader) && !hideBottomActions && (
         <div className={styles.seriesCardActions}>
           <div className="spacer" />
-          <Button variant="outline" size="sm" onClick={handleRevert} disabled={!isDirty || saving}>
+          <Button variant="outline" onClick={handleRevert} disabled={!isDirty || saving}>
             <T k="admin.posts.seriesModal.revert" />
           </Button>
-          <Button variant="outline" size="sm" onClick={onCancel}>
+          <Button variant="outline" onClick={onCancel}>
             <T k="admin.posts.seriesModal.cancel" />
           </Button>
-          <Button variant="primary" size="sm" onClick={handleSave} disabled={saving} loading={saving}>
+          <Button variant="primary" onClick={handleSave} disabled={saving} loading={saving}>
             {isEdit ? <T k="admin.posts.seriesModal.save" /> : <T k="admin.posts.seriesModal.create" />}
           </Button>
         </div>

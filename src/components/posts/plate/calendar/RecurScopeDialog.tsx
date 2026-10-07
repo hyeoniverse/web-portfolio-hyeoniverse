@@ -30,8 +30,8 @@ export default function RecurScopeDialog({
             "Changing only this event detaches it from the series as a standalone event. Continue?")}
         </p>
         <div className={styles.scopeDialogFooter}>
-          <Button size="sm" variant="ghost" onClick={() => setStep("select")}>{t("뒤로", "Back")}</Button>
-          <Button size="sm" onClick={() => onConfirm("this")}>{t("확인", "Confirm")}</Button>
+          <Button variant="ghost" onClick={() => setStep("select")}>{t("뒤로", "Back")}</Button>
+          <Button onClick={() => onConfirm("this")}>{t("확인", "Confirm")}</Button>
         </div>
       </div>
     );
@@ -50,8 +50,8 @@ export default function RecurScopeDialog({
         ]}
       />
       <div className={styles.scopeDialogFooter}>
-        <Button size="sm" variant="ghost" onClick={onCancel}>{t("취소", "Cancel")}</Button>
-        <Button size="sm" onClick={() => (scope === "this" ? setStep("warn") : onConfirm("all"))}>{t("확인", "Confirm")}</Button>
+        <Button variant="ghost" onClick={onCancel}>{t("취소", "Cancel")}</Button>
+        <Button onClick={() => (scope === "this" ? setStep("warn") : onConfirm("all"))}>{t("확인", "Confirm")}</Button>
       </div>
     </div>
   );

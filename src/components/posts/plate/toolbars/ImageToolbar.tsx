@@ -202,7 +202,6 @@ export default React.memo(function ImageToolbar({
                 value={(selectedImage.filter as string) || ""}
                 options={IMG_FILTERS.map((f) => ({ value: f.value, label: t(f.labelKey) }))}
                 onChange={(v) => { setImageAttr("filter", v); setTimeout(() => editor.tf.focus(), 0); }}
-                size="sm"
                 width="max"
                 preserveFocus
               />

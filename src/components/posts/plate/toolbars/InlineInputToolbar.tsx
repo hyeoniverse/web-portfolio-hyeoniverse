@@ -46,7 +46,6 @@ export default React.memo(function InlineInputToolbar({
       <div data-inline-input style={{ display: "contents" }} onMouseDown={(e) => e.stopPropagation()}>
         <Input
           inputRef={ref}
-          size="sm"
           clearable={false}
           className={styles.linkUrlField}
           type={inputType}

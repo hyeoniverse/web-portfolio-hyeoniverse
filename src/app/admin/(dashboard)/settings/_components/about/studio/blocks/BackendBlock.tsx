@@ -40,10 +40,10 @@ export function BackendBlock({ value, onChange, lang, t, title }: {
         <PanelStage>
           <div key={cur} className={css.bkStage}>
             <div className={css.chTools}>
-              <SegmentedControl<"api" | "table"> size="sm" value={it.kind}
+              <SegmentedControl<"api" | "table"> value={it.kind}
                 onChange={(v) => set({ kind: v })}
                 items={[{ value: "api", label: "API" }, { value: "table", label: "TABLE" }]} />
-              <Button variant="subtle" shape="circle" size="xs" onClick={list.remove} aria-label={L("삭제", "Remove")}>
+              <Button variant="subtle" shape="circle" onClick={list.remove} aria-label={L("삭제", "Remove")}>
                 <X size={14} />
               </Button>
             </div>
@@ -106,7 +106,7 @@ export function BackendBlock({ value, onChange, lang, t, title }: {
                         )}</SortableItem>
                       ))}
                     </SortableList>
-                    <Button variant="subtle" size="xs" icon={<Plus size={13} />}
+                    <Button variant="subtle" icon={<Plus size={13} />}
                       onClick={() => setEndpoints([...endpoints, { method: "GET", path: "", description: { ko: "", en: "" } }])}>
                       {L("엔드포인트 추가", "Add endpoint")}
                     </Button>
@@ -138,7 +138,7 @@ export function BackendBlock({ value, onChange, lang, t, title }: {
                         )}</SortableItem>
                       ))}
                     </SortableList>
-                    <Button variant="subtle" size="xs" icon={<Plus size={13} />}
+                    <Button variant="subtle" icon={<Plus size={13} />}
                       onClick={() => setColumns([...columns, { name: "", type: "", description: { ko: "", en: "" } }])}>
                       {L("컬럼 추가", "Add column")}
                     </Button>

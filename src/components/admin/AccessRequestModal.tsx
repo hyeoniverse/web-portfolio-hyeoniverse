@@ -95,11 +95,11 @@ export default function AccessRequestModal({
         {footerEl && createPortal(
           <>
             {!ok && (
-              <Button variant="ghost" size="sm" onClick={() => setPhase("idle")}>
+              <Button variant="ghost" onClick={() => setPhase("idle")}>
                 {L("다시 시도", "Try again")}
               </Button>
             )}
-            <Button variant="primary" size="sm" onClick={() => closeModal()}>
+            <Button variant="primary" onClick={() => closeModal()}>
               {t("admin.common.confirm")}
             </Button>
           </>,
@@ -127,10 +127,10 @@ export default function AccessRequestModal({
 
       {footerEl && createPortal(
         <>
-          <Button variant="ghost" size="sm" onClick={() => closeModal()}>
+          <Button variant="ghost" onClick={() => closeModal()}>
             {L("닫기", "Close")}
           </Button>
-          <Button variant="primary" size="sm" onClick={request} disabled={phase === "sending"} loading={phase === "sending"}>
+          <Button variant="primary" onClick={request} disabled={phase === "sending"} loading={phase === "sending"}>
             {L("권한 요청", "Request access")}
           </Button>
         </>,

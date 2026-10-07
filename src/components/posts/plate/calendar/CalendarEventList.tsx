@@ -115,7 +115,7 @@ export default function CalendarEventList({
         <span className={styles.evSidebarActions}>
           <Tooltip content={sortDir === "desc" ? t("최신순", "Newest first") : t("오래된순", "Oldest first")} placement="top">
             <Button
-              variant="ghost" shape="circle" size="sm" soundDisabled
+              variant="ghost" shape="circle" soundDisabled
               onClick={() => setSortDir((d) => (d === "desc" ? "asc" : "desc"))}
               aria-label={t("정렬 전환", "Toggle sort")}
               icon={sortDir === "desc" ? <ArrowDownWideNarrow size={15} /> : <ArrowUpNarrowWide size={15} />}
@@ -123,7 +123,7 @@ export default function CalendarEventList({
           </Tooltip>
           <Tooltip content={t("목록 닫기", "Close list")} placement="top">
             <Button
-              variant="ghost" shape="circle" size="sm" soundDisabled
+              variant="ghost" shape="circle" soundDisabled
               onClick={onClose}
               aria-label={t("목록 닫기", "Close list")}
               icon={<PanelLeftClose size={15} />}
@@ -140,7 +140,6 @@ export default function CalendarEventList({
           items={chips.map((c) => ({ value: c.key, label: c.label }))}
           value={filter}
           onChange={setFilter}
-          size="sm"
         />
         <Popover
           className={styles.evFiltersHelp}
@@ -149,7 +148,7 @@ export default function CalendarEventList({
           trigger={
             <Tooltip content={t("도움말", "Help")} placement="top">
               {/* 사이트 전역 도움말 규격(공통 HelpButton — subtle circle "?") */}
-              <HelpButton size="sm" soundDisabled aria-label={t("도움말", "Help")} />
+              <HelpButton soundDisabled aria-label={t("도움말", "Help")} />
             </Tooltip>
           }
         >

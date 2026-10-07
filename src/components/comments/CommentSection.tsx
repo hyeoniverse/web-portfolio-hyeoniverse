@@ -263,7 +263,6 @@ export default function CommentSection({ commentType, targetId, translationEnabl
             /* subtle = border light (outline 은 border strong) — 역순 토글과 동일 이유 */
             <Button
               variant="subtle"
-              size="xs"
               shape="capsule"
               onClick={() => { setSelectMode(!selectMode); setSelected(new Set()); }}
             >
@@ -300,7 +299,6 @@ export default function CommentSection({ commentType, targetId, translationEnabl
                     <Button
                       variant="outline"
                       tone="danger"
-                      size="xs"
                       shape="capsule"
                       loading={bulkDeleting}
                       loadingVariant="wave"
@@ -344,7 +342,6 @@ export default function CommentSection({ commentType, targetId, translationEnabl
         <div className={styles.loadMoreRow}>
           <Button
             variant="outline"
-            size="sm"
             shape="capsule"
             onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
           >

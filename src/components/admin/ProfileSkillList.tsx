@@ -61,7 +61,7 @@ export default function SkillList({
         </SortableContext>
       </DndContext>
       <div style={{ marginTop: "var(--spacing-8)" }}>
-        <Button variant="outline" size="xs" fullWidth onClick={() => addSkill(gi)}>
+        <Button variant="outline" fullWidth onClick={() => addSkill(gi)}>
           <T k="admin.settings.profile.addSkill" />
         </Button>
       </div>

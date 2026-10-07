@@ -207,7 +207,7 @@ export default function CommentsModerationPage() {
             placeholder={t("admin.comments.searchPlaceholder")}
             onSearchOptionsChange={(opts) => setSyntaxMode(opts.syntaxMode)}
           />
-          <Button type="submit" variant="ghost" size="sm">
+          <Button type="submit" variant="ghost">
             <T k="admin.comments.search" />
           </Button>
         </form>
@@ -217,7 +217,7 @@ export default function CommentsModerationPage() {
       {selected.size > 0 && (
         <div className={styles.bulkBar}>
           <span>{t("admin.comments.selectedCount").replace("{{count}}", String(selected.size))}</span>
-          <Button variant="outline" size="xs" tone="danger" onClick={handleBulkDelete}>
+          <Button variant="outline" tone="danger" onClick={handleBulkDelete}>
             <T k="admin.posts.delete" />
           </Button>
           <Pressable className={styles.bulkCancelBtn} onClick={() => setSelected(new Set())} aria-label={t("admin.common.clearSelection")}>✕</Pressable>
@@ -310,11 +310,11 @@ export default function CommentsModerationPage() {
       {/* ── Pagination ── */}
       {totalPages > 1 && (
         <div className={styles.pagination}>
-          <Button variant="ghost" size="sm" disabled={page === 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>
+          <Button variant="ghost" disabled={page === 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>
             ←
           </Button>
           <span className={styles.pageInfo}>{page} / {totalPages}</span>
-          <Button variant="ghost" size="sm" disabled={page >= totalPages} onClick={() => setPage((p) => Math.min(totalPages, p + 1))}>
+          <Button variant="ghost" disabled={page >= totalPages} onClick={() => setPage((p) => Math.min(totalPages, p + 1))}>
             →
           </Button>
         </div>

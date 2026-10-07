@@ -1,0 +1,77 @@
+/* ── 기능 블록 안의 접히는 하위 칸 ──
+   옅은 바탕의 둥근 면 하나로 묶어 "이 블록에 딸린 칸"임을 보인다(가로선은 다음 항목처럼, 세로 안내선은 어수선하게 읽혔다).
+   면 안의 조작(입력 · 셀렉트 · 글상자 · 세그먼트 · 검색)은 페이지 바탕색(--bg-primary)으로 띄운다 —
+   투명한 테두리 칸만 회색 면 위에 있으니 전체가 칙칙했다 */
+.panel {
+  --subpanel-field-bg: var(--bg-primary);
+  --subpanel-field-hover-bg: var(--bg-tertiary);
+
+  align-self: stretch;
+  margin-top: var(--spacing-8);
+  padding: 0 var(--spacing-16);
+  border-radius: var(--radius-surface);
+  background: var(--bg-secondary);
+}
+
+/* 공용 컨트롤은 components 층이라 여기(층 밖) 규칙이 이긴다. 역할 속성으로 집어 해시 클래스 이름에 기대지 않는다 */
+.panel :global(textarea),
+.panel [role="textbox"],
+.panel [aria-haspopup="listbox"],
+.panel [role="combobox"],
+.panel [role="tablist"] {
+  background: var(--subpanel-field-bg);
+}
+
+/* 머리 — › 이름 · 지금 값 한 줄 */
+.head {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  width: 100%;
+  min-height: var(--control-height-md);
+  padding: var(--spacing-8) 0;
+  border: none;
+  background: transparent;
+  text-align: left;
+}
+
+.chevron {
+  flex-shrink: 0;
+  color: var(--text-tertiary);
+  transition: transform var(--duration-fast) var(--ease-standard);
+}
+
+.panel[data-open] .chevron {
+  transform: rotate(90deg);
+}
+
+.title {
+  flex-shrink: 0;
+  font: var(--font-body-sm);
+  color: var(--text-primary);
+}
+
+.summary {
+  min-width: 0;
+  overflow: hidden;
+  font: var(--font-body-sm);
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.head:hover .title {
+  color: var(--text-accent);
+}
+
+/* 펼치고 접는 틀 — 높이를 움직이는 동안 안쪽을 자른다 */
+.collapse {
+  overflow: hidden;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  padding: var(--spacing-4) 0 var(--spacing-16);
+}

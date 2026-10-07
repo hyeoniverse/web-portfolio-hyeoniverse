@@ -282,7 +282,6 @@ export default function CommentMarkdownToolbar({ containerRef, content, onChange
               <Button
                 variant="ghost"
                 shape="circle"
-                size="sm"
                 icon={it.icon}
                 // 에디터 포커스/선택 유지 — 클릭 전에 blur 되지 않게
                 onMouseDown={(e) => e.preventDefault()}
@@ -301,7 +300,6 @@ export default function CommentMarkdownToolbar({ containerRef, content, onChange
             <Button
               variant="ghost"
               shape="circle"
-              size="sm"
               icon={<Smile size={14} />}
               onMouseDown={(e) => { e.preventDefault(); saveSelection(); }}
               onClick={() => setEmojiOpen((o) => !o)}
@@ -332,7 +330,6 @@ export default function CommentMarkdownToolbar({ containerRef, content, onChange
                 <Button
                   variant="ghost"
                   shape="circle"
-                  size="sm"
                   icon={<Palette size={14} />}
                   onMouseDown={(e) => { e.preventDefault(); saveSelection(); }}
                   onClick={toggle}

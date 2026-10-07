@@ -129,7 +129,7 @@
 
 /* 줄마다 위아래 숨통 — 밑줄이 바로 다음 글자에 닿으면 표가 아니라 격자로 보인다 */
 .line input {
-  height: var(--control-height-md);
+  height: var(--control-height-sm);
 }
 
 /* 항목은 값보다 한 톤 낮게 — 읽는 것은 값이고 항목은 그 이름표다.

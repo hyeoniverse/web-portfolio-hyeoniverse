@@ -348,7 +348,7 @@ export default function WorkGallery({ images, title, initialIndex = 0, onOpen, n
               <Play size={30} fill="currentColor" strokeWidth={0} className={styles.coverPlayIcon} />
             </Pressable>
             <span className={styles.coverLabel} aria-hidden>{t("음성과 함께 보기", "Play with narration")}</span>
-            <Button variant="outline" size="sm" shape="capsule" onClick={narration.decline} className={styles.coverSkip}>
+            <Button variant="outline" shape="capsule" onClick={narration.decline} className={styles.coverSkip}>
               {t("음성 없이 보기", "View without narration")}
             </Button>
           </div>
@@ -364,7 +364,6 @@ export default function WorkGallery({ images, title, initialIndex = 0, onOpen, n
               <Button
                 variant="ghost"
                 shape="circle"
-                size="sm"
                 className={styles.narrationToggle}
                 data-state={narrationState}
               data-narration-toggle=""
@@ -378,7 +377,6 @@ export default function WorkGallery({ images, title, initialIndex = 0, onOpen, n
               <Button
                 variant="ghost"
                 shape="circle"
-                size="sm"
                 className={styles.captionToggle}
                 data-state={narration.captionsOn ? "on" : "off"}
                 icon={narration.captionsOn ? <Captions size={16} /> : <CaptionsOff size={16} />}

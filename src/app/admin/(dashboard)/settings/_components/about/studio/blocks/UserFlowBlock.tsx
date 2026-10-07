@@ -33,7 +33,7 @@ export function UserFlowBlock({ value, onChange, lang, t, title }: {
         <PanelStage>
           <div key={cur} className={css.ufStage}>
             <div className={css.chTools}>
-              <Button variant="subtle" shape="circle" size="xs" onClick={list.remove} aria-label={L("삭제", "Remove")}>
+              <Button variant="subtle" shape="circle" onClick={list.remove} aria-label={L("삭제", "Remove")}>
                 <X size={14} />
               </Button>
             </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { ControlSizeScope } from "@/components/ui/controlSize";
 import {
   useCallback,
   useEffect,
@@ -1105,7 +1106,7 @@ export default function ColorPicker({
               transition={{ duration: 0.24, ease: [0.4, 0, 0.2, 1] }}
               onPointerDown={(e) => e.stopPropagation()}
             >
-              {panelContent}
+              <ControlSizeScope size={null}>{panelContent}</ControlSizeScope>
             </motion.div>
           )}
         </AnimatePresence>
@@ -1147,7 +1148,7 @@ export default function ColorPicker({
                   <h3 className={styles.sheetTitle}>Pick color</h3>
                 </>
               )}
-              {panelContent}
+              <ControlSizeScope size={null}>{panelContent}</ControlSizeScope>
             </motion.div>
           )}
         </AnimatePresence>,

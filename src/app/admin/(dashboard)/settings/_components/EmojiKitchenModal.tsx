@@ -206,9 +206,9 @@ export default function EmojiKitchenModal({ onAdded }: { onAdded: (row: KitchenE
         <div className={styles.foot}>
           {/* 라벨 · 입력 · 단추를 한 줄에 — 입력과 단추는 같은 높이(md, 32px) */}
           <label className={styles.nameLabel} htmlFor={nameId}>{t("이모지 이름", "Emoji name")}</label>
-          <Input id={nameId} value={picked ? name : ""} onChange={setName} size="md" disabled={!picked} className={styles.nameInput}
+          <Input id={nameId} value={picked ? name : ""} onChange={setName} disabled={!picked} className={styles.nameInput}
             placeholder={picked ? t("이모지 이름", "Emoji name") : t("두 이모지를 고르면 이름을 정할 수 있어요", "Pick two emojis to name it")} />
-          <Button variant="primary" size="md" loading={saving} disabled={!picked} onClick={() => void add()}>{t("추가", "Add")}</Button>
+          <Button variant="primary" loading={saving} disabled={!picked} onClick={() => void add()}>{t("추가", "Add")}</Button>
         </div>,
         footerEl,
       )}

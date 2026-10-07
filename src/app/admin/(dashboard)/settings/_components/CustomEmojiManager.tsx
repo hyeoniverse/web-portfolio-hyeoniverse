@@ -111,10 +111,10 @@ export default function CustomEmojiManager() {
           )}
           search={{ value: search, onChange: (v) => { setSearch(v); paged.setPage(1); }, placeholder: t("이름 검색", "Search name") }}
           actions={<>
-            <Button variant="outline" size="md" icon={<Blend size={14} />} onClick={openKitchen}>
+            <Button variant="outline" icon={<Blend size={14} />} onClick={openKitchen}>
               {t("조합", "Mix")}
             </Button>
-            <Button variant="outline" size="md" icon={<Plus size={14} />} loading={uploading} onClick={() => fileRef.current?.click()}>
+            <Button variant="outline" icon={<Plus size={14} />} loading={uploading} onClick={() => fileRef.current?.click()}>
               {t("추가", "Add")}
             </Button>
             <input
@@ -141,7 +141,6 @@ export default function CustomEmojiManager() {
                   {/* eslint-disable-next-line @next/next/no-img-element -- 사용자가 올린 작은 이모지 이미지, 최적화 대상이 아니다 */}
                   <img src={e.src} alt={e.name} className={styles.img} loading="lazy" />
                   <CloseButton
-                    size="xs"
                     className={styles.remove}
                     onClick={() => void remove(e)}
                     ariaLabel={t(`${e.name || "이모지"} 지우기`, `Remove ${e.name || "emoji"}`)}
@@ -153,7 +152,7 @@ export default function CustomEmojiManager() {
           </div>
         )}
         {paged.totalPages > 1 && (
-          <Pagination className={lib.pager} page={paged.page} totalPages={paged.totalPages} onChange={paged.setPage} size="sm" showJump={false} />
+          <Pagination className={lib.pager} page={paged.page} totalPages={paged.totalPages} onChange={paged.setPage} showJump={false} />
         )}
       </div>
     </section>

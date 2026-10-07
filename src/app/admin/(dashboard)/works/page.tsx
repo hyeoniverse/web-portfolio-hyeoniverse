@@ -869,7 +869,7 @@ export default function AdminWorksPage() {
       headerExtra={
         <>
           <input ref={mdInputRef} type="file" accept=".md" multiple hidden onChange={handleMdUpload} />
-          <HelpButton size="sm"
+          <HelpButton
             title={t("admin.works.uploadGuide")}
             aria-label={t("admin.works.uploadGuide")}
             onClick={() => {
@@ -883,7 +883,6 @@ export default function AdminWorksPage() {
             {/* 저장소 불러오기 — 들일 게 없을 때도 눌러 볼 수 있어야 한다(새 저장소가 생겼는지 여기서 본다) */}
             <Button
               variant="outline"
-              size="xs"
               title={t("admin.works.githubHint")}
               onClick={handleRepoImportAll}
               disabled={ghImporting}
@@ -894,10 +893,10 @@ export default function AdminWorksPage() {
               {/* 아직 안 들인 저장소가 있으면 개수를 붙인다 — 열어 보기 전에 새 게 있는지 알 수 있게 */}
               {pendingRepos > 0 ? ` (${pendingRepos})` : ""}
             </Button>
-            <Button variant="outline" size="xs" title={t("admin.works.uploadMd")} onClick={() => mdInputRef.current?.click()} disabled={uploading} soundDisabled icon={<Upload size={14} />}>
+            <Button variant="outline" title={t("admin.works.uploadMd")} onClick={() => mdInputRef.current?.click()} disabled={uploading} soundDisabled icon={<Upload size={14} />}>
               {uploading ? "..." : t("admin.works.uploadMd")}
             </Button>
-            <Button variant="primary" size="xs" title={t("admin.works.newWork")} href="/admin/works/new" soundDisabled icon={<Plus size={14} strokeWidth={1.5} />}>
+            <Button variant="primary" title={t("admin.works.newWork")} href="/admin/works/new" soundDisabled icon={<Plus size={14} strokeWidth={1.5} />}>
               {t("admin.works.newWork")}
             </Button>
           </ButtonGroup>
@@ -1088,7 +1087,7 @@ export default function AdminWorksPage() {
         rowDisabled={(w: Work) => !canEdit(w)}
         onDenied={(w: Work) => openDeniedModal([w])}
         footerExtra={
-          <Button variant="ghost" size="xs" title={t("admin.works.exportMdAll")} onClick={handleExportAll} disabled={exporting} soundDisabled icon={<Download size={14} />}>
+          <Button variant="ghost" title={t("admin.works.exportMdAll")} onClick={handleExportAll} disabled={exporting} soundDisabled icon={<Download size={14} />}>
             {exporting ? "..." : t("admin.works.exportMdAll")}
           </Button>
         }

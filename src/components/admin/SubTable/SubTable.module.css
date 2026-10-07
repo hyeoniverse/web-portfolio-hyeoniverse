@@ -88,7 +88,11 @@
   margin-bottom: var(--spacing-8);
 }
 
+/* 높이는 컨트롤 기본(sm) — 옆 일괄 단추와 같은 줄 높이 */
 .bulkCancel {
+  display: inline-flex;
+  align-items: center;
+  height: var(--control-height-sm);
   margin-left: auto;
   border: none;
   background: transparent;

@@ -73,7 +73,6 @@ const CTASection = forwardRef<HTMLElement, CTASectionProps>(
               <Tooltip content={combinedTooltip(t("tooltip.contact"), cfg.cta.buttonText_ko, cfg.cta.buttonText)} placement="bottom" wrapperStyle={{ display: "block" }}>
                 <Button
                   variant="outline"
-                  size="xl"
                   className={styles.ctaBtn}
                   onClick={onContactClick}
                   soundDisabled
@@ -103,7 +102,6 @@ const CTASection = forwardRef<HTMLElement, CTASectionProps>(
                 <Tooltip content={combinedTooltip(t("tooltip.resume"), cfg.cta.resumeButtonText_ko, cfg.cta.resumeButtonText)} placement="bottom" wrapperStyle={{ display: "block" }}>
                   <Button
                     variant="outline"
-                    size="xl"
                     className={styles.resumeBtn}
                     href={resumeUrl}
                     external

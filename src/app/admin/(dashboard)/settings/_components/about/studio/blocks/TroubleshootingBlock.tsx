@@ -49,15 +49,15 @@ export function TroubleshootingBlock({ value, onChange, lang, title }: {
         <PanelStage>
           <div key={cur} className={css.tsStage}>
             <div className={css.chTools}>
-              <SegmentedControl<"1" | "2" | "3"> size="sm" value={String(it.difficulty ?? 2) as "1" | "2" | "3"}
+              <SegmentedControl<"1" | "2" | "3"> value={String(it.difficulty ?? 2) as "1" | "2" | "3"}
                 onChange={(v) => set({ difficulty: Number(v) as TroubleShootingItem["difficulty"] })}
                 items={[{ value: "1", label: "L1" }, { value: "2", label: "L2" }, { value: "3", label: "L3" }]} />
-              <Button variant={it.recommended ? "primary" : "subtle"} size="sm"
+              <Button variant={it.recommended ? "primary" : "subtle"}
                 onClick={() => set({ recommended: !it.recommended })}
                 aria-pressed={!!it.recommended}>
                 {L("추천", "Featured")}
               </Button>
-              <Button variant="subtle" shape="circle" size="xs" onClick={list.remove} aria-label={L("삭제", "Remove")}>
+              <Button variant="subtle" shape="circle" onClick={list.remove} aria-label={L("삭제", "Remove")}>
                 <X size={14} />
               </Button>
             </div>

@@ -96,7 +96,6 @@ export default function CategoriesIndexClient({ categories }: Props) {
             onSearchChange={setSearch}
             placeholder={t("postsPage.categorySearch")}
             align="left"
-            size="sm"
             className={page.searchBar}
             routeParam="q"
           />

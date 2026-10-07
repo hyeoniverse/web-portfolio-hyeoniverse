@@ -1,5 +1,6 @@
 "use client";
 
+import { useScopedSize } from "@/components/ui/controlSize";
 import { forwardRef, type ReactNode, type MouseEvent } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -60,7 +61,7 @@ const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>(
     {
       variant = "primary",
       shape = "capsule",
-      size = "md",
+      size: sizeProp = "sm",
       tone = "default",
       fullWidth,
       disabled,
@@ -76,6 +77,8 @@ const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>(
     },
     ref,
   ) => {
+    /* 컨트롤 높이 범위(설정 페이지 등) 안이면 sm — 넘긴 size 보다 범위가 이긴다(ui/controlSize) */
+    const size = useScopedSize(sizeProp);
     const { playSound } = useSoundManager();
 
     const isDisabled = disabled || loading;

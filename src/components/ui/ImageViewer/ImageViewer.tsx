@@ -1,5 +1,6 @@
 "use client";
 
+import { ControlSizeScope } from "@/components/ui/controlSize";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSyncRef } from "@/hooks/useSyncRef";
 import { useDepsChanged } from "@/hooks/useDepsChanged";
@@ -481,6 +482,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
 
 
   return createPortal(
+    <ControlSizeScope size={null}>
     <AnimatePresence>
       {open && (
         <dialog
@@ -1086,7 +1088,8 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
         </motion.div>
         </dialog>
       )}
-    </AnimatePresence>,
+    </AnimatePresence>
+    </ControlSizeScope>,
     document.body,
   );
 }

@@ -34,12 +34,11 @@ export default function TrashPreviewBar({
       className={`${styles.bar} ${placement === "block" ? styles.block : ""}`}
     >
       <span className={styles.notice}>{notice}</span>
-      <Button variant="ghost" size="sm" disabled={busy} onClick={onRestore}>
+      <Button variant="ghost" disabled={busy} onClick={onRestore}>
         {restoreLabel}
       </Button>
       <Button
         variant="ghost"
-        size="sm"
         tone="danger"
         disabled={busy}
         onClick={onPurge}

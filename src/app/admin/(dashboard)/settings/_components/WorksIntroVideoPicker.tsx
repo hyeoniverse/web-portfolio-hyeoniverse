@@ -150,7 +150,6 @@ export default function WorksIntroVideoPicker({ value, onChange }: Props) {
         />
         <Button
           variant="outline"
-          size="md"
           icon={<Upload size={14} strokeWidth={2} />}
           onClick={() => fileInputRef.current?.click()}
           loading={uploading}
@@ -159,7 +158,6 @@ export default function WorksIntroVideoPicker({ value, onChange }: Props) {
         </Button>
         <Button
           variant="outline"
-          size="md"
           icon={<ImagePlus size={14} strokeWidth={2} />}
           onClick={() => {
             if (showPicker && !pickerClosing) closePicker();

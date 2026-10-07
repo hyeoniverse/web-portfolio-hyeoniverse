@@ -96,7 +96,7 @@ export function CodeHighlightsBlock({ value, onChange, lang, t, title }: {
           {/* key = 스니펫별 remount — 같은 input 을 재사용하면 autoFocus 가 안 걸린다 */}
           <div key={cur} className={css.chStage}>
             <div className={css.chTools}>
-              <Button variant="subtle" shape="circle" size="xs" onClick={list.remove} aria-label={L("삭제", "Remove")}>
+              <Button variant="subtle" shape="circle" onClick={list.remove} aria-label={L("삭제", "Remove")}>
                 <X size={14} />
               </Button>
             </div>
@@ -138,7 +138,7 @@ export function CodeHighlightsBlock({ value, onChange, lang, t, title }: {
                   {hasDemo ? (
                     /* 채워진 뒤엔 데모를 가리지 않게 좌상단에서 hover 로만 */
                     <div className={css.demoEdit}>
-                      <SegmentedControl size="sm" value={it.demoMode ?? "sandbox"}
+                      <SegmentedControl value={it.demoMode ?? "sandbox"}
                         onChange={(v) => setDemoMode(v as CodeDemoMode)}
                         items={[
                           { value: "media", label: L("미디어", "Media") },
@@ -154,7 +154,7 @@ export function CodeHighlightsBlock({ value, onChange, lang, t, title }: {
                         )}
                       </ColorPicker>
                       {it.demoBg && (
-                        <Button variant="subtle" shape="circle" size="xs" onClick={() => set({ demoBg: undefined })}
+                        <Button variant="subtle" shape="circle" onClick={() => set({ demoBg: undefined })}
                           aria-label={L("배경색 지우기", "Clear background")}>
                           <X size={11} />
                         </Button>
@@ -162,7 +162,7 @@ export function CodeHighlightsBlock({ value, onChange, lang, t, title }: {
                       {it.demoMode === "media"
                         ? <DemoMediaUpload url={it.demoMedia} onChange={(u) => set({ demoMedia: u })} />
                         : <Popover placement="top-start" trigger={
-                            <Button variant="subtle" size="sm" icon={<Code2 size={15} />}>
+                            <Button variant="subtle" icon={<Code2 size={15} />}>
                               {L("코드 편집", "Edit code")}
                             </Button>
                           }>
@@ -189,11 +189,11 @@ export function CodeHighlightsBlock({ value, onChange, lang, t, title }: {
                         <>
                           <span className={css.demoEmptyLabel}>{L("데모 추가", "Add a demo")}</span>
                           <div className={css.demoEmptyActions}>
-                            <Button variant="outline" size="sm" icon={<ImageIcon size={16} />}
+                            <Button variant="outline" icon={<ImageIcon size={16} />}
                               onClick={() => setDemoMode("media")}>
                               {L("미디어 업로드", "Upload media")}
                             </Button>
-                            <Button variant="outline" size="sm" icon={<Code2 size={16} />}
+                            <Button variant="outline" icon={<Code2 size={16} />}
                               onClick={() => setDemoMode("sandbox")}>
                               {L("코드", "Code")}
                             </Button>
@@ -262,7 +262,7 @@ function DemoMediaUpload({ url, onChange }: {
           if (f) void upload(f);
           e.target.value = "";
         }} />
-      <Button variant="subtle" size="xs" icon={<ImageIcon size={14} />} disabled={busy}
+      <Button variant="subtle" icon={<ImageIcon size={14} />} disabled={busy}
         onClick={() => inputRef.current?.click()}>
         {busy ? (L("업로드 중", "Uploading"))
           : url ? (L("변경", "Change"))
@@ -270,7 +270,7 @@ function DemoMediaUpload({ url, onChange }: {
       </Button>
       {name && <span className={css.mediaName}>{name}</span>}
       {url && (
-        <Button variant="subtle" shape="circle" size="xs" onClick={() => onChange("")} aria-label={L("미디어 삭제", "Remove media")}>
+        <Button variant="subtle" shape="circle" onClick={() => onChange("")} aria-label={L("미디어 삭제", "Remove media")}>
           <X size={11} />
         </Button>
       )}
