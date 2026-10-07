@@ -666,7 +666,7 @@ export function CodeBlockElement(props: PlateElementProps) {
     <BlockDropZone path={elPath}>
     {/* 언어 변경 시 code-syntax 재decoration 으로 leaf 의 hook 구조가 바뀌어 React hook 순서 에러 →
         lang 을 key 로 줘서 변경 시 subtree 를 새로 마운트(leaf 를 fresh 하게)해 비교 자체를 피한다. */}
-    <div key={`cb-${lang ?? "plaintext"}`} {...blockDragProps} style={{ cursor: "default" }}>
+    <div key={`cb-${lang ?? "plaintext"}`} {...blockDragProps} className={isDiagram ? diagram.diagramBlock : undefined} style={{ cursor: "default" }}>
     {/* 코드블록 floating bar — 선택/포커스 시 코드블록 위에 뜸(다른 블록과 동일 패턴).
         줄바꿈·복사는 항상, 포맷/다이어그램 컨트롤은 조건부, ⋯ 는 블록 관리. keepInView 로 스크롤 추적. */}
     <FloatingBar open={selected || uiFocused} getAnchorRect={getAnchorRect} inline keepInView

@@ -243,7 +243,7 @@
 }
 
 
-@media (width <= 1540px) {
+@media (width <= 1280px) {
   .tocSidebar {
     display: none;
   }

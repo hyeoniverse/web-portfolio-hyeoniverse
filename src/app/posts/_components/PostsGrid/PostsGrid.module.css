@@ -167,7 +167,7 @@
   display: -webkit-box !important;
 }
 
-@media (width <= 640px) {
+@media (width <= 768px) {
   .gridList .gridItem > div > * {
     grid-template-columns: 120px 1fr !important;
     gap: var(--spacing-16);
@@ -363,7 +363,7 @@
 }
 
 /* 모바일 — 단일 컬럼(축 왼쪽)으로 collapse */
-@media (width <= 640px) {
+@media (width <= 768px) {
   .gridTimeline::before,
   .gridTimeline::after { left: 6px; }
   .gridTimeline .gridItem { width: 100%; }
@@ -433,7 +433,7 @@
   -webkit-line-clamp: 3 !important;
 }
 
-@media (width <= 640px) {
+@media (width <= 768px) {
   .gridFeaturedHero > div > * {
     grid-template-columns: 1fr !important;
   }
@@ -454,7 +454,7 @@
   }
 }
 
-@media (width <= 640px) {
+@media (width <= 768px) {
   /* 모바일 — 2 col, 좁은 gap */
   .grid {
     grid-template-columns: var(--grid-columns-2);

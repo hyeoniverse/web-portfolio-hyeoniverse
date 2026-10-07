@@ -104,6 +104,8 @@
 .panel {
   flex: 1;
   min-width: 0;
+  /* 탭 안의 격자는 화면이 아니라 이 칸 폭으로 접힌다(3.11-3) — 사이드바가 있는 넓은 화면에서 오히려 좁다 */
+  container: settings-panel / inline-size;
 }
 
 /* 좁은 폭에서는 섹션 바로가기 눈금(SectionJumpNav)이 화면 오른쪽 가장자리에 떠 있다.

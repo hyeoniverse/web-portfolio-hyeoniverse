@@ -68,7 +68,7 @@
 
 /* 좁은 카드 — placeholder excerpt 숨기고 body 로 swap + title 2줄.
  * 일반 bento/모바일 narrow 케이스 모두 cover. compact 는 아래 별도 unconditional 룰. */
-@container (max-width: 380px) {
+@container (width <= 380px) {
   .placeholderCard:not(.compact) .placeholderExcerpt {
     display: none;
   }
@@ -482,7 +482,7 @@
   }
 }
 
-@media (width <= 640px) {
+@media (width <= 768px) {
   .body {
     padding: var(--spacing-12) 0 0 0;
   }

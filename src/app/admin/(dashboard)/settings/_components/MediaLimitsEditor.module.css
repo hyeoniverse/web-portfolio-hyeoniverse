@@ -37,7 +37,7 @@
   border-top: var(--border-light);
 }
 
-@media (width <= 640px) {
+@container settings-panel (width < 570px) {
   .mediaCategory {
     grid-template-columns: 1fr;
     gap: var(--spacing-4);

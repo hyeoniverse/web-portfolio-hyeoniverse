@@ -1,4 +1,9 @@
 /* AI 요약 비교 모달 — 현재 · 새 요약 두 칸, 사이에 선 하나 */
+/* 모달 몸통 폭으로 접는다(3.11-3) — .grid 자신이 바뀌므로 한 겹 바깥이 기준 */
+.compare {
+  container: summary-compare / inline-size;
+}
+
 .grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) var(--border-width-1) minmax(0, 1fr);
@@ -9,7 +14,7 @@
   background: var(--border-color-light);
 }
 
-@media (width < 640px) {
+@container summary-compare (width < 600px) {
   .grid {
     grid-template-columns: minmax(0, 1fr);
   }

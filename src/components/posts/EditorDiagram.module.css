@@ -21,6 +21,12 @@
 .readerMermaid {
   position: relative;
   margin: var(--spacing-24) 0;
+  /* 나란히 보기는 본문 칸 폭으로 접는다(3.11-3) — 편집기 쪽 기준은 .diagramBlock */
+  container: mermaid-block / inline-size;
+}
+
+.diagramBlock {
+  container: mermaid-block / inline-size;
 }
 
 .readerMermaidBar {
@@ -133,7 +139,7 @@
 }
 
 /* 좁은 화면 — 위아래 스택(핸들 숨김, 폭 100%) */
-@media (width <= 640px) {
+@container mermaid-block (width < 576px) {
   .graphSplit {
     flex-direction: column;
   }
@@ -149,6 +155,7 @@
 
 /* mermaid 문법 도움말 (공통 Modal 콘텐츠) — 예시 2열 그리드, 각 예시는 코드(위)+실제 그래프(아래) */
 .mermaidHelp {
+  container: mermaid-help / inline-size;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-12);
@@ -260,7 +267,7 @@
   line-height: 1.6;
 }
 
-@media (width <= 560px) {
+@container mermaid-help (width < 520px) {
   .mermaidHelpRule {
     grid-template-columns: 1fr;
     gap: var(--spacing-2);
@@ -526,7 +533,7 @@
 }
 
 /* 모바일 — 1열 */
-@media (width <= 640px) {
+@container mermaid-help (width < 600px) {
   .mermaidHelpExampleWide {
     grid-column: auto;
   }
