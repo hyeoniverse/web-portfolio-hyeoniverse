@@ -9,6 +9,10 @@
   font: var(--font-body-md);
   line-height: 1.6;
   color: var(--text-secondary);
+  /* 설명은 한 줄이어도 글머리(관리자 화면 설명 공통) */
+  display: list-item;
+  margin-left: var(--spacing-20);
+  list-style: disc;
 }
 
 .empty {

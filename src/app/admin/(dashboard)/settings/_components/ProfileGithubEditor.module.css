@@ -30,8 +30,12 @@
 }
 
 /* 크기·색은 .fieldHint 가 정한다 */
+/* 설명은 한 줄이어도 글머리(관리자 화면 설명 공통) */
 .switchHint {
   line-height: var(--line-height-135);
+  display: list-item;
+  margin-left: var(--spacing-20);
+  list-style: disc;
 }
 
 .loginRow {
@@ -92,8 +96,12 @@
 
 /* 상한 안내 — 제목 옆에 끼우면 좁은 설정 열에서 두 줄로 접히며 제목을 밀어낸다.
    줄을 통째로 차지해 아래로 내린다. */
+/* 설명은 한 줄이어도 글머리 — 글머리 자리(왼쪽 여백)만큼 폭을 뺀다 */
 .groupHint {
-  flex-basis: 100%;
+  flex-basis: calc(100% - var(--spacing-20));
+  display: list-item;
+  margin-left: var(--spacing-20);
+  list-style: disc;
 }
 
 /* 제목 줄 오른쪽 끝의 조작 묶음 — 조직 더하기와 검색 */
