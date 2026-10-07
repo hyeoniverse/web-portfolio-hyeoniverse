@@ -155,7 +155,7 @@
   margin-top: var(--spacing-32);
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .articleTitle {
     font-size: clamp(1.5rem, 0.984rem + 2.12vw, 2rem);
   }

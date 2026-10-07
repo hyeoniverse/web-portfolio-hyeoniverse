@@ -186,7 +186,7 @@
 }
 
 /* 낮은 화면 — 두 줄 격자가 넘치지 않게 견본을 줄인다 */
-@media (max-height: 860px) {
+@media (height <= 860px) {
   .cell {
     gap: var(--spacing-8);
     padding: var(--spacing-12) var(--spacing-16);

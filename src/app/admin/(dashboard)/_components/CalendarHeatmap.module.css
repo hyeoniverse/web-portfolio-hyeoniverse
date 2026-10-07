@@ -122,7 +122,7 @@
 }
 
 /* 모바일에선 조회수 폰트 작게 + 셀 높이 축소 */
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .calendarCell {
     min-height: 56px;
   }

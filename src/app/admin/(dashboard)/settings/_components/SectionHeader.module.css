@@ -58,7 +58,7 @@
 }
 
 /* 태블릿·모바일 — 위에 가로 탭바(≈45px)까지 있으니 그 아래로 더 내린다 */
-@media (max-width: 1024px) {
+@media (width <= 1024px) {
   .title,
   .spacer {
     top: calc(var(--header-height) + 2.9rem + var(--spacing-16));

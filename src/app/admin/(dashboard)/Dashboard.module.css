@@ -102,7 +102,7 @@
   border-top: var(--border-light);
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .quickActions {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -236,7 +236,7 @@
   stroke-width: 1.75;
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .heroSparkWrap {
     height: 60px;
   }
@@ -361,7 +361,7 @@ a.statCard:hover .statValue {
   animation: dashSectionIn var(--duration-slow) var(--ease-standard) both;
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .twoCol {
     grid-template-columns: 1fr;
   }
@@ -378,7 +378,7 @@ a.statCard:hover .statValue {
 /* PC: 좌측 cell right padding + 우측 cell left padding (gutter, 단 List.item 에 적용).
    cell 사이 hairline 은 column-gap + background trick 으로 cell 끝까지 (full height).
    --_item-inline-* CSS var 가 그 안 list item 의 padding 으로 cascade */
-@media (min-width: 769px) {
+@media (width > 768px) {
   .twoCol {
     /* background-color 롱핸드 사용 — background 단축속성은 background-clip 을 border-box 로
        리셋해서 base 의 padding-box 가 풀리고, 그럼 이 bg(alpha-30)가 섹션 divider border(alpha-30)
@@ -401,7 +401,7 @@ a.statCard:hover .statValue {
   }
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .twoCol > .panelCell + .panelCell {
     border-top: var(--border-light);
   }
@@ -445,7 +445,7 @@ a.statCard:hover .statValue {
   visibility: hidden;
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   /* 기본 rule 이 (0,2,0)으로 올라가서 여기도 같은 급이어야 이긴다 */
   .twoCol.twoColExpanded {
     grid-template-columns: 1fr;

@@ -133,7 +133,7 @@
 }
 
 /* 좁은 화면 — 위아래 스택(핸들 숨김, 폭 100%) */
-@media (max-width: 640px) {
+@media (width <= 640px) {
   .graphSplit {
     flex-direction: column;
   }
@@ -260,7 +260,7 @@
   line-height: 1.6;
 }
 
-@media (max-width: 560px) {
+@media (width <= 560px) {
   .mermaidHelpRule {
     grid-template-columns: 1fr;
     gap: var(--spacing-2);
@@ -526,7 +526,7 @@
 }
 
 /* 모바일 — 1열 */
-@media (max-width: 640px) {
+@media (width <= 640px) {
   .mermaidHelpExampleWide {
     grid-column: auto;
   }

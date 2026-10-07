@@ -52,7 +52,7 @@
   color: var(--text-accent);
 }
 
-@media (max-width: 1024px), (max-height: 700px) {
+@media (width <= 1024px), (height <= 700px) {
   .entryBlock {
     position: relative;
     z-index: 1;

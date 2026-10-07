@@ -816,7 +816,7 @@
 /* ---------------------------------------------------------------------------
   Responsive
   --------------------------------------------------------------------------- */
-@media (max-width: 1024px) {
+@media (width <= 1024px) {
   .drawer {
     width: 90vw;
     height: 63vw;
@@ -824,7 +824,7 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .backdrop {
     --_gap-outer: clamp(6px, 1.3vw, 10px);
     --_gap-sm: clamp(5px, 1vw, 8px);
@@ -951,7 +951,7 @@
   }
 }
 
-@media (max-width: 480px) {
+@media (width <= 480px) {
   .backdrop {
     --_gap-outer: 1.3vw;
     --_gap-sm: 1vw;

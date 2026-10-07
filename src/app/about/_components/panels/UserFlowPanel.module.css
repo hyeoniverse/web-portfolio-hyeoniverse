@@ -305,7 +305,7 @@
    Mobile overrides (1024px)
    ========================================================================== */
 
-@media (max-width: 1024px), (max-height: 700px) {
+@media (width <= 1024px), (height <= 700px) {
   .ufTitleRow.ufTitleRow.ufTitleRow {
     padding-top: 0;
     margin-bottom: var(--spacing-12);
@@ -347,7 +347,7 @@
 }
 
 /* ── 데스크톱 전시실 구도: 흐름도가 왼쪽 넓은 칸, 제목·범례·흐름 선택은 오른쪽 좁은 칸에 오른쪽 정렬 ── */
-@media (min-width: 1025px) and (min-height: 701px) {
+@media (width > 1024px) and (height > 700px) {
   .ufContent {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(15rem, 21vw);
@@ -396,7 +396,7 @@
    흐름 구간 진행도(--item-p, usePinnedScroll) × 전체 순서 수(--n) 가 요소의 순서(--s)를 지나면 나타난다.
    구간의 앞 2/3 에서 다 그려지고 나머지는 완성된 그림을 보여 준다. 선은 pathLength=1 로 길이를 1 로 두고
    dashoffset 을 줄여 경로를 따라 그어진다. 시간 기반 등장(keyframes)은 끈다 */
-@media (min-width: 1025px) and (min-height: 701px) and (prefers-reduced-motion: no-preference) {
+@media (width > 1024px) and (height > 700px) and (prefers-reduced-motion: no-preference) {
   .ufFlowDiagram .ufNodeGroup,
   .ufFlowDiagram .ufEdgePath,
   .ufFlowDiagram .ufEdgeLabel {

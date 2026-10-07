@@ -647,7 +647,7 @@
   white-space: nowrap;
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .paneSlide {
     border-right: none;
     border-bottom: var(--border-light);

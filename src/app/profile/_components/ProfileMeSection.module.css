@@ -879,7 +879,7 @@
    Mobile / Tablet: Vertical Scroll
    ========================================================================== */
 
-@media (max-width: 1024px), (max-height: 700px) {
+@media (width <= 1024px), (height <= 700px) {
   .section {
     padding-top: var(--spacing-96);
     overflow: visible;
@@ -1000,13 +1000,13 @@
 }
 
 /* ── Tablet: Magazine layout adjustments ── */
-@media (min-width: 769px) and (max-width: 1024px) {
+@media (768px < width <= 1024px) {
   .magFeature {
     gap: var(--spacing-32);
   }
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .panel {
     padding: var(--spacing-48) var(--spacing-24);
   }
@@ -1053,7 +1053,7 @@
   }
 }
 
-@media (max-width: 480px) {
+@media (width <= 480px) {
   .panel {
     padding: var(--m-lg) var(--m-sm);
   }

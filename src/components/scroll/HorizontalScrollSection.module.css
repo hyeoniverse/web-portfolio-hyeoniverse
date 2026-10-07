@@ -48,7 +48,7 @@
 }
 
 /* Responsive adjustments */
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .item {
     width: 90vw;
     padding: var(--row-padding-lg);

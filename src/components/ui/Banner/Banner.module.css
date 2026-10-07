@@ -168,7 +168,7 @@
 }
 
 /* ── Responsive ── */
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .viewport {
     height: 280px;
   }

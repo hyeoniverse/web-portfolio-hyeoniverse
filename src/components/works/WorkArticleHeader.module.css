@@ -103,14 +103,14 @@
 /* ── Team Members — Polaroid Flip Card ─────────────────────────────── */
 /* Prose (markdown-rendered content) */
 /* ── Tablet ── */
-@media (max-width: 1024px) {
+@media (width <= 1024px) {
   .title {
     font-size: clamp(2.4rem, 1.514rem + 3.63vw, 3.85rem);
   }
 }
 
 /* ── Mobile ── */
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .metaLeft {
     gap: var(--spacing-12);
   }
