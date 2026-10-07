@@ -296,7 +296,7 @@
 
 ## `src/styles/globals/_semantic.css`
 
-토큰 161개
+토큰 162개
 
 | 토큰 | 값 | 다크 | 조건부 |
 |---|---|---|---|
@@ -395,6 +395,7 @@
 | `--border-white-muted` | `1px solid var(--border-color-white-muted)` |  |  |
 | `--border-success` | `1px solid var(--border-color-success)` |  |  |
 | `--spacing-page-inline` | `8vw` |  | `@media (width <= 768px): 5vw`<br>`@media (width <= 480px): 4vw` |
+| `--spacing-nav-top` | `min(var(--spacing-page-inline), var(--spacing-32))` |  |  |
 | `--width-page-max` | `100%` |  |  |
 | `--spacing-panel-block` | `clamp(1rem, min(4.5vh, 2.5vw), 4.5rem)` |  | `@media (width <= 480px): var(--m-lg)` |
 | `--font-family-body` | `"Pretendard Variable", -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji"` |  |  |
