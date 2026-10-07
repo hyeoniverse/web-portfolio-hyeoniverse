@@ -4,6 +4,7 @@ import { filterEnabled, missingKey, networkError, providerErrorFrom, recordFailu
 import type { AiProvider, ProviderFailure } from "@/lib/ai/providers";
 import { aiModel, groqModel } from "@/lib/ai/models";
 import { DEFAULT_SUMMARY_OPTIONS, coerceSummary, extractSkeleton, serializeSummary, type StructuredSummary, type SummaryOptions } from "@/lib/ai/summary";
+import { sanitizeSummaryGuide } from "@/lib/ai/summaryGuide";
 
 /* 모델 이름은 설정(lib/ai/models)에서 — 코드에 박아 두면 은퇴할 때마다 고쳐야 한다 */
 const geminiUrl = (model: string) => `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
@@ -13,17 +14,80 @@ const CLAUDE_API_URL = "https://api.anthropic.com/v1/messages";
 
 /**
  * 요약 프롬프트 — 글(posts)과 작업물(works)이 같은 틀을 쓰고, 네 공급자에 같은 문장이 간다.
- * 규칙을 길게 늘어놓기보다 좋은 예 하나와 피할 예(실제로 나왔던 문장)를 보여 준다 — 모델은 예시를 가장 잘 따라 한다.
- * 관리자가 편집기에서 고른 값(options)은 말투 · 분량 · 초점 · 키워드 수 · 덧붙임 · 추가 지시로 들어간다.
+ *
+ * 고정 칸은 제목 한 줄(tldr)과 키워드뿐이다. 나머지는 모델이 블록(문단 · 목록 · 단계 · 수치 카드 · 전후 비교 · 콜아웃 ·
+ * 인용 · 소제목) 가운데 글에 맞는 것을 골라 쌓는다 — 튜토리얼 · 회고 · 성능 개선 · 에세이는 모양이 달라서, 칸을 정해 두면
+ * 모든 글이 같은 틀에 눌렸다. 예시도 모양이 다른 셋을 보여 준다(모델은 예시 하나를 주면 그 모양을 따라 한다).
+ *
+ * 두 부분으로 나뉜다.
+ *  - 고칠 수 있는 부분: 작성 지침(문체 · 블록 고르는 요령 · 피할 예) — 설정 › 서비스. 비우면 lib/ai/summaryGuide 의 기본값.
+ *  - 고정 부분(여기 코드): 블록 정의 · 옵션(말투 · 분량 · 초점 · 키워드 · 주의 블록) · 출력 형식 · 예시 · 원문 자리.
+ *    출력 형식이 바뀌면 화면이 요약을 읽지 못하므로 관리자에게 열지 않는다.
  * 본문은 뼈대만(lib/ai/summary.extractSkeleton) — 길이와 상관없이 보내는 양이 같다.
  */
-/** 원문 뼈대 상한 — 한국어 3,500자는 대략 2~3천 토큰. 예시 · 규칙까지 합쳐 한 요청이 4K 토큰 안팎에 들게 */
+/** 원문 뼈대 상한 — 한국어 3,500자는 대략 2~3천 토큰. 지침 · 예시까지 합쳐 한 요청이 5K 토큰 안팎에 들게 */
 const OUTLINE_MAX_CHARS = 3500;
+
+/* 예시 — 모두 지어낸 내용(이 사이트의 실제 수치를 넣으면 다른 글 요약에 섞여 나온다). 모양이 서로 다른 셋.
+   토큰을 아끼려고 한국어만 싣는다(영어는 같은 블록 구성으로 쓰라고 적는다) */
+const EXAMPLE_TUTORIAL = {
+  emoji: "🧩",
+  tldr: "Docker Compose 로 로컬 Postgres 띄우기",
+  blocks: [
+    { type: "paragraph", text: "설치 없이 컨테이너 하나로 개발용 DB 를 준비하는 방법입니다." },
+    { type: "steps", items: [
+      { text: "`compose.yaml` 에 `postgres:16` 서비스를 정의합니다." },
+      { text: "볼륨을 붙여 ==재시작해도 데이터가 남게== 합니다." },
+      { text: "`docker compose up -d` 로 띄우고 5432 포트로 접속합니다." },
+    ] },
+    { type: "callout", tone: "warn", text: "포트가 이미 쓰이고 있으면 `5433:5432` 처럼 바깥 포트만 바꿉니다." },
+  ],
+  keywords: ["Docker Compose", "PostgreSQL", "로컬 개발"],
+};
+const EXAMPLE_RETRO = {
+  emoji: "🌱",
+  tldr: "첫 사이드 프로젝트 3개월 회고",
+  blocks: [
+    { type: "quote", text: "기능을 늘리기보다 매주 내보내는 쪽이 오래 갔습니다." },
+    { type: "heading", text: "잘한 것" },
+    { type: "list", items: [
+      { emoji: "🚢", label: "작게 배포", text: "매주 금요일마다 **한 가지**만 내보냈습니다." },
+      { emoji: "🗒️", label: "기록", text: "막힌 지점을 그날 바로 적어 두었습니다." },
+    ] },
+    { type: "heading", text: "다음에" },
+    { type: "list", items: [
+      { emoji: "🧪", label: "테스트", text: "결제 흐름만큼은 ==자동 테스트를 먼저== 씁니다." },
+    ] },
+  ],
+  keywords: ["회고", "사이드 프로젝트", "배포 주기"],
+};
+const EXAMPLE_RESULT = {
+  emoji: "⚡",
+  tldr: "검색 800ms → 200ms, 사내 일정 앱",
+  blocks: [
+    { type: "metrics", items: [
+      { label: "검색 응답", value: "200ms", from: "800ms" },
+      { label: "캐시 적중률", value: "90%", from: "40%" },
+    ] },
+    { type: "compare", beforeLabel: "전", afterLabel: "후", items: [
+      { label: "검색", before: "요청마다 전체 조회", after: "색인 + 결과 캐시" },
+      { label: "목록", before: "한 번에 전부", after: "50개씩 나눠 불러오기" },
+    ] },
+    { type: "list", items: [
+      { label: "색인", text: "자주 거르는 두 칼럼에 ==복합 색인==을 걸었습니다." },
+      { label: "캐시", text: "같은 검색어는 **5분** 동안 저장된 결과를 씁니다." },
+    ] },
+    { type: "callout", tone: "info", text: "사용자 열 명 안팎에서 잰 값입니다." },
+  ],
+  keywords: ["PostgreSQL", "색인", "캐시"],
+};
 
 export function buildSummaryPrompt(
   kind: "post" | "work",
   input: { title?: string | null; ko?: string | null; en?: string | null },
   opts: SummaryOptions = DEFAULT_SUMMARY_OPTIONS,
+  /** 고칠 수 있는 부분(설정 › 서비스의 작성 지침). 비우면 기본값 */
+  guide?: string | null,
 ): string {
   const what = kind === "post" ? "blog post" : "portfolio project description";
   /* 원문은 한 언어만 — 한국어가 있으면 한국어, 없으면 영어. 두 언어를 다 실으면 같은 내용으로 토큰이 두 배가 되고
@@ -37,62 +101,60 @@ export function buildSummaryPrompt(
     plain: 'Korean ends sentences in 평서체 ("-다", "-했다"), like a technical note.',
   }[opts.tone];
   const length = {
-    short: { points: "2 to 3", takeaway: "under 50 characters" },
-    normal: { points: "3 to 4", takeaway: "under 70 characters" },
-    detailed: { points: "4 to 6", takeaway: "under 90 characters" },
+    short: "2 to 3 blocks, about 250 Korean characters in total",
+    normal: "3 to 5 blocks, about 500 Korean characters in total",
+    detailed: "4 to 7 blocks, about 850 Korean characters in total",
   }[opts.length];
   const focus = {
+    auto: "Lead with whatever matters most in this text: the results if it reports results, the method if it explains how, the lesson if it reflects.",
     outcome: "Lead with results: numbers, before → after, what now works that did not.",
     process: "Lead with how: the approach, the key decisions and why they were made, the trade-offs.",
-    reader: "Lead with the reader: what problem this helps them solve and what they can apply themselves.",
+    reader: "Lead with takeaways: what the reader can learn from it and apply themselves.",
   }[opts.focus];
   const keywordsRule = opts.keywords === 0
     ? '"keywords": always an empty array [].'
     : `"keywords": exactly ${opts.keywords} short tags (1-3 words) a reader would search for. Real technologies, techniques, or topics named in the text. Keep product names as written (Next.js, Supabase).`;
-  const noteRule = opts.note
-    ? '"note": one sentence about a real limitation, precondition, or caveat that the text itself states. If the text states none, return "". Never invent one, never write a generic line like "실제 측정 기반으로 적용했습니다".'
-    : '"note": always "".';
+  const caveatRule = opts.note
+    ? "Add a caveat (a callout) only when the text itself states a limitation, precondition, or warning. Never invent one."
+    : "Do not add caveats or limitations.";
+  const examples = kind === "post" ? [EXAMPLE_TUTORIAL, EXAMPLE_RETRO, EXAMPLE_RESULT] : [EXAMPLE_RESULT, EXAMPLE_RETRO];
 
-  const example = kind === "post"
-    ? `{"ko":{"tldr":"React 19 useOptimistic 으로 좋아요 지연 없애기","body":"좋아요 단추를 즉시 반응하게 바꾼 과정입니다.","points":[{"label":"낙관적 업데이트","text":"서버 응답 전에 숫자를 먼저 바꾸고, 실패하면 되돌립니다."},{"label":"구현","text":"\`useOptimistic\` 과 서버 액션 하나로 끝납니다."},{"label":"결과","text":"체감 지연이 **400ms → 0** 으로 줄었습니다."}],"note":"서버 액션을 쓰는 프로젝트에서만 그대로 적용됩니다.","keywords":["React 19","useOptimistic","서버 액션","낙관적 업데이트"],"takeaway":"목록 화면의 상호작용을 즉시 반응하게 바꾸는 방법입니다."},"en":{"tldr":"Removing like-button lag with React 19 useOptimistic","body":"How the like button was made to respond instantly.","points":[{"label":"Optimistic update","text":"The count changes before the server responds and rolls back on failure."},{"label":"Implementation","text":"Just \`useOptimistic\` and one server action."},{"label":"Result","text":"Perceived latency dropped from **400ms to 0**."}],"note":"Applies as-is only to projects using server actions.","keywords":["React 19","useOptimistic","Server actions","Optimistic UI"],"takeaway":"A pattern for making list interactions feel instant."}}`
-    : `{"ko":{"tldr":"혼자 만든 사내 일정 공유 앱","body":"작은 팀의 주간 일정 조율을 도구로 옮겼습니다.","points":[{"label":"역할","text":"설계부터 배포까지 혼자 맡았습니다."},{"label":"구성","text":"Next.js 와 Supabase 실시간 구독으로 보드를 동기화합니다."},{"label":"효과","text":"주간 회의가 **60분 → 30분** 으로 줄었습니다."}],"note":"","keywords":["Next.js","Supabase","실시간 동기화","사내 도구"],"takeaway":"반복 회의를 작은 도구로 줄인 사례입니다."},"en":{"tldr":"A solo-built team calendar app","body":"Moved a small team's weekly scheduling into a tool.","points":[{"label":"Role","text":"Designed, built, and shipped solo."},{"label":"Stack","text":"Next.js with Supabase realtime keeps the board in sync."},{"label":"Impact","text":"Weekly meetings went from **60 to 30 minutes**."}],"note":"","keywords":["Next.js","Supabase","Realtime sync","Internal tools"],"takeaway":"How a small tool cut a recurring meeting in half."}}`;
-
-  return `You summarize a ${what} for the author's personal site. The summary appears in a box above the article, like a Notion AI summary: a reader should get the point in five seconds.
+  return `You write the summary box for a ${what} on the author's personal site. It appears above the article like a Notion AI summary: a reader should get the point in five seconds, and it should look edited — structure, labels, emphasis — not like a flat paragraph.
 
 The content below is an outline (title, headings, first sentences, bullets) in ${srcLang}, not the full text. Use only facts that appear in it, and write both "ko" and "en" from it.
 
-## Fields
-- "tldr": the headline. A noun phrase or short statement under 50 characters that names the subject and the most specific fact (a number, a technology, a result). It is a title, so no sentence ending: write "LCP 9.7초 → 2.7초로 줄인 포트폴리오", not "포트폴리오의 성능을 최적화했습니다".
-- "body": ONE short lead sentence (under 70 characters) that frames what the points cover. Not a list of facts — the points carry the facts.
-- "points": ${length.points} items, each {"label": "...", "text": "..."}.
-  - "label": a 2-6 word lead-in naming the area, like a bold heading in a Notion bullet ("성능", "편집기 입력", "권한 구조", "Scroll conflicts"). No trailing colon.
-  - "text": one sentence about that area — what changed and the result. Wrap the single most important number or result in **double asterisks** (e.g. "LCP 를 **9.7초 → 2.7초** 로 줄였습니다"). Wrap code identifiers in \`backticks\` (e.g. \`useMemo\`). At most one bold span per item; no other markdown.
-  - Each item covers a different area. Do not cram several results into one item.
-- ${noteRule}
+## Fixed fields
+- "emoji": one emoji that fits the subject, or "".
+- "tldr": the headline. A noun phrase or short statement under 50 characters that names the subject and the most specific fact (a number, a technology, a result). It is a title, so no sentence ending.
 - ${keywordsRule}
-- "takeaway": one sentence, ${length.takeaway}. What the reader can take from it. Describe the content, not the author: never "개발자는 … 보여줍니다", "능력을 보여줍니다", "역량을 증명합니다".
 
-## Style
+## Blocks — you choose
+"blocks" is an ordered array. Pick the block types that fit THIS text and order them the way a reader would scan it. Writing differs a lot — a tutorial, a retrospective, a performance write-up, an essay, a comparison — so the shape should differ too. Do not use a block just because it exists, and do not force the same shape on every text.
+- {"type": "paragraph", "text": "..."} — one or two sentences of framing or story. Never a wall of facts.
+- {"type": "list", "title": "(optional)", "items": [{"emoji": "(optional)", "label": "(optional, 1-4 words)", "text": "one sentence"}]} — parallel points. Labels when the points cover different areas; emoji when it helps scanning.
+- {"type": "steps", "title": "(optional)", "items": [{"label": "(optional)", "text": "one sentence"}]} — an ordered procedure the reader can follow.
+- {"type": "metrics", "items": [{"label": "1-3 words", "value": "number with unit", "from": "previous value (optional)"}]} — 2 to 4 numbers the text actually states. Never estimate or invent a number.
+- {"type": "compare", "title": "(optional)", "beforeLabel": "e.g. 전 / A", "afterLabel": "e.g. 후 / B", "items": [{"label": "...", "before": "...", "after": "..."}]} — before vs after, or option A vs B, row by row.
+- {"type": "callout", "tone": "tip" | "warn" | "info", "text": "..."} — one tip, warning, or limitation worth stopping for.
+- {"type": "quote", "text": "..."} — one line that carries the spirit of the text (a lesson, a conclusion).
+- {"type": "heading", "text": "1-3 words"} — only to group the blocks that follow when there are several groups (e.g. 잘한 것 / 다음에, 문제 / 해결).
+Inline marks inside any text: **bold** for the key number or result, ==highlight== for the key phrase, \`backticks\` for code. At most one mark per sentence. No other markdown, no HTML.
+
+## This request
+- Size: ${length}. Count every block's text.
 - ${tone}
 - ${focus}
-- Short sentences. Split instead of joining with "~하고, ~하며, ~했으며".
-- Plain words. No praise or hype (최적화된, 혁신적인, 강력한, 효과적으로, 지속적으로, 다양한), no exclamation marks, no emojis, no quotation marks.
-- Keep technical terms and code identifiers as written. Numbers stay numbers.
-- English is a natural rewrite of the same content in neutral tone, not a word-for-word translation. Title-like "tldr" without a trailing period.
+- ${caveatRule}
+- "en" uses the same blocks in the same order, rewritten naturally in English (not word for word). English "tldr" has no trailing period.
 
-## Avoid (real outputs that missed the mark)
-- body as a wall of text: "모바일 LCP를 9.7초에서 2.7초로 줄이고 Lighthouse 점수를 50점에서 77점으로 올렸습니다. 편집기 입력 지연을 … 98px→0으로 만들었습니다." → every result jammed into one paragraph. Split into points: {"label":"모바일 성능","text":"LCP 를 **9.7초 → 2.7초** 로 줄였습니다."}, {"label":"편집기 입력","text":"\`useMemo\` 로 입력 지연을 **120ms → 72ms** 로 낮췄습니다."}, …
-- note "모든 최적화가 좋은 결과를 낸 것은 아니었습니다" → vague. Name what did not work, or return "".
-- tldr "HYEONIVERSE 포트폴리오 사이트, 성능·보안을 최적화했습니다" → a sentence, vague. Better: "LCP 9.7초 → 2.7초, 혼자 운영하는 포트폴리오".
-- note "모든 최적화는 실제 측정 기반으로 반복 적용했습니다" → not a caveat. Return "" instead.
-- takeaway "개발자는 혼자서도 문제를 찾아 고치고 서비스 품질을 지속적으로 향상시킬 수 있음을 보여줍니다" → praises the author, too long.
+${sanitizeSummaryGuide(guide)}
 
 ## Output
-Return ONLY one JSON object, no markdown, no code fence, exactly these keys:
-{"ko": {"tldr": "", "body": "", "points": [{"label": "", "text": ""}], "note": "", "keywords": [], "takeaway": ""}, "en": {...same keys...}}
+Return ONLY one JSON object, no markdown, no code fence:
+{"ko": {"emoji": "", "tldr": "", "blocks": [], "keywords": []}, "en": {...same keys...}}
 
-Example of the shape and voice (a different ${kind === "post" ? "post" : "project"}; do not copy its facts):
-${example}
+## Examples of different shapes (made up; shown in Korean only. Copy neither the facts nor the shape — choose blocks for THIS text)
+${examples.map((e) => JSON.stringify(e)).join("\n")}
 ${opts.instruction ? `\n## Extra instruction from the author (follow it unless it conflicts with the output format)\n${opts.instruction}\n` : ""}
 ## Content
 Title: ${(input.title || "").trim() || "(none)"}

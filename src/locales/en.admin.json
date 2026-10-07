@@ -1981,7 +1981,6 @@
     },
     "aiSummaryField": {
       "options": {
-        "advanced": "Advanced",
         "siteTitle": "Default summary options",
         "siteHint": "Used for summaries generated on publish and by first-time visitors. The editor's regenerate popover also opens with these values.",
         "provider": "Provider",
@@ -1989,7 +1988,6 @@
         "temperature": "Temperature",
         "temperatureAuto": "Auto",
         "maxTokens": "Max output tokens",
-        "genHint": "Higher temperature gives more varied wording; lower stays close to the same result. Auto uses 0.7 when regenerating. Picking a provider skips fallback and uses only that one.",
         "title": "Summary options",
         "tone": "Tone",
         "toneFormal": "Formal",
@@ -1999,13 +1997,29 @@
         "lengthShort": "Short",
         "lengthNormal": "Normal",
         "lengthDetailed": "Detailed",
-        "focus": "Lead with",
+        "focus": "Focus",
+        "focusAuto": "Auto",
         "focusOutcome": "Results",
-        "focusProcess": "Process",
-        "focusReader": "Reader",
+        "focusProcess": "Method",
+        "focusReader": "Takeaways",
+        "focusDesc": {
+          "auto": "Picks what to open with based on the post.",
+          "outcome": "Opens with numbers and results.",
+          "process": "Opens with how it was done.",
+          "reader": "Opens with what the reader can take away."
+        },
+        "noteOnDesc": "Adds a callout only for limits or warnings the source states.",
+        "noteOffDesc": "Leaves out limits and warnings.",
+        "temperatureAutoDesc": "Uses 0.2 when saving and 0.7 when regenerating.",
+        "temperatureManualDesc": "Higher gives more varied wording; lower stays close to the same result.",
+        "maxTokensDesc": "Raise it if the summary gets cut off.",
+        "noteOn": "If stated",
+        "noteOff": "Off",
+        "maxTokensShort": "Tokens",
+        "generation": "Generation settings (provider · temperature · tokens)",
         "keywords": "Keywords",
         "keywordsNone": "None",
-        "note": "Caveat line",
+        "note": "Caveats",
         "instructionPlaceholder": "Extra instruction (e.g. emphasize the accessibility work)",
         "reset": "Defaults"
       },
@@ -2013,7 +2027,17 @@
       "generate": "Generate",
       "regenerate": "Regenerate",
       "empty": "No summary yet. It is generated on publish, or you can generate it now.",
-      "emptyUnsaved": "Save the post once to generate a summary."
+      "emptyUnsaved": "Save the post once to generate a summary.",
+      "guide": {
+        "title": "Writing guide",
+        "hint": "The part of the summary prompt you can edit. Block types and the output format are fixed in code and do not change here. Leave it empty to use the default guide.",
+        "reset": "Reset to default",
+        "preview": "Try it",
+        "previewLabel": "Preview · not saved",
+        "targetPost": "Post",
+        "targetWork": "Work",
+        "targetPlaceholder": "Pick a post"
+      }
     },
     "summaryCompare": {
       "title": "Compare AI summaries",

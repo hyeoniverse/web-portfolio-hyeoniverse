@@ -355,6 +355,11 @@
   border-top: var(--border-light);
 }
 
+/* 작성 지침은 글이 길어 더 넓게 */
+.summaryOptions.summaryGuide {
+  max-width: 760px;
+}
+
 .summaryOptionsTitle {
   margin: 0;
   font: var(--font-body-sm);

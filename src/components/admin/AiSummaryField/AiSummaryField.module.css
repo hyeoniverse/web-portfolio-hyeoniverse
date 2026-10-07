@@ -33,7 +33,7 @@
 .options {
   display: flex;
   flex-direction: column;
-  width: min(480px, 90vw);
+  width: min(520px, 90vw);
 }
 
 .optForm {
@@ -43,88 +43,102 @@
   padding: var(--spacing-16);
 }
 
-/* 줄 — 왼쪽 고정 폭 라벨 · 오른쪽 조작(왼쪽 정렬) */
-.optRow {
-  display: grid;
-  grid-template-columns: 9rem minmax(0, 1fr);
-  align-items: center;
-  gap: var(--spacing-12);
-}
-
-.optLabel {
-  font: var(--font-body-sm);
-  color: var(--text-secondary);
-}
-
-.optControl {
-  display: flex;
-  align-items: center;
-  min-width: 0;
-}
-
-/* 고급 펼치기 — 글자 단추와 › */
-.optAdvancedToggle {
-  display: inline-flex;
-  align-self: flex-start;
-  align-items: center;
-  gap: var(--spacing-4);
+.optForm[data-inline] {
   padding: 0;
-  border: none;
-  background: transparent;
-  font: var(--font-body-sm);
-  color: var(--text-tertiary);
 }
 
-.optAdvancedToggle:hover {
-  color: var(--text-primary);
-}
-
-.optChev {
-  transition: transform var(--duration-fast) var(--ease-standard);
-}
-
-.optChevOpen {
-  transform: rotate(90deg);
-}
-
-.optAdvanced {
+/* 칩 줄 — "이름 지금 값 ›" 칩들이 줄바꿈하며 이어진다 */
+.chipRow {
   display: flex;
-  flex-direction: column;
-  gap: var(--spacing-12);
+  flex-wrap: wrap;
+  gap: var(--spacing-8);
+}
+
+/* 생성 칩 — 내용 칩과 가는 선으로 가른다 */
+.chipRow[data-generation] {
   padding-top: var(--spacing-12);
   border-top: var(--border-light);
 }
 
-.optTemp {
+.chipValue {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-12);
-  min-width: 0;
-}
-
-.optSlider {
-  width: 120px;
-}
-
-.optValue {
-  min-width: 2.5em;
-  font: var(--font-body-sm);
-  font-variant-numeric: tabular-nums;
   color: var(--text-primary);
-  text-align: right;
 }
 
-.optHint {
-  margin: 0;
+/* 칩 이름 — 한 단계 작고 흐리게, 오른쪽 가는 세로선으로 값과 가른다(같은 크기 · 비슷한 색이면 한 낱말처럼 붙어 읽혔다) */
+.chipName {
+  margin-right: var(--spacing-8);
+  padding-right: var(--spacing-8);
+  border-right: var(--border-light);
   font: var(--font-body-xs);
+  color: var(--text-tertiary);
+}
+
+/* 목록 옵션 — 이름 아래 설명 한 줄 */
+.chipOption {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.chipOptionDesc {
+  font: var(--font-body-xs);
+  color: var(--text-tertiary);
+}
+
+/* 생성 설정 단추 — 펼쳤을 때 강조색 */
+.genToggle[data-active] {
   color: var(--text-accent);
+}
+
+.optSpacer {
+  flex: 1 1 auto;
 }
 
 /* 단추 줄 — 위 내용과 선으로 가른다 */
 .optActions {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
   gap: var(--spacing-8);
   padding: var(--spacing-12) var(--spacing-16);
   border-top: var(--border-light);
+}
+
+/* ── 설정 › 서비스 — 작성 지침 · 미리보기 ── */
+.guide {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+}
+
+/* 지침은 길다 — 글자 수 표시가 붙은 칸은 rows 를 쓰지 않아 높이를 직접 준다(손잡이로 더 늘릴 수 있다) */
+.guideInput {
+  min-height: 22rem;
+  font: var(--font-code-xs);
+}
+
+.guideActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-8);
+}
+
+.guideSpacer {
+  flex: 1 1 auto;
+}
+
+.guidePreview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  padding: var(--spacing-16);
+  border: var(--border-light);
+  border-radius: var(--radius-surface);
+}
+
+.guidePreviewLabel {
+  font: var(--font-body-xs);
+  color: var(--text-tertiary);
 }

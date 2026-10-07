@@ -25,6 +25,7 @@ import { CONTACT_KEYS } from "@/lib/contactSend";
 import { AI_PROVIDER_INFO, FATAL_LIMIT, TRANSIENT_LIMIT } from "@/lib/ai/providers";
 import { NOTIFY_EMAIL_DEFAULT, NOTIFY_EMAIL_GROUPS } from "@/lib/notificationTypes";
 import { SummaryOptionsForm } from "@/components/admin/AiSummaryField/AiSummaryOptions";
+import { SummaryGuideEditor } from "@/components/admin/AiSummaryField/SummarySiteSettings";
 import { sanitizeSummaryOptions } from "@/lib/ai/summary";
 import { DEFAULT_AI_MODELS, GOOGLE_TTS_LATEST, GROQ_LATEST, HF_LATEST, type AiModelProvider } from "@/lib/ai/models";
 import { useAiHealth } from "./useAiHealth";
@@ -959,8 +960,19 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
               <h4 className={styles.summaryOptionsTitle}>{t("admin.aiSummaryField.options.siteTitle")}</h4>
               <HintLines lines={[t("admin.aiSummaryField.options.siteHint")]} />
               <SummaryOptionsForm
+                inline
                 value={sanitizeSummaryOptions((config.aiSummary as { options?: unknown }).options)}
                 onChange={(next) => setConfig((prev) => ({ ...prev, aiSummary: { ...prev.aiSummary, options: next } as typeof prev.aiSummary }))}
+              />
+            </div>
+            {/* 작성 지침 — 프롬프트에서 고칠 수 있는 부분(문체 · 블록 고르는 요령 · 피할 예). 블록 정의 · 출력 형식은 코드에 고정 */}
+            <div className={`${styles.summaryOptions} ${styles.summaryGuide}`}>
+              <h4 className={styles.summaryOptionsTitle}>{t("admin.aiSummaryField.guide.title")}</h4>
+              <HintLines lines={[t("admin.aiSummaryField.guide.hint")]} />
+              <SummaryGuideEditor
+                value={typeof (config.aiSummary as { guide?: unknown }).guide === "string" ? (config.aiSummary as { guide: string }).guide : ""}
+                options={sanitizeSummaryOptions((config.aiSummary as { options?: unknown }).options)}
+                onChange={(next) => setConfig((prev) => ({ ...prev, aiSummary: { ...prev.aiSummary, guide: next } as typeof prev.aiSummary }))}
               />
             </div>
           </ProviderFallbackBlock>

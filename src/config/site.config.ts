@@ -733,7 +733,7 @@ export const siteConfig = {
     options: {
       tone: "formal" as "formal" | "friendly" | "plain",
       length: "normal" as "short" | "normal" | "detailed",
-      focus: "outcome" as "outcome" | "process" | "reader",
+      focus: "auto" as "auto" | "outcome" | "process" | "reader",
       keywords: 5 as 0 | 3 | 5,
       note: true,
       instruction: "",
@@ -741,6 +741,8 @@ export const siteConfig = {
       maxTokens: 1024 as 512 | 1024 | 2048,
       provider: "auto" as "auto" | "gemini" | "openai" | "groq" | "claude",
     },
+    // 프롬프트의 작성 지침(문체 · 블록 고르는 요령 · 피할 예) — 비우면 lib/ai/summaryGuide.DEFAULT_SUMMARY_GUIDE. 블록 정의 · 출력 형식은 코드에 고정
+    guide: "",
   },
 
   // ---------------------------------------------------------------------------

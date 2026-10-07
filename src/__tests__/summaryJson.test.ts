@@ -5,8 +5,9 @@ import { parseSummaryJson } from "@/lib/api/aiSummaryProviders";
 describe("parseSummaryJson", () => {
   it("구조 모양", () => {
     const r = parseSummaryJson('{"ko":{"tldr":"한 줄입니다.","body":"본문.","keywords":["a","b"],"takeaway":"끝."},"en":{"tldr":"One line.","points":["a"]}}');
-    expect(r.ko).toMatchObject({ tldr: "한 줄입니다.", body: "본문.", keywords: ["a", "b"], takeaway: "끝." });
-    expect(r.en).toMatchObject({ tldr: "One line.", points: [{ label: "", text: "a" }] });
+    /* 예전 칸 모양(body · points · takeaway)은 블록으로 바뀐다 */
+    expect(r.ko).toEqual({ tldr: "한 줄입니다.", blocks: [{ type: "paragraph", text: "본문." }, { type: "quote", text: "끝." }], keywords: ["a", "b"] });
+    expect(r.en).toEqual({ tldr: "One line.", blocks: [{ type: "list", items: [{ text: "a" }] }] });
   });
   it("예전 문장 모양도 받는다 — tldr 로", () => {
     const r = parseSummaryJson('{"ko":"요약입니다.","en":"Summary."}');

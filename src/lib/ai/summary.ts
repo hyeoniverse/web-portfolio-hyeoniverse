@@ -2,68 +2,208 @@
  * AI 요약의 모양과 재료 — 서버(라우트 · 공급자 호출)와 화면(공개 요약 상자 · 편집기 칸 · 비교 모달)이 같이 쓴다.
  *
  * 저장은 posts/works 의 summary_ko · summary_en(text) 그대로다. 새 요약은 JSON 문자열
- *   {"tldr":"한 문장","points":["핵심","핵심"],"hash":"본문 해시"}
- * 로 넣고, 예전에 저장된 줄글은 그대로 문단으로 읽는다(마이그레이션 없음).
+ *   {"emoji":"⚡","tldr":"제목 한 줄","blocks":[{"type":"list","items":[…]}, …],"keywords":[…],"hash":"본문 해시"}
+ * 로 넣는다. 고정 칸은 제목 한 줄(tldr)과 키워드뿐이고, 나머지는 모델이 글에 맞는 블록(문단 · 목록 · 단계 · 수치 카드 ·
+ * 전후 비교 · 콜아웃 · 인용 · 소제목)을 골라 쌓는다 — 글의 모양이 제각각이라 칸을 정해 두면 모든 글이 같은 틀에 눌렸다.
+ * 예전 모양(body · points · note · takeaway 칸, 그보다 앞의 줄글)도 블록으로 바꿔 읽는다(마이그레이션 없음).
  * hash 는 요약을 만들 때의 본문 해시 — 발행 때 본문이 안 바뀌었으면 다시 만들지 않는다.
  */
 
-/** 핵심 항목 하나 — 굵은 머리말(label) + 한 문장(text). text 안의 **굵게** · `코드` 는 화면이 그린다 */
-export interface SummaryPoint {
-  label: string;
+/* ── 블록 ── */
+
+/** 목록 · 단계의 한 줄 — 머리말(label)과 이모지는 있을 수도 없을 수도 */
+export interface SummaryItem {
+  label?: string;
   text: string;
+  emoji?: string;
 }
 
+/** 수치 카드 하나 — 지금 값(value)과 이전 값(from). 원문이 말한 수치만 */
+interface SummaryMetric {
+  label: string;
+  value: string;
+  from?: string;
+}
+
+/** 전후 · 둘 비교의 한 줄 */
+interface SummaryCompareRow {
+  label: string;
+  before: string;
+  after: string;
+}
+
+export type CalloutTone = "tip" | "warn" | "info";
+
+export type SummaryBlock =
+  | { type: "paragraph"; text: string }
+  | { type: "list"; title?: string; items: SummaryItem[] }
+  | { type: "steps"; title?: string; items: SummaryItem[] }
+  | { type: "metrics"; items: SummaryMetric[] }
+  | { type: "compare"; title?: string; beforeLabel?: string; afterLabel?: string; items: SummaryCompareRow[] }
+  | { type: "callout"; tone: CalloutTone; text: string }
+  | { type: "quote"; text: string }
+  | { type: "heading"; text: string };
+
+/** 블록 수 상한 — 모델이 넘치게 쌓아도 화면은 여기까지 */
+export const MAX_SUMMARY_BLOCKS = 8;
+
 export interface StructuredSummary {
-  /** 제목처럼 읽히는 한 줄 */
+  /** 제목처럼 읽히는 한 줄 — 고정 칸(목록 미리보기 · 비교 모달이 쓴다) */
   tldr: string;
-  /** 도입 한 문장 — 무엇을 다루는지(항목이 나머지를 맡는다) */
-  body?: string;
-  /** 핵심 항목 3~5개 — 머리말 + 한 문장. 예전 형식(문장 배열)도 받는다 */
-  points?: SummaryPoint[];
-  /** 덧붙임 한 문장(한계 · 주의 · 전제) — 흐리게 보인다. 없을 수 있다 */
-  note?: string;
-  /** 키워드 칩 3~5개 */
+  /** 제목 줄 앞 이모지 — 없을 수 있다 */
+  emoji?: string;
+  /** 모델이 고른 블록들 */
+  blocks?: SummaryBlock[];
+  /** 키워드 칩 — 고정 칸 */
   keywords?: string[];
-  /** 강조색 마무리 한 줄 — 누가 읽으면 좋은지 · 가장 큰 성과 */
-  takeaway?: string;
   /** 만들 때의 본문 해시(summaryHash). 없으면 예전 요약 */
   hash?: string;
 }
 
-/** 화면이 그릴 모양 — 구조가 있으면 조각들, 예전 줄글이면 text */
+/** 화면이 그릴 모양 — 구조가 있으면 블록들, 예전 줄글이면 text */
 export type DisplaySummary =
-  | { kind: "structured"; tldr: string; body: string; points: SummaryPoint[]; note: string; keywords: string[]; takeaway: string }
+  | { kind: "structured"; tldr: string; emoji: string; blocks: SummaryBlock[]; keywords: string[] }
   | { kind: "text"; text: string }
   | null;
 
 const pickStr = (v: unknown) => (typeof v === "string" ? v.trim() : "");
 const pickList = (v: unknown, max = 5) => (Array.isArray(v) ? v.map(pickStr).filter(Boolean).slice(0, max) : []);
+/** 이모지 하나 — 그림 글자가 들어 있고 짧을 때만(모델이 낱말을 넣는 경우를 거른다) */
+const pickEmoji = (v: unknown) => {
+  const s = pickStr(v);
+  return s && s.length <= 8 && /\p{Extended_Pictographic}/u.test(s) && !/[\p{L}\p{N}]/u.test(s.replace(/️|‍/g, "")) ? s : "";
+};
+/** 짧은 글(라벨 · 수치) — 숫자로 와도 받고, 길면 자른다 */
+const pickShort = (v: unknown, max: number) => (typeof v === "number" && Number.isFinite(v) ? String(v) : pickStr(v)).slice(0, max);
+const obj = (v: unknown) => (v && typeof v === "object" && !Array.isArray(v) ? (v as Record<string, unknown>) : null);
 
-/** 항목 목록 — {label, text} 와 예전 문자열 둘 다. 문자열이 "머리말: 내용" 꼴이면 갈라 둔다 */
-function pickPoints(v: unknown): SummaryPoint[] {
+/** 목록 · 단계 항목 — {label, text, emoji} 와 문자열 둘 다. 문자열이 "머리말: 내용" 꼴이면 갈라 둔다 */
+function pickItems(v: unknown, max = 8): SummaryItem[] {
   if (!Array.isArray(v)) return [];
-  return v.slice(0, 6).map((it): SummaryPoint | null => {
-    if (it && typeof it === "object") {
-      const o = it as Record<string, unknown>;
+  return v.slice(0, max).map((it): SummaryItem | null => {
+    const o = obj(it);
+    if (o) {
       const text = pickStr(o.text);
-      return text ? { label: pickStr(o.label), text } : null;
+      if (!text) return null;
+      const item: SummaryItem = { text };
+      const label = pickShort(o.label, 40);
+      const emoji = pickEmoji(o.emoji);
+      if (label) item.label = label;
+      if (emoji) item.emoji = emoji;
+      return item;
     }
     const s = pickStr(it);
     if (!s) return null;
     const m = s.match(/^\*{0,2}([^:：*]{1,24})\*{0,2}\s*[:：]\s*(.+)$/);
-    return m ? { label: m[1].trim(), text: m[2].trim() } : { label: "", text: s };
-  }).filter((x): x is SummaryPoint => !!x);
+    return m ? { label: m[1].trim(), text: m[2].trim() } : { text: s };
+  }).filter((x): x is SummaryItem => !!x);
 }
 
-function toDisplay(o: Record<string, unknown>): DisplaySummary {
-  const tldr = pickStr(o.tldr);
+function pickMetrics(v: unknown): SummaryMetric[] {
+  if (!Array.isArray(v)) return [];
+  return v.slice(0, 4).map((it): SummaryMetric | null => {
+    const o = obj(it);
+    if (!o) return null;
+    const value = pickShort(o.value, 24);
+    const label = pickShort(o.label, 30);
+    if (!value || !label) return null;
+    const from = pickShort(o.from, 24);
+    return from ? { label, value, from } : { label, value };
+  }).filter((x): x is SummaryMetric => !!x);
+}
+
+function pickCompare(v: unknown): SummaryCompareRow[] {
+  if (!Array.isArray(v)) return [];
+  return v.slice(0, 6).map((it): SummaryCompareRow | null => {
+    const o = obj(it);
+    if (!o) return null;
+    const row = { label: pickShort(o.label, 40), before: pickShort(o.before, 120), after: pickShort(o.after, 120) };
+    return row.before || row.after ? row : null;
+  }).filter((x): x is SummaryCompareRow => !!x);
+}
+
+/** 블록 하나 — 모르는 종류 · 빈 블록은 버린다(모델이 지시를 덜 따라도 화면이 깨지지 않게) */
+function pickBlock(v: unknown): SummaryBlock | null {
+  const o = obj(v);
+  if (!o) return null;
+  const title = pickShort(o.title, 60);
+  const withTitle = <T extends object>(b: T) => (title ? { ...b, title } : b);
+  switch (o.type) {
+    case "paragraph": { const text = pickStr(o.text); return text ? { type: "paragraph", text } : null; }
+    case "quote": { const text = pickStr(o.text); return text ? { type: "quote", text } : null; }
+    case "heading": { const text = pickShort(o.text, 60); return text ? { type: "heading", text } : null; }
+    case "callout": {
+      const text = pickStr(o.text);
+      const tone: CalloutTone = o.tone === "warn" || o.tone === "info" ? o.tone : "tip";
+      return text ? { type: "callout", tone, text } : null;
+    }
+    case "list":
+    case "steps": {
+      const items = pickItems(o.items);
+      return items.length ? withTitle({ type: o.type, items }) : null;
+    }
+    case "metrics": { const items = pickMetrics(o.items); return items.length ? { type: "metrics", items } : null; }
+    case "compare": {
+      const items = pickCompare(o.items);
+      if (!items.length) return null;
+      const b: Extract<SummaryBlock, { type: "compare" }> = { type: "compare", items };
+      const beforeLabel = pickShort(o.beforeLabel, 24);
+      const afterLabel = pickShort(o.afterLabel, 24);
+      if (beforeLabel) b.beforeLabel = beforeLabel;
+      if (afterLabel) b.afterLabel = afterLabel;
+      return withTitle(b);
+    }
+    default: return null;
+  }
+}
+
+function pickBlocks(v: unknown): SummaryBlock[] {
+  if (!Array.isArray(v)) return [];
+  return v.map(pickBlock).filter((b): b is SummaryBlock => !!b).slice(0, MAX_SUMMARY_BLOCKS);
+}
+
+/** 예전 칸 모양(body · metrics · points(+section) · note · takeaway)을 블록으로 — 저장된 옛 요약도 같은 화면으로 그린다 */
+function legacyBlocks(o: Record<string, unknown>): SummaryBlock[] {
+  const out: SummaryBlock[] = [];
   const body = pickStr(o.body);
-  const points = pickPoints(o.points);
+  const metrics = pickMetrics(o.metrics);
+  if (metrics.length) out.push({ type: "metrics", items: metrics });
+  if (body) out.push({ type: "paragraph", text: body });
+  /* points — 소제목(section)이 같은 것끼리 이어 붙여 소제목 + 목록으로 */
+  if (Array.isArray(o.points)) {
+    const raw = o.points.slice(0, 8);
+    const items = pickItems(raw);
+    let current: { section: string; items: SummaryItem[] } | null = null;
+    const groups: { section: string; items: SummaryItem[] }[] = [];
+    items.forEach((item, i) => {
+      const section = pickShort(obj(raw[i])?.section, 30);
+      if (!current || current.section !== section) { current = { section, items: [] }; groups.push(current); }
+      current.items.push(item);
+    });
+    for (const g of groups) {
+      if (g.section) out.push({ type: "heading", text: g.section });
+      out.push({ type: "list", items: g.items });
+    }
+  }
   const note = pickStr(o.note);
-  const keywords = pickList(o.keywords);
+  if (note) out.push({ type: "callout", tone: "info", text: note });
   const takeaway = pickStr(o.takeaway);
-  if (!tldr && !body && !points.length && !takeaway) return null;
-  return { kind: "structured", tldr, body, points, note, keywords, takeaway };
+  if (takeaway) out.push({ type: "quote", text: takeaway });
+  return out;
+}
+
+/** 한 언어 값(객체) → 구조. 블록이 있으면 그것, 없으면 예전 칸에서 */
+function toStructured(o: Record<string, unknown>): StructuredSummary | null {
+  const blocks = Array.isArray(o.blocks) ? pickBlocks(o.blocks) : legacyBlocks(o);
+  const tldr = pickStr(o.tldr);
+  if (!tldr && !blocks.length) return null;
+  const s: StructuredSummary = { tldr };
+  const emoji = pickEmoji(o.emoji);
+  const keywords = pickList(o.keywords);
+  if (emoji) s.emoji = emoji;
+  if (blocks.length) s.blocks = blocks;
+  if (keywords.length) s.keywords = keywords;
+  return s;
 }
 
 /** 저장된 글(JSON 또는 줄글)을 화면 모양으로 */
@@ -72,8 +212,9 @@ export function parseStoredSummary(raw: string | null | undefined): DisplaySumma
   if (!s) return null;
   if (s.startsWith("{")) {
     try {
-      const d = toDisplay(JSON.parse(s) as Record<string, unknown>);
-      if (d) return d;
+      const o = obj(JSON.parse(s));
+      const st = o && toStructured(o);
+      if (st) return { kind: "structured", tldr: st.tldr, emoji: st.emoji ?? "", blocks: st.blocks ?? [], keywords: st.keywords ?? [] };
     } catch { /* 줄글로 */ }
   }
   return { kind: "text", text: s };
@@ -87,58 +228,55 @@ export function storedSummaryHash(raw: string | null | undefined): string | unde
 }
 
 export function serializeSummary(s: StructuredSummary): string {
-  const out: Record<string, unknown> = { tldr: s.tldr };
-  if (s.body) out.body = s.body;
-  if (s.points?.length) out.points = s.points;
-  if (s.note) out.note = s.note;
+  const out: Record<string, unknown> = {};
+  if (s.emoji) out.emoji = s.emoji;
+  out.tldr = s.tldr;
+  if (s.blocks?.length) out.blocks = s.blocks;
   if (s.keywords?.length) out.keywords = s.keywords;
-  if (s.takeaway) out.takeaway = s.takeaway;
   if (s.hash) out.hash = s.hash;
   return JSON.stringify(out);
 }
 
-/** 공급자가 돌려준 한 언어 값 — 새 모양(객체)과 예전 모양(문장)을 다 받는다 */
+/** 공급자가 돌려준 한 언어 값 — 새 모양(blocks) · 예전 칸 모양 · 문장 하나를 다 받는다 */
 export function coerceSummary(v: unknown): StructuredSummary | null {
-  if (v && typeof v === "object") {
-    const o = v as Record<string, unknown>;
-    const points = pickPoints(o.points);
-    const s: StructuredSummary = {
-      tldr: pickStr(o.tldr),
-      body: pickStr(o.body) || undefined,
-      points: points.length ? points : undefined,
-      note: pickStr(o.note) || undefined,
-      keywords: pickList(o.keywords).length ? pickList(o.keywords) : undefined,
-      takeaway: pickStr(o.takeaway) || undefined,
-    };
-    return s.tldr || s.body || s.points ? s : null;
-  }
+  const o = obj(v);
+  if (o) return toStructured(o);
   const text = pickStr(v);
   return text ? { tldr: text } : null;
 }
 
-/** 글 안의 가벼운 꾸밈 — **굵게** · `코드` 만. HTML 은 쓰지 않는다(화면이 조각으로 그린다) */
-export type InlinePart = { kind: "text" | "strong" | "code"; text: string };
+/** 글 안의 가벼운 꾸밈 — **굵게** · ==형광펜== · `코드` 만. HTML 은 쓰지 않는다(화면이 조각으로 그린다) */
+export type InlinePart = { kind: "text" | "strong" | "mark" | "code"; text: string };
 export function parseInline(s: string): InlinePart[] {
   const out: InlinePart[] = [];
-  const re = /\*\*([^*]+)\*\*|`([^`]+)`/g;
   let last = 0;
-  let m: RegExpExecArray | null;
-  while ((m = re.exec(s))) {
-    if (m.index > last) out.push({ kind: "text", text: s.slice(last, m.index) });
-    out.push(m[1] !== undefined ? { kind: "strong", text: m[1] } : { kind: "code", text: m[2] });
-    last = m.index + m[0].length;
+  for (const m of s.matchAll(/\*\*([^*]+)\*\*|==([^=]+)==|`([^`]+)`/g)) {
+    const at = m.index ?? 0;
+    if (at > last) out.push({ kind: "text", text: s.slice(last, at) });
+    out.push(m[1] !== undefined ? { kind: "strong", text: m[1] } : m[2] !== undefined ? { kind: "mark", text: m[2] } : { kind: "code", text: m[3] });
+    last = at + m[0].length;
   }
   if (last < s.length) out.push({ kind: "text", text: s.slice(last) });
   return out;
 }
 
 /** 꾸밈 기호를 뗀 글 — 같음 판정 · 미리보기 */
-const stripInline = (s: string) => s.replace(/\*\*([^*]+)\*\*/g, "$1").replace(/`([^`]+)`/g, "$1");
+const stripInline = (s: string) => s.replace(/\*\*([^*]+)\*\*/g, "$1").replace(/==([^=]+)==/g, "$1").replace(/`([^`]+)`/g, "$1");
+
+const join = (...parts: (string | undefined)[]) => parts.filter(Boolean).join(" ");
+function blockToPlain(b: SummaryBlock): string {
+  switch (b.type) {
+    case "paragraph": case "quote": case "heading": case "callout": return b.text;
+    case "list": case "steps": return join(b.title, ...b.items.map((i) => join(i.label, i.text)));
+    case "metrics": return b.items.map((m) => join(m.label, m.from, m.value)).join(" ");
+    case "compare": return join(b.title, ...b.items.map((r) => join(r.label, r.before, r.after)));
+  }
+}
 
 /** 화면에 한 줄로 — 비교 모달의 같음 판정 · 목록 미리보기 */
 export function summaryToPlain(d: DisplaySummary): string {
   if (!d) return "";
-  return stripInline(d.kind === "text" ? d.text : [d.tldr, d.body, ...d.points.map((p) => `${p.label} ${p.text}`), d.note, d.keywords.join(" "), d.takeaway].filter(Boolean).join(" "));
+  return stripInline(d.kind === "text" ? d.text : join(d.tldr, ...d.blocks.map(blockToPlain), d.keywords.join(" ")));
 }
 
 /* ── 본문 해시 ── */
@@ -229,13 +367,13 @@ export function extractSkeleton(input: string | null | undefined, maxChars = 600
 export interface SummaryOptions {
   /** 한국어 말투 — 합니다체 · 해요체 · 평서(~다) */
   tone: "formal" | "friendly" | "plain";
-  /** 분량 */
+  /** 분량 — 블록 수와 전체 글자 수의 상한 */
   length: "short" | "normal" | "detailed";
-  /** 무엇을 앞세울지 — 결과 · 수치 / 과정 · 결정 / 독자가 얻는 것 */
-  focus: "outcome" | "process" | "reader";
+  /** 요약 초점 — 자동(글에 따라) / 성과(수치 · 결과) / 방법(어떻게 했는지) / 배울 점(독자가 가져갈 것) */
+  focus: "auto" | "outcome" | "process" | "reader";
   /** 키워드 개수(0 이면 키워드 없음) */
   keywords: 0 | 3 | 5;
-  /** 덧붙임(한계 · 주의) 줄을 둘지 */
+  /** 한계 · 주의 콜아웃을 허용할지 — 끄면 모델이 주의 블록을 넣지 않는다 */
   note: boolean;
   /** 추가 지시(자유 글, 300자까지) */
   instruction: string;
@@ -247,7 +385,7 @@ export interface SummaryOptions {
   provider: "auto" | "gemini" | "openai" | "groq" | "claude";
 }
 
-export const DEFAULT_SUMMARY_OPTIONS: SummaryOptions = { tone: "formal", length: "normal", focus: "outcome", keywords: 5, note: true, instruction: "", temperature: null, maxTokens: 1024, provider: "auto" };
+export const DEFAULT_SUMMARY_OPTIONS: SummaryOptions = { tone: "formal", length: "normal", focus: "auto", keywords: 5, note: true, instruction: "", temperature: null, maxTokens: 1024, provider: "auto" };
 
 /** 요청 본문의 options 를 믿지 않고 고른 값만 받는다 — 모르는 값은 기본으로, 지시문은 300자로 자른다 */
 export function sanitizeSummaryOptions(v: unknown): SummaryOptions {
@@ -257,7 +395,7 @@ export function sanitizeSummaryOptions(v: unknown): SummaryOptions {
   return {
     tone: pick(o.tone, ["formal", "friendly", "plain"] as const, d.tone),
     length: pick(o.length, ["short", "normal", "detailed"] as const, d.length),
-    focus: pick(o.focus, ["outcome", "process", "reader"] as const, d.focus),
+    focus: pick(o.focus, ["auto", "outcome", "process", "reader"] as const, d.focus),
     keywords: pick(o.keywords, [0, 3, 5] as const, d.keywords),
     note: typeof o.note === "boolean" ? o.note : d.note,
     instruction: typeof o.instruction === "string" ? o.instruction.replace(/[\u0000-\u001f]/g, " ").trim().slice(0, 300) : "",

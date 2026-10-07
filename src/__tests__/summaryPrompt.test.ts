@@ -1,28 +1,35 @@
 /**
  * AI 요약 프롬프트(lib/api/aiSummaryProviders.buildSummaryPrompt) — 글 · 작업물 · 모든 공급자가 같은 문장을 쓴다.
- * 예시 하나와 피할 예를 싣고, 관리자 옵션(말투 · 분량 · 초점 · 키워드 수 · 덧붙임 · 추가 지시)이 문장에 들어간다.
+ * 블록 목록 · 모양이 다른 예시 · 작성 지침을 싣고, 관리자 옵션(말투 · 분량 · 초점 · 키워드 수 · 주의 블록 · 추가 지시)이 문장에 들어간다.
  */
 import { describe, expect, it } from "vitest";
 import { buildSummaryPrompt } from "@/lib/api/aiSummaryProviders";
 import { DEFAULT_SUMMARY_OPTIONS, sanitizeSummaryOptions } from "@/lib/ai/summary";
 
 describe("buildSummaryPrompt", () => {
-  it("기본은 합니다체 · 출력 키 다섯 · 예시와 피할 예", () => {
+  it("기본은 합니다체 · 블록 출력 · 예시와 피할 예", () => {
     const p = buildSummaryPrompt("post", { title: "제목", ko: "본문", en: "body" });
     expect(p).toContain("합니다체");
-    expect(p).toContain('"points": [{"label": "", "text": ""}]');
-    expect(p).toContain("**double asterisks**");
+    expect(p).toContain('"blocks": []');
+    expect(p).toContain("**bold**");
     expect(p).toContain("## Avoid");
     expect(p).toContain("Title: 제목");
+  });
+
+  it("요약 초점은 기본이 자동 — 글에 맞춰 고르라고 쓴다", () => {
+    expect(DEFAULT_SUMMARY_OPTIONS.focus).toBe("auto");
+    expect(buildSummaryPrompt("post", {})).toContain("Lead with whatever matters most");
+    expect(sanitizeSummaryOptions({ focus: "auto" }).focus).toBe("auto");
+    expect(sanitizeSummaryOptions({ focus: "nope" }).focus).toBe("auto");
   });
 
   it("옵션이 문장으로 들어간다", () => {
     const p = buildSummaryPrompt("work", {}, { ...DEFAULT_SUMMARY_OPTIONS, tone: "friendly", length: "short", focus: "process", keywords: 0, note: false, instruction: "접근성을 강조" });
     expect(p).toContain("해요체");
-    expect(p).toContain('"points": 2 to 3 items');
+    expect(p).toContain("2 to 3 blocks");
     expect(p).toContain("Lead with how");
     expect(p).toContain('"keywords": always an empty array');
-    expect(p).toContain('"note": always ""');
+    expect(p).toContain("Do not add caveats");
     expect(p).toContain("접근성을 강조");
   });
 
