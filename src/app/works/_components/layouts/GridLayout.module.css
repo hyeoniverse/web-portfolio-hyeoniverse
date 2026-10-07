@@ -80,7 +80,7 @@
 }
 
 /* 칸이 줄었을 때는 한 줄 소개부터 접는다 — 제목까지 더 줄이면 표지 구실을 못 한다 */
-@container (max-height: 120px) {
+@container (height <= 120px) {
   .introTagline {
     display: none;
   }

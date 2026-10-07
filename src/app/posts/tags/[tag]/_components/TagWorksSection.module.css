@@ -162,7 +162,7 @@
     transform var(--duration-base) var(--ease-enter) var(--duration-fast);
 }
 
-@media (width <= 640px) {
+@media (width <= 768px) {
   .workRowSubtitle {
     display: none;
   }

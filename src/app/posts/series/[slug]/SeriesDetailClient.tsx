@@ -33,7 +33,7 @@ function SeriesEpisodeRow({ post, index }: { post: Post; index: number }) {
       >
         <span className={styles.epThumb}>
           {showImage ? (
-            <MediaThumb src={post.cover_image} fill sizes="(max-width: 640px) 96px, 160px" className={styles.epThumbImg} />
+            <MediaThumb src={post.cover_image} fill sizes="(max-width: 768px) 96px, 160px" className={styles.epThumbImg} />
           ) : (
             <span className={styles.epThumbFallback} style={{ background: getFallbackCoverGradient(post.slug || post.id) }}>
               {icon && <EmojiIcon value={icon} size={26} />}
