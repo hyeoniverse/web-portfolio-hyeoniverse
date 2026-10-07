@@ -24,6 +24,7 @@ import { LenisProvider } from "@/providers/LenisProvider";
 import RecaptchaProvider from "@/providers/RecaptchaProvider";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import FaviconSync from "@/components/layout/FaviconSync";
+import BarColorSync from "@/components/layout/BarColorSync";
 import { LanguageProvider } from "@/providers/LanguageProvider";
 import { SiteConfigProvider } from "@/providers/SiteConfigProvider";
 import { toSiteWideConfig } from "@/config/siteWideConfig";
@@ -178,6 +179,8 @@ export default async function RootLayout({
         <SiteConfigProvider initialConfig={toSiteWideConfig(config)} publicKeys={publicKeys}>
           <ThemeProvider>
             <FaviconSync version={faviconVersion(config.brand)} />
+            {/* 상태줄 뒤 색(theme-color · MacFolio 창의 bar-color)을 화면 맨 위 배경에 맞춘다 */}
+            <BarColorSync />
             <LanguageProvider>
               <RecaptchaProvider>
                 <LenisProvider>
