@@ -1981,7 +1981,6 @@
     },
     "aiSummaryField": {
       "options": {
-        "advanced": "고급 설정",
         "siteTitle": "요약 기본 옵션",
         "siteHint": "발행 때 자동으로 만드는 요약과 방문자가 처음 만드는 요약이 이 값을 씁니다. 편집기의 다시 만들기도 처음엔 이 값으로 열립니다.",
         "provider": "공급자",
@@ -1989,7 +1988,6 @@
         "temperature": "temperature",
         "temperatureAuto": "자동",
         "maxTokens": "출력 토큰 상한",
-        "genHint": "temperature 가 높을수록 표현이 다양해지고, 낮을수록 같은 결과에 가깝습니다. 자동은 다시 만들 때 0.7 입니다. 공급자를 고르면 자동 전환 없이 그 공급자만 씁니다.",
         "title": "요약 옵션",
         "tone": "말투",
         "toneFormal": "합니다",
@@ -1999,13 +1997,29 @@
         "lengthShort": "짧게",
         "lengthNormal": "보통",
         "lengthDetailed": "자세히",
-        "focus": "앞세울 것",
-        "focusOutcome": "결과",
-        "focusProcess": "과정",
-        "focusReader": "독자",
+        "focus": "요약 초점",
+        "focusAuto": "자동",
+        "focusOutcome": "성과",
+        "focusProcess": "방법",
+        "focusReader": "배울 점",
+        "focusDesc": {
+          "auto": "글에 맞춰 무엇을 먼저 쓸지 고릅니다.",
+          "outcome": "수치와 결과를 먼저 씁니다.",
+          "process": "어떻게 했는지를 먼저 씁니다.",
+          "reader": "읽는 사람이 가져갈 것을 먼저 씁니다."
+        },
+        "noteOnDesc": "원문이 말한 한계나 주의만 콜아웃으로 넣습니다.",
+        "noteOffDesc": "한계나 주의는 넣지 않습니다.",
+        "temperatureAutoDesc": "저장할 때 0.2, 다시 만들 때 0.7 을 씁니다.",
+        "temperatureManualDesc": "높을수록 표현이 다양해지고, 낮을수록 같은 결과에 가깝습니다.",
+        "maxTokensDesc": "요약이 중간에 잘리면 늘립니다.",
+        "noteOn": "원문에 있으면",
+        "noteOff": "넣지 않음",
+        "maxTokensShort": "토큰",
+        "generation": "생성 설정(공급자 · temperature · 토큰)",
         "keywords": "키워드",
         "keywordsNone": "없음",
-        "note": "덧붙임(한계 · 주의)",
+        "note": "한계 · 주의",
         "instructionPlaceholder": "추가 지시 (예: 접근성 개선을 강조해 주세요)",
         "reset": "기본값"
       },
@@ -2013,7 +2027,17 @@
       "generate": "만들기",
       "regenerate": "다시 만들기",
       "empty": "아직 요약이 없습니다. 발행하면 자동으로 만들어지고, 지금 만들 수도 있습니다.",
-      "emptyUnsaved": "글을 한 번 저장한 뒤 만들 수 있습니다."
+      "emptyUnsaved": "글을 한 번 저장한 뒤 만들 수 있습니다.",
+      "guide": {
+        "title": "작성 지침",
+        "hint": "요약 프롬프트에서 고칠 수 있는 부분입니다. 블록 종류와 출력 형식은 코드에 고정되어 있어 여기서 바뀌지 않습니다. 비우면 기본 지침을 씁니다.",
+        "reset": "기본 지침으로",
+        "preview": "미리 만들어 보기",
+        "previewLabel": "미리보기 · 저장되지 않습니다",
+        "targetPost": "글",
+        "targetWork": "작업물",
+        "targetPlaceholder": "미리 볼 글"
+      }
     },
     "summaryCompare": {
       "title": "AI 요약 비교",

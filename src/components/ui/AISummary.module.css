@@ -2,7 +2,7 @@
 @layer components {
 /* ==========================================================================
    AI Summary — 글 · 작업물 상세의 요약 카드
-   머리(아이콘 · 이름 · ⓘ) → 제목 한 줄 → 본문 → 덧붙임(흐리게) → 키워드 칩 → 강조 마무리
+   머리(아이콘 · 이름 · ⓘ) → 제목 한 줄 → 모델이 고른 블록들(문단 · 목록 · 단계 · 수치 카드 · 비교 · 콜아웃 · 인용 · 소제목) → 키워드 칩
    ========================================================================== */
 
 /* 카드 없이 본문 흐름 안의 절 — 여백과 아랫선 하나로만 가른다(면 · 테두리 상자 없음).
@@ -77,6 +77,43 @@
   color: var(--text-secondary);
 }
 
+/* 단계 — 점 대신 번호 */
+.steps {
+  counter-reset: summary-step;
+}
+
+.steps .point {
+  counter-increment: summary-step;
+  padding-left: var(--spacing-24);
+}
+
+.steps .point::before {
+  content: counter(summary-step) ".";
+  top: 0;
+  left: 0;
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  background: none;
+  color: var(--text-accent);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 이모지가 있으면 점 대신 이모지 — 같은 자리(왼쪽 들여쓰기 안)에 */
+.point[data-emoji] {
+  padding-left: var(--spacing-24);
+}
+
+.point[data-emoji]::before {
+  content: none;
+}
+
+.pointEmoji {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
 .point::before {
   content: "";
   position: absolute;
@@ -94,9 +131,165 @@
   color: var(--text-primary);
 }
 
-/* 글 안 강조 · 코드 */
+/* 글 안 강조 · 형광펜 · 코드 */
 .em {
   color: var(--text-primary);
+}
+
+/* 형광펜 — 강조색을 옅게 깐 바탕. 글자색은 본문 그대로라 굵게(수치)와 겹쳐 보이지 않는다 */
+.mark {
+  padding: 0 var(--spacing-2);
+  border-radius: var(--radius-mark);
+  background: var(--bg-accent-light);
+  color: var(--text-primary);
+}
+
+/* 제목 줄 앞 이모지 */
+.tldrEmoji {
+  margin-right: var(--spacing-8);
+}
+
+/* ── 수치 카드 — 원문이 말한 수치. 이전 → 지금, 지금 값이 가장 크다 ── */
+/* 카드는 내용 폭 정도로 — 둘 · 셋뿐일 때 한 줄을 다 채우면 숫자 사이가 너무 벌어진다 */
+.metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.metric {
+  flex: 1 1 140px;
+  max-width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  padding: var(--spacing-12) var(--spacing-16);
+  border: var(--border-light);
+  border-radius: var(--radius-surface);
+}
+
+.metricLabel {
+  font: var(--font-body-xs);
+  color: var(--text-tertiary);
+}
+
+.metricRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--spacing-4);
+  font-variant-numeric: tabular-nums;
+}
+
+.metricFrom {
+  font: var(--font-body-sm);
+  color: var(--text-tertiary);
+}
+
+.metricArrow {
+  align-self: center;
+  color: var(--text-tertiary);
+}
+
+.metricValue {
+  font: var(--font-title-md);
+  color: var(--text-primary);
+}
+
+/* ── 소제목 · 목록과 비교의 제목 ── */
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+}
+
+.sectionTitle {
+  margin: 0;
+  font: var(--font-body-xs);
+  color: var(--text-accent);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* ── 콜아웃 — 덧붙임(한계 · 주의 · 팁)을 상자로 ── */
+.callout {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-8);
+  padding: var(--spacing-12) var(--spacing-16);
+  border-radius: var(--radius-surface);
+  background: var(--bg-secondary);
+}
+
+.calloutIcon {
+  flex-shrink: 0;
+  margin-top: var(--spacing-2);
+  color: var(--text-accent);
+}
+
+/* 정보 콜아웃은 아이콘도 차분하게 — 팁 · 주의만 강조색 */
+.callout[data-tone="info"] .calloutIcon {
+  color: var(--text-tertiary);
+}
+
+/* ── 인용 — 글의 한 줄. 왼쪽 강조색 막대 ── */
+.quote {
+  margin: 0;
+  padding-left: var(--spacing-12);
+  border-left: var(--border-width-2) solid var(--text-accent);
+  font: var(--font-body-md);
+  color: var(--text-primary);
+}
+
+/* ── 전후 · 둘 비교 — 이름 · 왼쪽 · 오른쪽 세 칸 ── */
+/* 표는 내용 폭만큼 — 한 줄을 다 채우면 짧은 비교도 칸 사이가 멀어져 읽기 어렵다 */
+.compare {
+  display: grid;
+  grid-template-columns: max-content minmax(8rem, 1fr) minmax(8rem, 1fr);
+  width: fit-content;
+  max-width: 100%;
+  border: var(--border-light);
+  border-radius: var(--radius-surface);
+  overflow: hidden;
+}
+
+.compareRow {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+  gap: var(--spacing-12);
+  padding: var(--spacing-8) var(--spacing-16);
+  font: var(--font-body-sm);
+}
+
+.compareRow + .compareRow {
+  border-top: var(--border-light);
+}
+
+.compareHead {
+  font: var(--font-body-xs);
+  color: var(--text-tertiary);
+}
+
+.compareLabel {
+  color: var(--text-secondary);
+}
+
+.compareBefore {
+  color: var(--text-tertiary);
+}
+
+.compareAfter {
+  color: var(--text-primary);
+}
+
+.calloutText {
+  margin: 0;
+  font: var(--font-body-md);
+  color: var(--text-secondary);
 }
 
 .code {
@@ -105,13 +298,6 @@
   background: color-mix(in oklch, var(--text-contrast) 8%, transparent);
   font: var(--font-code-sm);
   color: var(--text-primary);
-}
-
-/* 덧붙임 — 한계 · 주의. 본문보다 한 단계 흐리게 */
-.note {
-  margin: 0;
-  font: var(--font-body-md);
-  color: var(--text-tertiary);
 }
 
 .keywords {
@@ -134,13 +320,6 @@
   white-space: nowrap;
 }
 
-/* 마무리 한 줄 — 강조색 */
-.takeaway {
-  margin: var(--spacing-4) 0 0;
-  font: var(--font-body-md);
-  color: var(--text-accent);
-}
-
 /* 예전 줄글 요약 */
 .text {
   margin: 0;
@@ -160,9 +339,13 @@
 
 .compact .body,
 .compact .point,
-.compact .note,
-.compact .takeaway {
+.compact .quote,
+.compact .calloutText {
   font: var(--font-body-sm);
+}
+
+.compact .metricValue {
+  font: var(--font-title-sm);
 }
 
 /* 만드는 중 · 비어 있을 때 */

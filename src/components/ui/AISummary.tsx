@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Sparkles, Info } from "@/components/icons";
+import { AlertTriangle, ArrowRight, Info, Lightbulb, Sparkles } from "@/components/icons";
 import Button from "@/components/ui/Button";
 import LoadingDots from "@/components/ui/LoadingDots";
 import Tooltip from "@/components/ui/Tooltip";
-import { parseInline, parseStoredSummary, type DisplaySummary } from "@/lib/ai/summary";
+import { parseInline, parseStoredSummary, type CalloutTone, type DisplaySummary, type SummaryBlock, type SummaryItem } from "@/lib/ai/summary";
 import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "./AISummary.module.css";
 
@@ -27,39 +27,123 @@ function Inline({ text }: { text: string }) {
     <>
       {parseInline(text).map((p, i) =>
         p.kind === "strong" ? <strong key={i} className={styles.em}>{p.text}</strong>
+          : p.kind === "mark" ? <mark key={i} className={styles.mark}>{p.text}</mark>
           : p.kind === "code" ? <code key={i} className={styles.code}>{p.text}</code>
           : <span key={i}>{p.text}</span>)}
     </>
   );
 }
 
-/** 저장된 요약을 조각으로 — 제목 한 줄 · 본문 · 덧붙임(흐리게) · 키워드 칩 · 강조 마무리. 예전 줄글은 문단 그대로.
+/** 목록 · 단계 한 줄 — 이모지(있으면 점 대신) · 굵은 머리말 · 한 문장 */
+function ItemBody({ item }: { item: SummaryItem }) {
+  return (
+    <>
+      {item.emoji && <span className={styles.pointEmoji} aria-hidden>{item.emoji}</span>}
+      {item.label && <strong className={styles.pointLabel}>{item.label}</strong>}
+      <span className={styles.pointText}><Inline text={item.text} /></span>
+    </>
+  );
+}
+
+const CALLOUT_ICON: Record<CalloutTone, typeof Info> = { tip: Lightbulb, warn: AlertTriangle, info: Info };
+
+/** 블록 하나 — 모델이 고른 종류대로 */
+function Block({ block: b }: { block: SummaryBlock }) {
+  switch (b.type) {
+    case "paragraph":
+      return <p className={styles.body}><Inline text={b.text} /></p>;
+    case "heading":
+      return <h3 className={styles.sectionTitle}>{b.text}</h3>;
+    case "quote":
+      return <blockquote className={styles.quote}><Inline text={b.text} /></blockquote>;
+    case "callout": {
+      const Icon = CALLOUT_ICON[b.tone];
+      return (
+        <aside className={styles.callout} data-tone={b.tone}>
+          <Icon size={16} strokeWidth={1.75} className={styles.calloutIcon} aria-hidden />
+          <p className={styles.calloutText}><Inline text={b.text} /></p>
+        </aside>
+      );
+    }
+    case "list":
+    case "steps": {
+      const items = b.items.map((it, i) => (
+        <li key={i} className={styles.point} data-emoji={b.type === "list" && it.emoji ? "" : undefined}>
+          <ItemBody item={b.type === "steps" ? { ...it, emoji: undefined } : it} />
+        </li>
+      ));
+      return (
+        <div className={styles.group}>
+          {b.title && <h3 className={styles.sectionTitle}>{b.title}</h3>}
+          {b.type === "steps" ? <ol className={`${styles.points} ${styles.steps}`}>{items}</ol> : <ul className={styles.points}>{items}</ul>}
+        </div>
+      );
+    }
+    case "metrics":
+      /* 수치 카드 — 원문이 말한 수치만. 이전 값이 있으면 "이전 → 지금" */
+      return (
+        <ul className={styles.metrics}>
+          {b.items.map((m, i) => (
+            <li key={i} className={styles.metric}>
+              <span className={styles.metricLabel}>{m.label}</span>
+              <span className={styles.metricRow}>
+                {m.from && (
+                  <>
+                    <span className={styles.metricFrom}>{m.from}</span>
+                    <ArrowRight size={12} strokeWidth={2} className={styles.metricArrow} aria-hidden />
+                  </>
+                )}
+                <span className={styles.metricValue}>{m.value}</span>
+              </span>
+            </li>
+          ))}
+        </ul>
+      );
+    case "compare":
+      /* 전후 · 둘 비교 — 줄마다 이름 · 왼쪽 · 오른쪽. 오른쪽(나중 · 고른 쪽)이 더 또렷하다 */
+      return (
+        <div className={styles.group}>
+          {b.title && <h3 className={styles.sectionTitle}>{b.title}</h3>}
+          <div className={styles.compare} role="table">
+            {(b.beforeLabel || b.afterLabel) && (
+              <div className={styles.compareRow} role="row">
+                <span role="columnheader" />
+                <span className={styles.compareHead} role="columnheader">{b.beforeLabel}</span>
+                <span className={styles.compareHead} role="columnheader">{b.afterLabel}</span>
+              </div>
+            )}
+            {b.items.map((r, i) => (
+              <div key={i} className={styles.compareRow} role="row">
+                <span className={styles.compareLabel} role="rowheader">{r.label}</span>
+                <span className={styles.compareBefore} role="cell"><Inline text={r.before} /></span>
+                <span className={styles.compareAfter} role="cell"><Inline text={r.after} /></span>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+  }
+}
+
+/** 저장된 요약을 그린다 — 고정인 제목 한 줄(이모지) · 키워드 칩 사이에 모델이 고른 블록들. 예전 줄글은 문단 그대로.
  *  compact 는 편집기 칸처럼 좁은 자리용(글자 한 단계 작게) */
 export function SummaryBody({ summary, compact }: { summary: DisplaySummary; compact?: boolean }) {
   if (!summary) return null;
   if (summary.kind === "text") return <p className={styles.text}>{summary.text}</p>;
   return (
     <div className={`${styles.structured} ${compact ? styles.compact : ""}`}>
-      {summary.tldr && <p className={styles.tldr}><Inline text={summary.tldr} /></p>}
-      {summary.body && <p className={styles.body}><Inline text={summary.body} /></p>}
-      {/* 핵심 항목 — 굵은 머리말 + 한 문장. 줄글 대신 훑어 읽게 */}
-      {summary.points.length > 0 && (
-        <ul className={styles.points}>
-          {summary.points.map((p, i) => (
-            <li key={i} className={styles.point}>
-              {p.label && <strong className={styles.pointLabel}>{p.label}</strong>}
-              <span className={styles.pointText}><Inline text={p.text} /></span>
-            </li>
-          ))}
-        </ul>
+      {summary.tldr && (
+        <p className={styles.tldr}>
+          {summary.emoji && <span className={styles.tldrEmoji} aria-hidden>{summary.emoji}</span>}
+          <Inline text={summary.tldr} />
+        </p>
       )}
-      {summary.note && <p className={styles.note}><Inline text={summary.note} /></p>}
+      {summary.blocks.map((b, i) => <Block key={i} block={b} />)}
       {summary.keywords.length > 0 && (
         <ul className={styles.keywords}>
           {summary.keywords.map((k, i) => <li key={i} className={styles.keyword}>{k}</li>)}
         </ul>
       )}
-      {summary.takeaway && <p className={styles.takeaway}><Inline text={summary.takeaway} /></p>}
     </div>
   );
 }

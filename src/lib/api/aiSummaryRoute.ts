@@ -4,6 +4,7 @@ import { requirePostAccess } from "@/lib/api/requirePostAccess";
 import { jsonError } from "@/lib/api/response";
 import { generateSummary, buildSummaryPrompt, toStored, AiSummaryError } from "@/lib/api/aiSummaryProviders";
 import { sanitizeSummaryOptions, storedSummaryHash, summaryHash, type SummaryOptions } from "@/lib/ai/summary";
+import { sanitizeSummaryGuide, SUMMARY_GUIDE_MAX } from "@/lib/ai/summaryGuide";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 
 /**
@@ -15,6 +16,7 @@ import { getSiteConfig } from "@/lib/getSiteConfig";
  *   { force: true, apply: false }  새로 만들되 저장하지 않고 현재 요약과 함께 돌려준다(편집기의 비교 · 선택)
  *   { summary_ko, summary_en }     만들지 않고 이 값을 저장(비교에서 고른 쪽)
  *   { …, options }                 편집기의 요약 옵션(말투 · 분량 · 초점 · 키워드 수 · 덧붙임 · 추가 지시). 공개 요청은 무시한다
+ *   { …, apply: false, guide }     설정 › 서비스의 미리보기 — 저장하지 않는 요청에 한해 아직 저장 안 한 작성 지침으로 만든다
  *   { public: true }               방문자가 공개 상세에서 "AI 요약 만들기"를 눌렀다 — 로그인 없이, 발행된 글이고
  *                                  요약이 비어 있을 때만 한 번 만든다. 동시에 눌러도 먼저 저장된 것이 남는다
  *
@@ -47,6 +49,12 @@ async function siteSummaryDefaults(): Promise<SummaryOptions> {
   return sanitizeSummaryOptions((cfg?.aiSummary as { options?: unknown } | undefined)?.options);
 }
 
+/** 작성 지침(설정 › 서비스) — 프롬프트에서 관리자가 고칠 수 있는 부분. 비어 있으면 기본값 */
+async function siteSummaryGuide(): Promise<string> {
+  const cfg = await getSiteConfig();
+  return sanitizeSummaryGuide((cfg?.aiSummary as { guide?: unknown } | undefined)?.guide);
+}
+
 /** 옵션에서 생성 값으로 — temperature 가 자동(null)이면 저장 때 0.2, 다시 만들기 0.7 */
 function genFrom(o: SummaryOptions, regenerate: boolean) {
   return {
@@ -75,7 +83,7 @@ export async function handleSummaryRequest(request: Request, id: string, t: Summ
     try {
       /* 방문자 — 요청의 옵션은 받지 않고 사이트 기본값 그대로 */
       const site = await siteSummaryDefaults();
-      const { ko, en } = await generateSummary(buildSummaryPrompt(t.kind, { title: r.title, ko: r[t.koColumn], en: r.content_en }, site), t.logPrefix, genFrom(site, false));
+      const { ko, en } = await generateSummary(buildSummaryPrompt(t.kind, { title: r.title, ko: r[t.koColumn], en: r.content_en }, site, await siteSummaryGuide()), t.logPrefix, genFrom(site, false));
       const hash = summaryHash(r[t.koColumn], r.content_en);
       const stored = { summary_ko: toStored(ko, hash), summary_en: toStored(en, hash) };
       /* 비어 있는 행에만 — 그 사이 다른 사람(또는 작성자)이 채웠으면 그쪽을 남긴다 */
@@ -119,11 +127,13 @@ export async function handleSummaryRequest(request: Request, id: string, t: Summ
   }
 
   /* 편집기 팝오버에서 온 옵션이 있으면 그것(받은 값을 그대로 믿지 않고 고른다), 없으면(발행 뒤 자동) 사이트 기본값 */
-  const opts = body.options ? sanitizeSummaryOptions(body.options) : await siteSummaryDefaults();
+  const opts: SummaryOptions = body.options ? sanitizeSummaryOptions(body.options) : await siteSummaryDefaults();
+  /* 작성 지침 — 저장하지 않는 요청(미리보기)은 아직 저장 안 한 지침을 받을 수 있다. 저장하는 요청은 늘 저장된 지침 */
+  const guide = !apply && typeof body.guide === "string" ? body.guide.slice(0, SUMMARY_GUIDE_MAX) : await siteSummaryGuide();
   try {
     const { ko, en, failures } = await generateSummary(
       /* 편집기에서 고른 말투 · 분량 · 초점 · 키워드 · 덧붙임 · 추가 지시와 생성 값 — 받은 값을 그대로 믿지 않고 고른다 */
-      buildSummaryPrompt(t.kind, { title: r.title, ko: r[t.koColumn], en: r.content_en }, opts),
+      buildSummaryPrompt(t.kind, { title: r.title, ko: r[t.koColumn], en: r.content_en }, opts, guide),
       t.logPrefix,
       genFrom(opts, force && !apply),
     );
