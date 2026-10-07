@@ -236,11 +236,12 @@ export default function BunnyShowcasePanel({ animateClass, bunny }: Props) {
 
   useEffect(() => () => { delete document.body.dataset.cursor; }, []);
 
-  const endDrag = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+  /* cancelled — 브라우저가 입력을 가져갔다(터치로 세로로 쓸어 페이지가 스크롤되기 시작함). 찌른 게 아니다 */
+  const endDrag = useCallback((e: React.PointerEvent<HTMLDivElement>, cancelled = false) => {
     const { bunnyDrag: drag, bunnyTouch: touch } = useProfileSectionStore.getState();
     drag.dragging = false;
     /* 거의 안 움직이고 뗐으면 찌른 것이다. 볼이든 몸이든 상관없다. */
-    if (press.current && press.current.moved < TAP_SLOP) {
+    if (!cancelled && press.current && press.current.moved < TAP_SLOP) {
       touch.grabX = press.current.nx;
       touch.grabY = press.current.ny;
       touch.poke = 1;
@@ -250,7 +251,8 @@ export default function BunnyShowcasePanel({ animateClass, bunny }: Props) {
     touch.petting = false;
     /* 손을 떼면 커서가 지금 어디 있는지 알 수 없다. 트레일을 되살려 두고,
        상자 안이면 바로 다음 이동에서 다시 감춘다. */
-    if (!e.currentTarget.matches(":hover")) {
+    /* 터치는 손가락을 떼면 끝이다 — 터치 뒤에도 :hover 가 남는 브라우저가 있어 손이 그 자리에 떠 있었다 */
+    if (e.pointerType === "touch" || !e.currentTarget.matches(":hover")) {
       touch.over = false;
       touch.hand = "";
       setTrailHidden(false);
@@ -276,7 +278,7 @@ export default function BunnyShowcasePanel({ animateClass, bunny }: Props) {
         onPointerDown={onPointerDown}
         onPointerMove={(e) => { onHover(e); onPointerMove(e); }}
         onPointerUp={endDrag}
-        onPointerCancel={endDrag}
+        onPointerCancel={(e) => endDrag(e, true)}
         onPointerLeave={() => {
           const touch = useProfileSectionStore.getState().bunnyTouch;
           touch.over = false;
