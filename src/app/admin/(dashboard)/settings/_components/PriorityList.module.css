@@ -24,9 +24,9 @@
   gap: var(--spacing-8);
 }
 
-/* 줄 아래 상세 — 순서 상자의 시작선(핸들 + 체크 칸 뒤)에 맞춰 들여쓴다 */
+/* 줄 아래 상세 — 상자 안 이름 글자와 같은 시작선: 핸들(14) + 간격 + 상자 테두리 + 번호 칸 + 이름 안쪽 여백 */
 .priorityDetail {
-  padding-left: calc(var(--control-height-sm) + var(--control-height-sm) + var(--spacing-16));
+  padding-left: calc(14px + var(--spacing-8) + var(--border-width-1) + var(--control-height-sm) + var(--spacing-12));
 }
 
 .priorityItem {
