@@ -32,7 +32,8 @@ export default function ContactInfoCards({
         {/* 모바일 header: 로고 + 닫기 버튼 */}
         <div className={styles.emailHeader}>
           <div className={styles.emailHeaderSpacer} />
-          <Logo variant="full" as="span" className={styles.emailHeaderLogo} />
+          {/* 이메일 카드는 테마와 상관없이 흰 바탕(--bg-white) — 로고도 흰 바탕용으로 고정한다(사이트 테마를 따르면 다크에서 흰 로고가 흰 바탕에 묻힌다) */}
+          <Logo variant="full" as="span" bg="light" className={styles.emailHeaderLogo} />
           <CloseButton
             className={styles.emailHeaderClose}
             onClick={onClose}

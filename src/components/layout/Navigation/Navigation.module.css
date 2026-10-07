@@ -6,7 +6,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--spacing-32) var(--spacing-page-inline);
+  padding: var(--spacing-nav-top) var(--spacing-page-inline);
   position: fixed;
   top: 0;
   right: 0;
@@ -28,7 +28,7 @@
    (자식에 두면 부모 stacking context 안에서 transparent backdrop 과 blend → 무효) */
 .logoNavBar {
   /* 로고가 놓이는 높이. 로딩 워드마크의 transform(.logoCssLoading)이 같은 값으로 거리를 잰다. */
-  --nav-logo-top: var(--spacing-32);
+  --nav-logo-top: var(--spacing-nav-top);
   position: fixed;
   top: var(--nav-logo-top);
   left: var(--spacing-page-inline);
@@ -1565,31 +1565,30 @@
     gap: 0;
   }
 
-  /* actionBtn size 는 base (button-h-md) 유지 — 모바일에서 갑자기 작아지지 않게 (사용자 요구사항).
-     padding 만 살짝 조정 가능. */
-
-  .themeIcon {
-    width: 12px;
-    height: 12px;
+  /* 손가락으로 누르는 폭 — 단추는 40px(로고 38px 와 줄 높이를 맞춘다), 아이콘 · 글자도 데스크톱보다 크게.
+     전에는 32px 단추에 12px(480 이하 11px) 아이콘이라 누르기도 보기도 어려웠다 */
+  .actionBtn {
+    width: var(--size-40);
+    height: var(--size-40);
   }
 
+  .themeIcon,
   .soundIcon {
-    width: 12px;
-    height: 12px;
+    width: 18px;
+    height: 18px;
+  }
+
+  .menuDots {
+    width: 16px;
+    height: 16px;
+  }
+
+  .langText {
+    font-size: var(--font-size-body-md);
   }
 }
 
 @media (width <= 480px) {
-  .nav {
-    padding: var(--spacing-16) var(--spacing-page-inline);
-  }
-
-  /* .nav 패딩이 줄면(--spacing-32→--spacing-16) 버튼 행이 위로 올라간다.
-     로고는 별도 fixed 요소라 top 을 같이 줄여야 버튼과 수직 중심이 맞는다. */
-  .logoNavBar {
-    --nav-logo-top: var(--spacing-16);
-  }
-
   .navActions {
     gap: 0;
   }
@@ -1598,29 +1597,6 @@
     padding: var(--spacing-4);
   }
 
-  .themeIcon {
-    width: 11px;
-    height: 11px;
-  }
-
-  .soundIcon {
-    width: 11px;
-    height: 11px;
-  }
-
-  .langText {
-    font-size: var(--font-size-body-sm);
-  }
-
-  .menuDots {
-    grid-template-columns: repeat(3, 1.5px);
-    gap: var(--spacing-2);
-  }
-
-  .menuDot {
-    width: 1.5px;
-    height: 1.5px;
-  }
 }
 
 /* 처리 필요 알림 배지 — 팝업 목록에서 결정이 필요한 항목을 정보성과 구분한다 */
