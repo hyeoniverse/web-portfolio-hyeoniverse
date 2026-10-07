@@ -24,7 +24,7 @@
   gap: var(--spacing-8);
 }
 
-/* 라벨 위에 얇은 선 하나 — 여백만으로는 100vh 안에서 경계가 흐려진다. */
+/* 라벨 위에 얇은 선 하나 — 여백만으로는 100svh 안에서 경계가 흐려진다. */
 .block .blockLabel {
   padding-top: var(--spacing-12);
   border-top: var(--border-light);
@@ -632,7 +632,7 @@
   color: var(--text-tertiary);
 }
 
-/* 패널은 100vh 고정이고 넘치면 잘린다 — 화면이 낮으면 밀도를 올려 한 화면에 들어가게 한다. */
+/* 패널은 100svh 고정이고 넘치면 잘린다 — 화면이 낮으면 밀도를 올려 한 화면에 들어가게 한다. */
 @media (height <= 860px) {
   .section {
     gap: var(--spacing-24);

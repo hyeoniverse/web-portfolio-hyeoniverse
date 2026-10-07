@@ -8,7 +8,7 @@
   justify-content: center;
   flex-shrink: 0;
   width: 60vw;
-  height: 100vh;
+  height: 100svh;
   padding: 0;
   box-sizing: border-box;
   font-family: var(--font-family-code);

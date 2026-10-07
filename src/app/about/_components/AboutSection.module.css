@@ -55,7 +55,7 @@
   overflow: hidden;
   position: relative;
   width: 35vw;
-  height: 100vh;
+  height: 100svh;
 }
 
 /* 데스크톱 장면 전환에서는 쉬어 가는 이미지 칸(35vw)을 빼 둔다 — 화면보다 좁아 컷 없이 그냥 밀려 지나가,
@@ -89,7 +89,7 @@
     padding-top: var(--spacing-96);
     overflow: visible;
     height: auto;
-    min-height: 100vh;
+    min-height: 100svh;
   }
 
   /* ── Mobile InView animation (reverse on exit) ── */

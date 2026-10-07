@@ -14,7 +14,7 @@ export default async function WorksPage() {
   if (projects.length === 0) return <WorksEmptyState />;
 
   return (
-    <Suspense fallback={<div style={{ minHeight: "100vh", background: "var(--bg-primary)" }} />}>
+    <Suspense fallback={<div style={{ minHeight: "100dvh", background: "var(--bg-primary)" }} />}>
       <WorksSection projects={projects} />
     </Suspense>
   );
