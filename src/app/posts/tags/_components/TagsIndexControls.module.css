@@ -2,9 +2,15 @@
 
 .searchBar {
   flex: 0 0 auto;
-  width: 320px;
+  width: 100%;
   max-width: 100%;
   margin-left: auto;
+}
+
+@media (width > 768px) {
+  .searchBar {
+    width: 320px;
+  }
 }
 /* 검색창 기본 border 를 옆 컨트롤(도움말 버튼·정렬 등, 모두 light)과 통일 — series(IndexPage) 와 동일 */
 .searchBar:not(:focus-within) {
@@ -12,8 +18,3 @@
 }
 
 /* 좁은 화면: 검색창을 한 줄 전체로 내려 화면 밖으로 삐져나가지 않게 */
-@media (width <= 768px) {
-  .searchBar {
-    width: 100%;
-  }
-}

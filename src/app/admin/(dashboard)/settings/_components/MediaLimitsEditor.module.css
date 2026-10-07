@@ -10,17 +10,16 @@
 /* ── 상단 컨트롤 — 저장소 상한 + 사용자 정의 확장자 추가 한 줄 ── */
 .mediaControls {
   display: grid;
-  grid-template-columns: minmax(16rem, 22rem) minmax(16rem, 1fr);
+  grid-template-columns: 1fr;
   gap: var(--spacing-20) var(--spacing-48);
   align-items: start;
   padding-bottom: var(--spacing-20);
   margin-bottom: var(--spacing-12);
   border-bottom: var(--border-light);
 }
-
-@media (width <= 768px) {
+@media (width > 768px) {
   .mediaControls {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(16rem, 22rem) minmax(16rem, 1fr);
   }
 }
 

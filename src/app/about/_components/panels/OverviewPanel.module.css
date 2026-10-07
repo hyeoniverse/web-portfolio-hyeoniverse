@@ -61,20 +61,20 @@
 
 .overviewStats {
   display: grid;
-  grid-template-columns: var(--grid-columns-2);
+  grid-template-columns: 1fr;
   gap: 0 var(--spacing-48);
   border-top: var(--_line-primary);
+}
+
+@media (width > 768px) {
+  .overviewStats {
+    grid-template-columns: var(--grid-columns-2);
+  }
 }
 
 @media (width <= 1024px), (height <= 700px) {
   .overviewLayout {
     gap: var(--spacing-24);
-  }
-}
-
-@media (width <= 768px) {
-  .overviewStats {
-    grid-template-columns: 1fr;
   }
 }
 
