@@ -77,12 +77,13 @@
   top: calc(var(--spacing-32) + var(--spacing-48));
   left: var(--spacing-page-inline);
   z-index: var(--z-index-nav);
-  height: var(--control-height-xl);
-  padding: 0 var(--control-padding-inline-xl);
+  /* 통통한 알약 — 컨트롤 단계(최대 40)보다 높게 56 으로, 좌우 여백은 그대로 두어 높이가 도드라지게 */
+  height: var(--size-56);
+  padding: 0 var(--spacing-24);
   border: var(--border-default);
   border-radius: var(--radius-control);
   background: var(--bg-primary);
-  font: var(--font-body-md);
+  font: var(--font-body-lg);
   color: var(--text-primary);
   text-decoration: none;
   backdrop-filter: blur(10px);
@@ -260,24 +261,13 @@
     height: var(--spacing-48);
   }
 
-  /* 모바일 뒤로가기 — 네비 단추(40px)와 같은 높이 · 손가락 폭. 28px 일 때는 네비 단추 옆에서 유난히 작았다.
-     자리는 네비 줄(꼭대기 여백 + 단추 40) 바로 아래 */
+  /* 모바일 뒤로가기 — 크기는 데스크톱과 같다(통통한 56). 자리만 네비 줄(꼭대기 여백 + 단추 40) 바로 아래로 */
   .backBtn {
     top: calc(var(--spacing-nav-top) + var(--size-40) + var(--spacing-12));
     left: var(--spacing-page-inline);
     display: inline-flex;
     align-items: center;
-    height: var(--size-40);
-    padding: 0 var(--control-padding-inline-md);
-    font-size: var(--font-size-body-md);
-    gap: var(--spacing-8);
     transition: opacity var(--duration-base), transform var(--duration-base), padding var(--duration-base), font-size var(--duration-base), gap var(--duration-base), top var(--duration-base), left var(--duration-base);
-  }
-
-  .backBtn svg {
-    width: 18px;
-    height: 18px;
-    transition: width var(--duration-base), height var(--duration-base);
   }
 
 }

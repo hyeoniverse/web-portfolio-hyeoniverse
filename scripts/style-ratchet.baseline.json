@@ -120,7 +120,6 @@
     "src/components/effects/CursorTrail.module.css": 6,
     "src/components/effects/TypeWriter.module.css": 1,
     "src/components/layout/ContactDrawer/ContactDrawer.module.css": 22,
-    "src/components/layout/DetailLayout/DetailLayout.module.css": 1,
     "src/components/layout/Footer.module.css": 4,
     "src/components/layout/Navigation/Navigation.module.css": 8,
     "src/components/posts/plate/calendar/Calendar.module.css": 4,
