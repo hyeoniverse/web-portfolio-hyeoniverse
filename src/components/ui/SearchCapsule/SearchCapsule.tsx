@@ -1,5 +1,6 @@
 "use client";
 
+import { useScopedSize } from "@/components/ui/controlSize";
 import { useRef, useState, useEffect, useContext } from "react";
 import { useHasMounted } from "@/hooks/useHasMounted";
 import type { SelectOption } from "@/types";
@@ -69,7 +70,7 @@ export default function SearchCapsule({
   className,
   autoFocus,
   onBlur,
-  size = "md",
+  size: sizeProp = "sm",
   historyKey,
   historyLimit = 10,
   routeParam,
@@ -80,6 +81,8 @@ export default function SearchCapsule({
   collapsible = false,
   expandedWidth = 280,
 }: SearchCapsuleProps) {
+  /* 컨트롤 높이 범위(설정 페이지 등) 안이면 sm — 넘긴 size 보다 범위가 이긴다(ui/controlSize) */
+  const size = useScopedSize(sizeProp);
   const { t } = useLanguage();
   const clearLabel = t("common.clear");
   const pathname = useRoutePathname();

@@ -31,7 +31,7 @@ export default function TagListField({
   separator = ", ",
   commaAsAdd = false,
   langBadge,
-  size = "md",
+  size = "sm",
 }: TagListFieldProps) {
   const [input, setInput] = useState("");
   /* commaAsAdd 모드: 저장된 값 split = separator. 그 외엔 콤마 split + trim (bulk paste 지원) */

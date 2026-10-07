@@ -205,7 +205,6 @@ export default function PickersSelectsDemos() {
                     ...FONT_SIZE_DEMO_PRESETS.map((s) => ({ value: String(s), label: `${s}px` })),
                   ]}
                   onChange={setSelectFontSize}
-                  size="sm"
                   width="max"
                   editable
                   editableInputProps={{ maxLength: 3, placeholder: "px", sanitize: (raw) => raw.replace(/[^0-9]/g, "") }}
@@ -224,7 +223,6 @@ export default function PickersSelectsDemos() {
                     ...LINE_HEIGHT_DEMO_PRESETS.map((v) => ({ value: String(v), label: String(v) })),
                   ]}
                   onChange={setSelectLineHeight}
-                  size="sm"
                   width="max"
                   editable
                   editableInputProps={{ maxLength: 4, placeholder: "1.6", sanitize: (raw) => raw.replace(/[^0-9.]/g, "") }}

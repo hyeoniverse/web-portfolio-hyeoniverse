@@ -317,10 +317,10 @@ export function UploadField({ kind, label, url, uploadLabel, removeLabel, onUplo
           </label>
           {url && (
             <div className={styles.logoActions}>
-              <Button variant="outline" size="sm" onClick={openPicker} loading={uploading}>
+              <Button variant="outline" onClick={openPicker} loading={uploading}>
                 {uploadLabel}
               </Button>
-              <Button variant="outline" size="sm" tone="danger" onClick={onRemove}>
+              <Button variant="outline" tone="danger" onClick={onRemove}>
                 {removeLabel}
               </Button>
             </div>
@@ -410,11 +410,11 @@ export function UploadField({ kind, label, url, uploadLabel, removeLabel, onUplo
           </a>
         )}
         <div className={styles.logoActions}>
-          <Button variant="outline" size="md" onClick={() => fileRef.current?.click()} loading={uploading}>
+          <Button variant="outline" onClick={() => fileRef.current?.click()} loading={uploading}>
             {uploadLabel}
           </Button>
           {url && (
-            <Button variant="outline" size="md" tone="danger" onClick={onRemove}>
+            <Button variant="outline" tone="danger" onClick={onRemove}>
               {removeLabel}
             </Button>
           )}

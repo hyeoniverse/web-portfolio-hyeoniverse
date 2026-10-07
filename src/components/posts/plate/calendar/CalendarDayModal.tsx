@@ -75,11 +75,11 @@ export default function CalendarDayModal({
       {footerEl && createPortal(
         <>
           {!readOnly && onAdd && (
-            <Button size="sm" variant="outline" icon={<Plus size={13} />} soundDisabled onClick={() => { close(); onAdd(date); }} style={{ marginRight: "auto" }}>
+            <Button variant="outline" icon={<Plus size={13} />} soundDisabled onClick={() => { close(); onAdd(date); }} style={{ marginRight: "auto" }}>
               {t("이벤트 추가", "Add event")}
             </Button>
           )}
-          <Button size="sm" variant="primary" soundDisabled onClick={close}>{t("닫기", "Close")}</Button>
+          <Button variant="primary" soundDisabled onClick={close}>{t("닫기", "Close")}</Button>
         </>,
         footerEl,
       )}

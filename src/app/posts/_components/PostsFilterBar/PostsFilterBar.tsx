@@ -82,7 +82,6 @@ export default function PostsFilterBar({
           routeParam="q"
           className={styles.postsSearchCapsule}
           hasResults={posts.length > 0}
-          size="sm"
           onSearchOptionsChange={(opts) => setSyntaxMode(opts.syntaxMode)}
           typeSelector={{
             value: searchType,

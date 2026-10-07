@@ -45,7 +45,7 @@
 .searchInput {
   flex: 1;
   min-width: 0;
-  height: var(--control-height-md);
+  height: var(--control-height-sm);
   padding: 0 var(--spacing-12);
   border: var(--border-light);
   border-radius: var(--radius-control);

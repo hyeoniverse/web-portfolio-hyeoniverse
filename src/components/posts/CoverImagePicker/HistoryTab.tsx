@@ -106,7 +106,6 @@ export default function HistoryTab({ items, onPick, onRemove, currentUrl }: Hist
                 <Button
                   variant="ghost"
                   shape="circle"
-                  size="xs"
                   className={styles.historyOverlayBtn}
                   icon={<Trash2 size={11} strokeWidth={2} />}
                   onClick={(e) => { e.stopPropagation(); onRemove(item.url); }}
@@ -118,7 +117,6 @@ export default function HistoryTab({ items, onPick, onRemove, currentUrl }: Hist
                   <Button
                     variant="ghost"
                     shape="circle"
-                    size="xs"
                     className={styles.historyOverlayBtn}
                     icon={<Copy size={11} strokeWidth={2} />}
                     onClick={(e) => { e.stopPropagation(); copy(item.meta); }}
@@ -130,7 +128,6 @@ export default function HistoryTab({ items, onPick, onRemove, currentUrl }: Hist
                 <Button
                   variant="ghost"
                   shape="circle"
-                  size="xs"
                   className={styles.historyOverlayBtn}
                   icon={<Palette size={11} strokeWidth={2} />}
                   onClick={(e) => { e.stopPropagation(); copyPalette(item.url); }}
@@ -141,7 +138,6 @@ export default function HistoryTab({ items, onPick, onRemove, currentUrl }: Hist
                 <Button
                   variant="ghost"
                   shape="circle"
-                  size="xs"
                   className={styles.historyOverlayBtn}
                   icon={<Download size={11} strokeWidth={2} />}
                   onClick={(e) => { e.stopPropagation(); downloadFile(item.url, item.meta); }}

@@ -1,5 +1,6 @@
 "use client";
 
+import { ControlSizeScope } from "@/components/ui/controlSize";
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useDepsChanged } from "@/hooks/useDepsChanged";
 import { createPortal } from "react-dom";
@@ -625,5 +626,7 @@ export default function EmojiPicker({ open, onClose, onSelect, currentValue, onI
   /* 모달 안에서 열면 모달이 넘겨주는 portal layer 로, 밖이면 body 로 보낸다.
      Popover·Select·Tooltip 이 쓰는 통로와 같다. 이렇게 해야 z 를 최상단으로 올리지 않고도
      모달 위에 뜬다 — 최상단으로 올리면 이번엔 전역 nav 를 덮는다. */
-  return getAnchorRect ? createPortal(node, portalContainer ?? document.body) : node;
+  /* 안쪽 작은 조작으로 짜인 패널 — 설정 페이지의 컨트롤 높이 범위(md)를 물려받지 않는다 */
+  const scoped = <ControlSizeScope size={null}>{node}</ControlSizeScope>;
+  return getAnchorRect ? createPortal(scoped, portalContainer ?? document.body) : scoped;
 }

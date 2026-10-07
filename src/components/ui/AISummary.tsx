@@ -199,7 +199,7 @@ export default function AISummary({ summaryKo, summaryEn, lang, generating = fal
         /* 아직 요약이 없다 — 처음 보는 사람이 한 번 만들 수 있다 */
         <div className={styles.emptyRow}>
           <span className={styles.emptyText}>{t(failed ? "aiSummary.failed" : "aiSummary.empty")}</span>
-          <Button variant="outline" size="sm" shape="capsule" onClick={make} icon={<Sparkles size={14} strokeWidth={1.5} />} soundDisabled>
+          <Button variant="outline" shape="capsule" onClick={make} icon={<Sparkles size={14} strokeWidth={1.5} />} soundDisabled>
             {t("aiSummary.generate")}
           </Button>
         </div>

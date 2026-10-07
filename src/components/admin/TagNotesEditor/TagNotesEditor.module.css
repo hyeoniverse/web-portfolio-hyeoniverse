@@ -94,9 +94,10 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 20px;
+  /* 컨트롤 기본 높이(sm) */
+  height: var(--control-height-sm);
   width: fit-content;
-  padding: 0 var(--spacing-8);
+  padding: 0 var(--spacing-12);
   border: var(--border-light);
   border-radius: var(--radius-control);
   background: transparent;
@@ -470,6 +471,7 @@
 }
 
 /* quietActions — 설명 추가·편집 버튼은 올리거나 초점이 온 항목에만 */
+
 .section[data-quiet] .toggleBtn {
   opacity: 0;
   transition: opacity var(--duration-fast) var(--ease-standard);

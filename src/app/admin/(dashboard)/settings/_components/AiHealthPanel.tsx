@@ -153,10 +153,10 @@ export function ProviderHealthInline({ provider: p, health, open, onToggle, powe
         {/* ⏻ — 자동으로 꺼졌으면 강조색 사선(누르면 다시 켬). 아니면 이 기능에서 쓸지(초록 = 쓰는 중, 흐림 사선 = 뺌, 1번은 잠금).
             순서가 없는 곳(표 · 사진 공급자)은 꺼졌을 때만 */}
         {off ? (
-          <Tooltip content={th("reenable")}><Button variant="ghost" size="sm" shape="circle" className={styles.powerOff} onClick={() => void clear()} loading={resetting} aria-label={th("reenable")} soundDisabled icon={<PowerOff size={14} strokeWidth={2.25} />} /></Tooltip>
+          <Tooltip content={th("reenable")}><Button variant="ghost" shape="circle" className={styles.powerOff} onClick={() => void clear()} loading={resetting} aria-label={th("reenable")} soundDisabled icon={<PowerOff size={14} strokeWidth={2.25} />} /></Tooltip>
         ) : power ? (
           <Tooltip content={th(power.locked ? "featureLocked" : power.enabled ? "featureOn" : "featureOff")}>
-            <Button variant="ghost" size="sm" shape="circle" className={power.enabled ? styles.powerOn : styles.powerExcluded} onClick={power.toggle} disabled={power.locked} aria-label={th(power.enabled ? "featureOn" : "featureOff")} aria-pressed={power.enabled} soundDisabled icon={power.enabled ? <Power size={14} strokeWidth={2.25} /> : <PowerOff size={14} strokeWidth={2.25} />} />
+            <Button variant="ghost" shape="circle" className={power.enabled ? styles.powerOn : styles.powerExcluded} onClick={power.toggle} disabled={power.locked} aria-label={th(power.enabled ? "featureOn" : "featureOff")} aria-pressed={power.enabled} soundDisabled icon={power.enabled ? <Power size={14} strokeWidth={2.25} /> : <PowerOff size={14} strokeWidth={2.25} />} />
           </Tooltip>
         ) : (
           <span className={styles.actionBlank} aria-hidden />
@@ -169,7 +169,7 @@ export function ProviderHealthInline({ provider: p, health, open, onToggle, powe
           placement="bottom-end"
           trigger={
             <Tooltip content={th("logOpenOne")} disabled={logMenu}>
-              <Button variant="ghost" size="sm" shape="circle" aria-label={th("logOpenOne")} aria-haspopup="menu" aria-expanded={logMenu} soundDisabled icon={<History size={14} strokeWidth={2} />} />
+              <Button variant="ghost" shape="circle" aria-label={th("logOpenOne")} aria-haspopup="menu" aria-expanded={logMenu} soundDisabled icon={<History size={14} strokeWidth={2} />} />
             </Tooltip>
           }
         >
@@ -184,12 +184,12 @@ export function ProviderHealthInline({ provider: p, health, open, onToggle, powe
         </Popover>
         {/* 콘솔이 없는 공급자(Edge)는 빈 칸을 둬 기록 · › 가 다른 줄과 같은 자리에 선다 */}
         {info.console ? (
-          <Tooltip content={th("console")}><Button variant="ghost" size="sm" shape="circle" href={info.console} external aria-label={th("console")} soundDisabled icon={<ExternalLink size={14} strokeWidth={2} />} /></Tooltip>
+          <Tooltip content={th("console")}><Button variant="ghost" shape="circle" href={info.console} external aria-label={th("console")} soundDisabled icon={<ExternalLink size={14} strokeWidth={2} />} /></Tooltip>
         ) : (
           <span className={styles.actionBlank} aria-hidden />
         )}
         <Tooltip content={th(open ? "detailHide" : "detailShow")}>
-          <Button variant="ghost" size="sm" shape="circle" onClick={onToggle} aria-expanded={open} aria-label={th(open ? "detailHide" : "detailShow")} soundDisabled icon={<ChevronRight size={14} strokeWidth={2} className={`${styles.detailChev} ${open ? styles.detailChevOpen : ""}`} />} />
+          <Button variant="ghost" shape="circle" onClick={onToggle} aria-expanded={open} aria-label={th(open ? "detailHide" : "detailShow")} soundDisabled icon={<ChevronRight size={14} strokeWidth={2} className={`${styles.detailChev} ${open ? styles.detailChevOpen : ""}`} />} />
         </Tooltip>
       </span>
     </>

@@ -55,7 +55,6 @@ export default function IpVisitors({ ipVisitors, currentIp, excludedIps, onChang
               <span className={styles.ipCurrentState}>{ko ? "내 IP · 집계 제외 중" : "Marked as yours · excluded"}</span>
               <Button
                 variant="outline"
-                size="sm"
                 loading={pending === "current"}
                 onClick={() => toggle({ current: true }, false, "current")}
               >
@@ -65,7 +64,6 @@ export default function IpVisitors({ ipVisitors, currentIp, excludedIps, onChang
           ) : (
             <Button
               variant="outline"
-              size="sm"
               loading={pending === "current"}
               onClick={() => toggle({ current: true }, true, "current")}
             >
@@ -111,7 +109,6 @@ export default function IpVisitors({ ipVisitors, currentIp, excludedIps, onChang
               </span>
               <Button
                 variant="ghost"
-                size="sm"
                 loading={pending === v.key}
                 onClick={() => toggle({ key: v.key }, true, v.key)}
               >

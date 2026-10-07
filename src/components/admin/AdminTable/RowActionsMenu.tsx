@@ -79,7 +79,6 @@ function MovePanelBody({
         <Button
           type="button"
           variant="primary"
-          size="sm"
           onClick={() => {
             const n = parseInt(pos, 10);
             if (!Number.isNaN(n)) apply(n);

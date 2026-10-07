@@ -153,7 +153,6 @@ export default function DesignSystemClient() {
           <motion.div className={styles.header} initial="hidden" {...vp(nd())} variants={staggerItem}>
             <Button
               variant="outline"
-              size="sm"
               className={styles.backLink}
               onClick={handleBack}
               icon={<ArrowLeft size={20} />}
@@ -643,13 +642,13 @@ export default function DesignSystemClient() {
               <div id="tooltip-basic" className={styles.componentGroupTitle}>Basic</div>
               <div className={styles.componentRow}>
                 <motion.div variants={staggerItemX} {...scrollChildX(0, 4)}>
-                  <Tooltip content="Instant tooltip"><Button variant="outline" size="sm">Hover me</Button></Tooltip>
+                  <Tooltip content="Instant tooltip"><Button variant="outline">Hover me</Button></Tooltip>
                 </motion.div>
                 <motion.div variants={staggerItemX} {...scrollChildX(1, 4)}>
-                  <Tooltip content="Delayed 600ms" delay={600}><Button variant="outline" size="sm">Long hover</Button></Tooltip>
+                  <Tooltip content="Delayed 600ms" delay={600}><Button variant="outline">Long hover</Button></Tooltip>
                 </motion.div>
                 <motion.div variants={staggerItemX} {...scrollChildX(2, 4)}>
-                  <Tooltip content="Positioned below" placement="bottom"><Button variant="ghost" size="sm">Bottom</Button></Tooltip>
+                  <Tooltip content="Positioned below" placement="bottom"><Button variant="ghost">Bottom</Button></Tooltip>
                 </motion.div>
                 <motion.div variants={staggerItemX} {...scrollChildX(3, 4)}>
                   <Tooltip content={<><span style={{ opacity: 0.5, marginRight: 4 }}>EN</span><span>Test JSX</span></>}>

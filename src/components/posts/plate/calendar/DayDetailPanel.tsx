@@ -46,7 +46,7 @@ export default function DayDetailPanel({
         <div className={styles.dayPanelEmpty}>
           <span className={styles.dayPanelEmptyText}>{t("이벤트를 선택하면 여기에 표시돼요", "Select an event to see details")}</span>
           {!readOnly && onCreate && (
-            <Button size="sm" variant="subtle" icon={<Plus size={14} />} onClick={() => onCreate(date)}>{t("새 이벤트", "New event")}</Button>
+            <Button variant="subtle" icon={<Plus size={14} />} onClick={() => onCreate(date)}>{t("새 이벤트", "New event")}</Button>
           )}
         </div>
       </div>
@@ -126,7 +126,7 @@ export default function DayDetailPanel({
             <Select
               value={event.status ?? ""}
               onChange={(v) => onPatch!(event.id, { status: (v || undefined) as CalEvent["status"] })}
-              width="full" size="sm"
+              width="full"
               options={[{ value: "", label: t("없음", "None") }, ...EVENT_STATUSES.map((s) => ({ value: s.key, label: language === "ko" ? s.name[0] : s.name[1], icon: <span className={styles.statusDot} style={{ ["--_sc" as string]: s.color } as React.CSSProperties} /> }))]}
             />
           ) : <span className={styles.dayPanelMuted}>{event.status ? statusName(event.status, language) : t("없음", "None")}</span>}
@@ -137,7 +137,7 @@ export default function DayDetailPanel({
             <Select
               value={event.priority ?? ""}
               onChange={(v) => onPatch!(event.id, { priority: (v || undefined) as CalEvent["priority"] })}
-              width="full" size="sm"
+              width="full"
               options={[{ value: "", label: t("없음", "None") }, ...EVENT_PRIORITIES.map((p) => ({ value: p.key, label: language === "ko" ? p.name[0] : p.name[1], icon: <span className={styles.statusDot} style={{ ["--_sc" as string]: p.color } as React.CSSProperties} /> }))]}
             />
           ) : <span className={styles.dayPanelMuted}>{event.priority ? priorityName(event.priority, language) : t("없음", "None")}</span>}
@@ -148,7 +148,7 @@ export default function DayDetailPanel({
       <div className={styles.dayPanelField}>
         <span className={styles.dayPanelLabel}>{t("태그", "Tags")}</span>
         {editable && (
-          <Input value={tagInput} onChange={setTagInput} placeholder={t("태그 입력 후 Enter", "Type a tag, Enter")} size="sm" clearable={false}
+          <Input value={tagInput} onChange={setTagInput} placeholder={t("태그 입력 후 Enter", "Type a tag, Enter")} clearable={false}
             onKeyDown={(e) => { if ((e.key === "Enter" || e.key === ",") && !e.nativeEvent.isComposing) { e.preventDefault(); addTag(tagInput); } }} />
         )}
         {tags.length > 0 ? (
@@ -170,12 +170,12 @@ export default function DayDetailPanel({
       {!readOnly && (
         <div className={styles.dayPanelActions}>
           {onFullEdit && (
-            <Button size="sm" variant="subtle" icon={<Pencil size={13} />} onClick={() => onFullEdit(event)}>
+            <Button variant="subtle" icon={<Pencil size={13} />} onClick={() => onFullEdit(event)}>
               {isRecurring(event) || !editable ? t("전체 편집", "Full edit") : t("자세히", "Details")}
             </Button>
           )}
           {onDelete && (
-            <Button size="sm" variant="subtle" tone="danger" icon={<Trash2 size={13} />} onClick={() => onDelete(event)}>{t("삭제", "Delete")}</Button>
+            <Button variant="subtle" tone="danger" icon={<Trash2 size={13} />} onClick={() => onDelete(event)}>{t("삭제", "Delete")}</Button>
           )}
         </div>
       )}

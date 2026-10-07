@@ -26,7 +26,7 @@
 
 /* 줄 아래 상세 — 순서 상자의 시작선(핸들 + 체크 칸 뒤)에 맞춰 들여쓴다 */
 .priorityDetail {
-  padding-left: calc(var(--control-height-md) + var(--control-height-sm) + var(--spacing-16));
+  padding-left: calc(var(--control-height-sm) + var(--control-height-sm) + var(--spacing-16));
 }
 
 .priorityItem {
@@ -35,7 +35,7 @@
   width: 22rem;
   max-width: 100%;
   min-width: 0;
-  height: var(--control-height-md);
+  height: var(--control-height-sm);
   box-sizing: border-box;
   display: flex;
   align-items: center;
@@ -52,7 +52,7 @@
 }
 
 .priorityBadge {
-  width: var(--control-height-md);
+  width: var(--control-height-sm);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -85,7 +85,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: var(--control-height-md);
+  height: var(--control-height-sm);
   padding: 0;
   color: var(--text-muted);
   flex-shrink: 0;

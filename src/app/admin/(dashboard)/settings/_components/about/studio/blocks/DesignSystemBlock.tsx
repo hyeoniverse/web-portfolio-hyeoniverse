@@ -76,7 +76,7 @@ export function DesignSystemBlock({ value, onChange, lang, t }: {
             </div>
             <div className={css.slideTools}>
               <Popover placement="bottom-end" trigger={
-                <Button variant="difference" shape="circle" size="xs" aria-label={L("배경 이미지", "Background image")}>
+                <Button variant="difference" shape="circle" aria-label={L("배경 이미지", "Background image")}>
                   <ImageIcon size={14} />
                 </Button>
               }>
@@ -85,7 +85,7 @@ export function DesignSystemBlock({ value, onChange, lang, t }: {
                     postContext={{ title: it.title, tags: [], excerpt: it.description_en }} />
                 </div>
               </Popover>
-              <Button variant="difference" shape="circle" size="xs" onClick={list.remove} aria-label={L("삭제", "Remove")}>
+              <Button variant="difference" shape="circle" onClick={list.remove} aria-label={L("삭제", "Remove")}>
                 <X size={14} />
               </Button>
             </div>

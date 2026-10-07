@@ -1,5 +1,6 @@
 "use client";
 
+import { useScopedSize } from "@/components/ui/controlSize";
 import { useState, useEffect, useLayoutEffect, useRef, useCallback, useMemo, useId, Fragment, type ReactNode, type KeyboardEvent } from "react";
 import { useDepsChanged } from "@/hooks/useDepsChanged";
 import { createPortal } from "react-dom";
@@ -110,12 +111,14 @@ export default function Select({
   onInputChange,
   onAdd,
   filterByInput = true,
-  size = "md",
+  size: sizeProp = "sm",
   editable,
   editableInputProps,
   width,
   preserveFocus = false,
 }: SelectProps) {
+  /* 컨트롤 높이 범위(설정 페이지 등) 안이면 sm — 넘긴 size 보다 범위가 이긴다(ui/controlSize) */
+  const size = useScopedSize(sizeProp);
   const { t } = useLanguage();
   const clearLabel = t("common.clear");
   const bubble = variant === "bubble";

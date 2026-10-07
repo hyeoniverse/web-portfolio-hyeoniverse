@@ -78,7 +78,6 @@ export function MediaLimitsEditor({ config, setConfig, t }: {
     >
       <span className={styles.formatChipName}>{label}</span>
       <Select
-        size="sm"
         width="min"
         /* 저장소 상한을 넘는 저장값은 선택지에 없다 — 실제로 적용되는 값(상한)으로 보인다 */
         value={String(Math.min(limits[ext] ?? 20, storageMax))}
@@ -89,7 +88,6 @@ export function MediaLimitsEditor({ config, setConfig, t }: {
       {!isBuiltin && (
         <Tooltip content={t("admin.settings.mediaRemoveFormat")}>
           <CloseButton
-            size="xs"
             onClick={() => removeExt(ext)}
             ariaLabel={t("admin.settings.mediaRemoveFormat")}
           />

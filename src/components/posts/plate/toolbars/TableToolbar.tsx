@@ -552,7 +552,6 @@ export default React.memo(function TableToolbar({
                         })),
                       ]}
                       onChange={(v) => { if (v !== "__mixed") bp.setStyle(v); }}
-                      size="sm"
                       width="full"
                       preserveFocus
                       dropAlign="below"

@@ -33,9 +33,9 @@ export default function MiniCalendar({
   return (
     <div className={styles.miniCal} contentEditable={false}>
       <div className={styles.miniCalHead}>
-        <Button variant="ghost" shape="circle" size="xs" icon={<ChevronLeft size={14} />} onClick={() => setMonth(shiftMonth(month, -1))} aria-label="prev" soundDisabled />
+        <Button variant="ghost" shape="circle" icon={<ChevronLeft size={14} />} onClick={() => setMonth(shiftMonth(month, -1))} aria-label="prev" soundDisabled />
         <span className={styles.miniCalTitleWrap}>
-          <Button variant="ghost" size="xs" onClick={() => setPickerOpen((o) => !o)} soundDisabled>
+          <Button variant="ghost" onClick={() => setPickerOpen((o) => !o)} soundDisabled>
             {monthTitle(month, language)}
           </Button>
           {pickerOpen && (
@@ -48,7 +48,7 @@ export default function MiniCalendar({
             />
           )}
         </span>
-        <Button variant="ghost" shape="circle" size="xs" icon={<ChevronRight size={14} />} onClick={() => setMonth(shiftMonth(month, 1))} aria-label="next" soundDisabled />
+        <Button variant="ghost" shape="circle" icon={<ChevronRight size={14} />} onClick={() => setMonth(shiftMonth(month, 1))} aria-label="next" soundDisabled />
       </div>
       <div className={styles.miniCalWeek}>
         {wd.map((w, i) => <span key={i} className={`${styles.miniCalDow}${i === 0 ? ` ${styles.sun}` : ""}${i === 6 ? ` ${styles.sat}` : ""}`}>{w}</span>)}

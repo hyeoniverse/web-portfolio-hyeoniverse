@@ -118,7 +118,6 @@ export default function AdminEditorShell({
       {onPreview && (
         <Button
           variant="outline"
-          size="sm"
           className={styles.saveBtn}
           onClick={onPreview}
           soundDisabled
@@ -128,7 +127,6 @@ export default function AdminEditorShell({
       )}
       <Button
         variant="outline"
-        size="sm"
         className={styles.saveBtn}
         onClick={onSaveDraft}
         disabled={saving || !isDirty}
@@ -141,7 +139,6 @@ export default function AdminEditorShell({
         <div className={`${styles.splitPublish}${hasSchedule ? ` ${styles.splitPublishScheduled}` : ""}`}>
           <Button
             variant="primary"
-            size="sm"
             className={`${styles.publishBtn} ${styles.publishMainBtn}`}
             onClick={onPublish}
             disabled={saving || (isEdit && published && !isDirty && !hasSchedule)}
@@ -161,7 +158,6 @@ export default function AdminEditorShell({
               <Tooltip content={labels.publishOptions ?? labels.scheduledAt ?? "Schedule"} placement="bottom">
                 <Button
                   variant="primary"
-                  size="sm"
                   className={`${styles.publishBtn} ${styles.publishChevronBtn}`}
                   disabled={saving}
                   soundDisabled
@@ -177,7 +173,6 @@ export default function AdminEditorShell({
       ) : (
         <Button
           variant="primary"
-          size="sm"
           className={styles.publishBtn}
           onClick={onPublish}
           disabled={saving || (isEdit && published && !isDirty)}
@@ -552,7 +547,6 @@ export default function AdminEditorShell({
                     <Button
                       variant="outline"
                       shape="circle"
-                      size="sm"
                       className={styles.retranslateBtn}
                       aria-label={retranslateDisabled ? (labels.retranslateDisabled ?? "API key not configured") : (labels.retranslate ?? "Retranslate")}
                       onClick={retranslateDisabled ? undefined : () => { /* Popover toggle */ }}
@@ -595,7 +589,6 @@ export default function AdminEditorShell({
                 <Button
                   variant="outline"
                   shape="circle"
-                  size="sm"
                   aria-label={aiSummaryDisabled ? (labels.generateSummaryDisabled ?? "API key not configured") : (labels.generateSummary ?? "Generate AI Summary")}
                   onClick={aiSummaryDisabled ? undefined : onGenerateSummary}
                   disabled={saving || generatingSummary || aiSummaryDisabled}
@@ -612,7 +605,6 @@ export default function AdminEditorShell({
                 <Button
                   variant="outline"
                   shape="circle"
-                  size="sm"
                   href={viewHref}
                   external
                   soundDisabled
@@ -626,7 +618,6 @@ export default function AdminEditorShell({
                 <Button
                   variant="outline"
                   shape="circle"
-                  size="sm"
                   className={styles.revertBtn}
                   aria-label={labels.revert ?? "Revert"}
                   onClick={onRevert}
@@ -655,7 +646,6 @@ export default function AdminEditorShell({
                   <Tooltip content={labels.revisionHistory ?? "History"} placement="bottom">
                     <Button
                       variant="outline"
-                      size="sm"
                       className={styles.revisionBtn}
                       soundDisabled
                     >
@@ -1007,7 +997,6 @@ export default function AdminEditorShell({
                   <Button
                     variant="outline"
                     shape="circle"
-                    size="sm"
                     onClick={() => {
                       if (!deleteTargetName) {
                         onDelete?.();

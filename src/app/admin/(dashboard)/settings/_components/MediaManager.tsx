@@ -195,9 +195,8 @@ export default function MediaManager() {
           hint={t("글·프로젝트 이미지와 로고·아이콘·배경음 같은 사이트 파일이에요. 어디서도 쓰지 않는 파일만 지울 수 있어요(휴지통 글에서 쓰는 것도 쓰는 것으로 봐요).",
             "Post and project images plus site files like logos, icons and background music. Only files used nowhere can be deleted (posts in the trash count as using them).")}
           filters={summary && allCount > 0 ? <>
-            <SegmentedControl items={segItems} value={kind} onChange={(v) => { setKind(v); setPage(1); }} variant="subtle" size="md" />
+            <SegmentedControl items={segItems} value={kind} onChange={(v) => { setKind(v); setPage(1); }} variant="subtle" />
             <Switch
-              size="sm"
               checked={unusedOnly}
               onCheckedChange={(v) => { setUnusedOnly(v); setPage(1); }}
               label={t(`안 쓰는 파일만 · ${summary.unusedCount}개 ${fmtSize(summary.unusedSize)}`, `Unused only · ${summary.unusedCount} · ${fmtSize(summary.unusedSize)}`)}
@@ -213,7 +212,6 @@ export default function MediaManager() {
               value={view}
               onChange={changeView}
               variant="subtle"
-              size="md"
             />
           }
         />
@@ -264,7 +262,7 @@ export default function MediaManager() {
               </div>
             )}
             {data && data.totalPages > 1 && (
-              <Pagination className={lib.pager} page={data.page} totalPages={data.totalPages} onChange={setPage} size="sm" />
+              <Pagination className={lib.pager} page={data.page} totalPages={data.totalPages} onChange={setPage} />
             )}
           </>
         )}

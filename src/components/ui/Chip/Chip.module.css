@@ -12,8 +12,10 @@
 }
 
 /* capsule — bg + border + 캡슐 radius */
+/* 높이는 컨트롤 기본(sm) — 패딩 합산이면 글자 높이에 따라 28.8 처럼 옆 단추 · 입력과 어긋났다 */
 .capsule {
-  padding: var(--spacing-4) var(--spacing-12);
+  min-height: var(--control-height-sm);
+  padding: 0 var(--spacing-12);
   background: var(--bg-secondary);
   border-radius: var(--radius-control);
 }

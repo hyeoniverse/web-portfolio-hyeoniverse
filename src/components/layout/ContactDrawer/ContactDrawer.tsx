@@ -293,7 +293,7 @@ export default function ContactDrawer({
             aria-label={t("contact.drawer.formLabel")}
           >
             {/* 닫기 버튼 */}
-            <CloseButton size="sm"
+            <CloseButton
               className={styles.closeBtn}
               onClick={() => {
                 onClose();

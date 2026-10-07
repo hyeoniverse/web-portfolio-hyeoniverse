@@ -456,7 +456,6 @@ function DailyViewsChart({
                   key={days}
                   type="button"
                   variant="outline"
-                  size="md"
                   active={isActive}
                   soundDisabled
                   onClick={() => {
@@ -736,7 +735,6 @@ function DateRangeTrigger({
           type="button"
           variant="outline"
           /* md(32) — 같은 헤더의 보기 전환 SegmentedControl 과 같은 눈금. 2xs(20)는 혼자 낮았다 */
-          size="md"
           active={isOpen}
           className={`${styles.periodTriggerBtn} ${isOpen ? styles.periodTriggerBtnOpen : ""}`}
           onClick={onOpen}

@@ -19,7 +19,7 @@
   align-items: center;
   justify-content: center;
   gap: var(--spacing-4);
-  height: var(--control-height-md);
+  height: var(--control-height-sm);
   padding: 0 var(--spacing-16);
   border: var(--border-width-1) dashed var(--border-color-strong);
   border-radius: var(--radius-control);
@@ -36,7 +36,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-4);
-  height: var(--control-height-md);
+  height: var(--control-height-sm);
   padding: 0 var(--spacing-16);
   border: var(--border-light);
   border-radius: var(--radius-control);

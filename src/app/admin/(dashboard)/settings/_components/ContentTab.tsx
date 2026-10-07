@@ -221,13 +221,11 @@ export default function ContentTab({
             <div className={styles.fields}>
               <div className={styles.fieldPair}>
                 <Switch
-                  size="md"
                   label={t("admin.settings.home3dScrollTorus")}
                   checked={config.home3d?.scrollTorus !== false}
                   onCheckedChange={(v) => update("home3d", "scrollTorus", v)}
                 />
                 <Switch
-                  size="md"
                   label={t("admin.settings.home3dCoffeeCup")}
                   checked={config.home3d?.coffeeCup !== false}
                   onCheckedChange={(v) => update("home3d", "coffeeCup", v)}
@@ -393,7 +391,6 @@ export default function ContentTab({
               paths={["profile.infiniteScroll"]}
               extra={
                 <Switch
-                  size="sm"
                   label={t("admin.settings.profileInfiniteScroll")}
                   checked={config.profile?.infiniteScroll !== false}
                   onCheckedChange={(v) => update("profile", "infiniteScroll", v)}
@@ -534,7 +531,6 @@ export default function ContentTab({
               spacerExtra={tagPendingDeletes.size > 0 ? (
                 <Button
                   variant="ghost"
-                  size="md"
                   icon={<Trash2 size={11} strokeWidth={2} />}
                   onClick={() => setTagPendingExpanded((v) => !v)}
                   aria-expanded={tagPendingExpanded}
@@ -625,7 +621,6 @@ export default function ContentTab({
               paths={["works.layout", "works.adminPerPage", "works.infiniteScroll"]}
               extra={
                 <Switch
-                  size="sm"
                   label={t("admin.settings.worksInfiniteScroll")}
                   checked={config.works.infiniteScroll !== false}
                   onCheckedChange={(v) => update("works", "infiniteScroll", v)}
@@ -722,7 +717,6 @@ export default function ContentTab({
                   placeholder={t("admin.settings.tagPlaceholder")}
                   separator=" · "
                   commaAsAdd
-                  size="md"
                 />
                 <TagListField
                   label={t("admin.settings.worksIntroScope")}
@@ -732,7 +726,6 @@ export default function ContentTab({
                   placeholder={t("admin.settings.tagPlaceholder")}
                   separator=" · "
                   commaAsAdd
-                  size="md"
                 />
               </div>
               {/* Intro 미디어 picker — public/cover/{videos,images} 공용 풀 + 업로드 + cover picker (이미지/영상 모두) */}

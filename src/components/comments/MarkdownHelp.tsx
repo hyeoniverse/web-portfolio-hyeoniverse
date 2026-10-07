@@ -73,7 +73,6 @@ export default function MarkdownHelp() {
             variant="ghost"
             tone="accent"
             shape="circle"
-            size="sm"
             icon={<MarkdownMarkIcon />}
             aria-label={ko ? "마크다운 도움말" : "Markdown help"}
           />

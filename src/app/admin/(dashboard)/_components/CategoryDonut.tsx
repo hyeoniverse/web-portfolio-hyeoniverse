@@ -210,7 +210,7 @@ function CategoryDonut({
                 ? `${expandedCat} 게시물`
                 : `${expandedCat} posts`}
             </PanelTitle>
-            <CloseButton size="sm"
+            <CloseButton
               onClick={() => {
                 setExpandedCat(null);
                 setExpandedPosts([]);

@@ -113,7 +113,6 @@ export default function CoverImageField({
     <div className={styles.inlineActions}>
       <Button
         variant="ghost"
-        size="xs"
         className={styles.inlineBtn}
         onClick={onUpload}
         title={uploadLabel}
@@ -123,7 +122,6 @@ export default function CoverImageField({
       </Button>
       <Button
         variant="ghost"
-        size="xs"
         className={styles.inlineBtn}
         onClick={onPickerToggle}
         title={buttonText}
@@ -139,7 +137,6 @@ export default function CoverImageField({
       {value && (
         <Button
           variant="ghost"
-          size="xs"
           className={`${styles.inlineBtn} ${styles.inlineBtnRemove}`}
           onClick={() => onChange("")}
           title={removeLabel}

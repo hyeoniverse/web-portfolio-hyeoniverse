@@ -182,7 +182,6 @@ export default function CommentForm({
               <Button
                 variant="subtle"
                 shape="circle"
-                size="sm"
                 icon={<Shuffle size={12} strokeWidth={2.5} />}
                 onClick={() => setIdentity(getRandomIdentity(identity ?? undefined))}
                 data-clickable="true"
@@ -193,7 +192,6 @@ export default function CommentForm({
           {/* 폭 고정은 래퍼가 담당 — 공통 Input 자체엔 스타일 클래스를 붙이지 않는다 */}
           <div className={`${styles.passwordField} ${passwordError ? styles.pwShake : ""}`}>
             <Input
-              size="sm"
               type="password"
               clearable={false}
               inputRef={passwordRef}
@@ -323,11 +321,11 @@ export default function CommentForm({
 
       <div className={styles.actions}>
         {formHint && <span className={styles.formHint}>{formHint}</span>}
-        <Button type="submit" variant="primary" size="sm" disabled={submitting}>
+        <Button type="submit" variant="primary" disabled={submitting}>
           {submitting ? <T k="comments.posting" /> : parentId ? <T k="comments.reply" /> : <T k="comments.submit" />}
         </Button>
         {onCancel && (
-          <Button type="button" variant="outline" size="sm" onClick={onCancel}>
+          <Button type="button" variant="outline" onClick={onCancel}>
             <T k="comments.cancel" />
           </Button>
         )}

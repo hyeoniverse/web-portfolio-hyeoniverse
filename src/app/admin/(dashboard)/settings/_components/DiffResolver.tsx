@@ -72,7 +72,6 @@ export default function DiffResolver({
           <Button
             variant="outline"
             shape="circle"
-            size="md"
             onClick={handleApply}
             title={t("admin.common.apply")}
             icon={<Check size={14} strokeWidth={1.8} />}

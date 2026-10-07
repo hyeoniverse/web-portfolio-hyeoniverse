@@ -67,7 +67,6 @@ function PollResultView({ options, language }: { options: PollOption[]; language
           value={sortKey}
           onChange={onSort}
           sortDir={sortDir}
-          size="sm"
         />
       </div>
       <div ref={ref} />
@@ -237,7 +236,6 @@ export function PollElement(props: PlateElementProps) {
                 items={[{ value: "edit", label: t("편집", "Edit") }, { value: "result", label: t("결과", "Results") }]}
                 value={preview ? "result" : "edit"}
                 onChange={(v) => setPreview(v === "result")}
-                size="sm"
               />
             </div>
 
@@ -253,7 +251,6 @@ export function PollElement(props: PlateElementProps) {
                   ]}
                   value={multiple ? "multiple" : "single"}
                   onChange={(v) => update({ multiple: v === "multiple" })}
-                  size="sm"
                 />
                 <span className="poll-tb-div" />
                 {!barExpanded && (

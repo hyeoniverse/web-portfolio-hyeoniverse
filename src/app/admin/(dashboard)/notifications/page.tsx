@@ -355,7 +355,6 @@ export default function NotificationsPage() {
             <Button
               href="/admin/reports"
               variant="outline"
-              size="md"
               icon={<Flag size={13} strokeWidth={1.8} />}
             >
               <T k="admin.notifications.reportsPage" />
@@ -364,7 +363,6 @@ export default function NotificationsPage() {
           <Tooltip content={t("admin.notifications.tipRefresh")} placement="bottom" delay={250}>
             <Button
               variant="outline"
-              size="md"
               onClick={fetchNotifications}
               disabled={loading}
               icon={<RefreshCw size={13} strokeWidth={1.8} className={loading ? styles.refreshSpinning : undefined} />}
@@ -378,7 +376,6 @@ export default function NotificationsPage() {
             <Tooltip content={t("admin.notifications.tipMarkAllRead")} placement="bottom" delay={250}>
               <Button
                 variant="outline"
-                size="md"
                 onClick={handleMarkAllRead}
                 disabled={loading}
                 icon={<ListChecks size={13} strokeWidth={1.8} />}
@@ -391,7 +388,6 @@ export default function NotificationsPage() {
             <Tooltip content={t("admin.notifications.tipDeleteAll")} placement="bottom" delay={250}>
               <Button
                 variant="outline"
-                size="md"
                 tone="danger"
                 onClick={handleDeleteAll}
                 disabled={loading}
@@ -553,7 +549,7 @@ export default function NotificationsPage() {
 
       {tab !== "report" && !loading && hasMore && (
         <div className={styles.loadMoreRow}>
-          <Button variant="outline" size="md" onClick={loadMore} loading={loadingMore} loadingVariant="wave">
+          <Button variant="outline" onClick={loadMore} loading={loadingMore} loadingVariant="wave">
             <T k="admin.notifications.loadMore" />
           </Button>
           <span className={styles.loadMoreCount}>{notifications.length} / {totalCount}</span>

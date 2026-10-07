@@ -189,7 +189,6 @@ export default function UnsplashTab({ onSelect, postContext }: UnsplashTabProps)
           onSearchChange={handleInputChange}
           placeholder={tc("searchPlaceholder")}
           align="left"
-          size="md"
         />
 
         {photos.length === 0 && !loading && (
@@ -244,7 +243,6 @@ export default function UnsplashTab({ onSelect, postContext }: UnsplashTabProps)
                       <Button
                         variant="ghost"
                         shape="circle"
-                        size="xs"
                         className={styles.historyOverlayBtn}
                         icon={<Download size={11} strokeWidth={2} />}
                         onClick={(e) => { e.stopPropagation(); downloadFile(photo.urls.regular, photo.user.name); }}
@@ -274,7 +272,6 @@ export default function UnsplashTab({ onSelect, postContext }: UnsplashTabProps)
       {photos.length > 0 && page < totalPages && !loading && (
         <Button
           variant="ghost"
-          size="sm"
           fullWidth
           onClick={() => search(query, page + 1, true)}
         >

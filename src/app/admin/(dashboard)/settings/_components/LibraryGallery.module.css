@@ -101,8 +101,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--control-height-xs);
-  height: var(--control-height-xs);
+  /* 설정 페이지 컨트롤 높이(sm) */
+  width: var(--control-height-sm);
+  height: var(--control-height-sm);
   padding: 0;
   border: none;
   border-radius: var(--radius-full);

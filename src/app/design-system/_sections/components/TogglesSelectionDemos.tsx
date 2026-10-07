@@ -73,7 +73,6 @@ export default function TogglesSelectionDemos() {
                 ]}
                 value={segDemo}
                 onChange={setSegDemo}
-                size="sm"
               />
               <span style={{ fontFamily: "var(--font-family-code)", fontSize: "var(--font-size-body-xs)", color: "var(--text-muted)" }}>default</span>
             </motion.div>
@@ -87,7 +86,6 @@ export default function TogglesSelectionDemos() {
                 ]}
                 value={segSubtleDemo}
                 onChange={setSegSubtleDemo}
-                size="sm"
               />
               <span style={{ fontFamily: "var(--font-family-code)", fontSize: "var(--font-size-body-xs)", color: "var(--text-muted)" }}>subtle</span>
             </motion.div>
@@ -108,29 +106,29 @@ export default function TogglesSelectionDemos() {
         <DemoGroup title="Switch">
           <div className={styles.componentRow}>
             <motion.div variants={staggerItemX} {...scrollChildX(0, 4)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-8)" }}>
-              <Switch size="sm" checked={switchOn} onCheckedChange={setSwitchOn} />
+              <Switch checked={switchOn} onCheckedChange={setSwitchOn} />
               <span style={{ fontFamily: "var(--font-family-body)", fontSize: "var(--font-size-body-sm)", color: "var(--text-secondary)" }}>Default (sm)</span>
             </motion.div>
             <motion.div variants={staggerItemX} {...scrollChildX(1, 4)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-8)" }}>
-              <Switch size="sm" checked={switchAccent} onCheckedChange={setSwitchAccent} variant="accent" />
+              <Switch checked={switchAccent} onCheckedChange={setSwitchAccent} variant="accent" />
               <span style={{ fontFamily: "var(--font-family-body)", fontSize: "var(--font-size-body-sm)", color: "var(--text-secondary)" }}>Accent</span>
             </motion.div>
             <motion.div variants={staggerItemX} {...scrollChildX(2, 4)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-8)" }}>
-              <Switch size="sm" disabled />
+              <Switch disabled />
               <span style={{ fontFamily: "var(--font-family-body)", fontSize: "var(--font-size-body-sm)", color: "var(--text-secondary)" }}>Disabled</span>
             </motion.div>
             <motion.div variants={staggerItemX} {...scrollChildX(3, 4)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-8)" }}>
-              <Switch size="sm" disabled defaultChecked />
+              <Switch disabled defaultChecked />
               <span style={{ fontFamily: "var(--font-family-body)", fontSize: "var(--font-size-body-sm)", color: "var(--text-secondary)" }}>Disabled On</span>
             </motion.div>
           </div>
           {/* label(옆 form-row 라벨) vs showStateText(토글 안 ON/OFF 텍스트) */}
           <div className={styles.componentRow} style={{ marginTop: "var(--spacing-12)", gap: "var(--spacing-32)" }}>
             <motion.div variants={staggerItemX} {...scrollChildX(0, 2)} style={{ display: "inline-flex" }}>
-              <Switch size="md" label="With label" checked={switchLabeled} onCheckedChange={setSwitchLabeled} />
+              <Switch label="With label" checked={switchLabeled} onCheckedChange={setSwitchLabeled} />
             </motion.div>
             <motion.div variants={staggerItemX} {...scrollChildX(1, 2)} style={{ display: "inline-flex", alignItems: "center", gap: "var(--spacing-8)" }}>
-              <Switch size="md" showStateText checked={switchStateText} onCheckedChange={setSwitchStateText} />
+              <Switch showStateText checked={switchStateText} onCheckedChange={setSwitchStateText} />
               <span style={{ fontFamily: "var(--font-family-body)", fontSize: "var(--font-size-body-sm)", color: "var(--text-secondary)" }}>showStateText (ON/OFF)</span>
             </motion.div>
           </div>

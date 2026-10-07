@@ -67,10 +67,15 @@
   border-right: var(--border-light) !important;
   display: inline-flex;
   align-items: center;
-  height: var(--control-height-md);
+  /* 틀 안쪽 높이(테두리 1+1 을 뺀 것) — md 로 고정해 두면 sm 캡슐에서 안쪽이 틀 밖으로 넘쳤다 */
+  height: calc(var(--control-height-md) - 2px);
   padding: 0 var(--control-padding-inline-sm) !important;
   font: var(--font-body-sm);
   background: transparent !important;
+}
+
+.capsuleSm .selectWrap button {
+  height: calc(var(--control-height-sm) - 2px);
 }
 
 .icon {
@@ -83,7 +88,8 @@
 .input {
   flex: 1;
   min-width: 80px;
-  height: var(--control-height-md);
+  /* 틀 높이를 채운다(sm 캡슐에서도) */
+  height: 100%;
   padding: 0 var(--control-padding-inline-sm);
   /* 돋보기 아이콘과의 간격 — 기본 input padding 보다 더 좁게 */
   padding-left: var(--spacing-4);

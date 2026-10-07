@@ -119,8 +119,8 @@
   align-items: center;
   overflow: hidden;
   /* md(32) — 옆의 SearchCapsule(기본 md)과 같은 줄이라 높이를 맞춘다 */
-  width: var(--control-height-md);
-  height: var(--control-height-md);
+  width: var(--control-height-sm);
+  height: var(--control-height-sm);
   border: var(--border-default);
   border-radius: var(--radius-full);
   background: transparent;

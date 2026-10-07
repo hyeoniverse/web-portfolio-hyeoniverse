@@ -74,7 +74,7 @@ export default function InputsFieldsDemos() {
             </motion.div>
             <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(1, 3)}>
               <Tooltip content="size: sm">
-                <Input label="Small" value={inputSm} onChange={setInputSm} size="sm" placeholder="Small input..." />
+                <Input label="Small" value={inputSm} onChange={setInputSm} placeholder="Small input..." />
               </Tooltip>
             </motion.div>
             <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(2, 3)}>
@@ -224,7 +224,6 @@ export default function InputsFieldsDemos() {
                 search={searchDemo}
                 onSearchChange={setSearchDemo}
                 placeholder="size sm"
-                size="sm"
                 align="left"
                 historyKey={null}
               />
@@ -234,7 +233,6 @@ export default function InputsFieldsDemos() {
                 search={searchDemo}
                 onSearchChange={setSearchDemo}
                 placeholder={language === "ko" ? "size md (기본)" : "size md (default)"}
-                size="md"
                 align="left"
                 historyKey={null}
               />

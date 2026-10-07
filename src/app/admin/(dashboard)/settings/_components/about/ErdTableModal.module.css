@@ -21,7 +21,7 @@
   text-transform: uppercase;
 }
 .nameInput {
-  height: var(--control-height-md);
+  height: var(--control-height-sm);
   padding: 0 var(--spacing-16);
   border: var(--border-light);
 
@@ -89,7 +89,7 @@
 /* 셀 입력 — 캡슐 대신 셀 자체가 입력칸. 표 결을 깨지 않는다 */
 .cell {
   width: 100%;
-  height: var(--control-height-md);
+  height: var(--control-height-sm);
   padding: 0 var(--spacing-12);
   border: 0;
   border-radius: var(--radius-control);
@@ -236,7 +236,7 @@
 .typeSelect input,
 .typeSelect button,
 .fkSelect button {
-  height: var(--control-height-md);
+  height: var(--control-height-sm);
   border-color: transparent;
   background: transparent;
   font: var(--font-code-md);

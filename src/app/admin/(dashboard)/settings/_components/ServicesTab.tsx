@@ -18,6 +18,7 @@ import type { SelectOption } from "@/types";
 import Field, { FieldHelp } from "./SettingsFormFields";
 import EnvVarFields from "./EnvVarFields";
 import LexiconManager from "./LexiconManager";
+import SettingsSubPanel from "./SettingsSubPanel";
 import { ProviderHealthDetail, ProviderHealthInline } from "./AiHealthPanel";
 import ServiceLogLink from "./ServiceLogLink";
 import { ENV_SECTION_ID, HintLines, envKeyLine } from "./EnvKeyHint";
@@ -87,7 +88,6 @@ function ModelSelect({ t, provider, value, onChange }: { t: TFunction; provider:
     <Tooltip content={reason || t("admin.settings.aiModelsHint")} delay={300} wrapperStyle={{ display: "flex", flex: "1 1 auto", minWidth: 0, alignSelf: "stretch" }}>
     <span className={styles.modelSelect} onPointerDown={(e) => e.stopPropagation()}>
       <Select
-        size="sm"
         width="full"
         triggerClassName={styles.modelTrigger}
         value={value || latest}
@@ -172,10 +172,10 @@ function AutoCoverPreview({ t, onDone }: { t: TFunction; onDone: (r: { processed
         </>
       )}
       <div className={styles.autoCoverActions}>
-        <Button variant="outline" size="sm" shape="capsule" onClick={() => closeModal(AUTO_COVER_MODAL_ID)} disabled={running} soundDisabled>
+        <Button variant="outline" shape="capsule" onClick={() => closeModal(AUTO_COVER_MODAL_ID)} disabled={running} soundDisabled>
           {t("admin.settings.autoCoverCancel")}
         </Button>
-        <Button variant="primary" size="sm" shape="capsule" onClick={() => void apply()} loading={running} disabled={picked.size === 0} soundDisabled>
+        <Button variant="primary" shape="capsule" onClick={() => void apply()} loading={running} disabled={picked.size === 0} soundDisabled>
           {fillTemplate(t("admin.settings.autoCoverApply"), { n: picked.size })}
         </Button>
       </div>
@@ -249,7 +249,7 @@ function AttachmentHealthNote({ t }: { t: TFunction }) {
         {reason ? ` ${fillTemplate(t("admin.settings.attachmentReason"), { reason })}` : ""}
       </p>
       {state.disabled && (
-        <Button variant="outline" size="sm" shape="capsule" onClick={() => void reenable()} loading={busy} soundDisabled>
+        <Button variant="outline" shape="capsule" onClick={() => void reenable()} loading={busy} soundDisabled>
           {t("admin.aiHealth.reenable")}
         </Button>
       )}
@@ -376,7 +376,6 @@ function ProviderFallbackBlock<P extends string>({
       <div className={styles.featureSide}>
         <h3 className={styles.featureTitle}>{title}</h3>
         <Switch
-          size="sm"
           showStateText
           checked={value?.enabled !== false}
           onCheckedChange={(v) => onChange((prev) => ({ ...prev, enabled: v }))}
@@ -389,7 +388,6 @@ function ProviderFallbackBlock<P extends string>({
             자동 전환이 꺼져 있으면 기본만 보인다(자리 절약) */}
         <div className={styles.featureControls}>
           <Switch
-            size="sm"
             showStateText
             label={t("admin.settings.fallbackEnabled")}
             checked={fallbackEnabled}
@@ -441,6 +439,15 @@ function ProviderFallbackBlock<P extends string>({
 
 export default function ServicesTab({ config, savedConfig, update, saveSection, revertSection, resetSection, savingPaths, setConfig, validationError }: ServicesTabProps) {
   const { t, language } = useLanguage();
+  /* AI 자동 요약 하위 칸의 접힌 머리 — 말투 · 분량 · 초점 · 지침(기본값 / 직접 씀) */
+  const summaryOpts = sanitizeSummaryOptions((config.aiSummary as { options?: unknown }).options);
+  const to = (k: string) => t(`admin.aiSummaryField.options.${k}`);
+  const summaryPanelLine = [
+    to(`tone${summaryOpts.tone[0].toUpperCase()}${summaryOpts.tone.slice(1)}`),
+    to(`length${summaryOpts.length[0].toUpperCase()}${summaryOpts.length.slice(1)}`),
+    `${to("focus")} ${to(`focus${summaryOpts.focus[0].toUpperCase()}${summaryOpts.focus.slice(1)}`)}`,
+    t(typeof (config.aiSummary as { guide?: unknown }).guide === "string" && (config.aiSummary as { guide: string }).guide.trim() ? "admin.aiSummaryField.guide.stateCustom" : "admin.aiSummaryField.guide.stateDefault"),
+  ].join(" · ");
   const L = (ko: string, en: string) => (language === "ko" ? ko : en); // giscus 필드 툴팁 inline 다국어
 
   const sh = { config, savedConfig, saveSection, revertSection, resetSection, savingPaths, validationError, titleClassName: shared.sectionTitle };
@@ -580,7 +587,6 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
           paths={["commentEmailNotify", "notifyEmailTypes"]}
           extra={
             <Switch
-              size="sm"
               showStateText
               checked={config.commentEmailNotify ?? false}
               onCheckedChange={(v) => setConfig((prev) => ({ ...prev, commentEmailNotify: v }))}
@@ -687,7 +693,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
                 {(needsToken || giscusErr || giscusCats.length > 0) && (
                   <div className={styles.repoStatus}>
                     {needsToken
-                      ? <Button variant="link" size="xs" onClick={goToGithubTokenField}>
+                      ? <Button variant="link" onClick={goToGithubTokenField}>
                           {t("admin.settings.giscusNeedsToken")}
                         </Button>
                       : giscusErr
@@ -778,7 +784,6 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
               </FieldRow>
               <div className={styles.switchHelpRow}>
                 <Switch
-                  size="md"
                   label={t("admin.settings.giscusReactions")}
                   checked={giscus.reactionsEnabled !== false}
                   onCheckedChange={(v) => updateGiscus("reactionsEnabled", v)}
@@ -790,7 +795,6 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
               </div>
               <div className={styles.switchHelpRow}>
                 <Switch
-                  size="md"
                   label={t("admin.settings.giscusStrict")}
                   checked={giscus.strict === true}
                   onCheckedChange={(v) => updateGiscus("strict", v)}
@@ -802,7 +806,6 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
               </div>
               <div className={styles.switchHelpRow}>
                 <Switch
-                  size="md"
                   label={t("admin.settings.giscusEmitMetadata")}
                   checked={giscus.emitMetadata === true}
                   onCheckedChange={(v) => updateGiscus("emitMetadata", v)}
@@ -814,7 +817,6 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
               </div>
               <div className={styles.switchHelpRow}>
                 <Switch
-                  size="md"
                   label={t("admin.settings.giscusLazyLoading")}
                   checked={giscus.lazyLoading !== false}
                   onCheckedChange={(v) => updateGiscus("lazyLoading", v)}
@@ -865,7 +867,6 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
           paths={["recaptcha"]}
           extra={
             <Switch
-              size="sm"
               showStateText
               checked={config.recaptcha.enabled}
               onCheckedChange={(v) => update("recaptcha", "enabled", v)}
@@ -955,6 +956,9 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
             health={aiHealth}
             providerOf={(p) => p as AiProvider}
           >
+            {/* 요약 기본 옵션 · 작성 지침 — AI 자동 요약의 하위 칸(접힘). 넓은 화면에선 나란히 두 열, 좁으면 위아래 */}
+            <SettingsSubPanel title={t("admin.aiSummaryField.panelTitle")} summary={summaryPanelLine}>
+            <div className={styles.summaryGrid}>
             {/* 요약 기본 옵션 — 발행 때 자동 요약 · 방문자의 첫 생성이 쓰고, 편집기 "다시 만들기" 팝오버도 이 값으로 연다 */}
             <div className={styles.summaryOptions}>
               <h4 className={styles.summaryOptionsTitle}>{t("admin.aiSummaryField.options.siteTitle")}</h4>
@@ -966,7 +970,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
               />
             </div>
             {/* 작성 지침 — 프롬프트에서 고칠 수 있는 부분(문체 · 블록 고르는 요령 · 피할 예). 블록 정의 · 출력 형식은 코드에 고정 */}
-            <div className={`${styles.summaryOptions} ${styles.summaryGuide}`}>
+            <div className={styles.summaryOptions}>
               <h4 className={styles.summaryOptionsTitle}>{t("admin.aiSummaryField.guide.title")}</h4>
               <HintLines lines={[t("admin.aiSummaryField.guide.hint")]} />
               <SummaryGuideEditor
@@ -975,6 +979,8 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
                 onChange={(next) => setConfig((prev) => ({ ...prev, aiSummary: { ...prev.aiSummary, guide: next } as typeof prev.aiSummary }))}
               />
             </div>
+            </div>
+            </SettingsSubPanel>
           </ProviderFallbackBlock>
 
           {/* Translation */}
@@ -1008,12 +1014,12 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
             keyOf={(p) => AI_PROVIDER_INFO[p === "google" ? "google_tts" : (p as "fish")]?.key}
             health={aiHealth}
             providerOf={(p) => (p === "google" ? "google_tts" : p) as AiProvider}
-          />
+          >
+            {/* 읽기 사전 — TTS 의 하위 칸(접힘). 자체 API 로 바로 저장한다(탭 저장과 상관없음). 편집 화면의 창에서 #tts-lexicon 으로 온다 */}
+            <LexiconManager />
+          </ProviderFallbackBlock>
         </div>
       </section>
-
-      {/* 슬라이드 음성 읽기 사전 — 자체 API 로 바로 저장한다(탭 저장과 상관없음). 편집 화면의 창에서 #tts-lexicon 으로 온다 */}
-      <LexiconManager />
 
       {/* Environment Variables — 자체 PATCH API 로 별도 저장. SectionHeader 는 EnvVarFields 내부에서 customActions 로 렌더 → 액션 버튼이 title 라인에 위치.
           id — 위 섹션들의 "필요한 키" 바로가기가 칸이 없을 때 여기로 온다 */}

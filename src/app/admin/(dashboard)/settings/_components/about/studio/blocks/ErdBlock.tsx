@@ -217,7 +217,7 @@ export function ErdBlock({ tables, relations, onChange, lang }: {
             </div>
             {/* 파일 선택은 두 상태에서 늘 행의 오른쪽 끝 — 상태에 따라 자리가 옮겨다니면
                 같은 버튼인지 알아보기 어렵다. 닫힘에선 flex:1 드롭존이 밀어서 오른쪽에 선다. */}
-            <Button className={css.erdFileBtn} variant="subtle" size="md"
+            <Button className={css.erdFileBtn} variant="subtle"
               icon={<FileCode size={15} />} onClick={() => fileRef.current?.click()}>
               {L("파일 선택", "Choose file")}
             </Button>
@@ -293,13 +293,13 @@ export function ErdBlock({ tables, relations, onChange, lang }: {
             <div className={css.erdActions}>
               {/* 기존이 없으면 모드가 의미 없다 — 그냥 생성 */}
               {tables.length > 0 && (
-                <SegmentedControl<"merge" | "replace"> size="sm" value={mode} onChange={setMode}
+                <SegmentedControl<"merge" | "replace"> value={mode} onChange={setMode}
                   items={[
                     { value: "merge", label: L("병합", "Merge") },
                     { value: "replace", label: L("교체", "Replace") },
                   ]} />
               )}
-              <Button variant="primary" size="md"
+              <Button variant="primary"
                 disabled={!preview || !hasEffect(preview)} onClick={applySql}>
                 {preview && hasEffect(preview)
                   ? (tables.length > 0 && mode === "merge"
@@ -307,12 +307,12 @@ export function ErdBlock({ tables, relations, onChange, lang }: {
                       : (L(`테이블 ${preview.tables.length}개 생성`, `Generate ${preview.tables.length} tables`)))
                   : (L("생성", "Generate"))}
               </Button>
-              <Button variant="subtle" size="md" onClick={() => { setImportOpen(false); setErr(null); setFileName(null); }}>
+              <Button variant="subtle" onClick={() => { setImportOpen(false); setErr(null); setFileName(null); }}>
                 {L("취소", "Cancel")}
               </Button>
               {err && <span className={css.erdErr}>{err}</span>}
               {/* 닫힘 상태와 같은 라벨·같은 자리(오른쪽 끝) — 이름이나 위치가 바뀌면 다른 기능처럼 보인다 */}
-              <Button className={css.erdFileBtn} variant="subtle" size="md"
+              <Button className={css.erdFileBtn} variant="subtle"
                 icon={<FileCode size={15} />} onClick={() => fileRef.current?.click()}>
                 {L("파일 선택", "Choose file")}
               </Button>

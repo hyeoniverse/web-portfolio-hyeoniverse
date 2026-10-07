@@ -47,6 +47,9 @@
   font: var(--font-body-md);
   color: var(--text-primary);
   text-align: left;
+  /* 감싸개(.root) 안에서 글줄 기준선에 서면 아래로 0.4px 밀리고 감싸개가 28.41 로 커져,
+     같은 줄의 세그먼트 · 검색창보다 글자가 낮아 보였다 */
+  vertical-align: top;
 }
 
 /* 버튼 트리거는 자기 자연 너비(가장 긴 label + 화살표)를 명시한다. 바깥(.root·부모)이 좁아도

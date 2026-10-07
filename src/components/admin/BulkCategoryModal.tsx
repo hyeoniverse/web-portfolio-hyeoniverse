@@ -54,10 +54,10 @@ export default function BulkCategoryModal({ count, categories, onConfirm }: Bulk
       <Select value={value} options={options} onChange={setValue} />
       {footerEl && createPortal(
         <>
-          <Button variant="ghost" size="sm" onClick={closeAll} disabled={submitting}>
+          <Button variant="ghost" onClick={closeAll} disabled={submitting}>
             {t("admin.posts.cancel")}
           </Button>
-          <Button variant="primary" size="sm" onClick={handleSubmit} disabled={submitting}>
+          <Button variant="primary" onClick={handleSubmit} disabled={submitting}>
             {submitting ? "..." : t("admin.common.apply") || "Apply"}
           </Button>
         </>,

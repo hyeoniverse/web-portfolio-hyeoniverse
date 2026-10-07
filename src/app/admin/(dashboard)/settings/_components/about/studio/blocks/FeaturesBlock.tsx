@@ -63,7 +63,7 @@ export function FeaturesBlock({ value, onChange, lang, t, title }: {
                     </div>
                   </div>
                   <div className={css.itemTools}>
-                    <Popover placement="bottom-end" trigger={<Button variant="difference" shape="circle" size="xs" aria-label={L("이미지 변경", "Change image")}><ImageIcon size={13} /></Button>}>
+                    <Popover placement="bottom-end" trigger={<Button variant="difference" shape="circle" aria-label={L("이미지 변경", "Change image")}><ImageIcon size={13} /></Button>}>
                       <div className={css.bgPanel}>
                         <CoverImagePicker onSelect={(u) => set(i, { image: u })} onClose={() => { }} currentUrl={it.image}
                           postContext={{ title: it.title, tags: it.tech.split(",").map((s) => s.trim()).filter(Boolean), excerpt: it.description_en }} />

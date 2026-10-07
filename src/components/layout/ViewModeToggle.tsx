@@ -62,7 +62,7 @@ export default function ViewModeToggle({ forceShow = false }: { forceShow?: bool
     : (language === "ko" ? "모바일 모드" : "Mobile mode");
 
   return (
-    <Button type="button" variant="outline" size="xs" className={styles.viewModeBtn} onClick={toggle} title={label} aria-label={label}>
+    <Button type="button" variant="outline" className={styles.viewModeBtn} onClick={toggle} title={label} aria-label={label}>
       {target === "pc" ? <Monitor size={13} strokeWidth={1.8} /> : <Smartphone size={13} strokeWidth={1.8} />}
       <span>{label}</span>
     </Button>

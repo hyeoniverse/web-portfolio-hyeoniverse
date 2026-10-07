@@ -71,7 +71,6 @@ export default function CustomFontsField({ fonts, onChange }: Props) {
       <div className={styles.customFontsHead}>
         <Button
           variant="outline"
-          size="md"
           icon={<Plus size={14} strokeWidth={1.8} />}
           disabled={uploading}
           onClick={() => fileRef.current?.click()}

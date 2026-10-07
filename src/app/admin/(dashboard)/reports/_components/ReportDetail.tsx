@@ -105,7 +105,7 @@ export default function ReportDetail({
 
       {footerEl && createPortal(
         <>
-          <Button variant="ghost" size="sm" onClick={() => closeModal()}>
+          <Button variant="ghost" onClick={() => closeModal()}>
             {L("닫기", "Close")}
           </Button>
           {url && (
@@ -113,7 +113,6 @@ export default function ReportDetail({
               href={url}
               external
               variant="outline"
-              size="sm"
               icon={<ExternalLink size={13} strokeWidth={1.8} />}
             >
               {t("admin.reports.view")}
@@ -122,7 +121,6 @@ export default function ReportDetail({
           {isPending && report.comment && !report.comment.is_deleted && (
             <Button
               variant="outline"
-              size="sm"
               tone="danger"
               icon={<Trash2 size={13} strokeWidth={1.8} />}
               onClick={withClose(onDeleteComment)}
@@ -133,7 +131,6 @@ export default function ReportDetail({
           {isPending && (
             <Button
               variant="outline"
-              size="sm"
               icon={<X size={13} strokeWidth={1.8} />}
               onClick={withClose(onDismiss)}
             >
@@ -143,7 +140,6 @@ export default function ReportDetail({
           {isPending && (
             <Button
               variant="primary"
-              size="sm"
               icon={<Check size={13} strokeWidth={1.8} />}
               onClick={withClose(onResolve)}
             >

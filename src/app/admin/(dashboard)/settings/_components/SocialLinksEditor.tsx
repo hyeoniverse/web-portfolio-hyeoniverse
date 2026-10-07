@@ -115,7 +115,6 @@ export default function SocialLinksEditor({ links, onChange, max = DEFAULT_MAX }
           ))}
           <Button
             variant="outline"
-            size="md"
             fullWidth
             icon={<Plus size={14} strokeWidth={2} />}
             onClick={addLink}

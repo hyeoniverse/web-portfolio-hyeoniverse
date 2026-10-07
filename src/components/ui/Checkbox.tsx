@@ -1,5 +1,6 @@
 "use client";
 
+import { useInControlSizeScope } from "@/components/ui/controlSize";
 import type { ReactNode } from "react";
 import { Check, Minus } from "@/components/icons";
 import styles from "./Checkbox.module.css";
@@ -25,11 +26,13 @@ export default function Checkbox({
   disabled = false,
   className,
 }: CheckboxProps) {
+  /* 컨트롤 높이 범위(설정 페이지 등) 안이면 상자는 그대로, 줄 높이만 sm */
+  const inScope = useInControlSizeScope();
   const state = indeterminate ? "indeterminate" : checked ? "checked" : "";
 
   return (
     <label
-      className={`${styles.wrapper} ${disabled ? styles.disabled : ""} ${className ?? ""}`}
+      className={`${styles.wrapper} ${inScope ? styles.scopeBox : ""} ${disabled ? styles.disabled : ""} ${className ?? ""}`}
       data-clickable="true"
     >
       <input

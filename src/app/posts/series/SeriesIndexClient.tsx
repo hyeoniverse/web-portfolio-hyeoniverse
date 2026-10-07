@@ -121,7 +121,6 @@ export default function SeriesIndexClient({ series }: Props) {
           {isAdmin && (
             <Button
               href="/admin/settings?tab=content&sub=posts"
-              size="sm"
               icon={<Settings size={12} strokeWidth={1.8} aria-hidden />}
               title={t("postsPage.seriesManage")}
             >

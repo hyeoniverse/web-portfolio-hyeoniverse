@@ -164,12 +164,12 @@ export default function ErdCanvas({ tables, relations, onChange, lang }: {
       <div className={css.toolbar}>
         {/* 공통 SearchCapsule — 지우개·이력 UI 를 자체 구현할 이유가 없다.
             이력/도움말은 이 자리에 불필요해서 끈다. */}
-        <SearchCapsule size="sm" search={q} onSearchChange={setQ}
+        <SearchCapsule search={q} onSearchChange={setQ}
           /* 기본값 align="right" 는 margin-left:auto 를 붙인다 — 툴바 맨 앞 자리라 left */
           align="left" className={css.search}
           placeholder={L("테이블·컬럼 검색", "Search tables or columns")}
           historyKey={null} showHelp={false} />
-        <Button variant="subtle" size="sm" icon={<Plus size={14} />} onClick={addTable}>
+        <Button variant="subtle" icon={<Plus size={14} />} onClick={addTable}>
           {L("테이블 추가", "Add table")}
         </Button>
         <span className={css.count}>
@@ -208,7 +208,7 @@ export default function ErdCanvas({ tables, relations, onChange, lang }: {
               <p className={css.emptyHint}>
                 {L("테이블을 직접 추가하거나, 위의 SQL 가져오기에 setup.sql 을 붙여넣으면 한 번에 만들어집니다.", "Add a table, or paste your setup.sql into SQL import above to generate them all at once.")}
               </p>
-              <Button variant="subtle" size="sm" icon={<Plus size={14} />} onClick={addTable}>
+              <Button variant="subtle" icon={<Plus size={14} />} onClick={addTable}>
                 {L("테이블 추가", "Add table")}
               </Button>
             </>
@@ -220,7 +220,7 @@ export default function ErdCanvas({ tables, relations, onChange, lang }: {
               <p className={css.emptyHint}>
                 {L(`"${q.trim()}" 와(과) 이름·컬럼이 일치하는 테이블이 없습니다.`, `No table name or column matches "${q.trim()}".`)}
               </p>
-              <Button variant="outline" size="sm" onClick={() => setQ("")}>
+              <Button variant="outline" onClick={() => setQ("")}>
                 {L("검색 지우기", "Clear search")}
               </Button>
             </>

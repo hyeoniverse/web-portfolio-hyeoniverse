@@ -140,7 +140,6 @@ function CalendarHeatmap({
         <Button
           variant="ghost"
           shape="square"
-          size="xs"
           icon={<ChevronLeft size={14} strokeWidth={2} />}
           onClick={goPrev}
           disabled={!canPrev}
@@ -150,7 +149,6 @@ function CalendarHeatmap({
         <Button
           variant="ghost"
           shape="square"
-          size="xs"
           icon={<ChevronRight size={14} strokeWidth={2} />}
           onClick={goNext}
           disabled={!canNext}

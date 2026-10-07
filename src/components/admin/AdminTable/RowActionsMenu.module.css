@@ -1,10 +1,11 @@
 /* trigger — kebab 아이콘 */
+/* 컨트롤 기본 높이(sm) — 같은 줄의 고치기 · 지우기 단추와 맞춘다 */
 .trigger {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: var(--control-height-xs);
-  height: var(--control-height-xs);
+  width: var(--control-height-sm);
+  height: var(--control-height-sm);
   border: none;
   border-radius: var(--radius-full);
   background: transparent;

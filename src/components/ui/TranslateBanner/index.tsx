@@ -37,7 +37,6 @@ export default function TranslateBanner({
         <Button
           type="button"
           variant="outline"
-          size="xs"
           onClick={onTranslate}
           disabled={translating}
         >

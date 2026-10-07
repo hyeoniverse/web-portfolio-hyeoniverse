@@ -151,10 +151,10 @@ export default function MemberDetailModal({ author: raw, member, isOwnerProfile,
 
       {footerEl && createPortal(
         <>
-          <Button variant="outline" size="sm" soundDisabled onClick={() => closeModal("member-detail")}>{L("닫기", "Close")}</Button>
+          <Button variant="outline" soundDisabled onClick={() => closeModal("member-detail")}>{L("닫기", "Close")}</Button>
           {/* 같은 푸터의 닫기가 텍스트 버튼이라 수정에서도 아이콘을 뺀다 — 편집 모달(취소/저장)도 텍스트다. */}
           {canEdit && (
-            <Button variant="primary" size="sm" soundDisabled onClick={() => { closeModal("member-detail"); onEdit?.(); }}>
+            <Button variant="primary" soundDisabled onClick={() => { closeModal("member-detail"); onEdit?.(); }}>
               {editLabel ?? L("수정", "Edit")}
             </Button>
           )}

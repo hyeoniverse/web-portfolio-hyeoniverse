@@ -50,7 +50,6 @@ export default function TagPageToolbar({
     >
       <Button
         variant="ghost"
-        size="sm"
         className={styles.backBtn}
         icon={<ArrowLeft size={16} strokeWidth={1.8} />}
         onClick={() => router.push("/posts/tags")}
@@ -74,7 +73,6 @@ export default function TagPageToolbar({
             value={sort}
             onChange={onSortChange}
             sortDir={sortDir}
-            size="sm"
           />
         </div>
         <div className={styles.searchPerPageGroup}>
@@ -82,7 +80,6 @@ export default function TagPageToolbar({
             <List size={14} strokeWidth={1.8} className={styles.perPageIcon} aria-hidden />
             <Select
               className={styles.perPageSelect}
-              size="sm"
               value={String(perPage)}
               options={perPageOptions(t)}
               onChange={(v) => onPerPageChange(Number(v))}
@@ -92,7 +89,6 @@ export default function TagPageToolbar({
             search={search}
             onSearchChange={setSearch}
             align="right"
-            size="sm"
             placeholder={t("postsPage.tagInnerSearch")}
             className={styles.heroSearch}
             routeParam="q"

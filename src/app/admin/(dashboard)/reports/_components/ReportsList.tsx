@@ -219,21 +219,21 @@ export default function ReportsList({
               <div className={styles.itemActionBtns}>
                 {url && (
                   <Tooltip content={t("admin.reports.view")} placement="top" delay={200}>
-                    <Button href={url} external shape="square" variant="ghost" size="sm" aria-label={t("admin.reports.view")} icon={<ExternalLink size={15} strokeWidth={1.8} />} />
+                    <Button href={url} external shape="square" variant="ghost" aria-label={t("admin.reports.view")} icon={<ExternalLink size={15} strokeWidth={1.8} />} />
                   </Tooltip>
                 )}
                 {r.status === "pending" && (
                   <>
                     {!r.comment?.is_deleted && r.comment && (
                       <Tooltip content={t("admin.reports.deleteComment")} placement="top" delay={200}>
-                        <Button shape="square" variant="ghost" size="sm" tone="danger" aria-label={t("admin.reports.deleteComment")} icon={<Trash2 size={15} strokeWidth={1.8} />} onClick={() => confirmDeleteComment(r)} />
+                        <Button shape="square" variant="ghost" tone="danger" aria-label={t("admin.reports.deleteComment")} icon={<Trash2 size={15} strokeWidth={1.8} />} onClick={() => confirmDeleteComment(r)} />
                       </Tooltip>
                     )}
                     <Tooltip content={t("admin.reports.resolve")} placement="top" delay={200}>
-                      <Button shape="square" variant="ghost" size="sm" aria-label={t("admin.reports.resolve")} icon={<Check size={15} strokeWidth={1.8} />} onClick={() => updateStatus(r.id, "resolved")} />
+                      <Button shape="square" variant="ghost" aria-label={t("admin.reports.resolve")} icon={<Check size={15} strokeWidth={1.8} />} onClick={() => updateStatus(r.id, "resolved")} />
                     </Tooltip>
                     <Tooltip content={t("admin.reports.dismiss")} placement="top" delay={200}>
-                      <Button shape="square" variant="ghost" size="sm" aria-label={t("admin.reports.dismiss")} icon={<X size={15} strokeWidth={1.8} />} onClick={() => updateStatus(r.id, "dismissed")} />
+                      <Button shape="square" variant="ghost" aria-label={t("admin.reports.dismiss")} icon={<X size={15} strokeWidth={1.8} />} onClick={() => updateStatus(r.id, "dismissed")} />
                     </Tooltip>
                   </>
                 )}

@@ -33,7 +33,7 @@ type HelpButtonProps = Omit<
 };
 
 const HelpButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, HelpButtonProps>(
-  ({ size = "md", symbol = "?", variant = "subtle", ...props }, ref) => (
+  ({ size = "sm", symbol = "?", variant = "subtle", ...props }, ref) => (
     <Button ref={ref} variant={variant} shape="circle" size={size} {...props}>
       {symbol}
     </Button>

@@ -1,38 +1,43 @@
 "use client";
 
-/* ── 읽기 사전 (settings > 서비스) ──
-   슬라이드 음성을 만들 때 대본의 표기(코드·약어)를 읽을 말로 바꾸는 사전(lib/ttsLexicon).
+/* ── 읽기 사전 (settings > 서비스 > TTS 블록 안의 하위 칸) ──
+   슬라이드 음성을 만들 때 대본의 표기(코드 · 약어)를 읽을 말로 바꾸는 사전(lib/ttsLexicon).
    편집기는 갤러리 음성 편집의 창과 같이 쓴다(LexiconEditor). 바꾸는 즉시 저장되므로
-   이 탭은 위쪽의 "탭 저장 / 되돌리기"와 상관없다. */
-import { useEffect, useRef } from "react";
+   이 칸은 위쪽의 "탭 저장 / 되돌리기"와 상관없다. 편집 화면의 "설정에서 관리"는 #tts-lexicon 으로 와서 펼친 채로 연다 */
+import { useCallback, useEffect, useState } from "react";
 import { useLanguage } from "@/providers/LanguageProvider";
-import { useLenis } from "@/providers/LenisProvider";
 import LexiconEditor from "@/components/works/LexiconEditor";
-import settings from "../Settings.module.css";
-import styles from "./LexiconManager.module.css";
+import { HintLines } from "./EnvKeyHint";
+import { tryRequest } from "@/lib/sendAction";
+import { sanitizeLexicon, type LexiconLang } from "@/lib/ttsLexicon";
+import { fillTemplate } from "@/utils/format";
+import SettingsSubPanel from "./SettingsSubPanel";
 
 const LEXICON_SECTION_ID = "tts-lexicon";
 
 export default function LexiconManager() {
   const { t } = useLanguage();
-  /* 편집 화면의 "설정에서 전체 관리"는 #tts-lexicon 으로 온다 — 탭 내용이 늦게 그려져 브라우저가 스스로 못 찾아가고,
-     페이지 스크롤은 Lenis 가 맡아 scrollIntoView 도 먹히지 않는다. 위쪽 섹션이 자리를 잡은 뒤 Lenis 로 옮긴다 */
-  const ref = useRef<HTMLElement>(null);
-  const { scrollTo } = useLenis();
+  /* 접힌 머리의 "KO n개 · EN n개" — 처음엔 두 사전을 가볍게 읽고, 펼친 뒤엔 편집기가 바뀔 때마다 알려 준다 */
+  const [counts, setCounts] = useState<Partial<Record<LexiconLang, number>>>({});
   useEffect(() => {
-    if (window.location.hash !== `#${LEXICON_SECTION_ID}`) return;
-    const id = window.setTimeout(() => { if (ref.current) scrollTo(ref.current, { offset: -120 }); }, 700);
-    return () => window.clearTimeout(id);
-  }, [scrollTo]);
+    let alive = true;
+    for (const lang of ["ko", "en"] as const) {
+      void tryRequest(`/api/works/tts/lexicon?lang=${lang}`, { method: "GET" }).then(async (res) => {
+        const data = res instanceof Response ? await res.json().catch(() => ({})) : {};
+        if (alive) setCounts((c) => ({ ...c, [lang]: sanitizeLexicon(data?.entries).length }));
+      });
+    }
+    return () => { alive = false; };
+  }, []);
+  const onCountChange = useCallback((lang: LexiconLang, n: number) => setCounts((c) => (c[lang] === n ? c : { ...c, [lang]: n })), []);
+
+  const summary = counts.ko === undefined && counts.en === undefined
+    ? undefined
+    : fillTemplate(t("admin.settings.lexicon.summary"), { ko: counts.ko ?? 0, en: counts.en ?? 0 });
   return (
-    <section ref={ref} id={LEXICON_SECTION_ID} className={`${settings.section} ${settings.sectionWide}`}>
-      <div className={styles.wrap}>
-        <h2 className={settings.sectionTitle}>{t("admin.settings.lexicon.title")}</h2>
-        <p className={settings.sectionHint}>{t("admin.settings.lexicon.hint")}</p>
-        <div className={styles.body}>
-          <LexiconEditor />
-        </div>
-      </div>
-    </section>
+    <SettingsSubPanel id={LEXICON_SECTION_ID} title={t("admin.settings.lexicon.title")} summary={summary}>
+      <HintLines lines={[t("admin.settings.lexicon.hint")]} />
+      <LexiconEditor onCountChange={onCountChange} />
+    </SettingsSubPanel>
   );
 }

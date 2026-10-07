@@ -32,7 +32,6 @@ export default function PostsEmptyState({ query }: { query: PostsQuery }) {
         </p>
         <Button
           variant="outline"
-          size="xs"
           onClick={() => setActiveSeries(null)}
         >
           <T k="postsPage.clearSeries" />
@@ -49,7 +48,6 @@ export default function PostsEmptyState({ query }: { query: PostsQuery }) {
         activeCategories.length > 0) && (
         <Button
           variant="outline"
-          size="xs"
           onClick={() => {
             setSearch("");
             setSearchType("all");

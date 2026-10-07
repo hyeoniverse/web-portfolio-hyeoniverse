@@ -260,8 +260,8 @@ export default function CalendarEventModal({
   // "n번째 요일" 조건 select 2개 (월·연 공통)
   const ordCondRow = (
     <div className={styles.recurOrdRow}>
-      <Select value={String(repeatBysetpos ?? 1)} onChange={(v) => setRepeatBysetpos(parseInt(v, 10))} width="s" size="sm" dropdownClassName={styles.selectAboveModal} options={ordinalOpts} />
-      <Select value={repeatOrdDay} onChange={setRepeatOrdDay} width="m" size="sm" dropdownClassName={styles.selectAboveModal} options={weekdayOpts} />
+      <Select value={String(repeatBysetpos ?? 1)} onChange={(v) => setRepeatBysetpos(parseInt(v, 10))} width="s" dropdownClassName={styles.selectAboveModal} options={ordinalOpts} />
+      <Select value={repeatOrdDay} onChange={setRepeatOrdDay} width="m" dropdownClassName={styles.selectAboveModal} options={weekdayOpts} />
     </div>
   );
   const curLabel = findLabel(labelId ?? undefined, labels);
@@ -375,7 +375,6 @@ export default function CalendarEventModal({
           ]}
           value={recurScope}
           onChange={setRecurScope}
-          size="sm"
         />
       </div>
     )}
@@ -419,7 +418,6 @@ export default function CalendarEventModal({
               onChange={setLName}
               placeholder={t("라벨 이름", "Label name")}
               maxLength={EVENT_LABEL_MAX}
-              size="sm"
               autoFocus
               onKeyDown={(e) => { if (e.key === "Enter" && !e.nativeEvent.isComposing) { e.preventDefault(); submitLabel(); } }}
             />
@@ -441,10 +439,10 @@ export default function CalendarEventModal({
                 )}
               </ColorPicker>
               {labelEdit.mode === "edit" && (
-                <Button size="xs" variant="subtle" tone="danger" icon={<Trash2 size={12} />} onClick={deleteLabel} style={{ marginRight: "auto" }}>{t("삭제", "Delete")}</Button>
+                <Button variant="subtle" tone="danger" icon={<Trash2 size={12} />} onClick={deleteLabel} style={{ marginRight: "auto" }}>{t("삭제", "Delete")}</Button>
               )}
-              <Button size="xs" variant="subtle" onClick={cancelLabelEdit} style={labelEdit.mode === "edit" ? undefined : { marginLeft: "auto" }}>{t("취소", "Cancel")}</Button>
-              <Button size="xs" variant="primary" onClick={submitLabel} disabled={!lName.trim()}>{labelEdit.mode === "edit" ? t("저장", "Save") : t("추가", "Add")}</Button>
+              <Button variant="subtle" onClick={cancelLabelEdit} style={labelEdit.mode === "edit" ? undefined : { marginLeft: "auto" }}>{t("취소", "Cancel")}</Button>
+              <Button variant="primary" onClick={submitLabel} disabled={!lName.trim()}>{labelEdit.mode === "edit" ? t("저장", "Save") : t("추가", "Add")}</Button>
             </div>
           </div>
         )}
@@ -454,7 +452,7 @@ export default function CalendarEventModal({
       <div className={`${styles.section} ${styles.sectionFull}`}>
         <div className={styles.sectionLabelRow}>
           <span className={styles.sectionLabel}>{t("날짜", "Date")}<span className={styles.reqDot} aria-hidden /></span>
-          <Button size="xs" variant="subtle" className={endDate != null ? styles.rangeToggleOn : undefined} onClick={() => setEndDate((prev) => (prev ? null : date))}>
+          <Button variant="subtle" className={endDate != null ? styles.rangeToggleOn : undefined} onClick={() => setEndDate((prev) => (prev ? null : date))}>
             {t("기간", "Range")}
           </Button>
         </div>
@@ -501,7 +499,7 @@ export default function CalendarEventModal({
         <div className={styles.sectionLabelRow}>
           <span className={styles.sectionLabel}>{t("시간", "Time")}</span>
           {time && (
-            <Button size="xs" variant="subtle" onClick={() => { setTime(null); setEndTime(null); setStartTimeOpen(false); setEndTimeOpen(false); }}>{t("제거", "Clear")}</Button>
+            <Button variant="subtle" onClick={() => { setTime(null); setEndTime(null); setStartTimeOpen(false); setEndTimeOpen(false); }}>{t("제거", "Clear")}</Button>
           )}
         </div>
         {!time ? (
@@ -610,7 +608,6 @@ export default function CalendarEventModal({
                           if (f === "yearly") { setRepeatBysetpos(null); setRepeatBymonth((prev) => (prev.length ? prev : [d.getMonth() + 1])); } else setRepeatBymonth([]);
                         }}
                         width="s"
-                        size="sm"
                         dropdownClassName={styles.selectAboveModal}
                         options={[
                           { value: "daily", label: t("일", "day") },
@@ -644,7 +641,6 @@ export default function CalendarEventModal({
                             if (v === "ordinal") { setRepeatBysetpos((p) => p ?? 1); setRepeatOrdDay((prev) => prev || String(d.getDay())); }
                             else { setRepeatBysetpos(null); setRepeatBymonthday((prev) => (prev.length ? prev : [d.getDate()])); }
                           }}
-                          size="sm"
                         />
                         {repeatBysetpos == null ? (
                           <div className={styles.recurDayGrid}>
@@ -694,7 +690,6 @@ export default function CalendarEventModal({
                     ]}
                     value={repeatEnd}
                     onChange={(v) => { setRepeatEnd(v); if (v === "until" && !repeatUntil) setRepeatUntil(date); }}
-                    size="sm"
                   />
                   {repeatEnd === "count" && (
                     <span className={styles.recurCountWrap}>
@@ -852,18 +847,18 @@ export default function CalendarEventModal({
         viewing ? (
           <>
             {onDelete && (
-              <Button size="sm" variant="subtle" tone="danger" icon={<Trash2 size={13} />} soundDisabled onClick={remove} style={{ marginRight: "auto" }}>{t("삭제", "Delete")}</Button>
+              <Button variant="subtle" tone="danger" icon={<Trash2 size={13} />} soundDisabled onClick={remove} style={{ marginRight: "auto" }}>{t("삭제", "Delete")}</Button>
             )}
-            <Button size="sm" variant="outline" soundDisabled onClick={close}>{t("닫기", "Close")}</Button>
-            {!readOnly && <Button size="sm" variant="primary" icon={<Pencil size={13} />} soundDisabled onClick={() => setViewing(false)}>{t("편집", "Edit")}</Button>}
+            <Button variant="outline" soundDisabled onClick={close}>{t("닫기", "Close")}</Button>
+            {!readOnly && <Button variant="primary" icon={<Pencil size={13} />} soundDisabled onClick={() => setViewing(false)}>{t("편집", "Edit")}</Button>}
           </>
         ) : (
           <>
             {mode === "edit" && onDelete && (
-              <Button size="sm" variant="subtle" tone="danger" icon={<Trash2 size={13} />} soundDisabled onClick={remove} style={{ marginRight: "auto" }}>{t("삭제", "Delete")}</Button>
+              <Button variant="subtle" tone="danger" icon={<Trash2 size={13} />} soundDisabled onClick={remove} style={{ marginRight: "auto" }}>{t("삭제", "Delete")}</Button>
             )}
-            <Button size="sm" variant="outline" soundDisabled onClick={() => (mode === "edit" ? setViewing(true) : close())}>{t("취소", "Cancel")}</Button>
-            <Button size="sm" variant="primary" icon={<Check size={13} />} soundDisabled onClick={save}>{t("저장", "Save")}</Button>
+            <Button variant="outline" soundDisabled onClick={() => (mode === "edit" ? setViewing(true) : close())}>{t("취소", "Cancel")}</Button>
+            <Button variant="primary" icon={<Check size={13} />} soundDisabled onClick={save}>{t("저장", "Save")}</Button>
           </>
         ),
         footerEl,
