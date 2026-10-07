@@ -421,7 +421,7 @@ export default function MemberEditModal({
           </>
         ) : linkMemberId ? (
           <>
-            <span className={shared.fieldHint}>
+            <span className={`${shared.fieldHint} ${shared.hintItem}`}>
               {L("이미 로그인한 계정입니다. 저장하면 이 프로필과 연결하고 권한을 부여합니다.", "This account has already signed in. Saving links it to this profile and grants access.")}
             </span>
             <div className={styles.authorInviteRow}>
@@ -430,7 +430,7 @@ export default function MemberEditModal({
           </>
         ) : (
           <>
-            <span className={shared.fieldHint}>
+            <span className={`${shared.fieldHint} ${shared.hintItem}`}>
               {localInvited
                 ? L("초대를 보냈습니다. 동일한 GitHub 계정으로 로그인하면 권한이 부여됩니다.", "Invite sent. Access is granted when they sign in with the matching GitHub account.")
                 : L("이 이메일과 동일한 GitHub 계정으로 로그인하면 권한이 부여됩니다.", "Access is granted when they sign in with the GitHub account that uses this email.")}

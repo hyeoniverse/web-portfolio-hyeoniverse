@@ -394,6 +394,10 @@
   color: var(--text-tertiary);
   margin-bottom: var(--spacing-16);
   margin-top: 0;
+  /* 설명은 한 줄이어도 글머리 — 관리자 화면의 설명 목록(sectionHintList)과 같은 모양. 글머리는 왼쪽 여백에 걸린다 */
+  display: list-item;
+  margin-left: var(--spacing-20);
+  list-style: disc;
 }
 
 .sectionTitle + .sectionHint,
@@ -417,6 +421,13 @@
   font: var(--font-body-sm);
   color: var(--text-tertiary);
   margin: 0;
+}
+
+/* fieldHint 가운데 설명인 것 — 한 줄이어도 글머리(상태 · 빈 목록 · 오류 문구는 fieldHint 만 쓴다) */
+.fieldHint.hintItem {
+  display: list-item;
+  margin-left: var(--spacing-20);
+  list-style: disc;
 }
 
 /* 라벨 텍스트와 dot 을 가로 한 줄로 묶는 컨테이너 (.fieldLabel 이 column 이라 필요) */

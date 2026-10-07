@@ -76,13 +76,12 @@ export function envKeyLine(keys: string[], t: (key: string) => string, { missing
 }
 
 /**
- * 섹션 설명 — 한 줄이면 문단, 여러 줄이면 글머리 목록으로 줄을 나눈다. 빈 줄(null·"")은 뺀다.
+ * 섹션 설명 — 줄 수와 상관없이 글머리 목록(한 줄이어도 글머리를 단다 — 관리자 화면의 설명은 모두 같은 모양). 빈 줄(null·"")은 뺀다.
  * 필요한 키 안내(envKeyLine)도 따로 줄을 만들지 않고 여기 한 줄로 들어간다.
  */
 export function HintLines({ lines, className }: { lines: React.ReactNode[]; className?: string }) {
   const shown = lines.filter((l) => l !== null && l !== undefined && l !== false && l !== "");
   if (shown.length === 0) return null;
-  if (shown.length === 1) return <p className={`${shared.fieldHint} ${styles.envKeyHint} ${className ?? ""}`}>{shown[0]}</p>;
   return (
     <ul className={`${shared.sectionHintList} ${styles.envKeyHint} ${styles.hintList} ${className ?? ""}`}>
       {shown.map((l, i) => <li key={i}>{l}</li>)}
