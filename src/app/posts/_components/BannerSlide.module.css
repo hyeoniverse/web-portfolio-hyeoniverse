@@ -295,7 +295,7 @@
    Responsive
    ========================================================================== */
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   /* Editorial */
   .contentEditorial {
     padding: var(--spacing-24) var(--spacing-20) var(--spacing-64);

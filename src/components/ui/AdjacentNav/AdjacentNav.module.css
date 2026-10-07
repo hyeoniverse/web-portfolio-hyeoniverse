@@ -133,7 +133,7 @@
   color: var(--text-accent);
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .thumb {
     position: absolute;
     inset: 0;

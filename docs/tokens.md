@@ -146,9 +146,9 @@
 | `--spacing-96` | `6rem` |  |
 | `--spacing-112` | `7rem` |  |
 | `--spacing-128` | `8rem` |  |
-| `--m-sm` | — | `@media (max-width: 480px): 2.1vw` |
-| `--m-md` | — | `@media (max-width: 480px): 4.2vw` |
-| `--m-lg` | — | `@media (max-width: 480px): 5vw` |
+| `--m-sm` | — | `@media (width <= 480px): 2.1vw` |
+| `--m-md` | — | `@media (width <= 480px): 4.2vw` |
+| `--m-lg` | — | `@media (width <= 480px): 5vw` |
 
 ## `src/styles/tokens/_typography.css`
 
@@ -394,9 +394,9 @@
 | `--border-ghost` | `1px solid var(--border-color-ghost)` |  |  |
 | `--border-white-muted` | `1px solid var(--border-color-white-muted)` |  |  |
 | `--border-success` | `1px solid var(--border-color-success)` |  |  |
-| `--spacing-page-inline` | `8vw` |  | `@media (max-width: 768px): 5vw`<br>`@media (max-width: 480px): 4vw` |
+| `--spacing-page-inline` | `8vw` |  | `@media (width <= 768px): 5vw`<br>`@media (width <= 480px): 4vw` |
 | `--width-page-max` | `100%` |  |  |
-| `--spacing-panel-block` | `clamp(1rem, min(4.5vh, 2.5vw), 4.5rem)` |  | `@media (max-width: 480px): var(--m-lg)` |
+| `--spacing-panel-block` | `clamp(1rem, min(4.5vh, 2.5vw), 4.5rem)` |  | `@media (width <= 480px): var(--m-lg)` |
 | `--font-family-body` | `"Pretendard Variable", -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji"` |  |  |
 | `--font-family-headline` | `var(--font-instrument)` |  |  |
 | `--font-family-code` | `var(--font-jetbrains-mono)` |  |  |

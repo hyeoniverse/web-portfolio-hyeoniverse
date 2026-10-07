@@ -225,7 +225,7 @@
 }
 
 /* ── 데스크톱 포스터 구도(정렬이 기본값일 때): 가운데에 라벨·제목·설명, 아래에 챕터 목차 ── */
-@media (min-width: 1025px) and (min-height: 701px) {
+@media (width > 1024px) and (height > 700px) {
   .heroPoster {
     align-items: center;
     justify-content: center;
@@ -309,7 +309,7 @@
   }
 }
 
-@media (max-width: 1024px), (max-height: 700px) {
+@media (width <= 1024px), (height <= 700px) {
   .heroContent {
     padding-top: calc(var(--header-height) + var(--_space-divide));
   }
@@ -325,7 +325,7 @@
   }
 }
 
-@media (min-width: 1025px) and (min-height: 701px) and (prefers-reduced-motion: no-preference) {
+@media (width > 1024px) and (height > 700px) and (prefers-reduced-motion: no-preference) {
   /* 흐름 — 떠날 때 제목이 작아지며 뒤로 빠진다 */
   .heroPoster > h1 {
     scale: calc(1 - var(--flow-out) * 0.4);

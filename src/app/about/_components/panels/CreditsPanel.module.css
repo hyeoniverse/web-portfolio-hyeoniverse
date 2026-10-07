@@ -82,7 +82,7 @@
 }
 
 /* 들어오는 동안 자막이 아래에서 스크롤만큼 올라온다(--flow-in, useHorizontalScroll) */
-@media (min-width: 1025px) and (min-height: 701px) and (prefers-reduced-motion: no-preference) {
+@media (width > 1024px) and (height > 700px) and (prefers-reduced-motion: no-preference) {
   .creditsPanel .creditsRoll {
     opacity: calc(1 - var(--flow-in) * 0.8);
     translate: 0 calc(var(--flow-in) * 40vh);
@@ -90,7 +90,7 @@
 }
 
 /* 낮은 화면 — 위 메뉴에 닿지 않게 간격을 줄이고 머리말은 뺀다 */
-@media (min-width: 1025px) and (min-height: 701px) and (max-height: 860px) {
+@media (width > 1024px) and (700px < height <= 860px) {
   .creditsPanel {
     padding-top: var(--header-height);
   }
@@ -110,13 +110,13 @@
 
 /* 모바일 — 고정 상단 메뉴 아래에서 시작하고, 두 단 이름표를 한 단으로 쌓는다 */
 /* 공용 패널 폭(100vw)을 번들 순서와 무관하게 이기도록 (0,2,0) */
-@media (min-width: 1025px) and (min-height: 701px) {
+@media (width > 1024px) and (height > 700px) {
   .creditsPanel.creditsPanel {
     width: 160vw;
   }
 }
 
-@media (max-width: 1024px), (max-height: 700px) {
+@media (width <= 1024px), (height <= 700px) {
   .creditsPanel {
     grid-template-columns: 1fr;
     row-gap: var(--spacing-48);

@@ -388,7 +388,7 @@
 }
 
 /* ── Responsive ── */
-@media (max-width: 1024px) {
+@media (width <= 1024px) {
   .wrap {
     flex-direction: column;
   }
@@ -493,7 +493,7 @@
   }
 }
 
-@media (max-width: 480px) {
+@media (width <= 480px) {
   .imageCard {
     height: 70vh;
   }

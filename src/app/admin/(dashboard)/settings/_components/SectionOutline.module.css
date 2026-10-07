@@ -57,7 +57,7 @@
 }
 
 /* 태블릿·모바일 — 사이드바가 가로 탭 바가 되므로 숨긴다. 오른쪽 눈금(SectionJumpNav)이 대신한다. */
-@media (max-width: 1024px) {
+@media (width <= 1024px) {
   .outline {
     display: none;
   }

@@ -1773,7 +1773,7 @@
 /* "..." 밖 별개 언어 Select — 우측 버튼 그룹과 간격 벌림 */
 /* 그룹 라벨 (자주 쓰는 / A–Z) — 스크롤 시 상단 고정 */
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .wrapper {
     min-height: 400px;
   }

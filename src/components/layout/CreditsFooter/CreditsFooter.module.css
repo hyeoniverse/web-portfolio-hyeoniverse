@@ -54,7 +54,7 @@
 
 /* 1024px 이하에서 sidebar 가 main 아래로 stack 되므로 fixed footer 가 sidebar 콘텐츠를
    덮어쓰지 않도록 normal flow 로 전환. (이전 768px 기준이라 769~1024 구간에서 겹쳤음) */
-@media (max-width: 1024px), (max-height: 700px) {
+@media (width <= 1024px), (height <= 700px) {
   .section {
     position: relative;
     padding: var(--spacing-48) var(--spacing-24) var(--spacing-32);
@@ -63,7 +63,7 @@
   }
 }
 
-@media (max-width: 480px) {
+@media (width <= 480px) {
   .section {
     padding: var(--spacing-48) var(--m-lg) var(--spacing-32);
   }

@@ -109,13 +109,13 @@
 /* 좁은 폭에서는 섹션 바로가기 눈금(SectionJumpNav)이 화면 오른쪽 가장자리에 떠 있다.
    눈금 자리는 오른쪽 끝에서 spacing-md 안쪽, 폭 18px 이다. 본문 여백(--spacing-page-inline, 480px 이하 4vw)이
    그보다 좁으면 눈금이 버튼과 카드 가장자리를 가리므로, 모자란 만큼 본문 오른쪽을 비운다. */
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .panel {
     padding-right: max(0px, calc(var(--spacing-16) + 18px + var(--spacing-4) - var(--spacing-page-inline)));
   }
 }
 
-@media (max-width: 1024px) {
+@media (width <= 1024px) {
   .layout {
     flex-direction: column;
     gap: 0;
@@ -380,7 +380,7 @@
   border-bottom: none;
 }
 
-@media (max-width: 1024px) {
+@media (width <= 1024px) {
   .tabBarSticky {
     display: block;
     position: sticky;

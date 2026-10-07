@@ -66,13 +66,13 @@
   border-top: var(--_line-primary);
 }
 
-@media (max-width: 1024px), (max-height: 700px) {
+@media (width <= 1024px), (height <= 700px) {
   .overviewLayout {
     gap: var(--spacing-24);
   }
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .overviewStats {
     grid-template-columns: 1fr;
   }
@@ -80,7 +80,7 @@
 
 /* ── 데스크톱 구도(전시실): 첫 수치를 작품처럼 크게 걸고, 나머지 수치는 오른쪽 목록, 설명은 작품 아래 명판 ──
    관리자 미리보기(OverviewBlock)도 같은 클래스를 쓰지만 .overviewPanel 은 공개 패널에만 붙는다 */
-@media (min-width: 1025px) and (min-height: 701px) {
+@media (width > 1024px) and (height > 700px) {
   .overviewPanel {
     display: grid;
     grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
@@ -196,7 +196,7 @@
   }
 }
 
-@media (min-width: 1025px) and (min-height: 701px) and (prefers-reduced-motion: no-preference) {
+@media (width > 1024px) and (height > 700px) and (prefers-reduced-motion: no-preference) {
   /* 흐름 — 큰 수치가 크게 확대된 채 들어와 제자리로 줄어든다 */
   .overviewPanel .overviewStat:first-child .statValue {
     scale: calc(1 + var(--flow-in) * 0.6);

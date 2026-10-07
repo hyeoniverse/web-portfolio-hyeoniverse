@@ -305,7 +305,7 @@
 }
 
 /* ── Tablet/Mobile: horizontal scroll (only the table area, not the filters) ── */
-@media (max-width: 1024px) {
+@media (width <= 1024px) {
   .tableScroll {
     max-width: 100%;
     overflow-x: auto;

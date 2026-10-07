@@ -164,7 +164,7 @@
   transition: color var(--duration-base) var(--ease-standard);
 }
 
-@media (max-width: 1024px), (max-height: 700px) {
+@media (width <= 1024px), (height <= 700px) {
   .featureDynamic {
     display: none;
   }
@@ -228,8 +228,8 @@
 }
 
 /* ── Tablet: smaller cards + zigzag ── */
-@media (min-width: 768px) and (max-width: 1024px),
-  (min-width: 769px) and (max-height: 700px) {
+@media (768px <= width <= 1024px),
+  (width > 768px) and (height <= 700px) {
   .featureFolderWrap {
     height: clamp(220px, calc(100vh - 300px), 400px);
     width: 75%;
@@ -242,7 +242,7 @@
 }
 
 /* ── 데스크톱 전시실 구도: 왼쪽 좁은 칸 아래에 명판과 제목, 오른쪽 벽 전체에 작품 9점 ── */
-@media (min-width: 1025px) and (min-height: 701px) {
+@media (width > 1024px) and (height > 700px) {
   .featuresPanel {
     display: grid;
     padding-bottom: calc(var(--spacing-32) + 4.5rem);
@@ -286,7 +286,7 @@
   }
 }
 
-@media (min-width: 1025px) and (min-height: 701px) and (prefers-reduced-motion: no-preference) {
+@media (width > 1024px) and (height > 700px) and (prefers-reduced-motion: no-preference) {
   /* 흐름 — 영상 벽이 살짝 기울어진 채 들어와 똑바로 선다 */
   .featuresPanel .featureDynamic {
     rotate: calc(var(--flow-in) * 4deg - var(--flow-out) * 3deg);

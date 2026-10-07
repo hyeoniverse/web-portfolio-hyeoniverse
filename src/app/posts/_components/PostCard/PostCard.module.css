@@ -464,7 +464,7 @@
 /* ═══════════════════════════════════════════
    Responsive
    ═══════════════════════════════════════════ */
-@media (max-width: 1024px) {
+@media (width <= 1024px) {
   .featured {
     flex-direction: column;
   }
@@ -482,7 +482,7 @@
   }
 }
 
-@media (max-width: 640px) {
+@media (width <= 640px) {
   .body {
     padding: var(--spacing-12) 0 0 0;
   }

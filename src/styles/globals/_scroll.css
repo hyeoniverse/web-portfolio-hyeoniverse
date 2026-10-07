@@ -212,7 +212,7 @@ html.lenis body {
    Mobile Optimizations
    ============================================ */
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .horizontal-item {
     width: 85vw;
     padding: var(--row-padding-sm);

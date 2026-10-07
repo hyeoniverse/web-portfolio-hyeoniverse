@@ -110,7 +110,7 @@
 }
 
 /* ── 데스크톱 전시실 구도: 진열장 네 개는 위쪽 전체 폭, 제목은 왼쪽 아래 명판 자리 ── */
-@media (min-width: 1025px) and (min-height: 701px) {
+@media (width > 1024px) and (height > 700px) {
   .techPanel {
     display: grid;
     padding-bottom: calc(var(--spacing-32) + 4.5rem);
@@ -133,7 +133,7 @@
   }
 }
 
-@media (max-width: 1024px), (max-height: 700px) {
+@media (width <= 1024px), (height <= 700px) {
   .techTree {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     max-width: 100%;

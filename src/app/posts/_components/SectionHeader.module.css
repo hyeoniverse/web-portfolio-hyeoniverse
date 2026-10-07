@@ -74,7 +74,7 @@
   font-size: var(--font-size-body-xs);
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   /* 모바일 — title 만 있는 sectionHeaderMain 이 width 100% 차지 → sortWrap / Select 다음 줄 */
   .sectionHeaderMain {
     width: 100%;

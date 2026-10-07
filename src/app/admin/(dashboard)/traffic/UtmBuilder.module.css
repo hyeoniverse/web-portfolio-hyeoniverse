@@ -19,7 +19,7 @@
   align-items: start;
 }
 
-@media (max-width: 900px) {
+@media (width <= 900px) {
   .fieldsGrid {
     grid-template-columns: 1fr;
   }

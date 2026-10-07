@@ -308,7 +308,7 @@
 .reach.cut { color: var(--text-error); }
 .reach.thru { color: var(--text-success); }
 .layerFoot { display: flex; justify-content: center; }
-@media (max-width: 560px) { .layers { grid-template-columns: 1fr; } }
+@media (width <= 560px) { .layers { grid-template-columns: 1fr; } }
 
 /* flex 행 안의 칩은 세로 중앙 정렬 (margin-top 은 .dev 처럼 세로로 쌓는 경우에만 유효) */
 .steps .chip,

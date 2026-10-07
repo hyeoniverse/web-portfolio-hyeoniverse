@@ -130,7 +130,7 @@
 }
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (width <= 768px) {
 
   .h4 {
     font-size: var(--font-size-headline-sm);

@@ -17,7 +17,7 @@
   background: var(--bg-black);
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .loadingScreen {
     transition: opacity var(--duration-base) var(--ease-standard);
   }

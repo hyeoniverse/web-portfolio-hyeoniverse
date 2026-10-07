@@ -197,12 +197,12 @@
   --spacing-page-inline: 8vw;
   --width-page-max: 100%;
 }
-@media (max-width: 768px) {
+@media (width <= 768px) {
   :root {
     --spacing-page-inline: 5vw;
   }
 }
-@media (max-width: 480px) {
+@media (width <= 480px) {
   :root {
     --spacing-page-inline: 4vw;
   }
@@ -348,7 +348,7 @@
 /* --------------------------------------------------------------------------
    Mobile — Editorial Overrides
    -------------------------------------------------------------------------- */
-@media (max-width: 480px) {
+@media (width <= 480px) {
   :root {
     --spacing-panel-block: var(--m-lg);
   }

@@ -170,7 +170,7 @@
   opacity: 1;
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .stage {
     /* 좁은 화면에서는 한 장이 폭을 거의 채운다 — 그 폭(88%)에 16:9 를 맞추면 무대는 2:1 이 된다.
        무대를 더 높이면 장이 max-width 에 걸려 16:9 를 못 지킨다 */
@@ -382,7 +382,7 @@
   margin-top: var(--spacing-8);
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .cover {
     max-width: 88%;
     gap: var(--spacing-8);

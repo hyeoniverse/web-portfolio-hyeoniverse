@@ -260,7 +260,7 @@
   Responsive
   ========================================================================== */
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .footer {
     padding: var(--spacing-64) var(--spacing-24) var(--spacing-32);
   }

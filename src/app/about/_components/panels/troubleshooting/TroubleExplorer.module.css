@@ -367,14 +367,14 @@
   text-transform: none;
 }
 
-@media (max-width: 1024px), (max-height: 700px) {
+@media (width <= 1024px), (height <= 700px) {
   /* sidebar 숨김 — tab bar 가 항목 선택 책임 */
   .troubleList {
     display: none;
   }
 }
 
-@media (min-width: 1025px) and (min-height: 701px) and (prefers-reduced-motion: no-preference) {
+@media (width > 1024px) and (height > 700px) and (prefers-reduced-motion: no-preference) {
   /* 읽는 만큼 — 탐색기의 지금 항목 배경이 편집기 본문을 내린 만큼 왼쪽에서 차오른다(--read-p, TroubleshootingPanel) */
   .troubleList .troubleListItemActive {
     background: linear-gradient(
