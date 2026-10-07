@@ -6,7 +6,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--spacing-32) var(--spacing-page-inline);
+  padding: var(--spacing-nav-top) var(--spacing-page-inline);
   position: fixed;
   top: 0;
   right: 0;
@@ -28,7 +28,7 @@
    (자식에 두면 부모 stacking context 안에서 transparent backdrop 과 blend → 무효) */
 .logoNavBar {
   /* 로고가 놓이는 높이. 로딩 워드마크의 transform(.logoCssLoading)이 같은 값으로 거리를 잰다. */
-  --nav-logo-top: var(--spacing-32);
+  --nav-logo-top: var(--spacing-nav-top);
   position: fixed;
   top: var(--nav-logo-top);
   left: var(--spacing-page-inline);
@@ -1544,13 +1544,6 @@
      flex-end 로 강제 우측 정렬 — 로고는 fixed 로 좌측 그대로, 가운데 자연 공백, 버튼은 우측 = "로고 [space] 버튼들". */
   .nav {
     justify-content: flex-end;
-    /* 화면 꼭대기 여백 — 데스크톱 32 를 그대로 두면 휴대폰 · 작은 태블릿에서 막대가 너무 내려와 보였다 */
-    padding-top: var(--spacing-12);
-  }
-
-  /* 로고는 별도 fixed 요소라 top 을 같이 줄여야 버튼과 수직 중심이 맞는다 */
-  .logoNavBar {
-    --nav-logo-top: var(--spacing-12);
   }
 
   .navCenter {
@@ -1596,10 +1589,6 @@
 }
 
 @media (width <= 480px) {
-  .nav {
-    padding: var(--spacing-12) var(--spacing-page-inline);
-  }
-
   .navActions {
     gap: 0;
   }
