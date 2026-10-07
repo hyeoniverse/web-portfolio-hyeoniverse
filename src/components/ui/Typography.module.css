@@ -27,8 +27,14 @@
 }
 
 .h4 {
-  font: var(--font-headline-xl);
+  font: var(--font-headline-sm);
   font-weight: var(--font-weight-semibold);
+}
+
+@media (width > 768px) {
+  .h4 {
+    font-size: var(--font-size-headline-xl);
+  }
 }
 
 .h5 {
@@ -129,11 +135,4 @@
   -webkit-text-fill-color: transparent;
 }
 
-/* Responsive */
-@media (width <= 768px) {
-
-  .h4 {
-    font-size: var(--font-size-headline-sm);
-  }
-}
 }

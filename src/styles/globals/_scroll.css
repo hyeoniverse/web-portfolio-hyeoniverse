@@ -43,27 +43,42 @@ html.lenis body {
 
 .horizontal-item {
   flex-shrink: 0;
-  width: 100vw;
+  width: 85vw;
   min-height: 100svh;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: var(--row-padding-sm);
   perspective: 1000px;
+}
+
+@media (width > 768px) {
+  .horizontal-item {
+    width: 100vw;
+    padding: 0;
+  }
 }
 
 /* Horizontal scroll progress indicator */
 .horizontal-progress {
   position: fixed;
-  bottom: 2rem;
+  bottom: 1rem;
   left: 50%;
   transform: translateX(-50%);
-  width: 200px;
+  width: 150px;
   height: 2px;
   background: var(--bg-glass);
   border-radius: var(--radius-full);
   z-index: var(--z-index-nav);
   opacity: 0;
   transition: opacity var(--duration-base) var(--ease-standard);
+}
+
+@media (width > 768px) {
+  .horizontal-progress {
+    bottom: 2rem;
+    width: 200px;
+  }
 }
 
 .horizontal-progress.is-active {
@@ -212,18 +227,9 @@ html.lenis body {
    Mobile Optimizations
    ============================================ */
 
+/* Reduce animation complexity on mobile — 작은 화면에서만 덧씌운다(3.11-1 예외).
+   스크립트가 넣는 인라인 transform 을 !important 로 꺼야 해서, 넓은 화면 쪽으로 옮길 수 없다 */
 @media (width <= 768px) {
-  .horizontal-item {
-    width: 85vw;
-    padding: var(--row-padding-sm);
-  }
-
-  .horizontal-progress {
-    bottom: 1rem;
-    width: 150px;
-  }
-
-  /* Reduce animation complexity on mobile */
   .parallax-layer {
     transform: none !important;
   }

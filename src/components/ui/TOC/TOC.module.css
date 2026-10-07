@@ -16,14 +16,21 @@
   font-family: var(--font-family-body);
 }
 
-/* 위치 variant */
+/* 위치 variant — 왼쪽 고정은 본문 옆 여백이 넉넉한 1280px 위에서만 보인다 */
 .left {
+  display: none;
   position: fixed;
   top: 50%;
   left: 2vw;
   width: 150px;
   transform: translateY(-50%);
   z-index: var(--z-index-float);
+}
+
+@media (width > 1280px) {
+  .left {
+    display: flex;
+  }
 }
 
 /* 왼쪽 고정(디자인 시스템 등) — 본문 옆 좁은 여백에 들어가도록 진행 링·시간·배경 번호는 뺀다 */
@@ -433,13 +440,6 @@
   .subs,
   .node::before {
     transition: none;
-  }
-}
-
-/* ── Responsive ── */
-@media (width <= 1280px) {
-  .left {
-    display: none;
   }
 }
 }
