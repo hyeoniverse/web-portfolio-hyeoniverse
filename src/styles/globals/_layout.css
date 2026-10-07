@@ -115,8 +115,8 @@ main > .content {
   position: relative;
   z-index: 2;
   width: calc(
-    100vw - (var(--action-button-width) + var(--spacing-32) * 2) * 2
-  );
+      100vw - (var(--action-button-width) + var(--spacing-16) * 2) * 2
+    );
   max-width: 2400px; /* 아주 넓은 화면에서 골격이 퍼지지 않게 — 이 파일에서만 쓰는 값 */
   max-height: 90vh;
   overflow: hidden;
@@ -125,17 +125,17 @@ main > .content {
   border-radius: var(--radius-surface);
 }
 
+@media (width > 1024px) {
+  #modal {
+    width: calc(
+    100vw - (var(--action-button-width) + var(--spacing-32) * 2) * 2
+  );
+  }
+}
+
 /* ==========================================================================
   Media Queries
   ========================================================================== */
-
-@media (width <= 1024px) {
-  #modal {
-    width: calc(
-      100vw - (var(--action-button-width) + var(--spacing-16) * 2) * 2
-    );
-  }
-}
 
 @media (width <= 768px) {
   nav#side-navigation {

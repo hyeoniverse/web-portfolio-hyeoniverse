@@ -9,8 +9,14 @@
   display: grid;
   gap: 0;
   border-top: var(--_line-primary);
-  max-width: clamp(500px, 85vw, 1400px);
+  max-width: none;
   grid-template-columns: var(--grid-columns-2);
+}
+
+@media (width > 1024px) and (height > 700px) {
+  .secGrid {
+    max-width: clamp(500px, 85vw, 1400px);
+  }
 }
 
 .secItem {
@@ -68,12 +74,6 @@
   font-weight: var(--font-weight-medium);
   color: var(--text-tertiary);
   letter-spacing: 0.06em;
-}
-
-@media (width <= 1024px), (height <= 700px) {
-  .secGrid {
-    max-width: none;
-  }
 }
 
 @media (width <= 768px) {

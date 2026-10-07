@@ -98,13 +98,12 @@
   /* 6개 버튼 → 3×2. 셀 사이(행·열) hairline 은 gridHairlines(gap trick)가 담당 —
      바깥 테두리엔 선이 안 생긴다. 여긴 열 수와 상단 divider 만 지정. */
   composes: gridHairlines from "./components/Panel.module.css";
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   border-top: var(--border-light);
 }
-
-@media (width <= 768px) {
+@media (width > 768px) {
   .quickActions {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
@@ -353,17 +352,16 @@ a.statCard:hover .statValue {
   composes: panelGrid from "./components/Panel.module.css";
   /* --grid-columns-2 는 repeat() 표기라 확장값(0fr 1fr)과 보간이 안 돼 transition 이 즉시
      점프했다 — 양쪽을 같은 minmax 구조로 풀어 써야 grid-template-columns 가 animate 된다 */
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: 1fr;
   background-clip: padding-box;
   /* grid-template-columns transition:  기기 분석 확장 시 부드럽게 */
  transition: grid-template-columns var(--duration-base) var(--ease-standard);
   /* 진입 모션 — .section 과 동일한 stagger fade-in */
   animation: dashSectionIn var(--duration-slow) var(--ease-standard) both;
 }
-
-@media (width <= 768px) {
+@media (width > 768px) {
   .twoCol {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 }
 

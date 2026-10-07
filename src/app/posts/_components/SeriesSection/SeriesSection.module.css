@@ -162,7 +162,7 @@
   position: relative;
   display: flex;
   align-items: flex-start;
-  gap: var(--spacing-16);
+  gap: var(--spacing-12);
   overflow-x: auto;
   /* 카드 없을 때도 동일한 높이 유지 — exit 애니메이션 동안 row 가 무너지지 않게 */
   min-height: 240px;
@@ -187,6 +187,12 @@
     oklch(0.00% 0.0000 0.00) calc(100% - var(--_mask-r)),
     transparent 100%
   );
+}
+
+@media (width > 768px) {
+  .seriesRow {
+    gap: var(--spacing-16);
+  }
 }
 
 .seriesRow.atStart {
@@ -228,10 +234,4 @@
    hover 시엔 outline 기본 채움 동작 유지 위해 :not(:hover) 로 resting 만 오버라이드. */
 .seriesManageBtn:not(:hover) {
   border-color: var(--border-color-light) !important;
-}
-
-@media (width <= 768px) {
-  .seriesRow {
-    gap: var(--spacing-12);
-  }
 }

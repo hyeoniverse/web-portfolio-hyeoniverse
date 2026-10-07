@@ -23,7 +23,7 @@
    ========================================================================== */
 
 .sheetHandle {
-  display: none;
+  display: flex;
   align-items: center;
   justify-content: center;
   padding: var(--spacing-16) 0;
@@ -33,10 +33,10 @@
   user-select: none;
 }
 
-@media (width <= 768px) {
-  .sheetHandle {
-    display: flex;
-  }
+@media (width > 768px) {
+.sheetHandle {
+display: none;
+}
 }
 
 .sheetHandle:active {
