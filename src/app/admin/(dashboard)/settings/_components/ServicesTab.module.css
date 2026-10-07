@@ -104,6 +104,11 @@
   margin-bottom: 0;
 }
 
+/* 섹션 제목 바로 아래의 설명 — 아래 칸과는 섹션 설명 목록(sectionHintList)과 같은 간격 */
+.hintList.sectionHints {
+  margin-bottom: var(--spacing-16);
+}
+
 /* 댓글 제공자 줄 — 고르기와 giscus 설정 방법 단추 */
 .providerRow {
   display: flex;
@@ -147,17 +152,16 @@
 }
 
 /* 자동 커버 — 설명 + 실행 단추 */
+/* 자동 커버 실행 — 기능 머리 줄의 켜기 앞. 지난 결과는 단추 왼쪽에 */
 .autoCover {
   display: flex;
-  flex-direction: column;
-  gap: var(--spacing-12);
-  margin-top: var(--spacing-16);
 }
 
 .autoCoverRunRow {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: flex-end;
   gap: var(--spacing-8) var(--spacing-12);
 }
 
@@ -262,8 +266,9 @@
   min-height: var(--control-height-sm);
 }
 
+/* 이름이 남는 폭을 차지해 켜기 · 기록 단추를 오른쪽 끝으로 민다 */
 .featureTitle {
-  margin: 0;
+  margin: 0 auto 0 0;
   font: var(--font-body-md);
   font-weight: 600;
   color: var(--text-primary);

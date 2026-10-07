@@ -210,9 +210,8 @@ function StorageMaxInput({
         />
         <span className={styles.storageMaxUnit}>MB</span>
       </div>
-      {error
-        ? <p className={styles.customMimeError}>{error}</p>
-        : <p className={styles.storageMaxHint}>{t("admin.settings.mediaStorageMaxHint")}</p>}
+      {/* 한도 설명은 섹션 설명 목록(ServicesTab)에 — 여기에는 잘못 넣었을 때의 알림만 */}
+      {error && <p className={styles.customMimeError}>{error}</p>}
     </div>
   );
 }

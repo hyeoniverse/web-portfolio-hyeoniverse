@@ -303,6 +303,10 @@
   font: var(--font-body-sm);
   line-height: 1.55;
   color: var(--text-tertiary);
+  /* 설명은 한 줄이어도 글머리 — 관리자 화면의 설명 목록(sectionHintList)과 같은 모양. 글머리는 왼쪽 여백에 걸린다 */
+  display: list-item;
+  margin-left: var(--spacing-20);
+  list-style: disc;
 }
 
 /* 관련 글·시리즈 — 다른 항목처럼 입력 한 줄 + 칩 줄만. 기본 바깥 여백(다음 칸과의 거리)은 여기서는 항목 여백이 맡는다 */
