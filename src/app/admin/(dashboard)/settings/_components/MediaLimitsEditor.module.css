@@ -141,11 +141,6 @@
   color: var(--text-tertiary);
 }
 
-.storageMaxHint {
-  font: var(--font-body-xs);
-  color: var(--text-accent);
-  margin: 0;
-}
 
 /* ── 사용자 정의 확장자 추가 ── */
 .customMimeAdder {

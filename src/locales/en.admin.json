@@ -716,6 +716,7 @@
       "aiModelsHint": "Model names used for summaries and translation. Leave empty to use each provider's latest alias. If a provider retires a model and returns 404, change it here.",
       "notifyEmail": {
         "title": "Notification emails",
+        "enabled": "Send notification emails",
         "desc": "Every admin notification stays on the Notifications page; only the kinds checked here are also emailed. The default is what needs a person right away: new comments and replies, reports, new-device logins, login lockouts, access requests and scheduled-job errors.",
         "dedupe": "Notifications that come in bursts (AI failures, settings changes, lockouts) are emailed at most once an hour per kind and title.",
         "group": {

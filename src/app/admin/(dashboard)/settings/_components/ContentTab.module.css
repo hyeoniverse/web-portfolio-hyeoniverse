@@ -9,6 +9,10 @@
   margin-bottom: var(--spacing-16);
   margin-top: 0;
   min-height: 2.8em; /* line-height 1.4 × 2줄 */
+  /* 설명은 한 줄이어도 글머리 — 관리자 화면의 설명 목록(sectionHintList)과 같은 모양. 글머리는 왼쪽 여백에 걸린다 */
+  display: list-item;
+  margin-left: var(--spacing-20);
+  list-style: disc;
 }
 
 /* 같은 요소의 .fields(Settings, flex column) 와 (0,1,0) 동점이라 번들 순서에 따라 grid 가 뒤집힌다.
@@ -35,7 +39,8 @@
    .sectionHint 위에 얹는 modifier 라 같은 (0,1,0) 이면 base 의 margin-bottom(md) 이 번들 순서에
    따라 살아남아 제목 옆 hint 가 아래로 처졌다. 클래스를 두 번 적어 (0,2,0). */
 .sectionHintInline.sectionHintInline {
-  margin: 0;
+  /* 왼쪽 여백은 글머리 자리(.sectionHint) */
+  margin: 0 0 0 var(--spacing-20);
   line-height: var(--line-height-100);
 }
 

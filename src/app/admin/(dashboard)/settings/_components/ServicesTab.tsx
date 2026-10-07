@@ -146,7 +146,7 @@ function AutoCoverPreview({ t, onDone }: { t: TFunction; onDone: (r: { processed
 
   return (
     <div className={styles.autoCoverModal}>
-      <p className={shared.fieldHint}>{t("admin.settings.autoCoverPreviewHint")}</p>
+      <p className={`${shared.fieldHint} ${shared.hintItem}`}>{t("admin.settings.autoCoverPreviewHint")}</p>
       {items === null ? (
         <p className={shared.fieldHint}>{failed ? t("admin.settings.autoCoverPreviewFailed") : t("admin.settings.autoCoverPreviewLoading")}</p>
       ) : items.length === 0 ? (
@@ -200,6 +200,14 @@ function AutoCoverMigrator({ t }: { t: TFunction }) {
     <div className={styles.autoCover}>
       {/* 설명과 필요한 키는 섹션 설명 자리(extraHints)에 — 여기에는 실행 단추만 */}
       <div className={styles.autoCoverRunRow}>
+        {lastResult && (
+          <span className={shared.fieldHint}>
+            {t("admin.settings.autoCoverResult")
+              .replace("{processed}", String(lastResult.processed))
+              .replace("{succeeded}", String(lastResult.succeeded))
+              .replace("{failed}", String(lastResult.failed))}
+          </span>
+        )}
         <Button
           variant="outline"
           onClick={() => openModal(<AutoCoverPreview t={t} onDone={onDone} />, {
@@ -211,14 +219,6 @@ function AutoCoverMigrator({ t }: { t: TFunction }) {
         >
           {t("admin.settings.autoCoverRun")}
         </Button>
-        {lastResult && (
-          <span className={shared.fieldHint}>
-            {t("admin.settings.autoCoverResult")
-              .replace("{processed}", String(lastResult.processed))
-              .replace("{succeeded}", String(lastResult.succeeded))
-              .replace("{failed}", String(lastResult.failed))}
-          </span>
-        )}
       </div>
     </div>
   );
@@ -323,7 +323,7 @@ type ProviderFallback<P extends string> = {
  * onChange 는 setConfig 처럼 updater(prev)→next 를 받아 최신 슬라이스 기준으로 갱신한다.
  */
 function ProviderFallbackBlock<P extends string>({
-  t, title, options, defaultProvider, value, onChange, children, hint, keyOf, extraHints, logProviders, innerOf, health, providerOf,
+  t, title, options, defaultProvider, value, onChange, children, hint, keyOf, extraHints, logProviders, innerOf, health, providerOf, headerAction,
 }: {
   t: TFunction;
   title: string;
@@ -346,6 +346,8 @@ function ProviderFallbackBlock<P extends string>({
   logProviders?: string[];
   /** 순서 줄 상자 안 이름 뒤 — 요약 · 번역은 글 공급자가 부를 모델 셀렉트 */
   innerOf?: (p: P) => React.ReactNode;
+  /** 머리 줄 오른쪽, 켜기 앞 — 기능 전체에 걸린 동작(AI 커버의 "적용할 글 확인하기" 등) */
+  headerAction?: React.ReactNode;
 }) {
   /* 저장된 기본 공급자가 지금 선택지에 없으면(다른 브랜치에서 저장한 공급자 등) 기본값으로 — 그대로 두면 "키 없음"으로 잘못 읽힌다 */
   const provider = value?.provider && options.some((o) => o.value === value.provider) ? value.provider : defaultProvider;
@@ -372,9 +374,10 @@ function ProviderFallbackBlock<P extends string>({
   ].filter(Boolean);
   return (
     <div className={styles.featureRow}>
-      {/* 왼쪽 — 기능 이름 · 켜기 · 기록. 오른쪽 — 설명(필요한 키 포함) · 조작 한 줄(기본 공급자 · 자동 전환) · 순서 */}
+      {/* 머리 — 기능 이름 왼쪽, 켜기 · 기록은 오른쪽 끝. 몸 — 설명(필요한 키 포함) · 조작 한 줄(기본 공급자 · 자동 전환) · 순서 */}
       <div className={styles.featureSide}>
         <h3 className={styles.featureTitle}>{title}</h3>
+        {headerAction}
         <Switch
           showStateText
           checked={value?.enabled !== false}
@@ -533,31 +536,31 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
       <section className={shared.section}>
         {/* 문의 메일은 브라우저가 공급자로 바로 보내 서버가 결과를 모른다 — 기록은 첨부 결과(contact) */}
         <SectionHeader title={t("admin.settings.emailSettings")} paths={["emailService"]} spacerExtra={<ServiceLogLink query={{ category: "contact" }} />} {...sh} />
+        <HintLines className={styles.sectionHints} lines={[
+          /* 공급자 이름은 각 사이트로 — 요금제·첨부 조건을 바로 확인하게 */
+          (() => {
+            const [before, after = ""] = t("admin.settings.emailFileUploadHint").split("{{providers}}");
+            const sites = [
+              ["Formspree", "https://formspree.io/"],
+              ["Web3Forms", "https://web3forms.com/"],
+              ["EmailJS", "https://www.emailjs.com/"],
+            ] as const;
+            return (
+              <>
+                {before}
+                {sites.map(([name, href], i) => (
+                  <span key={name}>
+                    {i > 0 && " · "}
+                    <a className={styles.hintLink} href={href} target="_blank" rel="noopener noreferrer">{name}</a>
+                  </span>
+                ))}
+                {after}
+              </>
+            );
+          })(),
+          envKeyLine([...(CONTACT_KEYS[config.emailService.provider as keyof typeof CONTACT_KEYS] ?? [])], t),
+        ]} />
         <div className={`${shared.fields} ${shared.fieldPair}`}>
-          <HintLines lines={[
-            /* 공급자 이름은 각 사이트로 — 요금제·첨부 조건을 바로 확인하게 */
-            (() => {
-              const [before, after = ""] = t("admin.settings.emailFileUploadHint").split("{{providers}}");
-              const sites = [
-                ["Formspree", "https://formspree.io/"],
-                ["Web3Forms", "https://web3forms.com/"],
-                ["EmailJS", "https://www.emailjs.com/"],
-              ] as const;
-              return (
-                <>
-                  {before}
-                  {sites.map(([name, href], i) => (
-                    <span key={name}>
-                      {i > 0 && " · "}
-                      <a className={styles.hintLink} href={href} target="_blank" rel="noopener noreferrer">{name}</a>
-                    </span>
-                  ))}
-                  {after}
-                </>
-              );
-            })(),
-            envKeyLine([...(CONTACT_KEYS[config.emailService.provider as keyof typeof CONTACT_KEYS] ?? [])], t),
-          ]} />
           <FieldRow label={<T k="admin.settings.emailServiceProvider" />}>
             <Select
               value={config.emailService.provider}
@@ -572,6 +575,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
           <Switch
             label={t("admin.settings.emailFileUpload")}
             labelPosition="top"
+            showStateText
             checked={config.emailService.enableFileUpload}
             onCheckedChange={(v) => update("emailService", "enableFileUpload", v)}
           />
@@ -585,17 +589,18 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
           title={t("admin.settings.notifyEmail.title")}
           spacerExtra={<ServiceLogLink query={{ category: "mail" }} />}
           paths={["commentEmailNotify", "notifyEmailTypes"]}
-          extra={
-            <Switch
-              showStateText
-              checked={config.commentEmailNotify ?? false}
-              onCheckedChange={(v) => setConfig((prev) => ({ ...prev, commentEmailNotify: v }))}
-            />
-          }
           {...sh}
         />
+        {/* 설명이 제목 바로 아래, 켜기 스위치는 그 다음(칸 묶음의 첫 줄) */}
+        <HintLines className={styles.sectionHints} lines={[t("admin.settings.notifyEmail.desc"), t("admin.settings.notifyEmail.dedupe"), envKeyLine(["RESEND_API_KEY"], t)]} />
         <div className={shared.fields}>
-          <HintLines lines={[t("admin.settings.notifyEmail.desc"), t("admin.settings.notifyEmail.dedupe"), envKeyLine(["RESEND_API_KEY"], t)]} />
+          <Switch
+            label={t("admin.settings.notifyEmail.enabled")}
+            labelPosition="top"
+            showStateText
+            checked={config.commentEmailNotify ?? false}
+            onCheckedChange={(v) => setConfig((prev) => ({ ...prev, commentEmailNotify: v }))}
+          />
           {(() => {
             const picked = new Set((config.notifyEmailTypes as string[] | undefined) ?? NOTIFY_EMAIL_DEFAULT);
             const toggle = (type: string, on: boolean) =>
@@ -636,11 +641,11 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
           spacerExtra={config.comments?.provider === "giscus" ? <ServiceLogLink query={{ category: "github" }} /> : undefined}
           {...sh}
         />
+        {/* 설명 — giscus 일 때만. GITHUB_TOKEN 은 저장소·카테고리 조회에 쓴다(없으면 익명 조회, 시간당 60회) */}
+        {config.comments?.provider === "giscus" && (
+          <HintLines className={styles.sectionHints} lines={[t("admin.settings.giscusHint"), envKeyLine(["GITHUB_TOKEN"], t, { optional: true })]} />
+        )}
         <div className={shared.fields}>
-          {/* 설명 — giscus 일 때만. GITHUB_TOKEN 은 저장소·카테고리 조회에 쓴다(없으면 익명 조회, 시간당 60회) */}
-          {config.comments?.provider === "giscus" && (
-            <HintLines lines={[t("admin.settings.giscusHint"), envKeyLine(["GITHUB_TOKEN"], t, { optional: true })]} />
-          )}
           <div className={styles.providerRow}>
           <FieldRow label={<T k="admin.settings.commentProvider" />}>
             <SegmentedControl<"system" | "giscus">
@@ -865,17 +870,19 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
         <SectionHeader
           title={t("admin.settings.securitySettings")}
           paths={["recaptcha"]}
-          extra={
-            <Switch
-              showStateText
-              checked={config.recaptcha.enabled}
-              onCheckedChange={(v) => update("recaptcha", "enabled", v)}
-            />
-          }
           {...sh}
         />
-        <div className={shared.fields}>
-          <HintLines lines={[envKeyLine(["NEXT_PUBLIC_RECAPTCHA_SITE_KEY"], t)]} />
+        {/* 설명이 제목 바로 아래, 켜기 스위치는 그 다음(칸 묶음의 첫 줄) */}
+        <HintLines className={styles.sectionHints} lines={[envKeyLine(["NEXT_PUBLIC_RECAPTCHA_SITE_KEY"], t)]} />
+        {/* 켜기 · 버전을 두 칸으로 — 이메일 섹션의 공급자 · 파일 업로드와 같은 모양 */}
+        <div className={`${shared.fields} ${shared.fieldPair}`}>
+          <Switch
+            label={t("admin.settings.recaptchaEnabled")}
+            labelPosition="top"
+            showStateText
+            checked={config.recaptcha.enabled}
+            onCheckedChange={(v) => update("recaptcha", "enabled", v)}
+          />
           <FieldRow label={<T k="admin.settings.recaptchaVersion" />}>
             <Select
               value={config.recaptcha.version}
@@ -895,6 +902,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
         <ul className={shared.sectionHintList}>
           <li>{t("admin.settings.mediaUploadHint")}</li>
           <li>{t("admin.settings.mediaUploadDescDnD")}</li>
+          <li>{t("admin.settings.mediaStorageMaxHint")}</li>
         </ul>
         <MediaLimitsEditor config={config} setConfig={setConfig} t={t} />
       </section>
@@ -909,7 +917,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
           spacerExtra={<ServiceLogLink query={{ category: "ai" }} />}
           {...sh}
         />
-        <HintLines lines={[fillTemplate(t("admin.aiHealth.hint"), { fatal: FATAL_LIMIT, transient: TRANSIENT_LIMIT }), t("admin.settings.aiModelsHint")]} />
+        <HintLines className={styles.sectionHints} lines={[fillTemplate(t("admin.aiHealth.hint"), { fatal: FATAL_LIMIT, transient: TRANSIENT_LIMIT }), t("admin.settings.aiModelsHint")]} />
         <div className={styles.features}>
           {/* AI Cover */}
           <ProviderFallbackBlock<AICoverProvider>
@@ -926,6 +934,8 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
             keyOf={(p) => AI_PROVIDER_INFO[p as keyof typeof AI_PROVIDER_INFO]?.key}
             health={aiHealth}
             providerOf={(p) => p as AiProvider}
+            /* 자동 커버(기존 발행 글 일괄 적용) — 기능 전체의 동작이라 머리 줄에 */
+            headerAction={<AutoCoverMigrator t={t} />}
           >
             {/* 자동 커버가 찾는 사진 공급자 — 순서는 없고 상태만 */}
             <div className={styles.stockRows}>
@@ -938,8 +948,6 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
                 </div>
               ))}
             </div>
-            {/* 자동 cover (Unsplash/Pexels 키워드 기반) — 기존 발행 글 일괄 적용 */}
-            <AutoCoverMigrator t={t} />
           </ProviderFallbackBlock>
 
           {/* AI Summary */}
