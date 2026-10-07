@@ -1,5 +1,12 @@
 /* 공용 컴포넌트 — components 층(docs/design-system.md 4-4). 쓰는 쪽이 className 으로 넘긴 클래스가 번들 순서 · 특이도와 상관없이 이긴다 */
 @layer components {
+/* 컨트롤 높이 범위 안 — 차지하는 높이만 sm(옆 단추 · 입력과 같은 줄 높이). 스위치 모양은 그대로 */
+.scopeBox {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--control-height-sm);
+}
+
 /* ── Switch ── */
 .root {
   position: relative;

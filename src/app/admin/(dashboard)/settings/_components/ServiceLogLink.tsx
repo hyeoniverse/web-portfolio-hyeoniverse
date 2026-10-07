@@ -17,7 +17,7 @@ export default function ServiceLogLink({ query }: { query: Record<string, string
     <Tooltip content={label}>
       <Button
         variant="ghost"
-        size="sm"
+        /* 같은 줄의 섹션 단추(기본값 · 되돌리기 · 저장, xs)와 같은 높이 */
         shape="circle"
         href={`/admin/service-log?${params.toString()}`}
         aria-label={label}

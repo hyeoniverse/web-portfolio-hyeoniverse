@@ -26,9 +26,9 @@ export default function SaveConflictDialog({
         )}
       </p>
       <div className={styles.actions}>
-        <Button size="sm" variant="ghost" onClick={onCancel}>{t("취소", "Cancel")}</Button>
-        <Button size="sm" variant="subtle" onClick={onReload}>{t("최신 불러오기", "Load latest")}</Button>
-        <Button size="sm" tone="danger" onClick={onOverwrite}>{t("덮어쓰기", "Overwrite")}</Button>
+        <Button variant="ghost" onClick={onCancel}>{t("취소", "Cancel")}</Button>
+        <Button variant="subtle" onClick={onReload}>{t("최신 불러오기", "Load latest")}</Button>
+        <Button tone="danger" onClick={onOverwrite}>{t("덮어쓰기", "Overwrite")}</Button>
       </div>
     </div>
   );

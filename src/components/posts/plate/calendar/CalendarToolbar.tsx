@@ -52,7 +52,6 @@ export default function CalendarToolbar({
         search={query}
         onSearchChange={onQuery}
         placeholder={t("이벤트 검색", "Search")}
-        size="sm"
         align="left"
         collapsible
         className={styles.ctrlBorderLight}

@@ -824,7 +824,6 @@ export default function SettingsPage() {
               )}
               <Button
                 variant="primary"
-                size="md"
                 disabled={
                   account.accountSaving ||
                   !(
@@ -862,7 +861,6 @@ export default function SettingsPage() {
               {activeTab === "content" && contentSubTab === "profile" && (
                 <Button
                   variant="outline"
-                  size="md"
                   onClick={() => setProfileExpanded(toggleProfileAll(profileData, !isProfileAllOpen(profileData, profileExpanded)))}
                 >
                   <T k={isProfileAllOpen(profileData, profileExpanded) ? "admin.settings.profile.collapseAll" : "admin.settings.profile.expandAll"} />
@@ -871,7 +869,6 @@ export default function SettingsPage() {
               <Tooltip content={t("admin.settings.resetDefaultsTooltip")} placement="bottom" delay={250}>
                 <Button
                   variant="outline"
-                  size="md"
                   tone="danger"
                   onClick={() => {
                     openModal(
@@ -891,7 +888,6 @@ export default function SettingsPage() {
               <Tooltip content={t("admin.settings.revertTooltip")} placement="bottom" delay={250}>
                 <Button
                   variant="outline"
-                  size="md"
                   disabled={!hasChanges}
                   onClick={() => setConfig(structuredClone(savedConfigRef.current))}
                 >
@@ -905,7 +901,6 @@ export default function SettingsPage() {
                 placement="bottom" delay={250}>
                 <Button
                   variant="primary"
-                  size="md"
                   onClick={handleSave}
                   disabled={saving || !hasChanges || !!validationError}
                   aria-label={changedCount > 0 && !saving ? `${t("admin.settings.save")}, ${t("admin.settings.saveChangedLabel").replace("{{n}}", String(changedCount))}` : undefined}

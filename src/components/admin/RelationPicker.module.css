@@ -27,13 +27,13 @@
   border-color: var(--border-color-accent-strong);
 }
 
-/* 테두리까지 합쳐 다른 입력칸(--control-height-md)과 같은 높이 */
+/* 테두리까지 합쳐 다른 입력칸(--control-height-sm)과 같은 높이 */
 .inputAreaTop {
   display: flex;
   align-items: center;
   gap: var(--spacing-8);
   padding: 0 0 0 var(--spacing-16);
-  height: calc(var(--control-height-md) - 2px);
+  height: calc(var(--control-height-sm) - 2px);
   cursor: text;
 }
 
@@ -80,7 +80,9 @@
 .triggerInput {
   flex: 1;
   min-width: 0;
-  padding: var(--spacing-4) 0;
+  /* 윗줄(.inputAreaTop) 높이를 채운다 — 패딩 합산이면 30.4 로 틀(28) 밖으로 넘쳤다 */
+  height: 100%;
+  padding: 0;
   padding-inline-start: 0 !important;
   padding-inline-end: 0 !important;
   margin: 0;

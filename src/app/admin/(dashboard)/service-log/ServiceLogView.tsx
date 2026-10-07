@@ -184,10 +184,10 @@ export default function ServiceLogView() {
       title={th("logTitle")}
       headerExtra={
         <span className={styles.headerActions}>
-          <Button variant="ghost" size="sm" shape="capsule" href="/admin/settings?tab=services" soundDisabled icon={<Settings size={14} strokeWidth={1.8} />}>
+          <Button variant="ghost" shape="capsule" href="/admin/settings?tab=services" soundDisabled icon={<Settings size={14} strokeWidth={1.8} />}>
             {th("logToSettings")}
           </Button>
-          <Button variant="outline" size="sm" shape="capsule" onClick={() => void clear()} loading={clearing} disabled={!entries?.length} soundDisabled>
+          <Button variant="outline" shape="capsule" onClick={() => void clear()} loading={clearing} disabled={!entries?.length} soundDisabled>
             {th("logClear")}
           </Button>
         </span>
@@ -209,7 +209,6 @@ export default function ServiceLogView() {
             {!demo && (
               <Button
                 variant="outline"
-                size="sm"
                 shape="capsule"
                 onClick={() => { setDemo(true); setEntries(demoServiceLog(Date.now())); }}
                 soundDisabled
@@ -225,7 +224,7 @@ export default function ServiceLogView() {
               {/* 목록 머리 — 점·숫자·알약이 무엇인지 i 로 */}
               <div className={styles.railHeader}>
                 <span className={styles.railHeaderLabel}>{th("logColProvider")}</span>
-                <Popover placement="bottom-start" responsive={false} maxHeight={false} contentClassName={styles.legend} trigger={<HelpButton symbol="i" size="xs" aria-label={th("logLegendTitle")} title={th("logLegendTitle")} soundDisabled />}>
+                <Popover placement="bottom-start" responsive={false} maxHeight={false} contentClassName={styles.legend} trigger={<HelpButton symbol="i" aria-label={th("logLegendTitle")} title={th("logLegendTitle")} soundDisabled />}>
                   <div className={styles.legendBody}>
                     <p className={styles.legendTitle}>{th("logLegendTitle")}</p>
 
@@ -335,7 +334,7 @@ export default function ServiceLogView() {
               <div className={styles.bar}>
                 <span className={styles.scope}>{scopeLabel}</span>
                 <SegmentedControl<Result>
-                  size="sm"
+
                   items={[
                     { value: "all", label: th("logAll") },
                     { value: "ok", label: th("logOk") },
@@ -399,7 +398,6 @@ export default function ServiceLogView() {
                                     <Tooltip content={t("common.codeCopy")}>
                                       <Button
                                         variant="ghost"
-                                        size="sm"
                                         shape="circle"
                                         className={styles.copyBtn}
                                         aria-label={t("common.codeCopy")}

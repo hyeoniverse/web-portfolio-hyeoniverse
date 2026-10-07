@@ -75,7 +75,7 @@ export default function AdminListShell({
           )}
           {headerExtra}
           {!headerExtra && newHref && (
-            <Button variant="primary" size="sm" href={newHref} soundDisabled>
+            <Button variant="primary" href={newHref} soundDisabled>
               {newLabel}
             </Button>
           )}

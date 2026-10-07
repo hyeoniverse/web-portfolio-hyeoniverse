@@ -540,19 +540,19 @@ export default function AuthorsEditor({ authors, onChange, onPersist }: Props) {
         {/* 액션 영역 클릭은 상세 모달로 전파되지 않게 stopPropagation */}
         {isOwner ? (
           <div className={mStyles.rowActions} onClick={(e) => e.stopPropagation()}>
-            <Button variant="ghost" size="xs" icon={<Pencil size={13} />} onClick={() => openEditor(a)}>
+            <Button variant="ghost" icon={<Pencil size={13} />} onClick={() => openEditor(a)}>
               {L("수정", "Edit")}
             </Button>
             {/* 소유자 프로필은 삭제 불가 */}
             {!isOwnerAuthor(a) && (
-              <Button variant="ghost" size="xs" tone="danger" icon={<Trash2 size={13} />} onClick={() => removeAuthor(a)}>
+              <Button variant="ghost" tone="danger" icon={<Trash2 size={13} />} onClick={() => removeAuthor(a)}>
                 {L("삭제", "Delete")}
               </Button>
             )}
           </div>
         ) : isMine(a) && !isOwnerAuthor(a) ? (
           <div className={mStyles.rowActions} onClick={(e) => e.stopPropagation()}>
-            <Button variant="ghost" size="xs" icon={<Pencil size={13} />} onClick={() => openEditor(a)}>
+            <Button variant="ghost" icon={<Pencil size={13} />} onClick={() => openEditor(a)}>
               {L("수정", "Edit")}
             </Button>
           </div>
@@ -592,10 +592,10 @@ export default function AuthorsEditor({ authors, onChange, onPersist }: Props) {
       <div className={mStyles.providers}><ProviderChips providers={m.providers} /></div>
       {m.role !== "owner" && (
         <div className={mStyles.rowActions}>
-          <Button variant="ghost" size="xs" icon={<UserPlus size={13} />} onClick={() => registerMember(m)}>
+          <Button variant="ghost" icon={<UserPlus size={13} />} onClick={() => registerMember(m)}>
             {L("등록", "Register")}
           </Button>
-          <Button variant="ghost" size="xs" tone="danger" icon={<Trash2 size={13} />} onClick={() => removeUnlinked(m)}>
+          <Button variant="ghost" tone="danger" icon={<Trash2 size={13} />} onClick={() => removeUnlinked(m)}>
             {L("삭제", "Delete")}
           </Button>
         </div>
@@ -642,7 +642,7 @@ export default function AuthorsEditor({ authors, onChange, onPersist }: Props) {
               </div>
               {iAmOwner && (
                 <div className={mStyles.rowActions} onClick={(e) => e.stopPropagation()}>
-                  <Button variant="ghost" size="xs" icon={<Pencil size={13} />} onClick={openMyProfile}>
+                  <Button variant="ghost" icon={<Pencil size={13} />} onClick={openMyProfile}>
                     {L("수정", "Edit")}
                   </Button>
                 </div>
@@ -679,7 +679,7 @@ export default function AuthorsEditor({ authors, onChange, onPersist }: Props) {
                 </div>
               </div>
               <div className={mStyles.rowActions} onClick={(e) => e.stopPropagation()}>
-                <Button variant="ghost" size="xs" icon={<Pencil size={13} />} onClick={openMyProfile}>
+                <Button variant="ghost" icon={<Pencil size={13} />} onClick={openMyProfile}>
                   {L("수정", "Edit")}
                 </Button>
               </div>

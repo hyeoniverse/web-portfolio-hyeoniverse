@@ -764,7 +764,7 @@ export function CalendarElement(props: PlateElementProps) {
   }, []);
   const todayBtn = (
     <Tooltip content={t("오늘로 이동", "Go to today")} placement="top">
-      <Button variant="outline" size="sm" soundDisabled className={styles.ctrlBorderLight} onClick={goToday}>{t("오늘", "Today")}</Button>
+      <Button variant="outline" soundDisabled className={styles.ctrlBorderLight} onClick={goToday}>{t("오늘", "Today")}</Button>
     </Tooltip>
   );
   const viewToggle = (
@@ -778,7 +778,6 @@ export function CalendarElement(props: PlateElementProps) {
       ]}
       value={view}
       onChange={changeView}
-      size="sm"
     />
   );
 
@@ -839,7 +838,7 @@ export function CalendarElement(props: PlateElementProps) {
           )}
           {/* 24/12h 스위치 — 사이드바 토글 왼쪽 */}
           <Tooltip content={t("12/24시간 표기 전환", "Toggle 12/24-hour")} placement="top">
-            <Switch size="lg" showStateText stateLabels={{ on: "24h", off: "12h" }} checked={timeFormat === "24h"} onCheckedChange={toggleTimeFormat} />
+            <Switch showStateText stateLabels={{ on: "24h", off: "12h" }} checked={timeFormat === "24h"} onCheckedChange={toggleTimeFormat} />
           </Tooltip>
           <Tooltip content={sidebarOpen ? t("이벤트 목록 닫기", "Close event list") : t("이벤트 목록", "Event list")} placement="bottom">
             <Pressable noTapScale className={`${styles.blockBarIconBtn}${sidebarOpen ? ` ${styles.blockBarIconOn}` : ""}`} onClick={() => setSidebarOpen((v) => !v)} aria-label={t("이벤트 목록", "Event list")}><PanelLeft size={13} /></Pressable>
@@ -918,7 +917,7 @@ export function CalendarElement(props: PlateElementProps) {
             <strong>{t("연결된 달력이 삭제됨", "Linked calendar deleted")}</strong>
             <span>{t("이 달력이 휴지통으로 이동됐어요. 설정에서 복구하거나 다른 달력을 다시 연결하세요.", "This calendar was moved to trash. Restore it in settings, or reconnect another.")}</span>
           </div>
-          <Button variant="outline" size="sm" soundDisabled onClick={openPicker}>
+          <Button variant="outline" soundDisabled onClick={openPicker}>
             <Download size={13} />{t("다시 연결", "Reconnect")}
           </Button>
         </div>

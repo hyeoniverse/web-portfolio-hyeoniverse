@@ -34,7 +34,6 @@ export default function SeriesIndexControls({
     <div className={page.searchSortRow}>
       <SegmentedControl<SeriesSortBy>
         className={styles.sortControl}
-        size="sm"
         variant="subtle"
         items={[
           { value: "popular", label: t("postsPage.sortPopular") },
@@ -49,7 +48,6 @@ export default function SeriesIndexControls({
           <List size={14} strokeWidth={1.8} className={styles.perPageIcon} aria-hidden />
           <Select
             className={styles.perPageSelect}
-            size="sm"
             value={String(perPage)}
             options={perPageOptions(t)}
             onChange={(v) => onPerPageChange(Number(v))}
@@ -60,7 +58,6 @@ export default function SeriesIndexControls({
           onSearchChange={setSearch}
           placeholder={t("postsPage.seriesSearchPlaceholder")}
           align="left"
-          size="sm"
           className={page.searchBar}
           routeParam="q"
           hasResults={hasResults}

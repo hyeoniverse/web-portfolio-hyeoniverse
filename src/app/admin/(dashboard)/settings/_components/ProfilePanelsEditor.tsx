@@ -90,8 +90,8 @@ export default function ProfilePanelsEditor({
         </>
       ) : (
         <>
-          <Input size="md" inlineLabel="KO" value={value.ko} onChange={(v) => onChange({ ...value, ko: v })} />
-          <Input size="md" inlineLabel="EN" value={value.en} onChange={(v) => onChange({ ...value, en: v })} />
+          <Input inlineLabel="KO" value={value.ko} onChange={(v) => onChange({ ...value, ko: v })} />
+          <Input inlineLabel="EN" value={value.en} onChange={(v) => onChange({ ...value, en: v })} />
         </>
       )}
     </div>
@@ -130,7 +130,6 @@ export default function ProfilePanelsEditor({
           </span>
           <Button
             variant="outline"
-            size="xs"
             icon={<Plus size={12} strokeWidth={2} />}
             disabled={bunny.stories.length >= MAX_STORIES}
             title={
@@ -164,7 +163,6 @@ export default function ProfilePanelsEditor({
                 <Button
                   variant="ghost"
                   shape="circle"
-                  size="xs"
                   className={styles.removeBtn}
                   icon={<Trash2 size={13} strokeWidth={1.8} />}
                   aria-label={L("문단 삭제", "Remove paragraph")}
@@ -208,7 +206,6 @@ export default function ProfilePanelsEditor({
                   </span>
                   <Button
                     variant="outline"
-                    size="xs"
                     icon={<Plus size={12} strokeWidth={2} />}
                     onClick={() =>
                       setBlocks(
@@ -235,7 +232,6 @@ export default function ProfilePanelsEditor({
                             아래 철학·프로세스 목록과 같은 밑줄 입력으로 맞춘다. */}
                         <Input
                           variant="underline"
-                          size="sm"
                           className={`${outer.fieldLabel} ${styles.lineLabel}`}
                           clearable={false}
                           value={line.label}
@@ -244,7 +240,6 @@ export default function ProfilePanelsEditor({
                         />
                         <Input
                           variant="underline"
-                          size="sm"
                           clearable={false}
                           value={line.value}
                           onChange={(v) => patchBlockLine(bi, li, { value: v })}
@@ -253,7 +248,6 @@ export default function ProfilePanelsEditor({
                         <Button
                           variant="ghost"
                           shape="circle"
-                          size="xs"
                           className={styles.removeBtn}
                           icon={<Trash2 size={13} strokeWidth={1.8} />}
                           aria-label={L("줄 삭제", "Remove line")}

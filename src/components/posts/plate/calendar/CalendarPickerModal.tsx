@@ -174,7 +174,6 @@ export default function CalendarPickerModal({
                     </span>
                     <Button
                       variant="ghost"
-                      size="xs"
                       soundDisabled
                       icon={restoringId === it.id ? <Loader2 size={13} className={styles.pickerSpin} /> : <RotateCcw size={13} />}
                       disabled={restoringId === it.id}

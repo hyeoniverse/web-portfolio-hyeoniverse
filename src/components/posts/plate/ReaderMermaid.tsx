@@ -61,7 +61,6 @@ export default function ReaderMermaid({ code, labels }: {
           ]}
           value={view}
           onChange={setView}
-          size="sm"
         />
         <Pressable className={styles.readerMermaidCopy} onClick={copy}>
           {copied ? labels.copied : labels.copyCode}

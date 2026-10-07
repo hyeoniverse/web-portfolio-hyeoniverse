@@ -143,7 +143,7 @@ export function PostArticleHeader({
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           {headerActionsLeft}
           {data.githubUrl && (
-            <Button variant="outline" size="xs" href={data.githubUrl} external>
+            <Button variant="outline" href={data.githubUrl} external>
               <GithubIcon size={14} />
               GitHub
             </Button>

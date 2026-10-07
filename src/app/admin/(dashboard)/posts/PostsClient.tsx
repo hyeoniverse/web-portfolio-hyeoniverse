@@ -457,7 +457,7 @@ export default function PostsClient({ initialPosts, initialTotalPages, initialPe
       headerExtra={
         <>
           <input ref={mdInputRef} type="file" accept=".md" multiple hidden onChange={handleMdUpload} />
-          <HelpButton size="sm"
+          <HelpButton
             title={t("admin.posts.uploadGuide")}
             aria-label={t("admin.posts.uploadGuide")}
             onClick={() => {
@@ -468,10 +468,10 @@ export default function PostsClient({ initialPosts, initialTotalPages, initialPe
             }}
           />
           <ButtonGroup>
-            <Button variant="outline" size="xs" title={t("admin.posts.uploadMd")} onClick={() => mdInputRef.current?.click()} disabled={uploading} soundDisabled icon={<Upload size={14} />}>
+            <Button variant="outline" title={t("admin.posts.uploadMd")} onClick={() => mdInputRef.current?.click()} disabled={uploading} soundDisabled icon={<Upload size={14} />}>
               {uploading ? "..." : t("admin.posts.uploadMd")}
             </Button>
-            <Button variant="primary" size="xs" title={t("admin.posts.newPost")} href="/admin/posts/new" soundDisabled icon={<Plus size={14} strokeWidth={1.5} />}>
+            <Button variant="primary" title={t("admin.posts.newPost")} href="/admin/posts/new" soundDisabled icon={<Plus size={14} strokeWidth={1.5} />}>
               {t("admin.posts.newPost")}
             </Button>
           </ButtonGroup>
@@ -678,7 +678,7 @@ export default function PostsClient({ initialPosts, initialTotalPages, initialPe
         onDenied={(p: Post) => openDeniedModal([p])}
         highlightId={restoredId}
         footerExtra={
-          <Button variant="ghost" size="xs" title={t("admin.posts.exportMdAll")} onClick={handleExportAll} disabled={exporting} soundDisabled icon={<Download size={14} />}>
+          <Button variant="ghost" title={t("admin.posts.exportMdAll")} onClick={handleExportAll} disabled={exporting} soundDisabled icon={<Download size={14} />}>
             {exporting ? "..." : t("admin.posts.exportMdAll")}
           </Button>
         }

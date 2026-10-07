@@ -60,6 +60,11 @@
   border-top: var(--border-light);
 }
 
+/* 칩 바탕 — 설정의 하위 칸(옅은 바탕 면) 안에서만 밝은 단색(SettingsSubPanel 이 변수를 준다). 편집기 팝오버에선 투명 그대로 */
+.chipTrigger {
+  background: var(--subpanel-field-bg, transparent);
+}
+
 .chipValue {
   display: inline-flex;
   align-items: center;

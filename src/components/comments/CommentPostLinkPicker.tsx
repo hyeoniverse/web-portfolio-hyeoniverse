@@ -91,7 +91,6 @@ export default function CommentPostLinkPicker({ onInsert, onArm }: Props) {
           <Button
             variant="ghost"
             shape="circle"
-            size="sm"
             icon={<FileText size={14} />}
             // 포커스 이동 전에 선택 저장 (preventDefault 는 안 함 — 팝오버 내 input 이 포커스를 받아야 타이핑됨)
             onMouseDown={onArm}
@@ -103,7 +102,6 @@ export default function CommentPostLinkPicker({ onInsert, onArm }: Props) {
       <div className={styles.postPickerSearch}>
         <Search size={14} className={styles.postPickerSearchIcon} />
         <Input
-          size="sm"
           value={query}
           onChange={setQuery}
           placeholder={ko ? "게시물 검색…" : "Search posts…"}

@@ -262,10 +262,10 @@ export default function AccountTab({
               )}
             </div>
             <div className={styles.pendingEmailActions}>
-              <Button variant="outline" size="md" onClick={handleResend} disabled={resending}>
+              <Button variant="outline" onClick={handleResend} disabled={resending}>
                 {resending ? <T k="admin.settings.resending" /> : <T k="admin.settings.resendEmail" />}
               </Button>
-              <Button variant="ghost" size="md" onClick={handleCancelEmailChange} disabled={cancelling}>
+              <Button variant="ghost" onClick={handleCancelEmailChange} disabled={cancelling}>
                 {cancelling ? <T k="admin.settings.cancelling" /> : <T k="admin.settings.cancelChange" />}
               </Button>
             </div>
@@ -417,7 +417,6 @@ export default function AccountTab({
           <FieldRow label={<T k="admin.settings.signOutAllLabel" />}>
             <Button
               variant="outline"
-              size="md"
               tone="danger"
               onClick={handleSignOutAll}
               disabled={signingOutAll}
@@ -438,7 +437,7 @@ export default function AccountTab({
           <dialog ref={confirmDialogRef} className="ui-dialog" onCancel={(e) => { e.preventDefault(); closeConfirm(); }}>
           <div className={styles.confirmOverlay} onClick={closeConfirm}>
             <div className={styles.confirmDialog} onClick={(e) => e.stopPropagation()}>
-              <CloseButton className={styles.confirmClose} size="md" onClick={closeConfirm} ariaLabel={t("admin.settings.cancel")} />
+              <CloseButton className={styles.confirmClose} onClick={closeConfirm} ariaLabel={t("admin.settings.cancel")} />
               <h3 className={styles.confirmTitle}><T k="admin.settings.currentPassword" /></h3>
               <p className={styles.confirmDesc}>
                 <T k="admin.settings.confirmPasswordDesc" />
@@ -465,7 +464,6 @@ export default function AccountTab({
               <div className={styles.confirmActions}>
                 <Button
                   variant="primary"
-                  size="md"
                   disabled={accountSaving || !accountCurrentPassword}
                   loading={accountSaving}
                   onClick={handleAccountUpdate}

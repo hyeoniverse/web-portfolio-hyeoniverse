@@ -193,7 +193,7 @@ export default function HorizontalCarousel({
             role="button"
             aria-label="Previous"
           >
-            <Button variant="difference" shape="circle" size="sm" tabIndex={-1} aria-hidden="true">
+            <Button variant="difference" shape="circle" tabIndex={-1} aria-hidden="true">
               <ChevronLeft size={16} />
             </Button>
           </div>
@@ -207,7 +207,7 @@ export default function HorizontalCarousel({
             role="button"
             aria-label="Next"
           >
-            <Button variant="difference" shape="circle" size="sm" tabIndex={-1} aria-hidden="true">
+            <Button variant="difference" shape="circle" tabIndex={-1} aria-hidden="true">
               <ChevronRight size={16} />
             </Button>
           </div>

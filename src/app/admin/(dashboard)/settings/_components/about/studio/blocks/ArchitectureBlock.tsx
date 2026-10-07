@@ -91,7 +91,7 @@ export function ArchitectureBlock({ value, onChange, diagram, onDiagramChange, t
             {(lang === "ko" ? item.description_ko : item.description_en) && <span className={sub.nodeDesc}>{lang === "ko" ? item.description_ko : item.description_en}</span>}
             {hasChildren && isCollapsed && <span className={sub.nodeCount}>{children.length}</span>}
           </Pressable>
-          {item.indent < 2 && <Button className={sub.nodeAdd} shape="circle" size="xs" variant="ghost" icon={<Plus size={13} />} onClick={() => addChild(index)} aria-label={L("하위 추가", "Add child")} />}
+          {item.indent < 2 && <Button className={sub.nodeAdd} shape="circle" variant="ghost" icon={<Plus size={13} />} onClick={() => addChild(index)} aria-label={L("하위 추가", "Add child")} />}
         </div>
         {hasChildren && !isCollapsed && <div className={sub.children}>{children.map(render)}</div>}
       </div>
@@ -118,28 +118,28 @@ export function ArchitectureBlock({ value, onChange, diagram, onDiagramChange, t
         placeholder={lang === "ko" ? "소스 코드 루트" : "Source code root"} />
       <div className={sub.nodeEditBar}>
         <div className={sub.nodeMoveGroup}>
-          <Button variant="subtle" size="xs" shape="circle" icon={<ChevronUp size={14} />} onClick={() => move(index, -1)} aria-label={L("위로", "Move up")} />
-          <Button variant="subtle" size="xs" shape="circle" icon={<ChevronDown size={14} />} onClick={() => move(index, 1)} aria-label={L("아래로", "Move down")} />
-          <Button variant="subtle" size="xs" shape="circle" icon={<ChevronLeft size={14} />} onClick={() => shift(index, -1)} disabled={item.indent === 0} aria-label={L("상위 레벨로", "Outdent")} />
-          <Button variant="subtle" size="xs" shape="circle" icon={<ChevronRight size={14} />} onClick={() => shift(index, 1)} disabled={item.indent >= 2} aria-label={L("하위 레벨로", "Indent")} />
+          <Button variant="subtle" shape="circle" icon={<ChevronUp size={14} />} onClick={() => move(index, -1)} aria-label={L("위로", "Move up")} />
+          <Button variant="subtle" shape="circle" icon={<ChevronDown size={14} />} onClick={() => move(index, 1)} aria-label={L("아래로", "Move down")} />
+          <Button variant="subtle" shape="circle" icon={<ChevronLeft size={14} />} onClick={() => shift(index, -1)} disabled={item.indent === 0} aria-label={L("상위 레벨로", "Outdent")} />
+          <Button variant="subtle" shape="circle" icon={<ChevronRight size={14} />} onClick={() => shift(index, 1)} disabled={item.indent >= 2} aria-label={L("하위 레벨로", "Indent")} />
         </div>
         <div className={sub.nodeAddGroup}>
-          <Button variant="subtle" size="xs" icon={<Plus size={12} />} onClick={() => addChild(index)} disabled={item.indent >= 2}>{L("하위", "Child")}</Button>
-          <Button variant="subtle" size="xs" icon={<Plus size={12} />} onClick={() => addSibling(index)}>{L("형제", "Sibling")}</Button>
+          <Button variant="subtle" icon={<Plus size={12} />} onClick={() => addChild(index)} disabled={item.indent >= 2}>{L("하위", "Child")}</Button>
+          <Button variant="subtle" icon={<Plus size={12} />} onClick={() => addSibling(index)}>{L("형제", "Sibling")}</Button>
         </div>
-        <Button className={sub.nodeDeleteBtn} variant="outline" size="xs" tone="danger" icon={<Trash2 size={12} />} onClick={() => remove(index)}>{L("삭제", "Delete")}</Button>
+        <Button className={sub.nodeDeleteBtn} variant="outline" tone="danger" icon={<Trash2 size={12} />} onClick={() => remove(index)}>{L("삭제", "Delete")}</Button>
       </div>
     </div>
   );
   return (
     <section className={css.block}>
-      <SegmentedControl<"tree" | "diagram"> size="sm" value={archTab} onChange={setArchTab} className={css.segFit}
+      <SegmentedControl<"tree" | "diagram"> value={archTab} onChange={setArchTab} className={css.segFit}
         items={[{ value: "tree", label: L("디렉토리 트리", "Directory tree") }, { value: "diagram", label: L("다이어그램", "Diagram") }]} />
       {archTab === "tree" ? (
         <div className={`${sub.treeLayout} ${sel != null && value[sel] ? sub.treeLayoutOpen : ""}`}>
           <div className={sub.tree} ref={treeRef}>
             {roots.map(render)}
-            <Button className={sub.addRootBtn} variant="subtle" size="sm" icon={<Plus size={14} />} onClick={addRoot}>{t("admin.settings.aboutTechStackAdd")}</Button>
+            <Button className={sub.addRootBtn} variant="subtle" icon={<Plus size={14} />} onClick={addRoot}>{t("admin.settings.aboutTechStackAdd")}</Button>
           </div>
           {sel != null && value[sel] && (
             <div className={sub.treeEditor}>{renderEditPane(sel, value[sel])}</div>

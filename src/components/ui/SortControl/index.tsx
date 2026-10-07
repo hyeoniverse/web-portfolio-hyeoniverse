@@ -38,13 +38,11 @@ export default function SortControl<T extends string>({
         value={value}
         onChange={(v) => onChange(v as T)}
         options={options}
-        size="sm"
         dropdownClassName={dropdownClassName}
       />
       <Tooltip content={dir === "asc" ? t("오름차순", "Ascending") : t("내림차순", "Descending")}>
         <Button
           variant="ghost"
-          size="sm"
           soundDisabled
           className={styles.dir}
           icon={dir === "asc" ? <ArrowDownNarrowWide size={14} /> : <ArrowUpNarrowWide size={14} />}

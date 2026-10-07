@@ -24,6 +24,8 @@ interface PeriodPickerProps {
   maxDate?: Date;
   /** 이 시점 이전은 선택 불가. Date 객체 */
   minDate?: Date;
+  /** 고를 수 있는 형식 — 기본은 전부(연도 · 연.월 · 연.월.일 · 연.월.일.시). 프로필 경력처럼 시각이 필요 없는 곳은 줄인다 */
+  formats?: DatePeriod["format"][];
 }
 
 
@@ -319,6 +321,7 @@ export default function PeriodPicker({
   showPreview = true,
   minDate,
   maxDate,
+  formats,
 }: PeriodPickerProps) {
   const { t, language } = useLanguage();
 
@@ -375,7 +378,7 @@ export default function PeriodPicker({
         <div className={styles.formatRow}>
           <span className={styles.formatLabel}>{t("common.periodFormat")}</span>
           <div className={styles.formatSegment}>
-            {FORMAT_OPTIONS.map((opt) => (
+            {FORMAT_OPTIONS.filter((opt) => !formats || formats.includes(opt.value) || opt.value === safeValue.format).map((opt) => (
               <Pressable
                 key={opt.value}
                 type="button"

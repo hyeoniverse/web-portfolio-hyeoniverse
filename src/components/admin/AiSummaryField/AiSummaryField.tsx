@@ -49,7 +49,7 @@ export default function AiSummaryField({ value, lang, onRegenerate, busy, disabl
             sheetTitle={ta("options.title")}
             trigger={
               <Tooltip content={disabled && disabledReason ? disabledReason : actionLabel} disabled={open}>
-                <Button variant="outline" size="sm" shape="capsule" loading={busy} disabled={disabled} soundDisabled>
+                <Button variant="outline" shape="capsule" loading={busy} disabled={disabled} soundDisabled>
                   {actionLabel}
                 </Button>
               </Tooltip>

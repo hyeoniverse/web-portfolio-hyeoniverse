@@ -233,9 +233,10 @@
   min-width: 0;
 }
 
+/* 설정 페이지 컨트롤 높이(sm) — 옆 색상 입력과 같은 높이 */
 .colorPicker {
-  width: var(--control-height-xs);
-  height: var(--control-height-xs);
+  width: var(--control-height-sm);
+  height: var(--control-height-sm);
   padding: 0;
   border: var(--border-light);
   border-radius: var(--radius-full);
@@ -573,6 +574,8 @@
 
 /* 제목 — 버튼 ↔ 헤더 사이에서 styling 만 변하면서 morph */
 .newSeriesShellTitle {
+  /* 설정 페이지 컨트롤 높이(sm) — 옆 취소 · 만들기 단추와 같은 높이 */
+  min-height: var(--control-height-sm);
   display: flex;
   align-items: center;
   justify-content: center;

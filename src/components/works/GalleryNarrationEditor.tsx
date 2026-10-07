@@ -529,10 +529,9 @@ function PreviewSeek({ audio, tw }: { audio: string | undefined; tw: (key: strin
   return (
     <span className={styles.seek} aria-label={tw("narrationSeek")}>
       <span className={styles.seekButtons}>
-        <Button variant="ghost" size="sm" shape="circle" onClick={() => skip(-SKIP_SEC)} disabled={!audio || !duration} aria-label={tw("narrationBack5")} title={tw("narrationBack5")} soundDisabled icon={<Rewind size={14} strokeWidth={2} />} />
+        <Button variant="ghost" shape="circle" onClick={() => skip(-SKIP_SEC)} disabled={!audio || !duration} aria-label={tw("narrationBack5")} title={tw("narrationBack5")} soundDisabled icon={<Rewind size={14} strokeWidth={2} />} />
         <Button
           variant="ghost"
-          size="sm"
           shape="circle"
           onClick={() => { if (audio) togglePreview(audio); }}
           disabled={!audio}
@@ -542,7 +541,7 @@ function PreviewSeek({ audio, tw }: { audio: string | undefined; tw: (key: strin
           soundDisabled
           icon={listening ? <Pause size={14} strokeWidth={2} /> : <Play size={14} strokeWidth={2} />}
         />
-        <Button variant="ghost" size="sm" shape="circle" onClick={() => skip(SKIP_SEC)} disabled={!audio || !duration} aria-label={tw("narrationForward5")} title={tw("narrationForward5")} soundDisabled icon={<FastForward size={14} strokeWidth={2} />} />
+        <Button variant="ghost" shape="circle" onClick={() => skip(SKIP_SEC)} disabled={!audio || !duration} aria-label={tw("narrationForward5")} title={tw("narrationForward5")} soundDisabled icon={<FastForward size={14} strokeWidth={2} />} />
       </span>
       <Slider className={styles.seekSlider} value={[time]} min={0} max={duration || 1} step={0.1} disabled={!audio || !duration} onValueChange={([v]) => { if (audio) seekPreview(audio, v); }} />
       <span className={styles.seekTime}>{clock(time)} / {clock(duration)}</span>
@@ -598,7 +597,6 @@ function HistoryDialog({ url, actions, tw }: { url: string; actions: NarrationAc
             <li key={e.audio} className={styles.historyItem} data-current={isCurrent ? "" : undefined}>
               <Button
                 variant="ghost"
-                size="sm"
                 shape="circle"
                 onClick={() => togglePreview(e.audio)}
                 aria-label={tw("narrationListen")}
@@ -613,13 +611,12 @@ function HistoryDialog({ url, actions, tw }: { url: string; actions: NarrationAc
               {isCurrent ? (
                 <span className={styles.historyCurrent}>{tw("narrationHistoryCurrent")}</span>
               ) : (
-                <Button variant="subtle" size="sm" shape="capsule" className={styles.bulkButton} onClick={() => { actions.restoreHistory(url, e); closeModal(HISTORY_MODAL_ID); }} soundDisabled>
+                <Button variant="subtle" shape="capsule" className={styles.bulkButton} onClick={() => { actions.restoreHistory(url, e); closeModal(HISTORY_MODAL_ID); }} soundDisabled>
                   {tw("narrationHistoryUse")}
                 </Button>
               )}
               <Button
                 variant="ghost"
-                size="sm"
                 shape="circle"
                 onClick={() => removeNarrationHistory(url, e.audio)}
                 disabled={isCurrent}
@@ -645,7 +642,6 @@ function HistoryButton({ url, note, actions, tw, disabled }: { url: string; note
   return (
     <Button
       variant="ghost"
-      size="sm"
       shape="circle"
       onClick={() => openModal(<HistoryDialog url={url} actions={actions} tw={tw} />, { id: HISTORY_MODAL_ID, header: { title: tw("narrationHistory") }, width: "560px", closeButton: true })}
       disabled={disabled || others === 0}
@@ -687,7 +683,6 @@ function NarrationTools({ url, note, slide, actions, tw }: { url: string; note: 
       <HistoryButton url={url} note={note} actions={actions} tw={tw} disabled={locked} />
       <Button
         variant="ghost"
-        size="sm"
         shape="circle"
         onClick={() => { if (note?.audio) void downloadNarration(note.audio, slide, tw); }}
         disabled={locked || !note?.audio}
@@ -698,7 +693,6 @@ function NarrationTools({ url, note, slide, actions, tw }: { url: string; note: 
       />
       <Button
         variant="ghost"
-        size="sm"
         shape="circle"
         onClick={() => void actions.startRecording(url)}
         disabled={locked}
@@ -709,7 +703,6 @@ function NarrationTools({ url, note, slide, actions, tw }: { url: string; note: 
       />
       <Button
         variant="ghost"
-        size="sm"
         shape="circle"
         onClick={() => actions.uploadRecording(url)}
         disabled={locked}
@@ -720,7 +713,6 @@ function NarrationTools({ url, note, slide, actions, tw }: { url: string; note: 
       />
       <Button
         variant="ghost"
-        size="sm"
         shape="circle"
         onClick={() => actions.clearAudio(url)}
         disabled={locked || !note?.audio}
@@ -793,7 +785,6 @@ function LiveRecording({ actions, n, tw }: { actions: NarrationActions; n: numbe
     <span className={styles.recordBar} role="status">
       <Button
         variant="ghost"
-        size="sm"
         shape="circle"
         onClick={actions.togglePause}
         disabled={starting}
@@ -802,7 +793,7 @@ function LiveRecording({ actions, n, tw }: { actions: NarrationActions; n: numbe
         soundDisabled
         icon={paused ? <Mic size={14} strokeWidth={2} /> : <Pause size={14} strokeWidth={2} />}
       />
-      <Button variant="ghost" size="sm" shape="circle" onClick={actions.stopRecording} disabled={starting} aria-label={tw("narrationRecordHalt")} title={tw("narrationRecordHalt")} soundDisabled icon={<Square size={12} strokeWidth={2.5} />} />
+      <Button variant="ghost" shape="circle" onClick={actions.stopRecording} disabled={starting} aria-label={tw("narrationRecordHalt")} title={tw("narrationRecordHalt")} soundDisabled icon={<Square size={12} strokeWidth={2.5} />} />
       <span className={styles.recordState} data-live={phase === "recording" ? "" : undefined}>
         <span className={styles.recordDot} aria-hidden />
         {fillTemplate(tw(paused ? "narrationRecordPausedState" : "narrationRecording"), { n })}
@@ -810,8 +801,8 @@ function LiveRecording({ actions, n, tw }: { actions: NarrationActions; n: numbe
       </span>
       <span ref={meterRef} className={styles.recordMeter} aria-hidden><span /></span>
       <span className={styles.recordActions}>
-        <Button variant="ghost" size="sm" onClick={actions.cancelRecording} soundDisabled>{tw("narrationRecordCancel")}</Button>
-        <Button variant="primary" size="sm" onClick={() => void actions.finishRecording()} disabled={starting} soundDisabled icon={<Check size={14} strokeWidth={2.25} />}>{tw("narrationRecordDone")}</Button>
+        <Button variant="ghost" onClick={actions.cancelRecording} soundDisabled>{tw("narrationRecordCancel")}</Button>
+        <Button variant="primary" onClick={() => void actions.finishRecording()} disabled={starting} soundDisabled icon={<Check size={14} strokeWidth={2.25} />}>{tw("narrationRecordDone")}</Button>
       </span>
     </span>
   );
@@ -875,8 +866,8 @@ function PasteScriptsDialog({ gallery, notes, actions, tw }: { gallery: string[]
       </p>
       {filled > 0 && <Checkbox checked={overwrite} onChange={setOverwrite} label={fillTemplate(tw("narrationPasteOverwrite"), { n: filled })} />}
       <div className={styles.pasteActions}>
-        <Button variant="outline" size="sm" shape="capsule" onClick={() => closeModal(PASTE_MODAL_ID)} soundDisabled>{tw("narrationPasteCancel")}</Button>
-        <Button variant="primary" size="sm" shape="capsule" onClick={apply} disabled={count === 0} soundDisabled>{tw("narrationPasteApply")}</Button>
+        <Button variant="outline" shape="capsule" onClick={() => closeModal(PASTE_MODAL_ID)} soundDisabled>{tw("narrationPasteCancel")}</Button>
+        <Button variant="primary" shape="capsule" onClick={apply} disabled={count === 0} soundDisabled>{tw("narrationPasteApply")}</Button>
       </div>
     </div>
   );
@@ -888,7 +879,6 @@ function PasteScriptsButton({ gallery, notes, actions, tw }: { gallery: string[]
   return (
     <Button
       variant="ghost"
-      size="sm"
       shape="circle"
       onClick={() => openModal(<PasteScriptsDialog gallery={gallery} notes={notes} actions={actions} tw={tw} />, { id: PASTE_MODAL_ID, header: { title: label }, width: "560px", closeButton: true })}
       /* 만드는 동안 대본을 통째로 바꾸면 만들고 있는 음성과 대본이 어긋난다 */
@@ -918,11 +908,11 @@ function GenerateManyDialog({ n, replacing, voice, tw, onReplaceAll, onMissingOn
     <div className={styles.pasteModal}>
       <p className={styles.manyDesc}>{fillTemplate(tw("narrationGenerateManyDesc"), { n, replacing, voice })}</p>
       <div className={styles.pasteActions}>
-        <Button variant="outline" size="sm" shape="capsule" onClick={() => closeModal(GENERATE_MANY_MODAL_ID)} soundDisabled>{tw("narrationPasteCancel")}</Button>
-        <Button variant="outline" size="sm" shape="capsule" onClick={() => go(onMissingOnly)} disabled={missing === 0} soundDisabled>
+        <Button variant="outline" shape="capsule" onClick={() => closeModal(GENERATE_MANY_MODAL_ID)} soundDisabled>{tw("narrationPasteCancel")}</Button>
+        <Button variant="outline" shape="capsule" onClick={() => go(onMissingOnly)} disabled={missing === 0} soundDisabled>
           {fillTemplate(tw("narrationGenerateMissingOnly"), { n: missing })}
         </Button>
-        <Button variant="primary" size="sm" shape="capsule" onClick={() => go(onReplaceAll)} soundDisabled>
+        <Button variant="primary" shape="capsule" onClick={() => go(onReplaceAll)} soundDisabled>
           {fillTemplate(tw("narrationGenerateReplaceAll"), { n })}
         </Button>
       </div>
@@ -981,7 +971,6 @@ function GenerateButton({ url, index, notes, actions, tw }: { url: string; index
     <span className={styles.generateSplit} data-busy={working ? "" : undefined}>
       <Button
         variant="primary"
-        size="sm"
         className={styles.generateMain}
         onClick={() => void actions.generateOne(url)}
         disabled={locked || !hasScript}
@@ -1005,7 +994,6 @@ function GenerateButton({ url, index, notes, actions, tw }: { url: string; index
         trigger={
           <Button
             variant="primary"
-            size="sm"
             className={styles.generateToggle}
             data-open={menuOpen ? "" : undefined}
             disabled={locked || n === 0}
@@ -1088,7 +1076,6 @@ function TranslateScriptsButton({ url, index, gallery, notes, translate, lang, t
       trigger={
         <Button
           variant="ghost"
-          size="sm"
           shape="circle"
           disabled={disabled || translate.busy || sources.length === 0}
           aria-label={label}
@@ -1143,7 +1130,6 @@ function VoiceSelect({ actions, tw, disabled }: { actions: NarrationActions; tw:
   const current = voiceParts(actions.voice, tw, actions.lang);
   return (
     <Select
-      size="sm"
       disabled={disabled}
       value={actions.voice}
       onChange={(v) => { if (isTtsVoice(v)) actions.setVoice(v); }}
@@ -1194,7 +1180,7 @@ function LexiconButton({ tw, lang, disabled }: { tw: (key: string) => string; la
       compact
       initialLang={lang}
       footer={
-        <Button variant="ghost" size="sm" shape="capsule" onClick={() => window.open("/admin/settings?tab=services#tts-lexicon", "_blank", "noopener")} soundDisabled icon={<ExternalLink size={14} strokeWidth={2} />}>
+        <Button variant="ghost" shape="capsule" onClick={() => window.open("/admin/settings?tab=services#tts-lexicon", "_blank", "noopener")} soundDisabled icon={<ExternalLink size={14} strokeWidth={2} />}>
           {tw("narrationLexiconManage")}
         </Button>
       }
@@ -1203,7 +1189,7 @@ function LexiconButton({ tw, lang, disabled }: { tw: (key: string) => string; la
     { id: LEXICON_MODAL_ID, header: { title: label }, width: "min(680px, 94vw)", closeButton: true },
   );
   return (
-    <Button variant="ghost" size="sm" shape="circle" onClick={open} disabled={disabled} aria-label={label} title={label} soundDisabled icon={<BookOpen size={14} strokeWidth={2} />} />
+    <Button variant="ghost" shape="circle" onClick={open} disabled={disabled} aria-label={label} title={label} soundDisabled icon={<BookOpen size={14} strokeWidth={2} />} />
   );
 }
 
@@ -1236,7 +1222,7 @@ function NarrationHelpButton({ tw }: { tw: (key: string) => string }) {
   const { openModal } = useModalStore();
   const label = tw("narrationHelp.label");
   return (
-    <HelpButton size="sm"
+    <HelpButton
       symbol="i"
       variant="ghost"
       onClick={() => openModal(<NarrationHelp tw={tw} />, { id: HELP_MODAL_ID, header: { title: label }, width: "min(640px, 94vw)", closeButton: true })}
@@ -1327,9 +1313,9 @@ export function GalleryNarrationPanel({
       </div>
       <div className={styles.paneBar}>
         <span className={styles.barPager}>
-          <Button variant="ghost" size="sm" shape="circle" onClick={() => go(index - 1)} disabled={index <= 0} aria-label={tw("narrationPrev")} title={tw("narrationPrev")} soundDisabled icon={<ChevronLeft size={16} strokeWidth={2} />} />
+          <Button variant="ghost" shape="circle" onClick={() => go(index - 1)} disabled={index <= 0} aria-label={tw("narrationPrev")} title={tw("narrationPrev")} soundDisabled icon={<ChevronLeft size={16} strokeWidth={2} />} />
           <span className={styles.paneIndex}>{index + 1} / {gallery.length}</span>
-          <Button variant="ghost" size="sm" shape="circle" onClick={() => go(index + 1)} disabled={index >= gallery.length - 1} aria-label={tw("narrationNext")} title={tw("narrationNext")} soundDisabled icon={<ChevronRight size={16} strokeWidth={2} />} />
+          <Button variant="ghost" shape="circle" onClick={() => go(index + 1)} disabled={index >= gallery.length - 1} aria-label={tw("narrationNext")} title={tw("narrationNext")} soundDisabled icon={<ChevronRight size={16} strokeWidth={2} />} />
         </span>
         <span className={styles.barInfo}>
           <StatusLine note={note} progress={actions.busy.get(url)} tw={tw} />

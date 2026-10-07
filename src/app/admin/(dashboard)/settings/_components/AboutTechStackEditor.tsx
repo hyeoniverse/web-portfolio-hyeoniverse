@@ -285,7 +285,7 @@ export default function AboutTechStackEditor({ items, onChange, t }: {
             placement="bottom-start"
             sheetTitle={t("admin.settings.aboutTechStackAdd")}
             trigger={
-              <Button variant="ghost" size="xs" icon={<Plus size={14} strokeWidth={2.5} />}>
+              <Button variant="ghost" icon={<Plus size={14} strokeWidth={2.5} />}>
                 {t("admin.settings.aboutTechStackAdd")}
               </Button>
             }
@@ -556,7 +556,7 @@ function TechAddPanel({ existing, onAdd, currentCats, t }: {
         </AnimatePresence>
         <CategoryInput value={draft.category} onChange={(v) => setDraft((d) => ({ ...d, category: v }))} currentCats={currentCats} t={t} />
         <TechIconEditor icon={draft.icon ?? ""} onIconChange={(icon) => setDraft((d) => ({ ...d, icon }))} t={t} showSearch={false} />
-        <Button variant="primary" size="xs" fullWidth disabled={!canAdd} onClick={submitCustom} icon={<Plus size={14} strokeWidth={2.5} />}>
+        <Button variant="primary" fullWidth disabled={!canAdd} onClick={submitCustom} icon={<Plus size={14} strokeWidth={2.5} />}>
           {t("admin.settings.aboutTechStackAdd")}
         </Button>
       </div>

@@ -19,6 +19,9 @@ import SkillList from "./ProfileSkillList";
 import skillStyles from "./ProfileSkill.module.css";
 import Pressable from "@/components/ui/Pressable";
 
+/** 경력 · 학력 · 자격 · 수상의 기간 — 시각(연.월.일.시)은 필요 없어 뺀다. 이미 그 형식으로 저장된 항목은 그 칸만 보인다 */
+const PROFILE_PERIOD_FORMATS: DatePeriod["format"][] = ["year", "yearMonth", "date"];
+
 export { profileDefaults };
 
 export type ProfileExpandState = {
@@ -350,7 +353,6 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
             renderHeader={(item, i) => (<>
               <Input
                 variant="underline"
-                size="md"
                 className={styles.skillFieldInline}
                 value={item.company}
                 onChange={(v) => updateTimeline(key, i, "company", v)}
@@ -363,13 +365,13 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
               <div className={styles.fieldGroup}>
                 <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.role" /></label>
                 <div className={styles.profileGrid}>
-                  <Input size="md" inlineLabel="KO" value={item.role.ko} onChange={(v) => updateTimeline(key, i, "role.ko", v)} />
-                  <Input size="md" inlineLabel="EN" value={item.role.en} onChange={(v) => updateTimeline(key, i, "role.en", v)} />
+                  <Input inlineLabel="KO" value={item.role.ko} onChange={(v) => updateTimeline(key, i, "role.ko", v)} />
+                  <Input inlineLabel="EN" value={item.role.en} onChange={(v) => updateTimeline(key, i, "role.en", v)} />
                 </div>
               </div>
               <div className={styles.fieldGroup}>
                 <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.period" /></label>
-                <PeriodPicker value={item.period} onChange={(v: DatePeriod) => updateTimeline(key, i, "period", v)} />
+                <PeriodPicker formats={PROFILE_PERIOD_FORMATS} value={item.period} onChange={(v: DatePeriod) => updateTimeline(key, i, "period", v)} />
               </div>
               <div className={styles.fieldGroup}>
                 <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.description" /></label>
@@ -402,7 +404,6 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
           renderHeader={(group, gi) => (<>
             <Input
               variant="underline"
-              size="md"
               className={styles.skillFieldInline}
               value={group.category}
               onChange={(v) => updateSkillGroup(gi, "category", v)}
@@ -459,7 +460,6 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
           renderHeader={(item, i) => (
             <Input
               variant="underline"
-              size="md"
               className={styles.skillFieldInline}
               value={item.title}
               onChange={(v) => updatePhilosophy(i, "title", v)}
@@ -498,7 +498,6 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
             <span className={styles.skillCount}>{step.number}</span>
             <Input
               variant="underline"
-              size="md"
               className={styles.skillFieldInline}
               value={step.title}
               onChange={(v) => updateApproach(i, "title", v)}
@@ -541,7 +540,6 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
           renderHeader={(cert, i) => (<>
             <Input
               variant="underline"
-              size="md"
               className={styles.skillFieldInline}
               value={cert.name.ko}
               onChange={(v) => updateCertification(i, "name.ko", v)}
@@ -553,25 +551,25 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
           renderDetails={(cert, i) => (<>
             <div className={styles.fieldGroup}>
               <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.name" /></label>
-              <Input size="md" inlineLabel="EN" value={cert.name.en} onChange={(v) => updateCertification(i, "name.en", v)} />
+              <Input inlineLabel="EN" value={cert.name.en} onChange={(v) => updateCertification(i, "name.en", v)} />
             </div>
             <div className={styles.fieldGroup}>
               <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.period" /></label>
-              <PeriodPicker value={cert.period} onChange={(v: DatePeriod) => updateCertification(i, "period", v)} />
+              <PeriodPicker formats={PROFILE_PERIOD_FORMATS} value={cert.period} onChange={(v: DatePeriod) => updateCertification(i, "period", v)} />
             </div>
             <div className={styles.fieldGroup}>
               <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.issuer" /></label>
               <div className={styles.profileGrid}>
-                <Input size="md" inlineLabel="KO" value={cert.issuer.ko} onChange={(v) => updateCertification(i, "issuer.ko", v)} />
-                <Input size="md" inlineLabel="EN" value={cert.issuer.en} onChange={(v) => updateCertification(i, "issuer.en", v)} />
+                <Input inlineLabel="KO" value={cert.issuer.ko} onChange={(v) => updateCertification(i, "issuer.ko", v)} />
+                <Input inlineLabel="EN" value={cert.issuer.en} onChange={(v) => updateCertification(i, "issuer.en", v)} />
               </div>
             </div>
             {/* 등급·점수 — 급수(1급)나 점수(775점). 비우면 화면에 안 나온다 */}
             <div className={styles.fieldGroup}>
               <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.grade" /></label>
               <div className={styles.profileGrid}>
-                <Input size="md" inlineLabel="KO" value={cert.grade?.ko ?? ""} onChange={(v) => updateCertification(i, "grade.ko", v)} />
-                <Input size="md" inlineLabel="EN" value={cert.grade?.en ?? ""} onChange={(v) => updateCertification(i, "grade.en", v)} />
+                <Input inlineLabel="KO" value={cert.grade?.ko ?? ""} onChange={(v) => updateCertification(i, "grade.ko", v)} />
+                <Input inlineLabel="EN" value={cert.grade?.en ?? ""} onChange={(v) => updateCertification(i, "grade.en", v)} />
               </div>
             </div>
           </>)}
@@ -596,7 +594,6 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
           renderHeader={(award, i) => (<>
             <Input
               variant="underline"
-              size="md"
               className={styles.skillFieldInline}
               value={award.name.ko}
               onChange={(v) => updateAward(i, "name.ko", v)}
@@ -608,17 +605,17 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
           renderDetails={(award, i) => (<>
             <div className={styles.fieldGroup}>
               <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.name" /></label>
-              <Input size="md" inlineLabel="EN" value={award.name.en} onChange={(v) => updateAward(i, "name.en", v)} />
+              <Input inlineLabel="EN" value={award.name.en} onChange={(v) => updateAward(i, "name.en", v)} />
             </div>
             <div className={styles.fieldGroup}>
               <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.period" /></label>
-              <PeriodPicker value={award.period} onChange={(v: DatePeriod) => updateAward(i, "period", v)} />
+              <PeriodPicker formats={PROFILE_PERIOD_FORMATS} value={award.period} onChange={(v: DatePeriod) => updateAward(i, "period", v)} />
             </div>
             <div className={styles.fieldGroup}>
               <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.organization" /></label>
               <div className={styles.profileGrid}>
-                <Input size="md" inlineLabel="KO" value={award.organization.ko} onChange={(v) => updateAward(i, "organization.ko", v)} />
-                <Input size="md" inlineLabel="EN" value={award.organization.en} onChange={(v) => updateAward(i, "organization.en", v)} />
+                <Input inlineLabel="KO" value={award.organization.ko} onChange={(v) => updateAward(i, "organization.ko", v)} />
+                <Input inlineLabel="EN" value={award.organization.en} onChange={(v) => updateAward(i, "organization.en", v)} />
               </div>
             </div>
             {/* 수상 내용 — 무엇으로 받았는지 한 줄. 비우면 화면에 안 나온다 */}
@@ -679,7 +676,7 @@ function SortableList<T>({
         customActions={
           <>
             {items.length > 0 && (
-              <Button variant="outline" size="xs" onClick={toggleAll}>
+              <Button variant="outline" onClick={toggleAll}>
                 <T k={allOpen ? "admin.settings.profile.collapseAll" : "admin.settings.profile.expandAll"} />
               </Button>
             )}
@@ -699,7 +696,7 @@ function SortableList<T>({
                       <Pressable className={styles.skillDragHandle} {...listeners} aria-label="Drag to reorder">
                         <GripVertical fill="currentColor" />
                       </Pressable>
-                      <Button type="button" variant="ghost" shape="square" size="xs" className={styles.skillExpandBtn} onClick={() => toggleOne(i)} aria-label={isOpen ? "Collapse" : "Expand"}>
+                      <Button type="button" variant="ghost" shape="square" className={styles.skillExpandBtn} onClick={() => toggleOne(i)} aria-label={isOpen ? "Collapse" : "Expand"}>
                         <ChevronRight style={{ transform: isOpen ? "rotate(90deg)" : "rotate(0deg)" }} />
                       </Button>
                       {renderHeader(item, i)}
@@ -718,7 +715,7 @@ function SortableList<T>({
           </div>
         </SortableContext>
       </DndContext>
-      <Button variant="outline" size="md" fullWidth className={styles.profileAddBtn} onClick={onAdd}>{addLabel}</Button>
+      <Button variant="outline" fullWidth className={styles.profileAddBtn} onClick={onAdd}>{addLabel}</Button>
     </>
   );
 }

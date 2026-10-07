@@ -151,7 +151,6 @@ function CategoryCustomAdder({ onAdd, onCancel, koPh, enPh, addLabel }: { onAdd:
       <Button
         variant="outline"
         shape="circle"
-        size="sm"
         className={styles.categoryAddBtnSized}
         onClick={handleAdd}
         disabled={!ko.trim() && !en.trim()}

@@ -147,7 +147,8 @@
   border: none;
   border-bottom: var(--border-strong);
   border-radius: 0;
-  height: var(--control-height-md);
+  /* 컨트롤 기본 높이(sm) — .sm 보다 뒤에 선언돼 md 로 두면 늘 32 였다 */
+  height: var(--control-height-sm);
   padding: 0 var(--control-padding-inline-sm);
   padding-left: 0;
 }

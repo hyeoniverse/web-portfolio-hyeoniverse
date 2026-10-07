@@ -1,5 +1,6 @@
 "use client";
 
+import { useInControlSizeScope } from "@/components/ui/controlSize";
 import { useState, useCallback } from "react";
 import styles from "./Switch.module.css";
 import { cn } from "@/utils";
@@ -35,7 +36,7 @@ function Switch({
   className,
   name,
   variant = "default",
-  size = "md",
+  size = "sm",
   label,
   labelPosition = "left",
   labelWidth,
@@ -52,6 +53,8 @@ function Switch({
     onCheckedChange?.(next);
   }, [disabled, isChecked, controlledChecked, onCheckedChange]);
 
+  /* 컨트롤 높이 범위(설정 페이지 등) 안이면 스위치 모양은 그대로 두고 차지하는 높이만 sm 로 — 옆 단추 · 입력과 줄이 맞는다 */
+  const inScope = useInControlSizeScope();
   const sizeClass = size === "lg" ? styles.sizeLg : size === "md" ? styles.sizeMd : styles.sizeSm;
 
   const button = (
@@ -77,14 +80,14 @@ function Switch({
 
   if (label) {
     return (
-      <div className={cn(labelPosition === "top" ? styles.stack : styles.row, className)}>
+      <div className={cn(labelPosition === "top" ? styles.stack : styles.row, inScope && styles.scopeBox, className)}>
         <span className={styles.label} style={labelWidth ? ({ "--switch-label-width": labelWidth } as React.CSSProperties) : undefined}>{label}</span>
         {button}
       </div>
     );
   }
 
-  return button;
+  return inScope ? <span className={styles.scopeBox}>{button}</span> : button;
 }
 
 export { Switch };

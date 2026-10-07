@@ -118,10 +118,10 @@ export default function CompressVideoModal({ file, limitMB, onCompressed, onCanc
 
       {footerEl && createPortal(
         <>
-          <Button variant="outline" size="md" onClick={onCancel} disabled={running}>
+          <Button variant="outline" onClick={onCancel} disabled={running}>
             {t("admin.settings.cancel")}
           </Button>
-          <Button variant="primary" size="md" onClick={handleStart} disabled={running} loading={running}>
+          <Button variant="primary" onClick={handleStart} disabled={running} loading={running}>
             {running ? t("admin.settings.compressVideo.running") : t("admin.settings.compressVideo.start")}
           </Button>
         </>,

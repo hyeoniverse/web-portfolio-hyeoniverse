@@ -248,10 +248,10 @@ export default function EnvVarFields({
           rows={10}
         />
         <div className={styles.envPasteActions}>
-          <Button variant="outline" size="sm" onClick={() => closeModal(modalId)}>
+          <Button variant="outline" onClick={() => closeModal(modalId)}>
             {t("admin.settings.cancel")}
           </Button>
-          <Button variant="primary" size="sm" onClick={apply}>
+          <Button variant="primary" onClick={apply}>
             {t("admin.settings.envPasteApply")}
           </Button>
         </div>
@@ -634,7 +634,6 @@ export default function EnvVarFields({
       <Tooltip content={t("admin.settings.envResetAllTooltip")}>
         <Button
           variant="outline"
-          size="xs"
           disabled={dbOverrideKeys.length === 0}
           onClick={handleResetAllToEnv}
         >
@@ -643,7 +642,6 @@ export default function EnvVarFields({
       </Tooltip>
       <Button
         variant="outline"
-        size="xs"
         disabled={!hasEdits}
         loading={saving}
         loadingVariant="wave"

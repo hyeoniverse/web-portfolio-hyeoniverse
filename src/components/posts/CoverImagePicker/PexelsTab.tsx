@@ -218,7 +218,6 @@ export default function PexelsTab({
           onSearchChange={handleInputChange}
           placeholder={tc("searchPlaceholder")}
           align="left"
-          size="md"
         />
 
         {!hasResults && !loading && (
@@ -277,7 +276,6 @@ export default function PexelsTab({
                           <Button
                             variant="ghost"
                             shape="circle"
-                            size="xs"
                             className={styles.historyOverlayBtn}
                             icon={<Download size={11} strokeWidth={2} />}
                             onClick={(e) => { e.stopPropagation(); downloadFile(v.videoUrl, v.user.name); }}
@@ -310,7 +308,6 @@ export default function PexelsTab({
                           <Button
                             variant="ghost"
                             shape="circle"
-                            size="xs"
                             className={styles.historyOverlayBtn}
                             icon={<Download size={11} strokeWidth={2} />}
                             onClick={(e) => { e.stopPropagation(); downloadFile(photo.urls.regular, photo.user.name); }}
@@ -340,7 +337,6 @@ export default function PexelsTab({
       {hasResults && page < totalPages && !loading && (
         <Button
           variant="ghost"
-          size="sm"
           fullWidth
           onClick={() => search(query, page + 1, true)}
         >

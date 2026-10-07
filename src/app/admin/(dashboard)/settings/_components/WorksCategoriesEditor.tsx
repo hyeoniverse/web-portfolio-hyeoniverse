@@ -386,13 +386,13 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
       <div className={styles.worksCatAddLabel}>
         <T k="admin.settings.edit" />
         <div className={styles.worksCatAddActions}>
-          <Button variant="outline" size="xs" tone="danger" onClick={deleteEditingCategory} icon={<Trash2 size={12} strokeWidth={2} />}>
+          <Button variant="outline" tone="danger" onClick={deleteEditingCategory} icon={<Trash2 size={12} strokeWidth={2} />}>
             {t("admin.common.delete")}
           </Button>
-          <Button variant="outline" size="xs" onClick={cancelEdit} icon={<X size={12} strokeWidth={2.5} />}>
+          <Button variant="outline" onClick={cancelEdit} icon={<X size={12} strokeWidth={2.5} />}>
             <T k="admin.settings.cancel" />
           </Button>
-          <Button variant="outline" size="xs" onClick={submit} disabled={!submitEnabled} icon={<Check size={12} strokeWidth={2.5} />}>
+          <Button variant="outline" onClick={submit} disabled={!submitEnabled} icon={<Check size={12} strokeWidth={2.5} />}>
             <T k="admin.settings.applyEdit" />
           </Button>
         </div>
@@ -433,7 +433,6 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
         <div className={styles.tagDescFilterRow}>
           <Button
             variant={filterExpanded || activeFilterCount > 0 ? "primary" : "outline"}
-            size="md"
             icon={<Filter size={12} />}
             onClick={() => setFilterExpanded((e) => !e)}
           >
@@ -468,14 +467,14 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
             sheetTitle={<T k="admin.settings.addCategory" />}
             className={styles.addPopoverTrigger}
             trigger={
-              <Button variant="outline" size="md" icon={<Plus size={12} strokeWidth={2} />}>
+              <Button variant="outline" icon={<Plus size={12} strokeWidth={2} />}>
                 <T k="admin.settings.addCategory" />
               </Button>
             }
           >
             <div className={styles.addPopoverForm}>
               {renderFields()}
-              <Button variant="primary" size="sm" onClick={submit} disabled={!submitEnabled} icon={<Plus size={12} strokeWidth={2} />}>
+              <Button variant="primary" onClick={submit} disabled={!submitEnabled} icon={<Plus size={12} strokeWidth={2} />}>
                 <T k="admin.settings.addCategory" />
               </Button>
             </div>
@@ -515,12 +514,10 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
                   <span className={styles.tagDescFilterGroupLabel}>{t("admin.settings.taxonomy.usage")}</span>
                   <Button
                     variant={usageFilter === "in-use" ? "primary" : "outline"}
-                    size="md"
                     onClick={() => setUsageFilter((u) => u === "in-use" ? "all" : "in-use")}
                   >{t("admin.settings.taxonomy.inUse")}</Button>
                   <Button
                     variant={usageFilter === "unused" ? "primary" : "outline"}
-                    size="md"
                     onClick={() => setUsageFilter((u) => u === "unused" ? "all" : "unused")}
                   >{t("admin.settings.taxonomy.unused")}</Button>
                 </div>
@@ -528,12 +525,10 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
                   <span className={styles.tagDescFilterGroupLabel}>{t("admin.settings.description")}</span>
                   <Button
                     variant={descFilter === "with" ? "primary" : "outline"}
-                    size="md"
                     onClick={() => setDescFilter((d) => d === "with" ? "all" : "with")}
                   >{t("admin.settings.taxonomy.hasDesc")}</Button>
                   <Button
                     variant={descFilter === "without" ? "primary" : "outline"}
-                    size="md"
                     onClick={() => setDescFilter((d) => d === "without" ? "all" : "without")}
                   >{t("admin.settings.taxonomy.noDesc")}</Button>
                 </div>
@@ -607,7 +602,6 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
         page={page}
         totalPages={totalPages}
         onChange={setPage}
-        size="sm"
         className={styles.tagDescPagination}
       />
 

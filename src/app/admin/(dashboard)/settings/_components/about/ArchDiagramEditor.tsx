@@ -155,7 +155,7 @@ export default function ArchDiagramEditor({ value, onChange }: {
         <div className={css.panel}>
           <div className={css.panelHead}>
             <span className={css.panelTitle}>{L("노드", "Node")} · {sel.id}</span>
-            <Button variant="outline" size="xs" onClick={() => setSelNode(null)} aria-label={L("닫기", "Close")}><X size={13} /></Button>
+            <Button variant="outline" onClick={() => setSelNode(null)} aria-label={L("닫기", "Close")}><X size={13} /></Button>
           </div>
           <div className={css.row}>
             <div className={css.field}><span className={css.fieldLabel}>{L("라벨", "Label")}</span>
@@ -170,7 +170,7 @@ export default function ArchDiagramEditor({ value, onChange }: {
               onClick={() => setConnectFrom(connectFrom === sel.id ? null : sel.id)}>
               <Link2 size={13} /> {connectFrom === sel.id ? L("연결할 노드 클릭…", "Click a node to connect…") : L("엣지 연결", "Connect edge")}
             </Pressable>
-            <Button variant="outline" size="sm" tone="danger" onClick={() => deleteNode(sel.id)} icon={<Trash2 size={13} />}>{L("노드 삭제", "Delete node")}</Button>
+            <Button variant="outline" tone="danger" onClick={() => deleteNode(sel.id)} icon={<Trash2 size={13} />}>{L("노드 삭제", "Delete node")}</Button>
           </div>
         </div>
       )}
@@ -179,12 +179,12 @@ export default function ArchDiagramEditor({ value, onChange }: {
         <div className={css.panel}>
           <div className={css.panelHead}>
             <span className={css.panelTitle}>{L("엣지", "Edge")} · {edges[selEdge].from} → {edges[selEdge].to}</span>
-            <Button variant="outline" size="xs" onClick={() => setSelEdge(null)} aria-label={L("닫기", "Close")}><X size={13} /></Button>
+            <Button variant="outline" onClick={() => setSelEdge(null)} aria-label={L("닫기", "Close")}><X size={13} /></Button>
           </div>
           <div className={css.panelActions}>
-            <Button variant="outline" size="sm" active={!!edges[selEdge].dashed}
+            <Button variant="outline" active={!!edges[selEdge].dashed}
               onClick={() => commit(nodes, edges.map((e, x) => (x === selEdge ? { ...e, dashed: !e.dashed } : e)))}>{L("점선", "Dashed")}</Button>
-            <Button variant="outline" size="sm" tone="danger" icon={<Trash2 size={13} />}
+            <Button variant="outline" tone="danger" icon={<Trash2 size={13} />}
               onClick={() => { commit(nodes, edges.filter((_, x) => x !== selEdge)); setSelEdge(null); }}>{L("엣지 삭제", "Delete edge")}</Button>
           </div>
         </div>

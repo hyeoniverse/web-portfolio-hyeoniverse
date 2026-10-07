@@ -258,7 +258,7 @@ export default function AboutStudio({ config, setConfig, update, savedConfig, sa
     <div className={css.studio} style={{ gridColumn: "1 / -1" }}>
       {/* ── 상단 바 ── */}
       <div className={css.bar}>
-        <SegmentedControl<Language> size="sm" value={lang} onChange={setLang} className={css.segFit}
+        <SegmentedControl<Language> value={lang} onChange={setLang} className={css.segFit}
           items={[{ value: "ko", label: "KO" }, { value: "en", label: "EN" }]} />
         <p className={css.barHint}>{t("admin.settings.aboutStudioHint")}</p>
       </div>
@@ -338,16 +338,16 @@ export default function AboutStudio({ config, setConfig, update, savedConfig, sa
 
           {/* 우상단 컨트롤 — 레이아웃(정렬·요소) + 배경 */}
           <div className={css.stageBgBtn}>
-            <Popover placement="bottom-end" trigger={<Button variant="difference" size="md" icon={<LayoutTemplate size={16} />}>{t("admin.settings.aboutHeroLayout")}</Button>}>
+            <Popover placement="bottom-end" trigger={<Button variant="difference" icon={<LayoutTemplate size={16} />}>{t("admin.settings.aboutHeroLayout")}</Button>}>
               <div className={css.layoutPanel}>
                 <div className={css.field}>
                   <span className={css.fieldLabel}>{L("가로 정렬", "Horizontal")}</span>
-                  <SegmentedControl<"left" | "center" | "right"> size="sm" value={alignH} onChange={(v) => setAny("heroAlignH", v)} className={css.segFit}
+                  <SegmentedControl<"left" | "center" | "right"> value={alignH} onChange={(v) => setAny("heroAlignH", v)} className={css.segFit}
                     items={[{ value: "left", label: L("좌", "L") }, { value: "center", label: L("중", "C") }, { value: "right", label: L("우", "R") }]} />
                 </div>
                 <div className={css.field}>
                   <span className={css.fieldLabel}>{L("세로 정렬", "Vertical")}</span>
-                  <SegmentedControl<"top" | "center" | "bottom"> size="sm" value={alignV} onChange={(v) => setAny("heroAlignV", v)} className={css.segFit}
+                  <SegmentedControl<"top" | "center" | "bottom"> value={alignV} onChange={(v) => setAny("heroAlignV", v)} className={css.segFit}
                     items={[{ value: "top", label: L("상", "T") }, { value: "center", label: L("중", "M") }, { value: "bottom", label: L("하", "B") }]} />
                 </div>
                 <div className={css.field}>
@@ -365,9 +365,9 @@ export default function AboutStudio({ config, setConfig, update, savedConfig, sa
                 </div>
               </div>
             </Popover>
-            <Popover placement="bottom-end" trigger={<Button variant="difference" size="md" icon={<ImageIcon size={16} />}>{t("admin.settings.aboutHeroBackground")}</Button>}>
+            <Popover placement="bottom-end" trigger={<Button variant="difference" icon={<ImageIcon size={16} />}>{t("admin.settings.aboutHeroBackground")}</Button>}>
               <div className={css.bgPanel}>
-                <SegmentedControl<"media" | "color" | "gradient"> size="sm" value={bgTab} onChange={setBgTab} className={css.segFit}
+                <SegmentedControl<"media" | "color" | "gradient"> value={bgTab} onChange={setBgTab} className={css.segFit}
                   items={[
                     { value: "media", label: t("admin.settings.aboutHeroBgTypeMedia") },
                     { value: "color", label: t("admin.settings.aboutHeroBgTypeColor") },

@@ -1,5 +1,6 @@
 "use client";
 
+import { useScopedSize } from "@/components/ui/controlSize";
 import { useMemo } from "react";
 import { useStateFromProp } from "@/hooks/useStateFromProp";
 import { ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight } from "@/components/icons";
@@ -18,7 +19,9 @@ interface PaginationProps {
   size?: "sm" | "md";
 }
 
-export default function Pagination({ page, totalPages, onChange, className, showJump = true, size = "md" }: PaginationProps) {
+export default function Pagination({ page, totalPages, onChange, className, showJump = true, size: sizeProp = "sm" }: PaginationProps) {
+  /* 컨트롤 높이 범위(설정 페이지 등) 안이면 sm */
+  const size = useScopedSize(sizeProp);
   const { t } = useLanguage();
   const pageNumbers = useMemo(() => {
     // single page 도 명시적 active "1" 버튼이 보이도록 [1] 반환

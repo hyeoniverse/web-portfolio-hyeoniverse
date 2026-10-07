@@ -147,7 +147,6 @@ export default function CoverBanner({
     <div className={styles.menu}>
       <Button
         variant="ghost"
-        size="sm"
         icon={<Upload size={14} strokeWidth={2} />}
         className={styles.menuBtn}
         onClick={() => {
@@ -159,7 +158,6 @@ export default function CoverBanner({
       </Button>
       <div className={styles.menuDivider} />
       <Input
-        size="sm"
         value={urlDraft}
         placeholder={t("editor.cover.urlPlaceholder")}
         onChange={setUrlDraft}
@@ -174,7 +172,6 @@ export default function CoverBanner({
       />
       <Button
         variant="ghost"
-        size="sm"
         icon={<Link2 size={14} strokeWidth={2} />}
         className={styles.menuBtn}
         disabled={!urlDraft.trim()}
@@ -193,7 +190,6 @@ export default function CoverBanner({
           <Button
             variant="ghost"
             tone="danger"
-            size="sm"
             icon={<Trash2 size={14} strokeWidth={2} />}
             className={styles.menuBtn}
             onClick={() => {
@@ -257,7 +253,6 @@ export default function CoverBanner({
               <Button
                 variant="difference"
                 shape="circle"
-                size="md"
                 soundDisabled
                 icon={<ZoomOut size={15} strokeWidth={2} />}
                 onClick={zoomOut}
@@ -267,7 +262,6 @@ export default function CoverBanner({
               <Button
                 variant="difference"
                 shape="circle"
-                size="md"
                 soundDisabled
                 icon={<ZoomIn size={15} strokeWidth={2} />}
                 onClick={zoomIn}
@@ -277,7 +271,6 @@ export default function CoverBanner({
               <Button
                 variant="difference"
                 shape="capsule"
-                size="md"
                 soundDisabled
                 icon={<Check size={15} strokeWidth={2} />}
                 onClick={saveReposition}
@@ -287,7 +280,6 @@ export default function CoverBanner({
               <Button
                 variant="difference"
                 shape="capsule"
-                size="md"
                 soundDisabled
                 icon={<X size={15} strokeWidth={2} />}
                 onClick={cancelReposition}
@@ -305,7 +297,6 @@ export default function CoverBanner({
                   <Button
                     variant="difference"
                     shape="capsule"
-                    size="sm"
                     soundDisabled
                     icon={<ImageIcon size={13} strokeWidth={2} />}
                   >
@@ -321,7 +312,6 @@ export default function CoverBanner({
                 <Button
                   variant="difference"
                   shape="capsule"
-                  size="sm"
                   soundDisabled
                   icon={<Move size={13} strokeWidth={2} />}
                   onClick={enterReposition}

@@ -33,7 +33,7 @@ export default function ContactInfoCards({
         <div className={styles.emailHeader}>
           <div className={styles.emailHeaderSpacer} />
           <Logo variant="full" as="span" className={styles.emailHeaderLogo} />
-          <CloseButton size="sm"
+          <CloseButton
             className={styles.emailHeaderClose}
             onClick={onClose}
             ariaLabel="Close"

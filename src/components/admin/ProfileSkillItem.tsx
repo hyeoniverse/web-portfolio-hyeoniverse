@@ -24,12 +24,11 @@ export default function SkillItemContent({ skill, gi, si, updateSkill, removeSki
     <>
       <div className={styles.skillFields}>
         <div className={styles.skillGroupHeader}>
-          <Button type="button" variant="ghost" shape="square" size="xs" className={styles.skillExpandBtn} onClick={() => setExpanded(!expanded)} aria-label={expanded ? "Collapse" : "Expand"}>
+          <Button type="button" variant="ghost" shape="square" className={styles.skillExpandBtn} onClick={() => setExpanded(!expanded)} aria-label={expanded ? "Collapse" : "Expand"}>
             <ChevronRight style={{ transform: expanded ? "rotate(90deg)" : "rotate(0deg)" }} />
           </Button>
           <Input
             variant="underline"
-            size="md"
             className={styles.skillFieldInline}
             value={skill.name}
             onChange={(v) => updateSkill(gi, si, "name", v)}

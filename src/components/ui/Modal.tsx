@@ -348,7 +348,6 @@ export default function Modal() {
                         {closeButton && !isMobile && (
                           <CloseButton
                             className={styles.closeButton}
-                            size="md"
                             onClick={() => handleClose(id)}
                             ariaLabel={t("common.close")}
                           />

@@ -108,13 +108,12 @@ export default function NotificationDetail({
 
       {footerEl && createPortal(
         <>
-          <Button variant="ghost" size="sm" onClick={() => closeModal()} disabled={!!resolving}>
+          <Button variant="ghost" onClick={() => closeModal()} disabled={!!resolving}>
             {L("닫기", "Close")}
           </Button>
           {canResolve && (
             <Button
               variant="outline"
-              size="sm"
               tone="danger"
               onClick={() => resolve("reject")}
               disabled={!!resolving}
@@ -125,7 +124,6 @@ export default function NotificationDetail({
           {canResolve && (
             <Button
               variant="primary"
-              size="sm"
               onClick={() => resolve("grant")}
               disabled={!!resolving}
             >
@@ -133,7 +131,7 @@ export default function NotificationDetail({
             </Button>
           )}
           {onGo && !canResolve && (
-            <Button variant="primary" size="sm" onClick={() => { closeModal(); onGo(); }}>
+            <Button variant="primary" onClick={() => { closeModal(); onGo(); }}>
               {L("바로가기", "Open")}
             </Button>
           )}

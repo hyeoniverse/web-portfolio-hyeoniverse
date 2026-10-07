@@ -319,7 +319,6 @@ export function TeamMemberCard({
               </Pressable>
             )}
             <CloseButton
-              size="md"
               className={styles.memberHeaderActionBtn}
               onClick={onRemove}
               ariaLabel="Remove member"

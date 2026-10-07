@@ -137,7 +137,7 @@ function TagResetConfirmBody({ inUse, tagCounts, tagPosts, affectedCount, onConf
         <RelatedPostList posts={selectedPosts} emptyLabel={t("admin.settings.tagEditor.noPostsLong")} />
       )}
       <div className={styles.tagDeleteConfirmActions}>
-        <Button variant="primary" size="md" tone="danger" onClick={onConfirm}>
+        <Button variant="primary" tone="danger" onClick={onConfirm}>
           {t("admin.settings.tagEditor.reset")}
         </Button>
       </div>
@@ -373,7 +373,6 @@ export default function TagDescriptionsEditor({ value, onChange, pendingDeletes,
         <div className={styles.tagDeleteConfirmActions}>
           <Button
             variant="primary"
-            size="md"
             tone="danger"
             onClick={() => {
               performDeleteTag(tag);
@@ -611,13 +610,13 @@ export default function TagDescriptionsEditor({ value, onChange, pendingDeletes,
       <div className={styles.worksCatAddLabel}>
         {fillTemplate(t("admin.settings.tagEditor.editTitle"), { tag: editingTag ?? "" })}
         <div className={styles.worksCatAddActions}>
-          <Button variant="outline" size="xs" tone="danger" onClick={deleteEditingTag} icon={<Trash2 size={12} strokeWidth={2} />}>
+          <Button variant="outline" tone="danger" onClick={deleteEditingTag} icon={<Trash2 size={12} strokeWidth={2} />}>
             {t("admin.common.delete")}
           </Button>
-          <Button variant="outline" size="xs" onClick={cancelEdit} icon={<X size={12} strokeWidth={2.5} />}>
+          <Button variant="outline" onClick={cancelEdit} icon={<X size={12} strokeWidth={2.5} />}>
             {t("admin.settings.cancel")}
           </Button>
-          <Button variant="outline" size="xs" onClick={submit} disabled={!submitEnabled} icon={<Check size={12} strokeWidth={2.5} />}>
+          <Button variant="outline" onClick={submit} disabled={!submitEnabled} icon={<Check size={12} strokeWidth={2.5} />}>
             {t("admin.common.save")}
           </Button>
         </div>
@@ -638,7 +637,6 @@ export default function TagDescriptionsEditor({ value, onChange, pendingDeletes,
       <div className={styles.tagDescFilterRow}>
         <Button
           variant={filterExpanded || activeFilterCount > 0 ? "primary" : "outline"}
-          size="md"
           icon={<Filter size={12} />}
           onClick={() => setFilterExpanded((e) => !e)}
         >
@@ -672,14 +670,14 @@ export default function TagDescriptionsEditor({ value, onChange, pendingDeletes,
           sheetTitle={t("admin.settings.tagEditor.addTitle")}
           className={styles.addPopoverTrigger}
           trigger={
-            <Button variant="outline" size="md" icon={<Plus size={12} strokeWidth={2} />}>
+            <Button variant="outline" icon={<Plus size={12} strokeWidth={2} />}>
               {t("admin.settings.add")}
             </Button>
           }
         >
           <div className={styles.addPopoverForm}>
             {renderFields()}
-            <Button variant="primary" size="sm" onClick={submit} disabled={!submitEnabled} icon={<Plus size={12} strokeWidth={2} />}>
+            <Button variant="primary" onClick={submit} disabled={!submitEnabled} icon={<Plus size={12} strokeWidth={2} />}>
               {t("admin.settings.add")}
             </Button>
           </div>
@@ -726,7 +724,6 @@ export default function TagDescriptionsEditor({ value, onChange, pendingDeletes,
                   ]}
                   value={usageFilter}
                   onChange={(v) => setUsageFilter(v as UsageFilter)}
-                  size="sm"
                 />
               </div>
               <div className={styles.tagDescFilterGroup}>
@@ -739,7 +736,6 @@ export default function TagDescriptionsEditor({ value, onChange, pendingDeletes,
                   ]}
                   value={descFilter}
                   onChange={(v) => setDescFilter(v as DescFilter)}
-                  size="sm"
                 />
               </div>
             </div>
@@ -817,7 +813,6 @@ export default function TagDescriptionsEditor({ value, onChange, pendingDeletes,
         page={page}
         totalPages={totalPages}
         onChange={setPage}
-        size="sm"
         className={styles.tagDescPagination}
       />
 

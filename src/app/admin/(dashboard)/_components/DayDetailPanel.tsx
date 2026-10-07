@@ -164,7 +164,7 @@ function DayDetailPanel({
               : `Rank ${rank} of ${data.length}`}
           </span>
         </div>
-        <CloseButton size="sm" onClick={onClose} ariaLabel="close" />
+        <CloseButton onClick={onClose} ariaLabel="close" />
       </header>
 
       {/* 좌측 컬럼 — 숫자 + 비교 List + range 분포 (Panel 로 그룹핑, DayDetail grid 의 col 1) */}

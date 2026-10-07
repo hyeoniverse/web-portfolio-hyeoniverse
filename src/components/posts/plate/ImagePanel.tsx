@@ -281,26 +281,26 @@ export function ImagePanel({
         {images.length > 0 && (
           <div className={styles.imagePanelActions}>
             {!hasSelection && (
-              <Button variant="outline" size="xs" onClick={selectAll} soundDisabled>
+              <Button variant="outline" onClick={selectAll} soundDisabled>
                 {t("editor.imageSelectAll")}
               </Button>
             )}
             {hasSelection && (
               <>
                 {selectedDetachedCount > 0 && (
-                  <Button variant="outline" size="xs" onClick={handleBulkReinsert} soundDisabled>
+                  <Button variant="outline" onClick={handleBulkReinsert} soundDisabled>
                     {t("editor.mediaReinsert")} ({selectedDetachedCount})
                   </Button>
                 )}
                 {selectedContentCount > 0 && onBulkInsert && (
-                  <Button variant="outline" size="xs" onClick={handleBulkInsert} soundDisabled>
+                  <Button variant="outline" onClick={handleBulkInsert} soundDisabled>
                     {t("editor.imageInsertSelected")} ({selectedContentCount})
                   </Button>
                 )}
-                <Button variant="outline" size="xs" onClick={deselectAll} soundDisabled>
+                <Button variant="outline" onClick={deselectAll} soundDisabled>
                   {t("editor.imageDeselectAll")}
                 </Button>
-                <Button variant="outline" size="xs" className={styles.imagePanelActionDanger} onClick={handleBulkDelete} soundDisabled>
+                <Button variant="outline" className={styles.imagePanelActionDanger} onClick={handleBulkDelete} soundDisabled>
                   {t("editor.imageDeleteSelected")} ({selected.size})
                 </Button>
               </>
@@ -362,7 +362,7 @@ export function ImagePanel({
               }
               <span className={styles.imagePanelName}>{fileName}</span>
               <Tooltip content={t("editor.imageRemove")} placement="top">
-                <CloseButton size="sm"
+                <CloseButton
                   className={styles.imagePanelRemove}
                   onClick={(e) => { e.stopPropagation(); confirmDelete(() => { if (isDetached) onRemoveDetached?.(img.url); else onRemove(img.path); }); }}
                   ariaLabel={t("editor.imageRemove")}
@@ -417,7 +417,6 @@ export function ImagePanel({
         >
           <Button
             variant="outline"
-            size="xs"
             onClick={handleAttachClick}
             soundDisabled
             icon={

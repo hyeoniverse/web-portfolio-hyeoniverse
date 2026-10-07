@@ -1,7 +1,9 @@
 /* 공용 컴포넌트 — components 층(docs/design-system.md 4-4). 쓰는 쪽이 className 으로 넘긴 클래스가 번들 순서 · 특이도와 상관없이 이긴다 */
 @layer components {
 /* posts main sort / series sort 와 동일 — capsule wrapper, border default.
-   border 대신 inset box-shadow 로 처리 → layout 에 영향 안 줘서 전체 높이 = btn 높이 + padding 으로 명확히 제어됨.
+   전체 높이 = btn 높이 + padding(2+2) + 테두리(1+1). btn 높이를 --control-height-* 에서 6px 빼 group 이 토큰과 같게 한다.
+   (예전엔 테두리를 inset box-shadow 로 그려 4px 만 뺐는데, 진짜 border 로 바뀐 뒤(D39) 계산을 안 고쳐 늘 2px 컸다 —
+   옆의 같은 크기 단추 · 입력보다 세그먼트만 높았다)
    padding 2px 로 안쪽 버튼과 group 테두리 사이 시각적 호흡 확보. */
 .group {
   display: inline-flex;
@@ -28,8 +30,8 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-2);
-  /* group padding(2+2) 빼서 group 전체 높이는 --control-height-* 토큰 그대로 유지 */
-  height: calc(var(--control-height-md) - 4px);
+  /* group padding(2+2) · 테두리(1+1) 를 빼서 group 전체 높이는 --control-height-* 토큰 그대로 */
+  height: calc(var(--control-height-md) - 6px);
   padding: 0 var(--spacing-16);
   border: none;
   background: transparent;
@@ -40,15 +42,15 @@
   transition: color var(--duration-fast) var(--ease-standard);
 }
 
-/* size sm — group 전체 28 (= 24 btn + 4 padding) */
+/* size sm — group 전체 28 (= 22 btn + 4 padding + 2 border) */
 .btnSm {
-  height: calc(var(--control-height-sm) - 4px);
+  height: calc(var(--control-height-sm) - 6px);
   padding: 0 var(--spacing-12);
 }
 
-/* size xs — group 전체 24 (= 20 btn + 4 padding). sidebar 인기글 등 슬림 컨텍스트 */
+/* size xs — group 전체 24 (= 18 btn + 4 padding + 2 border). sidebar 인기글 등 슬림 컨텍스트 */
 .btnXs {
-  height: calc(var(--control-height-xs) - 4px);
+  height: calc(var(--control-height-xs) - 6px);
   padding: 0 var(--spacing-8);
   font: var(--font-body-xs);
   gap: 0;
@@ -79,8 +81,8 @@
 /* nested 모드 outer wrapper — main 과 동일 높이 유지 (vertical padding 0).
    자식 사이 horizontal 간격은 label / inner group 의 margin 으로.
    align-items: center 로 자식 (back btn, label, divider, sub group) 의 수직 정렬 보장. */
-/* 가장 바깥 border(base .group box-shadow) 는 유지. 안쪽 padding 4px(main 은 2px) 로 여백 확대.
-   버튼을 control-h-8 로 줄여(--nested-btn-h) 전체 높이는 padding 4*2 + (control-h-8) = control-h 로
+/* 가장 바깥 border 는 유지. 안쪽 padding 4px(main 은 2px) 로 여백 확대.
+   버튼을 control-h-10 으로 줄여(--nested-btn-h) 전체 높이는 padding 4*2 + border 1*2 + (control-h-10) = control-h 로
    main 모드와 동일하게 유지 (전환 시 높이 안 변함). */
 .nestedGroup {
   padding: var(--spacing-4);
@@ -92,10 +94,10 @@
 .nestedGroup > .group {
   margin: 0;
   padding: 0;
-  box-shadow: none;
+  border: none;
 }
 
-/* nested 안 모든 컨트롤(back/label/sub) 높이 통일 → control-h-8 */
+/* nested 안 모든 컨트롤(back/label/sub) 높이 통일 → control-h-10 */
 .nestedGroup .btn,
 .nestedGroup .btnNestedLabel {
   height: var(--nested-btn-h);

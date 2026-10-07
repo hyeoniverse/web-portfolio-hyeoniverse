@@ -689,7 +689,6 @@ export function CodeBlockElement(props: PlateElementProps) {
             ]}
             value={graphView}
             onChange={setGraphView}
-            size="sm"
           />
         </span>
       )}
@@ -711,7 +710,6 @@ export function CodeBlockElement(props: PlateElementProps) {
       {isDiagram && (
         <>
           <HelpButton
-            size="sm"
             soundDisabled
             onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
             onClick={() => openModal(<MermaidHelpModal language={language} />, {

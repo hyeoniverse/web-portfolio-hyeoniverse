@@ -339,7 +339,6 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
           )}
           <Button
             variant={filterExpanded || activeFilterCount > 0 ? "primary" : "outline"}
-            size="md"
             icon={<Filter size={12} />}
             onClick={() => setFilterExpanded((e) => !e)}
           >
@@ -393,12 +392,10 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
                   <span className={shared.tagDescFilterGroupLabel}>{t("admin.settings.seriesEditor.status")}</span>
                   <Button
                     variant={publishFilter === "published" ? "primary" : "outline"}
-                    size="md"
                     onClick={() => setPublishFilter((p) => p === "published" ? "all" : "published")}
                   >{t("admin.posts.published")}</Button>
                   <Button
                     variant={publishFilter === "draft" ? "primary" : "outline"}
-                    size="md"
                     onClick={() => setPublishFilter((p) => p === "draft" ? "all" : "draft")}
                   >{t("admin.posts.draft")}</Button>
                 </div>
@@ -406,12 +403,10 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
                   <span className={shared.tagDescFilterGroupLabel}>{t("admin.settings.description")}</span>
                   <Button
                     variant={descFilter === "with" ? "primary" : "outline"}
-                    size="md"
                     onClick={() => setDescFilter((d) => d === "with" ? "all" : "with")}
                   >{t("admin.settings.taxonomy.hasDesc")}</Button>
                   <Button
                     variant={descFilter === "without" ? "primary" : "outline"}
-                    size="md"
                     onClick={() => setDescFilter((d) => d === "without" ? "all" : "without")}
                   >{t("admin.settings.taxonomy.noDesc")}</Button>
                 </div>
@@ -425,13 +420,13 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
           끌어서 고르는 동안에는 열지 않는다(열리면 목록이 내려가 커서 밑 카드가 바뀐다). */}
       <div className={`${subTable.bulkBar} ${bulkBarOpen ? subTable.bulkBarOpen : ""}`}>
         <span>{fillTemplate(t("admin.common.selectedCount"), { count: selected.size })}</span>
-        <Button variant="outline" size="xs" disabled={bulkBusy} onClick={() => bulkPublish(true)}>
+        <Button variant="outline" disabled={bulkBusy} onClick={() => bulkPublish(true)}>
           {t("admin.posts.publish")}
         </Button>
-        <Button variant="outline" size="xs" disabled={bulkBusy} onClick={() => bulkPublish(false)}>
+        <Button variant="outline" disabled={bulkBusy} onClick={() => bulkPublish(false)}>
           {t("admin.posts.unpublish")}
         </Button>
-        <Button variant="outline" size="xs" disabled={bulkBusy} onClick={bulkDelete}>
+        <Button variant="outline" disabled={bulkBusy} onClick={bulkDelete}>
           {t("admin.posts.delete")}
         </Button>
         <Pressable
@@ -588,7 +583,6 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
                 {expanded && (
                   <Button
                     variant="primary"
-                    size="xs"
                     className={styles.seriesCardDeleteBtn}
                     icon={<Trash2 size={12} />}
                     onClick={(e) => {
@@ -676,7 +670,6 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
         page={page + 1}
         totalPages={totalPages}
         onChange={(p) => { setPage(p - 1); setExpandedId(null); setSelected(new Set()); }}
-        size="sm"
       />
 
       <div
@@ -717,7 +710,6 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
                 {newEditorPublished ? t("admin.posts.seriesModal.publishedLabel") : t("admin.posts.seriesModal.draftLabel")}
               </span>
               <Switch
-                size="md"
                 checked={newEditorPublished}
                 onCheckedChange={(v) => {
                   setNewEditorPublished(v);

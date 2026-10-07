@@ -44,7 +44,6 @@ export default function SectionActions({
       {onReset && (
         <Button
           variant="outline"
-          size="xs"
           disabled={atDefault || savingOther || saving}
           onClick={onReset}
           title={t("admin.settings.resetSection")}
@@ -55,7 +54,6 @@ export default function SectionActions({
       {onRevert && (
         <Button
           variant="outline"
-          size="xs"
           disabled={!dirty || savingOther || saving}
           onClick={onRevert}
           title={t("admin.settings.revertSection")}
@@ -65,7 +63,6 @@ export default function SectionActions({
       )}
       <Button
         variant="outline"
-        size="xs"
         disabled={!dirty || savingOther || saveDisabled}
         loading={saving}
         loadingVariant="wave"

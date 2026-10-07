@@ -72,10 +72,10 @@ export function BgMedia({ media, t, onSet, opacity, onOpacity, overlay, onOverla
   return (
     <>
       <div className={css.mediaActions}>
-        <Button variant="outline" size="sm" onClick={() => setPick((v) => !v)}>
+        <Button variant="outline" onClick={() => setPick((v) => !v)}>
           {pick ? t("admin.posts.seriesModal.closePicker") : t("admin.posts.seriesModal.chooseCover")}
         </Button>
-        {media && <Button variant="outline" size="sm" onClick={() => onSet("")}>{t("admin.settings.aboutHeroBgClear")}</Button>}
+        {media && <Button variant="outline" onClick={() => onSet("")}>{t("admin.settings.aboutHeroBgClear")}</Button>}
       </div>
       {pick && (
         <CoverImagePicker onSelect={(u) => { onSet(u); setPick(false); }} onClose={() => setPick(false)} currentUrl={media}

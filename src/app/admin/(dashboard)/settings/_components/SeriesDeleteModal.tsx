@@ -28,7 +28,6 @@ export default function SeriesDeleteModal({ series, onConfirm, onCancel }: {
         {t("admin.posts.seriesDeleteWithPosts")}
       </label>
       <Input
-        size="md"
         placeholder={series.title}
         value={input}
         onChange={setInput}
@@ -36,8 +35,8 @@ export default function SeriesDeleteModal({ series, onConfirm, onCancel }: {
       />
       {footerEl && createPortal(
         <>
-          <Button variant="outline" size="md" onClick={onCancel}>{t("admin.posts.seriesModal.cancel")}</Button>
-          <Button variant="primary" size="md" tone="danger" disabled={!valid} onClick={() => onConfirm(deletePosts)}>{t("admin.posts.delete")}</Button>
+          <Button variant="outline" onClick={onCancel}>{t("admin.posts.seriesModal.cancel")}</Button>
+          <Button variant="primary" tone="danger" disabled={!valid} onClick={() => onConfirm(deletePosts)}>{t("admin.posts.delete")}</Button>
         </>,
         footerEl,
       )}

@@ -589,15 +589,15 @@ export function DiagramElement(props: PlateElementProps) {
                 <div className={styles.diagramFormSectionHead}>
                   <span className={styles.diagramFormLabel}>{t("노드", "Nodes")}</span>
                   <div style={{ display: "inline-flex", gap: "var(--spacing-2)" }}>
-                    <Button variant="outline" size="xs" icon={<Plus size={13} />} onClick={() => addNode()}>{t("노드", "Node")}</Button>
-                    <Button variant="outline" size="xs" icon={<Type size={13} />} onClick={() => addNode("text")}>{t("텍스트", "Text")}</Button>
+                    <Button variant="outline" icon={<Plus size={13} />} onClick={() => addNode()}>{t("노드", "Node")}</Button>
+                    <Button variant="outline" icon={<Type size={13} />} onClick={() => addNode("text")}>{t("텍스트", "Text")}</Button>
                   </div>
                 </div>
                 {nodes.map((n) => {
                   const dd = n.data as ShapeNodeData;
                   return (
                     <div key={n.id} className={styles.diagramFormRow}>
-                      <Input className={styles.diagramFormGrow} value={dd.label || ""} placeholder={t("라벨", "Label")} variant="capsule" size="sm" clearable={false}
+                      <Input className={styles.diagramFormGrow} value={dd.label || ""} placeholder={t("라벨", "Label")} variant="capsule" clearable={false}
                         onChange={(v) => patchNode(n.id, { label: v })} />
                       <Select value={dd.shape || "rect"} width="s" onChange={(v) => patchNode(n.id, { shape: v as DiagramNodeShape })}
                         options={SHAPES.map((s) => ({ value: s.v, label: t(s.label, s.en) }))} />
@@ -607,14 +607,14 @@ export function DiagramElement(props: PlateElementProps) {
                             title={c || t("색 없음", "No color")} style={c ? { background: c } : undefined} onClick={() => patchNode(n.id, { color: c })} />
                         ))}
                       </div>
-                      <Button variant="ghost" tone="danger" size="sm" shape="square" icon={<Trash2 size={14} />} onClick={() => removeNode(n.id)} aria-label={t("삭제", "Delete")} />
+                      <Button variant="ghost" tone="danger" shape="square" icon={<Trash2 size={14} />} onClick={() => removeNode(n.id)} aria-label={t("삭제", "Delete")} />
                     </div>
                   );
                 })}
                 {/* ── 연결 ── */}
                 <div className={styles.diagramFormSectionHead}>
                   <span className={styles.diagramFormLabel}>{t("연결", "Connections")}</span>
-                  <Button variant="outline" size="xs" icon={<Plus size={13} />} onClick={addFormEdge}>{t("추가", "Add")}</Button>
+                  <Button variant="outline" icon={<Plus size={13} />} onClick={addFormEdge}>{t("추가", "Add")}</Button>
                 </div>
                 {edges.map((e) => {
                   const nodeOpts = nodes.map((n) => ({ value: n.id, label: (n.data as ShapeNodeData).label || n.id }));
@@ -624,10 +624,10 @@ export function DiagramElement(props: PlateElementProps) {
                         <div className={styles.diagramFormGrow}><Select width="full" value={e.source} onChange={(v) => patchEdge(e.id, { source: v })} options={nodeOpts} /></div>
                         <span className={styles.diagramFormArrow}>→</span>
                         <div className={styles.diagramFormGrow}><Select width="full" value={e.target} onChange={(v) => patchEdge(e.id, { target: v })} options={nodeOpts} /></div>
-                        <Button variant="ghost" tone="danger" size="sm" shape="square" icon={<Trash2 size={14} />} onClick={() => removeEdge(e.id)} aria-label={t("삭제", "Delete")} />
+                        <Button variant="ghost" tone="danger" shape="square" icon={<Trash2 size={14} />} onClick={() => removeEdge(e.id)} aria-label={t("삭제", "Delete")} />
                       </div>
                       <div className={styles.diagramFormRow}>
-                        <Input className={styles.diagramFormGrow} value={typeof e.label === "string" ? e.label : ""} placeholder={t("라벨(선택)", "Label (opt)")} variant="capsule" size="sm" clearable={false}
+                        <Input className={styles.diagramFormGrow} value={typeof e.label === "string" ? e.label : ""} placeholder={t("라벨(선택)", "Label (opt)")} variant="capsule" clearable={false}
                           onChange={(v) => patchEdge(e.id, { label: v })} />
                         <Select width="s" value={dirOf(e)} onChange={(v) => patchEdge(e.id, dirPatch(e, v as EdgeDir))} options={DIRS.map((d) => ({ value: d.v, label: t(d.label, d.en) }))} />
                         <Select width="s" value={lineFromEdge(e)} onChange={(v) => patchEdge(e.id, { style: edgeStyleFor(v as DiagramLine) })} options={LINES.map((l) => ({ value: l.v, label: t(l.label, l.en) }))} />

@@ -2319,7 +2319,7 @@ function PlateEditorBody({
               </div>
               {/* 선택 영역에서 찾기(≡) */}
               <TBtn square active={findInSel} onClick={toggleFindInSel} tooltip={t("editor.findInSelection")}><TextSelect size={15} strokeWidth={1.75} /></TBtn>
-              <CloseButton size="sm" title="Close (Esc)" ariaLabel="Close (Esc)" onClick={() => { setFindOpen(false); setFindQuery(""); setReplaceQuery(""); clearFindScope(); editor.tf.focus(); }} />
+              <CloseButton title="Close (Esc)" ariaLabel="Close (Esc)" onClick={() => { setFindOpen(false); setFindQuery(""); setReplaceQuery(""); clearFindScope(); editor.tf.focus(); }} />
             </div>
             {findReplace && (
               <div className={styles.floatingBarRow}>
@@ -3021,7 +3021,6 @@ function PlateEditorBody({
                     { value: "", label: "/" },
                   ]}
                   onChange={(proto) => setLinkForm((f) => ({ ...f, protocol: proto, ...(proto === "" ? { target: "_self" } : {}) }))}
-                  size="sm"
                   width="max"
                   triggerClassName={styles.linkPillSelect}
                   preserveFocus
@@ -3069,7 +3068,6 @@ function PlateEditorBody({
                   { value: "_self", label: t("editor.linkSameTab") },
                 ]}
                 onChange={(v) => setLinkForm((f) => ({ ...f, target: v }))}
-                size="sm"
                 width="max"
                 preserveFocus
                 dropAlign="below"

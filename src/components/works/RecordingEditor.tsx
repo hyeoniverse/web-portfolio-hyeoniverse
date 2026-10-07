@@ -49,7 +49,7 @@ export interface RecordingEditorProps {
 
 /* 편집 도구 단추 — 이름과 단축키를 풍선 도움말로 */
 function Tool({ label, shortcut, icon, onClick, disabled }: { label: string; shortcut: string | null; icon: React.ReactNode; onClick: () => void; disabled: boolean }) {
-  return <Button variant="ghost" size="sm" shape="circle" onClick={onClick} disabled={disabled} aria-label={label} title={shortcut ? `${label} (${shortcut})` : label} soundDisabled icon={icon} />;
+  return <Button variant="ghost" shape="circle" onClick={onClick} disabled={disabled} aria-label={label} title={shortcut ? `${label} (${shortcut})` : label} soundDisabled icon={icon} />;
 }
 
 /* 끄는 클립의 고스트 — 클립 줄과 파형 높이에 걸쳐 그 클립의 번호와 파형을 그대로 보이며 포인터를 따라온다 */
@@ -368,7 +368,6 @@ export default function RecordingEditor({ take, slide, tw, onRetake, onCancel, o
       <div className={styles.bar}>
         <Button
           variant="ghost"
-          size="sm"
           shape="circle"
           onClick={play}
           aria-label={tw(playing ? "narrationRecordPlayPause" : "narrationRecordPlay")}
@@ -398,9 +397,9 @@ export default function RecordingEditor({ take, slide, tw, onRetake, onCancel, o
           <Tool label={tw("narrationEditRedo")} shortcut={mac ? "⇧⌘Z" : "Ctrl+Y"} icon={<Redo2 size={14} strokeWidth={2} />} onClick={redo} disabled={!future.length} />
         </span>
         <span className={styles.actions}>
-          <Button variant="ghost" size="sm" onClick={() => { stopPlay(); onRetake(); }} soundDisabled icon={<RotateCcw size={14} strokeWidth={2} />}>{tw("narrationRecordRetake")}</Button>
-          <Button variant="ghost" size="sm" onClick={() => { stopPlay(); onCancel(); }} soundDisabled>{tw("narrationRecordCancel")}</Button>
-          <Button variant="primary" size="sm" onClick={() => { stopPlay(); onDone(audio); }} disabled={duration < 0.3} soundDisabled icon={<Check size={14} strokeWidth={2.25} />}>{tw("narrationRecordDone")}</Button>
+          <Button variant="ghost" onClick={() => { stopPlay(); onRetake(); }} soundDisabled icon={<RotateCcw size={14} strokeWidth={2} />}>{tw("narrationRecordRetake")}</Button>
+          <Button variant="ghost" onClick={() => { stopPlay(); onCancel(); }} soundDisabled>{tw("narrationRecordCancel")}</Button>
+          <Button variant="primary" onClick={() => { stopPlay(); onDone(audio); }} disabled={duration < 0.3} soundDisabled icon={<Check size={14} strokeWidth={2.25} />}>{tw("narrationRecordDone")}</Button>
         </span>
       </div>
     </div>

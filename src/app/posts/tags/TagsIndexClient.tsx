@@ -149,7 +149,6 @@ export default function TagsIndexClient({ tags }: Props) {
           {isAdmin && (
             <Button
               href="/admin/settings?tab=content&section=tags"
-              size="sm"
               icon={<Settings size={12} strokeWidth={1.8} aria-hidden />}
               title={t("postsPage.tagsManage")}
             >

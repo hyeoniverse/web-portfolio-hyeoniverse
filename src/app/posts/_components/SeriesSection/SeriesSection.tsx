@@ -99,7 +99,6 @@ export default function SeriesSection({
             <Button
               href="/admin/settings?tab=content&sub=posts"
               external
-              size="sm"
               variant="outline"
               className={styles.seriesManageBtn}
               icon={<Settings size={12} strokeWidth={1.8} aria-hidden />}
@@ -111,7 +110,6 @@ export default function SeriesSection({
         </div>
         <div className={header.sortWrap}>
           <SegmentedControl
-            size="sm"
             className={header.seriesSegmented}
             items={[
               { value: "default", label: t("postsPage.seriesSortDefault") },
@@ -135,7 +133,6 @@ export default function SeriesSection({
             <Button
               variant={seriesSortBy === "random" ? "primary" : "outline"}
               shape="circle"
-              size="sm"
               icon={<Shuffle size={12} />}
               onClick={() => {
                 if (seriesSortBy === "random") {
@@ -155,7 +152,6 @@ export default function SeriesSection({
           search={seriesSearch}
           onSearchChange={setSeriesSearch}
           placeholder={t("postsPage.seriesSearchShort")}
-          size="sm"
           align="left"
           collapsible
           historyKey={null}

@@ -142,12 +142,10 @@ export default function AIGenerateTab({ onSelect, onGenerated, postContext }: AI
             onSearchChange={setPrompt}
             placeholder={tc("aiPlaceholder")}
             align="left"
-            size="md"
           />
         </div>
         <Button
           variant="primary"
-          size="md"
           className={styles.generateBtn}
           onClick={handleGenerate}
           loading={generating}
@@ -195,7 +193,6 @@ export default function AIGenerateTab({ onSelect, onGenerated, postContext }: AI
           <div className={styles.aiActions}>
             <Button
               variant="ghost"
-              size="sm"
               className={styles.useBtn}
               icon={<Check size={12} strokeWidth={2.5} />}
               onClick={() => permanentUrl && onSelect(permanentUrl)}
@@ -204,7 +201,6 @@ export default function AIGenerateTab({ onSelect, onGenerated, postContext }: AI
             </Button>
             <Button
               variant="ghost"
-              size="sm"
               className={styles.retryBtn}
               icon={<Download size={12} strokeWidth={2} />}
               onClick={handleDownload}
@@ -213,7 +209,6 @@ export default function AIGenerateTab({ onSelect, onGenerated, postContext }: AI
             </Button>
             <Button
               variant="ghost"
-              size="sm"
               className={styles.retryBtn}
               icon={<RotateCw size={12} strokeWidth={2} />}
               onClick={handleGenerate}

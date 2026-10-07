@@ -1,11 +1,13 @@
 /* 공용 컴포넌트 — components 층(docs/design-system.md 4-4). 쓰는 쪽이 className 으로 넘긴 클래스가 번들 순서 · 특이도와 상관없이 이긴다 */
 @layer components {
 /* 발행/미발행/예약 상태 배지 — 캡슐 + 상태색 점 + 텍스트. admin 목록·에디터·시리즈 공통 규격. */
+/* 높이는 컨트롤 기본(sm) — 표 한 줄에서 고치기 · 지우기 단추와 맞는다(패딩 합산이면 24.8 로 어긋났다) */
 .badge {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-8);
-  padding: var(--badge-padding-md);
+  height: var(--control-height-sm);
+  padding: 0 var(--spacing-8);
   border-radius: var(--radius-control);
   font: var(--font-body-sm);
   font-weight: 600;

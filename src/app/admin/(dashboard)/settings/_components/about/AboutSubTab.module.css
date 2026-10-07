@@ -277,7 +277,9 @@
   gap: var(--spacing-4);
   min-width: 0;
 }
+/* 트리 항목 — 옆 하위 추가 단추와 같은 줄 높이(sm) */
 .nodeLabel {
+  min-height: var(--control-height-sm);
   flex: 1;
   min-width: 0;
   display: flex;

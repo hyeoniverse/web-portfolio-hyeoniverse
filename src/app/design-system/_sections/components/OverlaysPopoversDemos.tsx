@@ -135,9 +135,9 @@ export default function OverlaysPopoversDemos() {
                     header: {
                       icon: <Zap size={16} />,
                       title: language === "ko" ? "헤더 액션" : "Header actions",
-                      actions: <Button variant="link" size="xs" icon={<ExternalLink size={12} />} iconPosition="right">Docs</Button>,
+                      actions: <Button variant="link" icon={<ExternalLink size={12} />} iconPosition="right">Docs</Button>,
                     },
-                    subButtons: <Button variant="ghost" shape="circle" size="xs" icon={<ArrowRight size={14} />} aria-label="next" soundDisabled />,
+                    subButtons: <Button variant="ghost" shape="circle" icon={<ArrowRight size={14} />} aria-label="next" soundDisabled />,
                     closeButton: true,
                     width: "460px",
                   })}
@@ -254,7 +254,7 @@ export default function OverlaysPopoversDemos() {
               <Popover
                 key={o.v}
                 variant={o.v}
-                trigger={<Button variant="primary" size="sm">{o.label}</Button>}
+                trigger={<Button variant="primary">{o.label}</Button>}
                 placement="bottom-start"
                 sheetTitle={o.label}
               >
@@ -277,7 +277,7 @@ export default function OverlaysPopoversDemos() {
               <Popover
                 key={label}
                 openOnHover
-                trigger={<Button variant="ghost" size="sm">{label}</Button>}
+                trigger={<Button variant="ghost">{label}</Button>}
                 placement="bottom-start"
                 menu
               >

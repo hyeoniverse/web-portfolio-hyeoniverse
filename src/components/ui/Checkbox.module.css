@@ -12,6 +12,11 @@
   user-select: none;
 }
 
+/* 컨트롤 높이 범위 안 — 줄 높이만 sm(옆 단추 · 입력과 맞춘다). 상자 크기는 그대로 */
+.scopeBox {
+  min-height: var(--control-height-sm);
+}
+
 .wrapper.disabled {
   opacity: var(--opacity-disabled);
 }

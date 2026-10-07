@@ -377,7 +377,7 @@ export default function ErdTableModal({
                     </Tooltip>
                   </td>
                   <td className={css.tdX}>
-                    <CloseButton size="xs" ariaLabel={L("컬럼 삭제", "Remove column")}
+                    <CloseButton ariaLabel={L("컬럼 삭제", "Remove column")}
                       onClick={() => removeCol(i)} />
                   </td>
                 </tr>
@@ -417,11 +417,11 @@ export default function ErdTableModal({
           </table>
         </div>
         <div className={css.colActions}>
-          <Button variant="subtle" size="sm" icon={<Plus size={14} />} onClick={addColumn}>
+          <Button variant="subtle" icon={<Plus size={14} />} onClick={addColumn}>
             {L("컬럼 추가", "Add column")}
           </Button>
           {picked.size > 0 && (
-            <Button variant="subtle" size="sm" tone="danger" onClick={removePicked}>
+            <Button variant="subtle" tone="danger" onClick={removePicked}>
               {L(`선택 ${picked.size}개 삭제`, `Delete ${picked.size} selected`)}
             </Button>
           )}
@@ -481,7 +481,7 @@ export default function ErdTableModal({
             </p>
           )}
           <div className={css.footer}>
-            <Button variant="subtle" size="sm" tone="danger"
+            <Button variant="subtle" tone="danger"
               /* 테이블 삭제는 연결된 관계까지 즉시 지운다 — 되돌릴 길이 없으니 한 번 묻는다.
                  모달 스택이라 확인창이 위에 쌓이고, 확인 시 확인창(자체) → 이 모달 순으로 닫힌다. */
               onClick={() => {
@@ -502,10 +502,10 @@ export default function ErdTableModal({
               {L("테이블 삭제", "Delete table")}
             </Button>
             <span className={css.footerRight}>
-              <Button variant="subtle" size="sm" onClick={() => closeModal()}>
+              <Button variant="subtle" onClick={() => closeModal()}>
                 {L("취소", "Cancel")}
               </Button>
-              <Button variant="primary" size="sm" onClick={commit}>
+              <Button variant="primary" onClick={commit}>
                 {L("저장", "Save")}
               </Button>
             </span>

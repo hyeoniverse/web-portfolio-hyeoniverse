@@ -57,7 +57,7 @@ export default function CommentEditor({
           M↓ 는 서식 버튼 묶음의 오른쪽 끝(마지막 항목)이라, 컨테이너가 넓어도 저 멀리 떨어지지 않는다. */}
       <div className={styles.editorHeader}>
         <SegmentedControl<"write" | "preview">
-          size="sm"
+
           items={[
             { value: "write", label: t("comments.write") },
             { value: "preview", label: t("comments.preview") },

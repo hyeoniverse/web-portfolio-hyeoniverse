@@ -1013,9 +1013,9 @@
 
 .fieldInput {
   width: 100%;
-  /* Select 등 컨트롤(--control-height-md)과 높이 통일 — padding 만으론 ~27px 라 Select(32px)보다 낮았음 */
-  min-height: var(--control-height-md);
-  height: var(--control-height-md);
+  /* Select 등 컨트롤(--control-height-sm)과 높이 통일 — padding 만으론 ~27px 라 Select(32px)보다 낮았음 */
+  min-height: var(--control-height-sm);
+  height: var(--control-height-sm);
   padding: 0 var(--control-padding-inline-sm);
   border: var(--border-light);
   border-radius: var(--radius-control);

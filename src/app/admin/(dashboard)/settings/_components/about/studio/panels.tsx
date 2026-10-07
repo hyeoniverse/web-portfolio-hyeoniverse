@@ -104,7 +104,7 @@ export function PanelManager({ about, setAny, t, lang }: {
       <div className={css.stripHead}>
         <span className={css.stripTitle}>{t("admin.settings.aboutPanelVisibility")} · {shownCount}/{allKeys.length}</span>
         <Switch checked={about.infiniteScroll ?? false} onCheckedChange={(v) => setAny("infiniteScroll", v)}
-          label={t("admin.settings.aboutInfiniteScrollLabel")} size="sm" showStateText stateLabels={{ on: "ON", off: "OFF" }} />
+          label={t("admin.settings.aboutInfiniteScrollLabel")} showStateText stateLabels={{ on: "ON", off: "OFF" }} />
       </div>
       <p className={css.stripHint}>{L("드래그로 순서 변경 · 더블클릭으로 이름 수정 · 클릭으로 표시 전환", "Drag to reorder · Double-click to rename · Click to toggle")}</p>
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
@@ -211,7 +211,7 @@ function PanelSaveHeader({ label, hint, paths, panelKey, config, savedConfig, sa
             한 줄에서 이것만 커 보였다. 파일 선택창은 숨긴 input 을 눌러서 연다. */}
         {mdCapable && (
           <>
-            <Button variant="outline" size="xs" icon={<Download size={12} strokeWidth={1.8} />}
+            <Button variant="outline" icon={<Download size={12} strokeWidth={1.8} />}
               onClick={() => fileRef.current?.click()}
               title={L(".md 파일을 읽어 채웁니다", "Fill from .md files")}>
               {L("md 불러오기", "Load .md")}
@@ -227,15 +227,15 @@ function PanelSaveHeader({ label, hint, paths, panelKey, config, savedConfig, sa
             })}
           </span>
         )}
-        <Button variant="outline" size="xs" disabled={atDefault || saving} onClick={() => resetSection(paths)}
+        <Button variant="outline" disabled={atDefault || saving} onClick={() => resetSection(paths)}
           title={t("admin.settings.resetSection")}>
           {t("admin.settings.resetSection")}
         </Button>
-        <Button variant="outline" size="xs" disabled={!dirty || saving} onClick={() => revertSection(paths)}
+        <Button variant="outline" disabled={!dirty || saving} onClick={() => revertSection(paths)}
           title={t("admin.settings.revertSection")}>
           {t("admin.settings.revertSection")}
         </Button>
-        <Button variant="subtle" size="xs" disabled={!dirty || saving} onClick={saveWithStamp}
+        <Button variant="subtle" disabled={!dirty || saving} onClick={saveWithStamp}
           title={t("admin.settings.saveSectionTooltip")}>
           {t("admin.settings.saveSection")}
         </Button>

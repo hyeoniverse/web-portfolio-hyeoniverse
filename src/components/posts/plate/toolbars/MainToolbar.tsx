@@ -330,7 +330,6 @@ export default React.memo(function MainToolbar({
           else editor.tf.removeMarks(["fontSize"]);
           setTimeout(() => editor.tf.focus(), 0);
         }}
-        size="sm"
         width="max"
         preserveFocus
         placeholder={t("editor.fontSize")}
@@ -351,7 +350,6 @@ export default React.memo(function MainToolbar({
           setLineHeight(editor, Number(val) || 0);
           setTimeout(() => editor.tf.focus(), 0);
         }}
-        size="sm"
         width="max"
         preserveFocus
         placeholder={t("editor.lineHeight")}
@@ -375,7 +373,6 @@ export default React.memo(function MainToolbar({
           else editor.tf.addMarks({ letterSpacing: /[a-z%]$/i.test(v) ? v : `${v}em` });
           setTimeout(() => editor.tf.focus(), 0);
         }}
-        size="sm"
         width="max"
         preserveFocus
         placeholder={t("editor.letterSpacing")}
@@ -420,7 +417,6 @@ export default React.memo(function MainToolbar({
           { value: "disclosure-closed", label: `▷ ${t("editor.ulTriClosed")}` },
         ]}
         onChange={(val) => { if (val) toggleList(editor, { listStyleType: val }); setTimeout(() => editor.tf.focus(), 0); }}
-        size="sm"
         width="max"
         preserveFocus
         placeholder="● UL"
@@ -439,7 +435,6 @@ export default React.memo(function MainToolbar({
           { value: "cjk-ideographic", label: "一, 二, 三" },
         ]}
         onChange={(val) => { if (val) toggleList(editor, { listStyleType: val }); setTimeout(() => editor.tf.focus(), 0); }}
-        size="sm"
         width="max"
         preserveFocus
         placeholder="1. OL"

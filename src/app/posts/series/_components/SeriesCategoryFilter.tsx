@@ -26,7 +26,6 @@ export default function SeriesCategoryFilter({
       <Button
         type="button"
         variant="outline"
-        size="xs"
         active={active.size === 0}
         onClick={onClear}
         data-clickable="true"
@@ -43,7 +42,6 @@ export default function SeriesCategoryFilter({
               key={cat}
               type="button"
               variant="outline"
-              size="xs"
               active={isActive}
               onClick={() => onToggle(cat)}
               data-clickable="true"

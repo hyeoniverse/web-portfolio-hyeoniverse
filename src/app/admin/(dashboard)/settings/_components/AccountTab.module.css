@@ -117,8 +117,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  /* 설정 페이지 컨트롤 높이(sm) */
+  width: var(--control-height-sm);
+  height: var(--control-height-sm);
   border: none;
   border-radius: var(--radius-full);
   background: transparent;

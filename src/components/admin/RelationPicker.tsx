@@ -374,7 +374,6 @@ export default function RelationPicker<T>({
                     )}
                   </span>
                   <CloseButton
-                    size="sm"
                     className={styles.chipRemove}
                     onClick={(e) => { e.stopPropagation(); remove(id); }}
                     ariaLabel="Remove"

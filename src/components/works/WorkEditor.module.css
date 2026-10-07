@@ -482,7 +482,7 @@
 
 .subtitleInput {
   flex: 1;
-  min-height: var(--control-height-md);
+  min-height: var(--control-height-sm);
   transition: border-radius var(--duration-fast) var(--ease-standard);
 }
 
@@ -971,8 +971,8 @@
 
 .memberFormRow input {
   flex: 1;
-  /* 입력칸·combobox·Select 모두 기본 크기(md) 높이로 */
-  height: var(--control-height-md);
+  /* 입력칸·combobox·Select 모두 기본 크기(sm) 높이로 */
+  height: var(--control-height-sm);
   box-sizing: border-box;
   padding: 0 var(--spacing-16);
   line-height: 1;
@@ -1015,8 +1015,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--control-height-xs);
-  height: var(--control-height-xs);
+  /* 컨트롤 기본 높이(sm) */
+  width: var(--control-height-sm);
+  height: var(--control-height-sm);
   border: none;
   border-radius: var(--radius-full);
   background: transparent;
@@ -1121,12 +1122,12 @@
    같은 줄의 칸들과 같은 높이로 (add-card 규칙보다 세게) */
 .memberCardAdd .memberRoleRow > .roleSelect > input,
 .memberCardAdd .memberRoleRow > .roleSelect > button {
-  height: var(--control-height-md);
+  height: var(--control-height-sm);
 }
 
-/* add-card 안 모든 입력칸 — 기본 크기(md) 높이로 맞춘다 (file input 은 hidden 이라 제외) */
+/* add-card 안 모든 입력칸 — 기본 크기(sm) 높이로 맞춘다 (file input 은 hidden 이라 제외) */
 .memberCardAdd input:not([type="file"]) {
-  height: var(--control-height-md);
+  height: var(--control-height-sm);
   box-sizing: border-box;
   padding: 0 var(--spacing-16);
   line-height: 1;

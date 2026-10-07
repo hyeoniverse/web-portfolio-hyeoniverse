@@ -92,13 +92,12 @@ export default function CommentReportModal({ apiBase, commentId }: { apiBase: st
         </div>
       )}
       <div className={styles.actions}>
-        <Button variant="ghost" size="sm" onClick={() => closeModal()}>
+        <Button variant="ghost" onClick={() => closeModal()}>
           <T k="comments.cancel" />
         </Button>
         <Button
           variant="outline"
           tone="danger"
-          size="sm"
           loading={reporting}
           disabled={!preset || (preset === "other" && !detail.trim())}
           onClick={submit}

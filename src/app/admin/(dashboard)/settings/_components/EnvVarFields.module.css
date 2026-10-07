@@ -278,10 +278,11 @@
   flex-shrink: 0;
 }
 
+/* 설정 페이지 컨트롤 높이(sm) — 옆 값 입력과 같은 높이 */
 .envRevealBtn,
 .envDeleteBtn {
-  width: var(--control-height-xs);
-  height: var(--control-height-xs);
+  width: var(--control-height-sm);
+  height: var(--control-height-sm);
   border: var(--border-light);
   border-radius: var(--radius-full);
   background: transparent;

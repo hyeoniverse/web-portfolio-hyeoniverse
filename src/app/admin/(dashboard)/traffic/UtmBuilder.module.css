@@ -11,7 +11,7 @@
   padding-inline-end: var(--_item-inline-end, 0);
 }
 
-/* 필드 2×2 — 라벨·컨트롤 전부 기본(md) 눈금이라 줄이 맞는다 */
+/* 필드 2×2 — 라벨·컨트롤 전부 기본(sm) 눈금이라 줄이 맞는다 */
 .fieldsGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -38,7 +38,7 @@
 .comboCapsule {
   display: flex;
   align-items: stretch;
-  height: var(--control-height-md);
+  height: var(--control-height-sm);
   border: var(--border-light);
   border-radius: var(--radius-control);
   overflow: hidden;

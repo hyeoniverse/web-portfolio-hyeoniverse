@@ -215,7 +215,6 @@ export default function SubTable<T extends { id: string }>({
                   <Button
                     key={i}
                     variant="outline"
-                    size="xs"
                     disabled={action.disabled}
                     onClick={action.onClick}
                   >

@@ -40,8 +40,9 @@
 .formatBtn {
   display: inline-flex;
   align-items: center;
-  height: var(--control-height-xs);
-  padding: 0 var(--control-padding-inline-xs);
+  /* 묶음(테두리 1+1 포함)이 컨트롤 기본 높이(sm) — 옆 기간 칸 · 단추와 맞춘다 */
+  height: calc(var(--control-height-sm) - 2px);
+  padding: 0 var(--control-padding-inline-sm);
   border: none;
   background: transparent;
   font: var(--font-body-sm);
@@ -89,7 +90,7 @@
 .dateLabel {
   display: inline-flex;
   align-items: center;
-  height: var(--control-height-md);
+  height: var(--control-height-sm);
   /* 시작·종료 라벨 폭을 같게 — 줄이 바뀌어도 두 줄의 입력칸·시간 라벨이 같은 자리에서 시작한다 */
   width: 3em;
   flex-shrink: 0;
@@ -185,7 +186,7 @@
 .dateTimeLabel {
   display: inline-flex;
   align-items: center;
-  height: var(--control-height-md);
+  height: var(--control-height-sm);
   margin-right: var(--spacing-2);
   font: var(--font-body-sm);
   font-weight: 500;
@@ -206,7 +207,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: var(--control-height-md);
+  height: var(--control-height-sm);
   font: var(--font-body-md);
   line-height: 1;
   color: var(--text-tertiary);
@@ -338,8 +339,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: var(--control-height-md);
-  height: var(--control-height-md);
+  width: var(--control-height-sm);
+  height: var(--control-height-sm);
   border: var(--border-light);
   border-radius: var(--radius-full);
   background: transparent;

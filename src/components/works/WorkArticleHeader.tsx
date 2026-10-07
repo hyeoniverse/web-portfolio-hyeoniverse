@@ -154,13 +154,13 @@ export function WorkArticleHeader({
         transition={{ delay: 0.42, duration: 0.5 }}
       >
         {project.liveUrl && (
-          <Button variant="outline" size="xs" href={project.liveUrl} external>
+          <Button variant="outline" href={project.liveUrl} external>
             <Globe size={14} />
             <T k="workDetail.visitSite" tooltip={t("tooltip.visitSite")} />
           </Button>
         )}
         {project.githubUrl && (
-          <Button variant="outline" size="xs" href={project.githubUrl} external>
+          <Button variant="outline" href={project.githubUrl} external>
             <GithubIcon size={14} />
             GitHub
           </Button>

@@ -109,7 +109,7 @@ export default function PollManager() {
                 <article key={p.pollId} className={styles.item}>
                   <div className={styles.head}>
                     <h3 className={`${styles.title}${p.title ? "" : ` ${lib.muted}`}`}>{label(p)}</h3>
-                    <Button variant="ghost" size="xs" icon={<RotateCcw size={13} />} disabled={p.votes === 0} onClick={() => reset(p)} soundDisabled>
+                    <Button variant="ghost" icon={<RotateCcw size={13} />} disabled={p.votes === 0} onClick={() => reset(p)} soundDisabled>
                       {t("초기화", "Reset")}
                     </Button>
                   </div>
@@ -150,7 +150,7 @@ export default function PollManager() {
           </div>
         )}
         {paged.totalPages > 1 && (
-          <Pagination className={lib.pager} page={paged.page} totalPages={paged.totalPages} onChange={paged.setPage} size="sm" showJump={false} />
+          <Pagination className={lib.pager} page={paged.page} totalPages={paged.totalPages} onChange={paged.setPage} showJump={false} />
         )}
       </div>
     </section>

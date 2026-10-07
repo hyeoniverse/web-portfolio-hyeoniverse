@@ -36,7 +36,6 @@ export function ModalAlert({
       {footerEl && createPortal(
         <Button
           variant="primary"
-          size="sm"
           soundDisabled
           onClick={() => {
             closeModal();
@@ -86,12 +85,11 @@ export function ModalConfirm({
       {children}
       {footerEl && createPortal(
         <>
-          <Button variant="outline" size="sm" soundDisabled onClick={() => { closeModal(); onCancel?.(); }}>
+          <Button variant="outline" soundDisabled onClick={() => { closeModal(); onCancel?.(); }}>
             {cancel}
           </Button>
           <Button
             variant="primary"
-            size="sm"
             soundDisabled
             className={danger ? styles.dangerBtn : undefined}
             onClick={() => {
@@ -188,12 +186,11 @@ export function ModalPrompt({
       {error && <p className={styles.error} id={errorId} role="alert">{error}</p>}
       {footerEl && createPortal(
         <>
-          <Button variant="outline" size="sm" soundDisabled disabled={loading} onClick={() => closeModal()}>
+          <Button variant="outline" soundDisabled disabled={loading} onClick={() => closeModal()}>
             {cancel}
           </Button>
           <Button
             variant="primary"
-            size="sm"
             soundDisabled
             className={danger ? styles.dangerBtn : undefined}
             disabled={!isValid || loading}

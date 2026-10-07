@@ -162,10 +162,10 @@ export default function FlowDiagramEditor({ flow, onChange, lang }: {
   return (
     <div className={css.editor}>
       <div className={css.toolbar}>
-        <Button variant="subtle" size="xs" icon={<Plus size={13} />} onClick={addNode}>
+        <Button variant="subtle" icon={<Plus size={13} />} onClick={addNode}>
           {L("노드 추가", "Add node")}
         </Button>
-        <Button variant={connectFrom ? "primary" : "subtle"} size="xs" icon={<Link2 size={13} />}
+        <Button variant={connectFrom ? "primary" : "subtle"} icon={<Link2 size={13} />}
           disabled={!sel && !connectFrom}
           onClick={() => setConnectFrom(connectFrom ? null : sel)}>
           {connectFrom
@@ -282,7 +282,7 @@ export default function FlowDiagramEditor({ flow, onChange, lang }: {
             placeholder={L("노드 이름", "Node label")}
             onChange={(e) => patch(selNode.id, { label: { ...selNode.label, [lang]: e.target.value } })} />
           {/* 떨어진 패널의 × 는 닫기로 읽힌다(Architecture 패널이 그렇다). 지우는 단추는 이름을 붙인다 */}
-          <Button variant="outline" size="sm" tone="danger" icon={<Trash2 size={13} />}
+          <Button variant="outline" tone="danger" icon={<Trash2 size={13} />}
             onClick={() => removeNode(selNode.id)}>
             {L("노드 삭제", "Delete node")}
           </Button>
@@ -299,7 +299,7 @@ export default function FlowDiagramEditor({ flow, onChange, lang }: {
             aria-label={L("조건", "Label")}
             placeholder={L("조건 (Yes / No)", "Label (Yes / No)")}
             onChange={(e) => setEdges(edges.map((x, j) => (j === selEdge ? { ...x, label: e.target.value } : x)))} />
-          <Button variant="outline" size="sm" tone="danger" icon={<Trash2 size={13} />}
+          <Button variant="outline" tone="danger" icon={<Trash2 size={13} />}
             onClick={() => { setEdges(edges.filter((_, j) => j !== selEdge)); setSelEdge(null); }}>
             {L("연결 삭제", "Delete edge")}
           </Button>

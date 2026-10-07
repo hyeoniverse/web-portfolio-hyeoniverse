@@ -295,7 +295,7 @@ export default function MemberEditModal({
       {/* 동작(GitHub 불러오기 · 입력 언어)은 한 줄에, 설명은 그 아래 따로 */}
       <div className={styles.profileActions}>
         {ghHasData && (
-          <Button variant="outline" size="sm" icon={<SiGithub size={13} />} onClick={loadGithub} disabled={ghLoading} loading={ghLoading}>
+          <Button variant="outline" icon={<SiGithub size={13} />} onClick={loadGithub} disabled={ghLoading} loading={ghLoading}>
             {L("GitHub 정보 불러오기", "Load from GitHub")}
           </Button>
         )}
@@ -340,8 +340,8 @@ export default function MemberEditModal({
             </div>
           ))}
           <div className={styles.ghCompareActions}>
-            <Button variant="outline" size="sm" onClick={() => setGhConflicts(null)}>{L("지금 값 모두 유지", "Keep all current")}</Button>
-            <Button variant="primary" size="sm" onClick={applyGhConflicts}>{L("고른 값 적용", "Apply selection")}</Button>
+            <Button variant="outline" onClick={() => setGhConflicts(null)}>{L("지금 값 모두 유지", "Keep all current")}</Button>
+            <Button variant="primary" onClick={applyGhConflicts}>{L("고른 값 적용", "Apply selection")}</Button>
           </div>
         </div>
       )}
@@ -463,8 +463,8 @@ export default function MemberEditModal({
 
       {footerEl && createPortal(
         <>
-          <Button variant="outline" size="sm" soundDisabled onClick={() => closeModal("member-edit")}>{L("취소", "Cancel")}</Button>
-          <Button variant="primary" size="sm" soundDisabled disabled={busy || !draft.name.trim()} onClick={save}>{L("저장", "Save")}</Button>
+          <Button variant="outline" soundDisabled onClick={() => closeModal("member-edit")}>{L("취소", "Cancel")}</Button>
+          <Button variant="primary" soundDisabled disabled={busy || !draft.name.trim()} onClick={save}>{L("저장", "Save")}</Button>
         </>,
         footerEl,
       )}

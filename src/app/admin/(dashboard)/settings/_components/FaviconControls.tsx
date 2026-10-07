@@ -126,7 +126,7 @@ export function FaviconShadowControls({
           )
         ) : (
           <SegmentedControl<"text" | "bg">
-            size="md"
+
             items={[
               { value: "text", label: textLabel ?? t("admin.settings.faviconTextShadow") },
               { value: "bg", label: bgLabel ?? t("admin.settings.faviconBgShadow") },
@@ -139,7 +139,6 @@ export function FaviconShadowControls({
           checked={value.enabled}
           onCheckedChange={(v) => onChange({ ...value, enabled: v })}
           showStateText
-          size="md"
         />
       </div>
       <AnimatePresence initial={false}>
@@ -269,10 +268,10 @@ export function PresetNameAddRow({ open, value, onChange, onSave, onCancel, prob
                 aria-describedby={shown ? "preset-name-problem" : undefined}
                 autoFocus
               />
-              <Button variant="outline" size="md" onClick={save} disabled={!!problem && problem.kind !== "empty"}>
+              <Button variant="outline" onClick={save} disabled={!!problem && problem.kind !== "empty"}>
                 {t("admin.settings.presetAddSubmit")}
               </Button>
-              <Button variant="outline" size="md" onClick={cancel}>
+              <Button variant="outline" onClick={cancel}>
                 {t("admin.settings.cancel")}
               </Button>
             </div>

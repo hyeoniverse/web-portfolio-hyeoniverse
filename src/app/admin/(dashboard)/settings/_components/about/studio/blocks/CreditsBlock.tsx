@@ -136,7 +136,7 @@ export function CreditsBlock({ about, setAny, lang, nickname, t }: {
             {/* 타이포 컨트롤과 정렬은 성격이 달라 구분선으로 끊는다 */}
             <span className={css.barDivider} aria-hidden />
             {(["left", "center", "right"] as const).map((a) => (
-              <Button key={a} variant={noteAlign === a ? "primary" : "subtle"} shape="circle" size="sm"
+              <Button key={a} variant={noteAlign === a ? "primary" : "subtle"} shape="circle"
                 onClick={() => setAny("creditsNoteAlign", a)}
                 aria-label={a === "left" ? (L("왼쪽 정렬", "Align left"))
                   : a === "center" ? (L("가운데 정렬", "Align center"))

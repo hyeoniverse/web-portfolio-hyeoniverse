@@ -31,8 +31,8 @@ export function PurgeModal({ title, onConfirm }: { title: string; onConfirm: () 
       />
       {footerEl && createPortal(
         <>
-          <Button variant="outline" size="sm" soundDisabled onClick={closeAll}>{t("admin.posts.cancel")}</Button>
-          <Button variant="primary" size="sm" tone="danger" soundDisabled disabled={!valid} onClick={() => { closeAll(); onConfirm(); }}>
+          <Button variant="outline" soundDisabled onClick={closeAll}>{t("admin.posts.cancel")}</Button>
+          <Button variant="primary" tone="danger" soundDisabled disabled={!valid} onClick={() => { closeAll(); onConfirm(); }}>
             {t("admin.posts.trashPurge")}
           </Button>
         </>,
@@ -70,8 +70,8 @@ export function SeriesDeleteModal({ series, deletePostsRef, onConfirm }: {
       />
       {footerEl && createPortal(
         <>
-          <Button variant="outline" size="sm" soundDisabled onClick={closeAll}>{t("admin.posts.cancel")}</Button>
-          <Button variant="primary" size="sm" tone="danger" soundDisabled disabled={!valid} onClick={() => { closeAll(); onConfirm(); }}>
+          <Button variant="outline" soundDisabled onClick={closeAll}>{t("admin.posts.cancel")}</Button>
+          <Button variant="primary" tone="danger" soundDisabled disabled={!valid} onClick={() => { closeAll(); onConfirm(); }}>
             {t("admin.posts.delete")}
           </Button>
         </>,

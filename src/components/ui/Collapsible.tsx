@@ -81,7 +81,6 @@ export default function Collapsible({
       {overflows && (
         <Button
           variant="ghost"
-          size="sm"
           shape="capsule"
           className={styles.toggle}
           onClick={() => {

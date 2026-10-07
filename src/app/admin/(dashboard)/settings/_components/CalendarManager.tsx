@@ -253,7 +253,6 @@ export default function CalendarManager() {
                       <Input
                         value={draftTitle}
                         onChange={setDraftTitle}
-                        size="sm"
                         autoFocus
                         className={styles.renameInput}
                         placeholder={t("달력 이름", "Calendar name")}
@@ -262,8 +261,8 @@ export default function CalendarManager() {
                           else if (e.key === "Escape") { e.preventDefault(); cancelEdit(); }
                         }}
                       />
-                      <Button variant="ghost" shape="circle" size="xs" loading={savingId === it.id} icon={<Check size={15} />} onClick={() => saveEdit(it.id)} aria-label={t("저장", "Save")} soundDisabled />
-                      <Button variant="ghost" shape="circle" size="xs" icon={<X size={15} />} onClick={cancelEdit} aria-label={t("취소", "Cancel")} soundDisabled />
+                      <Button variant="ghost" shape="circle" loading={savingId === it.id} icon={<Check size={15} />} onClick={() => saveEdit(it.id)} aria-label={t("저장", "Save")} soundDisabled />
+                      <Button variant="ghost" shape="circle" icon={<X size={15} />} onClick={cancelEdit} aria-label={t("취소", "Cancel")} soundDisabled />
                     </div>
                   ) : (
                     <>
@@ -282,8 +281,8 @@ export default function CalendarManager() {
                       </div>
                       {usageView(it.usage)}
                       <div className={styles.rowActions}>
-                        <Button variant="ghost" shape="circle" size="xs" icon={<Pencil size={14} />} onClick={() => startEdit(it)} aria-label={t("이름 변경", "Rename")} soundDisabled />
-                        <Button variant="ghost" shape="circle" size="xs" icon={<Trash2 size={14} />} onClick={() => confirmDelete(it)} aria-label={t("삭제", "Delete")} soundDisabled />
+                        <Button variant="ghost" shape="circle" icon={<Pencil size={14} />} onClick={() => startEdit(it)} aria-label={t("이름 변경", "Rename")} soundDisabled />
+                        <Button variant="ghost" shape="circle" icon={<Trash2 size={14} />} onClick={() => confirmDelete(it)} aria-label={t("삭제", "Delete")} soundDisabled />
                       </div>
                     </>
                   )}
@@ -293,7 +292,7 @@ export default function CalendarManager() {
           </div>
         )}
         {paged.totalPages > 1 && (
-          <Pagination className={lib.pager} page={paged.page} totalPages={paged.totalPages} onChange={setPage} size="sm" showJump={false} />
+          <Pagination className={lib.pager} page={paged.page} totalPages={paged.totalPages} onChange={setPage} showJump={false} />
         )}
 
         {/* ── 휴지통 (soft delete · 30일 후 자동 영구삭제) ── */}
@@ -324,8 +323,8 @@ export default function CalendarManager() {
                         </span>
                       </div>
                       <div className={styles.rowActions}>
-                        <Button variant="ghost" shape="capsule" size="xs" icon={<RotateCcw size={13} />} loading={busyId === it.id} onClick={() => handleRestore(it.id)} soundDisabled>{t("복구", "Restore")}</Button>
-                        <Button variant="ghost" shape="circle" size="xs" icon={<Trash2 size={14} />} onClick={() => confirmPurge(it)} aria-label={t("영구 삭제", "Delete forever")} soundDisabled />
+                        <Button variant="ghost" shape="capsule" icon={<RotateCcw size={13} />} loading={busyId === it.id} onClick={() => handleRestore(it.id)} soundDisabled>{t("복구", "Restore")}</Button>
+                        <Button variant="ghost" shape="circle" icon={<Trash2 size={14} />} onClick={() => confirmPurge(it)} aria-label={t("영구 삭제", "Delete forever")} soundDisabled />
                       </div>
                     </div>
                   );

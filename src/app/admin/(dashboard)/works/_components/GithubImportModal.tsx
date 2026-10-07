@@ -121,12 +121,11 @@ export default function GithubImportModal({
 
       {footerEl && createPortal(
         <>
-          <Button variant="outline" size="sm" soundDisabled onClick={() => closeModal()}>
+          <Button variant="outline" soundDisabled onClick={() => closeModal()}>
             {t("admin.posts.cancel")}
           </Button>
           <Button
             variant="primary"
-            size="sm"
             soundDisabled
             disabled={picked.size === 0}
             onClick={() => { closeModal(); onImport([...picked], again); }}

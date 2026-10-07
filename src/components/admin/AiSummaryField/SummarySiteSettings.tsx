@@ -79,10 +79,10 @@ export function SummaryGuideEditor({ value, onChange, options }: {
         textareaClassName={styles.guideInput}
       />
       <div className={styles.guideActions}>
-        <Button variant="ghost" size="sm" shape="capsule" onClick={() => onChange("")} disabled={!value} soundDisabled>{tg("reset")}</Button>
+        <Button variant="ghost" shape="capsule" onClick={() => onChange("")} disabled={!value} soundDisabled>{tg("reset")}</Button>
         <span className={styles.guideSpacer} />
-        <Select size="sm" value={target} onChange={setTarget} options={targetOptions} placeholder={tg("targetPlaceholder")} />
-        <Button variant="outline" size="sm" shape="capsule" onClick={preview} loading={busy} disabled={!target} soundDisabled>{tg("preview")}</Button>
+        <Select value={target} onChange={setTarget} options={targetOptions} placeholder={tg("targetPlaceholder")} />
+        <Button variant="outline" shape="capsule" onClick={preview} loading={busy} disabled={!target} soundDisabled>{tg("preview")}</Button>
       </div>
       {shown && (
         <div className={styles.guidePreview}>

@@ -408,12 +408,12 @@ function CommentItem({
           {isAdmin && !selectMode && (
             <span className={styles.deletedActions}>
               {/* 복구 — 내용 보존형 삭제라 원문까지 되살아난다. 모든 tombstone(관리자/작성자) 대상. */}
-              <Button variant="ghost" size="sm" onClick={handleRestore}>
+              <Button variant="ghost" onClick={handleRestore}>
                 <T k="comments.restore" />
               </Button>
               {/* 완전 삭제 — admin tombstone 만(되돌릴 수 없고 답글까지 CASCADE) */}
               {comment.deleted_by === "admin" && (
-                <Button variant="ghost" size="sm" onClick={openHardDeleteModal}>
+                <Button variant="ghost" onClick={openHardDeleteModal}>
                   <T k="comments.hardDelete" />
                 </Button>
               )}
@@ -530,7 +530,6 @@ function CommentItem({
                 /* 폭 고정은 래퍼가 담당 — 공통 Input 엔 스타일 클래스를 붙이지 않는다 */
                 <div className={styles.passwordField}>
                   <Input
-                    size="sm"
                     type="password"
                     clearable={false}
                     value={editPassword}
@@ -544,7 +543,6 @@ function CommentItem({
               )}
               <Button
                 variant="primary"
-                size="sm"
                 onClick={handleEdit}
                 disabled={editSubmitting}
               >
@@ -552,7 +550,6 @@ function CommentItem({
               </Button>
               <Button
                 variant="outline"
-                size="sm"
                 onClick={() => {
                   setEditing(false);
                   setEditContent(comment.content);
@@ -658,7 +655,6 @@ function CommentItem({
         <div className={styles.commentActions}>
           {canTranslate && <Button
             variant="ghost"
-            size="sm"
             icon={<Globe size={14} />}
             active={!!translatedText}
             loading={translating}
@@ -669,7 +665,6 @@ function CommentItem({
           </Button>}
           <Button
             variant="ghost"
-            size="sm"
             onClick={() => {
               setShowReply(!showReply);
               setShowDelete(false);
@@ -681,7 +676,6 @@ function CommentItem({
           {(!comment.is_admin || isAdmin) && (
             <Button
               variant="ghost"
-              size="sm"
               onClick={() => {
                 setEditing(!editing);
                 setShowReply(false);
@@ -696,7 +690,6 @@ function CommentItem({
           {(!comment.is_admin || isAdmin) && (
             <Button
               variant="ghost"
-              size="sm"
               onClick={() => {
                 setShowDelete(!showDelete);
                 setShowReply(false);
@@ -710,7 +703,6 @@ function CommentItem({
           {!isAdmin && !comment.is_admin && !comment.is_deleted && (
             <Button
               variant="ghost"
-              size="sm"
               onClick={openReport}
             >
               <T k="comments.report" />
@@ -734,7 +726,6 @@ function CommentItem({
                 /* 폭 고정은 래퍼가 담당 — 공통 Input 엔 스타일 클래스를 붙이지 않는다 */
                 <div className={styles.passwordField}>
                   <Input
-                    size="sm"
                     type="password"
                     clearable={false}
                     value={deletePassword}
@@ -748,7 +739,6 @@ function CommentItem({
               )}
               <Button
                 variant="ghost"
-                size="sm"
                 onClick={() => {
                   setShowDelete(false);
                   setDeletePassword("");
@@ -761,7 +751,6 @@ function CommentItem({
               <Button
                 variant="outline"
                 tone="danger"
-                size="sm"
                 loading={deleting}
                 onClick={handleDelete}
               >

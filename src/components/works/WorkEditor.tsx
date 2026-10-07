@@ -1469,10 +1469,10 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           {gallerySelected.size > 0 && (
             <span className={styles.gallerySelectionBar}>
               <span>{fillTemplate(t("admin.common.selectedCount"), { count: gallerySelected.size })}</span>
-              <Button variant="ghost" size="xs" shape="capsule" onClick={() => setGallerySelected(new Set())} disabled={galleryLocked} soundDisabled>
+              <Button variant="ghost" shape="capsule" onClick={() => setGallerySelected(new Set())} disabled={galleryLocked} soundDisabled>
                 {t("admin.common.clearSelection")}
               </Button>
-              <Button variant="outline" size="xs" shape="capsule" onClick={removeSelectedGallery} disabled={galleryLocked} soundDisabled>
+              <Button variant="outline" shape="capsule" onClick={removeSelectedGallery} disabled={galleryLocked} soundDisabled>
                 {t("admin.common.deleteSelected")}
               </Button>
             </span>
@@ -1497,7 +1497,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           )}
           <Button
             variant="outline"
-            size="xs"
             shape="capsule"
             onClick={() => handleImageUpload("gallery")}
             disabled={galleryLocked}
@@ -1697,7 +1696,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                       >
                         <Button
                           variant="difference"
-                          size="xs"
                           shape="circle"
                           disabled={galleryLocked || i === 0}
                           onClick={() => moveGalleryItem(i, -1)}
@@ -1708,7 +1706,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                         />
                         <Button
                           variant="difference"
-                          size="xs"
                           shape="circle"
                           disabled={galleryLocked || i === form.gallery.length - 1}
                           onClick={() => moveGalleryItem(i, 1)}
@@ -1719,7 +1716,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                         />
                         <Button
                           variant="difference"
-                          size="xs"
                           shape="circle"
                           onClick={() => setGalleryViewerIdx(i)}
                           aria-label={tw("viewImage")}
@@ -1729,7 +1725,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                         />
                         <Button
                           variant="difference"
-                          size="xs"
                           shape="circle"
                           active={isMain}
                           disabled={narrationBusy}
@@ -1741,7 +1736,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                         />
                         <Button
                           variant="difference"
-                          size="xs"
                           shape="circle"
                           disabled={galleryLocked || !!replacingUrl}
                           loading={replacingUrl === src}
@@ -1753,7 +1747,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                         />
                         <Button
                           variant="difference"
-                          size="xs"
                           shape="circle"
                           disabled={galleryLocked}
                           onClick={() => removeGalleryItem(i)}
@@ -1835,7 +1828,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           <Button
             variant="outline"
             shape="circle"
-            size="sm"
             className={styles.categoryAddBtnSized}
             onClick={() => {
               const raw = tech.input.trim();
@@ -1926,7 +1918,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                 trigger={
                   <Button
                     variant={linked ? "subtle" : "outline"}
-                    size="xs"
                     className={styles.avatarUploadBtn}
                     title={tw("memberLinkHint")}
                     icon={linked
@@ -1978,7 +1969,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
             <>
               <Button
                 variant="outline"
-                size="xs"
                 className={styles.avatarUploadBtn}
                 onClick={team.cancelEdit}
                 aria-label={tw("cancel")}
@@ -1988,7 +1978,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
               </Button>
               <Button
                 variant="outline"
-                size="xs"
                 className={styles.avatarUploadBtn}
                 onClick={team.saveEdit}
                 disabled={!team.memberName.trim()}
@@ -2001,7 +1990,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           ) : (
             <Button
               variant="outline"
-              size="xs"
               className={styles.avatarUploadBtn}
               onClick={team.addMember}
               disabled={!team.memberName.trim()}

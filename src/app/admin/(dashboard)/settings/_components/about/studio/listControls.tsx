@@ -100,7 +100,7 @@ export function DragHandle({ handle, variant = "subtle" }: { handle: SortHandle;
   const L = useL();
   const label = L("끌어서 순서 변경", "Drag to reorder");
   return (
-    <Button variant={variant} shape="circle" size="xs" className={css.dragHandle} aria-label={label} title={label} data-cursor="grab" {...handle}>
+    <Button variant={variant} shape="circle" className={css.dragHandle} aria-label={label} title={label} data-cursor="grab" {...handle}>
       <GripVertical size={13} />
     </Button>
   );
@@ -113,7 +113,7 @@ export function RemoveButton({ onClick, variant = "subtle", label }: {
 }) {
   const L = useL();
   return (
-    <Button variant={variant} shape="circle" size="xs" onClick={onClick} aria-label={label ?? L("삭제", "Remove")}>
+    <Button variant={variant} shape="circle" onClick={onClick} aria-label={label ?? L("삭제", "Remove")}>
       <X size={13} />
     </Button>
   );

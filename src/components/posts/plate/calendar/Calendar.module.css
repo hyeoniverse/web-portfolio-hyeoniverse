@@ -129,7 +129,7 @@
   width: 180px;
   max-width: 100%;
   min-width: 0;
-  height: var(--control-height-md);
+  height: var(--control-height-sm);
   padding: 0 var(--spacing-12);
   border: none;
   border-radius: var(--radius-control);
@@ -1228,7 +1228,7 @@
   align-self: flex-start;
   max-width: 100%;
   min-width: 0;
-  height: var(--control-height-md);
+  height: var(--control-height-sm);
   padding: 0 var(--spacing-16);
   border: var(--border-light);
   border-radius: var(--radius-control);
@@ -1427,7 +1427,7 @@
   align-items: center;
   gap: var(--spacing-2);
   align-self: flex-start;
-  height: var(--control-height-md);
+  height: var(--control-height-sm);
   padding: 0 var(--spacing-16);
   border: var(--border-light);
   border-radius: var(--radius-control);

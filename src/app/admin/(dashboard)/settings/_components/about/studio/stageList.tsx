@@ -102,7 +102,7 @@ export function StageTabs({ list, labelOf, addLabel, max }: {
   return (
     <div className={css.stageTabs}>
       <div className={css.stageNav}>
-        <Button className={css.stageArrow} variant="subtle" shape="circle" size="xs" aria-label={L("이전", "Previous")}
+        <Button className={css.stageArrow} variant="subtle" shape="circle" aria-label={L("이전", "Previous")}
           disabled={cur <= 0} onClick={() => select(cur - 1)}>
           <ChevronLeft size={14} />
         </Button>
@@ -122,7 +122,7 @@ export function StageTabs({ list, labelOf, addLabel, max }: {
             </div>
           </SortableContext>
         </DndContext>
-        <Button className={css.stageArrow} variant="subtle" shape="circle" size="xs" aria-label={L("다음", "Next")}
+        <Button className={css.stageArrow} variant="subtle" shape="circle" aria-label={L("다음", "Next")}
           disabled={cur >= count - 1} onClick={() => select(cur + 1)}>
           <ChevronRight size={14} />
         </Button>
@@ -130,7 +130,7 @@ export function StageTabs({ list, labelOf, addLabel, max }: {
       <span className={css.stageTabLabel} title={labelOf(cur)}>{labelOf(cur)}</span>
       <div className={css.stageAdd}>
         {atMax ? <ListLimit max={max} /> : (
-          <Button variant="subtle" size="xs" icon={<Plus size={14} />} onClick={list.add}>{addLabel}</Button>
+          <Button variant="subtle" icon={<Plus size={14} />} onClick={list.add}>{addLabel}</Button>
         )}
       </div>
     </div>

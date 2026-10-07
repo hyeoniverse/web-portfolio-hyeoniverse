@@ -181,19 +181,19 @@ export default function ProfileGithubEditor({
                 <span className={styles.pickedActions}>
                   {/* 화살표 문자 대신 아이콘 — 다른 목록의 조작 버튼과 크기·색이 맞는다 */}
                   <Button
-                    variant="ghost" shape="circle" size="xs"
+                    variant="ghost" shape="circle"
                     icon={<ChevronUp size={13} strokeWidth={1.8} />}
                     aria-label={L("위로", "Move up")}
                     onClick={() => move(i, i - 1)} disabled={i === 0}
                   />
                   <Button
-                    variant="ghost" shape="circle" size="xs"
+                    variant="ghost" shape="circle"
                     icon={<ChevronDown size={13} strokeWidth={1.8} />}
                     aria-label={L("아래로", "Move down")}
                     onClick={() => move(i, i + 1)} disabled={i === selected.length - 1}
                   />
                   <Button
-                    variant="ghost" shape="circle" size="xs" className={styles.removeBtn}
+                    variant="ghost" shape="circle" className={styles.removeBtn}
                     icon={<X size={13} strokeWidth={1.8} />}
                     aria-label={L("빼기", "Remove")}
                     onClick={() => toggle(name)}

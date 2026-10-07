@@ -30,7 +30,7 @@ export default function TagsIndexControls({
   return (
     <div className={page.searchSortRow}>
       <SegmentedControl<TagsSortBy, "ko" | "en">
-        size="sm"
+
         variant="subtle"
         items={[
           { value: "popular", label: t("postsPage.sortPopular") },
@@ -55,7 +55,6 @@ export default function TagsIndexControls({
         onSearchChange={setSearch}
         placeholder={t("postsPage.tagSearchPlaceholder")}
         align="left"
-        size="sm"
         className={styles.searchBar}
         routeParam="q"
         hasResults={hasResults}

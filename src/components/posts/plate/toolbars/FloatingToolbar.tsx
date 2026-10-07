@@ -89,7 +89,6 @@ function TurnIntoMenu() {
         icon: <span className={styles.menuIcon}>{o.icon}</span>,
       }))}
       onChange={apply}
-      size="sm"
       width="max"
       preserveFocus
       dropAlign="below"

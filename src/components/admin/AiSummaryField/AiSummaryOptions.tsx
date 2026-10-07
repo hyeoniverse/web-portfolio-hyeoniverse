@@ -30,11 +30,11 @@ function OptChip({ name, value, options, onChange, describe }: {
 }) {
   return (
     <Select
-      size="sm"
       value={value}
       options={options}
       onChange={onChange}
       showCheck
+      triggerClassName={styles.chipTrigger}
       renderValue={(opt) => (
         <span className={styles.chipValue}>
           <span className={styles.chipName}>{name}</span>
@@ -119,14 +119,14 @@ export default function AiSummaryOptions({ onSubmit, submitLabel }: { onSubmit: 
       <div className={styles.optActions}>
         {/* 생성 설정(공급자 · temperature · 토큰) — 자주 안 바꿔서 접어 둔다 */}
         <Tooltip content={to("generation")}>
-          <Button variant="ghost" size="sm" shape="circle" icon={<SlidersHorizontal size={14} strokeWidth={1.75} />}
+          <Button variant="ghost" shape="circle" icon={<SlidersHorizontal size={14} strokeWidth={1.75} />}
             aria-label={to("generation")} aria-pressed={gen} data-active={gen ? "" : undefined} className={styles.genToggle}
             onClick={() => setGen((v) => !v)} soundDisabled />
         </Tooltip>
         <span className={styles.optSpacer} />
         {/* 기본값 = 설정 › 서비스의 사이트 기본값 */}
-        <Button variant="ghost" size="sm" shape="capsule" onClick={() => setO(siteDefaults)} soundDisabled>{t("admin.aiSummaryField.options.reset")}</Button>
-        <Button variant="primary" size="sm" shape="capsule" onClick={() => { saveSummaryOptions(o); onSubmit(o); }} soundDisabled>{submitLabel}</Button>
+        <Button variant="ghost" shape="capsule" onClick={() => setO(siteDefaults)} soundDisabled>{t("admin.aiSummaryField.options.reset")}</Button>
+        <Button variant="primary" shape="capsule" onClick={() => { saveSummaryOptions(o); onSubmit(o); }} soundDisabled>{submitLabel}</Button>
       </div>
     </div>
   );

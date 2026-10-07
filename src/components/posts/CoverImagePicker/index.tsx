@@ -131,7 +131,7 @@ export default function CoverImagePicker({
             (Modal / Popover 의 bottom sheet 와 같은 규칙) */}
         {!isMobile && (
           <Tooltip content={tc("close")} placement="bottom">
-            <CloseButton size="sm" className={styles.closeBtn} onClick={onClose} ariaLabel={tc("close")} />
+            <CloseButton className={styles.closeBtn} onClick={onClose} ariaLabel={tc("close")} />
           </Tooltip>
         )}
       </div>

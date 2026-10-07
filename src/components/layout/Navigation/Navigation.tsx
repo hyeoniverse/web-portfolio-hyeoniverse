@@ -929,7 +929,6 @@ export default function Navigation() {
           >
             <Button
               variant="outline"
-              size="xs"
               className={styles.logoutBtn}
               onClick={handleLogout}
               soundDisabled
@@ -940,7 +939,6 @@ export default function Navigation() {
         ) : !isAdminPage ? (
           <Button
             variant="outline"
-            size="xs"
             className={styles.contactBtn}
             onClick={openForm}
             soundDisabled

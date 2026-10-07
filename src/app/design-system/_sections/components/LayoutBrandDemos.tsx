@@ -46,7 +46,7 @@ export default function LayoutBrandDemos() {
             <SectionHeader
               title={language === "ko" ? "액션 있는 헤더" : "With actions"}
               sub={language === "ko" ? "우측에 버튼 슬롯이 붙습니다." : "A button slot on the right."}
-              actions={<Button variant="outline" size="sm">{language === "ko" ? "액션" : "Action"}</Button>}
+              actions={<Button variant="outline">{language === "ko" ? "액션" : "Action"}</Button>}
             />
           </motion.div>
         </DemoGroup>

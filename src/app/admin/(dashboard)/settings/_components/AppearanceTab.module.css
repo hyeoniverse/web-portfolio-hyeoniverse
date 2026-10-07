@@ -325,10 +325,10 @@
 }
 
 /* ⇄ 자리 맞춤 스페이서 — 라이트 캡슐 폭을 다크(⇄ 있는 쪽)와 같게.
-   폭 = ButtonGroup(neutral) 버튼(md) + 양쪽 테두리 */
+   폭 = ButtonGroup(neutral) 버튼(sm) + 양쪽 테두리 */
 .swapSpacer {
   flex-shrink: 0;
-  width: calc(var(--control-height-md) + 2px);
+  width: calc(var(--control-height-sm) + 2px);
   height: 1px;
 }
 
@@ -336,8 +336,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--control-height-xs);
-  height: var(--control-height-xs);
+  /* 설정 페이지 컨트롤 높이(sm) — 옆 입력 · 셀렉트와 같은 높이 */
+  width: var(--control-height-sm);
+  height: var(--control-height-sm);
   padding: 0;
   border: none;
   border-radius: var(--radius-full);
@@ -392,8 +393,12 @@
   gap: var(--spacing-20);
   border-bottom: var(--border-light);
 }
+/* 설정 페이지 컨트롤 높이(sm) — 패딩 합산(40)이면 다른 조작보다 높았다 */
 .brandTab {
-  padding: var(--spacing-8) 0;
+  display: inline-flex;
+  align-items: center;
+  height: var(--control-height-sm);
+  padding: 0;
   margin-bottom: -1px;
   border: none;
   border-bottom: var(--border-width-2) solid transparent;
@@ -453,7 +458,7 @@
   align-items: center;
   flex-wrap: wrap;
   gap: var(--spacing-4) var(--spacing-16);
-  min-height: var(--control-height-md);
+  min-height: var(--control-height-sm);
 }
 /* 파트 제목 — 계층 최상위(섹션 제목 다음). 필드 라벨(13/500/tertiary)보다 확실히 크고 진하게.
    스케일: 파트 14/700/primary → 소구획 13/600/secondary → 필드 라벨 13/500/tertiary → 캡션 12/tertiary */
@@ -824,7 +829,7 @@
   margin-top: var(--spacing-20);
 }
 
-/* sectionHint 의 margin-bottom(md)을 끈다 — 간격은 블록 gap 하나로.
+/* sectionHint 의 margin-bottom(sm)을 끈다 — 간격은 블록 gap 하나로.
    같은 (0,1,0) 이면 번들 순서가 승자를 정하므로 부모를 태워 (0,2,0) (#632) */
 .customFontsBlock .customFontsLabel {
   margin-bottom: 0;
@@ -892,8 +897,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--control-height-xs);
-  height: var(--control-height-xs);
+  /* 설정 페이지 컨트롤 높이(sm) — 옆 입력 · 셀렉트와 같은 높이 */
+  width: var(--control-height-sm);
+  height: var(--control-height-sm);
   padding: 0;
   border: none;
   border-radius: var(--radius-full);
