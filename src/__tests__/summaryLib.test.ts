@@ -5,10 +5,15 @@ import { extractSkeleton, parseInline, parseStoredSummary, serializeSummary, sto
 describe("저장 모양", () => {
   it("JSON 은 구조로, 예전 줄글은 문단으로 읽는다", () => {
     expect(parseStoredSummary('{"tldr":"한 줄","body":"본문","points":[{"label":"성능","text":"**빨라짐**"}],"note":"주의","keywords":["k"],"takeaway":"끝","hash":"x"}'))
-      .toEqual({ kind: "structured", tldr: "한 줄", body: "본문", points: [{ label: "성능", text: "**빨라짐**" }], note: "주의", keywords: ["k"], takeaway: "끝" });
+      .toEqual({ kind: "structured", tldr: "한 줄", emoji: "", keywords: ["k"], blocks: [
+        { type: "paragraph", text: "본문" },
+        { type: "list", items: [{ label: "성능", text: "**빨라짐**" }] },
+        { type: "callout", tone: "info", text: "주의" },
+        { type: "quote", text: "끝" },
+      ] });
     /* 예전 문자열 항목 — "머리말: 내용" 이면 갈라 두고, 아니면 머리말 없이 */
     expect(parseStoredSummary('{"tldr":"한 줄","points":["성능: 빨라졌습니다","그냥 문장"]}')).toMatchObject({
-      points: [{ label: "성능", text: "빨라졌습니다" }, { label: "", text: "그냥 문장" }],
+      blocks: [{ type: "list", items: [{ label: "성능", text: "빨라졌습니다" }, { text: "그냥 문장" }] }],
     });
     expect(parseStoredSummary("그냥 요약 문장입니다.")).toEqual({ kind: "text", text: "그냥 요약 문장입니다." });
     expect(parseStoredSummary("")).toBeNull();
