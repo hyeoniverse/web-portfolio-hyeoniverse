@@ -6,8 +6,14 @@
   /* sticky-footer — body 가 flex column + main flex:1 이므로 auto 가 짧은 페이지에서 footer 를
      viewport 하단으로 밀어줌. padding-top 으로 콘텐츠와의 시각적 여백 확보. */
   margin-top: auto;
-  padding: var(--spacing-128) var(--spacing-page-inline) var(--spacing-48);
+  padding: var(--spacing-64) var(--spacing-24) var(--spacing-32);
   background: transparent;
+}
+
+@media (width > 768px) {
+  .footer {
+    padding: var(--spacing-128) var(--spacing-page-inline) var(--spacing-48);
+  }
 }
 
 /* 관리자 화면의 본문이 아직 오지 않았을 때(data-admin-pending 표시가 있을 때) 푸터를 감춘다.
@@ -20,21 +26,35 @@
 
 .content {
   display: flex;
-  gap: var(--spacing-48);
+  gap: var(--spacing-24);
   flex-direction: column;
   margin: 0 auto;
   max-width: var(--width-page-max);
   font: var(--font-code-sm);
 }
 
+@media (width > 768px) {
+  .content {
+    gap: var(--spacing-48);
+  }
+}
+
 /* Center: Links + Privacy */
 .links {
   position: relative;
   display: flex;
-  gap: var(--spacing-24);
+  flex-wrap: wrap;
+  gap: var(--spacing-12) var(--spacing-16);
   align-items: center;
   justify-content: center;
   flex-direction: row;
+}
+
+@media (width > 768px) {
+  .links {
+    flex-wrap: nowrap;
+    gap: var(--spacing-24);
+  }
 }
 
 .links a {
@@ -54,6 +74,7 @@
 
 /* ── Sliding indicator ── */
 .footerIndicator {
+  display: none;
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
@@ -64,6 +85,12 @@
     left var(--duration-base) var(--ease-standard),
     width var(--duration-base) var(--ease-standard),
     opacity var(--duration-base) var(--ease-standard);
+}
+
+@media (width > 768px) {
+  .footerIndicator {
+    display: block;
+  }
 }
 
 /* indicator 화살표 — 좌/우 짝 매칭. BLACK …TRIANGLE + text variation selector (U+FE0E)
@@ -109,17 +136,35 @@
 
 .bottom {
   display: flex;
-  gap: var(--spacing-64);
+  gap: var(--spacing-20);
+  align-items: center;
   justify-content: space-between;
-  flex-direction: row;
+  flex-direction: column;
   color: var(--text-accent-alt);
+  text-align: center;
+}
+
+@media (width > 768px) {
+  .bottom {
+    gap: var(--spacing-64);
+    align-items: normal;
+    flex-direction: row;
+    text-align: start;
+  }
 }
 
 /* Left side: Email + Copyright */
 .bottomLeft {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: var(--spacing-8);
+}
+
+@media (width > 768px) {
+  .bottomLeft {
+    align-items: normal;
+  }
 }
 
 .email {
@@ -166,8 +211,14 @@
 .bottomRight {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: center;
   gap: var(--spacing-8);
+}
+
+@media (width > 768px) {
+  .bottomRight {
+    align-items: flex-end;
+  }
 }
 
 /* Visitor counter */
@@ -213,14 +264,27 @@
 
 .copyright {
   color: inherit;
+  text-align: center;
   letter-spacing: 0.05em;
+}
+
+@media (width > 768px) {
+  .copyright {
+    text-align: start;
+  }
 }
 
 .musicCredit {
   color: var(--text-tertiary);
-  text-align: right;
+  text-align: center;
   font: var(--font-code-xs);
   letter-spacing: 0.05em;
+}
+
+@media (width > 768px) {
+  .musicCredit {
+    text-align: right;
+  }
 }
 
 .musicCredit a {
@@ -235,13 +299,32 @@
 
 .footerMinimal {
   margin-top: 0;
-  padding: var(--spacing-32) var(--spacing-64) var(--spacing-24);
+}
+
+/* 작은 화면에서는 .footer 의 여백을 그대로 쓴다 */
+@media (width > 768px) {
+  .footerMinimal {
+    padding: var(--spacing-32) var(--spacing-64) var(--spacing-24);
+  }
 }
 
 .bottomMinimal {
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-20);
   justify-content: space-between;
   color: var(--text-accent-alt);
+  text-align: center;
+}
+
+@media (width > 768px) {
+  .bottomMinimal {
+    flex-direction: row;
+    align-items: normal;
+    gap: normal;
+    text-align: start;
+  }
 }
 
 /* Admin 진입 링크 */
@@ -254,59 +337,6 @@
 
 .adminLink:hover {
   color: var(--text-primary);
-}
-
-/* ==========================================================================
-  Responsive
-  ========================================================================== */
-
-@media (width <= 768px) {
-  .footer {
-    padding: var(--spacing-64) var(--spacing-24) var(--spacing-32);
-  }
-
-  .content {
-    gap: var(--spacing-24);
-  }
-
-  .links {
-    flex-wrap: wrap;
-    gap: var(--spacing-12) var(--spacing-16);
-  }
-
-  .footerIndicator {
-    display: none;
-  }
-
-  .bottom {
-    gap: var(--spacing-20);
-    align-items: center;
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .bottomMinimal {
-    flex-direction: column;
-    align-items: center;
-    gap: var(--spacing-20);
-    text-align: center;
-  }
-
-  .bottomLeft {
-    align-items: center;
-  }
-
-  .bottomRight {
-    align-items: center;
-  }
-
-  .copyright {
-    text-align: center;
-  }
-
-  .musicCredit {
-    text-align: center;
-  }
 }
 
 /* 모양·크기·hover 는 Button(outline·xs)이 준다. 여기서는 색만 —

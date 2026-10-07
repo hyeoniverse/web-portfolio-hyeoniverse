@@ -32,8 +32,17 @@ main > .content {
 .section#experience,
 .section#projects,
 .section#blog {
-  padding-left: var(--active-side-nav-width);
+  padding-left: 0;
   transition: padding-left var(--duration-base) var(--ease-standard);
+}
+
+@media (width > 768px) {
+  .section#skills,
+  .section#experience,
+  .section#projects,
+  .section#blog {
+    padding-left: var(--active-side-nav-width);
+  }
 }
 
 .section#contact {
@@ -41,15 +50,6 @@ main > .content {
   padding: 0;
   overflow: hidden;
   min-height: unset;
-}
-
-@media (width <= 768px) {
-  .section#skills,
-  .section#experience,
-  .section#projects,
-  .section#blog {
-    padding-left: 0;
-  }
 }
 
 /* Container
@@ -93,9 +93,10 @@ main > .content {
 
 #modal-root {
   display: flex;
-  align-items: center;
+  /* 좁은 화면은 아래에 붙는 시트, 넓으면 가운데 창 */
+  align-items: flex-end;
   justify-content: center;
-  padding: var(--modal-padding-lg);
+  padding: 0;
   position: fixed;
   top: 0;
   right: 0;
@@ -103,6 +104,13 @@ main > .content {
   left: 0;
   background: transparent;
   transition: none;
+}
+
+@media (width > 768px) {
+  #modal-root {
+    align-items: center;
+    padding: var(--modal-padding-lg);
+  }
 }
 
 #modal-root #modal {
@@ -137,17 +145,9 @@ main > .content {
   Media Queries
   ========================================================================== */
 
+/* 시트 모양은 작은 화면에서만 덧씌운다(3.11-1 예외) — 폭을 `!important` 로 눌러 창마다 넘기는
+   인라인 폭(openModal 의 width)을 이겨야 해서, 넓은 화면 쪽으로 옮기면 인라인 폭을 못 쓰게 된다 */
 @media (width <= 768px) {
-  nav#side-navigation {
-    display: none;
-  }
-
-  #modal-root {
-    padding: 0;
-    align-items: flex-end;
-    background: transparent;
-  }
-
   #modal-root #modal {
     border: none;
     border-top: var(--border-light);

@@ -17,7 +17,7 @@
   isolation: isolate; /* 안의 z 0 … 3 이 밖과 겨루지 않게(3.10-3) */
   /* 사이드바(list) 폭 — .thumbList 와 밀려나는 .toolbar/.imageArea 가 함께 참조해야 하므로
      공통 부모인 .viewer 에 선언한다(자식에만 선언하면 형제 스코프 밖이라 margin 이 안 먹음). */
-  --_list-width: 140px;
+  --_list-width: 100px;
   position: fixed;
   inset: 0;
   display: flex;
@@ -40,7 +40,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--spacing-8) var(--spacing-12);
+  padding: var(--spacing-4) var(--spacing-8);
   z-index: 3;
   flex-shrink: 0;
   background: transparent;
@@ -91,8 +91,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
+  width: 30px;
+  height: 30px;
   padding: 0;
   border: none;
   border-radius: var(--radius-full);
@@ -114,9 +114,9 @@
 
 /* zoom 값 표시 — stepper(⊖ 값 ⊕)의 가운데, 읽기 전용 */
 .zoomLevel {
-  font: var(--font-body-sm);
+  font: var(--font-body-xs);
   color: var(--text-primary);
-  width: 54px;
+  width: var(--float-button-size-md);
   text-align: center;
   font-variant-numeric: tabular-nums;
   padding: var(--spacing-4) 0;
@@ -126,9 +126,9 @@
 
 .toolbarDivider {
   width: 1px;
-  height: 18px;
+  height: 14px;
   background: var(--border-color-light);
-  margin: 0 var(--spacing-4);
+  margin: 0 var(--spacing-2);
   flex-shrink: 0;
 }
 
@@ -184,7 +184,7 @@
   position: absolute;
   inset: 0;
   z-index: 3;
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: space-between;
   pointer-events: none;
@@ -212,8 +212,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: var(--float-button-size-md);
-  height: var(--float-button-size-md);
+  width: var(--control-height-xl);
+  height: var(--control-height-xl);
   padding: 0;
   border: var(--border-default);
   border-radius: var(--radius-full);
@@ -278,7 +278,7 @@
   justify-content: center;
   width: 100%;
   height: 100%;
-  max-width: 100%;
+  max-width: calc(100% - 32px);
   max-height: 100%;
 }
 
@@ -326,11 +326,12 @@
   overflow: hidden;
 }
 
-.shortcutsTitle {  font: var(--font-body-md);
+.shortcutsTitle {
+  font: var(--font-body-sm);
 
   font-weight: 600;
   color: var(--text-primary);
-  padding: 0 var(--spacing-16) var(--spacing-8);
+  padding: 0 var(--spacing-12) var(--spacing-8);
   margin: 0;
 }
 
@@ -340,21 +341,22 @@
   padding: 0;
 }
 
-.shortcutsSection {  font: var(--font-body-xs);
+.shortcutsSection {
+  font: var(--font-body-xs);
 
   font-weight: 500;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  padding: var(--spacing-8) var(--spacing-16) var(--spacing-4);
+  padding: var(--spacing-4) var(--spacing-12) var(--spacing-2);
 }
 
 .shortcutsItem {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--row-padding-md);
-  font: var(--font-body-md);
+  padding: var(--row-padding-sm);
+  font: var(--font-body-sm);
   color: var(--text-secondary);
   transition: background var(--duration-fast);
 }
@@ -367,9 +369,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: var(--badge-height);
-  height: var(--badge-height);
-  padding: 0 var(--spacing-8);
+  min-width: 20px;
+  height: 20px;
+  padding: 0 var(--spacing-4);
   border: var(--border-light);
   border-radius: var(--radius-control);
   background: var(--bg-tertiary);
@@ -381,7 +383,7 @@
 .shortcutsDivider {
   height: 1px;
   background: var(--border-color-light);
-  margin: var(--spacing-4) var(--spacing-16);
+  margin: var(--spacing-2) var(--spacing-12);
 }
 
 /* ==========================================================================
@@ -398,7 +400,7 @@
   border: var(--border-light);
   box-shadow: var(--shadow-overlay);
   z-index: 3;
-  min-width: 160px;
+  min-width: 140px;
 }
 
 /* Tooltip/Popover portal 타깃 — 자리 차지 안 하고, 내부 fixed 툴팁만 host. 클릭은 통과(interactive 툴팁은 자체로 auto) */
@@ -511,12 +513,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 24px;
-  padding: 0 var(--spacing-8);
+  height: var(--control-height-xs);
+  padding: 0 var(--spacing-4);
   border: none;
   border-radius: var(--radius-control);
   background: transparent;
-  font: var(--font-body-sm);
+  font: var(--font-body-xs);
   font-variant-numeric: tabular-nums;
   color: var(--text-muted);
   transition: color var(--duration-fast) var(--ease-standard);
@@ -534,7 +536,7 @@
 }
 
 .loopLabel {
-  font: var(--font-body-sm);
+  font: var(--font-body-xs);
   color: var(--text-muted);
 }
 
@@ -628,7 +630,9 @@
 }
 
 .stripNavBtn {
-  display: none;
+  display: flex;
+  width: var(--control-height-xs);
+  height: var(--control-height-xs);
   flex-shrink: 0;
   align-self: center;
 }
@@ -645,6 +649,8 @@
   flex: 1;
   min-width: 0;
   height: 100%;
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
 }
 
 .thumbStripInner::-webkit-scrollbar { display: none; }
@@ -652,8 +658,8 @@
 .thumbItem {
   position: relative;
   flex-shrink: 0;
-  width: 160px;
-  height: 90px;
+  width: 120px;
+  height: 68px;
   padding: 0;
   border: none;
   border-radius: 0;
@@ -830,7 +836,7 @@
    More Menu (mobile overflow)
    ========================================================================== */
 .toolbarCollapsible {
-  display: inline-flex;
+  display: none;
   align-items: center;
   gap: var(--spacing-2);
 }
@@ -840,7 +846,7 @@
 }
 
 .moreBtn {
-  display: none;
+  display: flex;
 }
 
 .moreMenu {
@@ -895,144 +901,110 @@
 }
 
 /* ==========================================================================
-   Responsive (≤ 768px)
+   Responsive — 작은 화면이 기본, 768px 위에서 덧씌운다
    ========================================================================== */
+/* 닫기 단추는 작은 화면에서만 숨긴다(3.11-1 예외) — 보일 때의 display 는 CloseButton 컴포넌트가 정한다 */
 @media (width <= 768px) {
-  .toolbarCollapsible {
-    display: none;
-  }
-
-  .moreBtn {
-    display: flex;
-  }
-
   .closeBtnAction {
     display: none !important;
   }
+}
 
-  .toolbar {
-    padding: var(--spacing-4) var(--spacing-8);
+@media (width > 768px) {
+  .viewer {
+    --_list-width: 140px;
   }
 
-  .actionBtn {
-    width: 30px;
-    height: 30px;
+  .toolbarCollapsible {
+    display: inline-flex;
   }
 
-  .zoomLevel,
-  .zoomInput {
-    font-size: var(--font-size-body-xs);
-    width: var(--float-button-size-md);
-  }
-
-  .toolbarDivider {
-    height: 14px;
-    margin: 0 var(--spacing-2);
-  }
-
-  .imageWrap {
-    max-width: calc(100% - 32px);
-  }
-
-  .image {
-    max-height: 100%;
-  }
-
-  .navArrows {
+  .moreBtn {
     display: none;
   }
 
-  .stripNavBtn {
-    display: flex;
-    width: var(--control-height-xs);
-    height: var(--control-height-xs);
-  }
-
-  .navBtn {
-    width: var(--control-height-xl);
-    height: var(--control-height-xl);
-  }
-
-  /* Thumbnails mobile */
-  .thumbStrip {
-    padding: 0;
-  }
-
-  .thumbStripInner {
-    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
-    mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
-  }
-
-  .thumbItem {
-    width: 120px;
-    height: 68px;
-  }
-
-  .viewer {
-    --_list-width: 100px;
-  }
-
-  .thumbListInner {
-    padding-top: var(--spacing-48);
-    padding-left: 0;
-    padding-right: 0;
-  }
-
-  .hasListPanel .toolbar,
-  .hasListPanel .imageArea {
-    margin-left: var(--_list-width);
-  }
-
-  /* Autoplay popover mobile */
-  .autoplayPopover {
-    min-width: 140px;
+  .toolbar {
     padding: var(--spacing-8) var(--spacing-12);
   }
 
-  .autoplayLabel {
-    font-size: var(--font-size-body-xs);
+  .actionBtn {
+    width: 34px;
+    height: 34px;
   }
 
-  .intervalTrack {
-    padding: var(--spacing-2);
+  .zoomLevel {
+    width: 54px;
+    font-size: var(--font-size-body-sm);
+  }
+
+  .toolbarDivider {
+    height: 18px;
+    margin: 0 var(--spacing-4);
+  }
+
+  .imageWrap {
+    max-width: 100%;
+  }
+
+  .navArrows {
+    display: flex;
+  }
+
+  .stripNavBtn {
+    display: none;
+  }
+
+  .navBtn {
+    width: var(--float-button-size-md);
+    height: var(--float-button-size-md);
+  }
+
+  .thumbStripInner {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .thumbItem {
+    width: 160px;
+    height: 90px;
+  }
+
+  .autoplayPopover {
+    min-width: 160px;
   }
 
   .intervalBtn {
-    height: var(--control-height-xs);
-    font-size: var(--font-size-body-xs);
-    padding: 0 var(--spacing-4);
+    height: 24px;
+    padding: 0 var(--spacing-8);
+    font-size: var(--font-size-body-sm);
   }
 
   .loopLabel {
-    font-size: var(--font-size-body-xs);
+    font-size: var(--font-size-body-sm);
   }
 
-  /* Shortcuts panel mobile */
-
   .shortcutsTitle {
-    font-size: var(--font-size-body-sm);
-    padding: 0 var(--spacing-12) var(--spacing-8);
+    padding: 0 var(--spacing-16) var(--spacing-8);
+    font-size: var(--font-size-body-md);
   }
 
   .shortcutsSection {
-    font-size: var(--font-size-body-xs);
-    padding: var(--spacing-4) var(--spacing-12) var(--spacing-2);
+    padding: var(--spacing-8) var(--spacing-16) var(--spacing-4);
   }
 
   .shortcutsItem {
-    padding: var(--row-padding-sm);
-    font-size: var(--font-size-body-sm);
+    padding: var(--row-padding-md);
+    font-size: var(--font-size-body-md);
   }
 
   .shortcutsItem kbd {
-    min-width: 20px;
-    height: 20px;
-    font-size: var(--font-size-body-xs);
-    padding: 0 var(--spacing-4);
+    min-width: var(--badge-height);
+    height: var(--badge-height);
+    padding: 0 var(--spacing-8);
   }
 
   .shortcutsDivider {
-    margin: var(--spacing-2) var(--spacing-12);
+    margin: var(--spacing-4) var(--spacing-16);
   }
 }
 

@@ -360,9 +360,16 @@
 .popover {
   position: absolute;
   top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
   z-index: var(--z-index-nav);
+}
+
+/* 넓은 화면에서는 trigger 가운데에 맞춘다 — 작은 화면은 왼쪽 끝에 붙여 화면 밖으로 넘치지 않게 */
+@media (width > 768px) {
+  .popover {
+    left: 50%;
+    transform: translateX(-50%);
+  }
 }
 
 /* portal 모드 — fixed 로 body/모달 layer 에 띄워 overflow 컨테이너에 잘리지 않음.
@@ -843,13 +850,5 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-12);
-}
-
-/* ── Responsive ── */
-@media (width <= 768px) {
-  .popover {
-    left: 0;
-    transform: none;
-  }
 }
 }
