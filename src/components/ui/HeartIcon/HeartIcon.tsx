@@ -4,6 +4,10 @@ import { useEffect, useId, useMemo, useRef, useState, type CSSProperties } from 
 import styles from "./HeartIcon.module.css";
 import { mulberry32 } from "@/utils/seededRandom";
 
+/** 물결 한 장 — 윗변이 주기 12 · 높이 ±2.5 로 출렁이고, 폭은 하트(0~24)보다 넓게(-48~72) 둬서
+ *  옆으로 흘려도 빈 데가 안 생긴다. 윗변이 y=0 이라 translateY 가 곧 수면 높이다 */
+const WAVE = "M-48 0 Q-45 -2.5 -42 0 T-36 0 T-30 0 T-24 0 T-18 0 T-12 0 T-6 0 T0 0 T6 0 T12 0 T18 0 T24 0 T30 0 T36 0 T42 0 T48 0 T54 0 T60 0 T66 0 T72 0 V40 H-48 Z";
+
 interface HeartIconProps {
   /** 좋아요 활성화 (filled state) */
   liked: boolean;
@@ -110,10 +114,13 @@ export default function HeartIcon({ liked, busy = false, size = 20 }: HeartIconP
           strokeLinecap="round"
           strokeLinejoin="round"
         />
+        {/* 물결 셋 — 모양은 고정(아래 WAVE), 상태에 따라 CSS transform 으로 올리고 옆으로 흘린다.
+            예전에는 CSS \`d: path()\` 로 모양 자체를 바꿨는데 사파리(WebKit)는 이 속성을 몰라
+            차오르지도, 채워진 상태로 보이지도 않았다 */}
         <g clipPath={`url(#${clipId})`}>
-          <path className={styles.heartWaveBack} d="M-2 28 C 6 28 18 28 30 28 L 30 28 L -2 28 Z" />
-          <path className={styles.heartWaveMid} d="M-2 28 C 8 28 16 28 30 28 L 30 28 L -2 28 Z" />
-          <path className={styles.heartWaveFront} d="M-2 28 C 6 28 18 28 30 28 L 30 28 L -2 28 Z" />
+          <path className={styles.heartWaveBack} d={WAVE} />
+          <path className={styles.heartWaveMid} d={WAVE} />
+          <path className={styles.heartWaveFront} d={WAVE} />
         </g>
       </svg>
       {burstKey > 0 && (

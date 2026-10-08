@@ -403,10 +403,11 @@
 }
 
 /* ── Image overlay badges 좌상단 stack (HOT + Pinned) ── */
+/* 모서리 여백은 놓이는 자리가 바꿀 수 있다 — 목록 격자의 좁은 썸네일은 --post-card-badge-inset 을 4px 로(PostsGrid) */
 .imageBadgesLeft {
   position: absolute;
-  top: var(--spacing-12);
-  left: var(--spacing-12);
+  top: var(--post-card-badge-inset, var(--spacing-12));
+  left: var(--post-card-badge-inset, var(--spacing-12));
   z-index: 1;
   display: flex;
   /* hot·pinned 나란히(가로) */
@@ -441,10 +442,12 @@
 }
 
 /* ── Lang badge 우상단 오버레이 ── */
+/* 놓이는 자리가 우하단으로 내릴 수 있다 — --post-card-lang-top: auto · --post-card-lang-bottom(PostsGrid 목록) */
 .langOverlay {
   position: absolute;
-  top: var(--spacing-12);
-  right: var(--spacing-12);
+  top: var(--post-card-lang-top, var(--spacing-12));
+  bottom: var(--post-card-lang-bottom, auto);
+  right: var(--post-card-badge-inset, var(--spacing-12));
   z-index: 1;
   display: inline-flex;
   align-items: center;

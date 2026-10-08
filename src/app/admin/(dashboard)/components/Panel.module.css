@@ -98,6 +98,13 @@
   --_item-inline-start: var(--spacing-16);
 }
 
+/* 항목 수가 홀수면 마지막 줄 오른쪽 칸이 빈다. 그 칸에는 셀이 없어 컨테이너 배경(선 색)이 통째로 비쳐
+   회색 면처럼 보였다 — 빈 칸을 셀과 같은 바탕으로 덮어 비어 있는 자리로 보이게 한다(2열 전용) */
+.insetItems:has(> :last-child:nth-child(odd))::after {
+  content: "";
+  background: var(--bg-primary);
+}
+
 /* ── Item — direct child of .panel. block default + inline children 자연 wrap.
    구체 layout (flex/grid) 이 필요한 Item 은 자체 className 으로 display override.
    horizontal padding 은 cascade var (외부에서 --_item-inline-start/end 설정 가능). */

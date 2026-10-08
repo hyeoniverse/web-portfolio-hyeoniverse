@@ -997,6 +997,11 @@
     gap: var(--spacing-40);
     grid-template-columns: 1fr;
   }
+
+  /* 패널을 세로로 쌓으면 번갈아 들이는 리듬(가로 트랙용)이 왼쪽 여백만 들쭉날쭉하게 만든다 — 좁은 폭을 다 쓴다 */
+  .panelIndent .panelInner {
+    padding-left: 0;
+  }
 }
 
 /* ── Tablet: Magazine layout adjustments ── */
@@ -1048,8 +1053,10 @@
     grid-template-columns: 1fr;
   }
 
+  /* 한 열로 접히면 제목을 붙여 둘 옆 칸이 없다 — sticky 로 두면 아래 항목(나타나는 움직임의 transform 으로
+     제목보다 위에 그려진다)과 글자가 겹쳤다 */
   .skillPanelHeader {
-    background: var(--bg-primary);
+    position: static;
   }
 }
 
@@ -1080,14 +1087,6 @@
     gap: var(--m-sm);
   }
 
-  .bioHighlight {
-    font-size: var(--m-sm);
-  }
-
-  .statNumber {
-    font-size: var(--m-md);
-  }
-
   .osWindow {
     height: 46vw;
   }
@@ -1098,10 +1097,6 @@
 
   .expRow {
     gap: var(--m-sm);
-  }
-
-  .expPeriod {
-    font-size: 1.8vw;
   }
 
   .skillPanelLayout {
