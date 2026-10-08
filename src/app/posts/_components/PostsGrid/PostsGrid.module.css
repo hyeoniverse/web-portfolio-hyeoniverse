@@ -215,17 +215,18 @@
   display: -webkit-box !important;
 }
 
-/* 3.11-1 예외: 넓은 화면의 칩 위치는 PostCard.module.css 가 정한다 — 좁은 화면만 덮어쓴다 */
-@media (width <= 768px) {
-  /* 좁은 썸네일 — lang 칩을 우하단으로 내려 좌상단 hot/pinned 와 다른 모서리에(겹침 방지, 리스트 형태 유지) */
-  .gridList [class*="langOverlay"] {
-    top: auto !important;
-    bottom: var(--spacing-4) !important;
-    right: var(--spacing-4) !important;
-  }
-  .gridList [class*="imageBadgesLeft"] {
-    top: var(--spacing-4) !important;
-    left: var(--spacing-4) !important;
+/* 좁은 썸네일(120px) — 칩을 4px 모서리로, lang 칩은 우하단으로 내려 좌상단 hot·pinned 와 다른 모서리에(겹침 방지).
+   위치는 PostCard 가 변수로 열어 둔 값만 바꾼다. 넓은 화면(220px)은 변수를 비워 PostCard 의 기본 자리로 */
+.gridList {
+  --post-card-badge-inset: var(--spacing-4);
+  --post-card-lang-top: auto;
+  --post-card-lang-bottom: var(--spacing-4);
+}
+@media (width > 768px) {
+  .gridList {
+    --post-card-badge-inset: initial;
+    --post-card-lang-top: initial;
+    --post-card-lang-bottom: initial;
   }
 }
 

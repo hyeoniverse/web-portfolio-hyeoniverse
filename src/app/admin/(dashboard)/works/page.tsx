@@ -5,10 +5,12 @@ import { useDepsChanged } from "@/hooks/useDepsChanged";
 import { QUERY_PARAM } from "@/constants";
 import type { GithubImportResponse } from "@/types";
 import { useRouter } from "next/navigation";
+import { IMAGE_FALLBACK_SRC } from "@/lib/imageFallback";
+import { usePopoverRef } from "@/hooks/useTopLayer";
 import MediaThumb from "@/components/admin/MediaThumb";
 import HighlightedText from "@/components/ui/HighlightedText";
 import { SearchHighlightProvider } from "@/providers/SearchHighlightProvider";
-import { ImageIcon, Trash2, Upload, Plus, Download, ExternalLink, GithubIcon, Folder } from "@/components/icons";
+import { Trash2, Upload, Plus, Download, ExternalLink, GithubIcon, Folder } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { getTrashDaysLeft } from "@/utils/trash";
 import { downloadBlob, downloadFiles } from "@/utils/download";
@@ -52,7 +54,6 @@ import MarkdownUploadGuide from "./_components/MarkdownUploadGuide";
 import Pressable from "@/components/ui/Pressable";
 import WorkYear from "@/components/works/WorkYear";
 import { formatWorkYear } from "@/utils/formatWorkYear";
-import { usePopoverRef } from "@/hooks/useTopLayer";
 
 /** 이 쪽에 보이는 목록 안에서 한 작업물을 newOrder 자리로 옮기고 사이를 한 칸씩 민다(서버와 같은 규칙).
     목록 밖 자리면 그대로 둔다 — 서버 값으로 맞출 때 바뀐다 */
@@ -116,19 +117,14 @@ function PreviewTooltip({
         {/* 행을 옮기면 같은 툴팁 안에서 내용만 바뀐다 — 바뀐 내용은 살짝 번지듯 들어온다 */}
         <div key={work.id} className={shell.previewSwap}>
         <div className={shell.previewImage}>
-          {work.image && !imgError ? (
-            <MediaThumb
-              src={work.image}
-              width={280}
-              height={140}
-              className={shell.previewImg}
-              onError={onImgError}
-            />
-          ) : (
-            <div className={shell.previewPlaceholder}>
-              <ImageIcon size={32} strokeWidth={1.5} />
-            </div>
-          )}
+          {/* 이미지가 없거나 깨지면 공용 대체 이미지(lib/imageFallback) — 표의 썸네일과 같은 그림 */}
+          <MediaThumb
+            src={work.image && !imgError ? work.image : IMAGE_FALLBACK_SRC}
+            width={280}
+            height={140}
+            className={shell.previewImg}
+            onError={onImgError}
+          />
         </div>
         <div className={shell.previewBody}>
           <p className={shell.previewTitle}>{work.title}</p>
@@ -584,11 +580,8 @@ export default function AdminWorksPage() {
         className: ts.colThumbWrap,
         render: (work) => (
           <div className={ts.colThumb}>
-            {work.image ? (
-              <MediaThumb src={work.image} fill sizes="48px" className={ts.thumbImg} />
-            ) : (
-              <div className={ts.thumbPlaceholder}>—</div>
-            )}
+            {/* 이미지가 없어도 깨졌을 때와 같은 공용 대체 이미지(lib/imageFallback) */}
+            <MediaThumb src={work.image || IMAGE_FALLBACK_SRC} fill sizes="48px" className={ts.thumbImg} />
           </div>
         ),
         skeletonWidth: "64px",
@@ -691,11 +684,7 @@ export default function AdminWorksPage() {
       className: st.colThumbWrap,
       render: (work) => (
         <div className={st.colThumb}>
-          {work.image ? (
-            <MediaThumb src={work.image} fill sizes="48px" className={st.thumbImg} />
-          ) : (
-            <div className={st.thumbPlaceholder}>—</div>
-          )}
+          <MediaThumb src={work.image || IMAGE_FALLBACK_SRC} fill sizes="48px" className={st.thumbImg} />
         </div>
       ),
       skeletonWidth: "64px",
