@@ -10,8 +10,10 @@
   position: relative;
   /* 무대 높이는 폭에서 나온다 — px·vw 로 따로 정하면 화면이 좁아질 때 판 비율이 어긋난다
      (좁은 화면에서 장이 홀쭉해지고 위아래 레터박스만 두꺼워졌다).
-     가로로 긴 판이라야 가운데 장 양옆으로 이웃이 보인다 */
-  aspect-ratio: 21 / 9;
+     가로로 긴 판이라야 가운데 장 양옆으로 이웃이 보인다.
+     좁은 화면에서는 한 장이 폭을 거의 채운다 — 그 폭(88%)에 16:9 를 맞추면 무대는 2:1 이 된다.
+     무대를 더 높이면 장이 max-width 에 걸려 16:9 를 못 지킨다. 넓은 화면은 아래 media */
+  aspect-ratio: 2 / 1;
   max-height: min(72vh, 760px);
   /* 세로는 페이지가 가져가고 가로 끌기만 여기서 받는다 */
   touch-action: pan-y;
@@ -45,7 +47,7 @@
   /* 장 하나는 무대 높이에 맞추고 폭은 판형(16:9)에서 나온다 — 어느 화면에서나 같은 모양 */
   height: 100%;
   aspect-ratio: 16 / 9;
-  max-width: 82%;
+  max-width: 88%;
   transform:
     translate(-50%, -50%)
     translateX(var(--_x))
@@ -170,16 +172,13 @@
   opacity: 1;
 }
 
-@media (width <= 768px) {
+@media (width > 768px) {
   .stage {
-    /* 좁은 화면에서는 한 장이 폭을 거의 채운다 — 그 폭(88%)에 16:9 를 맞추면 무대는 2:1 이 된다.
-       무대를 더 높이면 장이 max-width 에 걸려 16:9 를 못 지킨다 */
-    aspect-ratio: 2 / 1;
-    perspective: 900px;
+    aspect-ratio: 21 / 9;
   }
 
   .slide {
-    max-width: 88%;
+    max-width: 82%;
   }
 }
 /* 움직임을 줄여 달라고 한 화면에서는 기울이지 않고 자리만 바꾼다 */
