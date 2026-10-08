@@ -34,13 +34,15 @@
   margin: var(--spacing-16) 0;
 }
 /* SectionHeader row 에 inline 으로 들어갈 때 — margin 모두 제거, line-height 1.
-   title 과의 간격은 SectionHeader 의 row gap 이 담당. 모바일에선 flex-basis 100% 로 줄바꿈.
+   title 과의 간격은 SectionHeader 의 row gap 이 담당. 좁은 화면에선 flex-basis 100% 로 줄바꿈.
    .sectionHint 위에 얹는 modifier 라 같은 (0,1,0) 이면 base 의 margin-bottom(md) 이 번들 순서에
    따라 살아남아 제목 옆 hint 가 아래로 처졌다. 클래스를 두 번 적어 (0,2,0). */
 .sectionHintInline.sectionHintInline {
   /* 왼쪽 여백은 글머리 자리(.sectionHint) */
   margin: 0 0 0 var(--spacing-20);
   line-height: var(--line-height-100);
+  flex-basis: 100%;
+  order: 99;
 }
 
 .tagPendingDeleteList {
@@ -97,9 +99,9 @@
 .fitSelect > button {
   width: auto;
 }
-@media (width <= 768px) {
+@media (width > 768px) {
   .sectionHintInline.sectionHintInline {
-    flex-basis: 100%;
-    order: 99;
+    flex-basis: auto;
+    order: 0;
   }
 }

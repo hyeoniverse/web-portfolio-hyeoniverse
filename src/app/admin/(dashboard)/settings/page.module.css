@@ -23,7 +23,7 @@
   /* 좁은 폭에서 타이틀·토글·액션 버튼이 한 줄에 못 들어가면 접힌다 —
      nowrap 이면 서로 겹쳐버린다 */
   flex-wrap: wrap;
-  gap: var(--spacing-12) var(--spacing-16);
+  gap: var(--spacing-12);
   margin-bottom: var(--spacing-32);
 }
 
@@ -32,7 +32,7 @@
   align-items: center;
   gap: var(--spacing-12);
   margin: 0;
-  font: var(--font-headline-xl);
+  font: var(--font-headline-md);
   color: var(--text-primary);
 }
 
@@ -43,28 +43,26 @@
 /* ── Layout: Side Nav + Panel ── */
 .layout {
   display: flex;
-  gap: var(--spacing-20);
+  flex-direction: column;
+  gap: 0;
 }
 
-/* 데스크탑(>1024): 세로 sticky 사이드바. 태블릿·모바일(≤1024)에서는 아래
-   미디어쿼리에서 가로 스크롤 탭바로 바뀐다. */
+/* 태블릿·모바일: 탭 메뉴 위에 가로 스크롤 탭바. sticky/frost 는 래퍼(.tabBarSticky)가 맡는다 — 여기선 스크롤만.
+   데스크탑(>1024)은 아래 미디어쿼리에서 세로 sticky 사이드바로 바뀐다. */
 .sideNav {
   display: flex;
-  flex-direction: column;
-  width: 200px;
+  width: 100%;
   flex-shrink: 0;
-  position: sticky;
-  top: calc(var(--header-height) + var(--spacing-32));
   align-self: flex-start;
-  /* About 에서 섹션 목록(SectionOutline)까지 펼치면 화면보다 길어진다. 붙어 있는 동안에는 화면 아래로
-     넘친 항목(Appearance·Account)이 보이지 않으므로, 화면 높이까지만 두고 안에서 스크롤한다. */
-  /* --side-nav-room — 붙는 선에서 틀(.layout) 끝까지 남은 자리. 페이지 끝에서 틀에 밀려 nav 와
-     겹치지 않게 그만큼으로 줄인다(page.tsx 효과가 스크롤마다 넣는다). */
-  max-height: min(calc(100dvh - var(--header-height) - var(--spacing-32) - var(--spacing-16)), var(--side-nav-room, 100dvh));
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  scrollbar-width: thin;
-  border-top: var(--border-light);
+  /* 가로(탭바)든 세로(사이드바)든 넘치면 안에서 스크롤 */
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  border-bottom: var(--border-light);
+}
+
+.sideNav > div {
+  display: contents;
 }
 
 /* layout gap 변화 부드럽게 */
@@ -77,19 +75,21 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-8);
-  /* min-height 로 모든 nav row 동일 — padding 상하 0 이라 텍스트는 자동 정중앙 */
+  flex-shrink: 0;
+  /* min-height 로 모든 nav row 동일 */
   min-height: calc(var(--control-height-md) + var(--spacing-12));
-  padding: 0 var(--spacing-8);
+  padding: var(--row-padding-lg);
   border: none;
-  border-bottom: var(--border-light);
+  /* 탭바 — 고른 탭만 밑줄 색(.navItemActive) */
+  border-bottom: var(--border-width-2) solid transparent;
   border-radius: 0;
   background: transparent;
-  font: var(--font-body-lg);
+  font: var(--font-body-sm);
   font-weight: 500;
   color: var(--text-primary);
-  text-align: left;
+  text-align: center;
   letter-spacing: 0.02em;
-  width: 100%;
+  white-space: nowrap;
 }
 
 .sideNav .navItem:hover {
@@ -97,6 +97,7 @@
 }
 
 .navItemActive {
+  border-bottom-color: var(--text-accent);
   color: var(--text-accent);
   font-weight: 600;
 }
@@ -111,65 +112,13 @@
 /* 좁은 폭에서는 섹션 바로가기 눈금(SectionJumpNav)이 화면 오른쪽 가장자리에 떠 있다.
    눈금 자리는 오른쪽 끝에서 spacing-md 안쪽, 폭 18px 이다. 본문 여백(--spacing-page-inline, 480px 이하 4vw)이
    그보다 좁으면 눈금이 버튼과 카드 가장자리를 가리므로, 모자란 만큼 본문 오른쪽을 비운다. */
-@media (width <= 768px) {
-  .panel {
-    padding-right: max(0px, calc(var(--spacing-16) + 18px + var(--spacing-4) - var(--spacing-page-inline)));
-  }
+.panel {
+  padding-right: max(0px, calc(var(--spacing-16) + 18px + var(--spacing-4) - var(--spacing-page-inline)));
 }
 
-@media (width <= 1024px) {
-  .layout {
-    flex-direction: column;
-    gap: 0;
-  }
-
-  .sideNav {
-    flex-direction: row;
-    flex-wrap: nowrap;
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    /* sticky/frost 는 래퍼(.tabBarSticky)가 맡는다 — 여기선 스크롤만 */
-    position: static;
-    max-height: none;
-    overscroll-behavior: auto;
-    gap: 0;
-    padding: 0;
-    border-top: none;
-    border-bottom: var(--border-light);
-  }
-
-  .sideNav::-webkit-scrollbar {
-    display: none;
-  }
-
-  .sideNav > div {
-    display: contents;
-  }
-
-  .navItem {
-    white-space: nowrap;
-    flex-shrink: 0;
-    width: auto;
-    border-bottom: var(--border-width-2) solid transparent;
-    padding: var(--row-padding-lg);
-    font-size: var(--font-size-body-sm);
-    text-align: center;
-  }
-
-  .navItemActive {
-    border-bottom-color: var(--text-accent);
-    color: var(--text-accent);
-  }
-
-  /* 모바일 미세 조정 — font / padding */
-  .header {
-    gap: var(--spacing-12);
-  }
-
-  .title {
-    font-size: var(--font-size-headline-md);
+@media (width > 768px) {
+  .panel {
+    padding-right: 0;
   }
 }
 
@@ -292,10 +241,35 @@
   justify-content: center;
 }
 /* 탭바 sticky 래퍼 — edit 페이지 topBar 와 같은 방식.
-   데스크탑에선 래퍼를 없는 셈 치고(sideNav 가 직접 세로 사이드바), 태블릿 이하에서만
-   이 래퍼가 sticky + frost 를 맡는다. 스크롤(overflow)은 안쪽 sideNav 라 ::before 가 안 잘린다. */
+   태블릿 이하에서 이 래퍼가 sticky + frost 를 맡는다. 스크롤(overflow)은 안쪽 sideNav 라 ::before 가 안 잘린다.
+   데스크탑에선 래퍼를 없는 셈 친다(sideNav 가 직접 세로 사이드바, 아래 media). */
 .tabBarSticky {
-  display: contents;
+  display: block;
+  position: sticky;
+  top: var(--header-height);
+  /* frost(::before)가 사이트 nav 뒤로 깔리고 nav 는 그 위에 보이도록 nav 보다 한 단계 아래 */
+  z-index: calc(var(--z-index-nav) - 1);
+}
+/* 고정(pin) 시 nav 영역까지 위로 확장해 blur — 배경색 없이 backdrop-filter 만.
+   overflow 는 안쪽 sideNav 라 이 ::before 는 안 잘린다. */
+.tabBarSticky::before {
+  content: "";
+  position: absolute;
+  top: calc(-1 * var(--header-height));
+  left: calc(-1 * var(--spacing-page-inline));
+  right: calc(-1 * var(--spacing-page-inline));
+  /* 탭바 밑줄(하단 indicator)까지 blur 를 균일하게 — 페이드는 탭바 아래 여백에서만.
+     예전엔 bottom:0 + 90% 라 밑줄이 페이드 구간에 걸려 그 부분만 blur 가 약했다. */
+  bottom: calc(-1 * var(--spacing-16));
+  z-index: -1;
+  backdrop-filter: var(--blur-glass);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - var(--spacing-16)), transparent);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--duration-base) var(--ease-standard);
+}
+.tabBarPinned::before {
+  opacity: 1;
 }
 
 .navConflictBadge {
@@ -305,9 +279,10 @@
   background: var(--bg-accent-solid);
   flex-shrink: 0;
 }
-/* ── Nav Sub-items (Content → Home / Profile / About) ── */
+/* ── Nav Sub-items (Content → Home / Profile / About) — 데스크탑 사이드바 전용.
+   태블릿 이하에서는 하위 탭을 탭바 아래 줄(.mobileSubNav)로 따로 그린다 ── */
 .navSub {
-  display: flex;
+  display: none;
   flex-direction: column;
 }
 
@@ -339,8 +314,37 @@
   font-weight: 600;
 }
 
+/* 태블릿 이하의 하위 탭 줄 — 데스크탑은 사이드바 안의 .navSub 가 대신한다 */
 .mobileSubNav {
+  display: flex;
+  gap: 0;
+  /* 바로 아래 섹션 점프바와 딱 붙게 — 예전 lg 는 그 사이가 너무 떴다.
+     점프바가 없는 하위탭(섹션 1개)일 때의 콘텐츠 간격은 tabGrid margin-top 이 맡는다. */
+  margin-bottom: var(--spacing-4);
+  border-bottom: var(--border-light);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.mobileSubNav::-webkit-scrollbar {
   display: none;
+}
+
+.mobileSubItem {
+  flex-shrink: 0;
+  padding: var(--row-padding-md);
+  border: none;
+  border-bottom: var(--border-width-2) solid transparent;
+  background: transparent;
+  font: var(--font-body-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.mobileSubItemActive {
+  color: var(--text-accent);
+  border-bottom-color: var(--text-accent);
 }
 /* ── Tab grid — auto-fit: 컬럼 폭이 minmax min 이하로 좁아지면 자동으로 1열 wrap.
    max-width 1040px 안에서 2 col 폭이 ~440px 미만이면 1열. */
@@ -351,7 +355,8 @@
   grid-template-columns: repeat(auto-fit, minmax(min(440px, 100%), 1fr));
   gap: 0 var(--spacing-32);
   max-width: 1040px;
-  margin: 0 auto;
+  /* 태블릿 이하 — 탭바와 첫 섹션이 딱 붙지 않게 위 여백. 데스크탑은 사이드바 옆이라 0(아래 media) */
+  margin: var(--spacing-20) auto 0;
 }
 /* Content home 은 짧은 섹션(3D·Footer)과 긴 섹션이 섞여 2단이면 빈 공간이 생긴다.
    섹션 높이가 제각각이라 grid(row 기반)로는 못 메우므로 1컬럼 세로로 배치한다. */
@@ -368,7 +373,7 @@
 /* ── Skeleton (tab layout) ── */
 .skeletonNav {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: var(--spacing-8);
 }
 
@@ -382,85 +387,81 @@
   border-bottom: none;
 }
 
+/* 3.11-1 예외: ::-webkit-scrollbar 는 한 번 꾸미면 기본 스크롤바로 되돌릴 값이 없다 — 데스크탑 사이드바의
+   얇은 스크롤바(scrollbar-width 를 모르는 옛 Safari)를 살리려면 숨김을 좁은 화면에만 둔다 */
 @media (width <= 1024px) {
-  .tabBarSticky {
-    display: block;
-    position: sticky;
-    top: var(--header-height);
-    /* frost(::before)가 사이트 nav 뒤로 깔리고 nav 는 그 위에 보이도록 nav 보다 한 단계 아래 */
-    z-index: calc(var(--z-index-nav) - 1);
-  }
-  /* 고정(pin) 시 nav 영역까지 위로 확장해 blur — 배경색 없이 backdrop-filter 만.
-       overflow 는 안쪽 sideNav 라 이 ::before 는 안 잘린다. */
-  .tabBarSticky::before {
-    content: "";
-    position: absolute;
-    top: calc(-1 * var(--header-height));
-    left: calc(-1 * var(--spacing-page-inline));
-    right: calc(-1 * var(--spacing-page-inline));
-    /* 탭바 밑줄(하단 indicator)까지 blur 를 균일하게 — 페이드는 탭바 아래 여백에서만.
-       예전엔 bottom:0 + 90% 라 밑줄이 페이드 구간에 걸려 그 부분만 blur 가 약했다. */
-    bottom: calc(-1 * var(--spacing-16));
-    z-index: -1;
-    backdrop-filter: var(--blur-glass);
-    mask-image: linear-gradient(to bottom, #000 calc(100% - var(--spacing-16)), transparent);
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity var(--duration-base) var(--ease-standard);
-  }
-  .tabBarPinned::before {
-    opacity: 1;
-  }
-
-  /* 위 .navSub 의 display:flex 와 같은 파일 뒤에 와서 이긴다. */
-  .navSub {
+  .sideNav::-webkit-scrollbar {
     display: none;
-  }
-
-  .mobileSubNav {
-    display: flex;
-    gap: 0;
-    /* 바로 아래 섹션 점프바와 딱 붙게 — 예전 lg 는 그 사이가 너무 떴다.
-       점프바가 없는 하위탭(섹션 1개)일 때의 콘텐츠 간격은 tabGrid margin-top 이 맡는다. */
-    margin-bottom: var(--spacing-4);
-    border-bottom: var(--border-light);
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-
-  .mobileSubNav::-webkit-scrollbar {
-    display: none;
-  }
-
-  .mobileSubItem {
-    flex-shrink: 0;
-    padding: var(--row-padding-md);
-    border: none;
-    border-bottom: var(--border-width-2) solid transparent;
-    background: transparent;
-    font: var(--font-body-sm);
-    font-weight: var(--font-weight-medium);
-    color: var(--text-secondary);
-    white-space: nowrap;
-  }
-
-  .mobileSubItemActive {
-    color: var(--text-accent);
-    border-bottom-color: var(--text-accent);
-  }
-  /* sub 탭이 없는 탭(General·Appearance·Services·Account)은 탭바와 첫 섹션 사이
-       여백이 없어 딱 붙었다. tabGrid 에 상단 여백을 준다. Content 는 위 mobileSubNav
-       의 margin-bottom 이 이미 그 여백을 주므로, subNav 바로 뒤 tabGrid 는 예외로 둬
-       2단 탭(메인 + 하위)이 붙어 보이게 유지한다. */
-  .tabGrid {
-    margin-top: var(--spacing-20);
-  }
-
-  /* 점프바(SectionJumpNav)가 없는 하위탭은 tabGrid margin-top 이 탭 메뉴와의 간격을 담당한다.
-     (점프바가 있으면 그 element 가 사이에 들어가 이 인접 선택자가 매칭되지 않으므로 영향 없음) */
-
-  .skeletonNav {
-    flex-direction: row;
   }
 }
 
+/* 데스크탑 — 세로 sticky 사이드바 + 오른쪽 패널 */
+@media (width > 1024px) {
+  .header {
+    gap: var(--spacing-12) var(--spacing-16);
+  }
+
+  .title {
+    font-size: var(--font-size-headline-xl);
+  }
+
+  .layout {
+    flex-direction: row;
+    gap: var(--spacing-20);
+  }
+
+  .sideNav {
+    flex-direction: column;
+    width: 200px;
+    position: sticky;
+    top: calc(var(--header-height) + var(--spacing-32));
+    /* About 에서 섹션 목록(SectionOutline)까지 펼치면 화면보다 길어진다. 붙어 있는 동안에는 화면 아래로
+       넘친 항목(Appearance·Account)이 보이지 않으므로, 화면 높이까지만 두고 안에서 스크롤한다. */
+    /* --side-nav-room — 붙는 선에서 틀(.layout) 끝까지 남은 자리. 페이지 끝에서 틀에 밀려 nav 와
+       겹치지 않게 그만큼으로 줄인다(page.tsx 효과가 스크롤마다 넣는다). */
+    max-height: min(calc(100dvh - var(--header-height) - var(--spacing-32) - var(--spacing-16)), var(--side-nav-room, 100dvh));
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    border-top: var(--border-light);
+    border-bottom: none;
+  }
+
+  .sideNav > div {
+    display: block;
+  }
+
+  /* 세로 목록 — padding 상하 0 이라 텍스트는 min-height 안에서 자동 정중앙. 줄마다 옅은 선 */
+  .navItem {
+    flex-shrink: 1;
+    width: 100%;
+    padding: 0 var(--spacing-8);
+    border-bottom: var(--border-light);
+    font-size: var(--font-size-body-lg);
+    text-align: left;
+    white-space: normal;
+  }
+
+  .tabBarSticky {
+    display: contents;
+  }
+
+  .tabBarSticky::before {
+    content: none;
+  }
+
+  .navSub {
+    display: flex;
+  }
+
+  .mobileSubNav {
+    display: none;
+  }
+
+  .tabGrid {
+    margin-top: 0;
+  }
+
+  .skeletonNav {
+    flex-direction: column;
+  }
+}

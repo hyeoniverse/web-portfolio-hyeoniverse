@@ -7,20 +7,23 @@
 
 .header {
   display: flex;
+  /* 제목과 버튼이 한 줄에 안 들어가면 접는다 — 넓은 화면에서도 넘칠 때만 접히니 평소 모양은 같다 */
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
+  gap: var(--spacing-12);
   margin-bottom: var(--spacing-32);
 }
 
 .title {
-  font: var(--font-headline-xl);
+  font: var(--font-headline-md);
   color: var(--text-primary);
 }
 
 .headerActions {
   display: flex;
   align-items: center;
-  gap: var(--spacing-12);
+  gap: var(--spacing-8);
   flex-shrink: 0;
 }
 
@@ -46,7 +49,7 @@
   border: var(--border-success);
   border-radius: var(--radius-control);
   background: var(--bg-success-solid);
-  font: var(--font-body-md);
+  font: var(--font-body-sm);
   font-weight: 500;
   color: var(--text-white);
   letter-spacing: 0.02em;
@@ -140,6 +143,11 @@
   margin-left: auto;
 }
 
+/* 좁은 화면: 필터 바 안의 검색창은 한 줄 전체 */
+.filterBar .filterSearch {
+  width: 100%;
+}
+
 /* ── Preview Backdrop (mobile dismiss) ── */
 .previewBackdrop {
   display: none;
@@ -148,13 +156,15 @@
 /* ── Hover Preview Tooltip ── */
 .previewTooltip {
   position: fixed;
-  width: 280px;
   background: var(--bg-primary);
   border: var(--border-light);
   border-radius: var(--radius-surface);
   box-shadow: var(--shadow-overlay);
   overflow: hidden;
   pointer-events: none;
+  /* 좁은 화면 — 양옆 20px 남기고 최대 320px. 넓은 화면은 280px 고정(아래 media) */
+  width: calc(100vw - var(--spacing-20) * 2);
+  max-width: 320px;
   /* 커서 쪽 모서리에서 커진다(usePreviewTooltip 가 transform-origin 을 커서 쪽으로 바꾼다) */
   transform-origin: left bottom;
 }
@@ -272,40 +282,32 @@
   color: var(--text-tertiary);
 }
 
-@media (width <= 768px) {
-  /* 모바일: 검색창 full width */
+@media (width > 768px) {
   .filterBar .filterSearch {
-    width: 100%;
-  }
-
-  .header {
-    flex-wrap: wrap;
-    gap: var(--spacing-12);
+    width: 280px;
   }
 
   .title {
-    font-size: var(--font-size-headline-md);
+    font-size: var(--font-size-headline-xl);
   }
 
   .headerActions {
-    gap: var(--spacing-8);
+    gap: var(--spacing-12);
   }
 
   .saveBtn {
-    font-size: var(--font-size-body-sm);
-    display: inline-flex;
-    align-items: center;
-    height: var(--control-height-lg);
-    padding: 0 var(--control-padding-inline-lg);
+    font-size: var(--font-size-body-md);
   }
 
   .previewTooltip {
-    width: calc(100vw - var(--spacing-20) * 2);
-    max-width: 320px;
+    width: 280px;
+    max-width: none;
   }
 }
 
-/* Touch devices at mobile width: centered modal style */
+/* Touch devices at mobile width: centered modal style.
+   3.11-1 예외: 툴팁 위치(left·top)는 usePreviewTooltip 가 인라인으로 넣는다 — 가운데 모달로 바꾸려면 !important 로
+   눌러야 하고, 배경막도 그 모달과 한 짝이라 함께 둔다 */
 @media (width <= 768px) and (hover: none) {
   .previewBackdrop {
     display: block;
