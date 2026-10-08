@@ -1,5 +1,6 @@
+/* 좁은 화면 · 낮은 화면은 숨기고, 넓고 높은 화면(아래 media)에서만 세로 띠로 그린다 */
 .divider {
-  display: flex;
+  display: none;
   gap: var(--spacing-8);
   justify-content: center;
   overflow: hidden;
@@ -61,10 +62,9 @@
   }
 }
 
-/* Mobile: hide */
-@media (width <= 1024px), (height <= 700px) {
+@media (width > 1024px) and (height > 700px) {
   .divider {
-    display: none;
+    display: flex;
   }
 }
 
