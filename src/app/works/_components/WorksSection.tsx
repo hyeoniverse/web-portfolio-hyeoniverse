@@ -15,7 +15,6 @@ import {
   INFINITE_SCROLL_SETS,
 } from "@/data/projects";
 import { useWorksHorizontalScroll } from "../_hooks/useWorksHorizontalScroll";
-import { useWorksVerticalParallax } from "../_hooks/useWorksVerticalParallax";
 import { useWorkTransition } from "../_hooks/useWorkTransition";
 import WorksIntro from "./WorksIntro";
 import WorksActiveInfo from "./WorksActiveInfo";
@@ -131,13 +130,6 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
     cls: SCROLL_CLASS_NAMES,
     onActiveIndex: setActiveIndex,
     onIntroVisible: setIntroVisible,
-  });
-
-  useWorksVerticalParallax({
-    sliderRef,
-    enabled: isVerticalLayout,
-    cardClassName: flowCardClassNames.card,
-    imageWrapClassName: flowCardClassNames.cardImageWrap,
   });
 
   const introBlock = (
