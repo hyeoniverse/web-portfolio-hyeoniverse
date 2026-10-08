@@ -6,6 +6,8 @@
 }
 
 .page {
+  /* 레일 · 표가 이 상자 폭으로 바뀐다(3.11-3) */
+  container: service-log / inline-size;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-20);
@@ -471,7 +473,7 @@
 }
 
 /* 좁은 화면 — 왼쪽 목록이 위로 올라가 가로로 넘기는 칩 줄이 된다 */
-@media (width <= 900px) {
+@container service-log (width < 760px) {
   .split {
     grid-template-columns: minmax(0, 1fr);
     gap: var(--spacing-16);
@@ -700,7 +702,7 @@
 }
 
 /* ── 노트북 — 왼쪽 목록을 줄여 메시지 칸에 자리를 준다 ── */
-@media (900px < width <= 1280px) {
+@container service-log (760px <= width < 1080px) {
   .split {
     grid-template-columns: 220px minmax(0, 1fr);
     gap: var(--spacing-24);
@@ -713,7 +715,7 @@
 }
 
 /* ── 태블릿 — 위로 올라간 목록을 테두리 상자 없이 칩 한 줄로. 전체도 칩 하나(숫자 한 줄) ── */
-@media (width <= 900px) {
+@container service-log (width < 760px) {
   .rail {
     padding: 0 0 var(--spacing-4);
     border: none;
@@ -788,7 +790,7 @@
 }
 
 /* ── 모바일 — 가로로 미는 표 대신 줄마다 카드: 공급자 · 결과 / 시각 / 메시지 ── */
-@media (width <= 640px) {
+@container service-log (width < 580px) {
   :where(.tableScroll) {
     overflow-x: visible;
   }

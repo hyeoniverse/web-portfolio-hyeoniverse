@@ -555,7 +555,8 @@
 }
 
 /* ── 이벤트 추가/편집 모달 폼 ── 좌(제목~상태) | 우(내용~태그), 모바일 1열 */
-.modalBody { display: flex; flex-direction: column; }
+/* 일정 창 두 열은 창 몸통 폭으로 접는다(3.11-3) */
+.modalBody { display: flex; flex-direction: column; container: cal-event / inline-size; }
 .modalForm {
   display: flex;
   align-items: flex-start;
@@ -1181,7 +1182,7 @@
   gap: var(--spacing-16);
 }
 .sectionFull { /* flex 컬럼에선 자동 전체폭 */ }
-@media (width <= 560px) {
+@container cal-event (width < 560px) {
   .modalForm { flex-direction: column; gap: var(--spacing-16); }
 }
 .sectionLabelRow {
@@ -1196,7 +1197,7 @@
   gap: var(--spacing-16);
 }
 .sectionRow > .section { flex: 1 1 0; min-width: 0; }
-@media (width <= 560px) {
+@container cal-event (width < 560px) {
   .sectionRow { flex-direction: column; }
 }
 /* 기간 토글 ON — 공통 active 스타일(SegmentedControl 선택 등)과 동일한 검정 채움 */

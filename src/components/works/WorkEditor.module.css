@@ -222,6 +222,8 @@
 }
 
 .extraSectionsContent {
+  /* 왼쪽 제목 칸(200px)을 둘 자리가 있는지는 이 상자 폭으로 본다(3.11-3) */
+  container: work-extra / inline-size;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -314,7 +316,7 @@
   margin-bottom: 0;
 }
 
-@media (width <= 900px) {
+@container work-extra (width < 760px) {
   .extraSectionsContent > .section {
     min-height: 0;
     padding-left: 0;
@@ -1058,6 +1060,8 @@
 .memberCard.memberCardAdd.memberCardAdd {
   padding: 0;
   gap: var(--spacing-12);
+  /* 사진 폭만큼 들이는 들여쓰기는 카드 폭으로 정한다(3.11-3) */
+  container: member-add / inline-size;
 }
 
 /* 헤더 row — [avatar | 이름 칸]. 이름 칸 위에 라벨이 붙어 사진은 입력칸 줄에 맞춘다 */
@@ -1100,7 +1104,7 @@
   margin-left: calc(44px + var(--spacing-16));
 }
 
-@media (width <= 640px) {
+@container member-add (width < 540px) {
   .memberCardAdd > :not(.memberHeaderRow):not(input) {
     margin-left: 0;
   }

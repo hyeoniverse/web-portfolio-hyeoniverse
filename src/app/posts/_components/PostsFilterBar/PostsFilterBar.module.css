@@ -6,7 +6,7 @@
   max-width: var(--width-page-max);
   margin: 0 auto var(--spacing-32);
   position: sticky;
-  top: calc(var(--spacing-32) * 2 + var(--font-size-32));
+  top: calc(var(--spacing-16) * 2 + var(--font-size-32));
   z-index: 3;
   /* 콘텐츠와 border-bottom (divider) 사이 breathing — 이전엔 .btn 의 border-bottom 2px 가 암묵적 여백
      역할했는데 제거 후 콘텐츠가 divider 에 딱 붙음. */
@@ -39,6 +39,11 @@
   --border-color-strong: color-mix(in srgb, var(--text-white) 28%, transparent);
   --border-color-ghost-light: color-mix(in srgb, var(--text-white) 28%, transparent);
   --bg-tertiary: color-mix(in srgb, var(--text-white) 16%, transparent);
+}
+@media (width > 480px) {
+  .filterBar {
+    top: calc(var(--spacing-32) * 2 + var(--font-size-32));
+  }
 }
 
 
@@ -134,11 +139,5 @@
     /* multi-row 시 첫 row 기준 정렬 — 데스크탑과 동일 패턴 */
     align-items: flex-start;
     gap: var(--spacing-12);
-  }
-}
-
-@media (width <= 480px) {
-  .filterBar {
-    top: calc(var(--spacing-16) * 2 + var(--font-size-32));
   }
 }

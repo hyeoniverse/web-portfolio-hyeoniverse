@@ -269,8 +269,8 @@ export const METRICS: Metric[] = [
   { id: "layer-z-number", rule: "3.10-3", what: "4 이상 z-index 숫자", count: regex(CSS, /z-index:\s*(?:[4-9]|\d{2,})\b/) },
   /* 범위 문법(`width <= 768px`)도 큰 화면부터 깎는 쿼리다 — 위 경계(`max-width` · `width <`)가 있는 미디어 쿼리를 센다 */
   { id: "responsive-max-width", rule: "3.11-1", what: "폭의 위 경계가 있는 미디어 쿼리(`max-width` · `width <`)", count: regex(CSS, /@media[^{]*(?:max-width|\bwidth\s*<)/) },
-  { id: "responsive-legacy-syntax", rule: "3.11-2", what: "범위 문법이 아닌 미디어 쿼리(`min-` · `max-`)", count: regex(CSS, /@media[^{]*\((?:min|max)-(?:width|height|aspect-ratio)\s*:/) },
-  { id: "responsive-off-scale", rule: "3.11-2", what: "기준값(480 · 768 · 1024) 밖의 폭 경계", count: regex(CSS, /@media[^{]*?(?:\bwidth\s*[<>]=?\s*(?!(?:480|768|1024)px)\d+px|\b(?!(?:480|768|1024)px)\d+px\s*[<>]=?\s*width)/) },
+  { id: "responsive-legacy-syntax", rule: "3.11-2", what: "범위 문법이 아닌 미디어 · 컨테이너 쿼리(`min-` · `max-`)", count: regex(CSS, /@(?:media|container)[^{]*\((?:min|max)-(?:width|height|aspect-ratio)\s*:/) },
+  { id: "responsive-off-scale", rule: "3.11-2", what: "기준값(480 · 768 · 1024 · 1280) 밖의 폭 경계", count: regex(CSS, /@media[^{]*?(?:\bwidth\s*[<>]=?\s*(?!(?:480|768|1024|1280)px)\d+px|\b(?!(?:480|768|1024|1280)px)\d+px\s*[<>]=?\s*width)/) },
   { id: "responsive-100vh", rule: "3.11-4", what: "`100vh`", count: regex(CSS, /\b100vh\b/) },
   /* 4 우선순위 */
   { id: "cascade-vendor-js-import", rule: "4-3", what: "JS 에서 바로 import 한 서드파티 CSS", count: regex(["code"], /^import\s+["'](?:katex|@xyflow|pretendard)[^"']*\.css["']/m) },

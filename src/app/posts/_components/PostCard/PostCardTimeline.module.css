@@ -170,7 +170,7 @@
 }
 
 /* 모바일 — 반대편 공간이 없으니 프리뷰를 제목 아래 인라인 상시 표시 */
-@media (width <= 640px) {
+@media (width <= 768px) {
   .timelinePreview {
     position: static;
     width: auto;

@@ -8,6 +8,8 @@
   --lexicon-cols: minmax(0, 1fr) 32px minmax(0, 1fr) 92px;
   /* 칸 안 글자 시작 — 입력 안 글자 여백과 같다 */
   --lexicon-inset: var(--spacing-16);
+  /* 좁은 자리(설정 패널 · 낭독 편집기)에서 칸을 줄인다(3.11-3) */
+  container: lexicon / inline-size;
 
   display: flex;
   flex-direction: column;
@@ -343,8 +345,9 @@
 }
 
 /* 좁으면 화살표 · 열 머리의 화살표 자리를 빼고 두 칸을 반씩 */
-@media (width <= 640px) {
-  .editor {
+@container lexicon (width < 560px) {
+  /* .editor 자신은 기준 상자라 바꿀 수 없다 — 변수를 자식에 다시 놓아 아래로 물려준다 */
+  .editor > * {
     --lexicon-cols: minmax(0, 1fr) 24px minmax(0, 1fr) 84px;
   }
 

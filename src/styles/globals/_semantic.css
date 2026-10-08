@@ -194,15 +194,15 @@
    Page Layout — shared horizontal padding + max-width
    -------------------------------------------------------------------------- */
 :root {
-  --spacing-page-inline: 8vw;
+  --spacing-page-inline: 5vw;
   /* 화면 꼭대기 → 네비(로고 · 단추) — 좌우 여백과 같은 값, 단 32px 까지. 넓은 화면은 32(8vw 면 너무 내려온다),
      좁은 화면은 좌우 여백(5vw · 4vw)을 따라 한 규칙으로 줄어든다 */
   --spacing-nav-top: min(var(--spacing-page-inline), var(--spacing-32));
   --width-page-max: 100%;
 }
-@media (width <= 768px) {
+@media (width > 768px) {
   :root {
-    --spacing-page-inline: 5vw;
+    --spacing-page-inline: 8vw;
   }
 }
 @media (width <= 480px) {
@@ -217,7 +217,7 @@
    -------------------------------------------------------------------------- */
 :root {
   /* Panel Padding */
-  --spacing-panel-block: clamp(1rem, min(4.5vh, 2.5vw), 4.5rem);
+  --spacing-panel-block: var(--m-lg);
 
   /* ── 글자 토큰 — 세 층, 층마다 이름 규칙 하나(docs/design-system.md 3.2) ─────────
    * 1층 원재료  --{속성}-{값}                 _typography.css  --font-size-13 · --line-height-160 · --font-instrument
@@ -346,13 +346,13 @@
 
   /* Details */
 }
+@media (width > 480px) {
+  :root {
+    --spacing-panel-block: clamp(1rem, min(4.5vh, 2.5vw), 4.5rem);
+  }
+}
 
 
 /* --------------------------------------------------------------------------
    Mobile — Editorial Overrides
    -------------------------------------------------------------------------- */
-@media (width <= 480px) {
-  :root {
-    --spacing-panel-block: var(--m-lg);
-  }
-}
