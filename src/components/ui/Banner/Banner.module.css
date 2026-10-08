@@ -15,7 +15,7 @@
 /* ── Viewport ── */
 .viewport {
   position: relative;
-  height: 380px;
+  height: 280px;
   overflow: hidden;
 }
 
@@ -67,8 +67,8 @@
 .cylinder {
   position: absolute;
   top: 0;
-  left: 10%;
-  width: 80%;
+  left: 5%;
+  width: 90%;
   height: 100%;
   transform-style: preserve-3d;
   border-radius: var(--radius-surface);
@@ -93,8 +93,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: var(--float-button-size-md);
-  height: var(--float-button-size-md);
+  width: var(--control-height-xl);
+  height: var(--control-height-xl);
   border: var(--border-white);
   border-radius: var(--radius-full);
   background: var(--bg-glass);
@@ -116,17 +116,17 @@
 }
 
 .arrowPrev {
-  left: var(--spacing-20);
+  left: var(--spacing-12);
 }
 
 .arrowNext {
-  right: var(--spacing-20);
+  right: var(--spacing-12);
 }
 
 /* ── Dots indicator ── */
 .dots {
   position: absolute;
-  bottom: var(--spacing-20);
+  bottom: var(--spacing-16);
   left: 50%;
   transform: translateX(-50%);
   z-index: 2;
@@ -168,31 +168,31 @@
 }
 
 /* ── Responsive ── */
-@media (width <= 768px) {
+@media (width > 768px) {
   .viewport {
-    height: 280px;
+    height: 380px;
   }
 
   .viewportWrap .arrow {
-    width: var(--control-height-xl);
-    height: var(--control-height-xl);
+    width: var(--float-button-size-md);
+    height: var(--float-button-size-md);
   }
 
   .arrowPrev {
-    left: var(--spacing-12);
+    left: var(--spacing-20);
   }
 
   .arrowNext {
-    right: var(--spacing-12);
+    right: var(--spacing-20);
   }
 
   .dots {
-    bottom: var(--spacing-16);
+    bottom: var(--spacing-20);
   }
 
   .cylinder {
-    left: 5%;
-    width: 90%;
+    left: 10%;
+    width: 80%;
   }
 }
 }

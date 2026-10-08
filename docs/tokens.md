@@ -146,9 +146,9 @@
 | `--spacing-96` | `6rem` |  |
 | `--spacing-112` | `7rem` |  |
 | `--spacing-128` | `8rem` |  |
-| `--m-sm` | — | `@media (width <= 480px): 2.1vw` |
-| `--m-md` | — | `@media (width <= 480px): 4.2vw` |
-| `--m-lg` | — | `@media (width <= 480px): 5vw` |
+| `--m-sm` | `2.1vw` | `@media (width > 480px): initial` |
+| `--m-md` | `4.2vw` | `@media (width > 480px): initial` |
+| `--m-lg` | `5vw` | `@media (width > 480px): initial` |
 
 ## `src/styles/tokens/_typography.css`
 
@@ -394,7 +394,7 @@
 | `--border-ghost` | `1px solid var(--border-color-ghost)` |  |  |
 | `--border-white-muted` | `1px solid var(--border-color-white-muted)` |  |  |
 | `--border-success` | `1px solid var(--border-color-success)` |  |  |
-| `--spacing-page-inline` | `5vw` |  | `@media (width > 768px): 8vw`<br>`@media (width <= 480px): 4vw` |
+| `--spacing-page-inline` | `4vw` |  | `@media (width > 480px): 5vw`<br>`@media (width > 768px): 8vw` |
 | `--spacing-nav-top` | `min(var(--spacing-page-inline), var(--spacing-32))` |  |  |
 | `--width-page-max` | `100%` |  |  |
 | `--spacing-panel-block` | `var(--m-lg)` |  | `@media (width > 480px): clamp(1rem, min(4.5vh, 2.5vw), 4.5rem)` |

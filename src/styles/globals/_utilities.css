@@ -37,14 +37,14 @@
 }
 
 .line-break-mobile {
-  display: none;
+  display: block;
+  width: 100%;
+  height: 1px;
 }
 
-@media (width <= 768px) {
+@media (width > 768px) {
   .line-break-mobile {
-    display: block;
-    width: 100%;
-    height: 1px;
+    display: none;
   }
 }
 
