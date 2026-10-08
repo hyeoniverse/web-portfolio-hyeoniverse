@@ -59,14 +59,16 @@
   display: flex;
   min-width: 0;
   min-height: 0;
-  border-right: var(--border-light);
+  border-bottom: var(--border-light);
 }
 
 /* 슬라이드 — 칸을 꽉 채운 검은 바탕에 그림을 맞춰 넣는다(레터박스). 칸과 딱 붙어 둥글리지 않는다 */
 .paneMedia {
   position: relative;
-  flex: 1;
+  flex: none;
+  width: 100%;
   min-height: 0;
+  aspect-ratio: 16 / 9;
   overflow: hidden;
   background: var(--bg-black);
 }
@@ -171,11 +173,29 @@
 .paneTextarea.paneTextarea {
   flex: 1;
   height: auto;
-  min-height: 0;
+  min-height: 200px;
   max-height: none;
   padding: var(--spacing-12);
   border: 0;
   border-radius: 0;
+}
+
+/* 넓은 화면 — 고른 장과 대본을 좌우로, 높이는 작업대 위 칸에 맞춘다 */
+@media (width > 768px) {
+  .paneSlide {
+    border-right: var(--border-light);
+    border-bottom: none;
+  }
+
+  .paneMedia {
+    flex: 1;
+    width: auto;
+    aspect-ratio: auto;
+  }
+
+  .paneTextarea.paneTextarea {
+    min-height: 0;
+  }
 }
 
 /* 조작 막대 — 두 칸을 가로질러 한 줄. 왼쪽 장 넘기기, 가운데 이 장의 상태·글자 수, 오른쪽 이 장의 도구 | 목소리 · 한꺼번에 */
@@ -645,23 +665,6 @@
   font-variant-numeric: tabular-nums;
   color: var(--text-tertiary);
   white-space: nowrap;
-}
-
-@media (width <= 768px) {
-  .paneSlide {
-    border-right: none;
-    border-bottom: var(--border-light);
-  }
-
-  .paneMedia {
-    flex: none;
-    width: 100%;
-    aspect-ratio: 16 / 9;
-  }
-
-  .paneTextarea.paneTextarea {
-    min-height: 200px;
-  }
 }
 
 /* 사용 안내 창 */

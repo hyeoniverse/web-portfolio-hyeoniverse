@@ -30,7 +30,13 @@
 }
 
 .bgImageActive {
-  opacity: 1;
+  opacity: 0.5;
+}
+
+@media (width > 480px) {
+  .bgImageActive {
+    opacity: 1;
+  }
 }
 
 /* ── Vignette overlay ── */
@@ -49,10 +55,16 @@
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 100svh;
+  height: 80vh;
   position: relative;
   z-index: 1;
   cursor: pointer;
+}
+
+@media (width > 480px) {
+  .section {
+    height: 100svh;
+  }
 }
 
 /* intro section — Live HUD (코너 monospace 데이터) + scroll-driven editorial 타이틀.
@@ -199,11 +211,18 @@
   animation: introHudReveal var(--duration-slower) var(--ease-standard) both 0.3s;
 }
 
-/* TL / TR 은 nav (top ~80px) 영역 피해서 충분히 아래로. */
-.hudTL { top: var(--spacing-112); left: var(--spacing-24); align-items: flex-start; text-align: left; }
-.hudTR { top: var(--spacing-112); right: var(--spacing-24); align-items: flex-end; text-align: right; }
-.hudBL { bottom: var(--spacing-24); left: var(--spacing-24); align-items: flex-start; text-align: left; }
-.hudBR { bottom: var(--spacing-24); right: var(--spacing-24); align-items: flex-end; text-align: right; }
+/* TL / TR 은 nav (top ~80px) 영역 피해서 충분히 아래로. 좁은 화면은 TL · BR 만 가장자리 가까이 둔다 */
+.hudTL { top: var(--spacing-64); left: var(--spacing-16); align-items: flex-start; text-align: left; }
+.hudTR { display: none; top: var(--spacing-112); right: var(--spacing-24); align-items: flex-end; text-align: right; }
+.hudBL { display: none; bottom: var(--spacing-24); left: var(--spacing-24); align-items: flex-start; text-align: left; }
+.hudBR { bottom: var(--spacing-16); right: var(--spacing-16); align-items: flex-end; text-align: right; }
+
+@media (width > 768px) {
+  .hudTR,
+  .hudBL { display: flex; }
+  .hudTL { top: var(--spacing-112); left: var(--spacing-24); }
+  .hudBR { bottom: var(--spacing-24); right: var(--spacing-24); }
+}
 
 .hudKey {
   font-size: var(--font-size-body-xs);
@@ -240,25 +259,22 @@
   }
 }
 
-@media (width <= 768px) {
-  .hudTR,
-  .hudBL { display: none; }
-  .hudTL { top: var(--spacing-64); left: var(--spacing-16); }
-  .hudBR { bottom: var(--spacing-16); right: var(--spacing-16); }
-  .hudKey { font-size: var(--font-size-body-xs); }
-  .hudVal,
-  .hudMeta { font-size: var(--font-size-body-xs); }
-}
-
 /* ── Inner content ── */
 .inner {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: var(--spacing-20);
-  padding: 0 var(--spacing-32);
+  gap: var(--spacing-16);
+  padding: 0 var(--spacing-20);
   max-width: 900px;
+}
+
+@media (width > 480px) {
+  .inner {
+    gap: var(--spacing-20);
+    padding: 0 var(--spacing-32);
+  }
 }
 
 /* ── Stagger reveal ── */
@@ -324,7 +340,7 @@
 
 /* ── Subtitle ── */
 .subtitle {
-  font-size: var(--font-size-headline-xs);
+  font-size: var(--font-size-body-md);
   font-weight: var(--font-weight-regular);
   color: var(--text-white);
   opacity: 0.45;
@@ -372,12 +388,14 @@
 }
 
 /* ── Number watermark ── */
+/* 480 이하에서는 숨긴다 — 번호 · 기술 · 카운터 · 스크롤 힌트 모두 */
 .number {
+  display: none;
   position: absolute;
   right: 5vw;
   bottom: 8vh;
   font-family: var(--font-family-headline);
-  font-size: clamp(9.65rem, 0.25rem + 14.72vw, 17.9rem);
+  font-size: clamp(3.1rem, 0.25rem + 11.61vw, 7.7rem);
   font-weight: 200;
   line-height: 0.8;
   letter-spacing: -0.06em;
@@ -403,7 +421,7 @@
   bottom: 8vh;
   left: 50%;
   transform: translateX(-50%) translateY(10px);
-  display: flex;
+  display: none;
   gap: var(--spacing-12);
 }
 
@@ -416,8 +434,9 @@
 
 /* ── Fixed counter ── */
 .counter {
+  display: none;
   position: fixed;
-  right: 5vw;
+  right: var(--spacing-20);
   top: 50%;
   transform: translateY(-50%);
   z-index: 3;
@@ -437,7 +456,7 @@
   left: 50%;
   transform: translateX(-50%);
   z-index: 3;
-  display: flex;
+  display: none;
   flex-direction: column;
   align-items: center;
   gap: var(--spacing-4);
@@ -455,24 +474,18 @@
 }
 
 /* ── Responsive ── */
-@media (width <= 1024px) {
-  .number {
-    font-size: clamp(3.1rem, 0.25rem + 11.61vw, 7.7rem);
-  }
-
-  .counter { right: var(--spacing-20); }
+@media (width > 480px) {
+  .subtitle { font-size: var(--font-size-headline-xs); }
+  .number { display: block; }
+  .tech { display: flex; }
+  .counter { display: block; }
+  .scrollHint { display: flex; }
 }
 
-@media (width <= 480px) {
-  .section { height: 80vh; }
+@media (width > 1024px) {
+  .number {
+    font-size: clamp(9.65rem, 0.25rem + 14.72vw, 17.9rem);
+  }
 
-  .bgImage { opacity: 0; }
-  .bgImageActive { opacity: 0.5; }
-
-  .inner { padding: 0 var(--spacing-20); gap: var(--spacing-16); }
-  .subtitle { font-size: var(--font-size-body-md); }
-  .number { display: none; }
-  .tech { display: none; }
-  .counter { display: none; }
-  .scrollHint { display: none; }
+  .counter { right: 5vw; }
 }

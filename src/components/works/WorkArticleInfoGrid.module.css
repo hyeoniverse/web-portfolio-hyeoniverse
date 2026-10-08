@@ -2,11 +2,26 @@
 /* ── Info grid ── 컴팩트 spacing */
 .infoGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: var(--spacing-20) var(--spacing-24);
-  padding: var(--spacing-20) 0;
+  grid-template-columns: var(--grid-columns-2);
+  gap: var(--spacing-24) var(--spacing-20);
+  padding: var(--spacing-24) 0;
+  margin-bottom: var(--spacing-48);
   border-top: var(--border-light);
   border-bottom: var(--border-light);
+}
+
+@media (width > 768px) {
+  .infoGrid {
+    gap: var(--spacing-20) var(--spacing-24);
+    padding: var(--spacing-20) 0;
+    margin-bottom: 0;
+  }
+}
+
+@media (width > 1024px) {
+  .infoGrid {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  }
 }
 
 .infoBlock {
@@ -165,19 +180,4 @@
   height: 3px;
   background: var(--text-muted);
   border-radius: var(--radius-full);
-}
-
-@media (width <= 1024px) {
-  .infoGrid {
-    grid-template-columns: var(--grid-columns-2);
-  }
-}
-
-@media (width <= 768px) {
-  .infoGrid {
-    grid-template-columns: var(--grid-columns-2);
-    gap: var(--spacing-24) var(--spacing-20);
-    padding: var(--spacing-24) 0;
-    margin-bottom: var(--spacing-48);
-  }
 }

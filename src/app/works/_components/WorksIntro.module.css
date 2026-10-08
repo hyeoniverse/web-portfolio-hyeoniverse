@@ -1,23 +1,21 @@
 /* works 갤러리 인트로 블록 — 각 프로젝트 세트 앞에 오는 타이틀·통계·인용. WorksSection.module.css 에서 분리 (#662). */
 /* Container: in-flow item inside gallerySlider */
 .intro {
-  --_intro-pad: 50px;
-  --_intro-text-max: 340px;
+  --_intro-pad: var(--m-sm);
+  --_intro-text-max: none;
 
   display: flex;
   gap: var(--spacing-16);
-  align-items: flex-end;
+  align-items: flex-start;
   flex-direction: column;
   justify-content: center;
   flex-shrink: 0;
-  width: auto;
-  max-width: 480px;
-  height: 100%;
-  padding: calc(var(--header-height) + 24px) var(--_intro-pad) 40px;
+  width: 100%;
+  /* 모바일 — intro 와 첫 프로젝트 사이 시각적 호흡 확보 */
+  padding: 0 var(--_intro-pad) var(--spacing-64);
   font-family: var(--font-family-body);
   color: var(--text-primary);
-  text-align: right;
-  border-right: var(--border-strong);
+  text-align: left;
 }
 
 /* Text elements: constrained width */
@@ -43,12 +41,13 @@
   font: var(--font-display-lg);
   font-family: var(--font-family-headline);
   font-weight: var(--font-weight-light);
-  line-height: 0.9;
+  line-height: 0.95;
   letter-spacing: -0.04em;
 }
 
 .introTagline {
   font: var(--font-headline-sm);
+  font-size: var(--font-size-body-xl);
   font-style: italic;
   letter-spacing: 0.02em;
   /* 0.6 은 라이트에서 대비 4.13. 0.7 이면 4.65. */
@@ -66,7 +65,6 @@
 
 .introDesc {
   margin: 0;
-  min-height: 4.95em; /* 3 lines × 1.65 line-height — prevents layout shift on lang change */
   font-size: var(--font-size-body-lg);
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-160);
@@ -75,7 +73,6 @@
 
 .introDetail {
   margin: 0;
-  min-height: 6.6em; /* 4 lines × 1.65 line-height */
   font-size: var(--font-size-body-md);
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-160);
@@ -87,7 +84,7 @@
   gap: var(--spacing-20);
   align-items: center;
   align-self: stretch;
-  justify-content: flex-end;
+  justify-content: flex-start;
   margin-left: calc(-1 * var(--_intro-pad));
   margin-right: calc(-1 * var(--_intro-pad));
   padding: var(--spacing-16) var(--_intro-pad);
@@ -99,7 +96,6 @@
   display: flex;
   gap: var(--spacing-2);
   flex-direction: column;
-  text-align: right;
 }
 
 .introStatNumber {
@@ -140,7 +136,6 @@
 
 .introQuote {
   margin: 0;
-  min-height: 3.3em; /* 2 lines × 1.65 line-height */
   font: var(--font-body-lg);
   font-family: var(--font-family-headline);
   font-style: italic;
@@ -149,72 +144,63 @@
   opacity: 0.75;
 }
 
-@media (width <= 1024px), (height <= 700px) {
+@media (width > 480px) {
   .intro {
     --_intro-pad: 1.5rem;
-    --_intro-text-max: none;
-
-    max-width: none;
-    width: 100%;
-    height: auto;
-    align-items: flex-start;
-    padding-top: 0;
-    /* 모바일 — intro 와 첫 프로젝트 사이 시각적 호흡 확보 */
-    padding-bottom: var(--spacing-64);
-    text-align: left;
-    border-right: none;
-  }
-
-  .introTitle {
-    line-height: 0.95;
-  }
-
-  .introTagline {
-    font-size: var(--font-size-body-xl);
   }
 
   .introDesc {
-    min-height: auto;
     font-size: var(--font-size-body-xl);
   }
 
   .introDetail {
-    min-height: auto;
     font-size: var(--font-size-body-lg);
   }
 
-  .introStats {
-    justify-content: flex-start;
-  }
-
-  .introStat {
-    text-align: left;
-  }
-
-  .introScope {
-    text-align: left;
-  }
-
   .introQuote {
-    min-height: auto;
     font-size: var(--font-size-body-xl);
   }
 }
 
-@media (width <= 480px) {
+/* 넓은 화면 — 가로 갤러리 첫 칸. 오른쪽 정렬, 언어를 바꿔도 줄 수가 같게 높이를 잡아 둔다 */
+@media (width > 1024px) and (height > 700px) {
   .intro {
-    --_intro-pad: var(--m-sm);
+    --_intro-pad: 50px;
+    --_intro-text-max: 340px;
+
+    align-items: flex-end;
+    width: auto;
+    max-width: 480px;
+    height: 100%;
+    padding: calc(var(--header-height) + 24px) var(--_intro-pad) 40px;
+    text-align: right;
+    border-right: var(--border-strong);
+  }
+
+  .introTitle {
+    line-height: 0.9;
+  }
+
+  .introTagline {
+    font-size: var(--font-size-headline-sm);
   }
 
   .introDesc {
+    min-height: 4.95em; /* 3 lines × 1.65 line-height — prevents layout shift on lang change */
     font-size: var(--font-size-body-lg);
   }
 
   .introDetail {
+    min-height: 6.6em; /* 4 lines × 1.65 line-height */
     font-size: var(--font-size-body-md);
   }
 
+  .introStats {
+    justify-content: flex-end;
+  }
+
   .introQuote {
+    min-height: 3.3em; /* 2 lines × 1.65 line-height */
     font-size: var(--font-size-body-lg);
   }
 }

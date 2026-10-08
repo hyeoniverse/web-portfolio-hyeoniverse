@@ -57,9 +57,15 @@
 
 .row3 {
   display: grid;
-  grid-template-columns: var(--grid-columns-3);
+  grid-template-columns: 1fr;
   gap: var(--spacing-24);
   align-items: start;
+}
+
+@media (width > 768px) {
+  .row3 {
+    grid-template-columns: var(--grid-columns-3);
+  }
 }
 
 /* Textarea 공통 컴포넌트의 .textarea base style (border-strong) 보다 specificity 높아야
@@ -537,21 +543,20 @@
 
   position: relative;
   display: grid;
-  /* 슬라이드 쪽 폭(--split)은 사이 핸들이 정한다(useBenchSplit) */
-  grid-template-columns: minmax(0, var(--split, 50%)) minmax(0, 1fr);
-  grid-template-rows: var(--bench-top) auto auto;
+  /* 좁은 화면은 위아래로 쌓는다 — 고른 장, 대본, 썸네일 줄 순. 높이는 내용만큼 */
+  grid-template-columns: minmax(0, 1fr);
   border-top: var(--border-light);
   border-bottom: var(--border-light);
 }
 
 /* 슬라이드 | 대본 사이 핸들 — 두 칸을 가르는 선 위에 얹힌다. 평소엔 가는 막대, 올리거나 초점이 오면
-   강조색으로 길어진다(Mermaid 분할 핸들과 같은 모양) */
+   강조색으로 길어진다(Mermaid 분할 핸들과 같은 모양). 위아래로 쌓는 좁은 화면은 나눌 폭이 없어 숨긴다 */
 .galleryBenchHandle {
   position: absolute;
   top: 0;
   left: var(--split, 50%);
   z-index: 2;
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   width: var(--spacing-16);
@@ -591,8 +596,8 @@
 /* 칸 — 누르면 위에 열리고, Shift·⌘ 로 여럿 고르고, 끌어서 차례를 바꾼다 */
 .galleryItem {
   position: relative;
-  flex: 0 0 180px;
-  width: 180px;
+  flex: 0 0 140px;
+  width: 140px;
   aspect-ratio: 3 / 2;
   overflow: hidden;
   background: var(--bg-secondary);
@@ -600,6 +605,23 @@
   /* 눌러서 고르고, 끌어서 차례를 바꾼다 */
   cursor: grab;
   user-select: none;
+}
+
+@media (width > 768px) {
+  .galleryBench {
+    /* 슬라이드 쪽 폭(--split)은 사이 핸들이 정한다(useBenchSplit) */
+    grid-template-columns: minmax(0, var(--split, 50%)) minmax(0, 1fr);
+    grid-template-rows: var(--bench-top) auto auto;
+  }
+
+  .galleryBenchHandle {
+    display: flex;
+  }
+
+  .galleryItem {
+    flex-basis: 180px;
+    width: 180px;
+  }
 }
 
 .galleryItem:active {
@@ -1371,16 +1393,6 @@
 
 /* 기여 항목 입력 row — input + 추가 버튼. bullet 없음 */
 
-@media (width <= 768px) {
-  .row3 {
-    grid-template-columns: 1fr;
-  }
-
-  .memberFormRow {
-    flex-wrap: wrap;
-  }
-}
-
 /* ── 팀원 ↔ 사이트 멤버 연결 ─────────────────────────────── */
 /* 연결한 계정은 이 작업물의 편집자가 된다 — 권한을 다루는 자리라 눈에 띄게 둔다. */
 .memberLinkRow {
@@ -1445,24 +1457,6 @@
   font-weight: var(--font-weight-semibold);
   line-height: 1;
   white-space: nowrap;
-}
-
-/* 좁은 화면 — 작업대를 세로로 쌓는다. 고른 장, 대본, 썸네일 줄 순. 높이는 내용만큼 */
-@media (width <= 768px) {
-  .galleryBench {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: none;
-  }
-
-  /* 위아래로 쌓으면 나눌 폭이 없다 */
-  .galleryBenchHandle {
-    display: none;
-  }
-
-  .galleryItem {
-    flex-basis: 140px;
-    width: 140px;
-  }
 }
 
 /* 새 팀원 자기소개 KO·EN 두 칸 — 좁으면 위아래로 */
