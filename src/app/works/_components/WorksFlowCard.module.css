@@ -290,6 +290,7 @@
   text-transform: uppercase;
   letter-spacing: 0.3em;
   text-shadow: var(--text-shadow-strong);
+  opacity: 0.85;
 }
 
 .metaTech {
@@ -723,28 +724,6 @@
 
   .project[data-layout="6"] .metaRole {
     display: none;
-  }
-}
-
-/* 3.11-1 예외: 가로 스크롤 엔진이 카드 이미지와 메타에 인라인 transform · opacity 를 넣는다.
-   세로로 쌓는 화면에서는 !important 로 눌러야 한다(창을 줄이면 인라인 값이 남는다) */
-@media (width <= 1024px), (height <= 700px) {
-  .cardImageWrap,
-  .cardImage {
-    transform: none !important;
-  }
-
-  .project[data-layout] .metaCategory,
-  .project[data-layout] .metaYear,
-  .project[data-layout] .metaTech,
-  .project[data-layout] .metaRole,
-  .project[data-layout] .metaDesc {
-    transform: none !important;
-    opacity: 1 !important;
-  }
-
-  .project[data-layout] .cardOverlay .metaYear {
-    opacity: 0.85 !important;
   }
 }
 
