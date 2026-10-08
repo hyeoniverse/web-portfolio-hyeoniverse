@@ -431,6 +431,8 @@ a.statCard:hover .statValue {
   pointer-events: none;
   border-left: none !important;
   transition: padding var(--duration-base) var(--ease-standard);
+  /* 좁은 화면은 접힌 칸을 아예 뺀다 — display 는 Panel .panelFlex 가 변수로 연다 */
+  --panel-display: none;
 }
 
 /* 셀이 아니라 내용물만 페이드 — 셀 opacity 를 내리면 불투명 배경까지 빠지면서
@@ -451,15 +453,12 @@ a.statCard:hover .statValue {
   .twoCol.twoColExpanded {
     grid-template-columns: minmax(0, 0fr) minmax(0, 1fr);
   }
-}
 
-/* 3.11-1 예외: 넓은 화면의 display(flex)는 composes 한 Panel .panelFlex 가 정한다 —
-   여기서 되돌리면 그 값을 베껴 써야 해서 좁은 화면 숨김만 둔다 */
-@media (width <= 768px) {
   .panelCollapsed {
-    display: none;
+    --panel-display: initial;
   }
 }
+
 
 /* Recent Posts/Works 의 link wrapper — status + title + date 가 한 줄로 flex 정렬 + gap 으로 적절한 spacing */
 .listItemLink {
