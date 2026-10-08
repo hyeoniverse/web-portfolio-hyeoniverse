@@ -3,5 +3,17 @@
     "commit": "",
     "pr": "",
     "sessionUrl": false
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" && git config user.name 'KIMJEONGHYEON' && git config user.email '68999618+hyeoniverse@users.noreply.github.com'"
+          }
+        ]
+      }
+    ]
   }
 }
