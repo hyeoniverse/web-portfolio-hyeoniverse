@@ -95,7 +95,6 @@ export default function WorksFlowCard({
             )}
           </div>
           <div className={styles.cardBorder} />
-          <span className={styles.metaNumber}>{project.number}</span>
           <div className={styles.cardOverlay}>
             <h2 className={styles.metaTitle}><T ko={project.title.ko} en={project.title.en} /></h2>
             <span className={styles.metaSubtitle}>

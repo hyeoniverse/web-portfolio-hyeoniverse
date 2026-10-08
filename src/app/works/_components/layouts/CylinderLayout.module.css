@@ -386,10 +386,18 @@
   --_frame-h: 23px;
 
   position: fixed;
-  right: var(--spacing-32);
-  bottom: var(--spacing-32);
+  /* 좁은 화면 — 레퍼런스처럼 가장자리 여백만 줄인다 */
+  right: var(--spacing-20);
+  bottom: var(--spacing-20);
   z-index: 2;
   color: var(--text-primary);
+}
+
+@media (width > 480px) {
+  .indicator {
+    right: var(--spacing-32);
+    bottom: var(--spacing-32);
+  }
 }
 
 .indicatorList {
@@ -443,16 +451,4 @@
   opacity: calc(0.75 * var(--fade, 1));
   transform: translateY(calc(var(--pos, 0) * var(--_pitch) + (var(--_pitch) - var(--_frame-h)) / 2));
   pointer-events: none;
-}
-
-/* ── Responsive ── */
-@media (width <= 1024px) {
-}
-
-/* 좁은 화면 — 레퍼런스처럼 가장자리 여백만 줄인다 */
-@media (width <= 480px) {
-  .indicator {
-    right: var(--spacing-20);
-    bottom: var(--spacing-20);
-  }
 }

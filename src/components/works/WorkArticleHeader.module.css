@@ -26,7 +26,13 @@
 .metaLeft {
   display: flex;
   align-items: center;
-  gap: var(--spacing-20);
+  gap: var(--spacing-12);
+}
+
+@media (width > 768px) {
+  .metaLeft {
+    gap: var(--spacing-20);
+  }
 }
 
 .metaDivider {
@@ -84,7 +90,7 @@
 .title {
   margin-bottom: var(--spacing-24);
   font-family: var(--font-family-headline);
-  font-size: clamp(5.15rem, 4.199rem + 1.45vw, 5.5rem);
+  font-size: clamp(2rem, 0.968rem + 4.23vw, 3rem);
   font-weight: var(--font-weight-regular);
   line-height: 1.05;
   letter-spacing: -0.03em;
@@ -92,35 +98,32 @@
 
 /* ── Description ── */
 .description {
-  margin-bottom: var(--spacing-20);
+  margin-bottom: var(--spacing-32);
   font: var(--font-body-xl);
+  font-size: var(--font-size-body-lg);
   line-height: 1.7;
   color: var(--text-secondary);
+}
+
+@media (width > 768px) {
+  .title {
+    font-size: clamp(2.4rem, 1.514rem + 3.63vw, 3.85rem);
+  }
+
+  .description {
+    margin-bottom: var(--spacing-20);
+    font-size: var(--font-size-body-xl);
+  }
+}
+
+@media (width > 1024px) {
+  .title {
+    font-size: clamp(5.15rem, 4.199rem + 1.45vw, 5.5rem);
+  }
 }
 
 /* 줄바꿈 보존 — 역할/담당 업무처럼 여러 줄 텍스트 */
 /* ── Tech Notes ── tech chip + KO/EN 설명 inline row */
 /* ── Team Members — Polaroid Flip Card ─────────────────────────────── */
 /* Prose (markdown-rendered content) */
-/* ── Tablet ── */
-@media (width <= 1024px) {
-  .title {
-    font-size: clamp(2.4rem, 1.514rem + 3.63vw, 3.85rem);
-  }
-}
 
-/* ── Mobile ── */
-@media (width <= 768px) {
-  .metaLeft {
-    gap: var(--spacing-12);
-  }
-
-  .title {
-    font-size: clamp(2rem, 0.968rem + 4.23vw, 3rem);
-  }
-
-  .description {
-    font-size: var(--font-size-body-lg);
-    margin-bottom: var(--spacing-32);
-  }
-}
