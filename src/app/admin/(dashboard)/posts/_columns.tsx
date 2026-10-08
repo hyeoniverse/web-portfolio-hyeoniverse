@@ -1,9 +1,10 @@
-import { ImageIcon, Download, ExternalLink } from "@/components/icons";
+import { Download, ExternalLink } from "@/components/icons";
 import type { TFunction } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import StatusBadge from "@/components/ui/StatusBadge/StatusBadge";
 import HighlightedText from "@/components/ui/HighlightedText";
 import { formatPostTitle } from "@/utils/post";
+import { IMAGE_FALLBACK_SRC } from "@/lib/imageFallback";
 import MediaThumb from "@/components/admin/MediaThumb";
 import EditableRowNumber from "@/components/admin/AdminTable/EditableRowNumber";
 import {
@@ -26,13 +27,8 @@ export function createPostColumns(t: TFunction, onTogglePublished?: (post: Post)
       className: ts.colThumbWrap,
       render: (post) => (
         <div className={ts.colThumb}>
-          {post.cover_image ? (
-            <MediaThumb src={post.cover_image} fill sizes="48px" unoptimized={false} className={ts.thumbImg} />
-          ) : (
-            <div className={ts.thumbPlaceholder}>
-              <ImageIcon size={16} strokeWidth={1.5} />
-            </div>
-          )}
+          {/* 커버가 없어도 깨졌을 때와 같은 공용 대체 이미지(lib/imageFallback) */}
+            <MediaThumb src={post.cover_image || IMAGE_FALLBACK_SRC} fill sizes="48px" unoptimized={false} className={ts.thumbImg} />
         </div>
       ),
       skeletonWidth: "64px",
@@ -136,13 +132,8 @@ export function createTrashColumns(
       className: st.colThumbWrap,
       render: (post) => (
         <div className={st.colThumb}>
-          {post.cover_image ? (
-            <MediaThumb src={post.cover_image} fill sizes="48px" unoptimized={false} className={st.thumbImg} />
-          ) : (
-            <div className={st.thumbPlaceholder}>
-              <ImageIcon size={16} strokeWidth={1.5} />
-            </div>
-          )}
+          {/* 커버가 없어도 깨졌을 때와 같은 공용 대체 이미지(lib/imageFallback) */}
+            <MediaThumb src={post.cover_image || IMAGE_FALLBACK_SRC} fill sizes="48px" unoptimized={false} className={st.thumbImg} />
         </div>
       ),
       skeletonWidth: "64px",
@@ -219,13 +210,8 @@ export function createSeriesColumns(
       className: st.colThumbWrap,
       render: (s) => (
         <div className={st.colThumb}>
-          {s.cover_image ? (
-            <MediaThumb src={s.cover_image} fill sizes="48px" className={st.thumbImg} />
-          ) : (
-            <div className={st.thumbPlaceholder}>
-              <ImageIcon size={16} strokeWidth={1.5} />
-            </div>
-          )}
+          {/* 커버가 없어도 깨졌을 때와 같은 공용 대체 이미지(lib/imageFallback) */}
+            <MediaThumb src={s.cover_image || IMAGE_FALLBACK_SRC} fill sizes="48px" className={st.thumbImg} />
         </div>
       ),
       skeletonWidth: "64px",
