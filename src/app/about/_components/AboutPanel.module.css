@@ -6,7 +6,11 @@
   justify-content: flex-start;
   flex-shrink: 0;
   flex-direction: column;
-  padding: var(--m-lg) var(--m-sm);
+  /* 여백은 화면 단계(아래 media)가 --_pad-* 를 바꾸고, 패널 변형 · 개별 패널은 --panel-padding-top/-bottom 으로 위 · 아래만 덮는다 */
+  --_pad-y: var(--m-lg);
+  --_pad-x: var(--m-sm);
+  --_pad-bottom: var(--_pad-y);
+  padding: var(--panel-padding-top, var(--_pad-y)) var(--_pad-x) var(--panel-padding-bottom, var(--_pad-bottom));
   position: relative;
   width: 100%;
   font-family: var(--font-family-code);
@@ -71,7 +75,7 @@
 /* nav(80) + tab(40) + 여백 = 160px — pin 콘텐츠를 헤더+탭 아래로 밀기 */
 .pinnedContent > .pinnedTitleRow {
   /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 패널 상단 여백 — 고정 nav 아래로 히어로가 들어오게 맞춘 값. 간격 눈금 밖이다 */
-  padding-top: 10rem;
+  padding-top: var(--title-row-padding-top, var(--_compact-padding-top, 10rem));
 }
 
 .titleRowLeft {
@@ -114,13 +118,15 @@
 
 @media (width > 480px) {
   .panel {
-    padding: var(--spacing-48) var(--spacing-24);
+    --_pad-y: var(--spacing-48);
+    --_pad-x: var(--spacing-24);
   }
 }
 
 @media (width > 768px) {
   .panel {
-    padding: var(--spacing-64) var(--spacing-page-inline);
+    --_pad-y: var(--spacing-64);
+    --_pad-x: var(--spacing-page-inline);
   }
 
   .panelTitleCompact {
@@ -130,8 +136,9 @@
 
 @media (width > 1024px) and (height > 700px) {
   .panel {
-    padding: var(--_panel-py) var(--_panel-px);
-    padding-bottom: calc(var(--spacing-32) + 2.5rem);
+    --_pad-y: var(--_panel-py);
+    --_pad-x: var(--_panel-px);
+    --_pad-bottom: calc(var(--spacing-32) + 2.5rem);
     width: 100vw;
     height: 100svh;
   }
@@ -177,33 +184,37 @@
   }
 }
 
-/* 패널 상하 패딩 제거 — pin 패널 등에서 사용 */
+/* 패널 상하 패딩 제거(좁은 화면) — pin 패널 등에서 사용. 넓은 화면은 .panel · 패널 자신의 여백을 그대로 쓴다 */
 .panelFlush {
-  /* desktop: no-op */
+  --panel-padding-top: 0;
+  --panel-padding-bottom: 0;
 }
 
-/* 타이틀 행 간격 최소화 — 공유 pinnedTitleRow(160px) 대신 사용 */
+/* 타이틀 행 간격 최소화(좁은 화면) — 공유 pinnedTitleRow(160px) 대신 사용. 넓은 화면 값은 쓰는 패널의 규칙이 정한다.
+   핀 제목 줄(코드 · 트러블슈팅)은 --title-row-padding-top/-margin-bottom 으로 좁은 화면 간격을 바꾼다 */
 .titleRowCompact {
-  /* desktop: no-op */
+  --_compact-padding-top: 0; /* 위 공용 핀 제목 줄(10rem)도 이 값을 읽는다 */
+  padding-top: var(--title-row-padding-top, 0);
+  margin-bottom: var(--title-row-margin-bottom, var(--spacing-12));
 }
 
-/* 3.11-1 예외: 넓은 화면 값은 이 클래스를 쓰는 각 패널이 정한다 — .panelFlush 는 .panel 과 패널 자신의
-   데스크톱 여백(.archPanel 등), .titleRowCompact 는 구조·코드·트러블슈팅 패널의 제목 줄 규칙.
-   되돌림을 쓰면 같은 특이도로 그 규칙들과 번들 순서에 따라 다투게 된다 — 좁은 화면만 덮어쓴다 */
-@media (width <= 1024px), (height <= 700px) {
+.titleRowCompact h3 {
+  margin-top: var(--spacing-16);
+  margin-bottom: 0;
+}
+
+@media (width > 1024px) and (height > 700px) {
   .panelFlush {
-    padding-top: 0;
-    padding-bottom: 0;
+    --panel-padding-top: initial;
+    --panel-padding-bottom: initial;
   }
 
-  .titleRowCompact.titleRowCompact.titleRowCompact {
-    padding-top: 0;
-    margin-bottom: var(--spacing-12);
+  .titleRowCompact {
+    margin-bottom: 0;
   }
 
   .titleRowCompact h3 {
-    margin-top: var(--spacing-16);
-    margin-bottom: 0;
+    margin-top: 0;
   }
 }
 

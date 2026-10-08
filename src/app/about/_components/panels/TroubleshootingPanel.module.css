@@ -139,13 +139,17 @@
    Viewport-specific visibility/layout 은 파일 끝 @media 블록에서.
    ========================================================================== */
 
-/* 3.11-1 예외: 핀 타이틀 row 위 여백 (좁은 화면: nav 80 + tab 40 + 추가 호흡). 이기려는 공용 .titleRowCompact(0,3,0)
-   가 좁은 화면 전용 예외 블록(AboutPanel.module.css)이라 같은 조건에 둔다 — 기본 규칙으로 올리면 넓은 화면에서
-   클래스를 네 번 쓴 되돌림이 하나 더 필요하다(4-4). 넓은 화면 값은 아래 데스크톱 media */
-@media (width <= 1024px), (height <= 700px) {
-  .troublePinTitleRow.troublePinTitleRow.troublePinTitleRow.troublePinTitleRow {
-    padding-top: calc(80px + 40px + var(--spacing-32));
-    margin-bottom: var(--spacing-24);
+/* 핀 제목 줄 — 좁은 화면은 nav 80 + tab 40 + 호흡만큼 띄운다. 공용 .titleRowCompact 가 읽는 변수만 바꾼다.
+   넓은 화면 값은 아래 media 의 .troubleContent > .troublePinTitleRow 가 정한다 */
+.troublePinTitleRow {
+  --title-row-padding-top: calc(80px + 40px + var(--spacing-32));
+  --title-row-margin-bottom: var(--spacing-24);
+}
+
+@media (width > 1024px) and (height > 700px) {
+  .troublePinTitleRow {
+    --title-row-padding-top: initial;
+    --title-row-margin-bottom: initial;
   }
 }
 

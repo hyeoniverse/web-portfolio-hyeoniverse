@@ -594,15 +594,18 @@
    Visual Break
    ========================================================================== */
 
-/* 3.11-1 예외: 넓은 화면의 위·아래 여백은 공용 패널(.panel, AboutPanel.module.css)이 정한다 — 좁은 화면만 덮어쓴다 */
-@media (width <= 1024px), (height <= 700px) {
-  .procPanel {
-    padding-top: var(--spacing-24);
-    padding-bottom: 0;
-  }
+/* 위 · 아래 여백 — 좁은 화면만 줄인다. 넓은 화면은 비워 공용 패널 값으로 */
+.procPanel {
+  --panel-padding-top: var(--spacing-24);
+  --panel-padding-bottom: 0;
 }
 
 @media (width > 1024px) and (height > 700px) {
+  .procPanel {
+    --panel-padding-top: initial;
+    --panel-padding-bottom: initial;
+  }
+
   .procStage {
     display: grid;
   }
