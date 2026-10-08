@@ -1,1 +1,6 @@
+# 작성자 · 커미터가 도구 계정(noreply@anthropic.com)이면 막는다 — 커밋은 저장소 주인 이름으로만 남긴다
+if { git var GIT_AUTHOR_IDENT; git var GIT_COMMITTER_IDENT; } 2>/dev/null | grep -qi "anthropic\.com"; then
+  echo "커밋 작성자가 도구 계정입니다. git config user.name/user.email 을 저장소 주인으로 맞추세요." >&2
+  exit 1
+fi
 npx lint-staged
