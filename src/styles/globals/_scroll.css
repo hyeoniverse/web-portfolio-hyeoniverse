@@ -102,30 +102,6 @@ html.lenis body {
   overflow: hidden;
 }
 
-/* Parallax layers */
-.parallax-container {
-  position: relative;
-  overflow: hidden;
-}
-
-.parallax-layer {
-  position: absolute;
-  inset: 0;
-  will-change: transform;
-}
-
-.parallax-layer--back {
-  z-index: 1;
-}
-
-.parallax-layer--mid {
-  z-index: 2;
-}
-
-.parallax-layer--front {
-  z-index: 3;
-}
-
 /* Reveal animations */
 .reveal {
   opacity: 0;
@@ -223,18 +199,6 @@ html.lenis body {
 [data-scroll-to] {
 }
 
-/* ============================================
-   Mobile Optimizations
-   ============================================ */
-
-/* Reduce animation complexity on mobile — 작은 화면에서만 덧씌운다(3.11-1 예외).
-   스크립트가 넣는 인라인 transform 을 !important 로 꺼야 해서, 넓은 화면 쪽으로 옮길 수 없다 */
-@media (width <= 768px) {
-  .parallax-layer {
-    transform: none !important;
-  }
-}
-
 /* Reduced motion preferences */
 @media (prefers-reduced-motion: reduce) {
   .lenis.lenis-smooth {
@@ -251,7 +215,4 @@ html.lenis body {
     clip-path: none;
   }
 
-  .parallax-layer {
-    transform: none !important;
-  }
 }

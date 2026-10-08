@@ -903,10 +903,11 @@
 /* ==========================================================================
    Responsive — 작은 화면이 기본, 768px 위에서 덧씌운다
    ========================================================================== */
-/* 닫기 단추는 작은 화면에서만 숨긴다(3.11-1 예외) — 보일 때의 display 는 CloseButton 컴포넌트가 정한다 */
+/* 닫기 단추는 작은 화면에서만 숨긴다(3.11-1 예외) — 보일 때의 display 는 CloseButton 컴포넌트가 정하고,
+   같은 components 층이라 revert-layer 로 돌려줄 수 없다. 두 클래스를 함께 적어 (0,2,0) 으로 CloseButton(.btn)을 이긴다 */
 @media (width <= 768px) {
-  .closeBtnAction {
-    display: none !important;
+  .actionBtn.closeBtnAction {
+    display: none;
   }
 }
 
