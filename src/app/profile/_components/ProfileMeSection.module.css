@@ -463,7 +463,7 @@
 .bioHighlight {
   margin: 0 0 var(--spacing-24) 0;
   font-family: var(--font-family-headline);
-  font-size: var(--m-sm);
+  font-size: clamp(1.5rem, 1.249rem + 0.83vw, 2rem);
   font-weight: 400;
   line-height: 1.4;
   color: var(--text-primary);
@@ -495,7 +495,6 @@
 .statNumber {
   /* 큰 숫자 — 전시 md(아래가 32). sm 은 폰에서 16 까지 줄어 숫자가 사라진다(D34) */
   font: var(--font-display-md);
-  font-size: var(--m-md);
   font-family: var(--font-family-headline);
   color: var(--text-primary);
 }
@@ -535,9 +534,10 @@
 }
 
 /* 패널마다 글 덩어리를 같은 자리에 두면 14번을 지나가도 리듬이 없다.
-   세로 자리는 못 건드린다 — 패널이 100svh 고정이라 위아래로 밀면 넘치는 만큼 잘린다. */
+   세로 자리는 못 건드린다 — 패널이 100svh 고정이라 위아래로 밀면 넘치는 만큼 잘린다.
+   그래서 가로 트랙(넓고 높은 화면)에서만 들인다. 패널을 세로로 쌓으면 왼쪽 여백만 들쭉날쭉해진다 — 좁은 폭을 다 쓴다 */
 .panelIndent .panelInner {
-  padding-left: clamp(0px, 10vw, 200px);
+  padding-left: 0;
 }
 
 /* ── Panel: Experience (timeline) ── */
@@ -585,7 +585,7 @@
 .expPeriod {
   padding-top: 0.15em;
   font-family: var(--font-family-headline);
-  font-size: 1.8vw;
+  font-size: var(--font-size-body-md);
   font-weight: 400;
   line-height: 1.3;
   color: var(--text-primary);
@@ -656,10 +656,11 @@
   grid-template-columns: 1fr;
 }
 
+/* 한 열로 접히면 제목을 붙여 둘 옆 칸이 없다 — sticky 로 두면 아래 항목(나타나는 움직임의 transform 으로
+   제목보다 위에 그려진다)과 글자가 겹쳤다. 두 열(768 초과)에서만 붙인다 */
 .skillPanelHeader {
-  position: sticky;
+  position: static;
   top: 0;
-  background: var(--bg-primary);
 }
 
 .skillPanelNumber {
@@ -937,14 +938,6 @@
     gap: var(--spacing-24);
   }
 
-  .bioHighlight {
-    font-size: clamp(1.5rem, 1.249rem + 0.83vw, 2rem);
-  }
-
-  .statNumber {
-    font-size: var(--font-size-display-md);
-  }
-
   .osWindow {
     height: 220px;
   }
@@ -955,10 +948,6 @@
 
   .expRow {
     gap: var(--spacing-16);
-  }
-
-  .expPeriod {
-    font-size: var(--font-size-body-md);
   }
 
   .skillPanelLayout {
@@ -1014,7 +1003,7 @@
   }
 
   .skillPanelHeader {
-    background: none;
+    position: sticky;
   }
 }
 
@@ -1026,6 +1015,10 @@
 
 /* 넓고 높은 화면 — 패널을 가로로 늘어놓고 가로 스크롤 */
 @media (width > 1024px) and (height > 700px) {
+  .panelIndent .panelInner {
+    padding-left: clamp(0px, 10vw, 200px);
+  }
+
   .section {
     overflow: hidden;
     height: 100svh;
