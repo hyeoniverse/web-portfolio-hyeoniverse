@@ -35,6 +35,12 @@
   inset: 0;
 }
 
+/* 좁은 화면에서는 장식이 본문을 덮는다 — 가까운 구름 · 글리프는 넓은 화면(아래 media)에서만 */
+.nearCloudLayer,
+.glyphLayer {
+  display: none;
+}
+
 /* 층의 앞뒤는 DOM 순서(별 → 달 → 먼 구름 → 유성 → 가까운 구름 → 글리프)가 정한다 — 전부 absolute 라 z-index 없이 뒤에 온 것이 위 */
 
 /* 밀려나는 이동을 맡는 바깥 상자. 안쪽 요소는 자기 애니메이션(깜빡임·부유)을 그대로 쓴다 —
@@ -47,10 +53,10 @@
 
 .moonSlot {
   position: absolute;
-  top: 12%;
-  right: 9%;
+  top: 6%;
+  right: 6%;
   display: block;
-  width: clamp(72px, 9vw, 132px);
+  width: clamp(56px, 14vw, 84px);
   aspect-ratio: 1;
   will-change: transform;
 }
@@ -290,17 +296,17 @@
   50%      { transform: translateY(-8px) rotate(-3deg); opacity: 0.65; }
 }
 
-/* 좁은 화면에서는 장식이 본문을 덮는다 — 수를 줄이고 달도 작게. */
-@media (width <= 1024px) {
+/* 넓은 화면 — 장식을 다 깔고 달도 크게 */
+@media (width > 1024px) {
   .glyphLayer,
   .nearCloudLayer {
-    display: none;
+    display: block;
   }
 
   .moonSlot {
-    top: 6%;
-    right: 6%;
-    width: clamp(56px, 14vw, 84px);
+    top: 12%;
+    right: 9%;
+    width: clamp(72px, 9vw, 132px);
   }
 }
 

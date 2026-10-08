@@ -23,10 +23,11 @@
   /* ── Letter spacing ── */
   --_ls-title: var(--letter-spacing-tight);
 
-  overflow: hidden;
+  overflow: visible;
   position: relative;
   width: 100%;
-  height: 100svh;
+  min-height: 100svh;
+  padding-top: var(--spacing-96);
   background: var(--bg-primary);
 }
 
@@ -35,8 +36,8 @@
   /* 진행 장면(ScrollDrawScene, z 2)은 이 위에 떠서 콘텐츠에 가려지지 않는다 */
   z-index: 1;
   display: flex;
+  flex-direction: column;
   align-items: stretch;
-  will-change: transform;
 }
 
 .panel {
@@ -44,32 +45,54 @@
   justify-content: center;
   flex-shrink: 0;
   flex-direction: column;
-  padding: var(--_panel-py) var(--_panel-px);
+  padding: var(--m-lg) var(--m-sm);
+  border-bottom: var(--border-strong);
   position: relative;
-  width: 100vw;
-  height: 100svh;
+  width: 100%;
   font-family: var(--font-family-code);
   font-weight: var(--font-weight-light);
   color: var(--text-primary);
   box-sizing: border-box;
 }
 
+.panel:first-child,
+.panel:last-child,
+.panel:nth-last-child(2) {
+  border-bottom: none;
+}
+
+.panel:first-child {
+  min-height: 60vh;
+}
+
+/* 쉬어 가는 띠(MarqueeDivider) — 좁은 화면 · 낮은 화면에서는 띠 스스로 숨는다 */
 .breakPanel {
   flex-shrink: 0;
   height: 100svh;
 }
 
+/* 좁은 화면 · 낮은 화면은 화면에 들어올 때 .animateVisible 이 붙으며 나타난다.
+   넓은 화면(아래 media)은 가로 스크롤 엔진이 인라인으로 움직인다 */
 .animate {
-  will-change: transform, opacity;
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.track .animate {
+  transition:
+    opacity var(--duration-slower) var(--ease-standard),
+    transform var(--duration-slower) var(--ease-standard);
+}
+
+.animateVisible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* ── Shared Decorations ── */
 .panelWatermark {
   position: absolute;
-  right: var(--_panel-px);
-  bottom: 8%;
   font-family: var(--font-family-headline);
-  font-size: clamp(9rem, 3.334rem + 8.8vw, 12rem);
   font-style: italic;
   font-weight: 400;
   line-height: 0.85;
@@ -88,6 +111,7 @@
   flex-direction: column;
   position: relative;
   height: 100%;
+  padding-top: calc(var(--header-height) + var(--_space-divide));
 }
 
 .label {
@@ -119,10 +143,7 @@
 
 .heroWatermark {
   position: absolute;
-  right: -4%;
-  bottom: 5%;
   font-family: var(--font-family-headline);
-  font-size: clamp(11.55rem, 6.669rem + 7.59vw, 15.8rem);
   font-style: italic;
   font-weight: var(--font-weight-regular);
   line-height: 0.85;
@@ -133,15 +154,19 @@
 }
 
 /* ── Panel: Profile (OS windows) ── */
+.heroWatermark,
+.panelWatermark {
+  right: -3%;
+  bottom: 8%;
+  font-size: clamp(3rem, 1.155rem + 7.57vw, 6rem);
+}
+
 .profilePanel {
-  margin: calc(var(--header-height) + 1.5rem) 1.5rem 0.75rem;
-  padding: 0;
-  border: var(--border-strong);
-  overflow: hidden;
+  gap: var(--_space-divide);
+  padding: 0 0 var(--m-lg);
+  border-bottom: var(--border-strong);
   position: relative;
-  width: calc(100vw - 3rem);
-  height: calc(100svh - var(--header-height) - 1.5rem - 0.75rem);
-  border-radius: var(--radius-surface);
+  width: 100%;
 }
 
 .windowsContainer {
@@ -157,6 +182,7 @@
 }
 
 .baseImageWrap {
+  display: none;
   position: absolute;
   top: 50%;
   left: 40%;
@@ -190,6 +216,7 @@
 .osWindow {
   display: flex;
   flex-direction: column;
+  height: 46vw;
   border: var(--border-strong);
   overflow: hidden;
   position: absolute;
@@ -315,7 +342,7 @@
 .magFeature {
   display: grid;
   grid-template-columns: 5fr 6fr;
-  gap: var(--spacing-24);
+  gap: var(--m-sm);
   margin-bottom: var(--spacing-40);
 }
 
@@ -380,7 +407,7 @@
 
 .magDetails {
   display: grid;
-  grid-template-columns: var(--grid-columns-2);
+  grid-template-columns: 1fr;
   gap: var(--spacing-32);
   padding-top: var(--spacing-24);
   border-top: var(--border-width-1) solid var(--border-default);
@@ -411,25 +438,26 @@
   display: flex;
   justify-content: center;
   flex-direction: column;
-  margin-left: auto;
-  padding: var(--spacing-32);
-  position: relative;
+  padding: 0;
   z-index: calc(var(--z-index-nav) + 1);
-  max-width: 420px;
   pointer-events: none;
+}
+
+/* 좁은 화면 — 잡지 글과 프로필 글은 화면 가장자리에서 조금 띄운다 */
+.magHeadline,
+.magAccent,
+.magFeature,
+.magQuote,
+.magDetails,
+.profileContent {
+  padding-left: var(--m-sm);
+  padding-right: var(--m-sm);
 }
 
 .profileContent .bioHighlight,
 .profileContent .bioText,
 .profileContent .stats {
   pointer-events: auto;
-}
-
-.profileContent .bioHighlight,
-.profileContent .bioText,
-.profileContent .statNumber,
-.profileContent .statLabel {
-  mix-blend-mode: difference;
 }
 
 .bioHighlight {
@@ -451,7 +479,8 @@
 
 .stats {
   display: flex;
-  gap: var(--spacing-48);
+  flex-wrap: wrap;
+  gap: var(--m-md);
   margin-top: var(--spacing-32);
   padding-top: var(--spacing-32);
   border-top: var(--border-width-1) solid var(--border-default);
@@ -505,9 +534,10 @@
 }
 
 /* 패널마다 글 덩어리를 같은 자리에 두면 14번을 지나가도 리듬이 없다.
-   세로 자리는 못 건드린다 — 패널이 100svh 고정이라 위아래로 밀면 넘치는 만큼 잘린다. */
+   세로 자리는 못 건드린다 — 패널이 100svh 고정이라 위아래로 밀면 넘치는 만큼 잘린다.
+   그래서 가로 트랙(넓고 높은 화면)에서만 들인다. 패널을 세로로 쌓으면 왼쪽 여백만 들쭉날쭉해진다 — 좁은 폭을 다 쓴다 */
 .panelIndent .panelInner {
-  padding-left: clamp(0px, 10vw, 200px);
+  padding-left: 0;
 }
 
 /* ── Panel: Experience (timeline) ── */
@@ -547,19 +577,19 @@
 
 .expRow {
   display: grid;
-  gap: var(--spacing-32);
+  gap: var(--m-sm);
   align-items: start;
-  grid-template-columns: minmax(120px, 1fr) auto 2fr;
+  grid-template-columns: auto auto 1fr;
 }
 
 .expPeriod {
   padding-top: 0.15em;
   font-family: var(--font-family-headline);
-  font-size: clamp(1rem, 0.534rem + 0.97vw, 1.5rem);
+  font-size: var(--font-size-body-md);
   font-weight: 400;
   line-height: 1.3;
   color: var(--text-primary);
-  text-align: right;
+  text-align: left;
 }
 
 .expMarker {
@@ -621,13 +651,15 @@
 /* ── Panel: Skills (split layout — header left, list right) ── */
 .skillPanelLayout {
   display: grid;
-  gap: var(--spacing-64);
+  gap: var(--m-md);
   align-items: start;
-  grid-template-columns: 1fr 1.6fr;
+  grid-template-columns: 1fr;
 }
 
+/* 한 열로 접히면 제목을 붙여 둘 옆 칸이 없다 — sticky 로 두면 아래 항목(나타나는 움직임의 transform 으로
+   제목보다 위에 그려진다)과 글자가 겹쳤다. 두 열(768 초과)에서만 붙인다 */
 .skillPanelHeader {
-  position: sticky;
+  position: static;
   top: 0;
 }
 
@@ -705,11 +737,11 @@
 
 .philosophyRow {
   display: grid;
-  gap: var(--spacing-48);
+  gap: var(--spacing-12);
   align-items: baseline;
   padding: clamp(1.5rem, 3vh, 2.5rem) 0;
   border-bottom: var(--border-width-1) solid var(--border-default);
-  grid-template-columns: 1fr 1.4fr;
+  grid-template-columns: 1fr;
 }
 
 .philosophyRow:first-child {
@@ -758,11 +790,11 @@
 
 .approachRow {
   display: grid;
-  gap: var(--spacing-48);
+  gap: var(--spacing-12);
   align-items: baseline;
   padding: clamp(1.5rem, 3vh, 2.5rem) 0;
   border-bottom: var(--border-width-1) solid var(--border-default);
-  grid-template-columns: 1fr 1.4fr;
+  grid-template-columns: 1fr;
 }
 
 .approachRow:first-child {
@@ -805,8 +837,8 @@
 /* ── Panel: Certifications & Awards ── */
 .credentialColumns {
   display: grid;
-  gap: var(--spacing-64);
-  grid-template-columns: var(--grid-columns-2);
+  gap: var(--spacing-40);
+  grid-template-columns: 1fr;
 }
 
 .credentialColumn {
@@ -876,142 +908,10 @@
 }
 
 /* ==========================================================================
-   Mobile / Tablet: Vertical Scroll
+   넓어질수록 — 480 · 768 단계로 여백을 키우고, 넓고 높은 화면은 가로 스크롤
    ========================================================================== */
 
-@media (width <= 1024px), (height <= 700px) {
-  .section {
-    padding-top: var(--spacing-96);
-    overflow: visible;
-    height: auto;
-    min-height: 100svh;
-  }
-
-  .track {
-    flex-direction: column;
-    will-change: auto;
-  }
-
-  .panel {
-    padding: var(--spacing-64) var(--spacing-32);
-    border-bottom: var(--border-strong);
-    width: 100%;
-    height: auto;
-    min-height: auto;
-  }
-
-  .breakPanel {
-    display: none;
-  }
-
-  .profilePanel {
-    margin: 0;
-    padding: var(--spacing-48) var(--spacing-40);
-    border: none;
-    border-bottom: var(--border-strong);
-    overflow: visible;
-    width: 100%;
-    height: auto;
-    border-radius: 0;
-    gap: var(--_space-divide);
-  }
-
-  .panel:first-child,
-  .panel:last-child,
-  .panel:nth-last-child(2) {
-    border-bottom: none;
-  }
-
-  .panel:first-child {
-    min-height: 60vh;
-  }
-
-  .heroContent {
-    padding-top: calc(var(--header-height) + var(--_space-divide));
-  }
-
-  .heroWatermark,
-  .panelWatermark {
-    right: -3%;
-    bottom: 8%;
-    font-size: clamp(3rem, 1.155rem + 7.57vw, 6rem);
-  }
-
-  .heroSubtitle {
-    max-width: none;
-  }
-
-  /* 모바일 애니메이션 */
-  .animate {
-    opacity: 0;
-    transform: translateY(30px);
-    will-change: auto;
-  }
-
-  .track .animate {
-    transition:
-      opacity var(--duration-slower) var(--ease-standard),
-      transform var(--duration-slower) var(--ease-standard);
-  }
-
-  .animateVisible {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  .baseImageWrap {
-    display: none;
-  }
-
-  .profileContent {
-    margin-left: 0;
-    padding: 0;
-    position: static;
-    max-width: none;
-    background: none;
-    backdrop-filter: none;
-  }
-
-  .profileContent .bioHighlight,
-  .profileContent .bioText,
-  .profileContent .statNumber,
-  .profileContent .statLabel {
-    mix-blend-mode: normal;
-  }
-
-  .expPeriod {
-    text-align: left;
-  }
-
-  .philosophyRow {
-    gap: var(--spacing-12);
-    grid-template-columns: 1fr;
-  }
-
-  .approachRow {
-    gap: var(--spacing-12);
-    grid-template-columns: 1fr;
-  }
-
-  .credentialColumns {
-    gap: var(--spacing-40);
-    grid-template-columns: 1fr;
-  }
-
-  /* 패널을 세로로 쌓으면 번갈아 들이는 리듬(가로 트랙용)이 왼쪽 여백만 들쭉날쭉하게 만든다 — 좁은 폭을 다 쓴다 */
-  .panelIndent .panelInner {
-    padding-left: 0;
-  }
-}
-
-/* ── Tablet: Magazine layout adjustments ── */
-@media (768px < width <= 1024px) {
-  .magFeature {
-    gap: var(--spacing-32);
-  }
-}
-
-@media (width <= 768px) {
+@media (width > 480px) {
   .panel {
     padding: var(--spacing-48) var(--spacing-24);
   }
@@ -1030,43 +930,38 @@
     padding-right: var(--spacing-24);
   }
 
+  .magDetails {
+    grid-template-columns: var(--grid-columns-2);
+  }
+
+  .magFeature {
+    gap: var(--spacing-24);
+  }
+
   .osWindow {
     height: 220px;
   }
 
   .stats {
     gap: var(--spacing-32);
-    flex-wrap: wrap;
   }
 
   .expRow {
     gap: var(--spacing-16);
-    grid-template-columns: auto auto 1fr;
-  }
-
-  .expPeriod {
-    font-size: var(--font-size-body-md);
   }
 
   .skillPanelLayout {
     gap: var(--spacing-32);
-    grid-template-columns: 1fr;
-  }
-
-  /* 한 열로 접히면 제목을 붙여 둘 옆 칸이 없다 — sticky 로 두면 아래 항목(나타나는 움직임의 transform 으로
-     제목보다 위에 그려진다)과 글자가 겹쳤다 */
-  .skillPanelHeader {
-    position: static;
   }
 }
 
-@media (width <= 480px) {
+@media (width > 768px) {
   .panel {
-    padding: var(--m-lg) var(--m-sm);
+    padding: var(--spacing-64) var(--spacing-32);
   }
 
   .profilePanel {
-    padding: 0 0 var(--m-lg);
+    padding: var(--spacing-48) var(--spacing-40);
   }
 
   .magHeadline,
@@ -1075,31 +970,144 @@
   .magQuote,
   .magDetails,
   .profileContent {
-    padding-left: var(--m-sm);
-    padding-right: var(--m-sm);
+    padding-left: 0;
+    padding-right: 0;
   }
 
-  .magDetails {
-    grid-template-columns: 1fr;
-  }
-
+  /* 태블릿 — 잡지 두 단 사이를 조금 더 벌린다 */
   .magFeature {
-    gap: var(--m-sm);
+    gap: var(--spacing-32);
   }
 
   .osWindow {
-    height: 46vw;
+    height: auto;
   }
 
   .stats {
-    gap: var(--m-md);
+    flex-wrap: nowrap;
+    gap: var(--spacing-48);
   }
 
   .expRow {
-    gap: var(--m-sm);
+    gap: var(--spacing-32);
+    grid-template-columns: minmax(120px, 1fr) auto 2fr;
+  }
+
+  .expPeriod {
+    font-size: clamp(1rem, 0.534rem + 0.97vw, 1.5rem);
   }
 
   .skillPanelLayout {
-    gap: var(--m-md);
+    gap: var(--spacing-64);
+    grid-template-columns: 1fr 1.6fr;
+  }
+
+  .skillPanelHeader {
+    position: sticky;
+  }
+}
+
+@media (width > 1024px) {
+  .magFeature {
+    gap: var(--spacing-24);
+  }
+}
+
+/* 넓고 높은 화면 — 패널을 가로로 늘어놓고 가로 스크롤 */
+@media (width > 1024px) and (height > 700px) {
+  .panelIndent .panelInner {
+    padding-left: clamp(0px, 10vw, 200px);
+  }
+
+  .section {
+    overflow: hidden;
+    height: 100svh;
+    min-height: auto;
+    padding-top: 0;
+  }
+
+  .track {
+    flex-direction: row;
+    will-change: transform;
+  }
+
+  .panel {
+    padding: var(--_panel-py) var(--_panel-px);
+    border-bottom: none;
+    width: 100vw;
+    height: 100svh;
+  }
+
+  .panel:first-child {
+    min-height: auto;
+  }
+
+  .animate {
+    opacity: 1;
+    transform: none;
+    will-change: transform, opacity;
+  }
+
+  .track .animate {
+    transition: none;
+  }
+
+  .heroContent {
+    padding-top: 0;
+  }
+
+  .panelWatermark {
+    right: var(--_panel-px);
+    font-size: clamp(9rem, 3.334rem + 8.8vw, 12rem);
+  }
+
+  .heroWatermark {
+    right: -4%;
+    bottom: 5%;
+    font-size: clamp(11.55rem, 6.669rem + 7.59vw, 15.8rem);
+  }
+
+  .profilePanel {
+    gap: normal;
+    margin: calc(var(--header-height) + 1.5rem) 1.5rem 0.75rem;
+    padding: 0;
+    border: var(--border-strong);
+    overflow: hidden;
+    width: calc(100vw - 3rem);
+    height: calc(100svh - var(--header-height) - 1.5rem - 0.75rem);
+    border-radius: var(--radius-surface);
+  }
+
+  .baseImageWrap {
+    display: block;
+  }
+
+  .profileContent {
+    margin-left: auto;
+    padding: var(--spacing-32);
+    position: relative;
+    max-width: 420px;
+  }
+
+  .profileContent .bioHighlight,
+  .profileContent .bioText,
+  .profileContent .statNumber,
+  .profileContent .statLabel {
+    mix-blend-mode: difference;
+  }
+
+  .expPeriod {
+    text-align: right;
+  }
+
+  .philosophyRow,
+  .approachRow {
+    gap: var(--spacing-48);
+    grid-template-columns: 1fr 1.4fr;
+  }
+
+  .credentialColumns {
+    gap: var(--spacing-64);
+    grid-template-columns: var(--grid-columns-2);
   }
 }

@@ -19,11 +19,12 @@
 /* Primary oval group — 스크롤에 따라 위아래 등간격 펼침 */
 .ovalPrimaryGroup {
   position: absolute;
-  top: 10%;
-  right: -10%;
-  width: 600px;
-  height: 300px;
+  top: 8%;
+  right: -20%;
+  width: 260px;
+  height: 130px;
   pointer-events: none;
+  opacity: 0.5;
 }
 
 .ovalPrimary {
@@ -41,11 +42,12 @@
 
 .ovalSecondary {
   border: var(--border-light);
-  bottom: 20%;
-  left: -5%;
-  width: 400px;
-  height: 200px;
+  bottom: 25%;
+  left: -12%;
+  width: 180px;
+  height: 90px;
   transform: rotate(25deg);
+  opacity: 0.4;
 }
 
 /* ---------------------------------------------------------------------------
@@ -63,6 +65,7 @@
    --------------------------------------------------------------------------- */
 .content {
   margin-top: 5vh;
+  padding-bottom: var(--spacing-128);
   position: relative;
   z-index: var(--z-index-content);
 }
@@ -72,13 +75,14 @@
   gap: var(--spacing-8);
   flex-direction: column;
   font: var(--font-display-lg);
+  font-size: var(--font-size-display-md);
   font-family: var(--font-family-headline);
 }
 
 .titleRow {
   display: flex;
   flex-wrap: wrap;
-  gap: 0 var(--spacing-24);
+  gap: var(--spacing-12);
   align-items: center;
   overflow: hidden;
   word-break: keep-all;
@@ -86,7 +90,6 @@
 
 .titleText {
   font-family: inherit;
-  font-size: inherit;
   font-weight: inherit;
   line-height: var(--line-height-100);
   color: var(--text-primary);
@@ -95,7 +98,6 @@
 
 .titleAccent {
   font-family: inherit;
-  font-size: inherit;
   font-style: italic;
   font-weight: inherit;
   line-height: var(--line-height-100);
@@ -116,15 +118,17 @@
    --------------------------------------------------------------------------- */
 .meta {
   display: flex;
-  gap: var(--spacing-32);
+  gap: var(--spacing-16);
   align-items: center;
-  margin-top: var(--spacing-64);
+  flex-direction: column;
+  margin-top: var(--spacing-32);
   font: var(--font-body-md);
   color: var(--text-secondary);
   letter-spacing: 0.02em;
 }
 
 .metaDivider {
+  display: none;
   width: 60px;
   height: 1px;
   background: var(--bg-accent-solid-light);
@@ -176,7 +180,7 @@
   align-items: center;
   flex-direction: column;
   position: absolute;
-  bottom: var(--spacing-64);
+  bottom: var(--spacing-24);
   left: 50%;
   transform: translateX(-50%);
 
@@ -206,64 +210,63 @@
 }
 
 /* ---------------------------------------------------------------------------
-   Responsive
+   Responsive — 좁은 화면이 기본, 넓어질수록 장식 타원 · 여백을 키운다
    --------------------------------------------------------------------------- */
-@media (width <= 1024px) {
+@media (width > 480px) {
+  .title {
+    font-size: var(--font-size-display-lg);
+  }
+}
+
+@media (width > 768px) {
+  .titleRow {
+    gap: 0 var(--spacing-24);
+  }
+
+  .content {
+    padding-bottom: 0;
+  }
+
+  .meta {
+    gap: var(--spacing-32);
+    flex-direction: row;
+    margin-top: var(--spacing-64);
+  }
+
+  .metaDivider {
+    display: block;
+  }
+
+  .scrollIndicator {
+    bottom: var(--spacing-64);
+  }
+
   .ovalPrimaryGroup {
     width: 400px;
     height: 200px;
+    right: -10%;
+    top: 10%;
+    opacity: 1;
   }
 
   .ovalSecondary {
     width: 300px;
     height: 150px;
+    left: -5%;
+    bottom: 20%;
+    opacity: 1;
   }
 }
 
-@media (width <= 768px) {
-  .titleRow {
-    gap: var(--spacing-12);
-  }
-
-  .content {
-    padding-bottom: var(--spacing-128);
-  }
-
-  .meta {
-    gap: var(--spacing-16);
-    flex-direction: column;
-    margin-top: var(--spacing-32);
-  }
-
-  .metaDivider {
-    display: none;
-  }
-
-  .scrollIndicator {
-    bottom: var(--spacing-24);
-  }
-
+@media (width > 1024px) {
   .ovalPrimaryGroup {
-    width: 260px;
-    height: 130px;
-    right: -20%;
-    top: 8%;
-    opacity: 0.5;
+    width: 600px;
+    height: 300px;
   }
 
   .ovalSecondary {
-    width: 180px;
-    height: 90px;
-    left: -12%;
-    bottom: 25%;
-    opacity: 0.4;
-  }
-}
-
-@media (width <= 480px) {
-  .titleText,
-  .titleAccent {
-    font-size: var(--font-size-display-md);
+    width: 400px;
+    height: 200px;
   }
 }
 
