@@ -15,7 +15,8 @@
    상자의 크기와 위치만이 몽이가 어디에 얼마만 하게 설지를 정한다. */
 .dock {
   flex-shrink: 0;
-  width: min(50vh, 380px);
+  /* 한 열이면 몽이 자리가 화면 폭을 거의 다 써서(332×443) 몽이가 화면을 가렸다 — 두 열(768 초과)에서 키운다 */
+  width: min(56vw, 240px);
   aspect-ratio: 3 / 4;
   /* 몽이 그림은 위에 뜬 오버레이가 그리고 그 오버레이는 클릭을 받지 않는다 —
      끌어서 돌리는 입력은 이 상자가 대신 받는다. */
@@ -27,6 +28,14 @@
 
 .dock[data-dragging="true"] {
   cursor: grabbing;
+}
+
+/* 터치 — 세로로 쓸면 페이지가 스크롤되고, 가로로 끌면 몽이가 돈다. none 이면 화면 절반을 차지하는 이 상자
+   위에서는 페이지를 넘길 수 없었다 */
+@media (pointer: coarse) {
+  .dock {
+    touch-action: pan-y;
+  }
 }
 
 /* 만질 수 있는 자리에서는 장면 안의 3D 손이 커서 노릇을 한다. 네이티브 커서를 끄지 않으면
@@ -260,6 +269,10 @@
   .layout {
     flex-direction: row;
     gap: var(--spacing-32);
+  }
+
+  .dock {
+    width: min(50vh, 380px);
   }
 
   .info {
