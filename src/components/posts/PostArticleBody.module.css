@@ -2,7 +2,7 @@
 
 /* ── Prose body ── */
 .prose {
-  font: var(--font-body-lg);
+  font: var(--font-body-md);
   color: var(--text-primary);
 }
 
@@ -360,9 +360,9 @@
 .prose :global(.markdown-alert-title) { color: var(--text-accent); }
 .prose :global(.markdown-alert-title) svg { color: var(--text-accent); }
 
-@media (width <= 768px) {
+@media (width > 768px) {
   .prose {
-    font-size: var(--font-size-body-md);
+    font-size: var(--font-size-body-lg);
   }
 }
 

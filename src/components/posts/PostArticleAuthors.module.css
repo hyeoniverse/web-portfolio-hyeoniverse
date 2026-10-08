@@ -2,7 +2,7 @@
 
 /* ── 작성자: 게시물 끝 상세 섹션 ── */
 .authorsFooter {
-  margin-top: var(--spacing-48);
+  margin-top: var(--spacing-32);
   padding-top: var(--spacing-24);
   border-top: var(--border-light);
   display: flex;
@@ -20,12 +20,12 @@
 .authorFooterCard {
   display: flex;
   align-items: flex-start;
-  gap: var(--spacing-20);
+  gap: var(--spacing-16);
 }
 .authorFooterAvatar,
 .authorFooterAvatarFallback {
-  width: 60px;
-  height: 60px;
+  width: 48px;
+  height: 48px;
   border-radius: var(--radius-full);
   flex-shrink: 0;
   border: var(--border-width-1) solid var(--border-color-light);
@@ -56,6 +56,7 @@
 }
 .authorFooterName {
   font: var(--font-title-sm);
+  font-size: var(--font-size-headline-xs);
   color: var(--text-primary);
 }
 .authorFooterRole {
@@ -89,19 +90,19 @@
   flex-shrink: 0;
 }
 
-@media (width <= 768px) {
+@media (width > 768px) {
   .authorsFooter {
-    margin-top: var(--spacing-32);
+    margin-top: var(--spacing-48);
   }
   .authorFooterCard {
-    gap: var(--spacing-16);
+    gap: var(--spacing-20);
   }
   .authorFooterAvatar,
   .authorFooterAvatarFallback {
-    width: 48px;
-    height: 48px;
+    width: 60px;
+    height: 60px;
   }
   .authorFooterName {
-    font-size: var(--font-size-headline-xs);
+    font: var(--font-title-sm);
   }
 }

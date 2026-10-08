@@ -1,21 +1,43 @@
 /* ── 시리즈 인덱스 컨트롤 (SeriesIndexControls) — 정렬 · perPage · 검색 ── */
 
-/* 페이징 + 검색 + 도움말 묶음 — 우측 정렬, 작은 gap */.searchTools {
+/* 페이징 + 검색 + 도움말 묶음.
+   좁은 화면: 한 줄 전체로 내리고 안에서 wrap → 검색창(page.searchBar, 모바일 width:100%)이 제 줄을
+   차지해 화면 밖으로 안 삐져나간다. 넓은 화면: 우측 정렬, 한 줄. */
+.searchTools {
   display: inline-flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--spacing-8);
-  margin-left: auto;
+  width: 100%;
+  margin-left: 0;
   min-width: 0;
-}/* perPage 그룹(아이콘 + select) */.perPageGroup {
+}
+
+@media (width > 768px) {
+  .searchTools {
+    flex-wrap: nowrap;
+    width: auto;
+    margin-left: auto;
+  }
+}
+
+/* perPage 그룹(아이콘 + select) */
+.perPageGroup {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-4);
-}.perPageIcon {
+}
+
+.perPageIcon {
   flex-shrink: 0;
   color: var(--text-tertiary);
-}.perPageSelect {
+}
+
+.perPageSelect {
   flex: 0 0 auto;
-}.perPageSelect > button {
+}
+
+.perPageSelect > button {
   padding: 0 var(--spacing-12);
   font: var(--font-body-xs);
 }
@@ -23,14 +45,4 @@
 /* 정렬/검색창 border 를 페이징 select(--border-light) 등 주변 컨트롤과 light 로 통일 */
 .sortControl.sortControl {
   border: var(--border-width-1) solid var(--border-color-light);
-}
-
-/* 좁은 화면: perPage+검색 묶음(searchTools)을 한 줄 전체로 내리고 안에서 wrap →
-   검색창(page.searchBar, 모바일 width:100%)이 제 줄을 차지해 화면 밖으로 안 삐져나간다. */
-@media (width <= 768px) {
-  .searchTools {
-    width: 100%;
-    margin-left: 0;
-    flex-wrap: wrap;
-  }
 }

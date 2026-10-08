@@ -56,9 +56,17 @@
   max-width: var(--width-page-max);
   margin: 0 auto;
   display: grid;
-  grid-template-columns: 1fr 280px;
-  gap: var(--spacing-48);
+  grid-template-columns: 1fr;
+  gap: var(--spacing-32);
   align-items: start;
+}
+
+/* 1024 초과에서만 사이드바 열 */
+@media (width > 1024px) {
+  .contentArea {
+    grid-template-columns: 1fr 280px;
+    gap: var(--spacing-48);
+  }
 }
 
 .mainColumn {
@@ -110,12 +118,3 @@
 .historyMode .contentArea {
   grid-template-columns: 1fr;
 }
-
-/* ── Responsive ── */
-@media (width <= 1024px) {
-  .contentArea {
-    grid-template-columns: 1fr;
-    gap: var(--spacing-32);
-  }
-}
-

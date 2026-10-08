@@ -66,7 +66,17 @@
      모든 항목 min-height: var(--filter-row-h) 라 single-row 일 땐 center 와 시각적 동일. */
   align-items: flex-start;
   justify-content: space-between;
-  gap: var(--spacing-16);
+  /* 좁은 화면에서도 row 레이아웃 유지 + 폭 부족할 때만 wrap.
+     column 으로 강제하면 CategoryNav 가 전체 너비 → Tags 버튼만 있는 row 가 또 따로 노출돼 어색. */
+  flex-wrap: wrap;
+  gap: var(--spacing-12);
+}
+
+@media (width > 768px) {
+  .filterBarTop {
+    flex-wrap: nowrap;
+    gap: var(--spacing-16);
+  }
 }
 
 /* 검색 전용 윗줄 — 우상단 정렬. 검색창↔도움말 간격 (다른 페이지도 이 값 참고) */
@@ -129,15 +139,4 @@
    focus-within 시엔 강조 border 를 유지하려고 resting 상태에만 적용. (시리즈 검색은 SeriesSection.module.css 에 같은 규칙) */
 .postsSearchCapsule:not(:focus-within) {
   border-color: var(--border-color-light) !important;
-}
-
-@media (width <= 768px) {
-  /* mobile 에서도 row 레이아웃 유지 + 폭 부족할 때만 wrap.
-     column 으로 강제하면 CategoryNav 가 전체 너비 → Tags 버튼만 있는 row 가 또 따로 노출돼 어색. */
-  .filterBarTop {
-    flex-wrap: wrap;
-    /* multi-row 시 첫 row 기준 정렬 — 데스크탑과 동일 패턴 */
-    align-items: flex-start;
-    gap: var(--spacing-12);
-  }
 }

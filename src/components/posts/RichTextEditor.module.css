@@ -6,6 +6,7 @@
   border: var(--border-light);
   border-radius: var(--radius-surface);
   overflow: hidden;
+  min-height: 400px;
 }
 
 /* External column resize indicator — positioned outside contenteditable */
@@ -19,9 +20,8 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  row-gap: var(--spacing-4);
-  column-gap: var(--spacing-2);
-  padding: var(--spacing-8);
+  gap: var(--spacing-1);
+  padding: var(--spacing-4);
   border: none;
   border-radius: 0;
   background: var(--bg-tertiary);
@@ -1362,14 +1362,14 @@
   top: 0;
   /* 요소 왼쪽 — [+][이동핸들] 두 버튼, 좌측 패딩 안. 오른쪽 끝을 콘텐츠에서 살짝 띄움.
      float 이미지 옆 블록은 --float-edge 만큼 오른쪽으로(이미지 옆 텍스트 시작에 맞춤) */
-  left: calc(-1 * var(--spacing-64) + var(--float-edge, 0px) + var(--block-indent, 0px));
-  width: calc(var(--spacing-64) - var(--spacing-8));
+  left: calc(-1 * var(--spacing-40) + var(--float-edge, 0px) + var(--block-indent, 0px));
+  width: var(--spacing-32);
   height: 100%;
   display: flex;
-  /* [+][이동핸들] 을 가로로 나란히. 접근성 24×24 터치 타깃(WCAG 2.5.8) 두 개가 들어가도록 좌측 패딩을
-     64px 로 잡았다(아래 .editorContent). 오른쪽(콘텐츠 쪽) 정렬, 첫 줄에 맞춤. */
-  flex-direction: row;
-  align-items: flex-start;
+  /* 좁은 화면은 [+][이동핸들] 을 세로로 쌓는다(좌측 패딩 40px). 넓은 화면은 가로로 나란히 — 접근성 24×24
+     터치 타깃(WCAG 2.5.8) 두 개가 들어가도록 좌측 패딩을 64px 로 잡았다(.editorContent). 오른쪽(콘텐츠 쪽) 정렬. */
+  flex-direction: column;
+  align-items: flex-end;
   justify-content: flex-end;
   gap: var(--spacing-1);
   padding-top: calc((var(--font-size-16) * var(--line-height-160) - 24px) / 2);
@@ -1773,27 +1773,23 @@
 /* "..." 밖 별개 언어 Select — 우측 버튼 그룹과 간격 벌림 */
 /* 그룹 라벨 (자주 쓰는 / A–Z) — 스크롤 시 상단 고정 */
 
-@media (width <= 768px) {
+@media (width > 768px) {
   .wrapper {
-    min-height: 400px;
+    min-height: auto;
   }
 
-  /* 좁은 화면에서는 64px 여백이 본문을 너무 좁힌다 — 예전 폭으로 되돌리고 [+][핸들]도 세로로 쌓는다.
-     .editorContent 본 규칙이 이 미디어쿼리보다 파일 뒤에 있어 같은 특이도로는 진다 → 클래스를 두 번 적어 이긴다 */
-  .editorContent.editorContent {
-    padding: var(--spacing-16) var(--spacing-40);
-  }
-
+  /* 넓은 화면은 [+][핸들] 을 가로로 나란히 — 좌측 패딩 64px(아래 .editorContent) 안에 들어간다 */
   .blockDragGutter {
-    left: calc(-1 * var(--spacing-40) + var(--float-edge, 0px) + var(--block-indent, 0px));
-    width: var(--spacing-32);
-    flex-direction: column;
-    align-items: flex-end;
+    left: calc(-1 * var(--spacing-64) + var(--float-edge, 0px) + var(--block-indent, 0px));
+    width: calc(var(--spacing-64) - var(--spacing-8));
+    flex-direction: row;
+    align-items: flex-start;
   }
 
   .toolbar {
-    gap: var(--spacing-1);
-    padding: var(--spacing-4);
+    row-gap: var(--spacing-4);
+    column-gap: var(--spacing-2);
+    padding: var(--spacing-8);
   }
 }
 
@@ -1810,8 +1806,8 @@
   --tint-inset: 6px;
   --prose-block-gap: 20px;
   /* 좌우 동일 패딩 — 좌측 [+][드래그] gutter 가 패딩 영역 안에 들어가므로 텍스트 여백이 좌우 대칭.
-     가로로 나란한 두 버튼(24+24)이 들어가야 해서 64px. 좁은 화면은 아래 미디어쿼리에서 되돌린다 */
-  padding: var(--spacing-16) var(--spacing-64);
+     좁은 화면은 40px(버튼 세로로 쌓음), 넓은 화면은 가로로 나란한 두 버튼(24+24)이 들어가야 해서 64px(아래 media) */
+  padding: var(--spacing-16) var(--spacing-40);
   outline: none;
   min-height: 400px;
   font: var(--font-body-lg);
@@ -1824,6 +1820,12 @@
   overflow-x: hidden;
   scrollbar-width: thin;
   scrollbar-color: var(--border-color-strong) transparent;
+}
+
+@media (width > 768px) {
+  .editorContent {
+    padding: var(--spacing-16) var(--spacing-64);
+  }
 }
 
 /* inline 이미지가 든 문단은 글자 단위 줄바꿈 — 영문이 이미지 옆 공간을 채우게.
