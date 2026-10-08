@@ -116,10 +116,15 @@
   display: none;
 }
 
-/* 모바일: 일당 약 24px min-width — children 에 직접 적용 (chartInner wrapper 흡수) */
-@media (width <= 768px) {
+/* 좁은 화면: 일당 약 24px min-width — children 에 직접 적용 (chartInner wrapper 흡수).
+   넓은 화면은 폭에 맞춰 늘고 줄어든다 */
+.chartScroll > * {
+  min-width: calc(var(--_days, 14) * 24px);
+}
+
+@media (width > 768px) {
   .chartScroll > * {
-    min-width: calc(var(--_days, 14) * 24px);
+    min-width: auto;
   }
 }
 

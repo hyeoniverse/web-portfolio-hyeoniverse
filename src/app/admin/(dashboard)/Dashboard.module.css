@@ -215,7 +215,7 @@
 }
 
 .heroSparkWrap {
-  height: 80px;
+  height: 60px;
   display: flex;
   align-items: stretch;
 }
@@ -235,9 +235,9 @@
   stroke-width: 1.75;
 }
 
-@media (width <= 768px) {
+@media (width > 768px) {
   .heroSparkWrap {
-    height: 60px;
+    height: 80px;
   }
 }
 
@@ -373,6 +373,11 @@ a.statCard:hover .statValue {
   border-radius: 0;
 }
 
+/* 좁은 화면 — 한 열로 쌓이니 두 셀 사이는 위 선으로 가른다 */
+.twoCol > .panelCell + .panelCell {
+  border-top: var(--border-light);
+}
+
 /* PC: 좌측 cell right padding + 우측 cell left padding (gutter, 단 List.item 에 적용).
    cell 사이 hairline 은 column-gap + background trick 으로 cell 끝까지 (full height).
    --_item-inline-* CSS var 가 그 안 list item 의 padding 으로 cascade */
@@ -391,6 +396,9 @@ a.statCard:hover .statValue {
   .twoCol > .panelCell {
     background: var(--bg-primary);
   }
+  .twoCol > .panelCell + .panelCell {
+    border-top: none;
+  }
   .twoCol > :nth-child(odd) {
     --_item-inline-end: var(--spacing-16);
   }
@@ -399,18 +407,13 @@ a.statCard:hover .statValue {
   }
 }
 
-@media (width <= 768px) {
-  .twoCol > .panelCell + .panelCell {
-    border-top: var(--border-light);
-  }
-}
-
 /* ── Devices drill-down 확장 — Traffic 패널 접고 Devices 풀폭 ── */
 /* 셀 사이 hairline(gap trick)도 접는다 — 남기면 확장된 패널 왼쪽에 선이 한 줄 남는다.
    .twoCol.twoCol 의 (0,2,0) column-gap 에 지지 않도록 같은 급으로 올린다.
-   트랙은 base 와 같은 minmax 구조여야 폭 전환이 animate 된다 */
+   트랙은 base 와 같은 minmax 구조여야 폭 전환이 animate 된다(넓은 화면, 아래 media).
+   좁은 화면은 원래 한 열이라 접힌 패널을 숨기기만 한다 */
 .twoCol.twoColExpanded {
-  grid-template-columns: minmax(0, 0fr) minmax(0, 1fr);
+  grid-template-columns: 1fr;
   column-gap: 0;
 }
 
@@ -443,11 +446,16 @@ a.statCard:hover .statValue {
   visibility: hidden;
 }
 
-@media (width <= 768px) {
+@media (width > 768px) {
   /* 기본 rule 이 (0,2,0)으로 올라가서 여기도 같은 급이어야 이긴다 */
   .twoCol.twoColExpanded {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 0fr) minmax(0, 1fr);
   }
+}
+
+/* 3.11-1 예외: 넓은 화면의 display(flex)는 composes 한 Panel .panelFlex 가 정한다 —
+   여기서 되돌리면 그 값을 베껴 써야 해서 좁은 화면 숨김만 둔다 */
+@media (width <= 768px) {
   .panelCollapsed {
     display: none;
   }

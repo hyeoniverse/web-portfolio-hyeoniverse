@@ -3,14 +3,14 @@
    backdrop-filter 가 부모 페이지 콘텐츠를 blur 할 수 있도록 isolation 제거 */
 .wrap {
   position: fixed;
-  bottom: var(--spacing-24);
-  right: var(--spacing-24);
+  bottom: var(--spacing-16);
+  right: var(--spacing-16);
 }
 
-@media (width <= 768px) {
+@media (width > 768px) {
   .wrap {
-    bottom: var(--spacing-16);
-    right: var(--spacing-16);
+    bottom: var(--spacing-24);
+    right: var(--spacing-24);
   }
 }
 

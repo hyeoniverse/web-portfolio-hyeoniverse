@@ -13,22 +13,22 @@
 
 .item {
   flex-shrink: 0;
-  width: 100vw;
+  width: 90vw;
   min-height: 100svh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-32);
+  padding: var(--row-padding-lg);
   box-sizing: border-box;
 }
 
 /* Progress indicator */
 .progress {
   position: fixed;
-  bottom: 2rem;
+  bottom: 1rem;
   left: 50%;
   transform: translateX(-50%);
-  width: 200px;
+  width: 150px;
   height: 2px;
   background: var(--bg-glass);
   border-radius: var(--spacing-1);
@@ -47,16 +47,15 @@
   transform: scaleX(0);
 }
 
-/* Responsive adjustments */
-@media (width <= 768px) {
+@media (width > 768px) {
   .item {
-    width: 90vw;
-    padding: var(--row-padding-lg);
+    width: 100vw;
+    padding: var(--spacing-32);
   }
 
   .progress {
-    bottom: 1rem;
-    width: 150px;
+    bottom: 2rem;
+    width: 200px;
   }
 }
 
