@@ -22,7 +22,7 @@
 }
 
 /* 컨테이너 폭 부족 시 (admin/settings 처럼 좁은 column 안에 embed 됐을 때 등) — 줄바꿈 레이아웃 */
-@container (max-width: 520px) {
+@container (width <= 520px) {
   .customGradient {
     grid-template-columns: 1fr;
     grid-template-areas:

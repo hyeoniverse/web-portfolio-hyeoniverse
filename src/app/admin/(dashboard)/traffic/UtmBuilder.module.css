@@ -9,6 +9,8 @@
      이게 없으면 오른쪽 칸에서 경계선에 딱 붙는다 */
   padding-inline-start: var(--_item-inline-start, 0);
   padding-inline-end: var(--_item-inline-end, 0);
+  /* 넓은 화면에선 반쪽 칸에 놓여 오히려 좁다 — 칸 폭으로 접는다(3.11-3) */
+  container: utm-builder / inline-size;
 }
 
 /* 필드 2×2 — 라벨·컨트롤 전부 기본(sm) 눈금이라 줄이 맞는다 */
@@ -19,7 +21,7 @@
   align-items: start;
 }
 
-@media (width <= 900px) {
+@container utm-builder (width < 360px) {
   .fieldsGrid {
     grid-template-columns: 1fr;
   }

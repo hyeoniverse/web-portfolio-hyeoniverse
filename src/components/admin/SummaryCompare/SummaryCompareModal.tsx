@@ -38,10 +38,12 @@ export default function SummaryCompareModal({ current, next, onPick }: {
     && summaryToPlain(parseStoredSummary(current.en)) === summaryToPlain(parseStoredSummary(next.en));
   return (
     <ModalConfirm desc={tc("desc")} confirmText={tc("useNext")} cancelText={tc("keep")} onConfirm={() => onPick(next)}>
-      <div className={styles.grid}>
-        {col(tc("current"), current, false)}
-        <span className={styles.divider} aria-hidden />
-        {col(tc("next"), next, true)}
+      <div className={styles.compare}>
+        <div className={styles.grid}>
+          {col(tc("current"), current, false)}
+          <span className={styles.divider} aria-hidden />
+          {col(tc("next"), next, true)}
+        </div>
       </div>
       {same && <p className={styles.same}>{tc("same")}</p>}
     </ModalConfirm>

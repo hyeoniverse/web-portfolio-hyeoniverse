@@ -141,7 +141,7 @@
   .timelineIndexMonths::before { animation: none; }
 }
 
-@media (width <= 640px) {
+@media (width <= 768px) {
   .timelineIndex {
     display: none;
   }

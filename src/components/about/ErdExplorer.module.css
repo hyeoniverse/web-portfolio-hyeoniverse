@@ -9,6 +9,8 @@
   width: 100%;
   height: 100%;
   min-height: 0;
+  /* 나란히 보기는 이 상자 폭으로 접는다(3.11-3) — 공개 패널 · admin 캔버스 폭이 서로 다르다 */
+  container: erd / inline-size;
 }
 
 .flow {
@@ -24,7 +26,7 @@
   min-height: 0;
 }
 /* 좁으면 위아래로 — 반씩 나누면 둘 다 못 읽는다 */
-@media (width <= 900px) {
+@container erd (width < 560px) {
   .split {
     flex-direction: column;
   }

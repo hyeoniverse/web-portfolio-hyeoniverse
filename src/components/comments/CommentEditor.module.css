@@ -72,7 +72,7 @@
 /* ── 좁은 폭(태블릿·모바일·중첩 답글) 대응 ──
    에디터 폭 ≤ 600px: 라벨을 숨기고 그룹 박스를 풀어(display: contents) 22개 아이콘을
    한 덩어리 균일 그리드로 흘린다 — 그룹이 통째로 넘쳐 가로로 삐져나오는 일도 없다. */
-@container cmt-editor (max-width: 600px) {
+@container cmt-editor (width <= 600px) {
   .editorHeader {
     gap: var(--spacing-8);
   }

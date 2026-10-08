@@ -148,9 +148,6 @@
   min-width: 0;
 }
 
-@media (width <= 640px) {
-}
-
 /* 자동 커버 — 설명 + 실행 단추 */
 /* 자동 커버 실행 — 기능 머리 줄의 켜기 앞. 지난 결과는 단추 왼쪽에 */
 .autoCover {
@@ -357,7 +354,7 @@
   align-items: start;
 }
 
-@media (width >= 1280px) {
+@container settings-panel (width >= 850px) {
   .summaryGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }

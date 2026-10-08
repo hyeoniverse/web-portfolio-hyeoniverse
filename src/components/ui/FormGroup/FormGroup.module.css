@@ -7,6 +7,8 @@
   gap: var(--spacing-12);
   width: 100%;
   min-width: 0;
+  /* 2열은 놓인 자리 폭으로 접는다(3.11-3) */
+  container: form-group / inline-size;
 }
 
 /* 제목이 있으면 위에 가는 선으로 앞 묶음과 가른다 */
@@ -47,7 +49,7 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-@media (width <= 640px) {
+@container form-group (width < 560px) {
   .body[data-cols="2"] {
     grid-template-columns: minmax(0, 1fr);
   }

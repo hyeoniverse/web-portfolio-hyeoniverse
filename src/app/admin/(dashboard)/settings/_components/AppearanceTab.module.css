@@ -219,9 +219,11 @@
   flex-direction: column;
   gap: var(--spacing-16);
   min-width: 0;
+  /* 그림자 조정 칸이 반쪽 패널 폭으로 접힌다 */
+  container: favicon-panel / inline-size;
 }
 /* 두 컬럼 사이 세로 구분선 (넓은 뷰에서만) — 카드 대신 얇은 rule 로 분리 */
-@media (width > 900px) {
+@container settings-panel (width >= 640px) {
   .faviconPanel + .faviconPanel {
     padding-left: var(--spacing-32);
     border-left: var(--border-light);
@@ -237,7 +239,7 @@
   letter-spacing: 0.04em;
 }
 
-@media (width <= 900px) {
+@container settings-panel (width < 640px) {
   .faviconPanels {
     grid-template-columns: 1fr;
   }
@@ -560,7 +562,7 @@
   grid-template-columns: var(--grid-columns-2);
 }
 
-@media (width <= 640px) {
+@container settings-panel (width < 570px) {
   .brandDrops {
     grid-template-columns: 1fr;
   }
@@ -675,7 +677,7 @@
   grid-column: 1 / -1;
 }
 
-@media (width <= 640px) {
+@container favicon-panel (width < 300px) {
   .faviconShadowBody {
     flex-direction: column;
   }

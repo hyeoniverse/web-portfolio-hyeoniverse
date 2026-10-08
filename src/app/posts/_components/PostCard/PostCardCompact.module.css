@@ -1,4 +1,4 @@
-/* ── 컴팩트 카드 (PostCardCompact) — 이미지 없는 텍스트 행(초고밀도 목록). 데스크톱 [lead | meta] 한 줄, 560px 이하 2×2 ── */
+/* ── 컴팩트 카드 (PostCardCompact) — 이미지 없는 텍스트 행(초고밀도 목록). 데스크톱 [lead | meta] 한 줄, 480px 이하 2×2 ── */
 
 /* ══ Compact 레이아웃 카드 — 이미지 없는 텍스트 행(초고밀도 목록) ══ */
 .compactCard {
@@ -112,7 +112,7 @@
 
 /* 카드(=본문 열 폭)가 좁으면 날짜·읽기시간 숨겨 lead 넘침/겹침·칩 잘림 방지 (조회·좋아요만 남김).
    .card 가 container-type: inline-size 라 카드 폭 기준. */
-@container (max-width: 640px) {
+@container (width <= 640px) {
   .compactDate,
   .compactRead {
     display: none;
@@ -150,7 +150,7 @@
 
 /* 모바일 — desktop grid([lead | meta]) 를 2×2 로 확장. lead 안 카테고리·hot·lang 숨기고 2줄로.
    1줄: 핀·썸네일·제목(col1) | 날짜(col2). 2줄: 카테고리·hot·lang(col1) | 조회·좋아요(col2, 날짜와 같은 열). */
-@media (width <= 560px) {
+@media (width <= 480px) {
   .compactLead > .compactCat,
   .compactLead > .compactHotSlot,
   .compactLead > .compactLangSlot {
