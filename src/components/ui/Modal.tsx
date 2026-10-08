@@ -347,7 +347,6 @@ export default function Modal() {
                         {subButtons && <div className={styles.subButtons}>{subButtons}</div>}
                         {closeButton && !isMobile && (
                           <CloseButton
-                            className={styles.closeButton}
                             onClick={() => handleClose(id)}
                             ariaLabel={t("common.close")}
                           />

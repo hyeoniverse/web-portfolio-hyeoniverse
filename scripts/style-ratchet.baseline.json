@@ -791,12 +791,8 @@
     "src/components/admin/AdminTable/AdminTable.module.css": 1,
     "src/components/admin/SeoChecklist.module.css": 1,
     "src/components/admin/SubTable/SubTable.module.css": 1,
-    "src/components/layout/Navigation/Navigation.module.css": 1,
     "src/components/scroll/HorizontalScrollSection.module.css": 1,
-    "src/components/ui/ImageViewer/ImageViewer.module.css": 1,
-    "src/components/ui/Modal.module.css": 1,
-    "src/styles/globals/_layout.css": 1,
-    "src/styles/globals/_scroll.css": 1
+    "src/components/ui/ImageViewer/ImageViewer.module.css": 1
   },
   "responsive-legacy-syntax": {},
   "responsive-off-scale": {},
@@ -842,7 +838,7 @@
     "src/components/ui/Banner/Banner.module.css": 2,
     "src/components/ui/ButtonGroup.module.css": 20,
     "src/components/ui/Chip/Chip.module.css": 1,
-    "src/components/ui/ImageViewer/ImageViewer.module.css": 12,
+    "src/components/ui/ImageViewer/ImageViewer.module.css": 11,
     "src/components/ui/ModalTemplates.module.css": 3,
     "src/components/ui/ScrollButtons/ScrollButtons.module.css": 1,
     "src/components/ui/SearchCapsule/SearchCapsule.module.css": 9,
@@ -851,10 +847,10 @@
     "src/components/works/WorkEditor.module.css": 6,
     "src/styles/globals/_base.css": 2,
     "src/styles/globals/_hljs.css": 13,
-    "src/styles/globals/_layout.css": 3,
+    "src/styles/globals/_layout.css": 1,
     "src/styles/globals/_overrides.css": 4,
     "src/styles/globals/_poll.css": 1,
-    "src/styles/globals/_scroll.css": 3,
+    "src/styles/globals/_scroll.css": 1,
     "src/styles/globals/_utilities.css": 1
   },
   "cascade-doubled-class": {
