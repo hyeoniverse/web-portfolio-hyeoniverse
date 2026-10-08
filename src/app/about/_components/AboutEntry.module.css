@@ -6,10 +6,11 @@
 
 /* 공통 라벨/배지 */
 .entryLabel {
-  padding: var(--spacing-4) var(--spacing-12);
+  padding: var(--spacing-2) var(--spacing-12);
   border: var(--border-default);
   width: fit-content;
   font: var(--font-prose-md);
+  font-size: var(--font-size-body-xs);
   font-weight: var(--font-weight-semibold);
   color: var(--text-tertiary);
   text-transform: uppercase;
@@ -28,18 +29,25 @@
 
 /* 공통 항목 블록 (description + label + content) */
 .entryBlock {
+  position: relative;
+  z-index: 1;
   display: flex;
-  gap: var(--_space-line);
+  gap: var(--spacing-8);
   flex-direction: column;
-  margin-bottom: var(--_space-block);
+  margin-bottom: var(--spacing-16);
+}
+
+.entryBlock:last-child {
+  margin-bottom: 0;
 }
 
 /* 공통 상세 헤더 (번호 + 제목) */
 .detailHeader {
   display: flex;
-  gap: var(--spacing-20);
-  align-items: baseline;
-  margin-bottom: var(--spacing-24);
+  flex-wrap: wrap;
+  gap: var(--spacing-12);
+  align-items: center;
+  margin-bottom: var(--spacing-16);
   font: var(--font-display-sm);
 }
 
@@ -52,27 +60,27 @@
   color: var(--text-accent);
 }
 
-@media (width <= 1024px), (height <= 700px) {
+@media (width > 1024px) and (height > 700px) {
   .entryBlock {
-    position: relative;
-    z-index: 1;
-    gap: var(--spacing-8);
-    margin-bottom: var(--spacing-16);
+    position: static;
+    z-index: auto;
+    gap: var(--_space-line);
+    margin-bottom: var(--_space-block);
   }
 
   .entryBlock:last-child {
-    margin-bottom: 0;
+    margin-bottom: var(--_space-block);
   }
 
   .entryLabel {
-    padding: var(--spacing-2) var(--spacing-12);
-    font-size: var(--font-size-body-xs);
+    padding: var(--spacing-4) var(--spacing-12);
+    font-size: var(--font-size-prose-md);
   }
 
   .detailHeader {
-    gap: var(--spacing-12);
-    margin-bottom: var(--spacing-16);
-    flex-wrap: wrap;
-    align-items: center;
+    gap: var(--spacing-20);
+    margin-bottom: var(--spacing-24);
+    flex-wrap: nowrap;
+    align-items: baseline;
   }
 }

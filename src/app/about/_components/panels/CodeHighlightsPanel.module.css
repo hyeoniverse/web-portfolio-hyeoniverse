@@ -1,4 +1,5 @@
 .codeSingleView {
+  display: none;
   flex: 1;
   position: relative;
   min-width: 0;
@@ -194,9 +195,16 @@
   white-space: pre;
 }
 
-/* Mobile code list — hidden on desktop */
+/* Mobile code list — 넓은 화면은 숨김(위 codeSingleView 가 대신) */
 .codeListMobile {
-  display: none;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (width > 1024px) and (height > 700px) {
+  .codeListMobile {
+    display: none;
+  }
 }
 
 .codeItemMobile {
@@ -209,9 +217,9 @@
 
 .codeMobileHeader {
   display: flex;
-  gap: var(--spacing-12);
+  gap: var(--spacing-16);
   align-items: flex-start;
-  padding: var(--spacing-20) 0;
+  padding: var(--spacing-24) 0;
 }
 
 .codeMobilePreview {
@@ -230,8 +238,8 @@
   flex-shrink: 0;
   margin-top: var(--spacing-2);
   border: var(--_line-primary);
-  width: clamp(24px, 2vw, 32px);
-  height: clamp(24px, 2vw, 32px);
+  width: clamp(30px, 6vw, 40px);
+  height: clamp(30px, 6vw, 40px);
   font: var(--font-display-sm);
   border-radius: var(--radius-full);
 }
@@ -259,7 +267,7 @@
 }
 
 .codeMobileBodyOpen {
-  padding: 0 0 var(--spacing-20) 0;
+  padding: 0 0 var(--spacing-24) 0;
   max-height: 2000px;
   opacity: 1;
 }
@@ -276,17 +284,20 @@
 /* Demo + Code horizontal layout wrapper */
 .codeRevealContent {
   display: flex;
+  flex-direction: column;
   gap: var(--spacing-20);
   height: 100%;
 }
 
-/* Demo area (left side on desktop) */
+/* Demo area — 좁은 화면은 코드 위 고정 높이 띠, 넓은 화면은 남는 자리를 채운다(아래 media) */
 .codeDemo {
   display: flex;
   align-items: center;
   justify-content: center;
-  flex: 1;
-  padding-right: var(--spacing-20);
+  flex: none;
+  height: 280px;
+  padding-bottom: var(--spacing-16);
+  border-bottom: var(--_line-secondary);
   overflow: hidden;
   min-width: 0;
   min-height: 0;
@@ -371,60 +382,35 @@
 
 
 
-/* ==========================================================================
-   Mobile overrides (1024px)
-   ========================================================================== */
+/* 핀 제목 줄 — 좁은 화면은 nav 80 + tab 40 + 호흡만큼 띄운다. 공용 .titleRowCompact 가 읽는 변수만 바꾼다.
+   넓은 화면 값은 아래 media 의 .codeContent > .codePinTitleRow 가 정한다 */
+.codePinTitleRow {
+  --title-row-padding-top: calc(80px + 40px + var(--spacing-32));
+  --title-row-margin-bottom: var(--spacing-24);
+}
 
-@media (width <= 1024px), (height <= 700px) {
-  /* Title row 통일 — TroubleshootingPanel 의 troublePinTitleRow 와 동일 스펙
-     padding-top: nav(80) + tab(40) + spacing-2xl, margin-bottom: spacing-xl, h3 margin: 0 */
-  .codePinTitleRow.codePinTitleRow.codePinTitleRow.codePinTitleRow {
-    padding-top: calc(80px + 40px + var(--spacing-32));
-    margin-bottom: var(--spacing-24);
+@media (width > 1024px) and (height > 700px) {
+  .codePinTitleRow {
+    --title-row-padding-top: initial;
+    --title-row-margin-bottom: initial;
   }
-  .codePinTitleRow h3 {
-    margin: 0;
-  }
+}
 
+.codePinTitleRow h3 {
+  margin: 0;
+}
+
+@media (width > 1024px) and (height > 700px) {
   .codeSingleView {
-    display: none;
-  }
-
-  .codeRevealContent {
-    flex-direction: column;
+    display: block;
   }
 
   .codeDemo {
-    flex: none;
-    padding-right: 0;
-    padding-bottom: var(--spacing-16);
-    border-bottom: var(--_line-secondary);
-    border-right: none;
-    height: 240px;
-  }
-
-  .codeListMobile {
-    display: flex;
-    gap: 0;
-    flex-direction: column;
-  }
-
-  .codeMobileHeader {
-    gap: var(--spacing-16);
-    padding: var(--spacing-24) 0;
-  }
-
-  .codeMobileToggle {
-    width: clamp(30px, 6vw, 40px);
-    height: clamp(30px, 6vw, 40px);
-  }
-
-  .codeMobileBodyOpen {
-    padding-bottom: var(--spacing-24);
-  }
-
-  .codeDemo {
-    height: 280px;
+    flex: 1;
+    padding-right: var(--spacing-20);
+    padding-bottom: 0;
+    border-bottom: none;
+    height: auto;
   }
 }
 

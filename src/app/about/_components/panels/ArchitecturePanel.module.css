@@ -1,30 +1,69 @@
+/* ── 좁은 화면 폴더 트리 — 넓은 화면(아래 media)은 숨기고 .archMap 을 쓴다.
+   안쪽 항목 규칙은 이 목록 안에서만 보이므로 넓은 화면 되돌림이 없다 ── */
+.archTitle {
+  margin-bottom: var(--spacing-20);
+}
+
 .archGrid {
-  display: none;
-  grid-auto-flow: column;
-  gap: 0 var(--spacing-48);
-  border-top: var(--_line-primary);
-  max-width: clamp(560px, 75vw, 1100px);
-  grid-template-columns: var(--grid-columns-2);
-  grid-template-rows: repeat(9, auto);
+  display: flex;
+  flex-direction: column;
 }
 
 .archItem {
   display: flex;
-  gap: var(--spacing-24);
-  align-items: baseline;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  align-items: flex-start;
   justify-content: space-between;
-  padding: clamp(0.6rem, 1vh, 1rem) 0;
-  border-bottom: var(--_line-secondary);
-  transition: border-color var(--duration-base) var(--ease-standard);
+  padding: var(--spacing-8) 0;
+  padding-left: var(--spacing-16);
+  border-left: var(--border-default);
+  position: relative;
 }
 
-.archItem:hover {
-  border-bottom-color: var(--border-accent);
+/* 연결선: 왼쪽 가지 */
+.archItem::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: calc(var(--spacing-8) + 0.55em);
+  width: var(--spacing-12);
+  height: 1px;
+  background: var(--border-color-default);
+}
+
+/* indent 0: 루트 — 연결선 없음, 굵은 스타일 */
+.archItem:not(.archIndent1):not(.archIndent2) {
+  padding-left: 0;
+  border-left: none;
+  padding-top: var(--spacing-16);
+  padding-bottom: var(--spacing-8);
+}
+
+.archItem:not(.archIndent1):not(.archIndent2)::before {
+  display: none;
+}
+
+.archItem:not(.archIndent1):not(.archIndent2) .archPath {
+  font-size: clamp(0.95rem, 0.827rem + 0.5vw, 1.15rem);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-accent);
+}
+
+/* indent 1 */
+.archIndent1 {
+  margin-left: var(--spacing-20);
+}
+
+/* indent 2 */
+.archIndent2 {
+  margin-left: calc(var(--spacing-20) * 2);
 }
 
 .archPath {
   flex-shrink: 0;
   font: var(--font-prose-lg);
+  font-size: clamp(0.8rem, 0.708rem + 0.38vw, 0.95rem);
   font-weight: var(--font-weight-medium);
   transition: color var(--duration-base) var(--ease-standard);
 }
@@ -33,23 +72,17 @@
   color: var(--text-accent);
 }
 
-.archIndent1 .archPath {
-  padding-left: var(--spacing-20);
-}
-
-.archIndent2 .archPath {
-  padding-left: var(--_space-block);
-}
-
 .archDesc {
   font: var(--font-prose-sm);
+  font-size: clamp(var(--font-size-body-xs), 0.707rem + 0.18vw, 0.82rem);
+  line-height: 1.5;
   color: var(--text-tertiary);
-  text-align: right;
 }
 
 /* ── Architecture Node Map (desktop only) ── */
 
 .archMap {
+  display: none;
   isolation: isolate; /* 안의 z 0 … 3 이 밖과 겨루지 않게(3.10-3) */
   flex: 1;
   overflow: visible;
@@ -318,94 +351,13 @@
     rotate: 180deg;
   }
 
-  .archPanel .archMap {
-    height: 100%;
-  }
-}
-
-@media (width <= 1024px), (height <= 700px) {
-  .archTitle {
-    margin-bottom: var(--spacing-20);
-  }
-
-  .archMap {
-    display: none;
-  }
-
   .archGrid {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-    max-width: none;
-    border-top: none;
-  }
-
-  .archItem {
-    flex-direction: column;
-    gap: var(--spacing-2);
-    align-items: flex-start;
-    padding: var(--spacing-8) 0;
-    padding-left: var(--spacing-16);
-    border-bottom: none;
-    border-left: var(--border-default);
-    position: relative;
-  }
-
-  /* 연결선: 왼쪽 가지 */
-  .archItem::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: calc(var(--spacing-8) + 0.55em);
-    width: var(--spacing-12);
-    height: 1px;
-    background: var(--border-color-default);
-  }
-
-  /* indent 0: 루트 — 연결선 없음, 굵은 스타일 */
-  .archItem:not(.archIndent1):not(.archIndent2) {
-    padding-left: 0;
-    border-left: none;
-    padding-top: var(--spacing-16);
-    padding-bottom: var(--spacing-8);
-  }
-
-  .archItem:not(.archIndent1):not(.archIndent2)::before {
     display: none;
   }
 
-  .archItem:not(.archIndent1):not(.archIndent2) .archPath {
-    font-size: clamp(0.95rem, 0.827rem + 0.5vw, 1.15rem);
-    font-weight: var(--font-weight-semibold);
-    color: var(--text-accent);
-  }
-
-  /* indent 1 */
-  .archIndent1 {
-    margin-left: var(--spacing-20);
-  }
-
-  /* indent 2 */
-  .archIndent2 {
-    margin-left: calc(var(--spacing-20) * 2);
-  }
-
-  .archPath {
-    font-size: clamp(0.8rem, 0.708rem + 0.38vw, 0.95rem);
-    padding-left: 0;
-  }
-
-  .archIndent1 .archPath,
-  .archIndent2 .archPath {
-    padding-left: 0;
-  }
-
-  .archDesc {
-    text-align: left;
-    font-size: clamp(var(--font-size-body-xs), 0.707rem + 0.18vw, 0.82rem);
-    color: var(--text-tertiary);
-    padding-left: 0;
-    line-height: 1.5;
+  .archPanel .archMap {
+    display: block;
+    height: 100%;
   }
 }
 

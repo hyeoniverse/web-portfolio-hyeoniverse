@@ -39,8 +39,9 @@
   opacity: var(--opacity-disabled);
 }
 
+/* 좁은 화면은 점을 숨기고 화살표만 둔다 — 점은 아래 넓은 화면 media 에서 보인다 */
 .dotNav {
-  display: flex;
+  display: none;
   flex: 1;
   gap: 0;
   align-items: center;
@@ -60,9 +61,11 @@
   border-radius: var(--radius-full);
 }
 
-/* Modifier: dotNav visible on mobile only, hidden on desktop (Troubleshooting) */
-.dotNavMobileOnly {
-  display: none;
+/* Modifier: dotNav visible on mobile only, hidden on desktop (Troubleshooting) — 숨김은 아래 넓은 화면 media.
+   기본 dotNavWrap 의 거대한 padding-top(header-height + spacing-2xl) 이 row 높이를 키워서 title 과 본문 사이
+   간격을 벌린다 — 좁은 화면 전용이라 padding-top 0 으로 줄여 row 를 컴팩트하게 */
+.dotNavWrap.dotNavMobileOnly {
+  padding-top: 0;
 }
 
 /* Each dot-nav item: button with dot + collapsible label */
@@ -144,7 +147,7 @@
 /* ── 하단 내비 — 전시실 평면도 ──
    왼쪽 지금 위치, 가운데 챕터 구간과 패널 눈금의 레일, 오른쪽 이전·다음. 화면 아래 폭 전체에 붙는 얇은 바 */
 .floorNav {
-  display: grid;
+  display: none;
   grid-template-columns: minmax(12rem, 14vw) minmax(0, 1fr) auto;
   column-gap: clamp(1.25rem, 2.2vw, 2.5rem);
   align-items: end;
@@ -434,8 +437,34 @@
   cursor: default;
 }
 
+/* 모바일 탭 막대 — 넓은 화면(아래 media)에서는 숨긴다. 안쪽 버튼·동작 칸은 이 막대 안에만 있다 */
 .mobileTabBar {
-  display: none;
+  display: flex;
+  gap: var(--spacing-24);
+  position: sticky;
+  top: 80px; /* section padding-top과 일치 — nav 높이(패딩 포함) */
+  z-index: var(--z-index-float);
+  padding: var(--spacing-4) var(--spacing-page-inline);
+  mix-blend-mode: difference;
+  pointer-events: none;
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* Compound selector (0,2,0) — hide on scroll down */
+.mobileTabBar.mobileTabBarHidden {
+  transform: translateY(-100%);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform var(--duration-base) var(--ease-standard),
+    opacity var(--duration-fast) var(--ease-standard);
+}
+
+.mobileTabBar:not(.mobileTabBarHidden) {
+  transition:
+    transform var(--duration-base) var(--ease-standard),
+    opacity var(--duration-fast) var(--ease-standard);
 }
 
 .mobileTabBtn {
@@ -455,6 +484,7 @@
 }
 
 .mobileTabBar .mobileTabBtn {
+  pointer-events: auto;
   transition: opacity var(--duration-base) var(--ease-standard);
 }
 
@@ -479,76 +509,30 @@
 }
 
 .mobileTabActions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  margin-left: auto;
+  pointer-events: auto;
+  font: var(--font-prose-sm);
+  color: var(--text-white-muted);
+}
+
+.mobileTabActions:empty {
   display: none;
 }
 
-@media (width <= 1024px), (height <= 700px) {
-  .mobileTabBar {
-    display: flex;
-    gap: var(--spacing-24);
-    position: sticky;
-    top: 80px; /* section padding-top과 일치 — nav 높이(패딩 포함) */
-    z-index: var(--z-index-float);
-    padding: var(--spacing-4) var(--spacing-page-inline);
-    background: transparent;
-    border-bottom: none;
-    mix-blend-mode: difference;
-    pointer-events: none;
-    transform: translateY(0);
-    opacity: 1;
-  }
-
-  .mobileTabBar .mobileTabBtn {
-    pointer-events: auto;
-  }
-
-  .mobileTabActions {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-12);
-    margin-left: auto;
-    pointer-events: auto;
-    font: var(--font-prose-sm);
-    color: var(--text-white-muted);
-  }
-
-  .mobileTabActions:empty {
+@media (width > 1024px) and (height > 700px) {
+  .mobileTabBar,
+  .dotNavMobileOnly {
     display: none;
-  }
-
-  /* Compound selector (0,2,0) — hide on scroll down */
-  .mobileTabBar.mobileTabBarHidden {
-    transform: translateY(-100%);
-    opacity: 0;
-    pointer-events: none;
-    transition:
-      transform var(--duration-base) var(--ease-standard),
-      opacity var(--duration-fast) var(--ease-standard);
-  }
-
-  .mobileTabBar:not(.mobileTabBarHidden) {
-    transition:
-      transform var(--duration-base) var(--ease-standard),
-      opacity var(--duration-fast) var(--ease-standard);
   }
 
   .floorNav {
-    display: none;
+    display: grid;
   }
 
   .dotNav {
-    display: none;
-  }
-
-  .dotNavMobile,
-  .dotNavMobileOnly {
     display: flex;
-  }
-
-  /* dotNavMobileOnly (Troubleshooting 전용) — 기본 dotNavWrap 의 거대한 padding-top
-     (header-height + spacing-2xl) 이 row 높이를 키워서 title 과 본문 사이 간격을 벌림.
-     mobile 에서는 padding-top 0 으로 줄여 row 를 컴팩트하게. */
-  .dotNavWrap.dotNavMobileOnly {
-    padding-top: 0;
   }
 }
