@@ -1,5 +1,8 @@
 /* 현재 보고 있는 작품 정보 — 갤러리 하단 고정 표시. WorksSection.module.css 에서 분리 (#662). */
+/* 넓은 화면(아래 media)에서만 보인다 */
 .activeInfo {
+  display: none;
+
   /* 제목이 이 폭을 넘을 만큼 길 때만 글자를 줄인다. 폭을 좁게 잡으면 평소 길이의 제목까지
      작아져 예전 모습이 바뀐다 — 넉넉히 잡아 긴 제목만 걸리게 한다 */
   --title-box: min(60vw, 900px);
@@ -62,8 +65,8 @@
   pointer-events: auto;
 }
 
-@media (width <= 1024px), (height <= 700px) {
+@media (width > 1024px) and (height > 700px) {
   .activeInfo {
-    display: none;
+    display: block;
   }
 }

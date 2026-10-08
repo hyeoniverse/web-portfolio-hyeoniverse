@@ -1,11 +1,13 @@
 /* ==========================================================================
    Works Gallery - Horizontal Scroll
    ========================================================================== */
+/* 좁은 화면 · 낮은 화면은 세로로 쌓고, 넓은 화면(아래 media)은 가로 스크롤 무대 */
 .gallery {
   overflow: hidden;
   position: relative;
   width: 100%;
-  height: 100svh;
+  min-height: 100svh;
+  padding-top: var(--spacing-96);
   background: var(--bg-primary);
 }
 
@@ -55,18 +57,39 @@
   overflow: visible;
   position: relative;
   width: 100%;
-  height: 100svh;
 }
 
 .gallerySlider {
-  --_gallery-gap: 400px;
+  --_gallery-gap: 0;
 
   display: flex;
+  flex-direction: column;
   gap: var(--_gallery-gap);
-  align-items: center;
-  padding: 0 5vw;
-  height: 100svh;
-  will-change: transform;
+  align-items: stretch;
+  width: 100%;
+}
+
+@media (width > 1024px) and (height > 700px) {
+  .gallery {
+    min-height: auto;
+    height: 100svh;
+    padding-top: 0;
+  }
+
+  .galleryTrack {
+    height: 100svh;
+  }
+
+  .gallerySlider {
+    --_gallery-gap: 400px;
+
+    flex-direction: row;
+    align-items: center;
+    width: auto;
+    padding: 0 5vw;
+    height: 100svh;
+    will-change: transform;
+  }
 }
 
 /* ==========================================================================
@@ -94,40 +117,6 @@
 /* ==========================================================================
    Responsive - Tablet / Mobile & Short viewport (Vertical Scroll)
    ========================================================================== */
-@media (width <= 1024px), (height <= 700px) {
-  .gallery {
-    padding-top: var(--spacing-96);
-    overflow: hidden;
-    width: 100%;
-    height: auto;
-    min-height: 100svh;
-  }
-
-  .galleryTrack {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: auto;
-  }
-
-  .gallerySlider {
-    --_gallery-gap: 0;
-
-    align-items: stretch;
-    flex-direction: column;
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: auto;
-    transform: none !important;
-    will-change: auto;
-  }
-
-  .introSlot + .projectSlot {
-    margin-left: 0;
-  }
-}
-
 /* ==========================================================================
    Responsive - Mobile Small
    ========================================================================== */
@@ -161,8 +150,9 @@
   justify-content: center;
   flex-shrink: 0;
   position: relative;
-  width: 60vw;
-  height: 100%;
+  width: 100%;
+  padding: var(--spacing-48) var(--spacing-24) var(--spacing-32);
+  border-top: var(--border-strong);
   font-family: var(--font-family-code);
   font-weight: var(--font-weight-light);
   color: var(--text-primary);
@@ -175,6 +165,7 @@
 }
 
 .creditsPanel::after {
+  display: none;
   position: absolute;
   top: 50%;
   right: -200px;
@@ -196,15 +187,15 @@
   right: 0;
 }
 
-@media (width <= 1024px), (height <= 700px) {
+@media (width > 1024px) and (height > 700px) {
   .creditsPanel {
-    width: 100%;
-    height: auto;
-    padding: var(--spacing-48) var(--spacing-24) var(--spacing-32);
-    border-top: var(--border-strong);
+    width: 60vw;
+    height: 100%;
+    padding: 0;
+    border-top: none;
   }
 
   .creditsPanel::after {
-    display: none;
+    display: block;
   }
 }

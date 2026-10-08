@@ -1,27 +1,20 @@
 /* flow 레이아웃의 프로젝트 슬롯 — 카드 + 메타 그룹. data-layout 1~6 변주가 메타 위치를 잡는다. WorksSection.module.css 에서 분리 (#662). */
+/* 좁은 화면 · 낮은 화면은 카드 위에 제목을 얹고 메타를 아래로 쌓는다. 넓은 화면(아래 media)은 가로 갤러리 칸 */
 .project {
   --_meta-z: 3; /* 메타 글은 어느 카드(0 · hover 1 · 활성 2)보다 위(3.10-3) */
   --_meta-accent: var(--text-accent-alt);
-  --_card-radius: var(--radius-surface);
-  --_card-w: 520px;
-  --_card-h: 340px;
-  --_number-size: var(--font-size-display-lg);
-  --_desc-max-width: 500px;
-  --_safe-top: calc(var(--header-height) + var(--spacing-24));
-  --_safe-bottom: 200px;
-  /* 카드를 내려 앉힐 때 아래에 남겨 두는 자리 — 변주에 따라 설명 글이 카드 밑으로 흐르므로,
-     카드만 안전선 안에 두면 그 글이 화면 밖으로 밀린다 */
-  --_shift-reserve: 80px;
+  --_card-w: 100vw;
+  --_card-h: auto;
+  --_card-radius: 0;
+  --_mobile-px: var(--spacing-16);
 
   display: flex;
-  gap: var(--spacing-24);
+  gap: var(--spacing-20);
   align-items: flex-start;
+  align-self: stretch;
   flex-shrink: 0;
   flex-direction: column;
-  height: calc(100svh - var(--_safe-top) - var(--_safe-bottom));
-  margin-top: var(--_safe-top);
-  margin-bottom: var(--_safe-bottom);
-  padding: 0 var(--spacing-96);
+  padding: var(--spacing-16) var(--_mobile-px) var(--spacing-24);
   position: relative;
   /* 섹션과 같은 바탕을 칸에도 깐다 — 연도가 밑에 깔린 것과 반전해 섞이는데(metaYear), 섞이는
      범위는 GSAP 가 transform 을 거는 트랙까지다. 그 안에 깔린 것이 카드뿐이면 카드 밖에서는
@@ -29,18 +22,25 @@
      상대가 되지 않아(Chrome 은 층의 바탕을 범위 밖으로 친다) 칸에 깐다 */
   background: var(--bg-primary);
   font-family: var(--font-family-body);
-  pointer-events: none;
 }
 
+/* 칸 사이 구분선 — 좁은 화면은 칸 위 가로줄, 넓은 화면은 칸 사이 세로줄 */
 .project::after {
   position: absolute;
-  top: 50%;
-  right: calc(-0.5 * var(--_gallery-gap));
-  width: 1px;
-  height: 300vh;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
   background: var(--border-color-strong);
   content: "";
-  transform: translateY(-50%);
+}
+
+.project:last-child::after {
+  display: none;
+}
+
+.project:nth-child(n + 7) {
+  display: none;
 }
 
 /* 카드가 내려앉는 깊이 — 칸의 빈 자리(슬롯 높이 - 카드 높이)에 대한 비율로 둔다.
@@ -76,46 +76,25 @@
   --_shift-layout: 0.08;
 }
 
-/* Project Size Variants */
+/* Project Size Variants — 카드 크기 · 정렬은 넓은 화면에서만(아래 media) */
 .sizeLarge {
-  --_card-w: 850px;
-  --_card-h: 480px;
   --_shift-size: 0.5;
-
-  align-self: flex-start;
-  gap: var(--spacing-24);
 }
 
 .sizeSmall {
-  --_card-w: 600px;
-  --_card-h: 380px;
   --_shift-size: 0.7;
-
-  align-self: flex-end;
 }
 
 .sizeMedium {
-  --_card-w: 720px;
-  --_card-h: 460px;
   --_shift-size: 0.25;
-
-  align-self: center;
 }
 
 .sizeTall {
-  --_card-w: 650px;
-  --_card-h: 500px;
   --_shift-size: 0.8;
-
-  align-self: flex-start;
 }
 
 .sizeWide {
-  --_card-w: 900px;
-  --_card-h: 500px;
   --_shift-size: 0.85;
-
-  align-self: flex-end;
 }
 
 .card {
@@ -125,18 +104,14 @@
   flex-shrink: 0;
   overflow: visible;
   position: relative;
-  z-index: 0; /* 쌓임 맥락 — 테두리·번호의 z 는 카드 안에서만 겨룬다(3.10-3) */
+  z-index: 0; /* 쌓임 맥락 — 테두리·제목의 z 는 카드 안에서만 겨룬다(3.10-3) */
   width: var(--_card-w);
   height: calc(var(--_card-h) * var(--_card-h-scale, 1));
-  /* 위아래 자리 — 두 축이 정한 깊이만큼 칸 안에서 내려앉는다. 카드 높이를 뺀 나머지 안에서만
-     움직이므로 아래 안전선(메타·고정 제목 자리)을 침범하지 않는다 */
-  margin-top: max(
-    0px,
-    calc(
-      (100svh - var(--_safe-top) - var(--_safe-bottom) - var(--_shift-reserve) - var(--_card-h) * var(--_card-h-scale, 1)) *
-        clamp(0, calc(var(--_shift-size, 0) + var(--_shift-layout, 0)), 0.9)
-    )
-  );
+  /* 좁은 화면은 칸 여백을 뚫고 화면 끝까지 */
+  margin-top: calc(-1 * var(--spacing-16));
+  margin-left: calc(-1 * var(--_mobile-px));
+  margin-right: calc(-1 * var(--_mobile-px));
+  aspect-ratio: 16 / 10;
   pointer-events: auto;
   border-radius: var(--_card-radius);
   transform-style: preserve-3d;
@@ -157,6 +132,33 @@
   z-index: 2 !important;
 }
 
+/* 카드 위 그라데이션 — 상단 + 하단(제목용). 좁은 화면에서만 그린다 */
+.card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: linear-gradient(to bottom, color-mix(in oklch, var(--bg-black) 65%, transparent), transparent);
+  z-index: 1;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.card::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 65%;
+  background: linear-gradient(to top, color-mix(in oklch, var(--bg-black) 85%, transparent), color-mix(in oklch, var(--bg-black) 35%, transparent) 40%, transparent);
+  z-index: 1;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
 /* Card Inner Elements */
 .cardImageWrap {
   overflow: hidden;
@@ -164,7 +166,6 @@
   inset: 0;
   border-radius: inherit;
   transform-origin: center;
-  will-change: transform;
 }
 
 /* 엔진이 확대 · 패럴랙스를 거는 상자 — 흐린 미리보기(LQIP)와 원본이 같이 들어 있어 원본이 늦게 떠도
@@ -195,27 +196,59 @@
   border-radius: inherit;
 }
 
-/* Shared: absolute-positioned metadata */
+/* 카드 위 제목 묶음 — 좁은 화면에서만 그린다. year(작은 라벨) → title(크게) → subtitle 순 */
+.cardOverlay {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  position: absolute;
+  bottom: var(--spacing-16);
+  left: var(--_mobile-px);
+  right: var(--_mobile-px);
+  z-index: 2;
+  color: var(--text-white);
+  pointer-events: none;
+  text-shadow: var(--text-shadow-strong);
+}
+
+.cardOverlay > .metaTitle { order: 1; }
+
+.cardOverlay > .metaSubtitle { order: 2; }
+
+.project .metaTitle {
+  font-family: var(--font-family-headline);
+  font-size: var(--font-size-display-md);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: -0.03em;
+  line-height: var(--line-height-090);
+}
+
+.project .metaSubtitle {
+  font: var(--font-headline-sm);
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-headline-xs);
+  letter-spacing: 0.01em;
+  opacity: 0.9;
+  margin-top: var(--spacing-4);
+}
+
+/* 메타 그룹 — 좁은 화면은 카드 아래 세로로 쌓는다. 읽기 순서는 category → role → tech → desc
+   (year 는 카드 위 제목 묶음에만, 넓고 낮은 화면은 맨 끝) */
+.metaGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-16);
+  padding: var(--spacing-8) 0 0 0;
+}
+
+/* Shared: metadata */
 .metaCategory,
 .metaYear,
 .metaTech,
 .metaRole {
-  position: absolute;
+  position: relative;
   z-index: var(--_meta-z);
   pointer-events: auto;
-  opacity: 0;
-  will-change: transform, opacity;
-}
-
-.metaNumber {
-  opacity: 1 !important;
-  z-index: 2;
-  pointer-events: none;
-}
-
-.metaDesc {
-  opacity: 0;
-  will-change: transform, opacity;
 }
 
 /* Shared: accent-colored labels */
@@ -227,641 +260,470 @@
   text-transform: uppercase;
 }
 
-.metaNumber {
-  display: none;
-}
-
 .metaCategory {
-  top: 40px;
-  right: 0;
   font: var(--font-code-md);
-  letter-spacing: 0.35em;
-  writing-mode: vertical-rl;
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-accent);
+  letter-spacing: 0.2em;
 }
 
 .metaYearDesktop {
-  display: block;
+  display: none;
+  order: 4;
 }
 
 .metaYear {
-  right: 0;
-  bottom: 0;
   font: var(--font-display-lg);
   font-weight: 200;
   color: transparent;
   letter-spacing: -0.02em;
-  /* 흰 획을 깔고 밑에 깔린 것과 반전해 섞는다 — 밝은 바탕에서는 어둡게, 표지 위에서는 밝게
-     뒤집혀, 표지 색을 가리지 않으면서 어디서나 읽힌다 */
-  -webkit-text-stroke: 1px var(--text-white);
-  mix-blend-mode: difference;
+}
+
+/* 제목 묶음 안 연도 — 작은 라벨, 타이틀 위.
+   여기서는 반전해 섞지 않는다 — 표지 위에 얹힌 작은 라벨이라 반전하면 표지 색을 따라 색이 튄다 */
+.cardOverlay .metaYear {
+  margin-bottom: var(--spacing-4);
+  font-size: var(--font-size-body-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-white);
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  text-shadow: var(--text-shadow-strong);
+  opacity: 0.85;
 }
 
 .metaTech {
   display: flex;
-  gap: var(--spacing-12);
-  flex-direction: column;
-  margin-left: calc(-1 * var(--spacing-16));
+  gap: var(--spacing-8);
+  flex-wrap: wrap;
+  order: 2;
 }
 
 .metaTech span {
-  padding: var(--spacing-8) var(--spacing-16);
+  padding: var(--spacing-2) var(--spacing-12);
   border: var(--border-width-1) solid var(--text-accent-alt);
-  font: var(--font-code-md);
-  letter-spacing: 0.1em;
+  font: var(--font-code-sm);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.08em;
   border-radius: var(--radius-control);
 }
 
 .metaRole {
-  top: 50%;
-  left: 0;
+  display: block;
+  order: 1;
   font: var(--font-code-md);
-  letter-spacing: 0.3em;
-  white-space: nowrap;
-  transform: translateY(-50%) rotate(-90deg);
-}
-
-.cardOverlay {
-  display: none;
-}
-
-.metaGroup {
-  display: contents;
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-tertiary);
+  letter-spacing: 0.12em;
 }
 
 .metaDesc {
-  margin: var(--spacing-16) 0 0 0;
-  margin-left: auto;
+  order: 3;
   position: relative;
   z-index: var(--_meta-z);
-  max-width: var(--_desc-max-width);
-  font-size: var(--font-size-headline-md);
+  font-size: var(--font-size-body-xl);
   font-weight: var(--font-weight-regular);
-  line-height: var(--line-height-180);
-  color: var(--text-primary);
-  text-align: right;
+  line-height: var(--line-height-160);
+  color: var(--text-secondary);
   word-break: keep-all;
   overflow-wrap: break-word;
   pointer-events: auto;
 }
 
-/* Shared: layout desc max-width override (all except layout 2) */
-.project[data-layout="1"],
-.project[data-layout="3"],
-.project[data-layout="4"],
-.project[data-layout="5"],
-.project[data-layout="6"] {
-  --_desc-max-width: 400px;
-}
-
-.project[data-layout="1"] .metaDesc,
-.project[data-layout="3"] .metaDesc,
-.project[data-layout="4"] .metaDesc,
-.project[data-layout="5"] .metaDesc,
-.project[data-layout="6"] .metaDesc {
-  margin-top: var(--spacing-16);
-}
-
-/* Layout 1: number TL · year TR · category MR · tech BL · role ML · desc 하단 flow */
-.project[data-layout="1"] .metaNumber {
-  top: 0;
-  left: 20px;
-}
-
-.project[data-layout="1"] .metaYear {
-  top: 0;
-  right: 0;
-  bottom: auto;
-}
-
-.project[data-layout="1"] .metaCategory {
-  top: 50%;
-  right: 0;
-  bottom: auto;
-  transform: translateY(-50%);
-}
-
-.project[data-layout="1"] .metaTech {
-  gap: var(--spacing-8);
-  flex-direction: column;
-  top: auto;
-  bottom: 0;
-  left: 0;
-}
-
-.project[data-layout="1"] .metaTech span {
-  padding: var(--spacing-4) var(--spacing-12);
-}
-
-.project[data-layout="1"] .metaRole {
-  left: 0;
-}
-
-.project[data-layout="1"] .metaDesc {
-  max-width: min(var(--_desc-max-width), calc(100vw - 120px));
-}
-
-/* Layout 2: number BR · year TR · category MR · tech TL · role hidden */
-.project[data-layout="2"] .metaNumber {
-  top: auto;
-  right: 20px;
-  bottom: 0;
-  left: auto;
-}
-
-.project[data-layout="2"] .metaYear {
-  top: 0;
-  left: auto;
-  right: 0;
-  bottom: auto;
-}
-
-.project[data-layout="2"] .metaCategory {
-  top: 50%;
-  right: 0;
-  transform: translateY(-50%);
-}
-
-.project[data-layout="2"] .metaTech {
-  gap: var(--spacing-8);
-  top: 0;
-  right: auto;
-  bottom: auto;
-  left: 0;
-}
-
-.project[data-layout="2"] .metaRole {
-  display: none;
-}
-
-/* Layout 3: number TL · tech TR · role ML · year BL · category BR */
-.project[data-layout="3"] {
-  --_number-size: var(--font-size-display-xl);
-}
-
-.project[data-layout="3"] .metaNumber {
-  top: 0;
-  left: 20px;
-  opacity: 0.2;
-}
-
-.project[data-layout="3"] .metaYear {
-  top: auto;
-  right: auto;
-  bottom: 0;
-  left: 0;
-  font: var(--font-display-md);
-}
-
-.project[data-layout="3"] .metaCategory {
-  top: 50%;
-  right: 0;
-  bottom: auto;
-  writing-mode: vertical-rl;
-  transform: translateY(-50%);
-}
-
-.project[data-layout="3"] .metaTech {
-  gap: var(--spacing-8);
-  top: 0;
-  right: var(--spacing-16);
-  bottom: auto;
-  left: auto;
-}
-
-/* Layout 4: category TL · number TR · year ML(rotate) · tech BR · desc 하단 flow */
-.project[data-layout="4"] {
-  --_number-size: var(--font-size-display-lg);
-}
-
-.project[data-layout="4"] .metaNumber {
-  top: 0;
-  left: 20px;
-  right: auto;
-  -webkit-text-stroke: 1px color-mix(in oklch, var(--text-white) 30%, transparent);
-  mix-blend-mode: normal;
-}
-
-.project[data-layout="4"] .metaYear {
-  top: 50%;
-  right: calc(-1 * var(--spacing-48));
-  bottom: auto;
-  left: auto;
-  transform: translateY(-50%);
-}
-
-.project[data-layout="4"] .metaCategory {
-  top: auto;
-  bottom: 0;
-  right: auto;
-  left: 0;
-  writing-mode: vertical-rl;
-}
-
-.project[data-layout="4"] .metaTech {
-  right: var(--spacing-16);
-  top: 0;
-  bottom: auto;
-  left: auto;
-}
-
-.project[data-layout="4"] .metaDesc {
-  max-width: min(var(--_desc-max-width), calc(100vw - 120px));
-}
-
-/* Layout 5: year TL · number BL · role MR(rotate) · tech TR · category BR */
-.project[data-layout="5"] {
-  --_number-size: var(--font-size-display-lg);
-}
-
-.project[data-layout="5"] .metaNumber {
-  bottom: 0;
-  left: 20px;
-  top: auto;
-}
-
-.project[data-layout="5"] .metaYear {
-  top: 0;
-  right: auto;
-  bottom: auto;
-  left: 0;
-  font: var(--font-display-md);
-}
-
-.project[data-layout="5"] .metaCategory {
-  top: 50%;
-  right: auto;
-  bottom: auto;
-  left: 0;
-  writing-mode: vertical-rl;
-  transform: translateY(-50%);
-}
-
-.project[data-layout="5"] .metaRole {
-  right: 0;
-  left: auto;
-  transform: translateY(-50%) rotate(90deg);
-}
-
-.project[data-layout="5"] .metaTech {
-  gap: var(--spacing-8);
-  top: 0;
-  right: 0;
-  bottom: auto;
-  left: auto;
-}
-
-.project[data-layout="5"] .metaDesc {
-  writing-mode: horizontal-tb;
-}
-
-/* Layout 6: year TL · number TC · category MR · tech BL · role hidden */
-.project[data-layout="6"] {
-  --_number-size: var(--font-size-display-lg);
-}
-
-.project[data-layout="6"] .metaNumber {
-  top: 0;
-  left: 50%;
-  opacity: 0.2;
-}
-
-.project[data-layout="6"] .metaYear {
-  top: auto;
-  right: auto;
-  bottom: 0;
-  left: 0;
-  font: var(--font-display-md);
-}
-
-.project[data-layout="6"] .metaCategory {
-  top: 50%;
-  right: 0;
-}
-
-.project[data-layout="6"] .metaTech {
-  gap: var(--spacing-8);
-  top: 0;
-  bottom: auto;
-  left: 0;
-  transform: none;
-}
-
-.project[data-layout="6"] .metaRole {
-  display: none;
-}
-
-@media (width <= 1024px), (height <= 700px) {
-  .project,
-  .project[data-layout] {
-    --_card-w: 100vw;
-    --_card-h: auto;
-    --_card-radius: 0;
-    --_number-size: var(--font-size-display-lg);
-    --_desc-max-width: none;
-  }
-
-  .project,
-  .sizeLarge,
-  .sizeSmall,
-  .sizeMedium,
-  .sizeTall,
-  .sizeWide {
+@media (width > 480px) {
+  .project {
     --_mobile-px: 1.5rem;
 
-    gap: var(--spacing-20);
-    align-self: stretch;
-    height: auto;
-    margin: 0;
-    padding: var(--spacing-16) var(--_mobile-px) var(--spacing-32);
-    pointer-events: auto;
+    padding-bottom: var(--spacing-32);
   }
 
-  .card {
-    margin-left: calc(-1 * var(--_mobile-px));
-    margin-right: calc(-1 * var(--_mobile-px));
-    margin-top: calc(-1 * var(--spacing-16));
-    aspect-ratio: 16 / 10;
+  .cardOverlay {
+    bottom: var(--spacing-20);
   }
 
-  /* GSAP 가 데스크탑 horizontal scroll 중 cardImageWrap/cardImage 에 transform 을 inline 으로 주입함.
-     모바일에서는 horizontal scroll 이 비활성이라 cleanup 안 돼 inset:0 cover 가 어긋나 보임 — 강제로 reset. */
-  .cardImageWrap,
-  .cardImage {
-    transform: none !important;
-    will-change: auto;
+  .project .metaSubtitle {
+    font-size: var(--font-size-headline-sm);
+  }
+
+  .cardOverlay .metaYear {
+    font-size: var(--font-size-body-sm);
+    letter-spacing: 0.35em;
+  }
+
+  .metaTech span {
+    padding: var(--spacing-4) var(--spacing-16);
+  }
+
+  .metaDesc {
+    font-size: var(--font-size-headline-sm);
+  }
+}
+
+/* 넓은 화면 — 가로 갤러리 칸. 카드는 크기 변주대로, 메타는 카드 둘레 코너에 흩어 놓는다 */
+@media (width > 1024px) and (height > 700px) {
+  .project {
+    --_card-w: 520px;
+    --_card-h: 340px;
+    --_card-radius: var(--radius-surface);
+    --_desc-max-width: 500px;
+    --_safe-top: calc(var(--header-height) + var(--spacing-24));
+    --_safe-bottom: 200px;
+    /* 카드를 내려 앉힐 때 아래에 남겨 두는 자리 — 변주에 따라 설명 글이 카드 밑으로 흐르므로,
+       카드만 안전선 안에 두면 그 글이 화면 밖으로 밀린다 */
+    --_shift-reserve: 80px;
+
+    gap: var(--spacing-24);
+    height: calc(100svh - var(--_safe-top) - var(--_safe-bottom));
+    margin-top: var(--_safe-top);
+    margin-bottom: var(--_safe-bottom);
+    padding: 0 var(--spacing-96);
+    pointer-events: none;
   }
 
   .project::after {
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
-    height: 1px;
-    background: var(--border-color-strong);
-    transform: none;
+    top: 50%;
+    left: auto;
+    right: calc(-0.5 * var(--_gallery-gap));
+    width: 1px;
+    height: 300vh;
+    transform: translateY(-50%);
   }
 
   .project:last-child::after {
-    display: none;
+    display: block;
   }
 
   .project:nth-child(n + 7) {
-    display: none;
-  }
-
-  .metaYearDesktop {
-    display: none;
-  }
-
-  /* Reset all layout variant metadata positions — unified mobile layout
-     specificity (0,2,1) to override .project[data-layout] .meta* rules */
-  .project[data-layout] .metaNumber,
-  .project[data-layout] .metaCategory,
-  .project[data-layout] .metaYear,
-  .project[data-layout] .metaTech,
-  .project[data-layout] .metaRole,
-  .project[data-layout] .metaDesc {
-    position: relative;
-    top: auto;
-    right: auto;
-    bottom: auto;
-    left: auto;
-    margin: 0;
-    transform: none !important;
-    writing-mode: horizontal-tb;
-    mix-blend-mode: normal;
-    -webkit-text-stroke: 0;
-    pointer-events: auto;
-    opacity: 1 !important;
-    will-change: auto;
-  }
-
-  .project[data-layout] .metaNumber {
-    position: absolute !important;
-    top: var(--spacing-16);
-    left: var(--_mobile-px) !important;
-    right: auto !important;
-    margin: 0;
-    z-index: 3;
-    opacity: 0.95 !important;
-    color: var(--text-white) !important;
-    mix-blend-mode: normal;
-    will-change: auto;
-    text-shadow: var(--text-shadow-strong);
-    font-family: var(--font-family-headline);
-    font-weight: var(--font-weight-light);
-    font-size: var(--font-size-64) !important;
-    line-height: 1;
-    letter-spacing: -0.03em;
-  }
-
-  .metaGroup {
     display: flex;
-    flex-direction: column;
-    gap: var(--spacing-16);
-    padding: var(--spacing-8) 0 0 0;
   }
 
-  /* 읽기 순서 — category → role → tech → desc. year 는 카드 오버레이에만 표시 */
-  .metaGroup > .metaCategory { order: 0; }
-
-  .metaGroup > .metaRole { order: 1; }
-
-  .metaGroup > .metaTech { order: 2; }
-
-  .metaGroup > .metaDesc { order: 3; }
-
-  .metaGroup > .metaYear { order: 4; }
-
-  .project[data-layout] .metaCategory {
-    margin-bottom: 0;
-    font-size: var(--font-size-body-sm);
-    font-weight: var(--font-weight-semibold);
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--text-accent);
+  /* Shared: layout desc max-width override (all except layout 2) */
+  .project[data-layout="1"],
+  .project[data-layout="3"],
+  .project[data-layout="4"],
+  .project[data-layout="5"],
+  .project[data-layout="6"] {
+    --_desc-max-width: 400px;
   }
 
-  /* 카드 위 그라데이션 — 상단(번호용) + 하단(타이틀용) */
-  .card::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 40%;
-    background: linear-gradient(to bottom, color-mix(in oklch, var(--bg-black) 65%, transparent), transparent);
-    z-index: 1;
-    pointer-events: none;
-    border-radius: inherit;
+  .sizeLarge {
+    --_card-w: 850px;
+    --_card-h: 480px;
+
+    align-self: flex-start;
+    gap: var(--spacing-24);
   }
 
-  .card::after {
-    content: "";
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 65%;
-    background: linear-gradient(to top, color-mix(in oklch, var(--bg-black) 85%, transparent), color-mix(in oklch, var(--bg-black) 35%, transparent) 40%, transparent);
-    z-index: 1;
-    pointer-events: none;
-    border-radius: inherit;
+  .sizeSmall {
+    --_card-w: 600px;
+    --_card-h: 380px;
+
+    align-self: flex-end;
   }
 
-  .cardOverlay {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-2);
-    position: absolute;
-    top: auto;
-    bottom: var(--spacing-20);
-    left: var(--_mobile-px);
-    right: var(--_mobile-px);
-    z-index: 2;
-    color: var(--text-white);
-    pointer-events: none;
-    text-shadow: var(--text-shadow-strong);
+  .sizeMedium {
+    --_card-w: 720px;
+    --_card-h: 460px;
+
+    align-self: center;
   }
 
-  /* year(작은 라벨) → title(크게) → subtitle 순으로 시각 정렬 */
-  .cardOverlay > .metaTitle { order: 1; }
+  .sizeTall {
+    --_card-w: 650px;
+    --_card-h: 500px;
 
-  .cardOverlay > .metaSubtitle { order: 2; }
-
-  .project .metaTitle {
-    font-family: var(--font-family-headline);
-    font-size: var(--font-size-display-md);
-    font-weight: var(--font-weight-medium);
-    letter-spacing: -0.03em;
-    line-height: var(--line-height-090);
+    align-self: flex-start;
   }
 
-  .project .metaSubtitle {
-    font: var(--font-headline-sm);
-    font-family: var(--font-family-body);
-    letter-spacing: 0.01em;
-    opacity: 0.9;
-    margin-top: var(--spacing-4);
-  }
-
-  /* cardOverlay 내부 metaYear — 작은 액센트 라벨, 타이틀 위.
-     여기서는 반전해 섞지 않는다 — 표지 위에 얹힌 작은 라벨이라 반전하면 표지 색을 따라 색이 튄다 */
-  .project[data-layout] .cardOverlay .metaYear {
-    mix-blend-mode: normal;
-    position: relative;
-    order: 0;
-    top: auto;
-    right: auto;
-    bottom: auto;
-    left: auto;
-    margin: 0 0 var(--spacing-4) 0;
-    font-size: var(--font-size-body-sm);
-    font-weight: var(--font-weight-semibold);
-    letter-spacing: 0.35em;
-    text-transform: uppercase;
-    color: var(--text-white) !important;
-    opacity: 0.85 !important;
-    text-shadow: var(--text-shadow-strong);
-    mix-blend-mode: normal;
-  }
-
-  .project[data-layout] .metaTech {
-    gap: var(--spacing-8);
-    flex-wrap: wrap;
-    flex-direction: row;
-    margin-top: 0;
-    margin-left: 0;
-  }
-
-  .project[data-layout] .metaTech span {
-    padding: var(--spacing-4) var(--spacing-16);
-    font: var(--font-code-sm);
-    font-weight: var(--font-weight-medium);
-    letter-spacing: 0.08em;
-    border: var(--border-width-1) solid var(--text-accent-alt);
-    color: var(--text-accent-alt);
-    border-radius: var(--radius-control);
-  }
-
-  .project[data-layout] .metaRole {
-    display: block;
-    font-size: var(--font-size-body-sm);
-    font-weight: var(--font-weight-medium);
-    letter-spacing: 0.12em;
-    white-space: normal;
-    color: var(--text-tertiary);
-    text-transform: uppercase;
-  }
-
-  .project[data-layout] .metaDesc {
-    margin-top: 0;
-    max-width: none;
-    font-size: var(--font-size-headline-sm);
-    font-weight: var(--font-weight-regular);
-    line-height: var(--line-height-160);
-    text-align: left;
-    color: var(--text-secondary);
-  }
-}
-
-@media (width <= 480px) {
-  .project {
-    --_card-w: 100vw;
-    --_number-size: var(--font-size-48);
-  }
-
-  .project,
-  .sizeLarge,
-  .sizeSmall,
-  .sizeMedium,
-  .sizeTall,
   .sizeWide {
-    --_mobile-px: var(--spacing-16);
+    --_card-w: 900px;
+    --_card-h: 500px;
 
-    padding: var(--spacing-16) var(--_mobile-px) var(--spacing-24);
+    align-self: flex-end;
   }
 
   .card {
-    margin-left: calc(-1 * var(--_mobile-px));
-    margin-right: calc(-1 * var(--_mobile-px));
+    /* 위아래 자리 — 두 축이 정한 깊이만큼 칸 안에서 내려앉는다. 카드 높이를 뺀 나머지 안에서만
+       움직이므로 아래 안전선(메타·고정 제목 자리)을 침범하지 않는다 */
+    margin-top: max(
+      0px,
+      calc(
+        (100svh - var(--_safe-top) - var(--_safe-bottom) - var(--_shift-reserve) - var(--_card-h) * var(--_card-h-scale, 1)) *
+          clamp(0, calc(var(--_shift-size, 0) + var(--_shift-layout, 0)), 0.9)
+      )
+    );
+    margin-left: 0;
+    margin-right: 0;
+    aspect-ratio: auto;
+  }
+
+  .card::before,
+  .card::after {
+    content: none;
+  }
+
+  .cardImageWrap {
+    will-change: transform;
   }
 
   .cardOverlay {
-    bottom: var(--spacing-16);
-    left: var(--_mobile-px);
-    right: var(--_mobile-px);
+    display: none;
   }
 
-  .project .metaSubtitle {
-    font-size: var(--font-size-headline-xs);
+  .metaGroup {
+    display: contents;
   }
 
-  .project[data-layout] .cardOverlay .metaYear {
-    font-size: var(--font-size-body-xs);
+  /* Shared: absolute-positioned metadata — 엔진이 스크롤에 맞춰 드러낸다 */
+  .metaCategory,
+  .metaYear,
+  .metaTech,
+  .metaRole {
+    position: absolute;
+    opacity: 0;
+    will-change: transform, opacity;
+  }
+
+  .metaCategory {
+    top: 40px;
+    right: 0;
+    font: var(--font-code-md);
+    color: var(--_meta-accent);
+    letter-spacing: 0.35em;
+    writing-mode: vertical-rl;
+  }
+
+  .metaYearDesktop {
+    display: block;
+    order: 0;
+  }
+
+  .metaYear {
+    right: 0;
+    bottom: 0;
+    /* 흰 획을 깔고 밑에 깔린 것과 반전해 섞는다 — 밝은 바탕에서는 어둡게, 표지 위에서는 밝게
+       뒤집혀, 표지 색을 가리지 않으면서 어디서나 읽힌다 */
+    -webkit-text-stroke: 1px var(--text-white);
+    mix-blend-mode: difference;
+  }
+
+  .metaTech {
+    gap: var(--spacing-12);
+    flex-wrap: nowrap;
+    flex-direction: column;
+    order: 0;
+    margin-left: calc(-1 * var(--spacing-16));
+  }
+
+  .metaTech span {
+    padding: var(--spacing-8) var(--spacing-16);
+    font: var(--font-code-md);
+    letter-spacing: 0.1em;
+  }
+
+  .metaRole {
+    top: 50%;
+    left: 0;
+    order: 0;
+    font: var(--font-code-md);
+    color: var(--_meta-accent);
     letter-spacing: 0.3em;
+    white-space: nowrap;
+    transform: translateY(-50%) rotate(-90deg);
   }
 
-  .project[data-layout] .metaNumber {
-    font-size: var(--font-size-display-md) !important;
+  .metaDesc {
+    margin: var(--spacing-16) 0 0 0;
+    margin-left: auto;
+    order: 0;
+    max-width: var(--_desc-max-width);
+    font-size: var(--font-size-headline-md);
+    line-height: var(--line-height-180);
+    color: var(--text-primary);
+    text-align: right;
+    opacity: 0;
+    will-change: transform, opacity;
   }
 
-  .project[data-layout] .metaCategory {
-    font-size: var(--font-size-body-sm);
+  .project[data-layout="1"] .metaDesc,
+  .project[data-layout="3"] .metaDesc,
+  .project[data-layout="4"] .metaDesc,
+  .project[data-layout="5"] .metaDesc,
+  .project[data-layout="6"] .metaDesc {
+    margin-top: var(--spacing-16);
   }
 
-  .project[data-layout] .metaDesc {
-    font-size: var(--font-size-body-xl);
+  /* Layout 1: year TR · category MR · tech BL · role ML · desc 하단 flow */
+  .project[data-layout="1"] .metaYear {
+    top: 0;
+    right: 0;
+    bottom: auto;
   }
 
-  .project[data-layout] .metaTech span {
-    padding: var(--spacing-2) var(--spacing-12);
-    font-size: var(--font-size-body-sm);
+  .project[data-layout="1"] .metaCategory {
+    top: 50%;
+    right: 0;
+    bottom: auto;
+    transform: translateY(-50%);
   }
 
-  .project[data-layout] .metaRole {
-    font-size: var(--font-size-body-sm);
+  .project[data-layout="1"] .metaTech {
+    gap: var(--spacing-8);
+    flex-direction: column;
+    top: auto;
+    bottom: 0;
+    left: 0;
+  }
+
+  .project[data-layout="1"] .metaTech span {
+    padding: var(--spacing-4) var(--spacing-12);
+  }
+
+  .project[data-layout="1"] .metaRole {
+    left: 0;
+  }
+
+  .project[data-layout="1"] .metaDesc {
+    max-width: min(var(--_desc-max-width), calc(100vw - 120px));
+  }
+
+  /* Layout 2: year TR · category MR · tech TL · role hidden */
+  .project[data-layout="2"] .metaYear {
+    top: 0;
+    left: auto;
+    right: 0;
+    bottom: auto;
+  }
+
+  .project[data-layout="2"] .metaCategory {
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+  }
+
+  .project[data-layout="2"] .metaTech {
+    gap: var(--spacing-8);
+    top: 0;
+    right: auto;
+    bottom: auto;
+    left: 0;
+  }
+
+  .project[data-layout="2"] .metaRole {
+    display: none;
+  }
+
+  /* Layout 3: tech TR · role ML · year BL · category BR */
+  .project[data-layout="3"] .metaYear {
+    top: auto;
+    right: auto;
+    bottom: 0;
+    left: 0;
+    font: var(--font-display-md);
+  }
+
+  .project[data-layout="3"] .metaCategory {
+    top: 50%;
+    right: 0;
+    bottom: auto;
+    writing-mode: vertical-rl;
+    transform: translateY(-50%);
+  }
+
+  .project[data-layout="3"] .metaTech {
+    gap: var(--spacing-8);
+    top: 0;
+    right: var(--spacing-16);
+    bottom: auto;
+    left: auto;
+  }
+
+  /* Layout 4: category TL · year ML(rotate) · tech BR · desc 하단 flow */
+  .project[data-layout="4"] .metaYear {
+    top: 50%;
+    right: calc(-1 * var(--spacing-48));
+    bottom: auto;
+    left: auto;
+    transform: translateY(-50%);
+  }
+
+  .project[data-layout="4"] .metaCategory {
+    top: auto;
+    bottom: 0;
+    right: auto;
+    left: 0;
+    writing-mode: vertical-rl;
+  }
+
+  .project[data-layout="4"] .metaTech {
+    right: var(--spacing-16);
+    top: 0;
+    bottom: auto;
+    left: auto;
+  }
+
+  .project[data-layout="4"] .metaDesc {
+    max-width: min(var(--_desc-max-width), calc(100vw - 120px));
+  }
+
+  /* Layout 5: year TL · role MR(rotate) · tech TR · category BR */
+  .project[data-layout="5"] .metaYear {
+    top: 0;
+    right: auto;
+    bottom: auto;
+    left: 0;
+    font: var(--font-display-md);
+  }
+
+  .project[data-layout="5"] .metaCategory {
+    top: 50%;
+    right: auto;
+    bottom: auto;
+    left: 0;
+    writing-mode: vertical-rl;
+    transform: translateY(-50%);
+  }
+
+  .project[data-layout="5"] .metaRole {
+    right: 0;
+    left: auto;
+    transform: translateY(-50%) rotate(90deg);
+  }
+
+  .project[data-layout="5"] .metaTech {
+    gap: var(--spacing-8);
+    top: 0;
+    right: 0;
+    bottom: auto;
+    left: auto;
+  }
+
+  /* Layout 6: year TL · category MR · tech BL · role hidden */
+  .project[data-layout="6"] .metaYear {
+    top: auto;
+    right: auto;
+    bottom: 0;
+    left: 0;
+    font: var(--font-display-md);
+  }
+
+  .project[data-layout="6"] .metaCategory {
+    top: 50%;
+    right: 0;
+  }
+
+  .project[data-layout="6"] .metaTech {
+    gap: var(--spacing-8);
+    top: 0;
+    bottom: auto;
+    left: 0;
+    transform: none;
+  }
+
+  .project[data-layout="6"] .metaRole {
+    display: none;
   }
 }
 
@@ -911,13 +773,6 @@
     gap: var(--spacing-8);
     flex: 1;
     min-width: 0;
-  }
-
-  .project[data-layout] .metaNumber {
-    position: relative !important;
-    margin: 0 !important;
-    font-size: var(--font-size-display-sm);
-    opacity: 0.4 !important;
   }
 
   .metaYearDesktop {
