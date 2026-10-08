@@ -4,7 +4,15 @@
   flex-direction: column;
   position: relative;
   height: 100%;
+  padding-top: calc(var(--header-height) + var(--_space-divide));
   z-index: 1;
+}
+
+/* 넓은 화면 되돌림 — 포스터 구도(.heroPoster, 아래)가 다시 위 여백을 주므로 그보다 앞에 둔다 */
+@media (width > 1024px) and (height > 700px) {
+  .heroContent {
+    padding-top: 0;
+  }
 }
 
 /* hero 패널 커스텀 배경(색/그라디언트) — 두 테마 값을 light-dark() 로 묶은 한 값(HeroPanel.tsx panelBackground).
@@ -124,10 +132,11 @@
 
 .heroWatermark {
   position: absolute;
-  right: -4%;
-  bottom: 5%;
+  right: -3%;
+  bottom: 8%;
   font-family: var(--_hero-watermark-font-family, var(--font-family-headline));
-  font-size: var(--_hero-watermark-font-size, clamp(6rem, min(18vw, 24vh), 16rem));
+  /* 좁은 화면은 관리자 지정 크기 대신 폭에 맞춘 값 — 넓은 화면은 아래 media 에서 지정 크기 */
+  font-size: clamp(3rem, 1.155rem + 7.57vw, 6rem);
   font-style: italic;
   font-weight: var(--_hero-watermark-font-weight, var(--font-weight-regular));
   color: var(--_hero-watermark-color, inherit);
@@ -309,19 +318,11 @@
   }
 }
 
-@media (width <= 1024px), (height <= 700px) {
-  .heroContent {
-    padding-top: calc(var(--header-height) + var(--_space-divide));
-  }
-
+@media (width > 1024px) and (height > 700px) {
   .heroWatermark {
-    right: -3%;
-    bottom: 8%;
-    font-size: clamp(3rem, 1.155rem + 7.57vw, 6rem);
-  }
-
-  .heroSubtitle {
-    max-width: none;
+    right: -4%;
+    bottom: 5%;
+    font-size: var(--_hero-watermark-font-size, clamp(6rem, min(18vw, 24vh), 16rem));
   }
 }
 

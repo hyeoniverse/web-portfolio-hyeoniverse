@@ -1,7 +1,7 @@
 /* ── Desktop: 위에 지금 단계의 상세, 아래에 기간만큼 나눈 타임라인 ──
    공용(AboutEntry)의 processBody 는 display: contents 라 { ...shared, ...local } 병합에서 이 파일 클래스가 쓰인다 */
 .procStage {
-  display: grid;
+  display: none;
   flex: 1;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
   column-gap: clamp(2.5rem, 5vw, 6rem);
@@ -422,202 +422,193 @@
   letter-spacing: 0.04em;
 }
 
-/* ── Mobile: paired step rows (hidden on desktop) ── */
+/* procTitleRow 는 좁은 화면(useMobileLayout)에서만 붙는다 — 넓은 화면 되돌림이 필요 없다 */
+.procTitleRow.procTitleRow.procTitleRow {
+  padding-top: calc(80px + 40px + var(--spacing-16));
+  margin-bottom: var(--spacing-12);
+}
+
+.procTitleRow h3 {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/* ── Mobile: paired step rows — 넓은 화면(아래 media)은 숨긴다.
+   안쪽 단계 규칙은 이 목록 안에서만 보이므로 넓은 화면 되돌림이 없다 ── */
 .processStepList {
-  display: none;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  margin-bottom: var(--_space-section);
+  min-height: 0;
+}
+
+/* Each row: connector + label (collapsed) or connector + content (expanded).
+   Height is JS-driven for smooth accordion. */
+.processStepRow {
+  display: flex;
+  gap: clamp(10px, 2.5vw, 16px);
+  align-items: stretch;
+  flex-shrink: 0;
+  position: relative;
+}
+
+/* Compound selector (0,2,0) for transition */
+.processStepList .processStepRow {
+  transition:
+    height var(--duration-slow) var(--ease-standard),
+    opacity var(--duration-base) var(--ease-standard);
+}
+
+/* ── Left: continuous connector line + dot ── */
+.processStepConnector {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  flex-direction: column;
+  width: clamp(16px, 4vw, 24px);
+}
+
+.processConnectorDot {
+  flex-shrink: 0;
+  border: var(--border-light-2);
+  z-index: 1;
+  width: 10px;
+  height: 10px;
+  background: var(--bg-primary);
+  border-radius: var(--radius-full);
+  opacity: 0.35;
+}
+
+.processStepConnector .processConnectorDot {
+  transition:
+    border-color var(--duration-base) var(--ease-standard),
+    background-color var(--duration-base) var(--ease-standard),
+    opacity var(--duration-base) var(--ease-standard),
+    transform var(--duration-base) var(--ease-standard),
+    box-shadow var(--duration-base) var(--ease-standard);
+}
+
+.processConnectorDotDone {
+  border-color: var(--text-accent);
+  background: var(--text-accent);
+  opacity: 1;
+}
+
+.processConnectorDotActive {
+  border-color: var(--text-accent);
+  box-shadow: var(--shadow-glow);
+  background: var(--text-accent);
+  opacity: 1;
+  transform: scale(1.4);
+}
+
+/* Line connects dots — no margin, seamless */
+.processConnectorLine {
+  flex: 1;
+  width: 2px;
+  background: var(--text-tertiary);
+  opacity: 0.12;
+}
+
+.processConnectorLineDone {
+  background: var(--text-accent);
+  opacity: 0.5;
+}
+
+/* ── Right: collapsed label (visible when row is collapsed) ── */
+.processStepLabel {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  overflow: hidden;
+  min-width: 0;
+  font-family: var(--_font-grotesk);
+  font-size: clamp(0.75rem, 0.658rem + 0.38vw, 0.9rem);
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* ── Right: expanded content (visible when row is active) ── */
+.processStepContent {
+  display: flex;
+  justify-content: start;
+  flex-direction: column;
+  padding-right: var(--_space-block);
+  padding-left: calc(clamp(16px, 4vw, 24px) + clamp(10px, 2.5vw, 16px));
+  position: absolute;
+  pointer-events: none;
+  inset: 0;
+}
+
+/* Compound selector (0,2,0) for transition */
+.processStepRow .processStepContent {
+  transition: opacity var(--duration-base) var(--ease-standard);
+}
+
+.processStepHeader {
+  display: flex;
+  gap: var(--_space-block);
+  align-items: end;
+  justify-content: start;
+  flex-direction: row;
+  margin-bottom: var(--_space-block);
+}
+
+.processStepNum {
+  font: var(--font-display-lg);
+  color: var(--text-accent);
+  opacity: 0.12;
+}
+
+.processStepContentTitle {
+  font: var(--font-display-sm);
+  font-family: var(--font-family-headline);
+  font-style: italic;
+  line-height: var(--line-height-135);
+  letter-spacing: var(--_ls-title);
+  min-height: 2.7em;
+}
+
+.processStepPeriod {
+  margin: 0 0 var(--spacing-12);
+  font: var(--font-code-xs);
+  color: var(--text-tertiary);
+}
+
+.processStepContentDesc {
+  margin: 0;
+  font-size: var(--font-size-prose-lg);
+  line-height: var(--_lh-reading);
+  color: var(--text-secondary);
+  min-height: 8.25em;
+}
+
+/* When active: hide label, show content */
+.processStepRowActive .processStepLabel {
+  opacity: 0;
 }
 
 /* ==========================================================================
    Visual Break
    ========================================================================== */
 
+/* 3.11-1 예외: 넓은 화면의 위·아래 여백은 공용 패널(.panel, AboutPanel.module.css)이 정한다 — 좁은 화면만 덮어쓴다 */
 @media (width <= 1024px), (height <= 700px) {
   .procPanel {
     padding-top: var(--spacing-24);
     padding-bottom: 0;
   }
+}
 
-  .procTitleRow.procTitleRow.procTitleRow {
-    padding-top: calc(80px + 40px + var(--spacing-16));
-    margin-bottom: var(--spacing-12);
-  }
-
-  .procTitleRow h3 {
-    margin-top: 0;
-    margin-bottom: 0;
-  }
-
-  .processBody,
+@media (width > 1024px) and (height > 700px) {
   .procStage {
-    display: none;
+    display: grid;
   }
 
-  /* dotNav hidden on mobile for pinnedTitleRow panels (CodeHighlights, Process) */
-
-  /* ── Accordion step list: all rows visible, active expanded ── */
   .processStepList {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    margin-bottom: var(--_space-section);
-    min-height: 0;
-  }
-
-  /* Each row: connector + label (collapsed) or connector + content (expanded).
-     Height is JS-driven for smooth accordion. */
-  .processStepRow {
-    display: flex;
-    gap: clamp(10px, 2.5vw, 16px);
-    align-items: stretch;
-    flex-shrink: 0;
-    position: relative;
-  }
-
-  /* Compound selector (0,2,0) for transition */
-  .processStepList .processStepRow {
-    transition:
-      height var(--duration-slow) var(--ease-standard),
-      opacity var(--duration-base) var(--ease-standard);
-  }
-
-  /* ── Left: continuous connector line + dot ── */
-  .processStepConnector {
-    display: flex;
-    align-items: center;
-    flex-shrink: 0;
-    flex-direction: column;
-    width: clamp(16px, 4vw, 24px);
-  }
-
-  .processConnectorDot {
-    flex-shrink: 0;
-    border: var(--border-light-2);
-    z-index: 1;
-    width: 10px;
-    height: 10px;
-    background: var(--bg-primary);
-    border-radius: var(--radius-full);
-    opacity: 0.35;
-  }
-
-  .processStepConnector .processConnectorDot {
-    transition:
-      border-color var(--duration-base) var(--ease-standard),
-      background-color var(--duration-base) var(--ease-standard),
-      opacity var(--duration-base) var(--ease-standard),
-      transform var(--duration-base) var(--ease-standard),
-      box-shadow var(--duration-base) var(--ease-standard);
-  }
-
-  .processConnectorDotDone {
-    border-color: var(--text-accent);
-    background: var(--text-accent);
-    opacity: 1;
-  }
-
-  .processConnectorDotActive {
-    border-color: var(--text-accent);
-    box-shadow: var(--shadow-glow);
-    background: var(--text-accent);
-    opacity: 1;
-    transform: scale(1.4);
-  }
-
-  /* Line connects dots — no margin, seamless */
-  .processConnectorLine {
-    flex: 1;
-    width: 2px;
-    background: var(--text-tertiary);
-    opacity: 0.12;
-  }
-
-  .processConnectorLineDone {
-    background: var(--text-accent);
-    opacity: 0.5;
-  }
-
-  /* ── Right: collapsed label (visible when row is collapsed) ── */
-  .processStepLabel {
-    display: flex;
-    align-items: center;
-    flex: 1;
-    overflow: hidden;
-    min-width: 0;
-    font-family: var(--_font-grotesk);
-    font-size: clamp(0.75rem, 0.658rem + 0.38vw, 0.9rem);
-    color: var(--text-tertiary);
-    white-space: nowrap;
-    text-overflow: ellipsis;
-  }
-
-  /* ── Right: expanded content (visible when row is active) ── */
-  .processStepContent {
-    display: flex;
-    justify-content: start;
-    flex-direction: column;
-    padding-right: var(--_space-block);
-    padding-left: calc(clamp(16px, 4vw, 24px) + clamp(10px, 2.5vw, 16px));
-    position: absolute;
-    pointer-events: none;
-    inset: 0;
-  }
-
-  /* Compound selector (0,2,0) for transition */
-  .processStepRow .processStepContent {
-    transition: opacity var(--duration-base) var(--ease-standard);
-  }
-
-  .processStepHeader {
-    display: flex;
-    gap: var(--_space-block);
-    align-items: end;
-    justify-content: start;
-    flex-direction: row;
-    margin-bottom: var(--_space-block);
-  }
-
-  .processStepNum {
-    font: var(--font-display-lg);
-    color: var(--text-accent);
-    opacity: 0.12;
-  }
-
-  .processStepContentTitle {
-    font: var(--font-display-sm);
-    font-family: var(--font-family-headline);
-    font-style: italic;
-    line-height: var(--line-height-135);
-    letter-spacing: var(--_ls-title);
-    min-height: 2.7em;
-  }
-
-  .processStepPeriod {
-    margin: 0 0 var(--spacing-12);
-    font: var(--font-code-xs);
-    color: var(--text-tertiary);
-  }
-
-  .processStepContentDesc {
-    margin: 0;
-    font-size: var(--font-size-prose-lg);
-    line-height: var(--_lh-reading);
-    color: var(--text-secondary);
-    min-height: 8.25em;
-  }
-
-  /* When active: hide label, show content */
-  .processStepRowActive .processStepLabel {
-    opacity: 0;
-  }
-
-  .processStepTitle {
-    margin-bottom: var(--_space-line);
-    font-size: var(--font-size-display-sm);
-  }
-
-  .processStepDesc {
-    max-width: none;
-    font-size: var(--font-size-prose-lg);
+    display: none;
   }
 }
 

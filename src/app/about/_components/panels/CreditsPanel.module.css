@@ -1,8 +1,10 @@
-/* About 엔딩 크레딧 — 첫 화면(100vw)은 크레딧, 그 오른쪽(60vw)은 서명.
+/* About 엔딩 크레딧 — 좁은 화면은 크레딧 · 서명을 한 단으로 쌓는다(이름표도 한 단, 가운데 정렬).
+   넓은 화면(아래 media)은 첫 화면(100vw)이 크레딧, 그 오른쪽(60vw)이 서명.
    크레딧은 가운데 한 줄에 맞춘 두 단(왼쪽 이름표는 오른쪽 정렬, 오른쪽 내용은 왼쪽 정렬) */
 .creditsPanel {
   display: grid;
-  grid-template-columns: calc(100vw - var(--_panel-px) * 2) minmax(0, 1fr);
+  grid-template-columns: 1fr;
+  row-gap: var(--spacing-48);
   column-gap: calc(var(--_panel-px) * 2);
   align-items: center;
   justify-items: center;
@@ -14,7 +16,8 @@
   justify-content: center;
   width: 100%;
   height: 50vh;
-  border-left: var(--border-light);
+  padding-top: var(--spacing-24);
+  border-top: var(--border-light);
 }
 
 .creditsRoll {
@@ -54,7 +57,8 @@
 
 .creditsList > div {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+  grid-template-columns: 1fr;
+  row-gap: var(--spacing-2);
   column-gap: var(--spacing-24);
   align-items: baseline;
 }
@@ -63,7 +67,7 @@
   font: var(--font-meta-xs);
   color: var(--text-tertiary);
   letter-spacing: 0.12em;
-  text-align: right;
+  text-align: center;
   text-transform: uppercase;
 }
 
@@ -73,7 +77,7 @@
   font: var(--font-meta-md);
   line-height: var(--_lh-reading);
   color: var(--text-primary);
-  text-align: left;
+  text-align: center;
 }
 
 /* 서명 — 한 화면 가까이를 혼자 쓰므로 크게 */
@@ -108,7 +112,6 @@
   }
 }
 
-/* 모바일 — 고정 상단 메뉴 아래에서 시작하고, 두 단 이름표를 한 단으로 쌓는다 */
 /* 공용 패널 폭(100vw)을 번들 순서와 무관하게 이기도록 (0,2,0) */
 @media (width > 1024px) and (height > 700px) {
   .creditsPanel.creditsPanel {
@@ -116,26 +119,35 @@
   }
 }
 
-@media (width <= 1024px), (height <= 700px) {
+@media (width > 1024px) and (height > 700px) {
   .creditsPanel {
-    grid-template-columns: 1fr;
-    row-gap: var(--spacing-48);
-    padding-top: calc(var(--header-height) + var(--spacing-24));
+    grid-template-columns: calc(100vw - var(--_panel-px) * 2) minmax(0, 1fr);
+    row-gap: normal;
   }
 
   .creditsSignArea {
-    padding-top: var(--spacing-24);
-    border-top: var(--border-light);
-    border-left: none;
+    padding-top: 0;
+    border-top: none;
+    border-left: var(--border-light);
   }
 
   .creditsList > div {
-    grid-template-columns: 1fr;
-    row-gap: var(--spacing-2);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+    row-gap: normal;
   }
 
-  .creditsList dt,
+  .creditsList dt {
+    text-align: right;
+  }
+
   .creditsList dd {
-    text-align: center;
+    text-align: left;
+  }
+}
+
+/* 3.11-1 예외: 넓은 화면의 위 여백은 공용 패널(.panel, AboutPanel.module.css)이 정한다 — 좁은 화면만 덮어쓴다 */
+@media (width <= 1024px), (height <= 700px) {
+  .creditsPanel {
+    padding-top: calc(var(--header-height) + var(--spacing-24));
   }
 }
