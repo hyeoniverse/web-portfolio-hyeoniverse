@@ -382,13 +382,17 @@
 
 
 
-/* 3.11-1 예외: Title row — 좁은 화면은 TroubleshootingPanel 의 troublePinTitleRow 와 같은 값
-   (padding-top: nav 80 + tab 40 + spacing-32, margin-bottom: spacing-24). 공용 .titleRowCompact(0,3,0)를 이기려고 네 번.
-   그 공용 규칙이 좁은 화면 전용 예외 블록이라 같은 조건에 둔다 — 기본 규칙으로 올리면 넓은 화면 되돌림도 네 번 써야 한다(4-4) */
-@media (width <= 1024px), (height <= 700px) {
-  .codePinTitleRow.codePinTitleRow.codePinTitleRow.codePinTitleRow {
-    padding-top: calc(80px + 40px + var(--spacing-32));
-    margin-bottom: var(--spacing-24);
+/* 핀 제목 줄 — 좁은 화면은 nav 80 + tab 40 + 호흡만큼 띄운다. 공용 .titleRowCompact 가 읽는 변수만 바꾼다.
+   넓은 화면 값은 아래 media 의 .codeContent > .codePinTitleRow 가 정한다 */
+.codePinTitleRow {
+  --title-row-padding-top: calc(80px + 40px + var(--spacing-32));
+  --title-row-margin-bottom: var(--spacing-24);
+}
+
+@media (width > 1024px) and (height > 700px) {
+  .codePinTitleRow {
+    --title-row-padding-top: initial;
+    --title-row-margin-bottom: initial;
   }
 }
 
