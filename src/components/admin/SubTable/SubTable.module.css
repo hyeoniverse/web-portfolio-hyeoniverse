@@ -288,86 +288,141 @@
   color: var(--text-muted);
 }
 
-/* ── Tablet/Mobile: horizontal scroll (only the table area, not the filters) ── */
-@media (width <= 1024px) {
+/* ── 태블릿·모바일: 표 영역만 가로 스크롤(필터는 제외). 넓은 화면(>1024)은 아래 media 에서 풀어 준다 ── */
+.tableScroll {
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* B + D 조합: actions 열 sticky 로 항상 우측 고정 + 좌측에 fade gradient pseudo.
+   align-self: stretch + 음수 margin (.colThumbWrap 와 동일한 -spacing-md) 로 row 의
+   실제 row padding + image 음수 margin 영역까지 모두 덮음 → 이미지가 sticky 아래로
+   스크롤될 때 위/아래 잘림 없이 매끄럽게 가려짐 */
+.tableHeader .colActions,
+.row .colActions {
+  position: sticky;
+  right: 0;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  background: var(--bg-primary);
+  z-index: 1;
+}
+
+.row .colActions {
+  margin: calc(-1 * var(--spacing-16)) 0;
+}
+
+.tableHeader .colActions::before,
+.row .colActions::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -56px;
+  width: 56px;
+  background: linear-gradient(to right, transparent, var(--bg-primary) 55%);
+  pointer-events: none;
+}
+
+/* 체크박스 열도 sticky 로 좌측 고정 — 가로 스크롤 중에도 일괄 선택 가능.
+   align-self: stretch + 음수 margin 동일 적용 → 이미지 풀 높이 cover */
+.tableHeader .colCheck,
+.row .colCheck {
+  position: sticky;
+  left: 0;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-primary);
+  z-index: 1;
+}
+
+.row .colCheck {
+  margin: calc(-1 * var(--spacing-16)) 0;
+}
+
+.tableHeader .colCheck::after,
+.row .colCheck::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: -16px;
+  width: 16px;
+  background: linear-gradient(to right, var(--bg-primary), transparent);
+  pointer-events: none;
+}
+.tableInner {
+  display: flex;
+  flex-direction: column;
+  min-width: 100%;
+  width: max-content;
+}
+.tableHeader,
+.row,
+.bulkBar {
+  min-width: 800px;
+}
+.colTitle {
+  min-width: 320px;
+}
+
+/* ── 데스크톱: 표가 폭에 다 들어가니 스크롤·고정 열·페이드를 거둔다 ── */
+@media (width > 1024px) {
   .tableScroll {
-    max-width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+    max-width: none;
+    overflow-x: visible;
   }
 
-  /* B + D 조합: actions 열 sticky 로 항상 우측 고정 + 좌측에 fade gradient pseudo.
-     align-self: stretch + 음수 margin (.colThumbWrap 와 동일한 -spacing-md) 로 row 의
-     실제 row padding + image 음수 margin 영역까지 모두 덮음 → 이미지가 sticky 아래로
-     스크롤될 때 위/아래 잘림 없이 매끄럽게 가려짐 */
   .tableHeader .colActions,
   .row .colActions {
-    position: sticky;
-    right: 0;
-    align-self: stretch;
-    display: flex;
-    align-items: center;
-    background: var(--bg-primary);
-    z-index: 1;
+    position: static;
+    align-self: auto;
+    align-items: normal;
+    background: none;
+    z-index: auto;
   }
 
   .row .colActions {
-    margin: calc(-1 * var(--spacing-16)) 0;
+    margin: 0;
   }
 
   .tableHeader .colActions::before,
-  .row .colActions::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: -56px;
-    width: 56px;
-    background: linear-gradient(to right, transparent, var(--bg-primary) 55%);
-    pointer-events: none;
-  }
-
-  /* 체크박스 열도 sticky 로 좌측 고정 — 가로 스크롤 중에도 일괄 선택 가능.
-     align-self: stretch + 음수 margin 동일 적용 → 이미지 풀 높이 cover */
-  .tableHeader .colCheck,
-  .row .colCheck {
-    position: sticky;
-    left: 0;
-    align-self: stretch;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--bg-primary);
-    z-index: 1;
-  }
-
-  .row .colCheck {
-    margin: calc(-1 * var(--spacing-16)) 0;
-  }
-
+  .row .colActions::before,
   .tableHeader .colCheck::after,
   .row .colCheck::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    right: -16px;
-    width: 16px;
-    background: linear-gradient(to right, var(--bg-primary), transparent);
-    pointer-events: none;
+    content: none;
   }
+
+  .tableHeader .colCheck,
+  .row .colCheck {
+    position: static;
+    align-self: auto;
+    background: none;
+    z-index: auto;
+  }
+
+  .row .colCheck {
+    justify-content: normal;
+    margin: 0;
+  }
+
   .tableInner {
-    display: flex;
-    flex-direction: column;
-    min-width: 100%;
-    width: max-content;
+    display: block;
+    min-width: auto;
+    width: auto;
   }
+
   .tableHeader,
   .row,
   .bulkBar {
-    min-width: 800px;
+    min-width: auto;
   }
+
   .colTitle {
-    min-width: 320px;
+    min-width: 0;
   }
 }
