@@ -4,7 +4,7 @@
 
 .works {
   position: relative;
-  padding: 20vh 2vw 0;
+  padding: 10vh 5vw;
   contain: layout style;
 }
 
@@ -43,7 +43,7 @@
 
 .titleText {
   font-family: var(--font-family-headline);
-  font-size: clamp(4.5rem, 0.25rem + 6.72vw, 8.25rem);
+  font-size: clamp(2.35rem, 1.857rem + 2.38vw, 3rem);
   font-weight: var(--font-weight-regular);
   line-height: 0.95;
   color: var(--text-accent-alt);
@@ -60,6 +60,8 @@
   z-index: 2;
   width: 100%;
   height: 100%;
+  max-width: clamp(80px, 22vw, 110px);
+  max-height: clamp(80px, 22vw, 110px);
   padding: 1vw;
   border-radius: var(--radius-full);
   overflow: hidden;
@@ -227,51 +229,41 @@
 /* ---------------------------------------------------------------------------
    Responsive
    --------------------------------------------------------------------------- */
-@media (width <= 1024px) {
+@media (width > 768px) {
   .works {
-    padding-right: 6vw;
-    padding-left: 6vw;
+    padding: 20vh 6vw 0;
   }
 
   .grid {
     gap: var(--spacing-16);
-    grid-template-columns: var(--grid-columns-5);
   }
 
-  .titleCell {
-    grid-column: 2 / 5;
+  .titleText {
+    font-size: clamp(2rem, 0.77rem + 5.05vw, 4rem);
   }
 
   .circle {
     max-width: clamp(100px, 18vw, 160px);
     max-height: clamp(100px, 18vw, 160px);
   }
-
-  .titleText {
-    font-size: clamp(2rem, 0.77rem + 5.05vw, 4rem);
-  }
 }
 
-@media (width <= 768px) {
+@media (width > 1024px) {
   .works {
-    padding: 10vh 5vw;
+    padding-right: 2vw;
+    padding-left: 2vw;
   }
 
   .grid {
     gap: var(--spacing-12);
-    grid-template-columns: var(--grid-columns-5);
-  }
-
-  .titleCell {
-    grid-column: 2 / 5;
   }
 
   .titleText {
-    font-size: clamp(2.35rem, 1.857rem + 2.38vw, 3rem);
+    font-size: clamp(4.5rem, 0.25rem + 6.72vw, 8.25rem);
   }
 
   .circle {
-    max-width: clamp(80px, 22vw, 110px);
-    max-height: clamp(80px, 22vw, 110px);
+    max-width: none;
+    max-height: none;
   }
 }

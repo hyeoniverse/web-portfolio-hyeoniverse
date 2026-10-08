@@ -46,8 +46,8 @@
 .oval {
   display: inline-block;
   flex-shrink: 0;
-  width: 80px;
-  height: 40px;
+  width: 10vw;
+  height: var(--m-lg);
   border: var(--border-default);
   border-radius: 50%;
 }
@@ -55,7 +55,7 @@
 .line {
   display: inline-block;
   flex-shrink: 0;
-  width: 100px;
+  width: 12.5vw;
   height: 1px;
   background: var(--border-color-default);
 }
@@ -63,14 +63,13 @@
 /* ---------------------------------------------------------------------------
    Responsive
    --------------------------------------------------------------------------- */
-@media (width <= 480px) {
-
+@media (width > 480px) {
   .oval {
-    width: 10vw;
-    height: var(--m-lg);
+    width: 80px;
+    height: 40px;
   }
 
   .line {
-    width: 12.5vw;
+    width: 100px;
   }
 }

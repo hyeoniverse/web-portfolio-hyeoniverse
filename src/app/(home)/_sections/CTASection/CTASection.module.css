@@ -20,19 +20,19 @@
 }
 
 .decorStage {
-  --_size: min(480px, 55vw);
+  --_size: min(260px, 55vw);
   position: absolute;
-  top: calc(55% - var(--_size) / 2);
-  left: calc(68% - var(--_size) / 2);
+  top: calc(58% - var(--_size) / 2);
+  left: calc(60% - var(--_size) / 2);
   width: var(--_size);
   height: var(--_size);
 }
 
-@media (width <= 768px) {
+@media (width > 768px) {
   .decorStage {
-    --_size: min(260px, 55vw);
-    top: calc(58% - var(--_size) / 2);
-    left: calc(60% - var(--_size) / 2);
+    --_size: min(480px, 55vw);
+    top: calc(55% - var(--_size) / 2);
+    left: calc(68% - var(--_size) / 2);
   }
 }
 
@@ -62,7 +62,11 @@
 }
 
 .titleLine {
+  /* 좁은 화면은 화면 폭을 따라 줄고, 480 초과(아래 media)는 전시 lg */
+  --_line-size: clamp(2.1rem, 0.25rem + 9.17vw, 3rem);
+
   font: var(--font-display-lg);
+  font-size: var(--_line-size);
   font-family: var(--font-family-headline);
   line-height: 1.125;
   color: var(--text-primary);
@@ -76,7 +80,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-24);
+  flex-direction: column;
+  gap: var(--spacing-20);
   flex-wrap: wrap;
 }
 
@@ -128,15 +133,15 @@
 }
 
 /* CTA 버튼 — 거대한 타이틀에 맞춰 size xl(40px)보다 크게. 폰트는 역할 토큰 상한(body)이라
-   높이·가로 패딩으로 키운다.
+   높이·가로 패딩으로 키운다. 좁은 화면은 화면에 맞게 줄이고 넓은 화면(아래 media)에서 키운다.
    overflow: hidden 을 두지 않는다 — Safari 는 둥근 모서리로 잘라 내는 요소를 따로 그려서, 안의 글자가
    difference 로 섞일 상대가 페이지가 아니라 투명한 단추가 된다. 그러면 흰 글자·흰 테두리가 그대로
    남아 밝은 바탕에서 단추가 그냥 흰 덩어리로 보인다. */
 .ctaBtn.ctaBtn,
 .resumeBtn.resumeBtn {
-  height: 80px;
-  padding: 0 var(--spacing-64);
-  font-size: var(--font-size-body-xl);
+  height: 52px;
+  padding: 0 var(--spacing-32);
+  font-size: var(--font-size-body-md);
   gap: var(--spacing-16);
 }
 
@@ -269,7 +274,7 @@
   justify-content: space-between;
   position: absolute;
   right: var(--spacing-page-inline);
-  bottom: var(--spacing-64);
+  bottom: var(--spacing-32);
   left: var(--spacing-page-inline);
   font: var(--font-body-sm);
   color: var(--text-accent-alt);
@@ -279,27 +284,26 @@
 /* ---------------------------------------------------------------------------
    Responsive
    --------------------------------------------------------------------------- */
-@media (width <= 768px) {
-  .footer {
-    bottom: var(--spacing-32);
-  }
-
-  /* 모바일: 큰 CTA 버튼(데스크톱 height 80px·font lg)을 화면에 맞게 줄인다 */
-  .ctaBtn.ctaBtn,
-  .resumeBtn.resumeBtn {
-    height: 52px;
-    padding: 0 var(--spacing-32);
-    font-size: var(--font-size-body-md);
-  }
-}
-
-@media (width <= 480px) {
+@media (width > 480px) {
   .titleLine {
-    font-size: clamp(2.1rem, 0.25rem + 9.17vw, 3rem);
+    --_line-size: var(--font-size-display-lg);
   }
 
   .buttonGroup {
-    flex-direction: column;
-    gap: var(--spacing-20);
+    flex-direction: row;
+    gap: var(--spacing-24);
+  }
+}
+
+@media (width > 768px) {
+  .footer {
+    bottom: var(--spacing-64);
+  }
+
+  .ctaBtn.ctaBtn,
+  .resumeBtn.resumeBtn {
+    height: 80px;
+    padding: 0 var(--spacing-64);
+    font-size: var(--font-size-body-xl);
   }
 }

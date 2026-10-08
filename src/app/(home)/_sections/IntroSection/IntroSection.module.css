@@ -44,7 +44,7 @@
 }
 
 .text {
-  font: var(--font-display-sm);
+  font: var(--font-body-xl);
   font-family: var(--font-family-body);
   font-weight: var(--font-weight-light);
   line-height: var(--line-height-160);
@@ -54,7 +54,7 @@
 
 .caption {
   margin-top: var(--spacing-16);
-  font: var(--font-body-md);
+  font: var(--font-body-sm);
   line-height: var(--line-height-160);
   color: var(--text-tertiary);
   text-align: center;
@@ -77,12 +77,12 @@
    Responsive
    --------------------------------------------------------------------------- */
 
-@media (width <= 480px) {
+@media (width > 480px) {
   .text {
-    font-size: var(--font-size-body-xl);
+    font-size: var(--font-size-display-sm);
   }
 
   .caption {
-    font-size: var(--font-size-body-sm);
+    font-size: var(--font-size-body-md);
   }
 }

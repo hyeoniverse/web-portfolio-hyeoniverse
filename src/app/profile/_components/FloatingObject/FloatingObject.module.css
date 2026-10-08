@@ -24,13 +24,14 @@
 .speechBubbleText {
   /* 세 층 + 흐림판 마스크가 **같은 치수를 알아야** 캡슐이 어긋나지 않는다.
      그래서 여백·글자 크기까지 변수로 빼고 높이를 거기서 계산한다. */
-  --bubble-blur: 4px;
+  /* 좁은 화면은 화면 폭에 맞춰 줄이고, 480 초과(아래 media)에서 고정 값으로 */
+  --bubble-blur: 5vw;
   --bubble-lh: 1.6;
-  --bubble-fs: var(--font-size-body-sm);
-  --bubble-py: var(--spacing-8);
-  --bubble-px: var(--spacing-20);
+  --bubble-fs: 2.6vw;
+  --bubble-py: 1.7vw;
+  --bubble-px: 4.2vw;
   --bubble-h: calc(var(--bubble-fs) * var(--bubble-lh) + var(--bubble-py) * 2 + 2px);
-  --tail-side: 10px;
+  --tail-side: 2.2vw;
   /* 45° 돌린 네모라 밑변이 10·√2, 내민 높이는 그 절반이다. */
   --tail-w: calc(var(--tail-side) * 1.414);
   --tail-h: calc(var(--tail-side) * 0.707);
@@ -151,15 +152,14 @@
   }
 }
 
-/* ── Mobile vw ── */
-@media (width <= 480px) {
+@media (width > 480px) {
   .speechBubble,
   .speechBubbleFill,
   .speechBubbleText {
-    --bubble-blur: 5vw;
-    --bubble-fs: 2.6vw;
-    --bubble-py: 1.7vw;
-    --bubble-px: 4.2vw;
-    --tail-side: 2.2vw;
+    --bubble-blur: 4px;
+    --bubble-fs: var(--font-size-body-sm);
+    --bubble-py: var(--spacing-8);
+    --bubble-px: var(--spacing-20);
+    --tail-side: 10px;
   }
 }
