@@ -4,6 +4,7 @@
   gap: var(--spacing-16);
   flex: 1;
   min-height: 0;
+  overflow: hidden;
 }
 
 .ufFlowDiagram {
@@ -13,7 +14,8 @@
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  overflow: hidden;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .ufFlowSvg {
@@ -25,6 +27,7 @@
 .ufFlowInfo {
   display: flex;
   align-items: center;
+  flex-shrink: 0;
   gap: var(--spacing-20);
   animation: ufFadeIn var(--duration-slow) var(--ease-standard) both;
 }
@@ -290,6 +293,25 @@
   font-weight: var(--font-weight-semibold);
 }
 
+/* ── Mobile title row ──
+   ufTitleRow 는 좁은 화면(useMobileLayout)에서만 붙는다 — 넓은 화면 되돌림이 필요 없다 */
+.ufTitleRow.ufTitleRow.ufTitleRow {
+  padding-top: 0;
+  margin-bottom: var(--spacing-12);
+}
+
+.ufTitleRow h3 {
+  margin-top: calc(80px + 40px + var(--spacing-16));
+  margin-bottom: 0;
+}
+
+.ufTitleRow > div:nth-child(2) {
+  padding: calc(80px + 40px + var(--spacing-16)) 0 0 0;
+  align-self: flex-start;
+  margin-left: auto;
+  margin-right: 0;
+}
+
 @keyframes ufFadeIn {
   from {
     opacity: 0;
@@ -301,53 +323,20 @@
   }
 }
 
-/* ==========================================================================
-   Mobile overrides (1024px)
-   ========================================================================== */
-
-@media (width <= 1024px), (height <= 700px) {
-  .ufTitleRow.ufTitleRow.ufTitleRow {
-    padding-top: 0;
-    margin-bottom: var(--spacing-12);
-  }
-
-  .ufTitleRow h3 {
-    margin-top: calc(80px + 40px + var(--spacing-16));
-    margin-bottom: 0;
-  }
-
-  .ufTitleRow > div:nth-child(2) {
-    padding: calc(80px + 40px + var(--spacing-16)) 0 0 0;
-    align-self: flex-start;
-    margin-left: auto;
-    margin-right: 0;
-  }
-
-  /* ── User Flow Panel — mobile ── */
-
+/* ── 데스크톱 전시실 구도: 흐름도가 왼쪽 넓은 칸, 제목·범례·흐름 선택은 오른쪽 좁은 칸에 오른쪽 정렬 ── */
+@media (width > 1024px) and (height > 700px) {
   .ufFlowLayout {
-    flex-direction: column;
-    overflow: hidden;
+    overflow: visible;
   }
 
   .ufFlowDiagram {
-    flex: 1;
-    min-height: 0;
-    overflow: auto;
-    -webkit-overflow-scrolling: touch;
+    overflow: hidden;
   }
 
   .ufFlowInfo {
-    flex-shrink: 0;
+    flex-shrink: 1;
   }
 
-  .ufMobileList {
-    display: none;
-  }
-}
-
-/* ── 데스크톱 전시실 구도: 흐름도가 왼쪽 넓은 칸, 제목·범례·흐름 선택은 오른쪽 좁은 칸에 오른쪽 정렬 ── */
-@media (width > 1024px) and (height > 700px) {
   .ufContent {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(15rem, 21vw);

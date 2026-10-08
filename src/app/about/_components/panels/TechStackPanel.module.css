@@ -1,9 +1,9 @@
 /* 영역 → 분류 → 도구 트리. 영역마다 한 단, 분류는 세로 줄기에서 가지로 뻗는다 */
 .techTree {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: clamp(1.5rem, 3vw, 3rem);
-  max-width: clamp(500px, 80vw, 1200px);
+  max-width: 100%;
 }
 
 .techDomainTitle {
@@ -133,9 +133,9 @@
   }
 }
 
-@media (width <= 1024px), (height <= 700px) {
+@media (width > 1024px) and (height > 700px) {
   .techTree {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    max-width: 100%;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    max-width: clamp(500px, 80vw, 1200px);
   }
 }

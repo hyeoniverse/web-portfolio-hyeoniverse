@@ -126,10 +126,14 @@
   border-top-color: var(--text-primary);
 }
 
-@media (width <= 1024px), (height <= 700px) {
-  /* 상태바가 좁은 화면에서 가로로 밀리면 우측의 내보내기·폰트 버튼이 화면 밖에 남는다.
-     breadcrumb 이 이미 보여 주는 섹션·파일 형식을 접어 버튼을 화면 안으로 들인다. */
+/* 상태바가 좁은 화면에서 가로로 밀리면 우측의 내보내기·폰트 버튼이 화면 밖에 남는다.
+   breadcrumb 이 이미 보여 주는 섹션·파일 형식은 좁은 화면에서 접어 버튼을 화면 안으로 들인다. */
+.ideStatusGroupOptional {
+  display: none;
+}
+
+@media (width > 1024px) and (height > 700px) {
   .ideStatusGroupOptional {
-    display: none;
+    display: inline-flex;
   }
 }

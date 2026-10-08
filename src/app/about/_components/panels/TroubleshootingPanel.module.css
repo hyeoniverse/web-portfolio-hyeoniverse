@@ -139,12 +139,20 @@
    Viewport-specific visibility/layout 은 파일 끝 @media 블록에서.
    ========================================================================== */
 
-/* PC 타이틀 위 spacing — 네비게이션 (--header-height) 와 안 겹치도록 보장.
-   mobile @media 안에서는 tab bar 까지 고려해 더 큰 값으로 override. specificity 2중복 으로
-   shared .titleRowCompact (no-op) 보다 우선. */
-.troublePinTitleRow.troublePinTitleRow {
-  padding-top: calc(var(--header-height) + var(--spacing-16));
+/* 핀 제목 줄 — 좁은 화면은 nav 80 + tab 40 + 호흡만큼 띄운다. 공용 .titleRowCompact 가 읽는 변수만 바꾼다.
+   넓은 화면 값은 아래 media 의 .troubleContent > .troublePinTitleRow 가 정한다 */
+.troublePinTitleRow {
+  --title-row-padding-top: calc(80px + 40px + var(--spacing-32));
+  --title-row-margin-bottom: var(--spacing-24);
 }
+
+@media (width > 1024px) and (height > 700px) {
+  .troublePinTitleRow {
+    --title-row-padding-top: initial;
+    --title-row-margin-bottom: initial;
+  }
+}
+
 .troublePinTitleRow h3 {
   margin: 0;
 }
@@ -160,7 +168,7 @@
   border-radius: var(--radius-surface);
   overflow: hidden;
   font-family: var(--font-family-code);
-  /* margin-bottom 은 mobile 만 — PC 에선 troubleSplit gap 이 처리 */
+  margin-bottom: var(--spacing-20);
 }
 
 /* Breadcrumb (file path) — slim. min-height 로 sidebar .ideExplorerHeader 와 정렬 보장. */
@@ -540,14 +548,8 @@
 /* 헤더 — 호흡 있는 행. 위/아래 spacing-md */
 
 /* ==========================================================================
-   PC layout — formerly-mobile 규칙 뒤에 와서 source-order 로 override.
-   ideWrap 가로 배치 (sidebar + mainPane), tab bar 숨김.
+   PC layout — ideWrap 가로 배치 (sidebar + mainPane) 는 아래 media.
    ========================================================================== */
-.ideWrap {
-  flex-direction: row;
-  margin-bottom: var(--spacing-32);
-}
-
 .ideMainPane {
   display: flex;
   flex: 1 1 0;
@@ -557,22 +559,13 @@
 }
 
 /* ==========================================================================
-   Viewport overrides — visibility/layout only.
-   Mobile/tablet: sidebar 숨기고 tab bar 보임, ideWrap 아래 여백.
+   Viewport overrides — 좁은 화면은 sidebar 숨기고 tab bar 보임, ideWrap 세로(mainPane 만 stack).
+   넓은 화면은 ideWrap 가로 배치(sidebar + mainPane).
    ========================================================================== */
-@media (width <= 1024px), (height <= 700px) {
-  /* ideWrap row → column (sidebar 숨겨지므로 mainPane 만 stack) */
+@media (width > 1024px) and (height > 700px) {
   .ideWrap {
-    flex-direction: column;
-    margin-bottom: var(--spacing-20);
-  }
-  /* 핀 타이틀 row 위 여백 (nav 80 + tab 40 + 추가 호흡) */
-  .troublePinTitleRow.troublePinTitleRow.troublePinTitleRow.troublePinTitleRow {
-    padding-top: calc(80px + 40px + var(--spacing-32));
-    margin-bottom: var(--spacing-24);
-  }
-  .troublePinTitleRow h3 {
-    margin: 0;
+    flex-direction: row;
+    margin-bottom: var(--spacing-32);
   }
 }
 
