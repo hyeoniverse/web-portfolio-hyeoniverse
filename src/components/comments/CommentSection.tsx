@@ -233,6 +233,15 @@ export default function CommentSection({ commentType, targetId, translationEnabl
     />
   );
 
+  /* 입력 칸 + 그 바로 아래 운영 안내. 안내는 댓글을 쓰는 사람에게 하는 말이라 입력 칸 곁에 둔다 —
+     제목 줄 오른쪽에 두면 좁은 화면에서 줄이 바뀌어 "안내(오른쪽) / 빈 목록 문구(왼쪽)" 로 지그재그가 됐다 */
+  const formBlock = (
+    <div className={styles.formBlock}>
+      {commentForm}
+      <p className={styles.disclaimer}><T k="comments.disclaimer" noTooltip /></p>
+    </div>
+  );
+
   return (
     <div className={styles.section}>
       <div className={styles.headingRow}>
@@ -258,7 +267,6 @@ export default function CommentSection({ commentType, targetId, translationEnabl
           />
         </div>
         <div className={styles.headingRight}>
-          <p className={styles.disclaimer}><T k="comments.disclaimer" noTooltip /></p>
           {isAdmin && comments.length > 0 && (
             /* subtle = border light (outline 은 border strong) — 역순 토글과 동일 이유 */
             <Button
@@ -272,7 +280,7 @@ export default function CommentSection({ commentType, targetId, translationEnabl
         </div>
       </div>
 
-      {inputTop && commentForm}
+      {inputTop && formBlock}
 
       {tree.length > 0 ? (
         <div className={styles.list}>
@@ -352,7 +360,7 @@ export default function CommentSection({ commentType, targetId, translationEnabl
         </div>
       )}
 
-      {!inputTop && commentForm}
+      {!inputTop && formBlock}
 
     </div>
   );

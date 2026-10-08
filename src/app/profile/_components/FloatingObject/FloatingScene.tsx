@@ -158,12 +158,16 @@ export default function FloatingScene({
     let dockRect: DOMRect | null = null;
     if (slots.size > 0) {
       const vw = window.innerWidth;
+      const vh = window.innerHeight;
       const cx = vw / 2;
+      const cy = vh / 2;
       let best = Infinity;
       for (const el of slots) {
         const r = el.getBoundingClientRect();
-        if (r.width === 0 || r.right < 0 || r.left > vw) continue;
-        const d = Math.abs(r.left + r.width / 2 - cx);
+        /* 세로도 본다 — 모바일은 패널이 세로로 쌓여 위아래로 지나간다. 가로만 보면 자리가
+           화면 위로 사라져도 "화면 안" 으로 읽혀, 몽이가 자리에 붙은 채 같이 화면 밖으로 나갔다 */
+        if (r.width === 0 || r.right < 0 || r.left > vw || r.bottom < 0 || r.top > vh) continue;
+        const d = Math.hypot(r.left + r.width / 2 - cx, r.top + r.height / 2 - cy);
         if (d < best) {
           best = d;
           dockRect = r;
@@ -177,10 +181,11 @@ export default function FloatingScene({
          패널이 정중앙일 때도 이미 수백 px 떨어져 있다. 조금만 움직여도 곧바로 풀린다. */
       if (dockRect) {
         const center = dockRect.left + dockRect.width / 2;
+        const middle = dockRect.top + dockRect.height / 2;
         const settled = dockBlend.current > 0;
         const keep = settled
-          ? center > 0 && center < vw
-          : dockRect.left >= -8 && dockRect.right <= vw + 8;
+          ? center > 0 && center < vw && middle > 0 && middle < vh
+          : dockRect.left >= -8 && dockRect.right <= vw + 8 && dockRect.top >= -8 && dockRect.bottom <= vh + 8;
         if (!keep) dockRect = null;
       }
     }
