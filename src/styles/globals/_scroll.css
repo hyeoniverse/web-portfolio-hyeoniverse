@@ -43,27 +43,42 @@ html.lenis body {
 
 .horizontal-item {
   flex-shrink: 0;
-  width: 100vw;
+  width: 85vw;
   min-height: 100svh;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: var(--row-padding-sm);
   perspective: 1000px;
+}
+
+@media (width > 768px) {
+  .horizontal-item {
+    width: 100vw;
+    padding: 0;
+  }
 }
 
 /* Horizontal scroll progress indicator */
 .horizontal-progress {
   position: fixed;
-  bottom: 2rem;
+  bottom: 1rem;
   left: 50%;
   transform: translateX(-50%);
-  width: 200px;
+  width: 150px;
   height: 2px;
   background: var(--bg-glass);
   border-radius: var(--radius-full);
   z-index: var(--z-index-nav);
   opacity: 0;
   transition: opacity var(--duration-base) var(--ease-standard);
+}
+
+@media (width > 768px) {
+  .horizontal-progress {
+    bottom: 2rem;
+    width: 200px;
+  }
 }
 
 .horizontal-progress.is-active {
@@ -85,30 +100,6 @@ html.lenis body {
 .section {
   position: relative;
   overflow: hidden;
-}
-
-/* Parallax layers */
-.parallax-container {
-  position: relative;
-  overflow: hidden;
-}
-
-.parallax-layer {
-  position: absolute;
-  inset: 0;
-  will-change: transform;
-}
-
-.parallax-layer--back {
-  z-index: 1;
-}
-
-.parallax-layer--mid {
-  z-index: 2;
-}
-
-.parallax-layer--front {
-  z-index: 3;
 }
 
 /* Reveal animations */
@@ -208,27 +199,6 @@ html.lenis body {
 [data-scroll-to] {
 }
 
-/* ============================================
-   Mobile Optimizations
-   ============================================ */
-
-@media (width <= 768px) {
-  .horizontal-item {
-    width: 85vw;
-    padding: var(--row-padding-sm);
-  }
-
-  .horizontal-progress {
-    bottom: 1rem;
-    width: 150px;
-  }
-
-  /* Reduce animation complexity on mobile */
-  .parallax-layer {
-    transform: none !important;
-  }
-}
-
 /* Reduced motion preferences */
 @media (prefers-reduced-motion: reduce) {
   .lenis.lenis-smooth {
@@ -245,7 +215,4 @@ html.lenis body {
     clip-path: none;
   }
 
-  .parallax-layer {
-    transform: none !important;
-  }
 }

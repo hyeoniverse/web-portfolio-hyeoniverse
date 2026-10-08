@@ -44,16 +44,61 @@
 }
 
 .thumb {
-  position: relative;
-  /* 16:9 톤 — 컨테이너 height (~72~86 content 따라) 에 맞춰 stretch, width 만 고정.
-     Image fill + objectFit cover 가 비율 차이 자동 처리. */
-  width: 128px;
+  /* 작은 화면에서는 카드 전체를 덮는 배경이 되고, 글은 그 위(.body)에 흰 글자로 얹힌다 */
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
   flex-shrink: 0;
   overflow: hidden;
   background: var(--bg-tertiary);
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* 글이 읽히도록 아래쪽을 어둡게 */
+.thumb::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    color-mix(in oklch, var(--bg-black) 55%, transparent) 0%,
+    color-mix(in oklch, var(--bg-black) 25%, transparent) 60%,
+    color-mix(in oklch, var(--bg-black) 5%, transparent) 100%
+  );
+  z-index: 1;
+}
+
+.thumb::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  backdrop-filter: blur(0);
+  transition: backdrop-filter var(--duration-base) var(--ease-standard);
+  pointer-events: none;
+}
+
+.card:hover .thumb::before {
+  backdrop-filter: blur(10px);
+}
+
+@media (width > 768px) {
+  .thumb {
+    position: relative;
+    inset: auto;
+    z-index: auto;
+    /* 16:9 톤 — 컨테이너 height (~72~86 content 따라) 에 맞춰 stretch, width 만 고정.
+       Image fill + objectFit cover 가 비율 차이 자동 처리. */
+    width: 128px;
+  }
+
+  .thumb::after,
+  .thumb::before {
+    content: none;
+  }
 }
 
 .thumbImg {
@@ -71,7 +116,14 @@
 }
 
 .placeholder {
+  display: none;
   color: var(--text-muted);
+}
+
+@media (width > 768px) {
+  .placeholder {
+    display: block;
+  }
 }
 
 .body {
@@ -80,7 +132,16 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+  position: relative;
+  z-index: 2;
   padding: var(--spacing-12) var(--spacing-20);
+}
+
+@media (width > 768px) {
+  .body {
+    position: static;
+    z-index: auto;
+  }
 }
 
 .label {
@@ -89,10 +150,18 @@
   gap: var(--spacing-8);
   font: var(--font-code-xs);
   font-weight: var(--font-weight-medium);
-  color: var(--text-secondary);
+  color: var(--text-white);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   margin-bottom: var(--spacing-4);
+  opacity: 0.7;
+}
+
+@media (width > 768px) {
+  .label {
+    color: var(--text-secondary);
+    opacity: 1;
+  }
 }
 
 .arrow {
@@ -113,9 +182,10 @@
   transform: translateX(3px);
 }
 
-.title {  font: var(--font-headline-xs);
-
-  color: var(--text-primary);
+.title {
+  font: var(--font-headline-xs);
+  font-size: var(--font-size-body-md);
+  color: var(--text-white);
   line-height: var(--line-height-125);
   /* 1줄 표시라도 항상 2줄 만큼 height — 카드 사이 layout 안정. 긴 title 은 2줄 clamp + ellipsis */
   display: -webkit-box;
@@ -125,67 +195,18 @@
   min-height: 2lh;
 }
 
+@media (width > 768px) {
+  .title {
+    font: var(--font-headline-xs);
+    color: var(--text-primary);
+  }
+}
+
 .nav .title {
   transition: color var(--duration-base) var(--ease-standard);
 }
 
 .nav .card:hover .title {
   color: var(--text-accent);
-}
-
-@media (width <= 768px) {
-  .thumb {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    z-index: 0;
-  }
-
-  .thumb::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      to top,
-      color-mix(in oklch, var(--bg-black) 55%, transparent) 0%,
-      color-mix(in oklch, var(--bg-black) 25%, transparent) 60%,
-      color-mix(in oklch, var(--bg-black) 5%, transparent) 100%
-    );
-    z-index: 1;
-  }
-
-  .thumb::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    backdrop-filter: blur(0);
-    transition: backdrop-filter var(--duration-base) var(--ease-standard);
-    pointer-events: none;
-  }
-
-  .card:hover .thumb::before {
-    backdrop-filter: blur(10px);
-  }
-
-  .body {
-    position: relative;
-    z-index: 2;
-  }
-
-  .label {
-    color: var(--text-white);
-    opacity: 0.7;
-  }
-
-  .title {
-    font-size: var(--font-size-body-md);
-    color: var(--text-white);
-    -webkit-line-clamp: 2;
-  }
-
-  .placeholder {
-    display: none;
-  }
 }
 }

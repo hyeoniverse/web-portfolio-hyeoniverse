@@ -43,29 +43,29 @@
 
 /* ── Variant: section (일반 페이지 하단) ── */
 .section {
-  position: fixed;
+  position: relative;
   right: 0;
   bottom: 0;
   left: 0;
   z-index: var(--z-index-float);
-  padding: var(--spacing-20) var(--spacing-24);
-  pointer-events: none;
+  padding: var(--spacing-48) var(--m-lg) var(--spacing-32);
+  border-top: var(--border-width-1) solid var(--border-strong);
 }
 
-/* 1024px 이하에서 sidebar 가 main 아래로 stack 되므로 fixed footer 가 sidebar 콘텐츠를
-   덮어쓰지 않도록 normal flow 로 전환. (이전 768px 기준이라 769~1024 구간에서 겹쳤음) */
-@media (width <= 1024px), (height <= 700px) {
+@media (width > 480px) {
   .section {
-    position: relative;
     padding: var(--spacing-48) var(--spacing-24) var(--spacing-32);
-    border-top: var(--border-width-1) solid var(--border-strong);
-    pointer-events: auto;
   }
 }
 
-@media (width <= 480px) {
+/* 1024px 이하(또는 낮은 화면)에서는 sidebar 가 main 아래로 stack 되므로 normal flow 로 두고,
+   넓고 높은 화면에서만 fixed 로 띄운다. (이전 768px 기준이라 769~1024 구간에서 겹쳤음) */
+@media (width > 1024px) and (height > 700px) {
   .section {
-    padding: var(--spacing-48) var(--m-lg) var(--spacing-32);
+    position: fixed;
+    padding: var(--spacing-20) var(--spacing-24);
+    border-top: none;
+    pointer-events: none;
   }
 }
 
