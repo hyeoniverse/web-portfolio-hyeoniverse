@@ -10,12 +10,18 @@
   max-height: calc(100dvh - 140px);
   overflow-y: auto;
   overflow-x: hidden;
-  display: flex;
+  display: none;
   flex-direction: column;
   gap: var(--spacing-20);
   padding: var(--spacing-4) var(--spacing-12) var(--spacing-4) 0;
   border-right: var(--border-light);
   scrollbar-width: none;
+}
+/* 좁은 화면은 단일 컬럼 타임라인이라 인덱스를 숨긴다 */
+@media (width > 768px) {
+  .timelineIndex {
+    display: flex;
+  }
 }
 .timelineIndex::-webkit-scrollbar {
   display: none;
@@ -139,10 +145,4 @@
 
 @media (prefers-reduced-motion: reduce) {
   .timelineIndexMonths::before { animation: none; }
-}
-
-@media (width <= 768px) {
-  .timelineIndex {
-    display: none;
-  }
 }

@@ -6,11 +6,17 @@
   bottom: var(--spacing-24);
   left: var(--spacing-24);
   z-index: var(--z-index-float);
-  width: 300px;
+  width: 280px;
   border: var(--border-default);
   border-radius: var(--radius-surface);
   background: var(--bg-primary);
   overflow: hidden;
+}
+
+@media (width > 768px) {
+  .toast {
+    width: 300px;
+  }
 }
 
 .toastHidden {
@@ -139,10 +145,4 @@
 .toast .toastItem:hover .toastThumbImg,
 .toast .toastItem:hover .toastThumbPlaceholder {
   transform: scale(1.08);
-}
-
-@media (width <= 768px) {
-  .toast {
-    width: 280px;
-  }
 }
