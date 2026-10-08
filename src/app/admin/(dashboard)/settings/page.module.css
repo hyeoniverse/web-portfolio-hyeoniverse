@@ -387,14 +387,6 @@
   border-bottom: none;
 }
 
-/* 3.11-1 예외: ::-webkit-scrollbar 는 한 번 꾸미면 기본 스크롤바로 되돌릴 값이 없다 — 데스크탑 사이드바의
-   얇은 스크롤바(scrollbar-width 를 모르는 옛 Safari)를 살리려면 숨김을 좁은 화면에만 둔다 */
-@media (width <= 1024px) {
-  .sideNav::-webkit-scrollbar {
-    display: none;
-  }
-}
-
 /* 데스크탑 — 세로 sticky 사이드바 + 오른쪽 패널 */
 @media (width > 1024px) {
   .header {

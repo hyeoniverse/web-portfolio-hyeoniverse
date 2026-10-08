@@ -148,9 +148,15 @@
   width: 100%;
 }
 
-/* ── Preview Backdrop (mobile dismiss) ── */
+/* ── Preview Backdrop (mobile dismiss) ──
+   기본은 터치 · 좁은 화면의 가운데 모달 짝이다. 마우스가 있거나 넓은 화면이면 아래 media 에서 거둔다 */
 .previewBackdrop {
-  display: none;
+  display: block;
+  position: fixed;
+  inset: 0;
+  background: transparent;
+  backdrop-filter: blur(8px);
+  animation: backdropFadeIn var(--duration-fast) var(--ease-standard);
 }
 
 /* ── Hover Preview Tooltip ── */
@@ -161,7 +167,11 @@
   border-radius: var(--radius-surface);
   box-shadow: var(--shadow-overlay);
   overflow: hidden;
-  pointer-events: none;
+  /* 기본은 터치 · 좁은 화면의 가운데 모달 — 눌러서 연다. 마우스가 있거나 넓은 화면이면 아래 media 에서
+     커서 옆 자리(usePreviewTooltip 가 계산해 --preview-left · --preview-top 으로 넘긴다)로 옮긴다 */
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
   /* 좁은 화면 — 양옆 20px 남기고 최대 320px. 넓은 화면은 280px 고정(아래 media) */
   width: calc(100vw - var(--spacing-20) * 2);
   max-width: 320px;
@@ -312,25 +322,17 @@
   }
 }
 
-/* Touch devices at mobile width: centered modal style.
-   3.11-1 예외: 툴팁 위치(left·top)는 usePreviewTooltip 가 인라인으로 넣는다 — 가운데 모달로 바꾸려면 !important 로
-   눌러야 하고, 배경막도 그 모달과 한 짝이라 함께 둔다 */
-@media (width <= 768px) and (hover: none) {
+/* 마우스가 있거나 넓은 화면 — 커서를 따라가는 툴팁. 좌표는 훅이 변수로 넘기고, 쓸지는 여기서 정한다 */
+@media (width > 768px), (hover: hover) {
   .previewBackdrop {
-    display: block;
-    position: fixed;
-    inset: 0;
-    background: transparent;
-    backdrop-filter: blur(8px);
-    animation: backdropFadeIn var(--duration-fast) var(--ease-standard);
+    display: none;
   }
 
   .previewTooltip {
-    pointer-events: auto;
-    left: 50% !important;
-    top: 50% !important;
-    transform: translate(-50%, -50%);
-    animation: tooltipPopIn var(--duration-fast) var(--ease-standard);
+    left: var(--preview-left);
+    top: var(--preview-top);
+    transform: none;
+    pointer-events: none;
   }
 }
 
@@ -339,7 +341,3 @@
   to { opacity: 1; }
 }
 
-@keyframes tooltipPopIn {
-  from { opacity: 0; transform: translate(-50%, -50%) scale(0.95); }
-  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-}
