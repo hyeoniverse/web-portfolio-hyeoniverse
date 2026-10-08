@@ -2,9 +2,10 @@
 
 .layout {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: var(--spacing-32);
+  gap: var(--spacing-24);
   width: 100%;
   height: 100%;
 }
@@ -39,7 +40,7 @@
 .info {
   display: flex;
   flex-direction: column;
-  max-width: 30rem;
+  max-width: 100%;
 }
 
 .nameLabel {
@@ -98,7 +99,7 @@
   align-items: center;
   gap: var(--spacing-4);
   flex: 1;
-  padding: var(--card-padding-sm);
+  padding: var(--spacing-12) var(--spacing-8);
   border: none;
   background: transparent;
   text-align: center;
@@ -177,8 +178,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 28px;
+  width: var(--float-button-size-md);
+  height: var(--control-height-xs);
   /* 귀가 위로 뻗으므로 얼굴을 조금 내려 별 안에 담는다 */
   margin-top: var(--spacing-20);
   color: var(--text-primary);
@@ -188,6 +189,11 @@
 }
 
 /* Bunny ears — left */
+.exprFace svg {
+  width: var(--control-height-xl);
+  height: 24px;
+}
+
 .exprFace::before,
 .exprFace::after {
   content: "";
@@ -233,33 +239,30 @@
 }
 
 /* ── Responsive ── */
-@media (width <= 768px) {
-  .layout {
-    flex-direction: column;
-    gap: var(--spacing-24);
-  }
-
-  .preview {
-    width: min(60vw, 260px);
-  }
-
-  .info {
-    max-width: 100%;
-  }
-}
-
-@media (width <= 480px) {
+@media (width > 480px) {
   .exprCard {
-    padding: var(--spacing-12) var(--spacing-8);
+    padding: var(--card-padding-sm);
   }
 
   .exprFace {
-    width: var(--float-button-size-md);
-    height: var(--control-height-xs);
+    width: 40px;
+    height: 28px;
   }
 
+  /* 얼굴 그림의 원래 크기(svg width · height 속성) */
   .exprFace svg {
-    width: var(--control-height-xl);
-    height: 24px;
+    width: 48px;
+    height: 32px;
+  }
+}
+
+@media (width > 768px) {
+  .layout {
+    flex-direction: row;
+    gap: var(--spacing-32);
+  }
+
+  .info {
+    max-width: 30rem;
   }
 }

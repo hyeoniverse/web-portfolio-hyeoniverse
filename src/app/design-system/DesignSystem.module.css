@@ -4,7 +4,7 @@
 }
 
 .main {
-  padding: var(--spacing-128) 8vw var(--spacing-96);
+  padding: 21vw var(--m-lg) 12.5vw;
 }
 
 /* SSR FOUC 방지 — hydration 전까지 콘텐츠 숨김 */
@@ -157,7 +157,7 @@
 /* Color Grid */
 .colorGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
   gap: var(--spacing-8);
 }
 
@@ -215,16 +215,15 @@
 
 .typoItem {
   display: flex;
+  flex-direction: column;
   align-items: baseline;
-  gap: var(--spacing-16);
+  gap: var(--spacing-4);
 }
 
 .typoLabel {
   flex-shrink: 0;
-  width: 80px;
   font: var(--font-code-sm);
   color: var(--text-muted);
-  text-align: right;
 }
 
 /* Spacing showcase */
@@ -338,7 +337,7 @@
 /* Motion showcase */
 .motionGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: 1fr;
   gap: var(--spacing-16);
 }
 
@@ -786,39 +785,39 @@
 }
 
 /* Responsive */
-@media (width > 1280px) {
-  .main {
-    padding-left: max(8vw, 180px);
-  }
-}
-
-@media (width <= 768px) {
+@media (width > 480px) {
   .main {
     padding: 6.25rem 6vw var(--spacing-96);
   }
+}
+
+@media (width > 768px) {
+  .main {
+    padding: var(--spacing-128) 8vw var(--spacing-96);
+  }
 
   .typoItem {
-    flex-direction: column;
-    gap: var(--spacing-4);
+    flex-direction: row;
+    gap: var(--spacing-16);
   }
 
   .typoLabel {
-    width: auto;
-    text-align: left;
+    width: 80px;
+    text-align: right;
   }
 
   .colorGrid {
-    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
   }
 
   .motionGrid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   }
 }
 
-@media (width <= 480px) {
+@media (width > 1280px) {
   .main {
-    padding: 21vw var(--m-lg) 12.5vw;
+    padding-left: max(8vw, 180px);
   }
 }
 
