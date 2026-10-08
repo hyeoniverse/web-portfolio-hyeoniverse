@@ -27,84 +27,70 @@
 .heartWaveMid   { opacity: 0.7; }
 .heartWaveFront { opacity: 0.95; }
 
-/* filled — Heart 전체가 fully filled (stable state) */
-.heartIcon[data-state="filled"] .heartWaveBack {
-  d: path("M-2 -4 C 6 -8 18 0 30 -4 L 30 28 L -2 28 Z");
-}
-.heartIcon[data-state="filled"] .heartWaveMid {
-  d: path("M-2 -4 C 8 0 16 -8 30 -4 L 30 28 L -2 28 Z");
-}
-.heartIcon[data-state="filled"] .heartWaveFront {
-  d: path("M-2 -4 C 6 0 18 -8 30 -4 L 30 28 L -2 28 Z");
-}
+/* ── 물결 위치 — 수면 높이(translateY)와 흐름(translateX)만 바꾼다(모양은 TSX 의 WAVE 고정).
+   하트는 y 2~21.35, 물결 윗변 출렁임 ±2.5 라 26 이면 완전히 아래, -4 면 완전히 덮는다.
+   층마다 옆 위치를 반 주기씩 어긋나게 둬서 세 겹 물결이 겹쳐 보인다. 끝 위치는 시작에서 두 주기(24) 흐른 자리 —
+   채워진 상태(filled)가 차오름의 마지막 프레임과 같아 상태가 바뀌어도 튀지 않는다 */
+.heartWaveBack  { transform: translate(0px, 26px); }
+.heartWaveMid   { transform: translate(-6px, 26px); }
+.heartWaveFront { transform: translate(-3px, 26px); }
 
-/* filling — 차오름 + 출렁임 */
+.heartIcon[data-state="filled"] .heartWaveBack  { transform: translate(-24px, -4px); }
+.heartIcon[data-state="filled"] .heartWaveMid   { transform: translate(-30px, -4px); }
+.heartIcon[data-state="filled"] .heartWaveFront { transform: translate(-27px, -4px); }
+
+/* filling — 차오름 + 흐름 */
 .heartIcon[data-state="filling"] .heartWaveBack {
   --_heartFillBack-duration: 1.8s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   animation: heartFillBack var(--_heartFillBack-duration) var(--ease-standard) forwards;
 }
 .heartIcon[data-state="filling"] .heartWaveMid {
   --_heartFillMid-duration: 1.6s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
-  animation: heartFillMid var(--_heartFillMid-duration) var(--ease-standard) 0.1s forwards;
+  animation: heartFillMid var(--_heartFillMid-duration) var(--ease-standard) 0.1s both;
 }
 .heartIcon[data-state="filling"] .heartWaveFront {
   --_heartFillFront-duration: 1.5s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
-  animation: heartFillFront var(--_heartFillFront-duration) var(--ease-standard) 0.2s forwards;
+  animation: heartFillFront var(--_heartFillFront-duration) var(--ease-standard) 0.2s both;
 }
 
-/* draining — 가라앉음 (좋아요 취소). 시작점은 fully filled */
+/* draining — 가라앉음 (좋아요 취소). 시작점은 가득 찬 자리 */
 .heartIcon[data-state="draining"] .heartWaveBack {
   --_heartDrainBack-duration: 1.4s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   animation: heartDrainBack var(--_heartDrainBack-duration) var(--ease-standard) forwards;
 }
 .heartIcon[data-state="draining"] .heartWaveMid {
   --_heartDrainMid-duration: 1.5s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
-  animation: heartDrainMid var(--_heartDrainMid-duration) var(--ease-standard) 0.05s forwards;
+  animation: heartDrainMid var(--_heartDrainMid-duration) var(--ease-standard) 0.05s both;
 }
 .heartIcon[data-state="draining"] .heartWaveFront {
   --_heartDrainFront-duration: 1.6s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
-  animation: heartDrainFront var(--_heartDrainFront-duration) var(--ease-standard) 0.1s forwards;
+  animation: heartDrainFront var(--_heartDrainFront-duration) var(--ease-standard) 0.1s both;
 }
 
-/* ── 차오름 keyframes — control point 가 step 마다 위로 + peak/valley phase 토글 ──
-   마지막 frame 은 [data-state="filled"] 의 stable d 와 동일 → state 전환 시 jump 없음 */
+/* ── 차오름 · 가라앉음 keyframes — 수면이 오르내리는 동안 두 주기 흐른다 ── */
 @keyframes heartFillBack {
-  0%   { d: path("M-2 28 C 6 28 18 28 30 28 L 30 28 L -2 28 Z"); }
-  20%  { d: path("M-2 22 C 6 18 18 26 30 22 L 30 28 L -2 28 Z"); }
-  40%  { d: path("M-2 16 C 6 22 18 10 30 16 L 30 28 L -2 28 Z"); }
-  60%  { d: path("M-2 10 C 6 4 18 16 30 10 L 30 28 L -2 28 Z"); }
-  80%  { d: path("M-2 2 C 6 8 18 -4 30 2 L 30 28 L -2 28 Z"); }
-  100% { d: path("M-2 -4 C 6 -8 18 0 30 -4 L 30 28 L -2 28 Z"); }
+  from { transform: translate(0px, 26px); }
+  to   { transform: translate(-24px, -4px); }
 }
 @keyframes heartFillMid {
-  0%   { d: path("M-2 28 C 8 28 16 28 30 28 L 30 28 L -2 28 Z"); }
-  20%  { d: path("M-2 24 C 8 28 16 20 30 24 L 30 28 L -2 28 Z"); }
-  40%  { d: path("M-2 18 C 8 12 16 24 30 18 L 30 28 L -2 28 Z"); }
-  60%  { d: path("M-2 10 C 8 16 16 4 30 10 L 30 28 L -2 28 Z"); }
-  80%  { d: path("M-2 2 C 8 -4 16 8 30 2 L 30 28 L -2 28 Z"); }
-  100% { d: path("M-2 -4 C 8 0 16 -8 30 -4 L 30 28 L -2 28 Z"); }
+  from { transform: translate(-6px, 26px); }
+  to   { transform: translate(-30px, -4px); }
 }
 @keyframes heartFillFront {
-  0%   { d: path("M-2 28 C 6 28 18 28 30 28 L 30 28 L -2 28 Z"); }
-  20%  { d: path("M-2 26 C 6 22 18 28 30 24 L 30 28 L -2 28 Z"); }
-  40%  { d: path("M-2 20 C 6 26 18 14 30 20 L 30 28 L -2 28 Z"); }
-  60%  { d: path("M-2 12 C 6 6 18 18 30 12 L 30 28 L -2 28 Z"); }
-  80%  { d: path("M-2 4 C 6 10 18 -2 30 4 L 30 28 L -2 28 Z"); }
-  100% { d: path("M-2 -4 C 6 0 18 -8 30 -4 L 30 28 L -2 28 Z"); }
+  from { transform: translate(-3px, 26px); }
+  to   { transform: translate(-27px, -4px); }
 }
-
-/* ── 가라앉음 keyframes ── */
 @keyframes heartDrainBack {
-  0%   { d: path("M-2 -4 C 6 -8 18 0 30 -4 L 30 28 L -2 28 Z"); }
-  100% { d: path("M-2 28 C 6 28 18 28 30 28 L 30 28 L -2 28 Z"); }
+  from { transform: translate(-24px, -4px); }
+  to   { transform: translate(0px, 26px); }
 }
 @keyframes heartDrainMid {
-  0%   { d: path("M-2 -4 C 8 0 16 -8 30 -4 L 30 28 L -2 28 Z"); }
-  100% { d: path("M-2 28 C 8 28 16 28 30 28 L 30 28 L -2 28 Z"); }
+  from { transform: translate(-30px, -4px); }
+  to   { transform: translate(-6px, 26px); }
 }
 @keyframes heartDrainFront {
-  0%   { d: path("M-2 -4 C 6 0 18 -8 30 -4 L 30 28 L -2 28 Z"); }
-  100% { d: path("M-2 28 C 6 28 18 28 30 28 L 30 28 L -2 28 Z"); }
+  from { transform: translate(-27px, -4px); }
+  to   { transform: translate(-3px, 26px); }
 }
 
 /* ── Heart burst — 채우기 완료 시 1회 위쪽으로 mini 하트 방울 ── */
