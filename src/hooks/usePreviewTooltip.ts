@@ -58,7 +58,11 @@ export function usePreviewTooltip<T extends HasId>(editBasePath: string, options
     const w = el?.offsetWidth || 280;
     const h = el?.offsetHeight || (checkImage(item) ? 260 : 120);
     const off = 16;
-    const left = x + off + w <= window.innerWidth - 8 ? x + off : Math.max(8, x - off - w);
+    /* 오른쪽 벽 — 화면 끝, 또는 관리 단추 열(수정 · 삭제)의 왼쪽 끝. 커서가 표 가운데만 와도 280px 툴팁이
+       단추 열까지 닿아 단추를 덮었다. 넘으면 커서 왼쪽에 띄운다 */
+    const actions = document.querySelector("[data-row-actions]")?.getBoundingClientRect();
+    const wall = actions && x < actions.left ? actions.left - 8 : window.innerWidth - 8;
+    const left = x + off + w <= wall ? x + off : Math.max(8, x - off - w);
     const top = y - off - h >= 8 ? y - off - h : Math.min(y + off, window.innerHeight - h - 8);
     return { top, left };
   }, [checkImage]);
@@ -121,19 +125,35 @@ export function usePreviewTooltip<T extends HasId>(editBasePath: string, options
     if (!isOpen || !canHover.current) return;
     const el = document.querySelector<HTMLElement>("[data-preview-tooltip]");
     if (!el) return;
-    const cur = { x: el.offsetLeft, y: el.offsetTop, vx: 0, vy: 0 };
+    /* 자리는 left/top 이 아니라 transform 으로 옮긴다. 툴팁은 자기 층(will-change: transform)에 있어
+       transform 만 바꾸면 아래 표를 다시 그리지 않는다 — left/top 을 바꾸면 Safari 가 지나간 자리를 다시 그리다
+       표의 선이 깜빡이고, 행의 단추 윗부분이 잘린 채 남았다.
+       기준점(base)은 툴팁이 처음 그려진 left/top(React 가 정한 값)이다. 지금 옮겨 둔 양은 요소에 적어 둔다 —
+       사라지는 중에 다시 열리면 같은 요소를 이어 받아 거기서부터 움직인다 */
+    const base = { x: el.offsetLeft, y: el.offsetTop };
+    const moved = { x: Number(el.dataset.tx) || 0, y: Number(el.dataset.ty) || 0 };
+    const cur = { x: base.x + moved.x, y: base.y + moved.y, vx: 0, vy: 0 };
     const target = { x: cur.x, y: cur.y };
     let last = performance.now();
     let raf = 0;
     const onMove = (e: MouseEvent) => {
       const item = itemRef.current;
       if (!item) return;
+      /* 관리 단추(수정 · 삭제 등) 위에서는 숨긴다 — 커서를 따라온 툴팁이 단추를 덮었다
+         (아래쪽 행에서는 툴팁이 위 · 왼쪽으로 넘어가 단추 쪽에 겹친다). 상태를 바꾸지 않고 표식만 달아
+         같은 행 안에서 다시 내용 쪽으로 오면 바로 돌아온다 */
+      const overActions = !!(e.target as Element | null)?.closest?.("[data-row-actions]");
+      if (overActions) el.dataset.suppressed = "";
+      else delete el.dataset.suppressed;
       const { top, left } = calcPointerPos(e.clientX, e.clientY, item, el);
       target.x = left;
       target.y = top;
       /* 커서 쪽 모서리에서 커지고 줄어들게 — 커서 오른쪽 위에 떠 있으면 왼쪽 아래가 기준점 */
       el.style.transformOrigin = `${left > e.clientX ? "left" : "right"} ${top < e.clientY ? "bottom" : "top"}`;
+      if (!raf) { last = performance.now(); raf = requestAnimationFrame(tick); }
     };
+    /* 다 따라붙으면 멈춘다 — 커서가 가만히 있어도 매 프레임 자리를 다시 쓰면 그 아래 표가 계속 다시 그려져
+       Safari 에서 표의 1px 선이 굵어졌다 얇아졌다 했다. 자리도 정수 px 로 둔다(소수 px 는 선을 번지게 그린다) */
     const tick = (now: number) => {
       const dt = Math.min(0.032, (now - last) / 1000);
       last = now;
@@ -141,15 +161,22 @@ export function usePreviewTooltip<T extends HasId>(editBasePath: string, options
       cur.vy += (SPRING.k * (target.y - cur.y) - SPRING.c * cur.vy) * dt;
       cur.x += cur.vx * dt;
       cur.y += cur.vy * dt;
-      el.style.left = `${cur.x}px`;
-      el.style.top = `${cur.y}px`;
-      raf = requestAnimationFrame(tick);
+      const settled = Math.abs(target.x - cur.x) < 0.5 && Math.abs(target.y - cur.y) < 0.5
+        && Math.abs(cur.vx) < 1 && Math.abs(cur.vy) < 1;
+      if (settled) { cur.x = target.x; cur.y = target.y; cur.vx = 0; cur.vy = 0; }
+      const tx = Math.round(cur.x - base.x);
+      const ty = Math.round(cur.y - base.y);
+      el.dataset.tx = String(tx);
+      el.dataset.ty = String(ty);
+      el.style.transform = `translate3d(${tx}px, ${ty}px, 0)`;
+      raf = settled ? 0 : requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
     window.addEventListener("mousemove", onMove, { passive: true });
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener("mousemove", onMove);
+      delete el.dataset.suppressed;
     };
   }, [isOpen, calcPointerPos]);
 
