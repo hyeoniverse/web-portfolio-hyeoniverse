@@ -1,12 +1,12 @@
 "use client";
 
-import { ImageIcon } from "@/components/icons";
+import { IMAGE_FALLBACK_SRC } from "@/lib/imageFallback";
+import { usePopoverRef } from "@/hooks/useTopLayer";
 import MediaThumb from "@/components/admin/MediaThumb";
 import { adminShellStyles as shell } from "@/components/admin/AdminListShell";
 import { formatPostTitle } from "@/utils/post";
 import type { Post } from "@/types/post";
 import { useLanguage } from "@/providers/LanguageProvider";
-import { usePopoverRef } from "@/hooks/useTopLayer";
 
 /* ── Isolated tooltip to prevent parent re-renders from reaching AdminTable ── */
 export default function PreviewTooltip({
@@ -46,19 +46,14 @@ export default function PreviewTooltip({
         {/* 행을 옮기면 같은 툴팁 안에서 내용만 바뀐다 — 바뀐 내용은 살짝 번지듯 들어온다 */}
         <div key={post.id} className={shell.previewSwap}>
         <div className={shell.previewImage}>
-          {post.cover_image && !imgError ? (
-            <MediaThumb
-              src={post.cover_image}
-              width={280}
-              height={140}
-              className={shell.previewImg}
-              onError={onImgError}
-            />
-          ) : (
-            <div className={shell.previewPlaceholder}>
-              <ImageIcon size={32} strokeWidth={1.5} />
-            </div>
-          )}
+          {/* 커버가 없거나 깨지면 공용 대체 이미지(lib/imageFallback) — 표의 썸네일과 같은 그림 */}
+          <MediaThumb
+            src={post.cover_image && !imgError ? post.cover_image : IMAGE_FALLBACK_SRC}
+            width={280}
+            height={140}
+            className={shell.previewImg}
+            onError={onImgError}
+          />
         </div>
         <div className={shell.previewBody}>
           <p className={shell.previewTitle}>{formatPostTitle(post)}</p>

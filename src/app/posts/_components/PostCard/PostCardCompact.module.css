@@ -188,10 +188,13 @@
   height: 11px;
 }
 
-/* 3.11-1 예외: 메타 줄 통계 칩의 넓은 화면 display 는 칩 컴포넌트가 정한다 — 480 이하만 숨기고
-   2번째 줄(compactStatsMobile) 로 옮긴다. 칩 CSS 가 다른 모듈이라 (0,2,0) 필요 */
-@media (width <= 480px) {
-  .compactMetaStat.compactMetaStat {
-    display: none;
+/* 메타 줄의 통계 칩 — 좁은 화면(480 이하)에선 2번째 줄(compactStatsMobile)에 있어 숨기고, 넓은 화면에서 줄에 낀다.
+   칩 자신의 display 를 건드리지 않게 감싸개만 켜고 끈다(contents: 감싸개 상자 없이 칩이 메타 줄의 항목이 된다) */
+.compactMetaStats {
+  display: none;
+}
+@media (width > 480px) {
+  .compactMetaStats {
+    display: contents;
   }
 }
