@@ -71,8 +71,10 @@ export default function PostCardCompact({
         <PostCardAuthor author={author} />
         <span className={styles.compactDate}>{date}</span>
         <span className={styles.compactRead}>{readTime} {t("postDetail.minRead")}</span>
-        <StatItem kind="views" value={post.view_count ?? 0} className={styles.compactMetaStat} />
-        <StatItem kind="likes" value={post.like_count ?? 0} className={styles.compactMetaStat} />
+        <span className={styles.compactMetaStats}>
+          <StatItem kind="views" value={post.view_count ?? 0} />
+          <StatItem kind="likes" value={post.like_count ?? 0} />
+        </span>
       </div>
       {/* 모바일 전용 2번째 줄 — grid 2×2 (col1: 카테고리·hot·lang / col2: 조회·좋아요, 1줄 날짜와 같은 열).
           데스크톱은 둘 다 display:none. */}
