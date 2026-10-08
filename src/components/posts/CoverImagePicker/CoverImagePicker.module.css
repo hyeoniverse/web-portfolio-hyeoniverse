@@ -231,7 +231,7 @@
 /* ── Preset Grid (gap·padding 없이 picker 외곽과 flush) ── */
 .presetGrid {
   display: grid;
-  grid-template-columns: var(--grid-columns-4);
+  grid-template-columns: var(--grid-columns-3);
   gap: 0;
 }
 
@@ -246,8 +246,8 @@
   position: relative;
 }
 
-/* 4-col 마지막 열은 우측 border 제거 */
-.presetGrid .presetItem:nth-child(4n) {
+/* 좁은 화면은 3열 — 마지막 열(3n) 우측 border 제거. 넓은 화면 4열은 아래 media */
+.presetGrid .presetItem:nth-child(3n) {
   border-right: none;
 }
 
@@ -400,10 +400,10 @@
   pointer-events: none;
 }
 
-/* ── Unsplash Grid (preset 과 동일 — 4-col, 1200:630 aspect, 같은 오버레이) ── */
+/* ── Unsplash Grid (preset 과 동일 — 넓은 화면 4-col, 1200:630 aspect, 같은 오버레이) ── */
 .unsplashGrid {
   display: grid;
-  grid-template-columns: var(--grid-columns-4);
+  grid-template-columns: var(--grid-columns-2);
   gap: 0;
 }
 
@@ -417,8 +417,8 @@
   position: relative;
 }
 
-/* 4-col 마지막 열 우측 border 제거 */
-.unsplashGrid .unsplashItem:nth-child(4n) {
+/* 좁은 화면은 2열 — 마지막 열(2n) 우측 border 제거. 넓은 화면 4열은 아래 media */
+.unsplashGrid .unsplashItem:nth-child(2n) {
   border-right: none;
 }
 
@@ -840,32 +840,20 @@
   color: var(--text-accent);
 }
 
-@media (width <= 768px) {
-
-  /* preset / unsplash grid — 모바일에선 3열 (이전엔 2열) */
-  .presetGrid {
-    grid-template-columns: var(--grid-columns-3);
-  }
-
+/* 넓은 화면 — preset / unsplash 모두 4열. 우측 열(4n)만 우측 border 제거 */
+@media (width > 768px) {
+  .presetGrid,
   .unsplashGrid {
-    grid-template-columns: var(--grid-columns-2);
+    grid-template-columns: var(--grid-columns-4);
   }
 
-  /* 3-col 이라 nth-child(3n) 가 우측 열. 우측 border 제거 (4n PC 룰 무력화) */
-  .presetGrid .presetItem {
-    border-right: var(--border-light);
-  }
-
-  .presetGrid .presetItem:nth-child(3n) {
-    border-right: none;
-  }
-
-  /* unsplash 는 여전히 2열 */
-  .unsplashGrid .unsplashItem {
-    border-right: var(--border-light);
-  }
-
+  .presetGrid .presetItem:nth-child(3n),
   .unsplashGrid .unsplashItem:nth-child(2n) {
+    border-right: var(--border-light);
+  }
+
+  .presetGrid .presetItem:nth-child(4n),
+  .unsplashGrid .unsplashItem:nth-child(4n) {
     border-right: none;
   }
 }

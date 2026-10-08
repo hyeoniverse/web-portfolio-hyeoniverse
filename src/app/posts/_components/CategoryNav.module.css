@@ -48,17 +48,26 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-4);
+  height: var(--control-height-lg);
   min-height: var(--filter-row-h);
-  padding: 0 var(--spacing-16);
+  padding: 0 var(--control-padding-inline-lg);
   border: none;
   border-radius: 0;
   background: transparent;
-  font: var(--font-body-md);
+  font: var(--font-body-sm);
   /* difference 블렌드 — 흰색이라야 배경 위에서 깔끔히 반전. 비활성도 충분히 진하게(구분은 밑줄/굵기로) */
   color: var(--text-white);
   opacity: 0.78;
   white-space: nowrap;
   flex-shrink: 0;
+}
+
+@media (width > 768px) {
+  .btn {
+    height: auto;
+    padding: 0 var(--spacing-16);
+    font-size: var(--font-size-body-md);
+  }
 }
 
 .nav .btn:hover {
@@ -126,16 +135,6 @@
 /* expanded hover — 텍스트/배경 그대로, 살짝만 강조 */
 .wrapper .moreBtnOpen:hover {
   opacity: 0.85;
-}
-
-@media (width <= 768px) {
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    height: var(--control-height-lg);
-    padding: 0 var(--control-padding-inline-lg);
-    font-size: var(--font-size-body-sm);
-  }
 }
 
 /* ── 소분류 행 (2단계 대분류 선택 시 펼쳐짐) ── */

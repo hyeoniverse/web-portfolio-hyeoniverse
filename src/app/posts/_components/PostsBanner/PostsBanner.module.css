@@ -47,8 +47,10 @@
 
 .splitSlide {
   display: flex;
+  flex-direction: column;
   gap: 0;
-  height: var(--_split-h);
+  height: auto;
+  min-height: 320px;
   width: 100%;
   border: var(--border-light);
   border-radius: var(--radius-surface);
@@ -57,7 +59,8 @@
 
 .splitImageTrack {
   position: relative;
-  flex: 1;
+  flex: none;
+  height: 200px;
   overflow: hidden;
 }
 
@@ -97,11 +100,11 @@
 }
 
 .splitContent {
-  flex: 0 0 40%;
+  flex: none;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: var(--spacing-32) var(--spacing-48);
+  padding: var(--spacing-20);
   background: var(--bg-primary);
 }
 
@@ -138,7 +141,7 @@
   margin-top: var(--spacing-8);
   font: var(--font-body-sm);
   color: var(--text-tertiary);
-  display: -webkit-box;
+  display: none;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
@@ -214,9 +217,9 @@
   position: absolute;
   top: 0;
   left: 50%;
-  width: 70%;
+  width: 85%;
   height: 100%;
-  margin-left: -35%;
+  margin-left: -42.5%;
   border-radius: var(--radius-surface);
   overflow: hidden;
 }
@@ -377,6 +380,7 @@
 
 .tickerCategory {
   flex-shrink: 0;
+  display: none;
   font: var(--font-body-xs);
   font-weight: var(--font-weight-medium);
   color: var(--text-accent);
@@ -395,38 +399,35 @@
 }
 
 /* ==========================================================================
-   Responsive
+   Responsive — 기본은 좁은 화면(split 세로 쌓기 · 좁은 카드 · 티커 카테고리 숨김), 넓은 화면 값은 아래
    ========================================================================== */
-@media (width <= 768px) {
-  /* Split → stack vertically */
+@media (width > 768px) {
   .splitSlide {
-    flex-direction: column;
-    height: auto;
-    min-height: 320px;
+    flex-direction: row;
+    height: var(--_split-h);
+    min-height: auto;
   }
 
   .splitImageTrack {
-    height: 200px;
-    flex: none;
+    height: auto;
+    flex: 1;
   }
 
   .splitContent {
-    flex: none;
-    padding: var(--spacing-20);
+    flex: 0 0 40%;
+    padding: var(--spacing-32) var(--spacing-48);
   }
 
   .splitExcerpt {
-    display: none;
+    display: -webkit-box;
   }
 
-  /* Cards → narrower */
   .card {
-    width: 85%;
-    margin-left: -42.5%;
+    width: 70%;
+    margin-left: -35%;
   }
 
-  /* Ticker */
   .tickerCategory {
-    display: none;
+    display: inline;
   }
 }

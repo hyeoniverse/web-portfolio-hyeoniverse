@@ -100,11 +100,11 @@
 .workRowTitle {
   flex: 0 1 auto;
   min-width: 0;
-  font: var(--font-headline-xl);
+  font: var(--font-headline-md);
   line-height: 1.1;
   color: var(--text-primary);
   letter-spacing: -0.01em;
-  white-space: nowrap;
+  white-space: normal;
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -115,6 +115,7 @@
   color: var(--text-accent);
 }
 .workRowSubtitle {
+  display: none; /* 좁은 화면은 부제 숨기고 제목을 줄여 줄바꿈 허용 */
   flex: 1 1 auto;
   min-width: 0;
   font: var(--font-body-md);
@@ -123,6 +124,17 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+@media (width > 768px) {
+  .workRowSubtitle {
+    display: inline;
+  }
+  .workRowTitle {
+    font-size: var(--font-size-headline-xl);
+    white-space: nowrap;
+  }
+}
+
 .workRowYear {
   flex: 0 0 auto;
   margin-left: auto;
@@ -160,14 +172,4 @@
   transition:
     opacity var(--duration-base) var(--ease-standard) var(--duration-fast),
     transform var(--duration-base) var(--ease-enter) var(--duration-fast);
-}
-
-@media (width <= 768px) {
-  .workRowSubtitle {
-    display: none;
-  }
-  .workRowTitle {
-    font-size: var(--font-size-headline-md);
-    white-space: normal;
-  }
 }

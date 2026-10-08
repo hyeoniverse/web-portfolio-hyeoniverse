@@ -36,14 +36,21 @@
   align-items: stretch;
   text-decoration: none;
   color: inherit;
-  min-width: 380px;
-  max-width: 480px;
+  min-width: 300px;
+  max-width: 340px;
   /* card height 고정 → image stretch + 1:1 의 cyclic 회피. body content (title + meta + excerpt 2-line + date + padding) 가 안에 fit. */
   height: 124px;
   flex-shrink: 0;
   scroll-snap-align: start;
   cursor: pointer;
   border-right: var(--border-light);
+}
+
+@media (width > 768px) {
+  .relatedCard {
+    min-width: 380px;
+    max-width: 480px;
+  }
 }
 
 .relatedCardImage {
@@ -106,8 +113,8 @@
   letter-spacing: 0.08em;
 }
 
-.relatedCardTitle {  font: var(--font-headline-xs);
-
+.relatedCardTitle {
+  font: var(--font-headline-xs);
   color: var(--text-primary);
   line-height: var(--line-height-125);
   letter-spacing: -0.01em;
@@ -141,12 +148,4 @@
 
 .relatedSection .relatedCard:hover .relatedCardPlaceholder {
   transform: translate(-50%, -50%) scale(1.08);
-}
-
-/* ── Responsive ── */
-@media (width <= 768px) {
-  .relatedCard {
-    min-width: 300px;
-    max-width: 340px;
-  }
 }

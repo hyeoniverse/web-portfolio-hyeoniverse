@@ -21,11 +21,12 @@
   color: var(--text-primary);
 }
 
-/* 헤더 — 표지 + 텍스트 (넓으면 나란히, 좁으면 세로 스택) */
+/* 헤더 — 표지 + 텍스트 (좁으면 세로 스택, 넓으면 나란히) */
 .hero {
   display: flex;
+  flex-direction: column;
   align-items: flex-start;
-  gap: var(--spacing-32);
+  gap: var(--spacing-20);
   padding-bottom: var(--spacing-24);
   border-bottom: var(--border-light);
 }
@@ -33,10 +34,23 @@
 .heroCover {
   position: relative;
   flex-shrink: 0;
-  width: 200px;
+  width: 100%;
+  max-width: 280px;
   aspect-ratio: 1 / 1;
   overflow: hidden;
   background: var(--bg-tertiary);
+}
+
+@media (width > 768px) {
+  .hero {
+    flex-direction: row;
+    gap: var(--spacing-32);
+  }
+
+  .heroCover {
+    width: 200px;
+    max-width: none;
+  }
 }
 .heroCoverImg {
   object-fit: cover;
@@ -93,8 +107,14 @@
 
 .episode {
   display: flex;
-  gap: var(--spacing-16);
+  gap: var(--spacing-12);
   border-bottom: var(--border-light);
+}
+
+@media (width > 768px) {
+  .episode {
+    gap: var(--spacing-16);
+  }
 }
 
 .epNum {
@@ -112,17 +132,23 @@
   flex: 1;
   min-width: 0;
   display: flex;
-  gap: var(--spacing-20);
+  gap: var(--spacing-16);
   align-items: flex-start;
   padding: var(--spacing-20) 0;
   text-decoration: none;
   color: inherit;
 }
 
+@media (width > 768px) {
+  .epLink {
+    gap: var(--spacing-20);
+  }
+}
+
 .epThumb {
   position: relative;
   flex-shrink: 0;
-  width: 160px;
+  width: 96px;
   aspect-ratio: 16 / 10;
   overflow: hidden;
   display: flex;
@@ -130,6 +156,13 @@
   justify-content: center;
   background: var(--bg-tertiary);
 }
+
+@media (width > 768px) {
+  .epThumb {
+    width: 160px;
+  }
+}
+
 .epThumbImg {
   object-fit: cover;
   transition: transform var(--duration-base) var(--ease-standard);
@@ -160,8 +193,8 @@
   color: var(--text-tertiary);
 }
 
-.epTitle {  font: var(--font-headline-xs);
-
+.epTitle {
+  font: var(--font-headline-xs);
   line-height: var(--line-height-125);
   letter-spacing: -0.01em;
   color: var(--text-primary);
@@ -179,9 +212,15 @@
   font: var(--font-body-sm);
   color: var(--text-tertiary);
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+@media (width > 768px) {
+  .epExcerpt {
+    -webkit-line-clamp: 2;
+  }
 }
 
 .epMeta {
@@ -206,27 +245,4 @@
   text-align: center;
   font: var(--font-body-sm);
   color: var(--text-tertiary);
-}
-
-@media (width <= 768px) {
-  .hero {
-    flex-direction: column;
-    gap: var(--spacing-20);
-  }
-  .heroCover {
-    width: 100%;
-    max-width: 280px;
-  }
-  .episode {
-    gap: var(--spacing-12);
-  }
-  .epLink {
-    gap: var(--spacing-16);
-  }
-  .epThumb {
-    width: 96px;
-  }
-  .epExcerpt {
-    -webkit-line-clamp: 1;
-  }
 }
