@@ -1599,11 +1599,15 @@
   Responsive
   ========================================================================== */
 
-/* Get in Touch 는 작은 화면에서 숨긴다(3.11-1 예외) — 보일 때의 display 는 Button 컴포넌트가 정해서,
-   넓은 화면 쪽으로 옮기면 Button 의 값을 여기 다시 적어야 한다 */
-@media (width <= 768px) {
+/* Get in Touch 는 작은 화면에서 숨긴다. 보일 때의 display 는 Button 컴포넌트(@layer components)가 정하므로
+   넓은 화면에서는 revert-layer 로 그 층의 값에 돌려준다 — Button 의 값을 여기 다시 적지 않는다 */
+.contactBtn {
+  display: none;
+}
+
+@media (width > 768px) {
   .contactBtn {
-    display: none;
+    display: revert-layer;
   }
 }
 
