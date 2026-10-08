@@ -752,3 +752,32 @@ Material `@material/web` 2.5, Primer primitives. 숫자는 같은 날 다시 셌
   - 글자 크기는 되돌림이 `font-size` 선언을 늘리지 않게 했다. 작은 화면 크기의 `font` 묶음이 따로 있으면 그걸 기본으로 쓰고(소개 본문 `--font-body-xl`, 개인정보 제목 `--font-headline-xs`), 히어로 제목은 크기를 자식(`font-size: inherit`, span 이라 원래 물려받는다) 대신 부모 `.title` 에 준다. CTA 제목 줄은 크기를 지역 변수(`--_line-size`)로 두고 480 초과에서 변수만 바꾼다.
 - **결과.** 26곳을 모두 뒤집었다(71 → 45). 예외는 없다. 래칫은 늘어난 항목이 없다.
 - **확인.** 바꾸기 전 · 후를 홈 · 프로필 · 디자인 시스템 · 개인정보 × 12개 화면 크기에서 열어 그려지는 요소의 계산된 스타일을 견줬고, 바뀐 CSS 파일 15개를 선택자마다 DOM 을 합성해 10개 폭에서도 견줬다. 오류 페이지는 띄우기 어려워 합성 비교로만 확인했다. 남은 차이는 히어로 제목 상자(`h1` · 줄 묶음)의 계산된 글자 크기(480 이하에서 42 → 32px, 글자 자체는 원래도 32px 이고 flex 상자라 높이는 그대로)와, 디자인 시스템의 배너 데모처럼 열 때마다 내용이 바뀌는 곳뿐이다.
+
+### D57. 2026-10-08 — 작은 화면 기본, 화면별 6: 관리자(14-5, 마지막)
+
+- **왜.** D52 의 순서대로 마지막 화면인 관리자(`src/app/admin` · `src/components/admin`)의 29개 블록을 뒤집는다. 방법과 예외 기준은 D52 와 같다. 공용 단계(D52)에서 빠졌던 `HorizontalScrollSection` 1곳도 여기서 뒤집었다.
+- **정한 것.**
+  - 설정 화면의 탭 메뉴는 좁은 화면 모양(가로 스크롤 탭바 + `.tabBarSticky` 래퍼의 sticky · frost + 하위 탭 줄 `.mobileSubNav`)이 기본이고, `width > 1024px` 에서 세로 sticky 사이드바로 바꾼다. 데스크탑의 `display: contents` 래퍼에도 `::before` 는 생기므로 `content: none` 으로 거둔다. 가로든 세로든 넘치면 안에서 스크롤하므로 `overflow` 는 하나로 합쳤다(데스크탑의 `overflow-x: visible` 은 원래도 `auto` 로 계산됐다).
+  - 관리자 표(`AdminTable` · `SubTable`)의 가로 스크롤 · 고정 열(체크 · 동작) · 페이드는 기본 규칙에 두고 `width > 1024px` 에서 거둔다. 고정을 푼 열의 `left` · `right` 는 `position: static` 에서 쓰이지 않으므로 되돌리지 않았다.
+  - 2열 짝 칸(`.fieldPair`)은 `> 768` 에서 2열로 만든 뒤 `768px < width <= 1024px` 에서 다시 1열로 돌리던 것을 `> 1024` 한 단계로 합쳤다. "같은 접힘 폭을 쓴다"고 적힌 프로필 기술 칸(`ProfileSkill .profileGrid`)은 `> 768` 에 머물러 태블릿에서만 2열이었다 — `> 1024` 로 맞췄다.
+  - 목록 · 편집기 머리와 아래 바(`AdminListShell .header`, `AdminEditorShell .bottomBar`)는 줄바꿈과 간격을 모든 폭에 둔다. 넘칠 때만 접히므로 넓은 화면의 평소 모양은 같고, 설정 화면 머리(`.header`)와 같은 방식이 된다.
+  - 이미 다른 규칙과 같은 값이라 하는 일이 없던 좁은 화면 선언은 지웠다: 편집기 상단 저장 · 발행 단추의 `flex: 0 0 auto`(공용 Button 이 이미 `flex-shrink: 0`), `.topBarActions` 의 `flex-wrap: nowrap` · `margin-left: auto`(`flex: 1` 이라 여백이 남지 않는다), 목록 저장 단추의 `display` · `height` · `padding` 중복, 비어 있던 `≤1024` 블록 하나.
+  - 글자 크기는 되돌림이 `font-size` 선언을 늘리지 않게, 작은 화면 크기의 `font` 묶음을 기본으로 쓰고(`--font-headline-md`, `--font-body-sm`, `--font-body-md`) 넓은 화면에서 `font-size` 만 바꾼다.
+- **예외(5).** 모두 블록 위에 "3.11-1 예외" 주석을 달았다.
+  - 대시보드 접힌 패널 숨김(`.panelCollapsed`) — 넓은 화면 `display: flex` 는 composes 한 Panel `.panelFlex` 가 정한다.
+  - About 편집 패널 머리(`.psHeader`)의 `top` — 넓은 화면 값은 공통 StickyGlassBar(`.bar` · `.bar::before`)가 정한다.
+  - About 편집 백엔드 블록의 왼쪽 목록 숨김(`.bkBody > :first-child`) — 넓은 화면 `display` 는 About 화면의 `.dbList` 가 정한다.
+  - 목록 미리보기 툴팁의 터치 모달(`(width <= 768px) and (hover: none)`) — 위치를 인라인으로 넣는 `usePreviewTooltip` 를 `!important` 로 눌러야 하고, 배경막은 그 모달과 한 짝이다.
+  - 설정 사이드바의 `::-webkit-scrollbar` 숨김 — 한 번 꾸미면 기본 스크롤바로 되돌릴 값이 없다. 기본 규칙에 두면 `scrollbar-width` 를 모르는 옛 Safari 에서 데스크탑 사이드바의 스크롤바까지 사라진다. 새 갈래라 3.11-1 예외 목록에 넣었다.
+- **고친 것(좁은 화면).**
+  - 댓글 목록: 출처 배지와 작성자가 같은 칸(`meta`)에 놓여 겹쳤고, 날짜가 36px 칸에서 넘쳤다. 칸을 `출처 · 작성자 · 삭제 / 내용 / 대상 · 날짜` 로 나누고, 넓은 화면도 같은 이름의 칸을 한 줄로 늘어놓는다(넓은 화면 위치는 그대로).
+  - 대시보드 달력: 셀 높이를 줄이던 `min-height: 56px` 이 고정 `height: 72px` 앞에서 먹지 않았다. 기본 높이를 56px 로 두고 넓은 화면에서 72px 로 바꿨다.
+  - AI 상태 표의 상세 들여쓰기 경계가 `width < 768px` 하나만 달랐다(원래 `max-width: 768px`). 다른 곳처럼 `> 768` 로 맞춰 정확히 768px 에서도 들여쓰지 않는다.
+- **결과.** 25곳을 뒤집었다(32 → 7, 예외를 다시 본 D52 덧붙임의 4곳 · D53 덧붙임의 2곳 · D54 덧붙임의 5곳 · D55 덧붙임의 2곳이 앞서 빠졌다). 남은 7곳은 모두 예외 주석이 달린 곳이라 3.11-1 은 끝났다. 래칫은 늘어난 항목이 없고 `.x.x` 가 5 줄었다(185 → 180, About 편집 Features 블록의 좁은 화면 덮어쓰기).
+- **확인.** 관리자 화면은 로그인이 있어야 열려 실제 페이지 대신, 바뀐 CSS 파일 22개를 선택자마다 DOM 을 합성해 바꾸기 전 · 후를 10개 폭(360 ~ 1400)에서 견줬다. 남은 차이는 위의 고친 것과 머리 줄바꿈, 그리고 쓰이지 않는 값뿐이다(고정을 푼 열의 `left` · `right`, `display: contents` 래퍼의 `position`, 데스크탑에서 숨는 하위 탭 줄의 글자, 자식이 모두 absolute 인 Features 칸의 `display: flex`). 댓글 줄은 실제 마크업으로 375 · 768 · 769 · 1200px 에서 칸 위치를 따로 견줬다.
+- **다시 본 예외.** 예외 5곳을 모두 없앴다(7 → 2). 남은 2곳은 D52 의 `CloseButton` 과 D54 의 `.animate` 다.
+  - 다른 모듈이 정하는 값 3곳은 그 모듈이 변수로 연다(D53 · D54 의 길): Panel `.panelFlex` 의 `display: var(--panel-display, flex)`, StickyGlassBar `.bar` · `.bar::before` 의 `top: var(--sticky-bar-top, …)` · `var(--sticky-bar-frost-top, …)`, 백엔드 패널 `.dbList` 의 `display: var(--db-list-display, flex)`. 대시보드 · About 편집은 기본 규칙에서 변수만 정하고 넓은 화면에서 `initial` 로 비운다. `.psHeader.psHeader` 두 곳(`.x.x`)과 다른 파일 구조에 기대던 `.bkBody > :first-child` 숨김이 빠졌다.
+  - 미리보기 툴팁: `usePreviewTooltip` 는 우리 훅이라 "바꿀 수 없는 스크립트"가 아니었다. 좌표를 인라인 `top` · `left` 대신 `--preview-top` · `--preview-left` 로 넘기고, 기본 규칙은 가운데 모달(배경막 포함), `(width > 768px), (hover: hover)` 에서 변수 좌표를 쓴다. `!important` 2개가 빠졌고, 늘 `[data-state]` 규칙에 눌려 쓰이지 않던 `tooltipPopIn` 애니메이션도 지웠다.
+  - 설정 사이드바 `::-webkit-scrollbar` 숨김은 지웠다. 기본 규칙의 `scrollbar-width: none` 이 같은 일을 하고, 이 블록이 하는 일은 `scrollbar-width` 를 모르는 Safari 18.2 미만의 좁은 화면뿐이었다. 그 갈래(되돌릴 값이 없는 속성)는 3.11-1 예외 목록에서 뺐고, 쓰는 곳이 없어진 "스크립트 인라인 값" 갈래도 뺐다.
+  - 확인: 바뀐 다섯 모듈을 실제 클래스로 합성한 페이지에서 바꾸기 전 · 후를 375 · 768 · 769 · 1024 · 1025 · 1400px(터치 · 마우스)로 열어 `display` · `top` · `left` · `transform` · `pointer-events` 를 견줬다. 차이는 숨은 배경막의 `position` 뿐이다.
+  - 래칫: 3.11-1 7 → 2, `.x.x` 180 → 178, `!important` −2.

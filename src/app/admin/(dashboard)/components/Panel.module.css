@@ -51,7 +51,8 @@
 
 .panelFlex {
   composes: panel;
-  display: flex;
+  /* 쓰는 쪽이 숨길 수 있게 변수로 연다(대시보드 접힌 칸) */
+  display: var(--panel-display, flex);
   flex-direction: column;
   gap: 0;
 }

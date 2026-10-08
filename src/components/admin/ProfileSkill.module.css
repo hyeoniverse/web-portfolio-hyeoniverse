@@ -218,7 +218,8 @@
   gap: var(--spacing-8) var(--spacing-16);
   width: 100%;
 }
-@media (width > 768px) {
- .profileGrid { grid-template-columns: var(--grid-columns-2);
- }
+@media (width > 1024px) {
+  .profileGrid {
+    grid-template-columns: var(--grid-columns-2);
+  }
 }

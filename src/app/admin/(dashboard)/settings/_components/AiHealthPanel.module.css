@@ -123,9 +123,9 @@
   overflow: hidden;
 }
 
-/* 표에서는 이름 칸만큼 들여쓴다 */
+/* 좁은 화면은 머리 줄이 두 줄로 접히므로 들여쓰지 않는다. 넓은 화면(아래 media) 표에서는 이름 칸만큼 */
 .detailIndent {
-  padding-left: calc(9rem + var(--spacing-12));
+  padding-left: 0;
 }
 
 /* 줄 끝 화살표 — 기본은 > , 펼치면 아래로 */
@@ -391,10 +391,9 @@
 }
 
 
-/* 좁은 화면 — 머리 줄이 두 줄로 접히므로 상세 들여쓰기도 뺀다 */
-@media (width < 768px) {
+@media (width > 768px) {
   .detailIndent {
-    padding-left: 0;
+    padding-left: calc(9rem + var(--spacing-12));
   }
 }
 

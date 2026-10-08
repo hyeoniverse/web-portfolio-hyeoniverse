@@ -18,9 +18,10 @@
   z-index: calc(var(--z-index-nav) - 1);
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-12);
+  gap: var(--spacing-8);
   /* 좌우 패딩은 .container 가 이미 --spacing-page-inline 로 줌 → 세로만 */
   padding: var(--spacing-16) 0;
+  margin-bottom: var(--spacing-16);
   /* 아래로 스크롤 시 접힘(translateY), 위로 스크롤 시 펼침 */
   transition: transform var(--duration-base) var(--ease-standard);
   will-change: transform;
@@ -87,17 +88,21 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-16);
+  gap: var(--spacing-8);
   /* 좁은 viewport 에서 겹침 방지 — wrap 으로 자동 줄바꿈 */
   flex-wrap: wrap;
 }
 
-/* nav 묶음 — BackLink + extra (Checkbox) + LanguageToggle 한 group, no wrap */
+/* nav 묶음 — BackLink + extra (Checkbox) + LanguageToggle 한 group, no wrap.
+ * 좁은 화면: navGroup 이 row 의 전폭 차지 → 안쪽 LanguageToggle 의 margin-left:auto 가 우측 push.
+ * width:100% 는 다른 sibling (.topBarActions) 을 자연스레 다음 줄로 wrap 시킴 */
 .navGroup {
   display: inline-flex;
   align-items: center;
   flex-wrap: nowrap;
   gap: var(--spacing-12);
+  width: 100%;
+  min-width: 0;
 }
 
 /* 발행 상태 chip 은 공통 <StatusBadge> 컴포넌트로 이관됨 */
@@ -116,7 +121,7 @@
 
 .topBarActions {
   display: flex;
-  gap: var(--spacing-12);
+  gap: var(--spacing-4);
   align-items: center;
   /* flex:1 로 row 의 우측 영역 차지 → 안쪽 .actionGroup 의 space-between 가 작동.
    * (모바일에선 .navGroup width:100% 가 wrap 트리거 → .topBarActions 다음 줄로 떨어짐) */
@@ -126,6 +131,7 @@
 }
 
 .actionsDivider {
+  display: none;
   width: 1px;
   height: 20px;
   background: var(--border-color-light);
@@ -910,7 +916,7 @@
   border: none;
   border-bottom: var(--border-light);
   background: transparent;
-  font: var(--font-headline-xl);
+  font: var(--font-headline-md);
   color: var(--text-primary);
   outline: none;
 }
@@ -956,8 +962,9 @@
   display: grid;
   /* auto-fit + minmax(260px, 1fr) — viewport 너비에 따라 자동 1/2/3 컬럼.
      280px 미만 → 1 col, 280~560 → 2 col, 560+ → 3+ col.
-     min-width: 0 가 minmax 의 첫 값으로 들어가 contents 따른 overflow 방지 */
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+     min-width: 0 가 minmax 의 첫 값으로 들어가 contents 따른 overflow 방지.
+     좁은 화면은 한 열(넓은 화면은 아래 media 의 auto-fit) */
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--spacing-24);
   align-items: start;
   min-width: 0;
@@ -1208,11 +1215,12 @@
   border-bottom: var(--border-light);
 }
 
-/* ── Bottom Bar ── */
+/* ── Bottom Bar — 우측 정렬 + width fit. 넘치면 줄바꿈 ── */
 .bottomBar {
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
-  gap: var(--spacing-16);
+  gap: var(--spacing-8);
 }
 
 /* bottomBar 안 button height 도 topBar 와 동일 — 페이지 전체에서 control height 일관 */
@@ -1238,10 +1246,9 @@
   justify-content: space-between;
 }
 
-/* ── Tablet (max-width: 1024px) — gap/spacing 소폭 축소, divider 유지 ── */
-@media (width <= 1024px) {
+/* ── 태블릿 이상(>768) — divider 보이고 간격 넓힘, 입력 칸은 auto-fit 다열 ── */
+@media (width > 768px) {
   .topBar {
-    gap: var(--spacing-8);
     margin-bottom: var(--spacing-20);
     padding-bottom: var(--spacing-20);
   }
@@ -1250,72 +1257,45 @@
     gap: var(--spacing-12);
   }
 
+  .navGroup {
+    width: auto;
+    min-width: auto;
+  }
+
   .topBarActions {
     gap: var(--spacing-8);
-  }
-}
-
-/* ── Mobile (max-width: 768px) — divider 숨김, action group 압축, bottomBar 균등 분할 ── */
-@media (width <= 768px) {
-  .row {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .titleInput {
-    font-size: var(--font-size-headline-md);
-  }
-
-  .topBar {
-    gap: var(--spacing-8);
-    margin-bottom: var(--spacing-16);
-    padding-bottom: var(--spacing-16);
   }
 
   .actionsDivider {
-    display: none;
+    display: block;
   }
 
-  /* 1줄: 뒤로가기(왼) + 액션버튼들(우)
-   * wrap 되어 다음 줄로 떨어져도 topBarActions 는 항상 row 끝에 stick (margin-left: auto).
-   * 각 group 내부도 wrap 으로 좁아질 때 자연 stack */
-  .topBarRow:first-child {
-    gap: var(--spacing-8);
+  .row {
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   }
 
-  /* navGroup 이 row 의 전폭 차지 → 안쪽 LanguageToggle 의 margin-left:auto 가 우측 push.
-   * width:100% 는 다른 sibling (.topBarActions) 을 자연스레 다음 줄로 wrap 시킴 */
-  .navGroup {
-    width: 100%;
-    min-width: 0;
+  .titleInput {
+    font-size: var(--font-size-headline-xl);
+  }
+
+  .bottomBar {
+    gap: var(--spacing-16);
+  }
+}
+
+/* ── 데스크톱(>1024) — 바 아래 여백은 0, 간격 한 단계 더 ── */
+@media (width > 1024px) {
+  .topBar {
+    gap: var(--spacing-12);
+    margin-bottom: 0;
+    padding-bottom: var(--spacing-16);
+  }
+
+  .topBarRow {
+    gap: var(--spacing-16);
   }
 
   .topBarActions {
-    flex-wrap: nowrap;
-    min-width: 0;
-    gap: var(--spacing-4);
-    margin-left: auto;
-  }
-
-  /* 2줄: 저장/발행 — 우측 정렬 + 버튼 width fit (content 만큼만) */
-  .topBarRow:last-child {
-    gap: var(--spacing-8);
-    justify-content: flex-end;
-  }
-
-  .topBarRow:last-child .saveBtn,
-  .topBarRow:last-child .publishBtn {
-    flex: 0 0 auto;
-  }
-
-  /* Bottom bar — 우측 정렬 + width fit */
-  .bottomBar {
-    justify-content: flex-end;
-    gap: var(--spacing-8);
-    flex-wrap: wrap;
-  }
-
-  .bottomBar .saveBtn,
-  .bottomBar .publishBtn {
-    flex: 0 0 auto;
+    gap: var(--spacing-12);
   }
 }

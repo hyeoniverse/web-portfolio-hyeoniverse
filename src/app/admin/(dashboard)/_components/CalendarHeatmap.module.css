@@ -59,7 +59,7 @@
   background: var(--bg-primary);
   /* min-height 가 아닌 고정 height + box-sizing: border-box 로 모든 row 정확히 동일 높이 보장.
      min-height 면 content 따라 row 간 미세한 차이 발생해 gap 굵기 차이로 보일 수 있음 */
-  height: 72px;
+  height: 56px;
   box-sizing: border-box;
   border: none;
   border-radius: 0;
@@ -114,20 +114,21 @@
 
 /* 조회수 — 셀 중앙, 크게 */
 .calendarCellViews {
-  font: var(--font-body-lg);
+  font: var(--font-body-md);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   line-height: 1;
   color: var(--text-primary);
 }
 
-/* 모바일에선 조회수 폰트 작게 + 셀 높이 축소 */
-@media (width <= 768px) {
+/* 넓은 화면에선 셀을 높이고 조회수도 크게. 좁은 화면 높이를 min-height 로 줄이던 예전 규칙은
+   고정 height 앞에서 먹지 않았다(셀이 72px 그대로) — 기본값을 height 로 두어 실제로 줄인다 */
+@media (width > 768px) {
   .calendarCell {
-    min-height: 56px;
+    height: 72px;
   }
   .calendarCellViews {
-    font-size: var(--font-size-body-md);
+    font-size: var(--font-size-body-lg);
   }
 }
 

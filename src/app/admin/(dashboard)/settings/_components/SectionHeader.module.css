@@ -6,7 +6,8 @@
   grid-column: 1;
   grid-row: 1;
   position: sticky;
-  top: calc(var(--header-height) + var(--spacing-20));
+  /* 좁은 화면 — 위에 가로 탭바(≈45px)까지 있으니 그 아래로 더 내린다 */
+  top: calc(var(--header-height) + 2.9rem + var(--spacing-16));
   /* 프리셋 카드 등 positioned 콘텐츠 위로 (Settings 패널 z 사다리 참조) */
   z-index: calc(var(--z-index-nav) - 3);
   mix-blend-mode: difference;
@@ -34,7 +35,7 @@
   grid-row: 1;
   justify-self: end;
   position: sticky;
-  top: calc(var(--header-height) + var(--spacing-20));
+  top: calc(var(--header-height) + 2.9rem + var(--spacing-16));
   z-index: calc(var(--z-index-nav) - 3);
   display: flex;
   align-items: center;
@@ -57,11 +58,11 @@
   background: var(--bg-accent-solid);
 }
 
-/* 태블릿·모바일 — 위에 가로 탭바(≈45px)까지 있으니 그 아래로 더 내린다 */
-@media (width <= 1024px) {
+/* 넓은 화면 — 탭바가 사이드바로 가니 머리띠 바로 아래 */
+@media (width > 1024px) {
   .title,
   .spacer {
-    top: calc(var(--header-height) + 2.9rem + var(--spacing-16));
+    top: calc(var(--header-height) + var(--spacing-20));
   }
 }
 
