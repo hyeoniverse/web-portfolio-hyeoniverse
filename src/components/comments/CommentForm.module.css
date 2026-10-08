@@ -95,9 +95,17 @@
 /* 비밀번호 입력(공통 Input) 래퍼 — 폭만 고정. 시각 스타일은 Input size="sm" 이 전부 담당. */
 /* placeholder 가 보일 만큼(≈200px)만, 우측으로 무한정 늘어나 벨과 겹치지 않게 grow 0.
    좁으면 shrink 후 다음 줄로 wrap. */
+/* 휴대폰 — 비밀번호 칸이 이름 아래 줄로 내려가므로 그 줄을 다 쓴다. 200px 로 두면 안내 문구가 "…편집 / 삭" 에서 잘렸다.
+   작은 화면이 기본, 넓으면 이름 옆 200px (작은 화면 기본 규칙 3.11) */
 .passwordField {
-  flex: 0 1 200px;
+  flex: 1 1 100%;
   min-width: 0;
+}
+
+@media (width > 480px) {
+  .passwordField {
+    flex: 0 1 200px;
+  }
 }
 /* 비번 없이 제출 시 흔들림 */
 .pwShake {

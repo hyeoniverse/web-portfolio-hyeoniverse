@@ -14,6 +14,8 @@
      (.count 도 line-height 를 상속받아 line box 가 28px 로 유지된다) */
 .heading {
   margin: 0;
+  /* 좁은 화면에서 옆 정렬 칸에 밀려 "댓/글" 로 꺾였다 */
+  white-space: nowrap;
   font: var(--font-headline-xs);
   line-height: var(--control-height-sm);
   color: var(--text-primary);
@@ -94,11 +96,13 @@
   margin-bottom: var(--spacing-16);
 }
 
+/* 좁으면 오른쪽 묶음(관리자 선택 단추)이 다음 줄로 내려간다 */
 .headingRow {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-16);
+  gap: var(--spacing-8) var(--spacing-16);
 }
 
 .headingLeft {
@@ -120,14 +124,19 @@
   margin-left: auto;
 }
 
-/* p 의 UA margin 제거 — 같은 행(.headingRow)의 버튼들과 수직 중심을 맞춘다.
-   .heading 과 같은 이유(UA margin 이 살아있고 gap 이 간격을 담당). */
+/* 입력 칸과 그 아래 운영 안내 한 줄 */
+.formBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+}
+
+/* 운영 안내 — 입력 칸 바로 아래, 칸의 글자 시작선에 맞춰 왼쪽 정렬 */
 .disclaimer {
   margin: 0;
+  padding-left: var(--spacing-8);
   font: var(--font-body-sm);
   color: var(--text-tertiary);
-  text-align: right;
-  flex-shrink: 0;
 }
 
 /* 더보기 버튼 래퍼 — 스타일은 공통 Button 이 가지고, 가운데 정렬만 래퍼가 담당 */
