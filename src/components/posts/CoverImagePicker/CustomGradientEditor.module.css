@@ -5,32 +5,42 @@
   container-type: inline-size;
 }
 
-/* CustomGradient — CSS Grid layout 으로 데스크탑/모바일 area 분기.
- * 데스크탑: preview 가 좌측 column 3 row 차지 + 우측 column 에 scheme/stops/group 세로 stack
- * 모바일: preview + group 가로 (위), scheme/stops 풀폭 (아래) */
+/* CustomGradient — CSS Grid layout 으로 좁은/넓은 화면 area 분기.
+ * 좁은 화면(기본): preview + group 가로 (위), scheme/stops 풀폭 (아래)
+ * 넓은 화면: preview 가 좌측 column 3 row 차지 + 우측 column 에 scheme/stops/group 세로 stack */
 .customGradient {
   display: grid;
   grid-template-columns: auto 1fr;
   grid-template-areas:
-    "preview scheme"
-    "preview stops"
-    "preview group";
-  column-gap: var(--spacing-24);
+    "preview group"
+    "scheme  scheme"
+    "stops   stops";
+  column-gap: var(--spacing-16);
   row-gap: var(--spacing-16);
   padding: var(--spacing-12);
   align-items: start;
 }
 
-/* 컨테이너 폭 부족 시 (admin/settings 처럼 좁은 column 안에 embed 됐을 때 등) — 줄바꿈 레이아웃 */
-@container (width <= 520px) {
+@media (width > 768px) {
   .customGradient {
-    grid-template-columns: 1fr;
     grid-template-areas:
-      "preview"
-      "scheme"
-      "stops"
-      "group";
-    column-gap: 0;
+      "preview scheme"
+      "preview stops"
+      "preview group";
+    column-gap: var(--spacing-24);
+  }
+
+  /* 컨테이너 폭 부족 시 (admin/settings 처럼 좁은 column 안에 embed 됐을 때 등) — 줄바꿈 레이아웃 */
+  @container (width <= 520px) {
+    .customGradient {
+      grid-template-columns: 1fr;
+      grid-template-areas:
+        "preview"
+        "scheme"
+        "stops"
+        "group";
+      column-gap: 0;
+    }
   }
 }
 
@@ -483,17 +493,4 @@
 .customApplyBtn:disabled {
   opacity: var(--opacity-disabled);
   cursor: default;
-}
-
-@media (width <= 768px) {
-  /* CustomGradient — 모바일에선 preview + group 가로 한 row, scheme/stops 풀폭 */
-  .customGradient {
-    grid-template-columns: auto 1fr;
-    grid-template-areas:
-      "preview group"
-      "scheme  scheme"
-      "stops   stops";
-    column-gap: var(--spacing-16);
-    row-gap: var(--spacing-16);
-  }
 }

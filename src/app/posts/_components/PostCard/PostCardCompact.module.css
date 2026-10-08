@@ -74,6 +74,22 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
+/* 480 이하 — 카드 grid([lead | meta]) 를 2×2 로 확장. lead 안 카테고리·hot·lang 은 숨기고 2줄로.
+   1줄: 핀·썸네일·제목(col1) | 날짜(col2). 2줄: 카테고리·hot·lang(col1) | 조회·좋아요(col2, 날짜와 같은 열). */
+.compactLead > .compactCat,
+.compactLead > .compactHotSlot,
+.compactLead > .compactLangSlot {
+  display: none;
+}
+@media (width > 480px) {
+  .compactLead > .compactCat {
+    display: inline;
+  }
+  .compactLead > .compactHotSlot,
+  .compactLead > .compactLangSlot {
+    display: inline-flex;
+  }
+}
 /* hot/lang — 항상 렌더되는 고정폭 슬롯(빈 것도 공간 예약 → 행마다 위치 일정) */
 .compactHotSlot {
   flex-shrink: 0;
@@ -105,30 +121,54 @@
   text-align: left;
 }
 .compactRead {
-  display: inline-block;
+  display: none;
   min-width: 74px;
   text-align: left;
 }
 
-/* 카드(=본문 열 폭)가 좁으면 날짜·읽기시간 숨겨 lead 넘침/겹침·칩 잘림 방지 (조회·좋아요만 남김).
-   .card 가 container-type: inline-size 라 카드 폭 기준. */
-@container (width <= 640px) {
-  .compactDate,
+@media (width > 480px) {
   .compactRead {
-    display: none;
+    display: inline-block;
+  }
+
+  /* 카드(=본문 열 폭)가 좁으면 날짜·읽기시간 숨겨 lead 넘침/겹침·칩 잘림 방지 (조회·좋아요만 남김).
+     .card 가 container-type: inline-size 라 카드 폭 기준. 480 이하는 2×2 라 날짜를 늘 보인다. */
+  @container (width <= 640px) {
+    .compactDate,
+    .compactRead {
+      display: none;
+    }
   }
 }
-/* 모바일 전용 2번째 줄 요소 — 데스크톱은 숨김(lead 안 원본을 그대로 씀). */
-.compactChipsMobile,
-.compactStatsMobile {
-  display: none;
+
+/* 480 이하 전용 2번째 줄 — 카테고리·hot·lang(col1) | 조회·좋아요(col2). 넓은 화면은 숨김(lead 안 원본을 그대로 씀). */
+.compactChipsMobile {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-8);
+  grid-column: 1;
+  min-width: 0;
+  margin-top: var(--spacing-4);
+  /* 1줄 제목 시작점과 정렬 — 핀(15) + gap + 썸네일(26) + gap 만큼 좌측 들여쓰기 */
+  padding-left: calc(15px + 26px + var(--spacing-8) * 2);
 }
 .compactStatsMobile {
+  display: inline-flex;
+  grid-column: 2;
+  margin-top: var(--spacing-4);
   align-items: center;
   gap: var(--spacing-4);
   font: var(--font-body-sm);
   font-variant-numeric: tabular-nums;
   color: var(--text-tertiary);
+  white-space: nowrap;
+}
+@media (width > 480px) {
+  .compactChipsMobile,
+  .compactStatsMobile {
+    display: none;
+  }
 }
 
 /* hot/lang 칩 크기 정확히 통일. 원인: hotBadge 는 Flame(12px>텍스트줄) 로 높이가 크고
@@ -148,39 +188,13 @@
   height: 11px;
 }
 
-/* 모바일 — desktop grid([lead | meta]) 를 2×2 로 확장. lead 안 카테고리·hot·lang 숨기고 2줄로.
-   1줄: 핀·썸네일·제목(col1) | 날짜(col2). 2줄: 카테고리·hot·lang(col1) | 조회·좋아요(col2, 날짜와 같은 열). */
-@media (width <= 480px) {
-  .compactLead > .compactCat,
-  .compactLead > .compactHotSlot,
-  .compactLead > .compactLangSlot {
-    display: none;
-  }
-  .compactDate {
-    display: inline-block;
-  }
-  .compactRead {
-    display: none;
-  }
-  /* meta 줄 통계는 숨기고 2번째 줄(compactStatsMobile) 로. 칩 CSS 가 다른 모듈이라 (0,2,0) 필요 */
-  .compactMetaStat.compactMetaStat {
-    display: none;
-  }
-  .compactChipsMobile {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: var(--spacing-8);
-    grid-column: 1;
-    min-width: 0;
-    margin-top: var(--spacing-4);
-    /* 1줄 제목 시작점과 정렬 — 핀(15) + gap + 썸네일(26) + gap 만큼 좌측 들여쓰기 */
-    padding-left: calc(15px + 26px + var(--spacing-8) * 2);
-  }
-  .compactStatsMobile {
-    display: inline-flex;
-    grid-column: 2;
-    margin-top: var(--spacing-4);
-    white-space: nowrap;
+/* 메타 줄의 통계 칩 — 좁은 화면(480 이하)에선 2번째 줄(compactStatsMobile)에 있어 숨기고, 넓은 화면에서 줄에 낀다.
+   칩 자신의 display 를 건드리지 않게 감싸개만 켜고 끈다(contents: 감싸개 상자 없이 칩이 메타 줄의 항목이 된다) */
+.compactMetaStats {
+  display: none;
+}
+@media (width > 480px) {
+  .compactMetaStats {
+    display: contents;
   }
 }

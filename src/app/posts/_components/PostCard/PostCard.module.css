@@ -242,7 +242,7 @@
 .title {
   font: var(--font-headline-lg);
   color: var(--text-primary);
-  min-height: calc(var(--font-size-28) * var(--line-height-125) * 2);
+  min-height: calc(var(--font-size-16) * var(--line-height-125) * 2);
   /* 한글 단어 보존 + 영문 긴 단어 break (line-clamp 시 ellipsis 정확히 표시되게) */
   word-break: break-word;
   overflow-wrap: anywhere;
@@ -322,28 +322,28 @@
    Featured variant — 그리드 첫 번째 아이템
    ═══════════════════════════════════════════ */
 .featured {
-  flex-direction: row;
-  gap: var(--spacing-32);
-  padding-bottom: var(--spacing-24);
+  flex-direction: column;
+  gap: 0;
+  padding-bottom: var(--spacing-20);
 }
 
 .featured .imageWrap {
-  width: 50%;
+  width: 100%;
 }
 
 .featured .body {
-  padding: var(--spacing-12) 0;
-  gap: var(--spacing-12);
+  padding: var(--spacing-12) 0 0 0;
+  gap: var(--spacing-8);
 }
 
 .featured .title {
-  font-size: clamp(1.95rem, 1.111rem + 1.27vw, 2.25rem);
+  font-size: clamp(1.25rem, 0.942rem + 1.26vw, 1.75rem);
   min-height: unset;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2;
 }
 
 .featured .excerpt {
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2;
 }
 
 .featured .meta {
@@ -354,7 +354,7 @@
    Compact variant — 시리즈 필터링 등 카드 높이 축소
    ═══════════════════════════════════════════ */
 .compact .imageWrap {
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 16 / 10;
 }
 
 .compact .body {
@@ -388,25 +388,26 @@
    Banner variant — 2-col span 슬롯의 ultra-wide 이미지
    ═══════════════════════════════════════════ */
 .banner .imageWrap {
-  aspect-ratio: 21 / 9;
+  aspect-ratio: 16 / 10;
 }
 
 /* ═══════════════════════════════════════════
    Square / Portrait variants — 1-col 카드의 이미지 비율만 변경
    ═══════════════════════════════════════════ */
 .square .imageWrap {
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 16 / 10;
 }
 
 .portrait .imageWrap {
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 16 / 10;
 }
 
 /* ── Image overlay badges 좌상단 stack (HOT + Pinned) ── */
+/* 모서리 여백은 놓이는 자리가 바꿀 수 있다 — 목록 격자의 좁은 썸네일은 --post-card-badge-inset 을 4px 로(PostsGrid) */
 .imageBadgesLeft {
   position: absolute;
-  top: var(--spacing-12);
-  left: var(--spacing-12);
+  top: var(--post-card-badge-inset, var(--spacing-12));
+  left: var(--post-card-badge-inset, var(--spacing-12));
   z-index: 1;
   display: flex;
   /* hot·pinned 나란히(가로) */
@@ -441,10 +442,12 @@
 }
 
 /* ── Lang badge 우상단 오버레이 ── */
+/* 놓이는 자리가 우하단으로 내릴 수 있다 — --post-card-lang-top: auto · --post-card-lang-bottom(PostsGrid 목록) */
 .langOverlay {
   position: absolute;
-  top: var(--spacing-12);
-  right: var(--spacing-12);
+  top: var(--post-card-lang-top, var(--spacing-12));
+  bottom: var(--post-card-lang-bottom, auto);
+  right: var(--post-card-badge-inset, var(--spacing-12));
   z-index: 1;
   display: inline-flex;
   align-items: center;
@@ -462,73 +465,68 @@
 }
 
 /* ═══════════════════════════════════════════
-   Responsive
+   Responsive — 기본은 좁은 화면(이미지 16:10 통일 · featured 세로), 넓은 화면 값은 아래
    ═══════════════════════════════════════════ */
-@media (width <= 1024px) {
-  .featured {
-    flex-direction: column;
+@media (width > 768px) {
+  .title {
+    min-height: calc(var(--font-size-28) * var(--line-height-125) * 2);
   }
 
-  .featured .imageWrap {
-    width: 100%;
+  /* 16:10 통일은 좁은 화면만 — 넓은 화면은 bento variant 마다 비율이 다르다 */
+  .banner .imageWrap {
+    aspect-ratio: 21 / 9;
+  }
+
+  .square .imageWrap {
+    aspect-ratio: 1 / 1;
+  }
+
+  .portrait .imageWrap {
+    aspect-ratio: 3 / 4;
+  }
+
+  .compact .imageWrap {
+    aspect-ratio: 16 / 9;
+  }
+
+  .featured {
+    gap: var(--spacing-32);
+    padding-bottom: var(--spacing-24);
   }
 
   .featured .body {
     padding: var(--spacing-16) 0 0 0;
+    gap: var(--spacing-12);
   }
 
   .featured .title {
-    font-size: clamp(1.25rem, 0.942rem + 1.26vw, 1.75rem);
-  }
-}
-
-@media (width <= 768px) {
-  .body {
-    padding: var(--spacing-12) 0 0 0;
-  }
-
-  /* 모바일 — title 축소, excerpt 는 meta(xs) 와 동일 크기 */
-  .title {
-    min-height: calc(var(--font-size-16) * var(--line-height-125) * 2);
-  }
-
-  .excerpt {
-    font-size: var(--font-size-body-sm);
-    min-height: calc(var(--font-size-body-sm) * var(--line-height-160) * 2);
-  }
-
-  /* 모바일 — 모든 bento variant(banner/square/portrait/compact) 의 이미지 비율 통일 (16:10) */
-  .banner .imageWrap,
-  .square .imageWrap,
-  .portrait .imageWrap,
-  .compact .imageWrap {
-    aspect-ratio: 16 / 10;
-  }
-
-  /* featured — 모바일에서 horizontal layout 해제, 표준 vertical 로 통일 */
-  .featured {
-    flex-direction: column;
-    gap: 0;
-    padding-bottom: var(--spacing-20);
-  }
-
-  .featured .imageWrap {
-    width: 100%;
-  }
-
-  .featured .body {
-    padding: var(--spacing-12) 0 0 0;
-    gap: var(--spacing-8);
-  }
-
-  .featured .title {
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 3;
   }
 
   .featured .excerpt {
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 3;
   }
 }
+
+/* featured — 1024 초과에서만 가로 배치 */
+@media (width > 1024px) {
+  .featured {
+    flex-direction: row;
+  }
+
+  .featured .imageWrap {
+    width: 50%;
+  }
+
+  .featured .body {
+    padding: var(--spacing-12) 0;
+  }
+
+  .featured .title {
+    font-size: clamp(1.95rem, 1.111rem + 1.27vw, 2.25rem);
+  }
+}
+
 
 /* ── Tags row — 1줄 default (max-height 으로 clip), expand 시 wrap ── */
 .tagsRow {

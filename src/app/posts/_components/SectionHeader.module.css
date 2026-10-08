@@ -42,11 +42,12 @@
   white-space: nowrap;
 }
 
-/* postsLabelMain — LayoutGrid + 글목록text + shuffleBtn + Select 묶음. mobile 에서 width 100% 차지 → sortWrap 만 다음 줄로 자연 wrap */
+/* postsLabelMain — LayoutGrid + 글목록text + shuffleBtn + Select 묶음. 좁은 화면에선 width 100% 차지 → sortWrap / Select 가 다음 줄로 자연 wrap */
 .sectionHeaderMain {
   display: flex;
   align-items: center;
   gap: var(--spacing-8);
+  width: 100%;
 }
 
 /* sortWrap — SegmentedControl (nested 포함) 단위. 슬림하게 — shuffleBtn / pageSizeSelect 와 동일 높이 */
@@ -55,6 +56,16 @@
   align-items: center;
   gap: var(--spacing-8);
   flex-wrap: nowrap;
+  margin-right: auto;
+}
+
+@media (width > 768px) {
+  .sectionHeaderMain {
+    width: auto;
+  }
+  .sortWrap {
+    margin-right: 0;
+  }
 }
 
 /* sortWrap 안 SegmentedControl 의 .group height 통일 + 내부 button 컴팩트 */
@@ -72,14 +83,4 @@
 .sortWrap button:not(.shuffleBtn) {
   padding: 0 var(--spacing-16);
   font-size: var(--font-size-body-xs);
-}
-
-@media (width <= 768px) {
-  /* 모바일 — title 만 있는 sectionHeaderMain 이 width 100% 차지 → sortWrap / Select 다음 줄 */
-  .sectionHeaderMain {
-    width: 100%;
-  }
-  .sectionHeader .sortWrap {
-    margin-right: auto;
-  }
 }
