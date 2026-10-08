@@ -113,62 +113,64 @@ main > .content {
   }
 }
 
-#modal-root #modal {
-  transition: none;
-}
-
+/* 작은 화면 — 아래에서 올라오는 시트(전폭, 위 모서리만 둥글게, 손잡이로 끌어 펼친다).
+   창마다 넘기는 폭(openModal 의 width)은 인라인 width 가 아니라 --modal-width 로 받아 넓은 화면에서만 쓴다.
+   예전에는 인라인 width 를 시트에서 `!important` 로 눌러야 했다. */
 #modal {
   display: flex;
   flex-direction: column;
   position: relative;
   z-index: 2;
-  width: calc(
-      100vw - (var(--action-button-width) + var(--spacing-16) * 2) * 2
-    );
-  max-width: 2400px; /* 아주 넓은 화면에서 골격이 퍼지지 않게 — 이 파일에서만 쓰는 값 */
-  max-height: 90vh;
+  width: 100vw;
+  min-height: 0;
+  max-height: 85vh;
   overflow: hidden;
   background: var(--bg-dialog);
-  border: var(--border-light);
-  border-radius: var(--radius-surface);
+  border: none;
+  border-top: var(--border-light);
+  border-radius: var(--radius-surface) var(--radius-surface) 0 0;
+  translate: 0 var(--sheet-y, 0px);
+}
+
+#modal-root #modal {
+  transition:
+    min-height var(--duration-base) var(--ease-enter),
+    max-height var(--duration-base) var(--ease-enter),
+    border-radius var(--duration-base) var(--ease-enter),
+    border-top-color var(--duration-base) var(--ease-enter),
+    translate var(--duration-base) var(--ease-enter);
+}
+
+/* 손잡이로 끌어 올린 시트 — 손잡이는 작은 화면에만 있어 넓은 화면 되돌림이 없다 */
+#modal-root #modal[data-sheet-expanded="true"] {
+  min-height: 100dvh;
+  max-height: 100dvh;
+  border-radius: 0;
+  border-top-color: transparent;
+}
+
+/* 넓은 화면 — 가운데 뜨는 판. 폭의 기본값은 양옆 단추 자리를 뺀 폭이고, 창이 폭을 넘기면
+   요소의 인라인 --modal-width 가 이 기본값을 이긴다 */
+@media (width > 768px) {
+  #modal {
+    --modal-width: calc(100vw - (var(--action-button-width) + var(--spacing-16) * 2) * 2);
+
+    width: var(--modal-width);
+    max-width: 2400px; /* 아주 넓은 화면에서 골격이 퍼지지 않게 — 이 파일에서만 쓰는 값 */
+    min-height: auto;
+    max-height: 90vh;
+    border: var(--border-light);
+    border-radius: var(--radius-surface);
+    translate: none;
+  }
+
+  #modal-root #modal {
+    transition: none;
+  }
 }
 
 @media (width > 1024px) {
   #modal {
-    width: calc(
-    100vw - (var(--action-button-width) + var(--spacing-32) * 2) * 2
-  );
-  }
-}
-
-/* ==========================================================================
-  Media Queries
-  ========================================================================== */
-
-/* 시트 모양은 작은 화면에서만 덧씌운다(3.11-1 예외) — 폭을 `!important` 로 눌러 창마다 넘기는
-   인라인 폭(openModal 의 width)을 이겨야 해서, 넓은 화면 쪽으로 옮기면 인라인 폭을 못 쓰게 된다 */
-@media (width <= 768px) {
-  #modal-root #modal {
-    border: none;
-    border-top: var(--border-light);
-    width: 100vw !important;
-    max-width: none !important;
-    min-height: 0;
-    max-height: 85vh;
-    border-radius: var(--radius-surface) var(--radius-surface) 0 0;
-    translate: 0 var(--sheet-y, 0px);
-    transition:
-      min-height var(--duration-base) var(--ease-enter),
-      max-height var(--duration-base) var(--ease-enter),
-      border-radius var(--duration-base) var(--ease-enter),
-      border-top-color var(--duration-base) var(--ease-enter),
-      translate var(--duration-base) var(--ease-enter);
-  }
-
-  #modal-root #modal[data-sheet-expanded="true"] {
-    min-height: 100dvh;
-    max-height: 100dvh;
-    border-radius: 0;
-    border-top-color: transparent;
+    --modal-width: calc(100vw - (var(--action-button-width) + var(--spacing-32) * 2) * 2);
   }
 }

@@ -677,4 +677,10 @@ Material `@material/web` 2.5, Primer primitives. 숫자는 같은 날 다시 셌
   - 글자 크기를 바꾸는 곳은 작은 쪽 역할 토큰을 기본 규칙의 `font` 로 쓰고, 넓은 쪽에서 `font-size` 만 덧씌운다 — `font-size` 선언 수(3.2-1)가 늘지 않는다.
 - **결과.** 28곳 중 23곳을 뒤집었다(163 → 142, 토큰 파일 2곳은 3.11-1 이 세지 않는다). 예외 5곳: 모달 시트(`_layout.css`) · 패럴랙스(`_scroll.css`) · Get in Touch(`Navigation`) · 모달 닫기(`Modal`) · 이미지 뷰어 닫기(`ImageViewer`).
   - 같이 고친 것: `.footerMinimal` 의 여백은 넓은 화면에서만 준다 — 작은 화면에서 `.footer` 의 여백이 이기던 순서를 그대로 지키려고.
+  - 다시 본 예외(2026-10-08): 다섯 중 넷은 예외로 둘 까닭이 없었다. 결과는 28곳 중 27곳(163 → 138), 예외 1곳.
+    - Get in Touch — `Button` 은 `@layer components` 안이고 내비는 층 밖이라, 넓은 화면에서 `display: revert-layer` 로 Button 층의 값에 돌려준다. Button 의 값을 다시 적지 않는다.
+    - 모달 닫기 — `Modal.tsx` 가 이미 작은 화면에서 단추를 그리지 않는다(`closeButton && !isMobile`). CSS 규칙과 그 클래스를 지웠다.
+    - 모달 시트 — 창마다 넘기는 폭을 인라인 `width` 대신 `--modal-width` 로 넘긴다(`modalStore`). 기본 규칙은 전폭 시트, 넓은 화면에서 `width: var(--modal-width)` — 기본값은 같은 규칙의 `--modal-width` 이고 인라인 값이 이긴다. `!important` 두 개가 빠졌다.
+    - 패럴랙스 — `.parallax-container` · `.parallax-layer*` 를 쓰는 곳이 없어 블록째 지웠다.
+    - 이미지 뷰어 닫기만 남는다 — `CloseButton` 과 같은 components 층이라 `revert-layer` 가 듣지 않는다. `!important` 대신 `.actionBtn.closeBtnAction`(0,2,0) 으로 `.btn` 을 이긴다.
 - **확인.** 바꾸기 전 · 후를 8개 페이지(홈 · About · 디자인 시스템 · 작업물 · 작업물 상세 · 프로필 · 글 목록 · 로그인) × 6개 화면 크기(360 · 600 · 900 · 1100 · 1400, 1400 은 높이 650 도)에서 열고, 연락 서랍은 About 에서 5개 크기로 열어 요소 약 17만 개의 계산된 스타일 42가지를 견줬다. 달랐던 것은 자동 재생 배너 · 별 · 마퀴의 움직임 시점, 댓글 칸의 무작위 이름 폭, 그리고 숨은 요소(넓은 화면에서 숨은 서랍 머리줄 · 작은 화면에서 숨은 닫기 단추 · 지운 SVG 점 크기)의 값뿐이다. master 의 네비 · 뒤로가기 디자인 변경을 합친 뒤 그 두 파일은 새 값으로 다시 뒤집어 같은 방법으로 한 번 더 견줬다.
