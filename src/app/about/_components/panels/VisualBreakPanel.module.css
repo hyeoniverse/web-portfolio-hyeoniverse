@@ -1,3 +1,9 @@
+/* 쉬어 가는 이미지 칸 — 좁은 화면(세로로 쌓는 배치)에서는 뺀다. 넓은 화면에서도 장면 전환 때문에
+   .breakPanel(AboutSection.module.css)이 감추므로 지금은 어느 폭에서도 보이지 않는다 */
+.visualBreak {
+  display: none;
+}
+
 .visualBreak::after {
   position: absolute;
   background: var(--bg-primary);
@@ -9,10 +15,4 @@
 
 .visualBreak img {
   filter: grayscale(0.5) contrast(1.1);
-}
-
-@media (width <= 1024px), (height <= 700px) {
-  .visualBreak {
-    display: none;
-  }
 }

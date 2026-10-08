@@ -37,14 +37,29 @@
   /* ── Easing ── */
   --_ease-spring: var(--ease-spring);
   --_ease-standard: var(--ease-standard);
-  overflow: hidden;
+  padding-top: var(--spacing-96);
+  min-height: 100svh;
   background: var(--bg-primary);
 }
 
 .track {
   display: flex;
+  flex-direction: column;
   align-items: stretch;
-  will-change: transform;
+}
+
+/* 넓은 화면은 가로 스크롤 무대 — 세로 쌓기를 가로 트랙으로 바꾼다 */
+@media (width > 1024px) and (height > 700px) {
+  .section {
+    padding-top: 0;
+    overflow: hidden;
+    min-height: auto;
+  }
+
+  .track {
+    flex-direction: row;
+    will-change: transform;
+  }
 }
 
 /* ==========================================================================
@@ -84,14 +99,9 @@
 /* ==========================================================================
    Responsive — Shared overrides
    ========================================================================== */
+/* 3.11-1 예외: 넓은 화면의 투명도·위치는 장면 전환 흐름 규칙(AboutPanel.module.css, :where 로 특이도 0)이 정한다.
+   되돌림(.animate { opacity: 1 })을 쓰면 그 흐름 규칙을 이겨 버린다 — 좁은 화면만 덮어쓴다 */
 @media (width <= 1024px), (height <= 700px) {
-  .section {
-    padding-top: var(--spacing-96);
-    overflow: visible;
-    height: auto;
-    min-height: 100svh;
-  }
-
   /* ── Mobile InView animation (reverse on exit) ── */
   .animate {
     opacity: 0;
@@ -108,11 +118,6 @@
   .animateVisible {
     opacity: 1;
     transform: translateY(0);
-  }
-
-  .track {
-    flex-direction: column;
-    will-change: auto;
   }
 }
 

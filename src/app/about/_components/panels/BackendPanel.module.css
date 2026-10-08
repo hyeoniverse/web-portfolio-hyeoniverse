@@ -174,8 +174,10 @@
 
 .dbTitle {
   margin: 0;
+  position: relative;
+  z-index: 1;
   font-family: var(--font-family-code);
-  font-size: inherit;
+  font-size: clamp(1rem, 0.754rem + 1.01vw, 1.4rem);
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-135);
 }
@@ -187,6 +189,7 @@
   margin: 0;
   font: var(--font-prose-lg);
   font-family: var(--_font-grotesk);
+  font-size: clamp(0.8rem, 0.708rem + 0.38vw, 0.95rem);
   color: var(--text-secondary);
 }
 
@@ -196,15 +199,17 @@
   flex-direction: column;
   border-top: var(--_line-primary);
   font: var(--font-prose-sm);
+  font-size: clamp(var(--font-size-body-xs), 0.688rem + 0.25vw, 0.85rem);
 }
 
 .dbSchemaHeader {
   display: grid;
-  grid-template-columns: 1fr 0.6fr 1.5fr;
+  grid-template-columns: 1fr 0.5fr 1fr;
   gap: var(--spacing-12);
-  padding: clamp(0.6rem, 1vh, 1rem) 0;
+  padding: var(--spacing-12) 0;
   border-bottom: var(--_line-primary);
   font: var(--font-prose-xs);
+  font-size: var(--font-size-body-xs);
   font-weight: var(--font-weight-semibold);
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -213,10 +218,11 @@
 
 .dbSchemaRow {
   display: grid;
-  grid-template-columns: 1fr 0.6fr 1.5fr;
+  grid-template-columns: 1fr 0.5fr 1fr;
   gap: var(--spacing-12);
-  padding: clamp(0.6rem, 1vh, 1rem) 0;
+  padding: var(--spacing-12) 0;
   border-bottom: var(--_line-secondary);
+  font-size: clamp(var(--font-size-body-xs), 0.688rem + 0.25vw, 0.85rem);
   line-height: var(--line-height-160);
 }
 
@@ -249,6 +255,7 @@
 .dbQuery {
   border-radius: var(--radius-surface);
   overflow: hidden;
+  font-size: clamp(var(--font-size-body-xs), 0.719rem + 0.13vw, 0.8rem);
 }
 
 /* Kind badge (API / TABLE) */
@@ -257,6 +264,7 @@
   padding: var(--spacing-2) var(--spacing-8);
   border-radius: var(--radius-control);
   font: var(--font-prose-xs);
+  font-size: var(--font-size-body-xs);
   font-weight: var(--font-weight-semibold);
   line-height: 1.6;
   letter-spacing: 0.08em;
@@ -283,14 +291,15 @@
   flex-direction: column;
   border-top: var(--_line-primary);
   font: var(--font-prose-sm);
+  font-size: clamp(var(--font-size-body-xs), 0.688rem + 0.25vw, 0.85rem);
 }
 
 .dbEndpoint {
   display: grid;
-  grid-template-columns: auto 1fr 1.5fr;
-  gap: var(--spacing-12) var(--spacing-16);
+  grid-template-columns: auto 1fr;
+  gap: var(--spacing-8);
   align-items: baseline;
-  padding: clamp(0.6rem, 1vh, 1rem) 0;
+  padding: var(--spacing-12) 0;
   border-bottom: var(--_line-secondary);
 }
 
@@ -299,11 +308,12 @@
   padding: var(--spacing-2) var(--spacing-8);
   border-radius: var(--radius-control);
   font: var(--font-prose-xs);
+  font-size: var(--font-size-body-xs);
   font-weight: var(--font-weight-bold);
   line-height: 1.6;
   letter-spacing: 0.05em;
   text-align: center;
-  min-width: 3.2rem;
+  min-width: 2.5rem;
   background: var(--bg-secondary);
   color: var(--text-secondary);
 }
@@ -327,24 +337,36 @@
 .dbEndpointPath {
   font-family: var(--font-family-code);
   font-weight: var(--font-weight-medium);
+  font-size: clamp(var(--font-size-body-xs), 0.688rem + 0.25vw, 0.85rem);
   color: var(--text-primary);
   word-break: break-all;
 }
 
 .dbEndpointDesc {
+  grid-column: 1 / -1;
   font-family: var(--_font-grotesk);
-  color: var(--text-secondary);
+  font-size: clamp(0.75rem, 0.658rem + 0.38vw, 0.9rem);
+  color: var(--text-tertiary);
 }
 
-/* ── Mobile: all items shown (display toggle → shared .mobileOnly) ── */
+/* ── 좁은 화면: 항목을 모두 펼쳐 세로로 늘어놓는다(위 상세 규칙들은 이 목록 안에서만 그려진다).
+   넓은 화면은 아래 API 지도(.apiStage)를 쓴다 ── */
 .dbMobileList {
-  display: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-24);
+}
+
+@media (width > 1024px) and (height > 700px) {
+  .dbMobileList {
+    display: none;
+  }
 }
 
 .dbMobileItem {
   position: relative;
   overflow: hidden;
-  padding: var(--spacing-20) 0;
+  padding: var(--spacing-24) 0;
   border-bottom: var(--_line-secondary);
 }
 
@@ -352,99 +374,9 @@
   border-bottom: none;
 }
 
-/* ==========================================================================
-   Mobile overrides (1024px)
-   ========================================================================== */
-
-@media (width <= 1024px), (height <= 700px) {
-  /* ── Backend Panel — mobile ── */
-  .dbSplit {
-    display: none;
-  }
-
-  .dbMobileList {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-24);
-  }
-
-  .dbMobileItem {
-    padding: var(--spacing-24) 0;
-    border-bottom: var(--_line-secondary);
-  }
-
-  /* dbDetailHeader mobile → shared .detailHeader mobile */
-  /* dbDetailNumber watermark → shared .watermarkNumber mobile */
-
-  .dbTitle {
-    position: relative;
-    z-index: 1;
-    font-size: clamp(1rem, 0.754rem + 1.01vw, 1.4rem);
-  }
-
-  .dbKindBadge {
-    font-size: var(--font-size-body-xs);
-  }
-
-  /* dbEntry mobile → shared .entryBlock mobile */
-  /* dbLabel mobile → shared .entryLabel mobile */
-
-  .dbEntry p {
-    font-size: clamp(0.8rem, 0.708rem + 0.38vw, 0.95rem);
-    line-height: var(--line-height-160);
-  }
-
-  .dbSchema {
-    font-size: clamp(var(--font-size-body-xs), 0.688rem + 0.25vw, 0.85rem);
-  }
-
-  .dbSchemaHeader {
-    grid-template-columns: 1fr 0.5fr 1fr;
-    padding: var(--spacing-12) 0;
-    font-size: var(--font-size-body-xs);
-  }
-
-  .dbSchemaRow {
-    grid-template-columns: 1fr 0.5fr 1fr;
-    padding: var(--spacing-12) 0;
-    font-size: clamp(var(--font-size-body-xs), 0.688rem + 0.25vw, 0.85rem);
-  }
-
-  .dbEndpointList {
-    font-size: clamp(var(--font-size-body-xs), 0.688rem + 0.25vw, 0.85rem);
-  }
-
-  .dbEndpoint {
-    grid-template-columns: auto 1fr;
-    gap: var(--spacing-8);
-    padding: var(--spacing-12) 0;
-  }
-
-  .dbMethodBadge {
-    font-size: var(--font-size-body-xs);
-    padding: var(--spacing-2) var(--spacing-8);
-    min-width: 2.5rem;
-  }
-
-  .dbEndpointPath {
-    font-size: clamp(var(--font-size-body-xs), 0.688rem + 0.25vw, 0.85rem);
-    word-break: break-all;
-  }
-
-  .dbEndpointDesc {
-    grid-column: 1 / -1;
-    font-size: clamp(0.75rem, 0.658rem + 0.38vw, 0.9rem);
-    color: var(--text-tertiary);
-  }
-
-  .dbQuery {
-    font-size: clamp(var(--font-size-body-xs), 0.719rem + 0.13vw, 0.8rem);
-  }
-}
-
-/* ── 데스크톱: API 지도 — 왼쪽 전체 수치 + 묶음 타일, 오른쪽 지금 묶음의 상세 ── */
+/* ── 데스크톱: API 지도 — 왼쪽 전체 수치 + 묶음 타일, 오른쪽 지금 묶음의 상세. 좁은 화면은 위 목록을 쓴다 ── */
 .apiStage {
-  display: grid;
+  display: none;
   flex: 1;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
   column-gap: clamp(2.5rem, 5vw, 6rem);
@@ -796,9 +728,15 @@
   border-radius: var(--radius-control);
 }
 
-@media (width <= 1024px), (height <= 700px) {
+@media (width > 1024px) and (height > 700px) {
   .apiStage {
-    display: none;
+    display: grid;
+  }
+
+  /* API 지도 안 메서드 배지 — 좁은 화면 목록보다 조금 크게 */
+  .dbMethodBadge {
+    font-size: var(--font-size-prose-xs);
+    min-width: 3.2rem;
   }
 }
 

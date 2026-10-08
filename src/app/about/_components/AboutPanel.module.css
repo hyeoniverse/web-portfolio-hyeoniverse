@@ -6,11 +6,9 @@
   justify-content: flex-start;
   flex-shrink: 0;
   flex-direction: column;
-  padding: var(--_panel-py) var(--_panel-px);
-  padding-bottom: calc(var(--spacing-32) + 2.5rem);
+  padding: var(--m-lg) var(--m-sm);
   position: relative;
-  width: 100vw;
-  height: 100svh;
+  width: 100%;
   font-family: var(--font-family-code);
   font-weight: var(--font-weight-light);
   color: var(--text-primary);
@@ -22,42 +20,24 @@
   background: var(--bg-primary);
 }
 
-.panelWide {
-  width: 140vw;
-}
-
-.panelNarrow {
-  width: 60vw;
-}
-
-.panelExtraWide {
-  width: 350vw;
-}
-
-.panelCompact {
-  width: 85vw;
-}
-
-.panelTitleCompact {
-  flex-shrink: 0;
-  margin: 0 0 var(--spacing-24) 0;
-  font-family: var(--font-family-headline);
-  font-size: clamp(3.85rem, 0.834rem + 4.7vw, 6rem);
-  font-style: italic;
-  line-height: var(--_lh-title);
-  letter-spacing: var(--_ls-title);
-}
-
 .panelTitle {
-  margin: var(--header-height) 0 var(--_space-section);
+  margin: var(--spacing-64) 0 var(--_space-section);
   font-family: var(--font-family-headline);
-  font-size: clamp(5.15rem, 1.111rem + 6.27vw, 7.5rem);
+  font-size: clamp(2.5rem, 1.577rem + 3.79vw, 4rem);
   font-style: italic;
   line-height: var(--_lh-title);
   color: var(--text-accent);
   letter-spacing: var(--_ls-title);
   text-align: left;
   word-break: keep-all;
+}
+
+/* 좁은 제목 줄 변형(PinnedTitleRow compact) — 늘 .panelTitle 과 함께 붙는다. 좁은 화면에서만 줄이고,
+   넓은 화면은 아래 media 의 .panelTitle 이 뒤에서 다시 정한다 */
+.panelTitleCompact {
+  flex-shrink: 0;
+  margin-bottom: var(--_space-block);
+  font-size: clamp(1.8rem, 1.078rem + 2.96vw, 2.5rem);
 }
 
 /* Shared pinned inner wrapper — counter-translated by JS on desktop,
@@ -69,8 +49,12 @@
   position: relative;
   max-width: calc(100vw - var(--_panel-px) * 2);
   min-height: 0;
-  will-change: transform;
   background: var(--bg-primary);
+}
+
+.mobilePinViewport {
+  height: 100svh;
+  min-height: 100svh;
 }
 
 /* Shared title row: number + title (left) + dot nav (right) */
@@ -84,66 +68,112 @@
   z-index: 2;
 }
 
+/* nav(80) + tab(40) + 여백 = 160px — pin 콘텐츠를 헤더+탭 아래로 밀기 */
+.pinnedContent > .pinnedTitleRow {
+  /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 패널 상단 여백 — 고정 nav 아래로 히어로가 들어오게 맞춘 값. 간격 눈금 밖이다 */
+  padding-top: 10rem;
+}
+
 .titleRowLeft {
   display: flex;
   align-items: baseline;
   gap: var(--spacing-16);
 }
 
-/* 모바일 탭 묶음과 패널 칸(AboutSection). 데스크톱에서는 둘 다 상자를 만들지 않아 패널이 트랙에 그대로 늘어선다 */
-.tabContent,
+/* 모바일 탭 묶음과 패널 칸(AboutSection). 데스크톱(아래 media)에서는 둘 다 상자를 만들지 않아 패널이 트랙에 그대로 늘어선다 */
+.tabContent {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
 .panelSlot {
   display: contents;
 }
 
-@media (width <= 1024px), (height <= 700px) {
-  .tabContent {
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
+/* 서버 HTML 과 하이드레이션 때는 모바일인지 몰라 한 세트가 다 들어간다. 첫 탭(overview)이 아닌 패널은 감춘다 —
+   붙은 뒤에는 React 가 지금 탭 패널만 남긴다(#942) */
+.tabContent[data-tab="overview"] > .panelSlot:not([data-tab="overview"]) {
+  display: none;
+}
 
-  /* 서버 HTML 과 하이드레이션 때는 모바일인지 몰라 한 세트가 다 들어간다. 첫 탭(overview)이 아닌 패널은 감춘다 —
-     붙은 뒤에는 React 가 지금 탭 패널만 남긴다(#942) */
-  .tabContent[data-tab="overview"] > .panelSlot:not([data-tab="overview"]) {
-    display: none;
-  }
+/* 배경 번호 워터마크 — Backend 상세 번호. 상세는 좁은 화면 목록(.dbMobileList)에만 있다 */
+.watermarkNumber {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 0;
+  font-size: clamp(8rem, 3.079rem + 20.19vw, 16rem);
+  line-height: 1;
+  color: var(--text-accent);
+  white-space: nowrap;
+  pointer-events: none;
+  translate: -50% -50%;
+  opacity: 0.06;
+}
 
-  .pinnedContent {
-    will-change: auto;
+@media (width > 480px) {
+  .panel {
+    padding: var(--spacing-48) var(--spacing-24);
   }
+}
 
-  .panel,
-  .panelWide,
-  .panelNarrow,
-  .panelExtraWide,
-  .panelCompact {
+@media (width > 768px) {
+  .panel {
     padding: var(--spacing-64) var(--spacing-page-inline);
-    width: 100%;
-    height: auto;
-    min-height: auto;
-  }
-
-  .panelTitle {
-    margin-top: var(--spacing-64);
-    margin-bottom: var(--_space-section);
-    font-size: clamp(2.5rem, 1.577rem + 3.79vw, 4rem);
   }
 
   .panelTitleCompact {
-    margin-bottom: var(--_space-block);
     font-size: clamp(2rem, 1.077rem + 3.79vw, 3.5rem);
+  }
+}
+
+@media (width > 1024px) and (height > 700px) {
+  .panel {
+    padding: var(--_panel-py) var(--_panel-px);
+    padding-bottom: calc(var(--spacing-32) + 2.5rem);
+    width: 100vw;
+    height: 100svh;
+  }
+
+  .panelWide {
+    width: 140vw;
+  }
+
+  .panelNarrow {
+    width: 60vw;
+  }
+
+  .panelExtraWide {
+    width: 350vw;
+  }
+
+  .panelCompact {
+    width: 85vw;
+  }
+
+  .panelTitle {
+    margin-top: var(--header-height);
+    margin-bottom: var(--_space-section);
+    font-size: clamp(5.15rem, 1.111rem + 6.27vw, 7.5rem);
+  }
+
+  .pinnedContent {
+    will-change: transform;
   }
 
   .mobilePinViewport {
-    height: 100svh;
-    min-height: 100svh;
+    height: auto;
+    min-height: 0;
   }
 
-  /* nav(80) + tab(40) + 여백 = 160px — pin 콘텐츠를 헤더+탭 아래로 밀기 */
   .pinnedContent > .pinnedTitleRow {
-    /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 패널 상단 여백 — 고정 nav 아래로 히어로가 들어오게 맞춘 값. 간격 눈금 밖이다 */
-    padding-top: 10rem;
+    padding-top: 0;
+  }
+
+  .tabContent,
+  .tabContent[data-tab="overview"] > .panelSlot:not([data-tab="overview"]) {
+    display: contents;
   }
 }
 
@@ -157,11 +187,9 @@
   /* desktop: no-op */
 }
 
-/* 배경 번호 워터마크 — Backend/Troubleshooting 상세 번호 */
-.watermarkNumber {
-  /* desktop: normal number styling, mobile override below */
-}
-
+/* 3.11-1 예외: 넓은 화면 값은 이 클래스를 쓰는 각 패널이 정한다 — .panelFlush 는 .panel 과 패널 자신의
+   데스크톱 여백(.archPanel 등), .titleRowCompact 는 구조·코드·트러블슈팅 패널의 제목 줄 규칙.
+   되돌림을 쓰면 같은 특이도로 그 규칙들과 번들 순서에 따라 다투게 된다 — 좁은 화면만 덮어쓴다 */
 @media (width <= 1024px), (height <= 700px) {
   .panelFlush {
     padding-top: 0;
@@ -176,44 +204,6 @@
   .titleRowCompact h3 {
     margin-top: var(--spacing-16);
     margin-bottom: 0;
-  }
-
-  .watermarkNumber {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    z-index: 0;
-    font-size: clamp(8rem, 3.079rem + 20.19vw, 16rem);
-    line-height: 1;
-    color: var(--text-accent);
-    white-space: nowrap;
-    pointer-events: none;
-    translate: -50% -50%;
-    opacity: 0.06;
-  }
-}
-
-@media (width <= 768px) {
-  .panel,
-  .panelWide,
-  .panelNarrow,
-  .panelExtraWide,
-  .panelCompact {
-    padding: var(--spacing-48) var(--spacing-24);
-  }
-
-  .panelTitleCompact {
-    font-size: clamp(1.8rem, 1.078rem + 2.96vw, 2.5rem);
-  }
-}
-
-@media (width <= 480px) {
-  .panel,
-  .panelWide,
-  .panelNarrow,
-  .panelExtraWide,
-  .panelCompact {
-    padding: var(--m-lg) var(--m-sm);
   }
 }
 
