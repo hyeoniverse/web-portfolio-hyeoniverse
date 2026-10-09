@@ -1,4 +1,0 @@
-{
-  "*.{ts,tsx}": "eslint",
-  "*.{css,module.css}": "stylelint --allow-empty-input"
-}
