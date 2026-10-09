@@ -154,9 +154,9 @@
   background: var(--bg-white);
 }
 
-.dotActive {
-  width: 56px !important;
-  background: var(--bg-white) !important;
+.viewportWrap .dot.dotActive {
+  width: 56px;
+  background: var(--bg-white);
 }
 
 .dotFill {
