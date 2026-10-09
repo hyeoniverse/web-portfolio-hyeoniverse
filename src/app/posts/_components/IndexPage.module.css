@@ -52,7 +52,7 @@
 }
 
 .searchBar:not(:focus-within) {
-  border-color: var(--border-color-light) !important;
+  border-color: var(--border-color-light);
 }
 
 /* 좁은 화면: 검색창을 한 줄 전체로 내려 화면 밖으로 삐져나가지 않게 */

@@ -2,7 +2,7 @@
 
 /* 뒤로가기(태그 목록) 버튼 — 좌우 패딩 제거해 좌측 끝에 flush */
 .backBtn {
-  padding-inline: 0 !important;
+  padding-inline: 0;
 }
 
 /* hover — 화살표 왼쪽으로 슬라이드(뒤로가기 방향). */
@@ -118,7 +118,7 @@
 }
 
 .heroSearch:not(:focus-within) {
-  border-color: var(--border-color-light) !important;
+  border-color: var(--border-color-light);
 }
 /* perPage + 검색창 묶음 — 우측 정렬, 둘 사이 약간의 gap */
 .searchPerPageGroup {

@@ -138,5 +138,5 @@
 /* 검색 capsule border 를 도움말/셔플 등 주변 컨트롤(--border-light)과 통일 (기본 --border-default 는 더 진함).
    focus-within 시엔 강조 border 를 유지하려고 resting 상태에만 적용. (시리즈 검색은 SeriesSection.module.css 에 같은 규칙) */
 .postsSearchCapsule:not(:focus-within) {
-  border-color: var(--border-color-light) !important;
+  border-color: var(--border-color-light);
 }
