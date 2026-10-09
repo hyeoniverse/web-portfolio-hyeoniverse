@@ -313,9 +313,8 @@
 .visible .tech { transform: translateX(-50%) translateY(0); }
 
 /* ── Category ── */
-.category {  font: var(--font-code-xs);
+.category {  font: var(--font-label-xs);
 
-  font-weight: var(--font-weight-semibold);
   letter-spacing: 0.35em;
   text-transform: uppercase;
   color: var(--text-white);

@@ -38,7 +38,7 @@
 }
 
 .tokenName {
-  font: var(--font-meta-xs);
+  font: var(--font-body-xs);
   color: var(--text-tertiary);
 }
 
@@ -86,7 +86,7 @@
 }
 
 .fontName {
-  font: var(--font-meta-sm);
+  font: var(--font-body-sm);
   color: var(--text-primary);
 }
 

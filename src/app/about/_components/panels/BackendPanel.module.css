@@ -37,7 +37,7 @@
   padding: var(--spacing-8) var(--spacing-16);
   border-top: var(--_line-secondary);
   background: var(--bg-primary);
-  font: var(--font-prose-md);
+  font: var(--font-body-lg);
   color: var(--text-primary);
 }
 
@@ -105,7 +105,7 @@
 
 .dbNumber {
   flex-shrink: 0;
-  font: var(--font-prose-lg);
+  font: var(--font-body-xl);
   font-family: var(--_font-display);
   font-weight: var(--font-weight-regular);
   color: var(--text-tertiary);
@@ -127,7 +127,7 @@
 }
 
 .dbListTitle {
-  font: var(--font-prose-lg);
+  font: var(--font-body-xl);
   font-weight: var(--font-weight-semibold);
   color: var(--text-secondary);
 }
@@ -137,7 +137,7 @@
 }
 
 .dbListDesc {
-  font: var(--font-prose-sm);
+  font: var(--font-body-md);
   font-family: var(--_font-grotesk);
   line-height: var(--line-height-135);
   color: var(--text-tertiary);
@@ -188,7 +188,7 @@
 /* Panel-specific paragraph styling (applied alongside shared .entryBlock) */
 .dbEntry p {
   margin: 0;
-  font: var(--font-prose-lg);
+  font: var(--font-body-xl);
   font-family: var(--_font-grotesk);
   font-size: clamp(0.8rem, 0.708rem + 0.38vw, 0.95rem);
   color: var(--text-secondary);
@@ -199,7 +199,7 @@
   display: flex;
   flex-direction: column;
   border-top: var(--_line-primary);
-  font: var(--font-prose-sm);
+  font: var(--font-body-md);
   font-size: clamp(var(--font-size-body-xs), 0.688rem + 0.25vw, 0.85rem);
 }
 
@@ -209,7 +209,7 @@
   gap: var(--spacing-12);
   padding: var(--spacing-12) 0;
   border-bottom: var(--_line-primary);
-  font: var(--font-prose-xs);
+  font: var(--font-body-sm);
   font-size: var(--font-size-body-xs);
   font-weight: var(--font-weight-semibold);
   text-transform: uppercase;
@@ -237,7 +237,7 @@
 }
 
 .dbColConstraint {
-  font: var(--font-prose-xs);
+  font: var(--font-body-sm);
   font-weight: var(--font-weight-regular);
   color: var(--text-tertiary);
   opacity: 0.8;
@@ -264,7 +264,7 @@
   flex-shrink: 0;
   padding: var(--spacing-2) var(--spacing-8);
   border-radius: var(--radius-control);
-  font: var(--font-prose-xs);
+  font: var(--font-body-sm);
   font-size: var(--font-size-body-xs);
   font-weight: var(--font-weight-semibold);
   line-height: 1.6;
@@ -291,7 +291,7 @@
   display: flex;
   flex-direction: column;
   border-top: var(--_line-primary);
-  font: var(--font-prose-sm);
+  font: var(--font-body-md);
   font-size: clamp(var(--font-size-body-xs), 0.688rem + 0.25vw, 0.85rem);
 }
 
@@ -308,7 +308,7 @@
   flex-shrink: 0;
   padding: var(--spacing-2) var(--spacing-8);
   border-radius: var(--radius-control);
-  font: var(--font-prose-xs);
+  font: var(--font-body-sm);
   font-size: var(--font-size-body-xs);
   font-weight: var(--font-weight-bold);
   line-height: 1.6;
@@ -478,7 +478,7 @@
   margin: 0;
   padding: 0;
   list-style: none;
-  font: var(--font-meta-xs);
+  font: var(--font-body-xs);
   color: var(--text-secondary);
 }
 
@@ -548,7 +548,7 @@
 
 .apiTileName {
   overflow: hidden;
-  font: var(--font-meta-sm);
+  font: var(--font-body-sm);
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -561,7 +561,7 @@
 }
 
 .apiTileCount {
-  font: var(--font-meta-xs);
+  font: var(--font-body-xs);
   text-align: right;
 }
 
@@ -613,7 +613,7 @@
 
 .apiDetailMeta {
   margin: var(--spacing-4) 0 0;
-  font: var(--font-meta-sm);
+  font: var(--font-body-sm);
   color: var(--text-tertiary);
 }
 
@@ -621,7 +621,7 @@
   margin: 0;
   word-break: keep-all;
   max-width: 64ch;
-  font: var(--font-meta-md);
+  font: var(--font-body-md);
   line-height: var(--_lh-reading);
   color: var(--text-secondary);
 }
@@ -636,7 +636,7 @@
 }
 
 .apiDetailNote > span {
-  font: var(--font-meta-xs);
+  font: var(--font-body-xs);
   color: var(--text-accent);
   letter-spacing: 0.04em;
 }
@@ -694,7 +694,7 @@
 
 .apiEndpoints code {
   overflow: hidden;
-  font: var(--font-meta-sm);
+  font: var(--font-body-sm);
   white-space: nowrap;
   text-overflow: ellipsis;
   color: var(--text-primary);
@@ -723,7 +723,7 @@
 .apiMore {
   align-self: flex-start;
   padding: var(--spacing-4) var(--spacing-12);
-  font: var(--font-meta-xs);
+  font: var(--font-body-xs);
   color: var(--text-accent);
   border: var(--border-accent);
   border-radius: var(--radius-control);
@@ -736,7 +736,7 @@
 
   /* API 지도 안 메서드 배지 — 좁은 화면 목록보다 조금 크게 */
   .dbMethodBadge {
-    font-size: var(--font-size-prose-xs);
+    font-size: var(--font-size-body-sm);
     min-width: 3.2rem;
   }
 }

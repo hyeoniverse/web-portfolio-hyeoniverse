@@ -114,8 +114,7 @@
 .mathCapsuleCancel,
 .mathCapsuleConfirm {
   border: none;
-  font: var(--font-code-sm);
-  font-weight: 500;
+  font: var(--font-label-sm);
   padding: var(--modal-padding-sm);
   line-height: 1;
 }

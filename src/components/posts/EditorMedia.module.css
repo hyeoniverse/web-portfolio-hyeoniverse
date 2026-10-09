@@ -116,8 +116,7 @@
 }
 
 .imagePanelLabel {
-  font: var(--font-code-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -216,8 +215,7 @@
 }
 
 .imagePanelDividerLabel {
-  font: var(--font-code-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;

@@ -158,7 +158,6 @@
 
 .viewerTitleFile {
   font: var(--font-body-sm);
-  font-weight: 400;
   color: var(--text-primary);
   overflow: hidden;
   text-overflow: ellipsis;

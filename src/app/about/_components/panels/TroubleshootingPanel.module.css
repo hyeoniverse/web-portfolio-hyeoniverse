@@ -72,7 +72,7 @@
 }
 
 .troubleComparisonLabel {
-  font: var(--font-prose-md);
+  font: var(--font-body-lg);
   font-weight: var(--font-weight-semibold);
   color: var(--text-tertiary);
   letter-spacing: 0.05em;
@@ -81,7 +81,7 @@
 .troubleTable {
   width: 100%;
   border-collapse: collapse;
-  font: var(--font-prose-md);
+  font: var(--font-body-lg);
 }
 
 .troubleTable th {
@@ -124,7 +124,7 @@
 }
 
 .troubleDiagramTitle {
-  font: var(--font-prose-md);
+  font: var(--font-body-lg);
   font-weight: var(--font-weight-semibold);
   color: var(--text-tertiary);
   letter-spacing: 0.05em;
@@ -180,7 +180,7 @@
   box-sizing: border-box;
   background: var(--bg-secondary);
   border-bottom: var(--border-width-1) solid color-mix(in srgb, var(--text-secondary) 12%, transparent);
-  font: var(--font-meta-sm);
+  font: var(--font-body-sm);
   color: var(--text-tertiary);
   overflow-x: auto;
   scrollbar-width: none;
@@ -249,7 +249,7 @@
   text-align: right;
   color: var(--text-tertiary);
   opacity: 0.5;
-  font: var(--font-meta-sm);
+  font: var(--font-body-sm);
   line-height: inherit;
   user-select: none;
   padding-top: 0.1em;
@@ -339,8 +339,7 @@
   background: var(--bg-secondary);
   border: var(--border-width-1) solid color-mix(in srgb, var(--text-secondary) 15%, transparent);
   border-radius: var(--radius-control);
-  font: var(--font-code-sm);
-  font-weight: var(--font-weight-medium);
+  font: var(--font-label-sm);
   color: var(--text-tertiary);
   cursor: pointer;
   z-index: 2;
@@ -415,7 +414,7 @@
 }
 
 .troubleImageCaption {
-  font: var(--font-meta-xs);
+  font: var(--font-body-xs);
   font-style: italic;
   color: var(--text-tertiary);
   text-align: center;
@@ -442,8 +441,7 @@
 }
 
 .troubleImagePlaceholderTitle {
-  font: var(--font-code-sm);
-  font-weight: var(--font-weight-semibold);
+  font: var(--font-label-sm);
   color: var(--text-secondary);
 }
 

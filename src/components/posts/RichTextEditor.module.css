@@ -41,8 +41,7 @@
   border: none;
   border-radius: var(--radius-control);
   background: transparent;
-  font: var(--font-code-md);
-  font-weight: 500;
+  font: var(--font-label-md);
   color: var(--text-primary);
   line-height: 1;
 }
@@ -1110,8 +1109,7 @@
 }
 
 .borderPopLabel {
-  font: var(--font-code-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -2201,8 +2199,7 @@
 /* 참조: accent 위첨자 */
 .footnoteRef {
   color: var(--text-accent);
-  font: var(--font-code-sm);
-  font-weight: var(--font-weight-bold);
+  font: var(--font-label-sm);
   user-select: none;
   text-decoration: none;
 }

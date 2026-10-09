@@ -27,6 +27,7 @@ export default function CreditsFooter({
   return (
     <div
       className={`${styles.credits} ${styles[variant]} ${className ?? ""}`}
+      data-type="sans"
     >
       <p className={styles.text}>
         {parts[0]}

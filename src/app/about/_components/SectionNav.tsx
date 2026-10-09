@@ -59,6 +59,7 @@ export default function SectionNav({
   return (
     <nav
       className={styles.floorNav}
+      data-type="sans"
       ref={navRef}
       onMouseLeave={() => onHover(null)}
       aria-label={language === "ko" ? "섹션 이동" : "Section navigation"}
