@@ -10,13 +10,35 @@ import MarkdownHelp from "./MarkdownHelp";
 import styles from "./CommentEditor.module.css";
 
 /* 댓글 입력 에디터 공용 컴포넌트 — 새 댓글/답글(CommentForm) + 수정 폼(CommentItem) 공유.
-   Write/Preview 탭 + 마크다운 툴바 + 미리보기. giscus `.gsc-comment-box` 내부 구조 미러.
+   마크다운 툴바 + 입력칸 / 미리보기. 작성·미리보기 토글(CommentModeToggle)은 폼의 단추 줄에 있다. giscus `.gsc-comment-box` 내부 구조 미러.
    - mode(write/preview) 는 내부 state — 호출부는 value/onChange 만 신경 쓰면 된다.
    - 툴바가 찾는 [contenteditable] 는 이 루트 div 안에 있으므로 containerRef 도 내부에서 관리. */
+
+export type CommentEditorMode = "write" | "preview";
+
+/* 작성/미리보기 토글 — 등록 단추가 있는 줄의 왼쪽에 둔다(폼이 자기 단추 줄에 넣는다).
+   모드는 폼이 들고 에디터에 넘긴다 — 토글과 에디터가 서로 다른 줄에 있어서다. */
+export function CommentModeToggle({ mode, onChange }: { mode: CommentEditorMode; onChange: (m: CommentEditorMode) => void }) {
+  const { t } = useLanguage();
+  return (
+    <div className={styles.modeToggle}>
+      <SegmentedControl<CommentEditorMode>
+        items={[
+          { value: "write", label: t("comments.write") },
+          { value: "preview", label: t("comments.preview") },
+        ]}
+        value={mode}
+        onChange={onChange}
+      />
+    </div>
+  );
+}
 
 interface CommentEditorProps {
   value: string;
   onChange: (v: string) => void;
+  /** 작성/미리보기 — 폼이 `CommentModeToggle` 과 함께 들고 있다 */
+  mode: CommentEditorMode;
   placeholder?: string;
   rows?: number;
 }
@@ -24,15 +46,14 @@ interface CommentEditorProps {
 export default function CommentEditor({
   value,
   onChange,
+  mode,
   placeholder,
   rows = 3,
 }: CommentEditorProps) {
   const { t } = useLanguage();
-  // giscus 식 작성/미리보기 토글
-  const [mode, setMode] = useState<"write" | "preview">("write");
   const containerRef = useRef<HTMLDivElement>(null);
 
-  /* 작성창 높이를 재서 미리보기에 그대로 물려준다 — 탭을 오가도 상자 크기가 안 변한다.
+  /* 작성창(서식 툴바 + 입력칸) 높이를 재서 미리보기에 그대로 물려준다 — 탭을 오가도 상자 크기가 안 변한다.
      렌더된 마크다운(제목·이미지·코드블록)은 원문 텍스트보다 훨씬 높아서, 상한이 없으면
      미리보기로 넘어가는 순간 상자가 확 늘어나고 아래 등록 버튼까지 밀려 내려간다.
      ResizeObserver 인 이유: 입력하면 작성창이 자라므로 마운트 때 한 번 재선 안 된다. */
@@ -51,34 +72,17 @@ export default function CommentEditor({
 
   return (
     <div ref={containerRef} className={styles.editor}>
-      {/* 탭 + 서식 툴바가 한 행 — 둘 다 "입력 도구" 라 행을 나눌 이유가 없고,
-          나누면 입력창이 그만큼 아래로 밀린다. 툴바는 write 모드에서만 나타난다.
-          [작성|미리보기] → 서식 버튼 → 마크다운 도움말(M↓) 순으로 하나의 응집된 묶음.
-          M↓ 는 서식 버튼 묶음의 오른쪽 끝(마지막 항목)이라, 컨테이너가 넓어도 저 멀리 떨어지지 않는다. */}
-      <div className={styles.editorHeader}>
-        <SegmentedControl<"write" | "preview">
-
-          items={[
-            { value: "write", label: t("comments.write") },
-            { value: "preview", label: t("comments.preview") },
-          ]}
-          value={mode}
-          onChange={setMode}
-        />
-        {mode === "write" && (
-          <>
+      {mode === "write" ? (
+        <div ref={writeRef}>
+          {/* 서식 버튼 → 마크다운 도움말(M↓) 한 행. 작성 중에만 보인다 — 미리보기는 그 높이까지 물려받아 상자가 그대로다 */}
+          <div className={styles.editorHeader}>
             <CommentMarkdownToolbar
               containerRef={containerRef}
               content={value}
               onChange={onChange}
             />
             <MarkdownHelp />
-          </>
-        )}
-      </div>
-
-      {mode === "write" ? (
-        <div ref={writeRef}>
+          </div>
           <Textarea
             size="sm"
             textareaClassName={styles.textarea}

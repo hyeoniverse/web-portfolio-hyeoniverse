@@ -11,7 +11,7 @@ import T from "@/components/ui/T";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Tooltip from "@/components/ui/Tooltip";
-import CommentEditor from "./CommentEditor";
+import CommentEditor, { CommentModeToggle, type CommentEditorMode } from "./CommentEditor";
 import styles from "./CommentForm.module.css";
 import Pressable from "@/components/ui/Pressable";
 import { commentErrorText } from "./commentErrorText";
@@ -56,6 +56,7 @@ export default function CommentForm({
   const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(notifyEmail);
   const emailChanged = notifyEmail !== confirmedEmail;
   const [submitting, setSubmitting] = useState(false);
+  const [editorMode, setEditorMode] = useState<CommentEditorMode>("write");
   const [formHint, setFormHint] = useState("");
   const [passwordError, setPasswordError] = useState(false);
   const passwordRef = useRef<HTMLInputElement>(null);
@@ -208,6 +209,7 @@ export default function CommentForm({
       <CommentEditor
         value={content}
         onChange={handleContentChange}
+        mode={editorMode}
         placeholder={parentId ? t("comments.replyPlaceholder") : t("comments.placeholder")}
       />
 
@@ -320,6 +322,7 @@ export default function CommentForm({
       )}
 
       <div className={styles.actions}>
+        <CommentModeToggle mode={editorMode} onChange={setEditorMode} />
         {formHint && <span className={styles.formHint}>{formHint}</span>}
         <Button type="submit" variant="primary" disabled={submitting}>
           {submitting ? <T k="comments.posting" /> : parentId ? <T k="comments.reply" /> : <T k="comments.submit" />}
