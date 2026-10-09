@@ -37,7 +37,9 @@
 }
 
 /* 상단 drag indicator (시각용 grabber) */
+/* 손잡이를 아래로 쓸면 닫힌다(useSheetDrag) — 브라우저가 그 손짓을 스크롤로 가져가지 않게 */
 .ui-sheet-handle {
+  touch-action: none;
   display: flex;
   align-items: center;
   justify-content: center;
