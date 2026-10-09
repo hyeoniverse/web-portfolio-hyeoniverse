@@ -172,6 +172,11 @@
   --border-white: 1px solid var(--border-color-white);
   --border-neutral-light: 1px solid var(--border-color-neutral-light);
 
+  /* 입력칸처럼 테두리가 유일한 경계인 컨트롤 — 배경과 3:1 이상(3.6-3). light(30%)는 라이트 1.92 · 다크 2.60 이라
+     default(50%, 3.27 · 4.90)를 쓴다. 안쪽 구분선 · 드롭다운 판은 경계가 아니라 그대로 light */
+  --border-color-control: var(--border-color-default);
+  --border-control: 1px solid var(--border-color-control);
+
   /* Accent borders (light → default → strong) */
   --border-accent-light: 1px solid var(--border-color-accent-light);
   --border-accent: 1px solid var(--border-color-accent);
