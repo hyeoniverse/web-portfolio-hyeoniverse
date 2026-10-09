@@ -293,7 +293,7 @@
 
 ## `src/styles/globals/_semantic.css`
 
-토큰 178개
+토큰 162개
 
 | 토큰 | 값 | 다크 | 조건부 |
 |---|---|---|---|
@@ -426,10 +426,6 @@
 | `--font-size-display-md` | `clamp(2rem, 1rem + 3vw, 5rem)` |  |  |
 | `--font-size-display-lg` | `clamp(2.5rem, 1.5rem + 5vw, 6.25rem)` |  |  |
 | `--font-size-display-xl` | `clamp(4rem, 2.5rem + 7vw, 12.5rem)` |  |  |
-| `--font-size-prose-xs` | `clamp(0.75rem, 0.25rem + 0.45vw, 1rem)` |  |  |
-| `--font-size-prose-sm` | `clamp(0.75rem, 0.25rem + 0.58vw, 1.15rem)` |  |  |
-| `--font-size-prose-md` | `clamp(0.75rem, 0.25rem + 0.73vw, 1.25rem)` |  |  |
-| `--font-size-prose-lg` | `clamp(0.75rem, 0.25rem + 1.2vw, 1.5rem)` |  |  |
 | `--font-size-dot` | `5px` |  |  |
 | `--font-display-xl` | `var(--font-weight-regular) var(--font-size-display-xl) / var(--line-height-100) var(--font-family-accent)` |  |  |
 | `--font-display-lg` | `var(--font-weight-regular) var(--font-size-display-lg) / var(--line-height-100) var(--font-family-accent)` |  |  |
@@ -457,18 +453,6 @@
 | `--font-code-md` | `var(--font-weight-regular) var(--font-size-body-md) / var(--line-height-160) var(--font-family-code)` |  |  |
 | `--font-code-sm` | `var(--font-weight-regular) var(--font-size-body-sm) / var(--line-height-160) var(--font-family-code)` |  |  |
 | `--font-code-xs` | `var(--font-weight-regular) var(--font-size-body-xs) / var(--line-height-160) var(--font-family-code)` |  |  |
-| `--font-code-label-xl` | `var(--font-weight-medium) var(--font-size-body-xl) / var(--line-height-160) var(--font-family-code)` |  |  |
-| `--font-code-label-lg` | `var(--font-weight-medium) var(--font-size-body-lg) / var(--line-height-160) var(--font-family-code)` |  |  |
-| `--font-code-label-md` | `var(--font-weight-medium) var(--font-size-body-md) / var(--line-height-160) var(--font-family-code)` |  |  |
-| `--font-code-label-sm` | `var(--font-weight-medium) var(--font-size-body-sm) / var(--line-height-160) var(--font-family-code)` |  |  |
-| `--font-code-label-xs` | `var(--font-weight-medium) var(--font-size-body-xs) / var(--line-height-160) var(--font-family-code)` |  |  |
-| `--font-meta-md` | `var(--font-weight-light) var(--font-size-body-md) / var(--line-height-160) var(--font-family-code)` |  |  |
-| `--font-meta-sm` | `var(--font-weight-light) var(--font-size-body-sm) / var(--line-height-160) var(--font-family-code)` |  |  |
-| `--font-meta-xs` | `var(--font-weight-light) var(--font-size-body-xs) / var(--line-height-160) var(--font-family-code)` |  |  |
-| `--font-prose-lg` | `var(--font-weight-light) var(--font-size-prose-lg) / var(--line-height-160) var(--font-family-code)` |  |  |
-| `--font-prose-md` | `var(--font-weight-light) var(--font-size-prose-md) / var(--line-height-160) var(--font-family-code)` |  |  |
-| `--font-prose-sm` | `var(--font-weight-light) var(--font-size-prose-sm) / var(--line-height-160) var(--font-family-code)` |  |  |
-| `--font-prose-xs` | `var(--font-weight-light) var(--font-size-prose-xs) / var(--line-height-160) var(--font-family-code)` |  |  |
 | `--heading-line-height` | `var(--line-height-125)` |  |  |
 | `--prose-block-gap` | `var(--spacing-16)` |  |  |
 | `--spacing-section` | `clamp(1rem, min(3.5vh, 2vw), 3.5rem)` |  |  |

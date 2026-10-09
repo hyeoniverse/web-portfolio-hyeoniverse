@@ -736,7 +736,7 @@
 
   /* API 지도 안 메서드 배지 — 좁은 화면 목록보다 조금 크게 */
   .dbMethodBadge {
-    font-size: var(--font-size-prose-xs);
+    font-size: var(--font-size-body-sm);
     min-width: 3.2rem;
   }
 }
