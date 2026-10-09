@@ -23,7 +23,7 @@ export interface PostCardVariantProps {
   /** 시리즈 필터링 등 — 카드 높이를 축소 (이미지 16:9 + body 슬림) */
   compact?: boolean;
   /** 목록 레이아웃 (설정) — compact 는 전용 렌더, 나머지는 표준 카드 + CSS */
-  layout?: "magazine" | "grid" | "list" | "compact" | "masonry" | "timeline" | "featured";
+  layout?: "magazine" | "grid" | "list" | "compact" | "masonry" | "timeline" | "featured" | "series";
   /** bento — 2-col span + ultra-wide(21:9) 이미지 */
   banner?: boolean;
   /** bento — 정사각 이미지(1:1) */
@@ -99,6 +99,10 @@ export default function PostCardStandard({
     banner && styles.banner,
     square && styles.square,
     portrait && styles.portrait,
+    layout === "grid" && styles.layoutGrid,
+    layout === "list" && styles.layoutList,
+    layout === "series" && styles.series,
+    layout === "featured" && isFeatured && styles.featuredHero,
   ].filter(Boolean).join(" ");
 
   /* ── Standard / Featured ── */

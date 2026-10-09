@@ -40,7 +40,8 @@
 .imageWrap {
   position: relative;
   width: 100%;
-  aspect-ratio: 16 / 10;
+  /* 목록 masonry 는 칸마다 비율을 바꾼다(PostsGrid 가 --post-card-aspect 를 넣는다) */
+  aspect-ratio: var(--post-card-aspect, 16 / 10);
   overflow: hidden;
   flex-shrink: 0;
   border-radius: 0;
@@ -79,13 +80,13 @@
   }
 }
 
-/* compact placeholderCard (series 모드 — imageWrap 강제 140px): 항상 swap.
- * .compact .excerpt 와 .placeholderCard .body .excerpt 두 default 룰 override 위해 !important. */
+/* compact placeholderCard (series 모드 — 작은 썸네일): 항상 swap.
+ * 위의 숨김 규칙들은 :not(.compact) 라 여기와 겹치지 않는다 */
 .placeholderCard.compact .placeholderExcerpt {
-  display: none !important;
+  display: none;
 }
 .placeholderCard.compact .body .excerpt {
-  display: -webkit-box !important;
+  display: -webkit-box;
 }
 .placeholderCard.compact .placeholderTitle {
   -webkit-line-clamp: 3;
@@ -579,4 +580,101 @@
 .tagsToggle:hover {
   background: var(--bg-tertiary);
   color: var(--text-primary);
+}
+
+/* ═══════════════════════════════════════════
+   목록 레이아웃(설정 posts.layout · 시리즈) — PostsGrid 가 고른 배치를 카드가 스스로 그린다.
+   예전에는 PostsGrid 가 [class*="imageWrap"] 같은 선택자와 !important 로 바깥에서 덮었다(4-4)
+   ═══════════════════════════════════════════ */
+
+/* grid — 균일 격자 + 이미지 우선. 발췌 · 태그를 숨긴다 */
+/* .card 를 붙여 좁은 카드의 swap 규칙(@container, 특이도 0,4,0)보다 세게 */
+.layoutGrid.card .body .excerpt,
+.layoutGrid .placeholderExcerpt,
+.layoutGrid .tagsRow {
+  display: none;
+}
+
+/* list — 수평 카드 1열(썸네일 좌측) */
+.layoutList {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: var(--spacing-16);
+  align-items: start;
+  padding-bottom: var(--spacing-20);
+}
+.layoutList .imageWrap {
+  aspect-ratio: 16 / 10;
+  width: 120px;
+}
+@media (width > 768px) {
+  .layoutList {
+    grid-template-columns: 220px 1fr;
+    gap: var(--spacing-20);
+  }
+  .layoutList .imageWrap {
+    width: 220px;
+  }
+}
+.layoutList .body {
+  padding-top: 0;
+}
+/* 썸네일 안의 제목 · 발췌는 숨기고 body 에 보인다(작은 썸네일에 글자 · 칩이 겹치지 않게) */
+.layoutList .placeholderText {
+  display: none;
+}
+.layoutList.placeholderCard .body .excerpt {
+  display: -webkit-box;
+}
+
+/* series — 시리즈 필터링 timeline 의 한 칸. 작은 썸네일(7:5) 좌측 + 본문. compact 와 함께 붙는다 */
+.series {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: var(--spacing-12);
+  align-items: start;
+}
+.series .imageWrap {
+  aspect-ratio: 7 / 5;
+  width: 100px;
+}
+.series .body {
+  padding-top: 0;
+}
+@media (width > 768px) {
+  .series {
+    grid-template-columns: 140px 1fr;
+    gap: var(--spacing-16);
+  }
+  .series .imageWrap {
+    width: 140px;
+  }
+}
+
+/* featured 레이아웃의 첫 카드 — 전폭 hero(이미지 1.4 : 본문 1). variant="featured" 와 함께 붙는다 */
+.featuredHero {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(var(--spacing-20), 4vw, var(--spacing-32));
+  align-items: center;
+}
+@media (width > 768px) {
+  .featuredHero {
+    grid-template-columns: 1.4fr 1fr;
+  }
+}
+.featuredHero .imageWrap {
+  aspect-ratio: 16 / 10;
+  width: 100%;
+}
+.featuredHero .body {
+  padding-top: 0;
+}
+.featuredHero .title {
+  font-size: clamp(1.4rem, 1.103rem + 1.22vw, 2.2rem);
+  line-height: 1.15;
+}
+.featuredHero .placeholderTitle {
+  font-size: clamp(1.2rem, 0.977rem + 0.91vw, 1.8rem);
+  -webkit-line-clamp: 3;
 }
