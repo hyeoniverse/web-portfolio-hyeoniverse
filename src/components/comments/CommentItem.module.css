@@ -49,8 +49,7 @@
 
 .flipText {
   margin: 0;
-  font: var(--font-code-xl);
-  font-weight: var(--font-weight-medium);
+  font: var(--font-code-label-xl);
   color: var(--text-accent);
   letter-spacing: 0.02em;
   white-space: nowrap;

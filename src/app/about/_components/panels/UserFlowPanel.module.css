@@ -129,8 +129,7 @@
 
 /* 자간을 벌리면 영문 대문자 라벨(GET IN TOUCH 등)이 알약 밖으로 넘쳤다 */
 .ufTerminalText {
-  font: var(--font-code-sm);
-  font-weight: 600;
+  font: var(--font-code-label-sm);
   fill: var(--bg-primary);
   text-transform: uppercase;
   letter-spacing: 0;
@@ -158,8 +157,7 @@
 }
 
 .ufDiamondText {
-  font: var(--font-code-sm);
-  font-weight: 600;
+  font: var(--font-code-label-sm);
   fill: var(--text-accent);
 }
 
@@ -183,8 +181,7 @@
 }
 
 .ufEdgeLabel {
-  font: var(--font-code-xs);
-  font-weight: 600;
+  font: var(--font-code-label-xs);
   fill: var(--text-accent);
   opacity: 0;
   animation: ufNodeIn var(--duration-base) var(--ease-enter) both;

@@ -298,8 +298,7 @@
 
 .archTmLabel {
   overflow: hidden;
-  font: var(--font-code-xs);
-  font-weight: var(--font-weight-medium);
+  font: var(--font-code-label-xs);
   color: var(--text-secondary);
   white-space: nowrap;
   text-overflow: ellipsis;

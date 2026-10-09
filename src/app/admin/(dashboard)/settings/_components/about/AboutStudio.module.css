@@ -211,8 +211,7 @@ textarea.edit {
   min-width: 0;
 }
 .bgThemeLabel {
-  font: var(--font-code-xs);
-  font-weight: 600;
+  font: var(--font-code-label-xs);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--text-tertiary);

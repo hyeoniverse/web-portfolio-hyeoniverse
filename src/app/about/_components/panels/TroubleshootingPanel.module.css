@@ -339,8 +339,7 @@
   background: var(--bg-secondary);
   border: var(--border-width-1) solid color-mix(in srgb, var(--text-secondary) 15%, transparent);
   border-radius: var(--radius-control);
-  font: var(--font-code-sm);
-  font-weight: var(--font-weight-medium);
+  font: var(--font-code-label-sm);
   color: var(--text-tertiary);
   cursor: pointer;
   z-index: 2;
@@ -442,8 +441,7 @@
 }
 
 .troubleImagePlaceholderTitle {
-  font: var(--font-code-sm);
-  font-weight: var(--font-weight-semibold);
+  font: var(--font-code-label-sm);
   color: var(--text-secondary);
 }
 

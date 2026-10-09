@@ -376,17 +376,15 @@
   padding: var(--spacing-8) 0;
 }
 
-.magInfoLabel {  font: var(--font-code-xs);
+.magInfoLabel {  font: var(--font-code-label-xs);
 
-  font-weight: 500;
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.1em;
 }
 
-.magInfoValue {  font: var(--font-code-md);
+.magInfoValue {  font: var(--font-code-label-md);
 
-  font-weight: 500;
   color: var(--text-primary);
 }
 
@@ -426,8 +424,7 @@
 
 .magNotesTag {
   margin-bottom: var(--spacing-12);
-  font: var(--font-code-xs);
-  font-weight: 500;
+  font: var(--font-code-label-xs);
   color: var(--text-accent);
   text-transform: uppercase;
   letter-spacing: 0.12em;
@@ -523,8 +520,7 @@
    머리말로 되돌린다 — 큰 글자가 둘이면 어느 쪽이 제목인지 알 수 없다. */
 .sectionKicker {
   margin: 0 0 var(--spacing-32);
-  font: var(--font-code-sm);
-  font-weight: 500;
+  font: var(--font-code-label-sm);
   line-height: normal;
   color: var(--text-tertiary);
   text-transform: uppercase;
@@ -560,8 +556,7 @@
 
 .expGroupLabel {
   margin: 0 0 var(--spacing-16);
-  font: var(--font-code-sm);
-  font-weight: 500;
+  font: var(--font-code-label-sm);
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.2em;
@@ -624,8 +619,7 @@
 
 .expRole {
   margin: 0 0 var(--spacing-4) 0;
-  font: var(--font-code-xl);
-  font-weight: 600;
+  font: var(--font-code-label-xl);
   color: var(--text-primary);
 }
 
@@ -709,8 +703,7 @@
 
 .skillPanelItemName {
   margin: 0 0 var(--spacing-8) 0;
-  font: var(--font-code-lg);
-  font-weight: 500;
+  font: var(--font-code-label-lg);
   color: var(--text-primary);
 }
 
@@ -877,8 +870,7 @@
 
 .credentialName {
   margin: 0;
-  font: var(--font-code-lg);
-  font-weight: 500;
+  font: var(--font-code-label-lg);
   color: var(--text-primary);
 }
 

@@ -293,7 +293,7 @@
 
 ## `src/styles/globals/_semantic.css`
 
-토큰 171개
+토큰 176개
 
 | 토큰 | 값 | 다크 | 조건부 |
 |---|---|---|---|
@@ -455,6 +455,11 @@
 | `--font-code-md` | `var(--font-weight-regular) var(--font-size-body-md) / var(--line-height-160) var(--font-family-code)` |  |  |
 | `--font-code-sm` | `var(--font-weight-regular) var(--font-size-body-sm) / var(--line-height-160) var(--font-family-code)` |  |  |
 | `--font-code-xs` | `var(--font-weight-regular) var(--font-size-body-xs) / var(--line-height-160) var(--font-family-code)` |  |  |
+| `--font-code-label-xl` | `var(--font-weight-medium) var(--font-size-body-xl) / var(--line-height-160) var(--font-family-code)` |  |  |
+| `--font-code-label-lg` | `var(--font-weight-medium) var(--font-size-body-lg) / var(--line-height-160) var(--font-family-code)` |  |  |
+| `--font-code-label-md` | `var(--font-weight-medium) var(--font-size-body-md) / var(--line-height-160) var(--font-family-code)` |  |  |
+| `--font-code-label-sm` | `var(--font-weight-medium) var(--font-size-body-sm) / var(--line-height-160) var(--font-family-code)` |  |  |
+| `--font-code-label-xs` | `var(--font-weight-medium) var(--font-size-body-xs) / var(--line-height-160) var(--font-family-code)` |  |  |
 | `--font-meta-md` | `var(--font-weight-light) var(--font-size-body-md) / var(--line-height-160) var(--font-family-code)` |  |  |
 | `--font-meta-sm` | `var(--font-weight-light) var(--font-size-body-sm) / var(--line-height-160) var(--font-family-code)` |  |  |
 | `--font-meta-xs` | `var(--font-weight-light) var(--font-size-body-xs) / var(--line-height-160) var(--font-family-code)` |  |  |

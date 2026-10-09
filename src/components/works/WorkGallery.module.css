@@ -213,8 +213,7 @@
 }
 
 .docKind {
-  font: var(--font-code-sm);
-  font-weight: var(--font-weight-semibold);
+  font: var(--font-code-label-sm);
   letter-spacing: 0.08em;
 }
 

@@ -52,8 +52,7 @@
 
 .nm {
   margin-top: var(--spacing-8);
-  font: var(--font-code-md);
-  font-weight: var(--font-weight-semibold);
+  font: var(--font-code-label-md);
   color: var(--text-primary);
 }
 
@@ -71,8 +70,7 @@
   margin-top: var(--spacing-8);
   padding: var(--badge-padding-lg);
   border-radius: var(--radius-control);
-  font: var(--font-code-xs);
-  font-weight: var(--font-weight-semibold);
+  font: var(--font-code-label-xs);
   vertical-align: middle;
   white-space: nowrap;
 }
@@ -126,8 +124,7 @@
   border-radius: var(--radius-surface);
 }
 .hd {
-  font: var(--font-code-xs);
-  font-weight: var(--font-weight-bold);
+  font: var(--font-code-label-xs);
   color: var(--text-accent);
   letter-spacing: 0.04em;
 }
@@ -168,7 +165,7 @@
 }
 .num { justify-content: flex-end; font-family: var(--font-family-code); font-variant-numeric: tabular-nums; color: var(--text-tertiary); }
 .win { background: var(--bg-success-soft); color: var(--text-success); font-weight: var(--font-weight-semibold); }
-.badge { font: var(--font-code-xs); font-weight: var(--font-weight-bold); color: var(--text-success); }
+.badge { font: var(--font-code-label-xs); color: var(--text-success); }
 .dim { color: var(--text-tertiary); }
 
 /* 안내 노트 — 좌측 선만 */
@@ -179,7 +176,7 @@
   padding: var(--spacing-8) 0 var(--spacing-8) var(--spacing-16);
   border-left: var(--border-width-3) solid var(--text-accent);
 }
-.noteT { display: flex; align-items: center; gap: var(--spacing-8); font: var(--font-code-md); font-weight: var(--font-weight-semibold); color: var(--text-primary); }
+.noteT { display: flex; align-items: center; gap: var(--spacing-8); font: var(--font-code-label-md); color: var(--text-primary); }
 .noteP { font: var(--font-meta-md); line-height: 1.6; color: var(--text-secondary); }
 
 /* 결정/가드 박스 — 선만 */
@@ -279,8 +276,7 @@
   border-radius: var(--radius-full);
   background: var(--bg-primary);
   border: var(--border-width-1) solid color-mix(in srgb, var(--text-secondary) 24%, transparent);
-  font: var(--font-code-xs);
-  font-weight: var(--font-weight-semibold);
+  font: var(--font-code-label-xs);
   line-height: 1;
   color: var(--text-tertiary);
 }
@@ -290,7 +286,7 @@
    박스 밖(커피 canvas)을 못 본다. 통합되면 canvas 가 같은 박스 안이라 정상 샘플. */
 .layers { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-20); }
 .layerCol { display: flex; flex-direction: column; gap: var(--spacing-8); }
-.layerHd { text-align: center; font: var(--font-code-xs); font-weight: var(--font-weight-semibold); }
+.layerHd { text-align: center; font: var(--font-code-label-xs); }
 .layerHd.cut { color: var(--text-error); }
 .layerHd.thru { color: var(--text-success); }
 .layerBox { display: flex; flex-direction: column; gap: var(--spacing-4); padding: var(--spacing-8); border-radius: var(--radius-surface); }

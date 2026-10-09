@@ -297,8 +297,7 @@
 }
 .nodeName {
   fill: var(--text-primary);
-  font: var(--font-code-md);
-  font-weight: var(--font-weight-bold);
+  font: var(--font-code-label-md);
 }
 .col {
   fill: var(--text-secondary);
@@ -312,8 +311,7 @@
 /* PK / FK 뱃지 — ERD 에서 컬럼 이름만큼 중요한 정보 */
 .keyPk,
 .keyFk {
-  font: var(--font-code-xs);
-  font-weight: var(--font-weight-bold);
+  font: var(--font-code-label-xs);
 }
 .keyPk {
   fill: var(--text-accent);
