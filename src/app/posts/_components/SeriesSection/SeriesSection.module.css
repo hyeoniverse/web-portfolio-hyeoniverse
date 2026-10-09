@@ -34,7 +34,7 @@
 /* 검색 capsule border 를 도움말/셔플 등 주변 컨트롤(--border-light)과 통일 (기본 --border-default 는 더 진함).
    focus-within 시엔 강조 border 를 유지하려고 resting 상태에만 적용. (글 목록 검색은 Posts.module.css 에 같은 규칙) */
 .seriesSearchCapsule:not(:focus-within) {
-  border-color: var(--border-color-light) !important;
+  border-color: var(--border-color-light);
 }
 /* 책 표지를 가로로 나열 — 좌우 끝에 mask gradient 로 스크롤 가능 표시.
    --_mask-l / --_mask-r 컨텍스트 토큰으로 좌/우 fade 너비를 제어 (atStart/atEnd 시 0 으로) */
@@ -233,5 +233,5 @@
 /* 시리즈 관리 버튼(outline) — 기본 border-strong 대신 주변 정렬 컨트롤과 같은 light 로.
    hover 시엔 outline 기본 채움 동작 유지 위해 :not(:hover) 로 resting 만 오버라이드. */
 .seriesManageBtn:not(:hover) {
-  border-color: var(--border-color-light) !important;
+  border-color: var(--border-color-light);
 }
