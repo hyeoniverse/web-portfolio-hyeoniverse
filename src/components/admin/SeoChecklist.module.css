@@ -83,8 +83,7 @@
   display: inline-flex;
   align-items: baseline;
   gap: var(--spacing-1);
-  font: var(--font-code-sm);
-  font-weight: 700;
+  font: var(--font-label-sm);
   font-variant-numeric: tabular-nums;
   margin-left: var(--spacing-4);
   margin-right: var(--spacing-8);

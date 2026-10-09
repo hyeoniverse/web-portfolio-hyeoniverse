@@ -37,8 +37,7 @@
   background: var(--bg-primary);
   box-shadow: var(--shadow-raised);
   color: var(--text-primary);
-  font: var(--font-code-md);
-  font-weight: var(--font-weight-bold);
+  font: var(--font-label-md);
 }
 
 /* 스키마 뷰로 넘어갈 수 있는 엔티티 */
@@ -126,8 +125,7 @@
 }
 .edge :global(.react-flow__edge-text) {
   fill: var(--text-tertiary);
-  font: var(--font-code-xs);
-  font-weight: var(--font-weight-bold);
+  font: var(--font-label-xs);
   paint-order: stroke;
   stroke: var(--bg-secondary);
   stroke-width: 4px;

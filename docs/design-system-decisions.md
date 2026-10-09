@@ -835,3 +835,19 @@ Material `@material/web` 2.5, Primer primitives. 숫자는 같은 날 다시 셌
 - **보이는 변화.** 입력칸 테두리가 조금 진해진다.
 - **확인.** 디자인 시스템 페이지의 Input · Select 트리거 테두리를 실제 배경 위에 겹쳐 대비를 쟀다 — 라이트 3.27 · 다크 4.90. vitest 전체(1062) 통과.
 
+### D63. 2026-10-09 — 고정폭은 역할이 아니라 지면이다: `meta` · `prose` 를 걷고 `data-type="mono"` 로(7-4 이어서)
+
+- **왜.** 코드 묶음 위에 굵기를 덧쓴 규칙(87곳)을 `code-label` 로 모으려다 이름이 걸렸다. 그것들은 코드가 아니라 고정폭으로 보이는 이름표였다. 살펴보니 `meta`(78곳) · `prose`(49곳)도 같았다 — "About · Profile 의 고정폭 본문"을 역할처럼 이름 붙인 것이고, 그 지면 안에서 같은 이름표가 code · meta · 덧쓰기로 갈려 있었다. 고정폭은 글자 역할이 아니라 About · Profile 의 분위기다.
+- **정한 것.**
+  - 역할은 display · headline · title · body · label · code 여섯. `meta` · `prose` 와 `--font-size-prose-*` 를 지운다. code 는 진짜 코드에만 쓴다.
+  - About · Profile 바깥 틀에 `data-type="mono"`. 그 안에서 title · body · label 묶음을 코드 글꼴로 다시 선언하고 body 는 Light(300)로 둔다. 컴포넌트는 지면을 몰라도 된다.
+  - 지면 안의 하단 내비(SectionNav) · 푸터(CreditsFooter)는 `data-type="sans"` 로 평소 글꼴로 되돌린다 — 다른 페이지와 같게.
+  - 옮긴 것: meta → body(같은 단계), prose · 화면 비례 크기 → body 한 단계 위(xs→sm … lg→xl), 지면 안의 code → body, code + 500 · 600 · 700 덧쓰기 → label(지면 밖은 Pretendard 로). `--font-label-lg · xl` 을 더했다.
+- **보이는 변화.**
+  - 고정폭 이름표가 500 하나로 — 600 이던 경력 역할명 · 트러블슈팅 분류 · 상태 칩이 조금 가늘어진다.
+  - 지면 안 400 이던 보조 글자(회사명 · 연도 · 기간 · 창 제목)가 300 으로.
+  - 지면 안에 섞여 있던 Pretendard(난이도 배지 · 개수)가 고정폭으로.
+  - 화면 비례 글자가 고정 크기로 — 1440px 에서 패널 설명문 21 → 18px, 탭 버튼 12 → 14px. 큰 화면에서는 작아지고 작은 화면에서는 커진다.
+  - 지면 밖 고정폭 이름표(BGM 말풍선, 관리자 표 머리 · 대시보드 수치 · 편집기 라벨)가 Pretendard 500 으로.
+- **확인.** About · Profile · 홈을 master 와 이 브랜치에서 열어 글자가 있는 요소의 글꼴 · 굵기 · 크기를 모두 견줬다(1440px). 하단 내비 · 푸터는 master 와 같다. 관리자 화면은 보지 않았다. vitest 전체 통과.
+- **남은 것.** 컴포넌트 CSS 가 `font-family: var(--font-family-code)` 를 바로 쓴 63곳 — 같은 기준(코드인가 · 이름표인가)으로 다음에 본다.

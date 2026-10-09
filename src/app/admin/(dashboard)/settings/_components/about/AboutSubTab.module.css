@@ -424,16 +424,14 @@
 }
 .editPaneTitle {
   min-width: 0;
-  font: var(--font-code-md);
-  font-weight: 600;
+  font: var(--font-label-md);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 /* 경로 입력 — mono, 조금 더 큰 글자 */
 .pathInput input {
-  font: var(--font-code-lg);
-  font-weight: 600;
+  font: var(--font-label-lg);
 }
 /* 설명 EN/KO — 좁은 편집 패널이라 세로 스택 */
 /* 툴바 — [이동·들여쓰기] [추가] … [삭제] */
@@ -481,8 +479,7 @@
   border: var(--border-light);
   border-radius: var(--radius-surface);
   color: var(--text-secondary);
-  font: var(--font-code-sm);
-  font-weight: 600;
+  font: var(--font-label-sm);
 }
 .lrowIcon img {
   width: 100%;

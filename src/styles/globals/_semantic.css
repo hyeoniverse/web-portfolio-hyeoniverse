@@ -252,7 +252,7 @@
    * 1층 원재료  --{속성}-{값}                 _typography.css  --font-size-13 · --line-height-160 · --font-instrument
    * 2층 역할    --font-{속성}-{역할}-{단계}   여기             --font-size-body-sm · --font-family-code
    * 3층 묶음    --font-{역할}-{단계}          여기             --font-body-sm  ← 컴포넌트는 이것을 쓴다
-   * 역할 = display · headline(글의 제목) · title(틀의 제목) · body · code · meta (+ 지면 prose), 단계 = xs · sm · md · lg · xl.
+   * 역할 = display · headline(글의 제목) · title(틀의 제목) · body · label · code, 단계 = xs · sm · md · lg · xl.
    * headline 과 title 은 Material 3 의 구분 — 글 · 작업물의 제목은 세리프 400, 모달 · 구획 · 카드 머리 · 이름은 Pretendard 600(D46).
    * 설정의 본문 · 제목 · 코드 글꼴은 2층 --font-family-* 를 덮고(ThemeProvider), 3층은 그대로 따라간다.
    * 전부 12px 하한 위에 있다(3.2-2). */
@@ -305,10 +305,6 @@
   --font-size-display-md: clamp(2rem, 1rem + 3vw, 5rem);
   --font-size-display-lg: clamp(2.5rem, 1.5rem + 5vw, 6.25rem);
   --font-size-display-xl: clamp(4rem, 2.5rem + 7vw, 12.5rem); /* 홈 히어로 · Works 레이아웃 제목 · 큰 번호. 옛 --fluid-font-size-7xl · 8xl 자리 */
-  --font-size-prose-xs: clamp(0.75rem, 0.25rem + 0.45vw, 1rem);
-  --font-size-prose-sm: clamp(0.75rem, 0.25rem + 0.58vw, 1.15rem);
-  --font-size-prose-md: clamp(0.75rem, 0.25rem + 0.73vw, 1.25rem);
-  --font-size-prose-lg: clamp(0.75rem, 0.25rem + 1.2vw, 1.5rem);
 
   /* 글자가 아니라 도형 — 구분자 `·` 글리프의 크기다. 읽는 값이 아니라 하한 밖에 있다 */
   /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 구분자 점 글리프, 읽는 글자가 아니다 */
@@ -316,8 +312,8 @@
 
   /* ── 3층 · 글자 묶음 — `font: var(--font-body-sm)` 로 쓴다(3.2-1) ─────
    * 굵기 · 크기/줄간격 · 글꼴. 한 값만 다르면 뒤에 덧쓴다. tabular-nums 같은 설정은 font 뒤에 적는다.
-   * 제목은 줄간격 125, 전시(display)는 100, 본문 · UI · 코드 · 메타 · 지면은 160(지금 body 에서 물려받는 값과 같다).
-   * 전체 세트(3.2): display-sm ~ xl / headline-xs ~ xl / title-sm ~ md / body-xs ~ xl / label-xs ~ md / code-xs ~ xl / meta-xs ~ md / prose-xs ~ lg.
+   * 제목은 줄간격 125, 전시(display)는 100, 본문 · UI · 이름표 · 코드는 160(지금 body 에서 물려받는 값과 같다).
+   * 전체 세트(3.2): display-sm ~ xl / headline-xs ~ xl / title-sm ~ md / body-xs ~ xl / label-xs ~ md / code-xs ~ xl. About · Profile 은 [data-type="mono"] 안에서 title · body · label 이 고정폭이 된다.
    * 안 쓰는 토큰은 두지 않으므로(2-4), 컴포넌트가 처음 쓸 때 위 이름 · 같은 모양으로 더한다. */
   /* 전시 — 히어로 · 큰 숫자 · 페이지 제목. 화면 폭을 따라 늘고 줄며(D28), 글꼴은 제목 설정과 상관없이 Playfair(D34) */
   --font-display-xl: var(--font-weight-regular) var(--font-size-display-xl) / var(--line-height-100) var(--font-family-accent);
@@ -338,6 +334,8 @@
   --font-body-sm: var(--font-weight-regular) var(--font-size-body-sm) / var(--line-height-160) var(--font-family-body);
   --font-body-xs: var(--font-weight-regular) var(--font-size-body-xs) / var(--line-height-160) var(--font-family-body);
   /* 이름표 — 단추 · 칩 · 탭 · 표 머리 · 메뉴처럼 UI 의 이름. 본문 크기 · 줄간격에 굵기 500 하나(Material label, 7-4) */
+  --font-label-xl: var(--font-weight-medium) var(--font-size-body-xl) / var(--line-height-160) var(--font-family-body);
+  --font-label-lg: var(--font-weight-medium) var(--font-size-body-lg) / var(--line-height-160) var(--font-family-body);
   --font-label-md: var(--font-weight-medium) var(--font-size-body-md) / var(--line-height-160) var(--font-family-body);
   --font-label-sm: var(--font-weight-medium) var(--font-size-body-sm) / var(--line-height-160) var(--font-family-body);
   --font-label-xs: var(--font-weight-medium) var(--font-size-body-xs) / var(--line-height-160) var(--font-family-body);
@@ -346,15 +344,6 @@
   --font-code-md: var(--font-weight-regular) var(--font-size-body-md) / var(--line-height-160) var(--font-family-code);
   --font-code-sm: var(--font-weight-regular) var(--font-size-body-sm) / var(--line-height-160) var(--font-family-code);
   --font-code-xs: var(--font-weight-regular) var(--font-size-body-xs) / var(--line-height-160) var(--font-family-code);
-  /* 메타 — About · Profile 의 라벨 · 분류 · 날짜 · 수치. 코드 글꼴을 Light 로 쓴다 */
-  --font-meta-md: var(--font-weight-light) var(--font-size-body-md) / var(--line-height-160) var(--font-family-code);
-  --font-meta-sm: var(--font-weight-light) var(--font-size-body-sm) / var(--line-height-160) var(--font-family-code);
-  --font-meta-xs: var(--font-weight-light) var(--font-size-body-xs) / var(--line-height-160) var(--font-family-code);
-  /* 지면 — About · Profile 패널의 화면 비례 글자. 컨테이너와 같은 코드 글꼴 Light(D32 · D34) */
-  --font-prose-lg: var(--font-weight-light) var(--font-size-prose-lg) / var(--line-height-160) var(--font-family-code);
-  --font-prose-md: var(--font-weight-light) var(--font-size-prose-md) / var(--line-height-160) var(--font-family-code);
-  --font-prose-sm: var(--font-weight-light) var(--font-size-prose-sm) / var(--line-height-160) var(--font-family-code);
-  --font-prose-xs: var(--font-weight-light) var(--font-size-prose-xs) / var(--line-height-160) var(--font-family-code);
 
   /* Line Heights */
 
@@ -389,3 +378,35 @@
 /* --------------------------------------------------------------------------
    Mobile — Editorial Overrides
    -------------------------------------------------------------------------- */
+
+/* 고정폭 지면(About · Profile) — 안에서는 title · body · label 이 코드 글꼴로, 본문은 Light 로 */
+[data-type="mono"] {
+  --font-title-sm: var(--font-weight-semibold) var(--font-size-title-sm) / var(--line-height-125) var(--font-family-code);
+  --font-title-md: var(--font-weight-semibold) var(--font-size-title-md) / var(--line-height-125) var(--font-family-code);
+  --font-body-xl: var(--font-weight-light) var(--font-size-body-xl) / var(--line-height-160) var(--font-family-code);
+  --font-body-lg: var(--font-weight-light) var(--font-size-body-lg) / var(--line-height-160) var(--font-family-code);
+  --font-body-md: var(--font-weight-light) var(--font-size-body-md) / var(--line-height-160) var(--font-family-code);
+  --font-body-sm: var(--font-weight-light) var(--font-size-body-sm) / var(--line-height-160) var(--font-family-code);
+  --font-body-xs: var(--font-weight-light) var(--font-size-body-xs) / var(--line-height-160) var(--font-family-code);
+  --font-label-xl: var(--font-weight-medium) var(--font-size-body-xl) / var(--line-height-160) var(--font-family-code);
+  --font-label-lg: var(--font-weight-medium) var(--font-size-body-lg) / var(--line-height-160) var(--font-family-code);
+  --font-label-md: var(--font-weight-medium) var(--font-size-body-md) / var(--line-height-160) var(--font-family-code);
+  --font-label-sm: var(--font-weight-medium) var(--font-size-body-sm) / var(--line-height-160) var(--font-family-code);
+  --font-label-xs: var(--font-weight-medium) var(--font-size-body-xs) / var(--line-height-160) var(--font-family-code);
+}
+
+/* 고정폭 지면 안의 예외(하단 내비 · 푸터) — 다른 페이지와 같은 글꼴로 되돌린다 */
+[data-type="sans"] {
+  --font-title-sm: var(--font-weight-semibold) var(--font-size-title-sm) / var(--line-height-125) var(--font-family-body);
+  --font-title-md: var(--font-weight-semibold) var(--font-size-title-md) / var(--line-height-125) var(--font-family-body);
+  --font-body-xl: var(--font-weight-regular) var(--font-size-body-xl) / var(--line-height-160) var(--font-family-body);
+  --font-body-lg: var(--font-weight-regular) var(--font-size-body-lg) / var(--line-height-160) var(--font-family-body);
+  --font-body-md: var(--font-weight-regular) var(--font-size-body-md) / var(--line-height-160) var(--font-family-body);
+  --font-body-sm: var(--font-weight-regular) var(--font-size-body-sm) / var(--line-height-160) var(--font-family-body);
+  --font-body-xs: var(--font-weight-regular) var(--font-size-body-xs) / var(--line-height-160) var(--font-family-body);
+  --font-label-xl: var(--font-weight-medium) var(--font-size-body-xl) / var(--line-height-160) var(--font-family-body);
+  --font-label-lg: var(--font-weight-medium) var(--font-size-body-lg) / var(--line-height-160) var(--font-family-body);
+  --font-label-md: var(--font-weight-medium) var(--font-size-body-md) / var(--line-height-160) var(--font-family-body);
+  --font-label-sm: var(--font-weight-medium) var(--font-size-body-sm) / var(--line-height-160) var(--font-family-body);
+  --font-label-xs: var(--font-weight-medium) var(--font-size-body-xs) / var(--line-height-160) var(--font-family-body);
+}

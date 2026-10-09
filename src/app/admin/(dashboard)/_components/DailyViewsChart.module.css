@@ -47,8 +47,7 @@
 }
 
 .dailyChartTotal {
-  font: var(--font-code-lg);
-  font-weight: 700;
+  font: var(--font-label-lg);
   font-variant-numeric: tabular-nums;
   line-height: 1;
   color: var(--text-primary);
@@ -171,8 +170,7 @@
   position: absolute;
   left: 50%;
   transform: translate(-50%, calc(-100% - 10px));
-  font: var(--font-code-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   font-variant-numeric: tabular-nums;
   color: var(--text-primary);
   pointer-events: none;

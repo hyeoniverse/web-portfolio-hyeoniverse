@@ -24,7 +24,7 @@ export default async function AboutPage() {
    * /profile/page.tsx 도 같은 이유로 경계를 뺐다. */
   return (
     <BreakpointGuard>
-      <div className="content">
+      <div className="content" data-type="mono">
         <AboutConfigProvider about={about}>
           <AboutSection />
         </AboutConfigProvider>

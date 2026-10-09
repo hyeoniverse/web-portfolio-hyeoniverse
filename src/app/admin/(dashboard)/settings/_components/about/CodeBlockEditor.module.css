@@ -30,7 +30,7 @@
 .editor :global(.cm-content),
 .editor :global(.cm-line),
 .editor :global(.cm-gutters) {
-  font: var(--font-prose-lg);
+  font: var(--font-body-xl);
 }
 .editor :global(.cm-gutters) {
   border-right: 0;

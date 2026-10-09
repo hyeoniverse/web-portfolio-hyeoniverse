@@ -19,7 +19,7 @@
     display: flex;
     gap: var(--spacing-8);
     align-items: center;
-    font: var(--font-meta-sm);
+    font: var(--font-body-sm);
     letter-spacing: 0.1em;
     color: var(--text-secondary);
   }
@@ -60,7 +60,7 @@
   }
 
   .badgeText {
-    font: var(--font-meta-md);
+    font: var(--font-body-md);
     text-transform: uppercase;
     fill: var(--text-primary);
   }

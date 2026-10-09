@@ -87,8 +87,7 @@
 
 /* 표지가 없는 원에 들어가는 머리글자 — 언어 색 위에서 읽히는 색은 부르는 쪽이 정해 준다 */
 .thumbLetter {
-  font: var(--font-code-sm);
-  font-weight: var(--font-weight-medium);
+  font: var(--font-label-sm);
   color: inherit;
 }
 

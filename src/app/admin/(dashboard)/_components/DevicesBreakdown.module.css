@@ -88,8 +88,7 @@ button.deviceLegendBtn {
 }
 
 .deviceLegendPct {
-  font: var(--font-code-xs);
-  font-weight: 700;
+  font: var(--font-label-xs);
   font-variant-numeric: tabular-nums;
   color: var(--text-secondary);
 }
@@ -219,16 +218,14 @@ button.deviceLegendBtn {
 }
 
 .deviceDrillCount {
-  font: var(--font-code-xs);
+  font: var(--font-label-xs);
   font-variant-numeric: tabular-nums;
-  font-weight: 600;
   color: var(--text-secondary);
 }
 
 .deviceDrillPct {
-  font: var(--font-code-xs);
+  font: var(--font-label-xs);
   font-variant-numeric: tabular-nums;
-  font-weight: 700;
   color: var(--text-accent);
   min-width: var(--control-height-xs);
   text-align: right;
