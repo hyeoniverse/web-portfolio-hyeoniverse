@@ -20,7 +20,7 @@
   padding: clamp(0.2rem, 0.3vh, 0.35rem) clamp(0.3rem, 0.4vw, 0.5rem);
   border: var(--border-width-1) solid transparent;
   background: transparent;
-  font: var(--font-body-lg);
+  font: var(--font-body-md);
   color: var(--text-white);
   border-radius: var(--radius-full);
 }
@@ -171,7 +171,7 @@
 }
 
 .floorRoom {
-  font: var(--font-body-xs);
+  font: var(--font-code-xs);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--text-tertiary);
@@ -198,7 +198,7 @@
 
 .floorCurrent small {
   white-space: nowrap;
-  font: var(--font-body-xs);
+  font: var(--font-code-xs);
   font-variant-numeric: tabular-nums;
   color: var(--text-tertiary);
 }
@@ -221,7 +221,7 @@
 }
 
 .floorGroupTitle {
-  font: var(--font-body-xs);
+  font: var(--font-code-xs);
   letter-spacing: 0.02em;
   text-transform: uppercase;
   color: var(--text-tertiary);
@@ -304,7 +304,7 @@
   bottom: calc(100% + var(--spacing-8));
   left: 50%;
   padding: var(--spacing-2) var(--spacing-8);
-  font: var(--font-body-xs);
+  font: var(--font-code-xs);
   white-space: nowrap;
   color: var(--text-inverse);
   background: var(--bg-inverse);
@@ -350,12 +350,12 @@
   flex: 1;
   min-width: 0;
   overflow: hidden;
-  font: var(--font-body-sm);
+  font: var(--font-code-sm);
   text-overflow: ellipsis;
 }
 
 .floorStepHint {
-  font: var(--font-body-xs);
+  font: var(--font-code-xs);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--text-tertiary);
@@ -469,7 +469,7 @@
   border: none;
   border-bottom: var(--border-width-2) solid transparent;
   background: transparent;
-  font: var(--font-body-md);
+  font: var(--font-body-sm);
   font-weight: var(--font-weight-medium);
   color: var(--text-white);
   /* mix-blend-mode: difference 환경에서 색 직접 변경하면 이상해짐 →
@@ -510,7 +510,7 @@
   gap: var(--spacing-12);
   margin-left: auto;
   pointer-events: auto;
-  font: var(--font-body-md);
+  font: var(--font-body-sm);
   color: var(--text-white-muted);
 }
 

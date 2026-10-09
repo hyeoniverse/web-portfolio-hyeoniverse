@@ -408,3 +408,19 @@
   --font-label-sm: var(--font-weight-medium) var(--font-size-body-sm) / var(--line-height-160) var(--font-family-code);
   --font-label-xs: var(--font-weight-medium) var(--font-size-body-xs) / var(--line-height-160) var(--font-family-code);
 }
+
+/* 고정폭 지면 안의 예외(하단 내비 · 푸터) — 다른 페이지와 같은 글꼴로 되돌린다 */
+[data-type="sans"] {
+  --font-title-sm: var(--font-weight-semibold) var(--font-size-title-sm) / var(--line-height-125) var(--font-family-body);
+  --font-title-md: var(--font-weight-semibold) var(--font-size-title-md) / var(--line-height-125) var(--font-family-body);
+  --font-body-xl: var(--font-weight-regular) var(--font-size-body-xl) / var(--line-height-160) var(--font-family-body);
+  --font-body-lg: var(--font-weight-regular) var(--font-size-body-lg) / var(--line-height-160) var(--font-family-body);
+  --font-body-md: var(--font-weight-regular) var(--font-size-body-md) / var(--line-height-160) var(--font-family-body);
+  --font-body-sm: var(--font-weight-regular) var(--font-size-body-sm) / var(--line-height-160) var(--font-family-body);
+  --font-body-xs: var(--font-weight-regular) var(--font-size-body-xs) / var(--line-height-160) var(--font-family-body);
+  --font-label-xl: var(--font-weight-medium) var(--font-size-body-xl) / var(--line-height-160) var(--font-family-body);
+  --font-label-lg: var(--font-weight-medium) var(--font-size-body-lg) / var(--line-height-160) var(--font-family-body);
+  --font-label-md: var(--font-weight-medium) var(--font-size-body-md) / var(--line-height-160) var(--font-family-body);
+  --font-label-sm: var(--font-weight-medium) var(--font-size-body-sm) / var(--line-height-160) var(--font-family-body);
+  --font-label-xs: var(--font-weight-medium) var(--font-size-body-xs) / var(--line-height-160) var(--font-family-body);
+}
