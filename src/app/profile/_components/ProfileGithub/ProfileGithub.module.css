@@ -279,7 +279,6 @@
 }
 
 .langPercent {
-  font-family: var(--font-family-code);
   font-variant-numeric: tabular-nums;
   color: var(--text-tertiary);
 }

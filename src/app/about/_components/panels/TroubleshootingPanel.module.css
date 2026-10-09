@@ -165,7 +165,6 @@
   border: var(--border-width-1) solid color-mix(in srgb, var(--text-secondary) 20%, transparent);
   border-radius: var(--radius-surface);
   overflow: hidden;
-  font-family: var(--font-family-code);
   margin-bottom: var(--spacing-20);
 }
 

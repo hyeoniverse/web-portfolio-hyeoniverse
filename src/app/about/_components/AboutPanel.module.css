@@ -13,7 +13,6 @@
   padding: var(--panel-padding-top, var(--_pad-y)) var(--_pad-x) var(--panel-padding-bottom, var(--_pad-bottom));
   position: relative;
   width: 100%;
-  font-family: var(--font-family-code);
   font-weight: var(--font-weight-light);
   color: var(--text-primary);
   box-sizing: border-box;
