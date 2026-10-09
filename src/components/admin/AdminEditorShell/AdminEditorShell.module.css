@@ -911,20 +911,20 @@
   outline-color: transparent;
 }
 
-.container .titleInput:focus {
+.container .titleInput:focus:not(.titleInputError) {
   border-color: var(--text-primary);
 }
 
-.titleInputError {
-  border-color: var(--text-accent) !important;
+.titleInput.titleInputError {
+  border-color: var(--text-accent);
 }
 
-.fieldInputError {
-  border-color: var(--text-accent) !important;
+.fieldInput.fieldInputError {
+  border-color: var(--text-accent);
 }
 
-.fieldLabelError {
-  color: var(--text-accent) !important;
+.fieldLabel.fieldLabelError {
+  color: var(--text-accent);
 }
 
 .fieldLabelError::after {
@@ -1021,7 +1021,7 @@
   box-sizing: border-box;
 }
 
-.field .fieldInput:focus {
+.field .fieldInput:focus:not(.fieldInputError) {
   border-color: var(--text-primary);
 }
 

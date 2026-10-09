@@ -10,8 +10,8 @@
 /* modal 안 Select dropdown — z 는 Modal 의 PortalContainerContext(layer portal)가 처리하므로 override 불필요.
    불투명 배경만 유지(가독성). */
 .selectDropdownAboveModal {
-  background: var(--bg-primary) !important;
-  backdrop-filter: none !important;
+  background: var(--bg-primary);
+  backdrop-filter: none;
 }
 
 .subtitle {

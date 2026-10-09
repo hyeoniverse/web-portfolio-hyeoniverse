@@ -442,7 +442,7 @@
 }
 
 .editorLabelError {
-  color: var(--text-accent) !important;
+  color: var(--text-accent);
 }
 
 .editorLabelError::after {
