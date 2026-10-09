@@ -110,8 +110,7 @@
 }
 .previewTitle {
   margin: 0;
-  font: var(--font-body-md);
-  font-weight: var(--font-weight-semibold);
+  font: var(--font-label-md);
   color: var(--text-primary);
   overflow: hidden;
   display: -webkit-box;

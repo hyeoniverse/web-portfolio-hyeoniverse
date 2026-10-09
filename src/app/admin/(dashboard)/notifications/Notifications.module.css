@@ -54,8 +54,7 @@
   padding: 0 var(--spacing-8);
   border-radius: var(--radius-control);
   background: var(--bg-accent-solid);
-  font: var(--font-body-sm);
-  font-weight: 600;
+  font: var(--font-label-sm);
   color: var(--text-on-accent);
 }
 
@@ -155,8 +154,7 @@
 }
 
 .itemTitle {
-  font: var(--font-body-md);
-  font-weight: var(--font-weight-medium);
+  font: var(--font-label-md);
   color: var(--text-primary);
 }
 
@@ -298,8 +296,7 @@
   gap: var(--spacing-4);
   padding: var(--spacing-12) var(--spacing-16);
   border-bottom: var(--border-light);
-  font: var(--font-body-xs);
-  font-weight: var(--font-weight-semibold);
+  font: var(--font-label-xs);
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--text-tertiary);

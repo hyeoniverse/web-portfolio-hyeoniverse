@@ -73,8 +73,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-4);
-  font: var(--font-body-sm);
-  font-weight: 600;
+  font: var(--font-label-sm);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-tertiary);

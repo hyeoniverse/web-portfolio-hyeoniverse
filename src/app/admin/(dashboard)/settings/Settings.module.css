@@ -93,8 +93,7 @@
    나눌 때 빠진 것으로 보인다). 규칙이 없으면 클래스가 아예 안 붙어 브라우저 기본값이 나온다 —
    h3 기본 크기(1.17em 굵게)라 위의 섹션 제목(16px)보다 커 보였다. */
 .sectionSubTitle {
-  font: var(--font-body-md);
-  font-weight: var(--font-weight-semibold);
+  font: var(--font-label-md);
   color: var(--text-primary);
   margin: 0;
   letter-spacing: 0.02em;
@@ -103,8 +102,7 @@
 .fieldGroupLabel {
   display: block;
   margin-bottom: var(--spacing-2);
-  font: var(--font-body-xs);
-  font-weight: var(--font-weight-medium);
+  font: var(--font-label-xs);
   color: var(--text-tertiary);
   letter-spacing: 0.02em;
 }
@@ -218,8 +216,7 @@
   flex-direction: column;
   gap: var(--spacing-2);
   width: auto;
-  font: var(--font-body-sm);
-  font-weight: 500;
+  font: var(--font-label-sm);
   color: var(--text-tertiary);
   letter-spacing: 0.02em;
 }
@@ -798,8 +795,7 @@
 }
 
 .tagDescFilterGroupLabel {
-  font: var(--font-body-xs);
-  font-weight: 500;
+  font: var(--font-label-xs);
   color: var(--text-tertiary);
   letter-spacing: 0.02em;
   margin-right: var(--spacing-4);
@@ -1037,8 +1033,7 @@ a.tagRelatedItem:hover {
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-12);
-  font: var(--font-body-sm);
-  font-weight: 500;
+  font: var(--font-label-sm);
   color: var(--text-tertiary);
   letter-spacing: 0.02em;
 }
@@ -1070,8 +1065,7 @@ a.tagRelatedItem:hover {
 }
 
 .worksCatAddRowLabel {
-  font: var(--font-body-sm);
-  font-weight: 500;
+  font: var(--font-label-sm);
   color: var(--text-tertiary);
   letter-spacing: 0.02em;
 }

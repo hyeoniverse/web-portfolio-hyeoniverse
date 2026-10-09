@@ -49,8 +49,7 @@
   border: var(--border-success);
   border-radius: var(--radius-control);
   background: var(--bg-success-solid);
-  font: var(--font-body-sm);
-  font-weight: 500;
+  font: var(--font-label-sm);
   color: var(--text-white);
   letter-spacing: 0.02em;
   text-align: center;
@@ -264,8 +263,7 @@
 }
 
 .previewTitle {
-  font: var(--font-body-md);
-  font-weight: 600;
+  font: var(--font-label-md);
   color: var(--text-primary);
   margin-bottom: var(--spacing-4);
   display: -webkit-box;

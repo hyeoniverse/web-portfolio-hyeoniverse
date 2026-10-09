@@ -37,8 +37,7 @@
   cursor: pointer;
   background: transparent;
   color: var(--text-muted);
-  font: var(--font-body-sm);
-  font-weight: 500;
+  font: var(--font-label-sm);
   border-bottom: var(--border-width-2) solid transparent;
   margin-bottom: -1px;
   transition: color var(--duration-fast);
@@ -54,8 +53,7 @@
   cursor: pointer;
   background: transparent;
   color: var(--text-error);
-  font: var(--font-body-xs);
-  font-weight: 500;
+  font: var(--font-label-xs);
 }
 /* 슬라이딩 indicator — left/width 는 JS 가 inline 으로 세팅. 트랜지션은 global 룰을 이기려 compound 선택자(0,2,0) */
 .tabHeader .indicator {
@@ -124,9 +122,8 @@
   padding: var(--spacing-4) var(--spacing-8) var(--spacing-8);
   scrollbar-width: thin;
 }
-.sectionLabel {  font: var(--font-body-xs);
+.sectionLabel {  font: var(--font-label-xs);
 
-  font-weight: 600;
   color: var(--text-muted);
   padding: var(--spacing-8) var(--spacing-4) var(--spacing-2);
 }

@@ -363,9 +363,8 @@
 
 /* 지금 장 — 배경 없이, 별 옆(휘어진 꼭짓점)에서 제목만 세리프로 */
 .ch.on .tx {
-  font: var(--font-body-md);
+  font: var(--font-label-md);
   font-family: var(--font-family-headline);
-  font-weight: var(--font-weight-semibold);
 }
 
 .chT:hover,

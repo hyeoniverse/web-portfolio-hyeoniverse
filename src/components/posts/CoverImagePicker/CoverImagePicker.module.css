@@ -110,8 +110,7 @@
   padding: var(--spacing-4) var(--spacing-16);
   border: none;
   background: transparent;
-  font: var(--font-body-sm);
-  font-weight: 500;
+  font: var(--font-label-sm);
   color: var(--text-tertiary);
 
   white-space: nowrap;
@@ -140,8 +139,7 @@
   border: var(--border-default);
   border-radius: var(--radius-control);
   background: transparent;
-  font: var(--font-body-sm);
-  font-weight: 500;
+  font: var(--font-label-sm);
   color: var(--text-tertiary);
   cursor: pointer;
   white-space: nowrap;
