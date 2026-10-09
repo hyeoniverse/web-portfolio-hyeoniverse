@@ -333,6 +333,8 @@
   --font-body-sm: var(--font-weight-regular) var(--font-size-body-sm) / var(--line-height-160) var(--font-family-body);
   --font-body-xs: var(--font-weight-regular) var(--font-size-body-xs) / var(--line-height-160) var(--font-family-body);
   /* 이름표 — 단추 · 칩 · 탭 · 표 머리 · 메뉴처럼 UI 의 이름. 본문 크기 · 줄간격에 굵기 500 하나(Material label, 7-4) */
+  --font-label-xl: var(--font-weight-medium) var(--font-size-body-xl) / var(--line-height-160) var(--font-family-body);
+  --font-label-lg: var(--font-weight-medium) var(--font-size-body-lg) / var(--line-height-160) var(--font-family-body);
   --font-label-md: var(--font-weight-medium) var(--font-size-body-md) / var(--line-height-160) var(--font-family-body);
   --font-label-sm: var(--font-weight-medium) var(--font-size-body-sm) / var(--line-height-160) var(--font-family-body);
   --font-label-xs: var(--font-weight-medium) var(--font-size-body-xs) / var(--line-height-160) var(--font-family-body);
@@ -390,3 +392,19 @@
 /* --------------------------------------------------------------------------
    Mobile — Editorial Overrides
    -------------------------------------------------------------------------- */
+
+/* 고정폭 지면(About · Profile) — 안에서는 title · body · label 이 코드 글꼴로, 본문은 Light 로 */
+[data-type="mono"] {
+  --font-title-sm: var(--font-weight-semibold) var(--font-size-title-sm) / var(--line-height-125) var(--font-family-code);
+  --font-title-md: var(--font-weight-semibold) var(--font-size-title-md) / var(--line-height-125) var(--font-family-code);
+  --font-body-xl: var(--font-weight-light) var(--font-size-body-xl) / var(--line-height-160) var(--font-family-code);
+  --font-body-lg: var(--font-weight-light) var(--font-size-body-lg) / var(--line-height-160) var(--font-family-code);
+  --font-body-md: var(--font-weight-light) var(--font-size-body-md) / var(--line-height-160) var(--font-family-code);
+  --font-body-sm: var(--font-weight-light) var(--font-size-body-sm) / var(--line-height-160) var(--font-family-code);
+  --font-body-xs: var(--font-weight-light) var(--font-size-body-xs) / var(--line-height-160) var(--font-family-code);
+  --font-label-xl: var(--font-weight-medium) var(--font-size-body-xl) / var(--line-height-160) var(--font-family-code);
+  --font-label-lg: var(--font-weight-medium) var(--font-size-body-lg) / var(--line-height-160) var(--font-family-code);
+  --font-label-md: var(--font-weight-medium) var(--font-size-body-md) / var(--line-height-160) var(--font-family-code);
+  --font-label-sm: var(--font-weight-medium) var(--font-size-body-sm) / var(--line-height-160) var(--font-family-code);
+  --font-label-xs: var(--font-weight-medium) var(--font-size-body-xs) / var(--line-height-160) var(--font-family-code);
+}

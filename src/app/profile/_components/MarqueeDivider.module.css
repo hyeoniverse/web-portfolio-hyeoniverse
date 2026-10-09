@@ -6,7 +6,7 @@
   overflow: hidden;
   width: 120px;
   height: 100svh;
-  font: var(--font-meta-sm);
+  font: var(--font-body-sm);
   color: var(--text-primary);
   user-select: none;
   opacity: 0.3;

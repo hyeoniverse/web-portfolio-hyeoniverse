@@ -293,7 +293,7 @@
 
 ## `src/styles/globals/_semantic.css`
 
-토큰 176개
+토큰 178개
 
 | 토큰 | 값 | 다크 | 조건부 |
 |---|---|---|---|
@@ -440,16 +440,18 @@
 | `--font-headline-md` | `var(--font-weight-regular) var(--font-size-headline-md) / var(--line-height-125) var(--font-family-headline)` |  |  |
 | `--font-headline-lg` | `var(--font-weight-regular) var(--font-size-headline-lg) / var(--line-height-125) var(--font-family-headline)` |  |  |
 | `--font-headline-xl` | `var(--font-weight-regular) var(--font-size-headline-xl) / var(--line-height-125) var(--font-family-headline)` |  |  |
-| `--font-title-sm` | `var(--font-weight-semibold) var(--font-size-title-sm) / var(--line-height-125) var(--font-family-body)` |  |  |
-| `--font-title-md` | `var(--font-weight-semibold) var(--font-size-title-md) / var(--line-height-125) var(--font-family-body)` |  |  |
-| `--font-body-xl` | `var(--font-weight-regular) var(--font-size-body-xl) / var(--line-height-160) var(--font-family-body)` |  |  |
-| `--font-body-lg` | `var(--font-weight-regular) var(--font-size-body-lg) / var(--line-height-160) var(--font-family-body)` |  |  |
-| `--font-body-md` | `var(--font-weight-regular) var(--font-size-body-md) / var(--line-height-160) var(--font-family-body)` |  |  |
-| `--font-body-sm` | `var(--font-weight-regular) var(--font-size-body-sm) / var(--line-height-160) var(--font-family-body)` |  |  |
-| `--font-body-xs` | `var(--font-weight-regular) var(--font-size-body-xs) / var(--line-height-160) var(--font-family-body)` |  |  |
-| `--font-label-md` | `var(--font-weight-medium) var(--font-size-body-md) / var(--line-height-160) var(--font-family-body)` |  |  |
-| `--font-label-sm` | `var(--font-weight-medium) var(--font-size-body-sm) / var(--line-height-160) var(--font-family-body)` |  |  |
-| `--font-label-xs` | `var(--font-weight-medium) var(--font-size-body-xs) / var(--line-height-160) var(--font-family-body)` |  |  |
+| `--font-title-sm` | `var(--font-weight-semibold) var(--font-size-title-sm) / var(--line-height-125) var(--font-family-body)` |  | `[data-type="mono"]: var(--font-weight-semibold) var(--font-size-title-sm) / var(--line-height-125) var(--font-family-code)` |
+| `--font-title-md` | `var(--font-weight-semibold) var(--font-size-title-md) / var(--line-height-125) var(--font-family-body)` |  | `[data-type="mono"]: var(--font-weight-semibold) var(--font-size-title-md) / var(--line-height-125) var(--font-family-code)` |
+| `--font-body-xl` | `var(--font-weight-regular) var(--font-size-body-xl) / var(--line-height-160) var(--font-family-body)` |  | `[data-type="mono"]: var(--font-weight-light) var(--font-size-body-xl) / var(--line-height-160) var(--font-family-code)` |
+| `--font-body-lg` | `var(--font-weight-regular) var(--font-size-body-lg) / var(--line-height-160) var(--font-family-body)` |  | `[data-type="mono"]: var(--font-weight-light) var(--font-size-body-lg) / var(--line-height-160) var(--font-family-code)` |
+| `--font-body-md` | `var(--font-weight-regular) var(--font-size-body-md) / var(--line-height-160) var(--font-family-body)` |  | `[data-type="mono"]: var(--font-weight-light) var(--font-size-body-md) / var(--line-height-160) var(--font-family-code)` |
+| `--font-body-sm` | `var(--font-weight-regular) var(--font-size-body-sm) / var(--line-height-160) var(--font-family-body)` |  | `[data-type="mono"]: var(--font-weight-light) var(--font-size-body-sm) / var(--line-height-160) var(--font-family-code)` |
+| `--font-body-xs` | `var(--font-weight-regular) var(--font-size-body-xs) / var(--line-height-160) var(--font-family-body)` |  | `[data-type="mono"]: var(--font-weight-light) var(--font-size-body-xs) / var(--line-height-160) var(--font-family-code)` |
+| `--font-label-xl` | `var(--font-weight-medium) var(--font-size-body-xl) / var(--line-height-160) var(--font-family-body)` |  | `[data-type="mono"]: var(--font-weight-medium) var(--font-size-body-xl) / var(--line-height-160) var(--font-family-code)` |
+| `--font-label-lg` | `var(--font-weight-medium) var(--font-size-body-lg) / var(--line-height-160) var(--font-family-body)` |  | `[data-type="mono"]: var(--font-weight-medium) var(--font-size-body-lg) / var(--line-height-160) var(--font-family-code)` |
+| `--font-label-md` | `var(--font-weight-medium) var(--font-size-body-md) / var(--line-height-160) var(--font-family-body)` |  | `[data-type="mono"]: var(--font-weight-medium) var(--font-size-body-md) / var(--line-height-160) var(--font-family-code)` |
+| `--font-label-sm` | `var(--font-weight-medium) var(--font-size-body-sm) / var(--line-height-160) var(--font-family-body)` |  | `[data-type="mono"]: var(--font-weight-medium) var(--font-size-body-sm) / var(--line-height-160) var(--font-family-code)` |
+| `--font-label-xs` | `var(--font-weight-medium) var(--font-size-body-xs) / var(--line-height-160) var(--font-family-body)` |  | `[data-type="mono"]: var(--font-weight-medium) var(--font-size-body-xs) / var(--line-height-160) var(--font-family-code)` |
 | `--font-code-xl` | `var(--font-weight-regular) var(--font-size-body-xl) / var(--line-height-160) var(--font-family-code)` |  |  |
 | `--font-code-lg` | `var(--font-weight-regular) var(--font-size-body-lg) / var(--line-height-160) var(--font-family-code)` |  |  |
 | `--font-code-md` | `var(--font-weight-regular) var(--font-size-body-md) / var(--line-height-160) var(--font-family-code)` |  |  |

@@ -63,7 +63,7 @@
   border-bottom: var(--border-light);
   background: var(--bg-tertiary);
   color: var(--text-primary);
-  font: var(--font-code-label-lg);
+  font: var(--font-label-lg);
   letter-spacing: -0.01em;
 }
 

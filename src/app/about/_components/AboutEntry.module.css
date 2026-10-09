@@ -9,7 +9,7 @@
   padding: var(--spacing-2) var(--spacing-12);
   border: var(--border-default);
   width: fit-content;
-  font: var(--font-prose-md);
+  font: var(--font-body-lg);
   font-size: var(--font-size-body-xs);
   font-weight: var(--font-weight-semibold);
   color: var(--text-tertiary);

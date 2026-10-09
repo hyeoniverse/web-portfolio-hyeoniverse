@@ -21,7 +21,9 @@
     "src/styles/globals/_hljs.css": 1,
     "src/styles/globals/_poll.css": 1
   },
-  "unused-tokens": {},
+  "unused-tokens": {
+    "src/styles/globals/_semantic.css": 12
+  },
   "theme-dark-primitive-color": {},
   "theme-dark-primitive-shadow": {},
   "theme-branch-module": {},

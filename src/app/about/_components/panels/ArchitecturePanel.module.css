@@ -62,7 +62,7 @@
 
 .archPath {
   flex-shrink: 0;
-  font: var(--font-prose-lg);
+  font: var(--font-body-xl);
   font-size: clamp(0.8rem, 0.708rem + 0.38vw, 0.95rem);
   font-weight: var(--font-weight-medium);
   transition: color var(--duration-base) var(--ease-standard);
@@ -73,7 +73,7 @@
 }
 
 .archDesc {
-  font: var(--font-prose-sm);
+  font: var(--font-body-md);
   font-size: clamp(var(--font-size-body-xs), 0.707rem + 0.18vw, 0.82rem);
   line-height: 1.5;
   color: var(--text-tertiary);
@@ -106,7 +106,7 @@
   height: var(--control-height-lg);
   padding: 0 var(--control-padding-inline-lg);
   background: transparent;
-  font: var(--font-prose-md);
+  font: var(--font-body-lg);
   color: var(--text-tertiary);
   transition:
     border-color var(--duration-base) var(--ease-standard),
@@ -226,7 +226,7 @@
 }
 
 .archNodePath {
-  font: var(--font-prose-sm);
+  font: var(--font-body-md);
   font-weight: var(--font-weight-medium);
   white-space: nowrap;
 }
@@ -298,7 +298,7 @@
 
 .archTmLabel {
   overflow: hidden;
-  font: var(--font-code-label-xs);
+  font: var(--font-label-xs);
   color: var(--text-secondary);
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -318,7 +318,7 @@
   background: var(--bg-secondary);
   border: var(--border-default);
   border-left: var(--border-width-3) solid var(--text-accent);
-  font: var(--font-prose-sm);
+  font: var(--font-body-md);
   color: var(--text-primary);
   pointer-events: none;
   backdrop-filter: blur(8px);

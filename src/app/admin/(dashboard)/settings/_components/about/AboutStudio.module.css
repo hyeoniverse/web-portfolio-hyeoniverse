@@ -211,7 +211,7 @@ textarea.edit {
   min-width: 0;
 }
 .bgThemeLabel {
-  font: var(--font-code-label-xs);
+  font: var(--font-label-xs);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--text-tertiary);
@@ -546,7 +546,7 @@ textarea.edit {
   border: var(--border-default);
   background: transparent;
   color: var(--text-secondary);
-  font: var(--font-prose-md);
+  font: var(--font-body-lg);
   font-family: inherit;
   font-weight: var(--font-weight-medium);
   letter-spacing: 0.05em;
@@ -1402,7 +1402,7 @@ textarea.edit {
 }
 .bkNote {
   color: var(--text-tertiary);
-  font: var(--font-prose-sm);
+  font: var(--font-body-md);
 }
 /* 엔드포인트/컬럼 한 줄.
    레이아웃은 같이 달리는 패널 클래스(.dbEndpoint/.dbSchemaRow 의 grid)가 정한다. 예전엔 여기서
