@@ -52,7 +52,11 @@ export function useMasonryRowSpans(
   }, [gridRef, enabled]);
 
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled) {
+      // 꺼질 때(시리즈 · 다른 레이아웃으로 바뀜) 남은 줄 수를 지운다 — 인라인이라 CSS 로는 못 덮는다
+      gridRef.current?.querySelectorAll<HTMLElement>(":scope > *").forEach((el) => el.style.removeProperty("grid-row"));
+      return;
+    }
     recomputeRowSpans();
     const grid = gridRef.current;
     if (!grid) return;
