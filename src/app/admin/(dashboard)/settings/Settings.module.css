@@ -469,7 +469,6 @@
 /* seriesCardName 안 정렬 순서 prefix (#1_) — mix-blend-mode: difference + white 로
    어두운 cover 배경에서도 자동 반전되어 가독성 유지. 내부 EditableRowNumber 도 함께 효과. */
 .seriesCardOrderPrefix {
-  font-family: var(--font-family-code);
   color: var(--text-white);
   mix-blend-mode: difference;
   margin-right: var(--spacing-2);
