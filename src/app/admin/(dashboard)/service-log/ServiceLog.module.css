@@ -230,7 +230,7 @@
 }
 
 
-.skeletonCapsule.skeletonCapsule {
+.skeletonCapsule {
   border-radius: var(--radius-control);
 }
 
@@ -550,7 +550,7 @@
 }
 
 /* 예시 줄 — 실제 목록과 같은 칸, 누를 수 없음 */
-.legendExample.legendExample {
+.legendExample {
   background: var(--bg-secondary);
   pointer-events: none;
 }
