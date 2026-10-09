@@ -128,8 +128,9 @@
   box-shadow: var(--shadow-raised);
 }
 
-.cardActive {
-  z-index: 2 !important;
+/* 상세로 넘어가는 카드 — 눌린 카드는 보통 hover 중이라 .card:hover(1) 보다 뒤 · 같은 특이도로 이긴다 */
+.card.cardActive {
+  z-index: 2;
 }
 
 /* 카드 위 그라데이션 — 상단 + 하단(제목용). 좁은 화면에서만 그린다 */
@@ -731,11 +732,11 @@
     --_card-h: auto;
     --_card-radius: var(--radius-surface);
 
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    align-items: flex-start !important;
-    gap: var(--spacing-32) !important;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    gap: var(--spacing-32);
     width: 100%;
     border-bottom: var(--border-light);
   }
@@ -746,26 +747,26 @@
   .sizeMedium,
   .sizeTall,
   .sizeWide {
-    align-self: stretch !important;
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
-    padding: var(--spacing-32) var(--spacing-40) !important;
+    align-self: stretch;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding: var(--spacing-32) var(--spacing-40);
   }
 
   .project .card {
-    flex-shrink: 0 !important;
-    width: 45vw !important;
-    height: calc(45vw * 9 / 16) !important;
-    margin: 0 !important;
+    flex-shrink: 0;
+    width: 45vw;
+    height: calc(45vw * 9 / 16);
+    margin: 0;
   }
 
   .cardOverlay {
-    display: none !important;
+    display: none;
   }
 
   /* metaGroup: 카드 오른쪽에 세로로 메타 정보 배치 */
   .metaGroup {
-    display: flex !important;
+    display: flex;
     flex-direction: column;
     gap: var(--spacing-8);
     flex: 1;
@@ -773,56 +774,56 @@
   }
 
   .metaYearDesktop {
-    display: block !important;
-    position: relative !important;
-    top: auto !important;
-    right: auto !important;
-    bottom: auto !important;
-    left: auto !important;
+    display: block;
+    position: relative;
+    top: auto;
+    right: auto;
+    bottom: auto;
+    left: auto;
     font-size: var(--font-size-headline-sm);
     -webkit-text-stroke: 1px var(--text-primary);
     color: transparent;
-    opacity: 0.5 !important;
+    opacity: 0.5;
   }
 
   .project[data-layout] .metaCategory {
-    position: relative !important;
-    margin: 0 !important;
-    writing-mode: horizontal-tb !important;
+    position: relative;
+    margin: 0;
+    writing-mode: horizontal-tb;
   }
 
   .project[data-layout] .metaTech {
-    position: relative !important;
-    flex-direction: row !important;
+    position: relative;
+    flex-direction: row;
     flex-wrap: wrap;
-    margin: 0 !important;
-    transform: none !important;
+    margin: 0;
+    transform: none;
   }
 
   .project[data-layout] .metaTech span {
-    padding: var(--spacing-4) var(--spacing-8) !important;
+    padding: var(--spacing-4) var(--spacing-8);
     font-size: var(--font-size-body-sm);
   }
 
   .project[data-layout] .metaRole {
-    position: relative !important;
-    display: block !important;
-    transform: none !important;
+    position: relative;
+    display: block;
+    transform: none;
   }
 
   .project[data-layout] .metaDesc {
-    position: relative !important;
-    margin: var(--spacing-8) 0 0 !important;
+    position: relative;
+    margin: var(--spacing-8) 0 0;
     max-width: none;
     font-size: var(--font-size-body-lg);
     text-align: left;
   }
 
   .project::after {
-    display: none !important;
+    display: none;
   }
 
   .project:nth-child(n + 7) {
-    display: flex !important;
+    display: flex;
   }
 }
