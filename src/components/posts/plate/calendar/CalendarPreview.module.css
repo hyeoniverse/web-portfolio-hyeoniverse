@@ -26,8 +26,7 @@
 .peekTitle {
   flex: 1;
   min-width: 0;
-  font: var(--font-body-md);
-  font-weight: 600;
+  font: var(--font-label-md);
   color: var(--text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -110,14 +109,12 @@
   background: color-mix(in oklch, var(--bg-accent-solid) 10%, transparent);
   color: var(--text-accent);
   border-radius: var(--radius-control);
-  font: var(--font-body-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   font-variant-numeric: tabular-nums;
 }
 
 .vdLabel {
-  font: var(--font-body-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   color: var(--text-tertiary);
 }
 
@@ -228,8 +225,7 @@
 }
 
 .previewTitle {
-  font: var(--font-body-md);
-  font-weight: 600;
+  font: var(--font-label-md);
   color: var(--text-primary);
   word-break: break-word;
 }

@@ -93,8 +93,7 @@
 }
 
 .uploadGuide h4 {
-  font: var(--font-body-md);
-  font-weight: 600;
+  font: var(--font-label-md);
   color: var(--text-primary);
   margin: var(--spacing-16) 0 var(--spacing-8);
 }

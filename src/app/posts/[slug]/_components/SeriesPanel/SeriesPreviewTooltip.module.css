@@ -39,8 +39,7 @@
 }
 
 .seriesPreviewTitle {
-  font: var(--font-body-md);
-  font-weight: var(--font-weight-semibold);
+  font: var(--font-label-md);
   color: var(--text-primary);
   display: -webkit-box;
   -webkit-line-clamp: 2;

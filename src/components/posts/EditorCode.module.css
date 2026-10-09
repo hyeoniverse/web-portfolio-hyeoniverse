@@ -249,8 +249,7 @@
   position: sticky;
   top: 0;
   padding: var(--spacing-4) var(--spacing-12) var(--spacing-2);
-  font: var(--font-body-xs);
-  font-weight: var(--font-weight-medium);
+  font: var(--font-label-xs);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--text-muted);

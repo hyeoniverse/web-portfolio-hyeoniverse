@@ -64,8 +64,7 @@
 }
 
 .label {
-  font: var(--font-body-sm);
-  font-weight: 500;
+  font: var(--font-label-sm);
   color: var(--text-tertiary);
   letter-spacing: 0.02em;
 }
@@ -199,8 +198,7 @@
   border: var(--border-light);
   border-radius: var(--radius-control);
   background: transparent;
-  font: var(--font-body-md);
-  font-weight: 500;
+  font: var(--font-label-md);
   color: var(--text-tertiary);
 }
 
@@ -217,8 +215,7 @@
   border: var(--border-strong);
   border-radius: var(--radius-control);
   background: var(--text-primary);
-  font: var(--font-body-md);
-  font-weight: 500;
+  font: var(--font-label-md);
   color: var(--bg-primary);
 }
 

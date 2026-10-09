@@ -71,8 +71,7 @@
 }
 
 .ownContribsRoleChip {
-  font: var(--font-body-md);
-  font-weight: 600;
+  font: var(--font-label-md);
   color: var(--text-secondary);
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -147,8 +146,7 @@
 }
 
 .teamContribsRoleLabel {
-  font: var(--font-body-sm);
-  font-weight: 600;
+  font: var(--font-label-sm);
   color: var(--text-secondary);
   letter-spacing: 0.08em;
   text-transform: uppercase;

@@ -11,8 +11,7 @@
   scroll-margin-top: var(--spacing-48);
 }
 .authorsFooterHeading {
-  font: var(--font-body-sm);
-  font-weight: var(--font-weight-semibold);
+  font: var(--font-label-sm);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-tertiary);

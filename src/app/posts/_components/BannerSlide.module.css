@@ -35,8 +35,7 @@
 
 /* ── Shared typography ── */
 .category {
-  font: var(--font-body-xs);
-  font-weight: var(--font-weight-medium);
+  font: var(--font-label-xs);
   color: var(--text-white);
   text-transform: uppercase;
   letter-spacing: 0.12em;
@@ -144,8 +143,7 @@
   padding: var(--spacing-4) var(--spacing-16);
   border: var(--border-ghost);
   border-radius: var(--radius-control);
-  font: var(--font-body-xs);
-  font-weight: var(--font-weight-medium);
+  font: var(--font-label-xs);
   color: var(--text-white);
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -199,8 +197,7 @@
 
 .categoryCinematic {
   margin-bottom: var(--spacing-16);
-  font: var(--font-body-sm);
-  font-weight: var(--font-weight-medium);
+  font: var(--font-label-sm);
   color: var(--text-white);
   text-transform: uppercase;
   letter-spacing: 0.2em;
@@ -277,8 +274,7 @@
 }
 
 .langHint {
-  font: var(--font-body-xs);
-  font-weight: var(--font-weight-medium);
+  font: var(--font-label-xs);
   font-style: italic;
   color: var(--text-white);
   text-transform: uppercase;
@@ -287,8 +283,7 @@
 
 .readMore {
   margin-top: var(--spacing-8);
-  font: var(--font-body-sm);
-  font-weight: var(--font-weight-medium);
+  font: var(--font-label-sm);
   color: var(--text-white);
   letter-spacing: 0.04em;
 }

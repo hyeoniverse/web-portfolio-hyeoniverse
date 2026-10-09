@@ -481,8 +481,7 @@
 }
 
 .generateItemTitle {
-  font: var(--font-body-sm);
-  font-weight: 600;
+  font: var(--font-label-sm);
   line-height: 1.3;
 }
 
@@ -683,8 +682,7 @@
 
 .helpTitle {
   margin: 0;
-  font: var(--font-body-md);
-  font-weight: 600;
+  font: var(--font-label-md);
   color: var(--text-primary);
 }
 

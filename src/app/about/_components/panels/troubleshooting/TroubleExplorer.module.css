@@ -362,8 +362,7 @@
   border-radius: var(--radius-control);
   background: var(--bg-tertiary);
   color: var(--text-secondary);
-  font: var(--font-body-sm);
-  font-weight: 500;
+  font: var(--font-label-sm);
   letter-spacing: 0;
   text-transform: none;
 }

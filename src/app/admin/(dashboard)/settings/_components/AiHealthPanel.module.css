@@ -14,8 +14,7 @@
 
 .groupTitle {
   margin: 0 0 var(--spacing-4);
-  font: var(--font-body-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   color: var(--text-tertiary);
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -51,8 +50,7 @@
 
 .name {
   flex: 0 0 9rem;
-  font: var(--font-body-md);
-  font-weight: 600;
+  font: var(--font-label-md);
   color: var(--text-primary);
 }
 
@@ -148,8 +146,7 @@
 .status {
   padding: var(--badge-padding-md);
   border-radius: var(--radius-control);
-  font: var(--font-body-sm);
-  font-weight: 600;
+  font: var(--font-label-sm);
   line-height: 1;
   white-space: nowrap;
 }

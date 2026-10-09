@@ -26,8 +26,7 @@
 .relatedToggle.relatedToggle {
   gap: var(--spacing-2);
   padding-inline: var(--spacing-4);
-  font: var(--font-body-sm);
-  font-weight: 600;
+  font: var(--font-label-sm);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--text-tertiary);

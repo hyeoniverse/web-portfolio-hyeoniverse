@@ -16,8 +16,7 @@
   min-width: 0;
 }
 .techGroupLabel {
-  font: var(--font-body-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--text-tertiary);
@@ -62,8 +61,7 @@
   border-radius: var(--radius-control);
   background: var(--bg-secondary);
   box-shadow: var(--shadow-floating);
-  font: var(--font-body-md);
-  font-weight: 500;
+  font: var(--font-label-md);
   color: var(--text-primary);
   cursor: grabbing;
 }
@@ -106,8 +104,7 @@
   padding: var(--spacing-16);
 }
 .techPanelTitle {
-  font: var(--font-body-sm);
-  font-weight: 600;
+  font: var(--font-label-sm);
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--text-secondary);
