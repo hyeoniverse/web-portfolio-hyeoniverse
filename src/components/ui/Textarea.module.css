@@ -18,7 +18,7 @@
   display: block;
   width: 100%;
   padding: var(--textarea-padding);
-  border: var(--border-light);
+  border: var(--border-control);
   border-radius: var(--radius-surface);
   background: transparent;
   font: var(--font-body-md);
@@ -66,7 +66,7 @@
 
 .sm {
   padding: var(--textarea-padding);
-  border-color: var(--border-color-light);
+  border-color: var(--border-color-control);
   font-size: var(--font-size-body-md);
 }
 

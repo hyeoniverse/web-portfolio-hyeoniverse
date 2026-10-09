@@ -140,7 +140,7 @@
   width: 60px;
   height: var(--control-height-sm);
   padding: 0 var(--spacing-8);
-  border: var(--border-light);
+  border: var(--border-control);
   border-radius: var(--radius-control);
   background: transparent;
   font: var(--font-body-md);
@@ -223,7 +223,7 @@
   gap: var(--spacing-4);
   min-width: 48px;
   padding: var(--spacing-4) var(--spacing-8);
-  border: var(--border-light);
+  border: var(--border-control);
   border-radius: var(--radius-control);
   background: transparent;
   font: var(--font-body-md);
@@ -237,7 +237,7 @@
   width: 48px;
   height: var(--control-height-sm);
   padding: 0 var(--spacing-8);
-  border: var(--border-light);
+  border: var(--border-control);
   border-radius: var(--radius-control);
   background: transparent;
   font: var(--font-body-md);

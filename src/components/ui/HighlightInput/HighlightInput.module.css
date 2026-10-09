@@ -18,7 +18,7 @@
   min-width: 0;
   height: var(--control-height-md);
   box-sizing: border-box;
-  border: var(--border-light);
+  border: var(--border-control);
   border-radius: var(--radius-control);
   background: transparent;
   transition: border-color var(--duration-base) var(--ease-standard);
