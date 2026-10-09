@@ -72,6 +72,8 @@ export interface PostArticleViewProps {
   onLangChange?: (l: "ko" | "en") => void;
   /** header 의 액션 영역(언어토글 왼쪽)에 끼워 넣을 추가 노드 — preview 의 휴지통 버튼 등 */
   headerActionsLeft?: ReactNode;
+  /** 언어 토글 바로 왼쪽 — 공개 상세의 "다른 언어로 읽기" 메뉴(ContentLangMenu). 미리보기는 넘기지 않는다 */
+  langMenu?: ReactNode;
 }
 
 /* ────────────────────────────────────────────────────────────
@@ -85,6 +87,7 @@ export function PostArticleHeader({
   isAdmin: isAdminProp,
   onLangChange,
   headerActionsLeft,
+  langMenu,
 }: PostArticleViewProps) {
   const { t, language } = useLanguage();
   const authed = useIsAuthenticated();
@@ -149,6 +152,7 @@ export function PostArticleHeader({
             </Button>
           )}
           <ShareButton />
+          {langMenu}
           <LanguageToggle lang={viewLang} onLangChange={handleLangChange} />
         </div>
       </div>
@@ -200,8 +204,11 @@ export function PostArticleHeader({
 export function PostArticleBody({
   data,
   proseViewerRef,
+  contentLang,
 }: {
   data: PostArticleData;
+  /** 본문의 언어(lang 속성) — 다른 언어로 번역해 보여 줄 때만. 없으면 페이지 언어를 따른다 */
+  contentLang?: string;
   /** prose 컨테이너 ref — 호출부의 useProseImageViewer 와 연결 */
   proseViewerRef?: React.Ref<HTMLDivElement>;
   /** 미리보기 모드 — 현재 본문 렌더는 동일하나 API 일관성 위해 허용 */
@@ -235,7 +242,7 @@ export function PostArticleBody({
   useRichtextEnhance(richtextRef, processedRichtextHtml, !isMarkdown);
 
   return (
-    <div ref={proseViewerRef}>
+    <div ref={proseViewerRef} lang={contentLang}>
       {isMarkdown ? (
         <MarkdownRenderer content={content} className={`${body.prose} prose-content`} />
       ) : (

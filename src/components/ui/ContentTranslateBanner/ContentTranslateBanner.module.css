@@ -1,0 +1,55 @@
+/* 공용 컴포넌트 — components 층(docs/design-system.md 4-4). 쓰는 쪽이 className 으로 넘긴 클래스가 번들 순서 · 특이도와 상관없이 이긴다 */
+@layer components {
+/* ── 기계 번역 안내 (ContentTranslateBanner) — TranslateBanner 와 같은 왼쪽 줄 모양, 한 줄로 얇게 ── */
+.banner {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-8) var(--spacing-12);
+  padding: var(--spacing-8) var(--spacing-16);
+  border-left: var(--border-width-2) solid var(--text-accent);
+  background: transparent;
+  margin-bottom: var(--spacing-24);
+}
+
+.banner[data-error] {
+  border-left-color: var(--text-error-strong);
+}
+
+.icon {
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+
+.message {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font: var(--font-body-sm);
+  color: var(--text-tertiary);
+}
+
+.banner[data-error] .message {
+  color: var(--text-error-strong);
+}
+
+.actions {
+  display: flex;
+  gap: var(--spacing-12);
+}
+
+.action {
+  padding: 0;
+  border: none;
+  background: transparent;
+  font: var(--font-label-sm);
+  color: var(--text-secondary);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+}
+
+.action:hover {
+  color: var(--text-primary);
+}
+}

@@ -22,7 +22,7 @@ import { pickContent } from "@/lib/contentLang";
  * 코드블록의 휠·줄바꿈 단추가 글 상세와 다르게 굴었다.
  * 팀 멤버 carousel 은 full-width afterContent slot 으로 분리됨 → WorkArticleTeam.
  * ──────────────────────────────────────────────────────────── */
-export function WorkArticleBody({ project, viewLang }: WorkArticleViewProps) {
+export function WorkArticleBody({ project, viewLang, contentLang }: WorkArticleViewProps) {
   const { t, language } = useLanguage();
   const isRichtext = project.contentType === "richtext";
 
@@ -54,7 +54,7 @@ export function WorkArticleBody({ project, viewLang }: WorkArticleViewProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.6 }}
         >
-          <div ref={proseRef}>
+          <div ref={proseRef} lang={contentLang}>
             {isRichtext ? (
               <div ref={richtextRef} className={`${styles.sectionProse} prose-content`} dangerouslySetInnerHTML={{ __html: html }} />
             ) : (
