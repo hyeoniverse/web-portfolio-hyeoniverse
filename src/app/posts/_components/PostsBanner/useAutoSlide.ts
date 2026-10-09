@@ -1,11 +1,15 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 export function useAutoSlide(length: number, interval = 4000) {
   const [index, setIndex] = useState(0);
   const [direction, setDirection] = useState(1);
-  const [isPaused, setIsPaused] = useState(false);
+  /* 기기의 "동작 줄이기"가 켜져 있으면 멈춘 채 시작한다(3.9-4). 방문자가 단추를 누르면 그 선택을 따른다 */
+  const reduce = useReducedMotion();
+  const [userPaused, setUserPaused] = useState<boolean | null>(null);
+  const isPaused = userPaused ?? reduce;
   const timer = useRef<ReturnType<typeof setInterval>>(undefined);
   const hovered = useRef(false);
 
@@ -27,7 +31,7 @@ export function useAutoSlide(length: number, interval = 4000) {
 
   const pause = useCallback(() => { hovered.current = true; }, []);
   const resume = useCallback(() => { hovered.current = false; }, []);
-  const togglePause = useCallback(() => setIsPaused((v) => !v), []);
+  const togglePause = useCallback(() => setUserPaused(!isPaused), [isPaused]);
 
   useEffect(() => {
     if (length <= 1) return;

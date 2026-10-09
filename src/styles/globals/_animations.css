@@ -215,3 +215,18 @@
     transform: translateX(-50%);
   }
 }
+
+/* 기기의 "동작 줄이기" — 반복하는 도구 클래스는 멈춘다(3.9-4). glitch 는 시간 토큰이라 이미 멈춘다 */
+@media (prefers-reduced-motion: reduce) {
+  .blink,
+  .bounce-y,
+  .bounce-x,
+  .scroll-x,
+  .scroll-y,
+  .pulse,
+  .floating,
+  .orbit-hover-pause,
+  .marquee {
+    animation: none;
+  }
+}
