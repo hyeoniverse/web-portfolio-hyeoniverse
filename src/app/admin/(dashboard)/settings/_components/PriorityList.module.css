@@ -59,8 +59,7 @@
   align-self: stretch;
   border-right: var(--border-light);
   background: var(--bg-tertiary);
-  font: var(--font-body-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   color: var(--text-tertiary);
   flex-shrink: 0;
 }

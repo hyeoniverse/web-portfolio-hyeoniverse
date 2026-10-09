@@ -24,8 +24,7 @@
 
 /* Section title — uppercase 작은 라벨. padding-block 으로 다음 형제와 spacing 만듦 (section gap 대체) */
 .sectionTitle {
-  font: var(--font-body-md);
-  font-weight: 600;
+  font: var(--font-label-md);
   line-height: calc(22 / 14);
   /* 정수 line-height — 상속(1.6)이면 소수점 높이가 아래로 누적돼, 뒤 섹션의 1px divider 가
      픽셀 사이에 앉아 안티앨리어싱으로 번져 굵어 보인다(일별 조회수 위 선) */

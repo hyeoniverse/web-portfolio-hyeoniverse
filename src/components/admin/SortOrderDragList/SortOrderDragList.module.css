@@ -80,8 +80,7 @@
   padding: 0 var(--spacing-12);
   border: none;
   background: transparent;
-  font: var(--font-body-xs);
-  font-weight: 500;
+  font: var(--font-label-xs);
   color: var(--text-secondary);
   white-space: nowrap;
   cursor: pointer;
@@ -211,8 +210,7 @@
   border-radius: var(--radius-control);
   background: var(--text-accent);
   color: var(--bg-primary);
-  font: var(--font-body-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   letter-spacing: 0.04em;
 }
 

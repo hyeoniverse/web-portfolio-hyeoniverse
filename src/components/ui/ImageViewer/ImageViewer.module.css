@@ -327,9 +327,8 @@
 }
 
 .shortcutsTitle {
-  font: var(--font-body-sm);
+  font: var(--font-label-sm);
 
-  font-weight: 600;
   color: var(--text-primary);
   padding: 0 var(--spacing-12) var(--spacing-8);
   margin: 0;
@@ -342,9 +341,8 @@
 }
 
 .shortcutsSection {
-  font: var(--font-body-xs);
+  font: var(--font-label-xs);
 
-  font-weight: 500;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -375,8 +373,7 @@
   border: var(--border-light);
   border-radius: var(--radius-control);
   background: var(--bg-tertiary);
-  font: var(--font-body-xs);
-  font-weight: 500;
+  font: var(--font-label-xs);
   color: var(--text-primary);
 }
 
@@ -435,8 +432,7 @@
 }
 
 .infoTitle {
-  font: var(--font-body-xs);
-  font-weight: var(--font-weight-semibold);
+  font: var(--font-label-xs);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--text-muted);
@@ -479,9 +475,8 @@
   gap: var(--spacing-8);
 }
 
-.autoplayLabel {  font: var(--font-body-xs);
+.autoplayLabel {  font: var(--font-label-xs);
 
-  font-weight: 500;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.06em;

@@ -48,8 +48,7 @@
   align-items: center;
   gap: var(--spacing-8);
   color: var(--text-tertiary);
-  font: var(--font-body-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -149,8 +148,7 @@
 }
 
 .customMimeLabel {
-  font: var(--font-body-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   letter-spacing: 0.06em;
   color: var(--text-tertiary);
   text-transform: uppercase;

@@ -50,8 +50,7 @@
   background: var(--bg-tertiary);
   color: var(--text-secondary);
   border-radius: var(--radius-control);
-  font: var(--font-body-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   letter-spacing: 0.05em;
   flex-shrink: 0;
 }

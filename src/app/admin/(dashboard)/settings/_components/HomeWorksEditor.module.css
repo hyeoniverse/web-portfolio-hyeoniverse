@@ -135,8 +135,7 @@
 .cardName {
   overflow: hidden;
   max-width: 100%;
-  font: var(--font-body-md);
-  font-weight: var(--font-weight-medium);
+  font: var(--font-label-md);
   color: var(--text-primary);
   text-overflow: ellipsis;
   white-space: nowrap;

@@ -11,8 +11,7 @@
 .item {
   padding: var(--row-padding-sm);
   border-radius: var(--radius-control);
-  font: var(--font-body-md);
-  font-weight: var(--font-weight-medium);
+  font: var(--font-label-md);
   color: var(--text-tertiary);
   text-decoration: none;
   white-space: nowrap;

@@ -115,8 +115,7 @@
 .diamondLabel {
   position: relative;
   color: var(--text-accent);
-  font: var(--font-body-xs);
-  font-weight: var(--font-weight-medium);
+  font: var(--font-label-xs);
   white-space: nowrap;
 }
 

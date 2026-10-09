@@ -32,8 +32,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-8);
-  font: var(--font-body-md);
-  font-weight: 600;
+  font: var(--font-label-md);
   color: var(--text-secondary);
   letter-spacing: 0.02em;
   margin: 0 0 var(--spacing-8) 0;
@@ -329,8 +328,7 @@
 .envSourceBadge {
   padding: var(--badge-padding-md);
   border-radius: var(--radius-control);
-  font: var(--font-body-xs);
-  font-weight: 500;
+  font: var(--font-label-xs);
   background: var(--bg-tertiary);
   color: var(--text-tertiary);
   flex-shrink: 0;
