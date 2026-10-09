@@ -916,3 +916,12 @@ Material `@material/web` 2.5, Primer primitives. 숫자는 같은 날 다시 셌
   - 하나는 실제로 필요했다 — 상세로 넘어가는 카드의 `.cardActive { z-index: 2 }` 는 눌린 카드가 hover 중이라 `.card:hover`(1)에 진다. `.card.cardActive` 로 특이도를 맞추고 뒤에 두었다.
 - **보이는 변화.** 없다. `/works` 를 1280×650(이 블록이 걸리는 화면) · 1440×900 · 800×600 · 390×844 에서 카드 안 요소 전부의 계산값(display · 위치 · 방향 · 여백 · transform · 글자 · 크기)을 master 와 견줬다 — 같았다.
 
+### D70. 2026-10-09 — `compositions` 층: 공용 컴포넌트가 안의 공용 컴포넌트를 덮을 때(4-4-2, 걷어내기 3)
+
+- **왜.** ButtonGroup(20) · ImageViewer(11) · SearchCapsule(9)의 `!important` 는 모두 안에 담은 Button · Select 를 덮으려던 것이었다. 둘 다 `components` 층이라 특이도로 겨뤄야 했고, Button 의 `.variant-outline.btn:hover:not(:disabled)` 같은 높은 특이도를 넘으려고 `!important` 를 붙였다.
+- **정한 것.**
+  - 층 순서에 `compositions` 를 `components` 와 `utilities` 사이에 더했다. 묶는 컴포넌트의 덮는 규칙은 이 층에 두면 특이도와 상관없이 안의 공용 컴포넌트를 이기고, 쓰는 쪽 className 에는 진다.
+  - ButtonGroup · SearchCapsule 은 파일 전체가 묶는 규칙이라 통째로 옮겼다. ImageViewer 는 `.ctrlBtn`(툴바 도움말 · 정보 단추) 규칙만 옮겼다 — 통째로 옮기자 자기 `.actionBtn` 크기(34px)가 닫기 단추(CloseButton sm, 28px)를 이겨 모양이 바뀌었다.
+  - `.controlsHidden` 의 `!important` 는 같은 파일 안에서 겹치는 값이 없어 지웠다.
+- **보이는 변화.** 없다. 시험 페이지에 ButtonGroup(cta · neutral) · SearchCapsule(옵션 선택 포함) · ImageViewer 를 그려, 평소와 단추마다 hover 한 상태에서 계산값(테두리 · 모서리 · 배경 · 글자색 · 여백 · 크기 · 위치)을 master 와 견줬다 — 같았다. 전체 화면에서 컨트롤이 숨는 상태는 보지 않았다(겹치는 규칙이 없음을 코드로 확인).
+
