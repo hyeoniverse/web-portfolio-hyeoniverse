@@ -899,6 +899,15 @@ Material `@material/web` 2.5, Primer primitives. 숫자는 같은 날 다시 셌
   - PostCard 의 compact placeholder 규칙 2곳도 겹치는 규칙이 `:not(.compact)` 라 `!important` 가 필요 없었다 — 지웠다.
 - **보이는 변화.** 없다. 시험 페이지에서 레이아웃 8가지(magazine · grid · list · compact · masonry · featured · timeline · 시리즈)를 1440 · 600px 로 그려 master 와 계산값(display · 열 · gap · 비율 · 여백 · 테두리 · 글자 · 위치 · 크기)을 견줬다 — 같았다. 불러오는 동안의 skeleton 은 보지 않았다(예전 규칙이 skeleton 안쪽에도 우연히 걸려 있었다).
 
+### D71. 2026-10-09 — 홈 CTA · 내비게이션의 `.x.x`(4-4-1, 걷어내기 4)
+
+- **왜.** 홈 CTA(18) · 내비게이션(6)은 Button 을 덮으려고 `.ctaBtn.ctaBtn.ctaBtn` 처럼 같은 클래스를 겹쳐 특이도를 올렸다.
+- **정한 것.**
+  - 홈 CTA 는 층 밖(페이지 CSS)이라 `components` 층의 Button 을 특이도와 상관없이 이긴다(4-4). 겹친 클래스를 하나로 줄였다 — 파일 안 규칙끼리의 순서 관계는 같은 비율로 줄어 그대로다.
+  - 내비게이션은 자기도 `components` 층이라, Button 을 덮는 Get in Touch · 로그아웃 규칙만 `compositions` 층(D70)으로 옮기고 겹침을 뺐다. 드로어의 `.menuClipWrapper` · `.menuClipOpen` 은 덮을 대상이 없어(위 층 규칙 없음) 그냥 하나로 줄였다.
+  - 래칫의 `.x.x` 정규식이 `.lenis.lenis-smooth` 같은 다른 클래스를 잘못 셌다 — 뒤에 `-` 가 오면 세지 않게 고쳤다.
+- **보이는 변화.** 없다. 홈을 1440 · 390px 로 열어 끝까지 스크롤한 뒤 CTA 와 내비 단추의 평소 · hover 계산값(테두리 · 배경 · 글자색 · 여백 · 크기)을 master 와 견줬다 — 같았다(스크롤 위치에 따른 y 만 달랐다). 모바일 메뉴 드로어를 연 상태는 보지 않았다.
+
 ### D69. 2026-10-09 — Works 카드: 낮은 가로 화면 배치의 `!important` 38곳(4-4-1, 걷어내기 2)
 
 - **왜.** `WorksFlowCard` 의 "넓지만 낮은 화면"(`width > 1024px and height <= 700px`) 블록이 카드마다 다른 배치(`[data-layout="N"]`)를 한 줄 배치로 바꾸려고 모든 선언에 `!important` 를 붙였다.
