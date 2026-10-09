@@ -93,7 +93,7 @@ const CONTRAST_PAIRS: [string, string, number, string][] = [
   ["--text-info-strong", "--bg-info-soft", 4.5, "정보 배지"],
   ["--text-error-strong", "--bg-error-soft", 4.5, "오류 배지"],
   ["--text-success", "--bg-primary", 3, "성공 점 · 막대(글자 아님)"],
-  ["--text-warning", "--bg-primary", 3, "경고 점 · 막대(글자 아님)"],
+  ["--border-color-warning-solid", "--bg-primary", 3, "경고 점 · 막대의 테두리(글자 아님, D66)"],
   ["--text-error", "--bg-primary", 3, "오류 점 · 막대(글자 아님)"],
   ["--border-color-strong", "--bg-primary", 3, "컨트롤 경계(진한 테두리)"],
   ["--border-color-default", "--bg-primary", 3, "컨트롤 경계(기본 테두리)"],

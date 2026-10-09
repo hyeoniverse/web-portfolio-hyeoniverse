@@ -81,13 +81,13 @@ export default function ChipsDemos() {
           <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexWrap: "wrap", gap: "var(--spacing-8)", alignItems: "center" }}>
             {([
               { label: language === "ko" ? "발행됨" : "Published", color: "var(--bg-success-solid)" },
-              { label: language === "ko" ? "예약 발행" : "Scheduled", color: "var(--bg-warning-solid)" },
+              { label: language === "ko" ? "예약 발행" : "Scheduled", color: "var(--bg-warning-solid)", ring: "var(--ring-warning-solid)" },
               { label: language === "ko" ? "미발행" : "Draft", color: "var(--text-tertiary)" },
             ] as const).map((s) => (
               <Chip
                 key={s.label}
                 variant="capsule"
-                leftIcon={<span style={{ display: "inline-block", width: 7, height: 7, borderRadius: "var(--radius-full)", background: s.color }} aria-hidden />}
+                leftIcon={<span style={{ display: "inline-block", width: 7, height: 7, borderRadius: "var(--radius-full)", background: s.color, boxShadow: "ring" in s ? s.ring : undefined }} aria-hidden />}
               >
                 {s.label}
               </Chip>

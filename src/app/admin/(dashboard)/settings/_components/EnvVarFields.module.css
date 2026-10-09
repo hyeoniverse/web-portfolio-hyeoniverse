@@ -147,6 +147,7 @@
 }
 .envSourceDot[data-source="edit"] {
   background: var(--bg-warning-solid);
+  box-shadow: var(--ring-warning-solid);
 }
 .envSourceDot[data-source="none"] {
   background: transparent;

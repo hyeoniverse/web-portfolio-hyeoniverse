@@ -34,7 +34,8 @@
   color: var(--text-warning-strong);
 }
 .draft::before {
-  background: var(--text-warning);
+  background: var(--bg-warning-solid);
+  box-shadow: var(--ring-warning-solid);
 }
 
 .scheduled {
