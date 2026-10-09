@@ -138,9 +138,9 @@
 }
 
 /* ── Action Buttons — 다른 form control 들과 동일한 height (--size-32 = 32px) 로 통일.
-   Button 컴포넌트의 size-sm(36px) override 위해 specificity 높임. */
-.saveBtn.saveBtn,
-.publishBtn.publishBtn {
+   Button 은 components 층이라 층 밖의 이 규칙이 특이도와 상관없이 이긴다. */
+.saveBtn,
+.publishBtn {
   height: 28px;
   padding: 0 var(--spacing-16);
   font-weight: 500;
@@ -155,7 +155,7 @@
   gap: var(--spacing-1);
 }
 
-.splitPublish .publishMainBtn.publishMainBtn {
+.splitPublish .publishMainBtn {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
   display: inline-flex;
@@ -163,7 +163,7 @@
   gap: var(--spacing-4);
 }
 
-.splitPublish .publishChevronBtn.publishChevronBtn {
+.splitPublish .publishChevronBtn {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
   padding: 0;
@@ -184,7 +184,7 @@
 
 /* 예약 popover — 배경 blur (.dropdown 의 blur 8px 을 override, (0,2,0)).
    maxHeight 캡 제거는 Popover 의 maxHeight={false} prop 으로 처리. */
-.scheduleDropdown.scheduleDropdown {
+.scheduleDropdown {
   backdrop-filter: blur(8px);
 }
 
@@ -271,9 +271,8 @@
   }
 }
 
-/* 클래스를 두 번 적어 (0,2,0) 으로 올린다 — Button 의 variant 규칙과 특이도가 같으면
-   어느 쪽이 이길지가 두 CSS 모듈의 번들 순서에 달린다. */
-.revertBtn.revertBtn {
+/* Button 은 components 층이라 층 밖의 이 규칙이 variant 규칙을 이긴다 */
+.revertBtn {
   color: var(--text-secondary);
 }
 
@@ -329,7 +328,7 @@
 }
 
 /* ── Revision History ── */
-.revisionBtn.revisionBtn {
+.revisionBtn {
   color: var(--text-secondary);
 }
 
@@ -1168,9 +1167,8 @@
 }
 
 /* ── Retranslate ── */
-/* 클래스를 두 번 적어 (0,2,0) 으로 올린다 — Button 의 variant 규칙과 특이도가 같으면
-   어느 쪽이 이길지가 두 CSS 모듈의 번들 순서에 달린다. */
-.retranslateBtn.retranslateBtn {
+/* Button 은 components 층이라 층 밖의 이 규칙이 variant 규칙을 이긴다 */
+.retranslateBtn {
   color: var(--text-secondary);
 }
 
