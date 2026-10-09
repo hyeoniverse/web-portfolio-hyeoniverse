@@ -102,8 +102,7 @@
   padding: 0 var(--spacing-4);
   border-radius: var(--radius-control);
   background: var(--bg-tertiary);
-  font: var(--font-body-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   line-height: 1;
   letter-spacing: 0.05em;
   color: var(--text-tertiary);

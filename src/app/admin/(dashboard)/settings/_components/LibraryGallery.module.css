@@ -124,8 +124,7 @@
   /* 아래 띠에 가리지 않게 조금 올린다 */
   margin-bottom: var(--spacing-24);
   color: var(--text-tertiary);
-  font: var(--font-body-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   letter-spacing: 0.04em;
 }
 

@@ -57,7 +57,7 @@
   margin-left: auto;
   padding: var(--badge-padding-sm); border-radius: var(--radius-control);
   background: var(--bg-accent-solid); color: var(--text-on-accent);
-  font: var(--font-body-xs); font-weight: 600;
+  font: var(--font-label-xs);
 }
 
 /* 이벤트 = 한 줄. hover 배경은 capsule (단일행 → capsule) */
@@ -136,8 +136,7 @@
    3xs(8px) uppercase 라벨로 낮추되 tertiary(항목 muted 보다 진함)로 스캔 기준선을 준다. */
 .evHelpTitle {
   margin-bottom: var(--spacing-4);
-  font: var(--font-body-xs);
-  font-weight: var(--font-weight-semibold);
+  font: var(--font-label-xs);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--text-tertiary);

@@ -432,8 +432,7 @@
 }
 
 .templateItemLabel {
-  font: var(--font-body-md);
-  font-weight: 600;
+  font: var(--font-label-md);
   color: var(--text-primary);
 }
 
@@ -529,8 +528,7 @@
   border-radius: var(--radius-control);
   background: var(--bg-tertiary);
   color: var(--text-secondary);
-  font: var(--font-body-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   line-height: 1;
 }
 
@@ -707,8 +705,7 @@
   border-radius: var(--radius-control);
   background: var(--text-accent);
   color: var(--text-inverse);
-  font: var(--font-body-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   letter-spacing: 0.02em;
   pointer-events: none;
   z-index: 3;
@@ -763,8 +760,7 @@
 
 /* 그림 위 글씨 — 단추(variant-difference)와 같은 방식으로 배경을 뒤집어 읽는다 */
 .galleryMetaIndex {
-  font: var(--font-body-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   letter-spacing: 0.04em;
   color: var(--text-white);
   mix-blend-mode: difference;
@@ -903,8 +899,7 @@
 /* ── Team Members ── */
 /* form / list 위의 작은 sub label — section 안 sub-section 구분용 */
 .memberSubLabel {
-  font: var(--font-body-sm);
-  font-weight: 600;
+  font: var(--font-label-sm);
   color: var(--text-tertiary);
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -1402,8 +1397,7 @@
 }
 
 .memberLinkLabel {
-  font: var(--font-body-sm);
-  font-weight: 600;
+  font: var(--font-label-sm);
   color: var(--text-tertiary);
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -1453,8 +1447,7 @@
   border-radius: var(--radius-control);
   background: var(--bg-accent-light);
   color: var(--text-accent);
-  font: var(--font-body-xs);
-  font-weight: var(--font-weight-semibold);
+  font: var(--font-label-xs);
   line-height: 1;
   white-space: nowrap;
 }

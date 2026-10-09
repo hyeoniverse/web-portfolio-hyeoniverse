@@ -61,8 +61,7 @@
 }
 
 .overline {
-  font: var(--font-body-sm);
-  font-weight: var(--font-weight-semibold);
+  font: var(--font-label-sm);
   line-height: var(--line-height-125);
   text-transform: uppercase;
   letter-spacing: 0.1em;

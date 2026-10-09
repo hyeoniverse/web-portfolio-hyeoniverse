@@ -16,8 +16,7 @@
   color: var(--text-primary);
 }
 .worksCount {
-  font: var(--font-body-sm);
-  font-weight: var(--font-weight-medium);
+  font: var(--font-label-sm);
   font-variant-numeric: tabular-nums;
   color: var(--text-tertiary);
   border: var(--border-light);

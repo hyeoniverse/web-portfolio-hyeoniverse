@@ -57,8 +57,7 @@
   align-items: center;
   gap: var(--spacing-12);
   padding: var(--spacing-8) var(--spacing-12) var(--spacing-4);
-  font: var(--font-body-sm);
-  font-weight: 600;
+  font: var(--font-label-sm);
   color: var(--text-muted);
   flex-shrink: 0;
 }

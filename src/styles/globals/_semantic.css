@@ -302,7 +302,7 @@
   /* ── 3층 · 글자 묶음 — `font: var(--font-body-sm)` 로 쓴다(3.2-1) ─────
    * 굵기 · 크기/줄간격 · 글꼴. 한 값만 다르면 뒤에 덧쓴다. tabular-nums 같은 설정은 font 뒤에 적는다.
    * 제목은 줄간격 125, 전시(display)는 100, 본문 · UI · 코드 · 메타 · 지면은 160(지금 body 에서 물려받는 값과 같다).
-   * 전체 세트(3.2): display-sm ~ xl / headline-xs ~ xl / title-sm ~ md / body-xs ~ xl / code-xs ~ xl / meta-xs ~ md / prose-xs ~ lg.
+   * 전체 세트(3.2): display-sm ~ xl / headline-xs ~ xl / title-sm ~ md / body-xs ~ xl / label-xs ~ md / code-xs ~ xl / meta-xs ~ md / prose-xs ~ lg.
    * 안 쓰는 토큰은 두지 않으므로(2-4), 컴포넌트가 처음 쓸 때 위 이름 · 같은 모양으로 더한다. */
   /* 전시 — 히어로 · 큰 숫자 · 페이지 제목. 화면 폭을 따라 늘고 줄며(D28), 글꼴은 제목 설정과 상관없이 Playfair(D34) */
   --font-display-xl: var(--font-weight-regular) var(--font-size-display-xl) / var(--line-height-100) var(--font-family-accent);
@@ -322,6 +322,10 @@
   --font-body-md: var(--font-weight-regular) var(--font-size-body-md) / var(--line-height-160) var(--font-family-body);
   --font-body-sm: var(--font-weight-regular) var(--font-size-body-sm) / var(--line-height-160) var(--font-family-body);
   --font-body-xs: var(--font-weight-regular) var(--font-size-body-xs) / var(--line-height-160) var(--font-family-body);
+  /* 이름표 — 단추 · 칩 · 탭 · 표 머리 · 메뉴처럼 UI 의 이름. 본문 크기 · 줄간격에 굵기 500 하나(Material label, 7-4) */
+  --font-label-md: var(--font-weight-medium) var(--font-size-body-md) / var(--line-height-160) var(--font-family-body);
+  --font-label-sm: var(--font-weight-medium) var(--font-size-body-sm) / var(--line-height-160) var(--font-family-body);
+  --font-label-xs: var(--font-weight-medium) var(--font-size-body-xs) / var(--line-height-160) var(--font-family-body);
   --font-code-xl: var(--font-weight-regular) var(--font-size-body-xl) / var(--line-height-160) var(--font-family-code);
   --font-code-lg: var(--font-weight-regular) var(--font-size-body-lg) / var(--line-height-160) var(--font-family-code);
   --font-code-md: var(--font-weight-regular) var(--font-size-body-md) / var(--line-height-160) var(--font-family-code);
