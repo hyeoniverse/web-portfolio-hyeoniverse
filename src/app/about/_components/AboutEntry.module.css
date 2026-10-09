@@ -74,7 +74,7 @@
 
   .entryLabel {
     padding: var(--spacing-4) var(--spacing-12);
-    font-size: var(--font-size-prose-md);
+    font-size: var(--font-size-body-lg);
   }
 
   .detailHeader {

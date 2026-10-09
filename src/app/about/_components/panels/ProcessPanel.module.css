@@ -579,7 +579,7 @@
 
 .processStepContentDesc {
   margin: 0;
-  font-size: var(--font-size-prose-lg);
+  font-size: var(--font-size-body-xl);
   line-height: var(--_lh-reading);
   color: var(--text-secondary);
   min-height: 8.25em;
