@@ -4,7 +4,7 @@
 }
 
 .main {
-  padding: 21vw var(--m-lg) 12.5vw;
+  padding: 21vw var(--spacing-narrow-lg) 12.5vw;
 }
 
 /* SSR FOUC 방지 — hydration 전까지 콘텐츠 숨김 */

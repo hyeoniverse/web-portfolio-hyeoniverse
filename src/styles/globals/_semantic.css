@@ -220,13 +220,28 @@
   }
 }
 
+/* 좁은 화면(480px 이하)의 화면 비례 여백 — About · Profile 패널 · 크레딧 · 마퀴. 그 위에서는 정의가 없어
+   쓰면 무효가 된다(`initial`) — 넓은 화면 값은 쓰는 규칙이 media 에서 정한다. 예전 이름 --spacing-narrow-sm/md/lg(3.3-3) */
+:root {
+  --spacing-narrow-sm: 2.1vw;
+  --spacing-narrow-md: 4.2vw;
+  --spacing-narrow-lg: 5vw;
+}
+@media (width > 480px) {
+  :root {
+    --spacing-narrow-sm: initial;
+    --spacing-narrow-md: initial;
+    --spacing-narrow-lg: initial;
+  }
+}
+
 /* --------------------------------------------------------------------------
    Editorial Tokens (unified from --about-* / --profile-*)
    Used by: AboutSection, ProfileMeSection, KineticHeroTitle
    -------------------------------------------------------------------------- */
 :root {
   /* Panel Padding */
-  --spacing-panel-block: var(--m-lg);
+  --spacing-panel-block: var(--spacing-narrow-lg);
 
   /* ── 글자 토큰 — 세 층, 층마다 이름 규칙 하나(docs/design-system.md 3.2) ─────────
    * 1층 원재료  --{속성}-{값}                 _typography.css  --font-size-13 · --line-height-160 · --font-instrument
