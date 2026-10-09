@@ -128,7 +128,7 @@
   background: transparent;
   font: var(--font-body-sm);
   color: var(--text-primary);
-  outline: none;
+  outline-color: transparent;
   padding: var(--spacing-4) 0;
 }
 
@@ -207,7 +207,7 @@
   font: var(--font-code-xs);
   color: var(--text-primary);
   text-align: center;
-  outline: none;
+  outline-color: transparent;
   -moz-appearance: textfield;
 }
 

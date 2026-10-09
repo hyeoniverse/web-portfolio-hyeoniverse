@@ -65,11 +65,12 @@
   border-radius: 0;
   cursor: pointer;
   padding: var(--spacing-8);
+  /* 칸 사이가 1px 이라 바깥 링은 이웃 칸에 가린다 — 안쪽에 그린다 */
+  outline-offset: calc(-1 * var(--focus-ring-width));
   transition: filter var(--duration-fast) var(--ease-standard);
   font-family: var(--font-family-body);
   /* button element 의 browser default appearance 리셋 */
   appearance: none;
-  outline: none;
 }
 
 .calendarCell:hover:not(:disabled) {

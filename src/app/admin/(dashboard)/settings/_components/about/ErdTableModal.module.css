@@ -30,7 +30,7 @@
   background: transparent;
   color: var(--text-primary);
   font: var(--font-code-lg);
-  outline: none;
+  outline-color: transparent;
 }
 .nameInput:focus {
   border-color: var(--border-color-accent-strong);
@@ -96,7 +96,7 @@
   background: transparent;
   color: var(--text-primary);
   font: var(--font-code-lg);
-  outline: none;
+  outline-color: transparent;
 }
 .cell:focus {
   outline: var(--border-width-1) solid var(--border-color-accent-strong);

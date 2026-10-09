@@ -86,7 +86,7 @@
   min-width: 0;
   border: none;
   background: transparent;
-  outline: none;
+  outline-color: transparent;
   font: var(--font-body-sm);
   color: var(--text-primary);
 }

@@ -230,7 +230,7 @@
   background: transparent;
   font: var(--font-code-sm);
   color: var(--text-primary);
-  outline: none;
+  outline-color: transparent;
   resize: vertical;
   transition: border-color var(--duration-base) var(--ease-standard);
 }

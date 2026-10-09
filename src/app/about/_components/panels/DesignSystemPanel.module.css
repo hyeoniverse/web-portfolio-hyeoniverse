@@ -14,7 +14,7 @@
 }
 
 .dcCardStack {
-  outline: none;
+  outline-color: transparent;
   overflow: hidden;
   position: absolute;
   top: calc(-1 * var(--_panel-py) - 1px);

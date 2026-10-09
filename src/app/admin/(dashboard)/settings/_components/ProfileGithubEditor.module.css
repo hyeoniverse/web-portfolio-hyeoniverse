@@ -176,7 +176,7 @@
   background: transparent;
   font: var(--font-code-sm);
   color: var(--text-primary);
-  outline: none;
+  outline-color: transparent;
 }
 
 .orgAddOpen .orgAddInput {

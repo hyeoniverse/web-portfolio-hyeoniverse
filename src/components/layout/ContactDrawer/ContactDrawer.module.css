@@ -151,7 +151,7 @@
   margin-bottom: var(--_gap-md);
   padding: var(--_padding);
   border: var(--border-strong);
-  outline: none;
+  outline-color: transparent;
   width: 100%;
   background: transparent;
   font-family: inherit;
@@ -277,7 +277,7 @@
   flex: 1;
   padding: var(--_padding);
   border: var(--border-strong);
-  outline: none;
+  outline-color: transparent;
   width: 100%;
   background: transparent;
   font-family: inherit;

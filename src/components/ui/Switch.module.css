@@ -16,7 +16,6 @@
   border-radius: var(--radius-control);
   border: var(--border-neutral-light);
   background: var(--bg-tertiary-alt);
-  outline: none;
   -webkit-tap-highlight-color: transparent;
   padding: 0;
 }
@@ -25,10 +24,6 @@
   transition: transform var(--duration-fast) var(--ease-standard), background var(--duration-fast) var(--ease-standard);
 }
 
-.root:focus-visible {
-  outline: var(--border-width-3) solid color-mix(in oklch, var(--text-contrast) 20%, transparent);
-  outline-offset: 0;
-}
 
 .root[data-state="checked"] {
   background: var(--text-primary);
