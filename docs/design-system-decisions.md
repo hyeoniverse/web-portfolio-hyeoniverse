@@ -908,6 +908,14 @@ Material `@material/web` 2.5, Primer primitives. 숫자는 같은 날 다시 셌
   - 래칫의 `.x.x` 정규식이 `.lenis.lenis-smooth` 같은 다른 클래스를 잘못 셌다 — 뒤에 `-` 가 오면 세지 않게 고쳤다.
 - **보이는 변화.** 없다. 홈을 1440 · 390px 로 열어 끝까지 스크롤한 뒤 CTA 와 내비 단추의 평소 · hover 계산값(테두리 · 배경 · 글자색 · 여백 · 크기)을 master 와 견줬다 — 같았다(스크롤 위치에 따른 y 만 달랐다). 모바일 메뉴 드로어를 연 상태는 보지 않았다.
 
+### D69. 2026-10-09 — Works 카드: 낮은 가로 화면 배치의 `!important` 38곳(4-4-1, 걷어내기 2)
+
+- **왜.** `WorksFlowCard` 의 "넓지만 낮은 화면"(`width > 1024px and height <= 700px`) 블록이 카드마다 다른 배치(`[data-layout="N"]`)를 한 줄 배치로 바꾸려고 모든 선언에 `!important` 를 붙였다.
+- **정한 것.**
+  - 38곳을 모두 지웠다. 블록이 파일 끝에 있고 덮는 대상과 특이도가 같거나 더 높아 `!important` 없이도 이긴다.
+  - 하나는 실제로 필요했다 — 상세로 넘어가는 카드의 `.cardActive { z-index: 2 }` 는 눌린 카드가 hover 중이라 `.card:hover`(1)에 진다. `.card.cardActive` 로 특이도를 맞추고 뒤에 두었다.
+- **보이는 변화.** 없다. `/works` 를 1280×650(이 블록이 걸리는 화면) · 1440×900 · 800×600 · 390×844 에서 카드 안 요소 전부의 계산값(display · 위치 · 방향 · 여백 · transform · 글자 · 크기)을 master 와 견줬다 — 같았다.
+
 ### D70. 2026-10-09 — `compositions` 층: 공용 컴포넌트가 안의 공용 컴포넌트를 덮을 때(4-4-2, 걷어내기 3)
 
 - **왜.** ButtonGroup(20) · ImageViewer(11) · SearchCapsule(9)의 `!important` 는 모두 안에 담은 Button · Select 를 덮으려던 것이었다. 둘 다 `components` 층이라 특이도로 겨뤄야 했고, Button 의 `.variant-outline.btn:hover:not(:disabled)` 같은 높은 특이도를 넘으려고 `!important` 를 붙였다.
