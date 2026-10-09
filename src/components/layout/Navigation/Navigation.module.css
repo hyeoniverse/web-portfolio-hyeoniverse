@@ -490,18 +490,6 @@
   color: var(--text-accent-alt);
 }
 
-/* Get in Touch — mix-blend-mode 환경 색상 오버라이드 */
-.contactBtn.contactBtn {
-  border-color: var(--text-white);
-  color: var(--text-white);
-}
-
-/* (0,4,0) — outline hover (0,4,0) 이상 필요 */
-.navActions .contactBtn.contactBtn:hover {
-  background-color: var(--text-white);
-  border-color: var(--text-white);
-  color: var(--text-black);
-}
 
 .soundBtnWrap {
   position: relative;
@@ -815,7 +803,7 @@
   Menu Drawer (full-screen dark overlay)
   ========================================================================== */
 
-.menuClipWrapper.menuClipWrapper {
+.menuClipWrapper {
   /* top layer(popover) — 열려 있는 동안 nav 가 그 위에 같이 올라가 햄버거가 눌린다(Navigation.tsx keepOnTop) */
   position: fixed;
   inset: 0;
@@ -830,7 +818,7 @@
   --_menu-bg: var(--nav-menu-bg);
 }
 
-.menuClipOpen.menuClipOpen {
+.menuClipOpen {
   clip-path: inset(0 0 0 0);
   transition: clip-path var(--duration-slower) var(--ease-standard);
 }
@@ -1529,19 +1517,6 @@
   }
 }
 
-/* Logout 버튼 — contactBtn과 동일하게 mix-blend-mode: difference 환경.
-   notif 버튼과 사이에 visual 호흡 (navActions gap 0 이라 자체 margin 으로 처리). */
-.logoutBtn.logoutBtn {
-  margin-left: var(--spacing-12);
-  border-color: var(--text-white);
-  color: var(--text-white);
-}
-
-.navActions .logoutBtn.logoutBtn:hover {
-  background-color: var(--text-white);
-  border-color: var(--text-white);
-  color: var(--text-black);
-}
 
 /* ==========================================================================
   Loading State — logo centered on screen, nav items hidden
@@ -1618,4 +1593,33 @@
   font-family: var(--font-family-nav);
   line-height: 1;
   white-space: nowrap;
+}
+
+/* 내비의 Button(components 층)을 덮는 규칙 — compositions 층(4-4-2)이라 특이도를 올리지 않아도 이긴다 */
+@layer compositions {
+/* Get in Touch — mix-blend-mode 환경 색상 오버라이드 */
+.contactBtn {
+  border-color: var(--text-white);
+  color: var(--text-white);
+}
+
+.navActions .contactBtn:hover {
+  background-color: var(--text-white);
+  border-color: var(--text-white);
+  color: var(--text-black);
+}
+
+/* Logout 버튼 — contactBtn과 동일하게 mix-blend-mode: difference 환경.
+   notif 버튼과 사이에 visual 호흡 (navActions gap 0 이라 자체 margin 으로 처리). */
+.logoutBtn {
+  margin-left: var(--spacing-12);
+  border-color: var(--text-white);
+  color: var(--text-white);
+}
+
+.navActions .logoutBtn:hover {
+  background-color: var(--text-white);
+  border-color: var(--text-white);
+  color: var(--text-black);
+}
 }
