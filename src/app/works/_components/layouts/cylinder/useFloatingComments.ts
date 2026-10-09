@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState, type RefObject } from "react";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { useSyncRef } from "@/hooks/useSyncRef";
 
 export interface WorkComment {
   id: string;
@@ -23,6 +25,10 @@ export interface SlotBounds {
    댓글 개수가 바뀔 때만 루프를 다시 건다. 벽 바운스에 더해 패널 가운데 제목 영역을 회피하고,
    아주 가끔 방향을 미세하게 틀어 직선만 타지 않게 한다. */
 export function useFloatingComments(slotBoundsRef: RefObject<SlotBounds>) {
+  /* 기기의 "동작 줄이기"가 켜져 있으면 말풍선이 제자리에 머문다(3.9-4) — 벽 · 제목 피하기는 그대로 맞춘다 */
+  const reduce = useReducedMotion();
+  const reduceRef = useRef(reduce);
+  useSyncRef(reduceRef, reduce);
   const [recentComments, setRecentComments] = useState<WorkComment[]>([]);
   const bubbleRefs = useRef<(HTMLAnchorElement | null)[]>([]);
   const bubblePhysics = useRef<{ x: number; y: number; vx: number; vy: number }[]>([]);
@@ -90,8 +96,10 @@ export function useFloatingComments(slotBoundsRef: RefObject<SlotBounds>) {
         const spd = Math.hypot(b.vx, b.vy) || 1;
         b.vx = (b.vx / spd) * SPEED;
         b.vy = (b.vy / spd) * SPEED;
-        b.x += b.vx;
-        b.y += b.vy;
+        if (!reduceRef.current) {
+          b.x += b.vx;
+          b.y += b.vy;
+        }
         // 벽 바운스 — 방향만 반전
         if (b.x < left) { b.x = left; b.vx = Math.abs(b.vx); }
         if (b.x > right) { b.x = right; b.vx = -Math.abs(b.vx); }

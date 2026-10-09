@@ -954,3 +954,11 @@
   font: var(--font-body-sm);
   color: var(--text-muted);
 }
+
+/* 기기의 "동작 줄이기" — 터치 화면의 자동 재생 대신 막대를 다 찬 채로 보인다(3.9-4) */
+@media (hover: none) and (prefers-reduced-motion: reduce) {
+  .motionBar {
+    animation: none;
+    transform: scaleX(1);
+  }
+}

@@ -228,3 +228,17 @@
     opacity: 1;
   }
 }
+
+/* 기기의 "동작 줄이기" — 별 · 궤도 · 스크롤 안내가 제자리에 멈춘다(3.9-4). 별은 깜빡임 가운데 밝기로 둔다 */
+@media (prefers-reduced-motion: reduce) {
+  .introStar {
+    animation: none;
+    opacity: 0.35;
+  }
+
+  .introOvalOuter,
+  .introOvalInner,
+  .introScroll {
+    animation: none;
+  }
+}

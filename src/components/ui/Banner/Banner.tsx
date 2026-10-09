@@ -13,6 +13,7 @@ import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "@/components/icons";
 import styles from "./Banner.module.css";
 import Pressable from "@/components/ui/Pressable";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 export interface BannerProps {
   children: ReactNode;
@@ -59,6 +60,9 @@ export default function Banner({
   const [paused, setPaused] = useState(false);
   const [progressKey, setProgressKey] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  /* 기기의 "동작 줄이기"가 켜져 있으면 저절로 넘기지 않는다(3.9-4) — 화살표 · 점으로는 넘긴다 */
+  const reduceMotion = useReducedMotion();
+  const autoAdvance = autoPlay && !reduceMotion;
 
   const goTo = useCallback(
     (index: number) => {
@@ -76,7 +80,7 @@ export default function Banner({
   const goPrev = useCallback(() => goTo(current - 1), [current, goTo]);
 
   useEffect(() => {
-    if (isSingle || !autoPlay || paused) {
+    if (isSingle || !autoAdvance || paused) {
       if (timerRef.current) clearInterval(timerRef.current);
       timerRef.current = null;
       return;
@@ -85,7 +89,7 @@ export default function Banner({
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [isSingle, autoPlay, paused, interval, goNext]);
+  }, [isSingle, autoAdvance, paused, interval, goNext]);
 
   const viewportStyle: CSSProperties | undefined = aspectRatio
     ? // width 를 명시(definite)해야 aspect-ratio 가 폭→높이로 계산한다. 폭이 auto 면
@@ -222,7 +226,7 @@ export default function Banner({
                 aria-label={`Go to slide ${i + 1}`}
                 data-clickable="true"
               >
-                {i === current && autoPlay && (
+                {i === current && autoAdvance && (
                   <motion.div
                     key={progressKey}
                     className={styles.dotFill}
