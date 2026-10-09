@@ -49,9 +49,9 @@
   --text-error: light-dark(var(--color-red-600), var(--color-red-400));
   /* 상태색을 배경 위 텍스트로 쓸 때 — 기본값은 라이트에서 AA 미달(warning 2.35·success 3.05)이라
      한 단계 진한 -strong 을 쓴다. dot/bar 배경 용도는 기본값(--text-success 등)을 그대로 둔다. */
-  --text-success-strong: light-dark(var(--color-green-700), var(--color-green-300));
+  --text-success-strong: light-dark(var(--color-green-800), var(--color-green-300));
   --text-warning-strong: light-dark(var(--color-amber-700), var(--color-amber-300));
-  --text-info-strong: light-dark(var(--color-blue-700), var(--color-blue-400));
+  --text-info-strong: light-dark(var(--color-blue-800), var(--color-blue-400));
   --text-error-strong: light-dark(var(--color-red-700), var(--color-red-400));
   --text-accent: light-dark(var(--color-accent-700), var(--color-accent-500));
   --text-accent-alt: var(--text-accent);
@@ -101,7 +101,11 @@
   --bg-success-soft: light-dark(color-mix(in oklch, var(--text-success) 12%, transparent), color-mix(in oklch, var(--text-success) 18%, transparent));
   --bg-success-solid: var(--text-success);
   --bg-warning-soft: light-dark(color-mix(in oklch, var(--text-warning) 12%, transparent), color-mix(in oklch, var(--text-warning) 18%, transparent));
-  --bg-warning-solid: var(--text-warning);
+  /* 경고 점 · 막대 — 밝은 노랑은 바탕과 대비가 낮아(2.35) 진한 테두리가 3:1 을 맡는다(D66).
+     채우기는 밝게, 경계는 --ring-warning-solid. 글자색으로 쓰지 않는다 */
+  --bg-warning-solid: var(--color-amber-300);
+  --border-color-warning-solid: light-dark(var(--color-amber-600), var(--color-amber-300));
+  --ring-warning-solid: inset 0 0 0 1px var(--border-color-warning-solid);
   --bg-info-soft: light-dark(color-mix(in oklch, var(--text-info) 12%, transparent), color-mix(in oklch, var(--text-info) 18%, transparent));
   --bg-info-solid: var(--text-info);
   --bg-error: light-dark(color-mix(in oklch, var(--text-error) 15%, transparent), color-mix(in oklch, var(--text-error) 20%, transparent));
