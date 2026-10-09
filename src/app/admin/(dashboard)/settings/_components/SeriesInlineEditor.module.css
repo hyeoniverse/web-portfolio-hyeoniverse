@@ -371,10 +371,11 @@
   opacity: var(--opacity-disabled);
 }
 
-.seriesPostRemoveBtn:hover,
-.seriesPostDeleteBtn:hover {
-  color: var(--text-accent) !important;
-  background: var(--bg-accent-light) !important;
+/* 같은 버튼의 .seriesPostOrderBtn:hover:not(:disabled) 와 특이도가 같아 파일 순서로 이긴다 — 그 규칙보다 아래에 둔다 */
+.seriesPostOrderBtn.seriesPostRemoveBtn:hover,
+.seriesPostOrderBtn.seriesPostDeleteBtn:hover {
+  color: var(--text-accent);
+  background: var(--bg-accent-light);
 }
 
 .seriesPostOrderNum {
