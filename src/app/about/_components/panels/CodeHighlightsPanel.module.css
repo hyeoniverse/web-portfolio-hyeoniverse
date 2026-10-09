@@ -444,6 +444,7 @@
   border: 0;
   background: transparent;
 }
+/* 예외: 바깥 라이브러리(Sandpack) 의 iframe 크기 규칙을 덮는다 */
 .codeDemoSandbox :global(.sp-preview-iframe) {
   width: 100% !important;
   height: 100%;
