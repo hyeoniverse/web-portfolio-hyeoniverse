@@ -83,8 +83,8 @@
   /* 윗줄(.inputAreaTop) 높이를 채운다 — 패딩 합산이면 30.4 로 틀(28) 밖으로 넘쳤다 */
   height: 100%;
   padding: 0;
-  padding-inline-start: 0 !important;
-  padding-inline-end: 0 !important;
+  padding-inline-start: 0;
+  padding-inline-end: 0;
   margin: 0;
   border: none;
   background: transparent;
