@@ -7,8 +7,8 @@
   flex-shrink: 0;
   flex-direction: column;
   /* 여백은 화면 단계(아래 media)가 --_pad-* 를 바꾸고, 패널 변형 · 개별 패널은 --panel-padding-top/-bottom 으로 위 · 아래만 덮는다 */
-  --_pad-y: var(--m-lg);
-  --_pad-x: var(--m-sm);
+  --_pad-y: var(--spacing-narrow-lg);
+  --_pad-x: var(--spacing-narrow-sm);
   --_pad-bottom: var(--_pad-y);
   padding: var(--panel-padding-top, var(--_pad-y)) var(--_pad-x) var(--panel-padding-bottom, var(--_pad-bottom));
   position: relative;

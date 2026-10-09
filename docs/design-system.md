@@ -394,7 +394,8 @@ Carbon(type token)이 모두 이렇게 한다.
   `--modal-padding-*` · `--badge-padding-*` · `--cell-padding-*` · `--textarea-padding`. 컨트롤(버튼 · 입력)은 3.4-2.
 - **3.3-3. 페이지 리듬은 역할 토큰으로** — 페이지 좌우 여백 `--spacing-page-inline`, 긴 글 리듬 `--spacing-section` ·
   `-block` · `-divide` · `-line`. 이 값들은 화면 폭에 따라 미디어 쿼리 안에서 값이 바뀐다. 컴포넌트는 같은 이름만 쓴다.
-  — **목표**: 480px 이하에서만 정의되는 `--m-sm/md/lg` 를 이 역할들로 옮긴다(컴포넌트에서 17).
+  좁은 화면(480px 이하)에만 있는 화면 비례 여백은 `--spacing-narrow-sm · md · lg`(2.1 · 4.2 · 5vw) — 넓은 화면 값은 쓰는 규칙이 media 에서 정한다.
+  — **완료**: 뜻 없는 축약 `--m-sm/md/lg` 17곳을 이 역할 이름으로 옮겼다(값 · 쓰임 그대로).
 
 ### 3.4 크기
 
