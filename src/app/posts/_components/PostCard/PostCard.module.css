@@ -28,8 +28,7 @@
   z-index: 2;
 }
 .cardLink:focus-visible {
-  outline: 2px solid var(--text-accent);
-  outline-offset: -2px;
+  outline-offset: calc(-1 * var(--focus-ring-width));
 }
 
 /* placeholder 카드 (compact 아닌 경우) — placeholder 안에 excerpt 보여서 body 의 excerpt 숨김. */

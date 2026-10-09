@@ -69,10 +69,10 @@
   border-color: var(--text-tertiary);
 }
 
-/* editable input mode 의 focus — accent border, default outline 제거 */
+/* editable input mode 의 focus — accent border, 공통 링은 감춘다(고대비 모드에서는 보인다) */
 .root .trigger:focus,
 .root .trigger:focus-visible {
-  outline: none;
+  outline-color: transparent;
   border-color: var(--text-accent);
 }
 
@@ -472,7 +472,7 @@
   background: transparent;
   font: var(--font-body-md);
   color: var(--text-primary);
-  outline: none;
+  outline-color: transparent;
 }
 
 .splitInput::placeholder {

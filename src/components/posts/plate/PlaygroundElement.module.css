@@ -76,7 +76,7 @@
   padding: 0 var(--spacing-4);
   border: var(--border-light);
   border-radius: var(--radius-control);
-  outline: none;
+  outline-color: transparent;
   background: var(--bg-primary);
   color: var(--text-primary);
   font: var(--font-code-sm);
@@ -557,7 +557,7 @@
   padding: 0 var(--spacing-4);
   border: var(--border-default);
   border-radius: var(--radius-surface);
-  outline: none;
+  outline-color: transparent;
   background: var(--bg-primary);
   color: var(--text-primary);
   font: var(--font-code-md);

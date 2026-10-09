@@ -24,7 +24,7 @@
   font: var(--font-body-md);
   line-height: 1.5;
   color: var(--text-primary);
-  outline: none;
+  outline-color: transparent;
   /* native resize 는 끈다 — 브라우저가 그리는 손잡이는 스크롤이 생기면 스크롤바 층에 가려
      보였다 안 보였다 한다. 끄는 일은 어차피 아래 .resizeOverlay 의 JS 가 하고 있었으므로,
      손잡이 그림도 그쪽에서 직접 그려 늘 같은 자리에 보이게 한다. */
@@ -276,7 +276,7 @@
 
 /* contenteditable focus outline */
 .editable:focus {
-  outline: none;
+  outline-color: transparent;
   border-color: var(--text-primary);
 }
 

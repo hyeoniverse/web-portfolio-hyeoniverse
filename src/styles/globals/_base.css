@@ -15,6 +15,13 @@ html.custom-cursor * {
   cursor: none !important;
 }
 
+/* 키보드 포커스 표시(6-1) — 모두 같은 링. 컴포넌트는 모양을 바꿀 때만 outline-offset 등을 덮어쓰고,
+   다른 표시(입력칸 테두리 등)가 있는 곳은 outline-color: transparent 로 링만 감춘다 — 고대비 모드에서는 보인다 */
+:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
 html {
   height: 100%;
   background: var(--bg-primary);

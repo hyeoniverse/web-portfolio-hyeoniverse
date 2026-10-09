@@ -285,7 +285,7 @@ export const METRICS: Metric[] = [
   /* 5 · 6 */
   { id: "component-raw-button", rule: "5-1", what: "`Button` · `Pressable` 밖의 JSX `<button>`", count: rawButtons },
   { id: "a11y-outline-none", rule: "6-1", what: "`outline: none/0`", count: regex(CSS, /outline\s*:\s*(?:none|0)\s*[;}]/) },
-  { id: "a11y-focus-shadow-only", rule: "6-1", what: "포커스를 그림자로 그린 규칙", count: regex(CSS, /:focus(?:-visible)?[^{]*\{[^}]*box-shadow/) },
+  { id: "a11y-focus-shadow-only", rule: "6-1", what: "포커스를 그림자로 그린 규칙", count: regex(CSS, /:focus(?:-visible)?[^{]*\{(?![^}]*outline)[^}]*box-shadow/) },
 ];
 
 export type Baseline = Record<string, Counts>;

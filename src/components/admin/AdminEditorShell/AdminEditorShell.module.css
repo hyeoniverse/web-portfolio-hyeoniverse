@@ -918,7 +918,7 @@
   background: transparent;
   font: var(--font-headline-md);
   color: var(--text-primary);
-  outline: none;
+  outline-color: transparent;
 }
 
 .container .titleInput:focus {
@@ -1029,7 +1029,7 @@
   background: transparent;
   font: var(--font-body-md);
   color: var(--text-primary);
-  outline: none;
+  outline-color: transparent;
   box-sizing: border-box;
 }
 

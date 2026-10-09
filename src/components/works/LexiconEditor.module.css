@@ -251,7 +251,6 @@
 }
 
 .rowMain:focus-visible {
-  outline: var(--border-width-2) solid var(--text-accent);
   outline-offset: var(--spacing-2);
 }
 

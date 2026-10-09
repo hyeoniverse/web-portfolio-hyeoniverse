@@ -499,7 +499,7 @@
   appearance: none;
   font: var(--font-body-xs);
   color: var(--text-secondary);
-  outline: none;
+  outline-color: transparent;
   max-width: 140px;
 }
 
@@ -979,7 +979,7 @@
   font: var(--font-code-sm);
   color: var(--text-primary);
   padding: 0 var(--spacing-8);
-  outline: none;
+  outline-color: transparent;
 }
 .linkPillInput::placeholder {
   color: var(--text-tertiary);
@@ -1037,7 +1037,7 @@
   height: var(--control-height-sm);
   padding: 0 var(--spacing-8);
   width: 120px;
-  outline: none;
+  outline-color: transparent;
   /* 내용에 맞춰 높이 자동 — 입력 길이만큼만 공간 차지(미리 큰 공간 확보 X) */
   field-sizing: content;
 }
@@ -1808,7 +1808,7 @@
   /* 좌우 동일 패딩 — 좌측 [+][드래그] gutter 가 패딩 영역 안에 들어가므로 텍스트 여백이 좌우 대칭.
      좁은 화면은 40px(버튼 세로로 쌓음), 넓은 화면은 가로로 나란한 두 버튼(24+24)이 들어가야 해서 64px(아래 media) */
   padding: var(--spacing-16) var(--spacing-40);
-  outline: none;
+  outline-color: transparent;
   min-height: 400px;
   font: var(--font-body-lg);
   color: var(--text-primary);
@@ -2053,7 +2053,7 @@
   background: transparent;
   font: var(--font-code-sm);
   color: var(--text-primary);
-  outline: none;
+  outline-color: transparent;
 }
 
 /* 필드 안 인라인 옵션 토글 — 정사각 아이콘 버튼, 선택 시 accent (hover/선택 배경은 capsule=원형) */
@@ -2218,7 +2218,7 @@
 
 .footnoteEditInput {
   border: none;
-  outline: none;
+  outline-color: transparent;
   background: transparent;
   font: inherit;
   color: inherit;

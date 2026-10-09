@@ -42,7 +42,6 @@
   border: var(--border-strong-2);
   background: var(--bg-primary);
   box-shadow: var(--shadow-raised);
-  outline: none;
 }
 
 .root .thumb:hover {
@@ -50,8 +49,4 @@
   outline-offset: 0;
 }
 
-.root .thumb:focus-visible {
-  outline: var(--border-width-4) solid color-mix(in oklch, var(--text-contrast) 20%, transparent);
-  outline-offset: 0;
-}
 }
