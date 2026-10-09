@@ -742,7 +742,6 @@
     "src/styles/globals/_utilities.css": 1
   },
   "cascade-doubled-class": {
-    "src/app/(home)/_sections/CTASection/CTASection.module.css": 18,
     "src/app/about/_components/panels/CodeHighlightsPanel.module.css": 1,
     "src/app/about/_components/panels/CreditsPanel.module.css": 1,
     "src/app/about/_components/panels/DesignSystemPanel.module.css": 2,
@@ -795,7 +794,6 @@
     "src/components/layout/ContactDrawer/ContactDrawer.module.css": 2,
     "src/components/layout/CreditsFooter/CreditsPanel.module.css": 2,
     "src/components/layout/Footer.module.css": 1,
-    "src/components/layout/Navigation/Navigation.module.css": 6,
     "src/components/posts/CoverImagePicker/CoverImagePicker.module.css": 2,
     "src/components/posts/plate/calendar/Calendar.module.css": 1,
     "src/components/posts/RichTextEditor.module.css": 1,
@@ -810,8 +808,7 @@
     "src/components/works/GalleryNarrationEditor.module.css": 12,
     "src/components/works/LexiconEditor.module.css": 1,
     "src/components/works/WorkEditor.module.css": 14,
-    "src/components/works/WorkGallery.module.css": 4,
-    "src/styles/globals/_scroll.css": 5
+    "src/components/works/WorkGallery.module.css": 4
   },
   "cascade-ui-unlayered": {},
   "cascade-composes-other-file": {},
