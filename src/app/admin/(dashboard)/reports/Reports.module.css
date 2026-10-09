@@ -109,7 +109,6 @@
   border-radius: var(--radius-control);
   background: var(--bg-secondary);
   font: var(--font-body-xs);
-  font-weight: 400;
   color: var(--text-tertiary);
 }
 

@@ -89,8 +89,7 @@
 
 .storyText {
   margin: 0;
-  font: var(--font-code-md);
-  font-weight: 300;
+  font: var(--font-meta-md);
   line-height: 1.8;
   color: var(--text-secondary);
 }
