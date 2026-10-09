@@ -52,9 +52,8 @@
   border-color: var(--text-tertiary);
 }
 
-/* Select 트리거 — 자체 보더·radius 제거, 캡슐 높이에 맞춤. .trigger (0,1,0) 동점은
-   번들 순서 싸움(#632)이라 이길 쪽을 .x.x 로 올린다 */
-.comboTrigger.comboTrigger {
+/* Select 트리거 — 자체 보더·radius 제거, 캡슐 높이에 맞춤. Select 는 components 층이라 이 규칙이 이긴다 */
+.comboTrigger {
   border: none;
   border-radius: 0;
   height: 100%;
