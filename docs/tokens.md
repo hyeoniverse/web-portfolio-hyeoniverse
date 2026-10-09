@@ -293,7 +293,7 @@
 
 ## `src/styles/globals/_semantic.css`
 
-토큰 164개
+토큰 166개
 
 | 토큰 | 값 | 다크 | 조건부 |
 |---|---|---|---|
@@ -312,9 +312,9 @@
 | `--text-warning` | `light-dark(var(--color-amber-400), var(--color-amber-300))` |  |  |
 | `--text-info` | `light-dark(var(--color-blue-700), var(--color-blue-400))` |  |  |
 | `--text-error` | `light-dark(var(--color-red-600), var(--color-red-400))` |  |  |
-| `--text-success-strong` | `light-dark(var(--color-green-700), var(--color-green-300))` |  |  |
+| `--text-success-strong` | `light-dark(var(--color-green-800), var(--color-green-300))` |  |  |
 | `--text-warning-strong` | `light-dark(var(--color-amber-700), var(--color-amber-300))` |  |  |
-| `--text-info-strong` | `light-dark(var(--color-blue-700), var(--color-blue-400))` |  |  |
+| `--text-info-strong` | `light-dark(var(--color-blue-800), var(--color-blue-400))` |  |  |
 | `--text-error-strong` | `light-dark(var(--color-red-700), var(--color-red-400))` |  |  |
 | `--text-accent` | `light-dark(var(--color-accent-700), var(--color-accent-500))` |  |  |
 | `--text-accent-alt` | `var(--text-accent)` |  |  |
@@ -343,7 +343,9 @@
 | `--bg-success-soft` | `light-dark(color-mix(in oklch, var(--text-success) 12%, transparent), color-mix(in oklch, var(--text-success) 18%, transparent))` |  |  |
 | `--bg-success-solid` | `var(--text-success)` |  |  |
 | `--bg-warning-soft` | `light-dark(color-mix(in oklch, var(--text-warning) 12%, transparent), color-mix(in oklch, var(--text-warning) 18%, transparent))` |  |  |
-| `--bg-warning-solid` | `var(--text-warning)` |  |  |
+| `--bg-warning-solid` | `var(--color-amber-300)` |  |  |
+| `--border-color-warning-solid` | `light-dark(var(--color-amber-600), var(--color-amber-300))` |  |  |
+| `--ring-warning-solid` | `inset 0 0 0 1px var(--border-color-warning-solid)` |  |  |
 | `--bg-info-soft` | `light-dark(color-mix(in oklch, var(--text-info) 12%, transparent), color-mix(in oklch, var(--text-info) 18%, transparent))` |  |  |
 | `--bg-info-solid` | `var(--text-info)` |  |  |
 | `--bg-error` | `light-dark(color-mix(in oklch, var(--text-error) 15%, transparent), color-mix(in oklch, var(--text-error) 20%, transparent))` |  |  |
@@ -682,16 +684,16 @@
 | `--text-accent` | `--bg-primary` | 강조 글 · 링크 | 4.5 | 5.00 | 5.68 |
 | `--text-on-accent` | `--bg-accent-solid` | 강조 면 위 글 | 4.5 | 5.41 | 6.86 |
 | `--text-inverse` | `--bg-inverse` | 뒤집힌 면 위 글 | 4.5 | 17.39 | 19.43 |
-| `--text-success-strong` | `--bg-primary` | 성공 글 | 4.5 | 4.97 | 9.98 |
+| `--text-success-strong` | `--bg-primary` | 성공 글 | 4.5 | 6.90 | 9.98 |
 | `--text-warning-strong` | `--bg-primary` | 경고 글 | 4.5 | 5.01 | 8.51 |
-| `--text-info-strong` | `--bg-primary` | 정보 글 | 4.5 | 4.78 | 6.84 |
+| `--text-info-strong` | `--bg-primary` | 정보 글 | 4.5 | 6.57 | 6.84 |
 | `--text-error-strong` | `--bg-primary` | 오류 글 | 4.5 | 5.89 | 6.29 |
-| `--text-success-strong` | `--bg-success-soft` | 성공 배지 | 4.5 | 4.38 ✗ | 6.79 |
+| `--text-success-strong` | `--bg-success-soft` | 성공 배지 | 4.5 | 6.08 | 6.79 |
 | `--text-warning-strong` | `--bg-warning-soft` | 경고 배지 | 4.5 | 4.53 | 5.93 |
-| `--text-info-strong` | `--bg-info-soft` | 정보 배지 | 4.5 | 4.06 ✗ | 5.05 |
+| `--text-info-strong` | `--bg-info-soft` | 정보 배지 | 4.5 | 5.57 | 5.05 |
 | `--text-error-strong` | `--bg-error-soft` | 오류 배지 | 4.5 | 4.92 | 4.74 |
 | `--text-success` | `--bg-primary` | 성공 점 · 막대(글자 아님) | 3 | 3.05 | 9.98 |
-| `--text-warning` | `--bg-primary` | 경고 점 · 막대(글자 아님) | 3 | 2.35 ✗ | 8.51 |
+| `--border-color-warning-solid` | `--bg-primary` | 경고 점 · 막대의 테두리(글자 아님, D66) | 3 | 3.87 | 8.51 |
 | `--text-error` | `--bg-primary` | 오류 점 · 막대(글자 아님) | 3 | 4.47 | 6.29 |
 | `--border-color-strong` | `--bg-primary` | 컨트롤 경계(진한 테두리) | 3 | 16.09 | 16.09 |
 | `--border-color-default` | `--bg-primary` | 컨트롤 경계(기본 테두리) | 3 | 3.28 | 4.90 |
