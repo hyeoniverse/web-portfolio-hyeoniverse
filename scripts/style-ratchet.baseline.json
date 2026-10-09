@@ -709,7 +709,6 @@
     "src/app/posts/tags/[tag]/_components/TagPageToolbar.module.css": 2,
     "src/app/profile/_components/FloatingObject/FloatingObject.module.css": 1,
     "src/app/works/_components/layouts/CylinderLayout.module.css": 1,
-    "src/app/works/_components/WorksFlowCard.module.css": 38,
     "src/app/works/_components/WorksSection.module.css": 6,
     "src/components/admin/AdminEditorShell/AdminEditorShell.module.css": 3,
     "src/components/admin/BilingualInputPair/BilingualInputPair.module.css": 1,
