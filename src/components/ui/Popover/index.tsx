@@ -77,6 +77,9 @@ let activeHoverPopover: { close: () => void } | null = null;
  *  - outside click / ESC 로 닫힘
  *  - scroll / resize 시 자동 reposition
  */
+/* 바텀 시트의 폭 — 쓰는 쪽 contentClassName 의 드롭다운 폭을 덮는다(위 주석) */
+const SHEET_SIZE = { width: "100vw", minWidth: 0, maxWidth: "none" } as const;
+
 export default function Popover({
   trigger,
   children,
@@ -322,6 +325,9 @@ export default function Popover({
                   ref={topContentRef}
                   popover="manual"
                   className={cn("ui-sheet", contentClassName)}
+                  /* 시트는 언제나 화면 폭이다. contentClassName 은 드롭다운의 폭(width: 300px 등)도 함께 담아
+                     오는데, 그 클래스(층 밖)가 .ui-sheet(base 층)를 이겨 시트가 좁아졌다 — 폭만 여기서 되돌린다 */
+                  style={SHEET_SIZE}
                   /* Lenis 가 wheel/touch 를 가로채 내부 스크롤이 막히는 것 방지 */
                   data-lenis-prevent
                   initial={{ y: "100%" }}
