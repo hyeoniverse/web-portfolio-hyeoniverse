@@ -183,11 +183,11 @@
 .itemRow > .itemCheckLabel,
 .itemRow > .bullet,
 .itemRow > .pairGrip {
-  height: 28px !important;
+  height: 28px;
   min-height: 28px;
   max-height: 28px;
-  padding: 0 !important;
-  margin: 0 !important;
+  padding: 0;
+  margin: 0;
   box-sizing: border-box;
   align-self: flex-start;
 }
@@ -379,15 +379,16 @@
   color: var(--text-primary);
 }
 
-/* 자식 버튼 — 개별 border 제거, 인접 셀 사이만 left border */
+/* 자식 버튼 — 개별 border 제거, 인접 셀 사이만 left border.
+   .toggleBtn 과 특이도가 같아 파일 순서로 이긴다 — 이 규칙은 .toggleBtn 보다 아래에 둔다 */
 .capsuleGroup > * {
-  border: none !important;
-  border-radius: 0!important;
-  height: 100% !important;
+  border: none;
+  border-radius: 0;
+  height: 100%;
 }
 
 .capsuleGroup > * + * {
-  border-left: var(--border-light) !important;
+  border-left: var(--border-light);
 }
 
 /* capsule 안 + 설명 추가 버튼 */
