@@ -120,7 +120,7 @@
   padding: var(--spacing-8) var(--spacing-24);
   border: var(--border-accent);
   width: fit-content;
-  font: var(--font-prose-md);
+  font: var(--font-body-lg);
   font-weight: var(--font-weight-regular);
   color: var(--text-accent);
   text-transform: uppercase;
@@ -246,7 +246,7 @@
   touch-action: none;
 }
 
-.osWindowTitle {  font: var(--font-code-md);
+.osWindowTitle {  font: var(--font-body-md);
 
   color: var(--text-primary);
   color: inherit;
@@ -296,7 +296,7 @@
   padding: 0.2em 0.7em;
   border: var(--border-white-muted);
   width: fit-content;
-  font: var(--font-meta-sm);
+  font: var(--font-body-sm);
   color: var(--text-white);
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -304,7 +304,7 @@
 }
 
 .bgInfoValue {
-  font: var(--font-meta-md);
+  font: var(--font-body-md);
   color: var(--text-white);
   white-space: nowrap;
 }
@@ -376,14 +376,14 @@
   padding: var(--spacing-8) 0;
 }
 
-.magInfoLabel {  font: var(--font-code-label-xs);
+.magInfoLabel {  font: var(--font-label-xs);
 
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.1em;
 }
 
-.magInfoValue {  font: var(--font-code-label-md);
+.magInfoValue {  font: var(--font-label-md);
 
   color: var(--text-primary);
 }
@@ -424,7 +424,7 @@
 
 .magNotesTag {
   margin-bottom: var(--spacing-12);
-  font: var(--font-code-label-xs);
+  font: var(--font-label-xs);
   color: var(--text-accent);
   text-transform: uppercase;
   letter-spacing: 0.12em;
@@ -467,7 +467,7 @@
 
 .bioText {
   margin: 0 0 var(--spacing-20) 0;
-  font: var(--font-code-lg);
+  font: var(--font-body-lg);
   font-weight: 300;
   line-height: 1.8;
   color: var(--text-secondary);
@@ -495,7 +495,7 @@
   color: var(--text-primary);
 }
 
-.statLabel {  font: var(--font-code-xs);
+.statLabel {  font: var(--font-body-xs);
 
   color: var(--text-tertiary);
   text-transform: uppercase;
@@ -520,7 +520,7 @@
    머리말로 되돌린다 — 큰 글자가 둘이면 어느 쪽이 제목인지 알 수 없다. */
 .sectionKicker {
   margin: 0 0 var(--spacing-32);
-  font: var(--font-code-label-sm);
+  font: var(--font-label-sm);
   line-height: normal;
   color: var(--text-tertiary);
   text-transform: uppercase;
@@ -556,7 +556,7 @@
 
 .expGroupLabel {
   margin: 0 0 var(--spacing-16);
-  font: var(--font-code-label-sm);
+  font: var(--font-label-sm);
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.2em;
@@ -619,21 +619,21 @@
 
 .expRole {
   margin: 0 0 var(--spacing-4) 0;
-  font: var(--font-code-label-xl);
+  font: var(--font-label-xl);
   color: var(--text-primary);
 }
 
 .expCompany {
   display: block;
   margin-bottom: var(--spacing-12);
-  font: var(--font-code-sm);
+  font: var(--font-body-sm);
   color: var(--text-accent);
   letter-spacing: 0.05em;
 }
 
 .expDesc {
   margin: 0;
-  font: var(--font-meta-md);
+  font: var(--font-body-md);
   line-height: 1.75;
   color: var(--text-secondary);
 }
@@ -656,7 +656,7 @@
 .skillPanelNumber {
   display: block;
   margin-bottom: var(--spacing-20);
-  font: var(--font-code-xs);
+  font: var(--font-body-xs);
   color: var(--text-accent);
   letter-spacing: 0.1em;
 }
@@ -681,7 +681,7 @@
 
 .skillPanelDesc {
   margin: 0;
-  font: var(--font-meta-md);
+  font: var(--font-body-md);
   line-height: 1.8;
   color: var(--text-tertiary);
 }
@@ -703,13 +703,13 @@
 
 .skillPanelItemName {
   margin: 0 0 var(--spacing-8) 0;
-  font: var(--font-code-label-lg);
+  font: var(--font-label-lg);
   color: var(--text-primary);
 }
 
 .skillPanelItemDesc {
   margin: 0;
-  font: var(--font-meta-sm);
+  font: var(--font-body-sm);
   line-height: 1.75;
   color: var(--text-secondary);
 }
@@ -761,7 +761,7 @@
 
 .philosophyBody {
   margin: 0;
-  font: var(--font-meta-md);
+  font: var(--font-body-md);
   line-height: 1.8;
   color: var(--text-secondary);
 }
@@ -813,7 +813,7 @@
 
 .approachBody {
   margin: 0;
-  font: var(--font-meta-md);
+  font: var(--font-body-md);
   line-height: 1.8;
   color: var(--text-secondary);
 }
@@ -857,7 +857,7 @@
 .credentialYear {
   flex-shrink: 0;
   padding-top: var(--spacing-2);
-  font: var(--font-code-xs);
+  font: var(--font-body-xs);
   color: var(--text-accent);
   letter-spacing: 0.05em;
 }
@@ -870,7 +870,7 @@
 
 .credentialName {
   margin: 0;
-  font: var(--font-code-label-lg);
+  font: var(--font-label-lg);
   color: var(--text-primary);
 }
 
@@ -882,7 +882,7 @@
   color: var(--text-muted);
 }
 
-.credentialOrg {  font: var(--font-meta-sm);
+.credentialOrg {  font: var(--font-body-sm);
 
   color: var(--text-tertiary);
 }

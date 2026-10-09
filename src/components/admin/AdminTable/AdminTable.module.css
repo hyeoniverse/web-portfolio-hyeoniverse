@@ -308,7 +308,7 @@
   width: 100%;
   min-width: 0;
   height: 22px;
-  font: var(--font-code-label-sm);
+  font: var(--font-label-sm);
   line-height: calc(20 / 13);
   font-variant-numeric: tabular-nums; /* content area = height - border(2) - padding-block(0) = 20 */
   padding: 0 var(--spacing-2);
@@ -348,7 +348,7 @@
   min-width: 0;
   width: 100%;
   height: 22px;
-  font: var(--font-code-label-sm);
+  font: var(--font-label-sm);
   line-height: calc(20 / 13);
   font-variant-numeric: tabular-nums;
   padding: 0 var(--spacing-2);

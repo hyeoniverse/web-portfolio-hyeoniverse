@@ -50,7 +50,7 @@
 }
 
 .procDetailStats dt {
-  font: var(--font-meta-sm);
+  font: var(--font-body-sm);
   color: var(--text-tertiary);
 }
 
@@ -72,7 +72,7 @@
 
 .procDetailPeriod {
   margin: 0;
-  font: var(--font-meta-sm);
+  font: var(--font-body-sm);
   color: var(--text-tertiary);
   letter-spacing: 0.04em;
 }
@@ -91,7 +91,7 @@
   margin: 0;
   word-break: keep-all;
   max-width: 62ch;
-  font: var(--font-prose-lg);
+  font: var(--font-body-xl);
   color: var(--text-secondary);
 }
 
@@ -179,7 +179,7 @@
 .procFacts figcaption {
   order: -1;
   word-break: keep-all;
-  font: var(--font-meta-xs);
+  font: var(--font-body-xs);
   color: var(--text-tertiary);
   letter-spacing: 0.02em;
 }
@@ -202,7 +202,7 @@
 }
 
 .procMetricLabel {
-  font: var(--font-meta-sm);
+  font: var(--font-body-sm);
   color: var(--text-secondary);
 }
 
@@ -266,7 +266,7 @@
   margin: 0;
   padding: 0;
   list-style: none;
-  font: var(--font-meta-xs);
+  font: var(--font-body-xs);
   color: var(--text-secondary);
 }
 
@@ -308,7 +308,7 @@
   height: var(--spacing-24);
   margin-left: calc(var(--_num-w) + var(--_title-w) + var(--_col-gap) * 2);
   border-bottom: var(--border-light);
-  font: var(--font-meta-xs);
+  font: var(--font-body-xs);
   color: var(--text-tertiary);
 }
 
@@ -417,7 +417,7 @@
 
 .procSummary {
   margin: var(--spacing-12) 0 0;
-  font: var(--font-meta-xs);
+  font: var(--font-body-xs);
   color: var(--text-tertiary);
   letter-spacing: 0.04em;
 }
@@ -573,7 +573,7 @@
 
 .processStepPeriod {
   margin: 0 0 var(--spacing-12);
-  font: var(--font-code-xs);
+  font: var(--font-body-xs);
   color: var(--text-tertiary);
 }
 

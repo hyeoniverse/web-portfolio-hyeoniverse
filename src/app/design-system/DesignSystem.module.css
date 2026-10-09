@@ -896,7 +896,7 @@
   flex-direction: column;
 }
 
-.pFileFolder {  font: var(--font-code-label-md);
+.pFileFolder {  font: var(--font-label-md);
 
   color: var(--text-primary);
   padding-bottom: var(--spacing-8);

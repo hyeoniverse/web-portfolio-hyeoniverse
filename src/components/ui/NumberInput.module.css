@@ -30,7 +30,7 @@
   align-items: center;
   height: 100%;
   padding: 0 var(--spacing-4) 0 var(--spacing-8);
-  font: var(--font-code-label-sm);
+  font: var(--font-label-sm);
   color: var(--text-muted);
   user-select: none;
 }

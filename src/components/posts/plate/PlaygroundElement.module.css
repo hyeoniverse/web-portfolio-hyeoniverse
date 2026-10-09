@@ -226,7 +226,7 @@
 }
 .pgPickerLabel {
   color: var(--text-primary);
-  font: var(--font-code-label-md);
+  font: var(--font-label-md);
 }
 .pgPickerDesc {
   color: var(--text-muted);

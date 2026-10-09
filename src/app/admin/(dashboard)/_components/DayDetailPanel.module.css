@@ -138,13 +138,13 @@
 
 /* 행: rank | title | bar track | views — 가로 막대 그래프 한 줄 */
 .dayDetailTopRank {
-  font: var(--font-code-label-xs);
+  font: var(--font-label-xs);
   color: var(--text-muted);
   min-width: 18px;
 }
 
 .dayDetailTopViews {
-  font: var(--font-code-label-xs);
+  font: var(--font-label-xs);
   font-variant-numeric: tabular-nums;
   color: var(--text-secondary);
   min-width: var(--control-height-xl);

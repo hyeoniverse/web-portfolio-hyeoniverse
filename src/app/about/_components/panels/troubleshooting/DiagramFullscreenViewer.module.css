@@ -19,7 +19,7 @@
 }
 
 .diagramViewerTitle {
-  font: var(--font-code-label-md);
+  font: var(--font-label-md);
   color: var(--text-primary);
   letter-spacing: 0.04em;
 }
@@ -75,7 +75,7 @@
 .diagramViewerZoomLabel {
   min-width: 4em;
   text-align: center;
-  font: var(--font-code-label-xs);
+  font: var(--font-label-xs);
   font-variant-numeric: tabular-nums;
   color: var(--text-secondary);
 }

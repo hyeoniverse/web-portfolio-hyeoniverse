@@ -172,7 +172,7 @@
   border: none;
   background: transparent;
   border-radius: var(--radius-full); /* indicator 원형 */
-  font: var(--font-code-label-xs);
+  font: var(--font-label-xs);
   line-height: 1;
   color: var(--text-tertiary);
   cursor: pointer;
@@ -218,7 +218,7 @@
   height: 18px;
   flex-shrink: 0;
   border-radius: var(--radius-full);
-  font: var(--font-code-label-xs);
+  font: var(--font-label-xs);
   line-height: 1;
   letter-spacing: -0.02em;
 }

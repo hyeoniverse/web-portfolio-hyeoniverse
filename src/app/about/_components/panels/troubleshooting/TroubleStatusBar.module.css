@@ -8,7 +8,7 @@
   padding: var(--spacing-8) var(--spacing-16);
   background: var(--text-accent);
   color: var(--bg-primary);
-  font: var(--font-code-label-sm);
+  font: var(--font-label-sm);
   overflow-x: auto;
   scrollbar-width: none;
   white-space: nowrap;
@@ -110,7 +110,7 @@
   background: var(--text-primary);
   color: var(--bg-primary);
   border-radius: var(--radius-surface);
-  font: var(--font-meta-sm);
+  font: var(--font-body-sm);
   white-space: nowrap;
   pointer-events: none;
   z-index: 1;

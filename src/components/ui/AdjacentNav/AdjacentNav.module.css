@@ -148,7 +148,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-8);
-  font: var(--font-code-label-xs);
+  font: var(--font-label-xs);
   color: var(--text-white);
   text-transform: uppercase;
   letter-spacing: 0.1em;

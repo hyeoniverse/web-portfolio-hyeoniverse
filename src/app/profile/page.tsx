@@ -33,7 +33,7 @@ export default async function ProfilePage() {
    * 다른 페이지의 <Suspense> 는 useSearchParams 때문에 필요한 것이라 그대로 둔다. */
   return (
     <BreakpointGuard>
-      <div className="content">
+      <div className="content" data-type="mono">
         <ProfileMeSection profileData={profileData} showcase={showcase} />
         <FloatingObject />
       </div>

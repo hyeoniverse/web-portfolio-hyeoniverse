@@ -308,7 +308,7 @@
 
 .postStatus {
   flex-shrink: 0;
-  font: var(--font-code-label-xs);
+  font: var(--font-label-xs);
   width: 16px;
   height: 16px;
   display: flex;

@@ -196,7 +196,7 @@
 }
 
 .conflictPath {
-  font: var(--font-code-label-sm);
+  font: var(--font-label-sm);
   color: var(--text-primary);
   min-width: 160px;
   flex-shrink: 0;

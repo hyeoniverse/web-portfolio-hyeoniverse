@@ -63,7 +63,7 @@
 }
 
 .helpSectionTitle {
-  font: var(--font-code-label-sm);
+  font: var(--font-label-sm);
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.06em;
