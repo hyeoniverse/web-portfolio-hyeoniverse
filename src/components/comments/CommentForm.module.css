@@ -84,8 +84,7 @@
   padding: var(--badge-padding-lg);
   border-radius: var(--radius-control);
   background: var(--bg-accent);
-  font: var(--font-body-sm);
-  font-weight: 500;
+  font: var(--font-label-sm);
   color: var(--text-accent);
 }
 
@@ -200,9 +199,8 @@
   right: calc(100% + var(--spacing-8));
   transform: translateY(-50%);
   white-space: nowrap;
-  font: var(--font-body-sm);
+  font: var(--font-label-sm);
   color: var(--text-primary);
-  font-weight: var(--font-weight-medium);
   /* 캡슐이 240px → 28px로 줄어든 후(0.25s) 오른쪽에서 오버슈트하며 등장 */
   animation: notifyLabelIn var(--duration-slow) 0.25s var(--ease-spring) both;
 }

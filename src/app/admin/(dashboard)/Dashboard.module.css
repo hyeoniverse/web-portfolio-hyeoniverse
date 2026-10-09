@@ -164,8 +164,7 @@
 }
 
 .heroLabel {
-  font: var(--font-body-sm);
-  font-weight: 600;
+  font: var(--font-label-sm);
   line-height: calc(20 / 13);
   /* 정수 line-height — .statLabel 과 같은 divider 번짐 방지 */
   text-transform: uppercase;
@@ -511,8 +510,7 @@ a.statCard:hover .statValue {
   gap: var(--spacing-4);
   padding: var(--spacing-1) var(--spacing-8);
   border-radius: var(--radius-control);
-  font: var(--font-body-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   letter-spacing: 0.02em;
   flex-shrink: 0;
 }
@@ -1031,8 +1029,7 @@ a.commentSource:hover {
 }
 
 .trafficStatLabel {
-  font: var(--font-body-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--text-tertiary);
@@ -1050,8 +1047,7 @@ a.commentSource:hover {
 }
 
 .trafficStatSub {
-  font: var(--font-body-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   color: var(--text-tertiary);
 }
 

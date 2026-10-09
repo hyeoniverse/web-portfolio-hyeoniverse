@@ -14,8 +14,7 @@
 }
 
 .recommendedLabel {
-  font: var(--font-body-sm);
-  font-weight: var(--font-weight-medium);
+  font: var(--font-label-sm);
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.06em;

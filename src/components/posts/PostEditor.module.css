@@ -11,8 +11,7 @@
   border-radius: var(--radius-surface);
   background: color-mix(in srgb, var(--text-warning) 12%, var(--bg-primary));
   color: var(--text-warning-strong);
-  font: var(--font-body-md);
-  font-weight: 500;
+  font: var(--font-label-md);
   line-height: 1.4;
 }
 .presenceBanner svg { flex-shrink: 0; }
@@ -158,8 +157,7 @@
   padding: var(--row-padding-lg);
   border: none;
   background: transparent;
-  font: var(--font-body-sm);
-  font-weight: 600;
+  font: var(--font-label-sm);
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -332,8 +330,7 @@
 }
 
 .templateItemLabel {
-  font: var(--font-body-md);
-  font-weight: 600;
+  font: var(--font-label-md);
   color: var(--text-primary);
 }
 
@@ -438,8 +435,7 @@
 }
 
 .editorLabel {
-  font: var(--font-body-sm);
-  font-weight: 600;
+  font: var(--font-label-sm);
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.05em;

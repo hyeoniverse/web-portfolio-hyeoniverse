@@ -231,8 +231,7 @@
 }
 
 .nickname {
-  font: var(--font-body-md);
-  font-weight: var(--font-weight-medium);
+  font: var(--font-label-md);
   color: var(--text-primary);
 }
 
@@ -240,8 +239,7 @@
   padding: var(--badge-padding-md);
   border-radius: var(--radius-control);
   background: var(--bg-accent);
-  font: var(--font-body-xs);
-  font-weight: 500;
+  font: var(--font-label-xs);
   color: var(--text-accent);
 }
 

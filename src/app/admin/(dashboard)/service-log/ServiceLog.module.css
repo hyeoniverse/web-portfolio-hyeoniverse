@@ -216,8 +216,7 @@
   border-radius: var(--radius-control);
   background: var(--bg-accent-light);
   color: var(--text-accent);
-  font: var(--font-body-sm);
-  font-weight: 600;
+  font: var(--font-label-sm);
   align-self: flex-start;
 }
 
@@ -296,8 +295,7 @@
 }
 
 .railTotalLabel {
-  font: var(--font-body-sm);
-  font-weight: 600;
+  font: var(--font-label-sm);
   color: var(--text-tertiary);
 }
 
@@ -325,8 +323,7 @@
 }
 
 .railTotalFail {
-  font: var(--font-body-sm);
-  font-weight: 600;
+  font: var(--font-label-sm);
   color: var(--text-accent);
 }
 
@@ -383,8 +380,7 @@
 .railHead {
   grid-template-columns: minmax(0, 1fr) 28px 24px;
   min-height: 28px;
-  font: var(--font-body-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   color: var(--text-tertiary);
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -466,8 +462,7 @@
 
 /* 오른쪽 머리 — 지금 보는 범위 · 결과 거르기 · 건수 */
 .scope {
-  font: var(--font-body-md);
-  font-weight: 600;
+  font: var(--font-label-md);
   color: var(--text-primary);
 }
 
@@ -515,8 +510,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 var(--spacing-4) var(--spacing-8) var(--spacing-12);
-  font: var(--font-body-sm);
-  font-weight: 600;
+  font: var(--font-label-sm);
   color: var(--text-tertiary);
 }
 
@@ -538,8 +532,7 @@
 
 .legendTitle {
   margin: 0;
-  font: var(--font-body-md);
-  font-weight: 600;
+  font: var(--font-label-md);
   color: var(--text-primary);
 }
 
@@ -550,8 +543,7 @@
 }
 
 .legendHeading {
-  font: var(--font-body-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   color: var(--text-tertiary);
   letter-spacing: 0.04em;
 }

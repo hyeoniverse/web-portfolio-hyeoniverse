@@ -266,8 +266,7 @@
 /* 이름이 남는 폭을 차지해 켜기 · 기록 단추를 오른쪽 끝으로 민다 */
 .featureTitle {
   margin: 0 auto 0 0;
-  font: var(--font-body-md);
-  font-weight: 600;
+  font: var(--font-label-md);
   color: var(--text-primary);
 }
 

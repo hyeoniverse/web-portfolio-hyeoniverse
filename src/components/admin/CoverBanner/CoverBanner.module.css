@@ -87,8 +87,7 @@
   background: transparent;
   mix-blend-mode: difference;
   color: var(--text-white);
-  font: var(--font-body-md);
-  font-weight: 600;
+  font: var(--font-label-md);
   pointer-events: none;
   white-space: nowrap;
 }

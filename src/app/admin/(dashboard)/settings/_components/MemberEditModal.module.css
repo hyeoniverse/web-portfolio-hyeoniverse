@@ -75,8 +75,7 @@
 .authorCardName {
   flex: 1;
   min-width: 0;
-  font: var(--font-body-md);
-  font-weight: var(--font-weight-semibold);
+  font: var(--font-label-md);
   color: var(--text-primary);
 }
 /* 삭제 버튼 — 카드 상단(start)에 붙임 (아바타가 커서 center 면 중앙에 뜸) */
@@ -213,8 +212,7 @@
   height: 16px;
   border-radius: var(--radius-control);
   background: var(--bg-tertiary);
-  font: var(--font-body-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   color: var(--text-secondary);
 }
 
