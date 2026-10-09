@@ -160,7 +160,8 @@
   opacity: 0.6;
 }
 
-/* 라벨·한 줄·안내도 판 높이를 따른다. 제목만 줄이면 나머지가 그대로라 얕은 판에서는 여전히 넘친다.
+/* 3.2-4 예외 — 아래 글자들은 화면이 아니라 3D 판 크기에 비례한다(CylinderLayout 제목과 같다).
+   라벨·한 줄·안내도 판 높이를 따른다. 제목만 줄이면 나머지가 그대로라 얕은 판에서는 여전히 넘친다.
    글자 크기의 하한은 읽을 수 있는 선(11~12px)이다 */
 .introLabel {
   font-size: clamp(var(--font-size-body-xs), calc(var(--panel-h, 320px) * 0.055), var(--font-size-body-sm));
