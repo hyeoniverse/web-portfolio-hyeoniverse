@@ -67,7 +67,7 @@
   background: transparent;
   font: var(--font-body-md);
   color: var(--text-primary);
-  outline: none;
+  outline-color: transparent;
   /* line-height = 높이 → 단일 라인 vertical center. flex 중앙정렬은 빈 contentEditable 에서 line box 가
      없어 caret 이 위로 치우침 → line-height 방식으로 빈 상태에서도 caret 중앙 유지 */
   line-height: var(--control-height-md);

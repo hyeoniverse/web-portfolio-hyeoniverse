@@ -296,7 +296,7 @@
 
 ## `src/styles/globals/_semantic.css`
 
-토큰 162개
+토큰 165개
 
 | 토큰 | 값 | 다크 | 조건부 |
 |---|---|---|---|
@@ -394,6 +394,9 @@
 | `--border-ghost` | `1px solid var(--border-color-ghost)` |  |  |
 | `--border-white-muted` | `1px solid var(--border-color-white-muted)` |  |  |
 | `--border-success` | `1px solid var(--border-color-success)` |  |  |
+| `--focus-ring-color` | `var(--text-accent)` |  |  |
+| `--focus-ring-width` | `var(--border-width-2)` |  |  |
+| `--focus-ring-offset` | `2px` |  |  |
 | `--spacing-page-inline` | `4vw` |  | `@media (width > 480px): 5vw`<br>`@media (width > 768px): 8vw` |
 | `--spacing-nav-top` | `min(var(--spacing-page-inline), var(--spacing-32))` |  |  |
 | `--width-page-max` | `100%` |  |  |

@@ -214,8 +214,6 @@
   text-decoration: underline;
 }
 .rowClickable:focus-visible {
-  outline: 2px solid var(--border-color-strong);
-  outline-offset: 2px;
   border-radius: var(--radius-surface);
 }
 

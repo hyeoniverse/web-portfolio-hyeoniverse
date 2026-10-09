@@ -44,7 +44,7 @@
   color: var(--text-primary);
   white-space: pre-wrap;
   word-break: break-word;
-  outline: none;
+  outline-color: transparent;
 }
 .editableEmpty::before {
   content: attr(data-placeholder);

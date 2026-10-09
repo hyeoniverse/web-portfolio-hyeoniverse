@@ -18,7 +18,7 @@
 .searchInput {
   width: 100%;
   border: none;
-  outline: none;
+  outline-color: transparent;
   font-size: var(--font-size-body-md);
   font-family: inherit;
   background: transparent;

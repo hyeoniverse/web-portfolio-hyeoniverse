@@ -97,7 +97,7 @@
   background: transparent;
   font: var(--font-body-md);
   color: var(--text-primary);
-  outline: none;
+  outline-color: transparent;
 }
 
 .posInput::-webkit-inner-spin-button,

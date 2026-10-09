@@ -76,7 +76,7 @@
   background: transparent;
   color: var(--text-primary);
   font: inherit;
-  outline: none;
+  outline-color: transparent;
 }
 .inspectInput:focus {
   outline: var(--border-width-1) solid var(--border-color-accent-strong);

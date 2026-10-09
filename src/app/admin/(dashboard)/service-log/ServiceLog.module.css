@@ -97,8 +97,7 @@
 }
 
 .row:focus-visible {
-  outline: var(--border-width-2) solid var(--text-accent);
-  outline-offset: calc(var(--border-width-2) * -1);
+  outline-offset: calc(-1 * var(--focus-ring-width));
 }
 
 /* 가로로 밀어도 시각·공급자는 왼쪽에 붙어 있다 */

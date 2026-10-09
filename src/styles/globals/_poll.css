@@ -242,7 +242,7 @@ body.poll-grabbing * {
   font-family: var(--font-family-body);
   font-size: var(--font-size-body-md);
   color: var(--text-primary);
-  outline: none;
+  outline-color: transparent;
 }
 .poll-option-input::placeholder {
   color: var(--text-muted);
@@ -306,7 +306,7 @@ body.poll-grabbing * {
   font-family: var(--font-family-body);
   font-size: var(--font-size-body-md);
   color: var(--text-primary);
-  outline: none;
+  outline-color: transparent;
 }
 .poll-add-input::placeholder {
   color: var(--text-muted);
