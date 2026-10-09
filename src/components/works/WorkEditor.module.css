@@ -316,8 +316,8 @@
   list-style: disc;
 }
 
-/* 관련 글·시리즈 — 다른 항목처럼 입력 한 줄 + 칩 줄만. 기본 바깥 여백(다음 칸과의 거리)은 여기서는 항목 여백이 맡는다 */
-.relationPicker.relationPicker.relationPicker {
+/* 관련 글·시리즈 — RelationPicker 의 .wrap(층 밖, 0,1,0) 을 이기려고 .section 을 붙인다. 다른 항목처럼 입력 한 줄 + 칩 줄만. 기본 바깥 여백(다음 칸과의 거리)은 여기서는 항목 여백이 맡는다 */
+.section > .relationPicker {
   margin-bottom: 0;
 }
 
@@ -370,8 +370,8 @@
 }
 
 /* RoleMultiPicker 안 Select — 기본 fit-content 대신 부모 너비 채우기.
- * .root 자체 (0,1,0) 보다 (0,2,0) 으로 우선순위 확보 */
-.categoryPicker > .roleSelect.roleSelect {
+ * Select 는 components 층이라 층 밖의 이 규칙이 이긴다 */
+.categoryPicker > .roleSelect {
   width: 100%;
 }
 .categoryPicker > .roleSelect > input,
@@ -482,8 +482,8 @@
 }
 
 /* 직접 입력 + Button override — common Button shape=circle 의 38px 대신 28x28 정사각.
- * 같은 specificity 더 자세히 — 같은 클래스 2번 (0,2,0) */
-.categoryAddBtnSized.categoryAddBtnSized {
+ * Button 은 components 층이라 층 밖의 이 규칙이 이긴다 */
+.categoryAddBtnSized {
   width: 28px;
   height: 28px;
   min-width: 28px;
@@ -937,8 +937,8 @@
 /* form 첫 row — [avatar | name input | role select]. memberCard 의 chip-row 와 동일 구조 */
 
 /* avatar 가 더블클릭 가능할 때 — cursor + hover overlay.
- * overflow: visible 은 (0,2,0) compound 로 .memberAvatar 의 hidden 보다 우선 적용 (+ 뱃지가 밖으로 나가야 함) */
-.memberAvatarUploadable.memberAvatarUploadable {
+ * overflow: visible 은 .memberAvatar 와 묶은 (0,2,0) 으로, 뒤에 정의된 .memberAvatar 의 hidden 을 이긴다 (+ 뱃지가 밖으로 나가야 함) */
+.memberAvatar.memberAvatarUploadable {
   cursor: pointer;
   position: relative;
   overflow: visible;
@@ -999,7 +999,7 @@
 }
 
 /* Select (RoleMultiPicker.selectNode) 가 .memberFormRow 의 직계 flex item — input 과 1:1 */
-.memberFormRow .roleSelect.roleSelect {
+.memberFormRow .roleSelect {
   flex: 1;
   min-width: 0;
   width: auto;
@@ -1011,9 +1011,8 @@
 }
 
 /* 편집 모드 — 카드 옅은 accent 배경, border 제거, 좌우 padding 으로 background 영역 확보.
-   .memberCard.memberCard (0,2,0) 가 뒤에 정의되어 cascade 로 이기므로,
-   (0,3,0) 로 격상 (같은 클래스 한 번 더) */
-.memberCard.memberCard.memberCardEditing {
+   .memberCard(0,1,0) 가 뒤에 정의되어 있어 두 클래스(0,2,0)로 이긴다 */
+.memberCard.memberCardEditing {
   background: color-mix(in oklch, var(--text-accent) 8%, transparent);
   border: none;
   padding: var(--card-padding-md);
@@ -1059,7 +1058,7 @@
 }
 
 /* List — 너비 충분하면 multi-col grid (auto-fill minmax). border 없음 */
-.memberList.memberList {
+.memberList {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
   height: auto;
@@ -1070,8 +1069,8 @@
 
 /* add-mode card — saved card 와 같은 외형이지만 inputs/버튼 포함. header row 가 4-칸 grid */
 /* add-mode card — 단독 카드 (saved list 의 hairline / padding 영향 없음). 컴팩트 column stack.
- * .memberCard.memberCard 가 CSS 에서 나중에 정의되어 padding 덮어쓰는 거 (0,3,0) 으로 override */
-.memberCard.memberCardAdd.memberCardAdd {
+ * .memberCard 가 뒤에 정의되어 padding 을 덮어쓰는 것을 두 클래스(0,2,0)로 이긴다 */
+.memberCard.memberCardAdd {
   padding: 0;
   gap: var(--spacing-12);
   /* 사진 폭만큼 들이는 들여쓰기는 카드 폭으로 정한다(3.11-3) */
@@ -1132,7 +1131,7 @@
   max-width: 320px;
 }
 
-.memberRoleRow > .roleSelect.roleSelect {
+.memberRoleRow > .roleSelect {
   width: 100%;
 }
 .memberRoleRow > .roleSelect > input,
@@ -1260,8 +1259,8 @@
   max-width: 200px;
 }
 
-/* 사진 첨부 버튼 — 28px 로 input/+ 버튼 라인 맞춤. (0,2,0) 으로 Button base 보다 우선 */
-.avatarUploadBtn.avatarUploadBtn {
+/* 사진 첨부 버튼 — 28px 로 input/+ 버튼 라인 맞춤. Button 은 components 층이라 이 규칙이 이긴다 */
+.avatarUploadBtn {
   height: 28px;
   min-height: 28px;
   padding: 0 var(--spacing-16);
@@ -1271,7 +1270,7 @@
 
 /* ── Team Member Card — Instagram followers-list 스타일.
  * Border 없음, 자체 카드보다 list-row 느낌. 마지막 아이템 빼고 hairline divider */
-.memberCard.memberCard {
+.memberCard {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-12);
@@ -1282,7 +1281,7 @@
 }
 
 /* hairline divider — 마지막 카드 제외. spacing-xs 보다 깔끔한 list 느낌 */
-.memberList.memberList .memberCard.memberCard:not(:last-child) {
+.memberList .memberCard:not(:last-child) {
   border-bottom: var(--border-light);
 }
 
@@ -1427,8 +1426,8 @@
 }
 
 /* 이름 + 연결 배지 한 줄 — 위의 .memberInfo > span(0,1,1) 이 display:block 으로 덮어 gap 이 먹지 않았다.
-   두 번 써서 이긴다 */
-.memberNameRow.memberNameRow {
+   부모를 붙여 (0,2,0) 으로 이긴다 */
+.memberInfo > .memberNameRow {
   display: flex;
   align-items: center;
   /* 이름과 연결됨 배지 사이는 넉넉히, 줄이 넘어가면 위아래는 좁게 */

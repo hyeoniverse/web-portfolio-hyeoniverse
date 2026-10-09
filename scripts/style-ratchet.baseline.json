@@ -738,7 +738,6 @@
     "src/app/admin/(dashboard)/settings/_components/ProfileGithubEditor.module.css": 3,
     "src/app/admin/(dashboard)/settings/_components/ProfilePanelsEditor.module.css": 2,
     "src/app/admin/(dashboard)/settings/_components/SectionHeader.module.css": 1,
-    "src/app/admin/(dashboard)/settings/_components/SeriesManager.module.css": 8,
     "src/app/admin/(dashboard)/settings/_components/ServicesTab.module.css": 1,
     "src/app/admin/(dashboard)/settings/Settings.module.css": 2,
     "src/app/admin/(dashboard)/traffic/UtmBuilder.module.css": 1,
@@ -761,7 +760,6 @@
     "src/app/privacy/Privacy.module.css": 1,
     "src/app/profile/_components/FloatingObject/FloatingObject.module.css": 1,
     "src/app/works/_components/WorksSection.module.css": 1,
-    "src/components/admin/AdminEditorShell/AdminEditorShell.module.css": 8,
     "src/components/admin/AdminTable/AdminTable.module.css": 2,
     "src/components/admin/CoverImageField/CoverImageField.module.css": 1,
     "src/components/admin/ProfileSkill.module.css": 1,
@@ -780,9 +778,7 @@
     "src/components/ui/SegmentedControl.module.css": 2,
     "src/components/ui/Select.module.css": 1,
     "src/components/ui/ShareButton.module.css": 1,
-    "src/components/works/GalleryNarrationEditor.module.css": 12,
     "src/components/works/LexiconEditor.module.css": 1,
-    "src/components/works/WorkEditor.module.css": 14,
     "src/components/works/WorkGallery.module.css": 4
   },
   "cascade-ui-unlayered": {
