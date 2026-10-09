@@ -13,12 +13,8 @@
   container-name: cmt-editor;
 }
 
-/* Write/Preview 탭 + 서식 툴바 + 마크다운 도움말 한 행.
-   pill 은 공통 SegmentedControl 이 담당하므로 여기선 배치만.
-   flex-wrap — 답글은 중첩될수록 폭이 좁아져 툴바가 넘칠 수 있다. 접히더라도 탭과 같은 왼쪽 축 유지. */
-/* 헤더 = [작성|미리보기] + 서식 버튼 + M↓ 이 하나의 응집된 flex-wrap 묶음.
-   좁아지면 왼쪽부터 채워 다음 줄로 접힌다. 그룹 사이 간격 = 이 gap(sm),
-   그룹 안 간격 = .toolbarGroup 의 gap(3xs) — 세로 구분선 없이 간격 차이만으로 그룹을 읽힌다. */
+/* 서식 툴바 + 마크다운 도움말 한 행. 좁아지면 왼쪽부터 채워 다음 줄로 접힌다(flex-wrap — 답글은 중첩될수록 좁다).
+   그룹 사이 간격 = 이 gap(sm), 그룹 안 간격 = .toolbarGroup 의 gap(3xs) — 세로 구분선 없이 간격 차이만으로 그룹을 읽힌다. */
 .editorHeader {
   display: flex;
   align-items: center;
@@ -33,6 +29,11 @@
    쓰고 둘째 줄이 왼쪽 끝(세그먼트 아래)에서 시작한다. */
 .toolbar {
   display: contents;
+}
+
+/* 작성/미리보기 토글 — 폼의 단추 줄 왼쪽 끝. 단추들은 오른쪽으로 밀린다 */
+.modeToggle {
+  margin-inline-end: auto;
 }
 
 /* 라벨 + 버튼 한 덩어리 — 좁아지면 그룹 통째로 줄바꿈되어 라벨만 홀로 떨어지지 않는다. */
@@ -110,6 +111,12 @@
   width: 100%;
   border-collapse: collapse;
   text-align: left;
+}
+
+/* 바텀 시트(좁은 화면)에서는 표가 화면 폭을 넘지 않게 열 폭을 고정한다. 내용 폭으로 열을 잡으면
+   여러 줄 문법(white-space: pre)이 표를 넓혀 설명 열이 화면 밖으로 잘렸다. 긴 문법은 그 칸 안에서 가로로 민다 */
+.helpPopover:global(.ui-sheet) .helpTable {
+  table-layout: fixed;
 }
 
 /* 표 헤더 — bold + 배경 band 로 본문 행과 확실히 갈라놓는다.
@@ -217,6 +224,11 @@
   width: 300px;
   max-width: 88vw;
   padding: var(--spacing-4);
+}
+
+/* 바텀 시트에서는 시트 제목(Popover .sheetHeader, 20px 안쪽)과 같은 줄에 맞춘다 — 패널 여백 4 + 16 */
+.postPickerPanel:global(.ui-sheet) :is(.postPickerSearch, .postPickerList) {
+  margin-inline: var(--spacing-16);
 }
 
 /* 검색 행 — 좌측 돋보기 + Input + 로딩 스피너 */
