@@ -327,8 +327,7 @@
   padding: var(--spacing-4) var(--spacing-16);
   border: var(--border-light);
   border-radius: var(--radius-full);
-  font: var(--font-body-md);
-  font-weight: 600;
+  font: var(--font-label-md);
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.02em;
   color: var(--text-secondary);

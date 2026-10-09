@@ -220,8 +220,7 @@
 .postLinkSearchPh { flex: 1; color: var(--text-tertiary); font: var(--font-body-md); }
 .postLinkSectionLabel {
   padding: var(--spacing-4) var(--spacing-12) var(--spacing-2);
-  font: var(--font-body-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   color: var(--text-tertiary);
 }
 .postLinkCatRow { justify-content: space-between; }
@@ -267,8 +266,7 @@
 }
 .slashGroupLabel {
   padding: var(--spacing-4) var(--spacing-12) var(--spacing-2);
-  font: var(--font-body-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--text-muted);
@@ -730,8 +728,7 @@
   align-items: baseline;
   justify-content: space-between;
   gap: var(--spacing-12);
-  font: var(--font-body-xs);
-  font-weight: var(--font-weight-medium);
+  font: var(--font-label-xs);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--text-muted);
@@ -748,8 +745,7 @@
 }
 /* field label — 필드(컨트롤) 왼쪽에 나란히 배치, 큰 폰트 + 진한 색 */
 .fieldLabel {
-  font: var(--font-body-md);
-  font-weight: var(--font-weight-medium);
+  font: var(--font-label-md);
   color: var(--text-primary);
   white-space: nowrap;
 }
@@ -1400,8 +1396,7 @@
 }
 .blockToolsLabel {
   padding: var(--spacing-4) var(--spacing-8) var(--spacing-2);
-  font: var(--font-body-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--text-muted);

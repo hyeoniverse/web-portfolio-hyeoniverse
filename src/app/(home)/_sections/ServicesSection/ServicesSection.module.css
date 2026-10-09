@@ -17,9 +17,8 @@
   gap: var(--spacing-32);
 }
 
-.label {  font: var(--font-body-sm);
+.label {  font: var(--font-label-sm);
 
-  font-weight: var(--font-weight-medium);
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.15em;

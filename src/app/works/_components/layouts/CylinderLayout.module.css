@@ -200,8 +200,7 @@
 
 /* 분류 — 제목 위 작은 글자. 판을 낮춰 두었으니 흰색 그대로 읽힌다 */
 .metaCategory {
-  font: var(--font-body-sm);
-  font-weight: var(--font-weight-semibold);
+  font: var(--font-label-sm);
   color: var(--text-white);
   opacity: var(--reveal, 0);
   transform: translateY(calc((1 - var(--reveal, 0)) * 20px));

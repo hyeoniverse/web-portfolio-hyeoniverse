@@ -16,8 +16,7 @@
 }
 
 .calendarMonth {
-  font: var(--font-body-md);
-  font-weight: 600;
+  font: var(--font-label-md);
   font-variant-numeric: tabular-nums;
   color: var(--text-primary);
   text-align: center;
@@ -115,8 +114,7 @@
 
 /* 조회수 — 셀 중앙, 크게 */
 .calendarCellViews {
-  font: var(--font-body-md);
-  font-weight: 600;
+  font: var(--font-label-md);
   font-variant-numeric: tabular-nums;
   line-height: 1;
   color: var(--text-primary);

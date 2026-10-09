@@ -326,8 +326,7 @@
   margin-top: var(--spacing-4);
 }
 .diagramFormLabel {
-  font: var(--font-body-sm);
-  font-weight: 600;
+  font: var(--font-label-sm);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--text-tertiary);

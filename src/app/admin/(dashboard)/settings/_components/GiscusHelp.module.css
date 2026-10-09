@@ -56,8 +56,7 @@
 
 /* 방법 A/B 소제목 — 섹션 제목보다 한 단계 작게 */
 .subTitle {
-  font: var(--font-body-md);
-  font-weight: var(--font-weight-semibold);
+  font: var(--font-label-md);
   color: var(--text-primary);
 }
 
@@ -100,8 +99,7 @@
   gap: var(--spacing-2);
   flex-shrink: 0;
   white-space: nowrap;
-  font: var(--font-body-md);
-  font-weight: var(--font-weight-medium);
+  font: var(--font-label-md);
   color: var(--text-accent);
   text-decoration: none;
 }
