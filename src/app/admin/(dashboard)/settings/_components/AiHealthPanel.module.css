@@ -158,7 +158,7 @@
 
 .status[data-state="failing"] {
   background: var(--bg-warning-soft);
-  color: var(--bg-warning-solid);
+  color: var(--text-warning-strong);
 }
 
 .status[data-state="off"] {

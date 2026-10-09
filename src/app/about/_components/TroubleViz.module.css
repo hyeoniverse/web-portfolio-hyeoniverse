@@ -85,7 +85,7 @@
 .fresh { background: var(--bg-success-soft); color: var(--text-success); }
 .fresh .dot { background: var(--bg-success-solid); }
 .stale { background: var(--bg-warning-soft); color: var(--text-warning); }
-.stale .dot { background: var(--bg-warning-solid); }
+.stale .dot { background: var(--bg-warning-solid); box-shadow: var(--ring-warning-solid); }
 .bad { background: var(--bg-error-soft); color: var(--text-error); }
 .bad .dot { background: var(--bg-error-solid); }
 .sync { background: var(--bg-tertiary); color: var(--text-accent); }
