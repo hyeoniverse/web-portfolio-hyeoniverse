@@ -888,3 +888,14 @@ Material `@material/web` 2.5, Primer primitives. 숫자는 같은 날 다시 셌
   - 예외로 남긴 3곳에 주석을 달았다 — Works 원통 레이아웃 제목 · 소개 판 글자(화면이 아니라 3D 판 크기에 맞춰 넘치지 않게 하는 글자), 연락 서랍 메일 그림의 로고(로고는 글자 역할이 아니고 그림 전체가 화면 폭에 비례한다).
 - **보이는 변화.** 그리드 레이아웃 제목이 중간 폭에서 조금 커진다(768px 에서 46 → 50px). 1440px 이상은 같다(5rem 상한). 브라우저 확대 때 함께 커진다.
 
+### D68. 2026-10-09 — 글 목록: 카드 배치는 카드가 그린다(4-4, `!important` 걷어내기 1)
+
+- **왜.** 4-4 의 남은 편법 중 가장 큰 덩어리가 글 목록 그리드(`PostsGrid`, `!important` 54)였다. 레이아웃(list · grid · masonry · featured · 시리즈)마다 그리드가 `[class*="imageWrap"]` 같은 속성 선택자와 `!important` 로 PostCard 안쪽을 바깥에서 덮었다. 카드의 class 이름이 바뀌면 조용히 깨지고, 카드 쪽에서는 자기가 어떻게 보일지 알 수 없었다.
+- **정한 것.**
+  - PostCard 가 이미 받던 `layout` 으로 배치를 스스로 그린다 — `.layoutGrid`(발췌 · 태그 숨김) · `.layoutList`(썸네일 120 · 220px 가로 배치) · `.series`(시리즈 timeline 의 7:5 썸네일, `layout="series"` 를 새로 둠) · `.featuredHero`(featured 첫 카드의 1.4 : 1 hero).
+  - masonry 의 칸별 이미지 비율은 그리드가 변수 `--post-card-aspect` 로만 넘긴다. 카드는 `aspect-ratio: var(--post-card-aspect, 16 / 10)`.
+  - 그리드 컨테이너의 레이아웃 변형(`.gridList` 등)은 같은 파일에서 `.grid` 뒤에 오므로 `!important` 없이 이긴다 — 지웠다.
+  - `.gridSeries .gridWide` 는 시리즈에서 `gridWide` 가 붙지 않아 쓰이지 않던 규칙이라 지웠다. 대신 masonry 줄 수(인라인 `grid-row`)가 레이아웃이 바뀐 뒤 남지 않게 `useMasonryRowSpans` 가 꺼질 때 지운다.
+  - PostCard 의 compact placeholder 규칙 2곳도 겹치는 규칙이 `:not(.compact)` 라 `!important` 가 필요 없었다 — 지웠다.
+- **보이는 변화.** 없다. 시험 페이지에서 레이아웃 8가지(magazine · grid · list · compact · masonry · featured · timeline · 시리즈)를 1440 · 600px 로 그려 master 와 계산값(display · 열 · gap · 비율 · 여백 · 테두리 · 글자 · 위치 · 크기)을 견줬다 — 같았다. 불러오는 동안의 skeleton 은 보지 않았다(예전 규칙이 skeleton 안쪽에도 우연히 걸려 있었다).
+
