@@ -34,6 +34,7 @@ export function WorkArticleHeader({
   onLangChange,
   relatedPosts,
   relatedSeries,
+  langMenu,
 }: WorkArticleViewProps) {
   const { t } = useLanguage();
   const authed = useIsAuthenticated();
@@ -122,6 +123,7 @@ export function WorkArticleHeader({
           )}
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          {langMenu}
           <LanguageToggle lang={viewLang} onLangChange={handleLangChange} />
         </div>
       </motion.div>

@@ -18,6 +18,9 @@ import SeriesPanel from "./_components/SeriesPanel/SeriesPanel";
 import SeriesPreviewTooltip from "./_components/SeriesPanel/SeriesPreviewTooltip";
 import { useSeriesPanel } from "./_components/SeriesPanel/useSeriesPanel";
 import TranslateBanner from "@/components/ui/TranslateBanner";
+import ContentLangMenu from "@/components/ui/ContentLangMenu";
+import ContentTranslateBanner from "@/components/ui/ContentTranslateBanner";
+import { useContentTranslation } from "@/hooks/useContentTranslation";
 import { usePostTranslation } from "./_hooks/usePostTranslation";
 import { usePostDetailFetches } from "./_hooks/usePostDetailFetches";
 import { useRecommendedToast } from "./_hooks/useRecommendedToast";
@@ -48,9 +51,22 @@ export default function PostDetailClient({ post: initialPost, relatedWorks }: Po
 
   // 번역 — 보기 언어 · display* 파생 · 자동 번역(post 의 번역 필드를 갱신하므로 post state 도 이 훅이 든다)
   const {
-    post, viewLang, setViewLang, needsTranslation, displayTitle, displayContent, displayExcerpt,
+    post, viewLang, setViewLang, needsTranslation, displayTitle: koEnTitle, displayContent: koEnContent, displayExcerpt: koEnExcerpt,
     autoTranslating, translateError, handleAutoTranslate,
   } = usePostTranslation(initialPost, language);
+
+  /* 다른 언어로 읽기(ko · en 밖) — 번역이 오면 제목·요약·본문만 바꿔 보여 준다.
+     AI 요약 · 시리즈 · 추천 · 이웃 글은 지금처럼 viewLang(KO/EN)을 따른다 */
+  const contentTr = useContentTranslation({ type: "post", id: post.id, enabled: translationEnabled });
+  const tr = contentTr.fields;
+  const displayTitle = tr?.title || koEnTitle;
+  const displayContent = tr?.content || koEnContent;
+  const displayExcerpt = tr ? (tr.excerpt ?? "") : koEnExcerpt;
+  /* KO/EN 토글을 누르면 번역을 끄고 그 언어 원문으로 */
+  const handleViewLang = (l: "ko" | "en") => {
+    if (contentTr.targetLang) contentTr.selectLang(null);
+    setViewLang(l);
+  };
 
   // author_ids → Author[] 해석 (site config authors). 미할당(빈 배열)이면 소유자로 돌아간다.
   const postAuthors = useMemo(
@@ -105,8 +121,9 @@ export default function PostDetailClient({ post: initialPost, relatedWorks }: Po
               authors: postAuthors,
             }}
             viewLang={viewLang}
-            onLangChange={setViewLang}
+            onLangChange={handleViewLang}
             isAdmin={isAdmin}
+            langMenu={translationEnabled ? <ContentLangMenu value={contentTr.targetLang} onChange={contentTr.selectLang} /> : undefined}
           />
         </div>
       }
@@ -141,7 +158,15 @@ export default function PostDetailClient({ post: initialPost, relatedWorks }: Po
     >
       <SeriesPanel panel={series} postId={post.id} viewLang={viewLang} onNavigate={navigateWithTransition} />
 
-      {needsTranslation && translationEnabled && (
+      {contentTr.targetLang ? (
+        <ContentTranslateBanner
+          lang={contentTr.targetLang}
+          translating={contentTr.translating}
+          error={contentTr.error}
+          onShowOriginal={() => contentTr.selectLang(null)}
+          onRetry={contentTr.retry}
+        />
+      ) : needsTranslation && translationEnabled && (
         <TranslateBanner viewLang={viewLang} translating={autoTranslating} error={translateError} onTranslate={handleAutoTranslate} />
       )}
 
@@ -164,6 +189,7 @@ export default function PostDetailClient({ post: initialPost, relatedWorks }: Po
             createdAt: post.created_at,
           }}
           proseViewerRef={proseViewerRef}
+          contentLang={tr ? contentTr.targetLang ?? undefined : undefined}
         />
       </div>
     </DetailLayout>

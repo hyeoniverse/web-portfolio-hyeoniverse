@@ -17,6 +17,9 @@ import { WorkArticleGallery } from "@/components/works/WorkArticleGallery";
 import { WorkArticleTeam } from "@/components/works/WorkArticleTeam";
 import type { RelatedPostItem, RelatedSeriesItem } from "@/components/works/workArticleTypes";
 import TranslateBanner from "@/components/ui/TranslateBanner";
+import ContentLangMenu from "@/components/ui/ContentLangMenu";
+import ContentTranslateBanner from "@/components/ui/ContentTranslateBanner";
+import { useContentTranslation } from "@/hooks/useContentTranslation";
 import { useWorkTranslation } from "./_hooks/useWorkTranslation";
 import { initialContentLang, pickContent } from "@/lib/contentLang";
 import styles from "./WorkDetail.module.css";
@@ -41,7 +44,29 @@ export default function WorkDetailClient({
   /* 처음 언어 — 한쪽에만 글이 있으면 그쪽(README 를 두 칸에 똑같이 복사한 것도 한쪽으로 친다) */
   const [viewLang, setViewLang] = useState<"ko" | "en">(() => initialContentLang(savedProject.content, language));
   /* 보는 언어의 본문이 없으면 있는 언어 쪽을 보여 주고 번역 단추를 낸다. 번역하면 그 결과를 덧씌운 작업물이 project 다 */
-  const { shown: project, needsTranslation, translating, error: translateError, translate } = useWorkTranslation(savedProject, viewLang);
+  const { shown: koEnProject, needsTranslation, translating, error: translateError, translate } = useWorkTranslation(savedProject, viewLang);
+  /* 다른 언어로 읽기(ko · en 밖) — 번역이 오면 제목·부제목·설명·본문을 두 언어 칸 모두 그 번역으로 덮는다.
+     그러면 T · pickContent 가 어느 언어를 고르든 번역이 보인다. 나머지(갤러리·팀·정보 칸)는 viewLang 그대로.
+     GitHub 저장소로 만든 항목(external)은 DB 행이 없어 번역할 수 없다 */
+  const contentTr = useContentTranslation({ type: "work", id: savedProject.id, enabled: translationEnabled && !savedProject.external });
+  const tr = contentTr.fields;
+  const project = useMemo<typeof koEnProject>(() => {
+    if (!tr) return koEnProject;
+    const both = (v: string | undefined, fallback: { ko?: string; en?: string }) =>
+      (v ? { ...fallback, ko: v, en: v } : fallback);
+    return {
+      ...koEnProject,
+      title: both(tr.title, koEnProject.title),
+      subtitle: both(tr.subtitle, koEnProject.subtitle),
+      description: both(tr.description, koEnProject.description),
+      content: both(tr.content, koEnProject.content),
+    } as typeof koEnProject;
+  }, [koEnProject, tr]);
+  /* KO/EN 토글을 누르면 번역을 끄고 그 언어 원문으로 */
+  const handleViewLang = (l: "ko" | "en") => {
+    if (contentTr.targetLang) contentTr.selectLang(null);
+    setViewLang(l);
+  };
   const isAdmin = useIsAuthenticated();
   /* GitHub 저장소 README 로 만든 항목 — 좋아요·댓글을 받을 행이 없고 편집 화면도 없다(#1062).
      endpoint 를 null 로 두면 마운트 때 아무것도 묻지 않는다 */
@@ -107,8 +132,11 @@ export default function WorkDetailClient({
         <WorkArticleHeader
           project={project}
           viewLang={viewLang}
-          onLangChange={setViewLang}
+          onLangChange={handleViewLang}
           isAdmin={isAdmin}
+          langMenu={translationEnabled && !savedProject.external
+            ? <ContentLangMenu value={contentTr.targetLang} onChange={contentTr.selectLang} />
+            : undefined}
           onImportEdit={external ? handleImportEdit : undefined}
           relatedPosts={relatedPosts}
           relatedSeries={relatedSeries}
@@ -140,10 +168,18 @@ export default function WorkDetailClient({
       commentsConfig={external ? undefined : { commentType: "work", targetId: project.id, translationEnabled }}
       backLink={{ href: "/works", labelKey: "workDetail.viewAll" }}
     >
-      {needsTranslation && translationEnabled && (
+      {contentTr.targetLang ? (
+        <ContentTranslateBanner
+          lang={contentTr.targetLang}
+          translating={contentTr.translating}
+          error={contentTr.error}
+          onShowOriginal={() => contentTr.selectLang(null)}
+          onRetry={contentTr.retry}
+        />
+      ) : needsTranslation && translationEnabled && (
         <TranslateBanner subject="work" viewLang={viewLang} translating={translating} error={translateError} onTranslate={translate} />
       )}
-      <WorkArticleBody project={project} viewLang={viewLang} />
+      <WorkArticleBody project={project} viewLang={viewLang} contentLang={tr ? contentTr.targetLang ?? undefined : undefined} />
     </DetailLayout>
     </>
   );
