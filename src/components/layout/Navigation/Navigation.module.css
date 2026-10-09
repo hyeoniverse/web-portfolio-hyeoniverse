@@ -515,8 +515,7 @@
   border-radius: var(--radius-control);
   background: var(--text-primary);
   color: var(--bg-primary);
-  font: var(--font-code-sm);
-  font-weight: 500;
+  font: var(--font-code-label-sm);
   letter-spacing: 0.02em;
   white-space: nowrap;
   pointer-events: auto;
@@ -1392,8 +1391,7 @@
   border-radius: var(--radius-control);
   background: var(--text-accent);
   color: var(--bg-primary);
-  font: var(--font-code-xs);
-  font-weight: 700;
+  font: var(--font-code-label-xs);
   font-variant-numeric: tabular-nums;
 }
 

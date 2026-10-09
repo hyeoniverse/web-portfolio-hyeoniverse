@@ -341,6 +341,12 @@
   --font-code-md: var(--font-weight-regular) var(--font-size-body-md) / var(--line-height-160) var(--font-family-code);
   --font-code-sm: var(--font-weight-regular) var(--font-size-body-sm) / var(--line-height-160) var(--font-family-code);
   --font-code-xs: var(--font-weight-regular) var(--font-size-body-xs) / var(--line-height-160) var(--font-family-code);
+  /* 코드 이름표 — 코드 글꼴로 쓴 라벨 · 수치 · 작은 제목. 굵기 500 하나(D63) */
+  --font-code-label-xl: var(--font-weight-medium) var(--font-size-body-xl) / var(--line-height-160) var(--font-family-code);
+  --font-code-label-lg: var(--font-weight-medium) var(--font-size-body-lg) / var(--line-height-160) var(--font-family-code);
+  --font-code-label-md: var(--font-weight-medium) var(--font-size-body-md) / var(--line-height-160) var(--font-family-code);
+  --font-code-label-sm: var(--font-weight-medium) var(--font-size-body-sm) / var(--line-height-160) var(--font-family-code);
+  --font-code-label-xs: var(--font-weight-medium) var(--font-size-body-xs) / var(--line-height-160) var(--font-family-code);
   /* 메타 — About · Profile 의 라벨 · 분류 · 날짜 · 수치. 코드 글꼴을 Light 로 쓴다 */
   --font-meta-md: var(--font-weight-light) var(--font-size-body-md) / var(--line-height-160) var(--font-family-code);
   --font-meta-sm: var(--font-weight-light) var(--font-size-body-sm) / var(--line-height-160) var(--font-family-code);

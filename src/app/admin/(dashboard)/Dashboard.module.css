@@ -633,8 +633,7 @@ a.statCard:hover .statValue {
   gap: var(--spacing-2);
   padding: var(--badge-padding-sm);
   border-radius: var(--radius-control);
-  font: var(--font-code-xs);
-  font-weight: 600;
+  font: var(--font-code-label-xs);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
@@ -730,8 +729,7 @@ a.statCard:hover .statValue {
 }
 
 .tagPillCount {
-  font: var(--font-code-xs);
-  font-weight: 700;
+  font: var(--font-code-label-xs);
   font-variant-numeric: tabular-nums;
   color: var(--text-muted);
 }
@@ -807,8 +805,7 @@ a.statCard:hover .statValue {
 
 .popularRank,
 .commentAuthor {
-  font: var(--font-code-xs);
-  font-weight: 700;
+  font: var(--font-code-label-xs);
   color: var(--text-secondary);
 }
 
@@ -1039,8 +1036,7 @@ a.commentSource:hover {
   display: inline-flex;
   align-items: baseline;
   gap: var(--spacing-4);
-  font: var(--font-code-lg);
-  font-weight: 700;
+  font: var(--font-code-label-lg);
   font-variant-numeric: tabular-nums;
   line-height: calc(20 / 16);
   color: var(--text-primary);

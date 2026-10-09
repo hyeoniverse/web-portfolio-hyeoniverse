@@ -461,8 +461,7 @@
   padding: 0 var(--spacing-8);
   border-radius: var(--radius-control);
   background: var(--bg-secondary);
-  font: var(--font-code-xs);
-  font-weight: 600;
+  font: var(--font-code-label-xs);
   letter-spacing: 0.04em;
   color: var(--text-tertiary);
   pointer-events: none;
@@ -679,8 +678,7 @@
 }
 
 .galleryDocKind {
-  font: var(--font-code-sm);
-  font-weight: var(--font-weight-semibold);
+  font: var(--font-code-label-sm);
   letter-spacing: 0.08em;
 }
 

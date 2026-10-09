@@ -18,8 +18,7 @@
   align-items: center;
   justify-content: center;
   padding: var(--badge-padding-sm);
-  font: var(--font-code-xs);
-  font-weight: 600;
+  font: var(--font-code-label-xs);
   font-variant-numeric: tabular-nums;
   color: var(--text-tertiary);
   background: var(--bg-tertiary-alt);

@@ -34,8 +34,7 @@
 }
 
 .bubbleNick {
-  font: var(--font-code-xs);
-  font-weight: var(--font-weight-bold);
+  font: var(--font-code-label-xs);
   color: var(--text-white);
   opacity: 0.6;
 }

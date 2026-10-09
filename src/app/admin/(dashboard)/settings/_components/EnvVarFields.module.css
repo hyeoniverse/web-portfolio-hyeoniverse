@@ -44,8 +44,7 @@
 }
 /* 그룹별 set/total — 라벨 옆 작은 mono 카운터. 모두 set 이면 accent 색 ✓ */
 .envGroupCount {
-  font: var(--font-code-xs);
-  font-weight: 500;
+  font: var(--font-code-label-xs);
   font-variant-numeric: tabular-nums;
   color: var(--text-tertiary);
   text-transform: none;

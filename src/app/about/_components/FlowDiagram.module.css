@@ -27,8 +27,7 @@
 }
 
 .terminalText {
-  font: var(--font-code-sm);
-  font-weight: 600;
+  font: var(--font-code-label-sm);
   fill: var(--text-white);
 }
 
@@ -52,8 +51,7 @@
 }
 
 .diamondText {
-  font: var(--font-code-sm);
-  font-weight: 600;
+  font: var(--font-code-label-sm);
   fill: var(--text-accent);
 }
 
@@ -71,8 +69,7 @@
 }
 
 .edgeLabel {
-  font: var(--font-code-xs);
-  font-weight: 600;
+  font: var(--font-code-label-xs);
   fill: var(--text-accent);
   opacity: 0;
   animation: fdNodeIn var(--duration-base) var(--ease-enter) both;

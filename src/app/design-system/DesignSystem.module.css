@@ -896,9 +896,8 @@
   flex-direction: column;
 }
 
-.pFileFolder {  font: var(--font-code-md);
+.pFileFolder {  font: var(--font-code-label-md);
 
-  font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
   padding-bottom: var(--spacing-8);
   border-bottom: var(--border-strong);
