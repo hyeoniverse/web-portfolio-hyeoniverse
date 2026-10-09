@@ -13,13 +13,13 @@ import { useSoundManager } from "@/hooks/useSoundManager";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { showModal } from "@/lib/topLayer";
+import { createVelocityTracker, shouldDismissSheet } from "@/hooks/useSheetDrag";
 
 /** Modal footer slot — modal body 가 createPortal 로 footer 영역에 렌더하기 위한 ref.
  *  body 와 footer 가 같은 React tree 안에 있어 state 공유 가능. */
 export const ModalFooterContext = createContext<HTMLDivElement | null>(null);
 
 const SWIPE_THRESHOLD = 30;
-const DISMISS_THRESHOLD = 100;
 
 export default function Modal() {
   const { t } = useLanguage();
@@ -91,6 +91,8 @@ export default function Modal() {
   const startYRef = useRef(0);
   const swipingRef = useRef(false);
   const draggingRef = useRef(false);
+  /* 손을 뗄 때의 속도 — 짧게 휙 쓸어내려도 닫는다(공용 시트와 같은 판정, useSheetDrag) */
+  const velocityRef = useRef(createVelocityTracker());
   const dismissingRef = useRef(false); // 아래로 드래그 중 (dismiss 모드)
   const modalElRef = useRef<HTMLDivElement | null>(null);
   // backdrop 을 눌러서 시작한 클릭인지 — 눌린 곳과 뗀 곳이 다르면 click 은
@@ -152,6 +154,7 @@ export default function Modal() {
   const onHandlePointerDown = useCallback((e: React.PointerEvent) => {
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
     startYRef.current = e.clientY;
+    velocityRef.current.start(e.clientY);
     draggingRef.current = true;
     dismissingRef.current = false;
     const el = modalElRef.current;
@@ -166,6 +169,7 @@ export default function Modal() {
     const el = modalElRef.current;
     if (!el) return;
 
+    velocityRef.current.move(e.clientY);
     const deltaY = e.clientY - startYRef.current; // 양수 = 아래로
 
     if (deltaY > 0 && !expandedRef.current) {
@@ -189,14 +193,15 @@ export default function Modal() {
     }
   }, []);
 
-  const onHandlePointerUp = useCallback((e: React.PointerEvent) => {
+  /* 끌기를 마친 자리(clientY)에서 닫기 · 펼치기 · 접기 · 제자리를 정한다 */
+  const finishDrag = useCallback((clientY: number) => {
     if (!draggingRef.current) return;
     draggingRef.current = false;
 
     const el = modalElRef.current;
     if (!el) return;
 
-    const deltaY = e.clientY - startYRef.current;
+    const deltaY = clientY - startYRef.current;
     const vh = window.innerHeight;
     const wasDismissing = dismissingRef.current;
     dismissingRef.current = false;
@@ -205,7 +210,7 @@ export default function Modal() {
     el.style.removeProperty('transition');
 
     if (wasDismissing) {
-      if (deltaY > DISMISS_THRESHOLD) {
+      if (shouldDismissSheet(deltaY, velocityRef.current.velocity())) {
         // threshold 초과 → 화면 밖으로 밀어내고 닫기
         swipingRef.current = true;
         el.style.setProperty('--sheet-y', `${vh}px`);
@@ -267,6 +272,9 @@ export default function Modal() {
       el.style.borderTopColor = '';
     }, 400);
   }, [modals, handleClose]);
+  const onHandlePointerUp = useCallback((e: React.PointerEvent) => finishDrag(e.clientY), [finishDrag]);
+  /* 끌기가 다른 동작에 빼앗기면(브라우저 스크롤 등) 끈 거리 0 으로 마쳐 제자리로 — 내려가다 만 채 걸리지 않게 */
+  const onHandlePointerCancel = useCallback(() => finishDrag(startYRef.current), [finishDrag]);
 
   if (!mounted) return null;
 
@@ -320,6 +328,7 @@ export default function Modal() {
               onPointerDown={onHandlePointerDown}
               onPointerMove={onHandlePointerMove}
               onPointerUp={onHandlePointerUp}
+              onPointerCancel={onHandlePointerCancel}
             >
               <span className={styles.sheetHandleBar} />
             </div>
