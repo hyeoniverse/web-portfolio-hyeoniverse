@@ -12,20 +12,23 @@
   /* 배경 없음 — 다른 컨트롤처럼 투명. 캡슐 끝단까지 테두리가 온전히 보이도록 내부 컨트롤을 clip */
   overflow: hidden;
 }
+}
 
+/* 안에 담은 Select · Button 을 덮는 규칙 — compositions 층(4-4-2) */
+@layer compositions {
 /* 내부 컨트롤(Select trigger · 역순 Button)은 자체 테두리/라운드/배경 제거 — pill 이 담당 */
 .group button {
   height: 100%;
-  border: none !important;
-  border-radius: 0!important;
-  background: transparent !important;
+  border: none;
+  border-radius: 0;
+  background: transparent;
   /* ghost Button 의 backdrop-filter blur 가 뒤(pill border 포함)를 frost 처리해 테두리를 덮던 문제 차단 */
-  backdrop-filter: none !important;
+  backdrop-filter: none;
 }
 
 /* 역순 버튼 — Select 와 사이 구분선 */
 .group .dir {
-  border-left: var(--border-light) !important;
+  border-left: var(--border-light);
   padding-inline: var(--spacing-12);
 }
 }

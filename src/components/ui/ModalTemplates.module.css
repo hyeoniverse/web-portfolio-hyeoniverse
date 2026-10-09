@@ -58,13 +58,6 @@
   color: var(--text-accent);
 }
 
-/* dangerBtn — confirm 모달의 위험 액션 (삭제 등) 스타일.
-   .actions 컨테이너는 Modal 공통 footer slot 으로 마이그레이션되어 제거됨. */
-.dangerBtn {
-  --_bg: var(--bg-accent-solid) !important;
-  --_border: var(--bg-accent-solid) !important;
-  --_color: var(--text-white) !important;
-}
 
 /* 대상 목록 — 이름을 쉼표로 이어 붙이면 어디서 끊기는지 알 수 없다. 한 줄에 하나씩.
    항목마다 칩을 두면 개수가 많을 때 시선이 흩어져서, 한 덩어리 박스 안에 줄로 쌓는다. */
@@ -96,5 +89,16 @@
 /* 목록이 바로 뒤따르면 설명과의 간격을 좁힌다 — 둘이 한 묶음으로 읽혀야 한다 */
 .desc:has(+ .itemList) {
   margin-bottom: var(--spacing-16);
+}
+}
+
+/* Button 을 덮는 규칙 — compositions 층(4-4-2) */
+@layer compositions {
+/* dangerBtn — confirm 모달의 위험 액션 (삭제 등) 스타일.
+   .actions 컨테이너는 Modal 공통 footer slot 으로 마이그레이션되어 제거됨. */
+.dangerBtn {
+  --_bg: var(--bg-accent-solid);
+  --_border: var(--bg-accent-solid);
+  --_color: var(--text-white);
 }
 }
