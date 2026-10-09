@@ -1,7 +1,7 @@
 /* works 갤러리 인트로 블록 — 각 프로젝트 세트 앞에 오는 타이틀·통계·인용. WorksSection.module.css 에서 분리 (#662). */
 /* Container: in-flow item inside gallerySlider */
 .intro {
-  --_intro-pad: var(--m-sm);
+  --_intro-pad: var(--spacing-narrow-sm);
   --_intro-text-max: none;
 
   display: flex;

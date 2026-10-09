@@ -48,7 +48,7 @@
   bottom: 0;
   left: 0;
   z-index: var(--z-index-float);
-  padding: var(--spacing-48) var(--m-lg) var(--spacing-32);
+  padding: var(--spacing-48) var(--spacing-narrow-lg) var(--spacing-32);
   border-top: var(--border-width-1) solid var(--border-strong);
 }
 
