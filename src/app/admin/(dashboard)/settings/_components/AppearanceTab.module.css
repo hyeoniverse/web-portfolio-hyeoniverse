@@ -476,7 +476,6 @@
 /* 파트 힌트 — 제목보다 한 단계 작게 (예전엔 힌트가 제목보다 커서 위계가 뒤집혔다) */
 .brandPartTitleHint {
   font: var(--font-body-xs);
-  font-weight: 400;
   color: var(--text-tertiary);
   text-transform: none;
   letter-spacing: 0;

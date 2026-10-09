@@ -248,7 +248,6 @@
 
 .osWindowTitle {  font: var(--font-code-md);
 
-  font-weight: 400;
   color: var(--text-primary);
   color: inherit;
   letter-spacing: 0.02em;
@@ -501,7 +500,6 @@
 
 .statLabel {  font: var(--font-code-xs);
 
-  font-weight: 400;
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -635,15 +633,13 @@
   display: block;
   margin-bottom: var(--spacing-12);
   font: var(--font-code-sm);
-  font-weight: 400;
   color: var(--text-accent);
   letter-spacing: 0.05em;
 }
 
 .expDesc {
   margin: 0;
-  font: var(--font-code-md);
-  font-weight: 300;
+  font: var(--font-meta-md);
   line-height: 1.75;
   color: var(--text-secondary);
 }
@@ -667,7 +663,6 @@
   display: block;
   margin-bottom: var(--spacing-20);
   font: var(--font-code-xs);
-  font-weight: 400;
   color: var(--text-accent);
   letter-spacing: 0.1em;
 }
@@ -692,8 +687,7 @@
 
 .skillPanelDesc {
   margin: 0;
-  font: var(--font-code-md);
-  font-weight: 300;
+  font: var(--font-meta-md);
   line-height: 1.8;
   color: var(--text-tertiary);
 }
@@ -722,8 +716,7 @@
 
 .skillPanelItemDesc {
   margin: 0;
-  font: var(--font-code-sm);
-  font-weight: 300;
+  font: var(--font-meta-sm);
   line-height: 1.75;
   color: var(--text-secondary);
 }
@@ -775,8 +768,7 @@
 
 .philosophyBody {
   margin: 0;
-  font: var(--font-code-md);
-  font-weight: 300;
+  font: var(--font-meta-md);
   line-height: 1.8;
   color: var(--text-secondary);
 }
@@ -828,8 +820,7 @@
 
 .approachBody {
   margin: 0;
-  font: var(--font-code-md);
-  font-weight: 300;
+  font: var(--font-meta-md);
   line-height: 1.8;
   color: var(--text-secondary);
 }
@@ -849,7 +840,6 @@
 .credentialHeading {
   margin: 0 0 var(--spacing-24) 0;
   font: var(--font-headline-sm);
-  font-weight: 400;
   color: var(--text-primary);
 }
 
@@ -875,7 +865,6 @@
   flex-shrink: 0;
   padding-top: var(--spacing-2);
   font: var(--font-code-xs);
-  font-weight: 400;
   color: var(--text-accent);
   letter-spacing: 0.05em;
 }
@@ -901,9 +890,8 @@
   color: var(--text-muted);
 }
 
-.credentialOrg {  font: var(--font-code-sm);
+.credentialOrg {  font: var(--font-meta-sm);
 
-  font-weight: 300;
   color: var(--text-tertiary);
 }
 

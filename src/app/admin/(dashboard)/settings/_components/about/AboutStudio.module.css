@@ -825,7 +825,6 @@ textarea.edit {
   align-items: center;
   gap: var(--spacing-4);
   font: var(--font-headline-xl);
-  font-weight: 400;
   color: var(--text-accent);
   opacity: 0.55;
   touch-action: none;

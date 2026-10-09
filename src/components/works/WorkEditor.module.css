@@ -40,7 +40,6 @@
 
 .sectionTitleHint {
   font: var(--font-body-xs);
-  font-weight: 400;
   color: var(--text-tertiary);
   letter-spacing: 0;
   text-transform: none;
