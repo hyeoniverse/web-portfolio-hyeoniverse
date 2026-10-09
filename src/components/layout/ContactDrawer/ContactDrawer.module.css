@@ -635,6 +635,7 @@
 
 .emailHeaderLogo {
   font: var(--font-headline-lg);
+  /* 3.2-4 예외 — 로고는 글자 역할이 아니고(3.2), 메일 그림 전체(여백 · 닫기 단추)가 화면 폭에 비례한다 */
   font-size: 5.8vw;
   color: var(--text-black);
   letter-spacing: -0.02em;

@@ -595,8 +595,7 @@
   "type-fluid-token": {},
   "type-fluid-direct": {
     "src/app/works/_components/layouts/cylinder/CylinderIntroPanel.module.css": 1,
-    "src/app/works/_components/layouts/CylinderLayout.module.css": 1,
-    "src/app/works/_components/layouts/GridLayout.module.css": 1
+    "src/app/works/_components/layouts/CylinderLayout.module.css": 1
   },
   "type-root-px": {},
   "type-line-height-px": {},

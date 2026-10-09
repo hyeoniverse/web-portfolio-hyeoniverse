@@ -72,7 +72,8 @@
   font-family: var(--font-family-headline);
   /* 다른 줄에 마우스를 올리면 이 줄이 3/4로 줄어든다(300px → 225px). 위쪽 네비 자리는 그대로
      비워야 하므로, 남는 높이(칸 높이 - 위아래 여백)에 맞춰 글자를 줄인다 */
-  font-size: clamp(1.75rem, min(6vw, calc(100cqh * 0.5)), 5rem);
+  /* 가운데에 rem 을 섞어 확대에도 커진다(3.2-4). 최대가 최소의 2.86배라 200% 확대는 직접 봐야 한다 */
+  font-size: clamp(1.75rem, 0.5rem + 5.5vw, min(5rem, calc(100cqh * 0.5)));
   font-weight: var(--font-weight-light);
   line-height: 0.95;
   letter-spacing: -0.03em;
