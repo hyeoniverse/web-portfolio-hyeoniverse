@@ -181,7 +181,7 @@
   width: 100%;
   margin-top: calc(var(--spacing-12) * -1);
   height: 140px;
-  border-radius: var(--radius-surface) var(--radius-surface) 0 0;
+  /* 모서리는 따로 두지 않는다 — 팝오버에서는 팝오버의 모서리 · overflow 가 깎고, 시트에서는 제목 아래 반듯한 판이다 */
   overflow: hidden;
   cursor: crosshair;
   touch-action: none;
