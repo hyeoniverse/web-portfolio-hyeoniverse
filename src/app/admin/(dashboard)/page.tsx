@@ -215,7 +215,7 @@ export default function AdminDashboard() {
         <SectionHeader>
           <T k="admin.dashboard.quickActions" />
         </SectionHeader>
-        <Panel variant="grid" className={styles.quickActions}>
+        <Panel variant="grid" hairlines className={styles.quickActions}>
           <Tooltip
             content={
               language === "ko"

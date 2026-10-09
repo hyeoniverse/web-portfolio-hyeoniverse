@@ -1,7 +1,11 @@
 /* CategoryDonut 전용 스타일. Dashboard.module.css 에서 옮겨 왔다. */
 
 .donutLegendItem {
-  composes: item from "../components/Panel.module.css";
+  /* 대시보드 Item 과 같은 여백(components/Panel.module.css .item) — 다른 파일 composes 를 쓰지 않는다(4-5) */
+  padding-block: var(--spacing-8);
+  padding-inline-start: var(--_item-inline-start, 0);
+  padding-inline-end: var(--_item-inline-end, 0);
+  min-width: 0;
   display: flex;
   /* parent grid 의 grid-auto-rows: 1fr 가 row 높이 균등 분할. min-height: 0 로 content overflow 차단 */
   min-height: 0;

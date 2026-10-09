@@ -14,7 +14,7 @@
 }
 
 .deviceLegend {
-  composes: list from "../components/List.module.css";
+  /* <List> 로 그린다 */
   flex: 1;
   min-width: 140px;
 }
@@ -185,7 +185,7 @@ button.deviceLegendBtn {
 }
 
 .deviceDrillList {
-  composes: list from "../components/List.module.css";
+  /* <List> 로 그린다 */
   gap: var(--spacing-4);
 }
 
