@@ -77,7 +77,7 @@
   background: transparent;
   font: var(--font-body-md);
   color: var(--text-primary);
-  outline: none;
+  outline-color: transparent;
   /* 높이 조절 손잡이는 공통 Textarea 가 그린다 — 여기서 resize 를 또 주면 손잡이가 두 개 겹친다 */
   min-height: 100px;
   transition: border-color var(--duration-fast) var(--ease-standard);
@@ -562,7 +562,7 @@
   width: var(--spacing-16);
   height: var(--bench-top);
   transform: translateX(-50%);
-  outline: none;
+  outline-color: transparent;
   cursor: col-resize;
   touch-action: none;
 }
@@ -783,7 +783,7 @@
 
 /* 갤러리 고르기 영역 — Ctrl+A·Esc 를 받으려고 focus 를 가진다. 테두리는 그리지 않는다 */
 .gallerySelectArea {
-  outline: none;
+  outline-color: transparent;
 }
 /* 밖에서 파일을 끌고 들어왔을 때 — 여기 놓으면 된다는 표시 */
 .galleryFileOver {
@@ -1224,7 +1224,7 @@
 .memberInlineEdit {
   appearance: none;
   border: none;
-  outline: none;
+  outline-color: transparent;
   padding: 0;
   margin: 0;
   background: var(--bg-accent-subtle);

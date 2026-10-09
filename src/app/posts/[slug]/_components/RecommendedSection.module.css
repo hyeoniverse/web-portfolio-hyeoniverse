@@ -133,7 +133,6 @@
   margin-top: var(--spacing-12);
   padding: 0;
   border: none !important;
-  outline: none;
   appearance: none;
   -webkit-appearance: none;
   background: transparent;

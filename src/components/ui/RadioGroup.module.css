@@ -110,7 +110,7 @@
 }
 
 .groupList .option:hover:not(.disabled) .dot {
-  outline: none;
+  outline-style: none; /* 포커스가 아니라 위 hover 장식을 거둔다 */
 }
 
 /* 선택됨 — accent 전폭 배경(구분선 유지, 캡슐 아님) + dot·label accent */

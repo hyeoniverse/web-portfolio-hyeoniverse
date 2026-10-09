@@ -41,7 +41,7 @@
   background: transparent;
   font: var(--font-body-md);
   color: var(--text-primary);
-  outline: none;
+  outline-color: transparent;
   resize: vertical;
   min-height: 100px;
   max-height: 200px;
@@ -245,7 +245,7 @@
  * outline (파란 ring) 은 제거. wrapper 의 :focus-within 으로 강조 처리 */
 .tagInputRow > div > input:focus,
 .tagInputRow > div > input:focus-visible {
-  outline: none;
+  outline-color: transparent;
   box-shadow: none;
 }
 

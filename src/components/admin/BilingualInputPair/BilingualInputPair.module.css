@@ -60,7 +60,7 @@
   flex: 1;
   min-width: 0;
   border: none;
-  outline: none;
+  outline-color: transparent;
   background: transparent;
   font: var(--font-body-md);
   color: var(--text-primary);

@@ -46,7 +46,7 @@
   font-weight: 600;
   color: var(--text-primary);
   text-align: center;
-  outline: none;
+  outline-color: transparent;
   appearance: textfield;
   -moz-appearance: textfield;
 }

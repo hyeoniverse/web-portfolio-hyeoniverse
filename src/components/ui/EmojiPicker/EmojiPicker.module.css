@@ -88,7 +88,7 @@
 .searchInput {
   flex: 1;
   border: none;
-  outline: none;
+  outline-color: transparent;
   background: transparent;
   font: var(--font-body-sm);
   color: var(--text-primary);

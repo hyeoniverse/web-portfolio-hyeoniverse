@@ -146,7 +146,7 @@
   font: var(--font-body-md);
   color: var(--text-primary);
   text-align: center;
-  outline: none;
+  outline-color: transparent;
 }
 
 .yearInput:focus {
@@ -162,7 +162,6 @@
   font: var(--font-body-md);
   color: var(--text-primary);
   text-align: left;
-  outline: none;
   cursor: text;
   font-variant-numeric: tabular-nums;
 }
@@ -244,7 +243,7 @@
   font: var(--font-body-md);
   color: var(--text-primary);
   text-align: center;
-  outline: none;
+  outline-color: transparent;
 }
 
 .partInput:focus {

@@ -80,7 +80,7 @@
   background: transparent;
   font: var(--font-body-md);
   color: var(--text-primary);
-  outline: none;
+  outline-color: transparent;
 }
 
 .textarea {
@@ -91,7 +91,7 @@
   background: transparent;
   font: var(--font-body-md);
   color: var(--text-primary);
-  outline: none;
+  outline-color: transparent;
   resize: vertical;
   min-height: 60px;
   max-height: 200px;

@@ -47,7 +47,6 @@
   line-height: inherit;
   text-align: inherit;
   resize: none;
-  outline: none;
   /* 내용에 맞춰 자동 크기 (지원 브라우저) */
   field-sizing: content;
   min-width: 2ch;
@@ -309,7 +308,7 @@ textarea.edit {
   background: var(--bg-primary);
   color: var(--text-primary);
   font-family: inherit;
-  outline: none;
+  outline-color: transparent;
 }
 .chipEdit:focus {
   border-color: var(--border-color-accent-strong);
@@ -498,7 +497,7 @@ textarea.edit {
   color: var(--text-primary);
   font: inherit;
   vertical-align: middle;
-  outline: none;
+  outline-color: transparent;
 }
 /* "+ 무엇 추가" — 누르면 같은 캡슐 안이 입력 칸으로 바뀐다. 캡슐을 갈아끼우면 튀어 보인다 */
 .chipAdd {
@@ -539,7 +538,7 @@ textarea.edit {
   background: transparent;
   color: inherit;
   font: inherit;
-  outline: none;
+  outline-color: transparent;
 }
 /* Overview 하이라이트 — 공개 패널의 .overviewTag 와 같은 값. 공통 Chip 의 배경 캡슐·글꼴을 이겨야 해서
    두 번 적는다(한 번이면 CSS 청크 순서에 따라 배포에서 뒤집힐 수 있다). */
@@ -1502,7 +1501,7 @@ textarea.edit {
   color: var(--text-tertiary);
   font: var(--font-body-md);
   cursor: text;
-  outline: none;
+  outline-color: transparent;
 }
 .erdDrop:hover {
   border-color: var(--border-color-default);

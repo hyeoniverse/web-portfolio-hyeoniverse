@@ -362,7 +362,7 @@
   background: var(--bg-primary);
   color: var(--text-primary);
   text-align: center;
-  outline: none;
+  outline-color: transparent;
 }
 
 .rowNumInput::-webkit-inner-spin-button,
