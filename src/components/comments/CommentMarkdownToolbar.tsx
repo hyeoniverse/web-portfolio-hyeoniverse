@@ -295,7 +295,7 @@ export default function CommentMarkdownToolbar({ containerRef, content, onChange
       {/* 이모지 · 색상 — 액션(applyAction) 이 아니라 픽커 기반이라 groups 밖에서 따로 렌더 */}
       <div className={styles.toolbarGroup} role="group" aria-label={ko ? "삽입" : "Insert"}>
         <span className={styles.toolbarGroupLabel} aria-hidden="true">{ko ? "삽입" : "Insert"}</span>
-        <Tooltip content={ko ? "이모지" : "Emoji"} placement="top" delay={200}>
+        <Tooltip content={ko ? "이모지" : "Emoji"} placement="top" delay={200} disabled={emojiOpen}>
           <span ref={emojiAnchorRef} style={{ display: "inline-flex" }}>
             <Button
               variant="ghost"
@@ -326,7 +326,8 @@ export default function CommentMarkdownToolbar({ containerRef, content, onChange
               if (picked) void Promise.resolve().then(() => apply({ kind: "insert", text: `\`${picked}\`` }));
             }
             return (
-              <Tooltip content={ko ? "색상" : "Color"} placement="top" delay={200}>
+              /* 열려 있는 동안 툴팁을 끈다 — 터치에서는 누른 자리의 툴팁이 남아 시트 위에 떠 있었다(게시물 링크와 같다) */
+              <Tooltip content={ko ? "색상" : "Color"} placement="top" delay={200} disabled={open}>
                 <Button
                   variant="ghost"
                   shape="circle"

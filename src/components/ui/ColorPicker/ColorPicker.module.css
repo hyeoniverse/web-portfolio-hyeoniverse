@@ -48,7 +48,13 @@
 .sheet {
   /* 좌우 패딩은 .controls 래퍼가 전담. 하단 여백만 유지(홈 인디케이터/썸 여유) */
   padding: 0 0 var(--spacing-24) 0;
+  gap: var(--spacing-8);
   user-select: none;
+}
+
+/* 시트는 위 여백이 없고 판 위에 제목이 있다 — 판을 끌어올리면 제목을 덮는다 */
+.sheet :is(.svPad, .slPad, .lcPad) {
+  margin-top: 0;
 }
 
 /* ── 컨트롤 행 래퍼 — hueSlider·inputs·alpha·format 행 공통 좌우 패딩 단일 소스 ── */
@@ -64,7 +70,8 @@
 /* Modal title 패턴 — handle bar 바로 아래 단독 h3 (close 버튼 없음, 탭 outside / ESC 로 닫음) */
 .sheetTitle {
   margin: 0;
-  padding: 0 var(--spacing-4);
+  /* 아래 컨트롤 행(.controls)과 같은 왼쪽 줄 */
+  padding: 0 var(--spacing-12);
   font: var(--font-headline-xs);
   color: var(--text-primary);
   letter-spacing: -0.01em;
@@ -73,15 +80,6 @@
 
 /* ── 2D Saturation/Value pad — popover 외곽과 flush ── */
 .svPad {
-  position: relative;
-  /* popover padding 을 negative margin 으로 상쇄해 외곽까지 채움 */
-  width: calc(100% + var(--spacing-12) * 2);
-  margin: calc(var(--spacing-12) * -1) calc(var(--spacing-12) * -1) 0;
-  height: 140px;
-  /* 위쪽 두 모서리만 popover 의 radius-2xl 과 매칭, 아래는 평면 */
-  border-radius: var(--radius-surface) var(--radius-surface) 0 0;
-  overflow: hidden;
-  cursor: crosshair;
   /* 두 개의 그라데이션 겹침 — 가로:white→hueColor, 세로:transparent→black */
   background:
     linear-gradient(to top, var(--bg-black), transparent),
@@ -176,13 +174,14 @@
     linear-gradient(to right, var(--bg-white), var(--_hue-color, var(--picker-hue-default)));
 }
 
-/* ── 2D pad 공통 — 좌상단을 popover 외곽까지 flush ── */
+/* ── 2D pad 공통 — popover 의 위 여백을 negative margin 으로 상쇄해 위 외곽까지 채운다.
+   좌우는 popover 에 여백이 없어(.controls 가 맡는다) 폭 그대로 — 넓히면 overflow: hidden 에 양끝 12px 이 잘린다 ── */
 .svPad, .slPad, .lcPad {
   position: relative;
-  width: calc(100% + var(--spacing-12) * 2);
-  margin: calc(var(--spacing-12) * -1) calc(var(--spacing-12) * -1) 0;
+  width: 100%;
+  margin-top: calc(var(--spacing-12) * -1);
   height: 140px;
-  border-radius: var(--radius-surface) var(--radius-surface) 0 0;
+  /* 모서리는 따로 두지 않는다 — 팝오버에서는 팝오버의 모서리 · overflow 가 깎고, 시트에서는 제목 아래 반듯한 판이다 */
   overflow: hidden;
   cursor: crosshair;
   touch-action: none;

@@ -499,8 +499,8 @@
   flex-shrink: 0;
 }
 
-/* 수정 폼 / 삭제 확인 행 — 비밀번호를 왼쪽에 남기고 뒤따르는 버튼들을 오른쪽 끝으로 밀어냄 */
-.editActions .passwordField,
+/* 삭제 확인 행 — 비밀번호를 왼쪽에 남기고 뒤따르는 버튼들을 오른쪽 끝으로 밀어냄.
+   수정 폼은 왼쪽 끝에 작성/미리보기 토글이 있어 비밀번호도 단추와 함께 오른쪽에 선다 */
 .deleteRow .passwordField {
   margin-right: auto;
 }
@@ -519,9 +519,7 @@
   overflow: hidden;
 }
 
-/* 저장/취소 버튼은 오른쪽 끝으로. 비밀번호 입력이 있으면 그건 왼쪽에 남는다
-   (.passwordField 의 margin-right: auto 가 밀어냄). admin 이면 입력이 없어
-   justify-content: flex-end 가 버튼을 오른쪽에 붙인다 — 두 경우 다 커버. */
+/* [작성|미리보기] … [비밀번호] [저장] [취소] — 토글(.modeToggle 의 margin-inline-end: auto)이 나머지를 오른쪽으로 민다 */
 .editActions {
   display: flex;
   align-items: center;
