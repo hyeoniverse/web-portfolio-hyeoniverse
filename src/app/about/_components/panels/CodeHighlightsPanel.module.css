@@ -99,7 +99,6 @@
   border-radius: var(--radius-control);
   background: transparent;
   backdrop-filter: blur(14px) saturate(1.4);
-  font-family: var(--font-family-code);
   color: var(--text-secondary);
 }
 

@@ -75,7 +75,6 @@
 
 .groupCount {
   margin-left: auto;
-  font-family: var(--font-family-code);
   font-weight: 400;
   color: var(--text-tertiary);
 }
