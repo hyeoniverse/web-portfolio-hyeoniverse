@@ -407,6 +407,7 @@
 
 .railDot[data-state="failing"] {
   background: var(--bg-warning-solid);
+  border-color: var(--border-color-warning-solid); /* 밝은 노랑의 3:1 은 테두리가 맡는다(D66) */
 }
 
 .railDot[data-state="off"] {
