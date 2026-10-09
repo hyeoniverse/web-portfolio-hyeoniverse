@@ -374,8 +374,7 @@
 
 .optionGroupLabel {
   padding: var(--row-padding-sm);
-  font: var(--font-body-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--text-tertiary);

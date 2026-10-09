@@ -12,8 +12,7 @@
   justify-content: flex-end;
   padding: var(--badge-padding-md);
   border-radius: var(--radius-control);
-  font: var(--font-body-sm);
-  font-weight: var(--font-weight-medium);
+  font: var(--font-label-sm);
   letter-spacing: 0;
   white-space: nowrap;
   /* 단계 텍스트 길이 차이 (쉬움/보통/어려움) 와 무관하게 동일 너비 → 제목 열 정렬 보장 */
@@ -29,8 +28,7 @@
   justify-content: center;
   padding: var(--badge-padding-lg);
   border-radius: var(--radius-control);
-  font: var(--font-body-xs);
-  font-weight: 500;
+  font: var(--font-label-xs);
   letter-spacing: 0;
   white-space: nowrap;
   cursor: help;

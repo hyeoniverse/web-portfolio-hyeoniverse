@@ -250,8 +250,7 @@
 }
 .wrap :global(.react-flow__edge-text) {
   fill: var(--text-accent);
-  font: var(--font-body-xs);
-  font-weight: var(--font-weight-medium);
+  font: var(--font-label-xs);
 }
 
 /* ── 관계선 ── */

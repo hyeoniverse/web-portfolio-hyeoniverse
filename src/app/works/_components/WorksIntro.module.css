@@ -29,8 +29,7 @@
 }
 
 .introLabel {
-  font: var(--font-body-sm);
-  font-weight: var(--font-weight-semibold);
+  font: var(--font-label-sm);
   color: var(--text-accent-alt);
   text-transform: uppercase;
   letter-spacing: 0.35em;
@@ -107,8 +106,7 @@
 }
 
 .introStatLabel {
-  font: var(--font-body-sm);
-  font-weight: var(--font-weight-medium);
+  font: var(--font-label-sm);
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.2em;
@@ -128,8 +126,7 @@
   margin-right: calc(-1 * var(--_intro-pad));
   padding: 0 var(--_intro-pad) var(--spacing-12);
   border-bottom: var(--border-strong);
-  font: var(--font-body-md);
-  font-weight: var(--font-weight-medium);
+  font: var(--font-label-md);
   color: var(--text-accent-alt);
   letter-spacing: 0.1em;
 }

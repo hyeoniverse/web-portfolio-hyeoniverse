@@ -181,8 +181,7 @@
 }
 
 .extractedLabel {
-  font: var(--font-body-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -485,8 +484,7 @@
   border-radius: var(--radius-control);
   background: var(--text-primary);
   color: var(--bg-primary);
-  font: var(--font-body-xs);
-  font-weight: 500;
+  font: var(--font-label-xs);
   cursor: pointer;
 }
 

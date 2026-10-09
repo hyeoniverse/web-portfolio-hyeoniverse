@@ -40,8 +40,7 @@
 }
 
 .dailyChartStatLabel {
-  font: var(--font-body-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--text-tertiary);
@@ -76,8 +75,7 @@
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  font: var(--font-body-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
 }
 
 /* active·hover(반전 배경) 때 라벨이 tertiary 그대로면 어두운 배경에 묻힌다 — 반전색 + 옅게 위계 유지 */

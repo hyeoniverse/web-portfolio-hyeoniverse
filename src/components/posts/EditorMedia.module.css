@@ -10,8 +10,7 @@
 
 .mediaUploadName {
   margin: 0;
-  font: var(--font-body-md);
-  font-weight: 600;
+  font: var(--font-label-md);
   color: var(--text-primary);
   word-break: break-all;
 }
