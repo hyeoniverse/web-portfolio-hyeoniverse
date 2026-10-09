@@ -1268,12 +1268,13 @@ textarea.edit {
   pointer-events: none;
 }
 /* rows 로 높이를 고정해 글자 수가 늘어도 프리뷰 박스가 출렁이지 않는다.
-   Textarea 내부 폰트 규칙이 상속을 덮어서, 래퍼가 내려준 --note-* 로 확정한다. */
+   Textarea 내부 폰트 규칙이 상속을 덮어서, 래퍼가 내려준 --note-* 로 확정한다.
+   Textarea 는 components 층이라 층 밖의 이 규칙이 이기고, 위 `.creditsNote *` 와는 파일 순서로 이긴다 */
 .creditsNoteInput {
-  font-family: var(--note-ff, inherit) !important;
-  font-size: var(--note-fs, inherit) !important;
-  line-height: var(--note-lh, inherit) !important;
-  text-align: var(--note-align, inherit) !important;
+  font-family: var(--note-ff, inherit);
+  font-size: var(--note-fs, inherit);
+  line-height: var(--note-lh, inherit);
+  text-align: var(--note-align, inherit);
   color: var(--text-tertiary);
   resize: none;
 }
