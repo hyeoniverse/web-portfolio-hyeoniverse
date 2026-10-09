@@ -163,7 +163,7 @@
   color: var(--text-secondary);
   border-top: var(--border-width-1) solid color-mix(in srgb, var(--text-secondary) 10%, transparent);
 }
-.num { justify-content: flex-end; font-family: var(--font-family-code); font-variant-numeric: tabular-nums; color: var(--text-tertiary); }
+.num { justify-content: flex-end;font-variant-numeric: tabular-nums; color: var(--text-tertiary); }
 .win { background: var(--bg-success-soft); color: var(--text-success); font-weight: var(--font-weight-semibold); }
 .badge { font: var(--font-label-xs); color: var(--text-success); }
 .dim { color: var(--text-tertiary); }
@@ -192,7 +192,7 @@
   font: var(--font-body-md);
   color: var(--text-secondary);
 }
-.boxQ { font-weight: var(--font-weight-semibold); color: var(--text-primary); font-family: var(--font-family-code); }
+.boxQ { font-weight: var(--font-weight-semibold); color: var(--text-primary);}
 .boxOk { border-color: var(--border-color-success); }
 .boxNo { border-color: color-mix(in srgb, var(--text-secondary) 30%, transparent); }
 
@@ -300,7 +300,7 @@
   border: var(--border-width-1) solid color-mix(in srgb, var(--text-secondary) 16%, transparent);
   border-radius: var(--radius-surface);
 }
-.zrow.canvas { background: var(--bg-tertiary); color: var(--text-primary); font-family: var(--font-family-code); }
+.zrow.canvas { background: var(--bg-tertiary); color: var(--text-primary);}
 .reach { text-align: center; font: var(--font-body-xs); line-height: 1.5; }
 .reach.cut { color: var(--text-error); }
 .reach.thru { color: var(--text-success); }

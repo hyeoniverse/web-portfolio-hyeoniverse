@@ -381,6 +381,7 @@
 
 /* 고정폭 지면(About · Profile) — 안에서는 title · body · label 이 코드 글꼴로, 본문은 Light 로 */
 [data-type="mono"] {
+  font-family: var(--font-family-code); /* 묶음을 쓰지 않는 글자도 물려받는다 */
   --font-title-sm: var(--font-weight-semibold) var(--font-size-title-sm) / var(--line-height-125) var(--font-family-code);
   --font-title-md: var(--font-weight-semibold) var(--font-size-title-md) / var(--line-height-125) var(--font-family-code);
   --font-body-xl: var(--font-weight-light) var(--font-size-body-xl) / var(--line-height-160) var(--font-family-code);
@@ -397,6 +398,7 @@
 
 /* 고정폭 지면 안의 예외(하단 내비 · 푸터) — 다른 페이지와 같은 글꼴로 되돌린다 */
 [data-type="sans"] {
+  font-family: var(--font-family-body);
   --font-title-sm: var(--font-weight-semibold) var(--font-size-title-sm) / var(--line-height-125) var(--font-family-body);
   --font-title-md: var(--font-weight-semibold) var(--font-size-title-md) / var(--line-height-125) var(--font-family-body);
   --font-body-xl: var(--font-weight-regular) var(--font-size-body-xl) / var(--line-height-160) var(--font-family-body);

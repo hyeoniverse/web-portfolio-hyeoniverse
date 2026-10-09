@@ -335,7 +335,7 @@ Carbon(type token)이 모두 이렇게 한다.
 
 - 안 쓰는 토큰은 두지 않는다(2-4). 표의 묶음은 컴포넌트가 처음 쓸 때 같은 이름 · 같은 모양으로 `_semantic.css` 에 더한다.
   지금은 전체 세트가 다 정의돼 있다 — `--font-display-sm ~ xl` · `--font-headline-xs ~ xl` · `--font-title-sm ~ md` · `--font-body-xs ~ xl` · `--font-label-xs ~ xl` · `--font-code-xs ~ xl`.
-- **고정폭 지면(D63).** About · Profile 은 바깥 틀에 `data-type="mono"` 를 붙인다. 그 안에서는 title · body · label 이 코드 글꼴이 되고 body 는 Light(300)다 — 컴포넌트는 평소처럼 `--font-body-*` · `--font-label-*` 를 쓴다. 지면 안의 하단 내비 · 푸터는 `data-type="sans"` 로 평소 글꼴로 되돌린다. 지면 밖에서 한 요소만 고정폭으로 쓰지 않는다 — 코드면 code, 이름표면 label, 숫자 줄 맞춤은 `tabular-nums`.
+- **고정폭 지면(D63).** About · Profile 은 바깥 틀에 `data-type="mono"` 를 붙인다. 그 안에서는 title · body · label 이 코드 글꼴이 되고 body 는 Light(300)다 — 컴포넌트는 평소처럼 `--font-body-*` · `--font-label-*` 를 쓴다. 지면 안의 하단 내비 · 푸터는 `data-type="sans"` 로 평소 글꼴로 되돌린다. 지면 밖에서 한 요소만 고정폭으로 쓰지 않는다 — 코드면 code, 이름표면 label, 숫자 줄 맞춤은 `tabular-nums`. `font-family: var(--font-family-code)` 를 바로 쓰는 건 기계가 만든 값(코드 조각 · id · 경로 · 환경 변수 · HTTP 상태 · 색 hex · 이모지 이름)에만 허용한다(D64).
 - 네비게이션은 `--font-body-*` 뒤에 `font-family: var(--font-family-nav)` 를 덧쓴다(한 파일뿐이라 묶음을 따로 두지 않는다).
 - 제목 단계는 Apple(Large Title 34 · Title 1 28 · Title 2 22 · Title 3 20)을 따른다. 가장 작은 제목은 본문 16 과 구분되게 18 이다
   (Apple Headline 17 은 본문 17 기준이다). 예전 24 는 22, 32 는 34, 제목으로 쓰던 16 은 18 로 옮겼다.

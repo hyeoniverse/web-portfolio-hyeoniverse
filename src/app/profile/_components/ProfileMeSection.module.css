@@ -49,7 +49,6 @@
   border-bottom: var(--border-strong);
   position: relative;
   width: 100%;
-  font-family: var(--font-family-code);
   font-weight: var(--font-weight-light);
   color: var(--text-primary);
   box-sizing: border-box;

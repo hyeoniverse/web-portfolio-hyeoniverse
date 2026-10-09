@@ -851,3 +851,13 @@ Material `@material/web` 2.5, Primer primitives. 숫자는 같은 날 다시 셌
   - 지면 밖 고정폭 이름표(BGM 말풍선, 관리자 표 머리 · 대시보드 수치 · 편집기 라벨)가 Pretendard 500 으로.
 - **확인.** About · Profile · 홈을 master 와 이 브랜치에서 열어 글자가 있는 요소의 글꼴 · 굵기 · 크기를 모두 견줬다(1440px). 하단 내비 · 푸터는 master 와 같다. 관리자 화면은 보지 않았다. vitest 전체 통과.
 - **남은 것.** 컴포넌트 CSS 가 `font-family: var(--font-family-code)` 를 바로 쓴 63곳 — 같은 기준(코드인가 · 이름표인가)으로 다음에 본다.
+
+### D64. 2026-10-09 — 고정폭 글꼴을 바로 쓰는 자리는 기계가 만든 값뿐(D63 이어서)
+
+- **왜.** D63 뒤에도 컴포넌트 CSS 가 `font-family: var(--font-family-code)` 를 바로 쓴 곳이 63곳 남았다. 같은 기준(코드인가 · 이름표인가)으로 나눴다.
+- **정한 것.**
+  - 지면(About · Profile) 안에서 묶음을 덧쓰지 않는 글자는 지면에서 고정폭을 물려받는다. `[data-type="mono"]` 에 `font-family` 를 두고, 패널 틀(AboutPanel · ProfileMeSection `.panel`)과 그 안의 같은 덧쓰기 20곳을 지웠다. `[data-type="sans"]` 도 평소 글꼴을 물려준다. Profile 말풍선(FloatingObject)은 지면 안에 있지만 평소 글꼴이라 `data-type="sans"` 를 붙였다.
+  - 지면 밖에서 숫자 · 이름표에 고정폭만 입히던 14곳(관리자 시간 · 날짜 · 개수 · 순서 번호, 쪽 넘김 합계, 연락 서랍 안내 · 라벨, Works 원통 소개 라벨)은 지웠다 — 숫자 자리는 `tabular-nums` 가 이미 있다.
+  - 남긴 것: 코드 조각 · `kbd` · 하이라이트, 색 hex 입력, SQL 편집기, 환경 변수 · 경로 · 엔드포인트 · 칼럼 이름, 알림 id, HTTP 상태 코드, 이모지 이름, GitHub 조직 이름 — 기계가 만든 값이다. About 백엔드 패널 제목(`dbTitle`)은 제목 글꼴을 덮는 자리라 남겼다.
+- **보이는 변화.** 공개 화면(About · Profile · 홈 · Works · Posts)은 없다 — 글자가 있는 요소 305개의 글꼴 · 굵기 · 크기를 master 와 견줘 같았다. 관리자 화면과 연락 서랍의 위 14곳이 Pretendard 로 바뀐다(브라우저로 보지 않았다).
+
