@@ -3,7 +3,11 @@
 /* ── 월별 캘린더 — 좌우 트인 표 스타일 (gap+bg trick 으로 cell 사이 hairline).
    .dailyChart 의 horizontal padding 제거되어 negative margin 불필요. */
 .calendarHeatmap {
-  composes: panelFlex from "../components/Panel.module.css";
+  /* Panel flex 와 같은 틀 — 다른 파일 composes 를 쓰지 않는다(4-5) */
+  min-width: 0;
+  display: var(--panel-display, flex);
+  flex-direction: column;
+  gap: 0;
 }
 
 .calendarHeader {
@@ -42,7 +46,9 @@
 /* Calendar grid — gap+bg trick 으로 cell 사이 1px hairline. 상/하 경계도 동일하게 bg+padding 으로
    처리 (border 와 gap 의 rendering 차이 통일 — subpixel 차이로 다르게 보이는 문제 방지) */
 .calendarGrid {
-  composes: panelGrid from "../components/Panel.module.css";
+  /* Panel grid 와 같은 틀 — 다른 파일 composes 를 쓰지 않는다(4-5) */
+  min-width: 0;
+  display: grid;
   grid-template-columns: var(--grid-columns-7);
   gap: var(--spacing-1);
   background: var(--border-color-light);
@@ -50,7 +56,7 @@
 }
 
 .calendarCell {
-  composes: item from "../components/Panel.module.css";
+  min-width: 0;
   position: relative;
   display: flex;
   align-items: center;

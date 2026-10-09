@@ -820,12 +820,7 @@
     "src/styles/globals/_scroll.css": 5
   },
   "cascade-ui-unlayered": {},
-  "cascade-composes-other-file": {
-    "src/app/admin/(dashboard)/_components/CalendarHeatmap.module.css": 3,
-    "src/app/admin/(dashboard)/_components/CategoryDonut.module.css": 1,
-    "src/app/admin/(dashboard)/_components/DevicesBreakdown.module.css": 2,
-    "src/app/admin/(dashboard)/Dashboard.module.css": 7
-  },
+  "cascade-composes-other-file": {},
   "component-raw-button": {},
   "a11y-outline-none": {},
   "a11y-focus-shadow-only": {}
