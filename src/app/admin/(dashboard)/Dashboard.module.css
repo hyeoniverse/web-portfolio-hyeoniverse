@@ -77,7 +77,8 @@
 
 /* "데이터 없음" 텍스트 — List 의 item 과 동일 vertical dimension. border 는 없음 (단독 child) */
 .muted {
-  composes: item from "./components/List.module.css";
+  /* List 항목과 같은 세로 여백(components/List.module.css .item) */
+  padding-block: var(--spacing-8);
   font: var(--font-body-sm);
   line-height: calc(20 / 13);
   /* 정수 line-height — .sectionTitle 과 같은 divider 번짐 방지 */
@@ -94,10 +95,9 @@
 
 /* ── Quick Actions — 4-col edge-to-edge 행, 셀 사이만 vertical divider, 자체 위쪽 hairline ── */
 .quickActions {
-  composes: panelGrid from "./components/Panel.module.css";
-  /* 6개 버튼 → 3×2. 셀 사이(행·열) hairline 은 gridHairlines(gap trick)가 담당 —
+  /* Panel grid · gridHairlines 는 쓰는 쪽에서 Panel 과 함께 붙인다(4-5).
+     6개 버튼 → 3×2. 셀 사이(행·열) hairline 은 gridHairlines(gap trick)가 담당 —
      바깥 테두리엔 선이 안 생긴다. 여긴 열 수와 상단 divider 만 지정. */
-  composes: gridHairlines from "./components/Panel.module.css";
   grid-template-columns: repeat(2, 1fr);
   border-top: var(--border-light);
 }
@@ -241,7 +241,11 @@
 }
 
 .statCard {
-  composes: item from "./components/Panel.module.css";
+  /* 대시보드 Item 과 같은 여백(components/Panel.module.css .item) — 다른 파일 composes 를 쓰지 않는다(4-5) */
+  padding-block: var(--spacing-8);
+  padding-inline-start: var(--_item-inline-start, 0);
+  padding-inline-end: var(--_item-inline-end, 0);
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-8);
@@ -348,7 +352,6 @@ a.statCard:hover .statValue {
    background-clip: padding-box — 자체 bg (alpha-30, column-gap 트릭용) 가 border 영역까지
    깔리면 border (alpha-30) 와 합성돼 alpha 0.51 로 진해짐. padding-box 로 border 영역 제외. */
 .twoCol {
-  composes: panelGrid from "./components/Panel.module.css";
   /* --grid-columns-2 는 repeat() 표기라 확장값(0fr 1fr)과 보간이 안 돼 transition 이 즉시
      점프했다 — 양쪽을 같은 minmax 구조로 풀어 써야 grid-template-columns 가 animate 된다 */
   grid-template-columns: 1fr;
@@ -366,8 +369,7 @@ a.statCard:hover .statValue {
 
 /* .panelCell — twoCol grid 안의 cell 컨테이너 (예전 .panel). composes panelFlex 로 unified base 상속. */
 .panelCell {
-  composes: panelFlex from "./components/Panel.module.css";
-  /* gap/padding 없음 — child (panelTitle / List items) 가 자체 padding 으로 spacing 책임 */
+  /* Panel(flex) 로 그린다. gap/padding 없음 — child (panelTitle / List items) 가 자체 padding 으로 spacing 책임 */
   border: none;
   border-radius: 0;
 }
@@ -676,7 +678,11 @@ a.statCard:hover .statValue {
 
 /* ── Daily Views Chart panel — gap 없음, child 가 자체 padding 으로 spacing 책임 ── */
 .dailyChart {
-  composes: panelFlex from "./components/Panel.module.css";
+  /* Panel flex 와 같은 틀 — 다른 파일 composes 를 쓰지 않는다(4-5) */
+  min-width: 0;
+  display: var(--panel-display, flex);
+  flex-direction: column;
+  gap: 0;
   border: none;
   border-radius: 0;
   background: transparent;

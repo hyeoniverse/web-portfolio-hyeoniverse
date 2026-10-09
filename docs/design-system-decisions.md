@@ -861,6 +861,15 @@ Material `@material/web` 2.5, Primer primitives. 숫자는 같은 날 다시 셌
   - 남긴 것: 코드 조각 · `kbd` · 하이라이트, 색 hex 입력, SQL 편집기, 환경 변수 · 경로 · 엔드포인트 · 칼럼 이름, 알림 id, HTTP 상태 코드, 이모지 이름, GitHub 조직 이름 — 기계가 만든 값이다. About 백엔드 패널 제목(`dbTitle`)은 제목 글꼴을 덮는 자리라 남겼다.
 - **보이는 변화.** 공개 화면(About · Profile · 홈 · Works · Posts)은 없다 — 글자가 있는 요소 305개의 글꼴 · 굵기 · 크기를 master 와 견줘 같았다. 관리자 화면과 연락 서랍의 위 14곳이 Pretendard 로 바뀐다(브라우저로 보지 않았다).
 
+### D65. 2026-10-09 — 다른 파일 `composes` 13곳을 걷어낸다(4-5)
+
+- **왜.** 4-5(D10)는 다른 파일의 클래스를 `composes` 로 가져오지 말라고 한다 — 가져온 규칙과 자기 규칙의 순서가 번들 순서에 따라 바뀐다. 관리자 대시보드에 13곳이 남아 있었다. 모두 대시보드 공용 틀(`components/Panel.module.css` · `List.module.css`)의 `.panelFlex` · `.panelGrid` · `.gridHairlines` · `.item` · `.list` 를 가져온 것이다.
+- **정한 것.**
+  - 이미 `<Panel>` · `<List>` 로 그려서 같은 클래스가 두 번 붙던 곳(twoCol · panelCell · quickActions 의 panelGrid · deviceLegend · deviceDrillList)은 `composes` 만 지웠다.
+  - 맨 `div` · `Link` · `button` 에 틀을 입히던 곳(dailyChart · calendarHeatmap · calendarGrid · statCard · calendarCell · donutLegendItem · muted)은 필요한 선언 몇 줄을 그 자리에 적었다. 어차피 자기 규칙이 덮던 값(테두리 · 여백)은 옮기지 않았다.
+  - 셀 사이 1px 선(`gridHairlines`)은 `<Panel hairlines>` 로 고를 수 있게 했다.
+- **보이는 변화.** 없다. 관리자 대시보드 스켈레톤을 master 와 이 브랜치에서 그려 요소 400여 개의 display · 여백 · gap · 배경 · 테두리 · 열 · 크기를 견줬다 — 클래스 이름 순서만 달랐다. 달력 · 도넛 · 기기 분석은 데이터가 있어야 그려져 보지 못했다(선언이 같은 값으로 옮겨졌다).
+
 ### D66. 2026-10-09 — 라이트 상태색 대비 미달 3곳(3.1-4)
 
 - **왜.** 대비 표의 미달 셋 — 라이트의 성공 배지 글 4.38 · 정보 배지 글 4.06 · 경고 점 2.35. 다크는 모두 넘는다.
