@@ -125,30 +125,27 @@
 
 ## `src/styles/tokens/_spacing.css`
 
-토큰 20개
+토큰 17개
 
-| 토큰 | 값 | 조건부 |
-|---|---|---|
-| `--spacing-0` | `0` |  |
-| `--spacing-1` | `1px` |  |
-| `--spacing-2` | `0.125rem` |  |
-| `--spacing-4` | `0.25rem` |  |
-| `--spacing-8` | `0.5rem` |  |
-| `--spacing-12` | `0.75rem` |  |
-| `--spacing-16` | `1rem` |  |
-| `--spacing-20` | `1.25rem` |  |
-| `--spacing-24` | `1.5rem` |  |
-| `--spacing-32` | `2rem` |  |
-| `--spacing-40` | `2.5rem` |  |
-| `--spacing-48` | `3rem` |  |
-| `--spacing-64` | `4rem` |  |
-| `--spacing-80` | `5rem` |  |
-| `--spacing-96` | `6rem` |  |
-| `--spacing-112` | `7rem` |  |
-| `--spacing-128` | `8rem` |  |
-| `--m-sm` | `2.1vw` | `@media (width > 480px): initial` |
-| `--m-md` | `4.2vw` | `@media (width > 480px): initial` |
-| `--m-lg` | `5vw` | `@media (width > 480px): initial` |
+| 토큰 | 값 |
+|---|---|
+| `--spacing-0` | `0` |
+| `--spacing-1` | `1px` |
+| `--spacing-2` | `0.125rem` |
+| `--spacing-4` | `0.25rem` |
+| `--spacing-8` | `0.5rem` |
+| `--spacing-12` | `0.75rem` |
+| `--spacing-16` | `1rem` |
+| `--spacing-20` | `1.25rem` |
+| `--spacing-24` | `1.5rem` |
+| `--spacing-32` | `2rem` |
+| `--spacing-40` | `2.5rem` |
+| `--spacing-48` | `3rem` |
+| `--spacing-64` | `4rem` |
+| `--spacing-80` | `5rem` |
+| `--spacing-96` | `6rem` |
+| `--spacing-112` | `7rem` |
+| `--spacing-128` | `8rem` |
 
 ## `src/styles/tokens/_typography.css`
 
@@ -296,7 +293,7 @@
 
 ## `src/styles/globals/_semantic.css`
 
-토큰 168개
+토큰 171개
 
 | 토큰 | 값 | 다크 | 조건부 |
 |---|---|---|---|
@@ -400,7 +397,10 @@
 | `--spacing-page-inline` | `4vw` |  | `@media (width > 480px): 5vw`<br>`@media (width > 768px): 8vw` |
 | `--spacing-nav-top` | `min(var(--spacing-page-inline), var(--spacing-32))` |  |  |
 | `--width-page-max` | `100%` |  |  |
-| `--spacing-panel-block` | `var(--m-lg)` |  | `@media (width > 480px): clamp(1rem, min(4.5vh, 2.5vw), 4.5rem)` |
+| `--spacing-narrow-sm` | `2.1vw` |  | `@media (width > 480px): initial` |
+| `--spacing-narrow-md` | `4.2vw` |  | `@media (width > 480px): initial` |
+| `--spacing-narrow-lg` | `5vw` |  | `@media (width > 480px): initial` |
+| `--spacing-panel-block` | `var(--spacing-narrow-lg)` |  | `@media (width > 480px): clamp(1rem, min(4.5vh, 2.5vw), 4.5rem)` |
 | `--font-family-body` | `"Pretendard Variable", -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji"` |  |  |
 | `--font-family-headline` | `var(--font-instrument)` |  |  |
 | `--font-family-code` | `var(--font-jetbrains-mono)` |  |  |
