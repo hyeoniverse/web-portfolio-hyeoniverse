@@ -191,7 +191,6 @@
   padding: 0 var(--control-padding-inline-sm);
   border: var(--border-ghost-light);
   background: transparent;
-  font-family: var(--font-family-code);
   font-size: clamp(var(--font-size-body-xs), 0.688rem + 0.25vw, 0.85rem);
   color: var(--text-white-muted);
   border-radius: var(--radius-control);
@@ -303,7 +302,6 @@
 .dcSpacingLabel {
   flex-shrink: 0;
   width: clamp(30px, 8vw, 44px);
-  font-family: var(--font-family-code);
   font-size: var(--font-size-body-xs);
   color: var(--text-white-muted);
   text-align: right;
@@ -326,7 +324,6 @@
 
 .dcSpacingPx {
   flex-shrink: 0;
-  font-family: var(--font-family-code);
   font-size: var(--font-size-body-xs);
   color: var(--text-white-muted);
 }
@@ -364,7 +361,6 @@
   position: absolute;
   bottom: clamp(-20px, max(-2.2vh, -1.2vw), -28px);
   left: 50%;
-  font-family: var(--font-family-code);
   font-size: var(--font-size-body-xs);
   color: var(--text-white-muted);
   white-space: nowrap;
@@ -385,7 +381,6 @@
   position: absolute;
   top: clamp(4px, min(0.6vh, 0.35vw), 10px);
   left: 50%;
-  font-family: var(--font-family-code);
   font-size: var(--font-size-body-xs);
   font-weight: var(--font-weight-medium);
   color: var(--text-white-muted);
@@ -427,7 +422,6 @@
 }
 
 .dcIconCellLabel {
-  font-family: var(--font-family-code);
   font-size: var(--font-size-body-xs);
   color: var(--text-white);
   opacity: 0.6;

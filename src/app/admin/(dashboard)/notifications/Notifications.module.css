@@ -310,7 +310,6 @@
   padding: 0 var(--spacing-4);
   border-radius: var(--radius-control);
   background: color-mix(in oklch, currentColor 15%, transparent);
-  font-family: var(--font-family-code);
   font-variant-numeric: tabular-nums;
 }
 

@@ -281,7 +281,6 @@
 /* ── 아스키 장식 ────────────────────────────────────────── */
 .glyph {
   display: block;
-  font-family: var(--font-family-code);
   line-height: 1;
   white-space: nowrap;
   color: var(--text-tertiary);
