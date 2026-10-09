@@ -46,6 +46,6 @@
 .btn:hover {
   background-color: var(--bg-inverse);
   color: var(--text-inverse);
-  border-color: var(--bg-inverse) !important;
+  border-color: var(--bg-inverse);
 }
 }
