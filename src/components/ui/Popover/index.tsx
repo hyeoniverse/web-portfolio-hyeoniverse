@@ -10,6 +10,7 @@ import { cn } from "@/utils/cn";
 import { usePortalContainer } from "../portalContainer";
 import { usePopoverRef } from "@/hooks/useTopLayer";
 import styles from "./Popover.module.css";
+import { useSheetDrag } from "@/hooks/useSheetDrag";
 
 // "bubble" = Select 식 오른쪽 말풍선(solid 패널 + trigger 를 가리키는 꼬리, trigger 세로 중심 정렬).
 // 위치가 아니라 "모양"을 정하는 값 — 별도 shape/variant prop 없이 이 하나로 버블이 된다.
@@ -114,6 +115,8 @@ export default function Popover({
     onOpenChange?.(next);
   };
   const close = () => setOpen(false);
+  /* 바텀 시트 — 손잡이 · 제목 줄을 아래로 쓸면 닫힌다 */
+  const sheetDrag = useSheetDrag(close);
   const toggle = () => setOpen(!open);
 
   // ── hover 로 열기(openOnHover, 데스크톱) — trigger↔content 이동/이탈 순간은 close 타이머로 브릿지.
@@ -337,13 +340,13 @@ export default function Popover({
                   role="dialog"
                   aria-modal="true"
                 >
-                  <div className="ui-sheet-handle" aria-hidden>
+                  <div className="ui-sheet-handle" aria-hidden {...sheetDrag}>
                     <span className="ui-sheet-handle-bar" />
                   </div>
                   {/* bottom sheet 에는 X 버튼을 두지 않는다 — 상단 grabber 가 있고 backdrop 탭/Esc 로 닫히며,
                       아래로 쓸어 닫는 게 기본 제스처라 X 는 군더더기다. Modal 의 bottom sheet 도 동일 규칙. */}
                   {sheetTitle && (
-                    <div className={styles.sheetHeader}>
+                    <div className={styles.sheetHeader} {...sheetDrag}>
                       <h3 className={styles.sheetTitle}>{sheetTitle}</h3>
                     </div>
                   )}

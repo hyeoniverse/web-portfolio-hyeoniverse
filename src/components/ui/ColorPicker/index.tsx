@@ -53,6 +53,7 @@ import styles from "./ColorPicker.module.css";
 import Pressable from "@/components/ui/Pressable";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { fillTemplate } from "@/utils/format";
+import { useSheetDrag } from "@/hooks/useSheetDrag";
 
 type InputFormat = "hex" | "rgb" | "hsl" | "hsv" | "oklch";
 const FORMAT_OPTIONS = [
@@ -156,6 +157,8 @@ export default function ColorPicker({
   /* 모바일 (화면 너비 ≤ 768px) 일 땐 dropdown 대신 bottom sheet 으로 렌더. (inline 모드 제외) */
   const { isMobile } = useIsMobile();
   const useSheet = isMobile && !inline;
+  /* 바텀 시트 — 손잡이 · 제목을 아래로 쓸면 닫힌다 */
+  const sheetDrag = useSheetDrag(() => setOpen(false));
 
   // source of truth — OKLCH
   const [oklch, setOklch] = useState<OKLCH>(() => parseAnyToOklch(value));
@@ -1142,10 +1145,10 @@ export default function ColorPicker({
             >
               {useSheet && (
                 <>
-                  <div className="ui-sheet-handle" aria-hidden>
+                  <div className="ui-sheet-handle" aria-hidden {...sheetDrag}>
                     <span className="ui-sheet-handle-bar" />
                   </div>
-                  <h3 className={styles.sheetTitle}>Pick color</h3>
+                  <h3 className={styles.sheetTitle} {...sheetDrag}>Pick color</h3>
                 </>
               )}
               <ControlSizeScope size={null}>{panelContent}</ControlSizeScope>

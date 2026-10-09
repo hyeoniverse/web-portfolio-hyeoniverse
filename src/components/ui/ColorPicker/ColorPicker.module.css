@@ -69,6 +69,8 @@
 
 /* Modal title 패턴 — handle bar 바로 아래 단독 h3 (close 버튼 없음, 탭 outside / ESC 로 닫음) */
 .sheetTitle {
+  /* 손잡이와 함께 쓸어 닫는 자리(useSheetDrag) */
+  touch-action: none;
   margin: 0;
   /* 아래 컨트롤 행(.controls)과 같은 왼쪽 줄 */
   padding: 0 var(--spacing-12);
