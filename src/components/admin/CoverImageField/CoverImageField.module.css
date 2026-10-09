@@ -167,17 +167,6 @@
   border: var(--border-light);
 }
 
-/* 제거 버튼 — accent border + text (다른 버튼들과 시각 구분) */
-.removeBtnAction {
-  margin-left: auto;
-  color: var(--text-accent) !important;
-}
-
-.field .removeBtnAction:hover {
-  border-color: var(--text-accent) !important;
-  background: var(--bg-accent-subtle);
-}
-
 /* Upload + Choose 버튼 row */
 .actions {
   display: flex;
