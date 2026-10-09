@@ -1,10 +1,11 @@
-/* 공통 컴포넌트(SearchCapsule/Button) border 를 달력 컨트롤(--border-light)과 통일 */
-.ctrlBorderLight { border-color: var(--border-color-light) !important; }
+/* 공통 컴포넌트(SearchCapsule/Button) border 를 달력 컨트롤(--border-light)과 통일.
+   공용 컴포넌트는 components 층이라 이 파일(층 밖)의 규칙이 "무조건" 표시 없이 이긴다(4-4) */
+.ctrlBorderLight { border-color: var(--border-color-light); }
 /* 모달 안 Select dropdown — z 는 이제 Modal 의 PortalContainerContext(layer portal)가 처리하므로 불필요.
    불투명 배경만 유지(가독성 — 모달 backdrop blur 위에서 difference 대비 확보). */
 .selectAboveModal {
-  background: var(--bg-primary) !important;
-  backdrop-filter: none !important;
+  background: var(--bg-primary);
+  backdrop-filter: none;
 }
 
 /* ── 검색/필터/정렬 툴바 ── (blockBar 인라인 겸 리더 행) */
@@ -545,10 +546,10 @@
 /* 각 행의 첫 아이콘은 같은 폭(16px) 슬롯에 중앙정렬 — dot 10 / star·link 13 로 폭이 달라
    라벨 시작점이 그룹마다 어긋났다. 슬롯을 통일하면 세로로 정렬돼 스캔이 쉽다. */
 /* active(사이드바 열림) — accent 아이콘 대신 공통 active 스타일(inverse 배경/글자) */
-.blockBarIconOn {
-  background: var(--bg-inverse) !important;
-  border-color: var(--bg-inverse) !important;
-  color: var(--text-inverse) !important;
+.blockBarIconBtn.blockBarIconOn {
+  background: var(--bg-inverse);
+  border-color: var(--bg-inverse);
+  color: var(--text-inverse);
 }
 
 /* ── 이벤트 추가/편집 모달 폼 ── 좌(제목~상태) | 우(내용~태그), 모바일 1열 */
@@ -1193,10 +1194,10 @@
 /* 기간 토글 ON — 공통 active 스타일(SegmentedControl 선택 등)과 동일한 검정 채움 */
 /* 클래스를 두 번 적어 (0,2,0) 으로 올린다 — Button 의 variant 규칙과 특이도가 같으면
    어느 쪽이 이길지가 두 CSS 모듈의 번들 순서에 달린다. */
-.rangeToggleOn.rangeToggleOn {
-  background: var(--bg-inverse) !important;
-  border-color: var(--bg-inverse) !important;
-  color: var(--text-inverse) !important;
+.rangeToggleOn {
+  background: var(--bg-inverse);
+  border-color: var(--bg-inverse);
+  color: var(--text-inverse);
 }
 
 /* 섹션 (날짜/제목/라벨/태그/시간) */
@@ -1358,14 +1359,14 @@
 }
 /* 태그 제안 칩 — 추가 칩(공통 Chip capsule)과 같은 크기 + 대시 외곽선으로 구분 */
 .suggestChip {
-  border-style: dashed !important;
-  background: transparent !important;
-  color: var(--text-tertiary) !important;
+  border-style: dashed;
+  background: transparent;
+  color: var(--text-tertiary);
 }
 .suggestChip svg { color: var(--text-tertiary); transition: color var(--duration-fast) var(--ease-standard); }
 .suggestChip:hover {
-  border-color: var(--border-color-accent-strong) !important;
-  color: var(--text-accent) !important;
+  border-color: var(--border-color-accent-strong);
+  color: var(--text-accent);
 }
 .suggestChip:hover svg { color: var(--text-accent); }
 
