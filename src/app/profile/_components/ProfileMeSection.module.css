@@ -45,7 +45,7 @@
   justify-content: center;
   flex-shrink: 0;
   flex-direction: column;
-  padding: var(--m-lg) var(--m-sm);
+  padding: var(--spacing-narrow-lg) var(--spacing-narrow-sm);
   border-bottom: var(--border-strong);
   position: relative;
   width: 100%;
@@ -163,7 +163,7 @@
 
 .profilePanel {
   gap: var(--_space-divide);
-  padding: 0 0 var(--m-lg);
+  padding: 0 0 var(--spacing-narrow-lg);
   border-bottom: var(--border-strong);
   position: relative;
   width: 100%;
@@ -341,7 +341,7 @@
 .magFeature {
   display: grid;
   grid-template-columns: 5fr 6fr;
-  gap: var(--m-sm);
+  gap: var(--spacing-narrow-sm);
   margin-bottom: var(--spacing-40);
 }
 
@@ -449,8 +449,8 @@
 .magQuote,
 .magDetails,
 .profileContent {
-  padding-left: var(--m-sm);
-  padding-right: var(--m-sm);
+  padding-left: var(--spacing-narrow-sm);
+  padding-right: var(--spacing-narrow-sm);
 }
 
 .profileContent .bioHighlight,
@@ -479,7 +479,7 @@
 .stats {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--m-md);
+  gap: var(--spacing-narrow-md);
   margin-top: var(--spacing-32);
   padding-top: var(--spacing-32);
   border-top: var(--border-width-1) solid var(--border-default);
@@ -575,7 +575,7 @@
 
 .expRow {
   display: grid;
-  gap: var(--m-sm);
+  gap: var(--spacing-narrow-sm);
   align-items: start;
   grid-template-columns: auto auto 1fr;
 }
@@ -647,7 +647,7 @@
 /* ── Panel: Skills (split layout — header left, list right) ── */
 .skillPanelLayout {
   display: grid;
-  gap: var(--m-md);
+  gap: var(--spacing-narrow-md);
   align-items: start;
   grid-template-columns: 1fr;
 }

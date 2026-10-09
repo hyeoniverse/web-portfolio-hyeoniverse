@@ -47,7 +47,7 @@
   display: inline-block;
   flex-shrink: 0;
   width: 10vw;
-  height: var(--m-lg);
+  height: var(--spacing-narrow-lg);
   border: var(--border-default);
   border-radius: 50%;
 }
