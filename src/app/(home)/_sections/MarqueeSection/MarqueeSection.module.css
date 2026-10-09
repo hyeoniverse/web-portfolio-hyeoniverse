@@ -73,3 +73,10 @@
     width: 100px;
   }
 }
+
+/* 기기의 "동작 줄이기" — 흐르지 않고 첫 줄에 멈춘다(3.9-4) */
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    animation: none;
+  }
+}

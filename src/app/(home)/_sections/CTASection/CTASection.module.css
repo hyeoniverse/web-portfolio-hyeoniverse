@@ -307,3 +307,11 @@
     font-size: var(--font-size-body-xl);
   }
 }
+
+/* 기기의 "동작 줄이기" — 맥박 고리를 그리지 않는다(3.9-4) */
+@media (prefers-reduced-motion: reduce) {
+  .buttonIndicator::after {
+    animation: none;
+    opacity: 0;
+  }
+}

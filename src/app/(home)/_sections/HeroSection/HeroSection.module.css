@@ -297,4 +297,10 @@
   .scrollLine {
     animation: none;
   }
+
+  /* 맥박 고리를 그리지 않는다(3.9-4) */
+  .pulseDot::before {
+    animation: none;
+    opacity: 0;
+  }
 }
