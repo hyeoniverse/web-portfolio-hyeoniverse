@@ -230,8 +230,7 @@
   border: var(--border-accent-light);
   border-radius: var(--radius-control);
   background: transparent;
-  font: var(--font-body-xs);
-  font-weight: var(--font-weight-medium);
+  font: var(--font-label-xs);
   color: var(--text-accent);
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -432,8 +431,7 @@
   background: var(--bg-overlay);
   backdrop-filter: blur(8px);
   border: var(--border-ghost-light);
-  font: var(--font-body-xs);
-  font-weight: var(--font-weight-medium);
+  font: var(--font-label-xs);
   color: var(--text-white);
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -455,8 +453,7 @@
   background: var(--bg-overlay);
   backdrop-filter: blur(8px);
   border: var(--border-ghost-light);
-  font: var(--font-body-xs);
-  font-weight: var(--font-weight-medium);
+  font: var(--font-label-xs);
   color: var(--text-white);
   text-transform: uppercase;
   letter-spacing: 0.06em;

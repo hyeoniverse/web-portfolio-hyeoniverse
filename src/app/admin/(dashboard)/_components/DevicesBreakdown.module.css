@@ -112,8 +112,7 @@ button.deviceLegendBtn {
   border: none;
   background: transparent;
   border-radius: var(--radius-control);
-  font: var(--font-body-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   color: var(--text-tertiary);
   cursor: pointer;
   transition:
@@ -174,8 +173,7 @@ button.deviceLegendBtn {
 }
 
 .deviceDrillTitle {
-  font: var(--font-body-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--text-tertiary);

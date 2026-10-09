@@ -78,8 +78,7 @@
   border-radius: var(--radius-control);
   background: var(--bg-inverse);
   color: var(--text-inverse);
-  font: var(--font-body-sm);
-  font-weight: var(--font-weight-medium);
+  font: var(--font-label-sm);
   text-decoration: none;
   transition: gap var(--duration-fast) var(--ease-standard);
 }

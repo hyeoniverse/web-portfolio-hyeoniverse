@@ -17,8 +17,7 @@
   border: var(--border-strong);
   border-radius: var(--radius-control);
   background: transparent;
-  font: var(--font-body-sm);
-  font-weight: var(--font-weight-medium);
+  font: var(--font-label-sm);
   letter-spacing: 0.03em;
   color: var(--text-secondary);
   overflow: hidden;

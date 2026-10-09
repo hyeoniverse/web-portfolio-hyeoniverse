@@ -10,8 +10,7 @@
 }
 
 .title {
-  font: var(--font-body-sm);
-  font-weight: var(--font-weight-semibold);
+  font: var(--font-label-sm);
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -82,8 +81,7 @@
 }
 
 .avatarInitial {
-  font: var(--font-body-md);
-  font-weight: var(--font-weight-semibold);
+  font: var(--font-label-md);
   color: var(--text-secondary);
 }
 
@@ -101,8 +99,7 @@
 }
 
 .name {
-  font: var(--font-body-md);
-  font-weight: var(--font-weight-medium);
+  font: var(--font-label-md);
   color: var(--text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -142,8 +139,7 @@
   gap: var(--spacing-4);
   padding: var(--spacing-1) var(--spacing-8);
   border-radius: var(--radius-control);
-  font: var(--font-body-xs);
-  font-weight: var(--font-weight-semibold);
+  font: var(--font-label-xs);
   text-transform: uppercase;
   letter-spacing: 0.03em;
   white-space: nowrap;
@@ -191,8 +187,7 @@
   padding: var(--spacing-1) var(--spacing-8);
   border-radius: var(--radius-control);
   background: var(--bg-success-soft);
-  font: var(--font-body-xs);
-  font-weight: var(--font-weight-semibold);
+  font: var(--font-label-xs);
   text-transform: uppercase;
   letter-spacing: 0.03em;
   color: var(--text-success-strong);
@@ -221,8 +216,7 @@
 .more {
   display: inline-block;
   margin-top: var(--spacing-12);
-  font: var(--font-body-sm);
-  font-weight: var(--font-weight-medium);
+  font: var(--font-label-sm);
   color: var(--text-accent);
   text-decoration: none;
 }
@@ -241,8 +235,7 @@
   border-radius: var(--radius-control);
   background: var(--bg-accent-light);
   color: var(--text-accent);
-  font: var(--font-body-xs);
-  font-weight: var(--font-weight-semibold);
+  font: var(--font-label-xs);
   line-height: inherit;
   white-space: nowrap;
 }

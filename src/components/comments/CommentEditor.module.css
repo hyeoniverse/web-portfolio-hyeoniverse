@@ -50,8 +50,7 @@
 .toolbarGroupLabel {
   flex-shrink: 0;
   margin-right: var(--spacing-4);
-  font: var(--font-body-xs);
-  font-weight: var(--font-weight-medium);
+  font: var(--font-label-xs);
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -98,8 +97,7 @@
 }
 
 .helpTitle {
-  font: var(--font-body-sm);
-  font-weight: var(--font-weight-semibold);
+  font: var(--font-label-sm);
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -124,8 +122,7 @@
 .helpTable th {
   padding: var(--cell-padding-sm);
   background: var(--bg-tertiary);
-  font: var(--font-body-sm);
-  font-weight: var(--font-weight-semibold);
+  font: var(--font-label-sm);
   color: var(--text-primary);
   white-space: nowrap;
 }

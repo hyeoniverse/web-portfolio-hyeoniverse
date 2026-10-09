@@ -29,8 +29,7 @@
   backdrop-filter: var(--blur-glass);
   color: var(--text-primary);
   border: var(--border-light);
-  font: var(--font-body-md);
-  font-weight: 500;
+  font: var(--font-label-md);
   box-shadow: var(--shadow-floating);
   pointer-events: auto;
   cursor: pointer;

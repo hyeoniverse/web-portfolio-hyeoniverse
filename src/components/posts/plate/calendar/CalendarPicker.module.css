@@ -102,7 +102,7 @@
   line-height: 1.05;
 }
 
-.pickerItemMon { font: var(--font-body-sm); font-weight: 600; }
+.pickerItemMon { font: var(--font-label-sm);}
 
 .pickerItemYear { font: var(--font-body-xs); font-variant-numeric: tabular-nums; color: var(--text-tertiary); }
 
@@ -221,8 +221,7 @@
   padding: 0 var(--spacing-4);
   border-radius: var(--radius-control);
   background: var(--bg-tertiary);
-  font: var(--font-body-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   text-align: center;
 }
 
@@ -308,7 +307,7 @@
 .chainStepTitleRow { display: flex; align-items: center; gap: var(--spacing-4); min-width: 0; }
 
 .chainStepTitle {
-  font: var(--font-body-md); font-weight: 600; color: var(--text-primary);
+  font: var(--font-label-md);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; flex: 1;
   transition: color var(--duration-fast) var(--ease-standard);
 }
@@ -322,7 +321,7 @@
 .chainChip {
   flex-shrink: 0;
   display: inline-flex; align-items: center; gap: var(--spacing-1);
-  font: var(--font-body-xs); font-weight: 500; color: var(--text-secondary); white-space: nowrap;
+  font: var(--font-label-xs);
 }
 
 .chainStepMeta { display: flex; align-items: center; flex-wrap: wrap; gap: var(--spacing-2) var(--spacing-16); font: var(--font-body-xs); font-variant-numeric: tabular-nums; color: var(--text-tertiary); }

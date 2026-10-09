@@ -68,8 +68,7 @@
 /* 카테고리 — 스타일 없는 순수 텍스트라 튀어서, 메타 톤에 맞춘 은은한 uppercase 라벨로 */
 .compactCat {
   flex-shrink: 0;
-  font: var(--font-body-xs);
-  font-weight: var(--font-weight-medium);
+  font: var(--font-label-xs);
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.06em;

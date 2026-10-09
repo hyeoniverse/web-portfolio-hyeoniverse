@@ -6,8 +6,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-8);
-  font: var(--font-body-sm);
-  font-weight: var(--font-weight-medium);
+  font: var(--font-label-sm);
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -118,8 +117,7 @@
 }
 
 .itemTitle {
-  font: var(--font-body-md);
-  font-weight: var(--font-weight-medium);
+  font: var(--font-label-md);
   color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;

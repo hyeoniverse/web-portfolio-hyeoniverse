@@ -23,8 +23,7 @@
 
 .fieldLabel {
   width: auto;
-  font: var(--font-body-sm);
-  font-weight: 500;
+  font: var(--font-label-sm);
   display: flex;
   flex-direction: column;
   gap: var(--spacing-2);
