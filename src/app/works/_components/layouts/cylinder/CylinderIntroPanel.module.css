@@ -163,7 +163,6 @@
 /* 라벨·한 줄·안내도 판 높이를 따른다. 제목만 줄이면 나머지가 그대로라 얕은 판에서는 여전히 넘친다.
    글자 크기의 하한은 읽을 수 있는 선(11~12px)이다 */
 .introLabel {
-  font-family: var(--font-family-code);
   font-size: clamp(var(--font-size-body-xs), calc(var(--panel-h, 320px) * 0.055), var(--font-size-body-sm));
   font-weight: var(--font-weight-semibold);
   letter-spacing: 0.35em;
@@ -209,7 +208,6 @@
   --_introScrollBounce-duration: 2.5s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */
   /* 얕은 판에서는 이 여백부터 줄인다 — 안내 한 줄을 위해 제목을 더 줄일 수는 없다 */
   margin-top: clamp(var(--spacing-4), calc(var(--panel-h, 320px) * 0.06), var(--spacing-24));
-  font-family: var(--font-family-code);
   font-size: clamp(var(--font-size-body-xs), calc(var(--panel-h, 320px) * 0.05), var(--font-size-body-xs));
   letter-spacing: 0.2em;
   color: light-dark(var(--text-primary), var(--text-white));

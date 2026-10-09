@@ -306,12 +306,14 @@ export default function FloatingObject() {
           stacking context 를 만들어서, 안쪽 자식의 mix-blend-mode 는 페이지가 아니라
           그 요소 안에서 계산되기 때문이다(backdrop-filter·transform 도 마찬가지).
           형제로 두면 글자 층이 루트 위에서 섞이므로 아래에 깔린 껍데기와 페이지를 모두 본다.
-          둘은 같은 rAF 에서 같은 left/top 을 받고 글·여백·글꼴이 같아 정확히 겹친다. */}
+          둘은 같은 rAF 에서 같은 left/top 을 받고 글·여백·글꼴이 같아 정확히 겹친다.
+          말풍선은 고정폭 지면(Profile) 안에 있지만 평소 글꼴을 쓴다 — data-type="sans"(D63). */}
       {/* 흐림판이 맨 아래. 테두리보다 먼저 그려야 꼬리 흐림이 흰 테두리를 빨아들이지 않는다.
           글자를 그대로 담는 건 크기를 껍데기와 똑같이 맞추기 위해서다(보이지는 않는다). */}
       <div
         ref={bubbleFillRef}
         className={`${styles.speechBubbleFill} ${showBubble ? styles.speechBubbleVisible : ""}`}
+        data-type="sans"
         aria-hidden
       >
         {bubbleText}
@@ -328,6 +330,7 @@ export default function FloatingObject() {
       <div
         ref={bubbleRef}
         className={`${styles.speechBubble} ${showBubble ? styles.speechBubbleVisible : ""}`}
+        data-type="sans"
         aria-hidden
       >
         {bubbleText}
@@ -335,6 +338,7 @@ export default function FloatingObject() {
       <div
         ref={bubbleTextRef}
         className={`${styles.speechBubbleText} ${showBubble ? styles.speechBubbleVisible : ""}`}
+        data-type="sans"
       >
         <span ref={typedRef} />
         <span ref={caretRef} className={styles.caret} />

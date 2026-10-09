@@ -286,7 +286,6 @@
 
 .procMixLegend b {
   margin-left: auto;
-  font-family: var(--font-family-code);
   font-weight: var(--font-weight-regular);
   color: var(--text-tertiary);
 }
