@@ -1,10 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Languages, Check, Undo2 } from "@/components/icons";
-import Popover, { MenuItem, MenuDivider } from "@/components/ui/Popover";
+import { Languages, Check, Undo2, Search } from "@/components/icons";
+import Popover, { MenuItem } from "@/components/ui/Popover";
 import Pressable from "@/components/ui/Pressable";
-import Input from "@/components/ui/Input";
 import Tooltip from "@/components/ui/Tooltip";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { TRANSLATION_LANGUAGES } from "@/lib/translationLanguages";
@@ -69,32 +68,45 @@ export default function ContentLangMenu({ value, onChange }: ContentLangMenuProp
     >
       {({ close }) => (
         <>
-          {value && (
-            <>
-              <MenuItem icon={<Undo2 size={14} />} label={t("contentTranslate.showOriginal")} onClick={() => pick(null, close)} />
-              <MenuDivider />
-            </>
-          )}
-          <div className={styles.search}>
-            <Input value={query} onChange={setQuery} size="xs" placeholder={t("contentTranslate.search")} aria-label={t("contentTranslate.search")} />
-          </div>
+          {/* 검색 — 칸 안의 칸이 되지 않게 테두리 없는 한 줄로, 아래 실선으로만 목록과 나눈다 */}
+          <label className={styles.search}>
+            <Search size={14} className={styles.searchIcon} aria-hidden />
+            <input
+              className={styles.searchInput}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={t("contentTranslate.search")}
+              aria-label={t("contentTranslate.search")}
+              autoFocus
+              autoComplete="off"
+              spellCheck={false}
+            />
+          </label>
           <div className={styles.list} role="menu">
             {items.length === 0 && <p className={styles.empty}>{t("contentTranslate.noMatch")}</p>}
-            {items.map((l) => (
-              <MenuItem
-                key={l.code}
-                active={l.code === value}
-                label={
-                  <span className={styles.itemLabel} lang={l.code}>
-                    {l.native}
-                    {l.local !== l.native && <span className={styles.itemSub}>{l.local}</span>}
-                  </span>
-                }
-                trailing={l.code === value ? <Check size={14} className={styles.check} aria-hidden /> : undefined}
-                onClick={() => pick(l.code, close)}
-              />
-            ))}
+            {items.map((l) => {
+              const on = l.code === value;
+              return (
+                <MenuItem
+                  key={l.code}
+                  active={on}
+                  className={styles.item}
+                  label={<span lang={l.code}>{l.native}</span>}
+                  /* 오른쪽 칸은 하나만 — 고른 언어는 체크, 나머지는 화면 언어로 쓴 이름 */
+                  trailing={on
+                    ? <Check size={14} className={styles.check} aria-hidden />
+                    : l.local !== l.native ? <span className={styles.itemSub}>{l.local}</span> : undefined}
+                  onClick={() => pick(l.code, close)}
+                />
+              );
+            })}
           </div>
+          {/* 원문 보기 — 번역 중일 때만, 목록 아래 고정 줄로 */}
+          {value && (
+            <div className={styles.footer}>
+              <MenuItem icon={<Undo2 size={14} />} label={t("contentTranslate.showOriginal")} onClick={() => pick(null, close)} />
+            </div>
+          )}
         </>
       )}
     </Popover>
