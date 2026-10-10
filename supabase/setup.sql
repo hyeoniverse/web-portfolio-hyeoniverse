@@ -85,6 +85,7 @@
 --   2026_09_27  traffic_excluded_ips + anonymize_old_site_visits (방문 IP 90일 보관) + pg_cron
 --   2026_09_30  service_logs + 예약 작업 기록(_log_cron) + 90일 보관 pg_cron
 --   2026_09_30  purge_trash_scheduled 에 calendars 포함 (운영 DB 를 setup 과 같은 범위로)
+--   2026_10_09  content_translations — 상세 화면 다른 언어 번역 캐시
 --
 -- 권한 모델 요약 (owner / admin / author / visitor):
 --   owner   app_role() = 'owner'                 전부
@@ -957,6 +958,30 @@ REVOKE ALL ON service_logs FROM anon, authenticated;
 
 
 -- ────────────────────────────────────────────────────────────
+-- 9-d. content_translations — 글·작업물 상세의 "다른 언어로 읽기" 번역 캐시
+--      ko · en 은 posts/works 의 칸에 두고, 그 밖의 언어(lib/translationLanguages)만 여기에 한 줄씩.
+--      source_hash 는 번역에 쓴 원문의 해시 — 원문이 바뀌면 다음 요청이 다시 번역한다.
+--      source_id 는 posts/works 두 표를 가리켜 외래 키를 두지 않는다.
+--      서버(service_role)만 읽고 쓴다 — RLS 켜고 정책은 두지 않는다. 공개 API 는 /api/content-translate.
+-- ────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS content_translations (
+  id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  source_type text NOT NULL CHECK (source_type IN ('post', 'work')),
+  source_id   uuid NOT NULL,
+  lang        text NOT NULL,
+  fields      jsonb NOT NULL DEFAULT '{}',
+  source_hash text NOT NULL,
+  provider    text,
+  created_at  timestamptz NOT NULL DEFAULT now(),
+  updated_at  timestamptz NOT NULL DEFAULT now(),
+  UNIQUE (source_type, source_id, lang)
+);
+
+ALTER TABLE content_translations ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON content_translations FROM anon, authenticated;
+
+
+-- ────────────────────────────────────────────────────────────
 -- 10. comment_reports — 댓글 신고 누적 (posts + works 공용)
 --     comment_type: 'post' | 'work'  → 어느 댓글 테이블의 id 인지 구분
 --     reporter_hash: IP + UA 해시로 동일 사용자 중복 신고 방지
@@ -1698,6 +1723,7 @@ END $$;
 --   work_views           : 작업물별 시계열 조회 기록 (post_views 미러)
 --   traffic_excluded_ips : 운영자 IP — 방문 기록·트래픽 집계에서 제외 (service_role 전용)
 --   service_logs         : AI·메일·GitHub·예약 작업 성공/실패 기록 (service_role 전용, 90일 보관)
+--   content_translations : 상세 화면 다른 언어 번역 캐시 (글/작업물 × 언어, service_role 전용)
 --   author_invites       : 저자 초대 (email → author_id + 권한 레벨, OAuth 매칭)
 --   work_comments        : Works 댓글 (대댓글, password 인증, tombstone)
 --   admin_notifications  : 관리자 알림 로그 (comment / publish / purge / report 등)
@@ -2024,7 +2050,8 @@ INSERT INTO applied_migrations (name, description) VALUES
   ('2026_09_25_site_visits_analytics_columns', 'site_visits 분석 컬럼 (country/path/utm_source/utm_medium/utm_campaign)'),
   ('2026_09_27_site_visits_ip_retention',      'traffic_excluded_ips + anonymize_old_site_visits (방문 IP 90일 보관) + pg_cron'),
   ('2026_09_30_service_logs',                  'service_logs 테이블 + 예약 작업(publish/purge/anonymize) 기록 + 90일 보관'),
-  ('2026_09_30_purge_trash_calendars',         'purge_trash_scheduled — 휴지통 영구삭제에 calendars 포함 (앱 /api/cron/purge-trash 와 같은 범위)')
+  ('2026_09_30_purge_trash_calendars',         'purge_trash_scheduled — 휴지통 영구삭제에 calendars 포함 (앱 /api/cron/purge-trash 와 같은 범위)'),
+  ('2026_10_09_content_translations',          'content_translations — 상세 화면 다른 언어 번역 캐시 (service_role 전용)')
 ON CONFLICT (name) DO NOTHING;
 -- 참고: 2026_07_13_category_reset / 2026_07_13_tag_descriptions_reset 은 기존 데이터를 손보는
 -- 수동 데이터 마이그레이션이라 fresh install 과 무관 → 여기서 record 하지 않는다.

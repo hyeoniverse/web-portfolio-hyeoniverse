@@ -338,6 +338,17 @@
     "enOnly": "영어만 제공",
     "translateFailed": "번역 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요."
   },
+  "contentTranslate": {
+    "menuLabel": "다른 언어로 읽기",
+    "search": "언어 검색",
+    "noMatch": "맞는 언어가 없습니다",
+    "showOriginal": "원문 보기",
+    "notice": "{{lang}}(으)로 기계 번역된 내용입니다",
+    "translating": "{{lang}}(으)로 번역하는 중…",
+    "failed": "번역하지 못했습니다. 잠시 뒤 다시 시도해 주세요.",
+    "rateLimited": "번역 요청이 많습니다. 잠시 뒤 다시 시도해 주세요.",
+    "retry": "다시 시도"
+  },
   "aiSummary": {
     "label": "AI 요약",
     "generating": "요약 생성 중...",
