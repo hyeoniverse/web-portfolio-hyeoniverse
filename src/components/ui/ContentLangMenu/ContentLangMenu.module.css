@@ -38,13 +38,47 @@
   text-transform: uppercase;
 }
 
-/* 메뉴 패널 — 검색칸은 위에 두고 목록만 스크롤한다 */
+/* 메뉴 패널 — 검색 줄 · 목록(스크롤) · 원문 보기 줄. 위아래 줄은 실선으로만 나눈다 */
 .panel {
-  width: 240px;
+  width: 260px;
 }
 
 .search {
-  padding: var(--spacing-4) var(--spacing-4) var(--spacing-8);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  margin: calc(var(--spacing-4) * -1) calc(var(--spacing-4) * -1) var(--spacing-4);
+  padding: var(--spacing-8) var(--spacing-12);
+  border-bottom: var(--border-light);
+  cursor: text;
+}
+
+.searchIcon {
+  flex-shrink: 0;
+  color: var(--text-tertiary);
+}
+
+.searchInput {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  font: var(--font-body-sm);
+  color: var(--text-primary);
+  outline-color: transparent;
+}
+
+.search:focus-within {
+  border-bottom-color: var(--text-primary);
+}
+
+.search:focus-within .searchIcon {
+  color: var(--text-primary);
+}
+
+.searchInput::placeholder {
+  color: var(--text-tertiary);
 }
 
 .list {
@@ -55,21 +89,25 @@
   overscroll-behavior: contain;
 }
 
-.itemLabel {
-  display: flex;
-  align-items: baseline;
+.item {
   justify-content: space-between;
-  gap: var(--spacing-8);
 }
 
 .itemSub {
   font: var(--font-body-xs);
   color: var(--text-tertiary);
+  white-space: nowrap;
 }
 
 .check {
   flex-shrink: 0;
   color: var(--text-accent);
+}
+
+.footer {
+  margin: var(--spacing-4) calc(var(--spacing-4) * -1) calc(var(--spacing-4) * -1);
+  padding: var(--spacing-4);
+  border-top: var(--border-light);
 }
 
 .empty {
