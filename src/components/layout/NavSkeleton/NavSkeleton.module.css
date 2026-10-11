@@ -1,12 +1,17 @@
-/* ── 사이트 안 이동 중 뼈대 — 내비 바로 아래부터 화면 끝까지. 그 페이지 배경 위에, 첫 화면 요소가 실제로 놓이는 자리에 뼈를 둔다.
-   이전 페이지의 떠 있는 장식(프로필 몽이는 내비 위로 난다)까지 덮도록 내비 높이만 비우고 그 위에 올린다 ── */
+/* ── 사이트 안 이동 중 뼈대 — 화면 전체, 내비 바로 밑. 그 페이지 배경 위에, 첫 화면 요소가 실제로 놓이는 자리에 뼈를 둔다.
+   뼈대가 떠 있는 동안은 이전 페이지 본문을 감춘다(<html data-nav-pending>) — 내비 위로 나는 프로필 몽이나 About 하늘처럼
+   뼈대보다 위에 그려지는 것이 비치지 않게 ── */
+
+:global(html[data-nav-pending]) main {
+  visibility: hidden;
+}
 
 .layer {
   --_shimmer: 1.5s; /* 반짝임 한 번 — 공용 Skeleton 과 같은 박자(3.9-1) */
 
   position: fixed;
-  inset: var(--header-height) 0 0;
-  z-index: calc(var(--z-index-nav) + 5);
+  inset: 0;
+  z-index: calc(var(--z-index-nav) - 1);
   overflow: hidden;
   background: var(--bg-primary);
   animation: layerIn var(--duration-base) var(--ease-standard) backwards;
@@ -32,10 +37,10 @@
   }
 }
 
-/* 뼈 — 자리는 화면 폭 · 높이 비율(--x · --y · --w), 높이는 px(--h). 덮개가 내비 높이만큼 내려와 있어 그만큼 뺀다 */
+/* 뼈 — 자리는 화면 폭 · 높이 비율(--x · --y · --w), 높이는 px(--h) */
 .bone {
   position: absolute;
-  top: calc(var(--y) * 1vh - var(--header-height));
+  top: calc(var(--y) * 1vh);
   left: calc(var(--x) * 1vw);
   width: calc(var(--w) * 1vw);
   height: calc(var(--h) * 1px);
