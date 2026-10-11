@@ -348,7 +348,10 @@
     "translating": "{{lang}}(으)로 번역하는 중…",
     "failed": "번역하지 못했습니다. 잠시 뒤 다시 시도해 주세요.",
     "rateLimited": "번역 요청이 많습니다. 잠시 뒤 다시 시도해 주세요.",
-    "retry": "다시 시도"
+    "retry": "다시 시도",
+    "siteMenuLabel": "사이트를 다른 언어로 보기",
+    "siteTurnOff": "{{lang}} 기계 번역 중 — 누르면 원문으로",
+    "siteNotice": "사이트를 {{lang}}(으)로 기계 번역해 보여 주고 있습니다. 메뉴 막대의 🌐 를 누르면 원문으로 돌아갑니다."
   },
   "aiSummary": {
     "label": "AI 요약",

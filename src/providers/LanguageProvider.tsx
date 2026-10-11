@@ -13,6 +13,7 @@ import {
 import ko from "@/locales/ko.json";
 import en from "@/locales/en.json";
 import type { Language } from "@/types";
+import { getServerSiteLangSnapshot, getSiteLangSnapshot, subscribeSiteLang } from "@/lib/siteLang";
 
 export type { Language };
 
@@ -48,6 +49,8 @@ interface LanguageContextType extends LanguageControls {
   getLanguage: () => Language;
   /** 정적 사전 + 지연 로드분 */
   dict: Record<Language, Translations>;
+  /** 사이트 "다른 언어"(lib/siteLang)의 화면 글 번역을 t() 에 얹을지 — 관리 화면(AdminDictProvider)은 false */
+  siteOverlay?: boolean;
 }
 
 function getNestedValue(obj: Translations, path: string): string {
@@ -161,9 +164,16 @@ export function useLanguage(): LanguageControls & {
   tAlt: TFunction;
   tLang: (key: string, lang: Language) => string;
 } {
-  const { subscribe, getLanguage, dict, ...controls } = useContext(LanguageContext);
+  const { subscribe, getLanguage, dict, siteOverlay = true, ...controls } = useContext(LanguageContext);
   const language = useSyncExternalStore(subscribe, getLanguage, getServerLanguage);
-  const t = useCallback((key: string) => getNestedValue(dict[language], key), [dict, language]);
+  /* 다른 언어(ko · en 밖)가 걸려 있고 그 언어의 화면 글 번역이 왔으면 그것 — 번역에 빠진 글(받지 못한 · 깨진 자리표시)은
+     영어 사전. 서버 · 하이드레이션 때는 늘 null 이라 ko/en 으로 먼저 그린다 */
+  const site = useSyncExternalStore(subscribeSiteLang, getSiteLangSnapshot, getServerSiteLangSnapshot);
+  const overlay = siteOverlay ? site.ui : null;
+  const t = useCallback(
+    (key: string) => (overlay ? overlay[key] ?? getNestedValue(dict.en, key) : getNestedValue(dict[language], key)),
+    [dict, language, overlay],
+  );
   const tAlt = useCallback((key: string) => getNestedValue(dict[language === "ko" ? "en" : "ko"], key), [dict, language]);
   const tLang = useCallback((key: string, lang: Language) => getNestedValue(dict[lang], key), [dict]);
   return { language, t, tAlt, tLang, ...controls };

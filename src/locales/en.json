@@ -348,7 +348,10 @@
     "translating": "Translating into {{lang}}…",
     "failed": "Couldn’t translate. Try again in a moment.",
     "rateLimited": "Too many translation requests. Try again in a moment.",
-    "retry": "Try again"
+    "retry": "Try again",
+    "siteMenuLabel": "Show this site in another language",
+    "siteTurnOff": "Machine translation on ({{lang}}) — click to show original",
+    "siteNotice": "This site is machine-translated into {{lang}}. Click 🌐 in the menu bar to show the original."
   },
   "aiSummary": {
     "label": "AI Summary",
