@@ -1,0 +1,142 @@
+/* ── 사이트 안 이동 중 뼈대 — 내비 바로 아래부터 화면 끝까지. 페이지 배경 위에 그 페이지 첫 화면 모양.
+   이전 페이지의 떠 있는 장식(프로필 몽이는 내비 위로 난다)까지 덮도록 내비 높이만 비우고 그 위에 올린다 ── */
+
+.layer {
+  --_title: var(--spacing-48); /* 큰 제목 한 줄의 높이 */
+
+  position: fixed;
+  inset: var(--header-height) 0 0;
+  z-index: calc(var(--z-index-nav) + 5);
+  box-sizing: border-box;
+  padding: var(--spacing-48) var(--spacing-page-inline);
+  background: var(--bg-primary);
+  animation: layerIn var(--duration-base) var(--ease-standard) backwards;
+}
+
+@keyframes layerIn {
+  from {
+    opacity: 0;
+  }
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-12);
+  align-items: center;
+}
+
+.titleStack {
+  display: grid;
+  gap: var(--spacing-12);
+}
+
+/* 홈 */
+.home {
+  position: relative;
+  display: grid;
+  align-content: center;
+  gap: var(--spacing-32);
+  height: 100%;
+}
+
+.homeRing {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  translate: -50% 0;
+}
+
+.metaRow {
+  display: flex;
+  gap: var(--spacing-24);
+}
+
+/* 작업물 */
+.works {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: var(--spacing-20);
+  height: 100%;
+}
+
+/* 글 */
+.posts {
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-20);
+}
+
+.searchRow {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.list {
+  display: grid;
+  gap: var(--spacing-16);
+  margin-top: var(--spacing-16);
+}
+
+.listItem {
+  display: flex;
+  gap: var(--spacing-16);
+  align-items: center;
+}
+
+.listText {
+  display: grid;
+  flex: 1;
+  gap: var(--spacing-8);
+}
+
+/* 프로필 */
+.profile {
+  display: grid;
+  align-content: center;
+  gap: var(--spacing-24);
+  height: 100%;
+}
+
+/* About — 좁으면 소개 아래 지도, 넓으면 왼쪽 소개 · 오른쪽 지도 */
+.about {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: var(--spacing-32);
+  height: 100%;
+}
+
+.aboutLead {
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-12);
+  max-width: 28rem;
+}
+
+.aboutMap {
+  position: relative;
+  min-height: 0;
+}
+
+.mapSpot {
+  position: absolute;
+  translate: -50% -50%;
+}
+
+@media (width > 1024px) {
+  .layer {
+    --_title: var(--spacing-64);
+  }
+
+  .about {
+    grid-template-rows: minmax(0, 1fr);
+    grid-template-columns: minmax(0, 28rem) minmax(0, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .layer {
+    animation: none;
+  }
+}
