@@ -5,6 +5,7 @@ import { Languages, Check, Undo2, Search } from "@/components/icons";
 import Popover, { MenuItem } from "@/components/ui/Popover";
 import Pressable from "@/components/ui/Pressable";
 import Tooltip from "@/components/ui/Tooltip";
+import LoadingDots from "@/components/ui/LoadingDots";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { TRANSLATION_LANGUAGES } from "@/lib/translationLanguages";
 import { localLangName } from "@/utils/localLangName";
@@ -16,6 +17,8 @@ interface ContentLangMenuProps {
   value: string | null;
   /** 언어 고르기 — null 은 원문 보기 */
   onChange: (lang: string | null) => void;
+  /** 번역을 받아 오는 중 — 언어 코드 자리에 움직이는 점을 둔다 */
+  busy?: boolean;
 }
 
 /**
@@ -23,7 +26,7 @@ interface ContentLangMenuProps {
  * 메뉴는 그 언어로 쓴 이름(日本語, Deutsch …)을 보이고, 화면 언어의 이름(일본어 / Japanese)으로도 찾을 수 있다.
  * 번역 중이면 맨 위에 "원문 보기"를 둔다. 언어 목록은 lib/translationLanguages 한 곳에서.
  */
-export default function ContentLangMenu({ value, onChange }: ContentLangMenuProps) {
+export default function ContentLangMenu({ value, onChange, busy = false }: ContentLangMenuProps) {
   const { t, language } = useLanguage();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -59,9 +62,12 @@ export default function ContentLangMenu({ value, onChange }: ContentLangMenuProp
             aria-label={label}
             aria-haspopup="menu"
             aria-expanded={open}
+            aria-busy={busy || undefined}
           >
             <Languages size={14} />
-            {value && <span className={styles.triggerCode}>{value}</span>}
+            {value && (busy
+              ? <LoadingDots className={styles.triggerBusy} />
+              : <span className={styles.triggerCode}>{value}</span>)}
           </Pressable>
         </Tooltip>
       }

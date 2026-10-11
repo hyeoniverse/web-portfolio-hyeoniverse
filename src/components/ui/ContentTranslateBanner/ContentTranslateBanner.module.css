@@ -12,6 +12,53 @@
   margin-bottom: var(--spacing-24);
 }
 
+.banner {
+  position: relative;
+}
+
+/* 번역 중 — 왼쪽 줄 위로 강조색 조각이 오르내린다(진행률을 모르니 끝없이) */
+.banner[data-busy]::before {
+  content: "";
+  position: absolute;
+  left: calc(var(--border-width-2) * -1);
+  top: 0;
+  width: var(--border-width-2);
+  height: 40%;
+  background: var(--text-primary);
+  animation: bannerScan var(--duration-slower) var(--ease-standard) infinite alternate;
+}
+
+@keyframes bannerScan {
+  from { top: 0; }
+  to { top: 60%; }
+}
+
+.dots {
+  margin-left: var(--spacing-8);
+  vertical-align: middle;
+}
+
+.region {
+  transition: opacity var(--duration-base) var(--ease-standard);
+}
+
+.region[data-active] {
+  opacity: 0.45;
+  animation: regionBreathe var(--duration-slower) var(--ease-standard) infinite alternate;
+}
+
+@keyframes regionBreathe {
+  from { opacity: 0.6; }
+  to { opacity: 0.3; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .banner[data-busy]::before,
+  .region[data-active] {
+    animation: none;
+  }
+}
+
 .banner[data-error] {
   border-left-color: var(--text-error-strong);
 }

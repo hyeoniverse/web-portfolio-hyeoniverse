@@ -19,7 +19,7 @@ import SeriesPreviewTooltip from "./_components/SeriesPanel/SeriesPreviewTooltip
 import { useSeriesPanel } from "./_components/SeriesPanel/useSeriesPanel";
 import TranslateBanner from "@/components/ui/TranslateBanner";
 import ContentLangMenu from "@/components/ui/ContentLangMenu";
-import ContentTranslateBanner from "@/components/ui/ContentTranslateBanner";
+import ContentTranslateBanner, { TranslatingRegion } from "@/components/ui/ContentTranslateBanner";
 import { useContentTranslation } from "@/hooks/useContentTranslation";
 import { usePostTranslation } from "./_hooks/usePostTranslation";
 import { usePostDetailFetches } from "./_hooks/usePostDetailFetches";
@@ -125,7 +125,7 @@ export default function PostDetailClient({ post: initialPost, relatedWorks }: Po
             viewLang={viewLang}
             onLangChange={handleViewLang}
             isAdmin={isAdmin}
-            langMenu={translationEnabled ? <ContentLangMenu value={contentTr.targetLang} onChange={contentTr.selectLang} /> : undefined}
+            langMenu={translationEnabled ? <ContentLangMenu value={contentTr.targetLang} onChange={contentTr.selectLang} busy={contentTr.translating} /> : undefined}
           />
         </div>
       }
@@ -179,29 +179,31 @@ export default function PostDetailClient({ post: initialPost, relatedWorks }: Po
         <TranslateBanner viewLang={viewLang} translating={autoTranslating} error={translateError} onTranslate={handleAutoTranslate} />
       )}
 
-      <AISummary
-        summaryKo={tr?.summary || (post.summary_ko ?? "")}
-        summaryEn={tr?.summary || (post.summary_en ?? "")}
-        lang={viewLang}
-        textLang={tr?.summary ? trLang : undefined}
-        generateEndpoint={`/api/posts/${post.id}/ai-summary`}
-      />
-
-      <div className={enteredByTransition ? styles.enterInstant : styles.enterBody}>
-        <PostArticleBody
-          data={{
-            displayTitle,
-            displayContent,
-            displayExcerpt,
-            contentType: post.content_type,
-            tags: post.tags,
-            viewCount: post.view_count,
-            createdAt: post.created_at,
-          }}
-          proseViewerRef={proseViewerRef}
-          contentLang={trLang}
+      <TranslatingRegion active={contentTr.translating}>
+        <AISummary
+          summaryKo={tr?.summary || (post.summary_ko ?? "")}
+          summaryEn={tr?.summary || (post.summary_en ?? "")}
+          lang={viewLang}
+          textLang={tr?.summary ? trLang : undefined}
+          generateEndpoint={`/api/posts/${post.id}/ai-summary`}
         />
-      </div>
+  
+        <div className={enteredByTransition ? styles.enterInstant : styles.enterBody}>
+          <PostArticleBody
+            data={{
+              displayTitle,
+              displayContent,
+              displayExcerpt,
+              contentType: post.content_type,
+              tags: post.tags,
+              viewCount: post.view_count,
+              createdAt: post.created_at,
+            }}
+            proseViewerRef={proseViewerRef}
+            contentLang={trLang}
+          />
+        </div>
+      </TranslatingRegion>
     </DetailLayout>
 
     <ImageViewer
