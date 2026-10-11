@@ -55,13 +55,15 @@ export default function PostDetailClient({ post: initialPost, relatedWorks }: Po
     autoTranslating, translateError, handleAutoTranslate,
   } = usePostTranslation(initialPost, language);
 
-  /* 다른 언어로 읽기(ko · en 밖) — 번역이 오면 제목·요약·본문만 바꿔 보여 준다.
-     AI 요약 · 시리즈 · 추천 · 이웃 글은 지금처럼 viewLang(KO/EN)을 따른다 */
+  /* 다른 언어로 읽기(ko · en 밖) — 번역이 오면 제목·요약·본문 · AI 요약 · 시리즈 이름을 바꿔 보여 준다.
+     태그(주소의 열쇠)·시리즈 안 다른 글 · 추천 · 이웃 글은 지금처럼 viewLang(KO/EN)을 따른다 — 다른 글은 그 글에서 번역한다 */
   const contentTr = useContentTranslation({ type: "post", id: post.id, enabled: translationEnabled });
   const tr = contentTr.fields;
   const displayTitle = tr?.title || koEnTitle;
   const displayContent = tr?.content || koEnContent;
   const displayExcerpt = tr ? (tr.excerpt ?? "") : koEnExcerpt;
+  /* 번역된 칸의 lang 속성 — 번역이 왔을 때만 */
+  const trLang = tr ? contentTr.targetLang ?? undefined : undefined;
   /* KO/EN 토글을 누르면 번역을 끄고 그 언어 원문으로 */
   const handleViewLang = (l: "ko" | "en") => {
     if (contentTr.targetLang) contentTr.selectLang(null);
@@ -156,7 +158,14 @@ export default function PostDetailClient({ post: initialPost, relatedWorks }: Po
         </>
       }
     >
-      <SeriesPanel panel={series} postId={post.id} viewLang={viewLang} onNavigate={navigateWithTransition} />
+      <SeriesPanel
+        panel={series}
+        postId={post.id}
+        viewLang={viewLang}
+        onNavigate={navigateWithTransition}
+        translatedTitle={tr?.seriesTitle}
+        translatedLang={trLang}
+      />
 
       {contentTr.targetLang ? (
         <ContentTranslateBanner
@@ -171,9 +180,10 @@ export default function PostDetailClient({ post: initialPost, relatedWorks }: Po
       )}
 
       <AISummary
-        summaryKo={post.summary_ko ?? ""}
-        summaryEn={post.summary_en ?? ""}
+        summaryKo={tr?.summary || (post.summary_ko ?? "")}
+        summaryEn={tr?.summary || (post.summary_en ?? "")}
         lang={viewLang}
+        textLang={tr?.summary ? trLang : undefined}
         generateEndpoint={`/api/posts/${post.id}/ai-summary`}
       />
 
@@ -189,7 +199,7 @@ export default function PostDetailClient({ post: initialPost, relatedWorks }: Po
             createdAt: post.created_at,
           }}
           proseViewerRef={proseViewerRef}
-          contentLang={tr ? contentTr.targetLang ?? undefined : undefined}
+          contentLang={trLang}
         />
       </div>
     </DetailLayout>

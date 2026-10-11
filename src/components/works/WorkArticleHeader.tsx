@@ -35,6 +35,7 @@ export function WorkArticleHeader({
   relatedPosts,
   relatedSeries,
   langMenu,
+  contentLang,
 }: WorkArticleViewProps) {
   const { t } = useLanguage();
   const authed = useIsAuthenticated();
@@ -73,7 +74,7 @@ export function WorkArticleHeader({
               );
             })()}
             {project.nature && (
-              <span className={`${styles.tag} ${styles.tagNature}`}><T ko={project.nature.ko} en={project.nature.en} /></span>
+              <span className={`${styles.tag} ${styles.tagNature}`} lang={contentLang}><T ko={project.nature.ko} en={project.nature.en} /></span>
             )}
           </div>
           {/* 저장소로 만들어진 화면에는 편집할 행이 없다 — 눌러서 작업물로 들인 뒤 편집 화면으로 간다 */}
@@ -175,6 +176,7 @@ export function WorkArticleHeader({
         viewLang={viewLang}
         relatedPosts={relatedPosts}
         relatedSeries={relatedSeries}
+        contentLang={contentLang}
       />
     </>
   );

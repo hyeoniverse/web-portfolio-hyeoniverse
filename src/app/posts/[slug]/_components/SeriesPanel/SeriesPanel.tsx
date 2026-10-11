@@ -15,11 +15,16 @@ export default function SeriesPanel({
   postId,
   viewLang,
   onNavigate,
+  translatedTitle,
+  translatedLang,
 }: {
   panel: ReturnType<typeof useSeriesPanel>;
   postId: string;
   viewLang: "ko" | "en";
   onNavigate: (href: string, title: string, rect: DOMRect) => void;
+  /** "다른 언어로 읽기"로 번역한 시리즈 이름 · 그 언어 — 있으면 원문 이름 대신 */
+  translatedTitle?: string;
+  translatedLang?: string;
 }) {
   const { seriesData, seriesPosts, currentIdx, prev, next, open, toggleOpen, onHover, onLeave } = panel;
   if (!seriesData || seriesPosts.length === 0) return null;
@@ -35,8 +40,8 @@ export default function SeriesPanel({
         onClick={toggleOpen}
       >
         <span className={styles.seriesLabel}><T k="postDetail.series" /></span>
-        <span className={styles.seriesTitle}>
-          {viewLang === "en" && seriesData.title_en
+        <span className={styles.seriesTitle} lang={translatedTitle ? translatedLang : undefined}>
+          {translatedTitle ? translatedTitle : viewLang === "en" && seriesData.title_en
             ? seriesData.title_en
             : seriesData.title}
         </span>

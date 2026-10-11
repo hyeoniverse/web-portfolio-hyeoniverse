@@ -44,6 +44,8 @@ type Props = {
   notes?: GalleryNotes;
   /** 갤러리가 가려져 있다(확대 뷰어가 열림) — 음성을 멈췄다가 풀리면 잇는다 */
   suspended?: boolean;
+  /** 자막 글의 언어(lang 속성) — "다른 언어로 읽기"로 번역한 자막일 때만 */
+  captionLang?: string;
 };
 
 /**
@@ -56,7 +58,7 @@ type Props = {
  * 휠은 세로든 가로든 갤러리가 받는다. 다만 양 끝에서 그 방향으로 더 굴리면 흘려보내
  * 페이지가 이어서 움직인다 — 그러지 않으면 갤러리 위에서 페이지가 영영 멈춘다.
  */
-export default function WorkGallery({ images, title, initialIndex = 0, onOpen, notes, suspended = false }: Props) {
+export default function WorkGallery({ images, title, initialIndex = 0, onOpen, notes, suspended = false, captionLang }: Props) {
   const { language } = useLanguage();
   /* 이 컴포넌트가 쓰는 문구는 몇 개뿐이라 사전 키 대신 여기서 고른다 */
   const t = (ko: string, en: string) => (language === "ko" ? ko : en);
@@ -333,7 +335,7 @@ export default function WorkGallery({ images, title, initialIndex = 0, onOpen, n
 
         {/* 자막 — 가운데 장 아래쪽에. 소리를 이미 듣는 화면 읽기 사용자에게 같은 말을 두 번 읽히지 않게 가린다 */}
         {narration.caption && (
-          <p className={styles.caption} aria-hidden>{narration.caption}</p>
+          <p className={styles.caption} aria-hidden lang={captionLang}>{narration.caption}</p>
         )}
 
         {/* 소리가 막힌 방문(주소를 직접 열거나 새로고침) — 첫 장 위에서 음성과 함께 볼지 묻는다.

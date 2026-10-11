@@ -20,7 +20,9 @@ export default function WorkArticleInfoGrid({
   viewLang,
   relatedPosts,
   relatedSeries,
+  contentLang,
 }: WorkArticleViewProps) {
+  /* contentLang — "다른 언어로 읽기"로 번역된 값 칸에만 lang 을 단다(이름표는 KO/EN 화면 글자 그대로) */
 
   return (
     <>
@@ -42,7 +44,7 @@ export default function WorkArticleInfoGrid({
           return (
             <div className={styles.infoBlock}>
               <span className={styles.infoLabel}><T k="workDetail.category" /></span>
-              <span className={styles.infoValue}>
+              <span className={styles.infoValue} lang={contentLang}>
                 <T
                   ko={catsKo.join(", ")}
                   en={catsKo.map((k, i) => catsEn[i] || k).join(", ")}
@@ -68,7 +70,7 @@ export default function WorkArticleInfoGrid({
           return (
             <div className={`${styles.infoBlock} ${styles.infoBlockFull}`}>
               <span className={styles.infoLabel}><T k="workDetail.tech" /></span>
-              <div className={styles.techSection}>
+              <div className={styles.techSection} lang={contentLang}>
                 {withText.length > 0 && (
                   <ul className={styles.techNotesList}>
                     {withText.map(({ tech, text }) => (
@@ -103,7 +105,7 @@ export default function WorkArticleInfoGrid({
           return (
             <div className={`${styles.infoBlock} ${styles.infoBlockFull}`}>
               <span className={styles.infoLabel}><T k="workDetail.role" /></span>
-              <div className={styles.ownContribsWrap}>
+              <div className={styles.ownContribsWrap} lang={contentLang}>
                 {entries.length === 0 ? (
                   // contributions 아예 없으면 project.role 단독 표시
                   <div className={styles.ownContribsPlain}>
@@ -189,6 +191,7 @@ export default function WorkArticleInfoGrid({
         summaryEn={project.summary?.en ?? ""}
         generateEndpoint={project.id && project.id !== "preview" ? `/api/works/${project.id}/ai-summary` : undefined}
         lang={viewLang}
+        textLang={contentLang}
       />
     </>
   );
