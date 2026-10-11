@@ -342,6 +342,7 @@
     "menuLabel": "Read in another language",
     "search": "Search languages",
     "noMatch": "No matching language",
+    "turnOff": "Turn off translation (show original)",
     "showOriginal": "Show original",
     "notice": "Machine-translated into {{lang}}",
     "translating": "Translating into {{lang}}…",

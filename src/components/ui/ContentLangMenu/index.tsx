@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Languages, Check, Undo2, Search } from "@/components/icons";
+import { Languages, Check, Search } from "@/components/icons";
 import Popover, { MenuItem } from "@/components/ui/Popover";
 import Pressable from "@/components/ui/Pressable";
 import Tooltip from "@/components/ui/Tooltip";
@@ -24,7 +24,7 @@ interface ContentLangMenuProps {
 /**
  * 상세 헤더의 "다른 언어로 읽기" — LanguageToggle 옆의 지구본 단추 + 언어 메뉴.
  * 메뉴는 그 언어로 쓴 이름(日本語, Deutsch …)을 보이고, 화면 언어의 이름(일본어 / Japanese)으로도 찾을 수 있다.
- * 번역 중이면 맨 위에 "원문 보기"를 둔다. 언어 목록은 lib/translationLanguages 한 곳에서.
+ * 켜진 언어(체크)를 다시 누르면 번역을 끄고 원문으로 돌아간다. 언어 목록은 lib/translationLanguages 한 곳에서.
  */
 export default function ContentLangMenu({ value, onChange, busy = false }: ContentLangMenuProps) {
   const { t, language } = useLanguage();
@@ -44,11 +44,16 @@ export default function ContentLangMenu({ value, onChange, busy = false }: Conte
     close();
   };
 
-  const label = t("contentTranslate.menuLabel");
+  const label = value ? t("contentTranslate.turnOff") : t("contentTranslate.menuLabel");
   return (
     <Popover
       open={open}
-      onOpenChange={(o) => { setOpen(o); if (!o) setQuery(""); }}
+      onOpenChange={(o) => {
+        /* 번역이 켜져 있으면 단추는 끄기 — 메뉴를 열지 않고 원문으로 돌아간다. 꺼진 뒤 다시 누르면 메뉴가 열린다 */
+        if (o && value) { onChange(null); return; }
+        setOpen(o);
+        if (!o) setQuery("");
+      }}
       placement="bottom-end"
       menu
       maxHeight={false}
@@ -60,8 +65,9 @@ export default function ContentLangMenu({ value, onChange, busy = false }: Conte
             type="button"
             className={cn(styles.trigger, value && styles.triggerActive)}
             aria-label={label}
-            aria-haspopup="menu"
-            aria-expanded={open}
+            aria-haspopup={value ? undefined : "menu"}
+            aria-expanded={value ? undefined : open}
+            aria-pressed={value ? true : undefined}
             aria-busy={busy || undefined}
           >
             <Languages size={14} />
@@ -102,17 +108,12 @@ export default function ContentLangMenu({ value, onChange, busy = false }: Conte
                   trailing={on
                     ? <Check size={14} className={styles.check} aria-hidden />
                     : l.local !== l.native ? <span className={styles.itemSub}>{l.local}</span> : undefined}
-                  onClick={() => pick(l.code, close)}
+                  /* 켜진 언어를 다시 누르면 번역을 끈다(원문으로) — 따로 "원문 보기" 줄을 두지 않는다 */
+                  onClick={() => pick(on ? null : l.code, close)}
                 />
               );
             })}
           </div>
-          {/* 원문 보기 — 번역 중일 때만, 목록 아래 고정 줄로 */}
-          {value && (
-            <div className={styles.footer}>
-              <MenuItem icon={<Undo2 size={14} />} label={t("contentTranslate.showOriginal")} onClick={() => pick(null, close)} />
-            </div>
-          )}
         </>
       )}
     </Popover>

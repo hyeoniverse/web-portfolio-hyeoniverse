@@ -342,6 +342,7 @@
     "menuLabel": "다른 언어로 읽기",
     "search": "언어 검색",
     "noMatch": "맞는 언어가 없습니다",
+    "turnOff": "번역 끄기 (원문 보기)",
     "showOriginal": "원문 보기",
     "notice": "{{lang}}(으)로 기계 번역된 내용입니다",
     "translating": "{{lang}}(으)로 번역하는 중…",

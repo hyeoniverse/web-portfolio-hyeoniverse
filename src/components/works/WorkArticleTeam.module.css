@@ -27,7 +27,8 @@
 .polaroidCard {
   position: relative;
   flex-shrink: 0;
-  width: 200px;
+  --polaroid-width: 200px;
+  width: var(--polaroid-width);
   font-family: var(--font-family-body);
   cursor: pointer;
 }
@@ -78,7 +79,9 @@
 .polaroidFront {
   position: relative;
   inset: auto;
-  aspect-ratio: 3 / 4;
+  /* 3:4 는 최소 크기 — 역할이 길면 앞면이 아래로 늘어난다. 캐러셀은 카드를 가장 긴 카드 높이로 늘이므로(flex stretch)
+     100% 로 그 높이도 채워 카드끼리 높이를 맞춘다. aspect-ratio 는 min-height 와 같이 쓰면 글자 넘침을 막지 못해 계산으로 둔다 */
+  min-height: max(100%, calc(var(--polaroid-width) * 4 / 3));
 }
 
 /* back 은 180도 회전 상태 (정상 보기엔 뒤로 가려져 있음) */
