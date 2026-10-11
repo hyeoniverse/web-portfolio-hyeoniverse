@@ -126,6 +126,7 @@ export default function WorkDetailClient({
           project={project}
           viewLang={viewLang}
           contentLang={trLang}
+          translating={contentTr.translating}
           onLangChange={handleViewLang}
           isAdmin={isAdmin}
           langMenu={translationEnabled && !savedProject.external
@@ -139,7 +140,9 @@ export default function WorkDetailClient({
       afterContent={
         <>
           {/* 갤러리는 글 칼럼보다 넓은 이 자리에 — 슬라이드가 작게 보이면 읽을 수가 없다 */}
-          <WorkArticleGallery project={project} viewLang={viewLang} contentLang={trLang} />
+          <TranslatingRegion active={contentTr.translating}>
+            <WorkArticleGallery project={project} viewLang={viewLang} contentLang={trLang} />
+          </TranslatingRegion>
           <WorkArticleTeam project={project} viewLang={viewLang} />
         </>
       }

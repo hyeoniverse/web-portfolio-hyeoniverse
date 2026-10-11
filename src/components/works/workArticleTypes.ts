@@ -41,6 +41,8 @@ export interface WorkArticleViewProps {
   langMenu?: ReactNode;
   /** 번역된 글의 언어(lang 속성) — 다른 언어로 번역해 보여 줄 때만. 본문 · 정보 칸 · AI 요약 · 갤러리 자막에 단다 */
   contentLang?: string;
+  /** 다른 언어 번역을 받아 오는 중 — 바뀔 자리를 흐리게 한다 */
+  translating?: boolean;
   /** 관련 글 — info grid 안에 리스트로 표시 (Header 에서만 사용) */
   relatedPosts?: RelatedPostItem[];
   /** 관련 시리즈 — info grid 안에 표시 (Header 에서만 사용) */

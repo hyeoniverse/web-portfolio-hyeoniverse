@@ -1,5 +1,6 @@
 "use client";
 
+import { TranslatingRegion } from "@/components/ui/ContentTranslateBanner";
 import { useMemo, useRef, type ReactNode } from "react";
 import Link from "next/link";
 import "@/styles/vendor/katex.css";
@@ -74,6 +75,8 @@ export interface PostArticleViewProps {
   headerActionsLeft?: ReactNode;
   /** 언어 토글 바로 왼쪽 — 공개 상세의 "다른 언어로 읽기" 메뉴(ContentLangMenu). 미리보기는 넘기지 않는다 */
   langMenu?: ReactNode;
+  /** 다른 언어 번역을 받아 오는 중 — 제목 · 요약문을 흐리게 한다 */
+  translating?: boolean;
 }
 
 /* ────────────────────────────────────────────────────────────
@@ -88,6 +91,7 @@ export function PostArticleHeader({
   onLangChange,
   headerActionsLeft,
   langMenu,
+  translating,
 }: PostArticleViewProps) {
   const { t, language } = useLanguage();
   const authed = useIsAuthenticated();
@@ -156,8 +160,10 @@ export function PostArticleHeader({
           <LanguageToggle lang={viewLang} onLangChange={handleLangChange} />
         </div>
       </div>
-      <h1 className={header.articleTitle}>{data.displayTitle}</h1>
-      {data.displayExcerpt && <p className={header.excerpt}>{data.displayExcerpt}</p>}
+      <TranslatingRegion active={!!translating}>
+        <h1 className={header.articleTitle}>{data.displayTitle}</h1>
+        {data.displayExcerpt && <p className={header.excerpt}>{data.displayExcerpt}</p>}
+      </TranslatingRegion>
       <div className={header.tagsShareRow}>
         {data.tags.length > 0 && (
           <div className={header.tags}>
