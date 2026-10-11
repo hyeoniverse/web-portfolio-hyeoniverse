@@ -14,3 +14,9 @@ export function localizeAuthor(author: Author, lang: "ko" | "en"): Author {
     location: author.location_en?.trim() || author.location,
   };
 }
+
+/** ko · en 밖의 언어로 읽을 때(foreign) 이름만 영어 이름(name_en, 없으면 name) — 기계로 음역하지 않는다.
+ *  역할 · 소개는 그대로(보는 언어 KO/EN) */
+export function withEnglishName(shown: Author, raw: Author, foreign: boolean): Author {
+  return foreign ? { ...shown, name: raw.name_en?.trim() || raw.name } : shown;
+}

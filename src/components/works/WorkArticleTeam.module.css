@@ -27,7 +27,8 @@
 .polaroidCard {
   position: relative;
   flex-shrink: 0;
-  width: 200px;
+  --polaroid-width: 200px;
+  width: var(--polaroid-width);
   font-family: var(--font-family-body);
   cursor: pointer;
 }
@@ -78,7 +79,9 @@
 .polaroidFront {
   position: relative;
   inset: auto;
-  aspect-ratio: 3 / 4;
+  /* 3:4 는 최소 크기 — 역할이 길면 앞면이 아래로 늘어난다. 캐러셀은 카드를 가장 긴 카드 높이로 늘이므로(flex stretch)
+     100% 로 그 높이도 채워 카드끼리 높이를 맞춘다. aspect-ratio 는 min-height 와 같이 쓰면 글자 넘침을 막지 못해 계산으로 둔다 */
+  min-height: max(100%, calc(var(--polaroid-width) * 4 / 3));
 }
 
 /* back 은 180도 회전 상태 (정상 보기엔 뒤로 가려져 있음) */
@@ -86,6 +89,34 @@
   transform: rotateY(180deg);
   padding: var(--spacing-16);
   overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* 뒷면에 아래로 더 남은 내용이 있다는 표시 — 스크롤 칸 밖, 뒷면 위에 덮는 층. 뒷면과 같이 뒤집혀 있고(rotateY)
+   살짝 앞으로 띄워(translateZ) 뒷면을 가린다. 바닥을 바탕색으로 흐리고 ↓ 를 띄우며,
+   끝까지 내리면(data-more 가 빠지면) 사라진다. 누르기는 막지 않는다 */
+.polaroidBackMore {
+  position: absolute;
+  left: var(--border-width-1);
+  right: var(--border-width-1);
+  bottom: var(--border-width-1);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  height: var(--spacing-64);
+  padding-bottom: var(--spacing-8);
+  background: linear-gradient(to bottom, transparent, var(--bg-primary) 65%);
+  color: var(--text-tertiary);
+  transform: rotateY(180deg) translateZ(1px);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+
+.polaroidCardInner[data-more] .polaroidBackMore {
+  opacity: 1;
 }
 
 /* ── 앞면 (image + caption + link) ── */
@@ -130,7 +161,15 @@
 }
 
 /* ── 뒷면 (이름 + link/email + contribs) ── role 은 contrib group label 로 표시 */
+/* 머리(이름 · 링크)는 뒷면 위에 붙여 두고 아래 내용만 스크롤한다 — 뒷면 안쪽 여백만큼 위로 당겨 맨 위 가장자리에 붙고,
+   바탕을 깔아 밑으로 지나가는 글을 가린다 */
 .polaroidBackHeader {
+  position: sticky;
+  top: calc(var(--spacing-16) * -1);
+  z-index: 1;
+  margin-top: calc(var(--spacing-16) * -1);
+  padding-top: var(--spacing-16);
+  background: var(--bg-primary);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -141,11 +180,30 @@
 }
 
 .polaroidBackBio {
-  margin: 0 0 var(--spacing-12);
+  margin: 0 0 var(--spacing-16);
   font: var(--font-body-sm);
-  line-height: 1.55;
   color: var(--text-secondary);
   white-space: pre-line;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+/* 기여 목록이 없을 때의 역할 — 작은 칩 줄 */
+.polaroidBackRoleChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.polaroidBackRoleChip {
+  padding: var(--spacing-2) var(--spacing-8);
+  border: var(--border-light);
+  border-radius: var(--radius-full);
+  font: var(--font-label-xs);
+  color: var(--text-secondary);
 }
 
 .polaroidBackName {

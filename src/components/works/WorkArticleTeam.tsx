@@ -1,18 +1,58 @@
 "use client";
 
+import { UiLabel, useBodyLabels, useForeignReading } from "@/components/posts/BodyLabelsContext";
+import { fillLabel } from "@/lib/bodyLabels";
 import { useState } from "react";
-import { Users, Link2, Mail } from "@/components/icons";
+import { Users, Link2, Mail, ArrowDown } from "@/components/icons";
 import "@/styles/vendor/katex.css";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import type { Author } from "@/types/author";
 import { OWNER_AUTHOR_ID } from "@/utils/resolvePostAuthors";
-import { useLanguage } from "@/providers/LanguageProvider";
-import { fillTemplate } from "@/utils/format";
 import { deriveTeamMemberAvatar, getMemberInitial } from "@/utils/teamMemberAvatar";
 import HorizontalCarousel from "@/components/ui/HorizontalCarousel";
 import T from "@/components/ui/T";
 import styles from "./WorkArticleTeam.module.css";
 import type { WorkArticleViewProps } from "./workArticleTypes";
+
+/* 프로필 소개가 "영문 :: 국문" 처럼 두 언어를 한 줄에 이어 쓴 경우 — 보는 언어 쪽 하나만 남긴다.
+   한글이 든 조각을 국문으로 본다. 나눌 수 없으면 그대로 */
+function pickBioLang(bio: string, lang: "ko" | "en"): string {
+  const parts = bio.split(/\s+::\s+/).map((p) => p.trim()).filter(Boolean);
+  if (parts.length < 2) return bio;
+  const hasHangul = (t: string) => /[\uAC00-\uD7A3]/.test(t);
+  const ko = parts.find(hasHangul);
+  const en = parts.find((p) => !hasHangul(p));
+  /* 앞에 붙은 이모지 등은 첫 조각에만 있으니 국문 쪽에도 옮겨 준다 */
+  const lead = parts[0].match(/^\p{Extended_Pictographic}[\p{Extended_Pictographic}\u200d\ufe0f\s]*/u)?.[0] ?? "";
+  const pick = lang === "en" ? en ?? ko : ko ?? en;
+  if (!pick) return bio;
+  return pick.startsWith(lead.trim()) ? pick : `${lead}${pick}`;
+}
+
+/* 역할 한 줄("기획, 디자인, 프론트엔드")을 칩으로 나눌 조각들 */
+function splitRoles(role: string): string[] {
+  return role.split(/\s*[,·/|]\s*/).map((r) => r.trim()).filter(Boolean);
+}
+
+/* 뒷면은 앞면 크기에 고정이라(카드가 늘면 캐러셀이 출렁인다) 넘치는 내용은 안에서 스크롤한다.
+   스크롤바는 사이트 전체에서 숨겨 두어 잘린 것처럼 보이므로, 아래가 남아 있는 동안만 카드 안쪽에 data-more 를 달아
+   아래쪽을 흐리게 하고 ↓ 표시를 띄운다. 번역으로 소개 · 기여가 길어질 때 특히 필요하다 */
+function watchMore(el: HTMLDivElement | null) {
+  if (!el) return;
+  const update = () => {
+    const more = el.scrollHeight - el.clientHeight - el.scrollTop > 2;
+    /* 표시 층은 뒷면의 형제라 부모(카드 안쪽)에 단다 */
+    const host = el.parentElement;
+    if (!host) return;
+    if (more) host.dataset.more = ""; else delete host.dataset.more;
+  };
+  update();
+  const ro = new ResizeObserver(update);
+  ro.observe(el);
+  for (const child of Array.from(el.children)) ro.observe(child);
+  el.addEventListener("scroll", update, { passive: true });
+  return () => { ro.disconnect(); el.removeEventListener("scroll", update); };
+}
 
 /* ────────────────────────────────────────────────────────────
  * WorkArticleTeam — DetailLayout 의 afterContent slot (full-width).
@@ -21,7 +61,9 @@ import type { WorkArticleViewProps } from "./workArticleTypes";
  * 좁은 본문 컬럼이 아닌 전체 페이지 폭에서 렌더되도록 children 에서 분리됨.
  * ──────────────────────────────────────────────────────────── */
 export function WorkArticleTeam({ project, viewLang }: WorkArticleViewProps) {
-  const { t } = useLanguage();
+  /* 이름표 · 링크 이름은 상세 화면 라벨(lib/bodyLabels) — 번역해 볼 때는 번역 라벨 */
+  const { labels: lb } = useBodyLabels();
+  const foreign = useForeignReading();
   const siteConfig = useSiteConfig();
 
   const [flippedMembers, setFlippedMembers] = useState<Set<number>>(new Set());
@@ -97,10 +139,11 @@ export function WorkArticleTeam({ project, viewLang }: WorkArticleViewProps) {
   const getBio = (m: typeof members[number]) => {
     const ko = m.bio?.ko?.trim() ?? "";
     const en = m.bio?.en?.trim() ?? "";
-    return viewLang === "en" ? en || ko : ko || en;
+    return pickBioLang(viewLang === "en" ? en || ko : ko || en, viewLang);
   };
+  /* ko · en 밖의 언어로 읽을 때도 영어 이름 — 음역하지 않는다 */
   const getDisplayName = (m: typeof members[number]) =>
-    viewLang === "en" && m.name_en ? m.name_en : m.name;
+    (viewLang === "en" || foreign) && m.name_en?.trim() ? m.name_en : m.name;
   const renderContribs = (m: typeof members[number], wrapperClass: string, groupClass: string, roleClass: string, listClass: string) => {
     const entries = getContribsEntries(m);
     if (entries.length === 0) return null;
@@ -138,7 +181,7 @@ export function WorkArticleTeam({ project, viewLang }: WorkArticleViewProps) {
     <section className={styles.teamCreditsSection}>
       <div className={styles.teamCreditsHeader}>
         <Users size={16} />
-        <span className={styles.teamCreditsLabel}><T k="workDetail.team" /></span>
+        <span className={styles.teamCreditsLabel}><UiLabel name="workTeam" /></span>
       </div>
       <HorizontalCarousel className={styles.polaroidCarousel}>
         {members.map((m, i) => {
@@ -182,7 +225,8 @@ export function WorkArticleTeam({ project, viewLang }: WorkArticleViewProps) {
                   </div>
                 </div>
                 {hasBack && (
-                  <div className={styles.polaroidBack}>
+                  <>
+                  <div className={styles.polaroidBack} ref={watchMore} data-lenis-prevent>
                     <div className={styles.polaroidBackHeader}>
                       <span className={styles.polaroidBackName}>{getDisplayName(m)}</span>
                       {(m.url || m.email) && (
@@ -197,7 +241,7 @@ export function WorkArticleTeam({ project, viewLang }: WorkArticleViewProps) {
                               rel="noopener noreferrer"
                               className={styles.teamLinkIcon}
                               title={m.url}
-                              aria-label={fillTemplate(t("workDetail.memberLink"), { name: getDisplayName(m) })}
+                              aria-label={fillLabel(lb.workMemberLink, { name: getDisplayName(m) })}
                             >
                               <Link2 size={13} />
                             </a>
@@ -207,7 +251,7 @@ export function WorkArticleTeam({ project, viewLang }: WorkArticleViewProps) {
                               href={`mailto:${m.email}`}
                               className={styles.teamLinkIcon}
                               title={m.email}
-                              aria-label={fillTemplate(t("workDetail.memberEmail"), { name: getDisplayName(m) })}
+                              aria-label={fillLabel(lb.workMemberEmail, { name: getDisplayName(m) })}
                             >
                               <Mail size={13} />
                             </a>
@@ -225,15 +269,16 @@ export function WorkArticleTeam({ project, viewLang }: WorkArticleViewProps) {
                         styles.polaroidBackContribList,
                       )
                     ) : (
-                      <div className={styles.polaroidBackContribs}>
-                        <div className={styles.polaroidBackContribGroup}>
-                          <div className={styles.polaroidBackContribRole}>
-                            <T ko={m.role.ko} en={m.role.en} />
-                          </div>
-                        </div>
-                      </div>
+                      /* 기여 목록이 없으면 역할을 칩으로 — 쉼표로 이은 한 줄은 대문자 · 자간 때문에 읽기 어려웠다 */
+                      <ul className={styles.polaroidBackRoleChips}>
+                        {splitRoles((viewLang === "en" ? m.role.en || m.role.ko : m.role.ko || m.role.en) ?? "").map((r) => (
+                          <li key={r} className={styles.polaroidBackRoleChip}>{r}</li>
+                        ))}
+                      </ul>
                     )}
                   </div>
+                  <span className={styles.polaroidBackMore} aria-hidden><ArrowDown size={12} /></span>
+                  </>
                 )}
               </div>
             </article>

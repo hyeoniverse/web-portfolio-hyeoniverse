@@ -2,12 +2,12 @@
 import type { ApiMap } from "@/lib/about/apiMap";
 
 export const apiMap: ApiMap = {
-  "total": 188,
-  "routeFiles": 129,
+  "total": 189,
+  "routeFiles": 130,
   "access": {
     "public": 63,
     "signed-in": 58,
-    "author": 26,
+    "author": 27,
     "admin": 16,
     "owner": 23,
     "cron": 2
@@ -21,6 +21,7 @@ export const apiMap: ApiMap = {
     "comment_reactions",
     "comment_reports",
     "comments",
+    "content_translations",
     "cover_image_history",
     "custom_emojis",
     "likes",
@@ -1281,13 +1282,14 @@ export const apiMap: ApiMap = {
     },
     {
       "key": "etc",
-      "files": 22,
+      "files": 23,
       "folded": [
         "auth",
         "brand-symbol-font",
         "categories",
         "comment-reactions",
         "contact",
+        "content-translate",
         "cron",
         "custom-emojis",
         "favicon",
@@ -1336,6 +1338,11 @@ export const apiMap: ApiMap = {
           "method": "DELETE",
           "path": "/api/contact/attachment",
           "access": "owner"
+        },
+        {
+          "method": "POST",
+          "path": "/api/content-translate",
+          "access": "author"
         },
         {
           "method": "GET",
@@ -1448,9 +1455,11 @@ export const apiMap: ApiMap = {
         "author_invites",
         "calendars",
         "comment_reactions",
+        "content_translations",
         "custom_emojis",
         "poll_votes",
         "posts",
+        "series",
         "site_settings",
         "site_visits",
         "traffic_excluded_ips",
@@ -1461,6 +1470,7 @@ export const apiMap: ApiMap = {
       ],
       "services": [
         "translate",
+        "tts",
         "storage",
         "github",
         "weather",
@@ -1469,7 +1479,7 @@ export const apiMap: ApiMap = {
       "access": {
         "public": 20,
         "signed-in": 5,
-        "author": 0,
+        "author": 1,
         "admin": 0,
         "owner": 1,
         "cron": 2

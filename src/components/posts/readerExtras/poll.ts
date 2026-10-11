@@ -2,10 +2,12 @@ import { buildPollResult, buildPollSortControl, compactNum, type PollSortKey } f
 
 import type { ReaderExtrasContext } from "./context";
 import { showToast } from "@/stores/toastStore";
+import { fillLabel } from "@/lib/bodyLabels";
 
 /* 투표 — 옵션 클릭을 /api/polls 로 보내 집계한다. 중복 투표는 서버가 IP 로 거른다. */
-export function renderPoll({ el, isCancelled }: ReaderExtrasContext) {
+export function renderPoll({ el, body: lb, isCancelled }: ReaderExtrasContext) {
   // ── Poll (투표) ── 옵션 클릭 → /api/polls 로 집계. 투표 후 막대/비율 공개. dedup 은 서버(IP).
+  /* 날짜 · 수 표기의 언어 — 글(라벨)은 lb(화면 언어 또는 번역 라벨) */
   const ko = (document.documentElement.lang || "ko").toLowerCase().startsWith("ko");
   el.querySelectorAll<HTMLElement>("[data-poll]").forEach((poll) => {
     if (poll.dataset.pollRendered) return;
@@ -42,14 +44,14 @@ export function renderPoll({ el, isCancelled }: ReaderExtrasContext) {
 
     // 결과 = 도넛(원형) + 범례(항목별 막대). 공용 렌더러(에디터 미리보기와 동일 DOM).
     const buildResults = () => buildPollResult({
-      options, counts: state.counts, total: state.total, mine: state.mine, sortKey: state.sortKey, sortDir: state.sortDir, ko,
+      options, counts: state.counts, total: state.total, mine: state.mine, sortKey: state.sortKey, sortDir: state.sortDir, ko, labels: lb,
     });
     // 정렬 컨트롤(vanilla) — 에디터의 공통 SegmentedControl 과 동일 모양. 같은 key 재클릭=방향 토글.
     const buildSortControl = () => buildPollSortControl(state.sortKey, state.sortDir, ko, (key) => {
       if (key === state.sortKey) state.sortDir = state.sortDir === "asc" ? "desc" : "asc";
       else { state.sortKey = key; state.sortDir = key === "votes" ? "desc" : "asc"; }
       render();
-    });
+    }, lb);
 
     const render = () => {
       const now = Date.now();
@@ -63,21 +65,21 @@ export function renderPoll({ el, isCancelled }: ReaderExtrasContext) {
       // "투표 전 결과 공개" 면 차트 + 선택 리스트가 함께 뜬다(집계 보면서 투표).
       const showChart = showResults;
       const showList = editing || !showResults;
-      const total = ko ? `${compactNum(state.total, ko)}명 참여` : `${compactNum(state.total, ko)} vote${state.total === 1 ? "" : "s"}`;
+      const total = fillLabel(state.total === 1 ? lb.pollTotalOne : lb.pollTotal, { n: compactNum(state.total, ko) });
       poll.innerHTML = "";
       // ── 헤더: 제목/부제목 + 기간(설정 시). 투표·결과 화면 모두 표시. ──
       if (pollTitle || pollSubtitle || pollDescription || startAt || endAt) {
         const header = document.createElement("div");
         header.className = "poll-header";
         const headLabel = (text: string) => { const l = document.createElement("div"); l.className = "poll-head-label"; l.textContent = text; header.appendChild(l); };
-        if (pollTitle) { headLabel(ko ? "제목" : "Title"); const h = document.createElement("div"); h.className = "poll-title"; h.textContent = pollTitle; header.appendChild(h); }
-        if (pollSubtitle) { headLabel(ko ? "부제목" : "Subtitle"); const s = document.createElement("div"); s.className = "poll-subtitle"; s.textContent = pollSubtitle; header.appendChild(s); }
-        if (pollDescription) { headLabel(ko ? "설명" : "About"); const d = document.createElement("div"); d.className = "poll-desc"; d.textContent = pollDescription; header.appendChild(d); }
+        if (pollTitle) { headLabel(lb.pollHeadTitle); const h = document.createElement("div"); h.className = "poll-title"; h.textContent = pollTitle; header.appendChild(h); }
+        if (pollSubtitle) { headLabel(lb.pollHeadSubtitle); const s = document.createElement("div"); s.className = "poll-subtitle"; s.textContent = pollSubtitle; header.appendChild(s); }
+        if (pollDescription) { headLabel(lb.pollHeadAbout); const d = document.createElement("div"); d.className = "poll-desc"; d.textContent = pollDescription; header.appendChild(d); }
         if (startAt || endAt) {
           const period = document.createElement("div");
           period.className = "poll-period";
           const range = `${startAt ? fmt(startAt) : ""} ~ ${endAt ? fmt(endAt) : ""}`.trim();
-          period.textContent = (ko ? "기간 " : "Period ") + range;
+          period.textContent = fillLabel(lb.pollPeriod, { range });
           header.appendChild(period);
         }
         poll.appendChild(header);
@@ -116,17 +118,17 @@ export function renderPoll({ el, isCancelled }: ReaderExtrasContext) {
       foot.className = "poll-foot";
       const footText = document.createElement("span");
       footText.className = "poll-footer";
-      if (notStarted) footText.textContent = ko ? `${fmt(startAt!)} 시작 예정` : `Starts ${fmt(startAt!)}`;
-      else if (ended) footText.textContent = (ko ? "투표 종료" : "Voting closed") + ` · ${total}`;
+      if (notStarted) footText.textContent = fillLabel(lb.pollStarts, { date: fmt(startAt!) });
+      else if (ended) footText.textContent = `${lb.pollClosed} · ${total}`;
       else if (voted && !editing) footText.textContent = total;
-      else footText.textContent = ko ? "항목을 선택한 뒤 완료를 누르세요" : "Select, then submit";
+      else footText.textContent = lb.pollHint;
       foot.appendChild(footText);
 
       if (open && editing) {
         const submit = document.createElement("button");
         submit.type = "button";
         submit.className = "poll-submit";
-        submit.textContent = state.busy ? (ko ? "처리 중…" : "Submitting…") : (ko ? "투표 완료" : "Submit");
+        submit.textContent = state.busy ? lb.pollSubmitting : lb.pollSubmit;
         submit.disabled = state.busy || pending.size === 0;
         submit.addEventListener("click", submitVote);
         foot.appendChild(submit);
@@ -134,7 +136,7 @@ export function renderPoll({ el, isCancelled }: ReaderExtrasContext) {
         const re = document.createElement("button");
         re.type = "button";
         re.className = "poll-revote";
-        re.textContent = ko ? "다시 투표" : "Change vote";
+        re.textContent = lb.pollChangeVote;
         re.disabled = state.busy;
         re.addEventListener("click", startEdit);
         foot.appendChild(re);
@@ -159,8 +161,8 @@ export function renderPoll({ el, isCancelled }: ReaderExtrasContext) {
 
     // 완료 — 선택 세트를 서버에 제출(교체)
     /* 투표가 들어가지 않으면 선택을 그대로 두고 알린다 — 예전에는 조용히 끝나 투표가 된 줄 알 수 있었다(#868).
-       투표 라우트는 사유 코드를 싣지 않아 이 파일의 두 언어 문구로 알린다 */
-    const voteFailed = () => showToast(ko ? "투표를 보내지 못했습니다. 잠시 뒤 다시 시도해 주세요." : "Couldn’t send your vote. Please try again.", "error");
+       투표 라우트는 사유 코드를 싣지 않아 본문 라벨(lib/bodyLabels)의 문구로 알린다 */
+    const voteFailed = () => showToast(lb.pollSendFailed, "error");
 
     const submitVote = async () => {
       if (state.busy || !isOpen() || pending.size === 0) return;

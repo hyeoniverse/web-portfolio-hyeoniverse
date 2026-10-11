@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { Project } from "@/data/projects";
 
 /* WorkArticleHeader · WorkArticleBody · WorkArticleTeam 이 공유하는 타입.
@@ -36,6 +37,12 @@ export interface WorkArticleViewProps {
   /** 발행된 프로젝트 공개 URL — 미리보기에서 발행 상태면 새창으로 여는 버튼 노출 */
   viewHref?: string;
   onLangChange?: (l: "ko" | "en") => void;
+  /** 언어 토글 바로 왼쪽 — 공개 상세의 "다른 언어로 읽기" 메뉴(ContentLangMenu). 미리보기는 넘기지 않는다 (Header 에서만 사용) */
+  langMenu?: ReactNode;
+  /** 번역된 글의 언어(lang 속성) — 다른 언어로 번역해 보여 줄 때만. 본문 · 정보 칸 · AI 요약 · 갤러리 자막에 단다 */
+  contentLang?: string;
+  /** 다른 언어 번역을 받아 오는 중 — 바뀔 자리를 흐리게 한다 */
+  translating?: boolean;
   /** 관련 글 — info grid 안에 리스트로 표시 (Header 에서만 사용) */
   relatedPosts?: RelatedPostItem[];
   /** 관련 시리즈 — info grid 안에 표시 (Header 에서만 사용) */

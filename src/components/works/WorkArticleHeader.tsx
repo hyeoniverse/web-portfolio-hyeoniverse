@@ -1,5 +1,7 @@
 "use client";
 
+import { UiLabel } from "@/components/posts/BodyLabelsContext";
+import { TranslatingRegion } from "@/components/ui/ContentTranslateBanner";
 import { motion } from "framer-motion";
 import { Globe, Users, User, Pencil, ExternalLink } from "@/components/icons";
 import "@/styles/vendor/katex.css";
@@ -34,6 +36,9 @@ export function WorkArticleHeader({
   onLangChange,
   relatedPosts,
   relatedSeries,
+  langMenu,
+  contentLang,
+  translating,
 }: WorkArticleViewProps) {
   const { t } = useLanguage();
   const authed = useIsAuthenticated();
@@ -62,17 +67,17 @@ export function WorkArticleHeader({
               return others > 0 ? (
                 <span className={`${styles.tag} ${styles.tagTeam}`}>
                   <Users size={11} strokeWidth={1.8} />
-                  <T ko={`팀 · ${total}`} en={`Team · ${total}`} />
+                  <UiLabel name="workTeamCount" vars={{ n: total }} />
                 </span>
               ) : (
                 <span className={`${styles.tag} ${styles.tagSolo}`}>
                   <User size={11} strokeWidth={1.8} />
-                  <T ko="개인" en="Solo" />
+                  <UiLabel name="workSolo" />
                 </span>
               );
             })()}
             {project.nature && (
-              <span className={`${styles.tag} ${styles.tagNature}`}><T ko={project.nature.ko} en={project.nature.en} /></span>
+              <span className={`${styles.tag} ${styles.tagNature}`} lang={contentLang}><T ko={project.nature.ko} en={project.nature.en} /></span>
             )}
           </div>
           {/* 저장소로 만들어진 화면에는 편집할 행이 없다 — 눌러서 작업물로 들인 뒤 편집 화면으로 간다 */}
@@ -122,11 +127,13 @@ export function WorkArticleHeader({
           )}
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          {langMenu}
           <LanguageToggle lang={viewLang} onLangChange={handleLangChange} />
         </div>
       </motion.div>
 
-      {/* ── Title ── */}
+      {/* ── Title · Description — 번역을 받아 오는 동안 흐리게(TranslatingRegion) ── */}
+      <TranslatingRegion active={!!translating}>
       <motion.h1
         className={styles.title}
         initial={{ opacity: 0, y: 40 }}
@@ -145,6 +152,7 @@ export function WorkArticleHeader({
       >
         <T ko={project.description.ko} en={project.description.en} />
       </motion.p>
+      </TranslatingRegion>
 
       {/* ── Header action row — Visit Site / GitHub / Share 묶음 (description 아래, 오른쪽 정렬) ── */}
       <motion.div
@@ -156,7 +164,7 @@ export function WorkArticleHeader({
         {project.liveUrl && (
           <Button variant="outline" href={project.liveUrl} external>
             <Globe size={14} />
-            <T k="workDetail.visitSite" tooltip={t("tooltip.visitSite")} />
+            <UiLabel name="workVisitSite" tooltip="workVisitSiteTip" />
           </Button>
         )}
         {project.githubUrl && (
@@ -168,12 +176,15 @@ export function WorkArticleHeader({
         <ShareButton />
       </motion.div>
 
+      <TranslatingRegion active={!!translating}>
       <WorkArticleInfoGrid
         project={project}
         viewLang={viewLang}
         relatedPosts={relatedPosts}
         relatedSeries={relatedSeries}
+        contentLang={contentLang}
       />
+      </TranslatingRegion>
     </>
   );
 }

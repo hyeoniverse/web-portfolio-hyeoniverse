@@ -39,6 +39,9 @@ export interface GalleryNote {
   audioScript?: string;
   /** TTS 로 만들 때 실제로 쓴 목소리("제공자:성별", lib/ttsVoices) — 고른 제공자가 실패해 넘어갔으면 다를 수 있다 */
   audioVoice?: string;
+  /** 화면에만 쓰는 자막 줄 — "다른 언어로 읽기"가 원문 자막 줄(lib/galleryCaptions)을 같은 순번으로 번역해 끼운다.
+   *  저장하지 않는다. 줄 수가 원문과 다르면 쓰지 않는다 */
+  captions?: string[];
   /** 영어 대본·음성 — 위 칸들이 한국어(기본)이고, 영어는 같은 모양으로 여기에 둔다. 비어 있으면 영어 화면은 한국어를 쓴다 */
   en?: Omit<GalleryNote, "en">;
 }

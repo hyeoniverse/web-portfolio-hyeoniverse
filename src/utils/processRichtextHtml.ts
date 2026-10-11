@@ -1,6 +1,7 @@
 import { addIdsToHtml } from "./headingUtils";
 import { fixEmbedUrls } from "./htmlUtils";
 import { migrateOfficeViewerUrls } from "@/lib/officeViewer";
+import { escapeLabelHtml } from "@/lib/bodyLabels";
 
 /**
  * detail 페이지와 preview(미리보기)에서 공용으로 쓰는 richtext HTML 처리.
@@ -20,9 +21,9 @@ export function processRichtextHtml(
   labels: { codeScroll: string; codeWrap: string },
 ): string {
   let html = migrateOfficeViewerUrls(fixEmbedUrls(addIdsToHtml(raw)));
-  // 빈 wrap 버튼에 라벨 span 삽입 (있을 때만)
-  const wrapLabel = `↔ ${labels.codeScroll}`;
-  const hoverLabel = `↩ ${labels.codeWrap}`;
+  // 빈 wrap 버튼에 라벨 span 삽입 (있을 때만) — 라벨은 번역된 글일 수 있어 HTML 로 굽기 전에 이스케이프
+  const wrapLabel = `↔ ${escapeLabelHtml(labels.codeScroll)}`;
+  const hoverLabel = `↩ ${escapeLabelHtml(labels.codeWrap)}`;
   html = html.replace(
     /<button[^>]*data-wrap-btn[^>]*><\/button>/g,
     `<button type="button" class="code-wrap-toggle" data-wrap-btn><span class="code-wrap-label-default">${wrapLabel}</span><span class="code-wrap-label-hover">${hoverLabel}</span></button>`,

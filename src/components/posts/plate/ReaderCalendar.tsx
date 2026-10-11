@@ -16,12 +16,17 @@ import { type CalEvent, type CalendarData, type SearchScope, type SortField, typ
 import { fetchCalendar } from "./calendar/calendarApi";
 import { useModalStore } from "@/stores/modalStore";
 import styles from "./calendar/Calendar.module.css";
+import { type BodyLabels, uiBodyLabels } from "@/lib/bodyLabels";
 
-export default function ReaderCalendar({ calendarId, data, language }: {
+export default function ReaderCalendar({ calendarId, data, language, uiLabels }: {
   calendarId?: string;
   data?: unknown;         // legacy inline
   language: string;
+  /** 머리(오늘 · 보기 전환 · 삭제 안내 · 이벤트 창 제목) 라벨 — 본문 리더가 넘긴다(번역해 볼 때는 번역 라벨).
+   *  없으면 language 의 라벨. 날짜 · 요일과 이벤트 창 안쪽은 language 를 따른다 */
+  uiLabels?: BodyLabels;
 }) {
+  const lb = uiLabels ?? uiBodyLabels(language);
   const [cal, setCal] = useState<CalendarData | null>(calendarId ? null : normalizeCalendar(data));
   const [title, setTitle] = useState("");
   const [month, setMonth] = useState<string>(calendarId ? "" : normalizeCalendar(data).month);
@@ -59,7 +64,7 @@ export default function ReaderCalendar({ calendarId, data, language }: {
     <div className={styles.readerCalendar}>
       <div className={styles.calDeleted}>
         <CalendarClock size={20} className={styles.calDeletedIcon} />
-        <span>{language === "ko" ? "삭제된 달력 블록입니다." : "This calendar block was deleted."}</span>
+        <span>{lb.calendarDeleted}</span>
       </div>
     </div>
   );
@@ -73,7 +78,7 @@ export default function ReaderCalendar({ calendarId, data, language }: {
   };
   const todayBtn = (
     <>
-      <Button variant="outline" soundDisabled className={styles.ctrlBorderLight} onClick={goToday}>{language === "ko" ? "오늘" : "Today"}</Button>
+      <Button variant="outline" soundDisabled className={styles.ctrlBorderLight} onClick={goToday}>{lb.calendarToday}</Button>
       <Switch showStateText stateLabels={{ on: "24h", off: "12h" }} checked={timeFormat === "24h"} onCheckedChange={(v) => setTfOverride(v ? "24h" : "12h")} />
     </>
   );
@@ -81,10 +86,10 @@ export default function ReaderCalendar({ calendarId, data, language }: {
     <SegmentedControl<"month" | "week" | "day" | "timeline">
       variant="subtle"
       items={[
-        { value: "month", label: language === "ko" ? "월" : "Month" },
-        { value: "week", label: language === "ko" ? "주" : "Week" },
-        { value: "day", label: language === "ko" ? "일" : "Day" },
-        { value: "timeline", label: language === "ko" ? "타임라인" : "Timeline" },
+        { value: "month", label: lb.calendarMonth },
+        { value: "week", label: lb.calendarWeek },
+        { value: "day", label: lb.calendarDay },
+        { value: "timeline", label: lb.calendarTimeline },
       ]}
       value={view}
       onChange={setView}
@@ -114,7 +119,7 @@ export default function ReaderCalendar({ calendarId, data, language }: {
         timeFormat={timeFormat}
         onSubmit={() => {}}
       />,
-      { id: modalId, header: { title: language === "ko" ? "이벤트" : "Event" }, width: "620px" },
+      { id: modalId, header: { title: lb.calendarEvent }, width: "620px" },
     );
   };
   return (

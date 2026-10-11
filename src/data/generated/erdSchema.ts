@@ -1226,6 +1226,62 @@ export const schemaTables: ErdTable[] = [
     ]
   },
   {
+    "name": "content_translations",
+    "columns": [
+      {
+        "name": "id",
+        "type": "uuid",
+        "pk": true,
+        "required": true,
+        "defaultValue": "gen_random_uuid()"
+      },
+      {
+        "name": "source_type",
+        "type": "text",
+        "required": true,
+        "unique": true
+      },
+      {
+        "name": "source_id",
+        "type": "uuid",
+        "required": true,
+        "unique": true
+      },
+      {
+        "name": "lang",
+        "type": "text",
+        "required": true,
+        "unique": true
+      },
+      {
+        "name": "fields",
+        "type": "jsonb",
+        "required": true
+      },
+      {
+        "name": "source_hash",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "provider",
+        "type": "text"
+      },
+      {
+        "name": "created_at",
+        "type": "timestamptz",
+        "required": true,
+        "defaultValue": "now()"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamptz",
+        "required": true,
+        "defaultValue": "now()"
+      }
+    ]
+  },
+  {
     "name": "demo_usage",
     "columns": [
       {

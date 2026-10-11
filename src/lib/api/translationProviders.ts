@@ -2,6 +2,7 @@ import { getSecret } from "@/lib/getSecret";
 import { ProviderError, filterEnabled, missingKey, networkError, providerErrorFrom, readUsage, recordFailure, recordOk, toProviderError } from "@/lib/ai/health";
 import { AI_PROVIDER_INFO, type AiProvider, type ProviderFailure } from "@/lib/ai/providers";
 import { aiModel } from "@/lib/ai/models";
+import { findTranslationLanguage } from "@/lib/translationLanguages";
 
 export type Provider = "gemini" | "google" | "deepl" | "claude";
 
@@ -32,6 +33,7 @@ const GOOGLE_TRANSLATE_URL =
  * 번역할 수 있는 언어 — 공급자마다 부르는 이름. 사이트 콘텐츠(글 · 작업물 · 댓글)는 ko · en 만 쓰고,
  * 나머지는 About 의 번역 데모에서 고를 수 있게 둔 것이다. 원문 언어 "auto" 는 공급자가 알아서 가려낸다
  * (DeepL · Google 은 원문 언어를 빼고 보내고, Gemini · Claude 는 프롬프트에서 가려내라고 한다).
+ * 상세 화면 "다른 언어로 읽기"의 나머지 언어(zh-Hans · pt-BR …)는 lib/translationLanguages 의 목록에서 찾는다.
  */
 export const TRANSLATE_LANGS = {
   ko: { deepl: "KO", google: "ko", name: "Korean" },
@@ -45,10 +47,39 @@ export const TRANSLATE_LANGS = {
 export type TranslateLang = keyof typeof TRANSLATE_LANGS;
 export const AUTO_SOURCE = "auto";
 
-const langInfo = (code: string) => TRANSLATE_LANGS[code as TranslateLang] ?? TRANSLATE_LANGS.en;
+interface LangNames { deepl: string; google: string; name: string }
+
+/** 데모 표(TRANSLATE_LANGS) 먼저, 없으면 "다른 언어로 읽기" 목록 — 둘 다 없으면 undefined */
+const findLang = (code: string): LangNames | undefined =>
+  (Object.hasOwn(TRANSLATE_LANGS, code) ? TRANSLATE_LANGS[code as TranslateLang] : undefined) ?? findTranslationLanguage(code);
+/** 모르는 언어는 데모 쪽 예전 동작처럼 English */
+const langInfo = (code: string): LangNames => findLang(code) ?? TRANSLATE_LANGS.en;
+
+export const deeplLang = (lang: string): string | undefined => findLang(lang)?.deepl;
+export const googleLang = (lang: string): string | undefined => findLang(lang)?.google;
+/** 프롬프트(Gemini · Claude)에 쓰는 언어 이름 — 목록에 없으면 예전처럼 English */
+export const promptLangName = (lang: string): string => langInfo(lang).name;
+
 /** 프롬프트의 "from X to Y" — 원문이 auto 면 가려내라고 한다 */
 const promptDirection = (sourceLang: string, targetLang: string) =>
-  sourceLang === AUTO_SOURCE ? `(detect the source language) to ${langInfo(targetLang).name}` : `from ${langInfo(sourceLang).name} to ${langInfo(targetLang).name}`;
+  sourceLang === AUTO_SOURCE ? `(detect the source language) to ${promptLangName(targetLang)}` : `from ${promptLangName(sourceLang)} to ${promptLangName(targetLang)}`;
+
+/** 번역 호출의 덧붙임 — html: 원문이 HTML 이다(DeepL tag_handling · Google format 을 HTML 로) */
+export interface TranslateOptions {
+  html?: boolean;
+}
+
+/* Claude 의 응답 상한 — ko↔en 은 예전 값(4096) 그대로. 다른 언어(상세 화면의 "다른 언어로 읽기")는 본문 전체를
+   한 번에 보내므로 4096 이면 긴 글이 중간에 잘려 JSON 이 깨진다. 보낸 글자 수에 맞춰 늘리되 16000 에서 멈춘다 —
+   그보다 긴 글은 잘린 응답이 JSON 파싱에서 실패하고 다음 공급자로 넘어간다(체인의 기본은 DeepL 이라 드물다) */
+const CLAUDE_MAX_TOKENS_KO_EN = 4096;
+const CLAUDE_MAX_TOKENS_CAP = 16000;
+export function claudeMaxTokens(items: { text: string }[], sourceLang: string, targetLang: string): number {
+  const koEn = (l: string) => l === "ko" || l === "en";
+  if (koEn(sourceLang) && koEn(targetLang)) return CLAUDE_MAX_TOKENS_KO_EN;
+  const chars = items.reduce((n, it) => n + it.text.length, 0);
+  return Math.min(CLAUDE_MAX_TOKENS_CAP, Math.max(CLAUDE_MAX_TOKENS_KO_EN, Math.ceil(chars * 1.5)));
+}
 
 /* ── ID 기반 일괄 번역 단위 ──
  *   id : 호출자가 부여한 안정적인 키 (예: "title", "body", "i0", "i1") 또는 자동 생성된 인덱스 키.
@@ -115,6 +146,7 @@ async function translateBatchWithGoogle(
   items: TranslateItem[],
   sourceLang: string,
   targetLang: string,
+  options: TranslateOptions = {},
 ): Promise<ProviderBatchResult> {
   const apiKey = await getSecret("GOOGLE_TRANSLATE_API_KEY");
   if (!apiKey) throw missingKey("google_translate", "GOOGLE_TRANSLATE_API_KEY");
@@ -132,9 +164,9 @@ async function translateBatchWithGoogle(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       q: items.map((it) => it.text),
-      ...(sourceLang === AUTO_SOURCE ? {} : { source: langInfo(sourceLang).google }),
+      ...(sourceLang === AUTO_SOURCE ? {} : { source: googleLang(sourceLang) }),
       target: langInfo(targetLang).google,
-      format: "text",
+      format: options.html ? "html" : "text",
     }),
   });
 
@@ -150,6 +182,7 @@ async function translateBatchWithDeepL(
   items: TranslateItem[],
   sourceLang: string,
   targetLang: string,
+  options: TranslateOptions = {},
 ): Promise<ProviderBatchResult> {
   const apiKey = await getSecret("DEEPL_API_KEY");
   if (!apiKey) throw missingKey("deepl", "DEEPL_API_KEY");
@@ -162,8 +195,10 @@ async function translateBatchWithDeepL(
     },
     body: JSON.stringify({
       text: items.map((it) => it.text),
-      ...(sourceLang === AUTO_SOURCE ? {} : { source_lang: langInfo(sourceLang).deepl }),
+      ...(sourceLang === AUTO_SOURCE ? {} : { source_lang: deeplLang(sourceLang) }),
       target_lang: langInfo(targetLang).deepl,
+      /* HTML 원문 — 태그는 두고 글자만 번역한다(없으면 태그 속 속성값까지 건드릴 수 있다) */
+      ...(options.html ? { tag_handling: "html" } : {}),
     }),
   });
 
@@ -206,7 +241,7 @@ ${JSON.stringify(inputObj, null, 2)}`;
     },
     body: JSON.stringify({
       model: await aiModel("claude"),
-      max_tokens: 4096,
+      max_tokens: claudeMaxTokens(items, sourceLang, targetLang),
       messages: [{ role: "user", content: prompt }],
     }),
   });
@@ -253,10 +288,11 @@ async function translateBatchWithProvider(
   items: TranslateItem[],
   sourceLang: string,
   targetLang: string,
+  options: TranslateOptions,
 ): Promise<ProviderBatchResult> {
   switch (provider) {
-    case "google": return translateBatchWithGoogle(items, sourceLang, targetLang);
-    case "deepl":  return translateBatchWithDeepL(items, sourceLang, targetLang);
+    case "google": return translateBatchWithGoogle(items, sourceLang, targetLang, options);
+    case "deepl":  return translateBatchWithDeepL(items, sourceLang, targetLang, options);
     case "claude": return translateBatchWithClaude(items, sourceLang, targetLang);
     default:       return translateBatchWithGemini(items, sourceLang, targetLang);
   }
@@ -301,6 +337,8 @@ export async function translateWithFallback(
   sourceLang: string,
   targetLang: string,
   logPrefix = "[translate]",
+  /* 덧붙임 — 지금은 html 하나. 빼면 예전과 같다(평문) */
+  options: TranslateOptions = {},
 ): Promise<
   | { translations: string[]; failedIndices: number[]; failures: ProviderFailure[] }
   | { error: string; failures: ProviderFailure[] }
@@ -325,7 +363,7 @@ export async function translateWithFallback(
     try {
       const sent = remaining;
       const { results, failed } = await translateBatchWithProvider(
-        provider, remaining, sourceLang, targetLang,
+        provider, remaining, sourceLang, targetLang, options,
       );
       anyProviderTried = true;
       /* 글자 단위로 매기는 공급자는 보낸 글자 수를, 나머지는 호출 수를 센다 */

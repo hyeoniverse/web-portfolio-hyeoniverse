@@ -28,12 +28,18 @@ export function captionCues(script: string): CaptionCue[] {
   });
 }
 
+/** 재생 자리(0~1)에 맞는 자막의 순번 — 없으면 -1. 번역된 자막 줄을 같은 순번으로 고를 때 쓴다 */
+export function cueIndexAt(cues: CaptionCue[], progress: number): number {
+  let at = -1;
+  for (let i = 0; i < cues.length; i++) {
+    if (cues[i].start > progress) break;
+    at = i;
+  }
+  return at;
+}
+
 /** 재생 자리(0~1)에 맞는 자막 — 없으면 "" */
 export function cueAt(cues: CaptionCue[], progress: number): string {
-  let text = "";
-  for (const cue of cues) {
-    if (cue.start > progress) break;
-    text = cue.text;
-  }
-  return text;
+  const at = cueIndexAt(cues, progress);
+  return at < 0 ? "" : cues[at].text;
 }
