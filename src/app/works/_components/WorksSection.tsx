@@ -10,6 +10,7 @@ import { useLenis } from "@/providers/LenisProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import CreditsPanel from "@/components/layout/CreditsFooter/CreditsPanel";
+import { useTranslatedProjects } from "@/hooks/useListTranslation";
 import {
   projects as staticProjects,
   Project,
@@ -45,7 +46,8 @@ const LAYOUTS: LayoutType[] = ["flow", "fullscreen", "cinematic", "grid", "split
 const SCROLL_CLASS_NAMES = { ...flowCardClassNames, intro: intro.intro };
 
 export default function WorksSection({ projects: projectsProp }: WorksSectionProps) {
-  const projects = projectsProp ?? staticProjects;
+  /* 사이트가 다른 언어로 걸려 있으면 제목 · 부제목 · 설명을 그 번역으로(배치마다 따로 고치지 않게 여기서 한 번) */
+  const projects = useTranslatedProjects(projectsProp ?? staticProjects);
   const PROJECT_COUNT = projects.length;
   // statsClients 라벨이 "Tech Stack" 이므로 전체 작품의 tech 항목 union → unique 개수로 카운트
   const TECH_COUNT = new Set(projects.flatMap((p) => p.tech ?? [])).size;

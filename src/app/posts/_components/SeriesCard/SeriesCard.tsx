@@ -1,5 +1,6 @@
 "use client";
 
+import { useListTranslation } from "@/hooks/useListTranslation";
 import { type CSSProperties, type RefObject } from "react";
 import MediaThumb from "@/components/ui/MediaThumb";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -31,7 +32,9 @@ export default function SeriesCard({ series, onClick, active, index = 0, scrollC
   const { theme } = useTheme();
 
   const number = String(index + 1).padStart(2, "0");
-  const title = language === "ko" ? series.title : (series.title_en || series.title);
+  /* 사이트가 다른 언어로 걸려 있으면 그 번역 */
+  const tr = useListTranslation("series", series.id);
+  const title = tr?.title || (language === "ko" ? series.title : (series.title_en || series.title));
   const tag = series.category || "SERIES";
   // tone "soft" 강제 — 페이지 전체 시리즈 카드들 사이 톤 통일 (hue 만 anchor cycle 로 다양)
   const placeholderBg = generateSeededColor(series.id, theme === "dark", index, "soft");

@@ -9,6 +9,7 @@ import { resolvePostAuthors } from "@/utils/resolvePostAuthors";
 import { formatPostTitle, getPostExcerpt } from "@/utils/post";
 import { SITE_TIME_ZONE } from "@/constants";
 import type { Post } from "@/types/post";
+import { useListTranslation } from "@/hooks/useListTranslation";
 
 /* 카드 변형 넷이 공통으로 쓰는 값과 동작 — 표시 언어 판정 · 제목/발췌 · 날짜 · 읽기 시간 · 카테고리 · 작성자,
    그리고 카드 클릭(페이지 트랜지션)과 hover prefetch. 변형 컴포넌트가 각자 부른다. */
@@ -51,7 +52,10 @@ export function usePostCard({ post, imgError }: { post: Post; imgError?: boolean
 
   const href = `/posts/${post.slug}`;
   const coverImage = post.cover_image || "";
-  const displayTitle = formatPostTitle(post, displayLang);
+  /* 사이트가 다른 언어(ko · en 밖)로 걸려 있으면 제목 · 요약을 그 번역으로 — 같은 화면의 카드들은 한 요청으로 모인다.
+     시리즈 접두("시리즈 #n - ")의 시리즈 이름은 원문 그대로 */
+  const tr = useListTranslation("post", post.id);
+  const displayTitle = formatPostTitle(tr?.title ? { ...post, title: tr.title, title_en: tr.title } : post, displayLang);
   /* 카드의 클릭 처리 — 글 링크가 덮지 않는 부분(카드 밖으로 나온 타임라인 미리보기)용 */
   const handleClick = () => {
     const el = cardRef.current;
@@ -77,7 +81,7 @@ export function usePostCard({ post, imgError }: { post: Post; imgError?: boolean
     author,
     langBadge,
     displayTitle,
-    displayExcerpt: getPostExcerpt(post, displayLang),
+    displayExcerpt: tr?.excerpt || getPostExcerpt(post, displayLang),
     icon: post.icon,
     cardLink,
     handleClick,
