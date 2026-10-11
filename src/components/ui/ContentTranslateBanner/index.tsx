@@ -2,6 +2,8 @@
 
 import { Languages } from "@/components/icons";
 import Pressable from "@/components/ui/Pressable";
+import LoadingDots from "@/components/ui/LoadingDots";
+import type { ReactNode } from "react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { fillTemplate } from "@/utils/format";
 import { localLangName } from "@/utils/localLangName";
@@ -32,9 +34,12 @@ export default function ContentTranslateBanner({
     : fillTemplate(t(translating ? "contentTranslate.translating" : "contentTranslate.notice"), { lang: name });
 
   return (
-    <div className={styles.banner} role="status" aria-live="polite" data-error={error ? "" : undefined}>
+    <div className={styles.banner} role="status" aria-live="polite" data-error={error ? "" : undefined} data-busy={translating && !error ? "" : undefined}>
       <Languages className={styles.icon} size={14} aria-hidden />
-      <p className={styles.message}>{message}</p>
+      <p className={styles.message}>
+        {message}
+        {translating && !error && <LoadingDots className={styles.dots} />}
+      </p>
       <div className={styles.actions}>
         {error && (
           <Pressable type="button" className={styles.action} onClick={onRetry}>
@@ -45,6 +50,18 @@ export default function ContentTranslateBanner({
           {t("contentTranslate.showOriginal")}
         </Pressable>
       </div>
+    </div>
+  );
+}
+
+/**
+ * 번역이 오면 바뀔 자리 — 받아 오는 동안 흐리게 숨 쉬듯 깜빡여 "곧 바뀐다"를 알린다.
+ * 읽기는 막지 않는다(원문은 그대로 보인다). 동작 줄이기 설정이면 흐리기만 한다.
+ */
+export function TranslatingRegion({ active, children }: { active: boolean; children: ReactNode }) {
+  return (
+    <div className={styles.region} data-active={active ? "" : undefined} aria-busy={active || undefined}>
+      {children}
     </div>
   );
 }

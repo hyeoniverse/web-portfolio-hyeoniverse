@@ -33,6 +33,10 @@
   color: var(--text-accent);
 }
 
+.triggerBusy {
+  color: currentColor;
+}
+
 .triggerCode {
   letter-spacing: 0.03em;
   text-transform: uppercase;

@@ -18,7 +18,7 @@ import { WorkArticleTeam } from "@/components/works/WorkArticleTeam";
 import type { RelatedPostItem, RelatedSeriesItem } from "@/components/works/workArticleTypes";
 import TranslateBanner from "@/components/ui/TranslateBanner";
 import ContentLangMenu from "@/components/ui/ContentLangMenu";
-import ContentTranslateBanner from "@/components/ui/ContentTranslateBanner";
+import ContentTranslateBanner, { TranslatingRegion } from "@/components/ui/ContentTranslateBanner";
 import { useContentTranslation } from "@/hooks/useContentTranslation";
 import { useWorkTranslation } from "./_hooks/useWorkTranslation";
 import { initialContentLang, pickContent } from "@/lib/contentLang";
@@ -129,7 +129,7 @@ export default function WorkDetailClient({
           onLangChange={handleViewLang}
           isAdmin={isAdmin}
           langMenu={translationEnabled && !savedProject.external
-            ? <ContentLangMenu value={contentTr.targetLang} onChange={contentTr.selectLang} />
+            ? <ContentLangMenu value={contentTr.targetLang} onChange={contentTr.selectLang} busy={contentTr.translating} />
             : undefined}
           onImportEdit={external ? handleImportEdit : undefined}
           relatedPosts={relatedPosts}
@@ -173,7 +173,9 @@ export default function WorkDetailClient({
       ) : needsTranslation && translationEnabled && (
         <TranslateBanner subject="work" viewLang={viewLang} translating={translating} error={translateError} onTranslate={translate} />
       )}
-      <WorkArticleBody project={project} viewLang={viewLang} contentLang={trLang} />
+      <TranslatingRegion active={contentTr.translating}>
+        <WorkArticleBody project={project} viewLang={viewLang} contentLang={trLang} />
+      </TranslatingRegion>
     </DetailLayout>
     </>
   );
