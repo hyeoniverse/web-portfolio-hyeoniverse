@@ -1,5 +1,7 @@
 "use client";
 
+import { UiLabel, useBodyLabels } from "@/components/posts/BodyLabelsContext";
+import { bodyLabelPair } from "@/lib/bodyLabels";
 import { motion } from "framer-motion";
 import "@/styles/vendor/katex.css";
 import RelatedChips from "@/components/ui/RelatedChips/RelatedChips";
@@ -20,7 +22,13 @@ export default function WorkArticleInfoGrid({
   viewLang,
   relatedPosts,
   relatedSeries,
+  contentLang,
 }: WorkArticleViewProps) {
+  /* contentLang — "다른 언어로 읽기"로 번역된 값 칸에만 lang 을 단다.
+     이름표는 상세 화면 라벨(lib/bodyLabels) — 화면 언어, 번역해 볼 때는 번역 라벨 */
+  const { labels, translated } = useBodyLabels();
+  /* 관련 글 · 시리즈 칩의 더보기/접기 — 예전처럼 보는 언어(viewLang), 번역해 볼 때는 번역 라벨 */
+  const relLabel = (k: "relatedMore" | "relatedLess") => (translated ? labels[k] : bodyLabelPair(k)[viewLang === "en" ? "en" : "ko"]);
 
   return (
     <>
@@ -32,7 +40,7 @@ export default function WorkArticleInfoGrid({
         transition={{ delay: 0.45, duration: 0.6 }}
       >
         <div className={styles.infoBlock}>
-          <span className={styles.infoLabel}>Year</span>
+          <span className={styles.infoLabel}><UiLabel name="workYear" /></span>
           <span className={styles.infoValue}><WorkYear value={project.year} lang={viewLang} /></span>
         </div>
         {(() => {
@@ -41,8 +49,8 @@ export default function WorkArticleInfoGrid({
           if (catsKo.length === 0) return null;
           return (
             <div className={styles.infoBlock}>
-              <span className={styles.infoLabel}><T k="workDetail.category" /></span>
-              <span className={styles.infoValue}>
+              <span className={styles.infoLabel}><UiLabel name="workCategory" /></span>
+              <span className={styles.infoValue} lang={contentLang}>
                 <T
                   ko={catsKo.join(", ")}
                   en={catsKo.map((k, i) => catsEn[i] || k).join(", ")}
@@ -67,8 +75,8 @@ export default function WorkArticleInfoGrid({
           });
           return (
             <div className={`${styles.infoBlock} ${styles.infoBlockFull}`}>
-              <span className={styles.infoLabel}><T k="workDetail.tech" /></span>
-              <div className={styles.techSection}>
+              <span className={styles.infoLabel}><UiLabel name="workTech" /></span>
+              <div className={styles.techSection} lang={contentLang}>
                 {withText.length > 0 && (
                   <ul className={styles.techNotesList}>
                     {withText.map(({ tech, text }) => (
@@ -102,8 +110,8 @@ export default function WorkArticleInfoGrid({
           const plainRoles = entries.filter(([, items]) => items.length === 0).map(([role]) => role);
           return (
             <div className={`${styles.infoBlock} ${styles.infoBlockFull}`}>
-              <span className={styles.infoLabel}><T k="workDetail.role" /></span>
-              <div className={styles.ownContribsWrap}>
+              <span className={styles.infoLabel}><UiLabel name="workRole" /></span>
+              <div className={styles.ownContribsWrap} lang={contentLang}>
                 {entries.length === 0 ? (
                   // contributions 아예 없으면 project.role 단독 표시
                   <div className={styles.ownContribsPlain}>
@@ -147,7 +155,7 @@ export default function WorkArticleInfoGrid({
         {/* 관련 글 — info grid 안 full-width 칩 (공용 RelatedChips: wrap·더보기·hover 미리보기) */}
         {relatedPosts && relatedPosts.length > 0 && (
           <div className={`${styles.infoBlock} ${styles.infoBlockFull}`}>
-            <span className={styles.infoLabel}>{viewLang === "en" ? "Related Posts" : "관련 글"}</span>
+            <span className={styles.infoLabel}><UiLabel name="workRelatedPosts" lang={viewLang === "en" ? "en" : "ko"} /></span>
             <RelatedChips
               items={relatedPosts.map((p) => ({
                 id: p.id,
@@ -157,8 +165,8 @@ export default function WorkArticleInfoGrid({
                 category: p.category || undefined,
                 desc: p.excerpt || undefined,
               }))}
-              moreLabel={viewLang === "en" ? "more" : "더보기"}
-              lessLabel={viewLang === "en" ? "Show less" : "접기"}
+              moreLabel={relLabel("relatedMore")}
+              lessLabel={relLabel("relatedLess")}
             />
           </div>
         )}
@@ -166,7 +174,7 @@ export default function WorkArticleInfoGrid({
         {/* 관련 시리즈 — info grid 안 칩 */}
         {relatedSeries && relatedSeries.length > 0 && (
           <div className={`${styles.infoBlock} ${styles.infoBlockFull}`}>
-            <span className={styles.infoLabel}>{viewLang === "en" ? "Related Series" : "관련 시리즈"}</span>
+            <span className={styles.infoLabel}><UiLabel name="workRelatedSeries" lang={viewLang === "en" ? "en" : "ko"} /></span>
             <RelatedChips
               items={relatedSeries.map((s) => ({
                 id: s.id,
@@ -176,8 +184,8 @@ export default function WorkArticleInfoGrid({
                 category: s.category || undefined,
                 desc: (viewLang === "en" ? (s.description_en || s.description) : s.description) || undefined,
               }))}
-              moreLabel={viewLang === "en" ? "more" : "더보기"}
-              lessLabel={viewLang === "en" ? "Show less" : "접기"}
+              moreLabel={relLabel("relatedMore")}
+              lessLabel={relLabel("relatedLess")}
             />
           </div>
         )}
@@ -189,6 +197,7 @@ export default function WorkArticleInfoGrid({
         summaryEn={project.summary?.en ?? ""}
         generateEndpoint={project.id && project.id !== "preview" ? `/api/works/${project.id}/ai-summary` : undefined}
         lang={viewLang}
+        textLang={contentLang}
       />
     </>
   );

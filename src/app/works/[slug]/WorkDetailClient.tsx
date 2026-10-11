@@ -17,8 +17,13 @@ import { WorkArticleGallery } from "@/components/works/WorkArticleGallery";
 import { WorkArticleTeam } from "@/components/works/WorkArticleTeam";
 import type { RelatedPostItem, RelatedSeriesItem } from "@/components/works/workArticleTypes";
 import TranslateBanner from "@/components/ui/TranslateBanner";
+import ContentLangMenu from "@/components/ui/ContentLangMenu";
+import ContentTranslateBanner, { TranslatingRegion } from "@/components/ui/ContentTranslateBanner";
+import { useContentTranslation } from "@/hooks/useContentTranslation";
+import { BodyLabelsProvider } from "@/components/posts/BodyLabelsContext";
 import { useWorkTranslation } from "./_hooks/useWorkTranslation";
 import { initialContentLang, pickContent } from "@/lib/contentLang";
+import { translatedProject } from "@/lib/contentTranslateView";
 import styles from "./WorkDetail.module.css";
 
 interface WorkDetailClientProps {
@@ -41,7 +46,21 @@ export default function WorkDetailClient({
   /* 처음 언어 — 한쪽에만 글이 있으면 그쪽(README 를 두 칸에 똑같이 복사한 것도 한쪽으로 친다) */
   const [viewLang, setViewLang] = useState<"ko" | "en">(() => initialContentLang(savedProject.content, language));
   /* 보는 언어의 본문이 없으면 있는 언어 쪽을 보여 주고 번역 단추를 낸다. 번역하면 그 결과를 덧씌운 작업물이 project 다 */
-  const { shown: project, needsTranslation, translating, error: translateError, translate } = useWorkTranslation(savedProject, viewLang);
+  const { shown: koEnProject, needsTranslation, translating, error: translateError, translate } = useWorkTranslation(savedProject, viewLang);
+  /* 다른 언어로 읽기(ko · en 밖) — 번역이 오면 제목·부제목·설명·본문과 정보 칸(카테고리·성격·역할·기여·기술 설명·
+     팀원·AI 요약·갤러리 자막)을 두 언어 칸 모두 그 번역으로 덮는다(translatedProject). 그러면 T · pickContent 가
+     어느 언어를 고르든 번역이 보인다. 번역하지 않는 칸(기술 이름·연도·주소·팀원 이름)은 viewLang 그대로.
+     GitHub 저장소로 만든 항목(external)은 DB 행이 없어 번역할 수 없다 */
+  const contentTr = useContentTranslation({ type: "work", id: savedProject.id, enabled: translationEnabled && !savedProject.external });
+  const tr = contentTr.fields;
+  const project = useMemo<typeof koEnProject>(() => (tr ? translatedProject(koEnProject, tr) : koEnProject), [koEnProject, tr]);
+  /* 번역된 칸의 lang 속성 — 번역이 왔을 때만 */
+  const trLang = tr ? contentTr.targetLang ?? undefined : undefined;
+  /* KO/EN 토글을 누르면 번역을 끄고 그 언어 원문으로 */
+  const handleViewLang = (l: "ko" | "en") => {
+    if (contentTr.targetLang) contentTr.selectLang(null);
+    setViewLang(l);
+  };
   const isAdmin = useIsAuthenticated();
   /* GitHub 저장소 README 로 만든 항목 — 좋아요·댓글을 받을 행이 없고 편집 화면도 없다(#1062).
      endpoint 를 null 로 두면 마운트 때 아무것도 묻지 않는다 */
@@ -93,7 +112,8 @@ export default function WorkDetailClient({
   }, [content, isRichtext, project.gallery.length]);
 
   return (
-    <>
+    /* 상세 화면 라벨(정보 칸 · 본문 안 단추 — lib/bodyLabels)도 번역 라벨로 — 없으면 화면 언어 */
+    <BodyLabelsProvider override={contentTr.bodyLabels} foreign={!!contentTr.fields}>
     <DetailLayout
       backHref="/works"
       backLabel={t("workDetail.back")}
@@ -107,8 +127,13 @@ export default function WorkDetailClient({
         <WorkArticleHeader
           project={project}
           viewLang={viewLang}
-          onLangChange={setViewLang}
+          contentLang={trLang}
+          translating={contentTr.translating}
+          onLangChange={handleViewLang}
           isAdmin={isAdmin}
+          langMenu={translationEnabled && !savedProject.external
+            ? <ContentLangMenu value={contentTr.targetLang} onChange={contentTr.selectLang} busy={contentTr.translating} />
+            : undefined}
           onImportEdit={external ? handleImportEdit : undefined}
           relatedPosts={relatedPosts}
           relatedSeries={relatedSeries}
@@ -117,7 +142,9 @@ export default function WorkDetailClient({
       afterContent={
         <>
           {/* 갤러리는 글 칼럼보다 넓은 이 자리에 — 슬라이드가 작게 보이면 읽을 수가 없다 */}
-          <WorkArticleGallery project={project} viewLang={viewLang} />
+          <TranslatingRegion active={contentTr.translating}>
+            <WorkArticleGallery project={project} viewLang={viewLang} contentLang={trLang} />
+          </TranslatingRegion>
           <WorkArticleTeam project={project} viewLang={viewLang} />
         </>
       }
@@ -140,11 +167,21 @@ export default function WorkDetailClient({
       commentsConfig={external ? undefined : { commentType: "work", targetId: project.id, translationEnabled }}
       backLink={{ href: "/works", labelKey: "workDetail.viewAll" }}
     >
-      {needsTranslation && translationEnabled && (
+      {contentTr.targetLang ? (
+        <ContentTranslateBanner
+          lang={contentTr.targetLang}
+          translating={contentTr.translating}
+          error={contentTr.error}
+          onShowOriginal={() => contentTr.selectLang(null)}
+          onRetry={contentTr.retry}
+        />
+      ) : needsTranslation && translationEnabled && (
         <TranslateBanner subject="work" viewLang={viewLang} translating={translating} error={translateError} onTranslate={translate} />
       )}
-      <WorkArticleBody project={project} viewLang={viewLang} />
+      <TranslatingRegion active={contentTr.translating}>
+        <WorkArticleBody project={project} viewLang={viewLang} contentLang={trLang} />
+      </TranslatingRegion>
     </DetailLayout>
-    </>
+    </BodyLabelsProvider>
   );
 }

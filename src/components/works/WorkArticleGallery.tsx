@@ -18,7 +18,7 @@ import type { WorkArticleViewProps } from "./workArticleTypes";
  *
  * 한 장씩 넘겨 보는 건 여기서, 확대해서 읽는 건 뷰어(전체화면)가 맡는다.
  * ──────────────────────────────────────────────────────────── */
-export function WorkArticleGallery({ project, viewLang }: WorkArticleViewProps) {
+export function WorkArticleGallery({ project, viewLang, contentLang }: WorkArticleViewProps) {
   const [viewer, setViewer] = useState({ open: false, index: 0 });
   if (project.gallery.length === 0) return null;
   /* 확대 뷰어에는 그림만 넘긴다 — 문서 칸(옛 .ppt 등)은 갤러리 안의 문서 뷰어로 보고, 뷰어에 섞이면 깨진 그림이 된다 */
@@ -41,6 +41,8 @@ export function WorkArticleGallery({ project, viewLang }: WorkArticleViewProps) 
           /* 보는 언어의 대본·음성 — 영어가 없는 장은 한국어로 */
           notes={readerNotes(project.galleryNotes, viewLang === "en" ? "en" : "ko")}
           suspended={viewer.open}
+          /* 자막이 "다른 언어로 읽기"로 번역됐으면 그 언어 */
+          captionLang={contentLang}
         />
       </motion.div>
 

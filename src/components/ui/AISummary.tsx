@@ -1,5 +1,6 @@
 "use client";
 
+import { useBodyLabels } from "@/components/posts/BodyLabelsContext";
 import { useState } from "react";
 import { AlertTriangle, ArrowRight, Info, Lightbulb, Sparkles } from "@/components/icons";
 import Button from "@/components/ui/Button";
@@ -19,6 +20,8 @@ interface AISummaryProps {
   /** 요약이 비어 있을 때 방문자가 처음 한 번 만들 수 있게 — posts/works 의 ai-summary 에 { public: true } 로.
    *  글마다 한 번만 만들어지고(저장되면 다음부터는 저장된 것), 작성자는 편집기에서 다시 만든다 */
   generateEndpoint?: string;
+  /** 요약 글의 언어(lang 속성) — "다른 언어로 읽기"로 번역한 요약일 때만 */
+  textLang?: string;
 }
 
 /** 글 안의 **굵게** · `코드` 를 요소로 — 문자열을 HTML 로 넣지 않는다 */
@@ -127,11 +130,11 @@ function Block({ block: b }: { block: SummaryBlock }) {
 
 /** 저장된 요약을 그린다 — 고정인 제목 한 줄(이모지) · 키워드 칩 사이에 모델이 고른 블록들. 예전 줄글은 문단 그대로.
  *  compact 는 편집기 칸처럼 좁은 자리용(글자 한 단계 작게) */
-export function SummaryBody({ summary, compact }: { summary: DisplaySummary; compact?: boolean }) {
+export function SummaryBody({ summary, compact, lang }: { summary: DisplaySummary; compact?: boolean; lang?: string }) {
   if (!summary) return null;
-  if (summary.kind === "text") return <p className={styles.text}>{summary.text}</p>;
+  if (summary.kind === "text") return <p className={styles.text} lang={lang}>{summary.text}</p>;
   return (
-    <div className={`${styles.structured} ${compact ? styles.compact : ""}`}>
+    <div className={`${styles.structured} ${compact ? styles.compact : ""}`} lang={lang}>
       {summary.tldr && (
         <p className={styles.tldr}>
           {summary.emoji && <span className={styles.tldrEmoji} aria-hidden>{summary.emoji}</span>}
@@ -148,8 +151,10 @@ export function SummaryBody({ summary, compact }: { summary: DisplaySummary; com
   );
 }
 
-export default function AISummary({ summaryKo, summaryEn, lang, generating = false, generateEndpoint }: AISummaryProps) {
+export default function AISummary({ summaryKo, summaryEn, lang, generating = false, generateEndpoint, textLang }: AISummaryProps) {
   const { t } = useLanguage();
+  /* 이름표 · 설명은 상세 화면 라벨(lib/bodyLabels) — 다른 언어로 읽을 때는 번역 라벨 */
+  const { labels: lb } = useBodyLabels();
   /* 방문자가 만든 결과 — 페이지는 정적이라 저장된 값이 바로 안 바뀌니 여기서 들고 보인다 */
   const [made, setMade] = useState<{ ko: string; en: string } | null>(null);
   const [making, setMaking] = useState(false);
@@ -180,13 +185,13 @@ export default function AISummary({ summaryKo, summaryEn, lang, generating = fal
   };
 
   return (
-    <section className={styles.card} aria-label={t("aiSummary.label")}>
+    <section className={styles.card} aria-label={lb.aiSummaryLabel}>
       {/* 머리 — 아이콘 · 이름 · ⓘ(AI 가 만든 요약이라는 설명). 접고 펼치지 않는다 */}
       <header className={styles.header}>
         <span className={styles.icon} aria-hidden><Sparkles size={16} strokeWidth={1.75} /></span>
-        <h2 className={styles.label}>{t("aiSummary.label")}</h2>
-        <Tooltip content={t("aiSummary.about")} placement="top">
-          <span className={styles.info} tabIndex={0} aria-label={t("aiSummary.about")}><Info size={14} strokeWidth={1.75} /></span>
+        <h2 className={styles.label}>{lb.aiSummaryLabel}</h2>
+        <Tooltip content={lb.aiSummaryAbout} placement="top">
+          <span className={styles.info} tabIndex={0} aria-label={lb.aiSummaryAbout}><Info size={14} strokeWidth={1.75} /></span>
         </Tooltip>
       </header>
 
@@ -204,7 +209,8 @@ export default function AISummary({ summaryKo, summaryEn, lang, generating = fal
           </Button>
         </div>
       ) : (
-        <SummaryBody summary={summary} />
+        /* 방문자가 방금 만든 요약(made)은 번역 전 원문이다 */
+        <SummaryBody summary={summary} lang={made ? undefined : textLang} />
       )}
     </section>
   );

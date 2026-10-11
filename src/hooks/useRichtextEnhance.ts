@@ -1,5 +1,5 @@
 import { useEffect, useRef, type RefObject } from "react";
-import { useLanguage } from "@/providers/LanguageProvider";
+import { useBodyLabels } from "@/components/posts/BodyLabelsContext";
 import { attachImageFallback } from "@/lib/imageFallback";
 
 /** 후처리 적용 표식 — React 가 innerHTML 을 다시 세팅하면 사라져서 재적용 신호가 된다 */
@@ -15,9 +15,11 @@ const ENHANCED_FLAG = "data-reader-enhanced";
  * 통째로 날아간다. 그래서 "한 번 적용"이 아니라 **컨테이너를 계속 소유**한다 — 표식(sentinel)이
  * 사라지면 다시 건다.
  *
- * 라벨(t)은 deps 에 넣지 않는다. t 는 언어가 확정될 때 identity 가 바뀌는데, 그때마다 후처리를
+ * 라벨은 deps 에 넣지 않는다. 예전 t 는 언어가 확정될 때 identity 가 바뀌었는데, 그때마다 후처리를
  * 다시 돌리면 줄바꿈 단추의 라벨을 새로 만들어 버려, 누른 직후 라벨을 바꾸려던 처리가 떨어져 나간
  * 옛 라벨에 가서 단추가 엉뚱한 상태로 남았다(작업물 상세에서 가끔 보이던 버그). 라벨은 ref 로 최신값을 읽는다.
+ * 라벨은 화면 언어 라벨, 번역해 볼 때는 번역 라벨(BodyLabelsContext) — 번역이 걸리거나 풀리면 본문 html 도
+ * 같이 바뀌어(같은 응답) 이 효과가 다시 돌며 새 라벨을 읽는다.
  *
  * @param html 컨테이너에 넣은 HTML — 바뀌면 다시 건다
  * @param enabled richtext 일 때만 — 마크다운은 MarkdownRenderer 가 스스로 처리한다
@@ -27,9 +29,9 @@ export function useRichtextEnhance(
   html: string,
   enabled = true,
 ) {
-  const { t } = useLanguage();
-  const tRef = useRef(t);
-  useEffect(() => { tRef.current = t; }, [t]);
+  const body = useBodyLabels();
+  const bodyRef = useRef(body);
+  useEffect(() => { bodyRef.current = body; }, [body]);
 
   useEffect(() => {
     if (!enabled) return;
@@ -50,21 +52,22 @@ export function useRichtextEnhance(
         import("@/components/posts/enhanceToggles"),
       ]);
       if (cancelled || !el.isConnected) return;
-      const tr = tRef.current;
+      const { labels: lb, translated } = bodyRef.current;
 
-      /* 수식 오류 문구의 언어 — 이 효과는 언어가 바뀌어도 다시 돌지 않게 되어 있어(위 tRef 와 같은 이유) html lang 을 읽는다 */
-      renderMathNodes(el, document.documentElement.lang === "en" ? "en" : "ko");
+      /* 수식 오류 문구의 언어 — 이 효과는 언어가 바뀌어도 다시 돌지 않게 되어 있어(위 bodyRef 와 같은 이유) html lang 을 읽는다.
+         번역 라벨이 걸렸으면 그 틀로 */
+      renderMathNodes(el, document.documentElement.lang === "en" ? "en" : "ko", translated ? lb : undefined);
       // 서버 Shiki 가 칠하지 못한 블록만 Prism 으로 — 칠해진 것(.shiki)은 건드리지 않는다
       code.highlightCodeBlocks(el);
       code.attachCodeWrapToggle(el, {
-        wrap: tr("common.codeWrap"),
-        scroll: tr("common.codeScroll"),
-        wrapTitle: tr("common.codeWrapTitle"),
-        scrollTitle: tr("common.codeScrollTitle"),
-        copy: tr("common.codeCopy"),
-        copied: tr("common.codeCopied"),
-        expand: tr("common.codeExpand"),
-        collapse: tr("common.codeCollapse"),
+        wrap: lb.codeWrap,
+        scroll: lb.codeScroll,
+        wrapTitle: lb.codeWrapTitle,
+        scrollTitle: lb.codeScrollTitle,
+        copy: lb.codeCopy,
+        copied: lb.codeCopied,
+        expand: lb.codeExpand,
+        collapse: lb.codeCollapse,
       });
       // 인라인 코드 색상값(`#hex`·`rgb()`·`hsl()`) 앞에 색 스와치
       code.applyColorSwatches(el);
@@ -72,14 +75,14 @@ export function useRichtextEnhance(
       code.highlightInlineCode(el);
       extrasCleanup?.();
       extrasCleanup = enhanceReaderExtras(el, {
-        viewCode: tr("common.mermaidViewCode"),
-        hideCode: tr("common.mermaidHideCode"),
-        copyCode: tr("common.codeCopy"),
-        copied: tr("common.codeCopied"),
-        diagram: tr("common.mermaidDiagram"),
-        code: tr("common.mermaidCode"),
-        split: tr("common.mermaidSplit"),
-      });
+        viewCode: lb.mermaidViewCode,
+        hideCode: lb.mermaidHideCode,
+        copyCode: lb.codeCopy,
+        copied: lb.codeCopied,
+        diagram: lb.mermaidDiagram,
+        code: lb.mermaidCode,
+        split: lb.mermaidSplit,
+      }, lb);
       detachFallback?.();
       detachFallback = attachImageFallback(el);
       togglesCleanup?.();

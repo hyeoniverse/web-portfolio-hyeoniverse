@@ -1,4 +1,5 @@
 import type { LocalizedText } from "@/types/common";
+import { type BodyLabels, fillLabel, uiBodyLabels } from "@/lib/bodyLabels";
 
 /**
  * 투표 결과 화면(도넛 원형 + 항목별 막대 범례 + 정렬) — 리더와 에디터 미리보기의 **단일 렌더러**.
@@ -30,13 +31,17 @@ export type PollResultData = {
   /** 정렬 기준 + 방향. 컨트롤(에디터=SegmentedControl / 리더=vanilla)은 호출부에서 렌더. */
   sortKey: PollSortKey;
   sortDir: "asc" | "desc";
+  /** 수 · 철자 순서의 언어 */
   ko: boolean;
+  /** 라벨 — 없으면 ko 에 따른 화면 언어 라벨. 리더는 번역 라벨(다른 언어로 읽기)을 넘긴다 */
+  labels?: BodyLabels;
 };
 
 /** 결과 블록(.poll-result) 을 만들어 반환 — 차트+범례만(정렬 컨트롤은 호출부 담당).
  *  도넛↔범례↔가운데 라벨 hover 연동·pop 애니메이션 내장. */
 export function buildPollResult(d: PollResultData): HTMLElement {
   const { options, counts, total, mine, sortKey, sortDir, ko } = d;
+  const pl = d.labels ?? uiBodyLabels(ko ? "ko" : "en");
   const ns = "http://www.w3.org/2000/svg";
   const SW = 4;
   const wrap = document.createElement("div");
@@ -45,7 +50,7 @@ export function buildPollResult(d: PollResultData): HTMLElement {
   if (total === 0) {
     const empty = document.createElement("div");
     empty.className = "poll-result-empty";
-    empty.textContent = ko ? "아직 표가 없어요" : "No votes yet";
+    empty.textContent = pl.pollNoVotes;
     wrap.appendChild(empty);
     return wrap;
   }
@@ -63,7 +68,7 @@ export function buildPollResult(d: PollResultData): HTMLElement {
     const rest = byCount.slice(PIE_MAX);
     parts = [
       ...byCount.slice(0, PIE_MAX),
-      { label: ko ? "기타" : "Other", count: rest.reduce((s, r) => s + r.count, 0), ids: rest.flatMap((r) => r.ids), idx: Number.MAX_SAFE_INTEGER, other: true },
+      { label: pl.pollOther, count: rest.reduce((s, r) => s + r.count, 0), ids: rest.flatMap((r) => r.ids), idx: Number.MAX_SAFE_INTEGER, other: true },
     ];
   } else {
     parts = all.slice();
@@ -122,7 +127,7 @@ export function buildPollResult(d: PollResultData): HTMLElement {
   sub.setAttribute("class", "poll-pie-sub");
   const resetCenter = () => {
     num.textContent = compactNum(total, ko);
-    sub.textContent = ko ? "참여" : (total === 1 ? "vote" : "votes");
+    sub.textContent = total === 1 ? pl.pollCenterSubOne : pl.pollCenterSub;
   };
   resetCenter();
   svg.appendChild(num); svg.appendChild(sub);
@@ -140,7 +145,7 @@ export function buildPollResult(d: PollResultData): HTMLElement {
     const fill = document.createElement("span"); fill.className = "poll-legend-fill"; fill.style.width = `${s.pct}%`; fill.style.background = s.color;
     barWrap.appendChild(fill);
     const pc = document.createElement("span"); pc.className = "poll-legend-pct";
-    pc.textContent = ko ? `${Math.round(s.pct)}% · ${compactNum(s.count, ko)}표` : `${Math.round(s.pct)}% · ${compactNum(s.count, ko)}`;
+    pc.textContent = `${Math.round(s.pct)}% · ${fillLabel(pl.pollCount, { n: compactNum(s.count, ko) })}`;
     item.append(dot, lb, barWrap, pc);
     legend.appendChild(item);
     return item;
@@ -154,7 +159,7 @@ export function buildPollResult(d: PollResultData): HTMLElement {
     const on = () => {
       seg.classList.add("poll-pie-seg-on");
       num.textContent = `${Math.round(s.pct)}%`;
-      sub.textContent = ko ? `${compactNum(s.count, ko)}표` : compactNum(s.count, ko);
+      sub.textContent = fillLabel(pl.pollCount, { n: compactNum(s.count, ko) });
       items[idx]?.classList.add("poll-legend-on");
     };
     const off = () => {
@@ -185,7 +190,12 @@ export function buildPollSortControl(
   sortDir: "asc" | "desc",
   ko: boolean,
   onChange: (key: PollSortKey) => void,
+  /** 라벨 — 없으면 ko 에 따른 화면 언어(POLL_SORT_LABELS) */
+  labels?: Pick<BodyLabels, "pollSortOrder" | "pollSortVotes" | "pollSortAlpha">,
 ): HTMLElement {
+  const sortText: Record<PollSortKey, string> | null = labels
+    ? { order: labels.pollSortOrder, votes: labels.pollSortVotes, alpha: labels.pollSortAlpha }
+    : null;
   const head = document.createElement("div");
   head.className = "poll-result-head";
   const seg = document.createElement("div");
@@ -195,7 +205,7 @@ export function buildPollSortControl(
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "poll-sort-seg-btn" + (active ? " poll-sort-seg-on" : "");
-    btn.textContent = ko ? POLL_SORT_LABELS[key].ko : POLL_SORT_LABELS[key].en;
+    btn.textContent = sortText ? sortText[key] : ko ? POLL_SORT_LABELS[key].ko : POLL_SORT_LABELS[key].en;
     if (active) {
       const arrow = document.createElement("span");
       arrow.className = "poll-sort-dir" + (sortDir === "desc" ? " poll-sort-dir-desc" : "");
