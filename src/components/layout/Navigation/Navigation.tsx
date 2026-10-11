@@ -37,6 +37,9 @@ import Button from "@/components/ui/Button";
 import Tooltip from "@/components/ui/Tooltip";
 import MagneticWrapper from "./MagneticWrapper";
 import MobileMenu from "./MobileMenu";
+import SiteLangMenu from "./SiteLangMenu";
+import { useSiteLang } from "@/providers/SiteTranslationProvider";
+import { selectSiteLang } from "@/lib/siteLang";
 import {
   navDescs, navItems, menuItems,
   adminNavItems, adminMenuItems, SKIP_LOADING_PAGES,
@@ -499,7 +502,13 @@ export default function Navigation() {
 
   /* 테마·언어 단추는 연출이 같다. 마우스를 올리면 바뀔 값을 미리 보여 주고, 누르면 실제로 바꾼다. */
   const themeToggle = useToggleAnimation(theme, theme === "dark" ? "light" : "dark", toggleTheme);
-  const langToggle = useToggleAnimation(language, language === "ko" ? "en" : "ko", toggleLanguage);
+  /* 다른 언어가 걸려 있을 때 KO/EN 을 누르면 번역을 끄고 그 언어로 — 상세 화면의 KO/EN 토글과 같은 규칙 */
+  const siteLang = useSiteLang();
+  const handleLanguageToggle = useCallback(() => {
+    if (siteLang.lang) selectSiteLang(null);
+    toggleLanguage();
+  }, [siteLang.lang, toggleLanguage]);
+  const langToggle = useToggleAnimation(language, language === "ko" ? "en" : "ko", handleLanguageToggle);
 
   const handleLogout = useCallback(async () => {
     const supabase = await loadSupabaseClient();
@@ -726,6 +735,8 @@ export default function Navigation() {
       </div>
 
       <div className={styles.navActions}>
+        {/* 사이트를 다른 언어로 보기(🌐) — 공개 화면에서만, 사이트 설정에서 번역을 껐으면 숨긴다 */}
+        {!isAdminPage && siteConfig.translation?.enabled !== false && <SiteLangMenu />}
         {/* 언어 토글 — admin에서도 표시 */}
         <Tooltip content={language === "ko" ? "언어 전환" : "Switch language"} delay={600} placement="bottom">
           <Pressable noTapScale
