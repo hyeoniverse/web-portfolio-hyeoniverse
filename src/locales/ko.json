@@ -7,6 +7,46 @@
     "about": "About",
     "contacts": "Contacts"
   },
+  "navMenu": {
+    "label": {
+      "home": "Home",
+      "works": "Works",
+      "posts": "Posts",
+      "posts-series": "Series",
+      "posts-tags": "Tags",
+      "posts-history": "History",
+      "profile": "Profile",
+      "about": "About",
+      "contacts": "Contacts"
+    },
+    "desc": {
+      "works": "프로젝트 포트폴리오",
+      "posts": "블로그 & 아티클",
+      "profile": "소개 & 이력",
+      "about": "사이트 소개"
+    },
+    "ui": {
+      "mainMenu": "주요 메뉴",
+      "mobileMenu": "모바일 메뉴",
+      "switchLanguage": "언어 전환",
+      "switchLanguageAria": "{{current}} - 영어/한국어 전환",
+      "bgm": "배경 음악",
+      "bgmTip": "BGM을 켤 수 있어요",
+      "mute": "효과음 끄기",
+      "unmute": "효과음 켜기",
+      "theme": "테마 전환",
+      "notifications": "알림",
+      "unread": "읽지 않은 알림 {{n}}개",
+      "viewAll": "모두 보기",
+      "noNotifications": "알림이 없습니다",
+      "collapse": "접기",
+      "loadMore": "더 보기 +5",
+      "admin": "관리 화면",
+      "actionNeeded": "처리 필요",
+      "getInTouch": "Get in Touch",
+      "menu": "메뉴"
+    }
+  },
   "contact": {
     "title": "연락하기",
     "namePlaceholder": "이름",
