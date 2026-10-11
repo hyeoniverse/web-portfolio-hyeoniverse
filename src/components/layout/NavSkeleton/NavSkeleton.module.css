@@ -1,0 +1,87 @@
+/* ── 사이트 안 이동 중 뼈대 — 화면 전체, 내비 바로 밑. 그 페이지 배경 위에, 첫 화면 요소가 실제로 놓이는 자리에 뼈를 둔다.
+   뼈대가 떠 있는 동안은 이전 페이지 본문을 감춘다(<html data-nav-pending>) — 내비 위로 나는 프로필 몽이나 About 하늘처럼
+   뼈대보다 위에 그려지는 것이 비치지 않게 ── */
+
+:global(html[data-nav-pending]) main {
+  visibility: hidden;
+}
+
+.layer {
+  --_shimmer: 1.5s; /* 반짝임 한 번 — 공용 Skeleton 과 같은 박자(3.9-1) */
+
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-index-nav) - 1);
+  overflow: hidden;
+  background: var(--bg-primary);
+  animation: layerIn var(--duration-base) var(--ease-standard) backwards;
+}
+
+/* 작업물 — 검은 우주 */
+.layer[data-page="/works"] {
+  background: var(--bg-black);
+}
+
+/* About — 그 시각의 하늘 색 */
+.layer[data-sky="dawn"] { background: var(--bg-time-dawn); }
+.layer[data-sky="sunrise"] { background: var(--bg-time-sunrise); }
+.layer[data-sky="morning"] { background: var(--bg-time-morning); }
+.layer[data-sky="day"] { background: var(--bg-time-day); }
+.layer[data-sky="dusk"] { background: var(--bg-time-dusk); }
+.layer[data-sky="evening"] { background: var(--bg-time-evening); }
+.layer[data-sky="night"] { background: var(--bg-time-night); }
+
+@keyframes layerIn {
+  from {
+    opacity: 0;
+  }
+}
+
+/* 뼈 — 자리는 화면 폭 · 높이 비율(--x · --y · --w), 높이는 px(--h) */
+.bone {
+  position: absolute;
+  top: calc(var(--y) * 1vh);
+  left: calc(var(--x) * 1vw);
+  width: calc(var(--w) * 1vw);
+  height: calc(var(--h) * 1px);
+  border-radius: var(--radius-control);
+  background: linear-gradient(90deg, var(--bg-tertiary) 25%, var(--bg-tertiary-alt) 50%, var(--bg-tertiary) 75%);
+  background-size: 400px 100%;
+  animation: shimmer var(--_shimmer) var(--ease-standard) infinite;
+}
+
+.bone[data-kind="circle"] {
+  border-radius: var(--radius-full);
+}
+
+.bone[data-kind="block"] {
+  border-radius: var(--radius-mark);
+}
+
+/* 어두운 배경(우주 · 밤하늘) 위 — 흐린 흰빛으로 */
+.bone[data-dark] {
+  background: linear-gradient(
+    90deg,
+    color-mix(in oklab, var(--text-white) 8%, transparent) 25%,
+    color-mix(in oklab, var(--text-white) 16%, transparent) 50%,
+    color-mix(in oklab, var(--text-white) 8%, transparent) 75%
+  );
+  background-size: 400px 100%;
+}
+
+@keyframes shimmer {
+  from {
+    background-position: -400px 0;
+  }
+
+  to {
+    background-position: 400px 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .layer,
+  .bone {
+    animation: none;
+  }
+}

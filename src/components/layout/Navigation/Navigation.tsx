@@ -246,7 +246,8 @@ export default function Navigation() {
     [adminEmail, adminAccess],
   );
 
-  const shouldSkipLoading = SKIP_LOADING_PAGES.includes(pathname) || isAdminPage;
+  /* 관리자 화면도 공개 페이지와 같은 로딩 연출(덮개 위 가운데 로고 → 제자리) — 예전엔 관리자만 로고 연출을 건너뛰어 로고 없는 덮개가 떴다 */
+  const shouldSkipLoading = SKIP_LOADING_PAGES.includes(pathname);
   const showLoadingLogo = isLoading && !shouldSkipLoading;
 
   // 로딩→nav 전환 시 z-index 유지: LoadingScreen 페이드아웃 완료까지 nav를 overlay 위에 유지
@@ -652,7 +653,7 @@ export default function Navigation() {
         })()}
       {/* Admin 배지 — logoNavBar flex 자식. blend 는 부모(.logoNavBar) 가 통째로 처리 */}
       {isAdminPage && (
-        <span className={`${styles.adminBadge} ${styles.adminBadgeFixed}`}>Admin</span>
+        <span className={`${styles.adminBadge} ${styles.adminBadgeFixed}`} data-loading={showLoadingLogo || undefined}>Admin</span>
       )}
     </Link>
 

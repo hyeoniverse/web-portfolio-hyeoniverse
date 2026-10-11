@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
+import NavSkeleton from "@/components/layout/NavSkeleton/NavSkeleton";
 
 const PageTransitionOverlay = dynamic(() => import("@/components/layout/PageTransitionOverlay"), { ssr: false });
 const Modal = dynamic(() => import("@/components/ui/Modal"), { ssr: false });
@@ -50,6 +51,8 @@ export default function ClientOverlays() {
   return (
     <aside>
       <PageTransitionOverlay />
+      {/* 사이트 안 이동 중 뼈대 — 처음부터 올린다(첫 이동부터 떠야 해서) */}
+      <NavSkeleton />
       {ready && (
         <>
           <Modal />

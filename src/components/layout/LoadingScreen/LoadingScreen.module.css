@@ -29,3 +29,67 @@
   inset: 0;
   background: var(--bg-black);
 }
+
+/* 진행률 — 화면 가운데 로고 아래의 별자리. 흐린 점선 위로 강조색 선이 왼쪽부터 이어지고, 선이 닿은 별이 켜진다. 다 이어지면 별들이 한 번 반짝인다 */
+.progress {
+  --_step: var(--duration-slow); /* 선이 이어지고 별이 켜지는 걸음 — 한 자리(3.9-1) */
+
+  position: absolute;
+  top: calc(50% + var(--spacing-64));
+  left: 50%;
+  width: calc(var(--spacing-96) * 2);
+  overflow: visible;
+  translate: -50% 0;
+}
+
+.lineBase {
+  stroke: var(--text-white-muted);
+  stroke-width: 1;
+  stroke-dasharray: 2 3;
+  opacity: 0.5;
+}
+
+.lineFill {
+  stroke: var(--text-accent);
+  stroke-width: 1.5;
+  stroke-dasharray: 1;
+  transition: stroke-dashoffset var(--_step) var(--ease-standard);
+}
+
+.star {
+  fill: var(--text-white-muted);
+  opacity: 0.5;
+  transform-box: fill-box;
+  transform-origin: center;
+  transition:
+    fill var(--_step) var(--ease-standard),
+    opacity var(--_step) var(--ease-standard),
+    scale var(--_step) var(--ease-spring);
+}
+
+.star[data-on] {
+  fill: var(--text-accent);
+  opacity: 1;
+  scale: 1.35;
+}
+
+.progress[data-full] .star {
+  animation: starTwinkle var(--duration-slower) var(--ease-spring);
+}
+
+@keyframes starTwinkle {
+  50% {
+    scale: 1.9;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lineFill,
+  .star {
+    transition: none;
+  }
+
+  .progress[data-full] .star {
+    animation: none;
+  }
+}
