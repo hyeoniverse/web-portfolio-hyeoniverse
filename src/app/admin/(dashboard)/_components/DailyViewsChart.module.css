@@ -40,16 +40,14 @@
 }
 
 .dailyChartStatLabel {
-  font: var(--font-body-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--text-tertiary);
 }
 
 .dailyChartTotal {
-  font: var(--font-code-lg);
-  font-weight: 700;
+  font: var(--font-label-lg);
   font-variant-numeric: tabular-nums;
   line-height: 1;
   color: var(--text-primary);
@@ -65,9 +63,8 @@
 .periodTrigger {
   position: relative; /* DatePickerPopover (absolute) 가 이 trigger 기준 anchor */
 }
-/* 클래스를 두 번 적어 (0,2,0) 으로 올린다 — Button 의 variant 규칙과 특이도가 같으면
-   어느 쪽이 이길지가 두 CSS 모듈의 번들 순서에 달린다. */
-.periodTriggerBtn.periodTriggerBtn {
+/* Button 은 components 층이라 층 밖의 이 규칙이 variant 규칙을 이긴다 */
+.periodTriggerBtn {
   background: var(--bg-primary);
   font-variant-numeric: tabular-nums;
 }
@@ -76,8 +73,7 @@
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  font: var(--font-body-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
 }
 
 /* active·hover(반전 배경) 때 라벨이 tertiary 그대로면 어두운 배경에 묻힌다 — 반전색 + 옅게 위계 유지 */
@@ -116,10 +112,15 @@
   display: none;
 }
 
-/* 모바일: 일당 약 24px min-width — children 에 직접 적용 (chartInner wrapper 흡수) */
-@media (width <= 768px) {
+/* 좁은 화면: 일당 약 24px min-width — children 에 직접 적용 (chartInner wrapper 흡수).
+   넓은 화면은 폭에 맞춰 늘고 줄어든다 */
+.chartScroll > * {
+  min-width: calc(var(--_days, 14) * 24px);
+}
+
+@media (width > 768px) {
   .chartScroll > * {
-    min-width: calc(var(--_days, 14) * 24px);
+    min-width: auto;
   }
 }
 
@@ -168,8 +169,7 @@
   position: absolute;
   left: 50%;
   transform: translate(-50%, calc(-100% - 10px));
-  font: var(--font-code-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   font-variant-numeric: tabular-nums;
   color: var(--text-primary);
   pointer-events: none;

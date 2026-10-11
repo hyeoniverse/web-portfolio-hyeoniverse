@@ -4,7 +4,7 @@
 }
 
 .main {
-  padding: var(--spacing-128) 8vw var(--spacing-96);
+  padding: 21vw var(--spacing-narrow-lg) 12.5vw;
 }
 
 /* SSR FOUC 방지 — hydration 전까지 콘텐츠 숨김 */
@@ -143,8 +143,7 @@
 .sectionSub {
   margin-top: var(--spacing-32);
   margin-bottom: var(--spacing-12);
-  font: var(--font-body-md);
-  font-weight: var(--font-weight-medium);
+  font: var(--font-label-md);
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -157,7 +156,7 @@
 /* Color Grid */
 .colorGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
   gap: var(--spacing-8);
 }
 
@@ -215,16 +214,15 @@
 
 .typoItem {
   display: flex;
+  flex-direction: column;
   align-items: baseline;
-  gap: var(--spacing-16);
+  gap: var(--spacing-4);
 }
 
 .typoLabel {
   flex-shrink: 0;
-  width: 80px;
   font: var(--font-code-sm);
   color: var(--text-muted);
-  text-align: right;
 }
 
 /* Spacing showcase */
@@ -338,7 +336,7 @@
 /* Motion showcase */
 .motionGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: 1fr;
   gap: var(--spacing-16);
 }
 
@@ -430,8 +428,7 @@
 
 .componentGroupTitle {
   margin-bottom: var(--spacing-12);
-  font: var(--font-body-md);
-  font-weight: var(--font-weight-semibold);
+  font: var(--font-label-md);
   color: var(--text-primary);
 }
 
@@ -439,8 +436,7 @@
    컴포넌트명(.componentGroupTitle)보다 작고 옅게 — 하위임을 드러낸다. */
 .componentSubLabel {
   margin: var(--spacing-24) 0 var(--spacing-12);
-  font: var(--font-body-sm);
-  font-weight: var(--font-weight-medium);
+  font: var(--font-label-sm);
   letter-spacing: 0.04em;
   color: var(--text-muted);
 }
@@ -467,8 +463,7 @@
   align-items: center;
   gap: var(--spacing-16);
   margin: var(--spacing-96) 0 var(--spacing-24);
-  font: var(--font-body-sm);
-  font-weight: var(--font-weight-semibold);
+  font: var(--font-label-sm);
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--text-accent);
@@ -786,39 +781,39 @@
 }
 
 /* Responsive */
-@media (width > 1280px) {
-  .main {
-    padding-left: max(8vw, 180px);
-  }
-}
-
-@media (width <= 768px) {
+@media (width > 480px) {
   .main {
     padding: 6.25rem 6vw var(--spacing-96);
   }
+}
+
+@media (width > 768px) {
+  .main {
+    padding: var(--spacing-128) 8vw var(--spacing-96);
+  }
 
   .typoItem {
-    flex-direction: column;
-    gap: var(--spacing-4);
+    flex-direction: row;
+    gap: var(--spacing-16);
   }
 
   .typoLabel {
-    width: auto;
-    text-align: left;
+    width: 80px;
+    text-align: right;
   }
 
   .colorGrid {
-    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
   }
 
   .motionGrid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   }
 }
 
-@media (width <= 480px) {
+@media (width > 1280px) {
   .main {
-    padding: 21vw var(--m-lg) 12.5vw;
+    padding-left: max(8vw, 180px);
   }
 }
 
@@ -901,9 +896,8 @@
   flex-direction: column;
 }
 
-.pFileFolder {  font: var(--font-code-md);
+.pFileFolder {  font: var(--font-label-md);
 
-  font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
   padding-bottom: var(--spacing-8);
   border-bottom: var(--border-strong);
@@ -954,4 +948,12 @@
 .pFileDesc {
   font: var(--font-body-sm);
   color: var(--text-muted);
+}
+
+/* 기기의 "동작 줄이기" — 터치 화면의 자동 재생 대신 막대를 다 찬 채로 보인다(3.9-4) */
+@media (hover: none) and (prefers-reduced-motion: reduce) {
+  .motionBar {
+    animation: none;
+    transform: scaleX(1);
+  }
 }

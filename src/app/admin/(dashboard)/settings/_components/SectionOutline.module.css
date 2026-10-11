@@ -1,7 +1,8 @@
 /* 사이드바 하위 탭(ABOUT) 아래의 섹션 목록 — 하위 탭보다 한 단 들여 작게.
-   줄마다 선을 긋는 하위 탭과 달리 왼쪽 세로선 하나로 묶어, 탭이 아니라 이 화면 안의 목차로 읽히게 한다. */
+   줄마다 선을 긋는 하위 탭과 달리 왼쪽 세로선 하나로 묶어, 탭이 아니라 이 화면 안의 목차로 읽히게 한다.
+   태블릿·모바일은 사이드바가 가로 탭 바가 되므로 숨긴다. 오른쪽 눈금(SectionJumpNav)이 대신한다. */
 .outline {
-  display: flex;
+  display: none;
   flex-direction: column;
   margin: var(--spacing-4) 0 var(--spacing-12) calc(var(--spacing-16) + var(--spacing-8));
   padding: 0;
@@ -56,9 +57,8 @@
   background: var(--text-accent);
 }
 
-/* 태블릿·모바일 — 사이드바가 가로 탭 바가 되므로 숨긴다. 오른쪽 눈금(SectionJumpNav)이 대신한다. */
-@media (width <= 1024px) {
+@media (width > 1024px) {
   .outline {
-    display: none;
+    display: flex;
   }
 }

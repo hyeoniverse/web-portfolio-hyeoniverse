@@ -2,7 +2,7 @@
 
 /* ── Prose body ── */
 .prose {
-  font: var(--font-body-lg);
+  font: var(--font-body-md);
   color: var(--text-primary);
 }
 
@@ -224,8 +224,7 @@
 }
 
 .prose th {
-  font: var(--font-body-sm);
-  font-weight: var(--font-weight-medium);
+  font: var(--font-label-sm);
   color: var(--text-secondary);
   text-transform: uppercase;
   background: var(--bg-tertiary-alt);
@@ -235,8 +234,7 @@
 /* ── Footnote (RichText) ── */
 .prose sup[data-footnote-ref] {
   color: var(--text-accent);
-  font: var(--font-code-sm);
-  font-weight: var(--font-weight-bold);
+  font: var(--font-label-sm);
   text-decoration: none;
 }
 
@@ -360,9 +358,9 @@
 .prose :global(.markdown-alert-title) { color: var(--text-accent); }
 .prose :global(.markdown-alert-title) svg { color: var(--text-accent); }
 
-@media (width <= 768px) {
+@media (width > 768px) {
   .prose {
-    font-size: var(--font-size-body-md);
+    font-size: var(--font-size-body-lg);
   }
 }
 

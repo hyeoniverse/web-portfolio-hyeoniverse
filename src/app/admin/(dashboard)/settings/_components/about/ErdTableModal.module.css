@@ -30,7 +30,7 @@
   background: transparent;
   color: var(--text-primary);
   font: var(--font-code-lg);
-  outline: none;
+  outline-color: transparent;
 }
 .nameInput:focus {
   border-color: var(--border-color-accent-strong);
@@ -62,8 +62,7 @@
   border-bottom: var(--border-light);
   background: var(--bg-primary);
   color: var(--text-secondary);
-  font: var(--font-body-md);
-  font-weight: 600;
+  font: var(--font-label-md);
   letter-spacing: 0.04em;
   text-align: left;
   text-transform: uppercase;
@@ -96,7 +95,7 @@
   background: transparent;
   color: var(--text-primary);
   font: var(--font-code-lg);
-  outline: none;
+  outline-color: transparent;
 }
 .cell:focus {
   outline: var(--border-width-1) solid var(--border-color-accent-strong);

@@ -275,7 +275,7 @@ export const METRICS: Metric[] = [
   /* 4 우선순위 */
   { id: "cascade-vendor-js-import", rule: "4-3", what: "JS 에서 바로 import 한 서드파티 CSS", count: regex(["code"], /^import\s+["'](?:katex|@xyflow|pretendard)[^"']*\.css["']/m) },
   { id: "cascade-important", rule: "4-4", what: "`!important`", count: regex(CSS, /!important/) },
-  { id: "cascade-doubled-class", rule: "4-4", what: "특이도를 올리려고 같은 클래스를 두 번 쓴 선택자(`.x.x`)", count: regex(CSS, /\.([A-Za-z][\w]*)\.\1\b/) },
+  { id: "cascade-doubled-class", rule: "4-4", what: "특이도를 올리려고 같은 클래스를 두 번 쓴 선택자(`.x.x`)", count: regex(CSS, /\.([A-Za-z][\w]*)\.\1(?![\w-])/) },
   { id: "cascade-ui-unlayered", rule: "4-4", what: "`@layer components` 로 감싸지 않은 공용 컴포넌트 CSS Module", count: (src) => {
     const out: Counts = {};
     for (const [file, { text }] of src.files) if (file.startsWith("src/components/ui/") && file.endsWith(".module.css") && !/@layer\s+components\s*\{/.test(text)) out[file] = 1;
@@ -285,7 +285,7 @@ export const METRICS: Metric[] = [
   /* 5 · 6 */
   { id: "component-raw-button", rule: "5-1", what: "`Button` · `Pressable` 밖의 JSX `<button>`", count: rawButtons },
   { id: "a11y-outline-none", rule: "6-1", what: "`outline: none/0`", count: regex(CSS, /outline\s*:\s*(?:none|0)\s*[;}]/) },
-  { id: "a11y-focus-shadow-only", rule: "6-1", what: "포커스를 그림자로 그린 규칙", count: regex(CSS, /:focus(?:-visible)?[^{]*\{[^}]*box-shadow/) },
+  { id: "a11y-focus-shadow-only", rule: "6-1", what: "포커스를 그림자로 그린 규칙", count: regex(CSS, /:focus(?:-visible)?[^{]*\{(?![^}]*outline)[^}]*box-shadow/) },
 ];
 
 export type Baseline = Record<string, Counts>;

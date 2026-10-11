@@ -86,7 +86,7 @@
   min-width: 0;
   border: none;
   background: transparent;
-  outline: none;
+  outline-color: transparent;
   font: var(--font-body-sm);
   color: var(--text-primary);
 }
@@ -172,8 +172,7 @@
   border: none;
   background: transparent;
   border-radius: var(--radius-full); /* indicator 원형 */
-  font: var(--font-code-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   line-height: 1;
   color: var(--text-tertiary);
   cursor: pointer;
@@ -219,8 +218,7 @@
   height: 18px;
   flex-shrink: 0;
   border-radius: var(--radius-full);
-  font: var(--font-code-xs);
-  font-weight: 700;
+  font: var(--font-label-xs);
   line-height: 1;
   letter-spacing: -0.02em;
 }
@@ -249,8 +247,7 @@
   position: sticky;
   top: 0;
   padding: var(--spacing-4) var(--spacing-12) var(--spacing-2);
-  font: var(--font-body-xs);
-  font-weight: var(--font-weight-medium);
+  font: var(--font-label-xs);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--text-muted);

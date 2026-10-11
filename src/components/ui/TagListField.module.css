@@ -12,15 +12,13 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-2);
-  font: var(--font-body-sm);
-  font-weight: 500;
+  font: var(--font-label-sm);
   color: var(--text-tertiary);
   letter-spacing: 0.02em;
 }
 
 .hint {
   font: var(--font-body-xs);
-  font-weight: 400;
   color: var(--text-tertiary);
   /* 설명은 한 줄이어도 글머리 — 관리자 화면의 설명 목록(sectionHintList)과 같은 모양. 글머리는 왼쪽 여백에 걸린다 */
   display: list-item;

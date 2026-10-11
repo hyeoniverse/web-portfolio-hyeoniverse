@@ -6,6 +6,7 @@
   isolation: isolate; /* 안의 z 0 … 3 이 밖과 겨루지 않게(3.10-3) */
   position: relative;
   display: flex;
+  flex-direction: column;
   min-height: 100svh;
   /* 항상 어두운 fallback — 지정된 bg 영상(introVideoUrl)이 없거나 깨져도 좌측 흰 텍스트 대비 확보.
      영상이 정상 로드되면 그 위(opacity 0.85)로 덮여 거의 영향 없음. (테마 무관 black) */
@@ -24,13 +25,13 @@
   pointer-events: none;
 }
 
-/* ── Left Panel (fixed meta) — video bg 그대로 통과 (선명) ── */
+/* ── Left Panel (fixed meta) — video bg 그대로 통과 (선명). 넓은 화면(아래 media)에서만 ── */
 .left {
   position: sticky;
   top: 0;
   width: 45vw;
   height: 100svh;
-  display: flex;
+  display: none;
   flex-direction: column;
   justify-content: center;
   padding: 0 6vw;
@@ -125,6 +126,7 @@
 
 /* ── Divider ── */
 .divider {
+  display: none;
   position: sticky;
   top: 0;
   width: 1px;
@@ -139,6 +141,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
+  width: 100%;
   z-index: 1;
 }
 
@@ -151,7 +154,8 @@
   height: 100svh;
   z-index: 0;
   pointer-events: none;
-  backdrop-filter: blur(40px) saturate(1.1);
+  /* 좁은 화면은 약하게 — 데스크탑 40px(아래 media)은 작은 화면에서 너무 과함 */
+  backdrop-filter: blur(12px) saturate(1.05);
   background: color-mix(in oklch, var(--bg-primary) 12%, transparent);
   margin-bottom: -100svh;
 }
@@ -254,7 +258,7 @@
   display: block;
   position: relative;
   width: 100%;
-  height: 100svh;
+  height: 70vh;
   overflow: hidden;
   cursor: pointer;
   /* 이미지 없거나 깨져도 뒤 블러 영상이 비치지 않게 어두운 fallback (정상 이미지가 덮음) */
@@ -337,8 +341,8 @@
 /* ── Image overlay (year + number) ── */
 .imageOverlay {
   position: absolute;
-  bottom: var(--spacing-32);
-  right: var(--spacing-32);
+  top: var(--spacing-20);
+  right: var(--spacing-20);
   z-index: 1;
   text-align: right;
   pointer-events: none;
@@ -346,16 +350,75 @@
 
 .imageYear {
   font: var(--font-display-lg);
+  font-size: var(--font-size-body-xl);
   font-family: var(--font-family-headline);
   font-weight: 200;
   line-height: 0.9;
-  color: transparent;
-  -webkit-text-stroke: 1px color-mix(in oklch, var(--text-white) 40%, transparent);
+  color: var(--text-white);
+  opacity: 0.4;
 }
 
-/* ── Mobile meta overlay (hidden on desktop) ── */
+/* ── Mobile meta overlay (hidden on desktop) — 이 안의 규칙은 좁은 화면에서만 보인다 ── */
+.imageCard::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    to top,
+    color-mix(in oklch, var(--bg-black) 80%, transparent) 0%,
+    transparent 50%,
+    color-mix(in oklch, var(--bg-black) 40%, transparent) 100%
+  );
+  pointer-events: none;
+}
+
 .imageMeta {
-  display: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  padding: var(--spacing-20);
+  color: var(--text-white);
+  text-shadow: var(--text-shadow-strong);
+}
+
+.imageMetaNumber {
+  font: var(--font-code-xs);
+  letter-spacing: 0.3em;
+  opacity: 0.5;
+}
+
+.imageMetaTitle {
+  font: var(--font-headline-xl);
+  font-size: var(--font-size-headline-md);
+  font-weight: var(--font-weight-light);
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.imageMetaSub {
+  font-size: var(--font-size-body-md);
+  opacity: 0.65;
+  margin: 0;
+}
+
+.imageMetaTech {
+  display: flex;
+  gap: var(--spacing-8);
+  flex-wrap: wrap;
+  margin-top: var(--spacing-4);
+}
+
+.imageMetaTech span {
+  padding: var(--spacing-2) var(--spacing-8);
+  border: var(--border-ghost);
+  border-radius: var(--radius-control);
+  font: var(--font-code-xs);
 }
 
 /* ── Progress dots ── */
@@ -365,7 +428,7 @@
   top: 50%;
   transform: translateY(-50%);
   z-index: 3;
-  display: flex;
+  display: none;
   flex-direction: column;
   gap: var(--spacing-12);
 }
@@ -388,121 +451,65 @@
 }
 
 /* ── Responsive ── */
-@media (width <= 1024px) {
-  .wrap {
-    flex-direction: column;
-  }
-
-  .left {
-    display: none;
-  }
-
-  .divider {
-    display: none;
-  }
-
-  .dots {
-    display: none;
-  }
-
-  .right {
-    width: 100%;
-  }
-
-  /* 모바일 — intro 패널/우측 배경 blur 약화 (데스크탑 40px 은 작은 화면에서 너무 과함) */
-  .right::before {
-    backdrop-filter: blur(12px) saturate(1.05);
-  }
-
+@media (width > 480px) {
   .imageCard {
     height: 80vh;
   }
 
-  .imageCard::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    background: linear-gradient(
-      to top,
-      color-mix(in oklch, var(--bg-black) 80%, transparent) 0%,
-      transparent 50%,
-      color-mix(in oklch, var(--bg-black) 40%, transparent) 100%
-    );
-    pointer-events: none;
-  }
-
   .imageMeta {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-8);
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 2;
     padding: var(--spacing-32);
-    color: var(--text-white);
-    text-shadow: var(--text-shadow-strong);
-  }
-
-  .imageMetaNumber {
-    font: var(--font-code-xs);
-    letter-spacing: 0.3em;
-    opacity: 0.5;
   }
 
   .imageMetaTitle {
     font: var(--font-headline-xl);
     font-weight: var(--font-weight-light);
-    letter-spacing: -0.02em;
-    margin: 0;
-  }
-
-  .imageMetaSub {
-    font-size: var(--font-size-body-md);
-    opacity: 0.65;
-    margin: 0;
-  }
-
-  .imageMetaTech {
-    display: flex;
-    gap: var(--spacing-8);
-    flex-wrap: wrap;
-    margin-top: var(--spacing-4);
-  }
-
-  .imageMetaTech span {
-    padding: var(--spacing-2) var(--spacing-8);
-    border: var(--border-ghost);
-    border-radius: var(--radius-control);
-    font: var(--font-code-xs);
-  }
-
-  .imageOverlay {
-    bottom: auto;
-    top: var(--spacing-20);
-    right: var(--spacing-20);
-  }
-
-  .imageYear {
-    font-size: var(--font-size-body-xl);
-    -webkit-text-stroke: 0;
-    color: var(--text-white);
-    opacity: 0.4;
   }
 }
 
-@media (width <= 480px) {
+@media (width > 1024px) {
+  .wrap {
+    flex-direction: row;
+  }
+
+  .left,
+  .dots {
+    display: flex;
+  }
+
+  .divider {
+    display: block;
+  }
+
+  .right {
+    width: auto;
+  }
+
+  .right::before {
+    backdrop-filter: blur(40px) saturate(1.1);
+  }
+
   .imageCard {
-    height: 70vh;
+    height: 100svh;
+  }
+
+  .imageCard::before {
+    content: none;
   }
 
   .imageMeta {
-    padding: var(--spacing-20);
+    display: none;
   }
 
-  .imageMetaTitle {
-    font-size: var(--font-size-headline-md);
+  .imageOverlay {
+    top: auto;
+    bottom: var(--spacing-32);
+    right: var(--spacing-32);
+  }
+
+  .imageYear {
+    font-size: var(--font-size-display-lg);
+    color: transparent;
+    -webkit-text-stroke: 1px color-mix(in oklch, var(--text-white) 40%, transparent);
+    opacity: 1;
   }
 }

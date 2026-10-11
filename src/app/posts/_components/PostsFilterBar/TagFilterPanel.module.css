@@ -71,8 +71,7 @@
 }
 
 .tagCount {
-  font: var(--font-body-xs);
-  font-weight: var(--font-weight-medium);
+  font: var(--font-label-xs);
   color: var(--text-tertiary);
 }
 

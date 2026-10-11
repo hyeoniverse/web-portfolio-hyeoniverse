@@ -27,8 +27,14 @@
 }
 
 .h4 {
-  font: var(--font-headline-xl);
+  font: var(--font-headline-sm);
   font-weight: var(--font-weight-semibold);
+}
+
+@media (width > 768px) {
+  .h4 {
+    font-size: var(--font-size-headline-xl);
+  }
 }
 
 .h5 {
@@ -55,8 +61,7 @@
 }
 
 .overline {
-  font: var(--font-body-sm);
-  font-weight: var(--font-weight-semibold);
+  font: var(--font-label-sm);
   line-height: var(--line-height-125);
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -129,11 +134,4 @@
   -webkit-text-fill-color: transparent;
 }
 
-/* Responsive */
-@media (width <= 768px) {
-
-  .h4 {
-    font-size: var(--font-size-headline-sm);
-  }
-}
 }

@@ -3,14 +3,14 @@
    backdrop-filter 가 부모 페이지 콘텐츠를 blur 할 수 있도록 isolation 제거 */
 .wrap {
   position: fixed;
-  bottom: var(--spacing-24);
-  right: var(--spacing-24);
+  bottom: var(--spacing-16);
+  right: var(--spacing-16);
 }
 
-@media (width <= 768px) {
+@media (width > 768px) {
   .wrap {
-    bottom: var(--spacing-16);
-    right: var(--spacing-16);
+    bottom: var(--spacing-24);
+    right: var(--spacing-24);
   }
 }
 
@@ -83,8 +83,7 @@
   display: inline-flex;
   align-items: baseline;
   gap: var(--spacing-1);
-  font: var(--font-code-sm);
-  font-weight: 700;
+  font: var(--font-label-sm);
   font-variant-numeric: tabular-nums;
   margin-left: var(--spacing-4);
   margin-right: var(--spacing-8);
@@ -208,8 +207,7 @@
 }
 
 .panelHeaderStatus {
-  font: var(--font-body-sm);
-  font-weight: 600;
+  font: var(--font-label-sm);
   color: var(--text-primary);
 }
 
@@ -277,8 +275,7 @@
 }
 
 .panelHint {
-  font: var(--font-body-xs);
-  font-weight: 500;
+  font: var(--font-label-xs);
   color: var(--text-accent);
   white-space: nowrap;
   flex-shrink: 0;
@@ -314,8 +311,7 @@
 
 .panelPassedLabel {
   display: block;
-  font: var(--font-body-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--text-tertiary);

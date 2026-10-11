@@ -11,6 +11,7 @@ import WorkYear from "@/components/works/WorkYear";
 import TransitionLink from "@/components/ui/TransitionLink";
 import { workHref, type WorksLayoutProps } from "./shared";
 import styles from "./GridLayout.module.css";
+import AutoplayVideo from "@/components/common/AutoplayVideo";
 
 /** Bento layout — intro + projects 가 항상 12×12 (3×3) 그리드를 빈 공간 없이 채움.
  *  projects 개수에 따라 intro 크기 + project 배치 adaptive. 12-grid 좌표 (x: 0/4/8, y: 0/4/8). */
@@ -96,13 +97,9 @@ export default function GridLayout({ projects, onProjectClick }: WorksLayoutProp
             className={styles.introCell}
             data-clickable="true"
           >
-            <video
+            <AutoplayVideo
               className={styles.introVideo}
               src={introVideoSrc}
-              autoPlay
-              muted
-              loop
-              playsInline
               preload="auto"
               aria-hidden="true"
             />

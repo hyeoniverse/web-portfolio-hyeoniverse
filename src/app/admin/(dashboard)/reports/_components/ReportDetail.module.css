@@ -110,8 +110,7 @@
   align-items: center;
   padding: var(--badge-padding-md);
   border-radius: var(--radius-control);
-  font: var(--font-body-xs);
-  font-weight: var(--font-weight-semibold);
+  font: var(--font-label-xs);
   line-height: 1;
 }
 

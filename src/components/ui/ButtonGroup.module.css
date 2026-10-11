@@ -1,5 +1,6 @@
-/* 공용 컴포넌트 — components 층(docs/design-system.md 4-4). 쓰는 쪽이 className 으로 넘긴 클래스가 번들 순서 · 특이도와 상관없이 이긴다 */
-@layer components {
+/* 묶는 공용 컴포넌트 — compositions 층(docs/design-system.md 4-4-2). 안에 담은 공용 컴포넌트(components 층)를
+   !important 없이 덮고, 쓰는 쪽이 className 으로 넘긴 클래스에는 진다 */
+@layer compositions {
 /* ==========================================================================
    ButtonGroup — 캡슐형 버튼 그룹 (마지막 filled, 나머지 outline)
    ========================================================================== */
@@ -17,34 +18,34 @@
 
 /* 자식 Button 개별 border/radius 제거 */
 .group > * {
-  border: none !important;
-  border-radius: 0!important;
+  border: none;
+  border-radius: 0;
 }
 
 /* 인접 버튼 사이 구분선 */
 .group > * + * {
-  border-left: var(--border-strong) !important;
+  border-left: var(--border-strong);
 }
 
 /* 마지막 제외: ghost 스타일 (투명 bg) */
 .group > *:not(:last-child) {
-  background: transparent !important;
-  color: var(--text-primary) !important;
+  background: transparent;
+  color: var(--text-primary);
 }
 
 .group > *:not(:last-child):hover:not(:disabled) {
-  background: var(--bg-inverse) !important;
-  color: var(--text-inverse) !important;
+  background: var(--bg-inverse);
+  color: var(--text-inverse);
 }
 
 .group > *:not(:last-child):hover + * {
-  border-left-color: var(--border-color-white) !important;
+  border-left-color: var(--border-color-white);
 }
 
 /* 마지막: primary filled → hover 시 invert */
 .group > *:last-child:hover:not(:disabled) {
-  background: transparent !important;
-  color: var(--text-primary) !important;
+  background: transparent;
+  color: var(--text-primary);
 }
 
 /* ── neutral 변형 — CTA 색 없이 중립 세그먼트(색 입력 + 아이콘 도구 결합용).
@@ -56,42 +57,42 @@
 }
 
 .neutral > * + * {
-  border-left: var(--border-light) !important;
+  border-left: var(--border-light);
 }
 
 /* 모든 자식(입력 wrapper 포함) — cta 의 색 규칙을 걷어낸다 */
 .neutral > *:not(:last-child),
 .neutral > *:last-child {
-  background: transparent !important;
-  color: inherit !important;
+  background: transparent;
+  color: inherit;
 }
 
 .neutral > *:not(:last-child):hover:not(:disabled),
 .neutral > *:last-child:hover:not(:disabled) {
-  background: transparent !important;
-  color: inherit !important;
+  background: transparent;
+  color: inherit;
 }
 
 .neutral > *:not(:last-child):hover + * {
-  border-left-color: var(--border-color-light) !important;
+  border-left-color: var(--border-color-light);
 }
 
 /* 버튼 세그먼트만 도구 색 + 은은한 hover */
 .neutral > button:not(:last-child),
 .neutral > button:last-child {
-  color: var(--text-tertiary) !important;
+  color: var(--text-tertiary);
 }
 
 /* 버튼 hover 는 cta 와 같은 반전 언어 — 입력(비버튼)만 반전에서 제외된다 */
 .neutral > button:not(:last-child):hover:not(:disabled),
 .neutral > button:last-child:hover:not(:disabled) {
-  background: var(--bg-inverse) !important;
-  color: var(--text-inverse) !important;
+  background: var(--bg-inverse);
+  color: var(--text-inverse);
 }
 
 /* 반전된 버튼 옆 구분선은 흰 계열로 (cta 와 동일) */
 .neutral > button:not(:last-child):hover:not(:disabled) + * {
-  border-left-color: var(--border-color-white) !important;
+  border-left-color: var(--border-color-white);
 }
 
 /* ── neutral 필드 그룹 공통 규칙 — 어느 사용처에서든 같은 모양이 되도록 여기서 정한다 ── */

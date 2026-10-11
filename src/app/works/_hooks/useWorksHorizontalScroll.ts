@@ -322,6 +322,10 @@ export function useWorksHorizontalScroll({
         gallery.removeEventListener("mousemove", handleMouseMove);
         gallery.removeEventListener("wheel", handleWheel);
         gallery.removeAttribute("data-lenis-prevent-wheel");
+        /* 루프(rAF) 안에서 넣은 인라인 값은 context 에 잡히지 않아 revert 로 지워지지 않는다 — 직접 걷는다.
+           안 걷으면 세로 레이아웃으로 바뀐 뒤에도 가로 위치·기울기·숨김이 남는다 */
+        const metas = slider.querySelectorAll(`.${cls.metaCategory}, .${cls.metaYear}, .${cls.metaTech}, .${cls.metaRole}, .${cls.metaDesc}`);
+        gsap.set([slider, ...cards, ...cardMedia.filter(Boolean), ...metas], { clearProps: "transform,opacity" });
       };
     }, gallery);
 

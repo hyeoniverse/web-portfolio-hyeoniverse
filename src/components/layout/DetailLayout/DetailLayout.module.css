@@ -7,10 +7,17 @@
 .hero {
   position: relative;
   width: 100%;
-  height: 35vh;
-  min-height: 240px;
+  height: 28vh;
+  min-height: 180px;
   overflow: hidden;
   margin-bottom: -1px;
+}
+
+@media (width > 768px) {
+  .hero {
+    height: 35vh;
+    min-height: 240px;
+  }
 }
 
 .heroCover {
@@ -74,7 +81,8 @@
   gap: var(--spacing-12);
   align-items: center;
   position: fixed;
-  top: calc(var(--spacing-32) + var(--spacing-48));
+  /* 작은 화면 — 크기는 넓은 화면과 같다(통통한 56). 자리만 네비 줄(꼭대기 여백 + 단추 40) 바로 아래로 */
+  top: calc(var(--spacing-nav-top) + var(--size-40) + var(--spacing-12));
   left: var(--spacing-page-inline);
   z-index: var(--z-index-nav);
   /* 통통한 알약 — 컨트롤 단계(최대 40)보다 높게 56 으로, 좌우 여백은 그대로 두어 높이가 도드라지게 */
@@ -88,6 +96,12 @@
   text-decoration: none;
   backdrop-filter: blur(10px);
   transition: opacity var(--duration-base), transform var(--duration-base), padding var(--duration-base), font-size var(--duration-base), gap var(--duration-base), top var(--duration-base), left var(--duration-base);
+}
+
+@media (width > 768px) {
+  .backBtn {
+    top: calc(var(--spacing-32) + var(--spacing-48));
+  }
 }
 
 .backBtnHidden {
@@ -143,8 +157,15 @@
   align-self: flex-start;
   position: sticky;
   top: calc(var(--spacing-32) + 60px);
+  display: none;
   max-height: calc(100dvh - 120px);
   overflow-y: auto;
+}
+
+@media (width > 1280px) {
+  .tocSidebar {
+    display: block;
+  }
 }
 
 .likeWrapper {
@@ -241,33 +262,4 @@
 
 .footerNav .footerLink:hover .footerArrow {
   transform: translateX(-4px);
-}
-
-
-@media (width <= 1280px) {
-  .tocSidebar {
-    display: none;
-  }
-}
-
-/* ── Responsive ── */
-@media (width <= 768px) {
-  .hero {
-    height: 28vh;
-    min-height: 180px;
-  }
-
-  .heroSpacer {
-    height: var(--spacing-48);
-  }
-
-  /* 모바일 뒤로가기 — 크기는 데스크톱과 같다(통통한 56). 자리만 네비 줄(꼭대기 여백 + 단추 40) 바로 아래로 */
-  .backBtn {
-    top: calc(var(--spacing-nav-top) + var(--size-40) + var(--spacing-12));
-    left: var(--spacing-page-inline);
-    display: inline-flex;
-    align-items: center;
-    transition: opacity var(--duration-base), transform var(--duration-base), padding var(--duration-base), font-size var(--duration-base), gap var(--duration-base), top var(--duration-base), left var(--duration-base);
-  }
-
 }

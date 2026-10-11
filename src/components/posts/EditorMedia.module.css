@@ -10,8 +10,7 @@
 
 .mediaUploadName {
   margin: 0;
-  font: var(--font-body-md);
-  font-weight: 600;
+  font: var(--font-label-md);
   color: var(--text-primary);
   word-break: break-all;
 }
@@ -117,8 +116,7 @@
 }
 
 .imagePanelLabel {
-  font: var(--font-code-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -217,8 +215,7 @@
 }
 
 .imagePanelDividerLabel {
-  font: var(--font-code-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;

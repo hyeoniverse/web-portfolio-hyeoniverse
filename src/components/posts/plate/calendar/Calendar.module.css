@@ -1,10 +1,11 @@
-/* 공통 컴포넌트(SearchCapsule/Button) border 를 달력 컨트롤(--border-light)과 통일 */
-.ctrlBorderLight { border-color: var(--border-color-light) !important; }
+/* 공통 컴포넌트(SearchCapsule/Button) border 를 달력 컨트롤(--border-light)과 통일.
+   공용 컴포넌트는 components 층이라 이 파일(층 밖)의 규칙이 "무조건" 표시 없이 이긴다(4-4) */
+.ctrlBorderLight { border-color: var(--border-color-light); }
 /* 모달 안 Select dropdown — z 는 이제 Modal 의 PortalContainerContext(layer portal)가 처리하므로 불필요.
    불투명 배경만 유지(가독성 — 모달 backdrop blur 위에서 difference 대비 확보). */
 .selectAboveModal {
-  background: var(--bg-primary) !important;
-  backdrop-filter: none !important;
+  background: var(--bg-primary);
+  backdrop-filter: none;
 }
 
 /* ── 검색/필터/정렬 툴바 ── (blockBar 인라인 겸 리더 행) */
@@ -61,8 +62,7 @@
   max-width: 320px;
 }
 .filterGroupLabel {
-  font: var(--font-body-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   color: var(--text-tertiary);
   margin-top: var(--spacing-2);
 }
@@ -138,7 +138,7 @@
   font-family: inherit;
   font-weight: 600;
   color: var(--text-primary);
-  outline: none;
+  outline-color: transparent;
   text-overflow: ellipsis;
   transition: background-color var(--duration-fast) var(--ease-standard);
 }
@@ -276,7 +276,7 @@
 }
 .calDeletedIcon { flex-shrink: 0; color: var(--text-tertiary); }
 .calDeletedText { display: flex; flex-direction: column; gap: var(--spacing-2); flex: 1; min-width: 0; }
-.calDeletedText strong { color: var(--text-primary); font: var(--font-body-md); font-weight: 600; }
+.calDeletedText strong { color: var(--text-primary); font: var(--font-label-md);}
 .calDeletedText span { color: var(--text-tertiary); font: var(--font-body-xs); line-height: 1.5; }
 .spin { --_calspin-duration: 0.8s; /* 반복 · 긴 애니메이션 — 한 자리의 장식(3.9-1) */ animation: calspin var(--_calspin-duration) linear infinite; }
 @keyframes calspin { to { transform: rotate(360deg); } }
@@ -353,8 +353,7 @@
 .weekday {
   padding: var(--spacing-2) 0;
   text-align: center;
-  font: var(--font-body-md);
-  font-weight: 500;
+  font: var(--font-label-md);
   color: var(--text-tertiary);
 }
 .sun { color: var(--text-accent); }
@@ -524,8 +523,7 @@
 }
 .dayPopHead {
   padding: 0 var(--spacing-2);
-  font: var(--font-body-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   color: var(--text-secondary);
 }
 .dayPopList {
@@ -548,10 +546,10 @@
 /* 각 행의 첫 아이콘은 같은 폭(16px) 슬롯에 중앙정렬 — dot 10 / star·link 13 로 폭이 달라
    라벨 시작점이 그룹마다 어긋났다. 슬롯을 통일하면 세로로 정렬돼 스캔이 쉽다. */
 /* active(사이드바 열림) — accent 아이콘 대신 공통 active 스타일(inverse 배경/글자) */
-.blockBarIconOn {
-  background: var(--bg-inverse) !important;
-  border-color: var(--bg-inverse) !important;
-  color: var(--text-inverse) !important;
+.blockBarIconBtn.blockBarIconOn {
+  background: var(--bg-inverse);
+  border-color: var(--bg-inverse);
+  color: var(--text-inverse);
 }
 
 /* ── 이벤트 추가/편집 모달 폼 ── 좌(제목~상태) | 우(내용~태그), 모바일 1열 */
@@ -600,16 +598,14 @@
   border-radius: var(--radius-control);
   background: var(--bg-primary);
   color: var(--text-secondary);
-  font: var(--font-body-sm);
-  font-weight: 600;
+  font: var(--font-label-sm);
   cursor: pointer;
   transition: color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard);
 }
 .agendaHeadAdd:hover { color: var(--text-accent); border-color: var(--border-color-accent-strong); }
 .agendaTitle {
   padding: 0 var(--spacing-8);
-  font: var(--font-body-md);
-  font-weight: 600;
+  font: var(--font-label-md);
   font-variant-numeric: tabular-nums;
   color: var(--text-primary);
 }
@@ -642,7 +638,7 @@
 .miniCalHead { display: flex; align-items: center; justify-content: space-between; margin: var(--spacing-12) 0; }
 .miniCalTitleWrap { position: relative; display: inline-flex; }
 .miniCalWeek, .miniCalGrid { display: grid; grid-template-columns: var(--grid-columns-7); gap: var(--spacing-2); }
-.miniCalDow { text-align: center; font: var(--font-body-xs); font-weight: 600; color: var(--text-tertiary); padding-bottom: var(--spacing-2); }
+.miniCalDow { text-align: center; font: var(--font-label-xs);}
 .miniCalDow.sun { color: var(--text-accent); }
 .miniCalDow.sat { color: var(--text-info); }
 /* 셀 — 숫자 + 개수를 한 그룹으로 세로 센터. 개수 슬롯 항상 예약(빈 날은 공백)해 숫자 위치 고정 → 배경 원이 그룹 가운데. */
@@ -700,7 +696,7 @@
   transition: border-color var(--duration-fast) var(--ease-standard);
 }
 .dayPanelTitle::placeholder { color: var(--text-muted); font-weight: 500; }
-.dayPanelTitle:focus { outline: none; border-bottom-color: var(--border-color-accent-strong); }
+.dayPanelTitle:focus { outline-color: transparent; border-bottom-color: var(--border-color-accent-strong); }
 .dayPanelTitleStatic { flex: 1; min-width: 0; font: var(--font-headline-sm); line-height: 1.2; letter-spacing: -0.01em; color: var(--text-primary); word-break: break-word; }
 /* 날짜·시간 메타 — 무배경, 아래 hairline 으로 필드와 분리 */
 .dayPanelMeta {
@@ -815,8 +811,7 @@
   height: 20px;
   padding: 0 var(--spacing-1);
   border-radius: var(--radius-full);
-  font: var(--font-body-sm);
-  font-weight: 600;
+  font: var(--font-label-sm);
   font-variant-numeric: tabular-nums;
   color: var(--text-tertiary);
 }
@@ -833,8 +828,7 @@
   padding: 0 var(--spacing-1);
   border-radius: var(--radius-control);
   background: var(--bg-tertiary);
-  font: var(--font-body-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   color: var(--text-secondary);
 }
 
@@ -874,7 +868,7 @@
 .agendaItemDone { opacity: 0.5; }
 .agendaItemDone .agendaItemTitle { text-decoration: line-through; }
 .agendaDot { display: inline-block; flex-shrink: 0; width: 8px; height: 8px; border-radius: var(--radius-full); background: var(--_c); }
-.agendaTime { flex-shrink: 0; font: var(--font-body-xs); font-weight: 600; font-variant-numeric: tabular-nums; color: var(--text-tertiary); }
+.agendaTime { flex-shrink: 0; font: var(--font-label-xs);}
 .agendaItemTitle { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--font-size-body-md); color: var(--text-primary); }
 .agendaAdd {
   flex-shrink: 0;
@@ -908,7 +902,7 @@
   max-height: 74px;
   overflow-y: auto;
 }
-.dayAllDayLabel { flex-shrink: 0; margin-right: var(--spacing-2); font: var(--font-body-xs); font-weight: 600; color: var(--text-tertiary); letter-spacing: 0.02em; }
+.dayAllDayLabel { flex-shrink: 0; margin-right: var(--spacing-2); font: var(--font-label-xs);}
 .dayAllDayItem {
   display: inline-flex;
   align-items: center;
@@ -958,8 +952,7 @@
   top: -0.5em;
   width: calc(var(--_axis) - 10px);
   text-align: right;
-  font: var(--font-body-xs);
-  font-weight: 500;
+  font: var(--font-label-xs);
   font-variant-numeric: tabular-nums;
   color: var(--text-tertiary);
 }
@@ -990,11 +983,11 @@
 .dayEventTitle {
   flex: 1;
   min-width: 0;
-  font: var(--font-body-md); font-weight: 600; line-height: 1.35;
+  font: var(--font-label-md);
   color: var(--text-primary);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
-.dayEventTime { font: var(--font-body-xs); font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.3; color: color-mix(in srgb, var(--_c) 60%, var(--text-tertiary)); }
+.dayEventTime { font: var(--font-label-xs);}
 .dayNowLine { position: absolute; left: var(--_axis); right: 0; height: 2px; background: var(--bg-accent-solid); z-index: 3; pointer-events: none; }
 .dayNowDot { position: absolute; left: -4px; top: 50%; width: 8px; height: 8px; border-radius: var(--radius-full); background: var(--bg-accent-solid); transform: translateY(-50%); }
 /* 드래그: 블록 이동/리사이즈 + 빈 슬롯 생성 프리뷰 */
@@ -1077,8 +1070,7 @@
   flex-shrink: 0;
   width: 58px;
   padding-top: var(--spacing-2);
-  font: var(--font-body-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   font-variant-numeric: tabular-nums;
   line-height: 1.4;
   color: var(--text-tertiary);
@@ -1086,14 +1078,13 @@
 .dayRowBody { display: flex; flex-direction: column; gap: var(--spacing-2); min-width: 0; flex: 1; }
 .dayRowTitleLine { display: flex; align-items: center; gap: var(--spacing-4); min-width: 0; }
 .dayRowDot { flex-shrink: 0; width: 7px; height: 7px; border-radius: var(--radius-full); background: var(--_c); }
-.dayRowTitle { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: var(--font-body-md); font-weight: 600; color: var(--text-primary); min-width: 0; }
+.dayRowTitle { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: var(--font-label-md);}
 .dayRowRange {
   flex-shrink: 0;
   padding: 0 var(--spacing-4);
   border-radius: var(--radius-control);
   background: var(--bg-tertiary);
-  font: var(--font-body-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   color: var(--text-tertiary);
 }
 .dayRowSub {
@@ -1203,10 +1194,10 @@
 /* 기간 토글 ON — 공통 active 스타일(SegmentedControl 선택 등)과 동일한 검정 채움 */
 /* 클래스를 두 번 적어 (0,2,0) 으로 올린다 — Button 의 variant 규칙과 특이도가 같으면
    어느 쪽이 이길지가 두 CSS 모듈의 번들 순서에 달린다. */
-.rangeToggleOn.rangeToggleOn {
-  background: var(--bg-inverse) !important;
-  border-color: var(--bg-inverse) !important;
-  color: var(--text-inverse) !important;
+.rangeToggleOn {
+  background: var(--bg-inverse);
+  border-color: var(--bg-inverse);
+  color: var(--text-inverse);
 }
 
 /* 섹션 (날짜/제목/라벨/태그/시간) */
@@ -1251,8 +1242,7 @@
 }
 .dateTilde { color: var(--text-tertiary); }
 .sectionLabel {
-  font: var(--font-body-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   color: var(--text-secondary);
 }
 /* 필수 입력 표시 dot */
@@ -1369,14 +1359,14 @@
 }
 /* 태그 제안 칩 — 추가 칩(공통 Chip capsule)과 같은 크기 + 대시 외곽선으로 구분 */
 .suggestChip {
-  border-style: dashed !important;
-  background: transparent !important;
-  color: var(--text-tertiary) !important;
+  border-style: dashed;
+  background: transparent;
+  color: var(--text-tertiary);
 }
 .suggestChip svg { color: var(--text-tertiary); transition: color var(--duration-fast) var(--ease-standard); }
 .suggestChip:hover {
-  border-color: var(--border-color-accent-strong) !important;
-  color: var(--text-accent) !important;
+  border-color: var(--border-color-accent-strong);
+  color: var(--text-accent);
 }
 .suggestChip:hover svg { color: var(--text-accent); }
 
@@ -1461,8 +1451,7 @@
 }
 .tlHeadRight { flex-wrap: wrap; justify-content: flex-end; }
 .tlHeadTitle {
-  font: var(--font-body-md);
-  font-weight: 600;
+  font: var(--font-label-md);
   color: var(--text-primary);
 }
 .tlHeadRight {
@@ -1511,8 +1500,7 @@
   position: absolute;
   top: 0;
   padding-left: var(--spacing-12);
-  font: var(--font-body-sm);
-  font-weight: 600;
+  font: var(--font-label-sm);
   line-height: calc(26 / 13);
   letter-spacing: 0.01em;
   color: var(--text-secondary);
@@ -1708,8 +1696,7 @@
   border-radius: var(--radius-control);
   background: var(--bg-accent-solid);
   color: var(--text-on-accent);
-  font: var(--font-body-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
@@ -1825,8 +1812,7 @@
 .tlBarTitle {
   flex: 1;
   min-width: 0;
-  font: var(--font-body-sm);
-  font-weight: 500;
+  font: var(--font-label-sm);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

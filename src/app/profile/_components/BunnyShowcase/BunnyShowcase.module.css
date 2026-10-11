@@ -2,9 +2,10 @@
 
 .layout {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: var(--spacing-32);
+  gap: var(--spacing-24);
   width: 100%;
   height: 100%;
 }
@@ -12,7 +13,8 @@
 /* ── 몽이 자리 — 크기 · 위치만. 입력 받는 상자의 동작(커서 · 터치)은 BunnyDock.module.css ── */
 .dock {
   flex-shrink: 0;
-  width: min(50vh, 380px);
+  /* 한 열이면 몽이 자리가 화면 폭을 거의 다 써서(332×443) 몽이가 화면을 가렸다 — 두 열(768 초과)에서 키운다 */
+  width: min(56vw, 240px);
   aspect-ratio: 3 / 4;
 }
 
@@ -20,14 +22,13 @@
 .info {
   display: flex;
   flex-direction: column;
-  max-width: 30rem;
+  max-width: 100%;
 }
 
 .nameLabel {
   display: block;
   margin-bottom: var(--spacing-8);
-  font: var(--font-code-xs);
-  font-weight: 500;
+  font: var(--font-label-xs);
   color: var(--text-accent);
   text-transform: uppercase;
   letter-spacing: 0.15em;
@@ -45,7 +46,7 @@
 .subtitle {
   display: block;
   margin-bottom: var(--spacing-32);
-  font: var(--font-meta-md);
+  font: var(--font-body-md);
   color: var(--text-tertiary);
   font-style: italic;
 }
@@ -60,8 +61,7 @@
 
 .storyText {
   margin: 0;
-  font: var(--font-code-md);
-  font-weight: 300;
+  font: var(--font-body-md);
   line-height: 1.8;
   color: var(--text-secondary);
 }
@@ -79,7 +79,7 @@
   align-items: center;
   gap: var(--spacing-4);
   flex: 1;
-  padding: var(--card-padding-sm);
+  padding: var(--spacing-12) var(--spacing-8);
   border: none;
   background: transparent;
   text-align: center;
@@ -158,8 +158,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 28px;
+  width: var(--float-button-size-md);
+  height: var(--control-height-xs);
   /* 귀가 위로 뻗으므로 얼굴을 조금 내려 별 안에 담는다 */
   margin-top: var(--spacing-20);
   color: var(--text-primary);
@@ -169,6 +169,11 @@
 }
 
 /* Bunny ears — left */
+.exprFace svg {
+  width: var(--control-height-xl);
+  height: 24px;
+}
+
 .exprFace::before,
 .exprFace::after {
   content: "";
@@ -190,9 +195,8 @@
 }
 
 /* Label */
-.exprLabel {  font: var(--font-code-sm);
+.exprLabel {  font: var(--font-label-sm);
 
-  font-weight: var(--font-weight-medium);
   color: var(--text-primary);
 }
 
@@ -207,41 +211,41 @@
 }
 
 /* Description */
-.exprDesc {  font: var(--font-meta-xs);
+.exprDesc {  font: var(--font-body-xs);
 
   line-height: 1.5;
   color: var(--text-tertiary);
 }
 
 /* ── Responsive ── */
-@media (width <= 768px) {
-  .layout {
-    flex-direction: column;
-    gap: var(--spacing-24);
-  }
-
-  /* 한 열이면 몽이 자리가 화면 폭을 거의 다 써서(332×443) 몽이가 화면을 가렸다 */
-  .dock {
-    width: min(56vw, 240px);
-  }
-
-  .info {
-    max-width: 100%;
-  }
-}
-
-@media (width <= 480px) {
+@media (width > 480px) {
   .exprCard {
-    padding: var(--spacing-12) var(--spacing-8);
+    padding: var(--card-padding-sm);
   }
 
   .exprFace {
-    width: var(--float-button-size-md);
-    height: var(--control-height-xs);
+    width: 40px;
+    height: 28px;
   }
 
+  /* 얼굴 그림의 원래 크기(svg width · height 속성) */
   .exprFace svg {
-    width: var(--control-height-xl);
-    height: 24px;
+    width: 48px;
+    height: 32px;
+  }
+}
+
+@media (width > 768px) {
+  .layout {
+    flex-direction: row;
+    gap: var(--spacing-32);
+  }
+
+  .dock {
+    width: min(50vh, 380px);
+  }
+
+  .info {
+    max-width: 30rem;
   }
 }

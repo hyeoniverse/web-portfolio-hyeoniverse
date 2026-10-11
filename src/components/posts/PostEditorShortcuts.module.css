@@ -9,8 +9,7 @@
 .helpTab {
   padding: var(--spacing-8) var(--spacing-16);
   margin-bottom: -1px;
-  font: var(--font-body-md);
-  font-weight: 600;
+  font: var(--font-label-md);
   color: var(--text-tertiary);
   background: none;
   border: none;
@@ -64,8 +63,7 @@
 }
 
 .helpSectionTitle {
-  font: var(--font-code-sm);
-  font-weight: 600;
+  font: var(--font-label-sm);
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.06em;

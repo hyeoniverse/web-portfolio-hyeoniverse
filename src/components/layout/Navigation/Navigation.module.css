@@ -5,7 +5,9 @@
 .nav {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  /* 작은 화면에서는 navCenter 가 사라져 자식이 navActions 하나뿐이다 — space-between 이면 그 하나가
+     왼쪽으로 박혀 로고와 겹치므로 flex-end 로 우측 정렬한다(로고는 fixed 로 좌측 그대로) */
+  justify-content: flex-end;
   padding: var(--spacing-nav-top) var(--spacing-page-inline);
   position: fixed;
   top: 0;
@@ -14,6 +16,12 @@
   z-index: var(--z-index-nav);
   mix-blend-mode: difference;
   pointer-events: none;
+}
+
+@media (width > 768px) {
+  .nav {
+    justify-content: space-between;
+  }
 }
 
 .logoNavBar,
@@ -79,9 +87,8 @@
 
 
 .adminBadge {
-  font: var(--font-body-xs);
+  font: var(--font-label-xs);
   font-family: var(--font-family-nav);
-  font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-white);
@@ -278,15 +285,27 @@
 .navCenter {
   position: relative;
   flex: 1;
-  display: flex;
+  display: none;
   justify-content: center;
-  gap: var(--spacing-64);
+  gap: var(--spacing-32);
   margin-inline-start: var(--_logo-reserve, 0px);
   clip-path: inset(0 -20px 0 -20px);
   transition:
     clip-path var(--duration-base) var(--ease-standard),
     visibility var(--duration-base),
     opacity var(--duration-base) var(--ease-standard);
+}
+
+@media (width > 768px) {
+  .navCenter {
+    display: flex;
+  }
+}
+
+@media (width > 1280px) {
+  .navCenter {
+    gap: var(--spacing-64);
+  }
 }
 
 .navLink {
@@ -454,12 +473,20 @@
   /* size-md(38px) → size-sm(32px) — 좀 더 컴팩트하고 좌우 spacing 부담 감소.
      icon 12px + padding 4px = 20px → 32px 원 안에서 충분히 호흡. */
   padding: var(--spacing-4);
-  width: var(--size-32);
-  height: var(--size-32);
+  /* 작은 화면은 손가락으로 누르는 폭 — 단추 40px(로고 38px 와 줄 높이를 맞춘다). 넓은 화면은 32 */
+  width: var(--size-40);
+  height: var(--size-40);
   flex-shrink: 0;
   border-radius: var(--radius-full);
   color: var(--text-white);
   transition: opacity var(--duration-base) var(--ease-standard);
+}
+
+@media (width > 768px) {
+  .actionBtn {
+    width: var(--size-32);
+    height: var(--size-32);
+  }
 }
 
 .actionBtn:hover .langText,
@@ -468,18 +495,6 @@
   color: var(--text-accent-alt);
 }
 
-/* Get in Touch — mix-blend-mode 환경 색상 오버라이드 */
-.contactBtn.contactBtn {
-  border-color: var(--text-white);
-  color: var(--text-white);
-}
-
-/* (0,4,0) — outline hover (0,4,0) 이상 필요 */
-.navActions .contactBtn.contactBtn:hover {
-  background-color: var(--text-white);
-  border-color: var(--text-white);
-  color: var(--text-black);
-}
 
 .soundBtnWrap {
   position: relative;
@@ -493,8 +508,7 @@
   border-radius: var(--radius-control);
   background: var(--text-primary);
   color: var(--bg-primary);
-  font: var(--font-code-sm);
-  font-weight: 500;
+  font: var(--font-label-sm);
   letter-spacing: 0.02em;
   white-space: nowrap;
   pointer-events: auto;
@@ -545,8 +559,15 @@
 }
 
 .soundIcon {
-  width: 14px;
-  height: 14px;
+  width: 18px;
+  height: 18px;
+}
+
+@media (width > 768px) {
+  .soundIcon {
+    width: 14px;
+    height: 14px;
+  }
 }
 
 /* Unmuted (default): waves visible, X hidden */
@@ -583,10 +604,16 @@
 
 .langText {
   display: inline-block;
-  font: var(--font-body-sm);
+  font: var(--font-body-md);
   font-family: var(--font-family-nav);
   letter-spacing: 0.03em;
   transition: transform var(--duration-base) var(--ease-standard);
+}
+
+@media (width > 768px) {
+  .langText {
+    font-size: var(--font-size-body-sm);
+  }
 }
 
 .langText.animating {
@@ -665,8 +692,15 @@
 }
 
 .themeIcon {
-  width: 14px;
-  height: 14px;
+  width: 18px;
+  height: 18px;
+}
+
+@media (width > 768px) {
+  .themeIcon {
+    width: 14px;
+    height: 14px;
+  }
 }
 
 /* ==========================================================================
@@ -675,21 +709,37 @@
 
 .menuBtnWrapper {
   display: flex;
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  position: absolute;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  position: static;
   right: 0;
   transition:
     opacity var(--duration-base) var(--ease-standard),
     visibility var(--duration-base);
 }
 
+@media (width > 768px) {
+  .menuBtnWrapper {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    position: absolute;
+  }
+}
+
 /* SVG 9 dot grid — 크기는 viewBox 비율 그대로 유지. width 만 조절하면 전체 스케일. */
 .menuDots {
   display: block;
-  width: 12px;
-  height: 12px;
+  width: 16px;
+  height: 16px;
+}
+
+@media (width > 768px) {
+  .menuDots {
+    width: 12px;
+    height: 12px;
+  }
 }
 
 /* SVG circle — keyframe transform 의 translate(4px) 가 viewBox unit 으로 적용됨.
@@ -758,7 +808,7 @@
   Menu Drawer (full-screen dark overlay)
   ========================================================================== */
 
-.menuClipWrapper.menuClipWrapper {
+.menuClipWrapper {
   /* top layer(popover) — 열려 있는 동안 nav 가 그 위에 같이 올라가 햄버거가 눌린다(Navigation.tsx keepOnTop) */
   position: fixed;
   inset: 0;
@@ -773,7 +823,7 @@
   --_menu-bg: var(--nav-menu-bg);
 }
 
-.menuClipOpen.menuClipOpen {
+.menuClipOpen {
   clip-path: inset(0 0 0 0);
   transition: clip-path var(--duration-slower) var(--ease-standard);
 }
@@ -1178,8 +1228,17 @@
 
 .navAdmin {
   /* mix-blend-mode: difference 유지 */
-  /* navCenter 시작 여백(--_logo-reserve)은 좁은 화면에서만 켠다 — 아래 미디어쿼리.
-     넓은 화면은 링크가 로고 근처에 올 일이 없어 예약하면 오히려 우측으로 치우친다. */
+  /* Admin 링크가 로고("H (ADMIN)")를 침범하는 건 폭이 좁아 navCenter 의 중앙 콘텐츠가 로고 밑까지
+     밀려올 때뿐이다(로그인 시 우측 벨·로그아웃까지 붙어 더 심하다). 그 구간에서만 로고 폭만큼 시작
+     여백을 줘 비켜나게 한다. navCenter 는 768 이하에서 사라지므로 이 예약은 769~1024 구간에만 작동한다. */
+  --_logo-reserve: var(--size-112);
+}
+
+/* 넓은 화면은 링크가 로고 근처에 올 일이 없어 예약하면 오히려 우측으로 치우친다 — 예약을 끈다 */
+@media (width > 1024px) {
+  .navAdmin {
+    --_logo-reserve: initial;
+  }
 }
 
 /* Notification bell — .actionBtn 위에 덧씌우는 bell 전용 보강
@@ -1286,9 +1345,8 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-4);
-  font: var(--font-body-xs);
+  font: var(--font-label-xs);
   font-family: var(--font-family-nav);
-  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--text-tertiary);
@@ -1309,9 +1367,8 @@
 }
 
 .notifDropdownTitle {
-  font: var(--font-body-sm);
+  font: var(--font-label-sm);
   font-family: var(--font-family-nav);
-  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--text-secondary);
@@ -1327,8 +1384,7 @@
   border-radius: var(--radius-control);
   background: var(--text-accent);
   color: var(--bg-primary);
-  font: var(--font-code-xs);
-  font-weight: 700;
+  font: var(--font-label-xs);
   font-variant-numeric: tabular-nums;
 }
 
@@ -1359,9 +1415,8 @@
   border: none;
   border-top: var(--border-light);
   background: transparent;
-  font: var(--font-body-xs);
+  font: var(--font-label-xs);
   font-family: var(--font-family-nav);
-  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--text-tertiary);
@@ -1448,10 +1503,11 @@
 
 /* Admin email */
 .adminEmail {
-  max-width: 180px;
+  max-width: 0;
   font: var(--font-body-sm);
   font-family: var(--font-family-nav);
   color: var(--text-accent);
+  opacity: 0;
   letter-spacing: 0.02em;
   white-space: nowrap;
   overflow: hidden;
@@ -1459,19 +1515,13 @@
   transition:  max-width var(--duration-base) var(--ease-standard), opacity var(--duration-base) var(--ease-standard);
 }
 
-/* Logout 버튼 — contactBtn과 동일하게 mix-blend-mode: difference 환경.
-   notif 버튼과 사이에 visual 호흡 (navActions gap 0 이라 자체 margin 으로 처리). */
-.logoutBtn.logoutBtn {
-  margin-left: var(--spacing-12);
-  border-color: var(--text-white);
-  color: var(--text-white);
+@media (width > 1280px) {
+  .adminEmail {
+    max-width: 180px;
+    opacity: 1;
+  }
 }
 
-.navActions .logoutBtn.logoutBtn:hover {
-  background-color: var(--text-white);
-  border-color: var(--text-white);
-  color: var(--text-black);
-}
 
 /* ==========================================================================
   Loading State — logo centered on screen, nav items hidden
@@ -1523,85 +1573,16 @@
   Responsive
   ========================================================================== */
 
-@media (width <= 1280px) {
-  .navCenter {
-    gap: var(--spacing-32);
-  }
-
-  .adminEmail {
-    max-width: 0;
-    opacity: 0;
-  }
+/* Get in Touch 는 작은 화면에서 숨긴다. 보일 때의 display 는 Button 컴포넌트(@layer components)가 정하므로
+   넓은 화면에서는 revert-layer 로 그 층의 값에 돌려준다 — Button 의 값을 여기 다시 적지 않는다 */
+.contactBtn {
+  display: none;
 }
 
-/* Admin 링크가 로고("H (ADMIN)")를 침범하는 건 폭이 좁아 navCenter 의 중앙
-   콘텐츠가 로고 밑까지 밀려올 때뿐이다(로그인 시 우측 벨·로그아웃까지 붙어
-   더 심하다). 그 구간에서만 로고 폭만큼 시작 여백을 줘 비켜나게 한다.
-   navCenter 는 768 이하에서 사라지므로 이 예약은 769~1024 구간에만 작동한다. */
-@media (width <= 1024px) {
-  .navAdmin {
-    --_logo-reserve: var(--size-112);
-  }
-}
-
-@media (width <= 768px) {
-  /* navCenter 가 사라지면 .nav 의 space-between 이 단일 자식 (navActions) 을 왼쪽으로 박음 → 로고와 겹침.
-     flex-end 로 강제 우측 정렬 — 로고는 fixed 로 좌측 그대로, 가운데 자연 공백, 버튼은 우측 = "로고 [space] 버튼들". */
-  .nav {
-    justify-content: flex-end;
-  }
-
-  .navCenter {
-    display: none;
-  }
-
+@media (width > 768px) {
   .contactBtn {
-    display: none;
+    display: revert-layer;
   }
-
-  .menuBtnWrapper {
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
-    position: static;
-  }
-
-  .navActions {
-    gap: 0;
-  }
-
-  /* 손가락으로 누르는 폭 — 단추는 40px(로고 38px 와 줄 높이를 맞춘다), 아이콘 · 글자도 데스크톱보다 크게.
-     전에는 32px 단추에 12px(480 이하 11px) 아이콘이라 누르기도 보기도 어려웠다 */
-  .actionBtn {
-    width: var(--size-40);
-    height: var(--size-40);
-  }
-
-  .themeIcon,
-  .soundIcon {
-    width: 18px;
-    height: 18px;
-  }
-
-  .menuDots {
-    width: 16px;
-    height: 16px;
-  }
-
-  .langText {
-    font-size: var(--font-size-body-md);
-  }
-}
-
-@media (width <= 480px) {
-  .navActions {
-    gap: 0;
-  }
-
-  .actionBtn {
-    padding: var(--spacing-4);
-  }
-
 }
 
 /* 처리 필요 알림 배지 — 팝업 목록에서 결정이 필요한 항목을 정보성과 구분한다 */
@@ -1613,9 +1594,37 @@
   /* accent 는 읽지 않음 dot 이 이미 쓴다 — 결정이 필요한 항목은 다른 색이라야 구분된다 */
   background: var(--bg-warning-soft);
   color: var(--text-warning-strong);
-  font: var(--font-body-xs);
+  font: var(--font-label-xs);
   font-family: var(--font-family-nav);
-  font-weight: var(--font-weight-semibold);
   line-height: 1;
   white-space: nowrap;
+}
+
+/* 내비의 Button(components 층)을 덮는 규칙 — compositions 층(4-4-2)이라 특이도를 올리지 않아도 이긴다 */
+@layer compositions {
+/* Get in Touch — mix-blend-mode 환경 색상 오버라이드 */
+.contactBtn {
+  border-color: var(--text-white);
+  color: var(--text-white);
+}
+
+.navActions .contactBtn:hover {
+  background-color: var(--text-white);
+  border-color: var(--text-white);
+  color: var(--text-black);
+}
+
+/* Logout 버튼 — contactBtn과 동일하게 mix-blend-mode: difference 환경.
+   notif 버튼과 사이에 visual 호흡 (navActions gap 0 이라 자체 margin 으로 처리). */
+.logoutBtn {
+  margin-left: var(--spacing-12);
+  border-color: var(--text-white);
+  color: var(--text-white);
+}
+
+.navActions .logoutBtn:hover {
+  background-color: var(--text-white);
+  border-color: var(--text-white);
+  color: var(--text-black);
+}
 }

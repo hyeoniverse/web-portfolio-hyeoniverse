@@ -66,17 +66,18 @@
   --title-box: 500px;
 
   position: absolute;
-  left: 8vw;
+  left: var(--spacing-20);
+  right: var(--spacing-20);
   top: 50%;
   transform: translateY(-50%);
   z-index: 2;
-  max-width: var(--title-box);
   color: var(--text-white);
   will-change: transform;
 }
 
 .metaNumber {
   font: var(--font-display-xl);
+  font-size: var(--font-size-display-lg);
   font-family: var(--font-family-headline);
   font-weight: 200;
   line-height: 0.8;
@@ -96,14 +97,8 @@
 
 .metaTitle {
   font-family: var(--font-family-headline);
-  /* 제목이 길 때만 작아진다 — 두 줄까지 쓸 수 있으므로 자리 너비의 두 줄분(×4, 로마자 한 글자를
-     0.5em 로 본다)을 글자 수로 나눠 한 줄에 들어갈 크기를 구하고, 원래 크기를 넘지 않게 한다.
-     아래로는 2.5rem 에서 멈추고, 그 크기로도 두 줄에 안 들어가면 둘째 줄에서 자른다.
-     전에는 줄 수 제한이 없어 긴 제목이 여섯 줄까지 늘어나 판 밖으로 흘렀다 */
-  font-size: max(
-    2.5rem,
-    min(var(--font-size-display-lg), calc(var(--title-box, 500px) * 4 / var(--title-units, 14)))
-  );
+  /* 좁은 화면은 고정 크기 — 제목 길이에 맞춰 줄이는 건 넓은 화면(아래 media) */
+  font-size: var(--font-size-display-sm);
   display: -webkit-box;
   overflow: hidden;
   -webkit-box-orient: vertical;
@@ -115,14 +110,16 @@
 }
 
 .metaSub {
-  font-size: var(--font-size-body-xl);
+  font-size: var(--font-size-body-lg);
   font-weight: var(--font-weight-regular);
   opacity: 0.65;
   line-height: var(--line-height-160);
   margin: 0 0 var(--spacing-24) 0;
 }
 
+/* 설명은 넓은 화면(아래 media)에서만 */
 .metaDesc {
+  display: none;
   font: var(--font-body-md);
   opacity: 0.75;
   margin: 0 0 var(--spacing-20) 0;
@@ -147,13 +144,15 @@
 }
 
 /* ── Right side info ── */
+/* 480 이하에서는 숨긴다 */
 .yearBig {
+  display: none;
   position: absolute;
-  right: 6vw;
-  bottom: 10vh;
+  right: 4vw;
+  bottom: 8vh;
   z-index: 2;
   font-family: var(--font-family-headline);
-  font-size: clamp(9.65rem, 0.25rem + 14.72vw, 250px);
+  font-size: clamp(60px, 2.12rem + 6.69vw, 6.4rem);
   font-weight: 200;
   line-height: 0.8;
   letter-spacing: -0.06em;
@@ -183,7 +182,7 @@
 /* ── Counter ── */
 .counter {
   position: absolute;
-  left: 8vw;
+  left: 5vw;
   bottom: var(--spacing-32);
   z-index: 3;
   font: var(--font-code-sm);
@@ -193,47 +192,54 @@
 }
 
 /* ── Responsive ── */
-@media (width <= 1024px) {
+@media (width > 480px) {
   .meta {
     left: 5vw;
+    right: auto;
     max-width: 60vw;
   }
 
-  .metaNumber {
-    font-size: var(--font-size-display-lg);
-  }
-
-  .metaTitle {
-    font-size: var(--font-size-display-sm);
-  }
-
-  .metaSub {
-    font-size: var(--font-size-body-lg);
-  }
-
-  .metaDesc {
-    display: none;
-  }
-
   .yearBig {
-    font-size: clamp(60px, 2.12rem + 6.69vw, 6.4rem);
-    right: 4vw;
-    bottom: 8vh;
-  }
-
-  .counter {
-    left: 5vw;
+    display: block;
   }
 }
 
-@media (width <= 480px) {
+@media (width > 1024px) {
   .meta {
-    left: var(--spacing-20);
-    right: var(--spacing-20);
-    max-width: none;
+    left: 8vw;
+    max-width: var(--title-box);
+  }
+
+  .metaNumber {
+    font-size: var(--font-size-display-xl);
+  }
+
+  .metaTitle {
+    /* 제목이 길 때만 작아진다 — 두 줄까지 쓸 수 있으므로 자리 너비의 두 줄분(×4, 로마자 한 글자를
+       0.5em 로 본다)을 글자 수로 나눠 한 줄에 들어갈 크기를 구하고, 원래 크기를 넘지 않게 한다.
+       아래로는 2.5rem 에서 멈추고, 그 크기로도 두 줄에 안 들어가면 둘째 줄에서 자른다.
+       전에는 줄 수 제한이 없어 긴 제목이 여섯 줄까지 늘어나 판 밖으로 흘렀다 */
+    font-size: max(
+      2.5rem,
+      min(var(--font-size-display-lg), calc(var(--title-box, 500px) * 4 / var(--title-units, 14)))
+    );
+  }
+
+  .metaSub {
+    font-size: var(--font-size-body-xl);
+  }
+
+  .metaDesc {
+    display: block;
   }
 
   .yearBig {
-    display: none;
+    right: 6vw;
+    bottom: 10vh;
+    font-size: clamp(9.65rem, 0.25rem + 14.72vw, 250px);
+  }
+
+  .counter {
+    left: 8vw;
   }
 }

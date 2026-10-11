@@ -77,7 +77,8 @@
 
 /* "데이터 없음" 텍스트 — List 의 item 과 동일 vertical dimension. border 는 없음 (단독 child) */
 .muted {
-  composes: item from "./components/List.module.css";
+  /* List 항목과 같은 세로 여백(components/List.module.css .item) */
+  padding-block: var(--spacing-8);
   font: var(--font-body-sm);
   line-height: calc(20 / 13);
   /* 정수 line-height — .sectionTitle 과 같은 divider 번짐 방지 */
@@ -94,10 +95,9 @@
 
 /* ── Quick Actions — 4-col edge-to-edge 행, 셀 사이만 vertical divider, 자체 위쪽 hairline ── */
 .quickActions {
-  composes: panelGrid from "./components/Panel.module.css";
-  /* 6개 버튼 → 3×2. 셀 사이(행·열) hairline 은 gridHairlines(gap trick)가 담당 —
+  /* Panel grid · gridHairlines 는 쓰는 쪽에서 Panel 과 함께 붙인다(4-5).
+     6개 버튼 → 3×2. 셀 사이(행·열) hairline 은 gridHairlines(gap trick)가 담당 —
      바깥 테두리엔 선이 안 생긴다. 여긴 열 수와 상단 divider 만 지정. */
-  composes: gridHairlines from "./components/Panel.module.css";
   grid-template-columns: repeat(2, 1fr);
   border-top: var(--border-light);
 }
@@ -164,8 +164,7 @@
 }
 
 .heroLabel {
-  font: var(--font-body-sm);
-  font-weight: 600;
+  font: var(--font-label-sm);
   line-height: calc(20 / 13);
   /* 정수 line-height — .statLabel 과 같은 divider 번짐 방지 */
   text-transform: uppercase;
@@ -215,7 +214,7 @@
 }
 
 .heroSparkWrap {
-  height: 80px;
+  height: 60px;
   display: flex;
   align-items: stretch;
 }
@@ -235,14 +234,18 @@
   stroke-width: 1.75;
 }
 
-@media (width <= 768px) {
+@media (width > 768px) {
   .heroSparkWrap {
-    height: 60px;
+    height: 80px;
   }
 }
 
 .statCard {
-  composes: item from "./components/Panel.module.css";
+  /* 대시보드 Item 과 같은 여백(components/Panel.module.css .item) — 다른 파일 composes 를 쓰지 않는다(4-5) */
+  padding-block: var(--spacing-8);
+  padding-inline-start: var(--_item-inline-start, 0);
+  padding-inline-end: var(--_item-inline-end, 0);
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-8);
@@ -349,7 +352,6 @@ a.statCard:hover .statValue {
    background-clip: padding-box — 자체 bg (alpha-30, column-gap 트릭용) 가 border 영역까지
    깔리면 border (alpha-30) 와 합성돼 alpha 0.51 로 진해짐. padding-box 로 border 영역 제외. */
 .twoCol {
-  composes: panelGrid from "./components/Panel.module.css";
   /* --grid-columns-2 는 repeat() 표기라 확장값(0fr 1fr)과 보간이 안 돼 transition 이 즉시
      점프했다 — 양쪽을 같은 minmax 구조로 풀어 써야 grid-template-columns 가 animate 된다 */
   grid-template-columns: 1fr;
@@ -367,10 +369,14 @@ a.statCard:hover .statValue {
 
 /* .panelCell — twoCol grid 안의 cell 컨테이너 (예전 .panel). composes panelFlex 로 unified base 상속. */
 .panelCell {
-  composes: panelFlex from "./components/Panel.module.css";
-  /* gap/padding 없음 — child (panelTitle / List items) 가 자체 padding 으로 spacing 책임 */
+  /* Panel(flex) 로 그린다. gap/padding 없음 — child (panelTitle / List items) 가 자체 padding 으로 spacing 책임 */
   border: none;
   border-radius: 0;
+}
+
+/* 좁은 화면 — 한 열로 쌓이니 두 셀 사이는 위 선으로 가른다 */
+.twoCol > .panelCell + .panelCell {
+  border-top: var(--border-light);
 }
 
 /* PC: 좌측 cell right padding + 우측 cell left padding (gutter, 단 List.item 에 적용).
@@ -391,6 +397,9 @@ a.statCard:hover .statValue {
   .twoCol > .panelCell {
     background: var(--bg-primary);
   }
+  .twoCol > .panelCell + .panelCell {
+    border-top: none;
+  }
   .twoCol > :nth-child(odd) {
     --_item-inline-end: var(--spacing-16);
   }
@@ -399,18 +408,13 @@ a.statCard:hover .statValue {
   }
 }
 
-@media (width <= 768px) {
-  .twoCol > .panelCell + .panelCell {
-    border-top: var(--border-light);
-  }
-}
-
 /* ── Devices drill-down 확장 — Traffic 패널 접고 Devices 풀폭 ── */
 /* 셀 사이 hairline(gap trick)도 접는다 — 남기면 확장된 패널 왼쪽에 선이 한 줄 남는다.
    .twoCol.twoCol 의 (0,2,0) column-gap 에 지지 않도록 같은 급으로 올린다.
-   트랙은 base 와 같은 minmax 구조여야 폭 전환이 animate 된다 */
+   트랙은 base 와 같은 minmax 구조여야 폭 전환이 animate 된다(넓은 화면, 아래 media).
+   좁은 화면은 원래 한 열이라 접힌 패널을 숨기기만 한다 */
 .twoCol.twoColExpanded {
-  grid-template-columns: minmax(0, 0fr) minmax(0, 1fr);
+  grid-template-columns: 1fr;
   column-gap: 0;
 }
 
@@ -428,6 +432,8 @@ a.statCard:hover .statValue {
   pointer-events: none;
   border-left: none !important;
   transition: padding var(--duration-base) var(--ease-standard);
+  /* 좁은 화면은 접힌 칸을 아예 뺀다 — display 는 Panel .panelFlex 가 변수로 연다 */
+  --panel-display: none;
 }
 
 /* 셀이 아니라 내용물만 페이드 — 셀 opacity 를 내리면 불투명 배경까지 빠지면서
@@ -443,15 +449,17 @@ a.statCard:hover .statValue {
   visibility: hidden;
 }
 
-@media (width <= 768px) {
+@media (width > 768px) {
   /* 기본 rule 이 (0,2,0)으로 올라가서 여기도 같은 급이어야 이긴다 */
   .twoCol.twoColExpanded {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 0fr) minmax(0, 1fr);
   }
+
   .panelCollapsed {
-    display: none;
+    --panel-display: initial;
   }
 }
+
 
 /* Recent Posts/Works 의 link wrapper — status + title + date 가 한 줄로 flex 정렬 + gap 으로 적절한 spacing */
 .listItemLink {
@@ -504,8 +512,7 @@ a.statCard:hover .statValue {
   gap: var(--spacing-4);
   padding: var(--spacing-1) var(--spacing-8);
   border-radius: var(--radius-control);
-  font: var(--font-body-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   letter-spacing: 0.02em;
   flex-shrink: 0;
 }
@@ -535,11 +542,11 @@ a.statCard:hover .statValue {
 }
 
 .statusDraft::before {
-  background: var(--text-warning);
+  background: var(--bg-warning-solid);
+  box-shadow: var(--ring-warning-solid);
 }
 
 .timeAgo {
-  font-family: var(--font-family-code);
   font-variant-numeric: tabular-nums;
   color: var(--text-tertiary);
 }
@@ -597,7 +604,8 @@ a.statCard:hover .statValue {
 }
 
 .dotMissing {
-  background: var(--text-warning);
+  background: var(--bg-warning-solid);
+  box-shadow: var(--ring-warning-solid);
   opacity: 0.7;
 }
 
@@ -628,8 +636,7 @@ a.statCard:hover .statValue {
   gap: var(--spacing-2);
   padding: var(--badge-padding-sm);
   border-radius: var(--radius-control);
-  font: var(--font-code-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
@@ -671,7 +678,11 @@ a.statCard:hover .statValue {
 
 /* ── Daily Views Chart panel — gap 없음, child 가 자체 padding 으로 spacing 책임 ── */
 .dailyChart {
-  composes: panelFlex from "./components/Panel.module.css";
+  /* Panel flex 와 같은 틀 — 다른 파일 composes 를 쓰지 않는다(4-5) */
+  min-width: 0;
+  display: var(--panel-display, flex);
+  flex-direction: column;
+  gap: 0;
   border: none;
   border-radius: 0;
   background: transparent;
@@ -725,8 +736,7 @@ a.statCard:hover .statValue {
 }
 
 .tagPillCount {
-  font: var(--font-code-xs);
-  font-weight: 700;
+  font: var(--font-label-xs);
   font-variant-numeric: tabular-nums;
   color: var(--text-muted);
 }
@@ -802,8 +812,7 @@ a.statCard:hover .statValue {
 
 .popularRank,
 .commentAuthor {
-  font: var(--font-code-xs);
-  font-weight: 700;
+  font: var(--font-label-xs);
   color: var(--text-secondary);
 }
 
@@ -921,7 +930,6 @@ a.commentSource:hover {
 }
 
 .popularDate {
-  font-family: var(--font-family-code);
   font-variant-numeric: tabular-nums;
 }
 
@@ -1024,8 +1032,7 @@ a.commentSource:hover {
 }
 
 .trafficStatLabel {
-  font: var(--font-body-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--text-tertiary);
@@ -1035,16 +1042,14 @@ a.commentSource:hover {
   display: inline-flex;
   align-items: baseline;
   gap: var(--spacing-4);
-  font: var(--font-code-lg);
-  font-weight: 700;
+  font: var(--font-label-lg);
   font-variant-numeric: tabular-nums;
   line-height: calc(20 / 16);
   color: var(--text-primary);
 }
 
 .trafficStatSub {
-  font: var(--font-body-xs);
-  font-weight: 600;
+  font: var(--font-label-xs);
   color: var(--text-tertiary);
 }
 

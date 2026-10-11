@@ -17,7 +17,7 @@ import CommentReportModal from "./CommentReportModal";
 import Checkbox from "@/components/ui/Checkbox";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import { useModalStore } from "@/stores/modalStore";
-import CommentEditor from "./CommentEditor";
+import CommentEditor, { CommentModeToggle, type CommentEditorMode } from "./CommentEditor";
 import CommentForm from "./CommentForm";
 import CommentMarkdown from "./CommentMarkdown";
 import Collapsible from "@/components/ui/Collapsible";
@@ -176,6 +176,7 @@ function CommentItem({
   // Edit state
   const [editing, setEditing] = useState(false);
   const [editContent, setEditContent] = useState(comment.content);
+  const [editMode, setEditMode] = useState<CommentEditorMode>("write");
   const [editPassword, setEditPassword] = useState("");
   const [editSubmitting, setEditSubmitting] = useState(false);
   const [editError, setEditError] = useState("");
@@ -524,8 +525,10 @@ function CommentItem({
             <CommentEditor
               value={editContent}
               onChange={setEditContent}
+              mode={editMode}
             />
             <div className={styles.editActions}>
+              <CommentModeToggle mode={editMode} onChange={setEditMode} />
               {!isAdmin && (
                 /* 폭 고정은 래퍼가 담당 — 공통 Input 엔 스타일 클래스를 붙이지 않는다 */
                 <div className={styles.passwordField}>

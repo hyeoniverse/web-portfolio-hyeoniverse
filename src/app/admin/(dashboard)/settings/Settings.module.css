@@ -93,8 +93,7 @@
    나눌 때 빠진 것으로 보인다). 규칙이 없으면 클래스가 아예 안 붙어 브라우저 기본값이 나온다 —
    h3 기본 크기(1.17em 굵게)라 위의 섹션 제목(16px)보다 커 보였다. */
 .sectionSubTitle {
-  font: var(--font-body-md);
-  font-weight: var(--font-weight-semibold);
+  font: var(--font-label-md);
   color: var(--text-primary);
   margin: 0;
   letter-spacing: 0.02em;
@@ -103,8 +102,7 @@
 .fieldGroupLabel {
   display: block;
   margin-bottom: var(--spacing-2);
-  font: var(--font-body-xs);
-  font-weight: var(--font-weight-medium);
+  font: var(--font-label-xs);
   color: var(--text-tertiary);
   letter-spacing: 0.02em;
 }
@@ -145,7 +143,8 @@
   width: 100%;
 }
 
-/* ── Field Pair (EN/KO group — 2열 나란히).
+/* ── Field Pair (EN/KO group — 넓은 화면에서 2열 나란히).
+   태블릿(≤1024)은 사이드바가 탭바로 바뀌어 패널이 전체 폭을 쓰지만, 2열이면 칸이 좁아 잘린다 — 1열로 둔다.
    minmax(0, 1fr) — 자식 (긴 input value) 따라 column grow 방지. */
 .fieldPair {
   display: grid;
@@ -155,7 +154,7 @@
      없으면 en/ko 필드가 값 길이만큼 좁아지고 우측이 크게 빈다. */
   width: 100%;
 }
-@media (width > 768px) {
+@media (width > 1024px) {
   .fieldPair {
     grid-template-columns: var(--grid-columns-2);
   }
@@ -217,8 +216,7 @@
   flex-direction: column;
   gap: var(--spacing-2);
   width: auto;
-  font: var(--font-body-sm);
-  font-weight: 500;
+  font: var(--font-label-sm);
   color: var(--text-tertiary);
   letter-spacing: 0.02em;
 }
@@ -471,7 +469,6 @@
 /* seriesCardName 안 정렬 순서 prefix (#1_) — mix-blend-mode: difference + white 로
    어두운 cover 배경에서도 자동 반전되어 가독성 유지. 내부 EditableRowNumber 도 함께 효과. */
 .seriesCardOrderPrefix {
-  font-family: var(--font-family-code);
   color: var(--text-white);
   mix-blend-mode: difference;
   margin-right: var(--spacing-2);
@@ -687,22 +684,6 @@
   color: var(--text-primary);
 }
 
-/* tablet (769~1024px): sideNav 는 아래에서 가로 탭바로 바뀌고, panel 은 전체 폭을
-   쓴다. 여기서는 2열 grid 만 1열로 정리한다(좁은 폭에서 잘림 방지). */
-@media (768px < width <= 1024px) {
-  .fieldPair {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* 태블릿·모바일 (≤1024px): 세로 사이드바 대신 상단 가로 스크롤 탭바.
-   전체화면 드로어는 설정 섹션을 바꾸는 데 과했다 — 밑줄 탭이 가볍고 익숙하다.
-   콘텐츠 하위탭은 아래 .mobileSubNav 가 별도 탭 줄로 보여준다. */
-@media (width <= 1024px) {
-
-  /* ── 탭바 래퍼: sticky + frost (edit 페이지 topBar 와 동일) ── */
-}
-
 /* ── Font Picker — editor 의 FontPicker 패턴 (Select + dropdown 내부 search + 필터링 목록) ── */
 .fontPickerSelect {
   flex: 1;
@@ -716,10 +697,10 @@
   width: 100%;
 }
 
-/* compound (0,2,0) — Select 의 .dropdown/.dropdownCompact (0,1,0) padding 을 이김.
+/* Select 의 .dropdown 은 components 층이라 이 규칙이 padding 을 이긴다.
    interpolate-size — 검색 필터링으로 list height 변할 때 부드럽게 transition (modern browsers).
    미지원 브라우저는 transition 안 되고 즉시 변화 (degraded but fine). */
-.fontPickerDropdown.fontPickerDropdown {
+.fontPickerDropdown {
   width: 320px;
   padding: 0;
   gap: 0;
@@ -813,8 +794,7 @@
 }
 
 .tagDescFilterGroupLabel {
-  font: var(--font-body-xs);
-  font-weight: 500;
+  font: var(--font-label-xs);
   color: var(--text-tertiary);
   letter-spacing: 0.02em;
   margin-right: var(--spacing-4);
@@ -888,8 +868,8 @@
 }
 
 /* Pagination 컴포넌트의 .paginationWrap 이 margin-top: spacing-md 를 default 로 둠.
-   compound selector (0,2,0) 로 specificity 올려 override. */
-.tagDescPagination.tagDescPagination {
+   그쪽은 components 층이라 층 밖의 이 규칙이 이긴다. */
+.tagDescPagination {
   align-self: center;
   margin-top: 0;
 }
@@ -1052,8 +1032,7 @@ a.tagRelatedItem:hover {
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-12);
-  font: var(--font-body-sm);
-  font-weight: 500;
+  font: var(--font-label-sm);
   color: var(--text-tertiary);
   letter-spacing: 0.02em;
 }
@@ -1070,9 +1049,9 @@ a.tagRelatedItem:hover {
    단어 중간에서 끊기고, 한국어도 게시물 수가 두 자리가 되면 두 줄이 됐다 */
 .worksCatAddRow {
   display: grid;
-  grid-template-columns: 80px 1fr;
+  grid-template-columns: 1fr;
   align-items: center;
-  gap: var(--spacing-16);
+  gap: var(--spacing-4);
 }
 
 /* 입력 열에 칸과 그 아래 안내를 함께 쌓을 때 */
@@ -1085,16 +1064,15 @@ a.tagRelatedItem:hover {
 }
 
 .worksCatAddRowLabel {
-  font: var(--font-body-sm);
-  font-weight: 500;
+  font: var(--font-label-sm);
   color: var(--text-tertiary);
   letter-spacing: 0.02em;
 }
 
-@media (width <= 768px) {
+@media (width > 768px) {
   .worksCatAddRow {
-    grid-template-columns: 1fr;
-    gap: var(--spacing-4);
+    grid-template-columns: 80px 1fr;
+    gap: var(--spacing-16);
   }
 }
 

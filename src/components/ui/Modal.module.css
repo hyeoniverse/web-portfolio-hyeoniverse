@@ -11,13 +11,6 @@
   gap: var(--spacing-2);
 }
 
-@media (width <= 768px) {
-  /* 모바일 시트에선 닫기 버튼만 숨김(스와이프로 닫음), 서브 버튼은 유지 */
-  .closeButton {
-    display: none;
-  }
-}
-
 /* ==========================================================================
    Sheet Handle (mobile)
    ========================================================================== */
@@ -34,9 +27,9 @@
 }
 
 @media (width > 768px) {
-.sheetHandle {
-display: none;
-}
+  .sheetHandle {
+    display: none;
+  }
 }
 
 .sheetHandle:active {
@@ -109,19 +102,20 @@ display: none;
 
 .modalScroll {
   flex: 1;
-  min-height: 0;
+  min-height: 20vh;
   /* 위 여백은 머리줄의 아래 여백(16)만 — 여기에 16 을 더 두면 제목과 본문 사이가 36px 넘게 벌어진다 */
   padding-top: 0;
+  padding-bottom: var(--spacing-24);
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
 }
 
-@media (width <= 768px) {
+@media (width > 768px) {
   .modalScroll {
-    padding-bottom: var(--spacing-24);
-    min-height: 20vh;
+    min-height: 0;
+    padding-bottom: 0;
   }
 }
 

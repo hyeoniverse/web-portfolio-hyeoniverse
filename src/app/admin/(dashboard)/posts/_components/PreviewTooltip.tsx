@@ -40,7 +40,7 @@ export default function PreviewTooltip({
         className={shell.previewTooltip}
         data-preview-tooltip
         data-state={open ? "open" : "closed"}
-        style={{ top: pos.top, left: pos.left }}
+        style={{ "--preview-top": `${pos.top}px`, "--preview-left": `${pos.left}px` } as React.CSSProperties}
         onClick={onNavigate}
       >
         {/* 행을 옮기면 같은 툴팁 안에서 내용만 바뀐다 — 바뀐 내용은 살짝 번지듯 들어온다 */}

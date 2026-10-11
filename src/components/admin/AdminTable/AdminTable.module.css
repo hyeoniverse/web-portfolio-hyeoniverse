@@ -102,8 +102,7 @@
   gap: var(--spacing-8);
   padding: var(--spacing-12) 0;
   border-bottom: var(--_table-line);
-  font: var(--font-body-md);
-  font-weight: 500;
+  font: var(--font-label-md);
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -113,8 +112,7 @@
 
 /* 헤더 셀 통일 — 컬럼별 className(colTitle/colMeta 등)을 무효화 위해 specificity 높임 (0,2,0) */
 .tableHeader.tableHeader > * {
-  font: var(--font-body-md);
-  font-weight: 500;
+  font: var(--font-label-md);
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -310,9 +308,8 @@
   width: 100%;
   min-width: 0;
   height: 22px;
-  font: var(--font-code-sm);
+  font: var(--font-label-sm);
   line-height: calc(20 / 13);
-  font-weight: 600;
   font-variant-numeric: tabular-nums; /* content area = height - border(2) - padding-block(0) = 20 */
   padding: 0 var(--spacing-2);
   white-space: nowrap;
@@ -351,9 +348,8 @@
   min-width: 0;
   width: 100%;
   height: 22px;
-  font: var(--font-code-sm);
+  font: var(--font-label-sm);
   line-height: calc(20 / 13);
-  font-weight: 600;
   font-variant-numeric: tabular-nums;
   padding: 0 var(--spacing-2);
   white-space: nowrap;
@@ -362,7 +358,7 @@
   background: var(--bg-primary);
   color: var(--text-primary);
   text-align: center;
-  outline: none;
+  outline-color: transparent;
 }
 
 .rowNumInput::-webkit-inner-spin-button,
@@ -438,9 +434,8 @@
 }
 
 /* ── Pagination ── */
-/* 공통 Pagination 의 .paginationWrap(margin-top: md) 위에 className 으로 얹는다. 같은 (0,1,0)
-   이면 번들 순서가 승자를 정한다 — 클래스를 두 번 적어 (0,2,0). */
-.pagination.pagination {
+/* 공통 Pagination 의 .paginationWrap 은 components 층이라 층 밖의 이 규칙이 이긴다 */
+.pagination {
   margin-top: var(--spacing-12);
 }
 
@@ -457,102 +452,166 @@
   cursor: not-allowed;
 }
 
-@media (width <= 1024px) {
+/* ── 태블릿·모바일: 표만 가로 스크롤 + 고정 열. 넓은 화면(>1024)은 아래 media 에서 풀어 준다 ── */
+.table {
+  position: relative;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 모바일/태블릿에서는 가로 스크롤 충돌 방지 위해 drag handle 숨김 (drag 자체는 동작 가능) */
+.dragHandle {
+  display: none;
+}
+
+/* B + D 조합: actions 열 sticky 로 항상 우측 고정 + 좌측에 fade gradient pseudo.
+   align-self: stretch + 음수 margin (.colThumbWrap 와 동일한 -spacing-md) 로 row 의
+   실제 row padding + image 음수 margin 영역까지 모두 덮음 → 이미지가 sticky 아래로
+   스크롤될 때 위/아래 잘림 없이 매끄럽게 가려짐 */
+.tableHeader .colActions,
+.row .colActions {
+  position: sticky;
+  right: 0;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  background: var(--bg-primary);
+  z-index: 1;
+}
+
+.row .colActions {
+  margin: calc(-1 * var(--spacing-16)) 0;
+}
+
+.tableHeader .colActions::before,
+.row .colActions::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -56px;
+  width: 56px;
+  background: linear-gradient(to right, transparent, var(--bg-primary) 55%);
+  pointer-events: none;
+}
+
+/* 체크박스 열도 sticky 로 좌측 고정 — 가로 스크롤 중에도 일괄 선택 가능.
+   align-self: stretch + 음수 margin 동일 적용 → 이미지 풀 높이 cover */
+.tableHeader .colCheck,
+.row .colCheck {
+  position: sticky;
+  left: 0;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-primary);
+  z-index: 1;
+  /* hover 외곽선(1.5px + offset 2px)이 들어갈 자리.
+     이 열은 left:0 에 붙어 있고 .table 이 overflow-x:auto 라, 셀 밖으로 나간 외곽선은
+     스크롤 컨테이너가 잘라 낸다. 열 너비가 max-content 라 패딩만큼 열이 넓어질 뿐
+     체크박스가 눌리지는 않는다. */
+  padding-inline: var(--spacing-8);
+}
+
+.row .colCheck {
+  margin: calc(-1 * var(--spacing-16)) 0;
+}
+
+.tableHeader .colCheck::after,
+.row .colCheck::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: -16px;
+  width: 16px;
+  background: linear-gradient(to right, var(--bg-primary), transparent);
+  pointer-events: none;
+}
+
+.tableInner {
+  display: flex;
+  flex-direction: column;
+  min-width: 100%;
+  width: max-content;
+}
+
+.tableHeader,
+.row,
+.bulkBar {
+  min-width: 800px;
+}
+
+.colTitle {
+  min-width: 320px;
+}
+
+.colActions {
+  gap: var(--spacing-4);
+}
+
+/* ── 데스크톱: 표가 폭에 다 들어가니 스크롤·고정 열·페이드를 거두고 drag handle 을 보인다 ── */
+@media (width > 1024px) {
   .table {
-    position: relative;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+    position: static;
+    overflow-x: visible;
   }
 
-  /* 모바일/태블릿에서는 가로 스크롤 충돌 방지 위해 drag handle 숨김 (drag 자체는 동작 가능) */
   .dragHandle {
-    display: none;
+    display: flex;
   }
 
-  /* B + D 조합: actions 열 sticky 로 항상 우측 고정 + 좌측에 fade gradient pseudo.
-     align-self: stretch + 음수 margin (.colThumbWrap 와 동일한 -spacing-md) 로 row 의
-     실제 row padding + image 음수 margin 영역까지 모두 덮음 → 이미지가 sticky 아래로
-     스크롤될 때 위/아래 잘림 없이 매끄럽게 가려짐 */
   .tableHeader .colActions,
   .row .colActions {
-    position: sticky;
-    right: 0;
-    align-self: stretch;
-    display: flex;
-    align-items: center;
-    background: var(--bg-primary);
-    z-index: 1;
+    position: static;
+    align-self: auto;
+    background: none;
+    z-index: auto;
   }
 
   .row .colActions {
-    margin: calc(-1 * var(--spacing-16)) 0;
+    margin: 0;
   }
 
   .tableHeader .colActions::before,
-  .row .colActions::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: -56px;
-    width: 56px;
-    background: linear-gradient(to right, transparent, var(--bg-primary) 55%);
-    pointer-events: none;
-  }
-
-  /* 체크박스 열도 sticky 로 좌측 고정 — 가로 스크롤 중에도 일괄 선택 가능.
-     align-self: stretch + 음수 margin 동일 적용 → 이미지 풀 높이 cover */
-  .tableHeader .colCheck,
-  .row .colCheck {
-    position: sticky;
-    left: 0;
-    align-self: stretch;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--bg-primary);
-    z-index: 1;
-    /* hover 외곽선(1.5px + offset 2px)이 들어갈 자리.
-       이 열은 left:0 에 붙어 있고 .table 이 overflow-x:auto 라, 셀 밖으로 나간 외곽선은
-       스크롤 컨테이너가 잘라 낸다. 열 너비가 max-content 라 패딩만큼 열이 넓어질 뿐
-       체크박스가 눌리지는 않는다. */
-    padding-inline: var(--spacing-8);
-  }
-
-  .row .colCheck {
-    margin: calc(-1 * var(--spacing-16)) 0;
-  }
-
+  .row .colActions::before,
   .tableHeader .colCheck::after,
   .row .colCheck::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    right: -16px;
-    width: 16px;
-    background: linear-gradient(to right, var(--bg-primary), transparent);
-    pointer-events: none;
+    content: none;
+  }
+
+  .tableHeader .colCheck,
+  .row .colCheck {
+    position: static;
+    align-self: auto;
+    background: none;
+    z-index: auto;
+    padding-inline: 0;
+  }
+
+  .row .colCheck {
+    justify-content: normal;
+    margin: 0;
   }
 
   .tableInner {
-    display: flex;
-    flex-direction: column;
-    min-width: 100%;
-    width: max-content;
+    display: block;
+    min-width: auto;
+    width: auto;
   }
 
   .tableHeader,
   .row,
   .bulkBar {
-    min-width: 800px;
+    min-width: auto;
   }
 
   .colTitle {
-    min-width: 320px;
+    min-width: 0;
   }
 
   .colActions {
-    gap: var(--spacing-4);
+    gap: var(--spacing-8);
   }
 }
