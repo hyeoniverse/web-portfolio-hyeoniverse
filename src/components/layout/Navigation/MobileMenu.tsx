@@ -53,7 +53,12 @@ export default function MobileMenu({
   onContactOpen,
   onLogout,
 }: MobileMenuProps) {
-  const { language } = useLanguage();
+  const { t } = useLanguage();
+  /* 메뉴 이름 — 사전(navMenu.label)에 있으면 그것(사이트 번역이 덮는다), 없으면 적힌 이름 */
+  const navLabel = (key: string, label?: string) => {
+    const v = t(`navMenu.label.${key}`);
+    return v === `navMenu.label.${key}` ? label ?? key : v;
+  };
   // 이메일 hover phase — CSS animation 제거 후 transition 으로 복귀가 브라우저별로 안 통해서
   // JS 로 phase 관리: idle → rising (hover) → sinking (hover-off) → idle (sink animation 종료)
   const [emailPhase, setEmailPhase] = useState<"idle" | "rising" | "sinking">("idle");
@@ -103,7 +108,7 @@ export default function MobileMenu({
           <Logo variant="full" as="link" className={styles.menuLogo} bg={drawerTone ?? undefined} />
         </div>
 
-        <nav aria-label={language === "ko" ? "모바일 메뉴" : "Mobile menu"} className={styles.menuNav}>
+        <nav aria-label={t("navMenu.ui.mobileMenu")} className={styles.menuNav}>
           {linkItems.map((item) => {
             if (item.children?.length) {
               return (
@@ -113,7 +118,7 @@ export default function MobileMenu({
                     className={`${styles.menuLink} glith-on-hover ${activeHref === item.href ? styles.menuLinkActive : ""}`}
                     onClick={onClose}
                   >
-                    {item.label ?? item.key}
+                    {navLabel(item.key, item.label)}
                   </Link>
                   <div className={styles.menuSubList}>
                     {item.children.map((child) => {
@@ -126,7 +131,7 @@ export default function MobileMenu({
                           className={`${styles.menuSubLink} glith-on-hover ${childActive ? styles.menuSubLinkActive : ""}`}
                           onClick={onClose}
                         >
-                          {child.label}
+                          {navLabel(child.key, child.label)}
                         </Link>
                       );
                     })}
@@ -141,7 +146,7 @@ export default function MobileMenu({
                 className={`${styles.menuLink} glith-on-hover ${activeHref === item.href ? styles.menuLinkActive : ""}`}
                 onClick={onClose}
               >
-                {item.label ?? item.key}
+                {navLabel(item.key, item.label)}
               </Link>
             );
           })}
@@ -162,7 +167,7 @@ export default function MobileMenu({
                     }
                   }}
                 >
-                  {actionItem.label ?? actionItem.key}
+                  {navLabel(actionItem.key, actionItem.label)}
                 </Pressable>
               )}
               {adminHref && (
