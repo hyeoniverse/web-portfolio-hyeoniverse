@@ -2,10 +2,10 @@
 import type { ApiMap } from "@/lib/about/apiMap";
 
 export const apiMap: ApiMap = {
-  "total": 189,
-  "routeFiles": 130,
+  "total": 191,
+  "routeFiles": 132,
   "access": {
-    "public": 63,
+    "public": 65,
     "signed-in": 58,
     "author": 27,
     "admin": 16,
@@ -1282,7 +1282,7 @@ export const apiMap: ApiMap = {
     },
     {
       "key": "etc",
-      "files": 23,
+      "files": 25,
       "folded": [
         "auth",
         "brand-symbol-font",
@@ -1297,6 +1297,7 @@ export const apiMap: ApiMap = {
         "highlight",
         "polls",
         "service-status",
+        "site-translate",
         "translate",
         "upload",
         "visits",
@@ -1411,6 +1412,16 @@ export const apiMap: ApiMap = {
         },
         {
           "method": "POST",
+          "path": "/api/site-translate/items",
+          "access": "public"
+        },
+        {
+          "method": "POST",
+          "path": "/api/site-translate/ui",
+          "access": "public"
+        },
+        {
+          "method": "POST",
           "path": "/api/translate",
           "access": "public"
         },
@@ -1477,7 +1488,7 @@ export const apiMap: ApiMap = {
         "fonts"
       ],
       "access": {
-        "public": 20,
+        "public": 22,
         "signed-in": 5,
         "author": 1,
         "admin": 0,
