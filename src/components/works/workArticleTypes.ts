@@ -39,7 +39,7 @@ export interface WorkArticleViewProps {
   onLangChange?: (l: "ko" | "en") => void;
   /** 언어 토글 바로 왼쪽 — 공개 상세의 "다른 언어로 읽기" 메뉴(ContentLangMenu). 미리보기는 넘기지 않는다 (Header 에서만 사용) */
   langMenu?: ReactNode;
-  /** 본문의 언어(lang 속성) — 다른 언어로 번역해 보여 줄 때만 (Body 에서만 사용) */
+  /** 번역된 글의 언어(lang 속성) — 다른 언어로 번역해 보여 줄 때만. 본문 · 정보 칸 · AI 요약 · 갤러리 자막에 단다 */
   contentLang?: string;
   /** 관련 글 — info grid 안에 리스트로 표시 (Header 에서만 사용) */
   relatedPosts?: RelatedPostItem[];

@@ -1459,6 +1459,7 @@ export const apiMap: ApiMap = {
         "custom_emojis",
         "poll_votes",
         "posts",
+        "series",
         "site_settings",
         "site_visits",
         "traffic_excluded_ips",
@@ -1469,6 +1470,7 @@ export const apiMap: ApiMap = {
       ],
       "services": [
         "translate",
+        "tts",
         "storage",
         "github",
         "weather",

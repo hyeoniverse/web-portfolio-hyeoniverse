@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type RefObject } from "react";
 import { speak, speechLangOf, splitForSpeech, warmUpVoices } from "@/lib/speech";
-import { captionCues, cueAt } from "@/lib/captionCues";
+import { captionCues, cueIndexAt } from "@/lib/captionCues";
 import { displayScript, spokenScript } from "@/lib/ttsLexicon";
 import { pcmToWav } from "@/lib/wav";
 import type { GalleryNotes } from "@/data/projects";
@@ -171,12 +171,15 @@ export function useGalleryNarration({
   /* [표기|읽을 말] 자리 지정 — 자막에는 표기, 브라우저가 읽을 때는 읽을 말 */
   const captionScript = displayScript((note?.audioSource === "tts" && note.audioScript?.trim()) || script);
   const isLast = index >= images.length - 1;
+  /* 번역된 자막 줄(다른 언어로 읽기) — 원문 줄과 순번이 같다. 문자열로 묶어 두어 객체가 새로 와도 재생이 다시 시작하지 않게 */
+  const captionsKey = note?.captions?.length ? JSON.stringify(note.captions) : "";
 
   useEffect(() => {
     if (!playing || hold || !visible) return;
     let cancelled = false;
     let timer: number | undefined;
     let stopSpeech: (() => void) | null = null;
+    const translated: string[] = captionsKey ? (JSON.parse(captionsKey) as string[]) : [];
     const advance = () => {
       if (cancelled) return;
       if (!isLast) goTo(index + 1);
@@ -196,9 +199,12 @@ export function useGalleryNarration({
       if (resume && resume.index === index && resume.src === audioSrc) audio.currentTime = resume.time;
       audio.onended = advance;
       const cues = captionCues(captionScript);
+      /* 시각은 원문 줄로 정하고 보이는 글자만 번역으로 — 줄 수가 다르면(원문이 바뀐 뒤 받은 번역) 원문 그대로 */
+      const lines = translated.length === cues.length ? translated : cues.map((c) => c.text);
       audio.ontimeupdate = () => {
         if (cancelled || !cues.length || !Number.isFinite(audio.duration) || audio.duration <= 0) return;
-        const text = cueAt(cues, audio.currentTime / audio.duration);
+        const at = cueIndexAt(cues, audio.currentTime / audio.duration);
+        const text = at < 0 ? "" : lines[at];
         setCaption((cur) => (cur?.index === index && cur.text === text ? cur : { index, text }));
       };
       audio.onerror = () => { timer = window.setTimeout(advance, SILENT_SLIDE_MS); };
@@ -207,7 +213,8 @@ export function useGalleryNarration({
     } else if (script) {
       /* 읽는 조각은 읽을 말이라, 자막은 같은 순번의 표기 조각을 띄운다(자리 지정은 문장을 가르지 않으므로 순번이 맞는다) */
       const shownScript = displayScript(script);
-      const shown = splitForSpeech(shownScript);
+      const original = splitForSpeech(shownScript);
+      const shown = translated.length === original.length ? translated : original;
       stopSpeech = speak(spokenScript(script), advance, blocked, (text, n) => { if (!cancelled) setCaption({ index, text: shown[n] ?? text }); }, speechLangOf(shownScript));
       if (!stopSpeech) timer = window.setTimeout(advance, SILENT_SLIDE_MS);
     } else {
@@ -226,7 +233,7 @@ export function useGalleryNarration({
       audio?.pause();
       stopSpeech?.();
     };
-  }, [playing, hold, visible, index, audioSrc, script, captionScript, isLast, goTo]);
+  }, [playing, hold, visible, index, audioSrc, script, captionScript, captionsKey, isLast, goTo]);
 
   /** 누르는 동작 안에서 부른다 — 오디오 요소와 음성 합성을 그 동작으로 허락받아 둔다(사파리) */
   const unlock = useCallback(() => {
