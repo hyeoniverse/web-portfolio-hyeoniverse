@@ -7,6 +7,46 @@
     "about": "About",
     "contacts": "Contacts"
   },
+  "navMenu": {
+    "label": {
+      "home": "Home",
+      "works": "Works",
+      "posts": "Posts",
+      "posts-series": "Series",
+      "posts-tags": "Tags",
+      "posts-history": "History",
+      "profile": "Profile",
+      "about": "About",
+      "contacts": "Contacts"
+    },
+    "desc": {
+      "works": "Project portfolio",
+      "posts": "Blog & articles",
+      "profile": "Introduction & career",
+      "about": "About this site"
+    },
+    "ui": {
+      "mainMenu": "Main menu",
+      "mobileMenu": "Mobile menu",
+      "switchLanguage": "Switch language",
+      "switchLanguageAria": "{{current}} - Switch between English and Korean",
+      "bgm": "Background music",
+      "bgmTip": "Enable BGM",
+      "mute": "Mute sounds",
+      "unmute": "Unmute sounds",
+      "theme": "Toggle theme",
+      "notifications": "Notifications",
+      "unread": "{{n}} unread",
+      "viewAll": "View all",
+      "noNotifications": "No notifications",
+      "collapse": "Collapse",
+      "loadMore": "Load more +5",
+      "admin": "Admin",
+      "actionNeeded": "Action",
+      "getInTouch": "Get in Touch",
+      "menu": "Menu"
+    }
+  },
   "contact": {
     "title": "Get in Touch",
     "namePlaceholder": "Your name",
@@ -348,7 +388,10 @@
     "translating": "Translating into {{lang}}…",
     "failed": "Couldn’t translate. Try again in a moment.",
     "rateLimited": "Too many translation requests. Try again in a moment.",
-    "retry": "Try again"
+    "retry": "Try again",
+    "siteMenuLabel": "Show this site in another language",
+    "siteTurnOff": "Machine translation on ({{lang}}) — click to show original",
+    "siteNotice": "This site is machine-translated into {{lang}}. Click 🌐 in the menu bar to show the original."
   },
   "aiSummary": {
     "label": "AI Summary",

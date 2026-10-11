@@ -37,12 +37,16 @@ import Button from "@/components/ui/Button";
 import Tooltip from "@/components/ui/Tooltip";
 import MagneticWrapper from "./MagneticWrapper";
 import MobileMenu from "./MobileMenu";
+import SiteLangMenu from "./SiteLangMenu";
+import { useSiteLang } from "@/providers/SiteTranslationProvider";
+import { selectSiteLang } from "@/lib/siteLang";
 import {
   navDescs, navItems, menuItems,
   adminNavItems, adminMenuItems, SKIP_LOADING_PAGES,
 } from "./navigationData";
 import { isPending } from "@/lib/notificationTypes";
 import styles from "./Navigation.module.css";
+import { fillTemplate } from "@/utils/format";
 import Pressable from "@/components/ui/Pressable";
 import { formatRelativeTime } from "@/utils/relativeTime";
 import { useNow } from "@/hooks/useNow";
@@ -74,7 +78,7 @@ const LOADING_INTRO_PRESETS: Record<string, { initial: TargetAndTransition; visi
 
 /* notification dropdown 항목 — 5개 + 추가 5개에서 동일하게 사용되도록 helper 로 추출 */
 type NotifItemData = { id: string; type: string; title: string; message: string; metadata: Record<string, string>; read: boolean; created_at: string };
-function renderNotifItem(n: NotifItemData, language: "ko" | "en", now: number, onClick: () => void) {
+function renderNotifItem(n: NotifItemData, language: "ko" | "en", now: number, onClick: () => void, actionLabel: string) {
   const formatTime = (iso: string) => formatRelativeTime(iso, now, language, { withYear: false });
   return (
     /* 알림 목록의 그 항목으로 보낸다 — 페이지가 ?id 로 찾아 스크롤하고 활성 표시를 건다.
@@ -89,7 +93,7 @@ function renderNotifItem(n: NotifItemData, language: "ko" | "en", now: number, o
         {/* 결정을 내려야 하는 알림 — 정보성 알림 사이에서 지나치지 않게 표시한다 */}
         {isPending(n) && (
           <span className={styles.notifDropdownItemAction}>
-            {language === "ko" ? "처리 필요" : "Action"}
+            {actionLabel}
           </span>
         )}
         <span className={styles.notifDropdownItemTime}>{formatTime(n.created_at)}</span>
@@ -135,7 +139,12 @@ export default function Navigation() {
 
   const pathname = useRoutePathname();
   const { theme, toggleTheme } = useTheme();
-  const { language, toggleLanguage } = useLanguage();
+  const { language, setLanguage, t } = useLanguage();
+  /* 메뉴 이름 — 공개 메뉴는 사전(navMenu.label)에서 읽어 사이트 번역이 덮을 수 있게. 사전에 없는 것(관리 메뉴)은 적힌 이름 */
+  const navLabel = (item: { key: string; label: string }) => {
+    const v = t(`navMenu.label.${item.key}`);
+    return v === `navMenu.label.${item.key}` ? item.label : v;
+  };
   /* 알림 목록의 상대시간 기준 시각. 렌더에서 Date.now() 를 부르면 매 렌더 값이 달라진다. */
   const now = useNow();
 
@@ -500,7 +509,14 @@ export default function Navigation() {
 
   /* 테마·언어 단추는 연출이 같다. 마우스를 올리면 바뀔 값을 미리 보여 주고, 누르면 실제로 바꾼다. */
   const themeToggle = useToggleAnimation(theme, theme === "dark" ? "light" : "dark", toggleTheme);
-  const langToggle = useToggleAnimation(language, language === "ko" ? "en" : "ko", toggleLanguage);
+  /* 다른 언어가 걸려 있을 때 KO/EN 을 누르면 번역을 끄고 그 언어로 — 상세 화면의 KO/EN 토글과 같은 규칙 */
+  const siteLang = useSiteLang();
+  /* language 는 다른 언어가 걸려 있으면 "en"(useLanguage) — 그 반대(ko)로 간다 */
+  const handleLanguageToggle = useCallback(() => {
+    if (siteLang.lang) selectSiteLang(null);
+    setLanguage(language === "ko" ? "en" : "ko");
+  }, [siteLang.lang, setLanguage, language]);
+  const langToggle = useToggleAnimation(language, language === "ko" ? "en" : "ko", handleLanguageToggle);
 
   const handleLogout = useCallback(async () => {
     const supabase = await loadSupabaseClient();
@@ -657,7 +673,7 @@ export default function Navigation() {
       )}
     </Link>
 
-    <nav ref={navRef} aria-label={language === "ko" ? "주요 메뉴" : "Main menu"} className={`${styles.nav} ${showLoadingLogo ? styles.navLoading : ""} ${isAdminPage ? styles.navAdmin : ""} ${showMenu ? styles.navMenuOpen : ""}`}>
+    <nav ref={navRef} aria-label={t("navMenu.ui.mainMenu")} className={`${styles.nav} ${showLoadingLogo ? styles.navLoading : ""} ${isAdminPage ? styles.navAdmin : ""} ${showMenu ? styles.navMenuOpen : ""}`}>
       <div
         ref={navCenterRef}
         className={styles.navCenter}
@@ -678,7 +694,7 @@ export default function Navigation() {
                   }}
                   onMouseLeave={hasChildren ? scheduleSubMenuClose : undefined}
                 >
-                  {item.label}
+                  {navLabel(item)}
                 </Link>
               );
             })
@@ -696,7 +712,7 @@ export default function Navigation() {
                   }}
                   onMouseLeave={hasChildren ? scheduleSubMenuClose : undefined}
                 >
-                  {item.label}
+                  {navLabel(item)}
                 </Link>
               );
               // children 있는 항목(Posts)은 hover 드롭다운이 대신하므로 Tooltip 생략
@@ -705,7 +721,7 @@ export default function Navigation() {
               ) : (
                 <Tooltip
                   key={item.key}
-                  content={navDescs[item.key]?.[language] ?? ""}
+                  content={navDescs[item.key] ? t(`navMenu.desc.${item.key}`) : ""}
                   delay={600}
                   placement="bottom"
                 >
@@ -727,14 +743,16 @@ export default function Navigation() {
       </div>
 
       <div className={styles.navActions}>
+        {/* 사이트를 다른 언어로 보기(🌐) — 공개 화면에서만, 사이트 설정에서 번역을 껐으면 숨긴다 */}
+        {!isAdminPage && siteConfig.translation?.enabled !== false && <SiteLangMenu />}
         {/* 언어 토글 — admin에서도 표시 */}
-        <Tooltip content={language === "ko" ? "언어 전환" : "Switch language"} delay={600} placement="bottom">
+        <Tooltip content={t("navMenu.ui.switchLanguage")} delay={600} placement="bottom">
           <Pressable noTapScale
             className={styles.actionBtn}
             onClick={langToggle.handleToggle}
             onMouseEnter={langToggle.handleMouseEnter}
             onMouseLeave={langToggle.handleMouseLeave}
-            aria-label={`${language === "ko" ? "KO" : "EN"} - Switch to ${language === "ko" ? "English" : "Korean"}`}
+            aria-label={fillTemplate(t("navMenu.ui.switchLanguageAria"), { current: language === "ko" ? "KO" : "EN" })}
             aria-pressed={language === "ko"}
           >
             <span className={`${styles.langText} ${langToggle.isAnimating && !langToggle.isClicking ? styles.animating : ""} ${langToggle.isClicking ? styles.clicking : ""}`}>
@@ -747,13 +765,13 @@ export default function Navigation() {
             계속 나는데, 버튼을 숨겨 두면 끌 방법이 없었다. 처음 오는 사람에게 띄우는 안내
             말풍선만 공개 화면 몫이다(위 showSoundTip 효과가 admin 을 건너뛴다) */}
         <div className={styles.soundBtnWrap}>
-          <Tooltip content={language === "ko" ? "배경 음악" : "Background music"} delay={600} placement="bottom">
+          <Tooltip content={t("navMenu.ui.bgm")} delay={600} placement="bottom">
             <Pressable noTapScale
               className={styles.actionBtn}
               onClick={handleSoundToggle}
               onMouseEnter={() => { setIsSoundHovered(true); setShowSoundTip(false); }}
               onMouseLeave={() => { setIsSoundLocked(false); setIsSoundHovered(false); }}
-              aria-label={isMuted ? "Unmute sounds" : "Mute sounds"}
+              aria-label={isMuted ? t("navMenu.ui.unmute") : t("navMenu.ui.mute")}
               aria-pressed={!isMuted}
             >
             <span className={`${styles.soundIconWrapper} ${isSoundClicking ? styles.clicking : ""}`}>
@@ -775,13 +793,13 @@ export default function Navigation() {
           </Tooltip>
           {showSoundTip && (
             <span className={styles.soundTip} onClick={() => setShowSoundTip(false)}>
-              {language === "ko" ? "BGM을 켤 수 있어요" : "Enable BGM"}
+              {t("navMenu.ui.bgmTip")}
             </span>
           )}
         </div>
 
         {/* 테마 토글 */}
-        <Tooltip content={language === "ko" ? "테마 전환" : "Toggle theme"} delay={600} placement="bottom">
+        <Tooltip content={t("navMenu.ui.theme")} delay={600} placement="bottom">
           <Pressable noTapScale
             className={styles.actionBtn}
             onClick={themeToggle.handleToggle}
@@ -807,8 +825,8 @@ export default function Navigation() {
         {adminEmail && canSeeNotifications && (
           <Tooltip
             content={unreadCount > 0
-              ? (language === "ko" ? `읽지 않은 알림 ${unreadCount}개` : `${unreadCount} unread`)
-              : (language === "ko" ? "알림" : "Notifications")}
+              ? fillTemplate(t("navMenu.ui.unread"), { n: unreadCount })
+              : t("navMenu.ui.notifications")}
             placement="bottom"
             delay={200}
             disabled={notifOpen}
@@ -816,7 +834,7 @@ export default function Navigation() {
             <Pressable noTapScale
               ref={notifWrapRef}
               className={`${styles.actionBtn} ${styles.notifBtn}`}
-              aria-label="Notifications"
+              aria-label={t("navMenu.ui.notifications")}
               aria-expanded={notifOpen}
               aria-haspopup="dialog"
               onClick={() => { setNotifOpen((v) => !v); if (!notifOpen) fetchNotifs(); }}
@@ -837,7 +855,7 @@ export default function Navigation() {
                 key="notif-dropdown"
                 className={styles.notifDropdown}
                 role="dialog"
-                aria-label="Notifications"
+                aria-label={t("navMenu.ui.notifications")}
                 style={{ top: notifPos.top, right: notifPos.right - 24, transformOrigin: "top right" }}
                 initial={{ opacity: 0, scale: 0.5 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -847,7 +865,7 @@ export default function Navigation() {
                 <div className={styles.notifDropdownInner}>
                   <div className={styles.notifDropdownHeader}>
                     <span className={styles.notifDropdownTitle}>
-                      {language === "ko" ? "알림" : "Notifications"}
+                      {t("navMenu.ui.notifications")}
                     </span>
                     {unreadCount > 0 && (
                       <span className={styles.notifDropdownBadge}>
@@ -859,19 +877,19 @@ export default function Navigation() {
                       className={styles.notifDropdownViewAll}
                       onClick={() => setNotifOpen(false)}
                     >
-                      <span>{language === "ko" ? "모두 보기" : "View all"}</span>
+                      <span>{t("navMenu.ui.viewAll")}</span>
                       <ArrowRight size={12} strokeWidth={2} className={styles.notifDropdownViewAllArrow} aria-hidden />
                     </Link>
                   </div>
                   {notifs.length === 0 ? (
                     <div className={styles.notifDropdownEmpty}>
-                      {language === "ko" ? "알림이 없습니다" : "No notifications"}
+                      {t("navMenu.ui.noNotifications")}
                     </div>
                   ) : (
                     <ul className={styles.notifDropdownList} data-lenis-prevent>
                       {notifs.slice(0, 5).map((n) => (
                         <li key={n.id} className={`${styles.notifDropdownItem} ${!n.read ? styles.notifDropdownItemUnread : ""}`}>
-                          {renderNotifItem(n, language, now, () => setNotifOpen(false))}
+                          {renderNotifItem(n, language, now, () => setNotifOpen(false), t("navMenu.ui.actionNeeded"))}
                         </li>
                       ))}
                       {/* 펼친 추가 5개 — clip-path 위에서 아래로 reveal + height 자연 확장 */}
@@ -890,7 +908,7 @@ export default function Navigation() {
                             }}
                             style={{ overflow: "hidden" }}
                           >
-                            {renderNotifItem(n, language, now, () => setNotifOpen(false))}
+                            {renderNotifItem(n, language, now, () => setNotifOpen(false), t("navMenu.ui.actionNeeded"))}
                           </motion.li>
                         ))}
                       </AnimatePresence>
@@ -902,8 +920,8 @@ export default function Navigation() {
                       onClick={() => setNotifExpanded((v) => !v)}
                     >
                       {notifExpanded
-                        ? (language === "ko" ? "접기" : "Collapse")
-                        : (language === "ko" ? "더 보기 +5" : "Load more +5")}
+                        ? t("navMenu.ui.collapse")
+                        : t("navMenu.ui.loadMore")}
                     </Pressable>
                   )}
                 </div>
@@ -915,8 +933,8 @@ export default function Navigation() {
         {/* 관리 화면으로 — 로그아웃 왼쪽. 로그인해 두고도 주소를 직접 쳐야 들어갈 수 있었다.
             이미 관리 화면이면 그릴 이유가 없다(상단바가 관리 메뉴로 바뀌어 있다) */}
         {!isAdminPage && adminHref && (
-          <Tooltip content={language === "ko" ? "관리 화면" : "Admin"} delay={200} placement="bottom">
-            <Link href={adminHref} className={styles.actionBtn} aria-label={language === "ko" ? "관리 화면" : "Admin"}>
+          <Tooltip content={t("navMenu.ui.admin")} delay={200} placement="bottom">
+            <Link href={adminHref} className={styles.actionBtn} aria-label={t("navMenu.ui.admin")}>
               <Settings size={18} strokeWidth={1.5} />
             </Link>
           </Tooltip>
@@ -944,7 +962,7 @@ export default function Navigation() {
             onClick={openForm}
             soundDisabled
           >
-            Get in Touch
+            {t("navMenu.ui.getInTouch")}
           </Button>
         ) : null}
 
@@ -953,7 +971,7 @@ export default function Navigation() {
           <Pressable noTapScale
             className={`${styles.actionBtn} ${styles.menuBtn}`}
             onClick={() => setIsMenuOpen((v) => !v)}
-            aria-label="Menu"
+            aria-label={t("navMenu.ui.menu")}
             aria-expanded={isMenuOpen}
           >
             {/* SVG 9개 circle — span 작은 사이즈 (2~3px) 에서 subpixel 안티앨리어싱이
@@ -1052,7 +1070,7 @@ export default function Navigation() {
                         },
                       } : undefined}
                     >
-                      {child.label}
+                      {navLabel(child)}
                     </MotionLink>
                   </motion.div>
                 );

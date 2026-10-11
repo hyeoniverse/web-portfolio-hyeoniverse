@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslatedWorkItems } from "@/hooks/useListTranslation";
 import { forwardRef, memo, useCallback, useState } from "react";
 import MediaThumb from "@/components/ui/MediaThumb";
 import { motion, MotionValue } from "framer-motion";
@@ -270,7 +271,7 @@ interface WorksSectionProps {
 const WorksSection = forwardRef<HTMLElement, WorksSectionProps>(
   (
     {
-      works,
+      works: worksProp,
       smoothWorkImageY,
       setWorkCircleRef,
       pressingWork,
@@ -284,6 +285,8 @@ const WorksSection = forwardRef<HTMLElement, WorksSectionProps>(
     ref
   ) => {
     const { t, language } = useLanguage();
+    /* 사이트가 다른 언어로 걸려 있으면 작업물 · 글 제목을 그 번역으로 */
+    const works = useTranslatedWorkItems(worksProp);
     const [hoverDirections, setHoverDirections] = useState<{ [key: string]: { x: number; y: number } }>({});
 
     const updateHoverDirection = useCallback(
