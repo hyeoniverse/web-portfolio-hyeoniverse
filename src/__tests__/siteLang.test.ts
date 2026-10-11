@@ -136,12 +136,22 @@ describe("t() 에 얹기 — 하나의 언어 상태", () => {
       wrapper: ({ children }) => createElement(LanguageProvider, null, createElement(AdminDictProvider, { dict: { ko: {}, en: {} }, children })),
     });
 
+    expect(result.current.language).toBe("ko");
     act(() => selectSiteLang("de"));
+    /* 다른 언어가 걸리면 기본 언어는 영어 — 번역되지 않은 분기가 한국어로 섞이지 않게. 저장된 ko 는 그대로 */
+    expect(result.current.language).toBe("en");
+    expect(result.current.foreignLang).toBe("de");
+    expect(localStorage.getItem("language")).toBe("ko");
+    expect(result.current.tAlt("nav.home")).toBe("Startseite");
+    expect(admin.result.current.language).toBe("ko");
     expect(result.current.t("nav.home")).toBe("Startseite");
     expect(result.current.t("nav.about")).toBe(en.nav.about);
     expect(admin.result.current.t("nav.home")).not.toBe("Startseite");
 
     act(() => selectSiteLang(null));
     expect(result.current.t("nav.home")).not.toBe("Startseite");
+    /* 끄면 저장된 ko 로 돌아온다 */
+    expect(result.current.language).toBe("ko");
+    expect(result.current.foreignLang).toBeNull();
   });
 });
