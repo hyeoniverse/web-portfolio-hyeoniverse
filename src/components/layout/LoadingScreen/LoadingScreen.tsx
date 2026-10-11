@@ -22,8 +22,7 @@ const CONSTELLATION: [number, number][] = [
 export default function LoadingScreen() {
   const pathname = useRoutePathname();
   const { isLoading, progress } = useLoadingScreen();
-  /* 관리자 화면은 건너뛴다 — 내비게이션이 관리자에서는 로딩 로고 연출을 하지 않아(Navigation 의 isAdminPage) 로고 없는 검은 덮개만 떴다 */
-  const shouldSkipLoading = SKIP_LOADING_PAGES.includes(pathname) || pathname.startsWith("/admin");
+  const shouldSkipLoading = SKIP_LOADING_PAGES.includes(pathname);
 
   // 로딩 완료 후 짧은 페이드아웃 → 완전 언마운트
   const [visible, setVisible] = useState(true);
