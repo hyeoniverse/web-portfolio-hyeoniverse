@@ -177,11 +177,30 @@
 }
 
 .polaroidBackBio {
-  margin: 0 0 var(--spacing-12);
+  margin: 0 0 var(--spacing-16);
   font: var(--font-body-sm);
-  line-height: 1.55;
   color: var(--text-secondary);
   white-space: pre-line;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+/* 기여 목록이 없을 때의 역할 — 작은 칩 줄 */
+.polaroidBackRoleChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.polaroidBackRoleChip {
+  padding: var(--spacing-2) var(--spacing-8);
+  border: var(--border-light);
+  border-radius: var(--radius-full);
+  font: var(--font-label-xs);
+  color: var(--text-secondary);
 }
 
 .polaroidBackName {
