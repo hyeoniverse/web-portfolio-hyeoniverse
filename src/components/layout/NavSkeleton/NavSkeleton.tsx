@@ -67,7 +67,16 @@ export default function NavSkeleton() {
     return () => cancelAnimationFrame(raf);
   }, [pathname, pending]);
 
-  if (!pending || !shown) return null;
+  return pending && shown ? <Bones to={pending.to} /> : null;
+}
+
+function Bones({ to }: { to: Page }) {
+  /* 떠 있는 동안 이전 페이지 본문을 감춘다(CSS 의 html[data-nav-pending]) */
+  useEffect(() => {
+    document.documentElement.setAttribute("data-nav-pending", "");
+    return () => document.documentElement.removeAttribute("data-nav-pending");
+  }, []);
+  const pending = { to };
   const wide = window.matchMedia("(width > 1024px)").matches;
   const bones = BONES[pending.to][wide ? "wide" : "narrow"];
   const onDark = pending.to === "/works" || pending.to === "/about";
