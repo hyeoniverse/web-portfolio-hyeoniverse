@@ -2,10 +2,10 @@
 
 import css from "../../AboutStudio.module.css";
 import FlowDiagramEditor from "../../FlowDiagramEditor";
-import { type ParsedErd } from "../../parseSqlErd";
+import { type ParsedErd } from "@/lib/about/parseSqlErd";
 import { EditableText, PanelStage, sec, useL } from "../primitives";
 import { StageTabs, useStageList } from "../stageList";
-import uf from "@/app/about/_components/panels/UserFlowPanel.module.css";
+import uf from "@/app/about/_panels/panels/UserFlowPanel.module.css";
 import { X } from "@/components/icons";
 import Button from "@/components/ui/Button";
 import { type UserFlow } from "@/data/about/types";

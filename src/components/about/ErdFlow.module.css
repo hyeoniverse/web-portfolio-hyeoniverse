@@ -183,9 +183,14 @@
   color: var(--text-muted);
 }
 .colDefault {
+  /* 긴 기본값(nextval(…) 등)은 줄인다 — 자동 칸이 내용만큼 넓어져 이름 칸(1fr)을 0 으로 밀었다 */
+  min-width: 0;
+  max-width: 8em;
+  overflow: hidden;
   color: var(--text-muted);
   font: var(--font-body-xs);
   white-space: nowrap;
+  text-overflow: ellipsis;
   opacity: 0.75;
 }
 
@@ -273,4 +278,52 @@
 /* 노트도 클릭 대상 — 누르면 그 노트가 화면에 잡힌다 */
 .noteNode {
   cursor: pointer;
+}
+
+/* ── 밤하늘 모양 — 감싼 상자에 data-erd-sky 가 있으면(About 구조 장). 관리자 캔버스는 그대로 ──
+   바탕 · 점 격자를 걷어 뒤의 밤하늘이 비치게 하고, 테이블은 반투명 유리, 머리에는 별, 관계선은 빛나는 별자리 선 */
+:global([data-erd-sky]) .wrap {
+  background: transparent;
+}
+
+:global([data-erd-sky]) .bg {
+  display: none;
+}
+
+:global([data-erd-sky]) .node {
+  border-color: color-mix(in oklab, var(--text-primary) 14%, transparent);
+  background: color-mix(in oklab, var(--bg-primary) 55%, transparent);
+  box-shadow: none;
+  backdrop-filter: blur(6px);
+}
+
+:global([data-erd-sky]) .nodeOn,
+:global([data-erd-sky]) .nodeRel {
+  border-color: var(--border-color-accent-strong);
+  box-shadow: var(--shadow-glow);
+}
+
+:global([data-erd-sky]) .head {
+  gap: var(--spacing-8);
+  border-bottom-color: color-mix(in oklab, var(--text-primary) 10%, transparent);
+  background: transparent;
+}
+
+/* 테이블 이름 앞 — 별 하나가 테이블 하나 */
+:global([data-erd-sky]) .head::before {
+  content: "";
+  flex: none;
+  width: 0.85em;
+  height: 0.85em;
+  background: var(--text-accent);
+  mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M50 0C53 36 64 47 100 50C64 53 53 64 50 100C47 64 36 53 0 50C36 47 47 36 50 0Z'/></svg>") center / contain no-repeat;
+}
+
+:global([data-erd-sky]) .edge :global(.react-flow__edge-path) {
+  stroke: color-mix(in oklab, var(--text-primary) 35%, transparent);
+}
+
+:global([data-erd-sky]) .edgeOn :global(.react-flow__edge-path) {
+  stroke: var(--text-accent);
+  filter: drop-shadow(0 0 4px var(--text-accent));
 }

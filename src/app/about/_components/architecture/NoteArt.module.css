@@ -1,0 +1,876 @@
+/* 설계 메모 도식 — 6초 한 바퀴. 기본 스타일은 마지막 장면(움직임 줄이기에서 그대로 보인다),
+   키프레임이 처음부터 그 장면까지를 다시 그린다 */
+.art {
+  --_loop: 6s; /* 도식 한 바퀴 — 한 자리(3.9-1) */
+  --_line: color-mix(in oklab, var(--text-primary) 22%, transparent);
+  --_fill: color-mix(in oklab, var(--text-primary) 6%, transparent);
+
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.art * {
+  animation-duration: var(--_loop);
+  animation-timing-function: var(--ease-standard);
+  animation-iteration-count: infinite;
+  animation-play-state: paused;
+}
+
+.art[data-play] * {
+  animation-play-state: running;
+}
+
+/* ── 공통 조각 ── */
+.wire,
+.wireDash {
+  fill: none;
+  stroke: var(--_line);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+.wireDash {
+  stroke-dasharray: 3 6;
+}
+
+.node {
+  fill: var(--_fill);
+  stroke: var(--_line);
+  stroke-width: 1.2;
+}
+
+.label,
+.labelLeft {
+  font: var(--font-grotesk-micro);
+  fill: var(--text-primary);
+}
+
+.sub {
+  font: var(--font-code-xs);
+  fill: var(--text-tertiary);
+}
+
+.subOn {
+  font: var(--font-code-xs);
+  fill: var(--text-accent);
+}
+
+.code {
+  font: var(--font-code-xs);
+  fill: var(--text-secondary);
+}
+
+.star {
+  fill: var(--text-tertiary);
+}
+
+.starOn {
+  fill: var(--text-accent);
+  filter: drop-shadow(0 0 4px var(--text-accent));
+}
+
+.rule {
+  stroke: var(--_line);
+  stroke-width: 1;
+}
+
+/* 선을 타는 빛 — 기본은 숨김(움직일 때만 보인다) */
+.packet {
+  fill: var(--text-accent);
+  filter: drop-shadow(0 0 6px var(--text-accent));
+  opacity: 0;
+  offset-distance: 0%;
+  offset-rotate: 0deg;
+}
+
+/* 튀어나오는 표시 — 안쪽 g 만 키운다(바깥 g 의 translate 속성을 덮지 않게) */
+.pop {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.pop rect,
+.pop circle {
+  fill: var(--bg-error-solid);
+}
+
+.pop text {
+  font: var(--font-grotesk-micro);
+  fill: var(--text-on-accent);
+}
+
+/* ── 1 · 409 ── */
+.cPa {
+  animation-name: cPa;
+}
+
+@keyframes cPa {
+  0%,
+  5% {
+    offset-distance: 0%;
+    opacity: 0;
+  }
+
+  7% {
+    opacity: 1;
+  }
+
+  30% {
+    offset-distance: 100%;
+    opacity: 1;
+  }
+
+  33%,
+  100% {
+    offset-distance: 100%;
+    opacity: 0;
+  }
+}
+
+.cDb .node {
+  stroke: var(--text-accent);
+  animation-name: cDb;
+}
+
+@keyframes cDb {
+  0%,
+  29% {
+    stroke: var(--_line);
+    filter: none;
+  }
+
+  32%,
+  92% {
+    stroke: var(--text-accent);
+    filter: drop-shadow(0 0 8px var(--text-accent));
+  }
+
+  100% {
+    stroke: var(--_line);
+    filter: none;
+  }
+}
+
+.cV3 {
+  opacity: 0;
+  animation-name: cV3;
+}
+
+@keyframes cV3 {
+  0%,
+  30% {
+    opacity: 1;
+  }
+
+  33%,
+  94% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+.cV4 {
+  animation-name: cV4;
+}
+
+@keyframes cV4 {
+  0%,
+  30% {
+    opacity: 0;
+  }
+
+  33%,
+  94% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+.cPb {
+  animation-name: cPb;
+}
+
+@keyframes cPb {
+  0%,
+  38% {
+    offset-distance: 0%;
+    opacity: 0;
+    fill: var(--text-accent);
+  }
+
+  40% {
+    opacity: 1;
+  }
+
+  54% {
+    offset-distance: 52%;
+    opacity: 1;
+    fill: var(--text-accent);
+  }
+
+  56%,
+  84% {
+    offset-distance: 52%;
+    opacity: 1;
+    fill: var(--text-error);
+    filter: drop-shadow(0 0 6px var(--text-error));
+  }
+
+  90%,
+  100% {
+    offset-distance: 52%;
+    opacity: 0;
+  }
+}
+
+.cNo .pop {
+  animation-name: popIn;
+}
+
+/* 55% 에 튀어나와 92% 까지 */
+@keyframes popIn {
+  0%,
+  54% {
+    transform: scale(0);
+  }
+
+  60% {
+    transform: scale(1.15);
+  }
+
+  64%,
+  92% {
+    transform: scale(1);
+  }
+
+  97%,
+  100% {
+    transform: scale(0);
+  }
+}
+
+/* ── 2 · 역할 ── */
+.lock path,
+.lock rect {
+  fill: none;
+  stroke: var(--text-error);
+  stroke-width: 1.6;
+}
+
+.lock rect {
+  fill: var(--bg-primary);
+  animation-name: lockHit;
+}
+
+@keyframes lockHit {
+  0%,
+  26% {
+    stroke: var(--text-tertiary);
+  }
+
+  29%,
+  90% {
+    stroke: var(--text-error);
+  }
+
+  100% {
+    stroke: var(--text-tertiary);
+  }
+}
+
+.lock path {
+  animation-name: lockHit;
+}
+
+.rPb {
+  animation-name: rPb;
+}
+
+@keyframes rPb {
+  0%,
+  5% {
+    offset-distance: 0%;
+    opacity: 0;
+    fill: var(--text-accent);
+  }
+
+  7% {
+    opacity: 1;
+  }
+
+  26% {
+    offset-distance: 44%;
+    opacity: 1;
+    fill: var(--text-accent);
+  }
+
+  29%,
+  40% {
+    offset-distance: 44%;
+    opacity: 1;
+    fill: var(--text-error);
+    filter: drop-shadow(0 0 6px var(--text-error));
+  }
+
+  46%,
+  100% {
+    offset-distance: 44%;
+    opacity: 0;
+  }
+}
+
+.rNo .pop {
+  animation-name: popEarly;
+}
+
+/* 28% 에 튀어나와 92% 까지 */
+@keyframes popEarly {
+  0%,
+  27% {
+    transform: scale(0);
+  }
+
+  32% {
+    transform: scale(1.15);
+  }
+
+  36%,
+  92% {
+    transform: scale(1);
+  }
+
+  97%,
+  100% {
+    transform: scale(0);
+  }
+}
+
+.rPs {
+  animation-name: rPs;
+}
+
+@keyframes rPs {
+  0%,
+  44% {
+    offset-distance: 0%;
+    opacity: 0;
+  }
+
+  46% {
+    opacity: 1;
+  }
+
+  68% {
+    offset-distance: 100%;
+    opacity: 1;
+  }
+
+  71%,
+  100% {
+    offset-distance: 100%;
+    opacity: 0;
+  }
+}
+
+.rMeta .node {
+  stroke: var(--text-accent);
+  animation-name: rMeta;
+}
+
+@keyframes rMeta {
+  0%,
+  67% {
+    stroke: var(--_line);
+    filter: none;
+  }
+
+  70%,
+  92% {
+    stroke: var(--text-accent);
+    filter: drop-shadow(0 0 8px var(--text-accent));
+  }
+
+  100% {
+    stroke: var(--_line);
+    filter: none;
+  }
+}
+
+/* ── 3 · 하루 한 번 ── */
+.dChip {
+  animation-name: dChip;
+  animation-delay: calc(var(--i) * var(--_loop) * 0.06);
+}
+
+@keyframes dChip {
+  0%,
+  2% {
+    opacity: 0;
+  }
+
+  8%,
+  92% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+.gate {
+  stroke: var(--text-error);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 2 5;
+  animation-name: gate;
+}
+
+@keyframes gate {
+  0%,
+  58%,
+  68%,
+  72%,
+  82%,
+  100% {
+    stroke: var(--_line);
+  }
+
+  62%,
+  76% {
+    stroke: var(--text-error);
+  }
+}
+
+.gateLabel {
+  font: var(--font-code-xs);
+  fill: var(--text-tertiary);
+}
+
+.dDb .node {
+  stroke: var(--text-accent);
+  animation-name: dDb;
+}
+
+@keyframes dDb {
+  0%,
+  43% {
+    stroke: var(--_line);
+    filter: none;
+  }
+
+  46%,
+  92% {
+    stroke: var(--text-accent);
+    filter: drop-shadow(0 0 8px var(--text-accent));
+  }
+
+  100% {
+    stroke: var(--_line);
+    filter: none;
+  }
+}
+
+.dP0 {
+  animation-name: dP0;
+}
+
+@keyframes dP0 {
+  0%,
+  28% {
+    offset-distance: 0%;
+    opacity: 0;
+  }
+
+  30% {
+    opacity: 1;
+  }
+
+  44% {
+    offset-distance: 100%;
+    opacity: 1;
+  }
+
+  47%,
+  100% {
+    offset-distance: 100%;
+    opacity: 0;
+  }
+}
+
+/* 두 번째 · 세 번째 — UNIQUE 문 앞에서 빨갛게 멈춘다 */
+.dP1 {
+  animation-name: dP1;
+}
+
+@keyframes dP1 {
+  0%,
+  48% {
+    offset-distance: 0%;
+    opacity: 0;
+    fill: var(--text-accent);
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  61% {
+    offset-distance: 90%;
+    opacity: 1;
+    fill: var(--text-accent);
+  }
+
+  63%,
+  68% {
+    offset-distance: 90%;
+    opacity: 1;
+    fill: var(--text-error);
+  }
+
+  72%,
+  100% {
+    offset-distance: 90%;
+    opacity: 0;
+  }
+}
+
+.dP2 {
+  animation-name: dP2;
+}
+
+@keyframes dP2 {
+  0%,
+  62% {
+    offset-distance: 0%;
+    opacity: 0;
+    fill: var(--text-accent);
+  }
+
+  64% {
+    opacity: 1;
+  }
+
+  75% {
+    offset-distance: 90%;
+    opacity: 1;
+    fill: var(--text-accent);
+  }
+
+  77%,
+  82% {
+    offset-distance: 90%;
+    opacity: 1;
+    fill: var(--text-error);
+  }
+
+  86%,
+  100% {
+    offset-distance: 90%;
+    opacity: 0;
+  }
+}
+
+.count {
+  font: var(--font-grotesk-headline-sm);
+  fill: var(--text-accent);
+  animation-name: count;
+}
+
+@keyframes count {
+  0%,
+  44% {
+    opacity: 0;
+  }
+
+  48%,
+  92% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+/* ── 4 · 좋아요 한 테이블 ── */
+.labelLeft {
+  font: var(--font-code-xs);
+}
+
+.lP {
+  animation-name: lP;
+}
+
+.lP:nth-of-type(2) {
+  animation-delay: calc(var(--_loop) * 0.15);
+}
+
+.lP:nth-of-type(3) {
+  animation-delay: calc(var(--_loop) * 0.3);
+}
+
+.lP:nth-of-type(4) {
+  animation-delay: calc(var(--_loop) * 0.45);
+}
+
+@keyframes lP {
+  0%,
+  4% {
+    offset-distance: 0%;
+    opacity: 0;
+  }
+
+  6% {
+    opacity: 1;
+  }
+
+  20% {
+    offset-distance: 100%;
+    opacity: 1;
+  }
+
+  23%,
+  100% {
+    offset-distance: 100%;
+    opacity: 0;
+  }
+}
+
+.lRow {
+  fill: color-mix(in oklab, var(--text-accent) 55%, transparent);
+  animation-name: lRow;
+  animation-delay: calc(var(--i) * var(--_loop) * 0.15);
+}
+
+@keyframes lRow {
+  0%,
+  19% {
+    opacity: 0;
+  }
+
+  22%,
+  45% {
+    opacity: 1;
+  }
+
+  /* 나중 줄과 함께 사라지도록 — 지연이 달라도 끝은 비슷하게 */
+  100% {
+    opacity: 0.6;
+  }
+}
+
+/* ── 5 · 두 해시 ── */
+.hPt,
+.hPb {
+  animation-name: hP;
+}
+
+@keyframes hP {
+  0%,
+  10% {
+    offset-distance: 0%;
+    opacity: 0;
+  }
+
+  12% {
+    opacity: 1;
+  }
+
+  38% {
+    offset-distance: 100%;
+    opacity: 1;
+  }
+
+  41%,
+  100% {
+    offset-distance: 100%;
+    opacity: 0;
+  }
+}
+
+.hAuth .node {
+  stroke: var(--text-accent);
+  animation-name: hAuth;
+}
+
+@keyframes hAuth {
+  0%,
+  37% {
+    stroke: var(--_line);
+    filter: none;
+  }
+
+  40%,
+  92% {
+    stroke: var(--text-accent);
+    filter: drop-shadow(0 0 8px var(--text-accent));
+  }
+
+  100% {
+    stroke: var(--_line);
+    filter: none;
+  }
+}
+
+.hOk .pop circle {
+  fill: var(--bg-success-solid);
+}
+
+.hOk .pop path {
+  fill: none;
+  stroke: var(--text-on-accent);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.hOk .pop,
+.hAvatar .pop {
+  animation-name: hPop;
+}
+
+.hAvatar .pop {
+  animation-delay: calc(var(--_loop) * 0.04);
+}
+
+@keyframes hPop {
+  0%,
+  39% {
+    transform: scale(0);
+  }
+
+  45% {
+    transform: scale(1.15);
+  }
+
+  49%,
+  92% {
+    transform: scale(1);
+  }
+
+  97%,
+  100% {
+    transform: scale(0);
+  }
+}
+
+/* ── 6 · 그림도 데이터 ── */
+.dLine {
+  animation-name: dLine;
+  animation-delay: calc(var(--i) * var(--_loop) * 0.06);
+}
+
+@keyframes dLine {
+  0%,
+  3% {
+    opacity: 0;
+  }
+
+  7%,
+  92% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+.eP {
+  animation-name: eP;
+}
+
+@keyframes eP {
+  0%,
+  36% {
+    offset-distance: 0%;
+    opacity: 0;
+  }
+
+  38% {
+    opacity: 1;
+  }
+
+  48% {
+    offset-distance: 100%;
+    opacity: 1;
+  }
+
+  51%,
+  100% {
+    offset-distance: 100%;
+    opacity: 0;
+  }
+}
+
+.erdLine {
+  fill: none;
+  stroke: color-mix(in oklab, var(--text-accent) 60%, transparent);
+  stroke-width: 1.5;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  animation-name: erdLine;
+}
+
+@keyframes erdLine {
+  0%,
+  52% {
+    stroke-dashoffset: 1;
+  }
+
+  72%,
+  94% {
+    stroke-dashoffset: 0;
+  }
+
+  100% {
+    stroke-dashoffset: 1;
+  }
+}
+
+.erdStar {
+  animation-name: erdStar;
+}
+
+.erd > g:nth-of-type(2) .erdStar {
+  animation-delay: calc(var(--_loop) * 0.04);
+}
+
+.erd > g:nth-of-type(3) .erdStar {
+  animation-delay: calc(var(--_loop) * 0.08);
+}
+
+.erd > g:nth-of-type(4) .erdStar {
+  animation-delay: calc(var(--_loop) * 0.12);
+}
+
+@keyframes erdStar {
+  0%,
+  48% {
+    opacity: 0;
+  }
+
+  54%,
+  94% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .art * {
+    animation: none;
+  }
+}

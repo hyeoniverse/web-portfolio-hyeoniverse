@@ -1,0 +1,1724 @@
+/* ── 기능 장 — 형식이 다른 여섯 장면. 고정 장면은 섹션 높이로 스크롤 길이를 정한다 ── */
+
+.chapter {
+  --_gutter: var(--spacing-page-inline);
+  --_line: var(--border-width-1) solid var(--border-color-light);
+
+  padding: var(--spacing-96) var(--_gutter) 0;
+  border-top: var(--_line);
+}
+
+.head {
+  position: relative;
+  display: grid;
+  gap: var(--spacing-12);
+  margin-bottom: var(--spacing-48);
+}
+
+/* 길잡이 별이 장 머리에 내려앉는 자리 */
+.headAnchor {
+  position: absolute;
+  top: 0;
+  right: 12%;
+}
+
+/* 작은 눈썹 제목 앞의 별 */
+.eyebrow::before,
+.sceneLabel::before {
+  content: "";
+  display: inline-block;
+  width: 0.9em;
+  aspect-ratio: 1;
+  margin-right: 0.5em;
+  vertical-align: -0.1em;
+  background: currentcolor;
+  mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M50 0C53 36 64 47 100 50C64 53 53 64 50 100C47 64 36 53 0 50C36 47 47 36 50 0Z'/></svg>") center / contain no-repeat;
+}
+
+/* 목록 번호 옆 별 — 지금 항목이면 돌며 나타난다 */
+.rowStar {
+  display: inline-block;
+  width: 0.9em;
+  aspect-ratio: 1;
+  margin-left: 0.35em;
+  vertical-align: -0.1em;
+  fill: var(--text-accent);
+  scale: 0;
+  rotate: -90deg;
+  transition:
+    scale var(--duration-base) var(--ease-spring),
+    rotate var(--duration-slow) var(--ease-enter);
+}
+
+[data-on] > .num .rowStar {
+  scale: 1;
+  rotate: 0deg;
+}
+
+.eyebrow,
+.sceneLabel,
+.num,
+.stepCount {
+  font: var(--font-grotesk-micro);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.eyebrow,
+.sceneLabel {
+  color: var(--text-accent);
+}
+
+.num {
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.title {
+  max-width: 22ch;
+  margin: 0;
+  font: var(--font-grotesk-headline-xl);
+  letter-spacing: -0.02em;
+  word-break: keep-all;
+}
+
+.note {
+  margin: 0;
+  font: var(--font-body-md);
+  color: var(--text-secondary);
+}
+
+.sceneHead {
+  display: grid;
+  gap: var(--spacing-8);
+}
+
+.sceneTitle {
+  margin: 0;
+  font: var(--font-grotesk-headline-sm);
+  word-break: keep-all;
+}
+
+.sceneBody {
+  max-width: 44ch;
+  margin: 0;
+  font: var(--font-body-md);
+  color: var(--text-secondary);
+  word-break: keep-all;
+}
+
+.code {
+  padding: 0 var(--spacing-4);
+  border-radius: var(--radius-mark);
+  font: var(--font-code-sm);
+  color: var(--text-primary);
+  background: var(--bg-secondary);
+}
+
+/* 캡처 · 영상 공통 */
+.frame {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 16 / 10;
+  border: var(--_line);
+  border-radius: var(--radius-surface);
+  background: var(--bg-secondary);
+  box-shadow: var(--shadow-raised);
+}
+
+.shot {
+  position: absolute;
+  inset: 0;
+  --_shotIn-duration: 500ms; /* 캡처 바뀜 — 한 자리의 장식(3.9-1) */
+  animation: shotIn var(--_shotIn-duration) var(--ease-enter) both;
+}
+
+@keyframes shotIn {
+  from {
+    opacity: 0;
+    transform: translateY(var(--spacing-12)) scale(0.98);
+  }
+}
+
+.media {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-8);
+}
+
+.chip {
+  padding: var(--spacing-4) var(--spacing-12);
+  border: var(--_line);
+  border-radius: var(--radius-control);
+  font: var(--font-body-sm);
+  color: var(--text-secondary);
+  background: transparent;
+}
+
+.chip:hover {
+  color: var(--text-primary);
+}
+
+.chip[data-on] {
+  border-color: var(--text-primary);
+  color: var(--bg-primary);
+  background: var(--text-primary);
+}
+
+.points {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.points li {
+  padding: var(--spacing-4) var(--spacing-12);
+  border: var(--_line);
+  border-radius: var(--radius-control);
+  font: var(--font-body-sm);
+  color: var(--text-secondary);
+}
+
+/* 자동 넘김까지 남은 시간 — 가는 막대가 찬다(--auto, useAutoStep) */
+.autoBar {
+  display: block;
+  height: 2px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(to right, var(--text-accent) calc(var(--auto, 0) * 100%), var(--border-color-light) 0);
+}
+
+.stepCount {
+  position: absolute;
+  right: 0;
+  bottom: var(--spacing-24);
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── 1 · 공개 화면 ── */
+
+.pageTitle {
+  margin: 0;
+  font: var(--font-grotesk-headline-sm);
+}
+
+.pageBody {
+  grid-column: 2;
+  max-width: 52ch;
+  margin: 0;
+  font: var(--font-body-sm);
+  color: var(--text-secondary);
+  word-break: keep-all;
+}
+
+.stepList,
+.adminIndex {
+  margin: 0;
+  padding: 0;
+  border-top: var(--_line);
+  list-style: none;
+}
+
+.stepRow,
+.adminIndexRow {
+  display: grid;
+  grid-template-columns: 2.5rem auto minmax(0, 1fr);
+  gap: var(--spacing-12);
+  align-items: baseline;
+  width: 100%;
+  padding: var(--spacing-8) 0;
+  border-bottom: var(--_line);
+  text-align: left;
+  color: var(--text-tertiary);
+  background: transparent;
+  transition: color var(--duration-base) var(--ease-standard);
+}
+
+.stepRow[data-on],
+.adminIndexRow[data-on] {
+  color: var(--text-primary);
+}
+
+.stepRow[data-on] .num,
+.adminIndexRow[data-on] .num {
+  color: var(--text-accent);
+}
+
+.stepName {
+  font: var(--font-grotesk-headline-sm);
+}
+
+.stepNote {
+  font: var(--font-body-sm);
+  word-break: keep-all;
+}
+
+.browser {
+  overflow: hidden;
+  border: var(--_line);
+  border-radius: var(--radius-surface);
+  background: var(--bg-secondary);
+  box-shadow: var(--shadow-floating);
+}
+
+.browserBar {
+  display: flex;
+  gap: var(--spacing-12);
+  align-items: center;
+  padding: var(--spacing-8) var(--spacing-12);
+  border-bottom: var(--_line);
+}
+
+.browserDots {
+  display: flex;
+  gap: var(--spacing-4);
+}
+
+.browserDots i {
+  width: var(--spacing-12);
+  aspect-ratio: 1;
+  border-radius: var(--radius-full);
+  background: var(--border-color-strong);
+}
+
+.browserUrl {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  padding: var(--spacing-4) var(--spacing-12);
+  border-radius: var(--radius-control);
+  font: var(--font-code-xs);
+  color: var(--text-secondary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  background: var(--bg-primary);
+}
+
+.browserOpen {
+  font: var(--font-body-sm);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.browserOpen:hover {
+  color: var(--text-primary);
+}
+
+.browserBody {
+  position: relative;
+}
+
+/* 데스크톱 폭으로 그린 페이지를 창 폭으로 줄인다. 보기 전용 — 스크롤 · 클릭이 창 안에 갇히지 않게 */
+.iframeBox {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 16 / 10;
+  background: var(--bg-primary);
+}
+
+.iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border: 0;
+  transform: scale(var(--scale));
+  transform-origin: 0 0;
+  pointer-events: none;
+}
+
+
+/* ── 프레지 장면 공통 — 장면 하나가 프레임 하나(한 화면)를 꽉 채운다. 안에서 스크롤하지 않고, 단계(data-step)로 바뀐다 ── */
+
+.pz {
+  --_move: 700ms; /* 단계가 바뀔 때 카메라처럼 옮겨 가는 시간 — 한 자리(3.9-1) */
+
+  display: grid;
+  gap: var(--spacing-16);
+  height: 100%;
+  min-height: 0;
+}
+
+/* 장면 머리 + 오른쪽 단계 번호 */
+.pzTop {
+  display: flex;
+  gap: var(--spacing-16);
+  align-items: end;
+  justify-content: space-between;
+}
+
+.pzTop .stepCount {
+  position: static;
+  flex: none;
+}
+
+/* 남은 자리를 다 받는 상자 — 안의 그림은 이 상자의 폭 · 높이(cq 단위)에 맞춰 비율을 지킨 채 가장 크게 */
+.fitBox {
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  min-height: 0;
+  container-type: size;
+}
+
+/* 단계 점 — 지금 단계가 길어진다 */
+.dots {
+  display: flex;
+  gap: var(--spacing-8);
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dot {
+  display: block;
+  width: var(--spacing-8);
+  height: var(--spacing-8);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--border-color-strong);
+  transition:
+    width var(--duration-base) var(--ease-standard),
+    background-color var(--duration-base) var(--ease-standard);
+}
+
+.dot[data-on] {
+  width: var(--spacing-24);
+  background: var(--text-accent);
+}
+
+/* ── 1 · 공개 화면 — 캡처를 가로로 늘어놓고 단계마다 다음 장을 가운데로. 가운데는 크게, 양옆은 작고 흐리게 ── */
+
+.pub {
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+/* 제목 줄 — 왼쪽 제목, 오른쪽 위 별자리 단계 표시(좁으면 아래로 내려간다) */
+.pub .pzTop {
+  flex-wrap: wrap;
+}
+
+/* 별자리 단계 표시 — 번호(왼쪽) · 별 줄 */
+.starSteps {
+  display: flex;
+  gap: var(--spacing-16);
+  align-items: center;
+}
+
+/* 번호 — 숫자 폭이 같은 글꼴 설정으로, 바뀌어도 별 줄이 밀리지 않는다 */
+.starCount {
+  font: var(--font-grotesk-micro);
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.pubStage {
+  position: relative;
+  min-height: 0;
+  /* 양옆 장이 화면 끝까지 보이게 프레임 여백을 넘어 펼치고, 가로로 넘친 것은 자른다(세로 그림자는 살린다) */
+  margin-inline: calc(var(--_gutter) * -1);
+  overflow-x: clip;
+  container-type: size;
+}
+
+.pubCard {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  overflow: hidden;
+  width: min(84cqw, 100cqh * 1.6);
+  aspect-ratio: 16 / 10;
+  padding: 0;
+  border: var(--_line);
+  border-radius: var(--radius-surface);
+  background: var(--bg-secondary);
+  box-shadow: var(--shadow-raised);
+  translate: calc(-50% + var(--o) * 96%) -50%;
+  transition:
+    translate var(--_move) var(--ease-enter),
+    scale var(--_move) var(--ease-enter),
+    opacity var(--_move) var(--ease-standard);
+}
+
+.pubCard[data-pos="side"] {
+  scale: 0.8;
+  opacity: 0.45;
+}
+
+.pubCard[data-pos="far"] {
+  scale: 0.6;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.pubCaption {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--spacing-4) var(--spacing-16);
+  align-items: baseline;
+  justify-self: center;
+  width: min(100%, 52rem);
+  /* 설명 길이가 달라도 아래 점이 들썩이지 않게 두 줄 자리 */
+  min-height: 4.5rem;
+  --_capIn-duration: 500ms; /* 설명 바뀜 — 한 자리(3.9-1) */
+  animation: shotIn var(--_capIn-duration) var(--ease-enter) both;
+}
+
+@media (width > 1024px) {
+  .pubCard {
+    width: min(62cqw, 100cqh * 1.6);
+    translate: calc(-50% + var(--o) * 92%) -50%;
+  }
+}
+
+/* ── 2 · 작업물 레이아웃 — 왼쪽 목록, 오른쪽 브라우저 창. 단계마다 레이아웃이 바뀐다 ── */
+
+.layouts {
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: var(--spacing-24);
+}
+
+.layoutsText {
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-16);
+}
+
+/* 좁은 화면 — 고른 줄만 설명을 편다 */
+.stepRow:not([data-on]) .stepNote {
+  display: none;
+}
+
+.stepRow {
+  grid-template-columns: 2.5rem auto minmax(0, 1fr);
+  padding: var(--spacing-4) 0;
+}
+
+/* 창 — 남은 자리 안에서 16:10 을 지키며 가장 크게(주소 막대 높이만큼 빼고) */
+.layoutsWindow {
+  width: min(100cqw, (100cqh - 3rem) * 1.6);
+}
+
+@media (width > 1024px) {
+  .layouts {
+    grid-template-rows: none;
+    grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr);
+    gap: var(--spacing-48);
+    align-items: center;
+  }
+
+  .layouts .fitBox {
+    height: 100%;
+  }
+
+  .layoutsText {
+    gap: var(--spacing-24);
+  }
+
+  .stepRow {
+    padding: var(--spacing-8) 0;
+  }
+
+  .stepRow:not([data-on]) .stepNote {
+    display: inline;
+  }
+}
+
+/* ── 몽이 — 밤하늘 무대(몽이가 내려앉는 자리)와 이름 · 소개 · 손길 목록. 단계 0 은 소개, 1~5 는 손길 하나씩 ── */
+
+/* 3D 층(mascotLayer)이 격자 칸을 차지하지 않게 — 배치는 안쪽 격자가 한다 */
+.mascot {
+  display: block;
+}
+
+.mascotGrid {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: var(--spacing-12);
+  height: 100%;
+  /* 좁은 화면 — 아래 독(장 점)이 여백보다 높아 마지막 줄(프로필 링크)을 덮지 않게 */
+  padding-bottom: var(--spacing-16);
+}
+
+/* 무대 — 판 없이 뒤의 하늘(TimeSky)에 녹아든다. 밤하늘 장식(NightSky)은 가장자리가 스스로 옅어진다 */
+.mascotStageCard {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  place-items: center;
+  min-height: 0;
+  padding: var(--spacing-8);
+}
+
+.mascotSky {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+
+/* 미리 띄운 3D — 섹션이 화면에 없을 땐 보이지 않게. visibility 는 말풍선 층이 스스로 visible 로 덮어써서 새어 나왔다 —
+   자식이 되돌릴 수 없는 opacity 로 감춘다 */
+.mascotLayer:not([data-on]) {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.mascotDockBox {
+  display: grid;
+  place-items: center;
+  min-height: 0;
+}
+
+/* 몽이 크기 = 이 상자 크기 — 높이로 정해 한 화면에 들어오게 */
+.mascotDock {
+  height: min(26svh, 26rem);
+  aspect-ratio: 3 / 4;
+}
+
+/* 손길 안내 — 좁은 화면은 아래 목록이 대신한다 */
+.mascotHint {
+  display: none;
+  font: var(--font-grotesk-micro);
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.mascotAnchor {
+  position: absolute;
+  top: var(--spacing-8);
+  left: var(--spacing-8);
+}
+
+.mascotSide {
+  display: grid;
+  align-content: center;
+  gap: var(--spacing-8);
+}
+
+.mascotName {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-4) var(--spacing-12);
+  align-items: baseline;
+  margin: 0;
+  font: var(--font-grotesk-headline-sm);
+  letter-spacing: -0.01em;
+}
+
+.mascotSub {
+  font: var(--font-body-sm);
+  letter-spacing: 0;
+  color: var(--text-secondary);
+}
+
+.mascotStory {
+  max-width: 46ch;
+  margin: 0;
+  font: var(--font-body-sm);
+  color: var(--text-secondary);
+  word-break: keep-all;
+}
+
+/* 좁은 화면 — 손길 단계에서는 소개를 접고 손길 설명만 */
+.mascot:not([data-step="0"]) .mascotStory {
+  display: none;
+}
+
+.mascotActs {
+  margin: 0;
+  padding: 0;
+  border-top: var(--_line);
+  list-style: none;
+}
+
+/* 손길 한 줄 — 누르면 그 단계로 가서 몽이가 해 보인다. 지금 단계의 줄만 설명을 편다 */
+.mascotAct {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr) auto;
+  gap: var(--spacing-4) var(--spacing-12);
+  align-items: baseline;
+  width: 100%;
+  padding: var(--spacing-4) 0;
+  border: 0;
+  border-bottom: var(--_line);
+  text-align: left;
+  color: var(--text-primary);
+  background: transparent;
+}
+
+.mascotActTitle {
+  font: var(--font-body-md);
+  transition: color var(--duration-base) var(--ease-standard);
+}
+
+.mascotActPlay {
+  font: var(--font-grotesk-micro);
+  color: var(--text-tertiary);
+}
+
+.mascotActBody {
+  grid-column: 2 / -1;
+  font: var(--font-body-sm);
+  color: var(--text-secondary);
+  word-break: keep-all;
+  --_bodyIn-duration: 400ms; /* 손길 설명 펴짐 — 한 자리(3.9-1) */
+  animation: shotIn var(--_bodyIn-duration) var(--ease-enter) both;
+}
+
+.mascotAct:not([data-on]) .mascotActBody {
+  display: none;
+}
+
+.mascotAct:hover .mascotActTitle,
+.mascotAct[data-on] .mascotActTitle,
+.mascotAct[data-playing] .mascotActPlay,
+.mascotAct[data-on] .num {
+  color: var(--text-accent);
+}
+
+.mascotLink {
+  justify-self: start;
+  font: var(--font-grotesk-micro);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-accent);
+}
+
+@media (width > 1024px) {
+  .mascotGrid {
+    padding-bottom: 0;
+    grid-template-rows: none;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    gap: var(--spacing-48);
+  }
+
+  .mascotStageCard {
+    padding: var(--spacing-24);
+  }
+
+  .mascotHint {
+    display: block;
+  }
+
+  .mascotDock {
+    height: min(56svh, 34rem);
+  }
+
+  .mascotSide {
+    gap: var(--spacing-12);
+  }
+
+  .mascotName {
+    display: grid;
+    gap: var(--spacing-8);
+    font: var(--font-grotesk-headline-xl);
+    letter-spacing: -0.02em;
+  }
+
+  .mascotSub,
+  .mascotStory {
+    font: var(--font-body-md);
+  }
+
+  .mascot:not([data-step="0"]) .mascotStory {
+    display: block;
+  }
+
+  .mascotAct {
+    padding: var(--spacing-8) 0;
+  }
+
+  .mascotActTitle {
+    font: var(--font-grotesk-headline-sm);
+  }
+}
+
+/* ── 4 · 관리자 — 단계마다 기능 하나. 왼쪽 목록에서 그 기능만 펴지고, 오른쪽 화면은 저절로 넘어간다 ── */
+
+.admin {
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: var(--spacing-16);
+}
+
+.adminText {
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-12);
+}
+
+/* 좁은 화면 — 지금 기능 한 줄만 */
+.adminIndex > li:not([data-on]) {
+  display: none;
+}
+
+.adminIndexRow {
+  grid-template-columns: 2.5rem minmax(0, 1fr);
+  font: var(--font-body-md);
+}
+
+.adminDetail {
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-8);
+  padding: var(--spacing-4) 0 var(--spacing-12);
+  padding-left: calc(2.5rem + var(--spacing-12));
+  border-bottom: var(--_line);
+  --_detailIn-duration: 400ms; /* 기능 바뀜 — 한 자리(3.9-1) */
+  animation: shotIn var(--_detailIn-duration) var(--ease-enter) both;
+}
+
+.adminBody {
+  margin: 0;
+  font: var(--font-body-sm);
+  color: var(--text-secondary);
+  word-break: keep-all;
+}
+
+.adminStage {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  min-height: 0;
+}
+
+/* 화면 + 바로 아래 고르기 줄 — 고르기 줄 높이(--_tabs)만큼 빼고 남은 자리에 화면을 가장 크게 */
+.adminShotWrap {
+  --_tabs: var(--spacing-48);
+  --_shot-w: min(100cqw, (100cqh - var(--_tabs)) * 1.6);
+
+  display: grid;
+  gap: var(--spacing-12);
+  justify-items: center;
+}
+
+.adminShot {
+  position: relative;
+  overflow: hidden;
+  width: var(--_shot-w);
+  aspect-ratio: 16 / 10;
+  border: var(--_line);
+  border-radius: var(--radius-surface);
+  background: var(--bg-secondary);
+  box-shadow: var(--shadow-raised);
+}
+
+/* 화면 고르기 — 글자 탭. 지금 화면만 또렷하고, 아래 가는 선이 다음 화면까지 남은 시간만큼 찬다(--auto, useAutoStep) */
+.shotTabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-4) var(--spacing-24);
+  width: var(--_shot-w);
+}
+
+.shotTab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  padding: var(--spacing-4) 0 var(--spacing-8);
+  font: var(--font-body-sm);
+  color: var(--text-tertiary);
+  transition: color var(--duration-base) var(--ease-standard);
+}
+
+.shotTab:hover,
+.shotTab[data-on] {
+  color: var(--text-primary);
+}
+
+.shotTabBar {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: var(--border-width-2);
+  border-radius: var(--radius-full);
+  background: linear-gradient(to right, var(--text-accent) calc(var(--auto, 0) * 100%), var(--border-color-light) 0);
+}
+
+@media (width > 1024px) {
+  .admin {
+    grid-template-rows: none;
+    grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.25fr);
+    gap: var(--spacing-48);
+    align-items: center;
+  }
+
+  .adminStage {
+    height: 100%;
+  }
+
+  .adminIndex > li:not([data-on]) {
+    display: block;
+  }
+
+  .adminBody {
+    font: var(--font-body-md);
+  }
+}
+
+/* ── 4-1 · 관리자를 직접 — 단계 0 은 목차, 1~6 은 같은 크기의 데모 창. 둘은 한 자리에 겹쳐 확대 · 축소로 바뀐다 ── */
+
+.cms {
+  grid-template-areas: "s";
+}
+
+.cms {
+  --_suck: 760ms; /* 고른 별로 빨려 들어가는 시간 — 갈수록 빨라진다 (3.9-1) */
+  --_hide: 220ms; /* 고른 별 말고는 먼저 사라지는 시간 (3.9-1) */
+  --_emerge: 560ms; /* 데모가 별에서 자라 나오는 시간 (3.9-1) */
+  --_emerge-at: 520ms; /* 빨려 들어간 끝무렵 — 데모가 나오기 시작하는 때 (3.9-1) */
+  /* 확대 중심 — 컴포넌트가 고른 별 자리로 바꾼다 */
+  --z-origin: 50% 70%;
+
+  /* 크게 확대된 목차가 프레임을 넘쳐 스크롤 상자를 만들지 않게 잘라 둔다(clip 은 스크롤 상자를 만들지 않는다) — 아니면 휠 · 키가 프레임 안 스크롤로 먹힌다 */
+  overflow: clip;
+}
+
+/* 별 속으로 빨려 들어가기 — 고른 별(--z-origin, 컴포넌트가 잰다)만 남기고 나머지가 사라진 뒤, 그 별을 중심으로 갈수록 빨라지며
+   크게 확대되고, 별이 빛을 내며 사라지는 순간 데모가 그 자리에서 자라 나온다. 돌아올 땐 거꾸로 별에서 물러 나온다 */
+.cmsIntro,
+.cmsConsole {
+  grid-area: s;
+  min-height: 0;
+  transform-origin: var(--z-origin);
+}
+
+.cmsIntro {
+  display: grid;
+  /* 자리보다 높으면(낮은 화면) 위를 지킨다 — 그냥 가운데면 장 이름이 위로 잘렸다 */
+  align-content: safe center;
+  gap: var(--spacing-24);
+  transition:
+    opacity var(--_hide) var(--ease-standard) var(--_hide),
+    scale var(--_suck) var(--ease-enter);
+}
+
+.cms[data-open] .cmsIntro {
+  opacity: 0;
+  scale: 9;
+  pointer-events: none;
+  transition:
+    opacity var(--_hide) var(--ease-standard) var(--_emerge-at),
+    scale var(--_suck) var(--ease-exit);
+}
+
+/* 고른 별만 남는다 — 장 머리 · 선 · 다른 별 · 이름은 먼저 사라진다 */
+.cmsIntro > :not(.cmsSky),
+.cmsSkyLine,
+.cmsIndex li,
+.cmsNodeText {
+  transition: opacity var(--_hide) var(--ease-standard) var(--_hide);
+}
+
+.cms[data-open] .cmsIntro > :not(.cmsSky),
+.cms[data-open] .cmsSkyLine,
+.cms[data-open] .cmsIndex li:not([data-picked]),
+.cms[data-open] .cmsIndex li[data-picked] .cmsNodeText {
+  opacity: 0;
+  transition: opacity var(--_hide) var(--ease-standard);
+}
+
+/* 고른 별 — 빨려 들어가는 동안 분홍으로 빛난다 */
+.cms[data-open] .cmsIndex li[data-picked] .cmsNodeStar {
+  fill: var(--text-accent);
+  filter: drop-shadow(0 0 var(--spacing-8) var(--text-accent));
+}
+
+.cmsConsole {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: var(--spacing-12);
+  opacity: 0;
+  scale: 0.15;
+  pointer-events: none;
+  transition:
+    opacity var(--_hide) var(--ease-standard),
+    scale var(--_hide) var(--ease-exit);
+}
+
+/* 데모 — 별이 사라지는 순간 그 자리에서 자라 나온다 */
+.cms[data-open] .cmsConsole {
+  opacity: 1;
+  scale: 1;
+  pointer-events: auto;
+  transition:
+    opacity var(--_emerge) var(--ease-standard) var(--_emerge-at),
+    scale var(--_emerge) var(--ease-enter) var(--_emerge-at);
+}
+
+/* 목차 별자리 — 좁은 화면: 세로 점선 위에 별 줄. 넓은 화면: 상자 안 정해진 자리(--x · --y)에 별, 점선이 지그재그로 잇는다 */
+.cmsSky {
+  --_draw: 1.2s; /* 점선이 그려지는 시간 — 한 자리(3.9-1) */
+  --_pop: 500ms; /* 별 하나가 켜지는 시간 — 한 자리(3.9-1) */
+  --_pop-gap: 120ms; /* 별 사이 간격 — 한 자리(3.9-1) */
+
+  position: relative;
+}
+
+.cmsSkyLine {
+  display: none;
+}
+
+.cmsIndex {
+  position: relative;
+  display: grid;
+  gap: var(--spacing-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* 좁은 화면 세로 점선 — 별 가운데를 꿴다 */
+.cmsIndex::before {
+  content: "";
+  position: absolute;
+  top: var(--spacing-16);
+  bottom: var(--spacing-16);
+  left: calc(var(--spacing-24) / 2);
+  border-left: var(--border-width-1) dashed color-mix(in oklab, var(--text-primary) 25%, transparent);
+}
+
+.cmsIndex li {
+  animation: shotIn var(--_pop) var(--ease-enter) both;
+  animation-delay: calc(var(--i, 0) * var(--_pop-gap));
+}
+
+.cmsNode {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--spacing-24) minmax(0, 1fr);
+  gap: var(--spacing-12);
+  align-items: center;
+  width: 100%;
+  padding: var(--spacing-8) 0;
+  text-align: left;
+  color: var(--text-primary);
+}
+
+.cmsNodeStar {
+  justify-self: center;
+  width: var(--spacing-16);
+  aspect-ratio: 1;
+  fill: var(--text-primary);
+  transition:
+    scale var(--duration-base) var(--ease-enter),
+    fill var(--duration-base) var(--ease-standard),
+    filter var(--duration-base) var(--ease-standard);
+}
+
+.cmsNode:hover .cmsNodeStar,
+.cmsNode:focus-visible .cmsNodeStar {
+  scale: 1.5;
+  fill: var(--text-accent);
+  filter: drop-shadow(0 0 var(--spacing-8) color-mix(in oklab, var(--text-accent) 70%, transparent));
+}
+
+.cmsNodeText {
+  display: grid;
+  gap: var(--spacing-2);
+}
+
+.cmsNodeName {
+  display: inline-flex;
+  gap: var(--spacing-8);
+  align-items: baseline;
+  font: var(--font-grotesk-headline-sm);
+  transition: color var(--duration-base) var(--ease-standard);
+}
+
+.cmsNode:hover .cmsNodeName,
+.cmsNode:focus-visible .cmsNodeName {
+  color: var(--text-accent);
+}
+
+/* 한 줄 설명 — 좁은 화면에선 이름만 */
+.cmsNodeWhat {
+  display: none;
+  font: var(--font-body-sm);
+  color: var(--text-secondary);
+  word-break: keep-all;
+}
+
+.cmsNum {
+  font: var(--font-grotesk-micro);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
+}
+
+/* 별 줄 자리 — 데모 위로 튀어나와 오른쪽 끝에 */
+.cmsBar {
+  display: flex;
+  justify-content: end;
+}
+
+.cmsBarTitle > .sceneLabel {
+  display: none;
+}
+
+/* 지금 데모 이름 — 왼쪽 설명 칸 맨 위. 오른쪽 데모의 첫 줄과 같은 줄에 선다 */
+.cmsBarTitle {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: var(--spacing-12);
+  align-items: baseline;
+  margin: 0;
+}
+
+.cmsStarsNow {
+  --_now-in: 400ms; /* 이름이 바뀔 때 — 한 자리(3.9-1) */
+
+  display: inline-flex;
+  gap: var(--spacing-8);
+  align-items: baseline;
+  font: var(--font-grotesk-headline-sm);
+  white-space: nowrap;
+  animation: shotIn var(--_now-in) var(--ease-enter) both;
+}
+
+/* 데모 고르기 — 작은 별자리. 옅은 점선 위 별 여섯: 아직 안 본 데모는 희미하게, 지나온 데모는 흰 별.
+   빛나는 강조색 별 하나가 지금 자리로 미끄러져 가며 돈다(별마다 크기를 바꾸면 끊겨 보인다) */
+/* 별 줄 · 빛나는 별을 함께 담는 자리 */
+.cmsStars {
+  --_cell: var(--spacing-32);
+  --_gap: var(--spacing-8);
+  --_glide: 600ms; /* 빛나는 별이 옮겨 가는 시간 — 한 자리(3.9-1) */
+
+  position: relative;
+}
+
+.cmsStarRow {
+  position: relative;
+  display: flex;
+  gap: var(--_gap);
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* 별을 꿰는 선 */
+.cmsStarRow::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: var(--spacing-16);
+  left: var(--spacing-16);
+  border-top: var(--border-width-1) dashed color-mix(in oklab, var(--text-primary) 22%, transparent);
+}
+
+.cmsStar {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: var(--_cell);
+  height: var(--_cell);
+  border-radius: var(--radius-full);
+}
+
+.cmsStar svg {
+  width: var(--spacing-12);
+  aspect-ratio: 1;
+  fill: color-mix(in oklab, var(--text-primary) 35%, transparent);
+  transition:
+    scale var(--duration-base) var(--ease-standard),
+    fill var(--duration-slow) var(--ease-standard),
+    opacity var(--duration-base) var(--ease-standard);
+}
+
+.cmsStar[data-done] svg {
+  fill: var(--text-primary);
+}
+
+.cmsStar:hover svg,
+.cmsStar:focus-visible svg {
+  scale: 1.35;
+  fill: var(--text-primary);
+}
+
+/* 지금 자리의 작은 별은 빛나는 별 밑으로 숨는다 */
+.cmsStar[data-on] svg {
+  opacity: 0;
+}
+
+/* 빛나는 별 — 줄 맨 왼쪽 칸에서 --at 칸만큼 옮겨 간다 */
+.cmsStarGlow {
+  --_spin: 9s; /* 한 바퀴 도는 시간 — 한 자리(3.9-1) */
+
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  place-items: center;
+  width: var(--_cell);
+  height: var(--_cell);
+  pointer-events: none;
+  translate: calc(var(--at) * (var(--_cell) + var(--_gap))) 0;
+  transition: translate var(--_glide) var(--ease-standard);
+  will-change: translate;
+}
+
+/* 빛 — 도는 별에 filter 를 걸면 미끄러지는 동안 번짐이 늘어져 보인다. 빛은 돌지 않는 둥근 그라데이션으로 따로 깐다 */
+.cmsStarGlow::before {
+  content: "";
+  position: absolute;
+  inset: calc(var(--spacing-8) * -1);
+  border-radius: var(--radius-full);
+  background: radial-gradient(closest-side, color-mix(in oklab, var(--text-accent) 45%, transparent), transparent);
+}
+
+.cmsStarGlow svg {
+  position: relative;
+  width: var(--spacing-24);
+  aspect-ratio: 1;
+  fill: var(--text-accent);
+  animation: starSpin var(--_spin) linear infinite;
+}
+
+@keyframes skyDraw {
+  from {
+    stroke-dashoffset: 1;
+    opacity: 0;
+  }
+
+  to {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+@keyframes starSpin {
+  to {
+    rotate: 1turn;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cmsStarGlow,
+  .cmsStar svg {
+    transition: none;
+  }
+
+  .cmsStarGlow svg,
+  .cmsStarsNow {
+    animation: none;
+  }
+}
+
+/* 창 — 크기는 남은 자리 하나로 정해져 있다. 좁은 화면은 설명 위 · 데모 아래 */
+.cmsStage {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: var(--spacing-16);
+  min-height: 0;
+  overflow: hidden;
+}
+
+.cmsCopy {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-content: start;
+  align-items: center;
+  gap: var(--spacing-8);
+  --_cmsIn-duration: 500ms; /* 데모 바뀜 — 한 자리(3.9-1) */
+  animation: shotIn var(--_cmsIn-duration) var(--ease-enter) both;
+}
+
+.cmsTitle {
+  grid-column: 1 / -1;
+  margin: 0;
+  font: var(--font-grotesk-headline-sm);
+  word-break: keep-all;
+}
+
+.cmsWhy {
+  grid-column: 1 / -1;
+  margin: 0;
+  font: var(--font-body-md);
+  color: var(--text-accent);
+  word-break: keep-all;
+}
+
+.cmsWhat {
+  grid-column: 1 / -1;
+  margin: 0;
+  font: var(--font-body-sm);
+  color: var(--text-secondary);
+  word-break: keep-all;
+}
+
+/* 좁은 화면 — 해 볼 차례는 넓은 화면에서만(데모 안 상태 칩이 대신 알려 준다) */
+.cmsSteps {
+  display: none;
+}
+
+.cmsChipSlot {
+  grid-column: 1 / -1;
+  margin-top: var(--spacing-8);
+}
+
+.cmsSteps {
+  grid-column: 1 / -1;
+  gap: var(--spacing-12);
+  margin: var(--spacing-8) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cmsSteps li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--spacing-12);
+  align-items: baseline;
+  font: var(--font-body-sm);
+  color: var(--text-primary);
+  word-break: keep-all;
+}
+
+/* 차례 번호 — 작은 원 */
+.cmsStepNum {
+  display: inline-grid;
+  place-items: center;
+  width: var(--spacing-24);
+  height: var(--spacing-24);
+  border: var(--border-width-1) solid var(--border-color-accent);
+  border-radius: var(--radius-full);
+  font: var(--font-grotesk-micro);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-accent);
+}
+
+/* 데모 — 칸 위쪽에 붙인다(데모마다 높이가 달라도 상태 칩 · 첫 줄이 늘 같은 자리). 창 크기가 정해져 있어 데모를 바꿔도 틀은 그대로다 */
+.cmsDemo {
+  display: grid;
+  align-content: start;
+  min-width: 0;
+  min-height: 0;
+}
+
+@media (width > 1024px) {
+  .cmsIntro {
+    gap: var(--spacing-40);
+  }
+
+  .cmsSky {
+    height: clamp(16rem, 42svh, 24rem);
+  }
+
+  .cmsSkyLine {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .cmsSkyLine polyline {
+    fill: none;
+    stroke: color-mix(in oklab, var(--text-primary) 25%, transparent);
+    stroke-width: 1;
+    stroke-dasharray: 0.006 0.012;
+    vector-effect: non-scaling-stroke;
+    animation: skyDraw var(--_draw) var(--ease-standard) both;
+  }
+
+  .cmsIndex {
+    position: absolute;
+    inset: 0;
+    display: block;
+  }
+
+  .cmsIndex::before {
+    display: none;
+  }
+
+  /* 별 하나 — 별 가운데가 자리(--x · --y)에, 이름 · 설명은 별 아래 가운데 */
+  .cmsIndex li {
+    position: absolute;
+    top: var(--y);
+    left: var(--x);
+    width: 12rem;
+    translate: -50% calc(var(--spacing-24) / -2 - var(--spacing-8));
+  }
+
+  .cmsNode {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    gap: var(--spacing-8);
+    text-align: center;
+  }
+
+  .cmsNodeStar {
+    width: var(--spacing-24);
+  }
+
+  .cmsNodeWhat {
+    display: block;
+  }
+
+  .cmsBarTitle {
+    flex-wrap: wrap;
+    row-gap: var(--spacing-2);
+  }
+
+  /* 창은 내용만 한 크기로 화면 가운데에 — 남은 자리를 다 채우면 위아래가 텅 빈다 */
+  .cmsConsole {
+    grid-template-rows: auto auto;
+    align-content: center;
+    gap: var(--spacing-16);
+  }
+
+  .cmsBarTitle > .sceneLabel {
+    display: inline;
+  }
+
+  .cmsStage {
+    grid-template-rows: minmax(0, 1fr);
+    grid-template-columns: minmax(0, 18rem) minmax(0, 1fr);
+    gap: var(--spacing-40);
+    height: min(32rem, calc(100svh - var(--header-height) - 12rem));
+  }
+
+  .cmsCopy {
+    align-content: start;
+    gap: var(--spacing-12);
+  }
+
+  .cmsSteps {
+    display: grid;
+  }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cmsIntro,
+  .cmsConsole,
+    .cmsIndex li,
+  .cmsSkyLine polyline {
+    animation: none;
+  }
+}
+
+/* ── 5 · 발표 갤러리 · 편집 — 프레임 셋. 갤러리는 남은 자리에 맞춰 가장 크게, 편집 도구는 가운데에 ── */
+
+.voice {
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: var(--spacing-16);
+}
+
+/* 갤러리 — 16:9 무대 아래 자막 · 막대가 붙는다. 그 높이(약 11rem)만큼 빼고 남은 자리에 맞춘다 */
+.voiceSlides {
+  display: grid;
+  place-items: center;
+  min-height: 0;
+  container-type: size;
+}
+
+.voiceSlides > * {
+  width: min(100cqw, (100cqh - 11rem) * 16 / 9);
+}
+
+/* 편집 도구 — 카드 없이 하늘 위에. 좁은 화면은 글 칸 아래 데모를 위쪽에 붙이고, 넓은 화면은 왼쪽 글 칸 · 오른쪽 데모 */
+.voiceTool {
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: var(--spacing-24);
+}
+
+.voiceToolText {
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-16);
+}
+
+.toolSteps {
+  display: grid;
+  gap: var(--spacing-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.toolSteps li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--spacing-12);
+  align-items: baseline;
+  font: var(--font-body-sm);
+  color: var(--text-primary);
+  word-break: keep-all;
+}
+
+.voiceToolBody {
+  display: grid;
+  align-content: start;
+  min-width: 0;
+  min-height: 0;
+}
+
+@media (width > 1024px) {
+  .voice {
+    grid-template-rows: none;
+    grid-template-columns: minmax(0, 20rem) minmax(0, 1fr);
+    gap: var(--spacing-48);
+    align-items: center;
+  }
+
+  .voiceSlides {
+    height: 100%;
+  }
+
+  .voiceTool {
+    grid-template-rows: none;
+    grid-template-columns: minmax(0, 20rem) minmax(0, 1fr);
+    gap: var(--spacing-48);
+    align-items: center;
+  }
+
+  .voiceToolBody {
+    align-content: center;
+  }
+}
+
+/* ── 6 · 테마 — 프리셋이 저절로 바뀐다. 다음 단계에서 미니 홈이 위로 물러나고 대비 점검표가 올라온다 ── */
+
+.theme {
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: var(--spacing-16);
+}
+
+.themeText {
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-12);
+}
+
+.themeText .dots {
+  justify-content: start;
+}
+
+.swatches {
+  display: grid;
+  grid-template-columns: repeat(9, minmax(0, 2rem));
+  gap: var(--spacing-4);
+}
+
+.swatch {
+  aspect-ratio: 1;
+  border: var(--border-width-2) solid transparent;
+  border-radius: var(--radius-full);
+  background: var(--sw) content-box;
+  padding: var(--spacing-2);
+  transition: border-color var(--duration-base) var(--ease-standard);
+}
+
+.swatch[data-on] {
+  border-color: var(--text-primary);
+}
+
+.presetName {
+  font: var(--font-grotesk-headline-sm);
+  letter-spacing: -0.02em;
+}
+
+/* 무대 — 미니 홈과 점검표를 한 자리에 겹쳐 두고, 단계마다 옮긴다 */
+.themeStage {
+  /* 2단계 덩어리 — 줄어든 미니 홈(--pair-h × 배율) + 사이 + 점검표(--tbl-h). 높이는 컴포넌트가 잰다 */
+  --_k: 0.8;
+  --_between: var(--spacing-24);
+  --_top: max(0px, calc((100cqh - var(--pair-h, 0px) * var(--_k) - var(--_between) - var(--tbl-h, 0px)) / 2));
+
+  position: relative;
+  min-height: 0;
+  container-type: size;
+}
+
+.miniPair {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--spacing-12);
+  transform-origin: 50% 0;
+  translate: 0 calc(50cqh - 50%);
+  transition:
+    translate var(--_move) var(--ease-enter),
+    scale var(--_move) var(--ease-enter);
+}
+
+.theme[data-step="1"] .miniPair {
+  translate: 0 var(--_top);
+  scale: var(--_k);
+}
+
+/* 미니 홈 — 색은 프리셋 값을 그대로(인라인) */
+.miniHome {
+  display: grid;
+  align-content: center;
+  gap: var(--spacing-4);
+  aspect-ratio: 4 / 3;
+  padding: var(--spacing-16);
+  border: var(--_line);
+  border-radius: var(--radius-surface);
+  transition:
+    background var(--duration-slow) var(--ease-standard),
+    color var(--duration-slow) var(--ease-standard);
+}
+
+.miniEyebrow {
+  font: var(--font-grotesk-micro);
+  letter-spacing: 0.08em;
+}
+
+.miniTitle {
+  font: var(--font-body-md);
+}
+
+.miniTitle em {
+  font-style: italic;
+}
+
+.miniButton {
+  justify-self: start;
+  margin-top: var(--spacing-8);
+  padding: var(--spacing-4) var(--spacing-12);
+  border: var(--border-width-1) solid;
+  border-radius: var(--radius-control);
+  font: var(--font-body-sm);
+}
+
+.auditTable {
+  position: absolute;
+  top: calc(var(--_top) + var(--pair-h, 0px) * var(--_k) + var(--_between));
+  right: 0;
+  left: 0;
+  width: 100%;
+  border-collapse: collapse;
+  /* 열 너비를 내용과 상관없이 고정 — 프리셋이 바뀌어 숫자 · 등급 길이가 달라져도 열이 움직이지 않게 */
+  table-layout: fixed;
+  font: var(--font-body-sm);
+  opacity: 0;
+  translate: 0 var(--spacing-32);
+  pointer-events: none;
+  transition:
+    opacity var(--_move) var(--ease-standard),
+    translate var(--_move) var(--ease-enter);
+}
+
+.theme[data-step="1"] .auditTable {
+  opacity: 1;
+  translate: 0 0;
+  pointer-events: auto;
+}
+
+.auditTable th:first-child {
+  width: 34%;
+}
+
+.auditTable th,
+.auditTable td {
+  padding: var(--spacing-4);
+  border-bottom: var(--_line);
+  text-align: left;
+}
+
+.auditTable thead th {
+  font: var(--font-grotesk-micro);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.auditTable tbody th {
+  font: var(--font-body-sm);
+  color: var(--text-secondary);
+}
+
+.auditTable td {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.auditTable td[data-status="warn"] {
+  color: var(--text-accent);
+}
+
+.auditTable td[data-status="fail"] {
+  color: var(--text-error);
+}
+
+.grade {
+  margin-left: var(--spacing-8);
+  font: var(--font-grotesk-micro);
+  color: var(--text-tertiary);
+}
+
+@media (width > 1024px) {
+  .theme {
+    grid-template-rows: none;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    gap: var(--spacing-48);
+  }
+
+  .themeText {
+    align-content: center;
+    gap: var(--spacing-20);
+  }
+
+  .swatches {
+    grid-template-columns: repeat(9, minmax(0, 2.25rem));
+    gap: var(--spacing-8);
+  }
+
+  .presetName {
+    font: var(--font-grotesk-headline-xl);
+  }
+
+  .miniHome {
+    padding: var(--spacing-20);
+  }
+
+  .miniTitle {
+    font: var(--font-display-sm);
+  }
+
+  .auditTable th,
+  .auditTable td {
+    padding: var(--spacing-8) var(--spacing-4);
+  }
+}
+
+/* 움직임 줄이기 — 옮겨 가지 않고 바로 바뀐다 */
+@media (prefers-reduced-motion: reduce) {
+  .shot,
+  .adminDetail,
+  .pubCaption,
+  .cmsCopy,
+  .mascotActBody {
+    animation: none;
+  }
+
+  .pubCard,
+  .miniPair,
+  .auditTable {
+    transition: none;
+  }
+}

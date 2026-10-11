@@ -1,0 +1,1921 @@
+/* ── 구조 장 — 고정 장면 · 무대 · 숫자는 기능 장과 공유(Features.module.css), 여기는 장면별 ── */
+
+/* 구조 장 — 바탕은 비워 둔다. 뒤의 하늘(TimeSky)이 깔리고, 글자색은 하늘 밝기를 따른다(TimeSky.module.css) */
+.night {
+  color: var(--text-primary);
+}
+
+/* 프레임 하나를 채우는 장면 — 내용을 프레임 가운데에, 단계 수는 오른쪽 아래 */
+.frameFill {
+  position: relative;
+  display: grid;
+  /* 넘치면 위로 새지 않게(safe) — 위로 샌 만큼은 스크롤로도 못 본다 */
+  align-content: safe center;
+  height: 100%;
+  /* 프레임 아래 여백(64px)보다 독이 조금 더 높다 — 그만큼 비운다 */
+  padding-bottom: var(--spacing-16);
+}
+
+.count {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  font: var(--font-grotesk-micro);
+  letter-spacing: 0.08em;
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── 1 · 기술 그래프 ── */
+
+.stackGrid {
+  display: grid;
+  gap: var(--spacing-32);
+}
+
+.stackText {
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-20);
+}
+
+.groupList {
+  margin: 0;
+  padding: 0;
+  border-top: var(--border-width-1) solid var(--border-color-light);
+  list-style: none;
+}
+
+.groupRow {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr);
+  gap: var(--spacing-12);
+  align-items: baseline;
+  width: 100%;
+  padding: var(--spacing-4) 0;
+  border-bottom: var(--border-width-1) solid var(--border-color-light);
+  text-align: left;
+  color: var(--text-tertiary);
+  background: transparent;
+  transition: color var(--duration-base) var(--ease-standard);
+}
+
+.groupRow[data-past] {
+  color: var(--text-secondary);
+}
+
+.groupRow[data-on] {
+  color: var(--text-primary);
+}
+
+.groupRow[data-on] > :first-child {
+  color: var(--text-accent);
+}
+
+.groupName {
+  font: var(--font-body-md);
+}
+
+.groupBody {
+  max-width: 44ch;
+  margin: 0;
+  font: var(--font-body-md);
+  color: var(--text-secondary);
+  word-break: keep-all;
+  --_bodyIn-duration: 400ms; /* 묶음 바뀜 — 한 자리(3.9-1) */
+  animation: bodyIn var(--_bodyIn-duration) var(--ease-enter) both;
+}
+
+@keyframes bodyIn {
+  from {
+    opacity: 0;
+    transform: translateY(var(--spacing-8));
+  }
+}
+
+.graph {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* 그래프 카메라 — 단계마다 지금 묶음 쪽으로 다가간다 */
+.graphCam {
+  --_cam-duration: 1100ms; /* 카메라 이동 — 한 자리(3.9-1) */
+
+  transition: transform var(--_cam-duration) var(--ease-standard);
+}
+
+/* 밤하늘 판 — 색 체계를 dark 로 돌려 별 · 선 · 글자 토큰이 밝은 쪽으로 따라온다 */
+.sky {
+  /* 판 없이 밤하늘에 바로 — 테두리 · 바탕을 걷고, 별자리 뒤에만 옅은 빛 */
+  position: relative;
+  padding: var(--spacing-24) 0;
+  /* 옆으로만 자른다(clip 은 다른 축을 스크롤로 바꾸지 않는다) — 위아래 이름표는 다가가도 보인다 */
+  overflow-x: clip;
+  background: radial-gradient(ellipse at 60% 45%, color-mix(in oklch, var(--bg-accent-solid) 7%, transparent), transparent 60%);
+  /* 카메라가 다가가면 판 밖으로 나간 별은 가장자리에서 옅어진다 */
+  mask-image: linear-gradient(to right, transparent, currentcolor 6%, currentcolor 94%, transparent);
+}
+
+/* 별자리 선 — 꺼져 있으면 거의 안 보이게, 켜지면 옅은 흰 선. 막 켜진 선은 강조색으로 그려 나간다(pathLength 1) */
+.edge {
+  stroke: color-mix(in oklch, var(--text-primary) 8%, transparent);
+  stroke-width: 1;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  transition: stroke var(--duration-slow) var(--ease-standard);
+}
+
+.edge[data-on] {
+  stroke: color-mix(in oklch, var(--text-primary) 38%, transparent);
+}
+
+.edge[data-dashed] {
+  stroke-dasharray: 0.015 0.02;
+}
+
+.edge[data-fresh]:not([data-dashed]) {
+  stroke: var(--text-accent);
+  stroke-width: 1.5;
+  --_draw-duration: 900ms; /* 선 그리기 — 한 자리(3.9-1) */
+  animation: draw var(--_draw-duration) var(--ease-enter) both;
+}
+
+@keyframes draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+}
+
+/* 별 — 꺼진 별은 작고 흐리게, 켜지면 밝게, 지금 묶음은 빛나며 돈다 */
+.node {
+  opacity: 0.22;
+  transition: opacity var(--duration-slow) var(--ease-standard);
+}
+
+.node[data-on] {
+  opacity: 1;
+}
+
+/* 지금 묶음의 별은 차례로 켜진다 */
+.node[data-now] {
+  transition-delay: calc(var(--i, 0) * 90ms);
+}
+
+.nodeStar {
+  fill: var(--text-primary);
+}
+
+.node[data-now] .nodeStar {
+  fill: var(--text-accent);
+  filter: drop-shadow(0 0 6px var(--text-accent));
+  --_twirl-duration: 6s; /* 지금 묶음의 별 — 한 자리(3.9-1) */
+  animation: twirl var(--_twirl-duration) linear infinite;
+}
+
+@keyframes twirl {
+  to {
+    rotate: 1turn;
+  }
+}
+
+.node text {
+  font: var(--font-grotesk-micro);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  fill: color-mix(in oklch, var(--text-primary) 70%, transparent);
+}
+
+.node[data-now] text {
+  fill: var(--text-primary);
+}
+
+@media (width > 1024px) {
+  .stackGrid {
+    grid-template-columns: minmax(0, 0.6fr) minmax(0, 1.4fr);
+    gap: var(--spacing-48);
+    align-items: center;
+  }
+
+  .groupRow {
+    padding: var(--spacing-8) 0;
+  }
+
+  .groupName {
+    font: var(--font-grotesk-headline-sm);
+  }
+}
+
+/* 범례 — 좁은 화면은 그래프 위 한 줄, 넓은 화면은 밤하늘 판 왼쪽 위. 기호는 그림과 같은 모양(data-k) */
+.skyKey {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-4) var(--spacing-12);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font: var(--font-body-xs);
+  color: color-mix(in oklch, var(--text-primary) 72%, transparent);
+  pointer-events: none;
+}
+
+@media (width > 1024px) {
+  .skyKey {
+    position: absolute;
+    top: var(--spacing-16);
+    left: var(--spacing-48);
+    display: grid;
+  }
+}
+
+.skyKey li {
+  display: flex;
+  gap: var(--spacing-8);
+  align-items: center;
+}
+
+.skyKey li::before {
+  content: "";
+  flex: none;
+  width: 0.9rem;
+  height: 0.9rem;
+  background: var(--text-primary);
+  mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M50 0C53 36 64 47 100 50C64 53 53 64 50 100C47 64 36 53 0 50C36 47 47 36 50 0Z'/></svg>") center / contain no-repeat;
+}
+
+.skyKey [data-k="core"]::before,
+.skyKey [data-k="now"]::before {
+  background: var(--text-accent);
+}
+
+.skyKey [data-k="ray"]::before,
+.skyKey [data-k="line"]::before {
+  height: 1px;
+  mask: none;
+  background: color-mix(in oklch, var(--text-primary) 60%, transparent);
+}
+
+.skyKey [data-k="star"]::before {
+  width: 0.6rem;
+  height: 0.6rem;
+}
+
+/* ── 2 · 사용자 흐름 ── */
+
+.flowGrid {
+  display: grid;
+  gap: var(--spacing-24);
+}
+
+.flowText {
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-16);
+}
+
+.flowTabs {
+  display: flex;
+  gap: var(--spacing-8);
+  margin: 0 calc(var(--spacing-page-inline) * -1);
+  padding: 0 var(--spacing-page-inline);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.flowTabs > * {
+  flex: none;
+}
+
+@media (width > 1024px) {
+  .flowTabs {
+    flex-wrap: wrap;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+  }
+}
+
+.flowDetail {
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-8);
+  /* 흐름마다 설명 길이가 달라도 아래가 들썩이지 않게 */
+  min-height: 6rem;
+  --_detailIn-duration: 400ms; /* 흐름 바뀜 — 한 자리(3.9-1) */
+  animation: bodyIn var(--_detailIn-duration) var(--ease-enter) both;
+}
+
+.flowPersona {
+  font: var(--font-grotesk-headline-sm);
+}
+
+.flowBody {
+  max-width: 44ch;
+  margin: 0;
+  font: var(--font-body-md);
+  color: var(--text-secondary);
+  word-break: keep-all;
+}
+
+.flowStage {
+  /* 판 없이 밤하늘에 바로 — 노선 뒤에만 옅은 빛. 흐름이 바뀌면 멀리서 다가오듯 들어온다 */
+  padding: var(--spacing-32) 0 var(--spacing-16);
+  background: radial-gradient(ellipse at 40% 40%, color-mix(in oklch, var(--bg-accent-solid) 6%, transparent), transparent 60%);
+  --_stageIn-duration: 700ms; /* 흐름 바뀜 — 한 자리(3.9-1) */
+  animation: stageIn var(--_stageIn-duration) var(--ease-enter) both;
+}
+
+@keyframes stageIn {
+  from {
+    opacity: 0;
+    scale: 0.9;
+  }
+}
+
+.flowSvg {
+  display: none;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* 좁은 화면 — 정류장 목록을 두 단으로(왼쪽 단 위→아래, 이어서 오른쪽 단). 높이는 가장 긴 흐름(--longest)에 맞춘다 */
+.flowList {
+  position: relative;
+  display: grid;
+  grid-template-rows: repeat(var(--rows, 5), auto);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-flow: column;
+  align-content: start;
+  gap: var(--spacing-12) var(--spacing-16);
+  min-height: calc(var(--rows, 5) * 3.25rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.flowList li {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 0;
+  padding-left: var(--spacing-20);
+  --_stopIn-duration: 400ms; /* 정류장 켜짐 — 한 자리(3.9-1) */
+  animation: stopIn var(--_stopIn-duration) var(--ease-spring) both;
+  animation-delay: calc(var(--i) * 90ms);
+}
+
+.flowListStar {
+  position: absolute;
+  top: var(--spacing-4);
+  left: 0;
+  width: var(--spacing-12);
+  aspect-ratio: 1;
+  fill: var(--text-primary);
+}
+
+.flowList li[data-kind="start"] .flowListStar,
+.flowList li[data-kind="end"] .flowListStar {
+  fill: var(--text-accent);
+  filter: drop-shadow(0 0 4px var(--text-accent));
+}
+
+.flowListLabel {
+  font: var(--font-body-sm);
+}
+
+.flowList li[data-kind="decision"] .flowListLabel {
+  font-style: italic;
+}
+
+.flowListTaken {
+  font: var(--font-grotesk-micro);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-accent);
+}
+
+.flowListBranch {
+  font: var(--font-body-xs);
+  color: color-mix(in oklch, var(--text-primary) 55%, transparent);
+}
+
+@media (width > 768px) {
+  .flowList {
+    display: none;
+  }
+
+  .flowSvg {
+    display: block;
+  }
+}
+
+/* 주 경로 — 흐름이 바뀌면 그려 나간다 */
+.flowLine {
+  fill: none;
+  stroke: color-mix(in oklch, var(--text-primary) 40%, transparent);
+  stroke-width: 1.5;
+  stroke-dasharray: 1;
+  --_flowDraw-duration: 1400ms; /* 노선 그리기 — 한 자리(3.9-1) */
+  animation: draw var(--_flowDraw-duration) var(--ease-enter) both;
+}
+
+/* 별 — 선을 따라 차례로 켜진다(--i) */
+.flowStop {
+  --_stopIn-duration: 400ms; /* 정류장 켜짐 — 한 자리(3.9-1) */
+  animation: stopIn var(--_stopIn-duration) var(--ease-spring) both;
+  animation-delay: calc(var(--i) * 110ms);
+}
+
+@keyframes stopIn {
+  from {
+    opacity: 0;
+    scale: 0.4;
+  }
+}
+
+.flowStar {
+  fill: var(--text-primary);
+  transition: opacity var(--duration-base) var(--ease-standard);
+}
+
+/* 길잡이 별이 아직 지나가지 않은 정류장은 흐리게 — 별이 지나가며 켠다 */
+.flowStop:not([data-walked]) .flowStar,
+.flowStop:not([data-walked]) .flowLabel {
+  opacity: 0.4;
+}
+
+.flowStop[data-kind="start"] .flowStar,
+.flowStop[data-kind="end"] .flowStar {
+  fill: var(--text-accent);
+  filter: drop-shadow(0 0 6px var(--text-accent));
+}
+
+.flowStop[data-kind="decision"] .flowStar {
+  fill: none;
+  stroke: var(--text-primary);
+  stroke-width: 6;
+}
+
+.flowLabel {
+  font: var(--font-body-md);
+  fill: var(--text-primary);
+}
+
+.flowStop[data-kind="decision"] .flowLabel {
+  font-style: italic;
+}
+
+/* 고른 갈래(Yes · No …) — 별 위 작은 글씨 */
+.flowTaken {
+  font: var(--font-grotesk-micro);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  fill: var(--text-accent);
+}
+
+/* 다른 갈래 — 별 아래 흐린 작은 글씨 */
+.flowBranch {
+  font: var(--font-body-xs);
+  fill: color-mix(in oklch, var(--text-primary) 55%, transparent);
+}
+
+@media (width > 1024px) {
+  .flowGrid {
+    grid-template-columns: minmax(0, 0.6fr) minmax(0, 1.4fr);
+    gap: var(--spacing-48);
+    align-items: center;
+  }
+}
+
+/* ── 3 · API — 프레지. 섹션 전체가 밤하늘 캔버스, 카메라(.camera)가 그 위를 날아다닌다. 글은 카드 없이 화면 위에 ── */
+
+.api {
+  position: absolute;
+  inset: 0;
+  /* 은은한 빛 — 상자 안에서 끝나는 타원(closest-side). 원이 상자보다 커서 위아래 끝에서 잘린 곧은 선이 경계로 보였다 */
+  background: radial-gradient(closest-side at 60% 50%, color-mix(in oklch, var(--bg-accent-solid) 8%, transparent), transparent);
+  color: var(--text-primary);
+}
+
+.prezi {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  cursor: grab;
+  /* 휴대폰 — 세로로 쓸면 프레지 넘기기, 가로로 끌면 지도 이동, 두 손가락은 확대 */
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.prezi * {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.prezi[data-dragging] {
+  cursor: grabbing;
+}
+
+.world {
+  position: absolute;
+  inset: 0;
+  display: block;
+  /* 위아래 가장자리를 지운다 — 궤도 · 빛줄기가 상자 끝에서 잘린 곧은 선이 다음 장면(DB 설계)과의 경계로 보였다.
+     마스크는 그림(svg)에만 건다 — 위에 뜬 단추들의 유리 흐림을 죽이지 않게 */
+  mask-image: linear-gradient(to bottom, transparent 0, currentcolor 14%, currentcolor 55%, color-mix(in oklab, currentcolor 30%, transparent) 75%, transparent 100%);
+}
+
+/* 카메라 — 확대 · 이동이 부드럽게 이어진다 */
+/* 카메라 — 움직임은 컴포넌트가 프레임마다(멀면 줌아웃했다 줌인) */
+.camera {
+  transform-origin: 0 0;
+}
+
+.orbit {
+  fill: none;
+  stroke: color-mix(in oklch, var(--text-primary) 14%, transparent);
+  stroke-width: 2;
+  stroke-dasharray: 4 14;
+}
+
+/* 빛줄기 */
+.ray {
+  cursor: pointer;
+}
+
+.rayHit {
+  stroke: transparent;
+  stroke-width: 44;
+}
+
+.rayLine {
+  stroke: color-mix(in oklch, var(--text-primary) 14%, transparent);
+  stroke-width: 2;
+  transition: stroke var(--duration-slow) var(--ease-standard);
+}
+
+.ray:hover .rayLine {
+  stroke: color-mix(in oklch, var(--text-primary) 35%, transparent);
+}
+
+.ray[data-on] .rayLine {
+  stroke: color-mix(in oklch, var(--text-accent) 65%, transparent);
+}
+
+/* 엔드포인트 별 — 또렷하게 두고 살짝만 반짝인다(예전엔 0.4 ↔ 0.12 라 하늘에 묻혔다) */
+.dot {
+  fill: var(--text-primary);
+  opacity: 0.85;
+  --_twinkle-duration: 3.2s; /* 배경 반짝임 — 한 자리의 장식(3.9-1) */
+  animation: dotTwinkle var(--_twinkle-duration) var(--ease-standard) infinite alternate;
+  animation-delay: calc(var(--tw) * -0.3s);
+}
+
+@keyframes dotTwinkle {
+  to {
+    opacity: 0.45;
+  }
+}
+
+/* 별 색 = 접근 등급(범례는 아래 글의 등급 띠). 색 이름은 아래 [data-access] 가 정한다 */
+.dot[data-access] {
+  fill: var(--_acc);
+}
+
+.ray[data-on] .dot {
+  opacity: 1;
+  filter: drop-shadow(0 0 var(--spacing-4) var(--_acc, var(--text-primary)));
+  animation: none;
+}
+
+.rayLabel {
+  font: var(--font-grotesk-headline-xl);
+  fill: color-mix(in oklch, var(--text-primary) 50%, transparent);
+  transition: fill var(--duration-slow) var(--ease-standard);
+}
+
+.ray:hover .rayLabel,
+.ray[data-on] .rayLabel {
+  fill: var(--text-primary);
+}
+
+/* 둘러보기에서 짚은 별 옆 글 — 메서드 · 경로 */
+.dotRing {
+  fill: none;
+  stroke: var(--text-accent);
+  stroke-width: 3;
+  --_ring-duration: 1.4s; /* 고리 숨쉬기 — 한 자리(3.9-1) */
+  animation: ring var(--_ring-duration) var(--ease-standard) infinite;
+}
+
+@keyframes ring {
+  50% {
+    scale: 1.3;
+    opacity: 0.4;
+  }
+}
+
+.core {
+  fill: var(--text-accent);
+  filter: drop-shadow(0 0 18px var(--text-accent));
+  --_corePulse-duration: 2.4s; /* 가운데 별 숨쉬기 — 한 자리(3.9-1) */
+  animation: corePulse var(--_corePulse-duration) var(--ease-standard) infinite alternate;
+}
+
+@keyframes corePulse {
+  to {
+    scale: 1.12;
+  }
+}
+
+.coreLabel {
+  font: var(--font-grotesk-headline-xl);
+  fill: var(--text-primary);
+}
+
+/* 궤도의 정거장 */
+.station {
+  cursor: pointer;
+  opacity: 0.3;
+  transition: opacity var(--duration-slow) var(--ease-standard);
+}
+
+.station[data-used] {
+  opacity: 0.75;
+}
+
+.station[data-here],
+.station:hover {
+  opacity: 1;
+}
+
+.stationHit {
+  fill: transparent;
+}
+
+.stationStar {
+  fill: var(--text-primary);
+}
+
+.station[data-here] .stationStar {
+  fill: var(--text-accent);
+  filter: drop-shadow(0 0 14px var(--text-accent));
+}
+
+.station text {
+  font: var(--font-grotesk-headline-xl);
+  fill: var(--text-primary);
+}
+
+.stationNum {
+  fill: var(--text-accent);
+}
+
+/* 요청을 따라가는 동안 — 지나온 호는 분홍 실선 */
+.journeyLink {
+  pointer-events: none;
+}
+
+.journeyLink path {
+  fill: none;
+  stroke: var(--text-accent);
+  stroke-width: 5;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 8px var(--text-accent));
+}
+
+
+/* 이 요청이 들르지 않는 정거장 */
+.station[data-skip] {
+  opacity: 0.15;
+}
+
+/* 리소스 목록 끝 — 다음 걸음 예고. 판 없이 한 줄, 올리면 밝아진다 */
+.jNext {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-4) var(--spacing-12);
+  align-items: baseline;
+  justify-self: start;
+  padding: var(--spacing-4) 0;
+  text-align: left;
+  color: var(--text-secondary);
+  transition: color var(--duration-base) var(--ease-standard);
+}
+
+.jNext:hover,
+.jNext:focus-visible {
+  color: var(--text-primary);
+}
+
+.jNextLabel {
+  font: var(--font-grotesk-micro);
+  letter-spacing: 0.06em;
+  color: var(--text-tertiary);
+}
+
+.jNextReq {
+  font: var(--font-code-sm);
+}
+
+.jNextMethod {
+  color: var(--text-accent);
+}
+
+.jNextHint {
+  color: var(--text-accent);
+}
+
+.jRequest[data-small] .jMethod {
+  padding: 0 var(--spacing-8);
+}
+
+.jRequest[data-small] .jPath {
+  font: var(--font-code-sm);
+}
+
+/* 정거장을 잇는 길 — 궤도 위 점선 호 */
+.stationPath {
+  pointer-events: none;
+}
+
+.stationPath path {
+  fill: none;
+  stroke: color-mix(in oklch, var(--text-primary) 40%, transparent);
+  stroke-width: 4;
+  stroke-dasharray: 2 18;
+  stroke-linecap: round;
+}
+
+
+
+/* ── 화면 위 글 ── */
+
+/* 위 — 네비게이션 아래부터 */
+.pzTop {
+  position: absolute;
+  top: calc(var(--header-height) + var(--spacing-16));
+  left: var(--spacing-page-inline);
+  right: var(--spacing-page-inline);
+  display: grid;
+  gap: var(--spacing-12);
+  pointer-events: none;
+}
+
+.pzTop > * {
+  pointer-events: auto;
+}
+
+.apiTotal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-8) var(--spacing-12);
+  align-items: baseline;
+  margin: 0;
+}
+
+.apiNumber {
+  font: var(--font-grotesk-number);
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+.apiUnit {
+  font: var(--font-grotesk-headline-sm);
+  color: var(--text-secondary);
+}
+
+.jTabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-8);
+}
+
+/* 지금 장면의 글 — 왼쪽 아래, 바탕에서 읽히도록 아래쪽만 어둡게 */
+.pzText {
+  position: absolute;
+  right: var(--spacing-page-inline);
+  bottom: var(--_above-dock);
+  left: var(--spacing-page-inline);
+  display: grid;
+  gap: var(--spacing-12);
+  max-width: 34rem;
+}
+
+/* 아래 글 자리 — 예전엔 밤색 그라데이션을 깔아 지도를 가렸지만, 하늘이 시각마다 달라져 그 판이 다음 장면과의
+   곧은 경계로 보였다. 지도(.world) 아래쪽을 마스크로 지워 글 자리를 비운다 */
+
+.pzText,
+.pzTop,
+.pzBody {
+  display: grid;
+  align-content: end;
+  gap: var(--spacing-8);
+  min-height: 13rem;
+  --_pzIn-duration: 600ms; /* 장면 글 바뀜 — 한 자리(3.9-1) */
+  animation: bodyIn var(--_pzIn-duration) var(--ease-enter) both;
+  animation-delay: 300ms;
+}
+
+.pzKicker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-8);
+  align-items: center;
+  font: var(--font-grotesk-micro);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+/* 문제 · 해결 · 결과 표시 */
+.pzPhase {
+  padding: var(--spacing-2) var(--spacing-8);
+  border-radius: var(--radius-control);
+  color: var(--text-primary);
+  background: color-mix(in oklch, var(--text-error) 35%, transparent);
+}
+
+.pzPhase[data-ph="1"] {
+  color: var(--text-on-accent);
+  background: var(--bg-accent-solid);
+}
+
+.pzPhase[data-ph="2"] {
+  color: var(--bg-primary);
+  background: var(--text-primary);
+}
+
+/* 결과 — 실제 화면에 뜨는 문구 */
+.pzQuote {
+  display: grid;
+  gap: var(--spacing-4);
+  margin: var(--spacing-4) 0 0;
+  padding: var(--spacing-12) var(--spacing-16);
+  border-left: var(--border-width-2) solid var(--text-accent);
+  border-radius: 0 var(--radius-control) var(--radius-control) 0;
+  font: var(--font-body-md);
+  color: var(--text-primary);
+  background: color-mix(in oklch, var(--text-primary) 7%, transparent);
+}
+
+.pzQuoteLabel {
+  font: var(--font-grotesk-micro);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.pzTitle {
+  margin: 0;
+  font: var(--font-grotesk-headline-xl);
+  letter-spacing: -0.02em;
+}
+
+/* 요청을 따라가는 동안 — 요청의 목적이 제목, 그 아래 지금 단계 */
+.jPurpose {
+  margin: 0;
+  font: var(--font-grotesk-number);
+  letter-spacing: -0.02em;
+  word-break: keep-all;
+}
+
+.jStep {
+  display: grid;
+  gap: var(--spacing-8);
+  margin-top: var(--spacing-12);
+  padding-top: var(--spacing-12);
+  border-top: var(--border-width-1) solid color-mix(in oklch, var(--text-primary) 14%, transparent);
+  --_stepIn-duration: 400ms; /* 단계 바뀜 — 한 자리(3.9-1) */
+  animation: bodyIn var(--_stepIn-duration) var(--ease-enter) both;
+}
+
+.jStepTitle {
+  margin: 0;
+  font: var(--font-grotesk-headline-sm);
+  word-break: keep-all;
+}
+
+/* 단계 설명은 늘 세 줄 자리 — 글 묶음이 화면 아래에 붙어 있어 단계마다 높이가 다르면 위의 큰 제목까지 오르내렸다 */
+.jStep .pzText2 {
+  min-height: 3lh;
+}
+
+.jFail[data-empty] {
+  visibility: hidden;
+}
+
+.pzText2[data-clamp] {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+/* 둘러보는 묶음의 엔드포인트 목록 — 스크롤 없이 두 단으로 */
+.pzList {
+  display: grid;
+  grid-template-rows: repeat(var(--rows, 1), auto);
+  grid-template-columns: repeat(var(--cols, 2), minmax(0, 1fr));
+  grid-auto-flow: column;
+  gap: 0 var(--spacing-16);
+  margin: var(--spacing-4) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pzList li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--spacing-8);
+  align-items: center;
+  padding: 0 var(--spacing-4);
+  border-radius: var(--radius-control);
+}
+
+.pzList li[data-hot] {
+  background: color-mix(in oklch, var(--text-accent) 16%, transparent);
+}
+
+/* 메서드 표 — 색이 접근 등급 */
+.pzMethods {
+  display: flex;
+  gap: var(--spacing-4);
+}
+
+.pzMethod {
+  padding: 0 var(--spacing-4);
+  border-radius: var(--radius-control);
+  font: var(--font-grotesk-micro);
+  letter-spacing: 0.04em;
+  color: var(--_acc);
+  background: color-mix(in oklch, var(--_acc) 16%, transparent);
+}
+
+.pzPath {
+  padding: 0;
+  overflow: hidden;
+  font: var(--font-code-xs);
+  color: var(--text-primary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  background: none;
+}
+
+.pzText2 {
+  margin: 0;
+  font: var(--font-body-md);
+  color: var(--text-secondary);
+  word-break: keep-all;
+}
+
+.jRequest {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-12);
+  align-items: center;
+  margin: 0;
+}
+
+.jMethod {
+  padding: var(--spacing-4) var(--spacing-12);
+  border-radius: var(--radius-control);
+  font: var(--font-code-sm);
+  color: var(--text-on-accent);
+  background: var(--bg-accent-solid);
+}
+
+.jPath {
+  padding: 0;
+  font: var(--font-code-lg);
+  color: var(--text-primary);
+  background: none;
+}
+
+/* 한 줄로 — 긴 응답은 끝을 줄여 보인다(줄이 늘면 아래에 붙은 글 묶음이 오르내린다). 전체 문구는 title 로 */
+.jFail {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: var(--spacing-8);
+  align-items: center;
+  min-width: 0;
+  margin: 0;
+  font: var(--font-body-xs);
+  color: var(--text-tertiary);
+}
+
+.jFail span {
+  flex: none;
+}
+
+.jFail code {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  padding: var(--spacing-2) var(--spacing-8);
+  border-radius: var(--radius-control);
+  font: var(--font-code-xs);
+  color: var(--text-error);
+  background: color-mix(in oklch, var(--text-error) 14%, transparent);
+}
+
+.jFile {
+  justify-self: start;
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  padding: 0;
+  font: var(--font-code-xs);
+  color: var(--text-tertiary);
+  background: none;
+}
+
+/* 오른쪽 아래 — 안내 · 확대/축소 · 전체 보기 · 재생/멈춤 */
+/* 조작 안내 — 칩 줄 아래 작게(안내 글은 강조색) */
+.pzHint {
+  margin: 0;
+  font: var(--font-body-xs);
+  color: var(--text-accent);
+}
+
+/* 요청 칩 줄 끝의 재생 · 멈춤 — 칩 높이의 작은 원, 판 없이 */
+.jPlay {
+  display: inline-grid;
+  place-items: center;
+  width: var(--spacing-32);
+  height: var(--spacing-32);
+  border-radius: var(--radius-full);
+  color: var(--text-secondary);
+  transition:
+    color var(--duration-base) var(--ease-standard),
+    background-color var(--duration-base) var(--ease-standard);
+}
+
+.jPlay svg {
+  width: var(--spacing-16);
+  height: var(--spacing-16);
+}
+
+.jPlay:hover,
+.jPlay:focus-visible {
+  color: var(--text-primary);
+  background: color-mix(in oklch, var(--text-primary) 12%, transparent);
+}
+
+/* 아래 글 · 단추는 프레지 독(화면 아래 유리 막대) 위에 */
+.api {
+  --_above-dock: calc(var(--spacing-64) + var(--spacing-24));
+}
+
+/* 좁은 화면의 묶음 자세히 — 목록이 길어 위 글 중 큰 숫자 · 안내를 접고(칩 줄은 남긴다) 긴 줄은 자른다 */
+.prezi[data-view="group"] .apiTotal,
+.prezi[data-view="group"] .pzHint {
+  display: none;
+}
+
+/* 접은 뒤에는 위 글을 위에 붙인다(공용 규칙의 아래 붙이기 · 최소 높이 때문에 칩 줄이 아래로 내려앉았다) */
+.prezi[data-view="group"] .pzTop {
+  align-content: start;
+  min-height: 0;
+}
+
+/* 지도는 목록 뒤로 물린다 — 좁은 화면은 빛줄기 자리가 따로 없어 글과 겹친다 */
+.prezi[data-view="group"] .world {
+  opacity: 0.35;
+}
+
+/* 테이블 · 서비스 — 이름표와 값을 한 흐름으로 두 줄까지 */
+.pzText[data-view="group"] .apiFacts > div {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.pzText[data-view="group"] .apiFacts dt,
+.pzText[data-view="group"] .apiFacts dd {
+  display: inline;
+  margin-right: var(--spacing-8);
+}
+
+.pzText[data-view="group"] .apiTags span {
+  display: inline-block;
+  margin-right: var(--spacing-4);
+}
+
+.pzText[data-view="group"] .apiFolded,
+.pzText[data-view="group"] .pzText2[data-clamp] {
+  -webkit-line-clamp: 1;
+}
+
+.pzText[data-view="group"],
+.pzText[data-view="group"] .pzBody {
+  gap: var(--spacing-4);
+}
+
+.pzText[data-view="group"] .pzTitle {
+  font: var(--font-grotesk-headline-sm);
+}
+
+/* 등급 이름은 전체 보기의 범례가 말한다 — 여기서는 색 · 수만(이름은 title) */
+.accessBar[data-compact] .accessKey span {
+  display: none;
+}
+
+@media (width > 768px) {
+  .prezi[data-view="group"] .apiTotal {
+    display: flex;
+  }
+
+  .prezi[data-view="group"] .pzHint {
+    display: block;
+  }
+
+  .prezi[data-view="group"] .pzTop {
+    align-content: end;
+    min-height: 13rem;
+  }
+
+  .prezi[data-view="group"] .world {
+    opacity: 1;
+  }
+
+  .pzText[data-view="group"] .apiFacts > div {
+    display: flex;
+    gap: var(--spacing-4) var(--spacing-12);
+    overflow: visible;
+  }
+
+  .pzText[data-view="group"] .apiFacts dt,
+  .pzText[data-view="group"] .apiFacts dd {
+    display: block;
+    margin-right: 0;
+  }
+
+  .pzText[data-view="group"] .apiFacts dd {
+    display: flex;
+  }
+
+  .pzText[data-view="group"] .apiTags span {
+    display: inline;
+    margin-right: 0;
+  }
+
+  .pzText[data-view="group"] .apiFolded,
+  .pzText[data-view="group"] .pzText2[data-clamp] {
+    -webkit-line-clamp: 2;
+  }
+
+  .pzText[data-view="group"] {
+    gap: var(--spacing-16) var(--spacing-48);
+  }
+
+  .pzText[data-view="group"] .pzBody {
+    gap: var(--spacing-8);
+  }
+
+  .pzText[data-view="group"] .pzTitle {
+    font: var(--font-grotesk-headline-xl);
+  }
+
+  .accessBar[data-compact] .accessKey span {
+    display: inline;
+  }
+
+}
+
+/* ── API 지도의 접근 등급 · 사실 줄 ── */
+
+/* 등급 색 — 별 · 띠 · 목록의 표시가 같은 색을 쓴다 */
+.api [data-access="public"] {
+  --_acc: var(--text-primary);
+}
+
+.api [data-access="signed-in"] {
+  --_acc: var(--text-info);
+}
+
+.api [data-access="author"] {
+  --_acc: var(--text-success);
+}
+
+.api [data-access="admin"] {
+  --_acc: var(--text-warning);
+}
+
+.api [data-access="owner"] {
+  --_acc: var(--text-error);
+}
+
+.api [data-access="cron"] {
+  --_acc: var(--text-accent-alt);
+}
+
+/* 묶음 자세히 — 넓은 화면은 왼쪽 설명 | 오른쪽 엔드포인트 두 칸(지도의 빛줄기는 목록 위 오른쪽 띠에 선다) */
+@media (width > 768px) {
+  .pzText[data-view="group"] {
+    grid-template-columns: minmax(0, 30rem) minmax(0, 40rem);
+    gap: var(--spacing-16) var(--spacing-48);
+    justify-content: space-between;
+    align-items: end;
+    max-width: none;
+  }
+}
+
+.accessBar {
+  display: grid;
+  gap: var(--spacing-8);
+}
+
+.accessTrack {
+  display: flex;
+  gap: var(--spacing-2);
+  height: var(--spacing-8);
+  overflow: hidden;
+  border-radius: var(--radius-full);
+}
+
+.accessBar[data-compact] .accessTrack {
+  height: var(--spacing-4);
+}
+
+.accessTrack span {
+  flex-basis: 0;
+  min-width: var(--spacing-2);
+  background: var(--_acc);
+}
+
+.accessKey {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-4) var(--spacing-16);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font: var(--font-grotesk-micro);
+  color: var(--text-secondary);
+}
+
+.accessKey li {
+  display: inline-flex;
+  gap: var(--spacing-8);
+  align-items: center;
+}
+
+.accessKey b {
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.accessKey i {
+  flex: none;
+  width: var(--spacing-8);
+  height: var(--spacing-8);
+  border-radius: var(--radius-full);
+  background: var(--_acc);
+}
+
+.accessPct {
+  color: var(--text-tertiary);
+}
+
+.apiFacts {
+  display: grid;
+  gap: var(--spacing-8);
+  margin: 0;
+}
+
+.apiFacts > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-4) var(--spacing-12);
+  align-items: baseline;
+}
+
+.apiFacts dt {
+  flex: none;
+  min-width: 6rem;
+  font: var(--font-grotesk-micro);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.apiFacts dd {
+  flex: 1 1 0;
+  min-width: 0;
+  margin: 0;
+  font: var(--font-body-sm);
+  color: var(--text-secondary);
+}
+
+.apiFacts dd b {
+  color: var(--text-primary);
+}
+
+.apiTags,
+.apiCodes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-4) var(--spacing-8);
+}
+
+.apiTags span {
+  padding: 0 var(--spacing-8);
+  border: var(--border-width-1) solid var(--border-color-default);
+  border-radius: var(--radius-full);
+  font: var(--font-grotesk-micro);
+  color: var(--text-primary);
+}
+
+.apiCodes code {
+  padding: 0;
+  font: var(--font-code-xs);
+  color: var(--text-secondary);
+  background: none;
+}
+
+.apiCodes code[data-rpc] {
+  color: var(--text-accent);
+}
+
+.apiFolded {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  font: var(--font-body-xs);
+  color: var(--text-tertiary);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+/* ── 4 · DB 설계 — 프레임 높이 안에서 머리 · 목록 · (탐색기 | 메모) · 안내. 탐색기가 남는 높이를 다 갖는다 ── */
+
+.erd {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  height: 100%;
+  padding-bottom: var(--spacing-16);
+}
+
+.erdHead {
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  gap: var(--spacing-8) var(--spacing-32);
+  align-items: end;
+  justify-content: space-between;
+}
+
+.erdStats {
+  display: flex;
+  gap: var(--spacing-24);
+  margin: 0;
+  font: var(--font-grotesk-headline-sm);
+  color: var(--text-secondary);
+}
+
+.erdStats b {
+  font: var(--font-grotesk-number);
+  color: var(--text-primary);
+}
+
+/* 테이블 목록 — 좁은 화면은 한 줄로 옆으로 흐르고, 넓은 화면은 줄바꿈해 26개가 다 보인다 */
+.erdIndex {
+  display: flex;
+  flex: none;
+  gap: var(--spacing-16);
+  align-items: center;
+  margin: 0 calc(var(--spacing-page-inline) * -1);
+  padding: 0 var(--spacing-page-inline) var(--spacing-4);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.erdGroup {
+  display: flex;
+  flex: none;
+  gap: var(--spacing-8);
+  align-items: center;
+}
+
+.erdGroupName {
+  flex: none;
+  font: var(--font-grotesk-micro);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-accent);
+}
+
+.erdList {
+  display: flex;
+  gap: var(--spacing-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.erdAll,
+.erdItem {
+  display: inline-flex;
+  flex: none;
+  gap: var(--spacing-4);
+  align-items: center;
+  padding: var(--spacing-4) var(--spacing-8);
+  border-radius: var(--radius-full);
+  font: var(--font-code-xs);
+  color: var(--text-secondary);
+  white-space: nowrap;
+  transition:
+    color var(--duration-base) var(--ease-standard),
+    background-color var(--duration-base) var(--ease-standard);
+}
+
+.erdAll {
+  font: var(--font-grotesk-micro);
+  border: var(--border-width-1) solid color-mix(in oklab, var(--text-primary) 20%, transparent);
+}
+
+.erdAll span {
+  color: var(--text-tertiary);
+}
+
+.erdItemMark {
+  display: inline-flex;
+}
+
+.erdItemStar {
+  width: 0.7em;
+  height: 0.7em;
+  fill: color-mix(in oklab, var(--text-primary) 30%, transparent);
+  transition: fill var(--duration-base) var(--ease-standard);
+}
+
+.erdAll:hover,
+.erdItem:hover {
+  color: var(--text-primary);
+  background: color-mix(in oklab, var(--text-primary) 8%, transparent);
+}
+
+.erdAll[data-on],
+.erdItem[data-on] {
+  color: var(--text-primary);
+  background: color-mix(in oklab, var(--text-accent) 18%, transparent);
+}
+
+.erdItem[data-on] .erdItemStar {
+  fill: var(--text-accent);
+  filter: drop-shadow(0 0 4px var(--text-accent));
+}
+
+/* 탐색기 + 메모 — 좁은 화면은 위아래(지도가 남는 높이), 넓은 화면은 지도 | 메모 */
+.erdBody {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  min-height: 0;
+}
+
+/* 탐색기는 크기가 정해진 상자가 있어야 그린다 */
+.erdFrame {
+  /* 판 없이 밤하늘에 바로 — 탐색기는 data-erd-sky 로 밤하늘 모양이 된다(ErdFlow.module.css) */
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* 설계 메모 — 고른 테이블의 메모 하나를 보통 글자로. 여럿이면 번호로 넘긴다 */
+.erdNotes {
+  display: grid;
+  flex: none;
+  align-content: start;
+  gap: var(--spacing-8);
+  min-width: 0;
+  overflow: hidden;
+}
+
+.erdNotesTable {
+  margin-left: var(--spacing-8);
+  font: var(--font-code-xs);
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--text-primary);
+}
+
+.erdNotesEmpty {
+  margin: 0;
+  font: var(--font-body-sm);
+  color: var(--text-tertiary);
+}
+
+.erdNote {
+  display: grid;
+  gap: var(--spacing-4);
+  padding: var(--spacing-12);
+  border: var(--border-width-1) solid color-mix(in oklab, var(--text-primary) 14%, transparent);
+  border-radius: var(--radius-surface);
+  background: color-mix(in oklab, var(--text-primary) 4%, transparent);
+  --_noteIn-duration: 400ms; /* 메모 바뀜 — 한 자리(3.9-1) */
+  animation: bodyIn var(--_noteIn-duration) var(--ease-enter) both;
+}
+
+.erdNoteTitle {
+  margin: 0;
+  font: var(--font-body-md);
+  color: var(--text-primary);
+  word-break: keep-all;
+}
+
+.erdNoteTag {
+  justify-self: start;
+  padding: var(--spacing-2) var(--spacing-8);
+  border-radius: var(--radius-control);
+  font: var(--font-code-xs);
+  color: var(--text-accent);
+  background: color-mix(in oklab, var(--text-accent) 12%, transparent);
+  overflow-wrap: anywhere;
+}
+
+.erdNoteDesc {
+  margin: 0;
+  font: var(--font-body-sm);
+  color: var(--text-secondary);
+  word-break: keep-all;
+}
+
+/* 좁은 화면 — 메모 설명은 세 줄까지(넓은 화면은 다 보인다) */
+.erdNotes .erdNoteDesc {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.erdNotePager {
+  display: flex;
+  gap: var(--spacing-4);
+}
+
+.erdNotePage {
+  padding: var(--spacing-2) var(--spacing-8);
+  border-radius: var(--radius-full);
+  font: var(--font-grotesk-micro);
+  color: var(--text-tertiary);
+  transition:
+    color var(--duration-base) var(--ease-standard),
+    background-color var(--duration-base) var(--ease-standard);
+}
+
+.erdNotePage[data-on] {
+  color: var(--text-primary);
+  background: color-mix(in oklab, var(--text-accent) 18%, transparent);
+}
+
+.erdHint {
+  flex: none;
+  margin: 0;
+  font: var(--font-body-xs);
+  color: var(--text-tertiary);
+}
+
+@media (width > 1024px) {
+  .erd {
+    gap: var(--spacing-16);
+  }
+
+  .erdIndex {
+    flex-wrap: wrap;
+    gap: var(--spacing-4) var(--spacing-20);
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+  }
+
+  .erdBody {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 20rem;
+    gap: var(--spacing-24);
+  }
+
+  .erdFrame {
+    height: 100%;
+  }
+
+  .erdNotes .erdNoteDesc {
+    display: block;
+  }
+}
+
+/* ── 5 · 설계 메모 — 필름 띠. 여섯 장이 옆으로 늘어서 있고 띠가 단계만큼 옆으로 간다(--step).
+   넓은 화면은 지금 장 양옆으로 이웃 장이 작고 흐리게 비친다 ── */
+
+.notes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-16);
+  height: 100%;
+  padding-bottom: var(--spacing-16);
+}
+
+.notesHead {
+  display: grid;
+  flex: none;
+  gap: var(--spacing-8);
+}
+
+.notesTitle {
+  margin: 0;
+  font: var(--font-grotesk-headline-sm);
+}
+
+.spotView {
+  --_col: 100cqi;
+  --_gap: var(--spacing-16);
+  --_peek: 0cqi;
+
+  display: grid;
+  flex: 1;
+  align-items: center;
+  min-height: 0;
+  margin-inline: calc(var(--spacing-page-inline) * -1);
+  padding-inline: var(--spacing-page-inline);
+  overflow: hidden;
+  /* 폭(cqi)으로 띠를 옮기고, 높이로 판을 줄인다(아래 @container) */
+  container-type: size;
+}
+
+.spotTrack {
+  --_slide: 900ms; /* 장 넘김 — 카메라 비행처럼 길게(3.9-1) */
+
+  display: grid;
+  grid-auto-columns: var(--_col);
+  grid-auto-flow: column;
+  gap: var(--_gap);
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  transform: translateX(calc(var(--_peek) - var(--step, 0) * (var(--_col) + var(--_gap))));
+  transition: transform var(--_slide) var(--ease-standard);
+}
+
+.spotStage {
+  position: relative;
+  display: grid;
+  gap: var(--spacing-16);
+  align-items: center;
+  padding: var(--spacing-16);
+  border: var(--border-width-1) solid color-mix(in oklab, var(--text-primary) 12%, transparent);
+  border-radius: var(--radius-surface);
+  background:
+    radial-gradient(60% 80% at 25% 40%, color-mix(in oklab, var(--text-accent) 14%, transparent), transparent),
+    color-mix(in oklab, var(--text-primary) 4%, transparent);
+  overflow: hidden;
+  opacity: 0.3;
+  scale: 0.86;
+  transition:
+    opacity var(--_slide) var(--ease-standard),
+    scale var(--_slide) var(--ease-standard);
+}
+
+.spotStage[data-on] {
+  opacity: 1;
+  scale: 1;
+}
+
+.spotArt {
+  min-width: 0;
+}
+
+.spotText {
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-8);
+  min-width: 0;
+}
+
+/* 번호 — 판 오른쪽 위에 크게 비친다(글 칸 높이를 먹지 않게) */
+.spotNo {
+  position: absolute;
+  top: var(--spacing-12);
+  right: var(--spacing-16);
+  font: var(--font-grotesk-headline-xl);
+  color: color-mix(in oklab, var(--text-accent) 40%, transparent);
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+
+.spotHeadline {
+  margin: 0;
+  font: var(--font-grotesk-headline-sm);
+  word-break: keep-all;
+}
+
+.spotCaption {
+  margin: 0;
+  font: var(--font-body-sm);
+  color: var(--text-accent);
+  word-break: keep-all;
+}
+
+.spotDl {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--spacing-4) var(--spacing-12);
+  margin: var(--spacing-4) 0 0;
+  padding-top: var(--spacing-12);
+  border-top: var(--border-width-1) solid color-mix(in oklab, var(--text-primary) 12%, transparent);
+}
+
+.spotDl dt {
+  padding-top: var(--spacing-2);
+  font: var(--font-grotesk-micro);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.spotDl dt:nth-of-type(2) {
+  color: var(--text-accent);
+}
+
+.spotDl dd {
+  margin: 0;
+  font: var(--font-body-sm);
+  color: var(--text-secondary);
+  word-break: keep-all;
+}
+
+.spotProof {
+  justify-self: start;
+  padding: var(--spacing-4) var(--spacing-12);
+  border-radius: var(--radius-full);
+  font: var(--font-code-xs);
+  color: var(--text-primary);
+  background: color-mix(in oklab, var(--text-primary) 8%, transparent);
+  overflow-wrap: anywhere;
+}
+
+/* 번호 줄 — 좁은 화면은 번호만, 넓은 화면은 번호 + 짧은 이름 */
+.spotThumbs {
+  display: grid;
+  flex: none;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: var(--spacing-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.spotThumb {
+  position: relative;
+  display: grid;
+  gap: var(--spacing-4);
+  width: 100%;
+  padding: var(--spacing-8) var(--spacing-4) 0;
+  border-top: var(--border-width-2) solid color-mix(in oklab, var(--text-primary) 14%, transparent);
+  text-align: left;
+  opacity: 0.55;
+  transition:
+    opacity var(--duration-base) var(--ease-standard),
+    border-color var(--duration-base) var(--ease-standard);
+}
+
+.spotThumb:hover {
+  opacity: 0.85;
+}
+
+.spotThumb[data-past] {
+  border-top-color: color-mix(in oklab, var(--text-accent) 45%, transparent);
+}
+
+.spotThumb[data-on] {
+  border-top-color: var(--text-accent);
+  opacity: 1;
+}
+
+.spotThumbLabel {
+  display: none;
+  font: var(--font-body-xs);
+  color: var(--text-primary);
+  word-break: keep-all;
+}
+
+.spotThumbNo {
+  font: var(--font-grotesk-micro);
+  color: var(--text-accent);
+}
+
+.spotGuide {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: var(--spacing-16);
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  pointer-events: none;
+}
+
+@media (width > 768px) {
+  .spotThumbLabel {
+    display: block;
+  }
+}
+
+@media (width > 1024px) {
+  .notes {
+    gap: var(--spacing-24);
+  }
+
+  .spotView {
+    --_col: 78cqi;
+    --_gap: 3cqi;
+    --_peek: 11cqi;
+  }
+
+  .spotStage {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    gap: var(--spacing-40);
+    padding: var(--spacing-40);
+  }
+
+  /* 넓은 화면 — 글 칸 위가 제목 자리라 번호는 오른쪽 아래로 */
+  .spotNo {
+    top: auto;
+    right: var(--spacing-32);
+    bottom: var(--spacing-16);
+    font: var(--font-grotesk-number);
+  }
+
+  .spotHeadline {
+    font: var(--font-grotesk-headline-xl);
+  }
+
+  .spotCaption {
+    font: var(--font-body-md);
+  }
+
+  .spotThumbs {
+    gap: var(--spacing-12);
+  }
+}
+
+/* 낮은 화면(1280×720 등) — 판이 들어갈 높이가 모자라면 여백 · 제목 · 도식을 줄인다. 넓은 화면 규칙을 이기도록 그 뒤에 둔다 */
+@container (width > 40rem) and (height < 34rem) {
+  .spotStage {
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    gap: var(--spacing-24);
+    padding: var(--spacing-24);
+  }
+
+  .spotHeadline {
+    font: var(--font-grotesk-headline-sm);
+  }
+
+  /* 큰 번호가 글과 겹치지 않게 — 제목 위 작은 번호로 */
+  .spotNo {
+    position: static;
+    font: var(--font-grotesk-micro);
+    color: var(--text-accent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .groupBody,
+  .flowDetail,
+  .flowStage,
+  .flowLine,
+  .flowStop,
+  .flowList li,
+  .pzBody,
+  .dotRing,
+  .core,
+  .dot,
+  .edge[data-fresh]:not([data-dashed]),
+  .node[data-now] .nodeStar {
+    animation: none;
+  }
+
+  .erdNote {
+    animation: none;
+  }
+
+  .graphCam,
+  .spotTrack,
+  .spotStage,
+  .spotThumb {
+    transition: none;
+  }
+}

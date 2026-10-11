@@ -1,0 +1,101 @@
+/* ── 장 표지 프레임 — 한 화면 가운데에 장 머리와 목차. 좁은 화면은 위아래, 넓은 화면은 좌우 ── */
+
+.cover {
+  --_stagger: 0.07s; /* 목차 줄마다 차례로 — 한 자리(3.9-1) */
+
+  display: grid;
+  align-content: center;
+  gap: var(--spacing-32);
+  box-sizing: border-box;
+  min-height: 100%;
+  padding: calc(var(--header-height) + var(--spacing-16)) var(--spacing-page-inline) var(--spacing-96);
+}
+
+/* 장 머리의 아래 여백은 이 판이 gap 으로 준다 */
+.head > div {
+  margin-bottom: 0;
+}
+
+.head {
+  display: grid;
+  gap: var(--spacing-16);
+  align-content: start;
+}
+
+.index {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: none;
+}
+
+.item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--spacing-2) var(--spacing-16);
+  align-items: baseline;
+  padding: var(--spacing-12) 0;
+  border-top: var(--border-width-1) solid color-mix(in oklab, var(--text-primary) 12%, transparent);
+  opacity: 0;
+  translate: var(--spacing-24) 0;
+  transition:
+    opacity var(--duration-slow) var(--ease-enter),
+    translate var(--duration-slow) var(--ease-enter);
+  transition-delay: calc(var(--i) * var(--_stagger));
+}
+
+.item:last-child {
+  border-bottom: var(--border-width-1) solid color-mix(in oklab, var(--text-primary) 12%, transparent);
+}
+
+/* 카메라가 내려앉으면 한 줄씩 */
+.cover[data-live] .item {
+  opacity: 1;
+  translate: 0 0;
+}
+
+.label {
+  font: var(--font-grotesk-headline-sm);
+  color: var(--text-primary);
+  word-break: keep-all;
+}
+
+/* 아래 작은 줄 — 다음 프레임에서 그대로 다시 보이므로, 좁은 화면은 이름만 두고 한 화면에 맞춘다 */
+.sub {
+  display: none;
+  grid-column: 2;
+  font: var(--font-body-sm);
+  color: var(--text-secondary);
+  word-break: keep-all;
+}
+
+.sub[data-mono] {
+  font: var(--font-code-xs);
+  color: var(--text-tertiary);
+  overflow-wrap: anywhere;
+}
+
+@media (width > 1024px) {
+  .cover {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    gap: var(--spacing-80);
+    align-items: center;
+  }
+
+  .item {
+    padding: var(--spacing-16) 0;
+  }
+
+  .sub {
+    display: block;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .item {
+    opacity: 1;
+    translate: 0 0;
+    transition: none;
+  }
+}

@@ -3,8 +3,8 @@
 import * as React from "react";
 import { type CSSProperties, type ReactNode } from "react";
 import css from "../AboutStudio.module.css";
-import frame from "@/app/about/_components/AboutPanel.module.css";
-import shell from "@/app/about/_components/AboutSection.module.css";
+import frame from "@/app/about/_panels/AboutPanel.module.css";
+import shell from "@/app/about/_panels/AboutSection.module.css";
 import { useLanguage } from "@/providers/LanguageProvider";
 export const sec = { ...frame, ...shell };
 

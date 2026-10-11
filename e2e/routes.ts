@@ -32,22 +32,13 @@ export type Route = {
 /** 로그인 없이 접근 가능한 라우트. Phase 0 baseline 은 여기까지 커버한다. */
 export const PUBLIC_ROUTES: Route[] = [
   { path: "/", name: "home" },
-  // 데스크탑은 패널 15개가 로드 시점에 전부 DOM 에 있다(세로 스크롤이 아니라 핀 기반 레이아웃).
-  // 모바일은 탭 하나만 마운트해 나머지는 DOM 에 없다 → 공통 검사는 패널 제목뿐이고 나머지는 데스크탑 전용.
-  // 본문은 site.config 우선 · data/about 폴백 이중 출처라 한쪽이 비면 패널만 조용히 사라진다 → 개별로 본다.
+  // 첫 화면은 장 지도(허브)다. 장 안의 내용은 지도에서 고른 장만 그리므로 공통 검사는 허브만 본다.
   {
     path: "/about",
     name: "about",
     expectVisible: [
-      { selector: '[class*="panelTitle"]', label: "패널 제목 (데스크탑·모바일 공통)" },
-      { selector: '[class*="navItem"]', label: "섹션 네비게이션", minViewportWidth: 1024 },
-      { selector: '[class*="trouble"]', label: "트러블슈팅 패널 본문", minViewportWidth: 1024 },
-      { selector: '[class*="difficulty"]', label: "트러블슈팅 난이도 배지", minViewportWidth: 1024 },
-      { selector: ".code-block-wrap", label: "코드 하이라이트 블록", minViewportWidth: 1024 },
-      /* 두 패널은 목록을 사이트 설정에서 받고 없으면 props 기본값으로 떨어진다.
-         그 갈림길을 건드린 적이 있어(#687 5-6) 항목이 실제로 그려지는지 본다. */
-      { selector: '[class*="featureDfTitle"]', label: "기능 패널 항목 제목", minViewportWidth: 1024 },
-      { selector: '[class*="processTimelineNodes"]', label: "프로세스 패널 타임라인", minViewportWidth: 1024 },
+      { selector: '[class*="hubLead"]', label: "첫 화면 제목" },
+      { selector: '[class*="hubMap"]', label: "장 지도" },
     ],
   },
   // GSAP 스크롤 시퀀스가 모바일에서 라우팅까지 트리거해 캡처 중 페이지가 바뀐다.

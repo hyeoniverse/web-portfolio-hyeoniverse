@@ -15,7 +15,7 @@
 --
 -- 사전 준비:
 --   1. Database > Extensions 에서 다음을 활성화:
---        - pg_cron  (예약 발행 · 휴지통 영구삭제 · 방문 IP 익명화 · service_logs 정리 cron)
+--        - pg_cron  (예약 발행 · 휴지통 영구삭제 · 방문 IP 익명화 · service_logs · demo_usage 정리 cron)
 --        - pg_net   (cron job 안에서 Resend HTTP 호출)
 --      (아래 CREATE EXTENSION 이 함께 시도하지만, dashboard 활성화가 필요한 환경도 있음)
 --
@@ -85,6 +85,7 @@
 --   2026_09_27  traffic_excluded_ips + anonymize_old_site_visits (방문 IP 90일 보관) + pg_cron
 --   2026_09_30  service_logs + 예약 작업 기록(_log_cron) + 90일 보관 pg_cron
 --   2026_09_30  purge_trash_scheduled 에 calendars 포함 (운영 DB 를 setup 과 같은 범위로)
+--   2026_10_09  demo_usage — About 라이브 데모 하루 상한(demo_take/refund/remaining) + 7일 보관 pg_cron
 --
 -- 권한 모델 요약 (owner / admin / author / visitor):
 --   owner   app_role() = 'owner'                 전부
@@ -957,6 +958,104 @@ REVOKE ALL ON service_logs FROM anon, authenticated;
 
 
 -- ────────────────────────────────────────────────────────────
+-- 9-d. demo_usage — About 라이브 데모(번역 · 요약 · 커버 · 음성)의 하루 사용 횟수
+--      IP(HMAC 해시)마다 perIp 번 + 사이트 전체 total 번. 날짜는 UTC. 상한 값은 앱이 넘긴다(src/lib/demo/quota.ts).
+--      서버리스 인스턴스마다 메모리가 따로라 DB 에 센다. 서버(service_role)만 쓴다 — RLS 켜고 정책 없음.
+--      demo_take 가 두 상한을 보고 한 번 쓰고, 공급자가 모두 실패하면 demo_refund 로 돌려준다.
+--      같은 기능 · 같은 날의 요청은 advisory lock 으로 줄을 세운다(합계를 읽고 더하는 사이 끼어들기 방지).
+--      보관 7일 — purge_old_demo_usage 를 pg_cron 이 매일 지운다 (아래 예약 작업 섹션).
+-- ────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS demo_usage (
+  day      date NOT NULL,
+  feature  text NOT NULL CHECK (feature IN ('translate', 'summary', 'cover', 'speech')),
+  ip_hash  text NOT NULL,
+  count    int  NOT NULL DEFAULT 0 CHECK (count >= 0),
+  PRIMARY KEY (day, feature, ip_hash)
+);
+
+ALTER TABLE demo_usage ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON demo_usage FROM anon, authenticated;
+
+-- 두 상한을 따로 보고 한 번 쓴다. 남은 횟수, 넘었으면 -1 (상한이 0 이하면 꺼 둔 기능)
+CREATE OR REPLACE FUNCTION public.demo_take(p_feature text, p_ip_hash text, p_per_ip int, p_total int)
+RETURNS int
+LANGUAGE plpgsql SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_day   date := (now() AT TIME ZONE 'UTC')::date;
+  v_mine  int;
+  v_total int;
+BEGIN
+  IF p_per_ip IS NULL OR p_total IS NULL THEN
+    RETURN -1;
+  END IF;
+  IF p_per_ip <= 0 OR p_total <= 0 THEN
+    RETURN -1;
+  END IF;
+
+  PERFORM pg_advisory_xact_lock(hashtext('demo_usage:' || p_feature || ':' || v_day::text));
+
+  SELECT COALESCE(SUM(count), 0) INTO v_total FROM public.demo_usage WHERE day = v_day AND feature = p_feature;
+  SELECT COALESCE(MAX(count), 0) INTO v_mine FROM public.demo_usage WHERE day = v_day AND feature = p_feature AND ip_hash = p_ip_hash;
+
+  IF v_mine >= p_per_ip THEN
+    RETURN -1;
+  END IF;
+  IF v_total >= p_total THEN
+    RETURN -1;
+  END IF;
+
+  INSERT INTO public.demo_usage (day, feature, ip_hash, count)
+  VALUES (v_day, p_feature, p_ip_hash, 1)
+  ON CONFLICT (day, feature, ip_hash) DO UPDATE SET count = public.demo_usage.count + 1;
+
+  RETURN LEAST(p_per_ip - (v_mine + 1), p_total - (v_total + 1));
+END;
+$$;
+
+-- 공급자가 모두 실패했을 때 한 번 돌려준다. 남은 횟수
+CREATE OR REPLACE FUNCTION public.demo_refund(p_feature text, p_ip_hash text, p_per_ip int, p_total int)
+RETURNS int
+LANGUAGE plpgsql SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_day date := (now() AT TIME ZONE 'UTC')::date;
+BEGIN
+  PERFORM pg_advisory_xact_lock(hashtext('demo_usage:' || p_feature || ':' || v_day::text));
+  UPDATE public.demo_usage SET count = count - 1
+  WHERE day = v_day AND feature = p_feature AND ip_hash = p_ip_hash AND count > 0;
+  RETURN public.demo_remaining(p_feature, p_ip_hash, p_per_ip, p_total);
+END;
+$$;
+
+-- 지금 남은 횟수(쓰지 않음)
+CREATE OR REPLACE FUNCTION public.demo_remaining(p_feature text, p_ip_hash text, p_per_ip int, p_total int)
+RETURNS int
+LANGUAGE plpgsql STABLE SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_day   date := (now() AT TIME ZONE 'UTC')::date;
+  v_mine  int;
+  v_total int;
+BEGIN
+  SELECT COALESCE(SUM(count), 0) INTO v_total FROM public.demo_usage WHERE day = v_day AND feature = p_feature;
+  SELECT COALESCE(MAX(count), 0) INTO v_mine FROM public.demo_usage WHERE day = v_day AND feature = p_feature AND ip_hash = p_ip_hash;
+  RETURN GREATEST(0, LEAST(COALESCE(p_per_ip, 0) - v_mine, COALESCE(p_total, 0) - v_total));
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.demo_take(text, text, int, int) FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.demo_refund(text, text, int, int) FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.demo_remaining(text, text, int, int) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.demo_take(text, text, int, int) TO service_role;
+GRANT EXECUTE ON FUNCTION public.demo_refund(text, text, int, int) TO service_role;
+GRANT EXECUTE ON FUNCTION public.demo_remaining(text, text, int, int) TO service_role;
+
+
+-- ────────────────────────────────────────────────────────────
 -- 10. comment_reports — 댓글 신고 누적 (posts + works 공용)
 --     comment_type: 'post' | 'work'  → 어느 댓글 테이블의 id 인지 구분
 --     reporter_hash: IP + UA 해시로 동일 사용자 중복 신고 방지
@@ -1178,7 +1277,7 @@ $$;
 -- 예약 발행 + 휴지통 영구삭제 자동화 — pg_cron + pg_net + Vault
 -- ────────────────────────────────────────────────────────────
 -- 매분 publish_scheduled() / 매일 03:00 KST purge_trash_scheduled() 실행.
--- 매일 03:30 KST 방문 IP 익명화, 03:40 KST service_logs 90일 정리.
+-- 매일 03:30 KST 방문 IP 익명화, 03:40 KST service_logs 90일 정리, 03:45 KST demo_usage 7일 정리.
 -- 각 작업 결과는 _log_cron 이 service_logs(category='cron') 에 남긴다.
 -- Vault 에 resend_api_key / admin_email / notify_from 등록되어 있으면
 -- 처리 결과를 admin_notifications + Resend 이메일로 알림.
@@ -1485,6 +1584,23 @@ $$;
 
 REVOKE ALL ON FUNCTION public.purge_old_service_logs(int) FROM PUBLIC, anon, authenticated;
 
+-- demo_usage 7일 지난 줄 지우기 — 하루가 지나면 셀 일이 없고 ip_hash 만 남는다
+CREATE OR REPLACE FUNCTION public.purge_old_demo_usage(retention_days int DEFAULT 7)
+RETURNS integer
+LANGUAGE plpgsql SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  affected integer;
+BEGIN
+  DELETE FROM public.demo_usage WHERE day < (now() AT TIME ZONE 'UTC')::date - retention_days;
+  GET DIAGNOSTICS affected = ROW_COUNT;
+  RETURN affected;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.purge_old_demo_usage(int) FROM PUBLIC, anon, authenticated;
+
 -- pg_cron 등록 — 재실행 안전 (기존 unschedule 후 등록)
 DO $$
 BEGIN PERFORM cron.unschedule('publish-scheduled'); EXCEPTION WHEN OTHERS THEN NULL; END $$;
@@ -1494,6 +1610,8 @@ DO $$
 BEGIN PERFORM cron.unschedule('anonymize-site-visits'); EXCEPTION WHEN OTHERS THEN NULL; END $$;
 DO $$
 BEGIN PERFORM cron.unschedule('purge-service-logs'); EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$
+BEGIN PERFORM cron.unschedule('purge-demo-usage'); EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- 발행: 매분 (safe wrapper 호출 — 실패 시 cron_error 알림 자동)
 SELECT cron.schedule(
@@ -1521,6 +1639,13 @@ SELECT cron.schedule(
   'purge-service-logs',
   '40 18 * * *',
   $cron$ SELECT public.purge_old_service_logs(90); $cron$
+);
+
+-- demo_usage 정리: 매일 UTC 18:45 (= KST 03:45)
+SELECT cron.schedule(
+  'purge-demo-usage',
+  '45 18 * * *',
+  $cron$ SELECT public.purge_old_demo_usage(7); $cron$
 );
 
 -- cron 확인 / 해제 참고:
@@ -1677,7 +1802,7 @@ END $$;
 
 
 -- ============================================================
--- 완료! 총 26개 테이블 + 29개 함수 + 4개 pg_cron job 생성됨.
+-- 완료! 총 27개 테이블 + 33개 함수 + 5개 pg_cron job 생성됨.
 --
 -- 테이블:
 --   site_settings        : 사이트 설정 + 프로필 데이터 + 시크릿/API 키 (JSONB)
@@ -1698,6 +1823,7 @@ END $$;
 --   work_views           : 작업물별 시계열 조회 기록 (post_views 미러)
 --   traffic_excluded_ips : 운영자 IP — 방문 기록·트래픽 집계에서 제외 (service_role 전용)
 --   service_logs         : AI·메일·GitHub·예약 작업 성공/실패 기록 (service_role 전용, 90일 보관)
+--   demo_usage           : About 라이브 데모 하루 사용 횟수 (day + feature + ip_hash, service_role 전용, 7일 보관)
 --   author_invites       : 저자 초대 (email → author_id + 권한 레벨, OAuth 매칭)
 --   work_comments        : Works 댓글 (대댓글, password 인증, tombstone)
 --   admin_notifications  : 관리자 알림 로그 (comment / publish / purge / report 등)
@@ -1719,6 +1845,10 @@ END $$;
 --   purge_trash_scheduled()                       : purge_after 지난 휴지통(posts/works/calendars) hard delete + 알림 (cron 매일 KST 03:00)
 --   anonymize_old_site_visits(retention_days)     : 보관 기한 지난 방문·조회 기록의 IP 익명화 (cron 매일 KST 03:30)
 --   purge_old_service_logs(retention_days)        : 보관 기한 지난 service_logs 삭제 (cron 매일 KST 03:40)
+--   demo_take(feature, ip_hash, per_ip, total)    : 라이브 데모 하루 상한 확인 + 1회 사용 (남은 횟수, 넘었으면 -1, service_role 전용)
+--   demo_refund(feature, ip_hash, per_ip, total)  : 공급자 실패 시 1회 반환 (남은 횟수, service_role 전용)
+--   demo_remaining(feature, ip_hash, per_ip, total): 라이브 데모 남은 횟수 (service_role 전용)
+--   purge_old_demo_usage(retention_days)          : 보관 기한 지난 demo_usage 삭제 (cron 매일 KST 03:45)
 --
 -- 권한 헬퍼 (RLS 정책용):
 --   app_role / app_level / app_author_id / is_owner / is_admin / is_member / can_edit_post / can_edit_work
@@ -1743,6 +1873,7 @@ END $$;
 --   purge-trash-scheduled   (0 18 * * *)          : 매일 UTC 18:00 (KST 03:00) purge_trash_scheduled() 호출
 --   anonymize-site-visits   (30 18 * * *)         : 매일 UTC 18:30 (KST 03:30) safe_anonymize_old_site_visits() 호출
 --   purge-service-logs      (40 18 * * *)         : 매일 UTC 18:40 (KST 03:40) purge_old_service_logs(90) 호출
+--   purge-demo-usage        (45 18 * * *)         : 매일 UTC 18:45 (KST 03:45) purge_old_demo_usage(7) 호출
 --
 -- Storage:
 --   uploads (public)                              : admin/upload — logos/, resume/, bgm/, covers/, images/ ...
@@ -2024,7 +2155,8 @@ INSERT INTO applied_migrations (name, description) VALUES
   ('2026_09_25_site_visits_analytics_columns', 'site_visits 분석 컬럼 (country/path/utm_source/utm_medium/utm_campaign)'),
   ('2026_09_27_site_visits_ip_retention',      'traffic_excluded_ips + anonymize_old_site_visits (방문 IP 90일 보관) + pg_cron'),
   ('2026_09_30_service_logs',                  'service_logs 테이블 + 예약 작업(publish/purge/anonymize) 기록 + 90일 보관'),
-  ('2026_09_30_purge_trash_calendars',         'purge_trash_scheduled — 휴지통 영구삭제에 calendars 포함 (앱 /api/cron/purge-trash 와 같은 범위)')
+  ('2026_09_30_purge_trash_calendars',         'purge_trash_scheduled — 휴지통 영구삭제에 calendars 포함 (앱 /api/cron/purge-trash 와 같은 범위)'),
+  ('2026_10_09_demo_usage',                    'demo_usage 테이블 + demo_take/demo_refund/demo_remaining (라이브 데모 하루 상한) + 7일 보관')
 ON CONFLICT (name) DO NOTHING;
 -- 참고: 2026_07_13_category_reset / 2026_07_13_tag_descriptions_reset 은 기존 데이터를 손보는
 -- 수동 데이터 마이그레이션이라 fresh install 과 무관 → 여기서 record 하지 않는다.

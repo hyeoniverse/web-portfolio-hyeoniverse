@@ -1,0 +1,965 @@
+/* ── CMS 데모 여섯 개 — 관리자의 실제 규칙대로 움직이는 작은 화면들. 콘솔 유리 위에 얹히므로 판은 반투명 하나로 통일 ── */
+
+.demo {
+  --_flash: 900ms; /* 저장 줄 반짝임 — 한 자리(3.9-1) */
+  --_idle: 3s; /* 자동 저장 대기(useEditorAutoSave debounceMs) — 한 자리(3.9-1) */
+  --_line: color-mix(in oklab, var(--text-primary) 12%, transparent);
+  --_glass: color-mix(in oklab, var(--bg-primary) 72%, transparent);
+
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-16);
+  min-width: 0;
+  font: var(--font-body-sm);
+  color: var(--text-primary);
+}
+
+/* 대본 상태 — 도는 동안은 점이 깜빡이고, 끝나면 '직접 해 볼 차례' */
+.auto {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  border-radius: var(--radius-full);
+  background: color-mix(in oklab, var(--text-primary) 6%, transparent);
+  font: var(--font-body-xs);
+  color: var(--text-secondary);
+}
+
+.autoText {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  margin: 0;
+  padding: var(--spacing-4) var(--spacing-12);
+}
+
+.autoText i {
+  width: var(--spacing-8);
+  height: var(--spacing-8);
+  border-radius: var(--radius-full);
+  background: var(--text-tertiary);
+}
+
+.auto[data-on] {
+  color: var(--text-accent);
+  background: color-mix(in oklab, var(--text-accent) 12%, transparent);
+}
+
+.auto[data-on] .autoText i {
+  background: var(--text-accent);
+  animation: autoBlink var(--duration-slower) var(--ease-standard) infinite alternate;
+}
+
+/* 처음부터 — 칩 오른쪽 끝, 가는 세로 선으로 나뉜 한 칸 */
+.autoReplay {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  align-self: stretch;
+  padding: 0 var(--spacing-12) 0 var(--spacing-8);
+  border-left: var(--border-width-1) solid color-mix(in oklab, var(--text-primary) 14%, transparent);
+  border-radius: 0 var(--radius-full) var(--radius-full) 0;
+  color: var(--text-primary);
+  transition:
+    color var(--duration-base) var(--ease-standard),
+    background-color var(--duration-base) var(--ease-standard);
+}
+
+.autoReplay svg {
+  width: var(--spacing-12);
+  height: var(--spacing-12);
+}
+
+.autoReplay:hover,
+.autoReplay:focus-visible {
+  color: var(--text-accent);
+  background: color-mix(in oklab, var(--text-accent) 10%, transparent);
+}
+
+@keyframes autoBlink {
+  to {
+    opacity: 0.2;
+  }
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-8);
+}
+
+/* 단추가 생겼다 사라지는 줄 — 비어도 자리를 지킨다 */
+.row[data-reserve] {
+  min-height: var(--spacing-32);
+}
+
+.result {
+  min-height: 3em;
+  margin: 0;
+  font: var(--font-body-sm);
+  color: var(--text-secondary);
+  word-break: keep-all;
+}
+
+.result[data-kind="ok"],
+.verdict[data-kind="ok"] {
+  color: var(--text-success);
+}
+
+.result[data-kind="error"],
+.verdict[data-kind="error"] {
+  color: var(--text-error);
+}
+
+/* 판정 한 줄 — 결과(굵게)와 이유. 자리는 두 줄만큼 늘 잡아 둔다 */
+.verdict {
+  display: grid;
+  gap: var(--spacing-4);
+  min-height: 4.5em;
+  margin: 0;
+  padding: var(--spacing-12) var(--spacing-16);
+  border-left: var(--border-width-2) solid currentcolor;
+  font: var(--font-body-sm);
+  color: var(--text-secondary);
+  word-break: keep-all;
+}
+
+.verdict span {
+  color: var(--text-secondary);
+}
+
+.note {
+  margin: 0;
+  font: var(--font-body-xs);
+  color: var(--text-tertiary);
+  word-break: keep-all;
+}
+
+.label {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  margin: 0;
+  font: var(--font-grotesk-micro);
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+}
+
+.inlineIcon {
+  flex: none;
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.125em;
+}
+
+/* 판 — 콘솔 유리 위의 한 겹 */
+.panel {
+  display: grid;
+  gap: var(--spacing-8);
+  padding: var(--spacing-16);
+  border: var(--border-width-1) solid var(--_line);
+  border-radius: var(--radius-surface);
+  background: var(--_glass);
+}
+
+.panel .result {
+  min-height: 3em;
+}
+
+/* 열 때 받은 버전 · 서버 버전 — 서버가 앞서 있으면 그쪽이 붉어진다 */
+.versions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-8) var(--spacing-24);
+  margin: 0;
+  font: var(--font-code-xs);
+  color: var(--text-secondary);
+}
+
+.versions b {
+  font: var(--font-title-sm);
+  color: var(--text-primary);
+}
+
+.versions [data-ahead] b {
+  color: var(--text-error);
+}
+
+/* ── 자동 저장: 세 줄의 저장 길 — 판 없이, 별 셋이 세로 점선에 꿰인다. 그 길로 저장되면 그 별이 반짝인다 ── */
+
+.lanes {
+  position: relative;
+  display: grid;
+  gap: var(--spacing-12);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* 별을 꿰는 세로 점선 */
+.lanes::before {
+  content: "";
+  position: absolute;
+  top: var(--spacing-8);
+  bottom: var(--spacing-8);
+  left: calc(var(--spacing-16) / 2);
+  border-left: var(--border-width-1) dashed color-mix(in oklab, var(--text-primary) 25%, transparent);
+}
+
+.lanes li {
+  display: grid;
+  grid-template-columns: var(--spacing-16) var(--spacing-64) minmax(0, 1fr);
+  align-items: baseline;
+  gap: var(--spacing-12);
+}
+
+.laneStar {
+  position: relative;
+  align-self: center;
+  width: var(--spacing-16);
+  aspect-ratio: 1;
+  fill: color-mix(in oklab, var(--text-primary) 40%, transparent);
+}
+
+.laneStar[data-flash] {
+  animation: laneFlash var(--_flash) var(--ease-exit);
+}
+
+@keyframes laneFlash {
+  from {
+    scale: 1.6;
+    fill: var(--text-accent);
+    filter: drop-shadow(0 0 var(--spacing-8) var(--text-accent));
+  }
+}
+
+.laneWhen {
+  font: var(--font-grotesk-micro);
+  color: var(--text-accent);
+}
+
+.laneBox {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2) var(--spacing-8);
+  align-items: baseline;
+  padding-bottom: var(--spacing-4);
+}
+
+.laneBox strong {
+  font: var(--font-body-sm);
+  color: var(--text-primary);
+}
+
+.laneBox small {
+  font: var(--font-body-xs);
+  color: var(--text-secondary);
+}
+
+/* 대본이 누른 단추 — 강조색 고리가 퍼지며 잠깐 눌린 모양 */
+.cueBtn[data-cue] {
+  --_cue: 900ms; /* 눌린 표시 — 한 자리(3.9-1) */
+
+  animation: cuePress var(--_cue) var(--ease-exit);
+}
+
+@keyframes cuePress {
+  0% {
+    scale: 1;
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--text-accent) 60%, transparent);
+  }
+
+  25% {
+    scale: 0.94;
+  }
+
+  100% {
+    scale: 1;
+    box-shadow: 0 0 0 var(--spacing-12) transparent;
+  }
+}
+
+/* 길잡이 별이 앉는 자리(지금 볼 곳) — 글 앞에 별 하나만큼 */
+.pin {
+  margin-right: var(--spacing-4);
+}
+
+/* 무엇을 보면 되는지 — 구역 머리 한 줄(번호 · 안내). 지금 보여 주는 구역만 또렷하고 나머지는 옅게 */
+.focusHead {
+  display: flex;
+  gap: var(--spacing-8);
+  align-items: baseline;
+  margin: 0;
+  font: var(--font-body-sm);
+  color: var(--text-primary);
+  word-break: keep-all;
+}
+
+.focusNo {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: var(--spacing-20);
+  height: var(--spacing-20);
+  border-radius: var(--radius-full);
+  font: var(--font-grotesk-micro);
+  color: var(--text-on-accent);
+  background: var(--bg-accent-solid);
+}
+
+.focusArea {
+  display: grid;
+  gap: var(--spacing-12);
+  opacity: 0.45;
+  transition: opacity var(--duration-slow) var(--ease-standard);
+}
+
+.focusArea[data-on],
+.focusArea:hover,
+.focusArea:focus-within {
+  opacity: 1;
+}
+
+/* 저장 충돌 — 판 없이 점선 한 줄 위로 나눈 구역 */
+.conflict {
+  display: grid;
+  gap: var(--spacing-12);
+  padding-top: var(--spacing-16);
+  border-top: var(--border-width-1) dashed color-mix(in oklab, var(--text-primary) 22%, transparent);
+}
+
+.conflict .result {
+  min-height: 3em;
+}
+
+/* 서버 수정본 줄 — 손을 떼고 3초가 차오르는 막대 */
+.laneTimer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  max-width: 16rem;
+  height: var(--border-width-2);
+  border-radius: var(--radius-full);
+  background: var(--bg-accent-solid);
+}
+
+.lanes li[data-waiting] .laneTimer {
+  animation: laneTimer var(--_idle) linear forwards;
+}
+
+@keyframes laneTimer {
+  to {
+    width: 16rem;
+  }
+}
+
+/* ── 글의 일생: 다섯 칸 진행 줄과, 칼럼 값이 바뀌는 글 카드 ── */
+
+/* 단계 다섯 칸 — 좁은 화면은 글자 폭만큼(낱말이 쪼개지지 않게), 넓은 화면은 같은 폭 */
+.track {
+  display: flex;
+  gap: var(--spacing-4);
+  justify-content: space-between;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (width > 768px) {
+  .track {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+.track li {
+  flex: 1 1 auto;
+  padding: var(--spacing-8) var(--spacing-4);
+  white-space: nowrap;
+  border: var(--border-width-1) solid var(--_line);
+  border-radius: var(--radius-control);
+  background: var(--_glass);
+  font: var(--font-grotesk-micro);
+  color: var(--text-tertiary);
+  text-align: center;
+  word-break: keep-all;
+  transition:
+    background-color var(--duration-base) var(--ease-standard),
+    border-color var(--duration-base) var(--ease-standard),
+    color var(--duration-base) var(--ease-standard);
+}
+
+.track li[data-done] {
+  color: var(--text-primary);
+}
+
+.track li[data-now] {
+  border-color: var(--border-color-accent);
+  background: var(--bg-accent-subtle);
+  color: var(--text-accent);
+}
+
+.card {
+  padding: var(--spacing-12) var(--spacing-16);
+  border: var(--border-width-1) solid var(--_line);
+  border-radius: var(--radius-surface);
+  background: var(--_glass);
+  transition: opacity var(--duration-slow) var(--ease-standard);
+}
+
+.card[data-stage="trash"] {
+  opacity: 0.75;
+}
+
+.card[data-stage="purged"] {
+  border-style: dashed;
+  opacity: 0.5;
+}
+
+.cardTitle {
+  margin: 0 0 var(--spacing-8);
+  font: var(--font-title-sm);
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--spacing-4) var(--spacing-16);
+  margin: 0;
+  font: var(--font-code-xs);
+}
+
+.columns div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--spacing-8);
+}
+
+.columns dt {
+  color: var(--text-tertiary);
+}
+
+/* 이 단계가 바꾼 칼럼 — 이름 · 값 모두 강조색 */
+.columns [data-changed] dt,
+.columns [data-changed] dd {
+  color: var(--text-accent);
+}
+
+.columns dd {
+  margin: 0;
+  animation: valueIn var(--duration-slow) var(--ease-exit);
+}
+
+@keyframes valueIn {
+  from {
+    color: var(--text-accent);
+    transform: translateY(-3px);
+  }
+}
+
+.cron {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-4);
+  min-height: 3.2em;
+  margin: var(--spacing-8) 0 0;
+  font: var(--font-body-xs);
+  color: var(--text-accent);
+  word-break: keep-all;
+}
+
+/* 아이콘 — 첫 줄 높이(1lh) 칸의 가운데에 놓여 글자 첫 줄과 세로로 맞는다 */
+.cron .inlineIcon {
+  height: 1lh;
+  vertical-align: 0;
+}
+
+/* ── 댓글 ── */
+
+.comment {
+  display: grid;
+  gap: var(--spacing-8);
+  padding: var(--spacing-12) var(--spacing-16);
+  border: var(--border-width-1) solid var(--_line);
+  border-radius: var(--radius-surface);
+  background: var(--_glass);
+}
+
+.comment header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+}
+
+/* 이름 다시 뽑기 아이콘 — 흐리게 두고, 단추에 올리거나 초점이 오면 밝아진다 */
+.shuffleIcon {
+  color: var(--text-tertiary);
+  transition: color var(--duration-base) var(--ease-standard);
+}
+
+.comment header button:is(:hover, :focus-visible):not(:disabled) .shuffleIcon {
+  color: var(--text-primary);
+}
+
+.comment header small {
+  margin-left: auto;
+  font: var(--font-body-xs);
+  color: var(--text-tertiary);
+}
+
+.comment p {
+  margin: 0;
+  font: var(--font-body-md);
+}
+
+.comment[data-deleted] p {
+  color: var(--text-tertiary);
+}
+
+/* 댓글 + 답글 자리 */
+.thread {
+  display: grid;
+  gap: var(--spacing-8);
+}
+
+/* 답글 — 자리는 늘 있고, 켜면 보인다 */
+.reply {
+  margin: 0;
+  padding-left: var(--spacing-24);
+  font: var(--font-body-xs);
+  color: var(--text-secondary);
+  visibility: hidden;
+}
+
+.reply[data-on] {
+  visibility: visible;
+}
+
+.gone {
+  margin: 0;
+  padding: var(--spacing-24) var(--spacing-16);
+  border: var(--border-width-1) dashed var(--_line);
+  border-radius: var(--radius-surface);
+  font: var(--font-body-xs);
+  color: var(--text-tertiary);
+  text-align: center;
+}
+
+.reactions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.reaction {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  min-width: var(--spacing-40);
+  padding: var(--spacing-2) var(--spacing-8);
+  border: var(--border-width-1) solid var(--_line);
+  border-radius: var(--radius-control);
+  font: var(--font-body-sm);
+}
+
+.reaction[aria-pressed="true"] {
+  border-color: var(--border-color-accent);
+  background: var(--bg-accent-subtle);
+}
+
+.reaction:disabled {
+  opacity: var(--opacity-disabled);
+}
+
+.reaction span {
+  font: var(--font-body-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.password {
+  flex: 1 1 var(--spacing-128);
+  min-width: 0;
+  max-width: 14rem;
+}
+
+/* ── 초대 로그인: 사람 넷 중 하나를 고르면 세 관문이 차례로 예/아니오로 켜진다 ── */
+
+.people {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--spacing-4) var(--spacing-8);
+}
+
+/* 사람 하나 — 판 없이 이름 · 주소 두 줄, 고르면 강조색 바탕이 옅게 */
+.person {
+  display: grid;
+  gap: var(--spacing-2);
+  padding: var(--spacing-8) var(--spacing-12);
+  border-radius: var(--radius-surface);
+  text-align: left;
+  transition: background-color var(--duration-base) var(--ease-standard);
+}
+
+.person:hover {
+  background: color-mix(in oklab, var(--text-primary) 6%, transparent);
+}
+
+.person[aria-pressed="true"] {
+  background: color-mix(in oklab, var(--text-accent) 12%, transparent);
+}
+
+.person b {
+  font: var(--font-body-md);
+  color: var(--text-primary);
+}
+
+.person[aria-pressed="true"] b {
+  color: var(--text-accent);
+}
+
+.person small {
+  overflow: hidden;
+  font: var(--font-code-xs);
+  color: var(--text-tertiary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 세 관문 — 별 셋이 세로 점선에 꿰인다. 통과는 초록 별, 막힘은 붉은 빗금 별 */
+.gates {
+  position: relative;
+  display: grid;
+  gap: var(--spacing-12);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.gates::before {
+  content: "";
+  position: absolute;
+  top: var(--spacing-8);
+  bottom: var(--spacing-8);
+  left: calc(var(--spacing-16) / 2);
+  border-left: var(--border-width-1) dashed color-mix(in oklab, var(--text-primary) 25%, transparent);
+}
+
+.gates li {
+  display: grid;
+  grid-template-columns: var(--spacing-16) auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--spacing-12);
+  transition: opacity var(--duration-base) var(--ease-standard);
+}
+
+.gateStar {
+  position: relative;
+  width: var(--spacing-16);
+  aspect-ratio: 1;
+  fill: color-mix(in oklab, var(--text-primary) 35%, transparent);
+  transition:
+    fill var(--duration-base) var(--ease-standard),
+    scale var(--duration-base) var(--ease-enter);
+}
+
+.gateNo {
+  font: var(--font-grotesk-micro);
+  color: var(--text-tertiary);
+}
+
+.gates li span {
+  font: var(--font-body-sm);
+  color: var(--text-secondary);
+}
+
+.gates li b {
+  font: var(--font-grotesk-micro);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.gates li[data-state="pass"] .gateStar {
+  scale: 1.3;
+  fill: var(--text-success);
+}
+
+.gates li[data-state="pass"] span {
+  color: var(--text-primary);
+}
+
+.gates li[data-state="pass"] b {
+  color: var(--text-success);
+}
+
+.gates li[data-state="fail"] .gateStar {
+  fill: var(--text-error);
+}
+
+.gates li[data-state="fail"] b {
+  color: var(--text-error);
+}
+
+.gates li[data-skip] {
+  opacity: 0.4;
+}
+
+/* ── 누가 무엇을: 역할을 고르면 그 칸이 강조되고, 할 수 있는 줄만 진하게 ── */
+
+.tableWrap {
+  overflow-x: auto;
+  border: var(--border-width-1) solid var(--_line);
+  border-radius: var(--radius-surface);
+  background: var(--_glass);
+}
+
+.roles {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.roles th,
+.roles td {
+  padding: var(--spacing-8) var(--spacing-16);
+  border-bottom: var(--border-width-1) solid var(--_line);
+  font: var(--font-body-xs);
+  text-align: center;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    opacity var(--duration-fast) var(--ease-standard);
+}
+
+.roles tr:last-child > * {
+  border-bottom: none;
+}
+
+.roles thead th {
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.roles thead th:first-child,
+.roles tbody th {
+  text-align: left;
+}
+
+.roles [data-on] {
+  background: var(--bg-accent-subtle);
+}
+
+.roles thead th[data-on] {
+  color: var(--text-accent);
+}
+
+/* 고른 역할로 할 수 없는 줄은 옅게 */
+.roles tbody tr:not([data-ok]) {
+  opacity: 0.5;
+}
+
+.roles tbody tr[data-picked] > * {
+  background: var(--bg-accent-light);
+}
+
+.rowGuard {
+  display: none;
+  margin-top: var(--spacing-2);
+  font: var(--font-body-xs);
+  color: var(--text-tertiary);
+  text-align: left;
+  word-break: keep-all;
+}
+
+.rowAction {
+  font: var(--font-body-xs);
+  color: var(--text-primary);
+  text-align: left;
+  word-break: keep-all;
+}
+
+.rowAction:hover {
+  color: var(--text-accent);
+}
+
+.dot {
+  display: inline-block;
+  width: var(--spacing-12);
+  height: var(--spacing-12);
+  border-radius: var(--radius-full);
+  background: var(--bg-accent-solid);
+}
+
+.roles td span {
+  color: var(--text-tertiary);
+}
+
+/* ── 이모지 키친: 왼쪽 두 줄에서 하나씩 고르면 오른쪽에 섞인 그림이 크게(좁은 화면은 위아래) ── */
+
+.kitchen {
+  display: grid;
+  gap: var(--spacing-24);
+  align-items: center;
+}
+
+/* 고르는 칸 — 자기 폭을 재서 이모지 여덟 칸이 한 줄에 안 들어가면 넷씩 두 줄로 접는다(옆 칸으로 넘치지 않게) */
+.kitchenPickers {
+  display: grid;
+  gap: var(--spacing-16);
+  min-width: 0;
+  container-type: inline-size;
+}
+
+.kitchenGroup {
+  display: grid;
+  gap: var(--spacing-8);
+}
+
+.kitchenRow {
+  display: grid;
+  grid-template-columns: repeat(4, var(--spacing-48));
+  gap: var(--spacing-4);
+}
+
+/* 여덟 칸(48px × 8 + 사이 4px × 7) */
+@container (width >= 412px) {
+  .kitchenRow {
+    grid-template-columns: repeat(8, var(--spacing-48));
+  }
+}
+
+/* 고르는 이모지 — 둥근 칸, 올리면 옅게, 고르면 강조색 테 */
+.kitchenPick {
+  display: grid;
+  place-items: center;
+  width: var(--spacing-48);
+  height: var(--spacing-48);
+  border: var(--border-width-1) solid transparent;
+  border-radius: var(--radius-full);
+  font: var(--font-grotesk-headline-xl);
+  transition:
+    background-color var(--duration-base) var(--ease-standard),
+    border-color var(--duration-base) var(--ease-standard);
+}
+
+.kitchenPick:hover {
+  background: color-mix(in oklab, var(--text-primary) 8%, transparent);
+}
+
+.kitchenPick[aria-pressed="true"] {
+  border-color: var(--border-color-accent);
+  background: var(--bg-accent-subtle);
+}
+
+/* 섞인 그림 — 판 없이, 뒤에 옅은 강조색 빛 */
+.kitchenMix {
+  display: grid;
+  justify-items: center;
+  gap: var(--spacing-8);
+  min-width: 0;
+}
+
+.kitchenFormula {
+  display: inline-flex;
+  gap: var(--spacing-8);
+  align-items: center;
+  margin: 0;
+  font: var(--font-grotesk-headline-sm);
+}
+
+.kitchenOp {
+  width: var(--spacing-16);
+  height: var(--spacing-16);
+  color: var(--text-tertiary);
+}
+
+.kitchenMix figure {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(12rem, 100%);
+  aspect-ratio: 1;
+  margin: 0;
+  border-radius: var(--radius-full);
+  background: radial-gradient(closest-side, color-mix(in oklab, var(--text-accent) 22%, transparent), transparent);
+}
+
+/* 섞인 그림 오른쪽 위 — 길잡이 별이 앉는 자리 */
+.kitchenPin {
+  position: absolute;
+  top: var(--spacing-8);
+  right: var(--spacing-8);
+}
+
+.kitchenMix img {
+  width: 80%;
+  height: auto;
+  aspect-ratio: 1;
+  animation: kitchenPop var(--duration-base) var(--ease-spring);
+}
+
+.kitchenMix em {
+  padding: var(--spacing-4);
+  font: var(--font-body-xs);
+  font-style: normal;
+  color: var(--text-tertiary);
+  text-align: center;
+  word-break: keep-all;
+}
+
+@keyframes kitchenPop {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+
+@media (width > 768px) {
+  /* 좁은 화면은 표 높이를 지키려 판정 줄에서만 설명한다 */
+  .rowGuard {
+    display: block;
+  }
+
+  /* 다른 데모처럼 너비를 다 쓴다 — 왼쪽 반은 고르는 칸(가지런한 격자), 오른쪽 반 가운데에 섞인 그림.
+     왼쪽 반이 이모지 여덟 칸보다 좁으면 고르는 칸이 넷씩 두 줄로 접힌다(위 @container) */
+  .kitchen {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--spacing-48);
+  }
+
+  .lanes li {
+    grid-template-columns: var(--spacing-16) var(--spacing-96) minmax(0, 1fr);
+  }
+
+  .columns {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .people {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .laneStar[data-flash],
+  .lanes li[data-waiting] .laneTimer,
+  .columns dd,
+  .kitchenMix img,
+  .auto[data-on] i {
+    animation: none;
+  }
+
+  .track li,
+  .card,
+  .gates li,
+  .person,
+  .roles th,
+  .roles td {
+    transition: none;
+  }
+}
