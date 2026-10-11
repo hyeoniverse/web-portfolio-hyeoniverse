@@ -27,6 +27,7 @@ import { ThemeProvider } from "@/providers/ThemeProvider";
 import FaviconSync from "@/components/layout/FaviconSync";
 import BarColorSync from "@/components/layout/BarColorSync";
 import { LanguageProvider } from "@/providers/LanguageProvider";
+import SiteTranslationProvider from "@/providers/SiteTranslationProvider";
 import { SiteConfigProvider } from "@/providers/SiteConfigProvider";
 import { toSiteWideConfig } from "@/config/siteWideConfig";
 import { getSiteConfig } from "@/lib/getSiteConfig";
@@ -185,6 +186,8 @@ export default async function RootLayout({
             {/* 상태줄 뒤 색(theme-color · MacFolio 창의 bar-color)을 화면 맨 위 배경에 맞춘다 */}
             <BarColorSync />
             <LanguageProvider>
+              {/* 사이트 전체 "다른 언어로 보기" — 화면 글 번역을 받아 두고 <html lang> 을 맞춘다(그리는 것 없음) */}
+              <SiteTranslationProvider />
               <RecaptchaProvider>
                 <LenisProvider>
                 <PageTransitionProvider>
