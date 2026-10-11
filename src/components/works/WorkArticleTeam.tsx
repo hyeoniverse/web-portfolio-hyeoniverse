@@ -3,7 +3,7 @@
 import { UiLabel, useBodyLabels, useForeignReading } from "@/components/posts/BodyLabelsContext";
 import { fillLabel } from "@/lib/bodyLabels";
 import { useState } from "react";
-import { Users, Link2, Mail } from "@/components/icons";
+import { Users, Link2, Mail, ArrowDown } from "@/components/icons";
 import "@/styles/vendor/katex.css";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import type { Author } from "@/types/author";
@@ -13,6 +13,26 @@ import HorizontalCarousel from "@/components/ui/HorizontalCarousel";
 import T from "@/components/ui/T";
 import styles from "./WorkArticleTeam.module.css";
 import type { WorkArticleViewProps } from "./workArticleTypes";
+
+/* 뒷면은 앞면 크기에 고정이라(카드가 늘면 캐러셀이 출렁인다) 넘치는 내용은 안에서 스크롤한다.
+   스크롤바는 사이트 전체에서 숨겨 두어 잘린 것처럼 보이므로, 아래가 남아 있는 동안만 카드 안쪽에 data-more 를 달아
+   아래쪽을 흐리게 하고 ↓ 표시를 띄운다. 번역으로 소개 · 기여가 길어질 때 특히 필요하다 */
+function watchMore(el: HTMLDivElement | null) {
+  if (!el) return;
+  const update = () => {
+    const more = el.scrollHeight - el.clientHeight - el.scrollTop > 2;
+    /* 표시 층은 뒷면의 형제라 부모(카드 안쪽)에 단다 */
+    const host = el.parentElement;
+    if (!host) return;
+    if (more) host.dataset.more = ""; else delete host.dataset.more;
+  };
+  update();
+  const ro = new ResizeObserver(update);
+  ro.observe(el);
+  for (const child of Array.from(el.children)) ro.observe(child);
+  el.addEventListener("scroll", update, { passive: true });
+  return () => { ro.disconnect(); el.removeEventListener("scroll", update); };
+}
 
 /* ────────────────────────────────────────────────────────────
  * WorkArticleTeam — DetailLayout 의 afterContent slot (full-width).
@@ -185,7 +205,8 @@ export function WorkArticleTeam({ project, viewLang }: WorkArticleViewProps) {
                   </div>
                 </div>
                 {hasBack && (
-                  <div className={styles.polaroidBack}>
+                  <>
+                  <div className={styles.polaroidBack} ref={watchMore}>
                     <div className={styles.polaroidBackHeader}>
                       <span className={styles.polaroidBackName}>{getDisplayName(m)}</span>
                       {(m.url || m.email) && (
@@ -237,6 +258,8 @@ export function WorkArticleTeam({ project, viewLang }: WorkArticleViewProps) {
                       </div>
                     )}
                   </div>
+                  <span className={styles.polaroidBackMore} aria-hidden><ArrowDown size={12} /></span>
+                  </>
                 )}
               </div>
             </article>

@@ -88,6 +88,33 @@
   overflow-y: auto;
 }
 
+/* 뒷면에 아래로 더 남은 내용이 있다는 표시 — 스크롤 칸 밖, 뒷면 위에 덮는 층. 뒷면과 같이 뒤집혀 있고(rotateY)
+   살짝 앞으로 띄워(translateZ) 뒷면을 가린다. 바닥을 바탕색으로 흐리고 ↓ 를 띄우며,
+   끝까지 내리면(data-more 가 빠지면) 사라진다. 누르기는 막지 않는다 */
+.polaroidBackMore {
+  position: absolute;
+  left: var(--border-width-1);
+  right: var(--border-width-1);
+  bottom: var(--border-width-1);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  height: var(--spacing-64);
+  padding-bottom: var(--spacing-8);
+  background: linear-gradient(to bottom, transparent, var(--bg-primary) 65%);
+  color: var(--text-tertiary);
+  transform: rotateY(180deg) translateZ(1px);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+
+.polaroidCardInner[data-more] .polaroidBackMore {
+  opacity: 1;
+}
+
 /* ── 앞면 (image + caption + link) ── */
 .polaroidAvatar {
   width: 100%;
