@@ -8,11 +8,6 @@ import type { VisitorWeather } from "@/lib/weather/sky";
 let value: VisitorWeather | null = null;
 let started = false;
 const listeners = new Set<() => void>();
-let settle: () => void = () => {};
-/** 날씨 받기가 끝났을 때(받았든 실패했든) — 로딩 덮개가 하늘이 날씨까지 입은 뒤에 걷히게 */
-export const weatherSettled = new Promise<void>((r) => {
-  settle = r;
-});
 
 function start() {
   if (started) return;
@@ -24,8 +19,7 @@ function start() {
       value = v;
       listeners.forEach((l) => l());
     })
-    .catch(() => {})
-    .finally(() => settle());
+    .catch(() => {});
 }
 
 const subscribe = (cb: () => void) => {

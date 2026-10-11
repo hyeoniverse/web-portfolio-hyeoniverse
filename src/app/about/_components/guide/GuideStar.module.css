@@ -8,15 +8,11 @@
   overflow: hidden;
 }
 
-/* 처음엔 크기 0 · 투명 — 스크립트가 첫 자리를 정하기 전에 SVG 가 기본 크기(화면 폭)로 한 번 그려져,
-   다른 페이지에서 About 으로 넘어올 때 화면 가운데에 거대한 별이 떴다가 사라졌다. 움직임 줄이기면 스크립트가 돌지 않아 계속 감춰 둔다 */
 .star {
   position: absolute;
   top: 0;
   left: 0;
-  width: 0;
   aspect-ratio: 1;
-  opacity: 0;
   fill: var(--fill, var(--text-accent));
   filter: drop-shadow(0 0 8px color-mix(in oklch, var(--fill, var(--text-accent)) 60%, transparent));
   transition:

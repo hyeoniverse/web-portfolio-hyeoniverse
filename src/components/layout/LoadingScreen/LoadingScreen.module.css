@@ -29,37 +29,3 @@
   inset: 0;
   background: var(--bg-black);
 }
-
-/* 진행률 — 화면 아래 가운데. 가는 막대가 차오르고 옆에 퍼센트 */
-.progress {
-  position: absolute;
-  bottom: var(--spacing-64);
-  left: 50%;
-  display: flex;
-  gap: var(--spacing-12);
-  align-items: center;
-  translate: -50% 0;
-}
-
-.track {
-  position: relative;
-  width: var(--size-128);
-  height: var(--border-width-1);
-  overflow: hidden;
-  background: var(--text-white-muted);
-}
-
-.fill {
-  position: absolute;
-  inset: 0;
-  transform-origin: left;
-  background: var(--text-white);
-  transition: scale var(--duration-slow) var(--ease-standard);
-}
-
-.percent {
-  min-width: 4ch;
-  font: var(--font-grotesk-micro);
-  font-variant-numeric: tabular-nums;
-  color: var(--text-white-muted);
-}
