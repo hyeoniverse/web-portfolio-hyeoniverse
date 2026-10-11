@@ -66,7 +66,7 @@ export default function GuideStar() {
         if (d < bestD) { bestD = d; best = r; bestEl = el; }
       }
       /* 내려앉을 자리가 없는 프레임 — 별을 감췄다가 자리가 생기면 다시 */
-      star.style.opacity = best ? "" : "0";
+      star.style.opacity = best ? "1" : "0";
       if (best && bestEl) {
         const tx = best.left + best.width / 2;
         /* 자리가 화면 밖이면 가장자리에서 기다린다 — 별이 화면에서 사라지지 않게 */
