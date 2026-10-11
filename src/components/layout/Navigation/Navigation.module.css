@@ -83,6 +83,13 @@
   pointer-events: auto;
   display: inline-flex;
   align-items: center;
+  transition: opacity var(--duration-base) var(--ease-standard);
+}
+
+/* 로딩 중 — 로고가 덮개 가운데에 있는 동안 배지만 왼쪽 위에 혼자 남지 않게 감췄다가, 로고가 제자리로 오면 나타난다.
+   .logoNavBarNoDifference .adminBadge(불투명도 1)보다 세게 — 부모 클래스를 붙인다 */
+.logoNavBar .adminBadgeFixed[data-loading] {
+  opacity: 0;
 }
 
 
