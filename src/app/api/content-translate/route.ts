@@ -16,8 +16,11 @@ import {
   metaPieces,
   postSource,
   sourceHash,
+  uiLabelsHash,
+  UI_SOURCE_ID,
   workSource,
 } from "@/lib/api/contentTranslate";
+import { type BodyLabels, assembleBodyLabels, bodyLabelSource } from "@/lib/bodyLabels";
 import type { GalleryNotes } from "@/data/projects";
 import { readerNotes } from "@/lib/galleryNotes";
 import { captionLines } from "@/lib/galleryCaptions";
@@ -45,6 +48,10 @@ const takeMiss = createMissLimiter();
  * 공개 상세 화면이 부르는 경로라 로그인을 요구하지 않는다. 대신 비로그인 요청은 발행되고 휴지통에 없는 것만
  * (auto-translate 와 같은 규칙 — 초안이 번역을 거쳐 새지 않게). 공급자를 부르는 요청만 IP 당 상한을 둔다.
  * 실패 원인(공급자별 오류)은 싣지 않는다 — 서버 기록과 관리자 화면에 남는다.
+ *
+ * 응답의 ui 는 본문 안 라벨(코드 블록 단추 · 투표 …, lib/bodyLabels)의 그 언어 번역 — 글마다 같아 언어마다 한 줄
+ * (source_type 'ui')로 캐시하고, 같은 응답에 실어 따로 왕복하지 않는다. 라벨 번역이 안 되면(상한 · 공급자 실패)
+ * ui 를 빼고 돌려준다 — 화면은 UI 언어 라벨을 쓴다. 본문 번역의 성패와는 묶지 않는다.
  */
 export async function POST(request: Request) {
   const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
@@ -93,15 +100,17 @@ export async function POST(request: Request) {
     .select("fields, source_hash")
     .eq("source_type", type).eq("source_id", id).eq("lang", lang)
     .maybeSingle();
-  if (cached && isFreshCache(cached, hash)) {
-    return NextResponse.json({ fields: cached.fields as ContentFields, lang, cached: true });
-  }
-
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
-  if (!takeMiss(ip)) return jsonError("Too many requests", 429);
-
   const primary: Provider = (config?.translation?.provider as Provider) ?? "deepl";
   const providers = buildProviderList(primary, config?.translation?.fallback);
+
+  if (cached && isFreshCache(cached, hash)) {
+    /* 본문은 캐시 — 라벨이 캐시에 없을 때만 공급자를 부르고, 그때는 상한을 센다 */
+    const ui = await uiLabels(admin, lang, providers, () => takeMiss(ip));
+    return NextResponse.json({ fields: cached.fields as ContentFields, ...(ui && { ui }), lang, cached: true });
+  }
+
+  if (!takeMiss(ip)) return jsonError("Too many requests", 429);
   const tag = `[content-translate ${type} ${lang}]`;
 
   /* 짧은 칸(제목·요약·부제목·설명)과 정보 칸의 글 조각은 평문 한 번에, 본문은 richtext 면 HTML 로 따로 —
@@ -109,9 +118,11 @@ export async function POST(request: Request) {
   const plainKeys = (Object.keys(src.fields) as ContentField[]).filter((k) => k !== "content" && src.fields[k]);
   const pieces = metaPieces(src.meta);
   const plainTexts = [...plainKeys.map((k) => src.fields[k]!), ...pieces.map((p) => p.text)];
-  const [plain, content] = await Promise.all([
+  /* 라벨은 이 요청이 이미 상한을 셌다 — 한 요청에 두 번 세지 않는다 */
+  const [plain, content, ui] = await Promise.all([
     translateWithFallback(providers, plainTexts, src.lang, lang, tag),
     translateWithFallback(providers, [src.fields.content ?? ""], src.lang, lang, tag, { html: src.html }),
+    uiLabels(admin, lang, providers, () => true),
   ]);
   if ("error" in content || content.failedIndices.includes(0)) {
     const { status, code } = translationFailure(content.failures);
@@ -143,7 +154,47 @@ export async function POST(request: Request) {
     if (error) console.error(tag, "cache upsert failed", error.message);
   }
 
-  return NextResponse.json({ fields, lang, cached: false });
+  return NextResponse.json({ fields, ...(ui && { ui }), lang, cached: false });
+}
+
+/**
+ * 본문 안 라벨의 lang 번역 — 캐시(source_type 'ui', 언어마다 한 줄)가 있으면 그것, 없으면 영어 원문을 평문 한 번에.
+ * mayMiss 가 false 면(상한) 공급자를 부르지 않는다. 못 얻으면 null — 호출부는 ui 를 빼고 응답한다.
+ * 쓸 수 없는 번역(자리표시가 깨진 글)이 섞이면 쓸 수 있는 것만 돌려주고 저장하지 않는다.
+ */
+async function uiLabels(
+  admin: ReturnType<typeof createAdminClient>,
+  lang: string,
+  providers: Provider[],
+  mayMiss: () => boolean,
+): Promise<Partial<BodyLabels> | null> {
+  const source = bodyLabelSource();
+  const hash = uiLabelsHash(source);
+  try {
+    const { data: cached } = await admin
+      .from("content_translations")
+      .select("fields, source_hash")
+      .eq("source_type", "ui").eq("source_id", UI_SOURCE_ID).eq("lang", lang)
+      .maybeSingle();
+    const cachedUi = (cached?.fields as { ui?: Partial<BodyLabels> } | null)?.ui;
+    if (cached?.source_hash === hash && cachedUi) return cachedUi;
+    if (!mayMiss()) return null;
+
+    const tag = `[content-translate ui ${lang}]`;
+    const res = await translateWithFallback(providers, source.map(([, text]) => text), "en", lang, tag);
+    if ("error" in res) return null;
+    const { ui, complete } = assembleBodyLabels(res.translations, res.failedIndices);
+    if (complete) {
+      const { error } = await admin.from("content_translations").upsert({
+        source_type: "ui", source_id: UI_SOURCE_ID, lang, fields: { ui }, source_hash: hash, provider: providers[0], updated_at: new Date().toISOString(),
+      }, { onConflict: "source_type,source_id,lang" });
+      if (error) console.error(tag, "cache upsert failed", error.message);
+    }
+    return Object.keys(ui).length ? ui : null;
+  } catch (e) {
+    console.error(`[content-translate ui ${lang}]`, e instanceof Error ? e.message : e);
+    return null;
+  }
 }
 
 /**

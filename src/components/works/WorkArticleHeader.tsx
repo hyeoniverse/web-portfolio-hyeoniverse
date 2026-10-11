@@ -1,5 +1,6 @@
 "use client";
 
+import { UiLabel } from "@/components/posts/BodyLabelsContext";
 import { TranslatingRegion } from "@/components/ui/ContentTranslateBanner";
 import { motion } from "framer-motion";
 import { Globe, Users, User, Pencil, ExternalLink } from "@/components/icons";
@@ -66,12 +67,12 @@ export function WorkArticleHeader({
               return others > 0 ? (
                 <span className={`${styles.tag} ${styles.tagTeam}`}>
                   <Users size={11} strokeWidth={1.8} />
-                  <T ko={`팀 · ${total}`} en={`Team · ${total}`} />
+                  <UiLabel name="workTeamCount" vars={{ n: total }} />
                 </span>
               ) : (
                 <span className={`${styles.tag} ${styles.tagSolo}`}>
                   <User size={11} strokeWidth={1.8} />
-                  <T ko="개인" en="Solo" />
+                  <UiLabel name="workSolo" />
                 </span>
               );
             })()}
@@ -163,7 +164,7 @@ export function WorkArticleHeader({
         {project.liveUrl && (
           <Button variant="outline" href={project.liveUrl} external>
             <Globe size={14} />
-            <T k="workDetail.visitSite" tooltip={t("tooltip.visitSite")} />
+            <UiLabel name="workVisitSite" tooltip="workVisitSiteTip" />
           </Button>
         )}
         {project.githubUrl && (

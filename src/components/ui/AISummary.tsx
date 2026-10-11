@@ -1,5 +1,6 @@
 "use client";
 
+import { useBodyLabels } from "@/components/posts/BodyLabelsContext";
 import { useState } from "react";
 import { AlertTriangle, ArrowRight, Info, Lightbulb, Sparkles } from "@/components/icons";
 import Button from "@/components/ui/Button";
@@ -152,6 +153,8 @@ export function SummaryBody({ summary, compact, lang }: { summary: DisplaySummar
 
 export default function AISummary({ summaryKo, summaryEn, lang, generating = false, generateEndpoint, textLang }: AISummaryProps) {
   const { t } = useLanguage();
+  /* 이름표 · 설명은 상세 화면 라벨(lib/bodyLabels) — 다른 언어로 읽을 때는 번역 라벨 */
+  const { labels: lb } = useBodyLabels();
   /* 방문자가 만든 결과 — 페이지는 정적이라 저장된 값이 바로 안 바뀌니 여기서 들고 보인다 */
   const [made, setMade] = useState<{ ko: string; en: string } | null>(null);
   const [making, setMaking] = useState(false);
@@ -182,13 +185,13 @@ export default function AISummary({ summaryKo, summaryEn, lang, generating = fal
   };
 
   return (
-    <section className={styles.card} aria-label={t("aiSummary.label")}>
+    <section className={styles.card} aria-label={lb.aiSummaryLabel}>
       {/* 머리 — 아이콘 · 이름 · ⓘ(AI 가 만든 요약이라는 설명). 접고 펼치지 않는다 */}
       <header className={styles.header}>
         <span className={styles.icon} aria-hidden><Sparkles size={16} strokeWidth={1.75} /></span>
-        <h2 className={styles.label}>{t("aiSummary.label")}</h2>
-        <Tooltip content={t("aiSummary.about")} placement="top">
-          <span className={styles.info} tabIndex={0} aria-label={t("aiSummary.about")}><Info size={14} strokeWidth={1.75} /></span>
+        <h2 className={styles.label}>{lb.aiSummaryLabel}</h2>
+        <Tooltip content={lb.aiSummaryAbout} placement="top">
+          <span className={styles.info} tabIndex={0} aria-label={lb.aiSummaryAbout}><Info size={14} strokeWidth={1.75} /></span>
         </Tooltip>
       </header>
 

@@ -9,6 +9,7 @@ import { GithubIcon } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useIsAuthenticated } from "@/hooks/useIsAuthenticated";
 import { useRichtextEnhance } from "@/hooks/useRichtextEnhance";
+import { UiLabel, useBodyLabels, useForeignReading } from "./BodyLabelsContext";
 import { processRichtextHtml } from "@/utils/processRichtextHtml";
 import { formatCount } from "@/utils/format";
 import { SITE_TIME_ZONE } from "@/constants";
@@ -17,11 +18,10 @@ import DateMentionPeek from "@/components/posts/DateMentionPeek";
 import LanguageToggle from "@/components/ui/LanguageToggle";
 import ShareButton from "@/components/ui/ShareButton";
 import Button from "@/components/ui/Button";
-import T from "@/components/ui/T";
 import TextLink from "@/components/ui/TextLink";
 import Tooltip from "@/components/ui/Tooltip";
 import type { Author } from "@/types/author";
-import { localizeAuthor } from "@/utils/localizeAuthor";
+import { localizeAuthor, withEnglishName } from "@/utils/localizeAuthor";
 import { SOCIAL_ICONS } from "@/data/socialIcons";
 import header from "./PostArticleHeader.module.css";
 import body from "./PostArticleBody.module.css";
@@ -94,6 +94,7 @@ export function PostArticleHeader({
   translating,
 }: PostArticleViewProps) {
   const { t, language } = useLanguage();
+  const foreign = useForeignReading();
   const authed = useIsAuthenticated();
   const isAdmin = isAdminProp ?? authed;
   const handleLangChange = onLangChange ?? (() => {});
@@ -113,9 +114,9 @@ export function PostArticleHeader({
         <div className={header.meta}>
           <span>{date}</span>
           <span className={header.dot}>&middot;</span>
-          <span>{readTime} <T k="postDetail.minRead" /></span>
+          <span>{readTime} <UiLabel name="postMinRead" /></span>
           <span className={header.dot}>&middot;</span>
-          <span>{formatCount(data.viewCount)} <T k="postDetail.views" /></span>
+          <span>{formatCount(data.viewCount)} <UiLabel name="postViews" /></span>
           {isAdmin && data.editHref && (
             <>
               <span className={header.metaDivider} />
@@ -177,7 +178,7 @@ export function PostArticleHeader({
       </div>
       {data.authors && data.authors.length > 0 && (
         <div className={header.authorsCompact}>
-          {data.authors.map((raw) => localizeAuthor(raw, viewLang)).map((a) => (
+          {data.authors.map((raw) => withEnglishName(localizeAuthor(raw, viewLang), raw, foreign)).map((a) => (
             <a key={a.id} href="#post-authors" className={header.authorChip}>
               <AuthorAvatar
                 value={a.avatar}
@@ -220,7 +221,8 @@ export function PostArticleBody({
   /** 미리보기 모드 — 현재 본문 렌더는 동일하나 API 일관성 위해 허용 */
   isPreview?: boolean;
 }) {
-  const { t, language } = useLanguage();
+  const { language } = useLanguage();
+  const { labels } = useBodyLabels();
   const isMarkdown = data.contentType === "markdown";
   const content = data.displayContent;
   const richtextRef = useRef<HTMLDivElement>(null);
@@ -228,21 +230,15 @@ export function PostArticleBody({
   // markdown 코드블록 컨트롤은 MarkdownRenderer 가 자체 ref 로 주입한다(부모 ref 전달 여부와 무관).
   // richtext 는 아래 useRichtextEnhance 가 richtextRef 로 처리.
 
-  /* t 는 language 가 확정되면 identity 가 바뀐다(LanguageProvider 의 useCallback([language])).
-     그걸 deps 에 두면 **내용이 완전히 같은데도** 새 문자열이 나오고, React 가 그걸 다른 값으로 보고
-     dangerouslySetInnerHTML 을 통째로 다시 세팅한다 → 그 위에 얹은 후처리(코드바/KaTeX/island)가 전부 소멸.
-     실제로 마운트 후 innerHTML 이 4번 전체 재설정되며 특수 블록이 다 깨졌다.
-     라벨은 문자열에 구워넣기만 하는 값이라 ref 로 최신값을 읽고 deps 에선 뺀다. */
-  const tRef = useRef(t);
-  tRef.current = t;
-
+  /* 예전에는 t 를 deps 에 두면 language 가 확정될 때 t 의 identity 만 바뀌어 **내용이 같은데도** 새 문자열이 나오고,
+     dangerouslySetInnerHTML 이 통째로 다시 세팅돼 후처리(코드바/KaTeX/island)가 소멸했다(마운트 후 4번).
+     그래서 deps 에는 라벨 **문자열**만 둔다 — 글이 같으면 다시 만들지 않고, 번역 라벨(다른 언어로 읽기)이
+     걸리거나 풀릴 때만 다시 굽는다. */
+  const { codeScroll, codeWrap } = labels;
   const processedRichtextHtml = useMemo(() => {
     if (isMarkdown) return "";
-    return processRichtextHtml(content, {
-      codeScroll: tRef.current("common.codeScroll"),
-      codeWrap: tRef.current("common.codeWrap"),
-    });
-  }, [isMarkdown, content]);
+    return processRichtextHtml(content, { codeScroll, codeWrap });
+  }, [isMarkdown, content, codeScroll, codeWrap]);
 
   /* richtext 후처리(수식·코드블록 바·island …) — 작업물 상세와 같은 훅을 쓴다 */
   useRichtextEnhance(richtextRef, processedRichtextHtml, !isMarkdown);
@@ -266,13 +262,14 @@ export function PostArticleBody({
 /* 작성자 상세 — 게시물 끝(좋아요 버튼 아래) 슬롯으로 렌더. 헤더 칩의 #post-authors 앵커 대상. */
 export function PostArticleAuthors({ authors }: { authors?: Author[] }) {
   const { language } = useLanguage();
+  const foreign = useForeignReading();
   if (!authors || authors.length === 0) return null;
   return (
     <section id="post-authors" className={footer.authorsFooter}>
       <h2 className={footer.authorsFooterHeading}>
-        {language === "en" ? (authors.length > 1 ? "Authors" : "Author") : "작성자"}
+        <UiLabel name={authors.length > 1 ? "postAuthors" : "postAuthor"} lang={language === "en" ? "en" : "ko"} />
       </h2>
-      {authors.map((raw) => localizeAuthor(raw, language === "en" ? "en" : "ko")).map((a) => (
+      {authors.map((raw) => withEnglishName(localizeAuthor(raw, language === "en" ? "en" : "ko"), raw, foreign)).map((a) => (
         <article key={a.id} className={footer.authorFooterCard}>
           <AuthorAvatar
             value={a.avatar}

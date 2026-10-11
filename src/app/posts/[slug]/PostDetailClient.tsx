@@ -21,6 +21,7 @@ import TranslateBanner from "@/components/ui/TranslateBanner";
 import ContentLangMenu from "@/components/ui/ContentLangMenu";
 import ContentTranslateBanner, { TranslatingRegion } from "@/components/ui/ContentTranslateBanner";
 import { useContentTranslation } from "@/hooks/useContentTranslation";
+import { BodyLabelsProvider } from "@/components/posts/BodyLabelsContext";
 import { usePostTranslation } from "./_hooks/usePostTranslation";
 import { usePostDetailFetches } from "./_hooks/usePostDetailFetches";
 import { useRecommendedToast } from "./_hooks/useRecommendedToast";
@@ -92,7 +93,8 @@ export default function PostDetailClient({ post: initialPost, relatedWorks }: Po
   }, [displayContent, post.content_type]);
 
   return (
-    <>
+    /* 상세 화면 라벨(정보 칸 · 본문 안 단추 — lib/bodyLabels)도 번역 라벨로 — 없으면 화면 언어 */
+    <BodyLabelsProvider override={contentTr.bodyLabels} foreign={!!contentTr.fields}>
     <DetailLayout
       backHref="/posts"
       backLabel={t("nav.posts")}
@@ -228,6 +230,6 @@ export default function PostDetailClient({ post: initialPost, relatedWorks }: Po
     </AnimatePresence>
 
     <SeriesPreviewTooltip preview={series.preview} viewLang={viewLang} />
-    </>
+    </BodyLabelsProvider>
   );
 }

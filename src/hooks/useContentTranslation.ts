@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { matchVisitorLanguage, normalizeTranslationLang } from "@/lib/translationLanguages";
 import type { ContentFields } from "@/lib/api/contentTranslate";
+import type { BodyLabels } from "@/lib/bodyLabels";
 
 /** 방문자가 고른 읽기 언어 — 언어 코드, 또는 "original"(원문으로 보겠다고 고른 것) */
 export const CONTENT_LANG_STORAGE_KEY = "contentTranslateLang";
@@ -54,6 +55,8 @@ export function useContentTranslation({ type, id, enabled }: { type: "post" | "w
   /* undefined = 아직 고르지 않았다(처음 언어를 따른다) */
   const [chosen, setChosen] = useState<string | null | undefined>(undefined);
   const [results, setResults] = useState<Record<string, ContentFields>>({});
+  /* 본문 안 라벨(코드 블록 단추 · 투표 …)의 번역 — 응답에 없으면(라벨 번역 실패) 빈 자리, 화면 언어 라벨을 쓴다 */
+  const [uiResults, setUiResults] = useState<Record<string, Partial<BodyLabels>>>({});
   const [errors, setErrors] = useState<Record<string, ContentTranslateError>>({});
 
   const auto = chosen === undefined;
@@ -62,6 +65,8 @@ export function useContentTranslation({ type, id, enabled }: { type: "post" | "w
   const isAuto = auto && !!initial?.auto;
 
   const fields = targetLang ? results[targetLang] ?? null : null;
+  /* 본문과 같은 때에 바뀌어야 본문 후처리가 한 번에 새 라벨로 다시 걸린다 — 본문(fields)이 있을 때만 */
+  const bodyLabels = fields && targetLang ? uiResults[targetLang] ?? null : null;
   const error = targetLang ? errors[targetLang] ?? null : null;
   const translating = !!targetLang && !fields && !error;
 
@@ -77,7 +82,8 @@ export function useContentTranslation({ type, id, enabled }: { type: "post" | "w
     })
       .then(async (res) => {
         if (res.ok) {
-          const data = (await res.json()) as { fields?: ContentFields };
+          const data = (await res.json()) as { fields?: ContentFields; ui?: Partial<BodyLabels> };
+          if (data.ui && typeof data.ui === "object") setUiResults((prev) => ({ ...prev, [targetLang]: data.ui! }));
           setResults((prev) => ({ ...prev, [targetLang]: data.fields ?? {} }));
           return;
         }
@@ -107,5 +113,5 @@ export function useContentTranslation({ type, id, enabled }: { type: "post" | "w
     setErrors((prev) => { const next = { ...prev }; delete next[targetLang]; return next; });
   }, [targetLang]);
 
-  return { targetLang, fields, translating, error, selectLang, retry };
+  return { targetLang, fields, bodyLabels, translating, error, selectLang, retry };
 }

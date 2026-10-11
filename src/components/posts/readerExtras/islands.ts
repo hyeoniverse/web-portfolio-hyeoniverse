@@ -5,7 +5,7 @@ import type { ReaderExtrasContext } from "./context";
 
 /* React island 세 종류 — mermaid 다이어그램 · 코드 플레이그라운드 · 캘린더.
    셋 다 무거운 의존성이라 동적 import 로 가져와 마운트하고, 언마운트 때 root 를 정리한다. */
-export function renderIslands({ el, labels, cleanups, isCancelled }: ReaderExtrasContext) {
+export function renderIslands({ el, labels, body, cleanups, isCancelled }: ReaderExtrasContext) {
   // ── mermaid ── 에디터와 동일 UI(SegmentedControl + MermaidPreview) React island 로 마운트
   el.querySelectorAll<HTMLElement>("code.language-mermaid").forEach((code) => {
     const src = (code.textContent || "").trim();
@@ -83,7 +83,7 @@ export function renderIslands({ el, labels, cleanups, isCancelled }: ReaderExtra
       if (isCancelled() || !mount.isConnected) return;
       const r = rdc.createRoot(mount);
       root = r;
-      r.render(ReactMod.createElement(mod.default, { calendarId, data, language: calLang }));
+      r.render(ReactMod.createElement(mod.default, { calendarId, data, language: calLang, uiLabels: body }));
     }).catch(() => { /* noop */ });
     // 언마운트는 microtask 로 미룬다 — 부모가 렌더 중일 때 동기 unmount 하면
     // "synchronously unmount a root while React was already rendering" 경고가 난다.

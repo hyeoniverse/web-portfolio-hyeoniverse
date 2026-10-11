@@ -1,5 +1,6 @@
 "use client";
 
+import { useBodyLabels } from "@/components/posts/BodyLabelsContext";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useDepsChanged } from "@/hooks/useDepsChanged";
 import { useSyncRef } from "@/hooks/useSyncRef";
@@ -11,7 +12,6 @@ import Button from "@/components/ui/Button";
 import type { GalleryNotes } from "@/data/projects";
 import { useGalleryNarration } from "./useGalleryNarration";
 import { isOfficeDocUrl, officeDocKind, officeViewerUrl } from "@/lib/officeViewer";
-import { useLanguage } from "@/providers/LanguageProvider";
 import { useLenis } from "@/providers/LenisProvider";
 import styles from "./WorkGallery.module.css";
 
@@ -59,9 +59,8 @@ type Props = {
  * 페이지가 이어서 움직인다 — 그러지 않으면 갤러리 위에서 페이지가 영영 멈춘다.
  */
 export default function WorkGallery({ images, title, initialIndex = 0, onOpen, notes, suspended = false, captionLang }: Props) {
-  const { language } = useLanguage();
-  /* 이 컴포넌트가 쓰는 문구는 몇 개뿐이라 사전 키 대신 여기서 고른다 */
-  const t = (ko: string, en: string) => (language === "ko" ? ko : en);
+  /* 문구는 상세 화면 라벨(lib/bodyLabels) — 화면 언어, 다른 언어로 읽을 때는 번역 라벨 */
+  const { labels: lb } = useBodyLabels();
   const [index, setIndex] = useState(initialIndex);
   /* 끄는 중의 소수 위치 — 0.4 면 다음 장 쪽으로 40% 와 있다는 뜻 */
   const [drag, setDrag] = useState(0);
@@ -244,8 +243,8 @@ export default function WorkGallery({ images, title, initialIndex = 0, onOpen, n
   /* 음성 단추 — 읽는 중(누르면 끄고 기억) · 켜짐(누르면 바로 읽기) · 꺼짐(누르면 다시 켜고 읽기) */
   const narrationState = narration.playing ? "playing" : narration.enabled ? "ready" : "off";
   const narrationLabel = narration.playing
-    ? t("음성 끄기", "Turn off narration")
-    : narration.enabled ? t("음성 듣기", "Play narration") : t("음성 켜기", "Turn on narration");
+    ? lb.galleryNarrationOff
+    : narration.enabled ? lb.galleryNarrationPlay : lb.galleryNarrationOn;
 
   return (
     <div className={styles.gallery}>
@@ -254,7 +253,7 @@ export default function WorkGallery({ images, title, initialIndex = 0, onOpen, n
         className={styles.stage}
         role="group"
         aria-roledescription="carousel"
-        aria-label={t("작업물 갤러리", "Work gallery")}
+        aria-label={lb.galleryLabel}
         tabIndex={0}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
@@ -346,12 +345,12 @@ export default function WorkGallery({ images, title, initialIndex = 0, onOpen, n
             onPointerDown={(e) => e.stopPropagation()}
             onKeyDown={(e) => e.stopPropagation()}
           >
-            <Pressable className={styles.coverPlay} onClick={() => { centerRef.current(); narration.play(); }} aria-label={t("음성과 함께 보기", "Play with narration")}>
+            <Pressable className={styles.coverPlay} onClick={() => { centerRef.current(); narration.play(); }} aria-label={lb.galleryPlayWithNarration}>
               <Play size={30} fill="currentColor" strokeWidth={0} className={styles.coverPlayIcon} />
             </Pressable>
-            <span className={styles.coverLabel} aria-hidden>{t("음성과 함께 보기", "Play with narration")}</span>
+            <span className={styles.coverLabel} aria-hidden>{lb.galleryPlayWithNarration}</span>
             <Button variant="outline" shape="capsule" onClick={narration.decline} className={styles.coverSkip}>
-              {t("음성 없이 보기", "View without narration")}
+              {lb.galleryViewWithoutNarration}
             </Button>
           </div>
         )}
@@ -375,7 +374,7 @@ export default function WorkGallery({ images, title, initialIndex = 0, onOpen, n
                 aria-label={narrationLabel}
               />
             </Tooltip>
-            <Tooltip content={narration.captionsOn ? t("자막 끄기", "Turn off captions") : t("자막 켜기", "Turn on captions")} placement="top" delay={120}>
+            <Tooltip content={narration.captionsOn ? lb.galleryCaptionsOff : lb.galleryCaptionsOn} placement="top" delay={120}>
               <Button
                 variant="ghost"
                 shape="circle"
@@ -383,7 +382,7 @@ export default function WorkGallery({ images, title, initialIndex = 0, onOpen, n
                 data-state={narration.captionsOn ? "on" : "off"}
                 icon={narration.captionsOn ? <Captions size={16} /> : <CaptionsOff size={16} />}
                 onClick={narration.toggleCaptions}
-                aria-label={narration.captionsOn ? t("자막 끄기", "Turn off captions") : t("자막 켜기", "Turn on captions")}
+                aria-label={narration.captionsOn ? lb.galleryCaptionsOff : lb.galleryCaptionsOn}
                 aria-pressed={narration.captionsOn}
               />
             </Tooltip>

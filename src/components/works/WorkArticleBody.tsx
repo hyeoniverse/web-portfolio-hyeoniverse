@@ -6,6 +6,7 @@ import "@/styles/vendor/katex.css";
 import { useRichtextEnhance } from "@/hooks/useRichtextEnhance";
 import { processRichtextHtml } from "@/utils/processRichtextHtml";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useBodyLabels } from "@/components/posts/BodyLabelsContext";
 import MarkdownRenderer from "@/components/posts/MarkdownRenderer";
 import DateMentionPeek from "@/components/posts/DateMentionPeek";
 import { ImageViewer, useProseImageViewer } from "@/components/ui/ImageViewer";
@@ -23,7 +24,8 @@ import { pickContent } from "@/lib/contentLang";
  * 팀 멤버 carousel 은 full-width afterContent slot 으로 분리됨 → WorkArticleTeam.
  * ──────────────────────────────────────────────────────────── */
 export function WorkArticleBody({ project, viewLang, contentLang }: WorkArticleViewProps) {
-  const { t, language } = useLanguage();
+  const { language } = useLanguage();
+  const { labels: { codeScroll, codeWrap } } = useBodyLabels();
   const isRichtext = project.contentType === "richtext";
 
   const { containerRef: proseRef, viewerState: proseViewer, closeViewer: closeProseViewer } = useProseImageViewer();
@@ -34,12 +36,11 @@ export function WorkArticleBody({ project, viewLang, contentLang }: WorkArticleV
   const content = pickContent(project.content, viewLang);
 
   /* heading id(목차 앵커) · embed 주소 · 줄바꿈 단추 라벨 · 그림 확대 커서 — 글 상세와 같은 다듬기.
-     언어가 확정되며 라벨이 바뀌어 본문이 다시 세팅돼도 괜찮다 — useRichtextEnhance 가 알아채고 다시 건다 */
+     라벨은 화면 언어 또는 번역 라벨(다른 언어로 읽기 — BodyLabelsContext). 라벨이 바뀌어 본문이 다시 세팅돼도
+     괜찮다 — useRichtextEnhance 가 알아채고 다시 건다 */
   const html = useMemo(
-    () => (isRichtext
-      ? processRichtextHtml(content, { codeScroll: t("common.codeScroll"), codeWrap: t("common.codeWrap") })
-      : ""),
-    [isRichtext, content, t],
+    () => (isRichtext ? processRichtextHtml(content, { codeScroll, codeWrap }) : ""),
+    [isRichtext, content, codeScroll, codeWrap],
   );
 
   useRichtextEnhance(richtextRef, html, isRichtext);
