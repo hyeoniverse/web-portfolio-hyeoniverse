@@ -10,6 +10,7 @@ import {
   translateWithFallback,
   translationFailure,
 } from "@/lib/api/translationProviders";
+import { POST_COLUMNS, makeMark } from "@/lib/api/autoTranslationMark";
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -57,7 +58,11 @@ export async function POST(request: Request, context: RouteContext) {
       if (result.failedIndices.includes(i) || !result.translations[i]) return;
       out[to] = to === "title" || to === "title_en" ? clampTitle(result.translations[i]) : result.translations[i]; // 제목 상한(DB CHECK)
     });
-    if (Object.keys(out).length > 0) await admin.from("posts").update(out).eq("id", id);
+    if (Object.keys(out).length > 0) {
+      await admin.from("posts").update(out).eq("id", id);
+      /* 표식은 따로 쓴다 — 칸이 없는 DB 에서 실패해도 번역 저장은 남는다(autoTranslationMark) */
+      await admin.from("posts").update({ auto_translation: makeMark({ ...row, ...out }, POST_COLUMNS, dst) }).eq("id", id);
+    }
     return { out };
   };
 

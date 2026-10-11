@@ -7,6 +7,7 @@ import { ensurePostCategory } from "@/lib/api/validateCategory";
 import { requirePostAccess, policyBlocked } from "@/lib/api/requirePostAccess";
 import { getPopularPostIds } from "@/lib/popularity";
 import { fetchAutoCoverImage, extractKeywordsFromPost } from "@/lib/autoCoverImage";
+import { POST_COLUMNS, staleAutoTranslationPatch } from "@/lib/api/autoTranslationMark";
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -92,6 +93,12 @@ export async function PATCH(request: Request, context: RouteContext) {
         if (url) body.cover_image = url;
       } catch { /* graceful — 자동 배정 실패는 발행 자체를 막지 않음 */ }
     }
+  }
+
+  /* 원문이 바뀌었으면 자동 번역해 둔 반대 언어 칸을 비운다 — 다음 방문 때 새 원문으로 다시 번역된다 */
+  if ([...POST_COLUMNS.ko, ...POST_COLUMNS.en].some((c) => c in body)) {
+    const { data: cur } = await createAdminClient().from("posts").select("*").eq("id", id).maybeSingle();
+    Object.assign(body, staleAutoTranslationPatch(cur, body, POST_COLUMNS));
   }
 
   // baseVersion 이 있으면 조건부 갱신(버전 일치할 때만) + version 증가.
