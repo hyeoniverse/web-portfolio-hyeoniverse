@@ -9,7 +9,6 @@
    글자색은 장의 자리가 아니라 지금 하늘의 밝기를 따른다 — <html data-about-sky-tone> 로 본문 · 푸터의 색 체계를 바꾼다.
    렌더 없이 색 변수 · 해 자리 · 별 투명도만 매 프레임 고친다 */
 import { useEffect, useRef, useState } from "react";
-import { markReady, ReadyWait } from "@/lib/readyGate";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { colorTone, NAV_BACKDROP_EVENT } from "@/lib/navBackdrop";
 import { minuteOfPhase, phaseOf, skyAnchors, SKY_KEYS, type SkyKey } from "@/lib/weather/sky";
@@ -19,7 +18,7 @@ import { SKY_CONSTELLATIONS, SKY_STARS } from "@/data/generated/skyCatalog";
 import StarChart from "./StarChart";
 import { PREZI_PROGRESS_EVENT, preziState } from "../prezi/context";
 import WeatherCanvas from "./WeatherCanvas";
-import { useVisitorWeather, weatherSettled } from "./useVisitorWeather";
+import { useVisitorWeather } from "./useVisitorWeather";
 import styles from "./TimeSky.module.css";
 
 /** 단계마다 해 — x: 화면 가로 자리(0~1), up: 지평선 위 높이(0 = 지평선, 1 = 화면 맨 위, 음수는 지평선 아래), glow: 지평선 빛 */
@@ -49,16 +48,6 @@ export default function TimeSky() {
   const ref = useRef<HTMLDivElement>(null);
   const probeRef = useRef<HTMLDivElement>(null);
   const weather = useVisitorWeather();
-  /* 첫 화면 준비 — 날씨를 받고(또는 실패하고) 하늘이 그 값으로 한 번 그려진 뒤 로딩 덮개에 알린다 */
-  useEffect(() => {
-    let raf = 0;
-    void weatherSettled.then(() => {
-      raf = requestAnimationFrame(() => {
-        raf = requestAnimationFrame(() => markReady("about-sky"));
-      });
-    });
-    return () => cancelAnimationFrame(raf);
-  }, []);
   const sunrise = weather?.sunrise ?? null;
   const sunset = weather?.sunset ?? null;
   const { language } = useLanguage();
@@ -181,7 +170,6 @@ export default function TimeSky() {
   const caption = skyTime ? skyCaption(skyTime, lat, lon, weather?.city ?? (language === "ko" ? "서울" : "Seoul"), language) : null;
   return (
     <div ref={ref} className={styles.sky} data-weather={kind} data-season={season} aria-hidden>
-      <ReadyWait id="about-sky" />
       <div className={styles.season} />
       <div className={styles.glow} />
       <div className={styles.sun} />

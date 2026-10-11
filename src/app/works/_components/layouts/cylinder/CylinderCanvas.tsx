@@ -2,7 +2,6 @@
 
 import { useMemo, useRef } from "react";
 import { Canvas } from "@react-three/fiber";
-import { ReadySignal, ReadyWait } from "@/lib/readyGate";
 import IntroBunny from "../CylinderIntroBunny";
 import BunnyHearts from "@/app/profile/_components/FloatingObject/BunnyHearts";
 import VerticalCylinder, { TransparentBg, ResponsiveCamera } from "./VerticalCylinder";
@@ -149,10 +148,7 @@ export default function CylinderCanvas({
         bunnyScreenRef={bunnyScreenRef}
         pettingRef={pettingRef}
       />
-      {/* 판 텍스처 · 몽이 모델을 다 받아 Canvas 가 그려진 뒤 로딩 덮개에 알린다 */}
-      <ReadySignal id="works-3d" />
     </Canvas>
-    <ReadyWait id="works-3d" step={0.5} />
     <BunnyHearts className={heartsClassName} screenPosRef={bunnyScreenRef} pettingRef={pettingRef} />
     </>
   );
