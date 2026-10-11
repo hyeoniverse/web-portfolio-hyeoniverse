@@ -19,6 +19,13 @@ interface ContentLangMenuProps {
   onChange: (lang: string | null) => void;
   /** 번역을 받아 오는 중 — 언어 코드 자리에 움직이는 점을 둔다 */
   busy?: boolean;
+  /** 단추 모양을 쓰는 쪽 것으로 — 내비게이션의 원형 단추(SiteLangMenu). 켜졌을 때 클래스도 같이 */
+  triggerClassName?: string;
+  triggerActiveClassName?: string;
+  /** 단추 말풍선 · 이름 — 기본은 상세 화면의 문구("다른 언어로 읽기" / "번역 끄기") */
+  labels?: { open: string; off: string };
+  /** 말풍선 위치 — 내비게이션은 아래 */
+  tooltipPlacement?: "top" | "bottom";
 }
 
 /**
@@ -26,7 +33,15 @@ interface ContentLangMenuProps {
  * 메뉴는 그 언어로 쓴 이름(日本語, Deutsch …)을 보이고, 화면 언어의 이름(일본어 / Japanese)으로도 찾을 수 있다.
  * 켜진 언어(체크)를 다시 누르면 번역을 끄고 원문으로 돌아간다. 언어 목록은 lib/translationLanguages 한 곳에서.
  */
-export default function ContentLangMenu({ value, onChange, busy = false }: ContentLangMenuProps) {
+export default function ContentLangMenu({
+  value,
+  onChange,
+  busy = false,
+  triggerClassName,
+  triggerActiveClassName,
+  labels,
+  tooltipPlacement = "top",
+}: ContentLangMenuProps) {
   const { t, language } = useLanguage();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -44,7 +59,7 @@ export default function ContentLangMenu({ value, onChange, busy = false }: Conte
     close();
   };
 
-  const label = value ? t("contentTranslate.turnOff") : t("contentTranslate.menuLabel");
+  const label = value ? labels?.off ?? t("contentTranslate.turnOff") : labels?.open ?? t("contentTranslate.menuLabel");
   return (
     <Popover
       open={open}
@@ -60,10 +75,12 @@ export default function ContentLangMenu({ value, onChange, busy = false }: Conte
       sheetTitle={label}
       contentClassName={styles.panel}
       trigger={
-        <Tooltip content={label} placement="top" delay={200}>
+        <Tooltip content={label} placement={tooltipPlacement} delay={200}>
           <Pressable
             type="button"
-            className={cn(styles.trigger, value && styles.triggerActive)}
+            className={triggerClassName
+              ? cn(triggerClassName, value && triggerActiveClassName)
+              : cn(styles.trigger, value && styles.triggerActive)}
             aria-label={label}
             aria-haspopup={value ? undefined : "menu"}
             aria-expanded={value ? undefined : open}
