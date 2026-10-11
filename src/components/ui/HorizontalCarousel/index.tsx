@@ -21,6 +21,8 @@ interface HorizontalCarouselProps {
  *   stopPropagation — 전역 Lenis 가 휠을 가로채 페이지까지 같이 미는 것을 막는다
  * - arrow 꾹 누르면 long press scroll (시간 지날수록 빨라짐)
  */
+const INNER_WHEEL_GAP_MS = 250;
+
 export default function HorizontalCarousel({
   children,
   className,
@@ -50,6 +52,8 @@ export default function HorizontalCarousel({
     el.addEventListener("scroll", updateState, { passive: true });
 
     // wheel 수직 → 가로 redirect. 양 끝 도달 시 페이지 native scroll 패스스루
+    /* 안쪽 칸을 마지막으로 굴린 시각 — 칸 끝에 닿은 뒤 같은 휠 동작의 관성이 가로·페이지로 새지 않게 */
+    let innerAt = 0;
     const onWheel = (e: WheelEvent) => {
       if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
       const delta = e.deltaY;
@@ -59,7 +63,15 @@ export default function HorizontalCarousel({
         const oy = getComputedStyle(n).overflowY;
         if ((oy === "auto" || oy === "scroll") && n.scrollHeight > n.clientHeight + 1) {
           const can = delta > 0 ? n.scrollTop + n.clientHeight < n.scrollHeight - 1 : n.scrollTop > 0;
-          if (can) { e.stopPropagation(); return; }
+          if (can) { innerAt = e.timeStamp; e.stopPropagation(); return; }
+          /* 끝에 닿았어도 방금까지 그 칸을 굴리던 휠이면 삼킨다 — 잠깐 멈췄다 다시 굴리면 그때 넘긴다 */
+          if (e.timeStamp - innerAt < INNER_WHEEL_GAP_MS) {
+            innerAt = e.timeStamp;
+            e.preventDefault();
+            e.stopPropagation();
+            return;
+          }
+          break;
         }
       }
       const atStart = el.scrollLeft <= 0 && delta < 0;
