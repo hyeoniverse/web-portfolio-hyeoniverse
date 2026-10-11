@@ -307,3 +307,13 @@ export function createMissLimiter(perIp = MISS_LIMIT_PER_IP, global = MISS_LIMIT
     return true;
   };
 }
+
+/* ── 본문 안 라벨(lib/bodyLabels) ──
+ * 글마다 같은 글이라 언어마다 한 줄 — content_translations 의 source_type 'ui', source_id 는 고정값.
+ * 해시는 영어 원문 라벨 묶음(열쇠 순서) — 라벨 글을 고치거나 더하면 다음 요청이 다시 번역한다.
+ */
+export const UI_SOURCE_ID = "00000000-0000-0000-0000-000000000000";
+
+export function uiLabelsHash(source: [string, string][]): string {
+  return createHash("sha256").update(JSON.stringify(["ui", source])).digest("hex").slice(0, 32);
+}

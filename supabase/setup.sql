@@ -87,6 +87,7 @@
 --   2026_09_30  purge_trash_scheduled 에 calendars 포함 (운영 DB 를 setup 과 같은 범위로)
 --   2026_10_09  content_translations — 상세 화면 다른 언어 번역 캐시
 --   2026_10_09  demo_usage — About 라이브 데모 하루 상한(demo_take/refund/remaining) + 7일 보관 pg_cron
+--   2026_10_11  content_translations.source_type 에 ui — 본문 안 라벨 번역 캐시(언어마다 한 줄)
 --
 -- 권한 모델 요약 (owner / admin / author / visitor):
 --   owner   app_role() = 'owner'                 전부
@@ -964,10 +965,12 @@ REVOKE ALL ON service_logs FROM anon, authenticated;
 --      source_hash 는 번역에 쓴 원문의 해시 — 원문이 바뀌면 다음 요청이 다시 번역한다.
 --      source_id 는 posts/works 두 표를 가리켜 외래 키를 두지 않는다.
 --      서버(service_role)만 읽고 쓴다 — RLS 켜고 정책은 두지 않는다. 공개 API 는 /api/content-translate.
+--      source_type 'ui' 는 본문 안 라벨(코드 블록 단추 · 투표 …) — 글마다 같아 언어마다 한 줄,
+--      source_id 는 고정값(00000000-…). 원문은 영어 라벨(src/lib/bodyLabels).
 -- ────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS content_translations (
   id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  source_type text NOT NULL CHECK (source_type IN ('post', 'work')),
+  source_type text NOT NULL CHECK (source_type IN ('post', 'work', 'ui')),
   source_id   uuid NOT NULL,
   lang        text NOT NULL,
   fields      jsonb NOT NULL DEFAULT '{}',
@@ -2180,7 +2183,8 @@ INSERT INTO applied_migrations (name, description) VALUES
   ('2026_09_30_service_logs',                  'service_logs 테이블 + 예약 작업(publish/purge/anonymize) 기록 + 90일 보관'),
   ('2026_09_30_purge_trash_calendars',         'purge_trash_scheduled — 휴지통 영구삭제에 calendars 포함 (앱 /api/cron/purge-trash 와 같은 범위)'),
   ('2026_10_09_content_translations',          'content_translations — 상세 화면 다른 언어 번역 캐시 (service_role 전용)'),
-  ('2026_10_09_demo_usage',                    'demo_usage 테이블 + demo_take/demo_refund/demo_remaining (라이브 데모 하루 상한) + 7일 보관')
+  ('2026_10_09_demo_usage',                    'demo_usage 테이블 + demo_take/demo_refund/demo_remaining (라이브 데모 하루 상한) + 7일 보관'),
+  ('2026_10_11_content_translations_ui',       'content_translations.source_type 에 ui 추가 — 본문 안 라벨 번역 캐시 (언어마다 한 줄)')
 ON CONFLICT (name) DO NOTHING;
 -- 참고: 2026_07_13_category_reset / 2026_07_13_tag_descriptions_reset 은 기존 데이터를 손보는
 -- 수동 데이터 마이그레이션이라 fresh install 과 무관 → 여기서 record 하지 않는다.

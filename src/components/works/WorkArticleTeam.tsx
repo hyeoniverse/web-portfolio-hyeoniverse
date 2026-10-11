@@ -1,13 +1,13 @@
 "use client";
 
+import { UiLabel, useBodyLabels, useForeignReading } from "@/components/posts/BodyLabelsContext";
+import { fillLabel } from "@/lib/bodyLabels";
 import { useState } from "react";
 import { Users, Link2, Mail } from "@/components/icons";
 import "@/styles/vendor/katex.css";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import type { Author } from "@/types/author";
 import { OWNER_AUTHOR_ID } from "@/utils/resolvePostAuthors";
-import { useLanguage } from "@/providers/LanguageProvider";
-import { fillTemplate } from "@/utils/format";
 import { deriveTeamMemberAvatar, getMemberInitial } from "@/utils/teamMemberAvatar";
 import HorizontalCarousel from "@/components/ui/HorizontalCarousel";
 import T from "@/components/ui/T";
@@ -21,7 +21,9 @@ import type { WorkArticleViewProps } from "./workArticleTypes";
  * 좁은 본문 컬럼이 아닌 전체 페이지 폭에서 렌더되도록 children 에서 분리됨.
  * ──────────────────────────────────────────────────────────── */
 export function WorkArticleTeam({ project, viewLang }: WorkArticleViewProps) {
-  const { t } = useLanguage();
+  /* 이름표 · 링크 이름은 상세 화면 라벨(lib/bodyLabels) — 번역해 볼 때는 번역 라벨 */
+  const { labels: lb } = useBodyLabels();
+  const foreign = useForeignReading();
   const siteConfig = useSiteConfig();
 
   const [flippedMembers, setFlippedMembers] = useState<Set<number>>(new Set());
@@ -99,8 +101,9 @@ export function WorkArticleTeam({ project, viewLang }: WorkArticleViewProps) {
     const en = m.bio?.en?.trim() ?? "";
     return viewLang === "en" ? en || ko : ko || en;
   };
+  /* ko · en 밖의 언어로 읽을 때도 영어 이름 — 음역하지 않는다 */
   const getDisplayName = (m: typeof members[number]) =>
-    viewLang === "en" && m.name_en ? m.name_en : m.name;
+    (viewLang === "en" || foreign) && m.name_en?.trim() ? m.name_en : m.name;
   const renderContribs = (m: typeof members[number], wrapperClass: string, groupClass: string, roleClass: string, listClass: string) => {
     const entries = getContribsEntries(m);
     if (entries.length === 0) return null;
@@ -138,7 +141,7 @@ export function WorkArticleTeam({ project, viewLang }: WorkArticleViewProps) {
     <section className={styles.teamCreditsSection}>
       <div className={styles.teamCreditsHeader}>
         <Users size={16} />
-        <span className={styles.teamCreditsLabel}><T k="workDetail.team" /></span>
+        <span className={styles.teamCreditsLabel}><UiLabel name="workTeam" /></span>
       </div>
       <HorizontalCarousel className={styles.polaroidCarousel}>
         {members.map((m, i) => {
@@ -197,7 +200,7 @@ export function WorkArticleTeam({ project, viewLang }: WorkArticleViewProps) {
                               rel="noopener noreferrer"
                               className={styles.teamLinkIcon}
                               title={m.url}
-                              aria-label={fillTemplate(t("workDetail.memberLink"), { name: getDisplayName(m) })}
+                              aria-label={fillLabel(lb.workMemberLink, { name: getDisplayName(m) })}
                             >
                               <Link2 size={13} />
                             </a>
@@ -207,7 +210,7 @@ export function WorkArticleTeam({ project, viewLang }: WorkArticleViewProps) {
                               href={`mailto:${m.email}`}
                               className={styles.teamLinkIcon}
                               title={m.email}
-                              aria-label={fillTemplate(t("workDetail.memberEmail"), { name: getDisplayName(m) })}
+                              aria-label={fillLabel(lb.workMemberEmail, { name: getDisplayName(m) })}
                             >
                               <Mail size={13} />
                             </a>

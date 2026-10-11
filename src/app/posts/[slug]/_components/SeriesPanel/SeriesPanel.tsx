@@ -1,8 +1,8 @@
 "use client";
 
+import { UiLabel } from "@/components/posts/BodyLabelsContext";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import T from "@/components/ui/T";
 import Pressable from "@/components/ui/Pressable";
 import { ChevronRight, ArrowLeft, ArrowRight } from "@/components/icons";
 import type { useSeriesPanel } from "./useSeriesPanel";
@@ -39,7 +39,7 @@ export default function SeriesPanel({
         className={styles.seriesHeader}
         onClick={toggleOpen}
       >
-        <span className={styles.seriesLabel}><T k="postDetail.series" /></span>
+        <span className={styles.seriesLabel}><UiLabel name="postSeries" /></span>
         <span className={styles.seriesTitle} lang={translatedTitle ? translatedLang : undefined}>
           {translatedTitle ? translatedTitle : viewLang === "en" && seriesData.title_en
             ? seriesData.title_en
@@ -81,7 +81,7 @@ export default function SeriesPanel({
       <div className={styles.seriesNav}>
         {prev ? (
           <div onClick={(e) => { const rect = e.currentTarget.getBoundingClientRect(); onNavigate(`/posts/${prev.slug}`, "", rect); }} style={{ cursor: "pointer" }} className={styles.seriesNavLink}>
-            <span className={styles.seriesNavBadge}><ArrowLeft className={styles.seriesNavArrow} size={14} /> <T k="postDetail.previous" /></span>
+            <span className={styles.seriesNavBadge}><ArrowLeft className={styles.seriesNavArrow} size={14} /> <UiLabel name="postPrevious" /></span>
             <span className={styles.seriesNavSep}>|</span>
             <span className={styles.seriesNavTitle}>{viewLang === "en" && prev.title_en ? prev.title_en : prev.title}</span>
           </div>
@@ -93,7 +93,7 @@ export default function SeriesPanel({
           <div onClick={(e) => { const rect = e.currentTarget.getBoundingClientRect(); onNavigate(`/posts/${next.slug}`, "", rect); }} style={{ cursor: "pointer" }} className={`${styles.seriesNavLink} ${styles.seriesNavRight}`}>
             <span className={styles.seriesNavTitle}>{viewLang === "en" && next.title_en ? next.title_en : next.title}</span>
             <span className={styles.seriesNavSep}>|</span>
-            <span className={styles.seriesNavBadge}><T k="postDetail.next" /> <ArrowRight className={styles.seriesNavArrow} size={14} /></span>
+            <span className={styles.seriesNavBadge}><UiLabel name="postNext" /> <ArrowRight className={styles.seriesNavArrow} size={14} /></span>
           </div>
         ) : (
           <span />

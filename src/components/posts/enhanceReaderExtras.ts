@@ -13,11 +13,14 @@ import { renderDiagram } from "./readerExtras/diagram";
 import { renderTabs } from "./readerExtras/tabs";
 import { renderPoll } from "./readerExtras/poll";
 import { renderTables } from "./readerExtras/tables";
+import { type BodyLabels, uiBodyLabels } from "@/lib/bodyLabels";
 
-/** 컨테이너 내 마커(TOC · 멘션 · mermaid · 다이어그램 · 플레이그라운드 · 캘린더 · 탭 · 투표 · 표)를 렌더. cleanup 함수 반환. */
+/** 컨테이너 내 마커(TOC · 멘션 · mermaid · 다이어그램 · 플레이그라운드 · 캘린더 · 탭 · 투표 · 표)를 렌더. cleanup 함수 반환.
+ *  body 를 안 주면 페이지 언어(html lang)의 라벨 */
 export function enhanceReaderExtras(
   el: HTMLElement,
   labels?: Partial<ReaderExtrasLabels>,
+  body?: BodyLabels,
 ): () => void {
   let cancelled = false;
   const cleanups: Array<() => void> = [];
@@ -33,6 +36,7 @@ export function enhanceReaderExtras(
       code: labels?.code ?? "코드",
       split: labels?.split ?? "스플릿",
     },
+    body: body ?? uiBodyLabels((document.documentElement.lang || "ko").toLowerCase().startsWith("ko") ? "ko" : "en"),
     cleanups,
     isCancelled: () => cancelled,
   };

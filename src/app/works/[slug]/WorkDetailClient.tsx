@@ -20,6 +20,7 @@ import TranslateBanner from "@/components/ui/TranslateBanner";
 import ContentLangMenu from "@/components/ui/ContentLangMenu";
 import ContentTranslateBanner, { TranslatingRegion } from "@/components/ui/ContentTranslateBanner";
 import { useContentTranslation } from "@/hooks/useContentTranslation";
+import { BodyLabelsProvider } from "@/components/posts/BodyLabelsContext";
 import { useWorkTranslation } from "./_hooks/useWorkTranslation";
 import { initialContentLang, pickContent } from "@/lib/contentLang";
 import { translatedProject } from "@/lib/contentTranslateView";
@@ -111,7 +112,8 @@ export default function WorkDetailClient({
   }, [content, isRichtext, project.gallery.length]);
 
   return (
-    <>
+    /* 상세 화면 라벨(정보 칸 · 본문 안 단추 — lib/bodyLabels)도 번역 라벨로 — 없으면 화면 언어 */
+    <BodyLabelsProvider override={contentTr.bodyLabels} foreign={!!contentTr.fields}>
     <DetailLayout
       backHref="/works"
       backLabel={t("workDetail.back")}
@@ -180,6 +182,6 @@ export default function WorkDetailClient({
         <WorkArticleBody project={project} viewLang={viewLang} contentLang={trLang} />
       </TranslatingRegion>
     </DetailLayout>
-    </>
+    </BodyLabelsProvider>
   );
 }

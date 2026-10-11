@@ -7,7 +7,8 @@ import markedAlert from "marked-alert";
 import markedKatex from "marked-katex-extension";
 import { attachCodeWrapToggle, applyColorSwatches, highlightInlineCode } from "./highlightCodeBlocks";
 import { highlightCode } from "@/utils/prismHighlight";
-import { useLanguage } from "@/providers/LanguageProvider";
+import { useBodyLabels } from "./BodyLabelsContext";
+import { escapeLabelHtml } from "@/lib/bodyLabels";
 import { attachImageFallback } from "@/lib/imageFallback";
 
 /* 코드블록 토글 라벨의 자리표시자.
@@ -84,14 +85,15 @@ export default function MarkdownRenderer({
   content,
   className,
 }: MarkdownRendererProps) {
-  const { t } = useLanguage();
+  /* 화면 언어 라벨, 번역해 볼 때는 번역 라벨(BodyLabelsContext) */
+  const { labels } = useBodyLabels();
   const ref = useRef<HTMLDivElement>(null);
 
   const html = useMemo(() => {
     let raw = marked.parse(content, { async: false }) as string;
     raw = raw
-      .replaceAll(WRAP_SLOT, `↩ ${t("common.codeWrap")}`)
-      .replaceAll(SCROLL_SLOT, `↔ ${t("common.codeScroll")}`);
+      .replaceAll(WRAP_SLOT, `↩ ${escapeLabelHtml(labels.codeWrap)}`)
+      .replaceAll(SCROLL_SLOT, `↔ ${escapeLabelHtml(labels.codeScroll)}`);
     // 상대 경로 이미지를 절대 경로로 변환 (admin 페이지에서 404 방지)
     raw = raw.replace(/(<img\s[^>]*src=")(?!https?:\/\/|\/|data:)([^"]+)(")/g, '$1/$2$3');
     // 파일 첨부 링크를 파일 카드로 변환: <a href="url">📎 name</a>
@@ -111,7 +113,7 @@ export default function MarkdownRenderer({
     );
     // img에 data-cursor="zoom" 주입 → CursorTrail이 이미지 뷰어 힌트 표시
     return raw.replace(/<img\s/g, '<img data-cursor="zoom" ');
-  }, [content, t]);
+  }, [content, labels.codeWrap, labels.codeScroll]);
 
   // 코드블록 복사·줄바꿈 바 주입 — marked 가 이미 Prism 으로 하이라이트했으므로 컨트롤 바만 붙인다.
   // 부모(디테일/미리보기/works)가 ref 를 넘겨주는지에 의존하지 않고 자체 ref 로 처리 → markdown 은
@@ -120,20 +122,20 @@ export default function MarkdownRenderer({
     const root = ref.current;
     if (!root) return;
     attachCodeWrapToggle(root, {
-      wrap: t("common.codeWrap"),
-      scroll: t("common.codeScroll"),
-      wrapTitle: t("common.codeWrapTitle"),
-      scrollTitle: t("common.codeScrollTitle"),
-      copy: t("common.codeCopy"),
-      copied: t("common.codeCopied"),
-        expand: t("common.codeExpand"),
-        collapse: t("common.codeCollapse"),
+      wrap: labels.codeWrap,
+      scroll: labels.codeScroll,
+      wrapTitle: labels.codeWrapTitle,
+      scrollTitle: labels.codeScrollTitle,
+      copy: labels.codeCopy,
+      copied: labels.codeCopied,
+      expand: labels.codeExpand,
+      collapse: labels.codeCollapse,
     });
     // 인라인 코드 색상값(`#hex`·`rgb()`·`hsl()`) 앞에 색 스와치
     applyColorSwatches(root);
     // 인라인 코드도 syntax highlight (명확히 코드로 추론될 때만)
     highlightInlineCode(root);
-  }, [html, t]);
+  }, [html, labels]);
 
   // 깨진 이미지 → 공용 placeholder 로 swap. 동적 추가 img 추적까지 공용 헬퍼가 담당
   useEffect(() => {
