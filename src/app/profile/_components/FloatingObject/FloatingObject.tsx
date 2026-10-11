@@ -2,6 +2,7 @@
 
 import { Suspense, useMemo, useEffect, useRef, useState, useCallback } from "react";
 import { Canvas } from "@react-three/fiber";
+import { ReadySignal, ReadyWait } from "@/lib/readyGate";
 import dynamic from "next/dynamic";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useIsMobile } from "@/hooks/useIsMobile";
@@ -264,6 +265,8 @@ export default function FloatingObject() {
   return (
     <>
       <div className={styles.overlay}>
+      {/* 첫 화면 준비 — 몽이 모델을 받아 그린 뒤(ReadySignal) 로딩 덮개가 걷힌다 */}
+      <ReadyWait id="mascot" step={0.5} />
       {/* 캔버스보다 앞에 둬서 몽이 뒤에 깔린다 — 별가루가 캐릭터를 덮으면 안 된다. */}
       <BunnyStardust screenPosRef={screenPosRef} />
       <Canvas
@@ -290,6 +293,7 @@ export default function FloatingObject() {
             pettingRef={pettingRef}
             scrollVelRef={scrollVelRef}
           />
+          <ReadySignal id="mascot" />
         </Suspense>
       </Canvas>
       {/* 하트는 캔버스 다음에 둔다 — 별가루와 반대로 몽이 위에 떠야 한다.

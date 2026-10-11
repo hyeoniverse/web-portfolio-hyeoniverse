@@ -19,11 +19,13 @@ import { useFloatingComments } from "./cylinder/useFloatingComments";
 import { PANEL_ARC, SLOT_ANGLE } from "./cylinder/scene";
 import { textUnits } from "../../_utils";
 import dynamic from "next/dynamic";
+import { ReadyWait } from "@/lib/readyGate";
 import styles from "./CylinderLayout.module.css";
 
 /* 3D 는 서버에서 그릴 수 없어 브라우저에서만 붙인다. 이 화면의 나머지(인트로 패널·제목)는
    정적으로 남아 서버 HTML 에 들어간다. Suspense 로 감싸 bailout 이 이 자리에만 머물게 한다. */
-const CylinderCanvas = dynamic(() => import("./cylinder/CylinderCanvas"), { ssr: false });
+/* 받는 동안 자리 — 로딩 덮개가 원통이 그려질 때까지 기다리게(서버 HTML 에 실린다) */
+const CylinderCanvas = dynamic(() => import("./cylinder/CylinderCanvas"), { ssr: false, loading: () => <ReadyWait id="works-3d" /> });
 
 /* ── 실린더 레이아웃 ──
    작품 이미지를 곡면 패널로 만들어 세로 원통에 두르고, 휠로 굴린다. 생김새는 andreasantonsson.dev 를 따른다 —
