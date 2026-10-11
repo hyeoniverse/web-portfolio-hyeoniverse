@@ -3,7 +3,7 @@
 import css from "../../AboutStudio.module.css";
 import { EditableText, PanelStage, useL } from "../primitives";
 import { StageTabs, useStageList } from "../stageList";
-import dc from "@/app/about/_components/panels/DesignSystemPanel.module.css";
+import dc from "@/app/about/_panels/panels/DesignSystemPanel.module.css";
 import { ImageIcon, X } from "@/components/icons";
 import CoverImagePicker from "@/components/posts/CoverImagePicker";
 import Button from "@/components/ui/Button";

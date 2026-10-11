@@ -14,7 +14,6 @@
   color-scheme: light;
 
   /* 색이 아닌 값은 light-dark() 가 받지 않아서 여기서 테마마다 정한다(2-5-1) */
-  --filter-mono-logo: none; /* 검은 단색 로고(Next.js · Vercel 등) — 다크에서 흰색으로 뒤집는다 */
   /* 커서 트레일의 Safari 대체 — blend 가 안 먹는 Safari 에서 difference 결과(밝은 배경 = 색의 반전)를 흉내 낸다 */
   --filter-cursor-fallback: invert(1);
 }
@@ -22,7 +21,6 @@
 :root[data-theme="dark"] {
   color-scheme: dark;
 
-  --filter-mono-logo: invert(1);
   --filter-cursor-fallback: brightness(1); /* none 은 filter 목록 안에 못 들어간다 */
 }
 
@@ -114,6 +112,38 @@
   --bg-highlight: light-dark(color-mix(in oklch, var(--bg-accent-solid) 15%, transparent), color-mix(in oklch, var(--bg-accent-solid) 30%, transparent));
   --bg-highlight-strong: light-dark(color-mix(in oklch, var(--bg-accent-solid) 30%, transparent), color-mix(in oklch, var(--bg-accent-solid) 50%, transparent));
 
+  /* About 의 시간 흐름 배경 — 새벽 → 해돋이 → 아침 → 한낮 → 노을 → 저녁 → 밤. 실제 하늘처럼 시각마다 천정(위) → 지평선(아래) 두 색이고,
+     모두 테마 팔레트에서 나온다: 새벽은 indigo → 분홍 · 주황, 아침은 옅은 blue → 노랑, 한낮은 blue, 노을은 violet → orange,
+     새벽 · 노을에는 강조색(accent)이 섞인다(관리자에서 강조색을 바꾸면 해 뜨고 지는 색도 따라 바뀐다). 시각끼리 또렷이
+     구분되게 채도를 남기되, 라이트는 바탕(bg-primary)에 조금 섞어 어두운 글자가 읽히게 한다.
+     다크도 아침 · 한낮은 밝은 파란 하늘이다(예전엔 짙은 남색이라 오전 8시가 해 질 녘처럼 보였다) — 글자 색은 하늘 밝기를 재어 뒤집는다(TimeSky)
+     oklab 으로 섞는다(oklch 는 색상각이 돌아 엉뚱한 색을 지난다) */
+  /* 새벽(해 뜨기 전 어스름) — 두 테마 모두 어둡다: 짙은 남색 하늘에 지평선만 붉은 보랏빛. 첫 화면 글자는 밝게(color-scheme: dark) */
+  --bg-time-dawn: color-mix(in oklab, color-mix(in oklab, var(--color-indigo-950) 55%, var(--color-blue-950)) 80%, var(--color-neutral-950));
+  --bg-time-dawn-horizon: color-mix(in oklab, color-mix(in oklab, var(--color-accent-900) 45%, var(--color-indigo-900)) 70%, var(--color-neutral-950));
+  /* 해돋이 — 하늘이 밝아지며 지평선이 금빛 · 주황으로 번진다 */
+  --bg-time-sunrise: light-dark(color-mix(in oklab, color-mix(in oklab, var(--color-indigo-300) 50%, var(--color-blue-200)) 80%, var(--bg-primary)), color-mix(in oklab, var(--color-indigo-900) 60%, var(--color-neutral-950)));
+  --bg-time-sunrise-horizon: light-dark(color-mix(in oklab, color-mix(in oklab, var(--color-orange-300) 55%, var(--color-amber-200)) 90%, var(--bg-primary)), color-mix(in oklab, color-mix(in oklab, var(--color-orange-700) 55%, var(--color-amber-800)) 70%, var(--color-neutral-950)));
+  --bg-time-morning: light-dark(color-mix(in oklab, var(--color-blue-200) 95%, var(--bg-primary)), color-mix(in oklab, var(--color-blue-700) 80%, var(--color-neutral-950)));
+  --bg-time-morning-horizon: light-dark(color-mix(in oklab, color-mix(in oklab, var(--color-yellow-200) 50%, var(--color-amber-200)) 95%, var(--bg-primary)), color-mix(in oklab, color-mix(in oklab, var(--color-blue-400) 70%, var(--color-amber-200)) 75%, var(--color-neutral-950)));
+  --bg-time-day: light-dark(color-mix(in oklab, var(--color-blue-300) 90%, var(--bg-primary)), color-mix(in oklab, var(--color-blue-600) 85%, var(--color-neutral-950)));
+  --bg-time-day-horizon: light-dark(color-mix(in oklab, var(--color-blue-100) 85%, var(--bg-primary)), color-mix(in oklab, var(--color-blue-300) 75%, var(--color-neutral-950)));
+  --bg-time-dusk: light-dark(color-mix(in oklab, color-mix(in oklab, var(--color-violet-300) 65%, var(--color-accent-300)) 70%, var(--bg-primary)), color-mix(in oklab, var(--color-violet-900) 75%, var(--color-neutral-950)));
+  --bg-time-dusk-horizon: light-dark(color-mix(in oklab, color-mix(in oklab, var(--color-orange-300) 60%, var(--color-accent-300)) 95%, var(--bg-primary)), color-mix(in oklab, color-mix(in oklab, var(--color-orange-700) 55%, var(--color-accent-700)) 70%, var(--color-neutral-950)));
+  /* 저녁(블루아워) · 밤 — 두 테마 모두 어둡다(구조 장은 밝은 글자) */
+  --bg-time-evening: color-mix(in oklab, var(--color-blue-950) 70%, var(--color-neutral-950));
+  --bg-time-evening-horizon: color-mix(in oklab, color-mix(in oklab, var(--color-violet-900) 60%, var(--color-accent-900)) 65%, var(--color-neutral-950));
+  --bg-time-night: color-mix(in oklab, var(--color-indigo-950) 8%, var(--color-neutral-950));
+  --bg-time-night-horizon: color-mix(in oklab, var(--color-indigo-950) 14%, var(--color-neutral-950));
+  /* 해 — 흰빛이 아니라 따뜻한 노랑에 강조색을 조금 */
+  --bg-time-sun: light-dark(color-mix(in oklab, var(--color-amber-200) 75%, var(--color-accent-200)), color-mix(in oklab, var(--color-amber-300) 70%, var(--color-accent-400)));
+
+  /* 계절 빛깔 — About 하늘의 지평선에 얹는다. 봄 꽃분홍 · 여름 초록 · 가을 단풍 · 겨울 얼음빛 */
+  --bg-season-spring: light-dark(var(--color-accent-200), var(--color-accent-800));
+  --bg-season-summer: light-dark(var(--color-green-300), var(--color-green-800));
+  --bg-season-autumn: light-dark(var(--color-orange-400), var(--color-orange-800));
+  --bg-season-winter: light-dark(var(--color-blue-100), var(--color-blue-900));
+
   /* Surface & Glass */
   --bg-surface: light-dark(color-mix(in oklch, var(--color-black) 5%, transparent), color-mix(in oklch, var(--color-white) 5%, transparent));
   --bg-glass-subtle: color-mix(in oklch, var(--color-white) 5%, transparent);
@@ -155,7 +185,6 @@
   --border-color-ghost: color-mix(in oklch, var(--color-white) 20%, transparent);
   --border-color-white-muted: color-mix(in oklch, var(--color-white) 50%, transparent);
   --border-color-success: var(--text-success);
-  --border-color-error: var(--text-error);
   --border-color-neutral-light: color-mix(in oklch, var(--text-contrast) 20%, transparent);
 
   /* 테두리 토큰은 세 종류다. **종류를 이름 앞에 둬서** 무엇인지 바로 읽히게 한다.
@@ -295,6 +324,14 @@
   --font-display-lg: var(--font-weight-regular) var(--font-size-display-lg) / var(--line-height-100) var(--font-family-accent);
   --font-display-md: var(--font-weight-regular) var(--font-size-display-md) / var(--line-height-100) var(--font-family-accent);
   --font-display-sm: var(--font-weight-regular) var(--font-size-display-sm) / var(--line-height-100) var(--font-family-accent);
+  /* 산세리프 전시 — 큰 워드마크 · 큰 숫자 · 산세리프 제목(Space Grotesk, --font-family-nav). About 의 잡지형 장면이 쓴다.
+     워드마크는 줄 폭에 맞춰 글자 크기를 다시 정하므로(컴포넌트) 여기 크기는 처음 칠할 때 값이다 */
+  --font-grotesk-display: var(--font-weight-semibold) var(--font-size-display-xl) / var(--line-height-090) var(--font-family-nav);
+  --font-grotesk-number: var(--font-weight-medium) var(--font-size-display-lg) / var(--line-height-090) var(--font-family-nav);
+  --font-grotesk-headline-xl: var(--font-weight-regular) var(--font-size-headline-xl) / var(--line-height-125) var(--font-family-nav);
+  --font-grotesk-headline-sm: var(--font-weight-regular) var(--font-size-headline-sm) / var(--line-height-125) var(--font-family-nav);
+  /* 아주 작은 대문자 캡션(메타 줄 · 눈썹 제목 · 캡션 막대) — 대문자 · 자간은 쓰는 쪽에서 */
+  --font-grotesk-micro: var(--font-weight-medium) var(--font-size-body-xs) / var(--line-height-135) var(--font-family-nav);
   --font-headline-xs: var(--font-weight-regular) var(--font-size-headline-xs) / var(--line-height-125) var(--font-family-headline);
   --font-headline-sm: var(--font-weight-regular) var(--font-size-headline-sm) / var(--line-height-125) var(--font-family-headline);
   --font-headline-md: var(--font-weight-regular) var(--font-size-headline-md) / var(--line-height-125) var(--font-family-headline);

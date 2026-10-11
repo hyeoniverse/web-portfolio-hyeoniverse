@@ -9,7 +9,7 @@
 
 import css from "./AboutStudio.module.css";
 /* 실제 About Hero 와 픽셀 동일하게 렌더하려고 그 CSS 모듈을 그대로 재사용 */
-import hero from "@/app/about/_components/panels/HeroPanel.module.css";
+import hero from "@/app/about/_panels/panels/HeroPanel.module.css";
 import kin from "@/components/common/KineticHeroTitle.module.css";
 import { erdTables as staticErdTables, erdRelations as staticErdRelations } from "@/data/about/erd";
 import { aboutDecisions } from "@/data/generated/aboutContent";

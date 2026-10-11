@@ -3,7 +3,7 @@
 import css from "../../AboutStudio.module.css";
 import { ChipList, DragHandle, ListLimit, RemoveButton, SortableItem, SortableList } from "../listControls";
 import { EditableText, PanelStage, sec, useL } from "../primitives";
-import ov from "@/app/about/_components/panels/OverviewPanel.module.css";
+import ov from "@/app/about/_panels/panels/OverviewPanel.module.css";
 import { Plus } from "@/components/icons";
 import Pressable from "@/components/ui/Pressable";
 import { type SiteConfigData } from "@/config/site.config";

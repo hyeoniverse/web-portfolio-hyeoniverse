@@ -3,11 +3,11 @@
   "version": "1.44.0",
   "private": true,
   "scripts": {
-    "dev": "tsx scripts/sync-content-assets.ts && tsx scripts/gen-about-fallback.ts && next dev --turbopack",
+    "dev": "tsx scripts/sync-content-assets.ts && tsx scripts/gen-about-fallback.ts && tsx scripts/gen-erd.ts && tsx scripts/gen-api-map.ts && tsx scripts/gen-token-sky.ts && next dev --turbopack",
     "fonts:scan": "node scripts/scan-fonts.mjs",
     "tokens:doc": "tsx scripts/gen-token-doc.ts",
     "style:ratchet": "tsx scripts/style-ratchet.ts",
-    "prebuild": "node scripts/scan-fonts.mjs && tsx scripts/sync-content-assets.ts && tsx scripts/gen-about-fallback.ts",
+    "prebuild": "node scripts/scan-fonts.mjs && tsx scripts/sync-content-assets.ts && tsx scripts/gen-about-fallback.ts && tsx scripts/gen-erd.ts && tsx scripts/gen-api-map.ts && tsx scripts/gen-token-sky.ts",
     "build": "next build",
     "analyze": "ANALYZE=true next build",
     "start": "next start",
@@ -33,7 +33,10 @@
     "sync-about": "tsx scripts/sync-about.ts",
     "sync-about:dry": "tsx scripts/sync-about.ts --dry",
     "sync-about:eject": "tsx scripts/sync-about.ts --eject",
-    "gen-about-fallback": "tsx scripts/gen-about-fallback.ts"
+    "gen-about-fallback": "tsx scripts/gen-about-fallback.ts",
+    "gen-erd": "tsx scripts/gen-erd.ts",
+    "gen-api-map": "tsx scripts/gen-api-map.ts",
+    "gen-token-sky": "tsx scripts/gen-token-sky.ts"
   },
   "dependencies": {
     "@aiden0z/pptx-renderer": "^1.3.0",

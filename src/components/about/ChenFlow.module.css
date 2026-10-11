@@ -158,3 +158,43 @@
     transition: none;
   }
 }
+
+/* ── 밤하늘 모양 — 감싼 상자에 data-erd-sky 가 있으면(About 구조 장). 관리자 캔버스는 그대로 ──
+   스키마 뷰(ErdFlow)와 같은 결: 바탕 · 점 격자를 걷고, 엔티티 · 속성은 반투명 유리, 엔티티 이름 앞에 별, 선은 별자리 선 */
+:global([data-erd-sky]) .wrap {
+  background: transparent;
+}
+
+:global([data-erd-sky]) .bg {
+  display: none;
+}
+
+:global([data-erd-sky]) .entity {
+  gap: var(--spacing-8);
+  border-color: color-mix(in oklab, var(--text-primary) 40%, transparent);
+  background: color-mix(in oklab, var(--bg-primary) 55%, transparent);
+  box-shadow: none;
+  backdrop-filter: blur(6px);
+}
+
+:global([data-erd-sky]) .entity::before {
+  content: "";
+  flex: none;
+  width: 0.8em;
+  height: 0.8em;
+  background: var(--text-accent);
+  mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M50 0C53 36 64 47 100 50C64 53 53 64 50 100C47 64 36 53 0 50C36 47 47 36 50 0Z'/></svg>") center / contain no-repeat;
+}
+
+:global([data-erd-sky]) .attr {
+  border-color: color-mix(in oklab, var(--text-primary) 18%, transparent);
+  background: color-mix(in oklab, var(--bg-primary) 45%, transparent);
+}
+
+:global([data-erd-sky]) .diamondShape {
+  background: color-mix(in oklab, var(--text-accent) 14%, transparent);
+}
+
+:global([data-erd-sky]) .edge :global(.react-flow__edge-path) {
+  stroke: color-mix(in oklab, var(--text-primary) 35%, transparent);
+}

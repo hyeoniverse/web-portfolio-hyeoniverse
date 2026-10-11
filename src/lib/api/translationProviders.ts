@@ -28,8 +28,27 @@ const CLAUDE_API_URL = "https://api.anthropic.com/v1/messages";
 const GOOGLE_TRANSLATE_URL =
   "https://translation.googleapis.com/language/translate/v2";
 
-const LANG_MAP_DEEPL: Record<string, string> = { ko: "KO", en: "EN" };
-const LANG_MAP_GOOGLE: Record<string, string> = { ko: "ko", en: "en" };
+/**
+ * 번역할 수 있는 언어 — 공급자마다 부르는 이름. 사이트 콘텐츠(글 · 작업물 · 댓글)는 ko · en 만 쓰고,
+ * 나머지는 About 의 번역 데모에서 고를 수 있게 둔 것이다. 원문 언어 "auto" 는 공급자가 알아서 가려낸다
+ * (DeepL · Google 은 원문 언어를 빼고 보내고, Gemini · Claude 는 프롬프트에서 가려내라고 한다).
+ */
+export const TRANSLATE_LANGS = {
+  ko: { deepl: "KO", google: "ko", name: "Korean" },
+  en: { deepl: "EN", google: "en", name: "English" },
+  ja: { deepl: "JA", google: "ja", name: "Japanese" },
+  zh: { deepl: "ZH", google: "zh-CN", name: "Simplified Chinese" },
+  es: { deepl: "ES", google: "es", name: "Spanish" },
+  fr: { deepl: "FR", google: "fr", name: "French" },
+  de: { deepl: "DE", google: "de", name: "German" },
+} as const;
+export type TranslateLang = keyof typeof TRANSLATE_LANGS;
+export const AUTO_SOURCE = "auto";
+
+const langInfo = (code: string) => TRANSLATE_LANGS[code as TranslateLang] ?? TRANSLATE_LANGS.en;
+/** 프롬프트의 "from X to Y" — 원문이 auto 면 가려내라고 한다 */
+const promptDirection = (sourceLang: string, targetLang: string) =>
+  sourceLang === AUTO_SOURCE ? `(detect the source language) to ${langInfo(targetLang).name}` : `from ${langInfo(sourceLang).name} to ${langInfo(targetLang).name}`;
 
 /* ── ID 기반 일괄 번역 단위 ──
  *   id : 호출자가 부여한 안정적인 키 (예: "title", "body", "i0", "i1") 또는 자동 생성된 인덱스 키.
@@ -56,14 +75,11 @@ async function translateBatchWithGemini(
   const apiKey = await getSecret("GEMINI_API_KEY");
   if (!apiKey) throw missingKey("gemini", "GEMINI_API_KEY");
 
-  const sourceName = sourceLang === "ko" ? "Korean" : "English";
-  const targetName = targetLang === "ko" ? "Korean" : "English";
-
   // 입력을 { id: text } JSON object 로 보내고, 동일한 키 형태로 응답 받음 → 누락 id 자동 식별
   const inputObj: Record<string, string> = {};
   for (const it of items) inputObj[it.id] = it.text;
 
-  const prompt = `Translate the following ${items.length} text(s) from ${sourceName} to ${targetName}.
+  const prompt = `Translate the following ${items.length} text(s) ${promptDirection(sourceLang, targetLang)}.
 
 Rules:
 - Input is a JSON object whose keys are stable IDs and values are the texts to translate.
@@ -116,8 +132,8 @@ async function translateBatchWithGoogle(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       q: items.map((it) => it.text),
-      source: LANG_MAP_GOOGLE[sourceLang],
-      target: LANG_MAP_GOOGLE[targetLang],
+      ...(sourceLang === AUTO_SOURCE ? {} : { source: langInfo(sourceLang).google }),
+      target: langInfo(targetLang).google,
       format: "text",
     }),
   });
@@ -146,8 +162,8 @@ async function translateBatchWithDeepL(
     },
     body: JSON.stringify({
       text: items.map((it) => it.text),
-      source_lang: LANG_MAP_DEEPL[sourceLang],
-      target_lang: LANG_MAP_DEEPL[targetLang],
+      ...(sourceLang === AUTO_SOURCE ? {} : { source_lang: langInfo(sourceLang).deepl }),
+      target_lang: langInfo(targetLang).deepl,
     }),
   });
 
@@ -166,13 +182,10 @@ async function translateBatchWithClaude(
   const apiKey = await getSecret("ANTHROPIC_API_KEY");
   if (!apiKey) throw missingKey("claude", "ANTHROPIC_API_KEY");
 
-  const sourceName = sourceLang === "ko" ? "Korean" : "English";
-  const targetName = targetLang === "ko" ? "Korean" : "English";
-
   const inputObj: Record<string, string> = {};
   for (const it of items) inputObj[it.id] = it.text;
 
-  const prompt = `Translate the following ${items.length} text(s) from ${sourceName} to ${targetName}.
+  const prompt = `Translate the following ${items.length} text(s) ${promptDirection(sourceLang, targetLang)}.
 
 Rules:
 - Input is a JSON object whose keys are stable IDs and values are the texts to translate.

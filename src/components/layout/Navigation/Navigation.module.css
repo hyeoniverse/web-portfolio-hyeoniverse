@@ -134,6 +134,11 @@
    기준이라 키운 너비의 절반을 k × 장평 × 50% 로 쓸 수 있다. 재는 순간 useLogoMeasure 가 이
    transform 의 행렬을 그대로 읽어 framer 로 넘겨준다. !important 는 framer 가 마운트 때 인라인으로
    쓰는 장평 transform 을 이기기 위해서다. */
+/* 하이드레이션 전에는 로딩 덮개가 아직 top layer 가 아니라 z-index 로 덮는다(LoadingScreen) — 글자 로고는 그 위에 */
+.logoNavBar:has(.logoCssLoading) {
+  z-index: calc(var(--z-index-float) + 2);
+}
+
 .logoCssLoading {
   --logo-k: tan(atan2(min(var(--font-size-display-lg), calc(86vw / (var(--logo-chars, 8) * 0.55))), 1em));
   transform-origin: left center;

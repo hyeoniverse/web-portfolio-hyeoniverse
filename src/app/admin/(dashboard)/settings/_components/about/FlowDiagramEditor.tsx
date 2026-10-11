@@ -18,7 +18,7 @@ import type { FlowNode, UserFlow } from "@/data/about/types";
 import {
   ACTION_W, ACTION_H, TERMINAL_W, TERMINAL_H, DIAMOND_W, DIAMOND_H,
   nodeX, nodeY,
-} from "@/app/about/_components/_utils/flowLayout";
+} from "@/app/about/_panels/_utils/flowLayout";
 import css from "./FlowDiagramEditor.module.css";
 import { useL } from "./studio/primitives";
 

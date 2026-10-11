@@ -28,7 +28,7 @@ The third option is to keep whichever was touched more recently — compare the 
 
 ## Decision
 
-The third. The deciding factor was that post and work sync already used the same rule, so it introduced no new concept.
+The third — keep whichever was touched more recently. The deciding factor was that post and work sync already used the same rule, so it introduced no new concept.
 
 ```ts
 /* Nobody picks the source. Both the app and markdown write to the same place; the sync keeps
