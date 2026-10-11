@@ -4,7 +4,7 @@ import { useState } from "react";
 import css from "../../AboutStudio.module.css";
 import { DragHandle, ListLimit, RemoveButton, SortableItem, SortableList } from "../listControls";
 import { EditableText, PanelStage, sec, useL } from "../primitives";
-import feat from "@/app/about/_components/panels/FeaturesPanel.module.css";
+import feat from "@/app/about/_panels/panels/FeaturesPanel.module.css";
 import { ImageIcon, Plus } from "@/components/icons";
 import CoverImagePicker from "@/components/posts/CoverImagePicker";
 import Button from "@/components/ui/Button";

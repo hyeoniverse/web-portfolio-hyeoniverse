@@ -7,6 +7,9 @@
  *     그 요소 안쪽(커버 이미지 등)에 닿아도 이 값을 쓴다
  *  2. 이미지 — 로고가 덮는 구역의 밝기(lib/imageTone). 재는 동안은 모른다(null)
  *  3. 불투명한 배경색 — 그 색의 밝기
+ *  4. 문서 바탕(body · html)까지 내려왔는데 페이지가 바탕 그림을 따로 깔아 두었으면(About 의 시간 흐름 하늘처럼
+ *     pointer-events: none 이라 여기 잡히지 않고 색도 그라데이션인 것) 그 그림이 적어 둔 밝기
+ *     (`<html data-nav-backdrop-tone>`, NAV_BACKDROP_EVENT 로 알린다)
  * 영상 · 캔버스처럼 잴 수 없는 것을 만나면 모른다(null) — 그때는 테마를 따른다.
  * 잠깐 덮었다 걷히는 막(로딩 화면 · 페이지 전환)은 `data-nav-tone-skip` 으로 건너뛴다 — 막을 재면 막이 걷힌 뒤에도
  * 그 밝기가 남는다(라이트 테마 첫 화면에서 검은 로딩 막을 재서 흰 로고가 남았다).
@@ -15,6 +18,9 @@ import { parse, wcagLuminance } from "culori";
 import { measureImageTone } from "@/lib/imageTone";
 
 export type Tone = "dark" | "light";
+
+/** 페이지 바탕 그림의 밝기가 바뀌었을 때 window 에 쏘는 이벤트 — nav 가 다시 잰다 */
+export const NAV_BACKDROP_EVENT = "nav-backdrop-tone";
 
 /** 흰 글자와 검은 글자 중 흰 글자 대비가 더 큰 밝기 경계(상대 휘도) */
 const LUMINANCE_SPLIT = 0.179;
@@ -91,6 +97,10 @@ export function backdropToneUnder(logo: Rect, skip: Element, onMeasured: () => v
   const y = logo.top + logo.height / 2;
   for (const el of document.elementsFromPoint(x, y)) {
     if (skip.contains(el) || el.closest("[data-nav-tone-skip]")) continue;
+    if (el === document.body || el === document.documentElement) {
+      const painted = document.documentElement.dataset.navBackdropTone;
+      if (painted === "dark" || painted === "light") return painted;
+    }
     const declared = (el.closest("[data-nav-tone]") as HTMLElement | null)?.dataset.navTone;
     if (declared === "dark" || declared === "light") return declared;
     if (el instanceof HTMLImageElement) {

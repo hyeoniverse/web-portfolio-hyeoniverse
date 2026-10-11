@@ -1,0 +1,537 @@
+/* ── 보안 — 겹겹이 막는 고리 그림 · 겹 목록 · 설명 ──
+   프레임 한 화면을 꽉 채운다(height 100%). 휴대폰: 그림(남는 높이만큼) → 겹 칩 → 설명.
+   넓은 화면: 그림 왼쪽, 칩과 설명 오른쪽. 그림은 칸의 폭 · 높이 중 짧은 쪽에 맞춘 정사각형 */
+
+.security {
+  --_travel: 0.9s; /* 요청 빛이 한 겹 옮겨 가는 시간 — SecurityRings.tsx 의 TRAVEL 과 같은 값(3.9-1) */
+
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: var(--spacing-16);
+  height: 100%;
+}
+
+.head {
+  display: grid;
+  gap: var(--spacing-8);
+}
+
+.title {
+  margin: 0;
+  font: var(--font-grotesk-headline-sm);
+}
+
+.stage {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: var(--spacing-12);
+  min-height: 0;
+}
+
+/* ── 그림 ── */
+
+/* 그림이 앉는 칸 — 크기 질의 상자. 그림은 이 칸의 짧은 변에 맞춘다 */
+.diagramBox {
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  min-height: 0;
+  container-type: size;
+}
+
+/* 고리 그림 — 판 없이 하늘 위에. 가운데(데이터)에서만 옅은 강조색 빛이 번지고 가장자리는 하늘로 사라진다 */
+.diagram {
+  position: relative;
+  width: min(100cqw, 100cqh);
+  aspect-ratio: 1;
+  border-radius: var(--radius-full);
+  background: radial-gradient(
+    circle at 50% 50%,
+    color-mix(in oklab, var(--text-accent) 20%, transparent),
+    color-mix(in oklab, var(--text-accent) 6%, transparent) 40%,
+    transparent 70%
+  );
+}
+
+.svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.svg text {
+  pointer-events: none;
+}
+
+/* 잔별 — 제자리에서 천천히 반짝인다 */
+.skyStar {
+  --_twinkle: 3.6s; /* 잔별 한 번 반짝이는 길이 — 한 자리(3.9-1) */
+
+  fill: var(--text-primary);
+  opacity: 0.35;
+  animation: secTwinkle var(--_twinkle) var(--ease-standard) infinite alternate;
+  animation-delay: calc(var(--d) * -1 * var(--_twinkle));
+}
+
+@keyframes secTwinkle {
+  from {
+    opacity: 0.12;
+  }
+
+  to {
+    opacity: 0.55;
+  }
+}
+
+/* 고리 */
+.ringLine {
+  fill: none;
+  stroke: color-mix(in oklab, var(--text-primary) 16%, transparent);
+  stroke-width: var(--border-width-1);
+  transition:
+    stroke var(--duration-slow) var(--ease-standard),
+    stroke-width var(--duration-slow) var(--ease-standard),
+    filter var(--duration-slow) var(--ease-standard);
+}
+
+.ring[data-state="past"] .ringLine {
+  stroke: color-mix(in oklab, var(--text-accent) 45%, transparent);
+}
+
+.ring[data-state="now"] .ringLine {
+  stroke: var(--text-accent);
+  stroke-width: var(--border-width-2);
+  filter: drop-shadow(0 0 var(--spacing-8) var(--text-accent));
+}
+
+/* 요청이 닿는 순간 고리가 한 번 퍼진다 */
+.ringPulse {
+  fill: none;
+  stroke: var(--text-accent);
+  stroke-width: var(--border-width-2);
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: secPulse var(--duration-slower) var(--ease-exit) var(--_travel) forwards;
+}
+
+@keyframes secPulse {
+  from {
+    opacity: 0.9;
+    scale: 1;
+  }
+
+  to {
+    opacity: 0;
+    scale: 1.08;
+  }
+}
+
+.ringLabel {
+  font: var(--font-grotesk-micro);
+  letter-spacing: 0.04em;
+  fill: var(--text-tertiary);
+  transition: fill var(--duration-slow) var(--ease-standard);
+}
+
+/* 고리 사이가 좁으면 지금 겹 이름만 */
+.ringLabel[data-hidden] {
+  visibility: hidden;
+}
+
+.ring[data-state="past"] .ringLabel {
+  fill: var(--text-secondary);
+}
+
+.ring[data-state="now"] .ringLabel {
+  fill: var(--text-accent);
+}
+
+/* 항목 — 고리 위 작은 별과 이름 */
+.node {
+  fill: color-mix(in oklab, var(--text-primary) 55%, transparent);
+  transition: fill var(--duration-slow) var(--ease-standard);
+}
+
+.ring[data-state="past"] .node {
+  fill: color-mix(in oklab, var(--text-accent) 60%, transparent);
+}
+
+.ring[data-state="now"] .node {
+  fill: color-mix(in oklab, var(--text-white) 70%, transparent);
+}
+
+/* 지금 단계가 가리키는 항목 — 좁은 화면은 항목 하나, 넓은 화면은 그 겹 전부 */
+.ring[data-state="now"] [data-focus] .node {
+  fill: var(--text-white);
+  filter: drop-shadow(0 0 var(--spacing-4) var(--text-accent));
+}
+
+.itemLabel {
+  font: var(--font-grotesk-micro);
+  fill: var(--text-tertiary);
+  transition: fill var(--duration-slow) var(--ease-standard);
+}
+
+.ring[data-state="now"] .itemLabel {
+  fill: var(--text-primary);
+}
+
+/* 가운데 — 데이터 */
+.coreHalo {
+  fill: color-mix(in oklab, var(--text-accent) 14%, transparent);
+}
+
+.coreSpin {
+  --_spin: 24s; /* 가운데 별 한 바퀴 — 한 자리(3.9-1) */
+
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: secSpin var(--_spin) linear infinite;
+}
+
+@keyframes secSpin {
+  to {
+    rotate: 1turn;
+  }
+}
+
+.coreStar {
+  fill: var(--text-white);
+  filter: drop-shadow(0 0 var(--spacing-12) var(--text-accent)) drop-shadow(0 0 var(--spacing-4) var(--text-white));
+}
+
+.coreLabel {
+  font: var(--font-grotesk-micro);
+  fill: var(--text-secondary);
+}
+
+/* 요청 빛 — 첫 자리를 잡기 전엔 숨긴다 */
+.request {
+  opacity: 0;
+  transition: opacity var(--duration-base) var(--ease-standard);
+}
+
+.diagram[data-ready] .request {
+  opacity: 1;
+}
+
+.requestGlow {
+  fill: color-mix(in oklab, var(--text-accent) 30%, transparent);
+}
+
+.requestCore {
+  fill: var(--text-white);
+  filter: drop-shadow(0 0 var(--spacing-4) var(--text-accent));
+}
+
+/* 잔상은 흐를 때만 */
+.ghost {
+  fill: var(--text-accent);
+  opacity: 0;
+}
+
+.diagram[data-running] .ghost {
+  opacity: calc(0.5 - var(--i) * 0.11);
+}
+
+/* 고리 고르기 띠 — 보이지 않는다 */
+.hit {
+  fill: none;
+  stroke: transparent;
+  pointer-events: stroke;
+  cursor: pointer;
+}
+
+/* 길잡이 별이 앉을 자리 — 별은 위 고정 층에 그려진다 */
+.anchor {
+  position: absolute;
+  display: none;
+  width: var(--spacing-24);
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  pointer-events: none;
+}
+
+.diagram[data-ready] .anchor {
+  display: block;
+}
+
+/* ── 옆 — 겹 칩 · 설명 ── */
+
+.side {
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-12);
+  min-width: 0;
+}
+
+/* 겹 칩 — 지나온 겹은 강조색 테두리만, 지금 겹은 채운다 */
+.list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-4);
+}
+
+.row {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  padding: var(--spacing-4) var(--spacing-12);
+  border: var(--border-width-1) solid color-mix(in oklab, var(--text-primary) 14%, transparent);
+  border-radius: var(--radius-full);
+  font: var(--font-body-sm);
+  color: var(--text-secondary);
+  background: color-mix(in oklab, var(--text-primary) 4%, transparent);
+  transition:
+    color var(--duration-base) var(--ease-standard),
+    border-color var(--duration-base) var(--ease-standard),
+    background var(--duration-base) var(--ease-standard);
+}
+
+.row:hover {
+  color: var(--text-primary);
+}
+
+.row[data-past] {
+  border-color: color-mix(in oklab, var(--text-accent) 35%, transparent);
+}
+
+.row[data-now] {
+  color: var(--text-primary);
+  border-color: var(--text-accent);
+  background: color-mix(in oklab, var(--text-accent) 16%, transparent);
+}
+
+.row:focus-visible {
+  outline: var(--border-width-2) solid var(--text-accent);
+  outline-offset: var(--spacing-2);
+}
+
+.rowNum {
+  font: var(--font-grotesk-micro);
+  color: var(--text-tertiary);
+}
+
+.row[data-now] .rowNum {
+  color: var(--text-accent);
+}
+
+.rowName {
+  font: var(--font-body-sm);
+}
+
+/* 휴대폰: 칩을 한 줄에 — 지금 겹만 이름을 적고 나머지는 번호만 */
+.row:not([data-now]) .rowName {
+  display: none;
+}
+
+/* 항목 수는 넓은 화면에서만 */
+.rowCount {
+  display: none;
+  font: var(--font-grotesk-micro);
+  color: var(--text-tertiary);
+}
+
+/* 설명 — 단계마다 한 장을 한 칸에 겹쳐 두고 지금 것만 보인다. 지나온 장은 왼쪽으로, 올 장은 오른쪽에서 */
+.details {
+  display: grid;
+}
+
+.detail {
+  grid-area: 1 / 1;
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-12);
+  padding: var(--spacing-16);
+  border: var(--border-width-1) solid color-mix(in oklab, var(--text-primary) 10%, transparent);
+  border-radius: var(--radius-surface);
+  background: color-mix(in oklab, var(--text-primary) 4%, transparent);
+  visibility: hidden;
+  opacity: 0;
+  translate: var(--spacing-24) 0;
+  scale: 0.97;
+  transition:
+    opacity var(--duration-base) var(--ease-exit),
+    translate var(--duration-slow) var(--ease-standard),
+    scale var(--duration-slow) var(--ease-standard),
+    visibility 0s linear var(--duration-base);
+}
+
+.detail[data-side="past"] {
+  translate: calc(var(--spacing-24) * -1) 0;
+}
+
+.detail[data-on] {
+  visibility: visible;
+  opacity: 1;
+  translate: 0 0;
+  scale: 1;
+  transition:
+    opacity var(--duration-slow) var(--ease-enter),
+    translate var(--duration-slow) var(--ease-enter),
+    scale var(--duration-slow) var(--ease-enter),
+    visibility 0s;
+}
+
+.detailHead {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: baseline;
+  column-gap: var(--spacing-12);
+  row-gap: var(--spacing-4);
+}
+
+.detailNum {
+  font: var(--font-grotesk-micro);
+  color: var(--text-accent);
+}
+
+.detailName {
+  margin: 0;
+  font: var(--font-title-sm);
+  color: var(--text-primary);
+}
+
+/* 좁은 화면에서 겹 안 몇 번째 항목인지 */
+.detailOf {
+  font: var(--font-grotesk-micro);
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.detailCaption {
+  grid-column: 1 / -1;
+  margin: 0;
+  font: var(--font-body-sm);
+  color: var(--text-secondary);
+  word-break: keep-all;
+}
+
+.items {
+  display: grid;
+  gap: var(--spacing-12);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  --_stagger: 0.08s; /* 항목마다 차례로 — 한 자리(3.9-1) */
+
+  display: grid;
+  gap: var(--spacing-4);
+  padding-top: var(--spacing-12);
+  border-top: var(--border-width-1) solid color-mix(in oklab, var(--text-primary) 8%, transparent);
+}
+
+.detail[data-on] .item {
+  animation: secItemIn var(--duration-slow) var(--ease-enter) both;
+  animation-delay: calc(var(--j) * var(--_stagger));
+}
+
+@keyframes secItemIn {
+  from {
+    opacity: 0;
+    translate: 0 var(--spacing-8);
+  }
+}
+
+.itemHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-8);
+}
+
+.itemStar {
+  width: var(--spacing-12);
+  height: var(--spacing-12);
+  fill: var(--text-accent);
+  flex: none;
+}
+
+.itemTitle {
+  margin: 0;
+  font: var(--font-body-md);
+  color: var(--text-primary);
+}
+
+.scope {
+  padding: 0 var(--spacing-8);
+  border-radius: var(--radius-full);
+  font: var(--font-body-xs);
+  color: var(--text-accent);
+  background: color-mix(in oklab, var(--text-accent) 12%, transparent);
+}
+
+.itemBody {
+  margin: 0;
+  font: var(--font-body-sm);
+  color: var(--text-secondary);
+  word-break: keep-all;
+}
+
+.itemBody strong {
+  color: var(--text-primary);
+}
+
+.code {
+  padding: 0 var(--spacing-4);
+  border-radius: var(--radius-control);
+  font: var(--font-code-xs);
+  background: color-mix(in oklab, var(--text-primary) 10%, transparent);
+}
+
+/* ── 넓은 화면: 그림 왼쪽, 칩 · 설명 오른쪽(가운데 높이) ── */
+
+@media (width > 1024px) {
+  .stage {
+    grid-template-rows: minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--spacing-48);
+  }
+
+  .side {
+    align-content: center;
+    gap: var(--spacing-16);
+  }
+
+  .detail {
+    gap: var(--spacing-16);
+    padding: var(--spacing-24);
+  }
+
+  .row:not([data-now]) .rowName {
+    display: inline;
+  }
+
+  .rowCount {
+    display: inline;
+  }
+}
+
+/* ── 움직임 줄이기: 흐르지 않고 고른 겹만 켜 둔다 ── */
+
+@media (prefers-reduced-motion: reduce) {
+  .skyStar,
+  .coreSpin,
+  .ringPulse {
+    animation: none;
+  }
+
+  .detail[data-on] .item {
+    animation: none;
+  }
+
+  .ringLine,
+  .ringLabel,
+  .node,
+  .itemLabel,
+  .row,
+  .detail,
+  .detail[data-on] {
+    transition: none;
+  }
+}

@@ -55,6 +55,12 @@ interface ProfileSectionStore {
    */
   bunnyDockSlots: Set<HTMLElement>;
   /**
+   * 자리에 바로 앉기 — 켜면 몽이가 화면 가운데의 등장 연출과 날아오기를 건너뛰고 처음부터 자리에 앉아 나타나며,
+   * 자리가 화면에 다 들어오지 않아도(가운데만 들어와도) 앉는다. 몽이를 한 섹션에서만 보여 주는 쪽(About)이 켠다.
+   * 객체를 제자리에서 고친다(매 프레임 읽는 값).
+   */
+  bunnyDockEager: { on: boolean };
+  /**
    * 끌어서 돌린 각도와 그 여세(rad).
    *
    * 매 프레임 바뀌는 값이라 상태로 두면 렌더가 계속 돈다 — 객체 하나를 만들어 두고
@@ -84,6 +90,7 @@ export const useProfileSectionStore = create<ProfileSectionStore>((set) => ({
   bunnyDrag: { x: 0, y: 0, vx: 0, vy: 0, dragging: false },
   bunnyTouch: createBunnyTouch(),
   bunnyDockSlots: new Set(),
+  bunnyDockEager: { on: false },
   addBunnyDockSlot: (el) =>
     set((st) => {
       const next = new Set(st.bunnyDockSlots);

@@ -1,6 +1,6 @@
 /* 개념 ERD (Chen 표기) — 엔티티 사각형 / 속성 타원 / 관계 마름모.
  *
- * 스키마 다이어그램(물리 모델)은 테이블 23개 · 컬럼 177개를 그대로 보여주는데,
+ * 스키마 다이어그램(물리 모델)은 테이블 · 컬럼을 그대로 보여주는데(지금 26개 테이블),
  * 그걸 Chen 표기로 옮기면 도형이 216개가 되어 읽을 수 있는 그림이 아니다.
  * 개념 모델은 "무엇이 무엇과 어떤 관계인가"만 말하면 되므로,
  * 관계 차수가 높은 핵심 엔티티와 대표 속성만 추린다.
@@ -32,15 +32,16 @@ function coreEntities(tables: ErdTable[], relations: ErdRelation[]): string[] {
 /** 엔티티별 대표 속성 — 전부 올리면 posts 하나로 타원 27개가 된다.
  *  다중값(배열)·파생(카운트 캐시) 속성을 일부러 섞어 Chen 표기의 표현력을 보여준다. */
 const SHOWN_ATTRS: Record<string, string[]> = {
-  /* 컬럼명은 스키마 그대로 — posts/series 의 제목은 "title / title_en" 처럼 묶여 있다 */
-  posts: ["id", "title / title_en", "slug", "tags", "like_count"],
+  /* 컬럼명은 스키마 그대로(setup.sql 에서 생성) — 한국어 · 영어 칼럼은 따로 있어 대표로 title 만 */
+  posts: ["id", "title", "slug", "tags", "like_count"],
   works: ["id", "title", "year", "tech"],
-  series: ["id", "title / title_en"],
+  series: ["id", "title"],
   comments: ["id", "nickname", "content", "like_count"],
   work_comments: ["id", "nickname", "content"],
   likes: ["id", "target_type"],
   revisions: ["id", "entity_type", "snapshot"],
-  post_views: ["id", "ip", "date_kst"],
+  post_views: ["id", "ip", "viewed_date"],
+  work_views: ["id", "ip", "viewed_date"],
   comment_reactions: ["id", "emoji"],
 };
 
@@ -81,11 +82,10 @@ const REL_VERB: Record<string, LocalizedText> = {
   "work_comments→works": { ko: "달림", en: "on" },
   "likes→posts": { ko: "좋아요", en: "likes" },
   "likes→works": { ko: "좋아요", en: "likes" },
-  "likes→comments": { ko: "좋아요", en: "likes" },
-  "likes→work_comments": { ko: "좋아요", en: "likes" },
   "revisions→posts": { ko: "이력", en: "revision of" },
   "revisions→works": { ko: "이력", en: "revision of" },
   "post_views→posts": { ko: "조회", en: "viewed" },
+  "work_views→works": { ko: "조회", en: "viewed" },
   "comment_reactions→comments": { ko: "반응", en: "reacts to" },
   "comment_reactions→work_comments": { ko: "반응", en: "reacts to" },
 };
@@ -288,13 +288,14 @@ export function layoutChen(model: ChenModel): ChenPlacement {
   names.forEach((n) => rows[layer.get(n) ?? 0].push(n));
 
   const layerGap = (CHEN_H - MARGIN_Y * 2) / Math.max(1, maxLayer);
+  const width = CHEN_W;
   const entities: ChenPlacement["entities"] = {};
   rows.forEach((row, l) => {
     /* 위쪽이 참조되는 쪽 — maxLayer 가 맨 위로 */
     const y = MARGIN_Y + (maxLayer - l) * layerGap;
     row.forEach((name, i) => {
       const slot = (i + 1) / (row.length + 1);
-      entities[name] = { x: CHEN_W * slot, y };
+      entities[name] = { x: width * slot, y };
     });
   });
 
@@ -306,14 +307,14 @@ export function layoutChen(model: ChenModel): ChenPlacement {
     row.forEach((name) => {
       if (row.length === 1 && l === maxLayer) { baseAngle.set(name, -Math.PI / 2); return; }
       if (row.length === 1 && l === 0) { baseAngle.set(name, Math.PI / 2); return; }
-      baseAngle.set(name, entities[name].x < CHEN_W / 2 ? Math.PI : 0);
+      baseAngle.set(name, entities[name].x < width / 2 ? Math.PI : 0);
     });
   });
 
   const attributes: ChenPlacement["attributes"] = {};
   model.entities.forEach((e) => {
     const p = entities[e.name];
-    const base = baseAngle.get(e.name) ?? (p.x < CHEN_W / 2 ? Math.PI : 0);
+    const base = baseAngle.get(e.name) ?? (p.x < width / 2 ? Math.PI : 0);
     const dir = base === Math.PI ? -1 : 1;
     const count = e.attributes.length;
     /* 속성 수에 맞춰 부채꼴을 넓힌다 — 좁혀 보기에서 속성이 펼쳐지면 기본 70° 에는 다 못 들어간다.
@@ -355,7 +356,7 @@ export function layoutChen(model: ChenModel): ChenPlacement {
       /* 자기참조는 중점이 자기 자신이라 따로 자리를 잡아야 한다.
          속성이 바깥쪽 가로로 뻗으므로, 그 끝보다 더 바깥에 같은 높이로 둔다.
          (위쪽 대각으로 빼봤더니 위 행 엔티티의 속성과 부딪혔다) */
-      const dir = a.x < CHEN_W / 2 ? -1 : 1;
+      const dir = a.x < width / 2 ? -1 : 1;
       relationships[r.id] = { x: a.x + dir * (ATTR_RADIUS + ATTR_RX + DIAMOND_R + 30), y: a.y };
       return;
     }
