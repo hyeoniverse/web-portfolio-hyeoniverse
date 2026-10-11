@@ -1,0 +1,319 @@
+/* ── 디자인 장 — 카드 · 유리판 없이 하늘 위에 바로 그린다.
+   표지는 토큰 별하늘 전체, 둘째 프레임은 위쪽 별자리 줄 + 칸마다 별하늘의 무리 하나로 다가간다(TokenSky) ── */
+
+/* ════════ 표지 ════════ */
+
+.cover {
+  --_stagger: 0.09s; /* 별마다 차례로 — 한 자리(3.9-1) */
+  --_star: var(--spacing-20);
+
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: var(--spacing-24);
+  box-sizing: border-box;
+  height: 100%;
+  padding: calc(var(--header-height) + var(--spacing-24)) var(--spacing-page-inline) var(--spacing-96);
+}
+
+.coverHead {
+  display: grid;
+  gap: var(--spacing-16);
+  align-content: start;
+}
+
+/* 장 머리의 아래 여백은 이 판이 gap 으로 준다 */
+.coverHead > div {
+  margin-bottom: 0;
+}
+
+.live {
+  justify-self: start;
+  font: var(--font-body-sm);
+  color: var(--text-accent);
+  text-decoration: none;
+}
+
+.live:hover {
+  text-decoration: underline;
+}
+
+/* 별하늘 판 — 판은 3:2 로 이 그릇 안에 가장 크게(TokenSky 가 cq 단위로 잰다) */
+.sky,
+.stage {
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  min-height: 0;
+  container-type: size;
+}
+
+/* 선과 별은 위아래 여백을 둔 같은 판에 — 맨 위 · 맨 아래 별의 글이 판 밖으로 넘치지 않게 */
+
+/* 별 하나 — 크기 없는 점(별의 가운데). 글은 왼쪽 별이면 왼쪽으로, 오른쪽 별이면 오른쪽으로 */
+
+/* 아래 작은 줄 — 다음 프레임에서 다시 보이므로 좁은 화면은 이름만 */
+
+/* ════════ 둘째 프레임 — 다섯 단계 ════════ */
+
+.frame {
+  --_stagger: 0.07s; /* 구성 안 조각마다 차례로 — 한 자리(3.9-1) */
+  --_dot: var(--spacing-12);
+
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: var(--spacing-20);
+  box-sizing: border-box;
+  height: 100%;
+  padding: calc(var(--header-height) + var(--spacing-24)) var(--spacing-page-inline) var(--spacing-96);
+
+  /* 기다리는 장은 커진 채 화면 밖까지 걸쳐 있다 — 그 변환이 프레임에 스크롤을 만들지 않게 */
+  overflow: clip;
+}
+
+/* 토큰 이름은 하늘 위 글자로 — 사이트 공통 인라인 코드 칩(배경 · 캡슐)을 벗긴다 */
+.cover code,
+.frame code {
+  padding: 0;
+  border-radius: 0;
+  background: none;
+}
+
+/* ── 별자리 줄 — 다섯 별이 점선으로 이어지고, 지금 별까지 선이 채워진다 ── */
+
+.chart {
+  position: relative;
+}
+
+.chart::before,
+.chartFill {
+  content: "";
+  position: absolute;
+  top: calc(var(--spacing-8) + var(--_dot) / 2);
+  left: calc(100% / var(--n) / 2);
+  translate: 0 -50%;
+  pointer-events: none;
+}
+
+.chart::before {
+  right: calc(100% / var(--n) / 2);
+  border-top: var(--border-width-2) dotted color-mix(in oklab, var(--text-primary) 35%, transparent);
+}
+
+.chartFill {
+  width: calc((100% - 100% / var(--n)) * var(--step) / (var(--n) - 1));
+  height: var(--border-width-2);
+  background: var(--text-accent);
+  transition: width var(--duration-slower) var(--ease-standard);
+}
+
+.chartList {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chartItem {
+  display: grid;
+  justify-items: center;
+}
+
+.chartBtn {
+  display: grid;
+  justify-items: center;
+  gap: var(--spacing-4);
+  padding: var(--spacing-8) var(--spacing-8) var(--spacing-4);
+  border-radius: var(--radius-full);
+  color: var(--text-tertiary);
+  text-align: center;
+  transition: color var(--duration-base) var(--ease-standard);
+}
+
+.chartBtn:hover,
+.chartBtn[data-on] {
+  color: var(--text-primary);
+}
+
+.chartBtn:focus-visible {
+  outline: var(--border-width-2) solid var(--text-accent);
+  outline-offset: var(--spacing-2);
+}
+
+.chartDot {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: var(--_dot);
+  aspect-ratio: 1;
+  border-radius: var(--radius-full);
+  background: color-mix(in oklab, var(--text-primary) 45%, transparent);
+  transition:
+    background var(--duration-base) var(--ease-standard),
+    scale var(--duration-slow) var(--ease-spring);
+}
+
+.chartBtn[data-past] .chartDot {
+  background: var(--text-accent);
+}
+
+.chartBtn[data-on] .chartDot {
+  background: transparent;
+  scale: 1.2;
+}
+
+/* 길잡이 별이 앉는 자리 — 지금 별 위. 점의 크기에 끼어들지 않게 띄워 둔다(안에 넣어 두면 12px 점이 32px 자리만큼 늘어나,
+   항목을 옮길 때마다 바탕이 사라지는 동안 점이 길쭉하게 보였다) */
+.chartGuide {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--spacing-32);
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  pointer-events: none;
+}
+
+.chartNum {
+  font: var(--font-grotesk-micro);
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+}
+
+.chartLabel {
+  display: none;
+  font: var(--font-body-sm);
+  word-break: keep-all;
+}
+
+/* ── 본판 — 설명과 구성 ── */
+
+.main {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: var(--spacing-20);
+  min-height: 0;
+}
+
+.copies {
+  display: grid;
+}
+
+.stepCopy {
+  grid-area: 1 / 1;
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-8);
+  transition:
+    opacity var(--duration-slow) var(--ease-enter),
+    translate var(--duration-slow) var(--ease-enter);
+}
+
+.stepCopy[data-pos="before"] {
+  opacity: 0;
+  translate: 0 calc(var(--spacing-24) * -1);
+}
+
+.stepCopy[data-pos="after"] {
+  opacity: 0;
+  translate: 0 var(--spacing-24);
+}
+
+.stepNum {
+  font: var(--font-grotesk-micro);
+  letter-spacing: 0.08em;
+  color: var(--text-accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.stepNum span {
+  color: var(--text-tertiary);
+}
+
+.stepTitle {
+  margin: 0;
+  font: var(--font-grotesk-headline-sm);
+  letter-spacing: -0.01em;
+  word-break: keep-all;
+}
+
+.stepBody {
+  margin: 0;
+  font: var(--font-body-sm);
+  color: var(--text-secondary);
+  word-break: keep-all;
+}
+
+/* 견본 카드 — 이 사이트 토큰 그대로. 짚지 않는 부분은 흐려진다 */
+
+/* 움직임 단계 — 카드가 --ease-enter 로 다시 들어오고, 단추가 --duration-base · --ease-standard 로 색을 바꾼다 */
+
+/* 번호 별 — 짚는 부분의 왼쪽 위 바깥. 검사 단계(막힌 값)는 빨강 */
+
+/* 한 부분에 번호가 여럿이면 나란히 — 글줄은 왼쪽 바깥, 줄 안 조각은 오른쪽 위 모서리 */
+
+/* 짚은 토큰 목록 */
+
+/* 구성 안 조각 — 그 장이 오면 차례로 떠오른다 */
+
+/* ════════ 넓은 화면 ════════ */
+
+@media (width > 1024px) {
+  /* 오른쪽 위 실제 하늘 표시 줄 아래에서 시작한다(Prezi.module.css 의 패딩과 같은 높이) — 단계 줄이 그 줄에 붙었다 */
+  .cover,
+  .frame {
+    padding-top: calc(var(--header-height) + var(--spacing-64));
+  }
+}
+
+@media (width > 1024px) {
+  .cover {
+    --_star: var(--spacing-24);
+
+    grid-template-rows: minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+    gap: var(--spacing-48);
+    align-items: center;
+  }
+
+  .sky {
+    height: 100%;
+  }
+
+  .frame {
+    gap: var(--spacing-32);
+  }
+
+  .chartLabel {
+    display: block;
+  }
+
+  .main {
+    grid-template-rows: minmax(0, 1fr);
+    grid-template-columns: minmax(0, 22rem) minmax(0, 1fr);
+    gap: var(--spacing-64);
+  }
+
+  .copies {
+    align-self: center;
+  }
+
+  .stepCopy {
+    gap: var(--spacing-12);
+  }
+
+  .stepTitle {
+    font: var(--font-grotesk-headline-xl);
+  }
+
+  .stepBody {
+    font: var(--font-body-md);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stepCopy {
+    transition: none;
+  }
+}

@@ -19,6 +19,7 @@ import {
 import Navigation from "@/components/layout/Navigation";
 import Footer from "@/components/layout/Footer";
 import ClientOverlays from "@/components/layout/ClientOverlays";
+import LoadingScreen from "@/components/layout/LoadingScreen";
 
 import { LenisProvider } from "@/providers/LenisProvider";
 import RecaptchaProvider from "@/providers/RecaptchaProvider";
@@ -175,6 +176,9 @@ export default async function RootLayout({
       <style href="brand-symbol-font" precedence="default">{`@font-face{font-family:'${SYMBOL_FONT_FAMILY}';src:url(/api/brand-symbol-font) format('opentype');font-display:swap;unicode-range:${SYMBOL_FONT_UNICODE_RANGE};}`}</style>
 
       <body>
+        {/* 로딩 덮개는 문서 맨 앞에 — HTML 은 흘려 보내지므로(streaming) 브라우저는 받은 만큼 먼저 그린다.
+            예전엔 ClientOverlays(본문 · 푸터 뒤)에 있어 첫 패널이 그려진 뒤에야 덮개가 도착했다 */}
+        <LoadingScreen />
         <SiteConfigProvider initialConfig={toSiteWideConfig(config)} publicKeys={publicKeys}>
           <ThemeProvider>
             <FaviconSync version={faviconVersion(config.brand)} />

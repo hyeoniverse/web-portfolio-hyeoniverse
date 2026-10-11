@@ -152,3 +152,10 @@
   letter-spacing: 0.01em;
   pointer-events: none;
 }
+
+/* 전체 화면 — 바깥 상자를 띄운다. 그림 바탕이 비어 있으면(About 밤하늘 모양) 페이지 바탕으로 채운다 */
+.wrap:fullscreen {
+  /* 도구가 화면 끝에 닿지 않게 둘레 여백 */
+  padding: var(--spacing-24);
+  background: var(--bg-primary);
+}

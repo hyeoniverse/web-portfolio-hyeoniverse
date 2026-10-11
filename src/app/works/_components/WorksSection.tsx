@@ -2,6 +2,7 @@
 
 import { useEffect, useLayoutEffect, useRef, useState, useCallback, Fragment } from "react";
 import gsap from "gsap";
+import { WORKS_LAYOUT_MESSAGE } from "@/lib/worksLayoutMessage";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import dynamic from "next/dynamic";
 import { BREAKPOINT } from "@/constants";
@@ -36,6 +37,7 @@ interface WorksSectionProps {
 }
 
 type LayoutType = "flow" | "fullscreen" | "cinematic" | "grid" | "split" | "cylinder";
+const LAYOUTS: LayoutType[] = ["flow", "fullscreen", "cinematic", "grid", "split", "cylinder"];
 
 /* 수평 엔진이 DOM 을 찾을 때 쓰는 클래스 이름. 모듈 스코프에 한 번만 만든다 —
    렌더마다 새 객체를 넘기면 엔진의 useLayoutEffect 가 매번 재실행되고,
@@ -64,6 +66,20 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
        주소를 읽는 일은 화면이 붙은 뒤에만 할 수 있으므로 여기서 상태를 바꾼다. */
     // eslint-disable-next-line react-hooks/set-state-in-effect
     if (v) setLayoutOverride(v);
+  }, []);
+  /* About 의 레이아웃 미리보기(iframe)가 배치를 바꿔 달라고 알리면 다시 불러오지 않고 이 자리에서 바꾼다 —
+     배치마다 페이지를 새로 불러오면 로딩 화면 · 데이터 · 3D 를 매번 다시 받아 몇 초씩 걸린다. 같은 출처의 부모 창만 받는다 */
+  useEffect(() => {
+    if (window.parent === window) return;
+    const onMessage = (e: MessageEvent) => {
+      if (e.origin !== window.location.origin || e.source !== window.parent) return;
+      const d = e.data as { type?: string; layout?: string } | null;
+      if (d?.type !== WORKS_LAYOUT_MESSAGE || !d.layout || !LAYOUTS.includes(d.layout as LayoutType)) return;
+      window.scrollTo(0, 0);
+      setLayoutOverride(d.layout as LayoutType);
+    };
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
   }, []);
   const layout = layoutOverride || configLayout || "flow";
 

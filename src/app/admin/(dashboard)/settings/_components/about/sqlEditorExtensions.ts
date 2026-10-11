@@ -15,7 +15,7 @@ import { search, searchKeymap, highlightSelectionMatches } from "@codemirror/sea
 import { keymap, type EditorView, type Command } from "@codemirror/view";
 import { Prec, type Extension } from "@codemirror/state";
 import type { ErdTable } from "@/data/about/types";
-import { parseSqlErd, type SqlIssue } from "./parseSqlErd";
+import { parseSqlErd, type SqlIssue } from "@/lib/about/parseSqlErd";
 import { SQL_KEYWORDS, SQL_TYPES } from "./sqlLanguage";
 
 

@@ -3,7 +3,7 @@
 import css from "../../AboutStudio.module.css";
 import { ListLimit, RemoveButton, SortableList, useSortableItem } from "../listControls";
 import { EditableText, PanelStage, sec, useL } from "../primitives";
-import proc from "@/app/about/_components/panels/ProcessPanel.module.css";
+import proc from "@/app/about/_panels/panels/ProcessPanel.module.css";
 import { GripVertical, Plus } from "@/components/icons";
 import Pressable from "@/components/ui/Pressable";
 import { type SiteConfigData } from "@/config/site.config";

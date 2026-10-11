@@ -1,0 +1,866 @@
+/* ── AI 장 — 프레임 하나. 표지(장 머리 + 다섯 기능의 별자리)와 기능 화면(별 줄 + 설명 · 데모)이 한 자리에 겹쳐
+   고른 별을 중심으로 확대 · 축소하며 바뀐다. 카드 · 유리판 없이 하늘 위에 바로 놓는다 ── */
+
+.scene {
+  --_suck: 760ms; /* 고른 별로 빨려 들어가는 시간 — 갈수록 빨라진다 (3.9-1) */
+  --_hide: 220ms; /* 고른 별 말고는 먼저 사라지는 시간 (3.9-1) */
+  --_emerge: 560ms; /* 기능 화면이 별에서 자라 나오는 시간 (3.9-1) */
+  --_emerge-at: 520ms; /* 빨려 들어간 끝무렵 — 기능 화면이 나오기 시작하는 때 (3.9-1) */
+  --_stagger: 0.09s; /* 별 · 설명 줄마다 차례로 — 한 자리(3.9-1) */
+  /* 확대 중심 — 컴포넌트가 고른 별 자리로 바꾼다 */
+  --z-origin: 20% 60%;
+
+  display: grid;
+  grid-template-areas: "s";
+  box-sizing: border-box;
+  height: 100%;
+  padding: calc(var(--header-height) + var(--spacing-16)) var(--spacing-page-inline) var(--spacing-80);
+
+  /* 크게 확대된 표지가 프레임을 넘쳐 스크롤 상자를 만들지 않게 잘라 둔다(clip 은 스크롤 상자를 만들지 않는다) */
+  overflow: clip;
+}
+
+/* 별 속으로 빨려 들어가기(관리자를 직접 장과 같은 움직임) — 고른 별(--z-origin, 컴포넌트가 잰다)만 남기고 나머지가 먼저 사라진 뒤,
+   그 별을 중심으로 갈수록 빨라지며 크게 확대되고, 별이 빛을 내며 사라지는 순간 기능 화면이 그 자리에서 자라 나온다.
+   돌아올 땐 거꾸로 별에서 물러 나온다 */
+.intro,
+.stage {
+  grid-area: s;
+  min-height: 0;
+  transform-origin: var(--z-origin);
+}
+
+.intro {
+  transition:
+    opacity var(--_hide) var(--ease-standard) var(--_hide),
+    scale var(--_suck) var(--ease-enter);
+}
+
+.scene[data-open] .intro {
+  opacity: 0;
+  scale: 9;
+  pointer-events: none;
+  transition:
+    opacity var(--_hide) var(--ease-standard) var(--_emerge-at),
+    scale var(--_suck) var(--ease-exit);
+}
+
+/* 고른 별만 남는다 — 장 머리 · 선 · 다른 별 · 이름은 먼저 사라진다(돌아올 땐 표지가 물러 나온 뒤 다시 나타난다) */
+.head,
+.skyNode,
+.skyText {
+  transition: opacity var(--_hide) var(--ease-standard) var(--_hide);
+}
+
+.scene[data-open] .head,
+.scene[data-open] .skyLine,
+.scene[data-open] .skyItem:not([data-picked]) .skyNode,
+.scene[data-open] .skyItem[data-picked] .skyText {
+  opacity: 0;
+}
+
+.scene[data-open] .head,
+.scene[data-open] .skyItem:not([data-picked]) .skyNode,
+.scene[data-open] .skyItem[data-picked] .skyText {
+  transition: opacity var(--_hide) var(--ease-standard);
+}
+
+/* 고른 별 — 빨려 들어가는 동안 분홍으로 빛난다 */
+.scene[data-open] .skyItem[data-picked] .skyStar {
+  fill: var(--text-accent);
+  filter: drop-shadow(0 0 var(--spacing-8) var(--text-accent));
+}
+
+.stage {
+  opacity: 0;
+  scale: 0.15;
+  pointer-events: none;
+  transition:
+    opacity var(--_hide) var(--ease-standard),
+    scale var(--_hide) var(--ease-exit);
+}
+
+/* 기능 화면 — 별이 사라지는 순간 그 자리에서 자라 나온다 */
+.scene[data-open] .stage {
+  opacity: 1;
+  scale: 1;
+  pointer-events: auto;
+  transition:
+    opacity var(--_emerge) var(--ease-standard) var(--_emerge-at),
+    scale var(--_emerge) var(--ease-enter) var(--_emerge-at);
+}
+
+/* ════════ 표지 ════════ */
+
+.intro {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: var(--spacing-24);
+}
+
+.head {
+  position: relative;
+  display: grid;
+  gap: var(--spacing-12);
+  align-content: center;
+}
+
+/* 길잡이 별이 장 머리에 내려앉는 자리 — 보이지 않는 과녁. 크기가 곧 별 크기 */
+.headGuide {
+  position: absolute;
+  top: 0;
+  right: 8%;
+  width: clamp(2.5rem, 5vw, 5rem);
+  aspect-ratio: 1;
+  pointer-events: none;
+}
+
+/* 작은 눈썹 — 앞에 별 */
+.eyebrow {
+  font: var(--font-grotesk-micro);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-accent);
+}
+
+.eyebrow::before {
+  content: "";
+  display: inline-block;
+  width: 0.9em;
+  aspect-ratio: 1;
+  margin-right: 0.5em;
+  vertical-align: -0.1em;
+  background: currentcolor;
+  mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M50 0C53 36 64 47 100 50C64 53 53 64 50 100C47 64 36 53 0 50C36 47 47 36 50 0Z'/></svg>") center / contain no-repeat;
+}
+
+.headTitle {
+  max-width: 22ch;
+  margin: 0;
+  font: var(--font-grotesk-headline-xl);
+  letter-spacing: -0.02em;
+  word-break: keep-all;
+}
+
+.headNote {
+  max-width: 34rem;
+  margin: 0;
+  font: var(--font-body-sm);
+  color: var(--text-secondary);
+  word-break: keep-all;
+}
+
+/* 별자리 판 — 별 다섯의 자리는 % 로 준다(--x · --y). 판 크기는 남은 자리 */
+.sky {
+  --_cell: var(--spacing-32);
+
+  position: relative;
+  min-height: 0;
+}
+
+/* 선과 별은 위아래 여백을 둔 같은 판에 — 내려앉으면 위부터 선이 그어진다 */
+.skyLine {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  clip-path: inset(0 0 100% 0);
+  transition:
+    clip-path var(--duration-slower) var(--ease-standard),
+    opacity var(--_hide) var(--ease-standard) var(--_hide);
+}
+
+.scene[data-live] .skyLine {
+  clip-path: inset(-10% -10% -10% -10%);
+}
+
+.scene[data-open] .skyLine {
+  transition:
+    clip-path var(--duration-slower) var(--ease-standard),
+    opacity var(--_hide) var(--ease-standard);
+}
+
+.skyLine polyline {
+  fill: none;
+  stroke: color-mix(in oklab, var(--text-primary) 40%, transparent);
+  stroke-width: var(--border-width-2);
+  stroke-dasharray: 1 6;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.skyList {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* 별 하나 — 별 가운데가 자리(--x · --y)에, 이름 · 설명은 별 오른쪽에 */
+.skyItem {
+  position: absolute;
+  top: var(--y);
+  right: 0;
+  left: var(--x);
+  translate: calc(var(--_cell) / -2) -50%;
+  opacity: 0;
+  transition:
+    opacity var(--duration-slow) var(--ease-enter),
+    translate var(--duration-slow) var(--ease-enter);
+  transition-delay: calc(var(--i) * var(--_stagger) + 0.2s);
+}
+
+.scene[data-live] .skyItem {
+  opacity: 1;
+}
+
+.skyNode {
+  display: grid;
+  grid-template-columns: var(--_cell) minmax(0, 1fr);
+  gap: var(--spacing-12);
+  align-items: center;
+  width: 100%;
+  text-align: left;
+  color: var(--text-primary);
+}
+
+.skyStar {
+  justify-self: center;
+  width: var(--spacing-20);
+  aspect-ratio: 1;
+  fill: var(--text-primary);
+  filter: drop-shadow(0 0 var(--spacing-4) color-mix(in oklab, var(--text-primary) 50%, transparent));
+  transition:
+    scale var(--duration-base) var(--ease-enter),
+    fill var(--duration-base) var(--ease-standard),
+    filter var(--duration-base) var(--ease-standard);
+}
+
+.skyNode:hover .skyStar,
+.skyNode:focus-visible .skyStar {
+  scale: 1.5;
+  fill: var(--text-accent);
+  filter: drop-shadow(0 0 var(--spacing-8) color-mix(in oklab, var(--text-accent) 70%, transparent));
+}
+
+.skyText {
+  display: grid;
+  gap: var(--spacing-2);
+}
+
+.skyName {
+  display: inline-flex;
+  gap: var(--spacing-8);
+  align-items: baseline;
+  font: var(--font-grotesk-headline-sm);
+  transition: color var(--duration-base) var(--ease-standard);
+}
+
+.skyNode:hover .skyName,
+.skyNode:focus-visible .skyName {
+  color: var(--text-accent);
+}
+
+.skySub {
+  font: var(--font-body-sm);
+  color: var(--text-secondary);
+  word-break: keep-all;
+}
+
+.skyNum {
+  font: var(--font-grotesk-micro);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
+}
+
+/* ════════ 기능 화면 ════════ */
+
+.stage {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: var(--spacing-16);
+}
+
+.bar {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: var(--spacing-4);
+  align-items: center;
+}
+
+.barTitle {
+  display: flex;
+  gap: var(--spacing-12);
+  align-items: baseline;
+  margin: 0;
+}
+
+/* 좁은 화면 — 장 이름은 빼고 지금 기능 이름만 */
+.barTitle > .eyebrow {
+  display: none;
+}
+
+.barNow {
+  --_now-in: 400ms; /* 이름이 바뀔 때 — 한 자리(3.9-1) */
+
+  display: inline-flex;
+  gap: var(--spacing-8);
+  align-items: baseline;
+  font: var(--font-grotesk-headline-sm);
+  white-space: nowrap;
+  animation: rise var(--_now-in) var(--ease-enter) both;
+}
+
+/* 기능 고르기 — 작은 별자리. 옅은 점선 위 별 다섯, 빛나는 별 하나가 지금 자리로 미끄러져 간다 */
+.stars {
+  --_cell: var(--spacing-32);
+  --_gap: var(--spacing-8);
+  --_glide: 600ms; /* 빛나는 별이 옮겨 가는 시간 — 한 자리(3.9-1) */
+
+  position: relative;
+}
+
+.starRow {
+  position: relative;
+  display: flex;
+  gap: var(--_gap);
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.starRow::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: var(--spacing-16);
+  left: var(--spacing-16);
+  border-top: var(--border-width-1) dashed color-mix(in oklab, var(--text-primary) 22%, transparent);
+}
+
+.star {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: var(--_cell);
+  height: var(--_cell);
+  border-radius: var(--radius-full);
+}
+
+.star svg {
+  width: var(--spacing-12);
+  aspect-ratio: 1;
+  fill: color-mix(in oklab, var(--text-primary) 35%, transparent);
+  transition:
+    scale var(--duration-base) var(--ease-standard),
+    fill var(--duration-slow) var(--ease-standard),
+    opacity var(--duration-base) var(--ease-standard);
+}
+
+.star[data-done] svg {
+  fill: var(--text-primary);
+}
+
+.star:hover svg,
+.star:focus-visible svg {
+  scale: 1.35;
+  fill: var(--text-primary);
+}
+
+/* 지금 자리의 작은 별은 빛나는 별 밑으로 숨는다 */
+.star[data-on] svg {
+  opacity: 0;
+}
+
+.starGlow {
+  --_spin: 9s; /* 한 바퀴 도는 시간 — 한 자리(3.9-1) */
+
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  place-items: center;
+  width: var(--_cell);
+  height: var(--_cell);
+  pointer-events: none;
+  translate: calc(var(--at, 0) * (var(--_cell) + var(--_gap))) 0;
+  transition: translate var(--_glide) var(--ease-standard);
+}
+
+.starGlow svg {
+  width: var(--spacing-24);
+  aspect-ratio: 1;
+  fill: var(--text-accent);
+  filter: drop-shadow(0 0 var(--spacing-8) color-mix(in oklab, var(--text-accent) 70%, transparent));
+  animation: spin var(--_spin) linear infinite;
+}
+
+/* 기능 하나 — 좁은 화면은 설명 단계와 데모 단계가 번갈아, 넓은 화면은 설명 왼쪽 · 데모 오른쪽.
+   기능이 바뀌면 조금 떨어진 자리에서 작게 시작해 다가온다 */
+.body {
+  --_in: 600ms; /* 기능이 바뀔 때 — 한 자리(3.9-1) */
+
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  min-height: 0;
+  animation: featureIn var(--_in) var(--ease-enter) both;
+}
+
+@keyframes featureIn {
+  from {
+    opacity: 0;
+    scale: 0.92;
+    translate: var(--spacing-48) 0;
+  }
+}
+
+.body[data-pane="demo"] .copy {
+  display: none;
+}
+
+.copy {
+  display: grid;
+  align-content: center;
+  gap: var(--spacing-16);
+  min-width: 0;
+}
+
+/* 큰 번호 — 이 단계의 주인공 */
+.bigNum {
+  font: var(--font-display-md);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-accent);
+}
+
+.title {
+  margin: 0;
+  font: var(--font-grotesk-headline-xl);
+  letter-spacing: -0.02em;
+  word-break: keep-all;
+}
+
+/* 길잡이 별이 앉는 자리 — 제목 첫머리 */
+.titleGuide {
+  display: inline-block;
+  width: 0.7em;
+  aspect-ratio: 1;
+  margin-right: 0.3em;
+}
+
+.lead {
+  margin: 0;
+  font: var(--font-body-md);
+  color: var(--text-primary);
+  word-break: keep-all;
+}
+
+.points {
+  display: grid;
+  gap: var(--spacing-12);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.points li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--spacing-8);
+  font: var(--font-body-sm);
+  color: var(--text-secondary);
+  word-break: keep-all;
+  animation: pointIn var(--duration-slow) var(--ease-enter) backwards;
+  animation-delay: calc(var(--i, 0) * var(--_stagger) + var(--_stagger) * 2);
+}
+
+@keyframes pointIn {
+  from {
+    opacity: 0;
+    translate: calc(var(--spacing-12) * -1) 0;
+  }
+}
+
+.pointStar {
+  width: 0.8em;
+  height: 0.8em;
+  margin-top: 0.35em;
+  fill: var(--text-accent);
+}
+
+.tryIt {
+  justify-self: start;
+  margin-top: var(--spacing-8);
+}
+
+/* 데모 — 남은 자리 가운데. 자리보다 크면 FitZoom 이 줄인다 */
+.demo {
+  display: grid;
+  align-content: center;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* ── 5 · 공급자 전환 — 공급자 하나가 별 하나. 좁은 화면은 세로 줄, 넓은 화면은 가로 줄 ── */
+
+.sim {
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-20);
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-4);
+}
+
+.tab {
+  padding: var(--spacing-4) var(--spacing-12);
+  border-radius: var(--radius-full);
+  font: var(--font-body-sm);
+  color: var(--text-secondary);
+}
+
+.tab:hover {
+  color: var(--text-primary);
+  background: color-mix(in oklab, var(--text-primary) 8%, transparent);
+}
+
+.tab[data-on] {
+  color: var(--text-on-accent);
+  background: var(--bg-accent-solid);
+}
+
+.chain {
+  --_cell: var(--spacing-40);
+  --_hop-delay: 0.18s; /* 공급자마다 차례로 — 한 자리(3.9-1) */
+
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* 별 사이 점선 — 별마다 위(앞 별 쪽) 반, 아래(다음 별 쪽) 반을 긋는다. 요청이 지나가면 빛난다 */
+.hop {
+  position: relative;
+}
+
+.hop::before,
+.hop::after {
+  content: "";
+  position: absolute;
+  left: calc(var(--_cell) / 2);
+  height: 50%;
+  border-left: var(--border-width-2) dotted color-mix(in oklab, var(--text-primary) 35%, transparent);
+  transition: border-color var(--duration-base) var(--ease-standard);
+  transition-delay: calc(var(--d, 0) * var(--_hop-delay));
+}
+
+.hop::before {
+  top: 0;
+}
+
+.hop::after {
+  bottom: 0;
+}
+
+.hop:first-child::before,
+.hop:last-child::after {
+  display: none;
+}
+
+.hop[data-lit]::before,
+.hop:has(+ .hop[data-lit])::after {
+  border-color: var(--text-accent);
+}
+
+.node {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: var(--_cell) minmax(0, 1fr);
+  gap: var(--spacing-12);
+  align-items: center;
+  width: 100%;
+  padding: var(--spacing-8) 0;
+  text-align: left;
+}
+
+.nodeStarBox {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: var(--_cell);
+}
+
+.nodeStar {
+  width: var(--spacing-20);
+  aspect-ratio: 1;
+  fill: color-mix(in oklab, var(--text-primary) 70%, transparent);
+  stroke: transparent;
+  stroke-width: 4;
+  transition:
+    scale var(--duration-base) var(--ease-spring),
+    fill var(--duration-base) var(--ease-standard),
+    filter var(--duration-base) var(--ease-standard),
+    opacity var(--duration-base) var(--ease-standard);
+  transition-delay: calc(var(--d, 0) * var(--_hop-delay));
+}
+
+.node:hover .nodeStar {
+  scale: 1.2;
+}
+
+.node[data-outcome="answered"] .nodeStar {
+  scale: 1.6;
+  fill: var(--text-accent);
+  filter: drop-shadow(0 0 var(--spacing-8) color-mix(in oklab, var(--text-accent) 80%, transparent));
+}
+
+.node[data-outcome="failed"] .nodeStar {
+  fill: var(--text-error);
+  filter: drop-shadow(0 0 var(--spacing-8) color-mix(in oklab, var(--text-error) 60%, transparent));
+}
+
+/* 꺼진 공급자 — 속이 빈 별 */
+.node[data-off] .nodeStar {
+  fill: transparent;
+  stroke: var(--text-tertiary);
+}
+
+.node[data-off] .nodeText,
+.node[data-outcome="skipped"] .nodeText {
+  opacity: 0.6;
+}
+
+.nodeText {
+  display: grid;
+  gap: var(--spacing-2);
+  min-width: 0;
+  transition: opacity var(--duration-base) var(--ease-standard);
+}
+
+.nodeName {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-4) var(--spacing-8);
+  align-items: center;
+  font: var(--font-grotesk-micro);
+  letter-spacing: 0.04em;
+  color: var(--text-primary);
+}
+
+.nodeKind {
+  font: var(--font-body-xs);
+  color: var(--text-secondary);
+}
+
+.node:not([data-kind="ok"]) .nodeKind {
+  color: var(--text-error);
+}
+
+.nodeMeta {
+  font: var(--font-code-xs);
+  color: var(--text-tertiary);
+}
+
+/* 길잡이 별이 앉는 자리 — 보이지 않는 과녁. 크기가 곧 별 크기 */
+.guideSpot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--spacing-24);
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  pointer-events: none;
+}
+
+.badgeOk,
+.badgeSkip {
+  padding: 0 var(--spacing-8);
+  border-radius: var(--radius-full);
+  font: var(--font-body-xs);
+  letter-spacing: 0;
+}
+
+.badgeOk {
+  color: var(--text-on-accent);
+  background: var(--bg-accent-solid);
+}
+
+.badgeSkip {
+  color: var(--text-secondary);
+  background: color-mix(in oklab, var(--text-primary) 10%, transparent);
+}
+
+.simNote {
+  display: grid;
+  margin: 0;
+  font: var(--font-body-sm);
+  color: var(--text-secondary);
+  word-break: keep-all;
+}
+
+.simNote > * {
+  grid-area: 1 / 1;
+}
+
+.simFail {
+  color: var(--text-error);
+}
+
+/* 자리만 잡아 두는 것들 — 배지 · 셋째 줄 · 안내 문장 · 빈 공급자 칸 */
+.badgeOk[data-hidden],
+.badgeSkip[data-hidden],
+.nodeMeta[data-hidden],
+.simNote > [data-hidden],
+.hopGhost {
+  visibility: hidden;
+}
+
+.simActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-8);
+  align-items: center;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    translate: 0 var(--spacing-8);
+  }
+}
+
+@keyframes spin {
+  to {
+    rotate: 1turn;
+  }
+}
+
+/* ── 넓은 화면 — 표지는 장 머리 왼쪽 · 별자리 오른쪽, 기능은 설명 왼쪽 · 데모 오른쪽 ── */
+@media (width > 1024px) {
+  .scene {
+    padding-top: calc(var(--header-height) + var(--spacing-32));
+  }
+
+  .intro {
+    grid-template-rows: minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    gap: var(--spacing-64);
+    align-items: center;
+  }
+
+  .headNote {
+    font: var(--font-body-md);
+  }
+
+  .sky {
+    --_cell: var(--spacing-40);
+
+    height: min(30rem, 100%);
+  }
+
+  .skyStar {
+    width: var(--spacing-24);
+  }
+
+  .bar {
+    flex-direction: row;
+    gap: var(--spacing-16);
+    justify-content: space-between;
+  }
+
+  .barTitle > .eyebrow {
+    display: inline;
+  }
+
+  .body {
+    grid-template-columns: minmax(0, 22rem) minmax(0, 1fr);
+    gap: var(--spacing-64);
+  }
+
+  .copy {
+    align-self: center;
+  }
+
+  .demo {
+    justify-self: center;
+    width: 100%;
+    max-width: 48rem;
+  }
+
+  /* 공급자 줄 — 가로. 별이 위, 이름 · 상태가 아래 가운데. 점선은 별 높이에서 좌우 반씩 */
+  .chain {
+    grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+  }
+
+  /* 가로 한 줄 — 공급자 수가 달라도 높이는 같아서 빈 칸이 필요 없다(있으면 줄이 하나 더 생긴다) */
+  .hopGhost {
+    display: none;
+  }
+
+  .hop::before,
+  .hop::after {
+    top: calc(var(--spacing-8) + var(--_cell) / 2);
+    bottom: auto;
+    left: auto;
+    width: 50%;
+    height: 0;
+    border-top: var(--border-width-2) dotted color-mix(in oklab, var(--text-primary) 35%, transparent);
+    border-left: 0;
+  }
+
+  .hop::before {
+    left: 0;
+  }
+
+  .hop::after {
+    right: 0;
+  }
+
+  .hop[data-lit]::before,
+  .hop:has(+ .hop[data-lit])::after {
+    border-color: var(--text-accent);
+  }
+
+  .node {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    gap: var(--spacing-8);
+    text-align: center;
+  }
+
+  .nodeName {
+    justify-content: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intro,
+  .stage,
+  .head,
+  .skyNode,
+  .skyText,
+  .skyItem,
+  .skyLine,
+  .starGlow,
+  .star svg,
+  .nodeStar,
+  .hop::before,
+  .hop::after {
+    transition: none;
+  }
+
+  .body,
+  .barNow,
+  .points li,
+  .starGlow svg {
+    animation: none;
+  }
+}

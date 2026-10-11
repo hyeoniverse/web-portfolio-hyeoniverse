@@ -4,7 +4,7 @@ import { useRef, useState, type ReactNode } from "react";
 import css from "../../AboutStudio.module.css";
 import sub from "../../AboutSubTab.module.css";
 import ArchDiagramEditor from "../../ArchDiagramEditor";
-import { type ArchDiagramData } from "@/app/about/_components/panels/archDiagramData";
+import { type ArchDiagramData } from "@/app/about/_panels/panels/archDiagramData";
 import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, FileCode, Folder, FolderOpen, Plus, Trash2 } from "@/components/icons";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";

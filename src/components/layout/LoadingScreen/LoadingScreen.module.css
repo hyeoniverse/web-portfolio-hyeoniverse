@@ -10,6 +10,14 @@
   will-change: opacity;
   transition: opacity var(--duration-base) var(--ease-standard);
 }
+
+/* 열리기 전(서버 HTML ~ 하이드레이션) — [popover] 는 열리기 전에는 UA 가 display: none 으로 숨겨서, showPopover() 가
+   불릴 때까지 덮개 없이 페이지가 먼저 보였다. 닫힌 동안에도 그리고, 페이지의 고정 UI(float) 위 · 로딩 로고 밑에 둔다.
+   열리면 top layer 라 z-index 는 상관없다 */
+.loadingScreen:not(:popover-open) {
+  display: block;
+  z-index: calc(var(--z-index-float) + 1);
+}
 @media (width > 768px) {
   .loadingScreen {
     transition: opacity var(--duration-base) var(--ease-standard);

@@ -4,7 +4,7 @@ import css from "../../AboutStudio.module.css";
 import { ChipList } from "../listControls";
 import { EditableText, PanelStage, sec, useL } from "../primitives";
 import { StageTabs, useStageList } from "../stageList";
-import bk from "@/app/about/_components/panels/BackendPanel.module.css";
+import bk from "@/app/about/_panels/panels/BackendPanel.module.css";
 import { X } from "@/components/icons";
 import Button from "@/components/ui/Button";
 import SegmentedControl from "@/components/ui/SegmentedControl";
