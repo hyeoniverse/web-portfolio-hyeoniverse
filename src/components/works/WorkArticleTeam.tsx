@@ -14,6 +14,26 @@ import T from "@/components/ui/T";
 import styles from "./WorkArticleTeam.module.css";
 import type { WorkArticleViewProps } from "./workArticleTypes";
 
+/* 프로필 소개가 "영문 :: 국문" 처럼 두 언어를 한 줄에 이어 쓴 경우 — 보는 언어 쪽 하나만 남긴다.
+   한글이 든 조각을 국문으로 본다. 나눌 수 없으면 그대로 */
+function pickBioLang(bio: string, lang: "ko" | "en"): string {
+  const parts = bio.split(/\s+::\s+/).map((p) => p.trim()).filter(Boolean);
+  if (parts.length < 2) return bio;
+  const hasHangul = (t: string) => /[\uAC00-\uD7A3]/.test(t);
+  const ko = parts.find(hasHangul);
+  const en = parts.find((p) => !hasHangul(p));
+  /* 앞에 붙은 이모지 등은 첫 조각에만 있으니 국문 쪽에도 옮겨 준다 */
+  const lead = parts[0].match(/^\p{Extended_Pictographic}[\p{Extended_Pictographic}\u200d\ufe0f\s]*/u)?.[0] ?? "";
+  const pick = lang === "en" ? en ?? ko : ko ?? en;
+  if (!pick) return bio;
+  return pick.startsWith(lead.trim()) ? pick : `${lead}${pick}`;
+}
+
+/* 역할 한 줄("기획, 디자인, 프론트엔드")을 칩으로 나눌 조각들 */
+function splitRoles(role: string): string[] {
+  return role.split(/\s*[,·/|]\s*/).map((r) => r.trim()).filter(Boolean);
+}
+
 /* 뒷면은 앞면 크기에 고정이라(카드가 늘면 캐러셀이 출렁인다) 넘치는 내용은 안에서 스크롤한다.
    스크롤바는 사이트 전체에서 숨겨 두어 잘린 것처럼 보이므로, 아래가 남아 있는 동안만 카드 안쪽에 data-more 를 달아
    아래쪽을 흐리게 하고 ↓ 표시를 띄운다. 번역으로 소개 · 기여가 길어질 때 특히 필요하다 */
@@ -119,7 +139,7 @@ export function WorkArticleTeam({ project, viewLang }: WorkArticleViewProps) {
   const getBio = (m: typeof members[number]) => {
     const ko = m.bio?.ko?.trim() ?? "";
     const en = m.bio?.en?.trim() ?? "";
-    return viewLang === "en" ? en || ko : ko || en;
+    return pickBioLang(viewLang === "en" ? en || ko : ko || en, viewLang);
   };
   /* ko · en 밖의 언어로 읽을 때도 영어 이름 — 음역하지 않는다 */
   const getDisplayName = (m: typeof members[number]) =>
@@ -249,13 +269,12 @@ export function WorkArticleTeam({ project, viewLang }: WorkArticleViewProps) {
                         styles.polaroidBackContribList,
                       )
                     ) : (
-                      <div className={styles.polaroidBackContribs}>
-                        <div className={styles.polaroidBackContribGroup}>
-                          <div className={styles.polaroidBackContribRole}>
-                            <T ko={m.role.ko} en={m.role.en} />
-                          </div>
-                        </div>
-                      </div>
+                      /* 기여 목록이 없으면 역할을 칩으로 — 쉼표로 이은 한 줄은 대문자 · 자간 때문에 읽기 어려웠다 */
+                      <ul className={styles.polaroidBackRoleChips}>
+                        {splitRoles((viewLang === "en" ? m.role.en || m.role.ko : m.role.ko || m.role.en) ?? "").map((r) => (
+                          <li key={r} className={styles.polaroidBackRoleChip}>{r}</li>
+                        ))}
+                      </ul>
                     )}
                   </div>
                   <span className={styles.polaroidBackMore} aria-hidden><ArrowDown size={12} /></span>

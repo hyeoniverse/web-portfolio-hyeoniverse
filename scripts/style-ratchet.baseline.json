@@ -304,7 +304,7 @@
     "src/components/works/WorkArticleBody.module.css": 3,
     "src/components/works/WorkArticleHeader.module.css": 2,
     "src/components/works/WorkArticleInfoGrid.module.css": 3,
-    "src/components/works/WorkArticleTeam.module.css": 4,
+    "src/components/works/WorkArticleTeam.module.css": 3,
     "src/components/works/WorkEditor.module.css": 13,
     "src/components/works/WorkGallery.module.css": 1,
     "src/styles/globals/_base.css": 3,
