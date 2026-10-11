@@ -17,7 +17,7 @@ interface HorizontalCarouselProps {
  * - `data-scrollable` attribute 노출 → 사용처 CSS 분기 가능
  * - scroll 가능 + 끝까지 안 갔을 때만 좌우 arrow / mask 표시
  * - 데스크탑 마우스 drag scroll (touch 는 native overflow scroll)
- * - wheel 수직 → 가로 redirect (양 끝 도달 시 페이지 scroll 패스스루). 가두는 동안에는 캡처 단계에서
+ * - wheel 수직 → 가로 redirect (양 끝 도달 시 페이지 scroll 패스스루). 안쪽에 세로 스크롤 칸이 있고 더 내려갈 수 있으면 그 칸이 먼저. 가두는 동안에는 캡처 단계에서
  *   stopPropagation — 전역 Lenis 가 휠을 가로채 페이지까지 같이 미는 것을 막는다
  * - arrow 꾹 누르면 long press scroll (시간 지날수록 빨라짐)
  */
@@ -54,6 +54,14 @@ export default function HorizontalCarousel({
       if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
       const delta = e.deltaY;
       if (delta === 0) return;
+      /* 안쪽에 세로로 스크롤되는 칸(팀 카드 뒷면 등)이 그 방향으로 더 갈 수 있으면 그 칸에 양보한다 */
+      for (let n = e.target as HTMLElement | null; n && n !== el; n = n.parentElement) {
+        const oy = getComputedStyle(n).overflowY;
+        if ((oy === "auto" || oy === "scroll") && n.scrollHeight > n.clientHeight + 1) {
+          const can = delta > 0 ? n.scrollTop + n.clientHeight < n.scrollHeight - 1 : n.scrollTop > 0;
+          if (can) { e.stopPropagation(); return; }
+        }
+      }
       const atStart = el.scrollLeft <= 0 && delta < 0;
       const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 1 && delta > 0;
       if (atStart || atEnd) return;

@@ -206,7 +206,7 @@ export function WorkArticleTeam({ project, viewLang }: WorkArticleViewProps) {
                 </div>
                 {hasBack && (
                   <>
-                  <div className={styles.polaroidBack} ref={watchMore}>
+                  <div className={styles.polaroidBack} ref={watchMore} data-lenis-prevent>
                     <div className={styles.polaroidBackHeader}>
                       <span className={styles.polaroidBackName}>{getDisplayName(m)}</span>
                       {(m.url || m.email) && (
